@@ -1,358 +1,544 @@
-Return-path: <tomas.winkler@intel.com>
-From: Tomas Winkler <tomas.winkler@intel.com>
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:57731 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932788AbbLRQjK (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 18 Dec 2015 11:39:10 -0500
+Subject: Re: [char-misc-next v2 3/7] watchdog: mei_wdt: implement MEI iAMT
+ watchdog driver
+To: Tomas Winkler <tomas.winkler@intel.com>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
 	Wim Van Sebroeck <wim@iguana.be>
-Cc: Alexander Usyskin <alexander.usyskin@intel.com>,
-	Guenter Roeck <linux@roeck-us.net>,
-	linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Tomas Winkler <tomas.winkler@intel.com>
-Subject: [char-misc-next v2 6/7] watchdog: mei_wdt: register wd device only if required
-Date: Thu, 17 Dec 2015 16:49:39 +0200
-Message-Id: <1450363780-30008-7-git-send-email-tomas.winkler@intel.com>
-In-Reply-To: <1450363780-30008-1-git-send-email-tomas.winkler@intel.com>
 References: <1450363780-30008-1-git-send-email-tomas.winkler@intel.com>
-List-ID: <linux-watchdog@vger.kernel.org>
+ <1450363780-30008-4-git-send-email-tomas.winkler@intel.com>
+Cc: Alexander Usyskin <alexander.usyskin@intel.com>,
+	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <567436A7.6090607@roeck-us.net>
+Date: Fri, 18 Dec 2015 08:39:03 -0800
+MIME-Version: 1.0
+In-Reply-To: <1450363780-30008-4-git-send-email-tomas.winkler@intel.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-From: Alexander Usyskin <alexander.usyskin@intel.com>
+On 12/17/2015 06:49 AM, Tomas Winkler wrote:
+> Create a driver with the generic watchdog interface
+> for the MEI iAMT watchdog device.
+>
+> Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
+> Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
 
-For Intel Broadwell and newer platforms, the ME device can inform
-the host whether the watchdog functionality is activated or not.
-If the watchdog functionality is not activated then the watchdog interface
-can be not registered and eliminate unnecessary pings and hence lower the
-power consumption by avoiding waking up the device.
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
-Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
----
-V2: rework unregistration
+> ---
+> V2: The watchdog device is no longer dynamically allocated in separate structure
+>
+>   Documentation/misc-devices/mei/mei.txt |  12 +-
+>   MAINTAINERS                            |   1 +
+>   drivers/watchdog/Kconfig               |  15 ++
+>   drivers/watchdog/Makefile              |   1 +
+>   drivers/watchdog/mei_wdt.c             | 415 +++++++++++++++++++++++++++++++++
+>   5 files changed, 438 insertions(+), 6 deletions(-)
+>   create mode 100644 drivers/watchdog/mei_wdt.c
+>
+> diff --git a/Documentation/misc-devices/mei/mei.txt b/Documentation/misc-devices/mei/mei.txt
+> index 91c1fa34f48b..2b80a0cd621f 100644
+> --- a/Documentation/misc-devices/mei/mei.txt
+> +++ b/Documentation/misc-devices/mei/mei.txt
+> @@ -231,15 +231,15 @@ IT knows when a platform crashes even when there is a hard failure on the host.
+>   The Intel AMT Watchdog is composed of two parts:
+>   	1) Firmware feature - receives the heartbeats
+>   	   and sends an event when the heartbeats stop.
+> -	2) Intel MEI driver - connects to the watchdog feature, configures the
+> -	   watchdog and sends the heartbeats.
+> +	2) Intel MEI iAMT watchdog driver - connects to the watchdog feature,
+> +	   configures the watchdog and sends the heartbeats.
+>
+> -The Intel MEI driver uses the kernel watchdog API to configure the Intel AMT
+> -Watchdog and to send heartbeats to it. The default timeout of the
+> +The Intel iAMT watchdog MEI driver uses the kernel watchdog API to configure
+> +the Intel AMT Watchdog and to send heartbeats to it. The default timeout of the
+>   watchdog is 120 seconds.
+>
+> -If the Intel AMT Watchdog feature does not exist (i.e. the connection failed),
+> -the Intel MEI driver will disable the sending of heartbeats.
+> +If the Intel AMT is not enabled in the firmware then the watchdog client won't enumerate
+> +on the me client bus and watchdog devices won't be exposed.
+>
+>
+>   Supported Chipsets
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index 9bff63cf326e..e655625c2c16 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -5666,6 +5666,7 @@ S:	Supported
+>   F:	include/uapi/linux/mei.h
+>   F:	include/linux/mei_cl_bus.h
+>   F:	drivers/misc/mei/*
+> +F:	drivers/watchdog/mei_wdt.c
+>   F:	Documentation/misc-devices/mei/*
+>
+>   INTEL MIC DRIVERS (mic)
+> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> index 1c427beffadd..8ac51d69785c 100644
+> --- a/drivers/watchdog/Kconfig
+> +++ b/drivers/watchdog/Kconfig
+> @@ -1154,6 +1154,21 @@ config SBC_EPX_C3_WATCHDOG
+>   	  To compile this driver as a module, choose M here: the
+>   	  module will be called sbc_epx_c3.
+>
+> +config INTEL_MEI_WDT
+> +	tristate "Intel MEI iAMT Watchdog"
+> +	depends on INTEL_MEI && X86
+> +	select WATCHDOG_CORE
+> +	---help---
+> +	  A device driver for the Intel MEI iAMT watchdog.
+> +
+> +	  The Intel AMT Watchdog is an OS Health (Hang/Crash) watchdog.
+> +	  Whenever the OS hangs or crashes, iAMT will send an event
+> +	  to any subscriber to this event. The watchdog doesn't reset the
+> +	  the platform.
+> +
+> +	  To compile this driver as a module, choose M here:
+> +	  the module will be called mei_wdt.
+> +
+>   # M32R Architecture
+>
+>   # M68K Architecture
+> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+> index 53d4827ddfe1..9069c9dd8aa8 100644
+> --- a/drivers/watchdog/Makefile
+> +++ b/drivers/watchdog/Makefile
+> @@ -123,6 +123,7 @@ obj-$(CONFIG_MACHZ_WDT) += machzwd.o
+>   obj-$(CONFIG_SBC_EPX_C3_WATCHDOG) += sbc_epx_c3.o
+>   obj-$(CONFIG_INTEL_SCU_WATCHDOG) += intel_scu_watchdog.o
+>   obj-$(CONFIG_INTEL_MID_WATCHDOG) += intel-mid_wdt.o
+> +obj-$(CONFIG_INTEL_MEI_WDT) += mei_wdt.o
+>
+>   # M32R Architecture
+>
+> diff --git a/drivers/watchdog/mei_wdt.c b/drivers/watchdog/mei_wdt.c
+> new file mode 100644
+> index 000000000000..3c97deb70d90
+> --- /dev/null
+> +++ b/drivers/watchdog/mei_wdt.c
+> @@ -0,0 +1,415 @@
+> +/*
+> + * Intel Management Engine Interface (Intel MEI) Linux driver
+> + * Copyright (c) 2015, Intel Corporation.
+> + *
+> + * This program is free software; you can redistribute it and/or modify it
+> + * under the terms and conditions of the GNU General Public License,
+> + * version 2, as published by the Free Software Foundation.
+> + *
+> + * This program is distributed in the hope it will be useful, but WITHOUT
+> + * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+> + * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+> + * more details.
+> + */
+> +
+> +#include <linux/module.h>
+> +#include <linux/slab.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/watchdog.h>
+> +
+> +#include <linux/uuid.h>
+> +#include <linux/mei_cl_bus.h>
+> +
+> +/*
+> + * iAMT Watchdog Device
+> + */
+> +#define INTEL_AMT_WATCHDOG_ID "iamt_wdt"
+> +
+> +#define MEI_WDT_DEFAULT_TIMEOUT   120  /* seconds */
+> +#define MEI_WDT_MIN_TIMEOUT       120  /* seconds */
+> +#define MEI_WDT_MAX_TIMEOUT     65535  /* seconds */
+> +
+> +/* Commands */
+> +#define MEI_MANAGEMENT_CONTROL 0x02
+> +
+> +/* MEI Management Control version number */
+> +#define MEI_MC_VERSION_NUMBER  0x10
+> +
+> +/* Sub Commands */
+> +#define MEI_MC_START_WD_TIMER_REQ  0x13
+> +#define MEI_MC_STOP_WD_TIMER_REQ   0x14
+> +
+> +/**
+> + * enum mei_wdt_state - internal watchdog state
+> + *
+> + * @MEI_WDT_IDLE: wd is idle and not opened
+> + * @MEI_WDT_START: wd was opened, start was called
+> + * @MEI_WDT_RUNNING: wd is expecting keep alive pings
+> + * @MEI_WDT_STOPPING: wd is stopping and will move to IDLE
+> + */
+> +enum mei_wdt_state {
+> +	MEI_WDT_IDLE,
+> +	MEI_WDT_START,
+> +	MEI_WDT_RUNNING,
+> +	MEI_WDT_STOPPING,
+> +};
+> +
+> +/**
+> + * struct mei_wdt - mei watchdog driver
+> + * @wdd: watchdog device
+> + * @refcnt: watchdog device reference counter
+> + *
+> + * @state: watchdog internal state
+> + * @cldev: mei watchdog client device
+> + * @timeout: watchdog current timeout
+> + */
+> +struct mei_wdt {
+> +	struct watchdog_device wdd;
+> +	struct kref refcnt;
+> +
+> +	struct mei_cl_device *cldev;
+> +	enum mei_wdt_state state;
+> +	u16 timeout;
+> +};
+> +
+> +/*
+> + * struct mei_mc_hdr - Management Control Command Header
+> + *
+> + * @command: Management Control (0x2)
+> + * @bytecount: Number of bytes in the message beyond this byte
+> + * @subcommand: Management Control Subcommand
+> + * @versionnumber: Management Control Version (0x10)
+> + */
+> +struct mei_mc_hdr {
+> +	u8 command;
+> +	u8 bytecount;
+> +	u8 subcommand;
+> +	u8 versionnumber;
+> +};
+> +
+> +/**
+> + * struct mei_wdt_start_request watchdog start/ping
+> + *
+> + * @hdr: Management Control Command Header
+> + * @timeout: timeout value
+> + * @reserved: reserved (legacy)
+> + */
+> +struct mei_wdt_start_request {
+> +	struct mei_mc_hdr hdr;
+> +	u16 timeout;
+> +	u8 reserved[17];
+> +} __packed;
+> +
+> +/**
+> + * struct mei_wdt_stop_request - watchdog stop
+> + *
+> + * @hdr: Management Control Command Header
+> + */
+> +struct mei_wdt_stop_request {
+> +	struct mei_mc_hdr hdr;
+> +} __packed;
+> +
+> +/**
+> + * mei_wdt_ping - send wd start/ping command
+> + *
+> + * @wdt: mei watchdog device
+> + *
+> + * Return: 0 on success,
+> + *         negative errno code on failure
+> + */
+> +static int mei_wdt_ping(struct mei_wdt *wdt)
+> +{
+> +	struct mei_wdt_start_request req;
+> +	const size_t req_len = sizeof(req);
+> +	int ret;
+> +
+> +	memset(&req, 0, req_len);
+> +	req.hdr.command = MEI_MANAGEMENT_CONTROL;
+> +	req.hdr.bytecount = req_len - offsetof(struct mei_mc_hdr, subcommand);
+> +	req.hdr.subcommand = MEI_MC_START_WD_TIMER_REQ;
+> +	req.hdr.versionnumber = MEI_MC_VERSION_NUMBER;
+> +	req.timeout = wdt->timeout;
+> +
+> +	ret = mei_cldev_send(wdt->cldev, (u8 *)&req, req_len);
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	return 0;
+> +}
+> +
+> +/**
+> + * mei_wdt_stop - send wd stop command
+> + *
+> + * @wdt: mei watchdog device
+> + *
+> + * Return: 0 on success,
+> + *         negative errno code on failure
+> + */
+> +static int mei_wdt_stop(struct mei_wdt *wdt)
+> +{
+> +	struct mei_wdt_stop_request req;
+> +	const size_t req_len = sizeof(req);
+> +	int ret;
+> +
+> +	memset(&req, 0, req_len);
+> +	req.hdr.command = MEI_MANAGEMENT_CONTROL;
+> +	req.hdr.bytecount = req_len - offsetof(struct mei_mc_hdr, subcommand);
+> +	req.hdr.subcommand = MEI_MC_STOP_WD_TIMER_REQ;
+> +	req.hdr.versionnumber = MEI_MC_VERSION_NUMBER;
+> +
+> +	ret = mei_cldev_send(wdt->cldev, (u8 *)&req, req_len);
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	return 0;
+> +}
+> +
+> +static void mei_wdt_release(struct kref *ref)
+> +{
+> +	struct mei_wdt *wdt = container_of(ref, struct mei_wdt, refcnt);
+> +
+> +	kfree(wdt);
+> +}
+> +
+> +/**
+> + * mei_wdt_register - register with the watchdog subsystem
+> + *
+> + * @wdt: mei watchdog device
+> + *
+> + * Return: 0 if success, negative errno code for failure
+> + */
+> +static int mei_wdt_register(struct mei_wdt *wdt)
+> +{
+> +	struct device *dev;
+> +	int ret;
+> +
+> +	dev = &wdt->cldev->dev;
+> +
+> +	watchdog_set_drvdata(&wdt->wdd, wdt);
+> +
+> +	ret = watchdog_register_device(&wdt->wdd);
+> +	if (ret) {
+> +		dev_err(dev, "unable to register watchdog device = %d.\n", ret);
+> +		return ret;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +/**
+> + * mei_wdt_ops_start - wd start command from the watchdog core.
+> + *
+> + * @wdd: watchdog device
+> + *
+> + * Return: 0
+> + */
+> +static int mei_wdt_ops_start(struct watchdog_device *wdd)
+> +{
+> +	struct mei_wdt *wdt = watchdog_get_drvdata(wdd);
+> +
+> +	wdt->state = MEI_WDT_START;
+> +	wdd->timeout = wdt->timeout;
+> +	return 0;
+> +}
+> +
+> +/**
+> + * mei_wdt_ops_stop - wd stop command from the watchdog core.
+> + *
+> + * @wdd: watchdog device
+> + *
+> + * Return: 0 if success, negative errno code for failure
+> + */
+> +static int mei_wdt_ops_stop(struct watchdog_device *wdd)
+> +{
+> +	struct mei_wdt *wdt = watchdog_get_drvdata(wdd);
+> +	int ret;
+> +
+> +	if (wdt->state != MEI_WDT_RUNNING)
+> +		return 0;
+> +
+> +	wdt->state = MEI_WDT_STOPPING;
+> +
+> +	ret = mei_wdt_stop(wdt);
+> +	if (ret)
+> +		return ret;
+> +
+> +	wdt->state = MEI_WDT_IDLE;
+> +
+> +	return 0;
+> +}
+> +
+> +/**
+> + * mei_wdt_ops_ping - wd ping command from the watchdog core.
+> + *
+> + * @wdd: watchdog device
+> + *
+> + * Return: 0 if success, negative errno code on failure
+> + */
+> +static int mei_wdt_ops_ping(struct watchdog_device *wdd)
+> +{
+> +	struct mei_wdt *wdt = watchdog_get_drvdata(wdd);
+> +	int ret;
+> +
+> +	if (wdt->state != MEI_WDT_START && wdt->state != MEI_WDT_RUNNING)
+> +		return 0;
+> +
+> +	ret = mei_wdt_ping(wdt);
+> +	if (ret)
+> +		return ret;
+> +
+> +	wdt->state = MEI_WDT_RUNNING;
+> +
+> +	return 0;
+> +}
+> +
+> +/**
+> + * mei_wdt_ops_set_timeout - wd set timeout command from the watchdog core.
+> + *
+> + * @wdd: watchdog device
+> + * @timeout: timeout value to set
+> + *
+> + * Return: 0 if success, negative errno code for failure
+> + */
+> +static int mei_wdt_ops_set_timeout(struct watchdog_device *wdd,
+> +				   unsigned int timeout)
+> +{
+> +	struct mei_wdt *wdt = watchdog_get_drvdata(wdd);
+> +
+> +	/* valid value is already checked by the caller */
+> +	wdt->timeout = timeout;
+> +	wdd->timeout = timeout;
+> +
+> +	return 0;
+> +}
+> +
+> +static void mei_wdt_ops_ref(struct watchdog_device *wdd)
+> +{
+> +	struct mei_wdt *wdt = watchdog_get_drvdata(wdd);
+> +
+> +	kref_get(&wdt->refcnt);
+> +}
+> +
+> +static void mei_wdt_ops_unref(struct watchdog_device *wdd)
+> +{
+> +	struct mei_wdt *wdt = watchdog_get_drvdata(wdd);
+> +
+> +	kref_put(&wdt->refcnt, mei_wdt_release);
+> +}
+> +
+> +static const struct watchdog_ops wd_ops = {
+> +	.owner       = THIS_MODULE,
+> +	.start       = mei_wdt_ops_start,
+> +	.stop        = mei_wdt_ops_stop,
+> +	.ping        = mei_wdt_ops_ping,
+> +	.set_timeout = mei_wdt_ops_set_timeout,
+> +	.ref         = mei_wdt_ops_ref,
+> +	.unref       = mei_wdt_ops_unref,
+> +};
+> +
+> +static struct watchdog_info wd_info = {
+> +	.identity = INTEL_AMT_WATCHDOG_ID,
+> +	.options  = WDIOF_KEEPALIVEPING |
+> +		    WDIOF_SETTIMEOUT |
+> +		    WDIOF_ALARMONLY,
+> +};
+> +
+> +static int mei_wdt_probe(struct mei_cl_device *cldev,
+> +			 const struct mei_cl_device_id *id)
+> +{
+> +	struct mei_wdt *wdt;
+> +	int ret;
+> +
+> +	wdt = kzalloc(sizeof(struct mei_wdt), GFP_KERNEL);
+> +	if (!wdt)
+> +		return -ENOMEM;
+> +
+> +	kref_init(&wdt->refcnt);
+> +	wdt->timeout = MEI_WDT_DEFAULT_TIMEOUT;
+> +	wdt->state = MEI_WDT_IDLE;
+> +	wdt->cldev = cldev;
+> +	mei_cldev_set_drvdata(cldev, wdt);
+> +
+> +	ret = mei_cldev_enable(cldev);
+> +	if (ret < 0) {
+> +		dev_err(&cldev->dev, "Could not enable cl device\n");
+> +		goto err_out;
+> +	}
+> +
+> +	wd_info.firmware_version = mei_cldev_ver(cldev);
+> +
+> +	wdt->wdd.info = &wd_info;
+> +	wdt->wdd.ops = &wd_ops;
+> +	wdt->wdd.parent = &cldev->dev;
+> +	wdt->wdd.timeout = wdt->timeout;
+> +	wdt->wdd.min_timeout = MEI_WDT_MIN_TIMEOUT;
+> +	wdt->wdd.max_timeout = MEI_WDT_MAX_TIMEOUT;
+> +
+> +	ret = mei_wdt_register(wdt);
+> +	if (ret)
+> +		goto err_disable;
+> +
+> +	return 0;
+> +
+> +err_disable:
+> +	mei_cldev_disable(cldev);
+> +
+> +err_out:
+> +	kref_put(&wdt->refcnt, mei_wdt_release);
+> +
+> +	return ret;
+> +}
+> +
+> +static int mei_wdt_remove(struct mei_cl_device *cldev)
+> +{
+> +	struct mei_wdt *wdt = mei_cldev_get_drvdata(cldev);
+> +
+> +	watchdog_unregister_device(&wdt->wdd);
+> +
+> +	kref_put(&wdt->refcnt, mei_wdt_release);
+> +
+> +	mei_cldev_disable(cldev);
+> +
+> +	return 0;
+> +}
+> +
+> +#define MEI_UUID_WD UUID_LE(0x05B79A6F, 0x4628, 0x4D7F, \
+> +			    0x89, 0x9D, 0xA9, 0x15, 0x14, 0xCB, 0x32, 0xAB)
+> +
+> +static struct mei_cl_device_id mei_wdt_tbl[] = {
+> +	{ .uuid = MEI_UUID_WD, .version = 0x1},
+> +	/* required last entry */
+> +	{ }
+> +};
+> +MODULE_DEVICE_TABLE(mei, mei_wdt_tbl);
+> +
+> +static struct mei_cl_driver mei_wdt_driver = {
+> +	.id_table = mei_wdt_tbl,
+> +	.name = KBUILD_MODNAME,
+> +
+> +	.probe = mei_wdt_probe,
+> +	.remove = mei_wdt_remove,
+> +};
+> +
+> +static int __init mei_wdt_init(void)
+> +{
+> +	int ret;
+> +
+> +	ret = mei_cldev_driver_register(&mei_wdt_driver);
+> +	if (ret) {
+> +		pr_err(KBUILD_MODNAME ": module registration failed\n");
+> +		return ret;
+> +	}
+> +	return 0;
+> +}
+> +
+> +static void __exit mei_wdt_exit(void)
+> +{
+> +	mei_cldev_driver_unregister(&mei_wdt_driver);
+> +}
+> +
+> +module_init(mei_wdt_init);
+> +module_exit(mei_wdt_exit);
+> +
+> +MODULE_AUTHOR("Intel Corporation");
+> +MODULE_LICENSE("GPL");
+> +MODULE_DESCRIPTION("Device driver for Intel MEI iAMT watchdog");
+>
 
- drivers/watchdog/mei_wdt.c | 180 +++++++++++++++++++++++++++++++++++++++++----
- 1 file changed, 167 insertions(+), 13 deletions(-)
-
-diff --git a/drivers/watchdog/mei_wdt.c b/drivers/watchdog/mei_wdt.c
-index a3f1c1613c32..00d1b8e630b7 100644
---- a/drivers/watchdog/mei_wdt.c
-+++ b/drivers/watchdog/mei_wdt.c
-@@ -16,6 +16,7 @@
- #include <linux/slab.h>
- #include <linux/interrupt.h>
- #include <linux/watchdog.h>
-+#include <linux/completion.h>
- #include <linux/debugfs.h>
- 
- #include <linux/uuid.h>
-@@ -38,43 +39,54 @@
- 
- /* Sub Commands */
- #define MEI_MC_START_WD_TIMER_REQ  0x13
-+#define MEI_MC_START_WD_TIMER_RES  0x83
-+#define   MEI_WDT_STATUS_SUCCESS 0
-+#define   MEI_WDT_WDSTATE_NOT_REQUIRED 0x1
- #define MEI_MC_STOP_WD_TIMER_REQ   0x14
- 
- /**
-  * enum mei_wdt_state - internal watchdog state
-  *
-+ * @MEI_WDT_PROBE: wd in probing stage
-  * @MEI_WDT_IDLE: wd is idle and not opened
-  * @MEI_WDT_START: wd was opened, start was called
-  * @MEI_WDT_RUNNING: wd is expecting keep alive pings
-  * @MEI_WDT_STOPPING: wd is stopping and will move to IDLE
-+ * @MEI_WDT_NOT_REQUIRED: wd device is not required
-  */
- enum mei_wdt_state {
-+	MEI_WDT_PROBE,
- 	MEI_WDT_IDLE,
- 	MEI_WDT_START,
- 	MEI_WDT_RUNNING,
- 	MEI_WDT_STOPPING,
-+	MEI_WDT_NOT_REQUIRED,
- };
- 
--#if IS_ENABLED(CONFIG_DEBUG_FS)
- static const char *mei_wdt_state_str(enum mei_wdt_state state)
- {
- 	switch (state) {
-+	case MEI_WDT_PROBE: return "PROBE";
- 	case MEI_WDT_IDLE: return "IDLE";
- 	case MEI_WDT_START: return "START";
- 	case MEI_WDT_RUNNING: return "RUNNING";
- 	case MEI_WDT_STOPPING: return "STOPPING";
-+	case MEI_WDT_NOT_REQUIRED: return "NOT_REQUIRED";
- 	default: return "unknown";
- 	}
- }
--#endif /* CONFIG_DEBUG_FS */
- 
- /**
-  * struct mei_wdt - mei watchdog driver
-  * @wdd: watchdog device
-  * @refcnt: watchdog device reference counter
-+ * @reg_lock: watchdog device registration lock
-+ * @is_registered: is watchdog device registered
-  *
-- * @state: watchdog internal state
-  * @cldev: mei watchdog client device
-+ * @state: watchdog internal state
-+ * @resp_required: ping required response
-+ * @response: ping response
-  * @timeout: watchdog current timeout
-  *
-  * @dbgfs_dir: debugfs dir entry
-@@ -82,9 +94,13 @@ static const char *mei_wdt_state_str(enum mei_wdt_state state)
- struct mei_wdt {
- 	struct watchdog_device wdd;
- 	struct kref refcnt;
-+	struct mutex reg_lock;
-+	bool   is_registered;
- 
- 	struct mei_cl_device *cldev;
- 	enum mei_wdt_state state;
-+	bool resp_required;
-+	struct completion response;
- 	u16 timeout;
- 
- #if IS_ENABLED(CONFIG_DEBUG_FS)
-@@ -121,6 +137,19 @@ struct mei_wdt_start_request {
- } __packed;
- 
- /**
-+ * struct mei_wdt_start_response watchdog start/ping response
-+ *
-+ * @hdr: Management Control Command Header
-+ * @status: operation status
-+ * @wdstate: watchdog status bit mask
-+ */
-+struct mei_wdt_start_response {
-+	struct mei_mc_hdr hdr;
-+	u8 status;
-+	u8 wdstate;
-+} __packed;
-+
-+/**
-  * struct mei_wdt_stop_request - watchdog stop
-  *
-  * @hdr: Management Control Command Header
-@@ -192,6 +221,23 @@ static void mei_wdt_release(struct kref *ref)
- }
- 
- /**
-+ * mei_wdt_unregister - unregister from the watchdog subsystem
-+ *
-+ * @wdt: mei watchdog device
-+ */
-+static void mei_wdt_unregister(struct mei_wdt *wdt)
-+{
-+
-+	mutex_lock(&wdt->reg_lock);
-+	if (wdt->is_registered) {
-+		clear_bit(WDOG_ACTIVE, &wdt->wdd.status);
-+		watchdog_unregister_device(&wdt->wdd);
-+		wdt->is_registered = false;
-+	}
-+	mutex_unlock(&wdt->reg_lock);
-+}
-+
-+/**
-  * mei_wdt_register - register with the watchdog subsystem
-  *
-  * @wdt: mei watchdog device
-@@ -205,15 +251,20 @@ static int mei_wdt_register(struct mei_wdt *wdt)
- 
- 	dev = &wdt->cldev->dev;
- 
--	watchdog_set_drvdata(&wdt->wdd, wdt);
-+	wdt->state = MEI_WDT_IDLE;
- 
-+	mutex_lock(&wdt->reg_lock);
-+	clear_bit(WDOG_UNREGISTERED, &wdt->wdd.status);
-+	watchdog_set_drvdata(&wdt->wdd, wdt);
- 	ret = watchdog_register_device(&wdt->wdd);
- 	if (ret) {
- 		dev_err(dev, "unable to register watchdog device = %d.\n", ret);
--		return ret;
-+		watchdog_set_drvdata(&wdt->wdd, NULL);
- 	}
-+	wdt->is_registered = true;
-+	mutex_unlock(&wdt->reg_lock);
- 
--	return 0;
-+	return ret;
- }
- 
- /**
-@@ -259,6 +310,83 @@ static int mei_wdt_ops_stop(struct watchdog_device *wdd)
- }
- 
- /**
-+ * mei_wdt_event_rx - callback for data receive
-+ *
-+ * @cldev: bus device
-+ */
-+static void mei_wdt_event_rx(struct mei_cl_device *cldev)
-+{
-+	struct mei_wdt *wdt = mei_cldev_get_drvdata(cldev);
-+	struct mei_wdt_start_response res;
-+	const size_t res_len = sizeof(res);
-+	int ret;
-+
-+	ret = mei_cldev_recv(wdt->cldev, (u8 *)&res, res_len);
-+	if (ret < 0) {
-+		dev_err(&cldev->dev, "failure in recv %d\n", ret);
-+		return;
-+	}
-+
-+	/* Empty response can be sent on stop */
-+	if (ret == 0)
-+		return;
-+
-+	if (ret < sizeof(struct mei_mc_hdr)) {
-+		dev_err(&cldev->dev, "recv small data %d\n", ret);
-+		return;
-+	}
-+
-+	if (res.hdr.command != MEI_MANAGEMENT_CONTROL ||
-+	    res.hdr.versionnumber != MEI_MC_VERSION_NUMBER) {
-+		dev_err(&cldev->dev, "wrong command received\n");
-+		return;
-+	}
-+
-+	if (res.hdr.subcommand != MEI_MC_START_WD_TIMER_RES) {
-+		dev_warn(&cldev->dev, "unsupported command %d :%s[%d]\n",
-+			 res.hdr.subcommand,
-+			 mei_wdt_state_str(wdt->state),
-+			 wdt->state);
-+		return;
-+	}
-+
-+	if (wdt->state == MEI_WDT_RUNNING)
-+		goto out;
-+
-+	if (wdt->state == MEI_WDT_PROBE) {
-+		if (res.wdstate & MEI_WDT_WDSTATE_NOT_REQUIRED) {
-+			wdt->state = MEI_WDT_NOT_REQUIRED;
-+		} else {
-+			/* stop the ping register watchdog device */
-+			mei_wdt_stop(wdt);
-+			mei_wdt_register(wdt);
-+		}
-+		return;
-+	}
-+
-+	dev_warn(&cldev->dev, "not in correct state %s[%d]\n",
-+			 mei_wdt_state_str(wdt->state), wdt->state);
-+
-+out:
-+	if (!completion_done(&wdt->response))
-+		complete(&wdt->response);
-+}
-+
-+/**
-+ * mei_wdt_event - callback for event receive
-+ *
-+ * @cldev: bus device
-+ * @events: event mask
-+ * @context: callback context
-+ */
-+static void mei_wdt_event(struct mei_cl_device *cldev,
-+			  u32 events, void *context)
-+{
-+	if (events & BIT(MEI_CL_EVENT_RX))
-+		mei_wdt_event_rx(cldev);
-+}
-+
-+/**
-  * mei_wdt_ops_ping - wd ping command from the watchdog core.
-  *
-  * @wdd: watchdog device
-@@ -273,13 +401,18 @@ static int mei_wdt_ops_ping(struct watchdog_device *wdd)
- 	if (wdt->state != MEI_WDT_START && wdt->state != MEI_WDT_RUNNING)
- 		return 0;
- 
-+	if (wdt->resp_required)
-+		init_completion(&wdt->response);
-+
-+	wdt->state = MEI_WDT_RUNNING;
- 	ret = mei_wdt_ping(wdt);
- 	if (ret)
- 		return ret;
- 
--	wdt->state = MEI_WDT_RUNNING;
-+	if (wdt->resp_required)
-+		ret = wait_for_completion_killable(&wdt->response);
- 
--	return 0;
-+	return ret;
- }
- 
- /**
-@@ -405,8 +538,13 @@ static int mei_wdt_probe(struct mei_cl_device *cldev,
- 
- 	kref_init(&wdt->refcnt);
- 	wdt->timeout = MEI_WDT_DEFAULT_TIMEOUT;
--	wdt->state = MEI_WDT_IDLE;
-+	wdt->state = MEI_WDT_PROBE;
- 	wdt->cldev = cldev;
-+	wdt->resp_required = mei_cldev_ver(cldev) > 0x1;
-+	mutex_init(&wdt->reg_lock);
-+	wdt->is_registered = false;
-+	init_completion(&wdt->response);
-+
- 	mei_cldev_set_drvdata(cldev, wdt);
- 
- 	ret = mei_cldev_enable(cldev);
-@@ -415,6 +553,13 @@ static int mei_wdt_probe(struct mei_cl_device *cldev,
- 		goto err_out;
- 	}
- 
-+	ret = mei_cldev_register_event_cb(wdt->cldev, BIT(MEI_CL_EVENT_RX),
-+					  mei_wdt_event, NULL);
-+	if (ret) {
-+		dev_err(&cldev->dev, "Could not register event ret=%d\n", ret);
-+		goto err_disable;
-+	}
-+
- 	wd_info.firmware_version = mei_cldev_ver(cldev);
- 
- 	wdt->wdd.info = &wd_info;
-@@ -424,8 +569,13 @@ static int mei_wdt_probe(struct mei_cl_device *cldev,
- 	wdt->wdd.min_timeout = MEI_WDT_MIN_TIMEOUT;
- 	wdt->wdd.max_timeout = MEI_WDT_MAX_TIMEOUT;
- 
--	ret = mei_wdt_register(wdt);
--	if (ret)
-+	/* register after ping response */
-+	if (wdt->resp_required)
-+		ret = mei_wdt_ping(wdt);
-+	else
-+		ret = mei_wdt_register(wdt);
-+
-+	if (ret < 0)
- 		goto err_disable;
- 
- 	dbgfs_register(wdt);
-@@ -445,7 +595,11 @@ static int mei_wdt_remove(struct mei_cl_device *cldev)
- {
- 	struct mei_wdt *wdt = mei_cldev_get_drvdata(cldev);
- 
--	watchdog_unregister_device(&wdt->wdd);
-+	/* Free the caller in case of fw initiated or unexpected reset */
-+	if (!completion_done(&wdt->response))
-+		complete(&wdt->response);
-+
-+	mei_wdt_unregister(wdt);
- 
- 	kref_put(&wdt->refcnt, mei_wdt_release);
- 
-@@ -460,7 +614,7 @@ static int mei_wdt_remove(struct mei_cl_device *cldev)
- 			    0x89, 0x9D, 0xA9, 0x15, 0x14, 0xCB, 0x32, 0xAB)
- 
- static struct mei_cl_device_id mei_wdt_tbl[] = {
--	{ .uuid = MEI_UUID_WD, .version = 0x1},
-+	{ .uuid = MEI_UUID_WD, .version = MEI_CL_VERSION_ANY },
- 	/* required last entry */
- 	{ }
- };
--- 
-2.4.3
