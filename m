@@ -1,188 +1,285 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from spo001.leaseweb.nl ([83.149.101.17]:41217 "EHLO
-	spo001.leaseweb.nl" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S932836AbbLPHfZ (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:45814 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750727AbbLTSQm (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 16 Dec 2015 02:35:25 -0500
-Date: Wed, 16 Dec 2015 08:34:56 +0100
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Pratyush Anand <panand@redhat.com>
-Cc: Guenter Roeck <linux@roeck-us.net>,
-	Damien Riegel <damien.riegel@savoirfairelinux.com>,
-	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC/RFT PATCH] watchdog: Move watchdog device creation to watchdog_dev.c
-Message-ID: <20151216073456.GB29639@spo001.leaseweb.nl>
-References: <1449431501-15843-1-git-send-email-linux@roeck-us.net> <20151207161549.GA6030@localhost> <5665B821.7070803@roeck-us.net> <20151207204103.GA17174@spo001.leaseweb.nl> <20151213220243.GB4600@localhost> <566E60A3.5010102@roeck-us.net> <20151214204422.GB15889@spo001.leaseweb.nl> <5670D2F2.2000503@roeck-us.net> <20151216045117.GG4674@dhcppc13.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20151216045117.GG4674@dhcppc13.redhat.com>
+	Sun, 20 Dec 2015 13:16:42 -0500
+Subject: Re: [char-misc-next v2 6/7] watchdog: mei_wdt: register wd device
+ only if required
+To: "Winkler, Tomas" <tomas.winkler@intel.com>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Wim Van Sebroeck <wim@iguana.be>
+References: <1450363780-30008-1-git-send-email-tomas.winkler@intel.com>
+ <1450363780-30008-7-git-send-email-tomas.winkler@intel.com>
+ <56743B3B.4080502@roeck-us.net>
+ <5B8DA87D05A7694D9FA63FD143655C1B540EEA99@hasmsx108.ger.corp.intel.com>
+Cc: "Usyskin, Alexander" <alexander.usyskin@intel.com>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <5676F085.9040204@roeck-us.net>
+Date: Sun, 20 Dec 2015 10:16:37 -0800
+MIME-Version: 1.0
+In-Reply-To: <5B8DA87D05A7694D9FA63FD143655C1B540EEA99@hasmsx108.ger.corp.intel.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Pratyush,
+On 12/20/2015 04:23 AM, Winkler, Tomas wrote:
+>>
+>> On 12/17/2015 06:49 AM, Tomas Winkler wrote:
+>>> From: Alexander Usyskin <alexander.usyskin@intel.com>
+>>>
+>>> For Intel Broadwell and newer platforms, the ME device can inform
+>>> the host whether the watchdog functionality is activated or not.
+>>> If the watchdog functionality is not activated then the watchdog interface
+>>> can be not registered and eliminate unnecessary pings and hence lower the
+>>> power consumption by avoiding waking up the device.
+>>>
+>>> Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
+>>> Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
+>>> ---
+>>> V2: rework unregistration
+>>>
+>>>    drivers/watchdog/mei_wdt.c | 180
+>> +++++++++++++++++++++++++++++++++++++++++----
+>>>    1 file changed, 167 insertions(+), 13 deletions(-)
+>>>
+>>> diff --git a/drivers/watchdog/mei_wdt.c b/drivers/watchdog/mei_wdt.c
+>>> index a3f1c1613c32..00d1b8e630b7 100644
+>>> --- a/drivers/watchdog/mei_wdt.c
+>>> +++ b/drivers/watchdog/mei_wdt.c
+>>> @@ -16,6 +16,7 @@
+>>>    #include <linux/slab.h>
+>>>    #include <linux/interrupt.h>
+>>>    #include <linux/watchdog.h>
+>>> +#include <linux/completion.h>
+>>>    #include <linux/debugfs.h>
+>>>
+>>>    #include <linux/uuid.h>
+>>> @@ -38,43 +39,54 @@
+>>>
+>>>    /* Sub Commands */
+>>>    #define MEI_MC_START_WD_TIMER_REQ  0x13
+>>> +#define MEI_MC_START_WD_TIMER_RES  0x83
+>>> +#define   MEI_WDT_STATUS_SUCCESS 0
+>>> +#define   MEI_WDT_WDSTATE_NOT_REQUIRED 0x1
+>>>    #define MEI_MC_STOP_WD_TIMER_REQ   0x14
+>>>
+>>>    /**
+>>>     * enum mei_wdt_state - internal watchdog state
+>>>     *
+>>> + * @MEI_WDT_PROBE: wd in probing stage
+>>>     * @MEI_WDT_IDLE: wd is idle and not opened
+>>>     * @MEI_WDT_START: wd was opened, start was called
+>>>     * @MEI_WDT_RUNNING: wd is expecting keep alive pings
+>>>     * @MEI_WDT_STOPPING: wd is stopping and will move to IDLE
+>>> + * @MEI_WDT_NOT_REQUIRED: wd device is not required
+>>>     */
+>>>    enum mei_wdt_state {
+>>> +	MEI_WDT_PROBE,
+>>>    	MEI_WDT_IDLE,
+>>>    	MEI_WDT_START,
+>>>    	MEI_WDT_RUNNING,
+>>>    	MEI_WDT_STOPPING,
+>>> +	MEI_WDT_NOT_REQUIRED,
+>>>    };
+>>>
+>>> -#if IS_ENABLED(CONFIG_DEBUG_FS)
+>>>    static const char *mei_wdt_state_str(enum mei_wdt_state state)
+>>>    {
+>>>    	switch (state) {
+>>> +	case MEI_WDT_PROBE: return "PROBE";
+>>>    	case MEI_WDT_IDLE: return "IDLE";
+>>>    	case MEI_WDT_START: return "START";
+>>>    	case MEI_WDT_RUNNING: return "RUNNING";
+>>>    	case MEI_WDT_STOPPING: return "STOPPING";
+>>> +	case MEI_WDT_NOT_REQUIRED: return "NOT_REQUIRED";
+>>>    	default: return "unknown";
+>>>    	}
+>>>    }
+>>> -#endif /* CONFIG_DEBUG_FS */
+>>>
+>>>    /**
+>>>     * struct mei_wdt - mei watchdog driver
+>>>     * @wdd: watchdog device
+>>>     * @refcnt: watchdog device reference counter
+>>> + * @reg_lock: watchdog device registration lock
+>>> + * @is_registered: is watchdog device registered
+>>>     *
+>>> - * @state: watchdog internal state
+>>>     * @cldev: mei watchdog client device
+>>> + * @state: watchdog internal state
+>>> + * @resp_required: ping required response
+>>> + * @response: ping response
+>>>     * @timeout: watchdog current timeout
+>>>     *
+>>>     * @dbgfs_dir: debugfs dir entry
+>>> @@ -82,9 +94,13 @@ static const char *mei_wdt_state_str(enum
+>> mei_wdt_state state)
+>>>    struct mei_wdt {
+>>>    	struct watchdog_device wdd;
+>>>    	struct kref refcnt;
+>>> +	struct mutex reg_lock;
+>>> +	bool   is_registered;
+>>>
+>>>    	struct mei_cl_device *cldev;
+>>>    	enum mei_wdt_state state;
+>>> +	bool resp_required;
+>>> +	struct completion response;
+>>>    	u16 timeout;
+>>>
+>>>    #if IS_ENABLED(CONFIG_DEBUG_FS)
+>>> @@ -121,6 +137,19 @@ struct mei_wdt_start_request {
+>>>    } __packed;
+>>>
+>>>    /**
+>>> + * struct mei_wdt_start_response watchdog start/ping response
+>>> + *
+>>> + * @hdr: Management Control Command Header
+>>> + * @status: operation status
+>>> + * @wdstate: watchdog status bit mask
+>>> + */
+>>> +struct mei_wdt_start_response {
+>>> +	struct mei_mc_hdr hdr;
+>>> +	u8 status;
+>>> +	u8 wdstate;
+>>> +} __packed;
+>>> +
+>>> +/**
+>>>     * struct mei_wdt_stop_request - watchdog stop
+>>>     *
+>>>     * @hdr: Management Control Command Header
+>>> @@ -192,6 +221,23 @@ static void mei_wdt_release(struct kref *ref)
+>>>    }
+>>>
+>>>    /**
+>>> + * mei_wdt_unregister - unregister from the watchdog subsystem
+>>> + *
+>>> + * @wdt: mei watchdog device
+>>> + */
+>>> +static void mei_wdt_unregister(struct mei_wdt *wdt)
+>>> +{
+>>> +
+>>> +	mutex_lock(&wdt->reg_lock);
+>>> +	if (wdt->is_registered) {
+>>> +		clear_bit(WDOG_ACTIVE, &wdt->wdd.status);
+>>
+>> WDOG_ACTIVE is commonly handled by the core. Why does it have to be
+>> touched here ?
+>
+> This have to be cleaned otherwise we ops->start is won't be called on new open()
+>
+>> I am a bit concerned about the entire sequence.
+>>
+>> If the following happens
+>>
+>> - watchdog character device is opened
+>> - watchdog goes away
+>> - watchdog reappears
+>> - watchdog character device is accessed
+>
+>
+>> the code may access the driver through an old instance of the watchdog
+>> character device. The behavior in this situation is pretty much undefined.
+>> It may work, but only by luck, not by design.
+>
+> You won't get through as the file descriptor is stale, you have to open the device again.
+> This should work by design, you have pluggable devices.
 
-> On 15/12/2015:06:56:50 PM, Guenter Roeck wrote:
-> > On 12/14/2015 12:44 PM, Wim Van Sebroeck wrote:
-> > >On Sun, Dec 13, 2015 at 10:24:35PM -0800, Guenter Roeck wrote:
-> > >
-> > >>On 12/13/2015 02:02 PM, Damien Riegel wrote:
-> > >>>On Mon, Dec 07, 2015 at 09:41:03PM +0100, Wim Van Sebroeck wrote:
-> > >>>>Hi All,
-> > >>>>
-> > >>>>>On 12/07/2015 08:15 AM, Damien Riegel wrote:
-> > >>>>>>On Sun, Dec 06, 2015 at 11:51:41AM -0800, Guenter Roeck wrote:
-> > >>>>>>>The watchdog character device s currently created in
-> > >>>>>>>watchdog_dev.c, and the watchdog device in watchdog_core.c. This
-> > >>>>>>>results in cross-dependencies, as the device creation needs to
-> > >>>>>>>know the watchdog character device number.
-> > >>>>>>>
-> > >>>>>>>On top of that, the watchdog character device is created before
-> > >>>>>>>the watchdog device is created. This can result in race conditions
-> > >>>>>>>if the watchdog device node is accessed before the watchdog device
-> > >>>>>>>has been created.
-> > >>>>>>>
-> > >>>>>>>To solve the problem, move watchdog device creation into
-> > >>>>>>>watchdog_dev.c, and create the watchdog device prior to creating
-> > >>>>>>>its device node. Also move device class creation into
-> > >>>>>>>watchdog_dev.c, since this is now the only place where the
-> > >>>>>>>watchdog class is needed.
-> > >>>>>>>
-> > >>>>>>>Inspired by an earlier patch set from Damien Riegel.
-> > >>>>>>>
-> > >>>>>>>Cc: Damien Riegel <damien.riegel@savoirfairelinux.com>
-> > >>>>>>>Signed-off-by: Guenter Roeck <linux@roeck-us.net> --- Hi Damien,
-> > >>>>>>>
-> > >>>>>>>I think this approach would be a bit better. The watchdog device
-> > >>>>>>>isn't really used in the watchdog core code, so it is better
-> > >>>>>>>created in watchdog_dev.c. That also fits well with other pending
-> > >>>>>>>changes, such as sysfs attribute support, and my attempts to move
-> > >>>>>>>the ref/unref functions completely into the watchdog core. As a
-> > >>>>>>>side effect, it also cleans up the error path in
-> > >>>>>>>__watchdog_register_device().
-> > >>>>>>>
-> > >>>>>>>What do you think ?
-> > >>>>>>
-> > >>>>>>Hi Guenter,
-> > >>>>>>
-> > >>>>>>Like the idea, but I don't really get the separation. For instance,
-> > >>>>>>you move watchdog_class in watchdog_dev.c but you keep watchdog_ida
-> > >>>>>>in watchdog_core.c whereas it is only used for device
-> > >>>>>>creation/deletion.
-> > >>>>>>
-> > >>>>>The class is watchdog driver internal, and it is device related, so
-> > >>>>>I think it made sense to move it to watchdog_dev.c. On top of that,
-> > >>>>>it will be needed there if/when we introduce sysfs attributes.
-> > >>>>>
-> > >>>>>The watchdog id can be determined by obtaining an id using ida, or
-> > >>>>>it can be provided through the watchdog alias. The operation to get
-> > >>>>>it is not device related, and it is not straightforward to obtain
-> > >>>>>it, so I thought it makes sense to keep the code in watchdog_core.c.
-> > >>>>>
-> > >>>>>Of course a lot of it is personal preference.
-> > >>>>>
-> > >>>>
-> > >>>>Let me go back to how I saw the design when I created the generic
-> > >>>>watchdog framework: When using watchdog device drivers we need to be
-> > >>>>able to support the /dev/watchdog system. I also foresaw that we
-> > >>>>should have a sysfs interface and I saw the future for watchdog
-> > >>>>devices that you should be able to choose between the 2 different
-> > >>>>systems. You should be able to use only the /dev/watchdog interfacing,
-> > >>>>but you should also be able to use both a sysfs interface and a
-> > >>>>/dev/watchdog interface and it should even be possible to have only a
-> > >>>>sysfs interface in certain embedded devices. So that's why I split the
-> > >>>>watchdog framework over 3 files: core code, the /dev/watchdog
-> > >>>>interfacing and the sysfs code. Since I want to have compiled code
-> > >>>>small enough when choosing either /Dev/watchdog or sysfs or both this
-> > >>>>sounded the most logical thing to do (Unless you have a single file
-> > >>>>full of #ifdef-ery that becomes unreadable).
-> > >>>>
-> > >>>>So I do not agree to have sysfs code in watchdog_dev.c . It belongs in
-> > >>>>watchdog_sysfs.c imho. If someone has a better idea, I'll be glad to
-> > >>>>listen to it and see what the benefits are. But I want a clean system
-> > >>>>for excluding both /dev/ (current watchdog_dev.c) and/or sysfs
-> > >>>>(watchdog_sysfs.c) in the future. Off-course the current behaviour is
-> > >>>>to have the /dev/ interface and have the option to add sysfs
-> > >>>>attributes.
-> > >>>
-> > >>>I agree that keeping sysfs code separate makes sense, as someone might
-> > >>>want to not use it.
-> > >>>
-> > >>I am not really sure about that. I don't recall a similar concern with
-> > >>any other subsystem.
-> > >>
-> > >>Anyway, sure, we can move the code to another file. Sure, we can add a
-> > >>configuration option. That means we'll also need to make several functions
-> > >>non-static, and possibly move some functions out of watchdog_dev.c
-> > >>into yet another file. But we'll need some guidance for that and an idea
-> > >>what is going to be acceptable.
-> > >>
-> > >>>The question is: can we make the /dev/watchdog entries optional ? That
-> > >>>would break the compatibility, right? Imho, it would be saner to keep
-> > >>>only one way to interact with watchdogs (ie. keep /dev/watchdog as is
-> > >>>and don't make it optional, and sysfs read-only and eventually
-> > >>>optional). I think that question should be answered before we can decide
-> > >>>how we want to split the code between watchdog_dev.c and watchdog_core.c
-> > >>>
-> > >>
-> > >>All I know for my part is that all pending structural enhancements in one
-> > >>way or another depend on the assumption that the character device and the
-> > >>sysfs (kernel) device both exist. I have not been able to find any code
-> > >>in the kernel where cdev_add is not associated with device_create, so I
-> > >>don't even know if cdev_add without device_create is even possible.
-> > >>The current code in watchdog_dev.c definitely depends on watchdog->dev,
-> > >>though not deeply (it uses it for some dev_ messages). If that dependency
-> > >>isn't supposed to exist, we'll need to do something about it now.
-> > >>
-> > >>We now have the sysfs changes, the changes to move "soft" timeout handling
-> > >>into the kernel, multiple approaches to add pretimeout into the watchdog
-> > >>core,
-> > >>and my attempt to solve the ref/unref mess. All of those won't be able to
-> > >>proceed without knowing how to handle the cdev vs. dev problem.
-> > >>
-> > >>Wim, we really need some guidance from you.
-> > >
-> > >Basically the options we have are:
-> > >1) go with the original design. The problem here (as Guenter pointed it out
-> > >correctly) is that sysfs went from optional to integrated with the character
-> > >devices.
-> > >2) change the origial design so that the watchdog_sysfs part is still optional
-> > >(meaning the additional read-only sysfs attributes) but is called from within
-> > >watchdog_dev.c instead of from watchdog_core.c . This would make it possible
-> > >to avoid race conditions. This would also mean that it is harder for an
-> > >embedded developer to get rid of the /dev/watchdog interface.
-> > >3) put the sysfs attributes together with the /dev/watchdog code in
-> > >watchdog_dev.c . The sysfs attributes can be optional with a minimum of
-> > >#ifdef's if needed.
-> > >4) consolidate everything in only watchdog_core.c . (if we put the sysfs and
-> > >the /dev/watchdog* code in 1 file, then why not put everything in one file).
-> > >
-> > >For the linux-kernel leaving the dev/watchdog* interface and only use the sysfs
-> > >interface (but then read-write so that you can use the interface also for
-> > >starting and stopping a watchdog) would indeed mean a compatibility break.
-> > >But as an embedded developer it would not be a necessity and thus not a
-> > >compatibility issue.
-> > >
-> > >Since /dev/watchdog was always tied with the misc devices, it makes sence
-> > >to follow the misc route and thus the character device route. This indeed
-> > >means that we always have the watchdog class (but also linkage to parent
-> > >devices via misc.parent).
-> > >
-> > >So I think we should stick to the misc device approach (since this is how
-> > >it has always been). Which means that we also follow the character device
-> > >approach. So to me we should go for option 3 or 4.
-> > >
-> > 
-> > I would suggest to go with 3), and also move the watchdog class to watchdog_dev.c.
-> > I don't see a real reason to move everything into a single file - it would just
-> > make code maintenance more difficult, and the current separation seems to work
-> > quite well as far as I can see.
-> 
-> If it is the final consensus then I will send my sysfs patches with changes to
-> protect sysfs part with some config option like CONFIG_WATCHDOG_SYSFS.
+It can definitely happen today without the third step, ie
 
-Yes, that is the final consensus.
+- watchdog is unregistered
+- watchdog character device is accessed
 
-Kind regards,
-Wim.
+is possible, making the ref/unref operations necessary, and the reason for
+introducing WDOG_UNREGISTERED in the first place. See commit e907df327252.
+
+I actually tested that condition. It _can_ happen.
+
+>
+>>
+>>> +		watchdog_unregister_device(&wdt->wdd);
+>>> +		wdt->is_registered = false;
+>>> +	}
+>>> +	mutex_unlock(&wdt->reg_lock);
+>>> +}
+>>> +
+>>> +/**
+>>>     * mei_wdt_register - register with the watchdog subsystem
+>>>     *
+>>>     * @wdt: mei watchdog device
+>>> @@ -205,15 +251,20 @@ static int mei_wdt_register(struct mei_wdt *wdt)
+>>>
+>>>    	dev = &wdt->cldev->dev;
+>>>
+>>> -	watchdog_set_drvdata(&wdt->wdd, wdt);
+>>> +	wdt->state = MEI_WDT_IDLE;
+>>>
+>>> +	mutex_lock(&wdt->reg_lock);
+>>> +	clear_bit(WDOG_UNREGISTERED, &wdt->wdd.status);
+>>
+>> Please don't touch watchdog core internal states
+>
+> No choice here. This is a bit tricky bit. This is not cleared, by the core as fresh watchdog device upon registering
+> I think in the overall design it would be cleaner if this flag would have positive logic. i.e.  WDOG_REGISTERED.
+> The code would be simpler if I would be able just toggle this bit, but there is no event propagated to the user space on this change, so
+> I prefer to remove the whole device as this is something already supported..
+>
+> - this flag will likely
+>> go away soon
+>
+> We will have to deal with that when this happens.
+
+Consider the case where the watchdog was removed, but the character device
+(or misc device) file descriptor is still open. Now you clear this flag.
+User space accesses the "stale" file descriptor right after your "clear" operation.
+Since the flag is no longer set, the watchdog core doesn't know anymore that the
+watchdog device is unregistered, and calls the driver functions, even though
+the watchdog is still unregistered.
+
+I don't know what happens if the watchdog is re-registered using the same character
+device data structure, ie after cdev_init() is called on it again. Maybe a file access
+using the "old" file descriptor is then rejected by the kernel, and it doesn't find
+its way into the driver. Maybe I am missing it, but I don't immediately see where
+the kernel would detect that situation. Instead, it seems to me that the kernel
+holds a reference to the file operations until the device is closed/released.
+And how would that close operation happen unless the kernel actually calls the fops
+release function ? After all, the close operation _does_ have to call the watchdog
+core, since the watchdog core calls module_put() as well as kref_put(), and clears
+WDOG_DEV_OPEN.
+
+Did you actually test that case ? That would actually be interesting to know for sure.
+
+Another interesting case occurs after you unregistered the watchdog device, but
+the character device is still open. Your code clears WATCHDOG_ACTIVE, meaning
+the watchdog core will believe that the watchdog isn't running and won't even check
+for other flags such as WDOG_ALLOW_RELEASE, or call the stop function, but will
+just close the watchdog device unconditionally. That may well work with your driver,
+but again relies on internal functionality and may have unexpected side effects
+(such as that the WDOG_ALLOW_RELEASE flag won't be cleared).
+
+Yet another interesting case occurs if the character device is still open after
+the watchdog was unregistererd and re-registered. In that case, WDOG_DEV_OPEN
+will still be set, so it will be impossible to open the watchdog device until
+the old instance is closed. How would that close actually happen ? Do you rely
+on the kernel detecting that the fd is stale when user space tries to use it,
+and on calling the release function at that time ?
+
+Either case, with the current watchdog core, there is no guarantee that 'struct
+watchdog_device' is no longer in use by the watchdog core until the unref function
+has been called. Until then, the watchdog core still "owns" the structure, and
+you can not re-use it.
+
+I am working on a set of patches to remedy that situation. With those patches,
+the watchdog core will no longer use struct watchdog_device after the call to
+watchdog_unregister_device, and you will be able to re-use it immediately.
+But we are not there yet.
+
+Overall, it may be better to allocate a new instance of struct watchdog_device
+whenever you re-register the watchdog, to avoid all those problems. Sorry that
+I didn't realize that earlier.
+
+Guenter
 
