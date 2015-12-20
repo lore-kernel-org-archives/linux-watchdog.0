@@ -7,46 +7,273 @@ Cc: Wim Van Sebroeck <wim@iguana.be>,
 	Damien Riegel <damien.riegel@savoirfairelinux.com>,
 	linux-kernel@vger.kernel.org,
 	Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 0/5] watchdog: Replace driver based refcounting
-Date: Sun, 20 Dec 2015 13:04:58 -0800
-Message-Id: <1450645503-16661-1-git-send-email-linux@roeck-us.net>
+Subject: [PATCH 1/5] watchdog: Create watchdog device in watchdog_dev.c
+Date: Sun, 20 Dec 2015 13:04:59 -0800
+Message-Id: <1450645503-16661-2-git-send-email-linux@roeck-us.net>
+In-Reply-To: <1450645503-16661-1-git-send-email-linux@roeck-us.net>
+References: <1450645503-16661-1-git-send-email-linux@roeck-us.net>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-All variables required by the watchdog core to manage a watchdog are
-currently stored in struct watchdog_device. The lifetime of those
-variables is determined by the watchdog driver. However, the lifetime
-of variables used by the watchdog core differs from the lifetime of
-struct watchdog_device. To remedy this situation, watchdog drivers
-can implement ref and unref callbacks, to be used by the watchdog
-core to lock struct watchdog_device in memory. This mechanism was
-introduced with commit e907df327252 ("watchdog: Add support for
-dynamically allocated watchdog_device structs").
+The watchdog character device is currently created in watchdog_dev.c,
+and the watchdog device in watchdog_core.c. This results in
+cross-dependencies, since device creation needs to know the watchdog
+character device number as well as the watchdog class, both of which
+reside in watchdog_dev.c.
 
-While this solves the immediate problem, it depends on watchdog drivers
-to actually implement the ref/unref callbacks. This is error prone,
-often not implemented in the first place, or not implemented correctly.
+Create the watchdog device in watchdog_dev.c to simplify the code.
 
-To solve the problem without requiring driver support, split the variables
-in struct watchdog_device into two data structures - one for variables
-associated with the watchdog driver, one for variables associated with
-the watchdog core. With this approach, the watchdog core can keep track
-of the variables it uses and no longer depends on ref/unref callbacks
-in the driver. As a side effect, some of the variables originally in struct
-watchdog_driver are now private to the watchdog core and no longer visible
-in watchdog drivers.
+Inspired by earlier patch set from Damien Riegel.
 
-The 'ref' and 'unref' callbacks in struct watchdog_driver are no longer
-used and marked as deprecated.
+Cc: Damien Riegel <damien.riegel@savoirfairelinux.com>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+---
+ drivers/watchdog/watchdog_core.c | 33 ++++--------------
+ drivers/watchdog/watchdog_core.h |  4 +--
+ drivers/watchdog/watchdog_dev.c  | 73 +++++++++++++++++++++++++++++++++-------
+ 3 files changed, 69 insertions(+), 41 deletions(-)
 
-Patch 1/5 moves watchdog device creation from watchdog_core.c to watchdog_dev.c
-to simplify watchdog device handling.
-
-Patch 2/5 separates variables in watchdog_device based on variable lifetime.
-
-Patch 3/5 to 5/5 remove existing ref/unref functions from the drivers
-implementing it.
-
-The series applies on top of the current watchdog-next as well as the pending
-patches introducing sysfs support ("watchdog: Use static struct class
-watchdog_class in stead of pointer" and "watchdog: Read device status through
-sysfs attributes") by Pratyush Anand.
+diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
+index 551af042867c..f0293f7d2b80 100644
+--- a/drivers/watchdog/watchdog_core.c
++++ b/drivers/watchdog/watchdog_core.c
+@@ -42,7 +42,6 @@
+ #include "watchdog_core.h"	/* For watchdog_dev_register/... */
+ 
+ static DEFINE_IDA(watchdog_ida);
+-static struct class *watchdog_class;
+ 
+ /*
+  * Deferred Registration infrastructure.
+@@ -194,7 +193,7 @@ EXPORT_SYMBOL_GPL(watchdog_set_restart_priority);
+ 
+ static int __watchdog_register_device(struct watchdog_device *wdd)
+ {
+-	int ret, id = -1, devno;
++	int ret, id = -1;
+ 
+ 	if (wdd == NULL || wdd->info == NULL || wdd->ops == NULL)
+ 		return -EINVAL;
+@@ -247,16 +246,6 @@ static int __watchdog_register_device(struct watchdog_device *wdd)
+ 		}
+ 	}
+ 
+-	devno = wdd->cdev.dev;
+-	wdd->dev = device_create(watchdog_class, wdd->parent, devno,
+-					wdd, "watchdog%d", wdd->id);
+-	if (IS_ERR(wdd->dev)) {
+-		watchdog_dev_unregister(wdd);
+-		ida_simple_remove(&watchdog_ida, id);
+-		ret = PTR_ERR(wdd->dev);
+-		return ret;
+-	}
+-
+ 	if (test_bit(WDOG_STOP_ON_REBOOT, &wdd->status)) {
+ 		wdd->reboot_nb.notifier_call = watchdog_reboot_notifier;
+ 
+@@ -265,9 +254,7 @@ static int __watchdog_register_device(struct watchdog_device *wdd)
+ 			dev_err(wdd->dev, "Cannot register reboot notifier (%d)\n",
+ 				ret);
+ 			watchdog_dev_unregister(wdd);
+-			device_destroy(watchdog_class, devno);
+ 			ida_simple_remove(&watchdog_ida, wdd->id);
+-			wdd->dev = NULL;
+ 			return ret;
+ 		}
+ 	}
+@@ -311,9 +298,6 @@ EXPORT_SYMBOL_GPL(watchdog_register_device);
+ 
+ static void __watchdog_unregister_device(struct watchdog_device *wdd)
+ {
+-	int ret;
+-	int devno;
+-
+ 	if (wdd == NULL)
+ 		return;
+ 
+@@ -323,13 +307,8 @@ static void __watchdog_unregister_device(struct watchdog_device *wdd)
+ 	if (test_bit(WDOG_STOP_ON_REBOOT, &wdd->status))
+ 		unregister_reboot_notifier(&wdd->reboot_nb);
+ 
+-	devno = wdd->cdev.dev;
+-	ret = watchdog_dev_unregister(wdd);
+-	if (ret)
+-		pr_err("error unregistering /dev/watchdog (err=%d)\n", ret);
+-	device_destroy(watchdog_class, devno);
++	watchdog_dev_unregister(wdd);
+ 	ida_simple_remove(&watchdog_ida, wdd->id);
+-	wdd->dev = NULL;
+ }
+ 
+ /**
+@@ -370,9 +349,11 @@ static int __init watchdog_deferred_registration(void)
+ 
+ static int __init watchdog_init(void)
+ {
+-	watchdog_class = watchdog_dev_init();
+-	if (IS_ERR(watchdog_class))
+-		return PTR_ERR(watchdog_class);
++	int err;
++
++	err = watchdog_dev_init();
++	if (err < 0)
++		return err;
+ 
+ 	watchdog_deferred_registration();
+ 	return 0;
+diff --git a/drivers/watchdog/watchdog_core.h b/drivers/watchdog/watchdog_core.h
+index 1c8d6b0e68c7..86ff962d1e15 100644
+--- a/drivers/watchdog/watchdog_core.h
++++ b/drivers/watchdog/watchdog_core.h
+@@ -32,6 +32,6 @@
+  *	Functions/procedures to be called by the core
+  */
+ extern int watchdog_dev_register(struct watchdog_device *);
+-extern int watchdog_dev_unregister(struct watchdog_device *);
+-extern struct class * __init watchdog_dev_init(void);
++extern void watchdog_dev_unregister(struct watchdog_device *);
++extern int __init watchdog_dev_init(void);
+ extern void __exit watchdog_dev_exit(void);
+diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
+index d93118e97d11..c24392623e98 100644
+--- a/drivers/watchdog/watchdog_dev.c
++++ b/drivers/watchdog/watchdog_dev.c
+@@ -626,17 +626,18 @@ static struct miscdevice watchdog_miscdev = {
+ };
+ 
+ /*
+- *	watchdog_dev_register: register a watchdog device
++ *	watchdog_cdev_register: register watchdog character device
+  *	@wdd: watchdog device
++ *	@devno: character device number
+  *
+- *	Register a watchdog device including handling the legacy
++ *	Register a watchdog character device including handling the legacy
+  *	/dev/watchdog node. /dev/watchdog is actually a miscdevice and
+  *	thus we set it up like that.
+  */
+ 
+-int watchdog_dev_register(struct watchdog_device *wdd)
++static int watchdog_cdev_register(struct watchdog_device *wdd, dev_t devno)
+ {
+-	int err, devno;
++	int err;
+ 
+ 	if (wdd->id == 0) {
+ 		old_wdd = wdd;
+@@ -654,7 +655,6 @@ int watchdog_dev_register(struct watchdog_device *wdd)
+ 	}
+ 
+ 	/* Fill in the data structures */
+-	devno = MKDEV(MAJOR(watchdog_devt), wdd->id);
+ 	cdev_init(&wdd->cdev, &watchdog_fops);
+ 	wdd->cdev.owner = wdd->ops->owner;
+ 
+@@ -672,13 +672,14 @@ int watchdog_dev_register(struct watchdog_device *wdd)
+ }
+ 
+ /*
+- *	watchdog_dev_unregister: unregister a watchdog device
++ *	watchdog_cdev_unregister: unregister watchdog character device
+  *	@watchdog: watchdog device
+  *
+- *	Unregister the watchdog and if needed the legacy /dev/watchdog device.
++ *	Unregister watchdog character device and if needed the legacy
++ *	/dev/watchdog device.
+  */
+ 
+-int watchdog_dev_unregister(struct watchdog_device *wdd)
++static void watchdog_cdev_unregister(struct watchdog_device *wdd)
+ {
+ 	mutex_lock(&wdd->lock);
+ 	set_bit(WDOG_UNREGISTERED, &wdd->status);
+@@ -689,7 +690,6 @@ int watchdog_dev_unregister(struct watchdog_device *wdd)
+ 		misc_deregister(&watchdog_miscdev);
+ 		old_wdd = NULL;
+ 	}
+-	return 0;
+ }
+ 
+ static struct class watchdog_class = {
+@@ -701,29 +701,76 @@ static struct class watchdog_class = {
+ };
+ 
+ /*
++ *	watchdog_dev_register: register a watchdog device
++ *	@wdd: watchdog device
++ *
++ *	Register a watchdog device including handling the legacy
++ *	/dev/watchdog node. /dev/watchdog is actually a miscdevice and
++ *	thus we set it up like that.
++ */
++
++int watchdog_dev_register(struct watchdog_device *wdd)
++{
++	struct device *dev;
++	dev_t devno;
++	int ret;
++
++	devno = MKDEV(MAJOR(watchdog_devt), wdd->id);
++
++	ret = watchdog_cdev_register(wdd, devno);
++	if (ret)
++		return ret;
++
++	dev = device_create(&watchdog_class, wdd->parent, devno, wdd,
++			    "watchdog%d", wdd->id);
++	if (IS_ERR(dev)) {
++		watchdog_cdev_unregister(wdd);
++		return PTR_ERR(dev);
++	}
++	wdd->dev = dev;
++
++	return ret;
++}
++
++/*
++ *	watchdog_dev_unregister: unregister a watchdog device
++ *	@watchdog: watchdog device
++ *
++ *	Unregister watchdog device and if needed the legacy
++ *	/dev/watchdog device.
++ */
++
++void watchdog_dev_unregister(struct watchdog_device *wdd)
++{
++	watchdog_cdev_unregister(wdd);
++	device_destroy(&watchdog_class, wdd->dev->devt);
++	wdd->dev = NULL;
++}
++
++/*
+  *	watchdog_dev_init: init dev part of watchdog core
+  *
+  *	Allocate a range of chardev nodes to use for watchdog devices
+  */
+ 
+-struct class * __init watchdog_dev_init(void)
++int __init watchdog_dev_init(void)
+ {
+ 	int err;
+ 
+ 	err = class_register(&watchdog_class);
+ 	if (err < 0) {
+ 		pr_err("couldn't register class\n");
+-		return ERR_PTR(err);
++		return err;
+ 	}
+ 
+ 	err = alloc_chrdev_region(&watchdog_devt, 0, MAX_DOGS, "watchdog");
+ 	if (err < 0) {
+ 		pr_err("watchdog: unable to allocate char dev region\n");
+ 		class_unregister(&watchdog_class);
+-		return ERR_PTR(err);
++		return err;
+ 	}
+ 
+-	return &watchdog_class;
++	return 0;
+ }
+ 
+ /*
+-- 
+2.1.4
