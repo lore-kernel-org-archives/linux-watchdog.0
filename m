@@ -1,54 +1,159 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:53450 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932969AbbLSQVU (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 19 Dec 2015 11:21:20 -0500
-Subject: Re: [PATCH V5 1/2] watchdog: Use static struct class watchdog_class
- in stead of pointer
-To: Pratyush Anand <panand@redhat.com>
-References: <cover.1450353452.git.panand@redhat.com>
- <b45250982479cf4a8a59b84bda7c058e424a88e8.1450353452.git.panand@redhat.com>
- <5672CD1B.40105@roeck-us.net> <20151219042208.GH29413@dhcppc13.redhat.com>
-Cc: wim@iguana.be, dyoung@redhat.com, dzickus@redhat.com,
-	linux-watchdog@vger.kernel.org,
-	open list <linux-kernel@vger.kernel.org>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <567583FD.5070303@roeck-us.net>
-Date: Sat, 19 Dec 2015 08:21:17 -0800
+Received: from mx1.redhat.com ([209.132.183.28]:49142 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751444AbbLUKhk (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 21 Dec 2015 05:37:40 -0500
+Subject: Re: [PATCH 5/5] hwmon: (sch56xx) Drop watchdog driver data reference
+ count callbacks
+To: Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org
+References: <1450645503-16661-1-git-send-email-linux@roeck-us.net>
+ <1450645503-16661-6-git-send-email-linux@roeck-us.net>
+Cc: Wim Van Sebroeck <wim@iguana.be>,
+	Pratyush Anand <panand@redhat.com>,
+	Damien Riegel <damien.riegel@savoirfairelinux.com>,
+	linux-kernel@vger.kernel.org
+From: Hans de Goede <hdegoede@redhat.com>
+Message-ID: <5677D66C.6090906@redhat.com>
+Date: Mon, 21 Dec 2015 11:37:32 +0100
 MIME-Version: 1.0
-In-Reply-To: <20151219042208.GH29413@dhcppc13.redhat.com>
+In-Reply-To: <1450645503-16661-6-git-send-email-linux@roeck-us.net>
 Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 12/18/2015 08:22 PM, Pratyush Anand wrote:
-> On 17/12/2015:06:56:27 AM, Guenter Roeck wrote:
->> On 12/17/2015 04:23 AM, Pratyush Anand wrote:
->>> We need few sysfs attributes to know different status of a watchdog device.
->>> To do that, we need to associate .dev_groups with watchdog_class. So
->>> convert it from pointer to static.
->>> Putting this static struct in watchdog_dev.c, so that static device
->>> attributes defined in that file can be attached to it.
->>>
->>> Signed-off-by: Pratyush Anand <panand@redhat.com>
->>> Suggested-by: Guenter Roeck <linux@roeck-us.net>
->>> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
->>
->> As things evolve, I'd by now prefer to move the call to device_create()
->> into watchdog_dev.c, but that can wait for a follow-up patch if Wim
->> is ok with this series.
+Hi,
+
+On 20-12-15 22:05, Guenter Roeck wrote:
+> Reference counting is now implemented in the watchdog core and no longer
+> required in watchdog drivers.
 >
-> Thanks for your quick review.
+> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+> ---
+>   drivers/hwmon/sch56xx-common.c | 30 ------------------------------
+>   1 file changed, 30 deletions(-)
 >
-> OK. I will wait for Wim's comment and then may be I will send another
-> version with your comment for patch 1/1 incorporated.
+> diff --git a/drivers/hwmon/sch56xx-common.c b/drivers/hwmon/sch56xx-common.c
+> index 738681983284..88dba68a9abb 100644
+> --- a/drivers/hwmon/sch56xx-common.c
+> +++ b/drivers/hwmon/sch56xx-common.c
+> @@ -30,7 +30,6 @@
+>   #include <linux/watchdog.h>
+>   #include <linux/miscdevice.h>
+>   #include <linux/uaccess.h>
+> -#include <linux/kref.h>
+>   #include <linux/slab.h>
+>   #include "sch56xx-common.h"
+>
+> @@ -67,7 +66,6 @@ MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
+>   struct sch56xx_watchdog_data {
+>   	u16 addr;
+>   	struct mutex *io_lock;
+> -	struct kref kref;
+>   	struct watchdog_info wdinfo;
+>   	struct watchdog_device wddev;
+>   	u8 watchdog_preset;
+> @@ -258,15 +256,6 @@ EXPORT_SYMBOL(sch56xx_read_virtual_reg12);
+>    * Watchdog routines
+>    */
+>
+> -/* Release our data struct when we're unregistered *and*
+> -   all references to our watchdog device are released */
+> -static void watchdog_release_resources(struct kref *r)
+> -{
+> -	struct sch56xx_watchdog_data *data =
+> -		container_of(r, struct sch56xx_watchdog_data, kref);
+> -	kfree(data);
+
+You're not replacing this kfree() anywhere, so now the data
+allocated by sch56xx_watchdog_register() never gets free-ed
+after a sch56xx_watchdog_unregister(). If I read this patch
+set correctly then after this patch-set it is safe to
+immediately free the memory containing the struct watchdog_device
+(and also the struct wdinfo ?) after calling
+watchdog_unregister_device(), even if userspace still has the
+watchdog cdev open, correct ?
+
+In that case (continue reading below) ...
+
+> -}
+> -
+>   static int watchdog_set_timeout(struct watchdog_device *wddev,
+>   				unsigned int timeout)
+>   {
+> @@ -395,28 +384,12 @@ static int watchdog_stop(struct watchdog_device *wddev)
+>   	return 0;
+>   }
+>
+> -static void watchdog_ref(struct watchdog_device *wddev)
+> -{
+> -	struct sch56xx_watchdog_data *data = watchdog_get_drvdata(wddev);
+> -
+> -	kref_get(&data->kref);
+> -}
+> -
+> -static void watchdog_unref(struct watchdog_device *wddev)
+> -{
+> -	struct sch56xx_watchdog_data *data = watchdog_get_drvdata(wddev);
+> -
+> -	kref_put(&data->kref, watchdog_release_resources);
+> -}
+> -
+>   static const struct watchdog_ops watchdog_ops = {
+>   	.owner		= THIS_MODULE,
+>   	.start		= watchdog_start,
+>   	.stop		= watchdog_stop,
+>   	.ping		= watchdog_trigger,
+>   	.set_timeout	= watchdog_set_timeout,
+> -	.ref		= watchdog_ref,
+> -	.unref		= watchdog_unref,
+>   };
+>
+>   struct sch56xx_watchdog_data *sch56xx_watchdog_register(struct device *parent,
+> @@ -448,7 +421,6 @@ struct sch56xx_watchdog_data *sch56xx_watchdog_register(struct device *parent,
+>
+>   	data->addr = addr;
+>   	data->io_lock = io_lock;
+> -	kref_init(&data->kref);
+>
+>   	strlcpy(data->wdinfo.identity, "sch56xx watchdog",
+>   		sizeof(data->wdinfo.identity));
+> @@ -494,8 +466,6 @@ EXPORT_SYMBOL(sch56xx_watchdog_register);
+>   void sch56xx_watchdog_unregister(struct sch56xx_watchdog_data *data)
+>   {
+>   	watchdog_unregister_device(&data->wddev);
+> -	kref_put(&data->kref, watchdog_release_resources);
+> -	/* Don't touch data after this it may have been free-ed! */
+
+These 2 lines need to be replaced by a "kfree(data);" rather then being
+removed.
+
+>   }
+>   EXPORT_SYMBOL(sch56xx_watchdog_unregister);
+>
 >
 
-I reworked my patch to call device_create() from watchdog_dev.c on top of
-your patches and on top of Wim's watchdog-next branch. Hopefully we can get
-that into v4.5.
+Regards,
 
-Guenter
+Hans
 
+
+p.s.
+
+The patches for da9052_wdt and da9055_wdt are also interesting,
+their da905#_wdt_release_resources() functions are nops,
+making the entire refcounting exercise a nop.
+
+For da9052_wdt is the case since this commit:
+
+https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/drivers/watchdog/da9052_wdt.c?id=0360dffedd7bad92f174b2ce5e69e960451d2b59
+
+Which fixes the bug it tries to fix in the wrong way, the right
+way would have been to change the devm_kzalloc to a regular kzalloc,
+since devm_*alloc cannot be used together with refcounting to keep
+memory alive after device unregister time.
+
+What this means is that these drivers actually have a bug wrt
+freeing in use memory on driver unbind while userspace has
+the watchdog cdev open, and this gets fixed by this patch-set,
+it would be very good to mention this in the commit messages.
