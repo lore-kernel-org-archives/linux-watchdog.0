@@ -1,72 +1,104 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:39082 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:40034 "EHLO
 	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754031AbbLVQPo (ORCPT
+	with ESMTP id S1755323AbbLVQWm (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 22 Dec 2015 11:15:44 -0500
-Subject: Re: [PATCH 1/5] watchdog: Create watchdog device in watchdog_dev.c
+	Tue, 22 Dec 2015 11:22:42 -0500
+Subject: Re: [PATCH 2/5] watchdog: Separate and maintain variables based on
+ variable lifetime
 To: Damien Riegel <damien.riegel@savoirfairelinux.com>,
 	linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
 	Pratyush Anand <panand@redhat.com>,
 	Hans de Goede <hdegoede@redhat.com>,
 	linux-kernel@vger.kernel.org
 References: <1450645503-16661-1-git-send-email-linux@roeck-us.net>
- <1450645503-16661-2-git-send-email-linux@roeck-us.net>
- <20151221173123.GD12696@localhost> <56788B27.20706@roeck-us.net>
- <20151222153337.GB6164@localhost>
+ <1450645503-16661-3-git-send-email-linux@roeck-us.net>
+ <20151221172815.GC12696@localhost> <5678A322.2010109@roeck-us.net>
+ <20151222160907.GC6164@localhost>
 From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <5679772D.8030806@roeck-us.net>
-Date: Tue, 22 Dec 2015 08:15:41 -0800
+Message-ID: <567978D0.2060801@roeck-us.net>
+Date: Tue, 22 Dec 2015 08:22:40 -0800
 MIME-Version: 1.0
-In-Reply-To: <20151222153337.GB6164@localhost>
+In-Reply-To: <20151222160907.GC6164@localhost>
 Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 12/22/2015 07:33 AM, Damien Riegel wrote:
-> On Mon, Dec 21, 2015 at 03:28:39PM -0800, Guenter Roeck wrote:
->> On 12/21/2015 09:31 AM, Damien Riegel wrote:
->>> On Sun, Dec 20, 2015 at 01:04:59PM -0800, Guenter Roeck wrote:
->>>> The watchdog character device is currently created in watchdog_dev.c,
->>>> and the watchdog device in watchdog_core.c. This results in
->>>> cross-dependencies, since device creation needs to know the watchdog
->>>> character device number as well as the watchdog class, both of which
->>>> reside in watchdog_dev.c.
+On 12/22/2015 08:09 AM, Damien Riegel wrote:
+> On Mon, Dec 21, 2015 at 05:10:58PM -0800, Guenter Roeck wrote:
+>> On 12/21/2015 09:28 AM, Damien Riegel wrote:
+>>> On Sun, Dec 20, 2015 at 01:05:00PM -0800, Guenter Roeck wrote:
+>>>> All variables required by the watchdog core to manage a watchdog are
+>>>> currently stored in struct watchdog_device. The lifetime of those
+>>>> variables is determined by the watchdog driver. However, the lifetime
+>>>> of variables used by the watchdog core differs from the lifetime of
+>>>> struct watchdog_device. To remedy this situation, watchdog drivers
+>>>> can implement ref and unref callbacks, to be used by the watchdog
+>>>> core to lock struct watchdog_device in memory.
 >>>>
->>>> Create the watchdog device in watchdog_dev.c to simplify the code.
+>>>> While this solves the immediate problem, it depends on watchdog drivers
+>>>> to actually implement the ref/unref callbacks. This is error prone,
+>>>> often not implemented in the first place, or not implemented correctly.
 >>>>
->>>> Inspired by earlier patch set from Damien Riegel.
+>>>> To solve the problem without requiring driver support, split the variables
+>>>> in struct watchdog_device into two data structures - one for variables
+>>>> associated with the watchdog driver, one for variables associated with
+>>>> the watchdog core. With this approach, the watchdog core can keep track
+>>>> of its variable lifetime and no longer depends on ref/unref callbacks
+>>>> in the driver. As a side effect, some of the variables originally in
+>>>> struct watchdog_driver are now private to the watchdog core and no longer
+>>>> visible in watchdog drivers.
+>>>>
+>>>> The 'ref' and 'unref' callbacks in struct watchdog_driver are no longer
+>>>> used and marked as deprecated.
 >>>
->>> Hi Guenter,
+>>> Two comments below. It's great to see that unbinding a driver no longer
+>>> triggers a kernel panic.
 >>>
->>> The main purpose of my patch was to inverse the device creation and the
->>> cdev registration to avoid a racy situation, bu you have dropped that in
->>> this version. Is there a reason for that?
->>>
->> Every other driver I looked at does it in the same order (cdev first, device
->> second). I don't really know if doing it differently has any undesired
->> side effect, so I wanted to play safe.
+>> It should not have caused a panic to start with, but the ref/unref functions
+>> for the most part were either not or wrongly implemented. Not really
+>> surprising - it took me a while to understand the problem.
+>
+> I tested on a driver which did not implement ref/unref. When ping is
+> called, it tries to dereference a freed 'struct watchdog_device' in
+> watchdog_get_drvdata, leading to a panic.
+>
+Yes, that will happen. Problem here is that the driver is buggy -
+pretty much all drivers which dynamically allocate struct watchdog_device
+have this problem.
+
+This is the ultimate reason for coming up with this patch.
+
 >>
->> It would help a lot if someone listening to this exchange can confirm
->> that it is ok to create the device first, followed by the character device.
+>> [ ... ]
+>>
+>>>>
+>>>>   /*
+>>>> + * struct _watchdog_device - watchdog core internal data
+>>>
+>>> Think it should be /**. Anyway, I find it confusing to have both
+>>> _watchdog_device and watchdog_device, but I can't think of a better
+>>> name right now.
+>>
+>> I renamed the data structure to watchdog_data and moved it into watchdog_dev.c
+>> since it is only used there. No '**', though, because it is not a published
+>> API, but just an internal data structure.
+>>
+>> I also renamed the matching variable name to 'wd_data' (from '_wdd').
 >
-> The issue is that some drivers use watchdog_device->dev in their
-> watchdog_ops functions. With a quick grep, I could spot 3 examples:
->
->   - bcm2835_wdt_stop in bcm2835_wdt.c
->   - gpio_wdt_hwping in gpio_wdt.c
->   - a21_wdt_set_timeout in mena21_wdt.c
->
-> Maybe we should simply fix these drivers and keep watchdog_device->dev
-> for core internal usage?
+> Okay. Also, why didn't you use the explicit type for 'wdd_data' in
+> 'struct watchdog_device' instead of a void*?
 >
 
-Yes, I have been thinking about that - essentially move the ->dev pointer
-to the internal data structure and either use pr_ functions in those drivers,
-or save a pointer to the platform device (if available) and use it.
+This is to hide the data type, since the structure is not exported
+to drivers.
 
-I think I'll start working on a follow-up patch set to do just that.
+I could pre-declare the structure with 'struct watchdog_data;', but
+then I'd have to use a different structure name (watchdog_cdev_data,
+maybe, or watchdog_core_data) to make it less generic. Any opinion ?
+Would that be better / preferred ? I am 50/50 about it.
 
+Thanks,
 Guenter
 
