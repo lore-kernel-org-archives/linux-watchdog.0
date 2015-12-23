@@ -1,98 +1,377 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from h1.radempa.de ([176.9.142.194]:43646 "EHLO mail.cosmopool.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751134AbbLLOcv (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 12 Dec 2015 09:32:51 -0500
-From: Harald Geyer <harald@ccbib.org>
-To: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-	Guenter Roeck <linux@roeck-us.net>
-Cc: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?=
-	<u.kleine-koenig@pengutronix.de>, Harald Geyer <harald@ccbib.org>
-Subject: [PATCHv4] watchdog: stmp3xxx: Stop the watchdog on system halt
-Date: Sat, 12 Dec 2015 14:32:15 +0000
-Message-Id: <1449930735-8503-1-git-send-email-harald@ccbib.org>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-path: <tomas.winkler@intel.com>
+From: "Winkler, Tomas" <tomas.winkler@intel.com>
+To: Guenter Roeck <linux@roeck-us.net>, Greg Kroah-Hartman
+	<gregkh@linuxfoundation.org>, Wim Van Sebroeck <wim@iguana.be>
+CC: "Usyskin, Alexander" <alexander.usyskin@intel.com>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: RE: [char-misc-next v3 3/8] watchdog: mei_wdt: implement MEI iAMT
+ watchdog driver
+Date: Wed, 23 Dec 2015 22:38:28 +0000
+Message-ID: <5B8DA87D05A7694D9FA63FD143655C1B540FBDA9@hasmsx108.ger.corp.intel.com>
+References: <1450739881-3923-1-git-send-email-tomas.winkler@intel.com>
+ <1450739881-3923-4-git-send-email-tomas.winkler@intel.com>
+ <5678D85E.30101@roeck-us.net>
+ <5B8DA87D05A7694D9FA63FD143655C1B540F6079@hasmsx108.ger.corp.intel.com>
+ <5678FE75.6050905@roeck-us.net>
+In-Reply-To: <5678FE75.6050905@roeck-us.net>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+List-ID: <linux-watchdog@vger.kernel.org>
 
-This allows the system to actually halt even if userspace forgot to
-disable the watchdog first. Old behaviour was that the watchdog forced
-the system to boot again.
+>=20
+> On 12/21/2015 11:19 PM, Winkler, Tomas wrote:
+> >
+> >>
+> >> On 12/21/2015 03:17 PM, Tomas Winkler wrote:
+> >>> Create a driver with the generic watchdog interface
+> >>> for the MEI iAMT watchdog device.
+> >>>
+> >>> Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
+> >>> Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
+> >>> ---
+> >>> V2: The watchdog device is no longer dynamically allocated in separat=
+e
+> >> structure
+> >>> V3: Revert back to dynamically allocated watchdog device wrapper
+> >>>
+> >>>    Documentation/misc-devices/mei/mei.txt |  12 +-
+> >>>    MAINTAINERS                            |   1 +
+> >>>    drivers/watchdog/Kconfig               |  15 +
+> >>>    drivers/watchdog/Makefile              |   1 +
+> >>>    drivers/watchdog/mei_wdt.c             | 481
+> >> +++++++++++++++++++++++++++++++++
+> >>>    5 files changed, 504 insertions(+), 6 deletions(-)
+> >>>    create mode 100644 drivers/watchdog/mei_wdt.c
+> >>>
+> >>> diff --git a/Documentation/misc-devices/mei/mei.txt b/Documentation/m=
+isc-
+> >> devices/mei/mei.txt
+> >>> index 91c1fa34f48b..2b80a0cd621f 100644
+> >>> --- a/Documentation/misc-devices/mei/mei.txt
+> >>> +++ b/Documentation/misc-devices/mei/mei.txt
+> >>> @@ -231,15 +231,15 @@ IT knows when a platform crashes even when
+> there
+> >> is a hard failure on the host.
+> >>>    The Intel AMT Watchdog is composed of two parts:
+> >>>    	1) Firmware feature - receives the heartbeats
+> >>>    	   and sends an event when the heartbeats stop.
+> >>> -	2) Intel MEI driver - connects to the watchdog feature, configures =
+the
+> >>> -	   watchdog and sends the heartbeats.
+> >>> +	2) Intel MEI iAMT watchdog driver - connects to the watchdog featur=
+e,
+> >>> +	   configures the watchdog and sends the heartbeats.
+> >>>
+> >>> -The Intel MEI driver uses the kernel watchdog API to configure the I=
+ntel AMT
+> >>> -Watchdog and to send heartbeats to it. The default timeout of the
+> >>> +The Intel iAMT watchdog MEI driver uses the kernel watchdog API to
+> configure
+> >>> +the Intel AMT Watchdog and to send heartbeats to it. The default tim=
+eout
+> of
+> >> the
+> >>>    watchdog is 120 seconds.
+> >>>
+> >>> -If the Intel AMT Watchdog feature does not exist (i.e. the connectio=
+n failed),
+> >>> -the Intel MEI driver will disable the sending of heartbeats.
+> >>> +If the Intel AMT is not enabled in the firmware then the watchdog cl=
+ient
+> won't
+> >> enumerate
+> >>> +on the me client bus and watchdog devices won't be exposed.
+> >>>
+> >>>
+> >>>    Supported Chipsets
+> >>> diff --git a/MAINTAINERS b/MAINTAINERS
+> >>> index 9bff63cf326e..e655625c2c16 100644
+> >>> --- a/MAINTAINERS
+> >>> +++ b/MAINTAINERS
+> >>> @@ -5666,6 +5666,7 @@ S:	Supported
+> >>>    F:	include/uapi/linux/mei.h
+> >>>    F:	include/linux/mei_cl_bus.h
+> >>>    F:	drivers/misc/mei/*
+> >>> +F:	drivers/watchdog/mei_wdt.c
+> >>>    F:	Documentation/misc-devices/mei/*
+> >>>
+> >>>    INTEL MIC DRIVERS (mic)
+> >>> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> >>> index 1c427beffadd..8ac51d69785c 100644
+> >>> --- a/drivers/watchdog/Kconfig
+> >>> +++ b/drivers/watchdog/Kconfig
+> >>> @@ -1154,6 +1154,21 @@ config SBC_EPX_C3_WATCHDOG
+> >>>    	  To compile this driver as a module, choose M here: the
+> >>>    	  module will be called sbc_epx_c3.
+> >>>
+> >>> +config INTEL_MEI_WDT
+> >>> +	tristate "Intel MEI iAMT Watchdog"
+> >>> +	depends on INTEL_MEI && X86
+> >>> +	select WATCHDOG_CORE
+> >>> +	---help---
+> >>> +	  A device driver for the Intel MEI iAMT watchdog.
+> >>> +
+> >>> +	  The Intel AMT Watchdog is an OS Health (Hang/Crash) watchdog.
+> >>> +	  Whenever the OS hangs or crashes, iAMT will send an event
+> >>> +	  to any subscriber to this event. The watchdog doesn't reset the
+> >>> +	  the platform.
+> >>> +
+> >>> +	  To compile this driver as a module, choose M here:
+> >>> +	  the module will be called mei_wdt.
+> >>> +
+> >>>    # M32R Architecture
+> >>>
+> >>>    # M68K Architecture
+> >>> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+> >>> index 53d4827ddfe1..9069c9dd8aa8 100644
+> >>> --- a/drivers/watchdog/Makefile
+> >>> +++ b/drivers/watchdog/Makefile
+> >>> @@ -123,6 +123,7 @@ obj-$(CONFIG_MACHZ_WDT) +=3D machzwd.o
+> >>>    obj-$(CONFIG_SBC_EPX_C3_WATCHDOG) +=3D sbc_epx_c3.o
+> >>>    obj-$(CONFIG_INTEL_SCU_WATCHDOG) +=3D intel_scu_watchdog.o
+> >>>    obj-$(CONFIG_INTEL_MID_WATCHDOG) +=3D intel-mid_wdt.o
+> >>> +obj-$(CONFIG_INTEL_MEI_WDT) +=3D mei_wdt.o
+> >>>
+> >>>    # M32R Architecture
+> >>>
+> >>> diff --git a/drivers/watchdog/mei_wdt.c b/drivers/watchdog/mei_wdt.c
+> >>> new file mode 100644
+> >>> index 000000000000..5b28a1e95ac1
+> >>> --- /dev/null
+> >>> +++ b/drivers/watchdog/mei_wdt.c
+> >>> @@ -0,0 +1,481 @@
+> >>> +/*
+> >>> + * Intel Management Engine Interface (Intel MEI) Linux driver
+> >>> + * Copyright (c) 2015, Intel Corporation.
+> >>> + *
+> >>> + * This program is free software; you can redistribute it and/or mod=
+ify it
+> >>> + * under the terms and conditions of the GNU General Public License,
+> >>> + * version 2, as published by the Free Software Foundation.
+> >>> + *
+> >>> + * This program is distributed in the hope it will be useful, but WI=
+THOUT
+> >>> + * ANY WARRANTY; without even the implied warranty of
+> MERCHANTABILITY
+> >> or
+> >>> + * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public Lice=
+nse
+> >> for
+> >>> + * more details.
+> >>> + */
+> >>> +
+> >>> +#include <linux/module.h>
+> >>> +#include <linux/slab.h>
+> >>> +#include <linux/interrupt.h>
+> >>> +#include <linux/watchdog.h>
+> >>> +
+> >>> +#include <linux/uuid.h>
+> >>> +#include <linux/mei_cl_bus.h>
+> >>> +
+> >>> +/*
+> >>> + * iAMT Watchdog Device
+> >>> + */
+> >>> +#define INTEL_AMT_WATCHDOG_ID "iamt_wdt"
+> >>> +
+> >>> +#define MEI_WDT_DEFAULT_TIMEOUT   120  /* seconds */
+> >>> +#define MEI_WDT_MIN_TIMEOUT       120  /* seconds */
+> >>> +#define MEI_WDT_MAX_TIMEOUT     65535  /* seconds */
+> >>> +
+> >>> +/* Commands */
+> >>> +#define MEI_MANAGEMENT_CONTROL 0x02
+> >>> +
+> >>> +/* MEI Management Control version number */
+> >>> +#define MEI_MC_VERSION_NUMBER  0x10
+> >>> +
+> >>> +/* Sub Commands */
+> >>> +#define MEI_MC_START_WD_TIMER_REQ  0x13
+> >>> +#define MEI_MC_STOP_WD_TIMER_REQ   0x14
+> >>> +
+> >>> +/**
+> >>> + * enum mei_wdt_state - internal watchdog state
+> >>> + *
+> >>> + * @MEI_WDT_IDLE: wd is idle and not opened
+> >>> + * @MEI_WDT_START: wd was opened, start was called
+> >>> + * @MEI_WDT_RUNNING: wd is expecting keep alive pings
+> >>> + * @MEI_WDT_STOPPING: wd is stopping and will move to IDLE
+> >>> + */
+> >>> +enum mei_wdt_state {
+> >>> +	MEI_WDT_IDLE,
+> >>> +	MEI_WDT_START,
+> >>> +	MEI_WDT_RUNNING,
+> >>> +	MEI_WDT_STOPPING,
+> >>> +};
+> >>> +
+> >>> +struct mei_wdt;
+> >>> +
+> >>> +/**
+> >>> + * struct mei_wdt_dev - watchdog device wrapper
+> >>> + *
+> >>> + * @wdd: watchdog device
+> >>> + * @wdt: back pointer to mei_wdt driver
+> >>> + * @refcnt: reference counter
+> >>> + */
+> >>> +struct mei_wdt_dev {
+> >>> +	struct watchdog_device wdd;
+> >>> +	struct mei_wdt *wdt;
+> >>> +	struct kref refcnt;
+> >>> +};
+> >>> +
+> >>> +/**
+> >>> + * struct mei_wdt - mei watchdog driver
+> >>> + * @mwd: watchdog device wrapper
+> >>> + *
+> >>> + * @cldev: mei watchdog client device
+> >>> + * @state: watchdog internal state
+> >>> + * @timeout: watchdog current timeout
+> >>> + */
+> >>> +struct mei_wdt {
+> >>> +	struct mei_wdt_dev *mwd;
+> >>> +
+> >>> +	struct mei_cl_device *cldev;
+> >>> +	enum mei_wdt_state state;
+> >>> +	u16 timeout;
+> >>> +};
+> >>> +
+> >>> +/*
+> >>> + * struct mei_mc_hdr - Management Control Command Header
+> >>> + *
+> >>> + * @command: Management Control (0x2)
+> >>> + * @bytecount: Number of bytes in the message beyond this byte
+> >>> + * @subcommand: Management Control Subcommand
+> >>> + * @versionnumber: Management Control Version (0x10)
+> >>> + */
+> >>> +struct mei_mc_hdr {
+> >>> +	u8 command;
+> >>> +	u8 bytecount;
+> >>> +	u8 subcommand;
+> >>> +	u8 versionnumber;
+> >>> +};
+> >>> +
+> >>> +/**
+> >>> + * struct mei_wdt_start_request watchdog start/ping
+> >>> + *
+> >>> + * @hdr: Management Control Command Header
+> >>> + * @timeout: timeout value
+> >>> + * @reserved: reserved (legacy)
+> >>> + */
+> >>> +struct mei_wdt_start_request {
+> >>> +	struct mei_mc_hdr hdr;
+> >>> +	u16 timeout;
+> >>> +	u8 reserved[17];
+> >>> +} __packed;
+> >>> +
+> >>> +/**
+> >>> + * struct mei_wdt_stop_request - watchdog stop
+> >>> + *
+> >>> + * @hdr: Management Control Command Header
+> >>> + */
+> >>> +struct mei_wdt_stop_request {
+> >>> +	struct mei_mc_hdr hdr;
+> >>> +} __packed;
+> >>> +
+> >>> +/**
+> >>> + * mei_wdt_ping - send wd start/ping command
+> >>> + *
+> >>> + * @wdt: mei watchdog device
+> >>> + *
+> >>> + * Return: 0 on success,
+> >>> + *         negative errno code on failure
+> >>> + */
+> >>> +static int mei_wdt_ping(struct mei_wdt *wdt)
+> >>> +{
+> >>> +	struct mei_wdt_start_request req;
+> >>> +	const size_t req_len =3D sizeof(req);
+> >>> +	int ret;
+> >>> +
+> >>> +	memset(&req, 0, req_len);
+> >>> +	req.hdr.command =3D MEI_MANAGEMENT_CONTROL;
+> >>> +	req.hdr.bytecount =3D req_len - offsetof(struct mei_mc_hdr,
+> >> subcommand);
+> >>> +	req.hdr.subcommand =3D MEI_MC_START_WD_TIMER_REQ;
+> >>> +	req.hdr.versionnumber =3D MEI_MC_VERSION_NUMBER;
+> >>> +	req.timeout =3D wdt->timeout;
+> >>> +
+> >>> +	ret =3D mei_cldev_send(wdt->cldev, (u8 *)&req, req_len);
+> >>> +	if (ret < 0)
+> >>> +		return ret;
+> >>> +
+> >>> +	return 0;
+> >>> +}
+> >>> +
+> >>> +/**
+> >>> + * mei_wdt_stop - send wd stop command
+> >>> + *
+> >>> + * @wdt: mei watchdog device
+> >>> + *
+> >>> + * Return: 0 on success,
+> >>> + *         negative errno code on failure
+> >>> + */
+> >>> +static int mei_wdt_stop(struct mei_wdt *wdt)
+> >>> +{
+> >>> +	struct mei_wdt_stop_request req;
+> >>> +	const size_t req_len =3D sizeof(req);
+> >>> +	int ret;
+> >>> +
+> >>> +	memset(&req, 0, req_len);
+> >>> +	req.hdr.command =3D MEI_MANAGEMENT_CONTROL;
+> >>> +	req.hdr.bytecount =3D req_len - offsetof(struct mei_mc_hdr,
+> >> subcommand);
+> >>> +	req.hdr.subcommand =3D MEI_MC_STOP_WD_TIMER_REQ;
+> >>> +	req.hdr.versionnumber =3D MEI_MC_VERSION_NUMBER;
+> >>> +
+> >>> +	ret =3D mei_cldev_send(wdt->cldev, (u8 *)&req, req_len);
+> >>> +	if (ret < 0)
+> >>> +		return ret;
+> >>> +
+> >>> +	return 0;
+> >>> +}
+> >>> +
+> >>> +/**
+> >>> + * mei_wdt_ops_start - wd start command from the watchdog core.
+> >>> + *
+> >>> + * @wdd: watchdog device
+> >>> + *
+> >>> + * Return: 0 on success or -ENODEV;
+> >>> + */
+> >>> +static int mei_wdt_ops_start(struct watchdog_device *wdd)
+> >>> +{
+> >>> +	struct mei_wdt_dev *mwd =3D watchdog_get_drvdata(wdd);
+> >>> +	struct mei_wdt *wdt;
+> >>> +
+> >>> +	if (!mwd)
+> >>> +		return -ENODEV;
+> >>> +
+> >> I don't find a code path where this can be NULL. I also checked later =
+patches,
+> >> but I just don't see it.
+> >>
+> >> Can you clarify how this can happen ? If this is just for safety, it s=
+hould go.
+> >> We would _want_ the driver to crash unless this is a valid condition.
+> >>
+> >> Several other similar checks below.
+> >
+> > Yes, this can happen and as far I remember it does as we are unregister=
+ing the
+> device while the watchdog core is still
+> > holding on wdd.  Also I prefer not crashing the driver and the whole ke=
+rnel with
+> it, this is API should check its parameters.
+> >
+> After unregistering, the watchdog core doesn't call those functions anymo=
+re.
+> It could have happened earlier when you were manipulating the internal st=
+atus
+> flags, but it should not happen anymore. The watchdog core must not call =
+the
+> ops functions after the device was unregistered.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Harald Geyer <harald@ccbib.org>
----
-Changes since v3:
-* Fix two minor whitespace issues
-* Send this patch (was 1/2) alone, because Uwe wants more time looking into
-  2/2.
-
-Changes since v2:
-* split this out as a separate patch
-
-
- drivers/watchdog/stmp3xxx_rtc_wdt.c | 28 ++++++++++++++++++++++++++++
- 1 file changed, 28 insertions(+)
-
-diff --git a/drivers/watchdog/stmp3xxx_rtc_wdt.c b/drivers/watchdog/stmp3xxx_rtc_wdt.c
-index 3ee6128..dbe0372 100644
---- a/drivers/watchdog/stmp3xxx_rtc_wdt.c
-+++ b/drivers/watchdog/stmp3xxx_rtc_wdt.c
-@@ -14,6 +14,8 @@
- #include <linux/watchdog.h>
- #include <linux/platform_device.h>
- #include <linux/stmp3xxx_rtc_wdt.h>
-+#include <linux/notifier.h>
-+#include <linux/reboot.h>
- 
- #define WDOG_TICK_RATE 1000 /* 1 kHz clock */
- #define STMP3XXX_DEFAULT_TIMEOUT 19
-@@ -69,6 +71,28 @@ static struct watchdog_device stmp3xxx_wdd = {
- 	.status = WATCHDOG_NOWAYOUT_INIT_STATUS,
- };
- 
-+static int wdt_notify_sys(struct notifier_block *nb, unsigned long code,
-+			  void *unused)
-+{
-+	struct device *dev = watchdog_get_drvdata(&stmp3xxx_wdd);
-+	struct stmp3xxx_wdt_pdata *pdata = dev_get_platdata(dev);
-+
-+	switch (code) {
-+	case SYS_DOWN:	/* keep enabled, system might crash while going down */
-+		break;
-+	case SYS_HALT:	/* allow the system to actually halt */
-+	case SYS_POWER_OFF:
-+		wdt_stop(&stmp3xxx_wdd);
-+		break;
-+	}
-+
-+	return NOTIFY_DONE;
-+}
-+
-+static struct notifier_block wdt_notifier = {
-+	.notifier_call = wdt_notify_sys,
-+};
-+
- static int stmp3xxx_wdt_probe(struct platform_device *pdev)
- {
- 	int ret;
-@@ -84,6 +108,9 @@ static int stmp3xxx_wdt_probe(struct platform_device *pdev)
- 		return ret;
- 	}
- 
-+	if (register_reboot_notifier(&wdt_notifier))
-+		dev_warn(&pdev->dev, "cannot register reboot notifier\n");
-+
- 	dev_info(&pdev->dev, "initialized watchdog with heartbeat %ds\n",
- 			stmp3xxx_wdd.timeout);
- 	return 0;
-@@ -91,6 +118,7 @@ static int stmp3xxx_wdt_probe(struct platform_device *pdev)
- 
- static int stmp3xxx_wdt_remove(struct platform_device *pdev)
- {
-+	unregister_reboot_notifier(&wdt_notifier);
- 	watchdog_unregister_device(&stmp3xxx_wdd);
- 	return 0;
- }
--- 
-2.1.4
-
+I agree the code logic seems to function like what you've describing but I'=
+ve positively hit that condition in some stress test, now I'm not sure in w=
+hat code version so I will try to get that again for the current one.
+Thanks
+Tomas
