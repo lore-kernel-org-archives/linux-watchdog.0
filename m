@@ -1,187 +1,20 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:38502 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751793AbbLXAZx (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 23 Dec 2015 19:25:53 -0500
-Subject: Re: [char-misc-next v3 4/8] watchdog: mei_wdt: add status debugfs
- entry
-To: "Winkler, Tomas" <tomas.winkler@intel.com>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Wim Van Sebroeck <wim@iguana.be>
-References: <1450739881-3923-1-git-send-email-tomas.winkler@intel.com>
- <1450739881-3923-5-git-send-email-tomas.winkler@intel.com>
- <5678DFF9.6090701@roeck-us.net>
- <5B8DA87D05A7694D9FA63FD143655C1B540FBDCC@hasmsx108.ger.corp.intel.com>
-Cc: "Usyskin, Alexander" <alexander.usyskin@intel.com>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Return-path: <linux@roeck-us.net>
 From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <567B3B90.4000902@roeck-us.net>
-Date: Wed, 23 Dec 2015 16:25:52 -0800
-MIME-Version: 1.0
-In-Reply-To: <5B8DA87D05A7694D9FA63FD143655C1B540FBDCC@hasmsx108.ger.corp.intel.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+To: linux-watchdog@vger.kernel.org
+Cc: Wim Van Sebroeck <wim@iguana.be>,
+	Damien Riegel <damien.riegel@savoirfairelinux.com>,
+	linux-kernel@vger.kernel.org,
+	Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 0/5] watchdog: Do not use 'dev' from watchdog_device in watchdog drivers
+Date: Wed, 23 Dec 2015 21:11:28 -0800
+Message-Id: <1450933893-7761-1-git-send-email-linux@roeck-us.net>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 12/23/2015 02:48 PM, Winkler, Tomas wrote:
->>
->> On 12/21/2015 03:17 PM, Tomas Winkler wrote:
->>> Add entry for dumping current watchdog internal state
->>>
->>> Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
->>> ---
->>> V2: new in the series
->>> V3: rebase
->>>    drivers/watchdog/mei_wdt.c | 88
->> ++++++++++++++++++++++++++++++++++++++++++++++
->>>    1 file changed, 88 insertions(+)
->>>
->>> diff --git a/drivers/watchdog/mei_wdt.c b/drivers/watchdog/mei_wdt.c
->>> index 5b28a1e95ac1..ab9aec218d69 100644
->>> --- a/drivers/watchdog/mei_wdt.c
->>> +++ b/drivers/watchdog/mei_wdt.c
->>> @@ -15,6 +15,7 @@
->>>    #include <linux/module.h>
->>>    #include <linux/slab.h>
->>>    #include <linux/interrupt.h>
->>> +#include <linux/debugfs.h>
->>>    #include <linux/watchdog.h>
->>>
->>>    #include <linux/uuid.h>
->>> @@ -54,6 +55,24 @@ enum mei_wdt_state {
->>>    	MEI_WDT_STOPPING,
->>>    };
->>>
->>> +#if IS_ENABLED(CONFIG_DEBUG_FS)
->>> +static const char *mei_wdt_state_str(enum mei_wdt_state state)
->>> +{
->>> +	switch (state) {
->>> +	case MEI_WDT_IDLE:
->>> +		return "IDLE";
->>> +	case MEI_WDT_START:
->>> +		return "START";
->>> +	case MEI_WDT_RUNNING:
->>> +		return "RUNNING";
->>> +	case MEI_WDT_STOPPING:
->>> +		return "STOPPING";
->>> +	default:
->>> +		return "unknown";
->>> +	}
->>> +}
->>> +#endif /* CONFIG_DEBUG_FS */
->>> +
->> I still don't understand why this code has to be here instead of
->> further below (at <----> mark).
-> Once it follow closely after enum definition, second in the next patch the
-> Ifdef is removed since we  use the function in debug output and not only in debugfs.
->
->>
->>>    struct mei_wdt;
->>>
->>>    /**
->>> @@ -76,6 +95,8 @@ struct mei_wdt_dev {
->>>     * @cldev: mei watchdog client device
->>>     * @state: watchdog internal state
->>>     * @timeout: watchdog current timeout
->>> + *
->>> + * @dbgfs_dir: debugfs dir entry
->>>     */
->>>    struct mei_wdt {
->>>    	struct mei_wdt_dev *mwd;
->>> @@ -83,6 +104,10 @@ struct mei_wdt {
->>>    	struct mei_cl_device *cldev;
->>>    	enum mei_wdt_state state;
->>>    	u16 timeout;
->>> +
->>> +#if IS_ENABLED(CONFIG_DEBUG_FS)
->>> +	struct dentry *dbgfs_dir;
->>> +#endif /* CONFIG_DEBUG_FS */
->>>    };
->>>
->>>    /*
->>> @@ -387,6 +412,65 @@ static int mei_wdt_register(struct mei_wdt *wdt)
->>>    	return 0;
->>>    }
->>>
->>> +#if IS_ENABLED(CONFIG_DEBUG_FS)
->>> +
->>
->> <---->
->>
->>> +static ssize_t mei_dbgfs_read_state(struct file *file, char __user *ubuf,
->>> +				    size_t cnt, loff_t *ppos)
->>> +{
->>> +	struct mei_wdt *wdt = file->private_data;
->>> +	const size_t bufsz = 32;
->>> +	char buf[32];
->>> +	ssize_t pos = 0;
->>> +
->>> +	pos += scnprintf(buf + pos, bufsz - pos, "state: %s\n",
->>> +			 mei_wdt_state_str(wdt->state));
->>> +
->> Seems to me that "pos = ..." would accomplish exactly the same
->> without having to pre-initialize pos. I also don't understand the use of
->> "+ pos" and "- pos" in the parameter field. pos is 0, isn't it ?
->> When would it ever be non-0 ?
->>
->> 	pos = scnprintf(buf, sizeof(buf), "state: %s\n", mei_wdt_state_str(wdt-
->>> state));
->>
->> What am I missing here ?
-> Not you are not missing anything, it's just an idiom taken from all my debugfs function with multiline output.
+The 'dev' variable in watchdog drivers has a different lifetime than the
+watchdog character device and should therefore not be used by watchdog
+drivers.
 
-I don't think that is a good reason for using the more complex code here.
-
->>
->>> +	return simple_read_from_buffer(ubuf, cnt, ppos, buf, pos);
->>> +}
->>> +
->>> +static const struct file_operations dbgfs_fops_state = {
->>> +	.open = simple_open,
->>> +	.read = mei_dbgfs_read_state,
->>> +	.llseek = generic_file_llseek,
->>> +};
->>> +
->>> +static void dbgfs_unregister(struct mei_wdt *wdt)
->>> +{
->>> +	if (!wdt->dbgfs_dir)
->>> +		return;
->>> +	debugfs_remove_recursive(wdt->dbgfs_dir);
->>
->> debugfs_remove_recursive() checks if the parameter is NULL,
->> so it is not necessary to check if it is NULL before the call.
-> Correct, I can be fixed.
->>
->>> +	wdt->dbgfs_dir = NULL;
->>> +}
->>> +
->>> +static int dbgfs_register(struct mei_wdt *wdt)
->>> +{
->>> +	struct dentry *dir, *f;
->>> +
->>> +	dir = debugfs_create_dir(KBUILD_MODNAME, NULL);
->>> +	if (!dir)
->>> +		return -ENOMEM;
->>> +
->>> +	wdt->dbgfs_dir = dir;
->>> +	f = debugfs_create_file("state", S_IRUSR, dir, wdt, &dbgfs_fops_state);
->>> +	if (!f)
->>> +		goto err;
->>> +
->>> +	return 0;
->>> +err:
->>> +	dbgfs_unregister(wdt);
->>> +	return -ENODEV;
->>
->> The error value is ignored by the caller - why bother returning an error in the first
->> place ?
-> A function doesn't take responsibility on how it used.
-
-For an exported function I would agree, but not in a static function.
-
-Thanks,
-Guenter
-
+Some of the drivers use the variable to print kernel messages. Those are
+either dropped or converted to use pr_ functions. One driver sets the
+variable during initialization to the watchdog driver's parent device,
+which is wrong and also removed.
