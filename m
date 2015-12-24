@@ -5,18 +5,36 @@ Cc: Wim Van Sebroeck <wim@iguana.be>,
 	Damien Riegel <damien.riegel@savoirfairelinux.com>,
 	linux-kernel@vger.kernel.org,
 	Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH v2 0/5] watchdog: Do not use 'dev' from watchdog_device in watchdog drivers
-Date: Thu, 24 Dec 2015 14:21:59 -0800
-Message-Id: <1450995724-17758-1-git-send-email-linux@roeck-us.net>
+Subject: [PATCH v2 2/5] watchdog: tangox: Print info message using pointer to platform device
+Date: Thu, 24 Dec 2015 14:22:01 -0800
+Message-Id: <1450995724-17758-3-git-send-email-linux@roeck-us.net>
+In-Reply-To: <1450995724-17758-1-git-send-email-linux@roeck-us.net>
+References: <1450995724-17758-1-git-send-email-linux@roeck-us.net>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-The 'dev' variable in watchdog drivers has a different lifetime than the
-watchdog character device and should therefore not be used by watchdog
-drivers.
+The device pointer in struct watchdog_device should not be used by drivers
+and may be removed in the near future. Use the platform device pointer for
+info messages instead.
 
-Some of the drivers use the variable to print kernel messages. Those
-messages are either dropped or changed to use the parent device.
-One driver sets the variable during initialization to the watchdog
-driver's parent device, which is wrong and was removed.
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+---
+v2: No change
 
-v2: Use parent device for dev_XXX messages instead of pr_XXX.
+ drivers/watchdog/tangox_wdt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/watchdog/tangox_wdt.c b/drivers/watchdog/tangox_wdt.c
+index b9ee6246e7c2..709c1ed6fd79 100644
+--- a/drivers/watchdog/tangox_wdt.c
++++ b/drivers/watchdog/tangox_wdt.c
+@@ -184,7 +184,7 @@ static int tangox_wdt_probe(struct platform_device *pdev)
+ 	if (err)
+ 		dev_warn(&pdev->dev, "failed to register restart handler\n");
+ 
+-	dev_info(dev->wdt.dev, "SMP86xx/SMP87xx watchdog registered\n");
++	dev_info(&pdev->dev, "SMP86xx/SMP87xx watchdog registered\n");
+ 
+ 	return 0;
+ }
+-- 
+2.1.4
