@@ -1,57 +1,43 @@
-Return-path: <linux@roeck-us.net>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:35519 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752996AbbLXFLr (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 24 Dec 2015 00:11:47 -0500
 From: Guenter Roeck <linux@roeck-us.net>
 To: linux-watchdog@vger.kernel.org
 Cc: Wim Van Sebroeck <wim@iguana.be>,
 	Damien Riegel <damien.riegel@savoirfairelinux.com>,
-	linux-kernel@vger.kernel.org,
-	Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 4/5] watchdog: mena21: Do not use device pointer from struct watchdog_device
-Date: Wed, 23 Dec 2015 21:11:32 -0800
-Message-Id: <1450933893-7761-5-git-send-email-linux@roeck-us.net>
+	linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 5/5] watchdog: qcom-wdt: Do not set 'dev' in struct watchdog_device
+Date: Wed, 23 Dec 2015 21:11:33 -0800
+Message-Id: <1450933893-7761-6-git-send-email-linux@roeck-us.net>
 In-Reply-To: <1450933893-7761-1-git-send-email-linux@roeck-us.net>
 References: <1450933893-7761-1-git-send-email-linux@roeck-us.net>
-List-ID: <linux-watchdog@vger.kernel.org>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-The device pointer in struct watchdog_device has a different lifetime
-than the driver code and should not be used in drivers. Use pr_err
-instead of dev_err.
+The 'dev' pointer in struct watchdog_device is set by the watchdog core
+when registering the watchdog device and not by the driver. It points to
+the watchdog device, not its parent.
 
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/watchdog/mena21_wdt.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/watchdog/qcom-wdt.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/watchdog/mena21_wdt.c b/drivers/watchdog/mena21_wdt.c
-index 098fa9c34d6d..f0dc794d0fda 100644
---- a/drivers/watchdog/mena21_wdt.c
-+++ b/drivers/watchdog/mena21_wdt.c
-@@ -7,6 +7,9 @@
-  * modify it under the terms of the GNU General Public License
-  * as published by the Free Software Foundation
-  */
-+
-+#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
-+
- #include <linux/module.h>
- #include <linux/moduleparam.h>
- #include <linux/types.h>
-@@ -100,13 +103,14 @@ static int a21_wdt_set_timeout(struct watchdog_device *wdt,
- 	struct a21_wdt_drv *drv = watchdog_get_drvdata(wdt);
- 
- 	if (timeout != 1 && timeout != 30) {
--		dev_err(wdt->dev, "Only 1 and 30 allowed as timeout\n");
-+		pr_err("watchdog%d: Only 1 and 30 allowed as timeout\n",
-+		       wdt->id);
- 		return -EINVAL;
+diff --git a/drivers/watchdog/qcom-wdt.c b/drivers/watchdog/qcom-wdt.c
+index aa7105d32c02..424f9a952fee 100644
+--- a/drivers/watchdog/qcom-wdt.c
++++ b/drivers/watchdog/qcom-wdt.c
+@@ -164,7 +164,6 @@ static int qcom_wdt_probe(struct platform_device *pdev)
+ 		goto err_clk_unprepare;
  	}
  
- 	if (timeout == 30 && wdt->timeout == 1) {
--		dev_err(wdt->dev,
--			"Transition from fast to slow mode not allowed\n");
-+		pr_err("watchdog%d: Transition from fast to slow mode not allowed\n",
-+		       wdt->id);
- 		return -EINVAL;
- 	}
- 
+-	wdt->wdd.dev = &pdev->dev;
+ 	wdt->wdd.info = &qcom_wdt_info;
+ 	wdt->wdd.ops = &qcom_wdt_ops;
+ 	wdt->wdd.min_timeout = 1;
 -- 
 2.1.4
+
