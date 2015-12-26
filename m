@@ -7,68 +7,103 @@ Cc: Wim Van Sebroeck <wim@iguana.be>,
 	Damien Riegel <damien.riegel@savoirfairelinux.com>,
 	linux-kernel@vger.kernel.org,
 	Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH v2 0/6] watchdog: Replace driver based refcounting
-Date: Fri, 25 Dec 2015 16:01:39 -0800
-Message-Id: <1451088105-1722-1-git-send-email-linux@roeck-us.net>
+Subject: [PATCH v2 2/6] watchdog: diag288: Stop re-using watchdog core internal flags
+Date: Fri, 25 Dec 2015 16:01:41 -0800
+Message-Id: <1451088105-1722-3-git-send-email-linux@roeck-us.net>
+In-Reply-To: <1451088105-1722-1-git-send-email-linux@roeck-us.net>
+References: <1451088105-1722-1-git-send-email-linux@roeck-us.net>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-All variables required by the watchdog core to manage a watchdog are
-currently stored in struct watchdog_device. The lifetime of those
-variables is determined by the watchdog driver. However, the lifetime
-of variables used by the watchdog core differs from the lifetime of
-struct watchdog_device. To remedy this situation, watchdog drivers
-can implement ref and unref callbacks, to be used by the watchdog
-core to lock struct watchdog_device in memory. This mechanism was
-introduced with commit e907df327252 ("watchdog: Add support for
-dynamically allocated watchdog_device structs").
+A watchdog driver should not use watchdog subsystem internal flags.
+Use a driver variable and flag instead to maintain the watchdog state
+and to determine if a suspend operation is possible or not.
 
-While this solves the immediate problem, it depends on watchdog drivers
-to actually implement the ref/unref callbacks. This is error prone,
-often not implemented in the first place, or not implemented correctly.
-
-To solve the problem without requiring driver support, split the variables
-in struct watchdog_device into two data structures - one for variables
-associated with the watchdog driver, one for variables associated with
-the watchdog core. With this approach, the watchdog core can keep track
-of the variables it uses and no longer depends on ref/unref callbacks
-in the driver. As a side effect, some of the variables originally in struct
-watchdog_driver are now private to the watchdog core and no longer visible
-in watchdog drivers.
-
-The 'ref' and 'unref' callbacks in struct watchdog_driver are no longer
-used and marked as deprecated for the time being.
-
-Patch 1/6 moves watchdog device creation from watchdog_core.c to
-watchdog_dev.c to simplify watchdog device handling.
-
-Patch 2/6 modifies the diag288 watchdog to no longer use and overload
-watchdog core internal flags.
-
-Patch 3/6 separates variables in watchdog_device based on variable
-lifetime.
-
-Patch 4/6 to 6/6 remove existing ref/unref functions from the drivers
-implementing it. Two of those patches (for da9052 and da9055) fix a
-previously introduced bug as side effect.
-
-The series applies on top of the current watchdog-next as well as the
-pending patches introducing sysfs support ("watchdog: Use static struct
-class watchdog_class in stead of pointer" and "watchdog: Read device
-status through sysfs attributes") by Pratyush Anand.
-
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
-v2: Add patch 2/6.
-    Add more detailed description to patch 3/6.
-    Rename internal data structure to watchdog_core_data, and the variable
-    pointing to it to wd_data. Move its declaration into watchdog_dev.c.
-    Reorder include files in watchdog_dev.c to alphabetic order.
-    Remove _watchdog_ping helper function and call watchdog_ping()
-    directly. Handle locks in the calling code.
-    Drop locking from watchdog_open(). It is already protected against
-    parallel device removal in the driver core code, and file access
-    functions won't be called before the function returns.
-    Remove previously added message "watchdog still running". It wasn't
-    there before, and we should avoid user visible changes.
-    Add missing kfree() to the sch56xx patch.
-    Add comments to da9052 and da9055 patches indicating that the
-    patches fix a bug.
+v2: Added patch
+
+ drivers/watchdog/diag288_wdt.c | 26 ++++++++++++++++----------
+ 1 file changed, 16 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/watchdog/diag288_wdt.c b/drivers/watchdog/diag288_wdt.c
+index 3db9d0e0673d..861d3d3133f8 100644
+--- a/drivers/watchdog/diag288_wdt.c
++++ b/drivers/watchdog/diag288_wdt.c
+@@ -106,6 +106,10 @@ static int __diag288_lpar(unsigned int func, unsigned int timeout,
+ 	return __diag288(func, timeout, action, 0);
+ }
+ 
++static unsigned long wdt_status;
++
++#define DIAG_WDOG_BUSY	0
++
+ static int wdt_start(struct watchdog_device *dev)
+ {
+ 	char *ebc_cmd;
+@@ -113,12 +117,17 @@ static int wdt_start(struct watchdog_device *dev)
+ 	int ret;
+ 	unsigned int func;
+ 
++	if (test_and_set_bit(DIAG_WDOG_BUSY, &wdt_status))
++		return -EBUSY;
++
+ 	ret = -ENODEV;
+ 
+ 	if (MACHINE_IS_VM) {
+ 		ebc_cmd = kmalloc(MAX_CMDLEN, GFP_KERNEL);
+-		if (!ebc_cmd)
++		if (!ebc_cmd) {
++			clear_bit(DIAG_WDOG_BUSY, &wdt_status);
+ 			return -ENOMEM;
++		}
+ 		len = strlcpy(ebc_cmd, wdt_cmd, MAX_CMDLEN);
+ 		ASCEBC(ebc_cmd, MAX_CMDLEN);
+ 		EBC_TOUPPER(ebc_cmd, MAX_CMDLEN);
+@@ -135,6 +144,7 @@ static int wdt_start(struct watchdog_device *dev)
+ 
+ 	if (ret) {
+ 		pr_err("The watchdog cannot be activated\n");
++		clear_bit(DIAG_WDOG_BUSY, &wdt_status);
+ 		return ret;
+ 	}
+ 	return 0;
+@@ -146,6 +156,9 @@ static int wdt_stop(struct watchdog_device *dev)
+ 
+ 	diag_stat_inc(DIAG_STAT_X288);
+ 	ret = __diag288(WDT_FUNC_CANCEL, 0, 0, 0);
++
++	clear_bit(DIAG_WDOG_BUSY, &wdt_status);
++
+ 	return ret;
+ }
+ 
+@@ -220,17 +233,10 @@ static struct watchdog_device wdt_dev = {
+  * It makes no sense to go into suspend while the watchdog is running.
+  * Depending on the memory size, the watchdog might trigger, while we
+  * are still saving the memory.
+- * We reuse the open flag to ensure that suspend and watchdog open are
+- * exclusive operations
+  */
+ static int wdt_suspend(void)
+ {
+-	if (test_and_set_bit(WDOG_DEV_OPEN, &wdt_dev.status)) {
+-		pr_err("Linux cannot be suspended while the watchdog is in use\n");
+-		return notifier_from_errno(-EBUSY);
+-	}
+-	if (test_bit(WDOG_ACTIVE, &wdt_dev.status)) {
+-		clear_bit(WDOG_DEV_OPEN, &wdt_dev.status);
++	if (test_and_set_bit(DIAG_WDOG_BUSY, &wdt_status)) {
+ 		pr_err("Linux cannot be suspended while the watchdog is in use\n");
+ 		return notifier_from_errno(-EBUSY);
+ 	}
+@@ -239,7 +245,7 @@ static int wdt_suspend(void)
+ 
+ static int wdt_resume(void)
+ {
+-	clear_bit(WDOG_DEV_OPEN, &wdt_dev.status);
++	clear_bit(DIAG_WDOG_BUSY, &wdt_status);
+ 	return NOTIFY_DONE;
+ }
+ 
+-- 
+2.1.4
