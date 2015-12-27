@@ -1,111 +1,96 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from spo001.leaseweb.nl ([83.149.101.17]:43656 "EHLO
+Received: from spo001.leaseweb.nl ([83.149.101.17]:43660 "EHLO
 	spo001.leaseweb.nl" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752442AbbL0T6T (ORCPT
+	with ESMTP id S1751872AbbL0UDW (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 27 Dec 2015 14:58:19 -0500
-Date: Sun, 27 Dec 2015 20:58:17 +0100
+	Sun, 27 Dec 2015 15:03:22 -0500
+Date: Sun, 27 Dec 2015 21:03:20 +0100
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Harald Geyer <harald@ccbib.org>
-Cc: linux-watchdog@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
-	Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-	<u.kleine-koenig@pengutronix.de>
-Subject: Re: [PATCHv4] watchdog: stmp3xxx: Stop the watchdog on system halt
-Message-ID: <20151227195817.GA24802@spo001.leaseweb.nl>
-References: <1449930735-8503-1-git-send-email-harald@ccbib.org>
+To: roy.qing.li@gmail.com
+Cc: linux-watchdog@vger.kernel.org, linux@roeck-us.net
+Subject: Re: [PATCH] watchdog: refuse to unload softdog module when its timer is running
+Message-ID: <20151227200320.GA24878@spo001.leaseweb.nl>
+References: <1450359002-26577-1-git-send-email-roy.qing.li@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1449930735-8503-1-git-send-email-harald@ccbib.org>
+In-Reply-To: <1450359002-26577-1-git-send-email-roy.qing.li@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Harald,
+Hi Li,
 
-> This allows the system to actually halt even if userspace forgot to
-> disable the watchdog first. Old behaviour was that the watchdog forced
-> the system to boot again.
+> From: Li RongQing <roy.qing.li@gmail.com>
 > 
-> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-> Signed-off-by: Harald Geyer <harald@ccbib.org>
+> the softdog has static variables which are accessed if its timer is
+> still running after the driver is unloaded. and lead to crash:
+> 
+>    $modprobe softdog
+>    $echo 1 >/dev/watchdog
+>    $modprobe -r softdog
+> 
+>    CPU 20 Unable to handle kernel paging request at virtual address
+>    Oops[#1]:
+>    CPU: 20 PID: 0 Comm: swapper/20 Not tainted 4.1.13-WR8.0.0.0_standard
+>    ...
+>    Modules linked in: [last unloaded: softdog]
+>     ....
+>    Call Trace:
+>    [<ffffffff801e142c>] cascade+0x34/0xb0
+>    [<ffffffff801e1964>] run_timer_softirq+0x30c/0x368
+>    [<ffffffff80181044>] __do_softirq+0x1ec/0x418
+>    [<ffffffff801815d0>] irq_exit+0x90/0x98
+>    [<ffffffff8010749c>] plat_irq_dispatch+0xa4/0x140
+>    [<ffffffff80152740>] ret_from_irq+0x0/0x4
+>    [<ffffffff801529e0>] __r4k_wait+0x20/0x40
+>    [<ffffffff801c2278>] cpu_startup_entry+0x2a0/0x368
+>    [<ffffffff8015fa64>] start_secondary+0x444/0x4d8
+> 
+> add the module ref when timer is running to avoid to unload the softdog
+> module
+> 
+> Signed-off-by: Li RongQing <roy.qing.li@gmail.com>
+> Cc: Guenter Roeck <linux@roeck-us.net> 
 > ---
-> Changes since v3:
-> * Fix two minor whitespace issues
-> * Send this patch (was 1/2) alone, because Uwe wants more time looking into
->   2/2.
+>  drivers/watchdog/softdog.c | 8 ++++++--
+>  1 file changed, 6 insertions(+), 2 deletions(-)
 > 
-> Changes since v2:
-> * split this out as a separate patch
-> 
-> 
->  drivers/watchdog/stmp3xxx_rtc_wdt.c | 28 ++++++++++++++++++++++++++++
->  1 file changed, 28 insertions(+)
-> 
-> diff --git a/drivers/watchdog/stmp3xxx_rtc_wdt.c b/drivers/watchdog/stmp3xxx_rtc_wdt.c
-> index 3ee6128..dbe0372 100644
-> --- a/drivers/watchdog/stmp3xxx_rtc_wdt.c
-> +++ b/drivers/watchdog/stmp3xxx_rtc_wdt.c
-> @@ -14,6 +14,8 @@
->  #include <linux/watchdog.h>
->  #include <linux/platform_device.h>
->  #include <linux/stmp3xxx_rtc_wdt.h>
-> +#include <linux/notifier.h>
-> +#include <linux/reboot.h>
+> diff --git a/drivers/watchdog/softdog.c b/drivers/watchdog/softdog.c
+> index 0dc5e323d..86ce3f9 100644
+> --- a/drivers/watchdog/softdog.c
+> +++ b/drivers/watchdog/softdog.c
+> @@ -87,6 +87,7 @@ static struct timer_list watchdog_ticktock =
 >  
->  #define WDOG_TICK_RATE 1000 /* 1 kHz clock */
->  #define STMP3XXX_DEFAULT_TIMEOUT 19
-> @@ -69,6 +71,28 @@ static struct watchdog_device stmp3xxx_wdd = {
->  	.status = WATCHDOG_NOWAYOUT_INIT_STATUS,
->  };
->  
-> +static int wdt_notify_sys(struct notifier_block *nb, unsigned long code,
-> +			  void *unused)
-> +{
-> +	struct device *dev = watchdog_get_drvdata(&stmp3xxx_wdd);
-> +	struct stmp3xxx_wdt_pdata *pdata = dev_get_platdata(dev);
-> +
-> +	switch (code) {
-> +	case SYS_DOWN:	/* keep enabled, system might crash while going down */
-> +		break;
-> +	case SYS_HALT:	/* allow the system to actually halt */
-> +	case SYS_POWER_OFF:
-> +		wdt_stop(&stmp3xxx_wdd);
-> +		break;
-> +	}
-> +
-> +	return NOTIFY_DONE;
-> +}
-> +
-> +static struct notifier_block wdt_notifier = {
-> +	.notifier_call = wdt_notify_sys,
-> +};
-> +
->  static int stmp3xxx_wdt_probe(struct platform_device *pdev)
+>  static void watchdog_fire(unsigned long data)
 >  {
->  	int ret;
-> @@ -84,6 +108,9 @@ static int stmp3xxx_wdt_probe(struct platform_device *pdev)
->  		return ret;
->  	}
+> +	module_put(THIS_MODULE);
+>  	if (soft_noboot)
+>  		pr_crit("Triggered - Reboot ignored\n");
+>  	else if (soft_panic) {
+> @@ -105,13 +106,16 @@ static void watchdog_fire(unsigned long data)
 >  
-> +	if (register_reboot_notifier(&wdt_notifier))
-> +		dev_warn(&pdev->dev, "cannot register reboot notifier\n");
-> +
->  	dev_info(&pdev->dev, "initialized watchdog with heartbeat %ds\n",
->  			stmp3xxx_wdd.timeout);
->  	return 0;
-> @@ -91,6 +118,7 @@ static int stmp3xxx_wdt_probe(struct platform_device *pdev)
->  
->  static int stmp3xxx_wdt_remove(struct platform_device *pdev)
+>  static int softdog_ping(struct watchdog_device *w)
 >  {
-> +	unregister_reboot_notifier(&wdt_notifier);
->  	watchdog_unregister_device(&stmp3xxx_wdd);
+> -	mod_timer(&watchdog_ticktock, jiffies+(w->timeout*HZ));
+> +	if (!mod_timer(&watchdog_ticktock, jiffies+(w->timeout*HZ)))
+> +		__module_get(THIS_MODULE);
 >  	return 0;
 >  }
+>  
+>  static int softdog_stop(struct watchdog_device *w)
+>  {
+> -	del_timer(&watchdog_ticktock);
+> +	if (del_timer(&watchdog_ticktock))
+> +		module_put(THIS_MODULE);
+> +
+>  	return 0;
+>  }
+>  
 > -- 
 > 2.1.4
 > 
 
-Patch added to linux-watchdog-next.
+Patch is adde to linux-watchdog-next.
 
 Kind regards,
 Wim.
