@@ -1,67 +1,64 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from spo001.leaseweb.nl ([83.149.101.17]:43673 "EHLO
+Received: from spo001.leaseweb.nl ([83.149.101.17]:43680 "EHLO
 	spo001.leaseweb.nl" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751914AbbL0UQ4 (ORCPT
+	with ESMTP id S1751872AbbL0USA (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 27 Dec 2015 15:16:56 -0500
-Date: Sun, 27 Dec 2015 21:16:55 +0100
+	Sun, 27 Dec 2015 15:18:00 -0500
+Date: Sun, 27 Dec 2015 21:17:53 +0100
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-	<u.kleine-koenig@pengutronix.de>
-Cc: kernel@pengutronix.de, linux-watchdog@vger.kernel.org,
-	Lars Poeschel <poeschel@lemonage.de>,
-	Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH 2/2] watchdog: omap: don't disable the timer when it should be enabled early
-Message-ID: <20151227201655.GB25197@spo001.leaseweb.nl>
-References: <1450175861-16801-1-git-send-email-u.kleine-koenig@pengutronix.de> <1450175861-16801-2-git-send-email-u.kleine-koenig@pengutronix.de>
+To: Geliang Tang <geliangtang@163.com>
+Cc: Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 09/10] watchdog: cadence_wdt: use to_platform_device()
+Message-ID: <20151227201753.GC25197@spo001.leaseweb.nl>
+References: <a554e6af3a3528c2206c94dab62b7800f96caa4b.1451221174.git.geliangtang@163.com> <bfab2ac46e1ff47b86258cc38ff1d698edc6017b.1451221174.git.geliangtang@163.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-In-Reply-To: <1450175861-16801-2-git-send-email-u.kleine-koenig@pengutronix.de>
+In-Reply-To: <bfab2ac46e1ff47b86258cc38ff1d698edc6017b.1451221174.git.geliangtang@163.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Uwe,
+Hi Geliang,
 
-> With the early_enable module parameter the watchdog can be started
-> during driver probe time. If this is requested the bets are good that
-> the timer is already running, so to narrow the gap where the timer is
-> disabled only call the disable function when the timer shouldn't be
-> started.
->=20
-> Signed-off-by: Uwe Kleine-K=F6nig <u.kleine-koenig@pengutronix.de>
+> Use to_platform_device() instead of open-coding it.
+> 
+> Signed-off-by: Geliang Tang <geliangtang@163.com>
 > ---
->  drivers/watchdog/omap_wdt.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
->=20
-> diff --git a/drivers/watchdog/omap_wdt.c b/drivers/watchdog/omap_wdt.=
-c
-> index af8947429c91..ae673cd06aa1 100644
-> --- a/drivers/watchdog/omap_wdt.c
-> +++ b/drivers/watchdog/omap_wdt.c
-> @@ -270,7 +270,8 @@ static int omap_wdt_probe(struct platform_device =
-*pdev)
->  			wdev->wdog.bootstatus =3D WDIOF_CARDRESET;
->  	}
-> =20
-> -	omap_wdt_disable(wdev);
-> +	if (!early_enable)
-> +		omap_wdt_disable(wdev);
-> =20
->  	ret =3D watchdog_register_device(&wdev->wdog);
->  	if (ret) {
-> --=20
-> 2.6.2
->=20
+>  drivers/watchdog/cadence_wdt.c | 6 ++----
+>  1 file changed, 2 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/watchdog/cadence_wdt.c b/drivers/watchdog/cadence_wdt.c
+> index abf64eb..4dda902 100644
+> --- a/drivers/watchdog/cadence_wdt.c
+> +++ b/drivers/watchdog/cadence_wdt.c
+> @@ -421,8 +421,7 @@ static void cdns_wdt_shutdown(struct platform_device *pdev)
+>   */
+>  static int __maybe_unused cdns_wdt_suspend(struct device *dev)
+>  {
+> -	struct platform_device *pdev = container_of(dev,
+> -			struct platform_device, dev);
+> +	struct platform_device *pdev = to_platform_device(dev);
+>  	struct cdns_wdt *wdt = platform_get_drvdata(pdev);
+>  
+>  	cdns_wdt_stop(&wdt->cdns_wdt_device);
+> @@ -440,8 +439,7 @@ static int __maybe_unused cdns_wdt_suspend(struct device *dev)
+>  static int __maybe_unused cdns_wdt_resume(struct device *dev)
+>  {
+>  	int ret;
+> -	struct platform_device *pdev = container_of(dev,
+> -			struct platform_device, dev);
+> +	struct platform_device *pdev = to_platform_device(dev);
+>  	struct cdns_wdt *wdt = platform_get_drvdata(pdev);
+>  
+>  	ret = clk_prepare_enable(wdt->clk);
+> -- 
+> 2.5.0
+> 
+> 
 
 Patch added to linux-watchdog-next.
 
 Kind regards,
 Wim.
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
-g" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
