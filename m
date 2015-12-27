@@ -1,73 +1,73 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from spo001.leaseweb.nl ([83.149.101.17]:43574 "EHLO
+Received: from spo001.leaseweb.nl ([83.149.101.17]:43613 "EHLO
 	spo001.leaseweb.nl" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1750918AbbL0Qui (ORCPT
+	with ESMTP id S1750918AbbL0Q6B (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 27 Dec 2015 11:50:38 -0500
-Date: Sun, 27 Dec 2015 17:50:36 +0100
+	Sun, 27 Dec 2015 11:58:01 -0500
+Date: Sun, 27 Dec 2015 17:57:56 +0100
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Damien Riegel <damien.riegel@savoirfairelinux.com>
-Cc: linux-watchdog@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
-	Mike Looijmans <mike.looijmans@topic.nl>,
-	kernel@savoirfairelinux.com
-Subject: Re: [PATCH v2 0/6] watchdog: factorize reboot notifier registration
-Message-ID: <20151227165036.GB23719@spo001.leaseweb.nl>
-References: <1448056496-2335-1-git-send-email-damien.riegel@savoirfairelinux.com>
+To: Pratyush Anand <panand@redhat.com>
+Cc: dyoung@redhat.com, dzickus@redhat.com, linux@roeck-us.net,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH V5 0/2] watchdog: Sysfs status read support
+Message-ID: <20151227165756.GC23719@spo001.leaseweb.nl>
+References: <cover.1450353452.git.panand@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1448056496-2335-1-git-send-email-damien.riegel@savoirfairelinux.com>
+In-Reply-To: <cover.1450353452.git.panand@redhat.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Damien,
+Hi Pratyush,
 
-> Many drivers implements the exact same piece of code to register a
-> reboot notifier. It can be nice to factorize this in the watchdog core.
+> These patches provide support to read different watchdog device status
+> through sysfs interface.
+>  
+> Changes since V4:
+> * All sysfs code has been protected under CONFIG_WATCHDOG_SYSFS
 > 
-> The first patch adds a new helper function, watchdog_stop_on_reboot,
-> which registers a reboot notifier block for this device. If used, the
-> watchdog core will care about stopping the watchdog when receiving a
-> reboot notification.
+> Changes since V3:                                                                                    
+> * Added Reviewed by tag
+> * Corrected a checkpatch warning             
 > 
-> The following patches bring this change to the current watchdog drivers
-> that use watchdog_core.
+> Changes since V2: 
+> * Used static struct class watchdog_class in stead of pointer. It helped to 
+> keep using device_create(). 
+> * Above logic was moved to a separate patch.  Changed subject line of other
+> patch to look more relevant  
 > 
-> This action is done only when the reboot code is SYS_HALT or SYS_DOWN,
-> since that is what most of the drivers are doing.
+> Changes since V1(RFC): 
+> * Removed keepalive and start ABI
+> * timeout is read only now
+> * state returns text
+> * only supported ABI visible
+> * ABI contact changed to MAINTAINER
+> * unnecessary mutex removed
+> * aligned continuation with '('
+> * unnecessary initialization of status (= 0) corrected
+> * unnecessary else removed
+> * used __ATTRIBUTE_GROUPS
+> * removed watchdog_device_create and added functionality in
+> * watchdog_dev_register.
+> * optimized nowayout_show
+> * Now no -EOPNOTSUPP return for timeout read in case of
+> * wdd->timeout = 0.         
 > 
-> Only 3 drivers, including gpio_wdt, do not stop the watchdog on
-> SYS_DOWN. So for this watchdog, it will now stop on reboot if
-> "always-running" is not set, whereas it did not prior to this patchset.
+> Pratyush Anand (2):
+>   watchdog: Use static struct class watchdog_class in stead of pointer
+>   watchdog: Read device status through sysfs attributes
 > 
-> This change has been compile-tested with allyesconfig on arm.
-> It has been tested with (not mainlined yet) ts-4800's watchdog driver.
-> 
-> 
-> Changes in v2:
->  - call ops->stop only if watchdog is active
->  - squashed gpio_wdt-related commits to keep a consistent behaviour.
-> 
-> Damien Riegel (6):
->   watchdog: core: add reboot notifier support
->   watchdog: bcm47xx_wdt: use core reboot notifier
->   watchdog: cadence_wdt: use core reboot notifier
->   watchdog: gpio_wdt: use core reboot notifier
->   watchdog: softdog: use core reboot notifier
->   watchdog: w83627hf_wdt: use core reboot notifier
-> 
->  Documentation/watchdog/watchdog-kernel-api.txt |  8 ++++++
->  drivers/watchdog/bcm47xx_wdt.c                 | 24 ++---------------
->  drivers/watchdog/cadence_wdt.c                 | 36 +------------------------
->  drivers/watchdog/gpio_wdt.c                    | 35 ++----------------------
->  drivers/watchdog/softdog.c                     | 30 ++-------------------
->  drivers/watchdog/w83627hf_wdt.c                | 32 ++--------------------
->  drivers/watchdog/watchdog_core.c               | 37 ++++++++++++++++++++++++++
->  include/linux/bcm47xx_wdt.h                    |  2 --
->  include/linux/watchdog.h                       |  9 +++++++
->  9 files changed, 63 insertions(+), 150 deletions(-)
+>  Documentation/ABI/testing/sysfs-class-watchdog |  51 +++++++++
+>  drivers/watchdog/Kconfig                       |   7 ++
+>  drivers/watchdog/watchdog_core.c               |  17 +--
+>  drivers/watchdog/watchdog_core.h               |   2 +-
+>  drivers/watchdog/watchdog_dev.c                | 140 ++++++++++++++++++++++++-
+>  5 files changed, 198 insertions(+), 19 deletions(-)
+>  create mode 100644 Documentation/ABI/testing/sysfs-class-watchdog
 
 This patchset has been added to linux-watchdog-next.
+The second patch has been altered as suggested by Guenter (with the #else ; #define wdt_groups NULL statements).
 
 Kind regards,
 Wim.
