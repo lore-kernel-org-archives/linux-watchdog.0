@@ -1,10 +1,10 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from spo001.leaseweb.nl ([83.149.101.17]:43647 "EHLO
+Received: from spo001.leaseweb.nl ([83.149.101.17]:43651 "EHLO
 	spo001.leaseweb.nl" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752442AbbL0Tpv (ORCPT
+	with ESMTP id S1752442AbbL0TqJ (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 27 Dec 2015 14:45:51 -0500
-Date: Sun, 27 Dec 2015 20:45:45 +0100
+	Sun, 27 Dec 2015 14:46:09 -0500
+Date: Sun, 27 Dec 2015 20:46:04 +0100
 From: Wim Van Sebroeck <wim@iguana.be>
 To: Huang Rui <ray.huang@amd.com>
 Cc: Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org,
@@ -12,102 +12,44 @@ Cc: Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org,
 	Denis Turischev <denis.turischev@compulab.co.il>,
 	Borislav Petkov <bp@alien8.de>,
 	Vincent Wan <vincent.wan@amd.com>, Tony Li <tony.li@amd.com>
-Subject: Re: [PATCH 1/2] sp5100_tco: fix the device check for SB800 and later chipsets
-Message-ID: <20151227194545.GB24655@spo001.leaseweb.nl>
-References: <1448273256-1793-1-git-send-email-ray.huang@amd.com>
+Subject: Re: [PATCH 2/2] sp5100_tco: Add AMD Carrizo platform support
+Message-ID: <20151227194604.GC24655@spo001.leaseweb.nl>
+References: <1448273256-1793-1-git-send-email-ray.huang@amd.com> <1448273256-1793-2-git-send-email-ray.huang@amd.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1448273256-1793-1-git-send-email-ray.huang@amd.com>
+In-Reply-To: <1448273256-1793-2-git-send-email-ray.huang@amd.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
 Hi Rui,
 
-> For SB800 and later chipsets, the register definitions are the same
-> with SB800. And for SB700 and older chipsets, the definitions should
-> be same with SP5100/SB7x0.
+> sp5100_tco watchdog is also supported on AMD KernCZ chipset of Carrizo
+> platform.
 > 
 > Signed-off-by: Huang Rui <ray.huang@amd.com>
 > Cc: Denis Turischev <denis.turischev@compulab.co.il>
 > ---
-> 
-> Hi Guenter,
-> 
-> These two patches should be on top of "sp5100_tco: Add AMD Mullins
-> platform support". And are rebased at watchdog-next branch.
-> 
-> Thanks,
-> Rui
-> 
-> ---
->  drivers/watchdog/sp5100_tco.c | 28 ++++++++++++++++------------
->  1 file changed, 16 insertions(+), 12 deletions(-)
+>  drivers/watchdog/sp5100_tco.c | 2 ++
+>  1 file changed, 2 insertions(+)
 > 
 > diff --git a/drivers/watchdog/sp5100_tco.c b/drivers/watchdog/sp5100_tco.c
-> index ef039f8..c9dd419 100644
+> index c9dd419..6467b91 100644
 > --- a/drivers/watchdog/sp5100_tco.c
 > +++ b/drivers/watchdog/sp5100_tco.c
-> @@ -333,21 +333,24 @@ static unsigned char sp5100_tco_setupdevice(void)
->  	if (!sp5100_tco_pci)
->  		return 0;
->  
-> -	pr_info("PCI Revision ID: 0x%x\n", sp5100_tco_pci->revision);
-> +	pr_info("PCI Vendor ID: 0x%x, Device ID: 0x%x, Revision ID: 0x%x\n",
-> +		sp5100_tco_pci->vendor, sp5100_tco_pci->device,
-> +		sp5100_tco_pci->revision);
->  
->  	/*
->  	 * Determine type of southbridge chipset.
->  	 */
-> -	if (sp5100_tco_pci->revision >= 0x40) {
-> -		dev_name = SB800_DEVNAME;
-> -		index_reg = SB800_IO_PM_INDEX_REG;
-> -		data_reg = SB800_IO_PM_DATA_REG;
-> -		base_addr = SB800_PM_WATCHDOG_BASE;
-> -	} else {
-> +	if (sp5100_tco_pci->device == PCI_DEVICE_ID_ATI_SBX00_SMBUS &&
-> +	    sp5100_tco_pci->revision < 0x40) {
->  		dev_name = SP5100_DEVNAME;
->  		index_reg = SP5100_IO_PM_INDEX_REG;
->  		data_reg = SP5100_IO_PM_DATA_REG;
->  		base_addr = SP5100_PM_WATCHDOG_BASE;
-> +	} else {
-> +		dev_name = SB800_DEVNAME;
-> +		index_reg = SB800_IO_PM_INDEX_REG;
-> +		data_reg = SB800_IO_PM_DATA_REG;
-> +		base_addr = SB800_PM_WATCHDOG_BASE;
->  	}
->  
->  	/* Request the IO ports used by this driver */
-> @@ -383,7 +386,12 @@ static unsigned char sp5100_tco_setupdevice(void)
->  	 * Secondly, Find the watchdog timer MMIO address
->  	 * from SBResource_MMIO register.
->  	 */
-> -	if (sp5100_tco_pci->revision >= 0x40) {
-> +	if (sp5100_tco_pci->device == PCI_DEVICE_ID_ATI_SBX00_SMBUS &&
-> +	    sp5100_tco_pci->revision < 0x40) {
-> +		/* Read SBResource_MMIO from PCI config(PCI_Reg: 9Ch) */
-> +		pci_read_config_dword(sp5100_tco_pci,
-> +				      SP5100_SB_RESOURCE_MMIO_BASE, &val);
-> +	} else {
->  		/* Read SBResource_MMIO from AcpiMmioEn(PM_Reg: 24h) */
->  		outb(SB800_PM_ACPI_MMIO_EN+3, SB800_IO_PM_INDEX_REG);
->  		val = inb(SB800_IO_PM_DATA_REG);
-> @@ -393,10 +401,6 @@ static unsigned char sp5100_tco_setupdevice(void)
->  		val = val << 8 | inb(SB800_IO_PM_DATA_REG);
->  		outb(SB800_PM_ACPI_MMIO_EN+0, SB800_IO_PM_INDEX_REG);
->  		val = val << 8 | inb(SB800_IO_PM_DATA_REG);
-> -	} else {
-> -		/* Read SBResource_MMIO from PCI config(PCI_Reg: 9Ch) */
-> -		pci_read_config_dword(sp5100_tco_pci,
-> -				      SP5100_SB_RESOURCE_MMIO_BASE, &val);
->  	}
->  
->  	/* The SBResource_MMIO is enabled and mapped memory space? */
+> @@ -308,6 +308,8 @@ static const struct pci_device_id sp5100_tco_pci_tbl[] = {
+>  	  PCI_ANY_ID, },
+>  	{ PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_HUDSON2_SMBUS, PCI_ANY_ID,
+>  	  PCI_ANY_ID, },
+> +	{ PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_KERNCZ_SMBUS, PCI_ANY_ID,
+> +	  PCI_ANY_ID, },
+>  	{ 0, },			/* End of list */
+>  };
+>  MODULE_DEVICE_TABLE(pci, sp5100_tco_pci_tbl);
 > -- 
 > 1.9.1
 > 
+
 This patch has been added to linux-watchdog-next.
 
 Kind regards,
