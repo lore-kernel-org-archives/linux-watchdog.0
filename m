@@ -1,61 +1,63 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:57039 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754687AbbL0P1H (ORCPT
+Received: from spo001.leaseweb.nl ([83.149.101.17]:43569 "EHLO
+	spo001.leaseweb.nl" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1752651AbbL0Qri (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 27 Dec 2015 10:27:07 -0500
-Date: Sun, 27 Dec 2015 07:27:03 -0800
-From: Guenter Roeck <linux@roeck-us.net>
-To: Geliang Tang <geliangtang@163.com>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 09/10] watchdog: cadence_wdt: use to_platform_device()
-Message-ID: <20151227152703.GA8944@roeck-us.net>
-References: <a554e6af3a3528c2206c94dab62b7800f96caa4b.1451221174.git.geliangtang@163.com>
- <bfab2ac46e1ff47b86258cc38ff1d698edc6017b.1451221174.git.geliangtang@163.com>
-MIME-Version: 1.0
+	Sun, 27 Dec 2015 11:47:38 -0500
+Date: Sun, 27 Dec 2015 17:47:35 +0100
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Damien Riegel <damien.riegel@savoirfairelinux.com>
+Cc: linux-watchdog@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+	kernel@savoirfairelinux.com
+Subject: Re: [PATCH v2 00/13] watchdog: factorize restart handler registration
+Message-ID: <20151227164735.GA23719@spo001.leaseweb.nl>
+References: <1447694891-24831-1-git-send-email-damien.riegel@savoirfairelinux.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <bfab2ac46e1ff47b86258cc38ff1d698edc6017b.1451221174.git.geliangtang@163.com>
+In-Reply-To: <1447694891-24831-1-git-send-email-damien.riegel@savoirfairelinux.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Sun, Dec 27, 2015 at 09:15:47PM +0800, Geliang Tang wrote:
-> Use to_platform_device() instead of open-coding it.
-> 
-> Signed-off-by: Geliang Tang <geliangtang@163.com>
+Hi Damien,
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+> Many drivers implements the exact same piece of code to register a
+> restart handler. It can be nice to factorize this in the watchdog core.
+> 
+> The first patch adds an optional restart watchdog operation. If a driver
+> defines this operation, a restart handler is registered. By default, the
+> restart handler priority is set to 0, but a helper function
+> watchdog_set_restart_priority is provided to change it.
+> 
+> The following patches bring this change to the current watchdog drivers
+> that use watchdog_core.
+> 
+> This change has been compile-tested on da9063, imx2, lpc18xx, imgpdc.
+> It has been tested with (not mainlined yet) ts-4800's watchdog driver.
+> 
+> Changes in v2:
+>  - bcm47xx_wdt.c: move restart function to fix an undefined function
+>    error
+>  - core: documentation and header: fix "capabilites" typo, reword some
+>    comments to fit 80 columns
+> 
+> Damien Riegel (13):
+>   watchdog: core: add restart handler support
+>   watchdog: bcm47xx_wdt: use core restart handler
+>   watchdog: da9063_wdt: use core restart handler
+>   watchdog: digicolor_wdt: use core restart handler
+>   watchdog: imgpdc_wdt: use core restart handler
+>   watchdog: imx2_wdt: use core restart handler
+>   watchdog: lpc18xx_wdt: use core restart handler
+>   watchdog: meson_wdt: use core restart handler
+>   watchdog: moxart_wdt: use core restart handler
+>   watchdog: mtk_wdt: use core restart handler
+>   watchdog: qcom-wdt: use core restart handler
+>   watchdog: s3c2410_wdt: use core restart handler
+>   watchdog: sunxi_wdt: use core restart handler
 
-> ---
->  drivers/watchdog/cadence_wdt.c | 6 ++----
->  1 file changed, 2 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/watchdog/cadence_wdt.c b/drivers/watchdog/cadence_wdt.c
-> index abf64eb..4dda902 100644
-> --- a/drivers/watchdog/cadence_wdt.c
-> +++ b/drivers/watchdog/cadence_wdt.c
-> @@ -421,8 +421,7 @@ static void cdns_wdt_shutdown(struct platform_device *pdev)
->   */
->  static int __maybe_unused cdns_wdt_suspend(struct device *dev)
->  {
-> -	struct platform_device *pdev = container_of(dev,
-> -			struct platform_device, dev);
-> +	struct platform_device *pdev = to_platform_device(dev);
->  	struct cdns_wdt *wdt = platform_get_drvdata(pdev);
->  
->  	cdns_wdt_stop(&wdt->cdns_wdt_device);
-> @@ -440,8 +439,7 @@ static int __maybe_unused cdns_wdt_suspend(struct device *dev)
->  static int __maybe_unused cdns_wdt_resume(struct device *dev)
->  {
->  	int ret;
-> -	struct platform_device *pdev = container_of(dev,
-> -			struct platform_device, dev);
-> +	struct platform_device *pdev = to_platform_device(dev);
->  	struct cdns_wdt *wdt = platform_get_drvdata(pdev);
->  
->  	ret = clk_prepare_enable(wdt->clk);
-> -- 
-> 2.5.0
-> 
-> 
+This patchset has been added to linux-watchdog-next.
+
+Kind regards,
+Wim.
+
