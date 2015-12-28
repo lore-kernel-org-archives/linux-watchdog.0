@@ -1,332 +1,379 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from spo001.leaseweb.nl ([83.149.101.17]:43918 "EHLO
+Received: from spo001.leaseweb.nl ([83.149.101.17]:43927 "EHLO
 	spo001.leaseweb.nl" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752500AbbL1V1U (ORCPT
+	with ESMTP id S1752469AbbL1Vle (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 28 Dec 2015 16:27:20 -0500
-Date: Mon, 28 Dec 2015 22:27:18 +0100
+	Mon, 28 Dec 2015 16:41:34 -0500
+Date: Mon, 28 Dec 2015 22:41:30 +0100
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Barry Song <21cnbao@gmail.com>
-Cc: linux-watchdog@vger.kernel.org, workgroup.linux@csr.com,
-	Guo Zeng <Guo.Zeng@csr.com>,
-	Guenter Roeck <linux@roeck-us.net>,
-	William Wang <William.Wang@csr.com>,
-	Barry Song <Baohua.Song@csr.com>
-Subject: Re: [PATCH v4] watchdog: atlas7: add watchdog driver of CSRatlas7
-Message-ID: <20151228212718.GA1111@spo001.leaseweb.nl>
-References: <1449027467-29333-1-git-send-email-21cnbao@gmail.com>
+To: Damien Riegel <damien.riegel@savoirfairelinux.com>
+Cc: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
+	Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	Guenter Roeck <linux@roeck-us.net>, kernel@savoirfairelinux.com
+Subject: Re: [PATCH v8] watchdog: ts4800: add driver for TS-4800 watchdog
+Message-ID: <20151228214130.GA1177@spo001.leaseweb.nl>
+References: <1449592648-22701-1-git-send-email-damien.riegel@savoirfairelinux.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1449027467-29333-1-git-send-email-21cnbao@gmail.com>
+In-Reply-To: <1449592648-22701-1-git-send-email-damien.riegel@savoirfairelinux.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Barry, Guo,
+Hi Damien,
 
-> From: Guo Zeng <Guo.Zeng@csr.com>
+> This watchdog is instantiated in a FPGA that is memory mapped. It is
+> made of only one register, called the feed register. Writing to this
+> register will re-arm the watchdog for a given time (and enable it if it
+> was disable). It can be disabled by writing a special value into it.
 > 
-> This patch adds watchdog driver for CSRatlas7 platform.
-> On CSRatlas7, the 6th timer can act as a watchdog timer
-> when the Watchdog mode is enabled.
+> It is part of a syscon block, and the watchdog register offset in this
+> block varies from board to board. This offset is passed in the syscon
+> property after the phandle to the syscon node.
 > 
-> Cc: Guenter Roeck <linux@roeck-us.net>
-> Signed-off-by: Guo Zeng <Guo.Zeng@csr.com>
-> Signed-off-by: William Wang <William.Wang@csr.com>
-> Signed-off-by: Barry Song <Baohua.Song@csr.com>
+> Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
+> Acked-by: Rob Herring <robh@kernel.org>
+> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 > ---
->  drivers/watchdog/Kconfig      |  10 ++
->  drivers/watchdog/Makefile     |   1 +
->  drivers/watchdog/atlas7_wdt.c | 242 ++++++++++++++++++++++++++++++++++++++++++
->  3 files changed, 253 insertions(+)
->  create mode 100644 drivers/watchdog/atlas7_wdt.c
+> Changes in v8:
+>  - Split the serie into two parts: watchdog and dts as there are no
+>    build dependencies between the two
+>  - Added Reviewed-by Guenter Roeck and Acked-by by Rob Herring (for
+>    the dts bindings).
 > 
+> Changes in v7:
+>  - syscon: change bus-width DT property to reg-io-width
+>  - watchdog: add dependency on HAS_IOMEM (spotted by a 0-day build) 
+> 
+> Changes in v6:
+>  - vendor prefix: reorder to sort alphabetically (wrong order since v3)
+>  - split commit adding device tree into two patches: one for the doc, one for
+>    the bindings
+> 
+> Changes in v5:
+>  - watchdog: changed iteration stop condition in set_timeout to be less
+>    error prone
+> 
+> Changes in v4:
+>  - syscon: rewrite DT property reading to be clearer
+>  - watchdog: made fixes suggested by Guenter (now uses
+>    watchdog_init_timeout, u32 instead of u16, fixed error checking in
+>    probe, cleaned set_timeout)
+> 
+> Changes in v3:
+>  - Rebased on v4.3
+>  - Changed vendor prefix from "ts" to "technologic"
+>  - Added a DT option to generic syscon driver to allow regmap configuration
+>  - Dropped custom mfd driver, use generic syscon driver instead.
+> 
+> Changes in v2:
+>  - Added a mfd driver to handle syscon registers
+>  - The watchdog driver now uses the regmap (created by the mfd driver)
+>    to access the feed register
+>  - Remove watchdog's dependency on SOC_IMX51
+> 
+>  .../devicetree/bindings/watchdog/ts4800-wdt.txt    |  25 +++
+>  drivers/watchdog/Kconfig                           |  10 +
+>  drivers/watchdog/Makefile                          |   1 +
+>  drivers/watchdog/ts4800_wdt.c                      | 215 +++++++++++++++++++++
+>  4 files changed, 251 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/watchdog/ts4800-wdt.txt
+>  create mode 100644 drivers/watchdog/ts4800_wdt.c
+> 
+> diff --git a/Documentation/devicetree/bindings/watchdog/ts4800-wdt.txt b/Documentation/devicetree/bindings/watchdog/ts4800-wdt.txt
+> new file mode 100644
+> index 0000000..8f6caad
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/watchdog/ts4800-wdt.txt
+> @@ -0,0 +1,25 @@
+> +Technologic Systems Watchdog
+> +
+> +Required properties:
+> +- compatible: must be "technologic,ts4800-wdt"
+> +- syscon: phandle / integer array that points to the syscon node which
+> +          describes the FPGA's syscon registers.
+> +          - phandle to FPGA's syscon
+> +          - offset to the watchdog register
+> +
+> +Optional property:
+> +- timeout-sec: contains the watchdog timeout in seconds.
+> +
+> +Example:
+> +
+> +syscon: syscon@b0010000 {
+> +	compatible = "syscon", "simple-mfd";
+> +	reg = <0xb0010000 0x3d>;
+> +	reg-io-width = <2>;
+> +
+> +	wdt@e {
+> +		compatible = "technologic,ts4800-wdt";
+> +		syscon = <&syscon 0xe>;
+> +		timeout-sec = <10>;
+> +	};
+> +}
 > diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index 1c427be..52b308f 100644
+> index 79e1aa1..bb624d2 100644
 > --- a/drivers/watchdog/Kconfig
 > +++ b/drivers/watchdog/Kconfig
-> @@ -578,6 +578,16 @@ config LPC18XX_WATCHDOG
+> @@ -426,6 +426,16 @@ config NUC900_WATCHDOG
 >  	  To compile this driver as a module, choose M here: the
->  	  module will be called lpc18xx_wdt.
+>  	  module will be called nuc900_wdt.
 >  
-> +config ATLAS7_WATCHDOG
-> +	tristate "CSRatlas7 watchdog"
-> +	depends on ARCH_ATLAS7
+> +config TS4800_WATCHDOG
+> +	tristate "TS-4800 Watchdog"
+> +	depends on HAS_IOMEM && OF
+> +	select WATCHDOG_CORE
+> +	select MFD_SYSCON
 > +	help
-> +	  Say Y here to include Watchdog timer support for the watchdog
-> +	  existing on the CSRatlas7 series platforms.
+> +	  Technologic Systems TS-4800 has watchdog timer implemented in
+> +	  an external FPGA. Say Y here if you want to support for the
+> +	  watchdog timer on TS-4800 board.
 > +
-> +	  To compile this driver as a module, choose M here: the
-> +	  module will be called atlas7_wdt.
-> +
->  # AVR32 Architecture
->  
->  config AT32AP700X_WDT
+>  config TS72XX_WATCHDOG
+>  	tristate "TS-72XX SBC Watchdog"
+>  	depends on MACH_TS72XX
 > diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-> index 53d4827..e2bc52c 100644
+> index 0c616e3..3863ce0 100644
 > --- a/drivers/watchdog/Makefile
 > +++ b/drivers/watchdog/Makefile
-> @@ -69,6 +69,7 @@ obj-$(CONFIG_MEDIATEK_WATCHDOG) += mtk_wdt.o
->  obj-$(CONFIG_DIGICOLOR_WATCHDOG) += digicolor_wdt.o
->  obj-$(CONFIG_LPC18XX_WATCHDOG) += lpc18xx_wdt.o
->  obj-$(CONFIG_BCM7038_WDT) += bcm7038_wdt.o
-> +obj-$(CONFIG_ATLAS7_WATCHDOG) += atlas7_wdt.o
->  
->  # AVR32 Architecture
->  obj-$(CONFIG_AT32AP700X_WDT) += at32ap700x_wdt.o
-> diff --git a/drivers/watchdog/atlas7_wdt.c b/drivers/watchdog/atlas7_wdt.c
+> @@ -53,6 +53,7 @@ obj-$(CONFIG_RN5T618_WATCHDOG) += rn5t618_wdt.o
+>  obj-$(CONFIG_COH901327_WATCHDOG) += coh901327_wdt.o
+>  obj-$(CONFIG_STMP3XXX_RTC_WATCHDOG) += stmp3xxx_rtc_wdt.o
+>  obj-$(CONFIG_NUC900_WATCHDOG) += nuc900_wdt.o
+> +obj-$(CONFIG_TS4800_WATCHDOG) += ts4800_wdt.o
+>  obj-$(CONFIG_TS72XX_WATCHDOG) += ts72xx_wdt.o
+>  obj-$(CONFIG_IMX2_WDT) += imx2_wdt.o
+>  obj-$(CONFIG_UX500_WATCHDOG) += ux500_wdt.o
+> diff --git a/drivers/watchdog/ts4800_wdt.c b/drivers/watchdog/ts4800_wdt.c
 > new file mode 100644
-> index 0000000..df6d924
+> index 0000000..2b8de86
 > --- /dev/null
-> +++ b/drivers/watchdog/atlas7_wdt.c
-> @@ -0,0 +1,242 @@
+> +++ b/drivers/watchdog/ts4800_wdt.c
+> @@ -0,0 +1,215 @@
 > +/*
-> + * Watchdog driver for CSR Atlas7
+> + * Watchdog driver for TS-4800 based boards
 > + *
-> + * Copyright (c) 2015 Cambridge Silicon Radio Limited, a CSR plc group company.
+> + * Copyright (c) 2015 - Savoir-faire Linux
 > + *
-> + * Licensed under GPLv2.
+> + * This file is licensed under the terms of the GNU General Public
+> + * License version 2. This program is licensed "as is" without any
+> + * warranty of any kind, whether express or implied.
 > + */
 > +
-> +#include <linux/clk.h>
-> +#include <linux/io.h>
+> +#include <linux/kernel.h>
+> +#include <linux/mfd/syscon.h>
 > +#include <linux/module.h>
-> +#include <linux/moduleparam.h>
 > +#include <linux/of.h>
 > +#include <linux/platform_device.h>
+> +#include <linux/regmap.h>
 > +#include <linux/watchdog.h>
 > +
-> +#define ATLAS7_TIMER_WDT_INDEX		5
-> +#define ATLAS7_WDT_DEFAULT_TIMEOUT	20
-> +
-> +#define ATLAS7_WDT_CNT_CTRL	(0 + 4 * ATLAS7_TIMER_WDT_INDEX)
-> +#define ATLAS7_WDT_CNT_MATCH	(0x18 + 4 * ATLAS7_TIMER_WDT_INDEX)
-> +#define ATLAS7_WDT_CNT		(0x48 +  4 * ATLAS7_TIMER_WDT_INDEX)
-> +#define ATLAS7_WDT_CNT_EN	(BIT(0) | BIT(1))
-> +#define ATLAS7_WDT_EN		0x64
-> +
-> +static unsigned int timeout = ATLAS7_WDT_DEFAULT_TIMEOUT;
 > +static bool nowayout = WATCHDOG_NOWAYOUT;
-> +
-> +module_param(timeout, uint, 0);
 > +module_param(nowayout, bool, 0);
+> +MODULE_PARM_DESC(nowayout,
+> +	"Watchdog cannot be stopped once started (default="
+> +	__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
 > +
-> +MODULE_PARM_DESC(timeout, "Default watchdog timeout (in seconds)");
-> +MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
-> +			__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+> +/* possible feed values */
+> +#define TS4800_WDT_FEED_2S       0x1
+> +#define TS4800_WDT_FEED_10S      0x2
+> +#define TS4800_WDT_DISABLE       0x3
 > +
-> +struct atlas7_wdog {
-> +	struct device *dev;
-> +	void __iomem *base;
-> +	unsigned long tick_rate;
-> +	struct clk *clk;
+> +struct ts4800_wdt {
+> +	struct watchdog_device  wdd;
+> +	struct regmap           *regmap;
+> +	u32                     feed_offset;
+> +	u32                     feed_val;
 > +};
 > +
-> +static unsigned int atlas7_wdt_gettimeleft(struct watchdog_device *wdd)
-> +{
-> +	struct atlas7_wdog *wdt = watchdog_get_drvdata(wdd);
-> +	u32 counter, match, delta;
-> +
-> +	counter = readl(wdt->base + ATLAS7_WDT_CNT);
-> +	match = readl(wdt->base + ATLAS7_WDT_CNT_MATCH);
-> +	delta = match - counter;
-> +
-> +	return  delta / wdt->tick_rate;
-> +}
-> +
-> +static int atlas7_wdt_ping(struct watchdog_device *wdd)
-> +{
-> +	struct atlas7_wdog *wdt = watchdog_get_drvdata(wdd);
-> +	u32 counter, match, delta;
-> +
-> +	counter = readl(wdt->base + ATLAS7_WDT_CNT);
-> +	delta = wdd->timeout * wdt->tick_rate;
-> +	match = counter + delta;
-> +
-> +	writel(match, wdt->base + ATLAS7_WDT_CNT_MATCH);
-> +
-> +	return 0;
-> +}
-> +
-> +static int atlas7_wdt_enable(struct watchdog_device *wdd)
-> +{
-> +	struct atlas7_wdog *wdt = watchdog_get_drvdata(wdd);
-> +
-> +	atlas7_wdt_ping(wdd);
-> +
-> +	writel(readl(wdt->base + ATLAS7_WDT_CNT_CTRL) | ATLAS7_WDT_CNT_EN,
-> +	      wdt->base + ATLAS7_WDT_CNT_CTRL);
-> +	writel(1, wdt->base + ATLAS7_WDT_EN);
-> +
-> +	return 0;
-> +}
-> +
-> +static int atlas7_wdt_disable(struct watchdog_device *wdd)
-> +{
-> +	struct atlas7_wdog *wdt = watchdog_get_drvdata(wdd);
-> +
-> +	writel(0, wdt->base + ATLAS7_WDT_EN);
-> +	writel(readl(wdt->base + ATLAS7_WDT_CNT_CTRL) & ~ATLAS7_WDT_CNT_EN,
-> +	      wdt->base + ATLAS7_WDT_CNT_CTRL);
-> +
-> +	return 0;
-> +}
-> +
-> +static int atlas7_wdt_settimeout(struct watchdog_device *wdd, unsigned int to)
-> +{
-> +	wdd->timeout = to;
-> +
-> +	return 0;
-> +}
-> +
-> +#define OPTIONS (WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE)
-> +
-> +static const struct watchdog_info atlas7_wdt_ident = {
-> +	.options = OPTIONS,
-> +	.firmware_version = 0,
-> +	.identity = "atlas7 Watchdog",
+> +/*
+> + * TS-4800 supports the following timeout values:
+> + *
+> + *   value desc
+> + *   ---------------------
+> + *     0    feed for 338ms
+> + *     1    feed for 2.706s
+> + *     2    feed for 10.824s
+> + *     3    disable watchdog
+> + *
+> + * Keep the regmap/timeout map ordered by timeout
+> + */
+> +static const struct {
+> +	const int timeout;
+> +	const int regval;
+> +} ts4800_wdt_map[] = {
+> +	{ 2,  TS4800_WDT_FEED_2S },
+> +	{ 10, TS4800_WDT_FEED_10S },
 > +};
 > +
-> +static struct watchdog_ops atlas7_wdt_ops = {
+> +#define MAX_TIMEOUT_INDEX       (ARRAY_SIZE(ts4800_wdt_map) - 1)
+> +
+> +static void ts4800_write_feed(struct ts4800_wdt *wdt, u32 val)
+> +{
+> +	regmap_write(wdt->regmap, wdt->feed_offset, val);
+> +}
+> +
+> +static int ts4800_wdt_start(struct watchdog_device *wdd)
+> +{
+> +	struct ts4800_wdt *wdt = watchdog_get_drvdata(wdd);
+> +
+> +	ts4800_write_feed(wdt, wdt->feed_val);
+> +	return 0;
+> +}
+> +
+> +static int ts4800_wdt_stop(struct watchdog_device *wdd)
+> +{
+> +	struct ts4800_wdt *wdt = watchdog_get_drvdata(wdd);
+> +
+> +	ts4800_write_feed(wdt, TS4800_WDT_DISABLE);
+> +	return 0;
+> +}
+> +
+> +static int ts4800_wdt_set_timeout(struct watchdog_device *wdd,
+> +				  unsigned int timeout)
+> +{
+> +	struct ts4800_wdt *wdt = watchdog_get_drvdata(wdd);
+> +	int i;
+> +
+> +	for (i = 0; i < MAX_TIMEOUT_INDEX; i++) {
+> +		if (ts4800_wdt_map[i].timeout >= timeout)
+> +			break;
+> +	}
+> +
+> +	wdd->timeout = ts4800_wdt_map[i].timeout;
+> +	wdt->feed_val = ts4800_wdt_map[i].regval;
+> +
+> +	return 0;
+> +}
+> +
+> +static const struct watchdog_ops ts4800_wdt_ops = {
 > +	.owner = THIS_MODULE,
-> +	.start = atlas7_wdt_enable,
-> +	.stop = atlas7_wdt_disable,
-> +	.get_timeleft = atlas7_wdt_gettimeleft,
-> +	.ping = atlas7_wdt_ping,
-> +	.set_timeout = atlas7_wdt_settimeout,
+> +	.start = ts4800_wdt_start,
+> +	.stop = ts4800_wdt_stop,
+> +	.set_timeout = ts4800_wdt_set_timeout,
 > +};
 > +
-> +static struct watchdog_device atlas7_wdd = {
-> +	.info = &atlas7_wdt_ident,
-> +	.ops = &atlas7_wdt_ops,
-> +	.timeout = ATLAS7_WDT_DEFAULT_TIMEOUT,
+> +static const struct watchdog_info ts4800_wdt_info = {
+> +	.options = WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE | WDIOF_KEEPALIVEPING,
+> +	.identity = "TS-4800 Watchdog",
 > +};
 > +
-> +static const struct of_device_id atlas7_wdt_ids[] = {
-> +	{ .compatible = "sirf,atlas7-tick"},
-> +	{}
-> +};
-> +
-> +static int atlas7_wdt_probe(struct platform_device *pdev)
+> +static int ts4800_wdt_probe(struct platform_device *pdev)
 > +{
 > +	struct device_node *np = pdev->dev.of_node;
-> +	struct atlas7_wdog *wdt;
-> +	struct resource *res;
-> +	struct clk *clk;
+> +	struct device_node *syscon_np;
+> +	struct watchdog_device *wdd;
+> +	struct ts4800_wdt *wdt;
+> +	u32 reg;
 > +	int ret;
 > +
+> +	syscon_np = of_parse_phandle(np, "syscon", 0);
+> +	if (!syscon_np) {
+> +		dev_err(&pdev->dev, "no syscon property\n");
+> +		return -ENODEV;
+> +	}
+> +
+> +	ret = of_property_read_u32_index(np, "syscon", 1, &reg);
+> +	if (ret < 0) {
+> +		dev_err(&pdev->dev, "no offset in syscon\n");
+> +		return ret;
+> +	}
+> +
+> +	/* allocate memory for watchdog struct */
 > +	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
 > +	if (!wdt)
 > +		return -ENOMEM;
-> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> +	wdt->base = devm_ioremap_resource(&pdev->dev, res);
-> +	if (IS_ERR(wdt->base))
-> +		return PTR_ERR(wdt->base);
 > +
-> +	clk = of_clk_get(np, 0);
-> +	if (IS_ERR(clk))
-> +		return PTR_ERR(clk);
-> +	ret = clk_prepare_enable(clk);
-> +	if (ret) {
-> +		dev_err(&pdev->dev, "clk enable failed\n");
-> +		goto err;
+> +	/* set regmap and offset to know where to write */
+> +	wdt->feed_offset = reg;
+> +	wdt->regmap = syscon_node_to_regmap(syscon_np);
+> +	if (IS_ERR(wdt->regmap)) {
+> +		dev_err(&pdev->dev, "cannot get parent's regmap\n");
+> +		return PTR_ERR(wdt->regmap);
 > +	}
 > +
-> +	/* disable watchdog hardware */
-> +	writel(0, wdt->base + ATLAS7_WDT_CNT_CTRL);
+> +	/* Initialize struct watchdog_device */
+> +	wdd = &wdt->wdd;
+> +	wdd->parent = &pdev->dev;
+> +	wdd->info = &ts4800_wdt_info;
+> +	wdd->ops = &ts4800_wdt_ops;
+> +	wdd->min_timeout = ts4800_wdt_map[0].timeout;
+> +	wdd->max_timeout = ts4800_wdt_map[MAX_TIMEOUT_INDEX].timeout;
 > +
-> +	wdt->tick_rate = clk_get_rate(clk);
-> +	wdt->clk = clk;
-> +	atlas7_wdd.min_timeout = 1;
-> +	atlas7_wdd.max_timeout = UINT_MAX / wdt->tick_rate;
-> +
-> +	watchdog_init_timeout(&atlas7_wdd, 0, &pdev->dev);
-> +	watchdog_set_nowayout(&atlas7_wdd, nowayout);
-> +
-> +	watchdog_set_drvdata(&atlas7_wdd, wdt);
-> +	platform_set_drvdata(pdev, &atlas7_wdd);
-> +
-> +	ret = watchdog_register_device(&atlas7_wdd);
-> +	if (ret)
-> +		goto err1;
-> +
-> +	return 0;
-> +
-> +err1:
-> +	clk_disable_unprepare(clk);
-> +err:
-> +	clk_put(clk);
-> +	return ret;
-> +}
-> +
-> +static void atlas7_wdt_shutdown(struct platform_device *pdev)
-> +{
-> +	struct watchdog_device *wdd = platform_get_drvdata(pdev);
-> +	struct atlas7_wdog *wdt = watchdog_get_drvdata(wdd);
-> +
-> +	atlas7_wdt_disable(wdd);
-> +	clk_disable_unprepare(wdt->clk);
-> +}
-> +
-> +static int atlas7_wdt_remove(struct platform_device *pdev)
-> +{
-> +	struct watchdog_device *wdd = platform_get_drvdata(pdev);
-> +	struct atlas7_wdog *wdt = watchdog_get_drvdata(wdd);
-> +
-> +	atlas7_wdt_shutdown(pdev);
-> +	clk_put(wdt->clk);
-> +	return 0;
-> +}
-> +
-> +static int __maybe_unused atlas7_wdt_suspend(struct device *dev)
-> +{
-> +	/*
-> +	 * NOTE:timer controller registers settings are saved
-> +	 * and restored back by the timer-atlas7.c
-> +	 */
-> +	return 0;
-> +}
-> +
-> +static int __maybe_unused atlas7_wdt_resume(struct device *dev)
-> +{
-> +	struct watchdog_device *wdd = dev_get_drvdata(dev);
+> +	watchdog_set_drvdata(wdd, wdt);
+> +	watchdog_set_nowayout(wdd, nowayout);
+> +	watchdog_init_timeout(wdd, 0, &pdev->dev);
 > +
 > +	/*
-> +	 * NOTE: Since timer controller registers settings are saved
-> +	 * and restored back by the timer-atlas7.c, so we need not
-> +	 * update WD settings except refreshing timeout.
+> +	 * As this watchdog supports only a few values, ts4800_wdt_set_timeout
+> +	 * must be called to initialize timeout and feed_val with valid values.
+> +	 * Default to maximum timeout if none, or an invalid one, is provided in
+> +	 * device tree.
 > +	 */
-> +	atlas7_wdt_ping(wdd);
+> +	if (!wdd->timeout)
+> +		wdd->timeout = wdd->max_timeout;
+> +	ts4800_wdt_set_timeout(wdd, wdd->timeout);
+> +
+> +	/*
+> +	 * The feed register is write-only, so it is not possible to determine
+> +	 * watchdog's state. Disable it to be in a known state.
+> +	 */
+> +	ts4800_wdt_stop(wdd);
+> +
+> +	ret = watchdog_register_device(wdd);
+> +	if (ret) {
+> +		dev_err(&pdev->dev,
+> +			"failed to register watchdog device\n");
+> +		return ret;
+> +	}
+> +
+> +	platform_set_drvdata(pdev, wdt);
+> +
+> +	dev_info(&pdev->dev,
+> +		 "initialized (timeout = %d sec, nowayout = %d)\n",
+> +		 wdd->timeout, nowayout);
 > +
 > +	return 0;
 > +}
 > +
-> +static SIMPLE_DEV_PM_OPS(atlas7_wdt_pm_ops,
-> +		atlas7_wdt_suspend, atlas7_wdt_resume);
+> +static int ts4800_wdt_remove(struct platform_device *pdev)
+> +{
+> +	struct ts4800_wdt *wdt = platform_get_drvdata(pdev);
 > +
-> +MODULE_DEVICE_TABLE(of, atlas7_wdt_ids);
+> +	watchdog_unregister_device(&wdt->wdd);
 > +
-> +static struct platform_driver atlas7_wdt_driver = {
-> +	.driver = {
-> +		.name = "atlas7-wdt",
-> +		.pm = &atlas7_wdt_pm_ops,
-> +		.of_match_table	= atlas7_wdt_ids,
-> +	},
-> +	.probe = atlas7_wdt_probe,
-> +	.remove = atlas7_wdt_remove,
-> +	.shutdown = atlas7_wdt_shutdown,
+> +	return 0;
+> +}
+> +
+> +static const struct of_device_id ts4800_wdt_of_match[] = {
+> +	{ .compatible = "technologic,ts4800-wdt", },
+> +	{ },
 > +};
-> +module_platform_driver(atlas7_wdt_driver);
+> +MODULE_DEVICE_TABLE(of, ts4800_wdt_of_match);
 > +
-> +MODULE_DESCRIPTION("CSRatlas7 watchdog driver");
-> +MODULE_AUTHOR("Guo Zeng <Guo.Zeng@csr.com>");
+> +static struct platform_driver ts4800_wdt_driver = {
+> +	.probe		= ts4800_wdt_probe,
+> +	.remove		= ts4800_wdt_remove,
+> +	.driver		= {
+> +		.name	= "ts4800_wdt",
+> +		.of_match_table = ts4800_wdt_of_match,
+> +	},
+> +};
+> +
+> +module_platform_driver(ts4800_wdt_driver);
+> +
+> +MODULE_AUTHOR("Damien Riegel <damien.riegel@savoirfairelinux.com>");
 > +MODULE_LICENSE("GPL v2");
-> +MODULE_ALIAS("platform:atlas7-wdt");
+> +MODULE_ALIAS("platform:ts4800_wdt");
 > -- 
-> 1.9.1
+> 2.5.0
 > 
 
-This new driver has been added to linux-watchdog-next.
+This driver has been added to linux-watchdog-next.
 
 Kind regards,
 Wim.
