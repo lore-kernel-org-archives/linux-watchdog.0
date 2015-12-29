@@ -1,90 +1,68 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from spo001.leaseweb.nl ([83.149.101.17]:44144 "EHLO
+Received: from spo001.leaseweb.nl ([83.149.101.17]:44149 "EHLO
 	spo001.leaseweb.nl" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1753686AbbL2UAo (ORCPT
+	with ESMTP id S1753658AbbL2UB7 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 29 Dec 2015 15:00:44 -0500
-Date: Tue, 29 Dec 2015 21:00:42 +0100
+	Tue, 29 Dec 2015 15:01:59 -0500
+Date: Tue, 29 Dec 2015 21:01:58 +0100
 From: Wim Van Sebroeck <wim@iguana.be>
 To: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-watchdog@vger.kernel.org, Pratyush Anand <panand@redhat.com>,
-	Hans de Goede <hdegoede@redhat.com>,
-	Damien Riegel <damien.riegel@savoirfairelinux.com>,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 0/6] watchdog: Replace driver based refcounting
-Message-ID: <20151229200042.GA12170@spo001.leaseweb.nl>
-References: <1451088105-1722-1-git-send-email-linux@roeck-us.net>
+Cc: linux-watchdog@vger.kernel.org
+Subject: Re: Additional patches in my watchdog-next branch
+Message-ID: <20151229200158.GB12170@spo001.leaseweb.nl>
+References: <20151228152335.GA18627@roeck-us.net> <20151228152710.GA31482@spo001.leaseweb.nl> <20151228215709.GA30595@roeck-us.net> <20151228225427.GA2018@spo001.leaseweb.nl> <20151229000848.GC2346@roeck-us.net> <20151229072108.GB6292@spo001.leaseweb.nl> <20151229160208.GA30405@roeck-us.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1451088105-1722-1-git-send-email-linux@roeck-us.net>
+In-Reply-To: <20151229160208.GA30405@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
 Hi Guenter,
 
-> All variables required by the watchdog core to manage a watchdog are
-> currently stored in struct watchdog_device. The lifetime of those
-> variables is determined by the watchdog driver. However, the lifetime
-> of variables used by the watchdog core differs from the lifetime of
-> struct watchdog_device. To remedy this situation, watchdog drivers
-> can implement ref and unref callbacks, to be used by the watchdog
-> core to lock struct watchdog_device in memory. This mechanism was
-> introduced with commit e907df327252 ("watchdog: Add support for
-> dynamically allocated watchdog_device structs").
+> Hi Wim,
 > 
-> While this solves the immediate problem, it depends on watchdog drivers
-> to actually implement the ref/unref callbacks. This is error prone,
-> often not implemented in the first place, or not implemented correctly.
+> On Tue, Dec 29, 2015 at 08:21:08AM +0100, Wim Van Sebroeck wrote:
+> > Hi Guenter,
+> > 
+> > > On Mon, Dec 28, 2015 at 11:54:27PM +0100, Wim Van Sebroeck wrote:
+> > > > Hi Guenter,
+> > > > 
+> > > > > On Mon, Dec 28, 2015 at 04:27:11PM +0100, Wim Van Sebroeck wrote:
+> > > > > > Hi Guneter,
+> > > > > > 
+> > > > > > > I have a number of patches pending in my watchdog-next branch which are not
+> > > > > > > in your watchdog-next repository. Below is a summary, rebased onto your
+> > > > > > > repository. This does not include the patches I had submitted.
+> > > > > > > 
+> > > > > > > Please consider those patches for v4.5.
+> > > > > > 
+> > > > > > I'm still working on those. Will be for this evening. I left those because they are all new drivers. I wanted to have all fixes and other patches first.
+> > > > > > So not finished yet :-) I will also add your dev fixes (V2 patchset containing 5 patches).
+> > > > > > 
+> > > > > Thanks!
+> > > > 
+> > > > No problem. I think we now have all patches that should go in for v4.5 .
+> > > > 
+> > > > There is off course still other stuff that I need to look at:
+> > > > SBSA, pretimeout, bcm63xx, stmp3xxx GETBOOTSTATUS (although I have the impression that this patch is a dead end because you cannot really tell what the reboot reason is with the patch), soft timer's moving into the core, mei watchdog code, ...
+> > > Hi Wim,
+> > > 
+> > > I'll have to look into those again as well. Most will now conflict
+> > > with the new watchdog core code.
+> > > 
+> > > Any thoughts on the other patch series I sent out, to create the watchdog
+> > > device in watchdog_dev.c, and to handle reference counting in the watchdog
+> > > core ? That would be a prerequisite for me to rebase (and rework) the soft
+> > > timer handling core. I had hoped that the changes to handle reference
+> > > counting in the core could make it into 4.5.
+> > 
+> > Need to review this 6-part patchset still. But probably still possible for 4.5 .
 > 
-> To solve the problem without requiring driver support, split the variables
-> in struct watchdog_device into two data structures - one for variables
-> associated with the watchdog driver, one for variables associated with
-> the watchdog core. With this approach, the watchdog core can keep track
-> of the variables it uses and no longer depends on ref/unref callbacks
-> in the driver. As a side effect, some of the variables originally in struct
-> watchdog_driver are now private to the watchdog core and no longer visible
-> in watchdog drivers.
-> 
-> The 'ref' and 'unref' callbacks in struct watchdog_driver are no longer
-> used and marked as deprecated for the time being.
-> 
-> Patch 1/6 moves watchdog device creation from watchdog_core.c to
-> watchdog_dev.c to simplify watchdog device handling.
-> 
-> Patch 2/6 modifies the diag288 watchdog to no longer use and overload
-> watchdog core internal flags.
-> 
-> Patch 3/6 separates variables in watchdog_device based on variable
-> lifetime.
-> 
-> Patch 4/6 to 6/6 remove existing ref/unref functions from the drivers
-> implementing it. Two of those patches (for da9052 and da9055) fix a
-> previously introduced bug as side effect.
-> 
-> The series applies on top of the current watchdog-next as well as the
-> pending patches introducing sysfs support ("watchdog: Use static struct
-> class watchdog_class in stead of pointer" and "watchdog: Read device
-> status through sysfs attributes") by Pratyush Anand.
-> 
-> ---
-> v2: Add patch 2/6.
->     Add more detailed description to patch 3/6.
->     Rename internal data structure to watchdog_core_data, and the variable
->     pointing to it to wd_data. Move its declaration into watchdog_dev.c.
->     Reorder include files in watchdog_dev.c to alphabetic order.
->     Remove _watchdog_ping helper function and call watchdog_ping()
->     directly. Handle locks in the calling code.
->     Drop locking from watchdog_open(). It is already protected against
->     parallel device removal in the driver core code, and file access
->     functions won't be called before the function returns.
->     Remove previously added message "watchdog still running". It wasn't
->     there before, and we should avoid user visible changes.
->     Add missing kfree() to the sch56xx patch.
->     Add comments to da9052 and da9055 patches indicating that the
->     patches fix a bug.
+> That would be great.
 
-This patchset has been added to linux-watchdog-next.
+It's reviewed and added. I'm actually glad to have a nicer way than the ref/unref
+code that we had.
 
 Kind regards,
 Wim.
