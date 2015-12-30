@@ -1,13 +1,13 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-oi0-f44.google.com ([209.85.218.44]:35966 "EHLO
+Received: from mail-oi0-f44.google.com ([209.85.218.44]:36062 "EHLO
 	mail-oi0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754312AbbL3LoJ (ORCPT
+	with ESMTP id S1755014AbbL3NaJ (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 30 Dec 2015 06:44:09 -0500
-Received: by mail-oi0-f44.google.com with SMTP id o62so195623782oif.3
-        for <linux-watchdog@vger.kernel.org>; Wed, 30 Dec 2015 03:44:09 -0800 (PST)
+	Wed, 30 Dec 2015 08:30:09 -0500
+Received: by mail-oi0-f44.google.com with SMTP id o62so196687414oif.3
+        for <linux-watchdog@vger.kernel.org>; Wed, 30 Dec 2015 05:30:09 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20151229172848.GA14047@roeck-us.net>
+In-Reply-To: <20151230104452.0baeef09@free-electrons.com>
 References: <20151228152335.GA18627@roeck-us.net>
 	<20151228152710.GA31482@spo001.leaseweb.nl>
 	<20151228215709.GA30595@roeck-us.net>
@@ -17,98 +17,83 @@ References: <20151228152335.GA18627@roeck-us.net>
 	<20151229160411.GB30405@roeck-us.net>
 	<20151229173705.1596cf1d@free-electrons.com>
 	<20151229172848.GA14047@roeck-us.net>
-Date: Wed, 30 Dec 2015 19:44:08 +0800
-Message-ID: <CADyBb7tK9vOqjdx+Nv70bgoyjVcRy=SB1TCwj8s-HCfSPuOqhA@mail.gmail.com>
+	<20151230104452.0baeef09@free-electrons.com>
+Date: Wed, 30 Dec 2015 21:30:08 +0800
+Message-ID: <CADyBb7tsyKgS4=r+KaAE22BgoRhhHJuMv_4R0TaSaLKd7wT34w@mail.gmail.com>
 Subject: Re: Additional patches in my watchdog-next branch
 From: Fu Wei <fu.wei@linaro.org>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
+To: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+Cc: Guenter Roeck <linux@roeck-us.net>,
 	Wim Van Sebroeck <wim@iguana.be>,
 	Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>,
-	linux-watchdog@vger.kernel.org, Al Stone <al.stone@linaro.org>
+	linux-watchdog@vger.kernel.org
 Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Guenter,
+Hi Thomas,
 
 
+On 30 December 2015 at 17:44, Thomas Petazzoni
+<thomas.petazzoni@free-electrons.com> wrote:
+> Guenter,
+>
+> On Tue, 29 Dec 2015 09:28:48 -0800, Guenter Roeck wrote:
+>
+>> Probem with SBSA and pretimeout is two-fold. First, it adds a quite a bit of
+>> complexity to the driver, second, it adds a lot of risk to the driver.
+>> Reason is that this is not one specific watchdog, but a watchdog implementation
+>> based on a standard which, in my opinion, is less than well thought out
+>> and leaves a lot of ambiguity when it comes to implementation details.
+>
+> I agree that calling the SBSA watchdog specification a "specification"
+> is a strong word. At least in the version I have, it's 4-5 pages of
+> somewhat random thoughts on what a standardized watchdog could look
+> like, but not a very well-defined specification that guarantees that
+> all implementations will behave in the same way.
 
-On 30 December 2015 at 01:28, Guenter Roeck <linux@roeck-us.net> wrote:
-> On Tue, Dec 29, 2015 at 05:37:05PM +0100, Thomas Petazzoni wrote:
->> Hello,
->>
->> On Tue, 29 Dec 2015 08:04:11 -0800, Guenter Roeck wrote:
->> > Hi Wim,
->> >
->> > On Tue, Dec 29, 2015 at 08:17:32AM +0100, Wim Van Sebroeck wrote:
->> > [ ... ]
->> > >
->> > > SBSA: What should be done is to create a correct driver without pretimeout and with just the normal watchdog (=reboot if we aren't kicked fast enough) behaviour and get that in.
->> > >
->> > Absoutely agree.
->>
->> Sorry to get into the conversation, but I got interested into the SBSA
->> watchdog driver recently, and looked at the status of its merge in the
->> kernel.
->>
->> I've looked at Fu Wei's v9 from November which I believe is the latest
->> version, and then looked at Vladimir's generic pretimeout patch set.
->>
->> Vladimir, do you plan to rework the SBSA watchdog driver on top of your
->> pretimeout patch series ? Or do Fu Wei intends do it ? Alternatively,
->> as suggested by Wim and Guenter, submitting an initial version without
->> pretimeout support would be a good thing. Are you, or Fu, interested in
->> doing this, or should I work at updating Fu's patches in this
->> direction ?
->>
-> Probem with SBSA and pretimeout is two-fold. First, it adds a quite a bit of
-> complexity to the driver, second, it adds a lot of risk to the driver.
-> Reason is that this is not one specific watchdog, but a watchdog implementation
-> based on a standard which, in my opinion, is less than well thought out
-> and leaves a lot of ambiguity when it comes to implementation details.
-> The more functionality is used, the higher the risk that some implementation
-> won't work.
-
-After discussing with my colleagues, I agree with you now.
-So I am updating  my patchset now, will post ASAP.
-
-Great thanks for your and Timur's review :-)  To be honest, now , I am
-very appreciate that :-)
+Although the basic function is described well in spec 2.3, but it do
+need some improvement, in my opinion.
 
 >
-> I think we should stick with the basic implemementation and not support
-> pretimeout at all with the SBSA driver. If the maximum timeout is insufficient,
-> there are two options: Use the soft-timeout handled by the watchdog core,
-> which will hopefully make it for 4.6, or live with it.
+>> The more functionality is used, the higher the risk that some implementation
+>> won't work.
+>
+> Maybe we should enforce that all users of the driver use two Device
+> Tree compatible strings:
+>
+>         compatible = "<vendor>,sbsa-gwdt", "arm,sbsa-gwdt";
+>
+> So that the SBSA watchdog driver can implement vendor specific quirks
+> if needed. Though it is true that the HW has some identification
+> registers that should allow to differentiate between the implementation.
 
-yes, I am tending to give up pretimeout in my driver, but I am still
-thinking about that, please give me some time.
-
-for the maximum timeout:
-it is easy to solve the first stage,  but for the second stage , it is
-impossible to extend the  maximum timeout  without writing the WCV in
-IRQ handler.
-So I am thinking that maybe I will give up to  extend the  maximum
-timeout of  the second stage
+I think the implementation can be different, but all the SBSA watchdog
+should be able to use the same driver.
 
 >
-> As for pretimeout itself, we will have multiple proposals to consider,
-> as well as integration order. At this point I would prefer to get the other
-> infrastructure changes in first, and then pick an implementation which
-> doesn't add too much complexity. Current proposals are, from my
-> perspective, either too heavy-weigt or too light-weight. I think we should
-> try to find a middle ground.
+>> I think we should stick with the basic implemementation and not support
+>> pretimeout at all with the SBSA driver. If the maximum timeout is insufficient,
+>> there are two options: Use the soft-timeout handled by the watchdog core,
+>> which will hopefully make it for 4.6, or live with it.
+>
+> For now, I'm personally fine with a SBSA driver that does not support
+> the pretimeout. Is anyone working on submitting something like this ?
 
-For pretimeout itself,  could you provide some suggestion on my patch,
-see if we can working on mine. or if you have better solution, I am
-happy to try
+I am working on a new non-pretimeout  SBSA driver.
 
-Thank you very much!
+There are two patchsets :
+(1) Timur's v4 patch : http://www.spinics.net/lists/linux-watchdog/msg06567.html
+(2) my previous non-pretimeout version : https://lkml.org/lkml/2015/6/10/766
 
 >
-> Thanks,
-> Guenter
+> Best regards,
+>
+> Thomas
+> --
+> Thomas Petazzoni, CTO, Free Electrons
+> Embedded Linux, Kernel and Android engineering
+> http://free-electrons.com
 
 
 
