@@ -1,59 +1,75 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:51261 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751453AbcACPsT (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 3 Jan 2016 10:48:19 -0500
-Subject: Re: [watchdog-next] watchdog: kill unref/ref ops
-To: Tomas Winkler <tomas.winkler@intel.com>,
-	Wim Van Sebroeck <wim@iguana.be>
-References: <1451820757-8840-1-git-send-email-tomas.winkler@intel.com>
-Cc: linux-watchdog@vger.kernel.org
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <568942BF.2090402@roeck-us.net>
-Date: Sun, 3 Jan 2016 07:48:15 -0800
+Return-path: <Vladimir_Zapolskiy@mentor.com>
+Subject: Re: Additional patches in my watchdog-next branch
+To: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Guenter Roeck
+	<linux@roeck-us.net>, Wim Van Sebroeck <wim@iguana.be>, Fu Wei
+	<fu.wei@linaro.org>
+References: <20151228152335.GA18627@roeck-us.net>
+ <20151228152710.GA31482@spo001.leaseweb.nl>
+ <20151228215709.GA30595@roeck-us.net>
+ <20151228225427.GA2018@spo001.leaseweb.nl> <5681C2FE.7070100@mentor.com>
+ <20151229071732.GA6292@spo001.leaseweb.nl>
+ <20151229160411.GB30405@roeck-us.net>
+ <20151229173705.1596cf1d@free-electrons.com>
+CC: <linux-watchdog@vger.kernel.org>
+From: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
+Message-ID: <5689A565.1010901@mentor.com>
+Date: Mon, 4 Jan 2016 00:49:09 +0200
 MIME-Version: 1.0
-In-Reply-To: <1451820757-8840-1-git-send-email-tomas.winkler@intel.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+In-Reply-To: <20151229173705.1596cf1d@free-electrons.com>
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 01/03/2016 03:32 AM, Tomas Winkler wrote:
-> ref/unref ops are not called at all so even marked them as deprecated
-> is misleading, we need to just drop the API.
->
-One the other side, the functions are now no-ops, so they don't hurt either.
-Only reason for not dropping the functions as part of my series was that
-the mei watchdog code was starting to implement them, and I didn't want
-to create dependencies for that code. Maybe my thinking was too conservative.
+Hello,
 
-> Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
+On 29.12.2015 18:37, Thomas Petazzoni wrote:
+> Hello,
+> 
+> On Tue, 29 Dec 2015 08:04:11 -0800, Guenter Roeck wrote:
+>> Hi Wim,
+>>
+>> On Tue, Dec 29, 2015 at 08:17:32AM +0100, Wim Van Sebroeck wrote:
+>> [ ... ]
+>>>
+>>> SBSA: What should be done is to create a correct driver without pretimeout and with just the normal watchdog (=reboot if we aren't kicked fast enough) behaviour and get that in.
+>>>
+>> Absoutely agree.
+> 
+> Sorry to get into the conversation, but I got interested into the SBSA
+> watchdog driver recently, and looked at the status of its merge in the
+> kernel.
+> 
+> I've looked at Fu Wei's v9 from November which I believe is the latest
+> version, and then looked at Vladimir's generic pretimeout patch set.
+> 
+> Vladimir, do you plan to rework the SBSA watchdog driver on top of your
+> pretimeout patch series ?
 
-... of course that is no concern anymore since this patch is from its
-maintainer.
+I've looked at v9 ARM SBSA watchdog series and to remove any ambiguity
+the proposed pretimeout framework allows to select a taken action on
+pretimeout event got from a watchdog device (talking about v9 SBSA series
+the hardcoded action is panic, which might be not what a user wants), it
+does not add pretimeout handlers though (the kernel already has
+WDIOC_SETPRETIMEOUT/WDIOC_GETPRETIMEOUT, and I suppose this mechanism is
+going to be reused by the watchdog framework and drivers), so my
+pretimeout framework is kind of orthogonal to Fu's changes.
 
-Acked-by: Guenter Roeck <linux@roeck-us.net>
+Also for your information in v2 series I've excluded a watchdog
+device/driver specific pretimeout handler found in v1:
+https://www.spinics.net/lists/linux-watchdog/msg07878.html , if you think
+that ARM SBSA watchdog driver may need this, please let me know.
 
-Thanks!
-Guenter
+Since there are some noticeable changes in the watchdog framework, I'll
+rebase and resend the pretimeout framework for review after the merge
+window, please feel free to review/comment on it.
 
-> ---
->   include/linux/watchdog.h | 2 --
->   1 file changed, 2 deletions(-)
->
-> diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
-> index 850af04fe0c7..aaabd4703b46 100644
-> --- a/include/linux/watchdog.h
-> +++ b/include/linux/watchdog.h
-> @@ -47,8 +47,6 @@ struct watchdog_ops {
->   	int (*set_timeout)(struct watchdog_device *, unsigned int);
->   	unsigned int (*get_timeleft)(struct watchdog_device *);
->   	int (*restart)(struct watchdog_device *);
-> -	void (*ref)(struct watchdog_device *) __deprecated;
-> -	void (*unref)(struct watchdog_device *) __deprecated;
->   	long (*ioctl)(struct watchdog_device *, unsigned int, unsigned long);
->   };
->
->
+> Or do Fu Wei intends do it ? Alternatively,
+> as suggested by Wim and Guenter, submitting an initial version without
+> pretimeout support would be a good thing. Are you, or Fu, interested in
+> doing this, or should I work at updating Fu's patches in this
+> direction ?
+> 
 
+--
+Best wishes,
+Vladimir
