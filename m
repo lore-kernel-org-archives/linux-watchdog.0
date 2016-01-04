@@ -1,303 +1,72 @@
-Return-path: <blogic@openwrt.org>
-Subject: Re: [PATCH V4] watchdog: add MT7621 watchdog support
-To: Guenter Roeck <linux@roeck-us.net>
-References: <1451936198-41242-1-git-send-email-blogic@openwrt.org>
- <20160104200606.GA3324@roeck-us.net>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org
-From: John Crispin <blogic@openwrt.org>
-Message-ID: <568ADC6E.6090804@openwrt.org>
-Date: Mon, 4 Jan 2016 21:56:14 +0100
+Return-path: <tomas.winkler@intel.com>
+From: "Winkler, Tomas" <tomas.winkler@intel.com>
+To: Guenter Roeck <linux@roeck-us.net>, Wim Van Sebroeck <wim@iguana.be>
+CC: "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
+Subject: RE: [watchdog-next] watchdog: kill unref/ref ops
+Date: Mon, 4 Jan 2016 23:38:20 +0000
+Message-ID: <5B8DA87D05A7694D9FA63FD143655C1B541154C0@hasmsx108.ger.corp.intel.com>
+References: <1451820757-8840-1-git-send-email-tomas.winkler@intel.com>
+ <568942BF.2090402@roeck-us.net>
+In-Reply-To: <568942BF.2090402@roeck-us.net>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-In-Reply-To: <20160104200606.GA3324@roeck-us.net>
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
 List-ID: <linux-watchdog@vger.kernel.org>
 
 
 
-On 04/01/2016 21:06, Guenter Roeck wrote:
-> On Mon, Jan 04, 2016 at 08:36:38PM +0100, John Crispin wrote:
->> This patch adds support for the watchdog core found on newer MediaTek Wifi
->> SoCs MT7621 and MT7628. There is no symbol for MT7628 as it is a subtype of
->> MT7620 so we depend on that instead.
->>
->> Signed-off-by: John Crispin <blogic@openwrt.org>
-> 
-> I reviewed v3 and there are no changes, so
-> 
-> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+> -----Original Message-----
+> From: Guenter Roeck [mailto:linux@roeck-us.net]
+> Sent: Sunday, January 03, 2016 17:48
+> To: Winkler, Tomas; Wim Van Sebroeck
+> Cc: linux-watchdog@vger.kernel.org
+> Subject: Re: [watchdog-next] watchdog: kill unref/ref ops
+>=20
+> On 01/03/2016 03:32 AM, Tomas Winkler wrote:
+> > ref/unref ops are not called at all so even marked them as deprecated
+> > is misleading, we need to just drop the API.
+> >
+> One the other side, the functions are now no-ops, so they don't hurt eith=
+er.
+> Only reason for not dropping the functions as part of my series was that
+> the mei watchdog code was starting to implement them, and I didn't want
+> to create dependencies for that code. Maybe my thinking was too conservat=
+ive.
+>=20
+> > Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
+>=20
+> ... of course that is no concern anymore since this patch is from its
+> maintainer.
+>=20
+> Acked-by: Guenter Roeck <linux@roeck-us.net>
 
-thanks !
+Now I'm looking into the current code and one thing I do not understand , i=
+f the watchdog_core_data is holding
+a pointer to wdd, who is responsible for wdd and who is holding the referen=
+ce counter on that pointer.
+If the underlying driver will release the wdd (for any reason) your code wi=
+ll read junk.=20
+I think wdd should not be a pointer here.
 
-> 
->> ---
->> MT7621 support was posted on linux-mips for v4.5
->> http://patchwork.linux-mips.org/patch/11990/
->>
->> Changes since V3
->> * rebase on v4.4
->>
->> Changes since V2
->> * specify the SoCs in the Kconfig help text
->>
->> Changes since V1
->> * fix the comments identifying the driver
->> * add a comment to the code setting the prescaler
->> * use watchdog_init_timeout
->> * use devm_reset_control_get
->> * get rid of the miscdev code
->>
->>  .../devicetree/bindings/watchdog/mt7621-wdt.txt    |   12 ++
->>  drivers/watchdog/Kconfig                           |    7 +
->>  drivers/watchdog/Makefile                          |    1 +
->>  drivers/watchdog/mt7621_wdt.c                      |  186 ++++++++++++++++++++
->>  4 files changed, 206 insertions(+)
->>  create mode 100644 Documentation/devicetree/bindings/watchdog/mt7621-wdt.txt
->>  create mode 100644 drivers/watchdog/mt7621_wdt.c
->>
->> diff --git a/Documentation/devicetree/bindings/watchdog/mt7621-wdt.txt b/Documentation/devicetree/bindings/watchdog/mt7621-wdt.txt
->> new file mode 100644
->> index 0000000..c15ef0e
->> --- /dev/null
->> +++ b/Documentation/devicetree/bindings/watchdog/mt7621-wdt.txt
->> @@ -0,0 +1,12 @@
->> +Ralink Watchdog Timers
->> +
->> +Required properties:
->> +- compatible: must be "mediatek,mt7621-wdt"
->> +- reg: physical base address of the controller and length of the register range
->> +
->> +Example:
->> +
->> +	watchdog@100 {
->> +		compatible = "mediatek,mt7621-wdt";
->> +		reg = <0x100 0x10>;
->> +	};
->> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
->> index 1c427be..9f71e3a 100644
->> --- a/drivers/watchdog/Kconfig
->> +++ b/drivers/watchdog/Kconfig
->> @@ -1345,6 +1345,13 @@ config RALINK_WDT
->>  	help
->>  	  Hardware driver for the Ralink SoC Watchdog Timer.
->>  
->> +config MT7621_WDT
->> +	tristate "Mediatek SoC watchdog"
->> +	select WATCHDOG_CORE
->> +	depends on SOC_MT7620 || SOC_MT7621
->> +	help
->> +	  Hardware driver for the Mediatek/Ralink MT7621/8 SoC Watchdog Timer.
->> +
->>  # PARISC Architecture
->>  
->>  # POWERPC Architecture
->> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
->> index 53d4827..78d5552 100644
->> --- a/drivers/watchdog/Makefile
->> +++ b/drivers/watchdog/Makefile
->> @@ -149,6 +149,7 @@ octeon-wdt-y := octeon-wdt-main.o octeon-wdt-nmi.o
->>  obj-$(CONFIG_LANTIQ_WDT) += lantiq_wdt.o
->>  obj-$(CONFIG_RALINK_WDT) += rt2880_wdt.o
->>  obj-$(CONFIG_IMGPDC_WDT) += imgpdc_wdt.o
->> +obj-$(CONFIG_MT7621_WDT) += mt7621_wdt.o
->>  
->>  # PARISC Architecture
->>  
->> diff --git a/drivers/watchdog/mt7621_wdt.c b/drivers/watchdog/mt7621_wdt.c
->> new file mode 100644
->> index 0000000..4a2290f
->> --- /dev/null
->> +++ b/drivers/watchdog/mt7621_wdt.c
->> @@ -0,0 +1,186 @@
->> +/*
->> + * Ralink MT7621/MT7628 built-in hardware watchdog timer
->> + *
->> + * Copyright (C) 2014 John Crispin <blogic@openwrt.org>
->> + *
->> + * This driver was based on: drivers/watchdog/rt2880_wdt.c
->> + *
->> + * This program is free software; you can redistribute it and/or modify it
->> + * under the terms of the GNU General Public License version 2 as published
->> + * by the Free Software Foundation.
->> + */
->> +
->> +#include <linux/clk.h>
->> +#include <linux/reset.h>
->> +#include <linux/module.h>
->> +#include <linux/kernel.h>
->> +#include <linux/watchdog.h>
->> +#include <linux/moduleparam.h>
->> +#include <linux/platform_device.h>
->> +
->> +#include <asm/mach-ralink/ralink_regs.h>
->> +
->> +#define SYSC_RSTSTAT			0x38
->> +#define WDT_RST_CAUSE			BIT(1)
->> +
->> +#define RALINK_WDT_TIMEOUT		30
->> +
->> +#define TIMER_REG_TMRSTAT		0x00
->> +#define TIMER_REG_TMR1LOAD		0x24
->> +#define TIMER_REG_TMR1CTL		0x20
->> +
->> +#define TMR1CTL_ENABLE			BIT(7)
->> +#define TMR1CTL_RESTART			BIT(9)
->> +#define TMR1CTL_PRESCALE_SHIFT		16
->> +
->> +static void __iomem *mt7621_wdt_base;
->> +static struct reset_control *mt7621_wdt_reset;
->> +
->> +static bool nowayout = WATCHDOG_NOWAYOUT;
->> +module_param(nowayout, bool, 0);
->> +MODULE_PARM_DESC(nowayout,
->> +		 "Watchdog cannot be stopped once started (default="
->> +		 __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
->> +
->> +static inline void rt_wdt_w32(unsigned reg, u32 val)
->> +{
->> +	iowrite32(val, mt7621_wdt_base + reg);
->> +}
->> +
->> +static inline u32 rt_wdt_r32(unsigned reg)
->> +{
->> +	return ioread32(mt7621_wdt_base + reg);
->> +}
->> +
->> +static int mt7621_wdt_ping(struct watchdog_device *w)
->> +{
->> +	rt_wdt_w32(TIMER_REG_TMRSTAT, TMR1CTL_RESTART);
->> +
->> +	return 0;
->> +}
->> +
->> +static int mt7621_wdt_set_timeout(struct watchdog_device *w, unsigned int t)
->> +{
->> +	w->timeout = t;
->> +	rt_wdt_w32(TIMER_REG_TMR1LOAD, t * 1000);
->> +	mt7621_wdt_ping(w);
->> +
->> +	return 0;
->> +}
->> +
->> +static int mt7621_wdt_start(struct watchdog_device *w)
->> +{
->> +	u32 t;
->> +
->> +	/* set the prescaler to 1ms == 1000us */
->> +	rt_wdt_w32(TIMER_REG_TMR1CTL, 1000 << TMR1CTL_PRESCALE_SHIFT);
->> +
->> +	mt7621_wdt_set_timeout(w, w->timeout);
->> +
->> +	t = rt_wdt_r32(TIMER_REG_TMR1CTL);
->> +	t |= TMR1CTL_ENABLE;
->> +	rt_wdt_w32(TIMER_REG_TMR1CTL, t);
->> +
->> +	return 0;
->> +}
->> +
->> +static int mt7621_wdt_stop(struct watchdog_device *w)
->> +{
->> +	u32 t;
->> +
->> +	mt7621_wdt_ping(w);
->> +
->> +	t = rt_wdt_r32(TIMER_REG_TMR1CTL);
->> +	t &= ~TMR1CTL_ENABLE;
->> +	rt_wdt_w32(TIMER_REG_TMR1CTL, t);
->> +
->> +	return 0;
->> +}
->> +
->> +static int mt7621_wdt_bootcause(void)
->> +{
->> +	if (rt_sysc_r32(SYSC_RSTSTAT) & WDT_RST_CAUSE)
->> +		return WDIOF_CARDRESET;
->> +
->> +	return 0;
->> +}
->> +
->> +static struct watchdog_info mt7621_wdt_info = {
->> +	.identity = "Mediatek Watchdog",
->> +	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
->> +};
->> +
->> +static struct watchdog_ops mt7621_wdt_ops = {
->> +	.owner = THIS_MODULE,
->> +	.start = mt7621_wdt_start,
->> +	.stop = mt7621_wdt_stop,
->> +	.ping = mt7621_wdt_ping,
->> +	.set_timeout = mt7621_wdt_set_timeout,
->> +};
->> +
->> +static struct watchdog_device mt7621_wdt_dev = {
->> +	.info = &mt7621_wdt_info,
->> +	.ops = &mt7621_wdt_ops,
->> +	.min_timeout = 1,
->> +	.max_timeout = 0xfffful / 1000,
->> +};
->> +
->> +static int mt7621_wdt_probe(struct platform_device *pdev)
->> +{
->> +	struct resource *res;
->> +	int ret;
->> +
->> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
->> +	mt7621_wdt_base = devm_ioremap_resource(&pdev->dev, res);
->> +	if (IS_ERR(mt7621_wdt_base))
->> +		return PTR_ERR(mt7621_wdt_base);
->> +
->> +	mt7621_wdt_reset = devm_reset_control_get(&pdev->dev, NULL);
->> +	if (!IS_ERR(mt7621_wdt_reset))
->> +		reset_control_deassert(mt7621_wdt_reset);
->> +
->> +	mt7621_wdt_dev.dev = &pdev->dev;
->> +	mt7621_wdt_dev.bootstatus = mt7621_wdt_bootcause();
->> +
->> +	watchdog_init_timeout(&mt7621_wdt_dev, mt7621_wdt_dev.max_timeout,
->> +			      &pdev->dev);
->> +	watchdog_set_nowayout(&mt7621_wdt_dev, nowayout);
->> +
->> +	ret = watchdog_register_device(&mt7621_wdt_dev);
->> +
->> +	return 0;
->> +}
->> +
->> +static int mt7621_wdt_remove(struct platform_device *pdev)
->> +{
->> +	watchdog_unregister_device(&mt7621_wdt_dev);
->> +
->> +	return 0;
->> +}
->> +
->> +static void mt7621_wdt_shutdown(struct platform_device *pdev)
->> +{
->> +	mt7621_wdt_stop(&mt7621_wdt_dev);
->> +}
->> +
->> +static const struct of_device_id mt7621_wdt_match[] = {
->> +	{ .compatible = "mediatek,mt7621-wdt" },
->> +	{},
->> +};
->> +MODULE_DEVICE_TABLE(of, mt7621_wdt_match);
->> +
->> +static struct platform_driver mt7621_wdt_driver = {
->> +	.probe		= mt7621_wdt_probe,
->> +	.remove		= mt7621_wdt_remove,
->> +	.shutdown	= mt7621_wdt_shutdown,
->> +	.driver		= {
->> +		.name		= KBUILD_MODNAME,
->> +		.of_match_table	= mt7621_wdt_match,
->> +	},
->> +};
->> +
->> +module_platform_driver(mt7621_wdt_driver);
->> +
->> +MODULE_DESCRIPTION("MediaTek MT762x hardware watchdog driver");
->> +MODULE_AUTHOR("John Crispin <blogic@openwrt.org");
->> +MODULE_LICENSE("GPL v2");
->> -- 
->> 1.7.10.4
->> --
->> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+/*
+ * struct watchdog_core_data - watchdog core internal data
+ * @kref:       Reference count.
+ * @cdev:       The watchdog's Character device.
+ * @wdd:        Pointer to watchdog device.
+ * @lock:       Lock for watchdog core.
+ * @status:     Watchdog core internal status bits.
+ */
+struct watchdog_core_data {
+        struct kref kref;
+        struct cdev cdev;
+        struct watchdog_device *wdd;
+        struct mutex lock;
+        unsigned long status;           /* Internal status bits */
+#define _WDOG_DEV_OPEN          0       /* Opened ? */
+#define _WDOG_ALLOW_RELEASE     1       /* Did we receive the magic char ? =
+*/
+};
+
+Thanks
+Tomas=20
