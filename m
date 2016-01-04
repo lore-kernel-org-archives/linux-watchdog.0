@@ -1,33 +1,47 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:34401 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752190AbcADDxv (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 3 Jan 2016 22:53:51 -0500
-Subject: Re: [PATCH 0/3] watchdog: Drop pointer to watchdog device from struct
- watchdog_device
-To: linux-watchdog@vger.kernel.org
-References: <1451862718-31073-1-git-send-email-linux@roeck-us.net>
-Cc: Wim Van Sebroeck <wim@iguana.be>,
-	Martyn Welch <martyn.welch@collabora.co.uk>,
-	linux-kernel@vger.kernel.org
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <5689ECCC.9070501@roeck-us.net>
-Date: Sun, 3 Jan 2016 19:53:48 -0800
+Received: from mail-bn1bon0057.outbound.protection.outlook.com ([157.56.111.57]:26992
+	"EHLO na01-bn1-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751456AbcADM6a (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 4 Jan 2016 07:58:30 -0500
+From: Fabio Estevam <fabio.estevam@nxp.com>
+To: <wim@iguana.be>
+CC: <linux@roeck-us.net>, <harald@ccbib.org>, <festevam@gmail.com>,
+	<linux-watchdog@vger.kernel.org>,
+	Fabio Estevam <fabio.estevam@nxp.com>
+Subject: [PATCH] watchdog: stmp3xxx: Remove unused variable
+Date: Mon, 4 Jan 2016 10:26:28 -0200
+Message-ID: <1451910388-7863-1-git-send-email-fabio.estevam@nxp.com>
 MIME-Version: 1.0
-In-Reply-To: <1451862718-31073-1-git-send-email-linux@roeck-us.net>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 01/03/2016 03:11 PM, Guenter Roeck wrote:
-> The lifetime of the watchdog device pointer is different from the lifetime
-> of its character device. Remove it entirely to avoid race conditions, and
-> to make sure that drivers don't start to use it again.
->
+Commit 8d2fa17151ea3 ("watchdog: stmp3xxx: Stop the watchdog on system
+halt") introduced the following build warning:
 
-I should have mentioned: The series applies on top of watchdog-next.
+drivers/watchdog/stmp3xxx_rtc_wdt.c: In function 'wdt_notify_sys':
+drivers/watchdog/stmp3xxx_rtc_wdt.c:78:29: warning: unused variable 'pdata' [-Wunused-variable]
 
-Guenter
+Remove the unused 'pdata' variable.
+
+Signed-off-by: Fabio Estevam <fabio.estevam@nxp.com>
+---
+ drivers/watchdog/stmp3xxx_rtc_wdt.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/drivers/watchdog/stmp3xxx_rtc_wdt.c b/drivers/watchdog/stmp3xxx_rtc_wdt.c
+index dbe0372..9ad39f6 100644
+--- a/drivers/watchdog/stmp3xxx_rtc_wdt.c
++++ b/drivers/watchdog/stmp3xxx_rtc_wdt.c
+@@ -75,7 +75,6 @@ static int wdt_notify_sys(struct notifier_block *nb, unsigned long code,
+ 			  void *unused)
+ {
+ 	struct device *dev = watchdog_get_drvdata(&stmp3xxx_wdd);
+-	struct stmp3xxx_wdt_pdata *pdata = dev_get_platdata(dev);
+ 
+ 	switch (code) {
+ 	case SYS_DOWN:	/* keep enabled, system might crash while going down */
+-- 
+1.9.1
 
