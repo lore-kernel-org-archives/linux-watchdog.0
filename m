@@ -7,65 +7,78 @@ Cc: Alexander Usyskin <alexander.usyskin@intel.com>,
 	linux-watchdog@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	Tomas Winkler <tomas.winkler@intel.com>
-Subject: [char-misc-next v4 0/7] mei: create proper iAMT watchdog driver
-Date: Fri,  8 Jan 2016 00:49:20 +0200
-Message-Id: <1452206967-1144-1-git-send-email-tomas.winkler@intel.com>
+Subject: [char-misc-next v4 4/7] mei: bus: whitelist the watchdog client
+Date: Fri,  8 Jan 2016 00:49:24 +0200
+Message-Id: <1452206967-1144-5-git-send-email-tomas.winkler@intel.com>
+In-Reply-To: <1452206967-1144-1-git-send-email-tomas.winkler@intel.com>
+References: <1452206967-1144-1-git-send-email-tomas.winkler@intel.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Instead of integrating the iAMT watchdog within the mei core driver
-we will create a watchdog device on the mei client bus and
-create a proper watchdog driver for it.
+The iAMT WD client has to be whitelisted sice it has two connections
+and is filtered out by number_of_connections fixup.
+Also the API has changed for BDW and SKL but firmware haven't updated
+the protocol version.
 
-V4:
-1. Rebase the code over patchset : "watchdog: Replace driver based refcounting"
-2. Address comments from Guenter
-3. Drop one unrelated patch from the series
+Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
+Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
+---
+V2-V4: resend
+ drivers/misc/mei/bus-fixup.c | 29 +++++++++++++++++++++++++++++
+ 1 file changed, 29 insertions(+)
 
-V3:
-1. Revert to dynamically allocated watchdog device wrapper
-2. Export activation state to via debugfs
-3. Move runtime unregistration to the BDW patch
-
-V2: 
-1. The watchdog device is no longer dynamically allocated in separate structure
-2. Export device internal status via debugfs
-3. Address few comments from Guenter
-4. Reworked de/registration
-
-The patches should apply and compile char-misc-next
-trees/branches, though the new changes from whatchdog-next are required for proper
-execution.
-I would prefer this will go via char-misc-next as this is the tree
-we work against.
-
-Alexander Usyskin (3):
-  mei: wd: drop the watchdog code from the core mei driver
-  watchdog: mei_wdt: register wd device only if required
-  watchdog: mei_wdt: re-register device on event
-
-Tomas Winkler (4):
-  watchdog: mei_wdt: implement MEI iAMT watchdog driver
-  watchdog: mei_wdt: add status debugfs entry
-  mei: bus: whitelist the watchdog client
-  watchdog: mei_wdt: add activation debugfs entry
-
- Documentation/misc-devices/mei/mei.txt |  12 +-
- MAINTAINERS                            |   1 +
- drivers/misc/mei/Kconfig               |   6 +-
- drivers/misc/mei/Makefile              |   1 -
- drivers/misc/mei/bus-fixup.c           |  29 ++
- drivers/misc/mei/client.c              |  12 +-
- drivers/misc/mei/client.h              |   4 -
- drivers/misc/mei/init.c                |  10 +-
- drivers/misc/mei/interrupt.c           |  15 -
- drivers/misc/mei/mei_dev.h             |  61 +--
- drivers/misc/mei/wd.c                  | 391 ------------------
- drivers/watchdog/Kconfig               |  15 +
- drivers/watchdog/Makefile              |   1 +
- drivers/watchdog/mei_wdt.c             | 720 +++++++++++++++++++++++++++++++++
- 14 files changed, 781 insertions(+), 497 deletions(-)
- delete mode 100644 drivers/misc/mei/wd.c
- create mode 100644 drivers/watchdog/mei_wdt.c
-
+diff --git a/drivers/misc/mei/bus-fixup.c b/drivers/misc/mei/bus-fixup.c
+index b2d2a6ea576c..b87323f4bb14 100644
+--- a/drivers/misc/mei/bus-fixup.c
++++ b/drivers/misc/mei/bus-fixup.c
+@@ -35,6 +35,9 @@ static const uuid_le mei_nfc_info_guid = MEI_UUID_NFC_INFO;
+ #define MEI_UUID_NFC_HCI UUID_LE(0x0bb17a78, 0x2a8e, 0x4c50, \
+ 			0x94, 0xd4, 0x50, 0x26, 0x67, 0x23, 0x77, 0x5c)
+ 
++#define MEI_UUID_WD UUID_LE(0x05B79A6F, 0x4628, 0x4D7F, \
++			    0x89, 0x9D, 0xA9, 0x15, 0x14, 0xCB, 0x32, 0xAB)
++
+ #define MEI_UUID_ANY NULL_UUID_LE
+ 
+ /**
+@@ -66,6 +69,31 @@ static void blacklist(struct mei_cl_device *cldev)
+ 	cldev->do_match = 0;
+ }
+ 
++/**
++ * mei_wd - wd client on the bus, change protocol version
++ *   as the API has changed.
++ *
++ * @cldev: me clients device
++ */
++#if IS_ENABLED(CONFIG_INTEL_MEI_ME)
++#include <linux/pci.h>
++#include "hw-me-regs.h"
++static void mei_wd(struct mei_cl_device *cldev)
++{
++	struct pci_dev *pdev = to_pci_dev(cldev->dev.parent);
++
++	dev_dbg(&cldev->dev, "running hook %s\n", __func__);
++	if (pdev->device == MEI_DEV_ID_WPT_LP ||
++	    pdev->device == MEI_DEV_ID_SPT ||
++	    pdev->device == MEI_DEV_ID_SPT_H)
++		cldev->me_cl->props.protocol_version = 0x2;
++
++	cldev->do_match = 1;
++}
++#else
++static inline void mei_wd(struct mei_cl_device *cldev) {}
++#endif /* CONFIG_INTEL_MEI_ME */
++
+ struct mei_nfc_cmd {
+ 	u8 command;
+ 	u8 status;
+@@ -280,6 +308,7 @@ static struct mei_fixup {
+ 	MEI_FIXUP(MEI_UUID_ANY, number_of_connections),
+ 	MEI_FIXUP(MEI_UUID_NFC_INFO, blacklist),
+ 	MEI_FIXUP(MEI_UUID_NFC_HCI, mei_nfc),
++	MEI_FIXUP(MEI_UUID_WD, mei_wd),
+ };
+ 
+ /**
 -- 
 2.4.3
