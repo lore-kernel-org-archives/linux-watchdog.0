@@ -1,81 +1,40 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:48877 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751951AbcAHOfu (ORCPT
+Received: from aserp1040.oracle.com ([141.146.126.69]:23090 "EHLO
+	aserp1040.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754303AbcAHLDa (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 8 Jan 2016 09:35:50 -0500
-Subject: Re: [PATCH] watchdog: asm9260: remove __init and __exit annotations
-To: Arnd Bergmann <arnd@arndb.de>, Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org
-References: <24150770.U3pBDPnky8@wuerfel>
-Cc: Oleksij Rempel <linux@rempel-privat.de>,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <568FC941.1000307@roeck-us.net>
-Date: Fri, 8 Jan 2016 06:35:45 -0800
+	Fri, 8 Jan 2016 06:03:30 -0500
+Date: Fri, 8 Jan 2016 14:02:39 +0300
+From: Dan Carpenter <dan.carpenter@oracle.com>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
+Subject: [patch] watchdog: pnx833x_wdt: fix typo in MODULE_PARM_DESC
+Message-ID: <20160108110239.GI32195@mwanda>
 MIME-Version: 1.0
-In-Reply-To: <24150770.U3pBDPnky8@wuerfel>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 01/08/2016 02:59 AM, Arnd Bergmann wrote:
-> The probe and release functions in this driver are marked
-> as __init and __exit, but this is wrong as indicated by this
-> Kbuild error message:
->
-> WARNING: vmlinux.o(.data+0x1d2308): Section mismatch in reference from the variable asm9260_wdt_driver to the function .init.text:asm9260_wdt_probe()
->
-> This removes the annotations, to make the sysfs unbind attribute
-> and deferred probing work.
->
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> Fixes: aae03dc98177 ("watchdog: add Alphascale asm9260-wdt driver")
+The module_param() is "pnx833x_wdt_timeout" and MODULE_PARM_DESC()
+should match.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 
->
-> diff --git a/drivers/watchdog/asm9260_wdt.c b/drivers/watchdog/asm9260_wdt.c
-> index 1c22ff4c523a..c9686b2fdafd 100644
-> --- a/drivers/watchdog/asm9260_wdt.c
-> +++ b/drivers/watchdog/asm9260_wdt.c
-> @@ -198,7 +198,7 @@ static struct watchdog_ops asm9260_wdt_ops = {
->   	.set_timeout	= asm9260_wdt_settimeout,
->   };
->
-> -static int __init asm9260_wdt_get_dt_clks(struct asm9260_wdt_priv *priv)
-> +static int asm9260_wdt_get_dt_clks(struct asm9260_wdt_priv *priv)
->   {
->   	int err;
->   	unsigned long clk;
-> @@ -250,7 +250,7 @@ static int __init asm9260_wdt_get_dt_clks(struct asm9260_wdt_priv *priv)
->   	return 0;
->   }
->
-> -static void __init asm9260_wdt_get_dt_mode(struct asm9260_wdt_priv *priv)
-> +static void asm9260_wdt_get_dt_mode(struct asm9260_wdt_priv *priv)
->   {
->   	const char *tmp;
->   	int ret;
-> @@ -274,7 +274,7 @@ static void __init asm9260_wdt_get_dt_mode(struct asm9260_wdt_priv *priv)
->   			 tmp);
->   }
->
-> -static int __init asm9260_wdt_probe(struct platform_device *pdev)
-> +static int asm9260_wdt_probe(struct platform_device *pdev)
->   {
->   	struct asm9260_wdt_priv *priv;
->   	struct watchdog_device *wdd;
-> @@ -364,7 +364,7 @@ static void asm9260_wdt_shutdown(struct platform_device *pdev)
->   	asm9260_wdt_disable(&priv->wdd);
->   }
->
-> -static int __exit asm9260_wdt_remove(struct platform_device *pdev)
-> +static int asm9260_wdt_remove(struct platform_device *pdev)
->   {
->   	struct asm9260_wdt_priv *priv = platform_get_drvdata(pdev);
->
->
->
-
+diff --git a/drivers/watchdog/pnx833x_wdt.c b/drivers/watchdog/pnx833x_wdt.c
+index 882fdcb..69da25a 100644
+--- a/drivers/watchdog/pnx833x_wdt.c
++++ b/drivers/watchdog/pnx833x_wdt.c
+@@ -52,8 +52,9 @@ static int pnx833x_wdt_alive;
+ /* Set default timeout in MHZ.*/
+ static int pnx833x_wdt_timeout = PNX_WATCHDOG_TIMEOUT;
+ module_param(pnx833x_wdt_timeout, int, 0);
+-MODULE_PARM_DESC(timeout, "Watchdog timeout in Mhz. (68Mhz clock), default="
+-			__MODULE_STRING(PNX_TIMEOUT_VALUE) "(30 seconds).");
++MODULE_PARM_DESC(pnx833x_wdt_timeout,
++		 "Watchdog timeout in Mhz. (68Mhz clock), default="
++		 __MODULE_STRING(PNX_TIMEOUT_VALUE) "(30 seconds).");
+ 
+ static bool nowayout = WATCHDOG_NOWAYOUT;
+ module_param(nowayout, bool, 0);
