@@ -1,9 +1,9 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pa0-f67.google.com ([209.85.220.67]:34670 "EHLO
-	mail-pa0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756554AbcAHW3n (ORCPT
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:34725 "EHLO
+	mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756443AbcAHW3g (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 8 Jan 2016 17:29:43 -0500
+	Fri, 8 Jan 2016 17:29:36 -0500
 From: richard.dorsch@gmail.com
 To: linux-kernel@vger.kernel.org
 Cc: lm-sensors@lm-sensors.org, linux-i2c@vger.kernel.org,
@@ -11,9 +11,9 @@ Cc: lm-sensors@lm-sensors.org, linux-i2c@vger.kernel.org,
 	lee.jones@linaro.org, jdelvare@suse.com, linux@roeck-us.net,
 	wim@iguana.be, jo.sunga@advantech.com,
 	Richard Vidal-Dorsch <richard.dorsch@gmail.com>
-Subject: [PATCH 6/6] Add Advantech iManager Watchdog driver
-Date: Fri,  8 Jan 2016 14:29:26 -0800
-Message-Id: <1452292166-20118-7-git-send-email-richard.dorsch@gmail.com>
+Subject: [PATCH 2/6] Add Advantech iManager GPIO driver
+Date: Fri,  8 Jan 2016 14:29:22 -0800
+Message-Id: <1452292166-20118-3-git-send-email-richard.dorsch@gmail.com>
 In-Reply-To: <1452292166-20118-1-git-send-email-richard.dorsch@gmail.com>
 References: <1452292166-20118-1-git-send-email-richard.dorsch@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -22,60 +22,56 @@ List-Id: linux-watchdog@vger.kernel.org
 From: Richard Vidal-Dorsch <richard.dorsch@gmail.com>
 
 ---
- drivers/watchdog/Kconfig           |  12 ++
- drivers/watchdog/Makefile          |   2 +
- drivers/watchdog/imanager-ec-wdt.c | 170 +++++++++++++++++++
- drivers/watchdog/imanager-wdt.c    | 334 +++++++++++++++++++++++++++++++++++++
- include/linux/mfd/imanager/wdt.h   |  37 ++++
- 5 files changed, 555 insertions(+)
- create mode 100644 drivers/watchdog/imanager-ec-wdt.c
- create mode 100644 drivers/watchdog/imanager-wdt.c
- create mode 100644 include/linux/mfd/imanager/wdt.h
+ drivers/gpio/Kconfig              |   8 ++
+ drivers/gpio/Makefile             |   2 +
+ drivers/gpio/imanager-ec-gpio.c   |  98 ++++++++++++++++++++
+ drivers/gpio/imanager-gpio.c      | 182 ++++++++++++++++++++++++++++++++++++++
+ include/linux/mfd/imanager/gpio.h |  27 ++++++
+ 5 files changed, 317 insertions(+)
+ create mode 100644 drivers/gpio/imanager-ec-gpio.c
+ create mode 100644 drivers/gpio/imanager-gpio.c
+ create mode 100644 include/linux/mfd/imanager/gpio.h
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 1c427be..e555127 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -846,6 +846,18 @@ config ITCO_VENDOR_SUPPORT
- 	  devices. At this moment we only have additional support for some
- 	  SuperMicro Inc. motherboards.
+diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
+index b18bea0..0f80947 100644
+--- a/drivers/gpio/Kconfig
++++ b/drivers/gpio/Kconfig
+@@ -765,6 +765,14 @@ config GPIO_DLN2
+ 	  This driver can also be built as a module. If so, the module
+ 	  will be called gpio-dln2.
  
-+config IMANAGER_WDT
-+	tristate "Advantech iManager Watchdog"
++config GPIO_IMANAGER
++	tristate "Advantech iManager GPIO support"
 +	depends on MFD_IMANAGER
-+	select WATCHDOG_CORE
 +	help
-+	  This driver provides support for Advantech iManager watchdog
-+	  of Advantech SOM, MIO, AIMB, and PCM modules/boards.
++	  Say yes here to support Advantech iManager GPIO functionality
++	  of some Advantech SOM, MIO, AIMB, and PCM modules/boards.
 +	  Requires mfd-core and imanager-core to function properly.
 +
-+	  This driver can also be built as a module.  If so, the module
-+	  will be called imanager_wdt.
-+
- config IT8712F_WDT
- 	tristate "IT8712F (Smart Guardian) Watchdog Timer"
- 	depends on X86
-diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index 53d4827..647eca87 100644
---- a/drivers/watchdog/Makefile
-+++ b/drivers/watchdog/Makefile
-@@ -100,6 +100,8 @@ obj-$(CONFIG_ITCO_WDT) += iTCO_wdt.o
- ifeq ($(CONFIG_ITCO_VENDOR_SUPPORT),y)
- obj-$(CONFIG_ITCO_WDT) += iTCO_vendor_support.o
- endif
-+imanager_wdt-objs := imanager-wdt.o imanager-ec-wdt.o
-+obj-$(CONFIG_IMANAGER_WDT) += imanager_wdt.o
- obj-$(CONFIG_IT8712F_WDT) += it8712f_wdt.o
- obj-$(CONFIG_IT87_WDT) += it87_wdt.o
- obj-$(CONFIG_HP_WATCHDOG) += hpwdt.o
-diff --git a/drivers/watchdog/imanager-ec-wdt.c b/drivers/watchdog/imanager-ec-wdt.c
+ config GPIO_JANZ_TTL
+ 	tristate "Janz VMOD-TTL Digital IO Module"
+ 	depends on MFD_JANZ_CMODIO
+diff --git a/drivers/gpio/Makefile b/drivers/gpio/Makefile
+index 986dbd8..0df55e4 100644
+--- a/drivers/gpio/Makefile
++++ b/drivers/gpio/Makefile
+@@ -41,6 +41,8 @@ obj-$(CONFIG_GPIO_F7188X)	+= gpio-f7188x.o
+ obj-$(CONFIG_GPIO_GE_FPGA)	+= gpio-ge.o
+ obj-$(CONFIG_GPIO_GRGPIO)	+= gpio-grgpio.o
+ obj-$(CONFIG_GPIO_ICH)		+= gpio-ich.o
++gpio-imanager-objs		:= imanager-gpio.o imanager-ec-gpio.o
++obj-$(CONFIG_GPIO_IMANAGER)	+= gpio-imanager.o
+ obj-$(CONFIG_GPIO_IOP)		+= gpio-iop.o
+ obj-$(CONFIG_GPIO_IT87)		+= gpio-it87.o
+ obj-$(CONFIG_GPIO_JANZ_TTL)	+= gpio-janz-ttl.o
+diff --git a/drivers/gpio/imanager-ec-gpio.c b/drivers/gpio/imanager-ec-gpio.c
 new file mode 100644
-index 0000000..0db803f
+index 0000000..cefc44d
 --- /dev/null
-+++ b/drivers/watchdog/imanager-ec-wdt.c
-@@ -0,0 +1,170 @@
++++ b/drivers/gpio/imanager-ec-gpio.c
+@@ -0,0 +1,98 @@
 +/*
-+ * Advantech iManager Watchdog core
++ * Advantech iManager GPIO core
 + *
 + * Copyright (C) 2015 Advantech Co., Ltd., Irvine, CA, USA
 + * Author: Richard Vidal-Dorsch <richard.dorsch@advantech.com>
@@ -84,9 +80,6 @@ index 0000000..0db803f
 + * under  the terms of  the GNU General  Public License as published by the
 + * Free Software Foundation;  either version 2 of the  License, or (at your
 + * option) any later version.
-+ *
-+ * Note: Current release only implements RESET of the EC WDT.
-+ *       In other words, no PWR button, NMI, SCI, IRQ, or WDPin support yet!
 + */
 +
 +#include <linux/types.h>
@@ -96,162 +89,93 @@ index 0000000..0db803f
 +#include <linux/delay.h>
 +#include <linux/string.h>
 +#include <linux/byteorder/generic.h>
-+#include <linux/swab.h>
 +#include <linux/mfd/imanager/ec.h>
-+#include <linux/mfd/imanager/wdt.h>
++#include <linux/mfd/imanager/gpio.h>
 +
-+/* Timer resolution */
-+#define WDT_FREQ	10 /* Hz */
++#define EC_GPIOF_DIR_OUT	(1 << 6)
++#define EC_GPIOF_DIR_IN		(1 << 7)
++#define EC_GPIOF_LOW		(0 << 0)
++#define EC_GPIOF_HIGH		(1 << 0)
 +
-+enum wdt_ctrl {
-+	START = 1,
-+	STOP,
-+	RST,
-+	GET_TIMEOUT,
-+	SET_TIMEOUT,
-+	STOPBOOT = 8,
-+};
++/*
++ * Power-on default:
++ * GPIO[7..4] := Input
++ * GPIO[3..0] := Output
++ */
 +
-+struct wdt_event_delay {
-+	u16	delay,
-+		pwrbtn,
-+		nmi,
-+		reset,
-+		wdpin,
-+		sci,
-+		dummy;
-+};
++static const struct imanager_gpio_device *gpio;
 +
-+static const struct imanager_watchdog_device *wd;
-+
-+static inline int set_timer(enum wdt_ctrl ctrl)
++int gpio_core_get_state(u32 num)
 +{
-+	if (WARN_ON(ctrl == SET_TIMEOUT))
++	int ret;
++
++	if (WARN_ON(num >= gpio->num))
 +		return -EINVAL;
 +
-+	return imanager_msg_write(EC_CMD_WDT_CTRL, ctrl, NULL);
++	ret = imanager_read_byte(EC_CMD_HWP_RD, gpio->attr[num].did);
++	if (ret < 0)
++		pr_err("Failed to get GPIO pin state (%x)\n", num);
++
++	return ret;
 +}
 +
-+static int
-+wdt_ctrl(enum wdt_ctrl ctrl, enum wdt_event type, unsigned int timeout)
++int gpio_core_set_state(u32 num, bool state)
 +{
-+	u16 val;
 +	int ret;
-+	struct ec_message msg = {
-+		.rlen = 0,
-+		.wlen = 0,
-+	};
-+	u8 *fevent = &msg.u.data[0];
-+	struct wdt_event_delay *event =
-+				(struct wdt_event_delay *)&msg.u.data[1];
 +
-+	switch (ctrl) {
-+	case SET_TIMEOUT:
-+		memset(event, 0xff, sizeof(*event));
-+		msg.wlen = sizeof(*event);
-+		*fevent = 0;
-+		val = (!timeout) ? 0xffff : swab16(timeout * WDT_FREQ);
-+
-+		switch (type) {
-+		case DELAY:
-+			event->delay = val;
-+			break;
-+		case PWRBTN:
-+			event->pwrbtn = val;
-+			break;
-+		case NMI:
-+			event->nmi = val;
-+			break;
-+		case RESET:
-+			event->reset = val;
-+			break;
-+		case WDPIN:
-+			event->wdpin = val;
-+			break;
-+		case SCI:
-+			event->sci = val;
-+			break;
-+		default:
-+			return -EINVAL;
-+		}
-+
-+		ret = imanager_msg_write(EC_CMD_WDT_CTRL, SET_TIMEOUT, &msg);
-+		if (ret < 0) {
-+			pr_err("Failed to set timeout\n");
-+			return ret;
-+		}
-+		break;
-+	case START:
-+	case STOP:
-+	case RST:
-+	case STOPBOOT:
-+		/* simple command, no data */
-+		return imanager_msg_write(EC_CMD_WDT_CTRL, ctrl, NULL);
-+	default:
++	if (WARN_ON(num >= gpio->num))
 +		return -EINVAL;
++
++	ret = imanager_write_byte(EC_CMD_HWP_WR, gpio->attr[num].did,
++			    state ? EC_GPIOF_HIGH : EC_GPIOF_LOW);
++	if (ret) {
++		pr_err("Failed to set GPIO pin state (%x)\n", num);
++		return ret;
 +	}
 +
-+	return timeout;
++	return 0;
 +}
 +
-+int wdt_core_start_timer(void)
++int gpio_core_set_direction(u32 num, int dir)
 +{
-+	return set_timer(START);
++	int ret;
++
++	if (WARN_ON(num >= gpio->num))
++		return -EINVAL;
++
++	ret = imanager_write_byte(EC_CMD_GPIO_DIR_WR, gpio->attr[num].did,
++			    dir ? EC_GPIOF_DIR_IN : EC_GPIOF_DIR_OUT);
++	if (ret) {
++		pr_err("Failed to set GPIO direction (%x, '%s')\n", num,
++			dir == GPIOF_DIR_OUT ? "OUT" : "IN");
++		return ret;
++	}
++
++	return 0;
 +}
 +
-+int wdt_core_stop_timer(void)
++int gpio_core_get_max_count(void)
 +{
-+	return set_timer(STOP);
++	return gpio->num;
 +}
 +
-+int wdt_core_reset_timer(void)
++int gpio_core_init(void)
 +{
-+	return set_timer(RST);
-+}
-+
-+int wdt_core_stop_boot_timer(void)
-+{
-+	return set_timer(STOPBOOT);
-+}
-+
-+inline int wdt_core_set_timeout(enum wdt_event type, u32 timeout)
-+{
-+	return wdt_ctrl(SET_TIMEOUT, type, timeout);
-+}
-+
-+int wdt_core_disable_all(void)
-+{
-+	struct ec_message msg = {
-+		.rlen = 0,
-+		.wlen = sizeof(struct wdt_event_delay),
-+	};
-+	struct wdt_event_delay *event =
-+				(struct wdt_event_delay *)&msg.u.data[1];
-+
-+	memset(event, 0xff, sizeof(*event));
-+
-+	return  (wdt_core_stop_timer() ||
-+		 wdt_core_stop_boot_timer() ||
-+		 imanager_msg_write(EC_CMD_WDT_CTRL, SET_TIMEOUT, &msg));
-+}
-+
-+int wdt_core_init(void)
-+{
-+	wd = imanager_get_watchdog_device();
-+	if (!wd)
++	gpio = imanager_get_gpio_device();
++	if (!gpio)
 +		return -ENODEV;
 +
 +	return 0;
 +}
 +
-diff --git a/drivers/watchdog/imanager-wdt.c b/drivers/watchdog/imanager-wdt.c
+diff --git a/drivers/gpio/imanager-gpio.c b/drivers/gpio/imanager-gpio.c
 new file mode 100644
-index 0000000..41d44bc
+index 0000000..3939c0f
 --- /dev/null
-+++ b/drivers/watchdog/imanager-wdt.c
-@@ -0,0 +1,334 @@
++++ b/drivers/gpio/imanager-gpio.c
+@@ -0,0 +1,182 @@
 +/*
-+ * Advantech iManager Watchdog driver
++ * Advantech iManager GPIO driver
 + *
 + * Copyright (C) 2015 Advantech Co., Ltd., Irvine, CA, USA
 + * Author: Richard Vidal-Dorsch <richard.dorsch@advantech.com>
@@ -265,263 +189,102 @@ index 0000000..41d44bc
 +#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 +
 +#include <linux/module.h>
-+#include <linux/moduleparam.h>
-+#include <linux/types.h>
-+#include <linux/watchdog.h>
-+#include <linux/notifier.h>
-+#include <linux/reboot.h>
-+#include <linux/uaccess.h>
++#include <linux/init.h>
++#include <linux/slab.h>
 +#include <linux/platform_device.h>
++#include <linux/gpio.h>
 +#include <linux/mfd/imanager/core.h>
-+#include <linux/mfd/imanager/wdt.h>
++#include <linux/mfd/imanager/gpio.h>
 +
-+#define WATCHDOG_TIMEOUT 30 /* in seconds */
++struct imanager_gpio_data {
++	struct imanager_device_data *idev;
++	struct gpio_chip chip;
++};
 +
-+static unsigned long last_updated = -1;
-+
-+static uint timeout = WATCHDOG_TIMEOUT;
-+module_param(timeout, uint, 0);
-+MODULE_PARM_DESC(timeout,
-+	"Watchdog timeout in seconds. 1 <= timeout <= 65534, default="
-+	__MODULE_STRING(WATCHDOG_TIMEOUT) ".");
-+
-+static bool nowayout = WATCHDOG_NOWAYOUT;
-+module_param(nowayout, bool, 0);
-+MODULE_PARM_DESC(nowayout,
-+	"Watchdog cannot be stopped once started (default="
-+	__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
-+
-+static int wdt_start_timer(void)
++static inline struct imanager_gpio_data *
++to_imanager_gpio_data(struct gpio_chip *chip)
 +{
++	return container_of(chip, struct imanager_gpio_data, chip);
++}
++
++static int imanager_direction_in(struct gpio_chip *chip, u32 gpio_num)
++{
++	struct imanager_gpio_data *data = to_imanager_gpio_data(chip);
 +	int ret;
 +
-+	ret = wdt_core_start_timer();
-+	if (ret < 0)
-+		return ret;
++	mutex_lock(&data->idev->lock);
 +
-+	last_updated = jiffies;
-+
-+	return 0;
-+}
-+
-+static int wdt_stop_timer(void)
-+{
-+	int ret;
-+
-+	ret = wdt_core_stop_timer();
-+	if (ret < 0)
-+		return ret;
-+
-+	last_updated = 0;
-+
-+	return 0;
-+}
-+
-+static int wdt_ping(void)
-+{
-+	int ret;
-+
-+	ret = wdt_core_reset_timer();
-+	if (ret < 0)
-+		return ret;
-+
-+	last_updated = jiffies;
-+
-+	return 0;
-+}
-+
-+static int imanager_wdt_set(unsigned int _timeout)
-+{
-+	int ret;
-+
-+	if (timeout != _timeout)
-+		timeout = _timeout;
-+
-+	ret = wdt_core_set_timeout(PWRBTN, timeout);
-+	if (ret < 0)
-+		return ret;
-+
-+	if (last_updated != 0)
-+		last_updated = jiffies;
-+
-+	return 0;
-+}
-+
-+static int imanager_wdt_set_timeout(struct watchdog_device *wdt_dev,
-+				    unsigned int timeout)
-+{
-+	struct imanager_device_data *idev = watchdog_get_drvdata(wdt_dev);
-+	int ret = 0;
-+
-+	mutex_lock(&idev->lock);
-+
-+	ret = imanager_wdt_set(timeout);
-+	if (ret < 0)
-+		dev_err(wdt_dev->dev, "Failed to set timeout\n");
-+	mutex_unlock(&idev->lock);
-+
-+	return ret;
-+}
-+
-+static unsigned int imanager_wdt_get_timeleft(struct watchdog_device *wdt_dev)
-+{
-+	unsigned int timeleft = 0;
-+	unsigned long time_diff = ((jiffies - last_updated) / HZ);
-+
-+	if (last_updated && (timeout > time_diff))
-+		timeleft = timeout - time_diff;
-+
-+	return timeleft;
-+}
-+
-+static int imanager_wdt_start(struct watchdog_device *wdt_dev)
-+{
-+	struct imanager_device_data *idev = watchdog_get_drvdata(wdt_dev);
-+	int ret = 0;
-+
-+	mutex_lock(&idev->lock);
-+
-+	ret = wdt_start_timer();
-+	if (ret < 0)
-+		dev_err(wdt_dev->dev, "Failed to start timer\n");
-+
-+	mutex_unlock(&idev->lock);
-+
-+	return ret;
-+}
-+
-+static int imanager_wdt_stop(struct watchdog_device *wdt_dev)
-+{
-+	struct imanager_device_data *idev = watchdog_get_drvdata(wdt_dev);
-+	int ret = 0;
-+
-+	mutex_lock(&idev->lock);
-+
-+	ret = wdt_stop_timer();
-+	if (ret < 0)
-+		dev_err(wdt_dev->dev, "Failed to stop timer\n");
-+
-+	mutex_unlock(&idev->lock);
-+
-+	return ret;
-+}
-+
-+static int imanager_wdt_ping(struct watchdog_device *wdt_dev)
-+{
-+	struct imanager_device_data *idev = watchdog_get_drvdata(wdt_dev);
-+	int ret = 0;
-+
-+	mutex_lock(&idev->lock);
-+
-+	ret = wdt_ping();
-+	if (ret < 0)
-+		dev_err(wdt_dev->dev, "Failed to reset timer\n");
-+
-+	mutex_unlock(&idev->lock);
-+
-+	return ret;
-+}
-+
-+static long imanager_wdt_ioctl(struct watchdog_device *wdt_dev,
-+			       unsigned int cmd, unsigned long arg)
-+{
-+	struct imanager_device_data *idev = watchdog_get_drvdata(wdt_dev);
-+	void __user *argp = (void __user *)arg;
-+	int __user *p = argp;
-+	int ret = 0;
-+	int timeval, options;
-+	static const struct watchdog_info ident = {
-+		.options = WDIOF_KEEPALIVEPING |
-+			   WDIOF_SETTIMEOUT |
-+			   WDIOF_MAGICCLOSE,
-+		.firmware_version = 0,
-+		.identity = "imanager_wdt",
-+	};
-+
-+	mutex_lock(&idev->lock);
-+
-+	switch (cmd) {
-+	case WDIOC_GETSUPPORT:
-+		if (copy_to_user(argp, &ident, sizeof(ident)))
-+			ret = -EFAULT;
-+		break;
-+	case WDIOC_GETSTATUS:
-+	case WDIOC_GETBOOTSTATUS:
-+		ret = put_user(0, p);
-+		break;
-+	case WDIOC_SETOPTIONS:
-+		if (get_user(options, p)) {
-+			ret = -EFAULT;
-+			goto out;
-+		}
-+		if (options & WDIOS_DISABLECARD)
-+			wdt_stop_timer();
-+		if (options & WDIOS_ENABLECARD) {
-+			wdt_ping();
-+			wdt_start_timer();
-+		}
-+		break;
-+	case WDIOC_KEEPALIVE:
-+		wdt_ping();
-+		break;
-+	case WDIOC_SETTIMEOUT:
-+		if (get_user(timeval, p)) {
-+			ret = -EFAULT;
-+			goto out;
-+		}
-+		if (imanager_wdt_set(timeval)) {
-+			ret = -EINVAL;
-+			goto out;
-+		}
-+		wdt_ping();
-+		/* Fall through */
-+	case WDIOC_GETTIMEOUT:
-+		ret = put_user(timeout, p);
-+		break;
-+	case WDIOC_GETTIMELEFT:
-+		timeval = imanager_wdt_get_timeleft(wdt_dev);
-+		ret = put_user(timeval, p);
-+		break;
-+	default:
-+		ret = -ENOTTY;
++	ret = gpio_core_set_direction(gpio_num, GPIOF_DIR_IN);
++	if (ret) {
++		dev_err(chip->dev, "Failed to set direction to 'in' (%d)\n",
++			gpio_num);
++		ret = -EIO;
 +	}
 +
-+out:
-+	mutex_unlock(&idev->lock);
++	mutex_unlock(&data->idev->lock);
 +
 +	return ret;
 +}
 +
-+static const struct watchdog_info imanager_wdt_info = {
-+	.options		= WDIOF_SETTIMEOUT |
-+				  WDIOF_KEEPALIVEPING |
-+				  WDIOF_MAGICCLOSE,
-+	.identity		= "imanager_wdt",
-+	.firmware_version	= 0,
-+};
++static int
++imanager_direction_out(struct gpio_chip *chip, u32 gpio_num, int val)
++{
++	struct imanager_gpio_data *data = to_imanager_gpio_data(chip);
++	int ret;
 +
-+static const struct watchdog_ops imanager_wdt_ops = {
-+	.owner		= THIS_MODULE,
-+	.start		= imanager_wdt_start,
-+	.stop		= imanager_wdt_stop,
-+	.ping		= imanager_wdt_ping,
-+	.set_timeout	= imanager_wdt_set_timeout,
-+	.get_timeleft	= imanager_wdt_get_timeleft,
-+	.ioctl		= imanager_wdt_ioctl,
-+};
++	mutex_lock(&data->idev->lock);
 +
-+static struct watchdog_device imanager_wdt_dev = {
-+	.info		= &imanager_wdt_info,
-+	.ops		= &imanager_wdt_ops,
-+	.timeout	= WATCHDOG_TIMEOUT,
-+	.min_timeout	= 1,
-+	.max_timeout	= 0xfffe,
-+};
++	ret = gpio_core_set_direction(gpio_num, GPIOF_DIR_OUT);
++	if (ret) {
++		dev_err(chip->dev, "Failed to set direction to 'out' (%d)\n",
++			gpio_num);
++		ret = -EIO;
++	}
 +
-+static int imanager_wdt_probe(struct platform_device *pdev)
++	mutex_unlock(&data->idev->lock);
++
++	return ret;
++}
++
++static int imanager_get(struct gpio_chip *chip, u32 gpio_num)
++{
++	struct imanager_gpio_data *data = to_imanager_gpio_data(chip);
++	int ret;
++
++	mutex_lock(&data->idev->lock);
++
++	ret = gpio_core_get_state(gpio_num);
++	if (ret < 0) {
++		dev_err(chip->dev, "Failed to get status (%d)\n", gpio_num);
++		ret = -EIO;
++	}
++
++	mutex_unlock(&data->idev->lock);
++
++	return ret;
++}
++
++static void imanager_set(struct gpio_chip *chip, u32 gpio_num,
++			 int val)
++{
++	struct imanager_gpio_data *data = to_imanager_gpio_data(chip);
++	int ret;
++
++	mutex_lock(&data->idev->lock);
++
++	ret = gpio_core_set_state(gpio_num, val);
++	if (ret < 0)
++		dev_err(chip->dev, "Failed to set status (%d)\n", gpio_num);
++
++	mutex_unlock(&data->idev->lock);
++}
++
++static int imanager_gpio_probe(struct platform_device *pdev)
 +{
 +	struct device *dev = &pdev->dev;
 +	struct imanager_device_data *idev = dev_get_drvdata(dev->parent);
++	struct imanager_gpio_data *data;
++	struct gpio_chip *chip;
 +	int ret;
 +
 +	if (!idev) {
@@ -529,69 +292,78 @@ index 0000000..41d44bc
 +		return -EINVAL;
 +	}
 +
-+	watchdog_set_nowayout(&imanager_wdt_dev, nowayout);
-+	watchdog_set_drvdata(&imanager_wdt_dev, idev);
-+
-+	ret = watchdog_register_device(&imanager_wdt_dev);
++	ret = gpio_core_init();
 +	if (ret) {
-+		dev_err(dev, "Failed to register watchdog device\n");
++		dev_err(dev, "Failed initializing GPIO core\n");
 +		return ret;
 +	}
 +
-+	ret = wdt_core_init();
-+	if (ret) {
-+		dev_err(dev, "Failed to initialize watchdog core\n");
-+		goto unregister_driver;
++	data = devm_kzalloc(dev, sizeof(*data), GFP_KERNEL);
++	if (!data)
++		return -ENOMEM;
++
++	data->idev = idev;
++
++	platform_set_drvdata(pdev, data);
++
++	chip = &data->chip;
++
++	chip->owner	= THIS_MODULE;
++	chip->dev	= dev;
++	chip->label	= "imanager_gpio";
++
++	chip->base	= -1;
++	chip->ngpio	= gpio_core_get_max_count();
++
++	chip->get	= imanager_get;
++	chip->set	= imanager_set;
++
++	chip->can_sleep	= 1;
++
++	chip->direction_input  = imanager_direction_in;
++	chip->direction_output = imanager_direction_out;
++
++	ret = gpiochip_add(chip);
++	if (ret < 0) {
++		dev_err(dev, "Failed to register driver\n");
++		return ret;
 +	}
 +
-+	wdt_core_disable_all();
-+
-+	imanager_wdt_set_timeout(&imanager_wdt_dev, timeout);
-+
-+	dev_info(dev, "Driver loaded (timeout=%d seconds)\n", timeout);
-+
 +	return 0;
-+
-+unregister_driver:
-+	watchdog_unregister_device(&imanager_wdt_dev);
-+	platform_set_drvdata(pdev, NULL);
-+
-+	return ret;
 +}
 +
-+static int imanager_wdt_remove(struct platform_device *pdev)
++static int imanager_remove(struct platform_device *pdev)
 +{
-+	wdt_core_disable_all();
++	struct imanager_gpio_data *data = platform_get_drvdata(pdev);
 +
-+	watchdog_unregister_device(&imanager_wdt_dev);
-+	platform_set_drvdata(pdev, NULL);
++	gpiochip_remove(&data->chip);
 +
 +	return 0;
 +}
 +
-+static struct platform_driver imanager_wdt_driver = {
++static struct platform_driver imanager_gpio_driver = {
 +	.driver = {
 +		.owner	= THIS_MODULE,
-+		.name	= "imanager_wdt",
++		.name	= "imanager_gpio",
 +	},
-+	.probe	= imanager_wdt_probe,
-+	.remove	= imanager_wdt_remove,
++	.probe	= imanager_gpio_probe,
++	.remove	= imanager_remove,
 +};
 +
-+module_platform_driver(imanager_wdt_driver);
++module_platform_driver(imanager_gpio_driver);
 +
-+MODULE_DESCRIPTION("Advantech iManager Watchdog Driver");
++MODULE_DESCRIPTION("Advantech iManager GPIO Driver");
 +MODULE_AUTHOR("Richard Vidal-Dorsch <richard.dorsch at advantech.com>");
 +MODULE_LICENSE("GPL");
-+MODULE_ALIAS("platform:imanager_wdt");
-diff --git a/include/linux/mfd/imanager/wdt.h b/include/linux/mfd/imanager/wdt.h
++MODULE_ALIAS("platform:imanager_gpio");
+diff --git a/include/linux/mfd/imanager/gpio.h b/include/linux/mfd/imanager/gpio.h
 new file mode 100644
-index 0000000..727b24e
+index 0000000..7b76727
 --- /dev/null
-+++ b/include/linux/mfd/imanager/wdt.h
-@@ -0,0 +1,37 @@
++++ b/include/linux/mfd/imanager/gpio.h
+@@ -0,0 +1,27 @@
 +/*
-+ * Advantech iManager Watchdog core
++ * Advantech iManager GPIO core
 + *
 + * Copyright (C) 2015 Advantech Co., Ltd., Irvine, CA, USA
 + * Author: Richard Vidal-Dorsch <richard.dorsch@advantech.com>
@@ -602,29 +374,19 @@ index 0000000..727b24e
 + * option) any later version.
 + */
 +
-+#ifndef __WDT_H__
-+#define __WDT_H__
++#ifndef __GPIO_H__
++#define __GPIO_H__
 +
++#include <linux/gpio.h>
 +#include <linux/types.h>
 +
-+enum wdt_event {
-+	DELAY,
-+	PWRBTN,
-+	NMI,
-+	RESET,
-+	WDPIN,
-+	SCI,
-+};
++int gpio_core_init(void);
 +
-+int wdt_core_init(void);
++int gpio_core_get_max_count(void);
 +
-+int wdt_core_set_timeout(enum wdt_event type, u32 timeout);
-+
-+int wdt_core_disable_all(void);
-+int wdt_core_start_timer(void);
-+int wdt_core_stop_timer(void);
-+int wdt_core_reset_timer(void);
-+int wdt_core_stop_boot_timer(void);
++int gpio_core_get_state(u32 num);
++int gpio_core_set_state(u32 num, bool state);
++int gpio_core_set_direction(u32 num, int dir);
 +
 +#endif
 -- 
