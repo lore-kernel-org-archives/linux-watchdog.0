@@ -1,84 +1,64 @@
-Return-path: <martyn.welch@collabora.co.uk>
-Message-ID: <568F8C6F.4050702@collabora.co.uk>
-Date: Fri, 08 Jan 2016 10:16:15 +0000
-From: Martyn Welch <martyn.welch@collabora.co.uk>
+Return-path: <arnd@arndb.de>
+From: Arnd Bergmann <arnd@arndb.de>
+To: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org
+Cc: Oleksij Rempel <linux@rempel-privat.de>, Guenter Roeck <linux@roeck-us.net>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] watchdog: asm9260: remove __init and __exit annotations
+Date: Fri, 08 Jan 2016 11:59:34 +0100
+Message-ID: <24150770.U3pBDPnky8@wuerfel>
 MIME-Version: 1.0
-To: Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org
-CC: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/3] watchdog: ziirave: Use watchdog infrastructure to
- create sysfs attributes
-References: <1451862718-31073-1-git-send-email-linux@roeck-us.net> <1451862718-31073-3-git-send-email-linux@roeck-us.net>
-In-Reply-To: <1451862718-31073-3-git-send-email-linux@roeck-us.net>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="us-ascii"
 List-ID: <linux-watchdog@vger.kernel.org>
 
+The probe and release functions in this driver are marked
+as __init and __exit, but this is wrong as indicated by this
+Kbuild error message:
 
+WARNING: vmlinux.o(.data+0x1d2308): Section mismatch in reference from the variable asm9260_wdt_driver to the function .init.text:asm9260_wdt_probe()
 
-On 03/01/16 23:11, Guenter Roeck wrote:
-> The watchdog core now supports creating driver specific sysfs attributes
-> when creating the watchdog device.
->
-> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+This removes the annotations, to make the sysfs unbind attribute
+and deferred probing work.
 
-Acked-by: Martyn Welch <martyn.welch@collabora.co.uk>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Fixes: aae03dc98177 ("watchdog: add Alphascale asm9260-wdt driver")
 
-(Sorry for the delayed response, this email got caught by my spam filtering)
-
-> ---
->   drivers/watchdog/ziirave_wdt.c | 20 +++-----------------
->   1 file changed, 3 insertions(+), 17 deletions(-)
->
-> diff --git a/drivers/watchdog/ziirave_wdt.c b/drivers/watchdog/ziirave_wdt.c
-> index b498fdcc231a..0c7cb7302cf0 100644
-> --- a/drivers/watchdog/ziirave_wdt.c
-> +++ b/drivers/watchdog/ziirave_wdt.c
-> @@ -207,10 +207,7 @@ static struct attribute *ziirave_wdt_attrs[] = {
->   	&dev_attr_reset_reason.attr,
->   	NULL
->   };
-> -
-> -static const struct attribute_group ziirave_wdt_sysfs_files = {
-> -	.attrs  = ziirave_wdt_attrs,
-> -};
-> +ATTRIBUTE_GROUPS(ziirave_wdt);
->
->   static int ziirave_wdt_init_duration(struct i2c_client *client)
->   {
-> @@ -260,6 +257,7 @@ static int ziirave_wdt_probe(struct i2c_client *client,
->   	w_priv->wdd.min_timeout = ZIIRAVE_TIMEOUT_MIN;
->   	w_priv->wdd.max_timeout = ZIIRAVE_TIMEOUT_MAX;
->   	w_priv->wdd.parent = &client->dev;
-> +	w_priv->wdd.groups = ziirave_wdt_groups;
->
->   	ret = watchdog_init_timeout(&w_priv->wdd, wdt_timeout, &client->dev);
->   	if (ret) {
-> @@ -327,26 +325,14 @@ static int ziirave_wdt_probe(struct i2c_client *client,
->   		return -ENODEV;
->
->   	ret = watchdog_register_device(&w_priv->wdd);
-> -	if (ret)
-> -		return ret;
-> -
-> -	ret = sysfs_create_group(&w_priv->wdd.dev->kobj,
-> -				 &ziirave_wdt_sysfs_files);
-> -	if (ret) {
-> -		watchdog_unregister_device(&w_priv->wdd);
->
-> -		return ret;
-> -	}
-> -
-> -	return 0;
-> +	return ret;
->   }
->
->   static int ziirave_wdt_remove(struct i2c_client *client)
->   {
->   	struct ziirave_wdt_data *w_priv = i2c_get_clientdata(client);
->
-> -	sysfs_remove_group(&client->dev.kobj, &ziirave_wdt_sysfs_files);
-> -
->   	watchdog_unregister_device(&w_priv->wdd);
->
->   	return 0;
->
+diff --git a/drivers/watchdog/asm9260_wdt.c b/drivers/watchdog/asm9260_wdt.c
+index 1c22ff4c523a..c9686b2fdafd 100644
+--- a/drivers/watchdog/asm9260_wdt.c
++++ b/drivers/watchdog/asm9260_wdt.c
+@@ -198,7 +198,7 @@ static struct watchdog_ops asm9260_wdt_ops = {
+ 	.set_timeout	= asm9260_wdt_settimeout,
+ };
+ 
+-static int __init asm9260_wdt_get_dt_clks(struct asm9260_wdt_priv *priv)
++static int asm9260_wdt_get_dt_clks(struct asm9260_wdt_priv *priv)
+ {
+ 	int err;
+ 	unsigned long clk;
+@@ -250,7 +250,7 @@ static int __init asm9260_wdt_get_dt_clks(struct asm9260_wdt_priv *priv)
+ 	return 0;
+ }
+ 
+-static void __init asm9260_wdt_get_dt_mode(struct asm9260_wdt_priv *priv)
++static void asm9260_wdt_get_dt_mode(struct asm9260_wdt_priv *priv)
+ {
+ 	const char *tmp;
+ 	int ret;
+@@ -274,7 +274,7 @@ static void __init asm9260_wdt_get_dt_mode(struct asm9260_wdt_priv *priv)
+ 			 tmp);
+ }
+ 
+-static int __init asm9260_wdt_probe(struct platform_device *pdev)
++static int asm9260_wdt_probe(struct platform_device *pdev)
+ {
+ 	struct asm9260_wdt_priv *priv;
+ 	struct watchdog_device *wdd;
+@@ -364,7 +364,7 @@ static void asm9260_wdt_shutdown(struct platform_device *pdev)
+ 	asm9260_wdt_disable(&priv->wdd);
+ }
+ 
+-static int __exit asm9260_wdt_remove(struct platform_device *pdev)
++static int asm9260_wdt_remove(struct platform_device *pdev)
+ {
+ 	struct asm9260_wdt_priv *priv = platform_get_drvdata(pdev);
+ 
