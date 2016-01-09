@@ -1,9 +1,9 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mga04.intel.com ([192.55.52.120]:25696 "EHLO mga04.intel.com"
+Received: from mga14.intel.com ([192.55.52.115]:11929 "EHLO mga14.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756559AbcAIAux (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 8 Jan 2016 19:50:53 -0500
-Date: Sat, 9 Jan 2016 08:50:04 +0800
+	id S1754463AbcAICDM (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 8 Jan 2016 21:03:12 -0500
+Date: Sat, 9 Jan 2016 10:02:21 +0800
 From: kbuild test robot <lkp@intel.com>
 To: richard.dorsch@gmail.com
 Cc: kbuild-all@01.org, linux-kernel@vger.kernel.org,
@@ -12,12 +12,12 @@ Cc: kbuild-all@01.org, linux-kernel@vger.kernel.org,
 	lee.jones@linaro.org, jdelvare@suse.com, linux@roeck-us.net,
 	wim@iguana.be, jo.sunga@advantech.com,
 	Richard Vidal-Dorsch <richard.dorsch@gmail.com>
-Subject: Re: [PATCH 2/6] Add Advantech iManager GPIO driver
-Message-ID: <201601090859.rNB9E9Y6%fengguang.wu@intel.com>
+Subject: Re: [PATCH 6/6] Add Advantech iManager Watchdog driver
+Message-ID: <201601091012.XHk6Lh1F%fengguang.wu@intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1452292166-20118-3-git-send-email-richard.dorsch@gmail.com>
+In-Reply-To: <1452292166-20118-7-git-send-email-richard.dorsch@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
@@ -33,7 +33,7 @@ base:   https://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git
 
 coccinelle warnings: (new ones prefixed by >>)
 
->> drivers/gpio/imanager-gpio.c:170:3-8: No need to set .owner here. The core will do it.
+>> drivers/watchdog/imanager-wdt.c:322:3-8: No need to set .owner here. The core will do it.
 
 Please review and possibly fold the followup patch.
 
