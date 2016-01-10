@@ -1,51 +1,43 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailout1.w2.samsung.com ([211.189.100.11]:59085 "EHLO
-	usmailout1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756527AbcAJAXx (ORCPT
+Received: from mail-pa0-f65.google.com ([209.85.220.65]:35156 "EHLO
+	mail-pa0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751534AbcAJHmO (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 9 Jan 2016 19:23:53 -0500
-Received: from uscpsbgex1.samsung.com
- (u122.gpu85.samsung.co.kr [203.254.195.122]) by mailout1.w2.samsung.com
- (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
- with ESMTP id <0O0P00ENDNB2YO60@mailout1.w2.samsung.com> for
- linux-watchdog@vger.kernel.org; Sat, 09 Jan 2016 19:13:50 -0500 (EST)
-Subject: arm/arm64 HARDLOCKUP Detector and PERF NMI support
-References: <569199C0.9030500@samsung.com>
-To: "linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>, mark.rutland@arm.com,
-	Will Deacon <will.deacon@arm.com>,
-	Marc Zyngier <Marc.Zyngier@arm.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Russell King - ARM Linux <linux@arm.linux.org.uk>
-From: Mario Smarduch <m.smarduch@samsung.com>
-Cc: wim@iguana.be, Christoffer Dall <christoffer.dall@linaro.org>,
-	linux-watchdog@vger.kernel.org
-Message-id: <5691A23C.8060807@samsung.com>
-Date: Sat, 09 Jan 2016 16:13:48 -0800
-MIME-version: 1.0
-In-reply-to: <569199C0.9030500@samsung.com>
-Content-type: text/plain; charset=utf-8
-Content-transfer-encoding: 7bit
+	Sun, 10 Jan 2016 02:42:14 -0500
+From: richard.dorsch@gmail.com
+To: linux-kernel@vger.kernel.org
+Cc: lm-sensors@lm-sensors.org, linux-i2c@vger.kernel.org,
+	linux-watchdog@vger.kernel.org, linux-gpio@vger.kernel.org,
+	lee.jones@linaro.org, jdelvare@suse.com, linux@roeck-us.net,
+	wim@iguana.be, fengguang.wu@intel.com, jo.sunga@advantech.com,
+	Richard Vidal-Dorsch <richard.dorsch@gmail.com>
+Subject: [PATCH 7/8] Remove .owner from platform_driver struct
+Date: Sat,  9 Jan 2016 23:42:08 -0800
+Message-Id: <1452411728-5929-1-git-send-email-richard.dorsch@gmail.com>
+In-Reply-To: <201601090859.rNB9E9Y6%fengguang.wu@intel.com>
+References: <201601090859.rNB9E9Y6%fengguang.wu@intel.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-I'm trying to get HARDLOCKUP detector to work on arm (on foundation
-model and Juno, but armv7 should have the same issue). Turns out there is no
-PERF NMI support (HAVE_PERF_EVENTS_NMI), which I guess would be PMU NMI - I
-tested overflow on cycle counter and PMU interrupts can be masked. HARDLOCKUP
-assumes perf interrupts are non-maskable and uses the PMU to program an NMI to
-detect hard lockup and that in turn drives softlockup detection.
+From: Richard Vidal-Dorsch <richard.dorsch@gmail.com>
 
-Is there something, someplace in ARM manuals that addresses this, searched the
-manuals but couldn't find anything?
+Signed-off-by: Richard Vidal-Dorsch <richard.dorsch@gmail.com>
+---
+ drivers/gpio/imanager-gpio.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-Or other approaches that I'm not aware off or have floated on the mailing list.
-
-It's a pretty important feature for some environments.
-
-- Mario
-
-
-
-
+diff --git a/drivers/gpio/imanager-gpio.c b/drivers/gpio/imanager-gpio.c
+index 3939c0f..b6fa689 100644
+--- a/drivers/gpio/imanager-gpio.c
++++ b/drivers/gpio/imanager-gpio.c
+@@ -167,7 +167,6 @@ static int imanager_remove(struct platform_device *pdev)
+ 
+ static struct platform_driver imanager_gpio_driver = {
+ 	.driver = {
+-		.owner	= THIS_MODULE,
+ 		.name	= "imanager_gpio",
+ 	},
+ 	.probe	= imanager_gpio_probe,
+-- 
+2.6.4
 
