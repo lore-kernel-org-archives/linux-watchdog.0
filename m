@@ -1,43 +1,104 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pf0-f193.google.com ([209.85.192.193]:32894 "EHLO
-	mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754518AbcAJHmu (ORCPT
+Received: from mail-pf0-f194.google.com ([209.85.192.194]:34443 "EHLO
+	mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752368AbcAJJJi (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 10 Jan 2016 02:42:50 -0500
+	Sun, 10 Jan 2016 04:09:38 -0500
 From: richard.dorsch@gmail.com
 To: linux-kernel@vger.kernel.org
 Cc: lm-sensors@lm-sensors.org, linux-i2c@vger.kernel.org,
 	linux-watchdog@vger.kernel.org, linux-gpio@vger.kernel.org,
 	lee.jones@linaro.org, jdelvare@suse.com, linux@roeck-us.net,
-	wim@iguana.be, fengguang.wu@intel.com, jo.sunga@advantech.com,
+	wim@iguana.be, jo.sunga@advantech.com,
 	Richard Vidal-Dorsch <richard.dorsch@gmail.com>
-Subject: [PATCH 8/8] Remove .owner from platform_driver struct
-Date: Sat,  9 Jan 2016 23:42:45 -0800
-Message-Id: <1452411765-6009-1-git-send-email-richard.dorsch@gmail.com>
-In-Reply-To: <201601091012.XHk6Lh1F%fengguang.wu@intel.com>
-References: <201601091012.XHk6Lh1F%fengguang.wu@intel.com>
+Subject: [PATCH v2 0/6] Add Advantech iManager EC driver set
+Date: Sun, 10 Jan 2016 01:09:33 -0800
+Message-Id: <1452416973-28289-1-git-send-email-richard.dorsch@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
 From: Richard Vidal-Dorsch <richard.dorsch@gmail.com>
 
-Signed-off-by: Richard Vidal-Dorsch <richard.dorsch@gmail.com>
----
- drivers/watchdog/imanager-wdt.c | 1 -
- 1 file changed, 1 deletion(-)
+The Advantech iManager is an embedded controller (depending on board type,
+ITE it8518/it8528) on which a custom firmware runs. All drivers (GPIO, I2C,
+HWmon, Watchdog, and backlight) are being managed by the imanager mfd driver.
+The imanager mfd driver acts as a 'gateway' and handles all communications
+between the EC and sub-drivers (GPIO, I2C, ...). The feature specific
+communication portions are split up into core files such as
+imanager-ec-[gpio, i2c, ...].
 
-diff --git a/drivers/watchdog/imanager-wdt.c b/drivers/watchdog/imanager-wdt.c
-index 41d44bc..8a8b369 100644
---- a/drivers/watchdog/imanager-wdt.c
-+++ b/drivers/watchdog/imanager-wdt.c
-@@ -319,7 +319,6 @@ static int imanager_wdt_remove(struct platform_device *pdev)
- 
- static struct platform_driver imanager_wdt_driver = {
- 	.driver = {
--		.owner	= THIS_MODULE,
- 		.name	= "imanager_wdt",
- 	},
- 	.probe	= imanager_wdt_probe,
+Changes from v1:
+- Remove .owner from platform_driver in drivers/gpio/imanager-gpio.c
+- Remove .owner from platform_driver in drivers/gpio/imanager-wdt.c
+- Replace 2015 by 2016 in all files
+
+Richard Vidal-Dorsch (6):
+  Add Advantech iManager MFD core driver
+  Add Advantech iManager GPIO driver
+  Add Advantech iManager HWmon driver
+  Add Advantech iManager I2C driver
+  Add Advantech iManager Backlight driver
+  Add Advantech iManager Watchdog driver
+
+ Documentation/devicetree/bindings/mfd/imanager.txt |   33 +
+ Documentation/hwmon/imanager                       |   59 +
+ Documentation/i2c/busses/i2c-imanager              |   48 +
+ MAINTAINERS                                        |   13 +
+ drivers/gpio/Kconfig                               |    8 +
+ drivers/gpio/Makefile                              |    2 +
+ drivers/gpio/imanager-ec-gpio.c                    |   98 ++
+ drivers/gpio/imanager-gpio.c                       |  181 +++
+ drivers/hwmon/Kconfig                              |   12 +
+ drivers/hwmon/Makefile                             |    2 +
+ drivers/hwmon/imanager-ec-hwmon.c                  |  606 +++++++++
+ drivers/hwmon/imanager-hwmon.c                     | 1058 +++++++++++++++
+ drivers/i2c/busses/Kconfig                         |   11 +
+ drivers/i2c/busses/Makefile                        |    2 +
+ drivers/i2c/busses/imanager-ec-i2c.c               |  466 +++++++
+ drivers/i2c/busses/imanager-i2c.c                  |  240 ++++
+ drivers/mfd/Kconfig                                |   20 +
+ drivers/mfd/Makefile                               |    2 +
+ drivers/mfd/imanager-core.c                        |  288 +++++
+ drivers/mfd/imanager-ec.c                          | 1345 ++++++++++++++++++++
+ drivers/video/backlight/Kconfig                    |   12 +
+ drivers/video/backlight/Makefile                   |    2 +
+ drivers/video/backlight/imanager-bl.c              |  199 +++
+ drivers/video/backlight/imanager-ec-bl.c           |  118 ++
+ drivers/watchdog/Kconfig                           |   12 +
+ drivers/watchdog/Makefile                          |    2 +
+ drivers/watchdog/imanager-ec-wdt.c                 |  170 +++
+ drivers/watchdog/imanager-wdt.c                    |  333 +++++
+ include/linux/mfd/imanager/backlight.h             |   37 +
+ include/linux/mfd/imanager/core.h                  |   31 +
+ include/linux/mfd/imanager/ec.h                    |  210 +++
+ include/linux/mfd/imanager/gpio.h                  |   27 +
+ include/linux/mfd/imanager/hwmon.h                 |  120 ++
+ include/linux/mfd/imanager/i2c.h                   |   55 +
+ include/linux/mfd/imanager/wdt.h                   |   37 +
+ 35 files changed, 5859 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/mfd/imanager.txt
+ create mode 100644 Documentation/hwmon/imanager
+ create mode 100644 Documentation/i2c/busses/i2c-imanager
+ create mode 100644 drivers/gpio/imanager-ec-gpio.c
+ create mode 100644 drivers/gpio/imanager-gpio.c
+ create mode 100644 drivers/hwmon/imanager-ec-hwmon.c
+ create mode 100644 drivers/hwmon/imanager-hwmon.c
+ create mode 100644 drivers/i2c/busses/imanager-ec-i2c.c
+ create mode 100644 drivers/i2c/busses/imanager-i2c.c
+ create mode 100644 drivers/mfd/imanager-core.c
+ create mode 100644 drivers/mfd/imanager-ec.c
+ create mode 100644 drivers/video/backlight/imanager-bl.c
+ create mode 100644 drivers/video/backlight/imanager-ec-bl.c
+ create mode 100644 drivers/watchdog/imanager-ec-wdt.c
+ create mode 100644 drivers/watchdog/imanager-wdt.c
+ create mode 100644 include/linux/mfd/imanager/backlight.h
+ create mode 100644 include/linux/mfd/imanager/core.h
+ create mode 100644 include/linux/mfd/imanager/ec.h
+ create mode 100644 include/linux/mfd/imanager/gpio.h
+ create mode 100644 include/linux/mfd/imanager/hwmon.h
+ create mode 100644 include/linux/mfd/imanager/i2c.h
+ create mode 100644 include/linux/mfd/imanager/wdt.h
+
 -- 
 2.6.4
 
