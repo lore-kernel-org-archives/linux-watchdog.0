@@ -11,9 +11,9 @@ Cc: lm-sensors@lm-sensors.org,
 	wim@iguana.be,
 	jo.sunga@advantech.com,
 	Richard Vidal-Dorsch <richard.dorsch@gmail.com>
-Subject: [PATCH v3 4/6] Add Advantech iManager I2C driver
-Date: Sun, 10 Jan 2016 15:31:13 -0800
-Message-Id: <1452468675-5827-5-git-send-email-richard.dorsch@gmail.com>
+Subject: [PATCH v3 5/6] Add Advantech iManager Backlight driver
+Date: Sun, 10 Jan 2016 15:31:14 -0800
+Message-Id: <1452468675-5827-6-git-send-email-richard.dorsch@gmail.com>
 In-Reply-To: <1452468675-5827-1-git-send-email-richard.dorsch@gmail.com>
 References: <1452468675-5827-1-git-send-email-richard.dorsch@gmail.com>
 List-ID: <linux-watchdog@vger.kernel.org>
@@ -22,115 +22,264 @@ From: Richard Vidal-Dorsch <richard.dorsch@gmail.com>
 
 Signed-off-by: Richard Vidal-Dorsch <richard.dorsch@gmail.com>
 ---
- Documentation/i2c/busses/i2c-imanager |  48 ++++
- drivers/i2c/busses/Kconfig            |  11 +
- drivers/i2c/busses/Makefile           |   2 +
- drivers/i2c/busses/imanager-ec-i2c.c  | 466 ++++++++++++++++++++++++++++++++++
- drivers/i2c/busses/imanager-i2c.c     | 239 +++++++++++++++++
- include/linux/mfd/imanager/i2c.h      |  55 ++++
- 6 files changed, 821 insertions(+)
- create mode 100644 Documentation/i2c/busses/i2c-imanager
- create mode 100644 drivers/i2c/busses/imanager-ec-i2c.c
- create mode 100644 drivers/i2c/busses/imanager-i2c.c
- create mode 100644 include/linux/mfd/imanager/i2c.h
+ drivers/video/backlight/Kconfig          |  12 ++
+ drivers/video/backlight/Makefile         |   2 +
+ drivers/video/backlight/imanager-bl.c    | 198 +++++++++++++++++++++++++++++++
+ drivers/video/backlight/imanager-ec-bl.c | 118 ++++++++++++++++++
+ include/linux/mfd/imanager/backlight.h   |  37 ++++++
+ 5 files changed, 367 insertions(+)
+ create mode 100644 drivers/video/backlight/imanager-bl.c
+ create mode 100644 drivers/video/backlight/imanager-ec-bl.c
+ create mode 100644 include/linux/mfd/imanager/backlight.h
 
-diff --git a/Documentation/i2c/busses/i2c-imanager b/Documentation/i2c/busses/i2c-imanager
-new file mode 100644
-index 0000000..d149fbf
---- /dev/null
-+++ b/Documentation/i2c/busses/i2c-imanager
-@@ -0,0 +1,48 @@
-+Kernel driver imanager_i2c
-+==========================
-+
-+This platform driver provides support for iManager I2C/SMBus.
-+
-+This driver depends on imanager (mfd).
-+
-+Module Parameters
-+-----------------
-+
-+* bus_frequency (unsigned short)
-+Set desired bus frequency. Valid values (kHz) are:
-+  50  Slow
-+ 100  Standard (default)
-+ 400  Fast
-+
-+
-+Description
-+-----------
-+
-+The Advantech iManager provides up to four SMBus controllers. One of them
-+is configured for I2C compatibility.
-+
-+
-+Process Call Support
-+--------------------
-+
-+Not supported.
-+
-+
-+I2C Block Read Support
-+----------------------
-+
-+I2C block read is supported.
-+
-+
-+SMBus 2.0 Support
-+-----------------
-+
-+Several SMBus 2.0 features are supported.
-+No PEC support.
-+
-+
-+Interrupt Support
-+-----------------
-+
-+No interrupt support available
-+
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 7b0aa82..4c401a4 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -42,6 +42,17 @@ config I2C_ALI15X3
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called i2c-ali15x3.
+diff --git a/drivers/video/backlight/Kconfig b/drivers/video/backlight/Kconfig
+index 5ffa4b4..8003573 100644
+--- a/drivers/video/backlight/Kconfig
++++ b/drivers/video/backlight/Kconfig
+@@ -251,6 +251,18 @@ config BACKLIGHT_HP700
+ 	  If you have an HP Jornada 700 series,
+ 	  say Y to include backlight control driver.
  
-+config I2C_IMANAGER
-+	tristate "Advantech iManager I2C Interface"
++config BACKLIGHT_IMANAGER
++	tristate "Advantech iManager backlight/brightness"
 +	depends on MFD_IMANAGER
 +	help
-+	  This enables support for Advantech iManager I2C of some
-+	  Advantech SOM, MIO, AIMB, and PCM modules/boards.
++	  This enables support for Advantech iManager Backlight and
++	  Brightness control of some Advantech SOM, MIO, AIMB, and
++	  PCM modules/boards.
 +	  Requires mfd-core and imanager-core to function properly.
 +
 +	  This driver can also be built as a module. If so, the module
-+	  will be called i2c-imanager.
++	  will be called imanager_bl.
 +
- config I2C_AMD756
- 	tristate "AMD 756/766/768/8111 and nVidia nForce"
- 	depends on PCI
-diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-index 37f2819..da76404 100644
---- a/drivers/i2c/busses/Makefile
-+++ b/drivers/i2c/busses/Makefile
-@@ -15,6 +15,8 @@ obj-$(CONFIG_I2C_AMD8111)	+= i2c-amd8111.o
- obj-$(CONFIG_I2C_I801)		+= i2c-i801.o
- obj-$(CONFIG_I2C_ISCH)		+= i2c-isch.o
- obj-$(CONFIG_I2C_ISMT)		+= i2c-ismt.o
-+i2c-imanager-objs		:= imanager-i2c.o imanager-ec-i2c.o
-+obj-$(CONFIG_I2C_IMANAGER)	+= i2c-imanager.o
- obj-$(CONFIG_I2C_NFORCE2)	+= i2c-nforce2.o
- obj-$(CONFIG_I2C_NFORCE2_S4985)	+= i2c-nforce2-s4985.o
- obj-$(CONFIG_I2C_PIIX4)		+= i2c-piix4.o
-diff --git a/drivers/i2c/busses/imanager-ec-i2c.c b/drivers/i2c/busses/imanager-ec-i2c.c
+ config BACKLIGHT_CARILLO_RANCH
+ 	tristate "Intel Carillo Ranch Backlight Driver"
+ 	depends on LCD_CLASS_DEVICE && PCI && X86 && FB_LE80578
+diff --git a/drivers/video/backlight/Makefile b/drivers/video/backlight/Makefile
+index 16ec534..15bf136 100644
+--- a/drivers/video/backlight/Makefile
++++ b/drivers/video/backlight/Makefile
+@@ -26,6 +26,8 @@ obj-$(CONFIG_BACKLIGHT_ADP8870)		+= adp8870_bl.o
+ obj-$(CONFIG_BACKLIGHT_APPLE)		+= apple_bl.o
+ obj-$(CONFIG_BACKLIGHT_AS3711)		+= as3711_bl.o
+ obj-$(CONFIG_BACKLIGHT_BD6107)		+= bd6107.o
++imanager_bl-objs			:= imanager-bl.o imanager-ec-bl.o
++obj-$(CONFIG_BACKLIGHT_IMANAGER)	+= imanager_bl.o
+ obj-$(CONFIG_BACKLIGHT_CARILLO_RANCH)	+= cr_bllcd.o
+ obj-$(CONFIG_BACKLIGHT_CLASS_DEVICE)	+= backlight.o
+ obj-$(CONFIG_BACKLIGHT_DA903X)		+= da903x_bl.o
+diff --git a/drivers/video/backlight/imanager-bl.c b/drivers/video/backlight/imanager-bl.c
 new file mode 100644
-index 0000000..f8839dc
+index 0000000..9950fec
 --- /dev/null
-+++ b/drivers/i2c/busses/imanager-ec-i2c.c
-@@ -0,0 +1,466 @@
++++ b/drivers/video/backlight/imanager-bl.c
+@@ -0,0 +1,198 @@
 +/*
-+ * Advantech iManager I2C bus core
++ * Advantech iManager Backlight driver
++ * Partially derived from wm831x_bl
++ *
++ * Copyright (C) 2016 Advantech Co., Ltd., Irvine, CA, USA
++ * Author: Richard Vidal-Dorsch <richard.dorsch@advantech.com>
++ *
++ * This program is free software; you can redistribute  it and/or modify it
++ * under  the terms of  the GNU General  Public License as published by the
++ * Free Software Foundation;  either version 2 of the  License, or (at your
++ * option) any later version.
++ */
++
++#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
++
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/slab.h>
++#include <linux/moduleparam.h>
++#include <linux/platform_device.h>
++#include <linux/backlight.h>
++#include <linux/fb.h>
++#include <linux/pwm.h>
++#include <linux/mfd/imanager/core.h>
++#include <linux/mfd/imanager/backlight.h>
++
++#define BL_MAX_BRIGHTNESS	100
++
++static bool polarity = PWM_POLARITY_NORMAL;
++module_param(polarity, bool, 0);
++MODULE_PARM_DESC(polarity, "Select backlight polarity (inverted := 1)");
++
++static ushort unit = UNIT_1;
++module_param(unit, ushort, 0);
++MODULE_PARM_DESC(unit, "Select backlight control unit [0, 1] (defaults to 0)");
++
++struct imanager_backlight_data {
++	struct imanager_device_data *idev;
++	struct backlight_device *bl;
++};
++
++static int get_brightness(struct backlight_device *dev)
++{
++	struct imanager_backlight_data *data = bl_get_data(dev);
++	int ret;
++
++	mutex_lock(&data->idev->lock);
++
++	ret = bl_core_get_pulse_width(unit);
++	/* Reverse percentage if polarity is set */
++	if (polarity)
++		ret = 100 - ret;
++
++	mutex_unlock(&data->idev->lock);
++
++	return ret;
++}
++
++static int set_brightness(struct backlight_device *dev)
++{
++	struct imanager_backlight_data *data = bl_get_data(dev);
++	u8 brightness = (u8) dev->props.brightness;
++	int ret;
++
++	if (brightness > BL_MAX_BRIGHTNESS)
++		return -EINVAL;
++
++	if (dev->props.power != FB_BLANK_UNBLANK)
++		brightness = 0;
++
++	if (dev->props.fb_blank != FB_BLANK_UNBLANK)
++		brightness = 0;
++
++	if (dev->props.state & BL_CORE_SUSPENDED)
++		brightness = 0;
++
++	mutex_lock(&data->idev->lock);
++
++	/* Inversed percentage if polarity is set */
++	if (polarity)
++		brightness = 100 - brightness;
++	ret = bl_core_set_pulse_width(unit, brightness);
++
++	mutex_unlock(&data->idev->lock);
++
++	return ret;
++}
++
++static const struct backlight_ops imanager_bl_ops = {
++	.options = BL_CORE_SUSPENDRESUME,
++	.get_brightness = get_brightness,
++	.update_status  = set_brightness,
++};
++
++static int imanager_backlight_init(struct device *dev,
++				   struct imanager_backlight_data *data)
++{
++	struct backlight_device *bd;
++	struct backlight_properties props;
++
++	memset(&props, 0, sizeof(props));
++	props.type = BACKLIGHT_PLATFORM;
++	props.max_brightness = BL_MAX_BRIGHTNESS;
++	bd = backlight_device_register("imanager_backlight", dev, data,
++					&imanager_bl_ops, &props);
++
++	if (IS_ERR(bd)) {
++		data->bl = NULL;
++		dev_err(dev, "Unable to register backlight device\n");
++		return PTR_ERR(bd);
++	}
++
++	data->bl = bd;
++
++	bd->props.brightness = get_brightness(bd);
++	bd->props.power = FB_BLANK_UNBLANK;
++	backlight_update_status(bd);
++
++	return 0;
++}
++
++static int imanager_backlight_probe(struct platform_device *pdev)
++{
++	struct device *dev = &pdev->dev;
++	struct imanager_device_data *idev = dev_get_drvdata(dev->parent);
++	struct imanager_backlight_data *data;
++	int ret;
++
++	if (!idev) {
++		dev_err(dev, "Invalid platform data\n");
++		return -EINVAL;
++	}
++
++	ret = bl_core_init();
++	if (ret) {
++		dev_err(dev, "Failed to initialize backlight core\n");
++		return -EIO;
++	}
++
++	ret = bl_core_set_state(unit, BL_CTRL_ENABLE);
++	if (ret < 0) {
++		dev_err(dev, "Failed to enable backlight control (%d)\n",
++				unit);
++		return -EIO;
++	}
++
++	if (polarity)
++		ret = bl_core_set_polarity(PWM_POLARITY_INVERSED);
++	else
++		ret = bl_core_set_polarity(PWM_POLARITY_NORMAL);
++	if (ret < 0) {
++		dev_err(dev, "Failed to set backlight polarity\n");
++		return -EIO;
++	}
++
++	/* init brightness to 60% */
++	bl_core_set_pulse_width(unit, 60);
++
++	data = devm_kzalloc(dev, sizeof(struct imanager_backlight_data),
++			GFP_KERNEL);
++	if (!data)
++		return -ENOMEM;
++
++	data->idev = idev;
++
++	ret = imanager_backlight_init(dev, data);
++	if (ret)
++		return ret;
++
++	platform_set_drvdata(pdev, data);
++
++	return 0;
++}
++
++static int imanager_backlight_remove(struct platform_device *pdev)
++{
++	struct device *dev = &pdev->dev;
++	struct imanager_backlight_data *data = dev_get_drvdata(dev);
++
++	backlight_device_unregister(data->bl);
++
++	return 0;
++}
++
++static struct platform_driver imanager_backlight_driver = {
++	.driver = {
++		.name	= "imanager_backlight",
++	},
++	.probe	= imanager_backlight_probe,
++	.remove	= imanager_backlight_remove,
++};
++
++module_platform_driver(imanager_backlight_driver);
++
++MODULE_DESCRIPTION("Advantech iManager Backlight driver");
++MODULE_AUTHOR("Richard Vidal-Dorsch <richard.dorsch at advantech.com>");
++MODULE_LICENSE("GPL");
++MODULE_ALIAS("platform:imanager_backlight");
+diff --git a/drivers/video/backlight/imanager-ec-bl.c b/drivers/video/backlight/imanager-ec-bl.c
+new file mode 100644
+index 0000000..04d2478
+--- /dev/null
++++ b/drivers/video/backlight/imanager-ec-bl.c
+@@ -0,0 +1,118 @@
++/*
++ * Advantech iManager Backlight/Brightness Core
 + *
 + * Copyright (C) 2016 Advantech Co., Ltd., Irvine, CA, USA
 + * Author: Richard Vidal-Dorsch <richard.dorsch@advantech.com>
@@ -149,705 +298,112 @@ index 0000000..f8839dc
 +#include <linux/string.h>
 +#include <linux/byteorder/generic.h>
 +#include <linux/mfd/imanager/ec.h>
-+#include <linux/mfd/imanager/i2c.h>
++#include <linux/mfd/imanager/backlight.h>
 +
-+#define I2C_SMBUS_BLOCK_SIZE	32
-+
-+#define EVAL_WR_SIZE(x)	\
-+		(x < I2C_SMBUS_BLOCK_SIZE ? x : I2C_SMBUS_BLOCK_SIZE - 1)
-+#define EVAL_RD_SIZE(x) \
-+		(x && (x <= I2C_SMBUS_BLOCK_SIZE) ? x : I2C_SMBUS_BLOCK_SIZE)
-+
-+#define EC_HWRAM_OFFSET_STATUS	0UL
-+
-+#define I2C_ERR_PROTO		0x19UL
-+#define I2C_ERR_TIMEOUT		0x18UL
-+#define I2C_ERR_ACCESS		0x17UL
-+#define I2C_ERR_UNKNOWN		0x13UL
-+#define I2C_ERR_ADDR_NACK	0x10UL
-+
-+#define EC_SMB_DID(N)		(0x28 + N)
-+
-+struct ec_i2c_status {
-+	u32 error	: 7;
-+	u32 complete	: 1;
++struct brightness_level {
++	u32	value	: 7,	/* Brightness Value  - LSB [6..0] */
++		enable	: 1;	/* Brightness Enable - MSB [7] */
 +};
 +
-+static const struct imanager_i2c_device *i2c;
-+
-+static int i2c_core_eval_status(u8 _status)
-+{
-+	struct ec_i2c_status *status = (struct ec_i2c_status *)&_status;
-+	int err = 0;
-+
-+	switch (status->error) {
-+	case 0:
-+		break;
-+	case I2C_ERR_ADDR_NACK:
-+		err = -ENODEV;
-+		break;
-+	case I2C_ERR_ACCESS:
-+	case I2C_ERR_UNKNOWN:
-+		err = -EAGAIN;
-+		break;
-+	case I2C_ERR_TIMEOUT:
-+		err = -ETIME;
-+		break;
-+	case I2C_ERR_PROTO:
-+		err = -EPROTO;
-+		break;
-+	default:
-+		pr_err("Undefined status code 0x%02X\n", status->error);
-+		err = -EIO;
-+		break;
-+	}
-+
-+	return err;
-+}
-+
-+static inline int i2c_send_message(u8 cmd, u8 param, struct ec_message *msg)
-+{
-+	int err;
-+
-+	err = imanager_msg_write(cmd, param, msg);
-+	if (err)
-+		return i2c_core_eval_status(err);
-+
-+	return 0;
-+}
-+
-+static int i2c_core_blk_wr_rw_combined(u8 proto, struct ec_message *msg)
-+{
-+	int err;
-+
-+	if (WARN_ON(!msg))
-+		return -EINVAL;
-+
-+	err = imanager_wait_proc_complete(EC_HWRAM_OFFSET_STATUS, 0);
-+	if (err)
-+		return err;
-+
-+	err = i2c_send_message(proto, i2c->i2coem->did, msg);
-+	if (err)
-+		return err;
-+
-+	if (msg->rlen) {
-+		if (msg->rlen == 1)
-+			return msg->u.data[0];
-+		else if (msg->rlen == 2)
-+			return (msg->u.data[1] << 8) | msg->u.data[0];
-+		else
-+			return msg->rlen;
-+	}
-+
-+	return 0;
-+}
-+
-+/* Write-Read and Read-Write wrappers */
-+static inline int i2c_core_wr_combined(struct ec_message *msg)
-+{
-+	return i2c_core_blk_wr_rw_combined(EC_CMD_I2C_WR, msg);
-+}
-+
-+static inline int i2c_core_rw_combined(struct ec_message *msg)
-+{
-+	return i2c_core_blk_wr_rw_combined(EC_CMD_I2C_RW, msg);
-+}
-+
-+/*
-+ * iManager I2C core API
-+ */
-+int i2c_core_write_quick(u16 addr)
-+{
-+	struct ec_message msg = {
-+		.rlen = 0,
-+		.wlen = sizeof(struct ec_message_header),
-+		.u = {
-+			.smb.hdr = {
-+				.addr_low  = LOADDR16(addr),
-+				.addr_high = HIADDR16(addr),
-+				.rlen = 0,
-+				.wlen = 1,
-+			},
-+		},
-+	};
-+
-+	return i2c_core_wr_combined(&msg);
-+}
-+
-+int i2c_core_read_byte(u16 addr)
-+{
-+	struct ec_message msg = {
-+		.rlen = 1,
-+		.wlen = sizeof(struct ec_message_header),
-+		.u = {
-+			.smb.hdr = {
-+				.addr_low  = LOADDR16(addr),
-+				.addr_high = HIADDR16(addr),
-+				.rlen = 1,
-+				.wlen = 0,
-+			},
-+		},
-+	};
-+
-+	return i2c_core_rw_combined(&msg);
-+}
-+
-+int i2c_core_write_byte(u16 addr, u8 cmd)
-+{
-+	struct ec_message msg = {
-+		.rlen = 1,
-+		.wlen = sizeof(struct ec_message_header),
-+		.u = {
-+			.smb.hdr = {
-+				.addr_low  = LOADDR16(addr),
-+				.addr_high = HIADDR16(addr),
-+				.rlen = 1,
-+				.wlen = 1,
-+				.cmd  = cmd,
-+			},
-+		},
-+	};
-+
-+	return i2c_core_wr_combined(&msg);
-+}
-+
-+int i2c_core_read_byte_data(u16 addr, u8 cmd)
-+{
-+	struct ec_message msg = {
-+		.rlen = 1,
-+		.wlen = sizeof(struct ec_message_header),
-+		.u = {
-+			.smb.hdr = {
-+				.addr_low  = LOADDR16(addr),
-+				.addr_high = HIADDR16(addr),
-+				.rlen = 1,
-+				.wlen = 1,
-+				.cmd  = cmd,
-+			},
-+		},
-+	};
-+
-+	return i2c_core_wr_combined(&msg);
-+}
-+
-+int i2c_core_write_byte_data(u16 addr, u8 cmd, u8 value)
-+{
-+	struct ec_message msg = {
-+		.rlen = 1,
-+		.wlen = sizeof(struct ec_message_header) + 1,
-+		.u = {
-+			.smb.hdr = {
-+				.addr_low  = LOADDR16(addr),
-+				.addr_high = HIADDR16(addr),
-+				.rlen = 0,
-+				.wlen = 2,
-+				.cmd  = cmd,
-+			},
-+			.smb.data[0] = value,
-+		},
-+	};
-+
-+	return i2c_core_wr_combined(&msg);
-+}
-+
-+int i2c_core_read_word_data(u16 addr, u8 cmd)
-+{
-+	struct ec_message msg = {
-+		.rlen = 2,
-+		.wlen = sizeof(struct ec_message_header),
-+		.u = {
-+			.smb.hdr = {
-+				.addr_low  = LOADDR16(addr),
-+				.addr_high = HIADDR16(addr),
-+				.rlen = 2,
-+				.wlen = 1,
-+				.cmd  = cmd,
-+			},
-+		},
-+	};
-+
-+	return i2c_core_wr_combined(&msg);
-+}
-+
-+int i2c_core_write_word_data(u16 addr, u8 cmd, u16 value)
-+{
-+	struct ec_message msg = {
-+		.rlen = 1,
-+		.wlen = sizeof(struct ec_message_header) + 2,
-+		.u = {
-+			.smb.hdr = {
-+				.addr_low  = LOADDR16(addr),
-+				.addr_high = HIADDR16(addr),
-+				.rlen = 0,
-+				.wlen = 3,
-+				.cmd  = cmd,
-+			},
-+			.smb.data[0] = LOBYTE16(value),
-+			.smb.data[1] = HIBYTE16(value),
-+		},
-+	};
-+
-+	return i2c_core_wr_combined(&msg);
-+}
-+
-+int i2c_core_write_block_data(u16 addr, u8 cmd, u8 *buf)
-+{
-+	int i;
-+	struct ec_message msg = {
-+		.rlen = 1,
-+		.wlen = sizeof(struct ec_message_header) +
-+			EVAL_WR_SIZE(buf[0]),
-+		.u = {
-+			.smb.hdr = {
-+				.addr_low  = LOADDR16(addr),
-+				.addr_high = HIADDR16(addr),
-+				.rlen = 0,
-+				.wlen = 1 + EVAL_WR_SIZE(buf[0]),
-+				.cmd  = cmd,
-+			},
-+		},
-+	};
-+
-+	if ((buf[0] == 0) || (buf[0] >= I2C_MAX_WRITE_BYTES)) {
-+		pr_err("Invalid I2C write length %d\n", buf[0]);
-+		return -EINVAL;
-+	}
-+
-+	for (i = 0; i < EVAL_WR_SIZE(buf[0]); i++)
-+		msg.u.data[i + sizeof(struct ec_message_header)] = buf[i + 1];
-+
-+	return i2c_core_wr_combined(&msg);
-+}
-+
-+int i2c_core_read_block_data(u16 addr, u8 cmd, u8 *buf)
-+{
-+	int i;
-+	int ret;
-+	struct ec_message msg = {
-+		.rlen = EVAL_RD_SIZE(buf[0]),
-+		.wlen = sizeof(struct ec_message_header),
-+		.u = {
-+			.smb.hdr = {
-+				.addr_low  = LOADDR16(addr),
-+				.addr_high = HIADDR16(addr),
-+				.rlen = EVAL_RD_SIZE(buf[0]),
-+				.wlen = 1,
-+				.cmd  = cmd,
-+			},
-+		},
-+	};
-+
-+	/*
-+	 * If buf[0] == 0 EC will read I2C_MAX_READ_BYTES
-+	 */
-+	ret = i2c_core_wr_combined(&msg);
-+	if (ret < 0) {
-+		pr_err("I2C transaction failed\n");
-+		return ret;
-+	}
-+
-+	buf[0] = ret;
-+	for (i = 0; i < ret; i++)
-+		buf[i + 1] = msg.u.data[i];
-+
-+	return 0;
-+}
-+
-+int i2c_core_read_i2c_block_data(u16 addr, u8 cmd, u8 *buf)
-+{
-+	int i;
-+	int ret;
-+	struct ec_message msg = {
-+		.rlen = EVAL_RD_SIZE(buf[0]),
-+		.wlen = sizeof(struct ec_message_header),
-+		.u = {
-+			.smb.hdr = {
-+				.addr_low  = LOADDR16(addr),
-+				.addr_high = HIADDR16(addr),
-+				.rlen = EVAL_RD_SIZE(buf[0]),
-+				.wlen = 1,
-+				.cmd  = cmd,
-+			},
-+		},
-+	};
-+
-+	if ((buf[0] == 0) || (buf[0] > I2C_MAX_READ_BYTES)) {
-+		pr_err("Invalid I2C read length\n");
-+		return -EINVAL;
-+	}
-+
-+	ret = i2c_core_wr_combined(&msg);
-+	if (ret < 0) {
-+		pr_err("I2C transaction failed\n");
-+		return ret;
-+	}
-+
-+	buf[0] = ret;
-+	for (i = 0; i < ret; i++)
-+		buf[i + 1] = msg.u.data[i];
-+
-+	return 0;
-+}
-+
-+int i2c_core_write_i2c_block_data(u16 addr, u8 cmd, u8 *buf)
-+{
-+	if (WARN_ON(!buf))
-+		return -EINVAL;
-+
-+	return i2c_core_write_block_data(addr, cmd, buf);
-+}
-+
-+int i2c_core_smb_get_freq(u32 bus_id)
-+{
-+	int ret = 0, f;
-+	int freq_id, freq;
-+
-+	if (WARN_ON(bus_id > I2C_OEM_1))
-+		return -EINVAL;
-+
-+	switch (i2c->ecdev->id) {
-+	case IT8518:
-+	case IT8528:
-+		ret = imanager_read_word(EC_CMD_SMB_FREQ_RD,
-+					 EC_SMB_DID(bus_id));
-+		if (ret < 0) {
-+			pr_err("Failed to get bus frequency\n");
-+			return ret;
-+		}
-+
-+		freq_id = HIBYTE16(ret);
-+		f = LOBYTE16(ret);
-+		switch (freq_id) {
-+		case 0:
-+			freq = f;
-+			break;
-+		case 1:
-+			freq = 50;
-+			break;
-+		case 2:
-+			freq = 100;
-+			break;
-+		case 3:
-+			freq = 400;
-+			break;
-+		default:
-+			return -EINVAL;
-+		}
-+		break;
-+	default:
-+		pr_err("EC version not supported!\n");
-+		return -ENODEV;
-+	}
-+
-+	return freq;
-+}
-+
-+int i2c_core_smb_set_freq(u32 bus_id, u32 freq)
-+{
-+	int err;
-+	u16 val;
-+
-+	if (WARN_ON(bus_id > I2C_OEM_1))
-+		return -EINVAL;
-+
-+	switch (i2c->ecdev->id) {
-+	case IT8518:
-+	case IT8528:
-+		switch (freq) {
-+		case 50:
-+			val = 0x0100;
-+			break;
-+		case 100:
-+			val = 0x0200;
-+			break;
-+		case 400:
-+			val = 0x0300;
-+			break;
-+		default:
-+			if (freq < 50)
-+				val = freq;
-+			else
-+				return -EINVAL;
-+		}
-+
-+		err = imanager_write_word(EC_CMD_SMB_FREQ_WR,
-+					  EC_SMB_DID(bus_id), val);
-+		if (err) {
-+			pr_err("Failed to set I2C bus frequency\n");
-+			return err;
-+		}
-+		break;
-+	default:
-+		pr_err("EC version not supported!\n");
-+		return -ENODEV;
-+	}
-+
-+	return 0;
-+}
-+
-+int i2c_core_init(void)
-+{
-+	i2c = imanager_get_i2c_device();
-+	if (!i2c)
-+		return -ENODEV;
-+
-+	return 0;
-+}
-+
-diff --git a/drivers/i2c/busses/imanager-i2c.c b/drivers/i2c/busses/imanager-i2c.c
-new file mode 100644
-index 0000000..932cba2
---- /dev/null
-+++ b/drivers/i2c/busses/imanager-i2c.c
-@@ -0,0 +1,239 @@
-+/*
-+ * Advantech iManager I2C bus driver
-+ *
-+ * Copyright (C) 2016 Advantech Co., Ltd., Irvine, CA, USA
-+ * Author: Richard Vidal-Dorsch <richard.dorsch@advantech.com>
-+ *
-+ * This program is free software; you can redistribute  it and/or modify it
-+ * under  the terms of  the GNU General  Public License as published by the
-+ * Free Software Foundation;  either version 2 of the  License, or (at your
-+ * option) any later version.
-+ */
-+
-+#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
-+
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/slab.h>
-+#include <linux/platform_device.h>
-+#include <linux/i2c.h>
-+#include <linux/mfd/imanager/core.h>
-+#include <linux/mfd/imanager/i2c.h>
-+
-+static uint bus_frequency = 100;
-+module_param(bus_frequency, uint, 0);
-+MODULE_PARM_DESC(bus_frequency,
-+	"I2C bus frequency [50, 100, 400]kHz (defaults to 100kHz)");
-+
-+struct imanager_i2c_data {
-+	struct imanager_device_data *idev;
-+	struct i2c_adapter adapter;
++struct backlight_ctrl {
++	u32	enable	: 1,	/* Backlight Control Enable - LSB [0] */
++		pwmpol	: 1,	/* PWM Polarity		    - bit [1] */
++		blpol	: 1,	/* Backlight Polarity	    - bit [2] */
++		dnc	: 5;	/* Don't care		    - bit [7..3] */
 +};
 +
-+static int imanager_smb_access(struct i2c_adapter *adap, u16 addr,
-+	unsigned short flags, char read_write, u8 command,
-+	int size, union i2c_smbus_data *smb_data)
++static const struct imanager_backlight_device *bl;
++
++int bl_core_get_pulse_width(u32 unit)
 +{
-+	struct imanager_i2c_data *data = i2c_get_adapdata(adap);
-+	struct device *dev = data->adapter.dev.parent;
-+	int ret = 0;
-+	int val = 0;
++	int ret;
 +
-+	if (!data)
-+		return -ENODEV;
++	if (WARN_ON(unit >= EC_BLC_MAX_NUM))
++		return -EINVAL;
 +
-+	addr <<= 1;
-+
-+	mutex_lock(&data->idev->lock);
-+
-+	switch (size) {
-+	case I2C_SMBUS_QUICK:
-+		ret = i2c_core_write_quick(addr);
-+		break;
-+	case I2C_SMBUS_BYTE:
-+		if (read_write == I2C_SMBUS_WRITE) /* NOT tested */
-+			val = i2c_core_write_byte(addr, command);
-+		else
-+			val = i2c_core_read_byte(addr);
-+
-+		if (val < 0)
-+			ret = val;
-+		else
-+			smb_data->byte = val;
-+		break;
-+	case I2C_SMBUS_BYTE_DATA:
-+		if (read_write == I2C_SMBUS_WRITE)
-+			val = i2c_core_write_byte_data(addr, command,
-+				smb_data->byte);
-+		else
-+			val = i2c_core_read_byte_data(addr, command);
-+
-+		if (val < 0)
-+			ret = val;
-+		else
-+			smb_data->byte = val;
-+		break;
-+	case I2C_SMBUS_WORD_DATA:
-+		if (read_write == I2C_SMBUS_WRITE)
-+			val = i2c_core_write_word_data(addr, command,
-+				smb_data->word);
-+		else
-+			val = i2c_core_read_word_data(addr, command);
-+
-+		if (val < 0)
-+			ret = val;
-+		else
-+			smb_data->word = val;
-+		break;
-+	case I2C_SMBUS_BLOCK_DATA:
-+		if (read_write == I2C_SMBUS_WRITE)
-+			ret = i2c_core_write_block_data(addr, command,
-+				smb_data->block);
-+		else
-+			ret = i2c_core_read_block_data(addr, command,
-+				smb_data->block);
-+		break;
-+	case I2C_SMBUS_I2C_BLOCK_DATA:
-+		if (read_write == I2C_SMBUS_WRITE)
-+			ret = i2c_core_write_i2c_block_data(addr, command,
-+				smb_data->block);
-+		else
-+			ret = i2c_core_read_i2c_block_data(addr, command,
-+				smb_data->block);
-+		break;
-+	default:
-+		dev_err(dev, "Unsupported SMB transaction %d\n", size);
-+		ret = -EOPNOTSUPP;
-+	}
-+
-+	mutex_unlock(&data->idev->lock);
++	ret = imanager_read_byte(EC_CMD_HWP_RD, bl->attr[unit].did);
++	if (ret < 0)
++		pr_err("Failed reading PWM (unit=%d)\n", unit);
 +
 +	return ret;
 +}
 +
-+static int imanager_i2c_access(struct i2c_adapter *adap, struct i2c_msg *msg,
-+			int num)
++int bl_core_set_pulse_width(u32 unit, u32 pwm)
 +{
-+	struct imanager_i2c_data *data = i2c_get_adapdata(adap);
-+	struct device *dev = data->adapter.dev.parent;
-+
-+	/*
-+	 * To be implemented
-+	 */
-+
-+	dev_info(dev, "i2c_access() is not yet implemented. msg=%p, num=%d\n",
-+		 msg, num);
-+
-+	return 0;
-+}
-+
-+static u32 imanager_smb_i2c_func(struct i2c_adapter *adapter)
-+{
-+	return	I2C_FUNC_SMBUS_QUICK | I2C_FUNC_SMBUS_BYTE |
-+		I2C_FUNC_SMBUS_BYTE_DATA | I2C_FUNC_SMBUS_WORD_DATA |
-+		I2C_FUNC_SMBUS_BLOCK_DATA |
-+		I2C_FUNC_SMBUS_I2C_BLOCK | I2C_FUNC_I2C;
-+}
-+
-+static const struct i2c_algorithm imanager_algorithm = {
-+	.smbus_xfer     = imanager_smb_access,
-+	.master_xfer    = imanager_i2c_access,
-+	.functionality  = imanager_smb_i2c_func,
-+};
-+
-+static int imanager_i2c_probe(struct platform_device *pdev)
-+{
-+	struct device *dev = &pdev->dev;
-+	struct imanager_device_data *idev = dev_get_drvdata(dev->parent);
-+	struct imanager_i2c_data *i2c;
 +	int ret;
 +
-+	if (!idev) {
-+		dev_err(dev, "Invalid platform data\n");
++	if (WARN_ON(unit >= EC_BLC_MAX_NUM))
 +		return -EINVAL;
-+	}
 +
-+	ret = i2c_core_init();
-+	if (ret) {
-+		dev_err(dev, "Failed to initialize I2C core\n");
-+		return -EIO;
-+	}
++	pwm = pwm > 100 ? 100 : pwm;
 +
-+	if (bus_frequency > 100)
-+		bus_frequency = 400;
-+	else if (bus_frequency < 50)
-+		bus_frequency = 50;
-+	else
-+		bus_frequency = 100;
++	ret = imanager_write_byte(EC_CMD_HWP_WR, bl->attr[unit].did, pwm);
++	if (ret < 0)
++		pr_err("Failed writing PWM (val=%d, unit=%d)\n", pwm, unit);
 +
-+	ret = i2c_core_smb_set_freq(I2C_OEM_1, bus_frequency);
-+	if (ret < 0) {
-+		dev_err(dev, "Failed to set I2C bus frequency to %d kHz\n",
-+				bus_frequency);
-+		return ret;
-+	}
-+
-+	ret = i2c_core_smb_get_freq(I2C_OEM_1);
-+	if (ret < 0) {
-+		dev_err(dev, "Failed to get I2C bus frequency\n");
-+		return ret;
-+	}
-+	bus_frequency = ret;
-+	dev_info(dev, "Bus frequency: %d kHz\n", bus_frequency);
-+
-+	i2c = devm_kzalloc(dev, sizeof(struct imanager_i2c_data), GFP_KERNEL);
-+	if (!i2c)
-+		return -ENOMEM;
-+
-+	platform_set_drvdata(pdev, i2c);
-+	i2c_set_adapdata(&i2c->adapter, i2c);
-+
-+	i2c->idev = idev;
-+
-+	i2c->adapter.owner	= THIS_MODULE;
-+	i2c->adapter.class	= I2C_CLASS_HWMON | I2C_CLASS_SPD;
-+	i2c->adapter.algo	= &imanager_algorithm;
-+
-+	/* set up the sysfs linkage to our parent device */
-+	i2c->adapter.dev.parent = dev;
-+
-+	/* Retry up to 3 times on lost arbitration */
-+	i2c->adapter.retries = 3;
-+
-+	snprintf(i2c->adapter.name, sizeof(i2c->adapter.name),
-+		"iManager I2C driver");
-+
-+	ret = i2c_add_adapter(&i2c->adapter);
-+	if (ret) {
-+		dev_err(dev, "Failed to add SMBus adapter\n");
-+		return ret;
-+	}
-+
-+	return 0;
++	return ret;
 +}
 +
-+static int imanager_i2c_remove(struct platform_device *pdev)
++int bl_core_set_state(u32 unit, bool enable)
 +{
-+	struct device *dev = &pdev->dev;
-+	struct imanager_i2c_data *i2c = dev_get_drvdata(dev);
++	int ret;
++	u8 val8;
++	struct brightness_level *pl = (struct brightness_level *)&val8;
 +
-+	i2c_del_adapter(&i2c->adapter);
-+	i2c_set_adapdata(&i2c->adapter, NULL);
++	if (WARN_ON(unit >= EC_BLC_MAX_NUM))
++		return -EINVAL;
++
++	ret = imanager_acpiram_read_byte(bl->brightness[unit]);
++	if (ret < 0)
++		return ret;
++	val8 = ret;
++
++	pl->enable = enable ? 1 : 0;
++
++	ret = imanager_acpiram_write_byte(bl->attr[unit].did, val8);
++	if (ret)
++		return ret;
 +
 +	return 0;
 +}
 +
-+static struct platform_driver imanager_i2c_driver = {
-+	.driver = {
-+		.name  = "imanager_i2c",
-+	},
-+	.probe	= imanager_i2c_probe,
-+	.remove	= imanager_i2c_remove,
-+};
++int bl_core_set_polarity(u32 polarity)
++{
++	int ret;
++	u8 val8;
++	struct backlight_ctrl *ctrl = (struct backlight_ctrl *)&val8;
 +
-+module_platform_driver(imanager_i2c_driver);
++	ret = imanager_acpiram_read_byte(EC_ACPIRAM_BLC_CTRL);
++	if (ret < 0)
++		return ret;
++	val8 = ret;
 +
-+MODULE_DESCRIPTION("Advantech iManager I2C Driver");
-+MODULE_AUTHOR("Richard Vidal-Dorsch <richard.dorsch at advantech.com>");
-+MODULE_LICENSE("GPL");
-+MODULE_ALIAS("platform:imanager_i2c");
-diff --git a/include/linux/mfd/imanager/i2c.h b/include/linux/mfd/imanager/i2c.h
++	ctrl->blpol = polarity ? 1 : 0;
++
++	ret = imanager_acpiram_write_byte(EC_ACPIRAM_BLC_CTRL, val8);
++	if (ret)
++		return ret;
++
++	return 0;
++}
++
++int bl_core_init(void)
++{
++	bl = imanager_get_backlight_device();
++	if (!bl)
++		return -ENODEV;
++
++	return 0;
++}
++
+diff --git a/include/linux/mfd/imanager/backlight.h b/include/linux/mfd/imanager/backlight.h
 new file mode 100644
-index 0000000..a8ef6c2
+index 0000000..93ea7cf5
 --- /dev/null
-+++ b/include/linux/mfd/imanager/i2c.h
-@@ -0,0 +1,55 @@
++++ b/include/linux/mfd/imanager/backlight.h
+@@ -0,0 +1,37 @@
 +/*
-+ * Advantech iManager I2C bus core
++ * Advantech iManager Backlight core
 + *
 + * Copyright (C) 2016 Advantech Co., Ltd., Irvine, CA, USA
 + * Author: Richard Vidal-Dorsch <richard.dorsch@advantech.com>
@@ -858,47 +414,29 @@ index 0000000..a8ef6c2
 + * option) any later version.
 + */
 +
-+#ifndef __I2C_H__
-+#define __I2C_H__
++#ifndef __BACKLIGHT_H__
++#define __BACKLIGHT_H__
 +
 +#include <linux/types.h>
 +
-+#define I2C_MAX_READ_BYTES	32
-+#define I2C_MAX_WRITE_BYTES	32
-+
-+/* Only for setting SMBus frequency */
-+enum smb_bus_id {
-+	SMB_OEM_0,
-+	SMB_OEM_1,
-+	SMB_OEM_2,
-+	SMB_EEPROM,
-+	SMB_TH_0,
-+	SMB_TH_1,
-+	SMB_SECURITY_EEPROM,
-+	I2C_OEM_1,
++enum backlight_control {
++	BL_CTRL_DISABLE,
++	BL_CTRL_ENABLE,
 +};
 +
-+int i2c_core_init(void);
++enum backlight_unit {
++	UNIT_1,
++	UNIT_2,
++};
 +
-+int i2c_core_write_quick(u16 addr);
++int bl_core_init(void);
 +
-+int i2c_core_read_byte(u16 addr);
-+int i2c_core_write_byte(u16 addr, u8 cmd);
++int bl_core_set_state(u32 unit, bool enable);
 +
-+int i2c_core_write_byte_data(u16 addr, u8 cmd, u8 value);
-+int i2c_core_read_byte_data(u16 addr, u8 cmd);
++int bl_core_set_polarity(u32 polarity);
 +
-+int i2c_core_write_word_data(u16 addr, u8 cmd, u16 value);
-+int i2c_core_read_word_data(u16 addr, u8 cmd);
-+
-+int i2c_core_write_block_data(u16 addr, u8 cmd, u8 *buf);
-+int i2c_core_read_block_data(u16 addr, u8 cmd, u8 *buf);
-+
-+int i2c_core_write_i2c_block_data(u16 addr, u8 cmd, u8 *buf);
-+int i2c_core_read_i2c_block_data(u16 addr, u8 cmd, u8 *buf);
-+
-+int i2c_core_smb_get_freq(u32 bus_id);
-+int i2c_core_smb_set_freq(u32 bus_id, u32 freq);
++int bl_core_get_pulse_width(u32 unit);
++int bl_core_set_pulse_width(u32 unit, u32 pwm);
 +
 +#endif
 -- 
