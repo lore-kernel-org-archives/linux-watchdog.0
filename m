@@ -1,64 +1,77 @@
 Return-path: <wimvs@spo001.leaseweb.nl>
-Date: Mon, 11 Jan 2016 22:42:57 +0100
+Date: Mon, 11 Jan 2016 22:53:17 +0100
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Dan Carpenter <dan.carpenter@oracle.com>,
-	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-	kernel-janitors@vger.kernel.org
-Subject: Re: [patch] watchdog: pnx833x_wdt: fix typo in MODULE_PARM_DESC
-Message-ID: <20160111214257.GE6613@spo001.leaseweb.nl>
-References: <20160108110239.GI32195@mwanda> <568FCC65.6010106@roeck-us.net>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: linux-watchdog@vger.kernel.org, Oleksij Rempel <linux@rempel-privat.de>,
+	Guenter Roeck <linux@roeck-us.net>,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] watchdog: asm9260: remove __init and __exit annotations
+Message-ID: <20160111215317.GA6957@spo001.leaseweb.nl>
+References: <24150770.U3pBDPnky8@wuerfel>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <568FCC65.6010106@roeck-us.net>
+In-Reply-To: <24150770.U3pBDPnky8@wuerfel>
 Sender: <wimvs@spo001.leaseweb.nl>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi All,
+Hi Arnd,
 
-> On 01/08/2016 03:02 AM, Dan Carpenter wrote:
-> >The module_param() is "pnx833x_wdt_timeout" and MODULE_PARM_DESC()
-> >should match.
-> >
-> >Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-> >
-> >diff --git a/drivers/watchdog/pnx833x_wdt.c 
-> >b/drivers/watchdog/pnx833x_wdt.c
-> >index 882fdcb..69da25a 100644
-> >--- a/drivers/watchdog/pnx833x_wdt.c
-> >+++ b/drivers/watchdog/pnx833x_wdt.c
-> >@@ -52,8 +52,9 @@ static int pnx833x_wdt_alive;
-> >  /* Set default timeout in MHZ.*/
-> >  static int pnx833x_wdt_timeout = PNX_WATCHDOG_TIMEOUT;
-> >  module_param(pnx833x_wdt_timeout, int, 0);
-> >-MODULE_PARM_DESC(timeout, "Watchdog timeout in Mhz. (68Mhz clock), 
-> >default="
-> >-			__MODULE_STRING(PNX_TIMEOUT_VALUE) "(30 seconds).");
-> >+MODULE_PARM_DESC(pnx833x_wdt_timeout,
-> >+		 "Watchdog timeout in Mhz. (68Mhz clock), default="
-> >+		 __MODULE_STRING(PNX_TIMEOUT_VALUE) "(30 seconds).");
+> The probe and release functions in this driver are marked
+> as __init and __exit, but this is wrong as indicated by this
+> Kbuild error message:
 > 
-> The intent here was to have a module parameter named 'timeout'.
-> Of course that was never the case. Wonder if anyone ever noticed.
-> The correct fix would be to use something like
-> 	module_param_named(timeout, pnx833x_wdt_timeout, int, 0);
-> but of course that would change the ABI. On the other side,
-> 'timeout' is the documented module parameter in
-> Documentation/watchdog/watchdog-parameters.txt, so one could argue
-> that using module_param_named() would be a bug fix and not an ABI change.
+> WARNING: vmlinux.o(.data+0x1d2308): Section mismatch in reference from the variable asm9260_wdt_driver to the function .init.text:asm9260_wdt_probe()
 > 
-> Not really sure what the best approach is here. Wim, any comments ?
-> Provide module_param_named() in _addition_ to the existing module_param(),
-> maybe, if that is possible ?
+> This removes the annotations, to make the sysfs unbind attribute
+> and deferred probing work.
+> 
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> Fixes: aae03dc98177 ("watchdog: add Alphascale asm9260-wdt driver")
+> 
+> diff --git a/drivers/watchdog/asm9260_wdt.c b/drivers/watchdog/asm9260_wdt.c
+> index 1c22ff4c523a..c9686b2fdafd 100644
+> --- a/drivers/watchdog/asm9260_wdt.c
+> +++ b/drivers/watchdog/asm9260_wdt.c
+> @@ -198,7 +198,7 @@ static struct watchdog_ops asm9260_wdt_ops = {
+>  	.set_timeout	= asm9260_wdt_settimeout,
+>  };
+>  
+> -static int __init asm9260_wdt_get_dt_clks(struct asm9260_wdt_priv *priv)
+> +static int asm9260_wdt_get_dt_clks(struct asm9260_wdt_priv *priv)
+>  {
+>  	int err;
+>  	unsigned long clk;
+> @@ -250,7 +250,7 @@ static int __init asm9260_wdt_get_dt_clks(struct asm9260_wdt_priv *priv)
+>  	return 0;
+>  }
+>  
+> -static void __init asm9260_wdt_get_dt_mode(struct asm9260_wdt_priv *priv)
+> +static void asm9260_wdt_get_dt_mode(struct asm9260_wdt_priv *priv)
+>  {
+>  	const char *tmp;
+>  	int ret;
+> @@ -274,7 +274,7 @@ static void __init asm9260_wdt_get_dt_mode(struct asm9260_wdt_priv *priv)
+>  			 tmp);
+>  }
+>  
+> -static int __init asm9260_wdt_probe(struct platform_device *pdev)
+> +static int asm9260_wdt_probe(struct platform_device *pdev)
+>  {
+>  	struct asm9260_wdt_priv *priv;
+>  	struct watchdog_device *wdd;
+> @@ -364,7 +364,7 @@ static void asm9260_wdt_shutdown(struct platform_device *pdev)
+>  	asm9260_wdt_disable(&priv->wdd);
+>  }
+>  
+> -static int __exit asm9260_wdt_remove(struct platform_device *pdev)
+> +static int asm9260_wdt_remove(struct platform_device *pdev)
+>  {
+>  	struct asm9260_wdt_priv *priv = platform_get_drvdata(pdev);
+>  
+> 
 
-Good question. If timeout would have been a timeout in seconds then I would
-have said to go for module_param_named(). But since it is a value in Mhz, I
-would rather go for Dan's patch. It will break the parameters for everyone
-that has set in manually, but I personnaly think that people are using the
-default value or change it via the watchdog daemon.
-But if we change this, we should also make sure that 
-Documentation/watchdog/watchdog-parameters.txt gets corrected.
+This patch has been added to linux-watchdog-next.
 
 Kind regards,
 Wim.
