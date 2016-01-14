@@ -1,88 +1,37 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailout3.w2.samsung.com ([211.189.100.13]:21925 "EHLO
-	usmailout3.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S934681AbcAKUGH (ORCPT
+Received: from userp1040.oracle.com ([156.151.31.81]:24551 "EHLO
+	userp1040.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755919AbcANQ1s (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 11 Jan 2016 15:06:07 -0500
-Received: from uscpsbgm1.samsung.com
- (u114.gpu85.samsung.co.kr [203.254.195.114]) by usmailout3.samsung.com
- (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
- with ESMTP id <0O0T00IC1166TF70@usmailout3.samsung.com> for
- linux-watchdog@vger.kernel.org; Mon, 11 Jan 2016 15:06:06 -0500 (EST)
-Subject: Re: arm/arm64 HARDLOCKUP Detector and PERF NMI support
-To: Daniel Thompson <daniel.thompson@linaro.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Marc Zyngier <Marc.Zyngier@arm.com>,
-	Will Deacon <will.deacon@arm.com>
-References: <569199C0.9030500@samsung.com> <5691A23C.8060807@samsung.com>
- <20160111102658.GB6499@leverpostej> <5693913D.5060308@linaro.org>
-Cc: "linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Russell King - ARM Linux <linux@arm.linux.org.uk>,
-	wim@iguana.be, Christoffer Dall <christoffer.dall@linaro.org>,
-	linux-watchdog@vger.kernel.org
-From: Mario Smarduch <m.smarduch@samsung.com>
-Message-id: <56940B2C.8000409@samsung.com>
-Date: Mon, 11 Jan 2016 12:06:04 -0800
-MIME-version: 1.0
-In-reply-to: <5693913D.5060308@linaro.org>
-Content-type: text/plain; charset=windows-1252
-Content-transfer-encoding: 7bit
+	Thu, 14 Jan 2016 11:27:48 -0500
+Subject: Re: [PATCH] watchdog: add sun4v_wdt device support
+To: Guenter Roeck <linux@roeck-us.net>
+References: <1452640232-1165-1-git-send-email-wim.coekaerts@oracle.com>
+ <20160113011231.GB22429@roeck-us.net>
+Cc: wim@iguana.be, linux-watchdog@vger.kernel.org,
+	sparclinux@vger.kernel.org
+From: Wim Coekaerts <wim.coekaerts@oracle.com>
+Message-ID: <5697CC54.1090808@oracle.com>
+Date: Thu, 14 Jan 2016 08:27:00 -0800
+MIME-Version: 1.0
+In-Reply-To: <20160113011231.GB22429@roeck-us.net>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-
-
-On 1/11/2016 3:25 AM, Daniel Thompson wrote:
-> On 11/01/16 10:26, Mark Rutland wrote:
->> Hi,
+On 1/12/16 5:12 PM, Guenter Roeck wrote:
+> On Tue, Jan 12, 2016 at 03:10:32PM -0800, wim.coekaerts@oracle.com wrote:
+>> From: Wim Coekaerts <wim.coekaerts@oracle.com>
 >>
->> On Sat, Jan 09, 2016 at 04:13:48PM -0800, Mario Smarduch wrote:
->>> I'm trying to get HARDLOCKUP detector to work on arm (on foundation
->>> model and Juno, but armv7 should have the same issue). Turns out there is no
->>> PERF NMI support (HAVE_PERF_EVENTS_NMI), which I guess would be PMU NMI - I
->>> tested overflow on cycle counter and PMU interrupts can be masked. HARDLOCKUP
->>> assumes perf interrupts are non-maskable and uses the PMU to program an NMI to
->>> detect hard lockup and that in turn drives softlockup detection.
->>>
->>> Is there something, someplace in ARM manuals that addresses this, searched the
->>> manuals but couldn't find anything?
->>>
->>> Or other approaches that I'm not aware off or have floated on the mailing list.
+>> This adds a simple watchdog timer for the SPARC sunv4 architecture.
+>> Export the sun4v_mach_set_watchdog() hv call, and add the target.
+>> The driver was based on the same model used by the Xen watchdog driver.
 >>
->> Russell and Daniel did some work [1,2] to use FIQs as NMIs on arm, for
->> backtracing and PMU overflow.
->  >
->> For arm64 the kernel always runs on the non-secure side, so we don't
->> expect to have access to FIQ. It's possible to implement NMIs using
->> priorities (which it looks like Daniel was looking into [3]).
-> 
-> Thanks Mark.
-> 
-> The blog post is still pretty much describes my ambitions and the 
-> benefits these features can bring. It also has a link to a fairly 
-> elderly kernel that contains all the features fully integrated.
-> 
-> There are more patchsets for both ARM (if/f FIQ is available) and ARM64 
-> (if/f device has GICv3). However these only provide NMI backtrace.
-> 
-> arm:   http://thread.gmane.org/gmane.linux.kernel/2112583
-> 
-> arm64: http://thread.gmane.org/gmane.linux.kernel/2037735 (Mark's
->         link to my git repo is more up to date than this patchset)
-> 
-> To get the hard lockup and profiling support upstream then my old code 
-> to integrate NMIs into the irq subsystem (which was just a cut down 
-> clone of the existing irq infrastructure) needs to be redesigned. 
-> However I decided to put the rewrite on ice until I get the foundational 
-> patches right.
-> 
-> 
-> Daniel.
-> 
+>> This was tested on T2, T4, T5 and T7.
+>>
+>> Signed-off-by: Wim Coekaerts <wim.coekaerts@oracle.com>
+> Please use the watchdog subsystem for new drivers.
+Ah wasn't clear that that was a requirement.. OK let me try and use the 
+new subsystem instead.
 
-Daniel, Mark - thanks for the info. I'll research the work done so far and
-probably comeback later.
-
-- Mario
