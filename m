@@ -1,63 +1,73 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:58171 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:60127 "EHLO
 	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752795AbcASNGP (ORCPT
+	with ESMTP id S1751628AbcASNSJ (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 19 Jan 2016 08:06:15 -0500
-Subject: Re: [PATCH v2 1/1] watchdog: sp805: ping fails to abort wdt reset
-To: Sandeep Tripathy <tripathy@broadcom.com>, wim@iguana.be
-References: <1453194889-27860-1-git-send-email-tripathy@broadcom.com>
-Cc: viresh.kumar@linaro.org, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org, bcm-kernel-feedback-list@broadcom.com
+	Tue, 19 Jan 2016 08:18:09 -0500
+Subject: Re: [PATCH] watchdog: tango: rename ARCH_TANGOX to ARCH_TANGO
+To: Mason <slash.tmp@free.fr>, Wim Van Sebroeck <wim@iguana.be>
+References: <569D421C.30504@free.fr> <569D4ACF.6020701@roeck-us.net>
+ <569E10D8.2000509@free.fr>
+Cc: Mans Rullgard <mans@mansr.com>, linux-watchdog@vger.kernel.org,
+	Michael Turquette <mturquette@linaro.org>
 From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <569E34C4.5020005@roeck-us.net>
-Date: Tue, 19 Jan 2016 05:06:12 -0800
+Message-ID: <569E378E.2080703@roeck-us.net>
+Date: Tue, 19 Jan 2016 05:18:06 -0800
 MIME-Version: 1.0
-In-Reply-To: <1453194889-27860-1-git-send-email-tripathy@broadcom.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+In-Reply-To: <569E10D8.2000509@free.fr>
+Content-Type: text/plain; charset=iso-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 01/19/2016 01:14 AM, Sandeep Tripathy wrote:
-> sp805 wdt asserts interrupt for the first expiry and
-> reloads the counter. If wdt interrupt is set and count
-> reaches zero then wdt reset event is generated. To get
-> wdt reset at 't' timeout the driver loads wdt counter
-> with 't/2'. A ping before time 't'  *should* prevent
-> wdt reset. Currently if ping is done after 't/2' then
-> wdt interrupt condition gets set. On the next countdown
-> of loadval wdt reset event occurs eventhough wdt was
-> reloaded before the set timeout 't'.
+On 01/19/2016 02:32 AM, Mason wrote:
+> On 18/01/2016 21:27, Guenter Roeck wrote:
 >
-> This patch clears the interrupt condition on ping.
+>> On 01/18/2016 11:50 AM, Mason wrote:
+>>
+>>> Requested by arm-soc maintainer Kevin Hilman in v9 review.
+>>> http://article.gmane.org/gmane.linux.ports.arm.kernel/456331
+>>
+>> The reference should be after the '---' (it doesn't explain
+>> the changes, but provides a reference to the change request),
+>> and the explanation should be what you have after '---' below,
+>> ie that the architecture is tango, that the 'x' is a wildcard,
+>> and that it therefore makes more sense to use ARCH_TANGO
+>> instead of ARCH_TANGOX.
 >
-> Signed-off-by: Sandeep Tripathy <tripathy@broadcom.com>
+> Hello Guenter,
+>
+> Thanks for the review.
+>
+> For the commit message, I am just following Michael's advice:
+> (one of the clk maintainers)
+>
+> "Just a single line explaining that the change was requested by the
+> arm-soc devs in the commit log is helpful. I typically reference these
+> discussions in the commit log with a link"
+>
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+I'd have expected that as a comment, not in the commit log.
 
-> ---
->   drivers/watchdog/sp805_wdt.c |    5 ++---
->   1 file changed, 2 insertions(+), 3 deletions(-)
+Michael, is that something new ? It isn't really obvious in the drivers/clk
+logs and appears to be quite unusual.
+
+Guenter
+
+> Note, I submitted the same patch to clk.
+> http://article.gmane.org/gmane.linux.kernel.clk/3164
 >
-> diff --git a/drivers/watchdog/sp805_wdt.c b/drivers/watchdog/sp805_wdt.c
-> index 01d8162..e7a715e 100644
-> --- a/drivers/watchdog/sp805_wdt.c
-> +++ b/drivers/watchdog/sp805_wdt.c
-> @@ -139,12 +139,11 @@ static int wdt_config(struct watchdog_device *wdd, bool ping)
+> I'd rather have the same commit message for all these trivial fixups.
 >
->   	writel_relaxed(UNLOCK, wdt->base + WDTLOCK);
->   	writel_relaxed(wdt->load_val, wdt->base + WDTLOAD);
-> +	writel_relaxed(INT_MASK, wdt->base + WDTINTCLR);
+>>> Can this fix be pushed into 4.5 ?
+>>
+>> Depends. Is the definition of ARCH_TANGO going to make it in ?
 >
-> -	if (!ping) {
-> -		writel_relaxed(INT_MASK, wdt->base + WDTINTCLR);
-> +	if (!ping)
->   		writel_relaxed(INT_ENABLE | RESET_ENABLE, wdt->base +
->   				WDTCONTROL);
-> -	}
+> Indeed.
 >
->   	writel_relaxed(LOCK, wdt->base + WDTLOCK);
+> https://git.kernel.org/cgit/linux/kernel/git/next/linux-next.git/tree/arch/arm/mach-tango/Kconfig
+>
+> Regards.
 >
 >
 
