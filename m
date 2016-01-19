@@ -1,141 +1,59 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mga01.intel.com ([192.55.52.88]:35415 "EHLO mga01.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756558AbcARVwS convert rfc822-to-8bit (ORCPT
+Received: from mail-gw3-out.broadcom.com ([216.31.210.64]:4924 "EHLO
+	mail-gw3-out.broadcom.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750930AbcASGEy (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 18 Jan 2016 16:52:18 -0500
-From: "Winkler, Tomas" <tomas.winkler@intel.com>
-To: Guenter Roeck <linux@roeck-us.net>
-CC: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	"Usyskin, Alexander" <alexander.usyskin@intel.com>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: RE: [char-misc-next, v4, 5/7] watchdog: mei_wdt: register wd device
- only if required
-Date: Mon, 18 Jan 2016 21:52:13 +0000
-Message-ID: <5B8DA87D05A7694D9FA63FD143655C1B5413A644@hasmsx108.ger.corp.intel.com>
-References: <1452206967-1144-6-git-send-email-tomas.winkler@intel.com>
- <20160117171308.GA10264@roeck-us.net>
- <5B8DA87D05A7694D9FA63FD143655C1B54139E08@hasmsx108.ger.corp.intel.com>
- <569C0BE9.5030605@roeck-us.net>
- <5B8DA87D05A7694D9FA63FD143655C1B5413A3B2@hasmsx108.ger.corp.intel.com>
- <569D07D9.8020902@roeck-us.net>
- <5B8DA87D05A7694D9FA63FD143655C1B5413A598@hasmsx108.ger.corp.intel.com>
- <569D494E.8030905@roeck-us.net>
-In-Reply-To: <569D494E.8030905@roeck-us.net>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+	Tue, 19 Jan 2016 01:04:54 -0500
+From: Sandeep Tripathy <tripathy@broadcom.com>
+To: <wim@iguana.be>
+CC: <viresh.kumar@linaro.org>, <linux-watchdog@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>,
+	<bcm-kernel-feedback-list@broadcom.com>,
+	Sandeep Tripathy <tripathy@broadcom.com>
+Subject: [PATCH 1/1] watchdog: sp805: ping fails to abort wdt reset
+Date: Tue, 19 Jan 2016 11:34:22 +0530
+Message-ID: <1453183462-27577-1-git-send-email-tripathy@broadcom.com>
 MIME-Version: 1.0
+Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+ sp805 wdt asserts interrupt for the first expiry and
+reloads the counter. If wdt interrupt is set and count
+reaches zero then wdt reset event is generated.To get
+wdt reset at t timeout the driver loads wdt counter
+with t/2. A ping before t second *should* prevent wdt
+reset. Currently if ping is done after t/2 sec then
+wdt interrupt condition gets set. On the next countdown
+of loadval wdt reset event occurs eventhough wdt was
+reloaded before the set timeout t.
 
+ This patch clears the interrupt condition on ping.
 
-> 
-> On 01/18/2016 11:36 AM, Winkler, Tomas wrote:
-> >>
-> >> On 01/18/2016 05:19 AM, Winkler, Tomas wrote:
-> >>>
-> >>>
-> >>>> only
-> >>>>>> if required
-> >>>>>>
-> >>>>>> Hi Tomas,
-> >>>>>>
-> >>>>>> On Fri, Jan 08, 2016 at 12:49:25AM +0200, Winkler, Tomas wrote:
-> >>>>>>> From: Alexander Usyskin <alexander.usyskin@intel.com>
-> >>>>>>>
-> >>>>>>> For Intel Broadwell and newer platforms, the ME device can inform
-> >>>>>>> the host whether the watchdog functionality is activated or not.
-> >>>>>>> If the watchdog functionality is not activated then the watchdog
-> interface
-> >>>>>>> can be not registered and eliminate unnecessary pings and hence lower
-> >> the
-> >>>>>>> power consumption by avoiding waking up the device.
-> >>>>>>> The feature can be deactivated also without reboot
-> >>>>>>> in that case the watchdog device should be unregistered at runtime.
-> >>>>>>>
-> >>>>>>> Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
-> >>>>>>> Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
-> >>>>>>> ---
-> >>>>>>> V2: rework unregistration
-> >>>>>>> V3: rebase; implement unregistraion also at runtime
-> >>>>>>> V4: Rebase the code over patchset : "watchdog: Replace driver based
-> >>>>>> refcounting"
-> >>>>>>>
-> >>>>>>>     drivers/watchdog/mei_wdt.c | 196
-> >>>>>> ++++++++++++++++++++++++++++++++++++++++++---
-> >>>>>>>     1 file changed, 187 insertions(+), 9 deletions(-)
-> >>>>>>>
-> >>>>>>> diff --git a/drivers/watchdog/mei_wdt.c b/drivers/watchdog/mei_wdt.c
-> >>>>>>> index e7e3f144f2b0..85b27fc5d4ec 100644
-> >>>>>>> --- a/drivers/watchdog/mei_wdt.c
-> >>>>>>> +++ b/drivers/watchdog/mei_wdt.c
-> >>>>>>>
-> >>>>>> [ ... ]
-> >>>>>>
-> >>>>>>> +static void mei_wdt_unregister_work(struct work_struct *work)
-> >>>>>>> +{
-> >>>>>>> +	struct mei_wdt *wdt = container_of(work, struct mei_wdt,
-> >> unregister);
-> >>>>>>> +
-> >>>>>>> +	mei_wdt_unregister(wdt);
-> >>>>>>> +}
-> >>>>>>
-> >>>>>> Registration is synchronous, unregistration is asynchronous.
-> >>>>>>
-> >>>>>> Assuming that is on purpose, I think it warrants an explanation.
-> >>>>>>
-> >>>>> The unregistration is detected on response from the  ping, which is run
-> under
-> >>>> same mutex as unregistration.
-> >>>>> Tomas
-> >>>>>
-> >>>>>
-> >>>> And that explains why registration can be synchronous and unregistration
-> >>>> has to be asynchronous ?
-> >>>
-> >>> You need to connect the dots but yes.
-> >>> The registration is run from the internal ping request (in probe) or from an
-> >> internal event (in runtime), so the flow is not already locked by the watchdog
-> >> mutex.
-> >>> Hope it helps.
-> >>
-> >> What I was asking for is a comment such as
-> >>
-> >> "We can not unregister directly because a ping operation (triggered
-> >> through the watchdog subsystem) is pending and must be completed first."
-> >
-> > You can put it also that way, but in the bottom line you will get deadlock.
-> 
-> Yes, understood. Maybe that should be part of the comment.
-> 
-> > According your comment I'm guessing  that you are asking me to update the
-> commit message, please be more direct,
-> > I'm not native English speaker and may miss little nuances.
-> >
-> Hi Tomas,
-> 
-> please add a comment into the source code, describing why unregistration has to
-> be
-> asynchronous. It took me a while to understand the context, and we want to
-> make
-> sure that others don't have to repeat that exercise.
+Signed-off-by: Sandeep Tripathy <tripathy@broadcom.com>
+---
+ drivers/watchdog/sp805_wdt.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-Sure, no problem. 
-
-> Other than that, the series is fine with me, except that the patches
-> affecting the mei directory don't apply to the current mainline
-> as of this morning (possibly due to some other changes in that directory).
-
-There are other pending patches that weren't merged yet and are not related to watchdog, we see if they require rebase after the merging window is closed. 
-
-> 
-> I would suggest to add the comment, wait for -rc1, rebase, and re-send
-> the series with my Acked-by: added to all patches.
-
-Thanks and I appreciate your time reviewing this series.  
-Tomas 
+diff --git a/drivers/watchdog/sp805_wdt.c b/drivers/watchdog/sp805_wdt.c
+index 01d8162..e7a715e 100644
+--- a/drivers/watchdog/sp805_wdt.c
++++ b/drivers/watchdog/sp805_wdt.c
+@@ -139,12 +139,11 @@ static int wdt_config(struct watchdog_device *wdd, bool ping)
+ 
+ 	writel_relaxed(UNLOCK, wdt->base + WDTLOCK);
+ 	writel_relaxed(wdt->load_val, wdt->base + WDTLOAD);
++	writel_relaxed(INT_MASK, wdt->base + WDTINTCLR);
+ 
+-	if (!ping) {
+-		writel_relaxed(INT_MASK, wdt->base + WDTINTCLR);
++	if (!ping)
+ 		writel_relaxed(INT_ENABLE | RESET_ENABLE, wdt->base +
+ 				WDTCONTROL);
+-	}
+ 
+ 	writel_relaxed(LOCK, wdt->base + WDTLOCK);
+ 
+-- 
+1.7.9.5
 
