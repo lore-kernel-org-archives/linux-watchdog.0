@@ -1,27 +1,37 @@
-Return-path: <mans@mansr.com>
-From: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mans@mansr.com>
-To: Mason <slash.tmp@free.fr>
-Cc: Guenter Roeck <linux@roeck-us.net>,  Wim Van Sebroeck <wim@iguana.be>,  linux-watchdog@vger.kernel.org
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:58446 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750857AbcASNIS (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 19 Jan 2016 08:08:18 -0500
 Subject: Re: [PATCH] watchdog: tango: rename ARCH_TANGOX to ARCH_TANGO
+To: =?UTF-8?B?TcOlbnMgUnVsbGfDpXJk?= <mans@mansr.com>,
+	Mason <slash.tmp@free.fr>
 References: <569D421C.30504@free.fr> <569D4ACF.6020701@roeck-us.net>
-	<569E10D8.2000509@free.fr> <569E28C4.7010403@free.fr>
-Date: Tue, 19 Jan 2016 12:35:55 +0000
-In-Reply-To: <569E28C4.7010403@free.fr> (Mason's message of "Tue, 19 Jan 2016
-	13:15:00 +0100")
-Message-ID: <yw1x7fj5sq50.fsf@unicorn.mansr.com>
+ <569E10D8.2000509@free.fr> <569E28C4.7010403@free.fr>
+ <yw1x7fj5sq50.fsf@unicorn.mansr.com>
+Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <569E3541.20307@roeck-us.net>
+Date: Tue, 19 Jan 2016 05:08:17 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
-List-ID: <linux-watchdog@vger.kernel.org>
+In-Reply-To: <yw1x7fj5sq50.fsf@unicorn.mansr.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 8bit
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-Mason <slash.tmp@free.fr> writes:
-
-> Hello again,
+On 01/19/2016 04:35 AM, Måns Rullgård wrote:
+> Mason <slash.tmp@free.fr> writes:
 >
-> While I'm at it, should I also rename TANGOX_WATCHDOG ?
-> Or should it be left as is, to minimize churn?
+>> Hello again,
+>>
+>> While I'm at it, should I also rename TANGOX_WATCHDOG ?
+>> Or should it be left as is, to minimize churn?
+>
+> I don't really care either way.
+>
+Me not either.
 
-I don't really care either way.
+Guenter
 
---=20
-M=E5ns Rullg=E5rd
