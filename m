@@ -1,73 +1,47 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:60127 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751628AbcASNSJ (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 19 Jan 2016 08:18:09 -0500
-Subject: Re: [PATCH] watchdog: tango: rename ARCH_TANGOX to ARCH_TANGO
-To: Mason <slash.tmp@free.fr>, Wim Van Sebroeck <wim@iguana.be>
-References: <569D421C.30504@free.fr> <569D4ACF.6020701@roeck-us.net>
- <569E10D8.2000509@free.fr>
-Cc: Mans Rullgard <mans@mansr.com>, linux-watchdog@vger.kernel.org,
-	Michael Turquette <mturquette@linaro.org>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <569E378E.2080703@roeck-us.net>
-Date: Tue, 19 Jan 2016 05:18:06 -0800
+Return-path: <tomas.winkler@intel.com>
+From: Tomas Winkler <tomas.winkler@intel.com>
+To: Wim Van Sebroeck <wim@iguana.be>,
+	Guenter Roeck <linux@roeck-us.net>
+Cc: linux-watchdog@vger.kernel.org,
+	Tomas Winkler <tomas.winkler@intel.com>
+Subject: [watchdog-next] watchdog: pcwd_usb: fix compilation warning
+Date: Tue, 19 Jan 2016 15:51:04 +0200
+Message-Id: <1453211464-25503-1-git-send-email-tomas.winkler@intel.com>
 MIME-Version: 1.0
-In-Reply-To: <569E10D8.2000509@free.fr>
-Content-Type: text/plain; charset=iso-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 01/19/2016 02:32 AM, Mason wrote:
-> On 18/01/2016 21:27, Guenter Roeck wrote:
->
->> On 01/18/2016 11:50 AM, Mason wrote:
->>
->>> Requested by arm-soc maintainer Kevin Hilman in v9 review.
->>> http://article.gmane.org/gmane.linux.ports.arm.kernel/456331
->>
->> The reference should be after the '---' (it doesn't explain
->> the changes, but provides a reference to the change request),
->> and the explanation should be what you have after '---' below,
->> ie that the architecture is tango, that the 'x' is a wildcard,
->> and that it therefore makes more sense to use ARCH_TANGO
->> instead of ARCH_TANGOX.
->
-> Hello Guenter,
->
-> Thanks for the review.
->
-> For the commit message, I am just following Michael's advice:
-> (one of the clk maintainers)
->
-> "Just a single line explaining that the change was requested by the
-> arm-soc devs in the commit log is helpful. I typically reference these
-> discussions in the commit log with a link"
->
+In function ‘usb_pcwd_probe’:
+drivers/watchdog/pcwd_usb.c:611:12: warning: variable ‘maxp’ set but not
+used [-Wunused-but-set-variable]
+  int pipe, maxp;
 
-I'd have expected that as a comment, not in the commit log.
+Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
+---
+ drivers/watchdog/pcwd_usb.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-Michael, is that something new ? It isn't really obvious in the drivers/clk
-logs and appears to be quite unusual.
-
-Guenter
-
-> Note, I submitted the same patch to clk.
-> http://article.gmane.org/gmane.linux.kernel.clk/3164
->
-> I'd rather have the same commit message for all these trivial fixups.
->
->>> Can this fix be pushed into 4.5 ?
->>
->> Depends. Is the definition of ARCH_TANGO going to make it in ?
->
-> Indeed.
->
-> https://git.kernel.org/cgit/linux/kernel/git/next/linux-next.git/tree/arch/arm/mach-tango/Kconfig
->
-> Regards.
->
->
-
+diff --git a/drivers/watchdog/pcwd_usb.c b/drivers/watchdog/pcwd_usb.c
+index 1a11aedc4fe8..68952d9ccf83 100644
+--- a/drivers/watchdog/pcwd_usb.c
++++ b/drivers/watchdog/pcwd_usb.c
+@@ -608,7 +608,7 @@ static int usb_pcwd_probe(struct usb_interface *interface,
+ 	struct usb_host_interface *iface_desc;
+ 	struct usb_endpoint_descriptor *endpoint;
+ 	struct usb_pcwd_private *usb_pcwd = NULL;
+-	int pipe, maxp;
++	int pipe;
+ 	int retval = -ENOMEM;
+ 	int got_fw_rev;
+ 	unsigned char fw_rev_major, fw_rev_minor;
+@@ -641,7 +641,6 @@ static int usb_pcwd_probe(struct usb_interface *interface,
+ 
+ 	/* get a handle to the interrupt data pipe */
+ 	pipe = usb_rcvintpipe(udev, endpoint->bEndpointAddress);
+-	maxp = usb_maxpacket(udev, pipe, usb_pipeout(pipe));
+ 
+ 	/* allocate memory for our device and initialize it */
+ 	usb_pcwd = kzalloc(sizeof(struct usb_pcwd_private), GFP_KERNEL);
+-- 
+2.4.3
