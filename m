@@ -1,76 +1,48 @@
-Return-path: <wim.coekaerts@oracle.com>
-From: Wim Coekaerts <wim.coekaerts@oracle.com>
-To: wim@iguana.be, linux@roeck-us.net
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from userp1040.oracle.com ([156.151.31.81]:32193 "EHLO
+	userp1040.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751112AbcATUbI (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 20 Jan 2016 15:31:08 -0500
+From: wim.coekaerts@oracle.com
+To: wim@iguana.be
 Cc: linux-watchdog@vger.kernel.org, sparclinux@vger.kernel.org
-Subject: [PATCH v3] Add sun4v_wdt watchdog driver
-Date: Mon, 25 Jan 2016 12:38:08 -0800
-Message-Id: <1453754288-30997-1-git-send-email-wim.coekaerts@oracle.com>
-List-ID: <linux-watchdog@vger.kernel.org>
+Subject: [PATCH] watchdog: add sun4v_wdt device support
+Date: Wed, 20 Jan 2016 12:30:44 -0800
+Message-Id: <1453321844-27615-1-git-send-email-wim.coekaerts@oracle.com>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-This driver adds sparc hypervisor watchdog support. Timeout is set in
-milliseconds since that is the granularity supported and it honors
-the settings of both the watchdog-resolution and watchdog-max-timeout
-MD properties.
+From: Wim Coekaerts <wim.coekaerts@oracle.com>
 
-Default timeout is set at 60 seconds or 60000ms. The range is between
-1 second and 180 seconds. The default resolution is 1000ms.
+This adds a simple watchdog timer for the SPARC sunv4 architecture.
+Export the sun4v_mach_set_watchdog() hv call, and add the target.
+
+The driver is implemented using the new watchdog api framework.
 
 Signed-off-by: Wim Coekaerts <wim.coekaerts@oracle.com>
 ---
-Changes in v3:
-  - Modify sun4v_mach_set_watchdog to allow for NULL and remove
-	time_remaining
-  - Cleanup includes
-  - Consolidate _start and _ping into _ping since they were the same
-  - Fix checkpatch warnings
-  - Remove pr_info()s
-  - Clean up return codes to be standard kernel return values
-  - Consolidate _init and _probe into _init
-	Don't use platform_device anymore because this is really
-	just a driver that depends on a hv call. This now looks more
-	like softdog.
-  - Cleanly check for sun4v architecture and remove extra tests
-  - Convert to ms timer support and honor resolution
-	since most drivers use seconds I added _ms to make it clear
-  - Clean up validation against the properties
-  - Use sane values for MIN/MAX
----
- Documentation/watchdog/watchdog-parameters.txt |    4 +
- arch/sparc/kernel/hvcalls.S                    |    3 +-
+ Documentation/watchdog/watchdog-parameters.txt |    5 +
  arch/sparc/kernel/sparc_ksyms_64.c             |    1 +
- drivers/watchdog/Kconfig                       |   11 ++
+ drivers/watchdog/Kconfig                       |    9 +
  drivers/watchdog/Makefile                      |    1 +
- drivers/watchdog/sun4v_wdt.c                   |  203 ++++++++++++++++++++++++
- 6 files changed, 222 insertions(+), 1 deletions(-)
+ drivers/watchdog/sun4v_wdt.c                   |  323 ++++++++++++++++++++++++
+ 5 files changed, 339 insertions(+), 0 deletions(-)
  create mode 100644 drivers/watchdog/sun4v_wdt.c
 
 diff --git a/Documentation/watchdog/watchdog-parameters.txt b/Documentation/watchdog/watchdog-parameters.txt
-index 9f9ec9f..4e4b6f1 100644
+index 9f9ec9f..de92c95 100644
 --- a/Documentation/watchdog/watchdog-parameters.txt
 +++ b/Documentation/watchdog/watchdog-parameters.txt
-@@ -400,3 +400,7 @@ wm8350_wdt:
+@@ -400,3 +400,8 @@ wm8350_wdt:
  nowayout: Watchdog cannot be stopped once started
  	(default=kernel config parameter)
  -------------------------------------------------
 +sun4v_wdt:
-+timeout_ms: Watchdog timeout in milliseconds 1..180000, default=60000)
++timeout: Watchdog timeout in seconds (1..31536000, default=60)
 +nowayout: Watchdog cannot be stopped once started
 +-------------------------------------------------
-diff --git a/arch/sparc/kernel/hvcalls.S b/arch/sparc/kernel/hvcalls.S
-index afbaba5..d127130 100644
---- a/arch/sparc/kernel/hvcalls.S
-+++ b/arch/sparc/kernel/hvcalls.S
-@@ -338,8 +338,9 @@ ENTRY(sun4v_mach_set_watchdog)
- 	mov	%o1, %o4
- 	mov	HV_FAST_MACH_SET_WATCHDOG, %o5
- 	ta	HV_FAST_TRAP
-+	brnz,a,pn %o4, 0f
- 	stx	%o1, [%o4]
--	retl
-+0:	retl
- 	 nop
- ENDPROC(sun4v_mach_set_watchdog)
- 
++
 diff --git a/arch/sparc/kernel/sparc_ksyms_64.c b/arch/sparc/kernel/sparc_ksyms_64.c
 index a92d5d2..9e034f2 100644
 --- a/arch/sparc/kernel/sparc_ksyms_64.c
@@ -84,32 +56,30 @@ index a92d5d2..9e034f2 100644
  /* from hweight.S */
  EXPORT_SYMBOL(__arch_hweight8);
 diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 4f0e7be..30d38ae 100644
+index 1c427be..441925b 100644
 --- a/drivers/watchdog/Kconfig
 +++ b/drivers/watchdog/Kconfig
-@@ -1565,6 +1565,17 @@ config WATCHDOG_RIO
+@@ -1500,6 +1500,15 @@ config WATCHDOG_RIO
  	  machines.  The watchdog timeout period is normally one minute but
  	  can be changed with a boot-time parameter.
  
 +config WATCHDOG_SUN4V
-+	tristate "Sun4v Watchdog support"
++	tristate "sun4v Watchdog support"
 +	select WATCHDOG_CORE
 +	depends on SPARC64
 +	help
-+	  Say Y here to support the hypervisor watchdog capability embedded
-+	  in the SPARC sun4v architecture.
-+
-+	  To compile this driver as a module, choose M here. The module will
-+	  be called sun4v_wdt.
++	  Say Y/M here to support the hypervisor watchdog capability provided
++	  by Oracle VM for SPARC.  The watchdog timeout period is normally one
++	  minute but can be changed with a boot-time parameter.
 +
  # XTENSA Architecture
  
  # Xen Architecture
 diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index f566753..f6a6a38 100644
+index 53d4827..9b8acb8 100644
 --- a/drivers/watchdog/Makefile
 +++ b/drivers/watchdog/Makefile
-@@ -179,6 +179,7 @@ obj-$(CONFIG_SH_WDT) += shwdt.o
+@@ -175,6 +175,7 @@ obj-$(CONFIG_SH_WDT) += shwdt.o
  
  obj-$(CONFIG_WATCHDOG_RIO)		+= riowd.o
  obj-$(CONFIG_WATCHDOG_CP1XXX)		+= cpwd.o
@@ -119,17 +89,19 @@ index f566753..f6a6a38 100644
  
 diff --git a/drivers/watchdog/sun4v_wdt.c b/drivers/watchdog/sun4v_wdt.c
 new file mode 100644
-index 0000000..4da7726
+index 0000000..8d4a62a
 --- /dev/null
 +++ b/drivers/watchdog/sun4v_wdt.c
-@@ -0,0 +1,203 @@
+@@ -0,0 +1,323 @@
 +/*
 + *	sun4v watchdog timer
 + *	(c) Copyright 2016 Oracle Corporation
 + *
-+ *	Implement a simple watchdog driver using the built-in sun4v hypervisor
++ *	Implement a simple watchdog driver using the sun4v hypervisor
 + *	watchdog support. If time expires, the hypervisor stops or bounces
 + *	the guest domain.
++ *
++ *	sun4v_mach_set_watchdog() expects time in ms
 + *
 + *	This program is free software; you can redistribute it and/or
 + *	modify it under the terms of the GNU General Public License
@@ -139,192 +111,311 @@ index 0000000..4da7726
 +
 +#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 +
++#define DRV_NAME	"sun4v_wdt"
++#define DRV_VERSION	"0.1"
++
++#include <linux/bug.h>
 +#include <linux/errno.h>
++#include <linux/hrtimer.h>
 +#include <linux/init.h>
 +#include <linux/kernel.h>
++#include <linux/ktime.h>
 +#include <linux/module.h>
 +#include <linux/moduleparam.h>
++#include <linux/platform_device.h>
++#include <linux/spinlock.h>
 +#include <linux/watchdog.h>
 +#include <asm/hypervisor.h>
 +#include <asm/mdesc.h>
 +
-+#define WDT_TIMEOUT_MS			60000	/* 60 seconds */
-+#define WDT_MAX_TIMEOUT_MS		180000	/* 180 seconds */
-+#define WDT_MIN_TIMEOUT_MS		1000	/* 1 second */
-+#define WDT_DEFAULT_RESOLUTION_MS	1000	/* 1 second */
++#define WATCHDOG_TIMEOUT 60		/* in seconds */
++#define WDT_MAX_TIMEOUT	31536000	/* in seconds */
++#define WDT_MIN_TIMEOUT 1		/* in seconds */
 +
-+static unsigned int wdt_max_timeout_ms = WDT_MAX_TIMEOUT_MS;
-+static unsigned int wdt_resolution_ms = WDT_DEFAULT_RESOLUTION_MS;
++static struct platform_device *platform_device;
 +
-+static unsigned int timeout_ms = WDT_TIMEOUT_MS;
-+module_param(timeout_ms, uint, S_IRUGO);
-+MODULE_PARM_DESC(timeout_ms, "Watchdog timeout in ms (default="
-+	__MODULE_STRING(WDT_TIMEOUT_MS) ")");
++struct sun4v_wdt {
++	spinlock_t	lock;
++	__kernel_time_t	expires;
++	struct watchdog_device	wdd;
++};
++
++static unsigned int max_timeout = WDT_MAX_TIMEOUT;
++static unsigned int timeout = WATCHDOG_TIMEOUT;
++module_param(timeout, uint, S_IRUGO);
++MODULE_PARM_DESC(timeout, "Watchdog timeout in seconds "
++	"(default=" __MODULE_STRING(WATCHDOG_TIMEOUT) ")");
 +
 +static bool nowayout = WATCHDOG_NOWAYOUT;
 +module_param(nowayout, bool, S_IRUGO);
-+MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
-+	__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
++MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started "
++	"(default=" __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
++
++static int sun4v_wdt_start(struct watchdog_device *wdd)
++{
++	struct sun4v_wdt *wdt = watchdog_get_drvdata(wdd);
++	unsigned long time_remaining;
++	int err;
++
++	spin_lock(&wdt->lock);
++
++	wdt->expires = ktime_to_timespec(ktime_get()).tv_sec + wdd->timeout;
++	err = sun4v_mach_set_watchdog(wdd->timeout * 1000, &time_remaining);
++
++	spin_unlock(&wdt->lock);
++
++	pr_info("timer enabled\n");
++	return err;
++}
 +
 +static int sun4v_wdt_stop(struct watchdog_device *wdd)
 +{
-+	sun4v_mach_set_watchdog(0, NULL);
++	struct sun4v_wdt *wdt = watchdog_get_drvdata(wdd);
++	unsigned long time_remaining;
++	int err;
 +
-+	return 0;
++	spin_lock(&wdt->lock);
++
++	err = sun4v_mach_set_watchdog(0, &time_remaining);
++
++	spin_unlock(&wdt->lock);
++
++	pr_info("timer disabled\n");
++	return err;
 +}
 +
 +static int sun4v_wdt_ping(struct watchdog_device *wdd)
 +{
-+	int hverr;
++	struct sun4v_wdt *wdt = watchdog_get_drvdata(wdd);
++	int err;
++	unsigned long time_remaining;
 +
-+	hverr = sun4v_mach_set_watchdog(wdd->timeout, NULL);
-+	if (hverr == HV_EINVAL)
-+		return -EINVAL;
++	spin_lock(&wdt->lock);
 +
-+	return 0;
++	wdt->expires = ktime_to_timespec(ktime_get()).tv_sec + wdd->timeout;
++	err = sun4v_mach_set_watchdog(wdd->timeout * 1000, &time_remaining);
++
++	spin_unlock(&wdt->lock);
++
++	return err;
 +}
 +
 +static int sun4v_wdt_set_timeout(struct watchdog_device *wdd,
 +				 unsigned int timeout)
 +{
-+	wdd->timeout = timeout - (timeout % wdt_resolution_ms);
++	wdd->timeout = timeout;
++
++	if (watchdog_active(wdd)) {
++		(void) sun4v_wdt_stop(wdd);
++		return sun4v_wdt_start(wdd);
++	}
 +
 +	return 0;
 +}
 +
++static unsigned int sun4v_wdt_get_timeleft(struct watchdog_device *wdd)
++{
++	struct sun4v_wdt *wdt = watchdog_get_drvdata(wdd);
++
++	return wdt->expires - ktime_to_timespec(ktime_get()).tv_sec;
++}
++
 +static const struct watchdog_info sun4v_wdt_ident = {
 +	.options =	WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE,
-+	.identity =	"sun4v hypervisor watchdog",
++	.identity =	"sun4v watchdog",
 +	.firmware_version = 0,
 +};
 +
 +static struct watchdog_ops sun4v_wdt_ops = {
 +	.owner =	THIS_MODULE,
-+	.start =	sun4v_wdt_ping,
++	.start =	sun4v_wdt_start,
 +	.stop =		sun4v_wdt_stop,
 +	.ping =		sun4v_wdt_ping,
 +	.set_timeout =	sun4v_wdt_set_timeout,
++	.get_timeleft =	sun4v_wdt_get_timeleft,
 +};
 +
-+static struct watchdog_device wdd = {
-+	.info = &sun4v_wdt_ident,
-+	.ops = &sun4v_wdt_ops,
-+	.min_timeout = WDT_MIN_TIMEOUT_MS,
-+};
-+
-+static int hvapi_registered;
-+
-+static int __init sun4v_wdt_init(void)
++static int sun4v_wdt_probe(struct platform_device *pdev)
 +{
++	struct watchdog_device *wdd;
++	struct sun4v_wdt *wdt;
++	unsigned long time_remaining;
++	int ret = 0;
++
++	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
++	if (!wdt)
++		return -ENOMEM;
++
++	wdd = &wdt->wdd;
++	wdd->info = &sun4v_wdt_ident;
++	wdd->ops = &sun4v_wdt_ops;
++	wdd->min_timeout = WDT_MIN_TIMEOUT;
++	wdd->max_timeout = max_timeout;
++	wdd->timeout = timeout;
++	wdd->parent = &pdev->dev;
++
++	watchdog_set_drvdata(wdd, wdt);
++
++	spin_lock_init(&wdt->lock);
++
++	ret = sun4v_mach_set_watchdog(wdd->timeout, &time_remaining);
++	(void) sun4v_mach_set_watchdog(0, &time_remaining);
++	if (ret != HV_EOK) {
++		pr_info("Error setting timer\n");
++		ret = -ENODEV;
++		goto out;
++	}
++
++	watchdog_set_nowayout(wdd, nowayout);
++
++	ret = watchdog_register_device(wdd);
++	if (ret) {
++		pr_err("Failed to register watchdog device (%d)\n", ret);
++		goto out;
++	}
++
++	platform_set_drvdata(pdev, wdt);
++
++	pr_info("initialized (timeout=%ds, nowayout=%d)\n",
++		wdd->timeout, nowayout);
++out:
++	return ret;
++}
++
++static int sun4v_wdt_remove(struct platform_device *pdev)
++{
++	struct sun4v_wdt *wdt = platform_get_drvdata(pdev);
++
++	(void) sun4v_wdt_stop(&wdt->wdd);
++
++	watchdog_unregister_device(&wdt->wdd);
++
++	return 0;
++}
++
++static void sun4v_wdt_shutdown(struct platform_device *pdev)
++{
++	struct sun4v_wdt *wdt = platform_get_drvdata(pdev);
++
++	(void) sun4v_wdt_stop(&wdt->wdd);
++}
++
++static int sun4v_wdt_suspend(struct platform_device *pdev, pm_message_t state)
++{
++	struct sun4v_wdt *wdt = platform_get_drvdata(pdev);
++
++	return sun4v_wdt_stop(&wdt->wdd);
++}
++
++static int sun4v_wdt_resume(struct platform_device *pdev)
++{
++	struct sun4v_wdt *wdt = platform_get_drvdata(pdev);
++
++	return sun4v_wdt_start(&wdt->wdd);
++}
++
++static struct platform_driver sun4v_wdt_driver = {
++	.probe          = sun4v_wdt_probe,
++	.remove         = sun4v_wdt_remove,
++	.shutdown       = sun4v_wdt_shutdown,
++	.suspend        = sun4v_wdt_suspend,
++	.resume         = sun4v_wdt_resume,
++	.driver         = {
++		.name   = DRV_NAME,
++	},
++};
++
++static int __init sun4v_wdt_init_module(void)
++{
++	int err;
 +	struct mdesc_handle *handle;
 +	u64 node;
 +	const u64 *value;
-+	u64 wdt_max_property;
-+	int ret = 0;
-+	unsigned long major = 1, minor = 1;
-+
-+	/*
-+	 * This is a safe way to validate if we are on the right
-+	 * platform.
-+	 */
-+	if (sun4v_hvapi_register(HV_GRP_CORE, major, &minor) != 0)
-+		return -ENODEV;
-+	if (minor < 1) {
-+		sun4v_hvapi_unregister(HV_GRP_CORE);
-+		return -ENODEV;
-+	}
-+	hvapi_registered = 1;
++	u64 resolution;
 +
 +	/*
 +	 * There are 2 properties that can be set from the control
 +	 * domain for the watchdog.
-+	 * watchdog-resolution
-+	 * watchdog-max-timeout
-+	 *
-+	 * We can expect a handle to be returned otherwise something
-+	 * serious is wrong. Correct to return -ENODEV here.
++	 * watchdog-resolution (in ms defaulting to 1000)
++	 * watchdog-max-timeout (in ms)
++	 * Right now, only support the default 1s (1000ms) resolution
++	 * so just verify against the property, and make sure
++	 * max timeout is taken into account, if set.
 +	 */
-+
 +	handle = mdesc_grab();
 +	if (!handle)
 +		return -ENODEV;
 +
 +	node = mdesc_node_by_name(handle, MDESC_NODE_NULL, "platform");
 +	if (node == MDESC_NODE_NULL) {
-+		mdesc_release(handle);
-+		return -ENODEV;
++		pr_info("No platform node\n");
++		err = -ENODEV;
++		goto out;
 +	}
 +
 +	value = mdesc_get_property(handle, node, "watchdog-resolution", NULL);
 +	if (value) {
-+		wdt_resolution_ms = *value;
-+		if (wdt_resolution_ms == 0 ||
-+		    wdt_resolution_ms > WDT_DEFAULT_RESOLUTION_MS)
-+			wdt_resolution_ms = WDT_DEFAULT_RESOLUTION_MS;
++		resolution = *value;
++		pr_info("Platform watchdog-resolution [%llux]\n", *value);
++
++		if (resolution != 1000) {
++			pr_crit("Only 1000ms is supported.\n");
++			err = -EINVAL;
++			goto out;
++		}
 +	}
 +
 +	value = mdesc_get_property(handle, node, "watchdog-max-timeout", NULL);
 +	if (value) {
-+		wdt_max_property = *value;
-+		/*
-+		 * If the property is set to a value smaller than
-+		 * WDT_MIN_TIMEOUT_MS, return -EINVAL. If someone went
-+		 * through the trouble of setting the property then we should
-+		 * not silently ignore it and change it to something else.
-+		 */
-+		if (wdt_max_property < WDT_MIN_TIMEOUT_MS) {
-+			mdesc_release(handle);
-+			return -EINVAL;
++		/* convert ms to seconds */
++		max_timeout = *value / 1000;
++		pr_info("Platform watchdog-max-timeout [%ds]\n", max_timeout);
++
++		if (max_timeout < WDT_MIN_TIMEOUT) {
++			max_timeout = WDT_MIN_TIMEOUT;
++			pr_info("Setting max timeout to [%ds]\n", max_timeout);
 +		}
-+		/* If the property is set to a value smaller than
-+		 * WDT_MAX_TIMEOUT_MS then set wdt_max_timeout_ms to
-+		 * the value of the property.
-+		 */
-+		if (wdt_max_property < wdt_max_timeout_ms)
-+			wdt_max_timeout_ms = wdt_max_property;
++
++		if (max_timeout > WDT_MAX_TIMEOUT) {
++			max_timeout = WDT_MAX_TIMEOUT;
++			pr_info("Setting max timeout to [%ds]\n", max_timeout);
++		}
 +	}
 +
-+	mdesc_release(handle);
++	pr_info("sun4v watchdog timer v%s\n", DRV_VERSION);
 +
-+	if (timeout_ms < WDT_MIN_TIMEOUT_MS)
-+		timeout_ms = WDT_MIN_TIMEOUT_MS;
-+	if (timeout_ms > wdt_max_timeout_ms)
-+		timeout_ms = wdt_max_timeout_ms;
++	err = platform_driver_register(&sun4v_wdt_driver);
++	if (err)
++		return err;
 +
-+	/*
-+	 * round to nearest smaller value to honor resolution
-+	 */
-+	wdt_max_timeout_ms -= wdt_max_timeout_ms % wdt_resolution_ms;
-+	timeout_ms -= timeout_ms % wdt_resolution_ms;
++	platform_device = platform_device_register_simple(DRV_NAME,
++								  -1, NULL, 0);
++	if (IS_ERR(platform_device)) {
++		err = PTR_ERR(platform_device);
++		platform_driver_unregister(&sun4v_wdt_driver);
++	}
 +
-+	wdd.max_timeout = wdt_max_timeout_ms;
-+	wdd.timeout = timeout_ms;
++out:
++	if (handle)
++		mdesc_release(handle);
 +
-+	watchdog_set_nowayout(&wdd, nowayout);
-+
-+	ret = watchdog_register_device(&wdd);
-+	if (ret)
-+		return ret;
-+
-+	pr_info("initialized (timeout_ms=%dms, nowayout=%d)\n",
-+		 wdd.timeout, nowayout);
-+
-+	return 0;
++	return err;
 +}
 +
-+static void __exit sun4v_wdt_exit(void)
++static void __exit sun4v_wdt_cleanup_module(void)
 +{
-+	if (hvapi_registered)
-+		sun4v_hvapi_unregister(HV_GRP_CORE);
-+	sun4v_wdt_stop(&wdd);
-+	watchdog_unregister_device(&wdd);
++	platform_device_unregister(platform_device);
++	platform_driver_unregister(&sun4v_wdt_driver);
++	pr_info("module unloaded\n");
 +}
 +
-+module_init(sun4v_wdt_init);
-+module_exit(sun4v_wdt_exit);
++module_init(sun4v_wdt_init_module);
++module_exit(sun4v_wdt_cleanup_module);
 +
 +MODULE_AUTHOR("Wim Coekaerts <wim.coekaerts@oracle.com>");
-+MODULE_DESCRIPTION("sun4v watchdog driver");
++MODULE_DESCRIPTION("sun4v watchdog timer");
++MODULE_VERSION(DRV_VERSION);
 +MODULE_LICENSE("GPL");
 -- 
 1.7.1
+
