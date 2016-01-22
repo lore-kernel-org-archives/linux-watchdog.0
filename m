@@ -1,65 +1,235 @@
-Return-path: <jpoimboe@redhat.com>
-From: Josh Poimboeuf <jpoimboe@redhat.com>
-To: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org
-Cc: linux-kernel@vger.kernel.org, live-patching@vger.kernel.org,
-        Michal Marek <mmarek@suse.cz>, Peter Zijlstra <peterz@infradead.org>,
-        Andy Lutomirski <luto@kernel.org>, Borislav Petkov <bp@alien8.de>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andi Kleen <andi@firstfloor.org>, Pedro Alves <palves@redhat.com>,
-        Namhyung Kim <namhyung@gmail.com>,
-        Bernd Petrovitsch <bernd@petrovitsch.priv.at>,
-        Chris J Arges <chris.j.arges@canonical.com>,
-        Andrew Morton <akpm@linux-foundation.org>, Jiri Slaby <jslaby@suse.cz>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Wim Van Sebroeck <wim@iguana.be>, Guenter Roeck <linux@roeck-us.net>,
-        linux-watchdog@vger.kernel.org
-Subject: [PATCH 27/33] watchdog/hpwdt: Create stack frame in asminline_call()
-Date: Thu, 21 Jan 2016 16:49:31 -0600
-Message-Id: <60de3cfb6f16d413bfb923036cc87fec132df735.1453405861.git.jpoimboe@redhat.com>
-In-Reply-To: <cover.1453405861.git.jpoimboe@redhat.com>
-References: <cover.1453405861.git.jpoimboe@redhat.com>
+Return-path: <wim.coekaerts@oracle.com>
+Message-ID: <56A27DCA.9060307@oracle.com>
+Date: Fri, 22 Jan 2016 11:06:50 -0800
+From: Wim Coekaerts <wim.coekaerts@oracle.com>
+MIME-Version: 1.0
+To: Guenter Roeck <linux@roeck-us.net>
+CC: wim@iguana.be, linux-watchdog@vger.kernel.org, sparclinux@vger.kernel.org
+Subject: Re: [PATCH] watchdog: add sun4v_wdt device support
+References: <20160121163449.GA914@roeck-us.net>
+In-Reply-To: <20160121163449.GA914@roeck-us.net>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-watchdog@vger.kernel.org>
 
-asminline_call() is a callable non-leaf function which doesn't honor
-CONFIG_FRAME_POINTER, which can result in bad stack traces.
+Thanks for your feedback, I think I am close ;) a few comments/questions
 
-Create a stack frame when CONFIG_FRAME_POINTER is enabled.
+>> +	return err;
+>> +}
+>> +
+>> +static int sun4v_wdt_ping(struct watchdog_device *wdd)
+>> +{
+>> +	struct sun4v_wdt *wdt = watchdog_get_drvdata(wdd);
+>> +	int err;
+>> +	unsigned long time_remaining;
+>> +
+>> +	spin_lock(&wdt->lock);
+>> +
+>> +	wdt->expires = ktime_to_timespec(ktime_get()).tv_sec + wdd->timeout;
+>> +	err = sun4v_mach_set_watchdog(wdd->timeout * 1000, &time_remaining);
+>> +
+>> +	spin_unlock(&wdt->lock);
+>> +
+>> +	return err;
+>> +}
+>> +
+> Am I missing something, or is the start function identical to the
+> stop function ? If so, why have both ?
 
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Wim Van Sebroeck <wim@iguana.be>
-Cc: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-watchdog@vger.kernel.org
----
- drivers/watchdog/hpwdt.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+fair - I am consolidating ping/start into ping
+>
+>> +static int sun4v_wdt_set_timeout(struct watchdog_device *wdd,
+>> +				 unsigned int timeout)
+>> +{
+>> +	wdd->timeout = timeout;
+>> +
+>> +	if (watchdog_active(wdd)) {
+>> +		(void) sun4v_wdt_stop(wdd);
+>> +		return sun4v_wdt_start(wdd);
+> Is it really necessary to stop the watchdog before updating the timer ?
+> Can't you just set the new timeout like in the ping function ?
+>
+> Also, since the calling code executes ping, is this even necessary ?
+Yeah my bad, I should have known this. No need to do this.
+>
+>> +	}
+>> +
+>> +	return 0;
+>> +}
+>> +
+>> +static unsigned int sun4v_wdt_get_timeleft(struct watchdog_device *wdd)
+>> +{
+>> +	struct sun4v_wdt *wdt = watchdog_get_drvdata(wdd);
+>> +
+>> +	return wdt->expires - ktime_to_timespec(ktime_get()).tv_sec;
+>> +}
+> get_timeleft() is supposed to return the time left from a hardware register
+> (if available). If we wanted to implement a "soft" version of get_timeleft(),
+> it should be done in the watchdog core, not in individual drivers. Please drop
+> (and with it the 'expires' variable).
+Ok no problem, I do think it's useful even if the hardware doesn't 
+support it.
+To have an idea of how much time is left, I guess one could implement it
+in the code using the watchdog but I think it's reasonable to provide 
+support
+in the driver or core. Would you implement a new op for this in core?
 
-diff --git a/drivers/watchdog/hpwdt.c b/drivers/watchdog/hpwdt.c
-index 286369d..f368383 100644
---- a/drivers/watchdog/hpwdt.c
-+++ b/drivers/watchdog/hpwdt.c
-@@ -353,10 +353,10 @@ static int detect_cru_service(void)
- 
- asm(".text                      \n\t"
-     ".align 4                   \n\t"
--    ".globl asminline_call	\n"
-+    ".globl asminline_call	\n\t"
-+    ".type asminline_call, @function \n\t"
-     "asminline_call:            \n\t"
--    "pushq      %rbp            \n\t"
--    "movq       %rsp, %rbp      \n\t"
-+    FRAME_BEGIN
-     "pushq      %rax            \n\t"
-     "pushq      %rbx            \n\t"
-     "pushq      %rdx            \n\t"
-@@ -386,7 +386,7 @@ asm(".text                      \n\t"
-     "popq       %rdx            \n\t"
-     "popq       %rbx            \n\t"
-     "popq       %rax            \n\t"
--    "leave                      \n\t"
-+    FRAME_END
-     "ret                        \n\t"
-     ".previous");
- 
--- 
-2.4.3
+Anyway, I dropped it from my driver.
+>
+>> +
+>> +static const struct watchdog_info sun4v_wdt_ident = {
+>> +	.options =	WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE,
+>> +	.identity =	"sun4v watchdog",
+>> +	.firmware_version = 0,
+>> +};
+>> +
+>> +static struct watchdog_ops sun4v_wdt_ops = {
+>> +	.owner =	THIS_MODULE,
+>> +	.start =	sun4v_wdt_start,
+>> +	.stop =		sun4v_wdt_stop,
+>> +	.ping =		sun4v_wdt_ping,
+>> +	.set_timeout =	sun4v_wdt_set_timeout,
+>> +	.get_timeleft =	sun4v_wdt_get_timeleft,
+>> +};
+>> +
+>> +static int sun4v_wdt_probe(struct platform_device *pdev)
+>> +{
+>> +	struct watchdog_device *wdd;
+>> +	struct sun4v_wdt *wdt;
+>> +	unsigned long time_remaining;
+>> +	int ret = 0;
+>> +
+>> +	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
+>> +	if (!wdt)
+>> +		return -ENOMEM;
+>> +
+>> +	wdd = &wdt->wdd;
+>> +	wdd->info = &sun4v_wdt_ident;
+>> +	wdd->ops = &sun4v_wdt_ops;
+>> +	wdd->min_timeout = WDT_MIN_TIMEOUT;
+>> +	wdd->max_timeout = max_timeout;
+>> +	wdd->timeout = timeout;
+>> +	wdd->parent = &pdev->dev;
+>> +
+>> +	watchdog_set_drvdata(wdd, wdt);
+>> +
+>> +	spin_lock_init(&wdt->lock);
+>> +
+>> +	ret = sun4v_mach_set_watchdog(wdd->timeout, &time_remaining);
+>> +	(void) sun4v_mach_set_watchdog(0, &time_remaining);
+>   
+> Why first set (and enable) the watchdog just to disable it
+> immediately afterwards ? Just to check if it can be set ?
+> Is that really necessary ? Can't you just set it to 0
+> (disable it) and bail out if that does not work ?
+
+I thought about this a bit more and I removed it.
+The point of it was that it tests if timeout is a valid value and if it
+doesn't return HV_EOK the value is at a minimum wrong. Just a call
+with 0 wouldn't help, which was why the 2 calls but in the end it's
+really not the right place to do it.  So I just return EINVAL in ping
+if it's wrong.
+>
+>> +	.driver         = {
+>> +		.name   = DRV_NAME,
+>> +	},
+>> +};
+>> +
+>> +static int __init sun4v_wdt_init_module(void)
+>> +{
+>> +	int err;
+>> +	struct mdesc_handle *handle;
+>> +	u64 node;
+>> +	const u64 *value;
+>> +	u64 resolution;
+>> +
+>> +	/*
+>> +	 * There are 2 properties that can be set from the control
+>> +	 * domain for the watchdog.
+>> +	 * watchdog-resolution (in ms defaulting to 1000)
+>> +	 * watchdog-max-timeout (in ms)
+>> +	 * Right now, only support the default 1s (1000ms) resolution
+>> +	 * so just verify against the property, and make sure
+>> +	 * max timeout is taken into account, if set.
+>> +	 */
+>> +	handle = mdesc_grab();
+>> +	if (!handle)
+>> +		return -ENODEV;
+>> +
+> Is there some means to determine if this is a SUN4V system ?
+> The detections used (like this one, and the attempt to set the watchdog
+> in the probe function) seem to be a bit shaky.
+If this returns NULL, it's not a sun4v platform. This should be very
+reliable. (unlike the watchdog one)
+>
+>> +	node = mdesc_node_by_name(handle, MDESC_NODE_NULL, "platform");
+>> +	if (node == MDESC_NODE_NULL) {
+>> +		pr_info("No platform node\n");
+> Is this an error, or does it just indicate that the watchdog is not supported
+> ion this platform ? If it is an error, use pr_err(). If it means the watchdog is
+> not supported, return without message.
+ok, it should have platform, I think it's fair to assume not supported 
+here as well.
+>
+>> +		err = -ENODEV;
+>> +		goto out;
+>> +	}
+>> +
+>> +	value = mdesc_get_property(handle, node, "watchdog-resolution", NULL);
+>> +	if (value) {
+>> +		resolution = *value;
+>> +		pr_info("Platform watchdog-resolution [%llux]\n", *value);
+>> +
+>> +		if (resolution != 1000) {
+>> +			pr_crit("Only 1000ms is supported.\n");
+> Why is this critical ? Seems to be an implementation problem.
+yeah ok fine.
+>
+>> +		pr_info("Platform watchdog-max-timeout [%ds]\n", max_timeout);
+>> +
+>> +		if (max_timeout < WDT_MIN_TIMEOUT) {
+>> +			max_timeout = WDT_MIN_TIMEOUT;
+>> +			pr_info("Setting max timeout to [%ds]\n", max_timeout);
+>> +		}
+> This is kind of odd. If the platform specifies a smaller maximum timeout
+> than the pre-defined minimum, and you can just override that value,
+> why care in the first place ?
+Well -
+
+there's a real max (WDT_MAX_TIMEOUT) for the platform
+but as an admin you can specify your own max_timeout as a property of the
+specific domain and set it smaller.
+
+So if I where to set max_timeout to 500, it would be .5 seconds and that 
+would be
+messy.  So this really just means, if I, as an admin, specify a max 
+timeout that's
+less than 1 second, then set it to 1 second. That doesn't seem wrong.
+
+>
+> Also, WDT_MIN_TIMEOUT is 1 (second), meaning you would set the maximum
+> timeout to 1 second, and the default timeout would end up being invalid.
+> Can you try to define more reasonable acceptable limits ?
+ok I that is fair, will change.
+>
+>> +
+>> +		if (max_timeout > WDT_MAX_TIMEOUT) {
+>> +			max_timeout = WDT_MAX_TIMEOUT;
+>> +			pr_info("Setting max timeout to [%ds]\n", max_timeout);
+> Is WDT_MAX_TIMEOUT an absolute or an arbitrary limit ?
+absolute - largest value the hv call accepts.
+>
+> +}
+> +
+> +module_init(sun4v_wdt_init_module);
+> +module_exit(sun4v_wdt_cleanup_module);
+> Wonder if it would be better to move the initialization into the probe
+> function and use module_patform_driver(), or module_platform_driver_probe().
+> Any reason for not doing that ?
+yeah ok I moved everything to that and it's a lot smaller now.
+
+Will clean up and submit a new version soon - I also cleaned up 
+time_remaining by
+just passing NULL and modify the hvcall itself in the next rev.
+
+thanks again. sorry for some of the silly mistakes :)
