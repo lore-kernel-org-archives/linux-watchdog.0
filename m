@@ -1,160 +1,72 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-io0-f171.google.com ([209.85.223.171]:33394 "EHLO
-	mail-io0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751327AbcAUClu (ORCPT
+Received: from unicorn.mansr.com ([81.2.72.234]:54084 "EHLO unicorn.mansr.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752761AbcAVLOj convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 20 Jan 2016 21:41:50 -0500
+	Fri, 22 Jan 2016 06:14:39 -0500
+From: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mans@mansr.com>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Mason <slash.tmp@free.fr>, Wim Van Sebroeck <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH v2] watchdog: tango: rename ARCH_TANGOX to ARCH_TANGO
+References: <56A0EABB.3090901@free.fr> <20160121204255.GA10214@roeck-us.net>
+Date: Fri, 22 Jan 2016 11:14:38 +0000
+In-Reply-To: <20160121204255.GA10214@roeck-us.net> (Guenter Roeck's message of
+	"Thu, 21 Jan 2016 12:42:55 -0800")
+Message-ID: <yw1xoacdn9wh.fsf@unicorn.mansr.com>
 MIME-Version: 1.0
-In-Reply-To: <56A0442E.9020703@oracle.com>
-References: <1453321844-27615-1-git-send-email-wim.coekaerts@oracle.com>
- <CAGRGNgX+bKYEvc8toZEf+F9fwTm+TedEu7gtd5YhqNb6LP4eGQ@mail.gmail.com>
- <56A01612.9040901@oracle.com> <20160120234554.GA21708@roeck-us.net>
- <56A035D7.5030406@oracle.com> <CAGRGNgXPfeSpwk3jS1m55qFDzjfHu=tZb7LsEbgCyKw9W-UmNQ@mail.gmail.com>
- <56A0442E.9020703@oracle.com>
-From: Julian Calaby <julian.calaby@gmail.com>
-Date: Thu, 21 Jan 2016 13:41:29 +1100
-Message-ID: <CAGRGNgU+uCUt+SmY9V8xqhDZNHBdXC-dP_M+E_eBq+Ko7fm4Dw@mail.gmail.com>
-Subject: Re: [PATCH] watchdog: add sun4v_wdt device support
-To: Wim Coekaerts <wim.coekaerts@oracle.com>
-Cc: Guenter Roeck <linux@roeck-us.net>, wim@iguana.be,
-	linux-watchdog@vger.kernel.org,
-	sparclinux <sparclinux@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Wim,
+Guenter Roeck <linux@roeck-us.net> writes:
 
-On Thu, Jan 21, 2016 at 1:36 PM, Wim Coekaerts <wim.coekaerts@oracle.com> wrote:
-> On 1/20/16 6:23 PM, Julian Calaby wrote:
->>
->> Hi Wim,
->>
->> On Thu, Jan 21, 2016 at 12:35 PM, Wim Coekaerts
->> <wim.coekaerts@oracle.com> wrote:
->>>
->>>
->>> On 1/20/16 3:45 PM, Guenter Roeck wrote:
->>>>
->>>> On Wed, Jan 20, 2016 at 03:19:46PM -0800, Wim Coekaerts wrote:
->>>>>
->>>>> On 01/20/2016 02:43 PM, Julian Calaby wrote:
->>>>>>
->>>>>> Hi Wim Coekaerts,
->>>>>>
->>>>>> On Thu, Jan 21, 2016 at 7:30 AM,  <wim.coekaerts@oracle.com> wrote:
->>>>>>>
->>>>>>> From: Wim Coekaerts <wim.coekaerts@oracle.com>
->>>>>>>
->>>>>>> This adds a simple watchdog timer for the SPARC sunv4 architecture.
->>>>>>> Export the sun4v_mach_set_watchdog() hv call, and add the target.
->>>>>>>
->>>>>>> The driver is implemented using the new watchdog api framework.
->>>>>>>
->>>>>>> Signed-off-by: Wim Coekaerts <wim.coekaerts@oracle.com>
->>>>>>
->>>>>> This all looks _much_ better.
->>>>>
->>>>> thanks! :)
->>>>>>
->>>>>> There's nothing glaringly wrong with the code like the last version,
->>>>>> so I've only got a couple of general questions:
->>>>>>
->>>>>> 1. Is the platform device and driver necessary? Can't you just
->>>>>> register the watchdog device directly from sun4v_wdt_init_module()?
->>>>>>
->>>>>> 2. If the platform device is unnecessary, do you still need a struct
->>>>>> watchdog_device in struct sun4v_wdt? I.e. does the watchdog core stop
->>>>>> watchdogs when you call watchdog_unregister_device()? (Or could you
->>>>>> refactor to not require it?)
->>>>>
->>>>> I like to be able to implement support for suspend/resume for ldoms
->>>>> as we add more support for that in the future, and support for
->>>>> migrating
->>>>> domains and such. So having a platform driver is useful to here as a
->>>>> framework.
->>>>>
->>>>>> 3. Is it possible to get the data for sun4v_wdt_get_timeleft() by
->>>>>> calling some other sun4v_mach_*() function?
->>>>>
->>>>> No there is only one hv call for watchdog and that's this one.
->>>>>
->>>>> time_remaining is the time that was left until the timer was going
->>>>> to expire when making the call so it's not useful for the future time.
->>>>>
->>>>> And you can't just make a call to get time_remaining except to reset
->>>>> the timer or disable it along with it. quantum physics timer :)
->>>>>
->>>> I'll comment on the rest of the driver separately. However, since
->>>> get_timeleft()
->>>> was brought up - the idea here is to report the time left as reported
->>>> from
->>>> the
->>>> hardware, not the time left calculated by software. If we want to
->>>> calculate
->>>> the time left until expiry in software, it should be done in the
->>>> watchdog
->>>> core.
->>>> It should not be done in drivers.
->>>>
->>> I guess you could add a soft_get_timeleft() so that it's clear that if a
->>> driver doesn't
->>> implement the call, you get a best effort response.
->>>
->>> Happy to remove the op from the driver and maybe we can implement it
->>> separately in core in a separate patch if that's of interest.
->>>
->>> However, this makes me ponder what could be done with the
->>> "time_remaining"
->>> behavior on sun4v. It could be useful for a piece of software to use that
->>> value
->>> to see the drift. "I pinged 30 seconds ago, per my assumption of time but
->>> the
->>> timer says it was 50 seconds ago, something is wrong".
->>>
->>> What if I would report back time_remaining like that,  but of course now
->>> that it's
->>> pinged again it reset the timer. Not sure whether you can see any use of
->>> such
->>> behavior. It wouldn't be get_timeleft() but more  get_timewasleft() ;) or
->>> it could be a positive return from _ping...  just noodling
->>
->> How about _start() and _ping() set wdt->expires like this:
->>
->> err = sun4v_mach_set_watchdog(wdd->timeout * 1000, &time_remaining);
->> wdt->expires = ktime_to_timespec(ktime_get()).tv_sec + time_remaining /
->> 1000;
->>
->> Then _timeleft() could be something like:
->>
->> return wdt->expires - ktime_to_timespec(ktime_get()).tv_sec;
->>
->> Thanks,
->>
-> This is how the return works :
->
-> let's say wdd->timeout  = 60
->
-> I call it at time [0s] -  so my timer expires in 60s (at time [60s])
->
-> at time [20s], I ping, it will end up with :
->
-> set_watchdog(60, &time_remaining)
-> timer expires is back to 60s from  time [20s] so would expires at time [80s]
->
-> however,  at time [20s] time_remaining will return 40 (time remaining on
-> timer when I made the call).
-> as this returns the time remaining from the previous timer.
->
-> 40 is clearly wrong for the use of timeleft or expires because the timer is
-> reset back to 60s countdown
+> On Thu, Jan 21, 2016 at 03:27:07PM +0100, Mason wrote:
+>> From: Marc Gonzalez <marc_gonzalez@sigmadesigns.com>
+>>=20
+>> This change was requested by arm-soc maintainer Kevin Hilman
+>> because the X in TANGOX is a wildcard.
+>>=20
+> Not what I was looking for, but not worth arguing about it, so
 
-Ok, I misunderstood. time_remaining is useless then.
+It would be better if the commit message simply mentioned the fact that
+the platform support uses ARCH_TANGO and this has to match.  The detail=
+s
+of why it got named that way are less important.
 
-Thanks,
+>> Signed-off-by: Marc Gonzalez <marc_gonzalez@sigmadesigns.com>
+>
+> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+>
+>> ---
+>>  drivers/watchdog/Kconfig | 2 +-
+>>  1 file changed, 1 insertion(+), 1 deletion(-)
+>>=20
+>> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+>> index 4f0e7be0da34..e723e0169f88 100644
+>> --- a/drivers/watchdog/Kconfig
+>> +++ b/drivers/watchdog/Kconfig
+>> @@ -145,7 +145,7 @@ config MENF21BMC_WATCHDOG
+>>  config TANGOX_WATCHDOG
+>>  	tristate "Sigma Designs SMP86xx/SMP87xx watchdog"
+>>  	select WATCHDOG_CORE
+>> -	depends on ARCH_TANGOX || COMPILE_TEST
+>> +	depends on ARCH_TANGO || COMPILE_TEST
+>>  	help
+>>  	  Support for the watchdog in Sigma Designs SMP86xx (tango3)
+>>  	  and SMP87xx (tango4) family chips.
+>>=20
+>> --
+>> To unsubscribe from this list: send the line "unsubscribe linux-watc=
+hdog" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
--- 
-Julian Calaby
-
-Email: julian.calaby@gmail.com
-Profile: http://www.google.com/profiles/julian.calaby/
+--=20
+M=E5ns Rullg=E5rd
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
+g" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
