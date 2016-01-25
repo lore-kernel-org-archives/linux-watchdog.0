@@ -1,78 +1,53 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:42388 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750997AbcAZB6J (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 25 Jan 2016 20:58:09 -0500
-Subject: Re: [PATCH v3] watchdog: Add watchdog timer support for the
- WinSystems EBC-C384
-To: William Breathitt Gray <vilhelm.gray@gmail.com>,
-	One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>
-References: <20160125190942.GA6824@sophia>
- <20160125192810.2487661b@lxorguk.ukuu.org.uk> <56A6889E.60208@roeck-us.net>
- <56A6B198.2080205@gmail.com>
-Cc: wim@iguana.be, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <56A6D2AE.6010703@roeck-us.net>
-Date: Mon, 25 Jan 2016 17:58:06 -0800
-MIME-Version: 1.0
-In-Reply-To: <56A6B198.2080205@gmail.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-path: <richard@nod.at>
+From: Richard Weinberger <richard@nod.at>
+To: linux-kernel@vger.kernel.org
+Cc: user-mode-linux-devel@lists.sourceforge.net,
+	Richard Weinberger <richard@nod.at>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Guenter Roeck <linux@roeck-us.net>,
+	linux-watchdog@vger.kernel.org
+Subject: [PATCH 15/22] watchdog: Fix dependencies for !HAS_IOMEM archs
+Date: Mon, 25 Jan 2016 23:24:14 +0100
+Message-Id: <1453760661-1444-16-git-send-email-richard@nod.at>
+In-Reply-To: <1453760661-1444-1-git-send-email-richard@nod.at>
+References: <1453760661-1444-1-git-send-email-richard@nod.at>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 01/25/2016 03:36 PM, William Breathitt Gray wrote:
-> On 01/25/2016 03:42 PM, Guenter Roeck wrote:
->> On 01/25/2016 11:28 AM, One Thousand Gnomes wrote:
->>> If ask for 299 seconds surely I should get 300 not 240 ?
->>> (Whether to round off or round up is an interesting question for the
->>> middle range - does it go off early or late - I'd have said late but...)
->>>
->>
->> Matter of endless discussion. Some argue that the value should be rounded
->> up, some argue that it should be rounded down, some argue that it should
->> be rounded to the closest match. Each camp has its own valid arguments.
->> I usually leave it up to the driver's author to decide, with a slight
->> preference to never select a value larger than requested.
->
-> I implemented it to round down simply because it was the simplest
-> solution (i.e. integer truncation). Although I see merit in an
-> implementation that rounds to the closest valid value, I'll keep the
-> current implementation for now due to its simplicity; if enough users of
-> the driver prefer a different implementation, then I'll add it in a
-> later patch.
->
->>> Is there no ACPI entry for it ?
->>>
->> Same here. As long as the board is identified, I tend to leave it up
->> to the driver author to decide _how_ to identify it.
->>
->> Only question for me would be if the watchdog timer is implemented
->> in a Super-IO chip, and if so, if it would be possible to use the chip
->> identification instead of a DMI (or ACPI) entry to instantiate the driver.
->
-> I do not believe there is an ACPI entry for it. Interestingly, the
-> watchdog timer BIOS configuration option for this motherboard is listed
-> under the Super I/O menu; perhaps this watchdog timer is implemented in
-> the Super I/O chip.
->
-> The manual for this motherboard does not provide much information about
-> the Super I/O chip (no model number, etc.), and neither sensors-detect
-> nor superiotool was able to detect it. I've sent an email to the
-> motherboard company (WinSystems) requesting further information about
-> the Super I/O chip and whether the watchdog timer is built-in to the
-> Super I/O chip.
->
+Not every arch has io memory.
+So, unbreak the build by fixing the dependencies.
 
-I had a close look at the board pictures in the manual. Looks like there
-is a NCT7802Y hardware monitoring chip on the board. This suggests that the
-Super-IO chip does probably not implement hardware monitoring. Not that
-it helps much to know that, but it reduces the possibilities.
+Signed-off-by: Richard Weinberger <richard@nod.at>
+---
+ drivers/watchdog/Kconfig | 3 +++
+ 1 file changed, 3 insertions(+)
 
-There is also a pretty large Lattice FPGA on the board, which makes it at
-least somewhat likely that the functionality is implemented in that FPGA.
-
-Guenter
-
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 4f0e7be..0bd559a 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -146,6 +146,7 @@ config TANGOX_WATCHDOG
+ 	tristate "Sigma Designs SMP86xx/SMP87xx watchdog"
+ 	select WATCHDOG_CORE
+ 	depends on ARCH_TANGOX || COMPILE_TEST
++	depends on HAS_IOMEM
+ 	help
+ 	  Support for the watchdog in Sigma Designs SMP86xx (tango3)
+ 	  and SMP87xx (tango4) family chips.
+@@ -618,6 +619,7 @@ config DIGICOLOR_WATCHDOG
+ config LPC18XX_WATCHDOG
+ 	tristate "LPC18xx/43xx Watchdog"
+ 	depends on ARCH_LPC18XX || COMPILE_TEST
++	depends on HAS_IOMEM
+ 	select WATCHDOG_CORE
+ 	help
+ 	  Say Y here if to include support for the watchdog timer
+@@ -1374,6 +1376,7 @@ config BCM_KONA_WDT_DEBUG
+ config BCM7038_WDT
+ 	tristate "BCM7038 Watchdog"
+ 	select WATCHDOG_CORE
++	depends on HAS_IOMEM
+ 	help
+ 	 Watchdog driver for the built-in hardware in Broadcom 7038 SoCs.
+ 
+-- 
+1.8.4.5
