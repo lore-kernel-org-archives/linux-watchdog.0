@@ -9,82 +9,115 @@ Cc: Wim Van Sebroeck <wim@iguana.be>,
 	Doug Anderson <dianders@chromium.org>,
 	Jonathan Corbet <corbet@lwn.net>,
 	Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH v7 3/9] watchdog: Make set_timeout function optional
-Date: Mon, 25 Jan 2016 18:53:10 -0800
-Message-Id: <1453776796-3885-4-git-send-email-patchwork@patchwork.roeck-us.net>
+Subject: [PATCH v7 4/9] watchdog: Add support for minimum time between heartbeats
+Date: Mon, 25 Jan 2016 18:53:11 -0800
+Message-Id: <1453776796-3885-5-git-send-email-patchwork@patchwork.roeck-us.net>
 In-Reply-To: <1453776796-3885-1-git-send-email-patchwork@patchwork.roeck-us.net>
 References: <1453776796-3885-1-git-send-email-patchwork@patchwork.roeck-us.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
 List-ID: <linux-watchdog@vger.kernel.org>
 
 From: Guenter Roeck <linux@roeck-us.net>
 
-For some watchdogs, the hardware timeout is fixed, and the
-watchdog driver depends on the watchdog core to handle the
-actual timeout. In this situation, the watchdog driver might
-only set the 'timeout' variable but do nothing else.
-This can as well be handled by the infrastructure, so make
-the set_timeout callback optional. If WDIOF_SETTIMEOUT is
-configured but the .set_timeout callback is not available,
-update the timeout variable in the infrastructure code.
+Some watchdogs require a minimum time between heartbeats.
+Examples are the watchdogs in DA9062 and AT91SAM9x.
 
-Acked-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+
 ---
 v7: Rebased to v4.5-rc1
 v6: Rebased to v4.4-rc2
 v5: Rebased to v4.4-rc1
-v4: No changes
-v3: No changes
-v2: No changes
+    Fixed typo in documentation.
+v4: Added patch
 ---
- Documentation/watchdog/watchdog-kernel-api.txt | 5 +++++
- drivers/watchdog/watchdog_dev.c                | 9 ++++++---
- 2 files changed, 11 insertions(+), 3 deletions(-)
+ Documentation/watchdog/watchdog-kernel-api.txt |  3 +++
+ drivers/watchdog/watchdog_dev.c                | 15 +++++++++++++++
+ include/linux/watchdog.h                       |  3 +++
+ 3 files changed, 21 insertions(+)
 
 diff --git a/Documentation/watchdog/watchdog-kernel-api.txt b/Documentation/watchdog/watchdog-kernel-api.txt
-index 738bd6809328..62d49d6a7ff5 100644
+index 62d49d6a7ff5..2221fb4f2739 100644
 --- a/Documentation/watchdog/watchdog-kernel-api.txt
 +++ b/Documentation/watchdog/watchdog-kernel-api.txt
-@@ -175,6 +175,11 @@ they are supported. These optional routines/operations are:
-   (if it is larger than max_hw_timeout_ms), or to the achieved timeout value.
-   (Note: the WDIOF_SETTIMEOUT needs to be set in the options field of the
-   watchdog's info structure).
-+  If the watchdog driver does not have to perform any action but setting the
-+  watchdog_device.timeout, this callback can be omitted.
-+  If set_timeout is not provided but, WDIOF_SETTIMEOUT is set, the watchdog
-+  infrastructure updates the timeout value of the watchdog_device internally
-+  to the requested value.
- * get_timeleft: this routines returns the time that's left before a reset.
- * restart: this routine restarts the machine. It returns 0 on success or a
-   negative errno code for failure.
+@@ -52,6 +52,7 @@ struct watchdog_device {
+ 	unsigned int timeout;
+ 	unsigned int min_timeout;
+ 	unsigned int max_timeout;
++	unsigned int min_hw_heartbeat_ms;
+ 	unsigned int max_hw_timeout_ms;
+ 	struct notifier_block reboot_nb;
+ 	struct notifier_block restart_nb;
+@@ -81,6 +82,8 @@ It contains following fields:
+ * max_timeout: the watchdog timer's maximum timeout value (in seconds),
+   as seen from userspace. If set, the maximum configurable value for
+   'timeout'. Not used if max_hw_timeout_ms is non-zero.
++* min_hw_heartbeat_ms: Minimum time between heartbeats sent to the chip,
++  in milli-seconds.
+ * max_hw_timeout_ms: Maximum hardware timeout, in milli-seconds.
+   If set, the infrastructure will send heartbeats to the watchdog driver
+   if 'timeout' is larger than max_hw_timeout_ms, unless WDOG_ACTIVE
 diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-index 469b13b8363b..1a8f3861fe92 100644
+index 1a8f3861fe92..ff03cbc8e081 100644
 --- a/drivers/watchdog/watchdog_dev.c
 +++ b/drivers/watchdog/watchdog_dev.c
-@@ -288,15 +288,18 @@ static unsigned int watchdog_get_status(struct watchdog_device *wdd)
- static int watchdog_set_timeout(struct watchdog_device *wdd,
- 							unsigned int timeout)
+@@ -64,6 +64,7 @@ struct watchdog_core_data {
+ 	struct watchdog_device *wdd;
+ 	struct mutex lock;
+ 	unsigned long last_keepalive;
++	unsigned long last_hw_keepalive;
+ 	struct delayed_work work;
+ 	unsigned long status;		/* Internal status bits */
+ #define _WDOG_DEV_OPEN		0	/* Opened ? */
+@@ -138,8 +139,19 @@ static inline void watchdog_update_worker(struct watchdog_device *wdd,
+ 
+ static int __watchdog_ping(struct watchdog_device *wdd)
  {
--	int err;
-+	int err = 0;
++	struct watchdog_core_data *wd_data = wdd->wd_data;
++	unsigned long earliest_keepalive = wd_data->last_hw_keepalive +
++				msecs_to_jiffies(wdd->min_hw_heartbeat_ms);
+ 	int err;
  
--	if (!wdd->ops->set_timeout || !(wdd->info->options & WDIOF_SETTIMEOUT))
-+	if (!(wdd->info->options & WDIOF_SETTIMEOUT))
- 		return -EOPNOTSUPP;
++	if (time_is_after_jiffies(earliest_keepalive)) {
++		mod_delayed_work(watchdog_wq, &wd_data->work,
++				 earliest_keepalive - jiffies);
++		return 0;
++	}
++
++	wd_data->last_hw_keepalive = jiffies;
++
+ 	if (wdd->ops->ping)
+ 		err = wdd->ops->ping(wdd);  /* ping the watchdog */
+ 	else
+@@ -820,6 +832,9 @@ static int watchdog_cdev_register(struct watchdog_device *wdd, dev_t devno)
+ 		return err;
+ 	}
  
- 	if (watchdog_timeout_invalid(wdd, timeout))
- 		return -EINVAL;
- 
--	err = wdd->ops->set_timeout(wdd, timeout);
-+	if (wdd->ops->set_timeout)
-+		err = wdd->ops->set_timeout(wdd, timeout);
-+	else
-+		wdd->timeout = timeout;
- 
- 	watchdog_update_worker(wdd, true);
- 
++	/* Record time of most recent heartbeat as 'just before now'. */
++	wd_data->last_hw_keepalive = jiffies - 1;
++
+ 	/*
+ 	 * If the watchdog is running, prevent its driver from being unloaded,
+ 	 * and schedule an immediate ping.
+diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
+index 19c675eed80f..537e84e2592a 100644
+--- a/include/linux/watchdog.h
++++ b/include/linux/watchdog.h
+@@ -65,6 +65,8 @@ struct watchdog_ops {
+  * @max_timeout:The watchdog devices maximum timeout value (in seconds)
+  *		as configurable from user space. Only relevant if
+  *		max_hw_timeout_ms is not provided.
++ * @min_hw_heartbeat_ms:
++ *		Minimum time between heartbeats, in milli-seconds.
+  * @max_hw_timeout_ms:
+  *		Hardware limit for maximum timeout, in milli-seconds.
+  *		Replaces max_timeout if specified.
+@@ -95,6 +97,7 @@ struct watchdog_device {
+ 	unsigned int timeout;
+ 	unsigned int min_timeout;
+ 	unsigned int max_timeout;
++	unsigned int min_hw_heartbeat_ms;
+ 	unsigned int max_hw_timeout_ms;
+ 	struct notifier_block reboot_nb;
+ 	struct notifier_block restart_nb;
 -- 
 2.1.4
