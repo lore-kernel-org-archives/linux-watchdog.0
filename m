@@ -1,102 +1,59 @@
-Return-path: <ukl@pengutronix.de>
-Date: Tue, 26 Jan 2016 09:07:40 +0100
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:60212 "EHLO
+	metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1755631AbcAZIJJ (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 26 Jan 2016 03:09:09 -0500
+Date: Tue, 26 Jan 2016 09:09:04 +0100
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+	<u.kleine-koenig@pengutronix.de>
 To: Guenter Roeck <patchwork@patchwork.roeck-us.net>
 Cc: linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
 	linux-kernel@vger.kernel.org,
-	Timo Kokkonen <timo.kokkonen@offcode.fi>, linux-doc@vger.kernel.org,
-	Doug Anderson <dianders@chromium.org>,
+	Timo Kokkonen <timo.kokkonen@offcode.fi>,
+	linux-doc@vger.kernel.org, Doug Anderson <dianders@chromium.org>,
 	Jonathan Corbet <corbet@lwn.net>,
 	Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH v7 4/9] watchdog: Add support for minimum time between
- heartbeats
-Message-ID: <20160126080740.GU3338@pengutronix.de>
+Subject: Re: [PATCH v7 0/9] watchdog: Add support for keepalives triggered by
+ infrastructure
+Message-ID: <20160126080904.GV3338@pengutronix.de>
 References: <1453776796-3885-1-git-send-email-patchwork@patchwork.roeck-us.net>
- <1453776796-3885-5-git-send-email-patchwork@patchwork.roeck-us.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <1453776796-3885-5-git-send-email-patchwork@patchwork.roeck-us.net>
-List-ID: <linux-watchdog@vger.kernel.org>
+In-Reply-To: <1453776796-3885-1-git-send-email-patchwork@patchwork.roeck-us.net>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
 Hello Guenter,
 
-On Mon, Jan 25, 2016 at 06:53:11PM -0800, Guenter Roeck wrote:
-> From: Guenter Roeck <linux@roeck-us.net>
+On Mon, Jan 25, 2016 at 06:53:07PM -0800, Guenter Roeck wrote:
+> Patch #1 adds timer functionality to the watchdog core. It solves the problem
+> of short maximum hardware timeouts by augmenting heartbeats triggered from
+> user space with internally triggered heartbeats.
 > 
-> Some watchdogs require a minimum time between heartbeats.
-> Examples are the watchdogs in DA9062 and AT91SAM9x.
+> Patch #2 adds functionality to generate heartbeats while the watchdog device
+> is closed. It handles situation where where the watchdog is running after
+> the driver has been instantiated, but the device is not yet opened,
+> and post-close situations necessary if a watchdog can not be stopped.
 > 
-> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-> ---
-> v7: Rebased to v4.5-rc1
-> v6: Rebased to v4.4-rc2
-> v5: Rebased to v4.4-rc1
->     Fixed typo in documentation.
-> v4: Added patch
-> ---
->  Documentation/watchdog/watchdog-kernel-api.txt |  3 +++
->  drivers/watchdog/watchdog_dev.c                | 15 +++++++++++++++
->  include/linux/watchdog.h                       |  3 +++
->  3 files changed, 21 insertions(+)
+> Patch #3 makes the set_timeout function optional. This is now possible since
+> timeout changes can now be completely handled in the watchdog core, for
+> example if the hardware watchdog timeout is fixed.
 > 
-> diff --git a/Documentation/watchdog/watchdog-kernel-api.txt b/Documentation/watchdog/watchdog-kernel-api.txt
-> index 62d49d6a7ff5..2221fb4f2739 100644
-> --- a/Documentation/watchdog/watchdog-kernel-api.txt
-> +++ b/Documentation/watchdog/watchdog-kernel-api.txt
-> @@ -52,6 +52,7 @@ struct watchdog_device {
->  	unsigned int timeout;
->  	unsigned int min_timeout;
->  	unsigned int max_timeout;
-> +	unsigned int min_hw_heartbeat_ms;
->  	unsigned int max_hw_timeout_ms;
->  	struct notifier_block reboot_nb;
->  	struct notifier_block restart_nb;
-> @@ -81,6 +82,8 @@ It contains following fields:
->  * max_timeout: the watchdog timer's maximum timeout value (in seconds),
->    as seen from userspace. If set, the maximum configurable value for
->    'timeout'. Not used if max_hw_timeout_ms is non-zero.
-> +* min_hw_heartbeat_ms: Minimum time between heartbeats sent to the chip,
-> +  in milli-seconds.
->  * max_hw_timeout_ms: Maximum hardware timeout, in milli-seconds.
->    If set, the infrastructure will send heartbeats to the watchdog driver
->    if 'timeout' is larger than max_hw_timeout_ms, unless WDOG_ACTIVE
-> diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-> index 1a8f3861fe92..ff03cbc8e081 100644
-> --- a/drivers/watchdog/watchdog_dev.c
-> +++ b/drivers/watchdog/watchdog_dev.c
-> @@ -64,6 +64,7 @@ struct watchdog_core_data {
->  	struct watchdog_device *wdd;
->  	struct mutex lock;
->  	unsigned long last_keepalive;
-> +	unsigned long last_hw_keepalive;
->  	struct delayed_work work;
->  	unsigned long status;		/* Internal status bits */
->  #define _WDOG_DEV_OPEN		0	/* Opened ? */
-> @@ -138,8 +139,19 @@ static inline void watchdog_update_worker(struct watchdog_device *wdd,
->  
->  static int __watchdog_ping(struct watchdog_device *wdd)
->  {
-> +	struct watchdog_core_data *wd_data = wdd->wd_data;
-> +	unsigned long earliest_keepalive = wd_data->last_hw_keepalive +
-> +				msecs_to_jiffies(wdd->min_hw_heartbeat_ms);
->  	int err;
->  
-> +	if (time_is_after_jiffies(earliest_keepalive)) {
-> +		mod_delayed_work(watchdog_wq, &wd_data->work,
-> +				 earliest_keepalive - jiffies);
-> +		return 0;
-> +	}
-> +
-> +	wd_data->last_hw_keepalive = jiffies;
-> +
+> Patch #4 adds code to ensure that the minimum time between heartbeats meets
+> constraints provided by the watchdog driver.
+> 
+> Patch #5 simplifies the watchdog_update_worker() function introduced with
+> patch #1 to only take a single argument, and to always cancel any pending
+> work if a worker is not or no longer needed. This patch is kept as separate
+> patch on purpose, to enable dropping or reverting it easily if it causes
+> any problems. It should not cause any problems; this is just out of an
+> abundance of caution.
 
-Do you need to undo this assignment when ping fails?
-
->  	if (wdd->ops->ping)
->  		err = wdd->ops->ping(wdd);  /* ping the watchdog */
->  	else
+Acked-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de> for patches
+1-5.
 
 Best regards
 Uwe
