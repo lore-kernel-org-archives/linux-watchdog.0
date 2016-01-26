@@ -9,227 +9,511 @@ Cc: Wim Van Sebroeck <wim@iguana.be>,
 	Doug Anderson <dianders@chromium.org>,
 	Jonathan Corbet <corbet@lwn.net>,
 	Guenter Roeck <linux@roeck-us.net>
-Subject: [RFT PATCH v7 8/9] watchdog: at91sam9: Convert to use infrastructure triggered keepalives
-Date: Mon, 25 Jan 2016 18:53:15 -0800
-Message-Id: <1453776796-3885-9-git-send-email-patchwork@patchwork.roeck-us.net>
+Subject: [RFT PATCH v7 9/9] watchdog: dw_wdt: Convert to use watchdog infrastructure
+Date: Mon, 25 Jan 2016 18:53:16 -0800
+Message-Id: <1453776796-3885-10-git-send-email-patchwork@patchwork.roeck-us.net>
 In-Reply-To: <1453776796-3885-1-git-send-email-patchwork@patchwork.roeck-us.net>
 References: <1453776796-3885-1-git-send-email-patchwork@patchwork.roeck-us.net>
 List-ID: <linux-watchdog@vger.kernel.org>
 
 From: Guenter Roeck <linux@roeck-us.net>
 
-The watchdog infrastructure now supports handling watchdog keepalive
-if the watchdog is running while the watchdog device is closed.
-The infrastructure now also supports generating additional heartbeats
-if the maximum hardware timeout is smaller than or close to the
-configured timeout. Convert the driver to use this
-infrastructure.
+Convert driver to use watchdog infrastructure. This includes
+infrastructure support to handle watchdog keepalive if the watchdog
+is running while the watchdog device is closed.
 
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
----
-v7: Rebased to v4.5-rc1
-v6: Rebased to v4.4-rc2
-v5: Rebased to v4.4-rc1
-v4: No changes
-v3: No changes
-v2: No changes
----
- drivers/watchdog/at91sam9_wdt.c | 103 +++++-----------------------------------
- 1 file changed, 12 insertions(+), 91 deletions(-)
 
-diff --git a/drivers/watchdog/at91sam9_wdt.c b/drivers/watchdog/at91sam9_wdt.c
-index 7e6acaf3ece4..a1c1c79b700e 100644
---- a/drivers/watchdog/at91sam9_wdt.c
-+++ b/drivers/watchdog/at91sam9_wdt.c
-@@ -30,7 +30,6 @@
- #include <linux/types.h>
- #include <linux/watchdog.h>
- #include <linux/jiffies.h>
--#include <linux/timer.h>
- #include <linux/bitops.h>
- #include <linux/uaccess.h>
- #include <linux/of.h>
-@@ -49,8 +48,8 @@
-  * use this to convert a watchdog
-  * value from/to milliseconds.
+---
+v7: Set max_hw_timeout_ms
+    Rebased to v4.5-rc1
+v6: Added patch
+---
+ drivers/watchdog/Kconfig  |   1 +
+ drivers/watchdog/dw_wdt.c | 323 +++++++++++++++++-----------------------------
+ 2 files changed, 117 insertions(+), 207 deletions(-)
+
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 4f0e7be0da34..36b3835bc524 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -329,6 +329,7 @@ config SA1100_WATCHDOG
+ config DW_WATCHDOG
+ 	tristate "Synopsys DesignWare watchdog"
+ 	depends on HAS_IOMEM
++	select WATCHDOG_CORE
+ 	help
+ 	  Say Y here if to include support for the Synopsys DesignWare
+ 	  watchdog timer found in many chips.
+diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
+index 8fefa4ad46d4..a088451e28cb 100644
+--- a/drivers/watchdog/dw_wdt.c
++++ b/drivers/watchdog/dw_wdt.c
+@@ -12,9 +12,8 @@
+  * and these are a function of the input clock frequency.
+  *
+  * The DesignWare watchdog cannot be stopped once it has been started so we
+- * use a software timer to implement a ping that will keep the watchdog alive.
+- * If we receive an expected close for the watchdog then we keep the timer
+- * running, otherwise the timer is stopped and the watchdog will expire.
++ * do not implement a stop function. The watchdog core will continue to send
++ * heartbeat requests after the watchdog device has been closed.
   */
--#define ticks_to_hz_rounddown(t)	((((t) + 1) * HZ) >> 8)
--#define ticks_to_hz_roundup(t)		(((((t) + 1) * HZ) + 255) >> 8)
-+#define ticks_to_ms_rounddown(t)	((((t) + 1) * 1000) >> 8)
-+#define ticks_to_ms_roundup(t)		(((((t) + 1) * 1000) + 255) >> 8)
- #define ticks_to_secs(t)		(((t) + 1) >> 8)
- #define secs_to_ticks(s)		((s) ? (((s) << 8) - 1) : 0)
  
-@@ -65,9 +64,6 @@
- /* Hardware timeout in seconds */
- #define WDT_HW_TIMEOUT 2
+ #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+@@ -22,12 +21,9 @@
+ #include <linux/bitops.h>
+ #include <linux/clk.h>
+ #include <linux/delay.h>
+-#include <linux/device.h>
+ #include <linux/err.h>
+-#include <linux/fs.h>
+ #include <linux/io.h>
+ #include <linux/kernel.h>
+-#include <linux/miscdevice.h>
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
+ #include <linux/notifier.h>
+@@ -35,8 +31,6 @@
+ #include <linux/pm.h>
+ #include <linux/platform_device.h>
+ #include <linux/reboot.h>
+-#include <linux/timer.h>
+-#include <linux/uaccess.h>
+ #include <linux/watchdog.h>
  
--/* Timer heartbeat (500ms) */
--#define WDT_TIMEOUT	(HZ/2)
+ #define WDOG_CONTROL_REG_OFFSET		    0x00
+@@ -57,53 +51,50 @@ module_param(nowayout, bool, 0);
+ MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started "
+ 		 "(default=" __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+ 
+-#define WDT_TIMEOUT		(HZ / 2)
 -
- /* User land timeout */
- #define WDT_HEARTBEAT 15
- static int heartbeat;
-@@ -84,11 +80,8 @@ MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started "
- struct at91wdt {
- 	struct watchdog_device wdd;
- 	void __iomem *base;
--	unsigned long next_heartbeat;	/* the next_heartbeat for the timer */
--	struct timer_list timer;	/* The timer that pings the watchdog */
- 	u32 mr;
- 	u32 mr_mask;
--	unsigned long heartbeat;	/* WDT heartbeat in jiffies */
- 	bool nowayout;
- 	unsigned int irq;
- 	struct clk *sclk;
-@@ -109,47 +102,13 @@ static irqreturn_t wdt_interrupt(int irq, void *dev_id)
- 	return IRQ_HANDLED;
+-static struct {
++struct dw_wdt {
+ 	void __iomem		*regs;
+ 	struct clk		*clk;
+-	unsigned long		in_use;
+-	unsigned long		next_heartbeat;
+-	struct timer_list	timer;
+-	int			expect_close;
+ 	struct notifier_block	restart_handler;
+-} dw_wdt;
++	struct watchdog_device	wdd;
++};
++
++#define to_dw_wdt(wdd)	container_of(wdd, struct dw_wdt, wdd)
+ 
+-static inline int dw_wdt_is_enabled(void)
++static inline int dw_wdt_is_enabled(struct dw_wdt *dw_wdt)
+ {
+-	return readl(dw_wdt.regs + WDOG_CONTROL_REG_OFFSET) &
++	return readl(dw_wdt->regs + WDOG_CONTROL_REG_OFFSET) &
+ 		WDOG_CONTROL_REG_WDT_EN_MASK;
  }
  
--/*
-- * Reload the watchdog timer.  (ie, pat the watchdog)
-- */
--static inline void at91_wdt_reset(struct at91wdt *wdt)
--{
--	wdt_write(wdt, AT91_WDT_CR, AT91_WDT_KEY | AT91_WDT_WDRSTT);
--}
--
--/*
-- * Timer tick
-- */
--static void at91_ping(unsigned long data)
--{
--	struct at91wdt *wdt = (struct at91wdt *)data;
--	if (time_before(jiffies, wdt->next_heartbeat) ||
--	    !watchdog_active(&wdt->wdd)) {
--		at91_wdt_reset(wdt);
--		mod_timer(&wdt->timer, jiffies + wdt->heartbeat);
--	} else {
--		pr_crit("I will reset your machine !\n");
--	}
--}
--
- static int at91_wdt_start(struct watchdog_device *wdd)
+-static inline int dw_wdt_top_in_seconds(unsigned top)
++static inline int dw_wdt_top_in_seconds(struct dw_wdt *dw_wdt, unsigned top)
  {
- 	struct at91wdt *wdt = to_wdt(wdd);
--	/* calculate when the next userspace timeout will be */
--	wdt->next_heartbeat = jiffies + wdd->timeout * HZ;
--	return 0;
--}
+ 	/*
+ 	 * There are 16 possible timeout values in 0..15 where the number of
+ 	 * cycles is 2 ^ (16 + i) and the watchdog counts down.
+ 	 */
+-	return (1U << (16 + top)) / clk_get_rate(dw_wdt.clk);
++	return (1U << (16 + top)) / clk_get_rate(dw_wdt->clk);
+ }
  
--static int at91_wdt_stop(struct watchdog_device *wdd)
--{
--	/* The watchdog timer hardware can not be stopped... */
--	return 0;
--}
-+	wdt_write(wdt, AT91_WDT_CR, AT91_WDT_KEY | AT91_WDT_WDRSTT);
+-static int dw_wdt_get_top(void)
++static int dw_wdt_get_top(struct dw_wdt *dw_wdt)
+ {
+-	int top = readl(dw_wdt.regs + WDOG_TIMEOUT_RANGE_REG_OFFSET) & 0xF;
++	int top = readl(dw_wdt->regs + WDOG_TIMEOUT_RANGE_REG_OFFSET) & 0xF;
  
--static int at91_wdt_set_timeout(struct watchdog_device *wdd, unsigned int new_timeout)
+-	return dw_wdt_top_in_seconds(top);
++	return dw_wdt_top_in_seconds(dw_wdt, top);
+ }
+ 
+-static inline void dw_wdt_set_next_heartbeat(void)
++static int dw_wdt_ping(struct watchdog_device *wdd)
+ {
+-	dw_wdt.next_heartbeat = jiffies + dw_wdt_get_top() * HZ;
+-}
++	struct dw_wdt *dw_wdt = to_dw_wdt(wdd);
+ 
+-static void dw_wdt_keepalive(void)
 -{
--	wdd->timeout = new_timeout;
--	return at91_wdt_start(wdd);
+-	writel(WDOG_COUNTER_RESTART_KICK_VALUE, dw_wdt.regs +
++	writel(WDOG_COUNTER_RESTART_KICK_VALUE, dw_wdt->regs +
+ 	       WDOG_COUNTER_RESTART_REG_OFFSET);
++
 +	return 0;
  }
  
- static int at91_wdt_init(struct platform_device *pdev, struct at91wdt *wdt)
-@@ -159,8 +118,8 @@ static int at91_wdt_init(struct platform_device *pdev, struct at91wdt *wdt)
- 	u32 value;
- 	int err;
- 	u32 mask = wdt->mr_mask;
--	unsigned long min_heartbeat = 1;
--	unsigned long max_heartbeat;
-+	unsigned int min_timeout = jiffies_to_msecs(1);
-+	unsigned int hw_timeout;
- 	struct device *dev = &pdev->dev;
+-static int dw_wdt_set_top(unsigned top_s)
++static int dw_wdt_set_timeout(struct watchdog_device *wdd, unsigned int top_s)
+ {
++	struct dw_wdt *dw_wdt = to_dw_wdt(wdd);
+ 	int i, top_val = DW_WDT_MAX_TOP;
  
- 	tmp = wdt_read(wdt, AT91_WDT_MR);
-@@ -182,31 +141,15 @@ static int at91_wdt_init(struct platform_device *pdev, struct at91wdt *wdt)
- 	delta = (tmp & AT91_WDT_WDD) >> 16;
+ 	/*
+@@ -111,7 +102,7 @@ static int dw_wdt_set_top(unsigned top_s)
+ 	 * always look for >=.
+ 	 */
+ 	for (i = 0; i <= DW_WDT_MAX_TOP; ++i)
+-		if (dw_wdt_top_in_seconds(i) >= top_s) {
++		if (dw_wdt_top_in_seconds(dw_wdt, i) >= top_s) {
+ 			top_val = i;
+ 			break;
+ 		}
+@@ -123,33 +114,43 @@ static int dw_wdt_set_top(unsigned top_s)
+ 	 * effectively get a pat of the watchdog right here.
+ 	 */
+ 	writel(top_val | top_val << WDOG_TIMEOUT_RANGE_TOPINIT_SHIFT,
+-		dw_wdt.regs + WDOG_TIMEOUT_RANGE_REG_OFFSET);
++	       dw_wdt->regs + WDOG_TIMEOUT_RANGE_REG_OFFSET);
  
- 	if (delta < value)
--		min_heartbeat = ticks_to_hz_roundup(value - delta);
-+		min_timeout = ticks_to_ms_roundup(value - delta);
- 
--	max_heartbeat = ticks_to_hz_rounddown(value);
--	if (!max_heartbeat) {
-+	hw_timeout = ticks_to_ms_rounddown(value);
-+	if (hw_timeout < min_timeout * 2) {
- 		dev_err(dev,
- 			"heartbeat is too small for the system to handle it correctly\n");
- 		return -EINVAL;
- 	}
--
 -	/*
--	 * Try to reset the watchdog counter 4 or 2 times more often than
--	 * actually requested, to avoid spurious watchdog reset.
--	 * If this is not possible because of the min_heartbeat value, reset
--	 * it at the min_heartbeat period.
+-	 * Add an explicit pat to handle versions of the watchdog that
+-	 * don't have TOPINIT.  This won't hurt on versions that have
+-	 * it.
 -	 */
--	if ((max_heartbeat / 4) >= min_heartbeat)
--		wdt->heartbeat = max_heartbeat / 4;
--	else if ((max_heartbeat / 2) >= min_heartbeat)
--		wdt->heartbeat = max_heartbeat / 2;
--	else
--		wdt->heartbeat = min_heartbeat;
--
--	if (max_heartbeat < min_heartbeat + 4)
--		dev_warn(dev,
--			 "min heartbeat and max heartbeat might be too close for the system to handle it correctly\n");
-+	wdt->wdd.max_hw_timeout_ms = hw_timeout;
+-	dw_wdt_keepalive();
++	wdd->timeout = dw_wdt_top_in_seconds(dw_wdt, top_val);
  
- 	if ((tmp & AT91_WDT_WDFIEN) && wdt->irq) {
- 		err = request_irq(wdt->irq, wdt_interrupt,
-@@ -222,32 +165,12 @@ static int at91_wdt_init(struct platform_device *pdev, struct at91wdt *wdt)
- 			 "watchdog already configured differently (mr = %x expecting %x)\n",
- 			 tmp & wdt->mr_mask, wdt->mr & wdt->mr_mask);
+-	dw_wdt_set_next_heartbeat();
++	return 0;
++}
++
++static int dw_wdt_start(struct watchdog_device *wdd)
++{
++	struct dw_wdt *dw_wdt = to_dw_wdt(wdd);
++
++	dw_wdt_set_timeout(wdd, wdd->timeout);
  
--	setup_timer(&wdt->timer, at91_ping, (unsigned long)wdt);
--
--	/*
--	 * Use min_heartbeat the first time to avoid spurious watchdog reset:
--	 * we don't know for how long the watchdog counter is running, and
--	 *  - resetting it right now might trigger a watchdog fault reset
--	 *  - waiting for heartbeat time might lead to a watchdog timeout
--	 *    reset
--	 */
--	mod_timer(&wdt->timer, jiffies + min_heartbeat);
--
- 	/* Try to set timeout from device tree first */
- 	if (watchdog_init_timeout(&wdt->wdd, 0, dev))
- 		watchdog_init_timeout(&wdt->wdd, heartbeat, dev);
- 	watchdog_set_nowayout(&wdt->wdd, wdt->nowayout);
--	err = watchdog_register_device(&wdt->wdd);
--	if (err)
--		goto out_stop_timer;
--
--	wdt->next_heartbeat = jiffies + wdt->wdd.timeout * HZ;
- 
--	return 0;
--
--out_stop_timer:
--	del_timer(&wdt->timer);
--	return err;
-+	return watchdog_register_device(&wdt->wdd);
+-	return dw_wdt_top_in_seconds(top_val);
++	set_bit(WDOG_HW_RUNNING, &wdd->status);
++
++	writel(WDOG_CONTROL_REG_WDT_EN_MASK,
++	       dw_wdt->regs + WDOG_CONTROL_REG_OFFSET);
++
++	return 0;
  }
  
- /* ......................................................................... */
-@@ -261,8 +184,6 @@ static const struct watchdog_info at91_wdt_info = {
- static const struct watchdog_ops at91_wdt_ops = {
- 	.owner =	THIS_MODULE,
- 	.start =	at91_wdt_start,
--	.stop =		at91_wdt_stop,
--	.set_timeout =	at91_wdt_set_timeout,
+ static int dw_wdt_restart_handle(struct notifier_block *this,
+-				unsigned long mode, void *cmd)
++				 unsigned long mode, void *cmd)
+ {
++	struct dw_wdt *dw_wdt;
+ 	u32 val;
+ 
+-	writel(0, dw_wdt.regs + WDOG_TIMEOUT_RANGE_REG_OFFSET);
+-	val = readl(dw_wdt.regs + WDOG_CONTROL_REG_OFFSET);
++	dw_wdt = container_of(this, struct dw_wdt, restart_handler);
++
++	writel(0, dw_wdt->regs + WDOG_TIMEOUT_RANGE_REG_OFFSET);
++	val = readl(dw_wdt->regs + WDOG_CONTROL_REG_OFFSET);
+ 	if (val & WDOG_CONTROL_REG_WDT_EN_MASK)
+-		writel(WDOG_COUNTER_RESTART_KICK_VALUE, dw_wdt.regs +
+-			WDOG_COUNTER_RESTART_REG_OFFSET);
++		writel(WDOG_COUNTER_RESTART_KICK_VALUE,
++		       dw_wdt->regs + WDOG_COUNTER_RESTART_REG_OFFSET);
+ 	else
+ 		writel(WDOG_CONTROL_REG_WDT_EN_MASK,
+-		       dw_wdt.regs + WDOG_CONTROL_REG_OFFSET);
++		       dw_wdt->regs + WDOG_CONTROL_REG_OFFSET);
+ 
+ 	/* wait for reset to assert... */
+ 	mdelay(500);
+@@ -157,74 +158,12 @@ static int dw_wdt_restart_handle(struct notifier_block *this,
+ 	return NOTIFY_DONE;
+ }
+ 
+-static void dw_wdt_ping(unsigned long data)
++static unsigned int dw_wdt_get_timeleft(struct watchdog_device *wdd)
+ {
+-	if (time_before(jiffies, dw_wdt.next_heartbeat) ||
+-	    (!nowayout && !dw_wdt.in_use)) {
+-		dw_wdt_keepalive();
+-		mod_timer(&dw_wdt.timer, jiffies + WDT_TIMEOUT);
+-	} else
+-		pr_crit("keepalive missed, machine will reset\n");
+-}
+-
+-static int dw_wdt_open(struct inode *inode, struct file *filp)
+-{
+-	if (test_and_set_bit(0, &dw_wdt.in_use))
+-		return -EBUSY;
+-
+-	/* Make sure we don't get unloaded. */
+-	__module_get(THIS_MODULE);
+-
+-	if (!dw_wdt_is_enabled()) {
+-		/*
+-		 * The watchdog is not currently enabled. Set the timeout to
+-		 * something reasonable and then start it.
+-		 */
+-		dw_wdt_set_top(DW_WDT_DEFAULT_SECONDS);
+-		writel(WDOG_CONTROL_REG_WDT_EN_MASK,
+-		       dw_wdt.regs + WDOG_CONTROL_REG_OFFSET);
+-	}
+-
+-	dw_wdt_set_next_heartbeat();
+-
+-	return nonseekable_open(inode, filp);
+-}
+-
+-static ssize_t dw_wdt_write(struct file *filp, const char __user *buf,
+-			    size_t len, loff_t *offset)
+-{
+-	if (!len)
+-		return 0;
+-
+-	if (!nowayout) {
+-		size_t i;
+-
+-		dw_wdt.expect_close = 0;
+-
+-		for (i = 0; i < len; ++i) {
+-			char c;
+-
+-			if (get_user(c, buf + i))
+-				return -EFAULT;
+-
+-			if (c == 'V') {
+-				dw_wdt.expect_close = 1;
+-				break;
+-			}
+-		}
+-	}
++	struct dw_wdt *dw_wdt = to_dw_wdt(wdd);
+ 
+-	dw_wdt_set_next_heartbeat();
+-	dw_wdt_keepalive();
+-	mod_timer(&dw_wdt.timer, jiffies + WDT_TIMEOUT);
+-
+-	return len;
+-}
+-
+-static u32 dw_wdt_time_left(void)
+-{
+-	return readl(dw_wdt.regs + WDOG_CURRENT_COUNT_REG_OFFSET) /
+-		clk_get_rate(dw_wdt.clk);
++	return readl(dw_wdt->regs + WDOG_CURRENT_COUNT_REG_OFFSET) /
++		clk_get_rate(dw_wdt->clk);
+ }
+ 
+ static const struct watchdog_info dw_wdt_ident = {
+@@ -233,78 +172,33 @@ static const struct watchdog_info dw_wdt_ident = {
+ 	.identity	= "Synopsys DesignWare Watchdog",
  };
  
- #if defined(CONFIG_OF)
-@@ -393,7 +314,7 @@ static int __exit at91wdt_remove(struct platform_device *pdev)
- 	watchdog_unregister_device(&wdt->wdd);
+-static long dw_wdt_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
+-{
+-	unsigned long val;
+-	int timeout;
+-
+-	switch (cmd) {
+-	case WDIOC_GETSUPPORT:
+-		return copy_to_user((void __user *)arg, &dw_wdt_ident,
+-				    sizeof(dw_wdt_ident)) ? -EFAULT : 0;
+-
+-	case WDIOC_GETSTATUS:
+-	case WDIOC_GETBOOTSTATUS:
+-		return put_user(0, (int __user *)arg);
+-
+-	case WDIOC_KEEPALIVE:
+-		dw_wdt_set_next_heartbeat();
+-		return 0;
+-
+-	case WDIOC_SETTIMEOUT:
+-		if (get_user(val, (int __user *)arg))
+-			return -EFAULT;
+-		timeout = dw_wdt_set_top(val);
+-		return put_user(timeout , (int __user *)arg);
+-
+-	case WDIOC_GETTIMEOUT:
+-		return put_user(dw_wdt_get_top(), (int __user *)arg);
+-
+-	case WDIOC_GETTIMELEFT:
+-		/* Get the time left until expiry. */
+-		if (get_user(val, (int __user *)arg))
+-			return -EFAULT;
+-		return put_user(dw_wdt_time_left(), (int __user *)arg);
+-
+-	default:
+-		return -ENOTTY;
+-	}
+-}
+-
+-static int dw_wdt_release(struct inode *inode, struct file *filp)
+-{
+-	clear_bit(0, &dw_wdt.in_use);
+-
+-	if (!dw_wdt.expect_close) {
+-		del_timer(&dw_wdt.timer);
+-
+-		if (!nowayout)
+-			pr_crit("unexpected close, system will reboot soon\n");
+-		else
+-			pr_crit("watchdog cannot be disabled, system will reboot soon\n");
+-	}
+-
+-	dw_wdt.expect_close = 0;
+-
+-	return 0;
+-}
++static const struct watchdog_ops dw_wdt_ops = {
++	.owner		= THIS_MODULE,
++	.start		= dw_wdt_start,
++	.ping		= dw_wdt_ping,
++	.set_timeout	= dw_wdt_set_timeout,
++	.get_timeleft	= dw_wdt_get_timeleft,
++};
  
- 	pr_warn("I quit now, hardware will probably reboot!\n");
--	del_timer(&wdt->timer);
+ #ifdef CONFIG_PM_SLEEP
+ static int dw_wdt_suspend(struct device *dev)
+ {
+-	clk_disable_unprepare(dw_wdt.clk);
++	struct dw_wdt *dw_wdt = dev_get_drvdata(dev);
 +
- 	clk_disable_unprepare(wdt->sclk);
++	clk_disable_unprepare(dw_wdt->clk);
  
  	return 0;
+ }
+ 
+ static int dw_wdt_resume(struct device *dev)
+ {
+-	int err = clk_prepare_enable(dw_wdt.clk);
++	struct dw_wdt *dw_wdt = dev_get_drvdata(dev);
++	int err = clk_prepare_enable(dw_wdt->clk);
+ 
+ 	if (err)
+ 		return err;
+ 
+-	dw_wdt_keepalive();
++	dw_wdt_ping(&dw_wdt->wdd);
+ 
+ 	return 0;
+ }
+@@ -312,67 +206,82 @@ static int dw_wdt_resume(struct device *dev)
+ 
+ static SIMPLE_DEV_PM_OPS(dw_wdt_pm_ops, dw_wdt_suspend, dw_wdt_resume);
+ 
+-static const struct file_operations wdt_fops = {
+-	.owner		= THIS_MODULE,
+-	.llseek		= no_llseek,
+-	.open		= dw_wdt_open,
+-	.write		= dw_wdt_write,
+-	.unlocked_ioctl	= dw_wdt_ioctl,
+-	.release	= dw_wdt_release
+-};
+-
+-static struct miscdevice dw_wdt_miscdev = {
+-	.fops		= &wdt_fops,
+-	.name		= "watchdog",
+-	.minor		= WATCHDOG_MINOR,
+-};
+-
+ static int dw_wdt_drv_probe(struct platform_device *pdev)
+ {
++	struct device *dev = &pdev->dev;
++	struct watchdog_device *wdd;
++	struct dw_wdt *dw_wdt;
++	struct resource *mem;
+ 	int ret;
+-	struct resource *mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 
+-	dw_wdt.regs = devm_ioremap_resource(&pdev->dev, mem);
+-	if (IS_ERR(dw_wdt.regs))
+-		return PTR_ERR(dw_wdt.regs);
++	dw_wdt = devm_kzalloc(dev, sizeof(*dw_wdt), GFP_KERNEL);
++	if (!dw_wdt)
++		return -ENOMEM;
++
++	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	dw_wdt->regs = devm_ioremap_resource(dev, mem);
++	if (IS_ERR(dw_wdt->regs))
++		return PTR_ERR(dw_wdt->regs);
+ 
+-	dw_wdt.clk = devm_clk_get(&pdev->dev, NULL);
+-	if (IS_ERR(dw_wdt.clk))
+-		return PTR_ERR(dw_wdt.clk);
++	dw_wdt->clk = devm_clk_get(dev, NULL);
++	if (IS_ERR(dw_wdt->clk))
++		return PTR_ERR(dw_wdt->clk);
+ 
+-	ret = clk_prepare_enable(dw_wdt.clk);
++	ret = clk_prepare_enable(dw_wdt->clk);
+ 	if (ret)
+ 		return ret;
+ 
+-	ret = misc_register(&dw_wdt_miscdev);
++	wdd = &dw_wdt->wdd;
++	wdd->info = &dw_wdt_ident;
++	wdd->ops = &dw_wdt_ops;
++	wdd->min_timeout = 1;
++	wdd->max_hw_timeout_ms =
++		dw_wdt_top_in_seconds(dw_wdt, DW_WDT_MAX_TOP) * 1000;
++	wdd->parent = dev;
++
++	watchdog_set_drvdata(wdd, dw_wdt);
++	watchdog_set_nowayout(wdd, nowayout);
++	watchdog_init_timeout(wdd, 0, dev);
++
++	/*
++	 * If the watchdog is already running, use its already configured
++	 * timeout. Otherwise use the default or the value provided through
++	 * devicetree.
++	 */
++	if (dw_wdt_is_enabled(dw_wdt)) {
++		wdd->timeout = dw_wdt_get_top(dw_wdt);
++		set_bit(WDOG_HW_RUNNING, &wdd->status);
++	} else {
++		wdd->timeout = DW_WDT_DEFAULT_SECONDS;
++		watchdog_init_timeout(wdd, 0, dev);
++	}
++
++	platform_set_drvdata(pdev, dw_wdt);
++
++	ret = watchdog_register_device(wdd);
+ 	if (ret)
+ 		goto out_disable_clk;
+ 
+-	dw_wdt.restart_handler.notifier_call = dw_wdt_restart_handle;
+-	dw_wdt.restart_handler.priority = 128;
+-	ret = register_restart_handler(&dw_wdt.restart_handler);
++	dw_wdt->restart_handler.notifier_call = dw_wdt_restart_handle;
++	dw_wdt->restart_handler.priority = 128;
++	ret = register_restart_handler(&dw_wdt->restart_handler);
+ 	if (ret)
+ 		pr_warn("cannot register restart handler\n");
+ 
+-	dw_wdt_set_next_heartbeat();
+-	setup_timer(&dw_wdt.timer, dw_wdt_ping, 0);
+-	mod_timer(&dw_wdt.timer, jiffies + WDT_TIMEOUT);
+-
+ 	return 0;
+ 
+ out_disable_clk:
+-	clk_disable_unprepare(dw_wdt.clk);
+-
++	clk_disable_unprepare(dw_wdt->clk);
+ 	return ret;
+ }
+ 
+ static int dw_wdt_drv_remove(struct platform_device *pdev)
+ {
+-	unregister_restart_handler(&dw_wdt.restart_handler);
+-
+-	misc_deregister(&dw_wdt_miscdev);
++	struct dw_wdt *dw_wdt = platform_get_drvdata(pdev);
+ 
+-	clk_disable_unprepare(dw_wdt.clk);
++	unregister_restart_handler(&dw_wdt->restart_handler);
++	watchdog_unregister_device(&dw_wdt->wdd);
++	clk_disable_unprepare(dw_wdt->clk);
+ 
+ 	return 0;
+ }
 -- 
 2.1.4
