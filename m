@@ -1,30 +1,52 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-qk0-f196.google.com ([209.85.220.196]:34885 "EHLO
-	mail-qk0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965985AbcAZObQ (ORCPT
+Received: from mail-yk0-f194.google.com ([209.85.160.194]:35668 "EHLO
+	mail-yk0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751342AbcAZXjA (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 26 Jan 2016 09:31:16 -0500
-Date: Tue, 26 Jan 2016 09:31:06 -0500
-From: William Breathitt Gray <vilhelm.gray@gmail.com>
-To: wim@iguana.be, linux@roeck-us.net
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+	Tue, 26 Jan 2016 18:39:00 -0500
 Subject: Re: [PATCH v3] watchdog: Add watchdog timer support for the
  WinSystems EBC-C384
-Message-ID: <20160126143106.GA5539@sophia>
+To: Guenter Roeck <linux@roeck-us.net>,
+	One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>
+References: <20160125190942.GA6824@sophia>
+ <20160125192810.2487661b@lxorguk.ukuu.org.uk> <56A6889E.60208@roeck-us.net>
+ <56A6B198.2080205@gmail.com> <56A6CB48.4010402@roeck-us.net>
+Cc: wim@iguana.be, linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+From: William Breathitt Gray <vilhelm.gray@gmail.com>
+Message-ID: <56A80391.40009@gmail.com>
+Date: Tue, 26 Jan 2016 18:38:57 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+In-Reply-To: <56A6CB48.4010402@roeck-us.net>
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 01/25/2016 5:11 PM, Guenter Roeck wrote:
->> +		dev_warn(dev, "Invalid timeout (%u seconds), using default (%u seconds)\n",
->> +			timeout, WATCHDOG_TIMEOUT);
->
-> Multi-line alignment is off by one character.
+On 01/25/2016 08:26 PM, Guenter Roeck wrote:
+>> The manual for this motherboard does not provide much information about
+>> the Super I/O chip (no model number, etc.), and neither sensors-detect
+>> nor superiotool was able to detect it. I've sent an email to the
+>> motherboard company (WinSystems) requesting further information about
+>> the Super I/O chip and whether the watchdog timer is built-in to the
+>> Super I/O chip.
+>>
+> 
+> Ah, I somehow thought you were associated with WinSystems, since you know
+> how to configure the chip.
+> 
+> Did you get any useful output from sensors-detect or superiotool
+> (like 'unknown chip xxxx'), or did those tools find nothing ?
 
-I used tabs to align the lines to 8-character boundaries. Should I add
-an additional space to align the "timeout" argument with the "dev"
-argument?
-
+Unfortunately, the sensors-detect only reported "No" for each Super I/O  
+chip test, while the superiotool gave an unhelpful "No Super I/O chip    
+detected" message.                                                       
+                                                                         
+I haven't heard a response yet from WinSystems, but I'll give them a     
+couple days before sending another email to their engineering            
+department. For now, I'll submit a version 4 of this patch to get the    
+minor updates I made out for review; for what its worth, I believe the   
+dmi_match method will be sufficient until I get an update from           
+WinSystems helping me get a proper check to identify the Super I/O chip. 
+                                                                         
 William Breathitt Gray
