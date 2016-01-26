@@ -1,65 +1,144 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:49065 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932684AbcAZCre (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 25 Jan 2016 21:47:34 -0500
-Subject: Re: [PATCH 15/22] watchdog: Fix dependencies for !HAS_IOMEM archs
-To: Richard Weinberger <richard@nod.at>, linux-kernel@vger.kernel.org
-References: <1453760661-1444-1-git-send-email-richard@nod.at>
- <1453760661-1444-16-git-send-email-richard@nod.at>
-Cc: user-mode-linux-devel@lists.sourceforge.net,
-	Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <56A6DE41.9010504@roeck-us.net>
-Date: Mon, 25 Jan 2016 18:47:29 -0800
+Return-path: <linux@roeck-us.net>
+From: Guenter Roeck <patchwork@patchwork.roeck-us.net>
+To: linux-watchdog@vger.kernel.org
+Cc: Wim Van Sebroeck <wim@iguana.be>,
+	linux-kernel@vger.kernel.org,
+	Timo Kokkonen <timo.kokkonen@offcode.fi>,
+	=?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>,
+	linux-doc@vger.kernel.org,
+	Doug Anderson <dianders@chromium.org>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH v7 0/9] watchdog: Add support for keepalives triggered by infrastructure
+Date: Mon, 25 Jan 2016 18:53:07 -0800
+Message-Id: <1453776796-3885-1-git-send-email-patchwork@patchwork.roeck-us.net>
 MIME-Version: 1.0
-In-Reply-To: <1453760661-1444-16-git-send-email-richard@nod.at>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 01/25/2016 02:24 PM, Richard Weinberger wrote:
-> Not every arch has io memory.
-> So, unbreak the build by fixing the dependencies.
->
-> Signed-off-by: Richard Weinberger <richard@nod.at>
+From: Guenter Roeck <linux@roeck-us.net>
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+The watchdog infrastructure is currently purely passive, meaning
+it only passes information from user space to drivers and vice versa.
 
-> ---
->   drivers/watchdog/Kconfig | 3 +++
->   1 file changed, 3 insertions(+)
->
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index 4f0e7be..0bd559a 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -146,6 +146,7 @@ config TANGOX_WATCHDOG
->   	tristate "Sigma Designs SMP86xx/SMP87xx watchdog"
->   	select WATCHDOG_CORE
->   	depends on ARCH_TANGOX || COMPILE_TEST
-> +	depends on HAS_IOMEM
->   	help
->   	  Support for the watchdog in Sigma Designs SMP86xx (tango3)
->   	  and SMP87xx (tango4) family chips.
-> @@ -618,6 +619,7 @@ config DIGICOLOR_WATCHDOG
->   config LPC18XX_WATCHDOG
->   	tristate "LPC18xx/43xx Watchdog"
->   	depends on ARCH_LPC18XX || COMPILE_TEST
-> +	depends on HAS_IOMEM
->   	select WATCHDOG_CORE
->   	help
->   	  Say Y here if to include support for the watchdog timer
-> @@ -1374,6 +1376,7 @@ config BCM_KONA_WDT_DEBUG
->   config BCM7038_WDT
->   	tristate "BCM7038 Watchdog"
->   	select WATCHDOG_CORE
-> +	depends on HAS_IOMEM
->   	help
->   	 Watchdog driver for the built-in hardware in Broadcom 7038 SoCs.
->
->
+Since watchdog hardware tends to have its own quirks, this can result
+in quite complex watchdog drivers. A number of scanarios are especially common.
 
+- A watchdog is always active and can not be disabled, or can not be disabled
+  once enabled. To support such hardware, watchdog drivers have to implement
+  their own timers and use those timers to trigger watchdog keepalives while
+  the watchdog device is not or not yet opened.
+- A variant of this is the desire to enable a watchdog as soon as its driver
+  has been instantiated, to protect the system while it is still booting up,
+  but the watchdog daemon is not yet running.
+- Some watchdogs have a very short maximum timeout, in the range of just a few
+  seconds. Such low timeouts are difficult if not impossible to support from
+  user space. Drivers supporting such watchdog hardware need to implement
+  a timer function to augment heartbeats from user space.
+
+This patch set solves the above problems while keeping changes to the
+watchdog core minimal.
+
+- A new status flag, WDOG_HW_RUNNING, informs the watchdog subsystem that
+  a watchdog is running, and that the watchdog subsystem needs to generate
+  heartbeat requests while the associated watchdog device is closed.
+- A new parameter in the watchdog data structure, max_hw_timeout_ms, informs
+  the watchdog subsystem about a maximum hardware timeout. The watchdog
+  subsystem uses this information together with the configured timeout
+  and the maximum permitted timeout to determine if it needs to generate
+  additional heartbeat requests.
+
+As part of this patchset, the semantics of the 'timeout' variable and of
+the WDOG_ACTIVE flag are changed slightly.
+
+Per the current watchdog kernel API, the 'timeout' variable is supposed
+to reflect the actual hardware watcdog timeout. WDOG_ACTIVE is supposed
+to reflect if the hardware watchdog is running or not.
+
+Unfortunately, this does not always reflect reality. In drivers which solve
+the above mentioned problems internally, 'timeout' is the watchdog timeout
+as seen from user space, and WDOG_ACTIVE reflects that user space is expected
+to send keepalive requests to the watchdog driver.
+
+After this patch set is applied, this so far inofficial interpretation
+is the 'official' semantics for the timeout variable and the WDOG_ACTIVE
+flag. In other words, both values no longer reflect the hardware watchdog
+status, but its status as seen from user space.
+
+Patch #1 adds timer functionality to the watchdog core. It solves the problem
+of short maximum hardware timeouts by augmenting heartbeats triggered from
+user space with internally triggered heartbeats.
+
+Patch #2 adds functionality to generate heartbeats while the watchdog device
+is closed. It handles situation where where the watchdog is running after
+the driver has been instantiated, but the device is not yet opened,
+and post-close situations necessary if a watchdog can not be stopped.
+
+Patch #3 makes the set_timeout function optional. This is now possible since
+timeout changes can now be completely handled in the watchdog core, for
+example if the hardware watchdog timeout is fixed.
+
+Patch #4 adds code to ensure that the minimum time between heartbeats meets
+constraints provided by the watchdog driver.
+
+Patch #5 simplifies the watchdog_update_worker() function introduced with
+patch #1 to only take a single argument, and to always cancel any pending
+work if a worker is not or no longer needed. This patch is kept as separate
+patch on purpose, to enable dropping or reverting it easily if it causes
+any problems. It should not cause any problems; this is just out of an
+abundance of caution.
+
+Patch #6 to #9 are example conversions of some watchdog drivers.
+Those patches will require testing and are marked as RFT.
+
+The patch series is also available in branch watchdog-timer of
+git://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git.
+The series is curently based on top of v4.5-rc1.
+
+The patch series was inspired by an earlier patch set from Timo Kokonnen.
+
+v7:
+- Rebased to v4.5-rc1.
+- Moved new variables to local data structure
+- Fixed typos in documentation (hw_max_timeout_ms -> max_hw_timeout_ms).
+- Enforce that max_hw_timeout_ms must be set if the stop function is
+  not implemented by a driver.
+- Set max_hw_timeout_ms in converted drivers.
+v6:
+- Added patch #9, converting the dw_wdt driver.
+- Set last_keepalive more accurately when starting the watchdog.
+- Rebased to v4.4-rc2.
+- Renamed WDOG_RUNNING to WDOG_HW_RUNNING and watchdog_running() to
+  watchdog_hw_running().
+v5:
+- Patches #1 and #2 of the original patch series are now in mainline
+  and have been dropped.
+- Rebased to v4.4-rc1. 
+- Added patch to simplify watchdog_update_worker().
+v4:
+- Rebased to v4.3-rc3
+- Rearranged patch sequence
+- Dropped gpio driver patch. The driver was changed since v4.2,
+  and merging the changes turned out to be too difficult.
+- Various other cleanups as listed in individual patches
+v3:
+- Rebased to v4.2-rc8
+- Reworked and cleaned up some of the functions.
+- No longer call the worker update function if all that is needed is to stop
+  the worker.
+- max_timeout will now be ignored if max_hw_timeout_ms is provided.
+- Added patch 9/9.
+v2:
+- Rebased to v4.2-rc5
+- Improved and hopefully clarified documentation.
+- Rearranged variables in struct watchdog_device such that internal variables
+  come last.
+- The code now ensures that the watchdog times out <timeout> seconds after
+  the most recent keepalive sent from user space.
+- The internal keepalive now stops silently and no longer generates a
+  warning message. Reason is that it will now stop early, while there
+  may still be a substantial amount of time for keepalives from user space
+  to arrive. If such keepalives arrive late (for example if user space
+  is configured to send keepalives just a few seconds before the watchdog
+  times out), the message would just be noise and not provide any value.
