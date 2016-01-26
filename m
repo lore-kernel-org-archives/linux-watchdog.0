@@ -1,9 +1,9 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:37383 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:42388 "EHLO
 	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751182AbcAZB0f (ORCPT
+	with ESMTP id S1750997AbcAZB6J (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 25 Jan 2016 20:26:35 -0500
+	Mon, 25 Jan 2016 20:58:09 -0500
 Subject: Re: [PATCH v3] watchdog: Add watchdog timer support for the
  WinSystems EBC-C384
 To: William Breathitt Gray <vilhelm.gray@gmail.com>,
@@ -14,8 +14,8 @@ References: <20160125190942.GA6824@sophia>
 Cc: wim@iguana.be, linux-watchdog@vger.kernel.org,
 	linux-kernel@vger.kernel.org
 From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <56A6CB48.4010402@roeck-us.net>
-Date: Mon, 25 Jan 2016 17:26:32 -0800
+Message-ID: <56A6D2AE.6010703@roeck-us.net>
+Date: Mon, 25 Jan 2016 17:58:06 -0800
 MIME-Version: 1.0
 In-Reply-To: <56A6B198.2080205@gmail.com>
 Content-Type: text/plain; charset=windows-1252; format=flowed
@@ -58,8 +58,6 @@ On 01/25/2016 03:36 PM, William Breathitt Gray wrote:
 > under the Super I/O menu; perhaps this watchdog timer is implemented in
 > the Super I/O chip.
 >
-Normally it is. Question is which one.
-
 > The manual for this motherboard does not provide much information about
 > the Super I/O chip (no model number, etc.), and neither sensors-detect
 > nor superiotool was able to detect it. I've sent an email to the
@@ -68,12 +66,13 @@ Normally it is. Question is which one.
 > Super I/O chip.
 >
 
-Ah, I somehow thought you were associated with WinSystems, since you know
-how to configure the chip.
+I had a close look at the board pictures in the manual. Looks like there
+is a NCT7802Y hardware monitoring chip on the board. This suggests that the
+Super-IO chip does probably not implement hardware monitoring. Not that
+it helps much to know that, but it reduces the possibilities.
 
-Did you get any useful output from sensors-detect or superiotool
-(like 'unknown chip xxxx'), or did those tools find nothing ?
+There is also a pretty large Lattice FPGA on the board, which makes it at
+least somewhat likely that the functionality is implemented in that FPGA.
 
-Thanks,
 Guenter
 
