@@ -9,9 +9,9 @@ Cc: Wim Van Sebroeck <wim@iguana.be>,
 	Doug Anderson <dianders@chromium.org>,
 	Jonathan Corbet <corbet@lwn.net>,
 	Guenter Roeck <linux@roeck-us.net>
-Subject: [RFT PATCH v7 6/9] watchdog: imx2: Convert to use infrastructure triggered keepalives
-Date: Mon, 25 Jan 2016 18:53:13 -0800
-Message-Id: <1453776796-3885-7-git-send-email-patchwork@patchwork.roeck-us.net>
+Subject: [RFT PATCH v7 7/9] watchdog: retu: Convert to use infrastructure triggered keepalives
+Date: Mon, 25 Jan 2016 18:53:14 -0800
+Message-Id: <1453776796-3885-8-git-send-email-patchwork@patchwork.roeck-us.net>
 In-Reply-To: <1453776796-3885-1-git-send-email-patchwork@patchwork.roeck-us.net>
 References: <1453776796-3885-1-git-send-email-patchwork@patchwork.roeck-us.net>
 List-ID: <linux-watchdog@vger.kernel.org>
@@ -33,174 +33,151 @@ v4: No changes
 v3: No changes
 v2: No changes
 ---
- drivers/watchdog/imx2_wdt.c | 74 ++++++++-------------------------------------
- 1 file changed, 13 insertions(+), 61 deletions(-)
+ drivers/watchdog/retu_wdt.c | 80 +++++----------------------------------------
+ 1 file changed, 8 insertions(+), 72 deletions(-)
 
-diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
-index e47966aa2db0..1a48cb28718f 100644
---- a/drivers/watchdog/imx2_wdt.c
-+++ b/drivers/watchdog/imx2_wdt.c
-@@ -25,14 +25,12 @@
- #include <linux/delay.h>
- #include <linux/init.h>
- #include <linux/io.h>
--#include <linux/jiffies.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/moduleparam.h>
- #include <linux/of_address.h>
- #include <linux/platform_device.h>
- #include <linux/regmap.h>
--#include <linux/timer.h>
- #include <linux/watchdog.h>
+diff --git a/drivers/watchdog/retu_wdt.c b/drivers/watchdog/retu_wdt.c
+index 39cd51df2ffc..fd4a64432146 100644
+--- a/drivers/watchdog/retu_wdt.c
++++ b/drivers/watchdog/retu_wdt.c
+@@ -28,69 +28,22 @@
+ /* Watchdog timer values in seconds */
+ #define RETU_WDT_MAX_TIMER	63
  
- #define DRIVER_NAME "imx2-wdt"
-@@ -60,7 +58,6 @@
- struct imx2_wdt_device {
- 	struct clk *clk;
- 	struct regmap *regmap;
--	struct timer_list timer;	/* Pings the watchdog when closed */
- 	struct watchdog_device wdog;
- };
- 
-@@ -146,16 +143,6 @@ static int imx2_wdt_ping(struct watchdog_device *wdog)
- 	return 0;
- }
- 
--static void imx2_wdt_timer_ping(unsigned long arg)
--{
--	struct watchdog_device *wdog = (struct watchdog_device *)arg;
--	struct imx2_wdt_device *wdev = watchdog_get_drvdata(wdog);
+-struct retu_wdt_dev {
+-	struct retu_dev		*rdev;
+-	struct device		*dev;
+-	struct delayed_work	ping_work;
+-};
 -
--	/* ping it every wdog->timeout / 2 seconds to prevent reboot */
--	imx2_wdt_ping(wdog);
--	mod_timer(&wdev->timer, jiffies + wdog->timeout * HZ / 2);
+-/*
+- * Since Retu watchdog cannot be disabled in hardware, we must kick it
+- * with a timer until userspace watchdog software takes over. If
+- * CONFIG_WATCHDOG_NOWAYOUT is set, we never start the feeding.
+- */
+-static void retu_wdt_ping_enable(struct retu_wdt_dev *wdev)
+-{
+-	retu_write(wdev->rdev, RETU_REG_WATCHDOG, RETU_WDT_MAX_TIMER);
+-	schedule_delayed_work(&wdev->ping_work,
+-			round_jiffies_relative(RETU_WDT_MAX_TIMER * HZ / 2));
 -}
 -
- static int imx2_wdt_set_timeout(struct watchdog_device *wdog,
- 				unsigned int new_timeout)
- {
-@@ -172,40 +159,19 @@ static int imx2_wdt_start(struct watchdog_device *wdog)
- {
- 	struct imx2_wdt_device *wdev = watchdog_get_drvdata(wdog);
- 
--	if (imx2_wdt_is_running(wdev)) {
--		/* delete the timer that pings the watchdog after close */
--		del_timer_sync(&wdev->timer);
-+	if (imx2_wdt_is_running(wdev))
- 		imx2_wdt_set_timeout(wdog, wdog->timeout);
--	} else
-+	else
- 		imx2_wdt_setup(wdog);
- 
--	return imx2_wdt_ping(wdog);
+-static void retu_wdt_ping_disable(struct retu_wdt_dev *wdev)
+-{
+-	retu_write(wdev->rdev, RETU_REG_WATCHDOG, RETU_WDT_MAX_TIMER);
+-	cancel_delayed_work_sync(&wdev->ping_work);
 -}
 -
--static int imx2_wdt_stop(struct watchdog_device *wdog)
+-static void retu_wdt_ping_work(struct work_struct *work)
 -{
--	/*
--	 * We don't need a clk_disable, it cannot be disabled once started.
--	 * We use a timer to ping the watchdog while /dev/watchdog is closed
--	 */
--	imx2_wdt_timer_ping((unsigned long)wdog);
+-	struct retu_wdt_dev *wdev = container_of(to_delayed_work(work),
+-						struct retu_wdt_dev, ping_work);
+-	retu_wdt_ping_enable(wdev);
+-}
+-
+ static int retu_wdt_start(struct watchdog_device *wdog)
+ {
+-	struct retu_wdt_dev *wdev = watchdog_get_drvdata(wdog);
++	struct retu_dev *rdev = watchdog_get_drvdata(wdog);
+ 
+-	retu_wdt_ping_disable(wdev);
++	set_bit(WDOG_HW_RUNNING, &wdog->status);
+ 
+-	return retu_write(wdev->rdev, RETU_REG_WATCHDOG, wdog->timeout);
+-}
+-
+-static int retu_wdt_stop(struct watchdog_device *wdog)
+-{
+-	struct retu_wdt_dev *wdev = watchdog_get_drvdata(wdog);
+-
+-	retu_wdt_ping_enable(wdev);
+-
 -	return 0;
 -}
 -
--static inline void imx2_wdt_ping_if_active(struct watchdog_device *wdog)
+-static int retu_wdt_ping(struct watchdog_device *wdog)
 -{
--	struct imx2_wdt_device *wdev = watchdog_get_drvdata(wdog);
-+	set_bit(WDOG_HW_RUNNING, &wdog->status);
- 
--	if (imx2_wdt_is_running(wdev)) {
--		imx2_wdt_set_timeout(wdog, wdog->timeout);
--		imx2_wdt_timer_ping((unsigned long)wdog);
--	}
-+	return imx2_wdt_ping(wdog);
+-	struct retu_wdt_dev *wdev = watchdog_get_drvdata(wdog);
+-
+-	return retu_write(wdev->rdev, RETU_REG_WATCHDOG, wdog->timeout);
++	return retu_write(rdev, RETU_REG_WATCHDOG, wdog->timeout);
  }
  
- static const struct watchdog_ops imx2_wdt_ops = {
- 	.owner = THIS_MODULE,
- 	.start = imx2_wdt_start,
--	.stop = imx2_wdt_stop,
- 	.ping = imx2_wdt_ping,
- 	.set_timeout = imx2_wdt_set_timeout,
- 	.restart = imx2_wdt_restart,
-@@ -253,7 +219,7 @@ static int __init imx2_wdt_probe(struct platform_device *pdev)
- 	wdog->info		= &imx2_wdt_info;
- 	wdog->ops		= &imx2_wdt_ops;
- 	wdog->min_timeout	= 1;
--	wdog->max_timeout	= IMX2_WDT_MAX_TIME;
-+	wdog->max_hw_timeout_ms	= IMX2_WDT_MAX_TIME * 1000;
- 	wdog->parent		= &pdev->dev;
+ static int retu_wdt_set_timeout(struct watchdog_device *wdog,
+ 				unsigned int timeout)
+ {
+-	struct retu_wdt_dev *wdev = watchdog_get_drvdata(wdog);
++	struct retu_dev *rdev = watchdog_get_drvdata(wdog);
  
- 	ret = clk_prepare_enable(wdev->clk);
-@@ -274,9 +240,10 @@ static int __init imx2_wdt_probe(struct platform_device *pdev)
- 	watchdog_set_restart_priority(wdog, 128);
- 	watchdog_init_timeout(wdog, timeout, &pdev->dev);
+ 	wdog->timeout = timeout;
+-	return retu_write(wdev->rdev, RETU_REG_WATCHDOG, wdog->timeout);
++	return retu_write(rdev, RETU_REG_WATCHDOG, wdog->timeout);
+ }
  
--	setup_timer(&wdev->timer, imx2_wdt_timer_ping, (unsigned long)wdog);
+ static const struct watchdog_info retu_wdt_info = {
+@@ -101,8 +54,6 @@ static const struct watchdog_info retu_wdt_info = {
+ static const struct watchdog_ops retu_wdt_ops = {
+ 	.owner		= THIS_MODULE,
+ 	.start		= retu_wdt_start,
+-	.stop		= retu_wdt_stop,
+-	.ping		= retu_wdt_ping,
+ 	.set_timeout	= retu_wdt_set_timeout,
+ };
+ 
+@@ -111,40 +62,27 @@ static int retu_wdt_probe(struct platform_device *pdev)
+ 	struct retu_dev *rdev = dev_get_drvdata(pdev->dev.parent);
+ 	bool nowayout = WATCHDOG_NOWAYOUT;
+ 	struct watchdog_device *retu_wdt;
+-	struct retu_wdt_dev *wdev;
+ 	int ret;
+ 
+ 	retu_wdt = devm_kzalloc(&pdev->dev, sizeof(*retu_wdt), GFP_KERNEL);
+ 	if (!retu_wdt)
+ 		return -ENOMEM;
+ 
+-	wdev = devm_kzalloc(&pdev->dev, sizeof(*wdev), GFP_KERNEL);
+-	if (!wdev)
+-		return -ENOMEM;
 -
--	imx2_wdt_ping_if_active(wdog);
-+	if (imx2_wdt_is_running(wdev)) {
-+		imx2_wdt_set_timeout(wdog, wdog->timeout);
-+		set_bit(WDOG_HW_RUNNING, &wdog->status);
-+	}
+ 	retu_wdt->info		= &retu_wdt_info;
+ 	retu_wdt->ops		= &retu_wdt_ops;
+ 	retu_wdt->timeout	= RETU_WDT_MAX_TIMER;
+ 	retu_wdt->min_timeout	= 0;
+-	retu_wdt->max_timeout	= RETU_WDT_MAX_TIMER;
++	retu_wdt->max_hw_timeout_ms = RETU_WDT_MAX_TIMER * 1000;
+ 	retu_wdt->parent	= &pdev->dev;
  
- 	/*
- 	 * Disable the watchdog power down counter at boot. Otherwise the power
-@@ -309,7 +276,6 @@ static int __exit imx2_wdt_remove(struct platform_device *pdev)
+-	watchdog_set_drvdata(retu_wdt, wdev);
++	watchdog_set_drvdata(retu_wdt, rdev);
+ 	watchdog_set_nowayout(retu_wdt, nowayout);
+ 
+-	wdev->rdev		= rdev;
+-	wdev->dev		= &pdev->dev;
+-
+-	INIT_DELAYED_WORK(&wdev->ping_work, retu_wdt_ping_work);
+-
+ 	ret = watchdog_register_device(retu_wdt);
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	if (nowayout)
+-		retu_wdt_ping(retu_wdt);
+-	else
+-		retu_wdt_ping_enable(wdev);
++	retu_wdt_start(retu_wdt);
+ 
+ 	platform_set_drvdata(pdev, retu_wdt);
+ 
+@@ -154,10 +92,8 @@ static int retu_wdt_probe(struct platform_device *pdev)
+ static int retu_wdt_remove(struct platform_device *pdev)
+ {
+ 	struct watchdog_device *wdog = platform_get_drvdata(pdev);
+-	struct retu_wdt_dev *wdev = watchdog_get_drvdata(wdog);
+ 
  	watchdog_unregister_device(wdog);
- 
- 	if (imx2_wdt_is_running(wdev)) {
--		del_timer_sync(&wdev->timer);
- 		imx2_wdt_ping(wdog);
- 		dev_crit(&pdev->dev, "Device removed: Expect reboot!\n");
- 	}
-@@ -323,10 +289,9 @@ static void imx2_wdt_shutdown(struct platform_device *pdev)
- 
- 	if (imx2_wdt_is_running(wdev)) {
- 		/*
--		 * We are running, we need to delete the timer but will
--		 * give max timeout before reboot will take place
-+		 * We are running, configure max timeout before reboot
-+		 * will take place.
- 		 */
--		del_timer_sync(&wdev->timer);
- 		imx2_wdt_set_timeout(wdog, IMX2_WDT_MAX_TIME);
- 		imx2_wdt_ping(wdog);
- 		dev_crit(&pdev->dev, "Device shutdown: Expect reboot!\n");
-@@ -344,10 +309,6 @@ static int imx2_wdt_suspend(struct device *dev)
- 	if (imx2_wdt_is_running(wdev)) {
- 		imx2_wdt_set_timeout(wdog, IMX2_WDT_MAX_TIME);
- 		imx2_wdt_ping(wdog);
--
--		/* The watchdog is not active */
--		if (!watchdog_active(wdog))
--			del_timer_sync(&wdev->timer);
- 	}
- 
- 	clk_disable_unprepare(wdev->clk);
-@@ -373,19 +334,10 @@ static int imx2_wdt_resume(struct device *dev)
- 		 * watchdog again.
- 		 */
- 		imx2_wdt_setup(wdog);
-+	}
-+	if (imx2_wdt_is_running(wdev)) {
- 		imx2_wdt_set_timeout(wdog, wdog->timeout);
- 		imx2_wdt_ping(wdog);
--	} else if (imx2_wdt_is_running(wdev)) {
--		/* Resuming from non-deep sleep state. */
--		imx2_wdt_set_timeout(wdog, wdog->timeout);
--		imx2_wdt_ping(wdog);
--		/*
--		 * But the watchdog is not active, then start
--		 * the timer again.
--		 */
--		if (!watchdog_active(wdog))
--			mod_timer(&wdev->timer,
--				  jiffies + wdog->timeout * HZ / 2);
- 	}
+-	cancel_delayed_work_sync(&wdev->ping_work);
  
  	return 0;
+ }
 -- 
 2.1.4
