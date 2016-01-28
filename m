@@ -2,9 +2,11 @@ Return-path: <wim.coekaerts@oracle.com>
 From: Wim Coekaerts <wim.coekaerts@oracle.com>
 To: wim@iguana.be, linux@roeck-us.net
 Cc: linux-watchdog@vger.kernel.org, sparclinux@vger.kernel.org
-Subject: [PATCH v5] Add sun4v_wdt watchdog driver
-Date: Wed, 27 Jan 2016 17:54:06 -0800
-Message-Id: <1453946047-18003-1-git-send-email-wim.coekaerts@oracle.com>
+Subject: [PATCH] Add sun4v_wdt watchdog driver
+Date: Wed, 27 Jan 2016 17:54:07 -0800
+Message-Id: <1453946047-18003-2-git-send-email-wim.coekaerts@oracle.com>
+In-Reply-To: <1453946047-18003-1-git-send-email-wim.coekaerts@oracle.com>
+References: <1453946047-18003-1-git-send-email-wim.coekaerts@oracle.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
 This driver adds sparc hypervisor watchdog support. The default
