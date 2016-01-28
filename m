@@ -1,165 +1,335 @@
-Return-path: <akshay.bhat@timesys.com>
-Subject: Re: [PATCH v4 1/2] watchdog: imx2_wdt: add external reset support via
- 'ext-reset-output' dt prop
-To: Rob Herring <robh+dt@kernel.org>
-References: <1446758362-11702-1-git-send-email-akshay.bhat@timesys.com>
- <1446758362-11702-2-git-send-email-akshay.bhat@timesys.com>
- <20151105222325.GA26159@roeck-us.net>
- <CAJ+vNU2fSxRJ7YvxOfNzoEoiKgzv-dHj=+eksKxH48ekHiUw2Q@mail.gmail.com>
- <20151106220249.GA19791@roeck-us.net> <565F4244.7090502@timesys.com>
- <CAJ+vNU00Bf97HUqkkW9KqOUzHXh482R9O1gasz6ju3Pn-_5chA@mail.gmail.com>
- <CAJ+vNU2qHQPSJ1KWp_3f3vAdeuOcF0ooZHmHsdafabZLXJv=Bw@mail.gmail.com>
- <20151228162923.GA31680@spo001.leaseweb.nl>
-Cc: Wim Van Sebroeck <wim@iguana.be>, Tim Harvey <tharvey@gateworks.com>,
- Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org,
- Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>,
- Ian Campbell <ijc+devicetree@hellion.org.uk>,
- Kumar Gala <galak@codeaurora.org>,
- "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- Shawn Guo <shawnguo@kernel.org>, Sascha Hauer <kernel@pengutronix.de>,
- Russell King - ARM Linux <linux@arm.linux.org.uk>,
- "linux-arm-kernel@lists.infradead.org"
- <linux-arm-kernel@lists.infradead.org>, justin.waters@timesys.com,
- Lucas Stach <l.stach@pengutronix.de>, Fabio Estevam <festevam@gmail.com>,
- Stefan Roese <sr@denx.de>
-From: Akshay Bhat <akshay.bhat@timesys.com>
-Message-ID: <56AA79DA.2010305@timesys.com>
-Date: Thu, 28 Jan 2016 15:28:10 -0500
-MIME-Version: 1.0
-In-Reply-To: <20151228162923.GA31680@spo001.leaseweb.nl>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Return-path: <wim.coekaerts@oracle.com>
+From: Wim Coekaerts <wim.coekaerts@oracle.com>
+To: wim@iguana.be, linux@roeck-us.net
+Cc: linux-watchdog@vger.kernel.org, sparclinux@vger.kernel.org
+Subject: [PATCH v6] Add sun4v_wdt watchdog driver
+Date: Thu, 28 Jan 2016 13:46:12 -0800
+Message-Id: <1454017572-5235-1-git-send-email-wim.coekaerts@oracle.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Rob,
+This driver adds sparc hypervisor watchdog support. The default
+timeout is 60 seconds and the range is between 1 and
+31536000 seconds. Both watchdog-resolution and
+watchdog-max-timeout MD properties settings are supported.
 
-On 12/28/2015 11:29 AM, Wim Van Sebroeck wrote:
-> Hi Tim,
->
->> On Wed, Dec 2, 2015 at 12:54 PM, Tim Harvey <tharvey@gateworks.com> wrote:
->>>
->>> On Wed, Dec 2, 2015 at 11:11 AM, Akshay Bhat <akshay.bhat@timesys.com> wrote:
->>>>
->>>>
->>>> On 11/06/2015 05:02 PM, Guenter Roeck wrote:
->>>>>
->>>>> On Fri, Nov 06, 2015 at 11:53:42AM -0800, Tim Harvey wrote:
->>>>>>
->>>>>> On Thu, Nov 5, 2015 at 2:23 PM, Guenter Roeck <linux@roeck-us.net> wrote:
->>>>>>>
->>>>>>> On Thu, Nov 05, 2015 at 04:19:21PM -0500, Akshay Bhat wrote:
->>>>>>>>
->>>>>>>> From: Tim Harvey <tharvey@gateworks.com>
->>>>>>>>
->>>>>>>> The IMX6 watchdog supports assertion of a signal (WDOG_B) which
->>>>>>>> can be pinmux'd to an external pin. This is typically used for boards
->>>>>>>> that
->>>>>>>> have PMIC's in control of the IMX6 power rails. In fact, failure to use
->>>>>>>> such an external reset on boards with external PMIC's can result in
->>>>>>>> various
->>>>>>>> hangs due to the IMX6 not being fully reset [1] as well as the board
->>>>>>>> failing
->>>>>>>> to reset because its PMIC has not been reset to provide adequate
->>>>>>>> voltage for
->>>>>>>> the CPU when coming out of reset at 800Mhz.
->>>>>>>>
->>>>>>>> This uses a new device-tree property 'ext-reset-output' to indicate the
->>>>>>>> board has such a reset and to cause the watchdog to be configured to
->>>>>>>> assert
->>>>>>>> WDOG_B instead of an internal reset both on a watchdog timeout and in
->>>>>>>> system_restart.
->>>>>>>>
->>>>>>>> [1]
->>>>>>>> http://lists.infradead.org/pipermail/linux-arm-kernel/2015-March/333689.html
->>>>>>>>
->>>>>>>> Cc: Lucas Stach <l.stach@pengutronix.de>
->>>>>>>> Signed-off-by: Tim Harvey <tharvey@gateworks.com>
->>>>>>>> ---
->>>>>>>>    .../devicetree/bindings/watchdog/fsl-imx-wdt.txt     |  2 ++
->>>>>>>>    drivers/watchdog/imx2_wdt.c                          | 20
->>>>>>>> ++++++++++++++++++--
->>>>>>>>    2 files changed, 20 insertions(+), 2 deletions(-)
->>>>>>>>
->>>>>>>> diff --git a/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
->>>>>>>> b/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
->>>>>>>> index 8dab6fd..9b89b3a 100644
->>>>>>>> --- a/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
->>>>>>>> +++ b/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
->>>>>>>> @@ -9,6 +9,8 @@ Optional property:
->>>>>>>
->>>>>>>
->>>>>>> properties ?
->>>>>>>
->>>>>>>>    - big-endian: If present the watchdog device's registers are
->>>>>>>> implemented
->>>>>>>>      in big endian mode, otherwise in native mode(same with CPU), for
->>>>>>>> more
->>>>>>>>      detail please see:
->>>>>>>> Documentation/devicetree/bindings/regmap/regmap.txt.
->>>>>>>> +- ext-reset-output: If present the watchdog device is configured to
->>>>>>>> assert its
->>>>>>>
->>>>>>>
->>>>>>> Should that have a vendor prefix ? Also, not sure if "-output"
->>>>>>> has any real value in the property name. "fsl,external-reset", maybe ?
->>>>>>
->>>>>>
->>>>>> Hi Guenter,
->>>>>>
->>>>>> I don't see why a vendor prefix is necessary - its a feature of the
->>>>>> IMX6 watchdog supported by this driver to be able to trigger an
->>>>>> internal chip-level reset and/or an external signal that can be hooked
->>>>>> to additional hardware.
->>>>>>
->>>>> Sounded like vendor specific to me, but then I am not a devicetree
->>>>> maintainer,
->>>>> so I am not an authority on the subject.
->>>>
->>>>
->>>> Devicetree maintainers,
->>>>
->>>> Any thoughts?
->>>>
->>>> Tim,
->>>>
->>>> After looking at all the other watchdog drivers, it does not appear that
->>>> there is any other processor which uses a similar feature. Since imx is the
->>>> only processor that appears to support this feature, it might make sense in
->>>> making this vendor specific. If in the future it is found more processors
->>>> support a similar functionality, it can be revisited and moved out from
->>>> being vendor specific?
->>>>
->>>
->>> I'm certainly no expert on device-tree policy. I understand your
->>> point, but realize that the driver in question is imx2_wdt.c
->>> (compatible = "fsl,imx21-wdt"). This is an IP block inside the silicon
->>> of only Freescale chips, so its not like a future omap chip would be
->>> using this driver - only fsl devices. So why would it need a 'vendor'
->>> property any more than its other properties?
->>>
->>> Regards,
->>>
->>> Tim
->>
->> Wim,
->>
->> Does the lack of response mean overwhelming approval?
->>
->> I haven't heard any valid complaints - what does it take to get this approved?
->>
->> Regards,
->>
->> Tim
->
-> I have no objections against the idea and the code itself.
-> But as Guenter pointed out: it would be handy to get feedback from the devicetree maintainers on the above discussion.
->
-> Kind regards,
-> Wim.
->
+Signed-off-by: Wim Coekaerts <wim.coekaerts@oracle.com>
+---
+Change in v6:
+  - Cleanup goto
+  - remove timeout checks and rely on watchdog_init_timout()
+  - move sun4v_hv_api_register under mdesc similar to ldc.c
 
-Any suggestions on whether a vendor specific prefix is necessary?
+Change in v5:
+  - After proper review of the hv watchdog api, the hv takes care of
+	rounding to multiple of resolution internally so just check
+	if it's <= 1 second.
+  - Clean up _ping() and simplify _probe() value checking
 
-Thanks,
-Akshay
+Change in v4:
+  - timeout in seconds
+  - call the hv with support for microsecond resolution
+
+Changes in v3:
+  - Modify sun4v_mach_set_watchdog to allow for NULL and remove
+	time_remaining
+  - Cleanup includes
+  - Consolidate _start and _ping into _ping since they were the same
+  - Fix checkpatch warnings
+  - Remove pr_info()s
+  - Clean up return codes to be standard kernel return values
+  - Consolidate _init and _probe into _init
+	Don't use platform_device anymore because this is really
+	just a driver that depends on a hv call. This now looks more
+	like softdog.
+  - Cleanly check for sun4v architecture and remove extra tests
+  - Convert to ms timer support and honor resolution
+	since most drivers use seconds I added _ms to make it clear
+  - Clean up validation against the properties
+  - Use sane values for MIN/MAX
+---
+ Documentation/watchdog/watchdog-parameters.txt |    4 +
+ arch/sparc/kernel/hvcalls.S                    |    3 +-
+ arch/sparc/kernel/sparc_ksyms_64.c             |    1 +
+ drivers/watchdog/Kconfig                       |   11 ++
+ drivers/watchdog/Makefile                      |    1 +
+ drivers/watchdog/sun4v_wdt.c                   |  196 ++++++++++++++++++++++++
+ 6 files changed, 215 insertions(+), 1 deletions(-)
+ create mode 100644 drivers/watchdog/sun4v_wdt.c
+
+diff --git a/Documentation/watchdog/watchdog-parameters.txt b/Documentation/watchdog/watchdog-parameters.txt
+index 9f9ec9f..4e4b6f1 100644
+--- a/Documentation/watchdog/watchdog-parameters.txt
++++ b/Documentation/watchdog/watchdog-parameters.txt
+@@ -400,3 +400,7 @@ wm8350_wdt:
+ nowayout: Watchdog cannot be stopped once started
+ 	(default=kernel config parameter)
+ -------------------------------------------------
++sun4v_wdt:
++timeout_ms: Watchdog timeout in milliseconds 1..180000, default=60000)
++nowayout: Watchdog cannot be stopped once started
++-------------------------------------------------
+diff --git a/arch/sparc/kernel/hvcalls.S b/arch/sparc/kernel/hvcalls.S
+index afbaba5..d127130 100644
+--- a/arch/sparc/kernel/hvcalls.S
++++ b/arch/sparc/kernel/hvcalls.S
+@@ -338,8 +338,9 @@ ENTRY(sun4v_mach_set_watchdog)
+ 	mov	%o1, %o4
+ 	mov	HV_FAST_MACH_SET_WATCHDOG, %o5
+ 	ta	HV_FAST_TRAP
++	brnz,a,pn %o4, 0f
+ 	stx	%o1, [%o4]
+-	retl
++0:	retl
+ 	 nop
+ ENDPROC(sun4v_mach_set_watchdog)
+ 
+diff --git a/arch/sparc/kernel/sparc_ksyms_64.c b/arch/sparc/kernel/sparc_ksyms_64.c
+index a92d5d2..9e034f2 100644
+--- a/arch/sparc/kernel/sparc_ksyms_64.c
++++ b/arch/sparc/kernel/sparc_ksyms_64.c
+@@ -37,6 +37,7 @@ EXPORT_SYMBOL(sun4v_niagara_getperf);
+ EXPORT_SYMBOL(sun4v_niagara_setperf);
+ EXPORT_SYMBOL(sun4v_niagara2_getperf);
+ EXPORT_SYMBOL(sun4v_niagara2_setperf);
++EXPORT_SYMBOL(sun4v_mach_set_watchdog);
+ 
+ /* from hweight.S */
+ EXPORT_SYMBOL(__arch_hweight8);
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 4f0e7be..30d38ae 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -1565,6 +1565,17 @@ config WATCHDOG_RIO
+ 	  machines.  The watchdog timeout period is normally one minute but
+ 	  can be changed with a boot-time parameter.
+ 
++config WATCHDOG_SUN4V
++	tristate "Sun4v Watchdog support"
++	select WATCHDOG_CORE
++	depends on SPARC64
++	help
++	  Say Y here to support the hypervisor watchdog capability embedded
++	  in the SPARC sun4v architecture.
++
++	  To compile this driver as a module, choose M here. The module will
++	  be called sun4v_wdt.
++
+ # XTENSA Architecture
+ 
+ # Xen Architecture
+diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+index f566753..f6a6a38 100644
+--- a/drivers/watchdog/Makefile
++++ b/drivers/watchdog/Makefile
+@@ -179,6 +179,7 @@ obj-$(CONFIG_SH_WDT) += shwdt.o
+ 
+ obj-$(CONFIG_WATCHDOG_RIO)		+= riowd.o
+ obj-$(CONFIG_WATCHDOG_CP1XXX)		+= cpwd.o
++obj-$(CONFIG_WATCHDOG_SUN4V)		+= sun4v_wdt.o
+ 
+ # XTENSA Architecture
+ 
+diff --git a/drivers/watchdog/sun4v_wdt.c b/drivers/watchdog/sun4v_wdt.c
+new file mode 100644
+index 0000000..a01aec1
+--- /dev/null
++++ b/drivers/watchdog/sun4v_wdt.c
+@@ -0,0 +1,196 @@
++/*
++ *	sun4v watchdog timer
++ *	(c) Copyright 2016 Oracle Corporation
++ *
++ *	Implement a simple watchdog driver using the built-in sun4v hypervisor
++ *	watchdog support. If time expires, the hypervisor stops or bounces
++ *	the guest domain.
++ *
++ *	This program is free software; you can redistribute it and/or
++ *	modify it under the terms of the GNU General Public License
++ *	as published by the Free Software Foundation; either version
++ *	2 of the License, or (at your option) any later version.
++ */
++
++#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
++
++#include <linux/errno.h>
++#include <linux/init.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/moduleparam.h>
++#include <linux/watchdog.h>
++#include <asm/hypervisor.h>
++#include <asm/mdesc.h>
++
++#define WDT_TIMEOUT			60
++#define WDT_MAX_TIMEOUT			31536000
++#define WDT_MIN_TIMEOUT			1
++#define WDT_DEFAULT_RESOLUTION_MS	1000	/* 1 second */
++
++static unsigned int wdt_max_timeout = WDT_MAX_TIMEOUT;
++
++static unsigned int timeout;
++module_param(timeout, uint, 0);
++MODULE_PARM_DESC(timeout, "Watchdog timeout in seconds (default="
++	__MODULE_STRING(WDT_TIMEOUT) ")");
++
++static bool nowayout = WATCHDOG_NOWAYOUT;
++module_param(nowayout, bool, S_IRUGO);
++MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
++	__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
++
++static int sun4v_wdt_stop(struct watchdog_device *wdd)
++{
++	sun4v_mach_set_watchdog(0, NULL);
++
++	return 0;
++}
++
++static int sun4v_wdt_ping(struct watchdog_device *wdd)
++{
++	int hverr;
++
++	/*
++	 * HV watchdog timer will round up the timeout
++	 * passed in to the nearest multiple of the
++	 * watchdog resolution in milliseconds.
++	 */
++	hverr = sun4v_mach_set_watchdog(wdd->timeout * 1000, NULL);
++	if (hverr == HV_EINVAL)
++		return -EINVAL;
++
++	return 0;
++}
++
++static int sun4v_wdt_set_timeout(struct watchdog_device *wdd,
++				 unsigned int timeout)
++{
++	wdd->timeout = timeout;
++
++	return 0;
++}
++
++static const struct watchdog_info sun4v_wdt_ident = {
++	.options =	WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE,
++	.identity =	"sun4v hypervisor watchdog",
++	.firmware_version = 0,
++};
++
++static struct watchdog_ops sun4v_wdt_ops = {
++	.owner =	THIS_MODULE,
++	.start =	sun4v_wdt_ping,
++	.stop =		sun4v_wdt_stop,
++	.ping =		sun4v_wdt_ping,
++	.set_timeout =	sun4v_wdt_set_timeout,
++};
++
++static struct watchdog_device wdd = {
++	.info = &sun4v_wdt_ident,
++	.ops = &sun4v_wdt_ops,
++	.min_timeout = WDT_MIN_TIMEOUT,
++	.timeout = WDT_TIMEOUT,
++};
++
++static int __init sun4v_wdt_init(void)
++{
++	struct mdesc_handle *handle;
++	u64 node;
++	const u64 *value;
++	u64 wdt_max_property;
++	u64 wdt_resolution_property;
++	int err = 0;
++	unsigned long major = 1, minor = 1;
++
++	/*
++	 * There are 2 properties that can be set from the control
++	 * domain for the watchdog.
++	 * watchdog-resolution
++	 * watchdog-max-timeout
++	 *
++	 * We can expect a handle to be returned otherwise something
++	 * serious is wrong. Correct to return -ENODEV here.
++	 */
++
++	handle = mdesc_grab();
++	if (!handle)
++		return -ENODEV;
++
++	node = mdesc_node_by_name(handle, MDESC_NODE_NULL, "platform");
++	err = -ENODEV;
++	if (node == MDESC_NODE_NULL)
++		goto out_release;
++
++	/*
++	 * This is a safe way to validate if we are on the right
++	 * platform.
++	 */
++	if (sun4v_hvapi_register(HV_GRP_CORE, major, &minor))
++		goto out_hv_unreg;
++
++	/* Allow for resolution up to 1s (default) */
++	value = mdesc_get_property(handle, node, "watchdog-resolution", NULL);
++	err = -EINVAL;
++	if (value) {
++		wdt_resolution_property = *value;
++		if (wdt_resolution_property == 0 ||
++		    wdt_resolution_property > WDT_DEFAULT_RESOLUTION_MS)
++			goto out_hv_unreg;
++	}
++
++	value = mdesc_get_property(handle, node, "watchdog-max-timeout", NULL);
++	if (value) {
++		wdt_max_property = *value;
++		/*
++		 * If the property (in ms) is set to a value smaller than
++		 * WDT_MIN_TIMEOUT, return -EINVAL.
++		 */
++		if (wdt_max_property < WDT_MIN_TIMEOUT * 1000)
++			goto out_hv_unreg;
++
++		/*
++		 * If the property is set to a value smaller than
++		 * WDT_MAX_TIMEOUT then set wdt_max_timeout to
++		 * the value of the property in seconds.
++		 */
++		if (wdt_max_property < wdt_max_timeout * 1000)
++			wdt_max_timeout = wdt_max_property  / 1000;
++	}
++
++	wdd.max_timeout = wdt_max_timeout;
++
++	watchdog_init_timeout(&wdd, timeout, NULL);
++
++	watchdog_set_nowayout(&wdd, nowayout);
++
++	err = watchdog_register_device(&wdd);
++	if (err)
++		goto out_hv_unreg;
++
++	pr_info("initialized (timeout=%dms, nowayout=%d)\n",
++		 wdd.timeout, nowayout);
++
++	mdesc_release(handle);
++
++	return 0;
++
++out_hv_unreg:
++	sun4v_hvapi_unregister(HV_GRP_CORE);
++
++out_release:
++	mdesc_release(handle);
++	return err;
++}
++
++static void __exit sun4v_wdt_exit(void)
++{
++	sun4v_hvapi_unregister(HV_GRP_CORE);
++	watchdog_unregister_device(&wdd);
++}
++
++module_init(sun4v_wdt_init);
++module_exit(sun4v_wdt_exit);
++
++MODULE_AUTHOR("Wim Coekaerts <wim.coekaerts@oracle.com>");
++MODULE_DESCRIPTION("sun4v watchdog driver");
++MODULE_LICENSE("GPL");
+-- 
+1.7.1
