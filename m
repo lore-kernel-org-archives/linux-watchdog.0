@@ -1,47 +1,58 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:49466 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965442AbcAZQWu (ORCPT
+Received: from lxorguk.ukuu.org.uk ([81.2.110.251]:57706 "EHLO
+	lxorguk.ukuu.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932841AbcA1LGP convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 26 Jan 2016 11:22:50 -0500
-Subject: Re: [RFT PATCH] watchdog: gpio: Convert to use infrastructure
- triggered keepalives
-To: kbuild test robot <lkp@intel.com>,
-	Guenter Roeck <patchwork@patchwork.roeck-us.net>
-References: <201601262354.VRXiACmT%fengguang.wu@intel.com>
-Cc: kbuild-all@01.org, linux-watchdog@vger.kernel.org,
-	Wim Van Sebroeck <wim@iguana.be>,
-	linux-kernel@vger.kernel.org,
-	=?UTF-8?Q?Uwe_Kleine-K=c3=b6nig?= <u.kleine-koenig@pengutronix.de>,
-	Doug Anderson <dianders@chromium.org>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <56A79D55.8050208@roeck-us.net>
-Date: Tue, 26 Jan 2016 08:22:45 -0800
+	Thu, 28 Jan 2016 06:06:15 -0500
+Date: Thu, 28 Jan 2016 11:05:20 +0000
+From: One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>
+To: William Breathitt Gray <vilhelm.gray@gmail.com>
+Cc: Guenter Roeck <linux@roeck-us.net>, wim@iguana.be,
+	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3] watchdog: Add watchdog timer support for the
+ WinSystems EBC-C384
+Message-ID: <20160128110520.2e73c91a@lxorguk.ukuu.org.uk>
+In-Reply-To: <20160128001836.GA15216@sophia>
+References: <20160125190942.GA6824@sophia>
+	<20160125192810.2487661b@lxorguk.ukuu.org.uk>
+	<56A6889E.60208@roeck-us.net>
+	<56A6B198.2080205@gmail.com>
+	<56A6CB48.4010402@roeck-us.net>
+	<56A80391.40009@gmail.com>
+	<56A84F75.3050805@roeck-us.net>
+	<20160128001836.GA15216@sophia>
 MIME-Version: 1.0
-In-Reply-To: <201601262354.VRXiACmT%fengguang.wu@intel.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 01/26/2016 07:40 AM, kbuild test robot wrote:
-> Hi Guenter,
->
-> [auto build test ERROR on v4.5-rc1]
-> [also build test ERROR on next-20160125]
-> [if your patch is applied to the wrong git tree, please drop us a note to help improving the system]
->
-> url:    https://github.com/0day-ci/linux/commits/Guenter-Roeck/watchdog-gpio-Convert-to-use-infrastructure-triggered-keepalives/20160126-231612
-> config: i386-randconfig-x005-01261041 (attached as .config)
-> reproduce:
->          # save the attached .config to linux build tree
->          make ARCH=i386
->
+> > 8-bit read of 299h =E2=80=93 save this value
+> > 8-bit write of 60h to 299h
+> > 16-bit read of 29ah should return the base address of the WDT which=
+ is 564h
+> > 8-bit write of saved value to 299h - don=E2=80=99t want t accidenta=
+lly change the WDT base address =20
+>=20
+> If the system does return a value of 0x564, then it's pretty safe to =
+say
+> that the watchdog timer is implemented on the chip. However, I'm not
+> sure it would be safe to send write commands to a port address until =
+the
+> hardware has been identified; this second method may not be the best
+> route either.
+>=20
+> What do you think?
 
-Depends on [1].
+Pokng at 299/29a could hang other systems, so DMI is definitely
+preferable if it's not described in ACPI as it perhaps ought to have
+been. If all boards with that DMI string have the device then sorted, i=
+f
+not then perhaps check 299/29a after the DMI match.
 
-Guenter
-
----
-[1] https://lkml.org/lkml/2016/1/25/1302
-
+Alan
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
+g" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
