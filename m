@@ -1,25 +1,14 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ob0-f171.google.com ([209.85.214.171]:33304 "EHLO
-	mail-ob0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965385AbcBCSJ4 (ORCPT
+Received: from smtp.codeaurora.org ([198.145.29.96]:38484 "EHLO
+	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965186AbcBCSJD (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 3 Feb 2016 13:09:56 -0500
-Received: by mail-ob0-f171.google.com with SMTP id is5so40797277obc.0
-        for <linux-watchdog@vger.kernel.org>; Wed, 03 Feb 2016 10:09:55 -0800 (PST)
-MIME-Version: 1.0
-In-Reply-To: <56B23FE1.2010207@codeaurora.org>
-References: <1454519923-25230-1-git-send-email-fu.wei@linaro.org>
-	<1454519923-25230-5-git-send-email-fu.wei@linaro.org>
-	<56B23D61.2050001@codeaurora.org>
-	<CADyBb7tteV7VF9oxMaq5NprVdS2UBKobupxoyfSp+jQwp5wmQA@mail.gmail.com>
-	<56B23FE1.2010207@codeaurora.org>
-Date: Thu, 4 Feb 2016 02:09:55 +0800
-Message-ID: <CADyBb7vRTz9NxEmeGvxDooUUUXPPFFcNsjUADHcmSKHS56ZYjA@mail.gmail.com>
-Subject: Re: [PATCH v10 4/5] Watchdog: introduce ARM SBSA watchdog driver
-From: Fu Wei <fu.wei@linaro.org>
-To: Timur Tabi <timur@codeaurora.org>
+	Wed, 3 Feb 2016 13:09:03 -0500
+Subject: Re: [PATCH v10 5/5] Watchdog: ARM SBSA Generic Watchdog half timeout
+ panic support
+To: Fu Wei <fu.wei@linaro.org>
 Cc: Rob Herring <robh+dt@kernel.org>,
-	=?UTF-8?Q?Pawe=C5=82_Moll?= <pawel.moll@arm.com>,
+	=?UTF-8?Q?Pawe=c5=82_Moll?= <pawel.moll@arm.com>,
 	Mark Rutland <mark.rutland@arm.com>,
 	Ian Campbell <ijc+devicetree@hellion.org.uk>,
 	Kumar Gala <galak@codeaurora.org>,
@@ -42,51 +31,40 @@ Cc: Rob Herring <robh+dt@kernel.org>,
 	Hanjun Guo <hanjun.guo@linaro.org>,
 	Jon Masters <jcm@redhat.com>, Arnd Bergmann <arnd@arndb.de>,
 	Leo Duran <leo.duran@amd.com>, sudeep.holla@arm.com
-Content-Type: text/plain; charset=UTF-8
+References: <1454519923-25230-1-git-send-email-fu.wei@linaro.org>
+ <1454519923-25230-6-git-send-email-fu.wei@linaro.org>
+ <56B23883.7000501@codeaurora.org>
+ <CADyBb7sxPg-QUjTbeHFtYkctKc_g7D8O=+jqbXN+DCCoCEnFqA@mail.gmail.com>
+ <56B23E99.1030604@codeaurora.org>
+ <CADyBb7s4opxfPFuX=1-qEE6uhsaMXgofAJPbHUQHrng2AUwqNA@mail.gmail.com>
+From: Timur Tabi <timur@codeaurora.org>
+Message-ID: <56B2423B.1020109@codeaurora.org>
+Date: Wed, 3 Feb 2016 12:08:59 -0600
+MIME-Version: 1.0
+In-Reply-To: <CADyBb7s4opxfPFuX=1-qEE6uhsaMXgofAJPbHUQHrng2AUwqNA@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 4 February 2016 at 01:58, Timur Tabi <timur@codeaurora.org> wrote:
-> Fu Wei wrote:
->>
->> I have posted  GTDT support separately :https://lkml.org/lkml/2016/2/1/660
->>
->> devicetree driver and GTDT driver both export sbsa gwdt info to
->> "platform resource".
->>
->> this driver get hardware info from platform resource.
+Fu Wei wrote:
+> Actually I am taking your suggestion to avoid touching WCV in
+> interrupt routine.
+> So even we have pre-timeout support , it is useless for this
+> panic-on-half-timeout feature,
+> because pre-timeout  == timeout / 2 (always).
 >
->
-> I must be missing something.  How does the driver probe?  It only has an
+> So maybe I misunderstand your suggestion,
+> could you let me know : why we want pre-timeout here?
 
-maybe you miss a  line of code for platform resource :
+Maybe I'm confused.
 
----------------------
-static const struct platform_device_id sbsa_gwdt_pdev_match[] = {
- { .name = "sbsa-gwdt", },
- {},
-};
-MODULE_DEVICE_TABLE(platform, sbsa_gwdt_pdev_match);
----------------------
+For pre-timeout, I think the SBSA watchdog driver should support only 
+half-timeout.  That is, the user cannot configure the length of the 
+pre-timeout with this driver.  He can only enable it, and it is 
+automatically set to 1/2 timeout.
 
-> entry for device tree:
->
-> +               .of_match_table = sbsa_gwdt_of_match,
->
-> Doesn't there need to be an ACPI match table to probe on an ACPI system?
+So when pre-timeout occurs, the interrupt handler calls panic() or 
+whatever it's supposed to do.
 
-No, we don't. And this have been tested.
-
-
-
--- 
-Best regards,
-
-Fu Wei
-Software Engineer
-Red Hat Software (Beijing) Co.,Ltd.Shanghai Branch
-Ph: +86 21 61221326(direct)
-Ph: +86 186 2020 4684 (mobile)
-Room 1512, Regus One Corporate Avenue,Level 15,
-One Corporate Avenue,222 Hubin Road,Huangpu District,
-Shanghai,China 200021
+So "pre-timeout  == timeout / 2 (always)" is exactly what we want.
