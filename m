@@ -1,22 +1,21 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ob0-f177.google.com ([209.85.214.177]:33568 "EHLO
-	mail-ob0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965344AbcBCSGE (ORCPT
+Received: from mail-ob0-f171.google.com ([209.85.214.171]:33304 "EHLO
+	mail-ob0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965385AbcBCSJ4 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 3 Feb 2016 13:06:04 -0500
-Received: by mail-ob0-f177.google.com with SMTP id is5so40628588obc.0
-        for <linux-watchdog@vger.kernel.org>; Wed, 03 Feb 2016 10:06:03 -0800 (PST)
+	Wed, 3 Feb 2016 13:09:56 -0500
+Received: by mail-ob0-f171.google.com with SMTP id is5so40797277obc.0
+        for <linux-watchdog@vger.kernel.org>; Wed, 03 Feb 2016 10:09:55 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <56B23E99.1030604@codeaurora.org>
+In-Reply-To: <56B23FE1.2010207@codeaurora.org>
 References: <1454519923-25230-1-git-send-email-fu.wei@linaro.org>
-	<1454519923-25230-6-git-send-email-fu.wei@linaro.org>
-	<56B23883.7000501@codeaurora.org>
-	<CADyBb7sxPg-QUjTbeHFtYkctKc_g7D8O=+jqbXN+DCCoCEnFqA@mail.gmail.com>
-	<56B23E99.1030604@codeaurora.org>
-Date: Thu, 4 Feb 2016 02:06:02 +0800
-Message-ID: <CADyBb7s4opxfPFuX=1-qEE6uhsaMXgofAJPbHUQHrng2AUwqNA@mail.gmail.com>
-Subject: Re: [PATCH v10 5/5] Watchdog: ARM SBSA Generic Watchdog half timeout
- panic support
+	<1454519923-25230-5-git-send-email-fu.wei@linaro.org>
+	<56B23D61.2050001@codeaurora.org>
+	<CADyBb7tteV7VF9oxMaq5NprVdS2UBKobupxoyfSp+jQwp5wmQA@mail.gmail.com>
+	<56B23FE1.2010207@codeaurora.org>
+Date: Thu, 4 Feb 2016 02:09:55 +0800
+Message-ID: <CADyBb7vRTz9NxEmeGvxDooUUUXPPFFcNsjUADHcmSKHS56ZYjA@mail.gmail.com>
+Subject: Re: [PATCH v10 4/5] Watchdog: introduce ARM SBSA watchdog driver
 From: Fu Wei <fu.wei@linaro.org>
 To: Timur Tabi <timur@codeaurora.org>
 Cc: Rob Herring <robh+dt@kernel.org>,
@@ -47,68 +46,36 @@ Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Timur
-
-On 4 February 2016 at 01:53, Timur Tabi <timur@codeaurora.org> wrote:
+On 4 February 2016 at 01:58, Timur Tabi <timur@codeaurora.org> wrote:
 > Fu Wei wrote:
 >>
->> sorry, are you saying : using pre-timeout instead of this half timeout?
+>> I have posted  GTDT support separately :https://lkml.org/lkml/2016/2/1/660
 >>
->> But even we have pre-timeout support, pre-timeout  == timeout / 2, it
->> can not be configured without touch timeout.
+>> devicetree driver and GTDT driver both export sbsa gwdt info to
+>> "platform resource".
 >>
->> if you want pre-timeout  != timeout / 2, we have to modify WCV in the
->> interrupt routine.
->>   (because of the explicit watchdog refresh  mechanism)
->>
->> Could you let me know why we need pre-timeout  here ??:-)
+>> this driver get hardware info from platform resource.
 >
 >
-> What I meant was that if we had full-blown pre-timeout support in the
-> watchdog layer, then you could use that to implement the
-> panic-on-half-timeout feature.
->
-> When pre-timeout is implemented, will you modify the interrupt handler to
-> use it?
+> I must be missing something.  How does the driver probe?  It only has an
 
-Sorry I am little confused.
+maybe you miss a  line of code for platform resource :
 
-Actually I am taking your suggestion to avoid touching WCV in
-interrupt routine.
-So even we have pre-timeout support , it is useless for this
-panic-on-half-timeout feature,
-because pre-timeout  == timeout / 2 (always).
+---------------------
+static const struct platform_device_id sbsa_gwdt_pdev_match[] = {
+ { .name = "sbsa-gwdt", },
+ {},
+};
+MODULE_DEVICE_TABLE(platform, sbsa_gwdt_pdev_match);
+---------------------
 
-So maybe I misunderstand your suggestion,
-could you let me know : why we want pre-timeout here?
+> entry for device tree:
+>
+> +               .of_match_table = sbsa_gwdt_of_match,
+>
+> Doesn't there need to be an ACPI match table to probe on an ACPI system?
 
-
->
->>> >belong upstream.  But like I said, it's just my opinion, and I won't
->>> >complain if I'm outvoted.
->>
->>   I think this debugging feature is the  purpose of the two-stage
->> watchdog, if I understand correctly
->
->
-> Hmmm... that make sense.  I think maybe you should drop the Kconfig option,
-> and just have "static bool panic_enabled = false;"  Also, then do this:
->
-> if (panic_enabled) {
->         ret = devm_request_irq(dev, irq, sbsa_gwdt_interrupt, 0,
->                                pdev->name, gwdt);
->         if (ret) {
->                 dev_err(dev, "unable to request IRQ %d\n", irq);
->                 return ret;
->         }
-> }
-
-yes, agree
-
->
-> That way, the interrupt handler is never registered if the command-line
-> parameter is not specified.
->
+No, we don't. And this have been tested.
 
 
 
