@@ -1,77 +1,302 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:57519 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756713AbcBDOll (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 4 Feb 2016 09:41:41 -0500
-Subject: Re: [PATCH v10 5/5] Watchdog: ARM SBSA Generic Watchdog half timeout
- panic support
-To: Timur Tabi <timur@codeaurora.org>, Fu Wei <fu.wei@linaro.org>
-References: <1454519923-25230-1-git-send-email-fu.wei@linaro.org>
- <1454519923-25230-6-git-send-email-fu.wei@linaro.org>
- <56B23883.7000501@codeaurora.org>
- <CADyBb7sxPg-QUjTbeHFtYkctKc_g7D8O=+jqbXN+DCCoCEnFqA@mail.gmail.com>
- <56B23E99.1030604@codeaurora.org>
- <CADyBb7s4opxfPFuX=1-qEE6uhsaMXgofAJPbHUQHrng2AUwqNA@mail.gmail.com>
- <56B2423B.1020109@codeaurora.org>
- <CADyBb7uULCn97ea19zH8dB4QX1QA8=AXL94d6gXgFxXM8haBNA@mail.gmail.com>
- <56B24642.8090105@codeaurora.org>
- <CADyBb7s_QeU=pYqN9G+5WMtx-L+=QC6uZR6N6ZWPOixnkHzPjw@mail.gmail.com>
- <56B24AB5.3070001@codeaurora.org>
- <CADyBb7usPpY=YLjecXce63zY5e1tniPLmNsVY=8CJHJsCqBgQw@mail.gmail.com>
- <56B2DEE4.7060901@roeck-us.net> <56B35698.4020100@codeaurora.org>
-Cc: Rob Herring <robh+dt@kernel.org>,
-	=?UTF-8?Q?Pawe=c5=82_Moll?= <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Jon Corbet <corbet@lwn.net>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will.deacon@arm.com>,
-	Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
-	LKML <linux-kernel@vger.kernel.org>,
-	linux-watchdog@vger.kernel.org, linux-doc@vger.kernel.org,
-	devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>,
-	rruigrok@codeaurora.org, "Abdulhamid, Harb" <harba@codeaurora.org>,
-	Christopher Covington <cov@codeaurora.org>,
-	Dave Young <dyoung@redhat.com>,
-	Pratyush Anand <panand@redhat.com>,
-	G Gregory <graeme.gregory@linaro.org>,
-	Al Stone <al.stone@linaro.org>,
-	Hanjun Guo <hanjun.guo@linaro.org>,
-	Jon Masters <jcm@redhat.com>, Arnd Bergmann <arnd@arndb.de>,
-	Leo Duran <leo.duran@amd.com>,
-	Sudeep Holla <sudeep.holla@arm.com>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <56B3631F.6090304@roeck-us.net>
-Date: Thu, 4 Feb 2016 06:41:35 -0800
+Return-path: <kyle.roeschley@ni.com>
+Date: Tue, 2 Feb 2016 18:44:10 -0600
+From: Kyle Roeschley <kyle.roeschley@ni.com>
+To: Guenter Roeck <linux@roeck-us.net>
+CC: <linux-watchdog@vger.kernel.org>
+Subject: Re: [2/2] niwatchdog: add support for custom ioctls
+Message-ID: <20160203004409.GA2001@senary>
+References: <1452558181-19511-2-git-send-email-kyle.roeschley@ni.com>
+ <20160117042941.GA16822@roeck-us.net>
+ <20160125233140.GB26173@senary>
+ <56A6C527.1010207@roeck-us.net>
 MIME-Version: 1.0
-In-Reply-To: <56B35698.4020100@codeaurora.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <56A6C527.1010207@roeck-us.net>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 02/04/2016 05:48 AM, Timur Tabi wrote:
-> Guenter Roeck wrote:
->> Also, if panic is enabled, the timeout needs to be adjusted accordingly
->> (to only panic after the entire timeout period has expired, not after
->> half of it). We can not panic the system after timeout / 2.
->
-> It's a debugging feature, not an actual watchdog timeout panic.  That's why it's disabled by default.
->
+On Mon, Jan 25, 2016 at 05:00:23PM -0800, Guenter Roeck wrote:
+> On 01/25/2016 03:31 PM, Kyle Roeschley wrote:
+> >Hi Guenter,
+> >
+> >On Sat, Jan 16, 2016 at 08:29:41PM -0800, Guenter Roeck wrote:
+> >>On Mon, Jan 11, 2016 at 06:23:01PM -0600, Kyle Roeschley wrote:
+> >>>Add custom ioctls for features specific to the NI watchdog, including
+> >>>disabling the watchdog, changing timeout behavior, and setting timeouts
+> >>>with sub-second resolution.
+> >>>
+> >>I don't really agree with any of the added functionality.
+> >>Most of the added ioctls duplicate standard functionality.
+> >>
+> >>
+> >
+> >The main thing that I think could be useful is the increased timeout
+> >resolution. Aside from that, the other changes are specifically implemented for
+> >the sake of maintaining compatability with our watchdog API--I think carrying
+> >some (hopefully not all) of those changes out-of-tree is reasonable.
+> >
+> We have been discussing to increase the timeout resolution to milli-seconds for a while.
+> A patch supporting a hardware timeout maximum in milli-seconds is in the works. I could
+> imagine adding milli-second resolution to the watchdog core. Nanoseconds is a bit of
+> an overkill, though.
+> 
+> Guenter
+> 
 
-"* When the first stage(the half timeout) is reached, WS0 interrupt is
-  * triggered, at this moment the second watch period starts;
-  * In the WS0 interrupt routine, panic will be triggered for saving the
-  * system context.
-  * If the system is getting into trouble and cannot be reset by panic or
-  * restart properly by the kdump kernel(if supported), then the second
-  * stage (the timeout) will be reached, system will be reset by WS1."
+Deciding on milliseconds over nanoseconds seems rather arbitrary, especially
+since standard kernel timers use jiffies and hrtimers use nanoseconds. I do
+realize that users may not care about differences of less than a second, but it
+seems better to err on the side of caution and provide more accuracy than
+they would be expected to need. For instance, this watchdog operates on a
+real-time system with any number of industrial applications which could require
+high accuracy even from the watchdog.
 
-That doesn't sound like debugging to me.
+Seeing as the higher-resolution timeouts aren't yet in the kernel, would it be
+acceptable to use a sysfs attribute for the time being at least? I can't come
+up with any ways in which exposing the counter could cause problems. The code
+to do so is trivial and involves only moving a bit of work out of set_timeout/
+get_timeleft into separate functions.
 
-Guenter
+That being said, I'd gone with a sysfs attribute for adding actions (as you
+suggested below), but I'm running into a problem. The watchdog core lock isn't
+used when you use sysfs attributes, and without that lock, we have the
+possibility of writing or reading garbage data. The best workarounds would seem
+to be adding some way to access the internal lock or adding my own lock. Using
+my own lock, however, would result in double locking everywhere except in the
+attribute show and store functions. Do you have any advice on this?
 
+Regards,
+
+Kyle Roeschley
+Software Engineer
+National Instruments
+
+> >>>Signed-off-by: Kyle Roeschley <kyle.roeschley@ni.com>
+> >>>Signed-off-by: Jeff Westfahl <jeff.westfahl@ni.com>
+> >>>---
+> >>>  drivers/watchdog/niwatchdog.c   | 115 +++++++++++++++++++++++++++++++++++++++-
+> >>>  include/uapi/linux/niwatchdog.h |  10 ++++
+> >>>  2 files changed, 123 insertions(+), 2 deletions(-)
+> >>>
+> >>>diff --git a/drivers/watchdog/niwatchdog.c b/drivers/watchdog/niwatchdog.c
+> >>>index 3908846..fe637a3 100644
+> >>>--- a/drivers/watchdog/niwatchdog.c
+> >>>+++ b/drivers/watchdog/niwatchdog.c
+> >>>@@ -131,6 +131,35 @@ out_unlock:
+> >>>  	return ret;
+> >>>  }
+> >>>
+> >>>+static int niwatchdog_check_action(u32 action)
+> >>>+{
+> >>>+	int err = 0;
+> >>>+
+> >>>+	switch (action) {
+> >>>+	case NIWD_CONTROL_PROC_INTERRUPT:
+> >>>+	case NIWD_CONTROL_PROC_RESET:
+> >>>+		break;
+> >>>+	default:
+> >>>+		err = -ENOTSUPP;
+> >>>+	}
+> >>>+
+> >>>+	return err;
+> >>>+}
+> >>>+
+> >>>+static void niwatchdog_get_actions(struct niwatchdog *niwatchdog, u8 *actions)
+> >>>+{
+> >>>+	u8 control;
+> >>>+	unsigned long flags;
+> >>>+
+> >>>+	spin_lock_irqsave(&niwatchdog->lock, flags);
+> >>>+
+> >>>+	control = inb(niwatchdog->io_base + NIWD_CONTROL);
+> >>>+	*actions = control & (NIWD_CONTROL_PROC_INTERRUPT +
+> >>>+			      NIWD_CONTROL_PROC_RESET);
+> >>>+
+> >>>+	spin_unlock_irqrestore(&niwatchdog->lock, flags);
+> >>>+}
+> >>>+
+> >>>  static int niwatchdog_add_action(struct niwatchdog *niwatchdog, u32 action)
+> >>>  {
+> >>>  	u8 action_mask;
+> >>>@@ -233,12 +262,20 @@ static int niwatchdog_wdd_set_timeout(struct watchdog_device *wdd,
+> >>>  {
+> >>>  	struct niwatchdog *niwatchdog = to_niwatchdog(wdd);
+> >>>  	u32 counter = timeout * (1000000000 / NIWD_PERIOD_NS);
+> >>>+	u8 actions;
+> >>>
+> >>>+	niwatchdog_get_actions(niwatchdog, &actions);
+> >>>  	niwatchdog_reset(niwatchdog);
+> >>>  	niwatchdog_counter_set(niwatchdog, counter);
+> >>>-	niwatchdog_add_action(niwatchdog, NIWATCHDOG_ACTION_RESET);
+> >>>
+> >>>-	return niwatchdog_start(niwatchdog);
+> >>>+	if (actions & NIWD_CONTROL_PROC_RESET)
+> >>>+		niwatchdog_add_action(niwatchdog, NIWATCHDOG_ACTION_RESET);
+> >>>+	if (actions & NIWD_CONTROL_PROC_INTERRUPT)
+> >>>+		niwatchdog_add_action(niwatchdog, NIWATCHDOG_ACTION_INTERRUPT);
+> >>>+
+> >>>+	niwatchdog_start(niwatchdog);
+> >>>+
+> >>>+	return 0;
+> >>>  }
+> >>>
+> >>>  static unsigned int niwatchdog_wdd_get_timeleft(struct watchdog_device *wdd)
+> >>>@@ -319,6 +356,79 @@ static int niwatchdog_wdd_release(struct watchdog_device *wdd)
+> >>>  	return 0;
+> >>>  }
+> >>>
+> >>>+static long niwatchdog_wdd_ioctl(struct watchdog_device *wdd, unsigned int cmd,
+> >>>+				 unsigned long arg)
+> >>>+{
+> >>>+	struct niwatchdog *niwatchdog = to_niwatchdog(wdd);
+> >>>+	int err = 0;
+> >>>+
+> >>>+	switch (cmd) {
+> >>>+	case NIWATCHDOG_IOCTL_PERIOD_NS: {
+> >>>+		__u32 period = NIWD_PERIOD_NS;
+> >>>+
+> >>>+		err = copy_to_user((__u32 *)arg, &period, sizeof(__u32));
+> >>>+		break;
+> >>>+	}
+> >>>+	case NIWATCHDOG_IOCTL_MAX_COUNTER: {
+> >>>+		__u32 counter = NIWD_MAX_COUNTER;
+> >>>+
+> >>>+		err = copy_to_user((__u32 *)arg, &counter, sizeof(__u32));
+> >>>+		break;
+> >>>+	}
+> >>
+> >>Those are constants and can as well be defined in some documentation.
+> >>
+> >
+> >True. The only reason they're here is that our API expects this function to be
+> >implemented for all of our watchdog timers. As such, carrying this out-of-tree
+> >would be reasonable.
+> >
+> >>>+	case NIWATCHDOG_IOCTL_COUNTER_SET: {
+> >>>+		__u32 counter;
+> >>>+
+> >>>+		err = copy_from_user(&counter, (__u32 *)arg, sizeof(__u32));
+> >>>+		if (!err)
+> >>>+			err = niwatchdog_counter_set(niwatchdog, counter);
+> >>>+		break;
+> >>>+	}
+> >>Duplicates standard functionality
+> >>
+> >
+> >It duplicates set_timeout(), but with much greater resolution. What would be an
+> >appropriate way to expose this capability to users?
+> >
+> >>>+	case NIWATCHDOG_IOCTL_CHECK_ACTION: {
+> >>>+		__u32 action;
+> >>>+
+> >>>+		err = copy_from_user(&action, (__u32 *)arg, sizeof(__u32));
+> >>>+		if (!err)
+> >>>+			err = niwatchdog_check_action(action);
+> >>>+		break;
+> >>>+	}
+> >>>+	case NIWATCHDOG_IOCTL_ADD_ACTION: {
+> >>>+		__u32 action;
+> >>>+
+> >>>+		err = copy_from_user(&action, (__u32 *)arg, sizeof(__u32));
+> >>>+		if (!err)
+> >>>+			err = niwatchdog_add_action(niwatchdog, action);
+> >>>+		break;
+> >>>+	}
+> >>
+> >>Use a module parameter or sysfs attribute for those.
+> >>
+> >
+> >I'm a fan of using a sysfs attribute, specifically because the options can be
+> >changed after opening the watchdog and you can have one, both, or neither of
+> >the two timeout actions set.
+> >
+> >>>+	case NIWATCHDOG_IOCTL_START: {
+> >>>+		niwatchdog_start(niwatchdog);
+> >>>+		break;
+> >>>+	}
+> >>
+> >>Duplicates standard functionality.
+> >>
+> >>>+	case NIWATCHDOG_IOCTL_PET: {
+> >>>+		__u32 state;
+> >>>+
+> >>>+		niwatchdog_pet(niwatchdog, &state);
+> >>>+		err = copy_to_user((__u32 *)arg, &state, sizeof(__u32));
+> >>>+		break;
+> >>>+	}
+> >>
+> >>Duplicates standard functionality.
+> >>
+> >>>+	case NIWATCHDOG_IOCTL_RESET: {
+> >>>+		niwatchdog_reset(niwatchdog);
+> >>>+		break;
+> >>>+	}
+> >>
+> >>Duplicates standard functionality.
+> >>
+> >
+> >These are just maps from old, non-standard iotcls to the standard ones. They
+> >can be removed in favor of an out-of-tree commit.
+> >
+> >>>+	case NIWATCHDOG_IOCTL_COUNTER_GET: {
+> >>>+		__u32 counter;
+> >>>+
+> >>>+		niwatchdog_counter_get(niwatchdog, &counter);
+> >>>+		err = copy_to_user((__u32 *)arg, &counter, sizeof(__u32));
+> >>>+		break;
+> >>>+	}
+> >>
+> >>Duplicates standard functionality.
+> >>
+> >
+> >Yes, but again I'm not sure how we should give the user a more accurate
+> >remaining time.
+> >
+> >>>+	default:
+> >>>+		err = -ENOIOCTLCMD;
+> >>>+		break;
+> >>>+	};
+> >>>+
+> >>>+	return err;
+> >>>+}
+> >>>+
+> >>>  static int niwatchdog_ping(struct watchdog_device *wdd)
+> >>>  {
+> >>>  	struct niwatchdog *niwatchdog = to_niwatchdog(wdd);
+> >>>@@ -403,6 +513,7 @@ static const struct watchdog_ops niwatchdog_wdd_ops = {
+> >>>  	.start		= niwatchdog_wdd_open,
+> >>>  	.stop		= niwatchdog_wdd_release,
+> >>>  	.ping		= niwatchdog_ping,
+> >>>+	.ioctl		= niwatchdog_wdd_ioctl,
+> >>>  	.set_timeout	= niwatchdog_wdd_set_timeout,
+> >>>  	.get_timeleft	= niwatchdog_wdd_get_timeleft,
+> >>>  };
+> >>>diff --git a/include/uapi/linux/niwatchdog.h b/include/uapi/linux/niwatchdog.h
+> >>>index 9d3613d..4fb8d47 100644
+> >>>--- a/include/uapi/linux/niwatchdog.h
+> >>>+++ b/include/uapi/linux/niwatchdog.h
+> >>>@@ -25,6 +25,16 @@
+> >>>  #define NIWATCHDOG_STATE_EXPIRED	1
+> >>>  #define NIWATCHDOG_STATE_DISABLED	2
+> >>>
+> >>>+#define NIWATCHDOG_IOCTL_PERIOD_NS	_IOR('W', 60, __u32)
+> >>>+#define NIWATCHDOG_IOCTL_MAX_COUNTER	_IOR('W', 61, __u32)
+> >>>+#define NIWATCHDOG_IOCTL_COUNTER_SET	_IOW('W', 62, __u32)
+> >>>+#define NIWATCHDOG_IOCTL_CHECK_ACTION	_IOW('W', 63, __u32)
+> >>>+#define NIWATCHDOG_IOCTL_ADD_ACTION	_IOW('W', 64, __u32)
+> >>>+#define NIWATCHDOG_IOCTL_START		_IO('W', 65)
+> >>>+#define NIWATCHDOG_IOCTL_PET		_IOR('W', 66, __u32)
+> >>>+#define NIWATCHDOG_IOCTL_RESET		_IO('W', 67)
+> >>>+#define NIWATCHDOG_IOCTL_COUNTER_GET	_IOR('W', 68, __u32)
+> >>>+
+> >>>  #define NIWATCHDOG_NAME			"niwatchdog"
+> >>>
+> >>>  #endif /* _LINUX_NIWATCHDOG_H_ */
+> >>--
+> >>To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
+> >>the body of a message to majordomo@vger.kernel.org
+> >>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> >
+> >Thanks again for the reviews.
+> >
+> 
