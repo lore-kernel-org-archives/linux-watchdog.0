@@ -1,472 +1,156 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:51934 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751936AbcBBD1F (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 1 Feb 2016 22:27:05 -0500
-Subject: Re: [PATCH 2/2] watchdog: pic32-wdt: Add PIC32 watchdog driver
-To: Joshua Henderson <joshua.henderson@microchip.com>,
-	linux-kernel@vger.kernel.org
-References: <1454371381-25160-1-git-send-email-joshua.henderson@microchip.com>
- <1454371381-25160-2-git-send-email-joshua.henderson@microchip.com>
-Cc: linux-mips@linux-mips.org, ralf@linux-mips.org,
-	Purna Chandra Mandal <purna.mandal@microchip.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <56B02206.2000002@roeck-us.net>
-Date: Mon, 1 Feb 2016 19:27:02 -0800
-MIME-Version: 1.0
-In-Reply-To: <1454371381-25160-2-git-send-email-joshua.henderson@microchip.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Received: from mx1.redhat.com ([209.132.183.28]:45426 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S933197AbcBCRUT (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 3 Feb 2016 12:20:19 -0500
+From: fu.wei@linaro.org
+To: robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com,
+	ijc+devicetree@hellion.org.uk, galak@codeaurora.org, wim@iguana.be,
+	linux@roeck-us.net, corbet@lwn.net, catalin.marinas@arm.com,
+	will.deacon@arm.com, Suravee.Suthikulpanit@amd.com
+Cc: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	linux-doc@vger.kernel.org, devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linaro-acpi@lists.linaro.org,
+	rruigrok@codeaurora.org, harba@codeaurora.org, cov@codeaurora.org,
+	timur@codeaurora.org, dyoung@redhat.com, panand@redhat.com,
+	graeme.gregory@linaro.org, al.stone@linaro.org,
+	hanjun.guo@linaro.org, jcm@redhat.com, arnd@arndb.de,
+	leo.duran@amd.com, sudeep.holla@arm.com, Fu Wei <fu.wei@linaro.org>
+Subject: [PATCH v10 0/5] Watchdog: introduce ARM SBSA watchdog driver
+Date: Thu,  4 Feb 2016 01:18:38 +0800
+Message-Id: <1454519923-25230-1-git-send-email-fu.wei@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 02/01/2016 04:02 PM, Joshua Henderson wrote:
-> When enabled, the watchdog peripheral can be used to reset the device if the
-> WDT is not cleared periodically in software.
+From: Fu Wei <fu.wei@linaro.org>
 
-Commit description is a bit long.
+This patchset:
+    (1)Introduce Documentation/devicetree/bindings/watchdog/sbsa-gwdt.txt
+    for FDT info of SBSA Generic Watchdog, and give two examples of
+    adding SBSA Generic Watchdog device node into the dts files:
+    foundation-v8.dts and amd-seattle-soc.dtsi.
 
->
-> Signed-off-by: Joshua Henderson <joshua.henderson@microchip.com>
-> Signed-off-by: Purna Chandra Mandal <purna.mandal@microchip.com>
-> Cc: Ralf Baechle <ralf@linux-mips.org>
-> Cc: <linux-mips@linux-mips.org>
-> ---
-> Note: Please merge this patch series through the MIPS tree.
-> ---
->   drivers/watchdog/Kconfig     |   14 ++
->   drivers/watchdog/Makefile    |    1 +
->   drivers/watchdog/pic32-wdt.c |  301 ++++++++++++++++++++++++++++++++++++++++++
->   3 files changed, 316 insertions(+)
->   create mode 100644 drivers/watchdog/pic32-wdt.c
->
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index 4f0e7be..131abc2 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -1410,6 +1410,20 @@ config MT7621_WDT
->   	help
->   	  Hardware driver for the Mediatek/Ralink MT7621/8 SoC Watchdog Timer.
->
-> +config PIC32_WDT
-> +	tristate "Microchip PIC32 hardware watchdog"
-> +	select WATCHDOG_CORE
-> +	depends on MACH_PIC32
-> +	default y
+    (2)Introduce ARM SBSA watchdog driver:
+        a.Use linux kernel watchdog framework;
+        b.Work with FDT on ARM64;
+        c.Support getting timeout from parameter and FDT at the driver
+          init stage.
+        d.Separate the driver to two parts:
+          (1) single stage timeout driver(ignore WS0 interrupt)
+          (2) register WS0 interrupt for the half timeout panic
+        e.Timeout is from watchdog enabled to WS1 triggered.
+          User can disable "half timeout panic" by kernel config or
+          module parameter panic_enabled.
 
-Sure you want "y" here ?
+Changelog:
+v10:Delete pretimeout support
+    Separate the driver to two parts:
+        (1) single stage timeout driver(ignore WS0 interrupt)
+        (2) register WS0 interrupt for the half timeout panic
+    timeout == (enable --> WS1)
 
-> +	help
-> +	  Watchdog driver for the built in watchdog hardware in a PIC32.
-> +
-> +	  Configuration bits must be set appropriately for the watchdog to be
-> +	  controlled by this driver.
-> +
-> +	  To compile this driver as a loadable module, choose M here.
-> +	  The module will be called pic32-wdt.
-> +
->   # PARISC Architecture
->
->   # POWERPC Architecture
-> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-> index f566753..244ed80 100644
-> --- a/drivers/watchdog/Makefile
-> +++ b/drivers/watchdog/Makefile
-> @@ -153,6 +153,7 @@ obj-$(CONFIG_LANTIQ_WDT) += lantiq_wdt.o
->   obj-$(CONFIG_RALINK_WDT) += rt2880_wdt.o
->   obj-$(CONFIG_IMGPDC_WDT) += imgpdc_wdt.o
->   obj-$(CONFIG_MT7621_WDT) += mt7621_wdt.o
-> +obj-$(CONFIG_PIC32_WDT) += pic32-wdt.o
->
->   # PARISC Architecture
->
-> diff --git a/drivers/watchdog/pic32-wdt.c b/drivers/watchdog/pic32-wdt.c
-> new file mode 100644
-> index 0000000..d80e62d
-> --- /dev/null
-> +++ b/drivers/watchdog/pic32-wdt.c
-> @@ -0,0 +1,301 @@
-> +/*
-> + * PIC32 watchdog driver
-> + *
-> + * Joshua Henderson <joshua.henderson@microchip.com>
-> + * Copyright (c) 2016, Microchip Technology Inc.
-> + *
-> + * This program is free software; you can redistribute it and/or
-> + * modify it under the terms of the GNU General Public License
-> + * as published by the Free Software Foundation; either version
-> + * 2 of the License, or (at your option) any later version.
-> + */
-> +
-> +#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
-> +
-> +#include <linux/kernel.h>
-> +#include <linux/module.h>
-> +#include <linux/clk.h>
-> +#include <linux/err.h>
-> +#include <linux/io.h>
-> +#include <linux/of.h>
-> +#include <linux/of_device.h>
-> +#include <linux/pm.h>
-> +#include <linux/watchdog.h>
-> +#include <linux/spinlock.h>
-> +#include <linux/device.h>
-> +#include <linux/platform_device.h>
+v9: https://lkml.org/lkml/2015/11/9/57
+    Rebase to latest kernel version(4.3).
+    Update the Documentation of sbsa-gwdt device node info of FDT:
+        (1) move some introduction to pretimeout patch
+        (2) delete WS1 value from "interrupts" of binding documentation,
+            since WS1 won't be handled by Linux.
 
-Alphabetic order, please.
+v8: https://lkml.org/lkml/2015/10/27/466
+    Rebase to latest kernel version(4.3-rc7).
+    Separate the patches of GTDT support and arm_arch_timer. This
+    clocksource relevant patch will upstreamed in a individual patchset.
+    Update all the default timeout and pretimeout to 30s and 60s.
+    Improve documentation and inline comments.
+    Fix a bug in pretimeout support which makes timeout and pretimeout
+    parameters initialization fail.
 
-> +
-> +#include <asm/mach-pic32/pic32.h>
-> +
-> +/* Watchdog Timer Registers */
-> +#define WDTCON_REG		0x00
-> +
-> +/* Watchdog Timer Control Register fields */
-> +#define WDTCON_WIN_EN		0x0001
-> +#define WDTCON_RMCS_MASK	0x0003
-> +#define WDTCON_RMCS_SHIFT	0x0006
-> +#define WDTCON_RMPS_MASK	0x001F
-> +#define WDTCON_RMPS_SHIFT	0x0008
-> +#define WDTCON_ON		0x8000
-> +#define WDTCON_CLR_KEY		0x5743
-> +
-> +/* Reset Control Register fields for watchdog */
-> +#define RESETCON_TIMEOUT_IDLE	0x0004
-> +#define RESETCON_TIMEOUT_SLEEP	0x0008
-> +#define RESETCON_WDT_TIMEOUT	0x0010
-> +
+v7: https://lkml.org/lkml/2015/8/24/611
+    Rebase to latest kernel version(4.2-rc7).
+    Improve FDT support: geting resource by order, instead of name.
+    According to the FDT support, Update the example dts file, gtdt.c
+    and sbsa_gwdt.c.
+    Pass the sparse test, and fix the warning.
+    Fix the max_pretimeout and max_timeout value overflow bug.
+    Delete the WCV output value.
+    
 
-Can you use BIT() to make it easier to understand which values are bit masks ?
+v6: https://lkml.org/lkml/2015/6/23/359
+    Improve the dtb example files: reduce the register frame size to 4K.
+    Improve pretimeout support:
+        (1) improve watchdog_init_timeouts function
+	(2) rename watchdog_check_min_max_timeouts back to the original name
+        (1) improve watchdog_timeout_invalid/watchdog_pretimeout_invalid
+    Add the new features in the sbsa_gwdt driver:
+	(1) In the second stage, user can feed the dog without cleaning WS0.
+	(2) In the second stage, user can trigger WS1 by setting pretimeout = 0.
+	(3) expand the max value of pretimeout, in case 10 second is not enough
+	    for a kdump kernel reboot in panic.
 
-> +struct pic32_wdt {
-> +	spinlock_t	lock;
-> +	void __iomem	*regs;
-> +	void __iomem	*rst_base;
-> +	struct clk	*clk;
-> +	unsigned long	next_heartbeat;
-> +	unsigned long	timeout;
-> +};
-> +
-> +static inline int wdt_is_enabled(struct pic32_wdt *wdt)
-> +{
-> +	return readl(wdt->regs + WDTCON_REG) & WDTCON_ON;
-> +}
+v5: https://lkml.org/lkml/2015/6/10/357
+    Improve pretimeout support:
+        (1)fix typo in documentation and comments.
+	(2)fix the timeout limits validation bug.
+    Simplify sbsa_gwdt driver:
+	(1)integrate all the registers access functions into caller.
 
-Return bool.
+v4: https://lkml.org/lkml/2015/6/2/4
+    Refactor GTDT support code: remove it from arch/arm64/kernel/acpi.c,
+    put it into drivers/acpi/gtdt.c file.
+    Integrate the GTDT code of drivers/clocksource/arm_arch_timer.c into
+    drivers/acpi/gtdt.c.
+    Improve pretimeout support, fix "pretimeout == 0" problem.
+    Simplify sbsa_gwdt driver:
+        (1)timeout/pretimeout limits setup;
+        (2)keepalive function;
+        (3)delete "clk == 0" check;
+        (4)delete WS0 status bit check in interrupt routine;
+        (5)sbsa_gwdt_set_wcv function.
 
-> +
-> +static inline int wdt_is_win_enabled(struct pic32_wdt *wdt)
-> +{
+v3: https://lkml.org/lkml/2015/5/25/111
+    Delete "export arch_timer_get_rate" patch.
+    Driver back to use arch_timer_get_cntfrq.
+    Improve watchdog_init_timeouts function and update relevant documentation.
+    Improve watchdog_timeout_invalid and watchdog_pretimeout_invalid.
+    Improve foundation-v8.dts: delete the unnecessary tag of device node.
+    Remove "ARM64 || COMPILE_TEST" from Kconfig.
+    Add comments in arch/arm64/kernel/acpi.c
+    Fix typoes and incorrect comments.
 
-Return bool.
+v2: https://lkml.org/lkml/2015/5/21/172
+    Improve watchdog-kernel-api.txt documentation for pretimeout support.
+    Export "arch_timer_get_rate" in arm_arch_timer.c.
+    Add watchdog_init_timeouts API for pretimeout support in framework.
+    Improve suspend and resume foundation in driver
+    Improve timeout/pretimeout values init code in driver.
+    Delete unnecessary items of the sbsa_gwdt struct and #define.
+    Delete all unnecessary debug info in driver.
+    Fix 64bit division bug.
+    Use the arch_timer interface to get watchdog clock rate.
+    Add MODULE_DEVICE_TABLE for platform device id.
+    Fix typoes.
 
-> +	u32 v;
-> +
-> +	v = readl(wdt->regs + WDTCON_REG);
-> +	v &= WDTCON_WIN_EN;
-> +
-> +	return v;
+v1: https://lkml.org/lkml/2015/5/15/279
+    The first version upstream patchset to linux mailing list.
 
-	return readl(wdt->regs + WDTCON_REG) & WDTCON_WIN_EN;
+Fu Wei (5):
+  Documentation: add sbsa-gwdt driver documentation
+  ARM64: add SBSA Generic Watchdog device node in foundation-v8.dts
+  ARM64: add SBSA Generic Watchdog device node in amd-seattle-soc.dtsi
+  Watchdog: introduce ARM SBSA watchdog driver
+  Watchdog: ARM SBSA Generic Watchdog half timeout panic support
 
-would be good enough and be more consistent with the other
-function above.
+ .../devicetree/bindings/watchdog/sbsa-gwdt.txt     |  35 ++
+ Documentation/watchdog/watchdog-parameters.txt     |   6 +
+ arch/arm64/boot/dts/amd/amd-seattle-soc.dtsi       |   9 +
+ arch/arm64/boot/dts/arm/foundation-v8.dts          |   8 +
+ drivers/watchdog/Kconfig                           |  27 ++
+ drivers/watchdog/Makefile                          |   1 +
+ drivers/watchdog/sbsa_gwdt.c                       | 366 +++++++++++++++++++++
+ 7 files changed, 452 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/sbsa-gwdt.txt
+ create mode 100644 drivers/watchdog/sbsa_gwdt.c
 
-> +}
-> +
-> +static inline void wdt_enable(struct pic32_wdt *wdt)
-> +{
-> +	writel(WDTCON_ON, PIC32_SET(wdt->regs + WDTCON_REG));
-> +}
-> +
-
-Can you use consistent function name prefixes ?
-
-> +static inline void wdt_disable(struct pic32_wdt *wdt)
-> +{
-> +	writel(WDTCON_ON, PIC32_CLR(wdt->regs + WDTCON_REG));
-> +	cpu_relax();
-
-Is this needed ?
-
-> +}
-> +
-> +static inline u32 wdt_get_post_scaler(struct pic32_wdt *wdt)
-> +{
-> +	u32 v = readl(wdt->regs + WDTCON_REG);
-> +
-> +	return (v >> WDTCON_RMPS_SHIFT) & WDTCON_RMPS_MASK;
-> +}
-> +
-> +static inline u32 wdt_get_clk_id(struct pic32_wdt *wdt)
-> +{
-> +	u32 v = readl(wdt->regs + WDTCON_REG);
-> +
-> +	return (v >> WDTCON_RMCS_SHIFT) & WDTCON_RMCS_MASK;
-> +}
-> +
-> +static inline void wdt_keepalive(struct pic32_wdt *wdt)
-> +{
-> +	/* write key through single half-word */
-> +	writew(WDTCON_CLR_KEY, wdt->regs + WDTCON_REG + 2);
-> +}
-> +
-> +static int pic32_wdt_bootstatus(struct pic32_wdt *wdt)
-> +{
-> +	u32 v = readl(wdt->rst_base);
-> +
-> +	writel(RESETCON_WDT_TIMEOUT, PIC32_CLR(wdt->rst_base));
-> +
-> +	return v & RESETCON_WDT_TIMEOUT;
-> +}
-> +
-> +static int pic32_wdt_get_timeout_secs(struct pic32_wdt *wdt)
-> +{
-> +	unsigned long rate;
-> +	u32 period, ps, terminal;
-> +
-> +	rate = clk_get_rate(wdt->clk);
-> +	pr_debug("wdt: clk_id %d, clk_rate %lu (prescale)\n",
-> +		 wdt_get_clk_id(wdt), rate);
-> +
-> +	/* default, prescaler of 32 (i.e. div-by-32) is implicit. */
-> +	rate >>= 5;
-> +
-> +	/* calculate terminal count from postscaler. */
-> +	ps = wdt_get_post_scaler(wdt);
-> +	terminal = 1 << ps;
-
-BIT(ps) would be a bit nicer.
-
-> +
-> +	/* find time taken (in secs) to reach terminal count */
-> +	period = terminal / rate;
-
-Can rate be 0 ?
-
-> +	pr_info("wdt: clk_rate %lu (postscale) / terminal %d, timeout %dsec\n",
-> +		rate, terminal, period);
-
-Is this needed ? Seems like a debug message to me.
-Users won't be able to make sense of it.
-
-> +
-> +	return period;
-> +}
-> +
-> +static void pic32_wdt_keepalive(struct pic32_wdt *wdt)
-> +{
-> +	wdt->next_heartbeat = jiffies +
-> +		msecs_to_jiffies(wdt->timeout * MSEC_PER_SEC);
-> +	wdt_keepalive(wdt);
-> +}
-> +
-> +static int pic32_wdt_start(struct watchdog_device *wdd)
-> +{
-> +	struct pic32_wdt *wdt = watchdog_get_drvdata(wdd);
-> +
-> +	spin_lock(&wdt->lock);
-
-Is this lock (on top of the lock provided by the watchdog subsystem)
-needed ? If so, please explain.
-
-> +	if (wdt_is_enabled(wdt))
-> +		goto done;
-
-Can this happpen, and if so, does it matter ?
-
-> +
-> +	wdt_enable(wdt);
-> +done:
-> +	pic32_wdt_keepalive(wdt);
-> +	spin_unlock(&wdt->lock);
-> +
-> +	return 0;
-> +}
-> +
-> +static int pic32_wdt_stop(struct watchdog_device *wdd)
-> +{
-> +	struct pic32_wdt *wdt = watchdog_get_drvdata(wdd);
-> +
-> +	spin_lock(&wdt->lock);
-> +	wdt_disable(wdt);
-> +	spin_unlock(&wdt->lock);
-> +
-> +	return 0;
-> +}
-> +
-> +static int pic32_wdt_ping(struct watchdog_device *wdd)
-> +{
-> +	struct pic32_wdt *wdt = watchdog_get_drvdata(wdd);
-> +
-> +	spin_lock(&wdt->lock);
-> +	pic32_wdt_keepalive(wdt);
-> +	spin_unlock(&wdt->lock);
-> +
-> +	return 0;
-> +}
-> +
-> +static unsigned int pic32_wdt_get_timeleft(struct watchdog_device *wdd)
-> +{
-> +	struct pic32_wdt *wdt = watchdog_get_drvdata(wdd);
-> +
-> +	return jiffies_to_msecs(wdt->next_heartbeat - jiffies) / MSEC_PER_SEC;
-> +}
-
-Please no software "get_timeleft" implementation. If this is desired,
-we can implement it in the watchdog core.
-
-> +
-> +static const struct watchdog_ops pic32_wdt_fops = {
-> +	.owner		= THIS_MODULE,
-> +	.start		= pic32_wdt_start,
-> +	.stop		= pic32_wdt_stop,
-> +	.get_timeleft	= pic32_wdt_get_timeleft,
-> +	.ping		= pic32_wdt_ping,
-> +};
-> +
-> +static const struct watchdog_info pic32_wdt_ident = {
-> +	.options = WDIOF_KEEPALIVEPING |
-> +			WDIOF_MAGICCLOSE | WDIOF_CARDRESET,
-
-Is the timeout truly not configurable ?
-
-> +	.identity = "PIC32 Watchdog",
-> +};
-> +
-> +static struct watchdog_device pic32_wdd = {
-> +	.info		= &pic32_wdt_ident,
-> +	.ops		= &pic32_wdt_fops,
-> +	.min_timeout	= 1,
-> +	.max_timeout	= 1048,
-
-Real or arbitrary ?
-
-> +};
-> +
-> +static const struct of_device_id pic32_wdt_dt_ids[] = {
-> +	{ .compatible = "microchip,pic32mzda-wdt-v2", },
-
-Is this compatible statement documented ?
-
-> +	{ /* sentinel */ }
-> +};
-> +MODULE_DEVICE_TABLE(of, pic32_wdt_dt_ids);
-> +
-> +static int pic32_wdt_drv_probe(struct platform_device *pdev)
-> +{
-> +	int ret;
-> +	struct watchdog_device *wdd = &pic32_wdd;
-> +	struct pic32_wdt *wdt;
-> +	struct resource *mem;
-> +
-> +	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
-> +	if (IS_ERR(wdt))
-> +		return PTR_ERR(wdt);
-> +
-> +	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> +	wdt->regs = devm_ioremap_resource(&pdev->dev, mem);
-> +	if (IS_ERR(wdt->regs))
-> +		return PTR_ERR(wdt->regs);
-> +
-> +	wdt->rst_base = devm_ioremap(&pdev->dev, PIC32_BASE_RESET, 0x10);
-> +	if (IS_ERR(wdt->rst_base))
-> +		return PTR_ERR(wdt->rst_base);
-> +
-> +	wdt->clk = devm_clk_get(&pdev->dev, NULL);
-> +	if (IS_ERR(wdt->clk)) {
-> +		dev_err(&pdev->dev, "clk not found\n");
-> +		return PTR_ERR(wdt->clk);
-> +	}
-> +
-> +	ret = clk_prepare_enable(wdt->clk);
-> +	if (ret) {
-> +		dev_err(&pdev->dev, "clk enable failed\n");
-> +		return ret;
-> +	}
-> +
-> +	if (wdt_is_win_enabled(wdt)) {
-> +		dev_err(&pdev->dev, "windowed-clear mode is not supported.\n");
-> +		ret = -EOPNOTSUPP;
-> +		goto out_disable_clk;
-
-It might make more sense to check this first, before enabling the clock.
-
-Also, can this not be disabled in software ?
-
-> +	}
-> +
-> +	wdt->timeout = pic32_wdt_get_timeout_secs(wdt);
-
-Can timeout end up being 0 (less than 1 second) ?
-
-> +	spin_lock_init(&wdt->lock);
-> +
-> +	wdd->timeout = wdt->timeout;
-
-wdt->timeout is only used to calculate next_timeout which is only used
-to calculate the time left in software, which you should not do. Please drop.
-
-> +	wdd->bootstatus = pic32_wdt_bootstatus(wdt) ? WDIOF_CARDRESET : 0;
-> +
-> +	ret = watchdog_register_device(wdd);
-> +	if (ret) {
-> +		dev_err(&pdev->dev, "watchdog register failed, err %d\n", ret);
-> +		goto out_disable_clk;
-> +	}
-> +
-> +	watchdog_set_nowayout(wdd, WATCHDOG_NOWAYOUT);
-> +	watchdog_set_drvdata(wdd, wdt);
-
-Race condition.
-
-> +
-> +	platform_set_drvdata(pdev, wdd);
-> +	return 0;
-> +
-> +out_disable_clk:
-> +	clk_disable_unprepare(wdt->clk);
-> +
-> +	return ret;
-> +}
-> +
-> +static int pic32_wdt_drv_remove(struct platform_device *pdev)
-> +{
-> +	struct watchdog_device *wdd = platform_get_drvdata(pdev);
-> +	struct pic32_wdt *wdt = watchdog_get_drvdata(wdd);
-> +
-> +	clk_disable_unprepare(wdt->clk);
-> +	watchdog_unregister_device(wdd);
-
-Please call unregister first.
-
-> +
-> +	return 0;
-> +}
-> +
-> +static struct platform_driver pic32_wdt_driver = {
-> +	.probe		= pic32_wdt_drv_probe,
-> +	.remove		= pic32_wdt_drv_remove,
-> +	.driver		= {
-> +		.name		= "pi32-wdt",
-
-pi32 or pic32 ?
-
-> +		.owner		= THIS_MODULE,
-> +		.of_match_table = of_match_ptr(pic32_wdt_dt_ids),
-> +	}
-> +};
-> +
-> +module_platform_driver(pic32_wdt_driver);
-> +
-> +MODULE_AUTHOR("Joshua Henderson <joshua.henderson@microchip.com>");
-> +MODULE_DESCRIPTION("Microchip PIC32 Watchdog Timer");
-> +MODULE_LICENSE("GPL");
-> --
-> 1.7.9.5
->
->
+-- 
+2.5.0
 
