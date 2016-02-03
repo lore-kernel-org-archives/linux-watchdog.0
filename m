@@ -1,28 +1,14 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ob0-f180.google.com ([209.85.214.180]:35390 "EHLO
-	mail-ob0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965123AbcBCSSj (ORCPT
+Received: from smtp.codeaurora.org ([198.145.29.96]:41413 "EHLO
+	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965077AbcBCS0R (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 3 Feb 2016 13:18:39 -0500
-Received: by mail-ob0-f180.google.com with SMTP id xk3so42017144obc.2
-        for <linux-watchdog@vger.kernel.org>; Wed, 03 Feb 2016 10:18:39 -0800 (PST)
-MIME-Version: 1.0
-In-Reply-To: <56B2423B.1020109@codeaurora.org>
-References: <1454519923-25230-1-git-send-email-fu.wei@linaro.org>
-	<1454519923-25230-6-git-send-email-fu.wei@linaro.org>
-	<56B23883.7000501@codeaurora.org>
-	<CADyBb7sxPg-QUjTbeHFtYkctKc_g7D8O=+jqbXN+DCCoCEnFqA@mail.gmail.com>
-	<56B23E99.1030604@codeaurora.org>
-	<CADyBb7s4opxfPFuX=1-qEE6uhsaMXgofAJPbHUQHrng2AUwqNA@mail.gmail.com>
-	<56B2423B.1020109@codeaurora.org>
-Date: Thu, 4 Feb 2016 02:18:38 +0800
-Message-ID: <CADyBb7uULCn97ea19zH8dB4QX1QA8=AXL94d6gXgFxXM8haBNA@mail.gmail.com>
+	Wed, 3 Feb 2016 13:26:17 -0500
 Subject: Re: [PATCH v10 5/5] Watchdog: ARM SBSA Generic Watchdog half timeout
  panic support
-From: Fu Wei <fu.wei@linaro.org>
-To: Timur Tabi <timur@codeaurora.org>
+To: Fu Wei <fu.wei@linaro.org>
 Cc: Rob Herring <robh+dt@kernel.org>,
-	=?UTF-8?Q?Pawe=C5=82_Moll?= <pawel.moll@arm.com>,
+	=?UTF-8?Q?Pawe=c5=82_Moll?= <pawel.moll@arm.com>,
 	Mark Rutland <mark.rutland@arm.com>,
 	Ian Campbell <ijc+devicetree@hellion.org.uk>,
 	Kumar Gala <galak@codeaurora.org>,
@@ -45,62 +31,42 @@ Cc: Rob Herring <robh+dt@kernel.org>,
 	Hanjun Guo <hanjun.guo@linaro.org>,
 	Jon Masters <jcm@redhat.com>, Arnd Bergmann <arnd@arndb.de>,
 	Leo Duran <leo.duran@amd.com>, sudeep.holla@arm.com
-Content-Type: text/plain; charset=UTF-8
+References: <1454519923-25230-1-git-send-email-fu.wei@linaro.org>
+ <1454519923-25230-6-git-send-email-fu.wei@linaro.org>
+ <56B23883.7000501@codeaurora.org>
+ <CADyBb7sxPg-QUjTbeHFtYkctKc_g7D8O=+jqbXN+DCCoCEnFqA@mail.gmail.com>
+ <56B23E99.1030604@codeaurora.org>
+ <CADyBb7s4opxfPFuX=1-qEE6uhsaMXgofAJPbHUQHrng2AUwqNA@mail.gmail.com>
+ <56B2423B.1020109@codeaurora.org>
+ <CADyBb7uULCn97ea19zH8dB4QX1QA8=AXL94d6gXgFxXM8haBNA@mail.gmail.com>
+From: Timur Tabi <timur@codeaurora.org>
+Message-ID: <56B24642.8090105@codeaurora.org>
+Date: Wed, 3 Feb 2016 12:26:10 -0600
+MIME-Version: 1.0
+In-Reply-To: <CADyBb7uULCn97ea19zH8dB4QX1QA8=AXL94d6gXgFxXM8haBNA@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 4 February 2016 at 02:08, Timur Tabi <timur@codeaurora.org> wrote:
-> Fu Wei wrote:
->>
->> Actually I am taking your suggestion to avoid touching WCV in
->> interrupt routine.
->> So even we have pre-timeout support , it is useless for this
->> panic-on-half-timeout feature,
->> because pre-timeout  == timeout / 2 (always).
->>
->> So maybe I misunderstand your suggestion,
->> could you let me know : why we want pre-timeout here?
+Fu Wei wrote:
+> Actually,
+> the SBSA watchdog driver should support only  half-timeout for panic
+> the user cannot configure the length of "panic time",  He can only
+> enable it, and it is automatically set to 1/2 timeout.
 >
+> we don't need pre-timeout here.
 >
-> Maybe I'm confused.
+> Hope I understand you correctly:-)  sorry for your confusion
 >
-> For pre-timeout, I think the SBSA watchdog driver should support only
-> half-timeout.  That is, the user cannot configure the length of the
-> pre-timeout with this driver.  He can only enable it, and it is
-> automatically set to 1/2 timeout.
-
-Actually,
-the SBSA watchdog driver should support only  half-timeout for panic
-the user cannot configure the length of "panic time",  He can only
-enable it, and it is automatically set to 1/2 timeout.
-
-we don't need pre-timeout here.
-
-Hope I understand you correctly :-) sorry for your confusion
-
+>> >
+>> >So when pre-timeout occurs, the interrupt handler calls panic() or whatever
+>> >it's supposed to do.
+> Actually,
+> So when 1/2 timeout occurs, the interrupt handler calls panic() or
+> whatever it's supposed to do.
 >
-> So when pre-timeout occurs, the interrupt handler calls panic() or whatever
-> it's supposed to do.
 
-Actually,
-So when 1/2 timeout occurs, the interrupt handler calls panic() or
-whatever it's supposed to do.
-
->
-> So "pre-timeout  == timeout / 2 (always)" is exactly what we want.
-
-our patchset is doing this way.
-
-
-
--- 
-Best regards,
-
-Fu Wei
-Software Engineer
-Red Hat Software (Beijing) Co.,Ltd.Shanghai Branch
-Ph: +86 21 61221326(direct)
-Ph: +86 186 2020 4684 (mobile)
-Room 1512, Regus One Corporate Avenue,Level 15,
-One Corporate Avenue,222 Hubin Road,Huangpu District,
-Shanghai,China 200021
+I understand all that.  What I'm saying is that, in the future, when 
+pre-timeout support is added to the watchdog layer, I think it makes 
+sense to modify this driver to use pre-timeout support.
