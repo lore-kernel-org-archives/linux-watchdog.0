@@ -1,302 +1,428 @@
-Return-path: <kyle.roeschley@ni.com>
-Date: Tue, 2 Feb 2016 18:44:10 -0600
-From: Kyle Roeschley <kyle.roeschley@ni.com>
-To: Guenter Roeck <linux@roeck-us.net>
-CC: <linux-watchdog@vger.kernel.org>
-Subject: Re: [2/2] niwatchdog: add support for custom ioctls
-Message-ID: <20160203004409.GA2001@senary>
-References: <1452558181-19511-2-git-send-email-kyle.roeschley@ni.com>
- <20160117042941.GA16822@roeck-us.net>
- <20160125233140.GB26173@senary>
- <56A6C527.1010207@roeck-us.net>
+Return-path: <mathieu.poirier@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <56A6C527.1010207@roeck-us.net>
+In-Reply-To: <1454519923-25230-5-git-send-email-fu.wei@linaro.org>
+References: <1454519923-25230-1-git-send-email-fu.wei@linaro.org>
+	<1454519923-25230-5-git-send-email-fu.wei@linaro.org>
+Date: Thu, 4 Feb 2016 09:25:51 -0700
+Message-ID: <CANLsYkzQpEHa4hnO4D1E0+P-i961+ak=Hr_RPPrOxd-+VMhLSQ@mail.gmail.com>
+Subject: Re: [PATCH v10 4/5] Watchdog: introduce ARM SBSA watchdog driver
+From: Mathieu Poirier <mathieu.poirier@linaro.org>
+To: fu.wei@linaro.org
+Cc: Rob Herring <robh+dt@kernel.org>, =?UTF-8?Q?Pawe=C5=82_Moll?= <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>, wim@iguana.be, linux@roeck-us.net,
+	Jon Corbet <corbet@lwn.net>, Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will.deacon@arm.com>, Suravee.Suthikulpanit@amd.com,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-watchdog@vger.kernel.org,
+	linux-doc@vger.kernel.org,
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linaro-acpi@lists.linaro.org,
+	rruigrok@codeaurora.org, harba@codeaurora.org,
+	Christopher Covington <cov@codeaurora.org>, timur@codeaurora.org, dyoung@redhat.com,
+	panand@redhat.com, graeme.gregory@linaro.org, al.stone@linaro.org,
+	hanjun.guo@linaro.org, jcm@redhat.com, Arnd Bergmann <arnd@arndb.de>, leo.duran@amd.com,
+	Sudeep Holla <sudeep.holla@arm.com>
+Content-Type: text/plain; charset=UTF-8
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On Mon, Jan 25, 2016 at 05:00:23PM -0800, Guenter Roeck wrote:
-> On 01/25/2016 03:31 PM, Kyle Roeschley wrote:
-> >Hi Guenter,
-> >
-> >On Sat, Jan 16, 2016 at 08:29:41PM -0800, Guenter Roeck wrote:
-> >>On Mon, Jan 11, 2016 at 06:23:01PM -0600, Kyle Roeschley wrote:
-> >>>Add custom ioctls for features specific to the NI watchdog, including
-> >>>disabling the watchdog, changing timeout behavior, and setting timeouts
-> >>>with sub-second resolution.
-> >>>
-> >>I don't really agree with any of the added functionality.
-> >>Most of the added ioctls duplicate standard functionality.
-> >>
-> >>
-> >
-> >The main thing that I think could be useful is the increased timeout
-> >resolution. Aside from that, the other changes are specifically implemented for
-> >the sake of maintaining compatability with our watchdog API--I think carrying
-> >some (hopefully not all) of those changes out-of-tree is reasonable.
-> >
-> We have been discussing to increase the timeout resolution to milli-seconds for a while.
-> A patch supporting a hardware timeout maximum in milli-seconds is in the works. I could
-> imagine adding milli-second resolution to the watchdog core. Nanoseconds is a bit of
-> an overkill, though.
-> 
-> Guenter
-> 
+On 3 February 2016 at 10:18,  <fu.wei@linaro.org> wrote:
+> From: Fu Wei <fu.wei@linaro.org>
+>
+> According to Server Base System Architecture (SBSA) specification,
+> the SBSA Generic Watchdog has two stage timeouts: the first signal (WS0)
+> is for alerting the system by interrupt, the second one (WS1) is a real
+> hardware reset.
+>
+> This patch initially implements a simple single stage watchdog driver:
+> when the timeout is reached, your system will be reset by the second
+> signal (WS1).
+> The first signal (WS0) is ignored in this driver.
+>
+> This driver bases on linux kernel watchdog framework, so it can get
+> timeout from module parameter and FDT at the driver init stage.
+>
+> Signed-off-by: Fu Wei <fu.wei@linaro.org>
+> Reviewed-by: Graeme Gregory <graeme.gregory@linaro.org>
+> Tested-by: Pratyush Anand <panand@redhat.com>
+> ---
+>  drivers/watchdog/Kconfig     |  17 +++
+>  drivers/watchdog/Makefile    |   1 +
+>  drivers/watchdog/sbsa_gwdt.c | 322 +++++++++++++++++++++++++++++++++++++++++++
+>  3 files changed, 340 insertions(+)
+>
+> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> index 4f0e7be..4ab1b05 100644
+> --- a/drivers/watchdog/Kconfig
+> +++ b/drivers/watchdog/Kconfig
+> @@ -201,6 +201,23 @@ config ARM_SP805_WATCHDOG
+>           ARM Primecell SP805 Watchdog timer. This will reboot your system when
+>           the timeout is reached.
+>
+> +config ARM_SBSA_WATCHDOG
+> +       tristate "ARM SBSA Generic Watchdog"
+> +       depends on ARM64
+> +       depends on ARM_ARCH_TIMER
+> +       select WATCHDOG_CORE
+> +       help
+> +         ARM SBSA Generic Watchdog has two stage timeouts:
+> +         the first signal (WS0) is for alerting the system by interrupt,
+> +         the second one (WS1) is a real hardware reset.
+> +         More details: ARM DEN0029B - Server Base System Architecture (SBSA)
+> +
+> +         This is a simple single stage driver: when the timeout is reached,
+> +         your system will be reset by WS1. The first signal (WS0) is ignored.
+> +
+> +         To compile this driver as module, choose M here: The module
+> +         will be called sbsa_gwdt.
+> +
+>  config ASM9260_WATCHDOG
+>         tristate "Alphascale ASM9260 watchdog"
+>         depends on MACH_ASM9260
+> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+> index f566753..f9826d4 100644
+> --- a/drivers/watchdog/Makefile
+> +++ b/drivers/watchdog/Makefile
+> @@ -30,6 +30,7 @@ obj-$(CONFIG_USBPCWATCHDOG) += pcwd_usb.o
+>
+>  # ARM Architecture
+>  obj-$(CONFIG_ARM_SP805_WATCHDOG) += sp805_wdt.o
+> +obj-$(CONFIG_ARM_SBSA_WATCHDOG) += sbsa_gwdt.o
+>  obj-$(CONFIG_ASM9260_WATCHDOG) += asm9260_wdt.o
+>  obj-$(CONFIG_AT91RM9200_WATCHDOG) += at91rm9200_wdt.o
+>  obj-$(CONFIG_AT91SAM9X_WATCHDOG) += at91sam9_wdt.o
+> diff --git a/drivers/watchdog/sbsa_gwdt.c b/drivers/watchdog/sbsa_gwdt.c
+> new file mode 100644
+> index 0000000..5a2dba3
+> --- /dev/null
+> +++ b/drivers/watchdog/sbsa_gwdt.c
+> @@ -0,0 +1,322 @@
+> +/*
+> + * SBSA(Server Base System Architecture) Generic Watchdog driver
+> + *
+> + * Copyright (c) 2015, Linaro Ltd.
+> + * Author: Fu Wei <fu.wei@linaro.org>
+> + *         Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>
+> + *         Al Stone <al.stone@linaro.org>
+> + *         Timur Tabi <timur@codeaurora.org>
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License 2 as published
+> + * by the Free Software Foundation.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
+> + *
+> + * This SBSA Generic watchdog driver is a single stage timeout version.
+> + * Since this watchdog timer has two stages, and each stage is determined
+> + * by WOR. So the timeout is (WOR * 2).
+> + * When first timeout is reached, WS0 is triggered, the interrupt
+> + * triggered by WS0 will be ignored, then the second watch period starts;
+> + * when second timeout is reached, then WS1 is triggered, system reset.
+> + *
+> + * More details about the hardware specification of this device:
+> + * ARM DEN0029B - Server Base System Architecture (SBSA)
+> + *
+> + * SBSA GWDT: |--------WOR-------WS0--------WOR-------WS1
+> + *            |----------------timeout----------------reset
+> + *
+> + */
+> +
+> +#include <linux/io.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/module.h>
+> +#include <linux/moduleparam.h>
+> +#include <linux/of.h>
+> +#include <linux/of_device.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/uaccess.h>
+> +#include <linux/watchdog.h>
+> +#include <asm/arch_timer.h>
+> +
+> +/* SBSA Generic Watchdog register definitions */
+> +/* refresh frame */
+> +#define SBSA_GWDT_WRR                          0x000
+> +
+> +/* control frame */
+> +#define SBSA_GWDT_WCS                          0x000
+> +#define SBSA_GWDT_WOR                          0x008
+> +#define SBSA_GWDT_WCV                          0x010
+> +
+> +/* refresh/control frame */
+> +#define SBSA_GWDT_W_IIDR                       0xfcc
+> +#define SBSA_GWDT_IDR                          0xfd0
+> +
+> +/* Watchdog Control and Status Register */
+> +#define SBSA_GWDT_WCS_EN                       BIT(0)
+> +#define SBSA_GWDT_WCS_WS0                      BIT(1)
+> +#define SBSA_GWDT_WCS_WS1                      BIT(2)
+> +
+> +/**
+> + * struct sbsa_gwdt - Internal representation of the SBSA GWDT
+> + * @wdd:               kernel watchdog_device structure
+> + * @clk:               store the System Counter clock frequency, in Hz.
+> + * @refresh_base:      Virtual address of the watchdog refresh frame
+> + * @control_base:      Virtual address of the watchdog control frame
+> + */
+> +struct sbsa_gwdt {
+> +       struct watchdog_device  wdd;
+> +       u32                     clk;
+> +       void __iomem            *refresh_base;
+> +       void __iomem            *control_base;
+> +};
+> +
+> +#define to_sbsa_gwdt(e) container_of(e, struct sbsa_gwdt, wdd)
+> +
+> +#define DEFAULT_TIMEOUT                20 /* seconds, the 1st + 2nd watch periods*/
+> +
+> +static unsigned int timeout;
+> +module_param(timeout, uint, 0);
+> +MODULE_PARM_DESC(timeout,
+> +                "Watchdog timeout in seconds. (>=0, default="
+> +                __MODULE_STRING(DEFAULT_TIMEOUT) ")");
+> +
+> +static bool nowayout = WATCHDOG_NOWAYOUT;
+> +module_param(nowayout, bool, S_IRUGO);
+> +MODULE_PARM_DESC(nowayout,
+> +                "Watchdog cannot be stopped once started (default="
+> +                __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+> +
+> +/*
+> + * watchdog operation functions
+> + */
+> +static int sbsa_gwdt_set_timeout(struct watchdog_device *wdd,
+> +                                unsigned int timeout)
+> +{
+> +       struct sbsa_gwdt *gwdt = to_sbsa_gwdt(wdd);
+> +
+> +       wdd->timeout = timeout;
+> +       writel(timeout / 2 * gwdt->clk, gwdt->control_base + SBSA_GWDT_WOR);
+> +
+> +       return 0;
+> +}
+> +
+> +static unsigned int sbsa_gwdt_get_timeleft(struct watchdog_device *wdd)
+> +{
+> +       struct sbsa_gwdt *gwdt = to_sbsa_gwdt(wdd);
+> +       u64 timeleft = readq(gwdt->control_base + SBSA_GWDT_WCV) -
+> +                      arch_counter_get_cntvct();
+> +
+> +       do_div(timeleft, gwdt->clk);
+> +
+> +       if (readl(gwdt->control_base + SBSA_GWDT_WCS) & SBSA_GWDT_WCS_WS0)
+> +               return timeleft;
+> +
+> +       return timeleft + wdd->timeout / 2;
 
-Deciding on milliseconds over nanoseconds seems rather arbitrary, especially
-since standard kernel timers use jiffies and hrtimers use nanoseconds. I do
-realize that users may not care about differences of less than a second, but it
-seems better to err on the side of caution and provide more accuracy than
-they would be expected to need. For instance, this watchdog operates on a
-real-time system with any number of industrial applications which could require
-high accuracy even from the watchdog.
+It would be great to have a comment whenever hard coded values are
+used.  That way people understand why things were set this way.  The
+same applies for the rest of this patch.
 
-Seeing as the higher-resolution timeouts aren't yet in the kernel, would it be
-acceptable to use a sysfs attribute for the time being at least? I can't come
-up with any ways in which exposing the counter could cause problems. The code
-to do so is trivial and involves only moving a bit of work out of set_timeout/
-get_timeleft into separate functions.
-
-That being said, I'd gone with a sysfs attribute for adding actions (as you
-suggested below), but I'm running into a problem. The watchdog core lock isn't
-used when you use sysfs attributes, and without that lock, we have the
-possibility of writing or reading garbage data. The best workarounds would seem
-to be adding some way to access the internal lock or adding my own lock. Using
-my own lock, however, would result in double locking everywhere except in the
-attribute show and store functions. Do you have any advice on this?
-
-Regards,
-
-Kyle Roeschley
-Software Engineer
-National Instruments
-
-> >>>Signed-off-by: Kyle Roeschley <kyle.roeschley@ni.com>
-> >>>Signed-off-by: Jeff Westfahl <jeff.westfahl@ni.com>
-> >>>---
-> >>>  drivers/watchdog/niwatchdog.c   | 115 +++++++++++++++++++++++++++++++++++++++-
-> >>>  include/uapi/linux/niwatchdog.h |  10 ++++
-> >>>  2 files changed, 123 insertions(+), 2 deletions(-)
-> >>>
-> >>>diff --git a/drivers/watchdog/niwatchdog.c b/drivers/watchdog/niwatchdog.c
-> >>>index 3908846..fe637a3 100644
-> >>>--- a/drivers/watchdog/niwatchdog.c
-> >>>+++ b/drivers/watchdog/niwatchdog.c
-> >>>@@ -131,6 +131,35 @@ out_unlock:
-> >>>  	return ret;
-> >>>  }
-> >>>
-> >>>+static int niwatchdog_check_action(u32 action)
-> >>>+{
-> >>>+	int err = 0;
-> >>>+
-> >>>+	switch (action) {
-> >>>+	case NIWD_CONTROL_PROC_INTERRUPT:
-> >>>+	case NIWD_CONTROL_PROC_RESET:
-> >>>+		break;
-> >>>+	default:
-> >>>+		err = -ENOTSUPP;
-> >>>+	}
-> >>>+
-> >>>+	return err;
-> >>>+}
-> >>>+
-> >>>+static void niwatchdog_get_actions(struct niwatchdog *niwatchdog, u8 *actions)
-> >>>+{
-> >>>+	u8 control;
-> >>>+	unsigned long flags;
-> >>>+
-> >>>+	spin_lock_irqsave(&niwatchdog->lock, flags);
-> >>>+
-> >>>+	control = inb(niwatchdog->io_base + NIWD_CONTROL);
-> >>>+	*actions = control & (NIWD_CONTROL_PROC_INTERRUPT +
-> >>>+			      NIWD_CONTROL_PROC_RESET);
-> >>>+
-> >>>+	spin_unlock_irqrestore(&niwatchdog->lock, flags);
-> >>>+}
-> >>>+
-> >>>  static int niwatchdog_add_action(struct niwatchdog *niwatchdog, u32 action)
-> >>>  {
-> >>>  	u8 action_mask;
-> >>>@@ -233,12 +262,20 @@ static int niwatchdog_wdd_set_timeout(struct watchdog_device *wdd,
-> >>>  {
-> >>>  	struct niwatchdog *niwatchdog = to_niwatchdog(wdd);
-> >>>  	u32 counter = timeout * (1000000000 / NIWD_PERIOD_NS);
-> >>>+	u8 actions;
-> >>>
-> >>>+	niwatchdog_get_actions(niwatchdog, &actions);
-> >>>  	niwatchdog_reset(niwatchdog);
-> >>>  	niwatchdog_counter_set(niwatchdog, counter);
-> >>>-	niwatchdog_add_action(niwatchdog, NIWATCHDOG_ACTION_RESET);
-> >>>
-> >>>-	return niwatchdog_start(niwatchdog);
-> >>>+	if (actions & NIWD_CONTROL_PROC_RESET)
-> >>>+		niwatchdog_add_action(niwatchdog, NIWATCHDOG_ACTION_RESET);
-> >>>+	if (actions & NIWD_CONTROL_PROC_INTERRUPT)
-> >>>+		niwatchdog_add_action(niwatchdog, NIWATCHDOG_ACTION_INTERRUPT);
-> >>>+
-> >>>+	niwatchdog_start(niwatchdog);
-> >>>+
-> >>>+	return 0;
-> >>>  }
-> >>>
-> >>>  static unsigned int niwatchdog_wdd_get_timeleft(struct watchdog_device *wdd)
-> >>>@@ -319,6 +356,79 @@ static int niwatchdog_wdd_release(struct watchdog_device *wdd)
-> >>>  	return 0;
-> >>>  }
-> >>>
-> >>>+static long niwatchdog_wdd_ioctl(struct watchdog_device *wdd, unsigned int cmd,
-> >>>+				 unsigned long arg)
-> >>>+{
-> >>>+	struct niwatchdog *niwatchdog = to_niwatchdog(wdd);
-> >>>+	int err = 0;
-> >>>+
-> >>>+	switch (cmd) {
-> >>>+	case NIWATCHDOG_IOCTL_PERIOD_NS: {
-> >>>+		__u32 period = NIWD_PERIOD_NS;
-> >>>+
-> >>>+		err = copy_to_user((__u32 *)arg, &period, sizeof(__u32));
-> >>>+		break;
-> >>>+	}
-> >>>+	case NIWATCHDOG_IOCTL_MAX_COUNTER: {
-> >>>+		__u32 counter = NIWD_MAX_COUNTER;
-> >>>+
-> >>>+		err = copy_to_user((__u32 *)arg, &counter, sizeof(__u32));
-> >>>+		break;
-> >>>+	}
-> >>
-> >>Those are constants and can as well be defined in some documentation.
-> >>
-> >
-> >True. The only reason they're here is that our API expects this function to be
-> >implemented for all of our watchdog timers. As such, carrying this out-of-tree
-> >would be reasonable.
-> >
-> >>>+	case NIWATCHDOG_IOCTL_COUNTER_SET: {
-> >>>+		__u32 counter;
-> >>>+
-> >>>+		err = copy_from_user(&counter, (__u32 *)arg, sizeof(__u32));
-> >>>+		if (!err)
-> >>>+			err = niwatchdog_counter_set(niwatchdog, counter);
-> >>>+		break;
-> >>>+	}
-> >>Duplicates standard functionality
-> >>
-> >
-> >It duplicates set_timeout(), but with much greater resolution. What would be an
-> >appropriate way to expose this capability to users?
-> >
-> >>>+	case NIWATCHDOG_IOCTL_CHECK_ACTION: {
-> >>>+		__u32 action;
-> >>>+
-> >>>+		err = copy_from_user(&action, (__u32 *)arg, sizeof(__u32));
-> >>>+		if (!err)
-> >>>+			err = niwatchdog_check_action(action);
-> >>>+		break;
-> >>>+	}
-> >>>+	case NIWATCHDOG_IOCTL_ADD_ACTION: {
-> >>>+		__u32 action;
-> >>>+
-> >>>+		err = copy_from_user(&action, (__u32 *)arg, sizeof(__u32));
-> >>>+		if (!err)
-> >>>+			err = niwatchdog_add_action(niwatchdog, action);
-> >>>+		break;
-> >>>+	}
-> >>
-> >>Use a module parameter or sysfs attribute for those.
-> >>
-> >
-> >I'm a fan of using a sysfs attribute, specifically because the options can be
-> >changed after opening the watchdog and you can have one, both, or neither of
-> >the two timeout actions set.
-> >
-> >>>+	case NIWATCHDOG_IOCTL_START: {
-> >>>+		niwatchdog_start(niwatchdog);
-> >>>+		break;
-> >>>+	}
-> >>
-> >>Duplicates standard functionality.
-> >>
-> >>>+	case NIWATCHDOG_IOCTL_PET: {
-> >>>+		__u32 state;
-> >>>+
-> >>>+		niwatchdog_pet(niwatchdog, &state);
-> >>>+		err = copy_to_user((__u32 *)arg, &state, sizeof(__u32));
-> >>>+		break;
-> >>>+	}
-> >>
-> >>Duplicates standard functionality.
-> >>
-> >>>+	case NIWATCHDOG_IOCTL_RESET: {
-> >>>+		niwatchdog_reset(niwatchdog);
-> >>>+		break;
-> >>>+	}
-> >>
-> >>Duplicates standard functionality.
-> >>
-> >
-> >These are just maps from old, non-standard iotcls to the standard ones. They
-> >can be removed in favor of an out-of-tree commit.
-> >
-> >>>+	case NIWATCHDOG_IOCTL_COUNTER_GET: {
-> >>>+		__u32 counter;
-> >>>+
-> >>>+		niwatchdog_counter_get(niwatchdog, &counter);
-> >>>+		err = copy_to_user((__u32 *)arg, &counter, sizeof(__u32));
-> >>>+		break;
-> >>>+	}
-> >>
-> >>Duplicates standard functionality.
-> >>
-> >
-> >Yes, but again I'm not sure how we should give the user a more accurate
-> >remaining time.
-> >
-> >>>+	default:
-> >>>+		err = -ENOIOCTLCMD;
-> >>>+		break;
-> >>>+	};
-> >>>+
-> >>>+	return err;
-> >>>+}
-> >>>+
-> >>>  static int niwatchdog_ping(struct watchdog_device *wdd)
-> >>>  {
-> >>>  	struct niwatchdog *niwatchdog = to_niwatchdog(wdd);
-> >>>@@ -403,6 +513,7 @@ static const struct watchdog_ops niwatchdog_wdd_ops = {
-> >>>  	.start		= niwatchdog_wdd_open,
-> >>>  	.stop		= niwatchdog_wdd_release,
-> >>>  	.ping		= niwatchdog_ping,
-> >>>+	.ioctl		= niwatchdog_wdd_ioctl,
-> >>>  	.set_timeout	= niwatchdog_wdd_set_timeout,
-> >>>  	.get_timeleft	= niwatchdog_wdd_get_timeleft,
-> >>>  };
-> >>>diff --git a/include/uapi/linux/niwatchdog.h b/include/uapi/linux/niwatchdog.h
-> >>>index 9d3613d..4fb8d47 100644
-> >>>--- a/include/uapi/linux/niwatchdog.h
-> >>>+++ b/include/uapi/linux/niwatchdog.h
-> >>>@@ -25,6 +25,16 @@
-> >>>  #define NIWATCHDOG_STATE_EXPIRED	1
-> >>>  #define NIWATCHDOG_STATE_DISABLED	2
-> >>>
-> >>>+#define NIWATCHDOG_IOCTL_PERIOD_NS	_IOR('W', 60, __u32)
-> >>>+#define NIWATCHDOG_IOCTL_MAX_COUNTER	_IOR('W', 61, __u32)
-> >>>+#define NIWATCHDOG_IOCTL_COUNTER_SET	_IOW('W', 62, __u32)
-> >>>+#define NIWATCHDOG_IOCTL_CHECK_ACTION	_IOW('W', 63, __u32)
-> >>>+#define NIWATCHDOG_IOCTL_ADD_ACTION	_IOW('W', 64, __u32)
-> >>>+#define NIWATCHDOG_IOCTL_START		_IO('W', 65)
-> >>>+#define NIWATCHDOG_IOCTL_PET		_IOR('W', 66, __u32)
-> >>>+#define NIWATCHDOG_IOCTL_RESET		_IO('W', 67)
-> >>>+#define NIWATCHDOG_IOCTL_COUNTER_GET	_IOR('W', 68, __u32)
-> >>>+
-> >>>  #define NIWATCHDOG_NAME			"niwatchdog"
-> >>>
-> >>>  #endif /* _LINUX_NIWATCHDOG_H_ */
-> >>--
-> >>To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-> >>the body of a message to majordomo@vger.kernel.org
-> >>More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> >
-> >Thanks again for the reviews.
-> >
-> 
+> +}
+> +
+> +static int sbsa_gwdt_keepalive(struct watchdog_device *wdd)
+> +{
+> +       struct sbsa_gwdt *gwdt = to_sbsa_gwdt(wdd);
+> +
+> +       /*
+> +       * Writing WRR for an explicit watchdog refresh.
+> +       * You can write anyting(like 0xc0ffee).
+> +       */
+> +       writel(0xc0ffee, gwdt->refresh_base + SBSA_GWDT_WRR);
+> +
+> +       return 0;
+> +}
+> +
+> +static unsigned int sbsa_gwdt_status(struct watchdog_device *wdd)
+> +{
+> +       struct sbsa_gwdt *gwdt = to_sbsa_gwdt(wdd);
+> +       u32 status = readl(gwdt->control_base + SBSA_GWDT_WCS);
+> +
+> +       /* is the watchdog timer running? */
+> +       return (status & SBSA_GWDT_WCS_EN) << WDOG_ACTIVE;
+> +}
+> +
+> +static int sbsa_gwdt_start(struct watchdog_device *wdd)
+> +{
+> +       struct sbsa_gwdt *gwdt = to_sbsa_gwdt(wdd);
+> +
+> +       /* writing WCS will cause an explicit watchdog refresh */
+> +       writel(SBSA_GWDT_WCS_EN, gwdt->control_base + SBSA_GWDT_WCS);
+> +
+> +       return sbsa_gwdt_keepalive(wdd);
+> +}
+> +
+> +static int sbsa_gwdt_stop(struct watchdog_device *wdd)
+> +{
+> +       struct sbsa_gwdt *gwdt = to_sbsa_gwdt(wdd);
+> +
+> +       writel(0, gwdt->control_base + SBSA_GWDT_WCS);
+> +
+> +       return 0;
+> +}
+> +
+> +static struct watchdog_info sbsa_gwdt_info = {
+> +       .identity       = "SBSA Generic Watchdog",
+> +       .options        = WDIOF_SETTIMEOUT |
+> +                         WDIOF_KEEPALIVEPING |
+> +                         WDIOF_MAGICCLOSE |
+> +                         WDIOF_CARDRESET,
+> +};
+> +
+> +static struct watchdog_ops sbsa_gwdt_ops = {
+> +       .owner          = THIS_MODULE,
+> +       .start          = sbsa_gwdt_start,
+> +       .stop           = sbsa_gwdt_stop,
+> +       .status         = sbsa_gwdt_status,
+> +       .ping           = sbsa_gwdt_keepalive,
+> +       .set_timeout    = sbsa_gwdt_set_timeout,
+> +       .get_timeleft   = sbsa_gwdt_get_timeleft,
+> +};
+> +
+> +static int sbsa_gwdt_probe(struct platform_device *pdev)
+> +{
+> +       void __iomem *rf_base, *cf_base;
+> +       struct device *dev = &pdev->dev;
+> +       struct watchdog_device *wdd;
+> +       struct sbsa_gwdt *gwdt;
+> +       struct resource *res;
+> +       u32 status;
+> +       int ret;
+> +
+> +       gwdt = devm_kzalloc(dev, sizeof(*gwdt), GFP_KERNEL);
+> +       if (!gwdt)
+> +               return -ENOMEM;
+> +       platform_set_drvdata(pdev, gwdt);
+> +
+> +       res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +       cf_base = devm_ioremap_resource(dev, res);
+> +       if (IS_ERR(cf_base))
+> +               return PTR_ERR(cf_base);
+> +
+> +       res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
+> +       rf_base = devm_ioremap_resource(dev, res);
+> +       if (IS_ERR(rf_base))
+> +               return PTR_ERR(rf_base);
+> +
+> +       /*
+> +        * Get the frequency of system counter from the cp15 interface of ARM
+> +        * Generic timer. We don't need to check it, because if it returns "0",
+> +        * system would panic in very early stage.
+> +        */
+> +       gwdt->clk = arch_timer_get_cntfrq();
+> +       gwdt->refresh_base = rf_base;
+> +       gwdt->control_base = cf_base;
+> +
+> +       wdd = &gwdt->wdd;
+> +       wdd->parent = dev;
+> +       wdd->info = &sbsa_gwdt_info;
+> +       wdd->ops = &sbsa_gwdt_ops;
+> +       watchdog_set_drvdata(wdd, gwdt);
+> +       watchdog_set_nowayout(wdd, nowayout);
+> +
+> +       wdd->min_timeout = 2;
+> +       wdd->max_timeout = U32_MAX / gwdt->clk * 2;
+> +       wdd->timeout = DEFAULT_TIMEOUT;
+> +       watchdog_init_timeout(wdd, timeout, dev);
+> +
+> +       status = readl(gwdt->control_base + SBSA_GWDT_WCS);
+> +       if (status & SBSA_GWDT_WCS_WS1) {
+> +               dev_warn(dev, "System reset by WDT.\n");
+> +               wdd->bootstatus |= WDIOF_CARDRESET;
+> +       }
+> +
+> +       ret = watchdog_register_device(wdd);
+> +       if (ret)
+> +               return ret;
+> +
+> +       /*
+> +        * Update timeout to WOR.
+> +        * Because of the explicit watchdog refresh mechanism,
+> +        * it's also a ping, if watchdog is enabled.
+> +        */
+> +       sbsa_gwdt_set_timeout(wdd, wdd->timeout);
+> +
+> +       dev_info(dev, "Initialized with %ds timeout @ %u Hz%s\n", wdd->timeout,
+> +                gwdt->clk, status & SBSA_GWDT_WCS_EN ? " [enabled]" : "");
+> +
+> +       return 0;
+> +}
+> +
+> +static void sbsa_gwdt_shutdown(struct platform_device *pdev)
+> +{
+> +       struct sbsa_gwdt *gwdt = platform_get_drvdata(pdev);
+> +
+> +       sbsa_gwdt_stop(&gwdt->wdd);
+> +}
+> +
+> +static int sbsa_gwdt_remove(struct platform_device *pdev)
+> +{
+> +       struct sbsa_gwdt *gwdt = platform_get_drvdata(pdev);
+> +
+> +       watchdog_unregister_device(&gwdt->wdd);
+> +
+> +       return 0;
+> +}
+> +
+> +/* Disable watchdog if it is active during suspend */
+> +static int __maybe_unused sbsa_gwdt_suspend(struct device *dev)
+> +{
+> +       struct sbsa_gwdt *gwdt = dev_get_drvdata(dev);
+> +
+> +       if (watchdog_active(&gwdt->wdd))
+> +               sbsa_gwdt_stop(&gwdt->wdd);
+> +
+> +       return 0;
+> +}
+> +
+> +/* Enable watchdog and configure it if necessary */
+> +static int __maybe_unused sbsa_gwdt_resume(struct device *dev)
+> +{
+> +       struct sbsa_gwdt *gwdt = dev_get_drvdata(dev);
+> +
+> +       if (watchdog_active(&gwdt->wdd))
+> +               sbsa_gwdt_start(&gwdt->wdd);
+> +
+> +       return 0;
+> +}
+> +
+> +static const struct dev_pm_ops sbsa_gwdt_pm_ops = {
+> +       SET_SYSTEM_SLEEP_PM_OPS(sbsa_gwdt_suspend, sbsa_gwdt_resume)
+> +};
+> +
+> +static const struct of_device_id sbsa_gwdt_of_match[] = {
+> +       { .compatible = "arm,sbsa-gwdt", },
+> +       {},
+> +};
+> +MODULE_DEVICE_TABLE(of, sbsa_gwdt_of_match);
+> +
+> +static const struct platform_device_id sbsa_gwdt_pdev_match[] = {
+> +       { .name = "sbsa-gwdt", },
+> +       {},
+> +};
+> +MODULE_DEVICE_TABLE(platform, sbsa_gwdt_pdev_match);
+> +
+> +static struct platform_driver sbsa_gwdt_driver = {
+> +       .driver = {
+> +               .name = "sbsa-gwdt",
+> +               .pm = &sbsa_gwdt_pm_ops,
+> +               .of_match_table = sbsa_gwdt_of_match,
+> +       },
+> +       .probe = sbsa_gwdt_probe,
+> +       .remove = sbsa_gwdt_remove,
+> +       .shutdown = sbsa_gwdt_shutdown,
+> +       .id_table = sbsa_gwdt_pdev_match,
+> +};
+> +
+> +module_platform_driver(sbsa_gwdt_driver);
+> +
+> +MODULE_DESCRIPTION("SBSA Generic Watchdog Driver");
+> +MODULE_AUTHOR("Fu Wei <fu.wei@linaro.org>");
+> +MODULE_AUTHOR("Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>");
+> +MODULE_AUTHOR("Al Stone <al.stone@linaro.org>");
+> +MODULE_AUTHOR("Timur Tabi <timur@codeaurora.org>");
+> +MODULE_LICENSE("GPL v2");
+> --
+> 2.5.0
+>
