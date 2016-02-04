@@ -1,192 +1,545 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:43654 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753104AbcBFS5z (ORCPT
+Received: from exsmtp01.microchip.com ([198.175.253.37]:36817 "EHLO
+	email.microchip.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1757816AbcBDW7L (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 6 Feb 2016 13:57:55 -0500
-Subject: Re: [PATCH v10 5/5] Watchdog: ARM SBSA Generic Watchdog half timeout
- panic support
-To: Fu Wei <fu.wei@linaro.org>
-References: <1454519923-25230-1-git-send-email-fu.wei@linaro.org>
- <1454519923-25230-6-git-send-email-fu.wei@linaro.org>
- <56B23883.7000501@codeaurora.org>
- <CADyBb7sxPg-QUjTbeHFtYkctKc_g7D8O=+jqbXN+DCCoCEnFqA@mail.gmail.com>
- <56B23E99.1030604@codeaurora.org>
- <CADyBb7s4opxfPFuX=1-qEE6uhsaMXgofAJPbHUQHrng2AUwqNA@mail.gmail.com>
- <56B2423B.1020109@codeaurora.org>
- <CADyBb7uULCn97ea19zH8dB4QX1QA8=AXL94d6gXgFxXM8haBNA@mail.gmail.com>
- <56B24642.8090105@codeaurora.org>
- <CADyBb7s_QeU=pYqN9G+5WMtx-L+=QC6uZR6N6ZWPOixnkHzPjw@mail.gmail.com>
- <56B24AB5.3070001@codeaurora.org>
- <CADyBb7usPpY=YLjecXce63zY5e1tniPLmNsVY=8CJHJsCqBgQw@mail.gmail.com>
- <56B2DEE4.7060901@roeck-us.net>
- <CADyBb7unAHEOMfruWS82RkHK6uwPAWCxUx9jqzSkiHU4LHDSeA@mail.gmail.com>
- <56B4B4E2.40105@roeck-us.net>
- <CADyBb7sP=d+BWOdmNEAs38yRcmXVjYsFX=XNffNpGqfybpxTfQ@mail.gmail.com>
- <56B5363D.20200@roeck-us.net>
- <CADyBb7vRKjDoeOfH=3Uwz+D0xyXaC9cM4ZSEO+MwL8Gw5T-Umg@mail.gmail.com>
-Cc: Timur Tabi <timur@codeaurora.org>,
-	Rob Herring <robh+dt@kernel.org>,
-	=?UTF-8?Q?Pawe=c5=82_Moll?= <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
+	Thu, 4 Feb 2016 17:59:11 -0500
+From: Joshua Henderson <joshua.henderson@microchip.com>
+Subject: Re: [PATCH 2/2] watchdog: pic32-wdt: Add PIC32 watchdog driver
+To: Guenter Roeck <linux@roeck-us.net>, <linux-kernel@vger.kernel.org>
+References: <1454371381-25160-1-git-send-email-joshua.henderson@microchip.com>
+ <1454371381-25160-2-git-send-email-joshua.henderson@microchip.com>
+ <56B02206.2000002@roeck-us.net>
+CC: <linux-mips@linux-mips.org>, <ralf@linux-mips.org>,
+	Purna Chandra Mandal <purna.mandal@microchip.com>,
 	Wim Van Sebroeck <wim@iguana.be>,
-	Jon Corbet <corbet@lwn.net>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will.deacon@arm.com>,
-	Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
-	LKML <linux-kernel@vger.kernel.org>,
-	linux-watchdog@vger.kernel.org, linux-doc@vger.kernel.org,
-	devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>,
-	rruigrok@codeaurora.org, "Abdulhamid, Harb" <harba@codeaurora.org>,
-	Christopher Covington <cov@codeaurora.org>,
-	Dave Young <dyoung@redhat.com>,
-	Pratyush Anand <panand@redhat.com>,
-	G Gregory <graeme.gregory@linaro.org>,
-	Al Stone <al.stone@linaro.org>,
-	Hanjun Guo <hanjun.guo@linaro.org>,
-	Jon Masters <jcm@redhat.com>, Arnd Bergmann <arnd@arndb.de>,
-	Leo Duran <leo.duran@amd.com>,
-	Sudeep Holla <sudeep.holla@arm.com>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <56B6422C.7070302@roeck-us.net>
-Date: Sat, 6 Feb 2016 10:57:48 -0800
+	<linux-watchdog@vger.kernel.org>
+Message-ID: <56B3D8A9.6080805@microchip.com>
+Date: Thu, 4 Feb 2016 16:03:05 -0700
 MIME-Version: 1.0
-In-Reply-To: <CADyBb7vRKjDoeOfH=3Uwz+D0xyXaC9cM4ZSEO+MwL8Gw5T-Umg@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <56B02206.2000002@roeck-us.net>
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 02/06/2016 10:02 AM, Fu Wei wrote:
-> Hi Guenter,
->
-> On 6 February 2016 at 07:54, Guenter Roeck <linux@roeck-us.net> wrote:
->> On 02/05/2016 10:21 AM, Fu Wei wrote:
->>>
->>> On 5 February 2016 at 22:42, Guenter Roeck <linux@roeck-us.net> wrote:
->>>>
->>>> On 02/05/2016 01:51 AM, Fu Wei wrote:
->>>>>
->>>>>
->>>>> Hi Guenter,
->>>>>
->>>>> On 4 February 2016 at 13:17, Guenter Roeck <linux@roeck-us.net> wrote:
->>>>>>
->>>>>>
->>>>>> On 02/03/2016 03:00 PM, Fu Wei wrote:
->>>>>>>
->>>>>>>
->>>>>>>
->>>>>>> On 4 February 2016 at 02:45, Timur Tabi <timur@codeaurora.org> wrote:
->>>>>>>>
->>>>>>>>
->>>>>>>>
->>>>>>>> Fu Wei wrote:
->>>>>>>>>
->>>>>>>>>
->>>>>>>>>
->>>>>>>>>
->>>>>>>>> As you know I have made the pre-timeout support patch, If people
->>>>>>>>> like
->>>>>>>>> it, i am happy to go on upstream it separately.
->>>>>>>>>
->>>>>>>>> If we want to use pre-timeout here, user only can use get_pretimeout
->>>>>>>>> and disable panic by setting pretimeout to 0
->>>>>>>>> but user can not really set pretimeout, because "pre-timeout  ==
->>>>>>>>> timeout / 2 (always)".
->>>>>>>>> if user want to change pretimeout, he/she has to set_time instead.
->>>>>>>>
->>>>>>>>
->>>>>>>>
->>>>>>>>
->>>>>>>>
->>>>>>>> Ok, I think patches 4 and 5 should be combined, and I think the
->>>>>>>> Kconfig
->>>>>>>> entry should be removed and just use panic_enabled.
->>>>>>
->>>>>>
->>>>>>
->>>>>>
->>>>>> Agreed.
->>>>>
->>>>>
->>>>>
->>>>> np, will do
->>>>>
->>>>>>>
->>>>>>>
->>>>>>> NP, will update this patchset like that ,  thanks :-)
->>>>>>>
->>>>>>
->>>>>> Also, if panic is enabled, the timeout needs to be adjusted accordingly
->>>>>> (to only panic after the entire timeout period has expired, not after
->>>>>> half of it). We can not panic the system after timeout / 2.
->>>>>
->>>>>
->>>>>
->>>>> OK, my thought is
->>>>>
->>>>> if panic is enabled :
->>>>> |--------WOR-------WS0--------WOR-------WS1
->>>>> |------timeout------(panic)------timeout-----reset
->>>>>
->>>>> if panic is disabled .
->>>>> |--------WOR-------WS0--------WOR-------WS1
->>>>> |---------------------timeout---------------------reset
->>>>>
->>>>>     panic_enabled only can be configured when module is loaded by module
->>>>> parameter
->>>>>
->>>>> But user should know that max_timeout(panic_enable) =
->>>>> max_timeout(panic_disable) / 2
->>>>>
->>>>
->>>> That means you'll have to update max_timeout accordingly.
->>>
->>>
->>> panic_enabled only can be configured when module is loaded, so we
->>> don't need to update it.
->>>
->>> max_timeout will only be set up in the init stage.
->>>
->>> Does it make sense ? :-)
->>>
->> Not sure I understand your problem or question.
+Guenter,
+
+On 02/01/2016 08:27 PM, Guenter Roeck wrote:
+> On 02/01/2016 04:02 PM, Joshua Henderson wrote:
+>> When enabled, the watchdog peripheral can be used to reset the device if the
+>> WDT is not cleared periodically in software.
+> 
+> Commit description is a bit long.
+
+Ack.
+
 >>
->> max_timeout will have to reflect the correct maximum timeout, under
->> all circumstances. It will have to be set to the correct value before
->> the watchdog driver is registered.
+>> Signed-off-by: Joshua Henderson <joshua.henderson@microchip.com>
+>> Signed-off-by: Purna Chandra Mandal <purna.mandal@microchip.com>
+>> Cc: Ralf Baechle <ralf@linux-mips.org>
+>> Cc: <linux-mips@linux-mips.org>
+>> ---
+>> Note: Please merge this patch series through the MIPS tree.
+>> ---
+>>   drivers/watchdog/Kconfig     |   14 ++
+>>   drivers/watchdog/Makefile    |    1 +
+>>   drivers/watchdog/pic32-wdt.c |  301 ++++++++++++++++++++++++++++++++++++++++++
+>>   3 files changed, 316 insertions(+)
+>>   create mode 100644 drivers/watchdog/pic32-wdt.c
+>>
+>> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+>> index 4f0e7be..131abc2 100644
+>> --- a/drivers/watchdog/Kconfig
+>> +++ b/drivers/watchdog/Kconfig
+>> @@ -1410,6 +1410,20 @@ config MT7621_WDT
+>>       help
+>>         Hardware driver for the Mediatek/Ralink MT7621/8 SoC Watchdog Timer.
+>>
+>> +config PIC32_WDT
+>> +    tristate "Microchip PIC32 hardware watchdog"
+>> +    select WATCHDOG_CORE
+>> +    depends on MACH_PIC32
+>> +    default y
+> 
+> Sure you want "y" here ?
+
+No. Will remove.
+
+> 
+>> +    help
+>> +      Watchdog driver for the built in watchdog hardware in a PIC32.
+>> +
+>> +      Configuration bits must be set appropriately for the watchdog to be
+>> +      controlled by this driver.
+>> +
+>> +      To compile this driver as a loadable module, choose M here.
+>> +      The module will be called pic32-wdt.
+>> +
+>>   # PARISC Architecture
+>>
+>>   # POWERPC Architecture
+>> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+>> index f566753..244ed80 100644
+>> --- a/drivers/watchdog/Makefile
+>> +++ b/drivers/watchdog/Makefile
+>> @@ -153,6 +153,7 @@ obj-$(CONFIG_LANTIQ_WDT) += lantiq_wdt.o
+>>   obj-$(CONFIG_RALINK_WDT) += rt2880_wdt.o
+>>   obj-$(CONFIG_IMGPDC_WDT) += imgpdc_wdt.o
+>>   obj-$(CONFIG_MT7621_WDT) += mt7621_wdt.o
+>> +obj-$(CONFIG_PIC32_WDT) += pic32-wdt.o
+>>
+>>   # PARISC Architecture
+>>
+>> diff --git a/drivers/watchdog/pic32-wdt.c b/drivers/watchdog/pic32-wdt.c
+>> new file mode 100644
+>> index 0000000..d80e62d
+>> --- /dev/null
+>> +++ b/drivers/watchdog/pic32-wdt.c
+>> @@ -0,0 +1,301 @@
+>> +/*
+>> + * PIC32 watchdog driver
+>> + *
+>> + * Joshua Henderson <joshua.henderson@microchip.com>
+>> + * Copyright (c) 2016, Microchip Technology Inc.
+>> + *
+>> + * This program is free software; you can redistribute it and/or
+>> + * modify it under the terms of the GNU General Public License
+>> + * as published by the Free Software Foundation; either version
+>> + * 2 of the License, or (at your option) any later version.
+>> + */
+>> +
+>> +#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+>> +
+>> +#include <linux/kernel.h>
+>> +#include <linux/module.h>
+>> +#include <linux/clk.h>
+>> +#include <linux/err.h>
+>> +#include <linux/io.h>
+>> +#include <linux/of.h>
+>> +#include <linux/of_device.h>
+>> +#include <linux/pm.h>
+>> +#include <linux/watchdog.h>
+>> +#include <linux/spinlock.h>
+>> +#include <linux/device.h>
+>> +#include <linux/platform_device.h>
+> 
+> Alphabetic order, please.
+
+Ack.
+
 >
-> yes, understood,  my thought is :
->
-> in  static int sbsa_gwdt_probe(struct platform_device *pdev)
->
-> if (action) {
->          wdd->min_timeout = 1;
->          wdd->max_timeout = U32_MAX / gwdt->clk;
-> } else {
->          wdd->min_timeout = 2;
->          wdd->max_timeout = U32_MAX / gwdt->clk * 2;
+>> +
+>> +#include <asm/mach-pic32/pic32.h>
+>> +
+>> +/* Watchdog Timer Registers */
+>> +#define WDTCON_REG        0x00
+>> +
+>> +/* Watchdog Timer Control Register fields */
+>> +#define WDTCON_WIN_EN        0x0001
+>> +#define WDTCON_RMCS_MASK    0x0003
+>> +#define WDTCON_RMCS_SHIFT    0x0006
+>> +#define WDTCON_RMPS_MASK    0x001F
+>> +#define WDTCON_RMPS_SHIFT    0x0008
+>> +#define WDTCON_ON        0x8000
+>> +#define WDTCON_CLR_KEY        0x5743
+>> +
+>> +/* Reset Control Register fields for watchdog */
+>> +#define RESETCON_TIMEOUT_IDLE    0x0004
+>> +#define RESETCON_TIMEOUT_SLEEP    0x0008
+>> +#define RESETCON_WDT_TIMEOUT    0x0010
+>> +
+> 
+> Can you use BIT() to make it easier to understand which values are bit masks ?
 
-Pretty much, though you would also have to adjust all calculations
-using gwdt->clk, in both set_timeout() and get_timeout(). Wonder if
-you could adjust gwdt->clk instead.
+Ack.
 
-Does min_timeout really have to be 2 if panic is disabled ?
-The only reason seems to be the calculation in sbsa_gwdt_set_timeout().
+>> +struct pic32_wdt {
+>> +    spinlock_t    lock;
+>> +    void __iomem    *regs;
+>> +    void __iomem    *rst_base;
+>> +    struct clk    *clk;
+>> +    unsigned long    next_heartbeat;
+>> +    unsigned long    timeout;
+>> +};
+>> +
+>> +static inline int wdt_is_enabled(struct pic32_wdt *wdt)
+>> +{
+>> +    return readl(wdt->regs + WDTCON_REG) & WDTCON_ON;
+>> +}
+> 
+> Return bool.
 
-	writel(timeout / 2 * gwdt->clk, gwdt->control_base + SBSA_GWDT_WOR);
+Ack.
 
-Maybe you could use something like
+> 
+>> +
+>> +static inline int wdt_is_win_enabled(struct pic32_wdt *wdt)
+>> +{
+> 
+> Return bool.
 
-	writel(timeout * (gwdt->clk / 2), ...);
+Ack.
 
-instead. Or, as mentioned above, adjust the value of gwdt->clk
-to include the factor.
+> 
+>> +    u32 v;
+>> +
+>> +    v = readl(wdt->regs + WDTCON_REG);
+>> +    v &= WDTCON_WIN_EN;
+>> +
+>> +    return v;
+> 
+>     return readl(wdt->regs + WDTCON_REG) & WDTCON_WIN_EN;
+> 
+> would be good enough and be more consistent with the other
+> function above.
+
+Ack.
+
+> 
+>> +}
+>> +
+>> +static inline void wdt_enable(struct pic32_wdt *wdt)
+>> +{
+>> +    writel(WDTCON_ON, PIC32_SET(wdt->regs + WDTCON_REG));
+>> +}
+>> +
+> 
+> Can you use consistent function name prefixes ?
+
+Ack. A couple of these single use functions will just be removed and put inline.
+
+> 
+>> +static inline void wdt_disable(struct pic32_wdt *wdt)
+>> +{
+>> +    writel(WDTCON_ON, PIC32_CLR(wdt->regs + WDTCON_REG));
+>> +    cpu_relax();
+> 
+> Is this needed ?
+
+No watchdog registers may be read or written in the CPU cycle immediately following the instruction that clears the module’s ON bit. I will see if I can come up with something better and at least comment why this is here.
+
+> 
+>> +}
+>> +
+>> +static inline u32 wdt_get_post_scaler(struct pic32_wdt *wdt)
+>> +{
+>> +    u32 v = readl(wdt->regs + WDTCON_REG);
+>> +
+>> +    return (v >> WDTCON_RMPS_SHIFT) & WDTCON_RMPS_MASK;
+>> +}
+>> +
+>> +static inline u32 wdt_get_clk_id(struct pic32_wdt *wdt)
+>> +{
+>> +    u32 v = readl(wdt->regs + WDTCON_REG);
+>> +
+>> +    return (v >> WDTCON_RMCS_SHIFT) & WDTCON_RMCS_MASK;
+>> +}
+>> +
+>> +static inline void wdt_keepalive(struct pic32_wdt *wdt)
+>> +{
+>> +    /* write key through single half-word */
+>> +    writew(WDTCON_CLR_KEY, wdt->regs + WDTCON_REG + 2);
+>> +}
+>> +
+>> +static int pic32_wdt_bootstatus(struct pic32_wdt *wdt)
+>> +{
+>> +    u32 v = readl(wdt->rst_base);
+>> +
+>> +    writel(RESETCON_WDT_TIMEOUT, PIC32_CLR(wdt->rst_base));
+>> +
+>> +    return v & RESETCON_WDT_TIMEOUT;
+>> +}
+>> +
+>> +static int pic32_wdt_get_timeout_secs(struct pic32_wdt *wdt)
+>> +{
+>> +    unsigned long rate;
+>> +    u32 period, ps, terminal;
+>> +
+>> +    rate = clk_get_rate(wdt->clk);
+>> +    pr_debug("wdt: clk_id %d, clk_rate %lu (prescale)\n",
+>> +         wdt_get_clk_id(wdt), rate);
+>> +
+>> +    /* default, prescaler of 32 (i.e. div-by-32) is implicit. */
+>> +    rate >>= 5;
+>> +
+>> +    /* calculate terminal count from postscaler. */
+>> +    ps = wdt_get_post_scaler(wdt);
+>> +    terminal = 1 << ps;
+> 
+> BIT(ps) would be a bit nicer.
+
+Ack.
+
+> 
+>> +
+>> +    /* find time taken (in secs) to reach terminal count */
+>> +    period = terminal / rate;
+> 
+> Can rate be 0 ?
+
+I think it's not safe to assume it can't be 0.  Will handle this scenario.
+
+> 
+>> +    pr_info("wdt: clk_rate %lu (postscale) / terminal %d, timeout %dsec\n",
+>> +        rate, terminal, period);
+> 
+> Is this needed ? Seems like a debug message to me.
+> Users won't be able to make sense of it.
+
+Will convert to pr_debug().
+
+> 
+>> +
+>> +    return period;
+>> +}
+>> +
+>> +static void pic32_wdt_keepalive(struct pic32_wdt *wdt)
+>> +{
+>> +    wdt->next_heartbeat = jiffies +
+>> +        msecs_to_jiffies(wdt->timeout * MSEC_PER_SEC);
+>> +    wdt_keepalive(wdt);
+>> +}
+>> +
+>> +static int pic32_wdt_start(struct watchdog_device *wdd)
+>> +{
+>> +    struct pic32_wdt *wdt = watchdog_get_drvdata(wdd);
+>> +
+>> +    spin_lock(&wdt->lock);
+> 
+> Is this lock (on top of the lock provided by the watchdog subsystem)
+> needed ? If so, please explain.
+> 
+>> +    if (wdt_is_enabled(wdt))
+>> +        goto done;
+> 
+> Can this happpen, and if so, does it matter ?
+
+Yes, it can happen. There is a program-time-only configuration that relieves control of watchdog enable/disable from software. However, this is optional and configurable at program time.  Does it matter?  I don't think it does.  I'll make sure removing this is OK.
+
+> 
+>> +
+>> +    wdt_enable(wdt);
+>> +done:
+>> +    pic32_wdt_keepalive(wdt);
+>> +    spin_unlock(&wdt->lock);
+>> +
+>> +    return 0;
+>> +}
+>> +
+>> +static int pic32_wdt_stop(struct watchdog_device *wdd)
+>> +{
+>> +    struct pic32_wdt *wdt = watchdog_get_drvdata(wdd);
+>> +
+>> +    spin_lock(&wdt->lock);
+>> +    wdt_disable(wdt);
+>> +    spin_unlock(&wdt->lock);
+>> +
+>> +    return 0;
+>> +}
+>> +
+>> +static int pic32_wdt_ping(struct watchdog_device *wdd)
+>> +{
+>> +    struct pic32_wdt *wdt = watchdog_get_drvdata(wdd);
+>> +
+>> +    spin_lock(&wdt->lock);
+>> +    pic32_wdt_keepalive(wdt);
+>> +    spin_unlock(&wdt->lock);
+>> +
+>> +    return 0;
+>> +}
+>> +
+>> +static unsigned int pic32_wdt_get_timeleft(struct watchdog_device *wdd)
+>> +{
+>> +    struct pic32_wdt *wdt = watchdog_get_drvdata(wdd);
+>> +
+>> +    return jiffies_to_msecs(wdt->next_heartbeat - jiffies) / MSEC_PER_SEC;
+>> +}
+> 
+> Please no software "get_timeleft" implementation. If this is desired,
+> we can implement it in the watchdog core.
+
+Will remove.
+
+> 
+>> +
+>> +static const struct watchdog_ops pic32_wdt_fops = {
+>> +    .owner        = THIS_MODULE,
+>> +    .start        = pic32_wdt_start,
+>> +    .stop        = pic32_wdt_stop,
+>> +    .get_timeleft    = pic32_wdt_get_timeleft,
+>> +    .ping        = pic32_wdt_ping,
+>> +};
+>> +
+>> +static const struct watchdog_info pic32_wdt_ident = {
+>> +    .options = WDIOF_KEEPALIVEPING |
+>> +            WDIOF_MAGICCLOSE | WDIOF_CARDRESET,
+> 
+> Is the timeout truly not configurable ?
+> 
+
+It is not configurable in software. This is only configurable at program time, not at runtime.
+
+>> +    .identity = "PIC32 Watchdog",
+>> +};
+>> +
+>> +static struct watchdog_device pic32_wdd = {
+>> +    .info        = &pic32_wdt_ident,
+>> +    .ops        = &pic32_wdt_fops,
+>> +    .min_timeout    = 1,
+>> +    .max_timeout    = 1048,
+> 
+> Real or arbitrary ?
+
+Arbitrary. Technically, hardware can support 1ms to ~1048 seconds.  But, this is highly dependent on other configuration and would involve a calculation to be accurate because the actual watchdog timeout is based on clock postscalers.  However, I don't see that these are really needed and will remove them.
+
+> 
+>> +};
+>> +
+>> +static const struct of_device_id pic32_wdt_dt_ids[] = {
+>> +    { .compatible = "microchip,pic32mzda-wdt-v2", },
+> 
+> Is this compatible statement documented ?
+
+This is indeed a typo.  The string should be "microchip,pic32mzda-wdt" and it is documented.  I goofed and did not copy you on dt bindings in [PATCH 1/2].  See https://lkml.org/lkml/2016/2/1/867 for reference.
+
+> 
+>> +    { /* sentinel */ }
+>> +};
+>> +MODULE_DEVICE_TABLE(of, pic32_wdt_dt_ids);
+>> +
+>> +static int pic32_wdt_drv_probe(struct platform_device *pdev)
+>> +{
+>> +    int ret;
+>> +    struct watchdog_device *wdd = &pic32_wdd;
+>> +    struct pic32_wdt *wdt;
+>> +    struct resource *mem;
+>> +
+>> +    wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
+>> +    if (IS_ERR(wdt))
+>> +        return PTR_ERR(wdt);
+>> +
+>> +    mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+>> +    wdt->regs = devm_ioremap_resource(&pdev->dev, mem);
+>> +    if (IS_ERR(wdt->regs))
+>> +        return PTR_ERR(wdt->regs);
+>> +
+>> +    wdt->rst_base = devm_ioremap(&pdev->dev, PIC32_BASE_RESET, 0x10);
+>> +    if (IS_ERR(wdt->rst_base))
+>> +        return PTR_ERR(wdt->rst_base);
+>> +
+>> +    wdt->clk = devm_clk_get(&pdev->dev, NULL);
+>> +    if (IS_ERR(wdt->clk)) {
+>> +        dev_err(&pdev->dev, "clk not found\n");
+>> +        return PTR_ERR(wdt->clk);
+>> +    }
+>> +
+>> +    ret = clk_prepare_enable(wdt->clk);
+>> +    if (ret) {
+>> +        dev_err(&pdev->dev, "clk enable failed\n");
+>> +        return ret;
+>> +    }
+>> +
+>> +    if (wdt_is_win_enabled(wdt)) {
+>> +        dev_err(&pdev->dev, "windowed-clear mode is not supported.\n");
+>> +        ret = -EOPNOTSUPP;
+>> +        goto out_disable_clk;
+> 
+> It might make more sense to check this first, before enabling the clock.
+> 
+> Also, can this not be disabled in software ?
+
+It cannot be changed in software at runtime.  This is configurable only at program time.
+
+> 
+>> +    }
+>> +
+>> +    wdt->timeout = pic32_wdt_get_timeout_secs(wdt);
+> 
+> Can timeout end up being 0 (less than 1 second) ?
+
+This scenario will be handled.
+
+> 
+>> +    spin_lock_init(&wdt->lock);
+>> +
+>> +    wdd->timeout = wdt->timeout;
+> 
+> wdt->timeout is only used to calculate next_timeout which is only used
+> to calculate the time left in software, which you should not do. Please drop.
+
+Ack.
+
+> 
+>> +    wdd->bootstatus = pic32_wdt_bootstatus(wdt) ? WDIOF_CARDRESET : 0;
+>> +
+>> +    ret = watchdog_register_device(wdd);
+>> +    if (ret) {
+>> +        dev_err(&pdev->dev, "watchdog register failed, err %d\n", ret);
+>> +        goto out_disable_clk;
+>> +    }
+>> +
+>> +    watchdog_set_nowayout(wdd, WATCHDOG_NOWAYOUT);
+>> +    watchdog_set_drvdata(wdd, wdt);
+> 
+> Race condition.
+
+I'm assuming you are just talking about these two calls needing to go before watchdog_register_device().  Will reorder.
+
+> 
+>> +
+>> +    platform_set_drvdata(pdev, wdd);
+>> +    return 0;
+>> +
+>> +out_disable_clk:
+>> +    clk_disable_unprepare(wdt->clk);
+>> +
+>> +    return ret;
+>> +}
+>> +
+>> +static int pic32_wdt_drv_remove(struct platform_device *pdev)
+>> +{
+>> +    struct watchdog_device *wdd = platform_get_drvdata(pdev);
+>> +    struct pic32_wdt *wdt = watchdog_get_drvdata(wdd);
+>> +
+>> +    clk_disable_unprepare(wdt->clk);
+>> +    watchdog_unregister_device(wdd);
+> 
+> Please call unregister first.
+
+Ack.
+
+> 
+>> +
+>> +    return 0;
+>> +}
+>> +
+>> +static struct platform_driver pic32_wdt_driver = {
+>> +    .probe        = pic32_wdt_drv_probe,
+>> +    .remove        = pic32_wdt_drv_remove,
+>> +    .driver        = {
+>> +        .name        = "pi32-wdt",
+> 
+> pi32 or pic32 ?
+> 
+
+Typo. Should be pic32-wdt.
+
+>> +        .owner        = THIS_MODULE,
+>> +        .of_match_table = of_match_ptr(pic32_wdt_dt_ids),
+>> +    }
+>> +};
+>> +
+>> +module_platform_driver(pic32_wdt_driver);
+>> +
+>> +MODULE_AUTHOR("Joshua Henderson <joshua.henderson@microchip.com>");
+>> +MODULE_DESCRIPTION("Microchip PIC32 Watchdog Timer");
+>> +MODULE_LICENSE("GPL");
+>> -- 
+>> 1.7.9.5
+>>
+>>
+> 
 
 Thanks,
-Guenter
-
+Josh
