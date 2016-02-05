@@ -1,57 +1,147 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:53498 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932140AbcBDQq4 (ORCPT
+Received: from mail-ob0-f172.google.com ([209.85.214.172]:35914 "EHLO
+	mail-ob0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751362AbcBEJvx (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 4 Feb 2016 11:46:56 -0500
-Subject: Re: [PATCH v10 4/5] Watchdog: introduce ARM SBSA watchdog driver
-To: Timur Tabi <timur@codeaurora.org>,
-	Will Deacon <will.deacon@arm.com>, fu.wei@linaro.org
+	Fri, 5 Feb 2016 04:51:53 -0500
+Received: by mail-ob0-f172.google.com with SMTP id ba1so84554397obb.3
+        for <linux-watchdog@vger.kernel.org>; Fri, 05 Feb 2016 01:51:52 -0800 (PST)
+MIME-Version: 1.0
+In-Reply-To: <56B2DEE4.7060901@roeck-us.net>
 References: <1454519923-25230-1-git-send-email-fu.wei@linaro.org>
- <1454519923-25230-5-git-send-email-fu.wei@linaro.org>
- <20160204163101.GH17257@arm.com> <56B37E52.300@codeaurora.org>
-Cc: robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com,
-	ijc+devicetree@hellion.org.uk, galak@codeaurora.org, wim@iguana.be,
-	corbet@lwn.net, catalin.marinas@arm.com,
-	Suravee.Suthikulpanit@amd.com, linux-kernel@vger.kernel.org,
+	<1454519923-25230-6-git-send-email-fu.wei@linaro.org>
+	<56B23883.7000501@codeaurora.org>
+	<CADyBb7sxPg-QUjTbeHFtYkctKc_g7D8O=+jqbXN+DCCoCEnFqA@mail.gmail.com>
+	<56B23E99.1030604@codeaurora.org>
+	<CADyBb7s4opxfPFuX=1-qEE6uhsaMXgofAJPbHUQHrng2AUwqNA@mail.gmail.com>
+	<56B2423B.1020109@codeaurora.org>
+	<CADyBb7uULCn97ea19zH8dB4QX1QA8=AXL94d6gXgFxXM8haBNA@mail.gmail.com>
+	<56B24642.8090105@codeaurora.org>
+	<CADyBb7s_QeU=pYqN9G+5WMtx-L+=QC6uZR6N6ZWPOixnkHzPjw@mail.gmail.com>
+	<56B24AB5.3070001@codeaurora.org>
+	<CADyBb7usPpY=YLjecXce63zY5e1tniPLmNsVY=8CJHJsCqBgQw@mail.gmail.com>
+	<56B2DEE4.7060901@roeck-us.net>
+Date: Fri, 5 Feb 2016 17:51:52 +0800
+Message-ID: <CADyBb7unAHEOMfruWS82RkHK6uwPAWCxUx9jqzSkiHU4LHDSeA@mail.gmail.com>
+Subject: Re: [PATCH v10 5/5] Watchdog: ARM SBSA Generic Watchdog half timeout
+ panic support
+From: Fu Wei <fu.wei@linaro.org>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Timur Tabi <timur@codeaurora.org>,
+	Rob Herring <robh+dt@kernel.org>,
+	=?UTF-8?Q?Pawe=C5=82_Moll?= <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Jon Corbet <corbet@lwn.net>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will.deacon@arm.com>,
+	Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
+	LKML <linux-kernel@vger.kernel.org>,
 	linux-watchdog@vger.kernel.org, linux-doc@vger.kernel.org,
 	devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linaro-acpi@lists.linaro.org, rruigrok@codeaurora.org,
-	harba@codeaurora.org, cov@codeaurora.org, dyoung@redhat.com,
-	panand@redhat.com, graeme.gregory@linaro.org, al.stone@linaro.org,
-	hanjun.guo@linaro.org, jcm@redhat.com, arnd@arndb.de,
-	leo.duran@amd.com, sudeep.holla@arm.com
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <56B38079.10607@roeck-us.net>
-Date: Thu, 4 Feb 2016 08:46:49 -0800
-MIME-Version: 1.0
-In-Reply-To: <56B37E52.300@codeaurora.org>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+	Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>,
+	rruigrok@codeaurora.org, "Abdulhamid, Harb" <harba@codeaurora.org>,
+	Christopher Covington <cov@codeaurora.org>,
+	Dave Young <dyoung@redhat.com>,
+	Pratyush Anand <panand@redhat.com>,
+	G Gregory <graeme.gregory@linaro.org>,
+	Al Stone <al.stone@linaro.org>,
+	Hanjun Guo <hanjun.guo@linaro.org>,
+	Jon Masters <jcm@redhat.com>, Arnd Bergmann <arnd@arndb.de>,
+	Leo Duran <leo.duran@amd.com>,
+	Sudeep Holla <sudeep.holla@arm.com>
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 02/04/2016 08:37 AM, Timur Tabi wrote:
-> Will Deacon wrote:
->>> +static int sbsa_gwdt_keepalive(struct watchdog_device *wdd)
->>> >+{
->>> >+    struct sbsa_gwdt *gwdt = to_sbsa_gwdt(wdd);
->>> >+
->>> >+    /*
->>> >+    * Writing WRR for an explicit watchdog refresh.
->>> >+    * You can write anyting(like 0xc0ffee).
->>> >+    */
->>> >+    writel(0xc0ffee, gwdt->refresh_base + SBSA_GWDT_WRR);
->>> >+
->>> >+    return 0;
->>> >+}
->> You might get in trouble for that. 0xd09f00d is probably less poisonous.
+Hi Guenter,
+
+On 4 February 2016 at 13:17, Guenter Roeck <linux@roeck-us.net> wrote:
+> On 02/03/2016 03:00 PM, Fu Wei wrote:
 >>
->> http://www.petpoisonhelpline.com/poison/caffeine/
+>> On 4 February 2016 at 02:45, Timur Tabi <timur@codeaurora.org> wrote:
+>>>
+>>> Fu Wei wrote:
+>>>>
+>>>>
+>>>> As you know I have made the pre-timeout support patch, If people like
+>>>> it, i am happy to go on upstream it separately.
+>>>>
+>>>> If we want to use pre-timeout here, user only can use get_pretimeout
+>>>> and disable panic by setting pretimeout to 0
+>>>> but user can not really set pretimeout, because "pre-timeout  ==
+>>>> timeout / 2 (always)".
+>>>> if user want to change pretimeout, he/she has to set_time instead.
+>>>
+>>>
+>>>
+>>> Ok, I think patches 4 and 5 should be combined, and I think the Kconfig
+>>> entry should be removed and just use panic_enabled.
 >
-> Any reason why we can't just keep it simple and write 0?
+>
+> Agreed.
 
-+1
+np, will do
 
-Guenter
+>>
+>>
+>> NP, will update this patchset like that ,  thanks :-)
+>>
+>
+> Also, if panic is enabled, the timeout needs to be adjusted accordingly
+> (to only panic after the entire timeout period has expired, not after
+> half of it). We can not panic the system after timeout / 2.
 
+OK, my thought is
+
+if panic is enabled :
+|--------WOR-------WS0--------WOR-------WS1
+|------timeout------(panic)------timeout-----reset
+
+if panic is disabled .
+|--------WOR-------WS0--------WOR-------WS1
+|---------------------timeout---------------------reset
+
+ panic_enabled only can be configured when module is loaded by module parameter
+
+But user should know that max_timeout(panic_enable) =
+max_timeout(panic_disable) / 2
+
+>
+> I am not too happy with the parameter name (panic_enabled). How about
+> "action", to match machzwd ?
+
+yes, makes sense. Maybe we can do something  like this:
+
+/*
+ * action refers to action taken when watchdog gets WS0
+ * 0 = SKIP
+ * 1 = PANIC
+ * defaults to SKIP (0)
+ */
+static int action;
+module_param(action, int, 0);
+MODULE_PARM_DESC(action, "after watchdog gets WS0 interrupt, do: "
+"0 = SKIP(*)  1 = PANIC");
+
+
+>
+> Thanks,
+> Guenter
+>
+
+
+
+-- 
+Best regards,
+
+Fu Wei
+Software Engineer
+Red Hat Software (Beijing) Co.,Ltd.Shanghai Branch
+Ph: +86 21 61221326(direct)
+Ph: +86 186 2020 4684 (mobile)
+Room 1512, Regus One Corporate Avenue,Level 15,
+One Corporate Avenue,222 Hubin Road,Huangpu District,
+Shanghai,China 200021
