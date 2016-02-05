@@ -1,16 +1,16 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from down.free-electrons.com ([37.187.137.238]:54020 "EHLO
-	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752851AbcBENDD (ORCPT
+Received: from smtp.codeaurora.org ([198.145.29.96]:32943 "EHLO
+	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753752AbcBENI2 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 5 Feb 2016 08:03:03 -0500
-Date: Fri, 5 Feb 2016 14:02:59 +0100
-From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
-To: Fu Wei <fu.wei@linaro.org>
+	Fri, 5 Feb 2016 08:08:28 -0500
+Subject: Re: [PATCH v10 5/5] Watchdog: ARM SBSA Generic Watchdog half timeout
+ panic support
+To: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
+	Fu Wei <fu.wei@linaro.org>
 Cc: Guenter Roeck <linux@roeck-us.net>,
-	Timur Tabi <timur@codeaurora.org>,
 	Rob Herring <robh+dt@kernel.org>,
-	=?UTF-8?B?UGF3ZcWC?= Moll <pawel.moll@arm.com>,
+	=?UTF-8?Q?Pawe=c5=82_Moll?= <pawel.moll@arm.com>,
 	Mark Rutland <mark.rutland@arm.com>,
 	Ian Campbell <ijc+devicetree@hellion.org.uk>,
 	Kumar Gala <galak@codeaurora.org>,
@@ -33,54 +33,54 @@ Cc: Guenter Roeck <linux@roeck-us.net>,
 	Jon Masters <jcm@redhat.com>, Arnd Bergmann <arnd@arndb.de>,
 	Leo Duran <leo.duran@amd.com>,
 	Sudeep Holla <sudeep.holla@arm.com>
-Subject: Re: [PATCH v10 5/5] Watchdog: ARM SBSA Generic Watchdog half
- timeout panic support
-Message-ID: <20160205140259.72a33699@free-electrons.com>
-In-Reply-To: <CADyBb7unAHEOMfruWS82RkHK6uwPAWCxUx9jqzSkiHU4LHDSeA@mail.gmail.com>
 References: <1454519923-25230-1-git-send-email-fu.wei@linaro.org>
-	<1454519923-25230-6-git-send-email-fu.wei@linaro.org>
-	<56B23883.7000501@codeaurora.org>
-	<CADyBb7sxPg-QUjTbeHFtYkctKc_g7D8O=+jqbXN+DCCoCEnFqA@mail.gmail.com>
-	<56B23E99.1030604@codeaurora.org>
-	<CADyBb7s4opxfPFuX=1-qEE6uhsaMXgofAJPbHUQHrng2AUwqNA@mail.gmail.com>
-	<56B2423B.1020109@codeaurora.org>
-	<CADyBb7uULCn97ea19zH8dB4QX1QA8=AXL94d6gXgFxXM8haBNA@mail.gmail.com>
-	<56B24642.8090105@codeaurora.org>
-	<CADyBb7s_QeU=pYqN9G+5WMtx-L+=QC6uZR6N6ZWPOixnkHzPjw@mail.gmail.com>
-	<56B24AB5.3070001@codeaurora.org>
-	<CADyBb7usPpY=YLjecXce63zY5e1tniPLmNsVY=8CJHJsCqBgQw@mail.gmail.com>
-	<56B2DEE4.7060901@roeck-us.net>
-	<CADyBb7unAHEOMfruWS82RkHK6uwPAWCxUx9jqzSkiHU4LHDSeA@mail.gmail.com>
+ <1454519923-25230-6-git-send-email-fu.wei@linaro.org>
+ <56B23883.7000501@codeaurora.org>
+ <CADyBb7sxPg-QUjTbeHFtYkctKc_g7D8O=+jqbXN+DCCoCEnFqA@mail.gmail.com>
+ <56B23E99.1030604@codeaurora.org>
+ <CADyBb7s4opxfPFuX=1-qEE6uhsaMXgofAJPbHUQHrng2AUwqNA@mail.gmail.com>
+ <56B2423B.1020109@codeaurora.org>
+ <CADyBb7uULCn97ea19zH8dB4QX1QA8=AXL94d6gXgFxXM8haBNA@mail.gmail.com>
+ <56B24642.8090105@codeaurora.org>
+ <CADyBb7s_QeU=pYqN9G+5WMtx-L+=QC6uZR6N6ZWPOixnkHzPjw@mail.gmail.com>
+ <56B24AB5.3070001@codeaurora.org>
+ <CADyBb7usPpY=YLjecXce63zY5e1tniPLmNsVY=8CJHJsCqBgQw@mail.gmail.com>
+ <56B2DEE4.7060901@roeck-us.net>
+ <CADyBb7unAHEOMfruWS82RkHK6uwPAWCxUx9jqzSkiHU4LHDSeA@mail.gmail.com>
+ <20160205140259.72a33699@free-electrons.com>
+From: Timur Tabi <timur@codeaurora.org>
+Message-ID: <56B49EC7.4050306@codeaurora.org>
+Date: Fri, 5 Feb 2016 07:08:23 -0600
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <20160205140259.72a33699@free-electrons.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hello,
+Thomas Petazzoni wrote:
+>> if panic is enabled :
+>> >|--------WOR-------WS0--------WOR-------WS1
+>> >|------timeout------(panic)------timeout-----reset
 
-On Fri, 5 Feb 2016 17:51:52 +0800, Fu Wei wrote:
+> I'm quite certainly missing something completely obvious here, but how
+> can you get the WS1 interrupt*after*  raising a panic? Aren't all
+> interrupts disabled and the system fully halted once you get a panic(),
+> especially when raised from an interrupt handler? If that's the case,
+> how can the system continue to do things, such as receiving the WS1
+> interrupt and resetting ?
 
-> OK, my thought is
-> 
-> if panic is enabled :
-> |--------WOR-------WS0--------WOR-------WS1
-> |------timeout------(panic)------timeout-----reset
+Typically, WS1 is not an interrupt.  Instead, it's a hard system-level 
+reset.
 
-I'm quite certainly missing something completely obvious here, but how
-can you get the WS1 interrupt *after* raising a panic? Aren't all
-interrupts disabled and the system fully halted once you get a panic(),
-especially when raised from an interrupt handler? If that's the case,
-how can the system continue to do things, such as receiving the WS1
-interrupt and resetting ?
+The hardware is capable of generating an interrupt for both WS0 and WS1. 
+  However, the ACPI table only contains one interrupt value, and it's 
+not clear whether that's supposed to be the WS0 interrupt or the WS1 
+interrupts.
 
-Again, I'm probably missing something obvious, but I'm interested to
-understand the reasoning here.
+So this whole thing does assume a specfic watchdog configuration.
 
-Thanks!
-
-Thomas
 -- 
-Thomas Petazzoni, CTO, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+Sent by an employee of the Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the
+Code Aurora Forum, hosted by The Linux Foundation.
