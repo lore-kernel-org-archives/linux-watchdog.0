@@ -1,25 +1,21 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from skprod2.natinst.com ([130.164.80.23]:58381 "EHLO ni.com"
+Received: from skprod3.natinst.com ([130.164.80.24]:35047 "EHLO ni.com"
 	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751784AbcBEB2B convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
+	id S1751826AbcBEB2B (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
 	Thu, 4 Feb 2016 20:28:01 -0500
 From: Kyle Roeschley <kyle.roeschley@ni.com>
 To: wim@iguana.be
 Cc: linux-watchdog@vger.kernel.org, joshc@ni.com
-Subject: [RFC 2/4] watchdog: ni9x3x_wdt: Add counter sysfs attribute
-Date: Thu, 4 Feb 2016 19:28:01 -0600
-Message-Id: <1454635683-13668-2-git-send-email-kyle.roeschley@ni.com>
+Subject: [RFC 3/4] watchdog: ni9x3x_wdt: Add timeout_action sysfs attribute
+Date: Thu, 4 Feb 2016 19:28:02 -0600
+Message-Id: <1454635683-13668-3-git-send-email-kyle.roeschley@ni.com>
 In-Reply-To: <1454635683-13668-1-git-send-email-kyle.roeschley@ni.com>
 References: <1454635683-13668-1-git-send-email-kyle.roeschley@ni.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The NI 9x3x watchdog timer has 30.72 µs resolution, so expose this
-by allowing the user to set the timeout counter directly via a sysfs
+The NI 903x/913x watchdog has the ability to either assert an interrupt
+or reset the system on timeout, so expose this option via s sysfs
 attribute.
 
 RFC because we can't use the watchdog core lock inside the _show and
@@ -30,123 +26,189 @@ lock. We don't want to do either, so for now we do nothing.
 
 Signed-off-by: Kyle Roeschley <kyle.roeschley@ni.com>
 ---
- drivers/watchdog/ni9x3x_wdt.c | 73 ++++++++++++++++++++++++++++++++++---------
- 1 file changed, 58 insertions(+), 15 deletions(-)
+ drivers/watchdog/ni9x3x_wdt.c | 106 ++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 103 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/watchdog/ni9x3x_wdt.c b/drivers/watchdog/ni9x3x_wdt.c
-index 2cb5627..13f5c10 100644
+index 13f5c10..1fce4d0 100644
 --- a/drivers/watchdog/ni9x3x_wdt.c
 +++ b/drivers/watchdog/ni9x3x_wdt.c
-@@ -60,37 +60,45 @@ static void ni9x3x_wdt_start(struct ni9x3x_wdt *wdt)
- 	outb(control | NIWD_CONTROL_PET, wdt->io_base + NIWD_CONTROL);
+@@ -15,6 +15,7 @@
+ #include <linux/acpi.h>
+ #include <linux/interrupt.h>
+ #include <linux/module.h>
++#include <linux/sysfs.h>
+ #include <linux/watchdog.h>
+ 
+ #define NIWD_CONTROL	0x01
+@@ -28,6 +29,7 @@
+ #define NIWD_IO_SIZE	0x08
+ 
+ #define NIWD_CONTROL_MODE		0x80
++#define NIWD_CONTROL_PROC_INTERRUPT	0x40
+ #define NIWD_CONTROL_PROC_RESET		0x20
+ #define NIWD_CONTROL_PET		0x10
+ #define NIWD_CONTROL_RUNNING		0x08
+@@ -48,6 +50,7 @@ struct ni9x3x_wdt {
+ 	struct acpi_device *acpi_device;
+ 	u16 io_base;
+ 	u16 io_size;
++	u32 irq;
+ 	spinlock_t lock;
+ 	struct watchdog_device wdog;
+ };
+@@ -101,6 +104,34 @@ static unsigned int ni9x3x_wdt_wdd_get_timeleft(struct watchdog_device *wdd)
+ 	return (unsigned int)((counter * (u64)NIWD_PERIOD_NS) / 1000000000);
  }
  
--static int ni9x3x_wdt_wdd_set_timeout(struct watchdog_device *wdd,
--				      unsigned int timeout)
-+static void ni9x3x_wdt_counter_set(struct ni9x3x_wdt *wdt, u32 counter)
- {
--	struct ni9x3x_wdt *wdt = to_ni9x3x_wdt(wdd);
--	u32 counter = timeout * (1000000000 / NIWD_PERIOD_NS);
--
- 	outb(((0x00FF0000 & counter) >> 16), wdt->io_base + NIWD_SEED2);
- 	outb(((0x0000FF00 & counter) >> 8), wdt->io_base + NIWD_SEED1);
- 	outb((0x000000FF & counter), wdt->io_base + NIWD_SEED0);
--
--	return 0;
- }
- 
--static unsigned int ni9x3x_wdt_wdd_get_timeleft(struct watchdog_device *wdd)
-+static unsigned int ni9x3x_wdt_counter_get(struct ni9x3x_wdt *wdt)
- {
--	struct ni9x3x_wdt *wdt = to_ni9x3x_wdt(wdd);
- 	u8 control, counter0, counter1, counter2;
--	u32 counter;
- 
- 	control = inb(wdt->io_base + NIWD_CONTROL);
--	control |= NIWD_CONTROL_CAPTURECOUNTER;
--	outb(control, wdt->io_base + NIWD_CONTROL);
-+	outb(control | NIWD_CONTROL_CAPTURECOUNTER,
-+	     wdt->io_base + NIWD_CONTROL);
- 
- 	counter2 = inb(wdt->io_base + NIWD_COUNTER2);
- 	counter1 = inb(wdt->io_base + NIWD_COUNTER1);
- 	counter0 = inb(wdt->io_base + NIWD_COUNTER0);
- 
--	counter = (counter2 << 16) | (counter1 << 8) | counter0;
--	counter = (counter * (u64)NIWD_PERIOD_NS) / 1000000000;
-+	return (counter2 << 16) | (counter1 << 8) | counter0;
++static irqreturn_t ni9x3x_wdt_irq_handler(int irq, void *data)
++{
++	struct ni9x3x_wdt *wdt = data;
++	irqreturn_t ret = IRQ_NONE;
++	u8 control;
++	unsigned long flags;
++
++	spin_lock_irqsave(&wdt->lock, flags);
++
++	control = inb(wdt->io_base + NIWD_CONTROL);
++
++	if (!(NIWD_CONTROL_ALARM & control)) {
++		dev_err(&wdt->acpi_device->dev,
++			"Spurious watchdog interrupt, 0x%02X\n", control);
++		goto out_unlock;
++	}
++
++	/* Acknowledge the interrupt. */
++	outb(control | NIWD_CONTROL_RESET, wdt->io_base + NIWD_CONTROL);
++
++	ret = IRQ_HANDLED;
++
++out_unlock:
++	spin_unlock_irqrestore(&wdt->lock, flags);
++
++	return ret;
 +}
 +
-+static int ni9x3x_wdt_wdd_set_timeout(struct watchdog_device *wdd,
-+				      unsigned int timeout)
-+{
-+	struct ni9x3x_wdt *wdt = to_ni9x3x_wdt(wdd);
-+	u32 counter = timeout * (1000000000 / NIWD_PERIOD_NS);
-+
-+	ni9x3x_wdt_counter_set(wdt, counter);
-+
-+	return 0;
-+}
-+
-+static unsigned int ni9x3x_wdt_wdd_get_timeleft(struct watchdog_device *wdd)
-+{
-+	struct ni9x3x_wdt *wdt = to_ni9x3x_wdt(wdd);
-+	u32 counter = ni9x3x_wdt_counter_get(wdt);
- 
--	return (unsigned int)counter;
-+	return (unsigned int)((counter * (u64)NIWD_PERIOD_NS) / 1000000000);
- }
- 
  static int ni9x3x_wdt_wdd_start(struct watchdog_device *wdd)
-@@ -126,6 +134,40 @@ static int ni9x3x_wdt_wdd_ping(struct watchdog_device *wdd)
+ {
+ 	struct ni9x3x_wdt *wdt = to_ni9x3x_wdt(wdd);
+@@ -134,6 +165,55 @@ static int ni9x3x_wdt_wdd_ping(struct watchdog_device *wdd)
  	return 0;
  }
  
-+static ssize_t counter_show(struct device *dev, struct device_attribute *attr,
-+			    char *buf)
++static ssize_t timeout_action_show(struct device *dev,
++				   struct device_attribute *attr,
++				   char *buf)
 +{
 +	struct acpi_device *acpi_dev = to_acpi_device(dev);
 +	struct ni9x3x_wdt *wdt = acpi_driver_data(acpi_dev);
-+	u32 counter;
++	u8 control;
 +
-+	counter = ni9x3x_wdt_counter_get(wdt);
++	control = inb(wdt->io_base + NIWD_CONTROL);
 +
-+	return sprintf(buf, "%u\n", counter);
++	if (control & NIWD_CONTROL_PROC_RESET)
++		return sprintf(buf, "reset\n");
++	if (control & NIWD_CONTROL_PROC_INTERRUPT)
++		return sprintf(buf, "interrupt\n");
++	else
++		return sprintf(buf, "\n");
 +}
 +
-+static ssize_t counter_store(struct device *dev, struct device_attribute *attr,
-+			     const char *buf, size_t count)
++static ssize_t timeout_action_store(struct device *dev,
++				    struct device_attribute *attr,
++				    const char *buf, size_t count)
 +{
 +	struct acpi_device *acpi_dev = to_acpi_device(dev);
 +	struct ni9x3x_wdt *wdt = acpi_driver_data(acpi_dev);
-+	u32 val;
++	bool interrupt_not_reset;
++	u8 control;
 +
-+	if (kstrtouint(buf, 10, &val) || val > 0xFFFFFF)
++	if (!strcmp(buf, "interrupt"))
++		interrupt_not_reset = true;
++	else if (!strcmp(buf, "reset"))
++		interrupt_not_reset = false;
++	else
 +		return -EINVAL;
 +
-+	ni9x3x_wdt_counter_set(wdt, val);
++	control = inb(wdt->io_base + NIWD_CONTROL);
++	if (interrupt_not_reset) {
++		control |= NIWD_CONTROL_PROC_INTERRUPT;
++		control &= !NIWD_CONTROL_PROC_RESET;
++	} else {
++		control |= NIWD_CONTROL_PROC_RESET;
++		control &= !NIWD_CONTROL_PROC_INTERRUPT;
++	}
++
++	outb(control, wdt->io_base + NIWD_CONTROL);
 +
 +	return count;
 +}
-+static DEVICE_ATTR_RW(counter);
++static DEVICE_ATTR_RW(timeout_action);
 +
-+static struct attribute *ni9x3x_wdt_attrs[] = {
-+	&dev_attr_counter.attr,
-+	NULL
-+};
-+ATTRIBUTE_GROUPS(ni9x3x_wdt);
-+
- static acpi_status ni9x3x_wdt_resources(struct acpi_resource *res, void *data)
+ static ssize_t counter_show(struct device *dev, struct device_attribute *attr,
+ 			    char *buf)
  {
- 	struct ni9x3x_wdt *wdt = data;
-@@ -214,6 +256,7 @@ static int ni9x3x_wdt_acpi_add(struct acpi_device *device)
- 	wdt->wdog.max_timeout = NIWD_MAX_TIMEOUT;
- 	wdt->wdog.timeout = NIWD_DEFAULT_TIMEOUT;
- 	wdt->wdog.parent = &device->dev;
-+	wdt->wdog.groups = ni9x3x_wdt_groups;
+@@ -163,6 +243,7 @@ static ssize_t counter_store(struct device *dev, struct device_attribute *attr,
+ static DEVICE_ATTR_RW(counter);
  
- 	ret = watchdog_register_device(&wdt->wdog);
- 	if (ret) {
+ static struct attribute *ni9x3x_wdt_attrs[] = {
++	&dev_attr_timeout_action.attr,
+ 	&dev_attr_counter.attr,
+ 	NULL
+ };
+@@ -185,6 +266,17 @@ static acpi_status ni9x3x_wdt_resources(struct acpi_resource *res, void *data)
+ 
+ 		return AE_OK;
+ 
++	case ACPI_RESOURCE_TYPE_IRQ:
++		if (wdt->irq != 0) {
++			dev_err(&wdt->acpi_device->dev,
++				"too many IRQ resources\n");
++			return AE_ERROR;
++		}
++
++		wdt->irq = res->data.irq.interrupts[0];
++
++		return AE_OK;
++
+ 	case ACPI_RESOURCE_TYPE_END_TAG:
+ 		return AE_OK;
+ 
+@@ -237,7 +329,7 @@ static int ni9x3x_wdt_acpi_add(struct acpi_device *device)
+ 	status = acpi_walk_resources(device->handle, METHOD_NAME__CRS,
+ 				     ni9x3x_wdt_resources, wdt);
+ 	if (ACPI_FAILURE(status) || wdt->io_base == 0 ||
+-	    wdt->io_size != NIWD_IO_SIZE) {
++	    wdt->io_size != NIWD_IO_SIZE || wdt->irq == 0) {
+ 		dev_err(&device->dev, "failed to get resources\n");
+ 		return -ENODEV;
+ 	}
+@@ -250,6 +342,13 @@ static int ni9x3x_wdt_acpi_add(struct acpi_device *device)
+ 
+ 	spin_lock_init(&wdt->lock);
+ 
++	ret = devm_request_irq(&device->dev, wdt->irq, ni9x3x_wdt_irq_handler,
++			       0, NI9X3X_WDT_NAME, wdt);
++	if (ret) {
++		dev_err(&device->dev, "failed to register interrupt\n");
++		return ret;
++	}
++
+ 	wdt->wdog.info = &ni9x3x_wdt_wdd_info;
+ 	wdt->wdog.ops = &ni9x3x_wdt_wdd_ops;
+ 	wdt->wdog.min_timeout = NIWD_MIN_TIMEOUT;
+@@ -268,8 +367,9 @@ static int ni9x3x_wdt_acpi_add(struct acpi_device *device)
+ 	outb(NIWD_CONTROL_RESET | NIWD_CONTROL_MODE,
+ 	     wdt->io_base + NIWD_CONTROL);
+ 
+-	dev_info(&wdt->acpi_device->dev, "IO range 0x%04X-0x%04X\n",
+-		 wdt->io_base, wdt->io_base + wdt->io_size - 1);
++	dev_info(&wdt->acpi_device->dev, "IO range 0x%04X-0x%04X\n, IRQ %d\n",
++		 wdt->io_base, wdt->io_base + wdt->io_size - 1, wdt->irq);
++
+ 	return 0;
+ }
+ 
 -- 
 2.7.0
 
