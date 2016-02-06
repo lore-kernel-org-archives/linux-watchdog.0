@@ -1,17 +1,17 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:60883 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:41645 "EHLO
 	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751930AbcBFRCf (ORCPT
+	with ESMTP id S1752584AbcBFRKg (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 6 Feb 2016 12:02:35 -0500
+	Sat, 6 Feb 2016 12:10:36 -0500
 Subject: Re: [PATCH] watchdog: w83627hf: Added NCT6102D support.
 To: Rob Kramer <rob@solution-space.com>,
 	Wim Van Sebroeck <wim@iguana.be>
 References: <56B40FCD.1010802@solution-space.com>
 Cc: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org
 From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <56B62728.4020309@roeck-us.net>
-Date: Sat, 6 Feb 2016 09:02:32 -0800
+Message-ID: <56B6290B.6010904@roeck-us.net>
+Date: Sat, 6 Feb 2016 09:10:35 -0800
 MIME-Version: 1.0
 In-Reply-To: <56B40FCD.1010802@solution-space.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
@@ -25,7 +25,13 @@ On 02/04/2016 06:58 PM, Rob Kramer wrote:
 >
 > Signed-off-by: Rob Kramer <rob@solution-space.com>
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Rob,
+
+your patch is whitespace damaged (tabs replaced with spaces) and can not be applied.
+Please resend.
+
+Thanks,
+Guenter
 
 > ---
 >   drivers/watchdog/Kconfig        |  1 +
