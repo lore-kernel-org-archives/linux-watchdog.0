@@ -1,16 +1,16 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:45347 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:45881 "EHLO
 	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750888AbcBFQaK (ORCPT
+	with ESMTP id S1751931AbcBFQdR (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 6 Feb 2016 11:30:10 -0500
+	Sat, 6 Feb 2016 11:33:17 -0500
 Subject: Re: [RFC 1/4] watchdog: ni9x3x_wdt: Add NI 903x/913x watchdog driver
 To: Kyle Roeschley <kyle.roeschley@ni.com>, wim@iguana.be
 References: <1454635683-13668-1-git-send-email-kyle.roeschley@ni.com>
 Cc: linux-watchdog@vger.kernel.org, joshc@ni.com
 From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <56B61F90.3000207@roeck-us.net>
-Date: Sat, 6 Feb 2016 08:30:08 -0800
+Message-ID: <56B6204B.6000707@roeck-us.net>
+Date: Sat, 6 Feb 2016 08:33:15 -0800
 MIME-Version: 1.0
 In-Reply-To: <1454635683-13668-1-git-send-email-kyle.roeschley@ni.com>
 Content-Type: text/plain; charset=windows-1252; format=flowed
@@ -143,6 +143,15 @@ On 02/04/2016 05:28 PM, Kyle Roeschley wrote:
 > +	outb(((0x0000FF00 & counter) >> 8), wdt->io_base + NIWD_SEED1);
 > +	outb((0x000000FF & counter), wdt->io_base + NIWD_SEED0);
 > +
+
+This function has to set wdd->timeout to the actually configured timeout value,
+ie
+	wdd->timeout = timeout;
+
+is missing.
+
+Guenter
+
 > +	return 0;
 > +}
 > +
@@ -163,13 +172,177 @@ On 02/04/2016 05:28 PM, Kyle Roeschley wrote:
 > +	counter = (counter2 << 16) | (counter1 << 8) | counter0;
 > +	counter = (counter * (u64)NIWD_PERIOD_NS) / 1000000000;
 > +
-
-The maximum value of 'counter' from the registers is
-	515 * (1000000000/30720) = 16764280
-
-Multiplying this value by 30720 yields 514998681600, much more than
-fits in a 32 bit value. This means you'll have to use u64 for the
-counter variable and use 64 bit operations for the divide operation.
-
-Guenter
+> +	return (unsigned int)counter;
+> +}
+> +
+> +static int ni9x3x_wdt_wdd_start(struct watchdog_device *wdd)
+> +{
+> +	struct ni9x3x_wdt *wdt = to_ni9x3x_wdt(wdd);
+> +
+> +	outb(NIWD_CONTROL_RESET | NIWD_CONTROL_PROC_RESET,
+> +	     wdt->io_base + NIWD_CONTROL);
+> +
+> +	ni9x3x_wdt_wdd_set_timeout(wdd, wdd->timeout);
+> +	ni9x3x_wdt_start(wdt);
+> +
+> +	return 0;
+> +}
+> +
+> +static int ni9x3x_wdt_wdd_stop(struct watchdog_device *wdd)
+> +{
+> +	struct ni9x3x_wdt *wdt = to_ni9x3x_wdt(wdd);
+> +
+> +	outb(NIWD_CONTROL_RESET, wdt->io_base + NIWD_CONTROL);
+> +
+> +	return 0;
+> +}
+> +
+> +static int ni9x3x_wdt_wdd_ping(struct watchdog_device *wdd)
+> +{
+> +	struct ni9x3x_wdt *wdt = to_ni9x3x_wdt(wdd);
+> +	u8 control;
+> +
+> +	control = inb(wdt->io_base + NIWD_CONTROL);
+> +	outb(control | NIWD_CONTROL_PET, wdt->io_base + NIWD_CONTROL);
+> +
+> +	return 0;
+> +}
+> +
+> +static acpi_status ni9x3x_wdt_resources(struct acpi_resource *res, void *data)
+> +{
+> +	struct ni9x3x_wdt *wdt = data;
+> +
+> +	switch (res->type) {
+> +	case ACPI_RESOURCE_TYPE_IO:
+> +		if (wdt->io_base != 0 || wdt->io_size != 0) {
+> +			dev_err(&wdt->acpi_device->dev,
+> +				 "too many IO resources\n");
+> +			return AE_ERROR;
+> +		}
+> +
+> +		wdt->io_base = res->data.io.minimum;
+> +		wdt->io_size = res->data.io.address_length;
+> +
+> +		return AE_OK;
+> +
+> +	case ACPI_RESOURCE_TYPE_END_TAG:
+> +		return AE_OK;
+> +
+> +	default:
+> +		dev_err(&wdt->acpi_device->dev,
+> +			"unsupported resource type %d\n", res->type);
+> +		return AE_ERROR;
+> +	}
+> +
+> +	return AE_OK;
+> +}
+> +
+> +static int ni9x3x_wdt_acpi_remove(struct acpi_device *device)
+> +{
+> +	struct ni9x3x_wdt *wdt = acpi_driver_data(device);
+> +
+> +	ni9x3x_wdt_wdd_stop(&wdt->wdog);
+> +	watchdog_unregister_device(&wdt->wdog);
+> +
+> +	return 0;
+> +}
+> +
+> +static const struct watchdog_info ni9x3x_wdt_wdd_info = {
+> +	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
+> +	.identity = "NI Watchdog",
+> +};
+> +
+> +static const struct watchdog_ops ni9x3x_wdt_wdd_ops = {
+> +	.owner		= THIS_MODULE,
+> +	.start		= ni9x3x_wdt_wdd_start,
+> +	.stop		= ni9x3x_wdt_wdd_stop,
+> +	.ping		= ni9x3x_wdt_wdd_ping,
+> +	.set_timeout	= ni9x3x_wdt_wdd_set_timeout,
+> +	.get_timeleft	= ni9x3x_wdt_wdd_get_timeleft,
+> +};
+> +
+> +static int ni9x3x_wdt_acpi_add(struct acpi_device *device)
+> +{
+> +	struct ni9x3x_wdt *wdt;
+> +	acpi_status status;
+> +	int ret;
+> +
+> +	wdt = devm_kzalloc(&device->dev, sizeof(*wdt), GFP_KERNEL);
+> +	if (!wdt)
+> +		return -ENOMEM;
+> +
+> +	device->driver_data = wdt;
+> +	wdt->acpi_device = device;
+> +
+> +	status = acpi_walk_resources(device->handle, METHOD_NAME__CRS,
+> +				     ni9x3x_wdt_resources, wdt);
+> +	if (ACPI_FAILURE(status) || wdt->io_base == 0 ||
+> +	    wdt->io_size != NIWD_IO_SIZE) {
+> +		dev_err(&device->dev, "failed to get resources\n");
+> +		return -ENODEV;
+> +	}
+> +
+> +	if (!devm_request_region(&device->dev, wdt->io_base, wdt->io_size,
+> +				 NI9X3X_WDT_NAME)) {
+> +		dev_err(&device->dev, "failed to get memory region\n");
+> +		return -EBUSY;
+> +	}
+> +
+> +	spin_lock_init(&wdt->lock);
+> +
+> +	wdt->wdog.info = &ni9x3x_wdt_wdd_info;
+> +	wdt->wdog.ops = &ni9x3x_wdt_wdd_ops;
+> +	wdt->wdog.min_timeout = NIWD_MIN_TIMEOUT;
+> +	wdt->wdog.max_timeout = NIWD_MAX_TIMEOUT;
+> +	wdt->wdog.timeout = NIWD_DEFAULT_TIMEOUT;
+> +	wdt->wdog.parent = &device->dev;
+> +
+> +	ret = watchdog_register_device(&wdt->wdog);
+> +	if (ret) {
+> +		dev_err(&device->dev, "failed to register watchdog\n");
+> +		return ret;
+> +	}
+> +
+> +	/* Switch from boot mode to user mode */
+> +	outb(NIWD_CONTROL_RESET | NIWD_CONTROL_MODE,
+> +	     wdt->io_base + NIWD_CONTROL);
+> +
+> +	dev_info(&wdt->acpi_device->dev, "IO range 0x%04X-0x%04X\n",
+> +		 wdt->io_base, wdt->io_base + wdt->io_size - 1);
+> +	return 0;
+> +}
+> +
+> +static const struct acpi_device_id ni9x3x_wdt_device_ids[] = {
+> +	{"NIC775C", 0},
+> +	{"", 0},
+> +};
+> +
+> +static struct acpi_driver ni9x3x_wdt_acpi_driver = {
+> +	.name = NI9X3X_WDT_NAME,
+> +	.ids = ni9x3x_wdt_device_ids,
+> +	.ops = {
+> +		.add = ni9x3x_wdt_acpi_add,
+> +		.remove = ni9x3x_wdt_acpi_remove,
+> +		},
+> +};
+> +
+> +static int __init ni9x3x_wdt_init(void)
+> +{
+> +	return acpi_bus_register_driver(&ni9x3x_wdt_acpi_driver);
+> +}
+> +
+> +static void __exit ni9x3x_wdt_exit(void)
+> +{
+> +	acpi_bus_unregister_driver(&ni9x3x_wdt_acpi_driver);
+> +}
+> +
+> +module_init(ni9x3x_wdt_init);
+> +module_exit(ni9x3x_wdt_exit);
+> +
+> +MODULE_DEVICE_TABLE(acpi, ni9x3x_wdt_device_ids);
+> +MODULE_DESCRIPTION("NI Watchdog");
+> +MODULE_AUTHOR("Jeff Westfahl <jeff.westfahl@ni.com>");
+> +MODULE_AUTHOR("Kyle Roeschley <kyle.roeschley@ni.com>");
+> +MODULE_LICENSE("GPL v2");
+>
 
