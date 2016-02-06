@@ -1,140 +1,173 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:41645 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752584AbcBFRKg (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 6 Feb 2016 12:10:36 -0500
-Subject: Re: [PATCH] watchdog: w83627hf: Added NCT6102D support.
-To: Rob Kramer <rob@solution-space.com>,
-	Wim Van Sebroeck <wim@iguana.be>
-References: <56B40FCD.1010802@solution-space.com>
-Cc: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <56B6290B.6010904@roeck-us.net>
-Date: Sat, 6 Feb 2016 09:10:35 -0800
+Return-path: <fu.wei@linaro.org>
 MIME-Version: 1.0
-In-Reply-To: <56B40FCD.1010802@solution-space.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+In-Reply-To: <56B5363D.20200@roeck-us.net>
+References: <1454519923-25230-1-git-send-email-fu.wei@linaro.org>
+	<1454519923-25230-6-git-send-email-fu.wei@linaro.org>
+	<56B23883.7000501@codeaurora.org>
+	<CADyBb7sxPg-QUjTbeHFtYkctKc_g7D8O=+jqbXN+DCCoCEnFqA@mail.gmail.com>
+	<56B23E99.1030604@codeaurora.org>
+	<CADyBb7s4opxfPFuX=1-qEE6uhsaMXgofAJPbHUQHrng2AUwqNA@mail.gmail.com>
+	<56B2423B.1020109@codeaurora.org>
+	<CADyBb7uULCn97ea19zH8dB4QX1QA8=AXL94d6gXgFxXM8haBNA@mail.gmail.com>
+	<56B24642.8090105@codeaurora.org>
+	<CADyBb7s_QeU=pYqN9G+5WMtx-L+=QC6uZR6N6ZWPOixnkHzPjw@mail.gmail.com>
+	<56B24AB5.3070001@codeaurora.org>
+	<CADyBb7usPpY=YLjecXce63zY5e1tniPLmNsVY=8CJHJsCqBgQw@mail.gmail.com>
+	<56B2DEE4.7060901@roeck-us.net>
+	<CADyBb7unAHEOMfruWS82RkHK6uwPAWCxUx9jqzSkiHU4LHDSeA@mail.gmail.com>
+	<56B4B4E2.40105@roeck-us.net>
+	<CADyBb7sP=d+BWOdmNEAs38yRcmXVjYsFX=XNffNpGqfybpxTfQ@mail.gmail.com>
+	<56B5363D.20200@roeck-us.net>
+Date: Sun, 7 Feb 2016 02:02:12 +0800
+Message-ID: <CADyBb7vRKjDoeOfH=3Uwz+D0xyXaC9cM4ZSEO+MwL8Gw5T-Umg@mail.gmail.com>
+Subject: Re: [PATCH v10 5/5] Watchdog: ARM SBSA Generic Watchdog half timeout
+ panic support
+From: Fu Wei <fu.wei@linaro.org>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Timur Tabi <timur@codeaurora.org>, Rob Herring <robh+dt@kernel.org>,
+	=?UTF-8?Q?Pawe=C5=82_Moll?= <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>, Wim Van Sebroeck <wim@iguana.be>, Jon Corbet <corbet@lwn.net>,
+	Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>,
+	Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>, LKML <linux-kernel@vger.kernel.org>,
+	linux-watchdog@vger.kernel.org, linux-doc@vger.kernel.org,
+	devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>, rruigrok@codeaurora.org,
+	"Abdulhamid, Harb" <harba@codeaurora.org>, Christopher Covington <cov@codeaurora.org>,
+	Dave Young <dyoung@redhat.com>, Pratyush Anand <panand@redhat.com>,
+	G Gregory <graeme.gregory@linaro.org>, Al Stone <al.stone@linaro.org>,
+	Hanjun Guo <hanjun.guo@linaro.org>, Jon Masters <jcm@redhat.com>, Arnd Bergmann <arnd@arndb.de>,
+	Leo Duran <leo.duran@amd.com>, Sudeep Holla <sudeep.holla@arm.com>
+Content-Type: text/plain; charset=UTF-8
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 02/04/2016 06:58 PM, Rob Kramer wrote:
-> As used in (and tested on) the ASRock IMB-150 board. Implementation is
-> identical to other NCT chips, just with different registers.
->
-> Signed-off-by: Rob Kramer <rob@solution-space.com>
+Hi Guenter,
 
-Rob,
+On 6 February 2016 at 07:54, Guenter Roeck <linux@roeck-us.net> wrote:
+> On 02/05/2016 10:21 AM, Fu Wei wrote:
+>>
+>> On 5 February 2016 at 22:42, Guenter Roeck <linux@roeck-us.net> wrote:
+>>>
+>>> On 02/05/2016 01:51 AM, Fu Wei wrote:
+>>>>
+>>>>
+>>>> Hi Guenter,
+>>>>
+>>>> On 4 February 2016 at 13:17, Guenter Roeck <linux@roeck-us.net> wrote:
+>>>>>
+>>>>>
+>>>>> On 02/03/2016 03:00 PM, Fu Wei wrote:
+>>>>>>
+>>>>>>
+>>>>>>
+>>>>>> On 4 February 2016 at 02:45, Timur Tabi <timur@codeaurora.org> wrote:
+>>>>>>>
+>>>>>>>
+>>>>>>>
+>>>>>>> Fu Wei wrote:
+>>>>>>>>
+>>>>>>>>
+>>>>>>>>
+>>>>>>>>
+>>>>>>>> As you know I have made the pre-timeout support patch, If people
+>>>>>>>> like
+>>>>>>>> it, i am happy to go on upstream it separately.
+>>>>>>>>
+>>>>>>>> If we want to use pre-timeout here, user only can use get_pretimeout
+>>>>>>>> and disable panic by setting pretimeout to 0
+>>>>>>>> but user can not really set pretimeout, because "pre-timeout  ==
+>>>>>>>> timeout / 2 (always)".
+>>>>>>>> if user want to change pretimeout, he/she has to set_time instead.
+>>>>>>>
+>>>>>>>
+>>>>>>>
+>>>>>>>
+>>>>>>>
+>>>>>>> Ok, I think patches 4 and 5 should be combined, and I think the
+>>>>>>> Kconfig
+>>>>>>> entry should be removed and just use panic_enabled.
+>>>>>
+>>>>>
+>>>>>
+>>>>>
+>>>>> Agreed.
+>>>>
+>>>>
+>>>>
+>>>> np, will do
+>>>>
+>>>>>>
+>>>>>>
+>>>>>> NP, will update this patchset like that ,  thanks :-)
+>>>>>>
+>>>>>
+>>>>> Also, if panic is enabled, the timeout needs to be adjusted accordingly
+>>>>> (to only panic after the entire timeout period has expired, not after
+>>>>> half of it). We can not panic the system after timeout / 2.
+>>>>
+>>>>
+>>>>
+>>>> OK, my thought is
+>>>>
+>>>> if panic is enabled :
+>>>> |--------WOR-------WS0--------WOR-------WS1
+>>>> |------timeout------(panic)------timeout-----reset
+>>>>
+>>>> if panic is disabled .
+>>>> |--------WOR-------WS0--------WOR-------WS1
+>>>> |---------------------timeout---------------------reset
+>>>>
+>>>>    panic_enabled only can be configured when module is loaded by module
+>>>> parameter
+>>>>
+>>>> But user should know that max_timeout(panic_enable) =
+>>>> max_timeout(panic_disable) / 2
+>>>>
+>>>
+>>> That means you'll have to update max_timeout accordingly.
+>>
+>>
+>> panic_enabled only can be configured when module is loaded, so we
+>> don't need to update it.
+>>
+>> max_timeout will only be set up in the init stage.
+>>
+>> Does it make sense ? :-)
+>>
+> Not sure I understand your problem or question.
+>
+> max_timeout will have to reflect the correct maximum timeout, under
+> all circumstances. It will have to be set to the correct value before
+> the watchdog driver is registered.
 
-your patch is whitespace damaged (tabs replaced with spaces) and can not be applied.
-Please resend.
+yes, understood,  my thought is :
 
-Thanks,
-Guenter
+in  static int sbsa_gwdt_probe(struct platform_device *pdev)
 
-> ---
->   drivers/watchdog/Kconfig        |  1 +
->   drivers/watchdog/w83627hf_wdt.c | 22 +++++++++++++++++++---
->   2 files changed, 20 insertions(+), 3 deletions(-)
->
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index 4f0e7be..318d8bc 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -1140,6 +1140,7 @@ config W83627HF_WDT
->           NCT6779
->           NCT6791
->           NCT6792
-> +        NCT6102D/04D/06D
->
->         This watchdog simply watches your kernel to make sure it doesn't
->         freeze, and if it does, it reboots your computer after a certain
-> diff --git a/drivers/watchdog/w83627hf_wdt.c b/drivers/watchdog/w83627hf_wdt.c
-> index cab14bc..09e8003 100644
-> --- a/drivers/watchdog/w83627hf_wdt.c
-> +++ b/drivers/watchdog/w83627hf_wdt.c
-> @@ -45,10 +45,11 @@
->   static int wdt_io;
->   static int cr_wdt_timeout;    /* WDT timeout register */
->   static int cr_wdt_control;    /* WDT control register */
-> +static int cr_wdt_csr;        /* WDT control & status register */
->
->   enum chips { w83627hf, w83627s, w83697hf, w83697ug, w83637hf, w83627thf,
->            w83687thf, w83627ehf, w83627dhg, w83627uhg, w83667hg, w83627dhg_p,
-> -         w83667hg_b, nct6775, nct6776, nct6779, nct6791, nct6792 };
-> +         w83667hg_b, nct6775, nct6776, nct6779, nct6791, nct6792, nct6102 };
->
->   static int timeout;            /* in seconds */
->   module_param(timeout, int, 0);
-> @@ -92,15 +93,21 @@ MODULE_PARM_DESC(early_disable, "Disable watchdog at boot time (default=0)");
->   #define W83667HG_B_ID        0xb3
->   #define NCT6775_ID        0xb4
->   #define NCT6776_ID        0xc3
-> +#define NCT6102_ID        0xc4
->   #define NCT6779_ID        0xc5
->   #define NCT6791_ID        0xc8
->   #define NCT6792_ID        0xc9
->
->   #define W83627HF_WDT_TIMEOUT    0xf6
->   #define W83697HF_WDT_TIMEOUT    0xf4
-> +#define NCT6102D_WDT_TIMEOUT    0xf1
->
->   #define W83627HF_WDT_CONTROL    0xf5
->   #define W83697HF_WDT_CONTROL    0xf3
-> +#define NCT6102D_WDT_CONTROL    0xf0
-> +
-> +#define W836X7HF_WDT_CSR    0xf7
-> +#define NCT6102D_WDT_CSR    0xf2
->
->   static void superio_outb(int reg, int val)
->   {
-> @@ -197,6 +204,7 @@ static int w83627hf_init(struct watchdog_device *wdog, enum chips chip)
->       case nct6779:
->       case nct6791:
->       case nct6792:
-> +    case nct6102:
->           /*
->            * These chips have a fixed WDTO# output pin (W83627UHG),
->            * or support more than one WDTO# output pin.
-> @@ -229,8 +237,8 @@ static int w83627hf_init(struct watchdog_device *wdog, enum chips chip)
->       superio_outb(cr_wdt_control, t);
->
->       /* reset trigger, disable keyboard & mouse turning off watchdog */
-> -    t = superio_inb(0xF7) & ~0xD0;
-> -    superio_outb(0xF7, t);
-> +    t = superio_inb(cr_wdt_csr) & ~0xD0;
-> +    superio_outb(cr_wdt_csr, t);
->
->       superio_exit();
->
-> @@ -322,6 +330,7 @@ static int wdt_find(int addr)
->
->       cr_wdt_timeout = W83627HF_WDT_TIMEOUT;
->       cr_wdt_control = W83627HF_WDT_CONTROL;
-> +    cr_wdt_csr = W836X7HF_WDT_CSR;
->
->       ret = superio_enter();
->       if (ret)
-> @@ -387,6 +396,12 @@ static int wdt_find(int addr)
->       case NCT6792_ID:
->           ret = nct6792;
->           break;
-> +    case NCT6102_ID:
-> +        ret = nct6102;
-> +        cr_wdt_timeout = NCT6102D_WDT_TIMEOUT;
-> +        cr_wdt_control = NCT6102D_WDT_CONTROL;
-> +        cr_wdt_csr = NCT6102D_WDT_CSR;
-> +        break;
->       case 0xff:
->           ret = -ENODEV;
->           break;
-> @@ -422,6 +437,7 @@ static int __init wdt_init(void)
->           "NCT6779",
->           "NCT6791",
->           "NCT6792",
-> +        "NCT6102",
->       };
->
->       wdt_io = 0x2e;
+if (action) {
+        wdd->min_timeout = 1;
+        wdd->max_timeout = U32_MAX / gwdt->clk;
+} else {
+        wdd->min_timeout = 2;
+        wdd->max_timeout = U32_MAX / gwdt->clk * 2;
+}
 
+
+
+>
+> Guenter
+>
+
+
+
+-- 
+Best regards,
+
+Fu Wei
+Software Engineer
+Red Hat Software (Beijing) Co.,Ltd.Shanghai Branch
+Ph: +86 21 61221326(direct)
+Ph: +86 186 2020 4684 (mobile)
+Room 1512, Regus One Corporate Avenue,Level 15,
+One Corporate Avenue,222 Hubin Road,Huangpu District,
+Shanghai,China 200021
