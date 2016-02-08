@@ -1,519 +1,133 @@
-Return-path: <Joshua.Henderson@microchip.com>
-From: Joshua Henderson <joshua.henderson@microchip.com>
-Subject: Re: [PATCH 2/2] watchdog: pic32-dmt: Add PIC32 deadman timer driver
- support
-To: Guenter Roeck <linux@roeck-us.net>, <linux-kernel@vger.kernel.org>
-References: <1454371348-25104-1-git-send-email-joshua.henderson@microchip.com>
- <1454371348-25104-2-git-send-email-joshua.henderson@microchip.com>
- <56B01CB6.6010700@roeck-us.net>
-CC: <linux-mips@linux-mips.org>, <ralf@linux-mips.org>, Purna Chandra Mandal
-	<purna.mandal@microchip.com>, Wim Van Sebroeck <wim@iguana.be>,
-	<linux-watchdog@vger.kernel.org>
-Message-ID: <56B3E109.1060507@microchip.com>
-Date: Thu, 4 Feb 2016 16:38:49 -0700
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from spfilter-4.secure-dns.net ([72.18.130.39]:38336 "EHLO
+	spfilter-4.secure-dns.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751649AbcBHLNT (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 8 Feb 2016 06:13:19 -0500
+Date: Mon, 8 Feb 2016 18:09:49 +0800
+From: Rob Kramer <rob@solution-space.com>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org,
+	linux-watchdog@vger.kernel.org
+Subject: [PATCH v2] watchdog: w83627hf: Added NCT6102D support.
+Message-ID: <20160208100949.GB17935@wrobbie.Home>
+References: <56B40FCD.1010802@solution-space.com>
+ <56B6290B.6010904@roeck-us.net>
 MIME-Version: 1.0
-In-Reply-To: <56B01CB6.6010700@roeck-us.net>
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 8bit
-List-ID: <linux-watchdog@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <56B6290B.6010904@roeck-us.net>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-Guenter,
+As used in (and tested on) the ASRock IMB-150 board. Implementation is
+identical to other NCT chips, just with different registers.
 
-On 02/01/2016 08:04 PM, Guenter Roeck wrote:
-> On 02/01/2016 04:02 PM, Joshua Henderson wrote:
->> From: Purna Chandra Mandal <purna.mandal@microchip.com>
->>
->> The primary function of the deadman timer (DMT) is to reset the processor
->> in the event of a software malfunction. The DMT is a free-running
->> instruction fetch timer, which is clocked whenever an instruction fetch
->> occurs until a count match occurs. Instructions are not fetched when
->> the processor is in sleep mode.
->>
->> Signed-off-by: Purna Chandra Mandal <purna.mandal@microchip.com>
->> Signed-off-by: Joshua Henderson <joshua.henderson@microchip.com>
->> Cc: Ralf Baechle <ralf@linux-mips.org>
->> Cc: <linux-mips@linux-mips.org>
-> 
-> Please drop this Cc: from the commit log.
-> 
+Signed-off-by: Rob Kramer <rob@solution-space.com>
+---
+ drivers/watchdog/Kconfig        |  1 +
+ drivers/watchdog/w83627hf_wdt.c | 22 +++++++++++++++++++---
+ 2 files changed, 20 insertions(+), 3 deletions(-)
 
-Ack.
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 4f0e7be..318d8bc 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -1140,6 +1140,7 @@ config W83627HF_WDT
+ 		NCT6779
+ 		NCT6791
+ 		NCT6792
++		NCT6102D/04D/06D
+ 
+ 	  This watchdog simply watches your kernel to make sure it doesn't
+ 	  freeze, and if it does, it reboots your computer after a certain
+diff --git a/drivers/watchdog/w83627hf_wdt.c b/drivers/watchdog/w83627hf_wdt.c
+index cab14bc..09e8003 100644
+--- a/drivers/watchdog/w83627hf_wdt.c
++++ b/drivers/watchdog/w83627hf_wdt.c
+@@ -45,10 +45,11 @@
+ static int wdt_io;
+ static int cr_wdt_timeout;	/* WDT timeout register */
+ static int cr_wdt_control;	/* WDT control register */
++static int cr_wdt_csr;		/* WDT control & status register */
+ 
+ enum chips { w83627hf, w83627s, w83697hf, w83697ug, w83637hf, w83627thf,
+ 	     w83687thf, w83627ehf, w83627dhg, w83627uhg, w83667hg, w83627dhg_p,
+-	     w83667hg_b, nct6775, nct6776, nct6779, nct6791, nct6792 };
++	     w83667hg_b, nct6775, nct6776, nct6779, nct6791, nct6792, nct6102 };
+ 
+ static int timeout;			/* in seconds */
+ module_param(timeout, int, 0);
+@@ -92,15 +93,21 @@ MODULE_PARM_DESC(early_disable, "Disable watchdog at boot time (default=0)");
+ #define W83667HG_B_ID		0xb3
+ #define NCT6775_ID		0xb4
+ #define NCT6776_ID		0xc3
++#define NCT6102_ID		0xc4
+ #define NCT6779_ID		0xc5
+ #define NCT6791_ID		0xc8
+ #define NCT6792_ID		0xc9
+ 
+ #define W83627HF_WDT_TIMEOUT	0xf6
+ #define W83697HF_WDT_TIMEOUT	0xf4
++#define NCT6102D_WDT_TIMEOUT	0xf1
+ 
+ #define W83627HF_WDT_CONTROL	0xf5
+ #define W83697HF_WDT_CONTROL	0xf3
++#define NCT6102D_WDT_CONTROL	0xf0
++
++#define W836X7HF_WDT_CSR	0xf7
++#define NCT6102D_WDT_CSR	0xf2
+ 
+ static void superio_outb(int reg, int val)
+ {
+@@ -197,6 +204,7 @@ static int w83627hf_init(struct watchdog_device *wdog, enum chips chip)
+ 	case nct6779:
+ 	case nct6791:
+ 	case nct6792:
++	case nct6102:
+ 		/*
+ 		 * These chips have a fixed WDTO# output pin (W83627UHG),
+ 		 * or support more than one WDTO# output pin.
+@@ -229,8 +237,8 @@ static int w83627hf_init(struct watchdog_device *wdog, enum chips chip)
+ 	superio_outb(cr_wdt_control, t);
+ 
+ 	/* reset trigger, disable keyboard & mouse turning off watchdog */
+-	t = superio_inb(0xF7) & ~0xD0;
+-	superio_outb(0xF7, t);
++	t = superio_inb(cr_wdt_csr) & ~0xD0;
++	superio_outb(cr_wdt_csr, t);
+ 
+ 	superio_exit();
+ 
+@@ -322,6 +330,7 @@ static int wdt_find(int addr)
+ 
+ 	cr_wdt_timeout = W83627HF_WDT_TIMEOUT;
+ 	cr_wdt_control = W83627HF_WDT_CONTROL;
++	cr_wdt_csr = W836X7HF_WDT_CSR;
+ 
+ 	ret = superio_enter();
+ 	if (ret)
+@@ -387,6 +396,12 @@ static int wdt_find(int addr)
+ 	case NCT6792_ID:
+ 		ret = nct6792;
+ 		break;
++	case NCT6102_ID:
++		ret = nct6102;
++		cr_wdt_timeout = NCT6102D_WDT_TIMEOUT;
++		cr_wdt_control = NCT6102D_WDT_CONTROL;
++		cr_wdt_csr = NCT6102D_WDT_CSR;
++		break;
+ 	case 0xff:
+ 		ret = -ENODEV;
+ 		break;
+@@ -422,6 +437,7 @@ static int __init wdt_init(void)
+ 		"NCT6779",
+ 		"NCT6791",
+ 		"NCT6792",
++		"NCT6102",
+ 	};
+ 
+ 	wdt_io = 0x2e;
+-- 
+2.6.2
 
->> ---
->> Note: Please merge this patch series through the MIPS tree.
->> ---
->>   drivers/watchdog/Kconfig     |   14 ++
->>   drivers/watchdog/Makefile    |    1 +
->>   drivers/watchdog/pic32-dmt.c |  296 ++++++++++++++++++++++++++++++++++++++++++
->>   3 files changed, 311 insertions(+)
->>   create mode 100644 drivers/watchdog/pic32-dmt.c
->>
->> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
->> index 131abc2..87985c6 100644
->> --- a/drivers/watchdog/Kconfig
->> +++ b/drivers/watchdog/Kconfig
->> @@ -1424,6 +1424,20 @@ config PIC32_WDT
->>         To compile this driver as a loadable module, choose M here.
->>         The module will be called pic32-wdt.
->>
->> +config PIC32_DMT
->> +    tristate "Microchip PIC32 Deadman Timer"
->> +    select WATCHDOG_CORE
->> +    depends on MACH_PIC32
->> +    default y
-> 
-> Are you sure ?
-
-No. Will remove.
-
->> +    help
->> +      Watchdog driver for PIC32 instruction fetch counting timer. This specific
->> +      timer is typically be used in misson critical and safety critical
->> +      applications, where any single failure of the software functionality
->> +      and sequencing must be detected.
->> +
->> +      To compile this driver as a loadable module, choose M here.
->> +      The module will be called pic32-dmt.
->> +
->>   # PARISC Architecture
->>
->>   # POWERPC Architecture
->> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
->> index 244ed80..d051c9c 100644
->> --- a/drivers/watchdog/Makefile
->> +++ b/drivers/watchdog/Makefile
->> @@ -154,6 +154,7 @@ obj-$(CONFIG_RALINK_WDT) += rt2880_wdt.o
->>   obj-$(CONFIG_IMGPDC_WDT) += imgpdc_wdt.o
->>   obj-$(CONFIG_MT7621_WDT) += mt7621_wdt.o
->>   obj-$(CONFIG_PIC32_WDT) += pic32-wdt.o
->> +obj-$(CONFIG_PIC32_DMT) += pic32-dmt.o
->>
->>   # PARISC Architecture
->>
->> diff --git a/drivers/watchdog/pic32-dmt.c b/drivers/watchdog/pic32-dmt.c
->> new file mode 100644
->> index 0000000..13dd1e3
->> --- /dev/null
->> +++ b/drivers/watchdog/pic32-dmt.c
->> @@ -0,0 +1,296 @@
->> +/*
->> + * PIC32 deadman timer driver
->> + *
->> + * Purna Chandra Mandal <purna.mandal@microchip.com>
->> + * Copyright (c) 2016, Microchip Technology Inc.
->> + *
->> + * This program is free software; you can redistribute it and/or
->> + * modify it under the terms of the GNU General Public License
->> + * as published by the Free Software Foundation; either version
->> + * 2 of the License, or (at your option) any later version.
->> + */
->> +
->> +#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
->> +
->> +#include <linux/kernel.h>
->> +#include <linux/module.h>
->> +#include <linux/clk.h>
->> +#include <linux/err.h>
->> +#include <linux/io.h>
->> +#include <linux/of.h>
->> +#include <linux/of_device.h>
->> +#include <linux/pm.h>
->> +#include <linux/watchdog.h>
->> +#include <linux/spinlock.h>
->> +#include <linux/device.h>
->> +#include <linux/platform_device.h>
-> 
-> Please list include files in alphabetic order.
-> 
-
-Will do.
-
->> +
->> +#include <asm/mach-pic32/pic32.h>
->> +
->> +/* Deadman Timer Regs */
->> +#define DMTCON_REG    0x00
->> +#define DMTPRECLR_REG    0x10
->> +#define DMTCLR_REG    0x20
->> +#define DMTSTAT_REG    0x30
->> +#define DMTCNT_REG    0x40
->> +#define DMTPSCNT_REG    0x60
->> +#define DMTPSINTV_REG    0x70
->> +
->> +/* Deadman Timer Regs fields */
->> +#define DMT_ON            0x8000
->> +#define DMT_STEP1_KEY        0x40
->> +#define DMT_STEP1_KEY_BYTE    1
->> +#define DMT_STEP2_KEY        0x08
->> +#define DMTSTAT_WINOPN        0x01
->> +#define DMTSTAT_EVENT        0x20
->> +#define DMTSTAT_BAD2        0x40
->> +#define DMTSTAT_BAD1        0x80
->> +
-> 
-> BIT() ?
-
-Ack.
-
->> +/* Reset Control Register fields for watchdog */
->> +#define RESETCON_DMT_TIMEOUT    0x0020
->> +
->> +struct pic32_dmt {
->> +    spinlock_t    lock;
->> +    void __iomem    *regs;
->> +    struct clk    *clk;
->> +};
->> +
->> +static inline int dmt_is_enabled(struct pic32_dmt *dmt)
-> 
-> Should return bool.
-
-This function will be dropped.
-
->> +{
->> +    return readl(dmt->regs + DMTCON_REG) & DMT_ON;
->> +}
->> +
->> +static inline void dmt_enable(struct pic32_dmt *dmt)
->> +{
->> +    writel(DMT_ON, PIC32_SET(dmt->regs + DMTCON_REG));
->> +}
->> +
->> +static inline void dmt_disable(struct pic32_dmt *dmt)
->> +{
->> +    writel(DMT_ON, PIC32_CLR(dmt->regs + DMTCON_REG));
->> +    cpu_relax();
-> 
-> Is this needed ?
-> 
-
-Something is, but probably not this. No watchdog registers may not be read or written in the CPU clock cycle immediately following the instruction that clears the module’s ON bit.  I'll comment and investigate a better solution.
-
->> +}
->> +
->> +static inline int dmt_bad_status(struct pic32_dmt *dmt)
->> +{
->> +    u32 val;
->> +
->> +    val = readl(dmt->regs + DMTSTAT_REG);
->> +    val &= (DMTSTAT_BAD1 | DMTSTAT_BAD2 | DMTSTAT_EVENT);
->> +    if (val)
->> +        pr_err("dmt: bad event generated: sts %08x\n", val);
->> +
-> Is this error message really necessary (in addition to the error being reported
-> to userspace) ?
-> 
-> Also, where used, the error is reported as EAGAIN, which suggests a normal condition.
-> If so, please drop the message.
-
-It's not really necessary. Probably should have been dbg, but will remove.
-
->> +    return val;
-> 
-> I would suggest to return a valid error code directly instead of converting
-> the zero/nonzero result to an error in the calling code.
-
-Ack.
-
->> +}
->> +
->> +static inline int dmt_keepalive(struct pic32_dmt *dmt)
->> +{
->> +    u32 v;
->> +
->> +    /* set pre-clear key */
->> +    writel(DMT_STEP1_KEY << 8, dmt->regs + DMTPRECLR_REG);
->> +
->> +    /* wait for DMT window to open */
->> +    for (;;) {
->> +        v = readl(dmt->regs + DMTSTAT_REG) & DMTSTAT_WINOPN;
->> +        if (v == DMTSTAT_WINOPN)
->> +            break;
->> +    }
-> 
-> Really wait forever in a hot loop with no timeout and no means to escape ?
-
-I'll find a max to break the loop.  Whats the worst that could happen?  The CPU will reset. :)
-
-> 
->> +
->> +    /* apply key2 */
->> +    writel(DMT_STEP2_KEY, dmt->regs + DMTCLR_REG);
->> +
->> +    /* check whether keys are latched correctly */
->> +    return dmt_bad_status(dmt);
->> +}
->> +
->> +static inline u32 dmt_timeleft(struct pic32_dmt *dmt)
->> +{
->> +    u32 top = readl(dmt->regs + DMTPSCNT_REG);
->> +
->> +    return top - readl(dmt->regs + DMTCNT_REG);
->> +}
->> +
->> +static inline u32 dmt_interval_time_to_clear(struct pic32_dmt *dmt)
->> +{
->> +    return readl(dmt->regs + DMTPSINTV_REG);
->> +}
->> +
-> 
-> This function is not used anywhere.
-
-Removed.
-
->> +static inline u32 pic32_dmt_get_timeout_secs(struct pic32_dmt *dmt)
->> +{
->> +    return readl(dmt->regs + DMTPSCNT_REG) / clk_get_rate(dmt->clk);
->> +}
->> +
->> +static inline u32 pic32_dmt_bootstatus(struct pic32_dmt *dmt)
->> +{
->> +    u32 v;
->> +    void __iomem *rst_base;
->> +
->> +    rst_base = ioremap(PIC32_BASE_RESET, 0x10);
->> +    if (!rst_base)
->> +        return 0;
->> +
->> +    v = readl(rst_base);
->> +
->> +    writel(RESETCON_DMT_TIMEOUT, PIC32_CLR(rst_base));
->> +
->> +    iounmap(rst_base);
->> +    return v & RESETCON_DMT_TIMEOUT;
->> +}
->> +
->> +static int pic32_dmt_start(struct watchdog_device *wdd)
->> +{
->> +    struct pic32_dmt *dmt = watchdog_get_drvdata(wdd);
->> +
->> +    spin_lock(&dmt->lock);
-> 
-> Is this lock (on top of the watchdg core lock) needed ?
-
-It's not needed the watchdog_core mutex in the path.
-
-> 
->> +    if (dmt_is_enabled(dmt))
->> +        goto done;
->> +
-> Can this happen ?
-
-It can, but this logic isn't really necessary.
-
-> 
->> +    dmt_enable(dmt);
-> 
-> If so, does it hurt to just enable it again ?
-
-I will confirm, but I don't think it hurts to enable again in this case.
-
-> 
->> +done:
->> +    dmt_keepalive(dmt);
-> 
-> This returns an error. Is it not reported on purpose ?
-
-It does make sense to go ahead and report the error, as long as -EAGAIN makes sense from pic32_dmt_start().  Or some other error.  Any thoughts?
-
-> 
->> +    spin_unlock(&dmt->lock);
->> +
->> +    return 0;
->> +}
->> +
->> +static int pic32_dmt_stop(struct watchdog_device *wdd)
->> +{
->> +    struct pic32_dmt *dmt = watchdog_get_drvdata(wdd);
->> +
->> +    spin_lock(&dmt->lock);
->> +    dmt_disable(dmt);
->> +    spin_unlock(&dmt->lock);
->> +
->> +    return 0;
->> +}
->> +
->> +static int pic32_dmt_ping(struct watchdog_device *wdd)
->> +{
->> +    struct pic32_dmt *dmt = watchdog_get_drvdata(wdd);
->> +    int ret;
->> +
->> +    spin_lock(&dmt->lock);
->> +    ret = dmt_keepalive(dmt);
->> +    spin_unlock(&dmt->lock);
->> +
->> +    return ret ? -EAGAIN : 0;
->> +}
->> +
->> +static unsigned int pic32_dmt_get_timeleft(struct watchdog_device *wdd)
->> +{
->> +    struct pic32_dmt *dmt = watchdog_get_drvdata(wdd);
->> +
->> +    return dmt_timeleft(dmt);
-> 
-> Does that function return the remaining time in seconds ?
-
-It does not.  Will remove.
-
-> 
->> +}
->> +
->> +static const struct watchdog_ops pic32_dmt_fops = {
->> +    .owner        = THIS_MODULE,
->> +    .start        = pic32_dmt_start,
->> +    .stop        = pic32_dmt_stop,
->> +    .get_timeleft    = pic32_dmt_get_timeleft,
-
-Will also drop this function.
-
->> +    .ping        = pic32_dmt_ping,
->> +};
->> +
->> +static const struct watchdog_info pic32_dmt_ident = {
->> +    .options    = WDIOF_KEEPALIVEPING |
->> +              WDIOF_MAGICCLOSE,
->> +    .identity    = "PIC32 Deadman Timer",
->> +};
->> +
->> +static struct watchdog_device pic32_dmt_wdd = {
->> +    .info        = &pic32_dmt_ident,
->> +    .ops        = &pic32_dmt_fops,
->> +    .min_timeout    = 1,
->> +    .max_timeout    = UINT_MAX,
->> +};
->> +
->> +static int pic32_dmt_probe(struct platform_device *pdev)
->> +{
->> +    int ret;
->> +    struct pic32_dmt *dmt;
->> +    struct resource *mem;
->> +    struct watchdog_device *wdd = &pic32_dmt_wdd;
->> +
->> +    dmt = devm_kzalloc(&pdev->dev, sizeof(*dmt), GFP_KERNEL);
->> +    if (IS_ERR(dmt))
->> +        return PTR_ERR(dmt);
->> +
->> +    mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
->> +    dmt->regs = devm_ioremap_resource(&pdev->dev, mem);
->> +    if (IS_ERR(dmt->regs))
->> +        return PTR_ERR(dmt->regs);
->> +
->> +    dmt->clk = devm_clk_get(&pdev->dev, NULL);
->> +    if (IS_ERR(dmt->clk)) {
->> +        dev_err(&pdev->dev, "clk not found\n");
->> +        return PTR_ERR(dmt->clk);
->> +    }
->> +
->> +    ret = clk_prepare_enable(dmt->clk);
->> +    if (ret)
->> +        return ret;
->> +
->> +    wdd->max_timeout /= clk_get_rate(dmt->clk);
-> 
-> Please just assign UINT_MAX / clk_get_rate(dmt->clk).
-> 
-
-As with the watchdog driver, I will just drop this calculation.
-
->> +    wdd->timeout = pic32_dmt_get_timeout_secs(dmt);
->> +    wdd->bootstatus = pic32_dmt_bootstatus(dmt) ? WDIOF_CARDRESET : 0;
->> +    if (!wdd->timeout) {
->> +        dev_err(&pdev->dev,
->> +            "timeout %dsec too small for DMT\n", wdd->timeout);
-> 
-> wdd->timeout is 0 here, so displaying the variable does not provide much value.
-> Besides "0sec" looks a bit odd.
-
-Agreed.
-
-> 
->> +        ret = -EINVAL;
->> +        goto out_disable_clk;
->> +    }
->> +
->> +    spin_lock_init(&dmt->lock);
->> +
->> +    dev_info(&pdev->dev, "max_timeout %d, min_timeout %d, cur_timeout %d\n",
->> +         wdd->max_timeout, wdd->min_timeout, wdd->timeout);
-> 
-> min_timeout is a constant and thus not worth reporting.
-> Please report the current timeout as "timeout".
-
-Ack.
-
-> 
->> +    ret = watchdog_register_device(wdd);
->> +    if (ret) {
->> +        dev_err(&pdev->dev, "watchdog register failed, err %d\n", ret);
->> +        goto out_disable_clk;
->> +    }
->> +
->> +    watchdog_set_nowayout(wdd, WATCHDOG_NOWAYOUT);
->> +    watchdog_set_drvdata(wdd, dmt);
-> 
-> Race condition: drvdata may be needed after the call to watchdog_register_device().
-
-Ack.
-
-> 
->> +
->> +    platform_set_drvdata(pdev, wdd);
->> +    return 0;
->> +
->> +out_disable_clk:
->> +    clk_disable_unprepare(dmt->clk);
->> +    return ret;
->> +}
->> +
->> +static int pic32_dmt_remove(struct platform_device *pdev)
->> +{
->> +    struct watchdog_device *wdd = platform_get_drvdata(pdev);
->> +    struct pic32_dmt *dmt = watchdog_get_drvdata(wdd);
->> +
->> +    clk_disable_unprepare(dmt->clk);
->> +    watchdog_unregister_device(wdd);
-> 
-> Unregister first ?
-
-Ack.
-
-> 
->> +
->> +    return 0;
->> +}
->> +
->> +static const struct of_device_id pic32_dmt_of_ids[] = {
->> +    { .compatible = "microchip,pic32mzda-dmt",},
-> 
-> Is the documentation for this compatible string added with a separate patch ?
-> 
-
-Yes. I goofed up and did not Cc: you directly. I'll make sure and Cc: you in V2.  See [PATCH 1/2] of this series: https://lkml.org/lkml/2016/2/1/865
-
->> +    { /* sentinel */ }
->> +};
->> +MODULE_DEVICE_TABLE(of, pic32_dmt_of_ids);
->> +
->> +static struct platform_driver pic32_dmt_driver = {
->> +    .probe        = pic32_dmt_probe,
->> +    .remove        = pic32_dmt_remove,
->> +    .driver        = {
->> +        .name        = "pi32-dmt",
->> +        .owner        = THIS_MODULE,
->> +        .of_match_table = of_match_ptr(pic32_dmt_of_ids),
->> +    }
->> +};
->> +
->> +module_platform_driver(pic32_dmt_driver);
->> +
->> +MODULE_AUTHOR("Purna Chandra Mandal <purna.mandal@microchip.com>");
->> +MODULE_DESCRIPTION("Microchip PIC32 DMT Driver");
->> +MODULE_LICENSE("GPL");
->> -- 
->> 1.7.9.5
->>
->>
-> 
-
-Thanks,
-Josh
