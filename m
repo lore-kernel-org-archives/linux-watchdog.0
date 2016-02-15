@@ -1,52 +1,54 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from casper.infradead.org ([85.118.1.10]:33197 "EHLO
-	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752094AbcBOQuN (ORCPT
+Received: from one.firstfloor.org ([193.170.194.197]:32882 "EHLO
+	one.firstfloor.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751651AbcBOUCF (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 15 Feb 2016 11:50:13 -0500
-Date: Mon, 15 Feb 2016 17:49:52 +0100
-From: Peter Zijlstra <peterz@infradead.org>
-To: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Jiri Slaby <jslaby@suse.cz>, Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@redhat.com>,
-	"H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org,
-	linux-kernel@vger.kernel.org, live-patching@vger.kernel.org,
-	Michal Marek <mmarek@suse.cz>,
-	Andy Lutomirski <luto@kernel.org>,
-	Borislav Petkov <bp@alien8.de>,
-	Linus Torvalds <torvalds@linux-foundation.org>,
-	Andi Kleen <andi@firstfloor.org>,
-	Pedro Alves <palves@redhat.com>,
-	Namhyung Kim <namhyung@gmail.com>,
-	Bernd Petrovitsch <bernd@petrovitsch.priv.at>,
-	Chris J Arges <chris.j.arges@canonical.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Arnaldo Carvalho de Melo <acme@kernel.org>,
-	David Vrabel <david.vrabel@citrix.com>,
-	Borislav Petkov <bp@suse.de>,
-	Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
-	Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-	Jeremy Fitzhardinge <jeremy@goop.org>,
-	Chris Wright <chrisw@sous-sol.org>,
+	Mon, 15 Feb 2016 15:02:05 -0500
+Date: Mon, 15 Feb 2016 21:02:01 +0100
+From: Andi Kleen <andi@firstfloor.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
 	Alok Kataria <akataria@vmware.com>,
-	Rusty Russell <rusty@rustcorp.com.au>,
-	Herbert Xu <herbert@gondor.apana.org.au>,
-	"David S. Miller" <davem@davemloft.net>,
-	Pavel Machek <pavel@ucw.cz>,
-	"Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-	Len Brown <len.brown@intel.com>,
-	Matt Fleming <matt@codeblueprint.co.uk>,
-	Alexei Starovoitov <ast@kernel.org>, netdev@vger.kernel.org,
-	Ananth N Mavinakayanahalli <ananth@in.ibm.com>,
-	Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
-	Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>,
-	Gleb Natapov <gleb@kernel.org>,
-	Paolo Bonzini <pbonzini@redhat.com>, kvm@vger.kernel.org,
-	Wim Van Sebroeck <wim@iguana.be>,
+	Ingo Molnar <mingo@redhat.com>,
 	Guenter Roeck <linux@roeck-us.net>,
-	linux-watchdog@vger.kernel.org, Waiman Long <Waiman.Long@hpe.com>
+	Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
+	Herbert Xu <herbert@gondor.apana.org.au>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Rusty Russell <rusty@rustcorp.com.au>,
+	Bernd Petrovitsch <bernd@petrovitsch.priv.at>,
+	linux-watchdog@vger.kernel.org, Pedro Alves <palves@redhat.com>,
+	Pavel Machek <pavel@ucw.cz>,
+	Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+	Michal Marek <mmarek@suse.cz>,
+	Namhyung Kim <namhyung@gmail.com>,
+	Jeremy Fitzhardinge <jeremy@goop.org>,
+	Waiman Long <Waiman.Long@hpe.com>,
+	"Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+	Jiri Slaby <jslaby@suse.cz>, kvm@vger.kernel.org,
+	x86@kernel.org, Arnaldo Carvalho de Melo <acme@kernel.org>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Chris Wright <chrisw@sous-sol.org>,
+	Andy Lutomirski <luto@kernel.org>,
+	Alexei Starovoitov <ast@kernel.org>,
+	"David S. Miller" <davem@davemloft.net>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	David Vrabel <david.vrabel@citrix.com>,
+	live-patching@vger.kernel.org, netdev@vger.kernel.org,
+	Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+	Gleb Natapov <gleb@kernel.org>,
+	Matt Fleming <matt@codeblueprint.co.uk>,
+	Chris J Arges <chris.j.arges@canonical.com>,
+	linux-kernel@vger.kernel.org, Borislav Petkov <bp@suse.de>,
+	Andi Kleen <andi@firstfloor.org>,
+	Len Brown <len.brown@intel.com>,
+	Ananth N Mavinakayanahalli <ananth@in.ibm.com>,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Peter Zijlstra <peterz@infradead.org>
 Subject: Re: [PATCH 00/33] Compile-time stack metadata validation
-Message-ID: <20160215164952.GL6357@twins.programming.kicks-ass.net>
+Message-ID: <20160215200201.GN3696@two.firstfloor.org>
 References: <cover.1453405861.git.jpoimboe@redhat.com>
  <56BDB5A8.9030006@suse.cz>
  <20160212144543.GA29004@treble.redhat.com>
@@ -54,72 +56,30 @@ References: <cover.1453405861.git.jpoimboe@redhat.com>
  <20160212183206.GB29004@treble.redhat.com>
  <20160212201011.GW6357@twins.programming.kicks-ass.net>
  <20160215163134.GA20585@treble.redhat.com>
+ <CA+55aFzoPCd_LcSx1FUuEhSBYk2KrfzXGj-Vcn39W5bz=KuZhA@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20160215163134.GA20585@treble.redhat.com>
+In-Reply-To: <CA+55aFzoPCd_LcSx1FUuEhSBYk2KrfzXGj-Vcn39W5bz=KuZhA@mail.gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Feb 15, 2016 at 10:31:34AM -0600, Josh Poimboeuf wrote:
-> On Fri, Feb 12, 2016 at 09:10:11PM +0100, Peter Zijlstra wrote:
-> > On Fri, Feb 12, 2016 at 12:32:06PM -0600, Josh Poimboeuf wrote:
-> > > What I actually see in the listing is:
-> > > 
-> > >  	decl	__percpu_prefix:__preempt_count
-> > >  	je	1f:
-> > > 	....
-> > >  1:
-> > >  	call	___preempt_schedule
-> > > 
-> > > So it puts the "call ___preempt_schedule" in the slow path.
-> > 
-> > Ah yes indeed. Same difference though.
-> > 
-> > > I also don't see how that would be related to the use of the asm
-> > > statement in the __preempt_schedule() macro.  Doesn't the use of
-> > > unlikely() in preempt_enable() put the call in the slow path?
-> > 
-> > Sadly no, unlikely() and asm_goto don't work well together. But the slow
-> > path or not isn't the reason we do the asm call thing.
-> > 
-> > >   #define preempt_enable() \
-> > >   do { \
-> > > 	  barrier(); \
-> > > 	  if (unlikely(preempt_count_dec_and_test())) \
-> > > 		  preempt_schedule(); \
-> > >   } while (0)
-> > > 
-> > > Also, why is the thunk needed?  Any reason why preempt_enable() can't be
-> > > called directly from C?
-> > 
-> > That would make the call-site save registers and increase the size of
-> > every preempt_enable(). By using the thunk we can do callee saved
-> > registers and avoid blowing up the call site.
+> > There are two ways to fix the warnings:
+> >
+> > 1. get rid of the thunks and call the C functions directly; or
 > 
-> So is the goal to optimize for size?  
+> No. Not until gcc learns about per-function callibg conventions (so that it can
+> be marked as not clobbering registers).
 
-General performance impact of preempt_enable().
+It does already for static functions in 5.x (with -fipa-ra).
+And with LTO it can be used even somewhat globally.
 
-> If I replace the calls to
-> __preempt_schedule[_notrace]() with real C calls and remove the thunks,
-> it only adds about 2k to vmlinux.
+Even older version supported it, for only for x86->SSE on 32bit, which
+is useless for the kernel. But the new IPA-RA propagates which registers
+are clobbered.
 
-That's less than I had expected, but probably still worth it.
+That said it will probably be a long time until we can drop support for
+older compilers.  So for now the manual method is still needed.
 
-And is that added text purely in the slow path? We really want to avoid
-putting any more register pressure on the preempt_enable() call sites.
-The single memop and Jcc is about as fast we can get and we spend quite
-a bit of effort getting there.
+-Andi
 
-> There are two ways to fix the warnings:
-> 
-> 1. get rid of the thunks and call the C functions directly; or
-> 
-> 2. add the stack pointer to the asm() statement output operand list to
-> ensure a stack frame gets created in the caller function before the
-> call.  (Note this still allows the thunks to do callee saved registers.)
-> 
-> I like #1 better, but maybe I'm still missing the point of the thunks.
-
-Ingo, Linus?
