@@ -1,153 +1,141 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:32806 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754920AbcB1VM1 (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 28 Feb 2016 16:12:27 -0500
-From: Guenter Roeck <linux@roeck-us.net>
-To: linux-watchdog@vger.kernel.org
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org,
-	Timo Kokkonen <timo.kokkonen@offcode.fi>,
-	=?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?=
-	<u.kleine-koenig@pengutronix.de>, linux-doc@vger.kernel.org,
-	Doug Anderson <dianders@chromium.org>,
-	Jonathan Corbet <corbet@lwn.net>,
-	Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH v8 0/10] watchdog: Add support for keepalives triggered by infrastructure
-Date: Sun, 28 Feb 2016 13:12:13 -0800
-Message-Id: <1456693943-6876-1-git-send-email-linux@roeck-us.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Petr Mladek <pmladek@suse.com>
+To: Andrew Morton <akpm@linux-foundation.org>, Oleg Nesterov <oleg@redhat.com>,
+        Tejun Heo <tj@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>
+Cc: Steven Rostedt <rostedt@goodmis.org>,
+        "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
+        Josh Triplett <josh@joshtriplett.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Jiri Kosina <jkosina@suse.cz>, Borislav Petkov <bp@suse.de>,
+        Michal Hocko <mhocko@suse.cz>, linux-mm@kvack.org,
+        Vlastimil Babka <vbabka@suse.cz>, linux-api@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Petr Mladek <pmladek@suse.com>,
+        linux-watchdog@vger.kernel.org
+Subject: [PATCH v5 13/20] hung_task: Convert hungtaskd into kthread worker API
+Date: Mon, 22 Feb 2016 15:57:03 +0100
+Message-Id: <1456153030-12400-14-git-send-email-pmladek@suse.com>
+In-Reply-To: <1456153030-12400-1-git-send-email-pmladek@suse.com>
+References: <1456153030-12400-1-git-send-email-pmladek@suse.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-The watchdog infrastructure is currently purely passive, meaning
-it only passes information from user space to drivers and vice versa.
+Kthreads are currently implemented as an infinite loop. Each
+has its own variant of checks for terminating, freezing,
+awakening. In many cases it is unclear to say in which state
+it is and sometimes it is done a wrong way.
 
-Since watchdog hardware tends to have its own quirks, this can result
-in quite complex watchdog drivers. A number of scanarios are especially common.
+The plan is to convert kthreads into kthread_worker or workqueues
+API. It allows to split the functionality into separate operations.
+It helps to make a better structure. Also it defines a clean state
+where no locks are taken, IRQs blocked, the kthread might sleep
+or even be safely migrated.
 
-- A watchdog is always active and can not be disabled, or can not be disabled
-  once enabled. To support such hardware, watchdog drivers have to implement
-  their own timers and use those timers to trigger watchdog keepalives while
-  the watchdog device is not or not yet opened.
-- A variant of this is the desire to enable a watchdog as soon as its driver
-  has been instantiated, to protect the system while it is still booting up,
-  but the watchdog daemon is not yet running.
-- Some watchdogs have a very short maximum timeout, in the range of just a few
-  seconds. Such low timeouts are difficult if not impossible to support from
-  user space. Drivers supporting such watchdog hardware need to implement
-  a timer function to augment heartbeats from user space.
+The kthread worker API is useful when we want to have a dedicated
+single thread for the work. It helps to make sure that it is
+available when needed. Also it allows a better control, e.g.
+define a scheduling priority.
 
-This patch set solves the above problems while keeping changes to the
-watchdog core minimal.
+This patch converts hungtaskd() in kthread worker API because
+it modifies the priority.
 
-- A new status flag, WDOG_HW_RUNNING, informs the watchdog subsystem that
-  a watchdog is running, and that the watchdog subsystem needs to generate
-  heartbeat requests while the associated watchdog device is closed.
-- A new parameter in the watchdog data structure, max_hw_heartbeat_ms, informs
-  the watchdog subsystem about a maximum hardware heartbeat. The watchdog
-  subsystem uses this information together with the configured timeout
-  and the maximum permitted timeout to determine if it needs to generate
-  additional heartbeat requests.
+The conversion is pretty straightforward. One iteration of the
+main cycle is transferred into a self-queuing delayed kthread work.
+We do not longer need to check if it was waken earlier. Instead,
+the work timeout is modified when the timeout value is changed.
 
-As part of this patchset, the semantics of the 'timeout' variable and of
-the WDOG_ACTIVE flag are changed slightly.
+The user nice value is set from hung_task_init(). Otherwise, we
+would need to add an extra init_work.
 
-Per the current watchdog kernel API, the 'timeout' variable is supposed
-to reflect the actual hardware watchdog timeout. WDOG_ACTIVE is supposed
-to reflect if the hardware watchdog is running or not.
+The patch also handles the error when the kthead worker could not
+be crated from some reasons. It was broken before. For example,
+wake_up_process would have failed if watchdog_task inclueded an error
+code instead of a valid pointer.
 
-Unfortunately, this does not always reflect reality. In drivers which solve
-the above mentioned problems internally, 'timeout' is the watchdog timeout
-as seen from user space, and WDOG_ACTIVE reflects that user space is expected
-to send keepalive requests to the watchdog driver.
+Signed-off-by: Petr Mladek <pmladek@suse.com>
+CC: linux-watchdog@vger.kernel.org
+---
+ kernel/hung_task.c | 41 +++++++++++++++++++++++++----------------
+ 1 file changed, 25 insertions(+), 16 deletions(-)
 
-After this patch set is applied, this so far inofficial interpretation
-is the 'official' semantics for the timeout variable and the WDOG_ACTIVE
-flag. In other words, both values no longer reflect the hardware watchdog
-status, but its status as seen from user space.
-
-Patch #1 makes the set_timeout function optional.
-
-Patch #2 adds timer functionality to the watchdog core. It solves the problem
-of short maximum hardware heartbeats by augmenting heartbeats triggered from
-user space with internally triggered heartbeats.
-
-Patch #3 adds functionality to generate heartbeats while the watchdog device
-is closed. It handles situation where where the watchdog is running after
-the driver has been instantiated, but the device is not yet opened,
-and post-close situations necessary if a watchdog can not be stopped.
-
-Patch #4 makes the stop function optional.
-
-Patch #5 adds code to ensure that the minimum time between heartbeats meets
-constraints provided by the watchdog driver.
-
-Patch #6 to #10 are example conversions of some watchdog drivers.
-Out of those, patches #6 (dw_wdt) and #7 (imx2) have been tested.
-Patches #8 to #10 will require testing and are marked as RFT.
-
-The patch series is also available in branch watchdog-timer of
-git://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git.
-The series is curently based on top of v4.5-rc5.
-
-The patch series was inspired by an earlier patch set from Timo Kokonnen.
-
-v8:
-- max_hw_timeout_ms -> max_hw_heartbeat_ms
-- Rebased to v4.5-rc5
-- The patch to make the set_timeout function optional is now the first
-  patch of the series.
-- Separate code making the stop function optional into a separate patch.
-- Dropped all Acked-by: and Tested-by: tags. Even though there are no
-  functional changes, I concluded that the changes are too substantial
-  to warrant maintaining previously provided tags.
-  Note: while the patch series was rearranged, correctness was ensured
-  by implementing the max_hw_timeout_ms -> max_hw_heartbeat_ms changes
-  separately on top of the original series and comparing the results.
-v7:
-- Rebased to v4.5-rc1.
-- Moved new variables to local data structure
-- Fixed typos in documentation (hw_max_timeout_ms -> max_hw_timeout_ms).
-- Enforce that max_hw_timeout_ms must be set if the stop function is
-  not implemented by a driver.
-- Set max_hw_timeout_ms in converted drivers.
-v6:
-- Added patch #9, converting the dw_wdt driver.
-- Set last_keepalive more accurately when starting the watchdog.
-- Rebased to v4.4-rc2.
-- Renamed WDOG_RUNNING to WDOG_HW_RUNNING and watchdog_running() to
-  watchdog_hw_running().
-v5:
-- Patches #1 and #2 of the original patch series are now in mainline
-  and have been dropped.
-- Rebased to v4.4-rc1. 
-- Added patch to simplify watchdog_update_worker().
-v4:
-- Rebased to v4.3-rc3
-- Rearranged patch sequence
-- Dropped gpio driver patch. The driver was changed since v4.2,
-  and merging the changes turned out to be too difficult.
-- Various other cleanups as listed in individual patches
-v3:
-- Rebased to v4.2-rc8
-- Reworked and cleaned up some of the functions.
-- No longer call the worker update function if all that is needed is to stop
-  the worker.
-- max_timeout will now be ignored if max_hw_timeout_ms is provided.
-- Added patch 9/9.
-v2:
-- Rebased to v4.2-rc5
-- Improved and hopefully clarified documentation.
-- Rearranged variables in struct watchdog_device such that internal variables
-  come last.
-- The code now ensures that the watchdog times out <timeout> seconds after
-  the most recent keepalive sent from user space.
-- The internal keepalive now stops silently and no longer generates a
-  warning message. Reason is that it will now stop early, while there
-  may still be a substantial amount of time for keepalives from user space
-  to arrive. If such keepalives arrive late (for example if user space
-  is configured to send keepalives just a few seconds before the watchdog
-  times out), the message would just be noise and not provide any value.
+diff --git a/kernel/hung_task.c b/kernel/hung_task.c
+index e0f90c2b57aa..65026f8b750e 100644
+--- a/kernel/hung_task.c
++++ b/kernel/hung_task.c
+@@ -41,7 +41,9 @@ int __read_mostly sysctl_hung_task_warnings = 10;
+ 
+ static int __read_mostly did_panic;
+ 
+-static struct task_struct *watchdog_task;
++static struct kthread_worker *watchdog_worker;
++static void watchdog_func(struct kthread_work *dummy);
++static DEFINE_DELAYED_KTHREAD_WORK(watchdog_work, watchdog_func);
+ 
+ /*
+  * Should we panic (and reboot, if panic_timeout= is set) when a
+@@ -205,7 +207,9 @@ int proc_dohung_task_timeout_secs(struct ctl_table *table, int write,
+ 	if (ret || !write)
+ 		goto out;
+ 
+-	wake_up_process(watchdog_task);
++	if (watchdog_worker)
++		mod_delayed_kthread_work(watchdog_worker, &watchdog_work,
++			 timeout_jiffies(sysctl_hung_task_timeout_secs));
+ 
+  out:
+ 	return ret;
+@@ -222,30 +226,35 @@ EXPORT_SYMBOL_GPL(reset_hung_task_detector);
+ /*
+  * kthread which checks for tasks stuck in D state
+  */
+-static int watchdog(void *dummy)
++static void watchdog_func(struct kthread_work *dummy)
+ {
+-	set_user_nice(current, 0);
++	unsigned long timeout = sysctl_hung_task_timeout_secs;
+ 
+-	for ( ; ; ) {
+-		unsigned long timeout = sysctl_hung_task_timeout_secs;
++	if (atomic_xchg(&reset_hung_task, 0))
++		goto next;
+ 
+-		while (schedule_timeout_interruptible(timeout_jiffies(timeout)))
+-			timeout = sysctl_hung_task_timeout_secs;
++	check_hung_uninterruptible_tasks(timeout);
+ 
+-		if (atomic_xchg(&reset_hung_task, 0))
+-			continue;
+-
+-		check_hung_uninterruptible_tasks(timeout);
+-	}
+-
+-	return 0;
++next:
++	queue_delayed_kthread_work(watchdog_worker, &watchdog_work,
++				   timeout_jiffies(timeout));
+ }
+ 
+ static int __init hung_task_init(void)
+ {
++	struct kthread_worker *worker;
++
+ 	atomic_notifier_chain_register(&panic_notifier_list, &panic_block);
+-	watchdog_task = kthread_run(watchdog, NULL, "khungtaskd");
++	worker = create_kthread_worker(0, "khungtaskd");
++	if (IS_ERR(worker)) {
++		pr_warn("Failed to create khungtaskd\n");
++		goto out;
++	}
++	watchdog_worker = worker;
++	set_user_nice(worker->task, 0);
++	queue_delayed_kthread_work(worker, &watchdog_work, 0);
+ 
++out:
+ 	return 0;
+ }
+ subsys_initcall(hung_task_init);
+-- 
+1.8.5.6
