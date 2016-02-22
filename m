@@ -1,64 +1,127 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ig0-f174.google.com ([209.85.213.174]:35138 "EHLO
-	mail-ig0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751014AbcBVQ4P (ORCPT
+Received: from mail-io0-f175.google.com ([209.85.223.175]:34636 "EHLO
+	mail-io0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751430AbcBVSDD (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 22 Feb 2016 11:56:15 -0500
-Received: by mail-ig0-f174.google.com with SMTP id hb3so80918451igb.0
-        for <linux-watchdog@vger.kernel.org>; Mon, 22 Feb 2016 08:56:14 -0800 (PST)
-From: slemieux.tyco@gmail.com
-To: linux-arm-kernel@lists.infradead.org, wim@iguana.be,
-	manabian@gmail.com
-Cc: linux-watchdog@vger.kernel.org, linux@roeck-us.net,
-	stigge@antcom.de, vz@mleia.com
-Subject: [PATCH v2 4/5] watchdog: pnx4008: restart: support "cmd" from userspace
-Date: Mon, 22 Feb 2016 11:55:42 -0500
-Message-Id: <1456160143-26761-5-git-send-email-slemieux.tyco@gmail.com>
-In-Reply-To: <1456160143-26761-1-git-send-email-slemieux.tyco@gmail.com>
+	Mon, 22 Feb 2016 13:03:03 -0500
+Received: by mail-io0-f175.google.com with SMTP id 9so187452686iom.1
+        for <linux-watchdog@vger.kernel.org>; Mon, 22 Feb 2016 10:03:02 -0800 (PST)
+MIME-Version: 1.0
+In-Reply-To: <1456160143-26761-3-git-send-email-slemieux.tyco@gmail.com>
 References: <1456160143-26761-1-git-send-email-slemieux.tyco@gmail.com>
+	<1456160143-26761-3-git-send-email-slemieux.tyco@gmail.com>
+Date: Mon, 22 Feb 2016 19:03:02 +0100
+Message-ID: <CAGhQ9Vz-6seRXQzcrfR-jS2GdYYac3ERz6wAiMZENq+ECHFzSw@mail.gmail.com>
+Subject: Re: [PATCH v2 2/5] watchdog: pnx4008: add restart handler
+From: Joachim Eastwood <manabian@gmail.com>
+To: Sylvain Lemieux <slemieux.tyco@gmail.com>
+Cc: "linux-arm-kernel@lists.infradead.org"
+	<linux-arm-kernel@lists.infradead.org>, wim@iguana.be,
+	linux-watchdog@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+	Roland Stigge <stigge@antcom.de>,
+	Vladimir Zapolskiy <vz@mleia.com>
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-From: Sylvain Lemieux <slemieux@tycoint.com>
+Hi Sylvain,
 
-Added support to verify if a "cmd" is passed from the userspace program rebooting the system;
-- if a valid "cmd" is available, handle it;
-- If the received "cmd" is not supported, use the default reboot mode.
+On 22 February 2016 at 17:55,  <slemieux.tyco@gmail.com> wrote:
+> From: Sylvain Lemieux <slemieux@tycoint.com>
+>
+> Add restart handler capability to the driver;
+> the restart handler implementation was taken from
+> "mach-lpc32xx" ("lpc23xx_restart" function).
 
-Signed-off-by: Sylvain Lemieux <slemieux@tycoint.com>
----
-Changes from v1 to v2:
-- Rename patch title;
-  was "arm: lpc32xx: restart: support "cmd" from userspace"
-- Add change to "pnx-4008" driver instead of "mach-lpc32xx".
+I think it would be better if you were to expand on "watchdog: core:
+add restart handler support" to give you the parameters you need to
+make the restart hook work for you. But that is up to watchdog
+maintainers to decide.
 
- drivers/watchdog/pnx4008_wdt.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+> Signed-off-by: Sylvain Lemieux <slemieux@tycoint.com>
+> ---
+> Changes from v1 to v2:
+> - new patch in v2.
+>
+>  drivers/watchdog/pnx4008_wdt.c | 30 ++++++++++++++++++++++++++++++
+>  1 file changed, 30 insertions(+)
+>
+> diff --git a/drivers/watchdog/pnx4008_wdt.c b/drivers/watchdog/pnx4008_wdt.c
+> index 88264a2..4b01b2b 100644
+> --- a/drivers/watchdog/pnx4008_wdt.c
+> +++ b/drivers/watchdog/pnx4008_wdt.c
+> @@ -31,7 +31,10 @@
+>  #include <linux/slab.h>
+>  #include <linux/err.h>
+>  #include <linux/of.h>
+> +#include <linux/delay.h>
+> +#include <linux/reboot.h>
+>  #include <mach/hardware.h>
+> +#include <mach/platform.h>
 
-diff --git a/drivers/watchdog/pnx4008_wdt.c b/drivers/watchdog/pnx4008_wdt.c
-index 2275fd4..5f34299 100644
---- a/drivers/watchdog/pnx4008_wdt.c
-+++ b/drivers/watchdog/pnx4008_wdt.c
-@@ -133,6 +133,19 @@ static void pnx4008_wdt_sys_reset(enum reboot_mode mode, const char *cmd)
- 	/* Make sure WDT clocks are enabled */
- 	writel(LPC32XX_CLKPWR_PWMCLK_WDOG_EN, LPC32XX_CLKPWR_TIMER_CLK_CTRL);
- 
-+	/*
-+	 * Verify if a "cmd" passed from the userspace program rebooting
-+	 * the system; if available, and handle it.
-+	 * - For details, see the 'reboot' syscall in kernel/reboot.c
-+	 * - If the received "cmd" is not supported, use the default mode.
-+	 */
-+	if (cmd) {
-+		if (cmd[0] == 'h')
-+			mode = REBOOT_HARD;
-+		else if (cmd[0] == 's')
-+			mode = REBOOT_SOFT;
-+	}
-+
- 	if (mode == REBOOT_SOFT) {
- 		/* Force match output active */
- 		writel(EXT_MATCH0, WDTIM_EMR(wdt_base));
--- 
-1.8.3.1
+What are you using from mach/platform.h?
 
+>
+>  /* WatchDog Timer - Chapter 23 Page 207 */
+>
+> @@ -77,6 +80,7 @@
+>
+>  static bool nowayout = WATCHDOG_NOWAYOUT;
+>  static unsigned int heartbeat = DEFAULT_HEARTBEAT;
+> +static struct notifier_block restart_handler;
+>
+>  static DEFINE_SPINLOCK(io_lock);
+>  static void __iomem    *wdt_base;
+> @@ -124,6 +128,27 @@ static int pnx4008_wdt_set_timeout(struct watchdog_device *wdd,
+>         return 0;
+>  }
+>
+> +static void pnx4008_wdt_sys_reset(enum reboot_mode mode, const char *cmd)
+> +{
+> +       /* Make sure WDT clocks are enabled */
+> +       writel(LPC32XX_CLKPWR_PWMCLK_WDOG_EN, LPC32XX_CLKPWR_TIMER_CLK_CTRL);
+
+Doesn't the watchdog driver already enable this clock in probe?
+Either way doing a direct write to LPC32XX_CLKPWR_TIMER_CLK_CTRL from
+here isn't very nice.
+
+
+> +       /* Instant assert of RESETOUT_N with pulse length 1mS */
+> +       writel(13000, WDTIM_PULSE(wdt_base));
+> +       writel(M_RES2 | RESFRC1 | RESFRC2, WDTIM_MCTRL(wdt_base));
+> +
+> +       /* Wait for watchdog to reset system */
+> +       mdelay(1000);
+> +}
+> +
+> +static int pnx4008_restart_handler(struct notifier_block *this,
+> +                                  unsigned long mode, void *cmd)
+> +{
+> +       pnx4008_wdt_sys_reset((enum reboot_mode)mode, cmd);
+
+Why can you just the stuff from pnx4008_wdt_sys_reset() in this function?
+
+
+> +
+> +       return NOTIFY_DONE;
+> +}
+> +
+>  static const struct watchdog_info pnx4008_wdt_ident = {
+>         .options = WDIOF_CARDRESET | WDIOF_MAGICCLOSE |
+>             WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
+> @@ -157,6 +182,11 @@ static int pnx4008_wdt_probe(struct platform_device *pdev)
+>         if (IS_ERR(wdt_base))
+>                 return PTR_ERR(wdt_base);
+>
+> +       /* Register restart handler. */
+> +       restart_handler.notifier_call = pnx4008_restart_handler;
+> +       restart_handler.priority = 128;
+> +       ret = register_restart_handler(&restart_handler);
+
+Checking return value would be a nice thing to do.
+
+You should also do a unregister_restart_handler() in driver remove hook.
+
+
+regards,
+Joachim Eastwood
