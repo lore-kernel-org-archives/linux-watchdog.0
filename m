@@ -7,51 +7,76 @@ Cc: linux-watchdog@vger.kernel.org,
 	linux@roeck-us.net,
 	stigge@antcom.de,
 	vz@mleia.com
-Subject: [PATCH v2 0/5] watchdog: pnx4008: add restart handler
-Date: Mon, 22 Feb 2016 11:55:38 -0500
-Message-Id: <1456160143-26761-1-git-send-email-slemieux.tyco@gmail.com>
+Subject: [PATCH v2 5/5] arm: lpc32xx: remove restart handler
+Date: Mon, 22 Feb 2016 11:55:43 -0500
+Message-Id: <1456160143-26761-6-git-send-email-slemieux.tyco@gmail.com>
+In-Reply-To: <1456160143-26761-1-git-send-email-slemieux.tyco@gmail.com>
+References: <1456160143-26761-1-git-send-email-slemieux.tyco@gmail.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
 From: Sylvain Lemieux <slemieux@tycoint.com>
 
-The LPC32xx provide the capability to perform a soft or hard reset;
-a soft reset will no reset the external peripheral
-(i.e. RESOUT_N output not asserted).
+Remove the restart handler from "mach-lpc32xx";
+this functionality is now available in the
+pnx4008 watchdog driver.
 
-This changeset migrate the restart code from the "mach-lpc32xx" to
-the "pnx-4008" watchdog driver and add the soft reset capability.
-
-The default behavior (i.e. hard reset) remain unchanged.
-
-The core restart handler support added by this change:
-2165bf524da5f5e496d - "watchdog: core: add restart handler support"
-is not use in this changeset; it does not support the reboot mode.
-
+Signed-off-by: Sylvain Lemieux <slemieux@tycoint.com>
 ---
 Changes from v1 to v2:
-* Rename patch title;
-  was "arm: lpc32xx: restart: add support for soft reset"
-* Update the patch as per the feedback received from:
-  Joachim: http://permalink.gmane.org/gmane.linux.ports.arm.kernel/479791
-  - migrate restart code from "mach-lpc32xx" to "pnx-4008" driver.
-* Add soft reset support to "pnx-4008" driver instead of "mach-lpc32xx".
-* Use define available in "pnx-4008" when writting to watchdog register.
-* Remove restart handler from "mach-lpc32xx".
-* Remove restart hook from "phy3250.c".
-* Update driver logging during power-on. 
+- new patch in v2.
 
-Sylvain Lemieux (5):
-  watchdog: pnx4008: update logging during power-on
-  watchdog: pnx4008: add restart handler
-  watchdog: pnx4008: add support for soft reset
-  watchdog: pnx4008: restart: support "cmd" from userspace
-  arm: lpc32xx: remove restart handler
-
- arch/arm/mach-lpc32xx/common.c  | 15 ------------
+ arch/arm/mach-lpc32xx/common.c  | 15 ---------------
  arch/arm/mach-lpc32xx/common.h  |  1 -
  arch/arm/mach-lpc32xx/phy3250.c |  1 -
- drivers/watchdog/pnx4008_wdt.c  | 53 +++++++++++++++++++++++++++++++++++++++--
- 4 files changed, 51 insertions(+), 19 deletions(-)
+ 3 files changed, 17 deletions(-)
 
+diff --git a/arch/arm/mach-lpc32xx/common.c b/arch/arm/mach-lpc32xx/common.c
+index 716e83e..5b7a1e7 100644
+--- a/arch/arm/mach-lpc32xx/common.c
++++ b/arch/arm/mach-lpc32xx/common.c
+@@ -194,21 +194,6 @@ void __init lpc32xx_map_io(void)
+ 	iotable_init(lpc32xx_io_desc, ARRAY_SIZE(lpc32xx_io_desc));
+ }
+ 
+-void lpc23xx_restart(enum reboot_mode mode, const char *cmd)
+-{
+-	/* Make sure WDT clocks are enabled */
+-	__raw_writel(LPC32XX_CLKPWR_PWMCLK_WDOG_EN,
+-		LPC32XX_CLKPWR_TIMER_CLK_CTRL);
+-
+-	/* Instant assert of RESETOUT_N with pulse length 1mS */
+-	__raw_writel(13000, io_p2v(LPC32XX_WDTIM_BASE + 0x18));
+-	__raw_writel(0x70, io_p2v(LPC32XX_WDTIM_BASE + 0xC));
+-
+-	/* Wait for watchdog to reset system */
+-	while (1)
+-		;
+-}
+-
+ static int __init lpc32xx_check_uid(void)
+ {
+ 	u32 uid[4];
+diff --git a/arch/arm/mach-lpc32xx/common.h b/arch/arm/mach-lpc32xx/common.h
+index 1cd8853..2d90801 100644
+--- a/arch/arm/mach-lpc32xx/common.h
++++ b/arch/arm/mach-lpc32xx/common.h
+@@ -30,7 +30,6 @@ extern void lpc32xx_timer_init(void);
+ extern void __init lpc32xx_init_irq(void);
+ extern void __init lpc32xx_map_io(void);
+ extern void __init lpc32xx_serial_init(void);
+-extern void lpc23xx_restart(enum reboot_mode, const char *);
+ 
+ 
+ /*
+diff --git a/arch/arm/mach-lpc32xx/phy3250.c b/arch/arm/mach-lpc32xx/phy3250.c
+index 77d6b1b..942bc3f 100644
+--- a/arch/arm/mach-lpc32xx/phy3250.c
++++ b/arch/arm/mach-lpc32xx/phy3250.c
+@@ -263,5 +263,4 @@ DT_MACHINE_START(LPC32XX_DT, "LPC32XX SoC (Flattened Device Tree)")
+ 	.init_time	= lpc32xx_timer_init,
+ 	.init_machine	= lpc3250_machine_init,
+ 	.dt_compat	= lpc32xx_dt_compat,
+-	.restart	= lpc23xx_restart,
+ MACHINE_END
 -- 
 1.8.3.1
