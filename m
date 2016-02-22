@@ -1,63 +1,57 @@
-Return-path: <justinpopo6@gmail.com>
-MIME-Version: 1.0
-In-Reply-To: <56CDCCB1.3050605@roeck-us.net>
-References: <20160224161726.4888edd4@endymion>
-	<56CDCCB1.3050605@roeck-us.net>
-Date: Wed, 24 Feb 2016 09:08:35 -0800
-Message-ID: <CAJx26kWgGmtgPrNXc7M96j0-FWsmTutJm4RoVZN32SStmYwYwg@mail.gmail.com>
-Subject: Re: [PATCH v2] watchdog: Add hardware dependency to BCM7038 driver
-From: Justin Chen <justinpopo6@gmail.com>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Jean Delvare <jdelvare@suse.de>, linux-watchdog@vger.kernel.org,
-	Wim Van Sebroeck <wim@iguana.be>
-Content-Type: text/plain; charset=UTF-8
+Return-path: <slemieux.tyco@gmail.com>
+From: slemieux.tyco@gmail.com
+To: linux-arm-kernel@lists.infradead.org,
+	wim@iguana.be,
+	manabian@gmail.com
+Cc: linux-watchdog@vger.kernel.org,
+	linux@roeck-us.net,
+	stigge@antcom.de,
+	vz@mleia.com
+Subject: [PATCH v2 0/5] watchdog: pnx4008: add restart handler
+Date: Mon, 22 Feb 2016 11:55:38 -0500
+Message-Id: <1456160143-26761-1-git-send-email-slemieux.tyco@gmail.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On Wed, Feb 24, 2016 at 7:30 AM, Guenter Roeck <linux@roeck-us.net> wrote:
-> On 02/24/2016 07:17 AM, Jean Delvare wrote:
->>
->> The BCM7038 watchdog driver is specific to Broadcom ARM and MIPS
->> SoCs so do not present it on other architectures, unless
->> build-testing.
->>
->> Signed-off-by: Jean Delvare <jdelvare@suse.de>
->> Cc: Guenter Roeck <linux@roeck-us.net>
->> Cc: Justin Chen <justinpopo6@gmail.com>
->> Cc: Wim Van Sebroeck <wim@iguana.be>
->
->
-> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Reviewed-by: Justin Chen <justinpopo6@gmail.com>
->
->
->> ---
->> Changes since v1:
->>   * Better dependencies, suggested by Justin, and updated the
->>     description accordingly.
->>   * Better option description, provided by Justin.
->>
->>   drivers/watchdog/Kconfig |    8 +++++---
->>   1 file changed, 5 insertions(+), 3 deletions(-)
->>
->> --- linux-4.5-rc5.orig/drivers/watchdog/Kconfig 2016-02-24
->> 14:43:18.943460233 +0100
->> +++ linux-4.5-rc5/drivers/watchdog/Kconfig      2016-02-24
->> 15:42:49.756057691 +0100
->> @@ -1377,10 +1377,12 @@ config BCM7038_WDT
->>         tristate "BCM7038 Watchdog"
->>         select WATCHDOG_CORE
->>         depends on HAS_IOMEM
->> +       depends on ARCH_BRCMSTB || BMIPS_GENERIC || COMPILE_TEST
->>         help
->> -        Watchdog driver for the built-in hardware in Broadcom 7038 SoCs.
->> -
->> -        Say 'Y or 'M' here to enable the driver.
->> +        Watchdog driver for the built-in hardware in Broadcom 7038 and
->> +        later SoCs used in set-top boxes.  BCM7038 was made public
->> +        during the 2004 CES, and since then, many Broadcom chips use this
->> +        watchdog block, including some cable modem chips.
->>
->>   config IMGPDC_WDT
->>         tristate "Imagination Technologies PDC Watchdog Timer"
->>
->
+From: Sylvain Lemieux <slemieux@tycoint.com>
+
+The LPC32xx provide the capability to perform a soft or hard reset;
+a soft reset will no reset the external peripheral
+(i.e. RESOUT_N output not asserted).
+
+This changeset migrate the restart code from the "mach-lpc32xx" to
+the "pnx-4008" watchdog driver and add the soft reset capability.
+
+The default behavior (i.e. hard reset) remain unchanged.
+
+The core restart handler support added by this change:
+2165bf524da5f5e496d - "watchdog: core: add restart handler support"
+is not use in this changeset; it does not support the reboot mode.
+
+---
+Changes from v1 to v2:
+* Rename patch title;
+  was "arm: lpc32xx: restart: add support for soft reset"
+* Update the patch as per the feedback received from:
+  Joachim: http://permalink.gmane.org/gmane.linux.ports.arm.kernel/479791
+  - migrate restart code from "mach-lpc32xx" to "pnx-4008" driver.
+* Add soft reset support to "pnx-4008" driver instead of "mach-lpc32xx".
+* Use define available in "pnx-4008" when writting to watchdog register.
+* Remove restart handler from "mach-lpc32xx".
+* Remove restart hook from "phy3250.c".
+* Update driver logging during power-on. 
+
+Sylvain Lemieux (5):
+  watchdog: pnx4008: update logging during power-on
+  watchdog: pnx4008: add restart handler
+  watchdog: pnx4008: add support for soft reset
+  watchdog: pnx4008: restart: support "cmd" from userspace
+  arm: lpc32xx: remove restart handler
+
+ arch/arm/mach-lpc32xx/common.c  | 15 ------------
+ arch/arm/mach-lpc32xx/common.h  |  1 -
+ arch/arm/mach-lpc32xx/phy3250.c |  1 -
+ drivers/watchdog/pnx4008_wdt.c  | 53 +++++++++++++++++++++++++++++++++++++++--
+ 4 files changed, 51 insertions(+), 19 deletions(-)
+
+-- 
+1.8.3.1
