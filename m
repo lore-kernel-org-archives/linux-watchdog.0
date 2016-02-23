@@ -1,11 +1,11 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:36363 "EHLO mx1.redhat.com"
+Received: from mail.kernel.org ([198.145.29.136]:51272 "EHLO mail.kernel.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752358AbcBWPIB (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 23 Feb 2016 10:08:01 -0500
-Date: Tue, 23 Feb 2016 09:07:55 -0600
-From: Josh Poimboeuf <jpoimboe@redhat.com>
-To: Arnaldo Carvalho de Melo <acme@kernel.org>
+	id S1753756AbcBWP22 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 23 Feb 2016 10:28:28 -0500
+Date: Tue, 23 Feb 2016 12:28:23 -0300
+From: Arnaldo Carvalho de Melo <acme@kernel.org>
+To: Josh Poimboeuf <jpoimboe@redhat.com>
 Cc: Ingo Molnar <mingo@kernel.org>,
 	Thomas Gleixner <tglx@linutronix.de>,
 	Ingo Molnar <mingo@redhat.com>,
@@ -47,60 +47,28 @@ Cc: Ingo Molnar <mingo@kernel.org>,
 	Guenter Roeck <linux@roeck-us.net>,
 	linux-watchdog@vger.kernel.org, Waiman Long <Waiman.Long@hpe.com>
 Subject: Re: [PATCH 00/33] Compile-time stack metadata validation
-Message-ID: <20160223150755.GC15858@treble.redhat.com>
+Message-ID: <20160223152823.GD15284@kernel.org>
 References: <cover.1453405861.git.jpoimboe@redhat.com>
  <20160223081406.GA606@gmail.com>
  <20160223142717.GA3607@kernel.org>
+ <20160223150755.GC15858@treble.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20160223142717.GA3607@kernel.org>
+In-Reply-To: <20160223150755.GC15858@treble.redhat.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, Feb 23, 2016 at 11:27:17AM -0300, Arnaldo Carvalho de Melo wrote:
-> Em Tue, Feb 23, 2016 at 09:14:06AM +0100, Ingo Molnar escreveu:
-> > The fact that 'stacktool' already checks about assembly details like __ex_table[] 
-> > shows that my review feedback early iterations of this series, that the 
-> > 'stacktool' name is too specific, was correct.
-> > 
-> > We really need to rename it before it gets upstream and the situation gets worse. 
-> > __ex_table[] has obviously nothing to do with the 'stack layout' of binaries.
-> > 
-> > Another suitable name would be 'asmtool' or 'objtool'. For example the following 
-> > would naturally express what it does:
-> > 
-> >   objtool check kernel/built-in.o
-> > 
-> > the name expresses that the tool checks object files, independently of the 
-> > existing toolchain. Its primary purpose right now is the checking of stack layout 
-> > details, but the tool is not limited to that at all.
-> 
-> Removing 'tool' from the tool name would be nice too :-) Making it
-> easily googlable would be good too, lotsa people complain about 'perf'
-> being too vague, see for a quick laugher:
-> 
-> http://www.brendangregg.com/perf.html
-> 
-> ``Searching for just "perf" finds sites on the police, petroleum, weed
-> control, and a T-shirt. This is not an official perf page, for either
-> perf_events or the T-shirt.''
-> 
-> The T-shirt: http://www.brendangregg.com/perf_events/omg-so-perf.jpg
+Em Tue, Feb 23, 2016 at 09:07:55AM -0600, Josh Poimboeuf escreveu:
+> I think 'objtool' is searchable enough.  And I also like the fact that
 
-Yeah, 'tool' in the name is kind of silly, but the above type of
-situation is why I prefer 'objtool' over 'obj'.
+Yeah, agreed, there is even documentation available for it already:
 
-Though I have to admit I like the idea of making a t-shirt for it ;-)
+http://docs.bvstools.com/home/objtool
 
-> Maybe we should ask Linus to come with some other nice, short,
-> searchable, funny name like 'git'?
-> 
-> 'chob' as in 'check object'?
+> its name at least gives you an idea of what it does (and eventually it
+> will do more than just "checking").
 
-I think 'objtool' is searchable enough.  And I also like the fact that
-its name at least gives you an idea of what it does (and eventually it
-will do more than just "checking").
+:-)
 
--- 
-Josh
+- ARnaldo
