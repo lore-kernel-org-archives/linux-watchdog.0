@@ -1,103 +1,80 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:56144 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752694AbcBXQcy (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 24 Feb 2016 11:32:54 -0500
-Date: Wed, 24 Feb 2016 10:32:40 -0600
-From: Josh Poimboeuf <jpoimboe@redhat.com>
-To: Ingo Molnar <mingo@kernel.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@redhat.com>,
-	"H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org,
-	linux-kernel@vger.kernel.org, live-patching@vger.kernel.org,
-	Michal Marek <mmarek@suse.cz>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Andy Lutomirski <luto@kernel.org>,
-	Borislav Petkov <bp@alien8.de>,
-	Linus Torvalds <torvalds@linux-foundation.org>,
-	Andi Kleen <andi@firstfloor.org>,
-	Pedro Alves <palves@redhat.com>,
-	Namhyung Kim <namhyung@gmail.com>,
-	Bernd Petrovitsch <bernd@petrovitsch.priv.at>,
-	Chris J Arges <chris.j.arges@canonical.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Jiri Slaby <jslaby@suse.cz>,
-	Arnaldo Carvalho de Melo <acme@kernel.org>,
-	David Vrabel <david.vrabel@citrix.com>,
-	Borislav Petkov <bp@suse.de>,
-	Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
-	Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-	Jeremy Fitzhardinge <jeremy@goop.org>,
-	Chris Wright <chrisw@sous-sol.org>,
-	Alok Kataria <akataria@vmware.com>,
-	Rusty Russell <rusty@rustcorp.com.au>,
-	Herbert Xu <herbert@gondor.apana.org.au>,
-	"David S. Miller" <davem@davemloft.net>,
-	Pavel Machek <pavel@ucw.cz>,
-	"Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-	Len Brown <len.brown@intel.com>,
-	Matt Fleming <matt@codeblueprint.co.uk>,
-	Alexei Starovoitov <ast@kernel.org>, netdev@vger.kernel.org,
-	Ananth N Mavinakayanahalli <ananth@in.ibm.com>,
-	Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
-	Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>,
-	Gleb Natapov <gleb@kernel.org>,
-	Paolo Bonzini <pbonzini@redhat.com>, kvm@vger.kernel.org,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Guenter Roeck <linux@roeck-us.net>,
-	linux-watchdog@vger.kernel.org, Waiman Long <Waiman.Long@hpe.com>
-Subject: Re: [PATCH 00/33] Compile-time stack metadata validation
-Message-ID: <20160224163240.GB16390@treble.redhat.com>
-References: <cover.1453405861.git.jpoimboe@redhat.com>
- <20160223081406.GA606@gmail.com>
- <20160223150155.GB15858@treble.redhat.com>
- <20160224074054.GA13199@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20160224074054.GA13199@gmail.com>
+Received: from mail-io0-f193.google.com ([209.85.223.193]:35826 "EHLO
+	mail-io0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750973AbcBXRrM (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 24 Feb 2016 12:47:12 -0500
+Received: by mail-io0-f193.google.com with SMTP id z135so3225621iof.2
+        for <linux-watchdog@vger.kernel.org>; Wed, 24 Feb 2016 09:47:12 -0800 (PST)
+From: Sylvain Lemieux <slemieux.tyco@gmail.com>
+To: linux-arm-kernel@lists.infradead.org, wim@iguana.be,
+	manabian@gmail.com
+Cc: linux-watchdog@vger.kernel.org, linux@roeck-us.net,
+	stigge@antcom.de, vz@mleia.com
+Subject: [PATCH v3 0/6] watchdog: pnx4008: add restart handler
+Date: Wed, 24 Feb 2016 12:46:52 -0500
+Message-Id: <1456336018-6620-1-git-send-email-slemieux.tyco@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Feb 24, 2016 at 08:40:54AM +0100, Ingo Molnar wrote:
-> 
-> * Josh Poimboeuf <jpoimboe@redhat.com> wrote:
-> 
-> > Hi Ingo,
-> > 
-> > On Tue, Feb 23, 2016 at 09:14:06AM +0100, Ingo Molnar wrote:
-> > > So I tried out this latest stacktool series and it looks mostly good for an 
-> > > upstream merge.
-> > > 
-> > > To help this effort move forward I've applied the preparatory/fix patches that are 
-> > > part of this series to tip:x86/debug - that's 26 out of 31 patches. (I've 
-> > > propagated all the acks that the latest submission got into the changelogs.)
-> > 
-> > Thanks very much for your review and for applying the fixes!
-> > 
-> > A few issues relating to the merge:
-> > 
-> > - The tip:x86/debug branch fails to build because it depends on
-> >   ec5186557abb ("x86/asm: Add C versions of frame pointer macros") which
-> >   is in tip:x86/asm.
-> 
-> Indeed...
+From: Sylvain Lemieux <slemieux@tycoint.com>
 
-FYI, v17 will be based on tip:x86/debug.  But note that, when run
-against that branch, it'll spit out a lot of these warnings:
+The LPC32xx provide the capability to perform a soft or hard reset;
+a soft reset will no reset the external peripheral
+(i.e. RESOUT_N output not asserted).
 
-  objtool: arch/x86/ia32/sys_ia32.o: __ex_table size not a multiple of 12
-  objtool: arch/x86/ia32/ia32_signal.o: __ex_table size not a multiple of 12
-  objtool: arch/x86/entry/common.o: __ex_table size not a multiple of 12
+This changeset migrate the restart code from the "mach-lpc32xx" to
+the "pnx-4008" watchdog driver and add the soft reset capability.
 
-Those warnings mean it's expecting the new exception table format which
-was added in:
+The default behavior (i.e. hard reset) remain unchanged.
 
-  548acf19234d ("x86/mm: Expand the exception table logic to allow new handling options")
+The core restart handler support added by this change:
+2165bf524da5f5e496d - "watchdog: core: add restart handler support"
+is not use in this changeset; it does not support the reboot mode.
 
-So that commit is needed to avoid the warnings.
+Note:
+The patch #6 was generated with the option "--unified=2" to ensure
+it can be apply before or after the following git pull request
+for the LPC32xx platform:
+- http://permalink.gmane.org/gmane.linux.ports.arm.kernel/477137
+- http://permalink.gmane.org/gmane.linux.ports.arm.kernel/477138
+---
+Changes from v2 to v3:
+* Update the patch as per the feedback received from:
+  Joachim: http://permalink.gmane.org/gmane.linux.watchdog/3303
+  - remove explicit clock enable from restart handler.
+  - verify "register_restart_handler" return value.
+  - add call to unregister_restart_handler".
+  - do the restart handling directly in "pnx4008_restart_handler".
+* Move the change to "phy3250.c" into a separate patch and generate
+  the new patch with the "--unified=2" option.
 
-Thanks!
+Changes from v1 to v2:
+* Rename patch title;
+  was "arm: lpc32xx: restart: add support for soft reset"
+* Update the patch as per the feedback received from:
+  Joachim: http://permalink.gmane.org/gmane.linux.ports.arm.kernel/479791
+  - migrate restart code from "mach-lpc32xx" to "pnx-4008" driver.
+* Add soft reset support to "pnx-4008" driver instead of "mach-lpc32xx".
+* Use define available in "pnx-4008" when writting to watchdog register.
+* Remove restart handler from "mach-lpc32xx".
+* Remove restart hook from "phy3250.c".
+* Update driver logging during power-on. 
+
+Sylvain Lemieux (6):
+  watchdog: pnx4008: update logging during power-on
+  watchdog: pnx4008: add restart handler
+  watchdog: pnx4008: add support for soft reset
+  watchdog: pnx4008: restart: support "cmd" from userspace
+  arm: lpc32xx: remove restart handler
+  arm: lpc32xx: phy3250 remove restart hook
+
+ arch/arm/mach-lpc32xx/common.c  | 15 ------------
+ arch/arm/mach-lpc32xx/common.h  |  1 -
+ arch/arm/mach-lpc32xx/phy3250.c |  1 -
+ drivers/watchdog/pnx4008_wdt.c  | 51 +++++++++++++++++++++++++++++++++++++++--
+ 4 files changed, 49 insertions(+), 19 deletions(-)
 
 -- 
-Josh
+1.8.3.1
+
