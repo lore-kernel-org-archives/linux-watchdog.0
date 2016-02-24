@@ -1,12 +1,11 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wm0-f52.google.com ([74.125.82.52]:35839 "EHLO
-	mail-wm0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755067AbcBXHlA (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 24 Feb 2016 02:41:00 -0500
-Date: Wed, 24 Feb 2016 08:40:54 +0100
-From: Ingo Molnar <mingo@kernel.org>
-To: Josh Poimboeuf <jpoimboe@redhat.com>
+Received: from mx1.redhat.com ([209.132.183.28]:56144 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752694AbcBXQcy (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 24 Feb 2016 11:32:54 -0500
+Date: Wed, 24 Feb 2016 10:32:40 -0600
+From: Josh Poimboeuf <jpoimboe@redhat.com>
+To: Ingo Molnar <mingo@kernel.org>
 Cc: Thomas Gleixner <tglx@linutronix.de>,
 	Ingo Molnar <mingo@redhat.com>,
 	"H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org,
@@ -48,67 +47,57 @@ Cc: Thomas Gleixner <tglx@linutronix.de>,
 	Guenter Roeck <linux@roeck-us.net>,
 	linux-watchdog@vger.kernel.org, Waiman Long <Waiman.Long@hpe.com>
 Subject: Re: [PATCH 00/33] Compile-time stack metadata validation
-Message-ID: <20160224074054.GA13199@gmail.com>
+Message-ID: <20160224163240.GB16390@treble.redhat.com>
 References: <cover.1453405861.git.jpoimboe@redhat.com>
  <20160223081406.GA606@gmail.com>
  <20160223150155.GB15858@treble.redhat.com>
+ <20160224074054.GA13199@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20160223150155.GB15858@treble.redhat.com>
+In-Reply-To: <20160224074054.GA13199@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-
-* Josh Poimboeuf <jpoimboe@redhat.com> wrote:
-
-> Hi Ingo,
+On Wed, Feb 24, 2016 at 08:40:54AM +0100, Ingo Molnar wrote:
 > 
-> On Tue, Feb 23, 2016 at 09:14:06AM +0100, Ingo Molnar wrote:
-> > So I tried out this latest stacktool series and it looks mostly good for an 
-> > upstream merge.
+> * Josh Poimboeuf <jpoimboe@redhat.com> wrote:
+> 
+> > Hi Ingo,
 > > 
-> > To help this effort move forward I've applied the preparatory/fix patches that are 
-> > part of this series to tip:x86/debug - that's 26 out of 31 patches. (I've 
-> > propagated all the acks that the latest submission got into the changelogs.)
-> 
-> Thanks very much for your review and for applying the fixes!
-> 
-> A few issues relating to the merge:
-> 
-> - The tip:x86/debug branch fails to build because it depends on
->   ec5186557abb ("x86/asm: Add C versions of frame pointer macros") which
->   is in tip:x86/asm.
-
-Indeed...
-
-> - As Pavel mentioned, the tip-bot seems to be spitting out garbage
->   emails from:
->   =?UTF-8?B?dGlwLWJvdCBmb3IgSm9zaCBQb2ltYm9ldWYgPHRpcGJvdEB6eXRvci5jb20+?=@zytor.com.
-
-Yeah, hpa fixed that meanwhile.
-
-Due to the above bad base I rebased the tree (to a x86/asm base), so there will be 
-a new round of (hopefully readable) tip-bot notifications. I'll push it out after 
-a bit of testing.
-
-> > 5)
+> > On Tue, Feb 23, 2016 at 09:14:06AM +0100, Ingo Molnar wrote:
+> > > So I tried out this latest stacktool series and it looks mostly good for an 
+> > > upstream merge.
+> > > 
+> > > To help this effort move forward I've applied the preparatory/fix patches that are 
+> > > part of this series to tip:x86/debug - that's 26 out of 31 patches. (I've 
+> > > propagated all the acks that the latest submission got into the changelogs.)
 > > 
-> > Likewise, I think the CONFIG_STACK_VALIDATION=y Kconfig flag does not express that 
-> > we do exception table checks as well - and it does not express all the other 
-> > things we may check in object files in the future.
+> > Thanks very much for your review and for applying the fixes!
 > > 
-> > Something like CONFIG_CHECK_OBJECT_FILES=y would express it, and the help text 
-> > would list all the things the tool is able to checks for at the moment.
+> > A few issues relating to the merge:
+> > 
+> > - The tip:x86/debug branch fails to build because it depends on
+> >   ec5186557abb ("x86/asm: Add C versions of frame pointer macros") which
+> >   is in tip:x86/asm.
 > 
-> Hm, I'm not really sure about this.  Yes, the tool could potentially do
-> other types of checks, but is it necessary to lump them all together
-> into a single config option?  It does have subcommands after all ;-)
+> Indeed...
 
-lol ;-)
+FYI, v17 will be based on tip:x86/debug.  But note that, when run
+against that branch, it'll spit out a lot of these warnings:
 
-Ok, I'm fine with CONFIG_STACK_VALIDATION=y as well.
+  objtool: arch/x86/ia32/sys_ia32.o: __ex_table size not a multiple of 12
+  objtool: arch/x86/ia32/ia32_signal.o: __ex_table size not a multiple of 12
+  objtool: arch/x86/entry/common.o: __ex_table size not a multiple of 12
 
-Thanks,
+Those warnings mean it's expecting the new exception table format which
+was added in:
 
-	Ingo
+  548acf19234d ("x86/mm: Expand the exception table logic to allow new handling options")
+
+So that commit is needed to avoid the warnings.
+
+Thanks!
+
+-- 
+Josh
