@@ -1,13 +1,13 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.136]:51272 "EHLO mail.kernel.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753756AbcBWP22 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 23 Feb 2016 10:28:28 -0500
-Date: Tue, 23 Feb 2016 12:28:23 -0300
-From: Arnaldo Carvalho de Melo <acme@kernel.org>
+Received: from mail-wm0-f52.google.com ([74.125.82.52]:35839 "EHLO
+	mail-wm0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755067AbcBXHlA (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 24 Feb 2016 02:41:00 -0500
+Date: Wed, 24 Feb 2016 08:40:54 +0100
+From: Ingo Molnar <mingo@kernel.org>
 To: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Ingo Molnar <mingo@kernel.org>,
-	Thomas Gleixner <tglx@linutronix.de>,
+Cc: Thomas Gleixner <tglx@linutronix.de>,
 	Ingo Molnar <mingo@redhat.com>,
 	"H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org,
 	linux-kernel@vger.kernel.org, live-patching@vger.kernel.org,
@@ -23,6 +23,7 @@ Cc: Ingo Molnar <mingo@kernel.org>,
 	Chris J Arges <chris.j.arges@canonical.com>,
 	Andrew Morton <akpm@linux-foundation.org>,
 	Jiri Slaby <jslaby@suse.cz>,
+	Arnaldo Carvalho de Melo <acme@kernel.org>,
 	David Vrabel <david.vrabel@citrix.com>,
 	Borislav Petkov <bp@suse.de>,
 	Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
@@ -47,28 +48,67 @@ Cc: Ingo Molnar <mingo@kernel.org>,
 	Guenter Roeck <linux@roeck-us.net>,
 	linux-watchdog@vger.kernel.org, Waiman Long <Waiman.Long@hpe.com>
 Subject: Re: [PATCH 00/33] Compile-time stack metadata validation
-Message-ID: <20160223152823.GD15284@kernel.org>
+Message-ID: <20160224074054.GA13199@gmail.com>
 References: <cover.1453405861.git.jpoimboe@redhat.com>
  <20160223081406.GA606@gmail.com>
- <20160223142717.GA3607@kernel.org>
- <20160223150755.GC15858@treble.redhat.com>
+ <20160223150155.GB15858@treble.redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20160223150755.GC15858@treble.redhat.com>
+In-Reply-To: <20160223150155.GB15858@treble.redhat.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Em Tue, Feb 23, 2016 at 09:07:55AM -0600, Josh Poimboeuf escreveu:
-> I think 'objtool' is searchable enough.  And I also like the fact that
 
-Yeah, agreed, there is even documentation available for it already:
+* Josh Poimboeuf <jpoimboe@redhat.com> wrote:
 
-http://docs.bvstools.com/home/objtool
+> Hi Ingo,
+> 
+> On Tue, Feb 23, 2016 at 09:14:06AM +0100, Ingo Molnar wrote:
+> > So I tried out this latest stacktool series and it looks mostly good for an 
+> > upstream merge.
+> > 
+> > To help this effort move forward I've applied the preparatory/fix patches that are 
+> > part of this series to tip:x86/debug - that's 26 out of 31 patches. (I've 
+> > propagated all the acks that the latest submission got into the changelogs.)
+> 
+> Thanks very much for your review and for applying the fixes!
+> 
+> A few issues relating to the merge:
+> 
+> - The tip:x86/debug branch fails to build because it depends on
+>   ec5186557abb ("x86/asm: Add C versions of frame pointer macros") which
+>   is in tip:x86/asm.
 
-> its name at least gives you an idea of what it does (and eventually it
-> will do more than just "checking").
+Indeed...
 
-:-)
+> - As Pavel mentioned, the tip-bot seems to be spitting out garbage
+>   emails from:
+>   =?UTF-8?B?dGlwLWJvdCBmb3IgSm9zaCBQb2ltYm9ldWYgPHRpcGJvdEB6eXRvci5jb20+?=@zytor.com.
 
-- ARnaldo
+Yeah, hpa fixed that meanwhile.
+
+Due to the above bad base I rebased the tree (to a x86/asm base), so there will be 
+a new round of (hopefully readable) tip-bot notifications. I'll push it out after 
+a bit of testing.
+
+> > 5)
+> > 
+> > Likewise, I think the CONFIG_STACK_VALIDATION=y Kconfig flag does not express that 
+> > we do exception table checks as well - and it does not express all the other 
+> > things we may check in object files in the future.
+> > 
+> > Something like CONFIG_CHECK_OBJECT_FILES=y would express it, and the help text 
+> > would list all the things the tool is able to checks for at the moment.
+> 
+> Hm, I'm not really sure about this.  Yes, the tool could potentially do
+> other types of checks, but is it necessary to lump them all together
+> into a single config option?  It does have subcommands after all ;-)
+
+lol ;-)
+
+Ok, I'm fine with CONFIG_STACK_VALIDATION=y as well.
+
+Thanks,
+
+	Ingo
