@@ -1,69 +1,57 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:46444 "EHLO mx2.suse.de"
+Received: from mx2.suse.de ([195.135.220.15]:50051 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754775AbcBXNhh convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 24 Feb 2016 08:37:37 -0500
-Date: Wed, 24 Feb 2016 14:37:34 +0100
+	id S1756923AbcBXPR3 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 24 Feb 2016 10:17:29 -0500
+Date: Wed, 24 Feb 2016 16:17:26 +0100
 From: Jean Delvare <jdelvare@suse.de>
-To: Justin Chen <justinpopo6@gmail.com>
-Cc: Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org,
+To: linux-watchdog@vger.kernel.org
+Cc: Guenter Roeck <linux@roeck-us.net>,
+	Justin Chen <justinpopo6@gmail.com>,
 	Wim Van Sebroeck <wim@iguana.be>
-Subject: Re: [PATCH] watchdog: Add hardware dependency to BCM7038 driver
-Message-ID: <20160224143734.7a24a4df@endymion>
-In-Reply-To: <CAJx26kWkL8vzs-fKjmqZmtTxawnQ_QRofRHef+_-N9GPbLtRYg@mail.gmail.com>
-References: <20160222121132.665b1f77@endymion>
-	<56CB1FE5.8080206@roeck-us.net>
-	<CAJx26kWTo9OEZ-FCPMwE4t+=zZNf5d97sDRTx-FibEf92Tg--w@mail.gmail.com>
-	<1456166636.4629.119.camel@chaos.site>
-	<CAJx26kWE7NFeppXL_DM+O7XiZdswQW=iwfZbbPCUqr5PEvGtDg@mail.gmail.com>
-	<20160223001607.GB1215@roeck-us.net>
-	<CAJx26kWkL8vzs-fKjmqZmtTxawnQ_QRofRHef+_-N9GPbLtRYg@mail.gmail.com>
+Subject: [PATCH v2] watchdog: Add hardware dependency to BCM7038 driver
+Message-ID: <20160224161726.4888edd4@endymion>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, 22 Feb 2016 16:27:52 -0800, Justin Chen wrote:
-> On Mon, Feb 22, 2016 at 4:16 PM, Guenter Roeck <linux@roeck-us.net> wrote:
-> > On Mon, Feb 22, 2016 at 11:16:30AM -0800, Justin Chen wrote:
-> >> On Mon, Feb 22, 2016 at 10:43 AM, Jean Delvare <jdelvare@suse.de> wrote:
-> >> > Hello Justin,
-> >> >
-> >> > Le Monday 22 February 2016 à 09:58 -0800, Justin Chen a écrit :
-> >> >> This driver is based off of a Broadcom watchdog block, it is not tied
-> >> >> to the MIPS core.
-> >> >> The watchdog driver is named BCM7038 because that was the first chip
-> >> >> that featured this watchdog block. Their are other chips that use this
-> >> >> driver that are not MIPS based.
-> >> >
-> >> > The Kconfig help text doesn't say this at all. With the current wording
-> >> > there is no reason why anyone would enable this option if not building a
-> >> > kernel for the Broadcom BCM7038.
-> >> Sorry about that! I can submit a patch to fix this.
-> >> >
-> >> > Which other systems reuse this watchdog block exactly? In the kernel
-> >> > tree I can't see anyone instantiating this device.
-> >> BRCMSTB chips use this block as well as other BCM chips.
-> >>
-> >> "This driver is for a watchdog block contained in all Broadcom Set-top
-> >> Box chips since BCM7038. BCM7038 was made public during the 2004 CES,
-> >> and since then, many chips use this watchdog block including some cable
-> >> modem chips."
-> >
-> > That is a bit vague. Can you be more specific ?
+The BCM7038 watchdog driver is specific to Broadcom ARM and MIPS
+SoCs so do not present it on other architectures, unless
+build-testing.
 
-Still a lot better than what the Kconfig has at the moment.
+Signed-off-by: Jean Delvare <jdelvare@suse.de>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Cc: Justin Chen <justinpopo6@gmail.com>
+Cc: Wim Van Sebroeck <wim@iguana.be>
+---
+Changes since v1:
+ * Better dependencies, suggested by Justin, and updated the
+   description accordingly.
+ * Better option description, provided by Justin.
 
-> > Also, while the driver may not be limited to MIPS, I am relatively sure
-> > that it has some architecture limits. MIPS, ARM, and ARM64, maybe ?
-> Yes you are correct, this driver would be limited to Broadcom chips. I
-> would suggest "depends on ARCH_BRCMSTB || BMIPS_GENERIC ||
-> COMPILE_TEST"
+ drivers/watchdog/Kconfig |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-Thanks, I like it. I'll submit a v2 of the patch with this change and a
-better description of the option.
+--- linux-4.5-rc5.orig/drivers/watchdog/Kconfig	2016-02-24 14:43:18.943460233 +0100
++++ linux-4.5-rc5/drivers/watchdog/Kconfig	2016-02-24 15:42:49.756057691 +0100
+@@ -1377,10 +1377,12 @@ config BCM7038_WDT
+ 	tristate "BCM7038 Watchdog"
+ 	select WATCHDOG_CORE
+ 	depends on HAS_IOMEM
++	depends on ARCH_BRCMSTB || BMIPS_GENERIC || COMPILE_TEST
+ 	help
+-	 Watchdog driver for the built-in hardware in Broadcom 7038 SoCs.
+-
+-	 Say 'Y or 'M' here to enable the driver.
++	 Watchdog driver for the built-in hardware in Broadcom 7038 and
++	 later SoCs used in set-top boxes.  BCM7038 was made public
++	 during the 2004 CES, and since then, many Broadcom chips use this
++	 watchdog block, including some cable modem chips.
+ 
+ config IMGPDC_WDT
+ 	tristate "Imagination Technologies PDC Watchdog Timer"
 
 -- 
 Jean Delvare
