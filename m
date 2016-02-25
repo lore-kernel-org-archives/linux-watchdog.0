@@ -1,78 +1,58 @@
-Return-path: <slemieux.tyco@gmail.com>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-io0-f193.google.com ([209.85.223.193]:36255 "EHLO
+	mail-io0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933545AbcBYSby (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 25 Feb 2016 13:31:54 -0500
+Received: by mail-io0-f193.google.com with SMTP id b188so6393403iof.3
+        for <linux-watchdog@vger.kernel.org>; Thu, 25 Feb 2016 10:31:53 -0800 (PST)
 From: Sylvain Lemieux <slemieux.tyco@gmail.com>
-To: linux-arm-kernel@lists.infradead.org,
-	arnd@arndb.de,
-	wim@iguana.be,
+To: linux-arm-kernel@lists.infradead.org, arnd@arndb.de, wim@iguana.be,
 	manabian@gmail.com
-Cc: linux-watchdog@vger.kernel.org,
-	linux@roeck-us.net,
-	stigge@antcom.de,
-	vz@mleia.com
-Subject: [PATCH v4 6/6] arm: lpc32xx: remove restart handler
-Date: Thu, 25 Feb 2016 13:31:40 -0500
-Message-Id: <1456425100-28136-7-git-send-email-slemieux.tyco@gmail.com>
+Cc: linux-watchdog@vger.kernel.org, linux@roeck-us.net,
+	stigge@antcom.de, vz@mleia.com
+Subject: [PATCH v4 1/6] watchdog: pnx4008: update logging during power-on
+Date: Thu, 25 Feb 2016 13:31:35 -0500
+Message-Id: <1456425100-28136-2-git-send-email-slemieux.tyco@gmail.com>
 In-Reply-To: <1456425100-28136-1-git-send-email-slemieux.tyco@gmail.com>
 References: <1456425100-28136-1-git-send-email-slemieux.tyco@gmail.com>
-List-ID: <linux-watchdog@vger.kernel.org>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
 From: Sylvain Lemieux <slemieux@tycoint.com>
 
-Remove the restart handler from "mach-lpc32xx";
-this functionality is now available in the
-pnx4008 watchdog driver.
+There is no need add the driver name in the text to display
+on the console during the power-on:
+pnx4008-watchdog 4003c000.watchdog: PNX4008 Watchdog Timer: heartbeat 19 sec
 
 Signed-off-by: Sylvain Lemieux <slemieux@tycoint.com>
 ---
 Changes from v3 to v4:
-- Switch patch #5 and #6 order.
+- none.
 
 Changes from v2 to v3:
-- move the change to "phy3250.c" into a separate patch.
+- none.
 
 Changes from v1 to v2:
 - new patch in v2.
 
- arch/arm/mach-lpc32xx/common.c | 15 ---------------
- arch/arm/mach-lpc32xx/common.h |  1 -
- 2 files changed, 16 deletions(-)
+ drivers/watchdog/pnx4008_wdt.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/arch/arm/mach-lpc32xx/common.c b/arch/arm/mach-lpc32xx/common.c
-index 716e83e..5b7a1e7 100644
---- a/arch/arm/mach-lpc32xx/common.c
-+++ b/arch/arm/mach-lpc32xx/common.c
-@@ -194,21 +194,6 @@ void __init lpc32xx_map_io(void)
- 	iotable_init(lpc32xx_io_desc, ARRAY_SIZE(lpc32xx_io_desc));
- }
+diff --git a/drivers/watchdog/pnx4008_wdt.c b/drivers/watchdog/pnx4008_wdt.c
+index 313cd1c..88264a2 100644
+--- a/drivers/watchdog/pnx4008_wdt.c
++++ b/drivers/watchdog/pnx4008_wdt.c
+@@ -178,8 +178,7 @@ static int pnx4008_wdt_probe(struct platform_device *pdev)
+ 		goto disable_clk;
+ 	}
  
--void lpc23xx_restart(enum reboot_mode mode, const char *cmd)
--{
--	/* Make sure WDT clocks are enabled */
--	__raw_writel(LPC32XX_CLKPWR_PWMCLK_WDOG_EN,
--		LPC32XX_CLKPWR_TIMER_CLK_CTRL);
--
--	/* Instant assert of RESETOUT_N with pulse length 1mS */
--	__raw_writel(13000, io_p2v(LPC32XX_WDTIM_BASE + 0x18));
--	__raw_writel(0x70, io_p2v(LPC32XX_WDTIM_BASE + 0xC));
--
--	/* Wait for watchdog to reset system */
--	while (1)
--		;
--}
--
- static int __init lpc32xx_check_uid(void)
- {
- 	u32 uid[4];
-diff --git a/arch/arm/mach-lpc32xx/common.h b/arch/arm/mach-lpc32xx/common.h
-index 1cd8853..2d90801 100644
---- a/arch/arm/mach-lpc32xx/common.h
-+++ b/arch/arm/mach-lpc32xx/common.h
-@@ -30,7 +30,6 @@ extern void lpc32xx_timer_init(void);
- extern void __init lpc32xx_init_irq(void);
- extern void __init lpc32xx_map_io(void);
- extern void __init lpc32xx_serial_init(void);
--extern void lpc23xx_restart(enum reboot_mode, const char *);
+-	dev_info(&pdev->dev, "PNX4008 Watchdog Timer: heartbeat %d sec\n",
+-		 pnx4008_wdd.timeout);
++	dev_info(&pdev->dev, "heartbeat %d sec\n", pnx4008_wdd.timeout);
  
+ 	return 0;
  
- /*
 -- 
 1.8.3.1
+
