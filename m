@@ -1,72 +1,52 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:41870 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:34259 "EHLO
 	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752104AbcBYRNH (ORCPT
+	with ESMTP id S1750935AbcBZHl4 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 25 Feb 2016 12:13:07 -0500
-Subject: Re: [PATCH v3] watchdog: ni903x_wdt: Add NI 903x/913x watchdog driver
-To: Kyle Roeschley <kyle.roeschley@ni.com>, wim@iguana.be
-References: <1456154903-22271-1-git-send-email-kyle.roeschley@ni.com>
-Cc: linux-watchdog@vger.kernel.org, joshc@ni.com, david.madden@ni.com
+	Fri, 26 Feb 2016 02:41:56 -0500
+Subject: Re: next-20160225 build: 2 failures 44 warnings (next-20160225)
+To: Mark Brown <broonie@kernel.org>,
+	Gregory CLEMENT <gregory.clement@free-electrons.com>,
+	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
+	Olof Johansson <olof@lixom.net>, Arnd Bergmann <arnd@arndb.de>,
+	Wim Van Sebroeck <wim@iguana.be>
+References: <E1aYsmb-0006qb-76@optimist>
+ <20160226030949.GL18327@sirena.org.uk>
+Cc: kernel-build-reports@lists.linaro.org,
+	linaro-kernel@lists.linaro.org, linux-next@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org
 From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <56CF361E.7010505@roeck-us.net>
-Date: Thu, 25 Feb 2016 09:13:02 -0800
+Message-ID: <56D001BE.2090209@roeck-us.net>
+Date: Thu, 25 Feb 2016 23:41:50 -0800
 MIME-Version: 1.0
-In-Reply-To: <1456154903-22271-1-git-send-email-kyle.roeschley@ni.com>
+In-Reply-To: <20160226030949.GL18327@sirena.org.uk>
 Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 02/22/2016 07:28 AM, Kyle Roeschley wrote:
-> Add support for the watchdog timer on NI cRIO-903x and cDAQ-913x real-
-> time controllers.
+Hi Mark,
+
+On 02/25/2016 07:09 PM, Mark Brown wrote:
+> On Thu, Feb 25, 2016 at 10:04:29AM +0000, Build bot for Mark Brown wrote:
 >
-> Signed-off-by: Jeff Westfahl <jeff.westfahl@ni.com>
-> Signed-off-by: Kyle Roeschley <kyle.roeschley@ni.com>
-> ---
-> v3: Rename ni9x3x_wdt -> ni903x_wdt
->      Remove 64-bit rounding workarounds
->      Add WDIOF_MAGICCLOSE
->      Cleanup ACPI resource walking
->      Fixup acpi_add error handling
->      Cleanup includes, formatting, license/copyright
+> Today's -next fails to build an arm64 allmodconfig due to:
 >
-> v2: Rename niwatchdog -> ni9x3x_wdt
->      Drop custom IOCTLs
->      Remove locking, io_size, expired, running, available
->      Remove all IRQ code
->      Fix error handling in acpi_add
->      Remove unnecessary header file
+>> 	arm64-allmodconfig
+>> ../drivers/watchdog/orion_wdt.c:109:2: error: implicit declaration of function 'atomic_io_modify' [-Werror=implicit-function-declaration]
 >
->   Documentation/watchdog/watchdog-parameters.txt |   5 +
->   drivers/watchdog/Kconfig                       |  11 +
->   drivers/watchdog/Makefile                      |   1 +
->   drivers/watchdog/ni903x_wdt.c                  | 270 +++++++++++++++++++++++++
->   4 files changed, 287 insertions(+)
->   create mode 100644 drivers/watchdog/ni903x_wdt.c
+> also caused by b4f596b19624 (arm64: add mvebu architecture entry) which
+> enables MVBEU on arm64, the commit was present for a little while and
+> the error cropped up but didn't get reported due to other things masking
+> it.  atomic_io_modify() is only available on ARM, I'm unsure if this
+> needs a driver change or if the driver is just specific to older
+> hardware anyway.  The code is only used in the init path accessing what
+> look to be device specific registers so I'm not 100% clear why it
+> specifically needs to be an atomic modify.
 >
-> diff --git a/Documentation/watchdog/watchdog-parameters.txt b/Documentation/watchdog/watchdog-parameters.txt
-> index 9f9ec9f..df3e20e 100644
-> --- a/Documentation/watchdog/watchdog-parameters.txt
-> +++ b/Documentation/watchdog/watchdog-parameters.txt
-> @@ -200,6 +200,11 @@ mv64x60_wdt:
->   nowayout: Watchdog cannot be stopped once started
->   	(default=kernel config parameter)
->   -------------------------------------------------
-> +ni903x_wdt:
-> +timeout: Intial watchdog timeout in seconds (0<timeout<516, default=60)
+Thierry already submitted a patch yesterday to restrict the driver to only
+build on ARM. We can revisit if/when the driver is needed on ARM64.
 
-s/Intial/Initial/
-
-checkpatch is your friend here.
-
-Please fix and resubmit, and feel free to add
-
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-
-when you do.
-
-Thanks,
 Guenter
 
