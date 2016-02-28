@@ -1,9 +1,9 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:32888 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:32896 "EHLO
 	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755048AbcB1VMf (ORCPT
+	with ESMTP id S1758916AbcB1VMg (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 28 Feb 2016 16:12:35 -0500
+	Sun, 28 Feb 2016 16:12:36 -0500
 From: Guenter Roeck <linux@roeck-us.net>
 To: linux-watchdog@vger.kernel.org
 Cc: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org,
@@ -13,9 +13,9 @@ Cc: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org,
 	Doug Anderson <dianders@chromium.org>,
 	Jonathan Corbet <corbet@lwn.net>,
 	Guenter Roeck <linux@roeck-us.net>
-Subject: [RFC PATCH v8 09/10] watchdog: at91sam9: Convert to use infrastructure triggered keepalives
-Date: Sun, 28 Feb 2016 13:12:22 -0800
-Message-Id: <1456693943-6876-10-git-send-email-linux@roeck-us.net>
+Subject: [RFC PATCH v8 10/10] watchdog: gpio: Convert to use infrastructure triggered keepalives
+Date: Sun, 28 Feb 2016 13:12:23 -0800
+Message-Id: <1456693943-6876-11-git-send-email-linux@roeck-us.net>
 In-Reply-To: <1456693943-6876-1-git-send-email-linux@roeck-us.net>
 References: <1456693943-6876-1-git-send-email-linux@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -25,215 +25,179 @@ The watchdog infrastructure now supports handling watchdog keepalive
 if the watchdog is running while the watchdog device is closed.
 The infrastructure now also supports generating additional heartbeats
 if the maximum hardware timeout is smaller than or close to the
-configured timeout. Convert the driver to use this
-infrastructure.
+configured timeout. Convert the driver to use this infrastructure.
 
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
----
-v8: max_hw_timeout_ms -> max_hw_heartbeat_ms
-    Rebased to v4.5-rc5
-v7: Rebased to v4.5-rc1
-v6: Rebased to v4.4-rc2
-v5: Rebased to v4.4-rc1
-v4: No changes
-v3: No changes
-v2: No changes
----
- drivers/watchdog/at91sam9_wdt.c | 103 +++++-----------------------------------
- 1 file changed, 12 insertions(+), 91 deletions(-)
 
-diff --git a/drivers/watchdog/at91sam9_wdt.c b/drivers/watchdog/at91sam9_wdt.c
-index 7e6acaf3ece4..ec4b4e3cebd3 100644
---- a/drivers/watchdog/at91sam9_wdt.c
-+++ b/drivers/watchdog/at91sam9_wdt.c
-@@ -30,7 +30,6 @@
- #include <linux/types.h>
- #include <linux/watchdog.h>
- #include <linux/jiffies.h>
--#include <linux/timer.h>
- #include <linux/bitops.h>
- #include <linux/uaccess.h>
- #include <linux/of.h>
-@@ -49,8 +48,8 @@
-  * use this to convert a watchdog
-  * value from/to milliseconds.
-  */
--#define ticks_to_hz_rounddown(t)	((((t) + 1) * HZ) >> 8)
--#define ticks_to_hz_roundup(t)		(((((t) + 1) * HZ) + 255) >> 8)
-+#define ticks_to_ms_rounddown(t)	((((t) + 1) * 1000) >> 8)
-+#define ticks_to_ms_roundup(t)		(((((t) + 1) * 1000) + 255) >> 8)
- #define ticks_to_secs(t)		(((t) + 1) >> 8)
- #define secs_to_ticks(s)		((s) ? (((s) << 8) - 1) : 0)
+---
+v8: Added patch to series
+---
+ drivers/watchdog/gpio_wdt.c | 73 ++++++++-------------------------------------
+ 1 file changed, 13 insertions(+), 60 deletions(-)
+
+diff --git a/drivers/watchdog/gpio_wdt.c b/drivers/watchdog/gpio_wdt.c
+index ba066e4a707b..f36184635403 100644
+--- a/drivers/watchdog/gpio_wdt.c
++++ b/drivers/watchdog/gpio_wdt.c
+@@ -18,7 +18,6 @@
  
-@@ -65,9 +64,6 @@
- /* Hardware timeout in seconds */
- #define WDT_HW_TIMEOUT 2
+ #define SOFT_TIMEOUT_MIN	1
+ #define SOFT_TIMEOUT_DEF	60
+-#define SOFT_TIMEOUT_MAX	0xffff
  
--/* Timer heartbeat (500ms) */
--#define WDT_TIMEOUT	(HZ/2)
--
- /* User land timeout */
- #define WDT_HEARTBEAT 15
- static int heartbeat;
-@@ -84,11 +80,8 @@ MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started "
- struct at91wdt {
- 	struct watchdog_device wdd;
- 	void __iomem *base;
--	unsigned long next_heartbeat;	/* the next_heartbeat for the timer */
--	struct timer_list timer;	/* The timer that pings the watchdog */
- 	u32 mr;
- 	u32 mr_mask;
--	unsigned long heartbeat;	/* WDT heartbeat in jiffies */
- 	bool nowayout;
- 	unsigned int irq;
- 	struct clk *sclk;
-@@ -109,47 +102,13 @@ static irqreturn_t wdt_interrupt(int irq, void *dev_id)
- 	return IRQ_HANDLED;
+ enum {
+ 	HW_ALGO_TOGGLE,
+@@ -30,11 +29,7 @@ struct gpio_wdt_priv {
+ 	bool			active_low;
+ 	bool			state;
+ 	bool			always_running;
+-	bool			armed;
+ 	unsigned int		hw_algo;
+-	unsigned int		hw_margin;
+-	unsigned long		last_jiffies;
+-	struct timer_list	timer;
+ 	struct watchdog_device	wdd;
+ };
+ 
+@@ -47,21 +42,10 @@ static void gpio_wdt_disable(struct gpio_wdt_priv *priv)
+ 		gpio_direction_input(priv->gpio);
  }
  
--/*
-- * Reload the watchdog timer.  (ie, pat the watchdog)
-- */
--static inline void at91_wdt_reset(struct at91wdt *wdt)
--{
--	wdt_write(wdt, AT91_WDT_CR, AT91_WDT_KEY | AT91_WDT_WDRSTT);
--}
--
--/*
-- * Timer tick
-- */
--static void at91_ping(unsigned long data)
--{
--	struct at91wdt *wdt = (struct at91wdt *)data;
--	if (time_before(jiffies, wdt->next_heartbeat) ||
--	    !watchdog_active(&wdt->wdd)) {
--		at91_wdt_reset(wdt);
--		mod_timer(&wdt->timer, jiffies + wdt->heartbeat);
--	} else {
--		pr_crit("I will reset your machine !\n");
--	}
--}
--
- static int at91_wdt_start(struct watchdog_device *wdd)
+-static void gpio_wdt_hwping(unsigned long data)
++static int gpio_wdt_ping(struct watchdog_device *wdd)
  {
- 	struct at91wdt *wdt = to_wdt(wdd);
--	/* calculate when the next userspace timeout will be */
--	wdt->next_heartbeat = jiffies + wdd->timeout * HZ;
--	return 0;
--}
+-	struct watchdog_device *wdd = (struct watchdog_device *)data;
+ 	struct gpio_wdt_priv *priv = watchdog_get_drvdata(wdd);
  
--static int at91_wdt_stop(struct watchdog_device *wdd)
--{
--	/* The watchdog timer hardware can not be stopped... */
--	return 0;
+-	if (priv->armed && time_after(jiffies, priv->last_jiffies +
+-				      msecs_to_jiffies(wdd->timeout * 1000))) {
+-		dev_crit(wdd->parent,
+-			 "Timer expired. System will reboot soon!\n");
+-		return;
+-	}
+-
+-	/* Restart timer */
+-	mod_timer(&priv->timer, jiffies + priv->hw_margin);
+-
+ 	switch (priv->hw_algo) {
+ 	case HW_ALGO_TOGGLE:
+ 		/* Toggle output pin */
+@@ -75,55 +59,33 @@ static void gpio_wdt_hwping(unsigned long data)
+ 		gpio_set_value_cansleep(priv->gpio, priv->active_low);
+ 		break;
+ 	}
 -}
-+	wdt_write(wdt, AT91_WDT_CR, AT91_WDT_KEY | AT91_WDT_WDRSTT);
- 
--static int at91_wdt_set_timeout(struct watchdog_device *wdd, unsigned int new_timeout)
+-
+-static void gpio_wdt_start_impl(struct gpio_wdt_priv *priv)
 -{
--	wdd->timeout = new_timeout;
--	return at91_wdt_start(wdd);
+-	priv->state = priv->active_low;
+-	gpio_direction_output(priv->gpio, priv->state);
+-	priv->last_jiffies = jiffies;
+-	gpio_wdt_hwping((unsigned long)&priv->wdd);
 +	return 0;
  }
  
- static int at91_wdt_init(struct platform_device *pdev, struct at91wdt *wdt)
-@@ -159,8 +118,8 @@ static int at91_wdt_init(struct platform_device *pdev, struct at91wdt *wdt)
- 	u32 value;
- 	int err;
- 	u32 mask = wdt->mr_mask;
--	unsigned long min_heartbeat = 1;
--	unsigned long max_heartbeat;
-+	unsigned int min_heartbeat = jiffies_to_msecs(1);
-+	unsigned int hw_heartbeat;
- 	struct device *dev = &pdev->dev;
+ static int gpio_wdt_start(struct watchdog_device *wdd)
+ {
+ 	struct gpio_wdt_priv *priv = watchdog_get_drvdata(wdd);
  
- 	tmp = wdt_read(wdt, AT91_WDT_MR);
-@@ -182,31 +141,15 @@ static int at91_wdt_init(struct platform_device *pdev, struct at91wdt *wdt)
- 	delta = (tmp & AT91_WDT_WDD) >> 16;
- 
- 	if (delta < value)
--		min_heartbeat = ticks_to_hz_roundup(value - delta);
-+		min_heartbeat = ticks_to_ms_roundup(value - delta);
- 
--	max_heartbeat = ticks_to_hz_rounddown(value);
--	if (!max_heartbeat) {
-+	hw_heartbeat = ticks_to_ms_rounddown(value);
-+	if (hw_heartbeat < min_heartbeat * 2) {
- 		dev_err(dev,
- 			"heartbeat is too small for the system to handle it correctly\n");
- 		return -EINVAL;
- 	}
--
--	/*
--	 * Try to reset the watchdog counter 4 or 2 times more often than
--	 * actually requested, to avoid spurious watchdog reset.
--	 * If this is not possible because of the min_heartbeat value, reset
--	 * it at the min_heartbeat period.
--	 */
--	if ((max_heartbeat / 4) >= min_heartbeat)
--		wdt->heartbeat = max_heartbeat / 4;
--	else if ((max_heartbeat / 2) >= min_heartbeat)
--		wdt->heartbeat = max_heartbeat / 2;
--	else
--		wdt->heartbeat = min_heartbeat;
--
--	if (max_heartbeat < min_heartbeat + 4)
--		dev_warn(dev,
--			 "min heartbeat and max heartbeat might be too close for the system to handle it correctly\n");
-+	wdt->wdd.max_hw_heartbeat_ms = hw_heartbeat;
- 
- 	if ((tmp & AT91_WDT_WDFIEN) && wdt->irq) {
- 		err = request_irq(wdt->irq, wdt_interrupt,
-@@ -222,32 +165,12 @@ static int at91_wdt_init(struct platform_device *pdev, struct at91wdt *wdt)
- 			 "watchdog already configured differently (mr = %x expecting %x)\n",
- 			 tmp & wdt->mr_mask, wdt->mr & wdt->mr_mask);
- 
--	setup_timer(&wdt->timer, at91_ping, (unsigned long)wdt);
--
--	/*
--	 * Use min_heartbeat the first time to avoid spurious watchdog reset:
--	 * we don't know for how long the watchdog counter is running, and
--	 *  - resetting it right now might trigger a watchdog fault reset
--	 *  - waiting for heartbeat time might lead to a watchdog timeout
--	 *    reset
--	 */
--	mod_timer(&wdt->timer, jiffies + min_heartbeat);
--
- 	/* Try to set timeout from device tree first */
- 	if (watchdog_init_timeout(&wdt->wdd, 0, dev))
- 		watchdog_init_timeout(&wdt->wdd, heartbeat, dev);
- 	watchdog_set_nowayout(&wdt->wdd, wdt->nowayout);
--	err = watchdog_register_device(&wdt->wdd);
--	if (err)
--		goto out_stop_timer;
--
--	wdt->next_heartbeat = jiffies + wdt->wdd.timeout * HZ;
+-	gpio_wdt_start_impl(priv);
+-	priv->armed = true;
++	priv->state = priv->active_low;
++	gpio_direction_output(priv->gpio, priv->state);
  
 -	return 0;
--
--out_stop_timer:
--	del_timer(&wdt->timer);
--	return err;
-+	return watchdog_register_device(&wdt->wdd);
++	set_bit(WDOG_HW_RUNNING, &wdd->status);
++
++	return gpio_wdt_ping(wdd);
  }
  
- /* ......................................................................... */
-@@ -261,8 +184,6 @@ static const struct watchdog_info at91_wdt_info = {
- static const struct watchdog_ops at91_wdt_ops = {
- 	.owner =	THIS_MODULE,
- 	.start =	at91_wdt_start,
--	.stop =		at91_wdt_stop,
--	.set_timeout =	at91_wdt_set_timeout,
+ static int gpio_wdt_stop(struct watchdog_device *wdd)
+ {
+ 	struct gpio_wdt_priv *priv = watchdog_get_drvdata(wdd);
+ 
+-	priv->armed = false;
+ 	if (!priv->always_running) {
+-		mod_timer(&priv->timer, 0);
+ 		gpio_wdt_disable(priv);
++		clear_bit(WDOG_HW_RUNNING, &wdd->status);
+ 	}
+ 
+ 	return 0;
+ }
+ 
+-static int gpio_wdt_ping(struct watchdog_device *wdd)
+-{
+-	struct gpio_wdt_priv *priv = watchdog_get_drvdata(wdd);
+-
+-	priv->last_jiffies = jiffies;
+-
+-	return 0;
+-}
+-
+-static int gpio_wdt_set_timeout(struct watchdog_device *wdd, unsigned int t)
+-{
+-	wdd->timeout = t;
+-
+-	return gpio_wdt_ping(wdd);
+-}
+-
+ static const struct watchdog_info gpio_wdt_ident = {
+ 	.options	= WDIOF_MAGICCLOSE | WDIOF_KEEPALIVEPING |
+ 			  WDIOF_SETTIMEOUT,
+@@ -135,7 +97,6 @@ static const struct watchdog_ops gpio_wdt_ops = {
+ 	.start		= gpio_wdt_start,
+ 	.stop		= gpio_wdt_stop,
+ 	.ping		= gpio_wdt_ping,
+-	.set_timeout	= gpio_wdt_set_timeout,
  };
  
- #if defined(CONFIG_OF)
-@@ -393,7 +314,7 @@ static int __exit at91wdt_remove(struct platform_device *pdev)
- 	watchdog_unregister_device(&wdt->wdd);
+ static int gpio_wdt_probe(struct platform_device *pdev)
+@@ -183,9 +144,6 @@ static int gpio_wdt_probe(struct platform_device *pdev)
+ 	if (hw_margin < 2 || hw_margin > 65535)
+ 		return -EINVAL;
  
- 	pr_warn("I quit now, hardware will probably reboot!\n");
--	del_timer(&wdt->timer);
+-	/* Use safe value (1/2 of real timeout) */
+-	priv->hw_margin = msecs_to_jiffies(hw_margin / 2);
+-
+ 	priv->always_running = of_property_read_bool(pdev->dev.of_node,
+ 						     "always-running");
+ 
+@@ -194,31 +152,26 @@ static int gpio_wdt_probe(struct platform_device *pdev)
+ 	priv->wdd.info		= &gpio_wdt_ident;
+ 	priv->wdd.ops		= &gpio_wdt_ops;
+ 	priv->wdd.min_timeout	= SOFT_TIMEOUT_MIN;
+-	priv->wdd.max_timeout	= SOFT_TIMEOUT_MAX;
++	priv->wdd.max_hw_heartbeat_ms = hw_margin;
+ 	priv->wdd.parent	= &pdev->dev;
+ 
+ 	if (watchdog_init_timeout(&priv->wdd, 0, &pdev->dev) < 0)
+ 		priv->wdd.timeout = SOFT_TIMEOUT_DEF;
+ 
+-	setup_timer(&priv->timer, gpio_wdt_hwping, (unsigned long)&priv->wdd);
+-
+ 	watchdog_stop_on_reboot(&priv->wdd);
+ 
+-	ret = watchdog_register_device(&priv->wdd);
+-	if (ret)
+-		return ret;
+-
+ 	if (priv->always_running)
+-		gpio_wdt_start_impl(priv);
++		gpio_wdt_start(&priv->wdd);
+ 
+-	return 0;
++	ret = watchdog_register_device(&priv->wdd);
 +
- 	clk_disable_unprepare(wdt->sclk);
++	return ret;
+ }
+ 
+ static int gpio_wdt_remove(struct platform_device *pdev)
+ {
+ 	struct gpio_wdt_priv *priv = platform_get_drvdata(pdev);
+ 
+-	del_timer_sync(&priv->timer);
+ 	watchdog_unregister_device(&priv->wdd);
  
  	return 0;
 -- 
