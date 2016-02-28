@@ -1,378 +1,59 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:58571 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752617AbcB0Bo3 (ORCPT
+Received: from mail-io0-f178.google.com ([209.85.223.178]:34675 "EHLO
+	mail-io0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757247AbcB1N4t (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 26 Feb 2016 20:44:29 -0500
-Subject: Re: [PATCH v3 2/2] watchdog: pic32-wdt: Add PIC32 watchdog driver
-To: Joshua Henderson <joshua.henderson@microchip.com>,
-	linux-kernel@vger.kernel.org
-References: <1456507177-5502-2-git-send-email-joshua.henderson@microchip.com>
-Cc: linux-mips@linux-mips.org, ralf@linux-mips.org,
-	Purna Chandra Mandal <purna.mandal@microchip.com>,
-	Rob Herring <robh+dt@kernel.org>,
-	Pawel Moll <pawel.moll@arm.com>,
+	Sun, 28 Feb 2016 08:56:49 -0500
+MIME-Version: 1.0
+In-Reply-To: <56AA79DA.2010305@timesys.com>
+References: <1446758362-11702-1-git-send-email-akshay.bhat@timesys.com>
+	<1446758362-11702-2-git-send-email-akshay.bhat@timesys.com>
+	<20151105222325.GA26159@roeck-us.net>
+	<CAJ+vNU2fSxRJ7YvxOfNzoEoiKgzv-dHj=+eksKxH48ekHiUw2Q@mail.gmail.com>
+	<20151106220249.GA19791@roeck-us.net>
+	<565F4244.7090502@timesys.com>
+	<CAJ+vNU00Bf97HUqkkW9KqOUzHXh482R9O1gasz6ju3Pn-_5chA@mail.gmail.com>
+	<CAJ+vNU2qHQPSJ1KWp_3f3vAdeuOcF0ooZHmHsdafabZLXJv=Bw@mail.gmail.com>
+	<20151228162923.GA31680@spo001.leaseweb.nl>
+	<56AA79DA.2010305@timesys.com>
+Date: Sun, 28 Feb 2016 10:56:49 -0300
+Message-ID: <CAOMZO5DrTY3ho0Z_jXxeYMqbd6GmUKRwD1LB61vM1ZTGQAYOrg@mail.gmail.com>
+Subject: Re: [PATCH v4 1/2] watchdog: imx2_wdt: add external reset support via
+ 'ext-reset-output' dt prop
+From: Fabio Estevam <festevam@gmail.com>
+To: Akshay Bhat <akshay.bhat@timesys.com>
+Cc: Rob Herring <robh+dt@kernel.org>, Wim Van Sebroeck <wim@iguana.be>,
+	Tim Harvey <tharvey@gateworks.com>,
+	Guenter Roeck <linux@roeck-us.net>,
+	linux-watchdog@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>,
 	Mark Rutland <mark.rutland@arm.com>,
 	Ian Campbell <ijc+devicetree@hellion.org.uk>,
 	Kumar Gala <galak@codeaurora.org>,
-	Wim Van Sebroeck <wim@iguana.be>, devicetree@vger.kernel.org,
-	linux-watchdog@vger.kernel.org
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <56D0FF78.7030208@roeck-us.net>
-Date: Fri, 26 Feb 2016 17:44:24 -0800
-MIME-Version: 1.0
-In-Reply-To: <1456507177-5502-2-git-send-email-joshua.henderson@microchip.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	Shawn Guo <shawnguo@kernel.org>,
+	Sascha Hauer <kernel@pengutronix.de>,
+	Russell King - ARM Linux <linux@arm.linux.org.uk>,
+	"linux-arm-kernel@lists.infradead.org"
+	<linux-arm-kernel@lists.infradead.org>,
+	Justin Waters <justin.waters@timesys.com>,
+	Lucas Stach <l.stach@pengutronix.de>, Stefan Roese <sr@denx.de>
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 02/26/2016 09:19 AM, Joshua Henderson wrote:
-> Add support for the watchdog peripheral found on PIC32 class
-> devices.
->
-> Signed-off-by: Joshua Henderson <joshua.henderson@microchip.com>
-> Signed-off-by: Purna Chandra Mandal <purna.mandal@microchip.com>
-> Cc: Ralf Baechle <ralf@linux-mips.org>
+Rob,
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+On Thu, Jan 28, 2016 at 6:28 PM, Akshay Bhat <akshay.bhat@timesys.com> wrote:
 
-> ---
-> Note: Please merge this patch series through the MIPS tree.
+>> I have no objections against the idea and the code itself.
+>> But as Guenter pointed out: it would be handy to get feedback from the
+>> devicetree maintainers on the above discussion.
+>>
+>> Kind regards,
+>> Wim.
+>>
 >
-> Changes since v2:
-> 	- Remove pr_fmt and replace pr_debug with dev_dbg
-> 	- Check whether rate is zero later when looking for div/zero
-> 	- Be consistent and return u32 on pic32_wdt_get_timeout_secs()
-> 	- Use -ENODEV instead of -EOPNOTSUPP in probe failure
-> Changes since v1:
-> 	- Shorten commit description
-> 	- Don't default to y in Kconfig
-> 	- Alphabetical ordering of includes
-> 	- Use BIT() where applicable
-> 	- Use consistent function name prefixes
-> 	- Inline some single use functions
-> 	- Use a return of bool when appropriate
-> 	- Replace cpu_relax() with nop and explain why this is needed
-> 	- Better error handling, especially to prevent divide by zero
-> 	- Remove unecessary pr_info().
-> 	- Remove redudant driver spinlock which is already covered by
-> 	  watchdog core
-> 	- Drop .get_timeleft implementation
-> 	- Fix typo in compatibility flag and driver name
-> 	- Remove wdt->timeout variable and calculation
-> 	- Fix race condition in watchdog driver registration
-> ---
->   drivers/watchdog/Kconfig     |   13 +++
->   drivers/watchdog/Makefile    |    1 +
->   drivers/watchdog/pic32-wdt.c |  263 ++++++++++++++++++++++++++++++++++++++++++
->   3 files changed, 277 insertions(+)
->   create mode 100644 drivers/watchdog/pic32-wdt.c
->
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index 0f6d851..543fa81 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -1414,6 +1414,19 @@ config MT7621_WDT
->   	help
->   	  Hardware driver for the Mediatek/Ralink MT7621/8 SoC Watchdog Timer.
->
-> +config PIC32_WDT
-> +	tristate "Microchip PIC32 hardware watchdog"
-> +	select WATCHDOG_CORE
-> +	depends on MACH_PIC32
-> +	help
-> +	  Watchdog driver for the built in watchdog hardware in a PIC32.
-> +
-> +	  Configuration bits must be set appropriately for the watchdog to be
-> +	  controlled by this driver.
-> +
-> +	  To compile this driver as a loadable module, choose M here.
-> +	  The module will be called pic32-wdt.
-> +
->   # PARISC Architecture
->
->   # POWERPC Architecture
-> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-> index f566753..244ed80 100644
-> --- a/drivers/watchdog/Makefile
-> +++ b/drivers/watchdog/Makefile
-> @@ -153,6 +153,7 @@ obj-$(CONFIG_LANTIQ_WDT) += lantiq_wdt.o
->   obj-$(CONFIG_RALINK_WDT) += rt2880_wdt.o
->   obj-$(CONFIG_IMGPDC_WDT) += imgpdc_wdt.o
->   obj-$(CONFIG_MT7621_WDT) += mt7621_wdt.o
-> +obj-$(CONFIG_PIC32_WDT) += pic32-wdt.o
->
->   # PARISC Architecture
->
-> diff --git a/drivers/watchdog/pic32-wdt.c b/drivers/watchdog/pic32-wdt.c
-> new file mode 100644
-> index 0000000..6047aa8
-> --- /dev/null
-> +++ b/drivers/watchdog/pic32-wdt.c
-> @@ -0,0 +1,263 @@
-> +/*
-> + * PIC32 watchdog driver
-> + *
-> + * Joshua Henderson <joshua.henderson@microchip.com>
-> + * Copyright (c) 2016, Microchip Technology Inc.
-> + *
-> + * This program is free software; you can redistribute it and/or
-> + * modify it under the terms of the GNU General Public License
-> + * as published by the Free Software Foundation; either version
-> + * 2 of the License, or (at your option) any later version.
-> + */
-> +#include <linux/clk.h>
-> +#include <linux/device.h>
-> +#include <linux/err.h>
-> +#include <linux/io.h>
-> +#include <linux/kernel.h>
-> +#include <linux/module.h>
-> +#include <linux/of.h>
-> +#include <linux/of_device.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/pm.h>
-> +#include <linux/watchdog.h>
-> +
-> +#include <asm/mach-pic32/pic32.h>
-> +
-> +/* Watchdog Timer Registers */
-> +#define WDTCON_REG		0x00
-> +
-> +/* Watchdog Timer Control Register fields */
-> +#define WDTCON_WIN_EN		BIT(0)
-> +#define WDTCON_RMCS_MASK	0x0003
-> +#define WDTCON_RMCS_SHIFT	0x0006
-> +#define WDTCON_RMPS_MASK	0x001F
-> +#define WDTCON_RMPS_SHIFT	0x0008
-> +#define WDTCON_ON		BIT(15)
-> +#define WDTCON_CLR_KEY		0x5743
-> +
-> +/* Reset Control Register fields for watchdog */
-> +#define RESETCON_TIMEOUT_IDLE	BIT(2)
-> +#define RESETCON_TIMEOUT_SLEEP	BIT(3)
-> +#define RESETCON_WDT_TIMEOUT	BIT(4)
-> +
-> +struct pic32_wdt {
-> +	void __iomem	*regs;
-> +	void __iomem	*rst_base;
-> +	struct clk	*clk;
-> +};
-> +
-> +static inline bool pic32_wdt_is_win_enabled(struct pic32_wdt *wdt)
-> +{
-> +	return !!(readl(wdt->regs + WDTCON_REG) & WDTCON_WIN_EN);
-> +}
-> +
-> +static inline u32 pic32_wdt_get_post_scaler(struct pic32_wdt *wdt)
-> +{
-> +	u32 v = readl(wdt->regs + WDTCON_REG);
-> +
-> +	return (v >> WDTCON_RMPS_SHIFT) & WDTCON_RMPS_MASK;
-> +}
-> +
-> +static inline u32 pic32_wdt_get_clk_id(struct pic32_wdt *wdt)
-> +{
-> +	u32 v = readl(wdt->regs + WDTCON_REG);
-> +
-> +	return (v >> WDTCON_RMCS_SHIFT) & WDTCON_RMCS_MASK;
-> +}
-> +
-> +static int pic32_wdt_bootstatus(struct pic32_wdt *wdt)
-> +{
-> +	u32 v = readl(wdt->rst_base);
-> +
-> +	writel(RESETCON_WDT_TIMEOUT, PIC32_CLR(wdt->rst_base));
-> +
-> +	return v & RESETCON_WDT_TIMEOUT;
-> +}
-> +
-> +static u32 pic32_wdt_get_timeout_secs(struct pic32_wdt *wdt, struct device *dev)
-> +{
-> +	unsigned long rate;
-> +	u32 period, ps, terminal;
-> +
-> +	rate = clk_get_rate(wdt->clk);
-> +
-> +	dev_dbg(dev, "wdt: clk_id %d, clk_rate %lu (prescale)\n",
-> +		pic32_wdt_get_clk_id(wdt), rate);
-> +
-> +	/* default, prescaler of 32 (i.e. div-by-32) is implicit. */
-> +	rate >>= 5;
-> +	if (!rate)
-> +		return 0;
-> +
-> +	/* calculate terminal count from postscaler. */
-> +	ps = pic32_wdt_get_post_scaler(wdt);
-> +	terminal = BIT(ps);
-> +
-> +	/* find time taken (in secs) to reach terminal count */
-> +	period = terminal / rate;
-> +	dev_dbg(dev,
-> +		"wdt: clk_rate %lu (postscale) / terminal %d, timeout %dsec\n",
-> +		rate, terminal, period);
-> +
-> +	return period;
-> +}
-> +
-> +static void pic32_wdt_keepalive(struct pic32_wdt *wdt)
-> +{
-> +	/* write key through single half-word */
-> +	writew(WDTCON_CLR_KEY, wdt->regs + WDTCON_REG + 2);
-> +}
-> +
-> +static int pic32_wdt_start(struct watchdog_device *wdd)
-> +{
-> +	struct pic32_wdt *wdt = watchdog_get_drvdata(wdd);
-> +
-> +	writel(WDTCON_ON, PIC32_SET(wdt->regs + WDTCON_REG));
-> +	pic32_wdt_keepalive(wdt);
-> +
-> +	return 0;
-> +}
-> +
-> +static int pic32_wdt_stop(struct watchdog_device *wdd)
-> +{
-> +	struct pic32_wdt *wdt = watchdog_get_drvdata(wdd);
-> +
-> +	writel(WDTCON_ON, PIC32_CLR(wdt->regs + WDTCON_REG));
-> +
-> +	/*
-> +	 * Cannot touch registers in the CPU cycle following clearing the
-> +	 * ON bit.
-> +	 */
-> +	nop();
-> +
-> +	return 0;
-> +}
-> +
-> +static int pic32_wdt_ping(struct watchdog_device *wdd)
-> +{
-> +	struct pic32_wdt *wdt = watchdog_get_drvdata(wdd);
-> +
-> +	pic32_wdt_keepalive(wdt);
-> +
-> +	return 0;
-> +}
-> +
-> +static const struct watchdog_ops pic32_wdt_fops = {
-> +	.owner		= THIS_MODULE,
-> +	.start		= pic32_wdt_start,
-> +	.stop		= pic32_wdt_stop,
-> +	.ping		= pic32_wdt_ping,
-> +};
-> +
-> +static const struct watchdog_info pic32_wdt_ident = {
-> +	.options = WDIOF_KEEPALIVEPING |
-> +			WDIOF_MAGICCLOSE | WDIOF_CARDRESET,
-> +	.identity = "PIC32 Watchdog",
-> +};
-> +
-> +static struct watchdog_device pic32_wdd = {
-> +	.info		= &pic32_wdt_ident,
-> +	.ops		= &pic32_wdt_fops,
-> +};
-> +
-> +static const struct of_device_id pic32_wdt_dt_ids[] = {
-> +	{ .compatible = "microchip,pic32mzda-wdt", },
-> +	{ /* sentinel */ }
-> +};
-> +MODULE_DEVICE_TABLE(of, pic32_wdt_dt_ids);
-> +
-> +static int pic32_wdt_drv_probe(struct platform_device *pdev)
-> +{
-> +	int ret;
-> +	struct watchdog_device *wdd = &pic32_wdd;
-> +	struct pic32_wdt *wdt;
-> +	struct resource *mem;
-> +
-> +	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
-> +	if (IS_ERR(wdt))
-> +		return PTR_ERR(wdt);
-> +
-> +	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> +	wdt->regs = devm_ioremap_resource(&pdev->dev, mem);
-> +	if (IS_ERR(wdt->regs))
-> +		return PTR_ERR(wdt->regs);
-> +
-> +	wdt->rst_base = devm_ioremap(&pdev->dev, PIC32_BASE_RESET, 0x10);
-> +	if (IS_ERR(wdt->rst_base))
-> +		return PTR_ERR(wdt->rst_base);
-> +
-> +	wdt->clk = devm_clk_get(&pdev->dev, NULL);
-> +	if (IS_ERR(wdt->clk)) {
-> +		dev_err(&pdev->dev, "clk not found\n");
-> +		return PTR_ERR(wdt->clk);
-> +	}
-> +
-> +	ret = clk_prepare_enable(wdt->clk);
-> +	if (ret) {
-> +		dev_err(&pdev->dev, "clk enable failed\n");
-> +		return ret;
-> +	}
-> +
-> +	if (pic32_wdt_is_win_enabled(wdt)) {
-> +		dev_err(&pdev->dev, "windowed-clear mode is not supported.\n");
-> +		ret = -ENODEV;
-> +		goto out_disable_clk;
-> +	}
-> +
-> +	wdd->timeout = pic32_wdt_get_timeout_secs(wdt, &pdev->dev);
-> +	if (!wdd->timeout) {
-> +		dev_err(&pdev->dev,
-> +			"failed to read watchdog register timeout\n");
-> +		ret = -EINVAL;
-> +		goto out_disable_clk;
-> +	}
-> +
-> +	dev_info(&pdev->dev, "timeout %d\n", wdd->timeout);
-> +
-> +	wdd->bootstatus = pic32_wdt_bootstatus(wdt) ? WDIOF_CARDRESET : 0;
-> +
-> +	watchdog_set_nowayout(wdd, WATCHDOG_NOWAYOUT);
-> +	watchdog_set_drvdata(wdd, wdt);
-> +
-> +	ret = watchdog_register_device(wdd);
-> +	if (ret) {
-> +		dev_err(&pdev->dev, "watchdog register failed, err %d\n", ret);
-> +		goto out_disable_clk;
-> +	}
-> +
-> +	platform_set_drvdata(pdev, wdd);
-> +
-> +	return 0;
-> +
-> +out_disable_clk:
-> +	clk_disable_unprepare(wdt->clk);
-> +
-> +	return ret;
-> +}
-> +
-> +static int pic32_wdt_drv_remove(struct platform_device *pdev)
-> +{
-> +	struct watchdog_device *wdd = platform_get_drvdata(pdev);
-> +	struct pic32_wdt *wdt = watchdog_get_drvdata(wdd);
-> +
-> +	watchdog_unregister_device(wdd);
-> +	clk_disable_unprepare(wdt->clk);
-> +
-> +	return 0;
-> +}
-> +
-> +static struct platform_driver pic32_wdt_driver = {
-> +	.probe		= pic32_wdt_drv_probe,
-> +	.remove		= pic32_wdt_drv_remove,
-> +	.driver		= {
-> +		.name		= "pic32-wdt",
-> +		.owner		= THIS_MODULE,
-> +		.of_match_table = of_match_ptr(pic32_wdt_dt_ids),
-> +	}
-> +};
-> +
-> +module_platform_driver(pic32_wdt_driver);
-> +
-> +MODULE_AUTHOR("Joshua Henderson <joshua.henderson@microchip.com>");
-> +MODULE_DESCRIPTION("Microchip PIC32 Watchdog Timer");
-> +MODULE_LICENSE("GPL");
->
+> Any suggestions on whether a vendor specific prefix is necessary?
 
+Any comments?
