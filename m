@@ -1,53 +1,59 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from spo001.leaseweb.nl ([83.149.101.17]:39679 "EHLO
-	spo001.leaseweb.nl" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1757920AbcB1QYN (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:49972 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757581AbcB1P45 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 28 Feb 2016 11:24:13 -0500
-Date: Sun, 28 Feb 2016 17:24:04 +0100
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>,
-	William Breathitt Gray <vilhelm.gray@gmail.com>,
-	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3] watchdog: Add watchdog timer support for the WinSystems EBC-C384
-Message-ID: <20160228162404.GB7577@spo001.leaseweb.nl>
-References: <20160125190942.GA6824@sophia> <20160125192810.2487661b@lxorguk.ukuu.org.uk> <20160228140739.GA7577@spo001.leaseweb.nl> <56D30BFE.7060805@roeck-us.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <56D30BFE.7060805@roeck-us.net>
+	Sun, 28 Feb 2016 10:56:57 -0500
+Subject: Re: [PATCH for-4.5] watchdog/rc32434_wdt: fix ioctl error handling
+To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
+References: <1456674185-24670-1-git-send-email-mst@redhat.com>
+Cc: stable@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org,
+	Dan Carpenter <dan.carpenter@oracle.com>
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <56D318C7.8070800@roeck-us.net>
+Date: Sun, 28 Feb 2016 07:56:55 -0800
+MIME-Version: 1.0
+In-Reply-To: <1456674185-24670-1-git-send-email-mst@redhat.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Guenter,
+On 02/28/2016 07:44 AM, Michael S. Tsirkin wrote:
+> Calling return copy_to_user(...) in an ioctl will not do the right thing
+> if there's a pagefault: copy_to_user returns the number of bytes not
+> copied in this case.
+>
+> Fix up watchdog/rc32434_wdt to do
+> 	return copy_to_user(...)) ?  -EFAULT : 0;
+>
+> instead.
+>
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
-> On 02/28/2016 06:07 AM, Wim Van Sebroeck wrote:
-> >>>+static int ebc_c384_wdt_set_timeout(struct watchdog_device *wdev, 
-> >>>unsigned t)
-> >>>+{
-> >>>+	/* resolution is in minutes for timeouts greater than 255 seconds */
-> >>>+	if (t > 255) {
-> >>>+		/* truncate second resolution to minute resolution */
-> >>>+		t /= 60;
-> >>>+		wdev->timeout = t * 60;
-> >>>+
-> >>>+		/* set watchdog timer for minutes */
-> >>>+		outb(0x00, CFG_ADDR);
-> >>
-> >>If ask for 299 seconds surely I should get 300 not 240 ?
-> >>(Whether to round off or round up is an interesting question for the
-> >>middle range - does it go off early or late - I'd have said late but...)
-> >
-> >This is my preference:
-> >	if (t > 255)
-> >		t = (((t - 1) / 60) + 1) * 60;
-> >
-> 
-> In case I am missing something: Why not just use DIV_ROUND_UP() ?
+Acked-by: Guenter Roeck <linux@roeck-us.net>
 
-That's indeed also usable (from kernel.h: #define DIV_ROUND_UP(n,d) (((n) + (d) -1) / (d)) which is the same) and indeed preferable.
-
-Kind regards,
-Wim.
+> ---
+>
+> Untested.
+>
+>   drivers/watchdog/rc32434_wdt.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/watchdog/rc32434_wdt.c b/drivers/watchdog/rc32434_wdt.c
+> index 71e78ef..3a75f3b 100644
+> --- a/drivers/watchdog/rc32434_wdt.c
+> +++ b/drivers/watchdog/rc32434_wdt.c
+> @@ -237,7 +237,7 @@ static long rc32434_wdt_ioctl(struct file *file, unsigned int cmd,
+>   			return -EINVAL;
+>   		/* Fall through */
+>   	case WDIOC_GETTIMEOUT:
+> -		return copy_to_user(argp, &timeout, sizeof(int));
+> +		return copy_to_user(argp, &timeout, sizeof(int)) ? -EFAULT : 0;
+>   	default:
+>   		return -ENOTTY;
+>   	}
+>
 
