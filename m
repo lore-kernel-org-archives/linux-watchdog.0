@@ -1,34 +1,83 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:38989 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754362AbcB2Pvc (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 29 Feb 2016 10:51:32 -0500
-Subject: Re: [PATCH v8] watchdog: Add watchdog timer support for the
- WinSystems EBC-C384
-To: William Breathitt Gray <vilhelm.gray@gmail.com>, wim@iguana.be
-References: <20160229045446.GA11655@sophia>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <56D46901.7090602@roeck-us.net>
-Date: Mon, 29 Feb 2016 07:51:29 -0800
-MIME-Version: 1.0
-In-Reply-To: <20160229045446.GA11655@sophia>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-path: <slemieux.tyco@gmail.com>
+From: Sylvain Lemieux <slemieux.tyco@gmail.com>
+To: linux-arm-kernel@lists.infradead.org,
+	arnd@arndb.de,
+	linux@roeck-us.net,
+	manabian@gmail.com
+Cc: linux-watchdog@vger.kernel.org,
+	wim@iguana.be,
+	stigge@antcom.de,
+	vz@mleia.com
+Subject: [PATCH v5 0/6] watchdog: pnx4008: add restart handler
+Date: Mon, 29 Feb 2016 12:31:02 -0500
+Message-Id: <1456767068-14449-1-git-send-email-slemieux.tyco@gmail.com>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 02/28/2016 08:54 PM, William Breathitt Gray wrote:
-> The WinSystems EBC-C384 has an onboard watchdog timer. The timeout range
-> supported by the watchdog timer is 1 second to 255 minutes. Timeouts
-> under 256 seconds have a 1 second granularity, while the rest have a 1
-> minute granularity.
->
-> This driver adds watchdog timer support for this onboard watchdog timer.
-> The timeout may be configured via the timeout module parameter.
->
-> Signed-off-by: William Breathitt Gray <vilhelm.gray@gmail.com>
+From: Sylvain Lemieux <slemieux@tycoint.com>
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+The LPC32xx provide the capability to perform a soft or hard reset;
+a soft reset will no reset the external peripheral
+(i.e. RESOUT_N output not asserted).
 
+This changeset migrate the restart code from the "mach-lpc32xx" to
+the "pnx-4008" watchdog driver and add the soft reset capability.
+
+The default behavior (i.e. hard reset) remain unchanged.
+
+This patchset have a dependency on the following patch:
+watchdog: Add 'action' and 'data' parameters to restart handler callback
+http://permalink.gmane.org/gmane.linux.watchdog/3364/
+
+Note:
+Patch #5 was generated with the option "--unified=2" to ensure
+it can be apply before or after the changes for the new 
+LPC32xx irqchip driver:
+- http://permalink.gmane.org/gmane.linux.drivers.devicetree/144683
+---
+Changes from v4 to v5:
+* Rebased on the following patch:
+  http://permalink.gmane.org/gmane.linux.watchdog/3364/
+
+Changes from v3 to v4:
+* Update the patch as per the feedback received from:
+  Arnd: http://permalink.gmane.org/gmane.linux.watchdog/3329
+  - Switch patch #5 and #6 order.
+
+Changes from v2 to v3:
+* Update the patch as per the feedback received from:
+  Joachim: http://permalink.gmane.org/gmane.linux.watchdog/3303
+  - remove explicit clock enable from restart handler.
+  - verify "register_restart_handler" return value.
+  - add call to unregister_restart_handler".
+  - do the restart handling directly in "pnx4008_restart_handler".
+* Move the change to "phy3250.c" into a separate patch and generate
+  the new patch with the "--unified=2" option.
+
+Changes from v1 to v2:
+* Rename patch title;
+  was "arm: lpc32xx: restart: add support for soft reset"
+* Update the patch as per the feedback received from:
+  Joachim: http://permalink.gmane.org/gmane.linux.ports.arm.kernel/479791
+  - migrate restart code from "mach-lpc32xx" to "pnx-4008" driver.
+* Add soft reset support to "pnx-4008" driver instead of "mach-lpc32xx".
+* Use define available in "pnx-4008" when writting to watchdog register.
+* Remove restart handler from "mach-lpc32xx".
+* Remove restart hook from "phy3250.c".
+* Update driver logging during power-on. 
+
+Sylvain Lemieux (6):
+  watchdog: pnx4008: update logging during power-on
+  watchdog: pnx4008: add restart handler
+  watchdog: pnx4008: add support for soft reset
+  watchdog: pnx4008: restart: support "cmd" from userspace
+  arm: lpc32xx: phy3250 remove restart hook
+  arm: lpc32xx: remove restart handler
+
+ arch/arm/mach-lpc32xx/common.c  | 15 ---------------
+ arch/arm/mach-lpc32xx/common.h  |  1 -
+ arch/arm/mach-lpc32xx/phy3250.c |  1 -
+ drivers/watchdog/pnx4008_wdt.c  | 42 +++++++++++++++++++++++++++++++++++++++--
+ 4 files changed, 40 insertions(+), 19 deletions(-)
+
+-- 
+1.8.3.1
