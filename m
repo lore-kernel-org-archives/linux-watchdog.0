@@ -1,373 +1,280 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from exsmtp03.microchip.com ([198.175.253.49]:65305 "EHLO
-	email.microchip.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1754513AbcBZRUB (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 26 Feb 2016 12:20:01 -0500
-From: Joshua Henderson <joshua.henderson@microchip.com>
-To: <linux-kernel@vger.kernel.org>
-CC: <linux-mips@linux-mips.org>, <ralf@linux-mips.org>,
-	Purna Chandra Mandal <purna.mandal@microchip.com>,
-	Joshua Henderson <joshua.henderson@microchip.com>,
-	Rob Herring <robh+dt@kernel.org>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Guenter Roeck <linux@roeck-us.net>,
-	<devicetree@vger.kernel.org>, <linux-watchdog@vger.kernel.org>
-Subject: [PATCH v3 2/2] watchdog: pic32-dmt: Add PIC32 deadman timer driver
-Date: Fri, 26 Feb 2016 10:20:22 -0700
-Message-ID: <1456507226-5566-2-git-send-email-joshua.henderson@microchip.com>
+Return-path: <vilhelm.gray@gmail.com>
+Date: Sun, 28 Feb 2016 23:54:46 -0500
+From: William Breathitt Gray <vilhelm.gray@gmail.com>
+To: wim@iguana.be, linux@roeck-us.net
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH v8] watchdog: Add watchdog timer support for the WinSystems
+ EBC-C384
+Message-ID: <20160229045446.GA11655@sophia>
 MIME-Version: 1.0
-Content-Type: text/plain
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+List-ID: <linux-watchdog@vger.kernel.org>
 
-From: Purna Chandra Mandal <purna.mandal@microchip.com>
+The WinSystems EBC-C384 has an onboard watchdog timer. The timeout range
+supported by the watchdog timer is 1 second to 255 minutes. Timeouts
+under 256 seconds have a 1 second granularity, while the rest have a 1
+minute granularity.
 
-Adds support for the deadman timer peripheral found on PIC32 class devices.
+This driver adds watchdog timer support for this onboard watchdog timer.
+The timeout may be configured via the timeout module parameter.
 
-The primary function of the deadman timer (DMT) is to reset the processor
-in the event of a software malfunction. The DMT is a free-running
-instruction fetch timer, which is clocked whenever an instruction fetch
-occurs until a count match occurs. Instructions are not fetched when
-the processor is in sleep mode.
-
-Signed-off-by: Purna Chandra Mandal <purna.mandal@microchip.com>
-Signed-off-by: Joshua Henderson <joshua.henderson@microchip.com>
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: William Breathitt Gray <vilhelm.gray@gmail.com>
 ---
-Note: Please merge this patch series through the MIPS tree.
+Changes in v8:
+  - Utilize the roundup macro to round up second resolution to minute
+    granularity when setting the timeout member
 
-Changes since v2:
-	- Fix incorrect return value of -EINVAL on unsigned
-	- Minor formatting fix
-	- Drop unused pr_fmt
-Changes since v1:
-	- Drop default y in Kconfig
-	- Alphabetical include files
-	- Use BIT() where appropriate
-	- Replace cpu_relax() with nop() and comment why it's needed
-	- Return bool on functions where appropriate
-	- Add a way to break out of a tight loop
-	- Remove static unused function
-	- Remove redundant spinlock already covered by watchdog core
-	- Remove unecessary error handling when enabling DMT
-	- Drop implementation of .get_timeleft
-	- Drop calculation of max_timeout
-	- Cleanup dev_err() message contents
-	- Fix race condition with watchdog device register
-	- Unregister watchdog before disabling clock
-	- Fix typo in driver name
----
- drivers/watchdog/Kconfig     |   13 +++
- drivers/watchdog/Makefile    |    1 +
- drivers/watchdog/pic32-dmt.c |  257 ++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 271 insertions(+)
- create mode 100644 drivers/watchdog/pic32-dmt.c
+ MAINTAINERS                     |   6 ++
+ drivers/watchdog/Kconfig        |   9 ++
+ drivers/watchdog/Makefile       |   1 +
+ drivers/watchdog/ebc-c384_wdt.c | 188 ++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 204 insertions(+)
+ create mode 100644 drivers/watchdog/ebc-c384_wdt.c
 
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 28eb61b..66107fd 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -11860,6 +11860,12 @@ M:	David Härdeman <david@hardeman.nu>
+ S:	Maintained
+ F:	drivers/media/rc/winbond-cir.c
+ 
++WINSYSTEMS EBC-C384 WATCHDOG DRIVER
++M:	William Breathitt Gray <vilhelm.gray@gmail.com>
++L:	linux-watchdog@vger.kernel.org
++S:	Maintained
++F:	drivers/watchdog/ebc-c384_wdt.c
++
+ WIMAX STACK
+ M:	Inaky Perez-Gonzalez <inaky.perez-gonzalez@intel.com>
+ M:	linux-wimax@intel.com
 diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 543fa81..53747e9 100644
+index 0f6d851..11f3a3d 100644
 --- a/drivers/watchdog/Kconfig
 +++ b/drivers/watchdog/Kconfig
-@@ -1427,6 +1427,19 @@ config PIC32_WDT
- 	  To compile this driver as a loadable module, choose M here.
- 	  The module will be called pic32-wdt.
+@@ -713,6 +713,15 @@ config ALIM7101_WDT
  
-+config PIC32_DMT
-+	tristate "Microchip PIC32 Deadman Timer"
+ 	  Most people will say N.
+ 
++config EBC_C384_WDT
++	tristate "WinSystems EBC-C384 Watchdog Timer"
++	depends on X86
 +	select WATCHDOG_CORE
-+	depends on MACH_PIC32
 +	help
-+	  Watchdog driver for PIC32 instruction fetch counting timer. This specific
-+	  timer is typically be used in misson critical and safety critical
-+	  applications, where any single failure of the software functionality
-+	  and sequencing must be detected.
++	  Enables watchdog timer support for the watchdog timer on the
++	  WinSystems EBC-C384 motherboard. The timeout may be configured via
++	  the timeout module parameter.
 +
-+	  To compile this driver as a loadable module, choose M here.
-+	  The module will be called pic32-dmt.
-+
- # PARISC Architecture
- 
- # POWERPC Architecture
+ config F71808E_WDT
+ 	tristate "Fintek F71808E, F71862FG, F71869, F71882FG and F71889FG Watchdog"
+ 	depends on X86
 diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index 244ed80..d051c9c 100644
+index f566753..15762c8 100644
 --- a/drivers/watchdog/Makefile
 +++ b/drivers/watchdog/Makefile
-@@ -154,6 +154,7 @@ obj-$(CONFIG_RALINK_WDT) += rt2880_wdt.o
- obj-$(CONFIG_IMGPDC_WDT) += imgpdc_wdt.o
- obj-$(CONFIG_MT7621_WDT) += mt7621_wdt.o
- obj-$(CONFIG_PIC32_WDT) += pic32-wdt.o
-+obj-$(CONFIG_PIC32_DMT) += pic32-dmt.o
- 
- # PARISC Architecture
- 
-diff --git a/drivers/watchdog/pic32-dmt.c b/drivers/watchdog/pic32-dmt.c
+@@ -88,6 +88,7 @@ obj-$(CONFIG_ACQUIRE_WDT) += acquirewdt.o
+ obj-$(CONFIG_ADVANTECH_WDT) += advantechwdt.o
+ obj-$(CONFIG_ALIM1535_WDT) += alim1535_wdt.o
+ obj-$(CONFIG_ALIM7101_WDT) += alim7101_wdt.o
++obj-$(CONFIG_EBC_C384_WDT) += ebc-c384_wdt.o
+ obj-$(CONFIG_F71808E_WDT) += f71808e_wdt.o
+ obj-$(CONFIG_SP5100_TCO) += sp5100_tco.o
+ obj-$(CONFIG_GEODE_WDT) += geodewdt.o
+diff --git a/drivers/watchdog/ebc-c384_wdt.c b/drivers/watchdog/ebc-c384_wdt.c
 new file mode 100644
-index 0000000..962f58c
+index 0000000..77fda0b
 --- /dev/null
-+++ b/drivers/watchdog/pic32-dmt.c
-@@ -0,0 +1,257 @@
++++ b/drivers/watchdog/ebc-c384_wdt.c
+@@ -0,0 +1,188 @@
 +/*
-+ * PIC32 deadman timer driver
++ * Watchdog timer driver for the WinSystems EBC-C384
++ * Copyright (C) 2016 William Breathitt Gray
 + *
-+ * Purna Chandra Mandal <purna.mandal@microchip.com>
-+ * Copyright (c) 2016, Microchip Technology Inc.
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License, version 2, as
++ * published by the Free Software Foundation.
 + *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License
-+ * as published by the Free Software Foundation; either version
-+ * 2 of the License, or (at your option) any later version.
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * General Public License for more details.
 + */
-+#include <linux/clk.h>
 +#include <linux/device.h>
-+#include <linux/err.h>
++#include <linux/dmi.h>
++#include <linux/errno.h>
 +#include <linux/io.h>
++#include <linux/ioport.h>
 +#include <linux/kernel.h>
 +#include <linux/module.h>
-+#include <linux/of.h>
-+#include <linux/of_device.h>
++#include <linux/moduleparam.h>
 +#include <linux/platform_device.h>
-+#include <linux/pm.h>
++#include <linux/types.h>
 +#include <linux/watchdog.h>
 +
-+#include <asm/mach-pic32/pic32.h>
++#define MODULE_NAME		"ebc-c384_wdt"
++#define WATCHDOG_TIMEOUT	60
++/*
++ * The timeout value in minutes must fit in a single byte when sent to the
++ * watchdog timer; the maximum timeout possible is 15300 (255 * 60) seconds.
++ */
++#define WATCHDOG_MAX_TIMEOUT	15300
++#define BASE_ADDR		0x564
++#define ADDR_EXTENT		5
++#define CFG_ADDR		(BASE_ADDR + 1)
++#define PET_ADDR		(BASE_ADDR + 2)
 +
-+/* Deadman Timer Regs */
-+#define DMTCON_REG	0x00
-+#define DMTPRECLR_REG	0x10
-+#define DMTCLR_REG	0x20
-+#define DMTSTAT_REG	0x30
-+#define DMTCNT_REG	0x40
-+#define DMTPSCNT_REG	0x60
-+#define DMTPSINTV_REG	0x70
++static bool nowayout = WATCHDOG_NOWAYOUT;
++module_param(nowayout, bool, 0);
++MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
++	__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
 +
-+/* Deadman Timer Regs fields */
-+#define DMT_ON			BIT(15)
-+#define DMT_STEP1_KEY		BIT(6)
-+#define DMT_STEP2_KEY		BIT(3)
-+#define DMTSTAT_WINOPN		BIT(0)
-+#define DMTSTAT_EVENT		BIT(5)
-+#define DMTSTAT_BAD2		BIT(6)
-+#define DMTSTAT_BAD1		BIT(7)
++static unsigned timeout;
++module_param(timeout, uint, 0);
++MODULE_PARM_DESC(timeout, "Watchdog timeout in seconds (default="
++	__MODULE_STRING(WATCHDOG_TIMEOUT) ")");
 +
-+/* Reset Control Register fields for watchdog */
-+#define RESETCON_DMT_TIMEOUT	BIT(5)
-+
-+struct pic32_dmt {
-+	void __iomem	*regs;
-+	struct clk	*clk;
-+};
-+
-+static inline void dmt_enable(struct pic32_dmt *dmt)
++static int ebc_c384_wdt_start(struct watchdog_device *wdev)
 +{
-+	writel(DMT_ON, PIC32_SET(dmt->regs + DMTCON_REG));
-+}
++	unsigned t = wdev->timeout;
 +
-+static inline void dmt_disable(struct pic32_dmt *dmt)
-+{
-+	writel(DMT_ON, PIC32_CLR(dmt->regs + DMTCON_REG));
-+	/*
-+	 * Cannot touch registers in the CPU cycle following clearing the
-+	 * ON bit.
-+	 */
-+	nop();
-+}
++	/* resolution is in minutes for timeouts greater than 255 seconds */
++	if (t > 255)
++		t = DIV_ROUND_UP(t, 60);
 +
-+static inline int dmt_bad_status(struct pic32_dmt *dmt)
-+{
-+	u32 val;
-+
-+	val = readl(dmt->regs + DMTSTAT_REG);
-+	val &= (DMTSTAT_BAD1 | DMTSTAT_BAD2 | DMTSTAT_EVENT);
-+	if (val)
-+		return -EAGAIN;
++	outb(t, PET_ADDR);
 +
 +	return 0;
 +}
 +
-+static inline int dmt_keepalive(struct pic32_dmt *dmt)
++static int ebc_c384_wdt_stop(struct watchdog_device *wdev)
 +{
-+	u32 v;
-+	u32 timeout = 500;
-+
-+	/* set pre-clear key */
-+	writel(DMT_STEP1_KEY << 8, dmt->regs + DMTPRECLR_REG);
-+
-+	/* wait for DMT window to open */
-+	while (--timeout) {
-+		v = readl(dmt->regs + DMTSTAT_REG) & DMTSTAT_WINOPN;
-+		if (v == DMTSTAT_WINOPN)
-+			break;
-+	}
-+
-+	/* apply key2 */
-+	writel(DMT_STEP2_KEY, dmt->regs + DMTCLR_REG);
-+
-+	/* check whether keys are latched correctly */
-+	return dmt_bad_status(dmt);
-+}
-+
-+static inline u32 pic32_dmt_get_timeout_secs(struct pic32_dmt *dmt)
-+{
-+	unsigned long rate;
-+
-+	rate = clk_get_rate(dmt->clk);
-+	if (rate)
-+		return readl(dmt->regs + DMTPSCNT_REG) / rate;
++	outb(0x00, PET_ADDR);
 +
 +	return 0;
 +}
 +
-+static inline u32 pic32_dmt_bootstatus(struct pic32_dmt *dmt)
++static int ebc_c384_wdt_set_timeout(struct watchdog_device *wdev, unsigned t)
 +{
-+	u32 v;
-+	void __iomem *rst_base;
++	/* resolution is in minutes for timeouts greater than 255 seconds */
++	if (t > 255) {
++		/* round second resolution up to minute granularity */
++		wdev->timeout = roundup(t, 60);
 +
-+	rst_base = ioremap(PIC32_BASE_RESET, 0x10);
-+	if (!rst_base)
-+		return 0;
++		/* set watchdog timer for minutes */
++		outb(0x00, CFG_ADDR);
++	} else {
++		wdev->timeout = t;
 +
-+	v = readl(rst_base);
-+
-+	writel(RESETCON_DMT_TIMEOUT, PIC32_CLR(rst_base));
-+
-+	iounmap(rst_base);
-+	return v & RESETCON_DMT_TIMEOUT;
-+}
-+
-+static int pic32_dmt_start(struct watchdog_device *wdd)
-+{
-+	struct pic32_dmt *dmt = watchdog_get_drvdata(wdd);
-+
-+	dmt_enable(dmt);
-+	return dmt_keepalive(dmt);
-+}
-+
-+static int pic32_dmt_stop(struct watchdog_device *wdd)
-+{
-+	struct pic32_dmt *dmt = watchdog_get_drvdata(wdd);
-+
-+	dmt_disable(dmt);
++		/* set watchdog timer for seconds */
++		outb(0x80, CFG_ADDR);
++	}
 +
 +	return 0;
 +}
 +
-+static int pic32_dmt_ping(struct watchdog_device *wdd)
++static const struct watchdog_ops ebc_c384_wdt_ops = {
++	.start = ebc_c384_wdt_start,
++	.stop = ebc_c384_wdt_stop,
++	.set_timeout = ebc_c384_wdt_set_timeout
++};
++
++static const struct watchdog_info ebc_c384_wdt_info = {
++	.options = WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE | WDIOF_SETTIMEOUT,
++	.identity = MODULE_NAME
++};
++
++static int __init ebc_c384_wdt_probe(struct platform_device *pdev)
 +{
-+	struct pic32_dmt *dmt = watchdog_get_drvdata(wdd);
++	struct device *dev = &pdev->dev;
++	struct watchdog_device *wdd;
 +
-+	return dmt_keepalive(dmt);
-+}
-+
-+static const struct watchdog_ops pic32_dmt_fops = {
-+	.owner		= THIS_MODULE,
-+	.start		= pic32_dmt_start,
-+	.stop		= pic32_dmt_stop,
-+	.ping		= pic32_dmt_ping,
-+};
-+
-+static const struct watchdog_info pic32_dmt_ident = {
-+	.options	= WDIOF_KEEPALIVEPING |
-+			  WDIOF_MAGICCLOSE,
-+	.identity	= "PIC32 Deadman Timer",
-+};
-+
-+static struct watchdog_device pic32_dmt_wdd = {
-+	.info		= &pic32_dmt_ident,
-+	.ops		= &pic32_dmt_fops,
-+};
-+
-+static int pic32_dmt_probe(struct platform_device *pdev)
-+{
-+	int ret;
-+	struct pic32_dmt *dmt;
-+	struct resource *mem;
-+	struct watchdog_device *wdd = &pic32_dmt_wdd;
-+
-+	dmt = devm_kzalloc(&pdev->dev, sizeof(*dmt), GFP_KERNEL);
-+	if (IS_ERR(dmt))
-+		return PTR_ERR(dmt);
-+
-+	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	dmt->regs = devm_ioremap_resource(&pdev->dev, mem);
-+	if (IS_ERR(dmt->regs))
-+		return PTR_ERR(dmt->regs);
-+
-+	dmt->clk = devm_clk_get(&pdev->dev, NULL);
-+	if (IS_ERR(dmt->clk)) {
-+		dev_err(&pdev->dev, "clk not found\n");
-+		return PTR_ERR(dmt->clk);
++	if (!devm_request_region(dev, BASE_ADDR, ADDR_EXTENT, dev_name(dev))) {
++		dev_err(dev, "Unable to lock port addresses (0x%X-0x%X)\n",
++			BASE_ADDR, BASE_ADDR + ADDR_EXTENT);
++		return -EBUSY;
 +	}
 +
-+	ret = clk_prepare_enable(dmt->clk);
-+	if (ret)
-+		return ret;
++	wdd = devm_kzalloc(dev, sizeof(*wdd), GFP_KERNEL);
++	if (!wdd)
++		return -ENOMEM;
 +
-+	wdd->timeout = pic32_dmt_get_timeout_secs(dmt);
-+	if (!wdd->timeout) {
-+		dev_err(&pdev->dev,
-+			"failed to read watchdog register timeout\n");
-+		ret = -EINVAL;
-+		goto out_disable_clk;
-+	}
++	wdd->info = &ebc_c384_wdt_info;
++	wdd->ops = &ebc_c384_wdt_ops;
++	wdd->timeout = WATCHDOG_TIMEOUT;
++	wdd->min_timeout = 1;
++	wdd->max_timeout = WATCHDOG_MAX_TIMEOUT;
 +
-+	dev_info(&pdev->dev, "timeout %d\n", wdd->timeout);
++	watchdog_set_nowayout(wdd, nowayout);
 +
-+	wdd->bootstatus = pic32_dmt_bootstatus(dmt) ? WDIOF_CARDRESET : 0;
-+
-+	watchdog_set_nowayout(wdd, WATCHDOG_NOWAYOUT);
-+	watchdog_set_drvdata(wdd, dmt);
-+
-+	ret = watchdog_register_device(wdd);
-+	if (ret) {
-+		dev_err(&pdev->dev, "watchdog register failed, err %d\n", ret);
-+		goto out_disable_clk;
-+	}
++	if (watchdog_init_timeout(wdd, timeout, dev))
++		dev_warn(dev, "Invalid timeout (%u seconds), using default (%u seconds)\n",
++			timeout, WATCHDOG_TIMEOUT);
 +
 +	platform_set_drvdata(pdev, wdd);
-+	return 0;
 +
-+out_disable_clk:
-+	clk_disable_unprepare(dmt->clk);
-+	return ret;
++	return watchdog_register_device(wdd);
 +}
 +
-+static int pic32_dmt_remove(struct platform_device *pdev)
++static int ebc_c384_wdt_remove(struct platform_device *pdev)
 +{
 +	struct watchdog_device *wdd = platform_get_drvdata(pdev);
-+	struct pic32_dmt *dmt = watchdog_get_drvdata(wdd);
 +
 +	watchdog_unregister_device(wdd);
-+	clk_disable_unprepare(dmt->clk);
 +
 +	return 0;
 +}
 +
-+static const struct of_device_id pic32_dmt_of_ids[] = {
-+	{ .compatible = "microchip,pic32mzda-dmt",},
-+	{ /* sentinel */ }
-+};
-+MODULE_DEVICE_TABLE(of, pic32_dmt_of_ids);
-+
-+static struct platform_driver pic32_dmt_driver = {
-+	.probe		= pic32_dmt_probe,
-+	.remove		= pic32_dmt_remove,
-+	.driver		= {
-+		.name		= "pic32-dmt",
-+		.owner		= THIS_MODULE,
-+		.of_match_table = of_match_ptr(pic32_dmt_of_ids),
-+	}
++static struct platform_driver ebc_c384_wdt_driver = {
++	.driver = {
++		.name = MODULE_NAME
++	},
++	.remove = ebc_c384_wdt_remove
 +};
 +
-+module_platform_driver(pic32_dmt_driver);
++static struct platform_device *ebc_c384_wdt_device;
 +
-+MODULE_AUTHOR("Purna Chandra Mandal <purna.mandal@microchip.com>");
-+MODULE_DESCRIPTION("Microchip PIC32 DMT Driver");
-+MODULE_LICENSE("GPL");
++static int __init ebc_c384_wdt_init(void)
++{
++	int err;
++
++	if (!dmi_match(DMI_BOARD_NAME, "EBC-C384 SBC"))
++		return -ENODEV;
++
++	ebc_c384_wdt_device = platform_device_alloc(MODULE_NAME, -1);
++	if (!ebc_c384_wdt_device)
++		return -ENOMEM;
++
++	err = platform_device_add(ebc_c384_wdt_device);
++	if (err)
++		goto err_platform_device;
++
++	err = platform_driver_probe(&ebc_c384_wdt_driver, ebc_c384_wdt_probe);
++	if (err)
++		goto err_platform_driver;
++
++	return 0;
++
++err_platform_driver:
++	platform_device_del(ebc_c384_wdt_device);
++err_platform_device:
++	platform_device_put(ebc_c384_wdt_device);
++	return err;
++}
++
++static void __exit ebc_c384_wdt_exit(void)
++{
++	platform_device_unregister(ebc_c384_wdt_device);
++	platform_driver_unregister(&ebc_c384_wdt_driver);
++}
++
++module_init(ebc_c384_wdt_init);
++module_exit(ebc_c384_wdt_exit);
++
++MODULE_AUTHOR("William Breathitt Gray <vilhelm.gray@gmail.com>");
++MODULE_DESCRIPTION("WinSystems EBC-C384 watchdog timer driver");
++MODULE_LICENSE("GPL v2");
++MODULE_ALIAS("platform:" MODULE_NAME);
 -- 
-1.7.9.5
-
+2.4.10
