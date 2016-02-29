@@ -8,63 +8,74 @@ Cc: linux-watchdog@vger.kernel.org,
 	wim@iguana.be,
 	stigge@antcom.de,
 	vz@mleia.com
-Subject: [PATCH v5 4/6] watchdog: pnx4008: restart: support "cmd" from userspace
-Date: Mon, 29 Feb 2016 12:31:06 -0500
-Message-Id: <1456767068-14449-5-git-send-email-slemieux.tyco@gmail.com>
+Subject: [PATCH v5 6/6] arm: lpc32xx: remove restart handler
+Date: Mon, 29 Feb 2016 12:31:08 -0500
+Message-Id: <1456767068-14449-7-git-send-email-slemieux.tyco@gmail.com>
 In-Reply-To: <1456767068-14449-1-git-send-email-slemieux.tyco@gmail.com>
 References: <1456767068-14449-1-git-send-email-slemieux.tyco@gmail.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
 From: Sylvain Lemieux <slemieux@tycoint.com>
 
-Added support to verify if a "cmd" is passed from the userspace program rebooting the system;
-- if a valid "cmd" is available, handle it;
-- If the received "cmd" is not supported, use the default reboot mode.
+Remove the restart handler from "mach-lpc32xx";
+this functionality is now available in the
+pnx4008 watchdog driver.
 
 Signed-off-by: Sylvain Lemieux <slemieux@tycoint.com>
 ---
 Changes from v4 to v5:
-- no logical change; updated to work with new revision of patch #2.
-
-Changes from v3 to v4:
 - none.
 
+Changes from v3 to v4:
+- Switch patch #5 and #6 order.
+
 Changes from v2 to v3:
-- no logical change; updated to work with new revision of patch #2.
+- move the change to "phy3250.c" into a separate patch.
 
 Changes from v1 to v2:
-- Rename patch title;
-  was "arm: lpc32xx: restart: support "cmd" from userspace"
-- Add change to "pnx-4008" driver instead of "mach-lpc32xx".
+- new patch in v2.
 
- drivers/watchdog/pnx4008_wdt.c | 15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ arch/arm/mach-lpc32xx/common.c | 15 ---------------
+ arch/arm/mach-lpc32xx/common.h |  1 -
+ 2 files changed, 16 deletions(-)
 
-diff --git a/drivers/watchdog/pnx4008_wdt.c b/drivers/watchdog/pnx4008_wdt.c
-index e05bfecf..df76231 100644
---- a/drivers/watchdog/pnx4008_wdt.c
-+++ b/drivers/watchdog/pnx4008_wdt.c
-@@ -129,6 +129,21 @@ static int pnx4008_wdt_set_timeout(struct watchdog_device *wdd,
- static int pnx4008_restart_handler(struct watchdog_device *wdd,
- 				   unsigned long mode, void *cmd)
+diff --git a/arch/arm/mach-lpc32xx/common.c b/arch/arm/mach-lpc32xx/common.c
+index 716e83e..5b7a1e7 100644
+--- a/arch/arm/mach-lpc32xx/common.c
++++ b/arch/arm/mach-lpc32xx/common.c
+@@ -194,21 +194,6 @@ void __init lpc32xx_map_io(void)
+ 	iotable_init(lpc32xx_io_desc, ARRAY_SIZE(lpc32xx_io_desc));
+ }
+ 
+-void lpc23xx_restart(enum reboot_mode mode, const char *cmd)
+-{
+-	/* Make sure WDT clocks are enabled */
+-	__raw_writel(LPC32XX_CLKPWR_PWMCLK_WDOG_EN,
+-		LPC32XX_CLKPWR_TIMER_CLK_CTRL);
+-
+-	/* Instant assert of RESETOUT_N with pulse length 1mS */
+-	__raw_writel(13000, io_p2v(LPC32XX_WDTIM_BASE + 0x18));
+-	__raw_writel(0x70, io_p2v(LPC32XX_WDTIM_BASE + 0xC));
+-
+-	/* Wait for watchdog to reset system */
+-	while (1)
+-		;
+-}
+-
+ static int __init lpc32xx_check_uid(void)
  {
-+	const char *boot_cmd = (const char *)cmd;
-+
-+	/*
-+	 * Verify if a "cmd" passed from the userspace program rebooting
-+	 * the system; if available, handle it.
-+	 * - For details, see the 'reboot' syscall in kernel/reboot.c
-+	 * - If the received "cmd" is not supported, use the default mode.
-+	 */
-+	if (boot_cmd) {
-+		if (boot_cmd[0] == 'h')
-+			mode = (unsigned long)REBOOT_HARD;
-+		else if (boot_cmd[0] == 's')
-+			mode = (unsigned long)REBOOT_SOFT;
-+	}
-+
- 	if (mode == (unsigned long)REBOOT_SOFT) {
- 		/* Force match output active */
- 		writel(EXT_MATCH0, WDTIM_EMR(wdt_base));
+ 	u32 uid[4];
+diff --git a/arch/arm/mach-lpc32xx/common.h b/arch/arm/mach-lpc32xx/common.h
+index 1cd8853..2d90801 100644
+--- a/arch/arm/mach-lpc32xx/common.h
++++ b/arch/arm/mach-lpc32xx/common.h
+@@ -30,7 +30,6 @@ extern void lpc32xx_timer_init(void);
+ extern void __init lpc32xx_init_irq(void);
+ extern void __init lpc32xx_map_io(void);
+ extern void __init lpc32xx_serial_init(void);
+-extern void lpc23xx_restart(enum reboot_mode, const char *);
+ 
+ 
+ /*
 -- 
 1.8.3.1
