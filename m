@@ -1,218 +1,284 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Petr Mladek <pmladek@suse.com>
-To: Andrew Morton <akpm@linux-foundation.org>, Oleg Nesterov <oleg@redhat.com>,
-        Tejun Heo <tj@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>
-Cc: Steven Rostedt <rostedt@goodmis.org>,
-        "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Jiri Kosina <jkosina@suse.cz>, Borislav Petkov <bp@suse.de>,
-        Michal Hocko <mhocko@suse.cz>, linux-mm@kvack.org,
-        Vlastimil Babka <vbabka@suse.cz>, linux-api@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Petr Mladek <pmladek@suse.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        linux-watchdog@vger.kernel.org, Corey Minyard <minyard@acm.org>,
-        openipmi-developer@lists.sourceforge.net,
-        Doug Ledford <dledford@redhat.com>, Sean Hefty <sean.hefty@intel.com>,
-        Hal Rosenstock <hal.rosenstock@gmail.com>, linux-rdma@vger.kernel.org,
-        Maxim Levitsky <maximlevitsky@gmail.com>,
-        Zhang Rui <rui.zhang@intel.com>,
-        Eduardo Valentin <edubezval@gmail.com>,
-        Jacob Pan <jacob.jun.pan@linux.intel.com>, linux-pm@vger.kernel.org
-Subject: [PATCH v5 00/20] kthread: Use kthread worker API more widely
-Date: Mon, 22 Feb 2016 15:56:50 +0100
-Message-Id: <1456153030-12400-1-git-send-email-pmladek@suse.com>
+Date: Sun, 28 Feb 2016 23:20:39 -0500
+From: William Breathitt Gray <vilhelm.gray@gmail.com>
+To: wim@iguana.be, linux@roeck-us.net
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH v7] watchdog: Add watchdog timer support for the WinSystems
+ EBC-C384
+Message-ID: <20160229042039.GA29582@sophia>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-My intention is to make it easier to manipulate and maintain kthreads.
-Especially, I want to replace all the custom main cycles with a
-generic one. Also I want to make the kthreads sleep in a consistent
-state in a common place when there is no work.
+The WinSystems EBC-C384 has an onboard watchdog timer. The timeout range
+supported by the watchdog timer is 1 second to 255 minutes. Timeouts
+under 256 seconds have a 1 second granularity, while the rest have a 1
+minute granularity.
 
-My first attempt was with a brand new API (iterant kthread), see
-http://thread.gmane.org/gmane.linux.kernel.api/11892 . But I was
-directed to improve the existing kthread worker API. This is
-the 4th iteration of the new direction.
+This driver adds watchdog timer support for this onboard watchdog timer.
+The timeout may be configured via the timeout module parameter.
 
+Signed-off-by: William Breathitt Gray <vilhelm.gray@gmail.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+---
+Changes in v7:
+  - Make sure timeout member is in seconds resolution despite minutes
+    granularity
 
-1nd..10th patches: improve the existing kthread worker API
+ MAINTAINERS                     |   6 ++
+ drivers/watchdog/Kconfig        |   9 ++
+ drivers/watchdog/Makefile       |   1 +
+ drivers/watchdog/ebc-c384_wdt.c | 188 ++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 204 insertions(+)
+ create mode 100644 drivers/watchdog/ebc-c384_wdt.c
 
-11th..16th, 18th, 20th patches: convert several kthreads into
-      the kthread worker API, namely: khugepaged, ring buffer
-      benchmark, hung_task, kmemleak, ipmi, IB/fmr_pool,
-      memstick/r592, intel_powerclamp
-      
-17th, 19th patches: do some preparation steps; they usually do
-      some clean up that makes sense even without the conversion.
-
-
-Changes against v4:
-
-  + added worker->delayed_work_list; it simplified the check
-    for pending work; we do not longer need the new timer_active()
-    function; also we do not need the link work->timer. On the
-    other hand we need to distinguish between the normal and
-    the delayed work by a boolean parameter passed to
-    the common functions, e.g. __cancel_kthread_work_sync()
-    
-  + replaced most try_lock repeat cycles with a WARN_ON();
-    the API does not allow to use the work with more workers;
-    so such a situation would be a bug; it removed the
-    complex try_lock_kthread_work() function that supported
-    more modes;
-
-  + renamed kthread_work_pending() to queuing_blocked();
-    added this function later when really needed
-
-  + renamed try_to_cancel_kthread_work() to __cancel_kthread_work();
-    in fact, this a common implementation for the async cancel()
-    function
-
-  + removed a dull check for invalid cpu number in
-    create_kthread_worker_on_cpu(); removed some other unnecessary
-    code structures as suggested by Tejun
-
-  + consistently used bool return value in all new __cancel functions
-
-  + fixed ordering of cpu and flags parameters in
-    create_kthread_worker_on_cpu() vs. create_kthread_worker()
-
-  + used memset in the init_kthread_worker()
-
-  + updated many comments as suggested by Tejun and as
-    required the above changes
-
-  + removed obsolete patch adding timer_active()
-
-  + removed obsolete patch for using try_lock in flush_kthread_worker()
-
-  + double checked all existing users of kthread worker API
-    that they reinitialized the work when the worker was started
-    and would not print false warnings; all looked fine
-
-  + added taken acks for the Intel Powerclamp conversion
-    
-
-Changes against v3:
-
-  + allow to free struct kthread_work from its callback; do not touch
-    the struct from the worker post-mortem; as a side effect, the structure
-    must be reinitialized when the worker gets restarted; updated
-    khugepaged, and kmemleak accordingly
-
-  + call del_timer_sync() with worker->lock; instead, detect canceling
-    in the timer callback and give up an attempt to get the lock there;
-    do busy loop with spin_is_locked() to reduce cache bouncing
-
-  + renamed ipmi+func() -> ipmi_kthread_worker_func() as suggested
-    by Corey
-
-  + added some collected Reviewed-by
-
-  
-Changes against v2:
-
-  + used worker->lock to synchronize the operations with the work
-    instead of the PENDING bit as suggested by Tejun Heo; it simplified
-    the implementation in several ways
-
-  + added timer_active(); used it together with del_timer_sync()
-    to cancel the work a less tricky way
-
-  + removed the controversial conversion of the RCU kthreads
-
-  + added several other examples: hung_task, kmemleak, ipmi,
-    IB/fmr_pool, memstick/r592, intel_powerclamp
-
-  + the helper fixes for the ring buffer benchmark has been improved
-    as suggested by Steven; they already are in the Linus tree now
-
-  + fixed a possible race between the check for existing khugepaged
-    worker and queuing the work
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 28eb61b..66107fd 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -11860,6 +11860,12 @@ M:	David Härdeman <david@hardeman.nu>
+ S:	Maintained
+ F:	drivers/media/rc/winbond-cir.c
  
-
-Changes against v1:
-
-  + remove wrappers to manipulate the scheduling policy and priority
-
-  + remove questionable wakeup_and_destroy_kthread_worker() variant
-
-  + do not check for chained work when draining the queue
-
-  + allocate struct kthread worker in create_kthread_work() and
-    use more simple checks for running worker
-
-  + add support for delayed kthread works and use them instead
-    of waiting inside the works
-
-  + rework the "unrelated" fixes for the ring buffer benchmark
-    as discussed in the 1st RFC; also sent separately
-
-  + convert also the consumer in the ring buffer benchmark
-
-
-I have tested this patch set against the stable Linus tree
-for 4.5-rc5.
-
-Comments against v3 can be found at
-http://thread.gmane.org/gmane.linux.kernel.mm/144964
-
-
-Petr Mladek (20):
-  kthread/smpboot: Do not park in kthread_create_on_cpu()
-  kthread: Allow to call __kthread_create_on_node() with va_list args
-  kthread: Add create_kthread_worker*()
-  kthread: Add drain_kthread_worker()
-  kthread: Add destroy_kthread_worker()
-  kthread: Detect when a kthread work is used by more workers
-  kthread: Initial support for delayed kthread work
-  kthread: Allow to cancel kthread work
-  kthread: Allow to modify delayed kthread work
-  kthread: Better support freezable kthread workers
-  mm/huge_page: Convert khugepaged() into kthread worker API
-  ring_buffer: Convert benchmark kthreads into kthread worker API
-  hung_task: Convert hungtaskd into kthread worker API
-  kmemleak: Convert kmemleak kthread into kthread worker API
-  ipmi: Convert kipmi kthread into kthread worker API
-  IB/fmr_pool: Convert the cleanup thread into kthread worker API
-  memstick/r592: Better synchronize debug messages in r592_io kthread
-  memstick/r592: convert r592_io kthread into kthread worker API
-  thermal/intel_powerclamp: Remove duplicated code that starts the
-    kthread
-  thermal/intel_powerclamp: Convert the kthread to kthread worker API
-
- drivers/char/ipmi/ipmi_si_intf.c     | 121 ++++----
- drivers/infiniband/core/fmr_pool.c   |  54 ++--
- drivers/memstick/host/r592.c         |  61 ++--
- drivers/memstick/host/r592.h         |   5 +-
- drivers/thermal/intel_powerclamp.c   | 302 +++++++++++--------
- include/linux/kthread.h              |  56 ++++
- kernel/hung_task.c                   |  41 ++-
- kernel/kthread.c                     | 555 +++++++++++++++++++++++++++++++----
- kernel/smpboot.c                     |   5 +
- kernel/trace/ring_buffer_benchmark.c | 133 ++++-----
- mm/huge_memory.c                     | 138 +++++----
- mm/kmemleak.c                        |  87 +++---
- 12 files changed, 1064 insertions(+), 494 deletions(-)
-
-CC: Catalin Marinas <catalin.marinas@arm.com>
-CC: linux-watchdog@vger.kernel.org
-CC: Corey Minyard <minyard@acm.org>
-CC: openipmi-developer@lists.sourceforge.net
-CC: Doug Ledford <dledford@redhat.com>
-CC: Sean Hefty <sean.hefty@intel.com>
-CC: Hal Rosenstock <hal.rosenstock@gmail.com>
-CC: linux-rdma@vger.kernel.org
-CC: Maxim Levitsky <maximlevitsky@gmail.com>
-CC: Zhang Rui <rui.zhang@intel.com>
-CC: Eduardo Valentin <edubezval@gmail.com>
-CC: Jacob Pan <jacob.jun.pan@linux.intel.com>
-CC: linux-pm@vger.kernel.org
-
++WINSYSTEMS EBC-C384 WATCHDOG DRIVER
++M:	William Breathitt Gray <vilhelm.gray@gmail.com>
++L:	linux-watchdog@vger.kernel.org
++S:	Maintained
++F:	drivers/watchdog/ebc-c384_wdt.c
++
+ WIMAX STACK
+ M:	Inaky Perez-Gonzalez <inaky.perez-gonzalez@intel.com>
+ M:	linux-wimax@intel.com
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 0f6d851..11f3a3d 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -713,6 +713,15 @@ config ALIM7101_WDT
+ 
+ 	  Most people will say N.
+ 
++config EBC_C384_WDT
++	tristate "WinSystems EBC-C384 Watchdog Timer"
++	depends on X86
++	select WATCHDOG_CORE
++	help
++	  Enables watchdog timer support for the watchdog timer on the
++	  WinSystems EBC-C384 motherboard. The timeout may be configured via
++	  the timeout module parameter.
++
+ config F71808E_WDT
+ 	tristate "Fintek F71808E, F71862FG, F71869, F71882FG and F71889FG Watchdog"
+ 	depends on X86
+diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+index f566753..15762c8 100644
+--- a/drivers/watchdog/Makefile
++++ b/drivers/watchdog/Makefile
+@@ -88,6 +88,7 @@ obj-$(CONFIG_ACQUIRE_WDT) += acquirewdt.o
+ obj-$(CONFIG_ADVANTECH_WDT) += advantechwdt.o
+ obj-$(CONFIG_ALIM1535_WDT) += alim1535_wdt.o
+ obj-$(CONFIG_ALIM7101_WDT) += alim7101_wdt.o
++obj-$(CONFIG_EBC_C384_WDT) += ebc-c384_wdt.o
+ obj-$(CONFIG_F71808E_WDT) += f71808e_wdt.o
+ obj-$(CONFIG_SP5100_TCO) += sp5100_tco.o
+ obj-$(CONFIG_GEODE_WDT) += geodewdt.o
+diff --git a/drivers/watchdog/ebc-c384_wdt.c b/drivers/watchdog/ebc-c384_wdt.c
+new file mode 100644
+index 0000000..2cdaf5d
+--- /dev/null
++++ b/drivers/watchdog/ebc-c384_wdt.c
+@@ -0,0 +1,188 @@
++/*
++ * Watchdog timer driver for the WinSystems EBC-C384
++ * Copyright (C) 2016 William Breathitt Gray
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License, version 2, as
++ * published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * General Public License for more details.
++ */
++#include <linux/device.h>
++#include <linux/dmi.h>
++#include <linux/errno.h>
++#include <linux/io.h>
++#include <linux/ioport.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/moduleparam.h>
++#include <linux/platform_device.h>
++#include <linux/types.h>
++#include <linux/watchdog.h>
++
++#define MODULE_NAME		"ebc-c384_wdt"
++#define WATCHDOG_TIMEOUT	60
++/*
++ * The timeout value in minutes must fit in a single byte when sent to the
++ * watchdog timer; the maximum timeout possible is 15300 (255 * 60) seconds.
++ */
++#define WATCHDOG_MAX_TIMEOUT	15300
++#define BASE_ADDR		0x564
++#define ADDR_EXTENT		5
++#define CFG_ADDR		(BASE_ADDR + 1)
++#define PET_ADDR		(BASE_ADDR + 2)
++
++static bool nowayout = WATCHDOG_NOWAYOUT;
++module_param(nowayout, bool, 0);
++MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
++	__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
++
++static unsigned timeout;
++module_param(timeout, uint, 0);
++MODULE_PARM_DESC(timeout, "Watchdog timeout in seconds (default="
++	__MODULE_STRING(WATCHDOG_TIMEOUT) ")");
++
++static int ebc_c384_wdt_start(struct watchdog_device *wdev)
++{
++	unsigned t = wdev->timeout;
++
++	/* resolution is in minutes for timeouts greater than 255 seconds */
++	if (t > 255)
++		t = DIV_ROUND_UP(t, 60);
++
++	outb(t, PET_ADDR);
++
++	return 0;
++}
++
++static int ebc_c384_wdt_stop(struct watchdog_device *wdev)
++{
++	outb(0x00, PET_ADDR);
++
++	return 0;
++}
++
++static int ebc_c384_wdt_set_timeout(struct watchdog_device *wdev, unsigned t)
++{
++	/* resolution is in minutes for timeouts greater than 255 seconds */
++	if (t > 255) {
++		/* round second resolution up to minute resolution */
++		wdev->timeout = DIV_ROUND_UP(t, 60);
++
++		/* set watchdog timer for minutes */
++		outb(0x00, CFG_ADDR);
++	} else {
++		wdev->timeout = t;
++
++		/* set watchdog timer for seconds */
++		outb(0x80, CFG_ADDR);
++	}
++
++	return 0;
++}
++
++static const struct watchdog_ops ebc_c384_wdt_ops = {
++	.start = ebc_c384_wdt_start,
++	.stop = ebc_c384_wdt_stop,
++	.set_timeout = ebc_c384_wdt_set_timeout
++};
++
++static const struct watchdog_info ebc_c384_wdt_info = {
++	.options = WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE | WDIOF_SETTIMEOUT,
++	.identity = MODULE_NAME
++};
++
++static int __init ebc_c384_wdt_probe(struct platform_device *pdev)
++{
++	struct device *dev = &pdev->dev;
++	struct watchdog_device *wdd;
++
++	if (!devm_request_region(dev, BASE_ADDR, ADDR_EXTENT, dev_name(dev))) {
++		dev_err(dev, "Unable to lock port addresses (0x%X-0x%X)\n",
++			BASE_ADDR, BASE_ADDR + ADDR_EXTENT);
++		return -EBUSY;
++	}
++
++	wdd = devm_kzalloc(dev, sizeof(*wdd), GFP_KERNEL);
++	if (!wdd)
++		return -ENOMEM;
++
++	wdd->info = &ebc_c384_wdt_info;
++	wdd->ops = &ebc_c384_wdt_ops;
++	wdd->timeout = WATCHDOG_TIMEOUT;
++	wdd->min_timeout = 1;
++	wdd->max_timeout = WATCHDOG_MAX_TIMEOUT;
++
++	watchdog_set_nowayout(wdd, nowayout);
++
++	if (watchdog_init_timeout(wdd, timeout, dev))
++		dev_warn(dev, "Invalid timeout (%u seconds), using default (%u seconds)\n",
++			timeout, WATCHDOG_TIMEOUT);
++
++	platform_set_drvdata(pdev, wdd);
++
++	return watchdog_register_device(wdd);
++}
++
++static int ebc_c384_wdt_remove(struct platform_device *pdev)
++{
++	struct watchdog_device *wdd = platform_get_drvdata(pdev);
++
++	watchdog_unregister_device(wdd);
++
++	return 0;
++}
++
++static struct platform_driver ebc_c384_wdt_driver = {
++	.driver = {
++		.name = MODULE_NAME
++	},
++	.remove = ebc_c384_wdt_remove
++};
++
++static struct platform_device *ebc_c384_wdt_device;
++
++static int __init ebc_c384_wdt_init(void)
++{
++	int err;
++
++	if (!dmi_match(DMI_BOARD_NAME, "EBC-C384 SBC"))
++		return -ENODEV;
++
++	ebc_c384_wdt_device = platform_device_alloc(MODULE_NAME, -1);
++	if (!ebc_c384_wdt_device)
++		return -ENOMEM;
++
++	err = platform_device_add(ebc_c384_wdt_device);
++	if (err)
++		goto err_platform_device;
++
++	err = platform_driver_probe(&ebc_c384_wdt_driver, ebc_c384_wdt_probe);
++	if (err)
++		goto err_platform_driver;
++
++	return 0;
++
++err_platform_driver:
++	platform_device_del(ebc_c384_wdt_device);
++err_platform_device:
++	platform_device_put(ebc_c384_wdt_device);
++	return err;
++}
++
++static void __exit ebc_c384_wdt_exit(void)
++{
++	platform_device_unregister(ebc_c384_wdt_device);
++	platform_driver_unregister(&ebc_c384_wdt_driver);
++}
++
++module_init(ebc_c384_wdt_init);
++module_exit(ebc_c384_wdt_exit);
++
++MODULE_AUTHOR("William Breathitt Gray <vilhelm.gray@gmail.com>");
++MODULE_DESCRIPTION("WinSystems EBC-C384 watchdog timer driver");
++MODULE_LICENSE("GPL v2");
++MODULE_ALIAS("platform:" MODULE_NAME);
 -- 
-1.8.5.6
+2.4.10
