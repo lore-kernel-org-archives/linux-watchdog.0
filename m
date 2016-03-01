@@ -1,27 +1,27 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:33941 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:34509 "EHLO
 	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750800AbcCACzb (ORCPT
+	with ESMTP id S1750849AbcCAC4U (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 29 Feb 2016 21:55:31 -0500
-Subject: Re: [PATCH 3/3] hpwdt: Use nmi_panic() when kernel panics in NMI
- handler
+	Mon, 29 Feb 2016 21:56:20 -0500
+Subject: Re: [PATCH 2/3] ipmi/watchdog: Use nmi_panic() when kernel panics in
+ NMI handler
 To: Hidehiro Kawai <hidehiro.kawai.ez@hitachi.com>,
 	Andrew Morton <akpm@linux-foundation.org>,
 	Thomas Mingarelli <thomas.mingarelli@hpe.com>,
 	Wim Van Sebroeck <wim@iguana.be>,
 	Corey Minyard <minyard@acm.org>
 References: <20160301015035.4318.78677.stgit@softrs>
- <20160301015041.4318.93922.stgit@softrs>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+ <20160301015039.4318.58063.stgit@softrs>
+Cc: openipmi-developer@lists.sourceforge.net,
 	Michal Hocko <mhocko@kernel.org>,
-	Borislav Petkov <bp@alien8.de>,
-	openipmi-developer@lists.sourceforge.net
+	Borislav Petkov <bp@alien8.de>, linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org
 From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <56D5049C.50207@roeck-us.net>
-Date: Mon, 29 Feb 2016 18:55:24 -0800
+Message-ID: <56D504D2.3070701@roeck-us.net>
+Date: Mon, 29 Feb 2016 18:56:18 -0800
 MIME-Version: 1.0
-In-Reply-To: <20160301015041.4318.93922.stgit@softrs>
+In-Reply-To: <20160301015039.4318.58063.stgit@softrs>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -33,67 +33,37 @@ On 02/29/2016 05:50 PM, Hidehiro Kawai wrote:
 > concurrent/recursive execution of panic().  It also saves registers
 > for the crash dump on x86.
 >
-> hpwdt driver can call panic() from NMI handler, so replace it with
-> nmi_panic().
+> ipmi_watchdog driver can call panic() from NMI handler, so replace
+> it with nmi_panic().
 >
 > Signed-off-by: Hidehiro Kawai <hidehiro.kawai.ez@hitachi.com>
-> Cc: Thomas Mingarelli <thomas.mingarelli@hpe.com>
-> Cc: Wim Van Sebroeck <wim@iguana.be>
-> Cc: Guenter Roeck <linux@roeck-us.net>
-> Cc: linux-watchdog@vger.kernel.org
+> Cc: Corey Minyard <minyard@acm.org>
+> Cc: openipmi-developer@lists.sourceforge.net
+
+Acked-by: Guenter Roeck <linux@roeck-us.net>
+
 > ---
->   drivers/watchdog/hpwdt.c |   12 ++++++++++--
->   1 file changed, 10 insertions(+), 2 deletions(-)
+>   drivers/char/ipmi/ipmi_watchdog.c |    2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
 >
-> diff --git a/drivers/watchdog/hpwdt.c b/drivers/watchdog/hpwdt.c
-> index 92443c3..fd0486f 100644
-> --- a/drivers/watchdog/hpwdt.c
-> +++ b/drivers/watchdog/hpwdt.c
-> @@ -496,11 +496,12 @@ static int hpwdt_pretimeout(unsigned int ulReason, struct pt_regs *regs)
->
->   	if (!is_icru && !is_uefi) {
->   		if (cmn_regs.u1.ral == 0) {
-> -			panic("An NMI occurred, "
-> +			nmi_panic(regs, "An NMI occurred, "
->   				"but unable to determine source.\n");
-
-This message should really be in a single line.
-Sure, strictly speaking that should be done in a separate patch,
-but since you touch the line you might as well fix it.
-
-> +			goto handled;
-
-The goto is unnecessary. Just return NMI_HANDLED.
-
->   		}
+> diff --git a/drivers/char/ipmi/ipmi_watchdog.c b/drivers/char/ipmi/ipmi_watchdog.c
+> index 096f0ce..4facc75 100644
+> --- a/drivers/char/ipmi/ipmi_watchdog.c
+> +++ b/drivers/char/ipmi/ipmi_watchdog.c
+> @@ -1140,7 +1140,7 @@ ipmi_nmi(unsigned int val, struct pt_regs *regs)
+>   		   the timer.   So do so. */
+>   		pretimeout_since_last_heartbeat = 1;
+>   		if (atomic_inc_and_test(&preop_panic_excl))
+> -			panic(PFX "pre-timeout");
+> +			nmi_panic(regs, PFX "pre-timeout");
 >   	}
-> -	panic("An NMI occurred. Depending on your system the reason "
-> +	nmi_panic(regs, "An NMI occurred. Depending on your system the reason "
->   		"for the NMI is logged in any one of the following "
->   		"resources:\n"
->   		"1. Integrated Management Log (IML)\n"
-> @@ -508,6 +509,13 @@ static int hpwdt_pretimeout(unsigned int ulReason, struct pt_regs *regs)
->   		"3. OA Forward Progress Log\n"
->   		"4. iLO Event Log");
 >
-> +handled:
-> +	/*
-> +	 * Returning from nmi_panic() means this CPU was processing panic()
-> +	 * before NMI.  Return NMI_HANDLED and go back to panic routines.
-> +	 */
-
-I don't think this comment adds much if any value.
-
-> +	return NMI_HANDLED;
-> +
->   out:
-
-Any goto to this label does no longer serve a useful purpose (if it ever served one),
-and should be replaced with "return NMI_DONE;"
-
->   	return NMI_DONE;
->   }
+>   	return NMI_HANDLED;
 >
 >
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 >
 
