@@ -1,69 +1,75 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:34509 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750849AbcCAC4U (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 29 Feb 2016 21:56:20 -0500
-Subject: Re: [PATCH 2/3] ipmi/watchdog: Use nmi_panic() when kernel panics in
- NMI handler
-To: Hidehiro Kawai <hidehiro.kawai.ez@hitachi.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Thomas Mingarelli <thomas.mingarelli@hpe.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Corey Minyard <minyard@acm.org>
+Return-path: <hidehiro.kawai.ez@hitachi.com>
+From: =?utf-8?B?5rKz5ZCI6Iux5a6PIC8gS0FXQUnvvIxISURFSElSTw==?=
+	<hidehiro.kawai.ez@hitachi.com>
+To: "'Guenter Roeck'" <linux@roeck-us.net>,
+        Andrew Morton
+	<akpm@linux-foundation.org>,
+        Thomas Mingarelli <thomas.mingarelli@hpe.com>,
+        Wim Van Sebroeck <wim@iguana.be>, Corey Minyard <minyard@acm.org>
+CC: "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Michal Hocko
+	<mhocko@kernel.org>, Borislav Petkov <bp@alien8.de>,
+        "openipmi-developer@lists.sourceforge.net"
+	<openipmi-developer@lists.sourceforge.net>
+Subject: RE: [PATCH 3/3] hpwdt: Use nmi_panic() when kernel panics in NMI
+ handler
+Date: Tue, 1 Mar 2016 03:54:37 +0000
+Message-ID: <04EAB7311EE43145B2D3536183D1A84454B062D9@GSjpTKYDCembx31.service.hitachi.net>
 References: <20160301015035.4318.78677.stgit@softrs>
- <20160301015039.4318.58063.stgit@softrs>
-Cc: openipmi-developer@lists.sourceforge.net,
-	Michal Hocko <mhocko@kernel.org>,
-	Borislav Petkov <bp@alien8.de>, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <56D504D2.3070701@roeck-us.net>
-Date: Mon, 29 Feb 2016 18:56:18 -0800
+ <20160301015041.4318.93922.stgit@softrs> <56D5049C.50207@roeck-us.net>
+In-Reply-To: <56D5049C.50207@roeck-us.net>
+Content-Language: ja-JP
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-In-Reply-To: <20160301015039.4318.58063.stgit@softrs>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 02/29/2016 05:50 PM, Hidehiro Kawai wrote:
-> commit 58c5661f2144 ("panic, x86: Allow CPUs to save registers even
-> if looping in NMI context") introduced nmi_panic() which prevents
-> concurrent/recursive execution of panic().  It also saves registers
-> for the crash dump on x86.
->
-> ipmi_watchdog driver can call panic() from NMI handler, so replace
-> it with nmi_panic().
->
-> Signed-off-by: Hidehiro Kawai <hidehiro.kawai.ez@hitachi.com>
-> Cc: Corey Minyard <minyard@acm.org>
-> Cc: openipmi-developer@lists.sourceforge.net
-
-Acked-by: Guenter Roeck <linux@roeck-us.net>
-
-> ---
->   drivers/char/ipmi/ipmi_watchdog.c |    2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/char/ipmi/ipmi_watchdog.c b/drivers/char/ipmi/ipmi_watchdog.c
-> index 096f0ce..4facc75 100644
-> --- a/drivers/char/ipmi/ipmi_watchdog.c
-> +++ b/drivers/char/ipmi/ipmi_watchdog.c
-> @@ -1140,7 +1140,7 @@ ipmi_nmi(unsigned int val, struct pt_regs *regs)
->   		   the timer.   So do so. */
->   		pretimeout_since_last_heartbeat = 1;
->   		if (atomic_inc_and_test(&preop_panic_excl))
-> -			panic(PFX "pre-timeout");
-> +			nmi_panic(regs, PFX "pre-timeout");
->   	}
->
->   	return NMI_HANDLED;
->
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
-
+SGkgR3VlbnRlciwNCg0KVGhhbmtzIGZvciB0aGUgcmV2aWV3Lg0KDQo+IE9uIDAyLzI5LzIwMTYg
+MDU6NTAgUE0sIEhpZGVoaXJvIEthd2FpIHdyb3RlOg0KPiA+IGNvbW1pdCA1OGM1NjYxZjIxNDQg
+KCJwYW5pYywgeDg2OiBBbGxvdyBDUFVzIHRvIHNhdmUgcmVnaXN0ZXJzIGV2ZW4NCj4gPiBpZiBs
+b29waW5nIGluIE5NSSBjb250ZXh0IikgaW50cm9kdWNlZCBubWlfcGFuaWMoKSB3aGljaCBwcmV2
+ZW50cw0KPiA+IGNvbmN1cnJlbnQvcmVjdXJzaXZlIGV4ZWN1dGlvbiBvZiBwYW5pYygpLiAgSXQg
+YWxzbyBzYXZlcyByZWdpc3RlcnMNCj4gPiBmb3IgdGhlIGNyYXNoIGR1bXAgb24geDg2Lg0KPiA+
+DQo+ID4gaHB3ZHQgZHJpdmVyIGNhbiBjYWxsIHBhbmljKCkgZnJvbSBOTUkgaGFuZGxlciwgc28g
+cmVwbGFjZSBpdCB3aXRoDQo+ID4gbm1pX3BhbmljKCkuDQo+ID4NCj4gPiBTaWduZWQtb2ZmLWJ5
+OiBIaWRlaGlybyBLYXdhaSA8aGlkZWhpcm8ua2F3YWkuZXpAaGl0YWNoaS5jb20+DQo+ID4gQ2M6
+IFRob21hcyBNaW5nYXJlbGxpIDx0aG9tYXMubWluZ2FyZWxsaUBocGUuY29tPg0KPiA+IENjOiBX
+aW0gVmFuIFNlYnJvZWNrIDx3aW1AaWd1YW5hLmJlPg0KPiA+IENjOiBHdWVudGVyIFJvZWNrIDxs
+aW51eEByb2Vjay11cy5uZXQ+DQo+ID4gQ2M6IGxpbnV4LXdhdGNoZG9nQHZnZXIua2VybmVsLm9y
+Zw0KPiA+IC0tLQ0KPiA+ICAgZHJpdmVycy93YXRjaGRvZy9ocHdkdC5jIHwgICAxMiArKysrKysr
+KysrLS0NCj4gPiAgIDEgZmlsZSBjaGFuZ2VkLCAxMCBpbnNlcnRpb25zKCspLCAyIGRlbGV0aW9u
+cygtKQ0KPiA+DQo+ID4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvd2F0Y2hkb2cvaHB3ZHQuYyBiL2Ry
+aXZlcnMvd2F0Y2hkb2cvaHB3ZHQuYw0KPiA+IGluZGV4IDkyNDQzYzMuLmZkMDQ4NmYgMTAwNjQ0
+DQo+ID4gLS0tIGEvZHJpdmVycy93YXRjaGRvZy9ocHdkdC5jDQo+ID4gKysrIGIvZHJpdmVycy93
+YXRjaGRvZy9ocHdkdC5jDQo+ID4gQEAgLTQ5NiwxMSArNDk2LDEyIEBAIHN0YXRpYyBpbnQgaHB3
+ZHRfcHJldGltZW91dCh1bnNpZ25lZCBpbnQgdWxSZWFzb24sIHN0cnVjdCBwdF9yZWdzICpyZWdz
+KQ0KPiA+DQo+ID4gICAJaWYgKCFpc19pY3J1ICYmICFpc191ZWZpKSB7DQo+ID4gICAJCWlmIChj
+bW5fcmVncy51MS5yYWwgPT0gMCkgew0KPiA+IC0JCQlwYW5pYygiQW4gTk1JIG9jY3VycmVkLCAi
+DQo+ID4gKwkJCW5taV9wYW5pYyhyZWdzLCAiQW4gTk1JIG9jY3VycmVkLCAiDQo+ID4gICAJCQkJ
+ImJ1dCB1bmFibGUgdG8gZGV0ZXJtaW5lIHNvdXJjZS5cbiIpOw0KPiANCj4gVGhpcyBtZXNzYWdl
+IHNob3VsZCByZWFsbHkgYmUgaW4gYSBzaW5nbGUgbGluZS4NCj4gU3VyZSwgc3RyaWN0bHkgc3Bl
+YWtpbmcgdGhhdCBzaG91bGQgYmUgZG9uZSBpbiBhIHNlcGFyYXRlIHBhdGNoLA0KPiBidXQgc2lu
+Y2UgeW91IHRvdWNoIHRoZSBsaW5lIHlvdSBtaWdodCBhcyB3ZWxsIGZpeCBpdC4NCg0KT0ssIEkn
+bGwgY29tYmluZSB0aGVtLg0KDQo+ID4gKwkJCWdvdG8gaGFuZGxlZDsNCj4gDQo+IFRoZSBnb3Rv
+IGlzIHVubmVjZXNzYXJ5LiBKdXN0IHJldHVybiBOTUlfSEFORExFRC4NCg0KU3VyZSwgSSdsbCBk
+byB0aGF0Lg0KDQo+IA0KPiA+ICAgCQl9DQo+ID4gICAJfQ0KPiA+IC0JcGFuaWMoIkFuIE5NSSBv
+Y2N1cnJlZC4gRGVwZW5kaW5nIG9uIHlvdXIgc3lzdGVtIHRoZSByZWFzb24gIg0KPiA+ICsJbm1p
+X3BhbmljKHJlZ3MsICJBbiBOTUkgb2NjdXJyZWQuIERlcGVuZGluZyBvbiB5b3VyIHN5c3RlbSB0
+aGUgcmVhc29uICINCj4gPiAgIAkJImZvciB0aGUgTk1JIGlzIGxvZ2dlZCBpbiBhbnkgb25lIG9m
+IHRoZSBmb2xsb3dpbmcgIg0KPiA+ICAgCQkicmVzb3VyY2VzOlxuIg0KPiA+ICAgCQkiMS4gSW50
+ZWdyYXRlZCBNYW5hZ2VtZW50IExvZyAoSU1MKVxuIg0KPiA+IEBAIC01MDgsNiArNTA5LDEzIEBA
+IHN0YXRpYyBpbnQgaHB3ZHRfcHJldGltZW91dCh1bnNpZ25lZCBpbnQgdWxSZWFzb24sIHN0cnVj
+dCBwdF9yZWdzICpyZWdzKQ0KPiA+ICAgCQkiMy4gT0EgRm9yd2FyZCBQcm9ncmVzcyBMb2dcbiIN
+Cj4gPiAgIAkJIjQuIGlMTyBFdmVudCBMb2ciKTsNCj4gPg0KPiA+ICtoYW5kbGVkOg0KPiA+ICsJ
+LyoNCj4gPiArCSAqIFJldHVybmluZyBmcm9tIG5taV9wYW5pYygpIG1lYW5zIHRoaXMgQ1BVIHdh
+cyBwcm9jZXNzaW5nIHBhbmljKCkNCj4gPiArCSAqIGJlZm9yZSBOTUkuICBSZXR1cm4gTk1JX0hB
+TkRMRUQgYW5kIGdvIGJhY2sgdG8gcGFuaWMgcm91dGluZXMuDQo+ID4gKwkgKi8NCj4gDQo+IEkg
+ZG9uJ3QgdGhpbmsgdGhpcyBjb21tZW50IGFkZHMgbXVjaCBpZiBhbnkgdmFsdWUuDQoNClNvLCBJ
+IHJlbW92ZSB0aGlzIGNvbW1lbnQuICBOTUlfSEFORExFRCB3b3VsZCBiZSBzZWxmLWV4cGxhbmF0
+b3J5Lg0KDQo+ID4gKwlyZXR1cm4gTk1JX0hBTkRMRUQ7DQo+ID4gKw0KPiA+ICAgb3V0Og0KPiAN
+Cj4gQW55IGdvdG8gdG8gdGhpcyBsYWJlbCBkb2VzIG5vIGxvbmdlciBzZXJ2ZSBhIHVzZWZ1bCBw
+dXJwb3NlIChpZiBpdCBldmVyIHNlcnZlZCBvbmUpLA0KPiBhbmQgc2hvdWxkIGJlIHJlcGxhY2Vk
+IHdpdGggInJldHVybiBOTUlfRE9ORTsiDQoNCkknbGwgZml4IGl0LiAgSXQgd2lsbCBiZWNvbWUg
+YSBiaXQgc2ltcGxlci4NCg0KVGhhbmtzLA0KDQotLQ0KSGlkZWhpcm8gS2F3YWkNCkhpdGFjaGks
+IEx0ZC4gUmVzZWFyY2ggJiBEZXZlbG9wbWVudCBHcm91cA0KDQoNCg0K
