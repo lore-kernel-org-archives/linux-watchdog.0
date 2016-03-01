@@ -1,54 +1,41 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from smtp.codeaurora.org ([198.145.29.96]:53445 "EHLO
-	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754385AbcC1WWg convert rfc822-to-8bit (ORCPT
+Received: from spo001.leaseweb.nl ([83.149.101.17]:41386 "EHLO
+	spo001.leaseweb.nl" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1753884AbcCAPeq (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 28 Mar 2016 18:22:36 -0400
-Subject: Re: [PATCH 09/17] watchdog: qcom: add kpss-standalone to device tree binding
-Mime-Version: 1.0 (Mac OS X Mail 9.2 \(3112\))
-Content-Type: text/plain; charset=utf-8
-From: Matthew McClintock <mmcclint@codeaurora.org>
-In-Reply-To: <20160328181544.GB29820@roeck-us.net>
-Date: Mon, 28 Mar 2016 17:22:33 -0500
-Cc: Rob Herring <robh@kernel.org>, andy.gross@linaro.org,
-	linux-arm-msm@vger.kernel.org,
-	qca-upstream.external@qca.qualcomm.com,
-	linux-watchdog@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	"open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS"
-	<devicetree@vger.kernel.org>,
-	open list <linux-kernel@vger.kernel.org>
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Message-Id: <5E6274D4-B437-4ABD-B5A7-CCB38F282309@codeaurora.org>
-References: <1458770712-10880-1-git-send-email-mmcclint@codeaurora.org> <1458770712-10880-10-git-send-email-mmcclint@codeaurora.org> <20160325141521.GA12357@rob-hp-laptop> <0F389D09-1165-4686-98DF-0265351A086A@codeaurora.org> <20160328181544.GB29820@roeck-us.net>
-To: Guenter Roeck <linux@roeck-us.net>
+	Tue, 1 Mar 2016 10:34:46 -0500
+Date: Tue, 1 Mar 2016 16:34:37 +0100
+From: Wim Van Sebroeck <wim@iguana.be>
+To: David Miller <davem@davemloft.net>
+Cc: wim.coekaerts@oracle.com, linux@roeck-us.net,
+	linux-watchdog@vger.kernel.org, sparclinux@vger.kernel.org
+Subject: Re: [PATCH v7] Add sun4v_wdt watchdog driver
+Message-ID: <20160301153436.GA27836@spo001.leaseweb.nl>
+References: <1454089178-29836-1-git-send-email-wim.coekaerts@oracle.com> <20160131.110645.985983227353861690.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20160131.110645.985983227353861690.davem@davemloft.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mar 28, 2016, at 1:15 PM, Guenter Roeck <linux@roeck-us.net> wrote:
->=20
->>> What SoC(s) is this in. Use SoC specific compatible strings please.
->>=20
->> So ipq4019 wins the race because we are the first to try to enable w=
-atchdog for this block?
->>=20
->> qcom,kpss-ipq4019 ?
->>=20
-> It is a dedicated watchdog block, isn't it ? "qcom,kpss-ipq4019" woul=
-d not
-> refer to a specific block. Devicetree maintainers may have a better i=
-dea,
-> but it seems to me that there should be 'wdt' or 'watchdog' in the pr=
-operty
-> name.
+> From: Wim Coekaerts <wim.coekaerts@oracle.com>
+> Date: Fri, 29 Jan 2016 09:39:38 -0800
+> 
+> > This driver adds sparc hypervisor watchdog support. The default
+> > timeout is 60 seconds and the range is between 1 and
+> > 31536000 seconds. Both watchdog-resolution and
+> > watchdog-max-timeout MD properties settings are supported.
+> > 
+> > Signed-off-by: Wim Coekaerts <wim.coekaerts@oracle.com>
+> 
+> Applied, thanks.
 
-Sounds fine to me, if no one has any other comments I=E2=80=99ll use th=
-is one in the next spin of the patch.
+This also has my signed-off-by as watchdog maintainer.
 
--M--
-To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
-g" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
+
+I presume you will take this via the SUN architecture tree?
+
+Kind regards,
+Wim.
