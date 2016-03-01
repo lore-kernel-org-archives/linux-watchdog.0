@@ -1,64 +1,69 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:35596 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750773AbcCAFMr (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 1 Mar 2016 00:12:47 -0500
-Subject: Re: [PATCH 2/3] ipmi/watchdog: Use nmi_panic() when kernel panics in
- NMI handler
-To: =?UTF-8?B?5rKz5ZCI6Iux5a6PIC8gS0FXQUnvvIxISURFSElSTw==?=
-	<hidehiro.kawai.ez@hitachi.com>,
-	"'minyard@acm.org'" <minyard@acm.org>,
-	Andrew Morton <akpm@linux-foundation.org>,
+Received: from mail.skyhub.de ([78.46.96.112]:35611 "EHLO mail.skyhub.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750827AbcCAHZ7 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 1 Mar 2016 02:25:59 -0500
+Date: Tue, 1 Mar 2016 08:24:56 +0100
+From: Borislav Petkov <bp@alien8.de>
+To: Hidehiro Kawai <hidehiro.kawai.ez@hitachi.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
 	Thomas Mingarelli <thomas.mingarelli@hpe.com>,
-	Wim Van Sebroeck <wim@iguana.be>
+	Wim Van Sebroeck <wim@iguana.be>,
+	Corey Minyard <minyard@acm.org>,
+	Michal Hocko <mhocko@suse.com>, linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org, Michal Hocko <mhocko@kernel.org>,
+	Vitaly Kuznetsov <vkuznets@redhat.com>,
+	HATAYAMA Daisuke <d.hatayama@jp.fujitsu.com>,
+	Tejun Heo <tj@kernel.org>,
+	openipmi-developer@lists.sourceforge.net,
+	Borislav Petkov <bp@suse.de>,
+	Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [PATCH 1/3] panic: Export panic_cpu and nmi_panic_self_stop
+Message-ID: <20160301072456.GA2997@nazgul.tnic>
 References: <20160301015035.4318.78677.stgit@softrs>
- <20160301015039.4318.58063.stgit@softrs> <56D4FEAE.7080909@acm.org>
- <04EAB7311EE43145B2D3536183D1A84454B06310@GSjpTKYDCembx31.service.hitachi.net>
-Cc: "openipmi-developer@lists.sourceforge.net"
-	<openipmi-developer@lists.sourceforge.net>,
-	Michal Hocko <mhocko@kernel.org>,
-	Borislav Petkov <bp@alien8.de>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <56D524CC.40903@roeck-us.net>
-Date: Mon, 29 Feb 2016 21:12:44 -0800
+ <20160301015037.4318.33155.stgit@softrs>
 MIME-Version: 1.0
-In-Reply-To: <04EAB7311EE43145B2D3536183D1A84454B06310@GSjpTKYDCembx31.service.hitachi.net>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20160301015037.4318.33155.stgit@softrs>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 02/29/2016 08:23 PM, 河合英宏 / KAWAI，HIDEHIRO wrote:
-> Hi Corey,
->
-> Thanks for the review.
->
->> Sure, this is a good idea.
->>
->> Acked-by: Corey Minyard <cminyard@mvista.com>
->>
->> Note that nmi_panic() came in commit 1717f2096b5 (panic, x86: Fix
->> re-entrance problem due to panic on NMI) and then the regs field
->> was added in the commit you reference.
->
-> Yes. So, I'll change the description to more proper one.
->
->> Do you want me to add this to the IPMI queue or do you have another
->> way to get this patch into the kernel?
->
-> I don't have another way, and I don't know how cross-subsystem
-> patch set should be handled.
->
-> I think it would be better this patch set is managed by one person
-> because both PATCH 2/3 and 3/3 depend on 1/3.
->
+On Tue, Mar 01, 2016 at 10:50:37AM +0900, Hidehiro Kawai wrote:
+> Export panic_cpu and nmi_panic_self_stop symbols for modules which
+> use nmi_panic() macro.
+> 
+> Signed-off-by: Hidehiro Kawai <hidehiro.kawai.ez@hitachi.com>
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Cc: Borislav Petkov <bp@suse.de>
+> Cc: Thomas Gleixner <tglx@linutronix.de>
+> Cc: Michal Hocko <mhocko@suse.com>
+> Cc: HATAYAMA Daisuke <d.hatayama@jp.fujitsu.com>
+> Cc: Vitaly Kuznetsov <vkuznets@redhat.com>
+> Cc: Tejun Heo <tj@kernel.org>
+> ---
+>  kernel/panic.c |    2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> diff --git a/kernel/panic.c b/kernel/panic.c
+> index d96469d..f4e8035 100644
+> --- a/kernel/panic.c
+> +++ b/kernel/panic.c
+> @@ -69,8 +69,10 @@ void __weak nmi_panic_self_stop(struct pt_regs *regs)
+>  {
+>  	panic_smp_self_stop();
+>  }
+> +EXPORT_SYMBOL(nmi_panic_self_stop);
+>  
+>  atomic_t panic_cpu = ATOMIC_INIT(PANIC_CPU_INVALID);
+> +EXPORT_SYMBOL(panic_cpu);
 
-We'll need an Ack from someone with authority over kernel/panic.c.
-If someone sends an Ack, the series can go through IPMI (or watchdog).
-It might be easier though if Andrew would take the entire series.
+Can we make nmi_panic() at least a proper function and export that
+instead of exporting all those implementation details...?
 
-Guenter
+-- 
+Regards/Gruss,
+    Boris.
 
+ECO tip #101: Trim your mails when you reply.
+--
