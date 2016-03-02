@@ -1,30 +1,24 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:53123 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751665AbcCBQQe (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 2 Mar 2016 11:16:34 -0500
+Return-path: <javier@osg.samsung.com>
 Subject: Re: [RFC PATCH] watchdog: s3c2410_wdt: Add max and min timeout values
 To: Krzysztof Kozlowski <k.kozlowski@samsung.com>,
-	Javier Martinez Canillas <javier@osg.samsung.com>,
-	linux-kernel@vger.kernel.org
+ linux-kernel@vger.kernel.org
 References: <1456850717-3670-1-git-send-email-javier@osg.samsung.com>
  <56D62979.5040009@samsung.com>
-Cc: Kukjin Kim <kgene@kernel.org>, Wim Van Sebroeck <wim@iguana.be>,
-	linux-samsung-soc@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-watchdog@vger.kernel.org
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <56D711DD.1040904@roeck-us.net>
-Date: Wed, 2 Mar 2016 08:16:29 -0800
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+Cc: Guenter Roeck <linux@roeck-us.net>, Kukjin Kim <kgene@kernel.org>,
+ Wim Van Sebroeck <wim@iguana.be>, linux-samsung-soc@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-watchdog@vger.kernel.org
+Message-ID: <56D7233B.50907@osg.samsung.com>
+Date: Wed, 2 Mar 2016 14:30:35 -0300
 MIME-Version: 1.0
 In-Reply-To: <56D62979.5040009@samsung.com>
 Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 03/01/2016 03:44 PM, Krzysztof Kozlowski wrote:
+Hello Krzysztof,
+
+On 03/01/2016 08:44 PM, Krzysztof Kozlowski wrote:
 > On 02.03.2016 01:45, Javier Martinez Canillas wrote:
 >> The watchdog maximum timeout value is determined by the number of bits
 >> for the interval timer counter, its source clock frequency, the number
@@ -61,6 +55,9 @@ On 03/01/2016 03:44 PM, Krzysztof Kozlowski wrote:
 >
 > It looks correct at least for Exynos4210 and newer.
 >
+
+Great, thanks a lot for the confirmation.
+
 >>
 >> Best regards,
 >> Javier
@@ -120,25 +117,24 @@ On 03/01/2016 03:44 PM, Krzysztof Kozlowski wrote:
 > appear again.
 >
 
-If that happens, we are probably in deep trouble. If the clock frequency changes,
-the watchdog timeout most likely changes as well. This means the watchdog may
-and likely will time out unexpectedly, or it won't time out when it is expected
-to time out.
+That's a very good question. As Guenter said we will be in deep troubles
+if that ever happens since the driver doesn't take that into account.
 
-Guenter
+The .set_timeout handler just sets the counter according to the current
+frequency and that's never updated, unless a new timeout is set of course.
 
+So in other words, I just made the same assumptions that the driver is
+currently doing. At least the Exynos SoCs manual don't mention frequency
+scaling for the watchdog timer source clock and AFAICT none of the CLK_WDT
+parents scale their frequencies but I don't know if that's true for all
+the machines using this driver (i.e: out-of-tree boards).
+  
 > Best regards,
 > Krzysztof
 >
->> +
->>   	ret = s3c2410wdt_cpufreq_register(wdt);
->>   	if (ret < 0) {
->>   		dev_err(dev, "failed to register cpufreq\n");
->>
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
 
+Best regards,
+-- 
+Javier Martinez Canillas
+Open Source Group
+Samsung Research America
