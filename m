@@ -1,53 +1,42 @@
-Return-path: <bp@alien8.de>
-Date: Wed, 2 Mar 2016 14:22:51 +0100
-From: Borislav Petkov <bp@alien8.de>
-To: Michal Hocko <mhocko@kernel.org>
-Cc: Hidehiro Kawai <hidehiro.kawai.ez@hitachi.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Thomas Mingarelli <thomas.mingarelli@hpe.com>,
-	Wim Van Sebroeck <wim@iguana.be>, Corey Minyard <minyard@acm.org>,
-	Javi Merino <javi.merino@arm.com>, linux-watchdog@vger.kernel.org,
-	"Steven Rostedt (Red Hat)" <rostedt@goodmis.org>,
-	Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-	linux-kernel@vger.kernel.org, Michal Nazarewicz <mina86@mina86.com>,
-	Vitaly Kuznetsov <vkuznets@redhat.com>,
-	HATAYAMA Daisuke <d.hatayama@jp.fujitsu.com>,
-	Gobinda Charan Maji <gobinda.cemk07@gmail.com>,
-	Tejun Heo <tj@kernel.org>,
-	Nicolas Iooss <nicolas.iooss_linux@m4x.org>,
-	openipmi-developer@lists.sourceforge.net,
-	Borislav Petkov <bp@suse.de>, Thomas Gleixner <tglx@linutronix.de>,
-	Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [v2 PATCH 1/3] panic: Change nmi_panic from macro to function
-Message-ID: <20160302132251.GH16954@pd.tnic>
-References: <20160302103624.5058.35844.stgit@softrs>
- <20160302103626.5058.74361.stgit@softrs>
- <20160302131824.GH26686@dhcp22.suse.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20160302131824.GH26686@dhcp22.suse.cz>
+Return-path: <wsa@the-dreams.de>
+From: Wolfram Sang <wsa@the-dreams.de>
+To: linux-kernel@vger.kernel.org
+Cc: linux-renesas-soc@vger.kernel.org,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Guenter Roeck <linux@roeck-us.net>,
+	linux-watchdog@vger.kernel.org
+Subject: [PATCH 6/6] watchdog: tangox_wdt: test clock rate to avoid division by 0
+Date: Wed,  2 Mar 2016 23:33:37 +0100
+Message-Id: <1456958018-7849-7-git-send-email-wsa@the-dreams.de>
+In-Reply-To: <1456958018-7849-1-git-send-email-wsa@the-dreams.de>
+References: <1456958018-7849-1-git-send-email-wsa@the-dreams.de>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On Wed, Mar 02, 2016 at 02:18:24PM +0100, Michal Hocko wrote:
-> On Wed 02-03-16 19:36:26, Hidehiro Kawai wrote:
-> [...]
-> > +void nmi_panic(struct pt_regs *regs, const char *fmt, ...)
-> 
-> Do we really need vargs? All the current users seem to be OK with a
-> simple string. This makes the code slightly more complicated without any
-> apparent reason.
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-I was just wondering the exactly same thing...
+The clk API may return 0 on clk_get_rate, so we should check the result before
+using it as a divisor.
 
-The contra-arg would be that in case someone wants to do nmi_panic()
-with more than a string, then it won't work.
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
 
-The question is, does nmi_panic() even need to dump something more than
-regs and a string?
+Should go individually via subsystem tree.
 
+ drivers/watchdog/tangox_wdt.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/watchdog/tangox_wdt.c b/drivers/watchdog/tangox_wdt.c
+index 709c1ed6fd79b9..cc702718ae4dbb 100644
+--- a/drivers/watchdog/tangox_wdt.c
++++ b/drivers/watchdog/tangox_wdt.c
+@@ -139,6 +139,8 @@ static int tangox_wdt_probe(struct platform_device *pdev)
+ 		return err;
+ 
+ 	dev->clk_rate = clk_get_rate(dev->clk);
++	if (!dev->clk_rate)
++		return -EINVAL;
+ 
+ 	dev->wdt.parent = &pdev->dev;
+ 	dev->wdt.info = &tangox_wdt_info;
 -- 
-Regards/Gruss,
-    Boris.
-
-ECO tip #101: Trim your mails when you reply.
+2.7.0
