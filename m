@@ -1,98 +1,78 @@
-Return-path: <romain.izard@mobile-devices.fr>
-MIME-Version: 1.0
-Sender: romain.izard@mobile-devices.fr
-In-Reply-To: <56D988F0.8050803@roeck-us.net>
-References: <1457000979-15717-1-git-send-email-romain.izard.pro@gmail.com>
- <56D8E649.8030500@atmel.com> <56D91BDC.1030604@roeck-us.net>
- <CAGkQfmN9wDkrc=frsSdBYYtMPf4VaTpcmYjX6_wARs=a78-bPQ@mail.gmail.com> <56D988F0.8050803@roeck-us.net>
-From: Romain Izard <romain.izard.pro@gmail.com>
-Date: Fri, 4 Mar 2016 14:26:55 +0100
-Message-ID: <CAGkQfmOLVwpckKP+axdi1501ghqq_UAmCygJv_tfa=bCOLvCzA@mail.gmail.com>
-Subject: Re: [PATCH v1] watchdog: sama5d4_wdt: Reset delay on start
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: "Yang, Wenyou" <wenyou.yang@atmel.com>, LKML <linux-kernel@vger.kernel.org>,
-	linux-watchdog@vger.kernel.org,
-	linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, Wim Van Sebroeck <wim@iguana.be>,
-	Nicolas Ferre <nicolas.ferre@atmel.com>
-Content-Type: text/plain; charset=UTF-8
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-oi0-f67.google.com ([209.85.218.67]:34788 "EHLO
+	mail-oi0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758385AbcCCVUq (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 3 Mar 2016 16:20:46 -0500
+Received: by mail-oi0-f67.google.com with SMTP id m82so1940199oif.1
+        for <linux-watchdog@vger.kernel.org>; Thu, 03 Mar 2016 13:20:46 -0800 (PST)
+From: Sylvain Lemieux <slemieux.tyco@gmail.com>
+To: linux-arm-kernel@lists.infradead.org, arnd@arndb.de,
+	linux@roeck-us.net, manabian@gmail.com
+Cc: linux-watchdog@vger.kernel.org, wim@iguana.be, stigge@antcom.de,
+	vz@mleia.com
+Subject: [PATCH v6 4/6] watchdog: pnx4008: restart: support "cmd" from userspace
+Date: Thu,  3 Mar 2016 16:20:23 -0500
+Message-Id: <1457040025-1108-5-git-send-email-slemieux.tyco@gmail.com>
+In-Reply-To: <1457040025-1108-1-git-send-email-slemieux.tyco@gmail.com>
+References: <1457040025-1108-1-git-send-email-slemieux.tyco@gmail.com>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-2016-03-04 14:09 GMT+01:00 Guenter Roeck <linux@roeck-us.net>:
-> On 03/04/2016 01:06 AM, Romain Izard wrote:
->> 2016-03-04 6:23 GMT+01:00 Guenter Roeck <linux@roeck-us.net>:
->>> On 03/03/2016 05:35 PM, Yang, Wenyou wrote:
->>>> On 2016/3/3 18:29, Romain Izard wrote:
->>>>>
->>>>> If the internal counter is not refreshed when the watchdog is
->>>>> started for the first time, the watchdog will trigger very
->>>>> rapidly.  For example, opening /dev/watchdog without writing in it
->>>>> will immediately trigger a reboot, instead of waiting for the
->>>>> delay to expire.
->>>>>
->>>>> To avoid this problem, reload the timer on opening the watchdog
->>>>> device.
->>>>>
->>>>> Command: "while sleep 5; do echo 1; done > /dev/watchdog" Before:
->>>>> system reset After: the watchdog runs correctly
->>>>
->>>>
->>>> I didn't reproduce your issue on my side,
->>>>
->>>> run the your commands as follows, it works fine,  the system reset
->>>> doesn't happen.
->>
->>
->> I've just verified with the factory image provided on the SAMA5D2
->> Xplained board. It does not display this behaviour.
->>
->> But the difference is that in the case without the issue, I'm using
->> the AT91bootstrap SPL, U-Boot, and the kernel from the QSPI chip.
->> When I have the issue, I have a U-Boot based SPL, U-Boot itself and
->> the kernel that come from the FAT partition of an SD-Card.
->>
->> Userspace does not seem to be involved in the issue, as I can
->> reproduce it both with my buildroot environment, and the Yocto
->> environment from the factory image.
->>
->>> Different chip revision ? Different chip type ? Different chip
->>> initialization by ROMMON ?
->>>
->>> Can we get exact chip revisions and types for both cases (working
->>> and not working), and (if it might be relevant) a dump of all
->>> associated chip registers ?
->>
->>
->>
->>>> I also check the WDT_MR register before and after enabling
->>>> watchdog, the WDV and WDD fields are correct.
->>>>
->>>> Can you check it again? thank you.
->>
->>
->> Working case:
->> MR on kernel startup:   0x3fffafff
->> MR after watchdog init: 0x0fffafff
->> MR after start:         0x0fff2fff
->>
->> Problem case:
->> MR on kernel startup:   0x00008000
->> MR after watchdog init: 0x0fffafff
->> MR after start:         0x0fff2fff
->>
->> So this means that the counter reload does not seem to work very well
->> if WDD/WDV have been set to 0 in the past. The other question is why
->> does U-Boot (from the Atmel branch based on 2015.1) put this stange
->> value in this register.
->>
->
-> Can you check the value of AT91_WDT_SR ? Maybe it tells us something.
->
-I didn't report it because it contained 0 at all times. So no information.
+From: Sylvain Lemieux <slemieux@tycoint.com>
 
-> Also, in the error case, can you check if the watchdog times out at all
-> after you applied your patch ?
+Added support to verify if a "cmd" is passed from the userspace program rebooting the system;
+- if a valid "cmd" is available, handle it;
+- If the received "cmd" is not supported, use the default reboot mode.
 
-It times out after 16s as expected, and reboot occurs correctly.
+Signed-off-by: Sylvain Lemieux <slemieux@tycoint.com>
+---
+Changes from v5 to v6:
+- remove typecast.
 
+Changes from v4 to v5:
+- no logical change; updated to work with new revision of patch #2.
+
+Changes from v3 to v4:
+- none.
+
+Changes from v2 to v3:
+- no logical change; updated to work with new revision of patch #2.
+
+Changes from v1 to v2:
+- Rename patch title;
+  was "arm: lpc32xx: restart: support "cmd" from userspace"
+- Add change to "pnx-4008" driver instead of "mach-lpc32xx".
+
+ drivers/watchdog/pnx4008_wdt.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
+
+diff --git a/drivers/watchdog/pnx4008_wdt.c b/drivers/watchdog/pnx4008_wdt.c
+index 51be66e..4162135 100644
+--- a/drivers/watchdog/pnx4008_wdt.c
++++ b/drivers/watchdog/pnx4008_wdt.c
+@@ -129,6 +129,21 @@ static int pnx4008_wdt_set_timeout(struct watchdog_device *wdd,
+ static int pnx4008_restart_handler(struct watchdog_device *wdd,
+ 				   unsigned long mode, void *cmd)
+ {
++	const char *boot_cmd = (const char *)cmd;
++
++	/*
++	 * Verify if a "cmd" passed from the userspace program rebooting
++	 * the system; if available, handle it.
++	 * - For details, see the 'reboot' syscall in kernel/reboot.c
++	 * - If the received "cmd" is not supported, use the default mode.
++	 */
++	if (boot_cmd) {
++		if (boot_cmd[0] == 'h')
++			mode = REBOOT_HARD;
++		else if (boot_cmd[0] == 's')
++			mode = REBOOT_SOFT;
++	}
++
+ 	if (mode == REBOOT_SOFT) {
+ 		/* Force match output active */
+ 		writel(EXT_MATCH0, WDTIM_EMR(wdt_base));
 -- 
-Romain Izard
+1.8.3.1
+
