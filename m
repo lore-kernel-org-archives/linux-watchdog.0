@@ -1,85 +1,93 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:46882 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750879AbcCDFcH (ORCPT
+Received: from mail-ig0-f195.google.com ([209.85.213.195]:34857 "EHLO
+	mail-ig0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758336AbcCCVUi (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 4 Mar 2016 00:32:07 -0500
-Subject: Re: [RFC PATCH] watchdog: s3c2410_wdt: Add max and min timeout values
-To: Krzysztof Kozlowski <k.kozlowski@samsung.com>,
-	Javier Martinez Canillas <javier@osg.samsung.com>
-References: <1456850717-3670-1-git-send-email-javier@osg.samsung.com>
- <56D62979.5040009@samsung.com> <56D7233B.50907@osg.samsung.com>
- <56D7838D.4060602@samsung.com> <56D79E1D.3030302@osg.samsung.com>
- <56D7C2A5.1050304@roeck-us.net> <56D82643.1090105@osg.samsung.com>
- <CAJKOXPe2GAkMGgZJR3FCRONMgb3AcrySczuzm_BehekrMnEbrw@mail.gmail.com>
-Cc: linux-kernel@vger.kernel.org, Kukjin Kim <kgene@kernel.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	linux-samsung-soc@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-watchdog@vger.kernel.org,
-	Chanwoo Choi <cw00.choi@samsung.com>,
-	Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <56D91DD3.9010604@roeck-us.net>
-Date: Thu, 3 Mar 2016 21:32:03 -0800
-MIME-Version: 1.0
-In-Reply-To: <CAJKOXPe2GAkMGgZJR3FCRONMgb3AcrySczuzm_BehekrMnEbrw@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 3 Mar 2016 16:20:38 -0500
+Received: by mail-ig0-f195.google.com with SMTP id ww10so537347igb.2
+        for <linux-watchdog@vger.kernel.org>; Thu, 03 Mar 2016 13:20:38 -0800 (PST)
+From: Sylvain Lemieux <slemieux.tyco@gmail.com>
+To: linux-arm-kernel@lists.infradead.org, arnd@arndb.de,
+	linux@roeck-us.net, manabian@gmail.com
+Cc: linux-watchdog@vger.kernel.org, wim@iguana.be, stigge@antcom.de,
+	vz@mleia.com
+Subject: [PATCH v6 0/6] watchdog: pnx4008: add restart handler
+Date: Thu,  3 Mar 2016 16:20:19 -0500
+Message-Id: <1457040025-1108-1-git-send-email-slemieux.tyco@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 03/03/2016 04:26 AM, Krzysztof Kozlowski wrote:
-> 2016-03-03 20:55 GMT+09:00 Javier Martinez Canillas <javier@osg.samsung.com>:
->> Hello Guenter,
->>
->>
->> On 03/03/2016 01:50 AM, Guenter Roeck wrote:
->>> A watchdog driver using a non-static clock must register a clock change
->>> notifier
->>> to handle the clock rate change and update its settings accordingly.
->>>
->>> I would also argue that the maximum timeout should be set to the minimum
->>> possible value (probably associated with the highest possible frequency).
->>> All other cases might end up causing trouble if a clock frequency
->>> chance results in an enforced timeout change, since there is currently
->>> no mechanism to inform user space about such a change.
->>>
->>> Example: maximum possible timeout changes from 1 minute to 30 seconds.
->>> The timeout was set to 1 minute, and has to be reduced to 30 seconds.
->>> Very likely result is that the watchdog will reset the system because
->>> user space still believes that the timeout is 60 seconds and doesn't
->>> ping the watchdog often enough to prevent it.
->>>
->>
->> Agreed.
->>
->> In any case this discussion is not related to this patch since currently
->> in mainline the watchdog source clock is fixed and does not change.
->>
->> So, $SUBJECT solves the issue of not having the fixed .{min,max}_timeout
->> defined to allow the watchdog_timeout_invalid() function to check values
->> set by WDIOC_SETTIMEOUT and avoid calling the .set_timeout callback.
->>
->> If later someone tries to scale a parent clock used by many drivers, then
->> the submitter should make sure that no regressions are added by the patch.
->
-> Sounds good. For this patch then:
-> Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+From: Sylvain Lemieux <slemieux@tycoint.com>
 
-Agreed.
+The LPC32xx provide the capability to perform a soft or hard reset;
+a soft reset will no reset the external peripheral
+(i.e. RESOUT_N output not asserted).
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+This changeset migrate the restart code from the "mach-lpc32xx" to
+the "pnx-4008" watchdog driver and add the soft reset capability.
 
-Thanks,
-Guenter
+The default behavior (i.e. hard reset) remain unchanged.
 
->
-> Best regards,
-> Krzysztof
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
+This patchset have a dependency on the following patch:
+watchdog: Add 'action' and 'data' parameters to restart handler callback
+http://permalink.gmane.org/gmane.linux.watchdog/3364/
+
+Note:
+Patch #5 was generated with the option "--unified=2" to ensure
+it can be apply before or after the changes for the new 
+LPC32xx irqchip driver:
+- http://permalink.gmane.org/gmane.linux.drivers.devicetree/144683
+---
+Changes from v5 to v6:
+* Update the patch as per the feedback received from:
+  Guenter: http://permalink.gmane.org/gmane.linux.watchdog/3420
+  - remove typecast.
+
+Changes from v4 to v5:
+* Rebased on the following patch:
+  http://permalink.gmane.org/gmane.linux.watchdog/3364/
+
+Changes from v3 to v4:
+* Update the patch as per the feedback received from:
+  Arnd: http://permalink.gmane.org/gmane.linux.watchdog/3329
+  - Switch patch #5 and #6 order.
+
+Changes from v2 to v3:
+* Update the patch as per the feedback received from:
+  Joachim: http://permalink.gmane.org/gmane.linux.watchdog/3303
+  - remove explicit clock enable from restart handler.
+  - verify "register_restart_handler" return value.
+  - add call to unregister_restart_handler".
+  - do the restart handling directly in "pnx4008_restart_handler".
+* Move the change to "phy3250.c" into a separate patch and generate
+  the new patch with the "--unified=2" option.
+
+Changes from v1 to v2:
+* Rename patch title;
+  was "arm: lpc32xx: restart: add support for soft reset"
+* Update the patch as per the feedback received from:
+  Joachim: http://permalink.gmane.org/gmane.linux.ports.arm.kernel/479791
+  - migrate restart code from "mach-lpc32xx" to "pnx-4008" driver.
+* Add soft reset support to "pnx-4008" driver instead of "mach-lpc32xx".
+* Use define available in "pnx-4008" when writting to watchdog register.
+* Remove restart handler from "mach-lpc32xx".
+* Remove restart hook from "phy3250.c".
+* Update driver logging during power-on. 
+
+Sylvain Lemieux (6):
+  watchdog: pnx4008: update logging during power-on
+  watchdog: pnx4008: add restart handler
+  watchdog: pnx4008: add support for soft reset
+  watchdog: pnx4008: restart: support "cmd" from userspace
+  arm: lpc32xx: phy3250 remove restart hook
+  arm: lpc32xx: remove restart handler
+
+ arch/arm/mach-lpc32xx/common.c  | 15 ---------------
+ arch/arm/mach-lpc32xx/common.h  |  1 -
+ arch/arm/mach-lpc32xx/phy3250.c |  1 -
+ drivers/watchdog/pnx4008_wdt.c  | 42 +++++++++++++++++++++++++++++++++++++++--
+ 4 files changed, 40 insertions(+), 19 deletions(-)
+
+-- 
+1.8.3.1
 
