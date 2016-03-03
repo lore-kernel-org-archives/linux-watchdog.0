@@ -1,74 +1,74 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from vms173011pub.verizon.net ([206.46.173.11]:37419 "EHLO
-	vms173011pub.verizon.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751208AbcCADaO (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 29 Feb 2016 22:30:14 -0500
-Reply-to: minyard@acm.org
-Subject: Re: [PATCH 2/3] ipmi/watchdog: Use nmi_panic() when kernel panics in
- NMI handler
-References: <20160301015035.4318.78677.stgit@softrs>
- <20160301015039.4318.58063.stgit@softrs>
-To: Hidehiro Kawai <hidehiro.kawai.ez@hitachi.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
+Received: from mail.skyhub.de ([78.46.96.112]:54048 "EHLO mail.skyhub.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751082AbcCCNPG (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 3 Mar 2016 08:15:06 -0500
+Date: Thu, 3 Mar 2016 14:14:58 +0100
+From: Borislav Petkov <bp@alien8.de>
+To: Hidehiro Kawai <hidehiro.kawai.ez@hitachi.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
 	Thomas Mingarelli <thomas.mingarelli@hpe.com>,
-	Wim Van Sebroeck <wim@iguana.be>
-Cc: openipmi-developer@lists.sourceforge.net,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Corey Minyard <minyard@acm.org>,
+	Javi Merino <javi.merino@arm.com>,
+	Michal Hocko <mhocko@suse.com>, linux-watchdog@vger.kernel.org,
+	"Steven Rostedt (Red Hat)" <rostedt@goodmis.org>,
+	Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+	linux-kernel@vger.kernel.org,
+	Michal Nazarewicz <mina86@mina86.com>,
 	Michal Hocko <mhocko@kernel.org>,
-	Borislav Petkov <bp@alien8.de>, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-From: Corey Minyard <minyard@acm.org>
-Message-id: <56D4FEAE.7080909@acm.org>
-Date: Mon, 29 Feb 2016 20:30:06 -0600
-MIME-version: 1.0
-In-reply-to: <20160301015039.4318.58063.stgit@softrs>
-Content-type: text/plain; charset=utf-8; format=flowed
-Content-transfer-encoding: 7bit
+	Vitaly Kuznetsov <vkuznets@redhat.com>,
+	HATAYAMA Daisuke <d.hatayama@jp.fujitsu.com>,
+	Gobinda Charan Maji <gobinda.cemk07@gmail.com>,
+	Tejun Heo <tj@kernel.org>,
+	Nicolas Iooss <nicolas.iooss_linux@m4x.org>,
+	openipmi-developer@lists.sourceforge.net,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [v3 PATCH 1/3] panic: Change nmi_panic from macro to function
+Message-ID: <20160303131458.GD24621@pd.tnic>
+References: <20160303105741.4587.49047.stgit@softrs>
+ <20160303105744.4587.1001.stgit@softrs>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20160303105744.4587.1001.stgit@softrs>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Sure, this is a good idea.
+On Thu, Mar 03, 2016 at 07:57:44PM +0900, Hidehiro Kawai wrote:
+> Change nmi_panic() macro to a normal function for the portability.
 
-Acked-by: Corey Minyard <cminyard@mvista.com>
+portability?
 
-Note that nmi_panic() came in commit 1717f2096b5 (panic, x86: Fix
-re-entrance problem due to panic on NMI) and then the regs field
-was added in the commit you reference.
-
-Do you want me to add this to the IPMI queue or do you have another
-way to get this patch into the kernel?
-
--corey
-
-On 02/29/2016 07:50 PM, Hidehiro Kawai wrote:
-> commit 58c5661f2144 ("panic, x86: Allow CPUs to save registers even
-> if looping in NMI context") introduced nmi_panic() which prevents
-> concurrent/recursive execution of panic().  It also saves registers
-> for the crash dump on x86.
->
-> ipmi_watchdog driver can call panic() from NMI handler, so replace
-> it with nmi_panic().
->
+> Also, export it for modules.
+> 
+> Changes since v2:
+> - Make nmi_panic receive a single string instead of printf style args
+> 
 > Signed-off-by: Hidehiro Kawai <hidehiro.kawai.ez@hitachi.com>
-> Cc: Corey Minyard <minyard@acm.org>
-> Cc: openipmi-developer@lists.sourceforge.net
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Cc: Borislav Petkov <bp@suse.de>
+> Cc: Michal Nazarewicz <mina86@mina86.com>
+> Cc: Michal Hocko <mhocko@suse.com>
+> Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+> Cc: Nicolas Iooss <nicolas.iooss_linux@m4x.org>
+> Cc: Javi Merino <javi.merino@arm.com>
+> Cc: Gobinda Charan Maji <gobinda.cemk07@gmail.com>
+> Cc: "Steven Rostedt (Red Hat)" <rostedt@goodmis.org>
+> Cc: Thomas Gleixner <tglx@linutronix.de>
+> Cc: Vitaly Kuznetsov <vkuznets@redhat.com>
+> Cc: HATAYAMA Daisuke <d.hatayama@jp.fujitsu.com>
+> Cc: Tejun Heo <tj@kernel.org>
 > ---
->   drivers/char/ipmi/ipmi_watchdog.c |    2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/char/ipmi/ipmi_watchdog.c b/drivers/char/ipmi/ipmi_watchdog.c
-> index 096f0ce..4facc75 100644
-> --- a/drivers/char/ipmi/ipmi_watchdog.c
-> +++ b/drivers/char/ipmi/ipmi_watchdog.c
-> @@ -1140,7 +1140,7 @@ ipmi_nmi(unsigned int val, struct pt_regs *regs)
->   		   the timer.   So do so. */
->   		pretimeout_since_last_heartbeat = 1;
->   		if (atomic_inc_and_test(&preop_panic_excl))
-> -			panic(PFX "pre-timeout");
-> +			nmi_panic(regs, PFX "pre-timeout");
->   	}
->   
->   	return NMI_HANDLED;
->
->
+>  include/linux/kernel.h |   21 +--------------------
+>  kernel/panic.c         |   20 ++++++++++++++++++++
+>  2 files changed, 21 insertions(+), 20 deletions(-)
 
+Acked-by: Borislav Petkov <bp@suse.de>
+
+-- 
+Regards/Gruss,
+    Boris.
+
+ECO tip #101: Trim your mails when you reply.
