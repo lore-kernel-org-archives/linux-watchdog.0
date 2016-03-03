@@ -1,63 +1,60 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:44645 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752044AbcCCUt4 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 3 Mar 2016 15:49:56 -0500
-Date: Thu, 3 Mar 2016 21:48:29 +0100
-From: Wolfram Sang <wsa@the-dreams.de>
-To: richard.dorsch@gmail.com
-Cc: linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org,
-	linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	linux-gpio@vger.kernel.org, lee.jones@linaro.org,
-	jdelvare@suse.com, linux@roeck-us.net, wim@iguana.be,
-	jo.sunga@advantech.com
-Subject: Re: [PATCH v3 4/6] Add Advantech iManager I2C driver
-Message-ID: <20160303204829.GD1711@katana>
-References: <1452468675-5827-1-git-send-email-richard.dorsch@gmail.com>
- <1452468675-5827-5-git-send-email-richard.dorsch@gmail.com>
+Return-path: <romain.izard@mobile-devices.fr>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="eqp4TxRxnD4KrmFZ"
-Content-Disposition: inline
-In-Reply-To: <1452468675-5827-5-git-send-email-richard.dorsch@gmail.com>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Sender: romain.izard@mobile-devices.fr
+In-Reply-To: <56D829A7.1020201@roeck-us.net>
+References: <1457000979-15717-1-git-send-email-romain.izard.pro@gmail.com> <56D829A7.1020201@roeck-us.net>
+From: Romain Izard <romain.izard.pro@gmail.com>
+Date: Thu, 3 Mar 2016 13:53:47 +0100
+Message-ID: <CAGkQfmMFAJ7dQ-BMXNFdgW8ZvGhJ87h+gh3RHPecgFm9WjKoMQ@mail.gmail.com>
+Subject: Re: [PATCH v1] watchdog: sama5d4_wdt: Reset delay on start
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: LKML <linux-kernel@vger.kernel.org>, linux-watchdog@vger.kernel.org,
+	linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, Wim Van Sebroeck <wim@iguana.be>,
+	Wenyou Yang <wenyou.yang@atmel.com>, Nicolas Ferre <nicolas.ferre@atmel.com>
+Content-Type: text/plain; charset=UTF-8
+List-ID: <linux-watchdog@vger.kernel.org>
 
+Hi Guenter,
 
---eqp4TxRxnD4KrmFZ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+2016-03-03 13:10 GMT+01:00 Guenter Roeck <linux@roeck-us.net>:
+> On 03/03/2016 02:29 AM, Romain Izard wrote:
+>>
+>> If the internal counter is not refreshed when the watchdog is started
+>> for the first time, the watchdog will trigger very rapidly. For
+>> example, opening /dev/watchdog without writing in it will immediately
+>> trigger a reboot, instead of waiting for the delay to expire.
+>>
+>> To avoid this problem, reload the timer on opening the watchdog
+>> device.
+>>
+>> Command: "while sleep 5; do echo 1; done > /dev/watchdog"
+>> Before: system reset
+>> After: the watchdog runs correctly
+>>
+>> Signed-off-by: Romain Izard <romain.izard.pro@gmail.com>
+>
+>
+> Subject might better read "ping watchdog on start" or similar.
+>
+OK. I'll change it for a v2.
 
-On Sun, Jan 10, 2016 at 03:31:13PM -0800, richard.dorsch@gmail.com wrote:
-> From: Richard Vidal-Dorsch <richard.dorsch@gmail.com>
->=20
-> Signed-off-by: Richard Vidal-Dorsch <richard.dorsch@gmail.com>
+> Does the watchdog have to be pinged before it is enabled ?  I am a bit
+> concerned that there may still be a 125 uS window during which the
+> system could restart.
+>
 
-Well, most of the comments for the other drivers regarding the style
-apply to this driver as well. I'll wait and see if the MFD core parts
-get improved before throughly reviewing this one.
+According to the SAMA5D2 & SAMA5D4 datasheets, the timer ought to be
+reloaded when the watchdog is enabled by a write in the MR register.
+Unfortunately, it does not work as described, as I encountered the
+problem on a SAMA5D2 Xplained board.
 
+The 4 clock delay is not in the datasheet either, but without any delay
+the timer is clearly not reloaded, as my issue stays the same. As there
+is a required delay before writing to MR after writing to CR, I applied
+the same type of delay in the reverse case.
 
---eqp4TxRxnD4KrmFZ
-Content-Type: application/pgp-signature; name="signature.asc"
+Perhaps Nicolas or Wenyou have more information on this.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJW2KMdAAoJEBQN5MwUoCm2xKUP/0uCMriwGwx67kUXIWd5AM7g
-8dMKT5b3zGEe36FyhtXGxmgEPwjDs9x0IDIi0WLInheMejYbQHGYL5bOpny4/LOv
-3H2l/R+M8hFIDkImNc3BHpXcTMFzV61AOkAWQNMzxEDCLXoVpPg9QQqLQKzEFATf
-gqgzS7T/G9LXI62qR3kLDGhkg++p+UUl+eibNAO3HP/bM4MqI3IPM+LqBqYvhuO+
-VES6Rh+I7v6ZLYGrLJH2ackYdjERsk01Jnz+BEkBkUd7pc1sPkxMwlQ6bg+k7dGm
-NgX1PfGDGmSAzjVtX6LRqNGgnf4iyeybkO7tC0NWJe/mLtLnWiQCC6JuSiXIRQzn
-X5Dv3ZXC82R6J8bTK+48cd3L/F8VVBPoe7Loa2wcGUMumGYZD722FlQC7zihXv9O
-VDEvEaH+KZBL9A2IiaZQDyhN2aCvd+OX/bOlMixZBNasPaBt0waz9Ddm9B+vSrt0
-Me1dTKimgV0Cbt6x/JrKqaxYiB7Rlp0KRLnsN+2TTY+FdvnlEy8KxflN1pbBu3+2
-VdvlAPCNQ21H+BjEezogTUd+ohq3aL/Bzdkj3XKyE0OPFhvqmaiqYf00R2E04F1s
-nWOWU/rF4pXLu/a3h+N16LY97pTPcop46O3aLip/fTmw0SiHiPtHJvESAyysvSq0
-KNe50tG8RYRw01hIM9z7
-=8XLJ
------END PGP SIGNATURE-----
-
---eqp4TxRxnD4KrmFZ--
+Best regards,
+-- 
+Romain Izard
