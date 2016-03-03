@@ -1,84 +1,61 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:54583 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752730AbcCCEws (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 2 Mar 2016 23:52:48 -0500
-Subject: Re: [PATCH v5 3/6] watchdog: pnx4008: add support for soft reset
-To: Sylvain Lemieux <slemieux.tyco@gmail.com>
-References: <1456767068-14449-1-git-send-email-slemieux.tyco@gmail.com>
- <1456767068-14449-4-git-send-email-slemieux.tyco@gmail.com>
- <56D51492.4000405@roeck-us.net> <1456848291.12069.7.camel@localhost>
-Cc: linux-arm-kernel@lists.infradead.org, arnd@arndb.de,
-	manabian@gmail.com, linux-watchdog@vger.kernel.org, wim@iguana.be,
-	stigge@antcom.de, vz@mleia.com
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <56D7C31D.1030606@roeck-us.net>
-Date: Wed, 2 Mar 2016 20:52:45 -0800
+Received: from sauhun.de ([89.238.76.85]:54711 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932284AbcCCIMu (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 3 Mar 2016 03:12:50 -0500
+Date: Thu, 3 Mar 2016 09:12:42 +0100
+From: Wolfram Sang <wsa@the-dreams.de>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
+	Wim Van Sebroeck <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH 6/6] watchdog: tangox_wdt: test clock rate to avoid
+ division by 0
+Message-ID: <20160303081242.GA1552@katana>
+References: <1456958018-7849-1-git-send-email-wsa@the-dreams.de>
+ <1456958018-7849-7-git-send-email-wsa@the-dreams.de>
+ <20160303042618.GB4578@roeck-us.net>
 MIME-Version: 1.0
-In-Reply-To: <1456848291.12069.7.camel@localhost>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="5vNYLRcllDrimb99"
+Content-Disposition: inline
+In-Reply-To: <20160303042618.GB4578@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 03/01/2016 08:04 AM, Sylvain Lemieux wrote:
-> On Mon, 2016-02-29 at 20:03 -0800, Guenter Roeck wrote:
->> On 02/29/2016 09:31 AM, Sylvain Lemieux wrote:
->>> From: Sylvain Lemieux <slemieux@tycoint.com>
->>>
->>> Add support for explicit soft reset using the reboot mode.
->>>
->>> The default reboot mode behavior is unchanged;
->>> you can overwrite the default reboot type in the board specific file
->>> "DT_MACHINE_START" definition using the "reboot_mode" parameter.
->>>
->>> Signed-off-by: Sylvain Lemieux <slemieux@tycoint.com>
->>> ---
->>> Changes from v4 to v5:
->>> - no logical change; updated to work with new revision of patch #2.
->>>
->>> Changes from v3 to v4:
->>> - none.
->>>
->>> Changes from v2 to v3:
->>> - no logical change; updated to work with new revision of patch #2.
->>>
->>> Changes from v1 to v2:
->>> - Rename patch title;
->>>     was "arm: lpc32xx: restart: add support for soft reset"
->>> - Add change to "pnx-4008" driver instead of "mach-lpc32xx".
->>> - Use define available in "pnx-4008" when writting to watchdog register.
->>>
->>>    drivers/watchdog/pnx4008_wdt.c | 13 ++++++++++---
->>>    1 file changed, 10 insertions(+), 3 deletions(-)
->>>
->>> diff --git a/drivers/watchdog/pnx4008_wdt.c b/drivers/watchdog/pnx4008_wdt.c
->>> index f3be522..e05bfecf 100644
->>> --- a/drivers/watchdog/pnx4008_wdt.c
->>> +++ b/drivers/watchdog/pnx4008_wdt.c
->>> @@ -129,9 +129,16 @@ static int pnx4008_wdt_set_timeout(struct watchdog_device *wdd,
->>>    static int pnx4008_restart_handler(struct watchdog_device *wdd,
->>>    				   unsigned long mode, void *cmd)
->>>    {
->>> -	/* Instant assert of RESETOUT_N with pulse length 1mS */
->>> -	writel(13000, WDTIM_PULSE(wdt_base));
->>> -	writel(M_RES2 | RESFRC1 | RESFRC2, WDTIM_MCTRL(wdt_base));
->>> +	if (mode == (unsigned long)REBOOT_SOFT) {
->>
->> Are those typecasts really necessary ?
->>
->> Guenter
->>
-> typecasts are optional; the compare occurred
-> between "unsigned long" & "enum reboot_mode" types.
->
-> Do you want me to remove them?
->
 
-If they are not needed, they should not be there. Cluttering the core
-with unnecessary typecasts only makes it harder to read.
+--5vNYLRcllDrimb99
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Thanks,
-Guenter
+> > +	if (!dev->clk_rate)
+> > +		return -EINVAL;
+>=20
+> May be a nitpick, but clk_disable_unprepare() is missing.
 
+Oh, definately not a nitpick in my book, will resend! Thanks!
+
+
+--5vNYLRcllDrimb99
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJW1/H6AAoJEBQN5MwUoCm2V8gP/AvRodpXFwxiQnHaq5yRzK3f
+w21tUDNQkh8QNXISkASyd8oH/LDuPXUNQDc4OWCiT+HHFAnwr2hDuSbDMW3JfzZX
+NFqwvjtHKcZPGF0nvjEMMIzlgff6t1sRPe9V20yPEYlb9WwWEBybwaXqg48r9CmC
+xk05SHNsDhudZRoEFSWcJjwNq+My8mA5GV8xU2soj33KUFylKQ8Q1GHKnKhrp+Z/
+1/CO4Ay/CjP43qqlG73pajK//Xlea01k82MMikajNn6j5//wYKFDtlBT6ZBdPNeQ
+F3Cb/VvImAWhCHJoBTpB4kyoDCCPj/LvHiBajUGysQFSF/2FqK3kn7EkehPmv6rn
+LtDGtkmRLgSMPWYO0wuyIOUxWgfGOv8GkpCBHY1spirkUPA6oi/kkyQy/e7mXBT6
+4YIhf4SXdSMs9yjX7D3IKWuroljdGULeE2huzTMBxzll2DSoYOOMxl9CwS0fEDg2
+tzMyvA5W8hPV51Zh9BLxKZyjvfl7Mrd+1zr6x+H3mLCfPCJUkDhWEexp/LOMJiCl
+j+Dz7ckc7KZr0NenbcMcphswd22hluqdLwWJbKjdPy9xWSdwkq6sOA+EVemZt7x1
+GnxL9UpdUOgTg7tcaL2y72tv191704/UAKrYgPl/6JpEGPGref04pvqKiFESGGL/
+T9dLBuDlwjx0W4XzwKh9
+=4Ipb
+-----END PGP SIGNATURE-----
+
+--5vNYLRcllDrimb99--
