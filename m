@@ -1,47 +1,137 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.136]:36826 "EHLO mail.kernel.org"
+Received: from lists.s-osg.org ([54.187.51.154]:33575 "EHLO lists.s-osg.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755495AbcCCVP6 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 3 Mar 2016 16:15:58 -0500
+	id S1757418AbcCCLz7 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 3 Mar 2016 06:55:59 -0500
+Subject: Re: [RFC PATCH] watchdog: s3c2410_wdt: Add max and min timeout values
+To: Guenter Roeck <linux@roeck-us.net>,
+	Krzysztof Kozlowski <k.kozlowski@samsung.com>,
+	linux-kernel@vger.kernel.org
+References: <1456850717-3670-1-git-send-email-javier@osg.samsung.com>
+ <56D62979.5040009@samsung.com> <56D7233B.50907@osg.samsung.com>
+ <56D7838D.4060602@samsung.com> <56D79E1D.3030302@osg.samsung.com>
+ <56D7C2A5.1050304@roeck-us.net>
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+Cc: Kukjin Kim <kgene@kernel.org>, Wim Van Sebroeck <wim@iguana.be>,
+	linux-samsung-soc@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org,
+	Chanwoo Choi <cw00.choi@samsung.com>
+Message-ID: <56D82643.1090105@osg.samsung.com>
+Date: Thu, 3 Mar 2016 08:55:47 -0300
 MIME-Version: 1.0
-In-Reply-To: <20160303210712.GA7692@rob-hp-laptop>
-References: <1456507177-5502-1-git-send-email-joshua.henderson@microchip.com> <20160303210712.GA7692@rob-hp-laptop>
-From: Rob Herring <robh@kernel.org>
-Date: Thu, 3 Mar 2016 15:15:35 -0600
-Message-ID: <CAL_JsqL7Ez9uXFU1+9pRmpmXihffHyXFHMccJ3Zj9oTy9jQLVQ@mail.gmail.com>
-Subject: Re: [PATCH v3 1/2] dt/bindings: Add bindings for PIC32 watchdog peripheral
-To: Joshua Henderson <joshua.henderson@microchip.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	Linux-MIPS <linux-mips@linux-mips.org>,
-	Ralf Baechle <ralf@linux-mips.org>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Guenter Roeck <linux@roeck-us.net>,
-	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-	linux-watchdog@vger.kernel.org
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <56D7C2A5.1050304@roeck-us.net>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Thu, Mar 3, 2016 at 3:07 PM, Rob Herring <robh@kernel.org> wrote:
-> On Fri, Feb 26, 2016 at 10:19:27AM -0700, Joshua Henderson wrote:
->> Document the devicetree bindings for the watchdog peripheral found on
->> Microchip PIC32 SoC class devices.
+Hello Guenter,
+
+On 03/03/2016 01:50 AM, Guenter Roeck wrote:
+> On 03/02/2016 06:14 PM, Javier Martinez Canillas wrote:
+>> Hello Krzysztof,
 >>
->> Signed-off-by: Joshua Henderson <joshua.henderson@microchip.com>
->> Cc: Ralf Baechle <ralf@linux-mips.org>
->> ---
->> Note: Please merge this patch series through the MIPS tree.
+>> On 03/02/2016 09:21 PM, Krzysztof Kozlowski wrote:
+>>> On 03.03.2016 02:30, Javier Martinez Canillas wrote:
+>>
+>> [snip]
+>>
+>>>>>>
+>>>>>> +    wdt->wdt_device.min_timeout = 1;
+>>>>>> +    wdt->wdt_device.max_timeout = s3c2410wdt_max_timeout(wdt->clock);
+>>>>>
+>>>>> Can the frequency of clock change? E.g. with devfreq? No problem if it
+>>>>> goes lower but if it gets higher than initial, then the problem will
+>>>>> appear again.
+>>>>>
+>>
+>> I think both cases are problematic since low scaling will meant that the
+>> watchdog will support a bigger timeout than what was set as maximum (this
+>> will be a regression) and going up will mean that the maximum timeout is
+>> bigger than what the watchdog supports (the same issue without this patch).
+>>
+>>>>
+>>>> That's a very good question. As Guenter said we will be in deep troubles
+>>>> if that ever happens since the driver doesn't take that into account.
+>>>>
+>>>> The .set_timeout handler just sets the counter according to the current
+>>>> frequency and that's never updated, unless a new timeout is set of course.
+>>>>
+>>>> So in other words, I just made the same assumptions that the driver is
+>>>> currently doing.
+>>>
+>>> Not entirely. Change of clock frequency will affect currently set
+>>> timeout. But the next timeout will be using new frequency.
+>>>
+>>> However you are setting the maximum timeout once. It will never change.
+>>
+>> Of course. I meant that the driver makes the assumption that the clock
+>> frequency never changes, no that the symptoms will be the same in both
+>> cases (maximum timeout vs current timeout).
+>>
+>>>
+>>>> At least the Exynos SoCs manual don't mention frequency
+>>>> scaling for the watchdog timer source clock and AFAICT none of the CLK_WDT
+>>>> parents scale their frequencies but I don't know if that's true for all
+>>>> the machines using this driver (i.e: out-of-tree boards).
+>>>
+>>> I looked at Exynos4 family because the devfreq was tested there. The WDT
+>>> clock goes from ACLK100 (or ACLK66 on different socs).
+>>>
+>>> 1. Existing devfreq for Exynos4 does not change ACLK100 frequency.
+>>> 2. New patches from Chanwoo (Cc) add scaling of ACLK100 also to 50 MHz:
+>>> http://lkml.iu.edu/hypermail/linux/kernel/1512.1/04828.html
+>>>
+>>
+>> Thanks for the pointer, I missed that patch from Chanwoo.
+>>
+>>> The problem will be more severe if the watchdog got configured on 50 MHz
+>>> and then devfreq bumps the clock to 100 MHz...
+>>>
+>>
+>> So, what do you propose? We could for example set a maximum timeout on probe
+>> as $SUBJECT do and also update the maximum timeout again on the .set_timeout
+>> callback in case the clock rate changed. I think that is kind of hacky but I
+>> can't think of another way to guard about the frequency being changed.
+>>
 >
-> Acked-by: Rob Herring <robh@kernel.org>
+> People will likely get random watchdog timeouts if the frequency increases.
+> Typical example for shot-yourself-into-the-foot.
+>
+> A watchdog driver using a non-static clock must register a clock change notifier
+> to handle the clock rate change and update its settings accordingly.
+>
+> I would also argue that the maximum timeout should be set to the minimum
+> possible value (probably associated with the highest possible frequency).
+> All other cases might end up causing trouble if a clock frequency
+> chance results in an enforced timeout change, since there is currently
+> no mechanism to inform user space about such a change.
+>
+> Example: maximum possible timeout changes from 1 minute to 30 seconds.
+> The timeout was set to 1 minute, and has to be reduced to 30 seconds.
+> Very likely result is that the watchdog will reset the system because
+> user space still believes that the timeout is 60 seconds and doesn't
+> ping the watchdog often enough to prevent it.
+>
 
-My mail to Joshua bounced, so I wouldn't merge until that is sorted:
+Agreed.
 
-<joshua.henderson@microchip.com>: host mx.microchip.com[198.175.253.14] said:
-    550 Mailbox unavailable or access denied - <joshua.henderson@microchip.com>
-    (in reply to RCPT TO command)
+In any case this discussion is not related to this patch since currently
+in mainline the watchdog source clock is fixed and does not change.
 
-Rob
+So, $SUBJECT solves the issue of not having the fixed .{min,max}_timeout
+defined to allow the watchdog_timeout_invalid() function to check values
+set by WDIOC_SETTIMEOUT and avoid calling the .set_timeout callback.
+
+If later someone tries to scale a parent clock used by many drivers, then
+the submitter should make sure that no regressions are added by the patch.
+
+> Guenter
+>
+
+Best regards,
+-- 
+Javier Martinez Canillas
+Open Source Group
+Samsung Research America
