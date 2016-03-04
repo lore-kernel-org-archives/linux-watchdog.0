@@ -1,96 +1,134 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-io0-f195.google.com ([209.85.223.195]:36072 "EHLO
-	mail-io0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751313AbcCDOwT (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 4 Mar 2016 09:52:19 -0500
-Received: by mail-io0-f195.google.com with SMTP id m184so5220253iof.3
-        for <linux-watchdog@vger.kernel.org>; Fri, 04 Mar 2016 06:52:19 -0800 (PST)
-Subject: Re: [PATCH v6 4/6] watchdog: pnx4008: restart: support "cmd" from
- userspace
-From: Sylvain Lemieux <slemieux.tyco@gmail.com>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-arm-kernel@lists.infradead.org, arnd@arndb.de,
-	manabian@gmail.com, linux-watchdog@vger.kernel.org, wim@iguana.be,
-	stigge@antcom.de, vz@mleia.com
-In-Reply-To: <56D98FD2.7040403@roeck-us.net>
-References: <1457040025-1108-1-git-send-email-slemieux.tyco@gmail.com>
-	 <1457040025-1108-5-git-send-email-slemieux.tyco@gmail.com>
-	 <56D98FD2.7040403@roeck-us.net>
-Content-Type: text/plain; charset="UTF-8"
-Date: Fri, 04 Mar 2016 09:52:15 -0500
-Message-ID: <1457103135.4541.0.camel@localhost>
+Return-path: <wimvs@spo001.leaseweb.nl>
+Date: Fri, 4 Mar 2016 20:35:21 +0100
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Rob Kramer <rob@solution-space.com>
+Cc: Guenter Roeck <linux@roeck-us.net>, linux-kernel@vger.kernel.org,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH v2] watchdog: w83627hf: Added NCT6102D support.
+Message-ID: <20160304193521.GA6900@spo001.leaseweb.nl>
+References: <56B40FCD.1010802@solution-space.com> <56B6290B.6010904@roeck-us.net> <20160208100949.GB17935@wrobbie.Home>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20160208100949.GB17935@wrobbie.Home>
+Sender: <wimvs@spo001.leaseweb.nl>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On Fri, 2016-03-04 at 05:38 -0800, Guenter Roeck wrote:
-> On 03/03/2016 01:20 PM, Sylvain Lemieux wrote:
-> > From: Sylvain Lemieux <slemieux@tycoint.com>
-> >
-> > Added support to verify if a "cmd" is passed from the userspace program rebooting the system;
-> > - if a valid "cmd" is available, handle it;
-> > - If the received "cmd" is not supported, use the default reboot mode.
-> >
-> > Signed-off-by: Sylvain Lemieux <slemieux@tycoint.com>
-> > ---
-> > Changes from v5 to v6:
-> > - remove typecast.
-> >
-> > Changes from v4 to v5:
-> > - no logical change; updated to work with new revision of patch #2.
-> >
-> > Changes from v3 to v4:
-> > - none.
-> >
-> > Changes from v2 to v3:
-> > - no logical change; updated to work with new revision of patch #2.
-> >
-> > Changes from v1 to v2:
-> > - Rename patch title;
-> >    was "arm: lpc32xx: restart: support "cmd" from userspace"
-> > - Add change to "pnx-4008" driver instead of "mach-lpc32xx".
-> >
-> >   drivers/watchdog/pnx4008_wdt.c | 15 +++++++++++++++
-> >   1 file changed, 15 insertions(+)
-> >
-> > diff --git a/drivers/watchdog/pnx4008_wdt.c b/drivers/watchdog/pnx4008_wdt.c
-> > index 51be66e..4162135 100644
-> > --- a/drivers/watchdog/pnx4008_wdt.c
-> > +++ b/drivers/watchdog/pnx4008_wdt.c
-> > @@ -129,6 +129,21 @@ static int pnx4008_wdt_set_timeout(struct watchdog_device *wdd,
-> >   static int pnx4008_restart_handler(struct watchdog_device *wdd,
-> >   				   unsigned long mode, void *cmd)
-> >   {
-> > +	const char *boot_cmd = (const char *)cmd;
+Hi Rob,
+
+> As used in (and tested on) the ASRock IMB-150 board. Implementation is
+> identical to other NCT chips, just with different registers.
 > 
-> This typecast is unnecessary.
+> Signed-off-by: Rob Kramer <rob@solution-space.com>
+> ---
+>  drivers/watchdog/Kconfig        |  1 +
+>  drivers/watchdog/w83627hf_wdt.c | 22 +++++++++++++++++++---
+>  2 files changed, 20 insertions(+), 3 deletions(-)
 > 
-> Guenter
-
-OK; will send a new revision later today.
-
-Sylvain
+> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> index 4f0e7be..318d8bc 100644
+> --- a/drivers/watchdog/Kconfig
+> +++ b/drivers/watchdog/Kconfig
+> @@ -1140,6 +1140,7 @@ config W83627HF_WDT
+>  		NCT6779
+>  		NCT6791
+>  		NCT6792
+> +		NCT6102D/04D/06D
+>  
+>  	  This watchdog simply watches your kernel to make sure it doesn't
+>  	  freeze, and if it does, it reboots your computer after a certain
+> diff --git a/drivers/watchdog/w83627hf_wdt.c b/drivers/watchdog/w83627hf_wdt.c
+> index cab14bc..09e8003 100644
+> --- a/drivers/watchdog/w83627hf_wdt.c
+> +++ b/drivers/watchdog/w83627hf_wdt.c
+> @@ -45,10 +45,11 @@
+>  static int wdt_io;
+>  static int cr_wdt_timeout;	/* WDT timeout register */
+>  static int cr_wdt_control;	/* WDT control register */
+> +static int cr_wdt_csr;		/* WDT control & status register */
+>  
+>  enum chips { w83627hf, w83627s, w83697hf, w83697ug, w83637hf, w83627thf,
+>  	     w83687thf, w83627ehf, w83627dhg, w83627uhg, w83667hg, w83627dhg_p,
+> -	     w83667hg_b, nct6775, nct6776, nct6779, nct6791, nct6792 };
+> +	     w83667hg_b, nct6775, nct6776, nct6779, nct6791, nct6792, nct6102 };
+>  
+>  static int timeout;			/* in seconds */
+>  module_param(timeout, int, 0);
+> @@ -92,15 +93,21 @@ MODULE_PARM_DESC(early_disable, "Disable watchdog at boot time (default=0)");
+>  #define W83667HG_B_ID		0xb3
+>  #define NCT6775_ID		0xb4
+>  #define NCT6776_ID		0xc3
+> +#define NCT6102_ID		0xc4
+>  #define NCT6779_ID		0xc5
+>  #define NCT6791_ID		0xc8
+>  #define NCT6792_ID		0xc9
+>  
+>  #define W83627HF_WDT_TIMEOUT	0xf6
+>  #define W83697HF_WDT_TIMEOUT	0xf4
+> +#define NCT6102D_WDT_TIMEOUT	0xf1
+>  
+>  #define W83627HF_WDT_CONTROL	0xf5
+>  #define W83697HF_WDT_CONTROL	0xf3
+> +#define NCT6102D_WDT_CONTROL	0xf0
+> +
+> +#define W836X7HF_WDT_CSR	0xf7
+> +#define NCT6102D_WDT_CSR	0xf2
+>  
+>  static void superio_outb(int reg, int val)
+>  {
+> @@ -197,6 +204,7 @@ static int w83627hf_init(struct watchdog_device *wdog, enum chips chip)
+>  	case nct6779:
+>  	case nct6791:
+>  	case nct6792:
+> +	case nct6102:
+>  		/*
+>  		 * These chips have a fixed WDTO# output pin (W83627UHG),
+>  		 * or support more than one WDTO# output pin.
+> @@ -229,8 +237,8 @@ static int w83627hf_init(struct watchdog_device *wdog, enum chips chip)
+>  	superio_outb(cr_wdt_control, t);
+>  
+>  	/* reset trigger, disable keyboard & mouse turning off watchdog */
+> -	t = superio_inb(0xF7) & ~0xD0;
+> -	superio_outb(0xF7, t);
+> +	t = superio_inb(cr_wdt_csr) & ~0xD0;
+> +	superio_outb(cr_wdt_csr, t);
+>  
+>  	superio_exit();
+>  
+> @@ -322,6 +330,7 @@ static int wdt_find(int addr)
+>  
+>  	cr_wdt_timeout = W83627HF_WDT_TIMEOUT;
+>  	cr_wdt_control = W83627HF_WDT_CONTROL;
+> +	cr_wdt_csr = W836X7HF_WDT_CSR;
+>  
+>  	ret = superio_enter();
+>  	if (ret)
+> @@ -387,6 +396,12 @@ static int wdt_find(int addr)
+>  	case NCT6792_ID:
+>  		ret = nct6792;
+>  		break;
+> +	case NCT6102_ID:
+> +		ret = nct6102;
+> +		cr_wdt_timeout = NCT6102D_WDT_TIMEOUT;
+> +		cr_wdt_control = NCT6102D_WDT_CONTROL;
+> +		cr_wdt_csr = NCT6102D_WDT_CSR;
+> +		break;
+>  	case 0xff:
+>  		ret = -ENODEV;
+>  		break;
+> @@ -422,6 +437,7 @@ static int __init wdt_init(void)
+>  		"NCT6779",
+>  		"NCT6791",
+>  		"NCT6792",
+> +		"NCT6102",
+>  	};
+>  
+>  	wdt_io = 0x2e;
+> -- 
+> 2.6.2
 > 
-> > +
-> > +	/*
-> > +	 * Verify if a "cmd" passed from the userspace program rebooting
-> > +	 * the system; if available, handle it.
-> > +	 * - For details, see the 'reboot' syscall in kernel/reboot.c
-> > +	 * - If the received "cmd" is not supported, use the default mode.
-> > +	 */
-> > +	if (boot_cmd) {
-> > +		if (boot_cmd[0] == 'h')
-> > +			mode = REBOOT_HARD;
-> > +		else if (boot_cmd[0] == 's')
-> > +			mode = REBOOT_SOFT;
-> > +	}
-> > +
-> >   	if (mode == REBOOT_SOFT) {
-> >   		/* Force match output active */
-> >   		writel(EXT_MATCH0, WDTIM_EMR(wdt_base));
-> >
-> 
 
+Patch has been added to linux-watchdog-next.
 
+Kind regards,
+Wim.
