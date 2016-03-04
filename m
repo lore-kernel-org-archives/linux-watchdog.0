@@ -1,122 +1,153 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.karo-electronics.de ([81.173.242.67]:62367 "EHLO
-	mail.karo-electronics.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759114AbcCDP6T convert rfc822-to-8bit (ORCPT
+Received: from mail-wm0-f68.google.com ([74.125.82.68]:36552 "EHLO
+	mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756801AbcCDRtF (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 4 Mar 2016 10:58:19 -0500
-Date: Fri, 4 Mar 2016 16:56:55 +0100
-From: Lothar =?UTF-8?B?V2HDn21hbm4=?= <LW@KARO-electronics.de>
-To: Romain Izard <romain.izard.pro@gmail.com>
-Cc: Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org,
-	Nicolas Ferre <nicolas.ferre@atmel.com>,
-	LKML <linux-kernel@vger.kernel.org>,
-	"Yang, Wenyou" <wenyou.yang@atmel.com>,
+	Fri, 4 Mar 2016 12:49:05 -0500
+Date: Fri, 4 Mar 2016 18:49:01 +0100
+From: Michal Hocko <mhocko@kernel.org>
+To: Hidehiro Kawai <hidehiro.kawai.ez@hitachi.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+	Thomas Mingarelli <thomas.mingarelli@hpe.com>,
 	Wim Van Sebroeck <wim@iguana.be>,
-	linux-arm-kernel <linux-arm-kernel@lists.infradead.org>
-Subject: Re: [PATCH v1] watchdog: sama5d4_wdt: Reset delay on start
-Message-ID: <20160304165655.6b4a65a6@ipc1.ka-ro>
-In-Reply-To: <CAGkQfmNpsOUE9PgnnNWYzodsfjzfw=e7UK+qMG9acKTEU8yufw@mail.gmail.com>
-References: <1457000979-15717-1-git-send-email-romain.izard.pro@gmail.com>
-	<56D8E649.8030500@atmel.com>
-	<56D91BDC.1030604@roeck-us.net>
-	<CAGkQfmN9wDkrc=frsSdBYYtMPf4VaTpcmYjX6_wARs=a78-bPQ@mail.gmail.com>
-	<56D988F0.8050803@roeck-us.net>
-	<CAGkQfmOLVwpckKP+axdi1501ghqq_UAmCygJv_tfa=bCOLvCzA@mail.gmail.com>
-	<56D99404.60305@roeck-us.net>
-	<20160304155952.2f433f3f@ipc1.ka-ro>
-	<CAGkQfmNpsOUE9PgnnNWYzodsfjzfw=e7UK+qMG9acKTEU8yufw@mail.gmail.com>
+	Corey Minyard <minyard@acm.org>,
+	Javi Merino <javi.merino@arm.com>,
+	linux-watchdog@vger.kernel.org,
+	"Steven Rostedt (Red Hat)" <rostedt@goodmis.org>,
+	Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+	linux-kernel@vger.kernel.org,
+	Michal Nazarewicz <mina86@mina86.com>,
+	Vitaly Kuznetsov <vkuznets@redhat.com>,
+	HATAYAMA Daisuke <d.hatayama@jp.fujitsu.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Gobinda Charan Maji <gobinda.cemk07@gmail.com>,
+	Tejun Heo <tj@kernel.org>,
+	Nicolas Iooss <nicolas.iooss_linux@m4x.org>,
+	openipmi-developer@lists.sourceforge.net,
+	Borislav Petkov <bp@suse.de>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [v3 PATCH 1/3] panic: Change nmi_panic from macro to function
+Message-ID: <20160304174900.GC24204@dhcp22.suse.cz>
+References: <20160303105741.4587.49047.stgit@softrs>
+ <20160303105744.4587.1001.stgit@softrs>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20160303105744.4587.1001.stgit@softrs>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi,
+On Thu 03-03-16 19:57:44, Hidehiro Kawai wrote:
+> Change nmi_panic() macro to a normal function for the portability.
+> Also, export it for modules.
 
-On Fri, 4 Mar 2016 16:26:59 +0100 Romain Izard wrote:
-> Hi Lothar,
->=20
-> 2016-03-04 15:59 GMT+01:00 Lothar Wa=C3=9Fmann <LW@karo-electronics.d=
-e>:
-> >> >>>>> I also check the WDT_MR register before and after enabling
-> >> >>>>> watchdog, the WDV and WDD fields are correct.
-> >> >>>>>
-> >> >>>>> Can you check it again? thank you.
-> >> >>>
-> >> >>>
-> >> >>> Working case:
-> >> >>> MR on kernel startup:   0x3fffafff
-> >> >>> MR after watchdog init: 0x0fffafff
-> >> >>> MR after start:         0x0fff2fff
-> >> >>>
-> >> >>> Problem case:
-> >> >>> MR on kernel startup:   0x00008000
-> >> >>> MR after watchdog init: 0x0fffafff
-> >> >>> MR after start:         0x0fff2fff
-> >> >>>
-> >> >>> So this means that the counter reload does not seem to work ve=
-ry well
-> >> >>> if WDD/WDV have been set to 0 in the past. The other question =
-is why
-> >> >>> does U-Boot (from the Atmel branch based on 2015.1) put this s=
-tange
-> >> >>> value in this register.
-> >> >>>
-> >> >>
-> >> >> Can you check the value of AT91_WDT_SR ? Maybe it tells us some=
-thing.
-> >> >>
-> >> > I didn't report it because it contained 0 at all times. So no in=
-formation.
-> >> >
-> >> >> Also, in the error case, can you check if the watchdog times ou=
-t at all
-> >> >> after you applied your patch ?
-> >> >
-> >> > It times out after 16s as expected, and reboot occurs correctly.
-> >> >
-> >>
-> >> Interesting. So it looks like AT91_WDT_WDRSTT has to be set if the=
- timer
-> >> values in MR are changed from 0 to another value, or maybe after e=
-ach
-> >> timer value change. Wonder if that should be done in the init func=
-tion,
-> >> after MR is set (with the watchdog disabled).
-> >>
-> >> Thoughts, anyone ?
-> >>
->=20
-> > Are you aware of the Notes in the SAMA5D4 Reference Manual (Chapter
-> > 19.5.2 Watchdog Timer Mode Register):
-> >
-> > |Note: The first write access prevents any further modification of
-> > |      the value of this register. Read accesses remain possible.
-> > |Note: The WDD and WDV values must not be modified within three slo=
-w
-> > |      clock periods following a restart of the watchdog performed =
-by
-> > |      a write access in WDT_CR. Any modification will cause the wa=
-tchdog
-> > |      to trigger an end of period earlier than expected.
->=20
-> This text is valid for older versions of the Watchdog controller, fou=
-nd
-> in AT91SAM9 and SAMA5D3 chips. But SAMA5D4 & SAMA5D2 have a newer
-> revision, which supports multiple writes to the MR register.
->=20
-> Are you sure about your datasheet? I have this in the latest version
-> found on Atmel's site.
->=20
-> > Atmel-11238B-ATARM-SAMA5D4-Datasheet_24-Aug-15
-> > Section 18.5.2
-> >
-OK, I obviously had an outdated Manual.
+I guess you wanted to say
+"
+Change nmi_panic() from macro to a normal function so that it can be
+exported to modules. At least ipmi and hpwdt watchdogs can be compiled
+as a module and need to panic from the NMI context.
+"
+> 
+> Changes since v2:
+> - Make nmi_panic receive a single string instead of printf style args
+> 
+> Signed-off-by: Hidehiro Kawai <hidehiro.kawai.ez@hitachi.com>
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Cc: Borislav Petkov <bp@suse.de>
+> Cc: Michal Nazarewicz <mina86@mina86.com>
+> Cc: Michal Hocko <mhocko@suse.com>
+> Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+> Cc: Nicolas Iooss <nicolas.iooss_linux@m4x.org>
+> Cc: Javi Merino <javi.merino@arm.com>
+> Cc: Gobinda Charan Maji <gobinda.cemk07@gmail.com>
+> Cc: "Steven Rostedt (Red Hat)" <rostedt@goodmis.org>
+> Cc: Thomas Gleixner <tglx@linutronix.de>
+> Cc: Vitaly Kuznetsov <vkuznets@redhat.com>
+> Cc: HATAYAMA Daisuke <d.hatayama@jp.fujitsu.com>
+> Cc: Tejun Heo <tj@kernel.org>
 
+For the change itself
+Acked-by: Michal Hocko <mhocko@suse.com>
 
-Lothar Wa=C3=9Fmann
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
-g" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> ---
+>  include/linux/kernel.h |   21 +--------------------
+>  kernel/panic.c         |   20 ++++++++++++++++++++
+>  2 files changed, 21 insertions(+), 20 deletions(-)
+> 
+> diff --git a/include/linux/kernel.h b/include/linux/kernel.h
+> index f31638c..cbe7d70 100644
+> --- a/include/linux/kernel.h
+> +++ b/include/linux/kernel.h
+> @@ -255,7 +255,7 @@ extern long (*panic_blink)(int state);
+>  __printf(1, 2)
+>  void panic(const char *fmt, ...)
+>  	__noreturn __cold;
+> -void nmi_panic_self_stop(struct pt_regs *);
+> +void nmi_panic(struct pt_regs *regs, const char *msg);
+>  extern void oops_enter(void);
+>  extern void oops_exit(void);
+>  void print_oops_end_marker(void);
+> @@ -455,25 +455,6 @@ extern atomic_t panic_cpu;
+>  #define PANIC_CPU_INVALID	-1
+>  
+>  /*
+> - * A variant of panic() called from NMI context. We return if we've already
+> - * panicked on this CPU. If another CPU already panicked, loop in
+> - * nmi_panic_self_stop() which can provide architecture dependent code such
+> - * as saving register state for crash dump.
+> - */
+> -#define nmi_panic(regs, fmt, ...)					\
+> -do {									\
+> -	int old_cpu, cpu;						\
+> -									\
+> -	cpu = raw_smp_processor_id();					\
+> -	old_cpu = atomic_cmpxchg(&panic_cpu, PANIC_CPU_INVALID, cpu);	\
+> -									\
+> -	if (old_cpu == PANIC_CPU_INVALID)				\
+> -		panic(fmt, ##__VA_ARGS__);				\
+> -	else if (old_cpu != cpu)					\
+> -		nmi_panic_self_stop(regs);				\
+> -} while (0)
+> -
+> -/*
+>   * Only to be used by arch init code. If the user over-wrote the default
+>   * CONFIG_PANIC_TIMEOUT, honor it.
+>   */
+> diff --git a/kernel/panic.c b/kernel/panic.c
+> index d96469d..8abfc30 100644
+> --- a/kernel/panic.c
+> +++ b/kernel/panic.c
+> @@ -72,6 +72,26 @@ void __weak nmi_panic_self_stop(struct pt_regs *regs)
+>  
+>  atomic_t panic_cpu = ATOMIC_INIT(PANIC_CPU_INVALID);
+>  
+> +/*
+> + * A variant of panic() called from NMI context. We return if we've already
+> + * panicked on this CPU. If another CPU already panicked, loop in
+> + * nmi_panic_self_stop() which can provide architecture dependent code such
+> + * as saving register state for crash dump.
+> + */
+> +void nmi_panic(struct pt_regs *regs, const char *msg)
+> +{
+> +	int old_cpu, cpu;
+> +
+> +	cpu = raw_smp_processor_id();
+> +	old_cpu = atomic_cmpxchg(&panic_cpu, PANIC_CPU_INVALID, cpu);
+> +
+> +	if (old_cpu == PANIC_CPU_INVALID)
+> +		panic("%s", msg);
+> +	else if (old_cpu != cpu)
+> +		nmi_panic_self_stop(regs);
+> +}
+> +EXPORT_SYMBOL(nmi_panic);
+> +
+>  /**
+>   *	panic - halt the system
+>   *	@fmt: The text string to print
+> 
+> 
+
+-- 
+Michal Hocko
+SUSE Labs
