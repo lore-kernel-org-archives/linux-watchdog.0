@@ -1,79 +1,79 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:42098 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756683AbcCCTCy (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 3 Mar 2016 14:02:54 -0500
-Date: Thu, 3 Mar 2016 11:02:51 -0800
-From: Guenter Roeck <linux@roeck-us.net>
-To: Romain Izard <romain.izard.pro@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-	linux-watchdog@vger.kernel.org,
-	linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Wenyou Yang <wenyou.yang@atmel.com>,
-	Nicolas Ferre <nicolas.ferre@atmel.com>
+Return-path: <Wenyou.Yang@atmel.com>
 Subject: Re: [PATCH v1] watchdog: sama5d4_wdt: Reset delay on start
-Message-ID: <20160303190251.GA22198@roeck-us.net>
+To: Romain Izard <romain.izard.pro@gmail.com>, <linux-kernel@vger.kernel.org>,
+	<linux-watchdog@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>, Wim
+ Van Sebroeck <wim@iguana.be>
 References: <1457000979-15717-1-git-send-email-romain.izard.pro@gmail.com>
- <56D829A7.1020201@roeck-us.net>
- <CAGkQfmMFAJ7dQ-BMXNFdgW8ZvGhJ87h+gh3RHPecgFm9WjKoMQ@mail.gmail.com>
+CC: Guenter Roeck <linux@roeck-us.net>, Nicolas Ferre
+	<nicolas.ferre@atmel.com>
+From: "Yang, Wenyou" <wenyou.yang@atmel.com>
+Message-ID: <56D8E649.8030500@atmel.com>
+Date: Fri, 4 Mar 2016 09:35:05 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAGkQfmMFAJ7dQ-BMXNFdgW8ZvGhJ87h+gh3RHPecgFm9WjKoMQ@mail.gmail.com>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+In-Reply-To: <1457000979-15717-1-git-send-email-romain.izard.pro@gmail.com>
+Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Transfer-Encoding: 7bit
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On Thu, Mar 03, 2016 at 01:53:47PM +0100, Romain Izard wrote:
-> Hi Guenter,
-> 
-> 2016-03-03 13:10 GMT+01:00 Guenter Roeck <linux@roeck-us.net>:
-> > On 03/03/2016 02:29 AM, Romain Izard wrote:
-> >>
-> >> If the internal counter is not refreshed when the watchdog is started
-> >> for the first time, the watchdog will trigger very rapidly. For
-> >> example, opening /dev/watchdog without writing in it will immediately
-> >> trigger a reboot, instead of waiting for the delay to expire.
-> >>
-> >> To avoid this problem, reload the timer on opening the watchdog
-> >> device.
-> >>
-> >> Command: "while sleep 5; do echo 1; done > /dev/watchdog"
-> >> Before: system reset
-> >> After: the watchdog runs correctly
-> >>
-> >> Signed-off-by: Romain Izard <romain.izard.pro@gmail.com>
-> >
-> >
-> > Subject might better read "ping watchdog on start" or similar.
-> >
-> OK. I'll change it for a v2.
-> 
-> > Does the watchdog have to be pinged before it is enabled ?  I am a bit
-> > concerned that there may still be a 125 uS window during which the
-> > system could restart.
-> >
-> 
-> According to the SAMA5D2 & SAMA5D4 datasheets, the timer ought to be
-> reloaded when the watchdog is enabled by a write in the MR register.
-> Unfortunately, it does not work as described, as I encountered the
-> problem on a SAMA5D2 Xplained board.
-> 
-> The 4 clock delay is not in the datasheet either, but without any delay
-> the timer is clearly not reloaded, as my issue stays the same. As there
-> is a required delay before writing to MR after writing to CR, I applied
-> the same type of delay in the reverse case.
-> 
-Question is if there is now a 4 clock window where the watchdog can
-still reset the system. Can you reload the timer before enabling
-the watchdog ?
+Hi Romain,
 
-Thanks,
-Guenter
+On 2016/3/3 18:29, Romain Izard wrote:
+> If the internal counter is not refreshed when the watchdog is started
+> for the first time, the watchdog will trigger very rapidly. For example,
+> opening /dev/watchdog without writing in it will immediately trigger a
+> reboot, instead of waiting for the delay to expire.
+>
+> To avoid this problem, reload the timer on opening the watchdog device.
+>
+> Command: "while sleep 5; do echo 1; done > /dev/watchdog"
+> Before: system reset
+> After: the watchdog runs correctly
+I didn't reproduce your issue on my side,
 
-> Perhaps Nicolas or Wenyou have more information on this.
-> 
-> Best regards,
-> -- 
-> Romain Izard
+run the your commands as follows, it works fine,  the system reset 
+doesn't happen.
+---8<----
+#!/bin/sh
+
+while [ 1 ]
+do
+         sleep 5;
+         echo 1 > /dev/watchdog
+done
+--->8----
+
+I also check the WDT_MR register before and after enabling watchdog, the 
+WDV and WDD fields are correct.
+
+Can you check it again? thank you.
+
+>
+> Signed-off-by: Romain Izard <romain.izard.pro@gmail.com>
+> ---
+>   drivers/watchdog/sama5d4_wdt.c | 3 +++
+>   1 file changed, 3 insertions(+)
+>
+> diff --git a/drivers/watchdog/sama5d4_wdt.c b/drivers/watchdog/sama5d4_wdt.c
+> index a49634cdc1cc..e162fe140ae1 100644
+> --- a/drivers/watchdog/sama5d4_wdt.c
+> +++ b/drivers/watchdog/sama5d4_wdt.c
+> @@ -15,6 +15,7 @@
+>   #include <linux/platform_device.h>
+>   #include <linux/reboot.h>
+>   #include <linux/watchdog.h>
+> +#include <linux/delay.h>
+>   
+>   #include "at91sam9_wdt.h"
+>   
+> @@ -58,6 +59,8 @@ static int sama5d4_wdt_start(struct watchdog_device *wdd)
+>   	reg = wdt_read(wdt, AT91_WDT_MR);
+>   	reg &= ~AT91_WDT_WDDIS;
+>   	wdt_write(wdt, AT91_WDT_MR, reg);
+> +	udelay(125); /* > 4 cycles at 32,768 Hz */
+> +	wdt_write(wdt, AT91_WDT_CR, AT91_WDT_KEY | AT91_WDT_WDRSTT);
+>   
+>   	return 0;
+>   }
+
+Best Regards,
+Wenyou Yang
