@@ -8,56 +8,95 @@ Cc: linux-watchdog@vger.kernel.org,
 	wim@iguana.be,
 	stigge@antcom.de,
 	vz@mleia.com
-Subject: [PATCH v7 1/6] watchdog: pnx4008: update logging during power-on
-Date: Fri,  4 Mar 2016 13:44:05 -0500
-Message-Id: <1457117050-13543-2-git-send-email-slemieux.tyco@gmail.com>
+Subject: [PATCH v7 2/6] watchdog: pnx4008: add restart handler
+Date: Fri,  4 Mar 2016 13:44:06 -0500
+Message-Id: <1457117050-13543-3-git-send-email-slemieux.tyco@gmail.com>
 In-Reply-To: <1457117050-13543-1-git-send-email-slemieux.tyco@gmail.com>
 References: <1457117050-13543-1-git-send-email-slemieux.tyco@gmail.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
 From: Sylvain Lemieux <slemieux@tycoint.com>
 
-There is no need to add the driver name in the text to display
-on the console during the power-on:
-pnx4008-watchdog 4003c000.watchdog: PNX4008 Watchdog Timer: heartbeat 19 sec
+Add restart handler capability to the driver;
+the restart handler implementation was taken from
+"mach-lpc32xx" ("lpc23xx_restart" function).
 
 Signed-off-by: Sylvain Lemieux <slemieux@tycoint.com>
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 ---
 Changes from v6 to v7:
-- none.
+- Added Reviewed-by from v6.
 
 Changes from v5 to v6:
 - none.
 
 Changes from v4 to v5:
-- Added Reviewed-by from v4.
+- Rebased on the following patch:
+  http://permalink.gmane.org/gmane.linux.watchdog/3364/
 
 Changes from v3 to v4:
 - none.
 
 Changes from v2 to v3:
-- none.
+- remove explicit clock enable from restart handler.
+- verify "register_restart_handler" return value.
+- add call to unregister_restart_handler".
+- do the restart handling directly in "pnx4008_restart_handler".
 
 Changes from v1 to v2:
 - new patch in v2.
 
- drivers/watchdog/pnx4008_wdt.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/watchdog/pnx4008_wdt.c | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
 diff --git a/drivers/watchdog/pnx4008_wdt.c b/drivers/watchdog/pnx4008_wdt.c
-index 313cd1c..88264a2 100644
+index 88264a2..f3be522 100644
 --- a/drivers/watchdog/pnx4008_wdt.c
 +++ b/drivers/watchdog/pnx4008_wdt.c
-@@ -178,8 +178,7 @@ static int pnx4008_wdt_probe(struct platform_device *pdev)
- 		goto disable_clk;
- 	}
+@@ -31,6 +31,8 @@
+ #include <linux/slab.h>
+ #include <linux/err.h>
+ #include <linux/of.h>
++#include <linux/delay.h>
++#include <linux/reboot.h>
+ #include <mach/hardware.h>
  
--	dev_info(&pdev->dev, "PNX4008 Watchdog Timer: heartbeat %d sec\n",
--		 pnx4008_wdd.timeout);
-+	dev_info(&pdev->dev, "heartbeat %d sec\n", pnx4008_wdd.timeout);
- 
+ /* WatchDog Timer - Chapter 23 Page 207 */
+@@ -124,6 +126,19 @@ static int pnx4008_wdt_set_timeout(struct watchdog_device *wdd,
  	return 0;
+ }
+ 
++static int pnx4008_restart_handler(struct watchdog_device *wdd,
++				   unsigned long mode, void *cmd)
++{
++	/* Instant assert of RESETOUT_N with pulse length 1mS */
++	writel(13000, WDTIM_PULSE(wdt_base));
++	writel(M_RES2 | RESFRC1 | RESFRC2, WDTIM_MCTRL(wdt_base));
++
++	/* Wait for watchdog to reset system */
++	mdelay(1000);
++
++	return NOTIFY_DONE;
++}
++
+ static const struct watchdog_info pnx4008_wdt_ident = {
+ 	.options = WDIOF_CARDRESET | WDIOF_MAGICCLOSE |
+ 	    WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
+@@ -135,6 +150,7 @@ static const struct watchdog_ops pnx4008_wdt_ops = {
+ 	.start = pnx4008_wdt_start,
+ 	.stop = pnx4008_wdt_stop,
+ 	.set_timeout = pnx4008_wdt_set_timeout,
++	.restart = pnx4008_restart_handler,
+ };
+ 
+ static struct watchdog_device pnx4008_wdd = {
+@@ -169,6 +185,7 @@ static int pnx4008_wdt_probe(struct platform_device *pdev)
+ 			WDIOF_CARDRESET : 0;
+ 	pnx4008_wdd.parent = &pdev->dev;
+ 	watchdog_set_nowayout(&pnx4008_wdd, nowayout);
++	watchdog_set_restart_priority(&pnx4008_wdd, 128);
+ 
+ 	pnx4008_wdt_stop(&pnx4008_wdd);	/* disable for now */
  
 -- 
 1.8.3.1
