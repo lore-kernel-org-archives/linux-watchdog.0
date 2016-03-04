@@ -1,51 +1,291 @@
 Return-path: <wimvs@spo001.leaseweb.nl>
-Date: Fri, 4 Mar 2016 20:40:17 +0100
+Date: Fri, 4 Mar 2016 20:46:26 +0100
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Martyn Welch <martyn.welch@collabora.co.uk>
-Cc: Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org,
+To: William Breathitt Gray <vilhelm.gray@gmail.com>
+Cc: linux@roeck-us.net, linux-watchdog@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Rename "trigger" reset reason "hw watchdog"
-Message-ID: <20160304194017.GG6900@spo001.leaseweb.nl>
-References: <1456502712-25965-1-git-send-email-martyn.welch@collabora.co.uk>
+Subject: Re: [PATCH v8] watchdog: Add watchdog timer support for the WinSystems EBC-C384
+Message-ID: <20160304194626.GA7099@spo001.leaseweb.nl>
+References: <20160229045446.GA11655@sophia>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <1456502712-25965-1-git-send-email-martyn.welch@collabora.co.uk>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20160229045446.GA11655@sophia>
 Sender: <wimvs@spo001.leaseweb.nl>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi Martyn,
+Hi William,
 
-> The Zodiac watchdog is implemented on a microcontoller. The reset reason
-> currently labelled "trigger" is not to detect when the watchdog has
-> triggered (as had been initially understood and suggested by the naming),
-> but to inform the reader that the watchdog, which in fact has it's own
-> hardware watchdog, has been reset because the hardware watchdog has
-> triggered. Renaming to "hw watchdog".
+> The WinSystems EBC-C384 has an onboard watchdog timer. The timeout range
+> supported by the watchdog timer is 1 second to 255 minutes. Timeouts
+> under 256 seconds have a 1 second granularity, while the rest have a 1
+> minute granularity.
 > 
-> Signed-off-by: Martyn Welch <martyn.welch@collabora.co.uk>
+> This driver adds watchdog timer support for this onboard watchdog timer.
+> The timeout may be configured via the timeout module parameter.
+> 
+> Signed-off-by: William Breathitt Gray <vilhelm.gray@gmail.com>
 > ---
->  drivers/watchdog/ziirave_wdt.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> Changes in v8:
+>   - Utilize the roundup macro to round up second resolution to minute
+>     granularity when setting the timeout member
 > 
-> diff --git a/drivers/watchdog/ziirave_wdt.c b/drivers/watchdog/ziirave_wdt.c
-> index 0c7cb73..cbe373de 100644
-> --- a/drivers/watchdog/ziirave_wdt.c
-> +++ b/drivers/watchdog/ziirave_wdt.c
-> @@ -36,7 +36,7 @@
->  #define ZIIRAVE_STATE_OFF	0x1
->  #define ZIIRAVE_STATE_ON	0x2
+>  MAINTAINERS                     |   6 ++
+>  drivers/watchdog/Kconfig        |   9 ++
+>  drivers/watchdog/Makefile       |   1 +
+>  drivers/watchdog/ebc-c384_wdt.c | 188 ++++++++++++++++++++++++++++++++++++++++
+>  4 files changed, 204 insertions(+)
+>  create mode 100644 drivers/watchdog/ebc-c384_wdt.c
+> 
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index 28eb61b..66107fd 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -11860,6 +11860,12 @@ M:	David Härdeman <david@hardeman.nu>
+>  S:	Maintained
+>  F:	drivers/media/rc/winbond-cir.c
 >  
-> -static char *ziirave_reasons[] = {"power cycle", "triggered", NULL, NULL,
-> +static char *ziirave_reasons[] = {"power cycle", "hw watchdog", NULL, NULL,
->  				  "host request", NULL, "illegal configuration",
->  				  "illegal instruction", "illegal trap",
->  				  "unknown"};
+> +WINSYSTEMS EBC-C384 WATCHDOG DRIVER
+> +M:	William Breathitt Gray <vilhelm.gray@gmail.com>
+> +L:	linux-watchdog@vger.kernel.org
+> +S:	Maintained
+> +F:	drivers/watchdog/ebc-c384_wdt.c
+> +
+>  WIMAX STACK
+>  M:	Inaky Perez-Gonzalez <inaky.perez-gonzalez@intel.com>
+>  M:	linux-wimax@intel.com
+> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> index 0f6d851..11f3a3d 100644
+> --- a/drivers/watchdog/Kconfig
+> +++ b/drivers/watchdog/Kconfig
+> @@ -713,6 +713,15 @@ config ALIM7101_WDT
+>  
+>  	  Most people will say N.
+>  
+> +config EBC_C384_WDT
+> +	tristate "WinSystems EBC-C384 Watchdog Timer"
+> +	depends on X86
+> +	select WATCHDOG_CORE
+> +	help
+> +	  Enables watchdog timer support for the watchdog timer on the
+> +	  WinSystems EBC-C384 motherboard. The timeout may be configured via
+> +	  the timeout module parameter.
+> +
+>  config F71808E_WDT
+>  	tristate "Fintek F71808E, F71862FG, F71869, F71882FG and F71889FG Watchdog"
+>  	depends on X86
+> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+> index f566753..15762c8 100644
+> --- a/drivers/watchdog/Makefile
+> +++ b/drivers/watchdog/Makefile
+> @@ -88,6 +88,7 @@ obj-$(CONFIG_ACQUIRE_WDT) += acquirewdt.o
+>  obj-$(CONFIG_ADVANTECH_WDT) += advantechwdt.o
+>  obj-$(CONFIG_ALIM1535_WDT) += alim1535_wdt.o
+>  obj-$(CONFIG_ALIM7101_WDT) += alim7101_wdt.o
+> +obj-$(CONFIG_EBC_C384_WDT) += ebc-c384_wdt.o
+>  obj-$(CONFIG_F71808E_WDT) += f71808e_wdt.o
+>  obj-$(CONFIG_SP5100_TCO) += sp5100_tco.o
+>  obj-$(CONFIG_GEODE_WDT) += geodewdt.o
+> diff --git a/drivers/watchdog/ebc-c384_wdt.c b/drivers/watchdog/ebc-c384_wdt.c
+> new file mode 100644
+> index 0000000..77fda0b
+> --- /dev/null
+> +++ b/drivers/watchdog/ebc-c384_wdt.c
+> @@ -0,0 +1,188 @@
+> +/*
+> + * Watchdog timer driver for the WinSystems EBC-C384
+> + * Copyright (C) 2016 William Breathitt Gray
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License, version 2, as
+> + * published by the Free Software Foundation.
+> + *
+> + * This program is distributed in the hope that it will be useful, but
+> + * WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+> + * General Public License for more details.
+> + */
+> +#include <linux/device.h>
+> +#include <linux/dmi.h>
+> +#include <linux/errno.h>
+> +#include <linux/io.h>
+> +#include <linux/ioport.h>
+> +#include <linux/kernel.h>
+> +#include <linux/module.h>
+> +#include <linux/moduleparam.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/types.h>
+> +#include <linux/watchdog.h>
+> +
+> +#define MODULE_NAME		"ebc-c384_wdt"
+> +#define WATCHDOG_TIMEOUT	60
+> +/*
+> + * The timeout value in minutes must fit in a single byte when sent to the
+> + * watchdog timer; the maximum timeout possible is 15300 (255 * 60) seconds.
+> + */
+> +#define WATCHDOG_MAX_TIMEOUT	15300
+> +#define BASE_ADDR		0x564
+> +#define ADDR_EXTENT		5
+> +#define CFG_ADDR		(BASE_ADDR + 1)
+> +#define PET_ADDR		(BASE_ADDR + 2)
+> +
+> +static bool nowayout = WATCHDOG_NOWAYOUT;
+> +module_param(nowayout, bool, 0);
+> +MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
+> +	__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+> +
+> +static unsigned timeout;
+> +module_param(timeout, uint, 0);
+> +MODULE_PARM_DESC(timeout, "Watchdog timeout in seconds (default="
+> +	__MODULE_STRING(WATCHDOG_TIMEOUT) ")");
+> +
+> +static int ebc_c384_wdt_start(struct watchdog_device *wdev)
+> +{
+> +	unsigned t = wdev->timeout;
+> +
+> +	/* resolution is in minutes for timeouts greater than 255 seconds */
+> +	if (t > 255)
+> +		t = DIV_ROUND_UP(t, 60);
+> +
+> +	outb(t, PET_ADDR);
+> +
+> +	return 0;
+> +}
+> +
+> +static int ebc_c384_wdt_stop(struct watchdog_device *wdev)
+> +{
+> +	outb(0x00, PET_ADDR);
+> +
+> +	return 0;
+> +}
+> +
+> +static int ebc_c384_wdt_set_timeout(struct watchdog_device *wdev, unsigned t)
+> +{
+> +	/* resolution is in minutes for timeouts greater than 255 seconds */
+> +	if (t > 255) {
+> +		/* round second resolution up to minute granularity */
+> +		wdev->timeout = roundup(t, 60);
+> +
+> +		/* set watchdog timer for minutes */
+> +		outb(0x00, CFG_ADDR);
+> +	} else {
+> +		wdev->timeout = t;
+> +
+> +		/* set watchdog timer for seconds */
+> +		outb(0x80, CFG_ADDR);
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static const struct watchdog_ops ebc_c384_wdt_ops = {
+> +	.start = ebc_c384_wdt_start,
+> +	.stop = ebc_c384_wdt_stop,
+> +	.set_timeout = ebc_c384_wdt_set_timeout
+> +};
+> +
+> +static const struct watchdog_info ebc_c384_wdt_info = {
+> +	.options = WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE | WDIOF_SETTIMEOUT,
+> +	.identity = MODULE_NAME
+> +};
+> +
+> +static int __init ebc_c384_wdt_probe(struct platform_device *pdev)
+> +{
+> +	struct device *dev = &pdev->dev;
+> +	struct watchdog_device *wdd;
+> +
+> +	if (!devm_request_region(dev, BASE_ADDR, ADDR_EXTENT, dev_name(dev))) {
+> +		dev_err(dev, "Unable to lock port addresses (0x%X-0x%X)\n",
+> +			BASE_ADDR, BASE_ADDR + ADDR_EXTENT);
+> +		return -EBUSY;
+> +	}
+> +
+> +	wdd = devm_kzalloc(dev, sizeof(*wdd), GFP_KERNEL);
+> +	if (!wdd)
+> +		return -ENOMEM;
+> +
+> +	wdd->info = &ebc_c384_wdt_info;
+> +	wdd->ops = &ebc_c384_wdt_ops;
+> +	wdd->timeout = WATCHDOG_TIMEOUT;
+> +	wdd->min_timeout = 1;
+> +	wdd->max_timeout = WATCHDOG_MAX_TIMEOUT;
+> +
+> +	watchdog_set_nowayout(wdd, nowayout);
+> +
+> +	if (watchdog_init_timeout(wdd, timeout, dev))
+> +		dev_warn(dev, "Invalid timeout (%u seconds), using default (%u seconds)\n",
+> +			timeout, WATCHDOG_TIMEOUT);
+> +
+> +	platform_set_drvdata(pdev, wdd);
+> +
+> +	return watchdog_register_device(wdd);
+> +}
+> +
+> +static int ebc_c384_wdt_remove(struct platform_device *pdev)
+> +{
+> +	struct watchdog_device *wdd = platform_get_drvdata(pdev);
+> +
+> +	watchdog_unregister_device(wdd);
+> +
+> +	return 0;
+> +}
+> +
+> +static struct platform_driver ebc_c384_wdt_driver = {
+> +	.driver = {
+> +		.name = MODULE_NAME
+> +	},
+> +	.remove = ebc_c384_wdt_remove
+> +};
+> +
+> +static struct platform_device *ebc_c384_wdt_device;
+> +
+> +static int __init ebc_c384_wdt_init(void)
+> +{
+> +	int err;
+> +
+> +	if (!dmi_match(DMI_BOARD_NAME, "EBC-C384 SBC"))
+> +		return -ENODEV;
+> +
+> +	ebc_c384_wdt_device = platform_device_alloc(MODULE_NAME, -1);
+> +	if (!ebc_c384_wdt_device)
+> +		return -ENOMEM;
+> +
+> +	err = platform_device_add(ebc_c384_wdt_device);
+> +	if (err)
+> +		goto err_platform_device;
+> +
+> +	err = platform_driver_probe(&ebc_c384_wdt_driver, ebc_c384_wdt_probe);
+> +	if (err)
+> +		goto err_platform_driver;
+> +
+> +	return 0;
+> +
+> +err_platform_driver:
+> +	platform_device_del(ebc_c384_wdt_device);
+> +err_platform_device:
+> +	platform_device_put(ebc_c384_wdt_device);
+> +	return err;
+> +}
+> +
+> +static void __exit ebc_c384_wdt_exit(void)
+> +{
+> +	platform_device_unregister(ebc_c384_wdt_device);
+> +	platform_driver_unregister(&ebc_c384_wdt_driver);
+> +}
+> +
+> +module_init(ebc_c384_wdt_init);
+> +module_exit(ebc_c384_wdt_exit);
+> +
+> +MODULE_AUTHOR("William Breathitt Gray <vilhelm.gray@gmail.com>");
+> +MODULE_DESCRIPTION("WinSystems EBC-C384 watchdog timer driver");
+> +MODULE_LICENSE("GPL v2");
+> +MODULE_ALIAS("platform:" MODULE_NAME);
 > -- 
-> 2.1.4
+> 2.4.10
 > 
 
-Patch has been added to linux-watchdog-next.
+Patch added to linux-watchdog-next.
 
 Kind regards,
 Wim.
