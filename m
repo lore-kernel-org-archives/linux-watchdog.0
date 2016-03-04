@@ -8,26 +8,23 @@ Cc: linux-watchdog@vger.kernel.org,
 	wim@iguana.be,
 	stigge@antcom.de,
 	vz@mleia.com
-Subject: [PATCH v7 3/6] watchdog: pnx4008: add support for soft reset
-Date: Fri,  4 Mar 2016 13:44:07 -0500
-Message-Id: <1457117050-13543-4-git-send-email-slemieux.tyco@gmail.com>
+Subject: [PATCH v7 4/6] watchdog: pnx4008: restart: support "cmd" from userspace
+Date: Fri,  4 Mar 2016 13:44:08 -0500
+Message-Id: <1457117050-13543-5-git-send-email-slemieux.tyco@gmail.com>
 In-Reply-To: <1457117050-13543-1-git-send-email-slemieux.tyco@gmail.com>
 References: <1457117050-13543-1-git-send-email-slemieux.tyco@gmail.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
 From: Sylvain Lemieux <slemieux@tycoint.com>
 
-Add support for explicit soft reset using the reboot mode.
-
-The default reboot mode behavior is unchanged;
-you can overwrite the default reboot type in the board specific file
-"DT_MACHINE_START" definition using the "reboot_mode" parameter.
+Added support to verify if a "cmd" is passed from the userspace program rebooting the system;
+- if a valid "cmd" is available, handle it;
+- If the received "cmd" is not supported, use the default reboot mode.
 
 Signed-off-by: Sylvain Lemieux <slemieux@tycoint.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 ---
 Changes from v6 to v7:
-- Added Reviewed-by from v6.
+- remove typecast.
 
 Changes from v5 to v6:
 - remove typecast.
@@ -43,36 +40,37 @@ Changes from v2 to v3:
 
 Changes from v1 to v2:
 - Rename patch title;
-  was "arm: lpc32xx: restart: add support for soft reset"
+  was "arm: lpc32xx: restart: support "cmd" from userspace"
 - Add change to "pnx-4008" driver instead of "mach-lpc32xx".
-- Use define available in "pnx-4008" when writting to watchdog register.
 
- drivers/watchdog/pnx4008_wdt.c | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ drivers/watchdog/pnx4008_wdt.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
 diff --git a/drivers/watchdog/pnx4008_wdt.c b/drivers/watchdog/pnx4008_wdt.c
-index f3be522..51be66e 100644
+index 51be66e..0529aed 100644
 --- a/drivers/watchdog/pnx4008_wdt.c
 +++ b/drivers/watchdog/pnx4008_wdt.c
-@@ -129,9 +129,16 @@ static int pnx4008_wdt_set_timeout(struct watchdog_device *wdd,
+@@ -129,6 +129,21 @@ static int pnx4008_wdt_set_timeout(struct watchdog_device *wdd,
  static int pnx4008_restart_handler(struct watchdog_device *wdd,
  				   unsigned long mode, void *cmd)
  {
--	/* Instant assert of RESETOUT_N with pulse length 1mS */
--	writel(13000, WDTIM_PULSE(wdt_base));
--	writel(M_RES2 | RESFRC1 | RESFRC2, WDTIM_MCTRL(wdt_base));
-+	if (mode == REBOOT_SOFT) {
-+		/* Force match output active */
-+		writel(EXT_MATCH0, WDTIM_EMR(wdt_base));
-+		/* Internal reset on match output (RESOUT_N not asserted) */
-+		writel(M_RES1, WDTIM_MCTRL(wdt_base));
-+	} else {
-+		/* Instant assert of RESETOUT_N with pulse length 1mS */
-+		writel(13000, WDTIM_PULSE(wdt_base));
-+		writel(M_RES2 | RESFRC1 | RESFRC2, WDTIM_MCTRL(wdt_base));
++	const char *boot_cmd = cmd;
++
++	/*
++	 * Verify if a "cmd" passed from the userspace program rebooting
++	 * the system; if available, handle it.
++	 * - For details, see the 'reboot' syscall in kernel/reboot.c
++	 * - If the received "cmd" is not supported, use the default mode.
++	 */
++	if (boot_cmd) {
++		if (boot_cmd[0] == 'h')
++			mode = REBOOT_HARD;
++		else if (boot_cmd[0] == 's')
++			mode = REBOOT_SOFT;
 +	}
- 
- 	/* Wait for watchdog to reset system */
- 	mdelay(1000);
++
+ 	if (mode == REBOOT_SOFT) {
+ 		/* Force match output active */
+ 		writel(EXT_MATCH0, WDTIM_EMR(wdt_base));
 -- 
 1.8.3.1
