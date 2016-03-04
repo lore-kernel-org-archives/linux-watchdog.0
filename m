@@ -1,62 +1,109 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-io0-f194.google.com ([209.85.223.194]:34839 "EHLO
-	mail-io0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758233AbcCCVUx (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:53138 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750777AbcCDNgy (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 3 Mar 2016 16:20:53 -0500
-Received: by mail-io0-f194.google.com with SMTP id n190so3363541iof.2
-        for <linux-watchdog@vger.kernel.org>; Thu, 03 Mar 2016 13:20:47 -0800 (PST)
-From: Sylvain Lemieux <slemieux.tyco@gmail.com>
-To: linux-arm-kernel@lists.infradead.org, arnd@arndb.de,
-	linux@roeck-us.net, manabian@gmail.com
+	Fri, 4 Mar 2016 08:36:54 -0500
+Subject: Re: [PATCH v6 2/6] watchdog: pnx4008: add restart handler
+To: Sylvain Lemieux <slemieux.tyco@gmail.com>,
+	linux-arm-kernel@lists.infradead.org, arnd@arndb.de,
+	manabian@gmail.com
+References: <1457040025-1108-1-git-send-email-slemieux.tyco@gmail.com>
+ <1457040025-1108-3-git-send-email-slemieux.tyco@gmail.com>
 Cc: linux-watchdog@vger.kernel.org, wim@iguana.be, stigge@antcom.de,
 	vz@mleia.com
-Subject: [PATCH v6 5/6] arm: lpc32xx: phy3250 remove restart hook
-Date: Thu,  3 Mar 2016 16:20:24 -0500
-Message-Id: <1457040025-1108-6-git-send-email-slemieux.tyco@gmail.com>
-In-Reply-To: <1457040025-1108-1-git-send-email-slemieux.tyco@gmail.com>
-References: <1457040025-1108-1-git-send-email-slemieux.tyco@gmail.com>
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <56D98F71.5000004@roeck-us.net>
+Date: Fri, 4 Mar 2016 05:36:49 -0800
+MIME-Version: 1.0
+In-Reply-To: <1457040025-1108-3-git-send-email-slemieux.tyco@gmail.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-From: Sylvain Lemieux <slemieux@tycoint.com>
+On 03/03/2016 01:20 PM, Sylvain Lemieux wrote:
+> From: Sylvain Lemieux <slemieux@tycoint.com>
+>
+> Add restart handler capability to the driver;
+> the restart handler implementation was taken from
+> "mach-lpc32xx" ("lpc23xx_restart" function).
+>
+> Signed-off-by: Sylvain Lemieux <slemieux@tycoint.com>
 
-Remove the restart hook assignment from phy3250;
-this functionality is now managed by
-the pnx4008 watchdog driver.
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-Signed-off-by: Sylvain Lemieux <slemieux@tycoint.com>
----
-Note:
-This patch was generated with the option "--unified=2" to ensure
-it can be apply before or after the changes for the new 
-LPC32xx irqchip driver:
-- http://permalink.gmane.org/gmane.linux.drivers.devicetree/144683
-
-Changes from v5 to v6:
-- none.
-
-Changes from v4 to v5:
-- none.
-
-Changes from v3 to v4:
-- Switch patch #5 and #6 order.
-
-Changes from v2 to v3:
-- new patch in v3.
-
- arch/arm/mach-lpc32xx/phy3250.c | 1 -
- 1 file changed, 1 deletion(-)
-
-diff --git a/arch/arm/mach-lpc32xx/phy3250.c b/arch/arm/mach-lpc32xx/phy3250.c
-index a19071a..9e5c3db 100644
---- a/arch/arm/mach-lpc32xx/phy3250.c
-+++ b/arch/arm/mach-lpc32xx/phy3250.c
-@@ -211,4 +211,3 @@ DT_MACHINE_START(LPC32XX_DT, "LPC32XX SoC (Flattened Device Tree)")
- 	.init_machine	= lpc3250_machine_init,
- 	.dt_compat	= lpc32xx_dt_compat,
--	.restart	= lpc23xx_restart,
- MACHINE_END
--- 
-1.8.3.1
+> ---
+> Changes from v5 to v6:
+> - none.
+>
+> Changes from v4 to v5:
+> - Rebased on the following patch:
+>    http://permalink.gmane.org/gmane.linux.watchdog/3364/
+>
+> Changes from v3 to v4:
+> - none.
+>
+> Changes from v2 to v3:
+> - remove explicit clock enable from restart handler.
+> - verify "register_restart_handler" return value.
+> - add call to unregister_restart_handler".
+> - do the restart handling directly in "pnx4008_restart_handler".
+>
+> Changes from v1 to v2:
+> - new patch in v2.
+>
+>   drivers/watchdog/pnx4008_wdt.c | 17 +++++++++++++++++
+>   1 file changed, 17 insertions(+)
+>
+> diff --git a/drivers/watchdog/pnx4008_wdt.c b/drivers/watchdog/pnx4008_wdt.c
+> index 88264a2..f3be522 100644
+> --- a/drivers/watchdog/pnx4008_wdt.c
+> +++ b/drivers/watchdog/pnx4008_wdt.c
+> @@ -31,6 +31,8 @@
+>   #include <linux/slab.h>
+>   #include <linux/err.h>
+>   #include <linux/of.h>
+> +#include <linux/delay.h>
+> +#include <linux/reboot.h>
+>   #include <mach/hardware.h>
+>
+>   /* WatchDog Timer - Chapter 23 Page 207 */
+> @@ -124,6 +126,19 @@ static int pnx4008_wdt_set_timeout(struct watchdog_device *wdd,
+>   	return 0;
+>   }
+>
+> +static int pnx4008_restart_handler(struct watchdog_device *wdd,
+> +				   unsigned long mode, void *cmd)
+> +{
+> +	/* Instant assert of RESETOUT_N with pulse length 1mS */
+> +	writel(13000, WDTIM_PULSE(wdt_base));
+> +	writel(M_RES2 | RESFRC1 | RESFRC2, WDTIM_MCTRL(wdt_base));
+> +
+> +	/* Wait for watchdog to reset system */
+> +	mdelay(1000);
+> +
+> +	return NOTIFY_DONE;
+> +}
+> +
+>   static const struct watchdog_info pnx4008_wdt_ident = {
+>   	.options = WDIOF_CARDRESET | WDIOF_MAGICCLOSE |
+>   	    WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
+> @@ -135,6 +150,7 @@ static const struct watchdog_ops pnx4008_wdt_ops = {
+>   	.start = pnx4008_wdt_start,
+>   	.stop = pnx4008_wdt_stop,
+>   	.set_timeout = pnx4008_wdt_set_timeout,
+> +	.restart = pnx4008_restart_handler,
+>   };
+>
+>   static struct watchdog_device pnx4008_wdd = {
+> @@ -169,6 +185,7 @@ static int pnx4008_wdt_probe(struct platform_device *pdev)
+>   			WDIOF_CARDRESET : 0;
+>   	pnx4008_wdd.parent = &pdev->dev;
+>   	watchdog_set_nowayout(&pnx4008_wdd, nowayout);
+> +	watchdog_set_restart_priority(&pnx4008_wdd, 128);
+>
+>   	pnx4008_wdt_stop(&pnx4008_wdd);	/* disable for now */
+>
+>
 
