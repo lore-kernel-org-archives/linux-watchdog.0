@@ -1,242 +1,121 @@
-Return-path: <wimvs@spo001.leaseweb.nl>
-Date: Fri, 4 Mar 2016 20:40:56 +0100
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Sylvain Lemieux <slemieux@tycoint.com>
-Subject: Re: [PATCH] watchdog: Add 'action' and 'data' parameters to restart handler callback
-Message-ID: <20160304194056.GH6900@spo001.leaseweb.nl>
-References: <1456536769-17757-1-git-send-email-linux@roeck-us.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1456536769-17757-1-git-send-email-linux@roeck-us.net>
-Sender: <wimvs@spo001.leaseweb.nl>
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:59721 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750993AbcCDN4X (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 4 Mar 2016 08:56:23 -0500
+Subject: Re: [PATCH v1] watchdog: sama5d4_wdt: Reset delay on start
+To: Romain Izard <romain.izard.pro@gmail.com>
+References: <1457000979-15717-1-git-send-email-romain.izard.pro@gmail.com>
+ <56D8E649.8030500@atmel.com> <56D91BDC.1030604@roeck-us.net>
+ <CAGkQfmN9wDkrc=frsSdBYYtMPf4VaTpcmYjX6_wARs=a78-bPQ@mail.gmail.com>
+ <56D988F0.8050803@roeck-us.net>
+ <CAGkQfmOLVwpckKP+axdi1501ghqq_UAmCygJv_tfa=bCOLvCzA@mail.gmail.com>
+Cc: "Yang, Wenyou" <wenyou.yang@atmel.com>,
+	LKML <linux-kernel@vger.kernel.org>,
+	linux-watchdog@vger.kernel.org,
+	linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Nicolas Ferre <nicolas.ferre@atmel.com>
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <56D99404.60305@roeck-us.net>
+Date: Fri, 4 Mar 2016 05:56:20 -0800
+MIME-Version: 1.0
+In-Reply-To: <CAGkQfmOLVwpckKP+axdi1501ghqq_UAmCygJv_tfa=bCOLvCzA@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-Hi Guenter,
+On 03/04/2016 05:26 AM, Romain Izard wrote:
+> 2016-03-04 14:09 GMT+01:00 Guenter Roeck <linux@roeck-us.net>:
+>> On 03/04/2016 01:06 AM, Romain Izard wrote:
+>>> 2016-03-04 6:23 GMT+01:00 Guenter Roeck <linux@roeck-us.net>:
+>>>> On 03/03/2016 05:35 PM, Yang, Wenyou wrote:
+>>>>> On 2016/3/3 18:29, Romain Izard wrote:
+>>>>>>
+>>>>>> If the internal counter is not refreshed when the watchdog is
+>>>>>> started for the first time, the watchdog will trigger very
+>>>>>> rapidly.  For example, opening /dev/watchdog without writing in it
+>>>>>> will immediately trigger a reboot, instead of waiting for the
+>>>>>> delay to expire.
+>>>>>>
+>>>>>> To avoid this problem, reload the timer on opening the watchdog
+>>>>>> device.
+>>>>>>
+>>>>>> Command: "while sleep 5; do echo 1; done > /dev/watchdog" Before:
+>>>>>> system reset After: the watchdog runs correctly
+>>>>>
+>>>>>
+>>>>> I didn't reproduce your issue on my side,
+>>>>>
+>>>>> run the your commands as follows, it works fine,  the system reset
+>>>>> doesn't happen.
+>>>
+>>>
+>>> I've just verified with the factory image provided on the SAMA5D2
+>>> Xplained board. It does not display this behaviour.
+>>>
+>>> But the difference is that in the case without the issue, I'm using
+>>> the AT91bootstrap SPL, U-Boot, and the kernel from the QSPI chip.
+>>> When I have the issue, I have a U-Boot based SPL, U-Boot itself and
+>>> the kernel that come from the FAT partition of an SD-Card.
+>>>
+>>> Userspace does not seem to be involved in the issue, as I can
+>>> reproduce it both with my buildroot environment, and the Yocto
+>>> environment from the factory image.
+>>>
+>>>> Different chip revision ? Different chip type ? Different chip
+>>>> initialization by ROMMON ?
+>>>>
+>>>> Can we get exact chip revisions and types for both cases (working
+>>>> and not working), and (if it might be relevant) a dump of all
+>>>> associated chip registers ?
+>>>
+>>>
+>>>
+>>>>> I also check the WDT_MR register before and after enabling
+>>>>> watchdog, the WDV and WDD fields are correct.
+>>>>>
+>>>>> Can you check it again? thank you.
+>>>
+>>>
+>>> Working case:
+>>> MR on kernel startup:   0x3fffafff
+>>> MR after watchdog init: 0x0fffafff
+>>> MR after start:         0x0fff2fff
+>>>
+>>> Problem case:
+>>> MR on kernel startup:   0x00008000
+>>> MR after watchdog init: 0x0fffafff
+>>> MR after start:         0x0fff2fff
+>>>
+>>> So this means that the counter reload does not seem to work very well
+>>> if WDD/WDV have been set to 0 in the past. The other question is why
+>>> does U-Boot (from the Atmel branch based on 2015.1) put this stange
+>>> value in this register.
+>>>
+>>
+>> Can you check the value of AT91_WDT_SR ? Maybe it tells us something.
+>>
+> I didn't report it because it contained 0 at all times. So no information.
+>
+>> Also, in the error case, can you check if the watchdog times out at all
+>> after you applied your patch ?
+>
+> It times out after 16s as expected, and reboot occurs correctly.
+>
 
-> The 'action' (or restart mode) and data parameters may be used by restart
-> handlers, so they should be passed to the restart callback functions.
-> 
-> Cc: Sylvain Lemieux <slemieux@tycoint.com>
-> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-> ---
->  drivers/watchdog/bcm47xx_wdt.c   | 3 ++-
->  drivers/watchdog/da9063_wdt.c    | 3 ++-
->  drivers/watchdog/digicolor_wdt.c | 3 ++-
->  drivers/watchdog/imgpdc_wdt.c    | 3 ++-
->  drivers/watchdog/imx2_wdt.c      | 3 ++-
->  drivers/watchdog/lpc18xx_wdt.c   | 3 ++-
->  drivers/watchdog/meson_wdt.c     | 3 ++-
->  drivers/watchdog/moxart_wdt.c    | 3 ++-
->  drivers/watchdog/mtk_wdt.c       | 3 ++-
->  drivers/watchdog/qcom-wdt.c      | 3 ++-
->  drivers/watchdog/s3c2410_wdt.c   | 3 ++-
->  drivers/watchdog/sunxi_wdt.c     | 3 ++-
->  drivers/watchdog/watchdog_core.c | 2 +-
->  include/linux/watchdog.h         | 2 +-
->  14 files changed, 26 insertions(+), 14 deletions(-)
-> 
-> diff --git a/drivers/watchdog/bcm47xx_wdt.c b/drivers/watchdog/bcm47xx_wdt.c
-> index df1c2a4b0165..a1900b9ab6c4 100644
-> --- a/drivers/watchdog/bcm47xx_wdt.c
-> +++ b/drivers/watchdog/bcm47xx_wdt.c
-> @@ -87,7 +87,8 @@ static int bcm47xx_wdt_hard_set_timeout(struct watchdog_device *wdd,
->  	return 0;
->  }
->  
-> -static int bcm47xx_wdt_restart(struct watchdog_device *wdd)
-> +static int bcm47xx_wdt_restart(struct watchdog_device *wdd,
-> +			       unsigned long action, void *data)
->  {
->  	struct bcm47xx_wdt *wdt = bcm47xx_wdt_get(wdd);
->  
-> diff --git a/drivers/watchdog/da9063_wdt.c b/drivers/watchdog/da9063_wdt.c
-> index 11e887572649..a100f648880d 100644
-> --- a/drivers/watchdog/da9063_wdt.c
-> +++ b/drivers/watchdog/da9063_wdt.c
-> @@ -119,7 +119,8 @@ static int da9063_wdt_set_timeout(struct watchdog_device *wdd,
->  	return ret;
->  }
->  
-> -static int da9063_wdt_restart(struct watchdog_device *wdd)
-> +static int da9063_wdt_restart(struct watchdog_device *wdd, unsigned long action,
-> +			      void *data)
->  {
->  	struct da9063_watchdog *wdt = watchdog_get_drvdata(wdd);
->  	int ret;
-> diff --git a/drivers/watchdog/digicolor_wdt.c b/drivers/watchdog/digicolor_wdt.c
-> index 1ccb0b239348..77df772406b0 100644
-> --- a/drivers/watchdog/digicolor_wdt.c
-> +++ b/drivers/watchdog/digicolor_wdt.c
-> @@ -48,7 +48,8 @@ static void dc_wdt_set(struct dc_wdt *wdt, u32 ticks)
->  	spin_unlock_irqrestore(&wdt->lock, flags);
->  }
->  
-> -static int dc_wdt_restart(struct watchdog_device *wdog)
-> +static int dc_wdt_restart(struct watchdog_device *wdog, unsigned long action,
-> +			  void *data)
->  {
->  	struct dc_wdt *wdt = watchdog_get_drvdata(wdog);
->  
-> diff --git a/drivers/watchdog/imgpdc_wdt.c b/drivers/watchdog/imgpdc_wdt.c
-> index 3679f2e1922f..516fbef00856 100644
-> --- a/drivers/watchdog/imgpdc_wdt.c
-> +++ b/drivers/watchdog/imgpdc_wdt.c
-> @@ -150,7 +150,8 @@ static int pdc_wdt_start(struct watchdog_device *wdt_dev)
->  	return 0;
->  }
->  
-> -static int pdc_wdt_restart(struct watchdog_device *wdt_dev)
-> +static int pdc_wdt_restart(struct watchdog_device *wdt_dev,
-> +			   unsigned long action, void *data)
->  {
->  	struct pdc_wdt_dev *wdt = watchdog_get_drvdata(wdt_dev);
->  
-> diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
-> index 1a48cb28718f..7ae92aef4cc8 100644
-> --- a/drivers/watchdog/imx2_wdt.c
-> +++ b/drivers/watchdog/imx2_wdt.c
-> @@ -77,7 +77,8 @@ static const struct watchdog_info imx2_wdt_info = {
->  	.options = WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE,
->  };
->  
-> -static int imx2_wdt_restart(struct watchdog_device *wdog)
-> +static int imx2_wdt_restart(struct watchdog_device *wdog, unsigned long action,
-> +			    void *data)
->  {
->  	struct imx2_wdt_device *wdev = watchdog_get_drvdata(wdog);
->  	unsigned int wcr_enable = IMX2_WDT_WCR_WDE;
-> diff --git a/drivers/watchdog/lpc18xx_wdt.c b/drivers/watchdog/lpc18xx_wdt.c
-> index 6914c83aa6d9..fd171e6caa16 100644
-> --- a/drivers/watchdog/lpc18xx_wdt.c
-> +++ b/drivers/watchdog/lpc18xx_wdt.c
-> @@ -153,7 +153,8 @@ static int lpc18xx_wdt_start(struct watchdog_device *wdt_dev)
->  	return 0;
->  }
->  
-> -static int lpc18xx_wdt_restart(struct watchdog_device *wdt_dev)
-> +static int lpc18xx_wdt_restart(struct watchdog_device *wdt_dev,
-> +			       unsigned long action, void *data)
->  {
->  	struct lpc18xx_wdt_dev *lpc18xx_wdt = watchdog_get_drvdata(wdt_dev);
->  	unsigned long flags;
-> diff --git a/drivers/watchdog/meson_wdt.c b/drivers/watchdog/meson_wdt.c
-> index aea5d2f44ad7..56ea1caf71c3 100644
-> --- a/drivers/watchdog/meson_wdt.c
-> +++ b/drivers/watchdog/meson_wdt.c
-> @@ -62,7 +62,8 @@ struct meson_wdt_dev {
->  	const struct meson_wdt_data *data;
->  };
->  
-> -static int meson_wdt_restart(struct watchdog_device *wdt_dev)
-> +static int meson_wdt_restart(struct watchdog_device *wdt_dev,
-> +			     unsigned long action, void *data)
->  {
->  	struct meson_wdt_dev *meson_wdt = watchdog_get_drvdata(wdt_dev);
->  	u32 tc_reboot = MESON_WDT_DC_RESET;
-> diff --git a/drivers/watchdog/moxart_wdt.c b/drivers/watchdog/moxart_wdt.c
-> index 885c81bc4210..2c4a73d1e214 100644
-> --- a/drivers/watchdog/moxart_wdt.c
-> +++ b/drivers/watchdog/moxart_wdt.c
-> @@ -31,7 +31,8 @@ struct moxart_wdt_dev {
->  
->  static int heartbeat;
->  
-> -static int moxart_wdt_restart(struct watchdog_device *wdt_dev)
-> +static int moxart_wdt_restart(struct watchdog_device *wdt_dev,
-> +			      unsigned long action, void *data)
->  {
->  	struct moxart_wdt_dev *moxart_wdt = watchdog_get_drvdata(wdt_dev);
->  
-> diff --git a/drivers/watchdog/mtk_wdt.c b/drivers/watchdog/mtk_wdt.c
-> index b78776c05554..7ed417a765c7 100644
-> --- a/drivers/watchdog/mtk_wdt.c
-> +++ b/drivers/watchdog/mtk_wdt.c
-> @@ -64,7 +64,8 @@ struct mtk_wdt_dev {
->  	void __iomem *wdt_base;
->  };
->  
-> -static int mtk_wdt_restart(struct watchdog_device *wdt_dev)
-> +static int mtk_wdt_restart(struct watchdog_device *wdt_dev,
-> +			   unsigned long action, void *data)
->  {
->  	struct mtk_wdt_dev *mtk_wdt = watchdog_get_drvdata(wdt_dev);
->  	void __iomem *wdt_base;
-> diff --git a/drivers/watchdog/qcom-wdt.c b/drivers/watchdog/qcom-wdt.c
-> index 424f9a952fee..20563ccb7be0 100644
-> --- a/drivers/watchdog/qcom-wdt.c
-> +++ b/drivers/watchdog/qcom-wdt.c
-> @@ -70,7 +70,8 @@ static int qcom_wdt_set_timeout(struct watchdog_device *wdd,
->  	return qcom_wdt_start(wdd);
->  }
->  
-> -static int qcom_wdt_restart(struct watchdog_device *wdd)
-> +static int qcom_wdt_restart(struct watchdog_device *wdd, unsigned long action,
-> +			    void *data)
->  {
->  	struct qcom_wdt *wdt = to_qcom_wdt(wdd);
->  	u32 timeout;
-> diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s3c2410_wdt.c
-> index 0093450441fe..d57f19b5077f 100644
-> --- a/drivers/watchdog/s3c2410_wdt.c
-> +++ b/drivers/watchdog/s3c2410_wdt.c
-> @@ -349,7 +349,8 @@ static int s3c2410wdt_set_heartbeat(struct watchdog_device *wdd, unsigned timeou
->  	return 0;
->  }
->  
-> -static int s3c2410wdt_restart(struct watchdog_device *wdd)
-> +static int s3c2410wdt_restart(struct watchdog_device *wdd, unsigned long action,
-> +			      void *data)
->  {
->  	struct s3c2410_wdt *wdt = watchdog_get_drvdata(wdd);
->  	void __iomem *wdt_base = wdt->reg_base;
-> diff --git a/drivers/watchdog/sunxi_wdt.c b/drivers/watchdog/sunxi_wdt.c
-> index e027deb54740..953bb7b7446f 100644
-> --- a/drivers/watchdog/sunxi_wdt.c
-> +++ b/drivers/watchdog/sunxi_wdt.c
-> @@ -83,7 +83,8 @@ static const int wdt_timeout_map[] = {
->  };
->  
->  
-> -static int sunxi_wdt_restart(struct watchdog_device *wdt_dev)
-> +static int sunxi_wdt_restart(struct watchdog_device *wdt_dev,
-> +			     unsigned long action, void *data)
->  {
->  	struct sunxi_wdt_dev *sunxi_wdt = watchdog_get_drvdata(wdt_dev);
->  	void __iomem *wdt_base = sunxi_wdt->wdt_base;
-> diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
-> index 07c9931e2123..d3cfcccddf39 100644
-> --- a/drivers/watchdog/watchdog_core.c
-> +++ b/drivers/watchdog/watchdog_core.c
-> @@ -164,7 +164,7 @@ static int watchdog_restart_notifier(struct notifier_block *nb,
->  
->  	int ret;
->  
-> -	ret = wdd->ops->restart(wdd);
-> +	ret = wdd->ops->restart(wdd, action, data);
->  	if (ret)
->  		return NOTIFY_BAD;
->  
-> diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
-> index 537e84e2592a..f1fccc7aea68 100644
-> --- a/include/linux/watchdog.h
-> +++ b/include/linux/watchdog.h
-> @@ -47,7 +47,7 @@ struct watchdog_ops {
->  	unsigned int (*status)(struct watchdog_device *);
->  	int (*set_timeout)(struct watchdog_device *, unsigned int);
->  	unsigned int (*get_timeleft)(struct watchdog_device *);
-> -	int (*restart)(struct watchdog_device *);
-> +	int (*restart)(struct watchdog_device *, unsigned long, void *);
->  	long (*ioctl)(struct watchdog_device *, unsigned int, unsigned long);
->  };
->  
-> -- 
-> 2.5.0
-> 
+Interesting. So it looks like AT91_WDT_WDRSTT has to be set if the timer
+values in MR are changed from 0 to another value, or maybe after each
+timer value change. Wonder if that should be done in the init function,
+after MR is set (with the watchdog disabled).
 
-Patch has been added to linux-watchdog-next.
+Thoughts, anyone ?
 
-Kind regards,
-Wim.
+Thanks,
+Guenter
+
+
+
+
