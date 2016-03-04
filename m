@@ -1,196 +1,242 @@
 Return-path: <wimvs@spo001.leaseweb.nl>
-Date: Fri, 4 Mar 2016 20:47:47 +0100
+Date: Fri, 4 Mar 2016 20:40:56 +0100
 From: Wim Van Sebroeck <wim@iguana.be>
-To: fu.wei@linaro.org
-Cc: robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com,
-	ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
-	linux@roeck-us.net, corbet@lwn.net, catalin.marinas@arm.com,
-	will.deacon@arm.com, Suravee.Suthikulpanit@amd.com,
-	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	linux-doc@vger.kernel.org, devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linaro-acpi@lists.linaro.org,
-	rruigrok@codeaurora.org, harba@codeaurora.org, cov@codeaurora.org,
-	timur@codeaurora.org, dyoung@redhat.com, panand@redhat.com,
-	graeme.gregory@linaro.org, al.stone@linaro.org,
-	hanjun.guo@linaro.org, jcm@redhat.com, arnd@arndb.de,
-	leo.duran@amd.com, sudeep.holla@arm.com
-Subject: Re: [PATCH v14 0/4] Watchdog: introduce ARM SBSA watchdog driver
-Message-ID: <20160304194747.GB7099@spo001.leaseweb.nl>
-References: <1456735610-22012-1-git-send-email-fu.wei@linaro.org>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Sylvain Lemieux <slemieux@tycoint.com>
+Subject: Re: [PATCH] watchdog: Add 'action' and 'data' parameters to restart handler callback
+Message-ID: <20160304194056.GH6900@spo001.leaseweb.nl>
+References: <1456536769-17757-1-git-send-email-linux@roeck-us.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1456735610-22012-1-git-send-email-fu.wei@linaro.org>
+In-Reply-To: <1456536769-17757-1-git-send-email-linux@roeck-us.net>
 Sender: <wimvs@spo001.leaseweb.nl>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi Fu,
+Hi Guenter,
 
-> From: Fu Wei <fu.wei@linaro.org>
+> The 'action' (or restart mode) and data parameters may be used by restart
+> handlers, so they should be passed to the restart callback functions.
 > 
-> This patchset:
->     (1)Introduce Documentation/devicetree/bindings/watchdog/sbsa-gwdt.txt
->     for FDT info of SBSA Generic Watchdog, and give two examples of
->     adding SBSA Generic Watchdog device node into the dts files:
->     foundation-v8.dts and amd-seattle-soc.dtsi.
+> Cc: Sylvain Lemieux <slemieux@tycoint.com>
+> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+> ---
+>  drivers/watchdog/bcm47xx_wdt.c   | 3 ++-
+>  drivers/watchdog/da9063_wdt.c    | 3 ++-
+>  drivers/watchdog/digicolor_wdt.c | 3 ++-
+>  drivers/watchdog/imgpdc_wdt.c    | 3 ++-
+>  drivers/watchdog/imx2_wdt.c      | 3 ++-
+>  drivers/watchdog/lpc18xx_wdt.c   | 3 ++-
+>  drivers/watchdog/meson_wdt.c     | 3 ++-
+>  drivers/watchdog/moxart_wdt.c    | 3 ++-
+>  drivers/watchdog/mtk_wdt.c       | 3 ++-
+>  drivers/watchdog/qcom-wdt.c      | 3 ++-
+>  drivers/watchdog/s3c2410_wdt.c   | 3 ++-
+>  drivers/watchdog/sunxi_wdt.c     | 3 ++-
+>  drivers/watchdog/watchdog_core.c | 2 +-
+>  include/linux/watchdog.h         | 2 +-
+>  14 files changed, 26 insertions(+), 14 deletions(-)
 > 
->     (2)Introduce ARM SBSA watchdog driver:
->         a.Use linux kernel watchdog framework;
->         b.Work with FDT on ARM64;
->         c.Support getting timeout from parameter and FDT at the driver
->           init stage.
->         d.The driver works in two modes:
->           (1) single stage timeout (ignore WS0 interrupt)
->           (2) two stages timeout (register WS0 interrupt, do panic in routine)
->         e.User can config working mode by module parameter "action".
-> 
-> This patchset has been tested with watchdog daemon
-> (ACPI/FDT, module/build-in) on the following platforms:
->     (1)ARM Foundation v8 model
->     (2)AMD Seattle platform
-> 
-> This patchset has been tested with kdump successfully.
-> 
-> Changelog:
-> v14:Fix a bug of registering interrupt routine: do a ping before
->     registering interrupt routine, in case where is a pending interrupt.
->     Reorder the initialization code to postpone registering interrupt routine.
->     Improve some code style:
->         (1)add some macro of string
->         (2)use watchdog_get_drvdata instead of to_sbsa_gwdt,
->            delete to_sbsa_gwdt.
-> 
-> v13:https://lkml.org/lkml/2016/2/16/713
->     Fix a dev_warn message typo"signle"-->"single"
->     Add MODULE_ALIAS
->     Add more *ed-by in commit message.
-> 
-> v12:https://lkml.org/lkml/2016/2/16/154
->     Fix a dev_warn message typo"fall"--"falling"
->     Remove unnecessary "status" in dts
->     Add more *ed-by in commit message.
-> 
-> v11:https://lkml.org/lkml/2016/2/9/577
->     Merge patch 4 and 5.
->     Improve some comments.
->     The driver works in two modes, it's configured by "action"(instead of
->     panic_enabled).
->     Improve the initialization of the timeout limits.
->     Feeding dog by writing "0" to WRR.
-> 
-> v10:https://lkml.org/lkml/2016/2/3/817
->     Delete pretimeout support.
->     Separate the driver to two parts:
->         (1) single stage timeout driver(ignore WS0 interrupt);
->         (2) register WS0 interrupt for the half timeout panic.
->     timeout == (enable --> WS1).
-> 
-> v9: https://lkml.org/lkml/2015/11/9/57
->     Rebase to latest kernel version(4.3).
->     Update the Documentation of sbsa-gwdt device node info of FDT:
->         (1) move some introduction to pretimeout patch
->         (2) delete WS1 value from "interrupts" of binding documentation,
->             since WS1 won't be handled by Linux.
-> 
-> v8: https://lkml.org/lkml/2015/10/27/466
->     Rebase to latest kernel version(4.3-rc7).
->     Separate the patches of GTDT support and arm_arch_timer. This
->     clocksource relevant patch will upstreamed in a individual patchset.
->     Update all the default timeout and pretimeout to 30s and 60s.
->     Improve documentation and inline comments.
->     Fix a bug in pretimeout support which makes timeout and pretimeout
->     parameters initialization fail.
-> 
-> v7: https://lkml.org/lkml/2015/8/24/611
->     Rebase to latest kernel version(4.2-rc7).
->     Improve FDT support: geting resource by order, instead of name.
->     According to the FDT support, Update the example dts file, gtdt.c
->     and sbsa_gwdt.c.
->     Pass the sparse test, and fix the warning.
->     Fix the max_pretimeout and max_timeout value overflow bug.
->     Delete the WCV output value.
->     
-> 
-> v6: https://lkml.org/lkml/2015/6/23/359
->     Improve the dtb example files: reduce the register frame size to 4K.
->     Improve pretimeout support:
->         (1) improve watchdog_init_timeouts function
-> 	(2) rename watchdog_check_min_max_timeouts back to the original name
->         (1) improve watchdog_timeout_invalid/watchdog_pretimeout_invalid
->     Add the new features in the sbsa_gwdt driver:
-> 	(1) In the second stage, user can feed the dog without cleaning WS0.
-> 	(2) In the second stage, user can trigger WS1 by setting pretimeout = 0.
-> 	(3) expand the max value of pretimeout, in case 10 second is not enough
-> 	    for a kdump kernel reboot in panic.
-> 
-> v5: https://lkml.org/lkml/2015/6/10/357
->     Improve pretimeout support:
->         (1)fix typo in documentation and comments.
-> 	(2)fix the timeout limits validation bug.
->     Simplify sbsa_gwdt driver:
-> 	(1)integrate all the registers access functions into caller.
-> 
-> v4: https://lkml.org/lkml/2015/6/2/4
->     Refactor GTDT support code: remove it from arch/arm64/kernel/acpi.c,
->     put it into drivers/acpi/gtdt.c file.
->     Integrate the GTDT code of drivers/clocksource/arm_arch_timer.c into
->     drivers/acpi/gtdt.c.
->     Improve pretimeout support, fix "pretimeout == 0" problem.
->     Simplify sbsa_gwdt driver:
->         (1)timeout/pretimeout limits setup;
->         (2)keepalive function;
->         (3)delete "clk == 0" check;
->         (4)delete WS0 status bit check in interrupt routine;
->         (5)sbsa_gwdt_set_wcv function.
-> 
-> v3: https://lkml.org/lkml/2015/5/25/111
->     Delete "export arch_timer_get_rate" patch.
->     Driver back to use arch_timer_get_cntfrq.
->     Improve watchdog_init_timeouts function and update relevant documentation.
->     Improve watchdog_timeout_invalid and watchdog_pretimeout_invalid.
->     Improve foundation-v8.dts: delete the unnecessary tag of device node.
->     Remove "ARM64 || COMPILE_TEST" from Kconfig.
->     Add comments in arch/arm64/kernel/acpi.c
->     Fix typoes and incorrect comments.
-> 
-> v2: https://lkml.org/lkml/2015/5/21/172
->     Improve watchdog-kernel-api.txt documentation for pretimeout support.
->     Export "arch_timer_get_rate" in arm_arch_timer.c.
->     Add watchdog_init_timeouts API for pretimeout support in framework.
->     Improve suspend and resume foundation in driver
->     Improve timeout/pretimeout values init code in driver.
->     Delete unnecessary items of the sbsa_gwdt struct and #define.
->     Delete all unnecessary debug info in driver.
->     Fix 64bit division bug.
->     Use the arch_timer interface to get watchdog clock rate.
->     Add MODULE_DEVICE_TABLE for platform device id.
->     Fix typoes.
-> 
-> v1: https://lkml.org/lkml/2015/5/15/279
->     The first version upstream patchset to linux mailing list.
-> 
-> Fu Wei (4):
->   Documentation: add sbsa-gwdt driver documentation
->   ARM64: add SBSA Generic Watchdog device node in foundation-v8.dts
->   ARM64: add SBSA Generic Watchdog device node in amd-seattle-soc.dtsi
->   Watchdog: introduce ARM SBSA watchdog driver
-> 
->  .../devicetree/bindings/watchdog/sbsa-gwdt.txt     |  31 ++
->  Documentation/watchdog/watchdog-parameters.txt     |   7 +
->  arch/arm64/boot/dts/amd/amd-seattle-soc.dtsi       |   8 +
->  arch/arm64/boot/dts/arm/foundation-v8.dts          |   7 +
->  drivers/watchdog/Kconfig                           |  20 +
->  drivers/watchdog/Makefile                          |   1 +
->  drivers/watchdog/sbsa_gwdt.c                       | 408 +++++++++++++++++++++
->  7 files changed, 482 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/watchdog/sbsa-gwdt.txt
->  create mode 100644 drivers/watchdog/sbsa_gwdt.c
-> 
+> diff --git a/drivers/watchdog/bcm47xx_wdt.c b/drivers/watchdog/bcm47xx_wdt.c
+> index df1c2a4b0165..a1900b9ab6c4 100644
+> --- a/drivers/watchdog/bcm47xx_wdt.c
+> +++ b/drivers/watchdog/bcm47xx_wdt.c
+> @@ -87,7 +87,8 @@ static int bcm47xx_wdt_hard_set_timeout(struct watchdog_device *wdd,
+>  	return 0;
+>  }
+>  
+> -static int bcm47xx_wdt_restart(struct watchdog_device *wdd)
+> +static int bcm47xx_wdt_restart(struct watchdog_device *wdd,
+> +			       unsigned long action, void *data)
+>  {
+>  	struct bcm47xx_wdt *wdt = bcm47xx_wdt_get(wdd);
+>  
+> diff --git a/drivers/watchdog/da9063_wdt.c b/drivers/watchdog/da9063_wdt.c
+> index 11e887572649..a100f648880d 100644
+> --- a/drivers/watchdog/da9063_wdt.c
+> +++ b/drivers/watchdog/da9063_wdt.c
+> @@ -119,7 +119,8 @@ static int da9063_wdt_set_timeout(struct watchdog_device *wdd,
+>  	return ret;
+>  }
+>  
+> -static int da9063_wdt_restart(struct watchdog_device *wdd)
+> +static int da9063_wdt_restart(struct watchdog_device *wdd, unsigned long action,
+> +			      void *data)
+>  {
+>  	struct da9063_watchdog *wdt = watchdog_get_drvdata(wdd);
+>  	int ret;
+> diff --git a/drivers/watchdog/digicolor_wdt.c b/drivers/watchdog/digicolor_wdt.c
+> index 1ccb0b239348..77df772406b0 100644
+> --- a/drivers/watchdog/digicolor_wdt.c
+> +++ b/drivers/watchdog/digicolor_wdt.c
+> @@ -48,7 +48,8 @@ static void dc_wdt_set(struct dc_wdt *wdt, u32 ticks)
+>  	spin_unlock_irqrestore(&wdt->lock, flags);
+>  }
+>  
+> -static int dc_wdt_restart(struct watchdog_device *wdog)
+> +static int dc_wdt_restart(struct watchdog_device *wdog, unsigned long action,
+> +			  void *data)
+>  {
+>  	struct dc_wdt *wdt = watchdog_get_drvdata(wdog);
+>  
+> diff --git a/drivers/watchdog/imgpdc_wdt.c b/drivers/watchdog/imgpdc_wdt.c
+> index 3679f2e1922f..516fbef00856 100644
+> --- a/drivers/watchdog/imgpdc_wdt.c
+> +++ b/drivers/watchdog/imgpdc_wdt.c
+> @@ -150,7 +150,8 @@ static int pdc_wdt_start(struct watchdog_device *wdt_dev)
+>  	return 0;
+>  }
+>  
+> -static int pdc_wdt_restart(struct watchdog_device *wdt_dev)
+> +static int pdc_wdt_restart(struct watchdog_device *wdt_dev,
+> +			   unsigned long action, void *data)
+>  {
+>  	struct pdc_wdt_dev *wdt = watchdog_get_drvdata(wdt_dev);
+>  
+> diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
+> index 1a48cb28718f..7ae92aef4cc8 100644
+> --- a/drivers/watchdog/imx2_wdt.c
+> +++ b/drivers/watchdog/imx2_wdt.c
+> @@ -77,7 +77,8 @@ static const struct watchdog_info imx2_wdt_info = {
+>  	.options = WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE,
+>  };
+>  
+> -static int imx2_wdt_restart(struct watchdog_device *wdog)
+> +static int imx2_wdt_restart(struct watchdog_device *wdog, unsigned long action,
+> +			    void *data)
+>  {
+>  	struct imx2_wdt_device *wdev = watchdog_get_drvdata(wdog);
+>  	unsigned int wcr_enable = IMX2_WDT_WCR_WDE;
+> diff --git a/drivers/watchdog/lpc18xx_wdt.c b/drivers/watchdog/lpc18xx_wdt.c
+> index 6914c83aa6d9..fd171e6caa16 100644
+> --- a/drivers/watchdog/lpc18xx_wdt.c
+> +++ b/drivers/watchdog/lpc18xx_wdt.c
+> @@ -153,7 +153,8 @@ static int lpc18xx_wdt_start(struct watchdog_device *wdt_dev)
+>  	return 0;
+>  }
+>  
+> -static int lpc18xx_wdt_restart(struct watchdog_device *wdt_dev)
+> +static int lpc18xx_wdt_restart(struct watchdog_device *wdt_dev,
+> +			       unsigned long action, void *data)
+>  {
+>  	struct lpc18xx_wdt_dev *lpc18xx_wdt = watchdog_get_drvdata(wdt_dev);
+>  	unsigned long flags;
+> diff --git a/drivers/watchdog/meson_wdt.c b/drivers/watchdog/meson_wdt.c
+> index aea5d2f44ad7..56ea1caf71c3 100644
+> --- a/drivers/watchdog/meson_wdt.c
+> +++ b/drivers/watchdog/meson_wdt.c
+> @@ -62,7 +62,8 @@ struct meson_wdt_dev {
+>  	const struct meson_wdt_data *data;
+>  };
+>  
+> -static int meson_wdt_restart(struct watchdog_device *wdt_dev)
+> +static int meson_wdt_restart(struct watchdog_device *wdt_dev,
+> +			     unsigned long action, void *data)
+>  {
+>  	struct meson_wdt_dev *meson_wdt = watchdog_get_drvdata(wdt_dev);
+>  	u32 tc_reboot = MESON_WDT_DC_RESET;
+> diff --git a/drivers/watchdog/moxart_wdt.c b/drivers/watchdog/moxart_wdt.c
+> index 885c81bc4210..2c4a73d1e214 100644
+> --- a/drivers/watchdog/moxart_wdt.c
+> +++ b/drivers/watchdog/moxart_wdt.c
+> @@ -31,7 +31,8 @@ struct moxart_wdt_dev {
+>  
+>  static int heartbeat;
+>  
+> -static int moxart_wdt_restart(struct watchdog_device *wdt_dev)
+> +static int moxart_wdt_restart(struct watchdog_device *wdt_dev,
+> +			      unsigned long action, void *data)
+>  {
+>  	struct moxart_wdt_dev *moxart_wdt = watchdog_get_drvdata(wdt_dev);
+>  
+> diff --git a/drivers/watchdog/mtk_wdt.c b/drivers/watchdog/mtk_wdt.c
+> index b78776c05554..7ed417a765c7 100644
+> --- a/drivers/watchdog/mtk_wdt.c
+> +++ b/drivers/watchdog/mtk_wdt.c
+> @@ -64,7 +64,8 @@ struct mtk_wdt_dev {
+>  	void __iomem *wdt_base;
+>  };
+>  
+> -static int mtk_wdt_restart(struct watchdog_device *wdt_dev)
+> +static int mtk_wdt_restart(struct watchdog_device *wdt_dev,
+> +			   unsigned long action, void *data)
+>  {
+>  	struct mtk_wdt_dev *mtk_wdt = watchdog_get_drvdata(wdt_dev);
+>  	void __iomem *wdt_base;
+> diff --git a/drivers/watchdog/qcom-wdt.c b/drivers/watchdog/qcom-wdt.c
+> index 424f9a952fee..20563ccb7be0 100644
+> --- a/drivers/watchdog/qcom-wdt.c
+> +++ b/drivers/watchdog/qcom-wdt.c
+> @@ -70,7 +70,8 @@ static int qcom_wdt_set_timeout(struct watchdog_device *wdd,
+>  	return qcom_wdt_start(wdd);
+>  }
+>  
+> -static int qcom_wdt_restart(struct watchdog_device *wdd)
+> +static int qcom_wdt_restart(struct watchdog_device *wdd, unsigned long action,
+> +			    void *data)
+>  {
+>  	struct qcom_wdt *wdt = to_qcom_wdt(wdd);
+>  	u32 timeout;
+> diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s3c2410_wdt.c
+> index 0093450441fe..d57f19b5077f 100644
+> --- a/drivers/watchdog/s3c2410_wdt.c
+> +++ b/drivers/watchdog/s3c2410_wdt.c
+> @@ -349,7 +349,8 @@ static int s3c2410wdt_set_heartbeat(struct watchdog_device *wdd, unsigned timeou
+>  	return 0;
+>  }
+>  
+> -static int s3c2410wdt_restart(struct watchdog_device *wdd)
+> +static int s3c2410wdt_restart(struct watchdog_device *wdd, unsigned long action,
+> +			      void *data)
+>  {
+>  	struct s3c2410_wdt *wdt = watchdog_get_drvdata(wdd);
+>  	void __iomem *wdt_base = wdt->reg_base;
+> diff --git a/drivers/watchdog/sunxi_wdt.c b/drivers/watchdog/sunxi_wdt.c
+> index e027deb54740..953bb7b7446f 100644
+> --- a/drivers/watchdog/sunxi_wdt.c
+> +++ b/drivers/watchdog/sunxi_wdt.c
+> @@ -83,7 +83,8 @@ static const int wdt_timeout_map[] = {
+>  };
+>  
+>  
+> -static int sunxi_wdt_restart(struct watchdog_device *wdt_dev)
+> +static int sunxi_wdt_restart(struct watchdog_device *wdt_dev,
+> +			     unsigned long action, void *data)
+>  {
+>  	struct sunxi_wdt_dev *sunxi_wdt = watchdog_get_drvdata(wdt_dev);
+>  	void __iomem *wdt_base = sunxi_wdt->wdt_base;
+> diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
+> index 07c9931e2123..d3cfcccddf39 100644
+> --- a/drivers/watchdog/watchdog_core.c
+> +++ b/drivers/watchdog/watchdog_core.c
+> @@ -164,7 +164,7 @@ static int watchdog_restart_notifier(struct notifier_block *nb,
+>  
+>  	int ret;
+>  
+> -	ret = wdd->ops->restart(wdd);
+> +	ret = wdd->ops->restart(wdd, action, data);
+>  	if (ret)
+>  		return NOTIFY_BAD;
+>  
+> diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
+> index 537e84e2592a..f1fccc7aea68 100644
+> --- a/include/linux/watchdog.h
+> +++ b/include/linux/watchdog.h
+> @@ -47,7 +47,7 @@ struct watchdog_ops {
+>  	unsigned int (*status)(struct watchdog_device *);
+>  	int (*set_timeout)(struct watchdog_device *, unsigned int);
+>  	unsigned int (*get_timeleft)(struct watchdog_device *);
+> -	int (*restart)(struct watchdog_device *);
+> +	int (*restart)(struct watchdog_device *, unsigned long, void *);
+>  	long (*ioctl)(struct watchdog_device *, unsigned int, unsigned long);
+>  };
+>  
 > -- 
 > 2.5.0
 > 
 
-Patchset added to linux-watchdog-next.
+Patch has been added to linux-watchdog-next.
 
 Kind regards,
 Wim.
