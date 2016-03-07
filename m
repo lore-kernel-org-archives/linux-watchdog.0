@@ -1,62 +1,75 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail9.hitachi.co.jp ([133.145.228.44]:47769 "EHLO
-	mail9.hitachi.co.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752249AbcCGLHe (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 7 Mar 2016 06:07:34 -0500
-From: =?utf-8?B?5rKz5ZCI6Iux5a6PIC8gS0FXQUnvvIxISURFSElSTw==?=
-	<hidehiro.kawai.ez@hitachi.com>
+Received: from mail.skyhub.de ([78.46.96.112]:40793 "EHLO mail.skyhub.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751938AbcCGLNP (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 7 Mar 2016 06:13:15 -0500
+Date: Mon, 7 Mar 2016 12:13:01 +0100
+From: Borislav Petkov <bp@alien8.de>
 To: =?utf-8?B?5rKz5ZCI6Iux5a6PIC8gS0FXQUnvvIxISURFSElSTw==?=
-	<hidehiro.kawai.ez@hitachi.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
+	<hidehiro.kawai.ez@hitachi.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
 	Thomas Mingarelli <thomas.mingarelli@hpe.com>,
 	Wim Van Sebroeck <wim@iguana.be>,
-	Corey Minyard <minyard@acm.org>
-CC: "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	Corey Minyard <minyard@acm.org>,
+	Javi Merino <javi.merino@arm.com>,
+	Michal Hocko <mhocko@suse.com>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	"Steven Rostedt (Red Hat)" <rostedt@goodmis.org>,
+	Rasmus Villemoes <linux@rasmusvillemoes.dk>,
 	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	Michal Nazarewicz <mina86@mina86.com>,
 	Michal Hocko <mhocko@kernel.org>,
-	Borislav Petkov <bp@alien8.de>,
+	Vitaly Kuznetsov <vkuznets@redhat.com>,
+	HATAYAMA Daisuke <d.hatayama@jp.fujitsu.com>,
+	Gobinda Charan Maji <gobinda.cemk07@gmail.com>,
+	Tejun Heo <tj@kernel.org>,
+	Nicolas Iooss <nicolas.iooss_linux@m4x.org>,
 	"openipmi-developer@lists.sourceforge.net"
 	<openipmi-developer@lists.sourceforge.net>,
+	Thomas Gleixner <tglx@linutronix.de>,
 	Guenter Roeck <linux@roeck-us.net>
-Subject: RE: [Openipmi-developer] [v3 PATCH 3/3] hpwdt: Use nmi_panic()
- when kernel panics in NMI handler
-Date: Mon, 7 Mar 2016 11:07:30 +0000
-Message-ID: <04EAB7311EE43145B2D3536183D1A84454B189CD@GSjpTKYDCembx31.service.hitachi.net>
+Subject: Re: [v3 PATCH 1/3] panic: Change nmi_panic from macro to function
+Message-ID: <20160307111300.GA27820@pd.tnic>
 References: <20160303105741.4587.49047.stgit@softrs>
- <20160303105748.4587.70794.stgit@softrs>
-In-Reply-To: <20160303105748.4587.70794.stgit@softrs>
-Content-Language: ja-JP
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+ <20160303105744.4587.1001.stgit@softrs>
+ <20160303131458.GD24621@pd.tnic>
+ <04EAB7311EE43145B2D3536183D1A84454B18988@GSjpTKYDCembx31.service.hitachi.net>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <04EAB7311EE43145B2D3536183D1A84454B18988@GSjpTKYDCembx31.service.hitachi.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
 
-PiBGcm9tOiBQaGlsIFBva29ybnkgW21haWx0bzpwcG9rb3JueUBwZW5ndWluY29tcHV0aW5nLmNv
-bV0NCj4gDQo+IFdoaWxlIHlvdSBhcmUgaW4gZHJpdmVycy93YXRjaGRvZy9ocHdkdC5jIHJlcGxh
-Y2luZyBwYW5pYygpIHdpdGgNCj4gbm1pX3BhbmljKCkgY2FuIHlvdSBhbHNvIGZpeCBhIGZldyBt
-b3JlIG9mIHRoZSBicm9rZW4gc3RyaW5ncz8gIFRoZQ0KPiBMaW51eCBzdHlsZSBndWlkZSBzcGVj
-ZmlpY2FsbHkgc2F5cyBOT1QgdG8gYnJlYWsgc3RyaW5ncyB0aGF0IGFyZSB1c2VyDQo+IHZpc2li
-bGUgYmVjYXVzZSBpdCBicmVha3MgImdyZXAiLiAgU286DQoNCkFoaCwgeWVzLiAgSSBzaG91bGQg
-aGF2ZSBmaXhlZCB0aGlzIGFzIHdlbGwgYXMgdGhlIGZvcm1lciBjYXNlLg0KQnV0IHRoaXMgcGF0
-Y2ggc2V0IGhhcyBhbHJlYWR5IGJlZW4gcXVldWVkIGludG8gLW1tIHRyZWUsIHNvDQpJJ2xsIGxl
-YXZlIHRoaXMgcGF0Y2ggaWYgdGhlIGZpeCBpcyBub3QgaW1wb3J0YW50Lg0KDQpSZWdhcmRzLA0K
-SGlkZWhpcm8gS2F3YWkNCg0KPiANCj4gLSAgICAgICBwYW5pYygiQW4gTk1JIG9jY3VycmVkLiBE
-ZXBlbmRpbmcgb24geW91ciBzeXN0ZW0gdGhlIHJlYXNvbiAiDQo+ICsgICAgICAgbm1pX3Bhbmlj
-KHJlZ3MsICJBbiBOTUkgb2NjdXJyZWQuIERlcGVuZGluZyBvbiB5b3VyIHN5c3RlbSB0aGUgcmVh
-c29uICINCj4gICAgICAgICAgICAgICAgICJmb3IgdGhlIE5NSSBpcyBsb2dnZWQgaW4gYW55IG9u
-ZSBvZiB0aGUgZm9sbG93aW5nICINCj4gICAgICAgICAgICAgICAgICJyZXNvdXJjZXM6XG4iDQo+
-ICAgICAgICAgICAgICAgICAiMS4gSW50ZWdyYXRlZCBNYW5hZ2VtZW50IExvZyAoSU1MKVxuIg0K
-PiANCj4gU2hvdWxkIHByb2JhYmx5IGJlOg0KPiANCj4gLSAgICAgICBwYW5pYygiQW4gTk1JIG9j
-Y3VycmVkLiBEZXBlbmRpbmcgb24geW91ciBzeXN0ZW0gdGhlIHJlYXNvbiAiDQo+IC0gICAgICAg
-ICAgICAgICAgImZvciB0aGUgTk1JIGlzIGxvZ2dlZCBpbiBhbnkgb25lIG9mIHRoZSBmb2xsb3dp
-bmcgIg0KPiAtICAgICAgICAgICAgICAgICJyZXNvdXJjZXM6XG4iDQo+ICsgICAgICAgbm1pX3Bh
-bmljKHJlZ3MsICJBbiBOTUkgb2NjdXJyZWQuIERlcGVuZGluZyBvbiB5b3VyIHN5c3RlbSB0aGUN
-Cj4gcmVhc29uIGZvciB0aGUgTk1JIGlzIGxvZ2dlZCBpbiBhbnkgb25lIG9mIHRoZSBmb2xsb3dp
-bmcgcmVzb3VyY2VzOlxuIg0KPiAgICAgICAgICAgICAgICAgIjEuIEludGVncmF0ZWQgTWFuYWdl
-bWVudCBMb2cgKElNTClcbiINCj4gDQo+IFNvIGl0J3Mgb2theSB0byBicmVhayBvbiAiXG4iLCBi
-dXQgbm90IGluIHRoZSBtaWRkbGUgb2YgYSBsaW5lLg0KPiANCj4gLS0NCj4gUGhpbGlwIFBva29y
-bnksIFJIQ0UNCj4gQ2hpZWYgVGVjaG5vbG9neSBPZmZpY2VyDQo+IFBFTkdVSU4gQ09NUFVUSU5H
-LCBJbmMNCj4gd3d3LnBlbmd1aW5jb21wdXRpbmcuY29tDQo+IA0KPiBDaGFuZ2luZyB0aGUgd29y
-bGQgdGhyb3VnaCB0ZWNobmljYWwgaW5ub3ZhdGlvbg0K
+On Mon, Mar 07, 2016 at 10:53:51AM +0000, =E6=B2=B3=E5=90=88=E8=8B=B1=E5=AE=
+=8F / KAWAI=EF=BC=8CHIDEHIRO wrote:
+> > From: Borislav Petkov [mailto:bp@alien8.de]
+> > On Thu, Mar 03, 2016 at 07:57:44PM +0900, Hidehiro Kawai wrote:
+> > > Change nmi_panic() macro to a normal function for the portability.
+> >=20
+> > portability?
+>=20
+> I wanted to say encapsulating things into a function makes modules
+> only have to know about the function. Modules don't need to know
+> all things in the macro.  But I thought again, and `portability'
+> was not appropriate.
+>=20
+> However, this patch set has been queued into -mm now.  So I'll
+> leave this if not necessary.
+
+Unless Andrew is willing to do a quick "quilt header -e" on your patch
+and paste in a corrected commit message text which you give him...
+
+:-)
+
+--=20
+Regards/Gruss,
+    Boris.
+
+ECO tip #101: Trim your mails when you reply.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
