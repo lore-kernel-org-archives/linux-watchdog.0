@@ -1,70 +1,61 @@
-Return-path: <dan.carpenter@oracle.com>
-Date: Tue, 8 Mar 2016 15:10:16 +0300
-From: Dan Carpenter <dan.carpenter@oracle.com>
-To: linux@roeck-us.net
-Cc: linux-watchdog@vger.kernel.org
-Subject: re: watchdog: Introduce WDOG_HW_RUNNING flag
-Message-ID: <20160308121016.GE28684@mwanda>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Return-path: <linux@roeck-us.net>
+From: Guenter Roeck <linux@roeck-us.net>
+To: linux-watchdog@vger.kernel.org
+Cc: Wim Van Sebroeck <wim@iguana.be>,
+	linux-kernel@vger.kernel.org,
+	Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH] watchdog: Ensure that wdd is not dereferenced if NULL
+Date: Tue,  8 Mar 2016 18:46:13 -0800
+Message-Id: <1457491573-9145-1-git-send-email-linux@roeck-us.net>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Hello Guenter Roeck,
+Smatch rightfully complains that wdd is dereferenced in the watchdog
+release function after being checked for NULL. Also make sure that it
+is not accessed outside mutex protection to avoid use-after-free problems.
 
-This is a semi-automatic email about new static checker warnings.
+Fixes: e6c71e84e4c0 ("watchdog: Introduce WDOG_HW_RUNNING flag")
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+---
+Wim,
 
-The patch e6c71e84e4c0: "watchdog: Introduce WDOG_HW_RUNNING flag" 
-from Feb 28, 2016, leads to the following Smatch complaint:
+please feel free to merge with the original commit if your prefer.
 
-drivers/watchdog/watchdog_dev.c:752 watchdog_release()
-	 error: we previously assumed 'wdd' could be null (see line 718)
+Thanks,
+Guenter
 
-drivers/watchdog/watchdog_dev.c
-   717		wdd = wd_data->wdd;
-   718		if (!wdd)
-                     ^^^
-Old code assume "wdd" can be NULL.
+ drivers/watchdog/watchdog_dev.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-   719			goto done;
-   720	
-   721		/*
-   722		 * We only stop the watchdog if we received the magic character
-   723		 * or if WDIOF_MAGICCLOSE is not set. If nowayout was set then
-   724		 * watchdog_stop will fail.
-   725		 */
-   726		if (!test_bit(WDOG_ACTIVE, &wdd->status))
-   727			err = 0;
-   728		else if (test_and_clear_bit(_WDOG_ALLOW_RELEASE, &wd_data->status) ||
-   729			 !(wdd->info->options & WDIOF_MAGICCLOSE))
-   730			err = watchdog_stop(wdd);
-   731	
-   732		/* If the watchdog was not stopped, send a keepalive ping */
-   733		if (err < 0) {
-   734			pr_crit("watchdog%d: watchdog did not stop!\n", wdd->id);
-   735			watchdog_ping(wdd);
-   736		}
-   737	
-   738		cancel_delayed_work_sync(&wd_data->work);
-   739		watchdog_update_worker(wdd);
-   740	
-   741		/* make sure that /dev/watchdog can be re-opened */
-   742		clear_bit(_WDOG_DEV_OPEN, &wd_data->status);
-   743	
-   744	done:
-   745		mutex_unlock(&wd_data->lock);
-   746		/*
-   747		 * Allow the owner module to be unloaded again unless the watchdog
-   748		 * is still running. If the watchdog is still running, it can not
-   749		 * be stopped, and its driver must not be unloaded.
-   750		 */
-   751		if (!watchdog_hw_running(wdd)) {
-                                         ^^^
-New code dereferences it without checking.
-
-   752			module_put(wdd->ops->owner);
-   753			kref_put(&wd_data->kref, watchdog_core_data_release);
-   754		}
-
-regards,
-dan carpenter
+diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
+index 2d6110278eac..e2c5abbb45ff 100644
+--- a/drivers/watchdog/watchdog_dev.c
++++ b/drivers/watchdog/watchdog_dev.c
+@@ -711,6 +711,7 @@ static int watchdog_release(struct inode *inode, struct file *file)
+ 	struct watchdog_core_data *wd_data = file->private_data;
+ 	struct watchdog_device *wdd;
+ 	int err = -EBUSY;
++	bool running;
+ 
+ 	mutex_lock(&wd_data->lock);
+ 
+@@ -742,14 +743,15 @@ static int watchdog_release(struct inode *inode, struct file *file)
+ 	clear_bit(_WDOG_DEV_OPEN, &wd_data->status);
+ 
+ done:
++	running = wdd && watchdog_hw_running(wdd);
+ 	mutex_unlock(&wd_data->lock);
+ 	/*
+ 	 * Allow the owner module to be unloaded again unless the watchdog
+ 	 * is still running. If the watchdog is still running, it can not
+ 	 * be stopped, and its driver must not be unloaded.
+ 	 */
+-	if (!watchdog_hw_running(wdd)) {
+-		module_put(wdd->ops->owner);
++	if (!running) {
++		module_put(wd_data->cdev.owner);
+ 		kref_put(&wd_data->kref, watchdog_core_data_release);
+ 	}
+ 	return 0;
+-- 
+2.5.0
