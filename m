@@ -1,70 +1,77 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:48886 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751677AbcC1OLk (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 28 Mar 2016 10:11:40 -0400
-Date: Mon, 28 Mar 2016 19:41:36 +0530
-From: Pratyush Anand <panand@redhat.com>
-To: Guenter Roeck <linux@roeck-us.net>, Arnd Bergmann <arnd@arndb.de>,
-	Fu Wei <fu.wei@linaro.org>
-Cc: Rob Herring <robh+dt@kernel.org>,
-	=?utf-8?B?UGF3ZcWC?= Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Jon Corbet <corbet@lwn.net>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will.deacon@arm.com>,
-	Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
-	LKML <linux-kernel@vger.kernel.org>,
-	linux-watchdog@vger.kernel.org, linux-doc@vger.kernel.org,
-	devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>,
-	Richard Ruigrok <rruigrok@codeaurora.org>,
-	"Abdulhamid, Harb" <harba@codeaurora.org>,
-	Christopher Covington <cov@codeaurora.org>,
-	Timur Tabi <timur@codeaurora.org>,
-	Dave Young <dyoung@redhat.com>,
-	G Gregory <graeme.gregory@linaro.org>,
-	Al Stone <al.stone@linaro.org>,
-	Hanjun Guo <hanjun.guo@linaro.org>,
-	Jon Masters <jcm@redhat.com>, Leo Duran <leo.duran@amd.com>,
-	Sudeep Holla <sudeep.holla@arm.com>
-Subject: Re: [PATCH v14 3/4] ARM64: add SBSA Generic Watchdog device node in
- amd-seattle-soc.dtsi
-Message-ID: <20160328141136.GA13855@dhcppc0.redhat.com>
-References: <1456735610-22012-1-git-send-email-fu.wei@linaro.org>
- <1456735610-22012-4-git-send-email-fu.wei@linaro.org>
- <CADyBb7shY-A-DTKEvNQS71SUtNmE6tkURfWDEb-_9eB-4htGWA@mail.gmail.com>
- <56F935AC.3020009@roeck-us.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <56F935AC.3020009@roeck-us.net>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-path: <mmcclint@codeaurora.org>
+Subject: Re: [PATCH 07/17] watchdog: qcom: add option for standalone watchdog not in timer block
+Mime-Version: 1.0 (Mac OS X Mail 9.2 \(3112\))
+Content-Type: text/plain; charset=utf-8
+From: Matthew McClintock <mmcclint@codeaurora.org>
+In-Reply-To: <20160325162326.GA25767@roeck-us.net>
+Date: Mon, 28 Mar 2016 11:55:28 -0500
+Cc: andy.gross@linaro.org,
+ linux-arm-msm@vger.kernel.org,
+ "qca-upstream.external" <qca-upstream.external@qca.qualcomm.com>,
+ Wim Van Sebroeck <wim@iguana.be>,
+ "open list:WATCHDOG DEVICE DRIVERS" <linux-watchdog@vger.kernel.org>,
+ open list <linux-kernel@vger.kernel.org>
+Content-Transfer-Encoding: quoted-printable
+Message-Id: <D54FA5B6-F170-40D3-BF0D-60D40A2C2829@codeaurora.org>
+References: <1458770712-10880-1-git-send-email-mmcclint@codeaurora.org> <1458770712-10880-8-git-send-email-mmcclint@codeaurora.org> <20160325162326.GA25767@roeck-us.net>
+To: Guenter Roeck <linux@roeck-us.net>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 28/03/2016:06:46:20 AM, Guenter Roeck wrote:
-> On 03/28/2016 06:12 AM, Fu Wei wrote:
-> >Hi Wim, Guenter:
-> >
-> >Great thanks for reviewing and applying this patchset :-)
-> >Now I can see almost all the patches of this patchset have been merged
-> >into the master branch of mainline kernel.
-> >But only this one is still out of any branch or repo. It seems that
-> >it's applied on linux-watchdog for a while, then disappeared.
-> >
-> >
-> >So any thing I can do for this patch? Do I need to resubmit it?
-> >Maybe I miss it in some repo? Could you help me ?
-> >Great thanks ! :-)
-> >
-> 
-> If I recall correctly, it was supposed to go in through some other tree (arm-soc ?)
 
-Yes, it should have gone through arm-soc tree. But, it seems it got missed.  The
-other dt patch for foundation-v8 is there in v4.6 pull request
-[https://lkml.org/lkml/2016/3/20/244].
+> On Mar 25, 2016, at 11:23 AM, Guenter Roeck <linux@roeck-us.net> =
+wrote:
+>=20
+>> -#define WDT_RST		0x38
+>> -#define WDT_EN		0x40
+>> -#define WDT_BITE_TIME	0x5C
+>> +enum wdt_reg {
+>> +	WDT_RST,
+>> +	WDT_EN,
+>> +	WDT_BITE_TIME,
+>> +};
+>> +
+>> +static const u32 reg_offset_data_apcs_tmr[] =3D {
+>> +	[WDT_RST] =3D 0x38,
+>> +	[WDT_EN] =3D 0x40,
+>> +	[WDT_BITE_TIME] =3D 0x5C,
+>> +};
+>> +
+>> +static const u32 reg_offset_data_kpss[] =3D {
+>> +	[WDT_RST] =3D 0x4,
+>> +	[WDT_EN] =3D 0x8,
+>=20
+> Does this work ? In the datasheet I have in front of me (APQ8064), the =
+watchdog
+> at this address uses different bits. At address 0x40 (eg =
+GSS_A5_APCS_WDT0_EN),
 
-~Pratyush
+0x40 is acps_tmr, and looks fine.
+
+> bit 0 is the enable bit, and bit 1 enables interrupts. At address 0x08 =
+(eg
+> LPASS_QDSP6SS_WDOG_UNMASKED_INT_EN), bit 0 enables interrupts and bit =
+1 is
+> undefined.
+
+I honestly don=E2=80=99t see anything at 0x8 for either blocks that =
+looks like this. For the new block bit 0 is enabling and bit 1 enabled =
+interrupts.
+
+> Or does "qcom,kpss-standalone" refer to some other watchdog ?
+
+APQ8064 would be the apcs_tmr block variant which is unchanged. MSM8916 =
+as well as IPQ4019 would use the new kpss variant.
+
+I went with block names I found internally here, but I will be the first =
+to admit I am terrible at names. The old block name for APQ was =
+CPU0_ACPS_TMR (where really the watchdog is a subset of a timer block), =
+and on the IPQ4019 it=E2=80=99s called APCS_KPSS_WDT and it=E2=80=99s =
+really just a watchdog block.
+
+I kept the same driver because the register=E2=80=99s currently in use =
+were compatible. By the way, I tested this on an IPQ806x and IPQ4019 =
+both new and old blocks.
+
+Let me know if you need more details.
+
+-M=
