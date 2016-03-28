@@ -1,71 +1,53 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-qg0-f54.google.com ([209.85.192.54]:34736 "EHLO
-	mail-qg0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752562AbcC1UTY (ORCPT
+Received: from smtp.codeaurora.org ([198.145.29.96]:53381 "EHLO
+	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752523AbcC1WWE convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 28 Mar 2016 16:19:24 -0400
-Received: by mail-qg0-f54.google.com with SMTP id c67so84488854qgc.1
-        for <linux-watchdog@vger.kernel.org>; Mon, 28 Mar 2016 13:19:24 -0700 (PDT)
-Subject: Re: [PATCH v4 1/2] watchdog: imx2_wdt: add external reset support via
- 'ext-reset-output' dt prop
-To: Fabio Estevam <festevam@gmail.com>
-References: <1446758362-11702-1-git-send-email-akshay.bhat@timesys.com>
- <1446758362-11702-2-git-send-email-akshay.bhat@timesys.com>
- <20151105222325.GA26159@roeck-us.net>
- <CAJ+vNU2fSxRJ7YvxOfNzoEoiKgzv-dHj=+eksKxH48ekHiUw2Q@mail.gmail.com>
- <20151106220249.GA19791@roeck-us.net> <565F4244.7090502@timesys.com>
- <CAJ+vNU00Bf97HUqkkW9KqOUzHXh482R9O1gasz6ju3Pn-_5chA@mail.gmail.com>
- <CAJ+vNU2qHQPSJ1KWp_3f3vAdeuOcF0ooZHmHsdafabZLXJv=Bw@mail.gmail.com>
- <20151228162923.GA31680@spo001.leaseweb.nl> <56AA79DA.2010305@timesys.com>
- <CAOMZO5DrTY3ho0Z_jXxeYMqbd6GmUKRwD1LB61vM1ZTGQAYOrg@mail.gmail.com>
-Cc: Rob Herring <robh+dt@kernel.org>, Wim Van Sebroeck <wim@iguana.be>,
-	Tim Harvey <tharvey@gateworks.com>,
-	Guenter Roeck <linux@roeck-us.net>,
-	linux-watchdog@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	Shawn Guo <shawnguo@kernel.org>,
-	Sascha Hauer <kernel@pengutronix.de>,
-	Russell King - ARM Linux <linux@arm.linux.org.uk>,
-	"linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>,
-	Justin Waters <justin.waters@timesys.com>,
-	Lucas Stach <l.stach@pengutronix.de>, Stefan Roese <sr@denx.de>
-From: Akshay Bhat <akshay.bhat@timesys.com>
-Message-ID: <56F991C3.8030201@timesys.com>
-Date: Mon, 28 Mar 2016 16:19:15 -0400
-MIME-Version: 1.0
-In-Reply-To: <CAOMZO5DrTY3ho0Z_jXxeYMqbd6GmUKRwD1LB61vM1ZTGQAYOrg@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 28 Mar 2016 18:22:04 -0400
+Subject: Re: [PATCH 07/17] watchdog: qcom: add option for standalone watchdog not in timer block
+Mime-Version: 1.0 (Mac OS X Mail 9.2 \(3112\))
+Content-Type: text/plain; charset=us-ascii
+From: Matthew McClintock <mmcclint@codeaurora.org>
+In-Reply-To: <20160328215638.GA25221@roeck-us.net>
+Date: Mon, 28 Mar 2016 17:21:59 -0500
+Cc: andy.gross@linaro.org, linux-arm-msm@vger.kernel.org,
+	"qca-upstream.external" <qca-upstream.external@qca.qualcomm.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	"open list:WATCHDOG DEVICE DRIVERS" <linux-watchdog@vger.kernel.org>,
+	open list <linux-kernel@vger.kernel.org>
+Message-Id: <1942199A-A10C-4934-A194-0955EA1D40CA@codeaurora.org>
+References: <1458770712-10880-1-git-send-email-mmcclint@codeaurora.org> <1458770712-10880-8-git-send-email-mmcclint@codeaurora.org> <20160325162326.GA25767@roeck-us.net> <D54FA5B6-F170-40D3-BF0D-60D40A2C2829@codeaurora.org> <20160328181356.GA29820@roeck-us.net> <938942F3-D0ED-4BCA-9B6A-EF716A101E0C@codeaurora.org> <20160328215638.GA25221@roeck-us.net>
+To: Guenter Roeck <linux@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
 
-Hi Shawn,
+On Mar 28, 2016, at 4:56 PM, Guenter Roeck <linux@roeck-us.net> wrote:
+>=20
+>> So taken from the timer offset 0x0208A000 I just have a generic counte=
+r register CPU0_APCS_GPT0_CNT at 0x8
+>>=20
+>> What doc are you looking at?
+>>=20
+> "Qualcomm Snapdragon 600 Processor APQ8064 Hardware Register Descriptio=
+n"
+>=20
+> It is available for download from the Qualcomm web site.
+>=20
+> See chapter 12.10.3, "Watchdog timer registers". The register block is =
+at
+> 0x28882000. Registers are almost the same, except for the offset and th=
+e
+> definition of the bits in the enable register.
+>=20
+> LPASS is "Low Power Audio Subsystem". Maybe it has its own watchdog.
 
-On 02/28/2016 08:56 AM, Fabio Estevam wrote:
-> Rob,
->
-> On Thu, Jan 28, 2016 at 6:28 PM, Akshay Bhat <akshay.bhat@timesys.com> wrote:
->
->>> I have no objections against the idea and the code itself.
->>> But as Guenter pointed out: it would be handy to get feedback from the
->>> devicetree maintainers on the above discussion.
->>>
->>> Kind regards,
->>> Wim.
->>>
->>
->> Any suggestions on whether a vendor specific prefix is necessary?
->
-> Any comments?
->
+This block is here:
 
-Is this something you can help with, since you are the iMX 
-architecture/devicetree maintainer? Appreciate any feedback.
+11.15 KPSS CPU0 Timer Registers (0x0208A000 CPU0_APCS_TMR_BASE)
 
-Thanks,
-Akshay
+-M--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
