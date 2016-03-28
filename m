@@ -1,67 +1,39 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:59804 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751129AbcC1SPo (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 28 Mar 2016 14:15:44 -0400
-Date: Mon, 28 Mar 2016 11:15:44 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Matthew McClintock <mmcclint@codeaurora.org>
-Cc: Rob Herring <robh@kernel.org>, andy.gross@linaro.org,
-	linux-arm-msm@vger.kernel.org,
-	qca-upstream.external@qca.qualcomm.com,
-	linux-watchdog@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	"open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS"
-	<devicetree@vger.kernel.org>,
-	open list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 09/17] watchdog: qcom: add kpss-standalone to device tree
- binding
-Message-ID: <20160328181544.GB29820@roeck-us.net>
-References: <1458770712-10880-1-git-send-email-mmcclint@codeaurora.org>
- <1458770712-10880-10-git-send-email-mmcclint@codeaurora.org>
- <20160325141521.GA12357@rob-hp-laptop>
- <0F389D09-1165-4686-98DF-0265351A086A@codeaurora.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <0F389D09-1165-4686-98DF-0265351A086A@codeaurora.org>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-path: <mmcclint@codeaurora.org>
+Subject: Re: [PATCH 07/17] watchdog: qcom: add option for standalone watchdog not in timer block
+Mime-Version: 1.0 (Mac OS X Mail 9.2 \(3112\))
+Content-Type: text/plain; charset=utf-8
+From: Matthew McClintock <mmcclint@codeaurora.org>
+In-Reply-To: <20160328181356.GA29820@roeck-us.net>
+Date: Mon, 28 Mar 2016 15:40:58 -0500
+Cc: andy.gross@linaro.org,
+ linux-arm-msm@vger.kernel.org,
+ "qca-upstream.external" <qca-upstream.external@qca.qualcomm.com>,
+ Wim Van Sebroeck <wim@iguana.be>,
+ "open list:WATCHDOG DEVICE DRIVERS" <linux-watchdog@vger.kernel.org>,
+ open list <linux-kernel@vger.kernel.org>
+Content-Transfer-Encoding: quoted-printable
+Message-Id: <938942F3-D0ED-4BCA-9B6A-EF716A101E0C@codeaurora.org>
+References: <1458770712-10880-1-git-send-email-mmcclint@codeaurora.org> <1458770712-10880-8-git-send-email-mmcclint@codeaurora.org> <20160325162326.GA25767@roeck-us.net> <D54FA5B6-F170-40D3-BF0D-60D40A2C2829@codeaurora.org> <20160328181356.GA29820@roeck-us.net>
+To: Guenter Roeck <linux@roeck-us.net>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On Mon, Mar 28, 2016 at 12:02:47PM -0500, Matthew McClintock wrote:
-> On Mar 25, 2016, at 9:15 AM, Rob Herring <robh@kernel.org> wrote:
-> > 
-> > On Wed, Mar 23, 2016 at 05:05:04PM -0500, Matthew McClintock wrote:
-> >> Update the compatible string to add new device tree binding
-> >> 
-> >> CC: linux-watchdog@vger.kernel.org
-> >> Signed-off-by: Matthew McClintock <mmcclint@codeaurora.org>
-> >> ---
-> >> Documentation/devicetree/bindings/watchdog/qcom-wdt.txt | 1 +
-> >> 1 file changed, 1 insertion(+)
-> >> 
-> >> diff --git a/Documentation/devicetree/bindings/watchdog/qcom-wdt.txt b/Documentation/devicetree/bindings/watchdog/qcom-wdt.txt
-> >> index 60bb2f98..45b37cf 100644
-> >> --- a/Documentation/devicetree/bindings/watchdog/qcom-wdt.txt
-> >> +++ b/Documentation/devicetree/bindings/watchdog/qcom-wdt.txt
-> >> @@ -6,6 +6,7 @@ Required properties :
-> >> 
-> >> 			"qcom,kpss-timer"
-> >> 			"qcom,scss-timer"
-> >> +			"qcom,kpss-standalone"
-> > 
-> > What SoC(s) is this in. Use SoC specific compatible strings please.
-> 
-> So ipq4019 wins the race because we are the first to try to enable watchdog for this block?
-> 
-> qcom,kpss-ipq4019 ?
-> 
-It is a dedicated watchdog block, isn't it ? "qcom,kpss-ipq4019" would not
-refer to a specific block. Devicetree maintainers may have a better idea,
-but it seems to me that there should be 'wdt' or 'watchdog' in the property
-name.
+On Mar 28, 2016, at 1:13 PM, Guenter Roeck <linux@roeck-us.net> wrote:
+>=20
+>>> bit 0 is the enable bit, and bit 1 enables interrupts. At address =
+0x08 (eg
+>>> LPASS_QDSP6SS_WDOG_UNMASKED_INT_EN), bit 0 enables interrupts and =
+bit 1 is
+>>> undefined.
+>>=20
+>> I honestly don=E2=80=99t see anything at 0x8 for either blocks that =
+looks like this. For the new block bit 0 is enabling and bit 1 enabled =
+interrupts.
+>>=20
+> That is from the APQ8064 datasheet.=20
 
-Guenter
+So taken from the timer offset 0x0208A000 I just have a generic counter =
+register CPU0_APCS_GPT0_CNT at 0x8
+
+What doc are you looking at?
+
+-M=
