@@ -1,62 +1,89 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:35512 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751246AbcC2EXc (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 29 Mar 2016 00:23:32 -0400
-From: fu.wei@linaro.org
-To: robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com,
-	ijc+devicetree@hellion.org.uk, thomas.lendacky@amd.com,
-	galak@codeaurora.org, wim@iguana.be, linux@roeck-us.net,
-	brijeshkumar.singh@amd.com, catalin.marinas@arm.com,
-	will.deacon@arm.com, suravee.suthikulpanit@amd.com
-Cc: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linaro-acpi@lists.linaro.org, dyoung@redhat.com, panand@redhat.com,
-	graeme.gregory@linaro.org, al.stone@linaro.org, jcm@redhat.com,
-	arnd@arndb.de, leo.duran@amd.com, Fu Wei <fu.wei@linaro.org>,
-	Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>
-Subject: [PATCH] ARM64: add SBSA Generic Watchdog device node in amd-seattle-soc.dtsi
-Date: Tue, 29 Mar 2016 12:22:57 +0800
-Message-Id: <1459225377-16317-1-git-send-email-fu.wei@linaro.org>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:44913 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751156AbcC3VJS (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 30 Mar 2016 17:09:18 -0400
+Date: Wed, 30 Mar 2016 14:09:16 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Shawn Guo <shawnguo@kernel.org>
+Cc: Akshay Bhat <akshay.bhat@timesys.com>,
+	Fabio Estevam <festevam@gmail.com>,
+	Rob Herring <robh+dt@kernel.org>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Tim Harvey <tharvey@gateworks.com>,
+	linux-watchdog@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	Sascha Hauer <kernel@pengutronix.de>,
+	Russell King - ARM Linux <linux@arm.linux.org.uk>,
+	"linux-arm-kernel@lists.infradead.org"
+	<linux-arm-kernel@lists.infradead.org>,
+	Justin Waters <justin.waters@timesys.com>,
+	Lucas Stach <l.stach@pengutronix.de>, Stefan Roese <sr@denx.de>
+Subject: Re: [PATCH v4 1/2] watchdog: imx2_wdt: add external reset support
+ via 'ext-reset-output' dt prop
+Message-ID: <20160330210916.GB21993@roeck-us.net>
+References: <CAJ+vNU2fSxRJ7YvxOfNzoEoiKgzv-dHj=+eksKxH48ekHiUw2Q@mail.gmail.com>
+ <20151106220249.GA19791@roeck-us.net>
+ <565F4244.7090502@timesys.com>
+ <CAJ+vNU00Bf97HUqkkW9KqOUzHXh482R9O1gasz6ju3Pn-_5chA@mail.gmail.com>
+ <CAJ+vNU2qHQPSJ1KWp_3f3vAdeuOcF0ooZHmHsdafabZLXJv=Bw@mail.gmail.com>
+ <20151228162923.GA31680@spo001.leaseweb.nl>
+ <56AA79DA.2010305@timesys.com>
+ <CAOMZO5DrTY3ho0Z_jXxeYMqbd6GmUKRwD1LB61vM1ZTGQAYOrg@mail.gmail.com>
+ <56F991C3.8030201@timesys.com>
+ <20160330012226.GD28207@tiger>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20160330012226.GD28207@tiger>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-From: Fu Wei <fu.wei@linaro.org>
+On Wed, Mar 30, 2016 at 09:22:33AM +0800, Shawn Guo wrote:
+> On Mon, Mar 28, 2016 at 04:19:15PM -0400, Akshay Bhat wrote:
+> > Hi Shawn,
+> > 
+> > On 02/28/2016 08:56 AM, Fabio Estevam wrote:
+> > >Rob,
+> > >
+> > >On Thu, Jan 28, 2016 at 6:28 PM, Akshay Bhat <akshay.bhat@timesys.com> wrote:
+> > >
+> > >>>I have no objections against the idea and the code itself.
+> > >>>But as Guenter pointed out: it would be handy to get feedback from the
+> > >>>devicetree maintainers on the above discussion.
+> > >>>
+> > >>>Kind regards,
+> > >>>Wim.
+> > >>>
+> > >>
+> > >>Any suggestions on whether a vendor specific prefix is necessary?
+> > >
+> > >Any comments?
+> > >
+> > 
+> > Is this something you can help with, since you are the iMX
+> > architecture/devicetree maintainer? Appreciate any feedback.
+> 
+> FWIW,
+> 
+> Acked-by: Shawn Guo <shawnguo@kernel.org>
+> 
+> Guenter,
+> 
+> I think it's reasonable to pick up the patch, if we have it copied to DT
+> maintainers and on the list for a long period of time, and do not see
+> any objection from anyone.
+> 
+The question was if the property name should be ext-reset-output or
+fsl,ext-reset-output. In my opinion, it should be fsl,ext-reset-output
+because it is not a generic property. Tim disagrees.
 
-This can be a example of adding SBSA Generic Watchdog device node
-into some dts files for the Soc which contains SBSA Generic Watchdog.
+So we have two options: Change the property name to fsl,ext-reset-output,
+which I would accept, or wait for a devicetree maintainer to make a decision.
 
-Acked-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>
-Signed-off-by: Fu Wei <fu.wei@linaro.org>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
----
-Changelog:
-v1 :Re-upstream it, since this patch was missed when we upstreamed it with
-    the driver patchset: https://lkml.org/lkml/2016/3/28/226
-
- arch/arm64/boot/dts/amd/amd-seattle-soc.dtsi | 8 ++++++++
- 1 file changed, 8 insertions(+)
-
-diff --git a/arch/arm64/boot/dts/amd/amd-seattle-soc.dtsi b/arch/arm64/boot/dts/amd/amd-seattle-soc.dtsi
-index bd3adea..9798fd0 100644
---- a/arch/arm64/boot/dts/amd/amd-seattle-soc.dtsi
-+++ b/arch/arm64/boot/dts/amd/amd-seattle-soc.dtsi
-@@ -106,6 +106,14 @@
- 			clock-names = "uartclk", "apb_pclk";
- 		};
- 
-+		watchdog0: watchdog@e0bb0000 {
-+			compatible = "arm,sbsa-gwdt";
-+			reg = <0x0 0xe0bc0000 0 0x1000>,
-+				<0x0 0xe0bb0000 0 0x1000>;
-+			interrupts = <0 337 4>;
-+			timeout-sec = <15>;
-+		};
-+
- 		spi0: ssp@e1020000 {
- 			status = "disabled";
- 			compatible = "arm,pl022", "arm,primecell";
--- 
-2.5.0
-
+Guenter
