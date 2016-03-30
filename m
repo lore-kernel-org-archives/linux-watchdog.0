@@ -1,14 +1,14 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:43783 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:43784 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753742AbcC3P3X (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 30 Mar 2016 11:29:23 -0400
+	id S1753967AbcC3P3d (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 30 Mar 2016 11:29:33 -0400
 From: Wolfram Sang <wsa@the-dreams.de>
 To: linux-watchdog@vger.kernel.org
 Cc: Wolfram Sang <wsa@the-dreams.de>, linux-renesas-soc@vger.kernel.org
-Subject: [PATCH 1/4] watchdog: renesas-wdt: add driver
-Date: Wed, 30 Mar 2016 17:28:42 +0200
-Message-Id: <1459351725-14144-2-git-send-email-wsa@the-dreams.de>
+Subject: [PATCH 2/4] arm64: dts: r8a7795: Add RWDT node
+Date: Wed, 30 Mar 2016 17:28:43 +0200
+Message-Id: <1459351725-14144-3-git-send-email-wsa@the-dreams.de>
 In-Reply-To: <1459351725-14144-1-git-send-email-wsa@the-dreams.de>
 References: <1459351725-14144-1-git-send-email-wsa@the-dreams.de>
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -16,9 +16,9 @@ List-Id: linux-watchdog@vger.kernel.org
 
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Add support for watchdogs (RWDT and SWDT) found on RCar Gen3 based SoCs
-from Renesas.
+This patch adds the RWDT device node for r8a7795.
 
+Signed-off-by: Takeshi Kihara <takeshi.kihara.df@renesas.com>
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
 
@@ -26,297 +26,29 @@ Changes since last RFC (only on renesas-soc-list):
 
 * rename RWDT to WDT since it can also be used for the now documented SWDT :)
 * use mainstream-style for the DT compatibles and update docs
-* fix off-by-one error when iterating over the clk_divs array
-* cosmetic printout change 
 
- .../devicetree/bindings/watchdog/renesas-wdt.txt   |  25 +++
- drivers/watchdog/Kconfig                           |   8 +
- drivers/watchdog/Makefile                          |   1 +
- drivers/watchdog/renesas_wdt.c                     | 212 +++++++++++++++++++++
- 4 files changed, 246 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
- create mode 100644 drivers/watchdog/renesas_wdt.c
+ arch/arm64/boot/dts/renesas/r8a7795.dtsi | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt b/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
-new file mode 100644
-index 00000000000000..54418b2deaf580
---- /dev/null
-+++ b/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
-@@ -0,0 +1,25 @@
-+Renesas Watchdog Timer (WDT) Controller
-+
-+Required properties:
-+- compatible : Should be "renesas,r8a7795-wdt", or "renesas,rcar-gen3-wdt"
-+
-+  When compatible with the generic version, nodes must list the SoC-specific
-+  version corresponding to the platform first, followed by the generic
-+  version.
-+
-+- reg : Should contain WDT registers location and length
-+- clocks : the clock feeding the watchdog timer.
-+
-+Optional properties:
-+- timeout-sec : Contains the watchdog timeout in seconds
-+- power-domains : the power domain the WDT belongs to
-+
-+Examples:
-+
-+	wdt0: wdt@e6020000 {
-+		compatible = "renesas,r8a7795-wdt", "renesas,rcar-gen3-wdt";
-+		reg = <0 0xe6020000 0 0x0c>;
-+		clocks = <&cpg CPG_MOD 402>;
-+		power-domains = <&cpg>;
-+		timeout-sec = <60>;
-+	};
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index fb947655badd02..3902c9ca7f099d 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -661,6 +661,14 @@ config ATLAS7_WATCHDOG
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called atlas7_wdt.
+diff --git a/arch/arm64/boot/dts/renesas/r8a7795.dtsi b/arch/arm64/boot/dts/renesas/r8a7795.dtsi
+index bccd52e0462b92..dcdf914b67d4d9 100644
+--- a/arch/arm64/boot/dts/renesas/r8a7795.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a7795.dtsi
+@@ -167,6 +167,14 @@
+ 					(GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_HIGH)>;
+ 		};
  
-+config RENESAS_WDT
-+	tristate "Renesas WDT Watchdog"
-+	depends on ARCH_RENESAS || COMPILE_TEST
-+	select WATCHDOG_CORE
-+	help
-+	  This driver adds watchdog support for the integrated watchdogs in the
-+	  Renesas R-Car and other SH-Mobile SoCs (usually named RWDT or SWDT).
++		wdt0: wdt@e6020000 {
++			compatible = "renesas,r8a7795-wdt", "renesas,rcar-gen3-wdt";
++			reg = <0 0xe6020000 0 0x0c>;
++			clocks = <&cpg CPG_MOD 402>;
++			power-domains = <&cpg>;
++			status = "disabled";
++		};
 +
- # AVR32 Architecture
- 
- config AT32AP700X_WDT
-diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index feb6270fdbde5f..2cbc9709852d0e 100644
---- a/drivers/watchdog/Makefile
-+++ b/drivers/watchdog/Makefile
-@@ -73,6 +73,7 @@ obj-$(CONFIG_DIGICOLOR_WATCHDOG) += digicolor_wdt.o
- obj-$(CONFIG_LPC18XX_WATCHDOG) += lpc18xx_wdt.o
- obj-$(CONFIG_BCM7038_WDT) += bcm7038_wdt.o
- obj-$(CONFIG_ATLAS7_WATCHDOG) += atlas7_wdt.o
-+obj-$(CONFIG_RENESAS_WDT) += renesas_wdt.o
- 
- # AVR32 Architecture
- obj-$(CONFIG_AT32AP700X_WDT) += at32ap700x_wdt.o
-diff --git a/drivers/watchdog/renesas_wdt.c b/drivers/watchdog/renesas_wdt.c
-new file mode 100644
-index 00000000000000..108dd2d61e2378
---- /dev/null
-+++ b/drivers/watchdog/renesas_wdt.c
-@@ -0,0 +1,212 @@
-+/*
-+ * Watchdog driver for Renesas WDT watchdog
-+ *
-+ * Copyright (C) 2015-16 Wolfram Sang, Sang Engineering <wsa@sang-engineering.com>
-+ * Copyright (C) 2015-16 Renesas Electronics Corporation
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License version 2 as published by
-+ * the Free Software Foundation.
-+ */
-+#include <linux/clk.h>
-+#include <linux/io.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/of.h>
-+#include <linux/platform_device.h>
-+#include <linux/pm_runtime.h>
-+#include <linux/watchdog.h>
-+
-+#define RWTCNT		0
-+#define RWTCSRA		4
-+#define RWTCSRA_WOVF	BIT(4)
-+#define RWTCSRA_WRFLG	BIT(5)
-+#define RWTCSRA_TME	BIT(7)
-+
-+#define RWDT_DEFAULT_TIMEOUT 60U
-+
-+static const unsigned clk_divs[] = { 1, 4, 16, 32, 64, 128, 1024 };
-+
-+static bool nowayout = WATCHDOG_NOWAYOUT;
-+module_param(nowayout, bool, S_IRUGO);
-+MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
-+				__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
-+
-+struct rwdt_priv {
-+	void __iomem *base;
-+	struct watchdog_device wdev;
-+	struct clk *clk;
-+	unsigned clks_per_sec;
-+	u8 cks;
-+};
-+
-+static void rwdt_write(struct rwdt_priv *priv, u32 val, unsigned reg)
-+{
-+	if (reg == RWTCNT)
-+		val |= 0x5a5a0000;
-+	else
-+		val |= 0xa5a5a500;
-+
-+	writel_relaxed(val, priv->base + reg);
-+}
-+
-+static int rwdt_init_timeout(struct watchdog_device *wdev)
-+{
-+	struct rwdt_priv *priv = watchdog_get_drvdata(wdev);
-+
-+	rwdt_write(priv, 65536 - wdev->timeout * priv->clks_per_sec, RWTCNT);
-+
-+	return 0;
-+}
-+
-+static int rwdt_set_timeout(struct watchdog_device *wdev, unsigned new_timeout)
-+{
-+	wdev->timeout = new_timeout;
-+	rwdt_init_timeout(wdev);
-+
-+	return 0;
-+}
-+
-+static int rwdt_start(struct watchdog_device *wdev)
-+{
-+	struct rwdt_priv *priv = watchdog_get_drvdata(wdev);
-+
-+	clk_prepare_enable(priv->clk);
-+
-+	rwdt_write(priv, priv->cks, RWTCSRA);
-+	rwdt_init_timeout(wdev);
-+
-+	while (readb_relaxed(priv->base + RWTCSRA) & RWTCSRA_WRFLG)
-+		cpu_relax();
-+
-+	rwdt_write(priv, priv->cks | RWTCSRA_TME, RWTCSRA);
-+
-+	return 0;
-+}
-+
-+static int rwdt_stop(struct watchdog_device *wdev)
-+{
-+	struct rwdt_priv *priv = watchdog_get_drvdata(wdev);
-+
-+	rwdt_write(priv, priv->cks, RWTCSRA);
-+	clk_disable_unprepare(priv->clk);
-+
-+	return 0;
-+}
-+
-+static const struct watchdog_info rwdt_ident = {
-+	.options = WDIOF_MAGICCLOSE | WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT,
-+	.identity = "Renesas WDT Watchdog",
-+};
-+
-+static const struct watchdog_ops rwdt_ops = {
-+	.owner = THIS_MODULE,
-+	.start = rwdt_start,
-+	.stop = rwdt_stop,
-+	.ping = rwdt_init_timeout,
-+	.set_timeout = rwdt_set_timeout,
-+};
-+
-+static int rwdt_probe(struct platform_device *pdev)
-+{
-+	struct rwdt_priv *priv;
-+	struct resource *res;
-+	unsigned long rate;
-+	unsigned clks_per_sec;
-+	int ret, i;
-+
-+	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
-+	if (!priv)
-+		return -ENOMEM;
-+
-+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	priv->base = devm_ioremap_resource(&pdev->dev, res);
-+	if (IS_ERR(priv->base))
-+		return PTR_ERR(priv->base);
-+
-+	priv->clk = devm_clk_get(&pdev->dev, NULL);
-+	if (IS_ERR(priv->clk))
-+		return PTR_ERR(priv->clk);
-+
-+	rate = clk_get_rate(priv->clk);
-+	if (!rate)
-+		return -ENOENT;
-+
-+	for (i = ARRAY_SIZE(clk_divs) - 1; i >= 0; i--) {
-+		clks_per_sec = DIV_ROUND_UP(rate, clk_divs[i]);
-+		if (clks_per_sec) {
-+			priv->clks_per_sec = clks_per_sec;
-+			priv->cks = i;
-+			break;
-+		}
-+	}
-+
-+	if (!clks_per_sec) {
-+		dev_err(&pdev->dev, "Can't find suitable clock divider\n");
-+		return -ERANGE;
-+	}
-+
-+	pm_runtime_enable(&pdev->dev);
-+	pm_runtime_get_sync(&pdev->dev);
-+
-+	priv->wdev.info = &rwdt_ident,
-+	priv->wdev.ops = &rwdt_ops,
-+	priv->wdev.parent = &pdev->dev;
-+	priv->wdev.min_timeout = 1;
-+	priv->wdev.max_timeout = 65536 / clks_per_sec;
-+	priv->wdev.timeout = min(priv->wdev.max_timeout, RWDT_DEFAULT_TIMEOUT);
-+
-+	platform_set_drvdata(pdev, priv);
-+	watchdog_set_drvdata(&priv->wdev, priv);
-+	watchdog_set_nowayout(&priv->wdev, nowayout);
-+
-+	/* This overrides the default timeout only if DT configuration was found */
-+	ret = watchdog_init_timeout(&priv->wdev, 0, &pdev->dev);
-+	if (ret)
-+		dev_warn(&pdev->dev, "Specified timeout value invalid, using default\n");
-+
-+	ret = watchdog_register_device(&priv->wdev);
-+	if (ret < 0) {
-+		pm_runtime_put(&pdev->dev);
-+		pm_runtime_disable(&pdev->dev);
-+		return ret;
-+	}
-+
-+	return 0;
-+}
-+
-+static int rwdt_remove(struct platform_device *pdev)
-+{
-+	struct rwdt_priv *priv = platform_get_drvdata(pdev);
-+
-+	watchdog_unregister_device(&priv->wdev);
-+	pm_runtime_put(&pdev->dev);
-+	pm_runtime_disable(&pdev->dev);
-+
-+	return 0;
-+}
-+
-+/*
-+ * This driver does also fit for R-Car Gen2 (r8a779[0-4]) WDT. However, for SMP
-+ * to work there, one also needs a RESET (RST) driver which does not exist yet
-+ * due to HW issues. This needs to be solved before adding compatibles here.
-+ */
-+static const struct of_device_id rwdt_ids[] = {
-+	{ .compatible = "renesas,rcar-gen3-wdt", },
-+	{ /* sentinel */ }
-+};
-+MODULE_DEVICE_TABLE(of, rwdt_ids);
-+
-+static struct platform_driver rwdt_driver = {
-+	.driver = {
-+		.name = "renesas_wdt",
-+		.of_match_table = rwdt_ids,
-+	},
-+	.probe = rwdt_probe,
-+	.remove = rwdt_remove,
-+};
-+module_platform_driver(rwdt_driver);
-+
-+MODULE_DESCRIPTION("Renesas WDT Watchdog Driver");
-+MODULE_LICENSE("GPL v2");
-+MODULE_AUTHOR("Wolfram Sang <wsa@sang-engineering.com>");
+ 		gpio0: gpio@e6050000 {
+ 			compatible = "renesas,gpio-r8a7795",
+ 				     "renesas,gpio-rcar";
 -- 
 2.7.0
 
