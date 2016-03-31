@@ -1,73 +1,59 @@
-Return-path: <shawnguo@kernel.org>
-Date: Wed, 30 Mar 2016 09:22:33 +0800
-From: Shawn Guo <shawnguo@kernel.org>
-To: Akshay Bhat <akshay.bhat@timesys.com>
-Cc: Fabio Estevam <festevam@gmail.com>, Rob Herring <robh+dt@kernel.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Tim Harvey <tharvey@gateworks.com>,
-	Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org,
-	Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	Sascha Hauer <kernel@pengutronix.de>,
-	Russell King - ARM Linux <linux@arm.linux.org.uk>,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
-	Justin Waters <justin.waters@timesys.com>,
-	Lucas Stach <l.stach@pengutronix.de>, Stefan Roese <sr@denx.de>
-Subject: Re: [PATCH v4 1/2] watchdog: imx2_wdt: add external reset support
- via 'ext-reset-output' dt prop
-Message-ID: <20160330012226.GD28207@tiger>
-References: <20151105222325.GA26159@roeck-us.net>
- <CAJ+vNU2fSxRJ7YvxOfNzoEoiKgzv-dHj=+eksKxH48ekHiUw2Q@mail.gmail.com>
- <20151106220249.GA19791@roeck-us.net>
- <565F4244.7090502@timesys.com>
- <CAJ+vNU00Bf97HUqkkW9KqOUzHXh482R9O1gasz6ju3Pn-_5chA@mail.gmail.com>
- <CAJ+vNU2qHQPSJ1KWp_3f3vAdeuOcF0ooZHmHsdafabZLXJv=Bw@mail.gmail.com>
- <20151228162923.GA31680@spo001.leaseweb.nl>
- <56AA79DA.2010305@timesys.com>
- <CAOMZO5DrTY3ho0Z_jXxeYMqbd6GmUKRwD1LB61vM1ZTGQAYOrg@mail.gmail.com>
- <56F991C3.8030201@timesys.com>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-lb0-f175.google.com ([209.85.217.175]:34252 "EHLO
+	mail-lb0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756543AbcCaNms (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 31 Mar 2016 09:42:48 -0400
+Received: by mail-lb0-f175.google.com with SMTP id vo2so52835885lbb.1
+        for <linux-watchdog@vger.kernel.org>; Thu, 31 Mar 2016 06:42:47 -0700 (PDT)
+Subject: Re: [PATCH 2/4] arm64: dts: r8a7795: Add RWDT node
+To: Wolfram Sang <wsa@the-dreams.de>, linux-watchdog@vger.kernel.org
+References: <1459351725-14144-1-git-send-email-wsa@the-dreams.de>
+ <1459351725-14144-3-git-send-email-wsa@the-dreams.de>
+Cc: linux-renesas-soc@vger.kernel.org
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Message-ID: <56FD2955.8030907@cogentembedded.com>
+Date: Thu, 31 Mar 2016 16:42:45 +0300
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <56F991C3.8030201@timesys.com>
-List-ID: <linux-watchdog@vger.kernel.org>
+In-Reply-To: <1459351725-14144-3-git-send-email-wsa@the-dreams.de>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Mar 28, 2016 at 04:19:15PM -0400, Akshay Bhat wrote:
-> Hi Shawn,
-> 
-> On 02/28/2016 08:56 AM, Fabio Estevam wrote:
-> >Rob,
-> >
-> >On Thu, Jan 28, 2016 at 6:28 PM, Akshay Bhat <akshay.bhat@timesys.com> wrote:
-> >
-> >>>I have no objections against the idea and the code itself.
-> >>>But as Guenter pointed out: it would be handy to get feedback from the
-> >>>devicetree maintainers on the above discussion.
-> >>>
-> >>>Kind regards,
-> >>>Wim.
-> >>>
-> >>
-> >>Any suggestions on whether a vendor specific prefix is necessary?
-> >
-> >Any comments?
-> >
-> 
-> Is this something you can help with, since you are the iMX
-> architecture/devicetree maintainer? Appreciate any feedback.
+Hello.
 
-FWIW,
+On 3/30/2016 6:28 PM, Wolfram Sang wrote:
 
-Acked-by: Shawn Guo <shawnguo@kernel.org>
+> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+>
+> This patch adds the RWDT device node for r8a7795.
+>
+> Signed-off-by: Takeshi Kihara <takeshi.kihara.df@renesas.com>
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> ---
+>
+> Changes since last RFC (only on renesas-soc-list):
+>
+> * rename RWDT to WDT since it can also be used for the now documented SWDT :)
+> * use mainstream-style for the DT compatibles and update docs
+>
+>   arch/arm64/boot/dts/renesas/r8a7795.dtsi | 8 ++++++++
+>   1 file changed, 8 insertions(+)
+>
+> diff --git a/arch/arm64/boot/dts/renesas/r8a7795.dtsi b/arch/arm64/boot/dts/renesas/r8a7795.dtsi
+> index bccd52e0462b92..dcdf914b67d4d9 100644
+> --- a/arch/arm64/boot/dts/renesas/r8a7795.dtsi
+> +++ b/arch/arm64/boot/dts/renesas/r8a7795.dtsi
+> @@ -167,6 +167,14 @@
+>   					(GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_HIGH)>;
+>   		};
+>
+> +		wdt0: wdt@e6020000 {
 
-Guenter,
+    ePAPR has "watchdog", not "wdt" for the name.
 
-I think it's reasonable to pick up the patch, if we have it copied to DT
-maintainers and on the list for a long period of time, and do not see
-any objection from anyone.
+[...]
 
-Shawn
+MBR, Sergei
+
