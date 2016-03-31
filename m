@@ -1,143 +1,74 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from g9t1613g.houston.hp.com ([15.240.0.71]:51049 "EHLO
-	g9t1613g.houston.hp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755647AbcCaWcg convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 31 Mar 2016 18:32:36 -0400
-Received: from g1t5424.austin.hp.com (g1t5424.austin.hp.com [15.216.225.54])
-	(using TLSv1.2 with cipher DHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by g9t1613g.houston.hp.com (Postfix) with ESMTPS id D4A8A60955
-	for <linux-watchdog@vger.kernel.org>; Thu, 31 Mar 2016 22:32:35 +0000 (UTC)
-From: "Croxon, Nigel" <nigel.croxon@hpe.com>
-To: "wim@iguana.be" <wim@iguana.be>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
-Subject: [PATCH] watchdog: hpwdt: Adjust documentation to match kernel
- module parameters
-Date: Thu, 31 Mar 2016 22:32:32 +0000
-Message-ID: <A4930445748CDC43B8495613130746F44ECD7611@G9W0735.americas.hpqcorp.net>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Return-path: <tharvey@gateworks.com>
 MIME-Version: 1.0
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+In-Reply-To: <20160331015714.GM28207@tiger>
+References: <20151106220249.GA19791@roeck-us.net>
+	<565F4244.7090502@timesys.com>
+	<CAJ+vNU00Bf97HUqkkW9KqOUzHXh482R9O1gasz6ju3Pn-_5chA@mail.gmail.com>
+	<CAJ+vNU2qHQPSJ1KWp_3f3vAdeuOcF0ooZHmHsdafabZLXJv=Bw@mail.gmail.com>
+	<20151228162923.GA31680@spo001.leaseweb.nl>
+	<56AA79DA.2010305@timesys.com>
+	<CAOMZO5DrTY3ho0Z_jXxeYMqbd6GmUKRwD1LB61vM1ZTGQAYOrg@mail.gmail.com>
+	<56F991C3.8030201@timesys.com>
+	<20160330012226.GD28207@tiger>
+	<20160330210916.GB21993@roeck-us.net>
+	<20160331015714.GM28207@tiger>
+Date: Thu, 31 Mar 2016 11:01:58 -0700
+Message-ID: <CAJ+vNU2zBCAF8hJfmSa31CyD9XcOCxYWqH9LKRm1S_sunqkgOg@mail.gmail.com>
+Subject: Re: [PATCH v4 1/2] watchdog: imx2_wdt: add external reset support via
+ 'ext-reset-output' dt prop
+From: Tim Harvey <tharvey@gateworks.com>
+To: Shawn Guo <shawnguo@kernel.org>, Guenter Roeck <linux@roeck-us.net>
+Cc: Akshay Bhat <akshay.bhat@timesys.com>, Fabio Estevam <festevam@gmail.com>,
+	Rob Herring <robh+dt@kernel.org>, Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
+	Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Sascha Hauer <kernel@pengutronix.de>,
+	Russell King - ARM Linux <linux@arm.linux.org.uk>,
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
+	Justin Waters <justin.waters@timesys.com>, Lucas Stach <l.stach@pengutronix.de>,
+	Stefan Roese <sr@denx.de>
+Content-Type: text/plain; charset=UTF-8
+List-ID: <linux-watchdog@vger.kernel.org>
 
-From: Nigel Croxon <nigel.croxon@hpe.com>
-Date: Thu, 31 Mar 2016 09:54:56 -0400
-Subject: [PATCH] watchdog: hpwdt: Adjust documentation to match latest kernel module parameters.
+On Wed, Mar 30, 2016 at 6:57 PM, Shawn Guo <shawnguo@kernel.org> wrote:
+> On Wed, Mar 30, 2016 at 02:09:16PM -0700, Guenter Roeck wrote:
+>> The question was if the property name should be ext-reset-output or
+>> fsl,ext-reset-output. In my opinion, it should be fsl,ext-reset-output
+>> because it is not a generic property. Tim disagrees.
+>>
 
-Adjust documentation to match latest kernel module parameters.
+Guenter,
 
-Signed-off-by: Nigel Croxon <nigel.croxon@hpe.com>
-Signed-off-by: Thomas Mingarelli <thomas.mingarelli@hpe.com>
----
- Documentation/watchdog/hpwdt.txt |   55 ++++++++++++++++++++------------------
- 1 files changed, 29 insertions(+), 26 deletions(-)
+My issue regarding the vendor prefix was not a hard dissagreement but
+was more about me understanding the rational behind using vendor
+prefixes. In this case the imx2_wdt driver 'is' a vendor specific
+driver as its compatible strings are prefixed with 'fsl,' so isn't
+'any' property added to devicetree/bindings/watchdog/fsl-imx-wdt.txt
+inherently a vendor specific properly already? I assume that is why
+the 'big-endian' property isn't 'fsl,big-endian'.
 
-diff --git a/Documentation/watchdog/hpwdt.txt b/Documentation/watchdog/hpwdt.txt
-index 9488078..0cb6c16 100644
---- a/Documentation/watchdog/hpwdt.txt
-+++ b/Documentation/watchdog/hpwdt.txt
-@@ -1,64 +1,67 @@
--Last reviewed: 06/02/2009
-+Last reviewed: 03/31/2016
- 
--                     HP iLO2 NMI Watchdog Driver
--              NMI sourcing for iLO2 based ProLiant Servers
-+                     HPE iLO NMI Watchdog Driver
-+              NMI sourcing for iLO based ProLiant Servers
-                      Documentation and Driver by
--              Thomas Mingarelli <thomas.mingarelli@hp.com>
-+              Thomas Mingarelli <thomas.mingarelli@hpe.com>
- 
-- The HP iLO2 NMI Watchdog driver is a kernel module that provides basic
-+ The HPE iLO NMI Watchdog driver is a kernel module that provides basic
-  watchdog functionality and the added benefit of NMI sourcing. Both the
-  watchdog functionality and the NMI sourcing capability need to be enabled
-  by the user. Remember that the two modes are not dependent on one another.
-  A user can have the NMI sourcing without the watchdog timer and vice-versa.
-+ All references to iLO in this document imply it also works on iLO2 and all
-+ subsequent generations.
- 
-  Watchdog functionality is enabled like any other common watchdog driver. That
-  is, an application needs to be started that kicks off the watchdog timer. A
-  basic application exists in the Documentation/watchdog/src directory called
-  watchdog-test.c. Simply compile the C file and kick it off. If the system
-- gets into a bad state and hangs, the HP ProLiant iLO 2 timer register will
-+ gets into a bad state and hangs, the HPE ProLiant iLO timer register will
-  not be updated in a timely fashion and a hardware system reset (also known as
-  an Automatic Server Recovery (ASR)) event will occur.
- 
-- The hpwdt driver also has four (4) module parameters. They are the following:
-+ The hpwdt driver also has three (3) module parameters. They are the following:
- 
-- soft_margin - allows the user to set the watchdog timer value
-- allow_kdump - allows the user to save off a kernel dump image after an NMI
-+ soft_margin - allows the user to set the watchdog timer value.
-+               Default value is 30 seconds.
-+ allow_kdump - allows the user to save off a kernel dump image after an NMI.
-+               Default value is 1/ON
-  nowayout    - basic watchdog parameter that does not allow the timer to
-                be restarted or an impending ASR to be escaped.
-- priority    - determines whether or not the hpwdt driver is first on the
--               die_notify list to handle NMIs or last. The default value
--               for this module parameter is 0 or LAST. If the user wants to
--               enable NMI sourcing then reload the hpwdt driver with
--               priority=1 (and boot with nmi_watchdog=0).
-+               Default valus is set when compiling the kernel. If it is set
-+               to "Y", then there is not way of disabling the watchdog once
-+               it has been started.
- 
-  NOTE: More information about watchdog drivers in general, including the ioctl
-        interface to /dev/watchdog can be found in
-        Documentation/watchdog/watchdog-api.txt and Documentation/IPMI.txt.
- 
-- The priority parameter was introduced due to other kernel software that relied
-- on handling NMIs (like oprofile). Keeping hpwdt's priority at 0 (or LAST)
-- enables the users of NMIs for non critical events to be work as expected.
--
-  The NMI sourcing capability is disabled by default due to the inability to
-  distinguish between "NMI Watchdog Ticks" and "HW generated NMI events" in the
-  Linux kernel. What this means is that the hpwdt nmi handler code is called
-  each time the NMI signal fires off. This could amount to several thousands of
-  NMIs in a matter of seconds. If a user sees the Linux kernel's "dazed and
-  confused" message in the logs or if the system gets into a hung state, then
-- the hpwdt driver can be reloaded with the "priority" module parameter set
-- (priority=1).
-+ the hpwdt driver can be reloaded. 
- 
-  1. If the kernel has not been booted with nmi_watchdog turned off then
--    edit /boot/grub/menu.lst and place the nmi_watchdog=0 at the end of the
--    currently booting kernel line.
-+    edit and place the nmi_watchdog=0 at the end of the currently booting
-+    kernel line. Depending on your Linux distribution and platform setup:
-+    For non-UEFI systems
-+       /boot/grub/grub.conf   or
-+       /boot/grub/menu.lst
-+    For UEFI systems
-+      /boot/efi/EFI/distroname/grub.conf   or
-+      /boot/efi/efi/distroname/elilo.conf
-  2. reboot the sever
-  3. Once the system comes up perform a rmmod hpwdt
-- 4. insmod /lib/modules/`uname -r`/kernel/drivers/char/watchdog/hpwdt.ko priority=1
-+ 4. insmod /lib/modules/`uname -r`/kernel/drivers/watchdog/hpwdt.ko 
- 
-  Now, the hpwdt can successfully receive and source the NMI and provide a log
-- message that details the reason for the NMI (as determined by the HP BIOS).
-+ message that details the reason for the NMI (as determined by the HPE BIOS).
- 
-- Below is a list of NMIs the HP BIOS understands along with the associated
-+ Below is a list of NMIs the HPE BIOS understands along with the associated
-  code (reason):
- 
- 	No source found                00h
-@@ -92,4 +95,4 @@ Last reviewed: 06/02/2009
- 
- 
-  -- Tom Mingarelli
--    (thomas.mingarelli@hp.com)
-+    (thomas.mingarelli@hpe.com)
--- 
-1.7.1
+Maybe it's more about if it 'is' marked as a vendor specific property
+its much easier to get approval and accepted by a vendor-specific
+maintainer?
 
+>> So we have two options: Change the property name to fsl,ext-reset-output,
+>> which I would accept, or wait for a devicetree maintainer to make a decision.
+>
+> Guenter,
+>
+> I agree with you on this point.  Before everyone agrees that this is a
+> generic binding, we should have vendor prefix for the property.
+>
+> Tim,
+>
+> This is a small change which, IMO, shouldn't hold an useful patch from being
+> merged.  Care to resend with the suggested change?
+>
+> Shawn
+
+Shawn,
+
+Sure - I'll rebase and re-submit.
+
+Tim
