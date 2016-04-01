@@ -11,9 +11,11 @@ Cc: linux-arm-kernel@lists.infradead.org,
 	Stefan Roese <sr@denx.de>,
 	Iain Paton <ipaton0@gmail.com>,
 	Sascha Hauer <s.hauer@pengutronix.de>
-Subject: [PATCH v5 0/2] imx6: Implement external watchdog reset
-Date: Fri,  1 Apr 2016 08:16:42 -0700
-Message-Id: <1459523804-11390-1-git-send-email-tharvey@gateworks.com>
+Subject: [PATCH v5 1/2] watchdog: imx2_wdt: add external reset support via dt prop
+Date: Fri,  1 Apr 2016 08:16:43 -0700
+Message-Id: <1459523804-11390-2-git-send-email-tharvey@gateworks.com>
+In-Reply-To: <1459523804-11390-1-git-send-email-tharvey@gateworks.com>
+References: <1459523804-11390-1-git-send-email-tharvey@gateworks.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
 The IMX6 watchdog supports assertion of a signal (WDOG_B) which
@@ -39,21 +41,102 @@ Cc: Sascha Hauer <s.hauer@pengutronix.de>
 Cc: Akshay Bhat <akshay.bhat@timesys.com>
 Cc: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Tim Harvey <tharvey@gateworks.com>
+Reviewed-by: Lucas Stach <l.stach@pengutronix.de>
+Acked-by: Shawn Guo <shawn.guo@linaro.org>
+---
+v5:
+ - rename property to 'fsl,ext-reset-output'
+v4:
+ - change Property to Properties in documentation
+v3:
+ - mandate use of 'either' internal or external reset but not both
+   simultaneously
+v2:
+ - rename property to 'ext-reset-output' based on ML feedback
+ - simplify setting SRS bit if external-reset
+ - update comments and commit msg
 
-Tim Harvey (2):
-  watchdog: imx2_wdt: add external reset support via 'ext-reset-output'
-    dt prop
-  ARM: dts: imx: ventana: Add wdt ext-reset support
-
+Signed-off-by: Tim Harvey <tharvey@gateworks.com>
+---
  .../devicetree/bindings/watchdog/fsl-imx-wdt.txt      |  4 +++-
- arch/arm/boot/dts/imx6qdl-gw51xx.dtsi                 | 12 ++++++++++++
- arch/arm/boot/dts/imx6qdl-gw52xx.dtsi                 | 12 ++++++++++++
- arch/arm/boot/dts/imx6qdl-gw53xx.dtsi                 | 12 ++++++++++++
- arch/arm/boot/dts/imx6qdl-gw54xx.dtsi                 | 17 +++++++++++++++++
- arch/arm/boot/dts/imx6qdl-gw551x.dtsi                 | 12 ++++++++++++
- arch/arm/boot/dts/imx6qdl-gw552x.dtsi                 | 12 ++++++++++++
  drivers/watchdog/imx2_wdt.c                           | 19 +++++++++++++++++--
- 8 files changed, 97 insertions(+), 3 deletions(-)
+ 2 files changed, 20 insertions(+), 3 deletions(-)
 
+diff --git a/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt b/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
+index 8dab6fd..107280e 100644
+--- a/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
++++ b/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
+@@ -5,10 +5,12 @@ Required properties:
+ - reg : Should contain WDT registers location and length
+ - interrupts : Should contain WDT interrupt
+ 
+-Optional property:
++Optional properties:
+ - big-endian: If present the watchdog device's registers are implemented
+   in big endian mode, otherwise in native mode(same with CPU), for more
+   detail please see: Documentation/devicetree/bindings/regmap/regmap.txt.
++- fsl,ext-reset-output: If present the watchdog device is configured to
++  assert its external reset (WDOG_B) instead of issuing a software reset.
+ 
+ Examples:
+ 
+diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
+index e47966a..cb838be 100644
+--- a/drivers/watchdog/imx2_wdt.c
++++ b/drivers/watchdog/imx2_wdt.c
+@@ -39,6 +39,8 @@
+ 
+ #define IMX2_WDT_WCR		0x00		/* Control Register */
+ #define IMX2_WDT_WCR_WT		(0xFF << 8)	/* -> Watchdog Timeout Field */
++#define IMX2_WDT_WCR_WDA	(1 << 5)	/* -> External Reset WDOG_B */
++#define IMX2_WDT_WCR_SRS	(1 << 4)	/* -> Software Reset Signal */
+ #define IMX2_WDT_WCR_WRE	(1 << 3)	/* -> WDOG Reset Enable */
+ #define IMX2_WDT_WCR_WDE	(1 << 2)	/* -> Watchdog Enable */
+ #define IMX2_WDT_WCR_WDZST	(1 << 0)	/* -> Watchdog timer Suspend */
+@@ -62,6 +64,7 @@ struct imx2_wdt_device {
+ 	struct regmap *regmap;
+ 	struct timer_list timer;	/* Pings the watchdog when closed */
+ 	struct watchdog_device wdog;
++	bool ext_reset;
+ };
+ 
+ static bool nowayout = WATCHDOG_NOWAYOUT;
+@@ -85,6 +88,12 @@ static int imx2_wdt_restart(struct watchdog_device *wdog)
+ 	struct imx2_wdt_device *wdev = watchdog_get_drvdata(wdog);
+ 	unsigned int wcr_enable = IMX2_WDT_WCR_WDE;
+ 
++	/* Use internal reset or external - not both */
++	if (wdev->ext_reset)
++		wcr_enable |= IMX2_WDT_WCR_SRS; /* do not assert int reset */
++	else
++		wcr_enable |= IMX2_WDT_WCR_WDA; /* do not assert ext-reset */
++
+ 	/* Assert SRS signal */
+ 	regmap_write(wdev->regmap, IMX2_WDT_WCR, wcr_enable);
+ 	/*
+@@ -114,8 +123,12 @@ static inline void imx2_wdt_setup(struct watchdog_device *wdog)
+ 	val |= IMX2_WDT_WCR_WDZST;
+ 	/* Strip the old watchdog Time-Out value */
+ 	val &= ~IMX2_WDT_WCR_WT;
+-	/* Generate reset if WDOG times out */
+-	val &= ~IMX2_WDT_WCR_WRE;
++	/* Generate internal chip-level reset if WDOG times out */
++	if (!wdev->ext_reset)
++		val &= ~IMX2_WDT_WCR_WRE;
++	/* Or if external-reset assert WDOG_B reset only on time-out */
++	else
++		val |= IMX2_WDT_WCR_WRE;
+ 	/* Keep Watchdog Disabled */
+ 	val &= ~IMX2_WDT_WCR_WDE;
+ 	/* Set the watchdog's Time-Out value */
+@@ -263,6 +276,8 @@ static int __init imx2_wdt_probe(struct platform_device *pdev)
+ 	regmap_read(wdev->regmap, IMX2_WDT_WRSR, &val);
+ 	wdog->bootstatus = val & IMX2_WDT_WRSR_TOUT ? WDIOF_CARDRESET : 0;
+ 
++	wdev->ext_reset = of_property_read_bool(pdev->dev.of_node,
++						"fsl,ext-reset-output");
+ 	wdog->timeout = clamp_t(unsigned, timeout, 1, IMX2_WDT_MAX_TIME);
+ 	if (wdog->timeout != timeout)
+ 		dev_warn(&pdev->dev, "Initial timeout out of range! Clamped from %u to %u\n",
 -- 
 1.9.1
