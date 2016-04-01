@@ -1,155 +1,72 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:45991 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752160AbcDAAGZ (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 31 Mar 2016 20:06:25 -0400
-Date: Thu, 31 Mar 2016 17:06:26 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: "Croxon, Nigel" <nigel.croxon@hpe.com>
-Cc: "wim@iguana.be" <wim@iguana.be>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
-Subject: Re: [PATCH] watchdog: hpwdt: Adjust documentation to match kernel
- module parameters
-Message-ID: <20160401000626.GC15892@roeck-us.net>
-References: <A4930445748CDC43B8495613130746F44ECD7611@G9W0735.americas.hpqcorp.net>
+Received: from mail.kernel.org ([198.145.29.136]:43639 "EHLO mail.kernel.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753675AbcDABkG (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 31 Mar 2016 21:40:06 -0400
+Date: Fri, 1 Apr 2016 09:39:38 +0800
+From: Shawn Guo <shawnguo@kernel.org>
+To: Tim Harvey <tharvey@gateworks.com>
+Cc: Guenter Roeck <linux@roeck-us.net>,
+	Akshay Bhat <akshay.bhat@timesys.com>,
+	Fabio Estevam <festevam@gmail.com>,
+	Rob Herring <robh+dt@kernel.org>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	Sascha Hauer <kernel@pengutronix.de>,
+	Russell King - ARM Linux <linux@arm.linux.org.uk>,
+	"linux-arm-kernel@lists.infradead.org"
+	<linux-arm-kernel@lists.infradead.org>,
+	Justin Waters <justin.waters@timesys.com>,
+	Lucas Stach <l.stach@pengutronix.de>, Stefan Roese <sr@denx.de>
+Subject: Re: [PATCH v4 1/2] watchdog: imx2_wdt: add external reset support
+ via 'ext-reset-output' dt prop
+Message-ID: <20160401013938.GE18833@tiger>
+References: <CAJ+vNU00Bf97HUqkkW9KqOUzHXh482R9O1gasz6ju3Pn-_5chA@mail.gmail.com>
+ <CAJ+vNU2qHQPSJ1KWp_3f3vAdeuOcF0ooZHmHsdafabZLXJv=Bw@mail.gmail.com>
+ <20151228162923.GA31680@spo001.leaseweb.nl>
+ <56AA79DA.2010305@timesys.com>
+ <CAOMZO5DrTY3ho0Z_jXxeYMqbd6GmUKRwD1LB61vM1ZTGQAYOrg@mail.gmail.com>
+ <56F991C3.8030201@timesys.com>
+ <20160330012226.GD28207@tiger>
+ <20160330210916.GB21993@roeck-us.net>
+ <20160331015714.GM28207@tiger>
+ <CAJ+vNU2zBCAF8hJfmSa31CyD9XcOCxYWqH9LKRm1S_sunqkgOg@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <A4930445748CDC43B8495613130746F44ECD7611@G9W0735.americas.hpqcorp.net>
+In-Reply-To: <CAJ+vNU2zBCAF8hJfmSa31CyD9XcOCxYWqH9LKRm1S_sunqkgOg@mail.gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Thu, Mar 31, 2016 at 10:32:32PM +0000, Croxon, Nigel wrote:
-> From: Nigel Croxon <nigel.croxon@hpe.com>
-> Date: Thu, 31 Mar 2016 09:54:56 -0400
-> Subject: [PATCH] watchdog: hpwdt: Adjust documentation to match latest kernel module parameters.
+On Thu, Mar 31, 2016 at 11:01:58AM -0700, Tim Harvey wrote:
+> On Wed, Mar 30, 2016 at 6:57 PM, Shawn Guo <shawnguo@kernel.org> wrote:
+> > On Wed, Mar 30, 2016 at 02:09:16PM -0700, Guenter Roeck wrote:
+> >> The question was if the property name should be ext-reset-output or
+> >> fsl,ext-reset-output. In my opinion, it should be fsl,ext-reset-output
+> >> because it is not a generic property. Tim disagrees.
+> >>
 > 
-> Adjust documentation to match latest kernel module parameters.
+> Guenter,
 > 
-> Signed-off-by: Nigel Croxon <nigel.croxon@hpe.com>
-> Signed-off-by: Thomas Mingarelli <thomas.mingarelli@hpe.com>
+> My issue regarding the vendor prefix was not a hard dissagreement but
+> was more about me understanding the rational behind using vendor
+> prefixes. In this case the imx2_wdt driver 'is' a vendor specific
+> driver as its compatible strings are prefixed with 'fsl,' so isn't
+> 'any' property added to devicetree/bindings/watchdog/fsl-imx-wdt.txt
+> inherently a vendor specific properly already? I assume that is why
+> the 'big-endian' property isn't 'fsl,big-endian'.
 
-Are the two of you in the sign-off path, or did one of you review the changes ?
+We should read it as that 'big-endian' is a generic property defined by
+generic bindings - bindings/regmap/regmap.txt, and we just reference the
+bindings in fsl-imx-wdt.txt.
 
-> ---
->  Documentation/watchdog/hpwdt.txt |   55 ++++++++++++++++++++------------------
->  1 files changed, 29 insertions(+), 26 deletions(-)
-> 
-> diff --git a/Documentation/watchdog/hpwdt.txt b/Documentation/watchdog/hpwdt.txt
-> index 9488078..0cb6c16 100644
-> --- a/Documentation/watchdog/hpwdt.txt
-> +++ b/Documentation/watchdog/hpwdt.txt
-> @@ -1,64 +1,67 @@
-> -Last reviewed: 06/02/2009
-> +Last reviewed: 03/31/2016
->  
-> -                     HP iLO2 NMI Watchdog Driver
-> -              NMI sourcing for iLO2 based ProLiant Servers
-> +                     HPE iLO NMI Watchdog Driver
-> +              NMI sourcing for iLO based ProLiant Servers
->                       Documentation and Driver by
-> -              Thomas Mingarelli <thomas.mingarelli@hp.com>
-> +              Thomas Mingarelli <thomas.mingarelli@hpe.com>
->  
-> - The HP iLO2 NMI Watchdog driver is a kernel module that provides basic
-> + The HPE iLO NMI Watchdog driver is a kernel module that provides basic
->   watchdog functionality and the added benefit of NMI sourcing. Both the
->   watchdog functionality and the NMI sourcing capability need to be enabled
->   by the user. Remember that the two modes are not dependent on one another.
->   A user can have the NMI sourcing without the watchdog timer and vice-versa.
-> + All references to iLO in this document imply it also works on iLO2 and all
-> + subsequent generations.
->  
->   Watchdog functionality is enabled like any other common watchdog driver. That
->   is, an application needs to be started that kicks off the watchdog timer. A
->   basic application exists in the Documentation/watchdog/src directory called
->   watchdog-test.c. Simply compile the C file and kick it off. If the system
-> - gets into a bad state and hangs, the HP ProLiant iLO 2 timer register will
-> + gets into a bad state and hangs, the HPE ProLiant iLO timer register will
->   not be updated in a timely fashion and a hardware system reset (also known as
->   an Automatic Server Recovery (ASR)) event will occur.
->  
-> - The hpwdt driver also has four (4) module parameters. They are the following:
-> + The hpwdt driver also has three (3) module parameters. They are the following:
->  
-> - soft_margin - allows the user to set the watchdog timer value
-> - allow_kdump - allows the user to save off a kernel dump image after an NMI
-> + soft_margin - allows the user to set the watchdog timer value.
-> +               Default value is 30 seconds.
-> + allow_kdump - allows the user to save off a kernel dump image after an NMI.
-> +               Default value is 1/ON
->   nowayout    - basic watchdog parameter that does not allow the timer to
->                 be restarted or an impending ASR to be escaped.
-> - priority    - determines whether or not the hpwdt driver is first on the
-> -               die_notify list to handle NMIs or last. The default value
-> -               for this module parameter is 0 or LAST. If the user wants to
-> -               enable NMI sourcing then reload the hpwdt driver with
-> -               priority=1 (and boot with nmi_watchdog=0).
-> +               Default valus is set when compiling the kernel. If it is set
+Taking mmc bindings as example, bindings/mmc/mmc.txt defines generic
+bindings, while bindings/mmc/fsl-imx-esdhc.txt defines i.MX vendor
+specific properties, which should ideally have vendor prefix.
 
-s/valus/value/
-
-> +               to "Y", then there is not way of disabling the watchdog once
-> +               it has been started.
->  
->   NOTE: More information about watchdog drivers in general, including the ioctl
->         interface to /dev/watchdog can be found in
->         Documentation/watchdog/watchdog-api.txt and Documentation/IPMI.txt.
->  
-> - The priority parameter was introduced due to other kernel software that relied
-> - on handling NMIs (like oprofile). Keeping hpwdt's priority at 0 (or LAST)
-> - enables the users of NMIs for non critical events to be work as expected.
-> -
->   The NMI sourcing capability is disabled by default due to the inability to
->   distinguish between "NMI Watchdog Ticks" and "HW generated NMI events" in the
->   Linux kernel. What this means is that the hpwdt nmi handler code is called
->   each time the NMI signal fires off. This could amount to several thousands of
->   NMIs in a matter of seconds. If a user sees the Linux kernel's "dazed and
->   confused" message in the logs or if the system gets into a hung state, then
-> - the hpwdt driver can be reloaded with the "priority" module parameter set
-> - (priority=1).
-> + the hpwdt driver can be reloaded. 
->  
->   1. If the kernel has not been booted with nmi_watchdog turned off then
-> -    edit /boot/grub/menu.lst and place the nmi_watchdog=0 at the end of the
-> -    currently booting kernel line.
-> +    edit and place the nmi_watchdog=0 at the end of the currently booting
-> +    kernel line. Depending on your Linux distribution and platform setup:
-> +    For non-UEFI systems
-> +       /boot/grub/grub.conf   or
-> +       /boot/grub/menu.lst
-> +    For UEFI systems
-> +      /boot/efi/EFI/distroname/grub.conf   or
-> +      /boot/efi/efi/distroname/elilo.conf
->   2. reboot the sever
->   3. Once the system comes up perform a rmmod hpwdt
-> - 4. insmod /lib/modules/`uname -r`/kernel/drivers/char/watchdog/hpwdt.ko priority=1
-> + 4. insmod /lib/modules/`uname -r`/kernel/drivers/watchdog/hpwdt.ko 
-
-Can you update this text to refer to modprobe / modprobe -r instead of
-insmod / rmmod ?
-
->  
->   Now, the hpwdt can successfully receive and source the NMI and provide a log
-> - message that details the reason for the NMI (as determined by the HP BIOS).
-> + message that details the reason for the NMI (as determined by the HPE BIOS).
->  
-> - Below is a list of NMIs the HP BIOS understands along with the associated
-> + Below is a list of NMIs the HPE BIOS understands along with the associated
->   code (reason):
->  
->  	No source found                00h
-> @@ -92,4 +95,4 @@ Last reviewed: 06/02/2009
->  
->  
->   -- Tom Mingarelli
-> -    (thomas.mingarelli@hp.com)
-> +    (thomas.mingarelli@hpe.com)
-> -- 
-> 1.7.1
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Shawn
