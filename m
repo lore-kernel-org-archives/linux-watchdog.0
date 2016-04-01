@@ -1,142 +1,315 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from g1t5424.austin.hp.com ([15.216.225.54]:50517 "EHLO
-	g1t5424.austin.hp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753964AbcDHO4M convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 8 Apr 2016 10:56:12 -0400
-From: "Croxon, Nigel" <nigel.croxon@hpe.com>
-To: "wim@iguana.be" <wim@iguana.be>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
-Subject: [PATCH V4 resend] watchdog: hpwdt: Adjust documentation to match
- latest kernel module parameters
-Date: Fri, 8 Apr 2016 14:55:52 +0000
-Message-ID: <A4930445748CDC43B8495613130746F44ED05A40@G4W3214.americas.hpqcorp.net>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-MIME-Version: 1.0
+Received: from sauhun.de ([89.238.76.85]:58184 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751513AbcDAL4e (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 1 Apr 2016 07:56:34 -0400
+From: Wolfram Sang <wsa@the-dreams.de>
+To: linux-watchdog@vger.kernel.org
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-renesas-soc@vger.kernel.org
+Subject: [PATCH v2 1/4] watchdog: renesas-wdt: add driver
+Date: Fri,  1 Apr 2016 13:56:23 +0200
+Message-Id: <1459511786-4286-2-git-send-email-wsa@the-dreams.de>
+In-Reply-To: <1459511786-4286-1-git-send-email-wsa@the-dreams.de>
+References: <1459511786-4286-1-git-send-email-wsa@the-dreams.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-From: Nigel Croxon <nigel.croxon@hpe.com>
-Date: Wed, 6 Apr 2016 14:40:05 -0400
-Subject: [PATCH V4] watchdog: hpwdt: Adjust documentation to match latest kernel module parameters.
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Adjust documentation to match latest kernel module parameters.
+Add support for watchdogs (RWDT and SWDT) found on RCar Gen3 based SoCs
+from Renesas.
 
-V4 - run cleanpatch to remove whitespaces
-V3 - Fixed two spelling mistakes.
-V2 - Changed insmod / rmmod to modprobe / modprobe -r
-
-Signed-off-by: Nigel Croxon <nigel.croxon@hpe.com>
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- Documentation/watchdog/hpwdt.txt |   57 ++++++++++++++++++++------------------
- 1 files changed, 30 insertions(+), 27 deletions(-)
+ .../devicetree/bindings/watchdog/renesas-wdt.txt   |  25 +++
+ drivers/watchdog/Kconfig                           |   8 +
+ drivers/watchdog/Makefile                          |   1 +
+ drivers/watchdog/renesas_wdt.c                     | 213 +++++++++++++++++++++
+ 4 files changed, 247 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
+ create mode 100644 drivers/watchdog/renesas_wdt.c
 
-diff --git a/Documentation/watchdog/hpwdt.txt b/Documentation/watchdog/hpwdt.txt
-index 9488078..3521e8b 100644
---- a/Documentation/watchdog/hpwdt.txt
-+++ b/Documentation/watchdog/hpwdt.txt
-@@ -1,64 +1,67 @@
--Last reviewed: 06/02/2009
-+Last reviewed: 04/04/2016
+diff --git a/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt b/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
+new file mode 100644
+index 00000000000000..b9512f1eb80a02
+--- /dev/null
++++ b/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
+@@ -0,0 +1,25 @@
++Renesas Watchdog Timer (WDT) Controller
++
++Required properties:
++- compatible : Should be "renesas,r8a7795-wdt", or "renesas,rcar-gen3-wdt"
++
++  When compatible with the generic version, nodes must list the SoC-specific
++  version corresponding to the platform first, followed by the generic
++  version.
++
++- reg : Should contain WDT registers location and length
++- clocks : the clock feeding the watchdog timer.
++
++Optional properties:
++- timeout-sec : Contains the watchdog timeout in seconds
++- power-domains : the power domain the WDT belongs to
++
++Examples:
++
++	wdt0: watchdog@e6020000 {
++		compatible = "renesas,r8a7795-wdt", "renesas,rcar-gen3-wdt";
++		reg = <0 0xe6020000 0 0x0c>;
++		clocks = <&cpg CPG_MOD 402>;
++		power-domains = <&cpg>;
++		timeout-sec = <60>;
++	};
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index fb947655badd02..3902c9ca7f099d 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -661,6 +661,14 @@ config ATLAS7_WATCHDOG
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called atlas7_wdt.
  
--                     HP iLO2 NMI Watchdog Driver
--              NMI sourcing for iLO2 based ProLiant Servers
-+                     HPE iLO NMI Watchdog Driver
-+              NMI sourcing for iLO based ProLiant Servers
-                      Documentation and Driver by
--              Thomas Mingarelli <thomas.mingarelli@hp.com>
-+              Thomas Mingarelli <thomas.mingarelli@hpe.com>
++config RENESAS_WDT
++	tristate "Renesas WDT Watchdog"
++	depends on ARCH_RENESAS || COMPILE_TEST
++	select WATCHDOG_CORE
++	help
++	  This driver adds watchdog support for the integrated watchdogs in the
++	  Renesas R-Car and other SH-Mobile SoCs (usually named RWDT or SWDT).
++
+ # AVR32 Architecture
  
-- The HP iLO2 NMI Watchdog driver is a kernel module that provides basic
-+ The HPE iLO NMI Watchdog driver is a kernel module that provides basic
-  watchdog functionality and the added benefit of NMI sourcing. Both the
-  watchdog functionality and the NMI sourcing capability need to be enabled
-  by the user. Remember that the two modes are not dependent on one another.
-  A user can have the NMI sourcing without the watchdog timer and vice-versa.
-+ All references to iLO in this document imply it also works on iLO2 and all
-+ subsequent generations.
+ config AT32AP700X_WDT
+diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+index feb6270fdbde5f..2cbc9709852d0e 100644
+--- a/drivers/watchdog/Makefile
++++ b/drivers/watchdog/Makefile
+@@ -73,6 +73,7 @@ obj-$(CONFIG_DIGICOLOR_WATCHDOG) += digicolor_wdt.o
+ obj-$(CONFIG_LPC18XX_WATCHDOG) += lpc18xx_wdt.o
+ obj-$(CONFIG_BCM7038_WDT) += bcm7038_wdt.o
+ obj-$(CONFIG_ATLAS7_WATCHDOG) += atlas7_wdt.o
++obj-$(CONFIG_RENESAS_WDT) += renesas_wdt.o
  
-  Watchdog functionality is enabled like any other common watchdog driver. That
-  is, an application needs to be started that kicks off the watchdog timer. A
-  basic application exists in the Documentation/watchdog/src directory called
-  watchdog-test.c. Simply compile the C file and kick it off. If the system
-- gets into a bad state and hangs, the HP ProLiant iLO 2 timer register will
-+ gets into a bad state and hangs, the HPE ProLiant iLO timer register will
-  not be updated in a timely fashion and a hardware system reset (also known as
-  an Automatic Server Recovery (ASR)) event will occur.
- 
-- The hpwdt driver also has four (4) module parameters. They are the following:
-+ The hpwdt driver also has three (3) module parameters. They are the following:
- 
-- soft_margin - allows the user to set the watchdog timer value
-- allow_kdump - allows the user to save off a kernel dump image after an NMI
-+ soft_margin - allows the user to set the watchdog timer value.
-+               Default value is 30 seconds.
-+ allow_kdump - allows the user to save off a kernel dump image after an NMI.
-+               Default value is 1/ON
-  nowayout    - basic watchdog parameter that does not allow the timer to
-                be restarted or an impending ASR to be escaped.
-- priority    - determines whether or not the hpwdt driver is first on the
--               die_notify list to handle NMIs or last. The default value
--               for this module parameter is 0 or LAST. If the user wants to
--               enable NMI sourcing then reload the hpwdt driver with
--               priority=1 (and boot with nmi_watchdog=0).
-+               Default value is set when compiling the kernel. If it is set
-+               to "Y", then there is no way of disabling the watchdog once
-+               it has been started.
- 
-  NOTE: More information about watchdog drivers in general, including the ioctl
-        interface to /dev/watchdog can be found in
-        Documentation/watchdog/watchdog-api.txt and Documentation/IPMI.txt.
- 
-- The priority parameter was introduced due to other kernel software that relied
-- on handling NMIs (like oprofile). Keeping hpwdt's priority at 0 (or LAST)
-- enables the users of NMIs for non critical events to be work as expected.
--
-  The NMI sourcing capability is disabled by default due to the inability to
-  distinguish between "NMI Watchdog Ticks" and "HW generated NMI events" in the
-  Linux kernel. What this means is that the hpwdt nmi handler code is called
-  each time the NMI signal fires off. This could amount to several thousands of
-  NMIs in a matter of seconds. If a user sees the Linux kernel's "dazed and
-  confused" message in the logs or if the system gets into a hung state, then
-- the hpwdt driver can be reloaded with the "priority" module parameter set
-- (priority=1).
-+ the hpwdt driver can be reloaded.
- 
-  1. If the kernel has not been booted with nmi_watchdog turned off then
--    edit /boot/grub/menu.lst and place the nmi_watchdog=0 at the end of the
--    currently booting kernel line.
-+    edit and place the nmi_watchdog=0 at the end of the currently booting
-+    kernel line. Depending on your Linux distribution and platform setup:
-+    For non-UEFI systems
-+       /boot/grub/grub.conf   or
-+       /boot/grub/menu.lst
-+    For UEFI systems
-+      /boot/efi/EFI/distroname/grub.conf   or
-+      /boot/efi/efi/distroname/elilo.conf
-  2. reboot the sever
-- 3. Once the system comes up perform a rmmod hpwdt
-- 4. insmod /lib/modules/`uname -r`/kernel/drivers/char/watchdog/hpwdt.ko priority=1
-+ 3. Once the system comes up perform a modprobe -r hpwdt
-+ 4. modprobe /lib/modules/`uname -r`/kernel/drivers/watchdog/hpwdt.ko
- 
-  Now, the hpwdt can successfully receive and source the NMI and provide a log
-- message that details the reason for the NMI (as determined by the HP BIOS).
-+ message that details the reason for the NMI (as determined by the HPE BIOS).
- 
-- Below is a list of NMIs the HP BIOS understands along with the associated
-+ Below is a list of NMIs the HPE BIOS understands along with the associated
-  code (reason):
- 
- 	No source found                00h
-@@ -92,4 +95,4 @@ Last reviewed: 06/02/2009
- 
- 
-  -- Tom Mingarelli
--    (thomas.mingarelli@hp.com)
-+    (thomas.mingarelli@hpe.com)
+ # AVR32 Architecture
+ obj-$(CONFIG_AT32AP700X_WDT) += at32ap700x_wdt.o
+diff --git a/drivers/watchdog/renesas_wdt.c b/drivers/watchdog/renesas_wdt.c
+new file mode 100644
+index 00000000000000..cf61c92f7ecd63
+--- /dev/null
++++ b/drivers/watchdog/renesas_wdt.c
+@@ -0,0 +1,213 @@
++/*
++ * Watchdog driver for Renesas WDT watchdog
++ *
++ * Copyright (C) 2015-16 Wolfram Sang, Sang Engineering <wsa@sang-engineering.com>
++ * Copyright (C) 2015-16 Renesas Electronics Corporation
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 2 as published by
++ * the Free Software Foundation.
++ */
++#include <linux/bitops.h>
++#include <linux/clk.h>
++#include <linux/io.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/of.h>
++#include <linux/platform_device.h>
++#include <linux/pm_runtime.h>
++#include <linux/watchdog.h>
++
++#define RWTCNT		0
++#define RWTCSRA		4
++#define RWTCSRA_WOVF	BIT(4)
++#define RWTCSRA_WRFLG	BIT(5)
++#define RWTCSRA_TME	BIT(7)
++
++#define RWDT_DEFAULT_TIMEOUT 60U
++
++static const unsigned int clk_divs[] = { 1, 4, 16, 32, 64, 128, 1024 };
++
++static bool nowayout = WATCHDOG_NOWAYOUT;
++module_param(nowayout, bool, 0);
++MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
++				__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
++
++struct rwdt_priv {
++	void __iomem *base;
++	struct watchdog_device wdev;
++	struct clk *clk;
++	unsigned int clks_per_sec;
++	u8 cks;
++};
++
++static void rwdt_write(struct rwdt_priv *priv, u32 val, unsigned int reg)
++{
++	if (reg == RWTCNT)
++		val |= 0x5a5a0000;
++	else
++		val |= 0xa5a5a500;
++
++	writel_relaxed(val, priv->base + reg);
++}
++
++static int rwdt_init_timeout(struct watchdog_device *wdev)
++{
++	struct rwdt_priv *priv = watchdog_get_drvdata(wdev);
++
++	rwdt_write(priv, 65536 - wdev->timeout * priv->clks_per_sec, RWTCNT);
++
++	return 0;
++}
++
++static int rwdt_start(struct watchdog_device *wdev)
++{
++	struct rwdt_priv *priv = watchdog_get_drvdata(wdev);
++
++	clk_prepare_enable(priv->clk);
++
++	rwdt_write(priv, priv->cks, RWTCSRA);
++	rwdt_init_timeout(wdev);
++
++	while (readb_relaxed(priv->base + RWTCSRA) & RWTCSRA_WRFLG)
++		cpu_relax();
++
++	rwdt_write(priv, priv->cks | RWTCSRA_TME, RWTCSRA);
++
++	return 0;
++}
++
++static int rwdt_stop(struct watchdog_device *wdev)
++{
++	struct rwdt_priv *priv = watchdog_get_drvdata(wdev);
++
++	rwdt_write(priv, priv->cks, RWTCSRA);
++	clk_disable_unprepare(priv->clk);
++
++	return 0;
++}
++
++static unsigned int rwdt_get_timeleft(struct watchdog_device *wdev)
++{
++	struct rwdt_priv *priv = watchdog_get_drvdata(wdev);
++	u16 val = readw_relaxed(priv->base + RWTCNT);
++
++	return DIV_ROUND_CLOSEST(65536 - val, priv->clks_per_sec);
++}
++
++static const struct watchdog_info rwdt_ident = {
++	.options = WDIOF_MAGICCLOSE | WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT,
++	.identity = "Renesas WDT Watchdog",
++};
++
++static const struct watchdog_ops rwdt_ops = {
++	.owner = THIS_MODULE,
++	.start = rwdt_start,
++	.stop = rwdt_stop,
++	.ping = rwdt_init_timeout,
++	.get_timeleft = rwdt_get_timeleft,
++};
++
++static int rwdt_probe(struct platform_device *pdev)
++{
++	struct rwdt_priv *priv;
++	struct resource *res;
++	unsigned long rate;
++	unsigned int clks_per_sec;
++	int ret, i;
++
++	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
++	if (!priv)
++		return -ENOMEM;
++
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	priv->base = devm_ioremap_resource(&pdev->dev, res);
++	if (IS_ERR(priv->base))
++		return PTR_ERR(priv->base);
++
++	priv->clk = devm_clk_get(&pdev->dev, NULL);
++	if (IS_ERR(priv->clk))
++		return PTR_ERR(priv->clk);
++
++	rate = clk_get_rate(priv->clk);
++	if (!rate)
++		return -ENOENT;
++
++	for (i = ARRAY_SIZE(clk_divs) - 1; i >= 0; i--) {
++		clks_per_sec = DIV_ROUND_UP(rate, clk_divs[i]);
++		if (clks_per_sec) {
++			priv->clks_per_sec = clks_per_sec;
++			priv->cks = i;
++			break;
++		}
++	}
++
++	if (!clks_per_sec) {
++		dev_err(&pdev->dev, "Can't find suitable clock divider\n");
++		return -ERANGE;
++	}
++
++	pm_runtime_enable(&pdev->dev);
++	pm_runtime_get_sync(&pdev->dev);
++
++	priv->wdev.info = &rwdt_ident,
++	priv->wdev.ops = &rwdt_ops,
++	priv->wdev.parent = &pdev->dev;
++	priv->wdev.min_timeout = 1;
++	priv->wdev.max_timeout = 65536 / clks_per_sec;
++	priv->wdev.timeout = min(priv->wdev.max_timeout, RWDT_DEFAULT_TIMEOUT);
++
++	platform_set_drvdata(pdev, priv);
++	watchdog_set_drvdata(&priv->wdev, priv);
++	watchdog_set_nowayout(&priv->wdev, nowayout);
++
++	/* This overrides the default timeout only if DT configuration was found */
++	ret = watchdog_init_timeout(&priv->wdev, 0, &pdev->dev);
++	if (ret)
++		dev_warn(&pdev->dev, "Specified timeout value invalid, using default\n");
++
++	ret = watchdog_register_device(&priv->wdev);
++	if (ret < 0) {
++		pm_runtime_put(&pdev->dev);
++		pm_runtime_disable(&pdev->dev);
++		return ret;
++	}
++
++	return 0;
++}
++
++static int rwdt_remove(struct platform_device *pdev)
++{
++	struct rwdt_priv *priv = platform_get_drvdata(pdev);
++
++	watchdog_unregister_device(&priv->wdev);
++	pm_runtime_put(&pdev->dev);
++	pm_runtime_disable(&pdev->dev);
++
++	return 0;
++}
++
++/*
++ * This driver does also fit for R-Car Gen2 (r8a779[0-4]) WDT. However, for SMP
++ * to work there, one also needs a RESET (RST) driver which does not exist yet
++ * due to HW issues. This needs to be solved before adding compatibles here.
++ */
++static const struct of_device_id rwdt_ids[] = {
++	{ .compatible = "renesas,rcar-gen3-wdt", },
++	{ /* sentinel */ }
++};
++MODULE_DEVICE_TABLE(of, rwdt_ids);
++
++static struct platform_driver rwdt_driver = {
++	.driver = {
++		.name = "renesas_wdt",
++		.of_match_table = rwdt_ids,
++	},
++	.probe = rwdt_probe,
++	.remove = rwdt_remove,
++};
++module_platform_driver(rwdt_driver);
++
++MODULE_DESCRIPTION("Renesas WDT Watchdog Driver");
++MODULE_LICENSE("GPL v2");
++MODULE_AUTHOR("Wolfram Sang <wsa@sang-engineering.com>");
 -- 
-1.7.1
+2.7.0
 
