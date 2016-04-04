@@ -1,18 +1,13 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:45591 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753517AbcDDSX6 (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 4 Apr 2016 14:23:58 -0400
-Date: Mon, 4 Apr 2016 11:23:59 -0700
-From: Guenter Roeck <linux@roeck-us.net>
+Return-path: <wsa@the-dreams.de>
+Date: Mon, 4 Apr 2016 21:12:28 +0200
+From: Wolfram Sang <wsa@the-dreams.de>
 To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>,
+Cc: Guenter Roeck <linux@roeck-us.net>,
 	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
 	linux-renesas-soc@vger.kernel.org
 Subject: Re: [PATCH v2 0/4] watchdog: add driver for Renesas Gen3 WDT
  watchdogs
-Message-ID: <20160404182359.GA26293@roeck-us.net>
+Message-ID: <20160404191228.GA12187@katana>
 References: <1459511786-4286-1-git-send-email-wsa@the-dreams.de>
  <CAMuHMdXQFD281m7iWc7RRdunW8Fo9nQfLBwytD1L3abW1ephtw@mail.gmail.com>
  <20160404145919.GE2983@katana>
@@ -22,57 +17,51 @@ References: <1459511786-4286-1-git-send-email-wsa@the-dreams.de>
  <20160404175239.GA24667@roeck-us.net>
  <CAMuHMdWtTYwe8ssqMfW9XrRxKpvYmTRVwUWdDFW_-8aBEYTQ7w@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="tThc/1wpZn/ma/RB"
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
 In-Reply-To: <CAMuHMdWtTYwe8ssqMfW9XrRxKpvYmTRVwUWdDFW_-8aBEYTQ7w@mail.gmail.com>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On Mon, Apr 04, 2016 at 08:14:02PM +0200, Geert Uytterhoeven wrote:
-> Hi Günter,
-> 
-> On Mon, Apr 4, 2016 at 7:52 PM, Guenter Roeck <linux@roeck-us.net> wrote:
-> > On Mon, Apr 04, 2016 at 07:02:45PM +0200, Geert Uytterhoeven wrote:
-> >> On Mon, Apr 4, 2016 at 5:25 PM, Guenter Roeck <linux@roeck-us.net> wrote:
-> >> > On Mon, Apr 04, 2016 at 05:21:44PM +0200, Geert Uytterhoeven wrote:
-> >> >> On Mon, Apr 4, 2016 at 4:59 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
-> >> >> >> My Salvator-X reboots after timeout from "cat > /dev/watchdog0", but
-> >> >> >> it doesn't reboot through "reboot" or "reboot -f"?
-> >> >> >
-> >> >> > That sadly doesn't work on Gen3. From the RFC v5 cover letter:
-> >> >>
-> >> >> > ===
-> >> >> >
-> >> >> > * drop restart_handler since ARM64 uses PSCI firmware resets which do
-> >> >> >   not call restart handlers
-> >> >> >
-> >> >> > The last point was quite a bummer to me because plain reboot was the
-> >> >> > reason I wrote this driver ;) Well, so is life...
-> >> >>
-> >> >> That's indeed silly. Can't we have it as a low-priority restart handler, to
-> >> >
-> >> > Yes, it is. It defeats the purpose of restart handlers. PSCI reset should have
-> >> > been implemented as a high priority restart handler.
-> >>
-> >> Unfortunately that won't work: psci_sys_reset() doesn't return on failure.
-> >>
-> > You mean it just hangs ? That is bad. If that is the case, it is not reliable
-> > and thus should be a low priority (or at best medium priority) restart handler
+
+--tThc/1wpZn/ma/RB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+
+> > You mean it just hangs ? That is bad. If that is the case, it is not re=
+liable
+> > and thus should be a low priority (or at best medium priority) restart =
+handler
 > > (which can be replaced with a working higher priority one).
-> 
+>=20
 > On my Salvator-X board, it hangs. The call into PSCI doesn't return.
 > As this is firmware, it may depend on the version of the firmware.
-> 
-> >> We can still clear arm_pm_restart in platform code, though ;-)
-> >>
-> > I had originally planned to replace arm_pm_restart() completely with restart
-> > handlers. Maybe I should revive the effort ?
-> 
-> Perhaps. As I remember, it was not such a pretty experience?
-> 
-That was the attempt to introduce the same mechanism for power-off handling.
-Yes, that bad experience got me to abandon the attempt to finish the restart
-handler cleanup as well, but it may still worth at least a final attempt.
 
-Guenter
+Yes, this is also where I stopped looking into it. I dunno what is
+expected behaviour from PSCI and such...
+
+
+--tThc/1wpZn/ma/RB
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXArycAAoJEBQN5MwUoCm2ICMP/0F+QwQRvQXc2ZE69zyGqiAb
+fEToPbd7QxwH8Gg4p/UZp6fsiujKCzX0URplCZVwK5On/mPn/VXDeW1EtiRzxL7f
+wOWYPdDLUQDEwxDNzTfszei4Vq6ZKjqi0q/c1JZJRzQffYiMAna4YJaxpXMGnIJM
+6uQd+OfiQXBM6pnPrDWz2WZe2fjUx3u7MFS5QBzH//OsiCcd4yD48nuqu2mGc+/3
+YHkTedcI9BqWGdlSVPkS+aEei5QlHHunWK5bdcNaHcx+eSYVqu847oQ0LeBtMT4y
+LZLWCKRbvRvgt65g1uu/gz7Q6mSMW6FlE59dSVgiDt1JGOwUb/jstkVyPhctWV0J
+tehdNmddrl+tBPEdo+dfeFKmWYiDTDWE+1o2j8SkXbAeKy3Kb9zFdPNMlb9SLVua
+tfa7ix9IHGvNILj5A8q1GkL/6d3KVV8xIbSiFZAK/gnXYLe2iPQRxeDqeMWJV3XI
+BFkCoFEnvAsyjGJG0/5oWmV0VsIY84FjmEa3yfzYMlZWAwKTJPsIu7x1nWMecAu5
+Xo/dRXDPcUFioRzaM+Vq50RX/nsEPZqoKVMsKcF1RcHzL+fRvljAZSaGYqMui8qd
+DkMfw1OAD4sz2Hjwy6Yq3dzkmbFa3G4M3F6RZr9WX/5e+CGSJSuinxxUzmRVNHH3
+VDhxvv54/kdlJFoHdObM
+=h4V0
+-----END PGP SIGNATURE-----
+
+--tThc/1wpZn/ma/RB--
