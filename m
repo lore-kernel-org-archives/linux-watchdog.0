@@ -1,67 +1,57 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:34996 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752592AbcDDOGi (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 4 Apr 2016 10:06:38 -0400
-Date: Mon, 4 Apr 2016 16:06:33 +0200
-From: Wolfram Sang <wsa@the-dreams.de>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-watchdog@vger.kernel.org, linux-renesas-soc@vger.kernel.org
-Subject: Re: [PATCH v2 2/4] arm64: dts: r8a7795: Add RWDT node
-Message-ID: <20160404140633.GD2983@katana>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:52277 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755642AbcDDOIK (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 4 Apr 2016 10:08:10 -0400
+Date: Mon, 4 Apr 2016 07:08:12 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: "fixed-term.Oleksij.Rempel" <fixed-term.Oleksij.Rempel@de.bosch.com>,
+	Oleksij Rempel <linux@rempel-privat.de>,
+	dirk.behme@de.bosch.com, linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH v2 1/4] watchdog: renesas-wdt: add driver
+Message-ID: <20160404140812.GB10556@roeck-us.net>
 References: <1459511786-4286-1-git-send-email-wsa@the-dreams.de>
- <1459511786-4286-3-git-send-email-wsa@the-dreams.de>
- <20160404140057.GA27688@roeck-us.net>
+ <1459511786-4286-2-git-send-email-wsa@the-dreams.de>
+ <57010C13.7040007@rempel-privat.de>
+ <20160404104508.GA1383@katana>
+ <57025C5A.2060704@de.bosch.com>
+ <20160404123654.GA2983@katana>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="GyRA7555PLgSTuth"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20160404140057.GA27688@roeck-us.net>
+In-Reply-To: <20160404123654.GA2983@katana>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+On Mon, Apr 04, 2016 at 02:36:54PM +0200, Wolfram Sang wrote:
+> 
+> > we are using it. So it should be implemented in this driver as well,
+> > if it is not supported by HW, then we will need to use second timer or
+> > watchdog for pretimeout interrupt.
+> 
+> As I said, I have no task like this assigned (and no personal interest,
+> too). So, you'd need to do it yourself, hire me, or request this feature
+> from Renesas (and hope that they pass the task to me ;)).
+> 
+Sorry, I lost the context here. 
 
---GyRA7555PLgSTuth
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> > Please correct me if i'm wrong - module parameter is a way to ignore
+> > kernel config. For same purpose, to disable wdt at runtime "magic 'V'"
+> > should be used.
+> 
+> I have to admit that I don't have a specific use-case, I just did
+> general support as requested. So, I followed the style that basically
+> every other watchdog driver has this parameter.
+> 
+I don't understand this one. Unless I am missing something, the module
+parameter is standard, and magic close by writing 'V' is supported.
+What is the problem ?
 
-On Mon, Apr 04, 2016 at 07:00:57AM -0700, Guenter Roeck wrote:
-> On Fri, Apr 01, 2016 at 01:56:24PM +0200, Wolfram Sang wrote:
-> > From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> >=20
-> > This patch adds the RWDT device node for r8a7795.
-> >=20
-> > Signed-off-by: Takeshi Kihara <takeshi.kihara.df@renesas.com>
-> > Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
->=20
-> Acked-by: Guenter Roeck <linux@roeck-us.net>
->=20
-> I assume the dts patches will go through the an arm64 tree.
-> Is this correct ?
+>From my perspective, for v2 of the patch,
 
-Yes, via Simon's Renesas Tree to arm64.
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-
---GyRA7555PLgSTuth
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJXAnTpAAoJEBQN5MwUoCm2hGIP/AzHXnPl+nqm27rGjzP1Htan
-xXfiKNEXndnfM1dGve6+oqvJAfnNG2tVB+44yODt91/UG9z4rGjHc/ETHEWTB388
-cEEMCYVef96jEgwtfktHTgxx433Qeq4Uob/3nf96zr9g8YA9FPr8sxAO32M4Sgir
-xgHZTOKxy0xF/IEzvLw8d/6HYsz9zQoNMoa99L/mpUHeeqxVx/jxO/I8c1Pb5wuP
-rl43uNt+qi40E8zY8rBIAwA+AKiGZDYfOHnS1JBrbsW6lyMiM4QsiXe/+RZ/VYj4
-VAwkwtMenTwTHT+QVhBc3aVPtsAQQEHZxrKAWAQI2LjCCFGcmXuxFQH3YSUvbh8Y
-DnpxMAoBJc9SoqsaCh9w4O3dAcliVqdi5CuAk7Nq9389Mv5Ai0RezPR8z+GcDuSv
-HgIKQYkAQ6Ew4RoLmtn+esagTRc28AOpG5sE6u/E9QorA3Ld1tqWoht/2JgjJglJ
-LX68OTsXP+WRzHQQitVWGbx7GH61TMIHOYPAxd3Jer67vMDTcOuIKVRdGywYNx3K
-gNfs9rc7ImA4doMxB992Zh1b1c2f/3PbPEvquGSbiGtm7T+/oDQnyR3FBZ1Vb2bS
-aQplVJ3X4fn6Hb4lDaLF4wC+fZx65BltS8N9GsSKtihyOP97QtyRPk8Ilp0hWmtk
-D78gBXJYnUTK9QHh5EFT
-=Fuij
------END PGP SIGNATURE-----
-
---GyRA7555PLgSTuth--
+Thanks,
+Guenter
