@@ -1,71 +1,139 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:35914 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752471AbcDDO7Z (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 4 Apr 2016 10:59:25 -0400
-Date: Mon, 4 Apr 2016 16:59:19 +0200
-From: Wolfram Sang <wsa@the-dreams.de>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-	linux-renesas-soc@vger.kernel.org
-Subject: Re: [PATCH v2 0/4] watchdog: add driver for Renesas Gen3 WDT
- watchdogs
-Message-ID: <20160404145919.GE2983@katana>
-References: <1459511786-4286-1-git-send-email-wsa@the-dreams.de>
- <CAMuHMdXQFD281m7iWc7RRdunW8Fo9nQfLBwytD1L3abW1ephtw@mail.gmail.com>
+Received: from g1t5425.austin.hp.com ([15.216.225.55]:43964 "EHLO
+	g1t5425.austin.hp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752471AbcDDO7f convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 4 Apr 2016 10:59:35 -0400
+From: "Croxon, Nigel" <nigel.croxon@hpe.com>
+To: "wim@iguana.be" <wim@iguana.be>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
+Subject: RE: [PATCH V2] watchdog: hpwdt: Adjust documentation to match
+ kernel module parameters
+Date: Mon, 4 Apr 2016 14:59:31 +0000
+Message-ID: <A4930445748CDC43B8495613130746F44ECE06A5@G9W0341.americas.hpqcorp.net>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="19uQFt6ulqmgNgg1"
-Content-Disposition: inline
-In-Reply-To: <CAMuHMdXQFD281m7iWc7RRdunW8Fo9nQfLBwytD1L3abW1ephtw@mail.gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+From: Nigel Croxon <nigel.croxon@hpe.com>
+Date: Mon, 4 Apr 2016 10:33:25 -0400
+Subject: [PATCH V2] watchdog: hpwdt: Adjust documentation to match latest kernel module parameters.
 
---19uQFt6ulqmgNgg1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Adjust documentation to match latest kernel module parameters.
 
+V2 - Changed insmod / rmmod to modprobe / modprobe -r
 
-> My Salvator-X reboots after timeout from "cat > /dev/watchdog0", but
-> it doesn't reboot through "reboot" or "reboot -f"?
->=20
+Signed-off-by: Nigel Croxon <nigel.croxon@hpe.com>
+---
+ Documentation/watchdog/hpwdt.txt |   57 ++++++++++++++++++++------------------
+ 1 files changed, 30 insertions(+), 27 deletions(-)
 
-That sadly doesn't work on Gen3. From the RFC v5 cover letter:
-
-=3D=3D=3D
-
-* drop restart_handler since ARM64 uses PSCI firmware resets which do
-  not call restart handlers
-
-The last point was quite a bummer to me because plain reboot was the
-reason I wrote this driver ;) Well, so is life...
-
-=3D=3D=3D
-
-   Wolfram
-
-
---19uQFt6ulqmgNgg1
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJXAoFHAAoJEBQN5MwUoCm2a+wP/Ai0XLKSAGRmtOrlR2E+T4TP
-WvCtGRY8LSwC0S6gYVZBNKBPBtzjmPNTiI2Z9t8x4TI0Ts1vpMBz8pCVCbWOFaSW
-o2uFPN/UKOADj5Ki7RUV1bX5sBDs2cq7/hZ6IARwIyFj6WgW6tKDgHBC1W7SgTW8
-ZAXZ/fwZKhTtebCwS1BNp+rgsk+cQCS6MOJfcv6aPAVfl2ecVBHxy/JGyeTLuBEI
-wx9fAmFt7iNHv+6NtXplrlMa5ux5P+/SvvJoy9NFkA9XgZcOsxLKHnzwxA7Y22A+
-ahzpAK+4RiobfGKTqqQQQJmGj3A+CHzSyKamhi7jMobZmSSojJpUxyObkoa63+jt
-1E4V4ComMZc9WAbJ89pO14tEpMch2EemYthnzGVlrSjuRSDHOEDGxO8i3Dstd2eh
-8m0B2BDRuwnQHSRP7QTV+rpRA5p+fnSqgOqsDm/fmgpQ5bdAtXNkT4zdF/NsJ7MQ
-OoCMOB+gt0iXOxpvxl3GLMIHuOhHyYWQKEPrgi+ZR0RZeW3P+sKkaUE2PdCSoI++
-avKWmHiaWTdabOUgbqhzg3kw1o4j2WOGwd+qV2ej84afGdjjHVAxKurhESwObney
-hz8CVuX3iEUzUznVTTUtuTYnnKQ6SEUTc85cLvmglDs2IdVHD0lTS+DTBdEdDiXG
-8kdP5UCBl0zpq3BJqlu4
-=6kuL
------END PGP SIGNATURE-----
-
---19uQFt6ulqmgNgg1--
+diff --git a/Documentation/watchdog/hpwdt.txt b/Documentation/watchdog/hpwdt.txt
+index 9488078..3521e8b 100644
+--- a/Documentation/watchdog/hpwdt.txt
++++ b/Documentation/watchdog/hpwdt.txt
+@@ -1,64 +1,67 @@
+-Last reviewed: 06/02/2009
++Last reviewed: 04/04/2016
+ 
+-                     HP iLO2 NMI Watchdog Driver
+-              NMI sourcing for iLO2 based ProLiant Servers
++                     HPE iLO NMI Watchdog Driver
++              NMI sourcing for iLO based ProLiant Servers
+                      Documentation and Driver by
+-              Thomas Mingarelli <thomas.mingarelli@hp.com>
++              Thomas Mingarelli <thomas.mingarelli@hpe.com>
+ 
+- The HP iLO2 NMI Watchdog driver is a kernel module that provides basic
++ The HPE iLO NMI Watchdog driver is a kernel module that provides basic
+  watchdog functionality and the added benefit of NMI sourcing. Both the
+  watchdog functionality and the NMI sourcing capability need to be enabled
+  by the user. Remember that the two modes are not dependent on one another.
+  A user can have the NMI sourcing without the watchdog timer and vice-versa.
++ All references to iLO in this document imply it also works on iLO2 and all
++ subsequent generations.
+ 
+  Watchdog functionality is enabled like any other common watchdog driver. That
+  is, an application needs to be started that kicks off the watchdog timer. A
+  basic application exists in the Documentation/watchdog/src directory called
+  watchdog-test.c. Simply compile the C file and kick it off. If the system
+- gets into a bad state and hangs, the HP ProLiant iLO 2 timer register will
++ gets into a bad state and hangs, the HPE ProLiant iLO timer register will
+  not be updated in a timely fashion and a hardware system reset (also known as
+  an Automatic Server Recovery (ASR)) event will occur.
+ 
+- The hpwdt driver also has four (4) module parameters. They are the following:
++ The hpwdt driver also has three (3) module parameters. They are the following:
+ 
+- soft_margin - allows the user to set the watchdog timer value
+- allow_kdump - allows the user to save off a kernel dump image after an NMI
++ soft_margin - allows the user to set the watchdog timer value.
++               Default value is 30 seconds.
++ allow_kdump - allows the user to save off a kernel dump image after an NMI.
++               Default value is 1/ON
+  nowayout    - basic watchdog parameter that does not allow the timer to
+                be restarted or an impending ASR to be escaped.
+- priority    - determines whether or not the hpwdt driver is first on the
+-               die_notify list to handle NMIs or last. The default value
+-               for this module parameter is 0 or LAST. If the user wants to
+-               enable NMI sourcing then reload the hpwdt driver with
+-               priority=1 (and boot with nmi_watchdog=0).
++               Default valus is set when compiling the kernel. If it is set
++               to "Y", then there is not way of disabling the watchdog once
++               it has been started.
+ 
+  NOTE: More information about watchdog drivers in general, including the ioctl
+        interface to /dev/watchdog can be found in
+        Documentation/watchdog/watchdog-api.txt and Documentation/IPMI.txt.
+ 
+- The priority parameter was introduced due to other kernel software that relied
+- on handling NMIs (like oprofile). Keeping hpwdt's priority at 0 (or LAST)
+- enables the users of NMIs for non critical events to be work as expected.
+-
+  The NMI sourcing capability is disabled by default due to the inability to
+  distinguish between "NMI Watchdog Ticks" and "HW generated NMI events" in the
+  Linux kernel. What this means is that the hpwdt nmi handler code is called
+  each time the NMI signal fires off. This could amount to several thousands of
+  NMIs in a matter of seconds. If a user sees the Linux kernel's "dazed and
+  confused" message in the logs or if the system gets into a hung state, then
+- the hpwdt driver can be reloaded with the "priority" module parameter set
+- (priority=1).
++ the hpwdt driver can be reloaded. 
+ 
+  1. If the kernel has not been booted with nmi_watchdog turned off then
+-    edit /boot/grub/menu.lst and place the nmi_watchdog=0 at the end of the
+-    currently booting kernel line.
++    edit and place the nmi_watchdog=0 at the end of the currently booting
++    kernel line. Depending on your Linux distribution and platform setup:
++    For non-UEFI systems
++       /boot/grub/grub.conf   or
++       /boot/grub/menu.lst
++    For UEFI systems
++      /boot/efi/EFI/distroname/grub.conf   or
++      /boot/efi/efi/distroname/elilo.conf
+  2. reboot the sever
+- 3. Once the system comes up perform a rmmod hpwdt
+- 4. insmod /lib/modules/`uname -r`/kernel/drivers/char/watchdog/hpwdt.ko priority=1
++ 3. Once the system comes up perform a modprobe -r hpwdt
++ 4. modprobe /lib/modules/`uname -r`/kernel/drivers/watchdog/hpwdt.ko 
+ 
+  Now, the hpwdt can successfully receive and source the NMI and provide a log
+- message that details the reason for the NMI (as determined by the HP BIOS).
++ message that details the reason for the NMI (as determined by the HPE BIOS).
+ 
+- Below is a list of NMIs the HP BIOS understands along with the associated
++ Below is a list of NMIs the HPE BIOS understands along with the associated
+  code (reason):
+ 
+ 	No source found                00h
+@@ -92,4 +95,4 @@ Last reviewed: 06/02/2009
+ 
+ 
+  -- Tom Mingarelli
+-    (thomas.mingarelli@hp.com)
++    (thomas.mingarelli@hpe.com)
+-- 
+1.7.1
