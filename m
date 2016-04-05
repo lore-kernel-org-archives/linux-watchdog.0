@@ -1,140 +1,87 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from g1t5424.austin.hp.com ([15.216.225.54]:45718 "EHLO
-	g1t5424.austin.hp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754235AbcDDTyd convert rfc822-to-8bit (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:33018 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758100AbcDESr0 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 4 Apr 2016 15:54:33 -0400
-From: "Croxon, Nigel" <nigel.croxon@hpe.com>
-To: "wim@iguana.be" <wim@iguana.be>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
-Subject: [PATCH V2] watchdog: hpwdt: Adjust documentation to match latest
- kernel module parameters
-Date: Mon, 4 Apr 2016 19:54:10 +0000
-Message-ID: <A4930445748CDC43B8495613130746F44ECE2822@G9W0341.americas.hpqcorp.net>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+	Tue, 5 Apr 2016 14:47:26 -0400
+Date: Tue, 5 Apr 2016 11:47:27 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: "fixed-term.Oleksij.Rempel" <fixed-term.Oleksij.Rempel@de.bosch.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>,
+	Oleksij Rempel <linux@rempel-privat.de>,
+	dirk.behme@de.bosch.com, linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH v2 1/4] watchdog: renesas-wdt: add driver
+Message-ID: <20160405184727.GA5862@roeck-us.net>
+References: <1459511786-4286-1-git-send-email-wsa@the-dreams.de>
+ <1459511786-4286-2-git-send-email-wsa@the-dreams.de>
+ <57010C13.7040007@rempel-privat.de>
+ <20160404104508.GA1383@katana>
+ <57025C5A.2060704@de.bosch.com>
+ <20160404123654.GA2983@katana>
+ <20160404140812.GB10556@roeck-us.net>
+ <57035A6A.3020601@de.bosch.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <57035A6A.3020601@de.bosch.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-From: Nigel Croxon <nigel.croxon@hpe.com>
-Date: Mon, 4 Apr 2016 10:33:25 -0400
-Subject: [PATCH V2] watchdog: hpwdt: Adjust documentation to match latest kernel module parameters
+On Tue, Apr 05, 2016 at 08:25:46AM +0200, fixed-term.Oleksij.Rempel wrote:
+> 
+> 
+> On 04.04.2016 16:08, Guenter Roeck wrote:
+> > On Mon, Apr 04, 2016 at 02:36:54PM +0200, Wolfram Sang wrote:
+> >>
+> >>> we are using it. So it should be implemented in this driver as well,
+> >>> if it is not supported by HW, then we will need to use second timer or
+> >>> watchdog for pretimeout interrupt.
+> >>
+> >> As I said, I have no task like this assigned (and no personal interest,
+> >> too). So, you'd need to do it yourself, hire me, or request this feature
+> >> from Renesas (and hope that they pass the task to me ;)).
+> >>
+> > Sorry, I lost the context here. 
+> > 
+> >>> Please correct me if i'm wrong - module parameter is a way to ignore
+> >>> kernel config. For same purpose, to disable wdt at runtime "magic 'V'"
+> >>> should be used.
+> >>
+> >> I have to admit that I don't have a specific use-case, I just did
+> >> general support as requested. So, I followed the style that basically
+> >> every other watchdog driver has this parameter.
+> >>
+> > I don't understand this one. Unless I am missing something, the module
+> > parameter is standard, and magic close by writing 'V' is supported.
+> > What is the problem ?
+> 
+> Sorry it was more about our internal requirements, which are fallowing:
+> - WDT is always on. there should be no option to disable it.
+> - WDTs can fail, it is proven fact. In our case, worst scenario, failed
+> WDT will kill a car battery. This is why we use many watchdogs in one
+> system. So, using differently configured WDTs of one SoC is valid use
+> case. From this point, module options are kind of sweet but useless or
+> harmful.
 
-Adjust documentation to match latest kernel module parameters.
+No one _has_ to use the module parameter. That doesn't mean that it must
+not be there - someone else may want it for some reason.
 
-V2 - Changed insmod / rmmod to modprobe / modprobe -r
+> - pretimout interrupt is not optional - not any more. Some issues are
+> wary hard or impossible to reproduce. Pretimout interrupt helped us to
+> debug some of them. If WDT hardware can't provide one, we will need to
+> mix two watchdogs (one for reset and other for interrupt) or wdt with
+> some other hw timer.
 
-Signed-off-by: Nigel Croxon <nigel.croxon@hpe.com>
----
- Documentation/watchdog/hpwdt.txt |   57 ++++++++++++++++++++------------------
- 1 files changed, 30 insertions(+), 27 deletions(-)
+Adding pretimeout support should be easy with a follow-up patch.
 
-diff --git a/Documentation/watchdog/hpwdt.txt b/Documentation/watchdog/hpwdt.txt
-index 9488078..3521e8b 100644
---- a/Documentation/watchdog/hpwdt.txt
-+++ b/Documentation/watchdog/hpwdt.txt
-@@ -1,64 +1,67 @@
--Last reviewed: 06/02/2009
-+Last reviewed: 04/04/2016
- 
--                     HP iLO2 NMI Watchdog Driver
--              NMI sourcing for iLO2 based ProLiant Servers
-+                     HPE iLO NMI Watchdog Driver
-+              NMI sourcing for iLO based ProLiant Servers
-                      Documentation and Driver by
--              Thomas Mingarelli <thomas.mingarelli@hp.com>
-+              Thomas Mingarelli <thomas.mingarelli@hpe.com>
- 
-- The HP iLO2 NMI Watchdog driver is a kernel module that provides basic
-+ The HPE iLO NMI Watchdog driver is a kernel module that provides basic
-  watchdog functionality and the added benefit of NMI sourcing. Both the
-  watchdog functionality and the NMI sourcing capability need to be enabled
-  by the user. Remember that the two modes are not dependent on one another.
-  A user can have the NMI sourcing without the watchdog timer and vice-versa.
-+ All references to iLO in this document imply it also works on iLO2 and all
-+ subsequent generations.
- 
-  Watchdog functionality is enabled like any other common watchdog driver. That
-  is, an application needs to be started that kicks off the watchdog timer. A
-  basic application exists in the Documentation/watchdog/src directory called
-  watchdog-test.c. Simply compile the C file and kick it off. If the system
-- gets into a bad state and hangs, the HP ProLiant iLO 2 timer register will
-+ gets into a bad state and hangs, the HPE ProLiant iLO timer register will
-  not be updated in a timely fashion and a hardware system reset (also known as
-  an Automatic Server Recovery (ASR)) event will occur.
- 
-- The hpwdt driver also has four (4) module parameters. They are the following:
-+ The hpwdt driver also has three (3) module parameters. They are the following:
- 
-- soft_margin - allows the user to set the watchdog timer value
-- allow_kdump - allows the user to save off a kernel dump image after an NMI
-+ soft_margin - allows the user to set the watchdog timer value.
-+               Default value is 30 seconds.
-+ allow_kdump - allows the user to save off a kernel dump image after an NMI.
-+               Default value is 1/ON
-  nowayout    - basic watchdog parameter that does not allow the timer to
-                be restarted or an impending ASR to be escaped.
-- priority    - determines whether or not the hpwdt driver is first on the
--               die_notify list to handle NMIs or last. The default value
--               for this module parameter is 0 or LAST. If the user wants to
--               enable NMI sourcing then reload the hpwdt driver with
--               priority=1 (and boot with nmi_watchdog=0).
-+               Default valus is set when compiling the kernel. If it is set
-+               to "Y", then there is not way of disabling the watchdog once
-+               it has been started.
- 
-  NOTE: More information about watchdog drivers in general, including the ioctl
-        interface to /dev/watchdog can be found in
-        Documentation/watchdog/watchdog-api.txt and Documentation/IPMI.txt.
- 
-- The priority parameter was introduced due to other kernel software that relied
-- on handling NMIs (like oprofile). Keeping hpwdt's priority at 0 (or LAST)
-- enables the users of NMIs for non critical events to be work as expected.
--
-  The NMI sourcing capability is disabled by default due to the inability to
-  distinguish between "NMI Watchdog Ticks" and "HW generated NMI events" in the
-  Linux kernel. What this means is that the hpwdt nmi handler code is called
-  each time the NMI signal fires off. This could amount to several thousands of
-  NMIs in a matter of seconds. If a user sees the Linux kernel's "dazed and
-  confused" message in the logs or if the system gets into a hung state, then
-- the hpwdt driver can be reloaded with the "priority" module parameter set
-- (priority=1).
-+ the hpwdt driver can be reloaded. 
- 
-  1. If the kernel has not been booted with nmi_watchdog turned off then
--    edit /boot/grub/menu.lst and place the nmi_watchdog=0 at the end of the
--    currently booting kernel line.
-+    edit and place the nmi_watchdog=0 at the end of the currently booting
-+    kernel line. Depending on your Linux distribution and platform setup:
-+    For non-UEFI systems
-+       /boot/grub/grub.conf   or
-+       /boot/grub/menu.lst
-+    For UEFI systems
-+      /boot/efi/EFI/distroname/grub.conf   or
-+      /boot/efi/efi/distroname/elilo.conf
-  2. reboot the sever
-- 3. Once the system comes up perform a rmmod hpwdt
-- 4. insmod /lib/modules/`uname -r`/kernel/drivers/char/watchdog/hpwdt.ko priority=1
-+ 3. Once the system comes up perform a modprobe -r hpwdt
-+ 4. modprobe /lib/modules/`uname -r`/kernel/drivers/watchdog/hpwdt.ko 
- 
-  Now, the hpwdt can successfully receive and source the NMI and provide a log
-- message that details the reason for the NMI (as determined by the HP BIOS).
-+ message that details the reason for the NMI (as determined by the HPE BIOS).
- 
-- Below is a list of NMIs the HP BIOS understands along with the associated
-+ Below is a list of NMIs the HPE BIOS understands along with the associated
-  code (reason):
- 
- 	No source found                00h
-@@ -92,4 +95,4 @@ Last reviewed: 06/02/2009
- 
- 
-  -- Tom Mingarelli
--    (thomas.mingarelli@hp.com)
-+    (thomas.mingarelli@hpe.com)
--- 
-1.7.1
+> 
+> May be this requirements can be passed to upstream as well :)
 
+Keep in mind that a specific use case does not and should not mandate
+driver implementation details. The driver can support both module parameter
+and pretimeout, but none of those has to be used in a specific application.
+Important is that the kernel _supports_ your use case, which should be no
+problem.
+
+Thanks,
+Guenter
