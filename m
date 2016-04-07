@@ -1,75 +1,141 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:41957 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753799AbcDAMfn (ORCPT
+Received: from g1t5425.austin.hp.com ([15.216.225.55]:36737 "EHLO
+	g1t5425.austin.hp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753426AbcDGBMC convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 1 Apr 2016 08:35:43 -0400
-Subject: Re: [PATCH 1/4] watchdog: renesas-wdt: add driver
-To: Wolfram Sang <wsa@the-dreams.de>
-References: <1459351725-14144-1-git-send-email-wsa@the-dreams.de>
- <1459351725-14144-2-git-send-email-wsa@the-dreams.de>
- <20160330233411.GA24844@roeck-us.net> <20160401113629.GA2513@katana>
-Cc: linux-watchdog@vger.kernel.org, linux-renesas-soc@vger.kernel.org
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <56FE6B20.3040209@roeck-us.net>
-Date: Fri, 1 Apr 2016 05:35:44 -0700
+	Wed, 6 Apr 2016 21:12:02 -0400
+From: "Croxon, Nigel" <nigel.croxon@hpe.com>
+To: "wim@iguana.be" <wim@iguana.be>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
+Subject: [PATCH V3] watchdog: hpwdt: Adjust documentation to match latest
+ kernel module parameters
+Date: Thu, 7 Apr 2016 01:11:52 +0000
+Message-ID: <A4930445748CDC43B8495613130746F44ECEC789@G4W3214.americas.hpqcorp.net>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-In-Reply-To: <20160401113629.GA2513@katana>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Wolfram,
+From: Nigel Croxon <nigel.croxon@hpe.com>
+Date: Wed, 6 Apr 2016 14:40:05 -0400
+Subject: [PATCH V3] watchdog: hpwdt: Adjust documentation to match latest kernel module parameters.
 
-On 04/01/2016 04:36 AM, Wolfram Sang wrote:
-> Hi Guenter,
->
->>> +static bool nowayout = WATCHDOG_NOWAYOUT;
->>> +module_param(nowayout, bool, S_IRUGO);
->>
->> Sure you want this parameter readable ? No problem with me, but it is unusual,
->> so I figure it is worth asking.
->
-> No reason, will stick to the usual case.
->
->>> +static void rwdt_write(struct rwdt_priv *priv, u32 val, unsigned reg)
->>
->> Please use 'unsigned int' throughout.
->
-> Can do. May I ask why?
->
+Adjust documentation to match latest kernel module parameters.
 
-There are people changing unsigned -> unsigned int with coccinelle scripts.
-Besides that, checkpatch warns about it.
+V3 - Fixed two spelling mistakes.
+V2 - Changed insmod / rmmod to modprobe / modprobe -r
 
-Sure, I know, checkpatch is just a script, I know that story, but I don't
-want to have to deal with the inevitable follow-up patches.
+Signed-off-by: Nigel Croxon <nigel.croxon@hpe.com>
+---
+ Documentation/watchdog/hpwdt.txt |   57 ++++++++++++++++++++------------------
+ 1 files changed, 30 insertions(+), 27 deletions(-)
 
->>> +	rwdt_write(priv, 65536 - wdev->timeout * priv->clks_per_sec, RWTCNT);
->>> +
->>
->> Just wondering, does reading RWTCNT return the remaining timeout ?
->> If so, you could easily implement WDIOC_GETTIMEOUT.
->
-> I assume you mean GETTIMELEFT. Tried that, seems to work.
->
-Yes, sorry.
-
-Thanks,
-Guenter
-
->> function. In other words, you can just drop rwdt_set_timeout() entirely.
->
-> Cool news! Works fine.
->
-> Thanks for the prompt review! Will send V2 in a minute.
->
->     Wolfram
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
+diff --git a/Documentation/watchdog/hpwdt.txt b/Documentation/watchdog/hpwdt.txt
+index 9488078..3521e8b 100644
+--- a/Documentation/watchdog/hpwdt.txt
++++ b/Documentation/watchdog/hpwdt.txt
+@@ -1,64 +1,67 @@
+-Last reviewed: 06/02/2009
++Last reviewed: 04/04/2016
+ 
+-                     HP iLO2 NMI Watchdog Driver
+-              NMI sourcing for iLO2 based ProLiant Servers
++                     HPE iLO NMI Watchdog Driver
++              NMI sourcing for iLO based ProLiant Servers
+                      Documentation and Driver by
+-              Thomas Mingarelli <thomas.mingarelli@hp.com>
++              Thomas Mingarelli <thomas.mingarelli@hpe.com>
+ 
+- The HP iLO2 NMI Watchdog driver is a kernel module that provides basic
++ The HPE iLO NMI Watchdog driver is a kernel module that provides basic
+  watchdog functionality and the added benefit of NMI sourcing. Both the
+  watchdog functionality and the NMI sourcing capability need to be enabled
+  by the user. Remember that the two modes are not dependent on one another.
+  A user can have the NMI sourcing without the watchdog timer and vice-versa.
++ All references to iLO in this document imply it also works on iLO2 and all
++ subsequent generations.
+ 
+  Watchdog functionality is enabled like any other common watchdog driver. That
+  is, an application needs to be started that kicks off the watchdog timer. A
+  basic application exists in the Documentation/watchdog/src directory called
+  watchdog-test.c. Simply compile the C file and kick it off. If the system
+- gets into a bad state and hangs, the HP ProLiant iLO 2 timer register will
++ gets into a bad state and hangs, the HPE ProLiant iLO timer register will
+  not be updated in a timely fashion and a hardware system reset (also known as
+  an Automatic Server Recovery (ASR)) event will occur.
+ 
+- The hpwdt driver also has four (4) module parameters. They are the following:
++ The hpwdt driver also has three (3) module parameters. They are the following:
+ 
+- soft_margin - allows the user to set the watchdog timer value
+- allow_kdump - allows the user to save off a kernel dump image after an NMI
++ soft_margin - allows the user to set the watchdog timer value.
++               Default value is 30 seconds.
++ allow_kdump - allows the user to save off a kernel dump image after an NMI.
++               Default value is 1/ON
+  nowayout    - basic watchdog parameter that does not allow the timer to
+                be restarted or an impending ASR to be escaped.
+- priority    - determines whether or not the hpwdt driver is first on the
+-               die_notify list to handle NMIs or last. The default value
+-               for this module parameter is 0 or LAST. If the user wants to
+-               enable NMI sourcing then reload the hpwdt driver with
+-               priority=1 (and boot with nmi_watchdog=0).
++               Default value is set when compiling the kernel. If it is set
++               to "Y", then there is no way of disabling the watchdog once
++               it has been started.
+ 
+  NOTE: More information about watchdog drivers in general, including the ioctl
+        interface to /dev/watchdog can be found in
+        Documentation/watchdog/watchdog-api.txt and Documentation/IPMI.txt.
+ 
+- The priority parameter was introduced due to other kernel software that relied
+- on handling NMIs (like oprofile). Keeping hpwdt's priority at 0 (or LAST)
+- enables the users of NMIs for non critical events to be work as expected.
+-
+  The NMI sourcing capability is disabled by default due to the inability to
+  distinguish between "NMI Watchdog Ticks" and "HW generated NMI events" in the
+  Linux kernel. What this means is that the hpwdt nmi handler code is called
+  each time the NMI signal fires off. This could amount to several thousands of
+  NMIs in a matter of seconds. If a user sees the Linux kernel's "dazed and
+  confused" message in the logs or if the system gets into a hung state, then
+- the hpwdt driver can be reloaded with the "priority" module parameter set
+- (priority=1).
++ the hpwdt driver can be reloaded. 
+ 
+  1. If the kernel has not been booted with nmi_watchdog turned off then
+-    edit /boot/grub/menu.lst and place the nmi_watchdog=0 at the end of the
+-    currently booting kernel line.
++    edit and place the nmi_watchdog=0 at the end of the currently booting
++    kernel line. Depending on your Linux distribution and platform setup:
++    For non-UEFI systems
++       /boot/grub/grub.conf   or
++       /boot/grub/menu.lst
++    For UEFI systems
++      /boot/efi/EFI/distroname/grub.conf   or
++      /boot/efi/efi/distroname/elilo.conf
+  2. reboot the sever
+- 3. Once the system comes up perform a rmmod hpwdt
+- 4. insmod /lib/modules/`uname -r`/kernel/drivers/char/watchdog/hpwdt.ko priority=1
++ 3. Once the system comes up perform a modprobe -r hpwdt
++ 4. modprobe /lib/modules/`uname -r`/kernel/drivers/watchdog/hpwdt.ko 
+ 
+  Now, the hpwdt can successfully receive and source the NMI and provide a log
+- message that details the reason for the NMI (as determined by the HP BIOS).
++ message that details the reason for the NMI (as determined by the HPE BIOS).
+ 
+- Below is a list of NMIs the HP BIOS understands along with the associated
++ Below is a list of NMIs the HPE BIOS understands along with the associated
+  code (reason):
+ 
+ 	No source found                00h
+@@ -92,4 +95,4 @@ Last reviewed: 06/02/2009
+ 
+ 
+  -- Tom Mingarelli
+-    (thomas.mingarelli@hp.com)
++    (thomas.mingarelli@hpe.com)
+-- 
+1.7.1
 
