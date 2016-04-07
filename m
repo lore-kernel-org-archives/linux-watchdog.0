@@ -15,18 +15,18 @@ Cc: linux-kernel@vger.kernel.org,
 	linux-watchdog@vger.kernel.org,
 	linux-gpio@vger.kernel.org,
 	William Breathitt Gray <vilhelm.gray@gmail.com>
-Subject: [PATCH 09/10] gpio: 104-idio-16: Utilize the ISA bus driver
-Date: Thu,  7 Apr 2016 10:47:30 -0400
-Message-Id: <c3b159e315bce0bd47d8b5af2374b5c579a7b8ee.1460040201.git.vilhelm.gray@gmail.com>
+Subject: [PATCH 10/10] gpio: ws16c48: Utilize the ISA bus driver
+Date: Thu,  7 Apr 2016 10:47:31 -0400
+Message-Id: <587c9cd2e14ade14c5453a708a45bd8a27bb3507.1460040201.git.vilhelm.gray@gmail.com>
 In-Reply-To: <cover.1460040201.git.vilhelm.gray@gmail.com>
 References: <cover.1460040201.git.vilhelm.gray@gmail.com>
 In-Reply-To: <cover.1460040201.git.vilhelm.gray@gmail.com>
 References: <cover.1460040201.git.vilhelm.gray@gmail.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-The ACCES 104-IDIO-16 series communicates via the ISA bus. As such, it
-is more appropriate to use the ISA bus driver over the platform driver
-to control the ACCES 104-IDIO-16 GPIO driver.
+The WinSystems WS16C48 communicates via the ISA bus. As such, it is more
+appropriate to use the ISA bus driver over the platform driver to
+control the WinSystems WS16C48 GPIO driver.
 
 This patch also adds support for multiple devices via the base and irq
 module array parameters. Each element of the base array corresponds to a
@@ -35,48 +35,37 @@ respective device addressed in the respective base array element.
 
 Signed-off-by: William Breathitt Gray <vilhelm.gray@gmail.com>
 ---
- drivers/gpio/Kconfig            | 10 +++--
- drivers/gpio/gpio-104-idio-16.c | 85 ++++++++++++++---------------------------
- 2 files changed, 34 insertions(+), 61 deletions(-)
+ drivers/gpio/Kconfig        |  9 ++---
+ drivers/gpio/gpio-ws16c48.c | 88 +++++++++++++++------------------------------
+ 2 files changed, 33 insertions(+), 64 deletions(-)
 
 diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
-index 46db6fc..5ee6706 100644
+index 5ee6706..25f2553 100644
 --- a/drivers/gpio/Kconfig
 +++ b/drivers/gpio/Kconfig
-@@ -527,12 +527,14 @@ config GPIO_104_DIO_48E
+@@ -614,12 +614,13 @@ config GPIO_TS5500
  
- config GPIO_104_IDIO_16
- 	tristate "ACCES 104-IDIO-16 GPIO support"
+ config GPIO_WS16C48
+ 	tristate "WinSystems WS16C48 GPIO support"
 +	depends on ISA_BUS
  	select GPIOLIB_IRQCHIP
  	help
--	  Enables GPIO support for the ACCES 104-IDIO-16 family. The base port
--	  address for the device may be set via the idio_16_base module
--	  parameter. The interrupt line number for the device may be set via the
--	  idio_16_irq module parameter.
-+	  Enables GPIO support for the ACCES 104-IDIO-16 family (104-IDIO-16,
-+	  104-IDIO-16E, 104-IDO-16, 104-IDIO-8, 104-IDIO-8E, 104-IDO-8). The
-+	  base port addresses for the devices may be configured via the base
-+	  module parameter. The interrupt line numbers for the devices may be
+-	  Enables GPIO support for the WinSystems WS16C48. The base port address
+-	  for the device may be configured via the ws16c48_base module
+-	  parameter. The interrupt line number for the device may be configured
+-	  via the ws16c48_irq module parameter.
++	  Enables GPIO support for the WinSystems WS16C48. The base port
++	  addresses for the devices may be configured via the base module
++	  parameter. The interrupt line numbers for the devices may be
 +	  configured via the irq module parameter.
  
- config GPIO_104_IDI_48
- 	tristate "ACCES 104-IDI-48 GPIO support"
-diff --git a/drivers/gpio/gpio-104-idio-16.c b/drivers/gpio/gpio-104-idio-16.c
-index ecc85fe..6787b8f 100644
---- a/drivers/gpio/gpio-104-idio-16.c
-+++ b/drivers/gpio/gpio-104-idio-16.c
-@@ -10,6 +10,9 @@
-  * WITHOUT ANY WARRANTY; without even the implied warranty of
-  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  * General Public License for more details.
-+ *
-+ * This driver supports the following ACCES devices: 104-IDIO-16,
-+ * 104-IDIO-16E, 104-IDO-16, 104-IDIO-8, 104-IDIO-8E, and 104-IDO-8.
-  */
- #include <linux/bitops.h>
- #include <linux/device.h>
-@@ -19,18 +22,23 @@
+ endmenu
+ 
+diff --git a/drivers/gpio/gpio-ws16c48.c b/drivers/gpio/gpio-ws16c48.c
+index 51f41e8..eaa71d4 100644
+--- a/drivers/gpio/gpio-ws16c48.c
++++ b/drivers/gpio/gpio-ws16c48.c
+@@ -19,18 +19,23 @@
  #include <linux/ioport.h>
  #include <linux/interrupt.h>
  #include <linux/irqdesc.h>
@@ -87,147 +76,153 @@ index ecc85fe..6787b8f 100644
 -#include <linux/platform_device.h>
  #include <linux/spinlock.h>
  
--static unsigned idio_16_base;
--module_param(idio_16_base, uint, 0);
--MODULE_PARM_DESC(idio_16_base, "ACCES 104-IDIO-16 base address");
--static unsigned idio_16_irq;
--module_param(idio_16_irq, uint, 0);
--MODULE_PARM_DESC(idio_16_irq, "ACCES 104-IDIO-16 interrupt line number");
-+#define IDIO_16_EXTENT 8
-+#define MAX_NUM_IDIO_16 max_num_isa_dev(IDIO_16_EXTENT)
+-static unsigned ws16c48_base;
+-module_param(ws16c48_base, uint, 0);
+-MODULE_PARM_DESC(ws16c48_base, "WinSystems WS16C48 base address");
+-static unsigned ws16c48_irq;
+-module_param(ws16c48_irq, uint, 0);
+-MODULE_PARM_DESC(ws16c48_irq, "WinSystems WS16C48 interrupt line number");
++#define WS16C48_EXTENT 16
++#define MAX_NUM_WS16C48 max_num_isa_dev(WS16C48_EXTENT)
 +
-+static unsigned int base[MAX_NUM_IDIO_16];
-+static unsigned int num_idio_16;
-+module_param_array(base, uint, &num_idio_16, 0);
-+MODULE_PARM_DESC(base, "ACCES 104-IDIO-16 base addresses");
++static unsigned int base[MAX_NUM_WS16C48];
++static unsigned int num_ws16c48;
++module_param_array(base, uint, &num_ws16c48, 0);
++MODULE_PARM_DESC(base, "WinSystems WS16C48 base addresses");
 +
-+static unsigned int irq[MAX_NUM_IDIO_16];
++static unsigned int irq[MAX_NUM_WS16C48];
 +module_param_array(irq, uint, NULL, 0);
-+MODULE_PARM_DESC(irq, "ACCES 104-IDIO-16 interrupt line numbers");
++MODULE_PARM_DESC(irq, "WinSystems WS16C48 interrupt line numbers");
  
  /**
-  * struct idio_16_gpio - GPIO device private data structure
-@@ -185,23 +193,19 @@ static irqreturn_t idio_16_irq_handler(int irq, void *dev_id)
+  * struct ws16c48_gpio - GPIO device private data structure
+@@ -298,23 +303,19 @@ static irqreturn_t ws16c48_irq_handler(int irq, void *dev_id)
  	return IRQ_HANDLED;
  }
  
--static int __init idio_16_probe(struct platform_device *pdev)
-+static int idio_16_probe(struct device *dev, unsigned int id)
+-static int __init ws16c48_probe(struct platform_device *pdev)
++static int ws16c48_probe(struct device *dev, unsigned int id)
  {
 -	struct device *dev = &pdev->dev;
- 	struct idio_16_gpio *idio16gpio;
--	const unsigned base = idio_16_base;
--	const unsigned extent = 8;
+ 	struct ws16c48_gpio *ws16c48gpio;
+-	const unsigned base = ws16c48_base;
+-	const unsigned extent = 16;
  	const char *const name = dev_name(dev);
  	int err;
--	const unsigned irq = idio_16_irq;
+-	const unsigned irq = ws16c48_irq;
  
- 	idio16gpio = devm_kzalloc(dev, sizeof(*idio16gpio), GFP_KERNEL);
- 	if (!idio16gpio)
+ 	ws16c48gpio = devm_kzalloc(dev, sizeof(*ws16c48gpio), GFP_KERNEL);
+ 	if (!ws16c48gpio)
  		return -ENOMEM;
  
 -	if (!devm_request_region(dev, base, extent, name)) {
-+	if (!devm_request_region(dev, base[id], IDIO_16_EXTENT, name)) {
++	if (!devm_request_region(dev, base[id], WS16C48_EXTENT, name)) {
  		dev_err(dev, "Unable to lock port addresses (0x%X-0x%X)\n",
 -			base, base + extent);
-+			base[id], base[id] + IDIO_16_EXTENT);
++			base[id], base[id] + WS16C48_EXTENT);
  		return -EBUSY;
  	}
  
-@@ -215,8 +219,8 @@ static int __init idio_16_probe(struct platform_device *pdev)
- 	idio16gpio->chip.direction_output = idio_16_gpio_direction_output;
- 	idio16gpio->chip.get = idio_16_gpio_get;
- 	idio16gpio->chip.set = idio_16_gpio_set;
--	idio16gpio->base = base;
--	idio16gpio->irq = irq;
-+	idio16gpio->base = base[id];
-+	idio16gpio->irq = irq[id];
- 	idio16gpio->out_state = 0xFFFF;
+@@ -328,8 +329,8 @@ static int __init ws16c48_probe(struct platform_device *pdev)
+ 	ws16c48gpio->chip.direction_output = ws16c48_gpio_direction_output;
+ 	ws16c48gpio->chip.get = ws16c48_gpio_get;
+ 	ws16c48gpio->chip.set = ws16c48_gpio_set;
+-	ws16c48gpio->base = base;
+-	ws16c48gpio->irq = irq;
++	ws16c48gpio->base = base[id];
++	ws16c48gpio->irq = irq[id];
  
- 	spin_lock_init(&idio16gpio->lock);
-@@ -230,8 +234,8 @@ static int __init idio_16_probe(struct platform_device *pdev)
+ 	spin_lock_init(&ws16c48gpio->lock);
+ 
+@@ -342,11 +343,11 @@ static int __init ws16c48_probe(struct platform_device *pdev)
  	}
  
  	/* Disable IRQ by default */
--	outb(0, base + 2);
--	outb(0, base + 1);
-+	outb(0, base[id] + 2);
-+	outb(0, base[id] + 1);
+-	outb(0x80, base + 7);
+-	outb(0, base + 8);
+-	outb(0, base + 9);
+-	outb(0, base + 10);
+-	outb(0xC0, base + 7);
++	outb(0x80, base[id] + 7);
++	outb(0, base[id] + 8);
++	outb(0, base[id] + 9);
++	outb(0, base[id] + 10);
++	outb(0xC0, base[id] + 7);
  
- 	err = gpiochip_irqchip_add(&idio16gpio->chip, &idio_16_irqchip, 0,
+ 	err = gpiochip_irqchip_add(&ws16c48gpio->chip, &ws16c48_irqchip, 0,
  		handle_edge_irq, IRQ_TYPE_NONE);
-@@ -240,7 +244,7 @@ static int __init idio_16_probe(struct platform_device *pdev)
+@@ -355,7 +356,7 @@ static int __init ws16c48_probe(struct platform_device *pdev)
  		goto err_gpiochip_remove;
  	}
  
--	err = request_irq(irq, idio_16_irq_handler, 0, name, idio16gpio);
-+	err = request_irq(irq[id], idio_16_irq_handler, 0, name, idio16gpio);
+-	err = request_irq(irq, ws16c48_irq_handler, IRQF_SHARED, name,
++	err = request_irq(irq[id], ws16c48_irq_handler, IRQF_SHARED, name,
+ 		ws16c48gpio);
  	if (err) {
  		dev_err(dev, "IRQ handler registering failed (%d)\n", err);
- 		goto err_gpiochip_remove;
-@@ -253,9 +257,9 @@ err_gpiochip_remove:
+@@ -369,9 +370,9 @@ err_gpiochip_remove:
  	return err;
  }
  
--static int idio_16_remove(struct platform_device *pdev)
-+static int idio_16_remove(struct device *dev, unsigned int id)
+-static int ws16c48_remove(struct platform_device *pdev)
++static int ws16c48_remove(struct device *dev, unsigned int id)
  {
--	struct idio_16_gpio *const idio16gpio = platform_get_drvdata(pdev);
-+	struct idio_16_gpio *const idio16gpio = dev_get_drvdata(dev);
+-	struct ws16c48_gpio *const ws16c48gpio = platform_get_drvdata(pdev);
++	struct ws16c48_gpio *const ws16c48gpio = dev_get_drvdata(dev);
  
- 	free_irq(idio16gpio->irq, idio16gpio);
- 	gpiochip_remove(&idio16gpio->chip);
-@@ -263,48 +267,15 @@ static int idio_16_remove(struct platform_device *pdev)
+ 	free_irq(ws16c48gpio->irq, ws16c48gpio);
+ 	gpiochip_remove(&ws16c48gpio->chip);
+@@ -379,48 +380,15 @@ static int ws16c48_remove(struct platform_device *pdev)
  	return 0;
  }
  
--static struct platform_device *idio_16_device;
+-static struct platform_device *ws16c48_device;
 -
--static struct platform_driver idio_16_driver = {
-+static struct isa_driver idio_16_driver = {
-+	.probe = idio_16_probe,
+-static struct platform_driver ws16c48_driver = {
++static struct isa_driver ws16c48_driver = {
++	.probe = ws16c48_probe,
  	.driver = {
- 		.name = "104-idio-16"
+ 		.name = "ws16c48"
  	},
- 	.remove = idio_16_remove
+ 	.remove = ws16c48_remove
  };
  
--static void __exit idio_16_exit(void)
+-static void __exit ws16c48_exit(void)
 -{
--	platform_device_unregister(idio_16_device);
--	platform_driver_unregister(&idio_16_driver);
+-	platform_device_unregister(ws16c48_device);
+-	platform_driver_unregister(&ws16c48_driver);
 -}
 -
--static int __init idio_16_init(void)
+-static int __init ws16c48_init(void)
 -{
 -	int err;
 -
--	idio_16_device = platform_device_alloc(idio_16_driver.driver.name, -1);
--	if (!idio_16_device)
+-	ws16c48_device = platform_device_alloc(ws16c48_driver.driver.name, -1);
+-	if (!ws16c48_device)
 -		return -ENOMEM;
 -
--	err = platform_device_add(idio_16_device);
+-	err = platform_device_add(ws16c48_device);
 -	if (err)
 -		goto err_platform_device;
 -
--	err = platform_driver_probe(&idio_16_driver, idio_16_probe);
+-	err = platform_driver_probe(&ws16c48_driver, ws16c48_probe);
 -	if (err)
 -		goto err_platform_driver;
 -
 -	return 0;
 -
 -err_platform_driver:
--	platform_device_del(idio_16_device);
+-	platform_device_del(ws16c48_device);
 -err_platform_device:
--	platform_device_put(idio_16_device);
+-	platform_device_put(ws16c48_device);
 -	return err;
 -}
 -
--module_init(idio_16_init);
--module_exit(idio_16_exit);
-+module_isa_driver(idio_16_driver, num_idio_16);
+-module_init(ws16c48_init);
+-module_exit(ws16c48_exit);
++module_isa_driver(ws16c48_driver, num_ws16c48);
  
  MODULE_AUTHOR("William Breathitt Gray <vilhelm.gray@gmail.com>");
- MODULE_DESCRIPTION("ACCES 104-IDIO-16 GPIO driver");
+ MODULE_DESCRIPTION("WinSystems WS16C48 GPIO driver");
 -- 
 2.7.3
