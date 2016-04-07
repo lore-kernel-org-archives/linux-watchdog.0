@@ -15,53 +15,47 @@ Cc: linux-kernel@vger.kernel.org,
 	linux-watchdog@vger.kernel.org,
 	linux-gpio@vger.kernel.org,
 	William Breathitt Gray <vilhelm.gray@gmail.com>
-Subject: [PATCH 01/10] isa: Implement the module_isa_driver macro
-Date: Thu,  7 Apr 2016 10:47:22 -0400
-Message-Id: <e15a74f1cc7a72f97060f0f1acb2991ffa82bd97.1460040201.git.vilhelm.gray@gmail.com>
+Subject: [PATCH 02/10] isa: Implement the max_num_isa_dev macro
+Date: Thu,  7 Apr 2016 10:47:23 -0400
+Message-Id: <34d77952d94c05b187e83e2de78b4de4533c5650.1460040201.git.vilhelm.gray@gmail.com>
 In-Reply-To: <cover.1460040201.git.vilhelm.gray@gmail.com>
 References: <cover.1460040201.git.vilhelm.gray@gmail.com>
 In-Reply-To: <cover.1460040201.git.vilhelm.gray@gmail.com>
 References: <cover.1460040201.git.vilhelm.gray@gmail.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-The module_isa_driver macro is a helper macro for ISA drivers which do
-not do anything special in module init/exit. This eliminates a lot of
-boilerplate code. Each module may only use this macro once, and calling
-it replaces module_init and module_exit.
+max_num_isa_dev is a macro to determine the maximum possible number of
+ISA devices which may be registered in the I/O port address space given
+the address extent of the ISA devices.
+
+The highest base address possible for an ISA device is 0x3FF; this
+results in 1024 possible base addresses. Dividing the number of possible
+base addresses by the address extent taken by each device results in the
+maximum number of devices on a system.
 
 Signed-off-by: William Breathitt Gray <vilhelm.gray@gmail.com>
 ---
- include/linux/isa.h | 21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+ include/linux/isa.h | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
 diff --git a/include/linux/isa.h b/include/linux/isa.h
-index 2a02862..d410259 100644
+index d410259..bc0a7c0 100644
 --- a/include/linux/isa.h
 +++ b/include/linux/isa.h
-@@ -36,4 +36,25 @@ static inline void isa_unregister_driver(struct isa_driver *d)
- }
- #endif
+@@ -57,4 +57,15 @@ static void __exit __isa_driver##_exit(void) \
+ } \
+ module_exit(__isa_driver##_exit);
  
 +/**
-+ * module_isa_driver() - Helper macro for registering a ISA driver
-+ * @__isa_driver: isa_driver struct
-+ * @__num_isa_dev: number of devices to register
++ * max_num_isa_dev() - Maximum possible number registered of an ISA device
++ * @__ida_dev_ext: ISA device address extent
 + *
-+ * Helper macro for ISA drivers which do not do anything special in module
-+ * init/exit. This eliminates a lot of boilerplate code. Each module may only
-+ * use this macro once, and calling it replaces module_init and module_exit.
++ * The highest base address possible for an ISA device is 0x3FF; this results in
++ * 1024 possible base addresses. Dividing the number of possible base addresses
++ * by the address extent taken by each device results in the maximum number of
++ * devices on a system.
 + */
-+#define module_isa_driver(__isa_driver, __num_isa_dev) \
-+static int __init __isa_driver##_init(void) \
-+{ \
-+	return isa_register_driver(&(__isa_driver), __num_isa_dev); \
-+} \
-+module_init(__isa_driver##_init); \
-+static void __exit __isa_driver##_exit(void) \
-+{ \
-+	isa_unregister_driver(&(__isa_driver)); \
-+} \
-+module_exit(__isa_driver##_exit);
++#define max_num_isa_dev(__isa_dev_ext) (1024 / __isa_dev_ext)
 +
  #endif /* __LINUX_ISA_H */
 -- 
