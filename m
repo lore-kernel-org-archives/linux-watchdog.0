@@ -1,111 +1,171 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:34876 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:35110 "EHLO
 	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751266AbcDFPgs (ORCPT
+	with ESMTP id S1755818AbcDHAfl (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 6 Apr 2016 11:36:48 -0400
-Date: Wed, 6 Apr 2016 08:36:44 -0700
+	Thu, 7 Apr 2016 20:35:41 -0400
+Date: Thu, 7 Apr 2016 17:35:35 -0700
 From: Guenter Roeck <linux@roeck-us.net>
-To: "fixed-term.Oleksij.Rempel" <fixed-term.Oleksij.Rempel@de.bosch.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>,
-	Oleksij Rempel <linux@rempel-privat.de>,
-	dirk.behme@de.bosch.com, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH v2 1/4] watchdog: renesas-wdt: add driver
-Message-ID: <20160406153644.GA16700@roeck-us.net>
-References: <1459511786-4286-1-git-send-email-wsa@the-dreams.de>
- <1459511786-4286-2-git-send-email-wsa@the-dreams.de>
- <57010C13.7040007@rempel-privat.de>
- <20160404104508.GA1383@katana>
- <57025C5A.2060704@de.bosch.com>
- <20160404123654.GA2983@katana>
- <20160404140812.GB10556@roeck-us.net>
- <57035A6A.3020601@de.bosch.com>
- <20160405184727.GA5862@roeck-us.net>
- <5704A10C.10701@de.bosch.com>
+To: William Breathitt Gray <vilhelm.gray@gmail.com>
+Cc: gregkh@linuxfoundation.org, tglx@linutronix.de, jic23@kernel.org,
+	knaack.h@gmx.de, lars@metafoo.de, pmeerw@pmeerw.net, wim@iguana.be,
+	linus.walleij@linaro.org, gnurou@gmail.com,
+	linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org,
+	linux-watchdog@vger.kernel.org, linux-gpio@vger.kernel.org
+Subject: Re: [PATCH 06/10] watchdog: ebc-c384_wdt: Utilize the ISA bus driver
+Message-ID: <20160408003535.GA10211@roeck-us.net>
+References: <cover.1460040201.git.vilhelm.gray@gmail.com>
+ <1f5bf2e21006f0fd4f10ab3948cf69a737c0b039.1460040201.git.vilhelm.gray@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <5704A10C.10701@de.bosch.com>
+In-Reply-To: <1f5bf2e21006f0fd4f10ab3948cf69a737c0b039.1460040201.git.vilhelm.gray@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Apr 06, 2016 at 07:39:24AM +0200, fixed-term.Oleksij.Rempel wrote:
+On Thu, Apr 07, 2016 at 10:47:27AM -0400, William Breathitt Gray wrote:
+> The WinSystems EBC-C384 watchdog timer is controlled via ISA bus
+> communication. As such, the ISA bus driver is more appropriate than the
+> platform driver for the WinSystems EBC-C384 watchdog timer driver.
 > 
+> Signed-off-by: William Breathitt Gray <vilhelm.gray@gmail.com>
+> ---
+>  drivers/watchdog/Kconfig        |  2 +-
+>  drivers/watchdog/ebc-c384_wdt.c | 43 ++++++++++-------------------------------
+>  2 files changed, 11 insertions(+), 34 deletions(-)
 > 
-> On 05.04.2016 20:47, Guenter Roeck wrote:
-> > On Tue, Apr 05, 2016 at 08:25:46AM +0200, fixed-term.Oleksij.Rempel wrote:
-> >>
-> >>
-> >> On 04.04.2016 16:08, Guenter Roeck wrote:
-> >>> On Mon, Apr 04, 2016 at 02:36:54PM +0200, Wolfram Sang wrote:
-> >>>>
-> >>>>> we are using it. So it should be implemented in this driver as well,
-> >>>>> if it is not supported by HW, then we will need to use second timer or
-> >>>>> watchdog for pretimeout interrupt.
-> >>>>
-> >>>> As I said, I have no task like this assigned (and no personal interest,
-> >>>> too). So, you'd need to do it yourself, hire me, or request this feature
-> >>>> from Renesas (and hope that they pass the task to me ;)).
-> >>>>
-> >>> Sorry, I lost the context here. 
-> >>>
-> >>>>> Please correct me if i'm wrong - module parameter is a way to ignore
-> >>>>> kernel config. For same purpose, to disable wdt at runtime "magic 'V'"
-> >>>>> should be used.
-> >>>>
-> >>>> I have to admit that I don't have a specific use-case, I just did
-> >>>> general support as requested. So, I followed the style that basically
-> >>>> every other watchdog driver has this parameter.
-> >>>>
-> >>> I don't understand this one. Unless I am missing something, the module
-> >>> parameter is standard, and magic close by writing 'V' is supported.
-> >>> What is the problem ?
-> >>
-> >> Sorry it was more about our internal requirements, which are fallowing:
-> >> - WDT is always on. there should be no option to disable it.
-> >> - WDTs can fail, it is proven fact. In our case, worst scenario, failed
-> >> WDT will kill a car battery. This is why we use many watchdogs in one
-> >> system. So, using differently configured WDTs of one SoC is valid use
-> >> case. From this point, module options are kind of sweet but useless or
-> >> harmful.
-> > 
-> > No one _has_ to use the module parameter. That doesn't mean that it must
-> > not be there - someone else may want it for some reason.
-> > 
-> >> - pretimout interrupt is not optional - not any more. Some issues are
-> >> wary hard or impossible to reproduce. Pretimout interrupt helped us to
-> >> debug some of them. If WDT hardware can't provide one, we will need to
-> >> mix two watchdogs (one for reset and other for interrupt) or wdt with
-> >> some other hw timer.
-> > 
-> > Adding pretimeout support should be easy with a follow-up patch.
-> > 
-> >>
-> >> May be this requirements can be passed to upstream as well :)
-> > 
-> > Keep in mind that a specific use case does not and should not mandate
-> > driver implementation details. The driver can support both module parameter
-> > and pretimeout, but none of those has to be used in a specific application.
-> > Important is that the kernel _supports_ your use case, which should be no
-> > problem.
-> 
-> Ok,
-> thank you for your answer.
-> 
-> Some of patches was send for almost 5 months, suddenly i don't see them
-> in any git repo:
-> https://www.spinics.net/lists/linux-watchdog/msg08086.html
-> 
+> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> index fb94765..b10761d 100644
+> --- a/drivers/watchdog/Kconfig
+> +++ b/drivers/watchdog/Kconfig
+> @@ -738,7 +738,7 @@ config ALIM7101_WDT
+>  
+>  config EBC_C384_WDT
+>  	tristate "WinSystems EBC-C384 Watchdog Timer"
+> -	depends on X86
+> +	depends on X86 && ISA_BUS
 
-Different subject ?
+I am a bit concerend that the newly introduced ISA_BUS is not automatically
+enabled. Effectively this means that all drivers depending on it will
+be disabled until someone enables ISA_BUS in the distribution.
 
-> Are there some doubts about it?
+Is this a concern for anyone but me ?
 
-No, pretty much waiting for a rebase to the latest watchdog core code
-to have another look.
+Anyway, since you are the driver maintainer, I assume that you are ok
+with it, so
 
-There have been several proposals for adding pretimeout support into the
-watchdog core. Some are more complex, some are less complex. The difficulty
-is to find a balance between complexity and functionality.
+Acked-by: Guenter Roeck <linux@roeck-us.net>
+
+Side note for Wim: ISA_BUS was introduced with commit b3c1be1b789c
+("base: isa: Remove X86_32 dependency") in -next.
 
 Guenter
+
+>  	select WATCHDOG_CORE
+>  	help
+>  	  Enables watchdog timer support for the watchdog timer on the
+> diff --git a/drivers/watchdog/ebc-c384_wdt.c b/drivers/watchdog/ebc-c384_wdt.c
+> index 77fda0b..4b849b8 100644
+> --- a/drivers/watchdog/ebc-c384_wdt.c
+> +++ b/drivers/watchdog/ebc-c384_wdt.c
+> @@ -16,10 +16,10 @@
+>  #include <linux/errno.h>
+>  #include <linux/io.h>
+>  #include <linux/ioport.h>
+> +#include <linux/isa.h>
+>  #include <linux/kernel.h>
+>  #include <linux/module.h>
+>  #include <linux/moduleparam.h>
+> -#include <linux/platform_device.h>
+>  #include <linux/types.h>
+>  #include <linux/watchdog.h>
+>  
+> @@ -95,9 +95,8 @@ static const struct watchdog_info ebc_c384_wdt_info = {
+>  	.identity = MODULE_NAME
+>  };
+>  
+> -static int __init ebc_c384_wdt_probe(struct platform_device *pdev)
+> +static int ebc_c384_wdt_probe(struct device *dev, unsigned int id)
+>  {
+> -	struct device *dev = &pdev->dev;
+>  	struct watchdog_device *wdd;
+>  
+>  	if (!devm_request_region(dev, BASE_ADDR, ADDR_EXTENT, dev_name(dev))) {
+> @@ -122,61 +121,39 @@ static int __init ebc_c384_wdt_probe(struct platform_device *pdev)
+>  		dev_warn(dev, "Invalid timeout (%u seconds), using default (%u seconds)\n",
+>  			timeout, WATCHDOG_TIMEOUT);
+>  
+> -	platform_set_drvdata(pdev, wdd);
+> +	dev_set_drvdata(dev, wdd);
+>  
+>  	return watchdog_register_device(wdd);
+>  }
+>  
+> -static int ebc_c384_wdt_remove(struct platform_device *pdev)
+> +static int ebc_c384_wdt_remove(struct device *dev, unsigned int id)
+>  {
+> -	struct watchdog_device *wdd = platform_get_drvdata(pdev);
+> +	struct watchdog_device *wdd = dev_get_drvdata(dev);
+>  
+>  	watchdog_unregister_device(wdd);
+>  
+>  	return 0;
+>  }
+>  
+> -static struct platform_driver ebc_c384_wdt_driver = {
+> +static struct isa_driver ebc_c384_wdt_driver = {
+> +	.probe = ebc_c384_wdt_probe,
+>  	.driver = {
+>  		.name = MODULE_NAME
+>  	},
+>  	.remove = ebc_c384_wdt_remove
+>  };
+>  
+> -static struct platform_device *ebc_c384_wdt_device;
+> -
+>  static int __init ebc_c384_wdt_init(void)
+>  {
+> -	int err;
+> -
+>  	if (!dmi_match(DMI_BOARD_NAME, "EBC-C384 SBC"))
+>  		return -ENODEV;
+>  
+> -	ebc_c384_wdt_device = platform_device_alloc(MODULE_NAME, -1);
+> -	if (!ebc_c384_wdt_device)
+> -		return -ENOMEM;
+> -
+> -	err = platform_device_add(ebc_c384_wdt_device);
+> -	if (err)
+> -		goto err_platform_device;
+> -
+> -	err = platform_driver_probe(&ebc_c384_wdt_driver, ebc_c384_wdt_probe);
+> -	if (err)
+> -		goto err_platform_driver;
+> -
+> -	return 0;
+> -
+> -err_platform_driver:
+> -	platform_device_del(ebc_c384_wdt_device);
+> -err_platform_device:
+> -	platform_device_put(ebc_c384_wdt_device);
+> -	return err;
+> +	return isa_register_driver(&ebc_c384_wdt_driver, 1);
+>  }
+>  
+>  static void __exit ebc_c384_wdt_exit(void)
+>  {
+> -	platform_device_unregister(ebc_c384_wdt_device);
+> -	platform_driver_unregister(&ebc_c384_wdt_driver);
+> +	isa_unregister_driver(&ebc_c384_wdt_driver);
+>  }
+>  
+>  module_init(ebc_c384_wdt_init);
+> @@ -185,4 +162,4 @@ module_exit(ebc_c384_wdt_exit);
+>  MODULE_AUTHOR("William Breathitt Gray <vilhelm.gray@gmail.com>");
+>  MODULE_DESCRIPTION("WinSystems EBC-C384 watchdog timer driver");
+>  MODULE_LICENSE("GPL v2");
+> -MODULE_ALIAS("platform:" MODULE_NAME);
+> +MODULE_ALIAS("isa:" MODULE_NAME);
+> -- 
+> 2.7.3
+> 
