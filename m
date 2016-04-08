@@ -1,65 +1,52 @@
-Return-path: <akshay.bhat@timesys.com>
-Subject: Re: [PATCH v5 1/2] watchdog: imx2_wdt: add external reset support via
- dt prop
-To: Tim Harvey <tharvey@gateworks.com>, linux-watchdog@vger.kernel.org,
- Shawn Guo <shawnguo@kernel.org>
-References: <1459523804-11390-1-git-send-email-tharvey@gateworks.com>
- <1459523804-11390-2-git-send-email-tharvey@gateworks.com>
-Cc: linux-arm-kernel@lists.infradead.org, Fabio Estevam <festevam@gmail.com>,
- Lucas Stach <l.stach@pengutronix.de>, Guenter Roeck <linux@roeck-us.net>,
- Wim Van Sebroeck <wim@iguana.be>, Stefan Roese <sr@denx.de>,
- Iain Paton <ipaton0@gmail.com>, Sascha Hauer <s.hauer@pengutronix.de>
-From: Akshay Bhat <akshay.bhat@timesys.com>
-Message-ID: <56FEA26A.5020805@timesys.com>
-Date: Fri, 1 Apr 2016 12:31:38 -0400
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:40292 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753186AbcDHBGj (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 7 Apr 2016 21:06:39 -0400
+Subject: Re: [PATCH V3] watchdog: hpwdt: Adjust documentation to match latest
+ kernel module parameters
+To: "Croxon, Nigel" <nigel.croxon@hpe.com>,
+	"wim@iguana.be" <wim@iguana.be>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
+References: <A4930445748CDC43B8495613130746F44ECEC789@G4W3214.americas.hpqcorp.net>
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <57070421.4070603@roeck-us.net>
+Date: Thu, 7 Apr 2016 18:06:41 -0700
 MIME-Version: 1.0
-In-Reply-To: <1459523804-11390-2-git-send-email-tharvey@gateworks.com>
+In-Reply-To: <A4930445748CDC43B8495613130746F44ECEC789@G4W3214.americas.hpqcorp.net>
 Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
-List-ID: <linux-watchdog@vger.kernel.org>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
+On 04/06/2016 06:11 PM, Croxon, Nigel wrote:
+> From: Nigel Croxon <nigel.croxon@hpe.com>
+> Date: Wed, 6 Apr 2016 14:40:05 -0400
+> Subject: [PATCH V3] watchdog: hpwdt: Adjust documentation to match latest kernel module parameters.
+>
+> Adjust documentation to match latest kernel module parameters.
+>
+> V3 - Fixed two spelling mistakes.
+> V2 - Changed insmod / rmmod to modprobe / modprobe -r
+>
+> Signed-off-by: Nigel Croxon <nigel.croxon@hpe.com>
 
+Nigel,
 
-On 04/01/2016 11:16 AM, Tim Harvey wrote:
-> The IMX6 watchdog supports assertion of a signal (WDOG_B) which
-> can be pinmux'd to an external pin. This is typically used for boards that
-> have PMIC's in control of the IMX6 power rails. In fact, failure to use
-> such an external reset on boards with external PMIC's can result in various
-> hangs due to the IMX6 not being fully reset [1] as well as the board failing
-> to reset because its PMIC has not been reset to provide adequate voltage for
-> the CPU when coming out of reset at 800Mhz.
->
-> This uses a new device-tree property 'fsl,ext-reset-output' to indicate the
-> board has such a reset and to cause the watchdog to be configured to assert
-> WDOG_B instead of an internal reset both on a watchdog timeout and in
-> system_restart.
->
-> [1] http://lists.infradead.org/pipermail/linux-arm-kernel/2015-March/333689.html
->
-> Cc: Fabio Estevam <festevam@gmail.com>
-> Cc: Lucas Stach <l.stach@pengutronix.de>
-> Cc: Stefan Roese <sr@denx.de>
-> Cc: Iain Paton <ipaton0@gmail.com>
-> Cc: Sascha Hauer <s.hauer@pengutronix.de>
-> Cc: Akshay Bhat <akshay.bhat@timesys.com>
-> Cc: Guenter Roeck <linux@roeck-us.net>
-> Signed-off-by: Tim Harvey <tharvey@gateworks.com>
-> Reviewed-by: Lucas Stach <l.stach@pengutronix.de>
-> Acked-by: Shawn Guo <shawn.guo@linaro.org>
-> ---
-> v5:
->   - rename property to 'fsl,ext-reset-output'
-> v4:
->   - change Property to Properties in documentation
-> v3:
->   - mandate use of 'either' internal or external reset but not both
->     simultaneously
-> v2:
->   - rename property to 'ext-reset-output' based on ML feedback
->   - simplify setting SRS bit if external-reset
->   - update comments and commit msg
->
-> Signed-off-by: Tim Harvey <tharvey@gateworks.com>
-> ---
+when applying this patch:
 
-Tested-by: Akshay Bhat <akshay.bhat@timesys.com>
+Applying: watchdog: hpwdt: Adjust documentation to match latest kernel module parameters.
+/home/groeck/src/linux-staging/.git/rebase-apply/patch:75: trailing whitespace.
+  the hpwdt driver can be reloaded.
+/home/groeck/src/linux-staging/.git/rebase-apply/patch:92: trailing whitespace.
+  4. modprobe /lib/modules/`uname -r`/kernel/drivers/watchdog/hpwdt.ko
+warning: 2 lines add whitespace errors.
+
+Please fix and resubmit.
+
+FWIW, those whitespace errors are also reported with checkpatch.
+
+Thanks,
+Guenter
+
