@@ -1,242 +1,48 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:40839 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756331AbcDHBKw (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 7 Apr 2016 21:10:52 -0400
-Subject: Re: [PATCH v5 2/2] ARM: dts: imx: ventana: Add wdt ext-reset support
-To: Tim Harvey <tharvey@gateworks.com>, linux-watchdog@vger.kernel.org,
-	Shawn Guo <shawnguo@kernel.org>
-References: <1459523804-11390-1-git-send-email-tharvey@gateworks.com>
- <1459523804-11390-3-git-send-email-tharvey@gateworks.com>
-Cc: linux-arm-kernel@lists.infradead.org,
-	Fabio Estevam <festevam@gmail.com>,
-	Lucas Stach <l.stach@pengutronix.de>,
-	Akshay Bhat <akshay.bhat@timesys.com>,
-	Wim Van Sebroeck <wim@iguana.be>, Stefan Roese <sr@denx.de>,
-	Iain Paton <ipaton0@gmail.com>,
-	Sascha Hauer <s.hauer@pengutronix.de>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <5707051D.4000806@roeck-us.net>
-Date: Thu, 7 Apr 2016 18:10:53 -0700
+Return-path: <vilhelm.gray@gmail.com>
+Date: Fri, 8 Apr 2016 08:03:38 -0400
+From: William Breathitt Gray <vilhelm.gray@gmail.com>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: gregkh@linuxfoundation.org, tglx@linutronix.de, jic23@kernel.org,
+	knaack.h@gmx.de, lars@metafoo.de, pmeerw@pmeerw.net, wim@iguana.be,
+	linus.walleij@linaro.org, gnurou@gmail.com,
+	linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org,
+	linux-watchdog@vger.kernel.org, linux-gpio@vger.kernel.org
+Subject: Re: [PATCH 06/10] watchdog: ebc-c384_wdt: Utilize the ISA bus driver
+Message-ID: <20160408120338.GA18202@sophia>
+References: <cover.1460040201.git.vilhelm.gray@gmail.com>
+ <1f5bf2e21006f0fd4f10ab3948cf69a737c0b039.1460040201.git.vilhelm.gray@gmail.com>
+ <20160408003535.GA10211@roeck-us.net>
 MIME-Version: 1.0
-In-Reply-To: <1459523804-11390-3-git-send-email-tharvey@gateworks.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20160408003535.GA10211@roeck-us.net>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 04/01/2016 08:16 AM, Tim Harvey wrote:
-> The Gateworks Ventana boards have a PMIC that can be used to regulate the
-> CPU voltage rails for DVFS support. In order to ensure this PMIC is properly
-> reset the watchdog needs to be configured to assert its external reset
-> signal.
+On Thu, Apr 07, 2016 at 05:35:35PM -0700, Guenter Roeck wrote:
+>I am a bit concerend that the newly introduced ISA_BUS is not automatically
+>enabled. Effectively this means that all drivers depending on it will
+>be disabled until someone enables ISA_BUS in the distribution.
 >
-> Cc: Fabio Estevam <festevam@gmail.com>
-> Cc: Lucas Stach <l.stach@pengutronix.de>
-> Cc: Stefan Roese <sr@denx.de>
-> Cc: Iain Paton <ipaton0@gmail.com>
-> Cc: Sascha Hauer <s.hauer@pengutronix.de>
-> Cc: Akshay Bhat <akshay.bhat@timesys.com>
-> Cc: Guenter Roeck <linux@roeck-us.net>
-> Signed-off-by: Tim Harvey <tharvey@gateworks.com>
+>Is this a concern for anyone but me ?
+>
+>Anyway, since you are the driver maintainer, I assume that you are ok
+>with it, so
+>
+>Acked-by: Guenter Roeck <linux@roeck-us.net>
+>
+>Side note for Wim: ISA_BUS was introduced with commit b3c1be1b789c
+>("base: isa: Remove X86_32 dependency") in -next.
+>
+>Guenter
 
-Acked-by: Guenter Roeck <linux@roeck-us.net>
+Since the ISA bus lacks standardized probing functionality, and the
+majority of ISA devices I've encountered expect the user to start
+writing to the device's I/O port addresses from the get-go, I think
+ISA_BUS should remain an explicit dependency rather than become selected
+when a user chooses a driver. That is to say, it is more appropriate for
+a user to explicitly enable ISA_BUS if their system has an ISA bus;
+otherwise a user may enable a driver with the expectation of a device
+probe, whereas the driver will simply start writing to I/O port
+addresses unexpectedly.
 
-> ----
-> v5:
->   - changed property to 'fsl,ext-reset-output'
-> v4:
->   - put property in wdoggrp
->
-> Signed-off-by: Tim Harvey <tharvey@gateworks.com>
-> ---
->   arch/arm/boot/dts/imx6qdl-gw51xx.dtsi | 12 ++++++++++++
->   arch/arm/boot/dts/imx6qdl-gw52xx.dtsi | 12 ++++++++++++
->   arch/arm/boot/dts/imx6qdl-gw53xx.dtsi | 12 ++++++++++++
->   arch/arm/boot/dts/imx6qdl-gw54xx.dtsi | 17 +++++++++++++++++
->   arch/arm/boot/dts/imx6qdl-gw551x.dtsi | 12 ++++++++++++
->   arch/arm/boot/dts/imx6qdl-gw552x.dtsi | 12 ++++++++++++
->   6 files changed, 77 insertions(+)
->
-> diff --git a/arch/arm/boot/dts/imx6qdl-gw51xx.dtsi b/arch/arm/boot/dts/imx6qdl-gw51xx.dtsi
-> index 9d7ab6c..1340e27 100644
-> --- a/arch/arm/boot/dts/imx6qdl-gw51xx.dtsi
-> +++ b/arch/arm/boot/dts/imx6qdl-gw51xx.dtsi
-> @@ -228,6 +228,12 @@
->   	status = "okay";
->   };
->
-> +&wdog1 {
-> +	pinctrl-names = "default";
-> +	pinctrl-0 = <&pinctrl_wdog>;
-> +	fsl,ext-reset-output;
-> +};
-> +
->   &iomuxc {
->   	imx6qdl-gw51xx {
->   		pinctrl_enet: enetgrp {
-> @@ -364,5 +370,11 @@
->   				MX6QDL_PAD_EIM_D22__GPIO3_IO22		0x1b0b0 /* OTG_PWR_EN */
->   			>;
->   		};
-> +
-> +		pinctrl_wdog: wdoggrp {
-> +			fsl,pins = <
-> +				MX6QDL_PAD_DISP0_DAT8__WDOG1_B		0x1b0b0
-> +			>;
-> +		};
->   	};
->   };
-> diff --git a/arch/arm/boot/dts/imx6qdl-gw52xx.dtsi b/arch/arm/boot/dts/imx6qdl-gw52xx.dtsi
-> index 8dd74e9..8cccc4a 100644
-> --- a/arch/arm/boot/dts/imx6qdl-gw52xx.dtsi
-> +++ b/arch/arm/boot/dts/imx6qdl-gw52xx.dtsi
-> @@ -353,6 +353,12 @@
->   	status = "okay";
->   };
->
-> +&wdog1 {
-> +	pinctrl-names = "default";
-> +	pinctrl-0 = <&pinctrl_wdog>;
-> +	fsl,ext-reset-output;
-> +};
-> +
->   &iomuxc {
->   	imx6qdl-gw52xx {
->   		pinctrl_audmux: audmuxgrp {
-> @@ -549,5 +555,11 @@
->   				MX6QDL_PAD_NANDF_CS1__SD3_VSELECT	0x170f9
->   			>;
->   		};
-> +
-> +		pinctrl_wdog: wdoggrp {
-> +			fsl,pins = <
-> +				MX6QDL_PAD_DISP0_DAT8__WDOG1_B		0x1b0b0
-> +			>;
-> +		};
->   	};
->   };
-> diff --git a/arch/arm/boot/dts/imx6qdl-gw53xx.dtsi b/arch/arm/boot/dts/imx6qdl-gw53xx.dtsi
-> index ec3fe74..5f700cc 100644
-> --- a/arch/arm/boot/dts/imx6qdl-gw53xx.dtsi
-> +++ b/arch/arm/boot/dts/imx6qdl-gw53xx.dtsi
-> @@ -351,6 +351,12 @@
->   	status = "okay";
->   };
->
-> +&wdog1 {
-> +	pinctrl-names = "default";
-> +	pinctrl-0 = <&pinctrl_wdog>;
-> +	fsl,ext-reset-output;
-> +};
-> +
->   &iomuxc {
->   	imx6qdl-gw53xx {
->   		pinctrl_audmux: audmuxgrp {
-> @@ -539,5 +545,11 @@
->   				MX6QDL_PAD_NANDF_CS1__SD3_VSELECT	0x170f9
->   			>;
->   		};
-> +
-> +		pinctrl_wdog: wdoggrp {
-> +			fsl,pins = <
-> +				MX6QDL_PAD_DISP0_DAT8__WDOG1_B		0x1b0b0
-> +			>;
-> +		};
->   	};
->   };
-> diff --git a/arch/arm/boot/dts/imx6qdl-gw54xx.dtsi b/arch/arm/boot/dts/imx6qdl-gw54xx.dtsi
-> index 367cc49..d19b4cc 100644
-> --- a/arch/arm/boot/dts/imx6qdl-gw54xx.dtsi
-> +++ b/arch/arm/boot/dts/imx6qdl-gw54xx.dtsi
-> @@ -453,6 +453,17 @@
->   	status = "okay";
->   };
->
-> +&wdog1 {
-> +	status = "disabled";
-> +};
-> +
-> +&wdog2 {
-> +	pinctrl-names = "default";
-> +	pinctrl-0 = <&pinctrl_wdog>;
-> +	fsl,ext-reset-output;
-> +	status = "okay";
-> +};
-> +
->   &iomuxc {
->   	imx6qdl-gw54xx {
->   		pinctrl_audmux: audmuxgrp {
-> @@ -654,5 +665,11 @@
->   				MX6QDL_PAD_NANDF_CS1__SD3_VSELECT	0x170f9
->   			>;
->   		};
-> +
-> +		pinctrl_wdog: wdoggrp {
-> +			fsl,pins = <
-> +				MX6QDL_PAD_SD1_DAT3__WDOG2_B		0x1b0b0
-> +			>;
-> +		};
->   	};
->   };
-> diff --git a/arch/arm/boot/dts/imx6qdl-gw551x.dtsi b/arch/arm/boot/dts/imx6qdl-gw551x.dtsi
-> index 118bea5..4b9fef8 100644
-> --- a/arch/arm/boot/dts/imx6qdl-gw551x.dtsi
-> +++ b/arch/arm/boot/dts/imx6qdl-gw551x.dtsi
-> @@ -239,6 +239,12 @@
->   	status = "okay";
->   };
->
-> +&wdog1 {
-> +	pinctrl-names = "default";
-> +	pinctrl-0 = <&pinctrl_wdog>;
-> +	fsl,ext-reset-output;
-> +};
-> +
->   &iomuxc {
->   	imx6qdl-gw51xx {
->   		pinctrl_flexcan1: flexcan1grp {
-> @@ -333,5 +339,11 @@
->   				MX6QDL_PAD_GPIO_1__USB_OTG_ID		0x17059
->   			>;
->   		};
-> +
-> +		pinctrl_wdog: wdoggrp {
-> +			fsl,pins = <
-> +				MX6QDL_PAD_DISP0_DAT8__WDOG1_B		0x1b0b0
-> +			>;
-> +		};
->   	};
->   };
-> diff --git a/arch/arm/boot/dts/imx6qdl-gw552x.dtsi b/arch/arm/boot/dts/imx6qdl-gw552x.dtsi
-> index f27f184..805e236 100644
-> --- a/arch/arm/boot/dts/imx6qdl-gw552x.dtsi
-> +++ b/arch/arm/boot/dts/imx6qdl-gw552x.dtsi
-> @@ -197,6 +197,12 @@
->   	status = "okay";
->   };
->
-> +&wdog1 {
-> +	pinctrl-names = "default";
-> +	pinctrl-0 = <&pinctrl_wdog>;
-> +	fsl,ext-reset-output;
-> +};
-> +
->   &iomuxc {
->   	imx6qdl-gw552x {
->   		pinctrl_gpio_leds: gpioledsgrp {
-> @@ -286,5 +292,11 @@
->   				MX6QDL_PAD_KEY_ROW1__UART5_RX_DATA	0x1b0b1
->   			>;
->                   };
-> +
-> +		pinctrl_wdog: wdoggrp {
-> +			fsl,pins = <
-> +				MX6QDL_PAD_DISP0_DAT8__WDOG1_B		0x1b0b0
-> +			>;
-> +		};
->   	};
->   };
->
-
+William Breathitt Gray
