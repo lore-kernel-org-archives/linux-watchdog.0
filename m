@@ -1,171 +1,39 @@
-Return-path: <knpo@ieee.org>
-Subject: Re: [PATCH] watchdog: f71808e_wdt: Add F81865 support
-To: Guenter Roeck <linux@roeck-us.net>
-References: <5717C2D7.8030902@ieee.org> <5718DA30.3080003@roeck-us.net>
-Cc: Wim Van Sebroeck <wim@iguana.be>,
- Linux Watchdog <linux-watchdog@vger.kernel.org>
-From: Knud Poulsen <knpo@ieee.org>
-Message-ID: <57192771.9090408@ieee.org>
-Date: Thu, 21 Apr 2016 21:18:09 +0200
-MIME-Version: 1.0
-In-Reply-To: <5718DA30.3080003@roeck-us.net>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:41597 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S965105AbcDLP4X (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 12 Apr 2016 11:56:23 -0400
+From: Wolfram Sang <wsa@the-dreams.de>
+To: linux-watchdog@vger.kernel.org
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-renesas-soc@vger.kernel.org
+Subject: [PATCH] watchdog: core: fix trivial typo in a comment
+Date: Tue, 12 Apr 2016 17:56:11 +0200
+Message-Id: <1460476571-2351-1-git-send-email-wsa@the-dreams.de>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
+Let's have balanced round brackets.
 
-On 2016-04-21 15:48, Guenter Roeck wrote:
-> On 04/20/2016 10:56 AM, Knud Poulsen wrote:
->> Adds watchdog support for Fintek F81865 Super-IO chip to
->> Fintek wdt driver (f71808e_wdt)
->>
->> Tested and verified on Lanner LEC-3030 Industrial PC
->>
->> Datasheet references:
->> http://www.hardwaresecrets.com/datasheets/F81865_V028P.pdf
->> http://www.alldatasheet.com/datasheet-pdf/pdf/406317/FINTEK/F81865.html
->>
->> Signed-off-by: Knud Poulsen <knpo@ieee.org>
->> ---
->>   drivers/watchdog/f71808e_wdt.c | 36 ++++++++++++++++++++++++++++++------
->>   1 file changed, 30 insertions(+), 6 deletions(-)
->>
->> diff --git a/drivers/watchdog/f71808e_wdt.c b/drivers/watchdog/f71808e_wdt.c
->> index 016bd93..956f8eb 100644
->> --- a/drivers/watchdog/f71808e_wdt.c
->> +++ b/drivers/watchdog/f71808e_wdt.c
->> @@ -2,6 +2,7 @@
->>    *   Copyright (C) 2006 by Hans Edgington <hans@edgington.nl>              *
->>    *   Copyright (C) 2007-2009 Hans de Goede <hdegoede@redhat.com>           *
->>    *   Copyright (C) 2010 Giel van Schijndel <me@mortis.eu>                  *
->> + *   Copyright (C) 2016 Knud Poulsen <knpo@ieee.org>                       *
-> 
-> For minor improvements like this really a stretch. Please reconsider.
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
+ drivers/watchdog/watchdog_core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-No problem, will strip.
+diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
+index c1658fe73d58a1..6249ed34214a9f 100644
+--- a/drivers/watchdog/watchdog_core.c
++++ b/drivers/watchdog/watchdog_core.c
+@@ -104,7 +104,7 @@ static void watchdog_check_min_max_timeout(struct watchdog_device *wdd)
+  * timeout module parameter (if it is valid value) or the timeout-sec property
+  * (only if it is a valid value and the timeout_parm is out of bounds).
+  * If none of them are valid then we keep the old value (which should normally
+- * be the default timeout value.
++ * be the default timeout value).
+  *
+  * A zero is returned on success and -EINVAL for failure.
+  */
+-- 
+2.7.0
 
-> 
->>    *                                                                         *
->>    *   This program is free software; you can redistribute it and/or modify  *
->>    *   it under the terms of the GNU General Public License as published by  *
->> @@ -38,7 +39,7 @@
->>
->>   #define SIO_F71808FG_LD_WDT	0x07	/* Watchdog timer logical device */
->>   #define SIO_UNLOCK_KEY		0x87	/* Key to enable Super-I/O */
->> -#define SIO_LOCK_KEY		0xAA	/* Key to diasble Super-I/O */
->> +#define SIO_LOCK_KEY		0xAA	/* Key to disable Super-I/O */
-> 
-> Unrelated change - separate patch, please.
-
-No problem, will submit separately.
-
-> 
->>
->>   #define SIO_REG_LDSEL		0x07	/* Logical device select */
->>   #define SIO_REG_DEVID		0x20	/* Device ID (2 bytes) */
->> @@ -59,6 +60,7 @@
->>   #define SIO_F71869A_ID		0x1007	/* Chipset ID */
->>   #define SIO_F71882_ID		0x0541	/* Chipset ID */
->>   #define SIO_F71889_ID		0x0723	/* Chipset ID */
->> +#define SIO_F81865_ID		0x0704	/* Chipset ID */
->>
->>   #define F71808FG_REG_WDO_CONF		0xf0
->>   #define F71808FG_REG_WDT_CONF		0xf5
->> @@ -71,6 +73,10 @@
->>   #define F71808FG_FLAG_WD_PULSE		4
->>   #define F71808FG_FLAG_WD_UNIT		3
->>
->> +#define F81865_REG_WDO_CONF		0xfa
->> +#define F81865_FLAG_WDOUT_EN		0
->> +#define F81865_FLAG_WDTMOUT_STS		6
->> +
->>   /* Default values */
->>   #define WATCHDOG_TIMEOUT	60	/* 1 minute default timeout */
->>   #define WATCHDOG_MAX_TIMEOUT	(60 * 255)
->> @@ -112,7 +118,7 @@ module_param(start_withtimeout, uint, 0);
->>   MODULE_PARM_DESC(start_withtimeout, "Start watchdog timer on module load with"
->>   	" given initial timeout. Zero (default) disables this feature.");
->>
->> -enum chips { f71808fg, f71858fg, f71862fg, f71869, f71882fg, f71889fg };
->> +enum chips { f71808fg, f71858fg, f71862fg, f71869, f71882fg, f71889fg, f81865 };
->>
->>   static const char *f71808e_names[] = {
->>   	"f71808fg",
->> @@ -121,6 +127,7 @@ static const char *f71808e_names[] = {
->>   	"f71869",
->>   	"f71882fg",
->>   	"f71889fg",
->> +	"f81865",
->>   };
->>
->>   /* Super-I/O Function prototypes */
->> @@ -360,6 +367,11 @@ static int watchdog_start(void)
->>   			superio_inb(watchdog.sioaddr, SIO_REG_MFUNCT3) & 0xcf);
->>   		break;
->>
->> +	case f81865:
->> +		/* Set pin 70 to WDTRST# */
->> +		superio_clear_bit(watchdog.sioaddr, SIO_REG_MFUNCT3, 5);
->> +		break;
->> +
->>   	default:
->>   		/*
->>   		 * 'default' label to shut up the compiler and catch
->> @@ -371,9 +383,13 @@ static int watchdog_start(void)
->>
->>   	superio_select(watchdog.sioaddr, SIO_F71808FG_LD_WDT);
->>   	superio_set_bit(watchdog.sioaddr, SIO_REG_ENABLE, 0);
->> -	superio_set_bit(watchdog.sioaddr, F71808FG_REG_WDO_CONF,
->> -			F71808FG_FLAG_WDOUT_EN);
->> -
->> +	if (watchdog.type == f81865) {
->> +		superio_set_bit(watchdog.sioaddr, F81865_REG_WDO_CONF,
->> +				F81865_FLAG_WDOUT_EN);
->> +	} else {
->> +		superio_set_bit(watchdog.sioaddr, F71808FG_REG_WDO_CONF,
->> +				F71808FG_FLAG_WDOUT_EN);
->> +	}
-> 
-> Unnecessary { }.
-
-Ack, I will strip them out.
-
-> 
->>   	superio_set_bit(watchdog.sioaddr, F71808FG_REG_WDT_CONF,
->>   			F71808FG_FLAG_WD_EN);
->>
->> @@ -655,7 +671,12 @@ static int __init watchdog_init(int sioaddr)
->>   	superio_select(watchdog.sioaddr, SIO_F71808FG_LD_WDT);
->>
->>   	wdt_conf = superio_inb(sioaddr, F71808FG_REG_WDT_CONF);
->> -	watchdog.caused_reboot = wdt_conf & F71808FG_FLAG_WDTMOUT_STS;
->> +	if (watchdog.type == f81865) {
->> +		watchdog.caused_reboot = wdt_conf & F81865_FLAG_WDTMOUT_STS;
->> +	} else {
->> +		watchdog.caused_reboot = wdt_conf & F71808FG_FLAG_WDTMOUT_STS;
->> +	}
->> +
-> 
-> Unnecessary { }, and please no double empty lines.
-
-Ack.
-
-> 
->>
->>   	superio_exit(sioaddr);
->>
->> @@ -770,6 +791,9 @@ static int __init f71808e_find(int sioaddr)
->>   		/* Confirmed (by datasheet) not to have a watchdog. */
->>   		err = -ENODEV;
->>   		goto exit;
->> +	case SIO_F81865_ID:
->> +		watchdog.type = f81865;
->> +		break;
->>   	default:
->>   		pr_info("Unrecognized Fintek device: %04x\n",
->>   			(unsigned int)devid);
->>
-> 
-
-All comments OK, will fix and resubmit as ps2 + separate patch for typo's.
