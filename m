@@ -1,59 +1,44 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:42204 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752327AbcD0Bl2 (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 26 Apr 2016 21:41:28 -0400
-Subject: Re: [PATCH] watchdog: remove error message when unable to allocate
- watchdog device
-To: Colin King <colin.king@canonical.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <1461691129-4764-1-git-send-email-colin.king@canonical.com>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <572018C5.9020403@roeck-us.net>
-Date: Tue, 26 Apr 2016 18:41:25 -0700
-MIME-Version: 1.0
-In-Reply-To: <1461691129-4764-1-git-send-email-colin.king@canonical.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-path: <sudipm.mukherjee@gmail.com>
+From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+To: Wim Van Sebroeck <wim@iguana.be>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Haavard Skinnemoen <hskinnemoen@gmail.com>,
+	Hans-Christian Egtvedt <egtvedt@samfundet.no>
+Cc: linux-kernel@vger.kernel.org,
+	kernel-testers@vger.kernel.org,
+	linux-watchdog@vger.kernel.org,
+	Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH] watchdog: dw_wdt: dont build for avr32
+Date: Tue, 12 Apr 2016 11:21:43 +0530
+Message-Id: <1460440303-20640-1-git-send-email-sudipm.mukherjee@gmail.com>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 04/26/2016 10:18 AM, Colin King wrote:
-> From: Colin Ian King <colin.king@canonical.com>
->
-> The dev_err message is superfluous because the failure is already
-> printed by dev_kzalloc, so remove it.
->
-Nitpick: devm_kzalloc
+The build of avr32 allmodconfig fails with the error:
+ERROR: "__avr32_udiv64" [drivers/watchdog/kempld_wdt.ko] undefined!
 
-> Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Exclude this driver from the build of avr32.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
+---
 
-Thanks,
-Guenter
+avr32 build log is at:
+https://travis-ci.org/sudipm-mukherjee/parport/jobs/122158665
 
-> ---
->   drivers/watchdog/jz4740_wdt.c | 4 +---
->   1 file changed, 1 insertion(+), 3 deletions(-)
->
-> diff --git a/drivers/watchdog/jz4740_wdt.c b/drivers/watchdog/jz4740_wdt.c
-> index 6a7d5c3..c8d51dd 100644
-> --- a/drivers/watchdog/jz4740_wdt.c
-> +++ b/drivers/watchdog/jz4740_wdt.c
-> @@ -160,10 +160,8 @@ static int jz4740_wdt_probe(struct platform_device *pdev)
->
->   	drvdata = devm_kzalloc(&pdev->dev, sizeof(struct jz4740_wdt_drvdata),
->   			       GFP_KERNEL);
-> -	if (!drvdata) {
-> -		dev_err(&pdev->dev, "Unable to alloacate watchdog device\n");
-> +	if (!drvdata)
->   		return -ENOMEM;
-> -	}
->
->   	if (heartbeat < 1 || heartbeat > MAX_HEARTBEAT)
->   		heartbeat = DEFAULT_HEARTBEAT;
->
+ drivers/watchdog/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index fb94765..61041ba 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -981,7 +981,7 @@ config HP_WATCHDOG
+ 
+ config KEMPLD_WDT
+ 	tristate "Kontron COM Watchdog Timer"
+-	depends on MFD_KEMPLD
++	depends on MFD_KEMPLD && !AVR32
+ 	select WATCHDOG_CORE
+ 	help
+ 	  Support for the PLD watchdog on some Kontron ETX and COMexpress
+-- 
+1.9.1
