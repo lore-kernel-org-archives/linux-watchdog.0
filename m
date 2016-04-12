@@ -1,9 +1,9 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:45316 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:46931 "EHLO
 	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757028AbcDLNGR (ORCPT
+	with ESMTP id S932583AbcDLNHE (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 12 Apr 2016 09:06:17 -0400
+	Tue, 12 Apr 2016 09:07:04 -0400
 Subject: Re: [PATCH] watchdog: dw_wdt: dont build for avr32
 To: Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
 	Wim Van Sebroeck <wim@iguana.be>,
@@ -13,8 +13,8 @@ References: <1460440303-20640-1-git-send-email-sudipm.mukherjee@gmail.com>
 Cc: linux-kernel@vger.kernel.org, kernel-testers@vger.kernel.org,
 	linux-watchdog@vger.kernel.org
 From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <570CF2CB.2050200@roeck-us.net>
-Date: Tue, 12 Apr 2016 06:06:19 -0700
+Message-ID: <570CF2F7.50206@roeck-us.net>
+Date: Tue, 12 Apr 2016 06:07:03 -0700
 MIME-Version: 1.0
 In-Reply-To: <1460440303-20640-1-git-send-email-sudipm.mukherjee@gmail.com>
 Content-Type: text/plain; charset=windows-1252; format=flowed
@@ -26,12 +26,12 @@ On 04/11/2016 10:51 PM, Sudip Mukherjee wrote:
 > The build of avr32 allmodconfig fails with the error:
 > ERROR: "__avr32_udiv64" [drivers/watchdog/kempld_wdt.ko] undefined!
 >
-This means there is a direct 64 bit divide operation in the driver,
-which we should identify and fix.
+> Exclude this driver from the build of avr32.
+
+Also, the subject line is wrong.
 
 Guenter
 
-> Exclude this driver from the build of avr32.
 >
 > Signed-off-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
 > ---
