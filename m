@@ -1,59 +1,42 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:46931 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932583AbcDLNHE (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 12 Apr 2016 09:07:04 -0400
-Subject: Re: [PATCH] watchdog: dw_wdt: dont build for avr32
-To: Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Haavard Skinnemoen <hskinnemoen@gmail.com>,
-	Hans-Christian Egtvedt <egtvedt@samfundet.no>
-References: <1460440303-20640-1-git-send-email-sudipm.mukherjee@gmail.com>
-Cc: linux-kernel@vger.kernel.org, kernel-testers@vger.kernel.org,
-	linux-watchdog@vger.kernel.org
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <570CF2F7.50206@roeck-us.net>
-Date: Tue, 12 Apr 2016 06:07:03 -0700
-MIME-Version: 1.0
-In-Reply-To: <1460440303-20640-1-git-send-email-sudipm.mukherjee@gmail.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Received: from mx2.suse.de ([195.135.220.15]:55884 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752670AbcDSHtj (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 19 Apr 2016 03:49:39 -0400
+Message-ID: <1461051988.15527.6.camel@suse.com>
+Subject: Re: [PATCH v2] watchdog: add driver for StreamLabs USB watchdog
+ device
+From: Oliver Neukum <oneukum@suse.com>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Alexey Klimov <klimov.linux@gmail.com>, yury.norov@gmail.com,
+	wim@iguana.be, linux-kernel@vger.kernel.org,
+	linux-usb@vger.kernel.org, linux-watchdog@vger.kernel.org
+Date: Tue, 19 Apr 2016 09:46:28 +0200
+In-Reply-To: <20160418163918.GE29343@roeck-us.net>
+References: <1460948016-5453-1-git-send-email-klimov.linux@gmail.com>
+	 <1460968368.25119.7.camel@suse.com> <5714E7D3.4030809@roeck-us.net>
+	 <1460988518.25119.28.camel@suse.com> <20160418163918.GE29343@roeck-us.net>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 04/11/2016 10:51 PM, Sudip Mukherjee wrote:
-> The build of avr32 allmodconfig fails with the error:
-> ERROR: "__avr32_udiv64" [drivers/watchdog/kempld_wdt.ko] undefined!
->
-> Exclude this driver from the build of avr32.
+On Mon, 2016-04-18 at 09:39 -0700, Guenter Roeck wrote:
+> > Possibly. We have never gone that route. The obvious problems is
+> that
+> > I am not sure our alignment is known before boot.
+> > 
+> Seems scary. I always thought that the alignment associated with
+> ____cacheline_aligned would be the maximum possible for a given
+> build/architecture. If not, what is the value of having
+> ____cacheline_aligned in the first place ?
 
-Also, the subject line is wrong.
+I thought it was for performance to prevent cache bouncing.
+I honestly don't know. You'd have to ask a specific question
+on LKML.
 
-Guenter
+	Sorry
+		Oliver
 
->
-> Signed-off-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
-> ---
->
-> avr32 build log is at:
-> https://travis-ci.org/sudipm-mukherjee/parport/jobs/122158665
->
->   drivers/watchdog/Kconfig | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index fb94765..61041ba 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -981,7 +981,7 @@ config HP_WATCHDOG
->
->   config KEMPLD_WDT
->   	tristate "Kontron COM Watchdog Timer"
-> -	depends on MFD_KEMPLD
-> +	depends on MFD_KEMPLD && !AVR32
->   	select WATCHDOG_CORE
->   	help
->   	  Support for the PLD watchdog on some Kontron ETX and COMexpress
->
 
