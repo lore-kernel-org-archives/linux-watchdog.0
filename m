@@ -1,39 +1,105 @@
-Return-path: <clemens.gruber@pqgruber.com>
-Date: Thu, 21 Apr 2016 15:44:45 +0200
-From: Clemens Gruber <clemens.gruber@pqgruber.com>
-To: Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org
-Subject: Re: watchdog: deadlock warning with imx2_wdt driver and systemd
-Message-ID: <20160421134444.GA1515@archie.localdomain>
-References: <20160417154107.GA6762@archie.localdomain>
- <5718574F.5090809@roeck-us.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5718574F.5090809@roeck-us.net>
+Return-path: <linux@roeck-us.net>
+From: Guenter Roeck <linux@roeck-us.net>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: Clemens Gruber <clemens.gruber@pqgruber.com>,
+	linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH] watchdog: core: Fix circular locking dependency
+Date: Thu, 21 Apr 2016 07:38:14 -0700
+Message-Id: <1461249494-24924-1-git-send-email-linux@roeck-us.net>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On Wed, Apr 20, 2016 at 09:30:07PM -0700, Guenter Roeck wrote:
-> 
-> Hi Clemens,
-> 
-> fix is to drop the call to cancel_delayed_work_sync() from watchdog_release().
-> Turns out the call is not necessary.
-> 
-> I'll send a proper patch in the next couple of days.
-> 
-> Guenter
-> 
+lockdep reports the following circular locking dependency.
 
-Hi Guenter,
+======================================================
+INFO: possible circular locking dependency detected ]
+4.6.0-rc3-00191-gfabf418 #162 Not tainted
+-------------------------------------------------------
+systemd/1 is trying to acquire lock:
+((&(&wd_data->work)->work)){+.+...}, at: [<80141650>] flush_work+0x0/0x280
 
-thank you for finding the cause of the problem! Removing the
-cancel_delayed_work_sync call from watchdog_release in watchdog_dev.c
-did fix the lockdep warning on all my boards [without having to revert
-commit 11d7aba9ce (watchdog: imx2: Convert to use infrastructure
-triggered keepalives) first].
+but task is already holding lock:
 
+(&wd_data->lock){+.+...}, at: [<804acfa8>] watchdog_release+0x18/0x190
+
+which lock already depends on the new lock.
+the existing dependency chain (in reverse order) is:
+
+-> #1 (&wd_data->lock){+.+...}:
+	[<80662310>] mutex_lock_nested+0x64/0x4a8
+	[<804aca4c>] watchdog_ping_work+0x18/0x4c
+	[<80143128>] process_one_work+0x1ac/0x500
+	[<801434b4>] worker_thread+0x38/0x554
+	[<80149510>] kthread+0xf4/0x108
+	[<80107c10>] ret_from_fork+0x14/0x24
+
+-> #0 ((&(&wd_data->work)->work)){+.+...}:
+	[<8017c4e8>] lock_acquire+0x70/0x90
+	[<8014169c>] flush_work+0x4c/0x280
+	[<801440f8>] __cancel_work_timer+0x9c/0x1e0
+	[<804acfcc>] watchdog_release+0x3c/0x190
+	[<8022c5e8>] __fput+0x80/0x1c8
+	[<80147b28>] task_work_run+0x94/0xc8
+	[<8010b998>] do_work_pending+0x8c/0xb4
+	[<80107ba8>] slow_work_pending+0xc/0x20
+
+other info that might help us debug this:
+Possible unsafe locking scenario:
+
+CPU0                    CPU1
+----                    ----
+lock(&wd_data->lock);
+                        lock((&(&wd_data->work)->work));
+                        lock(&wd_data->lock);
+lock((&(&wd_data->work)->work));
+
+*** DEADLOCK ***
+
+1 lock held by systemd/1:
+
+stack backtrace:
+CPU: 2 PID: 1 Comm: systemd Not tainted 4.6.0-rc3-00191-gfabf418 #162
+Hardware name: Freescale i.MX6 Quad/DualLite (Device Tree)
+[<8010f5e4>] (unwind_backtrace) from [<8010c038>] (show_stack+0x10/0x14)
+[<8010c038>] (show_stack) from [<8039d7fc>] (dump_stack+0xa8/0xd4)
+[<8039d7fc>] (dump_stack) from [<80177ee0>] (print_circular_bug+0x214/0x334)
+[<80177ee0>] (print_circular_bug) from [<80179230>] (check_prevs_add+0x4dc/0x8e8)
+[<80179230>] (check_prevs_add) from [<8017b3d8>] (__lock_acquire+0xc6c/0x14ec)
+[<8017b3d8>] (__lock_acquire) from [<8017c4e8>] (lock_acquire+0x70/0x90)
+[<8017c4e8>] (lock_acquire) from [<8014169c>] (flush_work+0x4c/0x280)
+[<8014169c>] (flush_work) from [<801440f8>] (__cancel_work_timer+0x9c/0x1e0)
+[<801440f8>] (__cancel_work_timer) from [<804acfcc>] (watchdog_release+0x3c/0x190)
+[<804acfcc>] (watchdog_release) from [<8022c5e8>] (__fput+0x80/0x1c8)
+[<8022c5e8>] (__fput) from [<80147b28>] (task_work_run+0x94/0xc8)
+[<80147b28>] (task_work_run) from [<8010b998>] (do_work_pending+0x8c/0xb4)
+[<8010b998>] (do_work_pending) from [<80107ba8>] (slow_work_pending+0xc/0x20)
+
+Turns out the call to cancel_delayed_work_sync() in watchdog_release()
+is not necessary and can be dropped. If the worker is no longer necessary,
+the subsequent call to watchdog_update_worker() will cancel it. If it is
+already running, it won't do anything, since the worker function checks
+if it needs to ping the watchdog or not.
+
+Reported-by: Clemens Gruber <clemens.gruber@pqgruber.com>
 Tested-by: Clemens Gruber <clemens.gruber@pqgruber.com>
+Fixes: 11d7aba9ceb7 ("watchdog: imx2: Convert to use infrastructure triggered keepalives")
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+---
+ drivers/watchdog/watchdog_dev.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-Cheers,
-Clemens
+diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
+index e2c5abbb45ff..3595cffa24ea 100644
+--- a/drivers/watchdog/watchdog_dev.c
++++ b/drivers/watchdog/watchdog_dev.c
+@@ -736,7 +736,6 @@ static int watchdog_release(struct inode *inode, struct file *file)
+ 		watchdog_ping(wdd);
+ 	}
+ 
+-	cancel_delayed_work_sync(&wd_data->work);
+ 	watchdog_update_worker(wdd);
+ 
+ 	/* make sure that /dev/watchdog can be re-opened */
+-- 
+2.5.0
