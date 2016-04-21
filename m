@@ -1,91 +1,171 @@
-Return-path: <linux@rempel-privat.de>
-Subject: Re: watchdoug group ping
-To: Guenter Roeck <linux@roeck-us.net>,
- "fixed-term.Oleksij.Rempel" <fixed-term.Oleksij.Rempel@de.bosch.com>,
- linux-watchdog@vger.kernel.org, "Dirk.Behme" <Dirk.Behme@de.bosch.com>
-References: <57172B7C.4060407@de.bosch.com> <5718E924.2030103@roeck-us.net>
-From: Oleksij Rempel <linux@rempel-privat.de>
-Message-ID: <57193739.7010603@rempel-privat.de>
-Date: Thu, 21 Apr 2016 22:25:29 +0200
+Return-path: <knpo@ieee.org>
+Subject: Re: [PATCH] watchdog: f71808e_wdt: Add F81865 support
+To: Guenter Roeck <linux@roeck-us.net>
+References: <5717C2D7.8030902@ieee.org> <5718DA30.3080003@roeck-us.net>
+Cc: Wim Van Sebroeck <wim@iguana.be>,
+ Linux Watchdog <linux-watchdog@vger.kernel.org>
+From: Knud Poulsen <knpo@ieee.org>
+Message-ID: <57192771.9090408@ieee.org>
+Date: Thu, 21 Apr 2016 21:18:09 +0200
 MIME-Version: 1.0
-In-Reply-To: <5718E924.2030103@roeck-us.net>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="4BCpLAhgKReTOVji3VRutorFIj8H4nkk5"
+In-Reply-To: <5718DA30.3080003@roeck-us.net>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-watchdog@vger.kernel.org>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---4BCpLAhgKReTOVji3VRutorFIj8H4nkk5
-Content-Type: multipart/mixed; boundary="nl36lmiNReg1xOd1hVTNmNhIBVqCp39vd"
-From: Oleksij Rempel <linux@rempel-privat.de>
-To: Guenter Roeck <linux@roeck-us.net>,
- "fixed-term.Oleksij.Rempel" <fixed-term.Oleksij.Rempel@de.bosch.com>,
- linux-watchdog@vger.kernel.org, "Dirk.Behme" <Dirk.Behme@de.bosch.com>
-Message-ID: <57193739.7010603@rempel-privat.de>
-Subject: Re: watchdoug group ping
-References: <57172B7C.4060407@de.bosch.com> <5718E924.2030103@roeck-us.net>
-In-Reply-To: <5718E924.2030103@roeck-us.net>
 
---nl36lmiNReg1xOd1hVTNmNhIBVqCp39vd
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
 
-Am 21.04.2016 um 16:52 schrieb Guenter Roeck:
-> On 04/20/2016 12:10 AM, fixed-term.Oleksij.Rempel wrote:
->> Hallo all,
+On 2016-04-21 15:48, Guenter Roeck wrote:
+> On 04/20/2016 10:56 AM, Knud Poulsen wrote:
+>> Adds watchdog support for Fintek F81865 Super-IO chip to
+>> Fintek wdt driver (f71808e_wdt)
 >>
->> my target is to provide pretimout support for devices which do not hav=
-e
->> this functionality.
+>> Tested and verified on Lanner LEC-3030 Industrial PC
 >>
->> Pre-requirement is this patchset (i contacted the author to rebase it
->> against latest watchdog core branch):
->> https://www.mail-archive.com/linux-watchdog@vger.kernel.org/msg02394.h=
-tml
+>> Datasheet references:
+>> http://www.hardwaresecrets.com/datasheets/F81865_V028P.pdf
+>> http://www.alldatasheet.com/datasheet-pdf/pdf/406317/FINTEK/F81865.html
 >>
->> The idea is to use different watchdogs/timers or what ever as one grou=
-p
->> - one virtual device.
->> One driver will be responsible for reseting the system, other for
->> generating an interrupt on pre-timout.
->> It can be also useful for systems which require redundant watchdogs -
->> two or more watchdog pinged over one /dev/watchdog
+>> Signed-off-by: Knud Poulsen <knpo@ieee.org>
+>> ---
+>>   drivers/watchdog/f71808e_wdt.c | 36 ++++++++++++++++++++++++++++++------
+>>   1 file changed, 30 insertions(+), 6 deletions(-)
 >>
->> I assume i would need to create a master virtual watchdog driver to
->> bypass/broadcast all pings to child devices.
+>> diff --git a/drivers/watchdog/f71808e_wdt.c b/drivers/watchdog/f71808e_wdt.c
+>> index 016bd93..956f8eb 100644
+>> --- a/drivers/watchdog/f71808e_wdt.c
+>> +++ b/drivers/watchdog/f71808e_wdt.c
+>> @@ -2,6 +2,7 @@
+>>    *   Copyright (C) 2006 by Hans Edgington <hans@edgington.nl>              *
+>>    *   Copyright (C) 2007-2009 Hans de Goede <hdegoede@redhat.com>           *
+>>    *   Copyright (C) 2010 Giel van Schijndel <me@mortis.eu>                  *
+>> + *   Copyright (C) 2016 Knud Poulsen <knpo@ieee.org>                       *
+> 
+> For minor improvements like this really a stretch. Please reconsider.
+
+No problem, will strip.
+
+> 
+>>    *                                                                         *
+>>    *   This program is free software; you can redistribute it and/or modify  *
+>>    *   it under the terms of the GNU General Public License as published by  *
+>> @@ -38,7 +39,7 @@
 >>
->> Do you have some ideas or suggestions?
+>>   #define SIO_F71808FG_LD_WDT	0x07	/* Watchdog timer logical device */
+>>   #define SIO_UNLOCK_KEY		0x87	/* Key to enable Super-I/O */
+>> -#define SIO_LOCK_KEY		0xAA	/* Key to diasble Super-I/O */
+>> +#define SIO_LOCK_KEY		0xAA	/* Key to disable Super-I/O */
+> 
+> Unrelated change - separate patch, please.
+
+No problem, will submit separately.
+
+> 
 >>
-> Seems to add a lot of complexity. It might be much simpler to add suppo=
-rt
-> for a 'soft' pretimeout in such situations, ie a timer which fires at t=
-he
-> correct interval and results in a reset. It might even be possible to u=
-se
-> the new internal heartbeat function for this purpose.
+>>   #define SIO_REG_LDSEL		0x07	/* Logical device select */
+>>   #define SIO_REG_DEVID		0x20	/* Device ID (2 bytes) */
+>> @@ -59,6 +60,7 @@
+>>   #define SIO_F71869A_ID		0x1007	/* Chipset ID */
+>>   #define SIO_F71882_ID		0x0541	/* Chipset ID */
+>>   #define SIO_F71889_ID		0x0723	/* Chipset ID */
+>> +#define SIO_F81865_ID		0x0704	/* Chipset ID */
+>>
+>>   #define F71808FG_REG_WDO_CONF		0xf0
+>>   #define F71808FG_REG_WDT_CONF		0xf5
+>> @@ -71,6 +73,10 @@
+>>   #define F71808FG_FLAG_WD_PULSE		4
+>>   #define F71808FG_FLAG_WD_UNIT		3
+>>
+>> +#define F81865_REG_WDO_CONF		0xfa
+>> +#define F81865_FLAG_WDOUT_EN		0
+>> +#define F81865_FLAG_WDTMOUT_STS		6
+>> +
+>>   /* Default values */
+>>   #define WATCHDOG_TIMEOUT	60	/* 1 minute default timeout */
+>>   #define WATCHDOG_MAX_TIMEOUT	(60 * 255)
+>> @@ -112,7 +118,7 @@ module_param(start_withtimeout, uint, 0);
+>>   MODULE_PARM_DESC(start_withtimeout, "Start watchdog timer on module load with"
+>>   	" given initial timeout. Zero (default) disables this feature.");
+>>
+>> -enum chips { f71808fg, f71858fg, f71862fg, f71869, f71882fg, f71889fg };
+>> +enum chips { f71808fg, f71858fg, f71862fg, f71869, f71882fg, f71889fg, f81865 };
+>>
+>>   static const char *f71808e_names[] = {
+>>   	"f71808fg",
+>> @@ -121,6 +127,7 @@ static const char *f71808e_names[] = {
+>>   	"f71869",
+>>   	"f71882fg",
+>>   	"f71889fg",
+>> +	"f81865",
+>>   };
+>>
+>>   /* Super-I/O Function prototypes */
+>> @@ -360,6 +367,11 @@ static int watchdog_start(void)
+>>   			superio_inb(watchdog.sioaddr, SIO_REG_MFUNCT3) & 0xcf);
+>>   		break;
+>>
+>> +	case f81865:
+>> +		/* Set pin 70 to WDTRST# */
+>> +		superio_clear_bit(watchdog.sioaddr, SIO_REG_MFUNCT3, 5);
+>> +		break;
+>> +
+>>   	default:
+>>   		/*
+>>   		 * 'default' label to shut up the compiler and catch
+>> @@ -371,9 +383,13 @@ static int watchdog_start(void)
+>>
+>>   	superio_select(watchdog.sioaddr, SIO_F71808FG_LD_WDT);
+>>   	superio_set_bit(watchdog.sioaddr, SIO_REG_ENABLE, 0);
+>> -	superio_set_bit(watchdog.sioaddr, F71808FG_REG_WDO_CONF,
+>> -			F71808FG_FLAG_WDOUT_EN);
+>> -
+>> +	if (watchdog.type == f81865) {
+>> +		superio_set_bit(watchdog.sioaddr, F81865_REG_WDO_CONF,
+>> +				F81865_FLAG_WDOUT_EN);
+>> +	} else {
+>> +		superio_set_bit(watchdog.sioaddr, F71808FG_REG_WDO_CONF,
+>> +				F71808FG_FLAG_WDOUT_EN);
+>> +	}
+> 
+> Unnecessary { }.
 
-yes, you have right. it is simple and cleaner generic way.
-i like it :)
+Ack, I will strip them out.
 
+> 
+>>   	superio_set_bit(watchdog.sioaddr, F71808FG_REG_WDT_CONF,
+>>   			F71808FG_FLAG_WD_EN);
+>>
+>> @@ -655,7 +671,12 @@ static int __init watchdog_init(int sioaddr)
+>>   	superio_select(watchdog.sioaddr, SIO_F71808FG_LD_WDT);
+>>
+>>   	wdt_conf = superio_inb(sioaddr, F71808FG_REG_WDT_CONF);
+>> -	watchdog.caused_reboot = wdt_conf & F71808FG_FLAG_WDTMOUT_STS;
+>> +	if (watchdog.type == f81865) {
+>> +		watchdog.caused_reboot = wdt_conf & F81865_FLAG_WDTMOUT_STS;
+>> +	} else {
+>> +		watchdog.caused_reboot = wdt_conf & F71808FG_FLAG_WDTMOUT_STS;
+>> +	}
+>> +
+> 
+> Unnecessary { }, and please no double empty lines.
 
---=20
-Regards,
-Oleksij
+Ack.
 
+> 
+>>
+>>   	superio_exit(sioaddr);
+>>
+>> @@ -770,6 +791,9 @@ static int __init f71808e_find(int sioaddr)
+>>   		/* Confirmed (by datasheet) not to have a watchdog. */
+>>   		err = -ENODEV;
+>>   		goto exit;
+>> +	case SIO_F81865_ID:
+>> +		watchdog.type = f81865;
+>> +		break;
+>>   	default:
+>>   		pr_info("Unrecognized Fintek device: %04x\n",
+>>   			(unsigned int)devid);
+>>
+> 
 
---nl36lmiNReg1xOd1hVTNmNhIBVqCp39vd--
-
---4BCpLAhgKReTOVji3VRutorFIj8H4nkk5
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iF4EAREIAAYFAlcZN0MACgkQHwImuRkmbWnVTgD+OSpbKgD5mnIeUUeW3ekCfXFP
-RcWSO3Y5KnpzMyArDHAA/iQsBLWJBfXUdST8oDQnhZZ2uDWwX/kRDAE0Zb7ZJh+Y
-=uaYU
------END PGP SIGNATURE-----
-
---4BCpLAhgKReTOVji3VRutorFIj8H4nkk5--
+All comments OK, will fix and resubmit as ps2 + separate patch for typo's.
