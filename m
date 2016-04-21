@@ -1,37 +1,28 @@
-Return-path: <fixed-term.Oleksij.Rempel@de.bosch.com>
-To: Guenter Roeck <linux@roeck-us.net>, <linux-watchdog@vger.kernel.org>,
-	Dirk.Behme <Dirk.Behme@de.bosch.com>
-From: fixed-term.Oleksij.Rempel <fixed-term.Oleksij.Rempel@de.bosch.com>
-Subject: watchdoug group ping
-Message-ID: <57172B7C.4060407@de.bosch.com>
-Date: Wed, 20 Apr 2016 09:10:52 +0200
+Return-path: <gnomes@lxorguk.ukuu.org.uk>
+Date: Thu, 21 Apr 2016 15:50:55 +0100
+From: One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Wim Van Sebroeck <wim@iguana.be>,
+        Clemens Gruber
+ <clemens.gruber@pqgruber.com>,
+        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] watchdog: core: Fix circular locking dependency
+Message-ID: <20160421155055.503e6d23@lxorguk.ukuu.org.uk>
+In-Reply-To: <1461249494-24924-1-git-send-email-linux@roeck-us.net>
+References: <1461249494-24924-1-git-send-email-linux@roeck-us.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Hallo all,
+> Turns out the call to cancel_delayed_work_sync() in watchdog_release()
+> is not necessary and can be dropped. If the worker is no longer necessary,
+> the subsequent call to watchdog_update_worker() will cancel it. If it is
+> already running, it won't do anything, since the worker function checks
+> if it needs to ping the watchdog or not.
 
-my target is to provide pretimout support for devices which do not have
-this functionality.
+Is this actually true. Consider the pathalogical case of the device being
+closed and the modue unloaded. In that case the close completes, we drop
+the module count but could still do work on it.
 
-Pre-requirement is this patchset (i contacted the author to rebase it
-against latest watchdog core branch):
-https://www.mail-archive.com/linux-watchdog@vger.kernel.org/msg02394.html
-
-The idea is to use different watchdogs/timers or what ever as one group
-- one virtual device.
-One driver will be responsible for reseting the system, other for
-generating an interrupt on pre-timout.
-It can be also useful for systems which require redundant watchdogs -
-two or more watchdog pinged over one /dev/watchdog
-
-I assume i would need to create a master virtual watchdog driver to
-bypass/broadcast all pings to child devices.
-
-Do you have some ideas or suggestions?
--- 
-Best regards,
-Oleksij Rempel
-CM-AI/ECO3
-Tel.: +49(5121)49-2962
+Alan
