@@ -1,160 +1,123 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:58350 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:53808 "EHLO
 	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751647AbcDUNsf (ORCPT
+	with ESMTP id S1751430AbcDUEaL (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 21 Apr 2016 09:48:35 -0400
-Subject: Re: [PATCH] watchdog: f71808e_wdt: Add F81865 support
-To: Knud Poulsen <knpo@ieee.org>
-References: <5717C2D7.8030902@ieee.org>
-Cc: Wim Van Sebroeck <wim@iguana.be>,
-	Linux Watchdog <linux-watchdog@vger.kernel.org>
+	Thu, 21 Apr 2016 00:30:11 -0400
+Subject: Re: watchdog: deadlock warning with imx2_wdt driver and systemd
+To: Clemens Gruber <clemens.gruber@pqgruber.com>,
+	linux-watchdog@vger.kernel.org
+References: <20160417154107.GA6762@archie.localdomain>
+Cc: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org
 From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <5718DA30.3080003@roeck-us.net>
-Date: Thu, 21 Apr 2016 06:48:32 -0700
+Message-ID: <5718574F.5090809@roeck-us.net>
+Date: Wed, 20 Apr 2016 21:30:07 -0700
 MIME-Version: 1.0
-In-Reply-To: <5717C2D7.8030902@ieee.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
+In-Reply-To: <20160417154107.GA6762@archie.localdomain>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 04/20/2016 10:56 AM, Knud Poulsen wrote:
-> Adds watchdog support for Fintek F81865 Super-IO chip to
-> Fintek wdt driver (f71808e_wdt)
+On 04/17/2016 08:41 AM, Clemens Gruber wrote:
+> Hi,
 >
-> Tested and verified on Lanner LEC-3030 Industrial PC
+> I have an i.MX6Q board with the current mainline tree from Linus and
+> systemd 229, which also acts as watchdog daemon.
+> (RuntimeWatchdogSec=60)
 >
-> Datasheet references:
-> http://www.hardwaresecrets.com/datasheets/F81865_V028P.pdf
-> http://www.alldatasheet.com/datasheet-pdf/pdf/406317/FINTEK/F81865.html
+> Since commit 11d7aba9ceb7 ("watchdog: imx2: Convert to use
+> infrastructure triggered keepalives") I get a kernel lockdep warning
+> after systemd launches.
 >
-> Signed-off-by: Knud Poulsen <knpo@ieee.org>
-> ---
->   drivers/watchdog/f71808e_wdt.c | 36 ++++++++++++++++++++++++++++++------
->   1 file changed, 30 insertions(+), 6 deletions(-)
+> However, according to the backtrace, this happens in watchdog_dev.c
+> (watchdog_release and watchdog_ping_work) which was not even touched
+> by said commit.
 >
-> diff --git a/drivers/watchdog/f71808e_wdt.c b/drivers/watchdog/f71808e_wdt.c
-> index 016bd93..956f8eb 100644
-> --- a/drivers/watchdog/f71808e_wdt.c
-> +++ b/drivers/watchdog/f71808e_wdt.c
-> @@ -2,6 +2,7 @@
->    *   Copyright (C) 2006 by Hans Edgington <hans@edgington.nl>              *
->    *   Copyright (C) 2007-2009 Hans de Goede <hdegoede@redhat.com>           *
->    *   Copyright (C) 2010 Giel van Schijndel <me@mortis.eu>                  *
-> + *   Copyright (C) 2016 Knud Poulsen <knpo@ieee.org>                       *
+> It also only occurs during the first boot. (I added some initialization
+> tasks there, e.g. generating SSH keys, expanding filesystems, etc.,
+> which takes about one minute and must be connected to this somehow,
+> because on all subsequent boots without that delay, it does not appear
+> anymore)
+>
+> Log output:
+>
+> [    5.426747] ======================================================
+> [    5.432941] [ INFO: possible circular locking dependency detected ]
+> [    5.439221] 4.6.0-rc3-00191-gfabf418 #162 Not tainted
+> [    5.444283] -------------------------------------------------------
+> [    5.450552] systemd/1 is trying to acquire lock:
+> [    5.455172]  ((&(&wd_data->work)->work)){+.+...}, at: [<80141650>] flush_work+0x0/0x280
+> [    5.463271]
+>                 but task is already holding lock:
+> [    5.469114]  (&wd_data->lock){+.+...}, at: [<804acfa8>] watchdog_release+0x18/0x190
+> [    5.476860]
+>                 which lock already depends on the new lock.
+>
+> [    5.485050]
+>                 the existing dependency chain (in reverse order) is:
+> [    5.492543]
+>                 -> #1 (&wd_data->lock){+.+...}:
+> [    5.496967]        [<80662310>] mutex_lock_nested+0x64/0x4a8
+> [    5.502666]        [<804aca4c>] watchdog_ping_work+0x18/0x4c
+> [    5.508359]        [<80143128>] process_one_work+0x1ac/0x500
+> [    5.514044]        [<801434b4>] worker_thread+0x38/0x554
+> [    5.519389]        [<80149510>] kthread+0xf4/0x108
+> [    5.524217]        [<80107c10>] ret_from_fork+0x14/0x24
+> [    5.529482]
+>                 -> #0 ((&(&wd_data->work)->work)){+.+...}:
+> [    5.534883]        [<8017c4e8>] lock_acquire+0x70/0x90
+> [    5.540061]        [<8014169c>] flush_work+0x4c/0x280
+> [    5.545144]        [<801440f8>] __cancel_work_timer+0x9c/0x1e0
+> [    5.551008]        [<804acfcc>] watchdog_release+0x3c/0x190
+> [    5.556612]        [<8022c5e8>] __fput+0x80/0x1c8
+> [    5.561354]        [<80147b28>] task_work_run+0x94/0xc8
+> [    5.566613]        [<8010b998>] do_work_pending+0x8c/0xb4
+> [    5.572049]        [<80107ba8>] slow_work_pending+0xc/0x20
+> [    5.577568]
+>                 other info that might help us debug this:
+>
+> [    5.585585]  Possible unsafe locking scenario:
+>
+> [    5.591516]        CPU0                    CPU1
+> [    5.596055]        ----                    ----
+> [    5.600593]   lock(&wd_data->lock);
+> [    5.604130]                                lock((&(&wd_data->work)->work));
+> [    5.611137]                                lock(&wd_data->lock);
+> [    5.617191]   lock((&(&wd_data->work)->work));
+> [    5.621681]
+>                  *** DEADLOCK ***
+>
+> [    5.627615] 1 lock held by systemd/1:
+> [    5.631286]  #0:  (&wd_data->lock){+.+...}, at: [<804acfa8>] watchdog_release+0x18/0x190
+> [    5.639488]
+>                 stack backtrace:
+> [    5.643861] CPU: 2 PID: 1 Comm: systemd Not tainted 4.6.0-rc3-00191-gfabf418 #162
+> [    5.651353] Hardware name: Freescale i.MX6 Quad/DualLite (Device Tree)
+> [    5.657909] [<8010f5e4>] (unwind_backtrace) from [<8010c038>] (show_stack+0x10/0x14)
+> [    5.665671] [<8010c038>] (show_stack) from [<8039d7fc>] (dump_stack+0xa8/0xd4)
+> [    5.672911] [<8039d7fc>] (dump_stack) from [<80177ee0>] (print_circular_bug+0x214/0x334)
+> [    5.681012] [<80177ee0>] (print_circular_bug) from [<80179230>] (check_prevs_add+0x4dc/0x8e8)
+> [    5.689556] [<80179230>] (check_prevs_add) from [<8017b3d8>] (__lock_acquire+0xc6c/0x14ec)
+> [    5.697831] [<8017b3d8>] (__lock_acquire) from [<8017c4e8>] (lock_acquire+0x70/0x90)
+> [    5.705584] [<8017c4e8>] (lock_acquire) from [<8014169c>] (flush_work+0x4c/0x280)
+> [    5.713076] [<8014169c>] (flush_work) from [<801440f8>] (__cancel_work_timer+0x9c/0x1e0)
+> [    5.721183] [<801440f8>] (__cancel_work_timer) from [<804acfcc>] (watchdog_release+0x3c/0x190)
+> [    5.729815] [<804acfcc>] (watchdog_release) from [<8022c5e8>] (__fput+0x80/0x1c8)
+> [    5.737316] [<8022c5e8>] (__fput) from [<80147b28>] (task_work_run+0x94/0xc8)
+> [    5.744465] [<80147b28>] (task_work_run) from [<8010b998>] (do_work_pending+0x8c/0xb4)
+> [    5.752401] [<8010b998>] (do_work_pending) from [<80107ba8>] (slow_work_pending+0xc/0x20)
+>
+> If you can't reproduce it but have an idea how to fix this, I would be
+> happy to test your idea or patch.
+>
 
-For minor improvements like this really a stretch. Please reconsider.
+Hi Clemens,
 
->    *                                                                         *
->    *   This program is free software; you can redistribute it and/or modify  *
->    *   it under the terms of the GNU General Public License as published by  *
-> @@ -38,7 +39,7 @@
->
->   #define SIO_F71808FG_LD_WDT	0x07	/* Watchdog timer logical device */
->   #define SIO_UNLOCK_KEY		0x87	/* Key to enable Super-I/O */
-> -#define SIO_LOCK_KEY		0xAA	/* Key to diasble Super-I/O */
-> +#define SIO_LOCK_KEY		0xAA	/* Key to disable Super-I/O */
+fix is to drop the call to cancel_delayed_work_sync() from watchdog_release().
+Turns out the call is not necessary.
 
-Unrelated change - separate patch, please.
+I'll send a proper patch in the next couple of days.
 
->
->   #define SIO_REG_LDSEL		0x07	/* Logical device select */
->   #define SIO_REG_DEVID		0x20	/* Device ID (2 bytes) */
-> @@ -59,6 +60,7 @@
->   #define SIO_F71869A_ID		0x1007	/* Chipset ID */
->   #define SIO_F71882_ID		0x0541	/* Chipset ID */
->   #define SIO_F71889_ID		0x0723	/* Chipset ID */
-> +#define SIO_F81865_ID		0x0704	/* Chipset ID */
->
->   #define F71808FG_REG_WDO_CONF		0xf0
->   #define F71808FG_REG_WDT_CONF		0xf5
-> @@ -71,6 +73,10 @@
->   #define F71808FG_FLAG_WD_PULSE		4
->   #define F71808FG_FLAG_WD_UNIT		3
->
-> +#define F81865_REG_WDO_CONF		0xfa
-> +#define F81865_FLAG_WDOUT_EN		0
-> +#define F81865_FLAG_WDTMOUT_STS		6
-> +
->   /* Default values */
->   #define WATCHDOG_TIMEOUT	60	/* 1 minute default timeout */
->   #define WATCHDOG_MAX_TIMEOUT	(60 * 255)
-> @@ -112,7 +118,7 @@ module_param(start_withtimeout, uint, 0);
->   MODULE_PARM_DESC(start_withtimeout, "Start watchdog timer on module load with"
->   	" given initial timeout. Zero (default) disables this feature.");
->
-> -enum chips { f71808fg, f71858fg, f71862fg, f71869, f71882fg, f71889fg };
-> +enum chips { f71808fg, f71858fg, f71862fg, f71869, f71882fg, f71889fg, f81865 };
->
->   static const char *f71808e_names[] = {
->   	"f71808fg",
-> @@ -121,6 +127,7 @@ static const char *f71808e_names[] = {
->   	"f71869",
->   	"f71882fg",
->   	"f71889fg",
-> +	"f81865",
->   };
->
->   /* Super-I/O Function prototypes */
-> @@ -360,6 +367,11 @@ static int watchdog_start(void)
->   			superio_inb(watchdog.sioaddr, SIO_REG_MFUNCT3) & 0xcf);
->   		break;
->
-> +	case f81865:
-> +		/* Set pin 70 to WDTRST# */
-> +		superio_clear_bit(watchdog.sioaddr, SIO_REG_MFUNCT3, 5);
-> +		break;
-> +
->   	default:
->   		/*
->   		 * 'default' label to shut up the compiler and catch
-> @@ -371,9 +383,13 @@ static int watchdog_start(void)
->
->   	superio_select(watchdog.sioaddr, SIO_F71808FG_LD_WDT);
->   	superio_set_bit(watchdog.sioaddr, SIO_REG_ENABLE, 0);
-> -	superio_set_bit(watchdog.sioaddr, F71808FG_REG_WDO_CONF,
-> -			F71808FG_FLAG_WDOUT_EN);
-> -
-> +	if (watchdog.type == f81865) {
-> +		superio_set_bit(watchdog.sioaddr, F81865_REG_WDO_CONF,
-> +				F81865_FLAG_WDOUT_EN);
-> +	} else {
-> +		superio_set_bit(watchdog.sioaddr, F71808FG_REG_WDO_CONF,
-> +				F71808FG_FLAG_WDOUT_EN);
-> +	}
-
-Unnecessary { }.
-
->   	superio_set_bit(watchdog.sioaddr, F71808FG_REG_WDT_CONF,
->   			F71808FG_FLAG_WD_EN);
->
-> @@ -655,7 +671,12 @@ static int __init watchdog_init(int sioaddr)
->   	superio_select(watchdog.sioaddr, SIO_F71808FG_LD_WDT);
->
->   	wdt_conf = superio_inb(sioaddr, F71808FG_REG_WDT_CONF);
-> -	watchdog.caused_reboot = wdt_conf & F71808FG_FLAG_WDTMOUT_STS;
-> +	if (watchdog.type == f81865) {
-> +		watchdog.caused_reboot = wdt_conf & F81865_FLAG_WDTMOUT_STS;
-> +	} else {
-> +		watchdog.caused_reboot = wdt_conf & F71808FG_FLAG_WDTMOUT_STS;
-> +	}
-> +
-
-Unnecessary { }, and please no double empty lines.
-
->
->   	superio_exit(sioaddr);
->
-> @@ -770,6 +791,9 @@ static int __init f71808e_find(int sioaddr)
->   		/* Confirmed (by datasheet) not to have a watchdog. */
->   		err = -ENODEV;
->   		goto exit;
-> +	case SIO_F81865_ID:
-> +		watchdog.type = f81865;
-> +		break;
->   	default:
->   		pr_info("Unrecognized Fintek device: %04x\n",
->   			(unsigned int)devid);
->
+Guenter
 
