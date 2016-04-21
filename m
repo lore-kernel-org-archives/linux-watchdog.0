@@ -1,37 +1,50 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:35061 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:34881 "EHLO
 	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751571AbcDUXaf (ORCPT
+	with ESMTP id S1752785AbcDUOwZ (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 21 Apr 2016 19:30:35 -0400
-Date: Thu, 21 Apr 2016 16:30:32 -0700
+	Thu, 21 Apr 2016 10:52:25 -0400
+Subject: Re: watchdoug group ping
+To: "fixed-term.Oleksij.Rempel" <fixed-term.Oleksij.Rempel@de.bosch.com>,
+	linux-watchdog@vger.kernel.org,
+	"Dirk.Behme" <Dirk.Behme@de.bosch.com>
+References: <57172B7C.4060407@de.bosch.com>
 From: Guenter Roeck <linux@roeck-us.net>
-To: One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>
-Cc: Wim Van Sebroeck <wim@iguana.be>,
-	Clemens Gruber <clemens.gruber@pqgruber.com>,
-	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] watchdog: core: Fix circular locking dependency
-Message-ID: <20160421233032.GA30063@roeck-us.net>
-References: <1461249494-24924-1-git-send-email-linux@roeck-us.net>
- <20160421155055.503e6d23@lxorguk.ukuu.org.uk>
+Message-ID: <5718E924.2030103@roeck-us.net>
+Date: Thu, 21 Apr 2016 07:52:20 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20160421155055.503e6d23@lxorguk.ukuu.org.uk>
+In-Reply-To: <57172B7C.4060407@de.bosch.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Thu, Apr 21, 2016 at 03:50:55PM +0100, One Thousand Gnomes wrote:
-> > Turns out the call to cancel_delayed_work_sync() in watchdog_release()
-> > is not necessary and can be dropped. If the worker is no longer necessary,
-> > the subsequent call to watchdog_update_worker() will cancel it. If it is
-> > already running, it won't do anything, since the worker function checks
-> > if it needs to ping the watchdog or not.
-> 
-> Is this actually true. Consider the pathalogical case of the device being
-> closed and the modue unloaded. In that case the close completes, we drop
-> the module count but could still do work on it.
-> 
-Module unload is handled separately and also calls cancel_delayed_work_sync().
+On 04/20/2016 12:10 AM, fixed-term.Oleksij.Rempel wrote:
+> Hallo all,
+>
+> my target is to provide pretimout support for devices which do not have
+> this functionality.
+>
+> Pre-requirement is this patchset (i contacted the author to rebase it
+> against latest watchdog core branch):
+> https://www.mail-archive.com/linux-watchdog@vger.kernel.org/msg02394.html
+>
+> The idea is to use different watchdogs/timers or what ever as one group
+> - one virtual device.
+> One driver will be responsible for reseting the system, other for
+> generating an interrupt on pre-timout.
+> It can be also useful for systems which require redundant watchdogs -
+> two or more watchdog pinged over one /dev/watchdog
+>
+> I assume i would need to create a master virtual watchdog driver to
+> bypass/broadcast all pings to child devices.
+>
+> Do you have some ideas or suggestions?
+>
+Seems to add a lot of complexity. It might be much simpler to add support
+for a 'soft' pretimeout in such situations, ie a timer which fires at the
+correct interval and results in a reset. It might even be possible to use
+the new internal heartbeat function for this purpose.
 
 Guenter
+
