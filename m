@@ -1,123 +1,39 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:53808 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751430AbcDUEaL (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 21 Apr 2016 00:30:11 -0400
-Subject: Re: watchdog: deadlock warning with imx2_wdt driver and systemd
-To: Clemens Gruber <clemens.gruber@pqgruber.com>,
-	linux-watchdog@vger.kernel.org
-References: <20160417154107.GA6762@archie.localdomain>
+Return-path: <clemens.gruber@pqgruber.com>
+Date: Thu, 21 Apr 2016 15:44:45 +0200
+From: Clemens Gruber <clemens.gruber@pqgruber.com>
+To: Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org
 Cc: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <5718574F.5090809@roeck-us.net>
-Date: Wed, 20 Apr 2016 21:30:07 -0700
+Subject: Re: watchdog: deadlock warning with imx2_wdt driver and systemd
+Message-ID: <20160421134444.GA1515@archie.localdomain>
+References: <20160417154107.GA6762@archie.localdomain>
+ <5718574F.5090809@roeck-us.net>
 MIME-Version: 1.0
-In-Reply-To: <20160417154107.GA6762@archie.localdomain>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5718574F.5090809@roeck-us.net>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 04/17/2016 08:41 AM, Clemens Gruber wrote:
-> Hi,
->
-> I have an i.MX6Q board with the current mainline tree from Linus and
-> systemd 229, which also acts as watchdog daemon.
-> (RuntimeWatchdogSec=60)
->
-> Since commit 11d7aba9ceb7 ("watchdog: imx2: Convert to use
-> infrastructure triggered keepalives") I get a kernel lockdep warning
-> after systemd launches.
->
-> However, according to the backtrace, this happens in watchdog_dev.c
-> (watchdog_release and watchdog_ping_work) which was not even touched
-> by said commit.
->
-> It also only occurs during the first boot. (I added some initialization
-> tasks there, e.g. generating SSH keys, expanding filesystems, etc.,
-> which takes about one minute and must be connected to this somehow,
-> because on all subsequent boots without that delay, it does not appear
-> anymore)
->
-> Log output:
->
-> [    5.426747] ======================================================
-> [    5.432941] [ INFO: possible circular locking dependency detected ]
-> [    5.439221] 4.6.0-rc3-00191-gfabf418 #162 Not tainted
-> [    5.444283] -------------------------------------------------------
-> [    5.450552] systemd/1 is trying to acquire lock:
-> [    5.455172]  ((&(&wd_data->work)->work)){+.+...}, at: [<80141650>] flush_work+0x0/0x280
-> [    5.463271]
->                 but task is already holding lock:
-> [    5.469114]  (&wd_data->lock){+.+...}, at: [<804acfa8>] watchdog_release+0x18/0x190
-> [    5.476860]
->                 which lock already depends on the new lock.
->
-> [    5.485050]
->                 the existing dependency chain (in reverse order) is:
-> [    5.492543]
->                 -> #1 (&wd_data->lock){+.+...}:
-> [    5.496967]        [<80662310>] mutex_lock_nested+0x64/0x4a8
-> [    5.502666]        [<804aca4c>] watchdog_ping_work+0x18/0x4c
-> [    5.508359]        [<80143128>] process_one_work+0x1ac/0x500
-> [    5.514044]        [<801434b4>] worker_thread+0x38/0x554
-> [    5.519389]        [<80149510>] kthread+0xf4/0x108
-> [    5.524217]        [<80107c10>] ret_from_fork+0x14/0x24
-> [    5.529482]
->                 -> #0 ((&(&wd_data->work)->work)){+.+...}:
-> [    5.534883]        [<8017c4e8>] lock_acquire+0x70/0x90
-> [    5.540061]        [<8014169c>] flush_work+0x4c/0x280
-> [    5.545144]        [<801440f8>] __cancel_work_timer+0x9c/0x1e0
-> [    5.551008]        [<804acfcc>] watchdog_release+0x3c/0x190
-> [    5.556612]        [<8022c5e8>] __fput+0x80/0x1c8
-> [    5.561354]        [<80147b28>] task_work_run+0x94/0xc8
-> [    5.566613]        [<8010b998>] do_work_pending+0x8c/0xb4
-> [    5.572049]        [<80107ba8>] slow_work_pending+0xc/0x20
-> [    5.577568]
->                 other info that might help us debug this:
->
-> [    5.585585]  Possible unsafe locking scenario:
->
-> [    5.591516]        CPU0                    CPU1
-> [    5.596055]        ----                    ----
-> [    5.600593]   lock(&wd_data->lock);
-> [    5.604130]                                lock((&(&wd_data->work)->work));
-> [    5.611137]                                lock(&wd_data->lock);
-> [    5.617191]   lock((&(&wd_data->work)->work));
-> [    5.621681]
->                  *** DEADLOCK ***
->
-> [    5.627615] 1 lock held by systemd/1:
-> [    5.631286]  #0:  (&wd_data->lock){+.+...}, at: [<804acfa8>] watchdog_release+0x18/0x190
-> [    5.639488]
->                 stack backtrace:
-> [    5.643861] CPU: 2 PID: 1 Comm: systemd Not tainted 4.6.0-rc3-00191-gfabf418 #162
-> [    5.651353] Hardware name: Freescale i.MX6 Quad/DualLite (Device Tree)
-> [    5.657909] [<8010f5e4>] (unwind_backtrace) from [<8010c038>] (show_stack+0x10/0x14)
-> [    5.665671] [<8010c038>] (show_stack) from [<8039d7fc>] (dump_stack+0xa8/0xd4)
-> [    5.672911] [<8039d7fc>] (dump_stack) from [<80177ee0>] (print_circular_bug+0x214/0x334)
-> [    5.681012] [<80177ee0>] (print_circular_bug) from [<80179230>] (check_prevs_add+0x4dc/0x8e8)
-> [    5.689556] [<80179230>] (check_prevs_add) from [<8017b3d8>] (__lock_acquire+0xc6c/0x14ec)
-> [    5.697831] [<8017b3d8>] (__lock_acquire) from [<8017c4e8>] (lock_acquire+0x70/0x90)
-> [    5.705584] [<8017c4e8>] (lock_acquire) from [<8014169c>] (flush_work+0x4c/0x280)
-> [    5.713076] [<8014169c>] (flush_work) from [<801440f8>] (__cancel_work_timer+0x9c/0x1e0)
-> [    5.721183] [<801440f8>] (__cancel_work_timer) from [<804acfcc>] (watchdog_release+0x3c/0x190)
-> [    5.729815] [<804acfcc>] (watchdog_release) from [<8022c5e8>] (__fput+0x80/0x1c8)
-> [    5.737316] [<8022c5e8>] (__fput) from [<80147b28>] (task_work_run+0x94/0xc8)
-> [    5.744465] [<80147b28>] (task_work_run) from [<8010b998>] (do_work_pending+0x8c/0xb4)
-> [    5.752401] [<8010b998>] (do_work_pending) from [<80107ba8>] (slow_work_pending+0xc/0x20)
->
-> If you can't reproduce it but have an idea how to fix this, I would be
-> happy to test your idea or patch.
->
+On Wed, Apr 20, 2016 at 09:30:07PM -0700, Guenter Roeck wrote:
+> 
+> Hi Clemens,
+> 
+> fix is to drop the call to cancel_delayed_work_sync() from watchdog_release().
+> Turns out the call is not necessary.
+> 
+> I'll send a proper patch in the next couple of days.
+> 
+> Guenter
+> 
 
-Hi Clemens,
+Hi Guenter,
 
-fix is to drop the call to cancel_delayed_work_sync() from watchdog_release().
-Turns out the call is not necessary.
+thank you for finding the cause of the problem! Removing the
+cancel_delayed_work_sync call from watchdog_release in watchdog_dev.c
+did fix the lockdep warning on all my boards [without having to revert
+commit 11d7aba9ce (watchdog: imx2: Convert to use infrastructure
+triggered keepalives) first].
 
-I'll send a proper patch in the next couple of days.
+Tested-by: Clemens Gruber <clemens.gruber@pqgruber.com>
 
-Guenter
-
+Cheers,
+Clemens
