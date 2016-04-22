@@ -1,42 +1,67 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:55884 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752670AbcDSHtj (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 19 Apr 2016 03:49:39 -0400
-Message-ID: <1461051988.15527.6.camel@suse.com>
-Subject: Re: [PATCH v2] watchdog: add driver for StreamLabs USB watchdog
- device
-From: Oliver Neukum <oneukum@suse.com>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Alexey Klimov <klimov.linux@gmail.com>, yury.norov@gmail.com,
-	wim@iguana.be, linux-kernel@vger.kernel.org,
-	linux-usb@vger.kernel.org, linux-watchdog@vger.kernel.org
-Date: Tue, 19 Apr 2016 09:46:28 +0200
-In-Reply-To: <20160418163918.GE29343@roeck-us.net>
-References: <1460948016-5453-1-git-send-email-klimov.linux@gmail.com>
-	 <1460968368.25119.7.camel@suse.com> <5714E7D3.4030809@roeck-us.net>
-	 <1460988518.25119.28.camel@suse.com> <20160418163918.GE29343@roeck-us.net>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Received: from mail-yw0-f194.google.com ([209.85.161.194]:35938 "EHLO
+	mail-yw0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751172AbcDVSan (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 22 Apr 2016 14:30:43 -0400
+Date: Fri, 22 Apr 2016 14:30:40 -0400
+From: Tejun Heo <tj@kernel.org>
+To: Petr Mladek <pmladek@suse.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+	Oleg Nesterov <oleg@redhat.com>,
+	Ingo Molnar <mingo@redhat.com>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	"Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
+	Josh Triplett <josh@joshtriplett.org>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Linus Torvalds <torvalds@linux-foundation.org>,
+	Jiri Kosina <jkosina@suse.cz>, Borislav Petkov <bp@suse.de>,
+	Michal Hocko <mhocko@suse.cz>, linux-mm@kvack.org,
+	Vlastimil Babka <vbabka@suse.cz>, linux-api@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	linux-watchdog@vger.kernel.org, Corey Minyard <minyard@acm.org>,
+	openipmi-developer@lists.sourceforge.net,
+	Doug Ledford <dledford@redhat.com>,
+	Sean Hefty <sean.hefty@intel.com>,
+	Hal Rosenstock <hal.rosenstock@gmail.com>,
+	linux-rdma@vger.kernel.org,
+	Maxim Levitsky <maximlevitsky@gmail.com>,
+	Zhang Rui <rui.zhang@intel.com>,
+	Eduardo Valentin <edubezval@gmail.com>,
+	Jacob Pan <jacob.jun.pan@linux.intel.com>,
+	linux-pm@vger.kernel.org,
+	Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Subject: Re: [PATCH v6 00/20] kthread: Use kthread worker API more widely
+Message-ID: <20160422183040.GW7822@mtj.duckdns.org>
+References: <1460646879-617-1-git-send-email-pmladek@suse.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1460646879-617-1-git-send-email-pmladek@suse.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, 2016-04-18 at 09:39 -0700, Guenter Roeck wrote:
-> > Possibly. We have never gone that route. The obvious problems is
-> that
-> > I am not sure our alignment is known before boot.
-> > 
-> Seems scary. I always thought that the alignment associated with
-> ____cacheline_aligned would be the maximum possible for a given
-> build/architecture. If not, what is the value of having
-> ____cacheline_aligned in the first place ?
+Hello, Petr.
 
-I thought it was for performance to prevent cache bouncing.
-I honestly don't know. You'd have to ask a specific question
-on LKML.
+On Thu, Apr 14, 2016 at 05:14:19PM +0200, Petr Mladek wrote:
+> My intention is to make it easier to manipulate and maintain kthreads.
+> Especially, I want to replace all the custom main cycles with a
+> generic one. Also I want to make the kthreads sleep in a consistent
+> state in a common place when there is no work.
+> 
+> My first attempt was with a brand new API (iterant kthread), see
+> http://thread.gmane.org/gmane.linux.kernel.api/11892 . But I was
+> directed to improve the existing kthread worker API. This is
+> the 4th iteration of the new direction.
+> 
+> 1nd..10th patches: improve the existing kthread worker API
 
-	Sorry
-		Oliver
+I glanced over them and they generally look good to me.  Let's see how
+people respond to actual conversions.
 
+Thanks.
 
+-- 
+tejun
