@@ -1,39 +1,29 @@
-Return-path: <colin.king@canonical.com>
-From: Colin King <colin.king@canonical.com>
-To: Wim Van Sebroeck <wim@iguana.be>,
-	Guenter Roeck <linux@roeck-us.net>,
-	linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] watchdog: remove error message when unable to allocate watchdog device
-Date: Tue, 26 Apr 2016 18:18:49 +0100
-Message-Id: <1461691129-4764-1-git-send-email-colin.king@canonical.com>
+Return-path: <joe@perches.com>
+Message-ID: <1461648139.2726.119.camel@perches.com>
+Subject: Re: [PATCH] watchdog: trivial fix of spelling mistake on "allocate"
+From: Joe Perches <joe@perches.com>
+To: Colin King <colin.king@canonical.com>, Wim Van Sebroeck <wim@iguana.be>,
+  Guenter Roeck <linux@roeck-us.net>, Jiri Kosina <trivial@kernel.org>,
+ linux-watchdog@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Date: Mon, 25 Apr 2016 22:22:19 -0700
+In-Reply-To: <1461611991-27328-1-git-send-email-colin.king@canonical.com>
+References: <1461611991-27328-1-git-send-email-colin.king@canonical.com>
+Content-Type: text/plain; charset="ISO-8859-1"
+Mime-Version: 1.0
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-watchdog@vger.kernel.org>
 
-From: Colin Ian King <colin.king@canonical.com>
+On Mon, 2016-04-25 at 20:19 +0100, Colin King wrote:
+> fix spelling mistake, alloacate -> allocate
+[]
+> diff --git a/drivers/watchdog/jz4740_wdt.c b/drivers/watchdog/jz4740_wdt.c
+[]
+> @@ -161,7 +161,7 @@ static int jz4740_wdt_probe(struct platform_device *pdev)
+>  	drvdata = devm_kzalloc(&pdev->dev, sizeof(struct jz4740_wdt_drvdata),
+>  			       GFP_KERNEL);
+>  	if (!drvdata) {
+> -		dev_err(&pdev->dev, "Unable to alloacate watchdog device\n");
+> +		dev_err(&pdev->dev, "Unable to allocate watchdog device\n");
 
-The dev_err message is superfluous because the failure is already
-printed by dev_kzalloc, so remove it.
-
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
----
- drivers/watchdog/jz4740_wdt.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
-
-diff --git a/drivers/watchdog/jz4740_wdt.c b/drivers/watchdog/jz4740_wdt.c
-index 6a7d5c3..c8d51dd 100644
---- a/drivers/watchdog/jz4740_wdt.c
-+++ b/drivers/watchdog/jz4740_wdt.c
-@@ -160,10 +160,8 @@ static int jz4740_wdt_probe(struct platform_device *pdev)
- 
- 	drvdata = devm_kzalloc(&pdev->dev, sizeof(struct jz4740_wdt_drvdata),
- 			       GFP_KERNEL);
--	if (!drvdata) {
--		dev_err(&pdev->dev, "Unable to alloacate watchdog device\n");
-+	if (!drvdata)
- 		return -ENOMEM;
--	}
- 
- 	if (heartbeat < 1 || heartbeat > MAX_HEARTBEAT)
- 		heartbeat = DEFAULT_HEARTBEAT;
--- 
-2.7.4
+Might as well delete this line instead.
