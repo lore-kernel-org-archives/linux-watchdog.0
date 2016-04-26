@@ -1,46 +1,75 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-oi0-f47.google.com ([209.85.218.47]:35157 "EHLO
-	mail-oi0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756171AbcDLSRo (ORCPT
+Received: from mail-wm0-f45.google.com ([74.125.82.45]:37885 "EHLO
+	mail-wm0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751974AbcDZGoS (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 12 Apr 2016 14:17:44 -0400
-MIME-Version: 1.0
-In-Reply-To: <20160412180128.GA6965@roeck-us.net>
-References: <1460440303-20640-1-git-send-email-sudipm.mukherjee@gmail.com>
-	<570CF2CB.2050200@roeck-us.net>
-	<570CFA90.4060100@gmail.com>
-	<CAHp75VcrmiP0GWR-zCBmqc7zA6uiC4dD8-HDikmWZxyEwXkRLw@mail.gmail.com>
-	<20160412180128.GA6965@roeck-us.net>
-Date: Tue, 12 Apr 2016 21:17:43 +0300
-Message-ID: <CAHp75Vd28EChCHs0YTKrF_31OsEzJcgX8XFRwMmy9WGOeukTMg@mail.gmail.com>
-Subject: Re: [PATCH] watchdog: dw_wdt: dont build for avr32
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
+	Tue, 26 Apr 2016 02:44:18 -0400
+Received: by mail-wm0-f45.google.com with SMTP id n3so16631819wmn.0
+        for <linux-watchdog@vger.kernel.org>; Mon, 25 Apr 2016 23:44:18 -0700 (PDT)
+To: Guenter Roeck <linux@roeck-us.net>,
 	Wim Van Sebroeck <wim@iguana.be>,
-	Haavard Skinnemoen <hskinnemoen@gmail.com>,
-	Hans-Christian Egtvedt <egtvedt@samfundet.no>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	kernel-testers@vger.kernel.org, linux-watchdog@vger.kernel.org
-Content-Type: text/plain; charset=UTF-8
+	Linux Watchdog <linux-watchdog@vger.kernel.org>
+From: Knud Poulsen <knpo@ieee.org>
+Subject: [PATCH v2] watchdog: f71808e_wdt: Fix WDTMOUT_STS register read
+Message-ID: <571F0E40.6080205@ieee.org>
+Date: Tue, 26 Apr 2016 08:44:16 +0200
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, Apr 12, 2016 at 9:01 PM, Guenter Roeck <linux@roeck-us.net> wrote:
-> On Tue, Apr 12, 2016 at 05:58:20PM +0300, Andy Shevchenko wrote:
->> On Tue, Apr 12, 2016 at 4:39 PM, Sudip Mukherjee
->> <sudipm.mukherjee@gmail.com> wrote:
->> > On Tuesday 12 April 2016 06:36 PM, Guenter Roeck wrote:
->> >>
 
-> Sorry, I am missing something. do_div() should work fine with any 32 bit value
-> as divisor, no matter what that value is. Why does it fail here ? And why does
-> it work if I pass 0x1fffff as second parameter to do_div() directly ?
+Tested and verified on Lanner LEC-3030 Industrial PC (with F81865)
 
-Perhaps compare assembly code in both cases?
+Datasheet verified for
+ F71808, F71858, F71862, F71869, F71869A, F71882, F71889, F81865
 
+Datasheet references:
+F71808A:
+ http://www.electronicsdatasheets.com/download/534cf560e34e2406135f4658.pdf?format=pdf
+F71858:
+ http://www.electronicsdatasheets.com/download/534cf55fe34e2406135f4635.pdf?format=pdf
+F71862:
+ http://www.hardwaresecrets.com/datasheets/F71862_V027P.pdf
+F71869:
+ http://www.clubedohardware.com.br/datasheets/366451_F71869.pdf
+F71869A:
+ http://www.chipset-ic.com/datasheet/F71869AD.pdf
+F71882:
+ http://www.digchip.com/datasheets/parts/datasheet/931/F71882-pdf.php
+F71889:
+ http://pdf1.alldatasheet.com/datasheet-pdf/view/406312/FINTEK/F71889.html
+F81865:
+ http://www.hardwaresecrets.com/datasheets/F81865_V028P.pdf
+ http://www.alldatasheet.com/datasheet-pdf/pdf/406317/FINTEK/F81865.html
 
+Signed-off-by: Knud Poulsen <knpo@ieee.org>
+---
+ drivers/watchdog/f71808e_wdt.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/watchdog/f71808e_wdt.c b/drivers/watchdog/f71808e_wdt.c
+index 016bd93..190d87c 100644
+--- a/drivers/watchdog/f71808e_wdt.c
++++ b/drivers/watchdog/f71808e_wdt.c
+@@ -66,7 +66,7 @@
+
+ #define F71808FG_FLAG_WDOUT_EN		7
+
+-#define F71808FG_FLAG_WDTMOUT_STS	5
++#define F71808FG_FLAG_WDTMOUT_STS	6
+ #define F71808FG_FLAG_WD_EN		5
+ #define F71808FG_FLAG_WD_PULSE		4
+ #define F71808FG_FLAG_WD_UNIT		3
+@@ -655,7 +655,7 @@ static int __init watchdog_init(int sioaddr)
+ 	superio_select(watchdog.sioaddr, SIO_F71808FG_LD_WDT);
+
+ 	wdt_conf = superio_inb(sioaddr, F71808FG_REG_WDT_CONF);
+-	watchdog.caused_reboot = wdt_conf & F71808FG_FLAG_WDTMOUT_STS;
++	watchdog.caused_reboot = wdt_conf & BIT(F71808FG_FLAG_WDTMOUT_STS);
+
+ 	superio_exit(sioaddr);
 
 -- 
-With Best Regards,
-Andy Shevchenko
+2.5.5
