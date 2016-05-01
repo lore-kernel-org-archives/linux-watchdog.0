@@ -1,85 +1,150 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-yw0-f171.google.com ([209.85.161.171]:34646 "EHLO
-	mail-yw0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752323AbcEAWoT (ORCPT
+Received: from mail-yw0-f175.google.com ([209.85.161.175]:36516 "EHLO
+	mail-yw0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752367AbcEAWod (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 1 May 2016 18:44:19 -0400
+	Sun, 1 May 2016 18:44:33 -0400
 From: William Breathitt Gray <vilhelm.gray@gmail.com>
 To: gregkh@linuxfoundation.org
 Cc: linux-iio@vger.kernel.org, linux-watchdog@vger.kernel.org,
 	linux-gpio@vger.kernel.org,
 	William Breathitt Gray <vilhelm.gray@gmail.com>,
-	Jonathan Cameron <jic23@kernel.org>,
-	Hartmut Knaack <knaack.h@gmx.de>,
-	Lars-Peter Clausen <lars@metafoo.de>,
-	Peter Meerwald <pmeerw@pmeerw.net>
-Subject: [PATCH v2 05/10] iio: stx104: Utilize the module_isa_driver and max_num_isa_dev macros
-Date: Sun,  1 May 2016 18:44:11 -0400
-Message-Id: <fbf47c2fecb0dbaee717fc7f863cee1a903c8ae0.1462141338.git.vilhelm.gray@gmail.com>
+	Wim Van Sebroeck <wim@iguana.be>
+Subject: [PATCH v2 06/10] watchdog: ebc-c384_wdt: Utilize the ISA bus driver
+Date: Sun,  1 May 2016 18:44:26 -0400
+Message-Id: <3a5ce818956330cdfe297722ac2d4ce6d3ad5f48.1462141338.git.vilhelm.gray@gmail.com>
 In-Reply-To: <cover.1462141338.git.vilhelm.gray@gmail.com>
 References: <cover.1462141338.git.vilhelm.gray@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The Apex Embedded Systems STX104 DAC drivers does not do anything
-special in module init/exit. This patch eliminates the module init/exit
-boilerplate code by utilizing the module_isa_driver macro.
+The WinSystems EBC-C384 watchdog timer is controlled via ISA bus
+communication. As such, the ISA bus driver is more appropriate than the
+platform driver for the WinSystems EBC-C384 watchdog timer driver.
 
-Additionally, the max_num_isa_dev macro is utilized to simplify the
-determination of maximum possible STX104 devices in the system.
-
-Cc: Jonathan Cameron <jic23@kernel.org>
-Cc: Hartmut Knaack <knaack.h@gmx.de>
-Cc: Lars-Peter Clausen <lars@metafoo.de>
-Cc: Peter Meerwald <pmeerw@pmeerw.net>
+Cc: Wim Van Sebroeck <wim@iguana.be>
+Acked-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: William Breathitt Gray <vilhelm.gray@gmail.com>
 ---
- drivers/iio/dac/stx104.c | 24 +++---------------------
- 1 file changed, 3 insertions(+), 21 deletions(-)
+ drivers/watchdog/Kconfig        |  2 +-
+ drivers/watchdog/ebc-c384_wdt.c | 43 ++++++++++-------------------------------
+ 2 files changed, 11 insertions(+), 34 deletions(-)
 
-diff --git a/drivers/iio/dac/stx104.c b/drivers/iio/dac/stx104.c
-index 174f4b7..2794122 100644
---- a/drivers/iio/dac/stx104.c
-+++ b/drivers/iio/dac/stx104.c
-@@ -33,16 +33,9 @@
- }
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index fb94765..0aefe25 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -738,7 +738,7 @@ config ALIM7101_WDT
  
- #define STX104_EXTENT 16
--/**
-- * The highest base address possible for an ISA device is 0x3FF; this results in
-- * 1024 possible base addresses. Dividing the number of possible base addresses
-- * by the address extent taken by each device results in the maximum number of
-- * devices on a system.
-- */
--#define MAX_NUM_STX104 (1024 / STX104_EXTENT)
+ config EBC_C384_WDT
+ 	tristate "WinSystems EBC-C384 Watchdog Timer"
+-	depends on X86
++	depends on X86 && ISA
+ 	select WATCHDOG_CORE
+ 	help
+ 	  Enables watchdog timer support for the watchdog timer on the
+diff --git a/drivers/watchdog/ebc-c384_wdt.c b/drivers/watchdog/ebc-c384_wdt.c
+index 77fda0b..4b849b8 100644
+--- a/drivers/watchdog/ebc-c384_wdt.c
++++ b/drivers/watchdog/ebc-c384_wdt.c
+@@ -16,10 +16,10 @@
+ #include <linux/errno.h>
+ #include <linux/io.h>
+ #include <linux/ioport.h>
++#include <linux/isa.h>
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
+-#include <linux/platform_device.h>
+ #include <linux/types.h>
+ #include <linux/watchdog.h>
  
--static unsigned base[MAX_NUM_STX104];
--static unsigned num_stx104;
-+static unsigned int base[max_num_isa_dev(STX104_EXTENT)];
-+static unsigned int num_stx104;
- module_param_array(base, uint, &num_stx104, 0);
- MODULE_PARM_DESC(base, "Apex Embedded Systems STX104 base addresses");
- 
-@@ -134,18 +127,7 @@ static struct isa_driver stx104_driver = {
- 	}
+@@ -95,9 +95,8 @@ static const struct watchdog_info ebc_c384_wdt_info = {
+ 	.identity = MODULE_NAME
  };
  
--static void __exit stx104_exit(void)
--{
--	isa_unregister_driver(&stx104_driver);
--}
--
--static int __init stx104_init(void)
--{
--	return isa_register_driver(&stx104_driver, num_stx104);
--}
--
--module_init(stx104_init);
--module_exit(stx104_exit);
-+module_isa_driver(stx104_driver, num_stx104);
+-static int __init ebc_c384_wdt_probe(struct platform_device *pdev)
++static int ebc_c384_wdt_probe(struct device *dev, unsigned int id)
+ {
+-	struct device *dev = &pdev->dev;
+ 	struct watchdog_device *wdd;
  
+ 	if (!devm_request_region(dev, BASE_ADDR, ADDR_EXTENT, dev_name(dev))) {
+@@ -122,61 +121,39 @@ static int __init ebc_c384_wdt_probe(struct platform_device *pdev)
+ 		dev_warn(dev, "Invalid timeout (%u seconds), using default (%u seconds)\n",
+ 			timeout, WATCHDOG_TIMEOUT);
+ 
+-	platform_set_drvdata(pdev, wdd);
++	dev_set_drvdata(dev, wdd);
+ 
+ 	return watchdog_register_device(wdd);
+ }
+ 
+-static int ebc_c384_wdt_remove(struct platform_device *pdev)
++static int ebc_c384_wdt_remove(struct device *dev, unsigned int id)
+ {
+-	struct watchdog_device *wdd = platform_get_drvdata(pdev);
++	struct watchdog_device *wdd = dev_get_drvdata(dev);
+ 
+ 	watchdog_unregister_device(wdd);
+ 
+ 	return 0;
+ }
+ 
+-static struct platform_driver ebc_c384_wdt_driver = {
++static struct isa_driver ebc_c384_wdt_driver = {
++	.probe = ebc_c384_wdt_probe,
+ 	.driver = {
+ 		.name = MODULE_NAME
+ 	},
+ 	.remove = ebc_c384_wdt_remove
+ };
+ 
+-static struct platform_device *ebc_c384_wdt_device;
+-
+ static int __init ebc_c384_wdt_init(void)
+ {
+-	int err;
+-
+ 	if (!dmi_match(DMI_BOARD_NAME, "EBC-C384 SBC"))
+ 		return -ENODEV;
+ 
+-	ebc_c384_wdt_device = platform_device_alloc(MODULE_NAME, -1);
+-	if (!ebc_c384_wdt_device)
+-		return -ENOMEM;
+-
+-	err = platform_device_add(ebc_c384_wdt_device);
+-	if (err)
+-		goto err_platform_device;
+-
+-	err = platform_driver_probe(&ebc_c384_wdt_driver, ebc_c384_wdt_probe);
+-	if (err)
+-		goto err_platform_driver;
+-
+-	return 0;
+-
+-err_platform_driver:
+-	platform_device_del(ebc_c384_wdt_device);
+-err_platform_device:
+-	platform_device_put(ebc_c384_wdt_device);
+-	return err;
++	return isa_register_driver(&ebc_c384_wdt_driver, 1);
+ }
+ 
+ static void __exit ebc_c384_wdt_exit(void)
+ {
+-	platform_device_unregister(ebc_c384_wdt_device);
+-	platform_driver_unregister(&ebc_c384_wdt_driver);
++	isa_unregister_driver(&ebc_c384_wdt_driver);
+ }
+ 
+ module_init(ebc_c384_wdt_init);
+@@ -185,4 +162,4 @@ module_exit(ebc_c384_wdt_exit);
  MODULE_AUTHOR("William Breathitt Gray <vilhelm.gray@gmail.com>");
- MODULE_DESCRIPTION("Apex Embedded Systems STX104 DAC driver");
+ MODULE_DESCRIPTION("WinSystems EBC-C384 watchdog timer driver");
+ MODULE_LICENSE("GPL v2");
+-MODULE_ALIAS("platform:" MODULE_NAME);
++MODULE_ALIAS("isa:" MODULE_NAME);
 -- 
 2.7.3
 
