@@ -1,219 +1,116 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Petr Mladek <pmladek@suse.com>
-To: Andrew Morton <akpm@linux-foundation.org>, Oleg Nesterov <oleg@redhat.com>,
-        Tejun Heo <tj@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>
-Cc: Steven Rostedt <rostedt@goodmis.org>,
-        "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Jiri Kosina <jkosina@suse.cz>, Borislav Petkov <bp@suse.de>,
-        Michal Hocko <mhocko@suse.cz>, linux-mm@kvack.org,
-        Vlastimil Babka <vbabka@suse.cz>, linux-api@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Petr Mladek <pmladek@suse.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        linux-watchdog@vger.kernel.org, Corey Minyard <minyard@acm.org>,
-        openipmi-developer@lists.sourceforge.net,
-        Doug Ledford <dledford@redhat.com>, Sean Hefty <sean.hefty@intel.com>,
-        Hal Rosenstock <hal.rosenstock@gmail.com>, linux-rdma@vger.kernel.org,
-        Maxim Levitsky <maximlevitsky@gmail.com>,
-        Zhang Rui <rui.zhang@intel.com>,
-        Eduardo Valentin <edubezval@gmail.com>,
-        Jacob Pan <jacob.jun.pan@linux.intel.com>, linux-pm@vger.kernel.org,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Subject: [PATCH v7 00/10] kthread: Kthread worker API improvements
-Date: Mon, 30 May 2016 16:59:21 +0200
-Message-Id: <1464620371-31346-1-git-send-email-pmladek@suse.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:56937 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751615AbcEAAhJ (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Sat, 30 Apr 2016 20:37:09 -0400
+Date: Sat, 30 Apr 2016 17:36:51 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Cc: Andy Shevchenko <andy.shevchenko@gmail.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Haavard Skinnemoen <hskinnemoen@gmail.com>,
+	Hans-Christian Egtvedt <egtvedt@samfundet.no>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	kernel-testers@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	Chris Mason <clm@fb.com>
+Subject: Re: [PATCH] watchdog: dw_wdt: dont build for avr32
+Message-ID: <20160501003651.GA28804@roeck-us.net>
+References: <1460440303-20640-1-git-send-email-sudipm.mukherjee@gmail.com>
+ <570CF2CB.2050200@roeck-us.net>
+ <570CFA90.4060100@gmail.com>
+ <CAHp75VcrmiP0GWR-zCBmqc7zA6uiC4dD8-HDikmWZxyEwXkRLw@mail.gmail.com>
+ <20160412180128.GA6965@roeck-us.net>
+ <20160430183828.GC25043@sudip-laptop>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20160430183828.GC25043@sudip-laptop>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-I send the kthread worker API improvements separately as discussed
-in v6, see
-https://lkml.kernel.org/g/<20160511105224.GE2749@pathway.suse.cz>
-They seem to be ready for inclusion in 4.8.
+On Sat, Apr 30, 2016 at 07:38:28PM +0100, Sudip Mukherjee wrote:
+> On Tue, Apr 12, 2016 at 11:01:28AM -0700, Guenter Roeck wrote:
+> > On Tue, Apr 12, 2016 at 05:58:20PM +0300, Andy Shevchenko wrote:
+> > > On Tue, Apr 12, 2016 at 4:39 PM, Sudip Mukherjee
+> > > <sudipm.mukherjee@gmail.com> wrote:
+> > > > On Tuesday 12 April 2016 06:36 PM, Guenter Roeck wrote:
+> > > >>
+> > > >> On 04/11/2016 10:51 PM, Sudip Mukherjee wrote:
+> > > >>>
+> > > >>> The build of avr32 allmodconfig fails with the error:
+> > > >>> ERROR: "__avr32_udiv64" [drivers/watchdog/kempld_wdt.ko] undefined!
+> > > >>>
+> > > >> This means there is a direct 64 bit divide operation in the driver,
+> > > >> which we should identify and fix.
+> > > 
+> > > This driver will quite likely never be used on AVR32. Do we need to
+> > > fix this due to some other architectures?
+> > > 
+> > > > yes, there is.
+> > > >
+> > > > in function: kempld_wdt_set_stage_timeout()
+> > > > remainder = do_div(stage_timeout64, prescaler);
+> > > 
+> > > > Any idea how to fix it?
+> > > 
+> > > Not easy, however, prescaler value is ((1 << 21) - 1) which someone
+> > > might consider as (1 << 21) with lost in precision.
+> > > 
+> > > Thus, shift on 20 bits right, add last bit to the value and shift on 1
+> > > bit right more.
+> > > 
+> > Sorry, I am missing something. do_div() should work fine with any 32 bit value
+> > as divisor, no matter what that value is. Why does it fail here ? And why does
+> > it work if I pass 0x1fffff as second parameter to do_div() directly ?
+> 
+> Please let me know what i can do here to help solve the problem.
+> linux-next continues to fail for avr32, and to make matters worse we
+> also have the similar problem in btrfs.
+> 
+> ERROR: "__avr32_udiv64" [fs/btrfs/btrfs.ko] undefined!
+> ERROR: "__avr32_udiv64" [drivers/watchdog/kempld_wdt.ko] undefined!
+> 
+> Adding Chris to CC if he has some idea how to solve this error for btrfs.
+> Build log for next-20160429 is at:
+> https://travis-ci.org/sudipm-mukherjee/parport/jobs/126581065
+> 
 
-I will send the conversion of the particular kthreads once
-the API changes are in some maintainers three (-mm?) and
-visible in linux-next. If nobody suggests some other approach.
+Try the patch below.
 
-Also I plan to continue with conversion of more kthreads.
+Guenter
 
-Just to remember. The intention of this patchset is to make
-it easier to manipulate and maintain kthreads. Especially, I want
-to replace all the custom main cycles with a generic one.
-Also I want to make the kthreads sleep in a consistent
-state in a common place when there is no work.
+---
+>From d2f541c46ae2bf599d9aa3be0682cfac76742ebf Mon Sep 17 00:00:00 2001
+From: Guenter Roeck <linux@roeck-us.net>
+Date: Sat, 30 Apr 2016 17:29:14 -0700
+Subject: [PATCH] avr32: __div64_const32 is not ok
 
+Building avr32 images may fail with errors such as
 
-Changes against v6:
+ERROR: "__avr32_udiv64" [fs/btrfs/btrfs.ko] undefined!
+ERROR: "__avr32_udiv64" [drivers/watchdog/kempld_wdt.ko] undefined!
 
-  + no changes.
+gcc for avr32 generates those symbols for certain constants used
+as divisor in do_div(). The problem can be avoided by setting
+__div64_const32_is_OK to false for the architecture.
 
+Cc: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+---
+ arch/avr32/include/asm/div64.h | 3 +++
+ 1 file changed, 3 insertions(+)
+ create mode 100644 arch/avr32/include/asm/div64.h
 
-Changes against v5:
-
-  + removed spin_trylock() from delayed_kthread_work_timer_fn();
-    instead temporary released worked->lock() when calling
-    del_timer_sync(); made sure that any queueing was blocked
-    by work->canceling in the meatime
-
-  + used 0th byte for KTW_FREEZABLE to reduce confusion
-
-  + fixed warnings in comments reported by make htmldocs
-
-  + sigh, there was no easy way to create an empty va_list
-    that would work on all architectures; decided to make
-    @namefmt generic in create_kthread_worker_on_cpu()
-
-  + converted khungtaskd a better way; it was inspired by
-    the recent changes that appeared in 4.6-rc1
-
-
-Changes against v4:
-
-  + added worker->delayed_work_list; it simplified the check
-    for pending work; we do not longer need the new timer_active()
-    function; also we do not need the link work->timer. On the
-    other hand we need to distinguish between the normal and
-    the delayed work by a boolean parameter passed to
-    the common functions, e.g. __cancel_kthread_work_sync()
-    
-  + replaced most try_lock repeat cycles with a WARN_ON();
-    the API does not allow to use the work with more workers;
-    so such a situation would be a bug; it removed the
-    complex try_lock_kthread_work() function that supported
-    more modes;
-
-  + renamed kthread_work_pending() to queuing_blocked();
-    added this function later when really needed
-
-  + renamed try_to_cancel_kthread_work() to __cancel_kthread_work();
-    in fact, this a common implementation for the async cancel()
-    function
-
-  + removed a dull check for invalid cpu number in
-    create_kthread_worker_on_cpu(); removed some other unnecessary
-    code structures as suggested by Tejun
-
-  + consistently used bool return value in all new __cancel functions
-
-  + fixed ordering of cpu and flags parameters in
-    create_kthread_worker_on_cpu() vs. create_kthread_worker()
-
-  + used memset in the init_kthread_worker()
-
-  + updated many comments as suggested by Tejun and as
-    required the above changes
-
-  + removed obsolete patch adding timer_active()
-
-  + removed obsolete patch for using try_lock in flush_kthread_worker()
-
-  + double checked all existing users of kthread worker API
-    that they reinitialized the work when the worker was started
-    and would not print false warnings; all looked fine
-
-  + added taken acks for the Intel Powerclamp conversion
-    
-
-Changes against v3:
-
-  + allow to free struct kthread_work from its callback; do not touch
-    the struct from the worker post-mortem; as a side effect, the structure
-    must be reinitialized when the worker gets restarted; updated
-    khugepaged, and kmemleak accordingly
-
-  + call del_timer_sync() with worker->lock; instead, detect canceling
-    in the timer callback and give up an attempt to get the lock there;
-    do busy loop with spin_is_locked() to reduce cache bouncing
-
-  + renamed ipmi+func() -> ipmi_kthread_worker_func() as suggested
-    by Corey
-
-  + added some collected Reviewed-by
-
-  
-Changes against v2:
-
-  + used worker->lock to synchronize the operations with the work
-    instead of the PENDING bit as suggested by Tejun Heo; it simplified
-    the implementation in several ways
-
-  + added timer_active(); used it together with del_timer_sync()
-    to cancel the work a less tricky way
-
-  + removed the controversial conversion of the RCU kthreads
-
-  + added several other examples: hung_task, kmemleak, ipmi,
-    IB/fmr_pool, memstick/r592, intel_powerclamp
-
-  + the helper fixes for the ring buffer benchmark has been improved
-    as suggested by Steven; they already are in the Linus tree now
-
-  + fixed a possible race between the check for existing khugepaged
-    worker and queuing the work
- 
-
-Changes against v1:
-
-  + remove wrappers to manipulate the scheduling policy and priority
-
-  + remove questionable wakeup_and_destroy_kthread_worker() variant
-
-  + do not check for chained work when draining the queue
-
-  + allocate struct kthread worker in create_kthread_work() and
-    use more simple checks for running worker
-
-  + add support for delayed kthread works and use them instead
-    of waiting inside the works
-
-  + rework the "unrelated" fixes for the ring buffer benchmark
-    as discussed in the 1st RFC; also sent separately
-
-  + convert also the consumer in the ring buffer benchmark
-
-
-I have tested this patch set against the stable Linus tree
-for 4.7-rc1.
-
-Comments against v6 can be found at
-https://lkml.kernel.org/g/<1460646879-617-1-git-send-email-pmladek@suse.com>
-
-Petr Mladek (10):
-  kthread/smpboot: Do not park in kthread_create_on_cpu()
-  kthread: Allow to call __kthread_create_on_node() with va_list args
-  kthread: Add create_kthread_worker*()
-  kthread: Add drain_kthread_worker()
-  kthread: Add destroy_kthread_worker()
-  kthread: Detect when a kthread work is used by more workers
-  kthread: Initial support for delayed kthread work
-  kthread: Allow to cancel kthread work
-  kthread: Allow to modify delayed kthread work
-  kthread: Better support freezable kthread workers
-
- include/linux/kthread.h |  57 +++++
- kernel/kthread.c        | 571 +++++++++++++++++++++++++++++++++++++++++++-----
- kernel/smpboot.c        |   5 +
- 3 files changed, 581 insertions(+), 52 deletions(-)
-
-CC: Catalin Marinas <catalin.marinas@arm.com>
-CC: linux-watchdog@vger.kernel.org
-CC: Corey Minyard <minyard@acm.org>
-CC: openipmi-developer@lists.sourceforge.net
-CC: Doug Ledford <dledford@redhat.com>
-CC: Sean Hefty <sean.hefty@intel.com>
-CC: Hal Rosenstock <hal.rosenstock@gmail.com>
-CC: linux-rdma@vger.kernel.org
-CC: Maxim Levitsky <maximlevitsky@gmail.com>
-CC: Zhang Rui <rui.zhang@intel.com>
-CC: Eduardo Valentin <edubezval@gmail.com>
-CC: Jacob Pan <jacob.jun.pan@linux.intel.com>
-CC: linux-pm@vger.kernel.org
-CC: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-
+diff --git a/arch/avr32/include/asm/div64.h b/arch/avr32/include/asm/div64.h
+new file mode 100644
+index 000000000000..1f3328e178df
+--- /dev/null
++++ b/arch/avr32/include/asm/div64.h
+@@ -0,0 +1,3 @@
++#define __div64_const32_is_OK	false
++
++#include <asm-generic/div64.h>
 -- 
-1.8.5.6
+2.5.0
+
