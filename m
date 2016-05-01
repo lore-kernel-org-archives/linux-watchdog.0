@@ -1,150 +1,256 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-yw0-f175.google.com ([209.85.161.175]:36516 "EHLO
-	mail-yw0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752367AbcEAWod (ORCPT
+Received: from mail-yw0-f177.google.com ([209.85.161.177]:34954 "EHLO
+	mail-yw0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752293AbcEAWou (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 1 May 2016 18:44:33 -0400
+	Sun, 1 May 2016 18:44:50 -0400
 From: William Breathitt Gray <vilhelm.gray@gmail.com>
 To: gregkh@linuxfoundation.org
 Cc: linux-iio@vger.kernel.org, linux-watchdog@vger.kernel.org,
 	linux-gpio@vger.kernel.org,
 	William Breathitt Gray <vilhelm.gray@gmail.com>,
-	Wim Van Sebroeck <wim@iguana.be>
-Subject: [PATCH v2 06/10] watchdog: ebc-c384_wdt: Utilize the ISA bus driver
-Date: Sun,  1 May 2016 18:44:26 -0400
-Message-Id: <3a5ce818956330cdfe297722ac2d4ce6d3ad5f48.1462141338.git.vilhelm.gray@gmail.com>
+	Alexandre Courbot <gnurou@gmail.com>
+Subject: [PATCH v2 07/10] gpio: 104-dio-48e: Utilize the ISA bus driver
+Date: Sun,  1 May 2016 18:44:39 -0400
+Message-Id: <09cf1bbf8c10ab01472a9a2fdb45c08ea3b1066a.1462141338.git.vilhelm.gray@gmail.com>
 In-Reply-To: <cover.1462141338.git.vilhelm.gray@gmail.com>
 References: <cover.1462141338.git.vilhelm.gray@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The WinSystems EBC-C384 watchdog timer is controlled via ISA bus
-communication. As such, the ISA bus driver is more appropriate than the
-platform driver for the WinSystems EBC-C384 watchdog timer driver.
+The ACCES 104-DIO-48E series communicates via the ISA bus. As such, it
+is more appropriate to use the ISA bus driver over the platform driver
+to control the ACCES 104-DIO-48E GPIO driver.
 
-Cc: Wim Van Sebroeck <wim@iguana.be>
-Acked-by: Guenter Roeck <linux@roeck-us.net>
+This patch also adds support for multiple devices via the base and irq
+module array parameters. Each element of the base array corresponds to a
+discrete device; each element of the irq array corresponds to the
+respective device addressed in the respective base array element.
+
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
+Cc: Alexandre Courbot <gnurou@gmail.com>
 Signed-off-by: William Breathitt Gray <vilhelm.gray@gmail.com>
 ---
- drivers/watchdog/Kconfig        |  2 +-
- drivers/watchdog/ebc-c384_wdt.c | 43 ++++++++++-------------------------------
- 2 files changed, 11 insertions(+), 34 deletions(-)
+ drivers/gpio/Kconfig            |   9 ++--
+ drivers/gpio/gpio-104-dio-48e.c | 106 ++++++++++++++--------------------------
+ 2 files changed, 43 insertions(+), 72 deletions(-)
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index fb94765..0aefe25 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -738,7 +738,7 @@ config ALIM7101_WDT
+diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
+index 5f3429f..5aca476 100644
+--- a/drivers/gpio/Kconfig
++++ b/drivers/gpio/Kconfig
+@@ -517,12 +517,13 @@ menu "Port-mapped I/O GPIO drivers"
  
- config EBC_C384_WDT
- 	tristate "WinSystems EBC-C384 Watchdog Timer"
--	depends on X86
-+	depends on X86 && ISA
- 	select WATCHDOG_CORE
+ config GPIO_104_DIO_48E
+ 	tristate "ACCES 104-DIO-48E GPIO support"
++	depends on ISA
+ 	select GPIOLIB_IRQCHIP
  	help
- 	  Enables watchdog timer support for the watchdog timer on the
-diff --git a/drivers/watchdog/ebc-c384_wdt.c b/drivers/watchdog/ebc-c384_wdt.c
-index 77fda0b..4b849b8 100644
---- a/drivers/watchdog/ebc-c384_wdt.c
-+++ b/drivers/watchdog/ebc-c384_wdt.c
-@@ -16,10 +16,10 @@
- #include <linux/errno.h>
- #include <linux/io.h>
+-	  Enables GPIO support for the ACCES 104-DIO-48E family. The base port
+-	  address for the device may be configured via the dio_48e_base module
+-	  parameter. The interrupt line number for the device may be configured
+-	  via the dio_48e_irq module parameter.
++	  Enables GPIO support for the ACCES 104-DIO-48E series (104-DIO-48E,
++	  104-DIO-24E). The base port addresses for the devices may be
++	  configured via the base module parameter. The interrupt line numbers
++	  for the devices may be configured via the irq module parameter.
+ 
+ config GPIO_104_IDIO_16
+ 	tristate "ACCES 104-IDIO-16 GPIO support"
+diff --git a/drivers/gpio/gpio-104-dio-48e.c b/drivers/gpio/gpio-104-dio-48e.c
+index 448a903..1a647c0 100644
+--- a/drivers/gpio/gpio-104-dio-48e.c
++++ b/drivers/gpio/gpio-104-dio-48e.c
+@@ -1,5 +1,5 @@
+ /*
+- * GPIO driver for the ACCES 104-DIO-48E
++ * GPIO driver for the ACCES 104-DIO-48E series
+  * Copyright (C) 2016 William Breathitt Gray
+  *
+  * This program is free software; you can redistribute it and/or modify
+@@ -10,6 +10,9 @@
+  * WITHOUT ANY WARRANTY; without even the implied warranty of
+  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  * General Public License for more details.
++ *
++ * This driver supports the following ACCES devices: 104-DIO-48E and
++ * 104-DIO-24E.
+  */
+ #include <linux/bitops.h>
+ #include <linux/device.h>
+@@ -19,18 +22,23 @@
  #include <linux/ioport.h>
+ #include <linux/interrupt.h>
+ #include <linux/irqdesc.h>
 +#include <linux/isa.h>
  #include <linux/kernel.h>
  #include <linux/module.h>
  #include <linux/moduleparam.h>
 -#include <linux/platform_device.h>
- #include <linux/types.h>
- #include <linux/watchdog.h>
+ #include <linux/spinlock.h>
  
-@@ -95,9 +95,8 @@ static const struct watchdog_info ebc_c384_wdt_info = {
- 	.identity = MODULE_NAME
- };
+-static unsigned dio_48e_base;
+-module_param(dio_48e_base, uint, 0);
+-MODULE_PARM_DESC(dio_48e_base, "ACCES 104-DIO-48E base address");
+-static unsigned dio_48e_irq;
+-module_param(dio_48e_irq, uint, 0);
+-MODULE_PARM_DESC(dio_48e_irq, "ACCES 104-DIO-48E interrupt line number");
++#define DIO48E_EXTENT 16
++#define MAX_NUM_DIO48E max_num_isa_dev(DIO48E_EXTENT)
++
++static unsigned int base[MAX_NUM_DIO48E];
++static unsigned int num_dio48e;
++module_param_array(base, uint, &num_dio48e, 0);
++MODULE_PARM_DESC(base, "ACCES 104-DIO-48E base addresses");
++
++static unsigned int irq[MAX_NUM_DIO48E];
++module_param_array(irq, uint, NULL, 0);
++MODULE_PARM_DESC(irq, "ACCES 104-DIO-48E interrupt line numbers");
  
--static int __init ebc_c384_wdt_probe(struct platform_device *pdev)
-+static int ebc_c384_wdt_probe(struct device *dev, unsigned int id)
- {
--	struct device *dev = &pdev->dev;
- 	struct watchdog_device *wdd;
- 
- 	if (!devm_request_region(dev, BASE_ADDR, ADDR_EXTENT, dev_name(dev))) {
-@@ -122,61 +121,39 @@ static int __init ebc_c384_wdt_probe(struct platform_device *pdev)
- 		dev_warn(dev, "Invalid timeout (%u seconds), using default (%u seconds)\n",
- 			timeout, WATCHDOG_TIMEOUT);
- 
--	platform_set_drvdata(pdev, wdd);
-+	dev_set_drvdata(dev, wdd);
- 
- 	return watchdog_register_device(wdd);
+ /**
+  * struct dio48e_gpio - GPIO device private data structure
+@@ -294,23 +302,19 @@ static irqreturn_t dio48e_irq_handler(int irq, void *dev_id)
+ 	return IRQ_HANDLED;
  }
  
--static int ebc_c384_wdt_remove(struct platform_device *pdev)
-+static int ebc_c384_wdt_remove(struct device *dev, unsigned int id)
+-static int __init dio48e_probe(struct platform_device *pdev)
++static int dio48e_probe(struct device *dev, unsigned int id)
  {
--	struct watchdog_device *wdd = platform_get_drvdata(pdev);
-+	struct watchdog_device *wdd = dev_get_drvdata(dev);
+-	struct device *dev = &pdev->dev;
+ 	struct dio48e_gpio *dio48egpio;
+-	const unsigned base = dio_48e_base;
+-	const unsigned extent = 16;
+ 	const char *const name = dev_name(dev);
+ 	int err;
+-	const unsigned irq = dio_48e_irq;
  
- 	watchdog_unregister_device(wdd);
+ 	dio48egpio = devm_kzalloc(dev, sizeof(*dio48egpio), GFP_KERNEL);
+ 	if (!dio48egpio)
+ 		return -ENOMEM;
  
+-	if (!devm_request_region(dev, base, extent, name)) {
++	if (!devm_request_region(dev, base[id], DIO48E_EXTENT, name)) {
+ 		dev_err(dev, "Unable to lock port addresses (0x%X-0x%X)\n",
+-			base, base + extent);
++			base[id], base[id] + DIO48E_EXTENT);
+ 		return -EBUSY;
+ 	}
+ 
+@@ -324,8 +328,8 @@ static int __init dio48e_probe(struct platform_device *pdev)
+ 	dio48egpio->chip.direction_output = dio48e_gpio_direction_output;
+ 	dio48egpio->chip.get = dio48e_gpio_get;
+ 	dio48egpio->chip.set = dio48e_gpio_set;
+-	dio48egpio->base = base;
+-	dio48egpio->irq = irq;
++	dio48egpio->base = base[id];
++	dio48egpio->irq = irq[id];
+ 
+ 	spin_lock_init(&dio48egpio->lock);
+ 
+@@ -338,19 +342,19 @@ static int __init dio48e_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	/* initialize all GPIO as output */
+-	outb(0x80, base + 3);
+-	outb(0x00, base);
+-	outb(0x00, base + 1);
+-	outb(0x00, base + 2);
+-	outb(0x00, base + 3);
+-	outb(0x80, base + 7);
+-	outb(0x00, base + 4);
+-	outb(0x00, base + 5);
+-	outb(0x00, base + 6);
+-	outb(0x00, base + 7);
++	outb(0x80, base[id] + 3);
++	outb(0x00, base[id]);
++	outb(0x00, base[id] + 1);
++	outb(0x00, base[id] + 2);
++	outb(0x00, base[id] + 3);
++	outb(0x80, base[id] + 7);
++	outb(0x00, base[id] + 4);
++	outb(0x00, base[id] + 5);
++	outb(0x00, base[id] + 6);
++	outb(0x00, base[id] + 7);
+ 
+ 	/* disable IRQ by default */
+-	inb(base + 0xB);
++	inb(base[id] + 0xB);
+ 
+ 	err = gpiochip_irqchip_add(&dio48egpio->chip, &dio48e_irqchip, 0,
+ 		handle_edge_irq, IRQ_TYPE_NONE);
+@@ -359,7 +363,7 @@ static int __init dio48e_probe(struct platform_device *pdev)
+ 		goto err_gpiochip_remove;
+ 	}
+ 
+-	err = request_irq(irq, dio48e_irq_handler, 0, name, dio48egpio);
++	err = request_irq(irq[id], dio48e_irq_handler, 0, name, dio48egpio);
+ 	if (err) {
+ 		dev_err(dev, "IRQ handler registering failed (%d)\n", err);
+ 		goto err_gpiochip_remove;
+@@ -372,9 +376,9 @@ err_gpiochip_remove:
+ 	return err;
+ }
+ 
+-static int dio48e_remove(struct platform_device *pdev)
++static int dio48e_remove(struct device *dev, unsigned int id)
+ {
+-	struct dio48e_gpio *const dio48egpio = platform_get_drvdata(pdev);
++	struct dio48e_gpio *const dio48egpio = dev_get_drvdata(dev);
+ 
+ 	free_irq(dio48egpio->irq, dio48egpio);
+ 	gpiochip_remove(&dio48egpio->chip);
+@@ -382,48 +386,14 @@ static int dio48e_remove(struct platform_device *pdev)
  	return 0;
  }
  
--static struct platform_driver ebc_c384_wdt_driver = {
-+static struct isa_driver ebc_c384_wdt_driver = {
-+	.probe = ebc_c384_wdt_probe,
- 	.driver = {
- 		.name = MODULE_NAME
- 	},
- 	.remove = ebc_c384_wdt_remove
- };
- 
--static struct platform_device *ebc_c384_wdt_device;
+-static struct platform_device *dio48e_device;
 -
- static int __init ebc_c384_wdt_init(void)
- {
+-static struct platform_driver dio48e_driver = {
++static struct isa_driver dio48e_driver = {
++	.probe = dio48e_probe,
+ 	.driver = {
+ 		.name = "104-dio-48e"
+ 	},
+ 	.remove = dio48e_remove
+ };
+-
+-static void __exit dio48e_exit(void)
+-{
+-	platform_device_unregister(dio48e_device);
+-	platform_driver_unregister(&dio48e_driver);
+-}
+-
+-static int __init dio48e_init(void)
+-{
 -	int err;
 -
- 	if (!dmi_match(DMI_BOARD_NAME, "EBC-C384 SBC"))
- 		return -ENODEV;
- 
--	ebc_c384_wdt_device = platform_device_alloc(MODULE_NAME, -1);
--	if (!ebc_c384_wdt_device)
+-	dio48e_device = platform_device_alloc(dio48e_driver.driver.name, -1);
+-	if (!dio48e_device)
 -		return -ENOMEM;
 -
--	err = platform_device_add(ebc_c384_wdt_device);
+-	err = platform_device_add(dio48e_device);
 -	if (err)
 -		goto err_platform_device;
 -
--	err = platform_driver_probe(&ebc_c384_wdt_driver, ebc_c384_wdt_probe);
+-	err = platform_driver_probe(&dio48e_driver, dio48e_probe);
 -	if (err)
 -		goto err_platform_driver;
 -
 -	return 0;
 -
 -err_platform_driver:
--	platform_device_del(ebc_c384_wdt_device);
+-	platform_device_del(dio48e_device);
 -err_platform_device:
--	platform_device_put(ebc_c384_wdt_device);
+-	platform_device_put(dio48e_device);
 -	return err;
-+	return isa_register_driver(&ebc_c384_wdt_driver, 1);
- }
+-}
+-
+-module_init(dio48e_init);
+-module_exit(dio48e_exit);
++module_isa_driver(dio48e_driver, num_dio48e);
  
- static void __exit ebc_c384_wdt_exit(void)
- {
--	platform_device_unregister(ebc_c384_wdt_device);
--	platform_driver_unregister(&ebc_c384_wdt_driver);
-+	isa_unregister_driver(&ebc_c384_wdt_driver);
- }
- 
- module_init(ebc_c384_wdt_init);
-@@ -185,4 +162,4 @@ module_exit(ebc_c384_wdt_exit);
  MODULE_AUTHOR("William Breathitt Gray <vilhelm.gray@gmail.com>");
- MODULE_DESCRIPTION("WinSystems EBC-C384 watchdog timer driver");
- MODULE_LICENSE("GPL v2");
--MODULE_ALIAS("platform:" MODULE_NAME);
-+MODULE_ALIAS("isa:" MODULE_NAME);
+ MODULE_DESCRIPTION("ACCES 104-DIO-48E GPIO driver");
 -- 
 2.7.3
 
