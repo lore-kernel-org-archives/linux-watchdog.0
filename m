@@ -1,89 +1,85 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-yw0-f175.google.com ([209.85.161.175]:33545 "EHLO
-	mail-yw0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756624AbcEDBg0 (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 3 May 2016 21:36:26 -0400
-Received: by mail-yw0-f175.google.com with SMTP id t10so58181378ywa.0
-        for <linux-watchdog@vger.kernel.org>; Tue, 03 May 2016 18:36:25 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <CANEJEGupo0pLKUEcbouz4exwcYX__7NPExNYr123=m4mq17x4Q@mail.gmail.com>
-References: <1459816666-87185-1-git-send-email-groeck@chromium.org>
-	<CANEJEGupo0pLKUEcbouz4exwcYX__7NPExNYr123=m4mq17x4Q@mail.gmail.com>
-Date: Tue, 3 May 2016 18:36:24 -0700
-Message-ID: <CANEJEGvHdD1VevOrZtTPe+O7gw7Fzb8H30mmvvRxO75mFxSgMA@mail.gmail.com>
-Subject: Re: [PATCH] watchdog: qcom: Report reboot reason
-From: Grant Grundler <grundler@chromium.org>
-To: Grant Grundler <grundler@chromium.org>
-Cc: Guenter Roeck <groeck@chromium.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Guenter Roeck <linux@roeck-us.net>,
-	linux-watchdog@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+Received: from ns.lynxeye.de ([87.118.118.114]:43465 "EHLO lynxeye.de"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S933921AbcECRWF (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 3 May 2016 13:22:05 -0400
+From: Lucas Stach <dev@lynxeye.de>
+To: Wim Van Sebroeck <wim@iguana.be>,
+	Guenter Roeck <linux@roeck-us.net>
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] sp5100_tco: properly check for new register layouts
+Date: Tue,  3 May 2016 19:15:58 +0200
+Message-Id: <1462295758-3299-1-git-send-email-dev@lynxeye.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Ping? Did this change get accepted?
+Commits 190aa4304de6 (Add AMD Mullins platform support) and
+cca118fa2a0a94 (Add AMD Carrizo platform support) enabled the
+driver on a lot more devices, but the following commit missed
+a single location in the code when checking if the SB800 register
+offsets should be used. This leads to the wrong register being
+written which in turn causes ACPI to go haywire.
 
-cheers,
-grant
+Fix this by introducing a helper function to check for the new
+register layout and use this consistently.
 
-On Tue, Apr 5, 2016 at 12:07 PM, Grant Grundler <grundler@chromium.org> wrote:
-> On Mon, Apr 4, 2016 at 5:37 PM, Guenter Roeck <groeck@chromium.org> wrote:
->> The Qualcom watchdog timer block reports if the system was reset by the
->> watchdog. Pass the information to user space.
->>
->> Cc: Grant Grundler <grundler@chromium.org>
->> Signed-off-by: Guenter Roeck <groeck@chromium.org>
->
-> Reviewed-by: Grant Grundler <grundler@chromium.org>
-> Tested-by: Grant Grundler <grundler@chromium.org>
->
-> Thanks Guenter! :)
->
-> FTR, this landed in the chromeos-3.14 (and chromeos-3.18 shortly)
-> branches and will be included in a future update for TP-Link Onhub
-> devices.
->
-> cheers,
-> grant
->
->> ---
->>  drivers/watchdog/qcom-wdt.c | 7 ++++++-
->>  1 file changed, 6 insertions(+), 1 deletion(-)
->>
->> diff --git a/drivers/watchdog/qcom-wdt.c b/drivers/watchdog/qcom-wdt.c
->> index 20563cc..a043fa4 100644
->> --- a/drivers/watchdog/qcom-wdt.c
->> +++ b/drivers/watchdog/qcom-wdt.c
->> @@ -21,6 +21,7 @@
->>
->>  #define WDT_RST                0x38
->>  #define WDT_EN         0x40
->> +#define WDT_STS                0x44
->>  #define WDT_BITE_TIME  0x5C
->>
->>  struct qcom_wdt {
->> @@ -108,7 +109,8 @@ static const struct watchdog_ops qcom_wdt_ops = {
->>  static const struct watchdog_info qcom_wdt_info = {
->>         .options        = WDIOF_KEEPALIVEPING
->>                         | WDIOF_MAGICCLOSE
->> -                       | WDIOF_SETTIMEOUT,
->> +                       | WDIOF_SETTIMEOUT
->> +                       | WDIOF_CARDRESET,
->>         .identity       = KBUILD_MODNAME,
->>  };
->>
->> @@ -171,6 +173,9 @@ static int qcom_wdt_probe(struct platform_device *pdev)
->>         wdt->wdd.max_timeout = 0x10000000U / wdt->rate;
->>         wdt->wdd.parent = &pdev->dev;
->>
->> +       if (readl(wdt->base + WDT_STS) & 1)
->> +               wdt->wdd.bootstatus = WDIOF_CARDRESET;
->> +
->>         /*
->>          * If 'timeout-sec' unspecified in devicetree, assume a 30 second
->>          * default, unless the max timeout is less than 30 seconds, then use
->> --
->> 2.8.0.rc3.226.g39d4020
->>
+https://bugzilla.kernel.org/show_bug.cgi?id=114201
+https://bugzilla.redhat.com/show_bug.cgi?id=1329910
+Fixes: bdecfcdb5461 (sp5100_tco: fix the device check for SB800
+and later chipsets)
+Cc: stable@vger.kernel.org (4.5+)
+Signed-off-by: Lucas Stach <dev@lynxeye.de>
+---
+ drivers/watchdog/sp5100_tco.c | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/watchdog/sp5100_tco.c b/drivers/watchdog/sp5100_tco.c
+index 6467b91..028618c 100644
+--- a/drivers/watchdog/sp5100_tco.c
++++ b/drivers/watchdog/sp5100_tco.c
+@@ -73,6 +73,13 @@ MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started."
+ /*
+  * Some TCO specific functions
+  */
++
++static bool tco_has_sp5100_reg_layout(struct pci_dev *dev)
++{
++	return dev->device == PCI_DEVICE_ID_ATI_SBX00_SMBUS &&
++	       dev->revision < 0x40;
++}
++
+ static void tco_timer_start(void)
+ {
+ 	u32 val;
+@@ -129,7 +136,7 @@ static void tco_timer_enable(void)
+ {
+ 	int val;
+ 
+-	if (sp5100_tco_pci->revision >= 0x40) {
++	if (!tco_has_sp5100_reg_layout(sp5100_tco_pci)) {
+ 		/* For SB800 or later */
+ 		/* Set the Watchdog timer resolution to 1 sec */
+ 		outb(SB800_PM_WATCHDOG_CONFIG, SB800_IO_PM_INDEX_REG);
+@@ -342,8 +349,7 @@ static unsigned char sp5100_tco_setupdevice(void)
+ 	/*
+ 	 * Determine type of southbridge chipset.
+ 	 */
+-	if (sp5100_tco_pci->device == PCI_DEVICE_ID_ATI_SBX00_SMBUS &&
+-	    sp5100_tco_pci->revision < 0x40) {
++	if (tco_has_sp5100_reg_layout(sp5100_tco_pci)) {
+ 		dev_name = SP5100_DEVNAME;
+ 		index_reg = SP5100_IO_PM_INDEX_REG;
+ 		data_reg = SP5100_IO_PM_DATA_REG;
+@@ -388,8 +394,7 @@ static unsigned char sp5100_tco_setupdevice(void)
+ 	 * Secondly, Find the watchdog timer MMIO address
+ 	 * from SBResource_MMIO register.
+ 	 */
+-	if (sp5100_tco_pci->device == PCI_DEVICE_ID_ATI_SBX00_SMBUS &&
+-	    sp5100_tco_pci->revision < 0x40) {
++	if (tco_has_sp5100_reg_layout(sp5100_tco_pci)) {
+ 		/* Read SBResource_MMIO from PCI config(PCI_Reg: 9Ch) */
+ 		pci_read_config_dword(sp5100_tco_pci,
+ 				      SP5100_SB_RESOURCE_MMIO_BASE, &val);
+-- 
+2.5.5
+
