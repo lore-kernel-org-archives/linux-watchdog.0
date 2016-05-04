@@ -1,225 +1,103 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-yw0-f180.google.com ([209.85.161.180]:34048 "EHLO
-	mail-yw0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752293AbcEAWpc (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:39513 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756337AbcEDCBi (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 1 May 2016 18:45:32 -0400
-From: William Breathitt Gray <vilhelm.gray@gmail.com>
-To: gregkh@linuxfoundation.org
-Cc: linux-iio@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	linux-gpio@vger.kernel.org,
-	William Breathitt Gray <vilhelm.gray@gmail.com>,
-	Alexandre Courbot <gnurou@gmail.com>
-Subject: [PATCH v2 10/10] gpio: ws16c48: Utilize the ISA bus driver
-Date: Sun,  1 May 2016 18:45:24 -0400
-Message-Id: <bb6f42624eaa1d4c361d4ab216a99178a95bdb09.1462141338.git.vilhelm.gray@gmail.com>
-In-Reply-To: <cover.1462141338.git.vilhelm.gray@gmail.com>
-References: <cover.1462141338.git.vilhelm.gray@gmail.com>
+	Tue, 3 May 2016 22:01:38 -0400
+Subject: Re: [PATCH] watchdog: qcom: Report reboot reason
+To: Grant Grundler <grundler@chromium.org>
+References: <1459816666-87185-1-git-send-email-groeck@chromium.org>
+ <CANEJEGupo0pLKUEcbouz4exwcYX__7NPExNYr123=m4mq17x4Q@mail.gmail.com>
+ <CANEJEGvHdD1VevOrZtTPe+O7gw7Fzb8H30mmvvRxO75mFxSgMA@mail.gmail.com>
+Cc: Guenter Roeck <groeck@chromium.org>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <572957F4.1030406@roeck-us.net>
+Date: Tue, 3 May 2016 19:01:24 -0700
+MIME-Version: 1.0
+In-Reply-To: <CANEJEGvHdD1VevOrZtTPe+O7gw7Fzb8H30mmvvRxO75mFxSgMA@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The WinSystems WS16C48 communicates via the ISA bus. As such, it is more
-appropriate to use the ISA bus driver over the platform driver to
-control the WinSystems WS16C48 GPIO driver.
+On 05/03/2016 06:36 PM, Grant Grundler wrote:
+> Ping? Did this change get accepted?
+>
 
-This patch also adds support for multiple devices via the base and irq
-module array parameters. Each element of the base array corresponds to a
-discrete device; each element of the irq array corresponds to the
-respective device addressed in the respective base array element.
+Hi Grant,
 
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
-Cc: Alexandre Courbot <gnurou@gmail.com>
-Signed-off-by: William Breathitt Gray <vilhelm.gray@gmail.com>
----
- drivers/gpio/Kconfig        |  9 ++---
- drivers/gpio/gpio-ws16c48.c | 88 +++++++++++++++------------------------------
- 2 files changed, 33 insertions(+), 64 deletions(-)
+Should be. It is in my watchdog-next branch. I plan to send
+a pull request to Wim early next week.
 
-diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
-index af3237c..e5c1224 100644
---- a/drivers/gpio/Kconfig
-+++ b/drivers/gpio/Kconfig
-@@ -614,12 +614,13 @@ config GPIO_TS5500
- 
- config GPIO_WS16C48
- 	tristate "WinSystems WS16C48 GPIO support"
-+	depends on ISA
- 	select GPIOLIB_IRQCHIP
- 	help
--	  Enables GPIO support for the WinSystems WS16C48. The base port address
--	  for the device may be configured via the ws16c48_base module
--	  parameter. The interrupt line number for the device may be configured
--	  via the ws16c48_irq module parameter.
-+	  Enables GPIO support for the WinSystems WS16C48. The base port
-+	  addresses for the devices may be configured via the base module
-+	  parameter. The interrupt line numbers for the devices may be
-+	  configured via the irq module parameter.
- 
- endmenu
- 
-diff --git a/drivers/gpio/gpio-ws16c48.c b/drivers/gpio/gpio-ws16c48.c
-index 51f41e8..eaa71d4 100644
---- a/drivers/gpio/gpio-ws16c48.c
-+++ b/drivers/gpio/gpio-ws16c48.c
-@@ -19,18 +19,23 @@
- #include <linux/ioport.h>
- #include <linux/interrupt.h>
- #include <linux/irqdesc.h>
-+#include <linux/isa.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/moduleparam.h>
--#include <linux/platform_device.h>
- #include <linux/spinlock.h>
- 
--static unsigned ws16c48_base;
--module_param(ws16c48_base, uint, 0);
--MODULE_PARM_DESC(ws16c48_base, "WinSystems WS16C48 base address");
--static unsigned ws16c48_irq;
--module_param(ws16c48_irq, uint, 0);
--MODULE_PARM_DESC(ws16c48_irq, "WinSystems WS16C48 interrupt line number");
-+#define WS16C48_EXTENT 16
-+#define MAX_NUM_WS16C48 max_num_isa_dev(WS16C48_EXTENT)
-+
-+static unsigned int base[MAX_NUM_WS16C48];
-+static unsigned int num_ws16c48;
-+module_param_array(base, uint, &num_ws16c48, 0);
-+MODULE_PARM_DESC(base, "WinSystems WS16C48 base addresses");
-+
-+static unsigned int irq[MAX_NUM_WS16C48];
-+module_param_array(irq, uint, NULL, 0);
-+MODULE_PARM_DESC(irq, "WinSystems WS16C48 interrupt line numbers");
- 
- /**
-  * struct ws16c48_gpio - GPIO device private data structure
-@@ -298,23 +303,19 @@ static irqreturn_t ws16c48_irq_handler(int irq, void *dev_id)
- 	return IRQ_HANDLED;
- }
- 
--static int __init ws16c48_probe(struct platform_device *pdev)
-+static int ws16c48_probe(struct device *dev, unsigned int id)
- {
--	struct device *dev = &pdev->dev;
- 	struct ws16c48_gpio *ws16c48gpio;
--	const unsigned base = ws16c48_base;
--	const unsigned extent = 16;
- 	const char *const name = dev_name(dev);
- 	int err;
--	const unsigned irq = ws16c48_irq;
- 
- 	ws16c48gpio = devm_kzalloc(dev, sizeof(*ws16c48gpio), GFP_KERNEL);
- 	if (!ws16c48gpio)
- 		return -ENOMEM;
- 
--	if (!devm_request_region(dev, base, extent, name)) {
-+	if (!devm_request_region(dev, base[id], WS16C48_EXTENT, name)) {
- 		dev_err(dev, "Unable to lock port addresses (0x%X-0x%X)\n",
--			base, base + extent);
-+			base[id], base[id] + WS16C48_EXTENT);
- 		return -EBUSY;
- 	}
- 
-@@ -328,8 +329,8 @@ static int __init ws16c48_probe(struct platform_device *pdev)
- 	ws16c48gpio->chip.direction_output = ws16c48_gpio_direction_output;
- 	ws16c48gpio->chip.get = ws16c48_gpio_get;
- 	ws16c48gpio->chip.set = ws16c48_gpio_set;
--	ws16c48gpio->base = base;
--	ws16c48gpio->irq = irq;
-+	ws16c48gpio->base = base[id];
-+	ws16c48gpio->irq = irq[id];
- 
- 	spin_lock_init(&ws16c48gpio->lock);
- 
-@@ -342,11 +343,11 @@ static int __init ws16c48_probe(struct platform_device *pdev)
- 	}
- 
- 	/* Disable IRQ by default */
--	outb(0x80, base + 7);
--	outb(0, base + 8);
--	outb(0, base + 9);
--	outb(0, base + 10);
--	outb(0xC0, base + 7);
-+	outb(0x80, base[id] + 7);
-+	outb(0, base[id] + 8);
-+	outb(0, base[id] + 9);
-+	outb(0, base[id] + 10);
-+	outb(0xC0, base[id] + 7);
- 
- 	err = gpiochip_irqchip_add(&ws16c48gpio->chip, &ws16c48_irqchip, 0,
- 		handle_edge_irq, IRQ_TYPE_NONE);
-@@ -355,7 +356,7 @@ static int __init ws16c48_probe(struct platform_device *pdev)
- 		goto err_gpiochip_remove;
- 	}
- 
--	err = request_irq(irq, ws16c48_irq_handler, IRQF_SHARED, name,
-+	err = request_irq(irq[id], ws16c48_irq_handler, IRQF_SHARED, name,
- 		ws16c48gpio);
- 	if (err) {
- 		dev_err(dev, "IRQ handler registering failed (%d)\n", err);
-@@ -369,9 +370,9 @@ err_gpiochip_remove:
- 	return err;
- }
- 
--static int ws16c48_remove(struct platform_device *pdev)
-+static int ws16c48_remove(struct device *dev, unsigned int id)
- {
--	struct ws16c48_gpio *const ws16c48gpio = platform_get_drvdata(pdev);
-+	struct ws16c48_gpio *const ws16c48gpio = dev_get_drvdata(dev);
- 
- 	free_irq(ws16c48gpio->irq, ws16c48gpio);
- 	gpiochip_remove(&ws16c48gpio->chip);
-@@ -379,48 +380,15 @@ static int ws16c48_remove(struct platform_device *pdev)
- 	return 0;
- }
- 
--static struct platform_device *ws16c48_device;
--
--static struct platform_driver ws16c48_driver = {
-+static struct isa_driver ws16c48_driver = {
-+	.probe = ws16c48_probe,
- 	.driver = {
- 		.name = "ws16c48"
- 	},
- 	.remove = ws16c48_remove
- };
- 
--static void __exit ws16c48_exit(void)
--{
--	platform_device_unregister(ws16c48_device);
--	platform_driver_unregister(&ws16c48_driver);
--}
--
--static int __init ws16c48_init(void)
--{
--	int err;
--
--	ws16c48_device = platform_device_alloc(ws16c48_driver.driver.name, -1);
--	if (!ws16c48_device)
--		return -ENOMEM;
--
--	err = platform_device_add(ws16c48_device);
--	if (err)
--		goto err_platform_device;
--
--	err = platform_driver_probe(&ws16c48_driver, ws16c48_probe);
--	if (err)
--		goto err_platform_driver;
--
--	return 0;
--
--err_platform_driver:
--	platform_device_del(ws16c48_device);
--err_platform_device:
--	platform_device_put(ws16c48_device);
--	return err;
--}
--
--module_init(ws16c48_init);
--module_exit(ws16c48_exit);
-+module_isa_driver(ws16c48_driver, num_ws16c48);
- 
- MODULE_AUTHOR("William Breathitt Gray <vilhelm.gray@gmail.com>");
- MODULE_DESCRIPTION("WinSystems WS16C48 GPIO driver");
--- 
-2.7.3
+Guenter
+
+> cheers,
+> grant
+>
+> On Tue, Apr 5, 2016 at 12:07 PM, Grant Grundler <grundler@chromium.org> wrote:
+>> On Mon, Apr 4, 2016 at 5:37 PM, Guenter Roeck <groeck@chromium.org> wrote:
+>>> The Qualcom watchdog timer block reports if the system was reset by the
+>>> watchdog. Pass the information to user space.
+>>>
+>>> Cc: Grant Grundler <grundler@chromium.org>
+>>> Signed-off-by: Guenter Roeck <groeck@chromium.org>
+>>
+>> Reviewed-by: Grant Grundler <grundler@chromium.org>
+>> Tested-by: Grant Grundler <grundler@chromium.org>
+>>
+>> Thanks Guenter! :)
+>>
+>> FTR, this landed in the chromeos-3.14 (and chromeos-3.18 shortly)
+>> branches and will be included in a future update for TP-Link Onhub
+>> devices.
+>>
+>> cheers,
+>> grant
+>>
+>>> ---
+>>>   drivers/watchdog/qcom-wdt.c | 7 ++++++-
+>>>   1 file changed, 6 insertions(+), 1 deletion(-)
+>>>
+>>> diff --git a/drivers/watchdog/qcom-wdt.c b/drivers/watchdog/qcom-wdt.c
+>>> index 20563cc..a043fa4 100644
+>>> --- a/drivers/watchdog/qcom-wdt.c
+>>> +++ b/drivers/watchdog/qcom-wdt.c
+>>> @@ -21,6 +21,7 @@
+>>>
+>>>   #define WDT_RST                0x38
+>>>   #define WDT_EN         0x40
+>>> +#define WDT_STS                0x44
+>>>   #define WDT_BITE_TIME  0x5C
+>>>
+>>>   struct qcom_wdt {
+>>> @@ -108,7 +109,8 @@ static const struct watchdog_ops qcom_wdt_ops = {
+>>>   static const struct watchdog_info qcom_wdt_info = {
+>>>          .options        = WDIOF_KEEPALIVEPING
+>>>                          | WDIOF_MAGICCLOSE
+>>> -                       | WDIOF_SETTIMEOUT,
+>>> +                       | WDIOF_SETTIMEOUT
+>>> +                       | WDIOF_CARDRESET,
+>>>          .identity       = KBUILD_MODNAME,
+>>>   };
+>>>
+>>> @@ -171,6 +173,9 @@ static int qcom_wdt_probe(struct platform_device *pdev)
+>>>          wdt->wdd.max_timeout = 0x10000000U / wdt->rate;
+>>>          wdt->wdd.parent = &pdev->dev;
+>>>
+>>> +       if (readl(wdt->base + WDT_STS) & 1)
+>>> +               wdt->wdd.bootstatus = WDIOF_CARDRESET;
+>>> +
+>>>          /*
+>>>           * If 'timeout-sec' unspecified in devicetree, assume a 30 second
+>>>           * default, unless the max timeout is less than 30 seconds, then use
+>>> --
+>>> 2.8.0.rc3.226.g39d4020
+>>>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
 
