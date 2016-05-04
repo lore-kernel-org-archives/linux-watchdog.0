@@ -1,85 +1,93 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns.lynxeye.de ([87.118.118.114]:43465 "EHLO lynxeye.de"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S933921AbcECRWF (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 3 May 2016 13:22:05 -0400
-From: Lucas Stach <dev@lynxeye.de>
-To: Wim Van Sebroeck <wim@iguana.be>,
-	Guenter Roeck <linux@roeck-us.net>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:35756 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756112AbcEDCnl (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 3 May 2016 22:43:41 -0400
+Subject: Re: [PATCH] sp5100_tco: properly check for new register layouts
+To: Lucas Stach <dev@lynxeye.de>, Wim Van Sebroeck <wim@iguana.be>
+References: <1462295758-3299-1-git-send-email-dev@lynxeye.de>
 Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] sp5100_tco: properly check for new register layouts
-Date: Tue,  3 May 2016 19:15:58 +0200
-Message-Id: <1462295758-3299-1-git-send-email-dev@lynxeye.de>
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <572961D5.6060507@roeck-us.net>
+Date: Tue, 3 May 2016 19:43:33 -0700
+MIME-Version: 1.0
+In-Reply-To: <1462295758-3299-1-git-send-email-dev@lynxeye.de>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Commits 190aa4304de6 (Add AMD Mullins platform support) and
-cca118fa2a0a94 (Add AMD Carrizo platform support) enabled the
-driver on a lot more devices, but the following commit missed
-a single location in the code when checking if the SB800 register
-offsets should be used. This leads to the wrong register being
-written which in turn causes ACPI to go haywire.
+On 05/03/2016 10:15 AM, Lucas Stach wrote:
+> Commits 190aa4304de6 (Add AMD Mullins platform support) and
+> cca118fa2a0a94 (Add AMD Carrizo platform support) enabled the
+> driver on a lot more devices, but the following commit missed
+> a single location in the code when checking if the SB800 register
+> offsets should be used. This leads to the wrong register being
+> written which in turn causes ACPI to go haywire.
+>
+> Fix this by introducing a helper function to check for the new
+> register layout and use this consistently.
+>
+> https://bugzilla.kernel.org/show_bug.cgi?id=114201
+> https://bugzilla.redhat.com/show_bug.cgi?id=1329910
+> Fixes: bdecfcdb5461 (sp5100_tco: fix the device check for SB800
+> and later chipsets)
+> Cc: stable@vger.kernel.org (4.5+)
+> Signed-off-by: Lucas Stach <dev@lynxeye.de>
 
-Fix this by introducing a helper function to check for the new
-register layout and use this consistently.
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-https://bugzilla.kernel.org/show_bug.cgi?id=114201
-https://bugzilla.redhat.com/show_bug.cgi?id=1329910
-Fixes: bdecfcdb5461 (sp5100_tco: fix the device check for SB800
-and later chipsets)
-Cc: stable@vger.kernel.org (4.5+)
-Signed-off-by: Lucas Stach <dev@lynxeye.de>
----
- drivers/watchdog/sp5100_tco.c | 15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/watchdog/sp5100_tco.c b/drivers/watchdog/sp5100_tco.c
-index 6467b91..028618c 100644
---- a/drivers/watchdog/sp5100_tco.c
-+++ b/drivers/watchdog/sp5100_tco.c
-@@ -73,6 +73,13 @@ MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started."
- /*
-  * Some TCO specific functions
-  */
-+
-+static bool tco_has_sp5100_reg_layout(struct pci_dev *dev)
-+{
-+	return dev->device == PCI_DEVICE_ID_ATI_SBX00_SMBUS &&
-+	       dev->revision < 0x40;
-+}
-+
- static void tco_timer_start(void)
- {
- 	u32 val;
-@@ -129,7 +136,7 @@ static void tco_timer_enable(void)
- {
- 	int val;
- 
--	if (sp5100_tco_pci->revision >= 0x40) {
-+	if (!tco_has_sp5100_reg_layout(sp5100_tco_pci)) {
- 		/* For SB800 or later */
- 		/* Set the Watchdog timer resolution to 1 sec */
- 		outb(SB800_PM_WATCHDOG_CONFIG, SB800_IO_PM_INDEX_REG);
-@@ -342,8 +349,7 @@ static unsigned char sp5100_tco_setupdevice(void)
- 	/*
- 	 * Determine type of southbridge chipset.
- 	 */
--	if (sp5100_tco_pci->device == PCI_DEVICE_ID_ATI_SBX00_SMBUS &&
--	    sp5100_tco_pci->revision < 0x40) {
-+	if (tco_has_sp5100_reg_layout(sp5100_tco_pci)) {
- 		dev_name = SP5100_DEVNAME;
- 		index_reg = SP5100_IO_PM_INDEX_REG;
- 		data_reg = SP5100_IO_PM_DATA_REG;
-@@ -388,8 +394,7 @@ static unsigned char sp5100_tco_setupdevice(void)
- 	 * Secondly, Find the watchdog timer MMIO address
- 	 * from SBResource_MMIO register.
- 	 */
--	if (sp5100_tco_pci->device == PCI_DEVICE_ID_ATI_SBX00_SMBUS &&
--	    sp5100_tco_pci->revision < 0x40) {
-+	if (tco_has_sp5100_reg_layout(sp5100_tco_pci)) {
- 		/* Read SBResource_MMIO from PCI config(PCI_Reg: 9Ch) */
- 		pci_read_config_dword(sp5100_tco_pci,
- 				      SP5100_SB_RESOURCE_MMIO_BASE, &val);
--- 
-2.5.5
+> ---
+>   drivers/watchdog/sp5100_tco.c | 15 ++++++++++-----
+>   1 file changed, 10 insertions(+), 5 deletions(-)
+>
+> diff --git a/drivers/watchdog/sp5100_tco.c b/drivers/watchdog/sp5100_tco.c
+> index 6467b91..028618c 100644
+> --- a/drivers/watchdog/sp5100_tco.c
+> +++ b/drivers/watchdog/sp5100_tco.c
+> @@ -73,6 +73,13 @@ MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started."
+>   /*
+>    * Some TCO specific functions
+>    */
+> +
+> +static bool tco_has_sp5100_reg_layout(struct pci_dev *dev)
+> +{
+> +	return dev->device == PCI_DEVICE_ID_ATI_SBX00_SMBUS &&
+> +	       dev->revision < 0x40;
+> +}
+> +
+>   static void tco_timer_start(void)
+>   {
+>   	u32 val;
+> @@ -129,7 +136,7 @@ static void tco_timer_enable(void)
+>   {
+>   	int val;
+>
+> -	if (sp5100_tco_pci->revision >= 0x40) {
+> +	if (!tco_has_sp5100_reg_layout(sp5100_tco_pci)) {
+>   		/* For SB800 or later */
+>   		/* Set the Watchdog timer resolution to 1 sec */
+>   		outb(SB800_PM_WATCHDOG_CONFIG, SB800_IO_PM_INDEX_REG);
+> @@ -342,8 +349,7 @@ static unsigned char sp5100_tco_setupdevice(void)
+>   	/*
+>   	 * Determine type of southbridge chipset.
+>   	 */
+> -	if (sp5100_tco_pci->device == PCI_DEVICE_ID_ATI_SBX00_SMBUS &&
+> -	    sp5100_tco_pci->revision < 0x40) {
+> +	if (tco_has_sp5100_reg_layout(sp5100_tco_pci)) {
+>   		dev_name = SP5100_DEVNAME;
+>   		index_reg = SP5100_IO_PM_INDEX_REG;
+>   		data_reg = SP5100_IO_PM_DATA_REG;
+> @@ -388,8 +394,7 @@ static unsigned char sp5100_tco_setupdevice(void)
+>   	 * Secondly, Find the watchdog timer MMIO address
+>   	 * from SBResource_MMIO register.
+>   	 */
+> -	if (sp5100_tco_pci->device == PCI_DEVICE_ID_ATI_SBX00_SMBUS &&
+> -	    sp5100_tco_pci->revision < 0x40) {
+> +	if (tco_has_sp5100_reg_layout(sp5100_tco_pci)) {
+>   		/* Read SBResource_MMIO from PCI config(PCI_Reg: 9Ch) */
+>   		pci_read_config_dword(sp5100_tco_pci,
+>   				      SP5100_SB_RESOURCE_MMIO_BASE, &val);
+>
 
