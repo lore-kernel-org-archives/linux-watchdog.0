@@ -1,59 +1,89 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:53778 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756039AbcECRQQ (ORCPT
+Received: from mail-yw0-f175.google.com ([209.85.161.175]:33545 "EHLO
+	mail-yw0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756624AbcEDBg0 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 3 May 2016 13:16:16 -0400
-Date: Tue, 3 May 2016 10:16:02 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Pratyush Anand <panand@redhat.com>
-Cc: Timur Tabi <timur@codeaurora.org>, fu.wei@linaro.org,
-	Suravee.Suthikulpanit@amd.com, wim@iguana.be,
-	linux-arm-kernel@lists.infradead.org,
-	linux-watchdog@vger.kernel.org,
-	open list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH RFC] Watchdog: sbsa_gwdt: Enhance timeout range
-Message-ID: <20160503171602.GA2518@roeck-us.net>
-References: <20da73bb9bdf27993514c1da80fead13dc92932d.1462262900.git.panand@redhat.com>
- <5728A7C3.4010001@roeck-us.net>
- <20160503143856.GE13045@dhcppc6.redhat.com>
- <5728BEC4.6050603@codeaurora.org>
- <20160503155141.GF13045@dhcppc6.redhat.com>
+	Tue, 3 May 2016 21:36:26 -0400
+Received: by mail-yw0-f175.google.com with SMTP id t10so58181378ywa.0
+        for <linux-watchdog@vger.kernel.org>; Tue, 03 May 2016 18:36:25 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20160503155141.GF13045@dhcppc6.redhat.com>
+In-Reply-To: <CANEJEGupo0pLKUEcbouz4exwcYX__7NPExNYr123=m4mq17x4Q@mail.gmail.com>
+References: <1459816666-87185-1-git-send-email-groeck@chromium.org>
+	<CANEJEGupo0pLKUEcbouz4exwcYX__7NPExNYr123=m4mq17x4Q@mail.gmail.com>
+Date: Tue, 3 May 2016 18:36:24 -0700
+Message-ID: <CANEJEGvHdD1VevOrZtTPe+O7gw7Fzb8H30mmvvRxO75mFxSgMA@mail.gmail.com>
+Subject: Re: [PATCH] watchdog: qcom: Report reboot reason
+From: Grant Grundler <grundler@chromium.org>
+To: Grant Grundler <grundler@chromium.org>
+Cc: Guenter Roeck <groeck@chromium.org>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Guenter Roeck <linux@roeck-us.net>,
+	linux-watchdog@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, May 03, 2016 at 09:21:41PM +0530, Pratyush Anand wrote:
-> On 03/05/2016:10:07:48 AM, Timur Tabi wrote:
-> > Pratyush Anand wrote:
-> > >In fact after supporting max_hw_heartbeat_ms, there should be no change for
-> > >action=0 functionally. However, we would still need some changes for action=1.
-> > 
-> > IMHO, action=1 is more of a debugging option, and not something that would
-> > be used normally.  I would need to see some evidence that real users want to
-> > have action=1 and a longer timeout.
-> > 
-> If action=1 need to be used effectively, then we should have something which
-> would help to increase timeout values.
-> 
-> Currently you have only 10 second to execute secondary kernel, which might not
-> be sufficient.
-> 
-Previously the argument was that the 10 seconds (assuming the clock runs at
-maximum speed) would not be sufficient to load the watchdog application. Now it
-seems the 10 seconds are deemed insufficient to load the watchdog driver (since
-the infrastructure can handle the heartbeats). Is there actual evidence that
-this is the case ?
+Ping? Did this change get accepted?
 
-Guenter
+cheers,
+grant
 
-> > I've never been a fan of the action=1 option, and I'm certainly not keen any
-> > patches that make action=1 more complicated than it already is.
-> 
-> I think, with max_hw_heartbeat_ms it would be far more simpler. Will attempt and
-> send another RFC.
-> 
-> ~Pratyush
+On Tue, Apr 5, 2016 at 12:07 PM, Grant Grundler <grundler@chromium.org> wrote:
+> On Mon, Apr 4, 2016 at 5:37 PM, Guenter Roeck <groeck@chromium.org> wrote:
+>> The Qualcom watchdog timer block reports if the system was reset by the
+>> watchdog. Pass the information to user space.
+>>
+>> Cc: Grant Grundler <grundler@chromium.org>
+>> Signed-off-by: Guenter Roeck <groeck@chromium.org>
+>
+> Reviewed-by: Grant Grundler <grundler@chromium.org>
+> Tested-by: Grant Grundler <grundler@chromium.org>
+>
+> Thanks Guenter! :)
+>
+> FTR, this landed in the chromeos-3.14 (and chromeos-3.18 shortly)
+> branches and will be included in a future update for TP-Link Onhub
+> devices.
+>
+> cheers,
+> grant
+>
+>> ---
+>>  drivers/watchdog/qcom-wdt.c | 7 ++++++-
+>>  1 file changed, 6 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/watchdog/qcom-wdt.c b/drivers/watchdog/qcom-wdt.c
+>> index 20563cc..a043fa4 100644
+>> --- a/drivers/watchdog/qcom-wdt.c
+>> +++ b/drivers/watchdog/qcom-wdt.c
+>> @@ -21,6 +21,7 @@
+>>
+>>  #define WDT_RST                0x38
+>>  #define WDT_EN         0x40
+>> +#define WDT_STS                0x44
+>>  #define WDT_BITE_TIME  0x5C
+>>
+>>  struct qcom_wdt {
+>> @@ -108,7 +109,8 @@ static const struct watchdog_ops qcom_wdt_ops = {
+>>  static const struct watchdog_info qcom_wdt_info = {
+>>         .options        = WDIOF_KEEPALIVEPING
+>>                         | WDIOF_MAGICCLOSE
+>> -                       | WDIOF_SETTIMEOUT,
+>> +                       | WDIOF_SETTIMEOUT
+>> +                       | WDIOF_CARDRESET,
+>>         .identity       = KBUILD_MODNAME,
+>>  };
+>>
+>> @@ -171,6 +173,9 @@ static int qcom_wdt_probe(struct platform_device *pdev)
+>>         wdt->wdd.max_timeout = 0x10000000U / wdt->rate;
+>>         wdt->wdd.parent = &pdev->dev;
+>>
+>> +       if (readl(wdt->base + WDT_STS) & 1)
+>> +               wdt->wdd.bootstatus = WDIOF_CARDRESET;
+>> +
+>>         /*
+>>          * If 'timeout-sec' unspecified in devicetree, assume a 30 second
+>>          * default, unless the max timeout is less than 30 seconds, then use
+>> --
+>> 2.8.0.rc3.226.g39d4020
+>>
