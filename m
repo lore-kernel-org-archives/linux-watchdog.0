@@ -1,77 +1,75 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:46448 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751173AbcEDCvN (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 3 May 2016 22:51:13 -0400
-Subject: Re: [PATCH v2] watchdog: f71808e_wdt: Fix WDTMOUT_STS register read
-To: Knud Poulsen <knpo@ieee.org>, Wim Van Sebroeck <wim@iguana.be>,
-	Linux Watchdog <linux-watchdog@vger.kernel.org>
-References: <571F0E40.6080205@ieee.org>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <57296399.6060308@roeck-us.net>
-Date: Tue, 3 May 2016 19:51:05 -0700
+Return-path: <panand@redhat.com>
+Date: Wed, 4 May 2016 19:44:49 +0530
+From: Pratyush Anand <panand@redhat.com>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Timur Tabi <timur@codeaurora.org>, fu.wei@linaro.org,
+	Suravee.Suthikulpanit@amd.com, wim@iguana.be,
+	linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org,
+	open list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH RFC] Watchdog: sbsa_gwdt: Enhance timeout range
+Message-ID: <20160504141449.GG13045@dhcppc6.redhat.com>
+References: <20da73bb9bdf27993514c1da80fead13dc92932d.1462262900.git.panand@redhat.com>
+ <5728A7C3.4010001@roeck-us.net>
+ <20160503143856.GE13045@dhcppc6.redhat.com>
+ <5728BEC4.6050603@codeaurora.org>
+ <20160503155141.GF13045@dhcppc6.redhat.com>
+ <20160503171602.GA2518@roeck-us.net>
 MIME-Version: 1.0
-In-Reply-To: <571F0E40.6080205@ieee.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20160503171602.GA2518@roeck-us.net>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 04/25/2016 11:44 PM, Knud Poulsen wrote:
->
-> Tested and verified on Lanner LEC-3030 Industrial PC (with F81865)
->
-> Datasheet verified for
->   F71808, F71858, F71862, F71869, F71869A, F71882, F71889, F81865
->
-> Datasheet references:
-> F71808A:
->   http://www.electronicsdatasheets.com/download/534cf560e34e2406135f4658.pdf?format=pdf
-> F71858:
->   http://www.electronicsdatasheets.com/download/534cf55fe34e2406135f4635.pdf?format=pdf
-> F71862:
->   http://www.hardwaresecrets.com/datasheets/F71862_V027P.pdf
-> F71869:
->   http://www.clubedohardware.com.br/datasheets/366451_F71869.pdf
-> F71869A:
->   http://www.chipset-ic.com/datasheet/F71869AD.pdf
-> F71882:
->   http://www.digchip.com/datasheets/parts/datasheet/931/F71882-pdf.php
-> F71889:
->   http://pdf1.alldatasheet.com/datasheet-pdf/view/406312/FINTEK/F71889.html
-> F81865:
->   http://www.hardwaresecrets.com/datasheets/F81865_V028P.pdf
->   http://www.alldatasheet.com/datasheet-pdf/pdf/406317/FINTEK/F81865.html
->
-> Signed-off-by: Knud Poulsen <knpo@ieee.org>
+Hi Guenter,
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+On 03/05/2016:10:16:02 AM, Guenter Roeck wrote:
+> On Tue, May 03, 2016 at 09:21:41PM +0530, Pratyush Anand wrote:
+> > On 03/05/2016:10:07:48 AM, Timur Tabi wrote:
+> > > Pratyush Anand wrote:
+> > > >In fact after supporting max_hw_heartbeat_ms, there should be no change for
+> > > >action=0 functionally. However, we would still need some changes for action=1.
+> > > 
+> > > IMHO, action=1 is more of a debugging option, and not something that would
+> > > be used normally.  I would need to see some evidence that real users want to
+> > > have action=1 and a longer timeout.
+> > > 
+> > If action=1 need to be used effectively, then we should have something which
+> > would help to increase timeout values.
+> > 
+> > Currently you have only 10 second to execute secondary kernel, which might not
+> > be sufficient.
+> > 
+> Previously the argument was that the 10 seconds (assuming the clock runs at
+> maximum speed) would not be sufficient to load the watchdog application. Now it
 
-> ---
->   drivers/watchdog/f71808e_wdt.c | 4 ++--
->   1 file changed, 2 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/watchdog/f71808e_wdt.c b/drivers/watchdog/f71808e_wdt.c
-> index 016bd93..190d87c 100644
-> --- a/drivers/watchdog/f71808e_wdt.c
-> +++ b/drivers/watchdog/f71808e_wdt.c
-> @@ -66,7 +66,7 @@
->
->   #define F71808FG_FLAG_WDOUT_EN		7
->
-> -#define F71808FG_FLAG_WDTMOUT_STS	5
-> +#define F71808FG_FLAG_WDTMOUT_STS	6
->   #define F71808FG_FLAG_WD_EN		5
->   #define F71808FG_FLAG_WD_PULSE		4
->   #define F71808FG_FLAG_WD_UNIT		3
-> @@ -655,7 +655,7 @@ static int __init watchdog_init(int sioaddr)
->   	superio_select(watchdog.sioaddr, SIO_F71808FG_LD_WDT);
->
->   	wdt_conf = superio_inb(sioaddr, F71808FG_REG_WDT_CONF);
-> -	watchdog.caused_reboot = wdt_conf & F71808FG_FLAG_WDTMOUT_STS;
-> +	watchdog.caused_reboot = wdt_conf & BIT(F71808FG_FLAG_WDTMOUT_STS);
->
->   	superio_exit(sioaddr);
->
+May be you meant "would be sufficient". OK..let me clarify on it.
 
+Currently it takes 7-8 second from the point 1st kernel panics to the point
+second kernel boots. (Given, we have D-cache enabled in kexec-tools, for which
+community is not yet agreed), anyway..so, it is safe for me as of now. But,
+there is only 2-3 second margin. So, I am not sure if all sort of secondary
+kernel will be able to make it in that time.
+
+Following minimal code will be able to extend timeout for secondary kernel, and
+I do not see anything wrong in it. We are anyway, panicking in ISR, so what
+could be disadvantage if we write a wdt register just before panicking?
+
+--- a/drivers/watchdog/sbsa_gwdt.c
++++ b/drivers/watchdog/sbsa_gwdt.c
+@@ -221,6 +221,13 @@ static int sbsa_gwdt_stop(struct watchdog_device *wdd)
+ 
+static irqreturn_t sbsa_gwdt_interrupt(int irq, void *dev_id)
+{
++    struct sbsa_gwdt *gwdt = (struct sbsa_gwdt *)dev_id;
++    struct watchdog_device *wdd = &gwdt->wdd;
++    u64 timeout = (u64)gwdt->clk * wdd->timeout;
++
++    writeq(timeout + arch_counter_get_cntvct(),
++                    gwdt->control_base + SBSA_GWDT_WCV);
++
+     panic(WATCHDOG_NAME " timeout");
+      
+             return IRQ_HANDLED;
+
+~Pratyush
