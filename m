@@ -1,65 +1,95 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:52215 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:56514 "EHLO
 	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752471AbcEFASo (ORCPT
+	with ESMTP id S1751244AbcEINGk (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 5 May 2016 20:18:44 -0400
-Subject: Re: [PATCH RFC] Watchdog: sbsa_gwdt: Enhance timeout range
-To: Timur Tabi <timur@codeaurora.org>,
-	Pratyush Anand <panand@redhat.com>
-References: <5728A7C3.4010001@roeck-us.net>
- <20160503143856.GE13045@dhcppc6.redhat.com> <5728BEC4.6050603@codeaurora.org>
- <20160503155141.GF13045@dhcppc6.redhat.com>
- <20160503171602.GA2518@roeck-us.net>
- <20160504141449.GG13045@dhcppc6.redhat.com> <572A0577.1070000@codeaurora.org>
- <20160504155932.GH13045@dhcppc6.redhat.com> <572A2099.4070901@codeaurora.org>
- <20160505164300.GA16914@roeck-us.net>
- <20160505182031.GB12434@dhcppc6.redhat.com> <572B8F52.2000709@codeaurora.org>
- <572BD8E3.4070707@roeck-us.net> <572BD959.3090507@codeaurora.org>
- <572BDB30.9060602@codeaurora.org>
-Cc: fu.wei@linaro.org, Suravee.Suthikulpanit@amd.com, wim@iguana.be,
-	linux-arm-kernel@lists.infradead.org,
-	linux-watchdog@vger.kernel.org,
-	open list <linux-kernel@vger.kernel.org>,
-	Dave Young <dyoung@redhat.com>, kexec@lists.infradead.org
+	Mon, 9 May 2016 09:06:40 -0400
+Subject: Re: [PATCH (v5) 3/11] MIPS: bmips: Add bcm6345-l2-timer interrupt
+ controller
+To: =?UTF-8?Q?=c3=81lvaro_Fern=c3=a1ndez_Rojas?= <noltari@gmail.com>,
+	Simon Arlott <simon@fire.lp0.eu>,
+	Thomas Gleixner <tglx@linutronix.de>
+References: <5650BFD6.5030700@simon.arlott.org.uk>
+ <CAOiHx=k0Aa+qrBT1J7_cQaQRxndBmwsgSgi3x0eJOYTAy6Zq7Q@mail.gmail.com>
+ <5653612A.4050309@simon.arlott.org.uk> <565361AF.20400@simon.arlott.org.uk>
+ <70d031ae4c3aa29888d77b64686c39e7e7eaae92@8b5064a13e22126c1b9329f0dc35b8915774b7c3.invalid>
+ <5654E67A.9060800@gmail.com> <5657886F.3090908@simon.arlott.org.uk>
+ <alpine.DEB.2.11.1511270926580.3572@nanos>
+ <56599D73.7040801@simon.arlott.org.uk> <565CE85A.3080904@roeck-us.net>
+ <256BE4660FB03085.33070B6A-E0AC-4643-92B8-4FD874210CD9@mail.outlook.com>
+Cc: Ralf Baechle <ralf@linux-mips.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Florian Fainelli <f.fainelli@gmail.com>,
+	Kumar Gala <galak@codeaurora.org>,
+	Kevin Cernekee <cernekee@gmail.com>,
+	MIPS Mailing List <linux-mips@linux-mips.org>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Miguel Gaio <miguel.gaio@efixo.com>,
+	Marc Zyngier <marc.zyngier@arm.com>,
+	Jonas Gorski <jogo@openwrt.org>,
+	Pawel Moll <pawel.moll@arm.com>,
+	Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org,
+	Maxime Bizon <mbizon@freebox.fr>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	linux-watchdog@vger.kernel.org, Jason Cooper <jason@lakedaemon.net>
 From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <572BE2CC.4020606@roeck-us.net>
-Date: Thu, 5 May 2016 17:18:20 -0700
+Message-ID: <57308B3D.3020502@roeck-us.net>
+Date: Mon, 9 May 2016 06:06:05 -0700
 MIME-Version: 1.0
-In-Reply-To: <572BDB30.9060602@codeaurora.org>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <256BE4660FB03085.33070B6A-E0AC-4643-92B8-4FD874210CD9@mail.outlook.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 05/05/2016 04:45 PM, Timur Tabi wrote:
-> Timur Tabi wrote:
->>
->>> A 32-bit counter is absolutely fine. Letting it run with a 400MHz clock
->>> (or was it 200 MHz ?) is the problem. A resolution of 2.5ns for a
->>> watchdog
->>> timer does not really make any sense.
->>
->> The 10 second limit is based on a 20MHz clock.
+On 05/09/2016 05:01 AM, Álvaro Fernández Rojas wrote:
+> Hello Guenter,
 >
-> No, that's not true.  I misread the code.  I knew something was wrong, but it didn't click until just now.
->
-> The default timeout is 10 seconds.  The max timeout on a 20MHz system (which is what we're running) is over 200 seconds.
->
-> The problem is that Pratyush's system is running at a clock that's way too fast:
->
->   [  131.187562] sbsa-gwdt sbsa-gwdt.0: Initialized with 40s timeout @ 250000000 Hz, action=1.
->
-> 250MHz is unreasonable.  Pratyush, why is your system counter so high? On our ARM64 system, it's set to 20MHz.
+> Are there any other issues preventing this patches from being merged?
 >
 
-Guess that answers my earlier question. Problem is that the specification
-_permits_ those unreasonable frequencies, and quite obviously they are
-being used, no matter if it makes sense or not.
-
-With a (still unreasonable) maximum frequency of 100 MHz, the problem
-would not exist. So, if anything, someone with influence on the standard
-might suggest to reduce the maximum permitted frequency.
+My major problem/concern is the interrupt handling and the repeated
+restart of the hardware timer with continuously reduced timeouts.
+This appears fragile, and it doesn't really make sense from a system
+level point of view. Unfortunately, I don't have a data sheet for
+the chip, nor the means or the time to test it myself. So we are pretty
+much in limbo, unless someone from Broadcom confirms that, yes, this is
+the one and expected means to program this watchdog.
 
 Guenter
+
+> Regards,
+> Álvaro.
+> _____________________________
+> From: Guenter Roeck <linux@roeck-us.net <mailto:linux@roeck-us.net>>
+> Sent: martes, diciembre 1, 2015 1:23 a. m.
+> Subject: Re: [PATCH (v5) 3/11] MIPS: bmips: Add bcm6345-l2-timer interrupt controller
+> To: Simon Arlott <simon@fire.lp0.eu <mailto:simon@fire.lp0.eu>>, Thomas Gleixner <tglx@linutronix.de <mailto:tglx@linutronix.de>>
+> Cc: Ralf Baechle <ralf@linux-mips.org <mailto:ralf@linux-mips.org>>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org <mailto:linux-kernel@vger.kernel.org>>, Mark Rutland <mark.rutland@arm.com <mailto:mark.rutland@arm.com>>, Florian Fainelli <f.fainelli@gmail.com <mailto:f.fainelli@gmail.com>>, Ian Campbell <ijc+devicetree@hellion.org.uk <mailto:ijc+devicetree@hellion.org.uk>>, Kevin Cernekee <cernekee@gmail.com <mailto:cernekee@gmail.com>>, MIPS Mailing List <linux-mips@linux-mips.org <mailto:linux-mips@linux-mips.org>>, Kumar Gala <galak@codeaurora.org <mailto:galak@codeaurora.org>>, Miguel Gaio <miguel.gaio@efixo.com <mailto:miguel.gaio@efixo.com>>, Jonas Gorski <jogo@openwrt.org <mailto:jogo@openwrt.org>>, Marc Zyngier <marc.zyngier@arm.com <mailto:marc.zyngier@arm.com>>, Pawel Moll <pawel.moll@arm.com <mailto:pawel.moll@arm.com>>, Rob Herring <robh+dt@kernel.org <mailto:robh+dt@kernel.org>>, <devicetree@vger.kernel.org <mailto:devicetree@vger.kernel.org>>, Maxime
+> Bizon <mbizon@freebox.fr <mailto:mbizon@freebox.fr>>, Wim Van Sebroeck <wim@iguana.be <mailto:wim@iguana.be>>, <linux-watchdog@vger.kernel.org <mailto:linux-watchdog@vger.kernel.org>>, Jason Cooper <jason@lakedaemon.net <mailto:jason@lakedaemon.net>>
+>
+>
+> On 11/28/2015 04:26 AM, Simon Arlott wrote:
+>  > Add the BCM6345/BCM6318 timer as an interrupt controller so that it can be
+>  > used by the watchdog to warn that its timer will expire soon.
+>  >
+>  > Support for clocksource/clockevents is not implemented as the timer
+>  > interrupt is not per CPU (except on the BCM6318) and the MIPS clock is
+>  > better. This could be added later if required without changing the device
+>  > tree binding.
+>  >
+>  > Signed-off-by: Simon Arlott <simon@fire.lp0.eu <mailto:simon@fire.lp0.eu>>
+>
+> Hi Simon,
+>
+> can you please re-send the entire series, with all Acked-by:/Reviewed-by:
+> tags as appropriate ?
+>
+> Thanks,
+> Guenter
+>
+>
+>
+>
 
