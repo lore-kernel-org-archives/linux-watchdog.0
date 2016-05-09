@@ -1,118 +1,42 @@
-Return-path: <clemens.gruber@pqgruber.com>
-Date: Mon, 9 May 2016 15:53:03 +0200
-From: Clemens Gruber <clemens.gruber@pqgruber.com>
-To: Guenter Roeck <linux@roeck-us.net>, Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] watchdog: core: Fix circular locking dependency
-Message-ID: <20160509135303.GA1474@archie.localdomain>
-References: <1461249494-24924-1-git-send-email-linux@roeck-us.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1461249494-24924-1-git-send-email-linux@roeck-us.net>
+Return-path: <joel@jms.id.au>
+From: Joel Stanley <joel@jms.id.au>
+To: linux@roeck-us.net,
+	wim@iguana.be
+Cc: linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	devicetree@vger.kernel.org,
+	jk@ozlabs.org,
+	benh@kernel.crashing.org,
+	arnd@arndb.de
+Subject: [PATCH 0/2] watchdog: Add Aspeed watchdog driver
+Date: Mon,  9 May 2016 22:04:35 +0930
+Message-Id: <1462797277-14969-1-git-send-email-joel@jms.id.au>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On Thu, Apr 21, 2016 at 07:38:14AM -0700, Guenter Roeck wrote:
-> lockdep reports the following circular locking dependency.
-> 
-> ======================================================
-> INFO: possible circular locking dependency detected ]
-> 4.6.0-rc3-00191-gfabf418 #162 Not tainted
-> -------------------------------------------------------
-> systemd/1 is trying to acquire lock:
-> ((&(&wd_data->work)->work)){+.+...}, at: [<80141650>] flush_work+0x0/0x280
-> 
-> but task is already holding lock:
-> 
-> (&wd_data->lock){+.+...}, at: [<804acfa8>] watchdog_release+0x18/0x190
-> 
-> which lock already depends on the new lock.
-> the existing dependency chain (in reverse order) is:
-> 
-> -> #1 (&wd_data->lock){+.+...}:
-> 	[<80662310>] mutex_lock_nested+0x64/0x4a8
-> 	[<804aca4c>] watchdog_ping_work+0x18/0x4c
-> 	[<80143128>] process_one_work+0x1ac/0x500
-> 	[<801434b4>] worker_thread+0x38/0x554
-> 	[<80149510>] kthread+0xf4/0x108
-> 	[<80107c10>] ret_from_fork+0x14/0x24
-> 
-> -> #0 ((&(&wd_data->work)->work)){+.+...}:
-> 	[<8017c4e8>] lock_acquire+0x70/0x90
-> 	[<8014169c>] flush_work+0x4c/0x280
-> 	[<801440f8>] __cancel_work_timer+0x9c/0x1e0
-> 	[<804acfcc>] watchdog_release+0x3c/0x190
-> 	[<8022c5e8>] __fput+0x80/0x1c8
-> 	[<80147b28>] task_work_run+0x94/0xc8
-> 	[<8010b998>] do_work_pending+0x8c/0xb4
-> 	[<80107ba8>] slow_work_pending+0xc/0x20
-> 
-> other info that might help us debug this:
-> Possible unsafe locking scenario:
-> 
-> CPU0                    CPU1
-> ----                    ----
-> lock(&wd_data->lock);
->                         lock((&(&wd_data->work)->work));
->                         lock(&wd_data->lock);
-> lock((&(&wd_data->work)->work));
-> 
-> *** DEADLOCK ***
-> 
-> 1 lock held by systemd/1:
-> 
-> stack backtrace:
-> CPU: 2 PID: 1 Comm: systemd Not tainted 4.6.0-rc3-00191-gfabf418 #162
-> Hardware name: Freescale i.MX6 Quad/DualLite (Device Tree)
-> [<8010f5e4>] (unwind_backtrace) from [<8010c038>] (show_stack+0x10/0x14)
-> [<8010c038>] (show_stack) from [<8039d7fc>] (dump_stack+0xa8/0xd4)
-> [<8039d7fc>] (dump_stack) from [<80177ee0>] (print_circular_bug+0x214/0x334)
-> [<80177ee0>] (print_circular_bug) from [<80179230>] (check_prevs_add+0x4dc/0x8e8)
-> [<80179230>] (check_prevs_add) from [<8017b3d8>] (__lock_acquire+0xc6c/0x14ec)
-> [<8017b3d8>] (__lock_acquire) from [<8017c4e8>] (lock_acquire+0x70/0x90)
-> [<8017c4e8>] (lock_acquire) from [<8014169c>] (flush_work+0x4c/0x280)
-> [<8014169c>] (flush_work) from [<801440f8>] (__cancel_work_timer+0x9c/0x1e0)
-> [<801440f8>] (__cancel_work_timer) from [<804acfcc>] (watchdog_release+0x3c/0x190)
-> [<804acfcc>] (watchdog_release) from [<8022c5e8>] (__fput+0x80/0x1c8)
-> [<8022c5e8>] (__fput) from [<80147b28>] (task_work_run+0x94/0xc8)
-> [<80147b28>] (task_work_run) from [<8010b998>] (do_work_pending+0x8c/0xb4)
-> [<8010b998>] (do_work_pending) from [<80107ba8>] (slow_work_pending+0xc/0x20)
-> 
-> Turns out the call to cancel_delayed_work_sync() in watchdog_release()
-> is not necessary and can be dropped. If the worker is no longer necessary,
-> the subsequent call to watchdog_update_worker() will cancel it. If it is
-> already running, it won't do anything, since the worker function checks
-> if it needs to ping the watchdog or not.
-> 
-> Reported-by: Clemens Gruber <clemens.gruber@pqgruber.com>
-> Tested-by: Clemens Gruber <clemens.gruber@pqgruber.com>
-> Fixes: 11d7aba9ceb7 ("watchdog: imx2: Convert to use infrastructure triggered keepalives")
-> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-> ---
->  drivers/watchdog/watchdog_dev.c | 1 -
->  1 file changed, 1 deletion(-)
-> 
-> diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-> index e2c5abbb45ff..3595cffa24ea 100644
-> --- a/drivers/watchdog/watchdog_dev.c
-> +++ b/drivers/watchdog/watchdog_dev.c
-> @@ -736,7 +736,6 @@ static int watchdog_release(struct inode *inode, struct file *file)
->  		watchdog_ping(wdd);
->  	}
->  
-> -	cancel_delayed_work_sync(&wd_data->work);
->  	watchdog_update_worker(wdd);
->  
->  	/* make sure that /dev/watchdog can be re-opened */
-> -- 
-> 2.5.0
->
+These patches add support for the watchdog timer found in Aspeed ast2400 and
+ast2500 BMC SoCs.
 
-Hi,
+The u-boot that ships on the edk and with many systems leaves the watchdog
+running when jumping to the kernel, making this driver required for operation.
 
-I don't see this patch in the torvalds/linux tree.
+It has been tested on the ast2400 in an OpenPower Palmetto, and the ast2500-edk
+dev board.
 
-Will this get in before the 4.6 release?
+Cheers,
 
-Thanks,
-Clemens
+Joel
+
+Joel Stanley (2):
+  doc/devicetree: Add Aspeed watchdog timer bindings
+  watchdog: Add Aspeed watchdog driver
+
+ .../devicetree/bindings/watchdog/aspeed-wdt.txt    |  14 ++
+ drivers/watchdog/Kconfig                           |  13 ++
+ drivers/watchdog/Makefile                          |   1 +
+ drivers/watchdog/aspeed_wdt.c                      | 199 +++++++++++++++++++++
+ 4 files changed, 227 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt
+ create mode 100644 drivers/watchdog/aspeed_wdt.c
+
+-- 
+2.8.1
