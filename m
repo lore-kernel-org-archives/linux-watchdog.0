@@ -1,52 +1,69 @@
-Return-path: <joel.stan@gmail.com>
-MIME-Version: 1.0
-Sender: joel.stan@gmail.com
-In-Reply-To: <20160509203831.GA20352@rob-hp-laptop>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:47675 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751405AbcEJNZ1 (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 10 May 2016 09:25:27 -0400
+Subject: Re: [PATCH 2/2] watchdog: Add Aspeed watchdog driver
+To: Joel Stanley <joel@jms.id.au>
 References: <1462797277-14969-1-git-send-email-joel@jms.id.au>
- <1462797277-14969-2-git-send-email-joel@jms.id.au> <20160509203831.GA20352@rob-hp-laptop>
-From: Joel Stanley <joel@jms.id.au>
-Date: Tue, 10 May 2016 20:54:01 +0930
-Message-ID: <CACPK8XeAhn=h=-LKjFZJ9UibnXiYLvy5R=1=FsNZJn0Hk1O36Q@mail.gmail.com>
-Subject: Re: [PATCH 1/2] doc/devicetree: Add Aspeed watchdog timer bindings
-To: Rob Herring <robh@kernel.org>
-Cc: Guenter Roeck <linux@roeck-us.net>, wim@iguana.be, linux-watchdog@vger.kernel.org,
+ <1462797277-14969-3-git-send-email-joel@jms.id.au>
+ <5730A339.80006@roeck-us.net>
+ <CACPK8XfK4Qt2GaSL7eVoNkCawbtXqFX9bGRcgyAyq7R2yuSZkA@mail.gmail.com>
+Cc: wim@iguana.be, linux-watchdog@vger.kernel.org,
 	devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	Jeremy Kerr <jk@ozlabs.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Arnd Bergmann <arnd@arndb.de>
-Content-Type: text/plain; charset=UTF-8
-List-ID: <linux-watchdog@vger.kernel.org>
+	Jeremy Kerr <jk@ozlabs.org>,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	Arnd Bergmann <arnd@arndb.de>
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <5731E135.8000100@roeck-us.net>
+Date: Tue, 10 May 2016 06:25:09 -0700
+MIME-Version: 1.0
+In-Reply-To: <CACPK8XfK4Qt2GaSL7eVoNkCawbtXqFX9bGRcgyAyq7R2yuSZkA@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, May 10, 2016 at 6:08 AM, Rob Herring <robh@kernel.org> wrote:
-> On Mon, May 09, 2016 at 10:04:36PM +0930, Joel Stanley wrote:
->> Signed-off-by: Joel Stanley <joel@jms.id.au>
->> ---
->>  Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt | 14 ++++++++++++++
->>  1 file changed, 14 insertions(+)
->>  create mode 100644 Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt
+Hi Joel,
+
+On 05/10/2016 04:10 AM, Joel Stanley wrote:
+
+[ ... ]
+
+>>> +
+>>> +       /*
+>>> +        * The ast2400 wdt can run at PCLK, or 1MHz. The ast2500 only
+>>> +        * runs at 1MHz. We chose to always run at 1MHz, as there's no
+>>> +        * good reason to have a faster watchdog counter.
+>>> +        */
+>>> +       wdt->rate = 1000000;
 >>
->> diff --git a/Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt b/Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt
->> new file mode 100644
->> index 000000000000..58184b161e0d
->> --- /dev/null
->> +++ b/Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt
->> @@ -0,0 +1,14 @@
->> +Aspeed Watchdog Timer
->> +
->> +Required properties:
->> + - compatible: must be "aspeed,wdt"
+>>
+>> Why not just use a define ?
 >
-> This should have the specific SOCs listed.
-
-Thanks, I'll fix it.
-
-In the cases where the drivers had no change in the IP between
-versions of the soc I wondered if it was neater to have a generic
-string. You're saying that's wrong and we prefer using multiple
-strings for all the SoCs instead?
-
->> +     wdt1: wdt@1e785000 {
+> I will add one.
 >
-> IIRC, "watchdog@..." is the correct generic name.
+> The comment is informative though for people who read the ast2400
+> datasheet and wonder why we don't provide the option clocking with
+> pclk, I will leave it in.
+>
 
-Cheers,
+The comment is ok. I just find it unnecessary to have a variable
+instead of a constant.
 
-Joel
+[ ... ]
+>
+>> ctrl is really static except for the enable flag. Not really sure
+>> if having a variable for it has any real benefits - you might as well
+>> just read the register and update the enable flag instead as needed when
+>> starting or stopping the watchdog. Is there a reason for not doing that ?
+>
+> Not really. I find it cleaner to keep a copy of the register instead
+> of read-modify-write, but if you feel strongly about it I can change.
+>
+
+No worries. Not worth arguing about.
+
+Guenter
+
