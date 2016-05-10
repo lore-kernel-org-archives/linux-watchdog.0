@@ -1,131 +1,273 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:35446 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751304AbcEIOSK (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 9 May 2016 10:18:10 -0400
-Subject: Re: [PATCH] watchdog: core: Fix circular locking dependency
-To: Clemens Gruber <clemens.gruber@pqgruber.com>,
-	Wim Van Sebroeck <wim@iguana.be>
-References: <1461249494-24924-1-git-send-email-linux@roeck-us.net>
- <20160509135303.GA1474@archie.localdomain>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <57309C21.9070201@roeck-us.net>
-Date: Mon, 9 May 2016 07:18:09 -0700
+Return-path: <joel.stan@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20160509135303.GA1474@archie.localdomain>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Sender: joel.stan@gmail.com
+In-Reply-To: <5730A339.80006@roeck-us.net>
+References: <1462797277-14969-1-git-send-email-joel@jms.id.au>
+ <1462797277-14969-3-git-send-email-joel@jms.id.au> <5730A339.80006@roeck-us.net>
+From: Joel Stanley <joel@jms.id.au>
+Date: Tue, 10 May 2016 20:40:21 +0930
+Message-ID: <CACPK8XfK4Qt2GaSL7eVoNkCawbtXqFX9bGRcgyAyq7R2yuSZkA@mail.gmail.com>
+Subject: Re: [PATCH 2/2] watchdog: Add Aspeed watchdog driver
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: wim@iguana.be, linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, Jeremy Kerr <jk@ozlabs.org>,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>, Arnd Bergmann <arnd@arndb.de>
+Content-Type: text/plain; charset=UTF-8
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 05/09/2016 06:53 AM, Clemens Gruber wrote:
-> On Thu, Apr 21, 2016 at 07:38:14AM -0700, Guenter Roeck wrote:
->> lockdep reports the following circular locking dependency.
->>
->> ======================================================
->> INFO: possible circular locking dependency detected ]
->> 4.6.0-rc3-00191-gfabf418 #162 Not tainted
->> -------------------------------------------------------
->> systemd/1 is trying to acquire lock:
->> ((&(&wd_data->work)->work)){+.+...}, at: [<80141650>] flush_work+0x0/0x280
->>
->> but task is already holding lock:
->>
->> (&wd_data->lock){+.+...}, at: [<804acfa8>] watchdog_release+0x18/0x190
->>
->> which lock already depends on the new lock.
->> the existing dependency chain (in reverse order) is:
->>
->> -> #1 (&wd_data->lock){+.+...}:
->> 	[<80662310>] mutex_lock_nested+0x64/0x4a8
->> 	[<804aca4c>] watchdog_ping_work+0x18/0x4c
->> 	[<80143128>] process_one_work+0x1ac/0x500
->> 	[<801434b4>] worker_thread+0x38/0x554
->> 	[<80149510>] kthread+0xf4/0x108
->> 	[<80107c10>] ret_from_fork+0x14/0x24
->>
->> -> #0 ((&(&wd_data->work)->work)){+.+...}:
->> 	[<8017c4e8>] lock_acquire+0x70/0x90
->> 	[<8014169c>] flush_work+0x4c/0x280
->> 	[<801440f8>] __cancel_work_timer+0x9c/0x1e0
->> 	[<804acfcc>] watchdog_release+0x3c/0x190
->> 	[<8022c5e8>] __fput+0x80/0x1c8
->> 	[<80147b28>] task_work_run+0x94/0xc8
->> 	[<8010b998>] do_work_pending+0x8c/0xb4
->> 	[<80107ba8>] slow_work_pending+0xc/0x20
->>
->> other info that might help us debug this:
->> Possible unsafe locking scenario:
->>
->> CPU0                    CPU1
->> ----                    ----
->> lock(&wd_data->lock);
->>                          lock((&(&wd_data->work)->work));
->>                          lock(&wd_data->lock);
->> lock((&(&wd_data->work)->work));
->>
->> *** DEADLOCK ***
->>
->> 1 lock held by systemd/1:
->>
->> stack backtrace:
->> CPU: 2 PID: 1 Comm: systemd Not tainted 4.6.0-rc3-00191-gfabf418 #162
->> Hardware name: Freescale i.MX6 Quad/DualLite (Device Tree)
->> [<8010f5e4>] (unwind_backtrace) from [<8010c038>] (show_stack+0x10/0x14)
->> [<8010c038>] (show_stack) from [<8039d7fc>] (dump_stack+0xa8/0xd4)
->> [<8039d7fc>] (dump_stack) from [<80177ee0>] (print_circular_bug+0x214/0x334)
->> [<80177ee0>] (print_circular_bug) from [<80179230>] (check_prevs_add+0x4dc/0x8e8)
->> [<80179230>] (check_prevs_add) from [<8017b3d8>] (__lock_acquire+0xc6c/0x14ec)
->> [<8017b3d8>] (__lock_acquire) from [<8017c4e8>] (lock_acquire+0x70/0x90)
->> [<8017c4e8>] (lock_acquire) from [<8014169c>] (flush_work+0x4c/0x280)
->> [<8014169c>] (flush_work) from [<801440f8>] (__cancel_work_timer+0x9c/0x1e0)
->> [<801440f8>] (__cancel_work_timer) from [<804acfcc>] (watchdog_release+0x3c/0x190)
->> [<804acfcc>] (watchdog_release) from [<8022c5e8>] (__fput+0x80/0x1c8)
->> [<8022c5e8>] (__fput) from [<80147b28>] (task_work_run+0x94/0xc8)
->> [<80147b28>] (task_work_run) from [<8010b998>] (do_work_pending+0x8c/0xb4)
->> [<8010b998>] (do_work_pending) from [<80107ba8>] (slow_work_pending+0xc/0x20)
->>
->> Turns out the call to cancel_delayed_work_sync() in watchdog_release()
->> is not necessary and can be dropped. If the worker is no longer necessary,
->> the subsequent call to watchdog_update_worker() will cancel it. If it is
->> already running, it won't do anything, since the worker function checks
->> if it needs to ping the watchdog or not.
->>
->> Reported-by: Clemens Gruber <clemens.gruber@pqgruber.com>
->> Tested-by: Clemens Gruber <clemens.gruber@pqgruber.com>
->> Fixes: 11d7aba9ceb7 ("watchdog: imx2: Convert to use infrastructure triggered keepalives")
->> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
->> ---
->>   drivers/watchdog/watchdog_dev.c | 1 -
->>   1 file changed, 1 deletion(-)
->>
->> diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
->> index e2c5abbb45ff..3595cffa24ea 100644
->> --- a/drivers/watchdog/watchdog_dev.c
->> +++ b/drivers/watchdog/watchdog_dev.c
->> @@ -736,7 +736,6 @@ static int watchdog_release(struct inode *inode, struct file *file)
->>   		watchdog_ping(wdd);
->>   	}
->>
->> -	cancel_delayed_work_sync(&wd_data->work);
->>   	watchdog_update_worker(wdd);
->>
->>   	/* make sure that /dev/watchdog can be re-opened */
->> --
->> 2.5.0
+Hey Guenter,
+
+Thanks for the review.
+
+On Tue, May 10, 2016 at 12:18 AM, Guenter Roeck <linux@roeck-us.net> wrote:
+>> +#define WDT_STATUS             0x00
+>> +#define WDT_RELOAD_VALUE       0x04
+>> +#define WDT_RESTART            0x08
+>> +#define WDT_CTRL               0x0C
+>> +#define   WDT_CTRL_RESET_MODE_SOC      (0x00 << 5)
+>> +#define   WDT_CTRL_RESET_MODE_FULL_CHIP        (0x01 << 5)
+>> +#define          WDT_CTRL_1MHZ_CLK             BIT(4)
+>> +#define          WDT_CTRL_WDT_EXT              BIT(3)
+>> +#define          WDT_CTRL_WDT_INTR             BIT(2)
+>> +#define   WDT_CTRL_RESET_SYSTEM                BIT(1)
+>> +#define   WDT_CTRL_ENABLE              BIT(0)
+>> +
+>> +#define        WDT_RESTART_MAGIC       0x4755
+>
+>
+> Please don't use tabs after #define.
+
+Oops, typo. Thanks.
+
+>
+>> +
+>> +static struct aspeed_wdt *to_aspeed_wdt(struct watchdog_device *wdd)
+>> +{
+>> +       return container_of(wdd, struct aspeed_wdt, wdd);
+>> +}
+>> +
+>> +
+>
+> Please no double empty lines.
+>
+>> +static void aspeed_wdt_enable(struct aspeed_wdt *wdt, int count)
+>> +{
+>> +       wdt->ctrl |= WDT_CTRL_ENABLE;
+>> +
+>> +       writel(0, wdt->base + WDT_CTRL);
+>> +       writel(count, wdt->base + WDT_RELOAD_VALUE);
+>> +       writel(WDT_RESTART_MAGIC, wdt->base + WDT_RESTART);
+>> +       writel(wdt->ctrl, wdt->base + WDT_CTRL);
+>
+>
+> Is it really necessary to write 0 into the ctrl register when enabling
+> the watchdog ? Problem with it is two-fold: It changes the clock rate
+> for a brief period of time, and it disables the watchdog while updating
+> the timeout. Both is undesirable unless really needed.
+
+In general I agree. However, the datasheet explicitly spells out these
+four steps in this order. Writing zero is a shortcut; I could write
+ctrl with the enable bit set to zero.
+
+We've been using the driver in this fashion for the past year.
+
+>> +}
+>> +
+>> +static int aspeed_wdt_start(struct watchdog_device *wdd)
+>> +{
+>> +       struct aspeed_wdt *wdt = to_aspeed_wdt(wdd);
+>> +
+>> +       dev_dbg(wdd->parent, "starting with timeout of %d (rate %lu)\n",
+>> +                       wdd->timeout, wdt->rate);
+>
+>
+> Are those dev_dbg() really useful ?
+
+I did use them in writing the driver. They can go.
+
+>
+>> +       aspeed_wdt_enable(wdt, wdd->timeout * wdt->rate);
+>> +
+>> +       return 0;
+>> +}
+>> +
+>> +static int aspeed_wdt_stop(struct watchdog_device *wdd)
+>> +{
+>> +       struct aspeed_wdt *wdt = to_aspeed_wdt(wdd);
+>> +
+>> +       wdt->ctrl &= ~WDT_CTRL_ENABLE;
+>> +       writel(wdt->ctrl, wdt->base + WDT_CTRL);
+>> +
+>> +       return 0;
+>> +}
+>> +
+>> +static int aspeed_wdt_ping(struct watchdog_device *wdd)
+>> +{
+>> +       struct aspeed_wdt *wdt = to_aspeed_wdt(wdd);
+>> +
+>> +       dev_dbg(wdd->parent, "ping\n");
+>> +       writel(WDT_RESTART_MAGIC, wdt->base + WDT_RESTART);
+>> +       return 0;
+>> +}
+>> +
+>> +static int aspeed_wdt_set_timeout(struct watchdog_device *wdd,
+>> +                                 unsigned int timeout)
+>> +{
+>> +       dev_dbg(wdd->parent, "timeout set to %u\n", timeout);
+>> +       wdd->timeout = timeout;
+>> +
+>> +       return aspeed_wdt_start(wdd);
+>> +}
+>> +
+>> +static int aspeed_wdt_restart(struct watchdog_device *wdd,
+>> +                             unsigned long action, void *data)
+>> +{
+>> +       struct aspeed_wdt *wdt = to_aspeed_wdt(wdd);
+>> +
+>> +       aspeed_wdt_enable(wdt, 128 * wdt->rate / 1000);
+>> +
+>> +       return 0;
+>> +}
+>> +
+>> +static const struct watchdog_ops aspeed_wdt_ops = {
+>> +       .start          = aspeed_wdt_start,
+>> +       .stop           = aspeed_wdt_stop,
+>> +       .ping           = aspeed_wdt_ping,
+>> +       .set_timeout    = aspeed_wdt_set_timeout,
+>> +       .restart        = aspeed_wdt_restart,
+>> +       .owner          = THIS_MODULE,
+>> +};
+>> +
+>> +static const struct watchdog_info aspeed_wdt_info = {
+>> +       .options        = WDIOF_KEEPALIVEPING
+>> +                       | WDIOF_MAGICCLOSE
+>> +                       | WDIOF_SETTIMEOUT,
+>> +       .identity       = KBUILD_MODNAME,
+>> +};
+>> +
+>> +static int aspeed_wdt_remove(struct platform_device *pdev)
+>> +{
+>> +       struct aspeed_wdt *wdt = platform_get_drvdata(pdev);
+>> +
+>> +       watchdog_unregister_device(&wdt->wdd);
+>> +
+>> +       return 0;
+>> +}
+>> +
+>> +static int aspeed_wdt_probe(struct platform_device *pdev)
+>> +{
+>> +       struct aspeed_wdt *wdt;
+>> +       struct resource *res;
+>> +       int ret;
+>> +
+>> +       wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
+>> +       if (!wdt)
+>> +               return -ENOMEM;
+>> +
+>> +       res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+>> +       wdt->base = devm_ioremap_resource(&pdev->dev, res);
+>> +       if (IS_ERR(wdt->base))
+>> +               return PTR_ERR(wdt->base);
+>> +
+>> +       /*
+>> +        * The ast2400 wdt can run at PCLK, or 1MHz. The ast2500 only
+>> +        * runs at 1MHz. We chose to always run at 1MHz, as there's no
+>> +        * good reason to have a faster watchdog counter.
+>> +        */
+>> +       wdt->rate = 1000000;
+>
+>
+> Why not just use a define ?
+
+I will add one.
+
+The comment is informative though for people who read the ast2400
+datasheet and wonder why we don't provide the option clocking with
+pclk, I will leave it in.
+
+>> +       wdt->wdd.info = &aspeed_wdt_info;
+>> +       wdt->wdd.ops = &aspeed_wdt_ops;
+>> +       wdt->wdd.min_timeout = 1;
+>> +       wdt->wdd.max_timeout = 0x10000000U / wdt->rate;
+>> +       wdt->wdd.parent = &pdev->dev;
+>> +
+>> +       wdt->wdd.timeout = min(wdt->wdd.max_timeout, 30U);
+>
+>
+> Pretty much the same here. Since max_timeout is a constant,
+> it is well known that it is larger than 30 seconds.
+> Might as well use defines for max_timeout and timeout.
+
+Ok.
+
+>
+>> +       watchdog_init_timeout(&wdt->wdd, 0, &pdev->dev);
+>> +
+>> +       wdt->ctrl = WDT_CTRL_RESET_MODE_SOC |
+>
+>
+> Only reset tha SoC ? Are you sure this is what you want ?
+
+I think this is left over from experiments when tracking down a reset
+bug in u-boot. I will confirm and change it back to FULL_CHIP.
+
+>
+>> +               WDT_CTRL_1MHZ_CLK |
+>> +               WDT_CTRL_RESET_SYSTEM;
+>> +
+>> +       /* Ensure hardware is in consistent state */
+>> +       aspeed_wdt_stop(&wdt->wdd);
+>> +
+>
+> An alternative might be to check if the watchdog is running, and inform
+> the watchdog core about it so it can generate heartbeats as required
+> until user space opens the watchdog device. This would ensure that the
+> system is protected during boot.
+
+I will implement this.
+
+> ctrl is really static except for the enable flag. Not really sure
+> if having a variable for it has any real benefits - you might as well
+> just read the register and update the enable flag instead as needed when
+> starting or stopping the watchdog. Is there a reason for not doing that ?
+
+Not really. I find it cleaner to keep a copy of the register instead
+of read-modify-write, but if you feel strongly about it I can change.
+
+>
+>> +       ret = watchdog_register_device(&wdt->wdd);
+>> +       if (ret) {
+>> +               dev_err(&pdev->dev, "failed to register\n");
+>> +               goto err;
+>
+>
+> Unnecessary goto. Just return.
+
+Ok.
+
+>
+>
+>> +       }
+>> +
+>> +       dev_info(&pdev->dev, "rate %lu, max timeout %u, timeout %d\n",
+>> +                wdt->rate, wdt->wdd.max_timeout, wdt->wdd.timeout);
+>> +
+>> +       platform_set_drvdata(pdev, wdt);
+>> +err:
+>> +       return ret;
+>> +}
+>> +
+>> +static struct platform_driver aspeed_watchdog_driver = {
+>> +       .probe = aspeed_wdt_probe,
+>> +       .remove = aspeed_wdt_remove,
+>> +       .driver = {
+>> +               .name = KBUILD_MODNAME,
+>> +               .of_match_table = of_match_ptr(aspeed_wdt_of_table),
+>> +       },
+>> +};
+>> +module_platform_driver(aspeed_watchdog_driver);
+>> +
+>> +MODULE_DESCRIPTION("Aspeed Watchdog Driver");
+>> +MODULE_LICENSE("GPL");
 >>
 >
-> Hi,
->
-> I don't see this patch in the torvalds/linux tree.
->
-> Will this get in before the 4.6 release?
->
-Hopefully. If not, I assume Wim will pick it up in the next commit window and
-it will be applied to -stable.
-
-Guenter
-
-
