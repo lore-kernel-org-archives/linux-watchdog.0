@@ -1,53 +1,38 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:58931 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932584AbcEKOUD (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 11 May 2016 10:20:03 -0400
-Date: Wed, 11 May 2016 07:19:51 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: William Breathitt Gray <vilhelm.gray@gmail.com>
-Cc: wim@iguana.be, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Documentation: Add ebc-c384_wdt watchdog-parameters.txt
- entry
-Message-ID: <20160511141951.GB8192@roeck-us.net>
-References: <20160511124746.GA5314@sophia>
+Return-path: <vilhelm.gray@gmail.com>
+Date: Wed, 11 May 2016 09:05:51 -0400
+From: William Breathitt Gray <vilhelm.gray@gmail.com>
+To: wim@iguana.be, linux@roeck-us.net
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] watchdog: ebc-c384_wdt: Simplify ebc_c384_wdt_start timeout
+ computation
+Message-ID: <20160511130551.GA16032@sophia>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20160511124746.GA5314@sophia>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On Wed, May 11, 2016 at 08:47:46AM -0400, William Breathitt Gray wrote:
-> The WinSystems EBC-C384 watchdog timer driver supports two module
-> parameters: timeout and nowayout. These parameters should be documented
-> in the watchdog-parameters.txt file.
-> 
-> Signed-off-by: William Breathitt Gray <vilhelm.gray@gmail.com>
+The ebc_c384_wdt_set_timeout function already rounds up timeout values
+greater than 255 to a multiple of 60, so there is no need to round again
+in the ebc_c384_wdt_start function; a timeout value greater than 255 in
+ebc_c384_wdt_start will divide cleanly by 60.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: William Breathitt Gray <vilhelm.gray@gmail.com>
+---
+ drivers/watchdog/ebc-c384_wdt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> ---
->  Documentation/watchdog/watchdog-parameters.txt | 4 ++++
->  1 file changed, 4 insertions(+)
-> 
-> diff --git a/Documentation/watchdog/watchdog-parameters.txt b/Documentation/watchdog/watchdog-parameters.txt
-> index c161399..a8d3642 100644
-> --- a/Documentation/watchdog/watchdog-parameters.txt
-> +++ b/Documentation/watchdog/watchdog-parameters.txt
-> @@ -86,6 +86,10 @@ nowayout: Watchdog cannot be stopped once started
->  davinci_wdt:
->  heartbeat: Watchdog heartbeat period in seconds from 1 to 600, default 60
->  -------------------------------------------------
-> +ebc-c384_wdt:
-> +timeout: Watchdog timeout in seconds. (1<=timeout<=15300, default=60)
-> +nowayout: Watchdog cannot be stopped once started
-> +-------------------------------------------------
->  ep93xx_wdt:
->  nowayout: Watchdog cannot be stopped once started
->  timeout: Watchdog timeout in seconds. (1<=timeout<=3600, default=TBD)
-> -- 
-> 2.7.3
-> 
+diff --git a/drivers/watchdog/ebc-c384_wdt.c b/drivers/watchdog/ebc-c384_wdt.c
+index 77fda0b..948e687 100644
+--- a/drivers/watchdog/ebc-c384_wdt.c
++++ b/drivers/watchdog/ebc-c384_wdt.c
+@@ -51,7 +51,7 @@ static int ebc_c384_wdt_start(struct watchdog_device *wdev)
+ 
+ 	/* resolution is in minutes for timeouts greater than 255 seconds */
+ 	if (t > 255)
+-		t = DIV_ROUND_UP(t, 60);
++		t /= 60;
+ 
+ 	outb(t, PET_ADDR);
+ 
+-- 
+2.7.3
