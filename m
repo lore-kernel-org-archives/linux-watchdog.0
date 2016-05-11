@@ -1,46 +1,45 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pf0-f196.google.com ([209.85.192.196]:32898 "EHLO
-	mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751519AbcEFM7w (ORCPT
+Received: from mail-yw0-f194.google.com ([209.85.161.194]:36836 "EHLO
+	mail-yw0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932193AbcEKMry (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 6 May 2016 08:59:52 -0400
-From: Muhammad Falak R Wani <falakreyaz@gmail.com>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH 2/2] watchdog: shwdt: Use setup_timer()
-Date: Fri,  6 May 2016 18:29:41 +0530
-Message-Id: <1462539581-26207-2-git-send-email-falakreyaz@gmail.com>
-In-Reply-To: <1462539581-26207-1-git-send-email-falakreyaz@gmail.com>
-References: <1462539581-26207-1-git-send-email-falakreyaz@gmail.com>
+	Wed, 11 May 2016 08:47:54 -0400
+Date: Wed, 11 May 2016 08:47:46 -0400
+From: William Breathitt Gray <vilhelm.gray@gmail.com>
+To: wim@iguana.be, linux@roeck-us.net
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] Documentation: Add ebc-c384_wdt watchdog-parameters.txt entry
+Message-ID: <20160511124746.GA5314@sophia>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The function setup_timer combines the initialization of a timer with
-the initialization of the timer's function and data fields.
-The multiline code for timer initialization is now replaced
-with function setup_timer.
+The WinSystems EBC-C384 watchdog timer driver supports two module
+parameters: timeout and nowayout. These parameters should be documented
+in the watchdog-parameters.txt file.
 
-Signed-off-by: Muhammad Falak R Wani <falakreyaz@gmail.com>
+Signed-off-by: William Breathitt Gray <vilhelm.gray@gmail.com>
 ---
- drivers/watchdog/shwdt.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ Documentation/watchdog/watchdog-parameters.txt | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/watchdog/shwdt.c b/drivers/watchdog/shwdt.c
-index f908121..517a733 100644
---- a/drivers/watchdog/shwdt.c
-+++ b/drivers/watchdog/shwdt.c
-@@ -275,9 +275,7 @@ static int sh_wdt_probe(struct platform_device *pdev)
- 		return rc;
- 	}
- 
--	init_timer(&wdt->timer);
--	wdt->timer.function	= sh_wdt_ping;
--	wdt->timer.data		= (unsigned long)wdt;
-+	setup_timer(&wdt->timer, sh_wdt_ping, (unsigned long)wdt);
- 	wdt->timer.expires	= next_ping_period(clock_division_ratio);
- 
- 	dev_info(&pdev->dev, "initialized.\n");
+diff --git a/Documentation/watchdog/watchdog-parameters.txt b/Documentation/watchdog/watchdog-parameters.txt
+index c161399..a8d3642 100644
+--- a/Documentation/watchdog/watchdog-parameters.txt
++++ b/Documentation/watchdog/watchdog-parameters.txt
+@@ -86,6 +86,10 @@ nowayout: Watchdog cannot be stopped once started
+ davinci_wdt:
+ heartbeat: Watchdog heartbeat period in seconds from 1 to 600, default 60
+ -------------------------------------------------
++ebc-c384_wdt:
++timeout: Watchdog timeout in seconds. (1<=timeout<=15300, default=60)
++nowayout: Watchdog cannot be stopped once started
++-------------------------------------------------
+ ep93xx_wdt:
+ nowayout: Watchdog cannot be stopped once started
+ timeout: Watchdog timeout in seconds. (1<=timeout<=3600, default=TBD)
 -- 
-1.9.1
+2.7.3
 
