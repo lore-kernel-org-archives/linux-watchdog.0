@@ -1,45 +1,58 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from spo001.leaseweb.nl ([83.149.101.17]:34771 "EHLO
-	spo001.leaseweb.nl" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1753900AbcENQ4O (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 14 May 2016 12:56:14 -0400
-Date: Sat, 14 May 2016 18:40:12 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Nigel Croxon <nigel.croxon@hpe.com>
-Cc: linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH V4] watchdog: hpwdt: Adjust documentation to match latest kernel module parameters
-Message-ID: <20160514164012.GD20158@spo001.leaseweb.nl>
-References: <5707AFCE.2030306@hpe.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5707AFCE.2030306@hpe.com>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-path: <joel@jms.id.au>
+From: Joel Stanley <joel@jms.id.au>
+To: linux@roeck-us.net,
+	wim@iguana.be,
+	robh@kernel.org
+Cc: linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	devicetree@vger.kernel.org,
+	jk@ozlabs.org,
+	benh@kernel.crashing.org,
+	arnd@arndb.de
+Subject: [PATCH v2 0/2] watchdog: Add Aspeed watchdog driver
+Date: Thu, 12 May 2016 23:47:09 +0930
+Message-Id: <1463062631-16432-1-git-send-email-joel@jms.id.au>
+In-Reply-To: <1462797277-14969-1-git-send-email-joel@jms.id.au>
+References: <1462797277-14969-1-git-send-email-joel@jms.id.au>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi Nigel,
+Hello,
 
-> From: Nigel Croxon <nigel.croxon@hpe.com>
-> Date: Wed, 6 Apr 2016 14:40:05 -0400
-> Subject: [PATCH V4] watchdog: hpwdt: Adjust documentation to match 
-> latest kernel module parameters
-> 
-> Adjust documentation to match latest kernel module parameters.
-> 
-> V4 - run cleanpatch to remove whitespaces
-> V3 - Fixed two spelling mistakes.
-> V2 - Changed insmod / rmmod to modprobe / modprobe -r
-> 
-> Signed-off-by: Nigel Croxon <nigel.croxon@hpe.com>
-> ---
->  Documentation/watchdog/hpwdt.txt |   57 
-> ++++++++++++++++++++------------------
->  1 files changed, 30 insertions(+), 27 deletions(-)
-> 
+These patches add support for the watchdog timer found in Aspeed ast2400 and
+ast2500 BMC SoCs.
 
-This patch has been added to linux-watchdog-next.
+The u-boot that ships on the edk and with many systems leaves the watchdog
+running when jumping to the kernel, making this driver required for operation.
 
-Kind regards,
-Wim.
+It has been tested on the ast2400 in an OpenPower Palmetto, and the ast2500-edk
+dev board.
 
+Changes in v2:
+
+Addressed review from Guenter:
+ - dropped the drv_dbgs
+ - added defines for all of the constants
+ - clarified the type of reset we want
+ - leaves the watchdog running
+
+This also updates the device tree compatible string following review from Rob.
+As Arnd already took my device tree tree, I will send him a patch to fix that.
+
+Cheers,
+
+Joel
+
+Joel Stanley (2):
+  doc/devicetree: Add Aspeed watchdog timer bindings
+  watchdog: Add Aspeed watchdog driver
+
+ .../devicetree/bindings/watchdog/aspeed-wdt.txt    |  16 ++
+ drivers/watchdog/Kconfig                           |  13 ++
+ drivers/watchdog/Makefile                          |   1 +
+ drivers/watchdog/aspeed_wdt.c                      | 209 +++++++++++++++++++++
+ 4 files changed, 239 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt
+ create mode 100644 drivers/watchdog/aspeed_wdt.c
+
+-- 
+2.8.1
