@@ -1,50 +1,58 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from spo001.leaseweb.nl ([83.149.101.17]:34809 "EHLO
+Received: from spo001.leaseweb.nl ([83.149.101.17]:34821 "EHLO
 	spo001.leaseweb.nl" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S932361AbcENS3L (ORCPT
+	with ESMTP id S1753579AbcENSdc (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 14 May 2016 14:29:11 -0400
-Date: Sat, 14 May 2016 20:29:07 +0200
+	Sat, 14 May 2016 14:33:32 -0400
+Date: Sat, 14 May 2016 20:33:29 +0200
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Clemens Gruber <clemens.gruber@pqgruber.com>,
-	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] watchdog: core: Fix circular locking dependency
-Message-ID: <20160514182907.GA21026@spo001.leaseweb.nl>
-References: <1461249494-24924-1-git-send-email-linux@roeck-us.net> <20160514164119.GE20158@spo001.leaseweb.nl> <57375B5B.8040809@roeck-us.net> <57375F49.2020300@roeck-us.net>
+To: Colin King <colin.king@canonical.com>
+Cc: Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] watchdog: remove error message when unable to allocate watchdog device
+Message-ID: <20160514183329.GE21026@spo001.leaseweb.nl>
+References: <1461691129-4764-1-git-send-email-colin.king@canonical.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <57375F49.2020300@roeck-us.net>
+In-Reply-To: <1461691129-4764-1-git-send-email-colin.king@canonical.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Guenter,
+Hi Colin,
 
-> On 05/14/2016 10:07 AM, Guenter Roeck wrote:
-> >Hi Wim,
-> >
-> >On 05/14/2016 09:41 AM, Wim Van Sebroeck wrote:
-> >>Hi Guenter,
-> >>
-> >>>lockdep reports the following circular locking dependency.
-> >>>
-> >
-> >You are faster than me this time. I was just about to send you a pull 
-> >request.
-> >Sorry for being late. The watchdog-next branch in my repository on 
-> >kernel.org
-> >has all patches in my queue, in case you want to have a look.
-> >
-> >I'll rebase my branch to yours and see if anything is missing, then send
-> >you a pull request on top of it if needed.
-> >
+> From: Colin Ian King <colin.king@canonical.com>
 > 
-> All there. Looks like you picked it up right after I updated the branch
-> this morning.
+> The dev_err message is superfluous because the failure is already
+> printed by dev_kzalloc, so remove it.
+> 
+> Signed-off-by: Colin Ian King <colin.king@canonical.com>
+> ---
+>  drivers/watchdog/jz4740_wdt.c | 4 +---
+>  1 file changed, 1 insertion(+), 3 deletions(-)
+> 
+> diff --git a/drivers/watchdog/jz4740_wdt.c b/drivers/watchdog/jz4740_wdt.c
+> index 6a7d5c3..c8d51dd 100644
+> --- a/drivers/watchdog/jz4740_wdt.c
+> +++ b/drivers/watchdog/jz4740_wdt.c
+> @@ -160,10 +160,8 @@ static int jz4740_wdt_probe(struct platform_device *pdev)
+>  
+>  	drvdata = devm_kzalloc(&pdev->dev, sizeof(struct jz4740_wdt_drvdata),
+>  			       GFP_KERNEL);
+> -	if (!drvdata) {
+> -		dev_err(&pdev->dev, "Unable to alloacate watchdog device\n");
+> +	if (!drvdata)
+>  		return -ENOMEM;
+> -	}
+>  
+>  	if (heartbeat < 1 || heartbeat > MAX_HEARTBEAT)
+>  		heartbeat = DEFAULT_HEARTBEAT;
+> -- 
+> 2.7.4
+> 
 
-Correct ;-)
+This patch was added to linux-watchdog-next.
 
-Kind regards,
+Kind Regards,
 Wim.
 
