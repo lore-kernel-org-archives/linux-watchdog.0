@@ -1,54 +1,53 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from spo001.leaseweb.nl ([83.149.101.17]:34821 "EHLO
+Received: from spo001.leaseweb.nl ([83.149.101.17]:34824 "EHLO
 	spo001.leaseweb.nl" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1753579AbcENSdc (ORCPT
+	with ESMTP id S1753866AbcENSel (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 14 May 2016 14:33:32 -0400
-Date: Sat, 14 May 2016 20:33:29 +0200
+	Sat, 14 May 2016 14:34:41 -0400
+Date: Sat, 14 May 2016 20:34:39 +0200
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Colin King <colin.king@canonical.com>
+To: Muhammad Falak R Wani <falakreyaz@gmail.com>
 Cc: Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] watchdog: remove error message when unable to allocate watchdog device
-Message-ID: <20160514183329.GE21026@spo001.leaseweb.nl>
-References: <1461691129-4764-1-git-send-email-colin.king@canonical.com>
+Subject: Re: [PATCH 1/2] watchdog: cpwd: Use setup_timer()
+Message-ID: <20160514183439.GF21026@spo001.leaseweb.nl>
+References: <1462539581-26207-1-git-send-email-falakreyaz@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1461691129-4764-1-git-send-email-colin.king@canonical.com>
+In-Reply-To: <1462539581-26207-1-git-send-email-falakreyaz@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Colin,
+Hi Muhammed,
 
-> From: Colin Ian King <colin.king@canonical.com>
+> The function setup_timer combines the initialization of a timer with
+> the initialization of the timer's function and data fields.
+> The multiline code for timer initialization is now replaced
+> with function setup_timer.
 > 
-> The dev_err message is superfluous because the failure is already
-> printed by dev_kzalloc, so remove it.
-> 
-> Signed-off-by: Colin Ian King <colin.king@canonical.com>
+> Signed-off-by: Muhammad Falak R Wani <falakreyaz@gmail.com>
 > ---
->  drivers/watchdog/jz4740_wdt.c | 4 +---
+>  drivers/watchdog/cpwd.c | 4 +---
 >  1 file changed, 1 insertion(+), 3 deletions(-)
 > 
-> diff --git a/drivers/watchdog/jz4740_wdt.c b/drivers/watchdog/jz4740_wdt.c
-> index 6a7d5c3..c8d51dd 100644
-> --- a/drivers/watchdog/jz4740_wdt.c
-> +++ b/drivers/watchdog/jz4740_wdt.c
-> @@ -160,10 +160,8 @@ static int jz4740_wdt_probe(struct platform_device *pdev)
+> diff --git a/drivers/watchdog/cpwd.c b/drivers/watchdog/cpwd.c
+> index 0200768..71ee079 100644
+> --- a/drivers/watchdog/cpwd.c
+> +++ b/drivers/watchdog/cpwd.c
+> @@ -611,9 +611,7 @@ static int cpwd_probe(struct platform_device *op)
+>  	}
 >  
->  	drvdata = devm_kzalloc(&pdev->dev, sizeof(struct jz4740_wdt_drvdata),
->  			       GFP_KERNEL);
-> -	if (!drvdata) {
-> -		dev_err(&pdev->dev, "Unable to alloacate watchdog device\n");
-> +	if (!drvdata)
->  		return -ENOMEM;
-> -	}
+>  	if (p->broken) {
+> -		init_timer(&cpwd_timer);
+> -		cpwd_timer.function	= cpwd_brokentimer;
+> -		cpwd_timer.data		= (unsigned long) p;
+> +		setup_timer(&cpwd_timer, cpwd_brokentimer, (unsigned long)p);
+>  		cpwd_timer.expires	= WD_BTIMEOUT;
 >  
->  	if (heartbeat < 1 || heartbeat > MAX_HEARTBEAT)
->  		heartbeat = DEFAULT_HEARTBEAT;
+>  		pr_info("PLD defect workaround enabled for model %s\n",
 > -- 
-> 2.7.4
+> 1.9.1
 > 
 
 This patch was added to linux-watchdog-next.
