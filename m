@@ -1,49 +1,79 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from spo001.leaseweb.nl ([83.149.101.17]:34764 "EHLO
+Received: from spo001.leaseweb.nl ([83.149.101.17]:34765 "EHLO
 	spo001.leaseweb.nl" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751934AbcENQoh (ORCPT
+	with ESMTP id S1751955AbcENQpp (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 14 May 2016 12:44:37 -0400
-Date: Sat, 14 May 2016 18:44:35 +0200
+	Sat, 14 May 2016 12:45:45 -0400
+Date: Sat, 14 May 2016 18:45:43 +0200
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Lucas Stach <dev@lynxeye.de>
-Cc: Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] sp5100_tco: properly check for new register layouts
-Message-ID: <20160514164435.GA20311@spo001.leaseweb.nl>
-References: <1462295758-3299-1-git-send-email-dev@lynxeye.de>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-watchdog@vger.kernel.org, linux-renesas-soc@vger.kernel.org
+Subject: Re: [PATCH v2 0/4] watchdog: add driver for Renesas Gen3 WDT watchdogs
+Message-ID: <20160514164543.GA20335@spo001.leaseweb.nl>
+References: <1459511786-4286-1-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1462295758-3299-1-git-send-email-dev@lynxeye.de>
+In-Reply-To: <1459511786-4286-1-git-send-email-wsa@the-dreams.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Lucas,
+Hi Wolfram,
 
-> Commits 190aa4304de6 (Add AMD Mullins platform support) and
-> cca118fa2a0a94 (Add AMD Carrizo platform support) enabled the
-> driver on a lot more devices, but the following commit missed
-> a single location in the code when checking if the SB800 register
-> offsets should be used. This leads to the wrong register being
-> written which in turn causes ACPI to go haywire.
+> Here is V2 of this series with the following changes:
 > 
-> Fix this by introducing a helper function to check for the new
-> register layout and use this consistently.
+> * include bitops.h
+> * s/unsigned/unsigned int/
+> * drop set_timeout() because core does it already
+> * add get_timeleft()
+> * don't make "nowayout" a readable parameter
+> * use "watchdog" instead of "wdt" in the dt bindings
 > 
-> https://bugzilla.kernel.org/show_bug.cgi?id=114201
-> https://bugzilla.redhat.com/show_bug.cgi?id=1329910
-> Fixes: bdecfcdb5461 (sp5100_tco: fix the device check for SB800
-> and later chipsets)
-> Cc: stable@vger.kernel.org (4.5+)
-> Signed-off-by: Lucas Stach <dev@lynxeye.de>
-> ---
->  drivers/watchdog/sp5100_tco.c | 15 ++++++++++-----
->  1 file changed, 10 insertions(+), 5 deletions(-)
+> The dts and defconfig changes should go via Simon's tree once the driver is
+> accepted.
 > 
+> To use this driver, you need a recent firmware/uboot which initializes the
+> WDTRSTCR register which can only be changed in secure mode. 'md 0xe6160054 4'
+> should give you 0x8002 or something else with bit 15 set and bit 0 cleared.
+> 
+> Also, you need the clock enablement patches which just have been posted in
+> their newest version to the renesas-soc mailing list and are also in
+> close-to-be-applied state.
+> 
+> A complete branch to test can be found here:
+> 
+> git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git renesas/v8-wdt
+> 
+> Please review, test, comment...
+> 
+> Thanks,
+> 
+>    Wolfram
+> 
+> 
+> Wolfram Sang (4):
+>   watchdog: renesas-wdt: add driver
+>   arm64: dts: r8a7795: Add RWDT node
+>   arm64: dts: salvator-x: Enable watchdog timer
+>   arm64: defconfig: enable Renesas Watchdog Timer
+> 
+>  .../devicetree/bindings/watchdog/renesas-wdt.txt   |  25 +++
+>  arch/arm64/boot/dts/renesas/r8a7795-salvator-x.dts |   5 +
+>  arch/arm64/boot/dts/renesas/r8a7795.dtsi           |   8 +
+>  arch/arm64/configs/defconfig                       |   2 +
+>  drivers/watchdog/Kconfig                           |   8 +
+>  drivers/watchdog/Makefile                          |   1 +
+>  drivers/watchdog/renesas_wdt.c                     | 213 +++++++++++++++++++++
+>  7 files changed, 262 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
+>  create mode 100644 drivers/watchdog/renesas_wdt.c
+> 
+> -- 
+> 2.7.0
+>
 
-This patch has been added to linux-watchdog-next.
+Patch 1 and 4 have been added to linux-watchdog-next.
 
 Kind regards,
 Wim.
-
+ 
