@@ -1,70 +1,114 @@
 Return-path: <wimvs@spo001.leaseweb.nl>
-Date: Sat, 14 May 2016 18:38:20 +0200
+Date: Sat, 14 May 2016 18:41:19 +0200
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Tim Harvey <tharvey@gateworks.com>
-Cc: linux-watchdog@vger.kernel.org, Shawn Guo <shawnguo@kernel.org>,
-	linux-arm-kernel@lists.infradead.org,
-	Fabio Estevam <festevam@gmail.com>,
-	Lucas Stach <l.stach@pengutronix.de>,
-	Akshay Bhat <akshay.bhat@timesys.com>,
-	Guenter Roeck <linux@roeck-us.net>, Stefan Roese <sr@denx.de>,
-	Iain Paton <ipaton0@gmail.com>,
-	Sascha Hauer <s.hauer@pengutronix.de>
-Subject: Re: [PATCH v5 1/2] watchdog: imx2_wdt: add external reset support via dt prop
-Message-ID: <20160514163820.GC20158@spo001.leaseweb.nl>
-References: <1459523804-11390-1-git-send-email-tharvey@gateworks.com> <1459523804-11390-2-git-send-email-tharvey@gateworks.com>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Clemens Gruber <clemens.gruber@pqgruber.com>,
+	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] watchdog: core: Fix circular locking dependency
+Message-ID: <20160514164119.GE20158@spo001.leaseweb.nl>
+References: <1461249494-24924-1-git-send-email-linux@roeck-us.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1459523804-11390-2-git-send-email-tharvey@gateworks.com>
+In-Reply-To: <1461249494-24924-1-git-send-email-linux@roeck-us.net>
 Sender: <wimvs@spo001.leaseweb.nl>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi Tim,
+Hi Guenter,
 
-> The IMX6 watchdog supports assertion of a signal (WDOG_B) which
-> can be pinmux'd to an external pin. This is typically used for boards that
-> have PMIC's in control of the IMX6 power rails. In fact, failure to use
-> such an external reset on boards with external PMIC's can result in various
-> hangs due to the IMX6 not being fully reset [1] as well as the board failing
-> to reset because its PMIC has not been reset to provide adequate voltage for
-> the CPU when coming out of reset at 800Mhz.
+> lockdep reports the following circular locking dependency.
 > 
-> This uses a new device-tree property 'fsl,ext-reset-output' to indicate the
-> board has such a reset and to cause the watchdog to be configured to assert
-> WDOG_B instead of an internal reset both on a watchdog timeout and in
-> system_restart.
+> ======================================================
+> INFO: possible circular locking dependency detected ]
+> 4.6.0-rc3-00191-gfabf418 #162 Not tainted
+> -------------------------------------------------------
+> systemd/1 is trying to acquire lock:
+> ((&(&wd_data->work)->work)){+.+...}, at: [<80141650>] flush_work+0x0/0x280
 > 
-> [1] http://lists.infradead.org/pipermail/linux-arm-kernel/2015-March/333689.html
+> but task is already holding lock:
 > 
-> Cc: Fabio Estevam <festevam@gmail.com>
-> Cc: Lucas Stach <l.stach@pengutronix.de>
-> Cc: Stefan Roese <sr@denx.de>
-> Cc: Iain Paton <ipaton0@gmail.com>
-> Cc: Sascha Hauer <s.hauer@pengutronix.de>
-> Cc: Akshay Bhat <akshay.bhat@timesys.com>
-> Cc: Guenter Roeck <linux@roeck-us.net>
-> Signed-off-by: Tim Harvey <tharvey@gateworks.com>
-> Reviewed-by: Lucas Stach <l.stach@pengutronix.de>
-> Acked-by: Shawn Guo <shawn.guo@linaro.org>
+> (&wd_data->lock){+.+...}, at: [<804acfa8>] watchdog_release+0x18/0x190
+> 
+> which lock already depends on the new lock.
+> the existing dependency chain (in reverse order) is:
+> 
+> -> #1 (&wd_data->lock){+.+...}:
+> 	[<80662310>] mutex_lock_nested+0x64/0x4a8
+> 	[<804aca4c>] watchdog_ping_work+0x18/0x4c
+> 	[<80143128>] process_one_work+0x1ac/0x500
+> 	[<801434b4>] worker_thread+0x38/0x554
+> 	[<80149510>] kthread+0xf4/0x108
+> 	[<80107c10>] ret_from_fork+0x14/0x24
+> 
+> -> #0 ((&(&wd_data->work)->work)){+.+...}:
+> 	[<8017c4e8>] lock_acquire+0x70/0x90
+> 	[<8014169c>] flush_work+0x4c/0x280
+> 	[<801440f8>] __cancel_work_timer+0x9c/0x1e0
+> 	[<804acfcc>] watchdog_release+0x3c/0x190
+> 	[<8022c5e8>] __fput+0x80/0x1c8
+> 	[<80147b28>] task_work_run+0x94/0xc8
+> 	[<8010b998>] do_work_pending+0x8c/0xb4
+> 	[<80107ba8>] slow_work_pending+0xc/0x20
+> 
+> other info that might help us debug this:
+> Possible unsafe locking scenario:
+> 
+> CPU0                    CPU1
+> ----                    ----
+> lock(&wd_data->lock);
+>                         lock((&(&wd_data->work)->work));
+>                         lock(&wd_data->lock);
+> lock((&(&wd_data->work)->work));
+> 
+> *** DEADLOCK ***
+> 
+> 1 lock held by systemd/1:
+> 
+> stack backtrace:
+> CPU: 2 PID: 1 Comm: systemd Not tainted 4.6.0-rc3-00191-gfabf418 #162
+> Hardware name: Freescale i.MX6 Quad/DualLite (Device Tree)
+> [<8010f5e4>] (unwind_backtrace) from [<8010c038>] (show_stack+0x10/0x14)
+> [<8010c038>] (show_stack) from [<8039d7fc>] (dump_stack+0xa8/0xd4)
+> [<8039d7fc>] (dump_stack) from [<80177ee0>] (print_circular_bug+0x214/0x334)
+> [<80177ee0>] (print_circular_bug) from [<80179230>] (check_prevs_add+0x4dc/0x8e8)
+> [<80179230>] (check_prevs_add) from [<8017b3d8>] (__lock_acquire+0xc6c/0x14ec)
+> [<8017b3d8>] (__lock_acquire) from [<8017c4e8>] (lock_acquire+0x70/0x90)
+> [<8017c4e8>] (lock_acquire) from [<8014169c>] (flush_work+0x4c/0x280)
+> [<8014169c>] (flush_work) from [<801440f8>] (__cancel_work_timer+0x9c/0x1e0)
+> [<801440f8>] (__cancel_work_timer) from [<804acfcc>] (watchdog_release+0x3c/0x190)
+> [<804acfcc>] (watchdog_release) from [<8022c5e8>] (__fput+0x80/0x1c8)
+> [<8022c5e8>] (__fput) from [<80147b28>] (task_work_run+0x94/0xc8)
+> [<80147b28>] (task_work_run) from [<8010b998>] (do_work_pending+0x8c/0xb4)
+> [<8010b998>] (do_work_pending) from [<80107ba8>] (slow_work_pending+0xc/0x20)
+> 
+> Turns out the call to cancel_delayed_work_sync() in watchdog_release()
+> is not necessary and can be dropped. If the worker is no longer necessary,
+> the subsequent call to watchdog_update_worker() will cancel it. If it is
+> already running, it won't do anything, since the worker function checks
+> if it needs to ping the watchdog or not.
+> 
+> Reported-by: Clemens Gruber <clemens.gruber@pqgruber.com>
+> Tested-by: Clemens Gruber <clemens.gruber@pqgruber.com>
+> Fixes: 11d7aba9ceb7 ("watchdog: imx2: Convert to use infrastructure triggered keepalives")
+> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 > ---
-> v5:
->  - rename property to 'fsl,ext-reset-output'
-> v4:
->  - change Property to Properties in documentation
-> v3:
->  - mandate use of 'either' internal or external reset but not both
->    simultaneously
-> v2:
->  - rename property to 'ext-reset-output' based on ML feedback
->  - simplify setting SRS bit if external-reset
->  - update comments and commit msg
+>  drivers/watchdog/watchdog_dev.c | 1 -
+>  1 file changed, 1 deletion(-)
 > 
-> Signed-off-by: Tim Harvey <tharvey@gateworks.com>
-> ---
->  .../devicetree/bindings/watchdog/fsl-imx-wdt.txt      |  4 +++-
->  drivers/watchdog/imx2_wdt.c                           | 19 +++++++++++++++++--
->  2 files changed, 20 insertions(+), 3 deletions(-)
+> diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
+> index e2c5abbb45ff..3595cffa24ea 100644
+> --- a/drivers/watchdog/watchdog_dev.c
+> +++ b/drivers/watchdog/watchdog_dev.c
+> @@ -736,7 +736,6 @@ static int watchdog_release(struct inode *inode, struct file *file)
+>  		watchdog_ping(wdd);
+>  	}
+>  
+> -	cancel_delayed_work_sync(&wd_data->work);
+>  	watchdog_update_worker(wdd);
+>  
+>  	/* make sure that /dev/watchdog can be re-opened */
+> -- 
+> 2.5.0
 > 
 
 This patch has been added to linux-watchdog-next.
