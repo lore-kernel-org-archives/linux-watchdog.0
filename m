@@ -1,117 +1,53 @@
-Return-path: <wimvs@spo001.leaseweb.nl>
-Date: Sat, 14 May 2016 18:41:19 +0200
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from spo001.leaseweb.nl ([83.149.101.17]:34758 "EHLO
+	spo001.leaseweb.nl" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751934AbcENQm6 (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Sat, 14 May 2016 12:42:58 -0400
+Date: Sat, 14 May 2016 18:42:55 +0200
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Clemens Gruber <clemens.gruber@pqgruber.com>,
-	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] watchdog: core: Fix circular locking dependency
-Message-ID: <20160514164119.GE20158@spo001.leaseweb.nl>
-References: <1461249494-24924-1-git-send-email-linux@roeck-us.net>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-watchdog@vger.kernel.org, linux-renesas-soc@vger.kernel.org
+Subject: Re: [PATCH] watchdog: core: fix trivial typo in a comment
+Message-ID: <20160514164255.GA20279@spo001.leaseweb.nl>
+References: <1460476571-2351-1-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1461249494-24924-1-git-send-email-linux@roeck-us.net>
-Sender: <wimvs@spo001.leaseweb.nl>
-List-ID: <linux-watchdog@vger.kernel.org>
+In-Reply-To: <1460476571-2351-1-git-send-email-wsa@the-dreams.de>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-Hi Guenter,
+Hi Wolfram,
 
-> lockdep reports the following circular locking dependency.
+> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 > 
-> ======================================================
-> INFO: possible circular locking dependency detected ]
-> 4.6.0-rc3-00191-gfabf418 #162 Not tainted
-> -------------------------------------------------------
-> systemd/1 is trying to acquire lock:
-> ((&(&wd_data->work)->work)){+.+...}, at: [<80141650>] flush_work+0x0/0x280
+> Let's have balanced round brackets.
 > 
-> but task is already holding lock:
-> 
-> (&wd_data->lock){+.+...}, at: [<804acfa8>] watchdog_release+0x18/0x190
-> 
-> which lock already depends on the new lock.
-> the existing dependency chain (in reverse order) is:
-> 
-> -> #1 (&wd_data->lock){+.+...}:
-> 	[<80662310>] mutex_lock_nested+0x64/0x4a8
-> 	[<804aca4c>] watchdog_ping_work+0x18/0x4c
-> 	[<80143128>] process_one_work+0x1ac/0x500
-> 	[<801434b4>] worker_thread+0x38/0x554
-> 	[<80149510>] kthread+0xf4/0x108
-> 	[<80107c10>] ret_from_fork+0x14/0x24
-> 
-> -> #0 ((&(&wd_data->work)->work)){+.+...}:
-> 	[<8017c4e8>] lock_acquire+0x70/0x90
-> 	[<8014169c>] flush_work+0x4c/0x280
-> 	[<801440f8>] __cancel_work_timer+0x9c/0x1e0
-> 	[<804acfcc>] watchdog_release+0x3c/0x190
-> 	[<8022c5e8>] __fput+0x80/0x1c8
-> 	[<80147b28>] task_work_run+0x94/0xc8
-> 	[<8010b998>] do_work_pending+0x8c/0xb4
-> 	[<80107ba8>] slow_work_pending+0xc/0x20
-> 
-> other info that might help us debug this:
-> Possible unsafe locking scenario:
-> 
-> CPU0                    CPU1
-> ----                    ----
-> lock(&wd_data->lock);
->                         lock((&(&wd_data->work)->work));
->                         lock(&wd_data->lock);
-> lock((&(&wd_data->work)->work));
-> 
-> *** DEADLOCK ***
-> 
-> 1 lock held by systemd/1:
-> 
-> stack backtrace:
-> CPU: 2 PID: 1 Comm: systemd Not tainted 4.6.0-rc3-00191-gfabf418 #162
-> Hardware name: Freescale i.MX6 Quad/DualLite (Device Tree)
-> [<8010f5e4>] (unwind_backtrace) from [<8010c038>] (show_stack+0x10/0x14)
-> [<8010c038>] (show_stack) from [<8039d7fc>] (dump_stack+0xa8/0xd4)
-> [<8039d7fc>] (dump_stack) from [<80177ee0>] (print_circular_bug+0x214/0x334)
-> [<80177ee0>] (print_circular_bug) from [<80179230>] (check_prevs_add+0x4dc/0x8e8)
-> [<80179230>] (check_prevs_add) from [<8017b3d8>] (__lock_acquire+0xc6c/0x14ec)
-> [<8017b3d8>] (__lock_acquire) from [<8017c4e8>] (lock_acquire+0x70/0x90)
-> [<8017c4e8>] (lock_acquire) from [<8014169c>] (flush_work+0x4c/0x280)
-> [<8014169c>] (flush_work) from [<801440f8>] (__cancel_work_timer+0x9c/0x1e0)
-> [<801440f8>] (__cancel_work_timer) from [<804acfcc>] (watchdog_release+0x3c/0x190)
-> [<804acfcc>] (watchdog_release) from [<8022c5e8>] (__fput+0x80/0x1c8)
-> [<8022c5e8>] (__fput) from [<80147b28>] (task_work_run+0x94/0xc8)
-> [<80147b28>] (task_work_run) from [<8010b998>] (do_work_pending+0x8c/0xb4)
-> [<8010b998>] (do_work_pending) from [<80107ba8>] (slow_work_pending+0xc/0x20)
-> 
-> Turns out the call to cancel_delayed_work_sync() in watchdog_release()
-> is not necessary and can be dropped. If the worker is no longer necessary,
-> the subsequent call to watchdog_update_worker() will cancel it. If it is
-> already running, it won't do anything, since the worker function checks
-> if it needs to ping the watchdog or not.
-> 
-> Reported-by: Clemens Gruber <clemens.gruber@pqgruber.com>
-> Tested-by: Clemens Gruber <clemens.gruber@pqgruber.com>
-> Fixes: 11d7aba9ceb7 ("watchdog: imx2: Convert to use infrastructure triggered keepalives")
-> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 > ---
->  drivers/watchdog/watchdog_dev.c | 1 -
->  1 file changed, 1 deletion(-)
+>  drivers/watchdog/watchdog_core.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-> index e2c5abbb45ff..3595cffa24ea 100644
-> --- a/drivers/watchdog/watchdog_dev.c
-> +++ b/drivers/watchdog/watchdog_dev.c
-> @@ -736,7 +736,6 @@ static int watchdog_release(struct inode *inode, struct file *file)
->  		watchdog_ping(wdd);
->  	}
->  
-> -	cancel_delayed_work_sync(&wd_data->work);
->  	watchdog_update_worker(wdd);
->  
->  	/* make sure that /dev/watchdog can be re-opened */
+> diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
+> index c1658fe73d58a1..6249ed34214a9f 100644
+> --- a/drivers/watchdog/watchdog_core.c
+> +++ b/drivers/watchdog/watchdog_core.c
+> @@ -104,7 +104,7 @@ static void watchdog_check_min_max_timeout(struct watchdog_device *wdd)
+>   * timeout module parameter (if it is valid value) or the timeout-sec property
+>   * (only if it is a valid value and the timeout_parm is out of bounds).
+>   * If none of them are valid then we keep the old value (which should normally
+> - * be the default timeout value.
+> + * be the default timeout value).
+>   *
+>   * A zero is returned on success and -EINVAL for failure.
+>   */
 > -- 
-> 2.5.0
+> 2.7.0
 > 
 
 This patch has been added to linux-watchdog-next.
 
 Kind regards,
 Wim.
+
