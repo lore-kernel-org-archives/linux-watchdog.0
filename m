@@ -1,49 +1,45 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from spo001.leaseweb.nl ([83.149.101.17]:34758 "EHLO
+Received: from spo001.leaseweb.nl ([83.149.101.17]:34764 "EHLO
 	spo001.leaseweb.nl" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751934AbcENQm6 (ORCPT
+	with ESMTP id S1751934AbcENQoh (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 14 May 2016 12:42:58 -0400
-Date: Sat, 14 May 2016 18:42:55 +0200
+	Sat, 14 May 2016 12:44:37 -0400
+Date: Sat, 14 May 2016 18:44:35 +0200
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-watchdog@vger.kernel.org, linux-renesas-soc@vger.kernel.org
-Subject: Re: [PATCH] watchdog: core: fix trivial typo in a comment
-Message-ID: <20160514164255.GA20279@spo001.leaseweb.nl>
-References: <1460476571-2351-1-git-send-email-wsa@the-dreams.de>
+To: Lucas Stach <dev@lynxeye.de>
+Cc: Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] sp5100_tco: properly check for new register layouts
+Message-ID: <20160514164435.GA20311@spo001.leaseweb.nl>
+References: <1462295758-3299-1-git-send-email-dev@lynxeye.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1460476571-2351-1-git-send-email-wsa@the-dreams.de>
+In-Reply-To: <1462295758-3299-1-git-send-email-dev@lynxeye.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Wolfram,
+Hi Lucas,
 
-> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> Commits 190aa4304de6 (Add AMD Mullins platform support) and
+> cca118fa2a0a94 (Add AMD Carrizo platform support) enabled the
+> driver on a lot more devices, but the following commit missed
+> a single location in the code when checking if the SB800 register
+> offsets should be used. This leads to the wrong register being
+> written which in turn causes ACPI to go haywire.
 > 
-> Let's have balanced round brackets.
+> Fix this by introducing a helper function to check for the new
+> register layout and use this consistently.
 > 
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> https://bugzilla.kernel.org/show_bug.cgi?id=114201
+> https://bugzilla.redhat.com/show_bug.cgi?id=1329910
+> Fixes: bdecfcdb5461 (sp5100_tco: fix the device check for SB800
+> and later chipsets)
+> Cc: stable@vger.kernel.org (4.5+)
+> Signed-off-by: Lucas Stach <dev@lynxeye.de>
 > ---
->  drivers/watchdog/watchdog_core.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
-> index c1658fe73d58a1..6249ed34214a9f 100644
-> --- a/drivers/watchdog/watchdog_core.c
-> +++ b/drivers/watchdog/watchdog_core.c
-> @@ -104,7 +104,7 @@ static void watchdog_check_min_max_timeout(struct watchdog_device *wdd)
->   * timeout module parameter (if it is valid value) or the timeout-sec property
->   * (only if it is a valid value and the timeout_parm is out of bounds).
->   * If none of them are valid then we keep the old value (which should normally
-> - * be the default timeout value.
-> + * be the default timeout value).
->   *
->   * A zero is returned on success and -EINVAL for failure.
->   */
-> -- 
-> 2.7.0
+>  drivers/watchdog/sp5100_tco.c | 15 ++++++++++-----
+>  1 file changed, 10 insertions(+), 5 deletions(-)
 > 
 
 This patch has been added to linux-watchdog-next.
