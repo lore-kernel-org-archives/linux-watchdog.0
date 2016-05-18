@@ -1,68 +1,64 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:55629 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:55638 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751546AbcERJir (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 18 May 2016 05:38:47 -0400
-Date: Wed, 18 May 2016 11:38:32 +0200
+	id S1750792AbcERJj7 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 18 May 2016 05:39:59 -0400
+Date: Wed, 18 May 2016 11:39:54 +0200
 From: Wolfram Sang <wsa@the-dreams.de>
-To: Guenter Roeck <linux@roeck-us.net>,
-	Simon Horman <horms@verge.net.au>
+To: Guenter Roeck <linux@roeck-us.net>
 Cc: linux-watchdog@vger.kernel.org, linux-renesas-soc@vger.kernel.org
-Subject: Re: [PATCH v2 2/4] arm64: dts: r8a7795: Add RWDT node
-Message-ID: <20160518093832.GA1639@katana>
+Subject: Re: [PATCH v2 3/4] arm64: dts: salvator-x: Enable watchdog timer
+Message-ID: <20160518093954.GB1639@katana>
 References: <1459511786-4286-1-git-send-email-wsa@the-dreams.de>
- <1459511786-4286-3-git-send-email-wsa@the-dreams.de>
- <20160404140057.GA27688@roeck-us.net>
+ <1459511786-4286-4-git-send-email-wsa@the-dreams.de>
+ <20160404140131.GB27688@roeck-us.net>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="HcAYCG3uE/tztfnV"
+	protocol="application/pgp-signature"; boundary="98e8jtXdkpgskNou"
 Content-Disposition: inline
-In-Reply-To: <20160404140057.GA27688@roeck-us.net>
+In-Reply-To: <20160404140131.GB27688@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
 
---HcAYCG3uE/tztfnV
+--98e8jtXdkpgskNou
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Apr 04, 2016 at 07:00:57AM -0700, Guenter Roeck wrote:
-> On Fri, Apr 01, 2016 at 01:56:24PM +0200, Wolfram Sang wrote:
+On Mon, Apr 04, 2016 at 07:01:31AM -0700, Guenter Roeck wrote:
+> On Fri, Apr 01, 2016 at 01:56:25PM +0200, Wolfram Sang wrote:
 > > From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 > >=20
-> > This patch adds the RWDT device node for r8a7795.
+> > This patch enables watchdog timer for Salvator-X board.
 > >=20
 > > Signed-off-by: Takeshi Kihara <takeshi.kihara.df@renesas.com>
 > > Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 >=20
-> Acked-by: Guenter Roeck <linux@roeck-us.net>
->=20
-> I assume the dts patches will go through the an arm64 tree.
-> Is this correct ?
+> Acked-by: Guenter Roeck <linux2roeck-us.net>
 
-Yes. Simon: ping :)
+Thanks. s/2/@/, I assume ;) Simon: ping
 
 
---HcAYCG3uE/tztfnV
+--98e8jtXdkpgskNou
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXPDgYAAoJEBQN5MwUoCm27qAQAIYCAPuLenwxxs6Rjkx1lvA0
-qOH5Qdm4A5m5WdO0Cce+7svUPSl7JPNspKRaZGsvbHfFisYrPSfOdmYTz0EKgmKF
-jyw8ybjMNyPk1kzWGAIaWDqMOR4OFh6hhs3PTxfhjsXsPxW8/vLyPQrwyoXl+htj
-UkvTSQbDwMYRY7j7GXd97JI9LqmN+saeN2lChZbGxy9FnUdLgLgpzyDIaAgW1h9N
-Iq4ZcOCIfwxVlg6hYiXfGjHq3J0TnQAyaxkaewgoPwmrnlu3Sw73u2IP/Q7dak8/
-5dY61s+O02G1Ase0rL/KUUvAZEZzYwZDAfeLp+7ywhVGthCMSO6SOAEyz9itls85
-G6ew0SlrINidwKMezENY1svXcSX2ApyFqxqzudmqPHVgDgKyBurHXvlvnKGST4eo
-sQLKujBW+xUNnBR6INK828ZJJ175PbeKVTwIxAVuxdLluEx7cNQwxNHfC6ND4JdG
-ci1C7IWvxTQzrJBkBuyCMGt2p5Wr6TMwR7dU1b1eCgRoaQLqfdiRRq5JYNZcqSK/
-t5iByiwHcdnFahe9R+BAqbPIe/dy57/8IbOsfg72QtihXpki8Fm3r9olYOG/iA8s
-ItpEvPExjBtHXUqi9GvfUkF2jR5byAKGyobCWQ7DVoi7OscXUIlkHFW//GRmV/W/
-7TcvVmvjcbD/QWtxWaa0
-=9+Ex
+iQIcBAEBAgAGBQJXPDhqAAoJEBQN5MwUoCm2jO4QAIXUUWvwApGrdAw9FRYDF/gV
+/cu+lgN2HH6OG/CzO9sW/urDsINgERh9CxTbWuSyGfOYc+4eOJNCTEJutLY2Y0kG
+2aHc94OfXQIQWGb/Gsh3UrB0jhIERltxzdc46L+QwE+aycZSuxlzNTVUtnh+5HFZ
+Grgl04TdycJrXbL36uro2nT64/+g2D4nvcUFu+TeAQeLbyy+9eSxnTNVjtgAAwvo
+uZP7B/8dhLAH+NwML4Ek911J2BMt6ju+FgcbXUgDyZI0PG39xScpGpDMfDxbfG5x
+OoDbQXOatRysyiqv4zTlAYelxAnuBysNyU3I/Y2KErSGsdeG2657AxyJVgJhQXpc
+NKUmDqPBqtWZwUUJz6m+QbQBbvQGHe0vjcMR0+b2MyY6WQaghDNBDBea3+eOhA6s
+cRGEG0Aj+qSITM3v2F86g/Lj851PRzBNiPE5Kf5RKWUD7UCcq7hajgcFBlFyaZli
+Lhi2s9zldp9u0Nq7LqHbKWzHTvnThg4FOgcisl+7vEIggo8Ldsw4VpDahMz0toVp
+R771KFizuRUf+xbssrGSTghkB3cDhT+Z9XdFZ9lnNO3zA/2ig7hxkjnfPc8YeWwW
+9O29OrPiifc1nEAOaOtQYgVIHrvDBYwRccSSmIsMegCqcxV6tMPPdXyAxgKdfVg2
+7xCTeHD2pbJX8/0MozPh
+=FYrM
 -----END PGP SIGNATURE-----
 
---HcAYCG3uE/tztfnV--
+--98e8jtXdkpgskNou--
