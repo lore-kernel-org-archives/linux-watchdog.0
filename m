@@ -1,49 +1,51 @@
-Return-path: <vilhelm.gray@gmail.com>
-From: William Breathitt Gray <vilhelm.gray@gmail.com>
-To: gregkh@linuxfoundation.org,
-	akpm@linux-foundation.org
-Cc: x86@kernel.org,
-	linux-next@vger.kernel.org,
-	linux-gpio@vger.kernel.org,
-	linux-iio@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-watchdog@vger.kernel.org,
-	sfr@canb.auug.org.au,
-	linux@roeck-us.net,
-	William Breathitt Gray <vilhelm.gray@gmail.com>,
-	Wim Van Sebroeck <wim@iguana.be>
-Subject: [PATCH v5 4/4] watchdog: ebc-c384_wdt: Allow build for X86_64
-Date: Fri, 27 May 2016 18:09:27 -0400
-Message-Id: <383c17191c8261b578f057a969277fbbe918ef01.1464380034.git.vilhelm.gray@gmail.com>
-In-Reply-To: <cover.1464380034.git.vilhelm.gray@gmail.com>
-References: <cover.1464380034.git.vilhelm.gray@gmail.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Subject: Re: [PATCH 52/54] MAINTAINERS: Add file patterns for watchdog device
+ tree bindings
+To: Geert Uytterhoeven <geert@linux-m68k.org>, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <1463907991-7916-1-git-send-email-geert@linux-m68k.org>
+ <1463907991-7916-53-git-send-email-geert@linux-m68k.org>
+Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <5741EAF5.2080907@roeck-us.net>
+Date: Sun, 22 May 2016 10:23:01 -0700
+MIME-Version: 1.0
+In-Reply-To: <1463907991-7916-53-git-send-email-geert@linux-m68k.org>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-With the introduction of the ISA_BUS_API Kconfig option, ISA-style
-drivers may be built for X86_64 architectures. This patch changes the
-ISA Kconfig option dependency of the WinSystems EBC-C384 watchdog timer
-driver to ISA_BUS_API, thus allowing it to build for X86_64 as it is
-expected to.
+On 05/22/2016 02:06 AM, Geert Uytterhoeven wrote:
+> Submitters of device tree binding documentation may forget to CC
+> the subsystem maintainer if this is missing.
+>
+> Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+> Cc: Wim Van Sebroeck <wim@iguana.be>
+> Cc: Guenter Roeck <linux@roeck-us.net>
+> Cc: linux-watchdog@vger.kernel.org
 
-Cc: Wim Van Sebroeck <wim@iguana.be>
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: William Breathitt Gray <vilhelm.gray@gmail.com>
----
- drivers/watchdog/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index b54f26c..b4b3e25 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -746,7 +746,7 @@ config ALIM7101_WDT
- 
- config EBC_C384_WDT
- 	tristate "WinSystems EBC-C384 Watchdog Timer"
--	depends on X86 && ISA
-+	depends on X86 && ISA_BUS_API
- 	select WATCHDOG_CORE
- 	help
- 	  Enables watchdog timer support for the watchdog timer on the
--- 
-2.7.3
+> ---
+> Please apply this patch directly if you want to be involved in device
+> tree binding documentation for your subsystem.
+> ---
+>   MAINTAINERS | 1 +
+>   1 file changed, 1 insertion(+)
+>
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index 9f54762f002e16de..7202b6565dd98d50 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -12400,6 +12400,7 @@ L:	linux-watchdog@vger.kernel.org
+>   W:	http://www.linux-watchdog.org/
+>   T:	git git://www.linux-watchdog.org/linux-watchdog.git
+>   S:	Maintained
+> +F:	Documentation/devicetree/bindings/watchdog/
+>   F:	Documentation/watchdog/
+>   F:	drivers/watchdog/
+>   F:	include/linux/watchdog.h
+>
