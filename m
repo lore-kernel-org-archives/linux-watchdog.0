@@ -1,58 +1,43 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:42607 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753324AbcEROhU (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 18 May 2016 10:37:20 -0400
-Subject: Re: [PATCH 1/2] watchdog: iTCO-wdt handle 5th variation for Apollo
- Lake
-To: "Yong, Jonathan" <jonathan.yong@intel.com>,
-	linux-watchdog@vger.kernel.org, platform-driver-x86@vger.kernel.org
-References: <1463541972-19758-1-git-send-email-jonathan.yong@intel.com>
- <1463541972-19758-2-git-send-email-jonathan.yong@intel.com>
-Cc: qipeng.zha@intel.com
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <573C7E1D.3040602@roeck-us.net>
-Date: Wed, 18 May 2016 07:37:17 -0700
-MIME-Version: 1.0
-In-Reply-To: <1463541972-19758-2-git-send-email-jonathan.yong@intel.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-path: <geert@linux-m68k.org>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Guenter Roeck <linux@roeck-us.net>,
+	linux-watchdog@vger.kernel.org
+Subject: [PATCH 52/54] MAINTAINERS: Add file patterns for watchdog device tree bindings
+Date: Sun, 22 May 2016 11:06:29 +0200
+Message-Id: <1463907991-7916-53-git-send-email-geert@linux-m68k.org>
+In-Reply-To: <1463907991-7916-1-git-send-email-geert@linux-m68k.org>
+References: <1463907991-7916-1-git-send-email-geert@linux-m68k.org>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 05/17/2016 08:26 PM, Yong, Jonathan wrote:
-> The Apollo Lake Watchdog has the no_reboot flag in the 4th bit.
->
-> Signed-off-by: Yong, Jonathan <jonathan.yong@intel.com>
+Submitters of device tree binding documentation may forget to CC
+the subsystem maintainer if this is missing.
 
-Acked-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Wim Van Sebroeck <wim@iguana.be>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Cc: linux-watchdog@vger.kernel.org
+---
+Please apply this patch directly if you want to be involved in device
+tree binding documentation for your subsystem.
+---
+ MAINTAINERS | 1 +
+ 1 file changed, 1 insertion(+)
 
-> ---
->   drivers/watchdog/iTCO_wdt.c | 4 ++++
->   1 file changed, 4 insertions(+)
->
-> diff --git a/drivers/watchdog/iTCO_wdt.c b/drivers/watchdog/iTCO_wdt.c
-> index 0acc6c5..eccba32 100644
-> --- a/drivers/watchdog/iTCO_wdt.c
-> +++ b/drivers/watchdog/iTCO_wdt.c
-> @@ -150,6 +150,9 @@ static inline u32 no_reboot_bit(void)
->   	u32 enable_bit;
->
->   	switch (iTCO_wdt_private.iTCO_version) {
-> +	case 5:
-> +		enable_bit = 0x00000008;
-> +		break;
->   	case 3:
->   		enable_bit = 0x00000010;
->   		break;
-> @@ -512,6 +515,7 @@ static int iTCO_wdt_probe(struct platform_device *dev)
->
->   	/* Clear out the (probably old) status */
->   	switch (iTCO_wdt_private.iTCO_version) {
-> +	case 5:
->   	case 4:
->   		outw(0x0008, TCO1_STS);	/* Clear the Time Out Status bit */
->   		outw(0x0002, TCO2_STS);	/* Clear SECOND_TO_STS bit */
->
-
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 9f54762f002e16de..7202b6565dd98d50 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -12400,6 +12400,7 @@ L:	linux-watchdog@vger.kernel.org
+ W:	http://www.linux-watchdog.org/
+ T:	git git://www.linux-watchdog.org/linux-watchdog.git
+ S:	Maintained
++F:	Documentation/devicetree/bindings/watchdog/
+ F:	Documentation/watchdog/
+ F:	drivers/watchdog/
+ F:	include/linux/watchdog.h
+-- 
+1.9.1
