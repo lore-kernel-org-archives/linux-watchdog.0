@@ -1,52 +1,58 @@
-Return-path: <wimvs@spo001.leaseweb.nl>
-Date: Mon, 23 May 2016 09:07:20 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 52/54] MAINTAINERS: Add file patterns for watchdog device tree bindings
-Message-ID: <20160523070720.GA17439@spo001.leaseweb.nl>
-References: <1463907991-7916-1-git-send-email-geert@linux-m68k.org> <1463907991-7916-53-git-send-email-geert@linux-m68k.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1463907991-7916-53-git-send-email-geert@linux-m68k.org>
-Sender: <wimvs@spo001.leaseweb.nl>
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from g2t1383g.austin.hpe.com ([15.233.16.89]:30192 "EHLO
+	g2t1383g.austin.hpe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752400AbcEWNmF (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 23 May 2016 09:42:05 -0400
+Received: from g9t5009.houston.hpe.com (g9t5009.houston.hpe.com [15.241.48.73])
+	(using TLSv1.2 with cipher DHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by g2t1383g.austin.hpe.com (Postfix) with ESMTPS id D51561420
+	for <linux-watchdog@vger.kernel.org>; Mon, 23 May 2016 13:34:40 +0000 (UTC)
+From: Brian Boylston <brian.boylston@hpe.com>
+To: linux-watchdog@vger.kernel.org
+Cc: Brian Boylston <brian.boylston@hpe.com>
+Subject: [PATCH] watchdog: hpwdt: update HPE maintainer
+Date: Mon, 23 May 2016 08:33:29 -0500
+Message-Id: <20160523133329.10075-1-brian.boylston@hpe.com>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-Hi Geert,
+Update the HPE maintainer of the hpwdt driver.
 
-> Submitters of device tree binding documentation may forget to CC
-> the subsystem maintainer if this is missing.
-> 
-> Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-> Cc: Wim Van Sebroeck <wim@iguana.be>
-> Cc: Guenter Roeck <linux@roeck-us.net>
-> Cc: linux-watchdog@vger.kernel.org
-> ---
-> Please apply this patch directly if you want to be involved in device
-> tree binding documentation for your subsystem.
-> ---
->  MAINTAINERS | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index 9f54762f002e16de..7202b6565dd98d50 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -12400,6 +12400,7 @@ L:	linux-watchdog@vger.kernel.org
->  W:	http://www.linux-watchdog.org/
->  T:	git git://www.linux-watchdog.org/linux-watchdog.git
->  S:	Maintained
-> +F:	Documentation/devicetree/bindings/watchdog/
->  F:	Documentation/watchdog/
->  F:	drivers/watchdog/
->  F:	include/linux/watchdog.h
-> -- 
-> 1.9.1
-> 
+Signed-off-by: Brian Boylston <brian.boylston@hpe.com>
+---
+This patch applies on top of:
+[PATCH V4] watchdog: hpwdt: Adjust documentation to match latest kernel module parameters.
+which I think is already in linux-watchdog-next.
 
-Patch added to linux-watchdog-next.
+ Documentation/watchdog/hpwdt.txt | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-Kind regards,
-Wim.
+diff --git a/Documentation/watchdog/hpwdt.txt b/Documentation/watchdog/hpwdt.txt
+index a40398c..27106ff 100644
+--- a/Documentation/watchdog/hpwdt.txt
++++ b/Documentation/watchdog/hpwdt.txt
+@@ -1,9 +1,12 @@
+-Last reviewed: 04/04/2016
++Last reviewed: 05/20/2016
+ 
+                      HPE iLO NMI Watchdog Driver
+               NMI sourcing for iLO based ProLiant Servers
+                      Documentation and Driver by
+-              Thomas Mingarelli <thomas.mingarelli@hpe.com>
++                         Thomas Mingarelli
++
++                       Currently maintained by
++               Brian Boylston <brian.boylston@hpe.com>
+ 
+  The HPE iLO NMI Watchdog driver is a kernel module that provides basic
+  watchdog functionality and the added benefit of NMI sourcing. Both the
+@@ -95,4 +98,3 @@ Last reviewed: 04/04/2016
+ 
+ 
+  -- Tom Mingarelli
+-    (thomas.mingarelli@hpe.com)
+-- 
+2.8.3
+
