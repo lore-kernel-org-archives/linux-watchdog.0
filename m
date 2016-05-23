@@ -1,9 +1,9 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-yw0-f194.google.com ([209.85.161.194]:35152 "EHLO
+Received: from mail-yw0-f194.google.com ([209.85.161.194]:32996 "EHLO
 	mail-yw0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752087AbcEWXO3 (ORCPT
+	with ESMTP id S1753253AbcEWXOS (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 23 May 2016 19:14:29 -0400
+	Mon, 23 May 2016 19:14:18 -0400
 From: William Breathitt Gray <vilhelm.gray@gmail.com>
 To: gregkh@linuxfoundation.org, akpm@linux-foundation.org
 Cc: x86@kernel.org, linux-next@vger.kernel.org,
@@ -11,11 +11,13 @@ Cc: x86@kernel.org, linux-next@vger.kernel.org,
 	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
 	sfr@canb.auug.org.au,
 	William Breathitt Gray <vilhelm.gray@gmail.com>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Wim Van Sebroeck <wim@iguana.be>
-Subject: [PATCH v3 4/4] watchdog: ebc-c384_wdt: Allow build for X86_64
-Date: Mon, 23 May 2016 19:14:21 -0400
-Message-Id: <4c3952052f444b7039f0f068b306f149868d8fe3.1464044853.git.vilhelm.gray@gmail.com>
+	Hartmut Knaack <knaack.h@gmx.de>,
+	Lars-Peter Clausen <lars@metafoo.de>,
+	Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
+	Jonathan Cameron <jic23@kernel.org>
+Subject: [PATCH v3 3/4] iio: stx104: Allow build for X86_64
+Date: Mon, 23 May 2016 19:14:10 -0400
+Message-Id: <4023303b932903695a6770a575879028e3f6c7fe.1464044853.git.vilhelm.gray@gmail.com>
 In-Reply-To: <cover.1464044853.git.vilhelm.gray@gmail.com>
 References: <cover.1464044853.git.vilhelm.gray@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -23,30 +25,32 @@ List-Id: linux-watchdog@vger.kernel.org
 
 With the introduction of the ISA_BUS_API Kconfig option, ISA-style
 drivers may be built for X86_64 architectures. This patch changes the
-ISA Kconfig option dependency of the WinSystems EBC-C384 watchdog timer
+ISA Kconfig option dependency of the Apex Embedded Systems STX104 DAC
 driver to ISA_BUS_API, thus allowing it to build for X86_64 as it is
 expected to.
 
-Cc: Guenter Roeck <linux@roeck-us.net>
-Cc: Wim Van Sebroeck <wim@iguana.be>
+Cc: Hartmut Knaack <knaack.h@gmx.de>
+Cc: Lars-Peter Clausen <lars@metafoo.de>
+Cc: Peter Meerwald-Stadler <pmeerw@pmeerw.net>
+Cc: Jonathan Cameron <jic23@kernel.org>
 Signed-off-by: William Breathitt Gray <vilhelm.gray@gmail.com>
 ---
- drivers/watchdog/Kconfig | 2 +-
+ drivers/iio/dac/Kconfig | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index b54f26c..3938e2d 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -746,7 +746,7 @@ config ALIM7101_WDT
+diff --git a/drivers/iio/dac/Kconfig b/drivers/iio/dac/Kconfig
+index e63b957..315442f 100644
+--- a/drivers/iio/dac/Kconfig
++++ b/drivers/iio/dac/Kconfig
+@@ -247,7 +247,7 @@ config MCP4922
  
- config EBC_C384_WDT
- 	tristate "WinSystems EBC-C384 Watchdog Timer"
+ config STX104
+ 	tristate "Apex Embedded Systems STX104 DAC driver"
 -	depends on X86 && ISA
 +	depends on ISA_BUS_API
- 	select WATCHDOG_CORE
  	help
- 	  Enables watchdog timer support for the watchdog timer on the
+ 	  Say yes here to build support for the 2-channel DAC on the Apex
+ 	  Embedded Systems STX104 integrated analog PC/104 card. The base port
 -- 
 2.7.3
 
