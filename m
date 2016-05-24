@@ -1,50 +1,74 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:34554 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754661AbcEWUT2 (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 23 May 2016 16:19:28 -0400
-Date: Mon, 23 May 2016 13:19:27 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: "Boylston, Brian" <brian.boylston@hpe.com>
-Cc: "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
-Subject: Re: [PATCH] watchdog: hpwdt: update HPE maintainer
-Message-ID: <20160523201927.GA16193@roeck-us.net>
-References: <20160523133329.10075-1-brian.boylston@hpe.com>
- <57431A13.1040406@roeck-us.net>
- <CS1PR84MB011968DAA650E6408707CC1A8E4E0@CS1PR84MB0119.NAMPRD84.PROD.OUTLOOK.COM>
+Return-path: <dvhart@infradead.org>
+Date: Tue, 24 May 2016 13:13:16 -0700
+From: Darren Hart <dvhart@infradead.org>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: "Yong, Jonathan" <jonathan.yong@intel.com>,
+	linux-watchdog@vger.kernel.org, platform-driver-x86@vger.kernel.org,
+	qipeng.zha@intel.com
+Subject: Re: [PATCH 2/2] x86: Fix Apollo Lake Watchdog address in PMC driver
+Message-ID: <20160524201316.GA5857@f23x64.localdomain>
+References: <1463541972-19758-1-git-send-email-jonathan.yong@intel.com>
+ <1463541972-19758-3-git-send-email-jonathan.yong@intel.com>
+ <573BE985.1000306@roeck-us.net>
+ <573BF421.2020503@intel.com>
+ <573C7E0C.7050304@roeck-us.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CS1PR84MB011968DAA650E6408707CC1A8E4E0@CS1PR84MB0119.NAMPRD84.PROD.OUTLOOK.COM>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+In-Reply-To: <573C7E0C.7050304@roeck-us.net>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On Mon, May 23, 2016 at 07:38:46PM +0000, Boylston, Brian wrote:
-> Guenter Roeck wrote on 2016-05-23:
-> > Hi Brian,
-> > 
-> > On 05/23/2016 06:33 AM, Brian Boylston wrote:
-> >> Update the HPE maintainer of the hpwdt driver.
-> >> 
-> >> Signed-off-by: Brian Boylston <brian.boylston@hpe.com>
-> > 
-> > A driver's maintainer is commonly updated in MAINTAINERS, not in the driver itself.
-> > If you are the formal maintainer, I would suggest to add an entry for the driver
-> > into the MAINTAINERS file; this would ensure that you get copied on patches
-> > affecting the driver.
+On Wed, May 18, 2016 at 07:37:00AM -0700, Guenter Roeck wrote:
+> On 05/17/2016 09:48 PM, Yong, Jonathan wrote:
+> >On 05/18/2016 12:03, Guenter Roeck wrote:
+> >>On 05/17/2016 08:26 PM, Yong, Jonathan wrote:
+> >>>The TCO I/O base is 40h rather than the usual 30h, and the
+> >>>re_reboot bit is at ACPIBASE+8.
+> >>>
+> >>
+> >>Does this mean that the code never worked, or in other words that it
+> >>was never tested, or are there now other chips which used the old
+> >>definitions which no longer work after this patch has been applied ?
+> >
+> >To my knowledge, it has never worked since 30h is claimed by ACPI GPE0_BLK.
+> >
+> Hmm.. Darren will have to take that one. I am not in a position to
+> determine if the new patch is correct or not, and/or if it causes some
+> other platform/architecture to fail. I'll Ack the other patch, and
+> would suggest for Darren to take it as well to keep the two patches together.
+
+I actually have the same exact question :-)
+
+The history of this driver is for Apollo Lake, so the question is if there exist
+v3 and v5 APL products, or if we only need to concern ourselves with v5 in the
+upstream driver.
+
+Especially given the "I don't know if this is the right way" in the cover
+letter, I will need an Acked-by at the very least from Qipeng.
+
+Jonathan, please remember to Cc ALL the maintainers and all the lists listed by
+get_maintainers when sending patches:
+
+$ scripts/get_maintainer.pl -f drivers/platform/x86/intel_pmc_ipc.c
+Zha Qipeng <qipeng.zha@intel.com> (maintainer:INTEL PMC/P-Unit IPC DRIVER)
+Darren Hart <dvhart@infradead.org> (maintainer:X86 PLATFORM DRIVERS)
+platform-driver-x86@vger.kernel.org (open list:INTEL PMC/P-Unit IPC DRIVER)
+linux-kernel@vger.kernel.org (open list)
+
+In particular, ALL patches MUST cc  LKML.
+
 > 
-> Thanks, Guenter.  I'll work on an update to MAINTAINERS.
-> Okay if I leave my name out of hpwdt.txt then?
+> Guenter
 > 
-Hi Brian,
+> >With this patch, watchdog ioctl is working properly with WDIOC_SETTIMEOUT, WDIOC_GETTIMEOUT and WDIOC_GETTIMELEFT as expected.
+> >
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe platform-driver-x86" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
 
-hpwdt.txt is irrelevant when it comes to maintainers. In general I would
-recommend to not list e-mail addresses in documentation, or anything else that
-isn't static, such as the name of a driver maintainer. It just adds another
-place which needs to be updated. So, yes, sure it is ok to not mention your
-name there. You can list your name if you like, but please not as "current
-maintainer".
-
-Thanks,
-Guenter
+-- 
+Darren Hart
+Intel Open Source Technology Center
