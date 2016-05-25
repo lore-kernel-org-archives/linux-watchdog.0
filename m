@@ -1,15 +1,15 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:34465 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:34467 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751022AbcEYGiS (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 25 May 2016 02:38:18 -0400
+	id S1751418AbcEYGiT (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 25 May 2016 02:38:19 -0400
 From: Wolfram Sang <wsa@the-dreams.de>
 To: linux-watchdog@vger.kernel.org
 Cc: linux-renesas-soc@vger.kernel.org,
 	Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 3/7] watchdog: softdog: consistently use softdog_ prefix
-Date: Wed, 25 May 2016 08:37:45 +0200
-Message-Id: <1464158269-2447-4-git-send-email-wsa@the-dreams.de>
+Subject: [PATCH 4/7] watchdog: softdog: remove forward declaration
+Date: Wed, 25 May 2016 08:37:46 +0200
+Message-Id: <1464158269-2447-5-git-send-email-wsa@the-dreams.de>
 In-Reply-To: <1464158269-2447-1-git-send-email-wsa@the-dreams.de>
 References: <1464158269-2447-1-git-send-email-wsa@the-dreams.de>
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -17,78 +17,37 @@ List-Id: linux-watchdog@vger.kernel.org
 
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-And move module_init/exit to the proper place while here.
-
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- drivers/watchdog/softdog.c | 21 ++++++++++-----------
- 1 file changed, 10 insertions(+), 11 deletions(-)
+ drivers/watchdog/softdog.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/watchdog/softdog.c b/drivers/watchdog/softdog.c
-index a9ad27dd46502b..0a29f5a0833787 100644
+index 0a29f5a0833787..42faa3d424d5ca 100644
 --- a/drivers/watchdog/softdog.c
 +++ b/drivers/watchdog/softdog.c
-@@ -54,12 +54,12 @@ module_param(soft_panic, int, 0);
+@@ -54,11 +54,6 @@ module_param(soft_panic, int, 0);
  MODULE_PARM_DESC(soft_panic,
  	"Softdog action, set to 1 to panic, 0 to reboot (default=0)");
  
--static void watchdog_fire(unsigned long);
-+static void softdog_fire(unsigned long);
- 
--static struct timer_list watchdog_ticktock =
--		TIMER_INITIALIZER(watchdog_fire, 0, 0);
-+static struct timer_list softdog_ticktock =
-+		TIMER_INITIALIZER(softdog_fire, 0, 0);
- 
--static void watchdog_fire(unsigned long data)
-+static void softdog_fire(unsigned long data)
+-static void softdog_fire(unsigned long);
+-
+-static struct timer_list softdog_ticktock =
+-		TIMER_INITIALIZER(softdog_fire, 0, 0);
+-
+ static void softdog_fire(unsigned long data)
  {
  	module_put(THIS_MODULE);
- 	if (soft_noboot)
-@@ -76,14 +76,14 @@ static void watchdog_fire(unsigned long data)
+@@ -74,6 +69,9 @@ static void softdog_fire(unsigned long data)
+ 	}
+ }
  
++static struct timer_list softdog_ticktock =
++		TIMER_INITIALIZER(softdog_fire, 0, 0);
++
  static int softdog_ping(struct watchdog_device *w)
  {
--	if (!mod_timer(&watchdog_ticktock, jiffies+(w->timeout*HZ)))
-+	if (!mod_timer(&softdog_ticktock, jiffies+(w->timeout*HZ)))
- 		__module_get(THIS_MODULE);
- 	return 0;
- }
- 
- static int softdog_stop(struct watchdog_device *w)
- {
--	if (del_timer(&watchdog_ticktock))
-+	if (del_timer(&softdog_ticktock))
- 		module_put(THIS_MODULE);
- 
- 	return 0;
-@@ -115,7 +115,7 @@ static struct watchdog_device softdog_dev = {
- 	.timeout = TIMER_MARGIN,
- };
- 
--static int __init watchdog_init(void)
-+static int __init softdog_init(void)
- {
- 	int ret;
- 
-@@ -132,14 +132,13 @@ static int __init watchdog_init(void)
- 
- 	return 0;
- }
-+module_init(softdog_init);
- 
--static void __exit watchdog_exit(void)
-+static void __exit softdog_exit(void)
- {
- 	watchdog_unregister_device(&softdog_dev);
- }
--
--module_init(watchdog_init);
--module_exit(watchdog_exit);
-+module_exit(softdog_exit);
- 
- MODULE_AUTHOR("Alan Cox");
- MODULE_DESCRIPTION("Software Watchdog Device Driver");
+ 	if (!mod_timer(&softdog_ticktock, jiffies+(w->timeout*HZ)))
 -- 
 2.8.1
 
