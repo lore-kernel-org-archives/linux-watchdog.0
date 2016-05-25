@@ -1,36 +1,51 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mga11.intel.com ([192.55.52.93]:23521 "EHLO mga11.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751113AbcEYH4N (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 25 May 2016 03:56:13 -0400
-Message-ID: <57455A8B.1090807@intel.com>
-Date: Wed, 25 May 2016 15:55:55 +0800
-From: "Yong, Jonathan" <jonathan.yong@intel.com>
-MIME-Version: 1.0
-To: Darren Hart <dvhart@infradead.org>,
-	Guenter Roeck <linux@roeck-us.net>
-CC: linux-watchdog@vger.kernel.org,
-	platform-driver-x86@vger.kernel.org, qipeng.zha@intel.com
-Subject: Re: [PATCH 2/2] x86: Fix Apollo Lake Watchdog address in PMC driver
-References: <1463541972-19758-1-git-send-email-jonathan.yong@intel.com> <1463541972-19758-3-git-send-email-jonathan.yong@intel.com> <573BE985.1000306@roeck-us.net> <573BF421.2020503@intel.com> <573C7E0C.7050304@roeck-us.net> <20160524201316.GA5857@f23x64.localdomain>
-In-Reply-To: <20160524201316.GA5857@f23x64.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Received: from g9t1613g.houston.hpe.com ([15.241.32.99]:52311 "EHLO
+	g9t1613g.houston.hpe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753312AbcEYQaU (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 25 May 2016 12:30:20 -0400
+Received: from g9t5009.houston.hpe.com (g9t5009.houston.hpe.com [15.241.48.73])
+	(using TLSv1.2 with cipher DHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by g9t1613g.houston.hpe.com (Postfix) with ESMTPS id 266BB62D03
+	for <linux-watchdog@vger.kernel.org>; Wed, 25 May 2016 16:21:24 +0000 (UTC)
+From: Brian Boylston <brian.boylston@hpe.com>
+To: linux-watchdog@vger.kernel.org
+Cc: Brian Boylston <brian.boylston@hpe.com>
+Subject: [PATCH v2 2/2] watchdog: hpwdt: remove email address from doc
+Date: Wed, 25 May 2016 11:20:15 -0500
+Message-Id: <20160525162015.3442-1-brian.boylston@hpe.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 05/25/2016 04:13, Darren Hart wrote:
->
-> The history of this driver is for Apollo Lake, so the question is if there exist
-> v3 and v5 APL products, or if we only need to concern ourselves with v5 in the
-> upstream driver.
->
-> Especially given the "I don't know if this is the right way" in the cover
-> letter, I will need an Acked-by at the very least from Qipeng.
->
+Remove Tom's email address from the documentation
 
-Hi Qipeng,
+Signed-off-by: Brian Boylston <brian.boylston@hpe.com>
+---
+ Documentation/watchdog/hpwdt.txt | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-Do you know the history behind drivers/platform/x86/intel_pmc_ipc.c? 
-Were the specs based on earlier prototypes?
+diff --git a/Documentation/watchdog/hpwdt.txt b/Documentation/watchdog/hpwdt.txt
+index a40398c..7a9f635 100644
+--- a/Documentation/watchdog/hpwdt.txt
++++ b/Documentation/watchdog/hpwdt.txt
+@@ -1,9 +1,9 @@
+-Last reviewed: 04/04/2016
++Last reviewed: 05/20/2016
+ 
+                      HPE iLO NMI Watchdog Driver
+               NMI sourcing for iLO based ProLiant Servers
+                      Documentation and Driver by
+-              Thomas Mingarelli <thomas.mingarelli@hpe.com>
++                         Thomas Mingarelli
+ 
+  The HPE iLO NMI Watchdog driver is a kernel module that provides basic
+  watchdog functionality and the added benefit of NMI sourcing. Both the
+@@ -95,4 +95,3 @@ Last reviewed: 04/04/2016
+ 
+ 
+  -- Tom Mingarelli
+-    (thomas.mingarelli@hpe.com)
+-- 
+2.8.3
 
