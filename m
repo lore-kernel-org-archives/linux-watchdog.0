@@ -1,74 +1,101 @@
-Return-path: <dvhart@infradead.org>
-Date: Tue, 24 May 2016 13:13:16 -0700
-From: Darren Hart <dvhart@infradead.org>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: "Yong, Jonathan" <jonathan.yong@intel.com>,
-	linux-watchdog@vger.kernel.org, platform-driver-x86@vger.kernel.org,
-	qipeng.zha@intel.com
-Subject: Re: [PATCH 2/2] x86: Fix Apollo Lake Watchdog address in PMC driver
-Message-ID: <20160524201316.GA5857@f23x64.localdomain>
-References: <1463541972-19758-1-git-send-email-jonathan.yong@intel.com>
- <1463541972-19758-3-git-send-email-jonathan.yong@intel.com>
- <573BE985.1000306@roeck-us.net>
- <573BF421.2020503@intel.com>
- <573C7E0C.7050304@roeck-us.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <573C7E0C.7050304@roeck-us.net>
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:34460 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750797AbcEYGiS (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 25 May 2016 02:38:18 -0400
+From: Wolfram Sang <wsa@the-dreams.de>
+To: linux-watchdog@vger.kernel.org
+Cc: linux-renesas-soc@vger.kernel.org,
+	Wolfram Sang <wsa+renesas@sang-engineering.com>
+Subject: [PATCH 1/7] watchdog: softdog: remove obsolete comments
+Date: Wed, 25 May 2016 08:37:43 +0200
+Message-Id: <1464158269-2447-2-git-send-email-wsa@the-dreams.de>
+In-Reply-To: <1464158269-2447-1-git-send-email-wsa@the-dreams.de>
+References: <1464158269-2447-1-git-send-email-wsa@the-dreams.de>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, May 18, 2016 at 07:37:00AM -0700, Guenter Roeck wrote:
-> On 05/17/2016 09:48 PM, Yong, Jonathan wrote:
-> >On 05/18/2016 12:03, Guenter Roeck wrote:
-> >>On 05/17/2016 08:26 PM, Yong, Jonathan wrote:
-> >>>The TCO I/O base is 40h rather than the usual 30h, and the
-> >>>re_reboot bit is at ACPIBASE+8.
-> >>>
-> >>
-> >>Does this mean that the code never worked, or in other words that it
-> >>was never tested, or are there now other chips which used the old
-> >>definitions which no longer work after this patch has been applied ?
-> >
-> >To my knowledge, it has never worked since 30h is claimed by ACPI GPE0_BLK.
-> >
-> Hmm.. Darren will have to take that one. I am not in a position to
-> determine if the new patch is correct or not, and/or if it causes some
-> other platform/architecture to fail. I'll Ack the other patch, and
-> would suggest for Darren to take it as well to keep the two patches together.
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-I actually have the same exact question :-)
+The history is obsolete, especially since we switched to watchdog
+framework. The section markers also don't make sense anymore given
+the small size of the driver.
 
-The history of this driver is for Apollo Lake, so the question is if there exist
-v3 and v5 APL products, or if we only need to concern ourselves with v5 in the
-upstream driver.
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
+ drivers/watchdog/softdog.c | 33 ---------------------------------
+ 1 file changed, 33 deletions(-)
 
-Especially given the "I don't know if this is the right way" in the cover
-letter, I will need an Acked-by at the very least from Qipeng.
-
-Jonathan, please remember to Cc ALL the maintainers and all the lists listed by
-get_maintainers when sending patches:
-
-$ scripts/get_maintainer.pl -f drivers/platform/x86/intel_pmc_ipc.c
-Zha Qipeng <qipeng.zha@intel.com> (maintainer:INTEL PMC/P-Unit IPC DRIVER)
-Darren Hart <dvhart@infradead.org> (maintainer:X86 PLATFORM DRIVERS)
-platform-driver-x86@vger.kernel.org (open list:INTEL PMC/P-Unit IPC DRIVER)
-linux-kernel@vger.kernel.org (open list)
-
-In particular, ALL patches MUST cc  LKML.
-
-> 
-> Guenter
-> 
-> >With this patch, watchdog ioctl is working properly with WDIOC_SETTIMEOUT, WDIOC_GETTIMEOUT and WDIOC_GETTIMELEFT as expected.
-> >
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe platform-driver-x86" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
-
+diff --git a/drivers/watchdog/softdog.c b/drivers/watchdog/softdog.c
+index 99a06f9e393064..8bc0b164afc94b 100644
+--- a/drivers/watchdog/softdog.c
++++ b/drivers/watchdog/softdog.c
+@@ -17,23 +17,6 @@
+  *
+  *	Software only watchdog driver. Unlike its big brother the WDT501P
+  *	driver this won't always recover a failed machine.
+- *
+- *  03/96: Angelo Haritsis <ah@doc.ic.ac.uk> :
+- *	Modularised.
+- *	Added soft_margin; use upon insmod to change the timer delay.
+- *	NB: uses same minor as wdt (WATCHDOG_MINOR); we could use separate
+- *	    minors.
+- *
+- *  19980911 Alan Cox
+- *	Made SMP safe for 2.3.x
+- *
+- *  20011127 Joel Becker (jlbec@evilplan.org>
+- *	Added soft_noboot; Allows testing the softdog trigger without
+- *	requiring a recompile.
+- *	Added WDIOC_GETTIMEOUT and WDIOC_SETTIMOUT.
+- *
+- *  20020530 Joel Becker <joel.becker@oracle.com>
+- *	Added Matt Domsch's nowayout module option.
+  */
+ 
+ #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+@@ -71,19 +54,11 @@ module_param(soft_panic, int, 0);
+ MODULE_PARM_DESC(soft_panic,
+ 	"Softdog action, set to 1 to panic, 0 to reboot (default=0)");
+ 
+-/*
+- *	Our timer
+- */
+-
+ static void watchdog_fire(unsigned long);
+ 
+ static struct timer_list watchdog_ticktock =
+ 		TIMER_INITIALIZER(watchdog_fire, 0, 0);
+ 
+-/*
+- *	If the timer expires..
+- */
+-
+ static void watchdog_fire(unsigned long data)
+ {
+ 	module_put(THIS_MODULE);
+@@ -99,10 +74,6 @@ static void watchdog_fire(unsigned long data)
+ 	}
+ }
+ 
+-/*
+- *	Softdog operations
+- */
+-
+ static int softdog_ping(struct watchdog_device *w)
+ {
+ 	if (!mod_timer(&watchdog_ticktock, jiffies+(w->timeout*HZ)))
+@@ -124,10 +95,6 @@ static int softdog_set_timeout(struct watchdog_device *w, unsigned int t)
+ 	return 0;
+ }
+ 
+-/*
+- *	Kernel Interfaces
+- */
+-
+ static struct watchdog_info softdog_info = {
+ 	.identity = "Software Watchdog",
+ 	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
 -- 
-Darren Hart
-Intel Open Source Technology Center
+2.8.1
+
