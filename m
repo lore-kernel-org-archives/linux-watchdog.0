@@ -1,58 +1,41 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-it0-f67.google.com ([209.85.214.67]:33915 "EHLO
-	mail-it0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750738AbcEYVAM (ORCPT
+Received: from www262.sakura.ne.jp ([202.181.97.72]:41768 "EHLO
+	www262.sakura.ne.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750732AbcEYV5A (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 25 May 2016 17:00:12 -0400
-MIME-Version: 1.0
-In-Reply-To: <20160511105224.GE2749@pathway.suse.cz>
-References: <1460646879-617-1-git-send-email-pmladek@suse.com>
-	<20160422183040.GW7822@mtj.duckdns.org>
-	<20160511105224.GE2749@pathway.suse.cz>
-Date: Wed, 25 May 2016 16:42:04 -0400
-Message-ID: <CAOS58YP101zopOfTSUYNRN4Jk3Ts_47+DFXVam0KGbr8OtaF4g@mail.gmail.com>
-Subject: Re: [PATCH v6 00/20] kthread: Use kthread worker API more widely
-From: Tejun Heo <tj@kernel.org>
+	Wed, 25 May 2016 17:57:00 -0400
+Subject: Re: [PATCH v6 13/20] hung_task: Convert hungtaskd into kthread worker
+ API
 To: Petr Mladek <pmladek@suse.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-	Oleg Nesterov <oleg@redhat.com>,
-	Ingo Molnar <mingo@redhat.com>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	"Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
-	Josh Triplett <josh@joshtriplett.org>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Linus Torvalds <torvalds@linux-foundation.org>,
-	Jiri Kosina <jkosina@suse.cz>, Borislav Petkov <bp@suse.de>,
-	Michal Hocko <mhocko@suse.cz>,
-	"linux-mm@kvack.org" <linux-mm@kvack.org>,
-	Vlastimil Babka <vbabka@suse.cz>,
-	Linux API <linux-api@vger.kernel.org>,
-	lkml <linux-kernel@vger.kernel.org>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	linux-watchdog@vger.kernel.org, Corey Minyard <minyard@acm.org>,
-	openipmi-developer@lists.sourceforge.net,
-	Doug Ledford <dledford@redhat.com>,
-	Sean Hefty <sean.hefty@intel.com>,
-	Hal Rosenstock <hal.rosenstock@gmail.com>,
-	linux-rdma@vger.kernel.org,
-	Maxim Levitsky <maximlevitsky@gmail.com>,
-	Zhang Rui <rui.zhang@intel.com>,
-	Eduardo Valentin <edubezval@gmail.com>,
-	Jacob Pan <jacob.jun.pan@linux.intel.com>,
-	"linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
-	Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Content-Type: text/plain; charset=UTF-8
+References: <1460646879-617-1-git-send-email-pmladek@suse.com>
+ <1460646879-617-14-git-send-email-pmladek@suse.com>
+Cc: Tejun Heo <tj@kernel.org>, linux-mm <linux-mm@kvack.org>,
+	linux-watchdog@vger.kernel.org
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Message-ID: <47fb67eb-1756-7189-0245-f59c5a4c5f41@I-love.SAKURA.ne.jp>
+Date: Thu, 26 May 2016 06:56:38 +0900
+MIME-Version: 1.0
+In-Reply-To: <1460646879-617-14-git-send-email-pmladek@suse.com>
+Content-Type: text/plain; charset=iso-2022-jp
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, May 11, 2016 at 6:52 AM, Petr Mladek <pmladek@suse.com> wrote:
-> Tejun, may I add your ack for some of the patches, please?
-> Or do you want to wait for the resend?
+On 2016/04/15 0:14, Petr Mladek wrote:
+> This patch converts hungtaskd() in kthread worker API because
+> it modifies the priority.
+> 
+> This patch moves one iteration of the main cycle into a self-queuing
+> delayed kthread work. It does not longer check if it was called
+> earlier. Instead, the work is scheduled only when needed. This
+> requires storing the time of the last check into a global
+> variable.
 
-When you repost, I'll explicitly ack the patches.
+Is it guaranteed that that work is fired when timeout expires? It is
+common that tasks sleep in uninterruptible state due to waiting for
+memory allocations. Unless a dedicated worker like vmstat_wq is used
+for watchdog, I think it might fail to report such tasks due to all
+workers being busy but the system is under OOM.
 
-Thanks!
+  vmstat_wq = alloc_workqueue("vmstat", WQ_FREEZABLE|WQ_MEM_RECLAIM, 0);
 
--- 
-tejun
