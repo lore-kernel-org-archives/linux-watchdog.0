@@ -1,50 +1,117 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:57233 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755325AbcEaGIv (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 31 May 2016 02:08:51 -0400
-From: fu.wei@linaro.org
-To: wim@iguana.be, linux@roeck-us.net, panand@redhat.com
-Cc: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linaro-acpi@lists.linaro.org,
-	timur@codeaurora.org, dyoung@redhat.com, graeme.gregory@linaro.org,
-	al.stone@linaro.org, jcm@redhat.com, Suravee.Suthikulpanit@amd.com,
-	Fu Wei <fu.wei@linaro.org>
-Subject: [PATCH 1/3] watchdog: skip min and max timeout validity check when max_hw_heartbeat_ms is defined
-Date: Tue, 31 May 2016 14:08:08 +0800
-Message-Id: <1464674890-10512-2-git-send-email-fu.wei@linaro.org>
-In-Reply-To: <1464674890-10512-1-git-send-email-fu.wei@linaro.org>
-References: <1464674890-10512-1-git-send-email-fu.wei@linaro.org>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-path: <wsa@the-dreams.de>
+From: Wolfram Sang <wsa@the-dreams.de>
+To: linux-watchdog@vger.kernel.org
+Cc: Wolfram Sang <wsa@the-dreams.de>,
+	linux-renesas-soc@vger.kernel.org,
+	Guenter Roeck <linux@roeck-us.net>,
+	Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>,
+	Robin Gong <b38343@freescale.com>
+Subject: [PATCH 0/7] watchdog: add pretimeout support
+Date: Wed, 25 May 2016 15:32:24 +0200
+Message-Id: <1464183151-4912-1-git-send-email-wsa@the-dreams.de>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-From: Pratyush Anand <panand@redhat.com>
+Okay, here is my approach of adding pretimeout support to the watchdog core. It
+is based on work of Vladimir Zapolskiy and Robin Gong (Thanks!) yet rebased
+(quite some core changes since then) and reworked significantly. Check the
+patch descriptions for changes. I also added pretimeout support to the softdog
+because the board in question did not have hardware support for pretimeouts.
 
-When max_hw_heartbeat_ms has a none zero value, max_timeout is not used.
-So it's value can be 0. In such case if a driver uses min_timeout
-functionality, then check will always fail.
+Note that in this series the userspace governor is not included. I will send
+out an RFC series with it after this one. I expect more discussion on my
+approach there while I think these patches could be ready to go. They work fine
+here, so the rest may done incrementally?
 
-This patch fixes above issue.
+Here is a q'n'd patch for the busybox 'watchdog' command for easier testing:
 
-Signed-off-by: Pratyush Anand <panand@redhat.com>
-Signed-off-by: Fu Wei <fu.wei@linaro.org>
----
- drivers/watchdog/watchdog_core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Index: b/miscutils/watchdog.c
+===================================================================
+--- a/miscutils/watchdog.c
++++ b/miscutils/watchdog.c
+@@ -10,11 +10,12 @@
+  */
+ 
+ //usage:#define watchdog_trivial_usage
+-//usage:       "[-t N[ms]] [-T N[ms]] [-F] DEV"
++//usage:       "[-t N[ms]] [-T N[ms]] [-P N[ms]] [-F] DEV"
+ //usage:#define watchdog_full_usage "\n\n"
+ //usage:       "Periodically write to watchdog device DEV\n"
+ //usage:     "\n	-T N	Reboot after N seconds if not reset (default 60)"
+ //usage:     "\n	-t N	Reset every N seconds (default 30)"
++//usage:     "\n	-P N	Pretimeout warning N seconds before reboot (default 0)"
+ //usage:     "\n	-F	Run in foreground"
+ //usage:     "\n"
+ //usage:     "\nUse 500ms to specify period in milliseconds"
+@@ -26,6 +27,7 @@
+ #define OPT_FOREGROUND  (1 << 0)
+ #define OPT_STIMER      (1 << 1)
+ #define OPT_HTIMER      (1 << 2)
++#define OPT_PTIMER      (1 << 3)
+ 
+ static void watchdog_shutdown(int sig UNUSED_PARAM)
+ {
+@@ -50,11 +52,13 @@ int watchdog_main(int argc, char **argv)
+ 	unsigned opts;
+ 	unsigned stimer_duration; /* how often to restart */
+ 	unsigned htimer_duration = 60000; /* reboots after N ms if not restarted */
++	unsigned ptimer_duration = 0; /* pre-timeout notification N ms before reboot */
+ 	char *st_arg;
+ 	char *ht_arg;
++	char *pt_arg;
+ 
+ 	opt_complementary = "=1"; /* must have exactly 1 argument */
+-	opts = getopt32(argv, "Ft:T:", &st_arg, &ht_arg);
++	opts = getopt32(argv, "Ft:T:P:", &st_arg, &ht_arg, &pt_arg);
+ 
+ 	/* We need to daemonize *before* opening the watchdog as many drivers
+ 	 * will only allow one process at a time to do so.  Since daemonizing
+@@ -88,6 +92,10 @@ int watchdog_main(int argc, char **argv)
+ 	}
+ # endif
+ 	ioctl_or_warn(3, WDIOC_SETTIMEOUT, &htimer_duration);
++	if (opts & OPT_PTIMER) {
++		ptimer_duration = xatou_sfx(pt_arg, suffixes) / 1000;
++		ioctl_or_warn(3, WDIOC_SETPRETIMEOUT, &ptimer_duration);
++	}
+ #endif
+ 
+ #if 0
 
-diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
-index 7c3ba58..65e62d1 100644
---- a/drivers/watchdog/watchdog_core.c
-+++ b/drivers/watchdog/watchdog_core.c
-@@ -88,7 +88,7 @@ static void watchdog_check_min_max_timeout(struct watchdog_device *wdd)
- 	 * Check that we have valid min and max timeout values, if
- 	 * not reset them both to 0 (=not used or unknown)
- 	 */
--	if (wdd->min_timeout > wdd->max_timeout) {
-+	if (!wdd->max_hw_heartbeat_ms && wdd->min_timeout > wdd->max_timeout) {
- 		pr_info("Invalid min and max timeout values, resetting to 0!\n");
- 		wdd->min_timeout = 0;
- 		wdd->max_timeout = 0;
+
+
+Please test, review, comment, apply...
+
+Thanks,
+
+   Wolfram
+
+Vladimir Zapolskiy (2):
+  watchdog: pretimeout: add panic pretimeout governor
+  watchdog: pretimeout: add noop pretimeout governor
+
+Wolfram Sang (5):
+  watchdog: add watchdog pretimeout framework
+  watchdog: documentation: squash paragraphs about 'no set_timeout'
+  watchdog: add WDIOC_SETPRETIMEOUT and WDIOC_GETPRETIMEOUT
+  fs: compat_ioctl: add pretimeout functions for watchdogs
+  watchdog: softdog: implement pretimeout support
+
+ Documentation/watchdog/watchdog-kernel-api.txt |  24 ++-
+ drivers/watchdog/Kconfig                       |  52 +++++
+ drivers/watchdog/Makefile                      |   9 +-
+ drivers/watchdog/pretimeout_noop.c             |  47 +++++
+ drivers/watchdog/pretimeout_panic.c            |  47 +++++
+ drivers/watchdog/softdog.c                     |  20 +-
+ drivers/watchdog/watchdog_dev.c                |  61 +++++-
+ drivers/watchdog/watchdog_pretimeout.c         | 269 +++++++++++++++++++++++++
+ drivers/watchdog/watchdog_pretimeout.h         |  41 ++++
+ fs/compat_ioctl.c                              |   2 +
+ include/linux/watchdog.h                       |  21 ++
+ 11 files changed, 586 insertions(+), 7 deletions(-)
+ create mode 100644 drivers/watchdog/pretimeout_noop.c
+ create mode 100644 drivers/watchdog/pretimeout_panic.c
+ create mode 100644 drivers/watchdog/watchdog_pretimeout.c
+ create mode 100644 drivers/watchdog/watchdog_pretimeout.h
+
 -- 
-2.5.5
-
+2.8.1
