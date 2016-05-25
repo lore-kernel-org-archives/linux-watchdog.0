@@ -1,144 +1,108 @@
-Return-path: <wsa@the-dreams.de>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:36457 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754307AbcEYNsD (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 25 May 2016 09:48:03 -0400
 From: Wolfram Sang <wsa@the-dreams.de>
 To: linux-watchdog@vger.kernel.org
 Cc: Wolfram Sang <wsa@the-dreams.de>,
 	linux-renesas-soc@vger.kernel.org,
 	Guenter Roeck <linux@roeck-us.net>,
 	Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
-Subject: [RFC 2/2] watchdog: pretimeout: add userspace notifier pretimeout governor
-Date: Wed, 25 May 2016 15:47:42 +0200
-Message-Id: <1464184062-5230-3-git-send-email-wsa@the-dreams.de>
+Subject: [RFC 1/2] watchdog: dev: add helper for creating uevent on dev
+Date: Wed, 25 May 2016 15:47:41 +0200
+Message-Id: <1464184062-5230-2-git-send-email-wsa@the-dreams.de>
 In-Reply-To: <1464184062-5230-1-git-send-email-wsa@the-dreams.de>
 References: <1464184062-5230-1-git-send-email-wsa@the-dreams.de>
-List-ID: <linux-watchdog@vger.kernel.org>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-From: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Userspace notifier watchdog pretimeout governor, on watchdog
-pretimeout event sends a notification to userspace for further
-handling.
+Mechanisms like pretimeout governors may want to notify userspace via
+uevents. Add a helper because all the needed data is private to the
+watchdog device. To allow calling it in atomic contexts, put actual
+signalling to a workqueue.
 
-Signed-off-by: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- drivers/watchdog/Kconfig                | 16 +++++++++++
- drivers/watchdog/Makefile               |  1 +
- drivers/watchdog/pretimeout_userspace.c | 47 +++++++++++++++++++++++++++++++++
- drivers/watchdog/watchdog_pretimeout.h  |  2 ++
- 4 files changed, 66 insertions(+)
- create mode 100644 drivers/watchdog/pretimeout_userspace.c
+ drivers/watchdog/watchdog_dev.c | 20 ++++++++++++++++++++
+ include/linux/watchdog.h        |  3 +++
+ 2 files changed, 23 insertions(+)
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 3682ae9d8a50ca..e69c17f518ef43 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -1800,6 +1800,15 @@ config WATCHDOG_PRETIMEOUT_DEFAULT_GOV_NOOP
- 	  governor is selected by a user, write a short message to
- 	  the kernel log buffer and don't do any system changes.
+diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
+index 9e2e668e1c6b2d..2a7d04034641dc 100644
+--- a/drivers/watchdog/watchdog_dev.c
++++ b/drivers/watchdog/watchdog_dev.c
+@@ -63,6 +63,7 @@ struct watchdog_core_data {
+ 	struct kref kref;
+ 	struct cdev cdev;
+ 	struct watchdog_device *wdd;
++	struct device *dev;
+ 	struct mutex lock;
+ 	unsigned long last_keepalive;
+ 	unsigned long last_hw_keepalive;
+@@ -70,6 +71,7 @@ struct watchdog_core_data {
+ 	unsigned long status;		/* Internal status bits */
+ #define _WDOG_DEV_OPEN		0	/* Opened ? */
+ #define _WDOG_ALLOW_RELEASE	1	/* Did we receive the magic char ? */
++	struct work_struct uevent_work;
+ };
  
-+config WATCHDOG_PRETIMEOUT_DEFAULT_GOV_USERSPACE
-+	bool "userspace"
-+	select WATCHDOG_PRETIMEOUT_GOV_USERSPACE
-+	help
-+	  Use userspace watchdog pretimeout governor by default,
-+	  the governor sends a device state change uevent
-+	  notification, if a pretimeout event a reported by a
-+	  watchdog.
-+
- endchoice
+ /* the dev_t structure to store the dynamically allocated watchdog devices */
+@@ -821,6 +823,21 @@ static struct miscdevice watchdog_miscdev = {
+ 	.fops		= &watchdog_fops,
+ };
  
- config WATCHDOG_PRETIMEOUT_GOV_PANIC
-@@ -1816,6 +1825,13 @@ config WATCHDOG_PRETIMEOUT_GOV_NOOP
- 	  governor, only an informational message is added to the
- 	  kernel log buffer, if watchdog pretimeout is happened.
- 
-+config WATCHDOG_PRETIMEOUT_GOV_USERSPACE
-+	tristate "Userspace notifier watchdog pretimeout governor"
-+	help
-+	  Userspace notifier watchdog pretimeout governor, on watchdog
-+	  pretimeout event send a notification to userspace for
-+	  further handling.
-+
- endif # WATCHDOG_PRETIMEOUT_GOV
- 
- endif # WATCHDOG
-diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index 9330e4cabd8f9c..23423b8b73620c 100644
---- a/drivers/watchdog/Makefile
-+++ b/drivers/watchdog/Makefile
-@@ -10,6 +10,7 @@ watchdog-$(CONFIG_WATCHDOG_PRETIMEOUT_GOV) += watchdog_pretimeout.o
- 
- obj-$(CONFIG_WATCHDOG_PRETIMEOUT_GOV_PANIC) += pretimeout_panic.o
- obj-$(CONFIG_WATCHDOG_PRETIMEOUT_GOV_NOOP) += pretimeout_noop.o
-+obj-$(CONFIG_WATCHDOG_PRETIMEOUT_GOV_USERSPACE) += pretimeout_userspace.o
- 
- # Only one watchdog can succeed. We probe the ISA/PCI/USB based
- # watchdog-cards first, then the architecture specific watchdog
-diff --git a/drivers/watchdog/pretimeout_userspace.c b/drivers/watchdog/pretimeout_userspace.c
-new file mode 100644
-index 00000000000000..cf7b03765f3254
---- /dev/null
-+++ b/drivers/watchdog/pretimeout_userspace.c
-@@ -0,0 +1,47 @@
-+/*
-+ * Copyright (C) 2015 Mentor Graphics
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/watchdog.h>
-+
-+#include "watchdog_pretimeout.h"
-+
-+/**
-+ * pretimeout_userspace - Notify userspace on watchdog pretimeout event
-+ * @wdd - watchdog_device
-+ *
-+ * Send watchdog device uevent to userspace to handle pretimeout event
-+ */
-+static void pretimeout_userspace(struct watchdog_device *wdd)
++void watchdog_dev_uevent(struct watchdog_device *wdd)
 +{
-+	watchdog_dev_uevent(wdd);
++	queue_work(watchdog_wq, &wdd->wd_data->uevent_work);
 +}
 +
-+static struct watchdog_governor watchdog_gov_userspace = {
-+	.name		= "userspace",
-+	.pretimeout	= pretimeout_userspace,
-+	.owner		= THIS_MODULE,
-+};
-+
-+static int __init watchdog_gov_userspace_register(void)
++static void watchdog_dev_uevent_work(struct work_struct *work)
 +{
-+	return watchdog_register_governor(&watchdog_gov_userspace);
-+}
-+module_init(watchdog_gov_userspace_register);
++	struct watchdog_core_data *wd_data = container_of(work, struct watchdog_core_data,
++							  uevent_work);
 +
-+static void __exit watchdog_gov_userspace_unregister(void)
-+{
-+	watchdog_unregister_governor(&watchdog_gov_userspace);
++	mutex_lock(&wd_data->lock);
++	kobject_uevent(&wd_data->dev->kobj, KOBJ_CHANGE);
++	mutex_unlock(&wd_data->lock);
 +}
-+module_exit(watchdog_gov_userspace_unregister);
 +
-+MODULE_AUTHOR("Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>");
-+MODULE_DESCRIPTION("Userspace notifier watchdog pretimeout governor");
-+MODULE_LICENSE("GPL");
-diff --git a/drivers/watchdog/watchdog_pretimeout.h b/drivers/watchdog/watchdog_pretimeout.h
-index 2e60450a2be64e..8365cd78f2507b 100644
---- a/drivers/watchdog/watchdog_pretimeout.h
-+++ b/drivers/watchdog/watchdog_pretimeout.h
-@@ -23,6 +23,8 @@ void watchdog_unregister_governor(struct watchdog_governor *gov);
- #define WATCHDOG_PRETIMEOUT_DEFAULT_GOV	"panic"
- #elif IS_ENABLED(CONFIG_WATCHDOG_PRETIMEOUT_DEFAULT_GOV_NOOP)
- #define WATCHDOG_PRETIMEOUT_DEFAULT_GOV	"noop"
-+#elif IS_ENABLED(CONFIG_WATCHDOG_PRETIMEOUT_DEFAULT_GOV_USERSPACE)
-+#define WATCHDOG_PRETIMEOUT_DEFAULT_GOV	"userspace"
- #else
- #error "Default watchdog pretimeout governor is not set."
- #endif
+ /*
+  *	watchdog_cdev_register: register watchdog character device
+  *	@wdd: watchdog device
+@@ -849,6 +866,7 @@ static int watchdog_cdev_register(struct watchdog_device *wdd, dev_t devno)
+ 		return -ENODEV;
+ 
+ 	INIT_DELAYED_WORK(&wd_data->work, watchdog_ping_work);
++	INIT_WORK(&wd_data->uevent_work, watchdog_dev_uevent_work);
+ 
+ 	if (wdd->id == 0) {
+ 		old_wd_data = wd_data;
+@@ -968,6 +986,8 @@ int watchdog_dev_register(struct watchdog_device *wdd)
+ 		watchdog_cdev_unregister(wdd);
+ 	}
+ 
++	wdd->wd_data->dev = dev;
++
+ 	return ret;
+ }
+ 
+diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
+index 496e52e5b91fc7..f0f77f06d9813b 100644
+--- a/include/linux/watchdog.h
++++ b/include/linux/watchdog.h
+@@ -194,6 +194,9 @@ extern int watchdog_init_timeout(struct watchdog_device *wdd,
+ extern int watchdog_register_device(struct watchdog_device *);
+ extern void watchdog_unregister_device(struct watchdog_device *);
+ 
++/* drivers/watchdog/watchdog_dev.c */
++void watchdog_dev_uevent(struct watchdog_device *wdd);
++
+ /* drivers/watchdog/watchdog_pretimeout.c */
+ #ifdef CONFIG_WATCHDOG_PRETIMEOUT_GOV
+ void watchdog_notify_pretimeout(struct watchdog_device *wdd);
 -- 
 2.8.1
+
