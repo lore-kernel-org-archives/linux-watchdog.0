@@ -1,15 +1,15 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:34464 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:34465 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750990AbcEYGiS (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	id S1751022AbcEYGiS (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
 	Wed, 25 May 2016 02:38:18 -0400
 From: Wolfram Sang <wsa@the-dreams.de>
 To: linux-watchdog@vger.kernel.org
 Cc: linux-renesas-soc@vger.kernel.org,
 	Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 2/7] watchdog: softdog: use watchdog core to init timeout value
-Date: Wed, 25 May 2016 08:37:44 +0200
-Message-Id: <1464158269-2447-3-git-send-email-wsa@the-dreams.de>
+Subject: [PATCH 3/7] watchdog: softdog: consistently use softdog_ prefix
+Date: Wed, 25 May 2016 08:37:45 +0200
+Message-Id: <1464158269-2447-4-git-send-email-wsa@the-dreams.de>
 In-Reply-To: <1464158269-2447-1-git-send-email-wsa@the-dreams.de>
 References: <1464158269-2447-1-git-send-email-wsa@the-dreams.de>
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -17,58 +17,78 @@ List-Id: linux-watchdog@vger.kernel.org
 
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Error string and comment say we fall back to a default, but in reality
-we bailed out. Refactor the code to use the core helper which then
-matches the described behaviour. While updating the init message anyhow,
-shorten it while we are here; no need for versioning there as well and
-the name is already given via pr_fmt.
+And move module_init/exit to the proper place while here.
 
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- drivers/watchdog/softdog.c | 17 +++++------------
- 1 file changed, 5 insertions(+), 12 deletions(-)
+ drivers/watchdog/softdog.c | 21 ++++++++++-----------
+ 1 file changed, 10 insertions(+), 11 deletions(-)
 
 diff --git a/drivers/watchdog/softdog.c b/drivers/watchdog/softdog.c
-index 8bc0b164afc94b..a9ad27dd46502b 100644
+index a9ad27dd46502b..0a29f5a0833787 100644
 --- a/drivers/watchdog/softdog.c
 +++ b/drivers/watchdog/softdog.c
-@@ -111,22 +111,15 @@ static struct watchdog_device softdog_dev = {
- 	.info = &softdog_info,
- 	.ops = &softdog_ops,
- 	.min_timeout = 1,
--	.max_timeout = 0xFFFF
-+	.max_timeout = 65535,
-+	.timeout = TIMER_MARGIN,
+@@ -54,12 +54,12 @@ module_param(soft_panic, int, 0);
+ MODULE_PARM_DESC(soft_panic,
+ 	"Softdog action, set to 1 to panic, 0 to reboot (default=0)");
+ 
+-static void watchdog_fire(unsigned long);
++static void softdog_fire(unsigned long);
+ 
+-static struct timer_list watchdog_ticktock =
+-		TIMER_INITIALIZER(watchdog_fire, 0, 0);
++static struct timer_list softdog_ticktock =
++		TIMER_INITIALIZER(softdog_fire, 0, 0);
+ 
+-static void watchdog_fire(unsigned long data)
++static void softdog_fire(unsigned long data)
+ {
+ 	module_put(THIS_MODULE);
+ 	if (soft_noboot)
+@@ -76,14 +76,14 @@ static void watchdog_fire(unsigned long data)
+ 
+ static int softdog_ping(struct watchdog_device *w)
+ {
+-	if (!mod_timer(&watchdog_ticktock, jiffies+(w->timeout*HZ)))
++	if (!mod_timer(&softdog_ticktock, jiffies+(w->timeout*HZ)))
+ 		__module_get(THIS_MODULE);
+ 	return 0;
+ }
+ 
+ static int softdog_stop(struct watchdog_device *w)
+ {
+-	if (del_timer(&watchdog_ticktock))
++	if (del_timer(&softdog_ticktock))
+ 		module_put(THIS_MODULE);
+ 
+ 	return 0;
+@@ -115,7 +115,7 @@ static struct watchdog_device softdog_dev = {
+ 	.timeout = TIMER_MARGIN,
  };
  
- static int __init watchdog_init(void)
+-static int __init watchdog_init(void)
++static int __init softdog_init(void)
  {
  	int ret;
  
--	/* Check that the soft_margin value is within it's range;
--	   if not reset to the default */
--	if (soft_margin < 1 || soft_margin > 65535) {
--		pr_info("soft_margin must be 0 < soft_margin < 65536, using %d\n",
--			TIMER_MARGIN);
--		return -EINVAL;
--	}
--	softdog_dev.timeout = soft_margin;
--
-+	watchdog_init_timeout(&softdog_dev, soft_margin, NULL);
- 	watchdog_set_nowayout(&softdog_dev, nowayout);
- 	watchdog_stop_on_reboot(&softdog_dev);
- 
-@@ -134,8 +127,8 @@ static int __init watchdog_init(void)
- 	if (ret)
- 		return ret;
- 
--	pr_info("Software Watchdog Timer: 0.08 initialized. soft_noboot=%d soft_margin=%d sec soft_panic=%d (nowayout=%d)\n",
--		soft_noboot, soft_margin, soft_panic, nowayout);
-+	pr_info("initialized. soft_noboot=%d soft_margin=%d sec soft_panic=%d (nowayout=%d)\n",
-+		soft_noboot, softdog_dev.timeout, soft_panic, nowayout);
+@@ -132,14 +132,13 @@ static int __init watchdog_init(void)
  
  	return 0;
  }
++module_init(softdog_init);
+ 
+-static void __exit watchdog_exit(void)
++static void __exit softdog_exit(void)
+ {
+ 	watchdog_unregister_device(&softdog_dev);
+ }
+-
+-module_init(watchdog_init);
+-module_exit(watchdog_exit);
++module_exit(softdog_exit);
+ 
+ MODULE_AUTHOR("Alan Cox");
+ MODULE_DESCRIPTION("Software Watchdog Device Driver");
 -- 
 2.8.1
 
