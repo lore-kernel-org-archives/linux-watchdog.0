@@ -1,95 +1,125 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wm0-f45.google.com ([74.125.82.45]:36947 "EHLO
-	mail-wm0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932454AbcE0IWW (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:33989 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753402AbcE0SMZ (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 27 May 2016 04:22:22 -0400
-Received: by mail-wm0-f45.google.com with SMTP id z87so127413416wmh.0
-        for <linux-watchdog@vger.kernel.org>; Fri, 27 May 2016 01:22:21 -0700 (PDT)
-Subject: Re: [RFC PATCH 1/3] watchdog: Add Meson GXBB Watchdog Driver
-To: Carlo Caione <carlo@caione.org>
-References: <1464249112-13658-1-git-send-email-narmstrong@baylibre.com>
- <1464249112-13658-2-git-send-email-narmstrong@baylibre.com>
- <20160526100655.GB14703@mephisto>
-Cc: Wim Van Sebroeck <wim@iguana.be>,
-	Guenter Roeck <linux@roeck-us.net>,
-	linux-amlogic@lists.infradead.org, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-From: Neil Armstrong <narmstrong@baylibre.com>
-Message-ID: <574803AF.5020409@baylibre.com>
-Date: Fri, 27 May 2016 10:22:07 +0200
+	Fri, 27 May 2016 14:12:25 -0400
+Date: Fri, 27 May 2016 11:12:19 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: William Breathitt Gray <vilhelm.gray@gmail.com>
+Cc: gregkh@linuxfoundation.org, akpm@linux-foundation.org,
+	x86@kernel.org, linux-next@vger.kernel.org,
+	linux-gpio@vger.kernel.org, linux-iio@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	sfr@canb.auug.org.au,
+	Linus Torvalds <torvalds@linux-foundation.org>
+Subject: Re: [PATCH v4 1/4] isa: Allow ISA-style drivers on modern systems
+Message-ID: <20160527181219.GA19472@roeck-us.net>
+References: <cover.1464049539.git.vilhelm.gray@gmail.com>
+ <4cc7af2b90cdff1c9e680fb2c2cd81882c6695d2.1464049539.git.vilhelm.gray@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20160526100655.GB14703@mephisto>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4cc7af2b90cdff1c9e680fb2c2cd81882c6695d2.1464049539.git.vilhelm.gray@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 05/26/2016 12:06 PM, Carlo Caione wrote:
-> On 26/05/16 09:51, Neil Armstrong wrote:
->> Add watchdog specific driver for Amlogic Meson GXBB SoC.
->>
->> Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
->> +
+On Mon, May 23, 2016 at 08:30:44PM -0400, William Breathitt Gray wrote:
+> Several modern devices, such as PC/104 cards, are expected to run on
+> modern systems via an ISA bus interface. Since ISA is a legacy interface
+> for most modern architectures, ISA support should remain disabled in
+> general. Support for ISA-style drivers should be enabled on a per driver
+> basis.
 > 
-> [...]
->> +#define DEFAULT_TIMEOUT	10	/* seconds */
->> +
->> +#define GXBB_WDT_CTRL_REG	0x0
->> +#define GXBB_WDT_CTRL1_REG	0x4
->> +#define GXBB_WDT_TCNT_REG	0x8
->> +#define GXBB_WDT_RSET_REG	0xc
->> +
->> +#define GXBB_WDT_CTRL_EE_RESET_NOW	BIT(26)
->> +
->> +#define GXBB_WDT_CTRL_CLKDIV_EN	BIT(25)
->> +#define GXBB_WDT_CTRL_CLK_EN	BIT(24)
->> +#define GXBB_WDT_CTRL_IRQ_EN	BIT(23)
->> +#define GXBB_WDT_CTRL_EE_RESET	BIT(21)
->> +#define GXBB_WDT_CTRL_XTAL_SEL	(0)
->> +#define GXBB_WDT_CTRL_CLK81_SEL	BIT(19)
->> +#define GXBB_WDT_CTRL_EN	BIT(18)
->> +#define GXBB_WDT_CTRL_DIV_MASK	(BIT(18)-1)
->> +
->> +#define GXBB_WDT_CTRL1_GPIO_PULSE	BIT(17)
->> +#define GXBB_WDT_CTRL1_GPIO_POL_RESET_0	BIT(16)
->> +#define GXBB_WDT_CTRL1_GPIO_POL_RESET_1	(0)
->> +#define GXBB_WDT_CTRL1_GPIO_PULSE_CNT	(BIT(16)-1)
->> +
->> +#define GXBB_WDT_TCNT_SETUP_MASK	(BIT(16)-1)
->> +#define GXBB_WDT_TCNT_CNT_SHIFT		16
+> To allow ISA-style drivers on modern systems, this patch introduces the
+> ISA_BUS_API and ISA_BUS Kconfig options. The ISA bus driver will now
+> build conditionally on the ISA_BUS_API Kconfig option, which defaults to
+> the legacy ISA Kconfig option. The ISA_BUS Kconfig option allows the
+> ISA_BUS_API Kconfig option to be selected on architectures which do not
+> enable ISA (e.g. X86_64).
 > 
-> Indentation
+> The ISA_BUS Kconfig option is currently only implemented for X86
+> architectures. Other architectures may have their own ISA_BUS Kconfig
+> options added as required.
 > 
-> [...]
->> +int meson_gxbb_wdt_set_timeout(struct watchdog_device *wdt_dev,
->> +			       unsigned int timeout)
->> +{
->> +	struct meson_gxbb_wdt *data = watchdog_get_drvdata(wdt_dev);
->> +
->> +	if (watchdog_active(wdt_dev))
->> +		meson_gxbb_wdt_stop(wdt_dev);
->> +
->> +	meson_gxbb_wdt_ping(wdt_dev);
->> +
->> +	writel(timeout*1000, data->reg_base + GXBB_WDT_TCNT_REG);
-> 
-> nit: spaces around "*"
-> 
-> [...]
->> +	data->clk = devm_clk_get(&pdev->dev, NULL);
->> +	if (IS_ERR(data->clk))
->> +		return PTR_ERR(data->clk);
->> +
->> +	clk_prepare_enable(data->clk);
-> 
-> Do we need to merge the clock controller driver before this?
+> Cc: Linus Torvalds <torvalds@linux-foundation.org>
+> Signed-off-by: William Breathitt Gray <vilhelm.gray@gmail.com>
 
-It's not necessary, currently it only selects the xtal source, so it's works with the current upstream architecture.
+FWIW, looks good to me.
 
-Neil
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
+> ---
+>  arch/Kconfig          | 3 +++
+>  arch/x86/Kconfig      | 9 +++++++++
+>  drivers/base/Makefile | 2 +-
+>  include/linux/isa.h   | 2 +-
+>  4 files changed, 14 insertions(+), 2 deletions(-)
 > 
-> Cheers,
+> diff --git a/arch/Kconfig b/arch/Kconfig
+> index b16e74e..9d9942f 100644
+> --- a/arch/Kconfig
+> +++ b/arch/Kconfig
+> @@ -598,6 +598,9 @@ config HAVE_STACK_VALIDATION
+>  	  Architecture supports the 'objtool check' host tool command, which
+>  	  performs compile-time stack metadata validation.
+>  
+> +config ISA_BUS_API
+> +	def_bool ISA
+> +
+>  #
+>  # ABI hall of shame
+>  #
+> diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+> index 0a7b885..d9a94da 100644
+> --- a/arch/x86/Kconfig
+> +++ b/arch/x86/Kconfig
+> @@ -2439,6 +2439,15 @@ config PCI_CNB20LE_QUIRK
+>  
+>  source "drivers/pci/Kconfig"
+>  
+> +config ISA_BUS
+> +	bool "ISA-style bus support on modern systems" if EXPERT
+> +	select ISA_BUS_API
+> +	help
+> +	  Enables ISA-style drivers on modern systems. This is necessary to
+> +	  support PC/104 devices on X86_64 platforms.
+> +
+> +	  If unsure, say N.
+> +
+>  # x86_64 have no ISA slots, but can have ISA-style DMA.
+>  config ISA_DMA_API
+>  	bool "ISA-style DMA support" if (X86_64 && EXPERT)
+> diff --git a/drivers/base/Makefile b/drivers/base/Makefile
+> index 6b2a84e..2609ba2 100644
+> --- a/drivers/base/Makefile
+> +++ b/drivers/base/Makefile
+> @@ -10,7 +10,7 @@ obj-$(CONFIG_DMA_CMA) += dma-contiguous.o
+>  obj-y			+= power/
+>  obj-$(CONFIG_HAS_DMA)	+= dma-mapping.o
+>  obj-$(CONFIG_HAVE_GENERIC_DMA_COHERENT) += dma-coherent.o
+> -obj-$(CONFIG_ISA)	+= isa.o
+> +obj-$(CONFIG_ISA_BUS_API)	+= isa.o
+>  obj-$(CONFIG_FW_LOADER)	+= firmware_class.o
+>  obj-$(CONFIG_NUMA)	+= node.o
+>  obj-$(CONFIG_MEMORY_HOTPLUG_SPARSE) += memory.o
+> diff --git a/include/linux/isa.h b/include/linux/isa.h
+> index 5ab8528..384ab9b 100644
+> --- a/include/linux/isa.h
+> +++ b/include/linux/isa.h
+> @@ -22,7 +22,7 @@ struct isa_driver {
+>  
+>  #define to_isa_driver(x) container_of((x), struct isa_driver, driver)
+>  
+> -#ifdef CONFIG_ISA
+> +#ifdef CONFIG_ISA_BUS_API
+>  int isa_register_driver(struct isa_driver *, unsigned int);
+>  void isa_unregister_driver(struct isa_driver *);
+>  #else
+> -- 
+> 2.7.3
 > 
-
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
