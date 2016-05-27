@@ -1,108 +1,93 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:36457 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754307AbcEYNsD (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 25 May 2016 09:48:03 -0400
-From: Wolfram Sang <wsa@the-dreams.de>
-To: linux-watchdog@vger.kernel.org
-Cc: Wolfram Sang <wsa@the-dreams.de>,
-	linux-renesas-soc@vger.kernel.org,
-	Guenter Roeck <linux@roeck-us.net>,
-	Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
-Subject: [RFC 1/2] watchdog: dev: add helper for creating uevent on dev
-Date: Wed, 25 May 2016 15:47:41 +0200
-Message-Id: <1464184062-5230-2-git-send-email-wsa@the-dreams.de>
-In-Reply-To: <1464184062-5230-1-git-send-email-wsa@the-dreams.de>
-References: <1464184062-5230-1-git-send-email-wsa@the-dreams.de>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-path: <vilhelm.gray@gmail.com>
+From: William Breathitt Gray <vilhelm.gray@gmail.com>
+To: gregkh@linuxfoundation.org,
+	akpm@linux-foundation.org
+Cc: x86@kernel.org,
+	linux-next@vger.kernel.org,
+	linux-gpio@vger.kernel.org,
+	linux-iio@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-watchdog@vger.kernel.org,
+	sfr@canb.auug.org.au,
+	linux@roeck-us.net,
+	William Breathitt Gray <vilhelm.gray@gmail.com>
+Subject: [PATCH v5 0/4] Allow ISA-style drivers on modern systems
+Date: Fri, 27 May 2016 18:08:15 -0400
+Message-Id: <cover.1464380034.git.vilhelm.gray@gmail.com>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Changes in v5:
+  - Add explicit X86 dependency to CONFIG_STX104 and CONFIG_EBC_C384_WDT
+    since these drivers were developed with X86 architectures in mind
 
-Mechanisms like pretimeout governors may want to notify userspace via
-uevents. Add a helper because all the needed data is private to the
-watchdog device. To allow calling it in atomic contexts, put actual
-signalling to a workqueue.
+Changes in v4:
+  - Remove unnecessary explicit "default n" from the X86 ISA_BUS Kconfig
+    option since Kconfig options are disabled by default
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
- drivers/watchdog/watchdog_dev.c | 20 ++++++++++++++++++++
- include/linux/watchdog.h        |  3 +++
- 2 files changed, 23 insertions(+)
+Changes in v3:
+  - Remove redundant X86 dependency from the X86 ISA_BUS Kconfig option
 
-diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-index 9e2e668e1c6b2d..2a7d04034641dc 100644
---- a/drivers/watchdog/watchdog_dev.c
-+++ b/drivers/watchdog/watchdog_dev.c
-@@ -63,6 +63,7 @@ struct watchdog_core_data {
- 	struct kref kref;
- 	struct cdev cdev;
- 	struct watchdog_device *wdd;
-+	struct device *dev;
- 	struct mutex lock;
- 	unsigned long last_keepalive;
- 	unsigned long last_hw_keepalive;
-@@ -70,6 +71,7 @@ struct watchdog_core_data {
- 	unsigned long status;		/* Internal status bits */
- #define _WDOG_DEV_OPEN		0	/* Opened ? */
- #define _WDOG_ALLOW_RELEASE	1	/* Did we receive the magic char ? */
-+	struct work_struct uevent_work;
- };
- 
- /* the dev_t structure to store the dynamically allocated watchdog devices */
-@@ -821,6 +823,21 @@ static struct miscdevice watchdog_miscdev = {
- 	.fops		= &watchdog_fops,
- };
- 
-+void watchdog_dev_uevent(struct watchdog_device *wdd)
-+{
-+	queue_work(watchdog_wq, &wdd->wd_data->uevent_work);
-+}
-+
-+static void watchdog_dev_uevent_work(struct work_struct *work)
-+{
-+	struct watchdog_core_data *wd_data = container_of(work, struct watchdog_core_data,
-+							  uevent_work);
-+
-+	mutex_lock(&wd_data->lock);
-+	kobject_uevent(&wd_data->dev->kobj, KOBJ_CHANGE);
-+	mutex_unlock(&wd_data->lock);
-+}
-+
- /*
-  *	watchdog_cdev_register: register watchdog character device
-  *	@wdd: watchdog device
-@@ -849,6 +866,7 @@ static int watchdog_cdev_register(struct watchdog_device *wdd, dev_t devno)
- 		return -ENODEV;
- 
- 	INIT_DELAYED_WORK(&wd_data->work, watchdog_ping_work);
-+	INIT_WORK(&wd_data->uevent_work, watchdog_dev_uevent_work);
- 
- 	if (wdd->id == 0) {
- 		old_wd_data = wd_data;
-@@ -968,6 +986,8 @@ int watchdog_dev_register(struct watchdog_device *wdd)
- 		watchdog_cdev_unregister(wdd);
- 	}
- 
-+	wdd->wd_data->dev = dev;
-+
- 	return ret;
- }
- 
-diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
-index 496e52e5b91fc7..f0f77f06d9813b 100644
---- a/include/linux/watchdog.h
-+++ b/include/linux/watchdog.h
-@@ -194,6 +194,9 @@ extern int watchdog_init_timeout(struct watchdog_device *wdd,
- extern int watchdog_register_device(struct watchdog_device *);
- extern void watchdog_unregister_device(struct watchdog_device *);
- 
-+/* drivers/watchdog/watchdog_dev.c */
-+void watchdog_dev_uevent(struct watchdog_device *wdd);
-+
- /* drivers/watchdog/watchdog_pretimeout.c */
- #ifdef CONFIG_WATCHDOG_PRETIMEOUT_GOV
- void watchdog_notify_pretimeout(struct watchdog_device *wdd);
+Changes in v2:
+  - Adjusted preprocessor compilation conditional in include/linux/isa.h
+    to use CONFIG_ISA_BUS_API in order to link the correct ISA bus
+    driver function definitions when available
+  - Move ISA_BUS_API Kconfig option to arch/Kconfig, thus making it
+    available to all architectures instead of just X86
+  - X86 ISA_BUS Kconfig option should be disabled by default; ISA
+    devices typically do not have a way to be probed, so users should
+    be required to explicitly enable ISA bus driver support, lest a
+    selected driver be loaded with the misguided expectation of a safe
+    hardware probe
+
+Several modern devices, such as PC/104 cards, are expected to run on
+modern systems via an ISA bus interface. Since ISA is a legacy interface
+for most modern architectures, ISA support should remain disabled in
+general. Support for ISA-style drivers should be enabled on a per driver
+basis.
+
+To allow ISA-style drivers on modern systems, this patchset introduces
+the ISA_BUS_API and ISA_BUS Kconfig options. The ISA bus driver will now
+build conditionally on the ISA_BUS_API Kconfig option, which defaults to
+the legacy ISA Kconfig option. The ISA_BUS Kconfig option allows the
+ISA_BUS_API Kconfig option to be selected on architectures which do not
+enable ISA (e.g. X86_64).
+
+The ISA_BUS Kconfig option is currently only implemented for X86
+architectures. Other architectures may have their own ISA_BUS Kconfig
+option added as required.
+
+An earlier attempt to allow the ISA bus driver to build for X86_64 took
+an inappropriate approach resulting in legacy ISA drivers becoming
+enabled unconditionally on untested and unsupported architectures.
+Commit 51e68d055cba ("x86 isa: add back X86_32 dependency on
+CONFIG_ISA"), added to restrict the ISA bus driver to only X86_32,
+causes several drivers intended for X86_64 to be restricted to X86_32 as
+well.
+
+This patchset replaces the ISA Kconfig option dependency of several
+drivers to ISA_BUS_API, so that they may build for X86_64 as intended.
+The respective drivers are as follows:
+    * ACCES 104-IDIO-16 GPIO driver
+    * ACCES 104-IDI-48 GPIO driver
+    * ACCES 104-DIO-48E GPIO driver
+    * Apex Embedded Systems STX104 DAC driver
+    * WinSystems EBC-C384 watchdog timer driver
+    * WinSystems WS16C48 GPIO driver
+
+William Breathitt Gray (4):
+  isa: Allow ISA-style drivers on modern systems
+  gpio: Allow PC/104 devices on X86_64
+  iio: stx104: Allow build for X86_64
+  watchdog: ebc-c384_wdt: Allow build for X86_64
+
+ arch/Kconfig             | 3 +++
+ arch/x86/Kconfig         | 9 +++++++++
+ drivers/base/Makefile    | 2 +-
+ drivers/gpio/Kconfig     | 8 ++++----
+ drivers/iio/dac/Kconfig  | 2 +-
+ drivers/watchdog/Kconfig | 2 +-
+ include/linux/isa.h      | 2 +-
+ 7 files changed, 20 insertions(+), 8 deletions(-)
+
 -- 
-2.8.1
-
+2.7.3
