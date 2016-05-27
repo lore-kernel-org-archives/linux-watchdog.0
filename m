@@ -10,34 +10,14 @@ Cc: x86@kernel.org,
 	linux-watchdog@vger.kernel.org,
 	sfr@canb.auug.org.au,
 	linux@roeck-us.net,
-	William Breathitt Gray <vilhelm.gray@gmail.com>
-Subject: [PATCH v5 0/4] Allow ISA-style drivers on modern systems
-Date: Fri, 27 May 2016 18:08:15 -0400
-Message-Id: <cover.1464380034.git.vilhelm.gray@gmail.com>
+	William Breathitt Gray <vilhelm.gray@gmail.com>,
+	Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH v5 1/4] isa: Allow ISA-style drivers on modern systems
+Date: Fri, 27 May 2016 18:08:27 -0400
+Message-Id: <eb31f2d10c9cc199d69eca2fe16cf31b9417c5ef.1464380034.git.vilhelm.gray@gmail.com>
+In-Reply-To: <cover.1464380034.git.vilhelm.gray@gmail.com>
+References: <cover.1464380034.git.vilhelm.gray@gmail.com>
 List-ID: <linux-watchdog@vger.kernel.org>
-
-Changes in v5:
-  - Add explicit X86 dependency to CONFIG_STX104 and CONFIG_EBC_C384_WDT
-    since these drivers were developed with X86 architectures in mind
-
-Changes in v4:
-  - Remove unnecessary explicit "default n" from the X86 ISA_BUS Kconfig
-    option since Kconfig options are disabled by default
-
-Changes in v3:
-  - Remove redundant X86 dependency from the X86 ISA_BUS Kconfig option
-
-Changes in v2:
-  - Adjusted preprocessor compilation conditional in include/linux/isa.h
-    to use CONFIG_ISA_BUS_API in order to link the correct ISA bus
-    driver function definitions when available
-  - Move ISA_BUS_API Kconfig option to arch/Kconfig, thus making it
-    available to all architectures instead of just X86
-  - X86 ISA_BUS Kconfig option should be disabled by default; ISA
-    devices typically do not have a way to be probed, so users should
-    be required to explicitly enable ISA bus driver support, lest a
-    selected driver be loaded with the misguided expectation of a safe
-    hardware probe
 
 Several modern devices, such as PC/104 cards, are expected to run on
 modern systems via an ISA bus interface. Since ISA is a legacy interface
@@ -45,8 +25,8 @@ for most modern architectures, ISA support should remain disabled in
 general. Support for ISA-style drivers should be enabled on a per driver
 basis.
 
-To allow ISA-style drivers on modern systems, this patchset introduces
-the ISA_BUS_API and ISA_BUS Kconfig options. The ISA bus driver will now
+To allow ISA-style drivers on modern systems, this patch introduces the
+ISA_BUS_API and ISA_BUS Kconfig options. The ISA bus driver will now
 build conditionally on the ISA_BUS_API Kconfig option, which defaults to
 the legacy ISA Kconfig option. The ISA_BUS Kconfig option allows the
 ISA_BUS_API Kconfig option to be selected on architectures which do not
@@ -54,40 +34,77 @@ enable ISA (e.g. X86_64).
 
 The ISA_BUS Kconfig option is currently only implemented for X86
 architectures. Other architectures may have their own ISA_BUS Kconfig
-option added as required.
+options added as required.
 
-An earlier attempt to allow the ISA bus driver to build for X86_64 took
-an inappropriate approach resulting in legacy ISA drivers becoming
-enabled unconditionally on untested and unsupported architectures.
-Commit 51e68d055cba ("x86 isa: add back X86_32 dependency on
-CONFIG_ISA"), added to restrict the ISA bus driver to only X86_32,
-causes several drivers intended for X86_64 to be restricted to X86_32 as
-well.
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: William Breathitt Gray <vilhelm.gray@gmail.com>
+---
+ arch/Kconfig          | 3 +++
+ arch/x86/Kconfig      | 9 +++++++++
+ drivers/base/Makefile | 2 +-
+ include/linux/isa.h   | 2 +-
+ 4 files changed, 14 insertions(+), 2 deletions(-)
 
-This patchset replaces the ISA Kconfig option dependency of several
-drivers to ISA_BUS_API, so that they may build for X86_64 as intended.
-The respective drivers are as follows:
-    * ACCES 104-IDIO-16 GPIO driver
-    * ACCES 104-IDI-48 GPIO driver
-    * ACCES 104-DIO-48E GPIO driver
-    * Apex Embedded Systems STX104 DAC driver
-    * WinSystems EBC-C384 watchdog timer driver
-    * WinSystems WS16C48 GPIO driver
-
-William Breathitt Gray (4):
-  isa: Allow ISA-style drivers on modern systems
-  gpio: Allow PC/104 devices on X86_64
-  iio: stx104: Allow build for X86_64
-  watchdog: ebc-c384_wdt: Allow build for X86_64
-
- arch/Kconfig             | 3 +++
- arch/x86/Kconfig         | 9 +++++++++
- drivers/base/Makefile    | 2 +-
- drivers/gpio/Kconfig     | 8 ++++----
- drivers/iio/dac/Kconfig  | 2 +-
- drivers/watchdog/Kconfig | 2 +-
- include/linux/isa.h      | 2 +-
- 7 files changed, 20 insertions(+), 8 deletions(-)
-
+diff --git a/arch/Kconfig b/arch/Kconfig
+index b16e74e..9d9942f 100644
+--- a/arch/Kconfig
++++ b/arch/Kconfig
+@@ -598,6 +598,9 @@ config HAVE_STACK_VALIDATION
+ 	  Architecture supports the 'objtool check' host tool command, which
+ 	  performs compile-time stack metadata validation.
+ 
++config ISA_BUS_API
++	def_bool ISA
++
+ #
+ # ABI hall of shame
+ #
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index 0a7b885..d9a94da 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -2439,6 +2439,15 @@ config PCI_CNB20LE_QUIRK
+ 
+ source "drivers/pci/Kconfig"
+ 
++config ISA_BUS
++	bool "ISA-style bus support on modern systems" if EXPERT
++	select ISA_BUS_API
++	help
++	  Enables ISA-style drivers on modern systems. This is necessary to
++	  support PC/104 devices on X86_64 platforms.
++
++	  If unsure, say N.
++
+ # x86_64 have no ISA slots, but can have ISA-style DMA.
+ config ISA_DMA_API
+ 	bool "ISA-style DMA support" if (X86_64 && EXPERT)
+diff --git a/drivers/base/Makefile b/drivers/base/Makefile
+index 6b2a84e..2609ba2 100644
+--- a/drivers/base/Makefile
++++ b/drivers/base/Makefile
+@@ -10,7 +10,7 @@ obj-$(CONFIG_DMA_CMA) += dma-contiguous.o
+ obj-y			+= power/
+ obj-$(CONFIG_HAS_DMA)	+= dma-mapping.o
+ obj-$(CONFIG_HAVE_GENERIC_DMA_COHERENT) += dma-coherent.o
+-obj-$(CONFIG_ISA)	+= isa.o
++obj-$(CONFIG_ISA_BUS_API)	+= isa.o
+ obj-$(CONFIG_FW_LOADER)	+= firmware_class.o
+ obj-$(CONFIG_NUMA)	+= node.o
+ obj-$(CONFIG_MEMORY_HOTPLUG_SPARSE) += memory.o
+diff --git a/include/linux/isa.h b/include/linux/isa.h
+index 5ab8528..384ab9b 100644
+--- a/include/linux/isa.h
++++ b/include/linux/isa.h
+@@ -22,7 +22,7 @@ struct isa_driver {
+ 
+ #define to_isa_driver(x) container_of((x), struct isa_driver, driver)
+ 
+-#ifdef CONFIG_ISA
++#ifdef CONFIG_ISA_BUS_API
+ int isa_register_driver(struct isa_driver *, unsigned int);
+ void isa_unregister_driver(struct isa_driver *);
+ #else
 -- 
 2.7.3
