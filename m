@@ -1,58 +1,295 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:43208 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:43940 "EHLO
 	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754115AbcE3III (ORCPT
+	with ESMTP id S1754070AbcE3IIu (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 30 May 2016 04:08:08 -0400
-Subject: Re: [PATCH v3 1/2] doc/devicetree: Add Aspeed watchdog timer bindings
+	Mon, 30 May 2016 04:08:50 -0400
+Subject: Re: [PATCH v3 2/2] watchdog: Add Aspeed watchdog driver
 To: Joel Stanley <joel@jms.id.au>, wim@iguana.be, robh@kernel.org
 References: <1463062631-16432-1-git-send-email-joel@jms.id.au>
  <1463559661-14170-1-git-send-email-joel@jms.id.au>
- <1463559661-14170-2-git-send-email-joel@jms.id.au>
+ <1463559661-14170-3-git-send-email-joel@jms.id.au>
 Cc: linux-watchdog@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org, jk@ozlabs.org,
 	benh@kernel.crashing.org
 From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <574BF4DF.6000305@roeck-us.net>
-Date: Mon, 30 May 2016 01:07:59 -0700
+Message-ID: <574BF50E.90406@roeck-us.net>
+Date: Mon, 30 May 2016 01:08:46 -0700
 MIME-Version: 1.0
-In-Reply-To: <1463559661-14170-2-git-send-email-joel@jms.id.au>
+In-Reply-To: <1463559661-14170-3-git-send-email-joel@jms.id.au>
 Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 05/18/2016 01:20 AM, Joel Stanley wrote:
+On 05/18/2016 01:21 AM, Joel Stanley wrote:
+> Provides generic watchdog features as well as reboot support for the
+> Aspeed SoCs.
+>
 > Signed-off-by: Joel Stanley <joel@jms.id.au>
 
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
 > ---
->   .../devicetree/bindings/watchdog/aspeed-wdt.txt          | 16 ++++++++++++++++
->   1 file changed, 16 insertions(+)
->   create mode 100644 Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt
+>   drivers/watchdog/Kconfig      |  13 +++
+>   drivers/watchdog/Makefile     |   1 +
+>   drivers/watchdog/aspeed_wdt.c | 212 ++++++++++++++++++++++++++++++++++++++++++
+>   3 files changed, 226 insertions(+)
+>   create mode 100644 drivers/watchdog/aspeed_wdt.c
 >
-> diff --git a/Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt b/Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt
+> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> index fb947655badd..4f0e2ded4785 100644
+> --- a/drivers/watchdog/Kconfig
+> +++ b/drivers/watchdog/Kconfig
+> @@ -661,6 +661,19 @@ config ATLAS7_WATCHDOG
+>   	  To compile this driver as a module, choose M here: the
+>   	  module will be called atlas7_wdt.
+>
+> +config ASPEED_WATCHDOG
+> +	tristate "Aspeed 2400 watchdog support"
+> +	depends on ARCH_ASPEED || COMPILE_TEST
+> +	select WATCHDOG_CORE
+> +	help
+> +	  Say Y here to include support for the watchdog timer
+> +	  in Apseed BMC SoCs.
+> +
+> +	  This driver is required to reboot the SoC.
+> +
+> +	  To compile this driver as a module, choose M here: the
+> +	  module will be called aspeed_wdt.
+> +
+>   # AVR32 Architecture
+>
+>   config AT32AP700X_WDT
+> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+> index feb6270fdbde..36855375e0ce 100644
+> --- a/drivers/watchdog/Makefile
+> +++ b/drivers/watchdog/Makefile
+> @@ -73,6 +73,7 @@ obj-$(CONFIG_DIGICOLOR_WATCHDOG) += digicolor_wdt.o
+>   obj-$(CONFIG_LPC18XX_WATCHDOG) += lpc18xx_wdt.o
+>   obj-$(CONFIG_BCM7038_WDT) += bcm7038_wdt.o
+>   obj-$(CONFIG_ATLAS7_WATCHDOG) += atlas7_wdt.o
+> +obj-$(CONFIG_ASPEED_WATCHDOG) += aspeed_wdt.o
+>
+>   # AVR32 Architecture
+>   obj-$(CONFIG_AT32AP700X_WDT) += at32ap700x_wdt.o
+> diff --git a/drivers/watchdog/aspeed_wdt.c b/drivers/watchdog/aspeed_wdt.c
 > new file mode 100644
-> index 000000000000..c5e74d7b4406
+> index 000000000000..f5ad8023c2e6
 > --- /dev/null
-> +++ b/Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt
-> @@ -0,0 +1,16 @@
-> +Aspeed Watchdog Timer
+> +++ b/drivers/watchdog/aspeed_wdt.c
+> @@ -0,0 +1,212 @@
+> +/*
+> + * Copyright 2016 IBM Corporation
+> + *
+> + * Joel Stanley <joel@jms.id.au>
+> + *
+> + * This program is free software; you can redistribute it and/or
+> + * modify it under the terms of the GNU General Public License
+> + * as published by the Free Software Foundation; either version
+> + * 2 of the License, or (at your option) any later version.
+> + */
 > +
-> +Required properties:
-> + - compatible: must be one of:
-> +	- "aspeed,ast2400-wdt"
-> +	- "aspeed,ast2500-wdt"
+> +#include <linux/delay.h>
+> +#include <linux/io.h>
+> +#include <linux/kernel.h>
+> +#include <linux/module.h>
+> +#include <linux/of.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/watchdog.h>
 > +
-> + - reg: physical base address of the controller and length of memory mapped
-> +   region
+> +struct aspeed_wdt {
+> +	struct watchdog_device	wdd;
+> +	void __iomem		*base;
+> +	u32			ctrl;
+> +};
 > +
-> +Example:
+> +static const struct of_device_id aspeed_wdt_of_table[] = {
+> +	{ .compatible = "aspeed,ast2400-wdt" },
+> +	{ .compatible = "aspeed,ast2500-wdt" },
+> +	{ },
+> +};
+> +MODULE_DEVICE_TABLE(of, aspeed_wdt_of_table);
 > +
-> +	wdt1: watchdog@1e785000 {
-> +		compatible = "aspeed,ast2400-wdt";
-> +		reg = <0x1e785000 0x1c>;
-> +	};
+> +#define WDT_STATUS		0x00
+> +#define WDT_RELOAD_VALUE	0x04
+> +#define WDT_RESTART		0x08
+> +#define WDT_CTRL		0x0C
+> +#define   WDT_CTRL_RESET_MODE_SOC	(0x00 << 5)
+> +#define   WDT_CTRL_RESET_MODE_FULL_CHIP	(0x01 << 5)
+> +#define   WDT_CTRL_1MHZ_CLK		BIT(4)
+> +#define   WDT_CTRL_WDT_EXT		BIT(3)
+> +#define   WDT_CTRL_WDT_INTR		BIT(2)
+> +#define   WDT_CTRL_RESET_SYSTEM		BIT(1)
+> +#define   WDT_CTRL_ENABLE		BIT(0)
+> +
+> +#define WDT_RESTART_MAGIC	0x4755
+> +
+> +/* 32 bits at 1MHz, in milliseconds */
+> +#define WDT_MAX_TIMEOUT_MS	4294967
+> +#define WDT_DEFAULT_TIMEOUT	30
+> +#define WDT_RATE_1MHZ		1000000
+> +
+> +static struct aspeed_wdt *to_aspeed_wdt(struct watchdog_device *wdd)
+> +{
+> +	return container_of(wdd, struct aspeed_wdt, wdd);
+> +}
+> +
+> +static void aspeed_wdt_enable(struct aspeed_wdt *wdt, int count)
+> +{
+> +	wdt->ctrl |= WDT_CTRL_ENABLE;
+> +
+> +	writel(0, wdt->base + WDT_CTRL);
+> +	writel(count, wdt->base + WDT_RELOAD_VALUE);
+> +	writel(WDT_RESTART_MAGIC, wdt->base + WDT_RESTART);
+> +	writel(wdt->ctrl, wdt->base + WDT_CTRL);
+> +}
+> +
+> +static int aspeed_wdt_start(struct watchdog_device *wdd)
+> +{
+> +	struct aspeed_wdt *wdt = to_aspeed_wdt(wdd);
+> +
+> +	aspeed_wdt_enable(wdt, wdd->timeout * WDT_RATE_1MHZ);
+> +
+> +	return 0;
+> +}
+> +
+> +static int aspeed_wdt_stop(struct watchdog_device *wdd)
+> +{
+> +	struct aspeed_wdt *wdt = to_aspeed_wdt(wdd);
+> +
+> +	wdt->ctrl &= ~WDT_CTRL_ENABLE;
+> +	writel(wdt->ctrl, wdt->base + WDT_CTRL);
+> +
+> +	return 0;
+> +}
+> +
+> +static int aspeed_wdt_ping(struct watchdog_device *wdd)
+> +{
+> +	struct aspeed_wdt *wdt = to_aspeed_wdt(wdd);
+> +
+> +	writel(WDT_RESTART_MAGIC, wdt->base + WDT_RESTART);
+> +
+> +	return 0;
+> +}
+> +
+> +static int aspeed_wdt_set_timeout(struct watchdog_device *wdd,
+> +				  unsigned int timeout)
+> +{
+> +	struct aspeed_wdt *wdt = to_aspeed_wdt(wdd);
+> +	u32 actual;
+> +
+> +	wdd->timeout = timeout;
+> +
+> +	actual = min(timeout, wdd->max_hw_heartbeat_ms * 1000);
+> +
+> +	writel(actual * WDT_RATE_1MHZ, wdt->base + WDT_RELOAD_VALUE);
+> +	writel(WDT_RESTART_MAGIC, wdt->base + WDT_RESTART);
+> +
+> +	return 0;
+> +}
+> +
+> +static int aspeed_wdt_restart(struct watchdog_device *wdd,
+> +			      unsigned long action, void *data)
+> +{
+> +	struct aspeed_wdt *wdt = to_aspeed_wdt(wdd);
+> +
+> +	aspeed_wdt_enable(wdt, 128 * WDT_RATE_1MHZ / 1000);
+> +
+> +	mdelay(1000);
+> +
+> +	return 0;
+> +}
+> +
+> +static const struct watchdog_ops aspeed_wdt_ops = {
+> +	.start		= aspeed_wdt_start,
+> +	.stop		= aspeed_wdt_stop,
+> +	.ping		= aspeed_wdt_ping,
+> +	.set_timeout	= aspeed_wdt_set_timeout,
+> +	.restart	= aspeed_wdt_restart,
+> +	.owner		= THIS_MODULE,
+> +};
+> +
+> +static const struct watchdog_info aspeed_wdt_info = {
+> +	.options	= WDIOF_KEEPALIVEPING
+> +			| WDIOF_MAGICCLOSE
+> +			| WDIOF_SETTIMEOUT,
+> +	.identity	= KBUILD_MODNAME,
+> +};
+> +
+> +static int aspeed_wdt_remove(struct platform_device *pdev)
+> +{
+> +	struct aspeed_wdt *wdt = platform_get_drvdata(pdev);
+> +
+> +	watchdog_unregister_device(&wdt->wdd);
+> +
+> +	return 0;
+> +}
+> +
+> +static int aspeed_wdt_probe(struct platform_device *pdev)
+> +{
+> +	struct aspeed_wdt *wdt;
+> +	struct resource *res;
+> +	int ret;
+> +
+> +	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
+> +	if (!wdt)
+> +		return -ENOMEM;
+> +
+> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +	wdt->base = devm_ioremap_resource(&pdev->dev, res);
+> +	if (IS_ERR(wdt->base))
+> +		return PTR_ERR(wdt->base);
+> +
+> +	/*
+> +	 * The ast2400 wdt can run at PCLK, or 1MHz. The ast2500 only
+> +	 * runs at 1MHz. We chose to always run at 1MHz, as there's no
+> +	 * good reason to have a faster watchdog counter.
+> +	 */
+> +	wdt->wdd.info = &aspeed_wdt_info;
+> +	wdt->wdd.ops = &aspeed_wdt_ops;
+> +	wdt->wdd.max_hw_heartbeat_ms = WDT_MAX_TIMEOUT_MS;
+> +	wdt->wdd.parent = &pdev->dev;
+> +
+> +	wdt->wdd.timeout = WDT_DEFAULT_TIMEOUT;
+> +	watchdog_init_timeout(&wdt->wdd, 0, &pdev->dev);
+> +
+> +	/*
+> +	 * Control reset on a per-device basis to ensure the
+> +	 * host is not affected by a BMC reboot, so only reset
+> +	 * the SOC and not the full chip
+> +	 */
+> +	wdt->ctrl = WDT_CTRL_RESET_MODE_SOC |
+> +		WDT_CTRL_1MHZ_CLK |
+> +		WDT_CTRL_RESET_SYSTEM;
+> +
+> +	if (readl(wdt->base + WDT_CTRL) & WDT_CTRL_ENABLE)  {
+> +		aspeed_wdt_start(&wdt->wdd);
+> +		set_bit(WDOG_HW_RUNNING, &wdt->wdd.status);
+> +	}
+> +
+> +	ret = watchdog_register_device(&wdt->wdd);
+> +	if (ret) {
+> +		dev_err(&pdev->dev, "failed to register\n");
+> +		return ret;
+> +	}
+> +
+> +	platform_set_drvdata(pdev, wdt);
+> +
+> +	return 0;
+> +}
+> +
+> +static struct platform_driver aspeed_watchdog_driver = {
+> +	.probe = aspeed_wdt_probe,
+> +	.remove = aspeed_wdt_remove,
+> +	.driver = {
+> +		.name = KBUILD_MODNAME,
+> +		.of_match_table = of_match_ptr(aspeed_wdt_of_table),
+> +	},
+> +};
+> +module_platform_driver(aspeed_watchdog_driver);
+> +
+> +MODULE_DESCRIPTION("Aspeed Watchdog Driver");
+> +MODULE_LICENSE("GPL");
 >
 
