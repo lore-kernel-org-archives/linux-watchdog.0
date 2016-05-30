@@ -1,72 +1,53 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:33141 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750927AbcE0UxD (ORCPT
+Received: from mail-wm0-f67.google.com ([74.125.82.67]:35620 "EHLO
+	mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754969AbcE3Npk (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 27 May 2016 16:53:03 -0400
-Date: Fri, 27 May 2016 13:52:55 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: William Breathitt Gray <vilhelm.gray@gmail.com>
-Cc: gregkh@linuxfoundation.org, akpm@linux-foundation.org,
-	x86@kernel.org, linux-next@vger.kernel.org,
-	linux-gpio@vger.kernel.org, linux-iio@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	sfr@canb.auug.org.au, Hartmut Knaack <knaack.h@gmx.de>,
-	Lars-Peter Clausen <lars@metafoo.de>,
-	Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
-	Jonathan Cameron <jic23@kernel.org>
-Subject: Re: [PATCH v4 3/4] iio: stx104: Allow build for X86_64
-Message-ID: <20160527205255.GA27341@roeck-us.net>
-References: <cover.1464049539.git.vilhelm.gray@gmail.com>
- <e2165535dff3cfc30e82b5e3b4b4ccf9860ebf9f.1464049539.git.vilhelm.gray@gmail.com>
- <20160527182057.GC19472@roeck-us.net>
- <20160527195400.GA12494@sophia>
+	Mon, 30 May 2016 09:45:40 -0400
+Date: Mon, 30 May 2016 15:45:37 +0200
+From: Carlo Caione <carlo@caione.org>
+To: Neil Armstrong <narmstrong@baylibre.com>
+Cc: Wim Van Sebroeck <wim@iguana.be>,
+	Guenter Roeck <linux@roeck-us.net>,
+	linux-amlogic@lists.infradead.org, linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH 0/3] watchdog: Add Amlogic Meson GXBB Watchdog Timer
+ driver
+Message-ID: <20160530134537.GA16188@mephisto>
+References: <1464614948-28247-1-git-send-email-narmstrong@baylibre.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20160527195400.GA12494@sophia>
+In-Reply-To: <1464614948-28247-1-git-send-email-narmstrong@baylibre.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, May 27, 2016 at 03:54:00PM -0400, William Breathitt Gray wrote:
-> On Fri, May 27, 2016 at 11:20:57AM -0700, Guenter Roeck wrote:
-> >On Mon, May 23, 2016 at 08:31:07PM -0400, William Breathitt Gray wrote:
-> >> With the introduction of the ISA_BUS_API Kconfig option, ISA-style
-> >> drivers may be built for X86_64 architectures. This patch changes the
-> >> ISA Kconfig option dependency of the Apex Embedded Systems STX104 DAC
-> >> driver to ISA_BUS_API, thus allowing it to build for X86_64 as it is
-> >> expected to.
-> >> 
-> >> Cc: Hartmut Knaack <knaack.h@gmx.de>
-> >> Cc: Lars-Peter Clausen <lars@metafoo.de>
-> >> Cc: Peter Meerwald-Stadler <pmeerw@pmeerw.net>
-> >> Cc: Jonathan Cameron <jic23@kernel.org>
-> >> Signed-off-by: William Breathitt Gray <vilhelm.gray@gmail.com>
-> >> ---
-> >>  drivers/iio/dac/Kconfig | 2 +-
-> >>  1 file changed, 1 insertion(+), 1 deletion(-)
-> >> 
-> >> diff --git a/drivers/iio/dac/Kconfig b/drivers/iio/dac/Kconfig
-> >> index e63b957..315442f 100644
-> >> --- a/drivers/iio/dac/Kconfig
-> >> +++ b/drivers/iio/dac/Kconfig
-> >> @@ -247,7 +247,7 @@ config MCP4922
-> >>  
-> >>  config STX104
-> >>  	tristate "Apex Embedded Systems STX104 DAC driver"
-> >> -	depends on X86 && ISA
-> >> +	depends on ISA_BUS_API
-> >
-> >Assuming the dropped dependency on X86 is intentional:
-> >
-> >Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+On 30/05/16 15:29, Neil Armstrong wrote:
+> Adds support for the Amlogic Meson GXBB SoC Watchdog Timer.
+> It differs from the meson6/meson8b HW, so need for a separate driver.
+> The HW provides a divider capable of having a 1ms timebase thus simplifying
+> the counter update.
+> The restart call is not provided even if the HW is capable of triggering a
+> system reset immediately because of the PSCI firmare having such functionnality.
+> The watchdog is not expected to be running at boot time since there is a separate
+> system-level watchdog running from the SCPI co-processor, but this case would be
+> handle in a next driver update.
 > 
-> Thanks for the review Guenter: losing the X86 dependency was not
-> intentional; it looks like I forgot to adjust this when I made
-> ISA_BUS_API available to all architectures. I'll submit version 5 with
-> the explicit X86 dependency back in place for CONFIG_STX104 and
-> CONFIG_EBC_C384_WDT.
+> Changes since RFC version at http://lkml.kernel.org/r/1464249112-13658-1-git-send-email-narmstrong@baylibre.com :
+> - Remove status callback, will re-introduce it later to managed the already-running use case
+> - Fix registers defines indentation
+> - Fix space between operators
+> - Make all callbacks static functions
+> - Fix bindings with missing clocks attribute
+> - Do not stop/start watchdog on a timeout setup
+> - Fix probe device configuration
 > 
-Ok. Feel free to keep my Reviewed-by: tag unless you make further changes.
+> Neil Armstrong (3):
+>   watchdog: Add Meson GXBB Watchdog Driver
+>   dt-bindings: watchdog: Add Meson GXBB Watchdog bindings
+>   ARM64: dts: amlogic: meson-gxbb: Add watchdog node
 
-Guenter
+I'm missing [PATCH 2/3]
+
+-- 
+Carlo Caione
