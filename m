@@ -1,45 +1,50 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:55921 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754813AbcE3OoW (ORCPT
+Received: from mail-oi0-f49.google.com ([209.85.218.49]:36672 "EHLO
+	mail-oi0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756224AbcEaIlu (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 30 May 2016 10:44:22 -0400
-Subject: Re: [PATCH 1/3] watchdog: Add Meson GXBB Watchdog Driver
-To: Neil Armstrong <narmstrong@baylibre.com>,
-	Wim Van Sebroeck <wim@iguana.be>
-References: <1464614948-28247-1-git-send-email-narmstrong@baylibre.com>
- <1464614948-28247-2-git-send-email-narmstrong@baylibre.com>
-Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-amlogic@lists.infradead.org, linux-watchdog@vger.kernel.org
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <574C51C1.1060609@roeck-us.net>
-Date: Mon, 30 May 2016 07:44:17 -0700
+	Tue, 31 May 2016 04:41:50 -0400
+Received: by mail-oi0-f49.google.com with SMTP id j1so292264610oih.3
+        for <linux-watchdog@vger.kernel.org>; Tue, 31 May 2016 01:41:49 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <1464614948-28247-2-git-send-email-narmstrong@baylibre.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <61880bededb77bbc3ea3422e48ce717d2a2ff489.1464380034.git.vilhelm.gray@gmail.com>
+References: <cover.1464380034.git.vilhelm.gray@gmail.com>
+	<61880bededb77bbc3ea3422e48ce717d2a2ff489.1464380034.git.vilhelm.gray@gmail.com>
+Date: Tue, 31 May 2016 10:41:49 +0200
+Message-ID: <CACRpkdaOzZ1DvEUKtomBU=GH1kYfjKJjUfM-=45PhdzZA=dPgg@mail.gmail.com>
+Subject: Re: [PATCH v5 2/4] gpio: Allow PC/104 devices on X86_64
+From: Linus Walleij <linus.walleij@linaro.org>
+To: William Breathitt Gray <vilhelm.gray@gmail.com>
+Cc: Greg KH <gregkh@linuxfoundation.org>,
+	Andrew Morton <akpm@linux-foundation.org>, x86@kernel.org,
+	"linux-next@vger.kernel.org" <linux-next@vger.kernel.org>,
+	"linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>,
+	"linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	linux-watchdog@vger.kernel.org,
+	Stephen Rothwell <sfr@canb.auug.org.au>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Alexandre Courbot <gnurou@gmail.com>
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 05/30/2016 06:29 AM, Neil Armstrong wrote:
-> Add watchdog specific driver for Amlogic Meson GXBB SoC.
->
-> Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-> ---
->   drivers/watchdog/Makefile         |   1 +
->   drivers/watchdog/meson_gxbb_wdt.c | 277 ++++++++++++++++++++++++++++++++++++++
->   2 files changed, 278 insertions(+)
->   create mode 100644 drivers/watchdog/meson_gxbb_wdt.c
->
-> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-> index 9bde095..7679d93 100644
-> --- a/drivers/watchdog/Makefile
-> +++ b/drivers/watchdog/Makefile
-> @@ -68,6 +68,7 @@ obj-$(CONFIG_QCOM_WDT) += qcom-wdt.o
->   obj-$(CONFIG_BCM_KONA_WDT) += bcm_kona_wdt.o
->   obj-$(CONFIG_TEGRA_WATCHDOG) += tegra_wdt.o
->   obj-$(CONFIG_MESON_WATCHDOG) += meson_wdt.o
-> +obj-$(CONFIG_MESON_WATCHDOG) += meson_gxbb_wdt.o
+On Sat, May 28, 2016 at 12:08 AM, William Breathitt Gray
+<vilhelm.gray@gmail.com> wrote:
 
-No extra Kconfig entry ? Why ?
+> With the introduction of the ISA_BUS_API Kconfig option, ISA-style
+> drivers may be built for X86_64 architectures. This patch changes the
+> ISA Kconfig option dependency of the PC/104 drivers to ISA_BUS_API, thus
+> allowing them to build for X86_64 as they are expected to.
+>
+> Cc: Alexandre Courbot <gnurou@gmail.com>
+> Cc: Linus Walleij <linus.walleij@linaro.org>
+> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+> Signed-off-by: William Breathitt Gray <vilhelm.gray@gmail.com>
 
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
+
+Or should I apply this directly to the GPIO tree?
+
+Yours,
+Linus Walleij
