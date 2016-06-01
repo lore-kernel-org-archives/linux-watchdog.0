@@ -1,10 +1,10 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:60501 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:34611 "EHLO
 	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750824AbcFAVkN (ORCPT
+	with ESMTP id S1750720AbcFAVnd (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 1 Jun 2016 17:40:13 -0400
-Date: Wed, 1 Jun 2016 14:40:08 -0700
+	Wed, 1 Jun 2016 17:43:33 -0400
+Date: Wed, 1 Jun 2016 14:43:30 -0700
 From: Guenter Roeck <linux@roeck-us.net>
 To: fu.wei@linaro.org
 Cc: wim@iguana.be, panand@redhat.com, linux-kernel@vger.kernel.org,
@@ -12,26 +12,24 @@ Cc: wim@iguana.be, panand@redhat.com, linux-kernel@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org, linaro-acpi@lists.linaro.org,
 	timur@codeaurora.org, dyoung@redhat.com, graeme.gregory@linaro.org,
 	al.stone@linaro.org, jcm@redhat.com, Suravee.Suthikulpanit@amd.com
-Subject: Re: [PATCH 1/3] watchdog: skip min and max timeout validity check
- when max_hw_heartbeat_ms is defined
-Message-ID: <20160601214008.GA2841@roeck-us.net>
+Subject: Re: [PATCH 3/3] sbsa_gwdt: Set WDOG_HW_RUNNING, when watchdog is
+ already running.
+Message-ID: <20160601214330.GC2841@roeck-us.net>
 References: <1464674890-10512-1-git-send-email-fu.wei@linaro.org>
- <1464674890-10512-2-git-send-email-fu.wei@linaro.org>
+ <1464674890-10512-4-git-send-email-fu.wei@linaro.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1464674890-10512-2-git-send-email-fu.wei@linaro.org>
+In-Reply-To: <1464674890-10512-4-git-send-email-fu.wei@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, May 31, 2016 at 02:08:08PM +0800, fu.wei@linaro.org wrote:
+On Tue, May 31, 2016 at 02:08:10PM +0800, fu.wei@linaro.org wrote:
 > From: Pratyush Anand <panand@redhat.com>
 > 
-> When max_hw_heartbeat_ms has a none zero value, max_timeout is not used.
-> So it's value can be 0. In such case if a driver uses min_timeout
-> functionality, then check will always fail.
-> 
-> This patch fixes above issue.
+> This patch uses the new flag WDOG_HW_RUNNING in driver.
+> According to the definition of this flag, it should be set,
+> if watchdog is running after booting, before it's opened.
 > 
 > Signed-off-by: Pratyush Anand <panand@redhat.com>
 > Signed-off-by: Fu Wei <fu.wei@linaro.org>
@@ -39,22 +37,22 @@ On Tue, May 31, 2016 at 02:08:08PM +0800, fu.wei@linaro.org wrote:
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
 > ---
->  drivers/watchdog/watchdog_core.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>  drivers/watchdog/sbsa_gwdt.c | 2 ++
+>  1 file changed, 2 insertions(+)
 > 
-> diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
-> index 7c3ba58..65e62d1 100644
-> --- a/drivers/watchdog/watchdog_core.c
-> +++ b/drivers/watchdog/watchdog_core.c
-> @@ -88,7 +88,7 @@ static void watchdog_check_min_max_timeout(struct watchdog_device *wdd)
->  	 * Check that we have valid min and max timeout values, if
->  	 * not reset them both to 0 (=not used or unknown)
->  	 */
-> -	if (wdd->min_timeout > wdd->max_timeout) {
-> +	if (!wdd->max_hw_heartbeat_ms && wdd->min_timeout > wdd->max_timeout) {
->  		pr_info("Invalid min and max timeout values, resetting to 0!\n");
->  		wdd->min_timeout = 0;
->  		wdd->max_timeout = 0;
+> diff --git a/drivers/watchdog/sbsa_gwdt.c b/drivers/watchdog/sbsa_gwdt.c
+> index 6af71e0..cc885f1 100644
+> --- a/drivers/watchdog/sbsa_gwdt.c
+> +++ b/drivers/watchdog/sbsa_gwdt.c
+> @@ -283,6 +283,8 @@ static int sbsa_gwdt_probe(struct platform_device *pdev)
+>  		dev_warn(dev, "System reset by WDT.\n");
+>  		wdd->bootstatus |= WDIOF_CARDRESET;
+>  	}
+> +	if (status & SBSA_GWDT_WCS_EN)
+> +		set_bit(WDOG_HW_RUNNING, &wdd->status);
+>  
+>  	if (action) {
+>  		irq = platform_get_irq(pdev, 0);
 > -- 
 > 2.5.5
 > 
