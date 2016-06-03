@@ -1,41 +1,61 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mga11.intel.com ([192.55.52.93]:11224 "EHLO mga11.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751474AbcFBI2G (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 2 Jun 2016 04:28:06 -0400
-Message-ID: <574FEE13.30500@intel.com>
-Date: Thu, 02 Jun 2016 16:28:03 +0800
-From: "Yong, Jonathan" <jonathan.yong@intel.com>
+Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:55794 "EHLO
+	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751919AbcFCU5I (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 3 Jun 2016 16:57:08 -0400
+Date: Fri, 3 Jun 2016 22:57:03 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: William Breathitt Gray <vilhelm.gray@gmail.com>
+Cc: gregkh@linuxfoundation.org, akpm@linux-foundation.org,
+	x86@kernel.org, linux-next@vger.kernel.org,
+	linux-gpio@vger.kernel.org, linux-iio@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	Guenter Roeck <linux@roeck-us.net>,
+	Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH v2 2/4] gpio: Allow PC/104 devices on X86_64
+Message-ID: <20160603205703.GC11253@amd>
+References: <cover.1464029828.git.vilhelm.gray@gmail.com>
+ <d7320150373a0a04ba44b12c5c56d92370853316.1464029828.git.vilhelm.gray@gmail.com>
 MIME-Version: 1.0
-To: Darren Hart <dvhart@infradead.org>,
-	Guenter Roeck <linux@roeck-us.net>
-CC: linux-watchdog@vger.kernel.org,
-	platform-driver-x86@vger.kernel.org, qipeng.zha@intel.com
-Subject: Re: [PATCH 2/2] x86: Fix Apollo Lake Watchdog address in PMC driver
-References: <1463541972-19758-1-git-send-email-jonathan.yong@intel.com> <1463541972-19758-3-git-send-email-jonathan.yong@intel.com> <573BE985.1000306@roeck-us.net> <573BF421.2020503@intel.com> <573C7E0C.7050304@roeck-us.net> <20160524201316.GA5857@f23x64.localdomain> <57455A8B.1090807@intel.com>
-In-Reply-To: <57455A8B.1090807@intel.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d7320150373a0a04ba44b12c5c56d92370853316.1464029828.git.vilhelm.gray@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 05/25/2016 15:55, Yong, Jonathan wrote:
-> On 05/25/2016 04:13, Darren Hart wrote:
->>
->> The history of this driver is for Apollo Lake, so the question is if
->> there exist
->> v3 and v5 APL products, or if we only need to concern ourselves with
->> v5 in the
->> upstream driver.
->>
->> Especially given the "I don't know if this is the right way" in the cover
->> letter, I will need an Acked-by at the very least from Qipeng.
->>
->
-> Hi Qipeng,
->
-> Do you know the history behind drivers/platform/x86/intel_pmc_ipc.c?
-> Were the specs based on earlier prototypes?
->
+Hi!
 
-Qipeng, ping?
+> With the introduction of the ISA_BUS_API Kconfig option, ISA-style
+> drivers may be built for X86_64 architectures. This patch changes the
+> ISA Kconfig option dependency of the PC/104 drivers to ISA_BUS_API, thus
+> allowing them to build for X86_64 as they are expected to.
+> 
+> Cc: Guenter Roeck <linux@roeck-us.net>
+> Cc: Linus Walleij <linus.walleij@linaro.org>
+> Signed-off-by: William Breathitt Gray <vilhelm.gray@gmail.com>
+> ---
+>  drivers/gpio/Kconfig | 8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
+> index 48da857..dc6da77 100644
+> --- a/drivers/gpio/Kconfig
+> +++ b/drivers/gpio/Kconfig
+> @@ -530,7 +530,7 @@ menu "Port-mapped I/O GPIO drivers"
+>  
+>  config GPIO_104_DIO_48E
+>  	tristate "ACCES 104-DIO-48E GPIO support"
+> -	depends on ISA
+> +	depends on ISA_BUS_API
+>  	select GPIOLIB_IRQCHIP
+>  	help
+>  	  Enables GPIO support for the ACCES 104-DIO-48E series
+
+Should we do "depends on PC104" here, because that is what it really
+means, and have PC104 enabled when ISA_BUS_API is enabled or something
+like that?
+
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
