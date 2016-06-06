@@ -1,53 +1,288 @@
-Return-path: <dvhart@infradead.org>
-Date: Tue, 7 Jun 2016 15:03:23 -0700
-From: Darren Hart <dvhart@infradead.org>
-To: "Yong, Jonathan" <jonathan.yong@intel.com>
-Cc: Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org,
-	platform-driver-x86@vger.kernel.org, qipeng.zha@intel.com
-Subject: Re: [PATCH 2/2] x86: Fix Apollo Lake Watchdog address in PMC driver
-Message-ID: <20160607220323.GA28348@f23x64.localdomain>
-References: <1463541972-19758-1-git-send-email-jonathan.yong@intel.com>
- <1463541972-19758-3-git-send-email-jonathan.yong@intel.com>
- <573BE985.1000306@roeck-us.net>
- <573BF421.2020503@intel.com>
- <573C7E0C.7050304@roeck-us.net>
- <20160524201316.GA5857@f23x64.localdomain>
- <57455A8B.1090807@intel.com>
- <574FEE13.30500@intel.com>
+Return-path: <ldewangan@nvidia.com>
+From: Laxman Dewangan <ldewangan@nvidia.com>
+To: <wim@iguana.be>, <linux@roeck-us.net>
+CC: <linux-kernel@vger.kernel.org>, <linux-watchdog@vger.kernel.org>, Laxman
+ Dewangan <ldewangan@nvidia.com>
+Subject: [PATCH] watchdog: max77620: Add support for watchdog timer
+Date: Mon, 6 Jun 2016 17:22:44 +0530
+Message-ID: <1465213964-25639-1-git-send-email-ldewangan@nvidia.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <574FEE13.30500@intel.com>
+Content-Type: text/plain
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On Thu, Jun 02, 2016 at 04:28:03PM +0800, Yong, Jonathan wrote:
-> On 05/25/2016 15:55, Yong, Jonathan wrote:
-> > On 05/25/2016 04:13, Darren Hart wrote:
-> > > 
-> > > The history of this driver is for Apollo Lake, so the question is if
-> > > there exist
-> > > v3 and v5 APL products, or if we only need to concern ourselves with
-> > > v5 in the
-> > > upstream driver.
-> > > 
-> > > Especially given the "I don't know if this is the right way" in the cover
-> > > letter, I will need an Acked-by at the very least from Qipeng.
-> > > 
-> > 
-> > Hi Qipeng,
-> > 
-> > Do you know the history behind drivers/platform/x86/intel_pmc_ipc.c?
-> > Were the specs based on earlier prototypes?
-> > 
-> 
-> Qipeng, ping?
-> 
+Maxim PMIC MAX77620 is Power management IC which have multiple
+sub blocks like regulators (DCDC/LDOs), GPIO, RTC, Clock, Watchdog
+timer etc.
 
-Jonathan, can you follow-up with Qiping (possibly internally) and get back to
-the list with a definitive response? Getting these into 4.7-rc would be good so
-we don't have to push it back via stable, but we need to be sure it's the right
-fix.
+Add the driver for watchdog timer under watchdog framework.
+The driver implements the watchdog callbacks to start, stop,
+ping and set timeout for watchodg framework.
 
+Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
+---
+ drivers/watchdog/Kconfig        |   9 ++
+ drivers/watchdog/Makefile       |   1 +
+ drivers/watchdog/max77620_wdt.c | 220 ++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 230 insertions(+)
+ create mode 100644 drivers/watchdog/max77620_wdt.c
+
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index b54f26c..6529aaa 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -516,6 +516,15 @@ config MAX63XX_WATCHDOG
+ 	help
+ 	  Support for memory mapped max63{69,70,71,72,73,74} watchdog timer.
+ 
++config MAX77620_WATCHDOG
++	tristate "Maxim Max77620 Watchdog Timer"
++	depends on MFD_MAX77620
++	help
++	 This is the driver for the Max77620 watchdog timer.
++	 Say 'Y' here to enable the watchdog timer support for
++	 MAX77620 chips. To compile this driver as a module,
++	 choose M here: the module will be called max77620_wat.
++
+ config IMX2_WDT
+ 	tristate "IMX2+ Watchdog"
+ 	depends on ARCH_MXC || ARCH_LAYERSCAPE
+diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+index a46e7c1..5d38173 100644
+--- a/drivers/watchdog/Makefile
++++ b/drivers/watchdog/Makefile
+@@ -203,6 +203,7 @@ obj-$(CONFIG_TANGOX_WATCHDOG) += tangox_wdt.o
+ obj-$(CONFIG_WM831X_WATCHDOG) += wm831x_wdt.o
+ obj-$(CONFIG_WM8350_WATCHDOG) += wm8350_wdt.o
+ obj-$(CONFIG_MAX63XX_WATCHDOG) += max63xx_wdt.o
++obj-$(CONFIG_MAX77620_WATCHDOG) += max77620_wdt.o
+ obj-$(CONFIG_ZIIRAVE_WATCHDOG) += ziirave_wdt.o
+ obj-$(CONFIG_SOFT_WATCHDOG) += softdog.o
+ obj-$(CONFIG_MENF21BMC_WATCHDOG) += menf21bmc_wdt.o
+diff --git a/drivers/watchdog/max77620_wdt.c b/drivers/watchdog/max77620_wdt.c
+new file mode 100644
+index 0000000..6acf0e9
+--- /dev/null
++++ b/drivers/watchdog/max77620_wdt.c
+@@ -0,0 +1,220 @@
++/*
++ * Maxim MAX77620 Watchdog Driver
++ *
++ * Copyright (C) 2016 NVIDIA CORPORATION. All rights reserved.
++ *
++ * Author: Laxman Dewangan <ldewangan@nvidia.com>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++#include <linux/err.h>
++#include <linux/init.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/mfd/max77620.h>
++#include <linux/platform_device.h>
++#include <linux/regmap.h>
++#include <linux/slab.h>
++#include <linux/watchdog.h>
++
++static bool nowayout = WATCHDOG_NOWAYOUT;
++
++struct max77620_wdt {
++	struct device			*dev;
++	struct regmap			*rmap;
++	struct watchdog_device		wdt_dev;
++	struct delayed_work		clear_wdt_wq;
++};
++
++static int max77620_wdt_start(struct watchdog_device *wdt_dev)
++{
++	struct max77620_wdt *wdt = watchdog_get_drvdata(wdt_dev);
++	int ret;
++
++	ret = regmap_update_bits(wdt->rmap, MAX77620_REG_CNFGGLBL2,
++				 MAX77620_WDTEN, MAX77620_WDTEN);
++	if (ret < 0) {
++		dev_err(wdt->dev, "Failed to set WDTEN: %d\n", ret);
++		return ret;
++	}
++
++	return 0;
++}
++
++static int max77620_wdt_stop(struct watchdog_device *wdt_dev)
++{
++	struct max77620_wdt *wdt = watchdog_get_drvdata(wdt_dev);
++	int ret;
++
++	ret = regmap_update_bits(wdt->rmap, MAX77620_REG_CNFGGLBL2,
++				 MAX77620_WDTEN, 0);
++	if (ret < 0) {
++		dev_err(wdt->dev, "Failed to reset WDTEN: %d\n", ret);
++		return ret;
++	}
++
++	return 0;
++}
++
++static int max77620_wdt_ping(struct watchdog_device *wdt_dev)
++{
++	struct max77620_wdt *wdt = watchdog_get_drvdata(wdt_dev);
++	int ret;
++
++	ret = regmap_update_bits(wdt->rmap, MAX77620_REG_CNFGGLBL3,
++				 MAX77620_WDTC_MASK, 0x1);
++	if (ret < 0) {
++		dev_err(wdt->dev, "Failed to clear WDT: %d\n", ret);
++		return ret;
++	}
++
++	return 0;
++}
++
++static int max77620_wdt_set_timeout(struct watchdog_device *wdt_dev,
++				    unsigned int timeout)
++{
++	struct max77620_wdt *wdt = watchdog_get_drvdata(wdt_dev);
++	int ret;
++	u8 regval = 0;
++
++	if (timeout <= 2)
++		regval = MAX77620_TWD_2s;
++	else if (timeout <= 16)
++		regval = MAX77620_TWD_16s;
++	else if (timeout <= 64)
++		regval = MAX77620_TWD_64s;
++	else if (timeout <= 128)
++		regval = MAX77620_TWD_128s;
++	else
++		return -EINVAL;
++
++	/* Clear watchdog before updating time. */
++	ret = regmap_update_bits(wdt->rmap, MAX77620_REG_CNFGGLBL3,
++				 MAX77620_WDTC_MASK, 0x1);
++	if (ret < 0) {
++		dev_err(wdt->dev, "Failed to clear WDT: %d\n", ret);
++		return ret;
++	}
++
++	ret = regmap_update_bits(wdt->rmap, MAX77620_REG_CNFGGLBL2,
++				 MAX77620_TWD_MASK, regval);
++	if (ret < 0) {
++		dev_err(wdt->dev, "Failed to set timeout of WDT: %d\n", ret);
++		return ret;
++	}
++
++	return 0;
++}
++
++static const struct watchdog_info max77620_wdt_info = {
++	.identity = "max77620-watchdog",
++	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
++};
++
++static const struct watchdog_ops max77620_wdt_ops = {
++	.start		= max77620_wdt_start,
++	.stop		= max77620_wdt_stop,
++	.ping		= max77620_wdt_ping,
++	.set_timeout	= max77620_wdt_set_timeout,
++};
++
++static int max77620_wdt_probe(struct platform_device *pdev)
++{
++	struct max77620_wdt *wdt;
++	struct watchdog_device *wdt_dev;
++	int ret;
++
++	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
++	if (!wdt)
++		return -ENOMEM;
++
++	wdt->dev = &pdev->dev;
++	wdt->rmap = dev_get_regmap(pdev->dev.parent, NULL);
++	if (!wdt->rmap) {
++		dev_err(wdt->dev, "Failed to get parent regmap\n");
++		return -ENODEV;
++	}
++
++	wdt_dev = &wdt->wdt_dev;
++	wdt_dev->info = &max77620_wdt_info;
++	wdt_dev->ops = &max77620_wdt_ops;
++	wdt_dev->min_timeout = 2;
++	wdt_dev->max_timeout = 128;
++
++	platform_set_drvdata(pdev, wdt);
++
++	/* Stop watchodog */
++	ret = regmap_update_bits(wdt->rmap, MAX77620_REG_CNFGGLBL2,
++				 MAX77620_WDTEN, 0);
++	if (ret < 0) {
++		dev_err(wdt->dev, "Failed to reset WDTEN: %d\n", ret);
++		return ret;
++	}
++
++	/* Enable WD_RST_WK - WDT expire results in a restart */
++	ret = regmap_update_bits(wdt->rmap, MAX77620_REG_ONOFFCNFG2,
++				 MAX77620_ONOFFCNFG2_WD_RST_WK,
++				 MAX77620_ONOFFCNFG2_WD_RST_WK);
++	if (ret < 0) {
++		dev_err(wdt->dev, "Failed to set WD_RST_WK: %d\n", ret);
++		return ret;
++	}
++
++	/* Set WDT clear in OFF and sleep mode */
++	ret = regmap_update_bits(wdt->rmap, MAX77620_REG_CNFGGLBL2,
++				 MAX77620_WDTOFFC | MAX77620_WDTSLPC,
++				 MAX77620_WDTOFFC | MAX77620_WDTSLPC);
++	if (ret < 0) {
++		dev_err(wdt->dev, "Failed to set WDT OFF mode: %d\n", ret);
++		return ret;
++	}
++
++	ret = watchdog_register_device(wdt_dev);
++	if (ret < 0) {
++		dev_err(&pdev->dev, "watchdog registration failed: %d\n", ret);
++		return ret;
++	}
++	watchdog_set_nowayout(wdt_dev, nowayout);
++	watchdog_set_drvdata(wdt_dev, wdt);
++
++	return ret;
++}
++
++static int max77620_wdt_remove(struct platform_device *pdev)
++{
++	struct max77620_wdt *wdt = platform_get_drvdata(pdev);
++
++	max77620_wdt_stop(&wdt->wdt_dev);
++	watchdog_unregister_device(&wdt->wdt_dev);
++
++	return 0;
++}
++
++static struct platform_device_id max77620_wdt_devtype[] = {
++	{ .name = "max77620-watchdog", },
++	{ },
++};
++
++static struct platform_driver max77620_wdt_driver = {
++	.driver	= {
++		.name	= "max77620-watchdog",
++	},
++	.probe	= max77620_wdt_probe,
++	.remove	= max77620_wdt_remove,
++	.id_table = max77620_wdt_devtype,
++};
++
++module_platform_driver(max77620_wdt_driver);
++
++MODULE_DESCRIPTION("Max77620 watchdog timer driver");
++
++module_param(nowayout, bool, 0);
++MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started "
++	"(default=" __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
++
++MODULE_AUTHOR("Laxman Dewangan <ldewangan@nvidia.com>");
++MODULE_LICENSE("GPL v2");
 -- 
-Darren Hart
-Intel Open Source Technology Center
+2.1.4
