@@ -1,57 +1,87 @@
-Return-path: <Vladimir_Zapolskiy@mentor.com>
-Subject: Re: [PATCH 1/7] watchdog: add watchdog pretimeout framework
-To: Wolfram Sang <wsa@the-dreams.de>, Guenter Roeck <linux@roeck-us.net>
-References: <1464183151-4912-1-git-send-email-wsa@the-dreams.de>
- <1464183151-4912-2-git-send-email-wsa@the-dreams.de>
- <5747041B.2050707@mentor.com> <20160526164136.GB1631@katana>
- <20160526223717.GA6659@roeck-us.net> <20160605094823.GB1497@katana>
-CC: <linux-watchdog@vger.kernel.org>, <linux-renesas-soc@vger.kernel.org>,
-	Robin Gong <b38343@freescale.com>
-From: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
-Message-ID: <57548AD7.6060503@mentor.com>
-Date: Sun, 5 Jun 2016 23:25:59 +0300
+Return-path: <narmstrong@baylibre.com>
+Subject: Re: [PATCH v2 1/3] watchdog: Add Meson GXBB Watchdog Driver
+To: Guenter Roeck <linux@roeck-us.net>, Wim Van Sebroeck <wim@iguana.be>
+References: <1464943007-18000-1-git-send-email-narmstrong@baylibre.com>
+ <1464943007-18000-2-git-send-email-narmstrong@baylibre.com>
+ <575316A6.9080403@roeck-us.net>
+Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-amlogic@lists.infradead.org, linux-watchdog@vger.kernel.org
+From: Neil Armstrong <narmstrong@baylibre.com>
+Message-ID: <57552AD9.7040903@baylibre.com>
+Date: Mon, 6 Jun 2016 09:48:41 +0200
 MIME-Version: 1.0
-In-Reply-To: <20160605094823.GB1497@katana>
-Content-Type: text/plain; charset="utf-8"
+In-Reply-To: <575316A6.9080403@roeck-us.net>
+Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi Wolfram,
+Hi Guenter,
 
-On 05.06.2016 12:48, Wolfram Sang wrote:
-> On Thu, May 26, 2016 at 03:37:17PM -0700, Guenter Roeck wrote:
->> On Thu, May 26, 2016 at 06:41:36PM +0200, Wolfram Sang wrote:
->> [ ... ]
->>>
->>> No doubt about that. I had some ideas and thought it is easier to talk
->>> over code. If you want to rebase it, too, I'd be happy to check what you
->>> came up with to solve the problems. I might still argue that I prefer
->>> the less-code approach, but it will be Guenter's / Wim's decision, of
->>> course.
->>>
->> I have a large back-log of patches to review. Simple patches with less code
->> will get preferential treating. The more complex, the higher the likelyhood
->> that the patches get pushed to the end of the queue.
->>
->> Giving a quick glance, I liked Wolfram's patches because they seemed to
->> be simple and straightforward. I hope the next version won't add too much
->> additional complexity.
+On 06/04/2016 07:57 PM, Guenter Roeck wrote:
+> On 06/03/2016 01:36 AM, Neil Armstrong wrote:
+[...]
+>> +++ b/drivers/watchdog/meson_gxbb_wdt.c
+>> @@ -0,0 +1,268 @@
+>> +/*
+>> + * This file is provided under a dual BSD/GPLv2 license.  When using or
+>> + * redistributing this file, you may do so under either license.
+>> + *
+>> + * GPL LICENSE SUMMARY
+>> + *
+>> + * Copyright (c) 2016 BayLibre, SAS.
+>> + * Author: Neil Armstrong <narmstrong@baylibre.com>
+>> + *
+>> + * This program is free software; you can redistribute it and/or modify
+>> + * it under the terms of version 2 of the GNU General Public License as
+>> + * published by the Free Software Foundation.
+>> + *
+>> + * This program is distributed in the hope that it will be useful, but
+>> + * WITHOUT ANY WARRANTY; without even the implied warranty of
+>> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+>> + * General Public License for more details.
+>> + *
+>> + * You should have received a copy of the GNU General Public License
+>> + * along with this program; if not, see <http://www.gnu.org/licenses/>.
+>> + * The full GNU General Public License is included in this distribution
+>> + * in the file called COPYING.
+>> + *
+>> + * BSD LICENSE
+>> + *
+>> + * Copyright (c) 2016 BayLibre, SAS.
+>> + * Author: Neil Armstrong <narmstrong@baylibre.com>
+>> + *
+> Nitpick, but you don't really need the copyright and author lines twice.
+
+Sorry, but I was asked to use this particular header format since I am not
+the copyright holder of this file.
+
 > 
-> Vladimir, did you have time to look into this?
+>> + * Redistribution and use in source and binary forms, with or without
+>> + * modification, are permitted provided that the following conditions
+>> + * are met:
+>> + *
+>> + *   * Redistributions of source code must retain the above copyright
+>> + *     notice, this list of conditions and the following disclaimer.
+>> + *   * Redistributions in binary form must reproduce the above copyright
+>> + *     notice, this list of conditions and the following disclaimer in
+>> + *     the documentation and/or other materials provided with the
+>> + *     distribution.
+>> + *   * Neither the name of Intel Corporation nor the names of its
+>> + *     contributors may be used to endorse or promote products derived
+>> + *     from this software without specific prior written permission.
+>> + *
+>> + * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+>> + * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+>> + * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+>> + * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+>> + * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+>> + * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+>> + * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+>> + * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+>> + * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+>> + * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+>> + * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+>> + */
 
-yes, I managed to rebase and split my change to smaller pieces to encourage
-reviewers.
-
-My plan is to do thorough testing of the change and send it for review
-tomorrow or on Tuesday, please participate in review.
-
-> I can offer to resend this series on-top of v4.7-rc1 with the core patch
-> re-attributed to Vladimir. Then we can review the basic stuff now, and
-> can discuss/deal with the bottom half handling incrementally.
-> 
-> Sounds good?
-> 
-
---
-Best wishes,
-Vladimir
+Thanks,
+Neil
