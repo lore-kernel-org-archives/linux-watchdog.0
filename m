@@ -1,87 +1,106 @@
-Return-path: <narmstrong@baylibre.com>
-Subject: Re: [PATCH v2 1/3] watchdog: Add Meson GXBB Watchdog Driver
-To: Guenter Roeck <linux@roeck-us.net>, Wim Van Sebroeck <wim@iguana.be>
-References: <1464943007-18000-1-git-send-email-narmstrong@baylibre.com>
- <1464943007-18000-2-git-send-email-narmstrong@baylibre.com>
- <575316A6.9080403@roeck-us.net>
-Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-amlogic@lists.infradead.org, linux-watchdog@vger.kernel.org
-From: Neil Armstrong <narmstrong@baylibre.com>
-Message-ID: <57552AD9.7040903@baylibre.com>
-Date: Mon, 6 Jun 2016 09:48:41 +0200
-MIME-Version: 1.0
-In-Reply-To: <575316A6.9080403@roeck-us.net>
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Return-path: <ben.dooks@codethink.co.uk>
+From: Ben Dooks <ben.dooks@codethink.co.uk>
+To: linux-kernel@lists.codethink.co.uk
+Cc: Ben Dooks <ben.dooks@codethink.co.uk>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Barry Song <baohua@kernel.org>,
+	linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org
+Subject: [PATCH] watchdog: sirf: fix __iomem * warnings
+Date: Tue,  7 Jun 2016 12:53:07 +0100
+Message-Id: <1465300387-20629-1-git-send-email-ben.dooks@codethink.co.uk>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi Guenter,
+Fix the following warnings from sparse due to casting to/from an __iomem
+annotated variable:
 
-On 06/04/2016 07:57 PM, Guenter Roeck wrote:
-> On 06/03/2016 01:36 AM, Neil Armstrong wrote:
-[...]
->> +++ b/drivers/watchdog/meson_gxbb_wdt.c
->> @@ -0,0 +1,268 @@
->> +/*
->> + * This file is provided under a dual BSD/GPLv2 license.  When using or
->> + * redistributing this file, you may do so under either license.
->> + *
->> + * GPL LICENSE SUMMARY
->> + *
->> + * Copyright (c) 2016 BayLibre, SAS.
->> + * Author: Neil Armstrong <narmstrong@baylibre.com>
->> + *
->> + * This program is free software; you can redistribute it and/or modify
->> + * it under the terms of version 2 of the GNU General Public License as
->> + * published by the Free Software Foundation.
->> + *
->> + * This program is distributed in the hope that it will be useful, but
->> + * WITHOUT ANY WARRANTY; without even the implied warranty of
->> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
->> + * General Public License for more details.
->> + *
->> + * You should have received a copy of the GNU General Public License
->> + * along with this program; if not, see <http://www.gnu.org/licenses/>.
->> + * The full GNU General Public License is included in this distribution
->> + * in the file called COPYING.
->> + *
->> + * BSD LICENSE
->> + *
->> + * Copyright (c) 2016 BayLibre, SAS.
->> + * Author: Neil Armstrong <narmstrong@baylibre.com>
->> + *
-> Nitpick, but you don't really need the copyright and author lines twice.
+drivers/watchdog/sirfsoc_wdt.c:48:18: warning: incorrect type in assignment (different address spaces)
+drivers/watchdog/sirfsoc_wdt.c:48:18:    expected void [noderef] <asn:2>*wdt_base
+drivers/watchdog/sirfsoc_wdt.c:48:18:    got void *
+drivers/watchdog/sirfsoc_wdt.c:64:18: warning: incorrect type in assignment (different address spaces)
+drivers/watchdog/sirfsoc_wdt.c:64:18:    expected void [noderef] <asn:2>*wdt_base
+drivers/watchdog/sirfsoc_wdt.c:64:18:    got void *
+drivers/watchdog/sirfsoc_wdt.c:82:54: warning: incorrect type in initializer (different address spaces)
+drivers/watchdog/sirfsoc_wdt.c:82:54:    expected void [noderef] <asn:2>*wdt_base
+drivers/watchdog/sirfsoc_wdt.c:82:54:    got void *
+drivers/watchdog/sirfsoc_wdt.c:99:54: warning: incorrect type in initializer (different address spaces)
+drivers/watchdog/sirfsoc_wdt.c:99:54:    expected void [noderef] <asn:2>*wdt_base
+drivers/watchdog/sirfsoc_wdt.c:99:54:    got void *
+drivers/watchdog/sirfsoc_wdt.c:153:44: warning: incorrect type in argument 2 (different address spaces)
+drivers/watchdog/sirfsoc_wdt.c:153:44:    expected void *data
+drivers/watchdog/sirfsoc_wdt.c:153:44:    got void [noderef] <asn:2>*[assigned] base
 
-Sorry, but I was asked to use this particular header format since I am not
-the copyright holder of this file.
+Signed-off-by: Ben Dooks <ben.dooks@codethink.co.uk>
+---
+Cc: Wim Van Sebroeck <wim@iguana.be>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Cc: Barry Song <baohua@kernel.org>
+Cc: linux-watchdog@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org
+---
+ drivers/watchdog/sirfsoc_wdt.c | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
-> 
->> + * Redistribution and use in source and binary forms, with or without
->> + * modification, are permitted provided that the following conditions
->> + * are met:
->> + *
->> + *   * Redistributions of source code must retain the above copyright
->> + *     notice, this list of conditions and the following disclaimer.
->> + *   * Redistributions in binary form must reproduce the above copyright
->> + *     notice, this list of conditions and the following disclaimer in
->> + *     the documentation and/or other materials provided with the
->> + *     distribution.
->> + *   * Neither the name of Intel Corporation nor the names of its
->> + *     contributors may be used to endorse or promote products derived
->> + *     from this software without specific prior written permission.
->> + *
->> + * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
->> + * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
->> + * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
->> + * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
->> + * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
->> + * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
->> + * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
->> + * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
->> + * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
->> + * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
->> + * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
->> + */
-
-Thanks,
-Neil
+diff --git a/drivers/watchdog/sirfsoc_wdt.c b/drivers/watchdog/sirfsoc_wdt.c
+index d0578ab..3050a00 100644
+--- a/drivers/watchdog/sirfsoc_wdt.c
++++ b/drivers/watchdog/sirfsoc_wdt.c
+@@ -39,13 +39,18 @@ MODULE_PARM_DESC(timeout, "Default watchdog timeout (in seconds)");
+ MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
+ 			__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+ 
++static void __iomem *sirfsoc_wdt_base(struct watchdog_device *wdd)
++{
++	return (void __iomem __force *)watchdog_get_drvdata(wdd);
++}
++
+ static unsigned int sirfsoc_wdt_gettimeleft(struct watchdog_device *wdd)
+ {
+ 	u32 counter, match;
+ 	void __iomem *wdt_base;
+ 	int time_left;
+ 
+-	wdt_base = watchdog_get_drvdata(wdd);
++	wdt_base = sirfsoc_wdt_base(wdd);
+ 	counter = readl(wdt_base + SIRFSOC_TIMER_COUNTER_LO);
+ 	match = readl(wdt_base +
+ 		SIRFSOC_TIMER_MATCH_0 + (SIRFSOC_TIMER_WDT_INDEX << 2));
+@@ -61,7 +66,7 @@ static int sirfsoc_wdt_updatetimeout(struct watchdog_device *wdd)
+ 	void __iomem *wdt_base;
+ 
+ 	timeout_ticks = wdd->timeout * CLOCK_FREQ;
+-	wdt_base = watchdog_get_drvdata(wdd);
++	wdt_base = sirfsoc_wdt_base(wdd);
+ 
+ 	/* Enable the latch before reading the LATCH_LO register */
+ 	writel(1, wdt_base + SIRFSOC_TIMER_LATCH);
+@@ -79,7 +84,7 @@ static int sirfsoc_wdt_updatetimeout(struct watchdog_device *wdd)
+ 
+ static int sirfsoc_wdt_enable(struct watchdog_device *wdd)
+ {
+-	void __iomem *wdt_base = watchdog_get_drvdata(wdd);
++	void __iomem *wdt_base = sirfsoc_wdt_base(wdd);
+ 	sirfsoc_wdt_updatetimeout(wdd);
+ 
+ 	/*
+@@ -96,7 +101,7 @@ static int sirfsoc_wdt_enable(struct watchdog_device *wdd)
+ 
+ static int sirfsoc_wdt_disable(struct watchdog_device *wdd)
+ {
+-	void __iomem *wdt_base = watchdog_get_drvdata(wdd);
++	void __iomem *wdt_base = sirfsoc_wdt_base(wdd);
+ 
+ 	writel(0, wdt_base + SIRFSOC_TIMER_WATCHDOG_EN);
+ 	writel(readl(wdt_base + SIRFSOC_TIMER_INT_EN)
+@@ -150,7 +155,7 @@ static int sirfsoc_wdt_probe(struct platform_device *pdev)
+ 	if (IS_ERR(base))
+ 		return PTR_ERR(base);
+ 
+-	watchdog_set_drvdata(&sirfsoc_wdd, base);
++	watchdog_set_drvdata(&sirfsoc_wdd, (__force void *)base);
+ 
+ 	watchdog_init_timeout(&sirfsoc_wdd, timeout, &pdev->dev);
+ 	watchdog_set_nowayout(&sirfsoc_wdd, nowayout);
+-- 
+2.8.1
