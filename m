@@ -1,67 +1,98 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:55912 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:44742 "EHLO
 	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753880AbcFHB7u (ORCPT
+	with ESMTP id S1755897AbcFGUdL (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 7 Jun 2016 21:59:50 -0400
-Subject: Re: [PATCH] watchdog: f71808e_wdt: Add F81866 support
-To: "Ji-Ze Hong (Peter Hong)" <hpeter@gmail.com>, wim@iguana.be
-References: <1465196330-9410-1-git-send-email-hpeter+linux_kernel@gmail.com>
- <5756D4FD.4090109@roeck-us.net>
- <663dec87-8b9e-f7a5-0224-991e8c528705@gmail.com>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-	peter_hong@fintek.com.tw, tom_tsai@fintek.com.tw,
-	"Ji-Ze Hong (Peter Hong)" <hpeter+linux_kernel@gmail.com>
+	Tue, 7 Jun 2016 16:33:11 -0400
+Date: Tue, 7 Jun 2016 13:32:58 -0700
 From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <57577C09.7060009@roeck-us.net>
-Date: Tue, 7 Jun 2016 18:59:37 -0700
+To: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
+Cc: Wim Van Sebroeck <wim@iguana.be>, Wolfram Sang <wsa@the-dreams.de>,
+	Robin Gong <b38343@freescale.com>,
+	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3 1/6] watchdog: add set_pretimeout interface
+Message-ID: <20160607203258.GA8033@roeck-us.net>
+References: <1465321127-19522-1-git-send-email-vladimir_zapolskiy@mentor.com>
+ <1465321127-19522-2-git-send-email-vladimir_zapolskiy@mentor.com>
 MIME-Version: 1.0
-In-Reply-To: <663dec87-8b9e-f7a5-0224-991e8c528705@gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1465321127-19522-2-git-send-email-vladimir_zapolskiy@mentor.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 06/07/2016 06:40 PM, Ji-Ze Hong (Peter Hong) wrote:
-> Hi Guenter,
->
-> Guenter Roeck 於 2016/6/7 下午 10:06 寫道:
->> On 06/05/2016 11:58 PM, Ji-Ze Hong (Peter Hong) wrote:
->>> +#define SIO_REG_PORT_SEL    0x27    /* F81866 Multi-Function Register */
->>> +#define SIO_REG_GPIO1        0x2c    /*
->>> +                     * GPIO1 Control Register when 27h
->>> +                     * BIT3:2 = 01 & BIT0 = 0
->>> +                     *
->>> +                     * The PIN 70(GPIO15/WDTRST) is
->>> +                     * controlled by 2Ch:
->>> +                     * BIT5: 0 -> WDTRST#
->>> +                     *       1 -> GPIO15
->>> +                     */
->>> +
->> Please keep register defines in order, and move the explanation
->> to where the register values are set.
->
-> OK. BTW, should I rename SIO_REG_PORT_SEL & SIO_REG_GPIO1 to
-> SIO_F81866_REG_PORT_SEL & SIO_F81866_REG_GPIO1? It's only used by
-> F81866.
->
+On Tue, Jun 07, 2016 at 08:38:42PM +0300, Vladimir Zapolskiy wrote:
+> From: Robin Gong <b38343@freescale.com>
+> 
+> Add set_pretimeout since our watchdog driver has those interfaces and
+> obviously, the new common watchdog framework didn't implement this
+> interface.
+> 
+> Signed-off-by: Robin Gong <b38343@freescale.com>
+> [vzapolskiy: rebased, added an inline comment to describe new interface]
+> Signed-off-by: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
+> ---
+> Changes from v2 to v3:
+> * none, new change
+> 
+> Changes from v1 to v2:
+> * none, new change
+> 
+>  include/linux/watchdog.h | 10 ++++++++++
 
-Might be a good idea.
+Please also document the new API function and variable in
+Documentation/watchdog/watchdog-kernel-api.txt.
+
+
+>  1 file changed, 10 insertions(+)
+> 
+> diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
+> index 51732d6..e3d23d3 100644
+> --- a/include/linux/watchdog.h
+> +++ b/include/linux/watchdog.h
+> @@ -28,6 +28,7 @@ struct watchdog_core_data;
+>   * @ping:	The routine that sends a keepalive ping to the watchdog device.
+>   * @status:	The routine that shows the status of the watchdog device.
+>   * @set_timeout:The routine for setting the watchdog devices timeout value (in seconds).
+> + * @set_pretimeout:The routine for setting the watchdog devices pretimeout (in seconds).
+>   * @get_timeleft:The routine that gets the time left before a reset (in seconds).
+>   * @restart:	The routine for restarting the machine.
+>   * @ioctl:	The routines that handles extra ioctl calls.
+> @@ -46,6 +47,7 @@ struct watchdog_ops {
+>  	int (*ping)(struct watchdog_device *);
+>  	unsigned int (*status)(struct watchdog_device *);
+>  	int (*set_timeout)(struct watchdog_device *, unsigned int);
+> +	int (*set_pretimeout)(struct watchdog_device *, unsigned int);
+>  	unsigned int (*get_timeleft)(struct watchdog_device *);
+>  	int (*restart)(struct watchdog_device *, unsigned long, void *);
+>  	long (*ioctl)(struct watchdog_device *, unsigned int, unsigned long);
+> @@ -95,6 +97,7 @@ struct watchdog_device {
+>  	const struct watchdog_ops *ops;
+>  	unsigned int bootstatus;
+>  	unsigned int timeout;
+> +	unsigned int pretimeout;
+>  	unsigned int min_timeout;
+>  	unsigned int max_timeout;
+>  	unsigned int min_hw_heartbeat_ms;
+> @@ -162,6 +165,13 @@ static inline bool watchdog_timeout_invalid(struct watchdog_device *wdd, unsigne
+>  		 t > wdd->max_timeout);
+>  }
+>  
+> +/* Use the following function to check if a pretimeout value is invalid */
+> +static inline bool watchdog_pretimeout_invalid(struct watchdog_device *wdd,
+> +					       unsigned int t)
+> +{
+> +	return wdd->timeout && t >= wdd->timeout;
+> +}
+
+If no timeout is configured, this would happily accept timeout values larger
+than the maximum supported timeout. Given that we can not evaluate true or false
+if timeout is not set or not known, I think this will have to be something like
+	return !wdd->timeout || t >= wdd->timeout;
+(unless somone has a better idea).
+
+I am missing a function to initialize the pretimeout from a driver, similar
+to watchdog_init_timeout(). Is this an oversight or on purpose ?
 
 Thanks,
 Guenter
-
->>> +    case f81866:
->>> +        /* Set pin 70 to WDTRST# */
->>> +        superio_clear_bit(watchdog.sioaddr, SIO_REG_PORT_SEL, 9);
->>> +        superio_set_bit(watchdog.sioaddr, SIO_REG_PORT_SEL, 4);
->>> +        superio_clear_bit(watchdog.sioaddr, SIO_REG_GPIO1, 0x20);
->>
->> Using BIT() here would be a bit nicer. Yes, I know, it isn't done
->> everywhere
->> in this driver, but that doesn't mean we should not do it in added code.
->
-> I'll use BIT() to re-write it.
->
-> Thanks
-
