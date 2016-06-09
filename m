@@ -1,53 +1,60 @@
 Return-path: <wsa@the-dreams.de>
-Date: Thu, 9 Jun 2016 23:12:49 +0200
+Date: Thu, 9 Jun 2016 23:14:39 +0200
 From: Wolfram Sang <wsa@the-dreams.de>
 To: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
 Cc: Wim Van Sebroeck <wim@iguana.be>, Guenter Roeck <linux@roeck-us.net>,
 	Robin Gong <b38343@freescale.com>, linux-watchdog@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 1/6] watchdog: add set_pretimeout interface
-Message-ID: <20160609211249.GP23522@katana>
+Subject: Re: [PATCH v3 4/6] watchdog: add watchdog pretimeout framework
+Message-ID: <20160609211439.GQ23522@katana>
 References: <1465321127-19522-1-git-send-email-vladimir_zapolskiy@mentor.com>
- <1465321127-19522-2-git-send-email-vladimir_zapolskiy@mentor.com>
- <20160608063458.GA1521@katana>
- <5758167C.9080301@mentor.com>
+ <1465321127-19522-5-git-send-email-vladimir_zapolskiy@mentor.com>
+ <20160608065445.GB1521@katana>
+ <575826C9.6010808@mentor.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ga5bsqHr1s/xcZEm"
+	protocol="application/pgp-signature"; boundary="7kD9y3RnPUgTZee0"
 Content-Disposition: inline
-In-Reply-To: <5758167C.9080301@mentor.com>
+In-Reply-To: <575826C9.6010808@mentor.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
 
---ga5bsqHr1s/xcZEm
+--7kD9y3RnPUgTZee0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
 
-> I agree, your version is obviously more advanced, I will take it for v4.
+> >> * removed support of sleepable watchdog pretimeout governors
+> >=20
+> > This does.
+>=20
+> Same as above.
 
-Thanks!
+Just to make sure: I meant this does make reviewing easier since the
+bottom half handling is the biggest thing to discuss and it is good to
+seperate it out.
 
 
---ga5bsqHr1s/xcZEm
+--7kD9y3RnPUgTZee0
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXWdvRAAoJEBQN5MwUoCm2uu4P/j5zv2UVFRso+Qii4SQWUbyS
-6e5o5+NX2oSCIa/Ql3mdH30t9mweJbm4y8ds9ETNjGrUqSX95nlO9tvJabrCuJQL
-1aWCdpjnRbfin2JbrpZJhXAi79drVU5OZIslzb+PsGIgmZJF3uOCmrLXnyxRCBDI
-4ljBvE9/BVRW2itV71k90C06PuTywAW19vVnBZEkLfVwlna56U+u/D8wtVXzY3Kg
-9bbIDL7GsV+ToYEB39CALRgKWd8s3aZ9iCn05EyXoLYMhQwHV5xsMMSIuk5NatWp
-kKgDblZmbTR9syIPoC6BKJbjU7WQP997hR8eq6lzCGFgfRTiDiQ3sAI/CppkIpmD
-mBvbIHZ4PsvEAdavAX0Jeqy3i7zpe8Iqw3RZg9S+BSYy80mWbhAU8GNnq6aiqw56
-FkM0+9ccIHNQxOp3JE4pyTgsmt0D19kMCg4sKTnXcSxkORh5hnuwkV+RrpzmOLh+
-yI4OaQdKLlQoa1+dP6jyRXIx1VSwb9E+tJPgikU5dGMkXIZeaslrOZ3Q5rAyjJ22
-aer8u4isQYGMXosJyZwpppX2ShAFtG++vdL9NqrgHpLoBFMszCtr3KrVVLVoIVy3
-wP+CKSxA1iI7aIKCABEVnFbeGHsO9+535gPJxdRxKlh0qXIE2ZX4NP/LJH/pf54S
-UHYxXa/gBV915fvygvgb
-=+PXb
+iQIcBAEBAgAGBQJXWdw/AAoJEBQN5MwUoCm2psgQAKBsHpLGdbYlqXo0mylF7Uel
+i1topCnYJs2XuDH3cOtbgVOmKC4Ieq1d52SAOOqNv7e11bkCIsV0G2gQ3ZkAGYjw
+sFmig85Cf3gRt1Zlh4S7s7WTF7VPIwaxdklwvazcHU7MMq/nhpIj0Iv5LdqC8on4
+9t9pf+kMseXeQeRjM7KGI3bGoAYNrioQ/ZMKmGsxsBiKrVzm8KecyPnuJB6wnCH+
+XsoEnq6k7iqSNV6HLGKifL3QXPWfGiXUaElXPBXvNtGZOxOhFFPdwW8EFvdJ1BQm
+CXwlgComxusrg+r75igcCPK5IHvJmJRfN2ybWMaTd75L9b/zr7SNfwgHaUK4z79k
+BvgE+OlfD9Kc67a8sE3FrRSagXGINJondn8ss0qCpU1nvDi6dRtZ4u7AnkQHrulO
+rxMhb7iVBND6BLpz5jx7FZANciRzRuXLtFnJT3UMOvb3YaDdSZcOC28h3A8nU/KD
+eSwft9m6bSrh5KYBJDRLxrBch73+zQw/91cmK+e8YtllGktYb9jI2UH1LSBUkKU+
+CW+tP8NtmY1v4lYEsyQh1V3K2JUKVcG0t2AUvdU4Xu5EPMUUpmteT5YOvYpgFjxT
+bKQVwuvsj2CQ+Gx9nkDCLokh0A65YehC3z76DVDRh177nf2ksY0roJ6dmn75iRXP
+Kg7FZ4gyzIH154XEFQxi
+=FygY
 -----END PGP SIGNATURE-----
 
---ga5bsqHr1s/xcZEm--
+--7kD9y3RnPUgTZee0--
