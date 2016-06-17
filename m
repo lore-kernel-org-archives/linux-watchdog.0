@@ -1,39 +1,71 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from relay1.mentorg.com ([192.94.38.131]:42121 "EHLO
-	relay1.mentorg.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161864AbcFHOcS (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 8 Jun 2016 10:32:18 -0400
-Subject: Re: [PATCH v3 6/6] watchdog: pretimeout: add noop pretimeout governor
-To: Wolfram Sang <wsa@the-dreams.de>
-References: <1465321127-19522-1-git-send-email-vladimir_zapolskiy@mentor.com>
- <1465321127-19522-7-git-send-email-vladimir_zapolskiy@mentor.com>
- <20160608071001.GE1521@katana>
-CC: Wim Van Sebroeck <wim@iguana.be>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Robin Gong <b38343@freescale.com>,
-	<linux-watchdog@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-From: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
-Message-ID: <57582C6E.1000305@mentor.com>
-Date: Wed, 8 Jun 2016 17:32:14 +0300
-MIME-Version: 1.0
-In-Reply-To: <20160608071001.GE1521@katana>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Received: from mga09.intel.com ([134.134.136.24]:63874 "EHLO mga09.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754498AbcFQAhC (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 16 Jun 2016 20:37:02 -0400
+From: "Yong, Jonathan" <jonathan.yong@intel.com>
+To: linux-watchdog@vger.kernel.org, platform-driver-x86@vger.kernel.org
+Cc: qipeng.zha@intel.com, linux@roeck-us.net, dvhart@infradead.org,
+	linux-kernel@vger.kernel.org, jonathan.yong@intel.com
+Subject: [PATCH v2 2/2] x86: Fix Apollo Lake Watchdog address in PMC driver
+Date: Fri, 17 Jun 2016 00:36:57 +0000
+Message-Id: <1466123817-50679-3-git-send-email-jonathan.yong@intel.com>
+In-Reply-To: <1466123817-50679-1-git-send-email-jonathan.yong@intel.com>
+References: <1463541972-19758-1-git-send-email-jonathan.yong@intel.com>
+ <1466123817-50679-1-git-send-email-jonathan.yong@intel.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 08.06.2016 10:10, Wolfram Sang wrote:
->> +static void pretimeout_noop(struct watchdog_device *wdd)
->> +{
->> +	pr_alert("watchdog pretimeout event\n");
->> +}
-> 
-> My version said which watchdog caused the event, why not adding that?
-> 
+The TCO I/O base is 40h rather than the usual 30h, and the re_reboot
+bit is at ACPIBASE+8.
 
-I will add it. It's a bit sad that a virtual volatile id is reported,
-but it is better than nothing...
+Signed-off-by: Yong, Jonathan <jonathan.yong@intel.com>
+---
+ drivers/platform/x86/intel_pmc_ipc.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-Best wishes,
-Vladimir
+diff --git a/drivers/platform/x86/intel_pmc_ipc.c b/drivers/platform/x86/intel_pmc_ipc.c
+index 6f497e8..b86e1bc 100644
+--- a/drivers/platform/x86/intel_pmc_ipc.c
++++ b/drivers/platform/x86/intel_pmc_ipc.c
+@@ -85,7 +85,7 @@
+  * platform device and to export resources for those functions.
+  */
+ #define TCO_DEVICE_NAME			"iTCO_wdt"
+-#define SMI_EN_OFFSET			0x30
++#define SMI_EN_OFFSET			0x40
+ #define SMI_EN_SIZE			4
+ #define TCO_BASE_OFFSET			0x60
+ #define TCO_REGS_SIZE			16
+@@ -94,6 +94,8 @@
+ #define TELEM_SSRAM_SIZE		240
+ #define TELEM_PMC_SSRAM_OFFSET		0x1B00
+ #define TELEM_PUNIT_SSRAM_OFFSET	0x1A00
++#define TCO_PMC_OFFSET			0x8
++#define TCO_PMC_SIZE			0x4
+ 
+ static const int iTCO_version = 3;
+ 
+@@ -502,7 +504,7 @@ static struct resource tco_res[] = {
+ 
+ static struct itco_wdt_platform_data tco_info = {
+ 	.name = "Apollo Lake SoC",
+-	.version = 3,
++	.version = 5,
+ };
+ 
+ #define TELEMETRY_RESOURCE_PUNIT_SSRAM	0
+@@ -572,8 +574,8 @@ static int ipc_create_tco_device(void)
+ 	res->end = res->start + SMI_EN_SIZE - 1;
+ 
+ 	res = tco_res + TCO_RESOURCE_GCR_MEM;
+-	res->start = ipcdev.gcr_base;
+-	res->end = res->start + ipcdev.gcr_size - 1;
++	res->start = ipcdev.gcr_base + TCO_PMC_OFFSET;
++	res->end = res->start + TCO_PMC_SIZE - 1;
+ 
+ 	ret = platform_device_add_resources(pdev, tco_res, ARRAY_SIZE(tco_res));
+ 	if (ret) {
+-- 
+2.7.3
+
