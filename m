@@ -1,40 +1,46 @@
-Return-path: <weiyj_lk@163.com>
-From: weiyj_lk@163.com
-To: Wim Van Sebroeck <wim@iguana.be>,
-	Guenter Roeck <linux@roeck-us.net>
-Cc: Wei Yongjun <yongjun_wei@trendmicro.com.cn>,
-	linux-watchdog@vger.kernel.org
-Subject: [PATCH] watchdog: pic32-dmt: Fix return value check in pic32_dmt_probe()
-Date: Fri, 17 Jun 2016 17:12:05 +0000
-Message-Id: <1466183525-24685-1-git-send-email-weiyj_lk@163.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from bhuna.collabora.co.uk ([46.235.227.227]:49300 "EHLO
+	bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751711AbcFQKwn (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 17 Jun 2016 06:52:43 -0400
+From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+To: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Wim Van Sebroeck <wim@iguana.be>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Martyn Welch <martyn.welch@collabora.com>
+Subject: [PATCH 1/2] watchdog: ziirave_wdt: Correct I2C device id to fix module autoloading.
+Date: Fri, 17 Jun 2016 12:52:33 +0200
+Message-Id: <1466160754-15599-2-git-send-email-enric.balletbo@collabora.com>
+In-Reply-To: <1466160754-15599-1-git-send-email-enric.balletbo@collabora.com>
+References: <1466160754-15599-1-git-send-email-enric.balletbo@collabora.com>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-From: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
+The I2C core removes the manufacturer prefix from the compatible field
+so it reports to user-space the uevent i2c:rave-wdt, but this doesn't
+match with the i2c_device_id (i2c:ziirave-wdt) array so the module is not
+autoloaded. Correct the I2C device id to match with the reported uevent
+and fix the module autoloading functionality.
 
-In case of error, the function devm_kzalloc() returns NULL pointer
-not ERR_PTR(). The IS_ERR() test in the return value check should
-be replaced with NULL test.
-
-Signed-off-by: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
+Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
 ---
- drivers/watchdog/pic32-dmt.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/watchdog/ziirave_wdt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/watchdog/pic32-dmt.c b/drivers/watchdog/pic32-dmt.c
-index 962f58c..5e8890e 100644
---- a/drivers/watchdog/pic32-dmt.c
-+++ b/drivers/watchdog/pic32-dmt.c
-@@ -176,8 +176,8 @@ static int pic32_dmt_probe(struct platform_device *pdev)
- 	struct watchdog_device *wdd = &pic32_dmt_wdd;
+diff --git a/drivers/watchdog/ziirave_wdt.c b/drivers/watchdog/ziirave_wdt.c
+index cbe373de..fa1efef 100644
+--- a/drivers/watchdog/ziirave_wdt.c
++++ b/drivers/watchdog/ziirave_wdt.c
+@@ -339,7 +339,7 @@ static int ziirave_wdt_remove(struct i2c_client *client)
+ }
  
- 	dmt = devm_kzalloc(&pdev->dev, sizeof(*dmt), GFP_KERNEL);
--	if (IS_ERR(dmt))
--		return PTR_ERR(dmt);
-+	if (!dmt)
-+		return -ENOMEM;
- 
- 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	dmt->regs = devm_ioremap_resource(&pdev->dev, mem);
+ static struct i2c_device_id ziirave_wdt_id[] = {
+-	{ "ziirave-wdt", 0 },
++	{ "rave-wdt", 0 },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(i2c, ziirave_wdt_id);
+-- 
+2.1.0
+
