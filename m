@@ -1,48 +1,43 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
 Received: from mga09.intel.com ([134.134.136.24]:63874 "EHLO mga09.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753818AbcFQAg7 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 16 Jun 2016 20:36:59 -0400
+	id S1753818AbcFQAg5 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 16 Jun 2016 20:36:57 -0400
 From: "Yong, Jonathan" <jonathan.yong@intel.com>
 To: linux-watchdog@vger.kernel.org, platform-driver-x86@vger.kernel.org
 Cc: qipeng.zha@intel.com, linux@roeck-us.net, dvhart@infradead.org,
 	linux-kernel@vger.kernel.org, jonathan.yong@intel.com
-Subject: [PATCH v2 1/2] watchdog: iTCO-wdt handle 5th variation for Apollo Lake
-Date: Fri, 17 Jun 2016 00:36:56 +0000
-Message-Id: <1466123817-50679-2-git-send-email-jonathan.yong@intel.com>
-In-Reply-To: <1466123817-50679-1-git-send-email-jonathan.yong@intel.com>
+Subject: [PATCH v2 0/2] Correct iTCO Watchdog for Apollo Lake
+Date: Fri, 17 Jun 2016 00:36:55 +0000
+Message-Id: <1466123817-50679-1-git-send-email-jonathan.yong@intel.com>
+In-Reply-To: <1463541972-19758-1-git-send-email-jonathan.yong@intel.com>
 References: <1463541972-19758-1-git-send-email-jonathan.yong@intel.com>
- <1466123817-50679-1-git-send-email-jonathan.yong@intel.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The Apollo Lake Watchdog has the no_reboot flag in the 4th bit.
+These patches fix the iTCO watchdog for Apollo Lake.
+I changed the watchdog memory io to only use 4 bytes rather
+the whole region, I'm not sure if that is the correct way.
 
-Signed-off-by: Yong, Jonathan <jonathan.yong@intel.com>
----
- drivers/watchdog/iTCO_wdt.c | 2 ++
- 1 file changed, 2 insertions(+)
+The previous 0x30h offset in intel_pmc_ipc.c was for based
+on the earlier BXT-M platform. Apollo Lake has it at 0x40h.
 
-diff --git a/drivers/watchdog/iTCO_wdt.c b/drivers/watchdog/iTCO_wdt.c
-index 0acc6c5..54cab18 100644
---- a/drivers/watchdog/iTCO_wdt.c
-+++ b/drivers/watchdog/iTCO_wdt.c
-@@ -150,6 +150,7 @@ static inline u32 no_reboot_bit(void)
- 	u32 enable_bit;
- 
- 	switch (iTCO_wdt_private.iTCO_version) {
-+	case 5:
- 	case 3:
- 		enable_bit = 0x00000010;
- 		break;
-@@ -512,6 +513,7 @@ static int iTCO_wdt_probe(struct platform_device *dev)
- 
- 	/* Clear out the (probably old) status */
- 	switch (iTCO_wdt_private.iTCO_version) {
-+	case 5:
- 	case 4:
- 		outw(0x0008, TCO1_STS);	/* Clear the Time Out Status bit */
- 		outw(0x0002, TCO2_STS);	/* Clear SECOND_TO_STS bit */
+Let me know if the patches need changes.
+Please CC me as I am not subscribed, thanks.
+
+* Resent, typo in linux-kernel email address
+
+Changes since v1:
+	* Watchdog NO_REBOOT bit off-by-one corrected.
+
+Yong, Jonathan (2):
+  watchdog: iTCO-wdt handle 5th variation for Apollo Lake
+  x86: Fix Apollo Lake Watchdog address in PMC driver
+
+ drivers/platform/x86/intel_pmc_ipc.c | 10 ++++++----
+ drivers/watchdog/iTCO_wdt.c          |  2 ++
+ 2 files changed, 8 insertions(+), 4 deletions(-)
+
 -- 
 2.7.3
 
