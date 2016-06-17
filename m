@@ -1,71 +1,58 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from basicbox7.server-home.net ([195.137.212.29]:42833 "EHLO
-	basicbox7.server-home.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753085AbcFQK4I (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:58092 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753257AbcFQV34 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 17 Jun 2016 06:56:08 -0400
-Subject: Re: [PATCH v5 2/4] gpio: Allow PC/104 devices on X86_64
-To: Greg KH <gregkh@linuxfoundation.org>,
-	William Breathitt Gray <vilhelm.gray@gmail.com>
-References: <cover.1464380034.git.vilhelm.gray@gmail.com>
- <61880bededb77bbc3ea3422e48ce717d2a2ff489.1464380034.git.vilhelm.gray@gmail.com>
- <CACRpkdaOzZ1DvEUKtomBU=GH1kYfjKJjUfM-=45PhdzZA=dPgg@mail.gmail.com>
- <20160531112251.GA5674@sophia> <20160531152541.GB13304@kroah.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>,
-	Andrew Morton <akpm@linux-foundation.org>, x86@kernel.org,
-	"linux-next@vger.kernel.org" <linux-next@vger.kernel.org>,
-	"linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>,
-	"linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	linux-watchdog@vger.kernel.org,
-	Stephen Rothwell <sfr@canb.auug.org.au>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Alexandre Courbot <gnurou@gmail.com>
-From: Thorsten Leemhuis <regressions@leemhuis.info>
-Message-ID: <057d8c0b-074c-609a-35da-5a01f07b6d31@leemhuis.info>
-Date: Fri, 17 Jun 2016 12:47:14 +0200
+	Fri, 17 Jun 2016 17:29:56 -0400
+Date: Fri, 17 Jun 2016 14:29:42 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: weiyj_lk@163.com
+Cc: Wim Van Sebroeck <wim@iguana.be>,
+	Wei Yongjun <yongjun_wei@trendmicro.com.cn>,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH] watchdog: pic32-wdt: Fix return value check in
+ pic32_wdt_drv_probe()
+Message-ID: <20160617212942.GB19848@roeck-us.net>
+References: <1466183495-23885-1-git-send-email-weiyj_lk@163.com>
 MIME-Version: 1.0
-In-Reply-To: <20160531152541.GB13304@kroah.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1466183495-23885-1-git-send-email-weiyj_lk@163.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 31.05.2016 17:25, Greg KH wrote:
-> On Tue, May 31, 2016 at 07:23:06AM -0400, William Breathitt Gray wrot=
-e:
->> On Tue, May 31, 2016 at 10:41:49AM +0200, Linus Walleij wrote:
->>> On Sat, May 28, 2016 at 12:08 AM, William Breathitt Gray
->>> <vilhelm.gray@gmail.com> wrote:
->>>> With the introduction of the ISA_BUS_API Kconfig option, ISA-style
->>>> drivers may be built for X86_64 architectures. This patch changes =
-the
->>>> ISA Kconfig option dependency of the PC/104 drivers to ISA_BUS_API=
-, thus
->>>> allowing them to build for X86_64 as they are expected to.
-> [=E2=80=A6]
->> Greg K-H,
->>
->> Would you be able to pick up this entire patchset via driver-core; I
->> figure that tree is the most appropriate to receive any core ISA bus
->> driver changes (unless you see a more fitting path to take).
-> [=E2=80=A6]
-> Yes, I can take this through the driver core tree as that's where the
-> original series came from...
+On Fri, Jun 17, 2016 at 05:11:35PM +0000, weiyj_lk@163.com wrote:
+> From: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
+> 
+> In case of error, the function devm_kzalloc() returns NULL pointer
+> not ERR_PTR(). The IS_ERR() test in the return value check should
+> be replaced with NULL test.
+> 
+> Signed-off-by: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
 
-Was this series merged or did it fell through the cracks? I currently
-assume the latter, as I can't see it in neither mainline nor linux-next
-(but maybe I'm missing something). Just wondering, because I have this
-issue on my regression list for 4.7.
+Good catch.
 
-=46or the whole context see:
-http://thread.gmane.org/gmane.linux.kernel.gpio/17016/
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-Sincerely, your regression tracker for Linux 4.7 (http://bit.ly/28JRmJo=
-)
- Thorsten
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
-g" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> ---
+>  drivers/watchdog/pic32-wdt.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/watchdog/pic32-wdt.c b/drivers/watchdog/pic32-wdt.c
+> index 6047aa8..2b7a2b2 100644
+> --- a/drivers/watchdog/pic32-wdt.c
+> +++ b/drivers/watchdog/pic32-wdt.c
+> @@ -174,8 +174,8 @@ static int pic32_wdt_drv_probe(struct platform_device *pdev)
+>  	struct resource *mem;
+>  
+>  	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
+> -	if (IS_ERR(wdt))
+> -		return PTR_ERR(wdt);
+> +	if (!wdt)
+> +		return -ENOMEM;
+>  
+>  	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+>  	wdt->regs = devm_ioremap_resource(&pdev->dev, mem);
+> 
+> 
+> 
