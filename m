@@ -1,56 +1,111 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from smtp.codeaurora.org ([198.145.29.96]:54437 "EHLO
+Received: from smtp.codeaurora.org ([198.145.29.96]:54427 "EHLO
 	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752186AbcFUXAY (ORCPT
+	with ESMTP id S1751380AbcFUXAW (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 21 Jun 2016 19:00:24 -0400
+	Tue, 21 Jun 2016 19:00:22 -0400
 From: Timur Tabi <timur@codeaurora.org>
 To: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org
-Subject: [PATCH 2/2] Documentation/watchdog: add support for magic close to watchdog-test
-Date: Tue, 21 Jun 2016 18:00:15 -0500
-Message-Id: <1466550015-14924-2-git-send-email-timur@codeaurora.org>
-In-Reply-To: <1466550015-14924-1-git-send-email-timur@codeaurora.org>
-References: <1466550015-14924-1-git-send-email-timur@codeaurora.org>
+Subject: [PATCH 1/2] Documentation/watchdog: use stdout instead of stderr in watchdog-test
+Date: Tue, 21 Jun 2016 18:00:14 -0500
+Message-Id: <1466550015-14924-1-git-send-email-timur@codeaurora.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Some drivers have the WDIOF_MAGICCLOSE set, which means that applications
-need to write 'V' to the watchdog device before closing, otherwise the
-driver won't stop the watchdog timer.
+The watchdog-test utility outputs all messages to stderr, even those
+that are not error messages.  Output to stdout instead.
+
+Instead of flushing the output after every write, just disabled
+the output buffer.
+
+Also display a dot for every ping of the watchdog, so that the user
+knows that it's working.
 
 Signed-off-by: Timur Tabi <timur@codeaurora.org>
 ---
- Documentation/watchdog/src/watchdog-test.c | 3 +++
- 1 file changed, 3 insertions(+)
+ Documentation/watchdog/src/watchdog-test.c | 28 ++++++++++++----------------
+ 1 file changed, 12 insertions(+), 16 deletions(-)
 
 diff --git a/Documentation/watchdog/src/watchdog-test.c b/Documentation/watchdog/src/watchdog-test.c
-index b3cc7aa..c691539 100644
+index fcdde8f..b3cc7aa 100644
 --- a/Documentation/watchdog/src/watchdog-test.c
 +++ b/Documentation/watchdog/src/watchdog-test.c
-@@ -13,6 +13,7 @@
- #include <linux/watchdog.h>
+@@ -23,6 +23,7 @@ static void keep_alive(void)
+ {
+     int dummy;
  
- int fd;
-+const char v = 'V';
++    printf(".");
+     ioctl(fd, WDIOC_KEEPALIVE, &dummy);
+ }
  
- /*
-  * This function simply sends an IOCTL to the driver, which in turn ticks
-@@ -34,6 +35,7 @@ static void keep_alive(void)
- 
+@@ -34,7 +35,7 @@ static void keep_alive(void)
  static void term(int sig)
  {
-+    write(fd, &v, 1);
      close(fd);
-     printf("\nStopping watchdog ticks...\n");
+-    fprintf(stderr, "Stopping watchdog ticks...\n");
++    printf("\nStopping watchdog ticks...\n");
      exit(0);
-@@ -89,6 +91,7 @@ int main(int argc, char *argv[])
- 	sleep(ping_rate);
-     }
- end:
-+    write(fd, &v, 1);
-     close(fd);
-     return 0;
  }
+ 
+@@ -43,11 +44,12 @@ int main(int argc, char *argv[])
+     int flags;
+     unsigned int ping_rate = 1;
+ 
++    setbuf(stdout, NULL);
++
+     fd = open("/dev/watchdog", O_WRONLY);
+ 
+     if (fd == -1) {
+-	fprintf(stderr, "Watchdog device not enabled.\n");
+-	fflush(stderr);
++	printf("Watchdog device not enabled.\n");
+ 	exit(-1);
+     }
+ 
+@@ -55,36 +57,30 @@ int main(int argc, char *argv[])
+ 	if (!strncasecmp(argv[1], "-d", 2)) {
+ 	    flags = WDIOS_DISABLECARD;
+ 	    ioctl(fd, WDIOC_SETOPTIONS, &flags);
+-	    fprintf(stderr, "Watchdog card disabled.\n");
+-	    fflush(stderr);
++	    printf("Watchdog card disabled.\n");
+ 	    goto end;
+ 	} else if (!strncasecmp(argv[1], "-e", 2)) {
+ 	    flags = WDIOS_ENABLECARD;
+ 	    ioctl(fd, WDIOC_SETOPTIONS, &flags);
+-	    fprintf(stderr, "Watchdog card enabled.\n");
+-	    fflush(stderr);
++	    printf("Watchdog card enabled.\n");
+ 	    goto end;
+ 	} else if (!strncasecmp(argv[1], "-t", 2) && argv[2]) {
+ 	    flags = atoi(argv[2]);
+ 	    ioctl(fd, WDIOC_SETTIMEOUT, &flags);
+-	    fprintf(stderr, "Watchdog timeout set to %u seconds.\n", flags);
+-	    fflush(stderr);
++	    printf("Watchdog timeout set to %u seconds.\n", flags);
+ 	    goto end;
+ 	} else if (!strncasecmp(argv[1], "-p", 2) && argv[2]) {
+ 	    ping_rate = strtoul(argv[2], NULL, 0);
+-	    fprintf(stderr, "Watchdog ping rate set to %u seconds.\n", ping_rate);
+-	    fflush(stderr);
++	    printf("Watchdog ping rate set to %u seconds.\n", ping_rate);
+ 	} else {
+-	    fprintf(stderr, "-d to disable, -e to enable, -t <n> to set " \
++	    printf("-d to disable, -e to enable, -t <n> to set " \
+ 		"the timeout,\n-p <n> to set the ping rate, and \n");
+-	    fprintf(stderr, "run by itself to tick the card.\n");
+-	    fflush(stderr);
++	    printf("run by itself to tick the card.\n");
+ 	    goto end;
+ 	}
+     }
+ 
+-    fprintf(stderr, "Watchdog Ticking Away!\n");
+-    fflush(stderr);
++    printf("Watchdog Ticking Away!\n");
+ 
+     signal(SIGINT, term);
+ 
 -- 
 Qualcomm Innovation Center, Inc.
 The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
