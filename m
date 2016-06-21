@@ -1,72 +1,58 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mga04.intel.com ([192.55.52.120]:64482 "EHLO mga04.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754334AbcFQAdf (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 16 Jun 2016 20:33:35 -0400
-From: "Yong, Jonathan" <jonathan.yong@intel.com>
-To: linux-watchdog@vger.kernel.org, platform-driver-x86@vger.kernel.org
-Cc: qipeng.zha@intel.com, linux@roeck-us.net, dvhart@infradead.org,
-	linux-kernel.vger.kernel.org@vger.kernel.org,
-	jonathan.yong@intel.com
-Subject: [PATCH v2 2/2] x86: Fix Apollo Lake Watchdog address in PMC driver
-Date: Fri, 17 Jun 2016 00:33:32 +0000
-Message-Id: <1466123612-50633-3-git-send-email-jonathan.yong@intel.com>
-In-Reply-To: <1466123612-50633-1-git-send-email-jonathan.yong@intel.com>
-References: <1463541972-19758-1-git-send-email-jonathan.yong@intel.com>
- <1466123612-50633-1-git-send-email-jonathan.yong@intel.com>
+Received: from smtp.codeaurora.org ([198.145.29.96]:54437 "EHLO
+	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752186AbcFUXAY (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 21 Jun 2016 19:00:24 -0400
+From: Timur Tabi <timur@codeaurora.org>
+To: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org
+Subject: [PATCH 2/2] Documentation/watchdog: add support for magic close to watchdog-test
+Date: Tue, 21 Jun 2016 18:00:15 -0500
+Message-Id: <1466550015-14924-2-git-send-email-timur@codeaurora.org>
+In-Reply-To: <1466550015-14924-1-git-send-email-timur@codeaurora.org>
+References: <1466550015-14924-1-git-send-email-timur@codeaurora.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The TCO I/O base is 40h rather than the usual 30h, and the re_reboot
-bit is at ACPIBASE+8.
+Some drivers have the WDIOF_MAGICCLOSE set, which means that applications
+need to write 'V' to the watchdog device before closing, otherwise the
+driver won't stop the watchdog timer.
 
-Signed-off-by: Yong, Jonathan <jonathan.yong@intel.com>
+Signed-off-by: Timur Tabi <timur@codeaurora.org>
 ---
- drivers/platform/x86/intel_pmc_ipc.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ Documentation/watchdog/src/watchdog-test.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/platform/x86/intel_pmc_ipc.c b/drivers/platform/x86/intel_pmc_ipc.c
-index 6f497e8..b86e1bc 100644
---- a/drivers/platform/x86/intel_pmc_ipc.c
-+++ b/drivers/platform/x86/intel_pmc_ipc.c
-@@ -85,7 +85,7 @@
-  * platform device and to export resources for those functions.
-  */
- #define TCO_DEVICE_NAME			"iTCO_wdt"
--#define SMI_EN_OFFSET			0x30
-+#define SMI_EN_OFFSET			0x40
- #define SMI_EN_SIZE			4
- #define TCO_BASE_OFFSET			0x60
- #define TCO_REGS_SIZE			16
-@@ -94,6 +94,8 @@
- #define TELEM_SSRAM_SIZE		240
- #define TELEM_PMC_SSRAM_OFFSET		0x1B00
- #define TELEM_PUNIT_SSRAM_OFFSET	0x1A00
-+#define TCO_PMC_OFFSET			0x8
-+#define TCO_PMC_SIZE			0x4
+diff --git a/Documentation/watchdog/src/watchdog-test.c b/Documentation/watchdog/src/watchdog-test.c
+index b3cc7aa..c691539 100644
+--- a/Documentation/watchdog/src/watchdog-test.c
++++ b/Documentation/watchdog/src/watchdog-test.c
+@@ -13,6 +13,7 @@
+ #include <linux/watchdog.h>
  
- static const int iTCO_version = 3;
+ int fd;
++const char v = 'V';
  
-@@ -502,7 +504,7 @@ static struct resource tco_res[] = {
+ /*
+  * This function simply sends an IOCTL to the driver, which in turn ticks
+@@ -34,6 +35,7 @@ static void keep_alive(void)
  
- static struct itco_wdt_platform_data tco_info = {
- 	.name = "Apollo Lake SoC",
--	.version = 3,
-+	.version = 5,
- };
- 
- #define TELEMETRY_RESOURCE_PUNIT_SSRAM	0
-@@ -572,8 +574,8 @@ static int ipc_create_tco_device(void)
- 	res->end = res->start + SMI_EN_SIZE - 1;
- 
- 	res = tco_res + TCO_RESOURCE_GCR_MEM;
--	res->start = ipcdev.gcr_base;
--	res->end = res->start + ipcdev.gcr_size - 1;
-+	res->start = ipcdev.gcr_base + TCO_PMC_OFFSET;
-+	res->end = res->start + TCO_PMC_SIZE - 1;
- 
- 	ret = platform_device_add_resources(pdev, tco_res, ARRAY_SIZE(tco_res));
- 	if (ret) {
+ static void term(int sig)
+ {
++    write(fd, &v, 1);
+     close(fd);
+     printf("\nStopping watchdog ticks...\n");
+     exit(0);
+@@ -89,6 +91,7 @@ int main(int argc, char *argv[])
+ 	sleep(ping_rate);
+     }
+ end:
++    write(fd, &v, 1);
+     close(fd);
+     return 0;
+ }
 -- 
-2.7.3
+Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
+a Linux Foundation Collaborative Project.
 
