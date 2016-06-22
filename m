@@ -1,81 +1,47 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.linuxfoundation.org ([140.211.169.12]:34891 "EHLO
-	mail.linuxfoundation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751300AbcFRDrd (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 17 Jun 2016 23:47:33 -0400
-Date: Fri, 17 Jun 2016 20:47:31 -0700
-From: Greg KH <gregkh@linuxfoundation.org>
-To: William Breathitt Gray <vilhelm.gray@gmail.com>
-Cc: Thorsten Leemhuis <regressions@leemhuis.info>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Andrew Morton <akpm@linux-foundation.org>, x86@kernel.org,
-	"linux-next@vger.kernel.org" <linux-next@vger.kernel.org>,
-	"linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>,
-	"linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	linux-watchdog@vger.kernel.org,
-	Stephen Rothwell <sfr@canb.auug.org.au>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Alexandre Courbot <gnurou@gmail.com>, sasha.levin@oracle.com,
-	xiaolong.ye@intel.com
-Subject: Re: [PATCH v5 2/4] gpio: Allow PC/104 devices on X86_64
-Message-ID: <20160618034731.GA1815@kroah.com>
-References: <cover.1464380034.git.vilhelm.gray@gmail.com>
- <61880bededb77bbc3ea3422e48ce717d2a2ff489.1464380034.git.vilhelm.gray@gmail.com>
- <CACRpkdaOzZ1DvEUKtomBU=GH1kYfjKJjUfM-=45PhdzZA=dPgg@mail.gmail.com>
- <20160531112251.GA5674@sophia>
- <20160531152541.GB13304@kroah.com>
- <057d8c0b-074c-609a-35da-5a01f07b6d31@leemhuis.info>
- <20160618023607.GA7390@kroah.com>
- <20160618024959.GA4702@sophia>
- <20160618031810.GA29160@kroah.com>
- <20160618033812.GA20596@sophia>
+Received: from mga03.intel.com ([134.134.136.65]:41867 "EHLO mga03.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750748AbcFVE4X (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 22 Jun 2016 00:56:23 -0400
+Message-ID: <576A19BC.4000502@intel.com>
+Date: Wed, 22 Jun 2016 12:53:16 +0800
+From: "Yong, Jonathan" <jonathan.yong@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20160618033812.GA20596@sophia>
+To: linux-watchdog@vger.kernel.org, platform-driver-x86@vger.kernel.org
+CC: qipeng.zha@intel.com, linux@roeck-us.net, dvhart@infradead.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 0/2] Correct iTCO Watchdog for Apollo Lake
+References: <1463541972-19758-1-git-send-email-jonathan.yong@intel.com> <1466123817-50679-1-git-send-email-jonathan.yong@intel.com>
+In-Reply-To: <1466123817-50679-1-git-send-email-jonathan.yong@intel.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, Jun 17, 2016 at 11:39:04PM -0400, William Breathitt Gray wrote:
-> On Fri, Jun 17, 2016 at 08:18:10PM -0700, Greg KH wrote:
-> >On Fri, Jun 17, 2016 at 10:49:59PM -0400, William Breathitt Gray wrote:
-> >> The PC/104 drivers were changed to utilize the ISA bus driver as part of
-> >> the original patchset which attempted to decouple the X86_32 dependency
-> >> from the ISA Kconfig option; these drivers were updated with the
-> >> intention of building on X86_64 in addition to X86_32.
-> >> 
-> >> However, the respective patches were merged without the decoupling
-> >> changes (since decoupling was the wrong approach), resulting in an
-> >> unintentional regression: the PC/104 drivers are now restricted to
-> >> X86_32 due to the ISA Kconfig option dependency, while they were capable
-> >> of building for X86_64 in previous kernel versions.
-> >> 
-> >> This patchset should fix this regression by introducing the ISA_BUS_API
-> >> Kconfig option, and the respective Kconfig dependency changes for the
-> >> drivers, in order to allow them to build for both X86_64 and X86_32 as
-> >> originally capable.
-> >
-> >Ah, ok, that makes more sense, thanks.  I'll go queue these up now.
-> >
-> >greg k-h
-> 
-> Greg K-H,
-> 
-> Please also consider picking up the following two patches which fix bugs
-> discovered during the ISA bus driver utilization conversion:
-> 
->   1. https://patchwork.kernel.org/patch/9046831/
->   2. https://patchwork.kernel.org/patch/9074641/
-> 
-> The second patch in particular fixes a kernel BUG which prevents some
-> drivers that call isa_register_driver from being built-in. This was
-> first reported by Sasha Levin (https://lkml.org/lkml/2016/5/11/719), and
-> the patch was later tested by Ye Xiaolong
-> (https://lkml.org/lkml/2016/5/31/164).
+On 06/17/2016 08:36, Yong, Jonathan wrote:
+> These patches fix the iTCO watchdog for Apollo Lake.
+> I changed the watchdog memory io to only use 4 bytes rather
+> the whole region, I'm not sure if that is the correct way.
+>
+> The previous 0x30h offset in intel_pmc_ipc.c was for based
+> on the earlier BXT-M platform. Apollo Lake has it at 0x40h.
+>
+> Let me know if the patches need changes.
+> Please CC me as I am not subscribed, thanks.
+>
+> * Resent, typo in linux-kernel email address
+>
+> Changes since v1:
+> 	* Watchdog NO_REBOOT bit off-by-one corrected.
+>
+> Yong, Jonathan (2):
+>    watchdog: iTCO-wdt handle 5th variation for Apollo Lake
+>    x86: Fix Apollo Lake Watchdog address in PMC driver
+>
+>   drivers/platform/x86/intel_pmc_ipc.c | 10 ++++++----
+>   drivers/watchdog/iTCO_wdt.c          |  2 ++
+>   2 files changed, 8 insertions(+), 4 deletions(-)
+>
 
-Now queued up, thanks for the prompt, they were still setting in my
-queue.
+Ping.
 
-greg k-h
