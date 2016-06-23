@@ -1,66 +1,54 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:48851 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:50674 "EHLO
 	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751991AbcFWNpR (ORCPT
+	with ESMTP id S1751938AbcFWNrQ (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 23 Jun 2016 09:45:17 -0400
-Subject: Re: [PATCH 2/2] Documentation/watchdog: add support for magic close
- to watchdog-test
-To: Timur Tabi <timur@codeaurora.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org
-References: <1466550015-14924-1-git-send-email-timur@codeaurora.org>
- <1466550015-14924-2-git-send-email-timur@codeaurora.org>
+	Thu, 23 Jun 2016 09:47:16 -0400
+Date: Thu, 23 Jun 2016 06:46:51 -0700
 From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <576BE7DF.6020209@roeck-us.net>
-Date: Thu, 23 Jun 2016 06:45:03 -0700
+To: Joel Stanley <joel@jms.id.au>
+Cc: wim@iguana.be, linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, jk@ozlabs.org,
+	benh@kernel.crashing.org
+Subject: Re: [v2,1/2] doc/devicetree: Add Aspeed watchdog timer bindings
+Message-ID: <20160623134651.GA5523@roeck-us.net>
+References: <1463062631-16432-2-git-send-email-joel@jms.id.au>
 MIME-Version: 1.0
-In-Reply-To: <1466550015-14924-2-git-send-email-timur@codeaurora.org>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1463062631-16432-2-git-send-email-joel@jms.id.au>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 06/21/2016 04:00 PM, Timur Tabi wrote:
-> Some drivers have the WDIOF_MAGICCLOSE set, which means that applications
-> need to write 'V' to the watchdog device before closing, otherwise the
-> driver won't stop the watchdog timer.
->
-> Signed-off-by: Timur Tabi <timur@codeaurora.org>
+On Thu, May 12, 2016 at 11:47:10PM +0930, Joel Stanley wrote:
+> Signed-off-by: Joel Stanley <joel@jms.id.au>
 
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
 > ---
->   Documentation/watchdog/src/watchdog-test.c | 3 +++
->   1 file changed, 3 insertions(+)
->
-> diff --git a/Documentation/watchdog/src/watchdog-test.c b/Documentation/watchdog/src/watchdog-test.c
-> index b3cc7aa..c691539 100644
-> --- a/Documentation/watchdog/src/watchdog-test.c
-> +++ b/Documentation/watchdog/src/watchdog-test.c
-> @@ -13,6 +13,7 @@
->   #include <linux/watchdog.h>
->
->   int fd;
-> +const char v = 'V';
->
->   /*
->    * This function simply sends an IOCTL to the driver, which in turn ticks
-> @@ -34,6 +35,7 @@ static void keep_alive(void)
->
->   static void term(int sig)
->   {
-> +    write(fd, &v, 1);
->       close(fd);
->       printf("\nStopping watchdog ticks...\n");
->       exit(0);
-> @@ -89,6 +91,7 @@ int main(int argc, char *argv[])
->   	sleep(ping_rate);
->       }
->   end:
-> +    write(fd, &v, 1);
->       close(fd);
->       return 0;
->   }
->
-
+>  .../devicetree/bindings/watchdog/aspeed-wdt.txt          | 16 ++++++++++++++++
+>  1 file changed, 16 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt b/Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt
+> new file mode 100644
+> index 000000000000..78ad314eaab9
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt
+> @@ -0,0 +1,16 @@
+> +Aspeed Watchdog Timer
+> +
+> +Required properties:
+> + - compatible: must be one of:
+> +	- "aspeed,ast2400-wdt"
+> +	- "aspeed,ast2500-wdt"
+> +
+> + - reg: physical base address of the controller and length of memory mapped
+> +   region
+> +
+> +Example:
+> +
+> +	watchdog1: watchdog@1e785000 {
+> +		compatible = "aspeed,ast2400-wdt";
+> +		reg = <0x1e785000 0x1c>;
+> +	};
