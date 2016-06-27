@@ -11,33 +11,40 @@ Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
 	linux-renesas-soc@vger.kernel.org,
 	devicetree@vger.kernel.org,
 	Geert Uytterhoeven <geert+renesas@glider.be>
-Subject: [PATCH 3/3] arm64: dts: r8a7796/salvator-x: Enable watchdog timer
-Date: Mon, 27 Jun 2016 19:50:47 +0200
-Message-Id: <1467049847-7469-4-git-send-email-geert+renesas@glider.be>
+Subject: [PATCH 2/3] arm64: dts: r8a7796: Add RWDT node
+Date: Mon, 27 Jun 2016 19:50:46 +0200
+Message-Id: <1467049847-7469-3-git-send-email-geert+renesas@glider.be>
 In-Reply-To: <1467049847-7469-1-git-send-email-geert+renesas@glider.be>
 References: <1467049847-7469-1-git-send-email-geert+renesas@glider.be>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Enable the Watchdog Timer (WDT) controller on the Renesas Salvator-X
-board equipped with an R-Car M3-W (r8a7796) SoC.
+Add a device node for the Watchdog Timer (WDT) controller on the Renesas
+R-Car M3-W (r8a7796) SoC.
 
 Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 ---
- arch/arm64/boot/dts/renesas/r8a7796-salvator-x.dts | 5 +++++
- 1 file changed, 5 insertions(+)
+ arch/arm64/boot/dts/renesas/r8a7796.dtsi | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/renesas/r8a7796-salvator-x.dts b/arch/arm64/boot/dts/renesas/r8a7796-salvator-x.dts
-index 9c52613fb88c9699..e72be3856d792516 100644
---- a/arch/arm64/boot/dts/renesas/r8a7796-salvator-x.dts
-+++ b/arch/arm64/boot/dts/renesas/r8a7796-salvator-x.dts
-@@ -43,3 +43,8 @@
- 	clock-frequency = <14745600>;
- 	status = "okay";
- };
+diff --git a/arch/arm64/boot/dts/renesas/r8a7796.dtsi b/arch/arm64/boot/dts/renesas/r8a7796.dtsi
+index fab61eddede3818c..1edf82440d784592 100644
+--- a/arch/arm64/boot/dts/renesas/r8a7796.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a7796.dtsi
+@@ -98,6 +98,15 @@
+ 					(GIC_CPU_MASK_SIMPLE(1) | IRQ_TYPE_LEVEL_LOW)>;
+ 		};
+ 
++		wdt0: watchdog@e6020000 {
++			compatible = "renesas,r8a7796-wdt",
++				     "renesas,rcar-gen3-wdt";
++			reg = <0 0xe6020000 0 0x0c>;
++			clocks = <&cpg CPG_MOD 402>;
++			power-domains = <&sysc R8A7796_PD_ALWAYS_ON>;
++			status = "disabled";
++		};
 +
-+&wdt0 {
-+	timeout-sec = <60>;
-+	status = "okay";
-+};
+ 		cpg: clock-controller@e6150000 {
+ 			compatible = "renesas,r8a7796-cpg-mssr";
+ 			reg = <0 0xe6150000 0 0x1000>;
 -- 
 1.9.1
