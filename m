@@ -11,39 +11,33 @@ Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
 	linux-renesas-soc@vger.kernel.org,
 	devicetree@vger.kernel.org,
 	Geert Uytterhoeven <geert+renesas@glider.be>
-Subject: [PATCH 1/3] watchdog: renesas-wdt: Add support for the r8a7796 wdt
-Date: Mon, 27 Jun 2016 19:50:45 +0200
-Message-Id: <1467049847-7469-2-git-send-email-geert+renesas@glider.be>
+Subject: [PATCH 3/3] arm64: dts: r8a7796/salvator-x: Enable watchdog timer
+Date: Mon, 27 Jun 2016 19:50:47 +0200
+Message-Id: <1467049847-7469-4-git-send-email-geert+renesas@glider.be>
 In-Reply-To: <1467049847-7469-1-git-send-email-geert+renesas@glider.be>
 References: <1467049847-7469-1-git-send-email-geert+renesas@glider.be>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Document support for the Watchdog Timer (WDT) Controller in the Renesas
-R-Car M3-W (r8a7796) SoC.
-
-No driver update is needed.
+Enable the Watchdog Timer (WDT) controller on the Renesas Salvator-X
+board equipped with an R-Car M3-W (r8a7796) SoC.
 
 Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 ---
- Documentation/devicetree/bindings/watchdog/renesas-wdt.txt | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/renesas/r8a7796-salvator-x.dts | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt b/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
-index b9512f1eb80a0205..da24e31334177768 100644
---- a/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
-+++ b/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
-@@ -1,7 +1,11 @@
- Renesas Watchdog Timer (WDT) Controller
- 
- Required properties:
--- compatible : Should be "renesas,r8a7795-wdt", or "renesas,rcar-gen3-wdt"
-+- compatible : Should be "renesas,<soctype>-wdt", and
-+	       "renesas,rcar-gen3-wdt" as fallback.
-+	       Examples with soctypes are:
-+	         - "renesas,r8a7795-wdt" (R-Car H3)
-+	         - "renesas,r8a7796-wdt" (R-Car M3-W)
- 
-   When compatible with the generic version, nodes must list the SoC-specific
-   version corresponding to the platform first, followed by the generic
+diff --git a/arch/arm64/boot/dts/renesas/r8a7796-salvator-x.dts b/arch/arm64/boot/dts/renesas/r8a7796-salvator-x.dts
+index 9c52613fb88c9699..e72be3856d792516 100644
+--- a/arch/arm64/boot/dts/renesas/r8a7796-salvator-x.dts
++++ b/arch/arm64/boot/dts/renesas/r8a7796-salvator-x.dts
+@@ -43,3 +43,8 @@
+ 	clock-frequency = <14745600>;
+ 	status = "okay";
+ };
++
++&wdt0 {
++	timeout-sec = <60>;
++	status = "okay";
++};
 -- 
 1.9.1
