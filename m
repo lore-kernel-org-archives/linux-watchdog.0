@@ -1,59 +1,65 @@
 Return-path: <wsa@the-dreams.de>
-Date: Mon, 27 Jun 2016 20:23:51 +0200
+Date: Mon, 27 Jun 2016 17:33:56 +0200
 From: Wolfram Sang <wsa@the-dreams.de>
-To: Geert Uytterhoeven <geert+renesas@glider.be>
-Cc: Wim Van Sebroeck <wim@iguana.be>, Guenter Roeck <linux@roeck-us.net>,
-	Simon Horman <horms@verge.net.au>,
-	Magnus Damm <magnus.damm@gmail.com>,
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>,
 	Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Rob Herring <robh+dt@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>, linux-watchdog@vger.kernel.org,
-	linux-renesas-soc@vger.kernel.org, devicetree@vger.kernel.org
-Subject: Re: [PATCH 3/3] arm64: dts: r8a7796/salvator-x: Enable watchdog timer
-Message-ID: <20160627182351.GE3505@katana>
-References: <1467049847-7469-1-git-send-email-geert+renesas@glider.be>
- <1467049847-7469-4-git-send-email-geert+renesas@glider.be>
+	Robin Gong <b38343@freescale.com>, Wim Van Sebroeck <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH v2 1/2] watchdog: add pretimeout support to the core
+Message-ID: <20160627153356.GA3505@katana>
+References: <1466902865-14354-1-git-send-email-vladimir_zapolskiy@mentor.com>
+ <1466902865-14354-2-git-send-email-vladimir_zapolskiy@mentor.com>
+ <576F3E2E.7060606@roeck-us.net>
+ <20160627093707.GD1602@katana>
+ <57712AF4.80104@roeck-us.net>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Qz2CZ664xQdCRdPu"
+	protocol="application/pgp-signature"; boundary="0F1p//8PRICkK4MW"
 Content-Disposition: inline
-In-Reply-To: <1467049847-7469-4-git-send-email-geert+renesas@glider.be>
+In-Reply-To: <57712AF4.80104@roeck-us.net>
 List-ID: <linux-watchdog@vger.kernel.org>
 
 
---Qz2CZ664xQdCRdPu
+--0F1p//8PRICkK4MW
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jun 27, 2016 at 07:50:47PM +0200, Geert Uytterhoeven wrote:
-> Enable the Watchdog Timer (WDT) controller on the Renesas Salvator-X
-> board equipped with an R-Car M3-W (r8a7796) SoC.
+
+> >I liked the is_visible() change right away, so these patches are fine.
+> >Guenter, what is your take on upstreaming the softdog pretimeout
+> >support? I'd think it would be good to have for testing purposes. It
+> >would also help me to upstream the busybox patch for the watchdog
+> >applet.
+> >
 >=20
-> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+> Sure, but the current patch series doesn't include watchdog_notify_pretim=
+eout(),
+> or am I missing something ?
 
-Acked-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+It would be hardcoded to "panic" for now and later converted.
 
 
---Qz2CZ664xQdCRdPu
+--0F1p//8PRICkK4MW
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXcW83AAoJEBQN5MwUoCm2PIIQAKytv+a+ZqIwJ6lLn1imAxu0
-G1nxkYSdorg79QIW7kGSrXneR1TXfsIjSs7r+4FhmtdPrj0Nyo6yj1alLVS/dcif
-6jWagpCmWfg2Q12Gf9InzDmvO/vqYoH7dve8Li5RlPlJdW1JTWZa769cJnLM92NV
-qyDYK5Jj0eFBkieKZvN70BieyS+ulIKpIfGU/wrAqSMsutJ+ZLN7Nxc+Zr3aCP/e
-IUR6EKgE/0KRilGIsDB0oqhdwvt1A3XbOJ3vVpYVQi95tMMLAm3B88SawygfjOTo
-eQLSfXkqSi525VqxZBcRS7IhvujhSE7k+ndy9Gvn80NSD9lNco3fxxFfyZ8Y1maM
-KLmgVTNOSkxKJhMiUEMP7VcbZ1OaFKLyOOl8PllOhHphPFAhxeYoVlcq51onBVYu
-FAVwKl0CIJXYvNag7ik1Af12w5Bw+mEJkrs9inNkK2wqDTLqQtksOj+vjvv7cOGu
-hDAhq9t6DaFHwecLE7WFlV+FO0e1hwQakXtemC3JykQRlq2Ib50pBub8gDBRBu8M
-6aoHX90bO/avtkND9yib4LqFf8piCn1kV8UIGDmEdNVX0lnIOEVbeityKDY6PZkA
-zSsQrs5/15mYTkzL/waPOwahiD+XRIZo2iVEq1hybwVC0IZJuSqndaZs5N1ZXF2x
-NNbPYZ6Mh+UUWFmU2kmP
-=nFGM
+iQIcBAEBAgAGBQJXcUdkAAoJEBQN5MwUoCm2uREP/1c2hkkjGfLyo/Wv/2rhsmUE
+35krLEbzbBWMGplW/l/uiPh1A91latTUwdKMJjOzJOw/ic4BX3NIKLzn+rb/PNlc
+CTvhY6seYqYEhRU91Y1nQICOb0huFRzHE2AaSWoS9cgPaEMIjBEwSM9EaClOwSzh
+K1Jqsz4e60RmEZlzviSLBA1hxcWIoBADzt15cdTd4TjnWpD1pWfTXyEu7pIeH3hb
+Rh7MkG6C3vLkU4YEu4EvauIv6dYlYYJcJIZkGxvtBLzSvaTFj0BV0ySemTJLI3Pk
+LLEhbsqjS8Q6bjzeVhxN/yyfbFCxxcvI0vabVXnf7OVp6woKfjMVqC9JhdCRENUe
+G1vxzLucuOTCy6K0EMvB/IGsC734JdU4Tb8pBxNzRNInaalz64cnRS5dOZ+hlQAG
+eZPG08XJDsXp1kkXWSG5+UN/HReXZueMjmlKx7D3wk4KZmT8W85uIzM++dL3z5Jr
+68woWbbEhToRVfc2Sq4eN+PnABOSwFVv11ad3/KcCJgiHHfWqv/mpWjciUEOmUN6
+f6minLd/RyhKYafyVBGspG2K5pJdu2gVqTQKZFvFgCYmszD9Vfq7PhZX67bd3rzk
+xw8NCldOgHy5UYy8xT40uAyRwGbmnr6NERpaH5c3XFRT3V2T9ClKCpVQCoVH9rY8
+guZUT0TPw7DObxizto3B
+=79NU
 -----END PGP SIGNATURE-----
 
---Qz2CZ664xQdCRdPu--
+--0F1p//8PRICkK4MW--
