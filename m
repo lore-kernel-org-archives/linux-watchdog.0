@@ -11,40 +11,53 @@ Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
 	linux-renesas-soc@vger.kernel.org,
 	devicetree@vger.kernel.org,
 	Geert Uytterhoeven <geert+renesas@glider.be>
-Subject: [PATCH 2/3] arm64: dts: r8a7796: Add RWDT node
-Date: Mon, 27 Jun 2016 19:50:46 +0200
-Message-Id: <1467049847-7469-3-git-send-email-geert+renesas@glider.be>
-In-Reply-To: <1467049847-7469-1-git-send-email-geert+renesas@glider.be>
-References: <1467049847-7469-1-git-send-email-geert+renesas@glider.be>
+Subject: [PATCH 0/3] arm64: dts: r8a7796: Add watchdog support
+Date: Mon, 27 Jun 2016 19:50:44 +0200
+Message-Id: <1467049847-7469-1-git-send-email-geert+renesas@glider.be>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Add a device node for the Watchdog Timer (WDT) controller on the Renesas
-R-Car M3-W (r8a7796) SoC.
+	Hi Wim, Günter, Simon, Magnus,
 
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
----
- arch/arm64/boot/dts/renesas/r8a7796.dtsi | 9 +++++++++
- 1 file changed, 9 insertions(+)
+This patch series adds support for the Watchdog Timer (WDT) Controller
+in the Renesas R-Car M3-W (r8a7796) SoC.
+        
+  - The first patch updates the DT binding documentation for the Renesas
+    WDT driver, and should go in through the watchdog tree.
+  - The remaining patches update the DTS for the r8a7796 SoC and
+    Salvator-X development board, and should go in through the renesas
+    tree. This can happen as soon as the DT binding update has been
+    accepted.
 
-diff --git a/arch/arm64/boot/dts/renesas/r8a7796.dtsi b/arch/arm64/boot/dts/renesas/r8a7796.dtsi
-index fab61eddede3818c..1edf82440d784592 100644
---- a/arch/arm64/boot/dts/renesas/r8a7796.dtsi
-+++ b/arch/arm64/boot/dts/renesas/r8a7796.dtsi
-@@ -98,6 +98,15 @@
- 					(GIC_CPU_MASK_SIMPLE(1) | IRQ_TYPE_LEVEL_LOW)>;
- 		};
- 
-+		wdt0: watchdog@e6020000 {
-+			compatible = "renesas,r8a7796-wdt",
-+				     "renesas,rcar-gen3-wdt";
-+			reg = <0 0xe6020000 0 0x0c>;
-+			clocks = <&cpg CPG_MOD 402>;
-+			power-domains = <&sysc R8A7796_PD_ALWAYS_ON>;
-+			status = "disabled";
-+		};
-+
- 		cpg: clock-controller@e6150000 {
- 			compatible = "renesas,r8a7796-cpg-mssr";
- 			reg = <0 0xe6150000 0 0x1000>;
+To use the watchdog, there is a runtime dependency on "[PATCH 0/2] clk:
+renesas: r8a7796: Add watchdog clocks".
+
+This has been tested on r8a7796/Salvator-X.
+
+Thanks!
+
+Geert Uytterhoeven (3):
+  watchdog: renesas-wdt: Add support for the r8a7796 wdt
+  arm64: dts: r8a7796: Add RWDT node
+  arm64: dts: r8a7796/salvator-x: Enable watchdog timer
+
+ Documentation/devicetree/bindings/watchdog/renesas-wdt.txt | 6 +++++-
+ arch/arm64/boot/dts/renesas/r8a7796-salvator-x.dts         | 5 +++++
+ arch/arm64/boot/dts/renesas/r8a7796.dtsi                   | 9 +++++++++
+ 3 files changed, 19 insertions(+), 1 deletion(-)
+
 -- 
 1.9.1
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
