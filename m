@@ -1,48 +1,49 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:42205 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751671AbcF0Nct (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 27 Jun 2016 09:32:49 -0400
-Subject: Re: [PATCH v2 1/2] watchdog: add pretimeout support to the core
-To: Wolfram Sang <wsa@the-dreams.de>
-References: <1466902865-14354-1-git-send-email-vladimir_zapolskiy@mentor.com>
- <1466902865-14354-2-git-send-email-vladimir_zapolskiy@mentor.com>
- <576F3E2E.7060606@roeck-us.net> <20160627093707.GD1602@katana>
-Cc: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>,
-	Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Robin Gong <b38343@freescale.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <57712AF4.80104@roeck-us.net>
-Date: Mon, 27 Jun 2016 06:32:36 -0700
-MIME-Version: 1.0
-In-Reply-To: <20160627093707.GD1602@katana>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-path: <geert@linux-m68k.org>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
+To: Wim Van Sebroeck <wim@iguana.be>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Simon Horman <horms@verge.net.au>,
+	Magnus Damm <magnus.damm@gmail.com>
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	Rob Herring <robh+dt@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	linux-watchdog@vger.kernel.org,
+	linux-renesas-soc@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	Geert Uytterhoeven <geert+renesas@glider.be>
+Subject: [PATCH 1/3] watchdog: renesas-wdt: Add support for the r8a7796 wdt
+Date: Mon, 27 Jun 2016 19:50:45 +0200
+Message-Id: <1467049847-7469-2-git-send-email-geert+renesas@glider.be>
+In-Reply-To: <1467049847-7469-1-git-send-email-geert+renesas@glider.be>
+References: <1467049847-7469-1-git-send-email-geert+renesas@glider.be>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 06/27/2016 02:37 AM, Wolfram Sang wrote:
->
->> Nitpick: If we consider pretimeout == timeout to be invalid, we should reject it here
->> as well. So this should be >=.
->
-> I agree to that.
->
->> to the next version. I'd suggest to wait a bit to give Wolfram time to provide input,
->> though.
->
-> I liked the is_visible() change right away, so these patches are fine.
-> Guenter, what is your take on upstreaming the softdog pretimeout
-> support? I'd think it would be good to have for testing purposes. It
-> would also help me to upstream the busybox patch for the watchdog
-> applet.
->
+Document support for the Watchdog Timer (WDT) Controller in the Renesas
+R-Car M3-W (r8a7796) SoC.
 
-Sure, but the current patch series doesn't include watchdog_notify_pretimeout(),
-or am I missing something ?
+No driver update is needed.
 
-Guenter
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+---
+ Documentation/devicetree/bindings/watchdog/renesas-wdt.txt | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
+diff --git a/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt b/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
+index b9512f1eb80a0205..da24e31334177768 100644
+--- a/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
++++ b/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
+@@ -1,7 +1,11 @@
+ Renesas Watchdog Timer (WDT) Controller
+ 
+ Required properties:
+-- compatible : Should be "renesas,r8a7795-wdt", or "renesas,rcar-gen3-wdt"
++- compatible : Should be "renesas,<soctype>-wdt", and
++	       "renesas,rcar-gen3-wdt" as fallback.
++	       Examples with soctypes are:
++	         - "renesas,r8a7795-wdt" (R-Car H3)
++	         - "renesas,r8a7796-wdt" (R-Car M3-W)
+ 
+   When compatible with the generic version, nodes must list the SoC-specific
+   version corresponding to the platform first, followed by the generic
+-- 
+1.9.1
