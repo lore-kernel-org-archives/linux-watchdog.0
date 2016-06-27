@@ -1,47 +1,31 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:40098 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751874AbcF0UOn (ORCPT
+Received: from smtp.codeaurora.org ([198.145.29.96]:49179 "EHLO
+	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751888AbcF0X0w (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 27 Jun 2016 16:14:43 -0400
-Date: Mon, 27 Jun 2016 13:14:35 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>,
-	Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Robin Gong <b38343@freescale.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH v2 1/2] watchdog: add pretimeout support to the core
-Message-ID: <20160627201435.GA5891@roeck-us.net>
-References: <1466902865-14354-1-git-send-email-vladimir_zapolskiy@mentor.com>
- <1466902865-14354-2-git-send-email-vladimir_zapolskiy@mentor.com>
- <576F3E2E.7060606@roeck-us.net>
- <20160627093707.GD1602@katana>
- <57712AF4.80104@roeck-us.net>
- <20160627153356.GA3505@katana>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20160627153356.GA3505@katana>
+	Mon, 27 Jun 2016 19:26:52 -0400
+From: Thomas Pedersen <twp@codeaurora.org>
+To: linux-watchdog@vger.kernel.org
+Cc: Thomas Pedersen <twp@codeaurora.org>
+Subject: [PATCH 0/3] qcom watchdog fixes
+Date: Mon, 27 Jun 2016 16:26:47 -0700
+Message-Id: <1467070010-16965-1-git-send-email-twp@codeaurora.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Jun 27, 2016 at 05:33:56PM +0200, Wolfram Sang wrote:
-> 
-> > >I liked the is_visible() change right away, so these patches are fine.
-> > >Guenter, what is your take on upstreaming the softdog pretimeout
-> > >support? I'd think it would be good to have for testing purposes. It
-> > >would also help me to upstream the busybox patch for the watchdog
-> > >applet.
-> > >
-> > 
-> > Sure, but the current patch series doesn't include watchdog_notify_pretimeout(),
-> > or am I missing something ?
-> 
-> It would be hardcoded to "panic" for now and later converted.
-> 
+Some boards (eg. qcom IPQ8064 based) Need these changes to avoid a spurious
+watchdog reset.
 
-sgtm
+Matthew McClintock (3):
+  watchdog: qcom: update device tree bindings
+  watchdog: qcom: add option for standalone watchdog not in timer block
+  watchdog: qcom: configure BARK time in addition to BITE time
 
-Guenter
+ .../devicetree/bindings/watchdog/qcom-wdt.txt      |  5 +-
+ drivers/watchdog/qcom-wdt.c                        | 78 ++++++++++++++++------
+ 2 files changed, 59 insertions(+), 24 deletions(-)
+
+-- 
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
+a Linux Foundation Collaborative Project
+
