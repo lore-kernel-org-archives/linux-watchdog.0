@@ -1,43 +1,94 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:36084 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751988AbcF1Fbg (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 28 Jun 2016 01:31:36 -0400
-Subject: Re: [PATCH 0/3] qcom watchdog fixes
-To: Thomas Pedersen <twp@codeaurora.org>,
-	linux-watchdog@vger.kernel.org
-References: <1467070010-16965-1-git-send-email-twp@codeaurora.org>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <57720BB6.6010209@roeck-us.net>
-Date: Mon, 27 Jun 2016 22:31:34 -0700
-MIME-Version: 1.0
-In-Reply-To: <1467070010-16965-1-git-send-email-twp@codeaurora.org>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-path: <twp@codeaurora.org>
+From: Thomas Pedersen <twp@codeaurora.org>
+To: linux-watchdog@vger.kernel.org
+Cc: Matthew McClintock <mmcclint@codeaurora.org>,
+	Thomas Pedersen <twp@codeaurora.org>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Rob Herring <robh+dt@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Andy Gross <andy.gross@linaro.org>,
+	David Brown <david.brown@linaro.org>,
+	Russell King <linux@armlinux.org.uk>
+Subject: [PATCH v2 1/3] watchdog: qcom: update device tree bindings
+Date: Tue, 28 Jun 2016 11:35:19 -0700
+Message-Id: <1467138921-3658-1-git-send-email-twp@codeaurora.org>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 06/27/2016 04:26 PM, Thomas Pedersen wrote:
-> Some boards (eg. qcom IPQ8064 based) Need these changes to avoid a spurious
-> watchdog reset.
->
-> Matthew McClintock (3):
->    watchdog: qcom: update device tree bindings
->    watchdog: qcom: add option for standalone watchdog not in timer block
->    watchdog: qcom: configure BARK time in addition to BITE time
->
->   .../devicetree/bindings/watchdog/qcom-wdt.txt      |  5 +-
->   drivers/watchdog/qcom-wdt.c                        | 78 ++++++++++++++++------
->   2 files changed, 59 insertions(+), 24 deletions(-)
->
+From: Matthew McClintock <mmcclint@codeaurora.org>
 
-General comment: If you don't plan to address the comments made to
-the previous submission, please at least let the reviewers know
-what you are doing and why. Also, a note indicating that this
-is a resend would be helpful for those who did not see the original
-series.
+Update the compatible string to align with driver and also
+add SoC specific string to DTS.
 
-Thanks,
-Guenter
+CC: linux-watchdog@vger.kernel.org
+Signed-off-by: Matthew McClintock <mmcclint@codeaurora.org>
+Signed-off-by: Thomas Pedersen <twp@codeaurora.org>
 
+---
+v2:
+Keep SoC specific compatible and add it to DTS.
+---
+ Documentation/devicetree/bindings/watchdog/qcom-wdt.txt | 2 ++
+ arch/arm/boot/dts/qcom-apq8064.dtsi                     | 3 ++-
+ arch/arm/boot/dts/qcom-ipq8064.dtsi                     | 3 ++-
+ arch/arm/boot/dts/qcom-msm8960.dtsi                     | 3 ++-
+ 4 files changed, 8 insertions(+), 3 deletions(-)
+
+diff --git a/Documentation/devicetree/bindings/watchdog/qcom-wdt.txt b/Documentation/devicetree/bindings/watchdog/qcom-wdt.txt
+index 4726924..6b7b5ce 100644
+--- a/Documentation/devicetree/bindings/watchdog/qcom-wdt.txt
++++ b/Documentation/devicetree/bindings/watchdog/qcom-wdt.txt
+@@ -7,6 +7,8 @@ Required properties :
+ 			"qcom,kpss-wdt-msm8960"
+ 			"qcom,kpss-wdt-apq8064"
+ 			"qcom,kpss-wdt-ipq8064"
++			"qcom,kpss-timer"
++			"qcom,scss-timer"
+ 
+ - reg : shall contain base register location and length
+ - clocks : shall contain the input clock
+diff --git a/arch/arm/boot/dts/qcom-apq8064.dtsi b/arch/arm/boot/dts/qcom-apq8064.dtsi
+index df96ccd..e318d04 100644
+--- a/arch/arm/boot/dts/qcom-apq8064.dtsi
++++ b/arch/arm/boot/dts/qcom-apq8064.dtsi
+@@ -247,7 +247,8 @@
+ 		};
+ 
+ 		timer@200a000 {
+-			compatible = "qcom,kpss-timer", "qcom,msm-timer";
++			compatible = "qcom,kpss-timer",
++				     "qcom,kpss-wdt-apq8064", "qcom,msm-timer";
+ 			interrupts = <1 1 0x301>,
+ 				     <1 2 0x301>,
+ 				     <1 3 0x301>;
+diff --git a/arch/arm/boot/dts/qcom-ipq8064.dtsi b/arch/arm/boot/dts/qcom-ipq8064.dtsi
+index 2601a90..2e37557 100644
+--- a/arch/arm/boot/dts/qcom-ipq8064.dtsi
++++ b/arch/arm/boot/dts/qcom-ipq8064.dtsi
+@@ -122,7 +122,8 @@
+ 		};
+ 
+ 		timer@200a000 {
+-			compatible = "qcom,kpss-timer", "qcom,msm-timer";
++			compatible = "qcom,kpss-timer",
++				     "qcom,kpss-wdt-ipq8064", "qcom,msm-timer";
+ 			interrupts = <1 1 0x301>,
+ 				     <1 2 0x301>,
+ 				     <1 3 0x301>,
+diff --git a/arch/arm/boot/dts/qcom-msm8960.dtsi b/arch/arm/boot/dts/qcom-msm8960.dtsi
+index da05e28..288f56e 100644
+--- a/arch/arm/boot/dts/qcom-msm8960.dtsi
++++ b/arch/arm/boot/dts/qcom-msm8960.dtsi
+@@ -87,7 +87,8 @@
+ 		};
+ 
+ 		timer@200a000 {
+-			compatible = "qcom,kpss-timer", "qcom,msm-timer";
++			compatible = "qcom,kpss-timer",
++				     "qcom,kpss-wdt-msm8960", "qcom,msm-timer";
+ 			interrupts = <1 1 0x301>,
+ 				     <1 2 0x301>,
+ 				     <1 3 0x301>;
+-- 
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
+a Linux Foundation Collaborative Project
