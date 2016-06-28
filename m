@@ -1,78 +1,61 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from smtp.codeaurora.org ([198.145.29.96]:49202 "EHLO
-	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751888AbcF0X0x (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:53685 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751862AbcF1FUc (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 27 Jun 2016 19:26:53 -0400
-From: Thomas Pedersen <twp@codeaurora.org>
-To: linux-watchdog@vger.kernel.org
+	Tue, 28 Jun 2016 01:20:32 -0400
+Subject: Re: [PATCH 1/3] watchdog: qcom: update device tree bindings
+To: Thomas Pedersen <twp@codeaurora.org>,
+	linux-watchdog@vger.kernel.org
+References: <1467070010-16965-1-git-send-email-twp@codeaurora.org>
+ <1467070010-16965-2-git-send-email-twp@codeaurora.org>
 Cc: Matthew McClintock <mmcclint@codeaurora.org>,
 	Wim Van Sebroeck <wim@iguana.be>,
-	Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 3/3] watchdog: qcom: configure BARK time in addition to BITE time
-Date: Mon, 27 Jun 2016 16:26:50 -0700
-Message-Id: <1467070010-16965-4-git-send-email-twp@codeaurora.org>
-In-Reply-To: <1467070010-16965-1-git-send-email-twp@codeaurora.org>
-References: <1467070010-16965-1-git-send-email-twp@codeaurora.org>
+	Rob Herring <robh+dt@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <57720917.5000006@roeck-us.net>
+Date: Mon, 27 Jun 2016 22:20:23 -0700
+MIME-Version: 1.0
+In-Reply-To: <1467070010-16965-2-git-send-email-twp@codeaurora.org>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-From: Matthew McClintock <mmcclint@codeaurora.org>
+On 06/27/2016 04:26 PM, Thomas Pedersen wrote:
+> From: Matthew McClintock <mmcclint@codeaurora.org>
+>
+> Update the compatible string to align with driver
+>
+> CC: linux-watchdog@vger.kernel.org
+> Signed-off-by: Matthew McClintock <mmcclint@codeaurora.org>
+> ---
+>   Documentation/devicetree/bindings/watchdog/qcom-wdt.txt | 5 ++---
+>   1 file changed, 2 insertions(+), 3 deletions(-)
+>
+> diff --git a/Documentation/devicetree/bindings/watchdog/qcom-wdt.txt b/Documentation/devicetree/bindings/watchdog/qcom-wdt.txt
+> index 4726924..60bb2f98 100644
+> --- a/Documentation/devicetree/bindings/watchdog/qcom-wdt.txt
+> +++ b/Documentation/devicetree/bindings/watchdog/qcom-wdt.txt
+> @@ -4,9 +4,8 @@ Qualcomm Krait Processor Sub-system (KPSS) Watchdog
+>   Required properties :
+>   - compatible : shall contain only one of the following:
+>
+> -			"qcom,kpss-wdt-msm8960"
+> -			"qcom,kpss-wdt-apq8064"
+> -			"qcom,kpss-wdt-ipq8064"
+> +			"qcom,kpss-timer"
+> +			"qcom,scss-timer"
+>
+>   - reg : shall contain base register location and length
+>   - clocks : shall contain the input clock
+>
 
-For certain parts and some versions of TZ, TZ will reset the chip
-when a BARK is triggered even though it was not configured here. So
-by default let's configure this BARK time as well.
+Rob's earlier feedback to the same patch you had submitted in March:
 
-Signed-off-by: Matthew McClintock <mmcclint@codeaurora.org>
----
- drivers/watchdog/qcom-wdt.c | 5 +++++
- 1 file changed, 5 insertions(+)
+"Keep the SoC specific ones even if they are not used. The DTS should
+have both strings."
 
-diff --git a/drivers/watchdog/qcom-wdt.c b/drivers/watchdog/qcom-wdt.c
-index 70e42ed..e2ad6e1 100644
---- a/drivers/watchdog/qcom-wdt.c
-+++ b/drivers/watchdog/qcom-wdt.c
-@@ -23,6 +23,7 @@ enum wdt_reg {
- 	WDT_RST,
- 	WDT_EN,
- 	WDT_STS,
-+	WDT_BARK_TIME,
- 	WDT_BITE_TIME,
- };
- 
-@@ -30,6 +31,7 @@ static const u32 reg_offset_data_apcs_tmr[] = {
- 	[WDT_RST] = 0x38,
- 	[WDT_EN] = 0x40,
- 	[WDT_STS] = 0x44,
-+	[WDT_BARK_TIME] = 0x4C,
- 	[WDT_BITE_TIME] = 0x5C,
- };
- 
-@@ -37,6 +39,7 @@ static const u32 reg_offset_data_kpss[] = {
- 	[WDT_RST] = 0x4,
- 	[WDT_EN] = 0x8,
- 	[WDT_STS] = 0xC,
-+	[WDT_BARK_TIME] = 0x10,
- 	[WDT_BITE_TIME] = 0x14,
- };
- 
-@@ -65,6 +68,7 @@ static int qcom_wdt_start(struct watchdog_device *wdd)
- 
- 	writel(0, wdt_addr(wdt, WDT_EN));
- 	writel(1, wdt_addr(wdt, WDT_RST));
-+	writel(wdd->timeout * wdt->rate, wdt_addr(wdt, WDT_BARK_TIME));
- 	writel(wdd->timeout * wdt->rate, wdt_addr(wdt, WDT_BITE_TIME));
- 	writel(1, wdt_addr(wdt, WDT_EN));
- 	return 0;
-@@ -107,6 +111,7 @@ static int qcom_wdt_restart(struct watchdog_device *wdd, unsigned long action,
- 
- 	writel(0, wdt_addr(wdt, WDT_EN));
- 	writel(1, wdt_addr(wdt, WDT_RST));
-+	writel(timeout, wdt_addr(wdt, WDT_BARK_TIME));
- 	writel(timeout, wdt_addr(wdt, WDT_BITE_TIME));
- 	writel(1, wdt_addr(wdt, WDT_EN));
- 
--- 
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
-a Linux Foundation Collaborative Project
+Guenter
 
