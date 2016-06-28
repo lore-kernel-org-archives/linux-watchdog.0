@@ -1,49 +1,69 @@
-Return-path: <twp@codeaurora.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from smtp.codeaurora.org ([198.145.29.96]:39543 "EHLO
+	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752480AbcF1RRd (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 28 Jun 2016 13:17:33 -0400
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII;
  format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Tue, 28 Jun 2016 10:04:17 -0700
+Date: Tue, 28 Jun 2016 10:17:32 -0700
 From: Thomas Pedersen <twp@codeaurora.org>
 To: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 0/3] qcom watchdog fixes
-In-Reply-To: <57720BB6.6010209@roeck-us.net>
+Cc: linux-watchdog@vger.kernel.org,
+	Matthew McClintock <mmcclint@codeaurora.org>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Rob Herring <robh+dt@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>
+Subject: Re: [PATCH 1/3] watchdog: qcom: update device tree bindings
+In-Reply-To: <57720917.5000006@roeck-us.net>
 References: <1467070010-16965-1-git-send-email-twp@codeaurora.org>
- <57720BB6.6010209@roeck-us.net>
-Message-ID: <d5e6aef85ac3743a01b9dc190d3f5557@codeaurora.org>
-List-ID: <linux-watchdog@vger.kernel.org>
+ <1467070010-16965-2-git-send-email-twp@codeaurora.org>
+ <57720917.5000006@roeck-us.net>
+Message-ID: <5841fb0decf9d57754d26aa5d3255eaf@codeaurora.org>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-Hi Guenter,
-
-
-On 2016-06-27 22:31, Guenter Roeck wrote:
+On 2016-06-27 22:20, Guenter Roeck wrote:
 > On 06/27/2016 04:26 PM, Thomas Pedersen wrote:
->> Some boards (eg. qcom IPQ8064 based) Need these changes to avoid a 
->> spurious
->> watchdog reset.
+>> From: Matthew McClintock <mmcclint@codeaurora.org>
 >> 
->> Matthew McClintock (3):
->>    watchdog: qcom: update device tree bindings
->>    watchdog: qcom: add option for standalone watchdog not in timer 
->> block
->>    watchdog: qcom: configure BARK time in addition to BITE time
+>> Update the compatible string to align with driver
 >> 
->>   .../devicetree/bindings/watchdog/qcom-wdt.txt      |  5 +-
->>   drivers/watchdog/qcom-wdt.c                        | 78 
->> ++++++++++++++++------
->>   2 files changed, 59 insertions(+), 24 deletions(-)
+>> CC: linux-watchdog@vger.kernel.org
+>> Signed-off-by: Matthew McClintock <mmcclint@codeaurora.org>
+>> ---
+>>   Documentation/devicetree/bindings/watchdog/qcom-wdt.txt | 5 ++---
+>>   1 file changed, 2 insertions(+), 3 deletions(-)
+>> 
+>> diff --git a/Documentation/devicetree/bindings/watchdog/qcom-wdt.txt 
+>> b/Documentation/devicetree/bindings/watchdog/qcom-wdt.txt
+>> index 4726924..60bb2f98 100644
+>> --- a/Documentation/devicetree/bindings/watchdog/qcom-wdt.txt
+>> +++ b/Documentation/devicetree/bindings/watchdog/qcom-wdt.txt
+>> @@ -4,9 +4,8 @@ Qualcomm Krait Processor Sub-system (KPSS) Watchdog
+>>   Required properties :
+>>   - compatible : shall contain only one of the following:
+>> 
+>> -			"qcom,kpss-wdt-msm8960"
+>> -			"qcom,kpss-wdt-apq8064"
+>> -			"qcom,kpss-wdt-ipq8064"
+>> +			"qcom,kpss-timer"
+>> +			"qcom,scss-timer"
+>> 
+>>   - reg : shall contain base register location and length
+>>   - clocks : shall contain the input clock
 >> 
 > 
-> General comment: If you don't plan to address the comments made to
-> the previous submission, please at least let the reviewers know
-> what you are doing and why. Also, a note indicating that this
-> is a resend would be helpful for those who did not see the original
-> series.
+> Rob's earlier feedback to the same patch you had submitted in March:
+> 
+> "Keep the SoC specific ones even if they are not used. The DTS should
+> have both strings."
 
-Thanks, checking for earlier submissions slipped my mind. I'll address 
-your
-comments in a v2.
+Why would we add the SoC specific compatible strings to the DTS if 
+they're not
+even used?
 
 -- 
 thomas
