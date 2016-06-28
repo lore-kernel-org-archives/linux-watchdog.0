@@ -1,29 +1,49 @@
-Return-path: <mmcclint@codeaurora.org>
-Subject: Re: [PATCH v2 2/3] watchdog: qcom: add option for standalone watchdog not in timer block
-Mime-Version: 1.0 (Mac OS X Mail 9.3 \(3124\))
-Content-Type: text/plain; charset=utf-8
-From: Matthew McClintock <mmcclint@codeaurora.org>
-In-Reply-To: <f101c5e001fa521edf67f1a94917f15e@codeaurora.org>
-Date: Tue, 28 Jun 2016 16:24:25 -0500
-Cc: Guenter Roeck <linux@roeck-us.net>,
- linux-watchdog@vger.kernel.org,
- Wim Van Sebroeck <wim@iguana.be>
-Content-Transfer-Encoding: quoted-printable
-Message-Id: <75720F79-5C72-4FFD-A391-427C5D336AE0@codeaurora.org>
-References: <1467138921-3658-1-git-send-email-twp@codeaurora.org> <1467138921-3658-2-git-send-email-twp@codeaurora.org> <20160628194723.GA1999@roeck-us.net> <f101c5e001fa521edf67f1a94917f15e@codeaurora.org>
-To: twp@codeaurora.org
+Return-path: <twp@codeaurora.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+Date: Tue, 28 Jun 2016 10:04:17 -0700
+From: Thomas Pedersen <twp@codeaurora.org>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH 0/3] qcom watchdog fixes
+In-Reply-To: <57720BB6.6010209@roeck-us.net>
+References: <1467070010-16965-1-git-send-email-twp@codeaurora.org>
+ <57720BB6.6010209@roeck-us.net>
+Message-ID: <d5e6aef85ac3743a01b9dc190d3f5557@codeaurora.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
+Hi Guenter,
 
-> On Jun 28, 2016, at 3:45 PM, Thomas Pedersen <twp@codeaurora.org> =
-wrote:
->=20
-> I'll rectify the missing documentation, and am fine with changing the =
-name to
-> kpss-core.
 
-I think the previous conclusion was to rename it to something with =
-ipq4019 in the compat, but I=E2=80=99d suggest checking the comments in =
-patchworks on the previous patches.
+On 2016-06-27 22:31, Guenter Roeck wrote:
+> On 06/27/2016 04:26 PM, Thomas Pedersen wrote:
+>> Some boards (eg. qcom IPQ8064 based) Need these changes to avoid a 
+>> spurious
+>> watchdog reset.
+>> 
+>> Matthew McClintock (3):
+>>    watchdog: qcom: update device tree bindings
+>>    watchdog: qcom: add option for standalone watchdog not in timer 
+>> block
+>>    watchdog: qcom: configure BARK time in addition to BITE time
+>> 
+>>   .../devicetree/bindings/watchdog/qcom-wdt.txt      |  5 +-
+>>   drivers/watchdog/qcom-wdt.c                        | 78 
+>> ++++++++++++++++------
+>>   2 files changed, 59 insertions(+), 24 deletions(-)
+>> 
+> 
+> General comment: If you don't plan to address the comments made to
+> the previous submission, please at least let the reviewers know
+> what you are doing and why. Also, a note indicating that this
+> is a resend would be helpful for those who did not see the original
+> series.
 
--M=
+Thanks, checking for earlier submissions slipped my mind. I'll address 
+your
+comments in a v2.
+
+-- 
+thomas
