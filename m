@@ -1,78 +1,68 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from smtp.codeaurora.org ([198.145.29.96]:41131 "EHLO
-	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752399AbcF1Reb (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 28 Jun 2016 13:34:31 -0400
+Return-path: <horms@verge.net.au>
+Date: Tue, 28 Jun 2016 07:06:33 +0200
+From: Simon Horman <horms@verge.net.au>
+To: Geert Uytterhoeven <geert+renesas@glider.be>
+Cc: Wim Van Sebroeck <wim@iguana.be>, Guenter Roeck <linux@roeck-us.net>,
+	Magnus Damm <magnus.damm@gmail.com>,
+	Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	Rob Herring <robh+dt@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>, linux-watchdog@vger.kernel.org,
+	linux-renesas-soc@vger.kernel.org, devicetree@vger.kernel.org
+Subject: Re: [PATCH 0/3] arm64: dts: r8a7796: Add watchdog support
+Message-ID: <20160628050632.GA10154@verge.net.au>
+References: <1467049847-7469-1-git-send-email-geert+renesas@glider.be>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-Date: Tue, 28 Jun 2016 10:34:30 -0700
-From: Thomas Pedersen <twp@codeaurora.org>
-To: Mark Rutland <mark.rutland@arm.com>
-Cc: Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org,
-	Matthew McClintock <mmcclint@codeaurora.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Rob Herring <robh+dt@kernel.org>
-Subject: Re: [PATCH 1/3] watchdog: qcom: update device tree bindings
-In-Reply-To: <20160628172412.GU31744@leverpostej>
-References: <1467070010-16965-1-git-send-email-twp@codeaurora.org>
- <1467070010-16965-2-git-send-email-twp@codeaurora.org>
- <57720917.5000006@roeck-us.net>
- <5841fb0decf9d57754d26aa5d3255eaf@codeaurora.org>
- <20160628172412.GU31744@leverpostej>
-Message-ID: <a949e6ec939b534636c371b049f65f72@codeaurora.org>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1467049847-7469-1-git-send-email-geert+renesas@glider.be>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 2016-06-28 10:24, Mark Rutland wrote:
-> On Tue, Jun 28, 2016 at 10:17:32AM -0700, Thomas Pedersen wrote:
->> On 2016-06-27 22:20, Guenter Roeck wrote:
->> >On 06/27/2016 04:26 PM, Thomas Pedersen wrote:
->> >>From: Matthew McClintock <mmcclint@codeaurora.org>
->> >>
->> >>Update the compatible string to align with driver
->> >>
->> >>CC: linux-watchdog@vger.kernel.org
->> >>Signed-off-by: Matthew McClintock <mmcclint@codeaurora.org>
->> >>---
->> >>  Documentation/devicetree/bindings/watchdog/qcom-wdt.txt | 5 ++---
->> >>  1 file changed, 2 insertions(+), 3 deletions(-)
->> >>
->> >>diff --git
->> >>a/Documentation/devicetree/bindings/watchdog/qcom-wdt.txt
->> >>b/Documentation/devicetree/bindings/watchdog/qcom-wdt.txt
->> >>index 4726924..60bb2f98 100644
->> >>--- a/Documentation/devicetree/bindings/watchdog/qcom-wdt.txt
->> >>+++ b/Documentation/devicetree/bindings/watchdog/qcom-wdt.txt
->> >>@@ -4,9 +4,8 @@ Qualcomm Krait Processor Sub-system (KPSS) Watchdog
->> >>  Required properties :
->> >>  - compatible : shall contain only one of the following:
->> >>
->> >>-			"qcom,kpss-wdt-msm8960"
->> >>-			"qcom,kpss-wdt-apq8064"
->> >>-			"qcom,kpss-wdt-ipq8064"
->> >>+			"qcom,kpss-timer"
->> >>+			"qcom,scss-timer"
->> >>
->> >>  - reg : shall contain base register location and length
->> >>  - clocks : shall contain the input clock
->> >>
->> >
->> >Rob's earlier feedback to the same patch you had submitted in March:
->> >
->> >"Keep the SoC specific ones even if they are not used. The DTS should
->> >have both strings."
->> 
->> Why would we add the SoC specific compatible strings to the DTS if
->> they're not
->> even used?
+On Mon, Jun 27, 2016 at 07:50:44PM +0200, Geert Uytterhoeven wrote:
+> 	Hi Wim, Günter, Simon, Magnus,
 > 
-> Because they might be in future, and having them present in existing
-> DTBs will make our lives easier. Otherwise, they cost very little.
+> This patch series adds support for the Watchdog Timer (WDT) Controller
+> in the Renesas R-Car M3-W (r8a7796) SoC.
+>         
+>   - The first patch updates the DT binding documentation for the Renesas
+>     WDT driver, and should go in through the watchdog tree.
+>   - The remaining patches update the DTS for the r8a7796 SoC and
+>     Salvator-X development board, and should go in through the renesas
+>     tree. This can happen as soon as the DT binding update has been
+>     accepted.
 
-Hm, ok.
+As the binding update seems minor and unlikely to be rejected
+I have taken the liberty of queueing up the DTS patches now.
 
--- 
-thomas
+> 
+> To use the watchdog, there is a runtime dependency on "[PATCH 0/2] clk:
+> renesas: r8a7796: Add watchdog clocks".
+> 
+> This has been tested on r8a7796/Salvator-X.
+> 
+> Thanks!
+> 
+> Geert Uytterhoeven (3):
+>   watchdog: renesas-wdt: Add support for the r8a7796 wdt
+>   arm64: dts: r8a7796: Add RWDT node
+>   arm64: dts: r8a7796/salvator-x: Enable watchdog timer
+> 
+>  Documentation/devicetree/bindings/watchdog/renesas-wdt.txt | 6 +++++-
+>  arch/arm64/boot/dts/renesas/r8a7796-salvator-x.dts         | 5 +++++
+>  arch/arm64/boot/dts/renesas/r8a7796.dtsi                   | 9 +++++++++
+>  3 files changed, 19 insertions(+), 1 deletion(-)
+> 
+> -- 
+> 1.9.1
+> 
+> Gr{oetje,eeting}s,
+> 
+> 						Geert
+> 
+> --
+> Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+> 
+> In personal conversations with technical people, I call myself a hacker. But
+> when I'm talking to journalists I just say "programmer" or something like that.
+> 							    -- Linus Torvalds
+> 
