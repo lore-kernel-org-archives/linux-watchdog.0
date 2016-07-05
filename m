@@ -1,58 +1,51 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.phytec.de ([217.6.246.34]:55940 "EHLO root.phytec.de"
+Received: from mail.phytec.co.uk ([217.6.246.34]:55941 "EHLO root.phytec.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932919AbcGENYv (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	id S932889AbcGENYv (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
 	Tue, 5 Jul 2016 09:24:51 -0400
 From: Stefan Christ <s.christ@phytec.de>
 To: linux-watchdog@vger.kernel.org, linux-i2c@vger.kernel.org
-Subject: [RFC 4/6] i2c-core: add possibility to block an adapter for a single user
-Date: Tue, 5 Jul 2016 15:22:21 +0200
-Message-Id: <1467724943-13416-5-git-send-email-s.christ@phytec.de>
+Subject: [RFC 5/6] mfd: da9063: save i2c_client for later use
+Date: Tue, 5 Jul 2016 15:22:22 +0200
+Message-Id: <1467724943-13416-6-git-send-email-s.christ@phytec.de>
 In-Reply-To: <1467724943-13416-1-git-send-email-s.christ@phytec.de>
 References: <1467724943-13416-1-git-send-email-s.christ@phytec.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-TODO use mutex and mutex_try_lock instead of boolean flag. Avoid that
-multiple consumers can block the adapter at the same time.
-
-This flag is only intended to be used in the shutdown process in which
-no cleanup is required.
+Save i2c_client for later use in watchdog restart handler. The regmap
+interface cannot be used there.
 
 Signed-off-by: Stefan Christ <s.christ@phytec.de>
 ---
- drivers/i2c/i2c-core.c | 5 +++++
- include/linux/i2c.h    | 1 +
- 2 files changed, 6 insertions(+)
+ drivers/mfd/da9063-i2c.c        | 1 +
+ include/linux/mfd/da9063/core.h | 1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 987c124..9db7130 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -2068,6 +2068,11 @@ int i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
- {
- 	int ret;
+diff --git a/drivers/mfd/da9063-i2c.c b/drivers/mfd/da9063-i2c.c
+index 6f3a7c0..c0f53d2 100644
+--- a/drivers/mfd/da9063-i2c.c
++++ b/drivers/mfd/da9063-i2c.c
+@@ -224,6 +224,7 @@ static int da9063_i2c_probe(struct i2c_client *i2c,
+ 	i2c_set_clientdata(i2c, da9063);
+ 	da9063->dev = &i2c->dev;
+ 	da9063->chip_irq = i2c->irq;
++	da9063->i2c = i2c;
  
-+	if (adap->blocked) {
-+		dev_info(&adap->dev, "No more i2c communication is allowed! pid = %d\n", current->pid);
-+		return -EPERM;
-+	}
-+
- 	/* REVISIT the fault reporting model here is weak:
- 	 *
- 	 *  - When we get an error after receiving N bytes from a slave,
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index 8461841..282ec71 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -519,6 +519,7 @@ struct i2c_adapter {
+ 	if (da9063->variant_code == PMIC_DA9063_AD) {
+ 		da9063_regmap_config.rd_table = &da9063_ad_readable_table;
+diff --git a/include/linux/mfd/da9063/core.h b/include/linux/mfd/da9063/core.h
+index 79f4d82..1d1ae5d 100644
+--- a/include/linux/mfd/da9063/core.h
++++ b/include/linux/mfd/da9063/core.h
+@@ -83,6 +83,7 @@ struct da9063 {
  
- 	struct i2c_bus_recovery_info *bus_recovery_info;
- 	const struct i2c_adapter_quirks *quirks;
-+	bool blocked;
- };
- #define to_i2c_adapter(d) container_of(d, struct i2c_adapter, dev)
+ 	/* Control interface */
+ 	struct regmap	*regmap;
++	struct i2c_client *i2c;
  
+ 	/* Interrupts */
+ 	int		chip_irq;
 -- 
 1.9.1
 
