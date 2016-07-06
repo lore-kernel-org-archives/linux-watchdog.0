@@ -1,91 +1,76 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.rapiddevelopmentkit.de ([217.6.246.34]:56317 "EHLO
-	root.phytec.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751024AbcGFJSl convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 6 Jul 2016 05:18:41 -0400
-Date: Wed, 6 Jul 2016 11:18:39 +0200
-From: Stefan Christ <s.christ@phytec.de>
-To: Wolfram Sang <wsa@the-dreams.de>
+Received: from sauhun.de ([89.238.76.85]:53185 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751919AbcGFOQ7 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 6 Jul 2016 10:16:59 -0400
+Date: Wed, 6 Jul 2016 23:16:52 +0900
+From: Wolfram Sang <wsa@the-dreams.de>
+To: Stefan Christ <s.christ@phytec.de>
 Cc: linux-watchdog@vger.kernel.org, linux-i2c@vger.kernel.org
 Subject: Re: [PATCH 0/6] Implement I2C restart handler
-Message-ID: <20160706091838.GC7031@lws-christ>
+Message-ID: <20160706141650.GB1430@tetsubishi>
 References: <1467724943-13416-1-git-send-email-s.christ@phytec.de>
  <20160705145839.GA3641@tetsubishi>
+ <20160706091838.GC7031@lws-christ>
 MIME-Version: 1.0
-In-Reply-To: <20160705145839.GA3641@tetsubishi>
-Content-Type: text/plain; charset=utf-8
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="zx4FCpZtqtKETZ7O"
 Content-Disposition: inline
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+In-Reply-To: <20160706091838.GC7031@lws-christ>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi,
 
-On Tue, Jul 05, 2016 at 11:58:41PM +0900, Wolfram Sang wrote:
-> Hi,
+--zx4FCpZtqtKETZ7O
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+
+> > My idea was to introduce master_xfer_irqless or similar to struct
+> > i2c_algorithm. I even discussed this shortly with Mark Brown how to
+> > interact with regmap; but this was too long ago, so I forgot what we
+> > agreed on :(
 >=20
-> > this is a request for feedback about a lockdep-warning-free I2C
-> > restart_handler.  I would like to know whether someone had the prob=
-lem already
-> > and how the best and mainline friendliest solution looks like.
-> > I have an embedded board with the PMIC chip DA9063 that is also use=
-d as a
-> > voltage regulator for DVFS. For a clean reboot/reset of the system =
-I have to
-> > set the bit nSHUTDOWN in the PMIC via I2C. The restart_handler call=
- chain
-> > is of type
-> >=20
-> >     static ATOMIC_NOTIFIER_HEAD(restart_handler_list);
-> >=20
-> > So any code running as a restart_handler cannot (should not) wait, =
-for other
-> > locks. When you use i2c_transfer/regmap you get lockdep warnings li=
-ke [1].
+> Great. I was looking for exactly this kind of feedback.
 >=20
-> Yes, this problem has come up occasionally. And it is not only about
-> sleeping. IRQs are disabled, too.
->=20
-> My idea was to introduce master_xfer_irqless or similar to struct
-> i2c_algorithm. I even discussed this shortly with Mark Brown how to
-> interact with regmap; but this was too long ago, so I forgot what we
-> agreed on :(
+> The term 'master_xfer_irqless' does not bring up anything on the internet=
+ and I
+> didn't find anything on the list linux-i2c. Can you point me to the discu=
+ssion,
+> so I can read it up and work on it?
 
-Great. I was looking for exactly this kind of feedback.
+Sadly not. It was just an idea I had in my mind and some talking with
+Mark at FOSDEM. Then priorities changed and I worked on something else.
+You might want to look for threads where people implemented 'irqless' or
+'polling' i2c transfers. I recall at least one discussion in the last
+year, but can't seem to find it now :( Dunno if there is something
+worthwhile in there, though.
 
-The term 'master_xfer_irqless' does not bring up anything on the intern=
-et and I
-didn't find anything on the list linux-i2c. Can you point me to the dis=
-cussion,
-so I can read it up and work on it?
+Regards,
 
-> > Any comments?=20
->=20
-> I just skimmed very lightly over the patchset. Yet, seeing an I2C cli=
-ent
-> messing directly with 'struct adapter' breaks so many abstractions, i=
-t
-> hits my instant-NACK nerve ;)
+   Wolfram
 
-Yes, accessing the function directly is really ugly. I was thinking abo=
-ut
-augmenting the I2C interface and the regmap interface with 'sleep-free'=
- and
-'irq-less' functions or flags, but this requires changing a lot of code=
-=2E So I
-was just taking this shortcut. For follow up patches I will rework this=
-=2E
 
-Mit freundlichen Gr=C3=BC=C3=9Fen / Kind regards,
-	Stefan Christ
+--zx4FCpZtqtKETZ7O
+Content-Type: application/pgp-signature; name="signature.asc"
 
-> Thanks,
->=20
->    Wolfram
->=20
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
-g" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXfRLSAAoJEBQN5MwUoCm2Sp0P/0mMfBBdC6nWNH2iI9QnhhhB
+ZRd27VrpsONuwr51D179AUrPG3VDa5f5Nzg8MCjzoYgD6WVJeV8Fu9WL7s1vpOIF
+ebqwrP/l89UlkZ9v57hsPbvV3efrb4PCZzpJw5Om+vaGqEOsXlGGJxg/Wc8P/KTD
+Ij9BYz51OxXlVKrbtd7aSTfRV5SnYAK9krHC5mgmRJBef6RGh70aoh5fa+p3kA0J
+aX9yB2gWSseKpymrAQD+/8JL359AEzHjmKS63KQWAg6VPDqwk/ynqMmAMiNzsutV
+w7MQWOAuVTu87c1/M34wB1hfZS9TFUg2qsWHzzMgcyye/8S3Xn2JSRLxtIqzQkyT
+rn+Nu8sjMNAgc3JIZRWQ8oL1BmiRxyDEYH8Itfhal9n4Mv/fRhIExhnDME5RDDOy
+HTNbIfZoSNLMcKf34zK2CiDv3pRFT5aWzt5wOZx8sTVESQ7gKZMOC6YqNCvNgYMU
+Zhrv6py0u3EwDVBSaONC0epVcF7fkousIsGviLJniradUJ6kmnPd1rhugQPC98Bb
+Fga3Fh5NCkgVU5sOppQE+BkikgeYZZKLqRgHRmR+6Zh1EPBmNuDJZ1Qf9DxU25sV
+dK6NPkODCfO4DcrMOC4aDCGWQ6qbFB19rE3d5iS+J7277CW3N318bjuObuVEMcXv
+r9bEzGEXPhcTa+3KBn7p
+=O7e6
+-----END PGP SIGNATURE-----
+
+--zx4FCpZtqtKETZ7O--
