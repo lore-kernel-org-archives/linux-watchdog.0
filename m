@@ -1,51 +1,36 @@
-Return-path: <s.christ@phytec.de>
-Date: Wed, 6 Jul 2016 10:42:44 +0200
-From: Stefan Christ <s.christ@phytec.de>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-watchdog@vger.kernel.org, linux-i2c@vger.kernel.org
-Subject: Re: [RFC 1/6] watchdog: da9063_wdt: don't trigger watchdog too fast
-Message-ID: <20160706084244.GA7031@lws-christ>
-References: <1467724943-13416-1-git-send-email-s.christ@phytec.de>
- <1467724943-13416-2-git-send-email-s.christ@phytec.de>
- <577BD34F.7000804@roeck-us.net>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-qk0-f194.google.com ([209.85.220.194]:36372 "EHLO
+	mail-qk0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750734AbcGGNMS (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 7 Jul 2016 09:12:18 -0400
+Received: by mail-qk0-f194.google.com with SMTP id r68so1845278qka.3
+        for <linux-watchdog@vger.kernel.org>; Thu, 07 Jul 2016 06:12:18 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <577BD34F.7000804@roeck-us.net>
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-List-ID: <linux-watchdog@vger.kernel.org>
+Reply-To: ioanm@linux.com
+From: Ioan Moldovan <ioan.moldovan1999@gmail.com>
+Date: Thu, 7 Jul 2016 16:12:17 +0300
+Message-ID: <CAH2idReJfXsd3QWvpRKnaLpw_isURt2p81VdGpPEU9dPnPHQpA@mail.gmail.com>
+Subject: I/O address 0x0cd6 already in use
+To: linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-Hi Guenter,
+At every boot of my PC I noticed the following error telling me the IO
+address 0x0cd6 is already in use:
 
-On Tue, Jul 05, 2016 at 08:33:35AM -0700, Guenter Roeck wrote:
-> On 07/05/2016 06:22 AM, Stefan Christ wrote:
-> >Triggering the watchdog faster than T=5FWDMIN=3D256ms leads to resets of=
- the
-> >da9063 chip. The datasheet says that the watchdog must only be triggered
-> >in the timeframe T=5FWDMIN to T=5FWDMAX. The T=5FWDMAX is configured in =
-the
-> >driver.
-> >
-> >This problem was already mentioned in the patch:
-> >
-> >     http://comments.gmane.org/gmane.linux.watchdog/1708
-> >
-> >You also could say that this behavior is a feature. When the userspace
-> >goes wild, triggering the watchdog to fast, the system is reseted. But
-> >there is currently no information in the watchdog ABI to report a
-> >minimum wait time between two watchdog heartbeats.
-> >
->=20
-> There isn't ? What is the problem with min=5Fhw=5Fheartbeat=5Fms which was
-> introduced exactly for that purpose ?
->=20
+[    6.083233] sp5100_tco: SP5100/SB800 TCO WatchDog Timer Driver v0.05
+[    6.083292] sp5100_tco: PCI Vendor ID: 0x1022, Device ID: 0x780b,
+Revision ID: 0x16
+[    6.083296] sp5100_tco: I/O address 0x0cd6 already in use
 
-Ah your right. Sorry, I didn't noticed it. I'm sending a v2 patch for it.
-Thanks.
+Not being a kernel developer, I have no way to fix this.
 
-Mit freundlichen Gr=C3=BC=C3=9Fen / Kind regards,
-	Stefan Christ
-
-> Thanks,
-> Guenter
->=20
+CPU Details:
+vendor_id    : AuthenticAMD
+cpu family    : 21
+model        : 48
+model name    : AMD Athlon(tm) X4 860K Quad Core Processor
+stepping    : 1
+microcode    : 0x6003104
