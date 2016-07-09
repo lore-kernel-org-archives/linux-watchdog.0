@@ -1,9 +1,9 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:34850 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:54328 "EHLO
 	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754947AbcGHNXu (ORCPT
+	with ESMTP id S932860AbcGII7i (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 8 Jul 2016 09:23:50 -0400
+	Sat, 9 Jul 2016 04:59:38 -0400
 Subject: Re: I/O address 0x0cd6 already in use
 To: ioanm@linux.com, linux-watchdog@vger.kernel.org
 References: <CAH2idReJfXsd3QWvpRKnaLpw_isURt2p81VdGpPEU9dPnPHQpA@mail.gmail.com>
@@ -11,30 +11,22 @@ References: <CAH2idReJfXsd3QWvpRKnaLpw_isURt2p81VdGpPEU9dPnPHQpA@mail.gmail.com>
  <CAH2idRciNOYZ9x8HC6oJM77pfJ2V93eamSxxpGMe_gtQOoyi2Q@mail.gmail.com>
  <20160707191600.GA9431@roeck-us.net>
  <CAH2idRff1LPQmLiA60HbQkE27CMUPan0N3wHoSCvAsfZoCvHww@mail.gmail.com>
+ <577FA963.70408@roeck-us.net>
+ <CAH2idRdJ8JGsLYztXQWo4A770zqf5tFoAmam9vahvaSZYr8XCQ@mail.gmail.com>
 From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <577FA963.70408@roeck-us.net>
-Date: Fri, 8 Jul 2016 06:23:47 -0700
+Message-ID: <5780BCF8.8020808@roeck-us.net>
+Date: Sat, 9 Jul 2016 01:59:36 -0700
 MIME-Version: 1.0
-In-Reply-To: <CAH2idRff1LPQmLiA60HbQkE27CMUPan0N3wHoSCvAsfZoCvHww@mail.gmail.com>
+In-Reply-To: <CAH2idRdJ8JGsLYztXQWo4A770zqf5tFoAmam9vahvaSZYr8XCQ@mail.gmail.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 07/07/2016 09:59 PM, Ioan Moldovan wrote:
-> Okay, but won't unloading i2c cause errors?
+On 07/08/2016 09:08 PM, Ioan Moldovan wrote:
+> Okay, thanks for all the help!
 
-Not loading the i2c controller would mean that you can not access
-any of the i2c devices connected to the i2c bus.
-
-> Or won't unloading watchdog and keeping just i2c also cause errors?
-
-Unloading (or, rather, not loading) the watchdog driver means that
-you won't be able to use the watchdog.
-
-Sure, both is undesirable, but unless we hear otherwise we have to assume
-that the change to the i2c driver was made on purpose, and there isn't
-really anything we can do about it.
+I wouldn't call that help :-(. It is broken, but I don't see an easy way to fix it.
 
 Guenter
 
