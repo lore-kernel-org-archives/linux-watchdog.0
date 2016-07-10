@@ -1,36 +1,62 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:51963 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751289AbcGIPGW (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 9 Jul 2016 11:06:22 -0400
-Subject: Re: I/O address 0x0cd6 already in use
-To: ioanm@linux.com, linux-watchdog@vger.kernel.org
-References: <CAH2idReJfXsd3QWvpRKnaLpw_isURt2p81VdGpPEU9dPnPHQpA@mail.gmail.com>
- <577E71D0.3030207@roeck-us.net>
- <CAH2idRciNOYZ9x8HC6oJM77pfJ2V93eamSxxpGMe_gtQOoyi2Q@mail.gmail.com>
- <20160707191600.GA9431@roeck-us.net>
- <CAH2idRff1LPQmLiA60HbQkE27CMUPan0N3wHoSCvAsfZoCvHww@mail.gmail.com>
- <577FA963.70408@roeck-us.net>
- <CAH2idRdJ8JGsLYztXQWo4A770zqf5tFoAmam9vahvaSZYr8XCQ@mail.gmail.com>
- <5780BCF8.8020808@roeck-us.net>
- <CAH2idReAuQt=N0vM8DLjg1weyb4Qft1wWtSmqAYRs570bQEhzw@mail.gmail.com>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <578112E1.4010206@roeck-us.net>
-Date: Sat, 9 Jul 2016 08:06:09 -0700
-MIME-Version: 1.0
-In-Reply-To: <CAH2idReAuQt=N0vM8DLjg1weyb4Qft1wWtSmqAYRs570bQEhzw@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-path: <narmstrong@baylibre.com>
+From: Neil Armstrong <narmstrong@baylibre.com>
+To: Wim Van Sebroeck <wim@iguana.be>,
+	Guenter Roeck <linux@roeck-us.net>
+Cc: Neil Armstrong <narmstrong@baylibre.com>,
+	linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-amlogic@lists.infradead.org,
+	linux-watchdog@vger.kernel.org
+Subject: [PATCH v3 0/3] watchdog: Add Amlogic Meson GXBB Watchdog Timer driver
+Date: Sun, 10 Jul 2016 11:11:03 +0200
+Message-Id: <1468141867-4172-1-git-send-email-narmstrong@baylibre.com>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 07/09/2016 06:34 AM, Ioan Moldovan wrote:
-> How about reporting this to i2c, and asking the devs there if they
-> need that I/O Addr.
+Adds support for the Amlogic Meson GXBB SoC Watchdog Timer.
+It differs from the meson6/meson8b HW, so need for a separate driver.
+The HW provides a divider capable of having a 1ms timebase thus simplifying
+the counter update.
+The restart call is not provided even if the HW is capable of triggering a
+system reset immediately because of the PSCI firmare having such functionnality.
+The watchdog is not expected to be running at boot time since there is a separate
+system-level watchdog running from the SCPI co-processor, but this case would be
+handle in a next driver update.
 
-I _did_ cc the i2c mailing list in my first reply. Remember, I asked you not to drop
-the mailing lists in your replies ?
+Changes since v2 at http://lkml.kernel.org/r/1464943007-18000-1-git-send-email-narmstrong@baylibre.com :
+- Fix set_timeout behaviour
 
-Guenter
+Changes since v1 at http://lkml.kernel.org/r/1464614948-28247-1-git-send-email-narmstrong@baylibre.com :
+- Update default timeout to 30sec
+- Add separate CONFIG_
+- Remove unused defines & functions
+- Fix indentation
+- Check set_timeout max value
+- Reorder includes alphabetically
+- Switch to human identify string
+- clk_disable_unprepare on probe failure or removal
 
+Changes since RFC version at http://lkml.kernel.org/r/1464249112-13658-1-git-send-email-narmstrong@baylibre.com :
+- Remove status callback, will re-introduce it later to managed the already-running use case
+- Fix registers defines indentation
+- Fix space between operators
+- Make all callbacks static functions
+- Fix bindings with missing clocks attribute
+- Do not stop/start watchdog on a timeout setup
+- Fix probe device configuration
+
+Neil Armstrong (3):
+  watchdog: Add Meson GXBB Watchdog Driver
+  dt-bindings: watchdog: Add Meson GXBB Watchdog bindings
+  ARM64: dts: amlogic: meson-gxbb: Add watchdog node
+
+ .../bindings/watchdog/meson-gxbb-wdt.txt           |  16 ++
+ arch/arm64/boot/dts/amlogic/meson-gxbb.dtsi        |   6 +
+ drivers/watchdog/Kconfig                           |  10 +
+ drivers/watchdog/Makefile                          |   1 +
+ drivers/watchdog/meson_gxbb_wdt.c                  | 270 +++++++++++++++++++++
+ 5 files changed, 303 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/meson-gxbb-wdt.txt
+ create mode 100644 drivers/watchdog/meson_gxbb_wdt.c
+
+-- 
+2.7.0
