@@ -15,97 +15,84 @@ Cc: linux-arm-kernel@lists.infradead.org, linaro-acpi@lists.linaro.org,
         kvalo@codeaurora.org, mchehab@kernel.org, jslaby@suse.cz,
         christoffer.dall@linaro.org, julien.grall@arm.com,
         Fu Wei <fu.wei@linaro.org>
-Subject: [PATCH v7 0/9] acpi, clocksource: add GTDT driver and GTDT support in arm_arch_timer
-Date: Thu, 14 Jul 2016 01:53:13 +0800
-Message-Id: <1468432402-4872-1-git-send-email-fu.wei@linaro.org>
+Subject: [PATCH v7 1/9] clocksource/drivers/arm_arch_timer: Move enums and defines to header file
+Date: Thu, 14 Jul 2016 01:53:14 +0800
+Message-Id: <1468432402-4872-2-git-send-email-fu.wei@linaro.org>
+In-Reply-To: <1468432402-4872-1-git-send-email-fu.wei@linaro.org>
+References: <1468432402-4872-1-git-send-email-fu.wei@linaro.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
 From: Fu Wei <fu.wei@linaro.org>
 
-This patchset:
-    (1)Preparation for adding GTDT support in arm_arch_timer
-        1. Move some enums and marcos to header file
-        2. Add a new enum for spi type.
-        3. Improve printk relevant code
+To support the arm_arch_timer via ACPI we need to share defines and enums
+between the driver and the ACPI parser code.
 
-    (2)Introduce ACPI GTDT parser: drivers/acpi/gtdt.c
-    Parse all kinds of timer in GTDT table of ACPI:arch timer,
-    memory-mapped timer and SBSA Generic Watchdog timer.
-    This driver can help to simplify all the relevant timer drivers,
-    and separate all the ACPI GTDT knowledge from them.
-    Also add add the ARM64-specific ACPI Support maintainers in MAINTAINERS.
+Split out the relevant defines and enums into arm_arch_timer.h.
+No functional change.
 
-    (3)Simplify ACPI code for arm_arch_timer
+Signed-off-by: Fu Wei <fu.wei@linaro.org>
+---
+ drivers/clocksource/arm_arch_timer.c | 11 -----------
+ include/clocksource/arm_arch_timer.h | 11 +++++++++++
+ 2 files changed, 11 insertions(+), 11 deletions(-)
 
-    (4)Add GTDT support for ARM memory-mapped timer
-
-This patchset has been tested on the following platforms:
-    (1)ARM Foundation v8 model
-
-Changelog:
-v7: Move the GTDT driver to drivers/acpi/arm64
-    Add add the ARM64-specific ACPI Support maintainers in MAINTAINERS
-    Merge 3 patches of GTDT parser driver.
-    Fix the for_each_platform_timer bug.
-
-v6: https://lkml.org/lkml/2016/6/29/580
-    split the GTDT driver to 4 parts: basic, arch_timer, memory-mapped timer,
-    and SBSA Generic Watchdog timer
-    Improve driver by suggestions and example code from Daniel Lezcano
-
-v5: https://lkml.org/lkml/2016/5/24/356
-    Sorting out all patches, simplify the API of GTDT driver:
-    GTDT driver just fills the data struct for arm_arch_timer driver.
-
-v4: https://lists.linaro.org/pipermail/linaro-acpi/2016-March/006667.html
-    Delete the kvm relevant patches
-    Separate two patches for sorting out the code for arm_arch_timer.
-    Improve irq info export code to allow missing irq info in GTDT table.
-
-v3: https://lkml.org/lkml/2016/2/1/658
-    Improve GTDT driver code:
-      (1)improve pr_* by defining pr_fmt(fmt)
-      (2)simplify gtdt_sbsa_gwdt_init
-      (3)improve gtdt_arch_timer_data_init, if table is NULL, it will try
-      to get GTDT table.
-    Move enum ppi_nr to arm_arch_timer.h, and add enum spi_nr.
-    Add arm_arch_timer get ppi from DT and GTDT support for kvm.
-
-v2: https://lkml.org/lkml/2015/12/2/10
-    Rebase to latest kernel version(4.4-rc3).
-    Fix the bug about the config problem,
-    use CONFIG_ACPI_GTDT instead of CONFIG_ACPI in arm_arch_timer.c
-
-v1: The first upstreaming version: https://lkml.org/lkml/2015/10/28/553
-
-Fu Wei (9):
-  clocksource/drivers/arm_arch_timer: Move enums and defines to header
-    file
-  clocksource/drivers/arm_arch_timer: Add a new enum for spi type
-  clocksource/drivers/arm_arch_timer: Improve printk relevant code
-  acpi/arm64: Add GTDT table parse driver
-  MAINTAINERS / ACPI: add the ARM64-specific ACPI Support maintainers
-  clocksource/drivers/arm_arch_timer: Simplify ACPI support code.
-  acpi/arm64: Add memory-mapped timer support in GTDT driver
-  clocksource/drivers/arm_arch_timer: Add GTDT support for memory-mapped
-    timer
-  acpi/arm64: Add SBSA Generic Watchdog support in GTDT driver
-
- MAINTAINERS                          |   8 +
- drivers/acpi/Kconfig                 |   5 +
- drivers/acpi/Makefile                |   1 +
- drivers/acpi/arm64/Kconfig           |  15 ++
- drivers/acpi/arm64/Makefile          |   1 +
- drivers/acpi/arm64/acpi_gtdt.c       | 343 +++++++++++++++++++++++++++++++++++
- drivers/clocksource/Kconfig          |   1 +
- drivers/clocksource/arm_arch_timer.c | 228 ++++++++++++++++-------
- drivers/watchdog/Kconfig             |   1 +
- include/clocksource/arm_arch_timer.h |  32 ++++
- include/linux/acpi.h                 |   7 +
- 11 files changed, 575 insertions(+), 67 deletions(-)
- create mode 100644 drivers/acpi/arm64/Kconfig
- create mode 100644 drivers/acpi/arm64/Makefile
- create mode 100644 drivers/acpi/arm64/acpi_gtdt.c
-
+diff --git a/drivers/clocksource/arm_arch_timer.c b/drivers/clocksource/arm_arch_timer.c
+index 4814446..5d7272e 100644
+--- a/drivers/clocksource/arm_arch_timer.c
++++ b/drivers/clocksource/arm_arch_timer.c
+@@ -48,8 +48,6 @@
+ #define CNTV_TVAL	0x38
+ #define CNTV_CTL	0x3c
+ 
+-#define ARCH_CP15_TIMER	BIT(0)
+-#define ARCH_MEM_TIMER	BIT(1)
+ static unsigned arch_timers_present __initdata;
+ 
+ static void __iomem *arch_counter_base;
+@@ -62,15 +60,6 @@ struct arch_timer {
+ #define to_arch_timer(e) container_of(e, struct arch_timer, evt)
+ 
+ static u32 arch_timer_rate;
+-
+-enum ppi_nr {
+-	PHYS_SECURE_PPI,
+-	PHYS_NONSECURE_PPI,
+-	VIRT_PPI,
+-	HYP_PPI,
+-	MAX_TIMER_PPI
+-};
+-
+ static int arch_timer_ppi[MAX_TIMER_PPI];
+ 
+ static struct clock_event_device __percpu *arch_timer_evt;
+diff --git a/include/clocksource/arm_arch_timer.h b/include/clocksource/arm_arch_timer.h
+index caedb74..6f06481 100644
+--- a/include/clocksource/arm_arch_timer.h
++++ b/include/clocksource/arm_arch_timer.h
+@@ -19,6 +19,9 @@
+ #include <linux/timecounter.h>
+ #include <linux/types.h>
+ 
++#define ARCH_CP15_TIMER			BIT(0)
++#define ARCH_MEM_TIMER			BIT(1)
++
+ #define ARCH_TIMER_CTRL_ENABLE		(1 << 0)
+ #define ARCH_TIMER_CTRL_IT_MASK		(1 << 1)
+ #define ARCH_TIMER_CTRL_IT_STAT		(1 << 2)
+@@ -34,6 +37,14 @@ enum arch_timer_reg {
+ 	ARCH_TIMER_REG_TVAL,
+ };
+ 
++enum ppi_nr {
++	PHYS_SECURE_PPI,
++	PHYS_NONSECURE_PPI,
++	VIRT_PPI,
++	HYP_PPI,
++	MAX_TIMER_PPI
++};
++
+ #define ARCH_TIMER_PHYS_ACCESS		0
+ #define ARCH_TIMER_VIRT_ACCESS		1
+ #define ARCH_TIMER_MEM_PHYS_ACCESS	2
 -- 
 2.5.5
