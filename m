@@ -1,156 +1,80 @@
-Return-path: <fu.wei@linaro.org>
-From: fu.wei@linaro.org
-To: rjw@rjwysocki.net, lenb@kernel.org, daniel.lezcano@linaro.org,
-        tglx@linutronix.de, marc.zyngier@arm.com, lorenzo.pieralisi@arm.com,
-        sudeep.holla@arm.com, hanjun.guo@linaro.org
-Cc: linux-arm-kernel@lists.infradead.org, linaro-acpi@lists.linaro.org,
-        linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
-        rruigrok@codeaurora.org, harba@codeaurora.org, cov@codeaurora.org,
-        timur@codeaurora.org, graeme.gregory@linaro.org, al.stone@linaro.org,
-        jcm@redhat.com, wei@redhat.com, arnd@arndb.de, wim@iguana.be,
-        catalin.marinas@arm.com, will.deacon@arm.com,
-        Suravee.Suthikulpanit@amd.com, leo.duran@amd.com, linux@roeck-us.net,
-        linux-watchdog@vger.kernel.org, davem@davemloft.net,
-        akpm@linux-foundation.org, gregkh@linuxfoundation.org,
-        kvalo@codeaurora.org, mchehab@kernel.org, jslaby@suse.cz,
-        christoffer.dall@linaro.org, julien.grall@arm.com,
-        Fu Wei <fu.wei@linaro.org>
-Subject: [PATCH v7 9/9] acpi/arm64: Add SBSA Generic Watchdog support in GTDT driver
-Date: Thu, 14 Jul 2016 01:53:22 +0800
-Message-Id: <1468432402-4872-10-git-send-email-fu.wei@linaro.org>
-In-Reply-To: <1468432402-4872-1-git-send-email-fu.wei@linaro.org>
-References: <1468432402-4872-1-git-send-email-fu.wei@linaro.org>
+Return-path: <rjwysocki@gmail.com>
 MIME-Version: 1.0
+Sender: rjwysocki@gmail.com
+In-Reply-To: <1468432402-4872-6-git-send-email-fu.wei@linaro.org>
+References: <1468432402-4872-1-git-send-email-fu.wei@linaro.org> <1468432402-4872-6-git-send-email-fu.wei@linaro.org>
+From: "Rafael J. Wysocki" <rafael@kernel.org>
+Date: Wed, 13 Jul 2016 22:16:51 +0200
+Message-ID: <CAJZ5v0gut2uCFHa7hr8iKY4ioP4q17yo=gBxJEeZf5WvVNM7pQ@mail.gmail.com>
+Subject: Re: [PATCH v7 5/9] MAINTAINERS / ACPI: add the ARM64-specific ACPI
+ Support maintainers
+To: Hanjun Guo <hanjun.guo@linaro.org>, Fu Wei <fu.wei@linaro.org>
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>,
+	Daniel Lezcano <daniel.lezcano@linaro.org>, Thomas Gleixner <tglx@linutronix.de>,
+	Marc Zyngier <marc.zyngier@arm.com>, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+	Sudeep Holla <sudeep.holla@arm.com>,
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
+	"linaro-acpi@lists.linaro.org" <linaro-acpi@lists.linaro.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	ACPI Devel Maling List <linux-acpi@vger.kernel.org>, rruigrok@codeaurora.org, harba@codeaurora.org,
+	Christopher Covington <cov@codeaurora.org>, Timur Tabi <timur@codeaurora.org>,
+	G Gregory <graeme.gregory@linaro.org>, Al Stone <al.stone@linaro.org>,
+	Jon Masters <jcm@redhat.com>, wei@redhat.com, Arnd Bergmann <arnd@arndb.de>,
+	Wim Van Sebroeck <wim@iguana.be>, Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will.deacon@arm.com>, Suravee Suthikulanit <Suravee.Suthikulpanit@amd.com>,
+	Leo Duran <leo.duran@amd.com>, Guenter Roeck <linux@roeck-us.net>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>, David Miller <davem@davemloft.net>,
+	Andrew Morton <akpm@linux-foundation.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	kvalo@codeaurora.org, mchehab@kernel.org, Jiri Slaby <jslaby@suse.cz>,
+	christoffer.dall@linaro.org, julien.grall@arm.com
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
 List-ID: <linux-watchdog@vger.kernel.org>
 
-From: Fu Wei <fu.wei@linaro.org>
+On Wed, Jul 13, 2016 at 7:53 PM,  <fu.wei@linaro.org> wrote:
+> From: Fu Wei <fu.wei@linaro.org>
+>
+> This patch add the ARM64-specific ACPI Support maintainers in
+> MAINTAINERS, according to the discussion on mailing list:
+> https://lkml.org/lkml/2016/6/29/580
+> Lorenzo Pieralisi will submit the pull requsts.
+>
+> The maintainers are listed by the alphabet order of
+> their name.
+>
+> Signed-off-by: Fu Wei <fu.wei@linaro.org>
+> Signed-off-by: Hanjun Guo <hanjun.guo@linaro.org>
+> ---
+>  MAINTAINERS | 8 ++++++++
+>  1 file changed, 8 insertions(+)
+>
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index 1209323..1e03463 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -315,6 +315,14 @@ W: https://01.org/linux-acpi
+>  S:     Supported
+>  F:     drivers/acpi/fan.c
+>
+> +ACPI FOR ARM64 (ACPI/arm64)
+> +M:     Hanjun Guo <hanjun.guo@linaro.org>
+> +M:     Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+> +M:     Sudeep Holla <sudeep.holla@arm.com>
+> +L:     linux-acpi@vger.kernel.org
+> +S:     Supported
+> +F:     drivers/acpi/arm64
+> +
+>  ACPI THERMAL DRIVER
+>  M:     Zhang Rui <rui.zhang@intel.com>
+>  L:     linux-acpi@vger.kernel.org
+> --
 
-This driver adds support for parsing SBSA Generic Watchdog timer
-in GTDT, parse all info in SBSA Generic Watchdog Structure in GTDT,
-and creating a platform device with that information.
+This patch should not be part of your series.
 
-This allows the operating system to obtain device data from the
-resource of platform device. The platform device named "sbsa-gwdt"
-can be used by the ARM SBSA Generic Watchdog driver.
+I would prefer it if  Hanjun, Lorenzo or Sudeep sent it.
 
-Signed-off-by: Fu Wei <fu.wei@linaro.org>
-Signed-off-by: Hanjun Guo <hanjun.guo@linaro.org>
----
- drivers/acpi/arm64/acpi_gtdt.c | 83 ++++++++++++++++++++++++++++++++++++++++++
- drivers/watchdog/Kconfig       |  1 +
- 2 files changed, 84 insertions(+)
+Of course, it doesn't make much sense to send it before creating
+drivers/acpi/arm64/ and putting something in there, so it should be
+sent separately after the series has been merged.
 
-diff --git a/drivers/acpi/arm64/acpi_gtdt.c b/drivers/acpi/arm64/acpi_gtdt.c
-index ff62953..eb3edac 100644
---- a/drivers/acpi/arm64/acpi_gtdt.c
-+++ b/drivers/acpi/arm64/acpi_gtdt.c
-@@ -15,6 +15,7 @@
- #include <linux/init.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
-+#include <linux/platform_device.h>
- 
- #include <clocksource/arm_arch_timer.h>
- 
-@@ -258,3 +259,85 @@ int __init gtdt_arch_timer_mem_init(struct gt_block_data *data)
- 
- 	return index;
- }
-+
-+/*
-+ * Initialize a SBSA generic Watchdog platform device info from GTDT
-+ */
-+static int __init gtdt_import_sbsa_gwdt(void *platform_timer, int index)
-+{
-+	struct platform_device *pdev;
-+	struct acpi_gtdt_watchdog *wd = platform_timer;
-+	int irq = map_generic_timer_interrupt(wd->timer_interrupt,
-+					      wd->timer_flags);
-+	int no_irq = 1;
-+
-+	/*
-+	 * According to SBSA specification the size of refresh and control
-+	 * frames of SBSA Generic Watchdog is SZ_4K(Offset 0x000 – 0xFFF).
-+	 */
-+	struct resource res[] = {
-+		DEFINE_RES_MEM(wd->control_frame_address, SZ_4K),
-+		DEFINE_RES_MEM(wd->refresh_frame_address, SZ_4K),
-+		DEFINE_RES_IRQ(irq),
-+	};
-+
-+	pr_debug("a Watchdog GT(0x%llx/0x%llx gsi:%u flags:0x%x).\n",
-+		 wd->refresh_frame_address, wd->control_frame_address,
-+		 wd->timer_interrupt, wd->timer_flags);
-+
-+	if (!(wd->refresh_frame_address && wd->control_frame_address)) {
-+		pr_err(FW_BUG "failed getting the Watchdog GT frame addr.\n");
-+		return -EINVAL;
-+	}
-+
-+	if (!wd->timer_interrupt)
-+		pr_warn(FW_BUG "failed getting the Watchdog GT GSIV.\n");
-+	else if (irq <= 0)
-+		pr_warn("failed to map the Watchdog GT GSIV.\n");
-+	else
-+		no_irq = 0;
-+
-+	/*
-+	 * Add a platform device named "sbsa-gwdt" to match the platform driver.
-+	 * "sbsa-gwdt": SBSA(Server Base System Architecture) Generic Watchdog
-+	 * The platform driver (like drivers/watchdog/sbsa_gwdt.c)can get device
-+	 * info below by matching this name.
-+	 */
-+	pdev = platform_device_register_simple("sbsa-gwdt", index, res,
-+					       ARRAY_SIZE(res) - no_irq);
-+	if (IS_ERR(pdev)) {
-+		acpi_unregister_gsi(wd->timer_interrupt);
-+		return PTR_ERR(pdev);
-+	}
-+
-+	return 0;
-+}
-+
-+static int __init gtdt_sbsa_gwdt_init(void)
-+{
-+	struct acpi_table_header *table;
-+	void *platform_timer;
-+	int index = 0;
-+
-+	if (acpi_disabled)
-+		return 0;
-+
-+	if (ACPI_FAILURE(acpi_get_table(ACPI_SIG_GTDT, 0, &table)))
-+		return -EINVAL;
-+
-+	if (acpi_gtdt_desc_init(table) < 0)
-+		return -EINVAL;
-+
-+	for_each_platform_timer(platform_timer) {
-+		if (is_watchdog(platform_timer) &&
-+		    !gtdt_import_sbsa_gwdt(platform_timer, index))
-+			index++;
-+	}
-+
-+	if (index)
-+		pr_info("found %d SBSA generic Watchdog.\n", index);
-+
-+	return 0;
-+}
-+
-+device_initcall(gtdt_sbsa_gwdt_init);
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index b4b3e25..105f059 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -207,6 +207,7 @@ config ARM_SBSA_WATCHDOG
- 	depends on ARM64
- 	depends on ARM_ARCH_TIMER
- 	select WATCHDOG_CORE
-+	select ACPI_GTDT if ACPI
- 	help
- 	  ARM SBSA Generic Watchdog has two stage timeouts:
- 	  the first signal (WS0) is for alerting the system by interrupt,
--- 
-2.5.5
+Thanks,
+Rafael
