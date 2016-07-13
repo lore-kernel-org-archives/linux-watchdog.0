@@ -1,109 +1,111 @@
-Return-path: <ezequiel@vanguardiasur.com.ar>
-Date: Sun, 17 Jul 2016 19:13:02 -0300
-From: Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: dvhart@infradead.org, wim@iguana.be, linux-watchdog@vger.kernel.org
-Subject: Re: Can't query Intel's iTCO watchdog reboot reason
-Message-ID: <20160717221302.GA1111@laptop>
-References: <CAAEAJfAEKvLCk2gjj6MR00t-Yg_-XEG1qb0ij6jse=FV3ez5bw@mail.gmail.com>
- <578A6C71.8080705@roeck-us.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <578A6C71.8080705@roeck-us.net>
+Return-path: <fu.wei@linaro.org>
+From: fu.wei@linaro.org
+To: rjw@rjwysocki.net, lenb@kernel.org, daniel.lezcano@linaro.org,
+        tglx@linutronix.de, marc.zyngier@arm.com, lorenzo.pieralisi@arm.com,
+        sudeep.holla@arm.com, hanjun.guo@linaro.org
+Cc: linux-arm-kernel@lists.infradead.org, linaro-acpi@lists.linaro.org,
+        linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
+        rruigrok@codeaurora.org, harba@codeaurora.org, cov@codeaurora.org,
+        timur@codeaurora.org, graeme.gregory@linaro.org, al.stone@linaro.org,
+        jcm@redhat.com, wei@redhat.com, arnd@arndb.de, wim@iguana.be,
+        catalin.marinas@arm.com, will.deacon@arm.com,
+        Suravee.Suthikulpanit@amd.com, leo.duran@amd.com, linux@roeck-us.net,
+        linux-watchdog@vger.kernel.org, davem@davemloft.net,
+        akpm@linux-foundation.org, gregkh@linuxfoundation.org,
+        kvalo@codeaurora.org, mchehab@kernel.org, jslaby@suse.cz,
+        christoffer.dall@linaro.org, julien.grall@arm.com,
+        Fu Wei <fu.wei@linaro.org>
+Subject: [PATCH v7 0/9] acpi, clocksource: add GTDT driver and GTDT support in arm_arch_timer
+Date: Thu, 14 Jul 2016 01:53:13 +0800
+Message-Id: <1468432402-4872-1-git-send-email-fu.wei@linaro.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi Guenter,
+From: Fu Wei <fu.wei@linaro.org>
 
-Thanks a lot for the quick reply.
+This patchset:
+    (1)Preparation for adding GTDT support in arm_arch_timer
+        1. Move some enums and marcos to header file
+        2. Add a new enum for spi type.
+        3. Improve printk relevant code
 
-On 16 Jul 10:18 AM, Guenter Roeck wrote:
-> On 07/15/2016 04:21 PM, Ezequiel Garcia wrote:
-> > Hi everyone,
-> > 
-> > A large portion of my intel-based products are suffering from
-> > a nasty hardware freeze [1], and so I'm currently working this around
-> > enabling the iTCO watchdog -- which in any case, it's a good idea
-> > to have enabled.
-> > 
-> > So, it would be interesting to find out on each boot if the machine was
-> > rebooted due to a watchdog timeout, but so far I'm not having any luck.
-> > 
-> > As per Intel's appnote [2] the BIOS should update the WDDT ACPI table,
-> > so I added something like this to the iTCO driver:
-> > 
-> >         status = acpi_get_table(ACPI_SIG_WDDT, 1,
-> >                                 (struct acpi_table_header **) &buf);
-> >         if (ACPI_FAILURE(status) || buf->header.length < sizeof(*buf)) {
-> >                 pr_err(FW_BUG "failed to get WDDT ACPI table\n");
-> >                 return;
-> >         }
-> > 
-> > But it doesn't find the table. Strangely, reading TCO1_STS
-> > and TCO2_STS always gives 0x0.
-> > 
-> 
-> That sounds like either the BIOS resets those bits, or the reboots
-> are not caused by the watchdog. Are you sure that you see reboots
-> that are caused by the watchdog ?
-> 
+    (2)Introduce ACPI GTDT parser: drivers/acpi/gtdt.c
+    Parse all kinds of timer in GTDT table of ACPI:arch timer,
+    memory-mapped timer and SBSA Generic Watchdog timer.
+    This driver can help to simplify all the relevant timer drivers,
+    and separate all the ACPI GTDT knowledge from them.
+    Also add add the ARM64-specific ACPI Support maintainers in MAINTAINERS.
 
-Yes, I'm testing my patch forcing watchdog reboots. At least on my i5
-development machine, I haven't found any way of querying the reboot
-reason. I'm not even sure this is supposed to work.
+    (3)Simplify ACPI code for arm_arch_timer
 
-I'll see if I can test on other intel machines with TCO watchdogs.
+    (4)Add GTDT support for ARM memory-mapped timer
 
-FWIW, here's my (ugly) hack:
+This patchset has been tested on the following platforms:
+    (1)ARM Foundation v8 model
 
-diff --git a/drivers/watchdog/iTCO_wdt.c b/drivers/watchdog/iTCO_wdt.c
-index 0acc6c5f729d..0374f90b5050 100644
---- a/drivers/watchdog/iTCO_wdt.c
-+++ b/drivers/watchdog/iTCO_wdt.c
-@@ -421,12 +421,31 @@ static void iTCO_wdt_cleanup(void)
- 	iTCO_wdt_private.gcs_pmc = NULL;
- }
- 
-+static void iTCO_check_table(void)
-+{
-+	struct acpi_table_wddt *buf;
-+	acpi_status status;
-+	u16 wdt_status;
-+
-+	status = acpi_get_table(ACPI_SIG_WDDT, 1,
-+				(struct acpi_table_header **) &buf);
-+	if (ACPI_FAILURE(status) || buf->header.length < sizeof(*buf)) {
-+		pr_err(FW_BUG "failed to get WDDT ACPI table\n");
-+		return;
-+	}
-+
-+	wdt_status = buf->status;
-+	pr_err("ACPI watchdog status: 0x%x\n", wdt_status);
-+}
-+
- static int iTCO_wdt_probe(struct platform_device *dev)
- {
- 	int ret = -ENODEV;
- 	unsigned long val32;
- 	struct itco_wdt_platform_data *pdata = dev_get_platdata(&dev->dev);
- 
-+	iTCO_check_table();
-+
- 	if (!pdata)
- 		goto out;
- 
-@@ -510,6 +529,9 @@ static int iTCO_wdt_probe(struct platform_device *dev)
- 	pr_info("Found a %s TCO device (Version=%d, TCOBASE=0x%04llx)\n",
- 		pdata->name, pdata->version, (u64)TCOBASE);
- 
-+	pr_info("TCO1 status 0x%x\n", inw(TCO1_STS));
-+	pr_info("TCO2 status 0x%x\n", inw(TCO2_STS));
-+
- 	/* Clear out the (probably old) status */
- 	switch (iTCO_wdt_private.iTCO_version) {
- 	case 4:
+Changelog:
+v7: Move the GTDT driver to drivers/acpi/arm64
+    Add add the ARM64-specific ACPI Support maintainers in MAINTAINERS
+    Merge 3 patches of GTDT parser driver.
+    Fix the for_each_platform_timer bug.
 
-Thanks,
+v6: https://lkml.org/lkml/2016/6/29/580
+    split the GTDT driver to 4 parts: basic, arch_timer, memory-mapped timer,
+    and SBSA Generic Watchdog timer
+    Improve driver by suggestions and example code from Daniel Lezcano
+
+v5: https://lkml.org/lkml/2016/5/24/356
+    Sorting out all patches, simplify the API of GTDT driver:
+    GTDT driver just fills the data struct for arm_arch_timer driver.
+
+v4: https://lists.linaro.org/pipermail/linaro-acpi/2016-March/006667.html
+    Delete the kvm relevant patches
+    Separate two patches for sorting out the code for arm_arch_timer.
+    Improve irq info export code to allow missing irq info in GTDT table.
+
+v3: https://lkml.org/lkml/2016/2/1/658
+    Improve GTDT driver code:
+      (1)improve pr_* by defining pr_fmt(fmt)
+      (2)simplify gtdt_sbsa_gwdt_init
+      (3)improve gtdt_arch_timer_data_init, if table is NULL, it will try
+      to get GTDT table.
+    Move enum ppi_nr to arm_arch_timer.h, and add enum spi_nr.
+    Add arm_arch_timer get ppi from DT and GTDT support for kvm.
+
+v2: https://lkml.org/lkml/2015/12/2/10
+    Rebase to latest kernel version(4.4-rc3).
+    Fix the bug about the config problem,
+    use CONFIG_ACPI_GTDT instead of CONFIG_ACPI in arm_arch_timer.c
+
+v1: The first upstreaming version: https://lkml.org/lkml/2015/10/28/553
+
+Fu Wei (9):
+  clocksource/drivers/arm_arch_timer: Move enums and defines to header
+    file
+  clocksource/drivers/arm_arch_timer: Add a new enum for spi type
+  clocksource/drivers/arm_arch_timer: Improve printk relevant code
+  acpi/arm64: Add GTDT table parse driver
+  MAINTAINERS / ACPI: add the ARM64-specific ACPI Support maintainers
+  clocksource/drivers/arm_arch_timer: Simplify ACPI support code.
+  acpi/arm64: Add memory-mapped timer support in GTDT driver
+  clocksource/drivers/arm_arch_timer: Add GTDT support for memory-mapped
+    timer
+  acpi/arm64: Add SBSA Generic Watchdog support in GTDT driver
+
+ MAINTAINERS                          |   8 +
+ drivers/acpi/Kconfig                 |   5 +
+ drivers/acpi/Makefile                |   1 +
+ drivers/acpi/arm64/Kconfig           |  15 ++
+ drivers/acpi/arm64/Makefile          |   1 +
+ drivers/acpi/arm64/acpi_gtdt.c       | 343 +++++++++++++++++++++++++++++++++++
+ drivers/clocksource/Kconfig          |   1 +
+ drivers/clocksource/arm_arch_timer.c | 228 ++++++++++++++++-------
+ drivers/watchdog/Kconfig             |   1 +
+ include/clocksource/arm_arch_timer.h |  32 ++++
+ include/linux/acpi.h                 |   7 +
+ 11 files changed, 575 insertions(+), 67 deletions(-)
+ create mode 100644 drivers/acpi/arm64/Kconfig
+ create mode 100644 drivers/acpi/arm64/Makefile
+ create mode 100644 drivers/acpi/arm64/acpi_gtdt.c
+
 -- 
-Ezequiel Garcia, VanguardiaSur
-www.vanguardiasur.com.ar
+2.5.5
