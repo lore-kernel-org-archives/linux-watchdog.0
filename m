@@ -15,80 +15,52 @@ Cc: linux-arm-kernel@lists.infradead.org, linaro-acpi@lists.linaro.org,
         kvalo@codeaurora.org, mchehab@kernel.org, jslaby@suse.cz,
         christoffer.dall@linaro.org, julien.grall@arm.com,
         Fu Wei <fu.wei@linaro.org>
-Subject: [PATCH v7 1/9] clocksource/drivers/arm_arch_timer: Move enums and defines to header file
-Date: Thu, 14 Jul 2016 01:53:14 +0800
-Message-Id: <1468432402-4872-2-git-send-email-fu.wei@linaro.org>
+Subject: [PATCH v7 2/9] clocksource/drivers/arm_arch_timer: Add a new enum for spi type
+Date: Thu, 14 Jul 2016 01:53:15 +0800
+Message-Id: <1468432402-4872-3-git-send-email-fu.wei@linaro.org>
 In-Reply-To: <1468432402-4872-1-git-send-email-fu.wei@linaro.org>
 References: <1468432402-4872-1-git-send-email-fu.wei@linaro.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
 From: Fu Wei <fu.wei@linaro.org>
 
-To support the arm_arch_timer via ACPI we need to share defines and enums
-between the driver and the ACPI parser code.
-
-Split out the relevant defines and enums into arm_arch_timer.h.
-No functional change.
+This patch add a new enum "spi_nr" and use it in the driver.
+Just for code's readability, no functional change.
 
 Signed-off-by: Fu Wei <fu.wei@linaro.org>
 ---
- drivers/clocksource/arm_arch_timer.c | 11 -----------
- include/clocksource/arm_arch_timer.h | 11 +++++++++++
- 2 files changed, 11 insertions(+), 11 deletions(-)
+ drivers/clocksource/arm_arch_timer.c | 4 ++--
+ include/clocksource/arm_arch_timer.h | 6 ++++++
+ 2 files changed, 8 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/clocksource/arm_arch_timer.c b/drivers/clocksource/arm_arch_timer.c
-index 4814446..5d7272e 100644
+index 5d7272e..966c574 100644
 --- a/drivers/clocksource/arm_arch_timer.c
 +++ b/drivers/clocksource/arm_arch_timer.c
-@@ -48,8 +48,6 @@
- #define CNTV_TVAL	0x38
- #define CNTV_CTL	0x3c
+@@ -826,9 +826,9 @@ static void __init arch_timer_mem_init(struct device_node *np)
+ 	}
  
--#define ARCH_CP15_TIMER	BIT(0)
--#define ARCH_MEM_TIMER	BIT(1)
- static unsigned arch_timers_present __initdata;
+ 	if (arch_timer_mem_use_virtual)
+-		irq = irq_of_parse_and_map(best_frame, 1);
++		irq = irq_of_parse_and_map(best_frame, VIRT_SPI);
+ 	else
+-		irq = irq_of_parse_and_map(best_frame, 0);
++		irq = irq_of_parse_and_map(best_frame, PHYS_SPI);
  
- static void __iomem *arch_counter_base;
-@@ -62,15 +60,6 @@ struct arch_timer {
- #define to_arch_timer(e) container_of(e, struct arch_timer, evt)
- 
- static u32 arch_timer_rate;
--
--enum ppi_nr {
--	PHYS_SECURE_PPI,
--	PHYS_NONSECURE_PPI,
--	VIRT_PPI,
--	HYP_PPI,
--	MAX_TIMER_PPI
--};
--
- static int arch_timer_ppi[MAX_TIMER_PPI];
- 
- static struct clock_event_device __percpu *arch_timer_evt;
+ 	if (!irq) {
+ 		pr_err("arch_timer: Frame missing %s irq",
 diff --git a/include/clocksource/arm_arch_timer.h b/include/clocksource/arm_arch_timer.h
-index caedb74..6f06481 100644
+index 6f06481..16dcd10 100644
 --- a/include/clocksource/arm_arch_timer.h
 +++ b/include/clocksource/arm_arch_timer.h
-@@ -19,6 +19,9 @@
- #include <linux/timecounter.h>
- #include <linux/types.h>
- 
-+#define ARCH_CP15_TIMER			BIT(0)
-+#define ARCH_MEM_TIMER			BIT(1)
-+
- #define ARCH_TIMER_CTRL_ENABLE		(1 << 0)
- #define ARCH_TIMER_CTRL_IT_MASK		(1 << 1)
- #define ARCH_TIMER_CTRL_IT_STAT		(1 << 2)
-@@ -34,6 +37,14 @@ enum arch_timer_reg {
- 	ARCH_TIMER_REG_TVAL,
+@@ -45,6 +45,12 @@ enum ppi_nr {
+ 	MAX_TIMER_PPI
  };
  
-+enum ppi_nr {
-+	PHYS_SECURE_PPI,
-+	PHYS_NONSECURE_PPI,
-+	VIRT_PPI,
-+	HYP_PPI,
-+	MAX_TIMER_PPI
++enum spi_nr {
++	PHYS_SPI,
++	VIRT_SPI,
++	MAX_TIMER_SPI
 +};
 +
  #define ARCH_TIMER_PHYS_ACCESS		0
