@@ -1,45 +1,63 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
 Received: from mail02.prevas.se ([62.95.78.10]:24597 "EHLO mail02.prevas.se"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750957AbcGNJ03 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 14 Jul 2016 05:26:29 -0400
+	id S1751071AbcGNJ0d (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 14 Jul 2016 05:26:33 -0400
 From: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
-To: <linux-watchdog@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-CC: Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
+To: Wim Van Sebroeck <wim@iguana.be>,
 	Guenter Roeck <linux@roeck-us.net>
-Subject: [RFC 0/3] watchdog: introduce open deadline
-Date: Thu, 14 Jul 2016 11:16:25 +0200
-Message-ID: <1468487788-22457-1-git-send-email-rasmus.villemoes@prevas.dk>
+CC: Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
+	<linux-watchdog@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Subject: [RFC 2/3] watchdog: introduce watchdog_worker_should_ping helper
+Date: Thu, 14 Jul 2016 11:16:27 +0200
+Message-ID: <1468487788-22457-3-git-send-email-rasmus.villemoes@prevas.dk>
+In-Reply-To: <1468487788-22457-1-git-send-email-rasmus.villemoes@prevas.dk>
+References: <1468487788-22457-1-git-send-email-rasmus.villemoes@prevas.dk>
 MIME-Version: 1.0
 Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-If a watchdog driver tells the framework that the device is running,
-the framework takes care of feeding the watchdog until userspace opens
-the device. If the userspace application which is supposed to do that
-never comes up properly, the watchdog is fed indefinitely by the
-kernel. This can be especially problematic for embedded devices.
+This will be useful when the condition becomes slightly more
+complicated in the next patch.
 
-These patches allow one to set a maximum time for which the kernel
-will feed the watchdog, thus ensuring that either userspace has come
-up, or the board gets reset. This allows fallback logic in the
-bootloader to attempt some recovery (for example, if an automatic
-update is in progress, it could roll back to the previous version).
+Signed-off-by: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+---
+ drivers/watchdog/watchdog_dev.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-The patches have been tested on a Raspberry Pi 2 (with a suitably
-modified driver for setting WDOG_HW_RUNNING - patches will be
-submitted seperately) and a Wandboard.
-
-Rasmus Villemoes (3):
-  watchdog: change watchdog_need_worker logic
-  watchdog: introduce watchdog_worker_should_ping helper
-  watchdog: introduce CONFIG_WATCHDOG_OPEN_DEADLINE
-
- drivers/watchdog/Kconfig        | 21 +++++++++++++++
- drivers/watchdog/watchdog_dev.c | 60 ++++++++++++++++++++++++++++++++++++-----
- 2 files changed, 74 insertions(+), 7 deletions(-)
-
+diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
+index 14f8a92..da549e5 100644
+--- a/drivers/watchdog/watchdog_dev.c
++++ b/drivers/watchdog/watchdog_dev.c
+@@ -188,18 +188,23 @@ static int watchdog_ping(struct watchdog_device *wdd)
+ 	return __watchdog_ping(wdd);
+ }
+ 
++static bool watchdog_worker_should_ping(struct watchdog_core_data *wd_data)
++{
++	struct watchdog_device *wdd = wd_data->wdd;
++
++	return wdd && (watchdog_active(wdd) || watchdog_hw_running(wdd));
++}
++
+ static void watchdog_ping_work(struct work_struct *work)
+ {
+ 	struct watchdog_core_data *wd_data;
+-	struct watchdog_device *wdd;
+ 
+ 	wd_data = container_of(to_delayed_work(work), struct watchdog_core_data,
+ 			       work);
+ 
+ 	mutex_lock(&wd_data->lock);
+-	wdd = wd_data->wdd;
+-	if (wdd && (watchdog_active(wdd) || watchdog_hw_running(wdd)))
+-		__watchdog_ping(wdd);
++	if (watchdog_worker_should_ping(wd_data))
++		__watchdog_ping(wd_data->wdd);
+ 	mutex_unlock(&wd_data->lock);
+ }
+ 
 -- 
 2.5.0
 
