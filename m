@@ -1,106 +1,86 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:53464 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751262AbcGNUp3 (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 14 Jul 2016 16:45:29 -0400
-Date: Thu, 14 Jul 2016 13:45:26 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [RFC 1/3] watchdog: change watchdog_need_worker logic
-Message-ID: <20160714204526.GA13933@roeck-us.net>
+Return-path: <prvs=997fd3939=Rasmus.Villemoes@prevas.dk>
+Subject: Re: [RFC 3/3] watchdog: introduce CONFIG_WATCHDOG_OPEN_DEADLINE
+To: Guenter Roeck <linux@roeck-us.net>, Wim Van Sebroeck <wim@iguana.be>
 References: <1468487788-22457-1-git-send-email-rasmus.villemoes@prevas.dk>
- <1468487788-22457-2-git-send-email-rasmus.villemoes@prevas.dk>
+ <1468487788-22457-4-git-send-email-rasmus.villemoes@prevas.dk>
+ <5787A4E9.30905@roeck-us.net>
+CC: <linux-watchdog@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+From: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+Message-ID: <578891AB.3070501@prevas.dk>
+Date: Fri, 15 Jul 2016 09:32:59 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1468487788-22457-2-git-send-email-rasmus.villemoes@prevas.dk>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+In-Reply-To: <5787A4E9.30905@roeck-us.net>
+Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Transfer-Encoding: 7bit
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On Thu, Jul 14, 2016 at 11:16:26AM +0200, Rasmus Villemoes wrote:
-> If the driver indicates that the watchdog is running, the framework
-> should feed it until userspace opens the device, regardless of whether
-> the driver has set max_hw_heartbeat_ms.
-> 
-> This patch only affects the case where wdd->max_hw_heartbeat_ms is
-> zero, wdd->timeout is non-zero, the watchdog is not active and the
-> hardware device is running (*):
-> 
-> - If wdd->timeout is zero, watchdog_need_worker() returns false both
-> before and after this patch, and watchdog_next_keepalive() is not
-> called.
-> 
-> - If watchdog_active(wdd), the return value from watchdog_need_worker
-> is also the same as before (namely, hm && t > hm). Hence in that case,
-> watchdog_next_keepalive() is only called if hm == max_hw_heartbeat_ms
-> is non-zero, so the change to min_not_zero there is a no-op.
-> 
-> - If the watchdog is not active and the device is not running, we
-> return false from watchdog_need_worker just as before.
-> 
-> That leaves the watchdog_hw_running(wdd) && !watchdog_active(wdd) &&
-> wdd->timeout case. Again, it's easy to see that if
-> wdd->max_hw_heartbeat_ms is non-zero, we return true from
-> watchdog_need_worker with and without this patch, and the logic in
-> watchdog_next_keepalive is unchanged. Finally, if
-> wdd->max_hw_heartbeat_ms is 0, we used to end up in the
-> cancel_delayed_work branch, whereas with this patch we end up
-> scheduling a ping timeout_ms/2 from now.
-> 
-> (*) This should imply that no current kernel drivers are affected,
-> since the only drivers which explicitly set WDOG_HW_RUNNING are
-> imx2_wdt.c and dw_wdt.c, both of which also provide a non-zero value
-> for max_hw_heartbeat_ms. The watchdog core also sets WDOG_HW_RUNNING,
-> but only when the driver doesn't provide ->stop, in which case it
-> must, according to Documentation/watchdog/watchdog-kernel-api.txt, set
-> max_hw_heartbeat_ms.
-> 
-> Signed-off-by: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+On 2016-07-14 16:42, Guenter Roeck wrote:
+> On 07/14/2016 02:16 AM, Rasmus Villemoes wrote:
+>>
+>> +config WATCHDOG_OPEN_DEADLINE
+>> +    bool "Allow deadline for opening watchdog device"
+>> +    help
+>> +      If a watchdog driver indicates that to the framework that
+>> +      the hardware watchdog is running, the framework takes care
+>> +      of pinging the watchdog until userspace opens
+>> +      /dev/watchdogN. By selecting this option, you can set a
+>> +      maximum time for which the kernel will do this after the
+>> +      device has been registered.
+>> +
+>> +config WATCHDOG_OPEN_TIMEOUT
+>> +    int "Timeout value for opening watchdog device"
+>> +    depends on WATCHDOG_OPEN_DEADLINE
+>> +    default 120000
+>> +    help
+>> +      The maximum time, in milliseconds, for which the watchdog
+>> +      framework takes care of pinging a watchdog device. A value
+>> +      of 0 means infinite. The value set here can be overridden by
+>> +      the commandline parameter "watchdog.open_timeout" or through
+>> +      sysfs.
+>> +
+>
+> I like the basic idea, and we always thought about implementing it,
+> though as "initial timeout" (I personally preferred that term).
 
-LGTM.
+I also used WATCHDOG_INIT_TIMEOUT in my first few drafts, and my helper 
+watchdog_set_open_deadline was called watchdog_set_init_timeout. But 
+then I stumbled on watchdog_init_timeout in watchdog_core.c, and thought 
+that might end up being quite confusing. I think having 'open' part of 
+the name is quite natural, but I don't really have strong feelings about 
+the naming of this thing.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+> However, implementing it as configuration option diminishes its
+> value substantially, since it means that using it in multi-platform
+> images (such as multi_v7_defconfig) becomes impossible.
 
-> ---
->  drivers/watchdog/watchdog_dev.c | 10 +++++++---
->  1 file changed, 7 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-> index 3595cff..14f8a92 100644
-> --- a/drivers/watchdog/watchdog_dev.c
-> +++ b/drivers/watchdog/watchdog_dev.c
-> @@ -92,9 +92,13 @@ static inline bool watchdog_need_worker(struct watchdog_device *wdd)
->  	 *   thus is aware that the framework supports generating heartbeat
->  	 *   requests.
->  	 * - Userspace requests a longer timeout than the hardware can handle.
-> +	 *
-> +	 * Alternatively, if userspace has not opened the watchdog
-> +	 * device, we take care of feeding the watchdog if it is
-> +	 * running.
->  	 */
-> -	return hm && ((watchdog_active(wdd) && t > hm) ||
-> -		      (t && !watchdog_active(wdd) && watchdog_hw_running(wdd)));
-> +	return (hm && watchdog_active(wdd) && t > hm) ||
-> +		(t && !watchdog_active(wdd) && watchdog_hw_running(wdd));
->  }
->  
->  static long watchdog_next_keepalive(struct watchdog_device *wdd)
-> @@ -107,7 +111,7 @@ static long watchdog_next_keepalive(struct watchdog_device *wdd)
->  	unsigned int hw_heartbeat_ms;
->  
->  	virt_timeout = wd_data->last_keepalive + msecs_to_jiffies(timeout_ms);
-> -	hw_heartbeat_ms = min(timeout_ms, wdd->max_hw_heartbeat_ms);
-> +	hw_heartbeat_ms = min_not_zero(timeout_ms, wdd->max_hw_heartbeat_ms);
->  	keepalive_interval = msecs_to_jiffies(hw_heartbeat_ms / 2);
->  
->  	if (!watchdog_active(wdd))
-> -- 
-> 2.5.0
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+If one wants to allow this feature in an existing _defconfig, one can 
+set OPEN_DEADLINE=y and OPEN_TIMEOUT=0; we could change the default for 
+the latter to that. (I thought about just having that single config 
+option with a default of 0, but it wasn't much more code to allow this 
+thing to be compiled out completely.) Platforms without a running 
+watchdog won't be affected, and for those with, having a non-zero 
+deadline requires opt-in anyway.
+
+> The initial timeout should be specified as module option or as
+> devicetree parameter, and there should be no additional configuration
+> option.
+
+I was under the impression that device tree was exclusively for 
+describing hardware, and this certainly is not that. I also wanted to 
+avoid having to modify each driver, which would seem to be necessary if 
+it was module parameter/DT - the only thing required of a driver now is 
+that it correctly reports WDOG_HW_RUNNING.
+
+Regardless of implementation, it's not something that any "distro" 
+kernel is going to enable (with non-zero deadline), so to use it will 
+require some customization - which could be a .config tweak, passing a 
+command line parameter, a custom dtb, and probably other options. ISTM 
+that the first two are the most generic and require the least repeated 
+work across platforms.
+
+> Where does the module parameter in watchdog_dev.c end up ?
+
+# cat /sys/module/watchdog/parameters/open_timeout
+120000
+
+Rasmus
