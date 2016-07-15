@@ -1,29 +1,30 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-oi0-f44.google.com ([209.85.218.44]:34574 "EHLO
-	mail-oi0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751310AbcGOBCt (ORCPT
+Received: from mail-oi0-f54.google.com ([209.85.218.54]:33362 "EHLO
+	mail-oi0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751196AbcGOQNQ (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 14 Jul 2016 21:02:49 -0400
-Received: by mail-oi0-f44.google.com with SMTP id l65so56658301oib.1
-        for <linux-watchdog@vger.kernel.org>; Thu, 14 Jul 2016 18:02:49 -0700 (PDT)
+	Fri, 15 Jul 2016 12:13:16 -0400
+Received: by mail-oi0-f54.google.com with SMTP id j185so163510727oih.0
+        for <linux-watchdog@vger.kernel.org>; Fri, 15 Jul 2016 09:13:16 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <CAJZ5v0gut2uCFHa7hr8iKY4ioP4q17yo=gBxJEeZf5WvVNM7pQ@mail.gmail.com>
+In-Reply-To: <4581163.sAHfC1UEjl@vostro.rjw.lan>
 References: <1468432402-4872-1-git-send-email-fu.wei@linaro.org>
- <1468432402-4872-6-git-send-email-fu.wei@linaro.org> <CAJZ5v0gut2uCFHa7hr8iKY4ioP4q17yo=gBxJEeZf5WvVNM7pQ@mail.gmail.com>
+ <CAJZ5v0jnNqjpcY1CGkHxbJFwX1MuRi-U=jTCKWavMdEH4bKR3g@mail.gmail.com>
+ <CADyBb7sGWizLDy3LtpGpJ9jkchyWHZ2oPfsg6fE1ZE54gn05FA@mail.gmail.com> <4581163.sAHfC1UEjl@vostro.rjw.lan>
 From: Fu Wei <fu.wei@linaro.org>
-Date: Fri, 15 Jul 2016 09:02:48 +0800
-Message-ID: <CADyBb7sU738DmTrEA-xgpqcWbMJ+ebkzJnPQJH22a7TF9pRJTw@mail.gmail.com>
-Subject: Re: [PATCH v7 5/9] MAINTAINERS / ACPI: add the ARM64-specific ACPI
- Support maintainers
-To: "Rafael J. Wysocki" <rafael@kernel.org>
-Cc: Hanjun Guo <hanjun.guo@linaro.org>,
-	"Rafael J. Wysocki" <rjw@rjwysocki.net>,
+Date: Sat, 16 Jul 2016 00:13:14 +0800
+Message-ID: <CADyBb7vziYMcAfk5TNOHoBCxi58jJypcTV_o2U75cLS-SRtEJQ@mail.gmail.com>
+Subject: Re: [PATCH v7 4/9] acpi/arm64: Add GTDT table parse driver
+To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>,
+	Guenter Roeck <linux@roeck-us.net>,
 	Len Brown <lenb@kernel.org>,
 	Daniel Lezcano <daniel.lezcano@linaro.org>,
 	Thomas Gleixner <tglx@linutronix.de>,
 	Marc Zyngier <marc.zyngier@arm.com>,
 	Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
 	Sudeep Holla <sudeep.holla@arm.com>,
+	Hanjun Guo <hanjun.guo@linaro.org>,
 	"linux-arm-kernel@lists.infradead.org"
 	<linux-arm-kernel@lists.infradead.org>,
 	"linaro-acpi@lists.linaro.org" <linaro-acpi@lists.linaro.org>,
@@ -40,13 +41,13 @@ Cc: Hanjun Guo <hanjun.guo@linaro.org>,
 	Will Deacon <will.deacon@arm.com>,
 	Suravee Suthikulanit <Suravee.Suthikulpanit@amd.com>,
 	Leo Duran <leo.duran@amd.com>,
-	Guenter Roeck <linux@roeck-us.net>,
 	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
 	David Miller <davem@davemloft.net>,
 	Andrew Morton <akpm@linux-foundation.org>,
 	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
 	kvalo@codeaurora.org, mchehab@kernel.org,
-	Jiri Slaby <jslaby@suse.cz>, christoffer.dall@linaro.org,
+	Jiri Slaby <jslaby@suse.cz>,
+	Christoffer Dall <christoffer.dall@linaro.org>,
 	Julien Grall <julien.grall@arm.com>
 Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -54,61 +55,141 @@ List-Id: linux-watchdog@vger.kernel.org
 
 Hi Rafael,
 
-On 14 July 2016 at 04:16, Rafael J. Wysocki <rafael@kernel.org> wrote:
-> On Wed, Jul 13, 2016 at 7:53 PM,  <fu.wei@linaro.org> wrote:
->> From: Fu Wei <fu.wei@linaro.org>
+On 15 July 2016 at 20:11, Rafael J. Wysocki <rjw@rjwysocki.net> wrote:
+> On Friday, July 15, 2016 03:45:05 PM Fu Wei wrote:
+>> Hi Rafael,
 >>
->> This patch add the ARM64-specific ACPI Support maintainers in
->> MAINTAINERS, according to the discussion on mailing list:
->> https://lkml.org/lkml/2016/6/29/580
->> Lorenzo Pieralisi will submit the pull requsts.
 >>
->> The maintainers are listed by the alphabet order of
->> their name.
+>> On 14 July 2016 at 05:43, Rafael J. Wysocki <rafael@kernel.org> wrote:
+>> > On Wed, Jul 13, 2016 at 11:08 PM, Guenter Roeck <linux@roeck-us.net> wrote:
+>> >> On Wed, Jul 13, 2016 at 10:30:37PM +0200, Rafael J. Wysocki wrote:
+>> >>> On Wed, Jul 13, 2016 at 7:53 PM,  <fu.wei@linaro.org> wrote:
+>> >>> > From: Fu Wei <fu.wei@linaro.org>
+>> >>> >
+>> >>> > This patch adds support for parsing arch timer in GTDT,
+>> >>> > provides some kernel APIs to parse all the PPIs and
+>> >>> > always-on info in GTDT and export them.
+>> >>> >
+>> >>> > By this driver, we can simplify arm_arch_timer drivers, and
+>> >>> > separate the ACPI GTDT knowledge from it.
+>> >>> >
+>> >>> > Signed-off-by: Fu Wei <fu.wei@linaro.org>
+>> >>> > Signed-off-by: Hanjun Guo <hanjun.guo@linaro.org>
+>> >>> > ---
+>> >>> >  drivers/acpi/Kconfig           |   5 ++
+>> >>> >  drivers/acpi/Makefile          |   1 +
+>> >>> >  drivers/acpi/arm64/Kconfig     |  15 ++++
+>> >>> >  drivers/acpi/arm64/Makefile    |   1 +
+>> >>> >  drivers/acpi/arm64/acpi_gtdt.c | 170 +++++++++++++++++++++++++++++++++++++++++
+>> >>> >  include/linux/acpi.h           |   6 ++
+>> >>> >  6 files changed, 198 insertions(+)
+>> >>> >
+>> >>> > diff --git a/drivers/acpi/Kconfig b/drivers/acpi/Kconfig
+>> >>> > index b7e2e77..1cdc7d2 100644
+>> >>> > --- a/drivers/acpi/Kconfig
+>> >>> > +++ b/drivers/acpi/Kconfig
+>> >>> > @@ -521,4 +521,9 @@ config XPOWER_PMIC_OPREGION
+>> >>> >
+>> >>> >  endif
+>> >>> >
+>> >>> > +if ARM64
+>> >>> > +source "drivers/acpi/arm64/Kconfig"
+>> >>> > +
+>> >>> > +endif
+>> >>> > +
+>> >>> >  endif  # ACPI
+>> >>> > diff --git a/drivers/acpi/Makefile b/drivers/acpi/Makefile
+>> >>> > index 251ce85..1a94ff7 100644
+>> >>> > --- a/drivers/acpi/Makefile
+>> >>> > +++ b/drivers/acpi/Makefile
+>> >>> > @@ -99,5 +99,6 @@ obj-$(CONFIG_ACPI_EXTLOG)     += acpi_extlog.o
+>> >>> >  obj-$(CONFIG_PMIC_OPREGION)    += pmic/intel_pmic.o
+>> >>> >  obj-$(CONFIG_CRC_PMIC_OPREGION) += pmic/intel_pmic_crc.o
+>> >>> >  obj-$(CONFIG_XPOWER_PMIC_OPREGION) += pmic/intel_pmic_xpower.o
+>> >>> > +obj-$(CONFIG_ARM64)    += arm64/
+>> >>> >
+>> >>> >  video-objs                     += acpi_video.o video_detect.o
+>> >>> > diff --git a/drivers/acpi/arm64/Kconfig b/drivers/acpi/arm64/Kconfig
+>> >>> > new file mode 100644
+>> >>> > index 0000000..ff5c253
+>> >>> > --- /dev/null
+>> >>> > +++ b/drivers/acpi/arm64/Kconfig
+>> >>> > @@ -0,0 +1,15 @@
+>> >>> > +#
+>> >>> > +# ACPI Configuration for ARM64
+>> >>> > +#
+>> >>> > +
+>> >>> > +menu "The ARM64-specific ACPI Support"
+>> >>> > +
+>> >>> > +config ACPI_GTDT
+>> >>> > +       bool "ACPI GTDT table Support"
+>> >>>
+>> >>> This should depend on ARM64.
+>> >>>
+>> >>> Also I wonder if it needs to be user-selectable?  Wouldn't it be
+>> >>> better to enable it by default when building for ARM64 with ACPI?
+>> >>>
+>> >> It is currently selected in patch 9, in the watchdog driver's Kconfig
+>> >> entry.
+>> >
+>> > Well, it still doesn't have to be user-selectable for that. :-)
 >>
->> Signed-off-by: Fu Wei <fu.wei@linaro.org>
->> Signed-off-by: Hanjun Guo <hanjun.guo@linaro.org>
->> ---
->>  MAINTAINERS | 8 ++++++++
->>  1 file changed, 8 insertions(+)
->>
->> diff --git a/MAINTAINERS b/MAINTAINERS
->> index 1209323..1e03463 100644
->> --- a/MAINTAINERS
->> +++ b/MAINTAINERS
->> @@ -315,6 +315,14 @@ W: https://01.org/linux-acpi
->>  S:     Supported
->>  F:     drivers/acpi/fan.c
->>
->> +ACPI FOR ARM64 (ACPI/arm64)
->> +M:     Hanjun Guo <hanjun.guo@linaro.org>
->> +M:     Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
->> +M:     Sudeep Holla <sudeep.holla@arm.com>
->> +L:     linux-acpi@vger.kernel.org
->> +S:     Supported
->> +F:     drivers/acpi/arm64
->> +
->>  ACPI THERMAL DRIVER
->>  M:     Zhang Rui <rui.zhang@intel.com>
->>  L:     linux-acpi@vger.kernel.org
->> --
+>> Actually it is also automatically selected by [PATCH v7 6/9]:
 >
-> This patch should not be part of your series.
+> Right.
 >
-> I would prefer it if  Hanjun, Lorenzo or Sudeep sent it.
-
-Sorry for that, This won't be in my patchset next time.
-
+> By user-selectable I mean "showing up in a Kconfig configurator tool".
 >
-> Of course, it doesn't make much sense to send it before creating
-> drivers/acpi/arm64/ and putting something in there, so it should be
-> sent separately after the series has been merged.
+> It just need not be visible in the configurator IMO.
+>
+>> diff --git a/drivers/clocksource/Kconfig b/drivers/clocksource/Kconfig
+>> index 47352d2..71d5b30 100644
+>> --- a/drivers/clocksource/Kconfig
+>> +++ b/drivers/clocksource/Kconfig
+>> @@ -8,6 +8,7 @@ config CLKSRC_OF
+>>  config CLKSRC_ACPI
+>>   bool
+>>   select CLKSRC_PROBE
+>> + select ACPI_GTDT if ARM64
+>>
+>>  config CLKSRC_PROBE
+>>   bool
+>>
+>>
+>> >
+>> >> Not sure if I like that; maybe the watchdog driver should depend
+>> >> on it instead ?
+>> >
+>> > If the watchdog is not the only user of it (and I don't think it is),
+>> > it would be better to arrange things this way.
+>> >
+>>
+>> There are two user:
+>> (1) arm_arch_timer(which will select CLKSRC_ACPI if ACPI, then
+>> CLKSRC_ACPI will select ACPI_GTDT if ARM64)
+>> So arm_arch_timer will automatically selecte ACPI_GTDT if ARM64 && ACPI
+>>
+>> (2) sbsa_gwdt (which will select ACPI_GTDT if ACPI in [PATCH v7 9/9])
+>> So sbsa_gwdt will automatically selecte ACPI_GTDT if ARM64 && ACPI &&
+>> ARM_ARCH_TIMER
+>>
+>> So ACPI_GTDT is automatically selected by both of two users.
+>>
+>>
+>> But like Timur said before:
+>>
+>> maybe we just "selecte ACPI_GTDT if ACPI" for ARM64, because ARM64
+>> require GTDT if we use ACPI.
+>
+> Right.  That's the way to do it then and make sbsa_gwdt depend on it instead
+> of selecting it.
 
-yes, you are right , got it , thanks  :-)
+OK, will do in my v8 patchset
 
 >
 > Thanks,
 > Rafael
+>
 
 
 
