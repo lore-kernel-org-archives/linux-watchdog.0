@@ -1,53 +1,105 @@
-Return-path: <rjw@rjwysocki.net>
-From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-To: Fu Wei <fu.wei@linaro.org>
-Cc: "Rafael J. Wysocki" <rafael@kernel.org>, Len Brown <lenb@kernel.org>, Daniel Lezcano <daniel.lezcano@linaro.org>, Thomas Gleixner <tglx@linutronix.de>, Marc Zyngier <marc.zyngier@arm.com>, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Sudeep Holla <sudeep.holla@arm.com>, Hanjun Guo <hanjun.guo@linaro.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linaro-acpi@lists.linaro.org" <linaro-acpi@lists.linaro.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, rruigrok@codeaurora.org, harba@codeaurora.org, Christopher Covington <cov@codeaurora.org>, Timur Tabi <timur@codeaurora.org>, G Gregory <graeme.gregory@linaro.org>, Al Stone <al.stone@linaro.org>, Jon Masters <jcm@redhat.com>, wei@redhat.com, Arnd Bergmann <arnd@arndb.de>, Wim Van Sebroeck <wim@iguana.be>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Suravee Suthikulanit <Suravee.Suthikulpanit@amd.com>, Leo Duran <leo.duran@amd.com>, Guenter Roeck <linux@roeck-us.net>, "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>, David Miller <davem@davemloft.net>, Andrew Morton <akpm@linux-foundation.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, kvalo@codeaurora.org, Jiri Slaby <jslaby@suse.cz>, Christoffer Dall <christoffer.dall@linaro.org>, Julien Grall <julien.grall@arm.com>
-Subject: Re: [PATCH v7 4/9] acpi/arm64: Add GTDT table parse driver
-Date: Fri, 15 Jul 2016 15:07:08 +0200
-Message-ID: <5101961.eCg7ixLQWc@vostro.rjw.lan>
-In-Reply-To: <1809117.TV1VJp2Xpr@vostro.rjw.lan>
-References: <1468432402-4872-1-git-send-email-fu.wei@linaro.org> <CADyBb7tkk5DhG_1_87+BQKQfF-CSC+LgP7LE=9SmztvaFLxNyQ@mail.gmail.com> <1809117.TV1VJp2Xpr@vostro.rjw.lan>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:54963 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751915AbcGONqk (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 15 Jul 2016 09:46:40 -0400
+Subject: Re: [PATCH 3/3] watchdog: bcm2835_wdt: set WDOG_HW_RUNNING bit when
+ appropriate
+To: Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Stephen Warren <swarren@wwwdotorg.org>,
+	Lee Jones <lee@kernel.org>, Eric Anholt <eric@anholt.net>
+References: <1468570524-18222-1-git-send-email-rasmus.villemoes@prevas.dk>
+ <1468570524-18222-3-git-send-email-rasmus.villemoes@prevas.dk>
+Cc: linux-watchdog@vger.kernel.org,
+	linux-rpi-kernel@lists.infradead.org,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <5788E935.6080608@roeck-us.net>
+Date: Fri, 15 Jul 2016 06:46:29 -0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="utf-8"
-List-ID: <linux-watchdog@vger.kernel.org>
+In-Reply-To: <1468570524-18222-3-git-send-email-rasmus.villemoes@prevas.dk>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-On Friday, July 15, 2016 02:15:27 PM Rafael J. Wysocki wrote:
-> On Friday, July 15, 2016 03:32:35 PM Fu Wei wrote:
-> > Hi Rafael,
-> > 
+On 07/15/2016 01:15 AM, Rasmus Villemoes wrote:
+> A bootloader may start the watchdog device before handing control to
+> the kernel - in that case, we should tell the kernel about it so the
+> watchdog framework can keep it alive until userspace opens
+> /dev/watchdog0.
+>
 
-[cut]
+Separate note: The maximum timeout for this watchdog is 15 seconds.
+Given that, it might be useful to set max_hw_heartbeat_ms instead of
+max_timeout. Separate patch, though.
 
-> > >
-> > >> +               return 0;
-> > >> +       }
-> > >> +
-> > >> +       if (!gtdt->platform_timer_count) {
-> > >> +               pr_info("No Platform Timer.\n");
-> > >> +               return 0;
-> > >> +       }
-> > >> +
-> > >> +       acpi_gtdt_desc.platform_timer_start = (void *)gtdt +
-> > >> +                                             gtdt->platform_timer_offset;
-> > >> +       if (acpi_gtdt_desc.platform_timer_start <
-> > >> +           (void *)table + sizeof(struct acpi_table_gtdt)) {
-> > >> +               pr_err(FW_BUG "Platform Timer pointer error.\n");
-> > >
-> > > Why pr_err()?
-> > 
-> > if (true), that means the GTDT table has bugs.
-> > 
-> 
-> And that's not a very useful piece of information unless you're debugging the
-> platform, is it?
+> Signed-off-by: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+> ---
+>   drivers/watchdog/bcm2835_wdt.c | 22 ++++++++++++++++++++++
+>   1 file changed, 22 insertions(+)
+>
+> diff --git a/drivers/watchdog/bcm2835_wdt.c b/drivers/watchdog/bcm2835_wdt.c
+> index 4dddd82..9a08334 100644
+> --- a/drivers/watchdog/bcm2835_wdt.c
+> +++ b/drivers/watchdog/bcm2835_wdt.c
+> @@ -55,6 +55,15 @@ struct bcm2835_wdt {
+>   static unsigned int heartbeat;
+>   static bool nowayout = WATCHDOG_NOWAYOUT;
+>
+> +static bool bcm2835_wdt_is_running(struct bcm2835_wdt *wdt)
+> +{
+> +	uint32_t cur;
+> +
+> +	cur = readl(wdt->base + PM_RSTC);
+> +
+> +	return !!(cur & PM_RSTC_WRCFG_FULL_RESET);
+> +}
+> +
+>   static int bcm2835_wdt_start(struct watchdog_device *wdog)
+>   {
+>   	struct bcm2835_wdt *wdt = watchdog_get_drvdata(wdog);
+> @@ -70,6 +79,7 @@ static int bcm2835_wdt_start(struct watchdog_device *wdog)
+>   		  PM_RSTC_WRCFG_FULL_RESET, wdt->base + PM_RSTC);
+>
+>   	spin_unlock_irqrestore(&wdt->lock, flags);
+> +	set_bit(WDOG_HW_RUNNING, &wdog->status);
+>
+You don't need to set this bit here unless the watchdog can not be stopped.
 
-FWIW, I'm not a big fan of printing "your firmware is buggy" type of messages
-(especially at the "error" log level or higher) unless they can be clearly
-connected to a specific type of functional failure.
+>   	return 0;
+>   }
+> @@ -79,6 +89,7 @@ static int bcm2835_wdt_stop(struct watchdog_device *wdog)
+>   	struct bcm2835_wdt *wdt = watchdog_get_drvdata(wdog);
+>
+>   	writel_relaxed(PM_PASSWORD | PM_RSTC_RESET, wdt->base + PM_RSTC);
+> +	clear_bit(WDOG_HW_RUNNING, &wdog->status);
 
-So if you want to pring an error-level message, something like "I cannot do X
-because of the firmware bug Y" would be better IMO.
+... and since you clear the bit, it can be stopped. Both setting and resetting the bit
+is therefore not necessary.
 
-Thanks,
-Rafael
+>   	return 0;
+>   }
+>
+> @@ -181,6 +192,17 @@ static int bcm2835_wdt_probe(struct platform_device *pdev)
+>   	watchdog_init_timeout(&bcm2835_wdt_wdd, heartbeat, dev);
+>   	watchdog_set_nowayout(&bcm2835_wdt_wdd, nowayout);
+>   	bcm2835_wdt_wdd.parent = &pdev->dev;
+> +	if (bcm2835_wdt_is_running(wdt)) {
+> +		/*
+> +		 * The currently active timeout value (set by the
+> +		 * bootloader) may be different from the module
+> +		 * heartbeat parameter or the value in device
+> +		 * tree. But we just need to set WDOG_HW_RUNNING,
+> +		 * because then the framework will "immediately" ping
+> +		 * the device, updating the timeout.
+> +		 */
+> +		set_bit(WDOG_HW_RUNNING, &bcm2835_wdt_wdd.status);
+> +	}
+>   	err = watchdog_register_device(&bcm2835_wdt_wdd);
+>   	if (err) {
+>   		dev_err(dev, "Failed to register watchdog device");
+>
+
