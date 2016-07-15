@@ -1,65 +1,41 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:54509 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751573AbcGPRSt (ORCPT
+Received: from mail-lf0-f67.google.com ([209.85.215.67]:35165 "EHLO
+	mail-lf0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751044AbcGOIxm (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 16 Jul 2016 13:18:49 -0400
-Subject: Re: Can't query Intel's iTCO watchdog reboot reason
-To: Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>,
-	dvhart@infradead.org, wim@iguana.be
-References: <CAAEAJfAEKvLCk2gjj6MR00t-Yg_-XEG1qb0ij6jse=FV3ez5bw@mail.gmail.com>
+	Fri, 15 Jul 2016 04:53:42 -0400
+Received: by mail-lf0-f67.google.com with SMTP id l89so6702894lfi.2
+        for <linux-watchdog@vger.kernel.org>; Fri, 15 Jul 2016 01:53:41 -0700 (PDT)
+Date: Fri, 15 Jul 2016 11:53:34 +0300
+From: Alexey Kunitskiy <alexey.kv@gmail.com>
+To: Wim Van Sebroeck <wim@iguana.be>
 Cc: linux-watchdog@vger.kernel.org
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <578A6C71.8080705@roeck-us.net>
-Date: Sat, 16 Jul 2016 10:18:41 -0700
+Subject: [PATCH 1/1] watchdog: add support for MCP78S chipset in nv_tco
+Message-ID: <20160715115334.680ab21a@hades.home>
 MIME-Version: 1.0
-In-Reply-To: <CAAEAJfAEKvLCk2gjj6MR00t-Yg_-XEG1qb0ij6jse=FV3ez5bw@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 07/15/2016 04:21 PM, Ezequiel Garcia wrote:
-> Hi everyone,
->
-> A large portion of my intel-based products are suffering from
-> a nasty hardware freeze [1], and so I'm currently working this around
-> enabling the iTCO watchdog -- which in any case, it's a good idea
-> to have enabled.
->
-> So, it would be interesting to find out on each boot if the machine was
-> rebooted due to a watchdog timeout, but so far I'm not having any luck.
->
-> As per Intel's appnote [2] the BIOS should update the WDDT ACPI table,
-> so I added something like this to the iTCO driver:
->
->         status = acpi_get_table(ACPI_SIG_WDDT, 1,
->                                 (struct acpi_table_header **) &buf);
->         if (ACPI_FAILURE(status) || buf->header.length < sizeof(*buf)) {
->                 pr_err(FW_BUG "failed to get WDDT ACPI table\n");
->                 return;
->         }
->
-> But it doesn't find the table. Strangely, reading TCO1_STS
-> and TCO2_STS always gives 0x0.
->
 
-That sounds like either the BIOS resets those bits, or the reboots
-are not caused by the watchdog. Are you sure that you see reboots
-that are caused by the watchdog ?
+Add support for MCP78S chipset in nv_tco watchdog driver
+Patch tested successfully on 4.1.27 kernel and ASUS M4N78-AM V2 motherboard
 
-Guenter
+Signed-off-by: Aleksey Kunitskiy <alexey.kv@gmail.com>
 
-> Tests were done on a Lynx Point:
->
-> [    7.131502] iTCO_wdt: Found a Lynx Point TCO device (Version=2,
-> TCOBASE=0x1860)
->
-> Any ideas? Is it possible to get this information or should I just gave up?
->
-> [1] https://bugzilla.kernel.org/show_bug.cgi?id=109051
-> [2] http://download.intel.com/design/chipsets/applnots/29227301.pdf
->
-> Thanks!
->
+--- drivers/watchdog/nv_tco.c.orig	2016-07-14 22:28:15.721583870 +0300
++++ drivers/watchdog/nv_tco.c	2016-07-14 22:28:48.838310400 +0300
+@@ -294,6 +294,8 @@ static const struct pci_device_id tco_pc
+ 	  PCI_ANY_ID, PCI_ANY_ID, },
+ 	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP55_SMBUS,
+ 	  PCI_ANY_ID, PCI_ANY_ID, },
++	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP78S_SMBUS,
++	  PCI_ANY_ID, PCI_ANY_ID, },
+ 	{ 0, },			/* End of list */
+ };
+ MODULE_DEVICE_TABLE(pci, tco_pci_tbl);
 
+-----------------
+Regards,
+Aleksey Kunitskiy
