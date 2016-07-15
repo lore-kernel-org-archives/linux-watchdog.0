@@ -1,23 +1,22 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-oi0-f54.google.com ([209.85.218.54]:33362 "EHLO
-	mail-oi0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751196AbcGOQNQ (ORCPT
+Received: from mail-oi0-f53.google.com ([209.85.218.53]:34287 "EHLO
+	mail-oi0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750996AbcGOQcP (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 15 Jul 2016 12:13:16 -0400
-Received: by mail-oi0-f54.google.com with SMTP id j185so163510727oih.0
-        for <linux-watchdog@vger.kernel.org>; Fri, 15 Jul 2016 09:13:16 -0700 (PDT)
+	Fri, 15 Jul 2016 12:32:15 -0400
+Received: by mail-oi0-f53.google.com with SMTP id l65so84621947oib.1
+        for <linux-watchdog@vger.kernel.org>; Fri, 15 Jul 2016 09:32:15 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <4581163.sAHfC1UEjl@vostro.rjw.lan>
+In-Reply-To: <5101961.eCg7ixLQWc@vostro.rjw.lan>
 References: <1468432402-4872-1-git-send-email-fu.wei@linaro.org>
- <CAJZ5v0jnNqjpcY1CGkHxbJFwX1MuRi-U=jTCKWavMdEH4bKR3g@mail.gmail.com>
- <CADyBb7sGWizLDy3LtpGpJ9jkchyWHZ2oPfsg6fE1ZE54gn05FA@mail.gmail.com> <4581163.sAHfC1UEjl@vostro.rjw.lan>
+ <CADyBb7tkk5DhG_1_87+BQKQfF-CSC+LgP7LE=9SmztvaFLxNyQ@mail.gmail.com>
+ <1809117.TV1VJp2Xpr@vostro.rjw.lan> <5101961.eCg7ixLQWc@vostro.rjw.lan>
 From: Fu Wei <fu.wei@linaro.org>
-Date: Sat, 16 Jul 2016 00:13:14 +0800
-Message-ID: <CADyBb7vziYMcAfk5TNOHoBCxi58jJypcTV_o2U75cLS-SRtEJQ@mail.gmail.com>
+Date: Sat, 16 Jul 2016 00:32:14 +0800
+Message-ID: <CADyBb7sXxY_a+tJQoH01eUk5-xvg9jRZtzyhB-tDstWoBAWfLg@mail.gmail.com>
 Subject: Re: [PATCH v7 4/9] acpi/arm64: Add GTDT table parse driver
 To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
 Cc: "Rafael J. Wysocki" <rafael@kernel.org>,
-	Guenter Roeck <linux@roeck-us.net>,
 	Len Brown <lenb@kernel.org>,
 	Daniel Lezcano <daniel.lezcano@linaro.org>,
 	Thomas Gleixner <tglx@linutronix.de>,
@@ -41,12 +40,12 @@ Cc: "Rafael J. Wysocki" <rafael@kernel.org>,
 	Will Deacon <will.deacon@arm.com>,
 	Suravee Suthikulanit <Suravee.Suthikulpanit@amd.com>,
 	Leo Duran <leo.duran@amd.com>,
+	Guenter Roeck <linux@roeck-us.net>,
 	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
 	David Miller <davem@davemloft.net>,
 	Andrew Morton <akpm@linux-foundation.org>,
 	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	kvalo@codeaurora.org, mchehab@kernel.org,
-	Jiri Slaby <jslaby@suse.cz>,
+	kvalo@codeaurora.org, Jiri Slaby <jslaby@suse.cz>,
 	Christoffer Dall <christoffer.dall@linaro.org>,
 	Julien Grall <julien.grall@arm.com>
 Content-Type: text/plain; charset=UTF-8
@@ -55,136 +54,58 @@ List-Id: linux-watchdog@vger.kernel.org
 
 Hi Rafael,
 
-On 15 July 2016 at 20:11, Rafael J. Wysocki <rjw@rjwysocki.net> wrote:
-> On Friday, July 15, 2016 03:45:05 PM Fu Wei wrote:
->> Hi Rafael,
->>
->>
->> On 14 July 2016 at 05:43, Rafael J. Wysocki <rafael@kernel.org> wrote:
->> > On Wed, Jul 13, 2016 at 11:08 PM, Guenter Roeck <linux@roeck-us.net> wrote:
->> >> On Wed, Jul 13, 2016 at 10:30:37PM +0200, Rafael J. Wysocki wrote:
->> >>> On Wed, Jul 13, 2016 at 7:53 PM,  <fu.wei@linaro.org> wrote:
->> >>> > From: Fu Wei <fu.wei@linaro.org>
->> >>> >
->> >>> > This patch adds support for parsing arch timer in GTDT,
->> >>> > provides some kernel APIs to parse all the PPIs and
->> >>> > always-on info in GTDT and export them.
->> >>> >
->> >>> > By this driver, we can simplify arm_arch_timer drivers, and
->> >>> > separate the ACPI GTDT knowledge from it.
->> >>> >
->> >>> > Signed-off-by: Fu Wei <fu.wei@linaro.org>
->> >>> > Signed-off-by: Hanjun Guo <hanjun.guo@linaro.org>
->> >>> > ---
->> >>> >  drivers/acpi/Kconfig           |   5 ++
->> >>> >  drivers/acpi/Makefile          |   1 +
->> >>> >  drivers/acpi/arm64/Kconfig     |  15 ++++
->> >>> >  drivers/acpi/arm64/Makefile    |   1 +
->> >>> >  drivers/acpi/arm64/acpi_gtdt.c | 170 +++++++++++++++++++++++++++++++++++++++++
->> >>> >  include/linux/acpi.h           |   6 ++
->> >>> >  6 files changed, 198 insertions(+)
->> >>> >
->> >>> > diff --git a/drivers/acpi/Kconfig b/drivers/acpi/Kconfig
->> >>> > index b7e2e77..1cdc7d2 100644
->> >>> > --- a/drivers/acpi/Kconfig
->> >>> > +++ b/drivers/acpi/Kconfig
->> >>> > @@ -521,4 +521,9 @@ config XPOWER_PMIC_OPREGION
->> >>> >
->> >>> >  endif
->> >>> >
->> >>> > +if ARM64
->> >>> > +source "drivers/acpi/arm64/Kconfig"
->> >>> > +
->> >>> > +endif
->> >>> > +
->> >>> >  endif  # ACPI
->> >>> > diff --git a/drivers/acpi/Makefile b/drivers/acpi/Makefile
->> >>> > index 251ce85..1a94ff7 100644
->> >>> > --- a/drivers/acpi/Makefile
->> >>> > +++ b/drivers/acpi/Makefile
->> >>> > @@ -99,5 +99,6 @@ obj-$(CONFIG_ACPI_EXTLOG)     += acpi_extlog.o
->> >>> >  obj-$(CONFIG_PMIC_OPREGION)    += pmic/intel_pmic.o
->> >>> >  obj-$(CONFIG_CRC_PMIC_OPREGION) += pmic/intel_pmic_crc.o
->> >>> >  obj-$(CONFIG_XPOWER_PMIC_OPREGION) += pmic/intel_pmic_xpower.o
->> >>> > +obj-$(CONFIG_ARM64)    += arm64/
->> >>> >
->> >>> >  video-objs                     += acpi_video.o video_detect.o
->> >>> > diff --git a/drivers/acpi/arm64/Kconfig b/drivers/acpi/arm64/Kconfig
->> >>> > new file mode 100644
->> >>> > index 0000000..ff5c253
->> >>> > --- /dev/null
->> >>> > +++ b/drivers/acpi/arm64/Kconfig
->> >>> > @@ -0,0 +1,15 @@
->> >>> > +#
->> >>> > +# ACPI Configuration for ARM64
->> >>> > +#
->> >>> > +
->> >>> > +menu "The ARM64-specific ACPI Support"
->> >>> > +
->> >>> > +config ACPI_GTDT
->> >>> > +       bool "ACPI GTDT table Support"
->> >>>
->> >>> This should depend on ARM64.
->> >>>
->> >>> Also I wonder if it needs to be user-selectable?  Wouldn't it be
->> >>> better to enable it by default when building for ARM64 with ACPI?
->> >>>
->> >> It is currently selected in patch 9, in the watchdog driver's Kconfig
->> >> entry.
+On 15 July 2016 at 21:07, Rafael J. Wysocki <rjw@rjwysocki.net> wrote:
+> On Friday, July 15, 2016 02:15:27 PM Rafael J. Wysocki wrote:
+>> On Friday, July 15, 2016 03:32:35 PM Fu Wei wrote:
+>> > Hi Rafael,
 >> >
->> > Well, it still doesn't have to be user-selectable for that. :-)
->>
->> Actually it is also automatically selected by [PATCH v7 6/9]:
 >
-> Right.
+> [cut]
 >
-> By user-selectable I mean "showing up in a Kconfig configurator tool".
->
-> It just need not be visible in the configurator IMO.
->
->> diff --git a/drivers/clocksource/Kconfig b/drivers/clocksource/Kconfig
->> index 47352d2..71d5b30 100644
->> --- a/drivers/clocksource/Kconfig
->> +++ b/drivers/clocksource/Kconfig
->> @@ -8,6 +8,7 @@ config CLKSRC_OF
->>  config CLKSRC_ACPI
->>   bool
->>   select CLKSRC_PROBE
->> + select ACPI_GTDT if ARM64
->>
->>  config CLKSRC_PROBE
->>   bool
->>
->>
+>> > >
+>> > >> +               return 0;
+>> > >> +       }
+>> > >> +
+>> > >> +       if (!gtdt->platform_timer_count) {
+>> > >> +               pr_info("No Platform Timer.\n");
+>> > >> +               return 0;
+>> > >> +       }
+>> > >> +
+>> > >> +       acpi_gtdt_desc.platform_timer_start = (void *)gtdt +
+>> > >> +                                             gtdt->platform_timer_offset;
+>> > >> +       if (acpi_gtdt_desc.platform_timer_start <
+>> > >> +           (void *)table + sizeof(struct acpi_table_gtdt)) {
+>> > >> +               pr_err(FW_BUG "Platform Timer pointer error.\n");
+>> > >
+>> > > Why pr_err()?
 >> >
->> >> Not sure if I like that; maybe the watchdog driver should depend
->> >> on it instead ?
->> >
->> > If the watchdog is not the only user of it (and I don't think it is),
->> > it would be better to arrange things this way.
+>> > if (true), that means the GTDT table has bugs.
 >> >
 >>
->> There are two user:
->> (1) arm_arch_timer(which will select CLKSRC_ACPI if ACPI, then
->> CLKSRC_ACPI will select ACPI_GTDT if ARM64)
->> So arm_arch_timer will automatically selecte ACPI_GTDT if ARM64 && ACPI
->>
->> (2) sbsa_gwdt (which will select ACPI_GTDT if ACPI in [PATCH v7 9/9])
->> So sbsa_gwdt will automatically selecte ACPI_GTDT if ARM64 && ACPI &&
->> ARM_ARCH_TIMER
->>
->> So ACPI_GTDT is automatically selected by both of two users.
->>
->>
->> But like Timur said before:
->>
->> maybe we just "selecte ACPI_GTDT if ACPI" for ARM64, because ARM64
->> require GTDT if we use ACPI.
+>> And that's not a very useful piece of information unless you're debugging the
+>> platform, is it?
 >
-> Right.  That's the way to do it then and make sbsa_gwdt depend on it instead
-> of selecting it.
+> FWIW, I'm not a big fan of printing "your firmware is buggy" type of messages
+> (especially at the "error" log level or higher) unless they can be clearly
+> connected to a specific type of functional failure.
+>
+> So if you want to pring an error-level message, something like "I cannot do X
+> because of the firmware bug Y" would be better IMO.
 
-OK, will do in my v8 patchset
+So can I do this:
+pr_err(FW_BUG "Can NOT init platform_timer pointer, because of the
+GTDT table bug\n");
+
+or pr_debug(FW_BUG "Can NOT init platform_timer_start, because of
+platform_timer_offset bug in GTDT\n");
+
+or just delete it?
+
+which one do you prefer?  I think maybe should provide some clue for
+users to fix the problem  :-)
+
+any thought ?
+
 
 >
 > Thanks,
