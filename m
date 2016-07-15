@@ -1,55 +1,46 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:45284 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755170AbcGJQDp (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 10 Jul 2016 12:03:45 -0400
-Subject: Re: [PATCH v3 3/3] ARM64: dts: amlogic: meson-gxbb: Add watchdog node
-To: Neil Armstrong <narmstrong@baylibre.com>,
-	Wim Van Sebroeck <wim@iguana.be>, devicetree@vger.kernel.org
-References: <1468141867-4172-1-git-send-email-narmstrong@baylibre.com>
- <1468141867-4172-4-git-send-email-narmstrong@baylibre.com>
-Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-amlogic@lists.infradead.org, linux-watchdog@vger.kernel.org
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <578271D3.4080704@roeck-us.net>
-Date: Sun, 10 Jul 2016 09:03:31 -0700
+Return-path: <prvs=997fd3939=Rasmus.Villemoes@prevas.dk>
+From: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+To: Wim Van Sebroeck <wim@iguana.be>, Guenter Roeck <linux@roeck-us.net>,
+	Stephen Warren <swarren@wwwdotorg.org>, Lee Jones <lee@kernel.org>, Eric
+ Anholt <eric@anholt.net>
+CC: Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
+	<linux-watchdog@vger.kernel.org>, <linux-rpi-kernel@lists.infradead.org>,
+	<linux-arm-kernel@lists.infradead.org>, <linux-kernel@vger.kernel.org>
+Subject: [PATCH 1/3] watchdog: bcm2835_wdt: constify _ops and _info structures
+Date: Fri, 15 Jul 2016 10:15:21 +0200
+Message-ID: <1468570524-18222-1-git-send-email-rasmus.villemoes@prevas.dk>
 MIME-Version: 1.0
-In-Reply-To: <1468141867-4172-4-git-send-email-narmstrong@baylibre.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Content-Type: text/plain
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 07/10/2016 02:11 AM, Neil Armstrong wrote:
-> Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+These are never modified, so might as well be const.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+---
+ drivers/watchdog/bcm2835_wdt.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Would this go in through one of the arm trees ?
-
-Guenter
-
-> ---
->   arch/arm64/boot/dts/amlogic/meson-gxbb.dtsi | 6 ++++++
->   1 file changed, 6 insertions(+)
->
-> diff --git a/arch/arm64/boot/dts/amlogic/meson-gxbb.dtsi b/arch/arm64/boot/dts/amlogic/meson-gxbb.dtsi
-> index 832815d..bcca82f 100644
-> --- a/arch/arm64/boot/dts/amlogic/meson-gxbb.dtsi
-> +++ b/arch/arm64/boot/dts/amlogic/meson-gxbb.dtsi
-> @@ -136,6 +136,12 @@
->   				clocks = <&xtal>;
->   				status = "disabled";
->   			};
-> +
-> +			watchdog@98d0 {
-> +				compatible = "amlogic,meson-gxbb-wdt";
-> +				reg = <0x0 0x098d0 0x0 0x10>;
-> +				clocks = <&xtal>;
-> +			};
->   		};
->
->   		gic: interrupt-controller@c4301000 {
->
-
+diff --git a/drivers/watchdog/bcm2835_wdt.c b/drivers/watchdog/bcm2835_wdt.c
+index 2e6164c..733e402 100644
+--- a/drivers/watchdog/bcm2835_wdt.c
++++ b/drivers/watchdog/bcm2835_wdt.c
+@@ -96,7 +96,7 @@ static unsigned int bcm2835_wdt_get_timeleft(struct watchdog_device *wdog)
+ 	return WDOG_TICKS_TO_SECS(ret & PM_WDOG_TIME_SET);
+ }
+ 
+-static struct watchdog_ops bcm2835_wdt_ops = {
++static const struct watchdog_ops bcm2835_wdt_ops = {
+ 	.owner =	THIS_MODULE,
+ 	.start =	bcm2835_wdt_start,
+ 	.stop =		bcm2835_wdt_stop,
+@@ -104,7 +104,7 @@ static struct watchdog_ops bcm2835_wdt_ops = {
+ 	.get_timeleft =	bcm2835_wdt_get_timeleft,
+ };
+ 
+-static struct watchdog_info bcm2835_wdt_info = {
++static const struct watchdog_info bcm2835_wdt_info = {
+ 	.options =	WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE |
+ 			WDIOF_KEEPALIVEPING,
+ 	.identity =	"Broadcom BCM2835 Watchdog timer",
+-- 
+2.5.0
