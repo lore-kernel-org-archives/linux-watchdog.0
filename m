@@ -1,60 +1,48 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:51434 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751573AbcGPRPw (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 16 Jul 2016 13:15:52 -0400
-Date: Sat, 16 Jul 2016 10:15:40 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Alexey Kunitskiy <alexey.kv@gmail.com>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org
-Subject: Re: [1/1] watchdog: add support for MCP78S chipset in nv_tco
-Message-ID: <20160716171540.GA29247@roeck-us.net>
-References: <20160715115334.680ab21a@hades.home>
+Return-path: <anholt@anholt.net>
+From: Eric Anholt <eric@anholt.net>
+To: Rasmus Villemoes <rasmus.villemoes@prevas.dk>, Wim Van Sebroeck <wim@iguana.be>, Guenter Roeck <linux@roeck-us.net>, Stephen Warren <swarren@wwwdotorg.org>, Lee Jones <lee@kernel.org>
+Cc: Rasmus Villemoes <rasmus.villemoes@prevas.dk>, linux-watchdog@vger.kernel.org, linux-rpi-kernel@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/3] watchdog: bcm2835_wdt: remove redundant ->set_timeout callback
+In-Reply-To: <1468570524-18222-2-git-send-email-rasmus.villemoes@prevas.dk>
+References: <1468570524-18222-1-git-send-email-rasmus.villemoes@prevas.dk> <1468570524-18222-2-git-send-email-rasmus.villemoes@prevas.dk>
+Date: Fri, 15 Jul 2016 11:58:32 -0700
+Message-ID: <87shva919j.fsf@eliezer.anholt.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20160715115334.680ab21a@hades.home>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Content-Type: multipart/signed; boundary="=-=-=";
+	micalg=pgp-sha512; protocol="application/pgp-signature"
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On Fri, Jul 15, 2016 at 11:53:34AM +0300, Alexey Kunitskiy wrote:
-> Add support for MCP78S chipset in nv_tco watchdog driver
-> Patch tested successfully on 4.1.27 kernel and ASUS M4N78-AM V2 motherboard
-> 
-> Signed-off-by: Aleksey Kunitskiy <alexey.kv@gmail.com>
-> 
+--=-=-=
+Content-Type: text/plain
 
-The patch must be based on an old kernel; the driver was enhanced about
-a year ago to add support for a different chip. That change is not included
-in your patch, causing it to fail to apply.
+Rasmus Villemoes <rasmus.villemoes@prevas.dk> writes:
 
-Also, your patch does not follow the normal patch format, and thus fails to
-apply when using "git am", which complains that the to-be-patched file does
-not exist.
+> bcm2835_wdt_set_timeout does exactly what the watchdog framework does
+> in the absence of a ->set_timeout callback (see watchdog_set_timeout
+> in watchdog_dev.c), so remove it.
 
-Please make sure that the patch applies cleeanly to the latest upstream kernel.
+These first two patches are:
 
-Thanks,
-Guenter
+Acked-by: Eric Anholt <eric@anholt.net>
 
-> 
-> -----------------
-> Regards,
-> Aleksey Kunitskiy
-> ---
-> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
-> --- drivers/watchdog/nv_tco.c.orig	2016-07-14 22:28:15.721583870 +0300
-> +++ drivers/watchdog/nv_tco.c	2016-07-14 22:28:48.838310400 +0300
-> @@ -294,6 +294,8 @@ static const struct pci_device_id tco_pc
->  	  PCI_ANY_ID, PCI_ANY_ID, },
->  	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP55_SMBUS,
->  	  PCI_ANY_ID, PCI_ANY_ID, },
-> +	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP78S_SMBUS,
-> +	  PCI_ANY_ID, PCI_ANY_ID, },
->  	{ 0, },			/* End of list */
->  };
->  MODULE_DEVICE_TABLE(pci, tco_pci_tbl);
+--=-=-=
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBCgAGBQJXiTJZAAoJELXWKTbR/J7oLfoP/3PyY7j8c1dSTcnFmO4m2dFF
+ThjDlAWPLNEFx7mNeVUmUD5i9w91mPPOXaNpWoKB9DXWESUPbZ7B8jLkhKC7jiuL
+6GY7aYzd71+pj8bBjEOOIUgxWMqQB/ijIlfSJqyNn8KB+uRlLy4HWsGwUIgaDThh
+gStFnN2q35y1GLUA8gtDesFsPxrVfQ1v2BDQLtlKxRuqKrXjuToe0ExtB9VvJjeF
+mcA2ioCvUWGfV1B1fRfkNnQ3uX651by+ft1/5eUyHSYineL8pXVnl9kpFEg80oob
+w24pUft9KuLCIuSFCUCfh4owLNTBBlcI7LvaGgA0v/5WZZKcpCAPEYIutIigRXhp
+hhcAb4zr/KVnOW2DUDz4L7byblqOtyU3y5vnrj5I3X25DxvvMm7RXPIn+EW/Ye2N
+rjU5wlqb3eAswXuqyPF4BdSJQNA/jK58nFv4vmxO7fww6h2u2FOoQ3LPAgcgV57h
+xrfP8LNc595JtSLTJrWHPNA39ZjH9Kf2N6AqLbnILWnhyexYdjnz9nOc8VF/WDAb
+p7DdQ4hfwAOb/eupXwbNASH0scOodOzK+rfuoTaenSeCHQeOnzS6XIiiSQK0g26O
+TuzYZwVVBHO2NGihyXQCWn3zwB5/4pCpeXDwnFfEzQMU8nhJVxsSyM+SQXVrG3gb
+4iBnVgSJxgzysRknhzQS
+=zHK4
+-----END PGP SIGNATURE-----
+--=-=-=--
