@@ -1,113 +1,60 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from spo001.leaseweb.nl ([83.149.101.17]:43702 "EHLO
+Received: from spo001.leaseweb.nl ([83.149.101.17]:43709 "EHLO
 	spo001.leaseweb.nl" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751174AbcGQTmJ (ORCPT
+	with ESMTP id S1751188AbcGQTp2 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 17 Jul 2016 15:42:09 -0400
-Date: Sun, 17 Jul 2016 21:42:06 +0200
+	Sun, 17 Jul 2016 15:45:28 -0400
+Date: Sun, 17 Jul 2016 21:45:26 +0200
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Neil Armstrong <narmstrong@baylibre.com>
-Cc: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH v2] watchdog: Add a device managed API for watchdog_register_device()
-Message-ID: <20160717194206.GA32613@spo001.leaseweb.nl>
-References: <1464363234-9777-1-git-send-email-narmstrong@baylibre.com>
+To: Brian Boylston <brian.boylston@hpe.com>
+Cc: linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH v2 2/2] watchdog: hpwdt: remove email address from doc
+Message-ID: <20160717194526.GA32689@spo001.leaseweb.nl>
+References: <20160525162015.3442-1-brian.boylston@hpe.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1464363234-9777-1-git-send-email-narmstrong@baylibre.com>
+In-Reply-To: <20160525162015.3442-1-brian.boylston@hpe.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Neil,
+Hi Brian,
 
-> This helps in reducing code in .remove callbacks and sometimes
-> dropping .remove callbacks entirely.
+> Remove Tom's email address from the documentation
 > 
-> Changes since v1 at http://lkml.kernel.org/r/1464251510-15554-1-git-send-email-narmstrong@baylibre.com :
-> - Fix brackets in devm_watchdog_register_device()
-> 
-> Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+> Signed-off-by: Brian Boylston <brian.boylston@hpe.com>
 > ---
->  Documentation/driver-model/devres.txt |  3 +++
->  drivers/watchdog/watchdog_core.c      | 37 +++++++++++++++++++++++++++++++++++
->  include/linux/watchdog.h              |  3 +++
->  3 files changed, 43 insertions(+)
+>  Documentation/watchdog/hpwdt.txt | 5 ++---
+>  1 file changed, 2 insertions(+), 3 deletions(-)
 > 
-> diff --git a/Documentation/driver-model/devres.txt b/Documentation/driver-model/devres.txt
-> index c63eea0..589296b 100644
-> --- a/Documentation/driver-model/devres.txt
-> +++ b/Documentation/driver-model/devres.txt
-> @@ -357,3 +357,6 @@ SLAVE DMA ENGINE
+> diff --git a/Documentation/watchdog/hpwdt.txt b/Documentation/watchdog/hpwdt.txt
+> index a40398c..7a9f635 100644
+> --- a/Documentation/watchdog/hpwdt.txt
+> +++ b/Documentation/watchdog/hpwdt.txt
+> @@ -1,9 +1,9 @@
+> -Last reviewed: 04/04/2016
+> +Last reviewed: 05/20/2016
 >  
->  SPI
->    devm_spi_register_master()
-> +
-> +WATCHDOG
-> +  devm_watchdog_register_device()
-> diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
-> index 981a668..7c5e3dc 100644
-> --- a/drivers/watchdog/watchdog_core.c
-> +++ b/drivers/watchdog/watchdog_core.c
-> @@ -329,6 +329,43 @@ void watchdog_unregister_device(struct watchdog_device *wdd)
+>                       HPE iLO NMI Watchdog Driver
+>                NMI sourcing for iLO based ProLiant Servers
+>                       Documentation and Driver by
+> -              Thomas Mingarelli <thomas.mingarelli@hpe.com>
+> +                         Thomas Mingarelli
 >  
->  EXPORT_SYMBOL_GPL(watchdog_unregister_device);
+>   The HPE iLO NMI Watchdog driver is a kernel module that provides basic
+>   watchdog functionality and the added benefit of NMI sourcing. Both the
+> @@ -95,4 +95,3 @@ Last reviewed: 04/04/2016
 >  
-> +static void devm_watchdog_unregister_device(struct device *dev, void *res)
-> +{
-> +	watchdog_unregister_device(*(struct watchdog_device **)res);
-> +}
-> +
-> +/**
-> + * devm_watchdog_register_device() - resource managed watchdog_register_device()
-> + * @dev: device that is registering this watchdog device
-> + * @wdd: watchdog device
-> + *
-> + * Managed watchdog_register_device(). For watchdog device registered by this
-> + * function,  watchdog_unregister_device() is automatically called on driver
-> + * detach. See watchdog_register_device() for more information.
-> + */
-> +int devm_watchdog_register_device(struct device *dev,
-> +				struct watchdog_device *wdd)
-> +{
-> +	struct watchdog_device **rcwdd;
-> +	int ret;
-> +
-> +	rcwdd = devres_alloc(devm_watchdog_unregister_device, sizeof(*wdd),
-> +			     GFP_KERNEL);
-> +	if (!rcwdd)
-> +		return -ENOMEM;
-> +
-> +	ret = watchdog_register_device(wdd);
-> +	if (!ret) {
-> +		*rcwdd = wdd;
-> +		devres_add(dev, rcwdd);
-> +	} else {
-> +		devres_free(rcwdd);
-> +	}
-> +
-> +	return ret;
-> +}
-> +EXPORT_SYMBOL_GPL(devm_watchdog_register_device);
-> +
->  static int __init watchdog_deferred_registration(void)
->  {
->  	mutex_lock(&wtd_deferred_reg_mutex);
-> diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
-> index 51732d6c..6b75e38 100644
-> --- a/include/linux/watchdog.h
-> +++ b/include/linux/watchdog.h
-> @@ -180,4 +180,7 @@ extern int watchdog_init_timeout(struct watchdog_device *wdd,
->  extern int watchdog_register_device(struct watchdog_device *);
->  extern void watchdog_unregister_device(struct watchdog_device *);
 >  
-> +/* devres register variant */
-> +int devm_watchdog_register_device(struct device *dev, struct watchdog_device *);
-> +
->  #endif  /* ifndef _LINUX_WATCHDOG_H */
+>   -- Tom Mingarelli
+> -    (thomas.mingarelli@hpe.com)
 > -- 
-> 2.7.0
+> 2.8.3
 > 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
 This patch has been added to linux-watchdog-next.
 
