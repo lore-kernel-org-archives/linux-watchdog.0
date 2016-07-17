@@ -1,141 +1,107 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from cloudserver094114.home.net.pl ([79.96.170.134]:62447 "HELO
-	cloudserver094114.home.net.pl" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1751471AbcGPMa2 (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:37082 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750904AbcGQOdZ (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 16 Jul 2016 08:30:28 -0400
-From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-To: Fu Wei <fu.wei@linaro.org>
-Cc: "Rafael J. Wysocki" <rafael@kernel.org>,
-	Len Brown <lenb@kernel.org>,
-	Daniel Lezcano <daniel.lezcano@linaro.org>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Marc Zyngier <marc.zyngier@arm.com>,
-	Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-	Sudeep Holla <sudeep.holla@arm.com>,
-	Hanjun Guo <hanjun.guo@linaro.org>,
-	"linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>,
-	"linaro-acpi@lists.linaro.org" <linaro-acpi@lists.linaro.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
-	rruigrok@codeaurora.org, harba@codeaurora.org,
-	Christopher Covington <cov@codeaurora.org>,
-	Timur Tabi <timur@codeaurora.org>,
-	G Gregory <graeme.gregory@linaro.org>,
-	Al Stone <al.stone@linaro.org>, Jon Masters <jcm@redhat.com>,
-	wei@redhat.com, Arnd Bergmann <arnd@arndb.de>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will.deacon@arm.com>,
-	Suravee Suthikulanit <Suravee.Suthikulpanit@amd.com>,
-	Leo Duran <leo.duran@amd.com>,
-	Guenter Roeck <linux@roeck-us.net>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	David Miller <davem@davemloft.net>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	kvalo@codeaurora.org, Jiri Slaby <jslaby@suse.cz>,
-	Christoffer Dall <christoffer.dall@linaro.org>,
-	Julien Grall <julien.grall@arm.com>
-Subject: Re: [PATCH v7 4/9] acpi/arm64: Add GTDT table parse driver
-Date: Sat, 16 Jul 2016 14:35:16 +0200
-Message-ID: <16716612.zdLA2RMyjn@vostro.rjw.lan>
-In-Reply-To: <CADyBb7tLyABzWFEW_8A3bK9XeWiHJjh7TqWQc=vDn5O_WUJX5w@mail.gmail.com>
-References: <1468432402-4872-1-git-send-email-fu.wei@linaro.org> <1580087.dlcVOb6fx1@vostro.rjw.lan> <CADyBb7tLyABzWFEW_8A3bK9XeWiHJjh7TqWQc=vDn5O_WUJX5w@mail.gmail.com>
+	Sun, 17 Jul 2016 10:33:25 -0400
+Subject: Re: [PATCH v2 1/1] watchdog: add support for MCP78S chipset in nv_tco
+To: Alexey Kunitskiy <alexey.kv@gmail.com>
+References: <20160715115334.680ab21a@hades.home>
+ <20160716171540.GA29247@roeck-us.net> <20160717101453.4e3e8d2a@hades.home>
+Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <578B972E.60209@roeck-us.net>
+Date: Sun, 17 Jul 2016 07:33:18 -0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="utf-8"
+In-Reply-To: <20160717101453.4e3e8d2a@hades.home>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Saturday, July 16, 2016 10:24:35 AM Fu Wei wrote:
-> Hi Rafeal,
-> 
-> On 16 July 2016 at 05:22, Rafael J. Wysocki <rjw@rjwysocki.net> wrote:
-> > On Saturday, July 16, 2016 12:32:14 AM Fu Wei wrote:
-> >> Hi Rafael,
-> >>
-> >> On 15 July 2016 at 21:07, Rafael J. Wysocki <rjw@rjwysocki.net> wrote:
-> >> > On Friday, July 15, 2016 02:15:27 PM Rafael J. Wysocki wrote:
-> >> >> On Friday, July 15, 2016 03:32:35 PM Fu Wei wrote:
-> >> >> > Hi Rafael,
-> >> >> >
-> >> >
-> >> > [cut]
-> >> >
-> >> >> > >
-> >> >> > >> +               return 0;
-> >> >> > >> +       }
-> >> >> > >> +
-> >> >> > >> +       if (!gtdt->platform_timer_count) {
-> >> >> > >> +               pr_info("No Platform Timer.\n");
-> >> >> > >> +               return 0;
-> >> >> > >> +       }
-> >> >> > >> +
-> >> >> > >> +       acpi_gtdt_desc.platform_timer_start = (void *)gtdt +
-> >> >> > >> +                                             gtdt->platform_timer_offset;
-> >> >> > >> +       if (acpi_gtdt_desc.platform_timer_start <
-> >> >> > >> +           (void *)table + sizeof(struct acpi_table_gtdt)) {
-> >> >> > >> +               pr_err(FW_BUG "Platform Timer pointer error.\n");
-> >> >> > >
-> >> >> > > Why pr_err()?
-> >> >> >
-> >> >> > if (true), that means the GTDT table has bugs.
-> >> >> >
-> >> >>
-> >> >> And that's not a very useful piece of information unless you're debugging the
-> >> >> platform, is it?
-> >> >
-> >> > FWIW, I'm not a big fan of printing "your firmware is buggy" type of messages
-> >> > (especially at the "error" log level or higher) unless they can be clearly
-> >> > connected to a specific type of functional failure.
-> >> >
-> >> > So if you want to pring an error-level message, something like "I cannot do X
-> >> > because of the firmware bug Y" would be better IMO.
-> >>
-> >> So can I do this:
-> >> pr_err(FW_BUG "Can NOT init platform_timer pointer, because of the
-> >> GTDT table bug\n");
-> >>
-> >> or pr_debug(FW_BUG "Can NOT init platform_timer_start, because of
-> >> platform_timer_offset bug in GTDT\n");
-> >>
-> >> or just delete it?
-> >>
-> >> which one do you prefer?  I think maybe should provide some clue for
-> >> users to fix the problem  :-)
-> >
-> > And how exactly would they fix it then?
-> >
-> >>
-> >> any thought ?
-> >
-> > If you print variable or function names and the like, the message should be
-> > a debug one, because that's information that can only be understood by
-> > developers (some developers are users too, but they are a minority).
-> >
-> > If you want to report an error, say what is not working (or not available
-> > etc) and why (if you know the reason at the time the message is printed).
-> 
-> Great thanks, I guess I got you point.
-> 
-> maybe just a very simple message like:
-> pr_err(FW_BUG "Failed to init table: GTDT table is buggy.\n");
+On 07/17/2016 12:14 AM, Alexey Kunitskiy wrote:
+> On Sat, 16 Jul 2016 10:15:40 -0700
+> Guenter Roeck <linux@roeck-us.net> wrote:
+>
+>> On Fri, Jul 15, 2016 at 11:53:34AM +0300, Alexey Kunitskiy wrote:
+>>> Add support for MCP78S chipset in nv_tco watchdog driver
+>>> Patch tested successfully on 4.1.27 kernel and ASUS M4N78-AM V2
+>>> motherboard
+>>>
+>>> Signed-off-by: Aleksey Kunitskiy <alexey.kv@gmail.com>
+>>>
+>>
+>> The patch must be based on an old kernel; the driver was enhanced
+>> about a year ago to add support for a different chip. That change is
+>> not included in your patch, causing it to fail to apply.
+>>
+>> Also, your patch does not follow the normal patch format, and thus
+>> fails to apply when using "git am", which complains that the
+>> to-be-patched file does not exist.
+>>
+>> Please make sure that the patch applies cleeanly to the latest
+>> upstream kernel.
+>
+> I've just followed guide in kernel doc to generate patch using 'diff -up'. Please find a new one atop of mainline kernel:
+>
+> diff --git a/drivers/watchdog/nv_tco.c b/drivers/watchdog/nv_tco.c
+> --- a/drivers/watchdog/nv_tco.c
+> +++ b/drivers/watchdog/nv_tco.c
 
-To understand this message one needs to know what "table" means here
-and what "GTDT" is.  Also the prefix already will be something like
-"ACPI: GTDT:", so repeating part of it is not really useful IMO.
+That is better. Notice the difference: The file names start with "a/" and "b/".
+Your previous patch started with "drivers/", and the file names differed.
+In that situation, git doesn't know how to apply the patch.
 
-Can you tell me please what's not going to work when that message is printed?
-
-Will the system boot at all then?  If so, the functionality will be limited
-somehow I suppose.  How is it going to be limited?
-
-> I will also check other pr_* , if I can update them
-
-OK, great!
+Can you send it as a clean patch, one that can be applied without editing ?
 
 Thanks,
-Rafael
+Guenter
+
+> @@ -294,6 +294,8 @@
+>   	  PCI_ANY_ID, PCI_ANY_ID, },
+>   	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP55_SMBUS,
+>   	  PCI_ANY_ID, PCI_ANY_ID, },
+> +	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP78S_SMBUS,
+> +	  PCI_ANY_ID, PCI_ANY_ID, },
+>   	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP79_SMBUS,
+>   	  PCI_ANY_ID, PCI_ANY_ID, },
+>   	{ 0, },			/* End of list */
+>
+>
+> Signed-off-by: Aleksey Kunitskiy <alexey.kv@gmail.com>
+>
+>>
+>> Thanks,
+>> Guenter
+>>
+>>>
+>>> -----------------
+>>> Regards,
+>>> Aleksey Kunitskiy
+>>> ---
+>>> To unsubscribe from this list: send the line "unsubscribe
+>>> linux-watchdog" in the body of a message to
+>>> majordomo@vger.kernel.org More majordomo info at
+>>> http://vger.kernel.org/majordomo-info.html
+>>>
+>>> --- drivers/watchdog/nv_tco.c.orig	2016-07-14
+>>> 22:28:15.721583870 +0300 +++ drivers/watchdog/nv_tco.c
+>>> 2016-07-14 22:28:48.838310400 +0300 @@ -294,6 +294,8 @@ static
+>>> const struct pci_device_id tco_pc PCI_ANY_ID, PCI_ANY_ID, },
+>>>   	{ PCI_VENDOR_ID_NVIDIA,
+>>> PCI_DEVICE_ID_NVIDIA_NFORCE_MCP55_SMBUS, PCI_ANY_ID, PCI_ANY_ID, },
+>>> +	{ PCI_VENDOR_ID_NVIDIA,
+>>> PCI_DEVICE_ID_NVIDIA_NFORCE_MCP78S_SMBUS,
+>>> +	  PCI_ANY_ID, PCI_ANY_ID, },
+>>>   	{ 0, },			/* End of list */
+>>>   };
+>>>   MODULE_DEVICE_TABLE(pci, tco_pci_tbl);
+>
+>
+>
+>
+> -----------------
+> Regards,
+> Aleksey Kunitskiy
+>
 
