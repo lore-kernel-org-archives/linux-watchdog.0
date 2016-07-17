@@ -1,81 +1,88 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from spo001.leaseweb.nl ([83.149.101.17]:43798 "EHLO
+Received: from spo001.leaseweb.nl ([83.149.101.17]:43800 "EHLO
 	spo001.leaseweb.nl" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751181AbcGQUS7 (ORCPT
+	with ESMTP id S1751138AbcGQUUg (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 17 Jul 2016 16:18:59 -0400
-Date: Sun, 17 Jul 2016 22:18:54 +0200
+	Sun, 17 Jul 2016 16:20:36 -0400
+Date: Sun, 17 Jul 2016 22:20:34 +0200
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Stefan Christ <s.christ@phytec.de>
-Cc: linux@roeck-us.net, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH v2] watchdog: da9063_wdt: don't trigger watchdog too fast
-Message-ID: <20160717201854.GA900@spo001.leaseweb.nl>
-References: <1467794411-11155-1-git-send-email-s.christ@phytec.de>
+To: Thomas Pedersen <twp@codeaurora.org>
+Cc: linux-watchdog@vger.kernel.org,
+	Matthew McClintock <mmcclint@codeaurora.org>,
+	Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [PATCH v3 3/3] watchdog: qcom: configure BARK time in addition to BITE time
+Message-ID: <20160717202034.GA916@spo001.leaseweb.nl>
+References: <1467222602-18362-1-git-send-email-twp@codeaurora.org> <1467222602-18362-3-git-send-email-twp@codeaurora.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1467794411-11155-1-git-send-email-s.christ@phytec.de>
+In-Reply-To: <1467222602-18362-3-git-send-email-twp@codeaurora.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Stefan,
+Hi Matthew,
 
-> Triggering the watchdog faster than T_WDMIN=256ms leads to resets of the
-> DA9063 chip. The datasheet says that the watchdog must only be triggered
-> in the timeframe T_WDMIN to T_WDMAX. The T_WDMAX is configured in the
-> driver.
+> From: Matthew McClintock <mmcclint@codeaurora.org>
 > 
-> Signed-off-by: Stefan Christ <s.christ@phytec.de>
+> For certain parts and some versions of TZ, TZ will reset the chip
+> when a BARK is triggered even though it was not configured here. So
+> by default let's configure this BARK time as well.
+> 
+> Signed-off-by: Matthew McClintock <mmcclint@codeaurora.org>
+> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+> Signed-off-by: Thomas Pedersen <twp@codeaurora.org>
 > ---
-> v2: use internal kernel API 'min_hw_heartbeat_ms' instead of driver specific
->     implementation.
+>  drivers/watchdog/qcom-wdt.c | 5 +++++
+>  1 file changed, 5 insertions(+)
 > 
-> Hi,
-> 
-> this is a follow up patch to the patch
-> 
->     [RFC 1/6] watchdog: da9063_wdt: don't trigger watchdog too fast
-> 
-> in my RFC patch series. Using the internal kernel watchdog API also makes my
-> second patch
-> 
->     [RFC 2/6] watchdog: da9063_wdt: use delayed work to trigger
-> 
-> obsolete, because the kernel API uses a delayed worker already.
-> 
-> Kind regards,
->     Stefan Christ
-> ---
->  drivers/watchdog/da9063_wdt.c | 2 ++
->  1 file changed, 2 insertions(+)
-> 
-> diff --git a/drivers/watchdog/da9063_wdt.c b/drivers/watchdog/da9063_wdt.c
-> index a100f64..5d6b4e5 100644
-> --- a/drivers/watchdog/da9063_wdt.c
-> +++ b/drivers/watchdog/da9063_wdt.c
-> @@ -34,6 +34,7 @@ static const unsigned int wdt_timeout[] = { 0, 2, 4, 8, 16, 32, 65, 131 };
->  #define DA9063_WDT_MIN_TIMEOUT		wdt_timeout[DA9063_TWDSCALE_MIN]
->  #define DA9063_WDT_MAX_TIMEOUT		wdt_timeout[DA9063_TWDSCALE_MAX]
->  #define DA9063_WDG_TIMEOUT		wdt_timeout[3]
-> +#define DA9063_RESET_PROTECTION_MS	256
+> diff --git a/drivers/watchdog/qcom-wdt.c b/drivers/watchdog/qcom-wdt.c
+> index 111e8a7..5796b5d 100644
+> --- a/drivers/watchdog/qcom-wdt.c
+> +++ b/drivers/watchdog/qcom-wdt.c
+> @@ -24,6 +24,7 @@ enum wdt_reg {
+>  	WDT_RST,
+>  	WDT_EN,
+>  	WDT_STS,
+> +	WDT_BARK_TIME,
+>  	WDT_BITE_TIME,
+>  };
 >  
->  struct da9063_watchdog {
->  	struct da9063 *da9063;
-> @@ -171,6 +172,7 @@ static int da9063_wdt_probe(struct platform_device *pdev)
->  	wdt->wdtdev.ops = &da9063_watchdog_ops;
->  	wdt->wdtdev.min_timeout = DA9063_WDT_MIN_TIMEOUT;
->  	wdt->wdtdev.max_timeout = DA9063_WDT_MAX_TIMEOUT;
-> +	wdt->wdtdev.min_hw_heartbeat_ms = DA9063_RESET_PROTECTION_MS;
->  	wdt->wdtdev.timeout = DA9063_WDG_TIMEOUT;
->  	wdt->wdtdev.parent = &pdev->dev;
+> @@ -31,6 +32,7 @@ static const u32 reg_offset_data_apcs_tmr[] = {
+>  	[WDT_RST] = 0x38,
+>  	[WDT_EN] = 0x40,
+>  	[WDT_STS] = 0x44,
+> +	[WDT_BARK_TIME] = 0x4C,
+>  	[WDT_BITE_TIME] = 0x5C,
+>  };
+>  
+> @@ -38,6 +40,7 @@ static const u32 reg_offset_data_kpss[] = {
+>  	[WDT_RST] = 0x4,
+>  	[WDT_EN] = 0x8,
+>  	[WDT_STS] = 0xC,
+> +	[WDT_BARK_TIME] = 0x10,
+>  	[WDT_BITE_TIME] = 0x14,
+>  };
+>  
+> @@ -66,6 +69,7 @@ static int qcom_wdt_start(struct watchdog_device *wdd)
+>  
+>  	writel(0, wdt_addr(wdt, WDT_EN));
+>  	writel(1, wdt_addr(wdt, WDT_RST));
+> +	writel(wdd->timeout * wdt->rate, wdt_addr(wdt, WDT_BARK_TIME));
+>  	writel(wdd->timeout * wdt->rate, wdt_addr(wdt, WDT_BITE_TIME));
+>  	writel(1, wdt_addr(wdt, WDT_EN));
+>  	return 0;
+> @@ -108,6 +112,7 @@ static int qcom_wdt_restart(struct watchdog_device *wdd, unsigned long action,
+>  
+>  	writel(0, wdt_addr(wdt, WDT_EN));
+>  	writel(1, wdt_addr(wdt, WDT_RST));
+> +	writel(timeout, wdt_addr(wdt, WDT_BARK_TIME));
+>  	writel(timeout, wdt_addr(wdt, WDT_BITE_TIME));
+>  	writel(1, wdt_addr(wdt, WDT_EN));
 >  
 > -- 
-> 1.9.1
+> The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
+> a Linux Foundation Collaborative Project
 > 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
 This patch has been added to linux-watchdog-next.
 
