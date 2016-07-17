@@ -1,71 +1,60 @@
 Return-path: <wimvs@spo001.leaseweb.nl>
-Date: Sun, 17 Jul 2016 21:49:00 +0200
+Date: Sun, 17 Jul 2016 21:49:59 +0200
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Joel Stanley <joel@jms.id.au>
-Cc: linux@roeck-us.net, robh@kernel.org, linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, jk@ozlabs.org,
-	benh@kernel.crashing.org
-Subject: Re: [PATCH v3 0/2]  watchdog: Add Aspeed watchdog driver
-Message-ID: <20160717194900.GA32751@spo001.leaseweb.nl>
-References: <1463062631-16432-1-git-send-email-joel@jms.id.au> <1463559661-14170-1-git-send-email-joel@jms.id.au>
+To: William Breathitt Gray <vilhelm.gray@gmail.com>
+Cc: linux@roeck-us.net, linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] watchdog: pcwd: Utilize the module_isa_driver macro
+Message-ID: <20160717194959.GB32751@spo001.leaseweb.nl>
+References: <20160601130548.GA13035@sophia>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1463559661-14170-1-git-send-email-joel@jms.id.au>
+In-Reply-To: <20160601130548.GA13035@sophia>
 Sender: <wimvs@spo001.leaseweb.nl>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi Joel,
+Hi William,
 
-> Hello,
+> This driver does not do anything special in module init/exit. This patch
+> eliminates the module init/exit boilerplate code by utilizing the
+> module_isa_driver macro.
 > 
-> These patches add support for the watchdog timer found in Aspeed ast2400 and
-> ast2500 BMC SoCs.
+> Signed-off-by: William Breathitt Gray <vilhelm.gray@gmail.com>
+> ---
+>  drivers/watchdog/pcwd.c | 14 +-------------
+>  1 file changed, 1 insertion(+), 13 deletions(-)
 > 
-> The u-boot that ships on the edk and with many systems leaves the watchdog
-> running when jumping to the kernel, making this driver required for operation.
-> 
-> It has been tested on the ast2400 in an OpenPower Palmetto, and the ast2500-edk
-> dev board.
-> 
-> Changes in v3:
->  - remove rate from struct aspeed_wdt in favour of #define
->  - don't start the timer when setting the timeout
->  - wait after initiaitng the reboot so it catches
->  - remove dev_info from startup
-> 
->  - update bindings following review from Rob (this didn't make it to the
->  mailing list in v2)
-> 
-> Changes in v2:
-> 
-> Addressed review from Guenter:
->  - dropped the drv_dbgs
->  - added defines for all of the constants
->  - clarified the type of reset we want
->  - leaves the watchdog running
-> 
-> Cheers,
-> 
-> Joel
-> 
-> Joel Stanley (2):
->   doc/devicetree: Add Aspeed watchdog timer bindings
->   watchdog: Add Aspeed watchdog driver
-> 
->  .../devicetree/bindings/watchdog/aspeed-wdt.txt    |  16 ++
->  drivers/watchdog/Kconfig                           |  13 ++
->  drivers/watchdog/Makefile                          |   1 +
->  drivers/watchdog/aspeed_wdt.c                      | 212 +++++++++++++++++++++
->  4 files changed, 242 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt
->  create mode 100644 drivers/watchdog/aspeed_wdt.c
-> 
+> diff --git a/drivers/watchdog/pcwd.c b/drivers/watchdog/pcwd.c
+> index e936f15..3ad5206 100644
+> --- a/drivers/watchdog/pcwd.c
+> +++ b/drivers/watchdog/pcwd.c
+> @@ -992,19 +992,7 @@ static struct isa_driver pcwd_isa_driver = {
+>  	},
+>  };
+>  
+> -static int __init pcwd_init_module(void)
+> -{
+> -	return isa_register_driver(&pcwd_isa_driver, PCWD_ISA_NR_CARDS);
+> -}
+> -
+> -static void __exit pcwd_cleanup_module(void)
+> -{
+> -	isa_unregister_driver(&pcwd_isa_driver);
+> -	pr_info("Watchdog Module Unloaded\n");
+> -}
+> -
+> -module_init(pcwd_init_module);
+> -module_exit(pcwd_cleanup_module);
+> +module_isa_driver(pcwd_isa_driver, PCWD_ISA_NR_CARDS);
+>  
+>  MODULE_AUTHOR("Ken Hollis <kenji@bitgate.com>, "
+>  		"Wim Van Sebroeck <wim@iguana.be>");
 > -- 
-> 2.8.1
+> 2.7.3
 > 
 
-These patches have been added to linux-watchdog-next.
+This patch has been added to linux-watchdog-next.
 
 Kind regards,
 Wim.
