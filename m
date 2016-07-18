@@ -1,93 +1,524 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:42623 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753317AbcGTBxL (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 19 Jul 2016 21:53:11 -0400
-Subject: Re: [PATCH v2] Documentation/watchdog: check return value for magic
- close
-To: Arnd Bergmann <arnd@arndb.de>, Wim Van Sebroeck <wim@iguana.be>
-References: <20160719154136.3132886-1-arnd@arndb.de>
-Cc: Jonathan Corbet <corbet@lwn.net>,
-	Timur Tabi <timur@codeaurora.org>,
-	linux-watchdog@vger.kernel.org, linux-doc@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <578ED974.7060201@roeck-us.net>
-Date: Tue, 19 Jul 2016 18:52:52 -0700
+Return-path: <martyn.welch@collabora.co.uk>
+Subject: Re: [PATCH 2/2] watchdog: ziirave_wdt: Add support to upload the
+ firmware.
+To: Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+ linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <1466160754-15599-1-git-send-email-enric.balletbo@collabora.com>
+ <1466160754-15599-3-git-send-email-enric.balletbo@collabora.com>
+Cc: Wim Van Sebroeck <wim@iguana.be>, Guenter Roeck <linux@roeck-us.net>,
+ Martyn Welch <martyn.welch@collabora.com>
+From: Martyn Welch <martyn.welch@collabora.co.uk>
+Message-ID: <578D4D76.8070009@collabora.co.uk>
+Date: Mon, 18 Jul 2016 22:43:18 +0100
 MIME-Version: 1.0
-In-Reply-To: <20160719154136.3132886-1-arnd@arndb.de>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+In-Reply-To: <1466160754-15599-3-git-send-email-enric.balletbo@collabora.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 07/19/2016 08:41 AM, Arnd Bergmann wrote:
-> A recent commit added a write to the watchdog test code for doing the "magic
-> close", but that caused a compile-time warning:
->
-> Documentation/watchdog/src/watchdog-test.c: In function ‘main’:
-> Documentation/watchdog/src/watchdog-test.c:94:5: warning: ignoring return value of ‘write’, declared with attribute warn_unused_result [-Wunused-result]
->
-> This changes the code to print a runtime warning if the write fails.
->
-> Fixes: 5a2d3de19602 ("Documentation/watchdog: add support for magic close to watchdog-test")
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Few comments inline
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-
+On 17/06/16 11:52, Enric Balletbo i Serra wrote:
+> This patch adds and entry to the sysfs to start firmware upload process
+> on the specified device with the requested firmware.
+>
+> The uploading of the firmware needs only to happen once per firmware
+> upgrade, as the firmware is stored in persistent storage. If the
+> firmware upload or the firmware verification fails then we print and
+> error message and exit.
+>
+> Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
 > ---
-> v2: fix typo as pointed out by both Guenter Roeck and Randy Dunlap
-> ---
->   Documentation/watchdog/src/watchdog-test.c | 14 +++++++++++---
->   1 file changed, 11 insertions(+), 3 deletions(-)
+>   drivers/watchdog/ziirave_wdt.c | 426 +++++++++++++++++++++++++++++++++++++++++
+>   1 file changed, 426 insertions(+)
 >
-> diff --git a/Documentation/watchdog/src/watchdog-test.c b/Documentation/watchdog/src/watchdog-test.c
-> index c69153913722..6983d05097e2 100644
-> --- a/Documentation/watchdog/src/watchdog-test.c
-> +++ b/Documentation/watchdog/src/watchdog-test.c
-> @@ -2,6 +2,7 @@
->    * Watchdog Driver Test Program
+> diff --git a/drivers/watchdog/ziirave_wdt.c b/drivers/watchdog/ziirave_wdt.c
+> index fa1efef..63e81bc 100644
+> --- a/drivers/watchdog/ziirave_wdt.c
+> +++ b/drivers/watchdog/ziirave_wdt.c
+> @@ -18,7 +18,10 @@
+>    * GNU General Public License for more details.
 >    */
 >
-> +#include <errno.h>
->   #include <stdio.h>
->   #include <stdlib.h>
->   #include <string.h>
-> @@ -35,9 +36,13 @@ static void keep_alive(void)
+> +#include <linux/ctype.h>
+> +#include <linux/delay.h>
+>   #include <linux/i2c.h>
+> +#include <linux/firmware.h>
+>   #include <linux/kernel.h>
+>   #include <linux/module.h>
+>   #include <linux/slab.h>
+> @@ -36,6 +39,8 @@
+>   #define ZIIRAVE_STATE_OFF	0x1
+>   #define ZIIRAVE_STATE_ON	0x2
 >
->   static void term(int sig)
->   {
-> -    write(fd, &v, 1);
-> +    int ret = write(fd, &v, 1);
+> +#define ZIIRAVE_FW_NAME		"ziirave_fw.hex"
 > +
->       close(fd);
-> -    printf("\nStopping watchdog ticks...\n");
-> +    if (ret < 0)
-> +	printf("\nStopping watchdog ticks failed (%d)...\n", errno);
-> +    else
-> +	printf("\nStopping watchdog ticks...\n");
->       exit(0);
->   }
+>   static char *ziirave_reasons[] = {"power cycle", "hw watchdog", NULL, NULL,
+>   				  "host request", NULL, "illegal configuration",
+>   				  "illegal instruction", "illegal trap",
+> @@ -50,6 +55,30 @@ static char *ziirave_reasons[] = {"power cycle", "hw watchdog", NULL, NULL,
+>   #define ZIIRAVE_WDT_PING		0x9
+>   #define ZIIRAVE_WDT_RESET_DURATION	0xa
 >
-> @@ -45,6 +50,7 @@ int main(int argc, char *argv[])
->   {
->       int flags;
->       unsigned int ping_rate = 1;
-> +    int ret;
->
->       setbuf(stdout, NULL);
->
-> @@ -91,7 +97,9 @@ int main(int argc, char *argv[])
->   	sleep(ping_rate);
->       }
->   end:
-> -    write(fd, &v, 1);
-> +    ret = write(fd, &v, 1);
-> +    if (ret < 0)
-> +	printf("Stopping watchdog ticks failed (%d)...\n", errno);
->       close(fd);
->       return 0;
->   }
->
+> +#define ZIIRAVE_FIRM_PKT_TOTAL_SIZE	20
+> +#define ZIIRAVE_FIRM_PKT_DATA_SIZE	16
+> +#define ZIIRAVE_FIRM_FLASH_MEMORY_START	0x1600
+> +#define ZIIRAVE_FIRM_FLASH_MEMORY_END	0x2bbf
 
+This doesn't seem to be used anywhere:
+
+> +/* Download message error. Ex: Message did not CRC properly */
+> +#define ZIIRAVE_FIRM_DOWNLOAD_NAK	0
+> +/* Received and ready for next Download packet. */
+> +#define ZIIRAVE_FIRM_DOWNLOAD_ACK	1
+> +/* Currently writing to flash. Retry Download status in a moment! */
+> +#define ZIIRAVE_FIRM_DOWNLOAD_BUSY	2
+
+Neither is this:
+
+> +/* Hardware error writing flash has occurred! */
+> +#define ZIIRAVE_FIRM_DOWNLOAD_FAIL	3
+> +
+> +/*
+> + * Firmware commands
+> + */
+> +#define ZIIRAVE_CMD_DOWNLOAD_START		0x10
+> +#define ZIIRAVE_CMD_DOWNLOAD_END		0x11
+> +#define ZIIRAVE_CMD_DOWNLOAD_SET_READ_ADDR	0x12
+> +#define ZIIRAVE_CMD_DOWNLOAD_READ_BYTE		0x13
+> +#define ZIIRAVE_CMD_RESET_PROCESSOR		0x0b
+> +#define ZIIRAVE_CMD_JUMP_TO_BOOTLOADER		0x0c
+> +#define ZIIRAVE_CMD_DOWNLOAD_PACKET		0x0e
+> +
+>   struct ziirave_wdt_rev {
+>   	unsigned char major;
+>   	unsigned char minor;
+> @@ -62,6 +91,23 @@ struct ziirave_wdt_data {
+>   	int reset_reason;
+>   };
+>
+> +/*
+> + * A packet to send to the firmware is composed by following bytes:
+> + *     Count | Addr0 | Addr1 | Data0 .. Data15 | Checksum |
+> + * Where,
+
+Would "Length" below be the same as "Count" above?
+
+> + *     Length: A data byte containing the length of the data.
+> + *     Addr0: Low byte of the address.
+> + *     Addr1: High byte of the address.
+> + *     Data0 .. Data15: Array of 16 bytes of data.
+> + *     Checksum: Checksum byte to verify data integrity.
+> + */
+> +struct ziirave_fw_pkt_t {
+> +	u8 length;
+> +	u16 addr;
+> +	u8 data[ZIIRAVE_FIRM_PKT_DATA_SIZE];
+> +	u8 checksum;
+> +} __packed;
+> +
+>   static int wdt_timeout;
+>   module_param(wdt_timeout, int, 0);
+>   MODULE_PARM_DESC(wdt_timeout, "Watchdog timeout in seconds");
+> @@ -146,6 +192,339 @@ static unsigned int ziirave_wdt_get_timeleft(struct watchdog_device *wdd)
+>   	return ret;
+>   }
+>
+> +static int ziirave_firm_wait_for_ack(struct watchdog_device *wdd)
+> +{
+> +	struct i2c_client *client = to_i2c_client(wdd->parent);
+> +	int ret;
+> +
+> +	do {
+> +		usleep_range(5000, 5100);
+> +		ret = i2c_smbus_read_byte(client);
+> +		if (ret < 0) {
+> +			dev_err(&client->dev, "Failed to read byte\n");
+> +			return ret;
+> +		}
+> +	} while (ret == ZIIRAVE_FIRM_DOWNLOAD_BUSY);
+> +
+> +	return ret == ZIIRAVE_FIRM_DOWNLOAD_ACK ? 0 : -EIO;
+
+Is the required response the same for a NAK and FAIL?
+
+> +}
+> +
+> +/*
+> + * Parse Microchip format Hex file (an extended Intel Hex file) to extract
+> + * address and data.
+> + */
+> +static int ziirave_firm_parse_hex_line(unsigned char *fw_data,
+> +				       struct ziirave_fw_pkt_t *fw_pkt,
+> +				       bool *addr_has_changed)
+> +{
+> +	int count = 0;
+> +	unsigned char *src, dst;
+> +
+> +	if (*fw_data++ != ':')
+> +		return -EFAULT;
+> +
+> +	/* locate end of line */
+> +	for (src = fw_data; *src != '\n'; src += 2) {
+> +		/*
+> +		 * Convert the ascii hexadecimal string to its binary
+> +		 * representation
+> +		 */
+> +		if (hex2bin(&dst, src, 1))
+> +			return -EINVAL;
+> +
+> +		/* Parse line to split addr / data */
+> +		switch (count) {
+> +		case 0:
+> +			fw_pkt->length = dst;
+> +			break;
+> +		case 1:
+> +			fw_pkt->addr = dst << 8;
+> +			break;
+> +		case 2:
+> +			fw_pkt->addr |= dst;
+> +			fw_pkt->addr >>= 1;
+> +			break;
+> +		case 3:
+> +			/* check if data is an address */
+> +			if (dst == 0x04)
+> +				*addr_has_changed = true;
+> +			else
+> +				*addr_has_changed = false;
+> +			break;
+> +		case  4:
+> +		case  5:
+> +			if (!*addr_has_changed)
+> +				fw_pkt->data[(count - 4)] = dst;
+> +			break;
+> +		default:
+> +			fw_pkt->data[(count - 4)] = dst;
+> +			break;
+> +		}
+> +		count++;
+> +	}
+> +
+> +	/* return read value + ':' + '\n' */
+> +	return (count * 2) + 2;
+> +}
+> +
+> +static int ziirave_firm_set_read_addr(struct watchdog_device *wdd, u16 addr)
+> +{
+> +	struct i2c_client *client = to_i2c_client(wdd->parent);
+> +	u8 address[2];
+> +
+> +	memset(address, 0, sizeof(address));
+> +	address[0] = addr & 0xff;
+> +	address[1] = (addr >> 8) & 0xff;
+> +
+> +	return i2c_smbus_write_block_data(client,
+> +					  ZIIRAVE_CMD_DOWNLOAD_SET_READ_ADDR,
+> +					  ARRAY_SIZE(address), address);
+> +}
+> +
+> +static int ziirave_firm_write_block_data(struct watchdog_device *wdd,
+> +					 u8 command, u8 length, const u8 *data,
+> +					 bool wait_for_ack)
+> +{
+> +	struct i2c_client *client = to_i2c_client(wdd->parent);
+> +	int ret;
+> +
+> +	ret = i2c_smbus_write_block_data(client, command, length, data);
+> +
+> +	if (ret) {
+> +		dev_err(&client->dev,
+> +			"Failed to send command 0x%02x: %d\n", command, ret);
+> +		return ret;
+> +	}
+> +
+> +	if (wait_for_ack) {
+> +		ret = ziirave_firm_wait_for_ack(wdd);
+> +		if (ret)
+> +			dev_err(&client->dev,
+> +				"Failed waiting ACK from command 0x%02x: %d\n",
+> +				command, ret);
+> +	}
+> +
+> +	return ret;
+> +}
+> +
+> +static int ziirave_firm_write_byte(struct watchdog_device *wdd, u8 command,
+> +				   u8 byte, bool wait_for_ack)
+> +{
+> +	return ziirave_firm_write_block_data(wdd, command, 1, &byte,
+> +					     wait_for_ack);
+> +}
+> +
+> +static int ziirave_firm_write_pkt(struct watchdog_device *wdd,
+> +				  struct ziirave_fw_pkt_t *fw_pkt)
+> +{
+> +	struct i2c_client *client = to_i2c_client(wdd->parent);
+> +	u8 i, checksum = 0, packet[ZIIRAVE_FIRM_PKT_TOTAL_SIZE];
+> +	int ret;
+> +
+> +	memset(&packet, 0, sizeof(packet));
+> +
+> +	packet[0] = fw_pkt->length;
+> +	packet[1] = (u8)(fw_pkt->addr & 0xff);
+> +	packet[2] = (u8)((fw_pkt->addr & 0xff00) >> 8);
+> +
+> +	/* Copy packet data */
+> +	memcpy(packet + 3, fw_pkt->data, fw_pkt->length);
+> +
+> +	/* Compute checksum */
+> +	for (i = 0; i < (ZIIRAVE_FIRM_PKT_TOTAL_SIZE - 1); i++)
+> +		checksum += packet[i];
+> +	packet[ZIIRAVE_FIRM_PKT_TOTAL_SIZE - 1] = checksum;
+> +
+> +	ret = ziirave_firm_write_block_data(wdd, ZIIRAVE_CMD_DOWNLOAD_PACKET,
+> +					    ARRAY_SIZE(packet), packet, true);
+> +	if (ret)
+> +		dev_err(&client->dev,
+> +		      "Failed to write firmware packet at address 0x%04x: %d\n",
+> +		      fw_pkt->addr, ret);
+> +
+> +	return ret;
+> +}
+> +
+> +static int ziirave_firm_verify(struct watchdog_device *wdd,
+> +			       const struct firmware *fw)
+> +{
+> +	struct i2c_client *client = to_i2c_client(wdd->parent);
+> +	int i, ret, read_bytes = 0, total_read_bytes = 0;
+> +	bool addr_has_changed;
+> +	struct ziirave_fw_pkt_t fw_pkt;
+> +	u8 data[ZIIRAVE_FIRM_PKT_DATA_SIZE];
+> +
+> +	while (total_read_bytes < fw->size) {
+> +		read_bytes = ziirave_firm_parse_hex_line(
+> +					(u8 *)(fw->data + total_read_bytes),
+> +					&fw_pkt, &addr_has_changed);
+> +
+> +		/* Detect the end of file */
+> +		total_read_bytes += read_bytes;
+> +		if (total_read_bytes == fw->size)
+> +			break;
+> +
+> +		if (addr_has_changed)
+> +			continue;
+> +
+> +		if (fw_pkt.addr < ZIIRAVE_FIRM_FLASH_MEMORY_START ||
+> +		    fw_pkt.addr > ZIIRAVE_FIRM_FLASH_MEMORY_END)
+> +			continue;
+> +
+> +		ret = ziirave_firm_set_read_addr(wdd, fw_pkt.addr);
+> +		if (ret) {
+> +			dev_err(&client->dev,
+> +				"Failed to send SET_READ_ADDR command: %d\n",
+> +				ret);
+> +			return ret;
+> +		}
+> +
+> +		for (i = 0; i < ARRAY_SIZE(data); i++) {
+> +			ret = i2c_smbus_read_byte_data(client,
+> +						ZIIRAVE_CMD_DOWNLOAD_READ_BYTE);
+> +			if (ret < 0) {
+> +				dev_err(&client->dev,
+> +					"Failed to READ DATA: %d\n", ret);
+> +				return ret;
+> +			}
+> +			data[i] = (u8)ret;
+> +		}
+> +
+> +		if (memcmp(data, fw_pkt.data, fw_pkt.length)) {
+> +			dev_err(&client->dev,
+> +				"Firmware mismatch at address 0x%04x\n",
+> +				fw_pkt.addr);
+> +			return -EINVAL;
+> +		}
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static int ziirave_firm_upload(struct watchdog_device *wdd,
+> +			       const struct firmware *fw)
+> +{
+> +	struct i2c_client *client = to_i2c_client(wdd->parent);
+> +	struct ziirave_fw_pkt_t fw_pkt;
+> +	struct ziirave_fw_pkt_t fw_pkt_new;
+> +	int ret, total_read_bytes = 0, words_till_page_break;
+> +	bool addr_has_changed;
+> +
+> +	ret = ziirave_firm_write_byte(wdd, ZIIRAVE_CMD_JUMP_TO_BOOTLOADER, 1,
+> +				      false);
+> +	if (ret)
+> +		return ret;
+> +
+> +	msleep(500);
+> +
+> +	ret = ziirave_firm_write_byte(wdd, ZIIRAVE_CMD_DOWNLOAD_START, 1, true);
+> +	if (ret)
+> +		return ret;
+> +
+> +	msleep(500);
+> +
+> +	while (total_read_bytes < fw->size) {
+> +		int read_bytes = 0;
+> +
+> +		read_bytes = ziirave_firm_parse_hex_line(
+> +					(u8 *)(fw->data + total_read_bytes),
+> +					&fw_pkt, &addr_has_changed);
+> +
+> +		if (read_bytes <= 0) {
+> +			dev_err(&client->dev,
+> +				"Failed to parse HEX file\n");
+> +			return -EINVAL;
+> +		}
+> +
+> +		/* Detect the end of file */
+> +		total_read_bytes += read_bytes;
+> +		if (total_read_bytes == fw->size) {
+> +			/*
+> +			 * For end of download, the length field will be set
+> +			 * to 0
+> +			 */
+> +			memset(&fw_pkt, 0, sizeof(fw_pkt));
+> +			ret = ziirave_firm_write_pkt(wdd, &fw_pkt);
+> +			if (ret) {
+> +				dev_err(&client->dev,
+> +					"Failed to send EMPTY packet: %d\n",
+> +					ret);
+> +				return ret;
+> +			}
+> +
+> +			/* This sleep seems to be required */
+> +			msleep(20);
+> +
+> +			/* Start firmware verification */
+> +			ret = ziirave_firm_verify(wdd, fw);
+> +			if (ret) {
+> +				dev_err(&client->dev,
+> +					"Failed to verify firmware: %d\n", ret);
+> +				return ret;
+> +			}
+> +
+> +			/* End download operation */
+> +			ret = ziirave_firm_write_byte(wdd,
+> +						      ZIIRAVE_CMD_DOWNLOAD_END,
+> +						      1, false);
+> +			if (ret)
+> +				return ret;
+> +			break;
+> +		}
+> +
+> +		if (addr_has_changed)
+> +			continue;
+> +
+> +		/* Calculate words till page break */
+> +		words_till_page_break = (64 - (fw_pkt.addr & 0x3f));
+> +		if ((fw_pkt.length >> 1) > words_till_page_break) {
+> +			/*
+> +			 * Data in passes page boundary, so we need to split in
+> +			 * two blocks of data. Create a packet with the first
+> +			 * block of data.
+> +			 */
+> +			memset(&fw_pkt_new, 0, sizeof(fw_pkt_new));
+> +
+> +			fw_pkt_new.length = words_till_page_break << 1;
+> +			fw_pkt_new.addr = fw_pkt.addr;
+> +			memcpy(fw_pkt_new.data, fw_pkt.data, fw_pkt_new.length);
+> +
+> +			ret = ziirave_firm_write_pkt(wdd, &fw_pkt_new);
+> +			if (ret)
+> +				return ret;
+> +
+> +			/* Create a packet with the second block of data */
+> +			memset(&fw_pkt_new, 0, sizeof(fw_pkt_new));
+> +
+> +			/* Remaining bytes */
+> +			fw_pkt_new.length =
+> +				fw_pkt.length - (words_till_page_break << 1);
+> +			fw_pkt_new.addr = fw_pkt.addr + words_till_page_break;
+> +			memcpy(fw_pkt_new.data,
+> +			       fw_pkt.data + (words_till_page_break << 1),
+> +			       fw_pkt_new.length);
+> +
+> +			ret = ziirave_firm_write_pkt(wdd, &fw_pkt_new);
+> +			if (ret)
+> +				return ret;
+> +		} else {
+> +			ret = ziirave_firm_write_pkt(wdd, &fw_pkt);
+> +			if (ret)
+> +				return ret;
+> +		}
+> +	}
+> +
+> +	/* Reset the processor */
+> +	ret = ziirave_firm_write_byte(wdd, ZIIRAVE_CMD_RESET_PROCESSOR, 1,
+> +				      false);
+> +	if (ret)
+> +		return ret;
+> +
+> +	msleep(500);
+> +
+> +	return 0;
+> +}
+> +
+>   static const struct watchdog_info ziirave_wdt_info = {
+>   	.options = WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE | WDIOF_KEEPALIVEPING,
+>   	.identity = "Zodiac RAVE Watchdog",
+> @@ -201,10 +580,57 @@ static ssize_t ziirave_wdt_sysfs_show_reason(struct device *dev,
+>   static DEVICE_ATTR(reset_reason, S_IRUGO, ziirave_wdt_sysfs_show_reason,
+>   		   NULL);
+>
+> +static ssize_t ziirave_wdt_sysfs_store_firm(struct device *dev,
+> +					    struct device_attribute *attr,
+> +					    const char *buf, size_t count)
+> +{
+> +	struct i2c_client *client = to_i2c_client(dev->parent);
+> +	struct ziirave_wdt_data *w_priv = i2c_get_clientdata(client);
+> +	const struct firmware *fw;
+> +	int err;
+> +
+> +	err = request_firmware(&fw, ZIIRAVE_FW_NAME, dev);
+> +	if (err) {
+> +		dev_err(&client->dev, "Unable to open firmware %s: %d\n",
+> +			ZIIRAVE_FW_NAME, err);
+> +		return err;
+> +	}
+> +
+> +	err = ziirave_firm_upload(&w_priv->wdd, fw);
+> +	if (err) {
+> +		dev_err(&client->dev, "The firmware update failed: %d\n", err);
+> +		goto release_firmware;
+> +	}
+> +
+> +	/* Update firmware version */
+> +	err = ziirave_wdt_revision(client, &w_priv->firmware_rev,
+> +				   ZIIRAVE_WDT_FIRM_VER_MAJOR);
+> +	if (err) {
+> +		dev_err(&client->dev, "Failed to read firmware version: %d\n",
+> +			err);
+> +		goto release_firmware;
+> +	}
+> +
+> +	dev_info(&client->dev, "Firmware updated to version 02.%02u.%02u\n",
+> +		 w_priv->firmware_rev.major, w_priv->firmware_rev.minor);
+> +
+> +	/* Restore the watchdog timeout */
+> +	err = ziirave_wdt_set_timeout(&w_priv->wdd, w_priv->wdd.timeout);
+> +	if (err)
+> +		dev_err(&client->dev, "Failed to set timeout: %d\n", err);
+> +
+> +release_firmware:
+> +	release_firmware(fw);
+> +	return err ? err : count;
+> +}
+> +
+> +static DEVICE_ATTR(update_fw, S_IWUSR, NULL, ziirave_wdt_sysfs_store_firm);
+> +
+>   static struct attribute *ziirave_wdt_attrs[] = {
+>   	&dev_attr_firmware_version.attr,
+>   	&dev_attr_bootloader_version.attr,
+>   	&dev_attr_reset_reason.attr,
+> +	&dev_attr_update_fw.attr,
+>   	NULL
+>   };
+>   ATTRIBUTE_GROUPS(ziirave_wdt);
+>
