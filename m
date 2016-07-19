@@ -1,71 +1,72 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:36179 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750945AbcGaWR2 (ORCPT
+Received: from mail-wm0-f47.google.com ([74.125.82.47]:33939 "EHLO
+	mail-wm0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753253AbcGSQVn convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 31 Jul 2016 18:17:28 -0400
-Subject: Re: [RFC 3/3] watchdog: introduce CONFIG_WATCHDOG_OPEN_DEADLINE
-To: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
-References: <1468487788-22457-1-git-send-email-rasmus.villemoes@prevas.dk>
- <1468487788-22457-4-git-send-email-rasmus.villemoes@prevas.dk>
- <5787A4E9.30905@roeck-us.net> <578891AB.3070501@prevas.dk>
- <5788F34E.8060905@roeck-us.net> <578FF674.2000704@prevas.dk>
- <20160721003110.GC23213@roeck-us.net> <579916E2.2070402@prevas.dk>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <579E78F4.6050806@roeck-us.net>
-Date: Sun, 31 Jul 2016 15:17:24 -0700
+	Tue, 19 Jul 2016 12:21:43 -0400
+Received: by mail-wm0-f47.google.com with SMTP id q128so17689057wma.1
+        for <linux-watchdog@vger.kernel.org>; Tue, 19 Jul 2016 09:21:42 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <579916E2.2070402@prevas.dk>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20160717221302.GA1111@laptop>
+References: <CAAEAJfAEKvLCk2gjj6MR00t-Yg_-XEG1qb0ij6jse=FV3ez5bw@mail.gmail.com>
+ <578A6C71.8080705@roeck-us.net> <20160717221302.GA1111@laptop>
+From: Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>
+Date: Tue, 19 Jul 2016 13:21:40 -0300
+Message-ID: <CAAEAJfAxZy-57uM+XnvyiwE8k0eTx9iekzzHC5wGhCOMTR7qqg@mail.gmail.com>
+Subject: Re: Can't query Intel's iTCO watchdog reboot reason
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: dvhart@infradead.org, wim@iguana.be, linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 07/27/2016 01:17 PM, Rasmus Villemoes wrote:
-> On 2016-07-21 02:31, Guenter Roeck wrote:
->> On Thu, Jul 21, 2016 at 12:08:52AM +0200, Rasmus Villemoes wrote:
+On 17 July 2016 at 19:13, Ezequiel Garcia <ezequiel@vanguardiasur.com.ar> wrote:
+> Hi Guenter,
+>
+> Thanks a lot for the quick reply.
+>
+> On 16 Jul 10:18 AM, Guenter Roeck wrote:
+>> On 07/15/2016 04:21 PM, Ezequiel Garcia wrote:
+>> > Hi everyone,
+>> >
+>> > A large portion of my intel-based products are suffering from
+>> > a nasty hardware freeze [1], and so I'm currently working this around
+>> > enabling the iTCO watchdog -- which in any case, it's a good idea
+>> > to have enabled.
+>> >
+>> > So, it would be interesting to find out on each boot if the machine was
+>> > rebooted due to a watchdog timeout, but so far I'm not having any luck.
+>> >
+>> > As per Intel's appnote [2] the BIOS should update the WDDT ACPI table,
+>> > so I added something like this to the iTCO driver:
+>> >
+>> >         status = acpi_get_table(ACPI_SIG_WDDT, 1,
+>> >                                 (struct acpi_table_header **) &buf);
+>> >         if (ACPI_FAILURE(status) || buf->header.length < sizeof(*buf)) {
+>> >                 pr_err(FW_BUG "failed to get WDDT ACPI table\n");
+>> >                 return;
+>> >         }
+>> >
+>> > But it doesn't find the table. Strangely, reading TCO1_STS
+>> > and TCO2_STS always gives 0x0.
+>> >
 >>
->> I hear you. "configure hardware" is a slippery term, though. After all,
->> one would typically configure the initial timeout in hardware, just as
->> any "normal" timeout. In many cases, this will actually already be the
->> case (and should be), since the watchdog should be enabled by the
->> ROMMON or BIOS before control is passed to the kernel. As such, the
->> initial timeout should already be set when the driver is loaded.
->
-> So this suggests to me that you've misunderstood how I imagine the "open-deadline" (let me keep that name for now) to work. I do certainly expect the bootloader to have configured and started the watchdog device before control is handed to the kernel, preferably with a rather large timeout, so that the watchdog doesn't reset the board before the kernel gets around to loading the appropriate driver and detecting that there's a dog to be fed. In fact, if the watchdog isn't running when the kernel starts, my patch does nothing.
->
-
-No, I did not misunderstand it. We just have a different perspective how to fix it.
-
->> Overall, my conclusion is that if a devicetree property is not acceptable
->> for some reason, we should drop the notion of supporting an initial or
->> "open" timeout entirely, and leave it up to the BIOS/ROMMON as well as the
->> respective watchdog driver to set an acceptable default or initial timeout.
->> This initial timeout can (and will) be overwritten with the desired runtime
->> timeout by the watchdog daemon after it opened the watchdog device.
+>> That sounds like either the BIOS resets those bits, or the reboots
+>> are not caused by the watchdog. Are you sure that you see reboots
+>> that are caused by the watchdog ?
 >>
->>>> Devicetree could be handled in the core, with a function to set the
->>>> initial timeout,
->>>> or possibly even with the watchdog registration itself.
->>>
->>> But where in the device tree would you put this value? I'd really prefer not
->>> having to modify the node representing each individual watchdog device I
->>> might use.
->>>
->> The existing "timeout-sec" property is in the watchdog node as well.
 >
-> Yes, but my "timeout" is not used in any way for configuring the watchdog device nor the driver for it. Nor does an appropriate value depend on which watchdog hardware one has.
+> Yes, I'm testing my patch forcing watchdog reboots. At least on my i5
+> development machine, I haven't found any way of querying the reboot
+> reason. I'm not even sure this is supposed to work.
 >
-> I'm interested in, to borrow your words, "fixing the gap" between handing over control from the kernel to user-space, by making sure that the kernel only feeds the watchdog for a finite amount of time - if userspace hasn't come up and opened the watchdog device by then, the board reboots. I set a rather generous default of two minutes; it could be (and may in some cases need to be) more, but the important thing is that the kernel doesn't feed the watchdog indefinitely.
+> I'll see if I can test on other intel machines with TCO watchdogs.
 >
 
-I don't think we are making progress. You are absolutely opposed to introducing a
-devicetree property, and I am absolutely opposed to introducing a configuration option.
-The only alternatives I can see would be the old fashioned way of introducing platform
-data, and/or to live with a boot parameter. Or we can wait for Wim to chime in
-and share his opinion.
+FWIW, repeated this test on a Bay Trail SoC TCO device, with no luck.
 
-Guenter
-
+Thanks,
+-- 
+Ezequiel García, VanguardiaSur
+www.vanguardiasur.com.ar
