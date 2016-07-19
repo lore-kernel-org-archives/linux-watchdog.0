@@ -1,43 +1,106 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from smtprelay0016.hostedemail.com ([216.40.44.16]:35507 "EHLO
-	smtprelay.hostedemail.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1752377AbcGRTjI (ORCPT
+Received: from merlin.infradead.org ([205.233.59.134]:53886 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753835AbcGSOym (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 18 Jul 2016 15:39:08 -0400
-Received: from smtprelay.hostedemail.com (10.5.19.251.rfc1918.com [10.5.19.251])
-	by smtpgrave03.hostedemail.com (Postfix) with ESMTP id 9962E290E55
-	for <linux-watchdog@vger.kernel.org>; Mon, 18 Jul 2016 19:32:39 +0000 (UTC)
-Message-ID: <1468870350.1900.18.camel@perches.com>
-Subject: Re: [PATCH v3] Documentation: Move samples from doc to samples/
-From: Joe Perches <joe@perches.com>
-To: Mahesh Khanwalkar <maheshkhanwalkar@gmail.com>, corbet@lwn.net,
-	sudeep.dutt@intel.com, ashutosh.dixit@intel.com,
-	tglx@linutronix.de, clemens@ladisch.de, wim@iguana.be,
-	linux@roeck-us.net, gregkh@linuxfoundation.org,
-	dasaratharaman.chandramouli@intel.com, timur@codeaurora.org,
-	arnd@arndb.de, nab@linux-iscsi.org, hans.verkuil@cisco.com,
-	mchehab@osg.samsung.com
-Cc: linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-pcmcia@lists.infradead.org, linux-watchdog@vger.kernel.org
-Date: Mon, 18 Jul 2016 12:32:30 -0700
-In-Reply-To: <1468870066-11792-1-git-send-email-maheshkhanwalkar@gmail.com>
-References: <578D2264.6060205 () codeaurora ! org>
-	 <1468870066-11792-1-git-send-email-maheshkhanwalkar@gmail.com>
-Content-Type: text/plain; charset="ISO-8859-1"
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+	Tue, 19 Jul 2016 10:54:42 -0400
+Subject: Re: [PATCH] Documentation/watchdog: check return value for magic
+ close
+To: Arnd Bergmann <arnd@arndb.de>, Wim Van Sebroeck <wim@iguana.be>
+References: <20160719092522.6397-1-arnd@arndb.de>
+Cc: Guenter Roeck <linux@roeck-us.net>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Timur Tabi <timur@codeaurora.org>,
+	linux-watchdog@vger.kernel.org, linux-doc@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+From: Randy Dunlap <rdunlap@infradead.org>
+Message-ID: <fc9151de-4870-8441-5e75-7504a0eb107e@infradead.org>
+Date: Tue, 19 Jul 2016 07:54:37 -0700
+MIME-Version: 1.0
+In-Reply-To: <20160719092522.6397-1-arnd@arndb.de>
+Content-Type: text/plain; charset=utf-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, 2016-07-18 at 15:27 -0400, Mahesh Khanwalkar wrote:
-> Moved sample code found in Documentation/ to samples/ but kept actual
-> documentation where it is, while updating any in-text references to the
-> moved code. Updated the Documentation/Makefile and samples/Makefile to
-> reflect the change. Built with CONFIG_SAMPLES=y in .config with no
-> build errors. The directories added within samples/ still follow the
-> same structure that they did in Documentation. Directories in
-> Documentation/ that contained code still exist, only the code within
-> them has been moved out accordingly.
+On 07/19/16 02:24, Arnd Bergmann wrote:
+> A recent commit added a write to the watchdog test code for doing the "=
+magic
+> close", but that caused a compile-time warning:
+>=20
+> Documentation/watchdog/src/watchdog-test.c: In function =E2=80=98main=E2=
+=80=99:
+> Documentation/watchdog/src/watchdog-test.c:94:5: warning: ignoring retu=
+rn value of =E2=80=98write=E2=80=99, declared with attribute warn_unused_=
+result [-Wunused-result]
+>=20
+> This changes the code to print a runtime warning if the write fails.
+>=20
+> Fixes: 5a2d3de19602 ("Documentation/watchdog: add support for magic clo=
+se to watchdog-test")
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> ---
+>  Documentation/watchdog/src/watchdog-test.c | 14 +++++++++++---
+>  1 file changed, 11 insertions(+), 3 deletions(-)
+>=20
+> diff --git a/Documentation/watchdog/src/watchdog-test.c b/Documentation=
+/watchdog/src/watchdog-test.c
+> index c69153913722..52eea54649ab 100644
+> --- a/Documentation/watchdog/src/watchdog-test.c
+> +++ b/Documentation/watchdog/src/watchdog-test.c
+> @@ -2,6 +2,7 @@
+>   * Watchdog Driver Test Program
+>   */
+> =20
+> +#include <errno.h>
+>  #include <stdio.h>
+>  #include <stdlib.h>
+>  #include <string.h>
+> @@ -35,9 +36,13 @@ static void keep_alive(void)
+> =20
+>  static void term(int sig)
+>  {
+> -    write(fd, &v, 1);
+> +    int ret =3D write(fd, &v, 1);
+> +
+>      close(fd);
+> -    printf("\nStopping watchdog ticks...\n");
+> +    if (ret < 0)
+> +	printf("\nStopping watchdog ticks failed (%d)...\n", errno);
+> +    else
+> +	printf("\nStopping watchdog ticks...\n");
+>      exit(0);
+>  }
+> =20
+> @@ -45,6 +50,7 @@ int main(int argc, char *argv[])
+>  {
+>      int flags;
+>      unsigned int ping_rate =3D 1;
+> +    int ret;
+> =20
+>      setbuf(stdout, NULL);
+> =20
+> @@ -91,7 +97,9 @@ int main(int argc, char *argv[])
+>  	sleep(ping_rate);
+>      }
+>  end:
+> -    write(fd, &v, 1);
+> +    ret =3D write(fd, &v, 1);
+> +    if (ret < 0)
+> +	printf("Sopping watchdog ticks failed (%d)...\n", errno);
 
-The MAINTAINERS file should also have file patterns updated.
+Stopping
 
+>      close(fd);
+>      return 0;
+>  }
+>=20
+
+
+--=20
+~Randy
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
