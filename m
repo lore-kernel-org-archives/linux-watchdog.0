@@ -1,55 +1,83 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from albert.telenet-ops.be ([195.130.137.90]:58410 "EHLO
-	albert.telenet-ops.be" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753232AbcGSLq5 (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 19 Jul 2016 07:46:57 -0400
-From: Geert Uytterhoeven <geert+renesas@glider.be>
-To: Wim Van Sebroeck <wim@iguana.be>,
-	Guenter Roeck <linux@roeck-us.net>
-Cc: Rob Herring <robh+dt@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-	linux-renesas-soc@vger.kernel.org,
-	Geert Uytterhoeven <geert+renesas@glider.be>
-Subject: [PATCH v2] watchdog: renesas-wdt: Add support for the r8a7796 wdt
-Date: Tue, 19 Jul 2016 13:46:54 +0200
-Message-Id: <1468928814-18817-1-git-send-email-geert+renesas@glider.be>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-path: <arnd@arndb.de>
+From: Arnd Bergmann <arnd@arndb.de>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: Arnd Bergmann <arnd@arndb.de>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Timur Tabi <timur@codeaurora.org>,
+	linux-watchdog@vger.kernel.org,
+	linux-doc@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v2] Documentation/watchdog: check return value for magic close
+Date: Tue, 19 Jul 2016 17:41:22 +0200
+Message-Id: <20160719154136.3132886-1-arnd@arndb.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+List-ID: <linux-watchdog@vger.kernel.org>
 
-Document support for the Watchdog Timer (WDT) Controller in the Renesas
-R-Car M3-W (r8a7796) SoC.
+A recent commit added a write to the watchdog test code for doing the "magic
+close", but that caused a compile-time warning:
 
-No driver update is needed.
+Documentation/watchdog/src/watchdog-test.c: In function ‘main’:
+Documentation/watchdog/src/watchdog-test.c:94:5: warning: ignoring return value of ‘write’, declared with attribute warn_unused_result [-Wunused-result]
 
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Acked-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Acked-by: Rob Herring <robh@kernel.org>
+This changes the code to print a runtime warning if the write fails.
+
+Fixes: 5a2d3de19602 ("Documentation/watchdog: add support for magic close to watchdog-test")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
-v2:
-  - Add Acked-by.
+v2: fix typo as pointed out by both Guenter Roeck and Randy Dunlap
+---
+ Documentation/watchdog/src/watchdog-test.c | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
- Documentation/devicetree/bindings/watchdog/renesas-wdt.txt | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
-
-diff --git a/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt b/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
-index b9512f1eb80a0205..da24e31334177768 100644
---- a/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
-+++ b/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
-@@ -1,7 +1,11 @@
- Renesas Watchdog Timer (WDT) Controller
+diff --git a/Documentation/watchdog/src/watchdog-test.c b/Documentation/watchdog/src/watchdog-test.c
+index c69153913722..6983d05097e2 100644
+--- a/Documentation/watchdog/src/watchdog-test.c
++++ b/Documentation/watchdog/src/watchdog-test.c
+@@ -2,6 +2,7 @@
+  * Watchdog Driver Test Program
+  */
  
- Required properties:
--- compatible : Should be "renesas,r8a7795-wdt", or "renesas,rcar-gen3-wdt"
-+- compatible : Should be "renesas,<soctype>-wdt", and
-+	       "renesas,rcar-gen3-wdt" as fallback.
-+	       Examples with soctypes are:
-+	         - "renesas,r8a7795-wdt" (R-Car H3)
-+	         - "renesas,r8a7796-wdt" (R-Car M3-W)
++#include <errno.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
+@@ -35,9 +36,13 @@ static void keep_alive(void)
  
-   When compatible with the generic version, nodes must list the SoC-specific
-   version corresponding to the platform first, followed by the generic
+ static void term(int sig)
+ {
+-    write(fd, &v, 1);
++    int ret = write(fd, &v, 1);
++
+     close(fd);
+-    printf("\nStopping watchdog ticks...\n");
++    if (ret < 0)
++	printf("\nStopping watchdog ticks failed (%d)...\n", errno);
++    else
++	printf("\nStopping watchdog ticks...\n");
+     exit(0);
+ }
+ 
+@@ -45,6 +50,7 @@ int main(int argc, char *argv[])
+ {
+     int flags;
+     unsigned int ping_rate = 1;
++    int ret;
+ 
+     setbuf(stdout, NULL);
+ 
+@@ -91,7 +97,9 @@ int main(int argc, char *argv[])
+ 	sleep(ping_rate);
+     }
+ end:
+-    write(fd, &v, 1);
++    ret = write(fd, &v, 1);
++    if (ret < 0)
++	printf("Stopping watchdog ticks failed (%d)...\n", errno);
+     close(fd);
+     return 0;
+ }
 -- 
-1.9.1
-
+2.9.0
