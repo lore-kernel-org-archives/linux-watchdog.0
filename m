@@ -1,19 +1,19 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:51572 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:51798 "EHLO
 	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753661AbcGSOcM (ORCPT
+	with ESMTP id S1753746AbcGSOcW (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 19 Jul 2016 10:32:12 -0400
-Subject: Re: [PATCH -next] watchdog: pic32-wdt: Remove .owner field for driver
+	Tue, 19 Jul 2016 10:32:22 -0400
+Subject: Re: [PATCH -next] watchdog: pic32-dmt: Remove .owner field for driver
 To: Wei Yongjun <weiyj_lk@163.com>, Wim Van Sebroeck <wim@iguana.be>
-References: <1468928119-4337-1-git-send-email-weiyj_lk@163.com>
+References: <1468928111-3509-1-git-send-email-weiyj_lk@163.com>
 Cc: Wei Yongjun <yongjun_wei@trendmicro.com.cn>,
 	linux-watchdog@vger.kernel.org
 From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <578E39D3.2000705@roeck-us.net>
-Date: Tue, 19 Jul 2016 07:31:47 -0700
+Message-ID: <578E39EA.5050700@roeck-us.net>
+Date: Tue, 19 Jul 2016 07:32:10 -0700
 MIME-Version: 1.0
-In-Reply-To: <1468928119-4337-1-git-send-email-weiyj_lk@163.com>
+In-Reply-To: <1468928111-3509-1-git-send-email-weiyj_lk@163.com>
 Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -31,19 +31,19 @@ On 07/19/2016 04:35 AM, Wei Yongjun wrote:
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
 > ---
->   drivers/watchdog/pic32-wdt.c | 1 -
+>   drivers/watchdog/pic32-dmt.c | 1 -
 >   1 file changed, 1 deletion(-)
 >
-> diff --git a/drivers/watchdog/pic32-wdt.c b/drivers/watchdog/pic32-wdt.c
-> index 2b7a2b2..18174fe 100644
-> --- a/drivers/watchdog/pic32-wdt.c
-> +++ b/drivers/watchdog/pic32-wdt.c
-> @@ -251,7 +251,6 @@ static struct platform_driver pic32_wdt_driver = {
->   	.remove		= pic32_wdt_drv_remove,
+> diff --git a/drivers/watchdog/pic32-dmt.c b/drivers/watchdog/pic32-dmt.c
+> index 5e8890e..c797305 100644
+> --- a/drivers/watchdog/pic32-dmt.c
+> +++ b/drivers/watchdog/pic32-dmt.c
+> @@ -245,7 +245,6 @@ static struct platform_driver pic32_dmt_driver = {
+>   	.remove		= pic32_dmt_remove,
 >   	.driver		= {
->   		.name		= "pic32-wdt",
+>   		.name		= "pic32-dmt",
 > -		.owner		= THIS_MODULE,
->   		.of_match_table = of_match_ptr(pic32_wdt_dt_ids),
+>   		.of_match_table = of_match_ptr(pic32_dmt_of_ids),
 >   	}
 >   };
 >
