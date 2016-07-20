@@ -1,59 +1,83 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail02.prevas.se ([62.95.78.10]:34417 "EHLO mail02.prevas.se"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754588AbcGTWTc (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 20 Jul 2016 18:19:32 -0400
-Subject: Re: [RFC 3/3] watchdog: introduce CONFIG_WATCHDOG_OPEN_DEADLINE
-To: Guenter Roeck <linux@roeck-us.net>,
-	Wim Van Sebroeck <wim@iguana.be>
-References: <1468487788-22457-1-git-send-email-rasmus.villemoes@prevas.dk>
- <1468487788-22457-4-git-send-email-rasmus.villemoes@prevas.dk>
- <5787A4E9.30905@roeck-us.net> <578891AB.3070501@prevas.dk>
- <5788F34E.8060905@roeck-us.net>
-CC: <linux-watchdog@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-From: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
-Message-ID: <578FF674.2000704@prevas.dk>
-Date: Thu, 21 Jul 2016 00:08:52 +0200
+Received: from bh-25.webhostbox.net ([208.91.199.152]:40975 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751539AbcGTXr5 (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 20 Jul 2016 19:47:57 -0400
+Date: Wed, 20 Jul 2016 16:47:32 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+Cc: Wim Van Sebroeck <wim@iguana.be>,
+	Stephen Warren <swarren@wwwdotorg.org>,
+	Lee Jones <lee@kernel.org>, Eric Anholt <eric@anholt.net>,
+	linux-watchdog@vger.kernel.org,
+	linux-rpi-kernel@lists.infradead.org,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 3/3] watchdog: bcm2835_wdt: set WDOG_HW_RUNNING bit when
+ appropriate
+Message-ID: <20160720234732.GB23213@roeck-us.net>
+References: <1468570524-18222-1-git-send-email-rasmus.villemoes@prevas.dk>
+ <1468570524-18222-3-git-send-email-rasmus.villemoes@prevas.dk>
+ <5788E935.6080608@roeck-us.net>
+ <578FEF33.9020801@prevas.dk>
 MIME-Version: 1.0
-In-Reply-To: <5788F34E.8060905@roeck-us.net>
-Content-Type: text/plain; charset="windows-1252"; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <578FEF33.9020801@prevas.dk>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 2016-07-15 16:29, Guenter Roeck wrote:
-> On 07/15/2016 12:32 AM, Rasmus Villemoes wrote:
->
->>> The initial timeout should be specified as module option or as
->>> devicetree parameter, and there should be no additional configuration
->>> option.
->>
->> I was under the impression that device tree was exclusively for
->> describing hardware, and this certainly is not that. I also wanted to
->> avoid having to modify each driver, which would seem to be necessary
->> if it was module parameter/DT - the only thing required of a driver
->> now is that it correctly reports WDOG_HW_RUNNING.
->
-> What is "hardware" ? It is supposed to describe the system, isn't it ?
-> Part of that system is its clock rate,
-> and the means how the OS is loaded, and both have impact on the initial
-> timeout (and the regular timeout).
->
-> You might as well argue that clock rates should not be in devicetree
-> either. Clock rates are, after all,
-> just reflecting the _use_ of the hardware, not the hardware itself.
+On Wed, Jul 20, 2016 at 11:37:55PM +0200, Rasmus Villemoes wrote:
+> On 2016-07-15 15:46, Guenter Roeck wrote:
+> >On 07/15/2016 01:15 AM, Rasmus Villemoes wrote:
+> >>
+> >>+static bool bcm2835_wdt_is_running(struct bcm2835_wdt *wdt)
+> >>+{
+> >>+    uint32_t cur;
+> >>+
+> >>+    cur = readl(wdt->base + PM_RSTC);
+> >>+
+> >>+    return !!(cur & PM_RSTC_WRCFG_FULL_RESET);
+> >>+}
+> >>+
+> >>  static int bcm2835_wdt_start(struct watchdog_device *wdog)
+> >>  {
+> >>      struct bcm2835_wdt *wdt = watchdog_get_drvdata(wdog);
+> >>@@ -70,6 +79,7 @@ static int bcm2835_wdt_start(struct watchdog_device
+> >>*wdog)
+> >>            PM_RSTC_WRCFG_FULL_RESET, wdt->base + PM_RSTC);
+> >>
+> >>      spin_unlock_irqrestore(&wdt->lock, flags);
+> >>+    set_bit(WDOG_HW_RUNNING, &wdog->status);
+> >>
+> >You don't need to set this bit here unless the watchdog can not be stopped.
+> >
+> >>      return 0;
+> >>  }
+> >>@@ -79,6 +89,7 @@ static int bcm2835_wdt_stop(struct watchdog_device
+> >>*wdog)
+> >>      struct bcm2835_wdt *wdt = watchdog_get_drvdata(wdog);
+> >>
+> >>      writel_relaxed(PM_PASSWORD | PM_RSTC_RESET, wdt->base + PM_RSTC);
+> >>+    clear_bit(WDOG_HW_RUNNING, &wdog->status);
+> >
+> >... and since you clear the bit, it can be stopped. Both setting and
+> >resetting the bit
+> >is therefore not necessary.
+> 
+> Well, if the bit isn't cleared here, but it was set during probe(), the
+> framework will (re)start this watchdog (and keep it fed) since there's no
+> separate ping method. I suppose that's reasonable semantics if the watchdog
+> was running at boot (and I like how that ends up interacting with my
+> open_deadline proposal), but probably a little too subtle. This would also
+> change if the ->start method was broken up into separate ping and start
+> methods, which it seems that it could be.
+> 
+> If we do clear the bit here, I think it's neater to set it in start as well,
+> even if that doesn't really have any effect.
+> 
 
-But they are used to configure hardware. The init timeout is not a 
-property of any particular device - it configures how the kernel 
-behaves, and as such I find it quite natural to have it in the kernel's 
-.config (and overridable on command line and via sysfs).
+The problem is different. The core should clear the bit on close if there is a
+stop function, and if calling the stop function does not return an error.
 
-> Devicetree could be handled in the core, with a function to set the
-> initial timeout,
-> or possibly even with the watchdog registration itself.
-
-But where in the device tree would you put this value? I'd really prefer 
-not having to modify the node representing each individual watchdog 
-device I might use.
-
-Rasmus
+Guenter
