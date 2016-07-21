@@ -1,221 +1,271 @@
-Return-path: <lorenzo.pieralisi@arm.com>
-Date: Thu, 21 Jul 2016 13:40:53 +0100
-From: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from cloudserver094114.home.net.pl ([79.96.170.134]:50460 "HELO
+	cloudserver094114.home.net.pl" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1752098AbcGUNXc (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 21 Jul 2016 09:23:32 -0400
+From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
 To: fu.wei@linaro.org
-Cc: rjw@rjwysocki.net, lenb@kernel.org, daniel.lezcano@linaro.org,
-	tglx@linutronix.de, marc.zyngier@arm.com, sudeep.holla@arm.com,
-	hanjun.guo@linaro.org, linux-arm-kernel@lists.infradead.org,
-	linaro-acpi@lists.linaro.org, linux-kernel@vger.kernel.org,
-	linux-acpi@vger.kernel.org, rruigrok@codeaurora.org,
-	harba@codeaurora.org, cov@codeaurora.org, timur@codeaurora.org,
-	graeme.gregory@linaro.org, al.stone@linaro.org, jcm@redhat.com,
-	wei@redhat.com, arnd@arndb.de, wim@iguana.be,
-	catalin.marinas@arm.com, will.deacon@arm.com,
+Cc: lenb@kernel.org, daniel.lezcano@linaro.org, tglx@linutronix.de,
+	marc.zyngier@arm.com, lorenzo.pieralisi@arm.com,
+	sudeep.holla@arm.com, hanjun.guo@linaro.org,
+	linux-arm-kernel@lists.infradead.org, linaro-acpi@lists.linaro.org,
+	linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
+	rruigrok@codeaurora.org, harba@codeaurora.org, cov@codeaurora.org,
+	timur@codeaurora.org, graeme.gregory@linaro.org,
+	al.stone@linaro.org, jcm@redhat.com, wei@redhat.com, arnd@arndb.de,
+	wim@iguana.be, catalin.marinas@arm.com, will.deacon@arm.com,
 	Suravee.Suthikulpanit@amd.com, leo.duran@amd.com,
 	linux@roeck-us.net, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH v8 7/9] acpi/arm64: Add memory-mapped timer support in
- GTDT driver
-Message-ID: <20160721124053.GB7982@red-moon>
-References: <1468952284-28942-1-git-send-email-fu.wei@linaro.org>
- <1468952284-28942-8-git-send-email-fu.wei@linaro.org>
+Subject: Re: [PATCH v8 5/9] acpi/arm64: Add GTDT table parse driver
+Date: Thu, 21 Jul 2016 15:28:27 +0200
+Message-ID: <2091912.arUKSr7MLh@vostro.rjw.lan>
+In-Reply-To: <1468952284-28942-6-git-send-email-fu.wei@linaro.org>
+References: <1468952284-28942-1-git-send-email-fu.wei@linaro.org> <1468952284-28942-6-git-send-email-fu.wei@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1468952284-28942-8-git-send-email-fu.wei@linaro.org>
-List-ID: <linux-watchdog@vger.kernel.org>
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="utf-8"
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Jul 20, 2016 at 02:18:02AM +0800, fu.wei@linaro.org wrote:
+On Wednesday, July 20, 2016 02:18:00 AM fu.wei@linaro.org wrote:
 > From: Fu Wei <fu.wei@linaro.org>
 > 
-> This driver adds support for parsing memory-mapped timer in GTDT:
-> provide a kernel APIs to parse GT Block Structure in GTDT,
-> export all the info by filling the struct which provided
-> by parameter(pointer of the struct).
+> This patch adds support for parsing arch timer in GTDT,
+> provides some kernel APIs to parse all the PPIs and
+> always-on info in GTDT and export them.
 > 
-> By this driver, we can add ACPI support for memory-mapped timer in
-> arm_arch_timer drivers, and separate the ACPI GTDT knowledge from it.
-
-"On platforms booting with ACPI, architected memory timers configuration
-data is provided by firmware through the ACPI GTDT static table.
-
-The clocksource architected timer kernel driver requires a firmware
-interface to collect timer configuration and configure its driver;
-this infrastructure is present for device tree systems but it is
-missing on systems booting with ACPI.
-
-Implement the kernel infrastructure required to parse the static
-ACPI GTDT table so that the architected timer clocksource driver can
-make use of it on systems booting with ACPI, therefore enabling
-the corresponding timers configuration."
-
+> By this driver, we can simplify arm_arch_timer drivers, and
+> separate the ACPI GTDT knowledge from it.
+> 
 > Signed-off-by: Fu Wei <fu.wei@linaro.org>
 > Signed-off-by: Hanjun Guo <hanjun.guo@linaro.org>
 > ---
->  drivers/acpi/arm64/acpi_gtdt.c       | 72 ++++++++++++++++++++++++++++++++++++
->  include/clocksource/arm_arch_timer.h | 15 ++++++++
->  include/linux/acpi.h                 |  1 +
->  3 files changed, 88 insertions(+)
+>  arch/arm64/Kconfig             |   1 +
+>  drivers/acpi/Kconfig           |   5 ++
+>  drivers/acpi/Makefile          |   1 +
+>  drivers/acpi/arm64/Kconfig     |   5 ++
+>  drivers/acpi/arm64/Makefile    |   1 +
+>  drivers/acpi/arm64/acpi_gtdt.c | 152 +++++++++++++++++++++++++++++++++++++++++
+>  drivers/clocksource/Kconfig    |   1 -
+>  include/linux/acpi.h           |   6 ++
+>  8 files changed, 171 insertions(+), 1 deletion(-)
 > 
-> diff --git a/drivers/acpi/arm64/acpi_gtdt.c b/drivers/acpi/arm64/acpi_gtdt.c
-> index e1cfc9e..b48e443 100644
-> --- a/drivers/acpi/arm64/acpi_gtdt.c
-> +++ b/drivers/acpi/arm64/acpi_gtdt.c
-> @@ -150,3 +150,75 @@ int __init acpi_gtdt_init(struct acpi_table_header *table)
+> diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
+> index 5a0a691..0b9fba7 100644
+> --- a/arch/arm64/Kconfig
+> +++ b/arch/arm64/Kconfig
+> @@ -2,6 +2,7 @@ config ARM64
+>  	def_bool y
+>  	select ACPI_CCA_REQUIRED if ACPI
+>  	select ACPI_GENERIC_GSI if ACPI
+> +	select ACPI_GTDT if ACPI
+>  	select ACPI_REDUCED_HARDWARE_ONLY if ACPI
+>  	select ARCH_HAS_DEVMEM_IS_ALLOWED
+>  	select ARCH_HAS_ATOMIC64_DEC_IF_POSITIVE
+> diff --git a/drivers/acpi/Kconfig b/drivers/acpi/Kconfig
+> index b7e2e77..1cdc7d2 100644
+> --- a/drivers/acpi/Kconfig
+> +++ b/drivers/acpi/Kconfig
+> @@ -521,4 +521,9 @@ config XPOWER_PMIC_OPREGION
 >  
->  	return gtdt->platform_timer_count;
->  }
+>  endif
+>  
+> +if ARM64
+> +source "drivers/acpi/arm64/Kconfig"
 > +
-> +static int __init gtdt_parse_gt_block(void *platform_timer,
-> +				      struct gt_block_data *data)
+> +endif
+> +
+>  endif	# ACPI
+> diff --git a/drivers/acpi/Makefile b/drivers/acpi/Makefile
+> index 251ce85..1a94ff7 100644
+> --- a/drivers/acpi/Makefile
+> +++ b/drivers/acpi/Makefile
+> @@ -99,5 +99,6 @@ obj-$(CONFIG_ACPI_EXTLOG)	+= acpi_extlog.o
+>  obj-$(CONFIG_PMIC_OPREGION)	+= pmic/intel_pmic.o
+>  obj-$(CONFIG_CRC_PMIC_OPREGION) += pmic/intel_pmic_crc.o
+>  obj-$(CONFIG_XPOWER_PMIC_OPREGION) += pmic/intel_pmic_xpower.o
+> +obj-$(CONFIG_ARM64)	+= arm64/
+>  
+>  video-objs			+= acpi_video.o video_detect.o
+> diff --git a/drivers/acpi/arm64/Kconfig b/drivers/acpi/arm64/Kconfig
+> new file mode 100644
+> index 0000000..80201be
+> --- /dev/null
+> +++ b/drivers/acpi/arm64/Kconfig
+> @@ -0,0 +1,5 @@
+> +#
+> +# ACPI Configuration for ARM64
+> +#
+> +config ACPI_GTDT
+> +	bool
+> diff --git a/drivers/acpi/arm64/Makefile b/drivers/acpi/arm64/Makefile
+> new file mode 100644
+> index 0000000..466de6b
+> --- /dev/null
+> +++ b/drivers/acpi/arm64/Makefile
+> @@ -0,0 +1 @@
+> +obj-$(CONFIG_ACPI_GTDT)		+= acpi_gtdt.o
+> diff --git a/drivers/acpi/arm64/acpi_gtdt.c b/drivers/acpi/arm64/acpi_gtdt.c
+> new file mode 100644
+> index 0000000..e1cfc9e
+> --- /dev/null
+> +++ b/drivers/acpi/arm64/acpi_gtdt.c
+> @@ -0,0 +1,152 @@
+> +/*
+> + * ARM Specific GTDT table Support
+> + *
+> + * Copyright (C) 2016, Linaro Ltd.
+> + * Author: Daniel Lezcano <daniel.lezcano@linaro.org>
+> + *         Fu Wei <fu.wei@linaro.org>
+> + *         Hanjun Guo <hanjun.guo@linaro.org>
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License version 2 as
+> + * published by the Free Software Foundation.
+> + */
+> +
+> +#include <linux/acpi.h>
+> +#include <linux/init.h>
+> +#include <linux/kernel.h>
+> +
+> +#include <clocksource/arm_arch_timer.h>
+> +
+> +#undef pr_fmt
+> +#define pr_fmt(fmt) "ACPI GTDT: " fmt
+> +
+> +typedef struct {
+> +	struct acpi_table_gtdt *gtdt;
+> +	void *platform_timer_start;
+> +	void *gtdt_end;
+> +} acpi_gtdt_desc_t;
+> +
+> +static acpi_gtdt_desc_t acpi_gtdt_desc __initdata;
+> +
+> +static inline void *next_platform_timer(void *platform_timer)
 > +{
-
-Nit: you can directly pass a struct acpi_gtdt_timer_block* pointer.
-
-> +	struct acpi_gtdt_timer_block *block = platform_timer;
-> +	struct acpi_gtdt_timer_entry *frame;
-> +	int i;
+> +	struct acpi_gtdt_header *gh = platform_timer;
 > +
-> +	if (!block || !data)
-> +		return -EINVAL;
+> +	platform_timer += gh->length;
+> +	if (platform_timer < acpi_gtdt_desc.gtdt_end)
+> +		return platform_timer;
 > +
-> +	if (!block->block_address || !block->timer_count)
-> +		goto error;
-
-Here we jump to print an error and bail out. The only reason
-why we need a goto is to print a common error message and that's
-exactly what we do _not_ need, if there is a FW error we want
-to understand which one is that, otherwise the information you
-are printing is useless for debugging (provided we can make use
-of this info, which is questionable anyway).
-
-> +	data->cntctlbase_phy = (phys_addr_t)block->block_address;
-> +	data->timer_count = block->timer_count;
+> +	return NULL;
+> +}
 > +
-> +	frame = (void *)block + block->timer_offset;
-> +	if (frame + block->timer_count != (void *)block + block->header.length)
-> +		goto error;
-
-See above.
-
-> +	/*
-> +	 * Get the GT timer Frame data for every GT Block Timer
-> +	 */
-> +	for (i = 0; i < block->timer_count; i++) {
-> +		frame += i;
-
-This is wrong, if you have multiple frames, pointers would add up and
-that's not correct.
-
-> +		if (!frame->base_address || !frame->timer_interrupt)
-> +			goto error;
-
-See above.
-
-> +		data->timer[i].frame_nr = frame->frame_number;
-> +		data->timer[i].cntbase_phy = frame->base_address;
-> +		data->timer[i].irq =
-> +			map_generic_timer_interrupt(frame->timer_interrupt,
-> +						    frame->timer_flags);
-
-AFAIK map_generic_timer_interrupt() may fail, you should cater for that.
-
-> +		if (frame->virtual_timer_interrupt)
-> +			data->timer[i].virt_irq =
-> +				map_generic_timer_interrupt(
-> +					frame->virtual_timer_interrupt,
-> +					frame->virtual_timer_flags);
-
-Ditto.
-
-> +	}
-> +	return 0;
+> +#define for_each_platform_timer(_g)				\
+> +	for (_g = acpi_gtdt_desc.platform_timer_start; _g;	\
+> +	     _g = next_platform_timer(_g))
 > +
-> +error:
-> +	pr_err(FW_BUG "invalid GT Block data.\n");
-> +	return -EINVAL;
-
-See above.
-
+> +static inline bool is_timer_block(void *platform_timer)
+> +{
+> +	struct acpi_gtdt_header *gh = platform_timer;
+> +
+> +	return gh->type == ACPI_GTDT_TYPE_TIMER_BLOCK;
+> +}
+> +
+> +static inline bool is_watchdog(void *platform_timer)
+> +{
+> +	struct acpi_gtdt_header *gh = platform_timer;
+> +
+> +	return gh->type == ACPI_GTDT_TYPE_WATCHDOG;
+> +}
+> +
+> +static int __init map_generic_timer_interrupt(u32 interrupt, u32 flags)
+> +{
+> +	int trigger, polarity;
+> +
+> +	if (!interrupt)
+> +		return 0;
+> +
+> +	trigger = (flags & ACPI_GTDT_INTERRUPT_MODE) ? ACPI_EDGE_SENSITIVE
+> +			: ACPI_LEVEL_SENSITIVE;
+> +
+> +	polarity = (flags & ACPI_GTDT_INTERRUPT_POLARITY) ? ACPI_ACTIVE_LOW
+> +			: ACPI_ACTIVE_HIGH;
+> +
+> +	return acpi_register_gsi(NULL, interrupt, trigger, polarity);
 > +}
 > +
 > +/*
-> + * Get the GT block info for memory-mapped timer from GTDT table.
-> + * Please make sure we have called acpi_gtdt_init, because it helps to
-> + * init the global variables.
-
-I already commented on this. I think the second part of this comment
-is useless (it is a function with one caller, make sure you respect
-the calling sequence and be done with this).
-
-Thanks,
-Lorenzo
-
+> + * Map the PPIs of per-cpu arch_timer.
+> + * @type: the type of PPI
+> + * Returns 0 if error.
 > + */
-> +int __init gtdt_arch_timer_mem_init(struct gt_block_data *data)
+> +int __init acpi_gtdt_map_ppi(int type)
 > +{
-> +	void *platform_timer;
-> +	int index = 0;
-> +	int ret;
+> +	struct acpi_table_gtdt *gtdt = acpi_gtdt_desc.gtdt;
 > +
-> +	for_each_platform_timer(platform_timer) {
-> +		if (!is_timer_block(platform_timer))
-> +			continue;
-> +		ret = gtdt_parse_gt_block(platform_timer, data + index);
-> +		if (ret)
-> +			return ret;
-> +		index++;
+> +	switch (type) {
+> +	case PHYS_SECURE_PPI:
+> +		return map_generic_timer_interrupt(gtdt->secure_el1_interrupt,
+> +						   gtdt->secure_el1_flags);
+> +	case PHYS_NONSECURE_PPI:
+> +		return map_generic_timer_interrupt(gtdt->non_secure_el1_interrupt,
+> +						   gtdt->non_secure_el1_flags);
+> +	case VIRT_PPI:
+> +		return map_generic_timer_interrupt(gtdt->virtual_timer_interrupt,
+> +						   gtdt->virtual_timer_flags);
+> +
+> +	case HYP_PPI:
+> +		return map_generic_timer_interrupt(gtdt->non_secure_el2_interrupt,
+> +						   gtdt->non_secure_el2_flags);
+> +	default:
+> +		pr_err("Map PPI failed: invalid type.\n");
 > +	}
 > +
-> +	if (index)
-> +		pr_info("found %d memory-mapped timer block(s).\n", index);
-> +
-> +	return index;
+> +	return 0;
 > +}
-> diff --git a/include/clocksource/arm_arch_timer.h b/include/clocksource/arm_arch_timer.h
-> index 16dcd10..ece6b3b 100644
-> --- a/include/clocksource/arm_arch_timer.h
-> +++ b/include/clocksource/arm_arch_timer.h
-> @@ -56,6 +56,8 @@ enum spi_nr {
->  #define ARCH_TIMER_MEM_PHYS_ACCESS	2
->  #define ARCH_TIMER_MEM_VIRT_ACCESS	3
->  
-> +#define ARCH_TIMER_MEM_MAX_FRAME	8
 > +
->  #define ARCH_TIMER_USR_PCT_ACCESS_EN	(1 << 0) /* physical counter */
->  #define ARCH_TIMER_USR_VCT_ACCESS_EN	(1 << 1) /* virtual counter */
->  #define ARCH_TIMER_VIRT_EVT_EN		(1 << 2)
-> @@ -71,6 +73,19 @@ struct arch_timer_kvm_info {
->  	int virtual_irq;
->  };
->  
-> +struct gt_timer_data {
-> +	int frame_nr;
-> +	phys_addr_t cntbase_phy;
-> +	int irq;
-> +	int virt_irq;
-> +};
+> +/*
+> + * acpi_gtdt_c3stop - got c3stop info from GTDT
+> + *
+> + * Returns 1 if the timer is powered in deep idle state, 0 otherwise.
+> + */
+> +bool __init acpi_gtdt_c3stop(void)
+> +{
+> +	struct acpi_table_gtdt *gtdt = acpi_gtdt_desc.gtdt;
 > +
-> +struct gt_block_data {
-> +	phys_addr_t cntctlbase_phy;
-> +	int timer_count;
-> +	struct gt_timer_data timer[ARCH_TIMER_MEM_MAX_FRAME];
-> +};
+> +	return !(gtdt->non_secure_el1_flags & ACPI_GTDT_ALWAYS_ON);
+> +}
 > +
->  #ifdef CONFIG_ARM_ARCH_TIMER
->  
->  extern u32 arch_timer_get_rate(void);
-> diff --git a/include/linux/acpi.h b/include/linux/acpi.h
-> index fb8b689..24b1750 100644
-> --- a/include/linux/acpi.h
-> +++ b/include/linux/acpi.h
-> @@ -536,6 +536,7 @@ struct platform_device *acpi_create_platform_device(struct acpi_device *);
->  int acpi_gtdt_init(struct acpi_table_header *table);
->  int acpi_gtdt_map_ppi(int type);
->  bool acpi_gtdt_c3stop(void);
-> +int gtdt_arch_timer_mem_init(struct gt_block_data *data);
->  #endif
->  
->  #else	/* !CONFIG_ACPI */
-> -- 
-> 2.5.5
-> 
+> +/*
+> + * Get some basic info from GTDT table, and init the global variables above
+> + * for all timers initialization of Generic Timer.
+> + * This function does some validation on GTDT table.
+> + */
+> +int __init acpi_gtdt_init(struct acpi_table_header *table)
+> +{
+> +	void *start;
+> +	struct acpi_table_gtdt *gtdt;
+> +
+> +	gtdt = container_of(table, struct acpi_table_gtdt, header);
+> +
+> +	acpi_gtdt_desc.gtdt = gtdt;
+> +	acpi_gtdt_desc.gtdt_end = (void *)table + table->length;
+> +
+> +	if (table->revision < 2) {
+> +		pr_debug("Revision:%d doesn't support Platform Timers.\n",
+> +			 table->revision);
+> +		return 0;
+> +	}
+> +
+> +	if (!gtdt->platform_timer_count) {
+> +		pr_debug("No Platform Timer.\n");
+> +		return 0;
+> +	}
+> +
+> +	start = (void *)gtdt + gtdt->platform_timer_offset;
+> +	if (start < (void *)table + sizeof(struct acpi_table_gtdt)) {
+> +		pr_err(FW_BUG "Failed to init table: ACPI/GTDT is buggy.\n");
+
+I would prefer something like
+
+		pr_err(FW_BUG "Failed to retrieve timer information from firmware (invalid data)\n");
+
+which is clear enough IMO and doesn't require whoever reads this message
+to know anything about ACPI/GTDT etc.
+
+Thanks,
+Rafael
+
