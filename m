@@ -1,36 +1,38 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bhuna.collabora.co.uk ([46.235.227.227]:34083 "EHLO
-	bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750931AbcGIJna (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 9 Jul 2016 05:43:30 -0400
-From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-To: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Wim Van Sebroeck <wim@iguana.be>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Martyn Welch <martyn.welch@collabora.com>
-Subject: [RESEND PATCH 0/2] watchdog: ziirave_wdt: Support firmware update
-Date: Sat,  9 Jul 2016 11:43:18 +0200
-Message-Id: <1468057400-5772-1-git-send-email-enric.balletbo@collabora.com>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-path: <timur@codeaurora.org>
+Subject: Re: [PATCH v2] Documentation/watchdog: check return value for magic
+ close
+To: Arnd Bergmann <arnd@arndb.de>, Wim Van Sebroeck <wim@iguana.be>
+Cc: Guenter Roeck <linux@roeck-us.net>, Jonathan Corbet <corbet@lwn.net>,
+ linux-watchdog@vger.kernel.org, linux-doc@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+References: <20160719154136.3132886-1-arnd@arndb.de>
+From: Timur Tabi <timur@codeaurora.org>
+Message-ID: <57929062.1000500@codeaurora.org>
+Date: Fri, 22 Jul 2016 16:30:10 -0500
+MIME-Version: 1.0
+In-Reply-To: <20160719154136.3132886-1-arnd@arndb.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi,
+Arnd Bergmann wrote:
+> A recent commit added a write to the watchdog test code for doing the "magic
+> close", but that caused a compile-time warning:
+>
+> Documentation/watchdog/src/watchdog-test.c: In function ‘main’:
+> Documentation/watchdog/src/watchdog-test.c:94:5: warning: ignoring return value of ‘write’, declared with attribute warn_unused_result [-Wunused-result]
+>
+> This changes the code to print a runtime warning if the write fails.
+>
+> Fixes: 5a2d3de19602 ("Documentation/watchdog: add support for magic close to watchdog-test")
+> Signed-off-by: Arnd Bergmann<arnd@arndb.de>
 
-Here a small patch series to add support for firmware update to the ziirave
-watchdog driver. The first patch is a fix found during the development of this
-new feature, the second patch is the one that adds support for firmware update.
+Acked-by: Timur Tabi <timur@codeaurora.org>
 
-Best regards,
-
-Enric Balletbo i Serra (2):
-  watchdog: ziirave_wdt: Correct I2C device id to fix module
-    autoloading.
-  watchdog: ziirave_wdt: Add support to upload the firmware.
-
- drivers/watchdog/ziirave_wdt.c | 428 ++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 427 insertions(+), 1 deletion(-)
+Thanks for this patch.  I don't know why I didn't notice the warnings 
+before.
 
 -- 
-2.1.0
-
+Qualcomm Datacenter Technologies, Inc. as an affiliate of Qualcomm
+Technologies, Inc.  Qualcomm Technologies, Inc. is a member of the
+Code Aurora Forum, a Linux Foundation Collaborative Project.
