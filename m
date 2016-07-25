@@ -1,13 +1,13 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from pandora.armlinux.org.uk ([78.32.30.218]:58003 "EHLO
+Received: from pandora.armlinux.org.uk ([78.32.30.218]:58043 "EHLO
 	pandora.armlinux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755951AbcGYWsB (ORCPT
+	with ESMTP id S1753166AbcGYWuR (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 25 Jul 2016 18:48:01 -0400
-Date: Mon, 25 Jul 2016 23:47:36 +0100
+	Mon, 25 Jul 2016 18:50:17 -0400
+Date: Mon, 25 Jul 2016 23:49:57 +0100
 From: Russell King - ARM Linux <linux@armlinux.org.uk>
-To: Fu Wei <fu.wei@linaro.org>
-Cc: Will Deacon <will.deacon@arm.com>,
+To: Will Deacon <will.deacon@arm.com>
+Cc: Fu Wei <fu.wei@linaro.org>,
 	Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>,
 	Catalin Marinas <catalin.marinas@arm.com>,
 	rruigrok@codeaurora.org, Wim Van Sebroeck <wim@iguana.be>,
@@ -31,76 +31,84 @@ Cc: Will Deacon <will.deacon@arm.com>,
 	Hanjun Guo <hanjun.guo@linaro.org>,
 	Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
 	Sudeep Holla <sudeep.holla@arm.com>
-Subject: Re: [PATCH v8 4/9] clocksource/drivers/arm_arch_timer: use readq to
+Subject: Re: [PATCH v9 4/9] clocksource/drivers/arm_arch_timer: use readq to
  get 64-bit CNTVCT
-Message-ID: <20160725224736.GT1041@n2100.armlinux.org.uk>
-References: <1468952284-28942-1-git-send-email-fu.wei@linaro.org>
- <1468952284-28942-5-git-send-email-fu.wei@linaro.org>
- <20160725090258.GA15864@arm.com>
- <CADyBb7tR4+78k52JrVZGo9FMuO8a8RBTTYK7PBx1RzP3Lx9snQ@mail.gmail.com>
+Message-ID: <20160725224957.GU1041@n2100.armlinux.org.uk>
+References: <1469460427-8643-1-git-send-email-fu.wei@linaro.org>
+ <1469460427-8643-5-git-send-email-fu.wei@linaro.org>
+ <20160725153118.GD19209@arm.com>
+ <CADyBb7ubKceQiB7+u7sSA=1+9_VMUrGjiabf_FkN2-n4rq7Kgg@mail.gmail.com>
+ <20160725163144.GE19209@arm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CADyBb7tR4+78k52JrVZGo9FMuO8a8RBTTYK7PBx1RzP3Lx9snQ@mail.gmail.com>
+In-Reply-To: <20160725163144.GE19209@arm.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Jul 25, 2016 at 11:50:19PM +0800, Fu Wei wrote:
-> Hi Will,
+On Mon, Jul 25, 2016 at 05:31:45PM +0100, Will Deacon wrote:
+> On Mon, Jul 25, 2016 at 11:55:49PM +0800, Fu Wei wrote:
+> > On 25 July 2016 at 23:31, Will Deacon <will.deacon@arm.com> wrote:
+> > > On Mon, Jul 25, 2016 at 11:27:02PM +0800, fu.wei@linaro.org wrote:
+> > >> From: Fu Wei <fu.wei@linaro.org>
+> > >>
+> > >> This patch simplify arch_counter_get_cntvct_mem function by
+> > >> using readq to get 64-bit CNTVCT value instead of readl_relaxed.
+> > >>
+> > >> Signed-off-by: Fu Wei <fu.wei@linaro.org>
+> > >> ---
+> > >>  drivers/clocksource/arm_arch_timer.c | 10 +---------
+> > >>  1 file changed, 1 insertion(+), 9 deletions(-)
+> > >>
+> > >> diff --git a/drivers/clocksource/arm_arch_timer.c b/drivers/clocksource/arm_arch_timer.c
+> > >> index e6fd42d..483d2f9 100644
+> > >> --- a/drivers/clocksource/arm_arch_timer.c
+> > >> +++ b/drivers/clocksource/arm_arch_timer.c
+> > >> @@ -418,15 +418,7 @@ u32 arch_timer_get_rate(void)
+> > >>
+> > >>  static u64 arch_counter_get_cntvct_mem(void)
+> > >>  {
+> > >> -     u32 vct_lo, vct_hi, tmp_hi;
+> > >> -
+> > >> -     do {
+> > >> -             vct_hi = readl_relaxed(arch_counter_base + CNTVCT_HI);
+> > >> -             vct_lo = readl_relaxed(arch_counter_base + CNTVCT_LO);
+> > >> -             tmp_hi = readl_relaxed(arch_counter_base + CNTVCT_HI);
+> > >> -     } while (vct_hi != tmp_hi);
+> > >> -
+> > >> -     return ((u64) vct_hi << 32) | vct_lo;
+> > >> +     return readq(arch_counter_base + CNTVCT_LO);
+> > >
+> > > Please drop this patch. It doesn't work.
+> > 
+> > I am OK to drop this, but could you let me know why it doesn't work?
+> > 
+> > I did get some problem on Foundation model about readq, but it works on Seattle.
+> > I guess that is a problem of model, but not a code problem.
+> > So I just got confused, why readq  doesn't work,  :-)
 > 
-> On 25 July 2016 at 17:02, Will Deacon <will.deacon@arm.com> wrote:
-> > On Wed, Jul 20, 2016 at 02:17:59AM +0800, fu.wei@linaro.org wrote:
-> >> From: Fu Wei <fu.wei@linaro.org>
-> >>
-> >> This patch simplify arch_counter_get_cntvct_mem function by
-> >> using readq to get 64-bit CNTVCT value instead of readl_relaxed.
-> >>
-> >> Signed-off-by: Fu Wei <fu.wei@linaro.org>
-> >> ---
-> >>  drivers/clocksource/arm_arch_timer.c | 10 +---------
-> >>  1 file changed, 1 insertion(+), 9 deletions(-)
-> >>
-> >> diff --git a/drivers/clocksource/arm_arch_timer.c b/drivers/clocksource/arm_arch_timer.c
-> >> index e6fd42d..483d2f9 100644
-> >> --- a/drivers/clocksource/arm_arch_timer.c
-> >> +++ b/drivers/clocksource/arm_arch_timer.c
-> >> @@ -418,15 +418,7 @@ u32 arch_timer_get_rate(void)
-> >>
-> >>  static u64 arch_counter_get_cntvct_mem(void)
-> >>  {
-> >> -     u32 vct_lo, vct_hi, tmp_hi;
-> >> -
-> >> -     do {
-> >> -             vct_hi = readl_relaxed(arch_counter_base + CNTVCT_HI);
-> >> -             vct_lo = readl_relaxed(arch_counter_base + CNTVCT_LO);
-> >> -             tmp_hi = readl_relaxed(arch_counter_base + CNTVCT_HI);
-> >> -     } while (vct_hi != tmp_hi);
-> >> -
-> >> -     return ((u64) vct_hi << 32) | vct_lo;
-> >> +     return readq(arch_counter_base + CNTVCT_LO);
-> >
+> The kernel really needs to support both of those platforms :/
 > 
-> Sorry, right after posting v9, I got your comment,
+> For the memory-mapped counter registers, the architecture says:
 > 
-> > What's the benefit of doing this? If you use readq here, how can we
+>   `If the implementation supports 64-bit atomic accesses, then the
+>    CNTV_CVAL register must be accessible as an atomic 64-bit value.'
 > 
-> benefit:
-> 1. simplify the code
-> 2. from arch/arm64/include/asm/io.h, I guess readq is more efficient
+> which is borderline tautological. If we take the generous reading that
+> this means AArch64 CPUs can use readq (and I'm not completely
+> comfortable with that assertion, particularly as you say that it breaks
+> the model), then you still need to use readq_relaxed here to avoid a
+> DSB. Furthermore, what are you going to do for AArch32? readq doesn't
+> exist over there, and if you use the generic implementation then it's
+> not atomic. In which case, we end up with the current code, as well as a
+> readq_relaxed guarded by a questionable #ifdef that is known to break a
+> supported platform for an unknown performance improvement. Hardly a big
+> win.
+> 
+> Did you see any performance advantage from this? Given that you've added
+> a DSB, this looks to be extremely premature.
 
-And the harm is that it breaks the build on ARM, because ARM doesn't
-provide readq (as it can't, as not all CPUs on ARM support 64-bit
-reads) and it's not appropriate for architecture code to emulate it.
-Consider carefully why the original code has that loop present -
-only a device driver hows how to read a 64-bit register safely using
-two 32-bit reads.  Such a loop may not be appropriate for some other
-device.
-
-So... as the 0-day builder detected a failure on ARM with this, NAK.
-
-If you want to make this conditional on readq() being present, that'd
-be acceptable, but you must support the case where readq() is not
-provided.
++1, absolutely agreed on the 32-bit ARM bits.
 
 -- 
 RMK's Patch system: http://www.armlinux.org.uk/developer/patches/
