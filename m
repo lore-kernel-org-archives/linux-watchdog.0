@@ -1,134 +1,304 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-io0-f170.google.com ([209.85.223.170]:35489 "EHLO
-	mail-io0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753992AbcGZJVG (ORCPT
+Received: from cloudserver094114.home.net.pl ([79.96.170.134]:44479 "HELO
+	cloudserver094114.home.net.pl" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1752874AbcGZLph (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 26 Jul 2016 05:21:06 -0400
-Received: by mail-io0-f170.google.com with SMTP id m101so8240670ioi.2
-        for <linux-watchdog@vger.kernel.org>; Tue, 26 Jul 2016 02:21:04 -0700 (PDT)
+	Tue, 26 Jul 2016 07:45:37 -0400
+From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+To: fu.wei@linaro.org
+Cc: lenb@kernel.org, daniel.lezcano@linaro.org, tglx@linutronix.de,
+	marc.zyngier@arm.com, lorenzo.pieralisi@arm.com,
+	sudeep.holla@arm.com, hanjun.guo@linaro.org,
+	linux-arm-kernel@lists.infradead.org, linaro-acpi@lists.linaro.org,
+	linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
+	rruigrok@codeaurora.org, harba@codeaurora.org, cov@codeaurora.org,
+	timur@codeaurora.org, graeme.gregory@linaro.org,
+	al.stone@linaro.org, jcm@redhat.com, wei@redhat.com, arnd@arndb.de,
+	wim@iguana.be, catalin.marinas@arm.com, will.deacon@arm.com,
+	Suravee.Suthikulpanit@amd.com, leo.duran@amd.com,
+	linux@roeck-us.net, linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH v9 5/9] acpi/arm64: Add GTDT table parse driver
+Date: Tue, 26 Jul 2016 13:50:39 +0200
+Message-ID: <1754781.CC9jSrYt2s@vostro.rjw.lan>
+In-Reply-To: <1469460427-8643-6-git-send-email-fu.wei@linaro.org>
+References: <1469460427-8643-1-git-send-email-fu.wei@linaro.org> <1469460427-8643-6-git-send-email-fu.wei@linaro.org>
 MIME-Version: 1.0
-In-Reply-To: <20160725224957.GU1041@n2100.armlinux.org.uk>
-References: <1469460427-8643-1-git-send-email-fu.wei@linaro.org>
- <1469460427-8643-5-git-send-email-fu.wei@linaro.org> <20160725153118.GD19209@arm.com>
- <CADyBb7ubKceQiB7+u7sSA=1+9_VMUrGjiabf_FkN2-n4rq7Kgg@mail.gmail.com>
- <20160725163144.GE19209@arm.com> <20160725224957.GU1041@n2100.armlinux.org.uk>
-From: Fu Wei <fu.wei@linaro.org>
-Date: Tue, 26 Jul 2016 17:21:03 +0800
-Message-ID: <CADyBb7s__Cr1v1UBS+CdSNGcAAZTgPYG+DmzcmwMsDDy8sDnxg@mail.gmail.com>
-Subject: Re: [PATCH v9 4/9] clocksource/drivers/arm_arch_timer: use readq to
- get 64-bit CNTVCT
-To: Russell King - ARM Linux <linux@armlinux.org.uk>
-Cc: Will Deacon <will.deacon@arm.com>,
-	Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	rruigrok@codeaurora.org, Wim Van Sebroeck <wim@iguana.be>,
-	wei@redhat.com, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-	Al Stone <al.stone@linaro.org>,
-	Timur Tabi <timur@codeaurora.org>,
-	Daniel Lezcano <daniel.lezcano@linaro.org>,
-	ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Len Brown <lenb@kernel.org>, harba@codeaurora.org,
-	linux-watchdog@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-	Marc Zyngier <marc.zyngier@arm.com>,
-	Jon Masters <jcm@redhat.com>,
-	Christopher Covington <cov@codeaurora.org>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	linux-arm-kernel@lists.infradead.org,
-	G Gregory <graeme.gregory@linaro.org>,
-	"Rafael J. Wysocki" <rjw@rjwysocki.net>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Leo Duran <leo.duran@amd.com>,
-	Hanjun Guo <hanjun.guo@linaro.org>,
-	Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
-	Sudeep Holla <sudeep.holla@arm.com>
-Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="utf-8"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Russell King,
+On Monday, July 25, 2016 11:27:03 PM fu.wei@linaro.org wrote:
+> From: Fu Wei <fu.wei@linaro.org>
+> 
+> This patch adds support for parsing arch timer in GTDT,
+> provides some kernel APIs to parse all the PPIs and
+> always-on info in GTDT and export them.
+> 
+> By this driver, we can simplify arm_arch_timer drivers, and
+> separate the ACPI GTDT knowledge from it.
+> 
+> Signed-off-by: Fu Wei <fu.wei@linaro.org>
+> Signed-off-by: Hanjun Guo <hanjun.guo@linaro.org>
 
-On 26 July 2016 at 06:49, Russell King - ARM Linux
-<linux@armlinux.org.uk> wrote:
-> On Mon, Jul 25, 2016 at 05:31:45PM +0100, Will Deacon wrote:
->> On Mon, Jul 25, 2016 at 11:55:49PM +0800, Fu Wei wrote:
->> > On 25 July 2016 at 23:31, Will Deacon <will.deacon@arm.com> wrote:
->> > > On Mon, Jul 25, 2016 at 11:27:02PM +0800, fu.wei@linaro.org wrote:
->> > >> From: Fu Wei <fu.wei@linaro.org>
->> > >>
->> > >> This patch simplify arch_counter_get_cntvct_mem function by
->> > >> using readq to get 64-bit CNTVCT value instead of readl_relaxed.
->> > >>
->> > >> Signed-off-by: Fu Wei <fu.wei@linaro.org>
->> > >> ---
->> > >>  drivers/clocksource/arm_arch_timer.c | 10 +---------
->> > >>  1 file changed, 1 insertion(+), 9 deletions(-)
->> > >>
->> > >> diff --git a/drivers/clocksource/arm_arch_timer.c b/drivers/clocksource/arm_arch_timer.c
->> > >> index e6fd42d..483d2f9 100644
->> > >> --- a/drivers/clocksource/arm_arch_timer.c
->> > >> +++ b/drivers/clocksource/arm_arch_timer.c
->> > >> @@ -418,15 +418,7 @@ u32 arch_timer_get_rate(void)
->> > >>
->> > >>  static u64 arch_counter_get_cntvct_mem(void)
->> > >>  {
->> > >> -     u32 vct_lo, vct_hi, tmp_hi;
->> > >> -
->> > >> -     do {
->> > >> -             vct_hi = readl_relaxed(arch_counter_base + CNTVCT_HI);
->> > >> -             vct_lo = readl_relaxed(arch_counter_base + CNTVCT_LO);
->> > >> -             tmp_hi = readl_relaxed(arch_counter_base + CNTVCT_HI);
->> > >> -     } while (vct_hi != tmp_hi);
->> > >> -
->> > >> -     return ((u64) vct_hi << 32) | vct_lo;
->> > >> +     return readq(arch_counter_base + CNTVCT_LO);
->> > >
->> > > Please drop this patch. It doesn't work.
->> >
->> > I am OK to drop this, but could you let me know why it doesn't work?
->> >
->> > I did get some problem on Foundation model about readq, but it works on Seattle.
->> > I guess that is a problem of model, but not a code problem.
->> > So I just got confused, why readq  doesn't work,  :-)
->>
->> The kernel really needs to support both of those platforms :/
->>
->> For the memory-mapped counter registers, the architecture says:
->>
->>   `If the implementation supports 64-bit atomic accesses, then the
->>    CNTV_CVAL register must be accessible as an atomic 64-bit value.'
->>
->> which is borderline tautological. If we take the generous reading that
->> this means AArch64 CPUs can use readq (and I'm not completely
->> comfortable with that assertion, particularly as you say that it breaks
->> the model), then you still need to use readq_relaxed here to avoid a
->> DSB. Furthermore, what are you going to do for AArch32? readq doesn't
->> exist over there, and if you use the generic implementation then it's
->> not atomic. In which case, we end up with the current code, as well as a
->> readq_relaxed guarded by a questionable #ifdef that is known to break a
->> supported platform for an unknown performance improvement. Hardly a big
->> win.
->>
->> Did you see any performance advantage from this? Given that you've added
->> a DSB, this looks to be extremely premature.
->
-> +1, absolutely agreed on the 32-bit ARM bits.
+>From the ACPI perspective:
 
-Sorry for misunderstanding it, will drop it in v10.
+Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-Great thanks for your help! :-)
+and I'm assuming that the patches will go in via some other (non-ACPI) tree.
 
->
-> --
-> RMK's Patch system: http://www.armlinux.org.uk/developer/patches/
-> FTTC broadband for 0.8mile line: currently at 9.6Mbps down 400kbps up
-> according to speedtest.net.
+> ---
+>  arch/arm64/Kconfig             |   1 +
+>  drivers/acpi/Kconfig           |   5 ++
+>  drivers/acpi/Makefile          |   1 +
+>  drivers/acpi/arm64/Kconfig     |   5 ++
+>  drivers/acpi/arm64/Makefile    |   1 +
+>  drivers/acpi/arm64/acpi_gtdt.c | 152 +++++++++++++++++++++++++++++++++++++++++
+>  drivers/clocksource/Kconfig    |   1 -
+>  include/linux/acpi.h           |   6 ++
+>  8 files changed, 171 insertions(+), 1 deletion(-)
+> 
+> diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
+> index 5a0a691..0b9fba7 100644
+> --- a/arch/arm64/Kconfig
+> +++ b/arch/arm64/Kconfig
+> @@ -2,6 +2,7 @@ config ARM64
+>  	def_bool y
+>  	select ACPI_CCA_REQUIRED if ACPI
+>  	select ACPI_GENERIC_GSI if ACPI
+> +	select ACPI_GTDT if ACPI
+>  	select ACPI_REDUCED_HARDWARE_ONLY if ACPI
+>  	select ARCH_HAS_DEVMEM_IS_ALLOWED
+>  	select ARCH_HAS_ATOMIC64_DEC_IF_POSITIVE
+> diff --git a/drivers/acpi/Kconfig b/drivers/acpi/Kconfig
+> index b7e2e77..1cdc7d2 100644
+> --- a/drivers/acpi/Kconfig
+> +++ b/drivers/acpi/Kconfig
+> @@ -521,4 +521,9 @@ config XPOWER_PMIC_OPREGION
+>  
+>  endif
+>  
+> +if ARM64
+> +source "drivers/acpi/arm64/Kconfig"
+> +
+> +endif
+> +
+>  endif	# ACPI
+> diff --git a/drivers/acpi/Makefile b/drivers/acpi/Makefile
+> index 251ce85..1a94ff7 100644
+> --- a/drivers/acpi/Makefile
+> +++ b/drivers/acpi/Makefile
+> @@ -99,5 +99,6 @@ obj-$(CONFIG_ACPI_EXTLOG)	+= acpi_extlog.o
+>  obj-$(CONFIG_PMIC_OPREGION)	+= pmic/intel_pmic.o
+>  obj-$(CONFIG_CRC_PMIC_OPREGION) += pmic/intel_pmic_crc.o
+>  obj-$(CONFIG_XPOWER_PMIC_OPREGION) += pmic/intel_pmic_xpower.o
+> +obj-$(CONFIG_ARM64)	+= arm64/
+>  
+>  video-objs			+= acpi_video.o video_detect.o
+> diff --git a/drivers/acpi/arm64/Kconfig b/drivers/acpi/arm64/Kconfig
+> new file mode 100644
+> index 0000000..80201be
+> --- /dev/null
+> +++ b/drivers/acpi/arm64/Kconfig
+> @@ -0,0 +1,5 @@
+> +#
+> +# ACPI Configuration for ARM64
+> +#
+> +config ACPI_GTDT
+> +	bool
+> diff --git a/drivers/acpi/arm64/Makefile b/drivers/acpi/arm64/Makefile
+> new file mode 100644
+> index 0000000..466de6b
+> --- /dev/null
+> +++ b/drivers/acpi/arm64/Makefile
+> @@ -0,0 +1 @@
+> +obj-$(CONFIG_ACPI_GTDT)		+= acpi_gtdt.o
+> diff --git a/drivers/acpi/arm64/acpi_gtdt.c b/drivers/acpi/arm64/acpi_gtdt.c
+> new file mode 100644
+> index 0000000..cdb2fb1
+> --- /dev/null
+> +++ b/drivers/acpi/arm64/acpi_gtdt.c
+> @@ -0,0 +1,152 @@
+> +/*
+> + * ARM Specific GTDT table Support
+> + *
+> + * Copyright (C) 2016, Linaro Ltd.
+> + * Author: Daniel Lezcano <daniel.lezcano@linaro.org>
+> + *         Fu Wei <fu.wei@linaro.org>
+> + *         Hanjun Guo <hanjun.guo@linaro.org>
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License version 2 as
+> + * published by the Free Software Foundation.
+> + */
+> +
+> +#include <linux/acpi.h>
+> +#include <linux/init.h>
+> +#include <linux/kernel.h>
+> +
+> +#include <clocksource/arm_arch_timer.h>
+> +
+> +#undef pr_fmt
+> +#define pr_fmt(fmt) "ACPI GTDT: " fmt
+> +
+> +typedef struct {
+> +	struct acpi_table_gtdt *gtdt;
+> +	void *platform_timer_start;
+> +	void *gtdt_end;
+> +} acpi_gtdt_desc_t;
+> +
+> +static acpi_gtdt_desc_t acpi_gtdt_desc __initdata;
+> +
+> +static inline void *next_platform_timer(void *platform_timer)
+> +{
+> +	struct acpi_gtdt_header *gh = platform_timer;
+> +
+> +	platform_timer += gh->length;
+> +	if (platform_timer < acpi_gtdt_desc.gtdt_end)
+> +		return platform_timer;
+> +
+> +	return NULL;
+> +}
+> +
+> +#define for_each_platform_timer(_g)				\
+> +	for (_g = acpi_gtdt_desc.platform_timer_start; _g;	\
+> +	     _g = next_platform_timer(_g))
+> +
+> +static inline bool is_timer_block(void *platform_timer)
+> +{
+> +	struct acpi_gtdt_header *gh = platform_timer;
+> +
+> +	return gh->type == ACPI_GTDT_TYPE_TIMER_BLOCK;
+> +}
+> +
+> +static inline bool is_watchdog(void *platform_timer)
+> +{
+> +	struct acpi_gtdt_header *gh = platform_timer;
+> +
+> +	return gh->type == ACPI_GTDT_TYPE_WATCHDOG;
+> +}
+> +
+> +static int __init map_gt_gsi(u32 interrupt, u32 flags)
+> +{
+> +	int trigger, polarity;
+> +
+> +	if (!interrupt)
+> +		return 0;
+> +
+> +	trigger = (flags & ACPI_GTDT_INTERRUPT_MODE) ? ACPI_EDGE_SENSITIVE
+> +			: ACPI_LEVEL_SENSITIVE;
+> +
+> +	polarity = (flags & ACPI_GTDT_INTERRUPT_POLARITY) ? ACPI_ACTIVE_LOW
+> +			: ACPI_ACTIVE_HIGH;
+> +
+> +	return acpi_register_gsi(NULL, interrupt, trigger, polarity);
+> +}
+> +
+> +/*
+> + * Map the PPIs of per-cpu arch_timer.
+> + * @type: the type of PPI
+> + * Returns 0 if error.
+> + */
+> +int __init acpi_gtdt_map_ppi(int type)
+> +{
+> +	struct acpi_table_gtdt *gtdt = acpi_gtdt_desc.gtdt;
+> +
+> +	switch (type) {
+> +	case PHYS_SECURE_PPI:
+> +		return map_gt_gsi(gtdt->secure_el1_interrupt,
+> +				  gtdt->secure_el1_flags);
+> +	case PHYS_NONSECURE_PPI:
+> +		return map_gt_gsi(gtdt->non_secure_el1_interrupt,
+> +				  gtdt->non_secure_el1_flags);
+> +	case VIRT_PPI:
+> +		return map_gt_gsi(gtdt->virtual_timer_interrupt,
+> +				  gtdt->virtual_timer_flags);
+> +
+> +	case HYP_PPI:
+> +		return map_gt_gsi(gtdt->non_secure_el2_interrupt,
+> +				  gtdt->non_secure_el2_flags);
+> +	default:
+> +		pr_err("Failed to map timer interrupt: invalid type.\n");
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +/*
+> + * acpi_gtdt_c3stop - got c3stop info from GTDT
+> + *
+> + * Returns 1 if the timer is powered in deep idle state, 0 otherwise.
+> + */
+> +bool __init acpi_gtdt_c3stop(void)
+> +{
+> +	struct acpi_table_gtdt *gtdt = acpi_gtdt_desc.gtdt;
+> +
+> +	return !(gtdt->non_secure_el1_flags & ACPI_GTDT_ALWAYS_ON);
+> +}
+> +
+> +/*
+> + * Get some basic info from GTDT table, and init the global variables above
+> + * for all timers initialization of Generic Timer.
+> + * This function does some validation on GTDT table.
+> + */
+> +int __init acpi_gtdt_init(struct acpi_table_header *table)
+> +{
+> +	void *start;
+> +	struct acpi_table_gtdt *gtdt;
+> +
+> +	gtdt = container_of(table, struct acpi_table_gtdt, header);
+> +
+> +	acpi_gtdt_desc.gtdt = gtdt;
+> +	acpi_gtdt_desc.gtdt_end = (void *)table + table->length;
+> +
+> +	if (table->revision < 2) {
+> +		pr_debug("Revision:%d doesn't support Platform Timers.\n",
+> +			 table->revision);
+> +		return 0;
+> +	}
+> +
+> +	if (!gtdt->platform_timer_count) {
+> +		pr_debug("No Platform Timer.\n");
+> +		return 0;
+> +	}
+> +
+> +	start = (void *)gtdt + gtdt->platform_timer_offset;
+> +	if (start < (void *)table + sizeof(struct acpi_table_gtdt)) {
+> +		pr_err(FW_BUG "Failed to retrieve timer info from firmware: invalid data.\n");
+> +		return -EINVAL;
+> +	}
+> +	acpi_gtdt_desc.platform_timer_start = start;
+> +
+> +	return gtdt->platform_timer_count;
+> +}
+> diff --git a/drivers/clocksource/Kconfig b/drivers/clocksource/Kconfig
+> index 47352d2..108dbc3 100644
+> --- a/drivers/clocksource/Kconfig
+> +++ b/drivers/clocksource/Kconfig
+> @@ -205,7 +205,6 @@ config CLKSRC_MPS2
+>  config ARM_ARCH_TIMER
+>  	bool
+>  	select CLKSRC_OF if OF
+> -	select CLKSRC_ACPI if ACPI
+>  
+>  config ARM_ARCH_TIMER_EVTSTREAM
+>  	bool "Support for ARM architected timer event stream generation"
+> diff --git a/include/linux/acpi.h b/include/linux/acpi.h
+> index 288fac5..fb8b689 100644
+> --- a/include/linux/acpi.h
+> +++ b/include/linux/acpi.h
+> @@ -532,6 +532,12 @@ void acpi_walk_dep_device_list(acpi_handle handle);
+>  struct platform_device *acpi_create_platform_device(struct acpi_device *);
+>  #define ACPI_PTR(_ptr)	(_ptr)
+>  
+> +#ifdef CONFIG_ACPI_GTDT
+> +int acpi_gtdt_init(struct acpi_table_header *table);
+> +int acpi_gtdt_map_ppi(int type);
+> +bool acpi_gtdt_c3stop(void);
+> +#endif
+> +
+>  #else	/* !CONFIG_ACPI */
+>  
+>  #define acpi_disabled 1
+> 
 
-
-
--- 
-Best regards,
-
-Fu Wei
-Software Engineer
-Red Hat
