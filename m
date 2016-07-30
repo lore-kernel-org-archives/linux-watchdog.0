@@ -1,20 +1,19 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bhuna.collabora.co.uk ([46.235.227.227]:47900 "EHLO
-	bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758761AbcG1OhA (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:56974 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752094AbcG3Qqi (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 28 Jul 2016 10:37:00 -0400
+	Sat, 30 Jul 2016 12:46:38 -0400
 Subject: Re: [PATCH v3] watchdog: ziirave_wdt: Add support to upload the
  firmware.
 To: Enric Balletbo i Serra <enric.balletbo@collabora.com>,
 	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
 References: <1469702269-32268-1-git-send-email-enric.balletbo@collabora.com>
 Cc: Wim Van Sebroeck <wim@iguana.be>,
-	Guenter Roeck <linux@roeck-us.net>,
 	Martyn Welch <martyn.welch@collabora.com>
-From: Martyn Welch <martyn.welch@collabora.co.uk>
-Message-ID: <579A1881.7010600@collabora.co.uk>
-Date: Thu, 28 Jul 2016 15:36:49 +0100
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <579CD9E4.9070905@roeck-us.net>
+Date: Sat, 30 Jul 2016 09:46:28 -0700
 MIME-Version: 1.0
 In-Reply-To: <1469702269-32268-1-git-send-email-enric.balletbo@collabora.com>
 Content-Type: text/plain; charset=windows-1252; format=flowed
@@ -22,9 +21,7 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-
-
-On 28/07/16 11:37, Enric Balletbo i Serra wrote:
+On 07/28/2016 03:37 AM, Enric Balletbo i Serra wrote:
 > This patch adds and entry to the sysfs to start firmware upload process
 > on the specified device with the requested firmware.
 >
@@ -106,10 +103,6 @@ On 28/07/16 11:37, Enric Balletbo i Serra wrote:
 >
 >   struct ziirave_wdt_data {
 > +	struct mutex sysfs_mutex;
-
-I don't think this is the best name for the mutex given that it's only 
-used with firmware upload. "firmware_mutex"?ffir
-
 >   	struct watchdog_device wdd;
 >   	struct ziirave_wdt_rev bootloader_rev;
 >   	struct ziirave_wdt_rev firmware_rev;
@@ -124,6 +117,10 @@ used with firmware upload. "firmware_mutex"?ffir
 > +
 > +	do {
 > +		usleep_range(5000, 5100);
+
+That range is both quite narrow and large. A wider range might be better
+to give the kernel some leeway.
+
 > +		ret = i2c_smbus_read_byte(client);
 > +		if (ret < 0) {
 > +			dev_err(&client->dev, "Failed to read byte\n");
@@ -131,6 +128,9 @@ used with firmware upload. "firmware_mutex"?ffir
 > +		}
 > +	} while (ret == ZIIRAVE_FIRM_DOWNLOAD_BUSY);
 > +
+
+Please add some reasonable timeout here.
+
 > +	return ret == ZIIRAVE_FIRM_DOWNLOAD_ACK ? 0 : -EIO;
 > +}
 > +
@@ -156,6 +156,8 @@ used with firmware upload. "firmware_mutex"?ffir
 > +
 > +	ret = i2c_smbus_write_block_data(client, command, length, data);
 > +
+Please drop empty lines between assignments and value checks.
+
 > +	if (ret) {
 > +		dev_err(&client->dev,
 > +			"Failed to send command 0x%02x: %d\n", command, ret);
@@ -204,6 +206,8 @@ used with firmware upload. "firmware_mutex"?ffir
 > +	packet[1] = (u8)(addr & 0xff);
 > +	packet[2] = (u8)((addr & 0xff00) >> 8);
 > +
+Unnecessary typecasts.
+
 > +	/* Packet data */
 > +	if (be16_to_cpu(rec->len) > ZIIRAVE_FIRM_PKT_DATA_SIZE)
 > +		return -EMSGSIZE;
@@ -260,6 +264,9 @@ used with firmware upload. "firmware_mutex"?ffir
 > +				return ret;
 > +			}
 > +			data[i] = (u8)ret;
+
+Unnecessary typecast.
+
 > +		}
 > +
 > +		if (memcmp(data, rec->data, be16_to_cpu(rec->len))) {
@@ -410,13 +417,6 @@ used with firmware upload. "firmware_mutex"?ffir
 > +					    struct device_attribute *attr,
 > +					    const char *buf, size_t count)
 > +{
-
-
-Am I right in thinking firmware upgrade will get triggered whatever is 
-written to it? Wouldn't it be safer to only start the upgrade if a 
-specific string is written to the sysfs entry? (Performing the upgrade 
-is basically going to disable the watchdog is it not?)
-
 > +	struct i2c_client *client = to_i2c_client(dev->parent);
 > +	struct ziirave_wdt_data *w_priv = i2c_get_clientdata(client);
 > +	const struct firmware *fw;
@@ -426,12 +426,21 @@ is basically going to disable the watchdog is it not?)
 > +	if (err)
 > +		return err;
 > +
+
+Please remember to apply the mutex for all chip accesses.
+
 > +	err = request_ihex_firmware(&fw, ZIIRAVE_FW_NAME, dev);
+
+Excellent choice.
+
 > +	if (err) {
 > +		dev_err(&client->dev, "Failed to request ihex firmware\n");
 > +		goto unlock_sysfs;
 > +	}
 > +
+You could actually request the firmware outside the mutex. That operation does
+not have to be mutex protected.
+
 > +	err = ziirave_firm_upload(&w_priv->wdd, fw);
 > +	if (err) {
 > +		dev_err(&client->dev, "The firmware update failed: %d\n", err);
@@ -484,3 +493,4 @@ is basically going to disable the watchdog is it not?)
 >   	w_priv->wdd.ops = &ziirave_wdt_ops;
 >   	w_priv->wdd.min_timeout = ZIIRAVE_TIMEOUT_MIN;
 >
+
