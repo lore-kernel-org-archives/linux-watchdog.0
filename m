@@ -1,49 +1,46 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from relay1.mentorg.com ([192.94.38.131]:47924 "EHLO
-        relay1.mentorg.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755670AbcH3QL5 (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 30 Aug 2016 12:11:57 -0400
-Subject: Re: [PATCH v2] watchdog: softdog: implement pretimeout support
-To: Wolfram Sang <wsa@the-dreams.de>, <linux-watchdog@vger.kernel.org>
-References: <20160830150306.2254-1-wsa@the-dreams.de>
-CC: <linux-renesas-soc@vger.kernel.org>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>
-From: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
-Message-ID: <ad860021-64bd-b816-c091-abe649aa5518@mentor.com>
-Date: Tue, 30 Aug 2016 19:11:52 +0300
-MIME-Version: 1.0
-In-Reply-To: <20160830150306.2254-1-wsa@the-dreams.de>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: 7bit
+Received: from mga11.intel.com ([192.55.52.93]:42924 "EHLO mga11.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S966367AbcHBNQr (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 2 Aug 2016 09:16:47 -0400
+From: Baole Ni <baolex.ni@intel.com>
+To: wim@iguana.be, linux@roeck-us.net, tomi.valkeinen@ti.com,
+	m.chehab@samsung.com, gregkh@linuxfoundation.org,
+	m.szyprowski@samsung.com, kyungmin.park@samsung.com,
+	k.kozlowski@samsung.com
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+	chuansheng.liu@intel.com, baolex.ni@intel.com, oneukum@suse.com
+Subject: [PATCH 1027/1285] Replace numeric parameter like 0444 with macro
+Date: Tue,  2 Aug 2016 20:09:40 +0800
+Message-Id: <20160802120940.18576-1-baolex.ni@intel.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Wolfram,
+I find that the developers often just specified the numeric value
+when calling a macro which is defined with a parameter for access permission.
+As we know, these numeric value for access permission have had the corresponding macro,
+and that using macro can improve the robustness and readability of the code,
+thus, I suggest replacing the numeric parameter with the macro.
 
-On 08/30/2016 06:03 PM, Wolfram Sang wrote:
-> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
->
-> Give devices which do not have hardware support for pretimeout at least a
-> software version of it.
->
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> ---
->
-> Change since v1: added 'else' block in softdog_ping(), to actually
-> disable the timer when pretimeout value got cleared.
->
-> Depends on the V4 pretimeout series from Vladimir.
->
-> Vladimir: Maybe you could add this patch to the next revision of your
-> pretimeout series? Then people have something to play around with
-> right away.
+Signed-off-by: Chuansheng Liu <chuansheng.liu@intel.com>
+Signed-off-by: Baole Ni <baolex.ni@intel.com>
+---
+ drivers/watchdog/f71808e_wdt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-I'll add it to the series, and most probably I'll add a pretimeout
-support to the iMX watchdog driver.
+diff --git a/drivers/watchdog/f71808e_wdt.c b/drivers/watchdog/f71808e_wdt.c
+index d4ba262..92871c7 100644
+--- a/drivers/watchdog/f71808e_wdt.c
++++ b/drivers/watchdog/f71808e_wdt.c
+@@ -108,7 +108,7 @@ MODULE_PARM_DESC(f71862fg_pin,
+ 			" (default=" __MODULE_STRING(WATCHDOG_F71862FG_PIN)")");
+ 
+ static bool nowayout = WATCHDOG_NOWAYOUT;
+-module_param(nowayout, bool, 0444);
++module_param(nowayout, bool, S_IRUSR | S_IRGRP | S_IROTH);
+ MODULE_PARM_DESC(nowayout, "Disable watchdog shutdown on close");
+ 
+ static unsigned int start_withtimeout;
+-- 
+2.9.2
 
-The v5 series will be published today tonight or tomorrow.
-
---
-Best wishes,
-Vladimir
