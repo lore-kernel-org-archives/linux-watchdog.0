@@ -1,112 +1,123 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from foss.arm.com ([217.140.101.70]:49066 "EHLO foss.arm.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758030AbcG1NxT (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 28 Jul 2016 09:53:19 -0400
-Date: Thu, 28 Jul 2016 14:53:21 +0100
-From: Will Deacon <will.deacon@arm.com>
-To: Timur Tabi <timur@codeaurora.org>
-Cc: Fu Wei <fu.wei@linaro.org>,
-	"Rafael J. Wysocki" <rjw@rjwysocki.net>,
-	Len Brown <lenb@kernel.org>,
-	Daniel Lezcano <daniel.lezcano@linaro.org>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Marc Zyngier <marc.zyngier@arm.com>,
-	Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-	Sudeep Holla <sudeep.holla@arm.com>,
-	Hanjun Guo <hanjun.guo@linaro.org>,
-	linux-arm-kernel@lists.infradead.org,
-	Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
-	rruigrok@codeaurora.org, harba@codeaurora.org,
-	Christopher Covington <cov@codeaurora.org>,
-	G Gregory <graeme.gregory@linaro.org>,
-	Al Stone <al.stone@linaro.org>, Jon Masters <jcm@redhat.com>,
-	wei@redhat.com, Arnd Bergmann <arnd@arndb.de>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
-	Leo Duran <leo.duran@amd.com>,
-	Guenter Roeck <linux@roeck-us.net>,
-	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH v9 4/9] clocksource/drivers/arm_arch_timer: use readq to
- get 64-bit CNTVCT
-Message-ID: <20160728135321.GH1085@arm.com>
-References: <1469460427-8643-1-git-send-email-fu.wei@linaro.org>
- <1469460427-8643-5-git-send-email-fu.wei@linaro.org>
- <20160725153118.GD19209@arm.com>
- <CADyBb7ubKceQiB7+u7sSA=1+9_VMUrGjiabf_FkN2-n4rq7Kgg@mail.gmail.com>
- <20160725163144.GE19209@arm.com>
- <57976FA5.2070802@codeaurora.org>
+Received: from mail-sn1nam02on0088.outbound.protection.outlook.com ([104.47.36.88]:50096
+	"EHLO NAM02-SN1-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S965958AbcHBNOG (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 2 Aug 2016 09:14:06 -0400
+From: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
+To: <linux-watchdog@vger.kernel.org>, <devicetree@vger.kernel.org>
+CC: <soren.brinkmann@xilinx.com>, <michal.simek@xilinx.com>,
+	<wim@iguana.be>, Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
+Subject: [PATCH] watchdog: xilinx: Add clock support
+Date: Tue, 2 Aug 2016 16:07:00 +0530
+Message-ID: <1470134220-12927-1-git-send-email-shubhrajyoti.datta@xilinx.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <57976FA5.2070802@codeaurora.org>
+Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, Jul 26, 2016 at 09:11:49AM -0500, Timur Tabi wrote:
-> Will Deacon wrote:
-> >The kernel really needs to support both of those platforms :/
-> >
-> >For the memory-mapped counter registers, the architecture says:
-> >
-> >   `If the implementation supports 64-bit atomic accesses, then the
-> >    CNTV_CVAL register must be accessible as an atomic 64-bit value.'
-> >
-> >which is borderline tautological. If we take the generous reading that
-> >this means AArch64 CPUs can use readq (and I'm not completely
-> >comfortable with that assertion, particularly as you say that it breaks
-> >the model), then you still need to use readq_relaxed here to avoid a
-> >DSB. Furthermore, what are you going to do for AArch32? readq doesn't
-> >exist over there, and if you use the generic implementation then it's
-> >not atomic. In which case, we end up with the current code, as well as a
-> >readq_relaxed guarded by a questionable #ifdef that is known to break a
-> >supported platform for an unknown performance improvement. Hardly a big
-> >win.
-> 
-> I know Fu dropped this patch, and I don't want to kick a dead horse, but I
-> was wondering if it would be okay to do this:
-> 
-> static u64 arch_counter_get_cntvct_mem(void)
-> {
-> #ifdef readq_relaxed
-> 	return readq_relaxed(arch_counter_base + CNTVCT_LO);
-> #else
-> 	u32 vct_lo, vct_hi, tmp_hi;
-> 
-> 	do {
-> 		vct_hi = readl_relaxed(arch_counter_base + CNTVCT_HI);
-> 		vct_lo = readl_relaxed(arch_counter_base + CNTVCT_LO);
-> 		tmp_hi = readl_relaxed(arch_counter_base + CNTVCT_HI);
-> 	} while (vct_hi != tmp_hi);
-> 
-> 	return ((u64) vct_hi << 32) | vct_lo;
-> #endif
-> }
-> 
-> readq and readq_relaxed are defined in arch/arm64/include/asm/io.h.  Why
-> would the function exist if AArch64 CPUs can't use it?
-> 
-> Do we need something like ARCH_HAS_64BIT_ATOMIC_READ in order to decide
-> whether readq is safe?
+Add support for the clock. Currently we enable
+at probe and relinquish at remove.
 
-No, I'm still not ok with this. If you want to use readq_relaxed we need
-the following guarantees:
+Signed-off-by: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
+---
+ .../devicetree/bindings/watchdog/of-xilinx-wdt.txt |  3 +++
+ drivers/watchdog/of_xilinx_wdt.c                   | 24 ++++++++++++++++++++--
+ 2 files changed, 25 insertions(+), 2 deletions(-)
 
-  1. readq_relaxed is provided by the architecture
-  2. readq_relaxed is single-copy atomic from the CPU's perspective
-  3. The memory-mapped timer has been integrated in such a way that it
-     can be accessed using 64-bit transactions.
+diff --git a/Documentation/devicetree/bindings/watchdog/of-xilinx-wdt.txt b/Documentation/devicetree/bindings/watchdog/of-xilinx-wdt.txt
+index 6d63782..b0a9fa3 100644
+--- a/Documentation/devicetree/bindings/watchdog/of-xilinx-wdt.txt
++++ b/Documentation/devicetree/bindings/watchdog/of-xilinx-wdt.txt
+@@ -5,6 +5,8 @@ Required properties:
+ - compatible		: Should be "xlnx,xps-timebase-wdt-1.00.a" or
+ 			  "xlnx,xps-timebase-wdt-1.01.a".
+ - reg			: Physical base address and size
++- clocks		: Input clock specifier. Refer to common clock
++			  bindings.
+ 
+ Optional properties:
+ - clock-frequency	: Frequency of clock in Hz
+@@ -17,6 +19,7 @@ Example:
+ axi-timebase-wdt@40100000 {
+ 	clock-frequency = <50000000>;
+ 	compatible = "xlnx,xps-timebase-wdt-1.00.a";
++	clocks = <&clkc 15>;
+ 	reg = <0x40100000 0x10000>;
+ 	xlnx,wdt-enable-once = <0x0>;
+ 	xlnx,wdt-interval = <0x1b>;
+diff --git a/drivers/watchdog/of_xilinx_wdt.c b/drivers/watchdog/of_xilinx_wdt.c
+index b2e1b4c..23cbb33 100644
+--- a/drivers/watchdog/of_xilinx_wdt.c
++++ b/drivers/watchdog/of_xilinx_wdt.c
+@@ -10,6 +10,7 @@
+  * 2 of the License, or (at your option) any later version.
+  */
+ 
++#include <linux/clk.h>
+ #include <linux/err.h>
+ #include <linux/module.h>
+ #include <linux/types.h>
+@@ -45,6 +46,7 @@ struct xwdt_device {
+ 	u32 wdt_interval;
+ 	spinlock_t spinlock;
+ 	struct watchdog_device xilinx_wdt_wdd;
++	struct clk		*clk;
+ };
+ 
+ static int xilinx_wdt_start(struct watchdog_device *wdd)
+@@ -194,17 +196,30 @@ static int xwdt_probe(struct platform_device *pdev)
+ 
+ 	spin_lock_init(&xdev->spinlock);
+ 	watchdog_set_drvdata(xilinx_wdt_wdd, xdev);
++	xdev->clk = devm_clk_get(&pdev->dev, NULL);
++	if (IS_ERR(xdev->clk)) {
++		dev_err(&pdev->dev, "input clock not found\n");
++		rc = PTR_ERR(xdev->clk);
++		return rc;
++	}
++
++	rc = clk_prepare_enable(xdev->clk);
++	if (rc) {
++		dev_err(&pdev->dev, "unable to enable clock\n");
++		goto err_clk_disable;
++	}
++
+ 
+ 	rc = xwdt_selftest(xdev);
+ 	if (rc == XWT_TIMER_FAILED) {
+ 		dev_err(&pdev->dev, "SelfTest routine error\n");
+-		return rc;
++		goto err_clk_disable;
+ 	}
+ 
+ 	rc = watchdog_register_device(xilinx_wdt_wdd);
+ 	if (rc) {
+ 		dev_err(&pdev->dev, "Cannot register watchdog (err=%d)\n", rc);
+-		return rc;
++		goto err_clk_disable;
+ 	}
+ 
+ 	dev_info(&pdev->dev, "Xilinx Watchdog Timer at %p with timeout %ds\n",
+@@ -213,6 +228,10 @@ static int xwdt_probe(struct platform_device *pdev)
+ 	platform_set_drvdata(pdev, xdev);
+ 
+ 	return 0;
++err_clk_disable:
++	clk_disable_unprepare(xdev->clk);
++
++	return rc;
+ }
+ 
+ static int xwdt_remove(struct platform_device *pdev)
+@@ -220,6 +239,7 @@ static int xwdt_remove(struct platform_device *pdev)
+ 	struct xwdt_device *xdev = platform_get_drvdata(pdev);
+ 
+ 	watchdog_unregister_device(&xdev->xilinx_wdt_wdd);
++	clk_disable_unprepare(xdev->clk);
+ 
+ 	return 0;
+ }
+-- 
+2.1.1
 
-(1) is easy, and you have that above. For (2), we just need to avoid
-include/linux/io-64-nonatomic-*.h. (3), however, is not something we
-can safely probe. If this optimisation really is worthwhile, then we
-need to extend the device-tree binding for the counter so that we can
-tell the kernel that it's ok to use 64-bit accesses for the counter
-without tearing.
-
-I have confirmed this with the architects here at ARM.
-
-Will
