@@ -1,54 +1,51 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mga01.intel.com ([192.55.52.88]:40478 "EHLO mga01.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S966374AbcHBNQs (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 2 Aug 2016 09:16:48 -0400
-From: Baole Ni <baolex.ni@intel.com>
-To: wim@iguana.be, linux@roeck-us.net, tomi.valkeinen@ti.com,
-	m.chehab@samsung.com, gregkh@linuxfoundation.org,
-	m.szyprowski@samsung.com, kyungmin.park@samsung.com,
-	k.kozlowski@samsung.com
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-	chuansheng.liu@intel.com, baolex.ni@intel.com, oneukum@suse.com
-Subject: [PATCH 1026/1285] Replace numeric parameter like 0444 with macro
-Date: Tue,  2 Aug 2016 20:09:36 +0800
-Message-Id: <20160802120936.18509-1-baolex.ni@intel.com>
+Received: from mail-pf0-f181.google.com ([209.85.192.181]:34982 "EHLO
+	mail-pf0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753947AbcHDA2Y (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 3 Aug 2016 20:28:24 -0400
+Received: by mail-pf0-f181.google.com with SMTP id x72so82106991pfd.2
+        for <linux-watchdog@vger.kernel.org>; Wed, 03 Aug 2016 17:27:35 -0700 (PDT)
+From: Kevin Hilman <khilman@baylibre.com>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Neil Armstrong <narmstrong@baylibre.com>,
+	Wim Van Sebroeck <wim@iguana.be>, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-amlogic@lists.infradead.org, linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH v3 3/3] ARM64: dts: amlogic: meson-gxbb: Add watchdog node
+References: <1468141867-4172-1-git-send-email-narmstrong@baylibre.com>
+	<1468141867-4172-4-git-send-email-narmstrong@baylibre.com>
+	<578271D3.4080704@roeck-us.net> <7hbn237aw7.fsf@baylibre.com>
+Date: Wed, 03 Aug 2016 17:27:32 -0700
+In-Reply-To: <7hbn237aw7.fsf@baylibre.com> (Kevin Hilman's message of "Mon, 11
+	Jul 2016 21:12:08 -0700")
+Message-ID: <m2bn19qsy3.fsf@baylibre.com>
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-I find that the developers often just specified the numeric value
-when calling a macro which is defined with a parameter for access permission.
-As we know, these numeric value for access permission have had the corresponding macro,
-and that using macro can improve the robustness and readability of the code,
-thus, I suggest replacing the numeric parameter with the macro.
+Hi Guenter,
 
-Signed-off-by: Chuansheng Liu <chuansheng.liu@intel.com>
-Signed-off-by: Baole Ni <baolex.ni@intel.com>
----
- drivers/watchdog/diag288_wdt.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+Kevin Hilman <khilman@baylibre.com> writes:
 
-diff --git a/drivers/watchdog/diag288_wdt.c b/drivers/watchdog/diag288_wdt.c
-index 861d3d3..75bfe07 100644
---- a/drivers/watchdog/diag288_wdt.c
-+++ b/drivers/watchdog/diag288_wdt.c
-@@ -60,13 +60,13 @@ MODULE_AUTHOR("Philipp Hachtmann <phacht@de.ibm.com>");
- 
- MODULE_DESCRIPTION("System z diag288  Watchdog Timer");
- 
--module_param_string(cmd, wdt_cmd, MAX_CMDLEN, 0644);
-+module_param_string(cmd, wdt_cmd, MAX_CMDLEN, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
- MODULE_PARM_DESC(cmd, "CP command that is run when the watchdog triggers (z/VM only)");
- 
--module_param_named(conceal, conceal_on, bool, 0644);
-+module_param_named(conceal, conceal_on, bool, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
- MODULE_PARM_DESC(conceal, "Enable the CONCEAL CP option while the watchdog is active (z/VM only)");
- 
--module_param_named(nowayout, nowayout_info, bool, 0444);
-+module_param_named(nowayout, nowayout_info, bool, S_IRUSR | S_IRGRP | S_IROTH);
- MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default = CONFIG_WATCHDOG_NOWAYOUT)");
- 
- MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR);
--- 
-2.9.2
+> Guenter Roeck <linux@roeck-us.net> writes:
+>
+>> On 07/10/2016 02:11 AM, Neil Armstrong wrote:
+>>> Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+>>
+>> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+>>
+>> Would this go in through one of the arm trees ?
+>
+> You can take the driver through the watchdog tree, but I'll take the DT
+> stuff through the amlogic tree (and submit via arm-soc).  
+>
+> However, with your ack, and since this is a brand new driver, I could
+> take the driver as well.  Just let me know your preference.
 
+ping... do you have a prefernce here?
+
+Thanks,
+
+Kevin
