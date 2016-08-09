@@ -1,56 +1,149 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-oi0-f41.google.com ([209.85.218.41]:33673 "EHLO
-	mail-oi0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753947AbcHDAaA (ORCPT
+Received: from mail-wm0-f44.google.com ([74.125.82.44]:35601 "EHLO
+	mail-wm0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752175AbcHILDv (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 3 Aug 2016 20:30:00 -0400
-Received: by mail-oi0-f41.google.com with SMTP id j185so302895547oih.0
-        for <linux-watchdog@vger.kernel.org>; Wed, 03 Aug 2016 17:29:14 -0700 (PDT)
+	Tue, 9 Aug 2016 07:03:51 -0400
+Received: by mail-wm0-f44.google.com with SMTP id f65so25594131wmi.0
+        for <linux-watchdog@vger.kernel.org>; Tue, 09 Aug 2016 04:03:50 -0700 (PDT)
+Subject: Re: [PATCH v9 0/9] acpi, clocksource: add GTDT driver and GTDT
+ support in arm_arch_timer
+To: fu.wei@linaro.org, rjw@rjwysocki.net, lenb@kernel.org,
+	daniel.lezcano@linaro.org, tglx@linutronix.de,
+	marc.zyngier@arm.com, lorenzo.pieralisi@arm.com
+References: <1469460427-8643-1-git-send-email-fu.wei@linaro.org>
+Cc: sudeep.holla@arm.com, hanjun.guo@linaro.org,
+	linux-arm-kernel@lists.infradead.org, linaro-acpi@lists.linaro.org,
+	linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
+	rruigrok@codeaurora.org, harba@codeaurora.org, cov@codeaurora.org,
+	timur@codeaurora.org, graeme.gregory@linaro.org,
+	al.stone@linaro.org, jcm@redhat.com, wei@redhat.com, arnd@arndb.de,
+	wim@iguana.be, catalin.marinas@arm.com, will.deacon@arm.com,
+	Suravee.Suthikulpanit@amd.com, leo.duran@amd.com,
+	linux@roeck-us.net, linux-watchdog@vger.kernel.org
+From: Tomasz Nowicki <tn@semihalf.com>
+Message-ID: <7c11cca2-1eaa-a4fb-a44b-cdb36ea99ae9@semihalf.com>
+Date: Tue, 9 Aug 2016 13:03:44 +0200
 MIME-Version: 1.0
-In-Reply-To: <m2bn19qsy3.fsf@baylibre.com>
-References: <1468141867-4172-1-git-send-email-narmstrong@baylibre.com>
- <1468141867-4172-4-git-send-email-narmstrong@baylibre.com>
- <578271D3.4080704@roeck-us.net> <7hbn237aw7.fsf@baylibre.com> <m2bn19qsy3.fsf@baylibre.com>
-From: Kevin Hilman <khilman@baylibre.com>
-Date: Wed, 3 Aug 2016 17:29:13 -0700
-Message-ID: <CAOi56cUQaFKYu2jNP0AuLOSNnNramu+DNPc+PH7K0gHDZMf+zA@mail.gmail.com>
-Subject: Re: [PATCH v3 3/3] ARM64: dts: amlogic: meson-gxbb: Add watchdog node
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Neil Armstrong <narmstrong@baylibre.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	devicetree <devicetree@vger.kernel.org>,
-	lkml <linux-kernel@vger.kernel.org>,
-	linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
-	linux-amlogic@lists.infradead.org, linux-watchdog@vger.kernel.org
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1469460427-8643-1-git-send-email-fu.wei@linaro.org>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Aug 3, 2016 at 5:27 PM, Kevin Hilman <khilman@baylibre.com> wrote:
-> Hi Guenter,
->
-> Kevin Hilman <khilman@baylibre.com> writes:
->
->> Guenter Roeck <linux@roeck-us.net> writes:
->>
->>> On 07/10/2016 02:11 AM, Neil Armstrong wrote:
->>>> Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
->>>
->>> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
->>>
->>> Would this go in through one of the arm trees ?
->>
->> You can take the driver through the watchdog tree, but I'll take the DT
->> stuff through the amlogic tree (and submit via arm-soc).
->>
->> However, with your ack, and since this is a brand new driver, I could
->> take the driver as well.  Just let me know your preference.
->
-> ping... do you have a prefernce here?
->
+Hi Fu,
 
-Oops, just noticed Wim already picked these up.
+Are you planing to respin the series based on v4.8-rc1 ? My IORT patches 
+depend on this series since they will end up in the same drivers/acpi/arm64/
 
-Ignore me,
+I think patches are in good shape so we need to enquire who is going to 
+pull it in ?
 
-Kevin
+Thanks,
+Tomasz
+
+On 25.07.2016 17:26, fu.wei@linaro.org wrote:
+> From: Fu Wei <fu.wei@linaro.org>
+>
+> This patchset:
+>     (1)Preparation for adding GTDT support in arm_arch_timer:
+>         1. Move some enums and marcos to header file;
+>         2. Add a new enum for spi type;
+>         3. Improve printk relevant code;
+>         4. use readq to get 64-bit CNTVCT.
+>
+>     (2)Introduce ACPI GTDT parser: drivers/acpi/arm64/acpi_gtdt.c
+>     Parse all kinds of timer in GTDT table of ACPI:arch timer,
+>     memory-mapped timer and SBSA Generic Watchdog timer.
+>     This driver can help to simplify all the relevant timer drivers,
+>     and separate all the ACPI GTDT knowledge from them.
+>
+>     (3)Simplify ACPI code for arm_arch_timer
+>
+>     (4)Add GTDT support for ARM memory-mapped timer
+>
+> This patchset has been tested on the following platforms:
+>     (1)ARM Foundation v8 model
+>
+> Changelog:
+> V9: https://lkml.org/lkml/2016/7/25/
+>     Improve pr_err message in acpi gtdt driver.
+>     Update Commit message for 7/9
+>     shorten the irq mapping function name
+>     Improve GTDT driver for memory-mapped timer
+>
+> v8: https://lkml.org/lkml/2016/7/19/660
+>     Improve "pr_fmt(fmt)" definition: add "ACPI" in front of "GTDT",
+>     and also improve printk message.
+>     Simplify is_timer_block and is_watchdog.
+>     Merge acpi_gtdt_desc_init and gtdt_arch_timer_init into acpi_gtdt_init();
+>     Delete __init in include/linux/acpi.h for GTDT API
+>     Make ARM64 select GTDT.
+>     Delete "#include <linux/module.h>" from acpi_gtdt.c
+>     Simplify GT block parse code.
+>
+> v7: https://lkml.org/lkml/2016/7/13/769
+>     Move the GTDT driver to drivers/acpi/arm64
+>     Add add the ARM64-specific ACPI Support maintainers in MAINTAINERS
+>     Merge 3 patches of GTDT parser driver.
+>     Fix the for_each_platform_timer bug.
+>
+> v6: https://lkml.org/lkml/2016/6/29/580
+>     split the GTDT driver to 4 parts: basic, arch_timer, memory-mapped timer,
+>     and SBSA Generic Watchdog timer
+>     Improve driver by suggestions and example code from Daniel Lezcano
+>
+> v5: https://lkml.org/lkml/2016/5/24/356
+>     Sorting out all patches, simplify the API of GTDT driver:
+>     GTDT driver just fills the data struct for arm_arch_timer driver.
+>
+> v4: https://lists.linaro.org/pipermail/linaro-acpi/2016-March/006667.html
+>     Delete the kvm relevant patches
+>     Separate two patches for sorting out the code for arm_arch_timer.
+>     Improve irq info export code to allow missing irq info in GTDT table.
+>
+> v3: https://lkml.org/lkml/2016/2/1/658
+>     Improve GTDT driver code:
+>       (1)improve pr_* by defining pr_fmt(fmt)
+>       (2)simplify gtdt_sbsa_gwdt_init
+>       (3)improve gtdt_arch_timer_data_init, if table is NULL, it will try
+>       to get GTDT table.
+>     Move enum ppi_nr to arm_arch_timer.h, and add enum spi_nr.
+>     Add arm_arch_timer get ppi from DT and GTDT support for kvm.
+>
+> v2: https://lkml.org/lkml/2015/12/2/10
+>     Rebase to latest kernel version(4.4-rc3).
+>     Fix the bug about the config problem,
+>     use CONFIG_ACPI_GTDT instead of CONFIG_ACPI in arm_arch_timer.c
+>
+> v1: The first upstreaming version: https://lkml.org/lkml/2015/10/28/553
+>
+> Fu Wei (9):
+>   clocksource/drivers/arm_arch_timer: Move enums and defines to header
+>     file
+>   clocksource/drivers/arm_arch_timer: Add a new enum for spi type
+>   clocksource/drivers/arm_arch_timer: Improve printk relevant code
+>   clocksource/drivers/arm_arch_timer: use readq to get 64-bit CNTVCT
+>   acpi/arm64: Add GTDT table parse driver
+>   clocksource/drivers/arm_arch_timer: Simplify ACPI support code.
+>   acpi/arm64: Add memory-mapped timer support in GTDT driver
+>   clocksource/drivers/arm_arch_timer: Add GTDT support for memory-mapped
+>     timer
+>   acpi/arm64: Add SBSA Generic Watchdog support in GTDT driver
+>
+>  arch/arm64/Kconfig                   |   1 +
+>  drivers/acpi/Kconfig                 |   5 +
+>  drivers/acpi/Makefile                |   1 +
+>  drivers/acpi/arm64/Kconfig           |   5 +
+>  drivers/acpi/arm64/Makefile          |   1 +
+>  drivers/acpi/arm64/acpi_gtdt.c       | 309 +++++++++++++++++++++++++++++++++++
+>  drivers/clocksource/Kconfig          |   2 +-
+>  drivers/clocksource/arm_arch_timer.c | 233 +++++++++++++++++---------
+>  drivers/watchdog/Kconfig             |   1 +
+>  include/clocksource/arm_arch_timer.h |  32 ++++
+>  include/linux/acpi.h                 |   7 +
+>  11 files changed, 519 insertions(+), 78 deletions(-)
+>  create mode 100644 drivers/acpi/arm64/Kconfig
+>  create mode 100644 drivers/acpi/arm64/Makefile
+>  create mode 100644 drivers/acpi/arm64/acpi_gtdt.c
+>
