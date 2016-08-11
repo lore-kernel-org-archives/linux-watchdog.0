@@ -1,86 +1,137 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from foss.arm.com ([217.140.101.70]:53395 "EHLO foss.arm.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932173AbcHKK66 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 11 Aug 2016 06:58:58 -0400
-Date: Thu, 11 Aug 2016 11:58:48 +0100
-From: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-To: Fu Wei <fu.wei@linaro.org>
-Cc: Hanjun Guo <hanjun.guo@linaro.org>,
-	Tomasz Nowicki <tn@semihalf.com>,
-	"Rafael J. Wysocki" <rjw@rjwysocki.net>,
-	Len Brown <lenb@kernel.org>,
-	Daniel Lezcano <daniel.lezcano@linaro.org>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Marc Zyngier <marc.zyngier@arm.com>,
-	Sudeep Holla <sudeep.holla@arm.com>,
-	linux-arm-kernel@lists.infradead.org,
-	Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
-	rruigrok@codeaurora.org, harba@codeaurora.org,
-	Christopher Covington <cov@codeaurora.org>,
-	Timur Tabi <timur@codeaurora.org>,
-	G Gregory <graeme.gregory@linaro.org>,
-	Al Stone <al.stone@linaro.org>, Jon Masters <jcm@redhat.com>,
-	wei@redhat.com, Arnd Bergmann <arnd@arndb.de>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will.deacon@arm.com>,
-	Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
-	Leo Duran <leo.duran@amd.com>,
-	Guenter Roeck <linux@roeck-us.net>,
-	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH v10 0/8] acpi, clocksource: add GTDT driver and GTDT
- support in arm_arch_timer
-Message-ID: <20160811105848.GA25680@red-moon>
-References: <1469535565-20924-1-git-send-email-fu.wei@linaro.org>
- <0befd611-91a7-88e9-1686-82929c1745e8@semihalf.com>
- <510fa357-a729-4ce1-7c10-4cef06feb7b7@linaro.org>
- <CADyBb7tZDT2LMGnsWW_orR37dsfseijLEjzn59rLW9tbbxKVPQ@mail.gmail.com>
+Received: from mail-sn1nam02on0083.outbound.protection.outlook.com ([104.47.36.83]:6203
+	"EHLO NAM02-SN1-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751148AbcHKNfJ convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 11 Aug 2016 09:35:09 -0400
+From: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
+To: <linux-watchdog@vger.kernel.org>, <devicetree@vger.kernel.org>
+CC: <soren.brinkmann@xilinx.com>, <shubhrajyoti.datta@gmail.com>,
+	<michal.simek@xilinx.com>, <wim@iguana.be>,
+	Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
+Subject: [PATCHv3] watchdog: xilinx: Add clock support
+Date: Thu, 11 Aug 2016 18:50:27 +0530
+Message-ID: <1470921627-32060-1-git-send-email-shubhrajyoti.datta@xilinx.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CADyBb7tZDT2LMGnsWW_orR37dsfseijLEjzn59rLW9tbbxKVPQ@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Thu, Aug 11, 2016 at 06:22:03PM +0800, Fu Wei wrote:
-> Hi Hanjun, Tomasz,
-> 
-> On 11 August 2016 at 18:15, Hanjun Guo <hanjun.guo@linaro.org> wrote:
-> > Hi,
-> >
-> > On 2016/8/11 17:37, Tomasz Nowicki wrote:
-> >>
-> >> Hi Fu,
-> >>
-> >> Do you mind if I send IORT series where new drivers/acpi/arm64 directory
-> >> would be introduced in first place ? This means your GTDT set would
-> >> depend on IORT.
-> >
-> >
-> > I think it's reasonable as the IORT for ITS is the key device enablement
-> > for PCI MSI. I talked to Fuwei offline and he is fine with it.
-> 
-> That's no problem at all, will do.
-> 
-> Can I do this:
-> (1)apply Tomasz's v8 patchset on the master branch of upstream kernel
-> (2)rebase my v10 on the top of Tomasz's v8
-> (3)git format-patch as v11, repost it
-> 
-> Is that OK for everyone? :-)
+Add support for the clock. Currently we enable
+at probe and relinquish at remove.
 
-I do not think you need a v11 just to remove the drivers/acpi/arm64
-directory creation, you need to get Daniel/Thomas review/ack on
-the respective patches though, I do not see the point of churning
-out another series just because drivers/acpi/arm64 is now created
-in the IORT patch series. If v10 is ok you will rebase it on top of
-Tomasz's series and mention the dependency in the respective pull
-request.
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Acked-by: Sören Brinkmann <soren.brinkmann@xilinx.com>
+Signed-off-by: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
+---
+v2:
+fix spaces and error path.
+v3:
+do not fail existing dts
 
-If there is need for a v11 following Daniel/Thomas review yes,
-you can proceed as above.
+ .../devicetree/bindings/watchdog/of-xilinx-wdt.txt |  3 +++
+ drivers/watchdog/of_xilinx_wdt.c                   | 29 ++++++++++++++++++++--
+ 2 files changed, 30 insertions(+), 2 deletions(-)
 
-Lorenzo
+diff --git a/Documentation/devicetree/bindings/watchdog/of-xilinx-wdt.txt b/Documentation/devicetree/bindings/watchdog/of-xilinx-wdt.txt
+index 6d63782..c6ae9c9 100644
+--- a/Documentation/devicetree/bindings/watchdog/of-xilinx-wdt.txt
++++ b/Documentation/devicetree/bindings/watchdog/of-xilinx-wdt.txt
+@@ -7,6 +7,8 @@ Required properties:
+ - reg			: Physical base address and size
+ 
+ Optional properties:
++- clocks		: Input clock specifier. Refer to common clock
++			  bindings.
+ - clock-frequency	: Frequency of clock in Hz
+ - xlnx,wdt-enable-once	: 0 - Watchdog can be restarted
+ 			  1 - Watchdog can be enabled just once
+@@ -17,6 +19,7 @@ Example:
+ axi-timebase-wdt@40100000 {
+ 	clock-frequency = <50000000>;
+ 	compatible = "xlnx,xps-timebase-wdt-1.00.a";
++	clocks = <&clkc 15>;
+ 	reg = <0x40100000 0x10000>;
+ 	xlnx,wdt-enable-once = <0x0>;
+ 	xlnx,wdt-interval = <0x1b>;
+diff --git a/drivers/watchdog/of_xilinx_wdt.c b/drivers/watchdog/of_xilinx_wdt.c
+index b2e1b4c..120840a 100644
+--- a/drivers/watchdog/of_xilinx_wdt.c
++++ b/drivers/watchdog/of_xilinx_wdt.c
+@@ -10,6 +10,7 @@
+  * 2 of the License, or (at your option) any later version.
+  */
+ 
++#include <linux/clk.h>
+ #include <linux/err.h>
+ #include <linux/module.h>
+ #include <linux/types.h>
+@@ -45,6 +46,7 @@ struct xwdt_device {
+ 	u32 wdt_interval;
+ 	spinlock_t spinlock;
+ 	struct watchdog_device xilinx_wdt_wdd;
++	struct clk		*clk;
+ };
+ 
+ static int xilinx_wdt_start(struct watchdog_device *wdd)
+@@ -195,16 +197,34 @@ static int xwdt_probe(struct platform_device *pdev)
+ 	spin_lock_init(&xdev->spinlock);
+ 	watchdog_set_drvdata(xilinx_wdt_wdd, xdev);
+ 
++	xdev->clk = devm_clk_get(&pdev->dev, NULL);
++	if (IS_ERR(xdev->clk)) {
++		if (PTR_ERR(xdev->clk) == -ENOENT) {
++			dev_err(&pdev->dev, "input clock not found\n");
++			xdev->clk = NULL;
++		} else {
++			rc = PTR_ERR(xdev->clk);
++			dev_err(&pdev->dev, "axi clock error %d\n", rc);
++			return rc;
++		}
++	}
++
++	rc = clk_prepare_enable(xdev->clk);
++	if (rc) {
++		dev_err(&pdev->dev, "unable to enable clock\n");
++		return rc;
++	}
++
+ 	rc = xwdt_selftest(xdev);
+ 	if (rc == XWT_TIMER_FAILED) {
+ 		dev_err(&pdev->dev, "SelfTest routine error\n");
+-		return rc;
++		goto err_clk_disable;
+ 	}
+ 
+ 	rc = watchdog_register_device(xilinx_wdt_wdd);
+ 	if (rc) {
+ 		dev_err(&pdev->dev, "Cannot register watchdog (err=%d)\n", rc);
+-		return rc;
++		goto err_clk_disable;
+ 	}
+ 
+ 	dev_info(&pdev->dev, "Xilinx Watchdog Timer at %p with timeout %ds\n",
+@@ -213,6 +233,10 @@ static int xwdt_probe(struct platform_device *pdev)
+ 	platform_set_drvdata(pdev, xdev);
+ 
+ 	return 0;
++err_clk_disable:
++	clk_disable_unprepare(xdev->clk);
++
++	return rc;
+ }
+ 
+ static int xwdt_remove(struct platform_device *pdev)
+@@ -220,6 +244,7 @@ static int xwdt_remove(struct platform_device *pdev)
+ 	struct xwdt_device *xdev = platform_get_drvdata(pdev);
+ 
+ 	watchdog_unregister_device(&xdev->xilinx_wdt_wdd);
++	clk_disable_unprepare(xdev->clk);
+ 
+ 	return 0;
+ }
+-- 
+2.1.1
+
