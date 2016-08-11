@@ -1,23 +1,13 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-oi0-f47.google.com ([209.85.218.47]:32888 "EHLO
-	mail-oi0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752557AbcHKK3N (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 11 Aug 2016 06:29:13 -0400
-Received: by mail-oi0-f47.google.com with SMTP id c15so95017098oig.0
-        for <linux-watchdog@vger.kernel.org>; Thu, 11 Aug 2016 03:29:12 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <510fa357-a729-4ce1-7c10-4cef06feb7b7@linaro.org>
-References: <1469535565-20924-1-git-send-email-fu.wei@linaro.org>
- <0befd611-91a7-88e9-1686-82929c1745e8@semihalf.com> <510fa357-a729-4ce1-7c10-4cef06feb7b7@linaro.org>
-From: Fu Wei <fu.wei@linaro.org>
-Date: Thu, 11 Aug 2016 18:22:03 +0800
-Message-ID: <CADyBb7tZDT2LMGnsWW_orR37dsfseijLEjzn59rLW9tbbxKVPQ@mail.gmail.com>
-Subject: Re: [PATCH v10 0/8] acpi, clocksource: add GTDT driver and GTDT
- support in arm_arch_timer
-To: Hanjun Guo <hanjun.guo@linaro.org>
-Cc: Tomasz Nowicki <tn@semihalf.com>,
-	Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+Received: from foss.arm.com ([217.140.101.70]:53395 "EHLO foss.arm.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932173AbcHKK66 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 11 Aug 2016 06:58:58 -0400
+Date: Thu, 11 Aug 2016 11:58:48 +0100
+From: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+To: Fu Wei <fu.wei@linaro.org>
+Cc: Hanjun Guo <hanjun.guo@linaro.org>,
+	Tomasz Nowicki <tn@semihalf.com>,
 	"Rafael J. Wysocki" <rjw@rjwysocki.net>,
 	Len Brown <lenb@kernel.org>,
 	Daniel Lezcano <daniel.lezcano@linaro.org>,
@@ -41,48 +31,56 @@ Cc: Tomasz Nowicki <tn@semihalf.com>,
 	Leo Duran <leo.duran@amd.com>,
 	Guenter Roeck <linux@roeck-us.net>,
 	linux-watchdog@vger.kernel.org
-Content-Type: text/plain; charset=UTF-8
+Subject: Re: [PATCH v10 0/8] acpi, clocksource: add GTDT driver and GTDT
+ support in arm_arch_timer
+Message-ID: <20160811105848.GA25680@red-moon>
+References: <1469535565-20924-1-git-send-email-fu.wei@linaro.org>
+ <0befd611-91a7-88e9-1686-82929c1745e8@semihalf.com>
+ <510fa357-a729-4ce1-7c10-4cef06feb7b7@linaro.org>
+ <CADyBb7tZDT2LMGnsWW_orR37dsfseijLEjzn59rLW9tbbxKVPQ@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CADyBb7tZDT2LMGnsWW_orR37dsfseijLEjzn59rLW9tbbxKVPQ@mail.gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Hanjun, Tomasz,
+On Thu, Aug 11, 2016 at 06:22:03PM +0800, Fu Wei wrote:
+> Hi Hanjun, Tomasz,
+> 
+> On 11 August 2016 at 18:15, Hanjun Guo <hanjun.guo@linaro.org> wrote:
+> > Hi,
+> >
+> > On 2016/8/11 17:37, Tomasz Nowicki wrote:
+> >>
+> >> Hi Fu,
+> >>
+> >> Do you mind if I send IORT series where new drivers/acpi/arm64 directory
+> >> would be introduced in first place ? This means your GTDT set would
+> >> depend on IORT.
+> >
+> >
+> > I think it's reasonable as the IORT for ITS is the key device enablement
+> > for PCI MSI. I talked to Fuwei offline and he is fine with it.
+> 
+> That's no problem at all, will do.
+> 
+> Can I do this:
+> (1)apply Tomasz's v8 patchset on the master branch of upstream kernel
+> (2)rebase my v10 on the top of Tomasz's v8
+> (3)git format-patch as v11, repost it
+> 
+> Is that OK for everyone? :-)
 
-On 11 August 2016 at 18:15, Hanjun Guo <hanjun.guo@linaro.org> wrote:
-> Hi,
->
-> On 2016/8/11 17:37, Tomasz Nowicki wrote:
->>
->> Hi Fu,
->>
->> Do you mind if I send IORT series where new drivers/acpi/arm64 directory
->> would be introduced in first place ? This means your GTDT set would
->> depend on IORT.
->
->
-> I think it's reasonable as the IORT for ITS is the key device enablement
-> for PCI MSI. I talked to Fuwei offline and he is fine with it.
+I do not think you need a v11 just to remove the drivers/acpi/arm64
+directory creation, you need to get Daniel/Thomas review/ack on
+the respective patches though, I do not see the point of churning
+out another series just because drivers/acpi/arm64 is now created
+in the IORT patch series. If v10 is ok you will rebase it on top of
+Tomasz's series and mention the dependency in the respective pull
+request.
 
-That's no problem at all, will do.
+If there is need for a v11 following Daniel/Thomas review yes,
+you can proceed as above.
 
-Can I do this:
-(1)apply Tomasz's v8 patchset on the master branch of upstream kernel
-(2)rebase my v10 on the top of Tomasz's v8
-(3)git format-patch as v11, repost it
-
-Is that OK for everyone? :-)
-
->
-> But both the GTDT patchset and IORT are in good shape now, can we
-> targeting both of them for 4.9 kernel (since all go via tip tree)?
->
-> Thanks
-> Hanjun
-
-
-
--- 
-Best regards,
-
-Fu Wei
-Software Engineer
-Red Hat
+Lorenzo
