@@ -1,101 +1,77 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-sn1nam02on0054.outbound.protection.outlook.com ([104.47.36.54]:9632
-	"EHLO NAM02-SN1-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751694AbcHPKRl (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 16 Aug 2016 06:17:41 -0400
-From: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
-To: <linux-watchdog@vger.kernel.org>
-CC: <linux@roeck-us.net>, <shubhrajyoti.datta@gmail.com>,
-	Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
-Subject: [PATCH] watchdog: cadence_wdt: Fix the suspend resume
-Date: Tue, 16 Aug 2016 15:47:32 +0530
-Message-ID: <1471342652-40005-1-git-send-email-shubhrajyoti.datta@xilinx.com>
+Received: from mail-io0-f177.google.com ([209.85.223.177]:33021 "EHLO
+	mail-io0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753425AbcHPNK7 (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 16 Aug 2016 09:10:59 -0400
+Received: by mail-io0-f177.google.com with SMTP id 38so106580154iol.0
+        for <linux-watchdog@vger.kernel.org>; Tue, 16 Aug 2016 06:10:59 -0700 (PDT)
+From: Kevin Hilman <khilman@baylibre.com>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Neil Armstrong <narmstrong@baylibre.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	devicetree <devicetree@vger.kernel.org>,
+	lkml <linux-kernel@vger.kernel.org>,
+	linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+	linux-amlogic@lists.infradead.org, linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH v3 3/3] ARM64: dts: amlogic: meson-gxbb: Add watchdog node
+References: <1468141867-4172-1-git-send-email-narmstrong@baylibre.com>
+	<1468141867-4172-4-git-send-email-narmstrong@baylibre.com>
+	<578271D3.4080704@roeck-us.net> <7hbn237aw7.fsf@baylibre.com>
+	<m2bn19qsy3.fsf@baylibre.com>
+	<CAOi56cUQaFKYu2jNP0AuLOSNnNramu+DNPc+PH7K0gHDZMf+zA@mail.gmail.com>
+	<7hinv1ahqi.fsf@baylibre.com>
+	<9cfa549e-1979-cb42-bfe1-1ef347dd3a9a@roeck-us.net>
+Date: Tue, 16 Aug 2016 08:10:56 -0500
+In-Reply-To: <9cfa549e-1979-cb42-bfe1-1ef347dd3a9a@roeck-us.net> (Guenter
+	Roeck's message of "Mon, 15 Aug 2016 18:51:38 -0700")
+Message-ID: <m2wpjg97vj.fsf@baylibre.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Currently even if no users are there the suspend tries to
-stop the watchdog and resume starts the watchdog.
+Guenter Roeck <linux@roeck-us.net> writes:
 
-So after resume the watchdog starts and resets the board.
-Fix the same by adding a check for users.
+> On 08/15/2016 01:40 PM, Kevin Hilman wrote:
+>> Kevin Hilman <khilman@baylibre.com> writes:
+>>
+>>> On Wed, Aug 3, 2016 at 5:27 PM, Kevin Hilman <khilman@baylibre.com> wrote:
+>>>> Hi Guenter,
+>>>>
+>>>> Kevin Hilman <khilman@baylibre.com> writes:
+>>>>
+>>>>> Guenter Roeck <linux@roeck-us.net> writes:
+>>>>>
+>>>>>> On 07/10/2016 02:11 AM, Neil Armstrong wrote:
+>>>>>>> Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+>>>>>>
+>>>>>> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+>>>>>>
+>>>>>> Would this go in through one of the arm trees ?
+>>>>>
+>>>>> You can take the driver through the watchdog tree, but I'll take the DT
+>>>>> stuff through the amlogic tree (and submit via arm-soc).
+>>>>>
+>>>>> However, with your ack, and since this is a brand new driver, I could
+>>>>> take the driver as well.  Just let me know your preference.
+>>>>
+>>>> ping... do you have a prefernce here?
+>>>>
+>>>
+>>> Oops, just noticed Wim already picked these up.
+>>>
+>>
+>> Strange, seems that Wim picked up patches 1 & 3, but this one was missed.  I'll
+>> queue this for the arm-soc tree.
+>>
+>
+> I got a number of requests from arm maintainers to not pick up devicetree changes
+> for arch/arm, so for my part I usually leave those alone.
 
-Signed-off-by: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
----
- drivers/watchdog/cadence_wdt.c | 22 +++++++++++++++-------
- 1 file changed, 15 insertions(+), 7 deletions(-)
+Yeah, that's the normal way, but Wim replied to the cover letter saying
+he would pick up all three, so I got a bit confused.
 
-diff --git a/drivers/watchdog/cadence_wdt.c b/drivers/watchdog/cadence_wdt.c
-index 4dda902..b58343c 100644
---- a/drivers/watchdog/cadence_wdt.c
-+++ b/drivers/watchdog/cadence_wdt.c
-@@ -77,6 +77,7 @@ MODULE_PARM_DESC(nowayout,
- struct cdns_wdt {
- 	void __iomem		*regs;
- 	bool			rst;
-+	bool			cdns_wdt_users;
- 	struct clk		*clk;
- 	u32			prescaler;
- 	u32			ctrl_clksel;
-@@ -129,6 +130,7 @@ static int cdns_wdt_stop(struct watchdog_device *wdd)
- 	struct cdns_wdt *wdt = watchdog_get_drvdata(wdd);
- 
- 	spin_lock(&wdt->io_lock);
-+	wdt->cdns_wdt_users = false;
- 	cdns_wdt_writereg(wdt, CDNS_WDT_ZMR_OFFSET,
- 			  CDNS_WDT_ZMR_ZKEY_VAL & (~CDNS_WDT_ZMR_WDEN_MASK));
- 	spin_unlock(&wdt->io_lock);
-@@ -182,6 +184,7 @@ static int cdns_wdt_start(struct watchdog_device *wdd)
- 	unsigned short count;
- 	unsigned long clock_f = clk_get_rate(wdt->clk);
- 
-+	wdt->cdns_wdt_users = true;
- 	/*
- 	 * Counter value divisor to obtain the value of
- 	 * counter reset to be written to control register.
-@@ -298,6 +301,7 @@ static int cdns_wdt_probe(struct platform_device *pdev)
- 	if (!wdt)
- 		return -ENOMEM;
- 
-+	wdt->cdns_wdt_users = false;
- 	cdns_wdt_device = &wdt->cdns_wdt_device;
- 	cdns_wdt_device->info = &cdns_wdt_info;
- 	cdns_wdt_device->ops = &cdns_wdt_ops;
-@@ -424,8 +428,10 @@ static int __maybe_unused cdns_wdt_suspend(struct device *dev)
- 	struct platform_device *pdev = to_platform_device(dev);
- 	struct cdns_wdt *wdt = platform_get_drvdata(pdev);
- 
--	cdns_wdt_stop(&wdt->cdns_wdt_device);
--	clk_disable_unprepare(wdt->clk);
-+	if (wdt->cdns_wdt_users) {
-+		cdns_wdt_stop(&wdt->cdns_wdt_device);
-+		clk_disable_unprepare(wdt->clk);
-+	}
- 
- 	return 0;
- }
-@@ -442,12 +448,14 @@ static int __maybe_unused cdns_wdt_resume(struct device *dev)
- 	struct platform_device *pdev = to_platform_device(dev);
- 	struct cdns_wdt *wdt = platform_get_drvdata(pdev);
- 
--	ret = clk_prepare_enable(wdt->clk);
--	if (ret) {
--		dev_err(dev, "unable to enable clock\n");
--		return ret;
-+	if (wdt->cdns_wdt_users) {
-+		ret = clk_prepare_enable(wdt->clk);
-+		if (ret) {
-+			dev_err(dev, "unable to enable clock\n");
-+			return ret;
-+		}
-+		cdns_wdt_start(&wdt->cdns_wdt_device);
- 	}
--	cdns_wdt_start(&wdt->cdns_wdt_device);
- 
- 	return 0;
- }
--- 
-2.1.1
+Anyways, not a big deal.  I'll take it from here.
 
+Kevin
