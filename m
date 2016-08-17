@@ -1,50 +1,50 @@
-Return-path: <khilman@baylibre.com>
-From: Kevin Hilman <khilman@baylibre.com>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Neil Armstrong <narmstrong@baylibre.com>,  Wim Van Sebroeck <wim@iguana.be>,  devicetree <devicetree@vger.kernel.org>,  lkml <linux-kernel@vger.kernel.org>,  linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,  linux-amlogic@lists.infradead.org,  linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH v3 3/3] ARM64: dts: amlogic: meson-gxbb: Add watchdog node
-References: <1468141867-4172-1-git-send-email-narmstrong@baylibre.com>
-	<1468141867-4172-4-git-send-email-narmstrong@baylibre.com>
-	<578271D3.4080704@roeck-us.net> <7hbn237aw7.fsf@baylibre.com>
-	<m2bn19qsy3.fsf@baylibre.com>
-	<CAOi56cUQaFKYu2jNP0AuLOSNnNramu+DNPc+PH7K0gHDZMf+zA@mail.gmail.com>
-Date: Mon, 15 Aug 2016 13:40:21 -0700
-In-Reply-To: <CAOi56cUQaFKYu2jNP0AuLOSNnNramu+DNPc+PH7K0gHDZMf+zA@mail.gmail.com>
-	(Kevin Hilman's message of "Wed, 3 Aug 2016 17:29:13 -0700")
-Message-ID: <7hinv1ahqi.fsf@baylibre.com>
+Return-path: <shubhrajyoti.datta@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain
+In-Reply-To: <20160816163403.GB28201@roeck-us.net>
+References: <1471342652-40005-1-git-send-email-shubhrajyoti.datta@xilinx.com> <20160816163403.GB28201@roeck-us.net>
+From: Shubhrajyoti Datta <shubhrajyoti.datta@gmail.com>
+Date: Wed, 17 Aug 2016 11:42:59 +0530
+Message-ID: <CAKfKVtHWJSWkj5k+aKtVfPbk8xm32vApz2kamQ2ziuaqsPxvjQ@mail.gmail.com>
+Subject: Re: [PATCH] watchdog: cadence_wdt: Fix the suspend resume
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>, linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Kevin Hilman <khilman@baylibre.com> writes:
-
-> On Wed, Aug 3, 2016 at 5:27 PM, Kevin Hilman <khilman@baylibre.com> wrote:
->> Hi Guenter,
+On Tue, Aug 16, 2016 at 10:04 PM, Guenter Roeck <linux@roeck-us.net> wrote:
+> On Tue, Aug 16, 2016 at 03:47:32PM +0530, Shubhrajyoti Datta wrote:
+>> Currently even if no users are there the suspend tries to
+>> stop the watchdog and resume starts the watchdog.
 >>
->> Kevin Hilman <khilman@baylibre.com> writes:
+>> So after resume the watchdog starts and resets the board.
+>> Fix the same by adding a check for users.
 >>
->>> Guenter Roeck <linux@roeck-us.net> writes:
->>>
->>>> On 07/10/2016 02:11 AM, Neil Armstrong wrote:
->>>>> Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
->>>>
->>>> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
->>>>
->>>> Would this go in through one of the arm trees ?
->>>
->>> You can take the driver through the watchdog tree, but I'll take the DT
->>> stuff through the amlogic tree (and submit via arm-soc).
->>>
->>> However, with your ack, and since this is a brand new driver, I could
->>> take the driver as well.  Just let me know your preference.
+>> Signed-off-by: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
+>> ---
+>>  drivers/watchdog/cadence_wdt.c | 22 +++++++++++++++-------
+>>  1 file changed, 15 insertions(+), 7 deletions(-)
 >>
->> ping... do you have a prefernce here?
+>> diff --git a/drivers/watchdog/cadence_wdt.c b/drivers/watchdog/cadence_wdt.c
+>> index 4dda902..b58343c 100644
+>> --- a/drivers/watchdog/cadence_wdt.c
+>> +++ b/drivers/watchdog/cadence_wdt.c
+>> @@ -77,6 +77,7 @@ MODULE_PARM_DESC(nowayout,
+>>  struct cdns_wdt {
+>>       void __iomem            *regs;
+>>       bool                    rst;
+>> +     bool                    cdns_wdt_users;
+>>       struct clk              *clk;
+>>       u32                     prescaler;
+>>       u32                     ctrl_clksel;
+>> @@ -129,6 +130,7 @@ static int cdns_wdt_stop(struct watchdog_device *wdd)
+>>       struct cdns_wdt *wdt = watchdog_get_drvdata(wdd);
 >>
+>>       spin_lock(&wdt->io_lock);
+>> +     wdt->cdns_wdt_users = false;
 >
-> Oops, just noticed Wim already picked these up.
+> Why not use watchdog_active() ?
+will fix in next version
+
 >
-
-Strange, seems that Wim picked up patches 1 & 3, but this one was missed.  I'll
-queue this for the arm-soc tree.
-
-Kevin
+> Guenter
+>
