@@ -1,50 +1,65 @@
-Return-path: <shubhrajyoti.datta@gmail.com>
-MIME-Version: 1.0
-In-Reply-To: <20160816163403.GB28201@roeck-us.net>
-References: <1471342652-40005-1-git-send-email-shubhrajyoti.datta@xilinx.com> <20160816163403.GB28201@roeck-us.net>
-From: Shubhrajyoti Datta <shubhrajyoti.datta@gmail.com>
-Date: Wed, 17 Aug 2016 11:42:59 +0530
-Message-ID: <CAKfKVtHWJSWkj5k+aKtVfPbk8xm32vApz2kamQ2ziuaqsPxvjQ@mail.gmail.com>
-Subject: Re: [PATCH] watchdog: cadence_wdt: Fix the suspend resume
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>, linux-watchdog@vger.kernel.org
-Content-Type: text/plain; charset=UTF-8
+Return-path: <geert@linux-m68k.org>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Ralf Baechle <ralf@linux-mips.org>,
+	Atsushi Nemoto <anemo@mba.ocn.ne.jp>,
+	Mark Brown <broonie@kernel.org>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Guenter Roeck <linux@roeck-us.net>
+Cc: linux-clk@vger.kernel.org,
+	linux-mips@linux-mips.org,
+	linux-spi@vger.kernel.org,
+	linux-watchdog@vger.kernel.org,
+	Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH 2/3] watchdog: txx9wdt: Add missing clock (un)prepare calls for CCF
+Date: Thu, 18 Aug 2016 19:34:26 +0200
+Message-Id: <1471541667-30689-3-git-send-email-geert@linux-m68k.org>
+In-Reply-To: <1471541667-30689-1-git-send-email-geert@linux-m68k.org>
+References: <1471541667-30689-1-git-send-email-geert@linux-m68k.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On Tue, Aug 16, 2016 at 10:04 PM, Guenter Roeck <linux@roeck-us.net> wrote:
-> On Tue, Aug 16, 2016 at 03:47:32PM +0530, Shubhrajyoti Datta wrote:
->> Currently even if no users are there the suspend tries to
->> stop the watchdog and resume starts the watchdog.
->>
->> So after resume the watchdog starts and resets the board.
->> Fix the same by adding a check for users.
->>
->> Signed-off-by: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
->> ---
->>  drivers/watchdog/cadence_wdt.c | 22 +++++++++++++++-------
->>  1 file changed, 15 insertions(+), 7 deletions(-)
->>
->> diff --git a/drivers/watchdog/cadence_wdt.c b/drivers/watchdog/cadence_wdt.c
->> index 4dda902..b58343c 100644
->> --- a/drivers/watchdog/cadence_wdt.c
->> +++ b/drivers/watchdog/cadence_wdt.c
->> @@ -77,6 +77,7 @@ MODULE_PARM_DESC(nowayout,
->>  struct cdns_wdt {
->>       void __iomem            *regs;
->>       bool                    rst;
->> +     bool                    cdns_wdt_users;
->>       struct clk              *clk;
->>       u32                     prescaler;
->>       u32                     ctrl_clksel;
->> @@ -129,6 +130,7 @@ static int cdns_wdt_stop(struct watchdog_device *wdd)
->>       struct cdns_wdt *wdt = watchdog_get_drvdata(wdd);
->>
->>       spin_lock(&wdt->io_lock);
->> +     wdt->cdns_wdt_users = false;
->
-> Why not use watchdog_active() ?
-will fix in next version
+While the custom minimal TXx9 clock implementation doesn't need or use
+clock (un)prepare calls (they are dummies if !CONFIG_HAVE_CLK_PREPARE),
+they are mandatory when using the Common Clock Framework.
 
->
-> Guenter
->
+Hence add them, to prepare for the advent of CCF.
+
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+---
+Tested on RBTX4927.
+---
+ drivers/watchdog/txx9wdt.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/watchdog/txx9wdt.c b/drivers/watchdog/txx9wdt.c
+index c2da880292bc2f32..6f7a9deb27d05d25 100644
+--- a/drivers/watchdog/txx9wdt.c
++++ b/drivers/watchdog/txx9wdt.c
+@@ -112,7 +112,7 @@ static int __init txx9wdt_probe(struct platform_device *dev)
+ 		txx9_imclk = NULL;
+ 		goto exit;
+ 	}
+-	ret = clk_enable(txx9_imclk);
++	ret = clk_prepare_enable(txx9_imclk);
+ 	if (ret) {
+ 		clk_put(txx9_imclk);
+ 		txx9_imclk = NULL;
+@@ -144,7 +144,7 @@ static int __init txx9wdt_probe(struct platform_device *dev)
+ 	return 0;
+ exit:
+ 	if (txx9_imclk) {
+-		clk_disable(txx9_imclk);
++		clk_disable_unprepare(txx9_imclk);
+ 		clk_put(txx9_imclk);
+ 	}
+ 	return ret;
+@@ -153,7 +153,7 @@ exit:
+ static int __exit txx9wdt_remove(struct platform_device *dev)
+ {
+ 	watchdog_unregister_device(&txx9wdt);
+-	clk_disable(txx9_imclk);
++	clk_disable_unprepare(txx9_imclk);
+ 	clk_put(txx9_imclk);
+ 	return 0;
+ }
+-- 
+1.9.1
