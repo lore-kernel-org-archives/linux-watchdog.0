@@ -1,80 +1,48 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from newton.telenet-ops.be ([195.130.132.45]:40648 "EHLO
-        newton.telenet-ops.be" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750991AbcHSEOI (ORCPT
+Received: from smtp.codeaurora.org ([198.145.29.96]:55891 "EHLO
+        smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750991AbcHSTRw (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 19 Aug 2016 00:14:08 -0400
-Received: from baptiste.telenet-ops.be (baptiste.telenet-ops.be [IPv6:2a02:1800:120:4::f00:13])
-        by newton.telenet-ops.be (Postfix) with ESMTP id 3sFYBq6qHnzMsw6Z
-        for <linux-watchdog@vger.kernel.org>; Thu, 18 Aug 2016 19:34:59 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Ralf Baechle <ralf@linux-mips.org>,
+        Fri, 19 Aug 2016 15:17:52 -0400
+Date: Fri, 19 Aug 2016 12:17:50 -0700
+From: Stephen Boyd <sboyd@codeaurora.org>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Ralf Baechle <ralf@linux-mips.org>,
         Atsushi Nemoto <anemo@mba.ocn.ne.jp>,
         Mark Brown <broonie@kernel.org>,
         Wim Van Sebroeck <wim@iguana.be>,
-        Guenter Roeck <linux@roeck-us.net>
-Cc: linux-clk@vger.kernel.org, linux-mips@linux-mips.org,
-        linux-spi@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 0/3] MIPS: TXx9: Common Clock Framework Conversion
-Date: Thu, 18 Aug 2016 19:34:24 +0200
-Message-Id: <1471541667-30689-1-git-send-email-geert@linux-m68k.org>
+        Guenter Roeck <linux@roeck-us.net>, linux-clk@vger.kernel.org,
+        linux-mips@linux-mips.org, linux-spi@vger.kernel.org,
+        linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH 3/3] MIPS: TXx9: Convert to Common Clock Framework
+Message-ID: <20160819191750.GV361@codeaurora.org>
+References: <1471541667-30689-1-git-send-email-geert@linux-m68k.org>
+ <1471541667-30689-4-git-send-email-geert@linux-m68k.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1471541667-30689-4-git-send-email-geert@linux-m68k.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-	Hi Ralf, Nemoto-san, Mark, Wim, G=C3=BCnter,
+On 08/18, Geert Uytterhoeven wrote:
+> diff --git a/arch/mips/txx9/generic/setup.c b/arch/mips/txx9/generic/setup.c
+> index ada92db92f87d91a..2fdbcf91b2cc472c 100644
+> --- a/arch/mips/txx9/generic/setup.c
+> +++ b/arch/mips/txx9/generic/setup.c
+> @@ -560,8 +527,39 @@ void __init plat_time_init(void)
+>  	txx9_board_vec->time_init();
+>  }
+>  
+> +static void txx9_clk_init(void)
+> +{
+> +	struct clk *clk;
+> +	int error;
+> +
+> +	clk = clk_register_fixed_rate(NULL, "gbus", NULL, 0, txx9_gbus_clock);
 
-This patch series converts the Toshiba TXx9 platforms from their own
-custom minimal clock implementation to the Common Clock Framework.
+Can we use the clk_hw_*() based variants instead please?
 
-  - Patches 1 and 2 add missing clock (un)prepare calls to TXx9-specifi=
-c
-    drivers,
-  - Patch 3 replaces the custom clock implementation by a CCF-based one=
-,
-    providing a minimal set of clocks.
-
-Patches 1 and 2 can be applied independently.
-Patch 3 has a hard dependency on patches 1 and 2.
-I don't know how you prefer to handle this?
-
-This has been tested with the watchdog on RBTX4927.
-
-Thanks!
-
-Geert Uytterhoeven (3):
-  spi: spi-txx9: Add missing clock (un)prepare calls for CCF
-  watchdog: txx9wdt: Add missing clock (un)prepare calls for CCF
-  MIPS: TXx9: Convert to Common Clock Framework
-
- arch/mips/txx9/Kconfig         |  2 +-
- arch/mips/txx9/generic/setup.c | 68 ++++++++++++++++++++--------------=
---------
- drivers/spi/spi-txx9.c         |  6 ++--
- drivers/watchdog/txx9wdt.c     |  6 ++--
- 4 files changed, 40 insertions(+), 42 deletions(-)
-
---=20
-1.9.1
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-=
-m68k.org
-
-In personal conversations with technical people, I call myself a hacker=
-=2E But
-when I'm talking to journalists I just say "programmer" or something li=
-ke that.
-							    -- Linus Torvalds
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
-g" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
+a Linux Foundation Collaborative Project
