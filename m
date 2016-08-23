@@ -1,77 +1,71 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:35578 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751385AbcHTIgG (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 20 Aug 2016 04:36:06 -0400
-Subject: Re: [PATCH 2/3] watchdog: txx9wdt: Add missing clock (un)prepare
- calls for CCF
-To: Geert Uytterhoeven <geert@linux-m68k.org>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Atsushi Nemoto <anemo@mba.ocn.ne.jp>,
-        Mark Brown <broonie@kernel.org>,
-        Wim Van Sebroeck <wim@iguana.be>
-References: <1471541667-30689-1-git-send-email-geert@linux-m68k.org>
- <1471541667-30689-3-git-send-email-geert@linux-m68k.org>
-Cc: linux-clk@vger.kernel.org, linux-mips@linux-mips.org,
-        linux-spi@vger.kernel.org, linux-watchdog@vger.kernel.org
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <4a958a01-7772-dc9d-ff00-7e1cbad7ffe3@roeck-us.net>
-Date: Sat, 20 Aug 2016 01:36:02 -0700
+Received: from mail-sn1nam01on0067.outbound.protection.outlook.com ([104.47.32.67]:7008
+        "EHLO NAM01-SN1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1753781AbcHWKVY (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 23 Aug 2016 06:21:24 -0400
+From: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
+To: <linux-watchdog@vger.kernel.org>
+CC: <linux@roeck-us.net>, <shubhrajyoti.datta@gmail.com>,
+        Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
+Subject: [PATCHv2] watchdog: cadence_wdt: Fix the suspend resume
+Date: Tue, 23 Aug 2016 15:19:01 +0530
+Message-ID: <1471945741-5021-1-git-send-email-shubhrajyoti.datta@xilinx.com>
 MIME-Version: 1.0
-In-Reply-To: <1471541667-30689-3-git-send-email-geert@linux-m68k.org>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 08/18/2016 10:34 AM, Geert Uytterhoeven wrote:
-> While the custom minimal TXx9 clock implementation doesn't need or use
-> clock (un)prepare calls (they are dummies if !CONFIG_HAVE_CLK_PREPARE),
-> they are mandatory when using the Common Clock Framework.
->
-> Hence add them, to prepare for the advent of CCF.
->
-> Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Currently even if no users are there the suspend tries to
+stop the watchdog and resume starts it.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+so after resume the watchdog starts and resets the board.
+Fix the same by adding a check for users.
 
-> ---
-> Tested on RBTX4927.
-> ---
->  drivers/watchdog/txx9wdt.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
->
-> diff --git a/drivers/watchdog/txx9wdt.c b/drivers/watchdog/txx9wdt.c
-> index c2da880292bc2f32..6f7a9deb27d05d25 100644
-> --- a/drivers/watchdog/txx9wdt.c
-> +++ b/drivers/watchdog/txx9wdt.c
-> @@ -112,7 +112,7 @@ static int __init txx9wdt_probe(struct platform_device *dev)
->  		txx9_imclk = NULL;
->  		goto exit;
->  	}
-> -	ret = clk_enable(txx9_imclk);
-> +	ret = clk_prepare_enable(txx9_imclk);
->  	if (ret) {
->  		clk_put(txx9_imclk);
->  		txx9_imclk = NULL;
-> @@ -144,7 +144,7 @@ static int __init txx9wdt_probe(struct platform_device *dev)
->  	return 0;
->  exit:
->  	if (txx9_imclk) {
-> -		clk_disable(txx9_imclk);
-> +		clk_disable_unprepare(txx9_imclk);
->  		clk_put(txx9_imclk);
->  	}
->  	return ret;
-> @@ -153,7 +153,7 @@ exit:
->  static int __exit txx9wdt_remove(struct platform_device *dev)
->  {
->  	watchdog_unregister_device(&txx9wdt);
-> -	clk_disable(txx9_imclk);
-> +	clk_disable_unprepare(txx9_imclk);
->  	clk_put(txx9_imclk);
->  	return 0;
->  }
->
+Signed-off-by: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
+---
+v2: use watchdog_active
+
+ drivers/watchdog/cadence_wdt.c |   18 +++++++++++-------
+ 1 files changed, 11 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/watchdog/cadence_wdt.c b/drivers/watchdog/cadence_wdt.c
+index 4dda902..0fd267e 100644
+--- a/drivers/watchdog/cadence_wdt.c
++++ b/drivers/watchdog/cadence_wdt.c
+@@ -424,8 +424,10 @@ static int __maybe_unused cdns_wdt_suspend(struct device *dev)
+ 	struct platform_device *pdev = to_platform_device(dev);
+ 	struct cdns_wdt *wdt = platform_get_drvdata(pdev);
+ 
+-	cdns_wdt_stop(&wdt->cdns_wdt_device);
+-	clk_disable_unprepare(wdt->clk);
++	if (watchdog_active(&wdt->cdns_wdt_device)) {
++		cdns_wdt_stop(&wdt->cdns_wdt_device);
++		clk_disable_unprepare(wdt->clk);
++	}
+ 
+ 	return 0;
+ }
+@@ -442,12 +444,14 @@ static int __maybe_unused cdns_wdt_resume(struct device *dev)
+ 	struct platform_device *pdev = to_platform_device(dev);
+ 	struct cdns_wdt *wdt = platform_get_drvdata(pdev);
+ 
+-	ret = clk_prepare_enable(wdt->clk);
+-	if (ret) {
+-		dev_err(dev, "unable to enable clock\n");
+-		return ret;
++	if (watchdog_active(&wdt->cdns_wdt_device)) {
++		ret = clk_prepare_enable(wdt->clk);
++		if (ret) {
++			dev_err(dev, "unable to enable clock\n");
++			return ret;
++		}
++		cdns_wdt_start(&wdt->cdns_wdt_device);
+ 	}
+-	cdns_wdt_start(&wdt->cdns_wdt_device);
+ 
+ 	return 0;
+ }
+-- 
+1.7.1
 
