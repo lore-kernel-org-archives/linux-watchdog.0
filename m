@@ -1,88 +1,49 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from tryphon.debian.net ([109.190.112.8]:39732 "EHLO mailhost.home"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1759544AbcHYQnx (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 25 Aug 2016 12:43:53 -0400
-Received: from localhost ([127.0.0.1])
-        by mailhost.home with esmtp (Exim 4.80)
-        (envelope-from <nboullis@debian.org>)
-        id 1bcxZH-0007vd-Gz
-        for linux-watchdog@vger.kernel.org; Thu, 25 Aug 2016 18:31:51 +0200
-Received: from mailhost.home ([127.0.0.1])
-        by localhost (mailhost.home [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id EI6nduCeuG1A for <linux-watchdog@vger.kernel.org>;
-        Thu, 25 Aug 2016 18:31:50 +0200 (CEST)
-Received: from [2a01:240:fe87:1:e4d:e9ff:feba:8ae5] (helo=haddock.home)
-        by mailhost.home with esmtp (Exim 4.80)
-        (envelope-from <nboullis@debian.org>)
-        id 1bcxZF-0007vX-T4
-        for linux-watchdog@vger.kernel.org; Thu, 25 Aug 2016 18:31:50 +0200
-Date: Thu, 25 Aug 2016 18:31:49 +0200
-From: Nicolas Boullis <nboullis@debian.org>
-To: linux-watchdog@vger.kernel.org
-Subject: Linux-compatible watchdog add-on?
-Message-ID: <20160825163149.GB3636@haddock.home>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:38846 "EHLO
+        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753979AbcHYS7k (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Thu, 25 Aug 2016 14:59:40 -0400
+Date: Thu, 25 Aug 2016 11:59:30 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-watchdog@vger.kernel.org
+Subject: Re: pre-timeout again?
+Message-ID: <20160825185930.GB16420@roeck-us.net>
+References: <20160824123510.GB5190@katana>
+ <d396484c-d8c6-1212-1fde-0059cc594e3c@mentor.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="EVF5PPMfhYS0aIcm"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <d396484c-d8c6-1212-1fde-0059cc594e3c@mentor.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+On Wed, Aug 24, 2016 at 09:19:28PM +0300, Vladimir Zapolskiy wrote:
+> Hi Wolfram,
+> 
+> On 08/24/2016 03:35 PM, Wolfram Sang wrote:
+> >Hi,
+> >
+> >I'd really like to see pretimeout support added in v4.9. Can't I just
+> >resend my latest series (since Vladimir's latest series had some issues
+> >which were already fixed in mine IIRC)? I still think this provides a
+> >solid ground where Vladimir could add the missing features on top. I can
+> >remove my copyright line, too, if that is important.
+> 
+> copyright is not an issue for me, the authorship is.
+> 
+> I'm not sure about the diff of the known issues between your and my series,
+> IIRC the changes you had sent one day were not reviewed thoroughly.
+> 
+> >It's a bit sad that I have time assigned to this task but am basically
+> >blocked currently. Or were there other issues I forgot?
+> >
+> 
+> It's a bit sad that two your patches were not integrated to v4.8:
+> 
+>   http://www.spinics.net/lists/linux-watchdog/msg09484.html
+> 
+I don't recall seeing v3. Did I miss it ?
 
---EVF5PPMfhYS0aIcm
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Hi,
-
-Sorry if my question is off-topic for this list.
-
-I have a computer that experienced a kernel failure while a was far away=20
-and nobody could reboot it. So I thought it would be nice to have a=20
-watchdog. Unfortunately, to the best of my knowledge, it has no hardware=20
-watchdog, so I thought I should add one.
-
-Hence, do you have suggestions for I=B2C-, serial- or USB-connected=20
-watchdog add-ons? It should of course be compatible with linux.
-
-I found=20
-  http://www.berkprod.com/Product_Web_Pages/usb_v1_pc_watchdog.aspx
-but I think it is a little too expensive.
-
-If no such thing exists, I might consider designing my own (open=20
-hardware) I=B2C- or USB-connected watchdog add-on, using a cheap MCU. But=
-=20
-then I would welcome opinions on what the interface between the host and=20
-watchdog should look like.
-
-
-Cheers,
-
---=20
-Nicolas Boullis
-
---EVF5PPMfhYS0aIcm
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBCAAGBQJXvx1xAAoJEHnxj5DMK4Q1p3gP/38ImGmJf0ZcDup8o86dH9Dp
-ewsz1T0y7ZidNBVIAb2+tCtSx8RSVDFzwdpQrV9KBiJJMDxSkeZN2VF7TRGMhOnJ
-99OZC4LCXlfDxz0vG+xMwiprQ49YZLgKoSXlpxGy9j+CiAjTlBs7jyqa6UFKdeP6
-vOqa2kYWsJYpuvAwtrDGYnz3H3oNqvVG0tfgVqB5j0kTL8xuHVF9E5flDrwTqU/v
-Z+JgC6qYnoLN4FL0xdy+m/VkwyFgre4W4W5Vs+cgTxrchxyoa8iKX+e5R6NYk5qc
-DkcW9JJF6yee2HbjbI7ypMwgmgf+Iayj1e5WplfiUtSiSpXctNVW2EQC+r1cB0sn
-k4KZLCOoZ6akO9lxyuQdUjA3Fv0artftM0HRBX2Y9ALui4yuPU/GMgoVhzZNBvb8
-iFnrnG+SAMKHkPYdqSMFYdbSIGSP4qU7/P5kzMdG9mg4eIElolEVxM0jHgMH+FyX
-KrjO895m051N+Fgw7WZHUN/g4lwlJ7vtgvCrd+abvbXQ/m2PIyDpDeYZKH7JnsD9
-oOmttAChtNBMQ7UlJLv7+7lke9mEdB/sRIk+kMgycYsQAHbZR78WC48niixq6OeY
-80nG85BdkLW6yh8gQy+Y9Q5wS7RYp7nW9DR4IbzX4F/5ieWVWzOPBUMSXF9fqIWI
-WDQOCvvEPl72i+nkdSSw
-=+FCm
------END PGP SIGNATURE-----
-
---EVF5PPMfhYS0aIcm--
+Guenter
