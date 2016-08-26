@@ -1,93 +1,59 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mout.gmx.net ([212.227.17.21]:57941 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751280AbcHZE65 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 26 Aug 2016 00:58:57 -0400
+Received: from tryphon.debian.net ([109.190.112.8]:51612 "EHLO mailhost.home"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S932336AbcHZXPM (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 26 Aug 2016 19:15:12 -0400
+Date: Sat, 27 Aug 2016 01:14:52 +0200
+From: Nicolas Boullis <nboullis@debian.org>
+To: Oleksij Rempel <linux@rempel-privat.de>
+Cc: linux-watchdog@vger.kernel.org
 Subject: Re: Linux-compatible watchdog add-on?
-To: Nicolas Boullis <nboullis@debian.org>,
-        linux-watchdog@vger.kernel.org
+Message-ID: <20160826231452.GA3890@haddock.home>
 References: <20160825163149.GB3636@haddock.home>
-From: Oleksij Rempel <linux@rempel-privat.de>
-Message-ID: <7ad22fc1-02c1-7d99-657f-770d16c3aa92@rempel-privat.de>
-Date: Fri, 26 Aug 2016 06:58:15 +0200
+ <7ad22fc1-02c1-7d99-657f-770d16c3aa92@rempel-privat.de>
 MIME-Version: 1.0
-In-Reply-To: <20160825163149.GB3636@haddock.home>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="ig4MFbkhrBH6u3xN1uunlhs5J7dhDRXB7"
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <7ad22fc1-02c1-7d99-657f-770d16c3aa92@rempel-privat.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
-
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---ig4MFbkhrBH6u3xN1uunlhs5J7dhDRXB7
-Content-Type: multipart/mixed; boundary="MiVQiq3r36oDJSdtaHiiv8pJri1fTWbKr"
-From: Oleksij Rempel <linux@rempel-privat.de>
-To: Nicolas Boullis <nboullis@debian.org>, linux-watchdog@vger.kernel.org
-Message-ID: <7ad22fc1-02c1-7d99-657f-770d16c3aa92@rempel-privat.de>
-Subject: Re: Linux-compatible watchdog add-on?
-References: <20160825163149.GB3636@haddock.home>
-In-Reply-To: <20160825163149.GB3636@haddock.home>
-
---MiVQiq3r36oDJSdtaHiiv8pJri1fTWbKr
-Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 
-Hi
+Hi,
 
-Am 25.08.2016 um 18:31 schrieb Nicolas Boullis:
-> Hi,
+On Fri, Aug 26, 2016 at 06:58:15AM +0200, Oleksij Rempel wrote:
 >=20
-> Sorry if my question is off-topic for this list.
+> How about SPI?
+> If yes, you can try this project:
+> https://plus.google.com/102032716864870215256/posts/PwMMKYP5PKR
+> https://plus.google.com/102032716864870215256/posts/QJqPxSi1Str
 >=20
-> I have a computer that experienced a kernel failure while a was far awa=
-y=20
-> and nobody could reboot it. So I thought it would be nice to have a=20
-> watchdog. Unfortunately, to the best of my knowledge, it has no hardwar=
-e=20
-> watchdog, so I thought I should add one.
->=20
-> Hence, do you have suggestions for I=C2=B2C-, serial- or USB-connected =
+> Linux side is configured as watchdog, MCU side currently do only demo
+> blinking, but watchdog should be a main future.
 
-> watchdog add-ons? It should of course be compatible with linux.
->=20
-> I found=20
->   http://www.berkprod.com/Product_Web_Pages/usb_v1_pc_watchdog.aspx
-> but I think it is a little too expensive.
->=20
-> If no such thing exists, I might consider designing my own (open=20
-> hardware) I=C2=B2C- or USB-connected watchdog add-on, using a cheap MCU=
-=2E But=20
-> then I would welcome opinions on what the interface between the host an=
-d=20
-> watchdog should look like.
+Thanks for telling me about this project.
 
-How about SPI?
-If yes, you can try this project:
-https://plus.google.com/102032716864870215256/posts/PwMMKYP5PKR
-https://plus.google.com/102032716864870215256/posts/QJqPxSi1Str
+But, to be honnest, I don=E2=80=99t really understand what this project i=
+s=20
+about. I never hearded about the SSI32 protocol (while I know the SPI=20
+protocol)=E2=80=A6
 
-Linux side is configured as watchdog, MCU side currently do only demo
-blinking, but watchdog should be a main future.
+Anyway, as far as I know, my motherboard has no SPI bus=E2=80=A6 I guess =
+I might=20
+buy or design an USB-SPI interface, but I wonder if designing an USB=20
+watchdog wouldn=E2=80=99t be easier=E2=80=A6
 
+Anyway, I would still be interested to understand a little more what=20
+that project is about; it might at least be a good source for=20
+inspiration=E2=80=A6
+
+
+Cheers,
 
 --=20
-Regards,
-Oleksij
-
-
---MiVQiq3r36oDJSdtaHiiv8pJri1fTWbKr--
-
---ig4MFbkhrBH6u3xN1uunlhs5J7dhDRXB7
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iF4EAREIAAYFAle/zHUACgkQHwImuRkmbWnNRgD9FgWQPCZRyggpLEtepW+HzJDi
-c86PcCbGX6VsdUqPmRYA/RaN4OBHc4MAIimjz5C0pSkNYNOHPwwzfjBnrM9mjFam
-=B8Lj
------END PGP SIGNATURE-----
-
---ig4MFbkhrBH6u3xN1uunlhs5J7dhDRXB7--
+Nicolas Boullis
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
