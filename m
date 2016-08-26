@@ -1,49 +1,93 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:38846 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753979AbcHYS7k (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 25 Aug 2016 14:59:40 -0400
-Date: Thu, 25 Aug 2016 11:59:30 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-watchdog@vger.kernel.org
-Subject: Re: pre-timeout again?
-Message-ID: <20160825185930.GB16420@roeck-us.net>
-References: <20160824123510.GB5190@katana>
- <d396484c-d8c6-1212-1fde-0059cc594e3c@mentor.com>
+Received: from mout.gmx.net ([212.227.17.21]:57941 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751280AbcHZE65 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 26 Aug 2016 00:58:57 -0400
+Subject: Re: Linux-compatible watchdog add-on?
+To: Nicolas Boullis <nboullis@debian.org>,
+        linux-watchdog@vger.kernel.org
+References: <20160825163149.GB3636@haddock.home>
+From: Oleksij Rempel <linux@rempel-privat.de>
+Message-ID: <7ad22fc1-02c1-7d99-657f-770d16c3aa92@rempel-privat.de>
+Date: Fri, 26 Aug 2016 06:58:15 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d396484c-d8c6-1212-1fde-0059cc594e3c@mentor.com>
+In-Reply-To: <20160825163149.GB3636@haddock.home>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="ig4MFbkhrBH6u3xN1uunlhs5J7dhDRXB7"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Aug 24, 2016 at 09:19:28PM +0300, Vladimir Zapolskiy wrote:
-> Hi Wolfram,
-> 
-> On 08/24/2016 03:35 PM, Wolfram Sang wrote:
-> >Hi,
-> >
-> >I'd really like to see pretimeout support added in v4.9. Can't I just
-> >resend my latest series (since Vladimir's latest series had some issues
-> >which were already fixed in mine IIRC)? I still think this provides a
-> >solid ground where Vladimir could add the missing features on top. I can
-> >remove my copyright line, too, if that is important.
-> 
-> copyright is not an issue for me, the authorship is.
-> 
-> I'm not sure about the diff of the known issues between your and my series,
-> IIRC the changes you had sent one day were not reviewed thoroughly.
-> 
-> >It's a bit sad that I have time assigned to this task but am basically
-> >blocked currently. Or were there other issues I forgot?
-> >
-> 
-> It's a bit sad that two your patches were not integrated to v4.8:
-> 
->   http://www.spinics.net/lists/linux-watchdog/msg09484.html
-> 
-I don't recall seeing v3. Did I miss it ?
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--ig4MFbkhrBH6u3xN1uunlhs5J7dhDRXB7
+Content-Type: multipart/mixed; boundary="MiVQiq3r36oDJSdtaHiiv8pJri1fTWbKr"
+From: Oleksij Rempel <linux@rempel-privat.de>
+To: Nicolas Boullis <nboullis@debian.org>, linux-watchdog@vger.kernel.org
+Message-ID: <7ad22fc1-02c1-7d99-657f-770d16c3aa92@rempel-privat.de>
+Subject: Re: Linux-compatible watchdog add-on?
+References: <20160825163149.GB3636@haddock.home>
+In-Reply-To: <20160825163149.GB3636@haddock.home>
 
-Guenter
+--MiVQiq3r36oDJSdtaHiiv8pJri1fTWbKr
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+Hi
+
+Am 25.08.2016 um 18:31 schrieb Nicolas Boullis:
+> Hi,
+>=20
+> Sorry if my question is off-topic for this list.
+>=20
+> I have a computer that experienced a kernel failure while a was far awa=
+y=20
+> and nobody could reboot it. So I thought it would be nice to have a=20
+> watchdog. Unfortunately, to the best of my knowledge, it has no hardwar=
+e=20
+> watchdog, so I thought I should add one.
+>=20
+> Hence, do you have suggestions for I=C2=B2C-, serial- or USB-connected =
+
+> watchdog add-ons? It should of course be compatible with linux.
+>=20
+> I found=20
+>   http://www.berkprod.com/Product_Web_Pages/usb_v1_pc_watchdog.aspx
+> but I think it is a little too expensive.
+>=20
+> If no such thing exists, I might consider designing my own (open=20
+> hardware) I=C2=B2C- or USB-connected watchdog add-on, using a cheap MCU=
+=2E But=20
+> then I would welcome opinions on what the interface between the host an=
+d=20
+> watchdog should look like.
+
+How about SPI?
+If yes, you can try this project:
+https://plus.google.com/102032716864870215256/posts/PwMMKYP5PKR
+https://plus.google.com/102032716864870215256/posts/QJqPxSi1Str
+
+Linux side is configured as watchdog, MCU side currently do only demo
+blinking, but watchdog should be a main future.
+
+
+--=20
+Regards,
+Oleksij
+
+
+--MiVQiq3r36oDJSdtaHiiv8pJri1fTWbKr--
+
+--ig4MFbkhrBH6u3xN1uunlhs5J7dhDRXB7
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iF4EAREIAAYFAle/zHUACgkQHwImuRkmbWnNRgD9FgWQPCZRyggpLEtepW+HzJDi
+c86PcCbGX6VsdUqPmRYA/RaN4OBHc4MAIimjz5C0pSkNYNOHPwwzfjBnrM9mjFam
+=B8Lj
+-----END PGP SIGNATURE-----
+
+--ig4MFbkhrBH6u3xN1uunlhs5J7dhDRXB7--
