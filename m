@@ -1,45 +1,42 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from relay1.mentorg.com ([192.94.38.131]:57262 "EHLO
-        relay1.mentorg.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751223AbcH2Ugk (ORCPT
+Received: from mail3-relais-sop.national.inria.fr ([192.134.164.104]:34960
+        "EHLO mail3-relais-sop.national.inria.fr" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1751041AbcH1UoT (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 29 Aug 2016 16:36:40 -0400
-Subject: Re: [PATCH v4 4/7] watchdog: pretimeout: add panic pretimeout
- governor
-To: Wolfram Sang <wsa@the-dreams.de>
-References: <1472227681-1405-1-git-send-email-vladimir_zapolskiy@mentor.com>
- <1472227681-1405-5-git-send-email-vladimir_zapolskiy@mentor.com>
- <20160829184835.GB1610@katana>
-CC: Wim Van Sebroeck <wim@iguana.be>,
+        Sun, 28 Aug 2016 16:44:19 -0400
+From: Julia Lawall <Julia.Lawall@lip6.fr>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: kernel-janitors@vger.kernel.org,
         Guenter Roeck <linux@roeck-us.net>,
-        <linux-watchdog@vger.kernel.org>
-From: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
-Message-ID: <e43994d7-e3ea-3531-dcae-3a73450bdffd@mentor.com>
-Date: Mon, 29 Aug 2016 22:57:32 +0300
-MIME-Version: 1.0
-In-Reply-To: <20160829184835.GB1610@katana>
-Content-Type: text/plain; charset="windows-1252"; format=flowed
-Content-Transfer-Encoding: 7bit
+        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] watchdog: iTCO_wdt: constify iTCO_wdt_pm structure
+Date: Sun, 28 Aug 2016 22:26:26 +0200
+Message-Id: <1472415986-16035-1-git-send-email-Julia.Lawall@lip6.fr>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Wolfram,
+iTCO_wdt_pm, of type struct dev_pm_ops, is never modified, so declare it as
+const.
 
-On 08/29/2016 09:48 PM, Wolfram Sang wrote:
->> +#include <linux/kernel.h>
->> +#include <linux/module.h>
->> +#include <linux/watchdog.h>
->> +
->> +#include <watchdog_pretimeout.h>
->
-> This include must be in "" to compile.
->
+Done with the help of Coccinelle.
 
-Right, building the kernel outside of the source code folder does
-not show up this problem unfortunately.
+Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
 
-Thank you for the catch.
+---
+ drivers/watchdog/iTCO_wdt.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---
-With best wishes,
-Vladimir
+diff --git a/drivers/watchdog/iTCO_wdt.c b/drivers/watchdog/iTCO_wdt.c
+index 54cab18..06fcb6c 100644
+--- a/drivers/watchdog/iTCO_wdt.c
++++ b/drivers/watchdog/iTCO_wdt.c
+@@ -629,7 +629,7 @@ static int iTCO_wdt_resume_noirq(struct device *dev)
+ 	return 0;
+ }
+ 
+-static struct dev_pm_ops iTCO_wdt_pm = {
++static const struct dev_pm_ops iTCO_wdt_pm = {
+ 	.suspend_noirq = iTCO_wdt_suspend_noirq,
+ 	.resume_noirq = iTCO_wdt_resume_noirq,
+ };
+
