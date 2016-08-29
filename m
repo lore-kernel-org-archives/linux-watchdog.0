@@ -1,34 +1,33 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:37723 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:37730 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750786AbcH2Ssq (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 29 Aug 2016 14:48:46 -0400
-Date: Mon, 29 Aug 2016 20:48:36 +0200
+        id S1752400AbcH2StS (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 29 Aug 2016 14:49:18 -0400
+Date: Mon, 29 Aug 2016 20:49:09 +0200
 From: Wolfram Sang <wsa@the-dreams.de>
 To: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
 Cc: Wim Van Sebroeck <wim@iguana.be>,
         Guenter Roeck <linux@roeck-us.net>,
         linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH v4 4/7] watchdog: pretimeout: add panic pretimeout
- governor
-Message-ID: <20160829184835.GB1610@katana>
+Subject: Re: [PATCH v4 5/7] watchdog: pretimeout: add noop pretimeout governor
+Message-ID: <20160829184909.GC1610@katana>
 References: <1472227681-1405-1-git-send-email-vladimir_zapolskiy@mentor.com>
- <1472227681-1405-5-git-send-email-vladimir_zapolskiy@mentor.com>
+ <1472227681-1405-6-git-send-email-vladimir_zapolskiy@mentor.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="9zSXsLTf0vkW971A"
+        protocol="application/pgp-signature"; boundary="1SQmhf2mF2YjsYvc"
 Content-Disposition: inline
-In-Reply-To: <1472227681-1405-5-git-send-email-vladimir_zapolskiy@mentor.com>
+In-Reply-To: <1472227681-1405-6-git-send-email-vladimir_zapolskiy@mentor.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
 
---9zSXsLTf0vkW971A
+--1SQmhf2mF2YjsYvc
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-> +#include <linux/kernel.h>
 > +#include <linux/module.h>
+> +#include <linux/printk.h>
 > +#include <linux/watchdog.h>
 > +
 > +#include <watchdog_pretimeout.h>
@@ -36,25 +35,25 @@ Content-Disposition: inline
 This include must be in "" to compile.
 
 
---9zSXsLTf0vkW971A
+--1SQmhf2mF2YjsYvc
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXxIODAAoJEBQN5MwUoCm2Ha8P/A917n7Cvat6hgii7u53L2Fo
-3o+ht9ktCjAa9RvAfLzCYhKUJfvYT/4aNN2dGboY7Cd2E6fyLkN8t3+hzYcZYte3
-jAvqXQqzQDRvKJ67GlBThHcjyHRmJwH+/6NDJTDjeDdQZt0BYE+rFmi4u2cTHSqf
-u7K/S462hXMMCaX4JJp2gCiss0xUIRHXuyGwiDynGTQF8wTndaAU+w9aOLVLBYbv
-IAtxaADuiYKV0PFNXBZbP38osfChcc1d8DAWTWcwTmrt8byEVwMcm79uHRgqAms5
-7NMeaU+ZIM+fdwGFYWccKoUwjxb/C/3824O9PDrXjiBZJxuDaD6HO02XQGDXbU9N
-1phfLCqkEPMTuuIdyjtbucrb+QmM56Va3iTuiihhcdqfCBZAv53rLvBAJAralhgU
-GvGs+R46X449nlNPj6SdwPbEvf4yVJ1DU0AMs0MHr2qR0VOiQLp6zeAyXXJl8n7g
-TOzSraP2dToeCD+1JAWRL2zFAhUzZ2k/xWWt0nUUFup7UA3dCkHzpr6h6bRlv+v5
-XG+mxPm30M8wJHTixnauw8zIbxxokHaIRtCGDx+9ziVHxu7oQgsVkbfmfL1R7DfY
-FF98VHZi6vLan+pfqgfmOZqzCq592UDbb/ajCILwskqLjXn+j/QHm7CJ2ULKgcog
-7W7nbXXwUHRHRrW/+d/7
-=GYw3
+iQIcBAEBAgAGBQJXxIOkAAoJEBQN5MwUoCm2zJcP/Re7ruPMyjBUMJ7w4HTLd9xi
+DH67U6Z8XsrGjcnkRiUwSTKKrfQkj3ghJsFO02JDm+dOgW+BLHUMAhdeYBTRlGdC
+dxYwIb0Yveqwj1om3vSVtwUMSD7sGU3j02AQclYpZzFfwB6Hzbl7hZfh1UjwGI4H
+b8s0HlMOxfVlkpm3YclilYN68IGSFnOq+BwQE5ijahYxIT0NSYxU74yPTPwIGxO8
+sZW7XPy5zdohMVSaSbJu7odv+BOYYD5dGid77tHf6pVjbRYveFZ2ZTu9Ve27q5qD
+x8FQ1DHOcSLx0Xt1l2GqIRvR2vYDWUg0JbnA0W3soVp6XSRC+syj0/icqcYaVUC1
+RSDmbGAfuJWWUr1XkY9040BXKk/SMEyyfc8p9uKFJJkgOfmNh6cnP07rAHE2FhWL
+0D8LS3qg1rtb6pXow7MHiUOcZU/weAgfOlFgnm8Al5UXt/hL43QHIs37VVUoXSBE
+QBrP2hLmfpQ0izKno5g8v7SOVg2sWxQE5gP1Wsbt89BkKiJFC70yAg36bM9FcLr5
+9USasmMDGp0WPwaf21CPclZtafZIJVwkM2bNMgyHS0bedUd+jhp+bcHBohbKBLex
+1dnD3q5fLGGZ4mCac07digBSSRl+Fz0mBEwSX99HJcW/d0sp0oDm5rSzl+IPrLgY
+qVODosiWiSeME0+nqyzr
+=Z+Ug
 -----END PGP SIGNATURE-----
 
---9zSXsLTf0vkW971A--
+--1SQmhf2mF2YjsYvc--
