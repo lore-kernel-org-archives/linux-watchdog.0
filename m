@@ -1,22 +1,16 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from relay1.mentorg.com ([192.94.38.131]:38219 "EHLO
-        relay1.mentorg.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932616AbcHaLw7 (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 31 Aug 2016 07:52:59 -0400
-From: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
-To: Wim Van Sebroeck <wim@iguana.be>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wolfram Sang <wsa@the-dreams.de>
-CC: <linux-watchdog@vger.kernel.org>,
+Received: from sauhun.de ([89.238.76.85]:40557 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1755412AbcH3PDV (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 30 Aug 2016 11:03:21 -0400
+From: Wolfram Sang <wsa@the-dreams.de>
+To: linux-watchdog@vger.kernel.org
+Cc: linux-renesas-soc@vger.kernel.org,
+        Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>,
         Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH v5 08/10] watchdog: softdog: implement pretimeout support
-Date: Wed, 31 Aug 2016 14:52:48 +0300
-Message-ID: <1472644370-16982-9-git-send-email-vladimir_zapolskiy@mentor.com>
-In-Reply-To: <1472644370-16982-1-git-send-email-vladimir_zapolskiy@mentor.com>
-References: <1472644370-16982-1-git-send-email-vladimir_zapolskiy@mentor.com>
-MIME-Version: 1.0
-Content-Type: text/plain
+Subject: [PATCH v2] watchdog: softdog: implement pretimeout support
+Date: Tue, 30 Aug 2016 17:03:06 +0200
+Message-Id: <20160830150306.2254-1-wsa@the-dreams.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
@@ -26,22 +20,22 @@ Give devices which do not have hardware support for pretimeout at least a
 software version of it.
 
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Signed-off-by: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
 ---
-New change in the series.
 
-Changes from Wolfram's v2 to v5:
-* fixed a minor whitespace issue reported by checkpatch
+Change since v1: added 'else' block in softdog_ping(), to actually
+disable the timer when pretimeout value got cleared.
 
-Changes in Wolfram's series from v1 to v2
-* added 'else' block in softdog_ping(), to actually
-  disable the timer when pretimeout value got cleared.
+Depends on the V4 pretimeout series from Vladimir.
+
+Vladimir: Maybe you could add this patch to the next revision of your
+pretimeout series? Then people have something to play around with
+right away.
 
  drivers/watchdog/softdog.c | 22 +++++++++++++++++++++-
  1 file changed, 21 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/watchdog/softdog.c b/drivers/watchdog/softdog.c
-index b067edf246df..1b914a0d94c3 100644
+index b067edf246dff2..bab31b8df847a5 100644
 --- a/drivers/watchdog/softdog.c
 +++ b/drivers/watchdog/softdog.c
 @@ -72,10 +72,27 @@ static void softdog_fire(unsigned long data)
@@ -65,7 +59,7 @@ index b067edf246df..1b914a0d94c3 100644
 +
 +	if (w->pretimeout)
 +		mod_timer(&softdog_preticktock, jiffies +
-+			  (w->timeout - w->pretimeout) * HZ);
++		          (w->timeout - w->pretimeout) * HZ);
 +	else
 +		del_timer(&softdog_preticktock);
 +
@@ -90,5 +84,5 @@ index b067edf246df..1b914a0d94c3 100644
  
  static struct watchdog_ops softdog_ops = {
 -- 
-2.8.1
+2.9.3
 
