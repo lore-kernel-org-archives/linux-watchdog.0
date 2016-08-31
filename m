@@ -1,17 +1,17 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from relay1.mentorg.com ([192.94.38.131]:38215 "EHLO
+Received: from relay1.mentorg.com ([192.94.38.131]:38225 "EHLO
         relay1.mentorg.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933598AbcHaLw6 (ORCPT
+        with ESMTP id S933002AbcHaLw7 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 31 Aug 2016 07:52:58 -0400
+        Wed, 31 Aug 2016 07:52:59 -0400
 From: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
 To: Wim Van Sebroeck <wim@iguana.be>,
         Guenter Roeck <linux@roeck-us.net>,
         Wolfram Sang <wsa@the-dreams.de>
 CC: <linux-watchdog@vger.kernel.org>
-Subject: [PATCH v5 07/10] watchdog: pretimeout: add pretimeout_available_governors attribute
-Date: Wed, 31 Aug 2016 14:52:47 +0300
-Message-ID: <1472644370-16982-8-git-send-email-vladimir_zapolskiy@mentor.com>
+Subject: [PATCH v5 09/10] watchdog: imx2_wdt: use preferred BIT macro instead of open coded values
+Date: Wed, 31 Aug 2016 14:52:49 +0300
+Message-ID: <1472644370-16982-10-git-send-email-vladimir_zapolskiy@mentor.com>
 In-Reply-To: <1472644370-16982-1-git-send-email-vladimir_zapolskiy@mentor.com>
 References: <1472644370-16982-1-git-send-email-vladimir_zapolskiy@mentor.com>
 MIME-Version: 1.0
@@ -19,115 +19,55 @@ Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The change adds an option to a user with CONFIG_WATCHDOG_SYSFS and
-CONFIG_WATCHDOG_PRETIMEOUT_GOV enabled to get information about all
-registered watchdog pretimeout governors by reading watchdog device
-attribute named "pretimeout_available_governors".
+This is a nonfunctional change, declare register bit values with BIT()
+helper macro.
+
+The issues are reported by checkpatch:
+
+  CHECK: Prefer using the BIT macro
+  #40: FILE: drivers/watchdog/imx2_wdt.c:40:
+  +#define IMX2_WDT_WCR_WDA	(1 << 5)	/* -> External Reset WDOG_B */
+
+etc.
 
 Signed-off-by: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
 ---
-Changes from v4 to v5:
-* none
+New change in the series, practically this trivial change is
+independent on the previous ones, but it's worth to have it
+for a cleaner version of v5 10/10 change.
 
-Changes from v3 to v4:
-* new change, this functional change was removed in v3
+ drivers/watchdog/imx2_wdt.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-Changes from v2 1/4 to v4:
-* introduced watchdog_pretimeout_available_governors_get() and moved
-  device attribute registration to watchdog_dev.c
-* made attribute visibility more precise
-
- drivers/watchdog/watchdog_dev.c        | 11 ++++++++++-
- drivers/watchdog/watchdog_pretimeout.c | 15 +++++++++++++++
- drivers/watchdog/watchdog_pretimeout.h |  6 ++++++
- 3 files changed, 31 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-index 3fdbe0ab1365..32930a073a12 100644
---- a/drivers/watchdog/watchdog_dev.c
-+++ b/drivers/watchdog/watchdog_dev.c
-@@ -489,6 +489,13 @@ static ssize_t state_show(struct device *dev, struct device_attribute *attr,
- }
- static DEVICE_ATTR_RO(state);
+diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
+index 62f346bb4348..d17643eb7683 100644
+--- a/drivers/watchdog/imx2_wdt.c
++++ b/drivers/watchdog/imx2_wdt.c
+@@ -37,18 +37,18 @@
  
-+static ssize_t pretimeout_available_governors_show(struct device *dev,
-+				   struct device_attribute *attr, char *buf)
-+{
-+	return watchdog_pretimeout_available_governors_get(buf);
-+}
-+static DEVICE_ATTR_RO(pretimeout_available_governors);
-+
- static ssize_t pretimeout_governor_show(struct device *dev,
- 					struct device_attribute *attr,
- 					char *buf)
-@@ -524,7 +531,8 @@ static umode_t wdt_is_visible(struct kobject *kobj, struct attribute *attr,
- 	else if (attr == &dev_attr_pretimeout.attr &&
- 		 !(wdd->info->options & WDIOF_PRETIMEOUT))
- 		mode = 0;
--	else if (attr == &dev_attr_pretimeout_governor.attr &&
-+	else if ((attr == &dev_attr_pretimeout_governor.attr ||
-+		  attr == &dev_attr_pretimeout_available_governors.attr) &&
- 		 (!(wdd->info->options & WDIOF_PRETIMEOUT) ||
- 		  !IS_ENABLED(CONFIG_WATCHDOG_PRETIMEOUT_GOV)))
- 		mode = 0;
-@@ -541,6 +549,7 @@ static struct attribute *wdt_attrs[] = {
- 	&dev_attr_status.attr,
- 	&dev_attr_nowayout.attr,
- 	&dev_attr_pretimeout_governor.attr,
-+	&dev_attr_pretimeout_available_governors.attr,
- 	NULL,
- };
+ #define IMX2_WDT_WCR		0x00		/* Control Register */
+ #define IMX2_WDT_WCR_WT		(0xFF << 8)	/* -> Watchdog Timeout Field */
+-#define IMX2_WDT_WCR_WDA	(1 << 5)	/* -> External Reset WDOG_B */
+-#define IMX2_WDT_WCR_SRS	(1 << 4)	/* -> Software Reset Signal */
+-#define IMX2_WDT_WCR_WRE	(1 << 3)	/* -> WDOG Reset Enable */
+-#define IMX2_WDT_WCR_WDE	(1 << 2)	/* -> Watchdog Enable */
+-#define IMX2_WDT_WCR_WDZST	(1 << 0)	/* -> Watchdog timer Suspend */
++#define IMX2_WDT_WCR_WDA	BIT(5)		/* -> External Reset WDOG_B */
++#define IMX2_WDT_WCR_SRS	BIT(4)		/* -> Software Reset Signal */
++#define IMX2_WDT_WCR_WRE	BIT(3)		/* -> WDOG Reset Enable */
++#define IMX2_WDT_WCR_WDE	BIT(2)		/* -> Watchdog Enable */
++#define IMX2_WDT_WCR_WDZST	BIT(0)		/* -> Watchdog timer Suspend */
  
-diff --git a/drivers/watchdog/watchdog_pretimeout.c b/drivers/watchdog/watchdog_pretimeout.c
-index c9e4a0326938..9db07bfb4334 100644
---- a/drivers/watchdog/watchdog_pretimeout.c
-+++ b/drivers/watchdog/watchdog_pretimeout.c
-@@ -52,6 +52,21 @@ static struct governor_priv *find_governor_by_name(const char *gov_name)
- 	return NULL;
- }
+ #define IMX2_WDT_WSR		0x02		/* Service Register */
+ #define IMX2_WDT_SEQ1		0x5555		/* -> service sequence 1 */
+ #define IMX2_WDT_SEQ2		0xAAAA		/* -> service sequence 2 */
  
-+int watchdog_pretimeout_available_governors_get(char *buf)
-+{
-+	struct governor_priv *priv;
-+	int count = 0;
-+
-+	mutex_lock(&governor_lock);
-+
-+	list_for_each_entry(priv, &governor_list, entry)
-+		count += sprintf(buf + count, "%s\n", priv->gov->name);
-+
-+	mutex_unlock(&governor_lock);
-+
-+	return count;
-+}
-+
- int watchdog_pretimeout_governor_get(struct watchdog_device *wdd, char *buf)
- {
- 	int count = 0;
-diff --git a/drivers/watchdog/watchdog_pretimeout.h b/drivers/watchdog/watchdog_pretimeout.h
-index afb868eedc65..0166dea234d6 100644
---- a/drivers/watchdog/watchdog_pretimeout.h
-+++ b/drivers/watchdog/watchdog_pretimeout.h
-@@ -18,6 +18,7 @@ void watchdog_unregister_governor(struct watchdog_governor *gov);
- /* Interfaces to watchdog_dev.c */
- int watchdog_register_pretimeout(struct watchdog_device *wdd);
- void watchdog_unregister_pretimeout(struct watchdog_device *wdd);
-+int watchdog_pretimeout_available_governors_get(char *buf);
- int watchdog_pretimeout_governor_get(struct watchdog_device *wdd, char *buf);
- int watchdog_pretimeout_governor_set(struct watchdog_device *wdd,
- 				     const char *buf);
-@@ -38,6 +39,11 @@ static inline void watchdog_unregister_pretimeout(struct watchdog_device *wdd)
- {
- }
+ #define IMX2_WDT_WRSR		0x04		/* Reset Status Register */
+-#define IMX2_WDT_WRSR_TOUT	(1 << 1)	/* -> Reset due to Timeout */
++#define IMX2_WDT_WRSR_TOUT	BIT(1)		/* -> Reset due to Timeout */
  
-+static inline int watchdog_pretimeout_available_governors_get(char *buf)
-+{
-+	return -EINVAL;
-+}
-+
- static inline int watchdog_pretimeout_governor_get(struct watchdog_device *wdd,
- 						   char *buf)
- {
+ #define IMX2_WDT_WMCR		0x08		/* Misc Register */
+ 
 -- 
 2.8.1
 
