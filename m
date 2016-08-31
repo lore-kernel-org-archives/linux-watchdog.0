@@ -1,17 +1,17 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from relay1.mentorg.com ([192.94.38.131]:38209 "EHLO
+Received: from relay1.mentorg.com ([192.94.38.131]:38205 "EHLO
         relay1.mentorg.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933129AbcHaLw6 (ORCPT
+        with ESMTP id S933002AbcHaLw5 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 31 Aug 2016 07:52:58 -0400
+        Wed, 31 Aug 2016 07:52:57 -0400
 From: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
 To: Wim Van Sebroeck <wim@iguana.be>,
         Guenter Roeck <linux@roeck-us.net>,
         Wolfram Sang <wsa@the-dreams.de>
 CC: <linux-watchdog@vger.kernel.org>
-Subject: [PATCH v5 06/10] watchdog: pretimeout: add option to select a pretimeout governor in runtime
-Date: Wed, 31 Aug 2016 14:52:46 +0300
-Message-ID: <1472644370-16982-7-git-send-email-vladimir_zapolskiy@mentor.com>
+Subject: [PATCH v5 05/10] watchdog: pretimeout: add noop pretimeout governor
+Date: Wed, 31 Aug 2016 14:52:45 +0300
+Message-ID: <1472644370-16982-6-git-send-email-vladimir_zapolskiy@mentor.com>
 In-Reply-To: <1472644370-16982-1-git-send-email-vladimir_zapolskiy@mentor.com>
 References: <1472644370-16982-1-git-send-email-vladimir_zapolskiy@mentor.com>
 MIME-Version: 1.0
@@ -19,218 +19,144 @@ Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The change converts watchdog device attribute "pretimeout_governor" from
-read-only to read-write type to allow users to select a desirable
-watchdog pretimeout governor in runtime, e.g.
-
-  % echo -n panic > /sys/..../watchdog/watchdog0/pretimeout
-
-To get this working a list of registered pretimeout governors is created
-and a new helper function watchdog_pretimeout_governor_set() is exported
-to watchdog_dev.c.
-
-If a selected governor is gone, a watchdog device pretimeout notification
-is delegated to a default built-in pretimeout governor.
+Noop watchdog pretimeout governor, only an informational message is
+added to the kernel log buffer.
 
 Signed-off-by: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
 ---
 Changes from v4 to v5:
-* replaced strncmp() with more suitable sysfs_streq() to
-  compare strings passed over sysfs (Wolfram)
+* fixed in source tree compilation issue, thanks to Wolfram
 
 Changes from v3 to v4:
-* new change, this functional change was removed in v3
+* returned tristate option back
+* report watchdog name in a message given by noop governor (Wolfram)
 
-Changes from v2 1/4 to v4:
-* introduced watchdog_pretimeout_governor_set() and moved device
-  attribute registration to watchdog_dev.c
-* fixed a list element deregistration bug
+Changes from v2 to v3:
+* temporarily removed tristate option, the governor can be built-in only
 
- drivers/watchdog/watchdog_dev.c        | 15 ++++++-
- drivers/watchdog/watchdog_pretimeout.c | 76 ++++++++++++++++++++++++++++++++++
- drivers/watchdog/watchdog_pretimeout.h |  8 ++++
- 3 files changed, 98 insertions(+), 1 deletion(-)
+Changes from v1 to v2:
+* removed #ifdef CONFIG_WATCHDOG_PRETIMEOUT_DEFAULT_GOV_NOOP,
+  now this selection is done in a centralized manner,
+* added module owner reference to count users of the governor,
+* slightly improved description of the governors in Kconfig.
 
-diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-index d2d0b5e37a35..3fdbe0ab1365 100644
---- a/drivers/watchdog/watchdog_dev.c
-+++ b/drivers/watchdog/watchdog_dev.c
-@@ -497,7 +497,20 @@ static ssize_t pretimeout_governor_show(struct device *dev,
+ drivers/watchdog/Kconfig               | 14 ++++++++++
+ drivers/watchdog/Makefile              |  1 +
+ drivers/watchdog/pretimeout_noop.c     | 47 ++++++++++++++++++++++++++++++++++
+ drivers/watchdog/watchdog_pretimeout.h |  2 ++
+ 4 files changed, 64 insertions(+)
+ create mode 100644 drivers/watchdog/pretimeout_noop.c
+
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 5f82a3fd2186..7d791fc02c42 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -1856,6 +1856,14 @@ config WATCHDOG_PRETIMEOUT_DEFAULT_GOV_PANIC
+ 	  a watchdog pretimeout event happens, consider that
+ 	  a watchdog feeder is dead and reboot is unavoidable.
  
- 	return watchdog_pretimeout_governor_get(wdd, buf);
- }
--static DEVICE_ATTR_RO(pretimeout_governor);
++config WATCHDOG_PRETIMEOUT_DEFAULT_GOV_NOOP
++	bool "noop"
++	select WATCHDOG_PRETIMEOUT_GOV_NOOP
++	help
++	  Use noop watchdog pretimeout governor by default. If noop
++	  governor is selected by a user, write a short message to
++	  the kernel log buffer and don't do any system changes.
 +
-+static ssize_t pretimeout_governor_store(struct device *dev,
-+					 struct device_attribute *attr,
-+					 const char *buf, size_t count)
+ endchoice
+ 
+ config WATCHDOG_PRETIMEOUT_GOV_PANIC
+@@ -1864,6 +1872,12 @@ config WATCHDOG_PRETIMEOUT_GOV_PANIC
+ 	  Panic watchdog pretimeout governor, on watchdog pretimeout
+ 	  event put the kernel into panic.
+ 
++config WATCHDOG_PRETIMEOUT_GOV_NOOP
++	tristate "Noop watchdog pretimeout governor"
++	help
++	  Noop watchdog pretimeout governor, only an informational
++	  message is added to kernel log buffer.
++
+ endif # WATCHDOG_PRETIMEOUT_GOV
+ 
+ endif # WATCHDOG
+diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+index 179df1d63c32..c7925ee2d971 100644
+--- a/drivers/watchdog/Makefile
++++ b/drivers/watchdog/Makefile
+@@ -10,6 +10,7 @@ watchdog-objs	+= watchdog_core.o watchdog_dev.o
+ watchdog-$(CONFIG_WATCHDOG_PRETIMEOUT_GOV)	+= watchdog_pretimeout.o
+ 
+ obj-$(CONFIG_WATCHDOG_PRETIMEOUT_GOV_PANIC)	+= pretimeout_panic.o
++obj-$(CONFIG_WATCHDOG_PRETIMEOUT_GOV_NOOP)	+= pretimeout_noop.o
+ 
+ # Only one watchdog can succeed. We probe the ISA/PCI/USB based
+ # watchdog-cards first, then the architecture specific watchdog
+diff --git a/drivers/watchdog/pretimeout_noop.c b/drivers/watchdog/pretimeout_noop.c
+new file mode 100644
+index 000000000000..85f5299d197c
+--- /dev/null
++++ b/drivers/watchdog/pretimeout_noop.c
+@@ -0,0 +1,47 @@
++/*
++ * Copyright (C) 2015-2016 Mentor Graphics
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ */
++
++#include <linux/module.h>
++#include <linux/printk.h>
++#include <linux/watchdog.h>
++
++#include "watchdog_pretimeout.h"
++
++/**
++ * pretimeout_noop - No operation on watchdog pretimeout event
++ * @wdd - watchdog_device
++ *
++ * This function prints a message about pretimeout to kernel log.
++ */
++static void pretimeout_noop(struct watchdog_device *wdd)
 +{
-+	struct watchdog_device *wdd = dev_get_drvdata(dev);
-+	int ret = watchdog_pretimeout_governor_set(wdd, buf);
-+
-+	if (!ret)
-+		ret = count;
-+
-+	return ret;
++	pr_alert("watchdog%d: pretimeout event\n", wdd->id);
 +}
-+static DEVICE_ATTR_RW(pretimeout_governor);
- 
- static umode_t wdt_is_visible(struct kobject *kobj, struct attribute *attr,
- 				int n)
-diff --git a/drivers/watchdog/watchdog_pretimeout.c b/drivers/watchdog/watchdog_pretimeout.c
-index 098c965f6c78..c9e4a0326938 100644
---- a/drivers/watchdog/watchdog_pretimeout.c
-+++ b/drivers/watchdog/watchdog_pretimeout.c
-@@ -11,6 +11,7 @@
- #include <linux/list.h>
- #include <linux/slab.h>
- #include <linux/spinlock.h>
-+#include <linux/string.h>
- #include <linux/watchdog.h>
- 
- #include "watchdog_pretimeout.h"
-@@ -29,6 +30,28 @@ struct watchdog_pretimeout {
- 	struct list_head		entry;
- };
- 
-+/* The mutex protects governor list and serializes external interfaces */
-+static DEFINE_MUTEX(governor_lock);
 +
-+/* List of the registered watchdog pretimeout governors */
-+static LIST_HEAD(governor_list);
-+
-+struct governor_priv {
-+	struct watchdog_governor	*gov;
-+	struct list_head		entry;
++static struct watchdog_governor watchdog_gov_noop = {
++	.name		= "noop",
++	.pretimeout	= pretimeout_noop,
 +};
 +
-+static struct governor_priv *find_governor_by_name(const char *gov_name)
++static int __init watchdog_gov_noop_register(void)
 +{
-+	struct governor_priv *priv;
-+
-+	list_for_each_entry(priv, &governor_list, entry)
-+		if (sysfs_streq(gov_name, priv->gov->name))
-+			return priv;
-+
-+	return NULL;
++	return watchdog_register_governor(&watchdog_gov_noop);
 +}
 +
- int watchdog_pretimeout_governor_get(struct watchdog_device *wdd, char *buf)
- {
- 	int count = 0;
-@@ -41,6 +64,28 @@ int watchdog_pretimeout_governor_get(struct watchdog_device *wdd, char *buf)
- 	return count;
- }
- 
-+int watchdog_pretimeout_governor_set(struct watchdog_device *wdd,
-+				     const char *buf)
++static void __exit watchdog_gov_noop_unregister(void)
 +{
-+	struct governor_priv *priv;
-+
-+	mutex_lock(&governor_lock);
-+
-+	priv = find_governor_by_name(buf);
-+	if (!priv) {
-+		mutex_unlock(&governor_lock);
-+		return -EINVAL;
-+	}
-+
-+	spin_lock_irq(&pretimeout_lock);
-+	wdd->gov = priv->gov;
-+	spin_unlock_irq(&pretimeout_lock);
-+
-+	mutex_unlock(&governor_lock);
-+
-+	return 0;
++	watchdog_unregister_governor(&watchdog_gov_noop);
 +}
++module_init(watchdog_gov_noop_register);
++module_exit(watchdog_gov_noop_unregister);
 +
- void watchdog_notify_pretimeout(struct watchdog_device *wdd)
- {
- 	unsigned long flags;
-@@ -59,6 +104,22 @@ EXPORT_SYMBOL_GPL(watchdog_notify_pretimeout);
- int watchdog_register_governor(struct watchdog_governor *gov)
- {
- 	struct watchdog_pretimeout *p;
-+	struct governor_priv *priv;
-+
-+	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
-+	if (!priv)
-+		return -ENOMEM;
-+
-+	mutex_lock(&governor_lock);
-+
-+	if (find_governor_by_name(gov->name)) {
-+		mutex_unlock(&governor_lock);
-+		kfree(priv);
-+		return -EBUSY;
-+	}
-+
-+	priv->gov = gov;
-+	list_add(&priv->entry, &governor_list);
- 
- 	if (!strncmp(gov->name, WATCHDOG_PRETIMEOUT_DEFAULT_GOV,
- 		     WATCHDOG_GOV_NAME_MAXLEN)) {
-@@ -71,6 +132,8 @@ int watchdog_register_governor(struct watchdog_governor *gov)
- 		spin_unlock_irq(&pretimeout_lock);
- 	}
- 
-+	mutex_unlock(&governor_lock);
-+
- 	return 0;
- }
- EXPORT_SYMBOL(watchdog_register_governor);
-@@ -78,12 +141,25 @@ EXPORT_SYMBOL(watchdog_register_governor);
- void watchdog_unregister_governor(struct watchdog_governor *gov)
- {
- 	struct watchdog_pretimeout *p;
-+	struct governor_priv *priv, *t;
-+
-+	mutex_lock(&governor_lock);
-+
-+	list_for_each_entry_safe(priv, t, &governor_list, entry) {
-+		if (priv->gov == gov) {
-+			list_del(&priv->entry);
-+			kfree(priv);
-+			break;
-+		}
-+	}
- 
- 	spin_lock_irq(&pretimeout_lock);
- 	list_for_each_entry(p, &pretimeout_list, entry)
- 		if (p->wdd->gov == gov)
- 			p->wdd->gov = default_gov;
- 	spin_unlock_irq(&pretimeout_lock);
-+
-+	mutex_unlock(&governor_lock);
- }
- EXPORT_SYMBOL(watchdog_unregister_governor);
- 
++MODULE_AUTHOR("Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>");
++MODULE_DESCRIPTION("Panic watchdog pretimeout governor");
++MODULE_LICENSE("GPL");
 diff --git a/drivers/watchdog/watchdog_pretimeout.h b/drivers/watchdog/watchdog_pretimeout.h
-index 8f9804c2dd88..afb868eedc65 100644
+index fea56bd42379..8f9804c2dd88 100644
 --- a/drivers/watchdog/watchdog_pretimeout.h
 +++ b/drivers/watchdog/watchdog_pretimeout.h
-@@ -19,6 +19,8 @@ void watchdog_unregister_governor(struct watchdog_governor *gov);
- int watchdog_register_pretimeout(struct watchdog_device *wdd);
- void watchdog_unregister_pretimeout(struct watchdog_device *wdd);
- int watchdog_pretimeout_governor_get(struct watchdog_device *wdd, char *buf);
-+int watchdog_pretimeout_governor_set(struct watchdog_device *wdd,
-+				     const char *buf);
+@@ -22,6 +22,8 @@ int watchdog_pretimeout_governor_get(struct watchdog_device *wdd, char *buf);
  
  #if IS_ENABLED(CONFIG_WATCHDOG_PRETIMEOUT_DEFAULT_GOV_PANIC)
  #define WATCHDOG_PRETIMEOUT_DEFAULT_GOV		"panic"
-@@ -41,6 +43,12 @@ static inline int watchdog_pretimeout_governor_get(struct watchdog_device *wdd,
- {
- 	return -EINVAL;
- }
-+
-+static inline int watchdog_pretimeout_governor_set(struct watchdog_device *wdd,
-+						   const char *buf)
-+{
-+	return -EINVAL;
-+}
++#elif IS_ENABLED(CONFIG_WATCHDOG_PRETIMEOUT_DEFAULT_GOV_NOOP)
++#define WATCHDOG_PRETIMEOUT_DEFAULT_GOV		"noop"
  #endif
  
- #endif
+ #else
 -- 
 2.8.1
 
