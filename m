@@ -1,139 +1,100 @@
-Return-path: <Julia.Lawall@lip6.fr>
-From: Julia Lawall <Julia.Lawall@lip6.fr>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: kernel-janitors@vger.kernel.org,
-	Guenter Roeck <linux@roeck-us.net>,
-	linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH 2/2] watchdog: constify watchdog_ops structures
-Date: Thu,  1 Sep 2016 19:35:26 +0200
-Message-Id: <1472751326-22897-3-git-send-email-Julia.Lawall@lip6.fr>
-In-Reply-To: <1472751326-22897-1-git-send-email-Julia.Lawall@lip6.fr>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-wm0-f65.google.com ([74.125.82.65]:33610 "EHLO
+        mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S933643AbcIFJNP (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 6 Sep 2016 05:13:15 -0400
+Date: Tue, 6 Sep 2016 11:13:11 +0200
+From: Thierry Reding <thierry.reding@gmail.com>
+To: Julia Lawall <Julia.Lawall@lip6.fr>
+Cc: Wim Van Sebroeck <wim@iguana.be>, kernel-janitors@vger.kernel.org,
+        Guenter Roeck <linux@roeck-us.net>,
+        Stephen Warren <swarren@wwwdotorg.org>,
+        Alexandre Courbot <gnurou@gmail.com>,
+        linux-watchdog@vger.kernel.org, linux-tegra@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2] watchdog: tegra: constify watchdog_ops structures
+Message-ID: <20160906091311.GD15644@ulmo.ba.sec>
 References: <1472751326-22897-1-git-send-email-Julia.Lawall@lip6.fr>
-List-ID: <linux-watchdog@vger.kernel.org>
+ <1472751326-22897-2-git-send-email-Julia.Lawall@lip6.fr>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="UoPmpPX/dBe4BELn"
+Content-Disposition: inline
+In-Reply-To: <1472751326-22897-2-git-send-email-Julia.Lawall@lip6.fr>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-Check for watchdog_ops structures that are only stored in the ops field of
-a watchdog_device structure.  This field is declared const, so watchdog_ops
-structures that have this property can be declared as const also.
 
-The semantic patch that makes this change is as follows:
-(http://coccinelle.lip6.fr/)
+--UoPmpPX/dBe4BELn
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-// <smpl>
-@r disable optional_qualifier@
-identifier i;
-position p;
-@@
-static struct watchdog_ops i@p = { ... };
+On Thu, Sep 01, 2016 at 07:35:25PM +0200, Julia Lawall wrote:
+> Check for watchdog_ops structures that are only stored in the ops field of
+> a watchdog_device structure.  This field is declared const, so watchdog_o=
+ps
+> structures that have this property can be declared as const also.
+>=20
+> The semantic patch that makes this change is as follows:
+> (http://coccinelle.lip6.fr/)
+>=20
+> // <smpl>
+> @r disable optional_qualifier@
+> identifier i;
+> position p;
+> @@
+> static struct watchdog_ops i@p =3D { ... };
+>=20
+> @ok@
+> identifier r.i;
+> struct watchdog_device e;
+> position p;
+> @@
+> e.ops =3D &i@p;
+>=20
+> @bad@
+> position p !=3D {r.p,ok.p};
+> identifier r.i;
+> struct watchdog_ops e;
+> @@
+> e@i@p
+>=20
+> @depends on !bad disable optional_qualifier@
+> identifier r.i;
+> @@
+> static
+> +const
+>  struct watchdog_ops i =3D { ... };
+> // </smpl>
+>=20
+> Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
+>=20
+> ---
+>  drivers/watchdog/tegra_wdt.c |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
-@ok@
-identifier r.i;
-struct watchdog_device e;
-position p;
-@@
-e.ops = &i@p;
+Acked-by: Thierry Reding <treding@nvidia.com>
 
-@bad@
-position p != {r.p,ok.p};
-identifier r.i;
-struct watchdog_ops e;
-@@
-e@i@p
+--UoPmpPX/dBe4BELn
+Content-Type: application/pgp-signature; name="signature.asc"
 
-@depends on !bad disable optional_qualifier@
-identifier r.i;
-@@
-static
-+const
- struct watchdog_ops i = { ... };
-// </smpl>
+-----BEGIN PGP SIGNATURE-----
 
-Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
+iQIcBAABCAAGBQJXzoinAAoJEN0jrNd/PrOhrMQQAIVqHIuEAicJcJ4m90FFH2Qa
+q9cx/e8JFfl0RCFEdvYsKO3TOfJuYDfnkvBUx8ieIJCELGTuy5i/w/oDpq+eXcm2
+T1zxYqAFZhMViDjDJE83vNh9AvXMa29LfpLBHW2gYvl103cHxz2UPivWGsVqLzP4
+ImMG1QfiC8fSRdPqcGEftjH+RJUuMEWYkCNJayMFNSzukOAFVhezV6Jqq8RyTgHA
+ZfRV2eGO15OMQRWzEAiQuyL21T+wbw1Pvz6dzkDkTG8aK96Ytex+TjdYoprewFYF
+7kjiOHGaqyUjDPTaZ8le6RBQwUeygdRF2k4vb4MUgIPjJhgnFofXwd3u+gkxDHqs
+G5E+DFh21b+iNGFTXUOle0SL/aPuL2f3kbYJlrNX7uPlGx2ZqwlzhvrP4dJzuakZ
+bQkdlz3grTl0ip+7ktyIkxJXEorNASUzoaaBz3x2ChSqzKl76gEoJ0axmLgp2rkh
+azpwPvHW3lhKyfQfQvHX5CnLC2Ky6focMNx2nJ5HQKzDMz8oSpfLCw25lAKVzbzD
+StzItthk8sHneQ/PCtZW7WAhbXjTiMv7Ji8CgUoyY2I/V9UHLstHRztxI4KW7AIR
+VH7YaoQqJCyS8sdIrucH738+hNXy/+rjAbRmbCxkD33y0aPgiYPGyGw+7htV58vk
+q83juYV9gXwHuxvtFr7c
+=n4Zm
+-----END PGP SIGNATURE-----
 
----
- drivers/watchdog/bcm7038_wdt.c  |    2 +-
- drivers/watchdog/cadence_wdt.c  |    2 +-
- drivers/watchdog/kempld_wdt.c   |    2 +-
- drivers/watchdog/rn5t618_wdt.c  |    2 +-
- drivers/watchdog/softdog.c      |    2 +-
- drivers/watchdog/w83627hf_wdt.c |    2 +-
- 6 files changed, 6 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/watchdog/bcm7038_wdt.c b/drivers/watchdog/bcm7038_wdt.c
-index 4245b65..e238df4 100644
---- a/drivers/watchdog/bcm7038_wdt.c
-+++ b/drivers/watchdog/bcm7038_wdt.c
-@@ -107,7 +107,7 @@ static struct watchdog_info bcm7038_wdt_info = {
- 				WDIOF_MAGICCLOSE
- };
- 
--static struct watchdog_ops bcm7038_wdt_ops = {
-+static const struct watchdog_ops bcm7038_wdt_ops = {
- 	.owner		= THIS_MODULE,
- 	.start		= bcm7038_wdt_start,
- 	.stop		= bcm7038_wdt_stop,
-diff --git a/drivers/watchdog/cadence_wdt.c b/drivers/watchdog/cadence_wdt.c
-index 4dda902..a4e05e43 100644
---- a/drivers/watchdog/cadence_wdt.c
-+++ b/drivers/watchdog/cadence_wdt.c
-@@ -269,7 +269,7 @@ static struct watchdog_info cdns_wdt_info = {
- };
- 
- /* Watchdog Core Ops */
--static struct watchdog_ops cdns_wdt_ops = {
-+static const struct watchdog_ops cdns_wdt_ops = {
- 	.owner = THIS_MODULE,
- 	.start = cdns_wdt_start,
- 	.stop = cdns_wdt_stop,
-diff --git a/drivers/watchdog/kempld_wdt.c b/drivers/watchdog/kempld_wdt.c
-index 5bf931c..8e302d0 100644
---- a/drivers/watchdog/kempld_wdt.c
-+++ b/drivers/watchdog/kempld_wdt.c
-@@ -430,7 +430,7 @@ static struct watchdog_info kempld_wdt_info = {
- 			WDIOF_PRETIMEOUT
- };
- 
--static struct watchdog_ops kempld_wdt_ops = {
-+static const struct watchdog_ops kempld_wdt_ops = {
- 	.owner		= THIS_MODULE,
- 	.start		= kempld_wdt_start,
- 	.stop		= kempld_wdt_stop,
-diff --git a/drivers/watchdog/rn5t618_wdt.c b/drivers/watchdog/rn5t618_wdt.c
-index d1c1227..0805ee2 100644
---- a/drivers/watchdog/rn5t618_wdt.c
-+++ b/drivers/watchdog/rn5t618_wdt.c
-@@ -136,7 +136,7 @@ static struct watchdog_info rn5t618_wdt_info = {
- 	.identity	= DRIVER_NAME,
- };
- 
--static struct watchdog_ops rn5t618_wdt_ops = {
-+static const struct watchdog_ops rn5t618_wdt_ops = {
- 	.owner          = THIS_MODULE,
- 	.start          = rn5t618_wdt_start,
- 	.stop           = rn5t618_wdt_stop,
-diff --git a/drivers/watchdog/softdog.c b/drivers/watchdog/softdog.c
-index b067edf..1ae469e 100644
---- a/drivers/watchdog/softdog.c
-+++ b/drivers/watchdog/softdog.c
-@@ -92,7 +92,7 @@ static struct watchdog_info softdog_info = {
- 	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
- };
- 
--static struct watchdog_ops softdog_ops = {
-+static const struct watchdog_ops softdog_ops = {
- 	.owner = THIS_MODULE,
- 	.start = softdog_ping,
- 	.stop = softdog_stop,
-diff --git a/drivers/watchdog/w83627hf_wdt.c b/drivers/watchdog/w83627hf_wdt.c
-index 09e8003..ef2ecaf 100644
---- a/drivers/watchdog/w83627hf_wdt.c
-+++ b/drivers/watchdog/w83627hf_wdt.c
-@@ -302,7 +302,7 @@ static struct watchdog_info wdt_info = {
- 	.identity = "W83627HF Watchdog",
- };
- 
--static struct watchdog_ops wdt_ops = {
-+static const struct watchdog_ops wdt_ops = {
- 	.owner = THIS_MODULE,
- 	.start = wdt_start,
- 	.stop = wdt_stop,
+--UoPmpPX/dBe4BELn--
