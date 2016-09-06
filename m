@@ -1,102 +1,37 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:50080 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1755852AbcIFN0m (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 6 Sep 2016 09:26:42 -0400
-From: fu.wei@linaro.org
-To: rjw@rjwysocki.net, lenb@kernel.org, daniel.lezcano@linaro.org,
-        tglx@linutronix.de, marc.zyngier@arm.com,
-        lorenzo.pieralisi@arm.com, sudeep.holla@arm.com,
-        hanjun.guo@linaro.org
-Cc: linux-arm-kernel@lists.infradead.org, linaro-acpi@lists.linaro.org,
-        linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
-        rruigrok@codeaurora.org, harba@codeaurora.org, cov@codeaurora.org,
-        timur@codeaurora.org, graeme.gregory@linaro.org,
-        al.stone@linaro.org, jcm@redhat.com, wei@redhat.com, arnd@arndb.de,
-        wim@iguana.be, catalin.marinas@arm.com, will.deacon@arm.com,
-        Suravee.Suthikulpanit@amd.com, leo.duran@amd.com,
-        linux@roeck-us.net, linux-watchdog@vger.kernel.org,
-        Fu Wei <fu.wei@linaro.org>
-Subject: [PATCH v11 1/8] clocksource/drivers/arm_arch_timer: Move enums and defines to header file
-Date: Tue,  6 Sep 2016 21:25:45 +0800
-Message-Id: <1473168352-5156-2-git-send-email-fu.wei@linaro.org>
-In-Reply-To: <1473168352-5156-1-git-send-email-fu.wei@linaro.org>
-References: <1473168352-5156-1-git-send-email-fu.wei@linaro.org>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-path: <tglx@linutronix.de>
+Date: Tue, 6 Sep 2016 16:36:25 +0200 (CEST)
+From: Thomas Gleixner <tglx@linutronix.de>
+To: Fu Wei <fu.wei@linaro.org>
+cc: rjw@rjwysocki.net, lenb@kernel.org, daniel.lezcano@linaro.org,
+    marc.zyngier@arm.com, lorenzo.pieralisi@arm.com, sudeep.holla@arm.com,
+    hanjun.guo@linaro.org, linux-arm-kernel@lists.infradead.org,
+    linaro-acpi@lists.linaro.org, linux-kernel@vger.kernel.org,
+    linux-acpi@vger.kernel.org, rruigrok@codeaurora.org, harba@codeaurora.org,
+    cov@codeaurora.org, timur@codeaurora.org, graeme.gregory@linaro.org,
+    al.stone@linaro.org, jcm@redhat.com, wei@redhat.com, arnd@arndb.de,
+    wim@iguana.be, catalin.marinas@arm.com, will.deacon@arm.com,
+    Suravee.Suthikulpanit@amd.com, leo.duran@amd.com, linux@roeck-us.net,
+    linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH v11 5/8] clocksource/drivers/arm_arch_timer: Simplify
+ ACPI support code.
+In-Reply-To: <1473168352-5156-6-git-send-email-fu.wei@linaro.org>
+Message-ID: <alpine.DEB.2.20.1609061635000.5647@nanos>
+References: <1473168352-5156-1-git-send-email-fu.wei@linaro.org> <1473168352-5156-6-git-send-email-fu.wei@linaro.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+List-ID: <linux-watchdog@vger.kernel.org>
 
-From: Fu Wei <fu.wei@linaro.org>
+On Tue, 6 Sep 2016, fu.wei@linaro.org wrote:
+> +	if (timer_count < 0)
+> +		pr_err("Failed to get platform timer info, skipping.\n");
 
-To support the arm_arch_timer via ACPI we need to share defines and enums
-between the driver and the ACPI parser code.
+So this prints something about skipping. But then it continues as if
+nothing went wrong. That's either wrong or confusing or both.
 
-Split out the relevant defines and enums into arm_arch_timer.h.
-No functional change.
+> -	arch_timer_init();
+> -	return 0;
+> +	return arch_timer_init();
 
-Signed-off-by: Fu Wei <fu.wei@linaro.org>
----
- drivers/clocksource/arm_arch_timer.c | 11 -----------
- include/clocksource/arm_arch_timer.h | 11 +++++++++++
- 2 files changed, 11 insertions(+), 11 deletions(-)
+Thanks,
 
-diff --git a/drivers/clocksource/arm_arch_timer.c b/drivers/clocksource/arm_arch_timer.c
-index 5770054..aea6c10 100644
---- a/drivers/clocksource/arm_arch_timer.c
-+++ b/drivers/clocksource/arm_arch_timer.c
-@@ -51,8 +51,6 @@
- #define CNTV_TVAL	0x38
- #define CNTV_CTL	0x3c
- 
--#define ARCH_CP15_TIMER	BIT(0)
--#define ARCH_MEM_TIMER	BIT(1)
- static unsigned arch_timers_present __initdata;
- 
- static void __iomem *arch_counter_base;
-@@ -65,15 +63,6 @@ struct arch_timer {
- #define to_arch_timer(e) container_of(e, struct arch_timer, evt)
- 
- static u32 arch_timer_rate;
--
--enum ppi_nr {
--	PHYS_SECURE_PPI,
--	PHYS_NONSECURE_PPI,
--	VIRT_PPI,
--	HYP_PPI,
--	MAX_TIMER_PPI
--};
--
- static int arch_timer_ppi[MAX_TIMER_PPI];
- 
- static struct clock_event_device __percpu *arch_timer_evt;
-diff --git a/include/clocksource/arm_arch_timer.h b/include/clocksource/arm_arch_timer.h
-index caedb74..6f06481 100644
---- a/include/clocksource/arm_arch_timer.h
-+++ b/include/clocksource/arm_arch_timer.h
-@@ -19,6 +19,9 @@
- #include <linux/timecounter.h>
- #include <linux/types.h>
- 
-+#define ARCH_CP15_TIMER			BIT(0)
-+#define ARCH_MEM_TIMER			BIT(1)
-+
- #define ARCH_TIMER_CTRL_ENABLE		(1 << 0)
- #define ARCH_TIMER_CTRL_IT_MASK		(1 << 1)
- #define ARCH_TIMER_CTRL_IT_STAT		(1 << 2)
-@@ -34,6 +37,14 @@ enum arch_timer_reg {
- 	ARCH_TIMER_REG_TVAL,
- };
- 
-+enum ppi_nr {
-+	PHYS_SECURE_PPI,
-+	PHYS_NONSECURE_PPI,
-+	VIRT_PPI,
-+	HYP_PPI,
-+	MAX_TIMER_PPI
-+};
-+
- #define ARCH_TIMER_PHYS_ACCESS		0
- #define ARCH_TIMER_VIRT_ACCESS		1
- #define ARCH_TIMER_MEM_PHYS_ACCESS	2
--- 
-2.7.4
-
+	tglx
