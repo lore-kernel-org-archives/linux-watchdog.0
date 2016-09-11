@@ -1,88 +1,62 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Subject: Re: [PATCH 5/8] samples: move misc-devices/mei example code from
- Documentation
-To: "Winkler, Tomas" <tomas.winkler@intel.com>,
-        Jonathan Corbet <corbet@lwn.net>
-References: <cover.1474073857.git.shuahkh@osg.samsung.com>
- <12a2016ad44adcfb88f442923411f3345b5b3a1e.1474073857.git.shuahkh@osg.samsung.com>
- <20160919101348.1eb53045@lwn.net>
- <5B8DA87D05A7694D9FA63FD143655C1B542EB8FE@hasmsx108.ger.corp.intel.com>
-Cc: "Dutt, Sudeep" <sudeep.dutt@intel.com>,
-        "Dixit, Ashutosh" <ashutosh.dixit@intel.com>,
-        "tglx@linutronix.de" <tglx@linutronix.de>,
-        "wim@iguana.be" <wim@iguana.be>,
-        "linux@roeck-us.net" <linux@roeck-us.net>,
-        "elfring@users.sourceforge.net" <elfring@users.sourceforge.net>,
-        "nicolas.dichtel@6wind.com" <nicolas.dichtel@6wind.com>,
-        "davem@davemloft.net" <davem@davemloft.net>,
-        "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
-        "Chandramouli, Dasaratharaman"
-        <dasaratharaman.chandramouli@intel.com>,
-        "maheshkhanwalkar@gmail.com" <maheshkhanwalkar@gmail.com>,
-        "mikedanese@google.com" <mikedanese@google.com>,
-        "ben@decadent.org.uk" <ben@decadent.org.uk>,
-        "ghackmann@google.com" <ghackmann@google.com>,
-        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-pcmcia@lists.infradead.org" <linux-pcmcia@lists.infradead.org>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        Shuah Khan <shuahkh@osg.samsung.com>
-From: Shuah Khan <shuahkh@osg.samsung.com>
-Message-ID: <ad8cd03a-4f3a-8a91-9e3b-eca564129ac6@osg.samsung.com>
-Date: Tue, 20 Sep 2016 11:20:34 -0600
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:58613 "EHLO
+        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755728AbcIKOXf (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Sun, 11 Sep 2016 10:23:35 -0400
+Subject: Re: [PATCH v2 0/2] MIPS: TXx9: Common Clock Framework Conversion
+To: Geert Uytterhoeven <geert@linux-m68k.org>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        Atsushi Nemoto <anemo@mba.ocn.ne.jp>,
+        Wim Van Sebroeck <wim@iguana.be>
+References: <1473584398-12942-1-git-send-email-geert@linux-m68k.org>
+Cc: linux-clk@vger.kernel.org, linux-mips@linux-mips.org,
+        linux-watchdog@vger.kernel.org
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <c00b671b-8824-b054-5ee1-fbd02e993e1e@roeck-us.net>
+Date: Sun, 11 Sep 2016 07:22:58 -0700
 MIME-Version: 1.0
-In-Reply-To: <5B8DA87D05A7694D9FA63FD143655C1B542EB8FE@hasmsx108.ger.corp.intel.com>
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-List-ID: <linux-watchdog@vger.kernel.org>
+In-Reply-To: <1473584398-12942-1-git-send-email-geert@linux-m68k.org>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-On 09/20/2016 12:17 AM, Winkler, Tomas wrote:
-> 
-> 
->> -----Original Message-----
->> From: Jonathan Corbet [mailto:corbet@lwn.net]
->> Sent: Monday, September 19, 2016 19:14
->> To: Shuah Khan <shuahkh@osg.samsung.com>
->> Cc: Dutt, Sudeep <sudeep.dutt@intel.com>; Dixit, Ashutosh
->> <ashutosh.dixit@intel.com>; Winkler, Tomas <tomas.winkler@intel.com>;
->> tglx@linutronix.de; wim@iguana.be; linux@roeck-us.net;
->> elfring@users.sourceforge.net; nicolas.dichtel@6wind.com;
->> davem@davemloft.net; gregkh@linuxfoundation.org; Chandramouli,
->> Dasaratharaman <dasaratharaman.chandramouli@intel.com>;
->> maheshkhanwalkar@gmail.com; mikedanese@google.com;
->> ben@decadent.org.uk; ghackmann@google.com; linux-doc@vger.kernel.org;
->> linux-kernel@vger.kernel.org; linux-pcmcia@lists.infradead.org; linux-
->> watchdog@vger.kernel.org
->> Subject: Re: [PATCH 5/8] samples: move misc-devices/mei example code
->> from Documentation
->>
->> On Mon, 19 Sep 2016 08:47:36 -0600
->> Shuah Khan <shuahkh@osg.samsung.com> wrote:
->>
->>> Move misc-devices/mei examples to samples/mei and remove it from
->>> Documentation Makefile. Delete misc-devices/Makefile.
->>>
->>> Create a new Makefile to build samples/mei. It can be built from top
->>> level directory or from mei directory:
->>
->> This one still has a fair amount of code hiding in the .txt files, but that's a
->> separate job.
->>
->> Acked-by: Jonathan Corbet <corbet@lwn.net>
-> 
-> Shouldn't  this update also the  MAINTAINERS file?
-> Tomas
-> 
+On 09/11/2016 01:59 AM, Geert Uytterhoeven wrote:
+> 	Hi Ralf, Nemoto-san, Wim,
+>
+> This patch series converts the Toshiba TXx9 platforms from their own
+> custom minimal clock implementation to the Common Clock Framework.
+>
+>   - Patch 1 adds missing clock (un)prepare calls to the TXx9 watchdog
+>     driver,
+>   - Patch 2 replaces the custom clock implementation by a CCF-based one,
+>     providing a minimal set of clocks.
+>
+> This has been tested with the watchdog on RBTX4927.
+>
+> Changes since v1:
+>   - Dropped "spi: spi-txx9: Add missing clock (un)prepare calls for
+>     CCF", which has been accepted in spi/for-next,
+>   - Protect the TX4938_REV_PCODE() check by #ifdef CONFIG_CPU_TX49XX,
+>   - Use new clk_hw-centric clock registration API,
+>   - Add Reviewed-by.
+>
+> Dependencies:
+>   - Patch 1 can be applied independently,
+>   - Patch 2 depends on patch 1 and on "spi: spi-txx9: Add missing clock
+>     (un)prepare calls for CCF" in spi/for-next,
+>   - The error path in patch 2 depends on "clkdev: Detect errors in
+>     clk_hw_register_clkdev() for mass registration", but this is less
+>     critical.
+>
+> Wim: Can you please appply patch 1 directly, so we can get at least the
+> hard dependencies in v4.9?
+>
 
-It has a catch all F:      Documentation/misc-devices/mei/*
+It is in my watchdog-next branch, and it has my Reviewed-by:, which
+normally means that Wim will apply it.
 
-Yes. I think it would be a good idea to add a new F: entry
-to INTEL MANAGEMENT ENGINE (mei) for these moved files.
+Thanks,
+Guenter
 
-I will take care of this in v2.
-
-thanks,
--- Shuah
