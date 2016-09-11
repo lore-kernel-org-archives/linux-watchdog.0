@@ -8,62 +8,60 @@ Cc: Guenter Roeck <linux@roeck-us.net>,
 	linux-mips@linux-mips.org,
 	linux-watchdog@vger.kernel.org,
 	Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH v2 0/2] MIPS: TXx9: Common Clock Framework Conversion
-Date: Sun, 11 Sep 2016 10:59:56 +0200
-Message-Id: <1473584398-12942-1-git-send-email-geert@linux-m68k.org>
+Subject: [PATCH v2 1/2] watchdog: txx9wdt: Add missing clock (un)prepare calls for CCF
+Date: Sun, 11 Sep 2016 10:59:57 +0200
+Message-Id: <1473584398-12942-2-git-send-email-geert@linux-m68k.org>
+In-Reply-To: <1473584398-12942-1-git-send-email-geert@linux-m68k.org>
+References: <1473584398-12942-1-git-send-email-geert@linux-m68k.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-	Hi Ralf, Nemoto-san, Wim,
+While the custom minimal TXx9 clock implementation doesn't need or use
+clock (un)prepare calls (they are dummies if !CONFIG_HAVE_CLK_PREPARE),
+they are mandatory when using the Common Clock Framework.
 
-This patch series converts the Toshiba TXx9 platforms from their own
-custom minimal clock implementation to the Common Clock Framework.
+Hence add them, to prepare for the advent of CCF.
 
-  - Patch 1 adds missing clock (un)prepare calls to the TXx9 watchdog
-    driver,
-  - Patch 2 replaces the custom clock implementation by a CCF-based one,
-    providing a minimal set of clocks.
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+---
+Tested on RBTX4927.
 
-This has been tested with the watchdog on RBTX4927.
-
-Changes since v1:
-  - Dropped "spi: spi-txx9: Add missing clock (un)prepare calls for
-    CCF", which has been accepted in spi/for-next,
-  - Protect the TX4938_REV_PCODE() check by #ifdef CONFIG_CPU_TX49XX,
-  - Use new clk_hw-centric clock registration API,
+v2:
   - Add Reviewed-by.
+---
+ drivers/watchdog/txx9wdt.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-Dependencies:
-  - Patch 1 can be applied independently,
-  - Patch 2 depends on patch 1 and on "spi: spi-txx9: Add missing clock
-    (un)prepare calls for CCF" in spi/for-next,
-  - The error path in patch 2 depends on "clkdev: Detect errors in
-    clk_hw_register_clkdev() for mass registration", but this is less
-    critical.
-
-Wim: Can you please appply patch 1 directly, so we can get at least the
-hard dependencies in v4.9?
-
-Thanks!
-
-Geert Uytterhoeven (2):
-  watchdog: txx9wdt: Add missing clock (un)prepare calls for CCF
-  MIPS: TXx9: Convert to Common Clock Framework
-
- arch/mips/txx9/Kconfig         |  2 +-
- arch/mips/txx9/generic/setup.c | 70 +++++++++++++++++++++---------------------
- drivers/watchdog/txx9wdt.c     |  6 ++--
- 3 files changed, 39 insertions(+), 39 deletions(-)
-
+diff --git a/drivers/watchdog/txx9wdt.c b/drivers/watchdog/txx9wdt.c
+index c2da880292bc2f32..6f7a9deb27d05d25 100644
+--- a/drivers/watchdog/txx9wdt.c
++++ b/drivers/watchdog/txx9wdt.c
+@@ -112,7 +112,7 @@ static int __init txx9wdt_probe(struct platform_device *dev)
+ 		txx9_imclk = NULL;
+ 		goto exit;
+ 	}
+-	ret = clk_enable(txx9_imclk);
++	ret = clk_prepare_enable(txx9_imclk);
+ 	if (ret) {
+ 		clk_put(txx9_imclk);
+ 		txx9_imclk = NULL;
+@@ -144,7 +144,7 @@ static int __init txx9wdt_probe(struct platform_device *dev)
+ 	return 0;
+ exit:
+ 	if (txx9_imclk) {
+-		clk_disable(txx9_imclk);
++		clk_disable_unprepare(txx9_imclk);
+ 		clk_put(txx9_imclk);
+ 	}
+ 	return ret;
+@@ -153,7 +153,7 @@ exit:
+ static int __exit txx9wdt_remove(struct platform_device *dev)
+ {
+ 	watchdog_unregister_device(&txx9wdt);
+-	clk_disable(txx9_imclk);
++	clk_disable_unprepare(txx9_imclk);
+ 	clk_put(txx9_imclk);
+ 	return 0;
+ }
 -- 
 1.9.1
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
