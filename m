@@ -1,9 +1,9 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from resqmta-po-05v.sys.comcast.net ([96.114.154.164]:36334 "EHLO
-        resqmta-po-05v.sys.comcast.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1750940AbcIMU1D (ORCPT
+Received: from resqmta-po-01v.sys.comcast.net ([96.114.154.160]:37100 "EHLO
+        resqmta-po-01v.sys.comcast.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1750951AbcIMU1H (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 13 Sep 2016 16:27:03 -0400
+        Tue, 13 Sep 2016 16:27:07 -0400
 From: Shuah Khan <shuahkh@osg.samsung.com>
 To: corbet@lwn.net, richardcochran@gmail.com, wim@iguana.be,
         linux@roeck-us.net, nab@linux-iscsi.org,
@@ -15,135 +15,723 @@ To: corbet@lwn.net, richardcochran@gmail.com, wim@iguana.be,
 Cc: Shuah Khan <shuahkh@osg.samsung.com>, linux-doc@vger.kernel.org,
         linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
         linux-watchdog@vger.kernel.org, linux-kselftest@vger.kernel.org
-Subject: [PATCH v2 0/6] Move runnable code (tests) from Documentation to selftests
-Date: Tue, 13 Sep 2016 14:18:39 -0600
-Message-Id: <cover.1473795601.git.shuahkh@osg.samsung.com>
+Subject: [PATCH v2 2/6] selftests: move prctl tests from Documentation/prctl
+Date: Tue, 13 Sep 2016 14:18:41 -0600
+Message-Id: <32d3a85e67c26278ff5a9bf9cbab811ac716f221.1473795601.git.shuahkh@osg.samsung.com>
+In-Reply-To: <cover.1473795601.git.shuahkh@osg.samsung.com>
+References: <cover.1473795601.git.shuahkh@osg.samsung.com>
+In-Reply-To: <cover.1473795601.git.shuahkh@osg.samsung.com>
+References: <cover.1473795601.git.shuahkh@osg.samsung.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Move runnable code (tests) from Documentation to selftests and update
-Makefiles to work under selftests.
+Move prctl tests from Documentation/prctl to selftests/prctl.
 
-Jon Corbet and I discussed this in an email thread and as per that
-discussion, this patch series moves all the tests that are under the
-Documentation directory to selftests. There is more runnable code in
-the form of examples and utils and that is going to be another patch
-series. I moved just the tests and left the documentation files as is.
+Remove prctl from Makefile to move the test. Update prctl Makefile to work
+under selftests. prctl will not be run as part of selftests suite and will
+not be included in install targets. They can be built separately for now.
 
-Checkpatch isn't happy with a few of the patches as some of the
-renamed files have existing checkpatch errors and warnings. I am
-working another patch series that will address those.
-
-Changes since v1:
-- Changes to Documentation/Makefile to remove test targets as the tests
-  get moved.
-- Combined patches based on Michael Ellerman's comments.
-- Fixed change log errors based on Sergei Shtylyov's comments.
-- Expanded to list to wider audience and people that responded
-  with comments and ideas.
-- Included ia64 and watchdog which I missed in the v1 series.
-
-Shuah Khan (6):
-  selftests: move dnotify_test from Documentation/filesystems
-  selftests: move prctl tests from Documentation/prctl
-  selftests: move ptp tests from Documentation/ptp
-  selftests: move vDSO tests from Documentation/vDSO
-  selftests: move ia64 tests from Documentation/ia64
-  selftests: move watchdog tests from Documentation/watchdog
-
- Documentation/Makefile                             |   4 +-
- Documentation/filesystems/.gitignore               |   1 -
- Documentation/filesystems/Makefile                 |   5 -
- Documentation/filesystems/dnotify_test.c           |  34 --
- Documentation/ia64/.gitignore                      |   1 -
- Documentation/ia64/Makefile                        |   5 -
- Documentation/ia64/aliasing-test.c                 | 263 -----------
- Documentation/prctl/.gitignore                     |   3 -
- Documentation/prctl/Makefile                       |  10 -
- .../prctl/disable-tsc-ctxt-sw-stress-test.c        |  97 ----
- .../prctl/disable-tsc-on-off-stress-test.c         |  96 ----
- Documentation/prctl/disable-tsc-test.c             |  95 ----
- Documentation/ptp/.gitignore                       |   1 -
- Documentation/ptp/Makefile                         |   8 -
- Documentation/ptp/testptp.c                        | 523 ---------------------
- Documentation/ptp/testptp.mk                       |  33 --
- Documentation/vDSO/.gitignore                      |   2 -
- Documentation/vDSO/Makefile                        |  17 -
- Documentation/vDSO/parse_vdso.c                    | 269 -----------
- Documentation/vDSO/vdso_standalone_test_x86.c      | 128 -----
- Documentation/vDSO/vdso_test.c                     |  52 --
- Documentation/watchdog/src/.gitignore              |   1 -
- Documentation/watchdog/src/Makefile                |   2 +-
- Documentation/watchdog/src/watchdog-test.c         | 105 -----
- tools/testing/selftests/filesystems/.gitignore     |   1 +
- tools/testing/selftests/filesystems/Makefile       |   7 +
- tools/testing/selftests/filesystems/dnotify_test.c |  34 ++
- tools/testing/selftests/ia64/.gitignore            |   1 +
- tools/testing/selftests/ia64/Makefile              |   8 +
- tools/testing/selftests/ia64/aliasing-test.c       | 263 +++++++++++
- tools/testing/selftests/prctl/.gitignore           |   3 +
- tools/testing/selftests/prctl/Makefile             |  15 +
- .../prctl/disable-tsc-ctxt-sw-stress-test.c        |  97 ++++
- .../prctl/disable-tsc-on-off-stress-test.c         |  96 ++++
- tools/testing/selftests/prctl/disable-tsc-test.c   |  95 ++++
- tools/testing/selftests/ptp/.gitignore             |   1 +
- tools/testing/selftests/ptp/Makefile               |   8 +
- tools/testing/selftests/ptp/testptp.c              | 523 +++++++++++++++++++++
- tools/testing/selftests/ptp/testptp.mk             |  33 ++
- tools/testing/selftests/vDSO/.gitignore            |   2 +
- tools/testing/selftests/vDSO/Makefile              |  20 +
- tools/testing/selftests/vDSO/parse_vdso.c          | 269 +++++++++++
- .../selftests/vDSO/vdso_standalone_test_x86.c      | 128 +++++
- tools/testing/selftests/vDSO/vdso_test.c           |  52 ++
- tools/testing/selftests/watchdog/.gitignore        |   1 +
- tools/testing/selftests/watchdog/Makefile          |   8 +
- tools/testing/selftests/watchdog/watchdog-test.c   | 105 +++++
- 47 files changed, 1773 insertions(+), 1752 deletions(-)
- delete mode 100644 Documentation/filesystems/.gitignore
- delete mode 100644 Documentation/filesystems/Makefile
- delete mode 100644 Documentation/filesystems/dnotify_test.c
- delete mode 100644 Documentation/ia64/.gitignore
- delete mode 100644 Documentation/ia64/Makefile
- delete mode 100644 Documentation/ia64/aliasing-test.c
+Signed-off-by: Shuah Khan <shuahkh@osg.samsung.com>
+---
+ Documentation/Makefile                             |  2 +-
+ Documentation/prctl/.gitignore                     |  3 -
+ Documentation/prctl/Makefile                       | 10 ---
+ .../prctl/disable-tsc-ctxt-sw-stress-test.c        | 97 ----------------------
+ .../prctl/disable-tsc-on-off-stress-test.c         | 96 ---------------------
+ Documentation/prctl/disable-tsc-test.c             | 95 ---------------------
+ tools/testing/selftests/prctl/.gitignore           |  3 +
+ tools/testing/selftests/prctl/Makefile             | 15 ++++
+ .../prctl/disable-tsc-ctxt-sw-stress-test.c        | 97 ++++++++++++++++++++++
+ .../prctl/disable-tsc-on-off-stress-test.c         | 96 +++++++++++++++++++++
+ tools/testing/selftests/prctl/disable-tsc-test.c   | 95 +++++++++++++++++++++
+ 11 files changed, 307 insertions(+), 302 deletions(-)
  delete mode 100644 Documentation/prctl/.gitignore
  delete mode 100644 Documentation/prctl/Makefile
  delete mode 100644 Documentation/prctl/disable-tsc-ctxt-sw-stress-test.c
  delete mode 100644 Documentation/prctl/disable-tsc-on-off-stress-test.c
  delete mode 100644 Documentation/prctl/disable-tsc-test.c
- delete mode 100644 Documentation/ptp/.gitignore
- delete mode 100644 Documentation/ptp/Makefile
- delete mode 100644 Documentation/ptp/testptp.c
- delete mode 100644 Documentation/ptp/testptp.mk
- delete mode 100644 Documentation/vDSO/.gitignore
- delete mode 100644 Documentation/vDSO/Makefile
- delete mode 100644 Documentation/vDSO/parse_vdso.c
- delete mode 100644 Documentation/vDSO/vdso_standalone_test_x86.c
- delete mode 100644 Documentation/vDSO/vdso_test.c
- delete mode 100644 Documentation/watchdog/src/watchdog-test.c
- create mode 100644 tools/testing/selftests/filesystems/.gitignore
- create mode 100644 tools/testing/selftests/filesystems/Makefile
- create mode 100644 tools/testing/selftests/filesystems/dnotify_test.c
- create mode 100644 tools/testing/selftests/ia64/.gitignore
- create mode 100644 tools/testing/selftests/ia64/Makefile
- create mode 100644 tools/testing/selftests/ia64/aliasing-test.c
  create mode 100644 tools/testing/selftests/prctl/.gitignore
  create mode 100644 tools/testing/selftests/prctl/Makefile
  create mode 100644 tools/testing/selftests/prctl/disable-tsc-ctxt-sw-stress-test.c
  create mode 100644 tools/testing/selftests/prctl/disable-tsc-on-off-stress-test.c
  create mode 100644 tools/testing/selftests/prctl/disable-tsc-test.c
- create mode 100644 tools/testing/selftests/ptp/.gitignore
- create mode 100644 tools/testing/selftests/ptp/Makefile
- create mode 100644 tools/testing/selftests/ptp/testptp.c
- create mode 100644 tools/testing/selftests/ptp/testptp.mk
- create mode 100644 tools/testing/selftests/vDSO/.gitignore
- create mode 100644 tools/testing/selftests/vDSO/Makefile
- create mode 100644 tools/testing/selftests/vDSO/parse_vdso.c
- create mode 100644 tools/testing/selftests/vDSO/vdso_standalone_test_x86.c
- create mode 100644 tools/testing/selftests/vDSO/vdso_test.c
- create mode 100644 tools/testing/selftests/watchdog/.gitignore
- create mode 100644 tools/testing/selftests/watchdog/Makefile
- create mode 100644 tools/testing/selftests/watchdog/watchdog-test.c
 
+diff --git a/Documentation/Makefile b/Documentation/Makefile
+index 0473710..7a28f6c 100644
+--- a/Documentation/Makefile
++++ b/Documentation/Makefile
+@@ -1,3 +1,3 @@
+ subdir-y := accounting auxdisplay blackfin \
+ 	ia64 laptops mic misc-devices \
+-	networking pcmcia prctl ptp timers vDSO watchdog
++	networking pcmcia ptp timers vDSO watchdog
+diff --git a/Documentation/prctl/.gitignore b/Documentation/prctl/.gitignore
+deleted file mode 100644
+index 0b5c274..0000000
+--- a/Documentation/prctl/.gitignore
++++ /dev/null
+@@ -1,3 +0,0 @@
+-disable-tsc-ctxt-sw-stress-test
+-disable-tsc-on-off-stress-test
+-disable-tsc-test
+diff --git a/Documentation/prctl/Makefile b/Documentation/prctl/Makefile
+deleted file mode 100644
+index 44de308..0000000
+--- a/Documentation/prctl/Makefile
++++ /dev/null
+@@ -1,10 +0,0 @@
+-ifndef CROSS_COMPILE
+-# List of programs to build
+-hostprogs-$(CONFIG_X86) := disable-tsc-ctxt-sw-stress-test disable-tsc-on-off-stress-test disable-tsc-test
+-# Tell kbuild to always build the programs
+-always := $(hostprogs-y)
+-
+-HOSTCFLAGS_disable-tsc-ctxt-sw-stress-test.o += -I$(objtree)/usr/include
+-HOSTCFLAGS_disable-tsc-on-off-stress-test.o += -I$(objtree)/usr/include
+-HOSTCFLAGS_disable-tsc-test.o += -I$(objtree)/usr/include
+-endif
+diff --git a/Documentation/prctl/disable-tsc-ctxt-sw-stress-test.c b/Documentation/prctl/disable-tsc-ctxt-sw-stress-test.c
+deleted file mode 100644
+index f7499d1..0000000
+--- a/Documentation/prctl/disable-tsc-ctxt-sw-stress-test.c
++++ /dev/null
+@@ -1,97 +0,0 @@
+-/*
+- * Tests for prctl(PR_GET_TSC, ...) / prctl(PR_SET_TSC, ...)
+- *
+- * Tests if the control register is updated correctly
+- * at context switches
+- *
+- * Warning: this test will cause a very high load for a few seconds
+- *
+- */
+-
+-#include <stdio.h>
+-#include <stdlib.h>
+-#include <unistd.h>
+-#include <signal.h>
+-#include <inttypes.h>
+-#include <wait.h>
+-
+-
+-#include <sys/prctl.h>
+-#include <linux/prctl.h>
+-
+-/* Get/set the process' ability to use the timestamp counter instruction */
+-#ifndef PR_GET_TSC
+-#define PR_GET_TSC 25
+-#define PR_SET_TSC 26
+-# define PR_TSC_ENABLE		1   /* allow the use of the timestamp counter */
+-# define PR_TSC_SIGSEGV		2   /* throw a SIGSEGV instead of reading the TSC */
+-#endif
+-
+-static uint64_t rdtsc(void)
+-{
+-uint32_t lo, hi;
+-/* We cannot use "=A", since this would use %rax on x86_64 */
+-__asm__ __volatile__ ("rdtsc" : "=a" (lo), "=d" (hi));
+-return (uint64_t)hi << 32 | lo;
+-}
+-
+-static void sigsegv_expect(int sig)
+-{
+-	/* */
+-}
+-
+-static void segvtask(void)
+-{
+-	if (prctl(PR_SET_TSC, PR_TSC_SIGSEGV) < 0)
+-	{
+-		perror("prctl");
+-		exit(0);
+-	}
+-	signal(SIGSEGV, sigsegv_expect);
+-	alarm(10);
+-	rdtsc();
+-	fprintf(stderr, "FATAL ERROR, rdtsc() succeeded while disabled\n");
+-	exit(0);
+-}
+-
+-
+-static void sigsegv_fail(int sig)
+-{
+-	fprintf(stderr, "FATAL ERROR, rdtsc() failed while enabled\n");
+-	exit(0);
+-}
+-
+-static void rdtsctask(void)
+-{
+-	if (prctl(PR_SET_TSC, PR_TSC_ENABLE) < 0)
+-	{
+-		perror("prctl");
+-		exit(0);
+-	}
+-	signal(SIGSEGV, sigsegv_fail);
+-	alarm(10);
+-	for(;;) rdtsc();
+-}
+-
+-
+-int main(void)
+-{
+-	int n_tasks = 100, i;
+-
+-	fprintf(stderr, "[No further output means we're allright]\n");
+-
+-	for (i=0; i<n_tasks; i++)
+-		if (fork() == 0)
+-		{
+-			if (i & 1)
+-				segvtask();
+-			else
+-				rdtsctask();
+-		}
+-
+-	for (i=0; i<n_tasks; i++)
+-		wait(NULL);
+-
+-	exit(0);
+-}
+-
+diff --git a/Documentation/prctl/disable-tsc-on-off-stress-test.c b/Documentation/prctl/disable-tsc-on-off-stress-test.c
+deleted file mode 100644
+index a06f027..0000000
+--- a/Documentation/prctl/disable-tsc-on-off-stress-test.c
++++ /dev/null
+@@ -1,96 +0,0 @@
+-/*
+- * Tests for prctl(PR_GET_TSC, ...) / prctl(PR_SET_TSC, ...)
+- *
+- * Tests if the control register is updated correctly
+- * when set with prctl()
+- *
+- * Warning: this test will cause a very high load for a few seconds
+- *
+- */
+-
+-#include <stdio.h>
+-#include <stdlib.h>
+-#include <unistd.h>
+-#include <signal.h>
+-#include <inttypes.h>
+-#include <wait.h>
+-
+-
+-#include <sys/prctl.h>
+-#include <linux/prctl.h>
+-
+-/* Get/set the process' ability to use the timestamp counter instruction */
+-#ifndef PR_GET_TSC
+-#define PR_GET_TSC 25
+-#define PR_SET_TSC 26
+-# define PR_TSC_ENABLE		1   /* allow the use of the timestamp counter */
+-# define PR_TSC_SIGSEGV		2   /* throw a SIGSEGV instead of reading the TSC */
+-#endif
+-
+-/* snippet from wikipedia :-) */
+-
+-static uint64_t rdtsc(void)
+-{
+-uint32_t lo, hi;
+-/* We cannot use "=A", since this would use %rax on x86_64 */
+-__asm__ __volatile__ ("rdtsc" : "=a" (lo), "=d" (hi));
+-return (uint64_t)hi << 32 | lo;
+-}
+-
+-int should_segv = 0;
+-
+-static void sigsegv_cb(int sig)
+-{
+-	if (!should_segv)
+-	{
+-		fprintf(stderr, "FATAL ERROR, rdtsc() failed while enabled\n");
+-		exit(0);
+-	}
+-	if (prctl(PR_SET_TSC, PR_TSC_ENABLE) < 0)
+-	{
+-		perror("prctl");
+-		exit(0);
+-	}
+-	should_segv = 0;
+-
+-	rdtsc();
+-}
+-
+-static void task(void)
+-{
+-	signal(SIGSEGV, sigsegv_cb);
+-	alarm(10);
+-	for(;;)
+-	{
+-		rdtsc();
+-		if (should_segv)
+-		{
+-			fprintf(stderr, "FATAL ERROR, rdtsc() succeeded while disabled\n");
+-			exit(0);
+-		}
+-		if (prctl(PR_SET_TSC, PR_TSC_SIGSEGV) < 0)
+-		{
+-			perror("prctl");
+-			exit(0);
+-		}
+-		should_segv = 1;
+-	}
+-}
+-
+-
+-int main(void)
+-{
+-	int n_tasks = 100, i;
+-
+-	fprintf(stderr, "[No further output means we're allright]\n");
+-
+-	for (i=0; i<n_tasks; i++)
+-		if (fork() == 0)
+-			task();
+-
+-	for (i=0; i<n_tasks; i++)
+-		wait(NULL);
+-
+-	exit(0);
+-}
+-
+diff --git a/Documentation/prctl/disable-tsc-test.c b/Documentation/prctl/disable-tsc-test.c
+deleted file mode 100644
+index 8d494f7..0000000
+--- a/Documentation/prctl/disable-tsc-test.c
++++ /dev/null
+@@ -1,95 +0,0 @@
+-/*
+- * Tests for prctl(PR_GET_TSC, ...) / prctl(PR_SET_TSC, ...)
+- *
+- * Basic test to test behaviour of PR_GET_TSC and PR_SET_TSC
+- */
+-
+-#include <stdio.h>
+-#include <stdlib.h>
+-#include <unistd.h>
+-#include <signal.h>
+-#include <inttypes.h>
+-
+-
+-#include <sys/prctl.h>
+-#include <linux/prctl.h>
+-
+-/* Get/set the process' ability to use the timestamp counter instruction */
+-#ifndef PR_GET_TSC
+-#define PR_GET_TSC 25
+-#define PR_SET_TSC 26
+-# define PR_TSC_ENABLE		1   /* allow the use of the timestamp counter */
+-# define PR_TSC_SIGSEGV		2   /* throw a SIGSEGV instead of reading the TSC */
+-#endif
+-
+-const char *tsc_names[] =
+-{
+-	[0] = "[not set]",
+-	[PR_TSC_ENABLE] = "PR_TSC_ENABLE",
+-	[PR_TSC_SIGSEGV] = "PR_TSC_SIGSEGV",
+-};
+-
+-static uint64_t rdtsc(void)
+-{
+-uint32_t lo, hi;
+-/* We cannot use "=A", since this would use %rax on x86_64 */
+-__asm__ __volatile__ ("rdtsc" : "=a" (lo), "=d" (hi));
+-return (uint64_t)hi << 32 | lo;
+-}
+-
+-static void sigsegv_cb(int sig)
+-{
+-	int tsc_val = 0;
+-
+-	printf("[ SIG_SEGV ]\n");
+-	printf("prctl(PR_GET_TSC, &tsc_val); ");
+-	fflush(stdout);
+-
+-	if ( prctl(PR_GET_TSC, &tsc_val) == -1)
+-		perror("prctl");
+-
+-	printf("tsc_val == %s\n", tsc_names[tsc_val]);
+-	printf("prctl(PR_SET_TSC, PR_TSC_ENABLE)\n");
+-	fflush(stdout);
+-	if ( prctl(PR_SET_TSC, PR_TSC_ENABLE) == -1)
+-		perror("prctl");
+-
+-	printf("rdtsc() == ");
+-}
+-
+-int main(void)
+-{
+-	int tsc_val = 0;
+-
+-	signal(SIGSEGV, sigsegv_cb);
+-
+-	printf("rdtsc() == %llu\n", (unsigned long long)rdtsc());
+-	printf("prctl(PR_GET_TSC, &tsc_val); ");
+-	fflush(stdout);
+-
+-	if ( prctl(PR_GET_TSC, &tsc_val) == -1)
+-		perror("prctl");
+-
+-	printf("tsc_val == %s\n", tsc_names[tsc_val]);
+-	printf("rdtsc() == %llu\n", (unsigned long long)rdtsc());
+-	printf("prctl(PR_SET_TSC, PR_TSC_ENABLE)\n");
+-	fflush(stdout);
+-
+-	if ( prctl(PR_SET_TSC, PR_TSC_ENABLE) == -1)
+-		perror("prctl");
+-
+-	printf("rdtsc() == %llu\n", (unsigned long long)rdtsc());
+-	printf("prctl(PR_SET_TSC, PR_TSC_SIGSEGV)\n");
+-	fflush(stdout);
+-
+-	if ( prctl(PR_SET_TSC, PR_TSC_SIGSEGV) == -1)
+-		perror("prctl");
+-
+-	printf("rdtsc() == ");
+-	fflush(stdout);
+-	printf("%llu\n", (unsigned long long)rdtsc());
+-	fflush(stdout);
+-
+-	exit(EXIT_SUCCESS);
+-}
+-
+diff --git a/tools/testing/selftests/prctl/.gitignore b/tools/testing/selftests/prctl/.gitignore
+new file mode 100644
+index 0000000..0b5c274
+--- /dev/null
++++ b/tools/testing/selftests/prctl/.gitignore
+@@ -0,0 +1,3 @@
++disable-tsc-ctxt-sw-stress-test
++disable-tsc-on-off-stress-test
++disable-tsc-test
+diff --git a/tools/testing/selftests/prctl/Makefile b/tools/testing/selftests/prctl/Makefile
+new file mode 100644
+index 0000000..35aa1c8
+--- /dev/null
++++ b/tools/testing/selftests/prctl/Makefile
+@@ -0,0 +1,15 @@
++ifndef CROSS_COMPILE
++uname_M := $(shell uname -m 2>/dev/null || echo not)
++ARCH ?= $(shell echo $(uname_M) | sed -e s/i.86/x86/ -e s/x86_64/x86/)
++
++ifeq ($(ARCH),x86)
++TEST_PROGS := disable-tsc-ctxt-sw-stress-test disable-tsc-on-off-stress-test \
++		disable-tsc-test
++all: $(TEST_PROGS)
++
++include ../lib.mk
++
++clean:
++	rm -fr $(TEST_PROGS)
++endif
++endif
+diff --git a/tools/testing/selftests/prctl/disable-tsc-ctxt-sw-stress-test.c b/tools/testing/selftests/prctl/disable-tsc-ctxt-sw-stress-test.c
+new file mode 100644
+index 0000000..f7499d1
+--- /dev/null
++++ b/tools/testing/selftests/prctl/disable-tsc-ctxt-sw-stress-test.c
+@@ -0,0 +1,97 @@
++/*
++ * Tests for prctl(PR_GET_TSC, ...) / prctl(PR_SET_TSC, ...)
++ *
++ * Tests if the control register is updated correctly
++ * at context switches
++ *
++ * Warning: this test will cause a very high load for a few seconds
++ *
++ */
++
++#include <stdio.h>
++#include <stdlib.h>
++#include <unistd.h>
++#include <signal.h>
++#include <inttypes.h>
++#include <wait.h>
++
++
++#include <sys/prctl.h>
++#include <linux/prctl.h>
++
++/* Get/set the process' ability to use the timestamp counter instruction */
++#ifndef PR_GET_TSC
++#define PR_GET_TSC 25
++#define PR_SET_TSC 26
++# define PR_TSC_ENABLE		1   /* allow the use of the timestamp counter */
++# define PR_TSC_SIGSEGV		2   /* throw a SIGSEGV instead of reading the TSC */
++#endif
++
++static uint64_t rdtsc(void)
++{
++uint32_t lo, hi;
++/* We cannot use "=A", since this would use %rax on x86_64 */
++__asm__ __volatile__ ("rdtsc" : "=a" (lo), "=d" (hi));
++return (uint64_t)hi << 32 | lo;
++}
++
++static void sigsegv_expect(int sig)
++{
++	/* */
++}
++
++static void segvtask(void)
++{
++	if (prctl(PR_SET_TSC, PR_TSC_SIGSEGV) < 0)
++	{
++		perror("prctl");
++		exit(0);
++	}
++	signal(SIGSEGV, sigsegv_expect);
++	alarm(10);
++	rdtsc();
++	fprintf(stderr, "FATAL ERROR, rdtsc() succeeded while disabled\n");
++	exit(0);
++}
++
++
++static void sigsegv_fail(int sig)
++{
++	fprintf(stderr, "FATAL ERROR, rdtsc() failed while enabled\n");
++	exit(0);
++}
++
++static void rdtsctask(void)
++{
++	if (prctl(PR_SET_TSC, PR_TSC_ENABLE) < 0)
++	{
++		perror("prctl");
++		exit(0);
++	}
++	signal(SIGSEGV, sigsegv_fail);
++	alarm(10);
++	for(;;) rdtsc();
++}
++
++
++int main(void)
++{
++	int n_tasks = 100, i;
++
++	fprintf(stderr, "[No further output means we're allright]\n");
++
++	for (i=0; i<n_tasks; i++)
++		if (fork() == 0)
++		{
++			if (i & 1)
++				segvtask();
++			else
++				rdtsctask();
++		}
++
++	for (i=0; i<n_tasks; i++)
++		wait(NULL);
++
++	exit(0);
++}
++
+diff --git a/tools/testing/selftests/prctl/disable-tsc-on-off-stress-test.c b/tools/testing/selftests/prctl/disable-tsc-on-off-stress-test.c
+new file mode 100644
+index 0000000..a06f027
+--- /dev/null
++++ b/tools/testing/selftests/prctl/disable-tsc-on-off-stress-test.c
+@@ -0,0 +1,96 @@
++/*
++ * Tests for prctl(PR_GET_TSC, ...) / prctl(PR_SET_TSC, ...)
++ *
++ * Tests if the control register is updated correctly
++ * when set with prctl()
++ *
++ * Warning: this test will cause a very high load for a few seconds
++ *
++ */
++
++#include <stdio.h>
++#include <stdlib.h>
++#include <unistd.h>
++#include <signal.h>
++#include <inttypes.h>
++#include <wait.h>
++
++
++#include <sys/prctl.h>
++#include <linux/prctl.h>
++
++/* Get/set the process' ability to use the timestamp counter instruction */
++#ifndef PR_GET_TSC
++#define PR_GET_TSC 25
++#define PR_SET_TSC 26
++# define PR_TSC_ENABLE		1   /* allow the use of the timestamp counter */
++# define PR_TSC_SIGSEGV		2   /* throw a SIGSEGV instead of reading the TSC */
++#endif
++
++/* snippet from wikipedia :-) */
++
++static uint64_t rdtsc(void)
++{
++uint32_t lo, hi;
++/* We cannot use "=A", since this would use %rax on x86_64 */
++__asm__ __volatile__ ("rdtsc" : "=a" (lo), "=d" (hi));
++return (uint64_t)hi << 32 | lo;
++}
++
++int should_segv = 0;
++
++static void sigsegv_cb(int sig)
++{
++	if (!should_segv)
++	{
++		fprintf(stderr, "FATAL ERROR, rdtsc() failed while enabled\n");
++		exit(0);
++	}
++	if (prctl(PR_SET_TSC, PR_TSC_ENABLE) < 0)
++	{
++		perror("prctl");
++		exit(0);
++	}
++	should_segv = 0;
++
++	rdtsc();
++}
++
++static void task(void)
++{
++	signal(SIGSEGV, sigsegv_cb);
++	alarm(10);
++	for(;;)
++	{
++		rdtsc();
++		if (should_segv)
++		{
++			fprintf(stderr, "FATAL ERROR, rdtsc() succeeded while disabled\n");
++			exit(0);
++		}
++		if (prctl(PR_SET_TSC, PR_TSC_SIGSEGV) < 0)
++		{
++			perror("prctl");
++			exit(0);
++		}
++		should_segv = 1;
++	}
++}
++
++
++int main(void)
++{
++	int n_tasks = 100, i;
++
++	fprintf(stderr, "[No further output means we're allright]\n");
++
++	for (i=0; i<n_tasks; i++)
++		if (fork() == 0)
++			task();
++
++	for (i=0; i<n_tasks; i++)
++		wait(NULL);
++
++	exit(0);
++}
++
+diff --git a/tools/testing/selftests/prctl/disable-tsc-test.c b/tools/testing/selftests/prctl/disable-tsc-test.c
+new file mode 100644
+index 0000000..8d494f7
+--- /dev/null
++++ b/tools/testing/selftests/prctl/disable-tsc-test.c
+@@ -0,0 +1,95 @@
++/*
++ * Tests for prctl(PR_GET_TSC, ...) / prctl(PR_SET_TSC, ...)
++ *
++ * Basic test to test behaviour of PR_GET_TSC and PR_SET_TSC
++ */
++
++#include <stdio.h>
++#include <stdlib.h>
++#include <unistd.h>
++#include <signal.h>
++#include <inttypes.h>
++
++
++#include <sys/prctl.h>
++#include <linux/prctl.h>
++
++/* Get/set the process' ability to use the timestamp counter instruction */
++#ifndef PR_GET_TSC
++#define PR_GET_TSC 25
++#define PR_SET_TSC 26
++# define PR_TSC_ENABLE		1   /* allow the use of the timestamp counter */
++# define PR_TSC_SIGSEGV		2   /* throw a SIGSEGV instead of reading the TSC */
++#endif
++
++const char *tsc_names[] =
++{
++	[0] = "[not set]",
++	[PR_TSC_ENABLE] = "PR_TSC_ENABLE",
++	[PR_TSC_SIGSEGV] = "PR_TSC_SIGSEGV",
++};
++
++static uint64_t rdtsc(void)
++{
++uint32_t lo, hi;
++/* We cannot use "=A", since this would use %rax on x86_64 */
++__asm__ __volatile__ ("rdtsc" : "=a" (lo), "=d" (hi));
++return (uint64_t)hi << 32 | lo;
++}
++
++static void sigsegv_cb(int sig)
++{
++	int tsc_val = 0;
++
++	printf("[ SIG_SEGV ]\n");
++	printf("prctl(PR_GET_TSC, &tsc_val); ");
++	fflush(stdout);
++
++	if ( prctl(PR_GET_TSC, &tsc_val) == -1)
++		perror("prctl");
++
++	printf("tsc_val == %s\n", tsc_names[tsc_val]);
++	printf("prctl(PR_SET_TSC, PR_TSC_ENABLE)\n");
++	fflush(stdout);
++	if ( prctl(PR_SET_TSC, PR_TSC_ENABLE) == -1)
++		perror("prctl");
++
++	printf("rdtsc() == ");
++}
++
++int main(void)
++{
++	int tsc_val = 0;
++
++	signal(SIGSEGV, sigsegv_cb);
++
++	printf("rdtsc() == %llu\n", (unsigned long long)rdtsc());
++	printf("prctl(PR_GET_TSC, &tsc_val); ");
++	fflush(stdout);
++
++	if ( prctl(PR_GET_TSC, &tsc_val) == -1)
++		perror("prctl");
++
++	printf("tsc_val == %s\n", tsc_names[tsc_val]);
++	printf("rdtsc() == %llu\n", (unsigned long long)rdtsc());
++	printf("prctl(PR_SET_TSC, PR_TSC_ENABLE)\n");
++	fflush(stdout);
++
++	if ( prctl(PR_SET_TSC, PR_TSC_ENABLE) == -1)
++		perror("prctl");
++
++	printf("rdtsc() == %llu\n", (unsigned long long)rdtsc());
++	printf("prctl(PR_SET_TSC, PR_TSC_SIGSEGV)\n");
++	fflush(stdout);
++
++	if ( prctl(PR_SET_TSC, PR_TSC_SIGSEGV) == -1)
++		perror("prctl");
++
++	printf("rdtsc() == ");
++	fflush(stdout);
++	printf("%llu\n", (unsigned long long)rdtsc());
++	fflush(stdout);
++
++	exit(EXIT_SUCCESS);
++}
++
 -- 
 2.7.4
 
