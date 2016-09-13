@@ -1,29 +1,27 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from smtp.codeaurora.org ([198.145.29.96]:57210 "EHLO
-        smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1756541AbcILWc7 (ORCPT
+Received: from mfdf0201.ocn.ad.jp ([153.128.50.79]:35802 "EHLO
+        mfdf0201.ocn.ad.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752677AbcIMPA4 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 12 Sep 2016 18:32:59 -0400
-Date: Mon, 12 Sep 2016 15:32:57 -0700
-From: Stephen Boyd <sboyd@codeaurora.org>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Ralf Baechle <ralf@linux-mips.org>,
-        Atsushi Nemoto <anemo@mba.ocn.ne.jp>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        Guenter Roeck <linux@roeck-us.net>, linux-clk@vger.kernel.org,
-        linux-mips@linux-mips.org, linux-watchdog@vger.kernel.org
+        Tue, 13 Sep 2016 11:00:56 -0400
+Date: Wed, 14 Sep 2016 00:00:43 +0900 (JST)
+Message-Id: <20160914.000043.2112235063844984466.anemo@mba.ocn.ne.jp>
+To: geert@linux-m68k.org
+Cc: ralf@linux-mips.org, wim@iguana.be, linux@roeck-us.net,
+        linux-clk@vger.kernel.org, linux-mips@linux-mips.org,
+        linux-watchdog@vger.kernel.org
 Subject: Re: [PATCH v2 2/2] MIPS: TXx9: Convert to Common Clock Framework
-Message-ID: <20160912223257.GJ7243@codeaurora.org>
-References: <1473584398-12942-1-git-send-email-geert@linux-m68k.org>
- <1473584398-12942-3-git-send-email-geert@linux-m68k.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+From: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
 In-Reply-To: <1473584398-12942-3-git-send-email-geert@linux-m68k.org>
+References: <1473584398-12942-1-git-send-email-geert@linux-m68k.org>
+        <1473584398-12942-3-git-send-email-geert@linux-m68k.org>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 09/11, Geert Uytterhoeven wrote:
+On Sun, 11 Sep 2016 10:59:58 +0200, Geert Uytterhoeven <geert@linux-m68k.org> wrote:
 > Replace the custom minimal clock implementation for Toshiba TXx9 by a
 > basic implementation using the Common Clock Framework.
 > 
@@ -33,9 +31,15 @@ On 09/11, Geert Uytterhoeven wrote:
 > 
 > Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 > ---
+> Tested on RBTX4927.
+> 
+> v2:
+>   - Protect the TX4938_REV_PCODE() check by #ifdef CONFIG_CPU_TX49XX,
+>   - Use new clk_hw-centric clock registration API.
 
-Reviewed-by: Stephen Boyd <sboyd@codeaurora.org>
+Thank you for updated patch.
 
--- 
-Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
-a Linux Foundation Collaborative Project
+Reviewed-by: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+
+---
+Atsushi Nemoto
