@@ -1,7 +1,7 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from resqmta-po-06v.sys.comcast.net ([96.114.154.165]:55689 "EHLO
+Received: from resqmta-po-06v.sys.comcast.net ([96.114.154.165]:55688 "EHLO
         resqmta-po-06v.sys.comcast.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1751135AbcIMU1L (ORCPT
+        by vger.kernel.org with ESMTP id S1751567AbcIMU1L (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
         Tue, 13 Sep 2016 16:27:11 -0400
 From: Shuah Khan <shuahkh@osg.samsung.com>
@@ -15,9 +15,9 @@ To: corbet@lwn.net, richardcochran@gmail.com, wim@iguana.be,
 Cc: Shuah Khan <shuahkh@osg.samsung.com>, linux-doc@vger.kernel.org,
         linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
         linux-watchdog@vger.kernel.org, linux-kselftest@vger.kernel.org
-Subject: [PATCH v2 4/6] selftests: move vDSO tests from Documentation/vDSO
-Date: Tue, 13 Sep 2016 14:18:43 -0600
-Message-Id: <e3b126f66e732d003322bdcecc90eb508a5d7327.1473795601.git.shuahkh@osg.samsung.com>
+Subject: [PATCH v2 3/6] selftests: move ptp tests from Documentation/ptp
+Date: Tue, 13 Sep 2016 14:18:42 -0600
+Message-Id: <16d99f76e265b3b5398b40c4a61a27c97cac3cba.1473795601.git.shuahkh@osg.samsung.com>
 In-Reply-To: <cover.1473795601.git.shuahkh@osg.samsung.com>
 References: <cover.1473795601.git.shuahkh@osg.samsung.com>
 In-Reply-To: <cover.1473795601.git.shuahkh@osg.samsung.com>
@@ -25,1044 +25,1219 @@ References: <cover.1473795601.git.shuahkh@osg.samsung.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Remove vDSO from Makefile to move the to selftests. Update vDSO Makefile
-to work under selftests. vDSO will not be run as part of selftests suite
-and will not be included in install targets. They can be built separately
-for now.
+Remove ptp from Makefile to move the test to selftests. Update ptp Makefile
+to work under selftests. ptp will not be run as part of selftests suite and
+will not be included in install targets. They can be built separately for
+now.
 
 Signed-off-by: Shuah Khan <shuahkh@osg.samsung.com>
 ---
- Documentation/Makefile                             |   2 +-
- Documentation/vDSO/.gitignore                      |   2 -
- Documentation/vDSO/Makefile                        |  17 --
- Documentation/vDSO/parse_vdso.c                    | 269 ---------------------
- Documentation/vDSO/vdso_standalone_test_x86.c      | 128 ----------
- Documentation/vDSO/vdso_test.c                     |  52 ----
- tools/testing/selftests/vDSO/.gitignore            |   2 +
- tools/testing/selftests/vDSO/Makefile              |  20 ++
- tools/testing/selftests/vDSO/parse_vdso.c          | 269 +++++++++++++++++++++
- .../selftests/vDSO/vdso_standalone_test_x86.c      | 128 ++++++++++
- tools/testing/selftests/vDSO/vdso_test.c           |  52 ++++
- 11 files changed, 472 insertions(+), 469 deletions(-)
- delete mode 100644 Documentation/vDSO/.gitignore
- delete mode 100644 Documentation/vDSO/Makefile
- delete mode 100644 Documentation/vDSO/parse_vdso.c
- delete mode 100644 Documentation/vDSO/vdso_standalone_test_x86.c
- delete mode 100644 Documentation/vDSO/vdso_test.c
- create mode 100644 tools/testing/selftests/vDSO/.gitignore
- create mode 100644 tools/testing/selftests/vDSO/Makefile
- create mode 100644 tools/testing/selftests/vDSO/parse_vdso.c
- create mode 100644 tools/testing/selftests/vDSO/vdso_standalone_test_x86.c
- create mode 100644 tools/testing/selftests/vDSO/vdso_test.c
+ Documentation/Makefile                 |   2 +-
+ Documentation/ptp/.gitignore           |   1 -
+ Documentation/ptp/Makefile             |   8 -
+ Documentation/ptp/testptp.c            | 523 ---------------------------------
+ Documentation/ptp/testptp.mk           |  33 ---
+ tools/testing/selftests/ptp/.gitignore |   1 +
+ tools/testing/selftests/ptp/Makefile   |   8 +
+ tools/testing/selftests/ptp/testptp.c  | 523 +++++++++++++++++++++++++++++++++
+ tools/testing/selftests/ptp/testptp.mk |  33 +++
+ 9 files changed, 566 insertions(+), 566 deletions(-)
+ delete mode 100644 Documentation/ptp/.gitignore
+ delete mode 100644 Documentation/ptp/Makefile
+ delete mode 100644 Documentation/ptp/testptp.c
+ delete mode 100644 Documentation/ptp/testptp.mk
+ create mode 100644 tools/testing/selftests/ptp/.gitignore
+ create mode 100644 tools/testing/selftests/ptp/Makefile
+ create mode 100644 tools/testing/selftests/ptp/testptp.c
+ create mode 100644 tools/testing/selftests/ptp/testptp.mk
 
 diff --git a/Documentation/Makefile b/Documentation/Makefile
-index 8cd6d1a..085b917 100644
+index 7a28f6c..8cd6d1a 100644
 --- a/Documentation/Makefile
 +++ b/Documentation/Makefile
 @@ -1,3 +1,3 @@
  subdir-y := accounting auxdisplay blackfin \
  	ia64 laptops mic misc-devices \
--	networking pcmcia timers vDSO watchdog
-+	networking pcmcia timers watchdog
-diff --git a/Documentation/vDSO/.gitignore b/Documentation/vDSO/.gitignore
+-	networking pcmcia ptp timers vDSO watchdog
++	networking pcmcia timers vDSO watchdog
+diff --git a/Documentation/ptp/.gitignore b/Documentation/ptp/.gitignore
 deleted file mode 100644
-index 133bf9e..0000000
---- a/Documentation/vDSO/.gitignore
+index f562e49..0000000
+--- a/Documentation/ptp/.gitignore
 +++ /dev/null
-@@ -1,2 +0,0 @@
--vdso_test
--vdso_standalone_test_x86
-diff --git a/Documentation/vDSO/Makefile b/Documentation/vDSO/Makefile
+@@ -1 +0,0 @@
+-testptp
+diff --git a/Documentation/ptp/Makefile b/Documentation/ptp/Makefile
 deleted file mode 100644
-index b12e987..0000000
---- a/Documentation/vDSO/Makefile
+index 293d6c0..0000000
+--- a/Documentation/ptp/Makefile
 +++ /dev/null
-@@ -1,17 +0,0 @@
--ifndef CROSS_COMPILE
--# vdso_test won't build for glibc < 2.16, so disable it
--# hostprogs-y := vdso_test
--hostprogs-$(CONFIG_X86) := vdso_standalone_test_x86
--vdso_standalone_test_x86-objs := vdso_standalone_test_x86.o parse_vdso.o
--vdso_test-objs := parse_vdso.o vdso_test.o
+@@ -1,8 +0,0 @@
+-# List of programs to build
+-hostprogs-y := testptp
 -
 -# Tell kbuild to always build the programs
 -always := $(hostprogs-y)
 -
--HOSTCFLAGS := -I$(objtree)/usr/include -std=gnu99
--HOSTCFLAGS_vdso_standalone_test_x86.o := -fno-asynchronous-unwind-tables -fno-stack-protector
--HOSTLOADLIBES_vdso_standalone_test_x86 := -nostdlib
--ifeq ($(CONFIG_X86_32),y)
--HOSTLOADLIBES_vdso_standalone_test_x86 += -lgcc_s
--endif
--endif
-diff --git a/Documentation/vDSO/parse_vdso.c b/Documentation/vDSO/parse_vdso.c
+-HOSTCFLAGS_testptp.o += -I$(objtree)/usr/include
+-HOSTLOADLIBES_testptp := -lrt
+diff --git a/Documentation/ptp/testptp.c b/Documentation/ptp/testptp.c
 deleted file mode 100644
-index 1dbb4b8..0000000
---- a/Documentation/vDSO/parse_vdso.c
+index 5d2eae1..0000000
+--- a/Documentation/ptp/testptp.c
 +++ /dev/null
-@@ -1,269 +0,0 @@
+@@ -1,523 +0,0 @@
 -/*
-- * parse_vdso.c: Linux reference vDSO parser
-- * Written by Andrew Lutomirski, 2011-2014.
+- * PTP 1588 clock support - User space test program
 - *
-- * This code is meant to be linked in to various programs that run on Linux.
-- * As such, it is available with as few restrictions as possible.  This file
-- * is licensed under the Creative Commons Zero License, version 1.0,
-- * available at http://creativecommons.org/publicdomain/zero/1.0/legalcode
+- * Copyright (C) 2010 OMICRON electronics GmbH
 - *
-- * The vDSO is a regular ELF DSO that the kernel maps into user space when
-- * it starts a program.  It works equally well in statically and dynamically
-- * linked binaries.
+- *  This program is free software; you can redistribute it and/or modify
+- *  it under the terms of the GNU General Public License as published by
+- *  the Free Software Foundation; either version 2 of the License, or
+- *  (at your option) any later version.
 - *
-- * This code is tested on x86.  In principle it should work on any
-- * architecture that has a vDSO.
+- *  This program is distributed in the hope that it will be useful,
+- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- *  GNU General Public License for more details.
+- *
+- *  You should have received a copy of the GNU General Public License
+- *  along with this program; if not, write to the Free Software
+- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 - */
--
--#include <stdbool.h>
--#include <stdint.h>
--#include <string.h>
--#include <limits.h>
--#include <elf.h>
--
--/*
-- * To use this vDSO parser, first call one of the vdso_init_* functions.
-- * If you've already parsed auxv, then pass the value of AT_SYSINFO_EHDR
-- * to vdso_init_from_sysinfo_ehdr.  Otherwise pass auxv to vdso_init_from_auxv.
-- * Then call vdso_sym for each symbol you want.  For example, to look up
-- * gettimeofday on x86_64, use:
-- *
-- *     <some pointer> = vdso_sym("LINUX_2.6", "gettimeofday");
-- * or
-- *     <some pointer> = vdso_sym("LINUX_2.6", "__vdso_gettimeofday");
-- *
-- * vdso_sym will return 0 if the symbol doesn't exist or if the init function
-- * failed or was not called.  vdso_sym is a little slow, so its return value
-- * should be cached.
-- *
-- * vdso_sym is threadsafe; the init functions are not.
-- *
-- * These are the prototypes:
-- */
--extern void vdso_init_from_auxv(void *auxv);
--extern void vdso_init_from_sysinfo_ehdr(uintptr_t base);
--extern void *vdso_sym(const char *version, const char *name);
--
--
--/* And here's the code. */
--#ifndef ELF_BITS
--# if ULONG_MAX > 0xffffffffUL
--#  define ELF_BITS 64
--# else
--#  define ELF_BITS 32
--# endif
--#endif
--
--#define ELF_BITS_XFORM2(bits, x) Elf##bits##_##x
--#define ELF_BITS_XFORM(bits, x) ELF_BITS_XFORM2(bits, x)
--#define ELF(x) ELF_BITS_XFORM(ELF_BITS, x)
--
--static struct vdso_info
--{
--	bool valid;
--
--	/* Load information */
--	uintptr_t load_addr;
--	uintptr_t load_offset;  /* load_addr - recorded vaddr */
--
--	/* Symbol table */
--	ELF(Sym) *symtab;
--	const char *symstrings;
--	ELF(Word) *bucket, *chain;
--	ELF(Word) nbucket, nchain;
--
--	/* Version table */
--	ELF(Versym) *versym;
--	ELF(Verdef) *verdef;
--} vdso_info;
--
--/* Straight from the ELF specification. */
--static unsigned long elf_hash(const unsigned char *name)
--{
--	unsigned long h = 0, g;
--	while (*name)
--	{
--		h = (h << 4) + *name++;
--		if (g = h & 0xf0000000)
--			h ^= g >> 24;
--		h &= ~g;
--	}
--	return h;
--}
--
--void vdso_init_from_sysinfo_ehdr(uintptr_t base)
--{
--	size_t i;
--	bool found_vaddr = false;
--
--	vdso_info.valid = false;
--
--	vdso_info.load_addr = base;
--
--	ELF(Ehdr) *hdr = (ELF(Ehdr)*)base;
--	if (hdr->e_ident[EI_CLASS] !=
--	    (ELF_BITS == 32 ? ELFCLASS32 : ELFCLASS64)) {
--		return;  /* Wrong ELF class -- check ELF_BITS */
--	}
--
--	ELF(Phdr) *pt = (ELF(Phdr)*)(vdso_info.load_addr + hdr->e_phoff);
--	ELF(Dyn) *dyn = 0;
--
--	/*
--	 * We need two things from the segment table: the load offset
--	 * and the dynamic table.
--	 */
--	for (i = 0; i < hdr->e_phnum; i++)
--	{
--		if (pt[i].p_type == PT_LOAD && !found_vaddr) {
--			found_vaddr = true;
--			vdso_info.load_offset =	base
--				+ (uintptr_t)pt[i].p_offset
--				- (uintptr_t)pt[i].p_vaddr;
--		} else if (pt[i].p_type == PT_DYNAMIC) {
--			dyn = (ELF(Dyn)*)(base + pt[i].p_offset);
--		}
--	}
--
--	if (!found_vaddr || !dyn)
--		return;  /* Failed */
--
--	/*
--	 * Fish out the useful bits of the dynamic table.
--	 */
--	ELF(Word) *hash = 0;
--	vdso_info.symstrings = 0;
--	vdso_info.symtab = 0;
--	vdso_info.versym = 0;
--	vdso_info.verdef = 0;
--	for (i = 0; dyn[i].d_tag != DT_NULL; i++) {
--		switch (dyn[i].d_tag) {
--		case DT_STRTAB:
--			vdso_info.symstrings = (const char *)
--				((uintptr_t)dyn[i].d_un.d_ptr
--				 + vdso_info.load_offset);
--			break;
--		case DT_SYMTAB:
--			vdso_info.symtab = (ELF(Sym) *)
--				((uintptr_t)dyn[i].d_un.d_ptr
--				 + vdso_info.load_offset);
--			break;
--		case DT_HASH:
--			hash = (ELF(Word) *)
--				((uintptr_t)dyn[i].d_un.d_ptr
--				 + vdso_info.load_offset);
--			break;
--		case DT_VERSYM:
--			vdso_info.versym = (ELF(Versym) *)
--				((uintptr_t)dyn[i].d_un.d_ptr
--				 + vdso_info.load_offset);
--			break;
--		case DT_VERDEF:
--			vdso_info.verdef = (ELF(Verdef) *)
--				((uintptr_t)dyn[i].d_un.d_ptr
--				 + vdso_info.load_offset);
--			break;
--		}
--	}
--	if (!vdso_info.symstrings || !vdso_info.symtab || !hash)
--		return;  /* Failed */
--
--	if (!vdso_info.verdef)
--		vdso_info.versym = 0;
--
--	/* Parse the hash table header. */
--	vdso_info.nbucket = hash[0];
--	vdso_info.nchain = hash[1];
--	vdso_info.bucket = &hash[2];
--	vdso_info.chain = &hash[vdso_info.nbucket + 2];
--
--	/* That's all we need. */
--	vdso_info.valid = true;
--}
--
--static bool vdso_match_version(ELF(Versym) ver,
--			       const char *name, ELF(Word) hash)
--{
--	/*
--	 * This is a helper function to check if the version indexed by
--	 * ver matches name (which hashes to hash).
--	 *
--	 * The version definition table is a mess, and I don't know how
--	 * to do this in better than linear time without allocating memory
--	 * to build an index.  I also don't know why the table has
--	 * variable size entries in the first place.
--	 *
--	 * For added fun, I can't find a comprehensible specification of how
--	 * to parse all the weird flags in the table.
--	 *
--	 * So I just parse the whole table every time.
--	 */
--
--	/* First step: find the version definition */
--	ver &= 0x7fff;  /* Apparently bit 15 means "hidden" */
--	ELF(Verdef) *def = vdso_info.verdef;
--	while(true) {
--		if ((def->vd_flags & VER_FLG_BASE) == 0
--		    && (def->vd_ndx & 0x7fff) == ver)
--			break;
--
--		if (def->vd_next == 0)
--			return false;  /* No definition. */
--
--		def = (ELF(Verdef) *)((char *)def + def->vd_next);
--	}
--
--	/* Now figure out whether it matches. */
--	ELF(Verdaux) *aux = (ELF(Verdaux)*)((char *)def + def->vd_aux);
--	return def->vd_hash == hash
--		&& !strcmp(name, vdso_info.symstrings + aux->vda_name);
--}
--
--void *vdso_sym(const char *version, const char *name)
--{
--	unsigned long ver_hash;
--	if (!vdso_info.valid)
--		return 0;
--
--	ver_hash = elf_hash(version);
--	ELF(Word) chain = vdso_info.bucket[elf_hash(name) % vdso_info.nbucket];
--
--	for (; chain != STN_UNDEF; chain = vdso_info.chain[chain]) {
--		ELF(Sym) *sym = &vdso_info.symtab[chain];
--
--		/* Check for a defined global or weak function w/ right name. */
--		if (ELF64_ST_TYPE(sym->st_info) != STT_FUNC)
--			continue;
--		if (ELF64_ST_BIND(sym->st_info) != STB_GLOBAL &&
--		    ELF64_ST_BIND(sym->st_info) != STB_WEAK)
--			continue;
--		if (sym->st_shndx == SHN_UNDEF)
--			continue;
--		if (strcmp(name, vdso_info.symstrings + sym->st_name))
--			continue;
--
--		/* Check symbol version. */
--		if (vdso_info.versym
--		    && !vdso_match_version(vdso_info.versym[chain],
--					   version, ver_hash))
--			continue;
--
--		return (void *)(vdso_info.load_offset + sym->st_value);
--	}
--
--	return 0;
--}
--
--void vdso_init_from_auxv(void *auxv)
--{
--	ELF(auxv_t) *elf_auxv = auxv;
--	for (int i = 0; elf_auxv[i].a_type != AT_NULL; i++)
--	{
--		if (elf_auxv[i].a_type == AT_SYSINFO_EHDR) {
--			vdso_init_from_sysinfo_ehdr(elf_auxv[i].a_un.a_val);
--			return;
--		}
--	}
--
--	vdso_info.valid = false;
--}
-diff --git a/Documentation/vDSO/vdso_standalone_test_x86.c b/Documentation/vDSO/vdso_standalone_test_x86.c
-deleted file mode 100644
-index 93b0ebf..0000000
---- a/Documentation/vDSO/vdso_standalone_test_x86.c
-+++ /dev/null
-@@ -1,128 +0,0 @@
--/*
-- * vdso_test.c: Sample code to test parse_vdso.c on x86
-- * Copyright (c) 2011-2014 Andy Lutomirski
-- * Subject to the GNU General Public License, version 2
-- *
-- * You can amuse yourself by compiling with:
-- * gcc -std=gnu99 -nostdlib
-- *     -Os -fno-asynchronous-unwind-tables -flto -lgcc_s
-- *      vdso_standalone_test_x86.c parse_vdso.c
-- * to generate a small binary.  On x86_64, you can omit -lgcc_s
-- * if you want the binary to be completely standalone.
-- */
--
--#include <sys/syscall.h>
--#include <sys/time.h>
--#include <unistd.h>
--#include <stdint.h>
--
--extern void *vdso_sym(const char *version, const char *name);
--extern void vdso_init_from_sysinfo_ehdr(uintptr_t base);
--extern void vdso_init_from_auxv(void *auxv);
--
--/* We need a libc functions... */
--int strcmp(const char *a, const char *b)
--{
--	/* This implementation is buggy: it never returns -1. */
--	while (*a || *b) {
--		if (*a != *b)
--			return 1;
--		if (*a == 0 || *b == 0)
--			return 1;
--		a++;
--		b++;
--	}
--
--	return 0;
--}
--
--/* ...and two syscalls.  This is x86-specific. */
--static inline long x86_syscall3(long nr, long a0, long a1, long a2)
--{
--	long ret;
--#ifdef __x86_64__
--	asm volatile ("syscall" : "=a" (ret) : "a" (nr),
--		      "D" (a0), "S" (a1), "d" (a2) :
--		      "cc", "memory", "rcx",
--		      "r8", "r9", "r10", "r11" );
--#else
--	asm volatile ("int $0x80" : "=a" (ret) : "a" (nr),
--		      "b" (a0), "c" (a1), "d" (a2) :
--		      "cc", "memory" );
--#endif
--	return ret;
--}
--
--static inline long linux_write(int fd, const void *data, size_t len)
--{
--	return x86_syscall3(__NR_write, fd, (long)data, (long)len);
--}
--
--static inline void linux_exit(int code)
--{
--	x86_syscall3(__NR_exit, code, 0, 0);
--}
--
--void to_base10(char *lastdig, time_t n)
--{
--	while (n) {
--		*lastdig = (n % 10) + '0';
--		n /= 10;
--		lastdig--;
--	}
--}
--
--__attribute__((externally_visible)) void c_main(void **stack)
--{
--	/* Parse the stack */
--	long argc = (long)*stack;
--	stack += argc + 2;
--
--	/* Now we're pointing at the environment.  Skip it. */
--	while(*stack)
--		stack++;
--	stack++;
--
--	/* Now we're pointing at auxv.  Initialize the vDSO parser. */
--	vdso_init_from_auxv((void *)stack);
--
--	/* Find gettimeofday. */
--	typedef long (*gtod_t)(struct timeval *tv, struct timezone *tz);
--	gtod_t gtod = (gtod_t)vdso_sym("LINUX_2.6", "__vdso_gettimeofday");
--
--	if (!gtod)
--		linux_exit(1);
--
--	struct timeval tv;
--	long ret = gtod(&tv, 0);
--
--	if (ret == 0) {
--		char buf[] = "The time is                     .000000\n";
--		to_base10(buf + 31, tv.tv_sec);
--		to_base10(buf + 38, tv.tv_usec);
--		linux_write(1, buf, sizeof(buf) - 1);
--	} else {
--		linux_exit(ret);
--	}
--
--	linux_exit(0);
--}
--
--/*
-- * This is the real entry point.  It passes the initial stack into
-- * the C entry point.
-- */
--asm (
--	".text\n"
--	".global _start\n"
--	".type _start,@function\n"
--	"_start:\n\t"
--#ifdef __x86_64__
--	"mov %rsp,%rdi\n\t"
--	"jmp c_main"
--#else
--	"push %esp\n\t"
--	"call c_main\n\t"
--	"int $3"
--#endif
--	);
-diff --git a/Documentation/vDSO/vdso_test.c b/Documentation/vDSO/vdso_test.c
-deleted file mode 100644
-index 8daeb7d7..0000000
---- a/Documentation/vDSO/vdso_test.c
-+++ /dev/null
-@@ -1,52 +0,0 @@
--/*
-- * vdso_test.c: Sample code to test parse_vdso.c
-- * Copyright (c) 2014 Andy Lutomirski
-- * Subject to the GNU General Public License, version 2
-- *
-- * Compile with:
-- * gcc -std=gnu99 vdso_test.c parse_vdso.c
-- *
-- * Tested on x86, 32-bit and 64-bit.  It may work on other architectures, too.
-- */
--
--#include <stdint.h>
--#include <elf.h>
+-#define _GNU_SOURCE
+-#define __SANE_USERSPACE_TYPES__        /* For PPC64, to get LL64 types */
+-#include <errno.h>
+-#include <fcntl.h>
+-#include <inttypes.h>
+-#include <math.h>
+-#include <signal.h>
 -#include <stdio.h>
--#include <sys/auxv.h>
+-#include <stdlib.h>
+-#include <string.h>
+-#include <sys/ioctl.h>
+-#include <sys/mman.h>
+-#include <sys/stat.h>
 -#include <sys/time.h>
+-#include <sys/timex.h>
+-#include <sys/types.h>
+-#include <time.h>
+-#include <unistd.h>
 -
--extern void *vdso_sym(const char *version, const char *name);
--extern void vdso_init_from_sysinfo_ehdr(uintptr_t base);
--extern void vdso_init_from_auxv(void *auxv);
+-#include <linux/ptp_clock.h>
 -
--int main(int argc, char **argv)
+-#define DEVICE "/dev/ptp0"
+-
+-#ifndef ADJ_SETOFFSET
+-#define ADJ_SETOFFSET 0x0100
+-#endif
+-
+-#ifndef CLOCK_INVALID
+-#define CLOCK_INVALID -1
+-#endif
+-
+-/* clock_adjtime is not available in GLIBC < 2.14 */
+-#if !__GLIBC_PREREQ(2, 14)
+-#include <sys/syscall.h>
+-static int clock_adjtime(clockid_t id, struct timex *tx)
 -{
--	unsigned long sysinfo_ehdr = getauxval(AT_SYSINFO_EHDR);
--	if (!sysinfo_ehdr) {
--		printf("AT_SYSINFO_EHDR is not present!\n");
--		return 0;
--	}
+-	return syscall(__NR_clock_adjtime, id, tx);
+-}
+-#endif
 -
--	vdso_init_from_sysinfo_ehdr(getauxval(AT_SYSINFO_EHDR));
+-static clockid_t get_clockid(int fd)
+-{
+-#define CLOCKFD 3
+-#define FD_TO_CLOCKID(fd)	((~(clockid_t) (fd) << 3) | CLOCKFD)
 -
--	/* Find gettimeofday. */
--	typedef long (*gtod_t)(struct timeval *tv, struct timezone *tz);
--	gtod_t gtod = (gtod_t)vdso_sym("LINUX_2.6", "__vdso_gettimeofday");
+-	return FD_TO_CLOCKID(fd);
+-}
 -
--	if (!gtod) {
--		printf("Could not find __vdso_gettimeofday\n");
--		return 1;
--	}
+-static void handle_alarm(int s)
+-{
+-	printf("received signal %d\n", s);
+-}
 -
--	struct timeval tv;
--	long ret = gtod(&tv, 0);
+-static int install_handler(int signum, void (*handler)(int))
+-{
+-	struct sigaction action;
+-	sigset_t mask;
 -
--	if (ret == 0) {
--		printf("The time is %lld.%06lld\n",
--		       (long long)tv.tv_sec, (long long)tv.tv_usec);
--	} else {
--		printf("__vdso_gettimeofday failed\n");
--	}
+-	/* Unblock the signal. */
+-	sigemptyset(&mask);
+-	sigaddset(&mask, signum);
+-	sigprocmask(SIG_UNBLOCK, &mask, NULL);
+-
+-	/* Install the signal handler. */
+-	action.sa_handler = handler;
+-	action.sa_flags = 0;
+-	sigemptyset(&action.sa_mask);
+-	sigaction(signum, &action, NULL);
 -
 -	return 0;
 -}
-diff --git a/tools/testing/selftests/vDSO/.gitignore b/tools/testing/selftests/vDSO/.gitignore
+-
+-static long ppb_to_scaled_ppm(int ppb)
+-{
+-	/*
+-	 * The 'freq' field in the 'struct timex' is in parts per
+-	 * million, but with a 16 bit binary fractional field.
+-	 * Instead of calculating either one of
+-	 *
+-	 *    scaled_ppm = (ppb / 1000) << 16  [1]
+-	 *    scaled_ppm = (ppb << 16) / 1000  [2]
+-	 *
+-	 * we simply use double precision math, in order to avoid the
+-	 * truncation in [1] and the possible overflow in [2].
+-	 */
+-	return (long) (ppb * 65.536);
+-}
+-
+-static int64_t pctns(struct ptp_clock_time *t)
+-{
+-	return t->sec * 1000000000LL + t->nsec;
+-}
+-
+-static void usage(char *progname)
+-{
+-	fprintf(stderr,
+-		"usage: %s [options]\n"
+-		" -a val     request a one-shot alarm after 'val' seconds\n"
+-		" -A val     request a periodic alarm every 'val' seconds\n"
+-		" -c         query the ptp clock's capabilities\n"
+-		" -d name    device to open\n"
+-		" -e val     read 'val' external time stamp events\n"
+-		" -f val     adjust the ptp clock frequency by 'val' ppb\n"
+-		" -g         get the ptp clock time\n"
+-		" -h         prints this message\n"
+-		" -i val     index for event/trigger\n"
+-		" -k val     measure the time offset between system and phc clock\n"
+-		"            for 'val' times (Maximum 25)\n"
+-		" -l         list the current pin configuration\n"
+-		" -L pin,val configure pin index 'pin' with function 'val'\n"
+-		"            the channel index is taken from the '-i' option\n"
+-		"            'val' specifies the auxiliary function:\n"
+-		"            0 - none\n"
+-		"            1 - external time stamp\n"
+-		"            2 - periodic output\n"
+-		" -p val     enable output with a period of 'val' nanoseconds\n"
+-		" -P val     enable or disable (val=1|0) the system clock PPS\n"
+-		" -s         set the ptp clock time from the system time\n"
+-		" -S         set the system time from the ptp clock time\n"
+-		" -t val     shift the ptp clock time by 'val' seconds\n"
+-		" -T val     set the ptp clock time to 'val' seconds\n",
+-		progname);
+-}
+-
+-int main(int argc, char *argv[])
+-{
+-	struct ptp_clock_caps caps;
+-	struct ptp_extts_event event;
+-	struct ptp_extts_request extts_request;
+-	struct ptp_perout_request perout_request;
+-	struct ptp_pin_desc desc;
+-	struct timespec ts;
+-	struct timex tx;
+-
+-	static timer_t timerid;
+-	struct itimerspec timeout;
+-	struct sigevent sigevent;
+-
+-	struct ptp_clock_time *pct;
+-	struct ptp_sys_offset *sysoff;
+-
+-
+-	char *progname;
+-	unsigned int i;
+-	int c, cnt, fd;
+-
+-	char *device = DEVICE;
+-	clockid_t clkid;
+-	int adjfreq = 0x7fffffff;
+-	int adjtime = 0;
+-	int capabilities = 0;
+-	int extts = 0;
+-	int gettime = 0;
+-	int index = 0;
+-	int list_pins = 0;
+-	int oneshot = 0;
+-	int pct_offset = 0;
+-	int n_samples = 0;
+-	int periodic = 0;
+-	int perout = -1;
+-	int pin_index = -1, pin_func;
+-	int pps = -1;
+-	int seconds = 0;
+-	int settime = 0;
+-
+-	int64_t t1, t2, tp;
+-	int64_t interval, offset;
+-
+-	progname = strrchr(argv[0], '/');
+-	progname = progname ? 1+progname : argv[0];
+-	while (EOF != (c = getopt(argc, argv, "a:A:cd:e:f:ghi:k:lL:p:P:sSt:T:v"))) {
+-		switch (c) {
+-		case 'a':
+-			oneshot = atoi(optarg);
+-			break;
+-		case 'A':
+-			periodic = atoi(optarg);
+-			break;
+-		case 'c':
+-			capabilities = 1;
+-			break;
+-		case 'd':
+-			device = optarg;
+-			break;
+-		case 'e':
+-			extts = atoi(optarg);
+-			break;
+-		case 'f':
+-			adjfreq = atoi(optarg);
+-			break;
+-		case 'g':
+-			gettime = 1;
+-			break;
+-		case 'i':
+-			index = atoi(optarg);
+-			break;
+-		case 'k':
+-			pct_offset = 1;
+-			n_samples = atoi(optarg);
+-			break;
+-		case 'l':
+-			list_pins = 1;
+-			break;
+-		case 'L':
+-			cnt = sscanf(optarg, "%d,%d", &pin_index, &pin_func);
+-			if (cnt != 2) {
+-				usage(progname);
+-				return -1;
+-			}
+-			break;
+-		case 'p':
+-			perout = atoi(optarg);
+-			break;
+-		case 'P':
+-			pps = atoi(optarg);
+-			break;
+-		case 's':
+-			settime = 1;
+-			break;
+-		case 'S':
+-			settime = 2;
+-			break;
+-		case 't':
+-			adjtime = atoi(optarg);
+-			break;
+-		case 'T':
+-			settime = 3;
+-			seconds = atoi(optarg);
+-			break;
+-		case 'h':
+-			usage(progname);
+-			return 0;
+-		case '?':
+-		default:
+-			usage(progname);
+-			return -1;
+-		}
+-	}
+-
+-	fd = open(device, O_RDWR);
+-	if (fd < 0) {
+-		fprintf(stderr, "opening %s: %s\n", device, strerror(errno));
+-		return -1;
+-	}
+-
+-	clkid = get_clockid(fd);
+-	if (CLOCK_INVALID == clkid) {
+-		fprintf(stderr, "failed to read clock id\n");
+-		return -1;
+-	}
+-
+-	if (capabilities) {
+-		if (ioctl(fd, PTP_CLOCK_GETCAPS, &caps)) {
+-			perror("PTP_CLOCK_GETCAPS");
+-		} else {
+-			printf("capabilities:\n"
+-			       "  %d maximum frequency adjustment (ppb)\n"
+-			       "  %d programmable alarms\n"
+-			       "  %d external time stamp channels\n"
+-			       "  %d programmable periodic signals\n"
+-			       "  %d pulse per second\n"
+-			       "  %d programmable pins\n"
+-			       "  %d cross timestamping\n",
+-			       caps.max_adj,
+-			       caps.n_alarm,
+-			       caps.n_ext_ts,
+-			       caps.n_per_out,
+-			       caps.pps,
+-			       caps.n_pins,
+-			       caps.cross_timestamping);
+-		}
+-	}
+-
+-	if (0x7fffffff != adjfreq) {
+-		memset(&tx, 0, sizeof(tx));
+-		tx.modes = ADJ_FREQUENCY;
+-		tx.freq = ppb_to_scaled_ppm(adjfreq);
+-		if (clock_adjtime(clkid, &tx)) {
+-			perror("clock_adjtime");
+-		} else {
+-			puts("frequency adjustment okay");
+-		}
+-	}
+-
+-	if (adjtime) {
+-		memset(&tx, 0, sizeof(tx));
+-		tx.modes = ADJ_SETOFFSET;
+-		tx.time.tv_sec = adjtime;
+-		tx.time.tv_usec = 0;
+-		if (clock_adjtime(clkid, &tx) < 0) {
+-			perror("clock_adjtime");
+-		} else {
+-			puts("time shift okay");
+-		}
+-	}
+-
+-	if (gettime) {
+-		if (clock_gettime(clkid, &ts)) {
+-			perror("clock_gettime");
+-		} else {
+-			printf("clock time: %ld.%09ld or %s",
+-			       ts.tv_sec, ts.tv_nsec, ctime(&ts.tv_sec));
+-		}
+-	}
+-
+-	if (settime == 1) {
+-		clock_gettime(CLOCK_REALTIME, &ts);
+-		if (clock_settime(clkid, &ts)) {
+-			perror("clock_settime");
+-		} else {
+-			puts("set time okay");
+-		}
+-	}
+-
+-	if (settime == 2) {
+-		clock_gettime(clkid, &ts);
+-		if (clock_settime(CLOCK_REALTIME, &ts)) {
+-			perror("clock_settime");
+-		} else {
+-			puts("set time okay");
+-		}
+-	}
+-
+-	if (settime == 3) {
+-		ts.tv_sec = seconds;
+-		ts.tv_nsec = 0;
+-		if (clock_settime(clkid, &ts)) {
+-			perror("clock_settime");
+-		} else {
+-			puts("set time okay");
+-		}
+-	}
+-
+-	if (extts) {
+-		memset(&extts_request, 0, sizeof(extts_request));
+-		extts_request.index = index;
+-		extts_request.flags = PTP_ENABLE_FEATURE;
+-		if (ioctl(fd, PTP_EXTTS_REQUEST, &extts_request)) {
+-			perror("PTP_EXTTS_REQUEST");
+-			extts = 0;
+-		} else {
+-			puts("external time stamp request okay");
+-		}
+-		for (; extts; extts--) {
+-			cnt = read(fd, &event, sizeof(event));
+-			if (cnt != sizeof(event)) {
+-				perror("read");
+-				break;
+-			}
+-			printf("event index %u at %lld.%09u\n", event.index,
+-			       event.t.sec, event.t.nsec);
+-			fflush(stdout);
+-		}
+-		/* Disable the feature again. */
+-		extts_request.flags = 0;
+-		if (ioctl(fd, PTP_EXTTS_REQUEST, &extts_request)) {
+-			perror("PTP_EXTTS_REQUEST");
+-		}
+-	}
+-
+-	if (list_pins) {
+-		int n_pins = 0;
+-		if (ioctl(fd, PTP_CLOCK_GETCAPS, &caps)) {
+-			perror("PTP_CLOCK_GETCAPS");
+-		} else {
+-			n_pins = caps.n_pins;
+-		}
+-		for (i = 0; i < n_pins; i++) {
+-			desc.index = i;
+-			if (ioctl(fd, PTP_PIN_GETFUNC, &desc)) {
+-				perror("PTP_PIN_GETFUNC");
+-				break;
+-			}
+-			printf("name %s index %u func %u chan %u\n",
+-			       desc.name, desc.index, desc.func, desc.chan);
+-		}
+-	}
+-
+-	if (oneshot) {
+-		install_handler(SIGALRM, handle_alarm);
+-		/* Create a timer. */
+-		sigevent.sigev_notify = SIGEV_SIGNAL;
+-		sigevent.sigev_signo = SIGALRM;
+-		if (timer_create(clkid, &sigevent, &timerid)) {
+-			perror("timer_create");
+-			return -1;
+-		}
+-		/* Start the timer. */
+-		memset(&timeout, 0, sizeof(timeout));
+-		timeout.it_value.tv_sec = oneshot;
+-		if (timer_settime(timerid, 0, &timeout, NULL)) {
+-			perror("timer_settime");
+-			return -1;
+-		}
+-		pause();
+-		timer_delete(timerid);
+-	}
+-
+-	if (periodic) {
+-		install_handler(SIGALRM, handle_alarm);
+-		/* Create a timer. */
+-		sigevent.sigev_notify = SIGEV_SIGNAL;
+-		sigevent.sigev_signo = SIGALRM;
+-		if (timer_create(clkid, &sigevent, &timerid)) {
+-			perror("timer_create");
+-			return -1;
+-		}
+-		/* Start the timer. */
+-		memset(&timeout, 0, sizeof(timeout));
+-		timeout.it_interval.tv_sec = periodic;
+-		timeout.it_value.tv_sec = periodic;
+-		if (timer_settime(timerid, 0, &timeout, NULL)) {
+-			perror("timer_settime");
+-			return -1;
+-		}
+-		while (1) {
+-			pause();
+-		}
+-		timer_delete(timerid);
+-	}
+-
+-	if (perout >= 0) {
+-		if (clock_gettime(clkid, &ts)) {
+-			perror("clock_gettime");
+-			return -1;
+-		}
+-		memset(&perout_request, 0, sizeof(perout_request));
+-		perout_request.index = index;
+-		perout_request.start.sec = ts.tv_sec + 2;
+-		perout_request.start.nsec = 0;
+-		perout_request.period.sec = 0;
+-		perout_request.period.nsec = perout;
+-		if (ioctl(fd, PTP_PEROUT_REQUEST, &perout_request)) {
+-			perror("PTP_PEROUT_REQUEST");
+-		} else {
+-			puts("periodic output request okay");
+-		}
+-	}
+-
+-	if (pin_index >= 0) {
+-		memset(&desc, 0, sizeof(desc));
+-		desc.index = pin_index;
+-		desc.func = pin_func;
+-		desc.chan = index;
+-		if (ioctl(fd, PTP_PIN_SETFUNC, &desc)) {
+-			perror("PTP_PIN_SETFUNC");
+-		} else {
+-			puts("set pin function okay");
+-		}
+-	}
+-
+-	if (pps != -1) {
+-		int enable = pps ? 1 : 0;
+-		if (ioctl(fd, PTP_ENABLE_PPS, enable)) {
+-			perror("PTP_ENABLE_PPS");
+-		} else {
+-			puts("pps for system time request okay");
+-		}
+-	}
+-
+-	if (pct_offset) {
+-		if (n_samples <= 0 || n_samples > 25) {
+-			puts("n_samples should be between 1 and 25");
+-			usage(progname);
+-			return -1;
+-		}
+-
+-		sysoff = calloc(1, sizeof(*sysoff));
+-		if (!sysoff) {
+-			perror("calloc");
+-			return -1;
+-		}
+-		sysoff->n_samples = n_samples;
+-
+-		if (ioctl(fd, PTP_SYS_OFFSET, sysoff))
+-			perror("PTP_SYS_OFFSET");
+-		else
+-			puts("system and phc clock time offset request okay");
+-
+-		pct = &sysoff->ts[0];
+-		for (i = 0; i < sysoff->n_samples; i++) {
+-			t1 = pctns(pct+2*i);
+-			tp = pctns(pct+2*i+1);
+-			t2 = pctns(pct+2*i+2);
+-			interval = t2 - t1;
+-			offset = (t2 + t1) / 2 - tp;
+-
+-			printf("system time: %lld.%u\n",
+-				(pct+2*i)->sec, (pct+2*i)->nsec);
+-			printf("phc    time: %lld.%u\n",
+-				(pct+2*i+1)->sec, (pct+2*i+1)->nsec);
+-			printf("system time: %lld.%u\n",
+-				(pct+2*i+2)->sec, (pct+2*i+2)->nsec);
+-			printf("system/phc clock time offset is %" PRId64 " ns\n"
+-			       "system     clock time delay  is %" PRId64 " ns\n",
+-				offset, interval);
+-		}
+-
+-		free(sysoff);
+-	}
+-
+-	close(fd);
+-	return 0;
+-}
+diff --git a/Documentation/ptp/testptp.mk b/Documentation/ptp/testptp.mk
+deleted file mode 100644
+index 4ef2d97..0000000
+--- a/Documentation/ptp/testptp.mk
++++ /dev/null
+@@ -1,33 +0,0 @@
+-# PTP 1588 clock support - User space test program
+-#
+-# Copyright (C) 2010 OMICRON electronics GmbH
+-#
+-#  This program is free software; you can redistribute it and/or modify
+-#  it under the terms of the GNU General Public License as published by
+-#  the Free Software Foundation; either version 2 of the License, or
+-#  (at your option) any later version.
+-#
+-#  This program is distributed in the hope that it will be useful,
+-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-#  GNU General Public License for more details.
+-#
+-#  You should have received a copy of the GNU General Public License
+-#  along with this program; if not, write to the Free Software
+-#  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+-
+-CC        = $(CROSS_COMPILE)gcc
+-INC       = -I$(KBUILD_OUTPUT)/usr/include
+-CFLAGS    = -Wall $(INC)
+-LDLIBS    = -lrt
+-PROGS     = testptp
+-
+-all: $(PROGS)
+-
+-testptp: testptp.o
+-
+-clean:
+-	rm -f testptp.o
+-
+-distclean: clean
+-	rm -f $(PROGS)
+diff --git a/tools/testing/selftests/ptp/.gitignore b/tools/testing/selftests/ptp/.gitignore
 new file mode 100644
-index 0000000..133bf9e
+index 0000000..f562e49
 --- /dev/null
-+++ b/tools/testing/selftests/vDSO/.gitignore
-@@ -0,0 +1,2 @@
-+vdso_test
-+vdso_standalone_test_x86
-diff --git a/tools/testing/selftests/vDSO/Makefile b/tools/testing/selftests/vDSO/Makefile
++++ b/tools/testing/selftests/ptp/.gitignore
+@@ -0,0 +1 @@
++testptp
+diff --git a/tools/testing/selftests/ptp/Makefile b/tools/testing/selftests/ptp/Makefile
 new file mode 100644
-index 0000000..706b68b
+index 0000000..83dd42b
 --- /dev/null
-+++ b/tools/testing/selftests/vDSO/Makefile
-@@ -0,0 +1,20 @@
-+ifndef CROSS_COMPILE
-+CFLAGS := -std=gnu99
-+CFLAGS_vdso_standalone_test_x86 := -nostdlib -fno-asynchronous-unwind-tables -fno-stack-protector
-+ifeq ($(CONFIG_X86_32),y)
-+LDLIBS += -lgcc_s
-+endif
-+
-+TEST_PROGS := vdso_test vdso_standalone_test_x86
-+
++++ b/tools/testing/selftests/ptp/Makefile
+@@ -0,0 +1,8 @@
++TEST_PROGS := testptp
++LDLIBS += -lrt
 +all: $(TEST_PROGS)
-+vdso_test: parse_vdso.c vdso_test.c
-+vdso_standalone_test_x86: vdso_standalone_test_x86.c parse_vdso.c
-+	$(CC) $(CFLAGS) $(CFLAGS_vdso_standalone_test_x86) \
-+		vdso_standalone_test_x86.c parse_vdso.c \
-+		-o vdso_standalone_test_x86
 +
 +include ../lib.mk
++
 +clean:
 +	rm -fr $(TEST_PROGS)
-+endif
-diff --git a/tools/testing/selftests/vDSO/parse_vdso.c b/tools/testing/selftests/vDSO/parse_vdso.c
+diff --git a/tools/testing/selftests/ptp/testptp.c b/tools/testing/selftests/ptp/testptp.c
 new file mode 100644
-index 0000000..1dbb4b8
+index 0000000..5d2eae1
 --- /dev/null
-+++ b/tools/testing/selftests/vDSO/parse_vdso.c
-@@ -0,0 +1,269 @@
++++ b/tools/testing/selftests/ptp/testptp.c
+@@ -0,0 +1,523 @@
 +/*
-+ * parse_vdso.c: Linux reference vDSO parser
-+ * Written by Andrew Lutomirski, 2011-2014.
++ * PTP 1588 clock support - User space test program
 + *
-+ * This code is meant to be linked in to various programs that run on Linux.
-+ * As such, it is available with as few restrictions as possible.  This file
-+ * is licensed under the Creative Commons Zero License, version 1.0,
-+ * available at http://creativecommons.org/publicdomain/zero/1.0/legalcode
++ * Copyright (C) 2010 OMICRON electronics GmbH
 + *
-+ * The vDSO is a regular ELF DSO that the kernel maps into user space when
-+ * it starts a program.  It works equally well in statically and dynamically
-+ * linked binaries.
++ *  This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License as published by
++ *  the Free Software Foundation; either version 2 of the License, or
++ *  (at your option) any later version.
 + *
-+ * This code is tested on x86.  In principle it should work on any
-+ * architecture that has a vDSO.
++ *  This program is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
++ *
++ *  You should have received a copy of the GNU General Public License
++ *  along with this program; if not, write to the Free Software
++ *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 + */
-+
-+#include <stdbool.h>
-+#include <stdint.h>
-+#include <string.h>
-+#include <limits.h>
-+#include <elf.h>
-+
-+/*
-+ * To use this vDSO parser, first call one of the vdso_init_* functions.
-+ * If you've already parsed auxv, then pass the value of AT_SYSINFO_EHDR
-+ * to vdso_init_from_sysinfo_ehdr.  Otherwise pass auxv to vdso_init_from_auxv.
-+ * Then call vdso_sym for each symbol you want.  For example, to look up
-+ * gettimeofday on x86_64, use:
-+ *
-+ *     <some pointer> = vdso_sym("LINUX_2.6", "gettimeofday");
-+ * or
-+ *     <some pointer> = vdso_sym("LINUX_2.6", "__vdso_gettimeofday");
-+ *
-+ * vdso_sym will return 0 if the symbol doesn't exist or if the init function
-+ * failed or was not called.  vdso_sym is a little slow, so its return value
-+ * should be cached.
-+ *
-+ * vdso_sym is threadsafe; the init functions are not.
-+ *
-+ * These are the prototypes:
-+ */
-+extern void vdso_init_from_auxv(void *auxv);
-+extern void vdso_init_from_sysinfo_ehdr(uintptr_t base);
-+extern void *vdso_sym(const char *version, const char *name);
-+
-+
-+/* And here's the code. */
-+#ifndef ELF_BITS
-+# if ULONG_MAX > 0xffffffffUL
-+#  define ELF_BITS 64
-+# else
-+#  define ELF_BITS 32
-+# endif
-+#endif
-+
-+#define ELF_BITS_XFORM2(bits, x) Elf##bits##_##x
-+#define ELF_BITS_XFORM(bits, x) ELF_BITS_XFORM2(bits, x)
-+#define ELF(x) ELF_BITS_XFORM(ELF_BITS, x)
-+
-+static struct vdso_info
-+{
-+	bool valid;
-+
-+	/* Load information */
-+	uintptr_t load_addr;
-+	uintptr_t load_offset;  /* load_addr - recorded vaddr */
-+
-+	/* Symbol table */
-+	ELF(Sym) *symtab;
-+	const char *symstrings;
-+	ELF(Word) *bucket, *chain;
-+	ELF(Word) nbucket, nchain;
-+
-+	/* Version table */
-+	ELF(Versym) *versym;
-+	ELF(Verdef) *verdef;
-+} vdso_info;
-+
-+/* Straight from the ELF specification. */
-+static unsigned long elf_hash(const unsigned char *name)
-+{
-+	unsigned long h = 0, g;
-+	while (*name)
-+	{
-+		h = (h << 4) + *name++;
-+		if (g = h & 0xf0000000)
-+			h ^= g >> 24;
-+		h &= ~g;
-+	}
-+	return h;
-+}
-+
-+void vdso_init_from_sysinfo_ehdr(uintptr_t base)
-+{
-+	size_t i;
-+	bool found_vaddr = false;
-+
-+	vdso_info.valid = false;
-+
-+	vdso_info.load_addr = base;
-+
-+	ELF(Ehdr) *hdr = (ELF(Ehdr)*)base;
-+	if (hdr->e_ident[EI_CLASS] !=
-+	    (ELF_BITS == 32 ? ELFCLASS32 : ELFCLASS64)) {
-+		return;  /* Wrong ELF class -- check ELF_BITS */
-+	}
-+
-+	ELF(Phdr) *pt = (ELF(Phdr)*)(vdso_info.load_addr + hdr->e_phoff);
-+	ELF(Dyn) *dyn = 0;
-+
-+	/*
-+	 * We need two things from the segment table: the load offset
-+	 * and the dynamic table.
-+	 */
-+	for (i = 0; i < hdr->e_phnum; i++)
-+	{
-+		if (pt[i].p_type == PT_LOAD && !found_vaddr) {
-+			found_vaddr = true;
-+			vdso_info.load_offset =	base
-+				+ (uintptr_t)pt[i].p_offset
-+				- (uintptr_t)pt[i].p_vaddr;
-+		} else if (pt[i].p_type == PT_DYNAMIC) {
-+			dyn = (ELF(Dyn)*)(base + pt[i].p_offset);
-+		}
-+	}
-+
-+	if (!found_vaddr || !dyn)
-+		return;  /* Failed */
-+
-+	/*
-+	 * Fish out the useful bits of the dynamic table.
-+	 */
-+	ELF(Word) *hash = 0;
-+	vdso_info.symstrings = 0;
-+	vdso_info.symtab = 0;
-+	vdso_info.versym = 0;
-+	vdso_info.verdef = 0;
-+	for (i = 0; dyn[i].d_tag != DT_NULL; i++) {
-+		switch (dyn[i].d_tag) {
-+		case DT_STRTAB:
-+			vdso_info.symstrings = (const char *)
-+				((uintptr_t)dyn[i].d_un.d_ptr
-+				 + vdso_info.load_offset);
-+			break;
-+		case DT_SYMTAB:
-+			vdso_info.symtab = (ELF(Sym) *)
-+				((uintptr_t)dyn[i].d_un.d_ptr
-+				 + vdso_info.load_offset);
-+			break;
-+		case DT_HASH:
-+			hash = (ELF(Word) *)
-+				((uintptr_t)dyn[i].d_un.d_ptr
-+				 + vdso_info.load_offset);
-+			break;
-+		case DT_VERSYM:
-+			vdso_info.versym = (ELF(Versym) *)
-+				((uintptr_t)dyn[i].d_un.d_ptr
-+				 + vdso_info.load_offset);
-+			break;
-+		case DT_VERDEF:
-+			vdso_info.verdef = (ELF(Verdef) *)
-+				((uintptr_t)dyn[i].d_un.d_ptr
-+				 + vdso_info.load_offset);
-+			break;
-+		}
-+	}
-+	if (!vdso_info.symstrings || !vdso_info.symtab || !hash)
-+		return;  /* Failed */
-+
-+	if (!vdso_info.verdef)
-+		vdso_info.versym = 0;
-+
-+	/* Parse the hash table header. */
-+	vdso_info.nbucket = hash[0];
-+	vdso_info.nchain = hash[1];
-+	vdso_info.bucket = &hash[2];
-+	vdso_info.chain = &hash[vdso_info.nbucket + 2];
-+
-+	/* That's all we need. */
-+	vdso_info.valid = true;
-+}
-+
-+static bool vdso_match_version(ELF(Versym) ver,
-+			       const char *name, ELF(Word) hash)
-+{
-+	/*
-+	 * This is a helper function to check if the version indexed by
-+	 * ver matches name (which hashes to hash).
-+	 *
-+	 * The version definition table is a mess, and I don't know how
-+	 * to do this in better than linear time without allocating memory
-+	 * to build an index.  I also don't know why the table has
-+	 * variable size entries in the first place.
-+	 *
-+	 * For added fun, I can't find a comprehensible specification of how
-+	 * to parse all the weird flags in the table.
-+	 *
-+	 * So I just parse the whole table every time.
-+	 */
-+
-+	/* First step: find the version definition */
-+	ver &= 0x7fff;  /* Apparently bit 15 means "hidden" */
-+	ELF(Verdef) *def = vdso_info.verdef;
-+	while(true) {
-+		if ((def->vd_flags & VER_FLG_BASE) == 0
-+		    && (def->vd_ndx & 0x7fff) == ver)
-+			break;
-+
-+		if (def->vd_next == 0)
-+			return false;  /* No definition. */
-+
-+		def = (ELF(Verdef) *)((char *)def + def->vd_next);
-+	}
-+
-+	/* Now figure out whether it matches. */
-+	ELF(Verdaux) *aux = (ELF(Verdaux)*)((char *)def + def->vd_aux);
-+	return def->vd_hash == hash
-+		&& !strcmp(name, vdso_info.symstrings + aux->vda_name);
-+}
-+
-+void *vdso_sym(const char *version, const char *name)
-+{
-+	unsigned long ver_hash;
-+	if (!vdso_info.valid)
-+		return 0;
-+
-+	ver_hash = elf_hash(version);
-+	ELF(Word) chain = vdso_info.bucket[elf_hash(name) % vdso_info.nbucket];
-+
-+	for (; chain != STN_UNDEF; chain = vdso_info.chain[chain]) {
-+		ELF(Sym) *sym = &vdso_info.symtab[chain];
-+
-+		/* Check for a defined global or weak function w/ right name. */
-+		if (ELF64_ST_TYPE(sym->st_info) != STT_FUNC)
-+			continue;
-+		if (ELF64_ST_BIND(sym->st_info) != STB_GLOBAL &&
-+		    ELF64_ST_BIND(sym->st_info) != STB_WEAK)
-+			continue;
-+		if (sym->st_shndx == SHN_UNDEF)
-+			continue;
-+		if (strcmp(name, vdso_info.symstrings + sym->st_name))
-+			continue;
-+
-+		/* Check symbol version. */
-+		if (vdso_info.versym
-+		    && !vdso_match_version(vdso_info.versym[chain],
-+					   version, ver_hash))
-+			continue;
-+
-+		return (void *)(vdso_info.load_offset + sym->st_value);
-+	}
-+
-+	return 0;
-+}
-+
-+void vdso_init_from_auxv(void *auxv)
-+{
-+	ELF(auxv_t) *elf_auxv = auxv;
-+	for (int i = 0; elf_auxv[i].a_type != AT_NULL; i++)
-+	{
-+		if (elf_auxv[i].a_type == AT_SYSINFO_EHDR) {
-+			vdso_init_from_sysinfo_ehdr(elf_auxv[i].a_un.a_val);
-+			return;
-+		}
-+	}
-+
-+	vdso_info.valid = false;
-+}
-diff --git a/tools/testing/selftests/vDSO/vdso_standalone_test_x86.c b/tools/testing/selftests/vDSO/vdso_standalone_test_x86.c
-new file mode 100644
-index 0000000..93b0ebf
---- /dev/null
-+++ b/tools/testing/selftests/vDSO/vdso_standalone_test_x86.c
-@@ -0,0 +1,128 @@
-+/*
-+ * vdso_test.c: Sample code to test parse_vdso.c on x86
-+ * Copyright (c) 2011-2014 Andy Lutomirski
-+ * Subject to the GNU General Public License, version 2
-+ *
-+ * You can amuse yourself by compiling with:
-+ * gcc -std=gnu99 -nostdlib
-+ *     -Os -fno-asynchronous-unwind-tables -flto -lgcc_s
-+ *      vdso_standalone_test_x86.c parse_vdso.c
-+ * to generate a small binary.  On x86_64, you can omit -lgcc_s
-+ * if you want the binary to be completely standalone.
-+ */
-+
-+#include <sys/syscall.h>
-+#include <sys/time.h>
-+#include <unistd.h>
-+#include <stdint.h>
-+
-+extern void *vdso_sym(const char *version, const char *name);
-+extern void vdso_init_from_sysinfo_ehdr(uintptr_t base);
-+extern void vdso_init_from_auxv(void *auxv);
-+
-+/* We need a libc functions... */
-+int strcmp(const char *a, const char *b)
-+{
-+	/* This implementation is buggy: it never returns -1. */
-+	while (*a || *b) {
-+		if (*a != *b)
-+			return 1;
-+		if (*a == 0 || *b == 0)
-+			return 1;
-+		a++;
-+		b++;
-+	}
-+
-+	return 0;
-+}
-+
-+/* ...and two syscalls.  This is x86-specific. */
-+static inline long x86_syscall3(long nr, long a0, long a1, long a2)
-+{
-+	long ret;
-+#ifdef __x86_64__
-+	asm volatile ("syscall" : "=a" (ret) : "a" (nr),
-+		      "D" (a0), "S" (a1), "d" (a2) :
-+		      "cc", "memory", "rcx",
-+		      "r8", "r9", "r10", "r11" );
-+#else
-+	asm volatile ("int $0x80" : "=a" (ret) : "a" (nr),
-+		      "b" (a0), "c" (a1), "d" (a2) :
-+		      "cc", "memory" );
-+#endif
-+	return ret;
-+}
-+
-+static inline long linux_write(int fd, const void *data, size_t len)
-+{
-+	return x86_syscall3(__NR_write, fd, (long)data, (long)len);
-+}
-+
-+static inline void linux_exit(int code)
-+{
-+	x86_syscall3(__NR_exit, code, 0, 0);
-+}
-+
-+void to_base10(char *lastdig, time_t n)
-+{
-+	while (n) {
-+		*lastdig = (n % 10) + '0';
-+		n /= 10;
-+		lastdig--;
-+	}
-+}
-+
-+__attribute__((externally_visible)) void c_main(void **stack)
-+{
-+	/* Parse the stack */
-+	long argc = (long)*stack;
-+	stack += argc + 2;
-+
-+	/* Now we're pointing at the environment.  Skip it. */
-+	while(*stack)
-+		stack++;
-+	stack++;
-+
-+	/* Now we're pointing at auxv.  Initialize the vDSO parser. */
-+	vdso_init_from_auxv((void *)stack);
-+
-+	/* Find gettimeofday. */
-+	typedef long (*gtod_t)(struct timeval *tv, struct timezone *tz);
-+	gtod_t gtod = (gtod_t)vdso_sym("LINUX_2.6", "__vdso_gettimeofday");
-+
-+	if (!gtod)
-+		linux_exit(1);
-+
-+	struct timeval tv;
-+	long ret = gtod(&tv, 0);
-+
-+	if (ret == 0) {
-+		char buf[] = "The time is                     .000000\n";
-+		to_base10(buf + 31, tv.tv_sec);
-+		to_base10(buf + 38, tv.tv_usec);
-+		linux_write(1, buf, sizeof(buf) - 1);
-+	} else {
-+		linux_exit(ret);
-+	}
-+
-+	linux_exit(0);
-+}
-+
-+/*
-+ * This is the real entry point.  It passes the initial stack into
-+ * the C entry point.
-+ */
-+asm (
-+	".text\n"
-+	".global _start\n"
-+	".type _start,@function\n"
-+	"_start:\n\t"
-+#ifdef __x86_64__
-+	"mov %rsp,%rdi\n\t"
-+	"jmp c_main"
-+#else
-+	"push %esp\n\t"
-+	"call c_main\n\t"
-+	"int $3"
-+#endif
-+	);
-diff --git a/tools/testing/selftests/vDSO/vdso_test.c b/tools/testing/selftests/vDSO/vdso_test.c
-new file mode 100644
-index 0000000..8daeb7d7
---- /dev/null
-+++ b/tools/testing/selftests/vDSO/vdso_test.c
-@@ -0,0 +1,52 @@
-+/*
-+ * vdso_test.c: Sample code to test parse_vdso.c
-+ * Copyright (c) 2014 Andy Lutomirski
-+ * Subject to the GNU General Public License, version 2
-+ *
-+ * Compile with:
-+ * gcc -std=gnu99 vdso_test.c parse_vdso.c
-+ *
-+ * Tested on x86, 32-bit and 64-bit.  It may work on other architectures, too.
-+ */
-+
-+#include <stdint.h>
-+#include <elf.h>
++#define _GNU_SOURCE
++#define __SANE_USERSPACE_TYPES__        /* For PPC64, to get LL64 types */
++#include <errno.h>
++#include <fcntl.h>
++#include <inttypes.h>
++#include <math.h>
++#include <signal.h>
 +#include <stdio.h>
-+#include <sys/auxv.h>
++#include <stdlib.h>
++#include <string.h>
++#include <sys/ioctl.h>
++#include <sys/mman.h>
++#include <sys/stat.h>
 +#include <sys/time.h>
++#include <sys/timex.h>
++#include <sys/types.h>
++#include <time.h>
++#include <unistd.h>
 +
-+extern void *vdso_sym(const char *version, const char *name);
-+extern void vdso_init_from_sysinfo_ehdr(uintptr_t base);
-+extern void vdso_init_from_auxv(void *auxv);
++#include <linux/ptp_clock.h>
 +
-+int main(int argc, char **argv)
++#define DEVICE "/dev/ptp0"
++
++#ifndef ADJ_SETOFFSET
++#define ADJ_SETOFFSET 0x0100
++#endif
++
++#ifndef CLOCK_INVALID
++#define CLOCK_INVALID -1
++#endif
++
++/* clock_adjtime is not available in GLIBC < 2.14 */
++#if !__GLIBC_PREREQ(2, 14)
++#include <sys/syscall.h>
++static int clock_adjtime(clockid_t id, struct timex *tx)
 +{
-+	unsigned long sysinfo_ehdr = getauxval(AT_SYSINFO_EHDR);
-+	if (!sysinfo_ehdr) {
-+		printf("AT_SYSINFO_EHDR is not present!\n");
-+		return 0;
-+	}
++	return syscall(__NR_clock_adjtime, id, tx);
++}
++#endif
 +
-+	vdso_init_from_sysinfo_ehdr(getauxval(AT_SYSINFO_EHDR));
++static clockid_t get_clockid(int fd)
++{
++#define CLOCKFD 3
++#define FD_TO_CLOCKID(fd)	((~(clockid_t) (fd) << 3) | CLOCKFD)
 +
-+	/* Find gettimeofday. */
-+	typedef long (*gtod_t)(struct timeval *tv, struct timezone *tz);
-+	gtod_t gtod = (gtod_t)vdso_sym("LINUX_2.6", "__vdso_gettimeofday");
++	return FD_TO_CLOCKID(fd);
++}
 +
-+	if (!gtod) {
-+		printf("Could not find __vdso_gettimeofday\n");
-+		return 1;
-+	}
++static void handle_alarm(int s)
++{
++	printf("received signal %d\n", s);
++}
 +
-+	struct timeval tv;
-+	long ret = gtod(&tv, 0);
++static int install_handler(int signum, void (*handler)(int))
++{
++	struct sigaction action;
++	sigset_t mask;
 +
-+	if (ret == 0) {
-+		printf("The time is %lld.%06lld\n",
-+		       (long long)tv.tv_sec, (long long)tv.tv_usec);
-+	} else {
-+		printf("__vdso_gettimeofday failed\n");
-+	}
++	/* Unblock the signal. */
++	sigemptyset(&mask);
++	sigaddset(&mask, signum);
++	sigprocmask(SIG_UNBLOCK, &mask, NULL);
++
++	/* Install the signal handler. */
++	action.sa_handler = handler;
++	action.sa_flags = 0;
++	sigemptyset(&action.sa_mask);
++	sigaction(signum, &action, NULL);
 +
 +	return 0;
 +}
++
++static long ppb_to_scaled_ppm(int ppb)
++{
++	/*
++	 * The 'freq' field in the 'struct timex' is in parts per
++	 * million, but with a 16 bit binary fractional field.
++	 * Instead of calculating either one of
++	 *
++	 *    scaled_ppm = (ppb / 1000) << 16  [1]
++	 *    scaled_ppm = (ppb << 16) / 1000  [2]
++	 *
++	 * we simply use double precision math, in order to avoid the
++	 * truncation in [1] and the possible overflow in [2].
++	 */
++	return (long) (ppb * 65.536);
++}
++
++static int64_t pctns(struct ptp_clock_time *t)
++{
++	return t->sec * 1000000000LL + t->nsec;
++}
++
++static void usage(char *progname)
++{
++	fprintf(stderr,
++		"usage: %s [options]\n"
++		" -a val     request a one-shot alarm after 'val' seconds\n"
++		" -A val     request a periodic alarm every 'val' seconds\n"
++		" -c         query the ptp clock's capabilities\n"
++		" -d name    device to open\n"
++		" -e val     read 'val' external time stamp events\n"
++		" -f val     adjust the ptp clock frequency by 'val' ppb\n"
++		" -g         get the ptp clock time\n"
++		" -h         prints this message\n"
++		" -i val     index for event/trigger\n"
++		" -k val     measure the time offset between system and phc clock\n"
++		"            for 'val' times (Maximum 25)\n"
++		" -l         list the current pin configuration\n"
++		" -L pin,val configure pin index 'pin' with function 'val'\n"
++		"            the channel index is taken from the '-i' option\n"
++		"            'val' specifies the auxiliary function:\n"
++		"            0 - none\n"
++		"            1 - external time stamp\n"
++		"            2 - periodic output\n"
++		" -p val     enable output with a period of 'val' nanoseconds\n"
++		" -P val     enable or disable (val=1|0) the system clock PPS\n"
++		" -s         set the ptp clock time from the system time\n"
++		" -S         set the system time from the ptp clock time\n"
++		" -t val     shift the ptp clock time by 'val' seconds\n"
++		" -T val     set the ptp clock time to 'val' seconds\n",
++		progname);
++}
++
++int main(int argc, char *argv[])
++{
++	struct ptp_clock_caps caps;
++	struct ptp_extts_event event;
++	struct ptp_extts_request extts_request;
++	struct ptp_perout_request perout_request;
++	struct ptp_pin_desc desc;
++	struct timespec ts;
++	struct timex tx;
++
++	static timer_t timerid;
++	struct itimerspec timeout;
++	struct sigevent sigevent;
++
++	struct ptp_clock_time *pct;
++	struct ptp_sys_offset *sysoff;
++
++
++	char *progname;
++	unsigned int i;
++	int c, cnt, fd;
++
++	char *device = DEVICE;
++	clockid_t clkid;
++	int adjfreq = 0x7fffffff;
++	int adjtime = 0;
++	int capabilities = 0;
++	int extts = 0;
++	int gettime = 0;
++	int index = 0;
++	int list_pins = 0;
++	int oneshot = 0;
++	int pct_offset = 0;
++	int n_samples = 0;
++	int periodic = 0;
++	int perout = -1;
++	int pin_index = -1, pin_func;
++	int pps = -1;
++	int seconds = 0;
++	int settime = 0;
++
++	int64_t t1, t2, tp;
++	int64_t interval, offset;
++
++	progname = strrchr(argv[0], '/');
++	progname = progname ? 1+progname : argv[0];
++	while (EOF != (c = getopt(argc, argv, "a:A:cd:e:f:ghi:k:lL:p:P:sSt:T:v"))) {
++		switch (c) {
++		case 'a':
++			oneshot = atoi(optarg);
++			break;
++		case 'A':
++			periodic = atoi(optarg);
++			break;
++		case 'c':
++			capabilities = 1;
++			break;
++		case 'd':
++			device = optarg;
++			break;
++		case 'e':
++			extts = atoi(optarg);
++			break;
++		case 'f':
++			adjfreq = atoi(optarg);
++			break;
++		case 'g':
++			gettime = 1;
++			break;
++		case 'i':
++			index = atoi(optarg);
++			break;
++		case 'k':
++			pct_offset = 1;
++			n_samples = atoi(optarg);
++			break;
++		case 'l':
++			list_pins = 1;
++			break;
++		case 'L':
++			cnt = sscanf(optarg, "%d,%d", &pin_index, &pin_func);
++			if (cnt != 2) {
++				usage(progname);
++				return -1;
++			}
++			break;
++		case 'p':
++			perout = atoi(optarg);
++			break;
++		case 'P':
++			pps = atoi(optarg);
++			break;
++		case 's':
++			settime = 1;
++			break;
++		case 'S':
++			settime = 2;
++			break;
++		case 't':
++			adjtime = atoi(optarg);
++			break;
++		case 'T':
++			settime = 3;
++			seconds = atoi(optarg);
++			break;
++		case 'h':
++			usage(progname);
++			return 0;
++		case '?':
++		default:
++			usage(progname);
++			return -1;
++		}
++	}
++
++	fd = open(device, O_RDWR);
++	if (fd < 0) {
++		fprintf(stderr, "opening %s: %s\n", device, strerror(errno));
++		return -1;
++	}
++
++	clkid = get_clockid(fd);
++	if (CLOCK_INVALID == clkid) {
++		fprintf(stderr, "failed to read clock id\n");
++		return -1;
++	}
++
++	if (capabilities) {
++		if (ioctl(fd, PTP_CLOCK_GETCAPS, &caps)) {
++			perror("PTP_CLOCK_GETCAPS");
++		} else {
++			printf("capabilities:\n"
++			       "  %d maximum frequency adjustment (ppb)\n"
++			       "  %d programmable alarms\n"
++			       "  %d external time stamp channels\n"
++			       "  %d programmable periodic signals\n"
++			       "  %d pulse per second\n"
++			       "  %d programmable pins\n"
++			       "  %d cross timestamping\n",
++			       caps.max_adj,
++			       caps.n_alarm,
++			       caps.n_ext_ts,
++			       caps.n_per_out,
++			       caps.pps,
++			       caps.n_pins,
++			       caps.cross_timestamping);
++		}
++	}
++
++	if (0x7fffffff != adjfreq) {
++		memset(&tx, 0, sizeof(tx));
++		tx.modes = ADJ_FREQUENCY;
++		tx.freq = ppb_to_scaled_ppm(adjfreq);
++		if (clock_adjtime(clkid, &tx)) {
++			perror("clock_adjtime");
++		} else {
++			puts("frequency adjustment okay");
++		}
++	}
++
++	if (adjtime) {
++		memset(&tx, 0, sizeof(tx));
++		tx.modes = ADJ_SETOFFSET;
++		tx.time.tv_sec = adjtime;
++		tx.time.tv_usec = 0;
++		if (clock_adjtime(clkid, &tx) < 0) {
++			perror("clock_adjtime");
++		} else {
++			puts("time shift okay");
++		}
++	}
++
++	if (gettime) {
++		if (clock_gettime(clkid, &ts)) {
++			perror("clock_gettime");
++		} else {
++			printf("clock time: %ld.%09ld or %s",
++			       ts.tv_sec, ts.tv_nsec, ctime(&ts.tv_sec));
++		}
++	}
++
++	if (settime == 1) {
++		clock_gettime(CLOCK_REALTIME, &ts);
++		if (clock_settime(clkid, &ts)) {
++			perror("clock_settime");
++		} else {
++			puts("set time okay");
++		}
++	}
++
++	if (settime == 2) {
++		clock_gettime(clkid, &ts);
++		if (clock_settime(CLOCK_REALTIME, &ts)) {
++			perror("clock_settime");
++		} else {
++			puts("set time okay");
++		}
++	}
++
++	if (settime == 3) {
++		ts.tv_sec = seconds;
++		ts.tv_nsec = 0;
++		if (clock_settime(clkid, &ts)) {
++			perror("clock_settime");
++		} else {
++			puts("set time okay");
++		}
++	}
++
++	if (extts) {
++		memset(&extts_request, 0, sizeof(extts_request));
++		extts_request.index = index;
++		extts_request.flags = PTP_ENABLE_FEATURE;
++		if (ioctl(fd, PTP_EXTTS_REQUEST, &extts_request)) {
++			perror("PTP_EXTTS_REQUEST");
++			extts = 0;
++		} else {
++			puts("external time stamp request okay");
++		}
++		for (; extts; extts--) {
++			cnt = read(fd, &event, sizeof(event));
++			if (cnt != sizeof(event)) {
++				perror("read");
++				break;
++			}
++			printf("event index %u at %lld.%09u\n", event.index,
++			       event.t.sec, event.t.nsec);
++			fflush(stdout);
++		}
++		/* Disable the feature again. */
++		extts_request.flags = 0;
++		if (ioctl(fd, PTP_EXTTS_REQUEST, &extts_request)) {
++			perror("PTP_EXTTS_REQUEST");
++		}
++	}
++
++	if (list_pins) {
++		int n_pins = 0;
++		if (ioctl(fd, PTP_CLOCK_GETCAPS, &caps)) {
++			perror("PTP_CLOCK_GETCAPS");
++		} else {
++			n_pins = caps.n_pins;
++		}
++		for (i = 0; i < n_pins; i++) {
++			desc.index = i;
++			if (ioctl(fd, PTP_PIN_GETFUNC, &desc)) {
++				perror("PTP_PIN_GETFUNC");
++				break;
++			}
++			printf("name %s index %u func %u chan %u\n",
++			       desc.name, desc.index, desc.func, desc.chan);
++		}
++	}
++
++	if (oneshot) {
++		install_handler(SIGALRM, handle_alarm);
++		/* Create a timer. */
++		sigevent.sigev_notify = SIGEV_SIGNAL;
++		sigevent.sigev_signo = SIGALRM;
++		if (timer_create(clkid, &sigevent, &timerid)) {
++			perror("timer_create");
++			return -1;
++		}
++		/* Start the timer. */
++		memset(&timeout, 0, sizeof(timeout));
++		timeout.it_value.tv_sec = oneshot;
++		if (timer_settime(timerid, 0, &timeout, NULL)) {
++			perror("timer_settime");
++			return -1;
++		}
++		pause();
++		timer_delete(timerid);
++	}
++
++	if (periodic) {
++		install_handler(SIGALRM, handle_alarm);
++		/* Create a timer. */
++		sigevent.sigev_notify = SIGEV_SIGNAL;
++		sigevent.sigev_signo = SIGALRM;
++		if (timer_create(clkid, &sigevent, &timerid)) {
++			perror("timer_create");
++			return -1;
++		}
++		/* Start the timer. */
++		memset(&timeout, 0, sizeof(timeout));
++		timeout.it_interval.tv_sec = periodic;
++		timeout.it_value.tv_sec = periodic;
++		if (timer_settime(timerid, 0, &timeout, NULL)) {
++			perror("timer_settime");
++			return -1;
++		}
++		while (1) {
++			pause();
++		}
++		timer_delete(timerid);
++	}
++
++	if (perout >= 0) {
++		if (clock_gettime(clkid, &ts)) {
++			perror("clock_gettime");
++			return -1;
++		}
++		memset(&perout_request, 0, sizeof(perout_request));
++		perout_request.index = index;
++		perout_request.start.sec = ts.tv_sec + 2;
++		perout_request.start.nsec = 0;
++		perout_request.period.sec = 0;
++		perout_request.period.nsec = perout;
++		if (ioctl(fd, PTP_PEROUT_REQUEST, &perout_request)) {
++			perror("PTP_PEROUT_REQUEST");
++		} else {
++			puts("periodic output request okay");
++		}
++	}
++
++	if (pin_index >= 0) {
++		memset(&desc, 0, sizeof(desc));
++		desc.index = pin_index;
++		desc.func = pin_func;
++		desc.chan = index;
++		if (ioctl(fd, PTP_PIN_SETFUNC, &desc)) {
++			perror("PTP_PIN_SETFUNC");
++		} else {
++			puts("set pin function okay");
++		}
++	}
++
++	if (pps != -1) {
++		int enable = pps ? 1 : 0;
++		if (ioctl(fd, PTP_ENABLE_PPS, enable)) {
++			perror("PTP_ENABLE_PPS");
++		} else {
++			puts("pps for system time request okay");
++		}
++	}
++
++	if (pct_offset) {
++		if (n_samples <= 0 || n_samples > 25) {
++			puts("n_samples should be between 1 and 25");
++			usage(progname);
++			return -1;
++		}
++
++		sysoff = calloc(1, sizeof(*sysoff));
++		if (!sysoff) {
++			perror("calloc");
++			return -1;
++		}
++		sysoff->n_samples = n_samples;
++
++		if (ioctl(fd, PTP_SYS_OFFSET, sysoff))
++			perror("PTP_SYS_OFFSET");
++		else
++			puts("system and phc clock time offset request okay");
++
++		pct = &sysoff->ts[0];
++		for (i = 0; i < sysoff->n_samples; i++) {
++			t1 = pctns(pct+2*i);
++			tp = pctns(pct+2*i+1);
++			t2 = pctns(pct+2*i+2);
++			interval = t2 - t1;
++			offset = (t2 + t1) / 2 - tp;
++
++			printf("system time: %lld.%u\n",
++				(pct+2*i)->sec, (pct+2*i)->nsec);
++			printf("phc    time: %lld.%u\n",
++				(pct+2*i+1)->sec, (pct+2*i+1)->nsec);
++			printf("system time: %lld.%u\n",
++				(pct+2*i+2)->sec, (pct+2*i+2)->nsec);
++			printf("system/phc clock time offset is %" PRId64 " ns\n"
++			       "system     clock time delay  is %" PRId64 " ns\n",
++				offset, interval);
++		}
++
++		free(sysoff);
++	}
++
++	close(fd);
++	return 0;
++}
+diff --git a/tools/testing/selftests/ptp/testptp.mk b/tools/testing/selftests/ptp/testptp.mk
+new file mode 100644
+index 0000000..4ef2d97
+--- /dev/null
++++ b/tools/testing/selftests/ptp/testptp.mk
+@@ -0,0 +1,33 @@
++# PTP 1588 clock support - User space test program
++#
++# Copyright (C) 2010 OMICRON electronics GmbH
++#
++#  This program is free software; you can redistribute it and/or modify
++#  it under the terms of the GNU General Public License as published by
++#  the Free Software Foundation; either version 2 of the License, or
++#  (at your option) any later version.
++#
++#  This program is distributed in the hope that it will be useful,
++#  but WITHOUT ANY WARRANTY; without even the implied warranty of
++#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++#  GNU General Public License for more details.
++#
++#  You should have received a copy of the GNU General Public License
++#  along with this program; if not, write to the Free Software
++#  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++
++CC        = $(CROSS_COMPILE)gcc
++INC       = -I$(KBUILD_OUTPUT)/usr/include
++CFLAGS    = -Wall $(INC)
++LDLIBS    = -lrt
++PROGS     = testptp
++
++all: $(PROGS)
++
++testptp: testptp.o
++
++clean:
++	rm -f testptp.o
++
++distclean: clean
++	rm -f $(PROGS)
 -- 
 2.7.4
 
