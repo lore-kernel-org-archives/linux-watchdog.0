@@ -1,58 +1,149 @@
-Return-path: <fu.wei@linaro.org>
-Subject: Re: [PATCH v11 5/8] clocksource/drivers/arm_arch_timer: Simplify ACPI
- support code.
-To: Timur Tabi <timur@codeaurora.org>, Thomas Gleixner <tglx@linutronix.de>,
- Daniel Lezcano <daniel.lezcano@linaro.org>
-References: <1473168352-5156-1-git-send-email-fu.wei@linaro.org>
- <1473168352-5156-6-git-send-email-fu.wei@linaro.org>
- <alpine.DEB.2.20.1609061635000.5647@nanos>
- <CADyBb7uX79UP=mUxvP-EPGi56-46y2SCMPsWO=Uw-=N0GQERhA@mail.gmail.com>
- <CADyBb7v-b1bKGBdH6J78UhfCcQd=BJLFoZ16GNgmrd2EucjYDA@mail.gmail.com>
- <57D7E543.3060301@codeaurora.org>
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>,
- Marc Zyngier <marc.zyngier@arm.com>,
- Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
- Sudeep Holla <sudeep.holla@arm.com>, Hanjun Guo <hanjun.guo@linaro.org>,
- linux-arm-kernel@lists.infradead.org,
- Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>,
- Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
- ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
- rruigrok@codeaurora.org, "Abdulhamid, Harb" <harba@codeaurora.org>,
- Christopher Covington <cov@codeaurora.org>,
- G Gregory <graeme.gregory@linaro.org>, Al Stone <al.stone@linaro.org>,
- Jon Masters <jcm@redhat.com>, Wei Huang <wei@redhat.com>,
- Arnd Bergmann <arnd@arndb.de>, Wim Van Sebroeck <wim@iguana.be>,
- Catalin Marinas <catalin.marinas@arm.com>, Will Deacon
- <will.deacon@arm.com>, Suravee Suthikulpanit
- <Suravee.Suthikulpanit@amd.com>, Leo Duran <leo.duran@amd.com>,
- Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org
-From: Fu Wei <fu.wei@linaro.org>
-Message-ID: <1919ec70-6f24-365c-b5f2-6db56bb81e3f@linaro.org>
-Date: Tue, 13 Sep 2016 19:51:37 +0800
-MIME-Version: 1.0
-In-Reply-To: <57D7E543.3060301@codeaurora.org>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from resqmta-po-05v.sys.comcast.net ([96.114.154.164]:36334 "EHLO
+        resqmta-po-05v.sys.comcast.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1750940AbcIMU1D (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 13 Sep 2016 16:27:03 -0400
+From: Shuah Khan <shuahkh@osg.samsung.com>
+To: corbet@lwn.net, richardcochran@gmail.com, wim@iguana.be,
+        linux@roeck-us.net, nab@linux-iscsi.org,
+        maheshkhanwalkar@gmail.com, timur@codeaurora.org, arnd@arndb.de,
+        ghackmann@google.com, ben@decadent.org.uk, thuth@redhat.com,
+        christopher.s.hall@intel.com, john.stultz@linaro.org,
+        sergei.shtylyov@cogentembedded.com, mpe@ellerman.id.au,
+        jani.nikula@linux.intel.com
+Cc: Shuah Khan <shuahkh@osg.samsung.com>, linux-doc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+        linux-watchdog@vger.kernel.org, linux-kselftest@vger.kernel.org
+Subject: [PATCH v2 0/6] Move runnable code (tests) from Documentation to selftests
+Date: Tue, 13 Sep 2016 14:18:39 -0600
+Message-Id: <cover.1473795601.git.shuahkh@osg.samsung.com>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-Hi Timur
+Move runnable code (tests) from Documentation to selftests and update
+Makefiles to work under selftests.
 
+Jon Corbet and I discussed this in an email thread and as per that
+discussion, this patch series moves all the tests that are under the
+Documentation directory to selftests. There is more runnable code in
+the form of examples and utils and that is going to be another patch
+series. I moved just the tests and left the documentation files as is.
 
-On 09/13/2016 07:38 PM, Timur Tabi wrote:
-> Fu Wei wrote:
->> I have prepared v12 (rebase to rc6 and on the top of IORT v11),
->> should I send it now
->
-> Yes.
->
-> Please don't wait to release new versions of your patches.  Time is running out to get these into 4.9.
->
-yes, v12 is posted
-working on v13(improving memory-mapped timer code following Marc's suggestion)
+Checkpatch isn't happy with a few of the patches as some of the
+renamed files have existing checkpatch errors and warnings. I am
+working another patch series that will address those.
+
+Changes since v1:
+- Changes to Documentation/Makefile to remove test targets as the tests
+  get moved.
+- Combined patches based on Michael Ellerman's comments.
+- Fixed change log errors based on Sergei Shtylyov's comments.
+- Expanded to list to wider audience and people that responded
+  with comments and ideas.
+- Included ia64 and watchdog which I missed in the v1 series.
+
+Shuah Khan (6):
+  selftests: move dnotify_test from Documentation/filesystems
+  selftests: move prctl tests from Documentation/prctl
+  selftests: move ptp tests from Documentation/ptp
+  selftests: move vDSO tests from Documentation/vDSO
+  selftests: move ia64 tests from Documentation/ia64
+  selftests: move watchdog tests from Documentation/watchdog
+
+ Documentation/Makefile                             |   4 +-
+ Documentation/filesystems/.gitignore               |   1 -
+ Documentation/filesystems/Makefile                 |   5 -
+ Documentation/filesystems/dnotify_test.c           |  34 --
+ Documentation/ia64/.gitignore                      |   1 -
+ Documentation/ia64/Makefile                        |   5 -
+ Documentation/ia64/aliasing-test.c                 | 263 -----------
+ Documentation/prctl/.gitignore                     |   3 -
+ Documentation/prctl/Makefile                       |  10 -
+ .../prctl/disable-tsc-ctxt-sw-stress-test.c        |  97 ----
+ .../prctl/disable-tsc-on-off-stress-test.c         |  96 ----
+ Documentation/prctl/disable-tsc-test.c             |  95 ----
+ Documentation/ptp/.gitignore                       |   1 -
+ Documentation/ptp/Makefile                         |   8 -
+ Documentation/ptp/testptp.c                        | 523 ---------------------
+ Documentation/ptp/testptp.mk                       |  33 --
+ Documentation/vDSO/.gitignore                      |   2 -
+ Documentation/vDSO/Makefile                        |  17 -
+ Documentation/vDSO/parse_vdso.c                    | 269 -----------
+ Documentation/vDSO/vdso_standalone_test_x86.c      | 128 -----
+ Documentation/vDSO/vdso_test.c                     |  52 --
+ Documentation/watchdog/src/.gitignore              |   1 -
+ Documentation/watchdog/src/Makefile                |   2 +-
+ Documentation/watchdog/src/watchdog-test.c         | 105 -----
+ tools/testing/selftests/filesystems/.gitignore     |   1 +
+ tools/testing/selftests/filesystems/Makefile       |   7 +
+ tools/testing/selftests/filesystems/dnotify_test.c |  34 ++
+ tools/testing/selftests/ia64/.gitignore            |   1 +
+ tools/testing/selftests/ia64/Makefile              |   8 +
+ tools/testing/selftests/ia64/aliasing-test.c       | 263 +++++++++++
+ tools/testing/selftests/prctl/.gitignore           |   3 +
+ tools/testing/selftests/prctl/Makefile             |  15 +
+ .../prctl/disable-tsc-ctxt-sw-stress-test.c        |  97 ++++
+ .../prctl/disable-tsc-on-off-stress-test.c         |  96 ++++
+ tools/testing/selftests/prctl/disable-tsc-test.c   |  95 ++++
+ tools/testing/selftests/ptp/.gitignore             |   1 +
+ tools/testing/selftests/ptp/Makefile               |   8 +
+ tools/testing/selftests/ptp/testptp.c              | 523 +++++++++++++++++++++
+ tools/testing/selftests/ptp/testptp.mk             |  33 ++
+ tools/testing/selftests/vDSO/.gitignore            |   2 +
+ tools/testing/selftests/vDSO/Makefile              |  20 +
+ tools/testing/selftests/vDSO/parse_vdso.c          | 269 +++++++++++
+ .../selftests/vDSO/vdso_standalone_test_x86.c      | 128 +++++
+ tools/testing/selftests/vDSO/vdso_test.c           |  52 ++
+ tools/testing/selftests/watchdog/.gitignore        |   1 +
+ tools/testing/selftests/watchdog/Makefile          |   8 +
+ tools/testing/selftests/watchdog/watchdog-test.c   | 105 +++++
+ 47 files changed, 1773 insertions(+), 1752 deletions(-)
+ delete mode 100644 Documentation/filesystems/.gitignore
+ delete mode 100644 Documentation/filesystems/Makefile
+ delete mode 100644 Documentation/filesystems/dnotify_test.c
+ delete mode 100644 Documentation/ia64/.gitignore
+ delete mode 100644 Documentation/ia64/Makefile
+ delete mode 100644 Documentation/ia64/aliasing-test.c
+ delete mode 100644 Documentation/prctl/.gitignore
+ delete mode 100644 Documentation/prctl/Makefile
+ delete mode 100644 Documentation/prctl/disable-tsc-ctxt-sw-stress-test.c
+ delete mode 100644 Documentation/prctl/disable-tsc-on-off-stress-test.c
+ delete mode 100644 Documentation/prctl/disable-tsc-test.c
+ delete mode 100644 Documentation/ptp/.gitignore
+ delete mode 100644 Documentation/ptp/Makefile
+ delete mode 100644 Documentation/ptp/testptp.c
+ delete mode 100644 Documentation/ptp/testptp.mk
+ delete mode 100644 Documentation/vDSO/.gitignore
+ delete mode 100644 Documentation/vDSO/Makefile
+ delete mode 100644 Documentation/vDSO/parse_vdso.c
+ delete mode 100644 Documentation/vDSO/vdso_standalone_test_x86.c
+ delete mode 100644 Documentation/vDSO/vdso_test.c
+ delete mode 100644 Documentation/watchdog/src/watchdog-test.c
+ create mode 100644 tools/testing/selftests/filesystems/.gitignore
+ create mode 100644 tools/testing/selftests/filesystems/Makefile
+ create mode 100644 tools/testing/selftests/filesystems/dnotify_test.c
+ create mode 100644 tools/testing/selftests/ia64/.gitignore
+ create mode 100644 tools/testing/selftests/ia64/Makefile
+ create mode 100644 tools/testing/selftests/ia64/aliasing-test.c
+ create mode 100644 tools/testing/selftests/prctl/.gitignore
+ create mode 100644 tools/testing/selftests/prctl/Makefile
+ create mode 100644 tools/testing/selftests/prctl/disable-tsc-ctxt-sw-stress-test.c
+ create mode 100644 tools/testing/selftests/prctl/disable-tsc-on-off-stress-test.c
+ create mode 100644 tools/testing/selftests/prctl/disable-tsc-test.c
+ create mode 100644 tools/testing/selftests/ptp/.gitignore
+ create mode 100644 tools/testing/selftests/ptp/Makefile
+ create mode 100644 tools/testing/selftests/ptp/testptp.c
+ create mode 100644 tools/testing/selftests/ptp/testptp.mk
+ create mode 100644 tools/testing/selftests/vDSO/.gitignore
+ create mode 100644 tools/testing/selftests/vDSO/Makefile
+ create mode 100644 tools/testing/selftests/vDSO/parse_vdso.c
+ create mode 100644 tools/testing/selftests/vDSO/vdso_standalone_test_x86.c
+ create mode 100644 tools/testing/selftests/vDSO/vdso_test.c
+ create mode 100644 tools/testing/selftests/watchdog/.gitignore
+ create mode 100644 tools/testing/selftests/watchdog/Makefile
+ create mode 100644 tools/testing/selftests/watchdog/watchdog-test.c
 
 -- 
-Best regards,
+2.7.4
 
-Fu Wei
-Software Engineer
-Red Hat 
