@@ -1,44 +1,44 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from smtp.codeaurora.org ([198.145.29.96]:36995 "EHLO
-        smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751621AbcIMUwj (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 13 Sep 2016 16:52:39 -0400
-Subject: Re: [PATCH v2 6/6] selftests: move watchdog tests from
- Documentation/watchdog
-To: Shuah Khan <shuahkh@osg.samsung.com>, corbet@lwn.net,
-        richardcochran@gmail.com, wim@iguana.be, linux@roeck-us.net,
-        nab@linux-iscsi.org, maheshkhanwalkar@gmail.com, arnd@arndb.de,
-        ghackmann@google.com, ben@decadent.org.uk, thuth@redhat.com,
+Received: from tex.lwn.net ([70.33.254.29]:37273 "EHLO vena.lwn.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753254AbcINNfr (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Wed, 14 Sep 2016 09:35:47 -0400
+Date: Wed, 14 Sep 2016 07:35:44 -0600
+From: Jonathan Corbet <corbet@lwn.net>
+To: Shuah Khan <shuahkh@osg.samsung.com>
+Cc: richardcochran@gmail.com, wim@iguana.be, linux@roeck-us.net,
+        nab@linux-iscsi.org, maheshkhanwalkar@gmail.com,
+        timur@codeaurora.org, arnd@arndb.de, ghackmann@google.com,
+        ben@decadent.org.uk, thuth@redhat.com,
         christopher.s.hall@intel.com, john.stultz@linaro.org,
         sergei.shtylyov@cogentembedded.com, mpe@ellerman.id.au,
-        jani.nikula@linux.intel.com
-Cc: linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        netdev@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        linux-kselftest@vger.kernel.org
+        jani.nikula@linux.intel.com, linux-doc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+        linux-watchdog@vger.kernel.org, linux-kselftest@vger.kernel.org
+Subject: Re: [PATCH v2 0/6] Move runnable code (tests) from Documentation to
+ selftests
+Message-ID: <20160914073544.578dc128@lwn.net>
+In-Reply-To: <cover.1473795601.git.shuahkh@osg.samsung.com>
 References: <cover.1473795601.git.shuahkh@osg.samsung.com>
- <328de4c08ef23fe13cec88b45e3e1725cfc5c33b.1473795601.git.shuahkh@osg.samsung.com>
- <57D8628D.3070507@codeaurora.org>
- <3eb32f56-eac7-e0ca-0bcf-90488cbff458@osg.samsung.com>
-From: Timur Tabi <timur@codeaurora.org>
-Message-ID: <57D86713.7050809@codeaurora.org>
-Date: Tue, 13 Sep 2016 15:52:35 -0500
 MIME-Version: 1.0
-In-Reply-To: <3eb32f56-eac7-e0ca-0bcf-90488cbff458@osg.samsung.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
 
-Shuah Khan wrote:
-> Is watchdog-simple a test or a sample/example? I thought this
-> is an example, and planning to move that under examples?
->
-> If this is a test, I will re-do the patch to include it.
+On Tue, 13 Sep 2016 14:18:39 -0600
+Shuah Khan <shuahkh@osg.samsung.com> wrote:
 
-I guess it's really just a sample.
+> Move runnable code (tests) from Documentation to selftests and update
+> Makefiles to work under selftests.
 
--- 
-Qualcomm Datacenter Technologies, Inc. as an affiliate of Qualcomm
-Technologies, Inc.  Qualcomm Technologies, Inc. is a member of the
-Code Aurora Forum, a Linux Foundation Collaborative Project.
+This all seems good to me.
+
+Acked-by: Jonathan Corbet <corbet@lwn.net>
+
+jon
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
