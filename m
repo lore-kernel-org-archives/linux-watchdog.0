@@ -1,55 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Wed, 14 Sep 2016 15:16:09 -0700
+Date: Wed, 14 Sep 2016 15:16:58 -0700
 From: Guenter Roeck <linux@roeck-us.net>
 To: Peter Griffin <peter.griffin@linaro.org>
 Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
         kernel@stlinux.com, patrice.chotard@st.com, devicetree@vger.kernel.org,
-        lee.jones@linaro.org, wim@iguana.be, robh+dt@kernel.org,
-        linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 10/19] watchdog: bindings: Remove obsolete platforms from
- dt doc.
-Message-ID: <20160914221609.GE14003@roeck-us.net>
+        lee.jones@linaro.org, wim@iguana.be, linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH 11/19] watchdog: st_wdt: Remove support for obsolete
+ platforms
+Message-ID: <20160914221658.GF14003@roeck-us.net>
 References: <1473859677-9231-1-git-send-email-peter.griffin@linaro.org>
- <1473859677-9231-11-git-send-email-peter.griffin@linaro.org>
+ <1473859677-9231-12-git-send-email-peter.griffin@linaro.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1473859677-9231-11-git-send-email-peter.griffin@linaro.org>
+In-Reply-To: <1473859677-9231-12-git-send-email-peter.griffin@linaro.org>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On Wed, Sep 14, 2016 at 02:27:48PM +0100, Peter Griffin wrote:
-> STiH415/6 SoC support is being removed from the kernel
-> so update the dt bding document to reflect this.
+On Wed, Sep 14, 2016 at 02:27:49PM +0100, Peter Griffin wrote:
+> STiH415/6 SoC support is being removed from the kernel.
+> This patch updates the watchdog driver to remove references
+> to these obsolete platforms.
 > 
 > Signed-off-by: Peter Griffin <peter.griffin@linaro.org>
 > Cc: <wim@iguana.be>
 > Cc: <linux@roeck-us.net>
-> Cc: <robh+dt@kernel.org>
 > Cc: <linux-watchdog@vger.kernel.org>
 
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
 > ---
->  Documentation/devicetree/bindings/watchdog/st_lpc_wdt.txt | 3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
+>  drivers/watchdog/st_lpc_wdt.c | 33 ---------------------------------
+>  1 file changed, 33 deletions(-)
 > 
-> diff --git a/Documentation/devicetree/bindings/watchdog/st_lpc_wdt.txt b/Documentation/devicetree/bindings/watchdog/st_lpc_wdt.txt
-> index 039c5ca..b949039 100644
-> --- a/Documentation/devicetree/bindings/watchdog/st_lpc_wdt.txt
-> +++ b/Documentation/devicetree/bindings/watchdog/st_lpc_wdt.txt
-> @@ -9,8 +9,7 @@ functionality.
+> diff --git a/drivers/watchdog/st_lpc_wdt.c b/drivers/watchdog/st_lpc_wdt.c
+> index 14e9bad..e6100e4 100644
+> --- a/drivers/watchdog/st_lpc_wdt.c
+> +++ b/drivers/watchdog/st_lpc_wdt.c
+> @@ -52,27 +52,6 @@ struct st_wdog {
+>  	bool warm_reset;
+>  };
 >  
->  Required properties
->  
-> -- compatible 	: Must be one of: "st,stih407-lpc" "st,stih416-lpc"
-> -				  "st,stih415-lpc" "st,stid127-lpc"
-> +- compatible 	: Should be: "st,stih407-lpc"
->  - reg		: LPC registers base address + size
->  - interrupts    : LPC interrupt line number and associated flags
->  - clocks	: Clock used by LPC device (See: ../clock/clock-bindings.txt)
+> -static struct st_wdog_syscfg stid127_syscfg = {
+> -	.reset_type_reg		= 0x004,
+> -	.reset_type_mask	= BIT(2),
+> -	.enable_reg		= 0x000,
+> -	.enable_mask		= BIT(2),
+> -};
+> -
+> -static struct st_wdog_syscfg stih415_syscfg = {
+> -	.reset_type_reg		= 0x0B8,
+> -	.reset_type_mask	= BIT(6),
+> -	.enable_reg		= 0x0B4,
+> -	.enable_mask		= BIT(7),
+> -};
+> -
+> -static struct st_wdog_syscfg stih416_syscfg = {
+> -	.reset_type_reg		= 0x88C,
+> -	.reset_type_mask	= BIT(6),
+> -	.enable_reg		= 0x888,
+> -	.enable_mask		= BIT(7),
+> -};
+> -
+>  static struct st_wdog_syscfg stih407_syscfg = {
+>  	.enable_reg		= 0x204,
+>  	.enable_mask		= BIT(19),
+> @@ -83,18 +62,6 @@ static const struct of_device_id st_wdog_match[] = {
+>  		.compatible = "st,stih407-lpc",
+>  		.data = &stih407_syscfg,
+>  	},
+> -	{
+> -		.compatible = "st,stih416-lpc",
+> -		.data = &stih416_syscfg,
+> -	},
+> -	{
+> -		.compatible = "st,stih415-lpc",
+> -		.data = &stih415_syscfg,
+> -	},
+> -	{
+> -		.compatible = "st,stid127-lpc",
+> -		.data = &stid127_syscfg,
+> -	},
+>  	{},
+>  };
+>  MODULE_DEVICE_TABLE(of, st_wdog_match);
 > -- 
 > 1.9.1
 > 
