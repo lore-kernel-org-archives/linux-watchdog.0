@@ -1,67 +1,81 @@
-Return-path: <timur@codeaurora.org>
-Subject: Re: [PATCH v2 6/6] selftests: move watchdog tests from
- Documentation/watchdog
-To: Shuah Khan <shuahkh@osg.samsung.com>, corbet@lwn.net,
- richardcochran@gmail.com, wim@iguana.be, linux@roeck-us.net,
- nab@linux-iscsi.org, maheshkhanwalkar@gmail.com, arnd@arndb.de,
- ghackmann@google.com, ben@decadent.org.uk, thuth@redhat.com,
- christopher.s.hall@intel.com, john.stultz@linaro.org,
- sergei.shtylyov@cogentembedded.com, mpe@ellerman.id.au,
- jani.nikula@linux.intel.com
-Cc: linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
- netdev@vger.kernel.org, linux-watchdog@vger.kernel.org,
- linux-kselftest@vger.kernel.org
-References: <cover.1473795601.git.shuahkh@osg.samsung.com>
- <328de4c08ef23fe13cec88b45e3e1725cfc5c33b.1473795601.git.shuahkh@osg.samsung.com>
-From: Timur Tabi <timur@codeaurora.org>
-Message-ID: <57D8628D.3070507@codeaurora.org>
-Date: Tue, 13 Sep 2016 15:33:17 -0500
-MIME-Version: 1.0
-In-Reply-To: <328de4c08ef23fe13cec88b45e3e1725cfc5c33b.1473795601.git.shuahkh@osg.samsung.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Peter Griffin <peter.griffin@linaro.org>
+To: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        kernel@stlinux.com, patrice.chotard@st.com, devicetree@vger.kernel.org
+Cc: peter.griffin@linaro.org, lee.jones@linaro.org, <wim@iguana.be>,
+        <linux@roeck-us.net>, <linux-watchdog@vger.kernel.org>
+Subject: [PATCH 11/19] watchdog: st_wdt: Remove support for obsolete platforms
+Date: Wed, 14 Sep 2016 14:27:49 +0100
+Message-Id: <1473859677-9231-12-git-send-email-peter.griffin@linaro.org>
+In-Reply-To: <1473859677-9231-1-git-send-email-peter.griffin@linaro.org>
+References: <1473859677-9231-1-git-send-email-peter.griffin@linaro.org>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Shuah Khan wrote:
-> Remove watchdog-test from Makefile to move the test to selftests.
->
-> Add Makefile and .gitignore to for watchdog-test. watchdog-test will
+STiH415/6 SoC support is being removed from the kernel.
+This patch updates the watchdog driver to remove references
+to these obsolete platforms.
 
-to for?
+Signed-off-by: Peter Griffin <peter.griffin@linaro.org>
+Cc: <wim@iguana.be>
+Cc: <linux@roeck-us.net>
+Cc: <linux-watchdog@vger.kernel.org>
+---
+ drivers/watchdog/st_lpc_wdt.c | 33 ---------------------------------
+ 1 file changed, 33 deletions(-)
 
-> not be run as part of selftests suite and will not be included in
-> install targets.  It can be built separately for now.
->
-> Signed-off-by: Shuah Khan <shuahkh@osg.samsung.com>
-> ---
->   Documentation/watchdog/src/.gitignore            |   1 -
->   Documentation/watchdog/src/Makefile              |   2 +-
->   Documentation/watchdog/src/watchdog-test.c       | 105 -----------------------
->   tools/testing/selftests/watchdog/.gitignore      |   1 +
->   tools/testing/selftests/watchdog/Makefile        |   8 ++
->   tools/testing/selftests/watchdog/watchdog-test.c | 105 +++++++++++++++++++++++
-
-Please use -M when calling git-format-patch
-
->   6 files changed, 115 insertions(+), 107 deletions(-)
->   delete mode 100644 Documentation/watchdog/src/watchdog-test.c
->   create mode 100644 tools/testing/selftests/watchdog/.gitignore
->   create mode 100644 tools/testing/selftests/watchdog/Makefile
->   create mode 100644 tools/testing/selftests/watchdog/watchdog-test.c
->
-> diff --git a/Documentation/watchdog/src/.gitignore b/Documentation/watchdog/src/.gitignore
-> index ac90997..ff0ebb5 100644
-> --- a/Documentation/watchdog/src/.gitignore
-> +++ b/Documentation/watchdog/src/.gitignore
-> @@ -1,2 +1 @@
->   watchdog-simple
-> -watchdog-test
-
-Why not also watchdog-simple?
-
-
-
+diff --git a/drivers/watchdog/st_lpc_wdt.c b/drivers/watchdog/st_lpc_wdt.c
+index 14e9bad..e6100e4 100644
+--- a/drivers/watchdog/st_lpc_wdt.c
++++ b/drivers/watchdog/st_lpc_wdt.c
+@@ -52,27 +52,6 @@ struct st_wdog {
+ 	bool warm_reset;
+ };
+ 
+-static struct st_wdog_syscfg stid127_syscfg = {
+-	.reset_type_reg		= 0x004,
+-	.reset_type_mask	= BIT(2),
+-	.enable_reg		= 0x000,
+-	.enable_mask		= BIT(2),
+-};
+-
+-static struct st_wdog_syscfg stih415_syscfg = {
+-	.reset_type_reg		= 0x0B8,
+-	.reset_type_mask	= BIT(6),
+-	.enable_reg		= 0x0B4,
+-	.enable_mask		= BIT(7),
+-};
+-
+-static struct st_wdog_syscfg stih416_syscfg = {
+-	.reset_type_reg		= 0x88C,
+-	.reset_type_mask	= BIT(6),
+-	.enable_reg		= 0x888,
+-	.enable_mask		= BIT(7),
+-};
+-
+ static struct st_wdog_syscfg stih407_syscfg = {
+ 	.enable_reg		= 0x204,
+ 	.enable_mask		= BIT(19),
+@@ -83,18 +62,6 @@ static const struct of_device_id st_wdog_match[] = {
+ 		.compatible = "st,stih407-lpc",
+ 		.data = &stih407_syscfg,
+ 	},
+-	{
+-		.compatible = "st,stih416-lpc",
+-		.data = &stih416_syscfg,
+-	},
+-	{
+-		.compatible = "st,stih415-lpc",
+-		.data = &stih415_syscfg,
+-	},
+-	{
+-		.compatible = "st,stid127-lpc",
+-		.data = &stid127_syscfg,
+-	},
+ 	{},
+ };
+ MODULE_DEVICE_TABLE(of, st_wdog_match);
 -- 
-Qualcomm Datacenter Technologies, Inc. as an affiliate of Qualcomm
-Technologies, Inc.  Qualcomm Technologies, Inc. is a member of the
-Code Aurora Forum, a Linux Foundation Collaborative Project.
+1.9.1
