@@ -1,9 +1,9 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from resqmta-po-09v.sys.comcast.net ([96.114.154.168]:52075 "EHLO
-        resqmta-po-09v.sys.comcast.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S932133AbcISOrz (ORCPT
+Received: from resqmta-po-01v.sys.comcast.net ([96.114.154.160]:55081 "EHLO
+        resqmta-po-01v.sys.comcast.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1752109AbcISOru (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 19 Sep 2016 10:47:55 -0400
+        Mon, 19 Sep 2016 10:47:50 -0400
 From: Shuah Khan <shuahkh@osg.samsung.com>
 To: corbet@lwn.net, sudeep.dutt@intel.com, ashutosh.dixit@intel.com,
         tomas.winkler@intel.com, tglx@linutronix.de, wim@iguana.be,
@@ -15,9 +15,9 @@ To: corbet@lwn.net, sudeep.dutt@intel.com, ashutosh.dixit@intel.com,
 Cc: Shuah Khan <shuahkh@osg.samsung.com>, linux-doc@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-pcmcia@lists.infradead.org,
         linux-watchdog@vger.kernel.org
-Subject: [PATCH 8/8] samples: move watchdog example code from Documentation
-Date: Mon, 19 Sep 2016 08:47:39 -0600
-Message-Id: <7ef50ee89118078d35187a6dd0c66207875e0ea6.1474073857.git.shuahkh@osg.samsung.com>
+Subject: [PATCH 2/8] samples: move auxdisplay example code from Documentation
+Date: Mon, 19 Sep 2016 08:47:33 -0600
+Message-Id: <89e4e4ede7eb0c0ae5d72280455115612b0e4c98.1474073857.git.shuahkh@osg.samsung.com>
 In-Reply-To: <cover.1474073857.git.shuahkh@osg.samsung.com>
 References: <cover.1474073857.git.shuahkh@osg.samsung.com>
 In-Reply-To: <cover.1474073857.git.shuahkh@osg.samsung.com>
@@ -25,143 +25,652 @@ References: <cover.1474073857.git.shuahkh@osg.samsung.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Move watchdog examples to samples and remove it from Documentation
-Makefile. Create a new Makefile to build watchdog. It can be built
-from top level directory or from watchdog directory:
+Move auxdisplay examples to samples and remove it from Documentation
+Makefile. Create a new Makefile to build auxdisplay. It can be built
+from top level directory or from auxdisplay directory:
 
-Run make -C samples/watchdog or cd samples/watchdog; make
+Run make -C samples/auxdisplay or cd samples/auxdisplay; make
 
 Signed-off-by: Shuah Khan <shuahkh@osg.samsung.com>
 ---
- Documentation/Makefile                       |  2 +-
- Documentation/watchdog/Makefile              |  1 -
- Documentation/watchdog/src/.gitignore        |  1 -
- Documentation/watchdog/src/Makefile          |  5 -----
- Documentation/watchdog/src/watchdog-simple.c | 24 ------------------------
- samples/watchdog/.gitignore                  |  1 +
- samples/watchdog/Makefile                    |  8 ++++++++
- samples/watchdog/watchdog-simple.c           | 24 ++++++++++++++++++++++++
- 8 files changed, 34 insertions(+), 32 deletions(-)
- delete mode 100644 Documentation/watchdog/Makefile
- delete mode 100644 Documentation/watchdog/src/.gitignore
- delete mode 100644 Documentation/watchdog/src/Makefile
- delete mode 100644 Documentation/watchdog/src/watchdog-simple.c
- create mode 100644 samples/watchdog/.gitignore
- create mode 100644 samples/watchdog/Makefile
- create mode 100644 samples/watchdog/watchdog-simple.c
+ Documentation/Makefile                        |   3 +-
+ Documentation/auxdisplay/.gitignore           |   1 -
+ Documentation/auxdisplay/Makefile             |   7 -
+ Documentation/auxdisplay/cfag12864b-example.c | 281 --------------------------
+ samples/auxdisplay/.gitignore                 |   1 +
+ samples/auxdisplay/Makefile                   |   9 +
+ samples/auxdisplay/cfag12864b-example.c       | 281 ++++++++++++++++++++++++++
+ 7 files changed, 292 insertions(+), 291 deletions(-)
+ delete mode 100644 Documentation/auxdisplay/.gitignore
+ delete mode 100644 Documentation/auxdisplay/Makefile
+ delete mode 100644 Documentation/auxdisplay/cfag12864b-example.c
+ create mode 100644 samples/auxdisplay/.gitignore
+ create mode 100644 samples/auxdisplay/Makefile
+ create mode 100644 samples/auxdisplay/cfag12864b-example.c
 
 diff --git a/Documentation/Makefile b/Documentation/Makefile
-index 9c3fe11..8435965 100644
+index 58c6629..60ec0dc 100644
 --- a/Documentation/Makefile
 +++ b/Documentation/Makefile
-@@ -1 +1 @@
--subdir-y := blackfin watchdog
-+subdir-y := blackfin
-diff --git a/Documentation/watchdog/Makefile b/Documentation/watchdog/Makefile
+@@ -1,2 +1 @@
+-subdir-y := auxdisplay blackfin \
+-	laptops mic misc-devices pcmcia timers watchdog
++subdir-y := blackfin laptops mic misc-devices pcmcia timers watchdog
+diff --git a/Documentation/auxdisplay/.gitignore b/Documentation/auxdisplay/.gitignore
 deleted file mode 100644
-index 6018f45..0000000
---- a/Documentation/watchdog/Makefile
+index 7af2228..0000000
+--- a/Documentation/auxdisplay/.gitignore
 +++ /dev/null
 @@ -1 +0,0 @@
--subdir-y := src
-diff --git a/Documentation/watchdog/src/.gitignore b/Documentation/watchdog/src/.gitignore
+-cfag12864b-example
+diff --git a/Documentation/auxdisplay/Makefile b/Documentation/auxdisplay/Makefile
 deleted file mode 100644
-index ff0ebb5..0000000
---- a/Documentation/watchdog/src/.gitignore
+index ada4dac..0000000
+--- a/Documentation/auxdisplay/Makefile
 +++ /dev/null
-@@ -1 +0,0 @@
--watchdog-simple
-diff --git a/Documentation/watchdog/src/Makefile b/Documentation/watchdog/src/Makefile
-deleted file mode 100644
-index 47be791..0000000
---- a/Documentation/watchdog/src/Makefile
-+++ /dev/null
-@@ -1,5 +0,0 @@
+@@ -1,7 +0,0 @@
 -# List of programs to build
--hostprogs-y := watchdog-simple
+-hostprogs-y := cfag12864b-example
 -
 -# Tell kbuild to always build the programs
 -always := $(hostprogs-y)
-diff --git a/Documentation/watchdog/src/watchdog-simple.c b/Documentation/watchdog/src/watchdog-simple.c
-deleted file mode 100644
-index ba45803..0000000
---- a/Documentation/watchdog/src/watchdog-simple.c
-+++ /dev/null
-@@ -1,24 +0,0 @@
--#include <stdio.h>
--#include <stdlib.h>
--#include <unistd.h>
--#include <fcntl.h>
 -
--int main(void)
+-HOSTCFLAGS_cfag12864b-example.o += -I$(objtree)/usr/include
+diff --git a/Documentation/auxdisplay/cfag12864b-example.c b/Documentation/auxdisplay/cfag12864b-example.c
+deleted file mode 100644
+index e7823ff..0000000
+--- a/Documentation/auxdisplay/cfag12864b-example.c
++++ /dev/null
+@@ -1,281 +0,0 @@
+-/*
+- *    Filename: cfag12864b-example.c
+- *     Version: 0.1.0
+- * Description: cfag12864b LCD userspace example program
+- *     License: GPLv2
+- *
+- *      Author: Copyright (C) Miguel Ojeda Sandonis
+- *        Date: 2006-10-31
+- *
+- *  This program is free software; you can redistribute it and/or modify
+- *  it under the terms of the GNU General Public License version 2 as
+- *  published by the Free Software Foundation.
+- *
+- *  This program is distributed in the hope that it will be useful,
+- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- *  GNU General Public License for more details.
+- *
+- *  You should have received a copy of the GNU General Public License
+- *  along with this program; if not, write to the Free Software
+- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+- *
+- */
+-
+-/*
+- * ------------------------
+- * start of cfag12864b code
+- * ------------------------
+- */
+-
+-#include <string.h>
+-#include <fcntl.h>
+-#include <unistd.h>
+-#include <sys/types.h>
+-#include <sys/stat.h>
+-#include <sys/mman.h>
+-
+-#define CFAG12864B_WIDTH		(128)
+-#define CFAG12864B_HEIGHT		(64)
+-#define CFAG12864B_SIZE			(128 * 64 / 8)
+-#define CFAG12864B_BPB			(8)
+-#define CFAG12864B_ADDRESS(x, y)	((y) * CFAG12864B_WIDTH / \
+-					CFAG12864B_BPB + (x) / CFAG12864B_BPB)
+-#define CFAG12864B_BIT(n)		(((unsigned char) 1) << (n))
+-
+-#undef CFAG12864B_DOCHECK
+-#ifdef CFAG12864B_DOCHECK
+-	#define CFAG12864B_CHECK(x, y)		((x) < CFAG12864B_WIDTH && \
+-						(y) < CFAG12864B_HEIGHT)
+-#else
+-	#define CFAG12864B_CHECK(x, y)		(1)
+-#endif
+-
+-int cfag12864b_fd;
+-unsigned char * cfag12864b_mem;
+-unsigned char cfag12864b_buffer[CFAG12864B_SIZE];
+-
+-/*
+- * init a cfag12864b framebuffer device
+- *
+- * No error:       return = 0
+- * Unable to open: return = -1
+- * Unable to mmap: return = -2
+- */
+-static int cfag12864b_init(char *path)
 -{
--	int fd = open("/dev/watchdog", O_WRONLY);
--	int ret = 0;
--	if (fd == -1) {
--		perror("watchdog");
--		exit(EXIT_FAILURE);
+-	cfag12864b_fd = open(path, O_RDWR);
+-	if (cfag12864b_fd == -1)
+-		return -1;
+-
+-	cfag12864b_mem = mmap(0, CFAG12864B_SIZE, PROT_READ | PROT_WRITE,
+-		MAP_SHARED, cfag12864b_fd, 0);
+-	if (cfag12864b_mem == MAP_FAILED) {
+-		close(cfag12864b_fd);
+-		return -2;
 -	}
--	while (1) {
--		ret = write(fd, "\0", 1);
--		if (ret != 1) {
--			ret = -1;
--			break;
--		}
--		sleep(10);
--	}
--	close(fd);
--	return ret;
+-
+-	return 0;
 -}
-diff --git a/samples/watchdog/.gitignore b/samples/watchdog/.gitignore
+-
+-/*
+- * exit a cfag12864b framebuffer device
+- */
+-static void cfag12864b_exit(void)
+-{
+-	munmap(cfag12864b_mem, CFAG12864B_SIZE);
+-	close(cfag12864b_fd);
+-}
+-
+-/*
+- * set (x, y) pixel
+- */
+-static void cfag12864b_set(unsigned char x, unsigned char y)
+-{
+-	if (CFAG12864B_CHECK(x, y))
+-		cfag12864b_buffer[CFAG12864B_ADDRESS(x, y)] |=
+-			CFAG12864B_BIT(x % CFAG12864B_BPB);
+-}
+-
+-/*
+- * unset (x, y) pixel
+- */
+-static void cfag12864b_unset(unsigned char x, unsigned char y)
+-{
+-	if (CFAG12864B_CHECK(x, y))
+-		cfag12864b_buffer[CFAG12864B_ADDRESS(x, y)] &=
+-			~CFAG12864B_BIT(x % CFAG12864B_BPB);
+-}
+-
+-/*
+- * is set (x, y) pixel?
+- *
+- * Pixel off: return = 0
+- * Pixel on:  return = 1
+- */
+-static unsigned char cfag12864b_isset(unsigned char x, unsigned char y)
+-{
+-	if (CFAG12864B_CHECK(x, y))
+-		if (cfag12864b_buffer[CFAG12864B_ADDRESS(x, y)] &
+-			CFAG12864B_BIT(x % CFAG12864B_BPB))
+-			return 1;
+-
+-	return 0;
+-}
+-
+-/*
+- * not (x, y) pixel
+- */
+-static void cfag12864b_not(unsigned char x, unsigned char y)
+-{
+-	if (cfag12864b_isset(x, y))
+-		cfag12864b_unset(x, y);
+-	else
+-		cfag12864b_set(x, y);
+-}
+-
+-/*
+- * fill (set all pixels)
+- */
+-static void cfag12864b_fill(void)
+-{
+-	unsigned short i;
+-
+-	for (i = 0; i < CFAG12864B_SIZE; i++)
+-		cfag12864b_buffer[i] = 0xFF;
+-}
+-
+-/*
+- * clear (unset all pixels)
+- */
+-static void cfag12864b_clear(void)
+-{
+-	unsigned short i;
+-
+-	for (i = 0; i < CFAG12864B_SIZE; i++)
+-		cfag12864b_buffer[i] = 0;
+-}
+-
+-/*
+- * format a [128*64] matrix
+- *
+- * Pixel off: src[i] = 0
+- * Pixel on:  src[i] > 0
+- */
+-static void cfag12864b_format(unsigned char * matrix)
+-{
+-	unsigned char i, j, n;
+-
+-	for (i = 0; i < CFAG12864B_HEIGHT; i++)
+-	for (j = 0; j < CFAG12864B_WIDTH / CFAG12864B_BPB; j++) {
+-		cfag12864b_buffer[i * CFAG12864B_WIDTH / CFAG12864B_BPB +
+-			j] = 0;
+-		for (n = 0; n < CFAG12864B_BPB; n++)
+-			if (matrix[i * CFAG12864B_WIDTH +
+-				j * CFAG12864B_BPB + n])
+-				cfag12864b_buffer[i * CFAG12864B_WIDTH /
+-					CFAG12864B_BPB + j] |=
+-					CFAG12864B_BIT(n);
+-	}
+-}
+-
+-/*
+- * blit buffer to lcd
+- */
+-static void cfag12864b_blit(void)
+-{
+-	memcpy(cfag12864b_mem, cfag12864b_buffer, CFAG12864B_SIZE);
+-}
+-
+-/*
+- * ----------------------
+- * end of cfag12864b code
+- * ----------------------
+- */
+-
+-#include <stdio.h>
+-
+-#define EXAMPLES	6
+-
+-static void example(unsigned char n)
+-{
+-	unsigned short i, j;
+-	unsigned char matrix[CFAG12864B_WIDTH * CFAG12864B_HEIGHT];
+-
+-	if (n > EXAMPLES)
+-		return;
+-
+-	printf("Example %i/%i - ", n, EXAMPLES);
+-
+-	switch (n) {
+-	case 1:
+-		printf("Draw points setting bits");
+-		cfag12864b_clear();
+-		for (i = 0; i < CFAG12864B_WIDTH; i += 2)
+-			for (j = 0; j < CFAG12864B_HEIGHT; j += 2)
+-				cfag12864b_set(i, j);
+-		break;
+-
+-	case 2:
+-		printf("Clear the LCD");
+-		cfag12864b_clear();
+-		break;
+-
+-	case 3:
+-		printf("Draw rows formatting a [128*64] matrix");
+-		memset(matrix, 0, CFAG12864B_WIDTH * CFAG12864B_HEIGHT);
+-		for (i = 0; i < CFAG12864B_WIDTH; i++)
+-			for (j = 0; j < CFAG12864B_HEIGHT; j += 2)
+-				matrix[j * CFAG12864B_WIDTH + i] = 1;
+-		cfag12864b_format(matrix);
+-		break;
+-
+-	case 4:
+-		printf("Fill the lcd");
+-		cfag12864b_fill();
+-		break;
+-
+-	case 5:
+-		printf("Draw columns unsetting bits");
+-		for (i = 0; i < CFAG12864B_WIDTH; i += 2)
+-			for (j = 0; j < CFAG12864B_HEIGHT; j++)
+-				cfag12864b_unset(i, j);
+-		break;
+-
+-	case 6:
+-		printf("Do negative not-ing all bits");
+-		for (i = 0; i < CFAG12864B_WIDTH; i++)
+-			for (j = 0; j < CFAG12864B_HEIGHT; j ++)
+-				cfag12864b_not(i, j);
+-		break;
+-	}
+-
+-	puts(" - [Press Enter]");
+-}
+-
+-int main(int argc, char *argv[])
+-{
+-	unsigned char n;
+-
+-	if (argc != 2) {
+-		printf(
+-			"Sintax:  %s fbdev\n"
+-			"Usually: /dev/fb0, /dev/fb1...\n", argv[0]);
+-		return -1;
+-	}
+-
+-	if (cfag12864b_init(argv[1])) {
+-		printf("Can't init %s fbdev\n", argv[1]);
+-		return -2;
+-	}
+-
+-	for (n = 1; n <= EXAMPLES; n++) {
+-		example(n);
+-		cfag12864b_blit();
+-		while (getchar() != '\n');
+-	}
+-
+-	cfag12864b_exit();
+-
+-	return 0;
+-}
+diff --git a/samples/auxdisplay/.gitignore b/samples/auxdisplay/.gitignore
 new file mode 100644
-index 0000000..ff0ebb5
+index 0000000..7af2228
 --- /dev/null
-+++ b/samples/watchdog/.gitignore
++++ b/samples/auxdisplay/.gitignore
 @@ -0,0 +1 @@
-+watchdog-simple
-diff --git a/samples/watchdog/Makefile b/samples/watchdog/Makefile
++cfag12864b-example
+diff --git a/samples/auxdisplay/Makefile b/samples/auxdisplay/Makefile
 new file mode 100644
-index 0000000..9b53d89
+index 0000000..05e471f
 --- /dev/null
-+++ b/samples/watchdog/Makefile
-@@ -0,0 +1,8 @@
++++ b/samples/auxdisplay/Makefile
+@@ -0,0 +1,9 @@
 +CC := $(CROSS_COMPILE)gcc
-+PROGS := watchdog-simple
++CFLAGS := -I../../usr/include
++
++PROGS := cfag12864b-example
 +
 +all: $(PROGS)
 +
 +clean:
 +	rm -fr $(PROGS)
-+
-diff --git a/samples/watchdog/watchdog-simple.c b/samples/watchdog/watchdog-simple.c
+diff --git a/samples/auxdisplay/cfag12864b-example.c b/samples/auxdisplay/cfag12864b-example.c
 new file mode 100644
-index 0000000..ba45803
+index 0000000..e7823ff
 --- /dev/null
-+++ b/samples/watchdog/watchdog-simple.c
-@@ -0,0 +1,24 @@
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <unistd.h>
-+#include <fcntl.h>
++++ b/samples/auxdisplay/cfag12864b-example.c
+@@ -0,0 +1,281 @@
++/*
++ *    Filename: cfag12864b-example.c
++ *     Version: 0.1.0
++ * Description: cfag12864b LCD userspace example program
++ *     License: GPLv2
++ *
++ *      Author: Copyright (C) Miguel Ojeda Sandonis
++ *        Date: 2006-10-31
++ *
++ *  This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License version 2 as
++ *  published by the Free Software Foundation.
++ *
++ *  This program is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
++ *
++ *  You should have received a copy of the GNU General Public License
++ *  along with this program; if not, write to the Free Software
++ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ *
++ */
 +
-+int main(void)
++/*
++ * ------------------------
++ * start of cfag12864b code
++ * ------------------------
++ */
++
++#include <string.h>
++#include <fcntl.h>
++#include <unistd.h>
++#include <sys/types.h>
++#include <sys/stat.h>
++#include <sys/mman.h>
++
++#define CFAG12864B_WIDTH		(128)
++#define CFAG12864B_HEIGHT		(64)
++#define CFAG12864B_SIZE			(128 * 64 / 8)
++#define CFAG12864B_BPB			(8)
++#define CFAG12864B_ADDRESS(x, y)	((y) * CFAG12864B_WIDTH / \
++					CFAG12864B_BPB + (x) / CFAG12864B_BPB)
++#define CFAG12864B_BIT(n)		(((unsigned char) 1) << (n))
++
++#undef CFAG12864B_DOCHECK
++#ifdef CFAG12864B_DOCHECK
++	#define CFAG12864B_CHECK(x, y)		((x) < CFAG12864B_WIDTH && \
++						(y) < CFAG12864B_HEIGHT)
++#else
++	#define CFAG12864B_CHECK(x, y)		(1)
++#endif
++
++int cfag12864b_fd;
++unsigned char * cfag12864b_mem;
++unsigned char cfag12864b_buffer[CFAG12864B_SIZE];
++
++/*
++ * init a cfag12864b framebuffer device
++ *
++ * No error:       return = 0
++ * Unable to open: return = -1
++ * Unable to mmap: return = -2
++ */
++static int cfag12864b_init(char *path)
 +{
-+	int fd = open("/dev/watchdog", O_WRONLY);
-+	int ret = 0;
-+	if (fd == -1) {
-+		perror("watchdog");
-+		exit(EXIT_FAILURE);
++	cfag12864b_fd = open(path, O_RDWR);
++	if (cfag12864b_fd == -1)
++		return -1;
++
++	cfag12864b_mem = mmap(0, CFAG12864B_SIZE, PROT_READ | PROT_WRITE,
++		MAP_SHARED, cfag12864b_fd, 0);
++	if (cfag12864b_mem == MAP_FAILED) {
++		close(cfag12864b_fd);
++		return -2;
 +	}
-+	while (1) {
-+		ret = write(fd, "\0", 1);
-+		if (ret != 1) {
-+			ret = -1;
-+			break;
-+		}
-+		sleep(10);
++
++	return 0;
++}
++
++/*
++ * exit a cfag12864b framebuffer device
++ */
++static void cfag12864b_exit(void)
++{
++	munmap(cfag12864b_mem, CFAG12864B_SIZE);
++	close(cfag12864b_fd);
++}
++
++/*
++ * set (x, y) pixel
++ */
++static void cfag12864b_set(unsigned char x, unsigned char y)
++{
++	if (CFAG12864B_CHECK(x, y))
++		cfag12864b_buffer[CFAG12864B_ADDRESS(x, y)] |=
++			CFAG12864B_BIT(x % CFAG12864B_BPB);
++}
++
++/*
++ * unset (x, y) pixel
++ */
++static void cfag12864b_unset(unsigned char x, unsigned char y)
++{
++	if (CFAG12864B_CHECK(x, y))
++		cfag12864b_buffer[CFAG12864B_ADDRESS(x, y)] &=
++			~CFAG12864B_BIT(x % CFAG12864B_BPB);
++}
++
++/*
++ * is set (x, y) pixel?
++ *
++ * Pixel off: return = 0
++ * Pixel on:  return = 1
++ */
++static unsigned char cfag12864b_isset(unsigned char x, unsigned char y)
++{
++	if (CFAG12864B_CHECK(x, y))
++		if (cfag12864b_buffer[CFAG12864B_ADDRESS(x, y)] &
++			CFAG12864B_BIT(x % CFAG12864B_BPB))
++			return 1;
++
++	return 0;
++}
++
++/*
++ * not (x, y) pixel
++ */
++static void cfag12864b_not(unsigned char x, unsigned char y)
++{
++	if (cfag12864b_isset(x, y))
++		cfag12864b_unset(x, y);
++	else
++		cfag12864b_set(x, y);
++}
++
++/*
++ * fill (set all pixels)
++ */
++static void cfag12864b_fill(void)
++{
++	unsigned short i;
++
++	for (i = 0; i < CFAG12864B_SIZE; i++)
++		cfag12864b_buffer[i] = 0xFF;
++}
++
++/*
++ * clear (unset all pixels)
++ */
++static void cfag12864b_clear(void)
++{
++	unsigned short i;
++
++	for (i = 0; i < CFAG12864B_SIZE; i++)
++		cfag12864b_buffer[i] = 0;
++}
++
++/*
++ * format a [128*64] matrix
++ *
++ * Pixel off: src[i] = 0
++ * Pixel on:  src[i] > 0
++ */
++static void cfag12864b_format(unsigned char * matrix)
++{
++	unsigned char i, j, n;
++
++	for (i = 0; i < CFAG12864B_HEIGHT; i++)
++	for (j = 0; j < CFAG12864B_WIDTH / CFAG12864B_BPB; j++) {
++		cfag12864b_buffer[i * CFAG12864B_WIDTH / CFAG12864B_BPB +
++			j] = 0;
++		for (n = 0; n < CFAG12864B_BPB; n++)
++			if (matrix[i * CFAG12864B_WIDTH +
++				j * CFAG12864B_BPB + n])
++				cfag12864b_buffer[i * CFAG12864B_WIDTH /
++					CFAG12864B_BPB + j] |=
++					CFAG12864B_BIT(n);
 +	}
-+	close(fd);
-+	return ret;
++}
++
++/*
++ * blit buffer to lcd
++ */
++static void cfag12864b_blit(void)
++{
++	memcpy(cfag12864b_mem, cfag12864b_buffer, CFAG12864B_SIZE);
++}
++
++/*
++ * ----------------------
++ * end of cfag12864b code
++ * ----------------------
++ */
++
++#include <stdio.h>
++
++#define EXAMPLES	6
++
++static void example(unsigned char n)
++{
++	unsigned short i, j;
++	unsigned char matrix[CFAG12864B_WIDTH * CFAG12864B_HEIGHT];
++
++	if (n > EXAMPLES)
++		return;
++
++	printf("Example %i/%i - ", n, EXAMPLES);
++
++	switch (n) {
++	case 1:
++		printf("Draw points setting bits");
++		cfag12864b_clear();
++		for (i = 0; i < CFAG12864B_WIDTH; i += 2)
++			for (j = 0; j < CFAG12864B_HEIGHT; j += 2)
++				cfag12864b_set(i, j);
++		break;
++
++	case 2:
++		printf("Clear the LCD");
++		cfag12864b_clear();
++		break;
++
++	case 3:
++		printf("Draw rows formatting a [128*64] matrix");
++		memset(matrix, 0, CFAG12864B_WIDTH * CFAG12864B_HEIGHT);
++		for (i = 0; i < CFAG12864B_WIDTH; i++)
++			for (j = 0; j < CFAG12864B_HEIGHT; j += 2)
++				matrix[j * CFAG12864B_WIDTH + i] = 1;
++		cfag12864b_format(matrix);
++		break;
++
++	case 4:
++		printf("Fill the lcd");
++		cfag12864b_fill();
++		break;
++
++	case 5:
++		printf("Draw columns unsetting bits");
++		for (i = 0; i < CFAG12864B_WIDTH; i += 2)
++			for (j = 0; j < CFAG12864B_HEIGHT; j++)
++				cfag12864b_unset(i, j);
++		break;
++
++	case 6:
++		printf("Do negative not-ing all bits");
++		for (i = 0; i < CFAG12864B_WIDTH; i++)
++			for (j = 0; j < CFAG12864B_HEIGHT; j ++)
++				cfag12864b_not(i, j);
++		break;
++	}
++
++	puts(" - [Press Enter]");
++}
++
++int main(int argc, char *argv[])
++{
++	unsigned char n;
++
++	if (argc != 2) {
++		printf(
++			"Sintax:  %s fbdev\n"
++			"Usually: /dev/fb0, /dev/fb1...\n", argv[0]);
++		return -1;
++	}
++
++	if (cfag12864b_init(argv[1])) {
++		printf("Can't init %s fbdev\n", argv[1]);
++		return -2;
++	}
++
++	for (n = 1; n <= EXAMPLES; n++) {
++		example(n);
++		cfag12864b_blit();
++		while (getchar() != '\n');
++	}
++
++	cfag12864b_exit();
++
++	return 0;
 +}
 -- 
 2.7.4
