@@ -1,9 +1,9 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from smtp12.smtpout.orange.fr ([80.12.242.134]:29998 "EHLO
+Received: from smtp12.smtpout.orange.fr ([80.12.242.134]:48195 "EHLO
         smtp.smtpout.orange.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750997AbcISTUB (ORCPT
+        with ESMTP id S1752648AbcISTUC (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 19 Sep 2016 15:20:01 -0400
+        Mon, 19 Sep 2016 15:20:02 -0400
 From: Robert Jarzmik <robert.jarzmik@free.fr>
 To: Daniel Mack <daniel@zonque.org>,
         Haojian Zhuang <haojian.zhuang@gmail.com>,
@@ -16,47 +16,82 @@ To: Daniel Mack <daniel@zonque.org>,
         Wim Van Sebroeck <wim@iguana.be>
 Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
         linux-clk@vger.kernel.org, linux-watchdog@vger.kernel.org
-Subject: [PATCH 0/4] kill get_clock_tick_rate()
-Date: Mon, 19 Sep 2016 21:12:11 +0200
-Message-Id: <1474312335-20997-1-git-send-email-robert.jarzmik@free.fr>
+Subject: [PATCH 3/4] watchdog: sa11x0/pxa: get rid of get_clock_tick_rate
+Date: Mon, 19 Sep 2016 21:12:14 +0200
+Message-Id: <1474312335-20997-4-git-send-email-robert.jarzmik@free.fr>
+In-Reply-To: <1474312335-20997-1-git-send-email-robert.jarzmik@free.fr>
+References: <1474312335-20997-1-git-send-email-robert.jarzmik@free.fr>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi,
+The OS timer rate used for the watchdog can now be fetched from the
+standard clock API. This will remove the last user of
+get_clock_tick_rate() in both pxa and sa11x0 architectures.
 
-This serie aims at killing get_clock_tick_rate() from pxa and sa1100 and replace
-it by clock API calls.
+Signed-off-by: Robert Jarzmik <robert.jarzmik@free.fr>
+---
+ drivers/watchdog/sa1100_wdt.c | 24 +++++++++++++++++++++++-
+ 1 file changed, 23 insertions(+), 1 deletion(-)
 
-I'd like to have this reviewed and acked afterwards at least by :
- - Russell for the mach-sa1100 and sa1100_wdt.c
- - Stephen or Michael for the clk-pxa25x.c
- - Thomas or Daniel for the clocksource part
- - Wim for sa1100_wdt.c
-
-If the review converges, I'd also like to take it through the pxa/for-next tree,
-or alternatively Russell's tree if there is a dependency I'm not seeing, for
-v4.10 cycle.
-
-Cheers.
-
-Robert Jarzmik (3):
-  ARM: sa11x0/pxa: acquire timer rate from the clock rate
-  watchdog: sa11x0/pxa: get rid of get_clock_tick_rate
-  ARM: sa11x0/pxa: get rid of get_clock_tick_rate
-
-Russell King - ARM Linux (1):
-  clk: pxa25x: OSTIMER0 clocks from the main oscillator
-
- arch/arm/mach-pxa/generic.c                  | 18 +-----------------
- arch/arm/mach-pxa/include/mach/hardware.h    |  2 --
- arch/arm/mach-sa1100/generic.c               |  2 +-
- arch/arm/mach-sa1100/include/mach/hardware.h |  4 ----
- drivers/clk/pxa/clk-pxa25x.c                 |  2 +-
- drivers/clocksource/pxa_timer.c              | 11 +++++------
- drivers/watchdog/sa1100_wdt.c                | 24 +++++++++++++++++++++++-
- include/clocksource/pxa.h                    |  3 +--
- 8 files changed, 32 insertions(+), 34 deletions(-)
-
+diff --git a/drivers/watchdog/sa1100_wdt.c b/drivers/watchdog/sa1100_wdt.c
+index e1d39a1e9628..8965e3f536c3 100644
+--- a/drivers/watchdog/sa1100_wdt.c
++++ b/drivers/watchdog/sa1100_wdt.c
+@@ -22,6 +22,7 @@
+ 
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
++#include <linux/clk.h>
+ #include <linux/types.h>
+ #include <linux/kernel.h>
+ #include <linux/fs.h>
+@@ -155,12 +156,27 @@ static struct miscdevice sa1100dog_miscdev = {
+ };
+ 
+ static int margin __initdata = 60;		/* (secs) Default is 1 minute */
++static struct clk *clk;
+ 
+ static int __init sa1100dog_init(void)
+ {
+ 	int ret;
+ 
+-	oscr_freq = get_clock_tick_rate();
++	clk = clk_get(NULL, "OSTIMER0");
++	if (IS_ERR(clk)) {
++		pr_err("SA1100/PXA2xx Watchdog Timer: clock not found: %d\n",
++		       (int) PTR_ERR(clk));
++		return PTR_ERR(clk);
++	}
++
++	ret = clk_prepare_enable(clk);
++	if (ret) {
++		pr_err("SA1100/PXA2xx Watchdog Timer: clock failed to prepare+enable: %d\n",
++		       ret);
++		goto err;
++	}
++
++	oscr_freq = clk_get_rate(clk);
+ 
+ 	/*
+ 	 * Read the reset status, and save it for later.  If
+@@ -176,11 +192,17 @@ static int __init sa1100dog_init(void)
+ 		pr_info("SA1100/PXA2xx Watchdog Timer: timer margin %d sec\n",
+ 			margin);
+ 	return ret;
++err:
++	clk_disable_unprepare(clk);
++	clk_put(clk);
++	return ret;
+ }
+ 
+ static void __exit sa1100dog_exit(void)
+ {
+ 	misc_deregister(&sa1100dog_miscdev);
++	clk_disable_unprepare(clk);
++	clk_put(clk);
+ }
+ 
+ module_init(sa1100dog_init);
 -- 
 2.1.4
 
