@@ -1,13 +1,12 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wm0-f51.google.com ([74.125.82.51]:35388 "EHLO
-        mail-wm0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752561AbcISTsi (ORCPT
+Received: from mail-wm0-f43.google.com ([74.125.82.43]:35278 "EHLO
+        mail-wm0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752028AbcIST6P (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 19 Sep 2016 15:48:38 -0400
-Received: by mail-wm0-f51.google.com with SMTP id l132so170142296wmf.0
-        for <linux-watchdog@vger.kernel.org>; Mon, 19 Sep 2016 12:48:38 -0700 (PDT)
-Subject: Re: [PATCH 2/4] ARM: sa11x0/pxa: acquire timer rate from the clock
- rate
+        Mon, 19 Sep 2016 15:58:15 -0400
+Received: by mail-wm0-f43.google.com with SMTP id l132so170572600wmf.0
+        for <linux-watchdog@vger.kernel.org>; Mon, 19 Sep 2016 12:58:15 -0700 (PDT)
+Subject: Re: [PATCH 4/4] ARM: sa11x0/pxa: get rid of get_clock_tick_rate
 To: Robert Jarzmik <robert.jarzmik@free.fr>,
         Daniel Mack <daniel@zonque.org>,
         Haojian Zhuang <haojian.zhuang@gmail.com>,
@@ -17,27 +16,32 @@ To: Robert Jarzmik <robert.jarzmik@free.fr>,
         Thomas Gleixner <tglx@linutronix.de>,
         Wim Van Sebroeck <wim@iguana.be>
 References: <1474312335-20997-1-git-send-email-robert.jarzmik@free.fr>
- <1474312335-20997-3-git-send-email-robert.jarzmik@free.fr>
+ <1474312335-20997-5-git-send-email-robert.jarzmik@free.fr>
 Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
         linux-clk@vger.kernel.org, linux-watchdog@vger.kernel.org
 From: Daniel Lezcano <daniel.lezcano@linaro.org>
-Message-ID: <4a9fbd3b-7250-20e3-02af-c8a15d10bfd8@linaro.org>
-Date: Mon, 19 Sep 2016 21:48:35 +0200
+Message-ID: <06a58a7f-63c1-b0a0-2b94-5805cc97b811@linaro.org>
+Date: Mon, 19 Sep 2016 21:58:12 +0200
 MIME-Version: 1.0
-In-Reply-To: <1474312335-20997-3-git-send-email-robert.jarzmik@free.fr>
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <1474312335-20997-5-git-send-email-robert.jarzmik@free.fr>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
 On 19/09/2016 21:12, Robert Jarzmik wrote:
-> As both pxa and sa1100 provide a clock to the timer, the rate can be
-> inferred from the clock rather than hard encoded in a functional call.
-> 
-> This patch changes the pxa timer to have a mandatory clock which is used
-> as the timer rate.
+> The last user of this function is gone, so remove it. The clock API
+> should now be used to get clock rates.
 > 
 > Signed-off-by: Robert Jarzmik <robert.jarzmik@free.fr>
 > ---
 
 Acked-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+
+-- 
+ <http://www.linaro.org/> Linaro.org │ Open source software for ARM SoCs
+
+Follow Linaro:  <http://www.facebook.com/pages/Linaro> Facebook |
+<http://twitter.com/#!/linaroorg> Twitter |
+<http://www.linaro.org/linaro-blog/> Blog
+
