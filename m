@@ -1,47 +1,48 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from tex.lwn.net ([70.33.254.29]:34416 "EHLO vena.lwn.net"
+Received: from mout.web.de ([212.227.15.3]:55109 "EHLO mout.web.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750801AbcISQUs (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 19 Sep 2016 12:20:48 -0400
-Date: Mon, 19 Sep 2016 10:20:45 -0600
-From: Jonathan Corbet <corbet@lwn.net>
-To: Shuah Khan <shuahkh@osg.samsung.com>
-Cc: sudeep.dutt@intel.com, ashutosh.dixit@intel.com,
-        tomas.winkler@intel.com, tglx@linutronix.de, wim@iguana.be,
-        linux@roeck-us.net, elfring@users.sourceforge.net,
-        nicolas.dichtel@6wind.com, davem@davemloft.net,
-        gregkh@linuxfoundation.org, dasaratharaman.chandramouli@intel.com,
-        maheshkhanwalkar@gmail.com, mikedanese@google.com,
-        ben@decadent.org.uk, ghackmann@google.com,
+        id S932109AbcISTwm (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 19 Sep 2016 15:52:42 -0400
+Subject: Re: samples: move auxdisplay example code from Documentation
+To: Jonathan Corbet <corbet@lwn.net>,
+        Shuah Khan <shuahkh@osg.samsung.com>
+References: <cover.1474073857.git.shuahkh@osg.samsung.com>
+ <89e4e4ede7eb0c0ae5d72280455115612b0e4c98.1474073857.git.shuahkh@osg.samsung.com>
+ <20160919100559.65391b6c@lwn.net>
+Cc: Sudeep Dutt <sudeep.dutt@intel.com>,
+        Ashutosh Dixit <ashutosh.dixit@intel.com>,
+        Tomas Winkler <tomas.winkler@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        =?UTF-8?B?R8O8bnRlciBSw7Zjaw==?= <linux@roeck-us.net>,
+        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Dasaratharaman Chandramouli
+        <dasaratharaman.chandramouli@intel.com>,
+        Mahesh Khanwalkar <maheshkhanwalkar@gmail.com>,
+        Mike Danese <mikedanese@google.com>,
+        Ben Hutchings <ben@decadent.org.uk>,
+        Greg Hackmann <ghackmann@google.com>,
         linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-pcmcia@lists.infradead.org, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 8/8] samples: move watchdog example code from
- Documentation
-Message-ID: <20160919102045.041294fd@lwn.net>
-In-Reply-To: <7ef50ee89118078d35187a6dd0c66207875e0ea6.1474073857.git.shuahkh@osg.samsung.com>
-References: <cover.1474073857.git.shuahkh@osg.samsung.com>
-        <7ef50ee89118078d35187a6dd0c66207875e0ea6.1474073857.git.shuahkh@osg.samsung.com>
+From: SF Markus Elfring <elfring@users.sourceforge.net>
+Message-ID: <71f18be8-d7b8-a3d3-14cc-87ead6fa9bd7@users.sourceforge.net>
+Date: Mon, 19 Sep 2016 21:50:52 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <20160919100559.65391b6c@lwn.net>
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
 
-On Mon, 19 Sep 2016 08:47:39 -0600
-Shuah Khan <shuahkh@osg.samsung.com> wrote:
+> Documentation/auxdisplay/cfag12864b needs to be updated to reflect the new
+> home for the program (which probably does belong in samples/).
+> 
+> I wonder if these programs need MAINTAINERS entries too?
 
-> Move watchdog examples to samples and remove it from Documentation
-> Makefile. Create a new Makefile to build watchdog. It can be built
-> from top level directory or from watchdog directory:
+Do you find any more update suggestions interesting around this software module?
+https://patchwork.kernel.org/project/LKML/list/?q=cfag12864b
 
-Updates needed to watchdog-api.txt and wdt.txt; probably MAINTAINERS too.
-
-(In all of these cases, please feel free to carry the doc file updates
-with the rest, they don't need to come through me).
-
-jon
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Regards,
+Markus
