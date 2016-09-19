@@ -1,7 +1,7 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from smtp12.smtpout.orange.fr ([80.12.242.134]:48195 "EHLO
+Received: from smtp12.smtpout.orange.fr ([80.12.242.134]:33612 "EHLO
         smtp.smtpout.orange.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752648AbcISTUC (ORCPT
+        with ESMTP id S1752636AbcISTUC (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
         Mon, 19 Sep 2016 15:20:02 -0400
 From: Robert Jarzmik <robert.jarzmik@free.fr>
@@ -16,82 +16,78 @@ To: Daniel Mack <daniel@zonque.org>,
         Wim Van Sebroeck <wim@iguana.be>
 Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
         linux-clk@vger.kernel.org, linux-watchdog@vger.kernel.org
-Subject: [PATCH 3/4] watchdog: sa11x0/pxa: get rid of get_clock_tick_rate
-Date: Mon, 19 Sep 2016 21:12:14 +0200
-Message-Id: <1474312335-20997-4-git-send-email-robert.jarzmik@free.fr>
+Subject: [PATCH 4/4] ARM: sa11x0/pxa: get rid of get_clock_tick_rate
+Date: Mon, 19 Sep 2016 21:12:15 +0200
+Message-Id: <1474312335-20997-5-git-send-email-robert.jarzmik@free.fr>
 In-Reply-To: <1474312335-20997-1-git-send-email-robert.jarzmik@free.fr>
 References: <1474312335-20997-1-git-send-email-robert.jarzmik@free.fr>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The OS timer rate used for the watchdog can now be fetched from the
-standard clock API. This will remove the last user of
-get_clock_tick_rate() in both pxa and sa11x0 architectures.
+The last user of this function is gone, so remove it. The clock API
+should now be used to get clock rates.
 
 Signed-off-by: Robert Jarzmik <robert.jarzmik@free.fr>
 ---
- drivers/watchdog/sa1100_wdt.c | 24 +++++++++++++++++++++++-
- 1 file changed, 23 insertions(+), 1 deletion(-)
+ arch/arm/mach-pxa/generic.c                  | 15 ---------------
+ arch/arm/mach-pxa/include/mach/hardware.h    |  2 --
+ arch/arm/mach-sa1100/include/mach/hardware.h |  4 ----
+ 3 files changed, 21 deletions(-)
 
-diff --git a/drivers/watchdog/sa1100_wdt.c b/drivers/watchdog/sa1100_wdt.c
-index e1d39a1e9628..8965e3f536c3 100644
---- a/drivers/watchdog/sa1100_wdt.c
-+++ b/drivers/watchdog/sa1100_wdt.c
-@@ -22,6 +22,7 @@
- 
- #include <linux/module.h>
- #include <linux/moduleparam.h>
-+#include <linux/clk.h>
- #include <linux/types.h>
- #include <linux/kernel.h>
- #include <linux/fs.h>
-@@ -155,12 +156,27 @@ static struct miscdevice sa1100dog_miscdev = {
- };
- 
- static int margin __initdata = 60;		/* (secs) Default is 1 minute */
-+static struct clk *clk;
- 
- static int __init sa1100dog_init(void)
- {
- 	int ret;
- 
--	oscr_freq = get_clock_tick_rate();
-+	clk = clk_get(NULL, "OSTIMER0");
-+	if (IS_ERR(clk)) {
-+		pr_err("SA1100/PXA2xx Watchdog Timer: clock not found: %d\n",
-+		       (int) PTR_ERR(clk));
-+		return PTR_ERR(clk);
-+	}
-+
-+	ret = clk_prepare_enable(clk);
-+	if (ret) {
-+		pr_err("SA1100/PXA2xx Watchdog Timer: clock failed to prepare+enable: %d\n",
-+		       ret);
-+		goto err;
-+	}
-+
-+	oscr_freq = clk_get_rate(clk);
- 
- 	/*
- 	 * Read the reset status, and save it for later.  If
-@@ -176,11 +192,17 @@ static int __init sa1100dog_init(void)
- 		pr_info("SA1100/PXA2xx Watchdog Timer: timer margin %d sec\n",
- 			margin);
- 	return ret;
-+err:
-+	clk_disable_unprepare(clk);
-+	clk_put(clk);
-+	return ret;
+diff --git a/arch/arm/mach-pxa/generic.c b/arch/arm/mach-pxa/generic.c
+index 2a9297991d74..cb73a9723d0e 100644
+--- a/arch/arm/mach-pxa/generic.c
++++ b/arch/arm/mach-pxa/generic.c
+@@ -43,21 +43,6 @@ void clear_reset_status(unsigned int mask)
+ 	}
  }
  
- static void __exit sa1100dog_exit(void)
- {
- 	misc_deregister(&sa1100dog_miscdev);
-+	clk_disable_unprepare(clk);
-+	clk_put(clk);
- }
+-unsigned long get_clock_tick_rate(void)
+-{
+-	unsigned long clock_tick_rate;
+-
+-	if (cpu_is_pxa25x())
+-		clock_tick_rate = 3686400;
+-	else if (machine_is_mainstone())
+-		clock_tick_rate = 3249600;
+-	else
+-		clock_tick_rate = 3250000;
+-
+-	return clock_tick_rate;
+-}
+-EXPORT_SYMBOL(get_clock_tick_rate);
+-
+ /*
+  * For non device-tree builds, keep legacy timer init
+  */
+diff --git a/arch/arm/mach-pxa/include/mach/hardware.h b/arch/arm/mach-pxa/include/mach/hardware.h
+index 8d63c211b22f..55064124ca4e 100644
+--- a/arch/arm/mach-pxa/include/mach/hardware.h
++++ b/arch/arm/mach-pxa/include/mach/hardware.h
+@@ -303,8 +303,6 @@
+  */
+ extern unsigned int get_memclk_frequency_10khz(void);
  
- module_init(sa1100dog_init);
+-/* return the clock tick rate of the OS timer */
+-extern unsigned long get_clock_tick_rate(void);
+ #endif
+ 
+ #endif  /* _ASM_ARCH_HARDWARE_H */
+diff --git a/arch/arm/mach-sa1100/include/mach/hardware.h b/arch/arm/mach-sa1100/include/mach/hardware.h
+index cbedd75a9d65..474844a93e29 100644
+--- a/arch/arm/mach-sa1100/include/mach/hardware.h
++++ b/arch/arm/mach-sa1100/include/mach/hardware.h
+@@ -61,10 +61,6 @@
+ # define __REG(x)	(*((volatile unsigned long __iomem *)io_p2v(x)))
+ # define __PREG(x)	(io_v2p((unsigned long)&(x)))
+ 
+-static inline unsigned long get_clock_tick_rate(void)
+-{
+-	return 3686400;
+-}
+ #else
+ 
+ # define __REG(x)	io_p2v(x)
 -- 
 2.1.4
 
