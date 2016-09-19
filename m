@@ -1,47 +1,114 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wm0-f43.google.com ([74.125.82.43]:35278 "EHLO
-        mail-wm0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752028AbcIST6P (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:53378 "EHLO
+        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751169AbcISUIU (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 19 Sep 2016 15:58:15 -0400
-Received: by mail-wm0-f43.google.com with SMTP id l132so170572600wmf.0
-        for <linux-watchdog@vger.kernel.org>; Mon, 19 Sep 2016 12:58:15 -0700 (PDT)
-Subject: Re: [PATCH 4/4] ARM: sa11x0/pxa: get rid of get_clock_tick_rate
-To: Robert Jarzmik <robert.jarzmik@free.fr>,
-        Daniel Mack <daniel@zonque.org>,
+        Mon, 19 Sep 2016 16:08:20 -0400
+Date: Mon, 19 Sep 2016 13:08:16 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Robert Jarzmik <robert.jarzmik@free.fr>
+Cc: Daniel Mack <daniel@zonque.org>,
         Haojian Zhuang <haojian.zhuang@gmail.com>,
         Russell King <linux@armlinux.org.uk>,
         Michael Turquette <mturquette@baylibre.com>,
         Stephen Boyd <sboyd@codeaurora.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
         Thomas Gleixner <tglx@linutronix.de>,
-        Wim Van Sebroeck <wim@iguana.be>
-References: <1474312335-20997-1-git-send-email-robert.jarzmik@free.fr>
- <1474312335-20997-5-git-send-email-robert.jarzmik@free.fr>
-Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Wim Van Sebroeck <wim@iguana.be>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
         linux-clk@vger.kernel.org, linux-watchdog@vger.kernel.org
-From: Daniel Lezcano <daniel.lezcano@linaro.org>
-Message-ID: <06a58a7f-63c1-b0a0-2b94-5805cc97b811@linaro.org>
-Date: Mon, 19 Sep 2016 21:58:12 +0200
+Subject: Re: [PATCH 3/4] watchdog: sa11x0/pxa: get rid of get_clock_tick_rate
+Message-ID: <20160919200816.GC29242@roeck-us.net>
+References: <1474312335-20997-1-git-send-email-robert.jarzmik@free.fr>
+ <1474312335-20997-4-git-send-email-robert.jarzmik@free.fr>
 MIME-Version: 1.0
-In-Reply-To: <1474312335-20997-5-git-send-email-robert.jarzmik@free.fr>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1474312335-20997-4-git-send-email-robert.jarzmik@free.fr>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 19/09/2016 21:12, Robert Jarzmik wrote:
-> The last user of this function is gone, so remove it. The clock API
-> should now be used to get clock rates.
+On Mon, Sep 19, 2016 at 09:12:14PM +0200, Robert Jarzmik wrote:
+> The OS timer rate used for the watchdog can now be fetched from the
+> standard clock API. This will remove the last user of
+> get_clock_tick_rate() in both pxa and sa11x0 architectures.
 > 
 > Signed-off-by: Robert Jarzmik <robert.jarzmik@free.fr>
+
+Did you test this ? Potential problem, if built into the kernel, could be that
+the clocks might not be ready by the time the driver is instantiated. Unless
+this is converted to a platform driver, it won't be able to handle a
+-EPROBE_DEFER from the clock subsystem.
+
+Guenter
+
 > ---
-
-Acked-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-
--- 
- <http://www.linaro.org/> Linaro.org │ Open source software for ARM SoCs
-
-Follow Linaro:  <http://www.facebook.com/pages/Linaro> Facebook |
-<http://twitter.com/#!/linaroorg> Twitter |
-<http://www.linaro.org/linaro-blog/> Blog
-
+>  drivers/watchdog/sa1100_wdt.c | 24 +++++++++++++++++++++++-
+>  1 file changed, 23 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/watchdog/sa1100_wdt.c b/drivers/watchdog/sa1100_wdt.c
+> index e1d39a1e9628..8965e3f536c3 100644
+> --- a/drivers/watchdog/sa1100_wdt.c
+> +++ b/drivers/watchdog/sa1100_wdt.c
+> @@ -22,6 +22,7 @@
+>  
+>  #include <linux/module.h>
+>  #include <linux/moduleparam.h>
+> +#include <linux/clk.h>
+>  #include <linux/types.h>
+>  #include <linux/kernel.h>
+>  #include <linux/fs.h>
+> @@ -155,12 +156,27 @@ static struct miscdevice sa1100dog_miscdev = {
+>  };
+>  
+>  static int margin __initdata = 60;		/* (secs) Default is 1 minute */
+> +static struct clk *clk;
+>  
+>  static int __init sa1100dog_init(void)
+>  {
+>  	int ret;
+>  
+> -	oscr_freq = get_clock_tick_rate();
+> +	clk = clk_get(NULL, "OSTIMER0");
+> +	if (IS_ERR(clk)) {
+> +		pr_err("SA1100/PXA2xx Watchdog Timer: clock not found: %d\n",
+> +		       (int) PTR_ERR(clk));
+> +		return PTR_ERR(clk);
+> +	}
+> +
+> +	ret = clk_prepare_enable(clk);
+> +	if (ret) {
+> +		pr_err("SA1100/PXA2xx Watchdog Timer: clock failed to prepare+enable: %d\n",
+> +		       ret);
+> +		goto err;
+> +	}
+> +
+> +	oscr_freq = clk_get_rate(clk);
+>  
+>  	/*
+>  	 * Read the reset status, and save it for later.  If
+> @@ -176,11 +192,17 @@ static int __init sa1100dog_init(void)
+>  		pr_info("SA1100/PXA2xx Watchdog Timer: timer margin %d sec\n",
+>  			margin);
+>  	return ret;
+> +err:
+> +	clk_disable_unprepare(clk);
+> +	clk_put(clk);
+> +	return ret;
+>  }
+>  
+>  static void __exit sa1100dog_exit(void)
+>  {
+>  	misc_deregister(&sa1100dog_miscdev);
+> +	clk_disable_unprepare(clk);
+> +	clk_put(clk);
+>  }
+>  
+>  module_init(sa1100dog_init);
+> -- 
+> 2.1.4
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
