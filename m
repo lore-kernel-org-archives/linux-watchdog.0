@@ -1,9 +1,9 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from resqmta-po-01v.sys.comcast.net ([96.114.154.160]:55102 "EHLO
-        resqmta-po-01v.sys.comcast.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1752195AbcISOr4 (ORCPT
+Received: from resqmta-po-10v.sys.comcast.net ([96.114.154.169]:41903 "EHLO
+        resqmta-po-10v.sys.comcast.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1752168AbcISOry (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 19 Sep 2016 10:47:56 -0400
+        Mon, 19 Sep 2016 10:47:54 -0400
 From: Shuah Khan <shuahkh@osg.samsung.com>
 To: corbet@lwn.net, sudeep.dutt@intel.com, ashutosh.dixit@intel.com,
         tomas.winkler@intel.com, tglx@linutronix.de, wim@iguana.be,
@@ -15,9 +15,9 @@ To: corbet@lwn.net, sudeep.dutt@intel.com, ashutosh.dixit@intel.com,
 Cc: Shuah Khan <shuahkh@osg.samsung.com>, linux-doc@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-pcmcia@lists.infradead.org,
         linux-watchdog@vger.kernel.org
-Subject: [PATCH 7/8] samples: move timers example code from Documentation
-Date: Mon, 19 Sep 2016 08:47:38 -0600
-Message-Id: <4c64fb11582db00bd61bd5201dbe160b7be924bf.1474073857.git.shuahkh@osg.samsung.com>
+Subject: [PATCH 6/8] samples: move pcmcia example code from Documentation
+Date: Mon, 19 Sep 2016 08:47:37 -0600
+Message-Id: <2a7ba074ee6bba6d3f7b049dd993e4bf4ecb6544.1474073857.git.shuahkh@osg.samsung.com>
 In-Reply-To: <cover.1474073857.git.shuahkh@osg.samsung.com>
 References: <cover.1474073857.git.shuahkh@osg.samsung.com>
 In-Reply-To: <cover.1474073857.git.shuahkh@osg.samsung.com>
@@ -25,681 +25,153 @@ References: <cover.1474073857.git.shuahkh@osg.samsung.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Move timers examples to samples and remove it from Documentation
-Makefile. Create a new Makefile to build timers. It can be built
-from top level directory or from timers directory:
+Move pcmcia examples to samples and remove it from Documentation
+Makefile. Create a new Makefile to build pcmcia. It can be built
+from top level directory or from pcmcia directory:
 
-Run make -C samples/timers or cd samples/timers; make
+Run make -C samples/pcmcia or cd samples/pcmcia; make
 
 Signed-off-by: Shuah Khan <shuahkh@osg.samsung.com>
 ---
- Documentation/Makefile              |   2 +-
- Documentation/timers/.gitignore     |   1 -
- Documentation/timers/Makefile       |   5 -
- Documentation/timers/hpet_example.c | 294 ------------------------------------
- samples/timers/.gitignore           |   1 +
- samples/timers/Makefile             |  15 ++
- samples/timers/hpet_example.c       | 294 ++++++++++++++++++++++++++++++++++++
- 7 files changed, 311 insertions(+), 301 deletions(-)
- delete mode 100644 Documentation/timers/.gitignore
- delete mode 100644 Documentation/timers/Makefile
- delete mode 100644 Documentation/timers/hpet_example.c
- create mode 100644 samples/timers/.gitignore
- create mode 100644 samples/timers/Makefile
- create mode 100644 samples/timers/hpet_example.c
+ Documentation/Makefile           |  2 +-
+ Documentation/pcmcia/.gitignore  |  1 -
+ Documentation/pcmcia/Makefile    |  7 -------
+ Documentation/pcmcia/crc32hash.c | 32 --------------------------------
+ samples/pcmcia/.gitignore        |  1 +
+ samples/pcmcia/Makefile          |  9 +++++++++
+ samples/pcmcia/crc32hash.c       | 32 ++++++++++++++++++++++++++++++++
+ 7 files changed, 43 insertions(+), 41 deletions(-)
+ delete mode 100644 Documentation/pcmcia/.gitignore
+ delete mode 100644 Documentation/pcmcia/Makefile
+ delete mode 100644 Documentation/pcmcia/crc32hash.c
+ create mode 100644 samples/pcmcia/.gitignore
+ create mode 100644 samples/pcmcia/Makefile
+ create mode 100644 samples/pcmcia/crc32hash.c
 
 diff --git a/Documentation/Makefile b/Documentation/Makefile
-index bd5f115..9c3fe11 100644
+index ac7d68f..bd5f115 100644
 --- a/Documentation/Makefile
 +++ b/Documentation/Makefile
 @@ -1 +1 @@
--subdir-y := blackfin timers watchdog
-+subdir-y := blackfin watchdog
-diff --git a/Documentation/timers/.gitignore b/Documentation/timers/.gitignore
+-subdir-y := blackfin pcmcia timers watchdog
++subdir-y := blackfin timers watchdog
+diff --git a/Documentation/pcmcia/.gitignore b/Documentation/pcmcia/.gitignore
 deleted file mode 100644
-index c5c45d7..0000000
---- a/Documentation/timers/.gitignore
+index 53d0813..0000000
+--- a/Documentation/pcmcia/.gitignore
 +++ /dev/null
 @@ -1 +0,0 @@
--hpet_example
-diff --git a/Documentation/timers/Makefile b/Documentation/timers/Makefile
+-crc32hash
+diff --git a/Documentation/pcmcia/Makefile b/Documentation/pcmcia/Makefile
 deleted file mode 100644
-index 6c09ee6..0000000
---- a/Documentation/timers/Makefile
+index 47a8fa1..0000000
+--- a/Documentation/pcmcia/Makefile
 +++ /dev/null
-@@ -1,5 +0,0 @@
+@@ -1,7 +0,0 @@
 -# List of programs to build
--hostprogs-$(CONFIG_X86) := hpet_example
+-hostprogs-y := crc32hash
 -
 -# Tell kbuild to always build the programs
 -always := $(hostprogs-y)
-diff --git a/Documentation/timers/hpet_example.c b/Documentation/timers/hpet_example.c
+-
+-HOSTCFLAGS_crc32hash.o += -I$(objtree)/usr/include
+diff --git a/Documentation/pcmcia/crc32hash.c b/Documentation/pcmcia/crc32hash.c
 deleted file mode 100644
-index 3ab4993..0000000
---- a/Documentation/timers/hpet_example.c
+index 44f8bee..0000000
+--- a/Documentation/pcmcia/crc32hash.c
 +++ /dev/null
-@@ -1,294 +0,0 @@
--#include <stdio.h>
--#include <stdlib.h>
--#include <unistd.h>
--#include <fcntl.h>
+@@ -1,32 +0,0 @@
+-/* crc32hash.c - derived from linux/lib/crc32.c, GNU GPL v2 */
+-/* Usage example:
+-$ ./crc32hash "Dual Speed"
+-*/
+-
 -#include <string.h>
--#include <memory.h>
--#include <malloc.h>
--#include <time.h>
+-#include <stdio.h>
 -#include <ctype.h>
--#include <sys/types.h>
--#include <sys/wait.h>
--#include <signal.h>
--#include <errno.h>
--#include <sys/time.h>
--#include <linux/hpet.h>
+-#include <stdlib.h>
 -
--
--extern void hpet_open_close(int, const char **);
--extern void hpet_info(int, const char **);
--extern void hpet_poll(int, const char **);
--extern void hpet_fasync(int, const char **);
--extern void hpet_read(int, const char **);
--
--#include <sys/poll.h>
--#include <sys/ioctl.h>
--
--struct hpet_command {
--	char		*command;
--	void		(*func)(int argc, const char ** argv);
--} hpet_command[] = {
--	{
--		"open-close",
--		hpet_open_close
--	},
--	{
--		"info",
--		hpet_info
--	},
--	{
--		"poll",
--		hpet_poll
--	},
--	{
--		"fasync",
--		hpet_fasync
--	},
--};
--
--int
--main(int argc, const char ** argv)
+-static unsigned int crc32(unsigned char const *p, unsigned int len)
 -{
--	unsigned int	i;
+-	int i;
+-	unsigned int crc = 0;
+-	while (len--) {
+-		crc ^= *p++;
+-		for (i = 0; i < 8; i++)
+-			crc = (crc >> 1) ^ ((crc & 1) ? 0xedb88320 : 0);
+-	}
+-	return crc;
+-}
 -
--	argc--;
--	argv++;
--
--	if (!argc) {
--		fprintf(stderr, "-hpet: requires command\n");
+-int main(int argc, char **argv) {
+-	unsigned int result;
+-	if (argc != 2) {
+-		printf("no string passed as argument\n");
 -		return -1;
 -	}
--
--
--	for (i = 0; i < (sizeof (hpet_command) / sizeof (hpet_command[0])); i++)
--		if (!strcmp(argv[0], hpet_command[i].command)) {
--			argc--;
--			argv++;
--			fprintf(stderr, "-hpet: executing %s\n",
--				hpet_command[i].command);
--			hpet_command[i].func(argc, argv);
--			return 0;
--		}
--
--	fprintf(stderr, "do_hpet: command %s not implemented\n", argv[0]);
--
--	return -1;
+-	result = crc32((unsigned char const *)argv[1], strlen(argv[1]));
+-	printf("0x%x\n", result);
+-	return 0;
 -}
--
--void
--hpet_open_close(int argc, const char **argv)
--{
--	int	fd;
--
--	if (argc != 1) {
--		fprintf(stderr, "hpet_open_close: device-name\n");
--		return;
--	}
--
--	fd = open(argv[0], O_RDONLY);
--	if (fd < 0)
--		fprintf(stderr, "hpet_open_close: open failed\n");
--	else
--		close(fd);
--
--	return;
--}
--
--void
--hpet_info(int argc, const char **argv)
--{
--	struct hpet_info	info;
--	int			fd;
--
--	if (argc != 1) {
--		fprintf(stderr, "hpet_info: device-name\n");
--		return;
--	}
--
--	fd = open(argv[0], O_RDONLY);
--	if (fd < 0) {
--		fprintf(stderr, "hpet_info: open of %s failed\n", argv[0]);
--		return;
--	}
--
--	if (ioctl(fd, HPET_INFO, &info) < 0) {
--		fprintf(stderr, "hpet_info: failed to get info\n");
--		goto out;
--	}
--
--	fprintf(stderr, "hpet_info: hi_irqfreq 0x%lx hi_flags 0x%lx ",
--		info.hi_ireqfreq, info.hi_flags);
--	fprintf(stderr, "hi_hpet %d hi_timer %d\n",
--		info.hi_hpet, info.hi_timer);
--
--out:
--	close(fd);
--	return;
--}
--
--void
--hpet_poll(int argc, const char **argv)
--{
--	unsigned long		freq;
--	int			iterations, i, fd;
--	struct pollfd		pfd;
--	struct hpet_info	info;
--	struct timeval		stv, etv;
--	struct timezone		tz;
--	long			usec;
--
--	if (argc != 3) {
--		fprintf(stderr, "hpet_poll: device-name freq iterations\n");
--		return;
--	}
--
--	freq = atoi(argv[1]);
--	iterations = atoi(argv[2]);
--
--	fd = open(argv[0], O_RDONLY);
--
--	if (fd < 0) {
--		fprintf(stderr, "hpet_poll: open of %s failed\n", argv[0]);
--		return;
--	}
--
--	if (ioctl(fd, HPET_IRQFREQ, freq) < 0) {
--		fprintf(stderr, "hpet_poll: HPET_IRQFREQ failed\n");
--		goto out;
--	}
--
--	if (ioctl(fd, HPET_INFO, &info) < 0) {
--		fprintf(stderr, "hpet_poll: failed to get info\n");
--		goto out;
--	}
--
--	fprintf(stderr, "hpet_poll: info.hi_flags 0x%lx\n", info.hi_flags);
--
--	if (info.hi_flags && (ioctl(fd, HPET_EPI, 0) < 0)) {
--		fprintf(stderr, "hpet_poll: HPET_EPI failed\n");
--		goto out;
--	}
--
--	if (ioctl(fd, HPET_IE_ON, 0) < 0) {
--		fprintf(stderr, "hpet_poll, HPET_IE_ON failed\n");
--		goto out;
--	}
--
--	pfd.fd = fd;
--	pfd.events = POLLIN;
--
--	for (i = 0; i < iterations; i++) {
--		pfd.revents = 0;
--		gettimeofday(&stv, &tz);
--		if (poll(&pfd, 1, -1) < 0)
--			fprintf(stderr, "hpet_poll: poll failed\n");
--		else {
--			long 	data;
--
--			gettimeofday(&etv, &tz);
--			usec = stv.tv_sec * 1000000 + stv.tv_usec;
--			usec = (etv.tv_sec * 1000000 + etv.tv_usec) - usec;
--
--			fprintf(stderr,
--				"hpet_poll: expired time = 0x%lx\n", usec);
--
--			fprintf(stderr, "hpet_poll: revents = 0x%x\n",
--				pfd.revents);
--
--			if (read(fd, &data, sizeof(data)) != sizeof(data)) {
--				fprintf(stderr, "hpet_poll: read failed\n");
--			}
--			else
--				fprintf(stderr, "hpet_poll: data 0x%lx\n",
--					data);
--		}
--	}
--
--out:
--	close(fd);
--	return;
--}
--
--static int hpet_sigio_count;
--
--static void
--hpet_sigio(int val)
--{
--	fprintf(stderr, "hpet_sigio: called\n");
--	hpet_sigio_count++;
--}
--
--void
--hpet_fasync(int argc, const char **argv)
--{
--	unsigned long		freq;
--	int			iterations, i, fd, value;
--	sig_t			oldsig;
--	struct hpet_info	info;
--
--	hpet_sigio_count = 0;
--	fd = -1;
--
--	if ((oldsig = signal(SIGIO, hpet_sigio)) == SIG_ERR) {
--		fprintf(stderr, "hpet_fasync: failed to set signal handler\n");
--		return;
--	}
--
--	if (argc != 3) {
--		fprintf(stderr, "hpet_fasync: device-name freq iterations\n");
--		goto out;
--	}
--
--	fd = open(argv[0], O_RDONLY);
--
--	if (fd < 0) {
--		fprintf(stderr, "hpet_fasync: failed to open %s\n", argv[0]);
--		return;
--	}
--
--
--	if ((fcntl(fd, F_SETOWN, getpid()) == 1) ||
--		((value = fcntl(fd, F_GETFL)) == 1) ||
--		(fcntl(fd, F_SETFL, value | O_ASYNC) == 1)) {
--		fprintf(stderr, "hpet_fasync: fcntl failed\n");
--		goto out;
--	}
--
--	freq = atoi(argv[1]);
--	iterations = atoi(argv[2]);
--
--	if (ioctl(fd, HPET_IRQFREQ, freq) < 0) {
--		fprintf(stderr, "hpet_fasync: HPET_IRQFREQ failed\n");
--		goto out;
--	}
--
--	if (ioctl(fd, HPET_INFO, &info) < 0) {
--		fprintf(stderr, "hpet_fasync: failed to get info\n");
--		goto out;
--	}
--
--	fprintf(stderr, "hpet_fasync: info.hi_flags 0x%lx\n", info.hi_flags);
--
--	if (info.hi_flags && (ioctl(fd, HPET_EPI, 0) < 0)) {
--		fprintf(stderr, "hpet_fasync: HPET_EPI failed\n");
--		goto out;
--	}
--
--	if (ioctl(fd, HPET_IE_ON, 0) < 0) {
--		fprintf(stderr, "hpet_fasync, HPET_IE_ON failed\n");
--		goto out;
--	}
--
--	for (i = 0; i < iterations; i++) {
--		(void) pause();
--		fprintf(stderr, "hpet_fasync: count = %d\n", hpet_sigio_count);
--	}
--
--out:
--	signal(SIGIO, oldsig);
--
--	if (fd >= 0)
--		close(fd);
--
--	return;
--}
-diff --git a/samples/timers/.gitignore b/samples/timers/.gitignore
+diff --git a/samples/pcmcia/.gitignore b/samples/pcmcia/.gitignore
 new file mode 100644
-index 0000000..c5c45d7
+index 0000000..53d0813
 --- /dev/null
-+++ b/samples/timers/.gitignore
++++ b/samples/pcmcia/.gitignore
 @@ -0,0 +1 @@
-+hpet_example
-diff --git a/samples/timers/Makefile b/samples/timers/Makefile
++crc32hash
+diff --git a/samples/pcmcia/Makefile b/samples/pcmcia/Makefile
 new file mode 100644
-index 0000000..a5c3c4a
+index 0000000..81a7498
 --- /dev/null
-+++ b/samples/timers/Makefile
-@@ -0,0 +1,15 @@
-+ifndef CROSS_COMPILE
-+uname_M := $(shell uname -m 2>/dev/null || echo not)
-+ARCH ?= $(shell echo $(uname_M) | sed -e s/i.86/x86/ -e s/x86_64/x86/)
-+
-+ifeq ($(ARCH),x86)
++++ b/samples/pcmcia/Makefile
+@@ -0,0 +1,9 @@
 +CC := $(CROSS_COMPILE)gcc
-+PROGS := hpet_example
++CFLAGS := -I../../usr/include
++
++PROGS := crc32hash
 +
 +all: $(PROGS)
 +
 +clean:
 +	rm -fr $(PROGS)
-+
-+endif
-+endif
-diff --git a/samples/timers/hpet_example.c b/samples/timers/hpet_example.c
+diff --git a/samples/pcmcia/crc32hash.c b/samples/pcmcia/crc32hash.c
 new file mode 100644
-index 0000000..3ab4993
+index 0000000..44f8bee
 --- /dev/null
-+++ b/samples/timers/hpet_example.c
-@@ -0,0 +1,294 @@
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <unistd.h>
-+#include <fcntl.h>
++++ b/samples/pcmcia/crc32hash.c
+@@ -0,0 +1,32 @@
++/* crc32hash.c - derived from linux/lib/crc32.c, GNU GPL v2 */
++/* Usage example:
++$ ./crc32hash "Dual Speed"
++*/
++
 +#include <string.h>
-+#include <memory.h>
-+#include <malloc.h>
-+#include <time.h>
++#include <stdio.h>
 +#include <ctype.h>
-+#include <sys/types.h>
-+#include <sys/wait.h>
-+#include <signal.h>
-+#include <errno.h>
-+#include <sys/time.h>
-+#include <linux/hpet.h>
++#include <stdlib.h>
 +
-+
-+extern void hpet_open_close(int, const char **);
-+extern void hpet_info(int, const char **);
-+extern void hpet_poll(int, const char **);
-+extern void hpet_fasync(int, const char **);
-+extern void hpet_read(int, const char **);
-+
-+#include <sys/poll.h>
-+#include <sys/ioctl.h>
-+
-+struct hpet_command {
-+	char		*command;
-+	void		(*func)(int argc, const char ** argv);
-+} hpet_command[] = {
-+	{
-+		"open-close",
-+		hpet_open_close
-+	},
-+	{
-+		"info",
-+		hpet_info
-+	},
-+	{
-+		"poll",
-+		hpet_poll
-+	},
-+	{
-+		"fasync",
-+		hpet_fasync
-+	},
-+};
-+
-+int
-+main(int argc, const char ** argv)
++static unsigned int crc32(unsigned char const *p, unsigned int len)
 +{
-+	unsigned int	i;
++	int i;
++	unsigned int crc = 0;
++	while (len--) {
++		crc ^= *p++;
++		for (i = 0; i < 8; i++)
++			crc = (crc >> 1) ^ ((crc & 1) ? 0xedb88320 : 0);
++	}
++	return crc;
++}
 +
-+	argc--;
-+	argv++;
-+
-+	if (!argc) {
-+		fprintf(stderr, "-hpet: requires command\n");
++int main(int argc, char **argv) {
++	unsigned int result;
++	if (argc != 2) {
++		printf("no string passed as argument\n");
 +		return -1;
 +	}
-+
-+
-+	for (i = 0; i < (sizeof (hpet_command) / sizeof (hpet_command[0])); i++)
-+		if (!strcmp(argv[0], hpet_command[i].command)) {
-+			argc--;
-+			argv++;
-+			fprintf(stderr, "-hpet: executing %s\n",
-+				hpet_command[i].command);
-+			hpet_command[i].func(argc, argv);
-+			return 0;
-+		}
-+
-+	fprintf(stderr, "do_hpet: command %s not implemented\n", argv[0]);
-+
-+	return -1;
-+}
-+
-+void
-+hpet_open_close(int argc, const char **argv)
-+{
-+	int	fd;
-+
-+	if (argc != 1) {
-+		fprintf(stderr, "hpet_open_close: device-name\n");
-+		return;
-+	}
-+
-+	fd = open(argv[0], O_RDONLY);
-+	if (fd < 0)
-+		fprintf(stderr, "hpet_open_close: open failed\n");
-+	else
-+		close(fd);
-+
-+	return;
-+}
-+
-+void
-+hpet_info(int argc, const char **argv)
-+{
-+	struct hpet_info	info;
-+	int			fd;
-+
-+	if (argc != 1) {
-+		fprintf(stderr, "hpet_info: device-name\n");
-+		return;
-+	}
-+
-+	fd = open(argv[0], O_RDONLY);
-+	if (fd < 0) {
-+		fprintf(stderr, "hpet_info: open of %s failed\n", argv[0]);
-+		return;
-+	}
-+
-+	if (ioctl(fd, HPET_INFO, &info) < 0) {
-+		fprintf(stderr, "hpet_info: failed to get info\n");
-+		goto out;
-+	}
-+
-+	fprintf(stderr, "hpet_info: hi_irqfreq 0x%lx hi_flags 0x%lx ",
-+		info.hi_ireqfreq, info.hi_flags);
-+	fprintf(stderr, "hi_hpet %d hi_timer %d\n",
-+		info.hi_hpet, info.hi_timer);
-+
-+out:
-+	close(fd);
-+	return;
-+}
-+
-+void
-+hpet_poll(int argc, const char **argv)
-+{
-+	unsigned long		freq;
-+	int			iterations, i, fd;
-+	struct pollfd		pfd;
-+	struct hpet_info	info;
-+	struct timeval		stv, etv;
-+	struct timezone		tz;
-+	long			usec;
-+
-+	if (argc != 3) {
-+		fprintf(stderr, "hpet_poll: device-name freq iterations\n");
-+		return;
-+	}
-+
-+	freq = atoi(argv[1]);
-+	iterations = atoi(argv[2]);
-+
-+	fd = open(argv[0], O_RDONLY);
-+
-+	if (fd < 0) {
-+		fprintf(stderr, "hpet_poll: open of %s failed\n", argv[0]);
-+		return;
-+	}
-+
-+	if (ioctl(fd, HPET_IRQFREQ, freq) < 0) {
-+		fprintf(stderr, "hpet_poll: HPET_IRQFREQ failed\n");
-+		goto out;
-+	}
-+
-+	if (ioctl(fd, HPET_INFO, &info) < 0) {
-+		fprintf(stderr, "hpet_poll: failed to get info\n");
-+		goto out;
-+	}
-+
-+	fprintf(stderr, "hpet_poll: info.hi_flags 0x%lx\n", info.hi_flags);
-+
-+	if (info.hi_flags && (ioctl(fd, HPET_EPI, 0) < 0)) {
-+		fprintf(stderr, "hpet_poll: HPET_EPI failed\n");
-+		goto out;
-+	}
-+
-+	if (ioctl(fd, HPET_IE_ON, 0) < 0) {
-+		fprintf(stderr, "hpet_poll, HPET_IE_ON failed\n");
-+		goto out;
-+	}
-+
-+	pfd.fd = fd;
-+	pfd.events = POLLIN;
-+
-+	for (i = 0; i < iterations; i++) {
-+		pfd.revents = 0;
-+		gettimeofday(&stv, &tz);
-+		if (poll(&pfd, 1, -1) < 0)
-+			fprintf(stderr, "hpet_poll: poll failed\n");
-+		else {
-+			long 	data;
-+
-+			gettimeofday(&etv, &tz);
-+			usec = stv.tv_sec * 1000000 + stv.tv_usec;
-+			usec = (etv.tv_sec * 1000000 + etv.tv_usec) - usec;
-+
-+			fprintf(stderr,
-+				"hpet_poll: expired time = 0x%lx\n", usec);
-+
-+			fprintf(stderr, "hpet_poll: revents = 0x%x\n",
-+				pfd.revents);
-+
-+			if (read(fd, &data, sizeof(data)) != sizeof(data)) {
-+				fprintf(stderr, "hpet_poll: read failed\n");
-+			}
-+			else
-+				fprintf(stderr, "hpet_poll: data 0x%lx\n",
-+					data);
-+		}
-+	}
-+
-+out:
-+	close(fd);
-+	return;
-+}
-+
-+static int hpet_sigio_count;
-+
-+static void
-+hpet_sigio(int val)
-+{
-+	fprintf(stderr, "hpet_sigio: called\n");
-+	hpet_sigio_count++;
-+}
-+
-+void
-+hpet_fasync(int argc, const char **argv)
-+{
-+	unsigned long		freq;
-+	int			iterations, i, fd, value;
-+	sig_t			oldsig;
-+	struct hpet_info	info;
-+
-+	hpet_sigio_count = 0;
-+	fd = -1;
-+
-+	if ((oldsig = signal(SIGIO, hpet_sigio)) == SIG_ERR) {
-+		fprintf(stderr, "hpet_fasync: failed to set signal handler\n");
-+		return;
-+	}
-+
-+	if (argc != 3) {
-+		fprintf(stderr, "hpet_fasync: device-name freq iterations\n");
-+		goto out;
-+	}
-+
-+	fd = open(argv[0], O_RDONLY);
-+
-+	if (fd < 0) {
-+		fprintf(stderr, "hpet_fasync: failed to open %s\n", argv[0]);
-+		return;
-+	}
-+
-+
-+	if ((fcntl(fd, F_SETOWN, getpid()) == 1) ||
-+		((value = fcntl(fd, F_GETFL)) == 1) ||
-+		(fcntl(fd, F_SETFL, value | O_ASYNC) == 1)) {
-+		fprintf(stderr, "hpet_fasync: fcntl failed\n");
-+		goto out;
-+	}
-+
-+	freq = atoi(argv[1]);
-+	iterations = atoi(argv[2]);
-+
-+	if (ioctl(fd, HPET_IRQFREQ, freq) < 0) {
-+		fprintf(stderr, "hpet_fasync: HPET_IRQFREQ failed\n");
-+		goto out;
-+	}
-+
-+	if (ioctl(fd, HPET_INFO, &info) < 0) {
-+		fprintf(stderr, "hpet_fasync: failed to get info\n");
-+		goto out;
-+	}
-+
-+	fprintf(stderr, "hpet_fasync: info.hi_flags 0x%lx\n", info.hi_flags);
-+
-+	if (info.hi_flags && (ioctl(fd, HPET_EPI, 0) < 0)) {
-+		fprintf(stderr, "hpet_fasync: HPET_EPI failed\n");
-+		goto out;
-+	}
-+
-+	if (ioctl(fd, HPET_IE_ON, 0) < 0) {
-+		fprintf(stderr, "hpet_fasync, HPET_IE_ON failed\n");
-+		goto out;
-+	}
-+
-+	for (i = 0; i < iterations; i++) {
-+		(void) pause();
-+		fprintf(stderr, "hpet_fasync: count = %d\n", hpet_sigio_count);
-+	}
-+
-+out:
-+	signal(SIGIO, oldsig);
-+
-+	if (fd >= 0)
-+		close(fd);
-+
-+	return;
++	result = crc32((unsigned char const *)argv[1], strlen(argv[1]));
++	printf("0x%x\n", result);
++	return 0;
 +}
 -- 
 2.7.4
