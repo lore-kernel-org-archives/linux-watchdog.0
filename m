@@ -1,421 +1,706 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-oi0-f45.google.com ([209.85.218.45]:34074 "EHLO
-        mail-oi0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1758589AbcIOKtc (ORCPT
+Received: from resqmta-po-01v.sys.comcast.net ([96.114.154.160]:55102 "EHLO
+        resqmta-po-01v.sys.comcast.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1752195AbcISOr4 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 15 Sep 2016 06:49:32 -0400
-Received: by mail-oi0-f45.google.com with SMTP id m11so63400241oif.1
-        for <linux-watchdog@vger.kernel.org>; Thu, 15 Sep 2016 03:49:31 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <1473883781-9571-8-git-send-email-fu.wei@linaro.org>
-References: <1473883781-9571-1-git-send-email-fu.wei@linaro.org> <1473883781-9571-8-git-send-email-fu.wei@linaro.org>
-From: Fu Wei <fu.wei@linaro.org>
-Date: Thu, 15 Sep 2016 18:49:30 +0800
-Message-ID: <CADyBb7spVBPhhtzuJ6u_c6-KhaZ_2a726raL0fOJNDXPzQTo+g@mail.gmail.com>
-Subject: Re: [PATCH v13 7/8] clocksource/drivers/arm_arch_timer: Add GTDT
- support for memory-mapped timer
-To: "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Len Brown <lenb@kernel.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Marc Zyngier <marc.zyngier@arm.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Hanjun Guo <hanjun.guo@linaro.org>
-Cc: linux-arm-kernel@lists.infradead.org,
-        Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
-        rruigrok@codeaurora.org, "Abdulhamid, Harb" <harba@codeaurora.org>,
-        Christopher Covington <cov@codeaurora.org>,
-        Timur Tabi <timur@codeaurora.org>,
-        G Gregory <graeme.gregory@linaro.org>,
-        Al Stone <al.stone@linaro.org>, Jon Masters <jcm@redhat.com>,
-        Wei Huang <wei@redhat.com>, Arnd Bergmann <arnd@arndb.de>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
-        Leo Duran <leo.duran@amd.com>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        Guenter Roeck <linux@roeck-us.net>,
-        linux-watchdog@vger.kernel.org, Tomasz Nowicki <tn@semihalf.com>,
-        Christoffer Dall <christoffer.dall@linaro.org>,
-        Julien Grall <julien.grall@arm.com>, Fu Wei <fu.wei@linaro.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+        Mon, 19 Sep 2016 10:47:56 -0400
+From: Shuah Khan <shuahkh@osg.samsung.com>
+To: corbet@lwn.net, sudeep.dutt@intel.com, ashutosh.dixit@intel.com,
+        tomas.winkler@intel.com, tglx@linutronix.de, wim@iguana.be,
+        linux@roeck-us.net, elfring@users.sourceforge.net,
+        nicolas.dichtel@6wind.com, davem@davemloft.net,
+        gregkh@linuxfoundation.org, dasaratharaman.chandramouli@intel.com,
+        maheshkhanwalkar@gmail.com, mikedanese@google.com,
+        ben@decadent.org.uk, ghackmann@google.com
+Cc: Shuah Khan <shuahkh@osg.samsung.com>, linux-doc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-pcmcia@lists.infradead.org,
+        linux-watchdog@vger.kernel.org
+Subject: [PATCH 7/8] samples: move timers example code from Documentation
+Date: Mon, 19 Sep 2016 08:47:38 -0600
+Message-Id: <4c64fb11582db00bd61bd5201dbe160b7be924bf.1474073857.git.shuahkh@osg.samsung.com>
+In-Reply-To: <cover.1474073857.git.shuahkh@osg.samsung.com>
+References: <cover.1474073857.git.shuahkh@osg.samsung.com>
+In-Reply-To: <cover.1474073857.git.shuahkh@osg.samsung.com>
+References: <cover.1474073857.git.shuahkh@osg.samsung.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-HI
+Move timers examples to samples and remove it from Documentation
+Makefile. Create a new Makefile to build timers. It can be built
+from top level directory or from timers directory:
 
-On 15 September 2016 at 04:09,  <fu.wei@linaro.org> wrote:
-> From: Fu Wei <fu.wei@linaro.org>
->
-> The patch add memory-mapped timer register support by using the informati=
-on
-> provided by the new GTDT driver of ACPI.
-> Also refactor original memory-mapped timer dt support for reusing some co=
-mmon
-> code.
->
-> Signed-off-by: Fu Wei <fu.wei@linaro.org>
-> ---
->  drivers/clocksource/arm_arch_timer.c | 238 +++++++++++++++++++++++++----=
-------
->  1 file changed, 172 insertions(+), 66 deletions(-)
->
-> diff --git a/drivers/clocksource/arm_arch_timer.c b/drivers/clocksource/a=
-rm_arch_timer.c
-> index 0197ef9..ddca6e3 100644
-> --- a/drivers/clocksource/arm_arch_timer.c
-> +++ b/drivers/clocksource/arm_arch_timer.c
-> @@ -57,6 +57,7 @@
->  static unsigned arch_timers_present __initdata;
->
->  static void __iomem *arch_counter_base;
-> +static void __iomem *cntctlbase __initdata;
->
->  struct arch_timer {
->         void __iomem *base;
-> @@ -656,15 +657,56 @@ out:
->         return err;
->  }
->
-> -static int __init arch_timer_mem_register(void __iomem *base, unsigned i=
-nt irq)
-> +static int __init arch_timer_mem_register(struct device_node *np, void *=
-frame)
->  {
-> -       int ret;
-> -       irq_handler_t func;
-> +       struct device_node *frame_node =3D NULL;
-> +       struct gt_timer_data *frame_data =3D NULL;
->         struct arch_timer *t;
-> +       void __iomem *base;
-> +       irq_handler_t func;
-> +       unsigned int irq;
-> +       int ret;
-> +
-> +       if (np) {
-> +               frame_node =3D (struct device_node *)frame;
-> +               base =3D of_iomap(frame_node, 0);
-> +               arch_timer_detect_rate(base, np);
-> +               if (arch_timer_mem_use_virtual)
-> +                       irq =3D irq_of_parse_and_map(frame_node, VIRT_SPI=
-);
-> +               else
-> +                       irq =3D irq_of_parse_and_map(frame_node, PHYS_SPI=
-);
-> +       } else {
-> +               frame_data =3D (struct gt_timer_data *)frame;
-> +               /*
-> +                * According to ARMv8 Architecture Reference Manual(ARM),
-> +                * the size of CNTBaseN frames of memory-mapped timer
-> +                * is SZ_4K(Offset 0x000 =E2=80=93 0xFFF).
-> +                */
-> +               base =3D ioremap(frame_data->cntbase_phy, SZ_4K);
-> +               if (arch_timer_mem_use_virtual)
-> +                       irq =3D frame_data->virtual_irq;
-> +               else
-> +                       irq =3D frame_data->irq;
-> +       }
-> +
-> +       if (!base) {
-> +               pr_err("Can't map frame's registers\n");
-> +               return -ENXIO;
-> +       }
-> +       if (!irq) {
-> +               pr_err("Frame missing %s irq",
-> +                      arch_timer_mem_use_virtual ? "virt" : "phys");
-> +               ret =3D -EINVAL;
-> +               goto out;
-> +       }
-> +
-> +       arch_counter_base =3D base;
->
->         t =3D kzalloc(sizeof(*t), GFP_KERNEL);
-> -       if (!t)
-> +       if (!t) {
->                 return -ENOMEM;
-                   ^
-                  my bad, it should be "ret =3D "
+Run make -C samples/timers or cd samples/timers; make
 
-> +               goto out;
-> +       }
->
->         t->base =3D base;
->         t->evt.irq =3D irq;
-> @@ -676,11 +718,13 @@ static int __init arch_timer_mem_register(void __io=
-mem *base, unsigned int irq)
->                 func =3D arch_timer_handler_phys_mem;
->
->         ret =3D request_irq(irq, func, IRQF_TIMER, "arch_mem_timer", &t->=
-evt);
-> -       if (ret) {
-> -               pr_err("Failed to request mem timer irq\n");
-> -               kfree(t);
-> -       }
-> +       if (!ret)
-> +               return 0;
->
-> +       pr_err("Failed to request mem timer irq\n");
-> +       kfree(t);
-> +out:
-> +       iounmap(base);
->         return ret;
->  }
->
-> @@ -769,7 +813,7 @@ static int __init arch_timer_init(void)
->                 return ret;
->
->         arch_timer_kvm_info.virtual_irq =3D arch_timer_ppi[VIRT_PPI];
-> -
-> +
->         return 0;
->  }
->
-> @@ -803,21 +847,56 @@ static int __init arch_timer_of_init(struct device_=
-node *np)
->  CLOCKSOURCE_OF_DECLARE(armv7_arch_timer, "arm,armv7-timer", arch_timer_o=
-f_init);
->  CLOCKSOURCE_OF_DECLARE(armv8_arch_timer, "arm,armv8-timer", arch_timer_o=
-f_init);
->
-> -static int __init arch_timer_mem_init(struct device_node *np)
-> +static int __init get_cnttidr(struct device_node *np,
-> +                             struct gt_block_data *gt_block, u32 *cnttid=
-r)
->  {
-> -       struct device_node *frame, *best_frame =3D NULL;
-> -       void __iomem *cntctlbase, *base;
-> -       unsigned int irq, ret =3D -EINVAL;
-> -       u32 cnttidr;
-> +       if (np)
-> +               cntctlbase =3D of_iomap(np, 0);
-> +       else
-> +               cntctlbase =3D ioremap(gt_block->cntctlbase_phy, SZ_4K);
-> +               /*
-> +                * According to ARMv8 Architecture Reference Manual(ARM),
-> +                * the size of CNTCTLBase frame of memory-mapped timer
-> +                * is SZ_4K(Offset 0x000 =E2=80=93 0xFFF).
-> +                */
->
-> -       arch_timers_present |=3D ARCH_MEM_TIMER;
-> -       cntctlbase =3D of_iomap(np, 0);
->         if (!cntctlbase) {
->                 pr_err("Can't find CNTCTLBase\n");
->                 return -ENXIO;
->         }
->
-> -       cnttidr =3D readl_relaxed(cntctlbase + CNTTIDR);
-> +       *cnttidr =3D readl_relaxed(cntctlbase + CNTTIDR);
-> +       return 0;
-> +}
-> +
-> +static bool __init is_best_frame(u32 cnttidr, int n)
-> +{
-> +       u32 cntacr =3D CNTACR_RFRQ | CNTACR_RWPT | CNTACR_RPCT | CNTACR_R=
-WVT |
-> +                    CNTACR_RVOFF | CNTACR_RVCT;
-> +
-> +       /* Try enabling everything, and see what sticks */
-> +       writel_relaxed(cntacr, cntctlbase + CNTACR(n));
-> +       cntacr =3D readl_relaxed(cntctlbase + CNTACR(n));
-> +
-> +       if ((cnttidr & CNTTIDR_VIRT(n)) &&
-> +           !(~cntacr & (CNTACR_RWVT | CNTACR_RVCT)))
-> +               arch_timer_mem_use_virtual =3D true;
-> +       else if (~cntacr & (CNTACR_RWPT | CNTACR_RPCT))
-> +               return false;
-> +
-> +       return true;
-> +}
-> +
-> +static int __init arch_timer_mem_init(struct device_node *np)
-> +{
-> +       struct device_node *frame, *best_frame =3D NULL;
-> +       unsigned int ret =3D -EINVAL;
-> +       u32 cnttidr;
-> +
-> +       arch_timers_present |=3D ARCH_MEM_TIMER;
-> +
-> +       if (get_cnttidr(np, NULL, &cnttidr))
-> +               return -ENXIO;
->
->         /*
->          * Try to find a virtual capable frame. Otherwise fall back to a
-> @@ -825,60 +904,22 @@ static int __init arch_timer_mem_init(struct device=
-_node *np)
->          */
->         for_each_available_child_of_node(np, frame) {
->                 int n;
-> -               u32 cntacr;
-> -
->                 if (of_property_read_u32(frame, "frame-number", &n)) {
-> -                       pr_err("Missing frame-number\n");
-> +                       pr_err("Missing frame-number.\n");
->                         of_node_put(frame);
->                         goto out;
->                 }
-> -
-> -               /* Try enabling everything, and see what sticks */
-> -               cntacr =3D CNTACR_RFRQ | CNTACR_RWPT | CNTACR_RPCT |
-> -                        CNTACR_RWVT | CNTACR_RVOFF | CNTACR_RVCT;
-> -               writel_relaxed(cntacr, cntctlbase + CNTACR(n));
-> -               cntacr =3D readl_relaxed(cntctlbase + CNTACR(n));
-> -
-> -               if ((cnttidr & CNTTIDR_VIRT(n)) &&
-> -                   !(~cntacr & (CNTACR_RWVT | CNTACR_RVCT))) {
-> +               if (is_best_frame(cnttidr, n)) {
->                         of_node_put(best_frame);
-> -                       best_frame =3D frame;
-> -                       arch_timer_mem_use_virtual =3D true;
-> -                       break;
-> +                       best_frame =3D of_node_get(frame);
-> +                       if (arch_timer_mem_use_virtual)
-> +                               break;
->                 }
-> -
-> -               if (~cntacr & (CNTACR_RWPT | CNTACR_RPCT))
-> -                       continue;
-> -
-> -               of_node_put(best_frame);
-> -               best_frame =3D of_node_get(frame);
-> -       }
-> -
-> -       ret=3D -ENXIO;
-> -       base =3D arch_counter_base =3D of_iomap(best_frame, 0);
-> -       if (!base) {
-> -               pr_err("Can't map frame's registers\n");
-> -               goto out;
-> -       }
-> -
-> -       if (arch_timer_mem_use_virtual)
-> -               irq =3D irq_of_parse_and_map(best_frame, VIRT_SPI);
-> -       else
-> -               irq =3D irq_of_parse_and_map(best_frame, PHYS_SPI);
-> -
-> -       ret =3D -EINVAL;
-> -       if (!irq) {
-> -               pr_err("Frame missing %s irq",
-> -                      arch_timer_mem_use_virtual ? "virt" : "phys");
-> -               goto out;
->         }
->
-> -       arch_timer_detect_rate(base, np);
-> -       ret =3D arch_timer_mem_register(base, irq);
-> -       if (ret)
-> -               goto out;
-> -
-> -       return arch_timer_common_init();
-> +       ret =3D arch_timer_mem_register(np, best_frame);
-> +       if (!ret)
-> +               ret =3D arch_timer_common_init();
->  out:
->         iounmap(cntctlbase);
->         of_node_put(best_frame);
-> @@ -888,7 +929,72 @@ CLOCKSOURCE_OF_DECLARE(armv7_arch_timer_mem, "arm,ar=
-mv7-timer-mem",
->                        arch_timer_mem_init);
->
->  #ifdef CONFIG_ACPI_GTDT
-> -/* Initialize per-processor generic timer */
-> +static struct gt_timer_data __init *arch_timer_mem_get_timer(
-> +                                               struct gt_block_data *gt_=
-blocks)
-> +{
-> +       struct gt_block_data *gt_block =3D gt_blocks;
-> +       struct gt_timer_data *best_frame =3D NULL;
-> +       u32 cnttidr;
-> +       int i;
-> +
-> +       if (get_cnttidr(NULL, gt_block, &cnttidr))
-> +               return NULL;
-> +       /*
-> +        * Try to find a virtual capable frame. Otherwise fall back to a
-> +        * physical capable frame.
-> +        */
-> +       for (i =3D 0; i < gt_block->timer_count; i++) {
-> +               if (is_best_frame(cnttidr, gt_block->timer[i].frame_nr)) =
-{
-> +                       best_frame =3D &gt_block->timer[i];
-> +                       if (arch_timer_mem_use_virtual)
-> +                               break;
-> +               }
-> +       }
-> +       iounmap(cntctlbase);
-> +
-> +       return best_frame;
-> +}
-> +
-> +static int __init arch_timer_mem_acpi_init(size_t timer_count)
-> +{
-> +       struct gt_block_data *gt_blocks;
-> +       struct gt_timer_data *gt_timer;
-> +       int ret =3D -EINVAL;
-> +
-> +       /*
-> +        * If we don't have any Platform Timer Structures, just return.
-> +        */
-> +       if (!timer_count)
-> +               return 0;
-> +
-> +       /*
-> +        * before really check all the Platform Timer Structures,
-> +        * we assume they are GT block, and allocate memory for them.
-> +        * We will free these memory once we finish the initialization.
-> +        */
-> +       gt_blocks =3D kcalloc(timer_count, sizeof(*gt_blocks), GFP_KERNEL=
-);
-> +       if (!gt_blocks)
-> +               return -ENOMEM;
-> +
-> +       if (gtdt_arch_timer_mem_init(gt_blocks) > 0) {
-> +               gt_timer =3D arch_timer_mem_get_timer(gt_blocks);
-> +               if (!gt_timer) {
-> +                       pr_err("Failed to get mem timer info.\n");
-> +                       goto error;
-> +               }
-> +               ret =3D arch_timer_mem_register(NULL, gt_timer);
-> +               if (ret) {
-> +                       pr_err("Failed to register mem timer.\n");
-> +                       goto error;
-> +               }
-> +       }
-> +       arch_timers_present |=3D ARCH_MEM_TIMER;
-> +error:
-> +       kfree(gt_blocks);
-> +       return ret;
-> +}
-> +
-> +/* Initialize per-processor generic timer and memory-mapped timer(if pre=
-sent) */
->  static int __init arch_timer_acpi_init(struct acpi_table_header *table)
->  {
->         int timer_count;
-> @@ -912,8 +1018,8 @@ static int __init arch_timer_acpi_init(struct acpi_t=
-able_header *table)
->         /* Get the frequency from CNTFRQ */
->         arch_timer_detect_rate(NULL, NULL);
->
-> -       if (timer_count < 0)
-> -               pr_err("Failed to get platform timer info.\n");
-> +       if (timer_count < 0 || arch_timer_mem_acpi_init((size_t)timer_cou=
-nt))
-> +               pr_err("Failed to initialize memory-mapped timer.\n");
->
->         return arch_timer_init();
->  }
-> --
-> 2.7.4
->
+Signed-off-by: Shuah Khan <shuahkh@osg.samsung.com>
+---
+ Documentation/Makefile              |   2 +-
+ Documentation/timers/.gitignore     |   1 -
+ Documentation/timers/Makefile       |   5 -
+ Documentation/timers/hpet_example.c | 294 ------------------------------------
+ samples/timers/.gitignore           |   1 +
+ samples/timers/Makefile             |  15 ++
+ samples/timers/hpet_example.c       | 294 ++++++++++++++++++++++++++++++++++++
+ 7 files changed, 311 insertions(+), 301 deletions(-)
+ delete mode 100644 Documentation/timers/.gitignore
+ delete mode 100644 Documentation/timers/Makefile
+ delete mode 100644 Documentation/timers/hpet_example.c
+ create mode 100644 samples/timers/.gitignore
+ create mode 100644 samples/timers/Makefile
+ create mode 100644 samples/timers/hpet_example.c
 
+diff --git a/Documentation/Makefile b/Documentation/Makefile
+index bd5f115..9c3fe11 100644
+--- a/Documentation/Makefile
++++ b/Documentation/Makefile
+@@ -1 +1 @@
+-subdir-y := blackfin timers watchdog
++subdir-y := blackfin watchdog
+diff --git a/Documentation/timers/.gitignore b/Documentation/timers/.gitignore
+deleted file mode 100644
+index c5c45d7..0000000
+--- a/Documentation/timers/.gitignore
++++ /dev/null
+@@ -1 +0,0 @@
+-hpet_example
+diff --git a/Documentation/timers/Makefile b/Documentation/timers/Makefile
+deleted file mode 100644
+index 6c09ee6..0000000
+--- a/Documentation/timers/Makefile
++++ /dev/null
+@@ -1,5 +0,0 @@
+-# List of programs to build
+-hostprogs-$(CONFIG_X86) := hpet_example
+-
+-# Tell kbuild to always build the programs
+-always := $(hostprogs-y)
+diff --git a/Documentation/timers/hpet_example.c b/Documentation/timers/hpet_example.c
+deleted file mode 100644
+index 3ab4993..0000000
+--- a/Documentation/timers/hpet_example.c
++++ /dev/null
+@@ -1,294 +0,0 @@
+-#include <stdio.h>
+-#include <stdlib.h>
+-#include <unistd.h>
+-#include <fcntl.h>
+-#include <string.h>
+-#include <memory.h>
+-#include <malloc.h>
+-#include <time.h>
+-#include <ctype.h>
+-#include <sys/types.h>
+-#include <sys/wait.h>
+-#include <signal.h>
+-#include <errno.h>
+-#include <sys/time.h>
+-#include <linux/hpet.h>
+-
+-
+-extern void hpet_open_close(int, const char **);
+-extern void hpet_info(int, const char **);
+-extern void hpet_poll(int, const char **);
+-extern void hpet_fasync(int, const char **);
+-extern void hpet_read(int, const char **);
+-
+-#include <sys/poll.h>
+-#include <sys/ioctl.h>
+-
+-struct hpet_command {
+-	char		*command;
+-	void		(*func)(int argc, const char ** argv);
+-} hpet_command[] = {
+-	{
+-		"open-close",
+-		hpet_open_close
+-	},
+-	{
+-		"info",
+-		hpet_info
+-	},
+-	{
+-		"poll",
+-		hpet_poll
+-	},
+-	{
+-		"fasync",
+-		hpet_fasync
+-	},
+-};
+-
+-int
+-main(int argc, const char ** argv)
+-{
+-	unsigned int	i;
+-
+-	argc--;
+-	argv++;
+-
+-	if (!argc) {
+-		fprintf(stderr, "-hpet: requires command\n");
+-		return -1;
+-	}
+-
+-
+-	for (i = 0; i < (sizeof (hpet_command) / sizeof (hpet_command[0])); i++)
+-		if (!strcmp(argv[0], hpet_command[i].command)) {
+-			argc--;
+-			argv++;
+-			fprintf(stderr, "-hpet: executing %s\n",
+-				hpet_command[i].command);
+-			hpet_command[i].func(argc, argv);
+-			return 0;
+-		}
+-
+-	fprintf(stderr, "do_hpet: command %s not implemented\n", argv[0]);
+-
+-	return -1;
+-}
+-
+-void
+-hpet_open_close(int argc, const char **argv)
+-{
+-	int	fd;
+-
+-	if (argc != 1) {
+-		fprintf(stderr, "hpet_open_close: device-name\n");
+-		return;
+-	}
+-
+-	fd = open(argv[0], O_RDONLY);
+-	if (fd < 0)
+-		fprintf(stderr, "hpet_open_close: open failed\n");
+-	else
+-		close(fd);
+-
+-	return;
+-}
+-
+-void
+-hpet_info(int argc, const char **argv)
+-{
+-	struct hpet_info	info;
+-	int			fd;
+-
+-	if (argc != 1) {
+-		fprintf(stderr, "hpet_info: device-name\n");
+-		return;
+-	}
+-
+-	fd = open(argv[0], O_RDONLY);
+-	if (fd < 0) {
+-		fprintf(stderr, "hpet_info: open of %s failed\n", argv[0]);
+-		return;
+-	}
+-
+-	if (ioctl(fd, HPET_INFO, &info) < 0) {
+-		fprintf(stderr, "hpet_info: failed to get info\n");
+-		goto out;
+-	}
+-
+-	fprintf(stderr, "hpet_info: hi_irqfreq 0x%lx hi_flags 0x%lx ",
+-		info.hi_ireqfreq, info.hi_flags);
+-	fprintf(stderr, "hi_hpet %d hi_timer %d\n",
+-		info.hi_hpet, info.hi_timer);
+-
+-out:
+-	close(fd);
+-	return;
+-}
+-
+-void
+-hpet_poll(int argc, const char **argv)
+-{
+-	unsigned long		freq;
+-	int			iterations, i, fd;
+-	struct pollfd		pfd;
+-	struct hpet_info	info;
+-	struct timeval		stv, etv;
+-	struct timezone		tz;
+-	long			usec;
+-
+-	if (argc != 3) {
+-		fprintf(stderr, "hpet_poll: device-name freq iterations\n");
+-		return;
+-	}
+-
+-	freq = atoi(argv[1]);
+-	iterations = atoi(argv[2]);
+-
+-	fd = open(argv[0], O_RDONLY);
+-
+-	if (fd < 0) {
+-		fprintf(stderr, "hpet_poll: open of %s failed\n", argv[0]);
+-		return;
+-	}
+-
+-	if (ioctl(fd, HPET_IRQFREQ, freq) < 0) {
+-		fprintf(stderr, "hpet_poll: HPET_IRQFREQ failed\n");
+-		goto out;
+-	}
+-
+-	if (ioctl(fd, HPET_INFO, &info) < 0) {
+-		fprintf(stderr, "hpet_poll: failed to get info\n");
+-		goto out;
+-	}
+-
+-	fprintf(stderr, "hpet_poll: info.hi_flags 0x%lx\n", info.hi_flags);
+-
+-	if (info.hi_flags && (ioctl(fd, HPET_EPI, 0) < 0)) {
+-		fprintf(stderr, "hpet_poll: HPET_EPI failed\n");
+-		goto out;
+-	}
+-
+-	if (ioctl(fd, HPET_IE_ON, 0) < 0) {
+-		fprintf(stderr, "hpet_poll, HPET_IE_ON failed\n");
+-		goto out;
+-	}
+-
+-	pfd.fd = fd;
+-	pfd.events = POLLIN;
+-
+-	for (i = 0; i < iterations; i++) {
+-		pfd.revents = 0;
+-		gettimeofday(&stv, &tz);
+-		if (poll(&pfd, 1, -1) < 0)
+-			fprintf(stderr, "hpet_poll: poll failed\n");
+-		else {
+-			long 	data;
+-
+-			gettimeofday(&etv, &tz);
+-			usec = stv.tv_sec * 1000000 + stv.tv_usec;
+-			usec = (etv.tv_sec * 1000000 + etv.tv_usec) - usec;
+-
+-			fprintf(stderr,
+-				"hpet_poll: expired time = 0x%lx\n", usec);
+-
+-			fprintf(stderr, "hpet_poll: revents = 0x%x\n",
+-				pfd.revents);
+-
+-			if (read(fd, &data, sizeof(data)) != sizeof(data)) {
+-				fprintf(stderr, "hpet_poll: read failed\n");
+-			}
+-			else
+-				fprintf(stderr, "hpet_poll: data 0x%lx\n",
+-					data);
+-		}
+-	}
+-
+-out:
+-	close(fd);
+-	return;
+-}
+-
+-static int hpet_sigio_count;
+-
+-static void
+-hpet_sigio(int val)
+-{
+-	fprintf(stderr, "hpet_sigio: called\n");
+-	hpet_sigio_count++;
+-}
+-
+-void
+-hpet_fasync(int argc, const char **argv)
+-{
+-	unsigned long		freq;
+-	int			iterations, i, fd, value;
+-	sig_t			oldsig;
+-	struct hpet_info	info;
+-
+-	hpet_sigio_count = 0;
+-	fd = -1;
+-
+-	if ((oldsig = signal(SIGIO, hpet_sigio)) == SIG_ERR) {
+-		fprintf(stderr, "hpet_fasync: failed to set signal handler\n");
+-		return;
+-	}
+-
+-	if (argc != 3) {
+-		fprintf(stderr, "hpet_fasync: device-name freq iterations\n");
+-		goto out;
+-	}
+-
+-	fd = open(argv[0], O_RDONLY);
+-
+-	if (fd < 0) {
+-		fprintf(stderr, "hpet_fasync: failed to open %s\n", argv[0]);
+-		return;
+-	}
+-
+-
+-	if ((fcntl(fd, F_SETOWN, getpid()) == 1) ||
+-		((value = fcntl(fd, F_GETFL)) == 1) ||
+-		(fcntl(fd, F_SETFL, value | O_ASYNC) == 1)) {
+-		fprintf(stderr, "hpet_fasync: fcntl failed\n");
+-		goto out;
+-	}
+-
+-	freq = atoi(argv[1]);
+-	iterations = atoi(argv[2]);
+-
+-	if (ioctl(fd, HPET_IRQFREQ, freq) < 0) {
+-		fprintf(stderr, "hpet_fasync: HPET_IRQFREQ failed\n");
+-		goto out;
+-	}
+-
+-	if (ioctl(fd, HPET_INFO, &info) < 0) {
+-		fprintf(stderr, "hpet_fasync: failed to get info\n");
+-		goto out;
+-	}
+-
+-	fprintf(stderr, "hpet_fasync: info.hi_flags 0x%lx\n", info.hi_flags);
+-
+-	if (info.hi_flags && (ioctl(fd, HPET_EPI, 0) < 0)) {
+-		fprintf(stderr, "hpet_fasync: HPET_EPI failed\n");
+-		goto out;
+-	}
+-
+-	if (ioctl(fd, HPET_IE_ON, 0) < 0) {
+-		fprintf(stderr, "hpet_fasync, HPET_IE_ON failed\n");
+-		goto out;
+-	}
+-
+-	for (i = 0; i < iterations; i++) {
+-		(void) pause();
+-		fprintf(stderr, "hpet_fasync: count = %d\n", hpet_sigio_count);
+-	}
+-
+-out:
+-	signal(SIGIO, oldsig);
+-
+-	if (fd >= 0)
+-		close(fd);
+-
+-	return;
+-}
+diff --git a/samples/timers/.gitignore b/samples/timers/.gitignore
+new file mode 100644
+index 0000000..c5c45d7
+--- /dev/null
++++ b/samples/timers/.gitignore
+@@ -0,0 +1 @@
++hpet_example
+diff --git a/samples/timers/Makefile b/samples/timers/Makefile
+new file mode 100644
+index 0000000..a5c3c4a
+--- /dev/null
++++ b/samples/timers/Makefile
+@@ -0,0 +1,15 @@
++ifndef CROSS_COMPILE
++uname_M := $(shell uname -m 2>/dev/null || echo not)
++ARCH ?= $(shell echo $(uname_M) | sed -e s/i.86/x86/ -e s/x86_64/x86/)
++
++ifeq ($(ARCH),x86)
++CC := $(CROSS_COMPILE)gcc
++PROGS := hpet_example
++
++all: $(PROGS)
++
++clean:
++	rm -fr $(PROGS)
++
++endif
++endif
+diff --git a/samples/timers/hpet_example.c b/samples/timers/hpet_example.c
+new file mode 100644
+index 0000000..3ab4993
+--- /dev/null
++++ b/samples/timers/hpet_example.c
+@@ -0,0 +1,294 @@
++#include <stdio.h>
++#include <stdlib.h>
++#include <unistd.h>
++#include <fcntl.h>
++#include <string.h>
++#include <memory.h>
++#include <malloc.h>
++#include <time.h>
++#include <ctype.h>
++#include <sys/types.h>
++#include <sys/wait.h>
++#include <signal.h>
++#include <errno.h>
++#include <sys/time.h>
++#include <linux/hpet.h>
++
++
++extern void hpet_open_close(int, const char **);
++extern void hpet_info(int, const char **);
++extern void hpet_poll(int, const char **);
++extern void hpet_fasync(int, const char **);
++extern void hpet_read(int, const char **);
++
++#include <sys/poll.h>
++#include <sys/ioctl.h>
++
++struct hpet_command {
++	char		*command;
++	void		(*func)(int argc, const char ** argv);
++} hpet_command[] = {
++	{
++		"open-close",
++		hpet_open_close
++	},
++	{
++		"info",
++		hpet_info
++	},
++	{
++		"poll",
++		hpet_poll
++	},
++	{
++		"fasync",
++		hpet_fasync
++	},
++};
++
++int
++main(int argc, const char ** argv)
++{
++	unsigned int	i;
++
++	argc--;
++	argv++;
++
++	if (!argc) {
++		fprintf(stderr, "-hpet: requires command\n");
++		return -1;
++	}
++
++
++	for (i = 0; i < (sizeof (hpet_command) / sizeof (hpet_command[0])); i++)
++		if (!strcmp(argv[0], hpet_command[i].command)) {
++			argc--;
++			argv++;
++			fprintf(stderr, "-hpet: executing %s\n",
++				hpet_command[i].command);
++			hpet_command[i].func(argc, argv);
++			return 0;
++		}
++
++	fprintf(stderr, "do_hpet: command %s not implemented\n", argv[0]);
++
++	return -1;
++}
++
++void
++hpet_open_close(int argc, const char **argv)
++{
++	int	fd;
++
++	if (argc != 1) {
++		fprintf(stderr, "hpet_open_close: device-name\n");
++		return;
++	}
++
++	fd = open(argv[0], O_RDONLY);
++	if (fd < 0)
++		fprintf(stderr, "hpet_open_close: open failed\n");
++	else
++		close(fd);
++
++	return;
++}
++
++void
++hpet_info(int argc, const char **argv)
++{
++	struct hpet_info	info;
++	int			fd;
++
++	if (argc != 1) {
++		fprintf(stderr, "hpet_info: device-name\n");
++		return;
++	}
++
++	fd = open(argv[0], O_RDONLY);
++	if (fd < 0) {
++		fprintf(stderr, "hpet_info: open of %s failed\n", argv[0]);
++		return;
++	}
++
++	if (ioctl(fd, HPET_INFO, &info) < 0) {
++		fprintf(stderr, "hpet_info: failed to get info\n");
++		goto out;
++	}
++
++	fprintf(stderr, "hpet_info: hi_irqfreq 0x%lx hi_flags 0x%lx ",
++		info.hi_ireqfreq, info.hi_flags);
++	fprintf(stderr, "hi_hpet %d hi_timer %d\n",
++		info.hi_hpet, info.hi_timer);
++
++out:
++	close(fd);
++	return;
++}
++
++void
++hpet_poll(int argc, const char **argv)
++{
++	unsigned long		freq;
++	int			iterations, i, fd;
++	struct pollfd		pfd;
++	struct hpet_info	info;
++	struct timeval		stv, etv;
++	struct timezone		tz;
++	long			usec;
++
++	if (argc != 3) {
++		fprintf(stderr, "hpet_poll: device-name freq iterations\n");
++		return;
++	}
++
++	freq = atoi(argv[1]);
++	iterations = atoi(argv[2]);
++
++	fd = open(argv[0], O_RDONLY);
++
++	if (fd < 0) {
++		fprintf(stderr, "hpet_poll: open of %s failed\n", argv[0]);
++		return;
++	}
++
++	if (ioctl(fd, HPET_IRQFREQ, freq) < 0) {
++		fprintf(stderr, "hpet_poll: HPET_IRQFREQ failed\n");
++		goto out;
++	}
++
++	if (ioctl(fd, HPET_INFO, &info) < 0) {
++		fprintf(stderr, "hpet_poll: failed to get info\n");
++		goto out;
++	}
++
++	fprintf(stderr, "hpet_poll: info.hi_flags 0x%lx\n", info.hi_flags);
++
++	if (info.hi_flags && (ioctl(fd, HPET_EPI, 0) < 0)) {
++		fprintf(stderr, "hpet_poll: HPET_EPI failed\n");
++		goto out;
++	}
++
++	if (ioctl(fd, HPET_IE_ON, 0) < 0) {
++		fprintf(stderr, "hpet_poll, HPET_IE_ON failed\n");
++		goto out;
++	}
++
++	pfd.fd = fd;
++	pfd.events = POLLIN;
++
++	for (i = 0; i < iterations; i++) {
++		pfd.revents = 0;
++		gettimeofday(&stv, &tz);
++		if (poll(&pfd, 1, -1) < 0)
++			fprintf(stderr, "hpet_poll: poll failed\n");
++		else {
++			long 	data;
++
++			gettimeofday(&etv, &tz);
++			usec = stv.tv_sec * 1000000 + stv.tv_usec;
++			usec = (etv.tv_sec * 1000000 + etv.tv_usec) - usec;
++
++			fprintf(stderr,
++				"hpet_poll: expired time = 0x%lx\n", usec);
++
++			fprintf(stderr, "hpet_poll: revents = 0x%x\n",
++				pfd.revents);
++
++			if (read(fd, &data, sizeof(data)) != sizeof(data)) {
++				fprintf(stderr, "hpet_poll: read failed\n");
++			}
++			else
++				fprintf(stderr, "hpet_poll: data 0x%lx\n",
++					data);
++		}
++	}
++
++out:
++	close(fd);
++	return;
++}
++
++static int hpet_sigio_count;
++
++static void
++hpet_sigio(int val)
++{
++	fprintf(stderr, "hpet_sigio: called\n");
++	hpet_sigio_count++;
++}
++
++void
++hpet_fasync(int argc, const char **argv)
++{
++	unsigned long		freq;
++	int			iterations, i, fd, value;
++	sig_t			oldsig;
++	struct hpet_info	info;
++
++	hpet_sigio_count = 0;
++	fd = -1;
++
++	if ((oldsig = signal(SIGIO, hpet_sigio)) == SIG_ERR) {
++		fprintf(stderr, "hpet_fasync: failed to set signal handler\n");
++		return;
++	}
++
++	if (argc != 3) {
++		fprintf(stderr, "hpet_fasync: device-name freq iterations\n");
++		goto out;
++	}
++
++	fd = open(argv[0], O_RDONLY);
++
++	if (fd < 0) {
++		fprintf(stderr, "hpet_fasync: failed to open %s\n", argv[0]);
++		return;
++	}
++
++
++	if ((fcntl(fd, F_SETOWN, getpid()) == 1) ||
++		((value = fcntl(fd, F_GETFL)) == 1) ||
++		(fcntl(fd, F_SETFL, value | O_ASYNC) == 1)) {
++		fprintf(stderr, "hpet_fasync: fcntl failed\n");
++		goto out;
++	}
++
++	freq = atoi(argv[1]);
++	iterations = atoi(argv[2]);
++
++	if (ioctl(fd, HPET_IRQFREQ, freq) < 0) {
++		fprintf(stderr, "hpet_fasync: HPET_IRQFREQ failed\n");
++		goto out;
++	}
++
++	if (ioctl(fd, HPET_INFO, &info) < 0) {
++		fprintf(stderr, "hpet_fasync: failed to get info\n");
++		goto out;
++	}
++
++	fprintf(stderr, "hpet_fasync: info.hi_flags 0x%lx\n", info.hi_flags);
++
++	if (info.hi_flags && (ioctl(fd, HPET_EPI, 0) < 0)) {
++		fprintf(stderr, "hpet_fasync: HPET_EPI failed\n");
++		goto out;
++	}
++
++	if (ioctl(fd, HPET_IE_ON, 0) < 0) {
++		fprintf(stderr, "hpet_fasync, HPET_IE_ON failed\n");
++		goto out;
++	}
++
++	for (i = 0; i < iterations; i++) {
++		(void) pause();
++		fprintf(stderr, "hpet_fasync: count = %d\n", hpet_sigio_count);
++	}
++
++out:
++	signal(SIGIO, oldsig);
++
++	if (fd >= 0)
++		close(fd);
++
++	return;
++}
+-- 
+2.7.4
 
-
---=20
-Best regards,
-
-Fu Wei
-Software Engineer
-Red Hat
