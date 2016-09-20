@@ -1,48 +1,66 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mout.web.de ([212.227.15.3]:55109 "EHLO mout.web.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932109AbcISTwm (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 19 Sep 2016 15:52:42 -0400
-Subject: Re: samples: move auxdisplay example code from Documentation
-To: Jonathan Corbet <corbet@lwn.net>,
-        Shuah Khan <shuahkh@osg.samsung.com>
-References: <cover.1474073857.git.shuahkh@osg.samsung.com>
- <89e4e4ede7eb0c0ae5d72280455115612b0e4c98.1474073857.git.shuahkh@osg.samsung.com>
- <20160919100559.65391b6c@lwn.net>
-Cc: Sudeep Dutt <sudeep.dutt@intel.com>,
-        Ashutosh Dixit <ashutosh.dixit@intel.com>,
-        Tomas Winkler <tomas.winkler@intel.com>,
+Received: from smtp07.smtpout.orange.fr ([80.12.242.129]:53192 "EHLO
+        smtp.smtpout.orange.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751437AbcITGSK (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 20 Sep 2016 02:18:10 -0400
+From: Robert Jarzmik <robert.jarzmik@free.fr>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Russell King - ARM Linux <linux@armlinux.org.uk>,
+        Daniel Mack <daniel@zonque.org>,
+        Haojian Zhuang <haojian.zhuang@gmail.com>,
+        Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@codeaurora.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
         Thomas Gleixner <tglx@linutronix.de>,
         Wim Van Sebroeck <wim@iguana.be>,
-        =?UTF-8?B?R8O8bnRlciBSw7Zjaw==?= <linux@roeck-us.net>,
-        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Dasaratharaman Chandramouli
-        <dasaratharaman.chandramouli@intel.com>,
-        Mahesh Khanwalkar <maheshkhanwalkar@gmail.com>,
-        Mike Danese <mikedanese@google.com>,
-        Ben Hutchings <ben@decadent.org.uk>,
-        Greg Hackmann <ghackmann@google.com>,
-        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-pcmcia@lists.infradead.org, linux-watchdog@vger.kernel.org
-From: SF Markus Elfring <elfring@users.sourceforge.net>
-Message-ID: <71f18be8-d7b8-a3d3-14cc-87ead6fa9bd7@users.sourceforge.net>
-Date: Mon, 19 Sep 2016 21:50:52 +0200
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-clk@vger.kernel.org, linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH 3/4] watchdog: sa11x0/pxa: get rid of get_clock_tick_rate
+References: <1474312335-20997-1-git-send-email-robert.jarzmik@free.fr>
+        <1474312335-20997-4-git-send-email-robert.jarzmik@free.fr>
+        <20160919200816.GC29242@roeck-us.net>
+        <20160919223616.GN1041@n2100.armlinux.org.uk>
+        <0909debb-f7df-648b-95d2-23b535e5b299@roeck-us.net>
+Date: Tue, 20 Sep 2016 08:18:02 +0200
+Message-ID: <87h99bdrhh.fsf@belgarion.home>
 MIME-Version: 1.0
-In-Reply-To: <20160919100559.65391b6c@lwn.net>
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-> Documentation/auxdisplay/cfag12864b needs to be updated to reflect the new
-> home for the program (which probably does belong in samples/).
-> 
-> I wonder if these programs need MAINTAINERS entries too?
+Guenter Roeck <linux@roeck-us.net> writes:
 
-Do you find any more update suggestions interesting around this software module?
-https://patchwork.kernel.org/project/LKML/list/?q=cfag12864b
+> On 09/19/2016 03:36 PM, Russell King - ARM Linux wrote:
+>> On Mon, Sep 19, 2016 at 01:08:16PM -0700, Guenter Roeck wrote:
+>>> On Mon, Sep 19, 2016 at 09:12:14PM +0200, Robert Jarzmik wrote:
+>>>> The OS timer rate used for the watchdog can now be fetched from the
+>>>> standard clock API. This will remove the last user of
+>>>> get_clock_tick_rate() in both pxa and sa11x0 architectures.
+>>>>
+>>>> Signed-off-by: Robert Jarzmik <robert.jarzmik@free.fr>
+>>>
+>>> Did you test this ? Potential problem, if built into the kernel, could be that
+>>> the clocks might not be ready by the time the driver is instantiated. Unless
+>>> this is converted to a platform driver, it won't be able to handle a
+>>> -EPROBE_DEFER from the clock subsystem.
+>>
+>> Really not a problem at all.  The OSTIMER0 is required for the system
+>> tick, and if that's not present, the kernel will be without any kind
+>> of time keeping, so a missing watchdog driver is the least of the
+>> problems.
+>>
+>> Therefore, both PXA and SA11x0 register their clocks really early to
+>> ensure that OSTIMER0 is available by the time_init() stage, which is
+>> way before driver probe time.
+>>
+>
+> You are right. And, at least in qemu, it actually works.
+Hi Guenter,
 
-Regards,
-Markus
+Yes, it was tested on pxa25x (lubbock) and pxa27x (mainstone).
+
+Cheers.
+
+-- 
+Robert
