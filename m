@@ -1,57 +1,105 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from pandora.armlinux.org.uk ([78.32.30.218]:39713 "EHLO
-        pandora.armlinux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751042AbcISWgy (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:50350 "EHLO
+        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750708AbcITEfu (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 19 Sep 2016 18:36:54 -0400
-Date: Mon, 19 Sep 2016 23:36:16 +0100
-From: Russell King - ARM Linux <linux@armlinux.org.uk>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Robert Jarzmik <robert.jarzmik@free.fr>,
+        Tue, 20 Sep 2016 00:35:50 -0400
+Subject: Re: [PATCH 3/4] watchdog: sa11x0/pxa: get rid of get_clock_tick_rate
+To: Robert Jarzmik <robert.jarzmik@free.fr>,
         Daniel Mack <daniel@zonque.org>,
         Haojian Zhuang <haojian.zhuang@gmail.com>,
+        Russell King <linux@armlinux.org.uk>,
         Michael Turquette <mturquette@baylibre.com>,
         Stephen Boyd <sboyd@codeaurora.org>,
         Daniel Lezcano <daniel.lezcano@linaro.org>,
         Thomas Gleixner <tglx@linutronix.de>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-clk@vger.kernel.org, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 3/4] watchdog: sa11x0/pxa: get rid of get_clock_tick_rate
-Message-ID: <20160919223616.GN1041@n2100.armlinux.org.uk>
+        Wim Van Sebroeck <wim@iguana.be>
 References: <1474312335-20997-1-git-send-email-robert.jarzmik@free.fr>
  <1474312335-20997-4-git-send-email-robert.jarzmik@free.fr>
- <20160919200816.GC29242@roeck-us.net>
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-clk@vger.kernel.org, linux-watchdog@vger.kernel.org
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <c87359e7-7d0c-6889-af9d-c2136cb46074@roeck-us.net>
+Date: Mon, 19 Sep 2016 21:35:46 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20160919200816.GC29242@roeck-us.net>
+In-Reply-To: <1474312335-20997-4-git-send-email-robert.jarzmik@free.fr>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Sep 19, 2016 at 01:08:16PM -0700, Guenter Roeck wrote:
-> On Mon, Sep 19, 2016 at 09:12:14PM +0200, Robert Jarzmik wrote:
-> > The OS timer rate used for the watchdog can now be fetched from the
-> > standard clock API. This will remove the last user of
-> > get_clock_tick_rate() in both pxa and sa11x0 architectures.
-> > 
-> > Signed-off-by: Robert Jarzmik <robert.jarzmik@free.fr>
-> 
-> Did you test this ? Potential problem, if built into the kernel, could be that
-> the clocks might not be ready by the time the driver is instantiated. Unless
-> this is converted to a platform driver, it won't be able to handle a
-> -EPROBE_DEFER from the clock subsystem.
+On 09/19/2016 12:12 PM, Robert Jarzmik wrote:
+> The OS timer rate used for the watchdog can now be fetched from the
+> standard clock API. This will remove the last user of
+> get_clock_tick_rate() in both pxa and sa11x0 architectures.
+>
+> Signed-off-by: Robert Jarzmik <robert.jarzmik@free.fr>
 
-Really not a problem at all.  The OSTIMER0 is required for the system
-tick, and if that's not present, the kernel will be without any kind
-of time keeping, so a missing watchdog driver is the least of the
-problems.
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Tested-by: Guenter Roeck <linux@roeck-us.net>
 
-Therefore, both PXA and SA11x0 register their clocks really early to
-ensure that OSTIMER0 is available by the time_init() stage, which is
-way before driver probe time.
+> ---
+>  drivers/watchdog/sa1100_wdt.c | 24 +++++++++++++++++++++++-
+>  1 file changed, 23 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/watchdog/sa1100_wdt.c b/drivers/watchdog/sa1100_wdt.c
+> index e1d39a1e9628..8965e3f536c3 100644
+> --- a/drivers/watchdog/sa1100_wdt.c
+> +++ b/drivers/watchdog/sa1100_wdt.c
+> @@ -22,6 +22,7 @@
+>
+>  #include <linux/module.h>
+>  #include <linux/moduleparam.h>
+> +#include <linux/clk.h>
+>  #include <linux/types.h>
+>  #include <linux/kernel.h>
+>  #include <linux/fs.h>
+> @@ -155,12 +156,27 @@ static struct miscdevice sa1100dog_miscdev = {
+>  };
+>
+>  static int margin __initdata = 60;		/* (secs) Default is 1 minute */
+> +static struct clk *clk;
+>
+>  static int __init sa1100dog_init(void)
+>  {
+>  	int ret;
+>
+> -	oscr_freq = get_clock_tick_rate();
+> +	clk = clk_get(NULL, "OSTIMER0");
+> +	if (IS_ERR(clk)) {
+> +		pr_err("SA1100/PXA2xx Watchdog Timer: clock not found: %d\n",
+> +		       (int) PTR_ERR(clk));
+> +		return PTR_ERR(clk);
+> +	}
+> +
+> +	ret = clk_prepare_enable(clk);
+> +	if (ret) {
+> +		pr_err("SA1100/PXA2xx Watchdog Timer: clock failed to prepare+enable: %d\n",
+> +		       ret);
+> +		goto err;
+> +	}
+> +
+> +	oscr_freq = clk_get_rate(clk);
+>
+>  	/*
+>  	 * Read the reset status, and save it for later.  If
+> @@ -176,11 +192,17 @@ static int __init sa1100dog_init(void)
+>  		pr_info("SA1100/PXA2xx Watchdog Timer: timer margin %d sec\n",
+>  			margin);
+>  	return ret;
+> +err:
+> +	clk_disable_unprepare(clk);
+> +	clk_put(clk);
+> +	return ret;
+>  }
+>
+>  static void __exit sa1100dog_exit(void)
+>  {
+>  	misc_deregister(&sa1100dog_miscdev);
+> +	clk_disable_unprepare(clk);
+> +	clk_put(clk);
+>  }
+>
+>  module_init(sa1100dog_init);
+>
 
--- 
-RMK's Patch system: http://www.armlinux.org.uk/developer/patches/
-FTTC broadband for 0.8mile line: currently at 9.6Mbps down 400kbps up
-according to speedtest.net.
