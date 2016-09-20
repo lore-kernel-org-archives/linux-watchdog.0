@@ -1,66 +1,71 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from smtp07.smtpout.orange.fr ([80.12.242.129]:53192 "EHLO
-        smtp.smtpout.orange.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751437AbcITGSK (ORCPT
+Received: from ec2-52-27-115-49.us-west-2.compute.amazonaws.com ([52.27.115.49]:58360
+        "EHLO s-opensource.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754743AbcITQFi (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 20 Sep 2016 02:18:10 -0400
-From: Robert Jarzmik <robert.jarzmik@free.fr>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Russell King - ARM Linux <linux@armlinux.org.uk>,
-        Daniel Mack <daniel@zonque.org>,
-        Haojian Zhuang <haojian.zhuang@gmail.com>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@codeaurora.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-clk@vger.kernel.org, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 3/4] watchdog: sa11x0/pxa: get rid of get_clock_tick_rate
-References: <1474312335-20997-1-git-send-email-robert.jarzmik@free.fr>
-        <1474312335-20997-4-git-send-email-robert.jarzmik@free.fr>
-        <20160919200816.GC29242@roeck-us.net>
-        <20160919223616.GN1041@n2100.armlinux.org.uk>
-        <0909debb-f7df-648b-95d2-23b535e5b299@roeck-us.net>
-Date: Tue, 20 Sep 2016 08:18:02 +0200
-Message-ID: <87h99bdrhh.fsf@belgarion.home>
+        Tue, 20 Sep 2016 12:05:38 -0400
+Subject: Re: [PATCH 1/8] samples: move accounting example code from
+ Documentation
+To: Jonathan Corbet <corbet@lwn.net>
+References: <cover.1474073857.git.shuahkh@osg.samsung.com>
+ <a73182df44d0827ed6338c082a8ea16d6d2bd0b8.1474073857.git.shuahkh@osg.samsung.com>
+ <20160919100220.3581d122@lwn.net>
+Cc: sudeep.dutt@intel.com, ashutosh.dixit@intel.com,
+        tomas.winkler@intel.com, tglx@linutronix.de, wim@iguana.be,
+        linux@roeck-us.net, elfring@users.sourceforge.net,
+        nicolas.dichtel@6wind.com, davem@davemloft.net,
+        gregkh@linuxfoundation.org, dasaratharaman.chandramouli@intel.com,
+        maheshkhanwalkar@gmail.com, mikedanese@google.com,
+        ben@decadent.org.uk, ghackmann@google.com,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-pcmcia@lists.infradead.org, linux-watchdog@vger.kernel.org,
+        shuah Khan <shuahkh@osg.samsung.com>
+From: Shuah Khan <shuahkh@osg.samsung.com>
+Message-ID: <d535cd06-c661-3232-db2a-9334e04a6b0a@osg.samsung.com>
+Date: Tue, 20 Sep 2016 10:05:25 -0600
 MIME-Version: 1.0
-Content-Type: text/plain
+In-Reply-To: <20160919100220.3581d122@lwn.net>
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Guenter Roeck <linux@roeck-us.net> writes:
+On 09/19/2016 10:02 AM, Jonathan Corbet wrote:
+> On Mon, 19 Sep 2016 08:47:32 -0600
+> Shuah Khan <shuahkh@osg.samsung.com> wrote:
+> 
+>> Move accounting examples to samples and remove it from Documentation
+>> Makefile. Create a new Makefile to build accounting. It can be built
+>> from top level directory or from accounting directory:
+> 
+> So I like the basic idea of these patches; it's the direction we've been
+> trying to push things for a little bit.  I have a couple of specific
+> comments for this one that may well apply to the others as well.
+> 
+> 1) Is samples the right destination for these utilities?  Some of them
+>    might well be better placed under tools/ instead.  I'm not sure we've
+>    ever formally stated the purpose of those two subtrees; I see samples/
+>    as demonstrations of how to use something, while tools/ are utilities
+>    you might actually want to use for some purpose.  Something like
+>    getdelays might well fall into the latter group.  But maybe others
+>    disagree?
 
-> On 09/19/2016 03:36 PM, Russell King - ARM Linux wrote:
->> On Mon, Sep 19, 2016 at 01:08:16PM -0700, Guenter Roeck wrote:
->>> On Mon, Sep 19, 2016 at 09:12:14PM +0200, Robert Jarzmik wrote:
->>>> The OS timer rate used for the watchdog can now be fetched from the
->>>> standard clock API. This will remove the last user of
->>>> get_clock_tick_rate() in both pxa and sa11x0 architectures.
->>>>
->>>> Signed-off-by: Robert Jarzmik <robert.jarzmik@free.fr>
->>>
->>> Did you test this ? Potential problem, if built into the kernel, could be that
->>> the clocks might not be ready by the time the driver is instantiated. Unless
->>> this is converted to a platform driver, it won't be able to handle a
->>> -EPROBE_DEFER from the clock subsystem.
->>
->> Really not a problem at all.  The OSTIMER0 is required for the system
->> tick, and if that's not present, the kernel will be without any kind
->> of time keeping, so a missing watchdog driver is the least of the
->> problems.
->>
->> Therefore, both PXA and SA11x0 register their clocks really early to
->> ensure that OSTIMER0 is available by the time_init() stage, which is
->> way before driver probe time.
->>
->
-> You are right. And, at least in qemu, it actually works.
-Hi Guenter,
+getdelays stumped me a bit. My first choice was tools and then I noticed
+that the documentation says it is a tool and an example usage of taskstruct.
+I am not set on tools or samples as location for this. I can move it to
+tools instead.
 
-Yes, it was tested on pxa25x (lubbock) and pxa27x (mainstone).
+> 
+> 2) Tools like getdelays are referenced in the documents that have been
+>    left behind; see accounting/delay-accounting.txt, for example.  Those
+>    documents should be updated so that readers know where to find the
+>    referenced programs, wherever they end up.  Converting them to Sphinx
+>    while you're at it is an extra-credit exercise :)
 
-Cheers.
+Right. Documents need updates and also the 00-Index files. I agree with
+you that converting to Sphinx makes sense. There will be some learning
+curve on my part. I can take this one once the move happens and do the
+Documentation and 00-Index file updates.
 
--- 
-Robert
+thanks,
+-- Shuah
