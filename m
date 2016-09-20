@@ -1,91 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Wed, 14 Sep 2016 15:16:58 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Peter Griffin <peter.griffin@linaro.org>
-Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        kernel@stlinux.com, patrice.chotard@st.com, devicetree@vger.kernel.org,
-        lee.jones@linaro.org, wim@iguana.be, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 11/19] watchdog: st_wdt: Remove support for obsolete
- platforms
-Message-ID: <20160914221658.GF14003@roeck-us.net>
-References: <1473859677-9231-1-git-send-email-peter.griffin@linaro.org>
- <1473859677-9231-12-git-send-email-peter.griffin@linaro.org>
+From: "Winkler, Tomas" <tomas.winkler@intel.com>
+To: Jonathan Corbet <corbet@lwn.net>, Shuah Khan <shuahkh@osg.samsung.com>
+CC: "Dutt, Sudeep" <sudeep.dutt@intel.com>,
+        "Dixit, Ashutosh" <ashutosh.dixit@intel.com>,
+        "tglx@linutronix.de" <tglx@linutronix.de>,
+        "wim@iguana.be" <wim@iguana.be>,
+        "linux@roeck-us.net" <linux@roeck-us.net>,
+        "elfring@users.sourceforge.net" <elfring@users.sourceforge.net>,
+        "nicolas.dichtel@6wind.com" <nicolas.dichtel@6wind.com>,
+        "davem@davemloft.net" <davem@davemloft.net>,
+        "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
+        "Chandramouli, Dasaratharaman"
+        <dasaratharaman.chandramouli@intel.com>,
+        "maheshkhanwalkar@gmail.com" <maheshkhanwalkar@gmail.com>,
+        "mikedanese@google.com" <mikedanese@google.com>,
+        "ben@decadent.org.uk" <ben@decadent.org.uk>,
+        "ghackmann@google.com" <ghackmann@google.com>,
+        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-pcmcia@lists.infradead.org" <linux-pcmcia@lists.infradead.org>,
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
+Subject: RE: [PATCH 5/8] samples: move misc-devices/mei example code from
+ Documentation
+Date: Tue, 20 Sep 2016 06:17:40 +0000
+Message-ID: <5B8DA87D05A7694D9FA63FD143655C1B542EB8FE@hasmsx108.ger.corp.intel.com>
+References: <cover.1474073857.git.shuahkh@osg.samsung.com>
+        <12a2016ad44adcfb88f442923411f3345b5b3a1e.1474073857.git.shuahkh@osg.samsung.com>
+ <20160919101348.1eb53045@lwn.net>
+In-Reply-To: <20160919101348.1eb53045@lwn.net>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1473859677-9231-12-git-send-email-peter.griffin@linaro.org>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On Wed, Sep 14, 2016 at 02:27:49PM +0100, Peter Griffin wrote:
-> STiH415/6 SoC support is being removed from the kernel.
-> This patch updates the watchdog driver to remove references
-> to these obsolete platforms.
-> 
-> Signed-off-by: Peter Griffin <peter.griffin@linaro.org>
-> Cc: <wim@iguana.be>
-> Cc: <linux@roeck-us.net>
-> Cc: <linux-watchdog@vger.kernel.org>
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-> ---
->  drivers/watchdog/st_lpc_wdt.c | 33 ---------------------------------
->  1 file changed, 33 deletions(-)
+> -----Original Message-----
+> From: Jonathan Corbet [mailto:corbet@lwn.net]
+> Sent: Monday, September 19, 2016 19:14
+> To: Shuah Khan <shuahkh@osg.samsung.com>
+> Cc: Dutt, Sudeep <sudeep.dutt@intel.com>; Dixit, Ashutosh
+> <ashutosh.dixit@intel.com>; Winkler, Tomas <tomas.winkler@intel.com>;
+> tglx@linutronix.de; wim@iguana.be; linux@roeck-us.net;
+> elfring@users.sourceforge.net; nicolas.dichtel@6wind.com;
+> davem@davemloft.net; gregkh@linuxfoundation.org; Chandramouli,
+> Dasaratharaman <dasaratharaman.chandramouli@intel.com>;
+> maheshkhanwalkar@gmail.com; mikedanese@google.com;
+> ben@decadent.org.uk; ghackmann@google.com; linux-doc@vger.kernel.org;
+> linux-kernel@vger.kernel.org; linux-pcmcia@lists.infradead.org; linux-
+> watchdog@vger.kernel.org
+> Subject: Re: [PATCH 5/8] samples: move misc-devices/mei example code
+> from Documentation
 > 
-> diff --git a/drivers/watchdog/st_lpc_wdt.c b/drivers/watchdog/st_lpc_wdt.c
-> index 14e9bad..e6100e4 100644
-> --- a/drivers/watchdog/st_lpc_wdt.c
-> +++ b/drivers/watchdog/st_lpc_wdt.c
-> @@ -52,27 +52,6 @@ struct st_wdog {
->  	bool warm_reset;
->  };
->  
-> -static struct st_wdog_syscfg stid127_syscfg = {
-> -	.reset_type_reg		= 0x004,
-> -	.reset_type_mask	= BIT(2),
-> -	.enable_reg		= 0x000,
-> -	.enable_mask		= BIT(2),
-> -};
-> -
-> -static struct st_wdog_syscfg stih415_syscfg = {
-> -	.reset_type_reg		= 0x0B8,
-> -	.reset_type_mask	= BIT(6),
-> -	.enable_reg		= 0x0B4,
-> -	.enable_mask		= BIT(7),
-> -};
-> -
-> -static struct st_wdog_syscfg stih416_syscfg = {
-> -	.reset_type_reg		= 0x88C,
-> -	.reset_type_mask	= BIT(6),
-> -	.enable_reg		= 0x888,
-> -	.enable_mask		= BIT(7),
-> -};
-> -
->  static struct st_wdog_syscfg stih407_syscfg = {
->  	.enable_reg		= 0x204,
->  	.enable_mask		= BIT(19),
-> @@ -83,18 +62,6 @@ static const struct of_device_id st_wdog_match[] = {
->  		.compatible = "st,stih407-lpc",
->  		.data = &stih407_syscfg,
->  	},
-> -	{
-> -		.compatible = "st,stih416-lpc",
-> -		.data = &stih416_syscfg,
-> -	},
-> -	{
-> -		.compatible = "st,stih415-lpc",
-> -		.data = &stih415_syscfg,
-> -	},
-> -	{
-> -		.compatible = "st,stid127-lpc",
-> -		.data = &stid127_syscfg,
-> -	},
->  	{},
->  };
->  MODULE_DEVICE_TABLE(of, st_wdog_match);
-> -- 
-> 1.9.1
+> On Mon, 19 Sep 2016 08:47:36 -0600
+> Shuah Khan <shuahkh@osg.samsung.com> wrote:
 > 
+> > Move misc-devices/mei examples to samples/mei and remove it from
+> > Documentation Makefile. Delete misc-devices/Makefile.
+> >
+> > Create a new Makefile to build samples/mei. It can be built from top
+> > level directory or from mei directory:
+> 
+> This one still has a fair amount of code hiding in the .txt files, but that's a
+> separate job.
+> 
+> Acked-by: Jonathan Corbet <corbet@lwn.net>
+
+Shouldn't  this update also the  MAINTAINERS file?
+Tomas
