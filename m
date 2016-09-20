@@ -1,15 +1,14 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ec2-52-27-115-49.us-west-2.compute.amazonaws.com ([52.27.115.49]:58406
+Received: from ec2-52-27-115-49.us-west-2.compute.amazonaws.com ([52.27.115.49]:58433
         "EHLO s-opensource.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933141AbcITQJi (ORCPT
+        with ESMTP id S1755381AbcITQLx (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 20 Sep 2016 12:09:38 -0400
-Subject: Re: [PATCH 2/8] samples: move auxdisplay example code from
- Documentation
+        Tue, 20 Sep 2016 12:11:53 -0400
+Subject: Re: [PATCH 3/8] samples: move laptops example code from Documentation
 To: Jonathan Corbet <corbet@lwn.net>
 References: <cover.1474073857.git.shuahkh@osg.samsung.com>
- <89e4e4ede7eb0c0ae5d72280455115612b0e4c98.1474073857.git.shuahkh@osg.samsung.com>
- <20160919100559.65391b6c@lwn.net>
+ <8029dc678a811fc42a829494c1582f5bdf57f49d.1474073857.git.shuahkh@osg.samsung.com>
+ <20160919101001.22ba10d3@lwn.net>
 Cc: sudeep.dutt@intel.com, ashutosh.dixit@intel.com,
         tomas.winkler@intel.com, tglx@linutronix.de, wim@iguana.be,
         linux@roeck-us.net, elfring@users.sourceforge.net,
@@ -21,34 +20,35 @@ Cc: sudeep.dutt@intel.com, ashutosh.dixit@intel.com,
         linux-pcmcia@lists.infradead.org, linux-watchdog@vger.kernel.org,
         Shuah Khan <shuahkh@osg.samsung.com>
 From: Shuah Khan <shuahkh@osg.samsung.com>
-Message-ID: <9adae72a-cfb2-75d1-bdb0-7c6f9b49d8dd@osg.samsung.com>
-Date: Tue, 20 Sep 2016 10:09:32 -0600
+Message-ID: <69fb17c2-4ce9-4fc6-b75f-91ffefbdb16b@osg.samsung.com>
+Date: Tue, 20 Sep 2016 10:11:49 -0600
 MIME-Version: 1.0
-In-Reply-To: <20160919100559.65391b6c@lwn.net>
+In-Reply-To: <20160919101001.22ba10d3@lwn.net>
 Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 09/19/2016 10:05 AM, Jonathan Corbet wrote:
-> On Mon, 19 Sep 2016 08:47:33 -0600
+On 09/19/2016 10:10 AM, Jonathan Corbet wrote:
+> On Mon, 19 Sep 2016 08:47:34 -0600
 > Shuah Khan <shuahkh@osg.samsung.com> wrote:
 > 
->> Move auxdisplay examples to samples and remove it from Documentation
->> Makefile. Create a new Makefile to build auxdisplay. It can be built
->> from top level directory or from auxdisplay directory:
+>> Move laptops examples to samples and remove it from Documentation
+>> Makefile. Create a new Makefile to build laptops. It can be built
+>> from top level directory or from laptops directory:
 > 
-> Documentation/auxdisplay/cfag12864b needs to be updated to reflect the new
-> home for the program (which probably does belong in samples/).
-> 
-> I wonder if these programs need MAINTAINERS entries too?
-> 
-> jon
-> 
+> This one might be better called a "tool" rather than a "sample" - assuming
+> it actually still works, of course.  It hasn't seen a real update in the
+> Git era, which is a bit disconcerting.  Is it possible that this is dead
+> code that we might want to just get rid of?
 
-I will make sure Documentation and MAINTAINERS update happens in v2 patch
-for this change.
+I can send a removal patch and see if anybody objects. :)
+
+> 
+> If it stays, Documentation/laptops/laptop-mode.txt needs an update.
+
+Right. Looks like I missed Documentation updates for these moves. I get
+that done in v2.
 
 thanks,
 -- Shuah
-
