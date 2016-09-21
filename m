@@ -1,54 +1,111 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ec2-52-27-115-49.us-west-2.compute.amazonaws.com ([52.27.115.49]:58433
-        "EHLO s-opensource.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755381AbcITQLx (ORCPT
+Received: from resqmta-po-05v.sys.comcast.net ([96.114.154.164]:46064 "EHLO
+        resqmta-po-05v.sys.comcast.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S941117AbcIUTrk (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 20 Sep 2016 12:11:53 -0400
-Subject: Re: [PATCH 3/8] samples: move laptops example code from Documentation
-To: Jonathan Corbet <corbet@lwn.net>
-References: <cover.1474073857.git.shuahkh@osg.samsung.com>
- <8029dc678a811fc42a829494c1582f5bdf57f49d.1474073857.git.shuahkh@osg.samsung.com>
- <20160919101001.22ba10d3@lwn.net>
-Cc: sudeep.dutt@intel.com, ashutosh.dixit@intel.com,
-        tomas.winkler@intel.com, tglx@linutronix.de, wim@iguana.be,
-        linux@roeck-us.net, elfring@users.sourceforge.net,
-        nicolas.dichtel@6wind.com, davem@davemloft.net,
-        gregkh@linuxfoundation.org, dasaratharaman.chandramouli@intel.com,
-        maheshkhanwalkar@gmail.com, mikedanese@google.com,
-        ben@decadent.org.uk, ghackmann@google.com,
-        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-pcmcia@lists.infradead.org, linux-watchdog@vger.kernel.org,
-        Shuah Khan <shuahkh@osg.samsung.com>
+        Wed, 21 Sep 2016 15:47:40 -0400
 From: Shuah Khan <shuahkh@osg.samsung.com>
-Message-ID: <69fb17c2-4ce9-4fc6-b75f-91ffefbdb16b@osg.samsung.com>
-Date: Tue, 20 Sep 2016 10:11:49 -0600
-MIME-Version: 1.0
-In-Reply-To: <20160919101001.22ba10d3@lwn.net>
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+To: corbet@lwn.net, tomas.winkler@intel.com, tglx@linutronix.de,
+        clemens@ladisch.de, wim@iguana.be, linux@roeck-us.net,
+        davem@davemloft.net, geert@linux-m68k.org,
+        akpm@linux-foundation.org, gregkh@linuxfoundation.org,
+        kvalo@codeaurora.org, mchehab@kernel.org, ghackmann@google.com,
+        ben@decadent.org.uk, maheshkhanwalkar@gmail.com
+Cc: Shuah Khan <shuahkh@osg.samsung.com>, linux-doc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org
+Subject: [PATCH v2 0/4] Move runnable examples code from Documentation to samples
+Date: Wed, 21 Sep 2016 13:47:29 -0600
+Message-Id: <cover.1474485474.git.shuahkh@osg.samsung.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 09/19/2016 10:10 AM, Jonathan Corbet wrote:
-> On Mon, 19 Sep 2016 08:47:34 -0600
-> Shuah Khan <shuahkh@osg.samsung.com> wrote:
-> 
->> Move laptops examples to samples and remove it from Documentation
->> Makefile. Create a new Makefile to build laptops. It can be built
->> from top level directory or from laptops directory:
-> 
-> This one might be better called a "tool" rather than a "sample" - assuming
-> it actually still works, of course.  It hasn't seen a real update in the
-> Git era, which is a bit disconcerting.  Is it possible that this is dead
-> code that we might want to just get rid of?
+Move runnable examples code from Documentation to samples. I moved
+just the example code, and left documentation files as is.
 
-I can send a removal patch and see if anybody objects. :)
+I dropped accounting, laptops, and pcmcia from this v2 series as per
+the v1 feedback on these being a better fit under tools. I will send
+a separate v2 for them.
 
-> 
-> If it stays, Documentation/laptops/laptop-mode.txt needs an update.
+If v2 patches look good, and if I get an okay, I will try to get these
+into 4.9-rc1
 
-Right. Looks like I missed Documentation updates for these moves. I get
-that done in v2.
+Changes since v1:
+- Updated location information in .txt for timers, watchdog, and
+  auxdisplay
+- Updated MAINTAINERS file for misc-devices/mei based on feedback
+  from Tomas Winkler
+- Added Acked-by from Jon Corbet for timers, and misc-devices/mei
 
-thanks,
--- Shuah
+Shuah Khan (4):
+  samples: move misc-devices/mei example code from Documentation
+  samples: move timers example code from Documentation
+  samples: move watchdog example code from Documentation
+  samples: move auxdisplay example code from Documentation
+
+ Documentation/Makefile                           |   4 +-
+ Documentation/auxdisplay/.gitignore              |   1 -
+ Documentation/auxdisplay/Makefile                |   7 -
+ Documentation/auxdisplay/cfag12864b              |   2 +-
+ Documentation/auxdisplay/cfag12864b-example.c    | 281 -------------
+ Documentation/misc-devices/Makefile              |   1 -
+ Documentation/misc-devices/mei/.gitignore        |   1 -
+ Documentation/misc-devices/mei/Makefile          |   5 -
+ Documentation/misc-devices/mei/TODO              |   2 -
+ Documentation/misc-devices/mei/mei-amt-version.c | 479 -----------------------
+ Documentation/timers/.gitignore                  |   1 -
+ Documentation/timers/Makefile                    |   5 -
+ Documentation/timers/hpet.txt                    |   2 +-
+ Documentation/timers/hpet_example.c              | 294 --------------
+ Documentation/watchdog/Makefile                  |   1 -
+ Documentation/watchdog/src/.gitignore            |   1 -
+ Documentation/watchdog/src/Makefile              |   5 -
+ Documentation/watchdog/src/watchdog-simple.c     |  24 --
+ Documentation/watchdog/watchdog-api.txt          |   2 +-
+ Documentation/watchdog/wdt.txt                   |   2 +-
+ MAINTAINERS                                      |   1 +
+ samples/auxdisplay/.gitignore                    |   1 +
+ samples/auxdisplay/Makefile                      |   9 +
+ samples/auxdisplay/cfag12864b-example.c          | 281 +++++++++++++
+ samples/mei/.gitignore                           |   1 +
+ samples/mei/Makefile                             |   9 +
+ samples/mei/TODO                                 |   2 +
+ samples/mei/mei-amt-version.c                    | 479 +++++++++++++++++++++++
+ samples/timers/.gitignore                        |   1 +
+ samples/timers/Makefile                          |  15 +
+ samples/timers/hpet_example.c                    | 294 ++++++++++++++
+ samples/watchdog/.gitignore                      |   1 +
+ samples/watchdog/Makefile                        |   8 +
+ samples/watchdog/watchdog-simple.c               |  24 ++
+ 34 files changed, 1132 insertions(+), 1114 deletions(-)
+ delete mode 100644 Documentation/auxdisplay/.gitignore
+ delete mode 100644 Documentation/auxdisplay/Makefile
+ delete mode 100644 Documentation/auxdisplay/cfag12864b-example.c
+ delete mode 100644 Documentation/misc-devices/Makefile
+ delete mode 100644 Documentation/misc-devices/mei/.gitignore
+ delete mode 100644 Documentation/misc-devices/mei/Makefile
+ delete mode 100644 Documentation/misc-devices/mei/TODO
+ delete mode 100644 Documentation/misc-devices/mei/mei-amt-version.c
+ delete mode 100644 Documentation/timers/.gitignore
+ delete mode 100644 Documentation/timers/Makefile
+ delete mode 100644 Documentation/timers/hpet_example.c
+ delete mode 100644 Documentation/watchdog/Makefile
+ delete mode 100644 Documentation/watchdog/src/.gitignore
+ delete mode 100644 Documentation/watchdog/src/Makefile
+ delete mode 100644 Documentation/watchdog/src/watchdog-simple.c
+ create mode 100644 samples/auxdisplay/.gitignore
+ create mode 100644 samples/auxdisplay/Makefile
+ create mode 100644 samples/auxdisplay/cfag12864b-example.c
+ create mode 100644 samples/mei/.gitignore
+ create mode 100644 samples/mei/Makefile
+ create mode 100644 samples/mei/TODO
+ create mode 100644 samples/mei/mei-amt-version.c
+ create mode 100644 samples/timers/.gitignore
+ create mode 100644 samples/timers/Makefile
+ create mode 100644 samples/timers/hpet_example.c
+ create mode 100644 samples/watchdog/.gitignore
+ create mode 100644 samples/watchdog/Makefile
+ create mode 100644 samples/watchdog/watchdog-simple.c
+
+-- 
+2.7.4
+
