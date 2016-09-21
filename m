@@ -1,9 +1,9 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from resqmta-po-03v.sys.comcast.net ([96.114.154.162]:41233 "EHLO
-        resqmta-po-03v.sys.comcast.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S941126AbcIUTrk (ORCPT
+Received: from resqmta-po-01v.sys.comcast.net ([96.114.154.160]:47239 "EHLO
+        resqmta-po-01v.sys.comcast.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S941138AbcIUTrn (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 21 Sep 2016 15:47:40 -0400
+        Wed, 21 Sep 2016 15:47:43 -0400
 From: Shuah Khan <shuahkh@osg.samsung.com>
 To: corbet@lwn.net, tomas.winkler@intel.com, tglx@linutronix.de,
         clemens@ladisch.de, wim@iguana.be, linux@roeck-us.net,
@@ -13,9 +13,9 @@ To: corbet@lwn.net, tomas.winkler@intel.com, tglx@linutronix.de,
         ben@decadent.org.uk, maheshkhanwalkar@gmail.com
 Cc: Shuah Khan <shuahkh@osg.samsung.com>, linux-doc@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org
-Subject: [PATCH v2 1/4] samples: move misc-devices/mei example code from Documentation
-Date: Wed, 21 Sep 2016 13:47:30 -0600
-Message-Id: <5db171353261e2b20ebc78855057792a5a633699.1474485474.git.shuahkh@osg.samsung.com>
+Subject: [PATCH v2 4/4] samples: move auxdisplay example code from Documentation
+Date: Wed, 21 Sep 2016 13:47:33 -0600
+Message-Id: <0537ee23ac4c4c0792883a99f9277f3e41e85ce1.1474485474.git.shuahkh@osg.samsung.com>
 In-Reply-To: <cover.1474485474.git.shuahkh@osg.samsung.com>
 References: <cover.1474485474.git.shuahkh@osg.samsung.com>
 In-Reply-To: <cover.1474485474.git.shuahkh@osg.samsung.com>
@@ -23,1091 +23,664 @@ References: <cover.1474485474.git.shuahkh@osg.samsung.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Move misc-devices/mei examples to samples/mei and remove it from
-Documentation Makefile. Delete misc-devices/Makefile.
+Move auxdisplay examples to samples and remove it from Documentation
+Makefile. Create a new Makefile to build auxdisplay. It can be built
+from top level directory or from auxdisplay directory:
 
-Create a new Makefile to build samples/mei. It can be built from top
-level directory or from mei directory:
+Run make -C samples/auxdisplay or cd samples/auxdisplay; make
 
-Run make -C samples/mei or cd samples/mei; make
-
-Acked-by: Jonathan Corbet <corbet@lwn.net>
 Signed-off-by: Shuah Khan <shuahkh@osg.samsung.com>
 ---
- Documentation/Makefile                           |   2 +-
- Documentation/misc-devices/Makefile              |   1 -
- Documentation/misc-devices/mei/.gitignore        |   1 -
- Documentation/misc-devices/mei/Makefile          |   5 -
- Documentation/misc-devices/mei/TODO              |   2 -
- Documentation/misc-devices/mei/mei-amt-version.c | 479 -----------------------
- MAINTAINERS                                      |   1 +
- samples/mei/.gitignore                           |   1 +
- samples/mei/Makefile                             |   9 +
- samples/mei/TODO                                 |   2 +
- samples/mei/mei-amt-version.c                    | 479 +++++++++++++++++++++++
- 11 files changed, 493 insertions(+), 489 deletions(-)
- delete mode 100644 Documentation/misc-devices/Makefile
- delete mode 100644 Documentation/misc-devices/mei/.gitignore
- delete mode 100644 Documentation/misc-devices/mei/Makefile
- delete mode 100644 Documentation/misc-devices/mei/TODO
- delete mode 100644 Documentation/misc-devices/mei/mei-amt-version.c
- create mode 100644 samples/mei/.gitignore
- create mode 100644 samples/mei/Makefile
- create mode 100644 samples/mei/TODO
- create mode 100644 samples/mei/mei-amt-version.c
+ Documentation/Makefile                        |   2 +-
+ Documentation/auxdisplay/.gitignore           |   1 -
+ Documentation/auxdisplay/Makefile             |   7 -
+ Documentation/auxdisplay/cfag12864b           |   2 +-
+ Documentation/auxdisplay/cfag12864b-example.c | 281 --------------------------
+ samples/auxdisplay/.gitignore                 |   1 +
+ samples/auxdisplay/Makefile                   |   9 +
+ samples/auxdisplay/cfag12864b-example.c       | 281 ++++++++++++++++++++++++++
+ 8 files changed, 293 insertions(+), 291 deletions(-)
+ delete mode 100644 Documentation/auxdisplay/.gitignore
+ delete mode 100644 Documentation/auxdisplay/Makefile
+ delete mode 100644 Documentation/auxdisplay/cfag12864b-example.c
+ create mode 100644 samples/auxdisplay/.gitignore
+ create mode 100644 samples/auxdisplay/Makefile
+ create mode 100644 samples/auxdisplay/cfag12864b-example.c
 
 diff --git a/Documentation/Makefile b/Documentation/Makefile
-index 80b5bdc..3c2a207 100644
+index b2210b7..0b8cd50 100644
 --- a/Documentation/Makefile
 +++ b/Documentation/Makefile
 @@ -1,2 +1,2 @@
- subdir-y := accounting auxdisplay blackfin \
--	laptops misc-devices pcmcia timers watchdog
-+	laptops pcmcia timers watchdog
-diff --git a/Documentation/misc-devices/Makefile b/Documentation/misc-devices/Makefile
+-subdir-y := accounting auxdisplay blackfin \
++subdir-y := accounting blackfin \
+ 	laptops pcmcia
+diff --git a/Documentation/auxdisplay/.gitignore b/Documentation/auxdisplay/.gitignore
 deleted file mode 100644
-index e2b7aa4..0000000
---- a/Documentation/misc-devices/Makefile
+index 7af2228..0000000
+--- a/Documentation/auxdisplay/.gitignore
 +++ /dev/null
 @@ -1 +0,0 @@
--subdir-y := mei
-diff --git a/Documentation/misc-devices/mei/.gitignore b/Documentation/misc-devices/mei/.gitignore
+-cfag12864b-example
+diff --git a/Documentation/auxdisplay/Makefile b/Documentation/auxdisplay/Makefile
 deleted file mode 100644
-index f356b81..0000000
---- a/Documentation/misc-devices/mei/.gitignore
+index ada4dac..0000000
+--- a/Documentation/auxdisplay/Makefile
 +++ /dev/null
-@@ -1 +0,0 @@
--mei-amt-version
-diff --git a/Documentation/misc-devices/mei/Makefile b/Documentation/misc-devices/mei/Makefile
-deleted file mode 100644
-index d758047..0000000
---- a/Documentation/misc-devices/mei/Makefile
-+++ /dev/null
-@@ -1,5 +0,0 @@
+@@ -1,7 +0,0 @@
 -# List of programs to build
--hostprogs-y := mei-amt-version
--HOSTCFLAGS_mei-amt-version.o += -I$(objtree)/usr/include
+-hostprogs-y := cfag12864b-example
+-
 -# Tell kbuild to always build the programs
 -always := $(hostprogs-y)
-diff --git a/Documentation/misc-devices/mei/TODO b/Documentation/misc-devices/mei/TODO
-deleted file mode 100644
-index 6b3625d..0000000
---- a/Documentation/misc-devices/mei/TODO
-+++ /dev/null
-@@ -1,2 +0,0 @@
--TODO:
--	- Cleanup and split the timer function
-diff --git a/Documentation/misc-devices/mei/mei-amt-version.c b/Documentation/misc-devices/mei/mei-amt-version.c
-deleted file mode 100644
-index 57d0d87..0000000
---- a/Documentation/misc-devices/mei/mei-amt-version.c
-+++ /dev/null
-@@ -1,479 +0,0 @@
--/******************************************************************************
-- * Intel Management Engine Interface (Intel MEI) Linux driver
-- * Intel MEI Interface Header
-- *
-- * This file is provided under a dual BSD/GPLv2 license.  When using or
-- * redistributing this file, you may do so under either license.
-- *
-- * GPL LICENSE SUMMARY
-- *
-- * Copyright(c) 2012 Intel Corporation. All rights reserved.
-- *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of version 2 of the GNU General Public License as
-- * published by the Free Software Foundation.
-- *
-- * This program is distributed in the hope that it will be useful, but
-- * WITHOUT ANY WARRANTY; without even the implied warranty of
-- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-- * General Public License for more details.
-- *
-- * You should have received a copy of the GNU General Public License
-- * along with this program; if not, write to the Free Software
-- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110,
-- * USA
-- *
-- * The full GNU General Public License is included in this distribution
-- * in the file called LICENSE.GPL.
-- *
-- * Contact Information:
-- *	Intel Corporation.
-- *	linux-mei@linux.intel.com
-- *	http://www.intel.com
-- *
-- * BSD LICENSE
-- *
-- * Copyright(c) 2003 - 2012 Intel Corporation. All rights reserved.
-- * All rights reserved.
-- *
-- * Redistribution and use in source and binary forms, with or without
-- * modification, are permitted provided that the following conditions
-- * are met:
-- *
-- *  * Redistributions of source code must retain the above copyright
-- *    notice, this list of conditions and the following disclaimer.
-- *  * Redistributions in binary form must reproduce the above copyright
-- *    notice, this list of conditions and the following disclaimer in
-- *    the documentation and/or other materials provided with the
-- *    distribution.
-- *  * Neither the name Intel Corporation nor the names of its
-- *    contributors may be used to endorse or promote products derived
-- *    from this software without specific prior written permission.
-- *
-- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-- *
-- *****************************************************************************/
 -
--#include <stdio.h>
--#include <stdlib.h>
+-HOSTCFLAGS_cfag12864b-example.o += -I$(objtree)/usr/include
+diff --git a/Documentation/auxdisplay/cfag12864b b/Documentation/auxdisplay/cfag12864b
+index eb7be39..12fd51b 100644
+--- a/Documentation/auxdisplay/cfag12864b
++++ b/Documentation/auxdisplay/cfag12864b
+@@ -101,5 +101,5 @@ Although the LCD won't get updated until the next refresh time arrives.
+ Also, you can mmap the framebuffer: open & mmap, munmap & close...
+ which is the best option for most uses.
+ 
+-Check Documentation/auxdisplay/cfag12864b-example.c
++Check samples/auxdisplay/cfag12864b-example.c
+ for a real working userspace complete program with usage examples.
+diff --git a/Documentation/auxdisplay/cfag12864b-example.c b/Documentation/auxdisplay/cfag12864b-example.c
+deleted file mode 100644
+index e7823ff..0000000
+--- a/Documentation/auxdisplay/cfag12864b-example.c
++++ /dev/null
+@@ -1,281 +0,0 @@
+-/*
+- *    Filename: cfag12864b-example.c
+- *     Version: 0.1.0
+- * Description: cfag12864b LCD userspace example program
+- *     License: GPLv2
+- *
+- *      Author: Copyright (C) Miguel Ojeda Sandonis
+- *        Date: 2006-10-31
+- *
+- *  This program is free software; you can redistribute it and/or modify
+- *  it under the terms of the GNU General Public License version 2 as
+- *  published by the Free Software Foundation.
+- *
+- *  This program is distributed in the hope that it will be useful,
+- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- *  GNU General Public License for more details.
+- *
+- *  You should have received a copy of the GNU General Public License
+- *  along with this program; if not, write to the Free Software
+- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+- *
+- */
+-
+-/*
+- * ------------------------
+- * start of cfag12864b code
+- * ------------------------
+- */
+-
 -#include <string.h>
 -#include <fcntl.h>
--#include <sys/ioctl.h>
 -#include <unistd.h>
--#include <errno.h>
--#include <stdint.h>
--#include <stdbool.h>
--#include <bits/wordsize.h>
--#include <linux/mei.h>
+-#include <sys/types.h>
+-#include <sys/stat.h>
+-#include <sys/mman.h>
 -
--/*****************************************************************************
-- * Intel Management Engine Interface
-- *****************************************************************************/
+-#define CFAG12864B_WIDTH		(128)
+-#define CFAG12864B_HEIGHT		(64)
+-#define CFAG12864B_SIZE			(128 * 64 / 8)
+-#define CFAG12864B_BPB			(8)
+-#define CFAG12864B_ADDRESS(x, y)	((y) * CFAG12864B_WIDTH / \
+-					CFAG12864B_BPB + (x) / CFAG12864B_BPB)
+-#define CFAG12864B_BIT(n)		(((unsigned char) 1) << (n))
 -
--#define mei_msg(_me, fmt, ARGS...) do {         \
--	if (_me->verbose)                       \
--		fprintf(stderr, fmt, ##ARGS);	\
--} while (0)
+-#undef CFAG12864B_DOCHECK
+-#ifdef CFAG12864B_DOCHECK
+-	#define CFAG12864B_CHECK(x, y)		((x) < CFAG12864B_WIDTH && \
+-						(y) < CFAG12864B_HEIGHT)
+-#else
+-	#define CFAG12864B_CHECK(x, y)		(1)
+-#endif
 -
--#define mei_err(_me, fmt, ARGS...) do {         \
--	fprintf(stderr, "Error: " fmt, ##ARGS); \
--} while (0)
+-int cfag12864b_fd;
+-unsigned char * cfag12864b_mem;
+-unsigned char cfag12864b_buffer[CFAG12864B_SIZE];
 -
--struct mei {
--	uuid_le guid;
--	bool initialized;
--	bool verbose;
--	unsigned int buf_size;
--	unsigned char prot_ver;
--	int fd;
--};
--
--static void mei_deinit(struct mei *cl)
+-/*
+- * init a cfag12864b framebuffer device
+- *
+- * No error:       return = 0
+- * Unable to open: return = -1
+- * Unable to mmap: return = -2
+- */
+-static int cfag12864b_init(char *path)
 -{
--	if (cl->fd != -1)
--		close(cl->fd);
--	cl->fd = -1;
--	cl->buf_size = 0;
--	cl->prot_ver = 0;
--	cl->initialized = false;
--}
+-	cfag12864b_fd = open(path, O_RDWR);
+-	if (cfag12864b_fd == -1)
+-		return -1;
 -
--static bool mei_init(struct mei *me, const uuid_le *guid,
--		unsigned char req_protocol_version, bool verbose)
--{
--	int result;
--	struct mei_client *cl;
--	struct mei_connect_client_data data;
--
--	me->verbose = verbose;
--
--	me->fd = open("/dev/mei", O_RDWR);
--	if (me->fd == -1) {
--		mei_err(me, "Cannot establish a handle to the Intel MEI driver\n");
--		goto err;
--	}
--	memcpy(&me->guid, guid, sizeof(*guid));
--	memset(&data, 0, sizeof(data));
--	me->initialized = true;
--
--	memcpy(&data.in_client_uuid, &me->guid, sizeof(me->guid));
--	result = ioctl(me->fd, IOCTL_MEI_CONNECT_CLIENT, &data);
--	if (result) {
--		mei_err(me, "IOCTL_MEI_CONNECT_CLIENT receive message. err=%d\n", result);
--		goto err;
--	}
--	cl = &data.out_client_properties;
--	mei_msg(me, "max_message_length %d\n", cl->max_msg_length);
--	mei_msg(me, "protocol_version %d\n", cl->protocol_version);
--
--	if ((req_protocol_version > 0) &&
--	     (cl->protocol_version != req_protocol_version)) {
--		mei_err(me, "Intel MEI protocol version not supported\n");
--		goto err;
+-	cfag12864b_mem = mmap(0, CFAG12864B_SIZE, PROT_READ | PROT_WRITE,
+-		MAP_SHARED, cfag12864b_fd, 0);
+-	if (cfag12864b_mem == MAP_FAILED) {
+-		close(cfag12864b_fd);
+-		return -2;
 -	}
 -
--	me->buf_size = cl->max_msg_length;
--	me->prot_ver = cl->protocol_version;
--
--	return true;
--err:
--	mei_deinit(me);
--	return false;
+-	return 0;
 -}
 -
--static ssize_t mei_recv_msg(struct mei *me, unsigned char *buffer,
--			ssize_t len, unsigned long timeout)
+-/*
+- * exit a cfag12864b framebuffer device
+- */
+-static void cfag12864b_exit(void)
 -{
--	ssize_t rc;
+-	munmap(cfag12864b_mem, CFAG12864B_SIZE);
+-	close(cfag12864b_fd);
+-}
 -
--	mei_msg(me, "call read length = %zd\n", len);
+-/*
+- * set (x, y) pixel
+- */
+-static void cfag12864b_set(unsigned char x, unsigned char y)
+-{
+-	if (CFAG12864B_CHECK(x, y))
+-		cfag12864b_buffer[CFAG12864B_ADDRESS(x, y)] |=
+-			CFAG12864B_BIT(x % CFAG12864B_BPB);
+-}
 -
--	rc = read(me->fd, buffer, len);
--	if (rc < 0) {
--		mei_err(me, "read failed with status %zd %s\n",
--				rc, strerror(errno));
--		mei_deinit(me);
--	} else {
--		mei_msg(me, "read succeeded with result %zd\n", rc);
+-/*
+- * unset (x, y) pixel
+- */
+-static void cfag12864b_unset(unsigned char x, unsigned char y)
+-{
+-	if (CFAG12864B_CHECK(x, y))
+-		cfag12864b_buffer[CFAG12864B_ADDRESS(x, y)] &=
+-			~CFAG12864B_BIT(x % CFAG12864B_BPB);
+-}
+-
+-/*
+- * is set (x, y) pixel?
+- *
+- * Pixel off: return = 0
+- * Pixel on:  return = 1
+- */
+-static unsigned char cfag12864b_isset(unsigned char x, unsigned char y)
+-{
+-	if (CFAG12864B_CHECK(x, y))
+-		if (cfag12864b_buffer[CFAG12864B_ADDRESS(x, y)] &
+-			CFAG12864B_BIT(x % CFAG12864B_BPB))
+-			return 1;
+-
+-	return 0;
+-}
+-
+-/*
+- * not (x, y) pixel
+- */
+-static void cfag12864b_not(unsigned char x, unsigned char y)
+-{
+-	if (cfag12864b_isset(x, y))
+-		cfag12864b_unset(x, y);
+-	else
+-		cfag12864b_set(x, y);
+-}
+-
+-/*
+- * fill (set all pixels)
+- */
+-static void cfag12864b_fill(void)
+-{
+-	unsigned short i;
+-
+-	for (i = 0; i < CFAG12864B_SIZE; i++)
+-		cfag12864b_buffer[i] = 0xFF;
+-}
+-
+-/*
+- * clear (unset all pixels)
+- */
+-static void cfag12864b_clear(void)
+-{
+-	unsigned short i;
+-
+-	for (i = 0; i < CFAG12864B_SIZE; i++)
+-		cfag12864b_buffer[i] = 0;
+-}
+-
+-/*
+- * format a [128*64] matrix
+- *
+- * Pixel off: src[i] = 0
+- * Pixel on:  src[i] > 0
+- */
+-static void cfag12864b_format(unsigned char * matrix)
+-{
+-	unsigned char i, j, n;
+-
+-	for (i = 0; i < CFAG12864B_HEIGHT; i++)
+-	for (j = 0; j < CFAG12864B_WIDTH / CFAG12864B_BPB; j++) {
+-		cfag12864b_buffer[i * CFAG12864B_WIDTH / CFAG12864B_BPB +
+-			j] = 0;
+-		for (n = 0; n < CFAG12864B_BPB; n++)
+-			if (matrix[i * CFAG12864B_WIDTH +
+-				j * CFAG12864B_BPB + n])
+-				cfag12864b_buffer[i * CFAG12864B_WIDTH /
+-					CFAG12864B_BPB + j] |=
+-					CFAG12864B_BIT(n);
 -	}
--	return rc;
 -}
 -
--static ssize_t mei_send_msg(struct mei *me, const unsigned char *buffer,
--			ssize_t len, unsigned long timeout)
+-/*
+- * blit buffer to lcd
+- */
+-static void cfag12864b_blit(void)
 -{
--	struct timeval tv;
--	ssize_t written;
--	ssize_t rc;
--	fd_set set;
--
--	tv.tv_sec = timeout / 1000;
--	tv.tv_usec = (timeout % 1000) * 1000000;
--
--	mei_msg(me, "call write length = %zd\n", len);
--
--	written = write(me->fd, buffer, len);
--	if (written < 0) {
--		rc = -errno;
--		mei_err(me, "write failed with status %zd %s\n",
--			written, strerror(errno));
--		goto out;
--	}
--
--	FD_ZERO(&set);
--	FD_SET(me->fd, &set);
--	rc = select(me->fd + 1 , &set, NULL, NULL, &tv);
--	if (rc > 0 && FD_ISSET(me->fd, &set)) {
--		mei_msg(me, "write success\n");
--	} else if (rc == 0) {
--		mei_err(me, "write failed on timeout with status\n");
--		goto out;
--	} else { /* rc < 0 */
--		mei_err(me, "write failed on select with status %zd\n", rc);
--		goto out;
--	}
--
--	rc = written;
--out:
--	if (rc < 0)
--		mei_deinit(me);
--
--	return rc;
+-	memcpy(cfag12864b_mem, cfag12864b_buffer, CFAG12864B_SIZE);
 -}
 -
--/***************************************************************************
-- * Intel Advanced Management Technology ME Client
-- ***************************************************************************/
+-/*
+- * ----------------------
+- * end of cfag12864b code
+- * ----------------------
+- */
 -
--#define AMT_MAJOR_VERSION 1
--#define AMT_MINOR_VERSION 1
+-#include <stdio.h>
 -
--#define AMT_STATUS_SUCCESS                0x0
--#define AMT_STATUS_INTERNAL_ERROR         0x1
--#define AMT_STATUS_NOT_READY              0x2
--#define AMT_STATUS_INVALID_AMT_MODE       0x3
--#define AMT_STATUS_INVALID_MESSAGE_LENGTH 0x4
+-#define EXAMPLES	6
 -
--#define AMT_STATUS_HOST_IF_EMPTY_RESPONSE  0x4000
--#define AMT_STATUS_SDK_RESOURCES      0x1004
--
--
--#define AMT_BIOS_VERSION_LEN   65
--#define AMT_VERSIONS_NUMBER    50
--#define AMT_UNICODE_STRING_LEN 20
--
--struct amt_unicode_string {
--	uint16_t length;
--	char string[AMT_UNICODE_STRING_LEN];
--} __attribute__((packed));
--
--struct amt_version_type {
--	struct amt_unicode_string description;
--	struct amt_unicode_string version;
--} __attribute__((packed));
--
--struct amt_version {
--	uint8_t major;
--	uint8_t minor;
--} __attribute__((packed));
--
--struct amt_code_versions {
--	uint8_t bios[AMT_BIOS_VERSION_LEN];
--	uint32_t count;
--	struct amt_version_type versions[AMT_VERSIONS_NUMBER];
--} __attribute__((packed));
--
--/***************************************************************************
-- * Intel Advanced Management Technology Host Interface
-- ***************************************************************************/
--
--struct amt_host_if_msg_header {
--	struct amt_version version;
--	uint16_t _reserved;
--	uint32_t command;
--	uint32_t length;
--} __attribute__((packed));
--
--struct amt_host_if_resp_header {
--	struct amt_host_if_msg_header header;
--	uint32_t status;
--	unsigned char data[0];
--} __attribute__((packed));
--
--const uuid_le MEI_IAMTHIF = UUID_LE(0x12f80028, 0xb4b7, 0x4b2d,  \
--				0xac, 0xa8, 0x46, 0xe0, 0xff, 0x65, 0x81, 0x4c);
--
--#define AMT_HOST_IF_CODE_VERSIONS_REQUEST  0x0400001A
--#define AMT_HOST_IF_CODE_VERSIONS_RESPONSE 0x0480001A
--
--const struct amt_host_if_msg_header CODE_VERSION_REQ = {
--	.version = {AMT_MAJOR_VERSION, AMT_MINOR_VERSION},
--	._reserved = 0,
--	.command = AMT_HOST_IF_CODE_VERSIONS_REQUEST,
--	.length = 0
--};
--
--
--struct amt_host_if {
--	struct mei mei_cl;
--	unsigned long send_timeout;
--	bool initialized;
--};
--
--
--static bool amt_host_if_init(struct amt_host_if *acmd,
--		      unsigned long send_timeout, bool verbose)
+-static void example(unsigned char n)
 -{
--	acmd->send_timeout = (send_timeout) ? send_timeout : 20000;
--	acmd->initialized = mei_init(&acmd->mei_cl, &MEI_IAMTHIF, 0, verbose);
--	return acmd->initialized;
--}
+-	unsigned short i, j;
+-	unsigned char matrix[CFAG12864B_WIDTH * CFAG12864B_HEIGHT];
 -
--static void amt_host_if_deinit(struct amt_host_if *acmd)
--{
--	mei_deinit(&acmd->mei_cl);
--	acmd->initialized = false;
--}
+-	if (n > EXAMPLES)
+-		return;
 -
--static uint32_t amt_verify_code_versions(const struct amt_host_if_resp_header *resp)
--{
--	uint32_t status = AMT_STATUS_SUCCESS;
--	struct amt_code_versions *code_ver;
--	size_t code_ver_len;
--	uint32_t ver_type_cnt;
--	uint32_t len;
--	uint32_t i;
+-	printf("Example %i/%i - ", n, EXAMPLES);
 -
--	code_ver = (struct amt_code_versions *)resp->data;
--	/* length - sizeof(status) */
--	code_ver_len = resp->header.length - sizeof(uint32_t);
--	ver_type_cnt = code_ver_len -
--			sizeof(code_ver->bios) -
--			sizeof(code_ver->count);
--	if (code_ver->count != ver_type_cnt / sizeof(struct amt_version_type)) {
--		status = AMT_STATUS_INTERNAL_ERROR;
--		goto out;
--	}
--
--	for (i = 0; i < code_ver->count; i++) {
--		len = code_ver->versions[i].description.length;
--
--		if (len > AMT_UNICODE_STRING_LEN) {
--			status = AMT_STATUS_INTERNAL_ERROR;
--			goto out;
--		}
--
--		len = code_ver->versions[i].version.length;
--		if (code_ver->versions[i].version.string[len] != '\0' ||
--		    len != strlen(code_ver->versions[i].version.string)) {
--			status = AMT_STATUS_INTERNAL_ERROR;
--			goto out;
--		}
--	}
--out:
--	return status;
--}
--
--static uint32_t amt_verify_response_header(uint32_t command,
--				const struct amt_host_if_msg_header *resp_hdr,
--				uint32_t response_size)
--{
--	if (response_size < sizeof(struct amt_host_if_resp_header)) {
--		return AMT_STATUS_INTERNAL_ERROR;
--	} else if (response_size != (resp_hdr->length +
--				sizeof(struct amt_host_if_msg_header))) {
--		return AMT_STATUS_INTERNAL_ERROR;
--	} else if (resp_hdr->command != command) {
--		return AMT_STATUS_INTERNAL_ERROR;
--	} else if (resp_hdr->_reserved != 0) {
--		return AMT_STATUS_INTERNAL_ERROR;
--	} else if (resp_hdr->version.major != AMT_MAJOR_VERSION ||
--		   resp_hdr->version.minor < AMT_MINOR_VERSION) {
--		return AMT_STATUS_INTERNAL_ERROR;
--	}
--	return AMT_STATUS_SUCCESS;
--}
--
--static uint32_t amt_host_if_call(struct amt_host_if *acmd,
--			const unsigned char *command, ssize_t command_sz,
--			uint8_t **read_buf, uint32_t rcmd,
--			unsigned int expected_sz)
--{
--	uint32_t in_buf_sz;
--	uint32_t out_buf_sz;
--	ssize_t written;
--	uint32_t status;
--	struct amt_host_if_resp_header *msg_hdr;
--
--	in_buf_sz = acmd->mei_cl.buf_size;
--	*read_buf = (uint8_t *)malloc(sizeof(uint8_t) * in_buf_sz);
--	if (*read_buf == NULL)
--		return AMT_STATUS_SDK_RESOURCES;
--	memset(*read_buf, 0, in_buf_sz);
--	msg_hdr = (struct amt_host_if_resp_header *)*read_buf;
--
--	written = mei_send_msg(&acmd->mei_cl,
--				command, command_sz, acmd->send_timeout);
--	if (written != command_sz)
--		return AMT_STATUS_INTERNAL_ERROR;
--
--	out_buf_sz = mei_recv_msg(&acmd->mei_cl, *read_buf, in_buf_sz, 2000);
--	if (out_buf_sz <= 0)
--		return AMT_STATUS_HOST_IF_EMPTY_RESPONSE;
--
--	status = msg_hdr->status;
--	if (status != AMT_STATUS_SUCCESS)
--		return status;
--
--	status = amt_verify_response_header(rcmd,
--				&msg_hdr->header, out_buf_sz);
--	if (status != AMT_STATUS_SUCCESS)
--		return status;
--
--	if (expected_sz && expected_sz != out_buf_sz)
--		return AMT_STATUS_INTERNAL_ERROR;
--
--	return AMT_STATUS_SUCCESS;
--}
--
--
--static uint32_t amt_get_code_versions(struct amt_host_if *cmd,
--			       struct amt_code_versions *versions)
--{
--	struct amt_host_if_resp_header *response = NULL;
--	uint32_t status;
--
--	status = amt_host_if_call(cmd,
--			(const unsigned char *)&CODE_VERSION_REQ,
--			sizeof(CODE_VERSION_REQ),
--			(uint8_t **)&response,
--			AMT_HOST_IF_CODE_VERSIONS_RESPONSE, 0);
--
--	if (status != AMT_STATUS_SUCCESS)
--		goto out;
--
--	status = amt_verify_code_versions(response);
--	if (status != AMT_STATUS_SUCCESS)
--		goto out;
--
--	memcpy(versions, response->data, sizeof(struct amt_code_versions));
--out:
--	if (response != NULL)
--		free(response);
--
--	return status;
--}
--
--/************************** end of amt_host_if_command ***********************/
--int main(int argc, char **argv)
--{
--	struct amt_code_versions ver;
--	struct amt_host_if acmd;
--	unsigned int i;
--	uint32_t status;
--	int ret;
--	bool verbose;
--
--	verbose = (argc > 1 && strcmp(argv[1], "-v") == 0);
--
--	if (!amt_host_if_init(&acmd, 5000, verbose)) {
--		ret = 1;
--		goto out;
--	}
--
--	status = amt_get_code_versions(&acmd, &ver);
--
--	amt_host_if_deinit(&acmd);
--
--	switch (status) {
--	case AMT_STATUS_HOST_IF_EMPTY_RESPONSE:
--		printf("Intel AMT: DISABLED\n");
--		ret = 0;
+-	switch (n) {
+-	case 1:
+-		printf("Draw points setting bits");
+-		cfag12864b_clear();
+-		for (i = 0; i < CFAG12864B_WIDTH; i += 2)
+-			for (j = 0; j < CFAG12864B_HEIGHT; j += 2)
+-				cfag12864b_set(i, j);
 -		break;
--	case AMT_STATUS_SUCCESS:
--		printf("Intel AMT: ENABLED\n");
--		for (i = 0; i < ver.count; i++) {
--			printf("%s:\t%s\n", ver.versions[i].description.string,
--				ver.versions[i].version.string);
--		}
--		ret = 0;
+-
+-	case 2:
+-		printf("Clear the LCD");
+-		cfag12864b_clear();
 -		break;
--	default:
--		printf("An error has occurred\n");
--		ret = 1;
+-
+-	case 3:
+-		printf("Draw rows formatting a [128*64] matrix");
+-		memset(matrix, 0, CFAG12864B_WIDTH * CFAG12864B_HEIGHT);
+-		for (i = 0; i < CFAG12864B_WIDTH; i++)
+-			for (j = 0; j < CFAG12864B_HEIGHT; j += 2)
+-				matrix[j * CFAG12864B_WIDTH + i] = 1;
+-		cfag12864b_format(matrix);
+-		break;
+-
+-	case 4:
+-		printf("Fill the lcd");
+-		cfag12864b_fill();
+-		break;
+-
+-	case 5:
+-		printf("Draw columns unsetting bits");
+-		for (i = 0; i < CFAG12864B_WIDTH; i += 2)
+-			for (j = 0; j < CFAG12864B_HEIGHT; j++)
+-				cfag12864b_unset(i, j);
+-		break;
+-
+-	case 6:
+-		printf("Do negative not-ing all bits");
+-		for (i = 0; i < CFAG12864B_WIDTH; i++)
+-			for (j = 0; j < CFAG12864B_HEIGHT; j ++)
+-				cfag12864b_not(i, j);
 -		break;
 -	}
 -
--out:
--	return ret;
+-	puts(" - [Press Enter]");
 -}
-diff --git a/MAINTAINERS b/MAINTAINERS
-index a5e1270..afd3577 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -6261,6 +6261,7 @@ F:	include/linux/mei_cl_bus.h
- F:	drivers/misc/mei/*
- F:	drivers/watchdog/mei_wdt.c
- F:	Documentation/misc-devices/mei/*
-+F:	samples/mei/*
- 
- INTEL MIC DRIVERS (mic)
- M:	Sudeep Dutt <sudeep.dutt@intel.com>
-diff --git a/samples/mei/.gitignore b/samples/mei/.gitignore
+-
+-int main(int argc, char *argv[])
+-{
+-	unsigned char n;
+-
+-	if (argc != 2) {
+-		printf(
+-			"Sintax:  %s fbdev\n"
+-			"Usually: /dev/fb0, /dev/fb1...\n", argv[0]);
+-		return -1;
+-	}
+-
+-	if (cfag12864b_init(argv[1])) {
+-		printf("Can't init %s fbdev\n", argv[1]);
+-		return -2;
+-	}
+-
+-	for (n = 1; n <= EXAMPLES; n++) {
+-		example(n);
+-		cfag12864b_blit();
+-		while (getchar() != '\n');
+-	}
+-
+-	cfag12864b_exit();
+-
+-	return 0;
+-}
+diff --git a/samples/auxdisplay/.gitignore b/samples/auxdisplay/.gitignore
 new file mode 100644
-index 0000000..f356b81
+index 0000000..7af2228
 --- /dev/null
-+++ b/samples/mei/.gitignore
++++ b/samples/auxdisplay/.gitignore
 @@ -0,0 +1 @@
-+mei-amt-version
-diff --git a/samples/mei/Makefile b/samples/mei/Makefile
++cfag12864b-example
+diff --git a/samples/auxdisplay/Makefile b/samples/auxdisplay/Makefile
 new file mode 100644
-index 0000000..7aac216
+index 0000000..05e471f
 --- /dev/null
-+++ b/samples/mei/Makefile
++++ b/samples/auxdisplay/Makefile
 @@ -0,0 +1,9 @@
 +CC := $(CROSS_COMPILE)gcc
 +CFLAGS := -I../../usr/include
 +
-+PROGS := mei-amt-version
++PROGS := cfag12864b-example
 +
 +all: $(PROGS)
 +
 +clean:
 +	rm -fr $(PROGS)
-diff --git a/samples/mei/TODO b/samples/mei/TODO
+diff --git a/samples/auxdisplay/cfag12864b-example.c b/samples/auxdisplay/cfag12864b-example.c
 new file mode 100644
-index 0000000..6b3625d
+index 0000000..e7823ff
 --- /dev/null
-+++ b/samples/mei/TODO
-@@ -0,0 +1,2 @@
-+TODO:
-+	- Cleanup and split the timer function
-diff --git a/samples/mei/mei-amt-version.c b/samples/mei/mei-amt-version.c
-new file mode 100644
-index 0000000..57d0d87
---- /dev/null
-+++ b/samples/mei/mei-amt-version.c
-@@ -0,0 +1,479 @@
-+/******************************************************************************
-+ * Intel Management Engine Interface (Intel MEI) Linux driver
-+ * Intel MEI Interface Header
++++ b/samples/auxdisplay/cfag12864b-example.c
+@@ -0,0 +1,281 @@
++/*
++ *    Filename: cfag12864b-example.c
++ *     Version: 0.1.0
++ * Description: cfag12864b LCD userspace example program
++ *     License: GPLv2
 + *
-+ * This file is provided under a dual BSD/GPLv2 license.  When using or
-+ * redistributing this file, you may do so under either license.
++ *      Author: Copyright (C) Miguel Ojeda Sandonis
++ *        Date: 2006-10-31
 + *
-+ * GPL LICENSE SUMMARY
++ *  This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License version 2 as
++ *  published by the Free Software Foundation.
 + *
-+ * Copyright(c) 2012 Intel Corporation. All rights reserved.
++ *  This program is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
 + *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of version 2 of the GNU General Public License as
-+ * published by the Free Software Foundation.
++ *  You should have received a copy of the GNU General Public License
++ *  along with this program; if not, write to the Free Software
++ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 + *
-+ * This program is distributed in the hope that it will be useful, but
-+ * WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ * General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110,
-+ * USA
-+ *
-+ * The full GNU General Public License is included in this distribution
-+ * in the file called LICENSE.GPL.
-+ *
-+ * Contact Information:
-+ *	Intel Corporation.
-+ *	linux-mei@linux.intel.com
-+ *	http://www.intel.com
-+ *
-+ * BSD LICENSE
-+ *
-+ * Copyright(c) 2003 - 2012 Intel Corporation. All rights reserved.
-+ * All rights reserved.
-+ *
-+ * Redistribution and use in source and binary forms, with or without
-+ * modification, are permitted provided that the following conditions
-+ * are met:
-+ *
-+ *  * Redistributions of source code must retain the above copyright
-+ *    notice, this list of conditions and the following disclaimer.
-+ *  * Redistributions in binary form must reproduce the above copyright
-+ *    notice, this list of conditions and the following disclaimer in
-+ *    the documentation and/or other materials provided with the
-+ *    distribution.
-+ *  * Neither the name Intel Corporation nor the names of its
-+ *    contributors may be used to endorse or promote products derived
-+ *    from this software without specific prior written permission.
-+ *
-+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-+ *
-+ *****************************************************************************/
++ */
 +
-+#include <stdio.h>
-+#include <stdlib.h>
++/*
++ * ------------------------
++ * start of cfag12864b code
++ * ------------------------
++ */
++
 +#include <string.h>
 +#include <fcntl.h>
-+#include <sys/ioctl.h>
 +#include <unistd.h>
-+#include <errno.h>
-+#include <stdint.h>
-+#include <stdbool.h>
-+#include <bits/wordsize.h>
-+#include <linux/mei.h>
++#include <sys/types.h>
++#include <sys/stat.h>
++#include <sys/mman.h>
 +
-+/*****************************************************************************
-+ * Intel Management Engine Interface
-+ *****************************************************************************/
++#define CFAG12864B_WIDTH		(128)
++#define CFAG12864B_HEIGHT		(64)
++#define CFAG12864B_SIZE			(128 * 64 / 8)
++#define CFAG12864B_BPB			(8)
++#define CFAG12864B_ADDRESS(x, y)	((y) * CFAG12864B_WIDTH / \
++					CFAG12864B_BPB + (x) / CFAG12864B_BPB)
++#define CFAG12864B_BIT(n)		(((unsigned char) 1) << (n))
 +
-+#define mei_msg(_me, fmt, ARGS...) do {         \
-+	if (_me->verbose)                       \
-+		fprintf(stderr, fmt, ##ARGS);	\
-+} while (0)
++#undef CFAG12864B_DOCHECK
++#ifdef CFAG12864B_DOCHECK
++	#define CFAG12864B_CHECK(x, y)		((x) < CFAG12864B_WIDTH && \
++						(y) < CFAG12864B_HEIGHT)
++#else
++	#define CFAG12864B_CHECK(x, y)		(1)
++#endif
 +
-+#define mei_err(_me, fmt, ARGS...) do {         \
-+	fprintf(stderr, "Error: " fmt, ##ARGS); \
-+} while (0)
++int cfag12864b_fd;
++unsigned char * cfag12864b_mem;
++unsigned char cfag12864b_buffer[CFAG12864B_SIZE];
 +
-+struct mei {
-+	uuid_le guid;
-+	bool initialized;
-+	bool verbose;
-+	unsigned int buf_size;
-+	unsigned char prot_ver;
-+	int fd;
-+};
-+
-+static void mei_deinit(struct mei *cl)
++/*
++ * init a cfag12864b framebuffer device
++ *
++ * No error:       return = 0
++ * Unable to open: return = -1
++ * Unable to mmap: return = -2
++ */
++static int cfag12864b_init(char *path)
 +{
-+	if (cl->fd != -1)
-+		close(cl->fd);
-+	cl->fd = -1;
-+	cl->buf_size = 0;
-+	cl->prot_ver = 0;
-+	cl->initialized = false;
-+}
++	cfag12864b_fd = open(path, O_RDWR);
++	if (cfag12864b_fd == -1)
++		return -1;
 +
-+static bool mei_init(struct mei *me, const uuid_le *guid,
-+		unsigned char req_protocol_version, bool verbose)
-+{
-+	int result;
-+	struct mei_client *cl;
-+	struct mei_connect_client_data data;
-+
-+	me->verbose = verbose;
-+
-+	me->fd = open("/dev/mei", O_RDWR);
-+	if (me->fd == -1) {
-+		mei_err(me, "Cannot establish a handle to the Intel MEI driver\n");
-+		goto err;
-+	}
-+	memcpy(&me->guid, guid, sizeof(*guid));
-+	memset(&data, 0, sizeof(data));
-+	me->initialized = true;
-+
-+	memcpy(&data.in_client_uuid, &me->guid, sizeof(me->guid));
-+	result = ioctl(me->fd, IOCTL_MEI_CONNECT_CLIENT, &data);
-+	if (result) {
-+		mei_err(me, "IOCTL_MEI_CONNECT_CLIENT receive message. err=%d\n", result);
-+		goto err;
-+	}
-+	cl = &data.out_client_properties;
-+	mei_msg(me, "max_message_length %d\n", cl->max_msg_length);
-+	mei_msg(me, "protocol_version %d\n", cl->protocol_version);
-+
-+	if ((req_protocol_version > 0) &&
-+	     (cl->protocol_version != req_protocol_version)) {
-+		mei_err(me, "Intel MEI protocol version not supported\n");
-+		goto err;
++	cfag12864b_mem = mmap(0, CFAG12864B_SIZE, PROT_READ | PROT_WRITE,
++		MAP_SHARED, cfag12864b_fd, 0);
++	if (cfag12864b_mem == MAP_FAILED) {
++		close(cfag12864b_fd);
++		return -2;
 +	}
 +
-+	me->buf_size = cl->max_msg_length;
-+	me->prot_ver = cl->protocol_version;
-+
-+	return true;
-+err:
-+	mei_deinit(me);
-+	return false;
++	return 0;
 +}
 +
-+static ssize_t mei_recv_msg(struct mei *me, unsigned char *buffer,
-+			ssize_t len, unsigned long timeout)
++/*
++ * exit a cfag12864b framebuffer device
++ */
++static void cfag12864b_exit(void)
 +{
-+	ssize_t rc;
++	munmap(cfag12864b_mem, CFAG12864B_SIZE);
++	close(cfag12864b_fd);
++}
 +
-+	mei_msg(me, "call read length = %zd\n", len);
++/*
++ * set (x, y) pixel
++ */
++static void cfag12864b_set(unsigned char x, unsigned char y)
++{
++	if (CFAG12864B_CHECK(x, y))
++		cfag12864b_buffer[CFAG12864B_ADDRESS(x, y)] |=
++			CFAG12864B_BIT(x % CFAG12864B_BPB);
++}
 +
-+	rc = read(me->fd, buffer, len);
-+	if (rc < 0) {
-+		mei_err(me, "read failed with status %zd %s\n",
-+				rc, strerror(errno));
-+		mei_deinit(me);
-+	} else {
-+		mei_msg(me, "read succeeded with result %zd\n", rc);
++/*
++ * unset (x, y) pixel
++ */
++static void cfag12864b_unset(unsigned char x, unsigned char y)
++{
++	if (CFAG12864B_CHECK(x, y))
++		cfag12864b_buffer[CFAG12864B_ADDRESS(x, y)] &=
++			~CFAG12864B_BIT(x % CFAG12864B_BPB);
++}
++
++/*
++ * is set (x, y) pixel?
++ *
++ * Pixel off: return = 0
++ * Pixel on:  return = 1
++ */
++static unsigned char cfag12864b_isset(unsigned char x, unsigned char y)
++{
++	if (CFAG12864B_CHECK(x, y))
++		if (cfag12864b_buffer[CFAG12864B_ADDRESS(x, y)] &
++			CFAG12864B_BIT(x % CFAG12864B_BPB))
++			return 1;
++
++	return 0;
++}
++
++/*
++ * not (x, y) pixel
++ */
++static void cfag12864b_not(unsigned char x, unsigned char y)
++{
++	if (cfag12864b_isset(x, y))
++		cfag12864b_unset(x, y);
++	else
++		cfag12864b_set(x, y);
++}
++
++/*
++ * fill (set all pixels)
++ */
++static void cfag12864b_fill(void)
++{
++	unsigned short i;
++
++	for (i = 0; i < CFAG12864B_SIZE; i++)
++		cfag12864b_buffer[i] = 0xFF;
++}
++
++/*
++ * clear (unset all pixels)
++ */
++static void cfag12864b_clear(void)
++{
++	unsigned short i;
++
++	for (i = 0; i < CFAG12864B_SIZE; i++)
++		cfag12864b_buffer[i] = 0;
++}
++
++/*
++ * format a [128*64] matrix
++ *
++ * Pixel off: src[i] = 0
++ * Pixel on:  src[i] > 0
++ */
++static void cfag12864b_format(unsigned char * matrix)
++{
++	unsigned char i, j, n;
++
++	for (i = 0; i < CFAG12864B_HEIGHT; i++)
++	for (j = 0; j < CFAG12864B_WIDTH / CFAG12864B_BPB; j++) {
++		cfag12864b_buffer[i * CFAG12864B_WIDTH / CFAG12864B_BPB +
++			j] = 0;
++		for (n = 0; n < CFAG12864B_BPB; n++)
++			if (matrix[i * CFAG12864B_WIDTH +
++				j * CFAG12864B_BPB + n])
++				cfag12864b_buffer[i * CFAG12864B_WIDTH /
++					CFAG12864B_BPB + j] |=
++					CFAG12864B_BIT(n);
 +	}
-+	return rc;
 +}
 +
-+static ssize_t mei_send_msg(struct mei *me, const unsigned char *buffer,
-+			ssize_t len, unsigned long timeout)
++/*
++ * blit buffer to lcd
++ */
++static void cfag12864b_blit(void)
 +{
-+	struct timeval tv;
-+	ssize_t written;
-+	ssize_t rc;
-+	fd_set set;
-+
-+	tv.tv_sec = timeout / 1000;
-+	tv.tv_usec = (timeout % 1000) * 1000000;
-+
-+	mei_msg(me, "call write length = %zd\n", len);
-+
-+	written = write(me->fd, buffer, len);
-+	if (written < 0) {
-+		rc = -errno;
-+		mei_err(me, "write failed with status %zd %s\n",
-+			written, strerror(errno));
-+		goto out;
-+	}
-+
-+	FD_ZERO(&set);
-+	FD_SET(me->fd, &set);
-+	rc = select(me->fd + 1 , &set, NULL, NULL, &tv);
-+	if (rc > 0 && FD_ISSET(me->fd, &set)) {
-+		mei_msg(me, "write success\n");
-+	} else if (rc == 0) {
-+		mei_err(me, "write failed on timeout with status\n");
-+		goto out;
-+	} else { /* rc < 0 */
-+		mei_err(me, "write failed on select with status %zd\n", rc);
-+		goto out;
-+	}
-+
-+	rc = written;
-+out:
-+	if (rc < 0)
-+		mei_deinit(me);
-+
-+	return rc;
++	memcpy(cfag12864b_mem, cfag12864b_buffer, CFAG12864B_SIZE);
 +}
 +
-+/***************************************************************************
-+ * Intel Advanced Management Technology ME Client
-+ ***************************************************************************/
++/*
++ * ----------------------
++ * end of cfag12864b code
++ * ----------------------
++ */
 +
-+#define AMT_MAJOR_VERSION 1
-+#define AMT_MINOR_VERSION 1
++#include <stdio.h>
 +
-+#define AMT_STATUS_SUCCESS                0x0
-+#define AMT_STATUS_INTERNAL_ERROR         0x1
-+#define AMT_STATUS_NOT_READY              0x2
-+#define AMT_STATUS_INVALID_AMT_MODE       0x3
-+#define AMT_STATUS_INVALID_MESSAGE_LENGTH 0x4
++#define EXAMPLES	6
 +
-+#define AMT_STATUS_HOST_IF_EMPTY_RESPONSE  0x4000
-+#define AMT_STATUS_SDK_RESOURCES      0x1004
-+
-+
-+#define AMT_BIOS_VERSION_LEN   65
-+#define AMT_VERSIONS_NUMBER    50
-+#define AMT_UNICODE_STRING_LEN 20
-+
-+struct amt_unicode_string {
-+	uint16_t length;
-+	char string[AMT_UNICODE_STRING_LEN];
-+} __attribute__((packed));
-+
-+struct amt_version_type {
-+	struct amt_unicode_string description;
-+	struct amt_unicode_string version;
-+} __attribute__((packed));
-+
-+struct amt_version {
-+	uint8_t major;
-+	uint8_t minor;
-+} __attribute__((packed));
-+
-+struct amt_code_versions {
-+	uint8_t bios[AMT_BIOS_VERSION_LEN];
-+	uint32_t count;
-+	struct amt_version_type versions[AMT_VERSIONS_NUMBER];
-+} __attribute__((packed));
-+
-+/***************************************************************************
-+ * Intel Advanced Management Technology Host Interface
-+ ***************************************************************************/
-+
-+struct amt_host_if_msg_header {
-+	struct amt_version version;
-+	uint16_t _reserved;
-+	uint32_t command;
-+	uint32_t length;
-+} __attribute__((packed));
-+
-+struct amt_host_if_resp_header {
-+	struct amt_host_if_msg_header header;
-+	uint32_t status;
-+	unsigned char data[0];
-+} __attribute__((packed));
-+
-+const uuid_le MEI_IAMTHIF = UUID_LE(0x12f80028, 0xb4b7, 0x4b2d,  \
-+				0xac, 0xa8, 0x46, 0xe0, 0xff, 0x65, 0x81, 0x4c);
-+
-+#define AMT_HOST_IF_CODE_VERSIONS_REQUEST  0x0400001A
-+#define AMT_HOST_IF_CODE_VERSIONS_RESPONSE 0x0480001A
-+
-+const struct amt_host_if_msg_header CODE_VERSION_REQ = {
-+	.version = {AMT_MAJOR_VERSION, AMT_MINOR_VERSION},
-+	._reserved = 0,
-+	.command = AMT_HOST_IF_CODE_VERSIONS_REQUEST,
-+	.length = 0
-+};
-+
-+
-+struct amt_host_if {
-+	struct mei mei_cl;
-+	unsigned long send_timeout;
-+	bool initialized;
-+};
-+
-+
-+static bool amt_host_if_init(struct amt_host_if *acmd,
-+		      unsigned long send_timeout, bool verbose)
++static void example(unsigned char n)
 +{
-+	acmd->send_timeout = (send_timeout) ? send_timeout : 20000;
-+	acmd->initialized = mei_init(&acmd->mei_cl, &MEI_IAMTHIF, 0, verbose);
-+	return acmd->initialized;
-+}
++	unsigned short i, j;
++	unsigned char matrix[CFAG12864B_WIDTH * CFAG12864B_HEIGHT];
 +
-+static void amt_host_if_deinit(struct amt_host_if *acmd)
-+{
-+	mei_deinit(&acmd->mei_cl);
-+	acmd->initialized = false;
-+}
++	if (n > EXAMPLES)
++		return;
 +
-+static uint32_t amt_verify_code_versions(const struct amt_host_if_resp_header *resp)
-+{
-+	uint32_t status = AMT_STATUS_SUCCESS;
-+	struct amt_code_versions *code_ver;
-+	size_t code_ver_len;
-+	uint32_t ver_type_cnt;
-+	uint32_t len;
-+	uint32_t i;
++	printf("Example %i/%i - ", n, EXAMPLES);
 +
-+	code_ver = (struct amt_code_versions *)resp->data;
-+	/* length - sizeof(status) */
-+	code_ver_len = resp->header.length - sizeof(uint32_t);
-+	ver_type_cnt = code_ver_len -
-+			sizeof(code_ver->bios) -
-+			sizeof(code_ver->count);
-+	if (code_ver->count != ver_type_cnt / sizeof(struct amt_version_type)) {
-+		status = AMT_STATUS_INTERNAL_ERROR;
-+		goto out;
-+	}
-+
-+	for (i = 0; i < code_ver->count; i++) {
-+		len = code_ver->versions[i].description.length;
-+
-+		if (len > AMT_UNICODE_STRING_LEN) {
-+			status = AMT_STATUS_INTERNAL_ERROR;
-+			goto out;
-+		}
-+
-+		len = code_ver->versions[i].version.length;
-+		if (code_ver->versions[i].version.string[len] != '\0' ||
-+		    len != strlen(code_ver->versions[i].version.string)) {
-+			status = AMT_STATUS_INTERNAL_ERROR;
-+			goto out;
-+		}
-+	}
-+out:
-+	return status;
-+}
-+
-+static uint32_t amt_verify_response_header(uint32_t command,
-+				const struct amt_host_if_msg_header *resp_hdr,
-+				uint32_t response_size)
-+{
-+	if (response_size < sizeof(struct amt_host_if_resp_header)) {
-+		return AMT_STATUS_INTERNAL_ERROR;
-+	} else if (response_size != (resp_hdr->length +
-+				sizeof(struct amt_host_if_msg_header))) {
-+		return AMT_STATUS_INTERNAL_ERROR;
-+	} else if (resp_hdr->command != command) {
-+		return AMT_STATUS_INTERNAL_ERROR;
-+	} else if (resp_hdr->_reserved != 0) {
-+		return AMT_STATUS_INTERNAL_ERROR;
-+	} else if (resp_hdr->version.major != AMT_MAJOR_VERSION ||
-+		   resp_hdr->version.minor < AMT_MINOR_VERSION) {
-+		return AMT_STATUS_INTERNAL_ERROR;
-+	}
-+	return AMT_STATUS_SUCCESS;
-+}
-+
-+static uint32_t amt_host_if_call(struct amt_host_if *acmd,
-+			const unsigned char *command, ssize_t command_sz,
-+			uint8_t **read_buf, uint32_t rcmd,
-+			unsigned int expected_sz)
-+{
-+	uint32_t in_buf_sz;
-+	uint32_t out_buf_sz;
-+	ssize_t written;
-+	uint32_t status;
-+	struct amt_host_if_resp_header *msg_hdr;
-+
-+	in_buf_sz = acmd->mei_cl.buf_size;
-+	*read_buf = (uint8_t *)malloc(sizeof(uint8_t) * in_buf_sz);
-+	if (*read_buf == NULL)
-+		return AMT_STATUS_SDK_RESOURCES;
-+	memset(*read_buf, 0, in_buf_sz);
-+	msg_hdr = (struct amt_host_if_resp_header *)*read_buf;
-+
-+	written = mei_send_msg(&acmd->mei_cl,
-+				command, command_sz, acmd->send_timeout);
-+	if (written != command_sz)
-+		return AMT_STATUS_INTERNAL_ERROR;
-+
-+	out_buf_sz = mei_recv_msg(&acmd->mei_cl, *read_buf, in_buf_sz, 2000);
-+	if (out_buf_sz <= 0)
-+		return AMT_STATUS_HOST_IF_EMPTY_RESPONSE;
-+
-+	status = msg_hdr->status;
-+	if (status != AMT_STATUS_SUCCESS)
-+		return status;
-+
-+	status = amt_verify_response_header(rcmd,
-+				&msg_hdr->header, out_buf_sz);
-+	if (status != AMT_STATUS_SUCCESS)
-+		return status;
-+
-+	if (expected_sz && expected_sz != out_buf_sz)
-+		return AMT_STATUS_INTERNAL_ERROR;
-+
-+	return AMT_STATUS_SUCCESS;
-+}
-+
-+
-+static uint32_t amt_get_code_versions(struct amt_host_if *cmd,
-+			       struct amt_code_versions *versions)
-+{
-+	struct amt_host_if_resp_header *response = NULL;
-+	uint32_t status;
-+
-+	status = amt_host_if_call(cmd,
-+			(const unsigned char *)&CODE_VERSION_REQ,
-+			sizeof(CODE_VERSION_REQ),
-+			(uint8_t **)&response,
-+			AMT_HOST_IF_CODE_VERSIONS_RESPONSE, 0);
-+
-+	if (status != AMT_STATUS_SUCCESS)
-+		goto out;
-+
-+	status = amt_verify_code_versions(response);
-+	if (status != AMT_STATUS_SUCCESS)
-+		goto out;
-+
-+	memcpy(versions, response->data, sizeof(struct amt_code_versions));
-+out:
-+	if (response != NULL)
-+		free(response);
-+
-+	return status;
-+}
-+
-+/************************** end of amt_host_if_command ***********************/
-+int main(int argc, char **argv)
-+{
-+	struct amt_code_versions ver;
-+	struct amt_host_if acmd;
-+	unsigned int i;
-+	uint32_t status;
-+	int ret;
-+	bool verbose;
-+
-+	verbose = (argc > 1 && strcmp(argv[1], "-v") == 0);
-+
-+	if (!amt_host_if_init(&acmd, 5000, verbose)) {
-+		ret = 1;
-+		goto out;
-+	}
-+
-+	status = amt_get_code_versions(&acmd, &ver);
-+
-+	amt_host_if_deinit(&acmd);
-+
-+	switch (status) {
-+	case AMT_STATUS_HOST_IF_EMPTY_RESPONSE:
-+		printf("Intel AMT: DISABLED\n");
-+		ret = 0;
++	switch (n) {
++	case 1:
++		printf("Draw points setting bits");
++		cfag12864b_clear();
++		for (i = 0; i < CFAG12864B_WIDTH; i += 2)
++			for (j = 0; j < CFAG12864B_HEIGHT; j += 2)
++				cfag12864b_set(i, j);
 +		break;
-+	case AMT_STATUS_SUCCESS:
-+		printf("Intel AMT: ENABLED\n");
-+		for (i = 0; i < ver.count; i++) {
-+			printf("%s:\t%s\n", ver.versions[i].description.string,
-+				ver.versions[i].version.string);
-+		}
-+		ret = 0;
++
++	case 2:
++		printf("Clear the LCD");
++		cfag12864b_clear();
 +		break;
-+	default:
-+		printf("An error has occurred\n");
-+		ret = 1;
++
++	case 3:
++		printf("Draw rows formatting a [128*64] matrix");
++		memset(matrix, 0, CFAG12864B_WIDTH * CFAG12864B_HEIGHT);
++		for (i = 0; i < CFAG12864B_WIDTH; i++)
++			for (j = 0; j < CFAG12864B_HEIGHT; j += 2)
++				matrix[j * CFAG12864B_WIDTH + i] = 1;
++		cfag12864b_format(matrix);
++		break;
++
++	case 4:
++		printf("Fill the lcd");
++		cfag12864b_fill();
++		break;
++
++	case 5:
++		printf("Draw columns unsetting bits");
++		for (i = 0; i < CFAG12864B_WIDTH; i += 2)
++			for (j = 0; j < CFAG12864B_HEIGHT; j++)
++				cfag12864b_unset(i, j);
++		break;
++
++	case 6:
++		printf("Do negative not-ing all bits");
++		for (i = 0; i < CFAG12864B_WIDTH; i++)
++			for (j = 0; j < CFAG12864B_HEIGHT; j ++)
++				cfag12864b_not(i, j);
 +		break;
 +	}
 +
-+out:
-+	return ret;
++	puts(" - [Press Enter]");
++}
++
++int main(int argc, char *argv[])
++{
++	unsigned char n;
++
++	if (argc != 2) {
++		printf(
++			"Sintax:  %s fbdev\n"
++			"Usually: /dev/fb0, /dev/fb1...\n", argv[0]);
++		return -1;
++	}
++
++	if (cfag12864b_init(argv[1])) {
++		printf("Can't init %s fbdev\n", argv[1]);
++		return -2;
++	}
++
++	for (n = 1; n <= EXAMPLES; n++) {
++		example(n);
++		cfag12864b_blit();
++		while (getchar() != '\n');
++	}
++
++	cfag12864b_exit();
++
++	return 0;
 +}
 -- 
 2.7.4
