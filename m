@@ -1,9 +1,9 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from resqmta-po-01v.sys.comcast.net ([96.114.154.160]:47239 "EHLO
-        resqmta-po-01v.sys.comcast.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S941138AbcIUTrn (ORCPT
+Received: from resqmta-po-06v.sys.comcast.net ([96.114.154.165]:41104 "EHLO
+        resqmta-po-06v.sys.comcast.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S941132AbcIUTrk (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 21 Sep 2016 15:47:43 -0400
+        Wed, 21 Sep 2016 15:47:40 -0400
 From: Shuah Khan <shuahkh@osg.samsung.com>
 To: corbet@lwn.net, tomas.winkler@intel.com, tglx@linutronix.de,
         clemens@ladisch.de, wim@iguana.be, linux@roeck-us.net,
@@ -13,9 +13,9 @@ To: corbet@lwn.net, tomas.winkler@intel.com, tglx@linutronix.de,
         ben@decadent.org.uk, maheshkhanwalkar@gmail.com
 Cc: Shuah Khan <shuahkh@osg.samsung.com>, linux-doc@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org
-Subject: [PATCH v2 4/4] samples: move auxdisplay example code from Documentation
-Date: Wed, 21 Sep 2016 13:47:33 -0600
-Message-Id: <0537ee23ac4c4c0792883a99f9277f3e41e85ce1.1474485474.git.shuahkh@osg.samsung.com>
+Subject: [PATCH v2 2/4] samples: move timers example code from Documentation
+Date: Wed, 21 Sep 2016 13:47:31 -0600
+Message-Id: <27dc99a87dda188924ed3f69ff1c15d445e47f9a.1474485474.git.shuahkh@osg.samsung.com>
 In-Reply-To: <cover.1474485474.git.shuahkh@osg.samsung.com>
 References: <cover.1474485474.git.shuahkh@osg.samsung.com>
 In-Reply-To: <cover.1474485474.git.shuahkh@osg.samsung.com>
@@ -23,664 +23,694 @@ References: <cover.1474485474.git.shuahkh@osg.samsung.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Move auxdisplay examples to samples and remove it from Documentation
-Makefile. Create a new Makefile to build auxdisplay. It can be built
-from top level directory or from auxdisplay directory:
+Move timers examples to samples and remove it from Documentation
+Makefile. Create a new Makefile to build timers. It can be built
+from top level directory or from timers directory:
 
-Run make -C samples/auxdisplay or cd samples/auxdisplay; make
+Run make -C samples/timers or cd samples/timers; make
 
+Acked-by: Jonathan Corbet <corbet@lwn.net>
 Signed-off-by: Shuah Khan <shuahkh@osg.samsung.com>
 ---
- Documentation/Makefile                        |   2 +-
- Documentation/auxdisplay/.gitignore           |   1 -
- Documentation/auxdisplay/Makefile             |   7 -
- Documentation/auxdisplay/cfag12864b           |   2 +-
- Documentation/auxdisplay/cfag12864b-example.c | 281 --------------------------
- samples/auxdisplay/.gitignore                 |   1 +
- samples/auxdisplay/Makefile                   |   9 +
- samples/auxdisplay/cfag12864b-example.c       | 281 ++++++++++++++++++++++++++
- 8 files changed, 293 insertions(+), 291 deletions(-)
- delete mode 100644 Documentation/auxdisplay/.gitignore
- delete mode 100644 Documentation/auxdisplay/Makefile
- delete mode 100644 Documentation/auxdisplay/cfag12864b-example.c
- create mode 100644 samples/auxdisplay/.gitignore
- create mode 100644 samples/auxdisplay/Makefile
- create mode 100644 samples/auxdisplay/cfag12864b-example.c
+ Documentation/Makefile              |   2 +-
+ Documentation/timers/.gitignore     |   1 -
+ Documentation/timers/Makefile       |   5 -
+ Documentation/timers/hpet.txt       |   2 +-
+ Documentation/timers/hpet_example.c | 294 ------------------------------------
+ samples/timers/.gitignore           |   1 +
+ samples/timers/Makefile             |  15 ++
+ samples/timers/hpet_example.c       | 294 ++++++++++++++++++++++++++++++++++++
+ 8 files changed, 312 insertions(+), 302 deletions(-)
+ delete mode 100644 Documentation/timers/.gitignore
+ delete mode 100644 Documentation/timers/Makefile
+ delete mode 100644 Documentation/timers/hpet_example.c
+ create mode 100644 samples/timers/.gitignore
+ create mode 100644 samples/timers/Makefile
+ create mode 100644 samples/timers/hpet_example.c
 
 diff --git a/Documentation/Makefile b/Documentation/Makefile
-index b2210b7..0b8cd50 100644
+index 3c2a207..fc386b7 100644
 --- a/Documentation/Makefile
 +++ b/Documentation/Makefile
 @@ -1,2 +1,2 @@
--subdir-y := accounting auxdisplay blackfin \
-+subdir-y := accounting blackfin \
- 	laptops pcmcia
-diff --git a/Documentation/auxdisplay/.gitignore b/Documentation/auxdisplay/.gitignore
+ subdir-y := accounting auxdisplay blackfin \
+-	laptops pcmcia timers watchdog
++	laptops pcmcia watchdog
+diff --git a/Documentation/timers/.gitignore b/Documentation/timers/.gitignore
 deleted file mode 100644
-index 7af2228..0000000
---- a/Documentation/auxdisplay/.gitignore
+index c5c45d7..0000000
+--- a/Documentation/timers/.gitignore
 +++ /dev/null
 @@ -1 +0,0 @@
--cfag12864b-example
-diff --git a/Documentation/auxdisplay/Makefile b/Documentation/auxdisplay/Makefile
+-hpet_example
+diff --git a/Documentation/timers/Makefile b/Documentation/timers/Makefile
 deleted file mode 100644
-index ada4dac..0000000
---- a/Documentation/auxdisplay/Makefile
+index 6c09ee6..0000000
+--- a/Documentation/timers/Makefile
 +++ /dev/null
-@@ -1,7 +0,0 @@
+@@ -1,5 +0,0 @@
 -# List of programs to build
--hostprogs-y := cfag12864b-example
+-hostprogs-$(CONFIG_X86) := hpet_example
 -
 -# Tell kbuild to always build the programs
 -always := $(hostprogs-y)
--
--HOSTCFLAGS_cfag12864b-example.o += -I$(objtree)/usr/include
-diff --git a/Documentation/auxdisplay/cfag12864b b/Documentation/auxdisplay/cfag12864b
-index eb7be39..12fd51b 100644
---- a/Documentation/auxdisplay/cfag12864b
-+++ b/Documentation/auxdisplay/cfag12864b
-@@ -101,5 +101,5 @@ Although the LCD won't get updated until the next refresh time arrives.
- Also, you can mmap the framebuffer: open & mmap, munmap & close...
- which is the best option for most uses.
+diff --git a/Documentation/timers/hpet.txt b/Documentation/timers/hpet.txt
+index a484d2c..895345e 100644
+--- a/Documentation/timers/hpet.txt
++++ b/Documentation/timers/hpet.txt
+@@ -25,4 +25,4 @@ arch/x86/kernel/hpet.c.
  
--Check Documentation/auxdisplay/cfag12864b-example.c
-+Check samples/auxdisplay/cfag12864b-example.c
- for a real working userspace complete program with usage examples.
-diff --git a/Documentation/auxdisplay/cfag12864b-example.c b/Documentation/auxdisplay/cfag12864b-example.c
+ The driver provides a userspace API which resembles the API found in the
+ RTC driver framework.  An example user space program is provided in
+-file:Documentation/timers/hpet_example.c
++file:samples/timers/hpet_example.c
+diff --git a/Documentation/timers/hpet_example.c b/Documentation/timers/hpet_example.c
 deleted file mode 100644
-index e7823ff..0000000
---- a/Documentation/auxdisplay/cfag12864b-example.c
+index 3ab4993..0000000
+--- a/Documentation/timers/hpet_example.c
 +++ /dev/null
-@@ -1,281 +0,0 @@
--/*
-- *    Filename: cfag12864b-example.c
-- *     Version: 0.1.0
-- * Description: cfag12864b LCD userspace example program
-- *     License: GPLv2
-- *
-- *      Author: Copyright (C) Miguel Ojeda Sandonis
-- *        Date: 2006-10-31
-- *
-- *  This program is free software; you can redistribute it and/or modify
-- *  it under the terms of the GNU General Public License version 2 as
-- *  published by the Free Software Foundation.
-- *
-- *  This program is distributed in the hope that it will be useful,
-- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-- *  GNU General Public License for more details.
-- *
-- *  You should have received a copy of the GNU General Public License
-- *  along with this program; if not, write to the Free Software
-- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-- *
-- */
--
--/*
-- * ------------------------
-- * start of cfag12864b code
-- * ------------------------
-- */
--
--#include <string.h>
--#include <fcntl.h>
--#include <unistd.h>
--#include <sys/types.h>
--#include <sys/stat.h>
--#include <sys/mman.h>
--
--#define CFAG12864B_WIDTH		(128)
--#define CFAG12864B_HEIGHT		(64)
--#define CFAG12864B_SIZE			(128 * 64 / 8)
--#define CFAG12864B_BPB			(8)
--#define CFAG12864B_ADDRESS(x, y)	((y) * CFAG12864B_WIDTH / \
--					CFAG12864B_BPB + (x) / CFAG12864B_BPB)
--#define CFAG12864B_BIT(n)		(((unsigned char) 1) << (n))
--
--#undef CFAG12864B_DOCHECK
--#ifdef CFAG12864B_DOCHECK
--	#define CFAG12864B_CHECK(x, y)		((x) < CFAG12864B_WIDTH && \
--						(y) < CFAG12864B_HEIGHT)
--#else
--	#define CFAG12864B_CHECK(x, y)		(1)
--#endif
--
--int cfag12864b_fd;
--unsigned char * cfag12864b_mem;
--unsigned char cfag12864b_buffer[CFAG12864B_SIZE];
--
--/*
-- * init a cfag12864b framebuffer device
-- *
-- * No error:       return = 0
-- * Unable to open: return = -1
-- * Unable to mmap: return = -2
-- */
--static int cfag12864b_init(char *path)
--{
--	cfag12864b_fd = open(path, O_RDWR);
--	if (cfag12864b_fd == -1)
--		return -1;
--
--	cfag12864b_mem = mmap(0, CFAG12864B_SIZE, PROT_READ | PROT_WRITE,
--		MAP_SHARED, cfag12864b_fd, 0);
--	if (cfag12864b_mem == MAP_FAILED) {
--		close(cfag12864b_fd);
--		return -2;
--	}
--
--	return 0;
--}
--
--/*
-- * exit a cfag12864b framebuffer device
-- */
--static void cfag12864b_exit(void)
--{
--	munmap(cfag12864b_mem, CFAG12864B_SIZE);
--	close(cfag12864b_fd);
--}
--
--/*
-- * set (x, y) pixel
-- */
--static void cfag12864b_set(unsigned char x, unsigned char y)
--{
--	if (CFAG12864B_CHECK(x, y))
--		cfag12864b_buffer[CFAG12864B_ADDRESS(x, y)] |=
--			CFAG12864B_BIT(x % CFAG12864B_BPB);
--}
--
--/*
-- * unset (x, y) pixel
-- */
--static void cfag12864b_unset(unsigned char x, unsigned char y)
--{
--	if (CFAG12864B_CHECK(x, y))
--		cfag12864b_buffer[CFAG12864B_ADDRESS(x, y)] &=
--			~CFAG12864B_BIT(x % CFAG12864B_BPB);
--}
--
--/*
-- * is set (x, y) pixel?
-- *
-- * Pixel off: return = 0
-- * Pixel on:  return = 1
-- */
--static unsigned char cfag12864b_isset(unsigned char x, unsigned char y)
--{
--	if (CFAG12864B_CHECK(x, y))
--		if (cfag12864b_buffer[CFAG12864B_ADDRESS(x, y)] &
--			CFAG12864B_BIT(x % CFAG12864B_BPB))
--			return 1;
--
--	return 0;
--}
--
--/*
-- * not (x, y) pixel
-- */
--static void cfag12864b_not(unsigned char x, unsigned char y)
--{
--	if (cfag12864b_isset(x, y))
--		cfag12864b_unset(x, y);
--	else
--		cfag12864b_set(x, y);
--}
--
--/*
-- * fill (set all pixels)
-- */
--static void cfag12864b_fill(void)
--{
--	unsigned short i;
--
--	for (i = 0; i < CFAG12864B_SIZE; i++)
--		cfag12864b_buffer[i] = 0xFF;
--}
--
--/*
-- * clear (unset all pixels)
-- */
--static void cfag12864b_clear(void)
--{
--	unsigned short i;
--
--	for (i = 0; i < CFAG12864B_SIZE; i++)
--		cfag12864b_buffer[i] = 0;
--}
--
--/*
-- * format a [128*64] matrix
-- *
-- * Pixel off: src[i] = 0
-- * Pixel on:  src[i] > 0
-- */
--static void cfag12864b_format(unsigned char * matrix)
--{
--	unsigned char i, j, n;
--
--	for (i = 0; i < CFAG12864B_HEIGHT; i++)
--	for (j = 0; j < CFAG12864B_WIDTH / CFAG12864B_BPB; j++) {
--		cfag12864b_buffer[i * CFAG12864B_WIDTH / CFAG12864B_BPB +
--			j] = 0;
--		for (n = 0; n < CFAG12864B_BPB; n++)
--			if (matrix[i * CFAG12864B_WIDTH +
--				j * CFAG12864B_BPB + n])
--				cfag12864b_buffer[i * CFAG12864B_WIDTH /
--					CFAG12864B_BPB + j] |=
--					CFAG12864B_BIT(n);
--	}
--}
--
--/*
-- * blit buffer to lcd
-- */
--static void cfag12864b_blit(void)
--{
--	memcpy(cfag12864b_mem, cfag12864b_buffer, CFAG12864B_SIZE);
--}
--
--/*
-- * ----------------------
-- * end of cfag12864b code
-- * ----------------------
-- */
--
+@@ -1,294 +0,0 @@
 -#include <stdio.h>
+-#include <stdlib.h>
+-#include <unistd.h>
+-#include <fcntl.h>
+-#include <string.h>
+-#include <memory.h>
+-#include <malloc.h>
+-#include <time.h>
+-#include <ctype.h>
+-#include <sys/types.h>
+-#include <sys/wait.h>
+-#include <signal.h>
+-#include <errno.h>
+-#include <sys/time.h>
+-#include <linux/hpet.h>
 -
--#define EXAMPLES	6
 -
--static void example(unsigned char n)
+-extern void hpet_open_close(int, const char **);
+-extern void hpet_info(int, const char **);
+-extern void hpet_poll(int, const char **);
+-extern void hpet_fasync(int, const char **);
+-extern void hpet_read(int, const char **);
+-
+-#include <sys/poll.h>
+-#include <sys/ioctl.h>
+-
+-struct hpet_command {
+-	char		*command;
+-	void		(*func)(int argc, const char ** argv);
+-} hpet_command[] = {
+-	{
+-		"open-close",
+-		hpet_open_close
+-	},
+-	{
+-		"info",
+-		hpet_info
+-	},
+-	{
+-		"poll",
+-		hpet_poll
+-	},
+-	{
+-		"fasync",
+-		hpet_fasync
+-	},
+-};
+-
+-int
+-main(int argc, const char ** argv)
 -{
--	unsigned short i, j;
--	unsigned char matrix[CFAG12864B_WIDTH * CFAG12864B_HEIGHT];
+-	unsigned int	i;
 -
--	if (n > EXAMPLES)
--		return;
+-	argc--;
+-	argv++;
 -
--	printf("Example %i/%i - ", n, EXAMPLES);
--
--	switch (n) {
--	case 1:
--		printf("Draw points setting bits");
--		cfag12864b_clear();
--		for (i = 0; i < CFAG12864B_WIDTH; i += 2)
--			for (j = 0; j < CFAG12864B_HEIGHT; j += 2)
--				cfag12864b_set(i, j);
--		break;
--
--	case 2:
--		printf("Clear the LCD");
--		cfag12864b_clear();
--		break;
--
--	case 3:
--		printf("Draw rows formatting a [128*64] matrix");
--		memset(matrix, 0, CFAG12864B_WIDTH * CFAG12864B_HEIGHT);
--		for (i = 0; i < CFAG12864B_WIDTH; i++)
--			for (j = 0; j < CFAG12864B_HEIGHT; j += 2)
--				matrix[j * CFAG12864B_WIDTH + i] = 1;
--		cfag12864b_format(matrix);
--		break;
--
--	case 4:
--		printf("Fill the lcd");
--		cfag12864b_fill();
--		break;
--
--	case 5:
--		printf("Draw columns unsetting bits");
--		for (i = 0; i < CFAG12864B_WIDTH; i += 2)
--			for (j = 0; j < CFAG12864B_HEIGHT; j++)
--				cfag12864b_unset(i, j);
--		break;
--
--	case 6:
--		printf("Do negative not-ing all bits");
--		for (i = 0; i < CFAG12864B_WIDTH; i++)
--			for (j = 0; j < CFAG12864B_HEIGHT; j ++)
--				cfag12864b_not(i, j);
--		break;
--	}
--
--	puts(" - [Press Enter]");
--}
--
--int main(int argc, char *argv[])
--{
--	unsigned char n;
--
--	if (argc != 2) {
--		printf(
--			"Sintax:  %s fbdev\n"
--			"Usually: /dev/fb0, /dev/fb1...\n", argv[0]);
+-	if (!argc) {
+-		fprintf(stderr, "-hpet: requires command\n");
 -		return -1;
 -	}
 -
--	if (cfag12864b_init(argv[1])) {
--		printf("Can't init %s fbdev\n", argv[1]);
--		return -2;
--	}
 -
--	for (n = 1; n <= EXAMPLES; n++) {
--		example(n);
--		cfag12864b_blit();
--		while (getchar() != '\n');
--	}
+-	for (i = 0; i < (sizeof (hpet_command) / sizeof (hpet_command[0])); i++)
+-		if (!strcmp(argv[0], hpet_command[i].command)) {
+-			argc--;
+-			argv++;
+-			fprintf(stderr, "-hpet: executing %s\n",
+-				hpet_command[i].command);
+-			hpet_command[i].func(argc, argv);
+-			return 0;
+-		}
 -
--	cfag12864b_exit();
+-	fprintf(stderr, "do_hpet: command %s not implemented\n", argv[0]);
 -
--	return 0;
+-	return -1;
 -}
-diff --git a/samples/auxdisplay/.gitignore b/samples/auxdisplay/.gitignore
+-
+-void
+-hpet_open_close(int argc, const char **argv)
+-{
+-	int	fd;
+-
+-	if (argc != 1) {
+-		fprintf(stderr, "hpet_open_close: device-name\n");
+-		return;
+-	}
+-
+-	fd = open(argv[0], O_RDONLY);
+-	if (fd < 0)
+-		fprintf(stderr, "hpet_open_close: open failed\n");
+-	else
+-		close(fd);
+-
+-	return;
+-}
+-
+-void
+-hpet_info(int argc, const char **argv)
+-{
+-	struct hpet_info	info;
+-	int			fd;
+-
+-	if (argc != 1) {
+-		fprintf(stderr, "hpet_info: device-name\n");
+-		return;
+-	}
+-
+-	fd = open(argv[0], O_RDONLY);
+-	if (fd < 0) {
+-		fprintf(stderr, "hpet_info: open of %s failed\n", argv[0]);
+-		return;
+-	}
+-
+-	if (ioctl(fd, HPET_INFO, &info) < 0) {
+-		fprintf(stderr, "hpet_info: failed to get info\n");
+-		goto out;
+-	}
+-
+-	fprintf(stderr, "hpet_info: hi_irqfreq 0x%lx hi_flags 0x%lx ",
+-		info.hi_ireqfreq, info.hi_flags);
+-	fprintf(stderr, "hi_hpet %d hi_timer %d\n",
+-		info.hi_hpet, info.hi_timer);
+-
+-out:
+-	close(fd);
+-	return;
+-}
+-
+-void
+-hpet_poll(int argc, const char **argv)
+-{
+-	unsigned long		freq;
+-	int			iterations, i, fd;
+-	struct pollfd		pfd;
+-	struct hpet_info	info;
+-	struct timeval		stv, etv;
+-	struct timezone		tz;
+-	long			usec;
+-
+-	if (argc != 3) {
+-		fprintf(stderr, "hpet_poll: device-name freq iterations\n");
+-		return;
+-	}
+-
+-	freq = atoi(argv[1]);
+-	iterations = atoi(argv[2]);
+-
+-	fd = open(argv[0], O_RDONLY);
+-
+-	if (fd < 0) {
+-		fprintf(stderr, "hpet_poll: open of %s failed\n", argv[0]);
+-		return;
+-	}
+-
+-	if (ioctl(fd, HPET_IRQFREQ, freq) < 0) {
+-		fprintf(stderr, "hpet_poll: HPET_IRQFREQ failed\n");
+-		goto out;
+-	}
+-
+-	if (ioctl(fd, HPET_INFO, &info) < 0) {
+-		fprintf(stderr, "hpet_poll: failed to get info\n");
+-		goto out;
+-	}
+-
+-	fprintf(stderr, "hpet_poll: info.hi_flags 0x%lx\n", info.hi_flags);
+-
+-	if (info.hi_flags && (ioctl(fd, HPET_EPI, 0) < 0)) {
+-		fprintf(stderr, "hpet_poll: HPET_EPI failed\n");
+-		goto out;
+-	}
+-
+-	if (ioctl(fd, HPET_IE_ON, 0) < 0) {
+-		fprintf(stderr, "hpet_poll, HPET_IE_ON failed\n");
+-		goto out;
+-	}
+-
+-	pfd.fd = fd;
+-	pfd.events = POLLIN;
+-
+-	for (i = 0; i < iterations; i++) {
+-		pfd.revents = 0;
+-		gettimeofday(&stv, &tz);
+-		if (poll(&pfd, 1, -1) < 0)
+-			fprintf(stderr, "hpet_poll: poll failed\n");
+-		else {
+-			long 	data;
+-
+-			gettimeofday(&etv, &tz);
+-			usec = stv.tv_sec * 1000000 + stv.tv_usec;
+-			usec = (etv.tv_sec * 1000000 + etv.tv_usec) - usec;
+-
+-			fprintf(stderr,
+-				"hpet_poll: expired time = 0x%lx\n", usec);
+-
+-			fprintf(stderr, "hpet_poll: revents = 0x%x\n",
+-				pfd.revents);
+-
+-			if (read(fd, &data, sizeof(data)) != sizeof(data)) {
+-				fprintf(stderr, "hpet_poll: read failed\n");
+-			}
+-			else
+-				fprintf(stderr, "hpet_poll: data 0x%lx\n",
+-					data);
+-		}
+-	}
+-
+-out:
+-	close(fd);
+-	return;
+-}
+-
+-static int hpet_sigio_count;
+-
+-static void
+-hpet_sigio(int val)
+-{
+-	fprintf(stderr, "hpet_sigio: called\n");
+-	hpet_sigio_count++;
+-}
+-
+-void
+-hpet_fasync(int argc, const char **argv)
+-{
+-	unsigned long		freq;
+-	int			iterations, i, fd, value;
+-	sig_t			oldsig;
+-	struct hpet_info	info;
+-
+-	hpet_sigio_count = 0;
+-	fd = -1;
+-
+-	if ((oldsig = signal(SIGIO, hpet_sigio)) == SIG_ERR) {
+-		fprintf(stderr, "hpet_fasync: failed to set signal handler\n");
+-		return;
+-	}
+-
+-	if (argc != 3) {
+-		fprintf(stderr, "hpet_fasync: device-name freq iterations\n");
+-		goto out;
+-	}
+-
+-	fd = open(argv[0], O_RDONLY);
+-
+-	if (fd < 0) {
+-		fprintf(stderr, "hpet_fasync: failed to open %s\n", argv[0]);
+-		return;
+-	}
+-
+-
+-	if ((fcntl(fd, F_SETOWN, getpid()) == 1) ||
+-		((value = fcntl(fd, F_GETFL)) == 1) ||
+-		(fcntl(fd, F_SETFL, value | O_ASYNC) == 1)) {
+-		fprintf(stderr, "hpet_fasync: fcntl failed\n");
+-		goto out;
+-	}
+-
+-	freq = atoi(argv[1]);
+-	iterations = atoi(argv[2]);
+-
+-	if (ioctl(fd, HPET_IRQFREQ, freq) < 0) {
+-		fprintf(stderr, "hpet_fasync: HPET_IRQFREQ failed\n");
+-		goto out;
+-	}
+-
+-	if (ioctl(fd, HPET_INFO, &info) < 0) {
+-		fprintf(stderr, "hpet_fasync: failed to get info\n");
+-		goto out;
+-	}
+-
+-	fprintf(stderr, "hpet_fasync: info.hi_flags 0x%lx\n", info.hi_flags);
+-
+-	if (info.hi_flags && (ioctl(fd, HPET_EPI, 0) < 0)) {
+-		fprintf(stderr, "hpet_fasync: HPET_EPI failed\n");
+-		goto out;
+-	}
+-
+-	if (ioctl(fd, HPET_IE_ON, 0) < 0) {
+-		fprintf(stderr, "hpet_fasync, HPET_IE_ON failed\n");
+-		goto out;
+-	}
+-
+-	for (i = 0; i < iterations; i++) {
+-		(void) pause();
+-		fprintf(stderr, "hpet_fasync: count = %d\n", hpet_sigio_count);
+-	}
+-
+-out:
+-	signal(SIGIO, oldsig);
+-
+-	if (fd >= 0)
+-		close(fd);
+-
+-	return;
+-}
+diff --git a/samples/timers/.gitignore b/samples/timers/.gitignore
 new file mode 100644
-index 0000000..7af2228
+index 0000000..c5c45d7
 --- /dev/null
-+++ b/samples/auxdisplay/.gitignore
++++ b/samples/timers/.gitignore
 @@ -0,0 +1 @@
-+cfag12864b-example
-diff --git a/samples/auxdisplay/Makefile b/samples/auxdisplay/Makefile
++hpet_example
+diff --git a/samples/timers/Makefile b/samples/timers/Makefile
 new file mode 100644
-index 0000000..05e471f
+index 0000000..a5c3c4a
 --- /dev/null
-+++ b/samples/auxdisplay/Makefile
-@@ -0,0 +1,9 @@
-+CC := $(CROSS_COMPILE)gcc
-+CFLAGS := -I../../usr/include
++++ b/samples/timers/Makefile
+@@ -0,0 +1,15 @@
++ifndef CROSS_COMPILE
++uname_M := $(shell uname -m 2>/dev/null || echo not)
++ARCH ?= $(shell echo $(uname_M) | sed -e s/i.86/x86/ -e s/x86_64/x86/)
 +
-+PROGS := cfag12864b-example
++ifeq ($(ARCH),x86)
++CC := $(CROSS_COMPILE)gcc
++PROGS := hpet_example
 +
 +all: $(PROGS)
 +
 +clean:
 +	rm -fr $(PROGS)
-diff --git a/samples/auxdisplay/cfag12864b-example.c b/samples/auxdisplay/cfag12864b-example.c
++
++endif
++endif
+diff --git a/samples/timers/hpet_example.c b/samples/timers/hpet_example.c
 new file mode 100644
-index 0000000..e7823ff
+index 0000000..3ab4993
 --- /dev/null
-+++ b/samples/auxdisplay/cfag12864b-example.c
-@@ -0,0 +1,281 @@
-+/*
-+ *    Filename: cfag12864b-example.c
-+ *     Version: 0.1.0
-+ * Description: cfag12864b LCD userspace example program
-+ *     License: GPLv2
-+ *
-+ *      Author: Copyright (C) Miguel Ojeda Sandonis
-+ *        Date: 2006-10-31
-+ *
-+ *  This program is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License version 2 as
-+ *  published by the Free Software Foundation.
-+ *
-+ *  This program is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *  GNU General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU General Public License
-+ *  along with this program; if not, write to the Free Software
-+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
-+ */
-+
-+/*
-+ * ------------------------
-+ * start of cfag12864b code
-+ * ------------------------
-+ */
-+
-+#include <string.h>
-+#include <fcntl.h>
-+#include <unistd.h>
-+#include <sys/types.h>
-+#include <sys/stat.h>
-+#include <sys/mman.h>
-+
-+#define CFAG12864B_WIDTH		(128)
-+#define CFAG12864B_HEIGHT		(64)
-+#define CFAG12864B_SIZE			(128 * 64 / 8)
-+#define CFAG12864B_BPB			(8)
-+#define CFAG12864B_ADDRESS(x, y)	((y) * CFAG12864B_WIDTH / \
-+					CFAG12864B_BPB + (x) / CFAG12864B_BPB)
-+#define CFAG12864B_BIT(n)		(((unsigned char) 1) << (n))
-+
-+#undef CFAG12864B_DOCHECK
-+#ifdef CFAG12864B_DOCHECK
-+	#define CFAG12864B_CHECK(x, y)		((x) < CFAG12864B_WIDTH && \
-+						(y) < CFAG12864B_HEIGHT)
-+#else
-+	#define CFAG12864B_CHECK(x, y)		(1)
-+#endif
-+
-+int cfag12864b_fd;
-+unsigned char * cfag12864b_mem;
-+unsigned char cfag12864b_buffer[CFAG12864B_SIZE];
-+
-+/*
-+ * init a cfag12864b framebuffer device
-+ *
-+ * No error:       return = 0
-+ * Unable to open: return = -1
-+ * Unable to mmap: return = -2
-+ */
-+static int cfag12864b_init(char *path)
-+{
-+	cfag12864b_fd = open(path, O_RDWR);
-+	if (cfag12864b_fd == -1)
-+		return -1;
-+
-+	cfag12864b_mem = mmap(0, CFAG12864B_SIZE, PROT_READ | PROT_WRITE,
-+		MAP_SHARED, cfag12864b_fd, 0);
-+	if (cfag12864b_mem == MAP_FAILED) {
-+		close(cfag12864b_fd);
-+		return -2;
-+	}
-+
-+	return 0;
-+}
-+
-+/*
-+ * exit a cfag12864b framebuffer device
-+ */
-+static void cfag12864b_exit(void)
-+{
-+	munmap(cfag12864b_mem, CFAG12864B_SIZE);
-+	close(cfag12864b_fd);
-+}
-+
-+/*
-+ * set (x, y) pixel
-+ */
-+static void cfag12864b_set(unsigned char x, unsigned char y)
-+{
-+	if (CFAG12864B_CHECK(x, y))
-+		cfag12864b_buffer[CFAG12864B_ADDRESS(x, y)] |=
-+			CFAG12864B_BIT(x % CFAG12864B_BPB);
-+}
-+
-+/*
-+ * unset (x, y) pixel
-+ */
-+static void cfag12864b_unset(unsigned char x, unsigned char y)
-+{
-+	if (CFAG12864B_CHECK(x, y))
-+		cfag12864b_buffer[CFAG12864B_ADDRESS(x, y)] &=
-+			~CFAG12864B_BIT(x % CFAG12864B_BPB);
-+}
-+
-+/*
-+ * is set (x, y) pixel?
-+ *
-+ * Pixel off: return = 0
-+ * Pixel on:  return = 1
-+ */
-+static unsigned char cfag12864b_isset(unsigned char x, unsigned char y)
-+{
-+	if (CFAG12864B_CHECK(x, y))
-+		if (cfag12864b_buffer[CFAG12864B_ADDRESS(x, y)] &
-+			CFAG12864B_BIT(x % CFAG12864B_BPB))
-+			return 1;
-+
-+	return 0;
-+}
-+
-+/*
-+ * not (x, y) pixel
-+ */
-+static void cfag12864b_not(unsigned char x, unsigned char y)
-+{
-+	if (cfag12864b_isset(x, y))
-+		cfag12864b_unset(x, y);
-+	else
-+		cfag12864b_set(x, y);
-+}
-+
-+/*
-+ * fill (set all pixels)
-+ */
-+static void cfag12864b_fill(void)
-+{
-+	unsigned short i;
-+
-+	for (i = 0; i < CFAG12864B_SIZE; i++)
-+		cfag12864b_buffer[i] = 0xFF;
-+}
-+
-+/*
-+ * clear (unset all pixels)
-+ */
-+static void cfag12864b_clear(void)
-+{
-+	unsigned short i;
-+
-+	for (i = 0; i < CFAG12864B_SIZE; i++)
-+		cfag12864b_buffer[i] = 0;
-+}
-+
-+/*
-+ * format a [128*64] matrix
-+ *
-+ * Pixel off: src[i] = 0
-+ * Pixel on:  src[i] > 0
-+ */
-+static void cfag12864b_format(unsigned char * matrix)
-+{
-+	unsigned char i, j, n;
-+
-+	for (i = 0; i < CFAG12864B_HEIGHT; i++)
-+	for (j = 0; j < CFAG12864B_WIDTH / CFAG12864B_BPB; j++) {
-+		cfag12864b_buffer[i * CFAG12864B_WIDTH / CFAG12864B_BPB +
-+			j] = 0;
-+		for (n = 0; n < CFAG12864B_BPB; n++)
-+			if (matrix[i * CFAG12864B_WIDTH +
-+				j * CFAG12864B_BPB + n])
-+				cfag12864b_buffer[i * CFAG12864B_WIDTH /
-+					CFAG12864B_BPB + j] |=
-+					CFAG12864B_BIT(n);
-+	}
-+}
-+
-+/*
-+ * blit buffer to lcd
-+ */
-+static void cfag12864b_blit(void)
-+{
-+	memcpy(cfag12864b_mem, cfag12864b_buffer, CFAG12864B_SIZE);
-+}
-+
-+/*
-+ * ----------------------
-+ * end of cfag12864b code
-+ * ----------------------
-+ */
-+
++++ b/samples/timers/hpet_example.c
+@@ -0,0 +1,294 @@
 +#include <stdio.h>
++#include <stdlib.h>
++#include <unistd.h>
++#include <fcntl.h>
++#include <string.h>
++#include <memory.h>
++#include <malloc.h>
++#include <time.h>
++#include <ctype.h>
++#include <sys/types.h>
++#include <sys/wait.h>
++#include <signal.h>
++#include <errno.h>
++#include <sys/time.h>
++#include <linux/hpet.h>
 +
-+#define EXAMPLES	6
 +
-+static void example(unsigned char n)
++extern void hpet_open_close(int, const char **);
++extern void hpet_info(int, const char **);
++extern void hpet_poll(int, const char **);
++extern void hpet_fasync(int, const char **);
++extern void hpet_read(int, const char **);
++
++#include <sys/poll.h>
++#include <sys/ioctl.h>
++
++struct hpet_command {
++	char		*command;
++	void		(*func)(int argc, const char ** argv);
++} hpet_command[] = {
++	{
++		"open-close",
++		hpet_open_close
++	},
++	{
++		"info",
++		hpet_info
++	},
++	{
++		"poll",
++		hpet_poll
++	},
++	{
++		"fasync",
++		hpet_fasync
++	},
++};
++
++int
++main(int argc, const char ** argv)
 +{
-+	unsigned short i, j;
-+	unsigned char matrix[CFAG12864B_WIDTH * CFAG12864B_HEIGHT];
++	unsigned int	i;
 +
-+	if (n > EXAMPLES)
-+		return;
++	argc--;
++	argv++;
 +
-+	printf("Example %i/%i - ", n, EXAMPLES);
-+
-+	switch (n) {
-+	case 1:
-+		printf("Draw points setting bits");
-+		cfag12864b_clear();
-+		for (i = 0; i < CFAG12864B_WIDTH; i += 2)
-+			for (j = 0; j < CFAG12864B_HEIGHT; j += 2)
-+				cfag12864b_set(i, j);
-+		break;
-+
-+	case 2:
-+		printf("Clear the LCD");
-+		cfag12864b_clear();
-+		break;
-+
-+	case 3:
-+		printf("Draw rows formatting a [128*64] matrix");
-+		memset(matrix, 0, CFAG12864B_WIDTH * CFAG12864B_HEIGHT);
-+		for (i = 0; i < CFAG12864B_WIDTH; i++)
-+			for (j = 0; j < CFAG12864B_HEIGHT; j += 2)
-+				matrix[j * CFAG12864B_WIDTH + i] = 1;
-+		cfag12864b_format(matrix);
-+		break;
-+
-+	case 4:
-+		printf("Fill the lcd");
-+		cfag12864b_fill();
-+		break;
-+
-+	case 5:
-+		printf("Draw columns unsetting bits");
-+		for (i = 0; i < CFAG12864B_WIDTH; i += 2)
-+			for (j = 0; j < CFAG12864B_HEIGHT; j++)
-+				cfag12864b_unset(i, j);
-+		break;
-+
-+	case 6:
-+		printf("Do negative not-ing all bits");
-+		for (i = 0; i < CFAG12864B_WIDTH; i++)
-+			for (j = 0; j < CFAG12864B_HEIGHT; j ++)
-+				cfag12864b_not(i, j);
-+		break;
-+	}
-+
-+	puts(" - [Press Enter]");
-+}
-+
-+int main(int argc, char *argv[])
-+{
-+	unsigned char n;
-+
-+	if (argc != 2) {
-+		printf(
-+			"Sintax:  %s fbdev\n"
-+			"Usually: /dev/fb0, /dev/fb1...\n", argv[0]);
++	if (!argc) {
++		fprintf(stderr, "-hpet: requires command\n");
 +		return -1;
 +	}
 +
-+	if (cfag12864b_init(argv[1])) {
-+		printf("Can't init %s fbdev\n", argv[1]);
-+		return -2;
++
++	for (i = 0; i < (sizeof (hpet_command) / sizeof (hpet_command[0])); i++)
++		if (!strcmp(argv[0], hpet_command[i].command)) {
++			argc--;
++			argv++;
++			fprintf(stderr, "-hpet: executing %s\n",
++				hpet_command[i].command);
++			hpet_command[i].func(argc, argv);
++			return 0;
++		}
++
++	fprintf(stderr, "do_hpet: command %s not implemented\n", argv[0]);
++
++	return -1;
++}
++
++void
++hpet_open_close(int argc, const char **argv)
++{
++	int	fd;
++
++	if (argc != 1) {
++		fprintf(stderr, "hpet_open_close: device-name\n");
++		return;
 +	}
 +
-+	for (n = 1; n <= EXAMPLES; n++) {
-+		example(n);
-+		cfag12864b_blit();
-+		while (getchar() != '\n');
++	fd = open(argv[0], O_RDONLY);
++	if (fd < 0)
++		fprintf(stderr, "hpet_open_close: open failed\n");
++	else
++		close(fd);
++
++	return;
++}
++
++void
++hpet_info(int argc, const char **argv)
++{
++	struct hpet_info	info;
++	int			fd;
++
++	if (argc != 1) {
++		fprintf(stderr, "hpet_info: device-name\n");
++		return;
 +	}
 +
-+	cfag12864b_exit();
++	fd = open(argv[0], O_RDONLY);
++	if (fd < 0) {
++		fprintf(stderr, "hpet_info: open of %s failed\n", argv[0]);
++		return;
++	}
 +
-+	return 0;
++	if (ioctl(fd, HPET_INFO, &info) < 0) {
++		fprintf(stderr, "hpet_info: failed to get info\n");
++		goto out;
++	}
++
++	fprintf(stderr, "hpet_info: hi_irqfreq 0x%lx hi_flags 0x%lx ",
++		info.hi_ireqfreq, info.hi_flags);
++	fprintf(stderr, "hi_hpet %d hi_timer %d\n",
++		info.hi_hpet, info.hi_timer);
++
++out:
++	close(fd);
++	return;
++}
++
++void
++hpet_poll(int argc, const char **argv)
++{
++	unsigned long		freq;
++	int			iterations, i, fd;
++	struct pollfd		pfd;
++	struct hpet_info	info;
++	struct timeval		stv, etv;
++	struct timezone		tz;
++	long			usec;
++
++	if (argc != 3) {
++		fprintf(stderr, "hpet_poll: device-name freq iterations\n");
++		return;
++	}
++
++	freq = atoi(argv[1]);
++	iterations = atoi(argv[2]);
++
++	fd = open(argv[0], O_RDONLY);
++
++	if (fd < 0) {
++		fprintf(stderr, "hpet_poll: open of %s failed\n", argv[0]);
++		return;
++	}
++
++	if (ioctl(fd, HPET_IRQFREQ, freq) < 0) {
++		fprintf(stderr, "hpet_poll: HPET_IRQFREQ failed\n");
++		goto out;
++	}
++
++	if (ioctl(fd, HPET_INFO, &info) < 0) {
++		fprintf(stderr, "hpet_poll: failed to get info\n");
++		goto out;
++	}
++
++	fprintf(stderr, "hpet_poll: info.hi_flags 0x%lx\n", info.hi_flags);
++
++	if (info.hi_flags && (ioctl(fd, HPET_EPI, 0) < 0)) {
++		fprintf(stderr, "hpet_poll: HPET_EPI failed\n");
++		goto out;
++	}
++
++	if (ioctl(fd, HPET_IE_ON, 0) < 0) {
++		fprintf(stderr, "hpet_poll, HPET_IE_ON failed\n");
++		goto out;
++	}
++
++	pfd.fd = fd;
++	pfd.events = POLLIN;
++
++	for (i = 0; i < iterations; i++) {
++		pfd.revents = 0;
++		gettimeofday(&stv, &tz);
++		if (poll(&pfd, 1, -1) < 0)
++			fprintf(stderr, "hpet_poll: poll failed\n");
++		else {
++			long 	data;
++
++			gettimeofday(&etv, &tz);
++			usec = stv.tv_sec * 1000000 + stv.tv_usec;
++			usec = (etv.tv_sec * 1000000 + etv.tv_usec) - usec;
++
++			fprintf(stderr,
++				"hpet_poll: expired time = 0x%lx\n", usec);
++
++			fprintf(stderr, "hpet_poll: revents = 0x%x\n",
++				pfd.revents);
++
++			if (read(fd, &data, sizeof(data)) != sizeof(data)) {
++				fprintf(stderr, "hpet_poll: read failed\n");
++			}
++			else
++				fprintf(stderr, "hpet_poll: data 0x%lx\n",
++					data);
++		}
++	}
++
++out:
++	close(fd);
++	return;
++}
++
++static int hpet_sigio_count;
++
++static void
++hpet_sigio(int val)
++{
++	fprintf(stderr, "hpet_sigio: called\n");
++	hpet_sigio_count++;
++}
++
++void
++hpet_fasync(int argc, const char **argv)
++{
++	unsigned long		freq;
++	int			iterations, i, fd, value;
++	sig_t			oldsig;
++	struct hpet_info	info;
++
++	hpet_sigio_count = 0;
++	fd = -1;
++
++	if ((oldsig = signal(SIGIO, hpet_sigio)) == SIG_ERR) {
++		fprintf(stderr, "hpet_fasync: failed to set signal handler\n");
++		return;
++	}
++
++	if (argc != 3) {
++		fprintf(stderr, "hpet_fasync: device-name freq iterations\n");
++		goto out;
++	}
++
++	fd = open(argv[0], O_RDONLY);
++
++	if (fd < 0) {
++		fprintf(stderr, "hpet_fasync: failed to open %s\n", argv[0]);
++		return;
++	}
++
++
++	if ((fcntl(fd, F_SETOWN, getpid()) == 1) ||
++		((value = fcntl(fd, F_GETFL)) == 1) ||
++		(fcntl(fd, F_SETFL, value | O_ASYNC) == 1)) {
++		fprintf(stderr, "hpet_fasync: fcntl failed\n");
++		goto out;
++	}
++
++	freq = atoi(argv[1]);
++	iterations = atoi(argv[2]);
++
++	if (ioctl(fd, HPET_IRQFREQ, freq) < 0) {
++		fprintf(stderr, "hpet_fasync: HPET_IRQFREQ failed\n");
++		goto out;
++	}
++
++	if (ioctl(fd, HPET_INFO, &info) < 0) {
++		fprintf(stderr, "hpet_fasync: failed to get info\n");
++		goto out;
++	}
++
++	fprintf(stderr, "hpet_fasync: info.hi_flags 0x%lx\n", info.hi_flags);
++
++	if (info.hi_flags && (ioctl(fd, HPET_EPI, 0) < 0)) {
++		fprintf(stderr, "hpet_fasync: HPET_EPI failed\n");
++		goto out;
++	}
++
++	if (ioctl(fd, HPET_IE_ON, 0) < 0) {
++		fprintf(stderr, "hpet_fasync, HPET_IE_ON failed\n");
++		goto out;
++	}
++
++	for (i = 0; i < iterations; i++) {
++		(void) pause();
++		fprintf(stderr, "hpet_fasync: count = %d\n", hpet_sigio_count);
++	}
++
++out:
++	signal(SIGIO, oldsig);
++
++	if (fd >= 0)
++		close(fd);
++
++	return;
 +}
 -- 
 2.7.4
