@@ -1,61 +1,56 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:51932 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751029AbcITEhJ (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 20 Sep 2016 00:37:09 -0400
-Subject: Re: [PATCH 3/4] watchdog: sa11x0/pxa: get rid of get_clock_tick_rate
-To: Russell King - ARM Linux <linux@armlinux.org.uk>
-References: <1474312335-20997-1-git-send-email-robert.jarzmik@free.fr>
- <1474312335-20997-4-git-send-email-robert.jarzmik@free.fr>
- <20160919200816.GC29242@roeck-us.net>
- <20160919223616.GN1041@n2100.armlinux.org.uk>
-Cc: Robert Jarzmik <robert.jarzmik@free.fr>,
-        Daniel Mack <daniel@zonque.org>,
-        Haojian Zhuang <haojian.zhuang@gmail.com>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@codeaurora.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-clk@vger.kernel.org, linux-watchdog@vger.kernel.org
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <0909debb-f7df-648b-95d2-23b535e5b299@roeck-us.net>
-Date: Mon, 19 Sep 2016 21:37:06 -0700
+Return-path: <wsa@the-dreams.de>
+Date: Wed, 21 Sep 2016 20:34:24 +0200
+From: Wolfram Sang <wsa@the-dreams.de>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>,
+	Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH v5 00/10] watchdog: add watchdog pretimeout framework
+Message-ID: <20160921183423.GB1513@katana>
+References: <1472644370-16982-1-git-send-email-vladimir_zapolskiy@mentor.com>
+ <20160905164923.GA1548@katana>
+ <29631170-1687-fbd0-8072-6a65b8868009@mentor.com>
+ <7bec61ce-8bab-d4be-cca4-ec3c0025e2fb@roeck-us.net>
 MIME-Version: 1.0
-In-Reply-To: <20160919223616.GN1041@n2100.armlinux.org.uk>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="0eh6TmSyL6TZE2Uz"
+Content-Disposition: inline
+In-Reply-To: <7bec61ce-8bab-d4be-cca4-ec3c0025e2fb@roeck-us.net>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 09/19/2016 03:36 PM, Russell King - ARM Linux wrote:
-> On Mon, Sep 19, 2016 at 01:08:16PM -0700, Guenter Roeck wrote:
->> On Mon, Sep 19, 2016 at 09:12:14PM +0200, Robert Jarzmik wrote:
->>> The OS timer rate used for the watchdog can now be fetched from the
->>> standard clock API. This will remove the last user of
->>> get_clock_tick_rate() in both pxa and sa11x0 architectures.
->>>
->>> Signed-off-by: Robert Jarzmik <robert.jarzmik@free.fr>
->>
->> Did you test this ? Potential problem, if built into the kernel, could be that
->> the clocks might not be ready by the time the driver is instantiated. Unless
->> this is converted to a platform driver, it won't be able to handle a
->> -EPROBE_DEFER from the clock subsystem.
->
-> Really not a problem at all.  The OSTIMER0 is required for the system
-> tick, and if that's not present, the kernel will be without any kind
-> of time keeping, so a missing watchdog driver is the least of the
-> problems.
->
-> Therefore, both PXA and SA11x0 register their clocks really early to
-> ensure that OSTIMER0 is available by the time_init() stage, which is
-> way before driver probe time.
->
 
-You are right. And, at least in qemu, it actually works.
+--0eh6TmSyL6TZE2Uz
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Thanks,
-Guenter
 
+> I am sure there is something I missed, but all I could find was nitpicks
+> not worth a resend, so at least for my part I think we should get this in.
+>=20
+> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+
+Thanks! Your watchdog-next is not included in linux-next, though?
+
+
+--0eh6TmSyL6TZE2Uz
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJX4tKvAAoJEBQN5MwUoCm2GXYP/RP4vFYlXc2a9ZDkR4UZhevz
+hUFxG7uHJGz4eeoEXRTtXMZZE0YCRXoV4cArqipDTHFgrCfLVzNhIMQfc8K3IY3k
+YeBgSEl2XeMcdFfk3szEgisuTevK0WIJnZ9cdTYxZgcJK45GSweJWHGS0JwvlNLh
+Yq40wKTC69keFxJhbAuX5xV14GkSTtEmgY2X+eUZQ+X+ubjhwFEMRpfCmrBeMzzu
+/8Ra1k9pJvS11sJ690JbJQbZOMyNLJMEqRiOYIcLiPGGodIj+ouGfVexKB904IXe
+/IBgQx6pEBt2+WRSvb4eCP8+Pdxm5CQWVOy13L7hI62CTU/WmWbnvUckh4cPZgFq
+uWy1yBO/RpztXDIl9/TO0tHiIin9LEAckpmxlpnV0BmCmXuWYF7uIaCH0gxhguVV
+yfszXH6gPcuW8g4yhBXy8RhIJgJzDNm3SI4QlCJwudiPabOfKjUNy1jeQ3PpPqiq
+n+4u431fnkam0qONUy2wVr0HiRKXp6sJDYGUWC1FHS0wDvnXPXdJImjWrfd0OXf1
+zUN3I1w1+zLFRbnowVT9T4OfdKzk9FcUNG4tjKRhgjs/Pmtz3FI3tCebGt4f88Qo
+SQD37UAvikB520wo/LQeAP563DcC5dnkM9b8p+pe+l8T/kBQBSqpX8exMIj2QrRg
+cfeFFBXslwmi9Ufhz/7M
+=l0PR
+-----END PGP SIGNATURE-----
+
+--0eh6TmSyL6TZE2Uz--
