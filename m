@@ -1,56 +1,44 @@
-Return-path: <wsa@the-dreams.de>
-Date: Wed, 21 Sep 2016 20:34:24 +0200
-From: Wolfram Sang <wsa@the-dreams.de>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>,
-	Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH v5 00/10] watchdog: add watchdog pretimeout framework
-Message-ID: <20160921183423.GB1513@katana>
-References: <1472644370-16982-1-git-send-email-vladimir_zapolskiy@mentor.com>
- <20160905164923.GA1548@katana>
- <29631170-1687-fbd0-8072-6a65b8868009@mentor.com>
- <7bec61ce-8bab-d4be-cca4-ec3c0025e2fb@roeck-us.net>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="0eh6TmSyL6TZE2Uz"
-Content-Disposition: inline
-In-Reply-To: <7bec61ce-8bab-d4be-cca4-ec3c0025e2fb@roeck-us.net>
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:58503 "EHLO
+        metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1752614AbcIVHEk (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Thu, 22 Sep 2016 03:04:40 -0400
+From: Steffen Trumtrar <s.trumtrar@pengutronix.de>
+To: linux-watchdog@vger.kernel.org
+Cc: kernel@pengutronix.de,
+        Steffen Trumtrar <s.trumtrar@pengutronix.de>,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 0/3] watchdog: dw_wdt: add reset lines
+Date: Thu, 22 Sep 2016 09:02:29 +0200
+Message-Id: <1474527753-22194-1-git-send-email-s.trumtrar@pengutronix.de>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
+Hi!
 
---0eh6TmSyL6TZE2Uz
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This series adds support for the reset line that is
+(potentially) holding the watchdog in reset.
 
+As the watchdog is useless if this happens, it needs to be deasserted
+in the probe function.
+Additionally, the reset is the only way of stopping a once started watchdog.
+This was previously not supported, so add the stop operation to the watchdog ops.
 
-> I am sure there is something I missed, but all I could find was nitpicks
-> not worth a resend, so at least for my part I think we should get this in.
->=20
-> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Tested on the SoCFPGA platform.
 
-Thanks! Your watchdog-next is not included in linux-next, though?
+Regards,
+Steffen
 
+Steffen Trumtrar (3):
+  watchdog: bindings: dw_wdt: add reset lines
+  watchdog: dw_wdt: get reset lines from dt
+  watchdog: dw_wdt: add stop watchdog operation
 
---0eh6TmSyL6TZE2Uz
-Content-Type: application/pgp-signature; name="signature.asc"
+ .../devicetree/bindings/watchdog/dw_wdt.txt        |  5 +++++
+ drivers/watchdog/dw_wdt.c                          | 25 ++++++++++++++++++++++
+ 2 files changed, 30 insertions(+)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+-- 
+2.8.1
 
-iQIcBAEBAgAGBQJX4tKvAAoJEBQN5MwUoCm2GXYP/RP4vFYlXc2a9ZDkR4UZhevz
-hUFxG7uHJGz4eeoEXRTtXMZZE0YCRXoV4cArqipDTHFgrCfLVzNhIMQfc8K3IY3k
-YeBgSEl2XeMcdFfk3szEgisuTevK0WIJnZ9cdTYxZgcJK45GSweJWHGS0JwvlNLh
-Yq40wKTC69keFxJhbAuX5xV14GkSTtEmgY2X+eUZQ+X+ubjhwFEMRpfCmrBeMzzu
-/8Ra1k9pJvS11sJ690JbJQbZOMyNLJMEqRiOYIcLiPGGodIj+ouGfVexKB904IXe
-/IBgQx6pEBt2+WRSvb4eCP8+Pdxm5CQWVOy13L7hI62CTU/WmWbnvUckh4cPZgFq
-uWy1yBO/RpztXDIl9/TO0tHiIin9LEAckpmxlpnV0BmCmXuWYF7uIaCH0gxhguVV
-yfszXH6gPcuW8g4yhBXy8RhIJgJzDNm3SI4QlCJwudiPabOfKjUNy1jeQ3PpPqiq
-n+4u431fnkam0qONUy2wVr0HiRKXp6sJDYGUWC1FHS0wDvnXPXdJImjWrfd0OXf1
-zUN3I1w1+zLFRbnowVT9T4OfdKzk9FcUNG4tjKRhgjs/Pmtz3FI3tCebGt4f88Qo
-SQD37UAvikB520wo/LQeAP563DcC5dnkM9b8p+pe+l8T/kBQBSqpX8exMIj2QrRg
-cfeFFBXslwmi9Ufhz/7M
-=l0PR
------END PGP SIGNATURE-----
-
---0eh6TmSyL6TZE2Uz--
