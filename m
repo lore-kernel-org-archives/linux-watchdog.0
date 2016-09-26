@@ -1,75 +1,140 @@
-Return-path: <vz@mleia.com>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mleia.com ([178.79.152.223]:60823 "EHLO mail.mleia.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S941192AbcIZAj0 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Sun, 25 Sep 2016 20:39:26 -0400
 From: Vladimir Zapolskiy <vz@mleia.com>
-To: Shawn Guo <shawnguo@kernel.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Rob Herring <robh+dt@kernel.org>
+To: Shawn Guo <shawnguo@kernel.org>, Wim Van Sebroeck <wim@iguana.be>,
+        Rob Herring <robh+dt@kernel.org>
 Cc: Guenter Roeck <linux@roeck-us.net>,
-	Sascha Hauer <kernel@pengutronix.de>,
-	Fabio Estevam <fabio.estevam@nxp.com>,
-	linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	devicetree@vger.kernel.org
-Subject: [RFC PATCH 0/2] watchdog: imx2+: fix hangup during watchdog initialization
-Date: Mon, 26 Sep 2016 03:39:19 +0300
-Message-Id: <1474850361-20884-1-git-send-email-vz@mleia.com>
-List-ID: <linux-watchdog@vger.kernel.org>
+        Sascha Hauer <kernel@pengutronix.de>,
+        Fabio Estevam <fabio.estevam@nxp.com>,
+        linux-watchdog@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
+Subject: [RFC PATCH 1/2] watchdog: imx2: fix hang-up on boot for i.MX21, i.MX27 and i.MX31 SoCs
+Date: Mon, 26 Sep 2016 03:39:20 +0300
+Message-Id: <1474850361-20884-2-git-send-email-vz@mleia.com>
+In-Reply-To: <1474850361-20884-1-git-send-email-vz@mleia.com>
+References: <1474850361-20884-1-git-send-email-vz@mleia.com>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-It was discovered that the current version of imx2+ watchdog driver
-does not work properly on i.MX31 boards and due to the same root
-cause the kernel should not work on i.MX21 and i.MX27 powered boards,
-if watchdog device driver is probed.
+Power down counter enable/disable bit switch is located in WMCR
+register, but watchdog controllers found on legacy i.MX21, i.MX27 and
+i.MX31 SoCs don't have this register. As a result of writing data to
+the non-existing register on driver probe the SoC hangs up, to fix the
+problem add more OF compatible strings and on this basis get
+information about availability of the WMCR register.
 
-The root cause is that the watchdog controller on all modern SoCs from
-i.MX series has two more registers in comparison to the watchdog on
-i.MX21, i.MX27 and i.MX31, thus write access to the non-existing
-register by the driver probe function causes a core hang.
+Fixes: 5fe65ce7ccbb ("watchdog: imx2_wdt: Disable power down counter on boot")
+Signed-off-by: Vladimir Zapolskiy <vz@mleia.com>
+---
+ drivers/watchdog/imx2_wdt.c | 47 +++++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 45 insertions(+), 2 deletions(-)
 
-The commit which caused a regression is 5fe65ce7ccbb ("watchdog:
-imx2_wdt: Disable power down counter on boot"), for me it's hard
-to say if this change is utterly needed or not (e.g. if it is done
-in a bootloader), but it seems to be valid for modern i.MX SoCs.
-
-The solution introduces a runtime difference between i.MX21 and i.MX25
-compatible watchdog controllers, also this is reflected in the
-updated DTS files.
-
-The change is an RFC, because
-* it is based on v4.8-rc1 and it will be rebased after getting review
-  comments,
-* the selection of compatible watchdog controllers is partially done
-  on RMs, but I don't have access to all of them,
-* the change fixes legacy boards (prior to DT support), but the fix is
-  excessive in sense that WMCR register won't be set on them, to cover
-  this case I feel reluctant to add a new header with platform data
-  structure declaration for legacy boards, but comments are welcome
-* I don't know if a complete list of watchdog compatibles (which is
-  expected to be growing with time) is wanted in the driver code,
-* if the DT change from the series is added, then only a check for
-  fsl,imx25-wdt compatible migth be good enough, but this will
-  nullify "disable power down counter" change for boards with
-  not updated DTBs.
-* note that ls1021a.dtsi does not have its named watchdog compatible,
-  I know that Rob insists on adding SoC-named compatibles for
-  controllers, this may help in situations like this one, other
-  opinions or discussion or fix for LS1021A is welcome.
-
-Vladimir Zapolskiy (2):
-  watchdog: imx2: fix hang-up on boot for i.MX21, i.MX27 and i.MX31 SoCs
-  ARM: i.MX: dts: add fsl,imx25-wdt compatible to all relevant watchdog nodes
-
- arch/arm/boot/dts/imx35.dtsi   |  3 ++-
- arch/arm/boot/dts/imx50.dtsi   |  3 ++-
- arch/arm/boot/dts/imx51.dtsi   |  6 ++++--
- arch/arm/boot/dts/imx53.dtsi   |  6 ++++--
- arch/arm/boot/dts/imx6qdl.dtsi |  6 ++++--
- arch/arm/boot/dts/imx6sl.dtsi  |  6 ++++--
- arch/arm/boot/dts/imx6sx.dtsi  |  9 +++++---
- arch/arm/boot/dts/imx6ul.dtsi  |  6 ++++--
- arch/arm/boot/dts/imx7s.dtsi   | 12 +++++++----
- arch/arm/boot/dts/ls1021a.dtsi |  2 +-
- arch/arm/boot/dts/vfxxx.dtsi   |  3 ++-
- drivers/watchdog/imx2_wdt.c    | 47 ++++++++++++++++++++++++++++++++++++++++--
- 12 files changed, 86 insertions(+), 23 deletions(-)
-
+diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
+index 62f346b..b6763e0 100644
+--- a/drivers/watchdog/imx2_wdt.c
++++ b/drivers/watchdog/imx2_wdt.c
+@@ -29,6 +29,7 @@
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
+ #include <linux/of_address.h>
++#include <linux/of_device.h>
+ #include <linux/platform_device.h>
+ #include <linux/regmap.h>
+ #include <linux/watchdog.h>
+@@ -57,6 +58,10 @@
+ 
+ #define WDOG_SEC_TO_COUNT(s)	((s * 2 - 1) << 8)
+ 
++struct imx2_wdt_data {
++	bool has_pdc;
++};
++
+ struct imx2_wdt_device {
+ 	struct clk *clk;
+ 	struct regmap *regmap;
+@@ -64,6 +69,8 @@ struct imx2_wdt_device {
+ 	bool ext_reset;
+ };
+ 
++static const struct of_device_id imx2_wdt_dt_ids[];
++
+ static bool nowayout = WATCHDOG_NOWAYOUT;
+ module_param(nowayout, bool, 0);
+ MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
+@@ -200,10 +207,13 @@ static const struct regmap_config imx2_wdt_regmap_config = {
+ 
+ static int __init imx2_wdt_probe(struct platform_device *pdev)
+ {
++	const struct of_device_id *of_id;
++	const struct imx2_wdt_data *data;
+ 	struct imx2_wdt_device *wdev;
+ 	struct watchdog_device *wdog;
+ 	struct resource *res;
+ 	void __iomem *base;
++	bool has_pdc;
+ 	int ret;
+ 	u32 val;
+ 
+@@ -261,12 +271,24 @@ static int __init imx2_wdt_probe(struct platform_device *pdev)
+ 		set_bit(WDOG_HW_RUNNING, &wdog->status);
+ 	}
+ 
++	if (pdev->dev.of_node) {
++		of_id = of_match_device(imx2_wdt_dt_ids, &pdev->dev);
++		if (!of_id)
++			return -ENODEV;
++
++		data = of_id->data;
++		has_pdc = data->has_pdc;
++	} else {
++		has_pdc = false;
++	}
++
+ 	/*
+ 	 * Disable the watchdog power down counter at boot. Otherwise the power
+ 	 * down counter will pull down the #WDOG interrupt line for one clock
+ 	 * cycle.
+ 	 */
+-	regmap_write(wdev->regmap, IMX2_WDT_WMCR, 0);
++	if (has_pdc)
++		regmap_write(wdev->regmap, IMX2_WDT_WMCR, 0);
+ 
+ 	ret = watchdog_register_device(wdog);
+ 	if (ret) {
+@@ -363,8 +385,29 @@ static int imx2_wdt_resume(struct device *dev)
+ static SIMPLE_DEV_PM_OPS(imx2_wdt_pm_ops, imx2_wdt_suspend,
+ 			 imx2_wdt_resume);
+ 
++static const struct imx2_wdt_data imx21_wdt_data = {
++	.has_pdc = false,
++};
++
++static const struct imx2_wdt_data imx25_wdt_data = {
++	.has_pdc = true,
++};
++
+ static const struct of_device_id imx2_wdt_dt_ids[] = {
+-	{ .compatible = "fsl,imx21-wdt", },
++	{ .compatible = "fsl,imx21-wdt",  .data = &imx21_wdt_data },
++	{ .compatible = "fsl,imx25-wdt",  .data = &imx25_wdt_data },
++	{ .compatible = "fsl,imx27-wdt",  .data = &imx21_wdt_data },
++	{ .compatible = "fsl,imx31-wdt",  .data = &imx21_wdt_data },
++	{ .compatible = "fsl,imx35-wdt",  .data = &imx25_wdt_data },
++	{ .compatible = "fsl,imx50-wdt",  .data = &imx25_wdt_data },
++	{ .compatible = "fsl,imx51-wdt",  .data = &imx25_wdt_data },
++	{ .compatible = "fsl,imx53-wdt",  .data = &imx25_wdt_data },
++	{ .compatible = "fsl,imx6q-wdt",  .data = &imx25_wdt_data },
++	{ .compatible = "fsl,imx6sl-wdt", .data = &imx25_wdt_data },
++	{ .compatible = "fsl,imx6sx-wdt", .data = &imx25_wdt_data },
++	{ .compatible = "fsl,imx6ul-wdt", .data = &imx25_wdt_data },
++	{ .compatible = "fsl,imx7d-wdt",  .data = &imx25_wdt_data },
++	{ .compatible = "fsl,vf610-wdt",  .data = &imx25_wdt_data },
+ 	{ /* sentinel */ }
+ };
+ MODULE_DEVICE_TABLE(of, imx2_wdt_dt_ids);
 -- 
 2.8.1
+
