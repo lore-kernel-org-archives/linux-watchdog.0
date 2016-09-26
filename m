@@ -1,11 +1,12 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from smtp02.smtpout.orange.fr ([80.12.242.124]:40419 "EHLO
-        smtp.smtpout.orange.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S964863AbcIZT3d (ORCPT
+Received: from pandora.armlinux.org.uk ([78.32.30.218]:46102 "EHLO
+        pandora.armlinux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1161731AbcIZV6A (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 26 Sep 2016 15:29:33 -0400
-From: Robert Jarzmik <robert.jarzmik@free.fr>
-To: Russell King <linux@armlinux.org.uk>
+        Mon, 26 Sep 2016 17:58:00 -0400
+Date: Mon, 26 Sep 2016 22:57:41 +0100
+From: Russell King - ARM Linux <linux@armlinux.org.uk>
+To: Robert Jarzmik <robert.jarzmik@free.fr>
 Cc: Daniel Mack <daniel@zonque.org>,
         Haojian Zhuang <haojian.zhuang@gmail.com>,
         Michael Turquette <mturquette@baylibre.com>,
@@ -15,42 +16,32 @@ Cc: Daniel Mack <daniel@zonque.org>,
         Wim Van Sebroeck <wim@iguana.be>,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
         linux-clk@vger.kernel.org, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 0/4] kill get_clock_tick_rate()
+Subject: Re: [PATCH 2/4] ARM: sa11x0/pxa: acquire timer rate from the clock
+ rate
+Message-ID: <20160926215741.GH1041@n2100.armlinux.org.uk>
 References: <1474312335-20997-1-git-send-email-robert.jarzmik@free.fr>
-Date: Mon, 26 Sep 2016 21:29:26 +0200
-In-Reply-To: <1474312335-20997-1-git-send-email-robert.jarzmik@free.fr>
-        (Robert Jarzmik's message of "Mon, 19 Sep 2016 21:12:11 +0200")
-Message-ID: <87twd2bgtl.fsf@belgarion.home>
+ <1474312335-20997-3-git-send-email-robert.jarzmik@free.fr>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1474312335-20997-3-git-send-email-robert.jarzmik@free.fr>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Robert Jarzmik <robert.jarzmik@free.fr> writes:
+On Mon, Sep 19, 2016 at 09:12:13PM +0200, Robert Jarzmik wrote:
+> As both pxa and sa1100 provide a clock to the timer, the rate can be
+> inferred from the clock rather than hard encoded in a functional call.
+> 
+> This patch changes the pxa timer to have a mandatory clock which is used
+> as the timer rate.
+> 
+> Signed-off-by: Robert Jarzmik <robert.jarzmik@free.fr>
 
-> Hi,
->
-> This serie aims at killing get_clock_tick_rate() from pxa and sa1100 and replace
-> it by clock API calls.
->
-> I'd like to have this reviewed and acked afterwards at least by :
->  - Russell for the mach-sa1100 and sa1100_wdt.c
->  - Stephen or Michael for the clk-pxa25x.c
->  - Thomas or Daniel for the clocksource part
->  - Wim for sa1100_wdt.c
->
-> If the review converges, I'd also like to take it through the pxa/for-next tree,
-> or alternatively Russell's tree if there is a dependency I'm not seeing, for
-> v4.10 cycle.
+Acked-by: Russell King <rmk+kernel@armlinux.org.uk>
 
-Hi Russell,
+Thanks.
 
-Would you have time within the next 2 weeks to give this serie a review and
-maybe an Ack from the sa1100 impacted parts (that would be patches 2, 3 and 4) ?
-
-I can also resend the serie if it's easier in your workflow.
-
-Cheers.
-
---
-Robert
+-- 
+RMK's Patch system: http://www.armlinux.org.uk/developer/patches/
+FTTC broadband for 0.8mile line: currently at 9.6Mbps down 400kbps up
+according to speedtest.net.
