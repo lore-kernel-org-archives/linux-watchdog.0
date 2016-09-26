@@ -1,38 +1,56 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:43623 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933723AbcIUVDi (ORCPT
+Received: from smtp02.smtpout.orange.fr ([80.12.242.124]:40419 "EHLO
+        smtp.smtpout.orange.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S964863AbcIZT3d (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 21 Sep 2016 17:03:38 -0400
-Date: Wed, 21 Sep 2016 14:03:32 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>,
+        Mon, 26 Sep 2016 15:29:33 -0400
+From: Robert Jarzmik <robert.jarzmik@free.fr>
+To: Russell King <linux@armlinux.org.uk>
+Cc: Daniel Mack <daniel@zonque.org>,
+        Haojian Zhuang <haojian.zhuang@gmail.com>,
+        Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@codeaurora.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
         Wim Van Sebroeck <wim@iguana.be>,
-        linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH v5 00/10] watchdog: add watchdog pretimeout framework
-Message-ID: <20160921210332.GA9759@roeck-us.net>
-References: <1472644370-16982-1-git-send-email-vladimir_zapolskiy@mentor.com>
- <20160905164923.GA1548@katana>
- <29631170-1687-fbd0-8072-6a65b8868009@mentor.com>
- <7bec61ce-8bab-d4be-cca4-ec3c0025e2fb@roeck-us.net>
- <20160921183423.GB1513@katana>
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-clk@vger.kernel.org, linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH 0/4] kill get_clock_tick_rate()
+References: <1474312335-20997-1-git-send-email-robert.jarzmik@free.fr>
+Date: Mon, 26 Sep 2016 21:29:26 +0200
+In-Reply-To: <1474312335-20997-1-git-send-email-robert.jarzmik@free.fr>
+        (Robert Jarzmik's message of "Mon, 19 Sep 2016 21:12:11 +0200")
+Message-ID: <87twd2bgtl.fsf@belgarion.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20160921183423.GB1513@katana>
+Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Sep 21, 2016 at 08:34:24PM +0200, Wolfram Sang wrote:
-> 
-> > I am sure there is something I missed, but all I could find was nitpicks
-> > not worth a resend, so at least for my part I think we should get this in.
-> > 
-> > Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-> 
-> Thanks! Your watchdog-next is not included in linux-next, though?
-> 
-No.
+Robert Jarzmik <robert.jarzmik@free.fr> writes:
 
-Guenter
+> Hi,
+>
+> This serie aims at killing get_clock_tick_rate() from pxa and sa1100 and replace
+> it by clock API calls.
+>
+> I'd like to have this reviewed and acked afterwards at least by :
+>  - Russell for the mach-sa1100 and sa1100_wdt.c
+>  - Stephen or Michael for the clk-pxa25x.c
+>  - Thomas or Daniel for the clocksource part
+>  - Wim for sa1100_wdt.c
+>
+> If the review converges, I'd also like to take it through the pxa/for-next tree,
+> or alternatively Russell's tree if there is a dependency I'm not seeing, for
+> v4.10 cycle.
+
+Hi Russell,
+
+Would you have time within the next 2 weeks to give this serie a review and
+maybe an Ack from the sa1100 impacted parts (that would be patches 2, 3 and 4) ?
+
+I can also resend the serie if it's easier in your workflow.
+
+Cheers.
+
+--
+Robert
