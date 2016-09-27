@@ -1,41 +1,48 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from pandora.armlinux.org.uk ([78.32.30.218]:46150 "EHLO
-        pandora.armlinux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1034033AbcIZV6r (ORCPT
+Received: from smtp10.smtpout.orange.fr ([80.12.242.132]:18405 "EHLO
+        smtp.smtpout.orange.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753403AbcI0SqW (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 26 Sep 2016 17:58:47 -0400
-Date: Mon, 26 Sep 2016 22:58:33 +0100
-From: Russell King - ARM Linux <linux@armlinux.org.uk>
-To: Robert Jarzmik <robert.jarzmik@free.fr>
+        Tue, 27 Sep 2016 14:46:22 -0400
+From: Robert Jarzmik <robert.jarzmik@free.fr>
+To: Russell King <linux@armlinux.org.uk>,
+        Stephen Boyd <sboyd@codeaurora.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Guenter Roeck <linux@roeck-us.net>
 Cc: Daniel Mack <daniel@zonque.org>,
         Haojian Zhuang <haojian.zhuang@gmail.com>,
         Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@codeaurora.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
         Thomas Gleixner <tglx@linutronix.de>,
         Wim Van Sebroeck <wim@iguana.be>,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
         linux-clk@vger.kernel.org, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 4/4] ARM: sa11x0/pxa: get rid of get_clock_tick_rate
-Message-ID: <20160926215833.GJ1041@n2100.armlinux.org.uk>
+Subject: Re: [PATCH 0/4] kill get_clock_tick_rate()
 References: <1474312335-20997-1-git-send-email-robert.jarzmik@free.fr>
- <1474312335-20997-5-git-send-email-robert.jarzmik@free.fr>
+        <87twd2bgtl.fsf@belgarion.home>
+Date: Tue, 27 Sep 2016 20:46:12 +0200
+In-Reply-To: <87twd2bgtl.fsf@belgarion.home> (Robert Jarzmik's message of
+        "Mon, 26 Sep 2016 21:29:26 +0200")
+Message-ID: <87wphx9o5n.fsf@belgarion.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1474312335-20997-5-git-send-email-robert.jarzmik@free.fr>
+Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Sep 19, 2016 at 09:12:15PM +0200, Robert Jarzmik wrote:
-> The last user of this function is gone, so remove it. The clock API
-> should now be used to get clock rates.
-> 
-> Signed-off-by: Robert Jarzmik <robert.jarzmik@free.fr>
+Robert Jarzmik <robert.jarzmik@free.fr> writes:
+>> Hi,
+>>
+>> This serie aims at killing get_clock_tick_rate() from pxa and sa1100 and replace
+>> it by clock API calls.
+>>
+>> I'd like to have this reviewed and acked afterwards at least by :
+>>  - Russell for the mach-sa1100 and sa1100_wdt.c
+>>  - Stephen or Michael for the clk-pxa25x.c
+>>  - Thomas or Daniel for the clocksource part
+>>  - Wim for sa1100_wdt.c
 
-Acked-by: Russell King <rmk+kernel@armlinux.org.uk>
+Thanks to all for tests and acks, queued to pxa/for-next.
 
--- 
-RMK's Patch system: http://www.armlinux.org.uk/developer/patches/
-FTTC broadband for 0.8mile line: currently at 9.6Mbps down 400kbps up
-according to speedtest.net.
+Cheers.
+
+--
+Robert
