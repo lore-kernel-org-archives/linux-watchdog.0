@@ -1,48 +1,41 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from smtp10.smtpout.orange.fr ([80.12.242.132]:18405 "EHLO
-        smtp.smtpout.orange.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753403AbcI0SqW (ORCPT
+Received: from ns2.pc-advies.be ([83.149.101.18]:45482 "EHLO
+        spo001.leaseweb.nl" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1755961AbcI0ToK (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 27 Sep 2016 14:46:22 -0400
-From: Robert Jarzmik <robert.jarzmik@free.fr>
-To: Russell King <linux@armlinux.org.uk>,
-        Stephen Boyd <sboyd@codeaurora.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Guenter Roeck <linux@roeck-us.net>
+        Tue, 27 Sep 2016 15:44:10 -0400
+Date: Tue, 27 Sep 2016 21:13:49 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Robert Jarzmik <robert.jarzmik@free.fr>
 Cc: Daniel Mack <daniel@zonque.org>,
         Haojian Zhuang <haojian.zhuang@gmail.com>,
+        Russell King <linux@armlinux.org.uk>,
         Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@codeaurora.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
         Thomas Gleixner <tglx@linutronix.de>,
-        Wim Van Sebroeck <wim@iguana.be>,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
         linux-clk@vger.kernel.org, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 0/4] kill get_clock_tick_rate()
-References: <1474312335-20997-1-git-send-email-robert.jarzmik@free.fr>
-        <87twd2bgtl.fsf@belgarion.home>
-Date: Tue, 27 Sep 2016 20:46:12 +0200
-In-Reply-To: <87twd2bgtl.fsf@belgarion.home> (Robert Jarzmik's message of
-        "Mon, 26 Sep 2016 21:29:26 +0200")
-Message-ID: <87wphx9o5n.fsf@belgarion.home>
-MIME-Version: 1.0
-Content-Type: text/plain
+Subject: Re: [PATCH 3/4] watchdog: sa11x0/pxa: get rid of get_clock_tick_rate
+Message-ID: <20160927191349.GA6564@spo001.leaseweb.nl>
+References: <1474312335-20997-1-git-send-email-robert.jarzmik@free.fr> <1474312335-20997-4-git-send-email-robert.jarzmik@free.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1474312335-20997-4-git-send-email-robert.jarzmik@free.fr>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Robert Jarzmik <robert.jarzmik@free.fr> writes:
->> Hi,
->>
->> This serie aims at killing get_clock_tick_rate() from pxa and sa1100 and replace
->> it by clock API calls.
->>
->> I'd like to have this reviewed and acked afterwards at least by :
->>  - Russell for the mach-sa1100 and sa1100_wdt.c
->>  - Stephen or Michael for the clk-pxa25x.c
->>  - Thomas or Daniel for the clocksource part
->>  - Wim for sa1100_wdt.c
+Hi Robert,
 
-Thanks to all for tests and acks, queued to pxa/for-next.
+> The OS timer rate used for the watchdog can now be fetched from the
+> standard clock API. This will remove the last user of
+> get_clock_tick_rate() in both pxa and sa11x0 architectures.
+> 
+> Signed-off-by: Robert Jarzmik <robert.jarzmik@free.fr>
 
-Cheers.
+Acked-by: Wim Van Sebroeck <wim@iguana.be>
 
---
-Robert
+Kind regards,
+Wim.
+
