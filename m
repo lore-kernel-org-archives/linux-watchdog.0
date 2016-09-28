@@ -1,11 +1,11 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pf0-f173.google.com ([209.85.192.173]:34799 "EHLO
-        mail-pf0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752973AbcI1SSc (ORCPT
+Received: from mail-pa0-f50.google.com ([209.85.220.50]:35439 "EHLO
+        mail-pa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753463AbcI1SSm (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 28 Sep 2016 14:18:32 -0400
-Received: by mail-pf0-f173.google.com with SMTP id l25so19877041pfb.1
-        for <linux-watchdog@vger.kernel.org>; Wed, 28 Sep 2016 11:18:32 -0700 (PDT)
+        Wed, 28 Sep 2016 14:18:42 -0400
+Received: by mail-pa0-f50.google.com with SMTP id oz2so19048206pac.2
+        for <linux-watchdog@vger.kernel.org>; Wed, 28 Sep 2016 11:18:41 -0700 (PDT)
 From: fu.wei@linaro.org
 To: rjw@rjwysocki.net, lenb@kernel.org, daniel.lezcano@linaro.org,
         tglx@linutronix.de, marc.zyngier@arm.com, mark.rutland@arm.com,
@@ -21,9 +21,9 @@ Cc: linux-arm-kernel@lists.infradead.org, linaro-acpi@lists.linaro.org,
         linux@roeck-us.net, linux-watchdog@vger.kernel.org,
         tn@semihalf.com, christoffer.dall@linaro.org, julien.grall@arm.com,
         Fu Wei <fu.wei@linaro.org>
-Subject: [PATCH v14 2/9] clocksource/drivers/arm_arch_timer: Add a new enum for spi type
-Date: Thu, 29 Sep 2016 02:17:10 +0800
-Message-Id: <1475086637-1914-3-git-send-email-fu.wei@linaro.org>
+Subject: [PATCH v14 6/9] acpi/arm64: Add memory-mapped timer support in GTDT driver
+Date: Thu, 29 Sep 2016 02:17:14 +0800
+Message-Id: <1475086637-1914-7-git-send-email-fu.wei@linaro.org>
 In-Reply-To: <1475086637-1914-1-git-send-email-fu.wei@linaro.org>
 References: <1475086637-1914-1-git-send-email-fu.wei@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -31,48 +31,151 @@ List-Id: linux-watchdog@vger.kernel.org
 
 From: Fu Wei <fu.wei@linaro.org>
 
-This patch add a new enum "spi_nr" and use it in the driver.
-Just for code's readability, no functional change.
+On platforms booting with ACPI, architected memory-mapped timers'
+configuration data is provided by firmware through the ACPI GTDT
+static table.
+
+The clocksource architected timer kernel driver requires a firmware
+interface to collect timer configuration and configure its driver.
+this infrastructure is present for device tree systems, but it is
+missing on systems booting with ACPI.
+
+Implement the kernel infrastructure required to parse the static
+ACPI GTDT table so that the architected timer clocksource driver can
+make use of it on systems booting with ACPI, therefore enabling
+the corresponding timers configuration.
 
 Signed-off-by: Fu Wei <fu.wei@linaro.org>
+Signed-off-by: Hanjun Guo <hanjun.guo@linaro.org>
 ---
- drivers/clocksource/arm_arch_timer.c | 4 ++--
- include/clocksource/arm_arch_timer.h | 6 ++++++
- 2 files changed, 8 insertions(+), 2 deletions(-)
+ drivers/acpi/arm64/gtdt.c            | 70 ++++++++++++++++++++++++++++++++++++
+ include/clocksource/arm_arch_timer.h | 15 ++++++++
+ include/linux/acpi.h                 |  1 +
+ 3 files changed, 86 insertions(+)
 
-diff --git a/drivers/clocksource/arm_arch_timer.c b/drivers/clocksource/arm_arch_timer.c
-index aea6c10..059f7fb 100644
---- a/drivers/clocksource/arm_arch_timer.c
-+++ b/drivers/clocksource/arm_arch_timer.c
-@@ -861,9 +861,9 @@ static int __init arch_timer_mem_init(struct device_node *np)
- 	}
+diff --git a/drivers/acpi/arm64/gtdt.c b/drivers/acpi/arm64/gtdt.c
+index b24844d..b6021db 100644
+--- a/drivers/acpi/arm64/gtdt.c
++++ b/drivers/acpi/arm64/gtdt.c
+@@ -150,3 +150,73 @@ int __init acpi_gtdt_init(struct acpi_table_header *table)
  
- 	if (arch_timer_mem_use_virtual)
--		irq = irq_of_parse_and_map(best_frame, 1);
-+		irq = irq_of_parse_and_map(best_frame, VIRT_SPI);
- 	else
--		irq = irq_of_parse_and_map(best_frame, 0);
-+		irq = irq_of_parse_and_map(best_frame, PHYS_SPI);
- 
- 	ret = -EINVAL;
- 	if (!irq) {
+ 	return gtdt->platform_timer_count;
+ }
++
++static int __init gtdt_parse_gt_block(struct acpi_gtdt_timer_block *block,
++				      struct gt_block_data *data)
++{
++	struct acpi_gtdt_timer_entry *frame;
++	int i;
++
++	if (!block || !data)
++		return -EINVAL;
++
++	if (!block->block_address || !block->timer_count)
++		return -EINVAL;
++
++	data->cntctlbase_phy = (phys_addr_t)block->block_address;
++	data->timer_count = block->timer_count;
++
++	frame = (void *)block + block->timer_offset;
++	if (frame + block->timer_count != (void *)block + block->header.length)
++		return -EINVAL;
++
++	/*
++	 * Get the GT timer Frame data for every GT Block Timer
++	 */
++	for (i = 0; i < block->timer_count; i++, frame++) {
++		if (!frame->base_address || !frame->timer_interrupt)
++			return -EINVAL;
++
++		data->timer[i].irq = map_gt_gsi(frame->timer_interrupt,
++						frame->timer_flags);
++		if (data->timer[i].irq <= 0)
++			return -EINVAL;
++
++		if (frame->virtual_timer_interrupt) {
++			data->timer[i].virtual_irq =
++				map_gt_gsi(frame->virtual_timer_interrupt,
++					   frame->virtual_timer_flags);
++			if (data->timer[i].virtual_irq <= 0)
++				return -EINVAL;
++		}
++
++		data->timer[i].frame_nr = frame->frame_number;
++		data->timer[i].cntbase_phy = frame->base_address;
++	}
++
++	return 0;
++}
++
++/*
++ * Get the GT block info for memory-mapped timer from GTDT table.
++ */
++int __init gtdt_arch_timer_mem_init(struct gt_block_data *data)
++{
++	void *platform_timer;
++	int index = 0;
++	int ret;
++
++	for_each_platform_timer(platform_timer) {
++		if (!is_timer_block(platform_timer))
++			continue;
++		ret = gtdt_parse_gt_block(platform_timer, data + index);
++		if (ret)
++			return ret;
++		index++;
++	}
++
++	if (index)
++		pr_info("found %d memory-mapped timer block(s).\n", index);
++
++	return index;
++}
 diff --git a/include/clocksource/arm_arch_timer.h b/include/clocksource/arm_arch_timer.h
-index 6f06481..16dcd10 100644
+index 16dcd10..94a5d14 100644
 --- a/include/clocksource/arm_arch_timer.h
 +++ b/include/clocksource/arm_arch_timer.h
-@@ -45,6 +45,12 @@ enum ppi_nr {
- 	MAX_TIMER_PPI
+@@ -56,6 +56,8 @@ enum spi_nr {
+ #define ARCH_TIMER_MEM_PHYS_ACCESS	2
+ #define ARCH_TIMER_MEM_VIRT_ACCESS	3
+ 
++#define ARCH_TIMER_MEM_MAX_FRAME	8
++
+ #define ARCH_TIMER_USR_PCT_ACCESS_EN	(1 << 0) /* physical counter */
+ #define ARCH_TIMER_USR_VCT_ACCESS_EN	(1 << 1) /* virtual counter */
+ #define ARCH_TIMER_VIRT_EVT_EN		(1 << 2)
+@@ -71,6 +73,19 @@ struct arch_timer_kvm_info {
+ 	int virtual_irq;
  };
  
-+enum spi_nr {
-+	PHYS_SPI,
-+	VIRT_SPI,
-+	MAX_TIMER_SPI
++struct gt_timer_data {
++	int frame_nr;
++	phys_addr_t cntbase_phy;
++	int irq;
++	int virtual_irq;
 +};
 +
- #define ARCH_TIMER_PHYS_ACCESS		0
- #define ARCH_TIMER_VIRT_ACCESS		1
- #define ARCH_TIMER_MEM_PHYS_ACCESS	2
++struct gt_block_data {
++	phys_addr_t cntctlbase_phy;
++	int timer_count;
++	struct gt_timer_data timer[ARCH_TIMER_MEM_MAX_FRAME];
++};
++
+ #ifdef CONFIG_ARM_ARCH_TIMER
+ 
+ extern u32 arch_timer_get_rate(void);
+diff --git a/include/linux/acpi.h b/include/linux/acpi.h
+index e2f9841..5dc0b85 100644
+--- a/include/linux/acpi.h
++++ b/include/linux/acpi.h
+@@ -571,6 +571,7 @@ int acpi_reconfig_notifier_unregister(struct notifier_block *nb);
+ int acpi_gtdt_init(struct acpi_table_header *table);
+ int acpi_gtdt_map_ppi(int type);
+ bool acpi_gtdt_c3stop(void);
++int gtdt_arch_timer_mem_init(struct gt_block_data *data);
+ #endif
+ 
+ #else	/* !CONFIG_ACPI */
 -- 
 2.7.4
 
