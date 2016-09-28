@@ -1,10 +1,10 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:45034 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:46337 "EHLO
         bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932691AbcI1Pve (ORCPT
+        with ESMTP id S932691AbcI1PwS (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 28 Sep 2016 11:51:34 -0400
-Date: Wed, 28 Sep 2016 08:51:29 -0700
+        Wed, 28 Sep 2016 11:52:18 -0400
+Date: Wed, 28 Sep 2016 08:52:16 -0700
 From: Guenter Roeck <linux@roeck-us.net>
 To: Wei Yongjun <weiyj.lk@gmail.com>
 Cc: Wim Van Sebroeck <wim@iguana.be>,
@@ -12,54 +12,56 @@ Cc: Wim Van Sebroeck <wim@iguana.be>,
         "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Wei Yongjun <weiyongjun1@huawei.com>,
         linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH -next] watchdog: wdat_wdt: Fix warning for using 0 as NULL
-Message-ID: <20160928155129.GB29624@roeck-us.net>
-References: <1475073895-10369-1-git-send-email-weiyj.lk@gmail.com>
+Subject: Re: [PATCH -next] watchdog: wdat_wdt: fix return value check in
+ wdat_wdt_probe()
+Message-ID: <20160928155216.GC29624@roeck-us.net>
+References: <1475074286-13834-1-git-send-email-weiyj.lk@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1475073895-10369-1-git-send-email-weiyj.lk@gmail.com>
+In-Reply-To: <1475074286-13834-1-git-send-email-weiyj.lk@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Sep 28, 2016 at 02:44:55PM +0000, Wei Yongjun wrote:
+On Wed, Sep 28, 2016 at 02:51:26PM +0000, Wei Yongjun wrote:
 > From: Wei Yongjun <weiyongjun1@huawei.com>
 > 
-> Fixes the following sparse warnings:
-> 
-> drivers/watchdog/wdat_wdt.c:210:66: warning: Using plain integer as NULL pointer
-> drivers/watchdog/wdat_wdt.c:235:66: warning: Using plain integer as NULL pointer
+> In case of error, the function devm_ioremap_resource() returns ERR_PTR()
+> and never returns NULL. The NULL test in the return value check should
+> be replaced with IS_ERR().
 > 
 > Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
 
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
 > ---
->  drivers/watchdog/wdat_wdt.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+>  drivers/watchdog/wdat_wdt.c | 7 ++++---
+>  1 file changed, 4 insertions(+), 3 deletions(-)
 > 
 > diff --git a/drivers/watchdog/wdat_wdt.c b/drivers/watchdog/wdat_wdt.c
-> index 6b64645..7ab923f 100644
+> index 6b64645..4594723 100644
 > --- a/drivers/watchdog/wdat_wdt.c
 > +++ b/drivers/watchdog/wdat_wdt.c
-> @@ -207,7 +207,7 @@ static int wdat_wdt_enable_reboot(struct wdat_wdt *wdat)
->  	 * recommeded to make it configurable through hardware register. We
->  	 * enable reboot now if it is configrable, just in case.
->  	 */
-> -	ret = wdat_wdt_run_action(wdat, ACPI_WDAT_SET_REBOOT, 0, 0);
-> +	ret = wdat_wdt_run_action(wdat, ACPI_WDAT_SET_REBOOT, 0, NULL);
->  	if (ret && ret != -EOPNOTSUPP) {
->  		dev_err(&wdat->pdev->dev,
->  			"Failed to enable reboot when watchdog triggers\n");
-> @@ -232,7 +232,7 @@ static void wdat_wdt_boot_status(struct wdat_wdt *wdat)
->  		wdat->wdd.bootstatus = WDIOF_CARDRESET;
+> @@ -351,16 +351,17 @@ static int wdat_wdt_probe(struct platform_device *pdev)
+>  		res = &pdev->resource[i];
+>  		if (resource_type(res) == IORESOURCE_MEM) {
+>  			reg = devm_ioremap_resource(&pdev->dev, res);
+> +			if (IS_ERR(reg))
+> +				return PTR_ERR(reg);
+>  		} else if (resource_type(res) == IORESOURCE_IO) {
+>  			reg = devm_ioport_map(&pdev->dev, res->start, 1);
+> +			if (!reg)
+> +				return -ENOMEM;
+>  		} else {
+>  			dev_err(&pdev->dev, "Unsupported resource\n");
+>  			return -EINVAL;
+>  		}
 >  
->  	/* Clear the boot status in case BIOS did not do it */
-> -	ret = wdat_wdt_run_action(wdat, ACPI_WDAT_SET_STATUS, 0, 0);
-> +	ret = wdat_wdt_run_action(wdat, ACPI_WDAT_SET_STATUS, 0, NULL);
->  	if (ret && ret != -EOPNOTSUPP)
->  		dev_err(&wdat->pdev->dev, "Failed to clear boot status\n");
->  }
+> -		if (!reg)
+> -			return -ENOMEM;
+> -
+>  		regs[i] = reg;
+>  	}
 > 
 > --
 > To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
