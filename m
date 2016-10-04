@@ -1,167 +1,82 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from szxga02-in.huawei.com ([119.145.14.65]:41003 "EHLO
-        szxga02-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S935153AbcI3AmU (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 29 Sep 2016 20:42:20 -0400
-Subject: Re: [PATCH v14 0/9] acpi, clocksource: add GTDT driver and GTDT
- support in arm_arch_timer
-To: <fu.wei@linaro.org>, <rjw@rjwysocki.net>, <lenb@kernel.org>,
-        <daniel.lezcano@linaro.org>, <tglx@linutronix.de>,
-        <marc.zyngier@arm.com>, <mark.rutland@arm.com>,
-        <lorenzo.pieralisi@arm.com>, <sudeep.holla@arm.com>,
-        <hanjun.guo@linaro.org>
-References: <1475086637-1914-1-git-send-email-fu.wei@linaro.org>
-CC: <linux-arm-kernel@lists.infradead.org>,
-        <linaro-acpi@lists.linaro.org>, <linux-kernel@vger.kernel.org>,
-        <linux-acpi@vger.kernel.org>, <rruigrok@codeaurora.org>,
-        <harba@codeaurora.org>, <cov@codeaurora.org>,
-        <timur@codeaurora.org>, <graeme.gregory@linaro.org>,
-        <al.stone@linaro.org>, <jcm@redhat.com>, <wei@redhat.com>,
-        <arnd@arndb.de>, <catalin.marinas@arm.com>, <will.deacon@arm.com>,
-        <Suravee.Suthikulpanit@amd.com>, <leo.duran@amd.com>,
-        <wim@iguana.be>, <linux@roeck-us.net>,
-        <linux-watchdog@vger.kernel.org>, <tn@semihalf.com>,
-        <christoffer.dall@linaro.org>, <julien.grall@arm.com>
-From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
-Message-ID: <5efae47c-e9b8-a93a-a040-a38fc388390f@huawei.com>
-Date: Fri, 30 Sep 2016 08:40:45 +0800
+Return-path: <Vladimir_Zapolskiy@mentor.com>
+Subject: Re: [PATCH v5 00/10] watchdog: add watchdog pretimeout framework
+To: Wim Van Sebroeck <wim@iguana.be>
+References: <1472644370-16982-1-git-send-email-vladimir_zapolskiy@mentor.com>
+ <20160928084921.GA15636@spo001.leaseweb.nl>
+ <1c167827-8d73-f25f-61a4-38598e0fa8ec@mentor.com>
+CC: Guenter Roeck <linux@roeck-us.net>, Wolfram Sang <wsa@the-dreams.de>,
+	<linux-watchdog@vger.kernel.org>
+From: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
+Message-ID: <b5f9d2f9-409f-c7ee-c81f-508a6326d94d@mentor.com>
+Date: Tue, 4 Oct 2016 16:29:20 +0300
 MIME-Version: 1.0
-In-Reply-To: <1475086637-1914-1-git-send-email-fu.wei@linaro.org>
-Content-Type: text/plain; charset="windows-1252"
+In-Reply-To: <1c167827-8d73-f25f-61a4-38598e0fa8ec@mentor.com>
+Content-Type: text/plain; charset="windows-1252"; format=flowed
 Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+List-ID: <linux-watchdog@vger.kernel.org>
 
-for sbsa watchdog part,  Tested-by:  wangxiongfeng2@huawei.com on D05 board.
+Hello Wim,
 
-On 2016/9/29 2:17, fu.wei@linaro.org wrote:
-> From: Fu Wei <fu.wei@linaro.org>
-> 
-> This patchset:
->     (1)Preparation for adding GTDT support in arm_arch_timer:
->         1. Move some enums and marcos to header file;
->         2. Add a new enum for spi type;
->         3. Improve printk relevant code.
-> 
->     (2)Introduce ACPI GTDT parser: drivers/acpi/arm64/acpi_gtdt.c
->     Parse all kinds of timer in GTDT table of ACPI:arch timer,
->     memory-mapped timer and SBSA Generic Watchdog timer.
->     This driver can help to simplify all the relevant timer drivers,
->     and separate all the ACPI GTDT knowledge from them.
-> 
->     (3)Simplify ACPI code for arm_arch_timer
-> 
->     (4)Add GTDT support for ARM memory-mapped timer, also refactor
->     original memory-mapped timer dt support for reusing some common
->     code.
-> 
-> This patchset depends on the following patchset:
-> [UPDATE PATCH V11 1/8] ACPI: I/O Remapping Table (IORT) initial support
-> https://lkml.org/lkml/2016/9/12/949
-> 
-> This patchset has been tested on the following platforms:
->     (1)ARM Foundation v8 model
-> 
-> Changelog:
-> v14: https://lkml.org/lkml/2016/9/28/
->      Separate memory-mapped timer GTDT support into two patches
->          1. Refactor the timer init code to prepare for GTDT
->          2. Add GTDT support for memory-mapped timer
-> 
-> v13: http://www.mail-archive.com/linux-kernel@vger.kernel.org/msg1231717.html
->      Improve arm_arch_timer code for memory-mapped
->      timer GTDT support, refactor original memory-mapped timer
->      dt support for reusing some common code.
-> 
-> v12: https://lkml.org/lkml/2016/9/13/250
->      Rebase to latest Linux 4.8-rc6
->      Delete the confusing "skipping" in the error message.
-> 
-> V11: https://lkml.org/lkml/2016/9/6/354
->      Rebase to latest Linux 4.8-rc5
->      Delete typedef (suggested by checkpatch.pl)
-> 
-> V10: https://lkml.org/lkml/2016/7/26/215
->      Drop the "readq" patch.
->      Rebase to latest Linux 4.7.
-> 
-> V9: https://lkml.org/lkml/2016/7/25/345
->     Improve pr_err message in acpi gtdt driver.
->     Update Commit message for 7/9
->     shorten the irq mapping function name
->     Improve GTDT driver for memory-mapped timer
-> 
-> v8: https://lkml.org/lkml/2016/7/19/660
->     Improve "pr_fmt(fmt)" definition: add "ACPI" in front of "GTDT",
->     and also improve printk message.
->     Simplify is_timer_block and is_watchdog.
->     Merge acpi_gtdt_desc_init and gtdt_arch_timer_init into acpi_gtdt_init();
->     Delete __init in include/linux/acpi.h for GTDT API
->     Make ARM64 select GTDT.
->     Delete "#include <linux/module.h>" from acpi_gtdt.c
->     Simplify GT block parse code.
-> 
-> v7: https://lkml.org/lkml/2016/7/13/769
->     Move the GTDT driver to drivers/acpi/arm64
->     Add add the ARM64-specific ACPI Support maintainers in MAINTAINERS
->     Merge 3 patches of GTDT parser driver.
->     Fix the for_each_platform_timer bug.
-> 
-> v6: https://lkml.org/lkml/2016/6/29/580
->     split the GTDT driver to 4 parts: basic, arch_timer, memory-mapped timer,
->     and SBSA Generic Watchdog timer
->     Improve driver by suggestions and example code from Daniel Lezcano
-> 
-> v5: https://lkml.org/lkml/2016/5/24/356
->     Sorting out all patches, simplify the API of GTDT driver:
->     GTDT driver just fills the data struct for arm_arch_timer driver.
-> 
-> v4: https://lists.linaro.org/pipermail/linaro-acpi/2016-March/006667.html
->     Delete the kvm relevant patches
->     Separate two patches for sorting out the code for arm_arch_timer.
->     Improve irq info export code to allow missing irq info in GTDT table.
-> 
-> v3: https://lkml.org/lkml/2016/2/1/658
->     Improve GTDT driver code:
->       (1)improve pr_* by defining pr_fmt(fmt)
->       (2)simplify gtdt_sbsa_gwdt_init
->       (3)improve gtdt_arch_timer_data_init, if table is NULL, it will try
->       to get GTDT table.
->     Move enum ppi_nr to arm_arch_timer.h, and add enum spi_nr.
->     Add arm_arch_timer get ppi from DT and GTDT support for kvm.
-> 
-> v2: https://lkml.org/lkml/2015/12/2/10
->     Rebase to latest kernel version(4.4-rc3).
->     Fix the bug about the config problem,
->     use CONFIG_ACPI_GTDT instead of CONFIG_ACPI in arm_arch_timer.c
-> 
-> v1: The first upstreaming version: https://lkml.org/lkml/2015/10/28/553
-> 
-> Fu Wei (9):
->   clocksource/drivers/arm_arch_timer: Move enums and defines to header
->     file
->   clocksource/drivers/arm_arch_timer: Add a new enum for spi type
->   clocksource/drivers/arm_arch_timer: Improve printk relevant code
->   acpi/arm64: Add GTDT table parse driver
->   clocksource/drivers/arm_arch_timer: Simplify ACPI support code.
->   acpi/arm64: Add memory-mapped timer support in GTDT driver
->   clocksource/drivers/arm_arch_timer: Refactor the timer init code to
->     prepare for GTDT
->   clocksource/drivers/arm_arch_timer: Add GTDT support for memory-mapped
->     timer
->   acpi/arm64: Add SBSA Generic Watchdog support in GTDT driver
-> 
->  arch/arm64/Kconfig                   |   1 +
->  drivers/acpi/arm64/Kconfig           |   3 +
->  drivers/acpi/arm64/Makefile          |   1 +
->  drivers/acpi/arm64/gtdt.c            | 309 ++++++++++++++++++++++++++++++++
->  drivers/clocksource/Kconfig          |   2 +-
->  drivers/clocksource/arm_arch_timer.c | 331 +++++++++++++++++++++--------------
->  drivers/watchdog/Kconfig             |   1 +
->  include/clocksource/arm_arch_timer.h |  32 ++++
->  include/linux/acpi.h                 |   7 +
->  9 files changed, 558 insertions(+), 129 deletions(-)
->  create mode 100644 drivers/acpi/arm64/gtdt.c
-> 
+On 09/28/2016 02:34 PM, Vladimir Zapolskiy wrote:
+> Hello Wim,
+>
+> On 09/28/2016 11:49 AM, Wim Van Sebroeck wrote:
+>> Hi All,
+>>
+>>> The change adds a simple watchdog pretimeout framework infrastructure,
+>>> its purpose is to allow users to select a desired handling of watchdog
+>>> pretimeout events, which may be generated by a watchdog driver.
+>>>
+>>> The idea of adding this kind of a framework appeared after reviewing
+>>> several attempts to add hardcoded pretimeout event handling to some
+>>> watchdog driver and after a discussion with Guenter, see
+>>> https://lkml.org/lkml/2015/11/4/346
+>>>
+>>> Watchdogs with WDIOF_PRETIMEOUT capability now may have three device
+>>> attributes in sysfs: read only pretimeout value attribute, read/write
+>>> pretimeout_governor attribute, read only pretimeout_available_governors
+>>> attribute.
+>>>
+>>> To throw a pretimeout event for further processing a watchdog driver
+>>> should call exported watchdog_notify_pretimeout(wdd) interface.
+>>>
+>>> In addition to the framework two simple watchdog pretimeout governors
+>>> are added for review: panic and noop.
+>>
+>> I still have 2 questions about this series:
+>> 1) Patch 3:
+>> +/* Use the following functions to report watchdog pretimeout event */
+>> +#if IS_ENABLED(CONFIG_WATCHDOG_PRETIMEOUT_GOV)
+>> +void watchdog_notify_pretimeout(struct watchdog_device *wdd);
+>> +#else
+>> +static inline void watchdog_notify_pretimeout(struct watchdog_device *wdd)
+>> +{
+>> +    panic("watchdog pretimeout event\n");
+>> +}
+>> +#endif
+>> +
+>>
+>> Why a panic here? Why not just a printk like in the noop pretimeout governor?
+>> We now also don't do a panic, which means that changing this to a panic means that we change the default behaviour...
+>>
+>> 2) Why did we choose the panic pretimeout governer as the default and not the noop governor?
+>> This is basically the same question/remark as my previous question. noop is more the old behaviour, panic is a change in regards to the old/current behaviour...
+>>
+>
+> regarding a selection of panic as a default action I had a discussion with
+> Guenter about it right in the beginnig of the development (v1 of the series
+> introduced printk by default, v2 and all later series select panic), please
+> follow the link to it (ctrl-f panic):
+>
+>   http://www.spinics.net/lists/linux-watchdog/msg07955.html
+>
+> I generally don't have a strong preference, because it is configurable both
+> during build time and runtime, and I'm flexible to accept any selection.
+>
 
+I noticed that the complete series is not on your watchdog/master branch,
+for clarity do you request to do any changes to merge it into v4.9?
+
+-- 
+With best wishes,
+Vladimir
