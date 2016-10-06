@@ -1,32 +1,31 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail1.bemta5.messagelabs.com ([195.245.231.148]:45449 "EHLO
+Received: from mail1.bemta5.messagelabs.com ([195.245.231.137]:58063 "EHLO
         mail1.bemta5.messagelabs.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S967058AbcJFJJo (ORCPT
+        by vger.kernel.org with ESMTP id S967186AbcJFJJp (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 6 Oct 2016 05:09:44 -0400
-Message-ID: <b5ce58ca00f7ab30a025d24083549241f135b0e9.1475743411.git.stwiss.opensource@diasemi.com>
+        Thu, 6 Oct 2016 05:09:45 -0400
+Message-ID: <84f1837f035bc3e5af1211c5041dc55a8535d45f.1475743411.git.stwiss.opensource@diasemi.com>
 In-Reply-To: <cover.1475743411.git.stwiss.opensource@diasemi.com>
 References: <cover.1475743411.git.stwiss.opensource@diasemi.com>
 From: Steve Twiss <stwiss.opensource@diasemi.com>
-Date: Thu, 6 Oct 2016 09:43:30 +0100
-Subject: [PATCH V1 05/10] thermal: da9062/61: Thermal junction temperature
- monitoring driver
-To: Eduardo Valentin <edubezval@gmail.com>,
-        LINUX-KERNEL <linux-kernel@vger.kernel.org>,
-        LINUX-PM <linux-pm@vger.kernel.org>,
-        Zhang Rui <rui.zhang@intel.com>
+Date: Thu, 6 Oct 2016 09:43:29 +0100
+Subject: [PATCH V1 02/10] regulator: da9061: BUCK and LDO regulator driver
+To: LINUX-KERNEL <linux-kernel@vger.kernel.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>
 CC: DEVICETREE <devicetree@vger.kernel.org>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Eduardo Valentin <edubezval@gmail.com>,
         Guenter Roeck <linux@roeck-us.net>,
         LINUX-INPUT <linux-input@vger.kernel.org>,
+        LINUX-PM <linux-pm@vger.kernel.org>,
         LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
         Lee Jones <lee.jones@linaro.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
         Mark Rutland <mark.rutland@arm.com>,
         Rob Herring <robh+dt@kernel.org>,
         Support Opensource <support.opensource@diasemi.com>,
-        Wim Van Sebroeck <wim@iguana.be>
+        Wim Van Sebroeck <wim@iguana.be>,
+        Zhang Rui <rui.zhang@intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -34,387 +33,416 @@ List-Id: linux-watchdog@vger.kernel.org
 
 From: Steve Twiss <stwiss.opensource@diasemi.com>
 
-Add junction temperature monitoring supervisor device driver, compatible
-with the DA9062 and DA9061 PMICs.
+Regulator support for the DA9061 is added into the DA9062 regulator driver.
+ 
+The regulators for DA9061 differ from those of DA9062.
+A new DA9061 enumeration list for the LDOs and Bucks supported by this
+device is added. Regulator information added: the old regulator
+information for DA9062 is renamed from local_regulator_info[] to
+local_da9062_regulator_info[] and a new array is added to support
+local_da9061_regulator_info[].
 
-If the PMIC's internal junction temperature rises above TEMP_WARN (125
-degC) an interrupt is issued. This TEMP_WARN level is defined as the
-THERMAL_TRIP_HOT trip-wire inside the device driver. A kernel work queue
-is configured to repeatedly poll this temperature trip-wire, between 1 and
-10 second intervals (defaulting at 3 seconds).
+The probe() function switches on the da9062_compatible_types enumeration
+and configures the correct da9062_regulator_info array and number of
+regulator entries.
 
-This first level of temperature supervision is intended for non-invasive
-temperature control, where the necessary measures for cooling the system
-down are left to the host software. In this case, inside the thermal
-notification function da9062_thermal_notify().
+Kconfig is updated to reflect support for DA9061 and DA9062 regulators.
 
 Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
 
 ---
 This patch applies against linux-next and v4.8
 
+Mark,
+
+These changes depend on a header file provided as part of an earlier
+patch [PATCH V1 1/10] from this set. The regulator probe() switches on the
+chip_type which uses enum da9062_compatible_types from core.h.
+
 Regards,
 Steve Twiss, Dialog Semiconductor Ltd.
 
 
- drivers/thermal/Kconfig          |  10 ++
- drivers/thermal/Makefile         |   1 +
- drivers/thermal/da9062-thermal.c | 313 +++++++++++++++++++++++++++++++++++++++
- 3 files changed, 324 insertions(+)
- create mode 100644 drivers/thermal/da9062-thermal.c
+ drivers/regulator/Kconfig            |   4 +-
+ drivers/regulator/da9062-regulator.c | 299 +++++++++++++++++++++++++++++++++--
+ 2 files changed, 291 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/thermal/Kconfig b/drivers/thermal/Kconfig
-index 2d702ca..da58e54 100644
---- a/drivers/thermal/Kconfig
-+++ b/drivers/thermal/Kconfig
-@@ -272,6 +272,16 @@ config DB8500_CPUFREQ_COOLING
- 	  bound cpufreq cooling device turns active to set CPU frequency low to
- 	  cool down the CPU.
+diff --git a/drivers/regulator/Kconfig b/drivers/regulator/Kconfig
+index 6c88e31..c4f678fe 100644
+--- a/drivers/regulator/Kconfig
++++ b/drivers/regulator/Kconfig
+@@ -188,11 +188,11 @@ config REGULATOR_DA9055
+ 	  will be called da9055-regulator.
  
-+config DA9062_THERMAL
-+	tristate "DA9062/DA9061 Dialog Semiconductor thermal driver"
-+	depends on MFD_DA9062
-+	depends on OF
-+	help
-+	  Enable this for the Dialog Semiconductor thermal sensor driver.
-+	  This will report PMIC junction over-temperature for one thermal trip
-+	  zone.
-+	  Compatible with the DA9062 and DA9061 PMICs.
+ config REGULATOR_DA9062
+-	tristate "Dialog Semiconductor DA9062 regulators"
++	tristate "Dialog Semiconductor DA9061/62 regulators"
+ 	depends on MFD_DA9062
+ 	help
+ 	  Say y here to support the BUCKs and LDOs regulators found on
+-	  DA9062 PMICs.
++	  DA9061 and DA9062 PMICs.
+ 
+ 	  This driver can also be built as a module. If so, the module
+ 	  will be called da9062-regulator.
+diff --git a/drivers/regulator/da9062-regulator.c b/drivers/regulator/da9062-regulator.c
+index 0638c8b..309da3a 100644
+--- a/drivers/regulator/da9062-regulator.c
++++ b/drivers/regulator/da9062-regulator.c
+@@ -28,6 +28,17 @@
+ 
+ /* Regulator IDs */
+ enum {
++	DA9061_ID_BUCK1,
++	DA9061_ID_BUCK2,
++	DA9061_ID_BUCK3,
++	DA9061_ID_LDO1,
++	DA9061_ID_LDO2,
++	DA9061_ID_LDO3,
++	DA9061_ID_LDO4,
++	DA9061_MAX_REGULATORS,
++};
 +
- config INTEL_POWERCLAMP
- 	tristate "Intel PowerClamp idle injection driver"
- 	depends on THERMAL
-diff --git a/drivers/thermal/Makefile b/drivers/thermal/Makefile
-index 10b07c1..0a2b3f2 100644
---- a/drivers/thermal/Makefile
-+++ b/drivers/thermal/Makefile
-@@ -38,6 +38,7 @@ obj-$(CONFIG_ARMADA_THERMAL)	+= armada_thermal.o
- obj-$(CONFIG_TANGO_THERMAL)	+= tango_thermal.o
- obj-$(CONFIG_IMX_THERMAL)	+= imx_thermal.o
- obj-$(CONFIG_DB8500_CPUFREQ_COOLING)	+= db8500_cpufreq_cooling.o
-+obj-$(CONFIG_DA9062_THERMAL)	+= da9062-thermal.o
- obj-$(CONFIG_INTEL_POWERCLAMP)	+= intel_powerclamp.o
- obj-$(CONFIG_X86_PKG_TEMP_THERMAL)	+= x86_pkg_temp_thermal.o
- obj-$(CONFIG_INTEL_SOC_DTS_IOSF_CORE)	+= intel_soc_dts_iosf.o
-diff --git a/drivers/thermal/da9062-thermal.c b/drivers/thermal/da9062-thermal.c
-new file mode 100644
-index 0000000..feeabf6
---- /dev/null
-+++ b/drivers/thermal/da9062-thermal.c
-@@ -0,0 +1,313 @@
-+/*
-+ * Thermal device driver for DA9062 and DA9061
-+ * Copyright (C) 2016  Dialog Semiconductor Ltd.
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License
-+ * as published by the Free Software Foundation; either version 2
-+ * of the License, or (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
++enum {
+ 	DA9062_ID_BUCK1,
+ 	DA9062_ID_BUCK2,
+ 	DA9062_ID_BUCK3,
+@@ -88,15 +99,21 @@ enum {
+ 
+ /* Regulator operations */
+ 
+-/* Current limits array (in uA) BUCK1 and BUCK3.
+-   Entry indexes corresponds to register values. */
++/* Current limits array (in uA)
++ * - DA9061_ID_[BUCK1|BUCK3]
++ * - DA9062_ID_[BUCK1|BUCK2|BUCK4]
++ * Entry indexes corresponds to register values.
 + */
-+
-+#include <linux/module.h>
-+#include <linux/errno.h>
-+#include <linux/interrupt.h>
-+#include <linux/platform_device.h>
-+#include <linux/workqueue.h>
-+#include <linux/regmap.h>
-+#include <linux/thermal.h>
-+#include <linux/of.h>
-+
-+#include <linux/mfd/da9062/core.h>
-+#include <linux/mfd/da9062/registers.h>
-+
-+#define DA9062_DEFAULT_POLLING_MS_PERIOD	3000
-+#define DA9062_MAX_POLLING_MS_PERIOD		10000
-+#define DA9062_MIN_POLLING_MS_PERIOD		1000
-+
-+#define DA9062_MILLI_CELSIUS(t)			((t)*1000)
-+
-+struct da9062_thermal_config {
-+	const char *name;
-+};
-+
-+struct da9062_thermal {
-+	struct da9062 *hw;
-+	struct delayed_work work;
-+	struct thermal_zone_device *zone;
-+	enum thermal_device_mode mode;
-+	unsigned int polling_period;
-+	struct mutex lock;
-+	int temperature;
-+	int irq;
-+	const struct da9062_thermal_config *config;
-+	struct device *dev;
-+};
-+
-+static void da9062_thermal_poll_on(struct work_struct *work)
-+{
-+	struct da9062_thermal *thermal = container_of(work,
-+						struct da9062_thermal,
-+						work.work);
-+	unsigned int val;
-+	int ret;
-+
-+	/* clear E_TEMP */
-+	ret = regmap_write(thermal->hw->regmap,
-+				DA9062AA_EVENT_B,
-+				DA9062AA_E_TEMP_MASK);
-+	if (ret < 0) {
-+		dev_err(thermal->dev,
-+			"Cannot clear the TJUNC temperature status\n");
-+		goto err_enable_irq;
-+	}
-+
-+	/* Now read E_TEMP again: it is acting like a status bit.
-+	 * If over-temperature, then this status will be true.
-+	 * If not over-temperature, this staus will be false.
-+	 */
-+	ret = regmap_read(thermal->hw->regmap,
-+			  DA9062AA_EVENT_B,
-+			  &val);
-+	if (ret < 0) {
-+		dev_err(thermal->dev,
-+			"Cannot check the TJUNC temperature status\n");
-+		goto err_enable_irq;
-+	} else {
-+		if (val & DA9062AA_E_TEMP_MASK) {
-+			mutex_lock(&thermal->lock);
-+			thermal->temperature = DA9062_MILLI_CELSIUS(125);
-+			mutex_unlock(&thermal->lock);
-+			thermal_zone_device_update(thermal->zone);
-+
-+			schedule_delayed_work(&thermal->work,
-+				msecs_to_jiffies(thermal->polling_period));
-+			return;
-+		} else {
-+			mutex_lock(&thermal->lock);
-+			thermal->temperature = DA9062_MILLI_CELSIUS(0);
-+			mutex_unlock(&thermal->lock);
-+			thermal_zone_device_update(thermal->zone);
-+		}
-+	}
-+
-+err_enable_irq:
-+	enable_irq(thermal->irq);
-+}
-+
-+static irqreturn_t da9062_thermal_irq_handler(int irq, void *data)
-+{
-+	struct da9062_thermal *thermal = data;
-+
-+	disable_irq_nosync(thermal->irq);
-+	schedule_delayed_work(&thermal->work, 0);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static int da9062_thermal_get_mode(struct thermal_zone_device *z,
-+				   enum thermal_device_mode *mode)
-+{
-+	struct da9062_thermal *thermal = z->devdata;
-+	*mode = thermal->mode;
-+	return 0;
-+}
-+
-+static int da9062_thermal_get_trip_type(struct thermal_zone_device *z,
-+				int trip,
-+				enum thermal_trip_type *type)
-+{
-+	struct da9062_thermal *thermal = z->devdata;
-+
-+	switch (trip) {
-+	case 0:
-+		*type = THERMAL_TRIP_HOT;
-+		break;
-+	default:
-+		dev_err(thermal->dev,
-+			"Driver does not support more than 1 trip-wire\n");
-+		return -EINVAL;
-+	}
-+
-+	return 0;
-+}
-+
-+static int da9062_thermal_get_trip_temp(struct thermal_zone_device *z,
-+					int trip,
-+					int *temp)
-+{
-+	struct da9062_thermal *thermal = z->devdata;
-+
-+	switch (trip) {
-+	case 0:
-+		*temp = DA9062_MILLI_CELSIUS(125);
-+		break;
-+	default:
-+		dev_err(thermal->dev,
-+			"Driver does not support more than 1 trip-wire\n");
-+		return -EINVAL;
-+	}
-+
-+	return 0;
-+}
-+
-+static int da9062_thermal_notify(struct thermal_zone_device *z,
-+				 int trip,
-+				 enum thermal_trip_type type)
-+{
-+	struct da9062_thermal *thermal = z->devdata;
-+
-+	switch (type) {
-+	case THERMAL_TRIP_HOT:
-+		dev_warn(thermal->dev, "Reached HOT (125degC) temperature\n");
-+		break;
-+	default:
-+		break;
-+	}
-+
-+	return 0;
-+}
-+
-+static int da9062_thermal_get_temp(struct thermal_zone_device *z,
-+				   int *temp)
-+{
-+	struct da9062_thermal *thermal = z->devdata;
-+
-+	mutex_lock(&thermal->lock);
-+	*temp = thermal->temperature;
-+	mutex_unlock(&thermal->lock);
-+
-+	return 0;
-+}
-+
-+static struct thermal_zone_device_ops da9062_thermal_ops = {
-+	.get_temp	= da9062_thermal_get_temp,
-+	.get_mode	= da9062_thermal_get_mode,
-+	.get_trip_type	= da9062_thermal_get_trip_type,
-+	.get_trip_temp	= da9062_thermal_get_trip_temp,
-+	.notify		= da9062_thermal_notify,
-+};
-+
-+static const struct da9062_thermal_config da9062_config = {
-+	.name = "da9062-thermal",
-+};
-+
-+static const struct da9062_thermal_config da9061_config = {
-+	.name = "da9061-thermal",
-+};
-+
-+static const struct of_device_id da9062_compatible_reg_id_table[] = {
-+	{ .compatible = "dlg,da9062-thermal", .data = &da9062_config },
-+	{ .compatible = "dlg,da9061-thermal", .data = &da9061_config },
-+	{ },
-+};
-+
-+static int da9062_thermal_probe(struct platform_device *pdev)
-+{
-+	struct da9062 *chip = dev_get_drvdata(pdev->dev.parent);
-+	struct da9062_thermal *thermal;
-+	unsigned int pp_tmp = DA9062_DEFAULT_POLLING_MS_PERIOD;
-+	const struct of_device_id *match;
-+	int ret = 0;
-+
-+	match = of_match_node(da9062_compatible_reg_id_table,
-+			      pdev->dev.of_node);
-+	if (!match)
-+		return -ENXIO;
-+
-+	if (pdev->dev.of_node) {
-+		if (!of_property_read_u32(pdev->dev.of_node,
-+					"dlg,tjunc-temp-polling-period-ms",
-+					&pp_tmp)) {
-+			if (pp_tmp < DA9062_MIN_POLLING_MS_PERIOD ||
-+				pp_tmp > DA9062_MAX_POLLING_MS_PERIOD)
-+				pp_tmp = DA9062_DEFAULT_POLLING_MS_PERIOD;
-+		}
-+
-+		dev_dbg(&pdev->dev,
-+			 "TJUNC temp polling period set at %d ms\n",
-+			 pp_tmp);
-+	}
-+
-+	thermal = devm_kzalloc(&pdev->dev, sizeof(struct da9062_thermal),
-+			     GFP_KERNEL);
-+	if (!thermal) {
-+		ret = -ENOMEM;
-+		goto err;
-+	}
-+
-+	thermal->config = match->data;
-+
-+	INIT_DELAYED_WORK(&thermal->work, da9062_thermal_poll_on);
-+	mutex_init(&thermal->lock);
-+
-+	thermal->zone = thermal_zone_device_register(thermal->config->name,
-+					1, 0, thermal,
-+					&da9062_thermal_ops, NULL, 0,
-+					0);
-+	if (IS_ERR(thermal->zone)) {
-+		dev_err(&pdev->dev, "Cannot register thermal zone device\n");
-+		ret = PTR_ERR(thermal->zone);
-+		goto err;
-+	}
-+
-+	ret = platform_get_irq_byname(pdev, "THERMAL");
-+	if (ret < 0) {
-+		dev_err(&pdev->dev, "Failed to get platform IRQ.\n");
-+		goto err_zone;
-+	}
-+	thermal->irq = ret;
-+
-+	ret = request_threaded_irq(thermal->irq, NULL,
-+				   da9062_thermal_irq_handler,
-+				   IRQF_TRIGGER_LOW | IRQF_ONESHOT,
-+				   "THERMAL", thermal);
-+	if (ret) {
-+		dev_err(&pdev->dev,
-+			"Failed to request thermal device IRQ.\n");
-+		goto err_zone;
-+	}
-+
-+	thermal->hw = chip;
-+	thermal->polling_period = pp_tmp;
-+	thermal->mode = THERMAL_DEVICE_ENABLED;
-+	thermal->dev = &pdev->dev;
-+
-+	platform_set_drvdata(pdev, thermal);
-+	return 0;
-+
-+err_zone:
-+	thermal_zone_device_unregister(thermal->zone);
-+err:
-+	return ret;
-+}
-+
-+static int da9062_thermal_remove(struct platform_device *pdev)
-+{
-+	struct	da9062_thermal *thermal = platform_get_drvdata(pdev);
-+
-+	free_irq(thermal->irq, thermal);
-+	thermal_zone_device_unregister(thermal->zone);
-+	cancel_delayed_work_sync(&thermal->work);
-+	return 0;
-+}
-+
-+static struct platform_driver da9062_thermal_driver = {
-+	.probe	= da9062_thermal_probe,
-+	.remove	= da9062_thermal_remove,
-+	.driver	= {
-+		.name	= "da9062-thermal",
-+		.of_match_table = da9062_compatible_reg_id_table,
+ static const int da9062_buck_a_limits[] = {
+ 	 500000,  600000,  700000,  800000,  900000, 1000000, 1100000, 1200000,
+ 	1300000, 1400000, 1500000, 1600000, 1700000, 1800000, 1900000, 2000000
+ };
+ 
+-/* Current limits array (in uA) for BUCK2.
+-   Entry indexes corresponds to register values. */
++/* Current limits array (in uA)
++ * - DA9061_ID_BUCK2
++ * - DA9062_ID_BUCK3
++ * Entry indexes corresponds to register values.
++ */
+ static const int da9062_buck_b_limits[] = {
+ 	1500000, 1600000, 1700000, 1800000, 1900000, 2000000, 2100000, 2200000,
+ 	2300000, 2400000, 2500000, 2600000, 2700000, 2800000, 2900000, 3000000
+@@ -405,8 +422,254 @@ static const struct regulator_ops da9062_ldo_ops = {
+ 	.set_suspend_mode	= da9062_ldo_set_suspend_mode,
+ };
+ 
+-/* Regulator information */
+-static const struct da9062_regulator_info local_regulator_info[] = {
++/* DA9061 Regulator information */
++static const struct da9062_regulator_info local_da9061_regulator_info[] = {
++	{
++		.desc.id = DA9061_ID_BUCK1,
++		.desc.name = "DA9061 BUCK1",
++		.desc.of_match = of_match_ptr("buck1"),
++		.desc.regulators_node = of_match_ptr("regulators"),
++		.desc.ops = &da9062_buck_ops,
++		.desc.min_uV = (300) * 1000,
++		.desc.uV_step = (10) * 1000,
++		.desc.n_voltages = ((1570) - (300))/(10) + 1,
++		.current_limits = da9062_buck_a_limits,
++		.n_current_limits = ARRAY_SIZE(da9062_buck_a_limits),
++		.desc.enable_reg = DA9062AA_BUCK1_CONT,
++		.desc.enable_mask = DA9062AA_BUCK1_EN_MASK,
++		.desc.vsel_reg = DA9062AA_VBUCK1_A,
++		.desc.vsel_mask = DA9062AA_VBUCK1_A_MASK,
++		.desc.linear_min_sel = 0,
++		.sleep = REG_FIELD(DA9062AA_VBUCK1_A,
++			__builtin_ffs((int)DA9062AA_BUCK1_SL_A_MASK) - 1,
++			sizeof(unsigned int) * 8 -
++			__builtin_clz((DA9062AA_BUCK1_SL_A_MASK)) - 1),
++		.suspend_sleep = REG_FIELD(DA9062AA_VBUCK1_B,
++			__builtin_ffs((int)DA9062AA_BUCK1_SL_B_MASK) - 1,
++			sizeof(unsigned int) * 8 -
++			__builtin_clz((DA9062AA_BUCK1_SL_B_MASK)) - 1),
++		.suspend_vsel_reg = DA9062AA_VBUCK1_B,
++		.mode = REG_FIELD(DA9062AA_BUCK1_CFG,
++			__builtin_ffs((int)DA9062AA_BUCK1_MODE_MASK) - 1,
++			sizeof(unsigned int) * 8 -
++			__builtin_clz((DA9062AA_BUCK1_MODE_MASK)) - 1),
++		.suspend = REG_FIELD(DA9062AA_DVC_1,
++			__builtin_ffs((int)DA9062AA_VBUCK1_SEL_MASK) - 1,
++			sizeof(unsigned int) * 8 -
++			__builtin_clz((DA9062AA_VBUCK1_SEL_MASK)) - 1),
++		.ilimit = REG_FIELD(DA9062AA_BUCK_ILIM_C,
++			__builtin_ffs((int)DA9062AA_BUCK1_ILIM_MASK) - 1,
++			sizeof(unsigned int) * 8 -
++			__builtin_clz((DA9062AA_BUCK1_ILIM_MASK)) - 1),
++	},
++	{
++		.desc.id = DA9061_ID_BUCK2,
++		.desc.name = "DA9061 BUCK2",
++		.desc.of_match = of_match_ptr("buck2"),
++		.desc.regulators_node = of_match_ptr("regulators"),
++		.desc.ops = &da9062_buck_ops,
++		.desc.min_uV = (800) * 1000,
++		.desc.uV_step = (20) * 1000,
++		.desc.n_voltages = ((3340) - (800))/(20) + 1,
++		.current_limits = da9062_buck_b_limits,
++		.n_current_limits = ARRAY_SIZE(da9062_buck_b_limits),
++		.desc.enable_reg = DA9062AA_BUCK3_CONT,
++		.desc.enable_mask = DA9062AA_BUCK3_EN_MASK,
++		.desc.vsel_reg = DA9062AA_VBUCK3_A,
++		.desc.vsel_mask = DA9062AA_VBUCK3_A_MASK,
++		.desc.linear_min_sel = 0,
++		.sleep = REG_FIELD(DA9062AA_VBUCK3_A,
++			__builtin_ffs((int)DA9062AA_BUCK3_SL_A_MASK) - 1,
++			sizeof(unsigned int) * 8 -
++			__builtin_clz((DA9062AA_BUCK3_SL_A_MASK)) - 1),
++		.suspend_sleep = REG_FIELD(DA9062AA_VBUCK3_B,
++			__builtin_ffs((int)DA9062AA_BUCK3_SL_B_MASK) - 1,
++			sizeof(unsigned int) * 8 -
++			__builtin_clz((DA9062AA_BUCK3_SL_B_MASK)) - 1),
++		.suspend_vsel_reg = DA9062AA_VBUCK3_B,
++		.mode = REG_FIELD(DA9062AA_BUCK3_CFG,
++			__builtin_ffs((int)DA9062AA_BUCK3_MODE_MASK) - 1,
++			sizeof(unsigned int) * 8 -
++			__builtin_clz((DA9062AA_BUCK3_MODE_MASK)) - 1),
++		.suspend = REG_FIELD(DA9062AA_DVC_1,
++			__builtin_ffs((int)DA9062AA_VBUCK3_SEL_MASK) - 1,
++			sizeof(unsigned int) * 8 -
++			__builtin_clz((DA9062AA_VBUCK3_SEL_MASK)) - 1),
++		.ilimit = REG_FIELD(DA9062AA_BUCK_ILIM_A,
++			__builtin_ffs((int)DA9062AA_BUCK3_ILIM_MASK) - 1,
++			sizeof(unsigned int) * 8 -
++			__builtin_clz((DA9062AA_BUCK3_ILIM_MASK)) - 1),
++	},
++	{
++		.desc.id = DA9061_ID_BUCK3,
++		.desc.name = "DA9061 BUCK3",
++		.desc.of_match = of_match_ptr("buck3"),
++		.desc.regulators_node = of_match_ptr("regulators"),
++		.desc.ops = &da9062_buck_ops,
++		.desc.min_uV = (530) * 1000,
++		.desc.uV_step = (10) * 1000,
++		.desc.n_voltages = ((1800) - (530))/(10) + 1,
++		.current_limits = da9062_buck_a_limits,
++		.n_current_limits = ARRAY_SIZE(da9062_buck_a_limits),
++		.desc.enable_reg = DA9062AA_BUCK4_CONT,
++		.desc.enable_mask = DA9062AA_BUCK4_EN_MASK,
++		.desc.vsel_reg = DA9062AA_VBUCK4_A,
++		.desc.vsel_mask = DA9062AA_VBUCK4_A_MASK,
++		.desc.linear_min_sel = 0,
++		.sleep = REG_FIELD(DA9062AA_VBUCK4_A,
++			__builtin_ffs((int)DA9062AA_BUCK4_SL_A_MASK) - 1,
++			sizeof(unsigned int) * 8 -
++			__builtin_clz((DA9062AA_BUCK4_SL_A_MASK)) - 1),
++		.suspend_sleep = REG_FIELD(DA9062AA_VBUCK4_B,
++			__builtin_ffs((int)DA9062AA_BUCK4_SL_B_MASK) - 1,
++			sizeof(unsigned int) * 8 -
++			__builtin_clz((DA9062AA_BUCK4_SL_B_MASK)) - 1),
++		.suspend_vsel_reg = DA9062AA_VBUCK4_B,
++		.mode = REG_FIELD(DA9062AA_BUCK4_CFG,
++			__builtin_ffs((int)DA9062AA_BUCK4_MODE_MASK) - 1,
++			sizeof(unsigned int) * 8 -
++			__builtin_clz((DA9062AA_BUCK4_MODE_MASK)) - 1),
++		.suspend = REG_FIELD(DA9062AA_DVC_1,
++			__builtin_ffs((int)DA9062AA_VBUCK4_SEL_MASK) - 1,
++			sizeof(unsigned int) * 8 -
++			__builtin_clz((DA9062AA_VBUCK4_SEL_MASK)) - 1),
++		.ilimit = REG_FIELD(DA9062AA_BUCK_ILIM_B,
++			__builtin_ffs((int)DA9062AA_BUCK4_ILIM_MASK) - 1,
++			sizeof(unsigned int) * 8 -
++			__builtin_clz((DA9062AA_BUCK4_ILIM_MASK)) - 1),
++	},
++	{
++		.desc.id = DA9061_ID_LDO1,
++		.desc.name = "DA9061 LDO1",
++		.desc.of_match = of_match_ptr("ldo1"),
++		.desc.regulators_node = of_match_ptr("regulators"),
++		.desc.ops = &da9062_ldo_ops,
++		.desc.min_uV = (900) * 1000,
++		.desc.uV_step = (50) * 1000,
++		.desc.n_voltages = ((3600) - (900))/(50) + 1,
++		.desc.enable_reg = DA9062AA_LDO1_CONT,
++		.desc.enable_mask = DA9062AA_LDO1_EN_MASK,
++		.desc.vsel_reg = DA9062AA_VLDO1_A,
++		.desc.vsel_mask = DA9062AA_VLDO1_A_MASK,
++		.desc.linear_min_sel = 0,
++		.sleep = REG_FIELD(DA9062AA_VLDO1_A,
++			__builtin_ffs((int)DA9062AA_LDO1_SL_A_MASK) - 1,
++			sizeof(unsigned int) * 8 -
++			__builtin_clz((DA9062AA_LDO1_SL_A_MASK)) - 1),
++		.suspend_sleep = REG_FIELD(DA9062AA_VLDO1_B,
++			__builtin_ffs((int)DA9062AA_LDO1_SL_B_MASK) - 1,
++			sizeof(unsigned int) * 8 -
++			__builtin_clz((DA9062AA_LDO1_SL_B_MASK)) - 1),
++		.suspend_vsel_reg = DA9062AA_VLDO1_B,
++		.suspend = REG_FIELD(DA9062AA_DVC_1,
++			__builtin_ffs((int)DA9062AA_VLDO1_SEL_MASK) - 1,
++			sizeof(unsigned int) * 8 -
++			__builtin_clz((DA9062AA_VLDO1_SEL_MASK)) - 1),
++		.oc_event = REG_FIELD(DA9062AA_STATUS_D,
++			__builtin_ffs((int)DA9062AA_LDO1_ILIM_MASK) - 1,
++			sizeof(unsigned int) * 8 -
++			__builtin_clz((DA9062AA_LDO1_ILIM_MASK)) - 1),
++	},
++	{
++		.desc.id = DA9061_ID_LDO2,
++		.desc.name = "DA9061 LDO2",
++		.desc.of_match = of_match_ptr("ldo2"),
++		.desc.regulators_node = of_match_ptr("regulators"),
++		.desc.ops = &da9062_ldo_ops,
++		.desc.min_uV = (900) * 1000,
++		.desc.uV_step = (50) * 1000,
++		.desc.n_voltages = ((3600) - (600))/(50) + 1,
++		.desc.enable_reg = DA9062AA_LDO2_CONT,
++		.desc.enable_mask = DA9062AA_LDO2_EN_MASK,
++		.desc.vsel_reg = DA9062AA_VLDO2_A,
++		.desc.vsel_mask = DA9062AA_VLDO2_A_MASK,
++		.desc.linear_min_sel = 0,
++		.sleep = REG_FIELD(DA9062AA_VLDO2_A,
++			__builtin_ffs((int)DA9062AA_LDO2_SL_A_MASK) - 1,
++			sizeof(unsigned int) * 8 -
++			__builtin_clz((DA9062AA_LDO2_SL_A_MASK)) - 1),
++		.suspend_sleep = REG_FIELD(DA9062AA_VLDO2_B,
++			__builtin_ffs((int)DA9062AA_LDO2_SL_B_MASK) - 1,
++			sizeof(unsigned int) * 8 -
++			__builtin_clz((DA9062AA_LDO2_SL_B_MASK)) - 1),
++		.suspend_vsel_reg = DA9062AA_VLDO2_B,
++		.suspend = REG_FIELD(DA9062AA_DVC_1,
++			__builtin_ffs((int)DA9062AA_VLDO2_SEL_MASK) - 1,
++			sizeof(unsigned int) * 8 -
++			__builtin_clz((DA9062AA_VLDO2_SEL_MASK)) - 1),
++		.oc_event = REG_FIELD(DA9062AA_STATUS_D,
++			__builtin_ffs((int)DA9062AA_LDO2_ILIM_MASK) - 1,
++			sizeof(unsigned int) * 8 -
++			__builtin_clz((DA9062AA_LDO2_ILIM_MASK)) - 1),
++	},
++	{
++		.desc.id = DA9061_ID_LDO3,
++		.desc.name = "DA9061 LDO3",
++		.desc.of_match = of_match_ptr("ldo3"),
++		.desc.regulators_node = of_match_ptr("regulators"),
++		.desc.ops = &da9062_ldo_ops,
++		.desc.min_uV = (900) * 1000,
++		.desc.uV_step = (50) * 1000,
++		.desc.n_voltages = ((3600) - (900))/(50) + 1,
++		.desc.enable_reg = DA9062AA_LDO3_CONT,
++		.desc.enable_mask = DA9062AA_LDO3_EN_MASK,
++		.desc.vsel_reg = DA9062AA_VLDO3_A,
++		.desc.vsel_mask = DA9062AA_VLDO3_A_MASK,
++		.desc.linear_min_sel = 0,
++		.sleep = REG_FIELD(DA9062AA_VLDO3_A,
++			__builtin_ffs((int)DA9062AA_LDO3_SL_A_MASK) - 1,
++			sizeof(unsigned int) * 8 -
++			__builtin_clz((DA9062AA_LDO3_SL_A_MASK)) - 1),
++		.suspend_sleep = REG_FIELD(DA9062AA_VLDO3_B,
++			__builtin_ffs((int)DA9062AA_LDO3_SL_B_MASK) - 1,
++			sizeof(unsigned int) * 8 -
++			__builtin_clz((DA9062AA_LDO3_SL_B_MASK)) - 1),
++		.suspend_vsel_reg = DA9062AA_VLDO3_B,
++		.suspend = REG_FIELD(DA9062AA_DVC_1,
++			__builtin_ffs((int)DA9062AA_VLDO3_SEL_MASK) - 1,
++			sizeof(unsigned int) * 8 -
++			__builtin_clz((DA9062AA_VLDO3_SEL_MASK)) - 1),
++		.oc_event = REG_FIELD(DA9062AA_STATUS_D,
++			__builtin_ffs((int)DA9062AA_LDO3_ILIM_MASK) - 1,
++			sizeof(unsigned int) * 8 -
++			__builtin_clz((DA9062AA_LDO3_ILIM_MASK)) - 1),
++	},
++	{
++		.desc.id = DA9061_ID_LDO4,
++		.desc.name = "DA9061 LDO4",
++		.desc.of_match = of_match_ptr("ldo4"),
++		.desc.regulators_node = of_match_ptr("regulators"),
++		.desc.ops = &da9062_ldo_ops,
++		.desc.min_uV = (900) * 1000,
++		.desc.uV_step = (50) * 1000,
++		.desc.n_voltages = ((3600) - (900))/(50) + 1,
++		.desc.enable_reg = DA9062AA_LDO4_CONT,
++		.desc.enable_mask = DA9062AA_LDO4_EN_MASK,
++		.desc.vsel_reg = DA9062AA_VLDO4_A,
++		.desc.vsel_mask = DA9062AA_VLDO4_A_MASK,
++		.desc.linear_min_sel = 0,
++		.sleep = REG_FIELD(DA9062AA_VLDO4_A,
++			__builtin_ffs((int)DA9062AA_LDO4_SL_A_MASK) - 1,
++			sizeof(unsigned int) * 8 -
++			__builtin_clz((DA9062AA_LDO4_SL_A_MASK)) - 1),
++		.suspend_sleep = REG_FIELD(DA9062AA_VLDO4_B,
++			__builtin_ffs((int)DA9062AA_LDO4_SL_B_MASK) - 1,
++			sizeof(unsigned int) * 8 -
++			__builtin_clz((DA9062AA_LDO4_SL_B_MASK)) - 1),
++		.suspend_vsel_reg = DA9062AA_VLDO4_B,
++		.suspend = REG_FIELD(DA9062AA_DVC_1,
++			__builtin_ffs((int)DA9062AA_VLDO4_SEL_MASK) - 1,
++			sizeof(unsigned int) * 8 -
++			__builtin_clz((DA9062AA_VLDO4_SEL_MASK)) - 1),
++		.oc_event = REG_FIELD(DA9062AA_STATUS_D,
++			__builtin_ffs((int)DA9062AA_LDO4_ILIM_MASK) - 1,
++			sizeof(unsigned int) * 8 -
++			__builtin_clz((DA9062AA_LDO4_ILIM_MASK)) - 1),
 +	},
 +};
 +
-+module_platform_driver(da9062_thermal_driver);
++/* DA9062 Regulator information */
++static const struct da9062_regulator_info local_da9062_regulator_info[] = {
+ 	{
+ 		.desc.id = DA9062_ID_BUCK1,
+ 		.desc.name = "DA9062 BUCK1",
+@@ -727,17 +990,33 @@ static int da9062_regulator_probe(struct platform_device *pdev)
+ 	struct da9062_regulators *regulators;
+ 	struct da9062_regulator *regl;
+ 	struct regulator_config config = { };
++	const struct da9062_regulator_info *rinfo;
+ 	int irq, n, ret;
+ 	size_t size;
++	int max_regulators;
 +
-+MODULE_AUTHOR("Steve Twiss, Dialog Semiconductor");
-+MODULE_DESCRIPTION("Thermal TJUNC device driver for Dialog DA9062 and DA9061");
-+MODULE_LICENSE("GPL v2");
-+MODULE_ALIAS("platform:da9062-thermal");
++	switch (chip->chip_type) {
++	case COMPAT_TYPE_DA9061:
++		max_regulators = DA9061_MAX_REGULATORS;
++		rinfo = local_da9061_regulator_info;
++		break;
++	case COMPAT_TYPE_DA9062:
++		max_regulators = DA9062_MAX_REGULATORS;
++		rinfo = local_da9062_regulator_info;
++		break;
++	default:
++		dev_err(chip->dev, "Unrecognised chip type\n");
++		return -ENODEV;
++	}
+ 
+ 	/* Allocate memory required by usable regulators */
+ 	size = sizeof(struct da9062_regulators) +
+-		DA9062_MAX_REGULATORS * sizeof(struct da9062_regulator);
++		max_regulators * sizeof(struct da9062_regulator);
+ 	regulators = devm_kzalloc(&pdev->dev, size, GFP_KERNEL);
+ 	if (!regulators)
+ 		return -ENOMEM;
+ 
+-	regulators->n_regulators = DA9062_MAX_REGULATORS;
++	regulators->n_regulators = max_regulators;
+ 	platform_set_drvdata(pdev, regulators);
+ 
+ 	n = 0;
+@@ -745,7 +1024,7 @@ static int da9062_regulator_probe(struct platform_device *pdev)
+ 		/* Initialise regulator structure */
+ 		regl = &regulators->regulator[n];
+ 		regl->hw = chip;
+-		regl->info = &local_regulator_info[n];
++		regl->info = &rinfo[n];
+ 		regl->desc = regl->info->desc;
+ 		regl->desc.type = REGULATOR_VOLTAGE;
+ 		regl->desc.owner = THIS_MODULE;
+@@ -836,6 +1115,6 @@ module_exit(da9062_regulator_cleanup);
+ 
+ /* Module information */
+ MODULE_AUTHOR("S Twiss <stwiss.opensource@diasemi.com>");
+-MODULE_DESCRIPTION("REGULATOR device driver for Dialog DA9062");
++MODULE_DESCRIPTION("REGULATOR device driver for Dialog DA9062 and DA9061");
+ MODULE_LICENSE("GPL");
+ MODULE_ALIAS("platform:da9062-regulators");
 -- 
 end-of-patch for PATCH V1
 
