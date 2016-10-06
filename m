@@ -1,126 +1,86 @@
-Return-path: <stwiss.opensource@diasemi.com>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail1.bemta3.messagelabs.com ([195.245.230.165]:51394 "EHLO
+        mail1.bemta3.messagelabs.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S964945AbcJFQeu (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Thu, 6 Oct 2016 12:34:50 -0400
 From: Steve Twiss <stwiss.opensource@diasemi.com>
-To: Keerthy <a0393675@ti.com>, Lee Jones <lee.jones@linaro.org>
-CC: DEVICETREE <devicetree@vger.kernel.org>, Dmitry Torokhov
-	<dmitry.torokhov@gmail.com>, Eduardo Valentin <edubezval@gmail.com>,
-	"Guenter Roeck" <linux@roeck-us.net>, LINUX-INPUT
-	<linux-input@vger.kernel.org>, LINUX-PM <linux-pm@vger.kernel.org>,
-	LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>, Liam Girdwood
-	<lgirdwood@gmail.com>, "Mark Brown" <broonie@kernel.org>, Mark Rutland
-	<mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Support Opensource
-	<Support.Opensource@diasemi.com>, Wim Van Sebroeck <wim@iguana.be>, Zhang Rui
-	<rui.zhang@intel.com>, LINUX-KERNEL <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH V1 01/10] mfd: da9061: MFD core support
-Date: Thu, 6 Oct 2016 16:34:04 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7018CCE244D@SW-EX-MBX02.diasemi.com>
-References: <cover.1475743411.git.stwiss.opensource@diasemi.com>
- <c9726b1f01300da7693324b0c1ff7f71dcbc275d.1475743411.git.stwiss.opensource@diasemi.com>
- <1eca0af9-64d5-7476-2847-71ecf9331395@ti.com>
-In-Reply-To: <1eca0af9-64d5-7476-2847-71ecf9331395@ti.com>
+To: Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Eduardo Valentin <edubezval@gmail.com>,
+        Zhang Rui <rui.zhang@intel.com>
+CC: DEVICETREE <devicetree@vger.kernel.org>,
+        LINUX-INPUT <linux-input@vger.kernel.org>,
+        LINUX-PM <linux-pm@vger.kernel.org>,
+        Lee Jones <lee.jones@linaro.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Support Opensource <Support.Opensource@diasemi.com>,
+        Zhang Rui <rui.zhang@intel.com>,
+        LINUX-KERNEL <linux-kernel@vger.kernel.org>,
+        LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>
+Subject: Re: [PATCH V1 04/10] watchdog: da9061: watchdog driver (RFC)
+Date: Thu, 6 Oct 2016 16:28:14 +0000
+Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7018CCE242C@SW-EX-MBX02.diasemi.com>
 Content-Language: en-US
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-List-ID: <linux-watchdog@vger.kernel.org>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-Hi,
+Hi Guenter,
 
-On 06 October 2016 11:38, Keerthy [mailto:a0393675@ti.com], wrote:
+Thanks for your reply.
 
-> > regmap_config which lists the correct readble, writable and volatile
->=20
-> /s/readble/readable
+On 06 October 2016 14:28, Guenter Roeck, wrote:
 
-Done
+> To: Steve Twiss; LINUX-KERNEL; LINUX-WATCHDOG; Wim Van Sebroeck
+> Subject: Re: [PATCH V1 04/10] watchdog: da9061: watchdog driver
 
 [...]
 
-> >  static struct resource da9062_core_resources[] =3D {
-> >  	DEFINE_RES_NAMED(DA9062_IRQ_VDD_WARN, 1, "VDD_WARN",
-> IORESOURCE_IRQ),
+> > @@ -180,6 +180,11 @@ static const struct watchdog_info da9062_watchdog_info = {
+> >  	.identity = "DA9062 WDT",
 > >  };
-> > @@ -142,7 +257,7 @@ static const struct mfd_cell da9062_devs[] =3D {
-> >  		.name		=3D "da9062-watchdog",
-> >  		.num_resources	=3D
-> ARRAY_SIZE(da9062_wdt_resources),
-> >  		.resources	=3D da9062_wdt_resources,
-> > -		.of_compatible  =3D "dlg,da9062-wdt",
-> > +		.of_compatible  =3D "dlg,da9062-watchdog",
->=20
-> Any particular reason why this compatible needs to be changed?
+> >
+> > +static const struct watchdog_info da9061_watchdog_info = {
+> > +	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
+> > +	.identity = "DA9061 WDT",
+> 
+> This adds a lot of complexity to the driver just to be able to display "DA9061".
+> Why not just change the existing identity to "DA9061/DA9062 WDT" ?
 
-Yes. It was incorrect in the original DA9062 submission.
-The binding said "dlg,da9062-watchdog", but the MFD component implemented i=
-t
-incorrectly as "dlg,da9062-wdt" in the da9062.txt binding file. This fixes =
-that error.=20
+This is true.
+I am using the compatible string to pick a different configuration .data block:
 
-The watchdog driver did not use the compatible during probe for da9062. But=
-, it now
-checks the compatible string as part of  this patch set.
+{ .compatible = "dlg,da9062-watchdog", .data = &da9062_watchdog_info },
+{ .compatible = "dlg,da9061-watchdog", .data = &da9061_watchdog_info },
 
-[...]
+when the only real difference between the DA9061 and DA9062 watchdog driver
+is the name. Functionally they are identical in this case.
+This was a similar comment in Dialog's internal review on this exact same point.
+"Why not just report one thing?"
 
-> > +static const struct of_device_id da9062_dt_ids[] =3D {
-> > +	{ .compatible =3D "dlg,da9062", .data =3D (void *)COMPAT_TYPE_DA9062,
-> },
-> > +	{ .compatible =3D "dlg,da9061", .data =3D (void *)COMPAT_TYPE_DA9061,
-> },
->=20
-> WARNING: DT compatible string "dlg,da9061" appears un-documented --
-> check ./Documentation/devicetree/bindings/
-> #622: FILE: drivers/mfd/da9062-core.c:822:
-> +	{ .compatible =3D "dlg,da9061", .data =3D (void *)COMPAT_TYPE_DA9061,
-> },
->=20
-> Might want to re-order patches so that you have the compatibles
-> documented before usage
+My answer to that was because it would allow to distinguish between different chips.
+The watchdog driver would report the correct chip type, despite the driver always
+being for DA9062.
 
-Ah. I ordered them last because I thought the driver would need approval be=
-fore
-the device tree docs were accepted. On second look, that doesn't make much =
-sense.
+This exact same thing would happen with da9063-onkey and da9062-thermal also.
+For the ONKEY it is marginally confused by needing to support 63, but for 62 and 61
+it is the same thing. Only the name is different.
 
-I will change my scripts to complete the checkpatch.pl on the e-mails to be=
- sent to LKML
-(instead of the whole files) so this sort of thing doesn't happen again.
+I have TO:'d Dmitry Torokhov; Eduardo Valentin; Zhang Rui, for that reason.
 
-I will re-order the patches from V1 when doing V2.
+But, it is just my opinion to keep the "name" different.
+This will not be my decision if accepted into the Linux kernel, but I would like to 
+at least be consistent for DA9061 and DA9062 so ... is this an issue?
 
-> > +	{ }
-> > +};
-> > +MODULE_DEVICE_TABLE(of, da9062_dt_ids);
-> > +
-> >  static int da9062_i2c_probe(struct i2c_client *i2c,
-> >  	const struct i2c_device_id *id)
-> >  {
-> >  	struct da9062 *chip;
-> > +	const struct of_device_id *match;
-> >  	unsigned int irq_base;
-> > +	const struct mfd_cell *cell;
-> > +	const struct regmap_irq_chip *irq_chip;
-> > +	const struct regmap_config *config;
-> > +	int cell_num;
->=20
-> No need of cell_num.
-[...]
-
-> > +		cell_num =3D ARRAY_SIZE(da9061_devs);
->=20
-> No need of the above assignment
-[...]
-
-> > +		cell_num =3D ARRAY_SIZE(da9062_devs);
->=20
-> No need of the above assignment
->=20
-> > +	ret =3D mfd_add_devices(chip->dev, PLATFORM_DEVID_NONE, cell,
-> > +			      cell_num, NULL, irq_base,
->=20
-> Use ARRAY_SIZE(cell) instead if cell_num
-
-Okay. Can do that.
-It will appear in V2.
+The same question applies to thermal and onkey as well.
 
 Regards,
 Steve
+
