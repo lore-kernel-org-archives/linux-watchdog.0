@@ -1,141 +1,81 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from relay1.mentorg.com ([192.94.38.131]:52197 "EHLO
-        relay1.mentorg.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752411AbcJGMls (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 7 Oct 2016 08:41:48 -0400
-From: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
-To: Wim Van Sebroeck <wim@iguana.be>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wolfram Sang <wsa@the-dreams.de>
-CC: <linux-watchdog@vger.kernel.org>
-Subject: [PATCH v6 7/7] watchdog: imx2_wdt: add pretimeout function support
-Date: Fri, 7 Oct 2016 15:41:39 +0300
-Message-ID: <1475844099-26074-2-git-send-email-vladimir_zapolskiy@mentor.com>
-In-Reply-To: <1475843826-25830-1-git-send-email-vladimir_zapolskiy@mentor.com>
-References: <1475843826-25830-1-git-send-email-vladimir_zapolskiy@mentor.com>
+Return-path: <stwiss.opensource@diasemi.com>
+From: Steve Twiss <stwiss.opensource@diasemi.com>
+To: Guenter Roeck <linux@roeck-us.net>, Wim Van Sebroeck <wim@iguana.be>
+CC: Lee Jones <lee.jones@linaro.org>, Dmitry Torokhov
+	<dmitry.torokhov@gmail.com>, Eduardo Valentin <edubezval@gmail.com>, "Zhang
+ Rui" <rui.zhang@intel.com>, DEVICETREE <devicetree@vger.kernel.org>,
+	LINUX-INPUT <linux-input@vger.kernel.org>, LINUX-PM
+	<linux-pm@vger.kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown
+	<broonie@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Rob Herring
+	<robh+dt@kernel.org>, Support Opensource <Support.Opensource@diasemi.com>,
+	LINUX-KERNEL <linux-kernel@vger.kernel.org>, LINUX-WATCHDOG
+	<linux-watchdog@vger.kernel.org>
+Subject: RE: [PATCH V1 04/10] watchdog: da9061: watchdog driver (RFC)
+Date: Fri, 7 Oct 2016 14:56:17 +0000
+Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7018CCE2732@SW-EX-MBX02.diasemi.com>
+References: <6ED8E3B22081A4459DAC7699F3695FB7018CCE242C@SW-EX-MBX02.diasemi.com>
+ <20161006184927.GB11915@roeck-us.net>
+In-Reply-To: <20161006184927.GB11915@roeck-us.net>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Type: text/plain
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+List-ID: <linux-watchdog@vger.kernel.org>
 
-The change adds watchdog pretimeout notification handling to imx2_wdt
-driver, if device data contains information about a valid interrupt.
+On 06 October 2016 19:49, Guenter Roeck wrote:
+> Subject: Re: [PATCH V1 04/10] watchdog: da9061: watchdog driver (RFC)
+>=20
+> Hi Steve,
 
-It is unlikely but still possible (e.g. through a software limitation)
-that only a subset of watchdogs on SoC has interrupt lines, hence
-functionally the devices from these two groups have different
-capabilities, and this is reflected in different watchdog_info
-structs assigned to the devices.
+[...]
 
-Signed-off-by: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
-Changes from v5 to v6:
-* no changes but added reviewed-by tags given by Guenter and Wolfram for v5
-* I'm not sure if Wolfram had a chance to test the change on some i.MX
-  platform, thus I don't add his tested-by tag to this commit.
+> On Thu, Oct 06, 2016 at 04:28:14PM +0000, Steve Twiss wrote:
+> > I am using the compatible string to pick a different configuration .dat=
+a block:
+> >
+> > { .compatible =3D "dlg,da9062-watchdog", .data =3D &da9062_watchdog_inf=
+o },
+> > { .compatible =3D "dlg,da9061-watchdog", .data =3D &da9061_watchdog_inf=
+o },
+> >
+> > when the only real difference between the DA9061 and DA9062 watchdog dr=
+iver
+> > is the name. Functionally they are identical in this case.
+[...]
+> > This exact same thing would happen with da9063-onkey and da9062-thermal=
+ also.
+> > For the ONKEY it is marginally confused by needing to support 63, but f=
+or 62 and 61
+> > it is the same thing. Only the name is different.
+> >
+[...]
+> > But, it is just my opinion to keep the "name" different.
+> > This will not be my decision if accepted into the Linux kernel, but I w=
+ould like to
+> > at least be consistent for DA9061 and DA9062 so ... is this an issue?
+>=20
+>=20
+> Yes, for me it is. The driver is still the same, and I don't see the poin=
+t
+> of increasing code size and making the driver less readable just to be ab=
+le
+> to report a slightly different driver identification string. And each tim=
+e
+> a similar HW is added we would go through the same effort, again for no
+> good reason.
+>=20
 
-In v5 this was a new change.
+My reason for doing this was to report the hardware identification, not the
+driver name. But, there would certainly be a lot less to do if I was to mak=
+e
+DA9061 core use the DA9062 watchdog.
+=20
+> FWIW the driver doesn't really need to be updated in the first place.
+> A compatible statement listing both da9061 and da9062 would do it.
 
- drivers/watchdog/imx2_wdt.c | 48 +++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 48 insertions(+)
+I will make the changes you requested: deprecate the existing compatibility
+for da9062-watchdog and make a new compatibility string which combines both
+da9061 and da9062.
 
-diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
-index d17643eb7683..4874b0f18650 100644
---- a/drivers/watchdog/imx2_wdt.c
-+++ b/drivers/watchdog/imx2_wdt.c
-@@ -24,6 +24,7 @@
- #include <linux/clk.h>
- #include <linux/delay.h>
- #include <linux/init.h>
-+#include <linux/interrupt.h>
- #include <linux/io.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
-@@ -50,6 +51,11 @@
- #define IMX2_WDT_WRSR		0x04		/* Reset Status Register */
- #define IMX2_WDT_WRSR_TOUT	BIT(1)		/* -> Reset due to Timeout */
- 
-+#define IMX2_WDT_WICR		0x06		/* Interrupt Control Register */
-+#define IMX2_WDT_WICR_WIE	BIT(15)		/* -> Interrupt Enable */
-+#define IMX2_WDT_WICR_WTIS	BIT(14)		/* -> Interrupt Status */
-+#define IMX2_WDT_WICR_WICT	0xFF		/* -> Interrupt Count Timeout */
-+
- #define IMX2_WDT_WMCR		0x08		/* Misc Register */
- 
- #define IMX2_WDT_MAX_TIME	128
-@@ -80,6 +86,12 @@ static const struct watchdog_info imx2_wdt_info = {
- 	.options = WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE,
- };
- 
-+static const struct watchdog_info imx2_wdt_pretimeout_info = {
-+	.identity = "imx2+ watchdog",
-+	.options = WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE |
-+		   WDIOF_PRETIMEOUT,
-+};
-+
- static int imx2_wdt_restart(struct watchdog_device *wdog, unsigned long action,
- 			    void *data)
- {
-@@ -169,6 +181,35 @@ static int imx2_wdt_set_timeout(struct watchdog_device *wdog,
- 	return 0;
- }
- 
-+static int imx2_wdt_set_pretimeout(struct watchdog_device *wdog,
-+				   unsigned int new_pretimeout)
-+{
-+	struct imx2_wdt_device *wdev = watchdog_get_drvdata(wdog);
-+
-+	if (new_pretimeout >= IMX2_WDT_MAX_TIME)
-+		return -EINVAL;
-+
-+	wdog->pretimeout = new_pretimeout;
-+
-+	regmap_update_bits(wdev->regmap, IMX2_WDT_WICR,
-+			   IMX2_WDT_WICR_WIE | IMX2_WDT_WICR_WICT,
-+			   IMX2_WDT_WICR_WIE | (new_pretimeout << 1));
-+	return 0;
-+}
-+
-+static irqreturn_t imx2_wdt_isr(int irq, void *wdog_arg)
-+{
-+	struct watchdog_device *wdog = wdog_arg;
-+	struct imx2_wdt_device *wdev = watchdog_get_drvdata(wdog);
-+
-+	regmap_write_bits(wdev->regmap, IMX2_WDT_WICR,
-+			  IMX2_WDT_WICR_WTIS, IMX2_WDT_WICR_WTIS);
-+
-+	watchdog_notify_pretimeout(wdog);
-+
-+	return IRQ_HANDLED;
-+}
-+
- static int imx2_wdt_start(struct watchdog_device *wdog)
- {
- 	struct imx2_wdt_device *wdev = watchdog_get_drvdata(wdog);
-@@ -188,6 +229,7 @@ static const struct watchdog_ops imx2_wdt_ops = {
- 	.start = imx2_wdt_start,
- 	.ping = imx2_wdt_ping,
- 	.set_timeout = imx2_wdt_set_timeout,
-+	.set_pretimeout = imx2_wdt_set_pretimeout,
- 	.restart = imx2_wdt_restart,
- };
- 
-@@ -236,6 +278,12 @@ static int __init imx2_wdt_probe(struct platform_device *pdev)
- 	wdog->max_hw_heartbeat_ms = IMX2_WDT_MAX_TIME * 1000;
- 	wdog->parent		= &pdev->dev;
- 
-+	ret = platform_get_irq(pdev, 0);
-+	if (ret > 0)
-+		if (!devm_request_irq(&pdev->dev, ret, imx2_wdt_isr, 0,
-+				      dev_name(&pdev->dev), wdog))
-+			wdog->info = &imx2_wdt_pretimeout_info;
-+
- 	ret = clk_prepare_enable(wdev->clk);
- 	if (ret)
- 		return ret;
--- 
-2.8.1
-
+Regards,
+Stephen
