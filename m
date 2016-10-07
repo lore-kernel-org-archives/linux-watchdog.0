@@ -24,246 +24,61 @@ Cc: Rob Herring <robh+dt@kernel.org>,
 	linux-i2c@vger.kernel.org,
 	linux-mtd@lists.infradead.org,
 	linux-watchdog@vger.kernel.org
-Subject: [PATCH 07/10] gpio: ptxpmb-cpld: Add support for PTXPMB CPLD's GPIO
-Date: Fri,  7 Oct 2016 18:17:28 +0300
-Message-Id: <1475853451-22121-8-git-send-email-pantelis.antoniou@konsulko.com>
+Subject: [PATCH 08/10] gpio: ptxpmb-cpld: Document bindings of PTXPMB's CPLD GPIO
+Date: Fri,  7 Oct 2016 18:17:29 +0300
+Message-Id: <1475853451-22121-9-git-send-email-pantelis.antoniou@konsulko.com>
 In-Reply-To: <1475853451-22121-1-git-send-email-pantelis.antoniou@konsulko.com>
 References: <1475853451-22121-1-git-send-email-pantelis.antoniou@konsulko.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-From: Guenter Roeck <groeck@juniper.net>
+From: Georgi Vlaev <gvlaev@juniper.net>
 
-Support the GPIO block which is located in PTXPMB CPLDs
-on relevant Juniper platforms.
+Add device tree bindings document for the GPIO driver of
+Juniper's PTXPMB/NGPMB CPLD.
 
 Signed-off-by: Georgi Vlaev <gvlaev@juniper.net>
-Signed-off-by: Guenter Roeck <groeck@juniper.net>
-Signed-off-by: Rajat Jain <rajatjain@juniper.net>
 [Ported from Juniper kernel]
 Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
 ---
- drivers/gpio/Kconfig            |  11 +++
- drivers/gpio/Makefile           |   1 +
- drivers/gpio/gpio-ptxpmb-cpld.c | 177 ++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 189 insertions(+)
- create mode 100644 drivers/gpio/gpio-ptxpmb-cpld.c
+ .../bindings/gpio/jnx,gpio-ptxpmb-cpld.txt         | 30 ++++++++++++++++++++++
+ 1 file changed, 30 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/gpio/jnx,gpio-ptxpmb-cpld.txt
 
-diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
-index 26ee00f..9c91de6 100644
---- a/drivers/gpio/Kconfig
-+++ b/drivers/gpio/Kconfig
-@@ -360,6 +360,17 @@ config GPIO_PL061
- 	help
- 	  Say yes here to support the PrimeCell PL061 GPIO device
- 
-+config GPIO_PTXPMB_CPLD
-+	tristate "PTXPMB CPLD GPIO"
-+	depends on MFD_JUNIPER_CPLD
-+	default y if MFD_JUNIPER_CPLD
-+	help
-+	  This driver supports the GPIO interfaces on the PTXPMB CPLD which is
-+	  present on the relevant Juniper platforms.
-+
-+	  This driver can also be built as a module.  If so, the module
-+	  will be called gpio-ptxpmb-cpld.
-+
- config GPIO_PXA
- 	bool "PXA GPIO support"
- 	depends on ARCH_PXA || ARCH_MMP
-diff --git a/drivers/gpio/Makefile b/drivers/gpio/Makefile
-index ab28a2d..d397ea5 100644
---- a/drivers/gpio/Makefile
-+++ b/drivers/gpio/Makefile
-@@ -90,6 +90,7 @@ obj-$(CONFIG_GPIO_PCF857X)	+= gpio-pcf857x.o
- obj-$(CONFIG_GPIO_PCH)		+= gpio-pch.o
- obj-$(CONFIG_GPIO_PISOSR)	+= gpio-pisosr.o
- obj-$(CONFIG_GPIO_PL061)	+= gpio-pl061.o
-+obj-$(CONFIG_GPIO_PTXPMB_CPLD)	+= gpio-ptxpmb-cpld.o
- obj-$(CONFIG_GPIO_PXA)		+= gpio-pxa.o
- obj-$(CONFIG_GPIO_RC5T583)	+= gpio-rc5t583.o
- obj-$(CONFIG_GPIO_RDC321X)	+= gpio-rdc321x.o
-diff --git a/drivers/gpio/gpio-ptxpmb-cpld.c b/drivers/gpio/gpio-ptxpmb-cpld.c
+diff --git a/Documentation/devicetree/bindings/gpio/jnx,gpio-ptxpmb-cpld.txt b/Documentation/devicetree/bindings/gpio/jnx,gpio-ptxpmb-cpld.txt
 new file mode 100644
-index 0000000..e6fab7c
+index 0000000..1122021
 --- /dev/null
-+++ b/drivers/gpio/gpio-ptxpmb-cpld.c
-@@ -0,0 +1,177 @@
-+/*
-+ * Copyright (C) 2012 Juniper networks
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; version 2 of the License.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ */
-+#include <linux/kernel.h>
-+#include <linux/init.h>
-+#include <linux/pci.h>
-+#include <linux/gpio.h>
-+#include <linux/errno.h>
-+#include <linux/of_device.h>
-+#include <linux/of_platform.h>
-+#include <linux/of_gpio.h>
-+#include <linux/io.h>
-+#include <linux/module.h>
++++ b/Documentation/devicetree/bindings/gpio/jnx,gpio-ptxpmb-cpld.txt
+@@ -0,0 +1,30 @@
++Juniper PTXPMB CPLD GPIO block
 +
-+#include <linux/mfd/ptxpmb_cpld.h>
++Required properties:
 +
-+/**
-+ * struct ptxpmb_cpld_gpio - GPIO private data structure.
-+ * @base:			PCI base address of Memory mapped I/O register.
-+ * @dev:			Pointer to device structure.
-+ * @gpio:			Data for GPIO infrastructure.
-+ */
-+struct ptxpmb_cpld_gpio {
-+	void __iomem *base;
-+	struct device *dev;
-+	struct gpio_chip gpio;
-+	struct mutex lock;
++- compatible:
++    Must be "jnx,gpio-ptxpmb-cpld"
++
++- #gpio-cells:
++    Should be <2>.  The first cell is the pin number (within the controller's
++    pin space), and the second is used for the following flags:
++	bit[0]: direction (0 = out, 1 = in)
++	bit[1]: init high
++	bit[2]: active low
++
++- gpio-controller:
++    Specifies that the node is a GPIO controller.
++
++Optional properties:
++
++- reg:
++    Address and length of the register set for the device. Usually supplied by
++    the parent MFD driver
++
++Example:
++
++gpio_cpld: cpld_gpio {
++	compatible = "jnx,gpio-ptxpmb-cpld";
++	#gpio-cells = <2>;
++	gpio-controller;
 +};
-+
-+static u8 *ptxpmb_cpld_gpio_get_addr(struct pmb_boot_cpld *cpld,
-+				     unsigned int nr)
-+{
-+	if (nr < 8)			/* 0..7: reset			*/
-+		return &cpld->reset;
-+	else if (nr < 16)		/* 8..15: control		*/
-+		return &cpld->control;
-+	else if (nr < 24)		/* 16..23: gpio1		*/
-+		return &cpld->gpio_1;
-+	else if (nr < 32)		/* 24..31: gpio2		*/
-+		return &cpld->gpio_2;
-+	else if (nr < 40)		/* 32..39: gp_reset1		*/
-+		return &cpld->gp_reset1;
-+	return &cpld->thermal_status;	/* 40..41: thermal status	*/
-+}
-+
-+static void ptxpmb_cpld_gpio_set(struct gpio_chip *gpio, unsigned int nr,
-+				 int val)
-+{
-+	u32 reg;
-+	u8 bit = 1 << (nr & 7);
-+	struct ptxpmb_cpld_gpio *chip =
-+	  container_of(gpio, struct ptxpmb_cpld_gpio, gpio);
-+	u8 *addr = ptxpmb_cpld_gpio_get_addr(chip->base, nr);
-+
-+	mutex_lock(&chip->lock);
-+	reg = ioread8(addr);
-+	if (val)
-+		reg |= bit;
-+	else
-+		reg &= ~bit;
-+
-+	iowrite8(reg, addr);
-+	mutex_unlock(&chip->lock);
-+}
-+
-+static int ptxpmb_cpld_gpio_get(struct gpio_chip *gpio, unsigned int nr)
-+{
-+	struct ptxpmb_cpld_gpio *chip = container_of(gpio,
-+						     struct ptxpmb_cpld_gpio,
-+						     gpio);
-+	u8 *addr = ptxpmb_cpld_gpio_get_addr(chip->base, nr);
-+	u8 bit = 1 << (nr & 7);
-+
-+	return !!(ioread8(addr) & bit);
-+}
-+
-+static int ptxpmb_cpld_gpio_direction_output(struct gpio_chip *gpio,
-+					     unsigned int nr, int val)
-+{
-+	return 0;
-+}
-+
-+static int ptxpmb_cpld_gpio_direction_input(struct gpio_chip *gpio,
-+					    unsigned int nr)
-+{
-+	return 0;
-+}
-+
-+static void ptxpmb_cpld_gpio_setup(struct ptxpmb_cpld_gpio *chip)
-+{
-+	struct gpio_chip *gpio = &chip->gpio;
-+
-+	gpio->label = dev_name(chip->dev);
-+	gpio->owner = THIS_MODULE;
-+	gpio->direction_input = ptxpmb_cpld_gpio_direction_input;
-+	gpio->get = ptxpmb_cpld_gpio_get;
-+	gpio->direction_output = ptxpmb_cpld_gpio_direction_output;
-+	gpio->set = ptxpmb_cpld_gpio_set;
-+	gpio->dbg_show = NULL;
-+	gpio->base = -1;
-+	gpio->ngpio = 48;
-+	gpio->can_sleep = 0;
-+#ifdef CONFIG_OF_GPIO
-+	gpio->of_node = chip->dev->of_node;
-+#endif
-+}
-+
-+static int ptxpmb_cpld_gpio_probe(struct platform_device *pdev)
-+{
-+	int ret;
-+	struct ptxpmb_cpld_gpio *chip;
-+	struct resource *res;
-+	struct device *dev = &pdev->dev;
-+
-+	chip = devm_kzalloc(dev, sizeof(*chip), GFP_KERNEL);
-+	if (chip == NULL)
-+		return -ENOMEM;
-+
-+	chip->dev = dev;
-+	platform_set_drvdata(pdev, chip);
-+
-+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	if (!res)
-+		return -ENODEV;
-+
-+	chip->base = devm_ioremap_nocache(dev, res->start, resource_size(res));
-+	if (!chip->base)
-+		return -ENOMEM;
-+
-+	mutex_init(&chip->lock);
-+	ptxpmb_cpld_gpio_setup(chip);
-+	ret = gpiochip_add(&chip->gpio);
-+	if (ret) {
-+		dev_err(dev, "CPLD gpio: Failed to register GPIO\n");
-+		return ret;
-+	}
-+	return 0;
-+}
-+
-+static int ptxpmb_cpld_gpio_remove(struct platform_device *pdev)
-+{
-+	struct ptxpmb_cpld_gpio *chip = platform_get_drvdata(pdev);
-+
-+	gpiochip_remove(&chip->gpio);
-+
-+	return 0;
-+}
-+
-+static const struct of_device_id ptxpmb_cpld_gpio_ids[] = {
-+	{ .compatible = "jnx,gpio-ptxpmb-cpld", },
-+	{ },
-+};
-+MODULE_DEVICE_TABLE(of, ptxpmb_cpld_gpio_ids);
-+
-+static struct platform_driver ptxpmb_cpld_gpio_driver = {
-+	.driver = {
-+		.name = "gpio-ptxpmb-cpld",
-+		.owner  = THIS_MODULE,
-+		.of_match_table = ptxpmb_cpld_gpio_ids,
-+	},
-+	.probe = ptxpmb_cpld_gpio_probe,
-+	.remove = ptxpmb_cpld_gpio_remove,
-+};
-+
-+module_platform_driver(ptxpmb_cpld_gpio_driver);
-+
-+MODULE_DESCRIPTION("CPLD FPGA GPIO Driver");
-+MODULE_LICENSE("GPL");
 -- 
 1.9.1
