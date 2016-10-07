@@ -24,80 +24,369 @@ Cc: Rob Herring <robh+dt@kernel.org>,
 	linux-i2c@vger.kernel.org,
 	linux-mtd@lists.infradead.org,
 	linux-watchdog@vger.kernel.org
-Subject: [PATCH 06/10] i2c: i2c-mux-ptxpmb-cpld: Add device tree bindings
-Date: Fri,  7 Oct 2016 18:17:27 +0300
-Message-Id: <1475853451-22121-7-git-send-email-pantelis.antoniou@konsulko.com>
+Subject: [PATCH 05/10] i2c/muxes: Juniper's PTXPMB CPLD I2C multiplexer
+Date: Fri,  7 Oct 2016 18:17:26 +0300
+Message-Id: <1475853451-22121-6-git-send-email-pantelis.antoniou@konsulko.com>
 In-Reply-To: <1475853451-22121-1-git-send-email-pantelis.antoniou@konsulko.com>
 References: <1475853451-22121-1-git-send-email-pantelis.antoniou@konsulko.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-From: Georgi Vlaev <gvlaev@juniper.net>
+From: Guenter Roeck <groeck@juniper.net>
 
-Add binding document for the i2c driver of PTXPMB CPLD.
+Introduce Juniper's PTX PMB CPLD I2C multiplexer driver.
 
+Signed-off-by: Debjit Ghosh <dghosh@juniper.net>
 Signed-off-by: Georgi Vlaev <gvlaev@juniper.net>
+Signed-off-by: Guenter Roeck <groeck@juniper.net>
+Signed-off-by: JawaharBalaji Thirumalaisamy <jawaharb@juniper.net>
+Signed-off-by: Rajat Jain <rajatjain@juniper.net>
 [Ported from Juniper kernel]
 Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
 ---
- .../bindings/i2c/jnx,i2c-mux-ptxpmb-cpld.txt       | 50 ++++++++++++++++++++++
- 1 file changed, 50 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/i2c/jnx,i2c-mux-ptxpmb-cpld.txt
+ drivers/i2c/muxes/Kconfig          |  11 ++
+ drivers/i2c/muxes/Makefile         |   1 +
+ drivers/i2c/muxes/i2c-mux-ptxpmb.c | 299 +++++++++++++++++++++++++++++++++++++
+ 3 files changed, 311 insertions(+)
+ create mode 100644 drivers/i2c/muxes/i2c-mux-ptxpmb.c
 
-diff --git a/Documentation/devicetree/bindings/i2c/jnx,i2c-mux-ptxpmb-cpld.txt b/Documentation/devicetree/bindings/i2c/jnx,i2c-mux-ptxpmb-cpld.txt
+diff --git a/drivers/i2c/muxes/Kconfig b/drivers/i2c/muxes/Kconfig
+index e280c8e..f45a9cb 100644
+--- a/drivers/i2c/muxes/Kconfig
++++ b/drivers/i2c/muxes/Kconfig
+@@ -61,6 +61,17 @@ config I2C_MUX_PINCTRL
+ 	  This driver can also be built as a module. If so, the module will be
+ 	  called pinctrl-i2cmux.
+ 
++config I2C_MUX_PTXPMB
++	tristate "Juniper PTX PMB CPLD I2C multiplexer"
++	depends on MFD_JUNIPER_CPLD
++	default y if MFD_JUNIPER_CPLD
++	help
++	  Select this to enable the Juniper PTX PMB CPLD I2C multiplexer driver
++	  on the relevant Juniper platforms.
++
++	  This driver can also be built as a module.  If so, the module
++	  will be called i2c-mux-ptxpmb-cpld.
++
+ config I2C_MUX_REG
+ 	tristate "Register-based I2C multiplexer"
+ 	help
+diff --git a/drivers/i2c/muxes/Makefile b/drivers/i2c/muxes/Makefile
+index 7c267c2..78d8cba 100644
+--- a/drivers/i2c/muxes/Makefile
++++ b/drivers/i2c/muxes/Makefile
+@@ -9,6 +9,7 @@ obj-$(CONFIG_I2C_MUX_GPIO)	+= i2c-mux-gpio.o
+ obj-$(CONFIG_I2C_MUX_PCA9541)	+= i2c-mux-pca9541.o
+ obj-$(CONFIG_I2C_MUX_PCA954x)	+= i2c-mux-pca954x.o
+ obj-$(CONFIG_I2C_MUX_PINCTRL)	+= i2c-mux-pinctrl.o
++obj-$(CONFIG_I2C_MUX_PTXPMB)	+= i2c-mux-ptxpmb.o
+ obj-$(CONFIG_I2C_MUX_REG)	+= i2c-mux-reg.o
+ 
+ ccflags-$(CONFIG_I2C_DEBUG_BUS) := -DDEBUG
+diff --git a/drivers/i2c/muxes/i2c-mux-ptxpmb.c b/drivers/i2c/muxes/i2c-mux-ptxpmb.c
 new file mode 100644
-index 0000000..3b201f7
+index 0000000..e8c7aee
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/jnx,i2c-mux-ptxpmb-cpld.txt
-@@ -0,0 +1,50 @@
-+* Juniper PTXPMB CPLD I2C Mux
++++ b/drivers/i2c/muxes/i2c-mux-ptxpmb.c
+@@ -0,0 +1,299 @@
++/*
++ * PTX PMB CPLD I2C multiplexer
++ *
++ * Copyright (c) 2012, Juniper Networks.  All rights reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms and conditions of the GNU General Public License,
++ * version 2, as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope it will be useful, but WITHOUT
++ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
++ * more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ */
 +
-+I2C mux on the PTXPMB CPLD on Juniper series of routers.
++#include <linux/delay.h>
++#include <linux/i2c.h>
++#include <linux/i2c-mux.h>
++#include <linux/init.h>
++#include <linux/module.h>
++#include <linux/platform_device.h>
++#include <linux/slab.h>
++#include <linux/mfd/ptxpmb_cpld.h>
++#include <linux/io.h>
++#include <linux/of_device.h>
 +
-+Required properties:
-+
-+  - compatible: Must contain one of the following.
-+    "jnx,i2c-mux-ptxpmb-cpld", "jnx,i2c-mux-ngpmb-bcpld"
-+  - num-enable: Number of muxes to enable.
-+
-+  The following required properties are defined externally:
-+
-+  - Standard I2C mux properties. See i2c-mux.txt in this directory.
-+  - I2C child bus nodes. See i2c-mux.txt in this directory.
-+
-+Optional Properties:
-+
-+  - num-channels: Number of channels. If not present the default is 8.
-+  - base-bus-num: Base bus number. If not present it is 0.
-+  - use-force: Use the force method of the controller.
-+
-+
-+Example:
-+
-+cpld-i2c-mux {
-+	compatible = "jnx,i2c-mux-ptxpmb-cpld";
-+	#address-cells = <1>;
-+	#size-cells = <0>;
-+
-+	i2c-parent = <&i2c1>;
-+
-+	num-enable = <1>;
-+
-+	i2c@0 {
-+		reg = <0>;
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+
-+		/* PMB devices are accessed through FPC */
-+
-+		temp-sensor@1a { /* FPC */
-+			compatible = "maxim,max6697";
-+			reg = <0x1a>;
-+			smbus-timeout-disable;
-+			resistance-cancellation;
-+			alert-mask = <0xff>;
-+			over-temperature-mask = <0xff>;
-+		};
-+	};
++struct i2c_mux_ptxpmb {
++	struct device *dev;
++	struct ptxpmb_mux_data *pdata;
++	struct pmb_boot_cpld __iomem *cpld;
++	struct i2c_adapter *parent;
++	int bus_count;
++	struct i2c_mux_core *muxc;
 +};
++
++static const struct of_device_id i2c_mux_ptxpmb_of_match[] = {
++	{ .compatible = "jnx,i2c-mux-ptxpmb-cpld",
++	  .data = (void *)CPLD_TYPE_PTXPMB },
++	{ .compatible = "jnx,i2c-mux-ngpmb-bcpld",
++	  .data = (void *)CPLD_TYPE_NGPMB },
++	{ },
++};
++MODULE_DEVICE_TABLE(of, i2c_mux_ptxpmb_of_match);
++
++#define I2C_GRP_FORCE_EN	0x80
++
++static int i2c_mux_ptxpmb_select(struct i2c_mux_core *muxc, u32 chan)
++{
++	struct i2c_mux_ptxpmb *mux = i2c_mux_priv(muxc);
++	struct ptxpmb_mux_data *pdata = mux->pdata;
++	u8 group, enable, val;
++
++	switch (pdata->cpld_type) {
++	case CPLD_TYPE_PTXPMB:
++		group = chan % pdata->num_channels;
++		enable = 1 << (chan / pdata->num_channels);
++		/*
++		 * Writing into the enable register does not have an effect on
++		 * FPC with P2020. It is necessary for FPC with P5020/P5040.
++		 * The uKernel for SPMB uses undocumented CPLD registers to set
++		 * group enable values (i2c_group_sel_force and
++		 * i2c_group_en_force at offset 0x33 and 0x34). Bit 7 in
++		 * i2c_group_sel_force must be set for this to work.
++		 * i2c_group_en_force is active-low. This applies to SPMB with
++		 * P2020; behavior with P5020/P5040 is unknown at this time.
++		 */
++		if (pdata->use_force) {
++			iowrite8(group | I2C_GRP_FORCE_EN,
++				 &mux->cpld->i2c_group_sel_force);
++			iowrite8(~enable, &mux->cpld->i2c_group_en_force);
++		} else {
++			iowrite8(group, &mux->cpld->i2c_group_sel);
++			ioread8(&mux->cpld->i2c_group_sel);
++			iowrite8(enable, &mux->cpld->i2c_group_en);
++			ioread8(&mux->cpld->i2c_group_en);
++		}
++		break;
++	case CPLD_TYPE_NGPMB:
++		val = ioread8(&mux->cpld->gpio_2);
++		val &= ~NGPMB_I2C_GRP_SEL_MASK;
++		val |= (chan << NGPMB_I2C_GRP_SEL_LSB) & NGPMB_I2C_GRP_SEL_MASK;
++		iowrite8(val, &mux->cpld->gpio_2);
++		break;
++	}
++	udelay(50);
++
++	return 0;
++}
++
++static int i2c_mux_ptxpmb_deselect(struct i2c_mux_core *muxc, u32 chan)
++{
++	struct i2c_mux_ptxpmb *mux = i2c_mux_priv(muxc);
++	u8 val;
++
++	switch (mux->pdata->cpld_type) {
++	case CPLD_TYPE_PTXPMB:
++		/*
++		 * Restore defaults. Note that setting i2c_group_en does not
++		 * have an effect on FPC with P2020, but is necessary for FPC
++		 * with P5020/P5040.
++		 */
++		if (mux->pdata->use_force) {
++			iowrite8(0 | I2C_GRP_FORCE_EN,
++				 &mux->cpld->i2c_group_sel_force);
++			iowrite8(0xff, &mux->cpld->i2c_group_en_force);
++		} else {
++			iowrite8(0, &mux->cpld->i2c_group_sel);
++			ioread8(&mux->cpld->i2c_group_sel);
++			iowrite8(0, &mux->cpld->i2c_group_en);
++			ioread8(&mux->cpld->i2c_group_en);
++		}
++		break;
++	case CPLD_TYPE_NGPMB:
++		/* Use the (unconnected) channel 3 to deselct */
++		val = ioread8(&mux->cpld->gpio_2);
++		val &= ~NGPMB_I2C_GRP_SEL_MASK;
++		val |= (3 << NGPMB_I2C_GRP_SEL_LSB) & NGPMB_I2C_GRP_SEL_MASK;
++		iowrite8(val, &mux->cpld->gpio_2);
++		break;
++	}
++	return 0;
++}
++
++#ifdef CONFIG_OF
++static int i2c_mux_ptxpmb_parse_dt(struct i2c_mux_ptxpmb *mux,
++				   struct device *dev)
++{
++	struct device_node *np = dev->of_node;
++	int ret;
++	struct device_node *adapter_np;
++	struct i2c_adapter *adapter;
++	const struct of_device_id *match;
++
++	if (!np)
++		return 0;
++
++	mux->pdata = devm_kzalloc(dev, sizeof(*mux->pdata), GFP_KERNEL);
++	if (!mux->pdata)
++		return -ENOMEM;
++
++	match = of_match_device(i2c_mux_ptxpmb_of_match, dev);
++	if (match)
++		mux->pdata->cpld_type = (int)(unsigned long)match->data;
++
++	ret = of_property_read_u32(np, "num-enable", &mux->pdata->num_enable);
++	if (ret) {
++		dev_err(dev, "num-enable missing\n");
++		return -ENODEV;
++	}
++
++	ret = of_property_read_u32(np, "num-channels",
++				   &mux->pdata->num_channels);
++	if (ret)
++		mux->pdata->num_channels = 8;
++
++	ret = of_property_read_u32(np, "base-bus-num",
++				   &mux->pdata->base_bus_num);
++	if (ret)
++		mux->pdata->base_bus_num = 0;
++
++	if (of_find_property(np, "use-force", NULL))
++		mux->pdata->use_force = true;
++
++	adapter_np = of_parse_phandle(np, "i2c-parent", 0);
++	if (!adapter_np) {
++		dev_err(dev, "Cannot parse i2c-parent\n");
++		return -ENODEV;
++	}
++	adapter = of_find_i2c_adapter_by_node(adapter_np);
++	if (!adapter) {
++		dev_err(dev, "Cannot find parent bus\n");
++		return -ENODEV;
++	}
++	mux->pdata->parent_bus_num = i2c_adapter_id(adapter);
++	put_device(&adapter->dev);
++
++	return 0;
++}
++#else
++static inline int i2c_mux_ptxpmb_parse_dt(struct i2c_mux_ptxpmb *mux,
++					  struct device *dev)
++{
++	return 0;
++}
++#endif
++
++static int i2c_mux_ptxpmb_probe(struct platform_device *pdev)
++{
++	struct i2c_mux_ptxpmb *mux;
++	struct i2c_mux_core *muxc;
++	int i, ret;
++	struct resource *res;
++	struct device *dev = &pdev->dev;
++
++	mux = devm_kzalloc(dev, sizeof(*mux), GFP_KERNEL);
++	if (!mux)
++		return -ENOMEM;
++
++	platform_set_drvdata(pdev, mux);
++
++	mux->dev = dev;
++
++	mux->pdata = dev->platform_data;
++	if (!mux->pdata) {
++		ret = i2c_mux_ptxpmb_parse_dt(mux, dev);
++		if (ret < 0)
++			return ret;
++	}
++	if (!mux->pdata) {
++		dev_err(dev, "No platform / devicetree data\n");
++		return -ENODEV;
++	}
++
++	if (mux->pdata->num_enable <= 0 || mux->pdata->num_enable > 8 ||
++	    mux->pdata->num_channels <= 0 || mux->pdata->num_channels > 8) {
++		dev_err(dev, "Invalid platform data\n");
++		return -EINVAL;
++	}
++
++	mux->bus_count = mux->pdata->num_enable * mux->pdata->num_channels;
++
++	mux->parent = i2c_get_adapter(mux->pdata->parent_bus_num);
++	if (!mux->parent) {
++		dev_err(dev, "Parent adapter (%d) not found\n",
++			mux->pdata->parent_bus_num);
++		return -ENODEV;
++	}
++
++	muxc = i2c_mux_alloc(mux->parent, dev, mux->bus_count, 0, 0,
++			     i2c_mux_ptxpmb_select, i2c_mux_ptxpmb_deselect);
++	if (!muxc) {
++		ret =  -ENOMEM;
++		goto err;
++	}
++	muxc->priv = mux;
++	mux->muxc = muxc;
++
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	if (!res) {
++		dev_err(dev, "No memory resource\n");
++		ret = -ENODEV;
++		goto err;
++	}
++
++	mux->cpld = devm_ioremap_nocache(dev, res->start, resource_size(res));
++	if (!mux->cpld) {
++		ret = -ENOMEM;
++		goto err;
++	}
++
++	for (i = 0; i < mux->bus_count; i++) {
++		u32 bus = mux->pdata->base_bus_num ?
++			mux->pdata->base_bus_num + i : 0;
++
++		ret = i2c_mux_add_adapter(muxc, bus, i, 0);
++		if (ret) {
++			dev_err(dev, "Failed to add adapter %d\n", i);
++			goto err_del_adapter;
++		}
++	}
++
++	return 0;
++
++err_del_adapter:
++	i2c_mux_del_adapters(mux->muxc);
++err:
++	i2c_put_adapter(mux->parent);
++	return ret;
++}
++
++static int i2c_mux_ptxpmb_remove(struct platform_device *pdev)
++{
++	struct i2c_mux_ptxpmb *mux = platform_get_drvdata(pdev);
++
++	i2c_mux_del_adapters(mux->muxc);
++	i2c_put_adapter(mux->parent);
++
++	return 0;
++}
++
++static struct platform_driver i2c_mux_ptxpmb_driver = {
++	.driver	= {
++		.name	= "i2c-mux-ptxpmb-cpld",
++		.owner	= THIS_MODULE,
++		.of_match_table = i2c_mux_ptxpmb_of_match,
++	},
++	.probe	= i2c_mux_ptxpmb_probe,
++	.remove	= i2c_mux_ptxpmb_remove,
++};
++
++module_platform_driver(i2c_mux_ptxpmb_driver);
++
++MODULE_DESCRIPTION("ptxpmb CPLD I2C multiplexer driver");
++MODULE_AUTHOR("Guenter Roeck <groeck@juniper.net>");
++MODULE_LICENSE("GPL v2");
++MODULE_ALIAS("platform:i2c-mux-ptxpmb-cpld");
 -- 
 1.9.1
