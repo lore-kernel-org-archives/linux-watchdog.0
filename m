@@ -17,57 +17,64 @@ Cc: Rob Herring <robh+dt@kernel.org>,
 	linux-mtd@lists.infradead.org,
 	linux-watchdog@vger.kernel.org,
 	linux-hwmon@vger.kernel.org
-Subject: [PATCH 0/7] Introduce PTX1K Boot FPGA driver
-Date: Fri,  7 Oct 2016 18:21:57 +0300
-Message-Id: <1475853724-22557-1-git-send-email-pantelis.antoniou@konsulko.com>
+Subject: [PATCH 2/7] mfd: dt-bindings: Add bindings for the Juniper PTX1K Boot FPGA
+Date: Fri,  7 Oct 2016 18:21:59 +0300
+Message-Id: <1475853724-22557-3-git-send-email-pantelis.antoniou@konsulko.com>
+In-Reply-To: <1475853724-22557-1-git-send-email-pantelis.antoniou@konsulko.com>
+References: <1475853724-22557-1-git-send-email-pantelis.antoniou@konsulko.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Add Juniper's PTX1K Boot FPGA driver. Those FPGAs
-are present in Juniper's PTX series of routers.
+From: Georgi Vlaev <gvlaev@juniper.net>
 
-The MFD driver provices watchdog/mtd/hwmon devices.
+Add device tree bindings for the Juniper PTX1K Boot FPGA MFD driver.
 
-There are full device tree binding documents for the
-master mfd driver and for the slave driver.
-
-This patchset is against mainline as of today: v4.8-9431-g3477d16
-and is dependent on the "Juniper prerequisites" and
-"Juniper infrastructure" patchsets sent earlier.
-
-Georgi Vlaev (7):
-  mfd: Add PTX1K I2CS BootFPGA MFD driver
-  mfd: dt-bindings: Add bindings for the Juniper PTX1K Boot FPGA
-  watchdog: Add PTX1K I2CS BootFPGA watchdog driver.
-  watchdog: ptx1kbf-wdt: Add ptx1kbf device tree bindings
-  mtd: ptx1kbf: Add PTX1K BootFPGA MTD driver
-  mtd: ptx1kbf: Bindings for Juniper's PTX1K Boot FPGA
-  hwmon: ptx1kbf: Add PTX1K I2CS BootFPGA sensor driver
-
- .../devicetree/bindings/mfd/jnx-ptx1k-bootfpga.txt |  34 ++
- .../devicetree/bindings/mtd/ptx1kbf-mtd.txt        |  23 +
- .../bindings/watchdog/jnx-ptx1kbf-wdt.txt          |  17 +
- drivers/hwmon/Kconfig                              |  17 +
- drivers/hwmon/Makefile                             |   1 +
- drivers/hwmon/jnx_ptx1kbf_hwmon.c                  | 123 ++++
- drivers/mfd/Kconfig                                |  11 +
- drivers/mfd/Makefile                               |   1 +
- drivers/mfd/ptx1k-bootfpga.c                       | 462 ++++++++++++++
- drivers/mtd/devices/Kconfig                        |  10 +
- drivers/mtd/devices/Makefile                       |   1 +
- drivers/mtd/devices/jnx_ptx1kbf_mtd.c              | 677 +++++++++++++++++++++
- drivers/watchdog/Kconfig                           |  15 +
- drivers/watchdog/Makefile                          |   1 +
- drivers/watchdog/jnx_ptx1kbf_wdt.c                 | 229 +++++++
- include/linux/mfd/ptx1k-bootfpga.h                 |  93 +++
- 16 files changed, 1715 insertions(+)
+Signed-off-by: Georgi Vlaev <gvlaev@juniper.net>
+[Ported from Juniper kernel]
+Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
+---
+ .../devicetree/bindings/mfd/jnx-ptx1k-bootfpga.txt | 34 ++++++++++++++++++++++
+ 1 file changed, 34 insertions(+)
  create mode 100644 Documentation/devicetree/bindings/mfd/jnx-ptx1k-bootfpga.txt
- create mode 100644 Documentation/devicetree/bindings/mtd/ptx1kbf-mtd.txt
- create mode 100644 Documentation/devicetree/bindings/watchdog/jnx-ptx1kbf-wdt.txt
- create mode 100644 drivers/hwmon/jnx_ptx1kbf_hwmon.c
- create mode 100644 drivers/mfd/ptx1k-bootfpga.c
- create mode 100644 drivers/mtd/devices/jnx_ptx1kbf_mtd.c
- create mode 100644 drivers/watchdog/jnx_ptx1kbf_wdt.c
- create mode 100644 include/linux/mfd/ptx1k-bootfpga.h
 
+diff --git a/Documentation/devicetree/bindings/mfd/jnx-ptx1k-bootfpga.txt b/Documentation/devicetree/bindings/mfd/jnx-ptx1k-bootfpga.txt
+new file mode 100644
+index 0000000..596dec7
+--- /dev/null
++++ b/Documentation/devicetree/bindings/mfd/jnx-ptx1k-bootfpga.txt
+@@ -0,0 +1,34 @@
++* Device tree bindings for Juniper's PTX1K boot FPGA MFD driver
++
++The device supports a hardware watchdog, a flash MTD device and
++a hwmon sensor device. The bindings of those drivers are described
++in the jnx-ptx1kbf-wdt, jnx-ptx1kbf-mtd and jnx-ptx1kbf-hwmon documents.
++
++Required properties:
++
++- compatible:		"ptx1k-bootfpga"
++
++- reg:			contains offset/length value for device state control
++			registers space.
++
++Example:
++
++bootfpga@10000 {
++	compatible = "jnx,ptx1k-bootfpga";
++	reg = <0x10000 0x100>;
++
++	wdt {
++		compatible = "jnx,ptx1kbf-wdt";
++		/* no properties required */
++	};
++
++	mtd {
++		compatible = "jnx,ptx1kbf-mtd";
++		/* use the full device */
++	};
++
++	hwmon {
++		compatible = "jnx,ptx1kbf-hwmon";
++		/* no properties required */
++	};
++};
 -- 
 1.9.1
