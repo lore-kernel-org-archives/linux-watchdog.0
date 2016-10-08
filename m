@@ -1,152 +1,86 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail1.bemta3.messagelabs.com ([195.245.230.176]:23453 "EHLO
-        mail1.bemta3.messagelabs.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1751222AbcJGRtD (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:42581 "EHLO
+        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932593AbcJHAWP (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 7 Oct 2016 13:49:03 -0400
-From: Steve Twiss <stwiss.opensource@diasemi.com>
-To: Keerthy <a0393675@ti.com>, Eduardo Valentin <edubezval@gmail.com>,
-        "Zhang Rui" <rui.zhang@intel.com>
-CC: DEVICETREE <devicetree@vger.kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Guenter Roeck <linux@roeck-us.net>,
+        Fri, 7 Oct 2016 20:22:15 -0400
+Subject: Re: [PATCH V1 04/10] watchdog: da9061: watchdog driver (RFC)
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Steve Twiss <stwiss.opensource@diasemi.com>
+References: <6ED8E3B22081A4459DAC7699F3695FB7018CCE242C@SW-EX-MBX02.diasemi.com>
+ <20161006184927.GB11915@roeck-us.net>
+ <6ED8E3B22081A4459DAC7699F3695FB7018CCE2732@SW-EX-MBX02.diasemi.com>
+ <20161007170214.GA21349@roeck-us.net>
+ <6ED8E3B22081A4459DAC7699F3695FB7018CCE282C@SW-EX-MBX02.diasemi.com>
+ <20161007233554.GA21386@dtor-ws>
+Cc: Wim Van Sebroeck <wim@iguana.be>, Lee Jones <lee.jones@linaro.org>,
+        Eduardo Valentin <edubezval@gmail.com>,
+        Zhang Rui <rui.zhang@intel.com>,
+        DEVICETREE <devicetree@vger.kernel.org>,
         LINUX-INPUT <linux-input@vger.kernel.org>,
-        LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
-        Lee Jones <lee.jones@linaro.org>,
-        "Liam Girdwood" <lgirdwood@gmail.com>,
+        LINUX-PM <linux-pm@vger.kernel.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
         Mark Brown <broonie@kernel.org>,
         Mark Rutland <mark.rutland@arm.com>,
         Rob Herring <robh+dt@kernel.org>,
         Support Opensource <Support.Opensource@diasemi.com>,
-        Wim Van Sebroeck <wim@iguana.be>,
         LINUX-KERNEL <linux-kernel@vger.kernel.org>,
-        LINUX-PM <linux-pm@vger.kernel.org>
-Subject: RE: [PATCH V1 05/10] thermal: da9062/61: Thermal junction
- temperature monitoring driver
-Date: Fri, 7 Oct 2016 17:48:56 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7018CCE2815@SW-EX-MBX02.diasemi.com>
-References: <cover.1475743411.git.stwiss.opensource@diasemi.com>
- <b5ce58ca00f7ab30a025d24083549241f135b0e9.1475743411.git.stwiss.opensource@diasemi.com>
- <3bc9fd76-2885-b07a-9df8-7802b7535da2@ti.com>
-In-Reply-To: <3bc9fd76-2885-b07a-9df8-7802b7535da2@ti.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+        LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <84f51754-cbd4-7a85-6ab6-83e1f47fd936@roeck-us.net>
+Date: Fri, 7 Oct 2016 17:22:09 -0700
 MIME-Version: 1.0
+In-Reply-To: <20161007233554.GA21386@dtor-ws>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi,
+On 10/07/2016 04:35 PM, Dmitry Torokhov wrote:
+> On Fri, Oct 07, 2016 at 06:01:23PM +0000, Steve Twiss wrote:
+>> On 07 October 2016 18:02, Guenter Roeck wrote:
+>>
+>>>> On 06 October 2016 19:49, Guenter Roeck wrote:
+>>>>> On Thu, Oct 06, 2016 at 04:28:14PM +0000, Steve Twiss wrote:
+>>>>>> I am using the compatible string to pick a different configuration .data block:
+>>>>>> { .compatible = "dlg,da9062-watchdog", .data = &da9062_watchdog_info },
+>>>>>> { .compatible = "dlg,da9061-watchdog", .data = &da9061_watchdog_info },
+>>>>>>
+>>>>>> But, it is just my opinion to keep the "name" different.
+>>>>>> This will not be my decision if accepted into the Linux kernel, but I would like to
+>>>>>> at least be consistent for DA9061 and DA9062 so ... is this an issue?
+>>>>>
+>>>>> FWIW the driver doesn't really need to be updated in the first place.
+>>>>> A compatible statement listing both da9061 and da9062 would do it.
+>>>>
+>>>> I will make the changes you requested: deprecate the existing compatibility
+>>>> for da9062-watchdog and make a new compatibility string which combines both
+>>>> da9061 and da9062.
+>>>>
+>>> That is not what I asked for.
+>>
+>> Ok. Did you mean separate compatible statements with data sections pointing at
+>> the same structure?
+>>
+>> Like this:
+>> { .compatible = "dlg,da9062-watchdog", .data = &da9062_watchdog_info },
+>> { .compatible = "dlg,da9061-watchdog", .data = &da9062_watchdog_info },
+>>
+>> So this would be the only change needed in the device driver.
+>
+> If there is no change in IP block then I do not see why we need to
+> introduce new names at all. The dts can specify fallback compatible
+> stting. Note, it is called *compatible* not "model" or "device id" or
+> whatever. So you can just say in DTS:
+>
+> 	compatible = "dlg,da9061-watchdog", "dlg,da9062-watchdog";
+>
+> and leave the driver alone. That goes for input part as well. You only
+> need to add new compatible to the driver when it in fact is
+> *incompatible* with the existing blocks.
+>
+Yes, exactly.
 
-On 07 October 2016 06:29, Keerthy [mailto:a0393675@ti.com] wrote:
-> On Thursday 06 October 2016 02:13 PM, Steve Twiss wrote:
-> > From: Steve Twiss <stwiss.opensource@diasemi.com>
-
-[...]
-
-> > +
-> > +static int da9062_thermal_get_trip_type(struct thermal_zone_device *z,
-> > +				int trip,
-> > +				enum thermal_trip_type *type)
-> > +{
-> > +	struct da9062_thermal *thermal =3D z->devdata;
-> > +
-> > +	switch (trip) {
-> > +	case 0:
-> > +		*type =3D THERMAL_TRIP_HOT;
->=20
-> 125C is pretty hot. Just a suggestion, do look at THERMAL_TRIP_CRITICAL.
->=20
-
-Quite warm.
-I got this from the Documentation/devicetree/bindings/thermal/thermal.txt
-	"hot":		A trip point to notify emergency
-	"critical":	Hardware not reliable.
-
-The junction temperature supervision characteristics for DA9061 supports th=
-ree
-levels and 125degC is the lowest "warning" level.  This warning level is in=
-tended
-for non-invasive temperature control where the necessary mitigation is unde=
-r
-software control of the system.
-
-The other two levels are hotter than 125degC and it is not possible to inte=
-rvene
-using software. The hardware will automatically power off.
-
-[...]
-
-> > +static int da9062_thermal_notify(struct thermal_zone_device *z,
-> > +				 int trip,
-> > +				 enum thermal_trip_type type)
-> > +{
-> > +	struct da9062_thermal *thermal =3D z->devdata;
-> > +
-> > +	switch (type) {
-> > +	case THERMAL_TRIP_HOT:
-> > +		dev_warn(thermal->dev, "Reached HOT (125degC)
-> temperature\n");
->=20
-> Any cooling action? What is done once you reach this high temperature?
-
-There is nothing to do in the device driver. This is just a stub for board =
-specific additions
-to mitigate the temperature. There is a similar function in the  RCAR therm=
-al driver which
-contains a FIXME comment. But, apart from helping with my testing, it doesn=
-'t add
-anything in the driver. It can be removed.
-
-[...]
-
-> > +static const struct da9062_thermal_config da9062_config =3D {
-> > +	.name =3D "da9062-thermal",
-> > +};
-> > +
-> > +static const struct da9062_thermal_config da9061_config =3D {
-> > +	.name =3D "da9061-thermal",
-> > +};
-> > +
-> > +static const struct of_device_id da9062_compatible_reg_id_table[] =3D =
-{
-> > +	{ .compatible =3D "dlg,da9062-thermal", .data =3D &da9062_config },
-> > +	{ .compatible =3D "dlg,da9061-thermal", .data =3D &da9061_config },
->=20
-> Two separate compatible values. Do you have anything different apart
-> from the name? Why use 2 compatibles when there is absolutely no
-> difference?
-
-Yes.
-This was a comment for the watchdog device driver as well. My concern was h=
-aving=20
-multiple devices (61 and 62) in the same system -- and allowing the driver =
-to report=20
-the hardware difference.
-
-There is discussion going on about this in other threads. Not certain of th=
-e final outcome
-yet, apart from my existing proposal should be changed.
-
--- From Guenter Roeck:
--- http://www.spinics.net/lists/linux-watchdog/msg10040.html
-
-[...]
-
-> > +	INIT_DELAYED_WORK(&thermal->work, da9062_thermal_poll_on);
-> > +	mutex_init(&thermal->lock);
->=20
-> thermal_zone_device_register itself does
-> INIT_DELAYED_WORK(&(tz->poll_queue), thermal_zone_device_check);
->=20
-> refer: drivers/thermal/thermal_core.c
->=20
-> It does a periodic monitoring of the temperature as well. Do you really
-> want to have an additional work for monitoring temperature in your
-> driver also?
-
-I will take a look at this for V2.
-
-Regards,
-Steve
+Thanks,
+Guenter
 
