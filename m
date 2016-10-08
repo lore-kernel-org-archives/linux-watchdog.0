@@ -1,30 +1,33 @@
 Return-path: <wimvs@spo001.leaseweb.nl>
-Date: Sat, 8 Oct 2016 16:05:49 +0200
+Date: Sat, 8 Oct 2016 16:10:46 +0200
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Brian Boylston <brian.boylston@hpe.com>
+To: Enric Balletbo i Serra <enric.balletbo@collabora.com>
 Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux@roeck-us.net, nigel.croxon@hpe.com
-Subject: Re: [PATCH] watchdog: hpwdt: add support for iLO5
-Message-ID: <20161008140549.GE23290@spo001.leaseweb.nl>
-References: <20160926185714.10866-1-brian.boylston@hpe.com>
+	Guenter Roeck <linux@roeck-us.net>,
+	Martyn Welch <martyn.welch@collabora.com>
+Subject: Re: [PATCH v5] watchdog: ziirave_wdt: Add support to upload the firmware.
+Message-ID: <20161008141046.GF23290@spo001.leaseweb.nl>
+References: <1470845883-28569-1-git-send-email-enric.balletbo@collabora.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20160926185714.10866-1-brian.boylston@hpe.com>
+In-Reply-To: <1470845883-28569-1-git-send-email-enric.balletbo@collabora.com>
 Sender: <wimvs@spo001.leaseweb.nl>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi Brian,
+Hi Enric,
 
-> iLO5 will offer the same watchdog timer as previous generations, but the
-> PCI subsystem vendor ID will be PCI_VENDOR_ID_HP_3PAR (0x1590) instead of
-> PCI_VENDOR_ID_HP (0x103c).  Add 0x1590 to the whitelist and be more
-> specific when ignoring the 103c,1979 device.
+> This patch adds and entry to the sysfs to start firmware upload process
+> on the specified device with the requested firmware.
 > 
-> Signed-off-by: Brian Boylston <brian.boylston@hpe.com>
-> ---
+> The uploading of the firmware needs only to happen once per firmware
+> upgrade, as the firmware is stored in persistent storage. If the
+> firmware upload or the firmware verification fails then we print and
+> error message and exit.
+> 
+> Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
 
-This patch was added to linux-watchdog-next.
+This patch was added to linux-watchdog-next almost 2 weeks ago.
 
 Kind regards,
 Wim.
