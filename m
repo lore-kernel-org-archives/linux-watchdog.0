@@ -3,6 +3,7 @@ Subject: Re: [PATCH 00/10] Introduce Juniper PTXPMB CPLD driver
 To: Pantelis Antoniou <pantelis.antoniou@konsulko.com>,
  Lee Jones <lee.jones@linaro.org>
 References: <1475853451-22121-1-git-send-email-pantelis.antoniou@konsulko.com>
+ <57F8324C.2040804@gmail.com>
 Cc: Rob Herring <robh+dt@kernel.org>, Linus Walleij
  <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>,
  Mark Rutland <mark.rutland@arm.com>, Wolfram Sang <wsa@the-dreams.de>,
@@ -17,29 +18,31 @@ Cc: Rob Herring <robh+dt@kernel.org>, Linus Walleij
  linux-i2c@vger.kernel.org, linux-mtd@lists.infradead.org,
  linux-watchdog@vger.kernel.org
 From: Frank Rowand <frowand.list@gmail.com>
-Message-ID: <57F8324C.2040804@gmail.com>
-Date: Fri, 7 Oct 2016 16:39:56 -0700
+Message-ID: <57F85724.4000706@gmail.com>
+Date: Fri, 7 Oct 2016 19:17:08 -0700
 MIME-Version: 1.0
-In-Reply-To: <1475853451-22121-1-git-send-email-pantelis.antoniou@konsulko.com>
+In-Reply-To: <57F8324C.2040804@gmail.com>
 Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On 10/07/16 08:17, Pantelis Antoniou wrote:
-> Add Juniper's PTXPMB FPGA CPLD driver. Those FPGAs
-> are present in Juniper's PTX series of routers.
+On 10/07/16 16:39, Frank Rowand wrote:
+> On 10/07/16 08:17, Pantelis Antoniou wrote:
+>> Add Juniper's PTXPMB FPGA CPLD driver. Those FPGAs
+>> are present in Juniper's PTX series of routers.
+>>
+>> The MFD driver provices watchdog/i2c/gpio/mtd devices.
+>>
+>> There are full device tree binding documents for the
+>> master mfd driver and for all slave drivers.
+>>
+>> This patchset is against mainline as of today: v4.8-9431-g3477d16
+>> and is dependent on the "Juniper prerequisites" and
+>> "Juniper infrastructure" patchsets sent earlier.
 > 
-> The MFD driver provices watchdog/i2c/gpio/mtd devices.
+> Pointers to the patchsets please.
 > 
-> There are full device tree binding documents for the
-> master mfd driver and for all slave drivers.
-> 
-> This patchset is against mainline as of today: v4.8-9431-g3477d16
-> and is dependent on the "Juniper prerequisites" and
-> "Juniper infrastructure" patchsets sent earlier.
 
-Pointers to the patchsets please.
-
-< snip >
+Nevermind.  Found them.
 
 -Frank
