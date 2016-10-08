@@ -1,34 +1,56 @@
-Return-path: <wimvs@spo001.leaseweb.nl>
-Date: Sat, 8 Oct 2016 16:14:16 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
-Cc: linux-watchdog@vger.kernel.org, linux@roeck-us.net,
-	shubhrajyoti.datta@gmail.com
-Subject: Re: [PATCHv3] watchdog: cadence_wdt: Fix the suspend resume
-Message-ID: <20161008141416.GI23290@spo001.leaseweb.nl>
-References: <1473665029-15999-1-git-send-email-shubhrajyoti.datta@xilinx.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1473665029-15999-1-git-send-email-shubhrajyoti.datta@xilinx.com>
-Sender: <wimvs@spo001.leaseweb.nl>
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-pf0-f193.google.com ([209.85.192.193]:33512 "EHLO
+        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752220AbcJHNJs (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Sat, 8 Oct 2016 09:09:48 -0400
+Received: by mail-pf0-f193.google.com with SMTP id i85so4412849pfa.0
+        for <linux-watchdog@vger.kernel.org>; Sat, 08 Oct 2016 06:07:58 -0700 (PDT)
+From: Liu Qishuai <lqs@lqs.me>
+Subject: [PATCH] watchdog: it87_wdt: add IT8782_ID
+To: wim@iguana.be, linux@roeck-us.net
+Cc: linux-watchdog@vger.kernel.org
+Message-ID: <d9c1af52-1817-d356-0aeb-a5d7a1093fd9@lqs.me>
+Date: Sat, 8 Oct 2016 21:07:43 +0800
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-Hi Shubhrajyoti,
+Add watchdog support for IT8782 chip.
 
-> Currently even if no users are there the suspend tries to
-> stop the watchdog and resume starts it.
-> 
-> so after resume the watchdog starts and resets the board.
-> Fix the same by adding a check for users.
-> 
-> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-> Signed-off-by: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
-> ---
-> v2: use watchdog_active
-> v3: Add Guenter Roeck reviewed by tag
+Tested on SV3-26026 mainboard.
 
-This patch was added to linux-watchdog-next almost 2 weeks ago.
+Signed-off-by: Liu Qishuai <lqs@lqs.me>
 
-Kind regards,
-Wim.
+
+diff --git a/drivers/watchdog/it87_wdt.c b/drivers/watchdog/it87_wdt.c
+index e54839b..c9b2b80 100644
+--- a/drivers/watchdog/it87_wdt.c
++++ b/drivers/watchdog/it87_wdt.c
+@@ -13,7 +13,7 @@
+  *
+  *	Support of the watchdog timers, which are available on
+  *	IT8702, IT8712, IT8716, IT8718, IT8720, IT8721, IT8726,
+- *	IT8728 and IT8783.
++ *	IT8728, IT8782 and IT8783.
+  *
+  *	This program is free software; you can redistribute it and/or
+  *	modify it under the terms of the GNU General Public License
+@@ -87,6 +87,7 @@
+ #define IT8721_ID	0x8721
+ #define IT8726_ID	0x8726	/* the data sheet suggest wrongly 0x8716 */
+ #define IT8728_ID	0x8728
++#define IT8782_ID	0x8782
+ #define IT8783_ID	0x8783
+
+ /* GPIO Configuration Registers LDN=0x07 */
+@@ -634,6 +635,7 @@ static int __init it87_wdt_init(void)
+ 	case IT8720_ID:
+ 	case IT8721_ID:
+ 	case IT8728_ID:
++	case IT8782_ID:
+ 	case IT8783_ID:
+ 		max_units = 65535;
+ 		try_gameport = 0;
