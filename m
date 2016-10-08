@@ -1,43 +1,35 @@
 Return-path: <wimvs@spo001.leaseweb.nl>
-Date: Sat, 8 Oct 2016 16:03:48 +0200
+Date: Sat, 8 Oct 2016 16:04:56 +0200
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Matt Redfearn <matt.redfearn@imgtec.com>
-Cc: linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+To: Peter Griffin <peter.griffin@linaro.org>
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	kernel@stlinux.com, patrice.chotard@st.com,
+	devicetree@vger.kernel.org, lee.jones@linaro.org,
+	linux@roeck-us.net, robh+dt@kernel.org,
 	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH] watchdog: rt2880_wdt: Remove assignment of dev pointer
-Message-ID: <20161008140348.GC23290@spo001.leaseweb.nl>
-References: <1473672913-10484-1-git-send-email-matt.redfearn@imgtec.com>
+Subject: Re: [PATCH 10/19] watchdog: bindings: Remove obsolete platforms from dt doc.
+Message-ID: <20161008140456.GD23290@spo001.leaseweb.nl>
+References: <1473859677-9231-1-git-send-email-peter.griffin@linaro.org> <1473859677-9231-11-git-send-email-peter.griffin@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1473672913-10484-1-git-send-email-matt.redfearn@imgtec.com>
+In-Reply-To: <1473859677-9231-11-git-send-email-peter.griffin@linaro.org>
 Sender: <wimvs@spo001.leaseweb.nl>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi Matt,
+Hi Peter,
 
-> Commit 0254e953537c ("watchdog: Drop pointer to watchdog device from
-> struct watchdog_device") removed the dev pointer from struct
-> watchdog_device, but this driver was still assigning it, leading to a
-> compilation error:
+> STiH415/6 SoC support is being removed from the kernel
+> so update the dt bding document to reflect this.
 > 
-> drivers/watchdog/rt2880_wdt.c: In function ‘rt288x_wdt_probe’:
-> drivers/watchdog/rt2880_wdt.c:161:16: error: ‘struct watchdog_device’
-> has no member named ‘dev’
->   rt288x_wdt_dev.dev = &pdev->dev;
->                 ^
-> scripts/Makefile.build:289: recipe for target
-> 'drivers/watchdog/rt2880_wdt.o' failed
-> 
-> Fix this by removing the assignment.
-> 
-> Fixes: 0254e953537c
-> Signed-off-by: Matt Redfearn <matt.redfearn@imgtec.com>
+> Signed-off-by: Peter Griffin <peter.griffin@linaro.org>
+> Cc: <wim@iguana.be>
+> Cc: <linux@roeck-us.net>
+> Cc: <robh+dt@kernel.org>
+> Cc: <linux-watchdog@vger.kernel.org>
 > ---
 
-This patch and a similar patch from Guenter regarding mt7621_wdt was
-added to linux-watchdog-next almost 2 weeks ago.
+This patch and your st_wdt patch has been added to linux-watchdog-next almost 2 weeks ago.
 
 Kind regards,
 Wim.
