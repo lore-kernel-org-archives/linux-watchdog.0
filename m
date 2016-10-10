@@ -1,5 +1,5 @@
 Return-path: <robherring2@gmail.com>
-Date: Mon, 10 Oct 2016 15:07:04 -0500
+Date: Mon, 10 Oct 2016 15:10:31 -0500
 From: Rob Herring <robh@kernel.org>
 To: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
 Cc: Lee Jones <lee.jones@linaro.org>,
@@ -7,85 +7,79 @@ Cc: Lee Jones <lee.jones@linaro.org>,
 	Alexandre Courbot <gnurou@gmail.com>,
 	Mark Rutland <mark.rutland@arm.com>,
 	Frank Rowand <frowand.list@gmail.com>,
-	Wolfram Sang <wsa@the-dreams.de>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Brian Norris <computersforpeace@gmail.com>,
-	Florian Fainelli <f.fainelli@gmail.com>,
-	Wim Van Sebroeck <wim@iguana.be>, Peter Rosin <peda@axentia.se>,
-	Debjit Ghosh <dghosh@juniper.net>,
 	Georgi Vlaev <gvlaev@juniper.net>,
 	Guenter Roeck <linux@roeck-us.net>,
-	Maryam Seraj <mseraj@juniper.net>, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org,
-	linux-i2c@vger.kernel.org, linux-mtd@lists.infradead.org,
-	linux-watchdog@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [PATCH 08/10] mtd: flash-sam: Bindings for Juniper's SAM FPGA
- flash
-Message-ID: <20161010200704.GA28870@rob-hp-laptop>
-References: <1475853518-22264-1-git-send-email-pantelis.antoniou@konsulko.com>
- <1475853518-22264-9-git-send-email-pantelis.antoniou@konsulko.com>
+	JawaharBalaji Thirumalaisamy <jawaharb@juniper.net>,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org,
+	linux-mtd@lists.infradead.org, linux-watchdog@vger.kernel.org,
+	netdev@vger.kernel.org
+Subject: Re: [PATCH 2/4] mfd: ptxpmb-ext-cpld: Add documentation for PTXPMB
+ extended CPLD
+Message-ID: <20161010201031.GA31318@rob-hp-laptop>
+References: <1475853574-22339-1-git-send-email-pantelis.antoniou@konsulko.com>
+ <1475853574-22339-3-git-send-email-pantelis.antoniou@konsulko.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1475853518-22264-9-git-send-email-pantelis.antoniou@konsulko.com>
+In-Reply-To: <1475853574-22339-3-git-send-email-pantelis.antoniou@konsulko.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-gOn Fri, Oct 07, 2016 at 06:18:36PM +0300, Pantelis Antoniou wrote:
+On Fri, Oct 07, 2016 at 06:19:32PM +0300, Pantelis Antoniou wrote:
 > From: Georgi Vlaev <gvlaev@juniper.net>
 > 
-> Add binding document for Junipers Flash IP block present
-> in the SAM FPGA on PTX series of routers.
+> Add DT bindings document for the PTXPMB extended CPLD device.
 > 
 > Signed-off-by: Georgi Vlaev <gvlaev@juniper.net>
 > [Ported from Juniper kernel]
 > Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
 > ---
->  .../devicetree/bindings/mtd/flash-sam.txt          | 31 ++++++++++++++++++++++
->  1 file changed, 31 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/mtd/flash-sam.txt
+>  .../bindings/mfd/jnx-ptxpmb-ext-cpld.txt           | 35 ++++++++++++++++++++++
+>  1 file changed, 35 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/mfd/jnx-ptxpmb-ext-cpld.txt
 > 
-> diff --git a/Documentation/devicetree/bindings/mtd/flash-sam.txt b/Documentation/devicetree/bindings/mtd/flash-sam.txt
+> diff --git a/Documentation/devicetree/bindings/mfd/jnx-ptxpmb-ext-cpld.txt b/Documentation/devicetree/bindings/mfd/jnx-ptxpmb-ext-cpld.txt
 > new file mode 100644
-> index 0000000..bdf1d78
+> index 0000000..098a548a
 > --- /dev/null
-> +++ b/Documentation/devicetree/bindings/mtd/flash-sam.txt
-> @@ -0,0 +1,31 @@
-> +Flash device on a Juniper SAM FPGA
+> +++ b/Documentation/devicetree/bindings/mfd/jnx-ptxpmb-ext-cpld.txt
+> @@ -0,0 +1,35 @@
+> +* Device tree bindings for Juniper's PTXPMB Extended CPLD FPGA MFD driver
 > +
-> +These flash chips are found in the PTX series of Juniper routers.
-> +
-> +They are regular CFI compatible (Intel or AMD extended) flash chips with
-> +some special write protect/VPP bits that can be controlled by the machine's
-> +system controller.
-
-And where's the description of the sys ctrlr?
-
+> +The device supports a gpio block which is described in the
+> +jnx-gpio-ptxpmb-ext-cpld document.
 > +
 > +Required properties:
-> +- compatible : must be "jnx,flash-sam"
+> +
+> +- compatible:		"jnx,ptxpmb-ext-cpld"
+> +
+> +- reg:			contains offset/length value for device state control
+> +			registers space.
 > +
 > +Optional properties:
-> +- reg : memory address for the flash chip, note that this is not
-> +required since usually the device is a subdevice of the SAM MFD
-> +driver which fills in the register fields.
 > +
-> +For the rest of the properties, see mtd-physmap.txt.
+> +- interrupts:		The interrupt line(s) the /IRQ signal(s) for the device is
+> +			connected to.
 > +
-> +The device tree may optionally contain sub-nodes describing partitions of the
-> +address space. See partition.txt for more detail.
+> +- interrupt-parent:	The parent interrupt controller.
 > +
 > +Example:
 > +
-> +flash_sam {
-> +	compatible = "jnx,flash-sam";
-> +	partition@0 {
+> +ext-cpld@1,0 {
+> +	compatible = "jnx,ptxpmb-ext-cpld";
+> +	reg = <0x1 0 0x1000>;
 
-This should have a heirarchy of a controller node, a flash child node, 
-partitions child node, and partition child nodes.
+What's the bus type here? Unit address is probably wrong.
 
-> +		reg = <0x0 0x400000>;
-> +		label = "pic0-golden";
-> +		read-only;
+> +	interrupt-parent = <&mpic>;
+> +	interrupts = <7 2>, <8 2>;
+> +
+> +	gpio_ext_cpld: cpld-ext-gpio {
+> +		compatible = "jnx,gpio-ptxpmb-ext-cpld";
+> +		#gpio-cells = <2>;
+> +		#interrupt-cells = <2>;
+> +		gpio-controller;
+> +		interrupt-controller;
 > +	};
 > +};
 > -- 
