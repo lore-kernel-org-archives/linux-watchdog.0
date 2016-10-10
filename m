@@ -1,5 +1,5 @@
 Return-path: <robherring2@gmail.com>
-Date: Mon, 10 Oct 2016 13:08:31 -0500
+Date: Mon, 10 Oct 2016 13:18:46 -0500
 From: Rob Herring <robh@kernel.org>
 To: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
 Cc: Lee Jones <lee.jones@linaro.org>,
@@ -20,72 +20,66 @@ Cc: Lee Jones <lee.jones@linaro.org>,
 	linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org,
 	linux-i2c@vger.kernel.org, linux-mtd@lists.infradead.org,
 	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 08/10] gpio: ptxpmb-cpld: Document bindings of PTXPMB's
- CPLD GPIO
-Message-ID: <20161010180831.GA20179@rob-hp-laptop>
+Subject: Re: [PATCH 10/10] mtd: ngpmb_nvram: Add bindings for Juniper's ngpmb
+ NVRAM
+Message-ID: <20161010181846.GA32705@rob-hp-laptop>
 References: <1475853451-22121-1-git-send-email-pantelis.antoniou@konsulko.com>
- <1475853451-22121-9-git-send-email-pantelis.antoniou@konsulko.com>
+ <1475853451-22121-11-git-send-email-pantelis.antoniou@konsulko.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1475853451-22121-9-git-send-email-pantelis.antoniou@konsulko.com>
+In-Reply-To: <1475853451-22121-11-git-send-email-pantelis.antoniou@konsulko.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On Fri, Oct 07, 2016 at 06:17:29PM +0300, Pantelis Antoniou wrote:
+On Fri, Oct 07, 2016 at 06:17:31PM +0300, Pantelis Antoniou wrote:
 > From: Georgi Vlaev <gvlaev@juniper.net>
 > 
-> Add device tree bindings document for the GPIO driver of
-> Juniper's PTXPMB/NGPMB CPLD.
+> Add device tree binging document for the ngpmb NVRAM device.
 > 
 > Signed-off-by: Georgi Vlaev <gvlaev@juniper.net>
 > [Ported from Juniper kernel]
 > Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
 > ---
->  .../bindings/gpio/jnx,gpio-ptxpmb-cpld.txt         | 30 ++++++++++++++++++++++
->  1 file changed, 30 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/gpio/jnx,gpio-ptxpmb-cpld.txt
+>  .../devicetree/bindings/mtd/ngpmb-nvram.txt        | 22 ++++++++++++++++++++++
+>  1 file changed, 22 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/mtd/ngpmb-nvram.txt
 > 
-> diff --git a/Documentation/devicetree/bindings/gpio/jnx,gpio-ptxpmb-cpld.txt b/Documentation/devicetree/bindings/gpio/jnx,gpio-ptxpmb-cpld.txt
+> diff --git a/Documentation/devicetree/bindings/mtd/ngpmb-nvram.txt b/Documentation/devicetree/bindings/mtd/ngpmb-nvram.txt
 > new file mode 100644
-> index 0000000..1122021
+> index 0000000..297ad0e
 > --- /dev/null
-> +++ b/Documentation/devicetree/bindings/gpio/jnx,gpio-ptxpmb-cpld.txt
-> @@ -0,0 +1,30 @@
-> +Juniper PTXPMB CPLD GPIO block
+> +++ b/Documentation/devicetree/bindings/mtd/ngpmb-nvram.txt
+
+mtd is really flash. sram/ or nvmem/ are probably better choices.
+
+> @@ -0,0 +1,22 @@
+> +Non Volatile RAM device on a Juniper NG PMB FPGA
+> +
+> +These devices are found in the PTX series of Juniper routers.
 > +
 > +Required properties:
-> +
-> +- compatible:
-> +    Must be "jnx,gpio-ptxpmb-cpld"
-> +
-> +- #gpio-cells:
-> +    Should be <2>.  The first cell is the pin number (within the controller's
-> +    pin space), and the second is used for the following flags:
-> +	bit[0]: direction (0 = out, 1 = in)
-> +	bit[1]: init high
-> +	bit[2]: active low
+> +- compatible : must be "jnx,ngpmb-nvram"
 
-Use and/or add standard flags.
+Compatible with mmio-sram?
 
-> +
-> +- gpio-controller:
-> +    Specifies that the node is a GPIO controller.
 > +
 > +Optional properties:
+> +- reg : memory address for the RAM, note that this is not
+> +required since usually the device is a subdevice of the SAM MFD
+> +driver which fills in the register fields.
 > +
-> +- reg:
-> +    Address and length of the register set for the device. Usually supplied by
-> +    the parent MFD driver
+> +For the rest of the properties, see mtd-physmap.txt.
+> +
+> +The device tree may optionally contain sub-nodes describing partitions of the
+> +address space. See partition.txt for more detail.
 
-Make this mandatory.
+sram or nvmem style partitioning is probably more appropriate.
 
 > +
 > +Example:
 > +
-> +gpio_cpld: cpld_gpio {
-> +	compatible = "jnx,gpio-ptxpmb-cpld";
-> +	#gpio-cells = <2>;
-> +	gpio-controller;
+> +ngpmb_nvram {
+> +	compatible = "jnx,ngpmb-nvram";
 > +};
 > -- 
 > 1.9.1
