@@ -1,5 +1,5 @@
 Return-path: <robherring2@gmail.com>
-Date: Mon, 10 Oct 2016 15:10:31 -0500
+Date: Mon, 10 Oct 2016 15:19:36 -0500
 From: Rob Herring <robh@kernel.org>
 To: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
 Cc: Lee Jones <lee.jones@linaro.org>,
@@ -14,73 +14,81 @@ Cc: Lee Jones <lee.jones@linaro.org>,
 	linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org,
 	linux-mtd@lists.infradead.org, linux-watchdog@vger.kernel.org,
 	netdev@vger.kernel.org
-Subject: Re: [PATCH 2/4] mfd: ptxpmb-ext-cpld: Add documentation for PTXPMB
+Subject: Re: [PATCH 4/4] gpio: ptxpmb-ext-cpld: Document bindings of PTXPMB
  extended CPLD
-Message-ID: <20161010201031.GA31318@rob-hp-laptop>
+Message-ID: <20161010201936.GB32418@rob-hp-laptop>
 References: <1475853574-22339-1-git-send-email-pantelis.antoniou@konsulko.com>
- <1475853574-22339-3-git-send-email-pantelis.antoniou@konsulko.com>
+ <1475853574-22339-5-git-send-email-pantelis.antoniou@konsulko.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1475853574-22339-3-git-send-email-pantelis.antoniou@konsulko.com>
+In-Reply-To: <1475853574-22339-5-git-send-email-pantelis.antoniou@konsulko.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On Fri, Oct 07, 2016 at 06:19:32PM +0300, Pantelis Antoniou wrote:
+On Fri, Oct 07, 2016 at 06:19:34PM +0300, Pantelis Antoniou wrote:
 > From: Georgi Vlaev <gvlaev@juniper.net>
 > 
-> Add DT bindings document for the PTXPMB extended CPLD device.
+> Add device tree bindings document for the GPIO driver of
+> Juniper's PTXPMB extended CPLD.
 > 
 > Signed-off-by: Georgi Vlaev <gvlaev@juniper.net>
 > [Ported from Juniper kernel]
 > Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
 > ---
->  .../bindings/mfd/jnx-ptxpmb-ext-cpld.txt           | 35 ++++++++++++++++++++++
->  1 file changed, 35 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/mfd/jnx-ptxpmb-ext-cpld.txt
+>  .../bindings/gpio/jnx,gpio-ptxpmb-ext-cpld.txt     | 36 ++++++++++++++++++++++
+>  1 file changed, 36 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/gpio/jnx,gpio-ptxpmb-ext-cpld.txt
 > 
-> diff --git a/Documentation/devicetree/bindings/mfd/jnx-ptxpmb-ext-cpld.txt b/Documentation/devicetree/bindings/mfd/jnx-ptxpmb-ext-cpld.txt
+> diff --git a/Documentation/devicetree/bindings/gpio/jnx,gpio-ptxpmb-ext-cpld.txt b/Documentation/devicetree/bindings/gpio/jnx,gpio-ptxpmb-ext-cpld.txt
 > new file mode 100644
-> index 0000000..098a548a
+> index 0000000..87f01b9
 > --- /dev/null
-> +++ b/Documentation/devicetree/bindings/mfd/jnx-ptxpmb-ext-cpld.txt
-> @@ -0,0 +1,35 @@
-> +* Device tree bindings for Juniper's PTXPMB Extended CPLD FPGA MFD driver
-> +
-> +The device supports a gpio block which is described in the
-> +jnx-gpio-ptxpmb-ext-cpld document.
+> +++ b/Documentation/devicetree/bindings/gpio/jnx,gpio-ptxpmb-ext-cpld.txt
+> @@ -0,0 +1,36 @@
+> +Juniper PTXPMB extended CPLD GPIO block
 > +
 > +Required properties:
 > +
-> +- compatible:		"jnx,ptxpmb-ext-cpld"
+> +- compatible:
+> +    Must be "jnx,gpio-ptxpmb-ext-cpld"
+
+Generally, '-gpio' would be last.
+
 > +
-> +- reg:			contains offset/length value for device state control
-> +			registers space.
+> +- #gpio-cells:
+> +    Should be <2>.  The first cell is the pin number (within the controller's
+> +    pin space), and the second is used for the following flags:
+> +	bit[0]: direction (0 = out, 1 = in)
+> +	bit[1]: init high
+> +	bit[2]: active low
+
+Same comment as all the other gpio bindings...
+
+> +
+> +- gpio-controller:
+> +    Specifies that the node is a GPIO controller.
+> +
+> +- interrupt-controller:
+> +    Specifies that the node is an interrupt controller.
 > +
 > +Optional properties:
 > +
-> +- interrupts:		The interrupt line(s) the /IRQ signal(s) for the device is
-> +			connected to.
+> +- reg:
+> +    Address and length of the register set for the device. Usually supplied
+> +    by the parent MFD device.
+
+Make it required.
+
 > +
-> +- interrupt-parent:	The parent interrupt controller.
 > +
 > +Example:
 > +
-> +ext-cpld@1,0 {
-> +	compatible = "jnx,ptxpmb-ext-cpld";
-> +	reg = <0x1 0 0x1000>;
-
-What's the bus type here? Unit address is probably wrong.
-
-> +	interrupt-parent = <&mpic>;
-> +	interrupts = <7 2>, <8 2>;
-> +
-> +	gpio_ext_cpld: cpld-ext-gpio {
-> +		compatible = "jnx,gpio-ptxpmb-ext-cpld";
-> +		#gpio-cells = <2>;
-> +		#interrupt-cells = <2>;
-> +		gpio-controller;
-> +		interrupt-controller;
-> +	};
+> +gpio_ext_cpld: cpld-ext-gpio {
+> +	compatible = "jnx,gpio-ptxpmb-ext-cpld";
+> +	#gpio-cells = <2>;
+> +	#interrupt-cells = <2>;
+> +	gpio-controller;
+> +	interrupt-controller;
 > +};
 > -- 
 > 1.9.1
