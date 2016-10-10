@@ -1,34 +1,31 @@
-Return-path: <f.fainelli@gmail.com>
+Return-path: <peda@axentia.se>
 Subject: Re: [PATCH 10/10] net: mdio-sam: Add device tree documentation for
  SAM MDIO
-To: Pantelis Antoniou <pantelis.antoniou@konsulko.com>,
- Lee Jones <lee.jones@linaro.org>
+To: Pantelis Antoniou <pantelis.antoniou@konsulko.com>, Lee Jones
+	<lee.jones@linaro.org>
 References: <1475853518-22264-1-git-send-email-pantelis.antoniou@konsulko.com>
  <1475853518-22264-11-git-send-email-pantelis.antoniou@konsulko.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>,
- Alexandre Courbot <gnurou@gmail.com>, Rob Herring <robh+dt@kernel.org>,
- Mark Rutland <mark.rutland@arm.com>, Frank Rowand <frowand.list@gmail.com>,
- Wolfram Sang <wsa@the-dreams.de>, David Woodhouse <dwmw2@infradead.org>,
- Brian Norris <computersforpeace@gmail.com>, Wim Van Sebroeck
- <wim@iguana.be>, Peter Rosin <peda@axentia.se>,
- Debjit Ghosh <dghosh@juniper.net>, Georgi Vlaev <gvlaev@juniper.net>,
- Guenter Roeck <linux@roeck-us.net>, Maryam Seraj <mseraj@juniper.net>,
- devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org,
- linux-mtd@lists.infradead.org, linux-watchdog@vger.kernel.org,
- netdev@vger.kernel.org
-From: Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <1b764238-1094-dcbc-1176-fdc845781c31@gmail.com>
-Date: Mon, 10 Oct 2016 01:50:07 -0700
+CC: Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot
+	<gnurou@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland
+	<mark.rutland@arm.com>, Frank Rowand <frowand.list@gmail.com>, Wolfram Sang
+	<wsa@the-dreams.de>, David Woodhouse <dwmw2@infradead.org>, Brian Norris
+	<computersforpeace@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>, Wim
+ Van Sebroeck <wim@iguana.be>, Debjit Ghosh <dghosh@juniper.net>, Georgi Vlaev
+	<gvlaev@juniper.net>, Guenter Roeck <linux@roeck-us.net>, Maryam Seraj
+	<mseraj@juniper.net>, <devicetree@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, <linux-gpio@vger.kernel.org>,
+	<linux-i2c@vger.kernel.org>, <linux-mtd@lists.infradead.org>,
+	<linux-watchdog@vger.kernel.org>, <netdev@vger.kernel.org>
+From: Peter Rosin <peda@axentia.se>
+Message-ID: <aad9e8eb-2c15-3c83-067a-e76e0bc73e44@axentia.se>
+Date: Mon, 10 Oct 2016 16:53:09 +0200
 MIME-Version: 1.0
 In-Reply-To: <1475853518-22264-11-git-send-email-pantelis.antoniou@konsulko.com>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset="windows-1252"
 Content-Transfer-Encoding: 7bit
 List-ID: <linux-watchdog@vger.kernel.org>
 
-
-
-On 10/07/2016 08:18 AM, Pantelis Antoniou wrote:
+On 2016-10-07 17:18, Pantelis Antoniou wrote:
 > From: Georgi Vlaev <gvlaev@juniper.net>
 > 
 > Add device tree bindings document for the SAM MDIO block
@@ -62,12 +59,47 @@ On 10/07/2016 08:18 AM, Pantelis Antoniou wrote:
 > +- #address-cells = <1>;
 > +- #size-cells = <0>;
 > +- reg : The MDIO bus offset within the MDIO range.
+> +
+> +
+> +Example :
+> +
+> +	sam@10 {
+> +		compatible = "jnx,sam";
+> +		#address-cells = <1>;
+> +		#size-cells = <0>;
+> +
+> +		mdio-sam@10 {
 
-I would just refer to Documentation/devicetree/bindings/net/phy.txt for
-the child node properties.
+This should be mdio-sam@40000, OR ...
 
-Other than that:
+> +			compatible = "jnx,mdio-sam";
+> +			#address-cells = <1>;
+> +			#size-cells = <0>;
+> +			reg = <0x40000>;
 
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
--- 
-Florian
+... this should be reg = <0x10>. AFAIK.
+
+Cheers,
+Peter
+
+> +
+> +			mdio0: mdio-sam@0 {
+> +				#address-cells = <1>;
+> +				#size-cells = <0>;
+> +				reg = <0x0>;
+> +			};
+> +
+> +			mdio1: mdio-sam@4000 {
+> +				#address-cells = <1>;
+> +				#size-cells = <0>;
+> +				reg = <0x4000>;
+> +			};
+> +
+> +			mdio2: mdio-sam@8000 {
+> +				#address-cells = <1>;
+> +				#size-cells = <0>;
+> +				reg = <0x8000>;
+> +			};
+> +		};
+> +	};
+> 
