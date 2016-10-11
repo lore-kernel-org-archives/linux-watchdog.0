@@ -1,110 +1,227 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:58816 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752918AbcJJOSA (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 10 Oct 2016 10:18:00 -0400
-Subject: Re: [PATCH] watchdog: it87_wdt: add IT8782_ID
-To: Liu Qishuai <lqs@lqs.me>
-References: <d9c1af52-1817-d356-0aeb-a5d7a1093fd9@lqs.me>
- <bb6ad10b-85f4-7d3c-8c22-ba3731480ac5@roeck-us.net>
- <22e78325-e0ca-f323-9150-7b180a12a328@lqs.me>
- <20161009151132.GA12710@roeck-us.net>
- <c0b13a11-a4f3-f948-925b-5212999504a4@lqs.me>
-Cc: wim@iguana.be, linux-watchdog@vger.kernel.org
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <4ffd1155-2a41-c78a-6293-c79853e9e483@roeck-us.net>
-Date: Mon, 10 Oct 2016 07:17:53 -0700
+Return-path: <gnaygnil@gmail.com>
+Date: Tue, 11 Oct 2016 22:10:29 +0800
+From: Yang Ling <gnaygnil@gmail.com>
+To: Wim Van Sebroeck <wim@iguana.be>, Guenter Roeck <linux@roeck-us.net>,
+	Keguang Zhang <keguang.zhang@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	linux-mips@linux-mips.org, Yang Ling <gnaygnil@gmail.com>
+Subject: [PATCH v1.1 1/2] watchdog: loongson1: Add Loongson1 SoC watchdog
+ driver
+Message-ID: <20161011141029.GA26146@ubuntu>
 MIME-Version: 1.0
-In-Reply-To: <c0b13a11-a4f3-f948-925b-5212999504a4@lqs.me>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 10/10/2016 03:39 AM, Liu Qishuai wrote:
-> The specification says the default value of WDT Timeout Enable bit is 0 (enable);
-> maybe it's better to ensure the bit is set to 0 in case it was set to other values
-> before Linux boots.
->
+Add watchdog timer specific driver for Loongson1 SoC.
 
-We have two options: Either clear the bit, or assume that it was disabled on purpose
-because the HW does not support it and refuse to load the driver in that case.
-I would suggest to clear the bit.
+Signed-off-by: Yang Ling <gnaygnil@gmail.com>
 
-Thanks,
-Guenter
+---
+V1.1:
+ Add a little debugging information.
+---
+ drivers/watchdog/Kconfig         |   7 ++
+ drivers/watchdog/Makefile        |   1 +
+ drivers/watchdog/loongson1_wdt.c | 160 +++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 168 insertions(+)
+ create mode 100644 drivers/watchdog/loongson1_wdt.c
 
->
-> On 16/10/9 23:11, Guenter Roeck wrote:
->> On Sun, Oct 09, 2016 at 09:03:12PM +0800, Liu Qishuai wrote:
->>> Updated patch to disabled CIR probing on IT878x chips. (IT8783 has this issue too)
->>>
->>> Signed-off-by: Liu Qishuai <lqs@lqs.me>
->>>
->>
->> Looks better. One question - on IT8782, bit 7 of the control register (LDN 7,
->> 0x71) is defined as "WDT Timeout Enable(WTE)". Setting the bit to 1 disables
->> the timeout.
->>
->> Does this bit have to be cleared to 0 for the watchdog to work ?
->>
->> Thanks,
->> Guenter
->>
->>>
->>> diff --git a/drivers/watchdog/it87_wdt.c b/drivers/watchdog/it87_wdt.c
->>> index e54839b..a911cae 100644
->>> --- a/drivers/watchdog/it87_wdt.c
->>> +++ b/drivers/watchdog/it87_wdt.c
->>> @@ -13,7 +13,7 @@
->>>   *
->>>   *	Support of the watchdog timers, which are available on
->>>   *	IT8702, IT8712, IT8716, IT8718, IT8720, IT8721, IT8726,
->>> - *	IT8728 and IT8783.
->>> + *	IT8728, IT8782 and IT8783.
->>>   *
->>>   *	This program is free software; you can redistribute it and/or
->>>   *	modify it under the terms of the GNU General Public License
->>> @@ -87,6 +87,7 @@
->>>  #define IT8721_ID	0x8721
->>>  #define IT8726_ID	0x8726	/* the data sheet suggest wrongly 0x8716 */
->>>  #define IT8728_ID	0x8728
->>> +#define IT8782_ID	0x8782
->>>  #define IT8783_ID	0x8783
->>>
->>>  /* GPIO Configuration Registers LDN=0x07 */
->>> @@ -606,6 +607,7 @@ static int __init it87_wdt_init(void)
->>>  {
->>>  	int rc = 0;
->>>  	int try_gameport = !nogameport;
->>> +	int try_cir = !nocir;
->>>  	u8  chip_rev;
->>>  	int gp_rreq_fail = 0;
->>>
->>> @@ -634,9 +636,14 @@ static int __init it87_wdt_init(void)
->>>  	case IT8720_ID:
->>>  	case IT8721_ID:
->>>  	case IT8728_ID:
->>> +		max_units = 65535;
->>> +		try_gameport = 0;
->>> +		break;
->>> +	case IT8782_ID:
->>>  	case IT8783_ID:
->>>  		max_units = 65535;
->>>  		try_gameport = 0;
->>> +		try_cir = 0;
->>>  		break;
->>>  	case IT8705_ID:
->>>  		pr_err("Unsupported Chip found, Chip %04x Revision %02x\n",
->>> @@ -676,7 +683,7 @@ static int __init it87_wdt_init(void)
->>>  	}
->>>
->>>  	/* If we haven't Gameport support, try to get CIR support */
->>> -	if (!nocir && !test_bit(WDTS_USE_GP, &wdt_status)) {
->>> +	if (try_cir && !test_bit(WDTS_USE_GP, &wdt_status)) {
->>>  		if (!request_region(CIR_BASE, 8, WATCHDOG_NAME)) {
->>>  			if (gp_rreq_fail)
->>>  				pr_err("I/O Address 0x%04x and 0x%04x already in use\n",
->
-
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 50dbaa8..28c44f2 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -1553,6 +1553,13 @@ config PIC32_DMT
+ 	  To compile this driver as a loadable module, choose M here.
+ 	  The module will be called pic32-dmt.
+ 
++config LOONGSON1_WDT
++	tristate "Loongson1 SoC hardware watchdog"
++	depends on MACH_LOONGSON32
++	select WATCHDOG_CORE
++	help
++	  Hardware driver for the Loongson1 SoC Watchdog Timer.
++
+ # PARISC Architecture
+ 
+ # POWERPC Architecture
+diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+index cba0043..bd3b00e 100644
+--- a/drivers/watchdog/Makefile
++++ b/drivers/watchdog/Makefile
+@@ -162,6 +162,7 @@ obj-$(CONFIG_IMGPDC_WDT) += imgpdc_wdt.o
+ obj-$(CONFIG_MT7621_WDT) += mt7621_wdt.o
+ obj-$(CONFIG_PIC32_WDT) += pic32-wdt.o
+ obj-$(CONFIG_PIC32_DMT) += pic32-dmt.o
++obj-$(CONFIG_LOONGSON1_WDT) += loongson1_wdt.o
+ 
+ # PARISC Architecture
+ 
+diff --git a/drivers/watchdog/loongson1_wdt.c b/drivers/watchdog/loongson1_wdt.c
+new file mode 100644
+index 0000000..77b11f9
+--- /dev/null
++++ b/drivers/watchdog/loongson1_wdt.c
+@@ -0,0 +1,160 @@
++/*
++ * Copyright (c) 2016 Yang Ling <gnaygnil@gmail.com>
++ *
++ * This program is free software; you can redistribute	it and/or modify it
++ * under  the terms of	the GNU General	 Public License as published by the
++ * Free Software Foundation;  either version 2 of the  License, or (at your
++ * option) any later version.
++ */
++
++#include <linux/module.h>
++#include <linux/watchdog.h>
++#include <linux/platform_device.h>
++#include <linux/clk.h>
++
++#include <loongson1.h>
++
++#define MIN_HEARTBEAT		1
++#define MAX_HEARTBEAT		30
++#define DEFAULT_HEARTBEAT	10
++
++static bool nowayout = WATCHDOG_NOWAYOUT;
++module_param(nowayout, bool, 0);
++
++static unsigned int heartbeat = DEFAULT_HEARTBEAT;
++module_param(heartbeat, uint, 0);
++
++struct ls1x_wdt_drvdata {
++	struct watchdog_device wdt;
++	void __iomem *base;
++	unsigned int count;
++	struct clk *clk;
++};
++
++static int ls1x_wdt_ping(struct watchdog_device *wdt_dev)
++{
++	struct ls1x_wdt_drvdata *drvdata = watchdog_get_drvdata(wdt_dev);
++
++	writel(0x1, drvdata->base + WDT_EN);
++	writel(drvdata->count, drvdata->base + WDT_TIMER);
++	writel(0x1, drvdata->base + WDT_SET);
++
++	return 0;
++}
++
++static int ls1x_wdt_set_timeout(struct watchdog_device *wdt_dev,
++				unsigned int new_timeout)
++{
++	struct ls1x_wdt_drvdata *drvdata = watchdog_get_drvdata(wdt_dev);
++	int counts_per_second;
++
++	if (watchdog_init_timeout(wdt_dev, new_timeout, NULL))
++		return -EINVAL;
++
++	counts_per_second = clk_get_rate(drvdata->clk);
++	drvdata->count = counts_per_second * wdt_dev->timeout;
++
++	ls1x_wdt_ping(wdt_dev);
++
++	return 0;
++}
++
++static int ls1x_wdt_start(struct watchdog_device *wdt_dev)
++{
++	ls1x_wdt_set_timeout(wdt_dev, wdt_dev->timeout);
++
++	return 0;
++}
++
++static int ls1x_wdt_stop(struct watchdog_device *wdt_dev)
++{
++	struct ls1x_wdt_drvdata *drvdata = watchdog_get_drvdata(wdt_dev);
++
++	writel(0x0, drvdata->base + WDT_EN);
++
++	return 0;
++}
++
++static const struct watchdog_info ls1x_wdt_info = {
++	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
++	.identity = "Loongson1 Watchdog",
++};
++
++static const struct watchdog_ops ls1x_wdt_ops = {
++	.owner = THIS_MODULE,
++	.start = ls1x_wdt_start,
++	.stop = ls1x_wdt_stop,
++	.ping = ls1x_wdt_ping,
++	.set_timeout = ls1x_wdt_set_timeout,
++};
++
++static int ls1x_wdt_probe(struct platform_device *pdev)
++{
++	struct ls1x_wdt_drvdata *drvdata;
++	struct watchdog_device *ls1x_wdt;
++	struct resource *res;
++	int ret;
++
++	drvdata = devm_kzalloc(&pdev->dev, sizeof(*drvdata), GFP_KERNEL);
++	if (!drvdata)
++		return -ENOMEM;
++
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	drvdata->base = devm_ioremap_resource(&pdev->dev, res);
++	if (IS_ERR(drvdata->base))
++		return PTR_ERR(drvdata->base);
++
++	drvdata->clk = devm_clk_get(&pdev->dev, pdev->name);
++	if (IS_ERR(drvdata->clk)) {
++		dev_err(&pdev->dev, "failed to get %s clock\n", pdev->name);
++		return PTR_ERR(drvdata->clk);
++	}
++	clk_prepare_enable(drvdata->clk);
++
++	ls1x_wdt = &drvdata->wdt;
++	ls1x_wdt->info = &ls1x_wdt_info;
++	ls1x_wdt->ops = &ls1x_wdt_ops;
++	ls1x_wdt->timeout = heartbeat;
++	ls1x_wdt->min_timeout = MIN_HEARTBEAT;
++	ls1x_wdt->max_timeout = MAX_HEARTBEAT;
++	ls1x_wdt->parent = &pdev->dev;
++	watchdog_set_nowayout(ls1x_wdt, nowayout);
++	watchdog_set_drvdata(ls1x_wdt, drvdata);
++
++	ret = watchdog_register_device(&drvdata->wdt);
++	if (ret < 0) {
++		dev_err(&pdev->dev, "failed to register watchdog device\n");
++		return ret;
++	}
++
++	platform_set_drvdata(pdev, drvdata);
++
++	dev_info(&pdev->dev, "Loongson1 Watchdog driver registered\n");
++
++	return 0;
++}
++
++static int ls1x_wdt_remove(struct platform_device *pdev)
++{
++	struct ls1x_wdt_drvdata *drvdata = platform_get_drvdata(pdev);
++
++	ls1x_wdt_stop(&drvdata->wdt);
++	watchdog_unregister_device(&drvdata->wdt);
++	clk_disable_unprepare(drvdata->clk);
++
++	return 0;
++}
++
++static struct platform_driver ls1x_wdt_driver = {
++	.probe = ls1x_wdt_probe,
++	.remove = ls1x_wdt_remove,
++	.driver = {
++		.name = "ls1x-wdt",
++	},
++};
++
++module_platform_driver(ls1x_wdt_driver);
++
++MODULE_AUTHOR("Yang Ling <gnaygnil@gmail.com>");
++MODULE_DESCRIPTION("Loongson1 Watchdog Driver");
++MODULE_LICENSE("GPL");
+-- 
+1.9.1
