@@ -1,33 +1,35 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail1.bemta6.messagelabs.com ([193.109.254.112]:54913 "EHLO
-        mail1.bemta6.messagelabs.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1754498AbcJNM0V (ORCPT
+Received: from mail1.bemta5.messagelabs.com ([195.245.231.145]:24838 "EHLO
+        mail1.bemta5.messagelabs.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1753478AbcJNNII (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 14 Oct 2016 08:26:21 -0400
+        Fri, 14 Oct 2016 09:08:08 -0400
 From: Steve Twiss <stwiss.opensource@diasemi.com>
-To: Rob Herring <robh@kernel.org>
+To: Keerthy <a0393675@ti.com>, Eduardo Valentin <edubezval@gmail.com>,
+        "Zhang Rui" <rui.zhang@intel.com>
 CC: DEVICETREE <devicetree@vger.kernel.org>,
-        LINUX-INPUT <linux-input@vger.kernel.org>,
-        LINUX-KERNEL <linux-kernel@vger.kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Eduardo Valentin <edubezval@gmail.com>,
-        "Guenter Roeck" <linux@roeck-us.net>,
-        LINUX-PM <linux-pm@vger.kernel.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        LINUX-INPUT <linux-input@vger.kernel.org>,
         LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
         Lee Jones <lee.jones@linaro.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
+        "Liam Girdwood" <lgirdwood@gmail.com>,
         Mark Brown <broonie@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Rob Herring <robh+dt@kernel.org>,
         Support Opensource <Support.Opensource@diasemi.com>,
         Wim Van Sebroeck <wim@iguana.be>,
-        Zhang Rui <rui.zhang@intel.com>
-Subject: RE: [PATCH V1 09/10] Documentation: dt: mfd: da9062/61 MFD binding
-Date: Fri, 14 Oct 2016 12:26:07 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7018CCE342A@SW-EX-MBX02.diasemi.com>
+        LINUX-KERNEL <linux-kernel@vger.kernel.org>,
+        LINUX-PM <linux-pm@vger.kernel.org>
+Subject: RE: [PATCH V1 05/10] thermal: da9062/61: Thermal junction
+ temperature monitoring driver
+Date: Fri, 14 Oct 2016 13:07:59 +0000
+Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7018CCE3443@SW-EX-MBX02.diasemi.com>
 References: <cover.1475743411.git.stwiss.opensource@diasemi.com>
- <7a21f22bd62817b63ba64e11eecadfb78338ee46.1475743411.git.stwiss.opensource@diasemi.com>
- <20161010134235.GA20577@rob-hp-laptop>
-In-Reply-To: <20161010134235.GA20577@rob-hp-laptop>
+ <b5ce58ca00f7ab30a025d24083549241f135b0e9.1475743411.git.stwiss.opensource@diasemi.com>
+ <3bc9fd76-2885-b07a-9df8-7802b7535da2@ti.com>
+ <6ED8E3B22081A4459DAC7699F3695FB7018CCE2815@SW-EX-MBX02.diasemi.com>
+In-Reply-To: <6ED8E3B22081A4459DAC7699F3695FB7018CCE2815@SW-EX-MBX02.diasemi.com>
 Content-Language: en-US
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
@@ -35,32 +37,48 @@ Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 Content-Transfer-Encoding: quoted-printable
 
-Hi Rob,
+An update.
 
-On 10 October 2016 14:43, Rob Herring wrote:
-> On Thu, Oct 06, 2016 at 09:43:31AM +0100, Steve Twiss wrote:
+On: 07 October 2016 18:49, Steve Twiss wrote:
+> On 07 October 2016 06:29, Keerthy [mailto:a0393675@ti.com] wrote:
+> > On Thursday 06 October 2016 02:13 PM, Steve Twiss wrote:
+> > > From: Steve Twiss <stwiss.opensource@diasemi.com>
 [...]
-> > @@ -64,10 +89,6 @@ Example:
-> >  			compatible =3D "dlg,da9062-rtc";
-> >  		};
+> > > +static const struct da9062_thermal_config da9062_config =3D {
+> > > +	.name =3D "da9062-thermal",
+> > > +};
+> > > +
+> > > +static const struct da9062_thermal_config da9061_config =3D {
+> > > +	.name =3D "da9061-thermal",
+> > > +};
+> > > +
+> > > +static const struct of_device_id da9062_compatible_reg_id_table[] =
+=3D {
+> > > +	{ .compatible =3D "dlg,da9062-thermal", .data =3D &da9062_config =
+},
+> > > +	{ .compatible =3D "dlg,da9061-thermal", .data =3D &da9061_config =
+},
 > >
-> > -		watchdog {
-> > -			compatible =3D "dlg,da9062-watchdog";
-> > -		};
-> > -
+> > Two separate compatible values. Do you have anything different apart
+> > from the name? Why use 2 compatibles when there is absolutely no
+> > difference?
 >=20
-> I don't understand why this is removed?
+> Yes.
+> This was a comment for the watchdog device driver as well. My concern w=
+as having
+> multiple devices (61 and 62) in the same system -- and allowing the dri=
+ver to report
+> the hardware difference.
+>=20
+> There is discussion going on about this in other threads. Not certain o=
+f the
+> final outcome yet, apart from my existing proposal should be changed.
 
-This MFD binding file now contains a link to a separate watchdog binding =
-file.
-I moved the example and the binding information into this new watchdog bi=
-nding
-document. I also updated it for DA9061.
+An answer to this came from comments by Dmitry Torokhov and Guenter Roeck=
+, who
+suggested this: https://lkml.org/lkml/2016/10/7/641
 
-+- watchdog: See ../watchdog/da9062-watchdog.txt
-
-I will add this information into the patch description for V2 to make thi=
-ngs clearer.
+I will take a look at this for V2.
 
 Regards,
 Steve
