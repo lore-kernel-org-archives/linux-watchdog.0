@@ -1,66 +1,49 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:39062 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755003AbcJMMgk (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 13 Oct 2016 08:36:40 -0400
-Subject: Re: [GIT PULL REQUEST] watchdog - v4.9 merge window
-To: Wim Van Sebroeck <wim@iguana.be>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-References: <20161012183505.GA14975@spo001.leaseweb.nl>
- <CA+55aFzvd7cBENiVPWG3OsOH62SQdK-Df+jXbKmdp6hV2nUvGg@mail.gmail.com>
- <20161013055402.GA19874@spo001.leaseweb.nl>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <1e50a510-9f41-bbe5-6bb4-f3316f030f01@roeck-us.net>
-Date: Thu, 13 Oct 2016 05:36:35 -0700
-MIME-Version: 1.0
-In-Reply-To: <20161013055402.GA19874@spo001.leaseweb.nl>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-path: <javier@osg.samsung.com>
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+To: linux-kernel@vger.kernel.org
+Cc: Javier Martinez Canillas <javier@osg.samsung.com>,
+	Guenter Roeck <linux@roeck-us.net>,
+	linux-watchdog@vger.kernel.org,
+	Wim Van Sebroeck <wim@iguana.be>
+Subject: [PATCH 1/2] watchdog: bcm7038_wdt: fix module autoload
+Date: Fri, 14 Oct 2016 12:23:50 -0300
+Message-Id: <1476458631-29685-1-git-send-email-javier@osg.samsung.com>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 10/12/2016 10:54 PM, Wim Van Sebroeck wrote:
-> Hi Linus,
->
-> It's an old server with only 512Mb RAM. I'm in the progress off replacing it (in another datacenter).
-> Meanwhile I'll restart git-daemon.
->
+If the driver is built as a module, autoload won't work because the module
+alias information is not filled. So user-space can't match the registered
+device with the corresponding module.
 
-Linus,
+Export the module alias information using the MODULE_DEVICE_TABLE() macro.
 
-if it still doesn't work, I pulled it, verified it, and pushed it into my repository at kernel.org
-with a signed tag.
+Before this patch:
 
-git://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git tags/watchdog-wim-v4.9
+$ modinfo drivers/watchdog/bcm7038_wdt.ko | grep alias
+$
 
-Guenter
+After this patch:
 
-> Sorry,
-> Wim.
->
->> On Wed, Oct 12, 2016 at 11:35 AM, Wim Van Sebroeck <wim@iguana.be> wrote:
->>> Hi Linus,
->>>
->>> Please pull from 'master' branch of
->>>         git://www.linux-watchdog.org/linux-watchdog.git
->>
->> That site really is very ill. It's timing out or getting "Connection
->> reset by peer" errors.
->>
->> How about just using something like github and signed tags? This is
->> not the first time inux-watchdog.org has had problems.
->>
->> (In fact, even withour switching to something like github, signed tags
->> would be a good thing).
->>
->>                    Linus
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
+$ modinfo drivers/watchdog/bcm7038_wdt.ko | grep alias
+alias:          of:N*T*Cbrcm,bcm7038-wdtC*
+alias:          of:N*T*Cbrcm,bcm7038-wdt
 
+Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+---
+
+ drivers/watchdog/bcm7038_wdt.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/watchdog/bcm7038_wdt.c b/drivers/watchdog/bcm7038_wdt.c
+index e238df4d75a2..4814c00b32f6 100644
+--- a/drivers/watchdog/bcm7038_wdt.c
++++ b/drivers/watchdog/bcm7038_wdt.c
+@@ -216,6 +216,7 @@ static const struct of_device_id bcm7038_wdt_match[] = {
+ 	{ .compatible = "brcm,bcm7038-wdt" },
+ 	{},
+ };
++MODULE_DEVICE_TABLE(of, bcm7038_wdt_match);
+ 
+ static struct platform_driver bcm7038_wdt_driver = {
+ 	.probe		= bcm7038_wdt_probe,
+-- 
+2.7.4
