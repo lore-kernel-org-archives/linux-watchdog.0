@@ -1,18 +1,15 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from skprod3.natinst.com ([130.164.80.24]:57076 "EHLO ni.com"
+Received: from skprod3.natinst.com ([130.164.80.24]:59910 "EHLO ni.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S935372AbcJ1Hwe (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 28 Oct 2016 03:52:34 -0400
+        id S1754675AbcJNDkK (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Thu, 13 Oct 2016 23:40:10 -0400
 From: Hui Chun Ong <hui.chun.ong@ni.com>
-To: <wim@iguana.be>, <linux@roeck-us.net>, <corbet@lwn.net>
-CC: <linux-watchdog@vger.kernel.org>, <linux-doc@vger.kernel.org>,
-        <jonathan.hearn@ni.com>, <julia.cartwright@ni.com>,
-        Hui Chun Ong <hui.chun.ong@ni.com>
-Subject: [RESEND PATCH] watchdog: ni7018_wdt: Add NIC7018 watchdog driver
-Date: Fri, 28 Oct 2016 15:51:07 +0800
-Message-ID: <1477641067-5004-1-git-send-email-hui.chun.ong@ni.com>
-MIME-Version: 1.0
-Content-Type: text/plain
+To: wim@iguana.be, linux@roeck-us.net
+Cc: linux-watchdog@vger.kernel.org, jonathan.hearn@ni.com,
+        julia.cartwright@ni.com, Hui Chun Ong <hui.chun.ong@ni.com>
+Subject: [PATCH] watchdog: ni7018_wdt: Add NIC7018 watchdog driver
+Date: Fri, 14 Oct 2016 11:38:00 +0800
+Message-Id: <1476416280-9247-1-git-send-email-hui.chun.ong@ni.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
@@ -44,7 +41,7 @@ index a8d3642..25dbfa2 100644
  timeout: Initial watchdog timeout in seconds (0<timeout<516, default=60)
  nowayout: Watchdog cannot be stopped once started
 diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index fdd3228..6d185af 100644
+index 50dbaa8..7ee4391 100644
 --- a/drivers/watchdog/Kconfig
 +++ b/drivers/watchdog/Kconfig
 @@ -1314,6 +1314,17 @@ config INTEL_MEI_WDT
@@ -66,10 +63,10 @@ index fdd3228..6d185af 100644
  	tristate "NI 903x/913x Watchdog"
  	depends on X86 && ACPI
 diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index caa9f4a..4605cd2 100644
+index cba0043..e906178 100644
 --- a/drivers/watchdog/Makefile
 +++ b/drivers/watchdog/Makefile
-@@ -139,6 +139,7 @@ obj-$(CONFIG_INTEL_SCU_WATCHDOG) += intel_scu_watchdog.o
+@@ -133,6 +133,7 @@ obj-$(CONFIG_INTEL_SCU_WATCHDOG) += intel_scu_watchdog.o
  obj-$(CONFIG_INTEL_MID_WATCHDOG) += intel-mid_wdt.o
  obj-$(CONFIG_INTEL_MEI_WDT) += mei_wdt.o
  obj-$(CONFIG_NI903X_WDT) += ni903x_wdt.o
