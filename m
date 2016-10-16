@@ -1,63 +1,91 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:46364 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753598AbcJNQ4M (ORCPT
+Received: from smtp484.redcondor.net ([208.80.204.84]:52031 "EHLO
+        smtp484.redcondor.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752904AbcJPLAk (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 14 Oct 2016 12:56:12 -0400
-Date: Fri, 14 Oct 2016 09:56:10 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Javier Martinez Canillas <javier@osg.samsung.com>
-Cc: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        Wim Van Sebroeck <wim@iguana.be>
-Subject: Re: [PATCH 2/2] watchdog: max77620_wdt: fix module autoload
-Message-ID: <20161014165610.GB21425@roeck-us.net>
-References: <1476458631-29685-1-git-send-email-javier@osg.samsung.com>
- <1476458631-29685-2-git-send-email-javier@osg.samsung.com>
+        Sun, 16 Oct 2016 07:00:40 -0400
+Received: from astoria.ccjclearline.com ([64.235.106.9])
+          by smtp484.redcondor.net ({c48374e7-08df-40d9-a0de-96cc9883a037})
+          via TCP (outbound) with ESMTPS id 20161016105017163_0484
+          for <linux-watchdog@vger.kernel.org>;
+          Sun, 16 Oct 2016 10:50:17 +0000
+Received: from [174.118.92.171] (port=58894 helo=crashcourse.ca)
+        by astoria.ccjclearline.com with esmtpsa (TLSv1:AES256-SHA:256)
+        (Exim 4.80)
+        (envelope-from <rpjday@crashcourse.ca>)
+        id 1bvj18-0006Ne-Ri
+        for linux-watchdog@vger.kernel.org; Sun, 16 Oct 2016 06:50:10 -0400
+Date: Sun, 16 Oct 2016 06:49:20 -0400 (EDT)
+From: "Robert P. J. Day" <rpjday@crashcourse.ca>
+To: linux-watchdog@vger.kernel.org
+Subject: [PATCH] watchdog: Remove misleading word "legacy" for
+ /dev/watchdog
+Message-ID: <alpine.LFD.2.20.1610160645550.19356@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1476458631-29685-2-git-send-email-javier@osg.samsung.com>
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, Oct 14, 2016 at 12:23:51PM -0300, Javier Martinez Canillas wrote:
-> If the driver is built as a module, autoload won't work because the module
-> alias information is not filled. So user-space can't match the registered
-> device with the corresponding module.
-> 
-> Export the module alias information using the MODULE_DEVICE_TABLE() macro.
-> 
-> Before this patch:
-> 
-> $ $ modinfo drivers/watchdog/max77620_wdt.ko | grep alias
-> $
-> 
-> After this patch:
-> 
-> modinfo drivers/watchdog/max77620_wdt.ko | grep alias
-> alias:          platform:max77620-watchdog
-> 
-> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+The word "legacy" should not be used for the special file
+/dev/watchdog, as that file is still essential for watchdog
+operations.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Robert P. J. Day <rpjday@crashcourse.ca>
 
-> ---
-> 
->  drivers/watchdog/max77620_wdt.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/watchdog/max77620_wdt.c b/drivers/watchdog/max77620_wdt.c
-> index 48b84df2afda..68c41fa2be27 100644
-> --- a/drivers/watchdog/max77620_wdt.c
-> +++ b/drivers/watchdog/max77620_wdt.c
-> @@ -205,6 +205,7 @@ static struct platform_device_id max77620_wdt_devtype[] = {
->  	{ .name = "max77620-watchdog", },
->  	{ },
->  };
-> +MODULE_DEVICE_TABLE(platform, max77620_wdt_devtype);
->  
->  static struct platform_driver max77620_wdt_driver = {
->  	.driver	= {
-> -- 
-> 2.7.4
-> 
+---
+
+  i expressed my reservations about use of the word "legacy" here:
+
+https://lists.kernelnewbies.org/pipermail/kernelnewbies/2016-October/017054.html
+
+diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
+index 32930a0..0cc5ab8 100644
+--- a/drivers/watchdog/watchdog_dev.c
++++ b/drivers/watchdog/watchdog_dev.c
+@@ -891,7 +891,7 @@ static struct miscdevice watchdog_miscdev = {
+  *	@wdd: watchdog device
+  *	@devno: character device number
+  *
+- *	Register a watchdog character device including handling the legacy
++ *	Register a watchdog character device including handling the
+  *	/dev/watchdog node. /dev/watchdog is actually a miscdevice and
+  *	thus we set it up like that.
+  */
+@@ -968,7 +968,7 @@ static int watchdog_cdev_register(struct watchdog_device *wdd, dev_t devno)
+  *	watchdog_cdev_unregister: unregister watchdog character device
+  *	@watchdog: watchdog device
+  *
+- *	Unregister watchdog character device and if needed the legacy
++ *	Unregister watchdog character device and if needed the
+  *	/dev/watchdog device.
+  */
+
+@@ -1002,7 +1002,7 @@ static struct class watchdog_class = {
+  *	watchdog_dev_register: register a watchdog device
+  *	@wdd: watchdog device
+  *
+- *	Register a watchdog device including handling the legacy
++ *	Register a watchdog device including handling the
+  *	/dev/watchdog node. /dev/watchdog is actually a miscdevice and
+  *	thus we set it up like that.
+  */
+@@ -1040,7 +1040,7 @@ int watchdog_dev_register(struct watchdog_device *wdd)
+  *	watchdog_dev_unregister: unregister a watchdog device
+  *	@watchdog: watchdog device
+  *
+- *	Unregister watchdog device and if needed the legacy
++ *	Unregister watchdog device and if needed the
+  *	/dev/watchdog device.
+  */
+
+
+-- 
+
+========================================================================
+Robert P. J. Day                                 Ottawa, Ontario, CANADA
+                        http://crashcourse.ca
+
+Twitter:                                       http://twitter.com/rpjday
+LinkedIn:                               http://ca.linkedin.com/in/rpjday
+========================================================================
+
