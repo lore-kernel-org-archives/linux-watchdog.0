@@ -1,67 +1,67 @@
-Return-path: <rpjday@crashcourse.ca>
-Date: Mon, 17 Oct 2016 09:31:42 -0400 (EDT)
-From: "Robert P. J. Day" <rpjday@crashcourse.ca>
-To: Guenter Roeck <linux@roeck-us.net>
-cc: Linux watchdog mailing list <linux-watchdog@vger.kernel.org>
-Subject: Re: is watchdog_ops stop() routine mandatory or optional?
-In-Reply-To: <83fbc8ba-5f1c-9420-2e64-3008abc433ee@roeck-us.net>
-Message-ID: <alpine.LFD.2.20.1610170931180.7980@ca624034.mitel.com>
-References: <alpine.LFD.2.20.1610170638260.6042@ca624034.mitel.com> <83fbc8ba-5f1c-9420-2e64-3008abc433ee@roeck-us.net>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:55176 "EHLO
+        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752869AbcJQNd5 (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 17 Oct 2016 09:33:57 -0400
+Subject: Re: curious about a couple examples of drivers including
+ <asm/watchdog.h>
+To: "Robert P. J. Day" <rpjday@crashcourse.ca>,
+        Linux watchdog mailing list <linux-watchdog@vger.kernel.org>
+References: <alpine.LFD.2.20.1610170536320.4439@ca624034.mitel.com>
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <0c176d4e-eb52-7dcb-8a09-edf97f294711@roeck-us.net>
+Date: Mon, 17 Oct 2016 06:33:55 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-List-ID: <linux-watchdog@vger.kernel.org>
+In-Reply-To: <alpine.LFD.2.20.1610170536320.4439@ca624034.mitel.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, 17 Oct 2016, Guenter Roeck wrote:
-
-> On 10/17/2016 03:42 AM, Robert P. J. Day wrote:
-> >
-> >   continuing with annoying pedantry, there's this from
-> > Documentation/watchdog/watchdog-kernel-api.txt:
-> >
-> >   The list of watchdog operations is defined as:
-> >
-> >   struct watchdog_ops {
-> >         struct module *owner;
-> >         /* mandatory operations */
-> >         int (*start)(struct watchdog_device *);
-> >         int (*stop)(struct watchdog_device *);
-> >         /* optional operations */
-> >         ... snip ...
-> >
-> > followed shortly by:
-> >
-> > Some operations are mandatory and some are optional. The mandatory
-> > operations
-> > are:
-> > * start: this is a pointer to the routine that starts the watchdog timer
-> >   device.
-> >   The routine needs a pointer to the watchdog timer device structure as a
-> >   parameter. It returns zero on success or a negative errno code for
-> >   failure.
-> >
-> > Not all watchdog timer hardware supports the same functionality. That's why
-> > all other routines/operations are optional. They only need to be provided if
-> > they are supported. These optional routines/operations are:
-> > * stop: with this routine the watchdog timer device is being stopped.
-> > ... snip ...
-> >
-> >   so the first snippet implies that stop() is mandatory, while the
-> > subsequent snippet describes it as optional. thoughts?
-> >
+On 10/17/2016 02:41 AM, Robert P. J. Day wrote:
 >
-> stop used to be mandatory, but isn't anymore. I missed updating the
-> structure.
+>   more nitpicking pedantry ... reading watchdog-kernel-api.txt, which
+> claims:
+>
+> "Each watchdog timer driver that wants to use the WatchDog Timer
+> Driver Core must #include <linux/watchdog.h> (you would have to do
+> this anyway when writing a watchdog device driver)."
+>
+>   except i just noticed the following -- kernel files that include
+> <asm/watchdog.h>:
+>
+> $ grep -r "include.*asm/watchdog.h" *
+> arch/sh/boards/mach-hp6xx/pm.c:#include <asm/watchdog.h>
+> arch/sh/kernel/reboot.c:#include <asm/watchdog.h>
 
-  you can patch it if you prefer, or i can do it. your choice.
+If you look more closely, you'll notice that yhe above two files may use
+functionality associated with kernel/watchdog.c and/or use definitions
+and/or functions defined in the asm include. They do not implement watchdog
+drivers associated with drivers/watchdog.
 
-rday
+> drivers/watchdog/shwdt.c:#include <asm/watchdog.h>
+> drivers/watchdog/cpwd.c:#include <asm/watchdog.h>
+> $
+>
+>   that last file, cpwd.c, includes just:
+>
+> #include <asm/watchdog.h>
+>
+>   while the file shwdt.c includes *both*:
+>
+> #include <linux/watchdog.h>
+> ...
+> #include <asm/watchdog.h>
+>
+>   i readily admit i have no idea why this is being done, or if there's
+> a perfectly good reason that SH needs to be treated a bit differently;
+> just pointing out that the claim in that Doc file is not entirely
+> accurate for those cases.
+>
+Check the source. I would guess that those two drivers use definitions
+and/or functions from the asm include files. The latter file hasn't been
+converted to use the watchdog infrastructure.
 
--- 
+Guenter
 
-========================================================================
-Robert P. J. Day                                 Ottawa, Ontario, CANADA
-                        http://crashcourse.ca
-
-Twitter:                                       http://twitter.com/rpjday
-LinkedIn:                               http://ca.linkedin.com/in/rpjday
-========================================================================
