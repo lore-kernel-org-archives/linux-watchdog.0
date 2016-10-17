@@ -1,66 +1,65 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from smtp684.redcondor.net ([208.80.206.84]:35804 "EHLO
-        smtp684.redcondor.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932335AbcJQKnJ (ORCPT
+Received: from smtp486.redcondor.net ([208.80.204.86]:54858 "EHLO
+        smtp486.redcondor.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752123AbcJQJnB (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 17 Oct 2016 06:43:09 -0400
+        Mon, 17 Oct 2016 05:43:01 -0400
 Received: from astoria.ccjclearline.com ([64.235.106.9])
-          by smtp684.redcondor.net ({700db0a8-6fb7-4c8b-9b2a-6812225182d8})
-          via TCP (outbound) with ESMTPS id 20161017104307756_0684
+          by smtp486.redcondor.net ({6695537a-536a-45f9-a249-877c85428649})
+          via TCP (outbound) with ESMTPS id 20161017094259881_0486
           for <linux-watchdog@vger.kernel.org>;
-          Mon, 17 Oct 2016 10:43:07 +0000
-Received: from [216.191.234.70] (port=24304 helo=crashcourse.ca)
+          Mon, 17 Oct 2016 09:42:59 +0000
+Received: from [216.191.234.70] (port=51619 helo=crashcourse.ca)
         by astoria.ccjclearline.com with esmtpsa (TLSv1:AES256-SHA:256)
         (Exim 4.80)
         (envelope-from <rpjday@crashcourse.ca>)
-        id 1bw5Nm-0004Az-4d
-        for linux-watchdog@vger.kernel.org; Mon, 17 Oct 2016 06:43:02 -0400
-Date: Mon, 17 Oct 2016 06:42:07 -0400 (EDT)
+        id 1bw4RZ-0007WM-BX
+        for linux-watchdog@vger.kernel.org; Mon, 17 Oct 2016 05:42:53 -0400
+Date: Mon, 17 Oct 2016 05:41:58 -0400 (EDT)
 From: "Robert P. J. Day" <rpjday@crashcourse.ca>
 To: Linux watchdog mailing list <linux-watchdog@vger.kernel.org>
-Subject: is watchdog_ops stop() routine mandatory or optional?
-Message-ID: <alpine.LFD.2.20.1610170638260.6042@ca624034.mitel.com>
+Subject: curious about a couple examples of drivers including
+ <asm/watchdog.h>
+Message-ID: <alpine.LFD.2.20.1610170536320.4439@ca624034.mitel.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
 
-  continuing with annoying pedantry, there's this from
-Documentation/watchdog/watchdog-kernel-api.txt:
+  more nitpicking pedantry ... reading watchdog-kernel-api.txt, which
+claims:
 
-  The list of watchdog operations is defined as:
+"Each watchdog timer driver that wants to use the WatchDog Timer
+Driver Core must #include <linux/watchdog.h> (you would have to do
+this anyway when writing a watchdog device driver)."
 
-  struct watchdog_ops {
-        struct module *owner;
-        /* mandatory operations */
-        int (*start)(struct watchdog_device *);
-        int (*stop)(struct watchdog_device *);
-        /* optional operations */
-        ... snip ...
+  except i just noticed the following -- kernel files that include
+<asm/watchdog.h>:
 
-followed shortly by:
+$ grep -r "include.*asm/watchdog.h" *
+arch/sh/boards/mach-hp6xx/pm.c:#include <asm/watchdog.h>
+arch/sh/kernel/reboot.c:#include <asm/watchdog.h>
+drivers/watchdog/shwdt.c:#include <asm/watchdog.h>
+drivers/watchdog/cpwd.c:#include <asm/watchdog.h>
+$
 
-Some operations are mandatory and some are optional. The mandatory operations
-are:
-* start: this is a pointer to the routine that starts the watchdog timer
-  device.
-  The routine needs a pointer to the watchdog timer device structure as a
-  parameter. It returns zero on success or a negative errno code for failure.
+  that last file, cpwd.c, includes just:
 
-Not all watchdog timer hardware supports the same functionality. That's why
-all other routines/operations are optional. They only need to be provided if
-they are supported. These optional routines/operations are:
-* stop: with this routine the watchdog timer device is being stopped.
-... snip ...
+#include <asm/watchdog.h>
 
-  so the first snippet implies that stop() is mandatory, while the
-subsequent snippet describes it as optional. thoughts?
+  while the file shwdt.c includes *both*:
+
+#include <linux/watchdog.h>
+...
+#include <asm/watchdog.h>
+
+  i readily admit i have no idea why this is being done, or if there's
+a perfectly good reason that SH needs to be treated a bit differently;
+just pointing out that the claim in that Doc file is not entirely
+accurate for those cases.
 
 rday
-
-p.s. i am currently editing this doc file, and will submit an updated
-version with little fixes throughout.
 
 -- 
 
