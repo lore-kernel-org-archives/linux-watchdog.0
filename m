@@ -1,67 +1,42 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:55176 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752869AbcJQNd5 (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 17 Oct 2016 09:33:57 -0400
-Subject: Re: curious about a couple examples of drivers including
- <asm/watchdog.h>
-To: "Robert P. J. Day" <rpjday@crashcourse.ca>,
-        Linux watchdog mailing list <linux-watchdog@vger.kernel.org>
-References: <alpine.LFD.2.20.1610170536320.4439@ca624034.mitel.com>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <0c176d4e-eb52-7dcb-8a09-edf97f294711@roeck-us.net>
-Date: Mon, 17 Oct 2016 06:33:55 -0700
-MIME-Version: 1.0
-In-Reply-To: <alpine.LFD.2.20.1610170536320.4439@ca624034.mitel.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-path: <tomas.winkler@intel.com>
+From: Tomas Winkler <tomas.winkler@intel.com>
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Aloisio Almeida Jr <aloisio.almeida@openbossa.org>,
+	Samuel Ortiz <sameo@linux.intel.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Guenter Roeck <linux@roeck-us.net>
+Cc: Alexander Usyskin <alexander.usyskin@intel.com>,
+	linux-kernel@vger.kernel.org,
+	linux-wireless@vger.kernel.org,
+	linux-watchdog@vger.kernel.org,
+	Tomas Winkler <tomas.winkler@intel.com>
+Subject: [char-misc-next 0/5] mei: mei client bus api changes
+Date: Wed, 19 Oct 2016 16:33:26 +0300
+Message-Id: <1476884011-20645-1-git-send-email-tomas.winkler@intel.com>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 10/17/2016 02:41 AM, Robert P. J. Day wrote:
->
->   more nitpicking pedantry ... reading watchdog-kernel-api.txt, which
-> claims:
->
-> "Each watchdog timer driver that wants to use the WatchDog Timer
-> Driver Core must #include <linux/watchdog.h> (you would have to do
-> this anyway when writing a watchdog device driver)."
->
->   except i just noticed the following -- kernel files that include
-> <asm/watchdog.h>:
->
-> $ grep -r "include.*asm/watchdog.h" *
-> arch/sh/boards/mach-hp6xx/pm.c:#include <asm/watchdog.h>
-> arch/sh/kernel/reboot.c:#include <asm/watchdog.h>
+We are adding a helper module macro for removing boilerplate  
+code in driver registration, and removing redundant context
+argument from the event callback.
 
-If you look more closely, you'll notice that yhe above two files may use
-functionality associated with kernel/watchdog.c and/or use definitions
-and/or functions defined in the asm include. They do not implement watchdog
-drivers associated with drivers/watchdog.
+The changes go over misc, nfc, and watchdog subtrees. 
+I believe it should be conflict free to merge it to the misc
+tree.
 
-> drivers/watchdog/shwdt.c:#include <asm/watchdog.h>
-> drivers/watchdog/cpwd.c:#include <asm/watchdog.h>
-> $
->
->   that last file, cpwd.c, includes just:
->
-> #include <asm/watchdog.h>
->
->   while the file shwdt.c includes *both*:
->
-> #include <linux/watchdog.h>
-> ...
-> #include <asm/watchdog.h>
->
->   i readily admit i have no idea why this is being done, or if there's
-> a perfectly good reason that SH needs to be treated a bit differently;
-> just pointing out that the claim in that Doc file is not entirely
-> accurate for those cases.
->
-Check the source. I would guess that those two drivers use definitions
-and/or functions from the asm include files. The latter file hasn't been
-converted to use the watchdog infrastructure.
+Tomas Winkler (5):
+  mei: bus: add  module_mei_cl_driver helper macro
+  watchdog: mei_wdt: use module_mei_cl_driver macro
+  nfc: mei: use module_mei_cl_driver macro
+  nfc: mei_phy: get phy from the driver data
+  mei: bus: remove rx callback context
 
-Guenter
+ drivers/misc/mei/bus.c      |  6 ++----
+ drivers/nfc/mei_phy.c       | 10 ++++++----
+ drivers/nfc/microread/mei.c | 23 +----------------------
+ drivers/nfc/pn544/mei.c     | 23 +----------------------
+ drivers/watchdog/mei_wdt.c  | 26 +++-----------------------
+ include/linux/mei_cl_bus.h  | 19 +++++++++++++++----
+ 6 files changed, 28 insertions(+), 79 deletions(-)
 
+-- 
+2.7.4
