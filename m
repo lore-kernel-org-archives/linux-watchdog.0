@@ -1,31 +1,42 @@
-Return-path: <rjwysocki@gmail.com>
-MIME-Version: 1.0
-Sender: rjwysocki@gmail.com
-In-Reply-To: <20161020221931.GA929@roeck-us.net>
-References: <20161020150336.97791-1-mika.westerberg@linux.intel.com> <20161020221931.GA929@roeck-us.net>
-From: "Rafael J. Wysocki" <rafael@kernel.org>
-Date: Fri, 21 Oct 2016 00:47:24 +0200
-Message-ID: <CAJZ5v0jRdmskuLsL17UZtS8P6=kCpjNj=qwm-ciEKnQ7VAjXcg@mail.gmail.com>
-Subject: Re: [PATCH] watchdog: wdat_wdt: Ping the watchdog on resume
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>, Wim Van Sebroeck <wim@iguana.be>,
-	"Rafael J. Wysocki" <rjw@rjwysocki.net>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+Return-path: <javier@osg.samsung.com>
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+To: linux-kernel@vger.kernel.org
+Cc: Javier Martinez Canillas <javier@osg.samsung.com>,
+	Guenter Roeck <linux@roeck-us.net>,
+	linux-watchdog@vger.kernel.org,
+	Kevin Hilman <khilman@baylibre.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Carlo Caione <carlo@caione.org>,
+	linux-amlogic@lists.infradead.org,
+	linux-arm-kernel@lists.infradead.org
+Subject: [PATCH] watchdog: meson: Remove unneeded platform MODULE_ALIAS
+Date: Wed, 19 Oct 2016 16:49:42 -0300
+Message-Id: <1476906582-14241-1-git-send-email-javier@osg.samsung.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On Fri, Oct 21, 2016 at 12:19 AM, Guenter Roeck <linux@roeck-us.net> wrote:
-> On Thu, Oct 20, 2016 at 06:03:36PM +0300, Mika Westerberg wrote:
->> It turns out we need to ping the watchdog hardware on resume when we
->> re-program it. Otherwise this results inadvertent reset to trigger right
->> after the resume is completed.
->>
->> Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
->
-> Acked-by: Guenter Roeck <linux@roeck-us.net>
->
-> [ assuming Rafael is going to pick it up ]
+The Amlogic Meson is a DT-only platform, which means the devices are
+registered via OF and not using the legacy platform devices support.
 
-I am, thanks!
+So there's no need to have a MODULE_ALIAS("platform:meson-gxbb-wdt")
+since the reported uevent MODALIAS to user-space will be the OF one.
 
-Rafael
+Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+---
+
+ drivers/watchdog/meson_gxbb_wdt.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/drivers/watchdog/meson_gxbb_wdt.c b/drivers/watchdog/meson_gxbb_wdt.c
+index 44d180a2c5e5..45d47664a00a 100644
+--- a/drivers/watchdog/meson_gxbb_wdt.c
++++ b/drivers/watchdog/meson_gxbb_wdt.c
+@@ -264,7 +264,6 @@ static struct platform_driver meson_gxbb_wdt_driver = {
+ 
+ module_platform_driver(meson_gxbb_wdt_driver);
+ 
+-MODULE_ALIAS("platform:meson-gxbb-wdt");
+ MODULE_AUTHOR("Neil Armstrong <narmstrong@baylibre.com>");
+ MODULE_DESCRIPTION("Amlogic Meson GXBB Watchdog timer driver");
+ MODULE_LICENSE("Dual BSD/GPL");
+-- 
+2.7.4
