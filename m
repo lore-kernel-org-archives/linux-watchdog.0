@@ -1,8 +1,8 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
 Received: from mga03.intel.com ([134.134.136.65]:55827 "EHLO mga03.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S943765AbcJSPA6 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 19 Oct 2016 11:00:58 -0400
+        id S943473AbcJSPA4 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Wed, 19 Oct 2016 11:00:56 -0400
 From: Tomas Winkler <tomas.winkler@intel.com>
 To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Aloisio Almeida Jr <aloisio.almeida@openbossa.org>,
@@ -13,52 +13,38 @@ Cc: Alexander Usyskin <alexander.usyskin@intel.com>,
         linux-kernel@vger.kernel.org, linux-wireless@vger.kernel.org,
         linux-watchdog@vger.kernel.org,
         Tomas Winkler <tomas.winkler@intel.com>
-Subject: [char-misc-next 2/5] watchdog: mei_wdt: use module_mei_cl_driver macro
-Date: Wed, 19 Oct 2016 16:33:28 +0300
-Message-Id: <1476884011-20645-3-git-send-email-tomas.winkler@intel.com>
+Subject: [char-misc-next 4/5] nfc: mei_phy: get phy from the driver data
+Date: Wed, 19 Oct 2016 16:33:30 +0300
+Message-Id: <1476884011-20645-5-git-send-email-tomas.winkler@intel.com>
 In-Reply-To: <1476884011-20645-1-git-send-email-tomas.winkler@intel.com>
 References: <1476884011-20645-1-git-send-email-tomas.winkler@intel.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Replace boilerplate driver registration with module_mei_cl_driver macro.
+In order to remove rather redundant context from the callback
+signature we the get nfc mei_phy from the driver's data.
 
 Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
 ---
- drivers/watchdog/mei_wdt.c | 20 +-------------------
- 1 file changed, 1 insertion(+), 19 deletions(-)
+ drivers/nfc/mei_phy.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/watchdog/mei_wdt.c b/drivers/watchdog/mei_wdt.c
-index 630bd189f167..116be477c8fd 100644
---- a/drivers/watchdog/mei_wdt.c
-+++ b/drivers/watchdog/mei_wdt.c
-@@ -699,25 +699,7 @@ static struct mei_cl_driver mei_wdt_driver = {
- 	.remove = mei_wdt_remove,
- };
+diff --git a/drivers/nfc/mei_phy.c b/drivers/nfc/mei_phy.c
+index 83deda4bb4d6..66dfd81ffb18 100644
+--- a/drivers/nfc/mei_phy.c
++++ b/drivers/nfc/mei_phy.c
+@@ -300,7 +300,10 @@ static int mei_nfc_recv(struct nfc_mei_phy *phy, u8 *buf, size_t length)
+ static void nfc_mei_event_cb(struct mei_cl_device *cldev, u32 events,
+ 			     void *context)
+ {
+-	struct nfc_mei_phy *phy = context;
++	struct nfc_mei_phy *phy = mei_cldev_get_drvdata(cldev);
++
++	if (!phy)
++		return;
  
--static int __init mei_wdt_init(void)
--{
--	int ret;
--
--	ret = mei_cldev_driver_register(&mei_wdt_driver);
--	if (ret) {
--		pr_err(KBUILD_MODNAME ": module registration failed\n");
--		return ret;
--	}
--	return 0;
--}
--
--static void __exit mei_wdt_exit(void)
--{
--	mei_cldev_driver_unregister(&mei_wdt_driver);
--}
--
--module_init(mei_wdt_init);
--module_exit(mei_wdt_exit);
-+module_mei_cl_driver(mei_wdt_driver);
- 
- MODULE_AUTHOR("Intel Corporation");
- MODULE_LICENSE("GPL");
+ 	if (phy->hard_fault != 0)
+ 		return;
 -- 
 2.7.4
 
