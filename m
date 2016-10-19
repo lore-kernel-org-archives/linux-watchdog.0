@@ -1,156 +1,64 @@
-Return-path: <tomas.winkler@intel.com>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mga03.intel.com ([134.134.136.65]:55827 "EHLO mga03.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S943765AbcJSPA6 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Wed, 19 Oct 2016 11:00:58 -0400
 From: Tomas Winkler <tomas.winkler@intel.com>
 To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Aloisio Almeida Jr <aloisio.almeida@openbossa.org>,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Guenter Roeck <linux@roeck-us.net>
+        Aloisio Almeida Jr <aloisio.almeida@openbossa.org>,
+        Samuel Ortiz <sameo@linux.intel.com>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Guenter Roeck <linux@roeck-us.net>
 Cc: Alexander Usyskin <alexander.usyskin@intel.com>,
-	linux-kernel@vger.kernel.org,
-	linux-wireless@vger.kernel.org,
-	linux-watchdog@vger.kernel.org,
-	Tomas Winkler <tomas.winkler@intel.com>
-Subject: [char-misc-next 5/5] mei: bus: remove rx callback context
-Date: Wed, 19 Oct 2016 16:33:31 +0300
-Message-Id: <1476884011-20645-6-git-send-email-tomas.winkler@intel.com>
+        linux-kernel@vger.kernel.org, linux-wireless@vger.kernel.org,
+        linux-watchdog@vger.kernel.org,
+        Tomas Winkler <tomas.winkler@intel.com>
+Subject: [char-misc-next 2/5] watchdog: mei_wdt: use module_mei_cl_driver macro
+Date: Wed, 19 Oct 2016 16:33:28 +0300
+Message-Id: <1476884011-20645-3-git-send-email-tomas.winkler@intel.com>
 In-Reply-To: <1476884011-20645-1-git-send-email-tomas.winkler@intel.com>
 References: <1476884011-20645-1-git-send-email-tomas.winkler@intel.com>
-List-ID: <linux-watchdog@vger.kernel.org>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-The callback context is redunant as all the information can be
-retrived from the device struture of its private data.
+Replace boilerplate driver registration with module_mei_cl_driver macro.
 
 Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
 ---
- drivers/misc/mei/bus.c     | 6 ++----
- drivers/nfc/mei_phy.c      | 5 ++---
- drivers/watchdog/mei_wdt.c | 6 ++----
- include/linux/mei_cl_bus.h | 6 ++----
- 4 files changed, 8 insertions(+), 15 deletions(-)
+ drivers/watchdog/mei_wdt.c | 20 +-------------------
+ 1 file changed, 1 insertion(+), 19 deletions(-)
 
-diff --git a/drivers/misc/mei/bus.c b/drivers/misc/mei/bus.c
-index 8cac7ef9ad0d..89a694ca624c 100644
---- a/drivers/misc/mei/bus.c
-+++ b/drivers/misc/mei/bus.c
-@@ -228,7 +228,7 @@ static void mei_cl_bus_event_work(struct work_struct *work)
- 	bus = cldev->bus;
- 
- 	if (cldev->event_cb)
--		cldev->event_cb(cldev, cldev->events, cldev->event_context);
-+		cldev->event_cb(cldev, cldev->events);
- 
- 	cldev->events = 0;
- 
-@@ -301,7 +301,6 @@ bool mei_cl_bus_rx_event(struct mei_cl *cl)
-  * @cldev: me client devices
-  * @event_cb: callback function
-  * @events_mask: requested events bitmask
-- * @context: driver context data
-  *
-  * Return: 0 on success
-  *         -EALREADY if an callback is already registered
-@@ -309,7 +308,7 @@ bool mei_cl_bus_rx_event(struct mei_cl *cl)
-  */
- int mei_cldev_register_event_cb(struct mei_cl_device *cldev,
- 				unsigned long events_mask,
--				mei_cldev_event_cb_t event_cb, void *context)
-+				mei_cldev_event_cb_t event_cb)
- {
- 	struct mei_device *bus = cldev->bus;
- 	int ret;
-@@ -320,7 +319,6 @@ int mei_cldev_register_event_cb(struct mei_cl_device *cldev,
- 	cldev->events = 0;
- 	cldev->events_mask = events_mask;
- 	cldev->event_cb = event_cb;
--	cldev->event_context = context;
- 	INIT_WORK(&cldev->event_work, mei_cl_bus_event_work);
- 
- 	if (cldev->events_mask & BIT(MEI_CL_EVENT_RX)) {
-diff --git a/drivers/nfc/mei_phy.c b/drivers/nfc/mei_phy.c
-index 66dfd81ffb18..07b4239585fa 100644
---- a/drivers/nfc/mei_phy.c
-+++ b/drivers/nfc/mei_phy.c
-@@ -297,8 +297,7 @@ static int mei_nfc_recv(struct nfc_mei_phy *phy, u8 *buf, size_t length)
- }
- 
- 
--static void nfc_mei_event_cb(struct mei_cl_device *cldev, u32 events,
--			     void *context)
-+static void nfc_mei_event_cb(struct mei_cl_device *cldev, u32 events)
- {
- 	struct nfc_mei_phy *phy = mei_cldev_get_drvdata(cldev);
- 
-@@ -360,7 +359,7 @@ static int nfc_mei_phy_enable(void *phy_id)
- 	}
- 
- 	r = mei_cldev_register_event_cb(phy->cldev, BIT(MEI_CL_EVENT_RX),
--				     nfc_mei_event_cb, phy);
-+					nfc_mei_event_cb);
- 	if (r) {
- 		pr_err("Event cb registration failed %d\n", r);
- 		goto err;
 diff --git a/drivers/watchdog/mei_wdt.c b/drivers/watchdog/mei_wdt.c
-index 116be477c8fd..e0af52265511 100644
+index 630bd189f167..116be477c8fd 100644
 --- a/drivers/watchdog/mei_wdt.c
 +++ b/drivers/watchdog/mei_wdt.c
-@@ -501,10 +501,8 @@ static void mei_wdt_notify_event(struct mei_cl_device *cldev)
-  *
-  * @cldev: bus device
-  * @events: event mask
-- * @context: callback context
-  */
--static void mei_wdt_event(struct mei_cl_device *cldev,
--			  u32 events, void *context)
-+static void mei_wdt_event(struct mei_cl_device *cldev, u32 events)
- {
- 	if (events & BIT(MEI_CL_EVENT_RX))
- 		mei_wdt_event_rx(cldev);
-@@ -626,7 +624,7 @@ static int mei_wdt_probe(struct mei_cl_device *cldev,
- 	ret = mei_cldev_register_event_cb(wdt->cldev,
- 					  BIT(MEI_CL_EVENT_RX) |
- 					  BIT(MEI_CL_EVENT_NOTIF),
--					  mei_wdt_event, NULL);
-+					  mei_wdt_event);
+@@ -699,25 +699,7 @@ static struct mei_cl_driver mei_wdt_driver = {
+ 	.remove = mei_wdt_remove,
+ };
  
- 	/* on legacy devices notification is not supported
- 	 * this doesn't fail the registration for RX event
-diff --git a/include/linux/mei_cl_bus.h b/include/linux/mei_cl_bus.h
-index e6fbd98ea90e..4adb2e7c9f84 100644
---- a/include/linux/mei_cl_bus.h
-+++ b/include/linux/mei_cl_bus.h
-@@ -9,7 +9,7 @@ struct mei_cl_device;
- struct mei_device;
+-static int __init mei_wdt_init(void)
+-{
+-	int ret;
+-
+-	ret = mei_cldev_driver_register(&mei_wdt_driver);
+-	if (ret) {
+-		pr_err(KBUILD_MODNAME ": module registration failed\n");
+-		return ret;
+-	}
+-	return 0;
+-}
+-
+-static void __exit mei_wdt_exit(void)
+-{
+-	mei_cldev_driver_unregister(&mei_wdt_driver);
+-}
+-
+-module_init(mei_wdt_init);
+-module_exit(mei_wdt_exit);
++module_mei_cl_driver(mei_wdt_driver);
  
- typedef void (*mei_cldev_event_cb_t)(struct mei_cl_device *cldev,
--				     u32 events, void *context);
-+				     u32 events);
- 
- /**
-  * struct mei_cl_device - MEI device handle
-@@ -27,7 +27,6 @@ typedef void (*mei_cldev_event_cb_t)(struct mei_cl_device *cldev,
-  * @event_work: async work to execute event callback
-  * @event_cb: Drivers register this callback to get asynchronous ME
-  *	events (e.g. Rx buffer pending) notifications.
-- * @event_context: event callback run context
-  * @events_mask: Events bit mask requested by driver.
-  * @events: Events bitmask sent to the driver.
-  *
-@@ -46,7 +45,6 @@ struct mei_cl_device {
- 
- 	struct work_struct event_work;
- 	mei_cldev_event_cb_t event_cb;
--	void *event_context;
- 	unsigned long events_mask;
- 	unsigned long events;
- 
-@@ -92,7 +90,7 @@ ssize_t  mei_cldev_recv(struct mei_cl_device *cldev, u8 *buf, size_t length);
- 
- int mei_cldev_register_event_cb(struct mei_cl_device *cldev,
- 				unsigned long event_mask,
--				mei_cldev_event_cb_t read_cb, void *context);
-+				mei_cldev_event_cb_t read_cb);
- 
- #define MEI_CL_EVENT_RX 0
- #define MEI_CL_EVENT_TX 1
+ MODULE_AUTHOR("Intel Corporation");
+ MODULE_LICENSE("GPL");
 -- 
 2.7.4
+
