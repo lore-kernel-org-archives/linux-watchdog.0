@@ -1,19 +1,17 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-qt0-f177.google.com ([209.85.216.177]:36726 "EHLO
-        mail-qt0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752657AbcJTNm3 (ORCPT
+Received: from mail-qk0-f178.google.com ([209.85.220.178]:35854 "EHLO
+        mail-qk0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755178AbcJTNn3 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 20 Oct 2016 09:42:29 -0400
-Received: by mail-qt0-f177.google.com with SMTP id m5so53871823qtb.3
-        for <linux-watchdog@vger.kernel.org>; Thu, 20 Oct 2016 06:42:28 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <1475853451-22121-1-git-send-email-pantelis.antoniou@konsulko.com>
-References: <1475853451-22121-1-git-send-email-pantelis.antoniou@konsulko.com>
-From: Linus Walleij <linus.walleij@linaro.org>
-Date: Thu, 20 Oct 2016 15:42:27 +0200
-Message-ID: <CACRpkdYkgondu3NuReFg=FZ29Xzi0zncpku0+++_OSsPnUs+Ew@mail.gmail.com>
+        Thu, 20 Oct 2016 09:43:29 -0400
+Received: by mail-qk0-f178.google.com with SMTP id o68so94939783qkf.3
+        for <linux-watchdog@vger.kernel.org>; Thu, 20 Oct 2016 06:43:28 -0700 (PDT)
 Subject: Re: [PATCH 00/10] Introduce Juniper PTXPMB CPLD driver
-To: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
+Mime-Version: 1.0 (Mac OS X Mail 9.3 \(3124\))
+Content-Type: text/plain; charset=utf-8
+From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
+In-Reply-To: <CACRpkdYkgondu3NuReFg=FZ29Xzi0zncpku0+++_OSsPnUs+Ew@mail.gmail.com>
+Date: Thu, 20 Oct 2016 16:43:41 +0300
 Cc: Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
         Alexandre Courbot <gnurou@gmail.com>,
         Mark Rutland <mark.rutland@arm.com>,
@@ -35,26 +33,45 @@ Cc: Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
         "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
         "linux-mtd@lists.infradead.org" <linux-mtd@lists.infradead.org>,
         linux-watchdog@vger.kernel.org
-Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+Message-Id: <E368DA67-BAD4-462C-9323-548E55A2E7D2@konsulko.com>
+References: <1475853451-22121-1-git-send-email-pantelis.antoniou@konsulko.com> <CACRpkdYkgondu3NuReFg=FZ29Xzi0zncpku0+++_OSsPnUs+Ew@mail.gmail.com>
+To: Linus Walleij <linus.walleij@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, Oct 7, 2016 at 5:17 PM, Pantelis Antoniou
-<pantelis.antoniou@konsulko.com> wrote:
+Hi Linus,
 
-> Add Juniper's PTXPMB FPGA CPLD driver. Those FPGAs
-> are present in Juniper's PTX series of routers.
->
-> The MFD driver provices watchdog/i2c/gpio/mtd devices.
+> On Oct 20, 2016, at 16:42 , Linus Walleij <linus.walleij@linaro.org> =
+wrote:
+>=20
+> On Fri, Oct 7, 2016 at 5:17 PM, Pantelis Antoniou
+> <pantelis.antoniou@konsulko.com> wrote:
+>=20
+>> Add Juniper's PTXPMB FPGA CPLD driver. Those FPGAs
+>> are present in Juniper's PTX series of routers.
+>>=20
+>> The MFD driver provices watchdog/i2c/gpio/mtd devices.
+>=20
+> Since it's quite a bunch of patches to quite a bunch of controllers
+> I think it's best if you get the MFD parts ready and merged through
+> Lee first for v4.10, then we can add the subdrivers on top, maybe
+> in v4.11, or on top of an immutable branch from Lee once he is
+> happy with the core if the MFD core is finished quickly.
+>=20
 
-Since it's quite a bunch of patches to quite a bunch of controllers
-I think it's best if you get the MFD parts ready and merged through
-Lee first for v4.10, then we can add the subdrivers on top, maybe
-in v4.11, or on top of an immutable branch from Lee once he is
-happy with the core if the MFD core is finished quickly.
+Will do.
 
-I will review all the GPIO stuff though so you can revise these
-patches too :)
+> I will review all the GPIO stuff though so you can revise these
+> patches too :)
+>=20
 
-Yours,
-Linus Walleij
+Goodie :)
+
+> Yours,
+> Linus Walleij
+
+Regards
+
+=E2=80=94 Pantelis
+
