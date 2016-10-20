@@ -1,130 +1,60 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail1.bemta5.messagelabs.com ([195.245.231.141]:7676 "EHLO
-        mail1.bemta5.messagelabs.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S932543AbcJTNCp (ORCPT
+Received: from mail-qt0-f177.google.com ([209.85.216.177]:36726 "EHLO
+        mail-qt0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752657AbcJTNm3 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 20 Oct 2016 09:02:45 -0400
-From: Steve Twiss <stwiss.opensource@diasemi.com>
-To: Keerthy <a0393675@ti.com>, Eduardo Valentin <edubezval@gmail.com>,
-        LINUX-KERNEL <linux-kernel@vger.kernel.org>,
-        LINUX-PM <linux-pm@vger.kernel.org>,
-        Zhang Rui <rui.zhang@intel.com>
-CC: DEVICETREE <devicetree@vger.kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        LINUX-INPUT <linux-input@vger.kernel.org>,
-        LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
-        Lee Jones <lee.jones@linaro.org>,
-        "Liam Girdwood" <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Support Opensource <Support.Opensource@diasemi.com>,
-        Wim Van Sebroeck <wim@iguana.be>
-Subject: RE: [PATCH V1 05/10] thermal: da9062/61: Thermal junction
- temperature monitoring driver
-Date: Thu, 20 Oct 2016 13:02:31 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7018CCE4535@SW-EX-MBX02.diasemi.com>
-References: <cover.1475743411.git.stwiss.opensource@diasemi.com>
- <b5ce58ca00f7ab30a025d24083549241f135b0e9.1475743411.git.stwiss.opensource@diasemi.com>
- <3bc9fd76-2885-b07a-9df8-7802b7535da2@ti.com>
-In-Reply-To: <3bc9fd76-2885-b07a-9df8-7802b7535da2@ti.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
+        Thu, 20 Oct 2016 09:42:29 -0400
+Received: by mail-qt0-f177.google.com with SMTP id m5so53871823qtb.3
+        for <linux-watchdog@vger.kernel.org>; Thu, 20 Oct 2016 06:42:28 -0700 (PDT)
 MIME-Version: 1.0
+In-Reply-To: <1475853451-22121-1-git-send-email-pantelis.antoniou@konsulko.com>
+References: <1475853451-22121-1-git-send-email-pantelis.antoniou@konsulko.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Date: Thu, 20 Oct 2016 15:42:27 +0200
+Message-ID: <CACRpkdYkgondu3NuReFg=FZ29Xzi0zncpku0+++_OSsPnUs+Ew@mail.gmail.com>
+Subject: Re: [PATCH 00/10] Introduce Juniper PTXPMB CPLD driver
+To: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
+Cc: Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
+        Alexandre Courbot <gnurou@gmail.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Frank Rowand <frowand.list@gmail.com>,
+        Wolfram Sang <wsa@the-dreams.de>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Brian Norris <computersforpeace@gmail.com>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Peter Rosin <peda@axentia.se>,
+        Debjit Ghosh <dghosh@juniper.net>,
+        Georgi Vlaev <gvlaev@juniper.net>,
+        Guenter Roeck <groeck@juniper.net>,
+        JawaharBalaji Thirumalaisamy <jawaharb@juniper.net>,
+        Rajat Jain <rajatjain@juniper.net>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>,
+        "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
+        "linux-mtd@lists.infradead.org" <linux-mtd@lists.infradead.org>,
+        linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
 
-On  07 October 2016 06:29 Keerthy wrote:
+On Fri, Oct 7, 2016 at 5:17 PM, Pantelis Antoniou
+<pantelis.antoniou@konsulko.com> wrote:
 
-> On Thursday 06 October 2016 02:13 PM, Steve Twiss wrote:
-> > From: Steve Twiss <stwiss.opensource@diasemi.com>
-> >=20
-> > +static int da9062_thermal_probe(struct platform_device *pdev)
-> > +{
-> > +	struct da9062 *chip =3D dev_get_drvdata(pdev->dev.parent);
-> > +	struct da9062_thermal *thermal;
-> > +	unsigned int pp_tmp =3D DA9062_DEFAULT_POLLING_MS_PERIOD;
-> > +	const struct of_device_id *match;
-> > +	int ret =3D 0;
-> > +
-> > +	match =3D of_match_node(da9062_compatible_reg_id_table,
-> > +			      pdev->dev.of_node);
-> > +	if (!match)
-> > +		return -ENXIO;
-> > +
-> > +	if (pdev->dev.of_node) {
-> > +		if (!of_property_read_u32(pdev->dev.of_node,
-> > +					"dlg,tjunc-temp-polling-period-ms",
-> > +					&pp_tmp)) {
-> > +			if (pp_tmp < DA9062_MIN_POLLING_MS_PERIOD ||
-> > +				pp_tmp > DA9062_MAX_POLLING_MS_PERIOD)
-> > +				pp_tmp =3D DA9062_DEFAULT_POLLING_MS_PERIOD;
-> > +		}
-> > +
-> > +		dev_dbg(&pdev->dev,
-> > +			 "TJUNC temp polling period set at %d ms\n",
-> > +			 pp_tmp);
-> > +	}
-> > +
-> > +	thermal =3D devm_kzalloc(&pdev->dev, sizeof(struct da9062_thermal),
-> > +			     GFP_KERNEL);
-> > +	if (!thermal) {
-> > +		ret =3D -ENOMEM;
-> > +		goto err;
-> > +	}
-> > +
-> > +	thermal->config =3D match->data;
-> > +
-> > +	INIT_DELAYED_WORK(&thermal->work, da9062_thermal_poll_on);
-> > +	mutex_init(&thermal->lock);
->=20
-> thermal_zone_device_register itself does
-> INIT_DELAYED_WORK(&(tz->poll_queue), thermal_zone_device_check);
->=20
-> refer: drivers/thermal/thermal_core.c
->=20
-> It does a periodic monitoring of the temperature as well. Do you really
-> want to have an additional work for monitoring temperature in your
-> driver also?
+> Add Juniper's PTXPMB FPGA CPLD driver. Those FPGAs
+> are present in Juniper's PTX series of routers.
+>
+> The MFD driver provices watchdog/i2c/gpio/mtd devices.
 
-The thermal triggering mechanism is interrupt based and happens when the
-temperature rises above a given threshold level. The component cannot
-return an exact temperature, it only has knowledge if the temperature is
-above or below a given threshold value. A status bit must be polled to
-detect when the temperature falls below that threshold level again.
+Since it's quite a bunch of patches to quite a bunch of controllers
+I think it's best if you get the MFD parts ready and merged through
+Lee first for v4.10, then we can add the subdrivers on top, maybe
+in v4.11, or on top of an immutable branch from Lee once he is
+happy with the core if the MFD core is finished quickly.
 
-If I was to use the core's polling_delay it would request get_temp() ever=
-y
-x milliseconds. This would work: I could test the status bit to decide if
-the temperature was above or below the threshold, and enable or disable t=
-he
-interrupt accordingly. But during normal operation, when the temperature
-is in the normal range, I would be polling through I2C every x millisecon=
-ds
-instead of just waiting for an IRQ trigger event before starting my polli=
-ng
-operations to detect when the temperature level fell below the threshold.
+I will review all the GPIO stuff though so you can revise these
+patches too :)
 
-Since an over-temperature is supposed to be a very rare event, I decided =
-to
-go with the IRQ based trigger and then kick-off a separate work-queue to
-poll the status bit and detect when the temperature dropped below the
-threshold level. This seemed a more efficient way of handling this.
-
-I have looked through thermal core, and there doesn't seem to be an obvio=
-us
-way of toggling on/off thermal core polling when I need to poll the
-temperature through get_temp(). So, I was going to stick with this method=
- for
-PATCH V2.
-
-Regards,
-Steve
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Yours,
+Linus Walleij
