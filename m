@@ -1,17 +1,19 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-qk0-f178.google.com ([209.85.220.178]:35854 "EHLO
-        mail-qk0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755178AbcJTNn3 (ORCPT
+Received: from mail-qk0-f171.google.com ([209.85.220.171]:34878 "EHLO
+        mail-qk0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752546AbcJTWYp (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 20 Oct 2016 09:43:29 -0400
-Received: by mail-qk0-f178.google.com with SMTP id o68so94939783qkf.3
-        for <linux-watchdog@vger.kernel.org>; Thu, 20 Oct 2016 06:43:28 -0700 (PDT)
-Subject: Re: [PATCH 00/10] Introduce Juniper PTXPMB CPLD driver
-Mime-Version: 1.0 (Mac OS X Mail 9.3 \(3124\))
-Content-Type: text/plain; charset=utf-8
-From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
-In-Reply-To: <CACRpkdYkgondu3NuReFg=FZ29Xzi0zncpku0+++_OSsPnUs+Ew@mail.gmail.com>
-Date: Thu, 20 Oct 2016 16:43:41 +0300
+        Thu, 20 Oct 2016 18:24:45 -0400
+Received: by mail-qk0-f171.google.com with SMTP id z190so121933019qkc.2
+        for <linux-watchdog@vger.kernel.org>; Thu, 20 Oct 2016 15:24:44 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <1475853451-22121-8-git-send-email-pantelis.antoniou@konsulko.com>
+References: <1475853451-22121-1-git-send-email-pantelis.antoniou@konsulko.com> <1475853451-22121-8-git-send-email-pantelis.antoniou@konsulko.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Date: Fri, 21 Oct 2016 00:24:42 +0200
+Message-ID: <CACRpkdaYVgwBS_QR+S4CafP0jFrn8jw-Ewc_m8LDXUK5sMMwTw@mail.gmail.com>
+Subject: Re: [PATCH 07/10] gpio: ptxpmb-cpld: Add support for PTXPMB CPLD's GPIO
+To: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
 Cc: Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
         Alexandre Courbot <gnurou@gmail.com>,
         Mark Rutland <mark.rutland@arm.com>,
@@ -33,45 +35,213 @@ Cc: Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
         "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
         "linux-mtd@lists.infradead.org" <linux-mtd@lists.infradead.org>,
         linux-watchdog@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
-Message-Id: <E368DA67-BAD4-462C-9323-548E55A2E7D2@konsulko.com>
-References: <1475853451-22121-1-git-send-email-pantelis.antoniou@konsulko.com> <CACRpkdYkgondu3NuReFg=FZ29Xzi0zncpku0+++_OSsPnUs+Ew@mail.gmail.com>
-To: Linus Walleij <linus.walleij@linaro.org>
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Linus,
+On Fri, Oct 7, 2016 at 5:17 PM, Pantelis Antoniou
+<pantelis.antoniou@konsulko.com> wrote:
 
-> On Oct 20, 2016, at 16:42 , Linus Walleij <linus.walleij@linaro.org> =
-wrote:
->=20
-> On Fri, Oct 7, 2016 at 5:17 PM, Pantelis Antoniou
-> <pantelis.antoniou@konsulko.com> wrote:
->=20
->> Add Juniper's PTXPMB FPGA CPLD driver. Those FPGAs
->> are present in Juniper's PTX series of routers.
->>=20
->> The MFD driver provices watchdog/i2c/gpio/mtd devices.
->=20
-> Since it's quite a bunch of patches to quite a bunch of controllers
-> I think it's best if you get the MFD parts ready and merged through
-> Lee first for v4.10, then we can add the subdrivers on top, maybe
-> in v4.11, or on top of an immutable branch from Lee once he is
-> happy with the core if the MFD core is finished quickly.
->=20
+> From: Guenter Roeck <groeck@juniper.net>
+>
+> Support the GPIO block which is located in PTXPMB CPLDs
+> on relevant Juniper platforms.
+>
+> Signed-off-by: Georgi Vlaev <gvlaev@juniper.net>
+> Signed-off-by: Guenter Roeck <groeck@juniper.net>
+> Signed-off-by: Rajat Jain <rajatjain@juniper.net>
+> [Ported from Juniper kernel]
+> Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
 
-Will do.
+Nice with preserved credits.
 
-> I will review all the GPIO stuff though so you can revise these
-> patches too :)
->=20
+> +config GPIO_PTXPMB_CPLD
+> +       tristate "PTXPMB CPLD GPIO"
+> +       depends on MFD_JUNIPER_CPLD
+> +       default y if MFD_JUNIPER_CPLD
 
-Goodie :)
+Can't you do something like
 
-> Yours,
-> Linus Walleij
+default MFD_JUNIPER_CPLD
 
-Regards
+so it will become a module if the MFD driver is a module
+and compiled-in if the MFD driver is compiled in?
 
-=E2=80=94 Pantelis
+Please check if that works.
 
+> +#include <linux/kernel.h>
+> +#include <linux/init.h>
+> +#include <linux/pci.h>
+> +#include <linux/gpio.h>
+
+Just:
+#include <linux/gpio/driver.h>
+
+Should work.
+
+> +#include <linux/errno.h>
+> +#include <linux/of_device.h>
+> +#include <linux/of_platform.h>
+> +#include <linux/of_gpio.h>
+
+Strange that a PCI driver need so much OF stuff.
+Really? But OK, do you really use all these includes?
+
+> +#include <linux/io.h>
+> +#include <linux/module.h>
+> +
+> +#include <linux/mfd/ptxpmb_cpld.h>
+
+Is this include deserving a separate whitespace in
+front of it?
+
+> +static u8 *ptxpmb_cpld_gpio_get_addr(struct pmb_boot_cpld *cpld,
+> +                                    unsigned int nr)
+> +{
+> +       if (nr < 8)                     /* 0..7: reset                  */
+> +               return &cpld->reset;
+> +       else if (nr < 16)               /* 8..15: control               */
+> +               return &cpld->control;
+> +       else if (nr < 24)               /* 16..23: gpio1                */
+> +               return &cpld->gpio_1;
+> +       else if (nr < 32)               /* 24..31: gpio2                */
+> +               return &cpld->gpio_2;
+> +       else if (nr < 40)               /* 32..39: gp_reset1            */
+> +               return &cpld->gp_reset1;
+> +       return &cpld->thermal_status;   /* 40..41: thermal status       */
+> +}
+
+Reset, control, gp_reset and *especially* thermal status
+does not seem to be GPIO at all. Rather these seem to be
+special purpose lines rather than general purpose.
+
+Can you explain why the GPIO driver should even poke at them?
+
+It seems other subdrivers should use these registers...
+
+> +static void ptxpmb_cpld_gpio_set(struct gpio_chip *gpio, unsigned int nr,
+> +                                int val)
+> +{
+> +       u32 reg;
+> +       u8 bit = 1 << (nr & 7);
+
+Use this:
+
+#include <linux/bitops.h>
+
+Then inline BIT() instead of making a local variable like this.
+See below...
+
+> +       struct ptxpmb_cpld_gpio *chip =
+> +         container_of(gpio, struct ptxpmb_cpld_gpio, gpio);
+
+Use:
+struct ptxpmb_cpld_gpio *cpldg = gpiochip_get_data(gpio);
+
+Please don't name it "chip" it is confusing with the gpio chip
+proper.
+
+> +       u8 *addr = ptxpmb_cpld_gpio_get_addr(chip->base, nr);
+> +
+> +       mutex_lock(&chip->lock);
+> +       reg = ioread8(addr);
+> +       if (val)
+> +               reg |= bit;
+> +       else
+> +               reg &= ~bit;
+
+So instead:
+if (val)
+    reg |= BIT(nr);
+else
+    reg &= ~BIT(nr);
+
+> +static int ptxpmb_cpld_gpio_get(struct gpio_chip *gpio, unsigned int nr)
+> +{
+> +       struct ptxpmb_cpld_gpio *chip = container_of(gpio,
+> +                                                    struct ptxpmb_cpld_gpio,
+> +                                                    gpio);
+
+Same comment as before.
+
+> +       u8 *addr = ptxpmb_cpld_gpio_get_addr(chip->base, nr);
+> +       u8 bit = 1 << (nr & 7);
+> +
+> +       return !!(ioread8(addr) & bit);
+
+Same comment on using BIT()
+
+> +static int ptxpmb_cpld_gpio_direction_output(struct gpio_chip *gpio,
+> +                                            unsigned int nr, int val)
+> +{
+> +       return 0;
+> +}
+> +
+> +static int ptxpmb_cpld_gpio_direction_input(struct gpio_chip *gpio,
+> +                                           unsigned int nr)
+> +{
+> +       return 0;
+> +}
+
+Oh yeah? Can you explain how this works electronically?
+
+If these lines are open drain you should also implement
+.set_single_ended().
+
+> +static void ptxpmb_cpld_gpio_setup(struct ptxpmb_cpld_gpio *chip)
+
+Again rename from chip.
+
+> +static int ptxpmb_cpld_gpio_probe(struct platform_device *pdev)
+> +{
+> +       int ret;
+> +       struct ptxpmb_cpld_gpio *chip;
+
+Rename from chip.
+
+> +       struct resource *res;
+> +       struct device *dev = &pdev->dev;
+> +
+> +       chip = devm_kzalloc(dev, sizeof(*chip), GFP_KERNEL);
+> +       if (chip == NULL)
+> +               return -ENOMEM;
+> +
+> +       chip->dev = dev;
+> +       platform_set_drvdata(pdev, chip);
+> +
+> +       res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +       if (!res)
+> +               return -ENODEV;
+> +
+> +       chip->base = devm_ioremap_nocache(dev, res->start, resource_size(res));
+> +       if (!chip->base)
+> +               return -ENOMEM;
+> +
+> +       mutex_init(&chip->lock);
+> +       ptxpmb_cpld_gpio_setup(chip);
+> +       ret = gpiochip_add(&chip->gpio);
+
+Use devm_gpiochip_add_data() so you can use gpiochip_get_data() in the
+callbacks and get rid of container_of().
+
+> +       if (ret) {
+> +               dev_err(dev, "CPLD gpio: Failed to register GPIO\n");
+> +               return ret;
+> +       }
+> +       return 0;
+> +}
+> +
+> +static int ptxpmb_cpld_gpio_remove(struct platform_device *pdev)
+> +{
+> +       struct ptxpmb_cpld_gpio *chip = platform_get_drvdata(pdev);
+> +
+> +       gpiochip_remove(&chip->gpio);
+> +
+> +       return 0;
+> +}
+
+If you use devm_gpiochip_add_data() I don't think this function is
+even needed.
+
+Yours,
+Linus Walleij
