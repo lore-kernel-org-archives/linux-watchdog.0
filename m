@@ -1,72 +1,130 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:47605 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1757080AbcJTBt0 (ORCPT
+Received: from mail1.bemta5.messagelabs.com ([195.245.231.141]:7676 "EHLO
+        mail1.bemta5.messagelabs.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S932543AbcJTNCp (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 19 Oct 2016 21:49:26 -0400
-Subject: Re: [char-misc-next 2/5] watchdog: mei_wdt: use module_mei_cl_driver
- macro
-To: Tomas Winkler <tomas.winkler@intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Aloisio Almeida Jr <aloisio.almeida@openbossa.org>,
-        Samuel Ortiz <sameo@linux.intel.com>,
+        Thu, 20 Oct 2016 09:02:45 -0400
+From: Steve Twiss <stwiss.opensource@diasemi.com>
+To: Keerthy <a0393675@ti.com>, Eduardo Valentin <edubezval@gmail.com>,
+        LINUX-KERNEL <linux-kernel@vger.kernel.org>,
+        LINUX-PM <linux-pm@vger.kernel.org>,
+        Zhang Rui <rui.zhang@intel.com>
+CC: DEVICETREE <devicetree@vger.kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        LINUX-INPUT <linux-input@vger.kernel.org>,
+        LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
+        Lee Jones <lee.jones@linaro.org>,
+        "Liam Girdwood" <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Support Opensource <Support.Opensource@diasemi.com>,
         Wim Van Sebroeck <wim@iguana.be>
-References: <1476884011-20645-1-git-send-email-tomas.winkler@intel.com>
- <1476884011-20645-3-git-send-email-tomas.winkler@intel.com>
-Cc: Alexander Usyskin <alexander.usyskin@intel.com>,
-        linux-kernel@vger.kernel.org, linux-wireless@vger.kernel.org,
-        linux-watchdog@vger.kernel.org
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <8c4f84af-0cf8-fc41-852c-1e62a87a6d16@roeck-us.net>
-Date: Wed, 19 Oct 2016 18:49:22 -0700
+Subject: RE: [PATCH V1 05/10] thermal: da9062/61: Thermal junction
+ temperature monitoring driver
+Date: Thu, 20 Oct 2016 13:02:31 +0000
+Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7018CCE4535@SW-EX-MBX02.diasemi.com>
+References: <cover.1475743411.git.stwiss.opensource@diasemi.com>
+ <b5ce58ca00f7ab30a025d24083549241f135b0e9.1475743411.git.stwiss.opensource@diasemi.com>
+ <3bc9fd76-2885-b07a-9df8-7802b7535da2@ti.com>
+In-Reply-To: <3bc9fd76-2885-b07a-9df8-7802b7535da2@ti.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
-In-Reply-To: <1476884011-20645-3-git-send-email-tomas.winkler@intel.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
 
-On 10/19/2016 06:33 AM, Tomas Winkler wrote:
-> Replace boilerplate driver registration with module_mei_cl_driver macro.
->
-> Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
+On  07 October 2016 06:29 Keerthy wrote:
 
-Acked-by: Guenter Roeck <linux@roeck-us.net>
+> On Thursday 06 October 2016 02:13 PM, Steve Twiss wrote:
+> > From: Steve Twiss <stwiss.opensource@diasemi.com>
+> >=20
+> > +static int da9062_thermal_probe(struct platform_device *pdev)
+> > +{
+> > +	struct da9062 *chip =3D dev_get_drvdata(pdev->dev.parent);
+> > +	struct da9062_thermal *thermal;
+> > +	unsigned int pp_tmp =3D DA9062_DEFAULT_POLLING_MS_PERIOD;
+> > +	const struct of_device_id *match;
+> > +	int ret =3D 0;
+> > +
+> > +	match =3D of_match_node(da9062_compatible_reg_id_table,
+> > +			      pdev->dev.of_node);
+> > +	if (!match)
+> > +		return -ENXIO;
+> > +
+> > +	if (pdev->dev.of_node) {
+> > +		if (!of_property_read_u32(pdev->dev.of_node,
+> > +					"dlg,tjunc-temp-polling-period-ms",
+> > +					&pp_tmp)) {
+> > +			if (pp_tmp < DA9062_MIN_POLLING_MS_PERIOD ||
+> > +				pp_tmp > DA9062_MAX_POLLING_MS_PERIOD)
+> > +				pp_tmp =3D DA9062_DEFAULT_POLLING_MS_PERIOD;
+> > +		}
+> > +
+> > +		dev_dbg(&pdev->dev,
+> > +			 "TJUNC temp polling period set at %d ms\n",
+> > +			 pp_tmp);
+> > +	}
+> > +
+> > +	thermal =3D devm_kzalloc(&pdev->dev, sizeof(struct da9062_thermal),
+> > +			     GFP_KERNEL);
+> > +	if (!thermal) {
+> > +		ret =3D -ENOMEM;
+> > +		goto err;
+> > +	}
+> > +
+> > +	thermal->config =3D match->data;
+> > +
+> > +	INIT_DELAYED_WORK(&thermal->work, da9062_thermal_poll_on);
+> > +	mutex_init(&thermal->lock);
+>=20
+> thermal_zone_device_register itself does
+> INIT_DELAYED_WORK(&(tz->poll_queue), thermal_zone_device_check);
+>=20
+> refer: drivers/thermal/thermal_core.c
+>=20
+> It does a periodic monitoring of the temperature as well. Do you really
+> want to have an additional work for monitoring temperature in your
+> driver also?
 
-> ---
->  drivers/watchdog/mei_wdt.c | 20 +-------------------
->  1 file changed, 1 insertion(+), 19 deletions(-)
->
-> diff --git a/drivers/watchdog/mei_wdt.c b/drivers/watchdog/mei_wdt.c
-> index 630bd189f167..116be477c8fd 100644
-> --- a/drivers/watchdog/mei_wdt.c
-> +++ b/drivers/watchdog/mei_wdt.c
-> @@ -699,25 +699,7 @@ static struct mei_cl_driver mei_wdt_driver = {
->  	.remove = mei_wdt_remove,
->  };
->
-> -static int __init mei_wdt_init(void)
-> -{
-> -	int ret;
-> -
-> -	ret = mei_cldev_driver_register(&mei_wdt_driver);
-> -	if (ret) {
-> -		pr_err(KBUILD_MODNAME ": module registration failed\n");
-> -		return ret;
-> -	}
-> -	return 0;
-> -}
-> -
-> -static void __exit mei_wdt_exit(void)
-> -{
-> -	mei_cldev_driver_unregister(&mei_wdt_driver);
-> -}
-> -
-> -module_init(mei_wdt_init);
-> -module_exit(mei_wdt_exit);
-> +module_mei_cl_driver(mei_wdt_driver);
->
->  MODULE_AUTHOR("Intel Corporation");
->  MODULE_LICENSE("GPL");
->
+The thermal triggering mechanism is interrupt based and happens when the
+temperature rises above a given threshold level. The component cannot
+return an exact temperature, it only has knowledge if the temperature is
+above or below a given threshold value. A status bit must be polled to
+detect when the temperature falls below that threshold level again.
 
+If I was to use the core's polling_delay it would request get_temp() ever=
+y
+x milliseconds. This would work: I could test the status bit to decide if
+the temperature was above or below the threshold, and enable or disable t=
+he
+interrupt accordingly. But during normal operation, when the temperature
+is in the normal range, I would be polling through I2C every x millisecon=
+ds
+instead of just waiting for an IRQ trigger event before starting my polli=
+ng
+operations to detect when the temperature level fell below the threshold.
+
+Since an over-temperature is supposed to be a very rare event, I decided =
+to
+go with the IRQ based trigger and then kick-off a separate work-queue to
+poll the status bit and detect when the temperature dropped below the
+threshold level. This seemed a more efficient way of handling this.
+
+I have looked through thermal core, and there doesn't seem to be an obvio=
+us
+way of toggling on/off thermal core polling when I need to poll the
+temperature through get_temp(). So, I was going to stick with this method=
+ for
+PATCH V2.
+
+Regards,
+Steve
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
