@@ -1,9 +1,9 @@
 Return-path: <mark.rutland@arm.com>
-Date: Thu, 20 Oct 2016 16:09:33 +0100
+Date: Thu, 20 Oct 2016 16:17:33 +0100
 From: Mark Rutland <mark.rutland@arm.com>
-To: fu.wei@linaro.org
-Cc: rjw@rjwysocki.net, lenb@kernel.org, daniel.lezcano@linaro.org,
-	tglx@linutronix.de, marc.zyngier@arm.com, lorenzo.pieralisi@arm.com,
+To: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Cc: fu.wei@linaro.org, rjw@rjwysocki.net, lenb@kernel.org,
+	daniel.lezcano@linaro.org, tglx@linutronix.de, marc.zyngier@arm.com,
 	sudeep.holla@arm.com, hanjun.guo@linaro.org,
 	linux-arm-kernel@lists.infradead.org, linaro-acpi@lists.linaro.org,
 	linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
@@ -14,36 +14,37 @@ Cc: rjw@rjwysocki.net, lenb@kernel.org, daniel.lezcano@linaro.org,
 	Suravee.Suthikulpanit@amd.com, leo.duran@amd.com, wim@iguana.be,
 	linux@roeck-us.net, linux-watchdog@vger.kernel.org, tn@semihalf.com,
 	christoffer.dall@linaro.org, julien.grall@arm.com
-Subject: Re: [PATCH v14 2/9] clocksource/drivers/arm_arch_timer: Add a new
- enum for spi type
-Message-ID: <20161020150933.GK10234@leverpostej>
+Subject: Re: [PATCH v14 0/9] acpi, clocksource: add GTDT driver and GTDT
+ support in arm_arch_timer
+Message-ID: <20161020151655.GA27598@leverpostej>
 References: <1475086637-1914-1-git-send-email-fu.wei@linaro.org>
- <1475086637-1914-3-git-send-email-fu.wei@linaro.org>
+ <20161020143101.GI10234@leverpostej>
+ <20161020145752.GC8731@red-moon>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1475086637-1914-3-git-send-email-fu.wei@linaro.org>
+In-Reply-To: <20161020145752.GC8731@red-moon>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On Thu, Sep 29, 2016 at 02:17:10AM +0800, fu.wei@linaro.org wrote:
-> diff --git a/include/clocksource/arm_arch_timer.h b/include/clocksource/arm_arch_timer.h
-> index 6f06481..16dcd10 100644
-> --- a/include/clocksource/arm_arch_timer.h
-> +++ b/include/clocksource/arm_arch_timer.h
-> @@ -45,6 +45,12 @@ enum ppi_nr {
->  	MAX_TIMER_PPI
->  };
->  
-> +enum spi_nr {
-> +	PHYS_SPI,
-> +	VIRT_SPI,
-> +	MAX_TIMER_SPI
-> +};
+On Thu, Oct 20, 2016 at 03:57:52PM +0100, Lorenzo Pieralisi wrote:
+> On Thu, Oct 20, 2016 at 03:31:01PM +0100, Mark Rutland wrote:
+> > Hi,
+> > 
+> > On Thu, Sep 29, 2016 at 02:17:08AM +0800, fu.wei@linaro.org wrote:
+> > > From: Fu Wei <fu.wei@linaro.org>
+> > 
+> > > This patchset depends on the following patchset:
+> > > [UPDATE PATCH V11 1/8] ACPI: I/O Remapping Table (IORT) initial support
+> > > https://lkml.org/lkml/2016/9/12/949
+> > 
+> > Is there a branch with these anywhere? I wasn't Cc'd on those and it's
+> > rather difficult to get at the series from an LKML link.
+> 
+> For the records, the dependency above has now been merged and it was
+> just a directory creation dependency (drivers/acpi/arm64, where some of
+> the code in this series will live).
 
-Please rename this to arch_timer_spi_nr (as with patch 1 for
-s/ppi_nr/arch_timer_ppi_nr/). With that:
-
-Acked-by: Mark Rutland <mark.rutland@arm.com>
+Ah, I see. That saves us all some trouble, then. :)
 
 Thanks,
 Mark.
