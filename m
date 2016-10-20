@@ -1,5 +1,5 @@
 Return-path: <mark.rutland@arm.com>
-Date: Thu, 20 Oct 2016 16:32:45 +0100
+Date: Thu, 20 Oct 2016 17:37:49 +0100
 From: Mark Rutland <mark.rutland@arm.com>
 To: fu.wei@linaro.org
 Cc: rjw@rjwysocki.net, lenb@kernel.org, daniel.lezcano@linaro.org,
@@ -14,69 +14,93 @@ Cc: rjw@rjwysocki.net, lenb@kernel.org, daniel.lezcano@linaro.org,
 	Suravee.Suthikulpanit@amd.com, leo.duran@amd.com, wim@iguana.be,
 	linux@roeck-us.net, linux-watchdog@vger.kernel.org, tn@semihalf.com,
 	christoffer.dall@linaro.org, julien.grall@arm.com
-Subject: Re: [PATCH v14 3/9] clocksource/drivers/arm_arch_timer: Improve
- printk relevant code
-Message-ID: <20161020153244.GB27598@leverpostej>
+Subject: Re: [PATCH v14 4/9] acpi/arm64: Add GTDT table parse driver
+Message-ID: <20161020163719.GC27598@leverpostej>
 References: <1475086637-1914-1-git-send-email-fu.wei@linaro.org>
- <1475086637-1914-4-git-send-email-fu.wei@linaro.org>
+ <1475086637-1914-5-git-send-email-fu.wei@linaro.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1475086637-1914-4-git-send-email-fu.wei@linaro.org>
+In-Reply-To: <1475086637-1914-5-git-send-email-fu.wei@linaro.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On Thu, Sep 29, 2016 at 02:17:11AM +0800, fu.wei@linaro.org wrote:
->  static void arch_timer_banner(unsigned type)
->  {
-> -	pr_info("Architected %s%s%s timer(s) running at %lu.%02luMHz (%s%s%s).\n",
-> -		     type & ARCH_CP15_TIMER ? "cp15" : "",
-> -		     type == (ARCH_CP15_TIMER | ARCH_MEM_TIMER) ?  " and " : "",
-> -		     type & ARCH_MEM_TIMER ? "mmio" : "",
-> -		     (unsigned long)arch_timer_rate / 1000000,
-> -		     (unsigned long)(arch_timer_rate / 10000) % 100,
-> -		     type & ARCH_CP15_TIMER ?
-> -		     (arch_timer_uses_ppi == VIRT_PPI) ? "virt" : "phys" :
-> -			"",
-> -		     type == (ARCH_CP15_TIMER | ARCH_MEM_TIMER) ?  "/" : "",
-> -		     type & ARCH_MEM_TIMER ?
-> -			arch_timer_mem_use_virtual ? "virt" : "phys" :
-> -			"");
-> +	pr_info("%s%s%s timer(s) running at %lu.%02luMHz (%s%s%s).\n",
-> +		type & ARCH_CP15_TIMER ? "cp15" : "",
-> +		type == (ARCH_CP15_TIMER | ARCH_MEM_TIMER) ?  " and " : "",
-> +		type & ARCH_MEM_TIMER ? "mmio" : "",
-> +		(unsigned long)arch_timer_rate / 1000000,
-> +		(unsigned long)(arch_timer_rate / 10000) % 100,
-> +		type & ARCH_CP15_TIMER ?
-> +		(arch_timer_uses_ppi == VIRT_PPI) ? "virt" : "phys" :
-> +		"",
-Please restore the additional indent on this line...
+Hi,
 
-> +		type == (ARCH_CP15_TIMER | ARCH_MEM_TIMER) ?  "/" : "",
-> +		type & ARCH_MEM_TIMER ?
-> +		arch_timer_mem_use_virtual ? "virt" : "phys" :
-> +		"");
+As a heads-up, on v4.9-rc1 I see conflicts at least against
+arch/arm64/Kconfig. Luckily git am -3 seems to be able to fix that up
+automatically, but this will need to be rebased before the next posting
+and/or merging.
 
-... and these two.
-
-No matter what checkpatch says, I prefer the code that way so as to keep
-the ternary clear.
-
-[...]
-
-> @@ -768,7 +769,7 @@ static int __init arch_timer_init(void)
->  		return ret;
->  
->  	arch_timer_kvm_info.virtual_irq = arch_timer_ppi[VIRT_PPI];
-> -	
+On Thu, Sep 29, 2016 at 02:17:12AM +0800, fu.wei@linaro.org wrote:
+> +static int __init map_gt_gsi(u32 interrupt, u32 flags)
+> +{
+> +	int trigger, polarity;
 > +
+> +	if (!interrupt)
+> +		return 0;
 
-Please mention the whitespace fixup in the commit message. It's
-surprising otherwise.
+Urgh.
 
-With all that:
+Only the secure interrupt (which we do not need) is optional in this
+manner, and (hilariously), zero appears to also be a valid GSIV, per
+figure 5-24 in the ACPI 6.1 spec.
 
-Acked-by: Mark Rutland <mark.rutland@arm.com>
+So, I think that:
+
+(a) we should not bother parsing the secure interrupt
+(b) we should drop the check above
+(c) we should report the spec issue to the ASWG
+
+> +/*
+> + * acpi_gtdt_c3stop - got c3stop info from GTDT
+> + *
+> + * Returns 1 if the timer is powered in deep idle state, 0 otherwise.
+> + */
+> +bool __init acpi_gtdt_c3stop(void)
+> +{
+> +	struct acpi_table_gtdt *gtdt = acpi_gtdt_desc.gtdt;
+> +
+> +	return !(gtdt->non_secure_el1_flags & ACPI_GTDT_ALWAYS_ON);
+> +}
+
+It looks like this can differ per interrupt. Shouldn't we check the
+appropriate one?
+
+> +int __init acpi_gtdt_init(struct acpi_table_header *table)
+> +{
+> +	void *start;
+> +	struct acpi_table_gtdt *gtdt;
+> +
+> +	gtdt = container_of(table, struct acpi_table_gtdt, header);
+> +
+> +	acpi_gtdt_desc.gtdt = gtdt;
+> +	acpi_gtdt_desc.gtdt_end = (void *)table + table->length;
+> +
+> +	if (table->revision < 2) {
+> +		pr_debug("Revision:%d doesn't support Platform Timers.\n",
+> +			 table->revision);
+> +		return 0;
+> +	}
+> +
+> +	if (!gtdt->platform_timer_count) {
+> +		pr_debug("No Platform Timer.\n");
+> +		return 0;
+> +	}
+> +
+> +	start = (void *)gtdt + gtdt->platform_timer_offset;
+> +	if (start < (void *)table + sizeof(struct acpi_table_gtdt)) {
+> +		pr_err(FW_BUG "Failed to retrieve timer info from firmware: invalid data.\n");
+> +		return -EINVAL;
+> +	}
+> +	acpi_gtdt_desc.platform_timer_start = start;
+> +
+> +	return gtdt->platform_timer_count;
+> +}
+
+This is never used as anything other than a status code.
+
+Just return zero; we haven't parsed the platform timers themselves at
+this point anyway.
 
 Thanks,
 Mark.
