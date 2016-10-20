@@ -1,89 +1,72 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail1.bemta5.messagelabs.com ([195.245.231.145]:24838 "EHLO
-        mail1.bemta5.messagelabs.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1753478AbcJNNII (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:47605 "EHLO
+        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1757080AbcJTBt0 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 14 Oct 2016 09:08:08 -0400
-From: Steve Twiss <stwiss.opensource@diasemi.com>
-To: Keerthy <a0393675@ti.com>, Eduardo Valentin <edubezval@gmail.com>,
-        "Zhang Rui" <rui.zhang@intel.com>
-CC: DEVICETREE <devicetree@vger.kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        LINUX-INPUT <linux-input@vger.kernel.org>,
-        LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
-        Lee Jones <lee.jones@linaro.org>,
-        "Liam Girdwood" <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Support Opensource <Support.Opensource@diasemi.com>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        LINUX-KERNEL <linux-kernel@vger.kernel.org>,
-        LINUX-PM <linux-pm@vger.kernel.org>
-Subject: RE: [PATCH V1 05/10] thermal: da9062/61: Thermal junction
- temperature monitoring driver
-Date: Fri, 14 Oct 2016 13:07:59 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7018CCE3443@SW-EX-MBX02.diasemi.com>
-References: <cover.1475743411.git.stwiss.opensource@diasemi.com>
- <b5ce58ca00f7ab30a025d24083549241f135b0e9.1475743411.git.stwiss.opensource@diasemi.com>
- <3bc9fd76-2885-b07a-9df8-7802b7535da2@ti.com>
- <6ED8E3B22081A4459DAC7699F3695FB7018CCE2815@SW-EX-MBX02.diasemi.com>
-In-Reply-To: <6ED8E3B22081A4459DAC7699F3695FB7018CCE2815@SW-EX-MBX02.diasemi.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
+        Wed, 19 Oct 2016 21:49:26 -0400
+Subject: Re: [char-misc-next 2/5] watchdog: mei_wdt: use module_mei_cl_driver
+ macro
+To: Tomas Winkler <tomas.winkler@intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Aloisio Almeida Jr <aloisio.almeida@openbossa.org>,
+        Samuel Ortiz <sameo@linux.intel.com>,
+        Wim Van Sebroeck <wim@iguana.be>
+References: <1476884011-20645-1-git-send-email-tomas.winkler@intel.com>
+ <1476884011-20645-3-git-send-email-tomas.winkler@intel.com>
+Cc: Alexander Usyskin <alexander.usyskin@intel.com>,
+        linux-kernel@vger.kernel.org, linux-wireless@vger.kernel.org,
+        linux-watchdog@vger.kernel.org
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <8c4f84af-0cf8-fc41-852c-1e62a87a6d16@roeck-us.net>
+Date: Wed, 19 Oct 2016 18:49:22 -0700
 MIME-Version: 1.0
+In-Reply-To: <1476884011-20645-3-git-send-email-tomas.winkler@intel.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
 
-An update.
+On 10/19/2016 06:33 AM, Tomas Winkler wrote:
+> Replace boilerplate driver registration with module_mei_cl_driver macro.
+>
+> Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
 
-On: 07 October 2016 18:49, Steve Twiss wrote:
-> On 07 October 2016 06:29, Keerthy [mailto:a0393675@ti.com] wrote:
-> > On Thursday 06 October 2016 02:13 PM, Steve Twiss wrote:
-> > > From: Steve Twiss <stwiss.opensource@diasemi.com>
-[...]
-> > > +static const struct da9062_thermal_config da9062_config =3D {
-> > > +	.name =3D "da9062-thermal",
-> > > +};
-> > > +
-> > > +static const struct da9062_thermal_config da9061_config =3D {
-> > > +	.name =3D "da9061-thermal",
-> > > +};
-> > > +
-> > > +static const struct of_device_id da9062_compatible_reg_id_table[] =
-=3D {
-> > > +	{ .compatible =3D "dlg,da9062-thermal", .data =3D &da9062_config =
-},
-> > > +	{ .compatible =3D "dlg,da9061-thermal", .data =3D &da9061_config =
-},
-> >
-> > Two separate compatible values. Do you have anything different apart
-> > from the name? Why use 2 compatibles when there is absolutely no
-> > difference?
->=20
-> Yes.
-> This was a comment for the watchdog device driver as well. My concern w=
-as having
-> multiple devices (61 and 62) in the same system -- and allowing the dri=
-ver to report
-> the hardware difference.
->=20
-> There is discussion going on about this in other threads. Not certain o=
-f the
-> final outcome yet, apart from my existing proposal should be changed.
+Acked-by: Guenter Roeck <linux@roeck-us.net>
 
-An answer to this came from comments by Dmitry Torokhov and Guenter Roeck=
-, who
-suggested this: https://lkml.org/lkml/2016/10/7/641
+> ---
+>  drivers/watchdog/mei_wdt.c | 20 +-------------------
+>  1 file changed, 1 insertion(+), 19 deletions(-)
+>
+> diff --git a/drivers/watchdog/mei_wdt.c b/drivers/watchdog/mei_wdt.c
+> index 630bd189f167..116be477c8fd 100644
+> --- a/drivers/watchdog/mei_wdt.c
+> +++ b/drivers/watchdog/mei_wdt.c
+> @@ -699,25 +699,7 @@ static struct mei_cl_driver mei_wdt_driver = {
+>  	.remove = mei_wdt_remove,
+>  };
+>
+> -static int __init mei_wdt_init(void)
+> -{
+> -	int ret;
+> -
+> -	ret = mei_cldev_driver_register(&mei_wdt_driver);
+> -	if (ret) {
+> -		pr_err(KBUILD_MODNAME ": module registration failed\n");
+> -		return ret;
+> -	}
+> -	return 0;
+> -}
+> -
+> -static void __exit mei_wdt_exit(void)
+> -{
+> -	mei_cldev_driver_unregister(&mei_wdt_driver);
+> -}
+> -
+> -module_init(mei_wdt_init);
+> -module_exit(mei_wdt_exit);
+> +module_mei_cl_driver(mei_wdt_driver);
+>
+>  MODULE_AUTHOR("Intel Corporation");
+>  MODULE_LICENSE("GPL");
+>
 
-I will take a look at this for V2.
-
-Regards,
-Steve
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
