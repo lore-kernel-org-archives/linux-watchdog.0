@@ -1,60 +1,45 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mga03.intel.com ([134.134.136.65]:55827 "EHLO mga03.intel.com"
+Received: from mga03.intel.com ([134.134.136.65]:33169 "EHLO mga03.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S943502AbcJSPAt (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 19 Oct 2016 11:00:49 -0400
-From: Tomas Winkler <tomas.winkler@intel.com>
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Aloisio Almeida Jr <aloisio.almeida@openbossa.org>,
-        Samuel Ortiz <sameo@linux.intel.com>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        Guenter Roeck <linux@roeck-us.net>
-Cc: Alexander Usyskin <alexander.usyskin@intel.com>,
-        linux-kernel@vger.kernel.org, linux-wireless@vger.kernel.org,
-        linux-watchdog@vger.kernel.org,
-        Tomas Winkler <tomas.winkler@intel.com>
-Subject: [char-misc-next 1/5] mei: bus: add  module_mei_cl_driver helper macro
-Date: Wed, 19 Oct 2016 16:33:27 +0300
-Message-Id: <1476884011-20645-2-git-send-email-tomas.winkler@intel.com>
-In-Reply-To: <1476884011-20645-1-git-send-email-tomas.winkler@intel.com>
-References: <1476884011-20645-1-git-send-email-tomas.winkler@intel.com>
+        id S1756936AbcJTPDk (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Thu, 20 Oct 2016 11:03:40 -0400
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+To: linux-watchdog@vger.kernel.org
+Cc: Wim Van Sebroeck <wim@iguana.be>,
+        Guenter Roeck <linux@roeck-us.net>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        linux-acpi@vger.kernel.org
+Subject: [PATCH] watchdog: wdat_wdt: Ping the watchdog on resume
+Date: Thu, 20 Oct 2016 18:03:36 +0300
+Message-Id: <20161020150336.97791-1-mika.westerberg@linux.intel.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Add module_mei_cl_driver helper macro for eliminating the boilerplate
-code from mei_cl drivers registration. The macro is intended for
-drivers which in their init/exit sections does only register/unregister
-of a mei_cl driver.
+It turns out we need to ping the watchdog hardware on resume when we
+re-program it. Otherwise this results inadvertent reset to trigger right
+after the resume is completed.
 
-Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 ---
- include/linux/mei_cl_bus.h | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/watchdog/wdat_wdt.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/include/linux/mei_cl_bus.h b/include/linux/mei_cl_bus.h
-index e746919530f5..e6fbd98ea90e 100644
---- a/include/linux/mei_cl_bus.h
-+++ b/include/linux/mei_cl_bus.h
-@@ -74,6 +74,19 @@ int __mei_cldev_driver_register(struct mei_cl_driver *cldrv,
- 
- void mei_cldev_driver_unregister(struct mei_cl_driver *cldrv);
- 
-+/**
-+ * module_mei_cl_driver - Helper macro for registering mei cl driver
-+ *
-+ * @__mei_cldrv mei_cl_driver structure
-+ *
-+ *  Helper macro for mei cl drivers which do not do anything special in module
-+ *  init/exit, for eliminating a boilerplate code.
-+ */
-+#define module_mei_cl_driver(__mei_cldrv) \
-+	module_driver(__mei_cldrv, \
-+		      mei_cldev_driver_register,\
-+		      mei_cldev_driver_unregister)
+diff --git a/drivers/watchdog/wdat_wdt.c b/drivers/watchdog/wdat_wdt.c
+index e473e3b23720..6d1fbda0f461 100644
+--- a/drivers/watchdog/wdat_wdt.c
++++ b/drivers/watchdog/wdat_wdt.c
+@@ -499,6 +499,10 @@ static int wdat_wdt_resume_noirq(struct device *dev)
+ 		ret = wdat_wdt_enable_reboot(wdat);
+ 		if (ret)
+ 			return ret;
 +
- ssize_t mei_cldev_send(struct mei_cl_device *cldev, u8 *buf, size_t length);
- ssize_t  mei_cldev_recv(struct mei_cl_device *cldev, u8 *buf, size_t length);
++		ret = wdat_wdt_ping(&wdat->wdd);
++		if (ret)
++			return ret;
+ 	}
  
+ 	return wdat_wdt_start(&wdat->wdd);
 -- 
-2.7.4
+2.9.3
 
