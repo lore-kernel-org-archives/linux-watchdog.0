@@ -1,56 +1,51 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-qk0-f179.google.com ([209.85.220.179]:36585 "EHLO
-        mail-qk0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932180AbcJUIjp (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 21 Oct 2016 04:39:45 -0400
-Received: by mail-qk0-f179.google.com with SMTP id o68so138343690qkf.3
-        for <linux-watchdog@vger.kernel.org>; Fri, 21 Oct 2016 01:39:44 -0700 (PDT)
+Received: from foss.arm.com ([217.140.101.70]:40688 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S932436AbcJULOl (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 21 Oct 2016 07:14:41 -0400
+Date: Fri, 21 Oct 2016 12:14:01 +0100
+From: Mark Rutland <mark.rutland@arm.com>
+To: fu.wei@linaro.org
+Cc: linaro-acpi@lists.linaro.org, catalin.marinas@arm.com,
+        will.deacon@arm.com, rruigrok@codeaurora.org, wim@iguana.be,
+        wei@redhat.com, lorenzo.pieralisi@arm.com, al.stone@linaro.org,
+        tn@semihalf.com, timur@codeaurora.org, daniel.lezcano@linaro.org,
+        linux-acpi@vger.kernel.org, linux@roeck-us.net, lenb@kernel.org,
+        harba@codeaurora.org, julien.grall@arm.com,
+        linux-watchdog@vger.kernel.org, arnd@arndb.de,
+        marc.zyngier@arm.com, jcm@redhat.com, cov@codeaurora.org,
+        tglx@linutronix.de, linux-arm-kernel@lists.infradead.org,
+        graeme.gregory@linaro.org, rjw@rjwysocki.net,
+        linux-kernel@vger.kernel.org, leo.duran@amd.com,
+        hanjun.guo@linaro.org, Suravee.Suthikulpanit@amd.com,
+        sudeep.holla@arm.com, christoffer.dall@linaro.org
+Subject: Re: [PATCH v14 5/9] clocksource/drivers/arm_arch_timer: Simplify
+ ACPI support code.
+Message-ID: <20161021111352.GA16630@leverpostej>
+References: <1475086637-1914-1-git-send-email-fu.wei@linaro.org>
+ <1475086637-1914-6-git-send-email-fu.wei@linaro.org>
+ <20161020165747.GD27598@leverpostej>
 MIME-Version: 1.0
-In-Reply-To: <1475853574-22339-4-git-send-email-pantelis.antoniou@konsulko.com>
-References: <1475853574-22339-1-git-send-email-pantelis.antoniou@konsulko.com> <1475853574-22339-4-git-send-email-pantelis.antoniou@konsulko.com>
-From: Linus Walleij <linus.walleij@linaro.org>
-Date: Fri, 21 Oct 2016 10:39:43 +0200
-Message-ID: <CACRpkdY681yE+zo51BSrBjvhFPQV3KkhM9QH600uiqLfP8G=fw@mail.gmail.com>
-Subject: Re: [PATCH 3/4] gpio: ptxpmb-ext-cpld: Add driver for Juniper's
- PTXPMB extended CPLD
-To: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
-Cc: Lee Jones <lee.jones@linaro.org>,
-        Alexandre Courbot <gnurou@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Frank Rowand <frowand.list@gmail.com>,
-        Georgi Vlaev <gvlaev@juniper.net>,
-        Guenter Roeck <linux@roeck-us.net>,
-        JawaharBalaji Thirumalaisamy <jawaharb@juniper.net>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>,
-        "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
-        "linux-mtd@lists.infradead.org" <linux-mtd@lists.infradead.org>,
-        linux-watchdog@vger.kernel.org,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20161020165747.GD27598@leverpostej>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, Oct 7, 2016 at 5:19 PM, Pantelis Antoniou
-<pantelis.antoniou@konsulko.com> wrote:
+On Thu, Oct 20, 2016 at 05:58:17PM +0100, Mark Rutland wrote:
+> On Thu, Sep 29, 2016 at 02:17:13AM +0800, fu.wei@linaro.org wrote:
+> > +	arch_timer_ppi[PHYS_NONSECURE_PPI] = acpi_gtdt_map_ppi(PHYS_NONSECURE_PPI);
+> > +	arch_timer_ppi[VIRT_PPI] = acpi_gtdt_map_ppi(VIRT_PPI);
+> > +	arch_timer_ppi[HYP_PPI] = acpi_gtdt_map_ppi(HYP_PPI);
+> > +	/* Always-on capability */
+> > +	arch_timer_c3stop = acpi_gtdt_c3stop();
+> 
+> ... I think we should check the flag on the relevant interrupt, though
+> that's worth clarifying.
 
-> From: Guenter Roeck <groeck@juniper.net>
->
-> This IP block is present in the PTXPMB extended CPLD present on
-> Junipers PTX series of routers and provides SIB connector status pins
-> as GPIO pins for use with other drivers.
->
-> Signed-off-by: Guenter Roeck <groeck@juniper.net>
-> Signed-off-by: JawaharBalaji Thirumalaisamy <jawaharb@juniper.net>
-> [Ported from Juniper kernel]
-> Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
+I see I misread the spec; this is part of the common flags.
 
-This driver has pretty much the same issues as the two others
-I reviewed yesterday. Please address the same comments
-and repost and I will look at it again!
+Please ignore this point; sorry for the noise.
 
-Yours,
-Linus Walleij
+Thanks,
+Mark.
