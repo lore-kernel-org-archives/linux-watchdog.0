@@ -1,27 +1,27 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-oi0-f42.google.com ([209.85.218.42]:35316 "EHLO
-        mail-oi0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751441AbcJZIYd (ORCPT
+Received: from mail-oi0-f48.google.com ([209.85.218.48]:33104 "EHLO
+        mail-oi0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752306AbcJZI07 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 26 Oct 2016 04:24:33 -0400
-Received: by mail-oi0-f42.google.com with SMTP id i127so83327493oia.2
-        for <linux-watchdog@vger.kernel.org>; Wed, 26 Oct 2016 01:24:33 -0700 (PDT)
+        Wed, 26 Oct 2016 04:26:59 -0400
+Received: by mail-oi0-f48.google.com with SMTP id y2so137902883oie.0
+        for <linux-watchdog@vger.kernel.org>; Wed, 26 Oct 2016 01:26:59 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20161020151655.GA27598@leverpostej>
+In-Reply-To: <20161020150933.GK10234@leverpostej>
 References: <1475086637-1914-1-git-send-email-fu.wei@linaro.org>
- <20161020143101.GI10234@leverpostej> <20161020145752.GC8731@red-moon> <20161020151655.GA27598@leverpostej>
+ <1475086637-1914-3-git-send-email-fu.wei@linaro.org> <20161020150933.GK10234@leverpostej>
 From: Fu Wei <fu.wei@linaro.org>
-Date: Wed, 26 Oct 2016 16:24:31 +0800
-Message-ID: <CADyBb7tePxYAk5oWv3ZKVeQsNaTWkJ=ddqB1D1XJRUfyOe-9Rg@mail.gmail.com>
-Subject: Re: [PATCH v14 0/9] acpi, clocksource: add GTDT driver and GTDT
- support in arm_arch_timer
+Date: Wed, 26 Oct 2016 16:26:58 +0800
+Message-ID: <CADyBb7t5TdN=MHdai7KbzR4RA1Zd503kZ8pqSJgcT1xK4OaBXg@mail.gmail.com>
+Subject: Re: [PATCH v14 2/9] clocksource/drivers/arm_arch_timer: Add a new
+ enum for spi type
 To: Mark Rutland <mark.rutland@arm.com>
-Cc: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>,
         Len Brown <lenb@kernel.org>,
         Daniel Lezcano <daniel.lezcano@linaro.org>,
         Thomas Gleixner <tglx@linutronix.de>,
         Marc Zyngier <marc.zyngier@arm.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
         Sudeep Holla <sudeep.holla@arm.com>,
         Hanjun Guo <hanjun.guo@linaro.org>,
         linux-arm-kernel@lists.infradead.org,
@@ -47,32 +47,32 @@ Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Mark
+Hi Mark,
 
-On 20 October 2016 at 23:17, Mark Rutland <mark.rutland@arm.com> wrote:
-> On Thu, Oct 20, 2016 at 03:57:52PM +0100, Lorenzo Pieralisi wrote:
->> On Thu, Oct 20, 2016 at 03:31:01PM +0100, Mark Rutland wrote:
->> > Hi,
->> >
->> > On Thu, Sep 29, 2016 at 02:17:08AM +0800, fu.wei@linaro.org wrote:
->> > > From: Fu Wei <fu.wei@linaro.org>
->> >
->> > > This patchset depends on the following patchset:
->> > > [UPDATE PATCH V11 1/8] ACPI: I/O Remapping Table (IORT) initial support
->> > > https://lkml.org/lkml/2016/9/12/949
->> >
->> > Is there a branch with these anywhere? I wasn't Cc'd on those and it's
->> > rather difficult to get at the series from an LKML link.
+On 20 October 2016 at 23:09, Mark Rutland <mark.rutland@arm.com> wrote:
+> On Thu, Sep 29, 2016 at 02:17:10AM +0800, fu.wei@linaro.org wrote:
+>> diff --git a/include/clocksource/arm_arch_timer.h b/include/clocksource/arm_arch_timer.h
+>> index 6f06481..16dcd10 100644
+>> --- a/include/clocksource/arm_arch_timer.h
+>> +++ b/include/clocksource/arm_arch_timer.h
+>> @@ -45,6 +45,12 @@ enum ppi_nr {
+>>       MAX_TIMER_PPI
+>>  };
 >>
->> For the records, the dependency above has now been merged and it was
->> just a directory creation dependency (drivers/acpi/arm64, where some of
->> the code in this series will live).
+>> +enum spi_nr {
+>> +     PHYS_SPI,
+>> +     VIRT_SPI,
+>> +     MAX_TIMER_SPI
+>> +};
 >
-> Ah, I see. That saves us all some trouble, then. :)
+> Please rename this to arch_timer_spi_nr (as with patch 1 for
+> s/ppi_nr/arch_timer_ppi_nr/). With that:
+>
+> Acked-by: Mark Rutland <mark.rutland@arm.com>
 
-Sorry, I forgot to delete this in v14 cover letter.
-The IORT patchset has been merged in to the mainline,
-we don't need to mention this anymore. :-)
+OK, NP, done :-)
+
+Great thanks!
 
 >
 > Thanks,
