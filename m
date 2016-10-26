@@ -1,37 +1,41 @@
 Return-path: <stwiss.opensource@diasemi.com>
-Message-ID: <0e5e8a32cbb9cf307858c860cf25107cb71c8e32.1477501000.git.stwiss.opensource@diasemi.com>
+Message-ID: <ecd0c36a9e1766e327b54afa6bf986e64890b881.1477501000.git.stwiss.opensource@diasemi.com>
 In-Reply-To: <cover.1477501000.git.stwiss.opensource@diasemi.com>
 References: <cover.1477501000.git.stwiss.opensource@diasemi.com>
 From: Steve Twiss <stwiss.opensource@diasemi.com>
-Date: Wed, 26 Oct 2016 17:56:38 +0100
-Subject: [PATCH V2 04/10] Documentation: devicetree: mfd: da9062/61 MFD
- binding
-To: DEVICETREE <devicetree@vger.kernel.org>, LINUX-INPUT
-	<linux-input@vger.kernel.org>, LINUX-KERNEL <linux-kernel@vger.kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>
-CC: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Eduardo Valentin
-	<edubezval@gmail.com>, Guenter Roeck <linux@roeck-us.net>, LINUX-INPUT
-	<linux-input@vger.kernel.org>, LINUX-PM <linux-pm@vger.kernel.org>,
-	LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>, Lee Jones
-	<lee.jones@linaro.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown
-	<broonie@kernel.org>, Support Opensource <support.opensource@diasemi.com>,
-	Wim Van Sebroeck <wim@iguana.be>, Zhang Rui <rui.zhang@intel.com>
+Date: Wed, 26 Oct 2016 17:56:39 +0100
+Subject: [PATCH V2 08/10] watchdog: da9062/61: watchdog driver
+To: Guenter Roeck <linux@roeck-us.net>, LINUX-KERNEL
+	<linux-kernel@vger.kernel.org>, LINUX-WATCHDOG
+	<linux-watchdog@vger.kernel.org>, Wim Van Sebroeck <wim@iguana.be>
+CC: DEVICETREE <devicetree@vger.kernel.org>, Dmitry Torokhov
+	<dmitry.torokhov@gmail.com>, Eduardo Valentin <edubezval@gmail.com>,
+	LINUX-INPUT <linux-input@vger.kernel.org>, LINUX-PM
+	<linux-pm@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Liam Girdwood
+	<lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Mark Rutland
+	<mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Support Opensource
+	<support.opensource@diasemi.com>, Zhang Rui <rui.zhang@intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 List-ID: <linux-watchdog@vger.kernel.org>
 
 From: Steve Twiss <stwiss.opensource@diasemi.com>
 
-Extend existing DA9062 binding information to include the DA9061 PMIC for
-MFD core and regulators.
+The of_device_id match array is added to support "dlg,da9062-watchdog"
+as a valid .compatible string.
 
-Add a da9062-onkey link to the existing onkey binding file.
+The watchdog_info structure is linked to this device tree compatible
+string in the .data section. Extra code is added into the probe function to
+search-for and assign this match data.
 
-Add a da9062-thermal link to the new temperature monitoring binding file
-found in [PATCH V2 03/10].
+This patch now assumes the use of a DA9062 fallback compatible string for
+the DTS to pick up the DA9062 device driver for use with the DA9061
+watchdog hardware.
 
-Delete the da9062-watchdog section and replace it with a link to the new
-DA9061/62 binding information file added by [PATCH V2 02/10].
+Copyright header is updated to add DA9061 in its description and the module
+description macro is extended to include DA9061.
+
+Kconfig is updated to reflect support for DA9061/62.
 
 Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
 
@@ -39,125 +43,106 @@ Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
 This patch applies against linux-next and v4.8
 
 v1 -> v2
- - Patch renamed from [PATCH V1 09/10] to [PATCH V2 04/10] -- these
+ - Patch renamed from [PATCH V1 04/10] to [PATCH V2 08/10] -- these
    changes were made to fix checkpatch warnings caused by the patch
    set dependency order
+ - Removal of the DA9061 compatible entries for this device driver.
+ - Additional explanation in the patch description for the use of a
+   fall-back compatible DTS string
 
-Hi,
+Guenter,
 
-This patch depends on acceptance of the main code for the DA9061 MFD:
-
-- [PATCH V2 1/10] mfd: da9061: MFD core support
-
-and also from the following binding file changes:
-
-- [PATCH V2 01/10] Binding for onkey
-- [PATCH V2 02/10] Binding for watchdog
-- [PATCH V2 03/10] Binding for thermal
+Alterations have been made in accordance with the previous e-mail thread
+on the use of compatible strings: https://lkml.org/lkml/2016/10/7/641
+This patch now assumes the use of a fallback compatible string in the DTS.
+Of the form: compatible = "dlg,da9061-watchdog", "dlg,da9062-watchdog";
 
 Regards,
 Steve Twiss, Dialog Semiconductor Ltd.
 
 
- Documentation/devicetree/bindings/mfd/da9062.txt | 45 +++++++++++++++++-------
- 1 file changed, 33 insertions(+), 12 deletions(-)
+ drivers/watchdog/Kconfig      |  4 ++--
+ drivers/watchdog/da9062_wdt.c | 18 +++++++++++++++---
+ 2 files changed, 17 insertions(+), 5 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/mfd/da9062.txt b/Documentation/devicetree/bindings/mfd/da9062.txt
-index 38802b5..38ba5e2 100644
---- a/Documentation/devicetree/bindings/mfd/da9062.txt
-+++ b/Documentation/devicetree/bindings/mfd/da9062.txt
-@@ -1,22 +1,32 @@
- * Dialog DA9062 Power Management Integrated Circuit (PMIC)
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 1bffe00..d6b4088 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -104,11 +104,11 @@ config DA9063_WATCHDOG
+ 	  This driver can be built as a module. The module name is da9063_wdt.
  
--DA9062 consists of a large and varied group of sub-devices:
-+The DA9062 driver is compatible with the DA9062 and DA9061 devices.
+ config DA9062_WATCHDOG
+-	tristate "Dialog DA9062 Watchdog"
++	tristate "Dialog DA9062/61 Watchdog"
+ 	depends on MFD_DA9062
+ 	select WATCHDOG_CORE
+ 	help
+-	  Support for the watchdog in the DA9062 PMIC.
++	  Support for the watchdog in the DA9062 and DA9061 PMICs.
+ 
+ 	  This driver can be built as a module. The module name is da9062_wdt.
+ 
+diff --git a/drivers/watchdog/da9062_wdt.c b/drivers/watchdog/da9062_wdt.c
+index 7386111..4b20b7a 100644
+--- a/drivers/watchdog/da9062_wdt.c
++++ b/drivers/watchdog/da9062_wdt.c
+@@ -1,5 +1,5 @@
+ /*
+- * da9062_wdt.c - WDT device driver for DA9062
++ * Watchdog device driver for DA9062 and DA9061 PMICs
+  * Copyright (C) 2015  Dialog Semiconductor Ltd.
+  *
+  * This program is free software; you can redistribute it and/or
+@@ -188,23 +188,34 @@ static const struct watchdog_ops da9062_watchdog_ops = {
+ 	.set_timeout = da9062_wdt_set_timeout,
+ };
+ 
++static const struct of_device_id da9062_compatible_id_table[] = {
++	{ .compatible = "dlg,da9062-watchdog", .data = &da9062_watchdog_info },
++	{ },
++};
 +
-+Product information can be found here:
-+- http://www.dialog-semiconductor.com/products/da9062
-+- http://www.dialog-semiconductor.com/products/da9061
+ static int da9062_wdt_probe(struct platform_device *pdev)
+ {
+ 	int ret;
+ 	struct da9062 *chip;
+ 	struct da9062_watchdog *wdt;
++	const struct of_device_id *match;
+ 
+ 	chip = dev_get_drvdata(pdev->dev.parent);
+ 	if (!chip)
+ 		return -EINVAL;
+ 
++	match = of_match_node(da9062_compatible_id_table,
++			      pdev->dev.of_node);
++	if (!match)
++		return -ENXIO;
 +
-+DA9062 driver consists of a large and varied group of sub-devices:
+ 	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
+ 	if (!wdt)
+ 		return -ENOMEM;
  
- Device                   Supply Names    Description
- ------                   ------------    -----------
- da9062-regulator        :               : LDOs & BUCKs
- da9062-rtc              :               : Real-Time Clock
-+da9062-onkey            :               : On Key
- da9062-watchdog         :               : Watchdog Timer
-+da9062-thermal          :               : Thermal
+ 	wdt->hw = chip;
  
- ======
+-	wdt->wdtdev.info = &da9062_watchdog_info;
++	wdt->wdtdev.info = (const struct watchdog_info *)match->data;
+ 	wdt->wdtdev.ops = &da9062_watchdog_ops;
+ 	wdt->wdtdev.min_timeout = DA9062_WDT_MIN_TIMEOUT;
+ 	wdt->wdtdev.max_timeout = DA9062_WDT_MAX_TIMEOUT;
+@@ -244,11 +255,12 @@ static struct platform_driver da9062_wdt_driver = {
+ 	.remove = da9062_wdt_remove,
+ 	.driver = {
+ 		.name = "da9062-watchdog",
++		.of_match_table = da9062_compatible_id_table,
+ 	},
+ };
+ module_platform_driver(da9062_wdt_driver);
  
- Required properties:
- 
--- compatible : Should be "dlg,da9062".
-+- compatible : Should be
-+    "dlg,da9062" for DA9062
-+    "dlg,da9061" for DA9061
- - reg : Specifies the I2C slave address (this defaults to 0x58 but it can be
-   modified to match the chip's OTP settings).
- - interrupt-parent : Specifies the reference to the interrupt controller for
--  the DA9062.
-+  the DA9062 or DA9061.
- - interrupts : IRQ line information.
- - interrupt-controller
- 
-@@ -25,8 +35,8 @@ further information on IRQ bindings.
- 
- Sub-nodes:
- 
--- regulators : This node defines the settings for the LDOs and BUCKs. The
--  DA9062 regulators are bound using their names listed below:
-+- regulators : This node defines the settings for the LDOs and BUCKs.
-+  The DA9062 regulators are bound using their names listed below:
- 
-     buck1    : BUCK_1
-     buck2    : BUCK_2
-@@ -37,6 +47,16 @@ Sub-nodes:
-     ldo3     : LDO_3
-     ldo4     : LDO_4
- 
-+  The DA9061 regulators are bound using their names listed below:
-+
-+    buck1    : BUCK_1
-+    buck2    : BUCK_2
-+    buck3    : BUCK_3
-+    ldo1     : LDO_1
-+    ldo2     : LDO_2
-+    ldo3     : LDO_3
-+    ldo4     : LDO_4
-+
-   The component follows the standard regulator framework and the bindings
-   details of individual regulator device can be found in:
-   Documentation/devicetree/bindings/regulator/regulator.txt
-@@ -46,9 +66,14 @@ Sub-nodes:
-   with the DA9062. There are currently no entries in this binding, however
-   compatible = "dlg,da9062-rtc" should be added if a node is created.
- 
--- watchdog: This node defines the settings for the watchdog driver associated
--  with the DA9062 PMIC. The compatible = "dlg,da9062-watchdog" should be added
--  if a node is created.
-+
-+- onkey : See ../input/da9062-onkey.txt
-+
-+
-+- watchdog: See ../watchdog/da9062-watchdog.txt
-+
-+
-+- thermal : See ../thermal/da9062-thermal.txt
- 
- 
- Example:
-@@ -64,10 +89,6 @@ Example:
- 			compatible = "dlg,da9062-rtc";
- 		};
- 
--		watchdog {
--			compatible = "dlg,da9062-watchdog";
--		};
--
- 		regulators {
- 			DA9062_BUCK1: buck1 {
- 				regulator-name = "BUCK1";
+ MODULE_AUTHOR("S Twiss <stwiss.opensource@diasemi.com>");
+-MODULE_DESCRIPTION("WDT device driver for Dialog DA9062");
++MODULE_DESCRIPTION("WDT device driver for Dialog DA9062 and DA9061");
+ MODULE_LICENSE("GPL");
+ MODULE_ALIAS("platform:da9062-watchdog");
 -- 
 end-of-patch for PATCH V2
