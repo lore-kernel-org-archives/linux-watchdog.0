@@ -1,169 +1,130 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:49358 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751399AbcJZS7a (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 26 Oct 2016 14:59:30 -0400
-Date: Wed, 26 Oct 2016 11:59:26 -0700
-From: Guenter Roeck <linux@roeck-us.net>
+Return-path: <dmitry.torokhov@gmail.com>
+Date: Wed, 26 Oct 2016 15:50:05 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 To: Steve Twiss <stwiss.opensource@diasemi.com>
-Cc: LINUX-KERNEL <linux-kernel@vger.kernel.org>,
-        LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        DEVICETREE <devicetree@vger.kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Eduardo Valentin <edubezval@gmail.com>,
-        LINUX-INPUT <linux-input@vger.kernel.org>,
-        LINUX-PM <linux-pm@vger.kernel.org>,
-        Lee Jones <lee.jones@linaro.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Support Opensource <support.opensource@diasemi.com>,
-        Zhang Rui <rui.zhang@intel.com>
-Subject: Re: [PATCH V2 08/10] watchdog: da9062/61: watchdog driver
-Message-ID: <20161026185926.GA16142@roeck-us.net>
+Cc: LINUX-INPUT <linux-input@vger.kernel.org>,
+	LINUX-KERNEL <linux-kernel@vger.kernel.org>,
+	DEVICETREE <devicetree@vger.kernel.org>,
+	Eduardo Valentin <edubezval@gmail.com>,
+	Guenter Roeck <linux@roeck-us.net>,
+	LINUX-PM <linux-pm@vger.kernel.org>,
+	LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
+	Lee Jones <lee.jones@linaro.org>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Mark Brown <broonie@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Rob Herring <robh+dt@kernel.org>,
+	Support Opensource <support.opensource@diasemi.com>,
+	Wim Van Sebroeck <wim@iguana.be>, Zhang Rui <rui.zhang@intel.com>
+Subject: Re: [PATCH V2 07/10] Input: da9061: onkey driver
+Message-ID: <20161026225005.GA27930@dtor-ws>
 References: <cover.1477501000.git.stwiss.opensource@diasemi.com>
- <ecd0c36a9e1766e327b54afa6bf986e64890b881.1477501000.git.stwiss.opensource@diasemi.com>
+ <29f73d4d4718cc5848c0414ea60f865ef39bd2cf.1477501000.git.stwiss.opensource@diasemi.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <ecd0c36a9e1766e327b54afa6bf986e64890b881.1477501000.git.stwiss.opensource@diasemi.com>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+In-Reply-To: <29f73d4d4718cc5848c0414ea60f865ef39bd2cf.1477501000.git.stwiss.opensource@diasemi.com>
+List-ID: <linux-watchdog@vger.kernel.org>
 
 On Wed, Oct 26, 2016 at 05:56:39PM +0100, Steve Twiss wrote:
 > From: Steve Twiss <stwiss.opensource@diasemi.com>
 > 
-> The of_device_id match array is added to support "dlg,da9062-watchdog"
-> as a valid .compatible string.
-> 
-> The watchdog_info structure is linked to this device tree compatible
-> string in the .data section. Extra code is added into the probe function to
-> search-for and assign this match data.
-> 
-> This patch now assumes the use of a DA9062 fallback compatible string for
-> the DTS to pick up the DA9062 device driver for use with the DA9061
-> watchdog hardware.
-> 
 > Copyright header is updated to add DA9061 in its description and the module
 > description macro is extended to include DA9061.
 > 
-> Kconfig is updated to reflect support for DA9061/62.
+> Minor change to the code, alters dev_dbg() statements to report a generic
+> "PMIC" instead of DA9063. This device driver is compatible with DA9061,
+> DA9062 and DA9063.
+> 
+> Kconfig is updated to reflect support for DA9061/62/63.
 > 
 > Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+
+Applied, thank you.
+
 > 
 > ---
 > This patch applies against linux-next and v4.8
 > 
 > v1 -> v2
->  - Patch renamed from [PATCH V1 04/10] to [PATCH V2 08/10] -- these
+>  - Patch renamed from [PATCH V1 03/10] to [PATCH V2 07/10] -- these
 >    changes were made to fix checkpatch warnings caused by the patch
 >    set dependency order
->  - Removal of the DA9061 compatible entries for this device driver.
->  - Additional explanation in the patch description for the use of a
->    fall-back compatible DTS string
+>  - Revert changes for DA9061 specific compatible changes.
 > 
-> Guenter,
+> Dmitry,
 > 
-> Alterations have been made in accordance with the previous e-mail thread
-> on the use of compatible strings: https://lkml.org/lkml/2016/10/7/641
-> This patch now assumes the use of a fallback compatible string in the DTS.
-> Of the form: compatible = "dlg,da9061-watchdog", "dlg,da9062-watchdog";
+> Alterations made in accordance with previous e-mail thread on the use of
+> compatible strings: https://lkml.org/lkml/2016/10/7/641
+> Now assuming the use of a fallback compatible string in the DT.
+> compatible = "dlg,da9061-onkey", "dlg,da9062-onkey";
 > 
 > Regards,
 > Steve Twiss, Dialog Semiconductor Ltd.
 > 
 > 
->  drivers/watchdog/Kconfig      |  4 ++--
->  drivers/watchdog/da9062_wdt.c | 18 +++++++++++++++---
->  2 files changed, 17 insertions(+), 5 deletions(-)
+>  drivers/input/misc/Kconfig        | 7 ++++---
+>  drivers/input/misc/da9063_onkey.c | 8 ++++----
+>  2 files changed, 8 insertions(+), 7 deletions(-)
 > 
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index 1bffe00..d6b4088 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -104,11 +104,11 @@ config DA9063_WATCHDOG
->  	  This driver can be built as a module. The module name is da9063_wdt.
+> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+> index efb0ca8..57cc9c2 100644
+> --- a/drivers/input/misc/Kconfig
+> +++ b/drivers/input/misc/Kconfig
+> @@ -613,11 +613,12 @@ config INPUT_DA9055_ONKEY
+>  	  will be called da9055_onkey.
 >  
->  config DA9062_WATCHDOG
-> -	tristate "Dialog DA9062 Watchdog"
-> +	tristate "Dialog DA9062/61 Watchdog"
->  	depends on MFD_DA9062
->  	select WATCHDOG_CORE
+>  config INPUT_DA9063_ONKEY
+> -	tristate "Dialog DA9062/63 OnKey"
+> +	tristate "Dialog DA9063/62/61 OnKey"
+>  	depends on MFD_DA9063 || MFD_DA9062
 >  	help
-> -	  Support for the watchdog in the DA9062 PMIC.
-> +	  Support for the watchdog in the DA9062 and DA9061 PMICs.
+> -	  Support the ONKEY of Dialog DA9063 and DA9062 Power Management ICs
+> -	  as an input device capable of reporting the power button status.
+> +	  Support the ONKEY of Dialog DA9063, DA9062 and DA9061 Power
+> +	  Management ICs as an input device capable of reporting the
+> +	  power button status.
 >  
->  	  This driver can be built as a module. The module name is da9062_wdt.
->  
-> diff --git a/drivers/watchdog/da9062_wdt.c b/drivers/watchdog/da9062_wdt.c
-> index 7386111..4b20b7a 100644
-> --- a/drivers/watchdog/da9062_wdt.c
-> +++ b/drivers/watchdog/da9062_wdt.c
+>  	  To compile this driver as a module, choose M here: the module
+>  	  will be called da9063_onkey.
+> diff --git a/drivers/input/misc/da9063_onkey.c b/drivers/input/misc/da9063_onkey.c
+> index bb863e0..dff6fe5 100644
+> --- a/drivers/input/misc/da9063_onkey.c
+> +++ b/drivers/input/misc/da9063_onkey.c
 > @@ -1,5 +1,5 @@
 >  /*
-> - * da9062_wdt.c - WDT device driver for DA9062
-> + * Watchdog device driver for DA9062 and DA9061 PMICs
+> - * OnKey device driver for DA9063 and DA9062 PMICs
+> + * OnKey device driver for DA9063, DA9062 and DA9061 PMICs
 >   * Copyright (C) 2015  Dialog Semiconductor Ltd.
 >   *
 >   * This program is free software; you can redistribute it and/or
-> @@ -188,23 +188,34 @@ static const struct watchdog_ops da9062_watchdog_ops = {
->  	.set_timeout = da9062_wdt_set_timeout,
->  };
->  
-> +static const struct of_device_id da9062_compatible_id_table[] = {
-> +	{ .compatible = "dlg,da9062-watchdog", .data = &da9062_watchdog_info },
-> +	{ },
-> +};
-> +
->  static int da9062_wdt_probe(struct platform_device *pdev)
->  {
->  	int ret;
->  	struct da9062 *chip;
->  	struct da9062_watchdog *wdt;
-> +	const struct of_device_id *match;
->  
->  	chip = dev_get_drvdata(pdev->dev.parent);
->  	if (!chip)
->  		return -EINVAL;
->  
-> +	match = of_match_node(da9062_compatible_id_table,
-> +			      pdev->dev.of_node);
-> +	if (!match)
-> +		return -ENXIO;
-> +
->  	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
->  	if (!wdt)
->  		return -ENOMEM;
->  
->  	wdt->hw = chip;
->  
-> -	wdt->wdtdev.info = &da9062_watchdog_info;
-> +	wdt->wdtdev.info = (const struct watchdog_info *)match->data;
-
-I don't see why you would need match->data or of_match_node above.
-
-Guenter
-
->  	wdt->wdtdev.ops = &da9062_watchdog_ops;
->  	wdt->wdtdev.min_timeout = DA9062_WDT_MIN_TIMEOUT;
->  	wdt->wdtdev.max_timeout = DA9062_WDT_MAX_TIMEOUT;
-> @@ -244,11 +255,12 @@ static struct platform_driver da9062_wdt_driver = {
->  	.remove = da9062_wdt_remove,
->  	.driver = {
->  		.name = "da9062-watchdog",
-> +		.of_match_table = da9062_compatible_id_table,
->  	},
->  };
->  module_platform_driver(da9062_wdt_driver);
+> @@ -149,13 +149,13 @@ static void da9063_poll_on(struct work_struct *work)
+>  			 * and then send shutdown command
+>  			 */
+>  			dev_dbg(&onkey->input->dev,
+> -				"Sending SHUTDOWN to DA9063 ...\n");
+> +				"Sending SHUTDOWN to PMIC ...\n");
+>  			error = regmap_write(onkey->regmap,
+>  					     config->onkey_shutdown,
+>  					     config->onkey_shutdown_mask);
+>  			if (error)
+>  				dev_err(&onkey->input->dev,
+> -					"Cannot SHUTDOWN DA9063: %d\n",
+> +					"Cannot SHUTDOWN PMIC: %d\n",
+>  					error);
+>  		}
+>  	}
+> @@ -300,6 +300,6 @@ static struct platform_driver da9063_onkey_driver = {
+>  module_platform_driver(da9063_onkey_driver);
 >  
 >  MODULE_AUTHOR("S Twiss <stwiss.opensource@diasemi.com>");
-> -MODULE_DESCRIPTION("WDT device driver for Dialog DA9062");
-> +MODULE_DESCRIPTION("WDT device driver for Dialog DA9062 and DA9061");
+> -MODULE_DESCRIPTION("Onkey device driver for Dialog DA9063 and DA9062");
+> +MODULE_DESCRIPTION("Onkey device driver for Dialog DA9063, DA9062 and DA9061");
 >  MODULE_LICENSE("GPL");
->  MODULE_ALIAS("platform:da9062-watchdog");
+>  MODULE_ALIAS("platform:" DA9063_DRVNAME_ONKEY);
 > -- 
 > end-of-patch for PATCH V2
 > 
+
+-- 
+Dmitry
