@@ -1,9 +1,9 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
 Received: from mail.data-modul.de ([212.184.205.171]:49826 "EHLO
         mail2.data-modul.de" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S935834AbcJ0N6F (ORCPT
+        with ESMTP id S935161AbcJ0N6C (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 27 Oct 2016 09:58:05 -0400
+        Thu, 27 Oct 2016 09:58:02 -0400
 From: Zahari Doychev <zahari.doychev@linux.com>
 To: linux-kernel@vger.kernel.org, gregkh@linuxfoundation.org,
         lee.jones@linaro.org, wsa@the-dreams.de, linus.walleij@linaro.org,
@@ -11,9 +11,9 @@ To: linux-kernel@vger.kernel.org, gregkh@linuxfoundation.org,
 Cc: linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org,
         gnurou@gmail.com, linux-watchdog@vger.kernel.org,
         Zahari Doychev <zahari.doychev@linux.com>
-Subject: [RFC PATCH 1/5] dmec: add DMO mfd driver
-Date: Thu, 27 Oct 2016 12:47:12 +0200
-Message-Id: <cf8a6eadff49926d58c47c48b400ca63b4f716aa.1477564996.git-series.zahari.doychev@linux.com>
+Subject: [RFC PATCH 3/5] gpio-dmec: gpio support for dmec
+Date: Thu, 27 Oct 2016 12:47:14 +0200
+Message-Id: <fe8ac70204de48edd8a3da8a783b10810f3d4ca1.1477564996.git-series.zahari.doychev@linux.com>
 In-Reply-To: <cover.42dd8126f6e33b5130d9afa4596d88a106c54188.1477564996.git-series.zahari.doychev@linux.com>
 References: <cover.42dd8126f6e33b5130d9afa4596d88a106c54188.1477564996.git-series.zahari.doychev@linux.com>
 In-Reply-To: <cover.42dd8126f6e33b5130d9afa4596d88a106c54188.1477564996.git-series.zahari.doychev@linux.com>
@@ -21,583 +21,455 @@ References: <cover.42dd8126f6e33b5130d9afa4596d88a106c54188.1477564996.git-serie
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This is a core mfd driver for the on board embedded controllers found on the
-Data Modul embedded CPU modules. The embedded controller may provide the
-following functions: i2c bus, gpio, watchdog, uart and rtm.
+This is support for the gpio functionality found on the Data Modul embedded
+controllers
 
 Signed-off-by: Zahari Doychev <zahari.doychev@linux.com>
 ---
- drivers/staging/Kconfig          |   2 +-
- drivers/staging/Makefile         |   1 +-
- drivers/staging/dmec/Kconfig     |   9 +-
+ drivers/staging/dmec/Kconfig     |  10 +-
  drivers/staging/dmec/Makefile    |   1 +-
- drivers/staging/dmec/dmec-core.c | 500 ++++++++++++++++++++++++++++++++-
- drivers/staging/dmec/dmec.h      |   6 +-
- 6 files changed, 519 insertions(+), 0 deletions(-)
- create mode 100644 drivers/staging/dmec/Kconfig
- create mode 100644 drivers/staging/dmec/Makefile
- create mode 100644 drivers/staging/dmec/dmec-core.c
- create mode 100644 drivers/staging/dmec/dmec.h
+ drivers/staging/dmec/dmec.h      |   5 +-
+ drivers/staging/dmec/gpio-dmec.c | 390 ++++++++++++++++++++++++++++++++-
+ 4 files changed, 406 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/staging/dmec/gpio-dmec.c
 
-diff --git a/drivers/staging/Kconfig b/drivers/staging/Kconfig
-index 58a7b35..d95bee2 100644
---- a/drivers/staging/Kconfig
-+++ b/drivers/staging/Kconfig
-@@ -106,4 +106,6 @@ source "drivers/staging/greybus/Kconfig"
- 
- source "drivers/staging/vc04_services/Kconfig"
- 
-+source "drivers/staging/dmec/Kconfig"
-+
- endif # STAGING
-diff --git a/drivers/staging/Makefile b/drivers/staging/Makefile
-index 2fa9745..73b4833 100644
---- a/drivers/staging/Makefile
-+++ b/drivers/staging/Makefile
-@@ -42,3 +42,4 @@ obj-$(CONFIG_ISDN_I4L)		+= i4l/
- obj-$(CONFIG_KS7010)		+= ks7010/
- obj-$(CONFIG_GREYBUS)		+= greybus/
- obj-$(CONFIG_BCM2708_VCHIQ)	+= vc04_services/
-+obj-$(CONFIG_MFD_DMEC)		+= dmec/
 diff --git a/drivers/staging/dmec/Kconfig b/drivers/staging/dmec/Kconfig
-new file mode 100644
-index 0000000..3641907
---- /dev/null
+index 0067b0b..9c4a8e5 100644
+--- a/drivers/staging/dmec/Kconfig
 +++ b/drivers/staging/dmec/Kconfig
-@@ -0,0 +1,9 @@
-+config MFD_DMEC
-+	tristate "Data Modul Embedded Controller MFD"
-+	select MFD_CORE
-+	help
-+	    Say Y here to enable support for a Data Module embedded controller
-+	    found on Data Module CPU Modules
+@@ -17,3 +17,13 @@ config I2C_DMEC
+ 
+ 	  To compile this driver as a module, say M here: the module will be
+           called i2c-dmec
 +
-+	    To compile this driver as a module, say M here: the module will be
-+            called dmec
++config GPIO_DMEC
++	tristate "Data Modul GPIO"
++	depends on MFD_DMEC && GPIOLIB
++	help
++	  Say Y here to enable support for a GPIOs on a Data Module embedded
++	  controller.
++
++	  To compile this driver as a module, say M here: the module will be
++          called gpio-dmec
 diff --git a/drivers/staging/dmec/Makefile b/drivers/staging/dmec/Makefile
-new file mode 100644
-index 0000000..859163b
---- /dev/null
+index c51a37e..b71b27b 100644
+--- a/drivers/staging/dmec/Makefile
 +++ b/drivers/staging/dmec/Makefile
-@@ -0,0 +1 @@
-+obj-$(CONFIG_MFD_DMEC)		+= dmec-core.o
-diff --git a/drivers/staging/dmec/dmec-core.c b/drivers/staging/dmec/dmec-core.c
+@@ -1,2 +1,3 @@
+ obj-$(CONFIG_MFD_DMEC)		+= dmec-core.o
+ obj-$(CONFIG_I2C_DMEC)		+= i2c-dmec.o
++obj-$(CONFIG_GPIO_DMEC) 	+= gpio-dmec.o
+diff --git a/drivers/staging/dmec/dmec.h b/drivers/staging/dmec/dmec.h
+index 178937d..cc42926 100644
+--- a/drivers/staging/dmec/dmec.h
++++ b/drivers/staging/dmec/dmec.h
+@@ -1,6 +1,11 @@
+ #ifndef _LINUX_MFD_DMEC_H
+ #define _LINUX_MFD_DMEC_H
+ 
++struct dmec_gpio_platform_data {
++	int gpio_base;
++	int chip_num;
++};
++
+ struct dmec_i2c_platform_data {
+ 	u32 reg_shift; /* register offset shift value */
+ 	u32 reg_io_width; /* register io read/write width */
+diff --git a/drivers/staging/dmec/gpio-dmec.c b/drivers/staging/dmec/gpio-dmec.c
 new file mode 100644
-index 0000000..40f5481
+index 0000000..4cefbbf
 --- /dev/null
-+++ b/drivers/staging/dmec/dmec-core.c
-@@ -0,0 +1,500 @@
++++ b/drivers/staging/dmec/gpio-dmec.c
+@@ -0,0 +1,390 @@
 +/*
-+ * dmec-core: Data Modul AG mfd embedded controller driver
++ * GPIO driver for Data Modul AG Embedded Controller
 + *
-+ * Zahari Doychev  <zahari.doychev@linux.com>
++ * Copyright (C) 2016 Data Modul AG
 + *
-+ * This file is licensed under the terms of the GNU General Public License
-+ * version 2.  This program is licensed "as is" without any warranty of any
-+ * kind, whether express or implied.
++ * Authors: Zahari Doychev <zahari.doychev@linux.com>
++ *
++ * This file is subject to the terms and conditions of the GNU General Public
++ * License.  See the file "COPYING" in the main directory of this archive
++ * for more details.
++ *
 + */
-+#include <linux/platform_device.h>
-+#include <linux/mfd/core.h>
++
++#include <linux/init.h>
++#include <linux/kernel.h>
 +#include <linux/module.h>
-+#include <linux/dmi.h>
 +#include <linux/io.h>
-+#include <linux/delay.h>
-+#include <linux/regmap.h>
++#include <linux/slab.h>
++#include <linux/errno.h>
 +#include <linux/acpi.h>
-+#include <linux/nls.h>
++#include <linux/platform_device.h>
++#include <linux/regmap.h>
++#include <linux/gpio.h>
++#include <linux/seq_file.h>
++#include <linux/interrupt.h>
++#include <linux/delay.h>
++#include <linux/spinlock.h>
++
 +#include "dmec.h"
 +
-+#define DMEC_LBAR			0x00 /* Index addressing 4 bytes */
-+#define DMEC_ECVER0			0x04
-+#define DMEC_ECVER1			0x05
-+#define DMEC_ECFTR0			0x07
-+#define DMEC_ECFTR1			0x08
-+#define DMEC_FPGAVER0			0x0c
-+#define DMEC_FPGAVER1			0x0d
-+#define DMEC_FPGABLD0			0x0e
-+#define DMEC_FPGABLD1			0x0f
-+#define DMEC_IRQCFG0			0x10
-+#define DMEC_IRQCFG1			0x11
-+#define DMEC_RTM_START			0x60
-+#define DMEC_RTM_END			0x6e
++#define DMEC_GPIO_BANKS			2
++#define DMEC_GPIO_MAX_NUM		8
++#define DMEC_GPIO_BASE(x)		(0x40 + 0x10 * ((x)->chip_num))
++#define DMEC_GPIO_SET_OFFSET(x)		(DMEC_GPIO_BASE(x) + 0x1)
++#define DMEC_GPIO_GET_OFFSET(x)		(DMEC_GPIO_BASE(x) + 0x1)
++#define DMEC_GPIO_CLR_OFFSET(x)		(DMEC_GPIO_BASE(x) + 0x2)
++#define DMEC_GPIO_VER_OFFSET(x)		(DMEC_GPIO_BASE(x) + 0x2)
++#define DMEC_GPIO_DIR_OFFSET(x)		(DMEC_GPIO_BASE(x) + 0x3)
++#define DMEC_GPIO_IRQTYPE_OFFSET(x)	(DMEC_GPIO_BASE(x) + 0x4)
++#define DMEC_GPIO_EVTSTA_OFFSET(x)	(DMEC_GPIO_BASE(x) + 0x6)
++#define DMEC_GPIO_IRQCFG_OFFSET(x)	(DMEC_GPIO_BASE(x) + 0x8)
++#define DMEC_GPIO_NOPS_OFFSET(x)	(DMEC_GPIO_BASE(x) + 0xa)
++#define DMEC_GPIO_IRQSTA_OFFSET(x)	(DMEC_GPIO_BASE(x) + 0xb)
 +
-+#define DMEC_MAX_GPIO_CHIPS		2
-+
-+#define DMEC_VERSION_LEN		32
-+
-+#define DMEC_FEATURE_BIT_I2C		BIT(0)
-+#define DMEC_FEATURE_BIT_WDT		BIT(4)
-+#define DMEC_FEATURE_BIT_GPIO		(3 << 6)
-+
-+#define DMEC_REG_MAX		0x7f
-+#define DMEC_MAX_DEVS		ARRAY_SIZE(dmec_devs)
-+#define DMEC_MAX_IO_RES		2
-+#define DMEC_STR_SZ		128
-+
-+static bool i_addr;
-+module_param(i_addr, bool, 0644);
-+MODULE_PARM_DESC(i_addr, "Enable register index addressing usage");
-+
-+static const char * const fw_types[] = {"release", "custom",
-+					"debug", "reserved"};
-+
-+enum dmec_cells {
-+	DMEC_I2C = 0,
-+	DMEC_GPIOA,
-+	DMEC_GPIOB,
-+	DMEC_WDT,
-+	DMEC_RTM
++#ifdef CONFIG_PM
++struct dmec_reg_ctx {
++	u32 dat;
++	u32 dir;
++	u32 imask;
++	u32 icfg[2];
++	u32 emask[2];
 +};
++#endif
 +
-+struct dmec_features {
-+	unsigned int i2c_buses:2;
-+	unsigned int uarts:2;
-+	unsigned int wdt:1;
-+	unsigned int rsvd1:1;
-+	unsigned int gpio_chips:2;
-+	unsigned int spi_buses:2;
-+	unsigned int can_buses:2;
-+	unsigned int rsvd2:1;
-+	unsigned int nmi:1;
-+	unsigned int sci:1;
-+	unsigned int smi:1;
-+};
-+
-+struct dmec_info {
-+	unsigned int ec_ver:4;
-+	unsigned int ec_rev:4;
-+	unsigned int ec_num:2;
-+	unsigned int ec_type:2;
-+	unsigned int ec_dbg:4;
-+	u16 fpga_ver;
-+	u16 fpga_bld;
-+	char version[DMEC_VERSION_LEN];
-+};
-+
-+struct dmec_device_data {
-+	void __iomem *io_base;
-+	void __iomem *io_index;
-+	void __iomem *io_data;
-+	union {
-+		u16 feature_mask;
-+		struct dmec_features ftr;
-+	} u;
-+	struct device *dev;
-+	struct dmec_info info;
++struct dmec_gpio_priv {
 +	struct regmap *regmap;
-+	/* use index addressing for register access if set*/
-+	bool i_addr;
++	struct gpio_chip gpio_chip;
++	struct irq_chip irq_chip;
++	unsigned int chip_num;
++	unsigned int irq;
++	u8 ver;
++#ifdef CONFIG_PM
++	struct dmec_reg_ctx regs;
++#endif
 +};
 +
-+struct dmec_platform_data {
-+	int (*get_info)(struct dmec_device_data *);
-+	int (*register_cells)(struct dmec_device_data *);
-+};
-+
-+static struct dmec_i2c_platform_data dmec_i2c_data = {
-+	.reg_shift	= 0,		/* two bytes between registers */
-+	.reg_io_width	= 1,		/* register io read/write width */
-+	.clock_khz	= 50000,	/* input clock of 50MHz */
-+};
-+
-+static struct dmec_gpio_platform_data dmec_gpio_pdata[DMEC_MAX_GPIO_CHIPS] = {
-+	{
-+		.gpio_base = -1,
-+		.chip_num = 0,
-+	},
-+	{
-+		.gpio_base = -1,
-+		.chip_num = 1,
-+	},
-+};
-+
-+/* The gpio block can use up to DMEC_GPIO_MAX_IRQS APIC irqs */
-+static struct resource dmec_gpio_irq_resources[DMEC_MAX_GPIO_CHIPS];
-+static struct resource dmec_wdt_irq_resource;
-+static struct resource dmec_i2c_irq_resource;
-+
-+static struct mfd_cell dmec_devs[] = {
-+	[DMEC_I2C] = {
-+		.name = "dmec-i2c",
-+		.platform_data = &dmec_i2c_data,
-+		.pdata_size = sizeof(dmec_i2c_data),
-+		.resources = &dmec_i2c_irq_resource,
-+		.num_resources = 1,
-+	},
-+	[DMEC_GPIOA] = {
-+		.name = "dmec-gpio",
-+		.platform_data = &dmec_gpio_pdata[0],
-+		.pdata_size = sizeof(struct dmec_gpio_platform_data),
-+		.resources = &dmec_gpio_irq_resources[0],
-+		.num_resources = 1,
-+	},
-+	[DMEC_GPIOB] = {
-+		.name = "dmec-gpio",
-+		.platform_data = &dmec_gpio_pdata[1],
-+		.pdata_size = sizeof(struct dmec_gpio_platform_data),
-+		.resources = &dmec_gpio_irq_resources[1],
-+		.num_resources = 1,
-+	},
-+	[DMEC_WDT] = {
-+		.name = "dmec-wdt",
-+		.resources = &dmec_wdt_irq_resource,
-+		.num_resources = 1,
-+	},
-+	[DMEC_RTM] = {
-+		.name = "dmec-rtm",
-+	},
-+};
-+
-+static void dmec_get_gpio_irqs(struct dmec_device_data *ec)
++static int dmec_gpio_get(struct gpio_chip *gc, unsigned int offset)
 +{
-+	unsigned int irq, val;
++	struct dmec_gpio_priv *priv = container_of(gc, struct dmec_gpio_priv,
++						   gpio_chip);
++	struct regmap *regmap = priv->regmap;
++	unsigned int val;
 +
-+	regmap_read(ec->regmap, DMEC_IRQCFG1, &val);
-+	irq = (val >> 4) & 0xf;
-+	dmec_gpio_irq_resources[0].start = irq;
-+	dmec_gpio_irq_resources[0].end = irq;
-+	dmec_gpio_irq_resources[0].flags = IORESOURCE_IRQ;
-+	irq = val & 0xf;
-+	dmec_gpio_irq_resources[1].start = irq;
-+	dmec_gpio_irq_resources[1].end = irq;
-+	dmec_gpio_irq_resources[1].flags = IORESOURCE_IRQ;
++	/* read get register */
++	regmap_read(regmap, DMEC_GPIO_GET_OFFSET(priv), &val);
++
++	return !!(val & BIT(offset));
 +}
 +
-+static void dmec_get_wdt_irq(struct dmec_device_data *ec)
++static void dmec_gpio_set(struct gpio_chip *gc, unsigned int offset, int value)
 +{
-+	unsigned int irq, val;
++	struct dmec_gpio_priv *priv = container_of(gc, struct dmec_gpio_priv,
++						   gpio_chip);
++	struct regmap *regmap = priv->regmap;
 +
-+	regmap_read(ec->regmap, DMEC_IRQCFG0, &val);
-+	irq = val & 0xf;
-+	dmec_wdt_irq_resource.start = irq;
-+	dmec_wdt_irq_resource.end = irq;
-+	dmec_wdt_irq_resource.flags = IORESOURCE_IRQ;
++	if (value)
++		regmap_write(regmap, DMEC_GPIO_SET_OFFSET(priv), BIT(offset));
++	else
++		regmap_write(regmap, DMEC_GPIO_CLR_OFFSET(priv), BIT(offset));
 +}
 +
-+static void dmec_get_i2c_irq(struct dmec_device_data *ec)
++static int dmec_gpio_direction_input(struct gpio_chip *gc, unsigned int offset)
 +{
-+	unsigned int irq, val;
++	struct dmec_gpio_priv *priv = container_of(gc, struct dmec_gpio_priv,
++						   gpio_chip);
++	struct regmap *regmap = priv->regmap;
 +
-+	regmap_read(ec->regmap, DMEC_IRQCFG0, &val);
-+	irq = (val >> 4) & 0xf;
-+	dmec_i2c_irq_resource.start = irq;
-+	dmec_i2c_irq_resource.end = irq;
-+	dmec_i2c_irq_resource.flags = IORESOURCE_IRQ;
-+}
-+
-+static int dmec_rtm_detect(struct dmec_device_data *ec)
-+{
-+	unsigned int val, n;
-+
-+	for (n = DMEC_RTM_START; n <= DMEC_RTM_END; n++) {
-+		regmap_read(ec->regmap, n, &val);
-+		if (val != 0xff)
-+			return 1;
-+	}
++	/* set pin as input */
++	regmap_update_bits(regmap, DMEC_GPIO_DIR_OFFSET(priv), BIT(offset), 0);
 +
 +	return 0;
 +}
 +
-+static int dmec_register_cells(struct dmec_device_data *ec)
++static int dmec_gpio_direction_output(struct gpio_chip *gc, unsigned int offset,
++				      int value)
 +{
-+	struct mfd_cell cells[DMEC_MAX_DEVS];
-+	u8 n_dev = 0;
++	struct dmec_gpio_priv *priv = container_of(gc, struct dmec_gpio_priv,
++						   gpio_chip);
++	struct regmap *regmap = priv->regmap;
++	unsigned int val = BIT(offset);
 +
-+	if (ec->u.feature_mask & DMEC_FEATURE_BIT_I2C) {
-+		dmec_get_i2c_irq(ec);
-+		dmec_devs[DMEC_I2C].id = n_dev;
-+		cells[n_dev++] = dmec_devs[DMEC_I2C];
-+	}
++	if (value)
++		regmap_write(regmap, DMEC_GPIO_SET_OFFSET(priv), val);
++	else
++		regmap_write(regmap, DMEC_GPIO_CLR_OFFSET(priv), val);
 +
-+	if (ec->u.feature_mask & DMEC_FEATURE_BIT_GPIO) {
-+		dmec_get_gpio_irqs(ec);
-+		dmec_devs[DMEC_GPIOA].id = n_dev;
-+		cells[n_dev++] = dmec_devs[DMEC_GPIOA];
-+		if (ec->u.ftr.gpio_chips > 1) {
-+			dmec_devs[DMEC_GPIOB].id = n_dev;
-+			cells[n_dev++] = dmec_devs[DMEC_GPIOB];
-+		}
-+	}
-+
-+	if (ec->u.feature_mask & DMEC_FEATURE_BIT_WDT) {
-+		dmec_get_wdt_irq(ec);
-+		dmec_devs[DMEC_WDT].id = n_dev;
-+		cells[n_dev++] = dmec_devs[DMEC_WDT];
-+	}
-+
-+	if (dmec_rtm_detect(ec)) {
-+		dmec_devs[DMEC_RTM].id = n_dev;
-+		cells[n_dev++] = dmec_devs[DMEC_RTM];
-+	}
-+
-+	return devm_mfd_add_devices(ec->dev, 0,
-+				    cells, n_dev, NULL, 0, NULL);
-+}
-+
-+static int dmec_read16(struct dmec_device_data *ec, u8 reg)
-+{
-+	unsigned int lsb, msb;
-+	int ret;
-+
-+	ret = regmap_read(ec->regmap, reg, &lsb);
-+	ret = regmap_read(ec->regmap, reg + 0x1, &msb);
-+
-+	return (msb << 8) | lsb;
-+}
-+
-+static int dmec_get_info(struct dmec_device_data *ec)
-+{
-+	unsigned int ver0, ver1;
-+
-+	regmap_read(ec->regmap, DMEC_ECVER0, &ver0);
-+	regmap_read(ec->regmap, DMEC_ECVER1, &ver1);
-+	if (ver0 == 0xff && ver1 == 0xff)
-+		return -ENODEV;
-+
-+	ec->u.feature_mask = dmec_read16(ec, DMEC_ECFTR0);
-+
-+	ec->info.ec_ver = (ver0 >> 4) & 0xf;
-+	ec->info.ec_rev = ver0 & 0xf;
-+	ec->info.ec_num = ver1 & 0x3;
-+	ec->info.ec_type = (ver1 >> 2) & 0x3;
-+	ec->info.ec_dbg = (ver1 >> 4) & 0xf;
-+
-+	ec->info.fpga_ver = dmec_read16(ec, DMEC_FPGAVER0);
-+	ec->info.fpga_bld = dmec_read16(ec, DMEC_FPGABLD0);
++	/* set pin as output */
++	regmap_update_bits(regmap, DMEC_GPIO_DIR_OFFSET(priv), val, val);
 +
 +	return 0;
 +}
 +
-+static int dmec_regmap_reg_read(void *context,
-+				unsigned int reg, unsigned int *val)
++static int dmec_gpio_get_direction(struct gpio_chip *gc, unsigned int offset)
 +{
-+	struct dmec_device_data *ec = context;
++	struct dmec_gpio_priv *priv = container_of(gc, struct dmec_gpio_priv,
++						   gpio_chip);
++	struct regmap *regmap = priv->regmap;
++	unsigned int val;
 +
-+	if (ec->i_addr) {
-+		iowrite8(reg, ec->io_index);
-+		*val = ioread8(ec->io_data);
-+	} else {
-+		*val = ioread8(ec->io_base + reg);
-+	}
++	regmap_read(regmap, DMEC_GPIO_DIR_OFFSET(priv), &val);
++
++	return !(val & BIT(offset));
++}
++
++static int dmec_gpio_pincount(struct dmec_gpio_priv *priv)
++{
++	struct regmap *regmap = priv->regmap;
++	unsigned int val;
++
++	regmap_read(regmap, DMEC_GPIO_NOPS_OFFSET(priv), &val);
++
++	/* number of pins is val + 1 */
++	return val == 0xff ? 0 : (val & 7) + 1;
++}
++
++static int dmec_gpio_get_version(struct gpio_chip *gc)
++{
++	struct device *dev = gc->parent;
++	struct dmec_gpio_priv *p = container_of(gc, struct dmec_gpio_priv,
++						gpio_chip);
++	unsigned int v;
++
++	regmap_read(p->regmap, DMEC_GPIO_VER_OFFSET(p), &v);
++	p->ver = v;
++	dev_info(dev, "chip%u v%u.%u\n", p->chip_num, (v >> 4) & 0xf, v & 0xf);
 +
 +	return 0;
 +}
 +
-+static int dmec_regmap_reg_write(void *context,
-+				 unsigned int reg, unsigned int val)
++static void dmec_gpio_irq_enable(struct irq_data *d)
 +{
-+	struct dmec_device_data *ec = context;
++	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
++	struct dmec_gpio_priv *priv = container_of(gc, struct dmec_gpio_priv,
++						   gpio_chip);
++	struct regmap *regmap = priv->regmap;
++	int offset, mask;
 +
-+	if (ec->i_addr) {
-+		iowrite8(reg, ec->io_index);
-+		iowrite8(val, ec->io_data);
-+	} else {
-+		iowrite8(val, ec->io_base + reg);
++	offset = DMEC_GPIO_IRQCFG_OFFSET(priv) + (d->hwirq >> 2);
++	mask = BIT((d->hwirq & 3) << 1);
++
++	regmap_update_bits(regmap, offset, mask, mask);
++}
++
++static void dmec_gpio_irq_disable(struct irq_data *d)
++{
++	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
++	struct dmec_gpio_priv *priv = container_of(gc, struct dmec_gpio_priv,
++						   gpio_chip);
++	struct regmap *regmap = priv->regmap;
++	int offset, mask;
++
++	offset = DMEC_GPIO_IRQCFG_OFFSET(priv) + (d->hwirq >> 2);
++	mask = 3 << ((d->hwirq & 3) << 1);
++
++	regmap_update_bits(regmap, offset, mask, 0);
++}
++
++static int dmec_gpio_irq_set_type(struct irq_data *d, unsigned int type)
++{
++	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
++	struct dmec_gpio_priv *priv = container_of(gc, struct dmec_gpio_priv,
++						   gpio_chip);
++	struct regmap *regmap = priv->regmap;
++	unsigned int offset, mask, val;
++
++	offset = DMEC_GPIO_IRQTYPE_OFFSET(priv) + (d->hwirq >> 2);
++	mask = ((d->hwirq & 3) << 1);
++
++	regmap_read(regmap, offset, &val);
++
++	val &= ~(3 << mask);
++	switch (type & IRQ_TYPE_SENSE_MASK) {
++	case IRQ_TYPE_LEVEL_LOW:
++		break;
++	case IRQ_TYPE_EDGE_RISING:
++		val |= (1 << mask);
++		break;
++	case IRQ_TYPE_EDGE_FALLING:
++		val |= (2 << mask);
++		break;
++	case IRQ_TYPE_EDGE_BOTH:
++		val |= (3 << mask);
++		break;
++	default:
++		return -EINVAL;
 +	}
++
++	regmap_write(regmap, offset, val);
 +
 +	return 0;
 +}
 +
-+struct regmap *dmec_get_regmap(struct device *dev)
++static irqreturn_t dmec_gpio_irq_handler(int irq, void *dev_id)
 +{
-+	struct dmec_device_data *ec = dev_get_drvdata(dev);
++	struct dmec_gpio_priv *p = dev_id;
++	struct irq_domain *d = p->gpio_chip.irqdomain;
++	unsigned int irqs_handled = 0;
++	unsigned int val = 0, stat = 0;
 +
-+	return ec->regmap;
-+}
-+EXPORT_SYMBOL(dmec_get_regmap);
++	regmap_read(p->regmap, DMEC_GPIO_IRQSTA_OFFSET(p), &val);
++	stat = val;
++	while (stat) {
++		int line = __ffs(stat);
++		int child_irq = irq_find_mapping(d, line);
 +
-+static ssize_t dmec_version_show(struct device *dev,
-+				 struct device_attribute *attr, char *buf)
-+{
-+	struct dmec_device_data *ec = dev_get_drvdata(dev);
++		handle_nested_irq(child_irq);
++		stat &= ~(BIT(line));
++		irqs_handled++;
++	}
++	regmap_write(p->regmap, DMEC_GPIO_EVTSTA_OFFSET(p), val);
 +
-+	return scnprintf(buf, PAGE_SIZE, "%s\n", ec->info.version);
-+}
-+
-+static ssize_t dmec_fw_type_show(struct device *dev,
-+				 struct device_attribute *attr, char *buf)
-+{
-+	struct dmec_device_data *ec = dev_get_drvdata(dev);
-+
-+	return scnprintf(buf, PAGE_SIZE,
-+			"ver:        %u.%u\n"
-+			"ec:         %u\n"
-+			"type:       %s\n"
-+			"debug:      %u\n"
-+			"fpga ver:   %x\n"
-+			"fpga build: %x\n",
-+			ec->info.ec_ver,
-+			ec->info.ec_rev,
-+			ec->info.ec_num,
-+			fw_types[ec->info.ec_type % (ARRAY_SIZE(fw_types) - 1)],
-+			ec->info.ec_dbg,
-+			ec->info.fpga_ver,
-+			ec->info.fpga_bld);
++	return irqs_handled ? IRQ_HANDLED : IRQ_NONE;
 +}
 +
-+static ssize_t dmec_features_show(struct device *dev,
-+				  struct device_attribute *attr,
-+				  char *buf)
-+{
-+	struct dmec_device_data *ec = dev_get_drvdata(dev);
-+	struct dmec_features *ftr = &ec->u.ftr;
-+
-+	return scnprintf(buf, PAGE_SIZE,
-+			 "i2c buses:    %2u\n"
-+			 "uarts:        %2u\n"
-+			 "watchdog:     %2u\n"
-+			 "gpio chips:   %2u\n"
-+			 "spi buses:    %2u\n"
-+			 "can buses:    %2u\n"
-+			 "nmi:          %2u\n"
-+			 "sci:          %2u\n"
-+			 "smi:          %2u\n",
-+			 ftr->i2c_buses, ftr->uarts, ftr->wdt,
-+			 ftr->gpio_chips, ftr->spi_buses, ftr->can_buses,
-+			 ftr->nmi, ftr->sci, ftr->smi);
-+}
-+
-+static DEVICE_ATTR(version, 0444, dmec_version_show, NULL);
-+static DEVICE_ATTR(fw_type, 0444, dmec_fw_type_show, NULL);
-+static DEVICE_ATTR(features, 0444, dmec_features_show, NULL);
-+
-+static struct attribute *dmec_attributes[] = {
-+	&dev_attr_version.attr,
-+	&dev_attr_fw_type.attr,
-+	&dev_attr_features.attr,
-+	NULL
-+};
-+
-+static const struct attribute_group ec_attr_group = {
-+	.attrs = dmec_attributes,
-+};
-+
-+static int dmec_detect_device(struct dmec_device_data *ec)
-+{
-+	int ret;
-+
-+	ret = dmec_get_info(ec);
-+	if (ret)
-+		return ret;
-+
-+	ret = scnprintf(ec->info.version, sizeof(ec->info.version),
-+			"%u.%u",
-+			ec->info.ec_ver, ec->info.ec_rev);
-+	if (ret < 0)
-+		return ret;
-+
-+	dev_info(ec->dev, "v%s (%s) features: %#x\n",
-+		 ec->info.version,
-+		 fw_types[ec->info.ec_type % (ARRAY_SIZE(fw_types) - 1)],
-+		 ec->u.feature_mask);
-+
-+	ret = dmec_register_cells(ec);
-+	if (ret)
-+		return ret;
-+
-+	return sysfs_create_group(&ec->dev->kobj, &ec_attr_group);
-+}
-+
-+static const struct regmap_config dmec_regmap_config = {
-+	.reg_bits = 8,
-+	.val_bits = 8,
-+	.reg_stride = 1,
-+	.max_register =	DMEC_REG_MAX,
-+	.reg_write = dmec_regmap_reg_write,
-+	.reg_read = dmec_regmap_reg_read,
-+	.cache_type = REGCACHE_NONE,
-+	.fast_io = true,
-+};
-+
-+static int dmec_mfd_probe(struct platform_device *pdev)
++static int dmec_gpio_probe(struct platform_device *pdev)
 +{
 +	struct device *dev = &pdev->dev;
-+	struct dmec_device_data *ec;
-+	struct resource *io_idx, *io;
-+	int ret;
++	struct dmec_gpio_platform_data *pdata = dev_get_platdata(&pdev->dev);
++	struct dmec_gpio_priv *priv;
++	struct gpio_chip *gpio_chip;
++	struct irq_chip *irq_chip;
++	int ret = 0;
 +
-+	ret = platform_device_add_data(pdev, NULL, 0);
-+	if (ret)
-+		return ret;
-+
-+	ec = devm_kzalloc(dev, sizeof(*ec), GFP_KERNEL);
-+	if (!ec)
++	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
++	if (!priv)
 +		return -ENOMEM;
 +
-+	io_idx = platform_get_resource(pdev, IORESOURCE_IO, 0);
-+	if (!io_idx)
-+		return -EINVAL;
++	priv->regmap = dmec_get_regmap(pdev->dev.parent);
++	priv->chip_num = pdata->chip_num;
 +
-+	io = platform_get_resource(pdev, IORESOURCE_IO, 1);
-+	if (!io) {
-+		dev_info(dev, "falling back to index addressing\n");
-+		ec->io_base = devm_ioport_map(dev, io_idx->start,
-+					      io_idx->end - io_idx->start);
-+		i_addr = true;
-+	} else
-+		ec->io_base = devm_ioport_map(dev, io->start,
-+					      io->end - io->start);
++	gpio_chip = &priv->gpio_chip;
++	gpio_chip->label = "gpio-dmec";
++	gpio_chip->owner = THIS_MODULE;
++	gpio_chip->parent = dev;
++	gpio_chip->label = dev_name(dev);
++	gpio_chip->can_sleep = true;
 +
-+	if (IS_ERR(ec->io_base))
-+		return PTR_ERR(ec->io_base);
++	gpio_chip->base = pdata->gpio_base;
 +
-+	/* In index mode registers @ 0x0 and 0x2 are used by the BIOS */
-+	ec->i_addr = i_addr;
-+	ec->io_index = ec->io_base + 1;
-+	ec->io_data = ec->io_base + 3;
-+	ec->dev = dev;
++	gpio_chip->direction_input = dmec_gpio_direction_input;
++	gpio_chip->direction_output = dmec_gpio_direction_output;
++	gpio_chip->get_direction = dmec_gpio_get_direction;
++	gpio_chip->get = dmec_gpio_get;
++	gpio_chip->set = dmec_gpio_set;
++	gpio_chip->ngpio = dmec_gpio_pincount(priv);
++	if (gpio_chip->ngpio == 0) {
++		dev_err(dev, "No GPIOs detected\n");
++		return -ENODEV;
++	}
 +
-+	ec->regmap = devm_regmap_init(dev, NULL, ec, &dmec_regmap_config);
-+	if (IS_ERR(ec->regmap))
-+		return PTR_ERR(ec->regmap);
-+	regcache_cache_bypass(ec->regmap, true);
++	dmec_gpio_get_version(gpio_chip);
 +
-+	platform_set_drvdata(pdev, ec);
++	irq_chip = &priv->irq_chip;
++	irq_chip->name = dev_name(dev);
++	irq_chip->irq_mask = dmec_gpio_irq_disable;
++	irq_chip->irq_unmask = dmec_gpio_irq_enable;
++	irq_chip->irq_set_type = dmec_gpio_irq_set_type;
 +
-+	return dmec_detect_device(ec);
-+}
++	ret = devm_gpiochip_add_data(&pdev->dev, gpio_chip, priv);
++	if (ret) {
++		dev_err(dev, "Could not register GPIO chip\n");
++		return ret;
++	}
 +
-+static int dmec_mfd_remove(struct platform_device *pdev)
-+{
-+	struct dmec_device_data *ec = platform_get_drvdata(pdev);
++	ret = gpiochip_irqchip_add(gpio_chip, irq_chip, 0,
++				   handle_simple_irq, IRQ_TYPE_NONE);
++	if (ret) {
++		dev_err(dev, "cannot add irqchip\n");
++		return ret;
++	}
 +
-+	sysfs_remove_group(&ec->dev->kobj, &ec_attr_group);
++	priv->irq = platform_get_irq(pdev, 0);
++	ret = devm_request_threaded_irq(dev, priv->irq,
++					NULL, dmec_gpio_irq_handler,
++					IRQF_ONESHOT | IRQF_SHARED,
++					dev_name(dev), priv);
++	if (ret) {
++		dev_err(dev, "unable to get irq: %d\n", ret);
++		return ret;
++	}
++
++	gpiochip_set_chained_irqchip(gpio_chip, irq_chip, priv->irq, NULL);
++
++	platform_set_drvdata(pdev, priv);
 +
 +	return 0;
 +}
 +
-+static const struct acpi_device_id dmec_acpi_ids[] = {
-+	{"DMEC0001", 0},
-+	{"", 0},
-+};
-+MODULE_DEVICE_TABLE(acpi, dmec_acpi_ids);
++static int dmec_gpio_remove(struct platform_device *pdev)
++{
++	return 0;
++}
 +
-+static struct platform_driver dmec_driver = {
-+	.probe = dmec_mfd_probe,
-+	.remove = dmec_mfd_remove,
-+	.driver = {
-+		.name = "dmec",
-+		.acpi_match_table = ACPI_PTR(dmec_acpi_ids)
-+	},
-+};
++#ifdef CONFIG_PM
++static int dmec_gpio_suspend(struct platform_device *pdev, pm_message_t state)
++{
++	struct dmec_gpio_priv *p = platform_get_drvdata(pdev);
++	struct regmap *regmap = p->regmap;
++	struct dmec_reg_ctx *ctx = &p->regs;
 +
-+module_platform_driver(dmec_driver);
++	regmap_read(regmap, DMEC_GPIO_BASE(p), &ctx->dat);
++	regmap_read(regmap, DMEC_GPIO_DIR_OFFSET(p), &ctx->dir);
++	regmap_read(regmap, DMEC_GPIO_IRQCFG_OFFSET(p), &ctx->imask);
++	regmap_read(regmap, DMEC_GPIO_IRQTYPE_OFFSET(p), &ctx->emask[0]);
++	regmap_read(regmap, DMEC_GPIO_IRQTYPE_OFFSET(p) + 1, &ctx->emask[1]);
++	regmap_read(regmap, DMEC_GPIO_IRQCFG_OFFSET(p), &ctx->icfg[0]);
++	regmap_read(regmap, DMEC_GPIO_IRQCFG_OFFSET(p) + 1, &ctx->icfg[1]);
 +
-+MODULE_DESCRIPTION("DMO embedded controller core driver");
-+MODULE_AUTHOR("Zahari Doychev <zahari.doychev@linux.com>");
-+MODULE_LICENSE("GPL");
-+MODULE_ALIAS("platform:dmec-core");
-diff --git a/drivers/staging/dmec/dmec.h b/drivers/staging/dmec/dmec.h
-new file mode 100644
-index 0000000..4d8712d
---- /dev/null
-+++ b/drivers/staging/dmec/dmec.h
-@@ -0,0 +1,6 @@
-+#ifndef _LINUX_MFD_DMEC_H
-+#define _LINUX_MFD_DMEC_H
++	devm_free_irq(&pdev->dev, p->irq, p);
 +
-+struct regmap *dmec_get_regmap(struct device *dev);
++	return 0;
++}
 +
++static int dmec_gpio_resume(struct platform_device *pdev)
++{
++	struct dmec_gpio_priv *p = platform_get_drvdata(pdev);
++	struct regmap *regmap = p->regmap;
++	struct dmec_reg_ctx *ctx = &p->regs;
++	int ret;
++
++	regmap_write(regmap, DMEC_GPIO_BASE(p), ctx->dat);
++	regmap_write(regmap, DMEC_GPIO_DIR_OFFSET(p), ctx->dir);
++	regmap_write(regmap, DMEC_GPIO_IRQCFG_OFFSET(p), ctx->icfg[0]);
++	regmap_write(regmap, DMEC_GPIO_IRQCFG_OFFSET(p) + 1, ctx->icfg[1]);
++	regmap_write(regmap, DMEC_GPIO_IRQTYPE_OFFSET(p), ctx->emask[0]);
++	regmap_write(regmap, DMEC_GPIO_IRQTYPE_OFFSET(p) + 1, ctx->emask[1]);
++	regmap_write(regmap, DMEC_GPIO_IRQCFG_OFFSET(p), ctx->imask);
++	regmap_write(regmap, DMEC_GPIO_EVTSTA_OFFSET(p), 0xff);
++
++	ret = devm_request_threaded_irq(&pdev->dev, p->irq,
++					NULL, dmec_gpio_irq_handler,
++					IRQF_ONESHOT | IRQF_SHARED,
++					dev_name(&pdev->dev), p);
++	if (ret)
++		dev_err(&pdev->dev, "unable to get irq: %d\n", ret);
++
++	return ret;
++}
++#else
++#define dmec_gpio_suspend NULL
++#define dmec_gpio_resume NULL
 +#endif
++
++static struct platform_driver dmec_gpio_driver = {
++	.driver = {
++		.name = "dmec-gpio",
++		.owner = THIS_MODULE,
++	},
++	.probe = dmec_gpio_probe,
++	.remove	= dmec_gpio_remove,
++	.suspend = dmec_gpio_suspend,
++	.resume = dmec_gpio_resume,
++};
++
++module_platform_driver(dmec_gpio_driver);
++
++MODULE_DESCRIPTION("dmec gpio driver");
++MODULE_AUTHOR("Zahari Doychev <zahari.doychev@linux.com");
++MODULE_LICENSE("GPL");
++MODULE_ALIAS("platform:dmec-gpio");
 -- 
 git-series 0.8.10
