@@ -1,155 +1,49 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-oi0-f43.google.com ([209.85.218.43]:36834 "EHLO
-        mail-oi0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933614AbcJZQHC (ORCPT
+Received: from mail.linuxfoundation.org ([140.211.169.12]:60232 "EHLO
+        mail.linuxfoundation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S935350AbcJ0POP (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 26 Oct 2016 12:07:02 -0400
-Received: by mail-oi0-f43.google.com with SMTP id n202so23792483oig.3
-        for <linux-watchdog@vger.kernel.org>; Wed, 26 Oct 2016 09:07:01 -0700 (PDT)
+        Thu, 27 Oct 2016 11:14:15 -0400
+Date: Thu, 27 Oct 2016 17:01:51 +0200
+From: Greg KH <gregkh@linuxfoundation.org>
+To: Zahari Doychev <zahari.doychev@linux.com>
+Cc: linux-kernel@vger.kernel.org, lee.jones@linaro.org,
+        wsa@the-dreams.de, linus.walleij@linaro.org, wim@iguana.be,
+        linux@roeck-us.net, linux-i2c@vger.kernel.org,
+        linux-gpio@vger.kernel.org, gnurou@gmail.com,
+        linux-watchdog@vger.kernel.org
+Subject: Re: [RFC PATCH 0/5] add support for DMO embedded controller
+Message-ID: <20161027150151.GA19519@kroah.com>
+References: <cover.42dd8126f6e33b5130d9afa4596d88a106c54188.1477564996.git-series.zahari.doychev@linux.com>
 MIME-Version: 1.0
-In-Reply-To: <20161026154608.GB22713@leverpostej>
-References: <1475086637-1914-1-git-send-email-fu.wei@linaro.org>
- <1475086637-1914-8-git-send-email-fu.wei@linaro.org> <20161021113213.GD16630@leverpostej>
- <CADyBb7sJfY4=5NKKPGosOGv4sq4Tg2_TBW-XbWYoqfz4JNE-LA@mail.gmail.com> <20161026154608.GB22713@leverpostej>
-From: Fu Wei <fu.wei@linaro.org>
-Date: Thu, 27 Oct 2016 00:07:00 +0800
-Message-ID: <CADyBb7vGU1cZVF4-NZR7OVXQfwvr3Ee32W-hxr52nwHifmTSRg@mail.gmail.com>
-Subject: Re: [PATCH v14 7/9] clocksource/drivers/arm_arch_timer: Refactor the
- timer init code to prepare for GTDT
-To: Mark Rutland <mark.rutland@arm.com>
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Len Brown <lenb@kernel.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Marc Zyngier <marc.zyngier@arm.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Hanjun Guo <hanjun.guo@linaro.org>,
-        linux-arm-kernel@lists.infradead.org,
-        Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
-        rruigrok@codeaurora.org, "Abdulhamid, Harb" <harba@codeaurora.org>,
-        Christopher Covington <cov@codeaurora.org>,
-        Timur Tabi <timur@codeaurora.org>,
-        G Gregory <graeme.gregory@linaro.org>,
-        Al Stone <al.stone@linaro.org>, Jon Masters <jcm@redhat.com>,
-        Wei Huang <wei@redhat.com>, Arnd Bergmann <arnd@arndb.de>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
-        Leo Duran <leo.duran@amd.com>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        Guenter Roeck <linux@roeck-us.net>,
-        linux-watchdog@vger.kernel.org, Tomasz Nowicki <tn@semihalf.com>,
-        Christoffer Dall <christoffer.dall@linaro.org>,
-        Julien Grall <julien.grall@arm.com>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <cover.42dd8126f6e33b5130d9afa4596d88a106c54188.1477564996.git-series.zahari.doychev@linux.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Mark,
+On Thu, Oct 27, 2016 at 12:47:11PM +0200, Zahari Doychev wrote:
+> This patch series adds support for the Data Modul Embedded Controller(dmec)
+> which is implemented within an on board FPGA found on Data Modul embedded
+> CPU modules.
+> 
+> The dmec is connected to the host through the LPC bus and its registers are
+> mapped into the host I/O space. The controller supports two addressing modes:
+> linear and indexed.
+> 
+> The driver adds support for the following functionality:
+> 
+> - i2c
+> - gpio
+> - watchdog
+> - running time meter (rtm)
 
-On 26 October 2016 at 23:46, Mark Rutland <mark.rutland@arm.com> wrote:
-> On Wed, Oct 26, 2016 at 11:24:32PM +0800, Fu Wei wrote:
->> On 21 October 2016 at 19:32, Mark Rutland <mark.rutland@arm.com> wrote:
->> > On Thu, Sep 29, 2016 at 02:17:15AM +0800, fu.wei@linaro.org wrote:
->> >> +static int __init arch_timer_mem_register(struct device_node *np, void *frame)
->> >>  {
->> >> -     int ret;
->> >> -     irq_handler_t func;
->> >> +     struct device_node *frame_node = NULL;
->> >>       struct arch_timer *t;
->> >> +     void __iomem *base;
->> >> +     irq_handler_t func;
->> >> +     unsigned int irq;
->> >> +     int ret;
->> >> +
->> >> +     if (!frame)
->> >> +             return -EINVAL;
->> >
->> > Why would we call this without a frame?
->>
->> Sorry, I just verify it , make sure frame is not NULL,
->> Because it is a "static" function, so we do need this check?
->
-> I'd rather we simply don't call the function rather than passing a NULL
-> frame in.
->
+Why do you want these in staging?  I need a TODO file listing what needs
+to be done to the code to get it out of staging, and for someone to
+agree to work toward that goal.
 
-OK,  NP, will do
+Please resend the series with that information.
 
->> >> +
->> >> +     if (np) {
->> >
->> > ... or without a node?
->>
->> For "np", for now, we just  just verify it, but it is just paperation
->> for GTDT support,
->> Because in next patch, if np == NULL, that means we call this function
->> from GTDT, but not DT.
->
-> Please don't do that. More on that below.
->
->> > Please as Marc requested several versions ago: split the FW parsing
->> > (ACPI and DT) so that happens first, *then* once we have the data in a
->> > common format, use that to drive poking the HW, requesting IRQs, etc,
->> > completely independent of the source.
->> >
->> > In patches, do this by:
->> >
->> > (1) adding the data structures
->> > (2) splitting the existing DT probing to use them
->> > (3) Adding ACPI functionality atop
->>
->> this patch is a preparation for GTDT support, I have splitted some
->> functions for reusing them in next patch(GTDT support)
->>
->> if np == NULL, that means we call this function from GTDT, but
->> if np != NULL, that means we call this function from DT
->
-> As above, please structure the patches such that that never happens.
->
-> We currently have:
->
-> +--------------------------+
-> | DT Parsing + Common code |
-> +--------------------------+
->
-> Per (1 and 2) make this:
->
-> +------------+                       +-------------+
-> | DT parsing |--(common structure)-->| Common code |
-> +------------+                       +-------------+
->
-> Then per (3) make this:
->
-> +------------+
-> | DT parsing |--(common structure)------+
-> +------------+                          |
->                                         v
->                                     +-------------+
->                                     | Common code |
->                                     +-------------+
->                                         ^
-> +--------------+                        |
-> | ACPI parsing |--(common structure)----+
+thanks,
 
-Thanks for your suggestion , I will do this way in my next patchset
-
-Thanks :-)
-
-
-> +--------------+
->
-> Thanks,
-> Mark.
-
-
-
--- 
-Best regards,
-
-Fu Wei
-Software Engineer
-Red Hat
+greg k-h
