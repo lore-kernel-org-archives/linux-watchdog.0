@@ -1,272 +1,612 @@
-Return-path: <zdoychev@data-modul.com>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail.data-modul.de ([212.184.205.171]:49826 "EHLO
+        mail2.data-modul.de" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S964921AbcJ0N6J (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Thu, 27 Oct 2016 09:58:09 -0400
 From: Zahari Doychev <zahari.doychev@linux.com>
-To: linux-kernel@vger.kernel.org,
-	gregkh@linuxfoundation.org,
-	lee.jones@linaro.org,
-	wsa@the-dreams.de,
-	linus.walleij@linaro.org,
-	wim@iguana.be,
-	linux@roeck-us.net
-Cc: linux-i2c@vger.kernel.org,
-	linux-gpio@vger.kernel.org,
-	gnurou@gmail.com,
-	linux-watchdog@vger.kernel.org,
-	Zahari Doychev <zahari.doychev@linux.com>
-Subject: [RFC PATCH 5/5] rtm-dmec: running time meter support
-Date: Thu, 27 Oct 2016 12:47:16 +0200
-Message-Id: <dd57adbd7f03b8cca56484105123c10727562e87.1477564996.git-series.zahari.doychev@linux.com>
+To: linux-kernel@vger.kernel.org, gregkh@linuxfoundation.org,
+        lee.jones@linaro.org, wsa@the-dreams.de, linus.walleij@linaro.org,
+        wim@iguana.be, linux@roeck-us.net
+Cc: linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org,
+        gnurou@gmail.com, linux-watchdog@vger.kernel.org,
+        Zahari Doychev <zahari.doychev@linux.com>
+Subject: [RFC PATCH 2/5] i2c-dmec: add i2c bus support for dmec
+Date: Thu, 27 Oct 2016 12:47:13 +0200
+Message-Id: <aa17add7b203b179660753e16a7bc14fc56fa680.1477564996.git-series.zahari.doychev@linux.com>
 In-Reply-To: <cover.42dd8126f6e33b5130d9afa4596d88a106c54188.1477564996.git-series.zahari.doychev@linux.com>
 References: <cover.42dd8126f6e33b5130d9afa4596d88a106c54188.1477564996.git-series.zahari.doychev@linux.com>
 In-Reply-To: <cover.42dd8126f6e33b5130d9afa4596d88a106c54188.1477564996.git-series.zahari.doychev@linux.com>
 References: <cover.42dd8126f6e33b5130d9afa4596d88a106c54188.1477564996.git-series.zahari.doychev@linux.com>
-List-ID: <linux-watchdog@vger.kernel.org>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-This is support for the running time meter(RTM) found on the Data Modul
-embedded boards.
+This is support for the i2c bus functionality of the Data Modul embedded
+controllers.
 
 Signed-off-by: Zahari Doychev <zahari.doychev@linux.com>
 ---
- drivers/staging/dmec/Kconfig    |  10 ++-
+ drivers/staging/dmec/Kconfig    |  10 +-
  drivers/staging/dmec/Makefile   |   1 +-
- drivers/staging/dmec/rtm-dmec.c | 203 +++++++++++++++++++++++++++++++++-
- 3 files changed, 214 insertions(+), 0 deletions(-)
- create mode 100644 drivers/staging/dmec/rtm-dmec.c
+ drivers/staging/dmec/dmec.h     |   9 +-
+ drivers/staging/dmec/i2c-dmec.c | 524 +++++++++++++++++++++++++++++++++-
+ 4 files changed, 544 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/staging/dmec/i2c-dmec.c
 
 diff --git a/drivers/staging/dmec/Kconfig b/drivers/staging/dmec/Kconfig
-index eddf0bb..f6f4146 100644
+index 3641907..0067b0b 100644
 --- a/drivers/staging/dmec/Kconfig
 +++ b/drivers/staging/dmec/Kconfig
-@@ -38,3 +38,13 @@ config WDT_DMEC
+@@ -7,3 +7,13 @@ config MFD_DMEC
  
- 	  To compile this driver as a module, say M here: the module will be
-           called wdt-dmec
+ 	    To compile this driver as a module, say M here: the module will be
+             called dmec
 +
-+config RTM_DMEC
-+	tristate "Data Modul RTM"
-+	depends on MFD_DMEC
++config I2C_DMEC
++	tristate "Data Modul I2C"
++	depends on MFD_DMEC && I2C
 +	help
-+	  Say Y to enable support for a running time meter(RTM) on a Data Modul
-+	  embedded controllers.
++	  Say Y here to enable support for a i2c bus on the Data Modul
++	  embedded controller.
 +
 +	  To compile this driver as a module, say M here: the module will be
-+          called wdt-dmec
++          called i2c-dmec
 diff --git a/drivers/staging/dmec/Makefile b/drivers/staging/dmec/Makefile
-index 8b363cc..b55d56f 100644
+index 859163b..c51a37e 100644
 --- a/drivers/staging/dmec/Makefile
 +++ b/drivers/staging/dmec/Makefile
-@@ -2,3 +2,4 @@ obj-$(CONFIG_MFD_DMEC)		+= dmec-core.o
- obj-$(CONFIG_I2C_DMEC)		+= i2c-dmec.o
- obj-$(CONFIG_GPIO_DMEC) 	+= gpio-dmec.o
- obj-$(CONFIG_WDT_DMEC)		+= wdt-dmec.o
-+obj-$(CONFIG_RTM_DMEC)		+= rtm-dmec.o
-diff --git a/drivers/staging/dmec/rtm-dmec.c b/drivers/staging/dmec/rtm-dmec.c
-new file mode 100644
-index 0000000..cd32536
---- /dev/null
-+++ b/drivers/staging/dmec/rtm-dmec.c
-@@ -0,0 +1,203 @@
-+/*
-+ * Running time meter for Data Modul AG Embedded Controller
-+ *
-+ * Copyright (C) 2016 Data Modul AG
-+ *
-+ * Author: Sebastian Wezel <sebastian@torvus-musica.de>
-+ *
-+ * This file is subject to the terms and conditions of the GNU General Public
-+ * License.  See the file "COPYING" in the main directory of this archive
-+ * for more details.
-+ *
-+ */
+@@ -1 +1,2 @@
+ obj-$(CONFIG_MFD_DMEC)		+= dmec-core.o
++obj-$(CONFIG_I2C_DMEC)		+= i2c-dmec.o
+diff --git a/drivers/staging/dmec/dmec.h b/drivers/staging/dmec/dmec.h
+index 4d8712d..178937d 100644
+--- a/drivers/staging/dmec/dmec.h
++++ b/drivers/staging/dmec/dmec.h
+@@ -1,6 +1,15 @@
+ #ifndef _LINUX_MFD_DMEC_H
+ #define _LINUX_MFD_DMEC_H
+ 
++struct dmec_i2c_platform_data {
++	u32 reg_shift; /* register offset shift value */
++	u32 reg_io_width; /* register io read/write width */
++	u32 clock_khz; /* input clock in kHz */
++	bool big_endian; /* registers are big endian */
++	u8 num_devices; /* number of devices in the devices list */
++	struct i2c_board_info const *devices; /* devices connected to the bus */
++};
 +
+ struct regmap *dmec_get_regmap(struct device *dev);
+ 
+ #endif
+diff --git a/drivers/staging/dmec/i2c-dmec.c b/drivers/staging/dmec/i2c-dmec.c
+new file mode 100644
+index 0000000..456e61e
+--- /dev/null
++++ b/drivers/staging/dmec/i2c-dmec.c
+@@ -0,0 +1,524 @@
++/*
++ * i2c-dmec.c: I2C bus driver for OpenCores I2C controller
++ * (http://www.opencores.org/projects.cgi/web/i2c/overview).
++ *
++ * Peter Korsgaard <jacmet@sunsite.dk>
++ *
++ * Support for the GRLIB port of the controller by
++ * Andreas Larsson <andreas@gaisler.com>
++ *
++ * This file is licensed under the terms of the GNU General Public License
++ * version 2.  This program is licensed "as is" without any warranty of any
++ * kind, whether express or implied.
++ */
++#include <linux/clk.h>
++#include <linux/err.h>
 +#include <linux/kernel.h>
 +#include <linux/module.h>
++#include <linux/errno.h>
 +#include <linux/platform_device.h>
 +#include <linux/regmap.h>
-+#include <linux/mutex.h>
-+
++#include <linux/wait.h>
++#include <linux/slab.h>
++#include <linux/io.h>
++#include <linux/log2.h>
++#include <linux/i2c.h>
++#include <linux/i2c-mux.h>
++#include <linux/interrupt.h>
 +#include "dmec.h"
 +
-+#define DMEC_RTM_RTM_OFFSET             0x60
-+#define DMEC_RTM_RTMREV_OFFSET          0x63
-+#define DMEC_RTM_OOSRTM_OFFSET          0x64
-+#define DMEC_RTM_BTCNT_OFFSET           0x68
-+#define DMEC_RTM_BBCTNT_OFFSET          0x6c
++/* registers */
++#define DMECI2C_PRELOW		0
++#define DMECI2C_PREHIGH		1
++#define DMECI2C_CONTROL		2
++#define DMECI2C_DATA		3
++#define DMECI2C_CMD		4 /* write only */
++#define DMECI2C_STATUS		4 /* read only, same address as DMECI2C_CMD */
++#define DMECI2C_VER		5
++#define DMECI2C_MUX		6 /* i2c demultiplezer */
 +
-+static DEFINE_MUTEX(rtm_lock);
-+static struct regmap *regmap;
-+static bool enable_reset;
++#define DMECI2C_CTRL_EN		BIT(7)
++#define DMECI2C_CTRL_IEN	BIT(6)
++#define DMECI2C_CTRL_VSSCL	BIT(5)
++#define DMECI2C_CTRL_MABCLR	BIT(4)
++#define DMECI2C_CTRL_MMDIS	BIT(3)
++#define DMECI2C_CTRL_VSSDA	BIT(2)
 +
-+static unsigned int dmec_rtm_get_three_byte(unsigned int reg,
-+					    struct device *dev)
++#define DMECI2C_CMD_START	0x91
++#define DMECI2C_CMD_STOP	0x41
++#define DMECI2C_CMD_READ	0x21
++#define DMECI2C_CMD_WRITE	0x11
++#define DMECI2C_CMD_READ_ACK	0x21
++#define DMECI2C_CMD_READ_NACK	0x29
++#define DMECI2C_CMD_IACK	0x01
++
++#define DMECI2C_STAT_IF		0x01
++#define DMECI2C_STAT_TIP	0x02
++#define DMECI2C_STAT_ARBLOST	0x20
++#define DMECI2C_STAT_BUSY	0x40
++#define DMECI2C_STAT_NACK	0x80
++
++#define STATE_DONE		0
++#define STATE_START		1
++#define STATE_WRITE		2
++#define STATE_READ		3
++#define STATE_ERROR		4
++
++#define TYPE_OCORES		0
++#define TYPE_GRLIB		1
++
++#define DMEC_I2C_OFFSET		0x20
++#define DMEC_I2C_MAX_BUS_NUM	3
++
++struct dmec_i2c {
++	struct device *dev;
++	void __iomem *base;
++	u32 reg_shift;
++	u32 reg_io_width;
++	wait_queue_head_t wait;
++	struct i2c_adapter adap;
++	struct i2c_mux_core *mux;
++	struct i2c_msg *msg;
++	int pos;
++	int nmsgs;
++	int state; /* see STATE_ */
++	struct clk *clk;
++	int ip_clock_khz;
++	int bus_clock_khz;
++
++	u8 irq;
++	struct regmap *regmap;
++};
++
++static int flags;
++module_param(flags, int, 0644);
++MODULE_PARM_DESC(flags, "additional flags for the i2c bus configuration");
++
++static inline void dmec_i2c_setreg(struct dmec_i2c *i2c, int reg, u8 value)
 +{
-+	unsigned int low = 0, mid = 0, high = 0, val = 0;
++	struct regmap *regmap = i2c->regmap;
 +
-+	regmap_read(regmap, reg, &low);
-+	regmap_read(regmap, reg + 1, &mid);
-+	regmap_read(regmap, reg + 2, &high);
++	regmap_write(regmap, DMEC_I2C_OFFSET + reg, value);
++}
 +
-+	val = ((high << 16) | (mid << 8) | (low & 0x0000ff));
++static inline u8 dmec_i2c_getreg(struct dmec_i2c *i2c, int reg)
++{
++	struct regmap *regmap = i2c->regmap;
++	unsigned int val;
++
++	regmap_read(regmap, DMEC_I2C_OFFSET + reg, &val);
++
 +	return val;
 +}
 +
-+static ssize_t dmec_rtm_time_show(struct device *dev,
-+				  struct device_attribute *attr, char *buf)
++static int dmec_i2c_dmx_select(struct i2c_mux_core *mux, u32 chan)
 +{
-+	unsigned int val = 0;
++	struct dmec_i2c *i2c = mux->priv;
++	u8 bus = chan & 0x3;
 +
-+	val = dmec_rtm_get_three_byte(DMEC_RTM_RTM_OFFSET, dev);
-+	return scnprintf(buf, PAGE_SIZE, "%d\n", val);
-+}
-+
-+static ssize_t dmec_rtm_time_store(struct device *dev,
-+				   struct device_attribute *attr,
-+				   const char *buf,
-+				   size_t count)
-+{
-+	unsigned int low = 0, mid = 0, high = 0, higher = 0;
-+	long val = 0, ret = -EPERM;
-+	int reg = DMEC_RTM_RTM_OFFSET;
-+
-+	mutex_lock(&rtm_lock);
-+	if (enable_reset && !kstrtol(buf, 10, &val)) {
-+		higher = (val >> 24) & 0xff;
-+		high = (val >> 16) & 0xff;
-+		mid = (val >> 8) & 0xff;
-+		low = val & 0xff;
-+
-+		regmap_write(regmap, reg, low);
-+		regmap_write(regmap, reg + 1, mid);
-+		regmap_write(regmap, reg + 2, high);
-+		regmap_write(regmap, reg + 3, higher);
-+		enable_reset = false;
-+		ret = count;
-+	}
-+	mutex_unlock(&rtm_lock);
-+
-+	return ret;
-+}
-+
-+static ssize_t dmec_rtm_version_show(struct device *dev,
-+				     struct device_attribute *attr, char *buf)
-+{
-+	unsigned int val = 0;
-+
-+	regmap_read(regmap, DMEC_RTM_RTMREV_OFFSET, &val);
-+	return scnprintf(buf, PAGE_SIZE, "%d\n", val);
-+}
-+
-+static ssize_t dmec_rtm_out_of_spec_show(struct device *dev,
-+					 struct device_attribute *attr,
-+					 char *buf)
-+{
-+	unsigned int val = 0;
-+
-+	val = dmec_rtm_get_three_byte(DMEC_RTM_OOSRTM_OFFSET, dev);
-+	return scnprintf(buf, PAGE_SIZE, "%d\n", val);
-+}
-+
-+static ssize_t dmec_rtm_boot_count_show(struct device *dev,
-+					struct device_attribute *attr,
-+					char *buf)
-+{
-+	unsigned int val = 0;
-+
-+	val = dmec_rtm_get_three_byte(DMEC_RTM_BTCNT_OFFSET, dev);
-+	return scnprintf(buf, PAGE_SIZE, "%d\n", val);
-+}
-+
-+static ssize_t dmec_rtm_bios_boot_count_show(struct device *dev,
-+					     struct device_attribute *attr,
-+					     char *buf)
-+{
-+	unsigned int val = 0;
-+
-+	val = dmec_rtm_get_three_byte(DMEC_RTM_BBCTNT_OFFSET, dev);
-+	return scnprintf(buf, PAGE_SIZE, "%d\n", val);
-+}
-+
-+static ssize_t dmec_rtm_enable_reset_show(struct device *dev,
-+					  struct device_attribute *attr,
-+					  char *buf)
-+{
-+	return scnprintf(buf, PAGE_SIZE, "%d\n", enable_reset);
-+}
-+
-+static ssize_t dmec_rtm_enable_reset_store(struct device *dev,
-+					   struct device_attribute *attr,
-+					   const char *buf, size_t count)
-+{
-+	long val = 0;
-+
-+	mutex_lock(&rtm_lock);
-+	if (kstrtol(buf, 10, &val) != 0)
-+		enable_reset = false;
-+
-+	/* The enable should only work if the value is 1 */
-+	if (val == 1)
-+		enable_reset = true;
-+	mutex_unlock(&rtm_lock);
-+	return count;
-+}
-+
-+static DEVICE_ATTR(rtm_time, 0664, dmec_rtm_time_show, dmec_rtm_time_store);
-+static DEVICE_ATTR(rtm_version, 0444, dmec_rtm_version_show, NULL);
-+static DEVICE_ATTR(rtm_out_of_spec, 0444, dmec_rtm_out_of_spec_show, NULL);
-+static DEVICE_ATTR(rtm_boot_count, 0444, dmec_rtm_boot_count_show, NULL);
-+static DEVICE_ATTR(rtm_bios_boot_count, 0444, dmec_rtm_bios_boot_count_show,
-+			NULL);
-+static DEVICE_ATTR(rtm_enable_reset, 0664, dmec_rtm_enable_reset_show,
-+		   dmec_rtm_enable_reset_store);
-+
-+static struct attribute *rtm_attribute[] = {
-+	&dev_attr_rtm_time.attr,
-+	&dev_attr_rtm_version.attr,
-+	&dev_attr_rtm_out_of_spec.attr,
-+	&dev_attr_rtm_boot_count.attr,
-+	&dev_attr_rtm_bios_boot_count.attr,
-+	&dev_attr_rtm_enable_reset.attr,
-+	NULL
-+};
-+
-+static const struct attribute_group rtm_attr_group = {
-+	.attrs = rtm_attribute,
-+};
-+
-+static int dmec_rtm_probe(struct platform_device *pdev)
-+{
-+	int ret;
-+
-+	regmap = dmec_get_regmap(pdev->dev.parent);
-+	enable_reset = 0;
-+
-+	ret = sysfs_create_group(&pdev->dev.kobj, &rtm_attr_group);
-+	if (ret)
-+		return ret;
-+
-+	return ret;
-+}
-+
-+static int dmec_rtm_remove(struct platform_device *pdev)
-+{
-+	sysfs_remove_group(&pdev->dev.kobj, &rtm_attr_group);
++	dmec_i2c_setreg(i2c, DMECI2C_MUX, bus);
 +
 +	return 0;
 +}
 +
-+static struct platform_driver dmec_rtm_driver = {
-+	.driver = {
-+			.name = "dmec-rtm",
-+			.owner = THIS_MODULE,
-+	},
-+	.probe = dmec_rtm_probe,
-+	.remove = dmec_rtm_remove,
++static void dmec_i2c_dmx_del(struct dmec_i2c *i2c)
++{
++	if (i2c->mux)
++		i2c_mux_del_adapters(i2c->mux);
++}
++
++static int dmec_i2c_dmx_add(struct dmec_i2c *i2c)
++{
++	u8 bus_mask;
++	int i, ret = 0;
++
++	bus_mask = dmec_i2c_getreg(i2c, DMECI2C_MUX);
++	bus_mask = (bus_mask & 0x70) >> 4;
++
++	i2c->mux = i2c_mux_alloc(&i2c->adap,
++				 i2c->dev,
++				 DMEC_I2C_MAX_BUS_NUM, 0, 0,
++				 dmec_i2c_dmx_select,
++				 NULL);
++	if (!i2c->mux)
++		return -ENOMEM;
++
++	i2c->mux->priv = i2c;
++
++	for (i = 0; i < DMEC_I2C_MAX_BUS_NUM; i++) {
++		if (!(bus_mask & (i + 1)))
++			/* bus is not present so skip */
++			continue;
++		ret = i2c_mux_add_adapter(i2c->mux, 0, i, 0);
++		if (ret) {
++			ret = -ENODEV;
++			dev_err(i2c->dev,
++				"i2c dmx failed to register adapter %d\n", i);
++			goto dmec_i2c_dmx_add_failed;
++		}
++	}
++
++	return 0;
++
++dmec_i2c_dmx_add_failed:
++	dmec_i2c_dmx_del(i2c);
++	return ret;
++}
++
++static void dmec_i2c_process(struct dmec_i2c *i2c)
++{
++	struct i2c_msg *msg = i2c->msg;
++	u8 stat = dmec_i2c_getreg(i2c, DMECI2C_STATUS);
++
++	if ((i2c->state == STATE_DONE) || (i2c->state == STATE_ERROR)) {
++		/* stop has been sent */
++		dmec_i2c_setreg(i2c, DMECI2C_CMD, DMECI2C_CMD_IACK);
++		wake_up(&i2c->wait);
++		return;
++	}
++
++	/* error? */
++	if (stat & DMECI2C_STAT_ARBLOST) {
++		i2c->state = STATE_ERROR;
++		dmec_i2c_setreg(i2c, DMECI2C_CMD, DMECI2C_CMD_STOP);
++		return;
++	}
++
++	if ((i2c->state == STATE_START) || (i2c->state == STATE_WRITE)) {
++		i2c->state =
++			(msg->flags & I2C_M_RD) ? STATE_READ : STATE_WRITE;
++
++		if (stat & DMECI2C_STAT_NACK) {
++			i2c->state = STATE_ERROR;
++			dmec_i2c_setreg(i2c, DMECI2C_CMD, DMECI2C_CMD_STOP);
++			return;
++		}
++	} else {
++		msg->buf[i2c->pos++] = dmec_i2c_getreg(i2c, DMECI2C_DATA);
++	}
++
++	/* end of msg? */
++	if (i2c->pos == msg->len) {
++		i2c->nmsgs--;
++		i2c->msg++;
++		i2c->pos = 0;
++		msg = i2c->msg;
++
++		if (i2c->nmsgs) {	/* end? */
++			/* send start? */
++			if (!(msg->flags & I2C_M_NOSTART)) {
++				u8 addr = (msg->addr << 1);
++
++				if (msg->flags & I2C_M_RD)
++					addr |= 1;
++
++				i2c->state = STATE_START;
++
++				dmec_i2c_setreg(i2c, DMECI2C_DATA, addr);
++				dmec_i2c_setreg(i2c, DMECI2C_CMD,
++						DMECI2C_CMD_START);
++				return;
++			}
++			i2c->state = (msg->flags & I2C_M_RD)
++					? STATE_READ : STATE_WRITE;
++		} else {
++			i2c->state = STATE_DONE;
++			dmec_i2c_setreg(i2c, DMECI2C_CMD, DMECI2C_CMD_STOP);
++			return;
++		}
++	}
++
++	if (i2c->state == STATE_READ) {
++		dmec_i2c_setreg(i2c, DMECI2C_CMD, i2c->pos == (msg->len - 1) ?
++			  DMECI2C_CMD_READ_NACK : DMECI2C_CMD_READ_ACK);
++	} else {
++		dmec_i2c_setreg(i2c, DMECI2C_DATA, msg->buf[i2c->pos++]);
++		dmec_i2c_setreg(i2c, DMECI2C_CMD, DMECI2C_CMD_WRITE);
++	}
++}
++
++static irqreturn_t dmec_i2c_isr(int irq, void *dev_id)
++{
++	struct dmec_i2c *i2c = dev_id;
++
++	dmec_i2c_process(i2c);
++
++	return IRQ_HANDLED;
++}
++
++static int dmec_i2c_xfer(struct i2c_adapter *adap,
++			 struct i2c_msg *msgs, int num)
++{
++	struct dmec_i2c *i2c = i2c_get_adapdata(adap);
++
++	i2c->msg = msgs;
++	i2c->pos = 0;
++	i2c->nmsgs = num;
++	i2c->state = STATE_START;
++
++	dmec_i2c_setreg(i2c, DMECI2C_DATA,
++			(i2c->msg->addr << 1) |
++			((i2c->msg->flags & I2C_M_RD) ? 1 : 0));
++
++	dmec_i2c_setreg(i2c, DMECI2C_CMD, DMECI2C_CMD_START);
++
++	if (wait_event_timeout(i2c->wait, (i2c->state == STATE_ERROR) ||
++			       (i2c->state == STATE_DONE), HZ))
++		return (i2c->state == STATE_DONE) ? num : -EIO;
++	else
++		return -ETIMEDOUT;
++}
++
++static int dmec_i2c_init(struct device *dev, struct dmec_i2c *i2c)
++{
++	int prescale;
++	int diff;
++	u8 stat;
++	u8 ctrl = dmec_i2c_getreg(i2c, DMECI2C_CONTROL);
++
++	/* make sure the device is disabled */
++	ctrl &= ~(DMECI2C_CTRL_EN | DMECI2C_CTRL_IEN |
++		  DMECI2C_CTRL_VSSCL | DMECI2C_CTRL_VSSDA |
++		  DMECI2C_CTRL_MABCLR | DMECI2C_CTRL_MMDIS);
++	dmec_i2c_setreg(i2c, DMECI2C_CONTROL, ctrl);
++
++	prescale = (i2c->ip_clock_khz / (8 * i2c->bus_clock_khz)) - 2;
++	prescale = clamp(prescale, 0, 0xffff);
++
++	diff = i2c->ip_clock_khz / (8 * (prescale + 2)) - i2c->bus_clock_khz;
++	if (abs(diff) > i2c->bus_clock_khz / 10) {
++		dev_err(dev,
++			"Unsupported clock: core: %d KHz, bus: %d KHz\n",
++			i2c->ip_clock_khz, i2c->bus_clock_khz);
++		return -EINVAL;
++	}
++
++	dmec_i2c_setreg(i2c, DMECI2C_PRELOW, prescale & 0xff);
++	dmec_i2c_setreg(i2c, DMECI2C_PREHIGH, prescale >> 8);
++
++	/* default to first bus */
++	dmec_i2c_setreg(i2c, DMECI2C_MUX, 0x0);
++
++	/* Init the device */
++	dmec_i2c_setreg(i2c, DMECI2C_CMD, DMECI2C_CMD_IACK);
++	ctrl |= DMECI2C_CTRL_EN;
++	if (!flags)
++		ctrl |= DMECI2C_CTRL_MABCLR | DMECI2C_CTRL_MMDIS;
++	else
++		ctrl |= (flags & 0x3c);
++	dmec_i2c_setreg(i2c, DMECI2C_CONTROL, ctrl);
++
++	stat = dmec_i2c_getreg(i2c, DMECI2C_STATUS);
++	if (stat & DMECI2C_STAT_BUSY) {
++		dev_warn(dev,
++			 "I2C bus is busy - generating stop signal\n");
++		dmec_i2c_setreg(i2c, DMECI2C_CMD, DMECI2C_CMD_STOP);
++	}
++
++	stat = dmec_i2c_getreg(i2c, DMECI2C_VER);
++	dev_info(dev, "v%u.%u\n", (stat >> 4) & 0xf, stat & 0xf);
++
++	return 0;
++}
++
++static int dmec_i2c_irq_enable(struct dmec_i2c *i2c)
++{
++	u8 ctrl;
++	unsigned int irq;
++	int ret;
++
++	irq = i2c->irq;
++
++	/* Initialize interrupt handlers if not already done */
++	init_waitqueue_head(&i2c->wait);
++
++	ret = devm_request_threaded_irq(i2c->dev, irq, NULL, dmec_i2c_isr,
++					IRQF_ONESHOT | IRQF_SHARED,
++					i2c->adap.name, i2c);
++	if (ret) {
++		dev_err(i2c->dev,
++			"Unable to claim IRQ\n");
++		return ret;
++	}
++
++	/* Now enable interrupts in the controller */
++	ctrl = dmec_i2c_getreg(i2c, DMECI2C_CONTROL);
++	ctrl |= DMECI2C_CTRL_IEN;
++	dmec_i2c_setreg(i2c, DMECI2C_CONTROL, ctrl);
++
++	return 0;
++}
++
++static int dmec_i2c_irq_disable(struct dmec_i2c *i2c)
++{
++	u8 ctrl;
++
++	ctrl = dmec_i2c_getreg(i2c, DMECI2C_CONTROL);
++	ctrl &= ~DMECI2C_CTRL_IEN;
++	dmec_i2c_setreg(i2c, DMECI2C_CONTROL, ctrl);
++
++	devm_free_irq(i2c->dev, i2c->irq, i2c);
++
++	return 0;
++}
++
++static u32 dmec_i2c_func(struct i2c_adapter *adap)
++{
++	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
++}
++
++static const struct i2c_algorithm dmec_algorithm = {
++	.master_xfer = dmec_i2c_xfer,
++	.functionality = dmec_i2c_func,
 +};
 +
-+module_platform_driver(dmec_rtm_driver);
++static struct i2c_adapter dmec_adapter = {
++	.owner = THIS_MODULE,
++	.name = "i2c-dmec",
++	.class = I2C_CLASS_DEPRECATED,
++	.algo = &dmec_algorithm,
++};
 +
-+MODULE_DESCRIPTION("dmec rtm driver");
-+MODULE_AUTHOR("Sebastian Wezel <sebastian@torvus-musica.de>");
++#define dmec_i2c_of_probe(pdev, i2c) -ENODEV
++
++static int dmec_i2c_probe(struct platform_device *pdev)
++{
++	struct dmec_i2c *i2c;
++	struct dmec_i2c_platform_data *pdata;
++	int ret;
++
++	i2c = devm_kzalloc(&pdev->dev, sizeof(*i2c), GFP_KERNEL);
++	if (!i2c)
++		return -ENOMEM;
++
++	i2c->dev = &pdev->dev;
++	pdata = dev_get_platdata(&pdev->dev);
++	if (pdata) {
++		i2c->reg_shift = pdata->reg_shift;
++		i2c->reg_io_width = pdata->reg_io_width;
++		i2c->ip_clock_khz = pdata->clock_khz;
++		i2c->bus_clock_khz = 100;
++		i2c->regmap = dmec_get_regmap(pdev->dev.parent);
++	} else {
++		ret = dmec_i2c_of_probe(pdev, i2c);
++		if (ret)
++			return ret;
++	}
++
++	if (i2c->reg_io_width == 0)
++		i2c->reg_io_width = 1; /* Set to default value */
++
++	i2c->irq = platform_get_irq(pdev, 0);
++
++	ret = dmec_i2c_init(&pdev->dev, i2c);
++	if (ret)
++		return ret;
++
++	/* hook up driver to tree */
++	platform_set_drvdata(pdev, i2c);
++	i2c->adap = dmec_adapter;
++	i2c_set_adapdata(&i2c->adap, i2c);
++	i2c->adap.dev.parent = &pdev->dev;
++	i2c->adap.dev.of_node = pdev->dev.of_node;
++
++	if (dmec_i2c_irq_enable(i2c)) {
++		dev_err(&pdev->dev, "Cannot claim IRQ\n");
++		return ret;
++	}
++
++	/* add i2c adapter to i2c tree */
++	ret = i2c_add_adapter(&i2c->adap);
++	if (ret) {
++		dev_err(&pdev->dev, "Failed to add adapter\n");
++		return ret;
++	}
++
++	ret = dmec_i2c_dmx_add(i2c);
++
++	return ret;
++}
++
++static int dmec_i2c_remove(struct platform_device *pdev)
++{
++	struct dmec_i2c *i2c = platform_get_drvdata(pdev);
++
++	/* disable i2c logic */
++	dmec_i2c_setreg(i2c, DMECI2C_CONTROL,
++			dmec_i2c_getreg(i2c, DMECI2C_CONTROL)
++			& ~(DMECI2C_CTRL_EN | DMECI2C_CTRL_IEN));
++
++	/* remove adapter & data */
++	dmec_i2c_dmx_del(i2c);
++	i2c_del_adapter(&i2c->adap);
++
++	if (!IS_ERR(i2c->clk))
++		clk_disable_unprepare(i2c->clk);
++
++	return 0;
++}
++
++#ifdef CONFIG_PM_SLEEP
++static int dmec_i2c_suspend(struct device *dev)
++{
++	struct dmec_i2c *i2c = dev_get_drvdata(dev);
++	u8 ctrl = dmec_i2c_getreg(i2c, DMECI2C_CONTROL);
++
++	dmec_i2c_irq_disable(i2c);
++
++	/* make sure the device is disabled */
++	dmec_i2c_setreg(i2c, DMECI2C_CONTROL,
++			ctrl & ~DMECI2C_CTRL_EN);
++
++	if (!IS_ERR(i2c->clk))
++		clk_disable_unprepare(i2c->clk);
++	return 0;
++}
++
++static int dmec_i2c_resume(struct device *dev)
++{
++	struct dmec_i2c *i2c = dev_get_drvdata(dev);
++	int ret;
++
++	if (!IS_ERR(i2c->clk)) {
++		unsigned long rate;
++
++		ret = clk_prepare_enable(i2c->clk);
++
++		if (ret) {
++			dev_err(dev,
++				"clk_prepare_enable failed: %d\n", ret);
++			return ret;
++		}
++		rate = clk_get_rate(i2c->clk) / 1000;
++		if (rate)
++			i2c->ip_clock_khz = rate;
++	}
++
++	ret = dmec_i2c_init(dev, i2c);
++	if (ret)
++		return ret;
++	return dmec_i2c_irq_enable(i2c);
++}
++
++static SIMPLE_DEV_PM_OPS(dmec_i2c_pm, dmec_i2c_suspend, dmec_i2c_resume);
++#define DMEC_I2C_PM	(&dmec_i2c_pm)
++#else
++#define DMEC_I2C_PM	NULL
++#endif
++
++static struct platform_driver dmec_i2c_driver = {
++	.probe   = dmec_i2c_probe,
++	.remove  = dmec_i2c_remove,
++	.driver  = {
++		.name = "dmec-i2c",
++		.pm = DMEC_I2C_PM,
++	},
++};
++
++module_platform_driver(dmec_i2c_driver);
++
++MODULE_AUTHOR("Peter Korsgaard <jacmet@sunsite.dk>");
++MODULE_AUTHOR("Zahari Doychev <zahari.doychev@linux.com>");
++MODULE_DESCRIPTION("DMO OpenCores based I2C bus driver");
 +MODULE_LICENSE("GPL");
-+MODULE_ALIAS("platform:dmec-rtm");
++MODULE_ALIAS("platform:dmec-i2c");
 -- 
 git-series 0.8.10
