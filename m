@@ -12,627 +12,261 @@ Cc: linux-i2c@vger.kernel.org,
 	gnurou@gmail.com,
 	linux-watchdog@vger.kernel.org,
 	Zahari Doychev <zahari.doychev@linux.com>
-Subject: [RFC PATCH 4/5] wdt-dmec: watchdog support for dmec
-Date: Thu, 27 Oct 2016 12:47:15 +0200
-Message-Id: <79191256e095c5863cdabe06206c601605587051.1477564996.git-series.zahari.doychev@linux.com>
+Subject: [RFC PATCH 5/5] rtm-dmec: running time meter support
+Date: Thu, 27 Oct 2016 12:47:16 +0200
+Message-Id: <dd57adbd7f03b8cca56484105123c10727562e87.1477564996.git-series.zahari.doychev@linux.com>
 In-Reply-To: <cover.42dd8126f6e33b5130d9afa4596d88a106c54188.1477564996.git-series.zahari.doychev@linux.com>
 References: <cover.42dd8126f6e33b5130d9afa4596d88a106c54188.1477564996.git-series.zahari.doychev@linux.com>
 In-Reply-To: <cover.42dd8126f6e33b5130d9afa4596d88a106c54188.1477564996.git-series.zahari.doychev@linux.com>
 References: <cover.42dd8126f6e33b5130d9afa4596d88a106c54188.1477564996.git-series.zahari.doychev@linux.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-This is support for the watchdog found on the Data Modul embedded boards.
+This is support for the running time meter(RTM) found on the Data Modul
+embedded boards.
 
 Signed-off-by: Zahari Doychev <zahari.doychev@linux.com>
 ---
- drivers/staging/dmec/Kconfig    |  11 +-
+ drivers/staging/dmec/Kconfig    |  10 ++-
  drivers/staging/dmec/Makefile   |   1 +-
- drivers/staging/dmec/wdt-dmec.c | 569 +++++++++++++++++++++++++++++++++-
- 3 files changed, 581 insertions(+), 0 deletions(-)
- create mode 100644 drivers/staging/dmec/wdt-dmec.c
+ drivers/staging/dmec/rtm-dmec.c | 203 +++++++++++++++++++++++++++++++++-
+ 3 files changed, 214 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/staging/dmec/rtm-dmec.c
 
 diff --git a/drivers/staging/dmec/Kconfig b/drivers/staging/dmec/Kconfig
-index 9c4a8e5..eddf0bb 100644
+index eddf0bb..f6f4146 100644
 --- a/drivers/staging/dmec/Kconfig
 +++ b/drivers/staging/dmec/Kconfig
-@@ -27,3 +27,14 @@ config GPIO_DMEC
+@@ -38,3 +38,13 @@ config WDT_DMEC
  
  	  To compile this driver as a module, say M here: the module will be
-           called gpio-dmec
+           called wdt-dmec
 +
-+config WDT_DMEC
-+	tristate "Data Modul Watchdog"
++config RTM_DMEC
++	tristate "Data Modul RTM"
 +	depends on MFD_DMEC
-+	select WATCHDOG_CORE
 +	help
-+	  Say Y to enable support for a watchdog on a Data Modul embedded
-+	  controllers.
++	  Say Y to enable support for a running time meter(RTM) on a Data Modul
++	  embedded controllers.
 +
 +	  To compile this driver as a module, say M here: the module will be
 +          called wdt-dmec
 diff --git a/drivers/staging/dmec/Makefile b/drivers/staging/dmec/Makefile
-index b71b27b..8b363cc 100644
+index 8b363cc..b55d56f 100644
 --- a/drivers/staging/dmec/Makefile
 +++ b/drivers/staging/dmec/Makefile
-@@ -1,3 +1,4 @@
- obj-$(CONFIG_MFD_DMEC)		+= dmec-core.o
+@@ -2,3 +2,4 @@ obj-$(CONFIG_MFD_DMEC)		+= dmec-core.o
  obj-$(CONFIG_I2C_DMEC)		+= i2c-dmec.o
  obj-$(CONFIG_GPIO_DMEC) 	+= gpio-dmec.o
-+obj-$(CONFIG_WDT_DMEC)		+= wdt-dmec.o
-diff --git a/drivers/staging/dmec/wdt-dmec.c b/drivers/staging/dmec/wdt-dmec.c
+ obj-$(CONFIG_WDT_DMEC)		+= wdt-dmec.o
++obj-$(CONFIG_RTM_DMEC)		+= rtm-dmec.o
+diff --git a/drivers/staging/dmec/rtm-dmec.c b/drivers/staging/dmec/rtm-dmec.c
 new file mode 100644
-index 0000000..714ed11
+index 0000000..cd32536
 --- /dev/null
-+++ b/drivers/staging/dmec/wdt-dmec.c
-@@ -0,0 +1,569 @@
++++ b/drivers/staging/dmec/rtm-dmec.c
+@@ -0,0 +1,203 @@
 +/*
-+ * Watchdog driver for Data Modul AG Embedded Controller
++ * Running time meter for Data Modul AG Embedded Controller
 + *
-+ * Copyright (C) 2016 Zahari Doychev, Data Modul AG
++ * Copyright (C) 2016 Data Modul AG
 + *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License version 2 as published by
-+ * the Free Software Foundation.
++ * Author: Sebastian Wezel <sebastian@torvus-musica.de>
++ *
++ * This file is subject to the terms and conditions of the GNU General Public
++ * License.  See the file "COPYING" in the main directory of this archive
++ * for more details.
++ *
 + */
-+#include <linux/interrupt.h>
-+#include <linux/io.h>
++
 +#include <linux/kernel.h>
 +#include <linux/module.h>
-+#include <linux/moduleparam.h>
-+#include <linux/types.h>
-+#include <linux/miscdevice.h>
-+#include <linux/watchdog.h>
-+#include <linux/fs.h>
-+#include <linux/ioport.h>
-+#include <linux/init.h>
-+#include <linux/uaccess.h>
-+#include <linux/slab.h>
-+#include <linux/delay.h>
 +#include <linux/platform_device.h>
-+#include <linux/reboot.h>
 +#include <linux/regmap.h>
-+#include <linux/bitops.h>
++#include <linux/mutex.h>
 +
 +#include "dmec.h"
 +
-+#define DMEC_WDT_VER		0x30
-+#define DMEC_WDT_SRV		0x30
-+#define DMEC_WDT_CFG		0x31
-+#define DMEC_WDT_S0CFG		0x32
-+#define DMEC_WDT_S0MOD0		0x33
-+#define DMEC_WDT_S0MOD1		0x34
-+#define DMEC_WDT_S1CFG		(DMEC_WDT_S0CFG + 3)
-+#define DMEC_WDT_S1MOD0		(DMEC_WDT_S0MOD0 + 3)
-+#define DMEC_WDT_S1MOD1		(DMEC_WDT_S0MOD1 + 3)
-+#define DMEC_WDT_S2CFG		(DMEC_WDT_S1CFG + 3)
-+#define DMEC_WDT_S2MOD0		(DMEC_WDT_S1MOD0 + 3)
-+#define DMEC_WDT_S2MOD1		(DMEC_WDT_S1MOD1 + 3)
++#define DMEC_RTM_RTM_OFFSET             0x60
++#define DMEC_RTM_RTMREV_OFFSET          0x63
++#define DMEC_RTM_OOSRTM_OFFSET          0x64
++#define DMEC_RTM_BTCNT_OFFSET           0x68
++#define DMEC_RTM_BBCTNT_OFFSET          0x6c
 +
-+#define DMEC_WDT_EN		BIT(0)
-+#define DMEC_WDT_LOCK		BIT(1)
-+#define DMEC_WDT_WIN_MODE	BIT(2)
-+#define DMEC_WDT_AL		BIT(3)
++static DEFINE_MUTEX(rtm_lock);
++static struct regmap *regmap;
++static bool enable_reset;
 +
-+#define DMEC_WDT_PRESCALER	BIT(4)
-+#define DMEC_WDT_WDTEN		BIT(3)
-+#define DMEC_WDT_WDSTS		BIT(5)
-+
-+#define DMEC_WDT_TIMEOUT_MIN	1 /* s */
-+#define DMEC_WDT_TIMEOUT_MAX	(2 * 3600) /* s */
-+
-+#define DMEC_WDT_TIME_MAX	(65 * 1000)
-+
-+/* S0 used only during boot */
-+#define DEFAULT_S0_TIMEOUT	0
-+#define DEFAULT_S1_TIMEOUT	3
-+#define DEFAULT_S2_TIMEOUT	5
-+
-+enum wdt_actions {
-+	WDT_DISABLE = 0,
-+	WDT_DELAY,
-+	WDT_RESET,
-+	WDT_SYSIRQ0,
-+	WDT_SYSIRQ1,
-+	WDT_SYSIRQ2,
-+	WDT_IRQ,
-+	WDT_RESERVED
-+};
-+
-+enum wdt_stages {
-+	S0,
-+	S1,
-+	S2
-+};
-+
-+static unsigned int s1_timeout = DEFAULT_S1_TIMEOUT;
-+module_param(s1_timeout, uint, 0644);
-+MODULE_PARM_DESC(s1_timeout,
-+		 "Watchdog stage 1 timeout in [s], default=3");
-+
-+static unsigned int s2_timeout = DEFAULT_S2_TIMEOUT;
-+module_param(s2_timeout, uint, 0644);
-+MODULE_PARM_DESC(s2_timeout,
-+		 "Watchdog stage 2 timeout in [s], default=5");
-+
-+static enum wdt_actions action = WDT_DELAY;
-+module_param(action, uint, 0644);
-+MODULE_PARM_DESC(action,
-+		 "Watchdog action for stage 1, default=1 (delay)");
-+
-+static bool nowayout = WATCHDOG_NOWAYOUT;
-+module_param(nowayout, bool, 0644);
-+MODULE_PARM_DESC(nowayout,
-+		 "Watchdog cannot be stopped once started (default="
-+				__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
-+
-+static bool win_mode;
-+module_param(win_mode, bool, 0644);
-+MODULE_PARM_DESC(win_mode, "Use watchdog window mode, default=0");
-+
-+static bool stop_on_reboot;
-+module_param(stop_on_reboot, bool, 0644);
-+MODULE_PARM_DESC(stop_on_reboot, "stop watchdog on system reboot, default=0");
-+
-+struct dmec_wdt_data {
-+	struct watchdog_device	wdd;
-+	struct regmap *regmap;
-+	unsigned int s1_time;
-+	unsigned int s2_time;
-+	unsigned int status;
-+	unsigned int boot_cfg;
-+	bool boot_mode;
-+};
-+
-+static int dmec_wdt_set_stage_action(struct dmec_wdt_data *wdat,
-+				     unsigned int stage,
-+				     enum wdt_actions action)
++static unsigned int dmec_rtm_get_three_byte(unsigned int reg,
++					    struct device *dev)
 +{
-+	unsigned int offset = DMEC_WDT_S0CFG + (3 * stage);
-+	unsigned int val;
++	unsigned int low = 0, mid = 0, high = 0, val = 0;
 +
-+	regmap_read(wdat->regmap, offset, &val);
-+	val &= ~DMEC_WDT_WDSTS;
-+	val |= action | DMEC_WDT_WDTEN;
-+	regmap_write(wdat->regmap, offset, val);
++	regmap_read(regmap, reg, &low);
++	regmap_read(regmap, reg + 1, &mid);
++	regmap_read(regmap, reg + 2, &high);
 +
-+	return 0;
++	val = ((high << 16) | (mid << 8) | (low & 0x0000ff));
++	return val;
 +}
 +
-+static int dmec_wdt_clear_action(struct dmec_wdt_data *wdat, int stage)
++static ssize_t dmec_rtm_time_show(struct device *dev,
++				  struct device_attribute *attr, char *buf)
 +{
-+	unsigned int val;
++	unsigned int val = 0;
 +
-+	regmap_read(wdat->regmap, DMEC_WDT_S0CFG + 3 * stage, &val);
-+	val |= DMEC_WDT_WDSTS;
-+	val &= ~0xf;
-+	regmap_write(wdat->regmap, DMEC_WDT_S0CFG + 3 * stage, val);
-+
-+	return 0;
++	val = dmec_rtm_get_three_byte(DMEC_RTM_RTM_OFFSET, dev);
++	return scnprintf(buf, PAGE_SIZE, "%d\n", val);
 +}
 +
-+static unsigned int dmec_wdt_get_stage_timeout(struct dmec_wdt_data *wdat,
-+					       unsigned int stage)
++static ssize_t dmec_rtm_time_store(struct device *dev,
++				   struct device_attribute *attr,
++				   const char *buf,
++				   size_t count)
 +{
-+	unsigned int val, timeout = 0, cfg;
++	unsigned int low = 0, mid = 0, high = 0, higher = 0;
++	long val = 0, ret = -EPERM;
++	int reg = DMEC_RTM_RTM_OFFSET;
 +
-+	regmap_read(wdat->regmap, DMEC_WDT_S0CFG + 3 * stage, &cfg);
-+	regmap_read(wdat->regmap, DMEC_WDT_S0MOD0 + 3 * stage, &val);
-+	timeout = val;
-+	regmap_read(wdat->regmap, DMEC_WDT_S0MOD1 + 3 * stage, &val);
-+	timeout |= (val << 8);
++	mutex_lock(&rtm_lock);
++	if (enable_reset && !kstrtol(buf, 10, &val)) {
++		higher = (val >> 24) & 0xff;
++		high = (val >> 16) & 0xff;
++		mid = (val >> 8) & 0xff;
++		low = val & 0xff;
 +
-+	if (cfg & DMEC_WDT_PRESCALER)
-+		timeout <<= 7;
-+
-+	return timeout / 1000;
-+}
-+
-+static int dmec_wdt_set_stage_timeout(struct dmec_wdt_data *wdat,
-+				      unsigned int stage,
-+				      unsigned int timeout)
-+{
-+	unsigned int val;
-+
-+	timeout *= 1000;
-+	if (timeout > DMEC_WDT_TIME_MAX) {
-+		/* enable prescaler */
-+		regmap_read(wdat->regmap, DMEC_WDT_S0CFG + (3 * stage), &val);
-+		val |= DMEC_WDT_PRESCALER;
-+		regmap_write(wdat->regmap, DMEC_WDT_S0CFG + (3 * stage), val);
-+		timeout >>= 7;
-+	} else {
-+		regmap_read(wdat->regmap, DMEC_WDT_S0CFG + (3 * stage), &val);
-+		val &= ~DMEC_WDT_PRESCALER;
-+		regmap_write(wdat->regmap, DMEC_WDT_S0CFG + (3 * stage), val);
++		regmap_write(regmap, reg, low);
++		regmap_write(regmap, reg + 1, mid);
++		regmap_write(regmap, reg + 2, high);
++		regmap_write(regmap, reg + 3, higher);
++		enable_reset = false;
++		ret = count;
 +	}
-+
-+	val = timeout & 0xff;
-+	regmap_write(wdat->regmap, DMEC_WDT_S0MOD0 + (3 * stage), val);
-+	val = (timeout >> 8) & 0xff;
-+	regmap_write(wdat->regmap, DMEC_WDT_S0MOD1 + (3 * stage), val);
-+
-+	return 0;
-+}
-+
-+static int dmec_wdt_set_timeouts(struct dmec_wdt_data *wdat)
-+{
-+	dmec_wdt_clear_action(wdat, S0);
-+	dmec_wdt_clear_action(wdat, S1);
-+	dmec_wdt_clear_action(wdat, S2);
-+
-+	wdat->s1_time = s1_timeout;
-+	wdat->s2_time = s2_timeout;
-+	dmec_wdt_set_stage_timeout(wdat, S1, s1_timeout);
-+	dmec_wdt_set_stage_timeout(wdat, S2, s2_timeout);
-+	dmec_wdt_set_stage_action(wdat, S2, WDT_RESET);
-+
-+	return 0;
-+}
-+
-+static int dmec_wdt_stop(struct watchdog_device *wdd)
-+{
-+	struct dmec_wdt_data *wdat = watchdog_get_drvdata(wdd);
-+
-+	regmap_update_bits(wdat->regmap, DMEC_WDT_CFG, DMEC_WDT_EN, 0);
-+
-+	return 0;
-+}
-+
-+static int dmec_wdt_start(struct watchdog_device *wdd)
-+{
-+	struct dmec_wdt_data *wdat = watchdog_get_drvdata(wdd);
-+
-+	regmap_update_bits(wdat->regmap, DMEC_WDT_CFG,
-+			   DMEC_WDT_EN, DMEC_WDT_EN);
-+
-+	wdat->boot_mode = false;
-+
-+	return 0;
-+}
-+
-+static int dmec_wdt_ping(struct watchdog_device *wdd)
-+{
-+	struct dmec_wdt_data *wdat = watchdog_get_drvdata(wdd);
-+	unsigned int val;
-+
-+	/* We should try avoiding resets in window mode until the watchdog
-+	 * daemon takes control
-+	 */
-+	if (win_mode && wdat->boot_mode) {
-+		regmap_read(wdat->regmap, DMEC_WDT_S1CFG, &val);
-+		if (!(val & DMEC_WDT_WDSTS))
-+			return 0;
-+		val |= DMEC_WDT_WDSTS;
-+		regmap_write(wdat->regmap, DMEC_WDT_S1CFG, val);
-+	}
-+
-+	regmap_write(wdat->regmap, DMEC_WDT_SRV, 0xff);
-+
-+	return 0;
-+}
-+
-+static int dmec_wdt_set_win_mode(struct watchdog_device *wdd)
-+{
-+	struct dmec_wdt_data *wdat = watchdog_get_drvdata(wdd);
-+
-+	regmap_update_bits(wdat->regmap, DMEC_WDT_CFG,
-+			   DMEC_WDT_WIN_MODE, DMEC_WDT_WIN_MODE);
-+
-+	return 0;
-+}
-+
-+static int dmec_wdt_set_std_mode(struct watchdog_device *wdd)
-+{
-+	struct dmec_wdt_data *wdat = watchdog_get_drvdata(wdd);
-+
-+	regmap_update_bits(wdat->regmap, DMEC_WDT_CFG, DMEC_WDT_WIN_MODE, 0);
-+
-+	return 0;
-+}
-+
-+static int dmec_wdt_set_timeout(struct watchdog_device *wdd,
-+				unsigned int timeout)
-+{
-+	struct dmec_wdt_data *wdat = watchdog_get_drvdata(wdd);
-+
-+	wdd->timeout = timeout;
-+	wdat->boot_mode = false;
-+	dmec_wdt_stop(wdd);
-+	dmec_wdt_clear_action(wdat, S0);
-+
-+	if (win_mode) {
-+		dmec_wdt_clear_action(wdat, S1);
-+		dmec_wdt_set_stage_timeout(wdat, S1, wdat->s1_time);
-+		dmec_wdt_set_stage_action(wdat, S1, WDT_DELAY);
-+		dmec_wdt_set_win_mode(wdd);
-+	} else {
-+		dmec_wdt_set_std_mode(wdd);
-+	}
-+
-+	wdat->s2_time = timeout;
-+	dmec_wdt_clear_action(wdat, S2);
-+	dmec_wdt_set_stage_timeout(wdat, S2, timeout);
-+	dmec_wdt_set_stage_action(wdat, S2, WDT_RESET);
-+	clear_bit(WDOG_HW_RUNNING, &wdd->status);
-+	dmec_wdt_start(wdd);
-+
-+	return 0;
-+}
-+
-+static long dmec_wdt_ioctl(struct watchdog_device *wdd, unsigned int cmd,
-+			   unsigned long arg)
-+{
-+	struct dmec_wdt_data *wdat = watchdog_get_drvdata(wdd);
-+	void __user *argp = (void __user *)arg;
-+	int ret = -ENOIOCTLCMD;
-+	int __user *p = argp;
-+	int val;
-+
-+	switch (cmd) {
-+	case WDIOC_SETPRETIMEOUT:
-+		if (get_user(val, p) && val < 0)
-+			return -EFAULT;
-+		dmec_wdt_clear_action(wdat, S1);
-+		if (val > 0) {
-+			dmec_wdt_set_stage_timeout(wdat, S1, val);
-+			dmec_wdt_set_stage_action(wdat, S1, action);
-+		}
-+		wdat->s1_time = val;
-+		wdat->boot_mode = false;
-+		ret = 0;
-+		if (!win_mode)
-+			ret = dmec_wdt_ping(wdd);
-+		break;
-+	case WDIOC_GETPRETIMEOUT:
-+		ret = put_user(wdat->s1_time, (int __user *)arg);
-+		break;
-+	}
++	mutex_unlock(&rtm_lock);
 +
 +	return ret;
 +}
 +
-+static unsigned int dmec_wdt_get_timeleft(struct watchdog_device *wdd)
++static ssize_t dmec_rtm_version_show(struct device *dev,
++				     struct device_attribute *attr, char *buf)
 +{
-+	struct dmec_wdt_data *wdat = watchdog_get_drvdata(wdd);
++	unsigned int val = 0;
 +
-+	return dmec_wdt_get_stage_timeout(wdat, 2);
++	regmap_read(regmap, DMEC_RTM_RTMREV_OFFSET, &val);
++	return scnprintf(buf, PAGE_SIZE, "%d\n", val);
 +}
 +
-+static unsigned int dmec_wdt_status(struct watchdog_device *wdd)
++static ssize_t dmec_rtm_out_of_spec_show(struct device *dev,
++					 struct device_attribute *attr,
++					 char *buf)
 +{
-+	struct dmec_wdt_data *wdat = watchdog_get_drvdata(wdd);
-+	unsigned int status;
++	unsigned int val = 0;
 +
-+	regmap_read(wdat->regmap, DMEC_WDT_CFG, &status);
-+
-+	return status;
++	val = dmec_rtm_get_three_byte(DMEC_RTM_OOSRTM_OFFSET, dev);
++	return scnprintf(buf, PAGE_SIZE, "%d\n", val);
 +}
 +
-+static struct watchdog_info dmec_wdt_info = {
-+	.options		= WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT |
-+				  WDIOF_MAGICCLOSE | WDIOF_PRETIMEOUT,
-+	.identity		= "DMEC WDT",
++static ssize_t dmec_rtm_boot_count_show(struct device *dev,
++					struct device_attribute *attr,
++					char *buf)
++{
++	unsigned int val = 0;
++
++	val = dmec_rtm_get_three_byte(DMEC_RTM_BTCNT_OFFSET, dev);
++	return scnprintf(buf, PAGE_SIZE, "%d\n", val);
++}
++
++static ssize_t dmec_rtm_bios_boot_count_show(struct device *dev,
++					     struct device_attribute *attr,
++					     char *buf)
++{
++	unsigned int val = 0;
++
++	val = dmec_rtm_get_three_byte(DMEC_RTM_BBCTNT_OFFSET, dev);
++	return scnprintf(buf, PAGE_SIZE, "%d\n", val);
++}
++
++static ssize_t dmec_rtm_enable_reset_show(struct device *dev,
++					  struct device_attribute *attr,
++					  char *buf)
++{
++	return scnprintf(buf, PAGE_SIZE, "%d\n", enable_reset);
++}
++
++static ssize_t dmec_rtm_enable_reset_store(struct device *dev,
++					   struct device_attribute *attr,
++					   const char *buf, size_t count)
++{
++	long val = 0;
++
++	mutex_lock(&rtm_lock);
++	if (kstrtol(buf, 10, &val) != 0)
++		enable_reset = false;
++
++	/* The enable should only work if the value is 1 */
++	if (val == 1)
++		enable_reset = true;
++	mutex_unlock(&rtm_lock);
++	return count;
++}
++
++static DEVICE_ATTR(rtm_time, 0664, dmec_rtm_time_show, dmec_rtm_time_store);
++static DEVICE_ATTR(rtm_version, 0444, dmec_rtm_version_show, NULL);
++static DEVICE_ATTR(rtm_out_of_spec, 0444, dmec_rtm_out_of_spec_show, NULL);
++static DEVICE_ATTR(rtm_boot_count, 0444, dmec_rtm_boot_count_show, NULL);
++static DEVICE_ATTR(rtm_bios_boot_count, 0444, dmec_rtm_bios_boot_count_show,
++			NULL);
++static DEVICE_ATTR(rtm_enable_reset, 0664, dmec_rtm_enable_reset_show,
++		   dmec_rtm_enable_reset_store);
++
++static struct attribute *rtm_attribute[] = {
++	&dev_attr_rtm_time.attr,
++	&dev_attr_rtm_version.attr,
++	&dev_attr_rtm_out_of_spec.attr,
++	&dev_attr_rtm_boot_count.attr,
++	&dev_attr_rtm_bios_boot_count.attr,
++	&dev_attr_rtm_enable_reset.attr,
++	NULL
 +};
 +
-+static const struct watchdog_ops dmec_wdt_ops = {
-+	.owner		= THIS_MODULE,
-+	.start		= dmec_wdt_start,
-+	.stop		= dmec_wdt_stop,
-+	.ping		= dmec_wdt_ping,
-+	.set_timeout	= dmec_wdt_set_timeout,
-+	.status		= dmec_wdt_status,
-+	.ioctl		= dmec_wdt_ioctl,
-+	.get_timeleft	= dmec_wdt_get_timeleft,
++static const struct attribute_group rtm_attr_group = {
++	.attrs = rtm_attribute,
 +};
 +
-+static int dmec_wdt_get_hw_ping_time(struct dmec_wdt_data *wdat)
++static int dmec_rtm_probe(struct platform_device *pdev)
 +{
-+	struct watchdog_device *wdd = &wdat->wdd;
-+	unsigned int val, t;
++	int ret;
 +
-+	regmap_read(wdat->regmap, DMEC_WDT_S0CFG, &val);
-+	t = dmec_wdt_get_stage_timeout(wdat, S0);
-+	if (t && (val & 0x7) > 1)
-+		dmec_wdt_clear_action(wdat, S0);
++	regmap = dmec_get_regmap(pdev->dev.parent);
++	enable_reset = 0;
 +
-+	wdat->s1_time = dmec_wdt_get_stage_timeout(wdat, S1);
-+	wdat->s2_time = dmec_wdt_get_stage_timeout(wdat, S2);
-+
-+	regmap_read(wdat->regmap, DMEC_WDT_S1CFG, &val);
-+	if (wdat->s1_time && (val & 0x7) > 1 && !(val & DMEC_WDT_WDSTS)) {
-+		wdd->timeout = wdat->s1_time;
-+		return 1;
-+	}
-+
-+	regmap_read(wdat->regmap, DMEC_WDT_S2CFG, &val);
-+	if (wdat->s2_time && (val & 0x7) > 1 && !(val & DMEC_WDT_WDSTS)) {
-+		wdd->timeout = wdat->s2_time;
-+		return 2;
-+	}
-+
-+	return -1;
-+}
-+
-+static int dmec_wdt_config_win_mode(struct dmec_wdt_data *wdat)
-+{
-+	struct watchdog_device *wdd = &wdat->wdd;
-+	unsigned int t;
-+
-+	/* The timeout should be ok until the watchdog daemon appears */
-+	t = (min_t(unsigned int, wdat->s1_time, wdat->s2_time) / 2);
-+	wdd->timeout = t;
-+
-+	return 0;
-+}
-+
-+static int dmec_wdt_config_mode(struct dmec_wdt_data *wdat)
-+{
-+	struct watchdog_device *wdd = &wdat->wdd;
-+
-+	if (!(wdat->boot_cfg & DMEC_WDT_EN))
-+		return -1;
-+
-+	if (dmec_wdt_get_hw_ping_time(wdat) < 0)
-+		return -1;
-+
-+	wdd->max_hw_heartbeat_ms = DMEC_WDT_TIMEOUT_MAX * 1000;
-+	set_bit(WDOG_HW_RUNNING, &wdd->status);
-+
-+	if (wdat->boot_cfg & DMEC_WDT_WIN_MODE)
-+		dmec_wdt_config_win_mode(wdat);
-+
-+	wdat->boot_mode = true;
-+
-+	return 0;
-+}
-+
-+static int dmec_wdt_setup(struct dmec_wdt_data *wdat)
-+{
-+	struct watchdog_device *wdd = &wdat->wdd;
-+	int ret = 0;
-+
-+	regmap_read(wdat->regmap, DMEC_WDT_CFG, &wdat->boot_cfg);
-+
-+	ret = dmec_wdt_config_mode(wdat);
-+
-+	if (ret < 0)
-+		dmec_wdt_set_timeouts(wdat);
-+
-+	if (wdat->boot_cfg & DMEC_WDT_LOCK && !nowayout) {
-+		dev_info(wdd->parent, "watchdog lock is enabled.\n");
-+		nowayout = true;
-+		return 0;
-+	}
-+
-+	return 0;
-+}
-+
-+static int dmec_wdt_probe(struct platform_device *pdev)
-+{
-+	struct dmec_wdt_data *wdat;
-+	struct device *dev = &pdev->dev;
-+	struct watchdog_device *wdd;
-+	int ret = 0;
-+
-+	wdat = devm_kzalloc(dev, sizeof(*wdat), GFP_KERNEL);
-+	if (!wdat)
-+		return -ENOMEM;
-+
-+	wdat->regmap = dmec_get_regmap(pdev->dev.parent);
-+	wdd = &wdat->wdd;
-+	wdd->parent = dev;
-+
-+	wdd->info = &dmec_wdt_info;
-+	wdd->ops = &dmec_wdt_ops;
-+	wdd->min_timeout = DMEC_WDT_TIMEOUT_MIN;
-+	wdd->max_timeout = DMEC_WDT_TIMEOUT_MAX;
-+
-+	wdat->s1_time = s1_timeout;
-+	wdat->s2_time = s2_timeout;
-+
-+	watchdog_set_drvdata(wdd, wdat);
-+	platform_set_drvdata(pdev, wdat);
-+
-+	dmec_wdt_setup(wdat);
-+
-+	watchdog_set_nowayout(wdd, nowayout);
-+	if (stop_on_reboot)
-+		watchdog_stop_on_reboot(wdd);
-+
-+	ret = watchdog_register_device(wdd);
++	ret = sysfs_create_group(&pdev->dev.kobj, &rtm_attr_group);
 +	if (ret)
 +		return ret;
 +
-+	regmap_read(wdat->regmap, DMEC_WDT_VER,
-+		    &dmec_wdt_info.firmware_version);
++	return ret;
++}
 +
-+	dev_info(dev, "registered. v%u.%u sta: %#lx mode:%d\n",
-+		 (dmec_wdt_info.firmware_version >> 4) & 0xf,
-+		 dmec_wdt_info.firmware_version & 0xf,
-+		 wdd->status, win_mode);
++static int dmec_rtm_remove(struct platform_device *pdev)
++{
++	sysfs_remove_group(&pdev->dev.kobj, &rtm_attr_group);
 +
 +	return 0;
 +}
 +
-+static int dmec_wdt_remove(struct platform_device *pdev)
-+{
-+	struct dmec_wdt_data *wdat = platform_get_drvdata(pdev);
-+
-+	dmec_wdt_stop(&wdat->wdd);
-+	watchdog_unregister_device(&wdat->wdd);
-+
-+	return 0;
-+}
-+
-+static void dmec_wdt_shutdown(struct platform_device *pdev)
-+{
-+	struct dmec_wdt_data *wdat = platform_get_drvdata(pdev);
-+
-+	dmec_wdt_stop(&wdat->wdd);
-+}
-+
-+#ifdef CONFIG_PM
-+/* Disable watchdog if it is active during suspend */
-+static int dmec_wdt_suspend(struct platform_device *pdev,
-+			    pm_message_t message)
-+{
-+	struct dmec_wdt_data *wdat = platform_get_drvdata(pdev);
-+	struct watchdog_device *wdd = &wdat->wdd;
-+
-+	regmap_read(wdat->regmap, DMEC_WDT_CFG, &wdat->status);
-+
-+	if (wdat->status & DMEC_WDT_EN)
-+		return dmec_wdt_stop(wdd);
-+
-+	return 0;
-+}
-+
-+/* Enable watchdog and configure it if necessary */
-+static int dmec_wdt_resume(struct platform_device *pdev)
-+{
-+	struct dmec_wdt_data *wdat = platform_get_drvdata(pdev);
-+	struct watchdog_device *wdd = &wdat->wdd;
-+
-+	if (!win_mode && wdat->status & DMEC_WDT_EN) {
-+		dmec_wdt_stop(wdd);
-+		dmec_wdt_clear_action(wdat, S0);
-+		dmec_wdt_clear_action(wdat, S1);
-+		dmec_wdt_clear_action(wdat, S2);
-+
-+		if (wdat->s1_time) {
-+			dmec_wdt_set_stage_timeout(wdat, S1, wdat->s1_time);
-+			dmec_wdt_set_stage_action(wdat, S1, WDT_DELAY);
-+		}
-+		dmec_wdt_set_stage_timeout(wdat, S2, wdat->s2_time);
-+		dmec_wdt_set_stage_action(wdat, S2, WDT_RESET);
-+		dmec_wdt_get_timeleft(wdd);
-+		return dmec_wdt_start(wdd);
-+	}
-+
-+	return dmec_wdt_stop(wdd);
-+}
-+#else
-+#define dmec_wdt_suspend NULL
-+#define dmec_wdt_resume	NULL
-+#endif
-+
-+static struct platform_driver dmec_wdt_driver = {
++static struct platform_driver dmec_rtm_driver = {
 +	.driver = {
-+		.name = "dmec-wdt",
-+		.owner = THIS_MODULE,
++			.name = "dmec-rtm",
++			.owner = THIS_MODULE,
 +	},
-+	.probe = dmec_wdt_probe,
-+	.remove = dmec_wdt_remove,
-+	.shutdown = dmec_wdt_shutdown,
-+	.suspend = dmec_wdt_suspend,
-+	.resume = dmec_wdt_resume,
++	.probe = dmec_rtm_probe,
++	.remove = dmec_rtm_remove,
 +};
 +
-+module_platform_driver(dmec_wdt_driver);
++module_platform_driver(dmec_rtm_driver);
 +
-+MODULE_DESCRIPTION("dmec watchdog driver");
-+MODULE_AUTHOR("Zahari Doychev <zahari.doychev@linux.com");
++MODULE_DESCRIPTION("dmec rtm driver");
++MODULE_AUTHOR("Sebastian Wezel <sebastian@torvus-musica.de>");
 +MODULE_LICENSE("GPL");
-+MODULE_ALIAS("platform:dmec-wdt");
++MODULE_ALIAS("platform:dmec-rtm");
 -- 
 git-series 0.8.10
