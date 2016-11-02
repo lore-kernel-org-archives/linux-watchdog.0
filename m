@@ -1,147 +1,447 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pf0-f194.google.com ([209.85.192.194]:33776 "EHLO
-        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753887AbcKBIiA (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 2 Nov 2016 04:38:00 -0400
-From: Richard Vidal-Dorsch <richard.dorsch@gmail.com>
-To: linus.walleij@linaro.org, gnurou@gmail.com, jdelvare@suse.com,
-        linux@roeck-us.net, wsa@the-dreams.de, lee.jones@linaro.org,
-        jingoohan1@gmail.com, tomi.valkeinen@ti.com, wim@iguana.be,
-        linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org,
-        linux-hwmon@vger.kernel.org, linux-i2c@vger.kernel.org,
-        linux-fbdev@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        k.kozlowski@samsung.com
-Cc: Richard Vidal-Dorsch <richard.dorsch@gmail.com>,
-        jo.sunga@advantech.com, weilun.huang@advantech.com
-Subject: [PATCH v4 0/6] Advantech iManager EC driver set
-Date: Wed,  2 Nov 2016 01:37:45 -0700
-Message-Id: <20161102083751.6335-1-richard.dorsch@gmail.com>
+Received: from foss.arm.com ([217.140.101.70]:42894 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753924AbcKBN2k (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Wed, 2 Nov 2016 09:28:40 -0400
+Subject: Re: [PATCH V3 8/9] thermal: da9062/61: Thermal junction temperature
+ monitoring driver
+To: Steve Twiss <stwiss.opensource@diasemi.com>,
+        Eduardo Valentin <edubezval@gmail.com>,
+        LINUX-KERNEL <linux-kernel@vger.kernel.org>,
+        LINUX-PM <linux-pm@vger.kernel.org>,
+        Zhang Rui <rui.zhang@intel.com>
+References: <cover.1477929725.git.stwiss.opensource@diasemi.com>
+ <52d74c72cc445d2bc911014f38b79c1f10426878.1477929725.git.stwiss.opensource@diasemi.com>
+Cc: DEVICETREE <devicetree@vger.kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        LINUX-INPUT <linux-input@vger.kernel.org>,
+        LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
+        Lee Jones <lee.jones@linaro.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Support Opensource <support.opensource@diasemi.com>,
+        Wim Van Sebroeck <wim@iguana.be>
+From: Lukasz Luba <lukasz.luba@arm.com>
+Message-ID: <b5789f09-0053-f0fc-ee35-c8c32969852b@arm.com>
+Date: Wed, 2 Nov 2016 13:28:35 +0000
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <52d74c72cc445d2bc911014f38b79c1f10426878.1477929725.git.stwiss.opensource@diasemi.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
 
-The Advantech iManager is a custom embedded controller based on ITE IT851=
-8
-or IT8528 EC (depending on PCB). It runs a custom firmware that provides
-access to features such as GPIO, I2C/SMbus, hwmon, watchdog, and
-backlight/brightness control.  All drivers are being managed by the
-iManager (mfd) core driver.  It acts as a 'gateway' and handles
-communications between EC and sub-drivers.  The imanager-core follows a
-similar concept as Kontron's kempld-core driver.
-During core init, the device id list is retrieved from the firmware and a=
-n
-internal device list is being created. This list is then passed down to
-managed drivers.
+Hi Steve,
 
-The out-of-tree iManager driver set is maintained at
-https://www.github.com/rvido/iManager
+Please find my comments below.
 
-Notebook manufactures such as Dell (XPS series) or Razerzone (Razer Blade=
-)
-are using similar ITE ECs or even the same ones to implement their own
-embedded functions.  Due to the level of firmware customization which tho=
-se
-ITE ECs provide, the iManager EC driver set is incompatible with those
-vendors solutions (and probably others too).
+Apart from these 2 comments, 10sec is not to long
+(waiting for the temperature change)?
 
-Note that v1..v3 were submitted in Jan. 2016.  It took some time to apply
-suggested changes.  However, I kept the original versioning to avoid conf=
-lict
-with previous patch submissions.
+On 31/10/16 16:02, Steve Twiss wrote:
+> From: Steve Twiss <stwiss.opensource@diasemi.com>
+>
+> Add junction temperature monitoring supervisor device driver, compatible
+> with the DA9062 and DA9061 PMICs. A MODULE_DEVICE_TABLE() macro is added.
+>
+> If the PMIC's internal junction temperature rises above TEMP_WARN (125
+> degC) an interrupt is issued. This TEMP_WARN level is defined as the
+> THERMAL_TRIP_HOT trip-wire inside the device driver.
+>
+> The thermal triggering mechanism is interrupt based and happens when the
+> temperature rises above a given threshold level. The component cannot
+> return an exact temperature, it only has knowledge if the temperature is
+> above or below a given threshold value. A status bit must be polled to
+> detect when the temperature falls below that threshold level again. A
+> kernel work queue is configured to repeatedly poll and detect when the
+> temperature falls below this trip-wire, between 1 and 10 second intervals
+> (defaulting at 3 seconds).
+>
+> This first level of temperature supervision is intended for non-invasive
+> temperature control, where the necessary measures for cooling the system
+> down are left to the host software.
+>
+> Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+>
+> ---
+> This patch applies against linux-next and v4.8
+>
+> v2 -> v3
+>  - Patch renamed from [PATCH V2 09/10] to [PATCH V3 8/9]
+>  - Addition of MODULE_DEVICE_TABLE macro to allow modinfo additions
+>
+> v1 -> v2
+>  - Patch renamed from [PATCH V1 05/10] to [PATCH V2 09/10] -- these
+>    changes were made to fix checkpatch warnings caused by the patch
+>    set dependency order
+>  - List the header files in alphabetical order
+>  - Remove "GPL v2" and replace with MODULE_LICENSE("GPL") to match the
+>    copyright "GNU Public License v2 or later" option in the header
+>    comment for this file. See the allowed identifiers in the file
+>    include/linux/module.h +170
+>  - Remove notify function "da9062_thermal_notify" function.
+>  - MODULE_AUTHOR() macros removes Company Name and just gives Name in
+>    accordance with include/linux/module.h +200
+>  - Remove the compatible "dlg,da9061-thermal" option in the of_device_id
+>    struct table. This patch now assumes the use of a DA9062 fallback
+>    compatible string in the DTS when using the DA9061 thermal component
+>    of the DA9061 device.
+>  - Re-ordered some assignments earlier in the probe() for thermal->hw,
+>    thermal->polling_period, thermal->mode, thermal->dev
+>  - Added further information in the patch description to explain the use
+>    of the device driver's built-in work-queue.
+>
+> Regards,
+> Steve Twiss, Dialog Semiconductor Ltd.
+>
+>
+>  drivers/thermal/Kconfig          |  10 ++
+>  drivers/thermal/Makefile         |   1 +
+>  drivers/thermal/da9062-thermal.c | 291 +++++++++++++++++++++++++++++++++++++++
+>  3 files changed, 302 insertions(+)
+>  create mode 100644 drivers/thermal/da9062-thermal.c
+>
+> diff --git a/drivers/thermal/Kconfig b/drivers/thermal/Kconfig
+> index 2d702ca..da58e54 100644
+> --- a/drivers/thermal/Kconfig
+> +++ b/drivers/thermal/Kconfig
+> @@ -272,6 +272,16 @@ config DB8500_CPUFREQ_COOLING
+>  	  bound cpufreq cooling device turns active to set CPU frequency low to
+>  	  cool down the CPU.
+>
+> +config DA9062_THERMAL
+> +	tristate "DA9062/DA9061 Dialog Semiconductor thermal driver"
+> +	depends on MFD_DA9062
+> +	depends on OF
+> +	help
+> +	  Enable this for the Dialog Semiconductor thermal sensor driver.
+> +	  This will report PMIC junction over-temperature for one thermal trip
+> +	  zone.
+> +	  Compatible with the DA9062 and DA9061 PMICs.
+> +
+>  config INTEL_POWERCLAMP
+>  	tristate "Intel PowerClamp idle injection driver"
+>  	depends on THERMAL
+> diff --git a/drivers/thermal/Makefile b/drivers/thermal/Makefile
+> index 10b07c1..0a2b3f2 100644
+> --- a/drivers/thermal/Makefile
+> +++ b/drivers/thermal/Makefile
+> @@ -38,6 +38,7 @@ obj-$(CONFIG_ARMADA_THERMAL)	+= armada_thermal.o
+>  obj-$(CONFIG_TANGO_THERMAL)	+= tango_thermal.o
+>  obj-$(CONFIG_IMX_THERMAL)	+= imx_thermal.o
+>  obj-$(CONFIG_DB8500_CPUFREQ_COOLING)	+= db8500_cpufreq_cooling.o
+> +obj-$(CONFIG_DA9062_THERMAL)	+= da9062-thermal.o
+>  obj-$(CONFIG_INTEL_POWERCLAMP)	+= intel_powerclamp.o
+>  obj-$(CONFIG_X86_PKG_TEMP_THERMAL)	+= x86_pkg_temp_thermal.o
+>  obj-$(CONFIG_INTEL_SOC_DTS_IOSF_CORE)	+= intel_soc_dts_iosf.o
+> diff --git a/drivers/thermal/da9062-thermal.c b/drivers/thermal/da9062-thermal.c
+> new file mode 100644
+> index 0000000..1f0af22
+> --- /dev/null
+> +++ b/drivers/thermal/da9062-thermal.c
+> @@ -0,0 +1,291 @@
+> +/*
+> + * Thermal device driver for DA9062 and DA9061
+> + * Copyright (C) 2016  Dialog Semiconductor Ltd.
+> + *
+> + * This program is free software; you can redistribute it and/or
+> + * modify it under the terms of the GNU General Public License
+> + * as published by the Free Software Foundation; either version 2
+> + * of the License, or (at your option) any later version.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
+> + */
+> +
+> +#include <linux/errno.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/module.h>
+> +#include <linux/of.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/regmap.h>
+> +#include <linux/thermal.h>
+> +#include <linux/workqueue.h>
+> +
+> +#include <linux/mfd/da9062/core.h>
+> +#include <linux/mfd/da9062/registers.h>
+> +
+> +#define DA9062_DEFAULT_POLLING_MS_PERIOD	3000
+> +#define DA9062_MAX_POLLING_MS_PERIOD		10000
+> +#define DA9062_MIN_POLLING_MS_PERIOD		1000
+> +
+> +#define DA9062_MILLI_CELSIUS(t)			((t)*1000)
+> +
+> +struct da9062_thermal_config {
+> +	const char *name;
+> +};
+> +
+> +struct da9062_thermal {
+> +	struct da9062 *hw;
+> +	struct delayed_work work;
+> +	struct thermal_zone_device *zone;
+> +	enum thermal_device_mode mode;
+> +	unsigned int polling_period;
+> +	struct mutex lock;
+> +	int temperature;
+> +	int irq;
+> +	const struct da9062_thermal_config *config;
+> +	struct device *dev;
+> +};
+> +
+> +static void da9062_thermal_poll_on(struct work_struct *work)
+> +{
+> +	struct da9062_thermal *thermal = container_of(work,
+> +						struct da9062_thermal,
+> +						work.work);
+> +	unsigned int val;
+> +	int ret;
+> +
+> +	/* clear E_TEMP */
+> +	ret = regmap_write(thermal->hw->regmap,
+> +				DA9062AA_EVENT_B,
+> +				DA9062AA_E_TEMP_MASK);
+> +	if (ret < 0) {
+> +		dev_err(thermal->dev,
+> +			"Cannot clear the TJUNC temperature status\n");
+> +		goto err_enable_irq;
+> +	}
+> +
+> +	/* Now read E_TEMP again: it is acting like a status bit.
+> +	 * If over-temperature, then this status will be true.
+> +	 * If not over-temperature, this status will be false.
+> +	 */
+> +	ret = regmap_read(thermal->hw->regmap,
+> +			  DA9062AA_EVENT_B,
+> +			  &val);
+> +	if (ret < 0) {
+> +		dev_err(thermal->dev,
+> +			"Cannot check the TJUNC temperature status\n");
+> +		goto err_enable_irq;
+> +	} else {
+> +		if (val & DA9062AA_E_TEMP_MASK) {
+> +			mutex_lock(&thermal->lock);
+> +			thermal->temperature = DA9062_MILLI_CELSIUS(125);
+> +			mutex_unlock(&thermal->lock);
+> +			thermal_zone_device_update(thermal->zone);
+> +
+> +			schedule_delayed_work(&thermal->work,
+> +				msecs_to_jiffies(thermal->polling_period));
+> +			return;
+> +		} else {
+> +			mutex_lock(&thermal->lock);
+> +			thermal->temperature = DA9062_MILLI_CELSIUS(0);
+> +			mutex_unlock(&thermal->lock);
+> +			thermal_zone_device_update(thermal->zone);
+> +		}
+> +	}
+> +
+> +err_enable_irq:
+> +	enable_irq(thermal->irq);
+> +}
+> +
+> +static irqreturn_t da9062_thermal_irq_handler(int irq, void *data)
+> +{
+> +	struct da9062_thermal *thermal = data;
+> +
+> +	disable_irq_nosync(thermal->irq);
+> +	schedule_delayed_work(&thermal->work, 0);
+> +
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +static int da9062_thermal_get_mode(struct thermal_zone_device *z,
+> +				   enum thermal_device_mode *mode)
+> +{
+> +	struct da9062_thermal *thermal = z->devdata;
+> +	*mode = thermal->mode;
+> +	return 0;
+> +}
+> +
+> +static int da9062_thermal_get_trip_type(struct thermal_zone_device *z,
+> +				int trip,
+> +				enum thermal_trip_type *type)
+> +{
+> +	struct da9062_thermal *thermal = z->devdata;
+> +
+> +	switch (trip) {
+> +	case 0:
+> +		*type = THERMAL_TRIP_HOT;
+> +		break;
+> +	default:
+> +		dev_err(thermal->dev,
+> +			"Driver does not support more than 1 trip-wire\n");
+> +		return -EINVAL;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static int da9062_thermal_get_trip_temp(struct thermal_zone_device *z,
+> +					int trip,
+> +					int *temp)
+> +{
+> +	struct da9062_thermal *thermal = z->devdata;
+> +
+> +	switch (trip) {
+> +	case 0:
+> +		*temp = DA9062_MILLI_CELSIUS(125);
+> +		break;
+> +	default:
+> +		dev_err(thermal->dev,
+> +			"Driver does not support more than 1 trip-wire\n");
+> +		return -EINVAL;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static int da9062_thermal_get_temp(struct thermal_zone_device *z,
+> +				   int *temp)
+> +{
+> +	struct da9062_thermal *thermal = z->devdata;
+> +
+> +	mutex_lock(&thermal->lock);
+> +	*temp = thermal->temperature;
+> +	mutex_unlock(&thermal->lock);
+> +
+> +	return 0;
+> +}
+> +
+> +static struct thermal_zone_device_ops da9062_thermal_ops = {
+> +	.get_temp	= da9062_thermal_get_temp,
+> +	.get_mode	= da9062_thermal_get_mode,
+> +	.get_trip_type	= da9062_thermal_get_trip_type,
+> +	.get_trip_temp	= da9062_thermal_get_trip_temp,
+> +};
+> +
+> +static const struct da9062_thermal_config da9062_config = {
+> +	.name = "da9062-thermal",
+> +};
+> +
+> +static const struct of_device_id da9062_compatible_reg_id_table[] = {
+> +	{ .compatible = "dlg,da9062-thermal", .data = &da9062_config },
+> +	{ },
+> +};
+> +
+> +MODULE_DEVICE_TABLE(of, da9062_compatible_reg_id_table);
+> +
+> +static int da9062_thermal_probe(struct platform_device *pdev)
+> +{
+> +	struct da9062 *chip = dev_get_drvdata(pdev->dev.parent);
+> +	struct da9062_thermal *thermal;
+> +	unsigned int pp_tmp = DA9062_DEFAULT_POLLING_MS_PERIOD;
+> +	const struct of_device_id *match;
+> +	int ret = 0;
+> +
+> +	match = of_match_node(da9062_compatible_reg_id_table,
+> +			      pdev->dev.of_node);
+> +	if (!match)
+> +		return -ENXIO;
+> +
+> +	if (pdev->dev.of_node) {
+> +		if (!of_property_read_u32(pdev->dev.of_node,
+> +					"dlg,tjunc-temp-polling-period-ms",
+> +					&pp_tmp)) {
+> +			if (pp_tmp < DA9062_MIN_POLLING_MS_PERIOD ||
+> +				pp_tmp > DA9062_MAX_POLLING_MS_PERIOD)
+> +				pp_tmp = DA9062_DEFAULT_POLLING_MS_PERIOD;
+Maybe it's worth to add some print here just to mention about
+the DT value out of range. When you saw a dmesg with
+this print on some bug report, you would know about wrong DT entry
+(even if debug was not set).
+> +		}
+> +
+> +		dev_dbg(&pdev->dev,
+> +			 "TJUNC temp polling period set at %d ms\n",
+> +			 pp_tmp);
+> +	}
+> +
+> +	thermal = devm_kzalloc(&pdev->dev, sizeof(struct da9062_thermal),
+> +			     GFP_KERNEL);
+> +	if (!thermal) {
+> +		ret = -ENOMEM;
+> +		goto err;
+> +	}
+> +
+> +	thermal->config = match->data;
+> +	thermal->hw = chip;
+> +	thermal->polling_period = pp_tmp;
+> +	thermal->mode = THERMAL_DEVICE_ENABLED;
+> +	thermal->dev = &pdev->dev;
+> +
+> +	INIT_DELAYED_WORK(&thermal->work, da9062_thermal_poll_on);
+> +	mutex_init(&thermal->lock);
+> +
+> +	thermal->zone = thermal_zone_device_register(thermal->config->name,
+> +					1, 0, thermal,
+> +					&da9062_thermal_ops, NULL, 0,
+> +					0);
+> +	if (IS_ERR(thermal->zone)) {
+> +		dev_err(&pdev->dev, "Cannot register thermal zone device\n");
+> +		ret = PTR_ERR(thermal->zone);
+> +		goto err;
+> +	}
+> +
+> +	ret = platform_get_irq_byname(pdev, "THERMAL");
+> +	if (ret < 0) {
+> +		dev_err(&pdev->dev, "Failed to get platform IRQ.\n");
+> +		goto err_zone;
+> +	}
+> +	thermal->irq = ret;
+> +
+> +	ret = request_threaded_irq(thermal->irq, NULL,
+> +				   da9062_thermal_irq_handler,
+> +				   IRQF_TRIGGER_LOW | IRQF_ONESHOT,
+> +				   "THERMAL", thermal);
+> +	if (ret) {
+> +		dev_err(&pdev->dev,
+> +			"Failed to request thermal device IRQ.\n");
+> +		goto err_zone;
+> +	}
+> +
+> +	platform_set_drvdata(pdev, thermal);
+> +	return 0;
+> +
+> +err_zone:
+> +	thermal_zone_device_unregister(thermal->zone);
+> +err:
+> +	return ret;
+> +}
+> +
+> +static int da9062_thermal_remove(struct platform_device *pdev)
+> +{
+> +	struct	da9062_thermal *thermal = platform_get_drvdata(pdev);
+> +
+> +	free_irq(thermal->irq, thermal);
+> +	thermal_zone_device_unregister(thermal->zone);
+> +	cancel_delayed_work_sync(&thermal->work);
+You should change the order for these two functions
+and cancel the work before unregistering thermal zone device.
 
-Thanks to Krzysztof Koz=C5=82owski, Guenter Roeck, and Lee Jones for thei=
-r
-invaluable feedback.  Those drivers clearly needed to be further improved
-and cleaned.
+> +	return 0;
+> +}
+> +
+> +static struct platform_driver da9062_thermal_driver = {
+> +	.probe	= da9062_thermal_probe,
+> +	.remove	= da9062_thermal_remove,
+> +	.driver	= {
+> +		.name	= "da9062-thermal",
+> +		.of_match_table = da9062_compatible_reg_id_table,
+> +	},
+> +};
+> +
+> +module_platform_driver(da9062_thermal_driver);
+> +
+> +MODULE_AUTHOR("Steve Twiss");
+> +MODULE_DESCRIPTION("Thermal TJUNC device driver for Dialog DA9062 and DA9061");
+> +MODULE_LICENSE("GPL");
+> +MODULE_ALIAS("platform:da9062-thermal");
+>
 
-Changes from v3:
-- Merge imanager-ec-* with corresponding drivers
-  This eliminates static init vars and reduces code size
-- Remove Documentation/devicetree/bindings/mfd/imanager.txt
-  No support for DT
-- Add API comments
-- List include files in alphabetic order
-- Run patches through ./scripts/checkpatch.pl --strict
-- Remove headers except imanger.h/imanager-ec.h
-  Store them in include/linux/mfd/
-imanager-core:
-  - Reduce amount of exported functions in core
-  - Use usleep_range() instead of udelay()
-  - Use dev_info() or dev_warn() where necessary
-  - Fix register/probing and __init/__exit
-  - Optimize imanager_read_device_config()
-  - Shrink down EC device table to known and supported devices
-  - Define flags with BIT()
-  - Use new imanager device struct
-i2c-imanager:
-  - Add support for multiple I2C/SMbus adapters
-  - Use new imanager device struct
-imanager-hwmon-*
-gpio-imanager:
-imanager_bl:
-imanager_wdt:
-  - Define flags with BIT()
-  - Use new imanager device struct
-
-Changes from v2:
-- Remove .owner from platform_driver in:
-  drivers/gpio/imanager-bl
-  drivers/gpio/imanager-core.c
-  drivers/gpio/imanager-i2c.c
-  drivers/gpio/imanager-hwmon.c
-
-Changes from v1:
-- Remove .owner from platform_driver in drivers/gpio/imanager-gpio.c
-- Remove .owner from platform_driver in drivers/gpio/imanager-wdt.c
-- Replace 2015 by 2016 in all files
-
-Richard Vidal-Dorsch (6):
-  Add Advantech iManager MFD core driver
-  Add Advantech iManager GPIO driver
-  Add Advantech iManager HWmon driver
-  Add Advantech iManager I2C driver
-  Add Advantech iManager Backlight driver
-  Add Advantech iManager Watchdog driver
-
- drivers/gpio/Kconfig                  |   10 +
- drivers/gpio/Makefile                 |    1 +
- drivers/gpio/gpio-imanager.c          |  155 +++++
- drivers/hwmon/Kconfig                 |   11 +
- drivers/hwmon/Makefile                |    1 +
- drivers/hwmon/imanager-hwmon.c        | 1226 +++++++++++++++++++++++++++=
-++++++
- drivers/i2c/busses/Kconfig            |   10 +
- drivers/i2c/busses/Makefile           |    1 +
- drivers/i2c/busses/i2c-imanager.c     |  461 +++++++++++++
- drivers/mfd/Kconfig                   |   18 +
- drivers/mfd/Makefile                  |    1 +
- drivers/mfd/imanager-core.c           |  941 +++++++++++++++++++++++++
- drivers/video/backlight/Kconfig       |    8 +
- drivers/video/backlight/Makefile      |    1 +
- drivers/video/backlight/imanager_bl.c |  210 ++++++
- drivers/watchdog/Kconfig              |   11 +
- drivers/watchdog/Makefile             |    1 +
- drivers/watchdog/imanager_wdt.c       |  303 ++++++++
- include/linux/mfd/imanager-ec.h       |  228 ++++++
- include/linux/mfd/imanager.h          |  221 ++++++
- 20 files changed, 3819 insertions(+)
- create mode 100644 drivers/gpio/gpio-imanager.c
- create mode 100644 drivers/hwmon/imanager-hwmon.c
- create mode 100644 drivers/i2c/busses/i2c-imanager.c
- create mode 100644 drivers/mfd/imanager-core.c
- create mode 100644 drivers/video/backlight/imanager_bl.c
- create mode 100644 drivers/watchdog/imanager_wdt.c
- create mode 100644 include/linux/mfd/imanager-ec.h
- create mode 100644 include/linux/mfd/imanager.h
-
---=20
-2.10.1
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Regards,
+Lukasz Luba
