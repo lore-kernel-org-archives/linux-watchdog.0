@@ -1,9 +1,9 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pf0-f194.google.com ([209.85.192.194]:34642 "EHLO
-        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754703AbcKBIiJ (ORCPT
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:36164 "EHLO
+        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754696AbcKBIiI (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 2 Nov 2016 04:38:09 -0400
+        Wed, 2 Nov 2016 04:38:08 -0400
 From: Richard Vidal-Dorsch <richard.dorsch@gmail.com>
 To: linus.walleij@linaro.org, gnurou@gmail.com, jdelvare@suse.com,
         linux@roeck-us.net, wsa@the-dreams.de, lee.jones@linaro.org,
@@ -15,9 +15,9 @@ To: linus.walleij@linaro.org, gnurou@gmail.com, jdelvare@suse.com,
 Cc: Richard Vidal-Dorsch <richard.dorsch@gmail.com>,
         jo.sunga@advantech.com, weilun.huang@advantech.com,
         andrew.chou@advantech.com
-Subject: [PATCH v4 4/6] Add Advantech iManager I2C driver
-Date: Wed,  2 Nov 2016 01:37:49 -0700
-Message-Id: <20161102083751.6335-5-richard.dorsch@gmail.com>
+Subject: [PATCH v4 3/6] Add Advantech iManager HWmon driver
+Date: Wed,  2 Nov 2016 01:37:48 -0700
+Message-Id: <20161102083751.6335-4-richard.dorsch@gmail.com>
 In-Reply-To: <20161102083751.6335-1-richard.dorsch@gmail.com>
 References: <20161102083751.6335-1-richard.dorsch@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -25,53 +25,55 @@ List-Id: linux-watchdog@vger.kernel.org
 
 Signed-off-by: Richard Vidal-Dorsch <richard.dorsch@gmail.com>
 ---
- drivers/i2c/busses/Kconfig        |  10 +
- drivers/i2c/busses/Makefile       |   1 +
- drivers/i2c/busses/i2c-imanager.c | 461 ++++++++++++++++++++++++++++++++++++++
- 3 files changed, 472 insertions(+)
- create mode 100644 drivers/i2c/busses/i2c-imanager.c
+ drivers/hwmon/Kconfig          |   11 +
+ drivers/hwmon/Makefile         |    1 +
+ drivers/hwmon/imanager-hwmon.c | 1226 ++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 1238 insertions(+)
+ create mode 100644 drivers/hwmon/imanager-hwmon.c
 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index d252276..7d1ecb4 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -42,6 +42,16 @@ config I2C_ALI15X3
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called i2c-ali15x3.
+diff --git a/drivers/hwmon/Kconfig b/drivers/hwmon/Kconfig
+index 45cef3d..7a9db12 100644
+--- a/drivers/hwmon/Kconfig
++++ b/drivers/hwmon/Kconfig
+@@ -625,6 +625,17 @@ config SENSORS_CORETEMP
+ 	  sensor inside your CPU. Most of the family 6 CPUs
+ 	  are supported. Check Documentation/hwmon/coretemp for details.
  
-+config I2C_IMANAGER
-+	tristate "Advantech iManager I2C Interface"
++config SENSORS_IMANAGER
++	tristate "Advantech iManager Hardware Monitoring"
 +	depends on MFD_IMANAGER
++	select HWMON_VID
 +	help
-+	  This enables support for Advantech iManager I2C of some
-+	  Advantech SOM, MIO, AIMB, and PCM modules/boards.
++	  This enables support for Advantech iManager hardware monitoring
++	  of some Advantech SOM, MIO, AIMB, and PCM modules/boards.
 +
 +	  This driver can also be built as a module.  If so, the module
-+	  will be called i2c-imanager.
++	  will be called imanager-hwmon.
 +
- config I2C_AMD756
- 	tristate "AMD 756/766/768/8111 and nVidia nForce"
- 	depends on PCI
-diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-index 29764cc..d9ff210 100644
---- a/drivers/i2c/busses/Makefile
-+++ b/drivers/i2c/busses/Makefile
-@@ -54,6 +54,7 @@ obj-$(CONFIG_I2C_GPIO)		+= i2c-gpio.o
- obj-$(CONFIG_I2C_HIGHLANDER)	+= i2c-highlander.o
- obj-$(CONFIG_I2C_HIX5HD2)	+= i2c-hix5hd2.o
- obj-$(CONFIG_I2C_IBM_IIC)	+= i2c-ibm_iic.o
-+obj-$(CONFIG_I2C_IMANAGER)	+= i2c-imanager.o
- obj-$(CONFIG_I2C_IMG)		+= i2c-img-scb.o
- obj-$(CONFIG_I2C_IMX)		+= i2c-imx.o
- obj-$(CONFIG_I2C_IOP3XX)	+= i2c-iop3xx.o
-diff --git a/drivers/i2c/busses/i2c-imanager.c b/drivers/i2c/busses/i2c-imanager.c
+ config SENSORS_IT87
+ 	tristate "ITE IT87xx and compatibles"
+ 	depends on !PPC
+diff --git a/drivers/hwmon/Makefile b/drivers/hwmon/Makefile
+index aecf4ba..3f489ae 100644
+--- a/drivers/hwmon/Makefile
++++ b/drivers/hwmon/Makefile
+@@ -76,6 +76,7 @@ obj-$(CONFIG_SENSORS_IBMAEM)	+= ibmaem.o
+ obj-$(CONFIG_SENSORS_IBMPEX)	+= ibmpex.o
+ obj-$(CONFIG_SENSORS_IBMPOWERNV)+= ibmpowernv.o
+ obj-$(CONFIG_SENSORS_IIO_HWMON) += iio_hwmon.o
++obj-$(CONFIG_SENSORS_IMANAGER)	+= imanager-hwmon.o
+ obj-$(CONFIG_SENSORS_INA209)	+= ina209.o
+ obj-$(CONFIG_SENSORS_INA2XX)	+= ina2xx.o
+ obj-$(CONFIG_SENSORS_INA3221)	+= ina3221.o
+diff --git a/drivers/hwmon/imanager-hwmon.c b/drivers/hwmon/imanager-hwmon.c
 new file mode 100644
-index 0000000..15c496d
+index 0000000..af72c35
 --- /dev/null
-+++ b/drivers/i2c/busses/i2c-imanager.c
-@@ -0,0 +1,461 @@
++++ b/drivers/hwmon/imanager-hwmon.c
+@@ -0,0 +1,1226 @@
 +/*
-+ * Advantech iManager SMBus bus driver
++ * Advantech iManager Hardware Monitoring driver
++ * Partially derived from nct6775
 + *
 + * Copyright (C) 2016 Advantech Co., Ltd.
 + * Author: Richard Vidal-Dorsch <richard.dorsch@advantech.com>
@@ -84,453 +86,1217 @@ index 0000000..15c496d
 +
 +#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 +
++#include <linux/bitops.h>
++#include <linux/byteorder/generic.h>
 +#include <linux/device.h>
-+#include <linux/delay.h>
-+#include <linux/i2c.h>
++#include <linux/err.h>
++#include <linux/hwmon.h>
++#include <linux/hwmon-sysfs.h>
++#include <linux/hwmon-vid.h>
 +#include <linux/init.h>
++#include <linux/jiffies.h>
++#include <linux/kernel.h>
 +#include <linux/mfd/imanager.h>
 +#include <linux/module.h>
 +#include <linux/mutex.h>
 +#include <linux/platform_device.h>
 +
-+#define I2C_SMBUS_BLOCK_SIZE	32UL
-+#define I2C_MAX_READ_SIZE	I2C_SMBUS_BLOCK_SIZE
-+#define I2C_MAX_WRITE_SIZE	(I2C_SMBUS_BLOCK_SIZE - 1)
++/* Voltage computation (10-bit ADC, 0..3V input) */
++#define SCALE_IN			2933 /* (3000mV / (2^10 - 1)) * 1000 */
 +
-+#define EC_HWRAM_OFFSET_STATUS	0UL
++#define HWM_STATUS_UNDEFINED_ITEM	2UL
++#define HWM_STATUS_UNDEFINED_DID	3UL
++#define HWM_STATUS_UNDEFINED_HWPIN	4UL
 +
-+#define I2C_ERR_PROTO		0x19UL
-+#define I2C_ERR_TIMEOUT		0x18UL
-+#define I2C_ERR_ACCESS		0x17UL
-+#define I2C_ERR_UNKNOWN		0x13UL
-+#define I2C_ERR_ADDR_NACK	0x10UL
++/* iManager EC FW pwm[1-*]_mode values are switched */
++enum imanager_pwm_mode { CTRL_PWM, CTRL_RPM };
++/* EC FW defines pwm_enable mode 'full speed' besides mode 'off' */
++enum imanager_pwm_enable { MODE_OFF, MODE_FULL, MODE_MANUAL, MODE_AUTO };
 +
-+#define SMBUS_FREQ_50KHZ	0x0100
-+#define SMBUS_FREQ_100KHZ	0x0200
-+#define SMBUS_FREQ_400KHZ	0x0300
++/*
++ * iManager FAN device defs
++ */
++struct fan_dev_config {
++	u8	did,
++		hwpin,
++		tachoid,
++		status,
++		control,
++		temp_max,
++		temp_min,
++		temp_stop,
++		pwm_max,
++		pwm_min;
++	u16	rpm_max;
++	u16	rpm_min;
++	u8	debounce;	/* debounce time, not used */
++	u8	temp;		/* Current Thermal Zone Temperature */
++	u16	rpm_target;	/* RPM Target Speed, not used */
++} __attribute__((__packed__));
 +
-+#define imanager_i2c_wr_combined(ec, message) \
-+	imanager_i2c_block_wr_rw_combined(ec, message, EC_CMD_I2C_WR)
++struct fan_alert_limit {
++	u16	min,
++		max;
++} __attribute__((__packed__));
 +
-+#define imanager_i2c_rw_combined(ec, message) \
-+	imanager_i2c_block_wr_rw_combined(ec, message, EC_CMD_I2C_RW)
-+
-+struct ec_i2c_status {
-+	u32 error	: 7;
-+	u32 complete	: 1;
++struct fan_status {
++	u32	sysctl	: 1,	/* System Control flag */
++		tacho	: 1,	/* FAN tacho source defined */
++		pulse	: 1,	/* FAN pulse type defined */
++		thermal	: 1,	/* Thermal zone init */
++		i2clink	: 1,	/* I2C protocol fail flag (thermal sensor) */
++		dnc	: 1,	/* don't care */
++		mode	: 2;	/* FAN Control mode */
 +};
 +
-+struct adapter_info {
-+	struct i2c_adapter adapter;
-+	int smb_devid;
++/**
++ * FAN Control bit field
++ * enable:   0:Disabled, 1:Enabled
++ * type:     0:PWM,      1:RPM
++ * pulse:    0:Undefined 1:2 Pulses  2:4 Pulses
++ * tacho:    1:CPU FAN,  2:SYS FAN1, 3:SYS FAN2
++ * mode:     0:Off,      1:Full,     2:Manual, 3:Auto
++ */
++struct fan_ctrl {
++	u32	enable	: 1,	/* SmartFAN control on/off */
++		type	: 1,	/* FAN control type [0, 1] PWM/RPM */
++		pulse	: 2,	/* FAN pulse [0..2] */
++		tacho	: 2,	/* FAN Tacho Input [1..3] */
++		mode	: 2;	/* off/full/manual/auto */
 +};
 +
-+struct imanager_i2c_data {
-+	struct device *dev;
-+	struct imanager_device_data *imgr;
-+	struct adapter_info adap_info[EC_MAX_SMB_NUM];
-+	int nadap;
++/* Default Voltage Sensors */
++struct imanager_hwmon_adc {
++	bool valid; /* if set, below values are valid */
++	unsigned int value;
++	unsigned int min;
++	unsigned int max;
++	unsigned int average;
++	unsigned int lowest;
++	unsigned int highest;
 +};
 +
-+static int imanager_i2c_eval_status(u8 status)
++struct imanager_hwmon_smartfan {
++	bool valid; /* if set, below values are valid */
++	unsigned int pwm;
++	unsigned int speed;
++	bool speed_min_alarm;
++	bool speed_max_alarm;
++	struct fan_dev_config cfg;
++};
++
++struct imanager_hwmon_data {
++	struct imanager_device_data	*imgr;
++	const struct attribute_group	*groups[3];
++	unsigned long			samples;
++	unsigned long			last_updated;
++	struct imanager_hwmon_adc	adc[EC_MAX_ADC_NUM];
++	struct imanager_hwmon_smartfan	fan[EC_MAX_FAN_NUM];
++};
++
++static int imanager_hwmon_read_fan_config(struct imanager_ec_data *ec, int num,
++					  struct imanager_hwmon_smartfan *fan)
 +{
-+	struct ec_i2c_status *_status = (struct ec_i2c_status *)&status;
-+
-+	switch (_status->error) {
-+	case 0:
-+		return 0;
-+	case I2C_ERR_ADDR_NACK:
-+		return -ENXIO;
-+	case I2C_ERR_ACCESS:
-+		return -EACCES;
-+	case I2C_ERR_UNKNOWN:
-+		return -EAGAIN;
-+	case I2C_ERR_TIMEOUT:
-+		return -ETIME;
-+	case I2C_ERR_PROTO:
-+		return -EPROTO;
-+	}
-+
-+	return -EIO;
-+}
-+
-+static int imanager_i2c_wait_proc_complete(struct imanager_ec_data *ec)
-+{
-+	int ret, i;
-+	u8 val;
-+
-+	for (i = 0; i < EC_MAX_RETRY; i++) {
-+		ret = imanager_read_ram(ec, EC_RAM_HW, EC_HWRAM_OFFSET_STATUS,
-+					&val, sizeof(val));
-+		if (ret < 0)
-+			return ret;
-+
-+		if (!val)
-+			return 0;
-+
-+		usleep_range(EC_DELAY_MIN, EC_DELAY_MAX);
-+	}
-+
-+	return -ETIME;
-+}
-+
-+static int imanager_i2c_block_wr_rw_combined(struct imanager_ec_data *ec,
-+					     struct imanager_ec_message *msg,
-+					     unsigned int protocol)
-+{
++	struct imanager_ec_message msg = {
++		IMANAGER_MSG_SIMPLE(EC_F_HWMON_MSG, 0, num, (u8 *)&fan->cfg)
++	};
 +	int ret;
 +
-+	ret = imanager_i2c_wait_proc_complete(ec);
++	ret = imanager_read(ec, EC_CMD_FAN_CTL_RD, &msg);
 +	if (ret)
 +		return ret;
 +
-+	ret = imanager_write(ec, protocol, msg);
-+	if (ret)
-+		return imanager_i2c_eval_status(ret);
++	return fan->cfg.did ? 0 : -ENODEV;
++}
 +
-+	if (msg->rlen) {
-+		if (msg->rlen == 1)
-+			return msg->u.data[0];
-+		else if (msg->rlen == 2)
-+			return (msg->u.data[1] << 8) | msg->u.data[0];
-+		else
-+			return msg->rlen;
++static int
++imanager_hwmon_write_fan_config(struct imanager_ec_data *ec, int num,
++				struct imanager_hwmon_smartfan *fan)
++{
++	struct imanager_ec_message msg = {
++		IMANAGER_MSG_SIMPLE(0, sizeof(fan->cfg), num, (u8 *)&fan->cfg)
++	};
++	int err;
++
++	err = imanager_write(ec, EC_CMD_FAN_CTL_WR, &msg);
++	if (err < 0) {
++		return err;
++	} else if (err) {
++		switch (err) {
++		case HWM_STATUS_UNDEFINED_ITEM:
++		case HWM_STATUS_UNDEFINED_DID:
++		case HWM_STATUS_UNDEFINED_HWPIN:
++			return -ENODEV;
++		default:
++			return -EINVAL;
++		}
 +	}
 +
 +	return 0;
 +}
 +
-+static inline int
-+imanager_i2c_write_freq(struct imanager_ec_data *ec, int did, int freq)
-+{
-+	return imanager_write16(ec, EC_CMD_SMB_FREQ_WR, did, freq);
-+}
++/**
++ * FAN max/min alert bits are stored as bit pairs in a 8-bit register.
++ * FAN0~2: 2:{max2, min2}, 1:{max1, min1}, 0:{max0, min0}
++ */
++#define IS_FAN_ALERT_MIN(fan_num, var) test_bit(BIT((fan_num) << 1), var)
++#define IS_FAN_ALERT_MAX(fan_num, var) test_bit(BIT(((fan_num) << 1) + 1), var)
 +
-+static inline int eval_read_len(int len)
++static int imanager_hwmon_read_fan_alert(struct imanager_ec_data *ec, int num,
++					 struct imanager_hwmon_smartfan *fan)
 +{
-+	return len && len <= I2C_MAX_READ_SIZE ? len : I2C_MAX_READ_SIZE;
-+}
-+
-+static inline int
-+imanager_i2c_read_block(struct imanager_ec_data *ec,
-+			struct imanager_ec_message *msg, u8 *buf)
-+{
++	const ulong alert_flags = 0;
 +	int ret;
 +
-+	ret = imanager_i2c_wr_combined(ec, msg);
++	ret = imanager_read_ram(ec, EC_RAM_ACPI, EC_OFFSET_FAN_ALERT,
++				(u8 *)&alert_flags, sizeof(u8));
 +	if (ret < 0)
 +		return ret;
 +
-+	buf[0] = ret;
-+	memcpy(&buf[1], msg->u.data, ret);
++	fan->speed_min_alarm = IS_FAN_ALERT_MIN(num, &alert_flags);
++	fan->speed_max_alarm = IS_FAN_ALERT_MAX(num, &alert_flags);
 +
 +	return 0;
 +}
 +
-+static inline int
-+imanager_i2c_write_block(struct imanager_ec_data *ec,
-+			 struct imanager_ec_message *msg, u8 *buf)
++static int imanager_hwmon_write_fan_alert(struct imanager_ec_data *ec, int fnum,
++					  struct imanager_hwmon_smartfan *fan)
 +{
-+	if (!buf[0] || (buf[0] > I2C_MAX_WRITE_SIZE))
-+		return -EINVAL;
++	struct fan_alert_limit limits[EC_MAX_FAN_NUM];
++	struct fan_alert_limit *limit = &limits[fnum];
++	int ret;
 +
-+	memcpy(&msg->u.data[EC_MSG_HDR_SIZE], &buf[1], buf[0]);
++	ret = imanager_read_ram(ec, EC_RAM_ACPI, EC_OFFSET_FAN_ALERT_LIMIT,
++				(u8 *)limits, sizeof(limits));
++	if (ret < 0)
++		return ret;
 +
-+	return imanager_i2c_wr_combined(ec, msg);
++	limit->min = fan->cfg.rpm_min;
++	limit->max = fan->cfg.rpm_max;
++
++	return imanager_write_ram(ec, EC_RAM_ACPI, EC_OFFSET_FAN_ALERT_LIMIT,
++				  (u8 *)limits, sizeof(limits));
 +}
 +
-+static s32 imanager_i2c_xfer(struct i2c_adapter *adap, u16 addr, ushort flags,
-+			     char read_write, u8 command, int size,
-+			     union i2c_smbus_data *smb_data)
++static int imanager_hwmon_read_adc(struct imanager_ec_data *ec, int num,
++				   struct imanager_hwmon_adc *adc)
 +{
-+	struct imanager_i2c_data *data = i2c_get_adapdata(adap);
++	struct imanager_device_attribute *attr = ec->hwmon.adc.attr[num];
++	int ret;
++
++	adc->valid = false;
++
++	ret = imanager_read16(ec, EC_CMD_HWP_RD, attr->did);
++	if (ret < 0)
++		return ret;
++
++	adc->value = ret * attr->ecdev->scale;
++	adc->valid = true;
++
++	return 0;
++}
++
++static int imanager_hwmon_read_fan_ctrl(struct imanager_ec_data *ec, int num,
++					struct imanager_hwmon_smartfan *fan)
++{
++	struct imanager_device_attribute *attr = ec->hwmon.adc.attr[num];
++
++	int ret;
++
++	fan->valid = false;
++
++	ret = imanager_hwmon_read_fan_config(ec, num, fan);
++	if (ret < 0)
++		return ret;
++
++	ret = imanager_read16(ec, EC_CMD_HWP_RD, fan->cfg.tachoid);
++	if (ret < 0)
++		return ret;
++
++	fan->speed = ret;
++
++	ret = imanager_read8(ec, EC_CMD_HWP_RD, attr->did);
++	if (ret < 0)
++		return ret;
++
++	fan->pwm = ret;
++
++	ret = imanager_hwmon_read_fan_alert(ec, num, fan);
++	if (ret)
++		return ret;
++
++	fan->valid = true;
++
++	return 0;
++}
++
++static inline uint in_from_reg(u16 val)
++{
++	return clamp_val(DIV_ROUND_CLOSEST(val * SCALE_IN, 1000), 0, 65535);
++}
++
++static inline u16 in_to_reg(uint val)
++{
++	return clamp_val(DIV_ROUND_CLOSEST(val * 1000, SCALE_IN), 0, 65535);
++}
++
++static struct imanager_hwmon_data *
++imanager_hwmon_update_device(struct device *dev)
++{
++	struct imanager_hwmon_data *data = dev_get_drvdata(dev);
 +	struct imanager_device_data *imgr = data->imgr;
 +	struct imanager_ec_data *ec = &imgr->ec;
-+	struct device *dev = data->dev;
-+	int smb_devid = *(int *)adap->algo_data;
-+	int val, ret = 0;
-+	u16 addr16 = addr << 1; /* convert to 8-bit i2c slave address */
-+	u8 *buf = smb_data->block;
-+	struct imanager_ec_message msg = {
-+		.rlen = 0,
-+		.wlen = EC_MSG_HDR_SIZE,
-+		.param = smb_devid,
-+		.u = {
-+			.smb.hdr = {
-+				.addr_low  = addr16 & 0x00ff,
-+				.addr_high = addr16 >> 8,
-+				.rlen = 0,
-+				.wlen = 0,
-+			},
-+		},
-+	};
-+	struct imanager_ec_smb_message *smb = &msg.u.smb;
++	struct imanager_hwmon_device *hwmon = &ec->hwmon;
++	int i;
 +
 +	mutex_lock(&imgr->lock);
 +
-+	switch (size) {
-+	case I2C_SMBUS_QUICK:
-+		msg.rlen = 0;
-+		smb->hdr.rlen = 0;
-+		smb->hdr.wlen = 1;
-+		ret = imanager_i2c_wr_combined(ec, &msg);
-+		break;
-+	case I2C_SMBUS_BYTE:
-+		if (read_write == I2C_SMBUS_WRITE) {
-+			msg.rlen = 1;
-+			smb->hdr.rlen = 1;
-+			smb->hdr.wlen = 1;
-+			smb->hdr.cmd = command;
-+			val = imanager_i2c_wr_combined(ec, &msg);
-+			if (val < 0)
-+				ret = val;
-+		} else {
-+			if (!smb_data) {
-+				ret = -EINVAL;
-+				break;
-+			}
-+			msg.rlen = 1;
-+			smb->hdr.rlen = 1;
-+			smb->hdr.wlen = 0;
-+			val = imanager_i2c_rw_combined(ec, &msg);
-+			if (val < 0)
-+				ret = val;
-+			else
-+				smb_data->byte = val;
-+			break;
-+		}
-+	case I2C_SMBUS_BYTE_DATA:
-+		if (!smb_data) {
-+			ret = -EINVAL;
-+			break;
-+		}
-+		if (read_write == I2C_SMBUS_WRITE) {
-+			msg.rlen = 1;
-+			msg.wlen += 1;
-+			smb->hdr.rlen = 0;
-+			smb->hdr.wlen = 2;
-+			smb->hdr.cmd = command;
-+			smb->data[0] = smb_data->byte;
-+			val = imanager_i2c_wr_combined(ec, &msg);
-+		} else {
-+			msg.rlen = 1;
-+			smb->hdr.rlen = 1;
-+			smb->hdr.wlen = 1;
-+			smb->hdr.cmd = command;
-+			val = imanager_i2c_wr_combined(ec, &msg);
-+		}
-+		if (val < 0)
-+			ret = val;
-+		else
-+			smb_data->byte = val;
-+		break;
-+	case I2C_SMBUS_WORD_DATA:
-+		if (!smb_data) {
-+			ret = -EINVAL;
-+			break;
-+		}
-+		if (read_write == I2C_SMBUS_WRITE) {
-+			msg.rlen = 1;
-+			msg.wlen += 2;
-+			smb->hdr.rlen = 0;
-+			smb->hdr.wlen = 3;
-+			smb->hdr.cmd = command;
-+			smb->data[0] = smb_data->word & 0x00ff;
-+			smb->data[1] = smb_data->word >> 8;
-+			val = imanager_i2c_wr_combined(ec, &msg);
-+		} else {
-+			msg.rlen = 2;
-+			smb->hdr.rlen = 2;
-+			smb->hdr.wlen = 1;
-+			smb->hdr.cmd = command;
-+			val = imanager_i2c_wr_combined(ec, &msg);
-+		}
-+		if (val < 0)
-+			ret = val;
-+		else
-+			smb_data->word = val;
-+		break;
-+	case I2C_SMBUS_BLOCK_DATA:
-+		if (!smb_data) {
-+			ret = -EINVAL;
-+			break;
-+		}
-+		if (read_write == I2C_SMBUS_WRITE) {
-+			msg.rlen = 1;
-+			msg.wlen += buf[0];
-+			smb->hdr.rlen = 0;
-+			smb->hdr.wlen = 1 + buf[0];
-+			smb->hdr.cmd = command;
-+			ret = imanager_i2c_write_block(ec, &msg, buf);
-+		} else {
-+			msg.rlen = eval_read_len(buf[0]);
-+			smb->hdr.rlen = msg.rlen;
-+			smb->hdr.wlen = 1;
-+			smb->hdr.cmd = command;
-+			ret = imanager_i2c_read_block(ec, &msg, buf);
-+		}
-+		break;
-+	case I2C_SMBUS_I2C_BLOCK_DATA:
-+		if (!smb_data) {
-+			ret = -EINVAL;
-+			break;
-+		}
-+		if (read_write == I2C_SMBUS_WRITE) {
-+			msg.rlen = 1;
-+			msg.wlen += buf[0];
-+			smb->hdr.rlen = 0;
-+			smb->hdr.wlen = 1 + buf[0];
-+			smb->hdr.cmd = command;
-+			ret = imanager_i2c_write_block(ec, &msg, buf);
-+		} else {
-+			msg.rlen = eval_read_len(buf[0]);
-+			smb->hdr.rlen = msg.rlen;
-+			smb->hdr.wlen = 1;
-+			smb->hdr.cmd = command;
-+			ret = imanager_i2c_read_block(ec, &msg, buf);
-+		}
-+		break;
-+	default:
-+		dev_err(dev, "Unsupported transaction %d\n", size);
-+		ret = -EOPNOTSUPP;
++	if (time_after(jiffies, data->last_updated + HZ + HZ / 2)) {
++		/* Measured voltages */
++		for (i = 0; i < hwmon->adc.num; i++)
++			imanager_hwmon_read_adc(ec, i, &data->adc[i]);
++
++		/* Measured fan speeds */
++		for (i = 0; i < hwmon->fan.num; i++)
++			imanager_hwmon_read_fan_ctrl(ec, i, &data->fan[i]);
++
++		data->last_updated = jiffies;
 +	}
 +
 +	mutex_unlock(&imgr->lock);
 +
-+	return ret;
++	return data;
 +}
 +
-+static u32 imanager_i2c_func(struct i2c_adapter *adapter)
++static ssize_t
++show_in(struct device *dev, struct device_attribute *attr, char *buf)
 +{
-+	return	I2C_FUNC_SMBUS_QUICK | I2C_FUNC_SMBUS_BYTE |
-+		I2C_FUNC_SMBUS_BYTE_DATA | I2C_FUNC_SMBUS_WORD_DATA |
-+		I2C_FUNC_SMBUS_BLOCK_DATA | I2C_FUNC_SMBUS_I2C_BLOCK;
++	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
++	int nr = to_sensor_dev_attr(attr)->index;
++
++	return sprintf(buf, "%u\n", in_from_reg(data->adc[nr].value));
 +}
 +
-+static const struct i2c_algorithm imanager_i2c_algorithm = {
-+	.smbus_xfer     = imanager_i2c_xfer,
-+	.functionality  = imanager_i2c_func,
-+};
-+
-+static const struct i2c_adapter imanager_i2c_adapters[] = {
-+	[SMB_EEP] = {
-+		.owner	= THIS_MODULE,
-+		.name	= "iManager SMB EEP adapter",
-+		.class	= I2C_CLASS_HWMON | I2C_CLASS_SPD,
-+		.algo	= &imanager_i2c_algorithm,
-+	},
-+	[I2C_OEM] = {
-+		.owner	= THIS_MODULE,
-+		.name	= "iManager I2C OEM adapter",
-+		.class	= I2C_CLASS_HWMON | I2C_CLASS_SPD,
-+		.algo	= &imanager_i2c_algorithm,
-+	},
-+	[SMB_1] = {
-+		.owner	= THIS_MODULE,
-+		.name	= "iManager SMB 1 adapter",
-+		.class	= I2C_CLASS_HWMON | I2C_CLASS_SPD,
-+		.algo	= &imanager_i2c_algorithm,
-+	},
-+	[SMB_PECI] = {
-+		.owner	= THIS_MODULE,
-+		.name	= "iManager SMB PECI adapter",
-+		.class	= I2C_CLASS_HWMON | I2C_CLASS_SPD,
-+		.algo	= &imanager_i2c_algorithm,
-+	},
-+};
-+
-+static int
-+imanager_i2c_add_bus(struct imanager_i2c_data *i2c, struct adapter_info *info,
-+		     const struct i2c_adapter *adap, int did, int freq)
++static ssize_t
++show_in_min(struct device *dev, struct device_attribute *attr, char *buf)
 +{
-+	int ret;
++	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
++	int nr = to_sensor_dev_attr(attr)->index;
 +
-+	info->adapter = *adap;
-+	info->adapter.dev.parent = i2c->dev;
-+	info->smb_devid = did;
-+	info->adapter.algo_data = &info->smb_devid;
-+	i2c_set_adapdata(&info->adapter, i2c);
++	return sprintf(buf, "%u\n", in_from_reg(data->adc[nr].min));
++}
 +
-+	ret = i2c_add_adapter(&info->adapter);
-+	if (ret) {
-+		dev_warn(i2c->dev, "Failed to add %s\n", info->adapter.name);
-+		return ret;
++static ssize_t
++show_in_max(struct device *dev, struct device_attribute *attr, char *buf)
++{
++	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
++	int nr = to_sensor_dev_attr(attr)->index;
++
++	return sprintf(buf, "%u\n", in_from_reg(data->adc[nr].max));
++}
++
++static ssize_t
++store_in_min(struct device *dev, struct device_attribute *attr,
++	     const char *buf, size_t count)
++{
++	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
++	int nr = to_sensor_dev_attr(attr)->index;
++	unsigned long val;
++	int err;
++
++	err = kstrtoul(buf, 10, &val);
++	if (err < 0)
++		return err;
++
++	data->adc[nr].min = in_to_reg(val);
++
++	return count;
++}
++
++static ssize_t
++store_in_max(struct device *dev, struct device_attribute *attr,
++	     const char *buf, size_t count)
++{
++	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
++	int nr = to_sensor_dev_attr(attr)->index;
++	unsigned long val;
++	int err;
++
++	err = kstrtoul(buf, 10, &val);
++	if (err < 0)
++		return err;
++
++	data->adc[nr].max = in_to_reg(val);
++
++	return count;
++}
++
++static ssize_t
++show_in_alarm(struct device *dev, struct device_attribute *attr, char *buf)
++{
++	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
++	int nr = to_sensor_dev_attr(attr)->index;
++	struct imanager_hwmon_adc *adc = &data->adc[nr];
++	int val = 0;
++
++	if (adc->valid)
++		val = (adc->value < adc->min) || (adc->value > adc->max);
++
++	return sprintf(buf, "%u\n", val);
++}
++
++static ssize_t
++show_in_average(struct device *dev, struct device_attribute *attr, char *buf)
++{
++	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
++	int nr = to_sensor_dev_attr(attr)->index;
++	struct imanager_hwmon_adc *adc = &data->adc[nr];
++
++	if (adc->average) {
++		adc->average = DIV_ROUND_CLOSEST(adc->average * data->samples +
++						 adc->value, ++data->samples);
++	} else {
++		adc->average = adc->value;
++		data->samples = 1;
 +	}
 +
-+	ret = imanager_i2c_write_freq(&i2c->imgr->ec, did, freq);
-+	if (ret < 0)
-+		dev_warn(i2c->dev, "Failed to set bus frequency of %s\n",
-+			 info->adapter.name);
++	return sprintf(buf, "%u\n", in_from_reg(adc->average));
++}
++
++static ssize_t
++show_in_lowest(struct device *dev, struct device_attribute *attr, char *buf)
++{
++	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
++	int nr = to_sensor_dev_attr(attr)->index;
++	struct imanager_hwmon_adc *adc = &data->adc[nr];
++
++	if (!adc->lowest || (adc->value < adc->lowest))
++		adc->lowest = adc->value;
++
++	return sprintf(buf, "%u\n", in_from_reg(adc->lowest));
++}
++
++static ssize_t
++show_in_highest(struct device *dev, struct device_attribute *attr, char *buf)
++{
++	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
++	int nr = to_sensor_dev_attr(attr)->index;
++	struct imanager_hwmon_adc *adc = &data->adc[nr];
++
++	if (!adc->highest || (adc->value > adc->highest))
++		adc->highest = adc->value;
++
++	return sprintf(buf, "%u\n", in_from_reg(adc->highest));
++}
++
++static ssize_t
++store_in_reset_history(struct device *dev, struct device_attribute *attr,
++		       const char *buf, size_t count)
++{
++	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
++	int nr = to_sensor_dev_attr(attr)->index;
++	unsigned long reset;
++	int err;
++
++	err = kstrtoul(buf, 10, &reset);
++	if (err < 0)
++		return err;
++
++	if (reset) {
++		data->adc[nr].lowest = 0;
++		data->adc[nr].highest = 0;
++		data->adc[nr].average = 0;
++		data->samples = 0;
++	}
++
++	return count;
++}
++
++static ssize_t
++show_temp(struct device *dev, struct device_attribute *attr, char *buf)
++{
++	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
++	int nr = to_sensor_dev_attr(attr)->index - 1;
++
++	return sprintf(buf, "%u\n", data->fan[nr].cfg.temp * 1000);
++}
++
++static ssize_t
++show_fan_in(struct device *dev, struct device_attribute *attr, char *buf)
++{
++	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
++	int nr = to_sensor_dev_attr(attr)->index - 1;
++	struct imanager_hwmon_smartfan *fan = &data->fan[nr];
++
++	return sprintf(buf, "%u\n", fan->valid ? fan->speed : 0);
++}
++
++static inline int check_fan_alarm(const struct imanager_hwmon_smartfan *fan)
++{
++	int rpm_min = cpu_to_be16(fan->cfg.rpm_min);
++	int rpm_max = cpu_to_be16(fan->cfg.rpm_max);
++
++	return !fan->valid || fan->speed_min_alarm || fan->speed_max_alarm ||
++	       (!fan->speed && fan->pwm) || (fan->speed < rpm_min) ||
++	       (fan->speed > rpm_max);
++}
++
++static ssize_t
++show_fan_alarm(struct device *dev, struct device_attribute *attr, char *buf)
++{
++	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
++	int nr = to_sensor_dev_attr(attr)->index - 1;
++	struct imanager_hwmon_smartfan *fan = &data->fan[nr];
++	struct fan_ctrl *ctrl = (struct fan_ctrl *)&fan->cfg.control;
++	bool is_alarm = (ctrl->mode == MODE_AUTO) ? 0 : check_fan_alarm(fan);
++
++	return sprintf(buf, "%u\n", is_alarm);
++}
++
++static ssize_t
++show_fan_min(struct device *dev, struct device_attribute *attr, char *buf)
++{
++	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
++	int nr = to_sensor_dev_attr(attr)->index - 1;
++	int rpm_min = cpu_to_be16(data->fan[nr].cfg.rpm_min);
++
++	return sprintf(buf, "%u\n", rpm_min);
++}
++
++static ssize_t
++show_fan_max(struct device *dev, struct device_attribute *attr, char *buf)
++{
++	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
++	int nr = to_sensor_dev_attr(attr)->index - 1;
++	int rpm_max = cpu_to_be16(data->fan[nr].cfg.rpm_max);
++
++	return sprintf(buf, "%u\n", rpm_max);
++}
++
++static ssize_t
++store_fan_min(struct device *dev, struct device_attribute *attr,
++	      const char *buf, size_t count)
++{
++	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
++	int nr = to_sensor_dev_attr(attr)->index - 1;
++	struct imanager_device_data *imgr = data->imgr;
++	struct imanager_hwmon_smartfan *fan = &data->fan[nr];
++	struct fan_ctrl *ctrl = (struct fan_ctrl *)&fan->cfg.control;
++	unsigned long val = 0;
++	int err;
++
++	err = kstrtoul(buf, 10, &val);
++	if (err < 0)
++		return err;
++
++	/* do not apply value if not in cruise mode */
++	if (ctrl->mode != MODE_AUTO)
++		return count;
++
++	mutex_lock(&imgr->lock);
++	fan->cfg.rpm_min = cpu_to_be16(val);
++	imanager_hwmon_write_fan_config(&imgr->ec, nr, fan);
++	mutex_unlock(&imgr->lock);
++
++	return count;
++}
++
++static ssize_t
++store_fan_max(struct device *dev, struct device_attribute *attr,
++	      const char *buf, size_t count)
++{
++	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
++	int nr = to_sensor_dev_attr(attr)->index - 1;
++	struct imanager_device_data *imgr = data->imgr;
++	struct imanager_hwmon_smartfan *fan = &data->fan[nr];
++	struct fan_ctrl *ctrl = (struct fan_ctrl *)&fan->cfg.control;
++	unsigned long val = 0;
++	int err;
++
++	err = kstrtoul(buf, 10, &val);
++	if (err < 0)
++		return err;
++
++	/* do not apply value if not in cruise mode */
++	if (ctrl->mode != MODE_AUTO)
++		return count;
++
++	mutex_lock(&imgr->lock);
++	fan->cfg.rpm_max = cpu_to_be16(val);
++	imanager_hwmon_write_fan_config(&imgr->ec, nr, fan);
++	mutex_unlock(&imgr->lock);
++
++	return count;
++}
++
++static ssize_t
++show_pwm(struct device *dev, struct device_attribute *attr, char *buf)
++{
++	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
++	int nr = to_sensor_dev_attr(attr)->index - 1;
++	u32 val = DIV_ROUND_CLOSEST(data->fan[nr].pwm * 255, 100);
++
++	return sprintf(buf, "%u\n", val);
++}
++
++static ssize_t
++store_pwm(struct device *dev, struct device_attribute *attr,
++	  const char *buf, size_t count)
++{
++	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
++	int nr = to_sensor_dev_attr(attr)->index - 1;
++	struct imanager_device_data *imgr = data->imgr;
++	struct imanager_hwmon_smartfan *fan = &data->fan[nr];
++	struct fan_ctrl *ctrl = (struct fan_ctrl *)&fan->cfg.control;
++	int did = imgr->ec.hwmon.fan.attr[nr]->did;
++	unsigned long pwm = 0;
++	int err;
++
++	err = kstrtoul(buf, 10, &pwm);
++	if (err < 0)
++		return err;
++
++	pwm = DIV_ROUND_CLOSEST(pwm * 100, 255);
++
++	mutex_lock(&imgr->lock);
++
++	if (ctrl->mode == MODE_MANUAL) {
++		ctrl->type = CTRL_PWM;
++		ctrl->pulse = 0;
++		ctrl->enable = 1;
++		imanager_hwmon_write_fan_config(&imgr->ec, nr, fan);
++		imanager_write8(&imgr->ec, EC_CMD_HWP_WR, did, pwm);
++	} else if ((ctrl->mode == MODE_AUTO) && (ctrl->type == CTRL_PWM)) {
++		ctrl->pulse = 0;
++		ctrl->enable = 1;
++		fan->cfg.rpm_min = 0;
++		fan->cfg.rpm_max = 0;
++		imanager_hwmon_write_fan_config(&imgr->ec, nr, fan);
++		imanager_write8(&imgr->ec, EC_CMD_HWP_WR, did, pwm);
++		imanager_hwmon_write_fan_alert(&imgr->ec, nr, fan);
++	}
++
++	mutex_unlock(&imgr->lock);
++
++	return count;
++}
++
++static ssize_t
++show_pwm_min(struct device *dev, struct device_attribute *attr, char *buf)
++{
++	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
++	int nr = to_sensor_dev_attr(attr)->index - 1;
++
++	return sprintf(buf, "%u\n", data->fan[nr].cfg.pwm_min);
++}
++
++static ssize_t
++show_pwm_max(struct device *dev, struct device_attribute *attr, char *buf)
++{
++	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
++	int nr = to_sensor_dev_attr(attr)->index - 1;
++
++	return sprintf(buf, "%u\n", data->fan[nr].cfg.pwm_max);
++}
++
++static ssize_t
++show_pwm_enable(struct device *dev, struct device_attribute *attr, char *buf)
++{
++	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
++	int nr = to_sensor_dev_attr(attr)->index - 1;
++	struct imanager_hwmon_smartfan *fan = &data->fan[nr];
++	struct fan_ctrl *ctrl = (struct fan_ctrl *)&fan->cfg.control;
++	uint mode = ctrl->mode - 1;
++
++	if (ctrl->mode == MODE_OFF)
++		mode = 0;
++
++	return sprintf(buf, "%u\n", mode);
++}
++
++enum pwm_enable { OFF, MANUAL, THERMAL_CRUISE };
++
++static ssize_t
++store_pwm_enable(struct device *dev, struct device_attribute *attr,
++		 const char *buf, size_t count)
++{
++	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
++	struct imanager_device_data *imgr = data->imgr;
++	int nr = to_sensor_dev_attr(attr)->index - 1;
++	struct imanager_hwmon_smartfan *fan = &data->fan[nr];
++	struct fan_ctrl *ctrl = (struct fan_ctrl *)&fan->cfg.control;
++	int did = imgr->ec.hwmon.fan.attr[nr]->did;
++	unsigned long mode = 0;
++	int err;
++
++	err = kstrtoul(buf, 10, &mode);
++	if (err < 0)
++		return err;
++
++	mutex_lock(&imgr->lock);
++
++	switch (mode) {
++	case OFF:
++		ctrl->mode = MODE_FULL;
++		ctrl->type = CTRL_PWM;
++		ctrl->enable = 1;
++		imanager_hwmon_write_fan_config(&imgr->ec, nr, fan);
++		imanager_write8(&imgr->ec, EC_CMD_HWP_WR, did, 100);
++		break;
++	case MANUAL:
++		ctrl->mode = MODE_MANUAL;
++		ctrl->type = CTRL_PWM;
++		ctrl->enable = 1;
++		imanager_hwmon_write_fan_config(&imgr->ec, nr, fan);
++		imanager_write8(&imgr->ec, EC_CMD_HWP_WR, did, 0);
++		break;
++	case THERMAL_CRUISE:
++		ctrl->mode = MODE_AUTO;
++		ctrl->enable = 1;
++		imanager_hwmon_write_fan_config(&imgr->ec, nr, fan);
++		imanager_write8(&imgr->ec, EC_CMD_HWP_WR, did, 0);
++		break;
++	}
++
++	mutex_unlock(&imgr->lock);
++
++	return count;
++}
++
++static ssize_t
++show_pwm_mode(struct device *dev, struct device_attribute *attr, char *buf)
++{
++	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
++	int nr = to_sensor_dev_attr(attr)->index - 1;
++	struct imanager_hwmon_smartfan *fan = &data->fan[nr];
++	struct fan_ctrl *ctrl = (struct fan_ctrl *)&fan->cfg.control;
++	uint mode = (ctrl->type == CTRL_PWM) ? 1 : 0;
++
++	if (ctrl->mode == MODE_OFF)
++		mode = 0;
++
++	return sprintf(buf, "%u\n", mode);
++}
++
++static ssize_t
++store_pwm_mode(struct device *dev, struct device_attribute *attr,
++	       const char *buf, size_t count)
++{
++	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
++	struct imanager_device_data *imgr = data->imgr;
++	int nr = to_sensor_dev_attr(attr)->index - 1;
++	struct imanager_hwmon_smartfan *fan = &data->fan[nr];
++	struct fan_ctrl *ctrl = (struct fan_ctrl *)&fan->cfg.control;
++	unsigned long val = 0;
++	int err;
++
++	err = kstrtoul(buf, 10, &val);
++	if (err < 0)
++		return err;
++
++	if (ctrl->mode != MODE_AUTO)
++		return count;
++
++	mutex_lock(&imgr->lock);
++	ctrl->type = val ? CTRL_RPM : CTRL_PWM;
++	ctrl->enable = 1;
++	imanager_hwmon_write_fan_config(&imgr->ec, nr, fan);
++	mutex_unlock(&imgr->lock);
++
++	return count;
++}
++
++static ssize_t
++show_temp_min(struct device *dev, struct device_attribute *attr, char *buf)
++{
++	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
++	int nr = to_sensor_dev_attr(attr)->index - 1;
++
++	return sprintf(buf, "%d\n", data->fan[nr].cfg.temp_min * 1000);
++}
++
++static ssize_t
++show_temp_max(struct device *dev, struct device_attribute *attr, char *buf)
++{
++	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
++	int nr = to_sensor_dev_attr(attr)->index - 1;
++
++	return sprintf(buf, "%u\n", data->fan[nr].cfg.temp_max * 1000);
++}
++
++static inline bool is_outside(int min, int max, int value)
++{
++	return (value < min) || (value > max);
++}
++
++static ssize_t
++show_temp_alarm(struct device *dev, struct device_attribute *attr, char *buf)
++{
++	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
++	int nr = to_sensor_dev_attr(attr)->index - 1;
++	struct fan_dev_config *cfg = &data->fan[nr].cfg;
++	struct fan_ctrl *ctrl = (struct fan_ctrl *)&cfg->control;
++	bool is_alarm = (ctrl->mode == MODE_AUTO) ? 0 :
++			is_outside(cfg->temp_min, cfg->temp_max, cfg->temp);
++
++	return sprintf(buf, "%u\n", is_alarm);
++}
++
++static ssize_t store_temp_min(struct device *dev, struct device_attribute *attr,
++			      const char *buf, size_t count)
++{
++	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
++	struct imanager_device_data *imgr = data->imgr;
++	int nr = to_sensor_dev_attr(attr)->index - 1;
++	struct imanager_hwmon_smartfan *fan = &data->fan[nr];
++	struct fan_ctrl *ctrl = (struct fan_ctrl *)&fan->cfg.control;
++	long val = 0;
++	int err;
++
++	err = kstrtoul(buf, 10, &val);
++	if (err < 0)
++		return err;
++
++	/* temperature in 1/10 degC */
++	val = DIV_ROUND_CLOSEST(val, 1000);
++	val = val > 100 ? 100 : val;
++
++	/* do not apply value if not in cruise mode */
++	if (ctrl->mode != MODE_AUTO)
++		return count;
++
++	/*
++	 * The iManager provides three different temperature limit values
++	 * (stop, min, and max) where stop indicates a minimum temp value
++	 * (threshold) from which the FAN will turn off.  We are setting
++	 * temp_stop to the same value as temp_min since it cannot be mapped
++	 * to anything else.
++	 */
++
++	mutex_lock(&imgr->lock);
++	fan->cfg.temp_stop = val;
++	fan->cfg.temp_min = val;
++	imanager_hwmon_write_fan_config(&imgr->ec, nr, fan);
++	mutex_unlock(&imgr->lock);
++
++	return count;
++}
++
++static ssize_t
++store_temp_max(struct device *dev, struct device_attribute *attr,
++	       const char *buf, size_t count)
++{
++	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
++	struct imanager_device_data *imgr = data->imgr;
++	int nr = to_sensor_dev_attr(attr)->index - 1;
++	struct imanager_hwmon_smartfan *fan = &data->fan[nr];
++	struct fan_ctrl *ctrl = (struct fan_ctrl *)&fan->cfg.control;
++	long val = 0;
++	int err;
++
++	err = kstrtoul(buf, 10, &val);
++	if (err < 0)
++		return err;
++
++	val = DIV_ROUND_CLOSEST(val, 1000);
++	val = val > 100 ? 100 : val;
++
++	/* do not apply value if not in cruise mode */
++	if (ctrl->mode != MODE_AUTO)
++		return count;
++
++	mutex_lock(&imgr->lock);
++	fan->cfg.temp_max = val;
++	imanager_hwmon_write_fan_config(&imgr->ec, nr, fan);
++	mutex_unlock(&imgr->lock);
++
++	return count;
++}
++
++static ssize_t
++store_pwm_min(struct device *dev, struct device_attribute *attr,
++	      const char *buf, size_t count)
++{
++	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
++	struct imanager_device_data *imgr = data->imgr;
++	int nr = to_sensor_dev_attr(attr)->index - 1;
++	struct imanager_hwmon_smartfan *fan = &data->fan[nr];
++	long val = 0;
++	int err;
++
++	err = kstrtoul(buf, 10, &val);
++	if (err < 0)
++		return err;
++
++	val = DIV_ROUND_CLOSEST(val * 100, 255);
++
++	mutex_lock(&imgr->lock);
++	fan->cfg.pwm_min = val;
++	imanager_hwmon_write_fan_config(&imgr->ec, nr, fan);
++	mutex_unlock(&imgr->lock);
++
++	return count;
++}
++
++static ssize_t
++store_pwm_max(struct device *dev, struct device_attribute *attr,
++	      const char *buf, size_t count)
++{
++	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
++	struct imanager_device_data *imgr = data->imgr;
++	int nr = to_sensor_dev_attr(attr)->index - 1;
++	struct imanager_hwmon_smartfan *fan = &data->fan[nr];
++	long val = 0;
++	int err;
++
++	err = kstrtoul(buf, 10, &val);
++	if (err < 0)
++		return err;
++
++	val = DIV_ROUND_CLOSEST(val * 100, 255);
++
++	mutex_lock(&imgr->lock);
++	fan->cfg.pwm_max = val;
++	imanager_hwmon_write_fan_config(&imgr->ec, nr, fan);
++	mutex_unlock(&imgr->lock);
++
++	return count;
++}
++
++static ssize_t
++show_in_label(struct device *dev, struct device_attribute *attr, char *buf)
++{
++	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
++	struct imanager_hwmon_device *hwmon = &data->imgr->ec.hwmon;
++	int nr = to_sensor_dev_attr(attr)->index;
++
++	return sprintf(buf, "%s\n", hwmon->adc.label[nr]);
++}
++
++static ssize_t
++show_temp_label(struct device *dev, struct device_attribute *attr, char *buf)
++{
++	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
++	struct imanager_hwmon_device *hwmon = &data->imgr->ec.hwmon;
++	int nr = to_sensor_dev_attr(attr)->index - 1;
++
++	return sprintf(buf, "%s\n", hwmon->fan.temp_label[nr]);
++}
++
++static ssize_t
++show_fan_label(struct device *dev, struct device_attribute *attr, char *buf)
++{
++	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
++	struct imanager_hwmon_device *hwmon = &data->imgr->ec.hwmon;
++	int nr = to_sensor_dev_attr(attr)->index - 1;
++
++	return sprintf(buf, "%s\n", hwmon->fan.label[nr]);
++}
++
++/*
++ * Sysfs callback functions
++ */
++
++static SENSOR_DEVICE_ATTR(in0_label, 0444, show_in_label, NULL, 0);
++static SENSOR_DEVICE_ATTR(in0_input, 0444, show_in, NULL, 0);
++static SENSOR_DEVICE_ATTR(in0_min, 0644, show_in_min, store_in_min, 0);
++static SENSOR_DEVICE_ATTR(in0_max, 0644, show_in_max, store_in_max, 0);
++static SENSOR_DEVICE_ATTR(in0_alarm, 0444, show_in_alarm, NULL, 0);
++
++static SENSOR_DEVICE_ATTR(in1_label, 0444, show_in_label, NULL, 1);
++static SENSOR_DEVICE_ATTR(in1_input, 0444, show_in, NULL, 1);
++static SENSOR_DEVICE_ATTR(in1_min, 0644, show_in_min, store_in_min, 1);
++static SENSOR_DEVICE_ATTR(in1_max, 0644, show_in_max, store_in_max, 1);
++static SENSOR_DEVICE_ATTR(in1_alarm, 0444, show_in_alarm, NULL, 1);
++
++static SENSOR_DEVICE_ATTR(in2_label, 0444, show_in_label, NULL, 2);
++static SENSOR_DEVICE_ATTR(in2_input, 0444, show_in, NULL, 2);
++static SENSOR_DEVICE_ATTR(in2_min, 0644, show_in_min, store_in_min, 2);
++static SENSOR_DEVICE_ATTR(in2_max, 0644, show_in_max, store_in_max, 2);
++static SENSOR_DEVICE_ATTR(in2_alarm, 0444, show_in_alarm, NULL, 2);
++
++static SENSOR_DEVICE_ATTR(temp1_label, 0444, show_temp_label, NULL, 1);
++static SENSOR_DEVICE_ATTR(temp1_input, 0444, show_temp, NULL, 1);
++static SENSOR_DEVICE_ATTR(temp1_min, 0644, show_temp_min, store_temp_min, 1);
++static SENSOR_DEVICE_ATTR(temp1_max, 0644, show_temp_max, store_temp_max, 1);
++static SENSOR_DEVICE_ATTR(temp1_alarm, 0444, show_temp_alarm, NULL, 1);
++
++static SENSOR_DEVICE_ATTR(temp2_label, 0444, show_temp_label, NULL, 2);
++static SENSOR_DEVICE_ATTR(temp2_input, 0444, show_temp, NULL, 2);
++static SENSOR_DEVICE_ATTR(temp2_min, 0644, show_temp_min, store_temp_min, 2);
++static SENSOR_DEVICE_ATTR(temp2_max, 0644, show_temp_max, store_temp_max, 2);
++static SENSOR_DEVICE_ATTR(temp2_alarm, 0444, show_temp_alarm, NULL, 2);
++
++static SENSOR_DEVICE_ATTR(temp3_label, 0444, show_temp_label, NULL, 3);
++static SENSOR_DEVICE_ATTR(temp3_input, 0444, show_temp, NULL, 3);
++static SENSOR_DEVICE_ATTR(temp3_min, 0644, show_temp_min, store_temp_min, 3);
++static SENSOR_DEVICE_ATTR(temp3_max, 0644, show_temp_max, store_temp_max, 3);
++static SENSOR_DEVICE_ATTR(temp3_alarm, 0444, show_temp_alarm, NULL, 3);
++
++static SENSOR_DEVICE_ATTR(fan1_label, 0444, show_fan_label, NULL, 1);
++static SENSOR_DEVICE_ATTR(fan1_input, 0444, show_fan_in, NULL, 1);
++static SENSOR_DEVICE_ATTR(fan1_min, 0644, show_fan_min, store_fan_min, 1);
++static SENSOR_DEVICE_ATTR(fan1_max, 0644, show_fan_max, store_fan_max, 1);
++static SENSOR_DEVICE_ATTR(fan1_alarm, 0444, show_fan_alarm, NULL, 1);
++
++static SENSOR_DEVICE_ATTR(fan2_label, 0444, show_fan_label, NULL, 2);
++static SENSOR_DEVICE_ATTR(fan2_input, 0444, show_fan_in, NULL, 2);
++static SENSOR_DEVICE_ATTR(fan2_min, 0644, show_fan_min, store_fan_min, 2);
++static SENSOR_DEVICE_ATTR(fan2_max, 0644, show_fan_max, store_fan_max, 2);
++static SENSOR_DEVICE_ATTR(fan2_alarm, 0444, show_fan_alarm, NULL, 2);
++
++static SENSOR_DEVICE_ATTR(fan3_label, 0444, show_fan_label, NULL, 3);
++static SENSOR_DEVICE_ATTR(fan3_input, 0444, show_fan_in, NULL, 3);
++static SENSOR_DEVICE_ATTR(fan3_min, 0644, show_fan_min, store_fan_min, 3);
++static SENSOR_DEVICE_ATTR(fan3_max, 0644, show_fan_max, store_fan_max, 3);
++static SENSOR_DEVICE_ATTR(fan3_alarm, 0444, show_fan_alarm, NULL, 3);
++
++static SENSOR_DEVICE_ATTR(pwm1, 0644, show_pwm, store_pwm, 1);
++static SENSOR_DEVICE_ATTR(pwm1_min, 0644, show_pwm_min, store_pwm_min, 1);
++static SENSOR_DEVICE_ATTR(pwm1_max, 0644, show_pwm_max, store_pwm_max, 1);
++static SENSOR_DEVICE_ATTR(pwm1_enable, 0644, show_pwm_enable,
++			  store_pwm_enable, 1);
++static SENSOR_DEVICE_ATTR(pwm1_mode, 0644, show_pwm_mode, store_pwm_mode, 1);
++
++static SENSOR_DEVICE_ATTR(pwm2, 0644, show_pwm, store_pwm, 2);
++static SENSOR_DEVICE_ATTR(pwm2_min, 0644, show_pwm_min, store_pwm_min, 2);
++static SENSOR_DEVICE_ATTR(pwm2_max, 0644, show_pwm_max, store_pwm_max, 2);
++static SENSOR_DEVICE_ATTR(pwm2_enable, 0644, show_pwm_enable,
++			  store_pwm_enable, 2);
++static SENSOR_DEVICE_ATTR(pwm2_mode, 0644, show_pwm_mode, store_pwm_mode, 2);
++
++static SENSOR_DEVICE_ATTR(pwm3, 0644, show_pwm, store_pwm, 3);
++static SENSOR_DEVICE_ATTR(pwm3_min, 0644, show_pwm_min, store_pwm_min, 3);
++static SENSOR_DEVICE_ATTR(pwm3_max, 0644, show_pwm_max, store_pwm_max, 3);
++static SENSOR_DEVICE_ATTR(pwm3_enable, 0644, show_pwm_enable,
++			  store_pwm_enable, 3);
++static SENSOR_DEVICE_ATTR(pwm3_mode, 0644, show_pwm_mode, store_pwm_mode, 3);
++
++static SENSOR_DEVICE_ATTR(curr1_input, 0444, show_in, NULL, 4);
++static SENSOR_DEVICE_ATTR(curr1_min, 0644, show_in_min, store_in_min, 4);
++static SENSOR_DEVICE_ATTR(curr1_max, 0644, show_in_max, store_in_max, 4);
++static SENSOR_DEVICE_ATTR(curr1_alarm, 0444, show_in_alarm, NULL, 4);
++static SENSOR_DEVICE_ATTR(curr1_average, 0444, show_in_average, NULL, 4);
++static SENSOR_DEVICE_ATTR(curr1_lowest, 0444, show_in_lowest, NULL, 4);
++static SENSOR_DEVICE_ATTR(curr1_highest, 0444, show_in_highest, NULL, 4);
++static SENSOR_DEVICE_ATTR(curr1_reset_history, 0200, NULL,
++			  store_in_reset_history, 4);
++
++static SENSOR_DEVICE_ATTR(cpu0_vid, 0444, show_in, NULL, 3);
++
++static struct attribute *imanager_in_attributes[] = {
++	&sensor_dev_attr_in0_label.dev_attr.attr,
++	&sensor_dev_attr_in0_input.dev_attr.attr,
++	&sensor_dev_attr_in0_min.dev_attr.attr,
++	&sensor_dev_attr_in0_max.dev_attr.attr,
++	&sensor_dev_attr_in0_alarm.dev_attr.attr,
++
++	&sensor_dev_attr_in1_label.dev_attr.attr,
++	&sensor_dev_attr_in1_input.dev_attr.attr,
++	&sensor_dev_attr_in1_min.dev_attr.attr,
++	&sensor_dev_attr_in1_max.dev_attr.attr,
++	&sensor_dev_attr_in1_alarm.dev_attr.attr,
++
++	&sensor_dev_attr_in2_label.dev_attr.attr,
++	&sensor_dev_attr_in2_input.dev_attr.attr,
++	&sensor_dev_attr_in2_min.dev_attr.attr,
++	&sensor_dev_attr_in2_max.dev_attr.attr,
++	&sensor_dev_attr_in2_alarm.dev_attr.attr,
++
++	NULL
++};
++
++#define to_dev(obj) container_of(obj, struct device, kobj)
++
++static umode_t
++imanager_in_is_visible(struct kobject *kobj, struct attribute *attr, int index)
++{
++	struct device *dev = to_dev(kobj);
++	struct imanager_hwmon_data *data = dev_get_drvdata(dev);
++	struct imanager_hwmon_device *hwmon = &data->imgr->ec.hwmon;
++
++	if (hwmon->adc.num <= EC_MAX_ADC_NUM)
++		return attr->mode;
 +
 +	return 0;
 +}
 +
-+static int imanager_i2c_probe(struct platform_device *pdev)
++static const struct attribute_group imanager_group_in = {
++	.attrs = imanager_in_attributes,
++	.is_visible = imanager_in_is_visible,
++};
++
++static struct attribute *imanager_other_attributes[] = {
++	&sensor_dev_attr_curr1_input.dev_attr.attr,
++	&sensor_dev_attr_curr1_min.dev_attr.attr,
++	&sensor_dev_attr_curr1_max.dev_attr.attr,
++	&sensor_dev_attr_curr1_alarm.dev_attr.attr,
++	&sensor_dev_attr_curr1_average.dev_attr.attr,
++	&sensor_dev_attr_curr1_lowest.dev_attr.attr,
++	&sensor_dev_attr_curr1_highest.dev_attr.attr,
++	&sensor_dev_attr_curr1_reset_history.dev_attr.attr,
++
++	&sensor_dev_attr_cpu0_vid.dev_attr.attr,
++
++	NULL
++};
++
++static umode_t imanager_other_is_visible(struct kobject *kobj,
++					 struct attribute *attr, int index)
++{
++	struct device *dev = to_dev(kobj);
++	struct imanager_hwmon_data *data = dev_get_drvdata(dev);
++	struct imanager_hwmon_device *hwmon = &data->imgr->ec.hwmon;
++
++	/*
++	 * There are either 3 or 5 VINs available
++	 * vin3 is current monitoring
++	 * vin4 is CPU VID
++	 */
++	if (hwmon->adc.num == EC_MAX_ADC_NUM)
++		return attr->mode;
++
++	return 0;
++}
++
++static const struct attribute_group imanager_group_other = {
++	.attrs = imanager_other_attributes,
++	.is_visible = imanager_other_is_visible,
++};
++
++static struct attribute *imanager_fan_attributes[] = {
++	&sensor_dev_attr_fan1_label.dev_attr.attr,
++	&sensor_dev_attr_fan1_input.dev_attr.attr,
++	&sensor_dev_attr_fan1_min.dev_attr.attr,
++	&sensor_dev_attr_fan1_max.dev_attr.attr,
++	&sensor_dev_attr_fan1_alarm.dev_attr.attr,
++
++	&sensor_dev_attr_fan2_label.dev_attr.attr,
++	&sensor_dev_attr_fan2_input.dev_attr.attr,
++	&sensor_dev_attr_fan2_min.dev_attr.attr,
++	&sensor_dev_attr_fan2_max.dev_attr.attr,
++	&sensor_dev_attr_fan2_alarm.dev_attr.attr,
++
++	&sensor_dev_attr_fan3_label.dev_attr.attr,
++	&sensor_dev_attr_fan3_input.dev_attr.attr,
++	&sensor_dev_attr_fan3_min.dev_attr.attr,
++	&sensor_dev_attr_fan3_max.dev_attr.attr,
++	&sensor_dev_attr_fan3_alarm.dev_attr.attr,
++
++	&sensor_dev_attr_temp1_label.dev_attr.attr,
++	&sensor_dev_attr_temp1_input.dev_attr.attr,
++	&sensor_dev_attr_temp1_min.dev_attr.attr,
++	&sensor_dev_attr_temp1_max.dev_attr.attr,
++	&sensor_dev_attr_temp1_alarm.dev_attr.attr,
++
++	&sensor_dev_attr_temp2_label.dev_attr.attr,
++	&sensor_dev_attr_temp2_input.dev_attr.attr,
++	&sensor_dev_attr_temp2_min.dev_attr.attr,
++	&sensor_dev_attr_temp2_max.dev_attr.attr,
++	&sensor_dev_attr_temp2_alarm.dev_attr.attr,
++
++	&sensor_dev_attr_temp3_label.dev_attr.attr,
++	&sensor_dev_attr_temp3_input.dev_attr.attr,
++	&sensor_dev_attr_temp3_min.dev_attr.attr,
++	&sensor_dev_attr_temp3_max.dev_attr.attr,
++	&sensor_dev_attr_temp3_alarm.dev_attr.attr,
++
++	&sensor_dev_attr_pwm1.dev_attr.attr,
++	&sensor_dev_attr_pwm1_min.dev_attr.attr,
++	&sensor_dev_attr_pwm1_max.dev_attr.attr,
++	&sensor_dev_attr_pwm1_enable.dev_attr.attr,
++	&sensor_dev_attr_pwm1_mode.dev_attr.attr,
++
++	&sensor_dev_attr_pwm2.dev_attr.attr,
++	&sensor_dev_attr_pwm2_min.dev_attr.attr,
++	&sensor_dev_attr_pwm2_max.dev_attr.attr,
++	&sensor_dev_attr_pwm2_enable.dev_attr.attr,
++	&sensor_dev_attr_pwm2_mode.dev_attr.attr,
++
++	&sensor_dev_attr_pwm3.dev_attr.attr,
++	&sensor_dev_attr_pwm3_min.dev_attr.attr,
++	&sensor_dev_attr_pwm3_max.dev_attr.attr,
++	&sensor_dev_attr_pwm3_enable.dev_attr.attr,
++	&sensor_dev_attr_pwm3_mode.dev_attr.attr,
++
++	NULL
++};
++
++static umode_t
++imanager_fan_is_visible(struct kobject *kobj, struct attribute *attr, int index)
++{
++	struct device *dev = to_dev(kobj);
++	struct imanager_hwmon_data *data = dev_get_drvdata(dev);
++	struct imanager_fan_device *fan = &data->imgr->ec.hwmon.fan;
++
++	if ((index >= 0) && (index <= 14)) { /* fan */
++		if (!fan->attr[index / 5])
++			return 0;
++	} else if ((index >= 15) && (index <= 29)) { /* temp */
++		if (!fan->attr[(index - 15) / 5])
++			return 0;
++	} else if ((index >= 30) && (index <= 34)) { /* pwm */
++		if (!fan->attr[(index - 30) / 5])
++			return 0;
++	}
++
++	return attr->mode;
++}
++
++static const struct attribute_group imanager_group_fan = {
++	.attrs = imanager_fan_attributes,
++	.is_visible = imanager_fan_is_visible,
++};
++
++static int imanager_hwmon_probe(struct platform_device *pdev)
 +{
 +	struct device *dev = &pdev->dev;
 +	struct imanager_device_data *imgr = dev_get_drvdata(dev->parent);
-+	struct imanager_device_attribute **attr = imgr->ec.i2c.attr;
-+	struct imanager_i2c_data *data;
++	struct imanager_ec_data *ec = &imgr->ec;
++	struct imanager_hwmon_device *hwmon = &ec->hwmon;
++	struct imanager_hwmon_data *data;
++	struct device *hwmon_dev;
++	int i, num_attr_groups = 0;
 +
 +	data = devm_kzalloc(dev, sizeof(*data), GFP_KERNEL);
 +	if (!data)
 +		return -ENOMEM;
 +
 +	data->imgr = imgr;
-+	data->dev = dev;
-+
-+	if (attr[SMB_EEP])
-+		imanager_i2c_add_bus(data, &data->adap_info[data->nadap++],
-+				     &imanager_i2c_adapters[SMB_EEP],
-+				     attr[SMB_EEP]->did, SMBUS_FREQ_100KHZ);
-+
-+	if (attr[I2C_OEM])
-+		imanager_i2c_add_bus(data, &data->adap_info[data->nadap++],
-+				     &imanager_i2c_adapters[I2C_OEM],
-+				     attr[I2C_OEM]->did, SMBUS_FREQ_400KHZ);
-+
-+	if (attr[SMB_1])
-+		imanager_i2c_add_bus(data, &data->adap_info[data->nadap++],
-+				     &imanager_i2c_adapters[SMB_1],
-+				     attr[SMB_1]->did, SMBUS_FREQ_100KHZ);
-+
-+	if (attr[SMB_PECI])
-+		imanager_i2c_add_bus(data, &data->adap_info[data->nadap++],
-+				     &imanager_i2c_adapters[SMB_PECI],
-+				     attr[SMB_PECI]->did, SMBUS_FREQ_100KHZ);
-+
 +	platform_set_drvdata(pdev, data);
 +
-+	return 0;
++	/* read fan control settings */
++	for (i = 0; i < hwmon->fan.num; i++)
++		imanager_hwmon_read_fan_ctrl(ec, i, &data->fan[i]);
++
++	data->groups[num_attr_groups++] = &imanager_group_in;
++
++	if (hwmon->adc.num > 3)
++		data->groups[num_attr_groups++] = &imanager_group_other;
++
++	if (hwmon->fan.num)
++		data->groups[num_attr_groups++] = &imanager_group_fan;
++
++	hwmon_dev = devm_hwmon_device_register_with_groups(dev,
++							   "imanager_hwmon",
++							   data, data->groups);
++
++	return PTR_ERR_OR_ZERO(hwmon_dev);
 +}
 +
-+static int imanager_i2c_remove(struct platform_device *pdev)
-+{
-+	struct imanager_i2c_data *i2c = dev_get_drvdata(&pdev->dev);
-+	int i;
-+
-+	for (i = 0; i < i2c->nadap; i++) {
-+		i2c_del_adapter(&i2c->adap_info[i].adapter);
-+		i2c_set_adapdata(&i2c->adap_info[i].adapter, NULL);
-+	}
-+
-+	return 0;
-+}
-+
-+static struct platform_driver imanager_i2c_driver = {
++static struct platform_driver imanager_hwmon_driver = {
 +	.driver = {
-+		.name  = "imanager-smbus",
++		.name  = "imanager-hwmon",
 +	},
-+	.probe	= imanager_i2c_probe,
-+	.remove	= imanager_i2c_remove,
++	.probe	= imanager_hwmon_probe,
 +};
 +
-+module_platform_driver(imanager_i2c_driver);
++module_platform_driver(imanager_hwmon_driver);
 +
-+MODULE_DESCRIPTION("Advantech iManager SMBus Driver");
++MODULE_DESCRIPTION("Advantech iManager HWmon Driver");
 +MODULE_AUTHOR("Richard Vidal-Dorsch <richard.dorsch at advantech.com>");
 +MODULE_LICENSE("GPL");
-+MODULE_ALIAS("platform:imanager-smbus");
++MODULE_ALIAS("platform:imanager-hwmon");
 -- 
 2.10.1
 
