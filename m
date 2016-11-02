@@ -1,37 +1,38 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wm0-f45.google.com ([74.125.82.45]:38161 "EHLO
-        mail-wm0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755408AbcKBO0Q (ORCPT
+Received: from mail-wm0-f54.google.com ([74.125.82.54]:38247 "EHLO
+        mail-wm0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753849AbcKBOaE (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 2 Nov 2016 10:26:16 -0400
-Received: by mail-wm0-f45.google.com with SMTP id n67so40968863wme.1
-        for <linux-watchdog@vger.kernel.org>; Wed, 02 Nov 2016 07:26:15 -0700 (PDT)
-Date: Wed, 2 Nov 2016 14:28:54 +0000
+        Wed, 2 Nov 2016 10:30:04 -0400
+Received: by mail-wm0-f54.google.com with SMTP id n67so41195940wme.1
+        for <linux-watchdog@vger.kernel.org>; Wed, 02 Nov 2016 07:30:03 -0700 (PDT)
+Date: Wed, 2 Nov 2016 14:32:01 +0000
 From: Lee Jones <lee.jones@linaro.org>
 To: Steve Twiss <stwiss.opensource@diasemi.com>
-Cc: LINUX-KERNEL <linux-kernel@vger.kernel.org>,
-        DEVICETREE <devicetree@vger.kernel.org>,
+Cc: DEVICETREE <devicetree@vger.kernel.org>,
+        LINUX-INPUT <linux-input@vger.kernel.org>,
+        LINUX-KERNEL <linux-kernel@vger.kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Rob Herring <robh+dt@kernel.org>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Eduardo Valentin <edubezval@gmail.com>,
         Guenter Roeck <linux@roeck-us.net>,
-        LINUX-INPUT <linux-input@vger.kernel.org>,
         LINUX-PM <linux-pm@vger.kernel.org>,
         LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
         Liam Girdwood <lgirdwood@gmail.com>,
         Mark Brown <broonie@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Rob Herring <robh+dt@kernel.org>,
         Support Opensource <support.opensource@diasemi.com>,
         Wim Van Sebroeck <wim@iguana.be>,
         Zhang Rui <rui.zhang@intel.com>
-Subject: Re: [PATCH V3 5/9] mfd: da9061: MFD core support
-Message-ID: <20161102142854.GS13127@dell>
+Subject: Re: [PATCH V3 4/9] Documentation: devicetree: mfd: da9062/61 MFD
+ binding
+Message-ID: <20161102143201.GT13127@dell>
 References: <cover.1477929725.git.stwiss.opensource@diasemi.com>
- <72145ea5055e95d7b6f05168c641927e4f3830d9.1477929725.git.stwiss.opensource@diasemi.com>
+ <502d13b97c67023f2193abfa235e8884eb0ea02f.1477929725.git.stwiss.opensource@diasemi.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <72145ea5055e95d7b6f05168c641927e4f3830d9.1477929725.git.stwiss.opensource@diasemi.com>
+In-Reply-To: <502d13b97c67023f2193abfa235e8884eb0ea02f.1477929725.git.stwiss.opensource@diasemi.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 Content-Transfer-Encoding: quoted-printable
@@ -40,35 +41,18 @@ On Mon, 31 Oct 2016, Steve Twiss wrote:
 
 > From: Steve Twiss <stwiss.opensource@diasemi.com>
 >=20
-> MFD support for DA9061 is provided as part of the DA9062 device driver.
+> Extend existing DA9062 binding information to include the DA9061 PMIC f=
+or
+> MFD core and regulators.
 >=20
-> The registers header file adds two new chip variant IDs defined in DA90=
-61
-> and DA9062 hardware. The core header file adds new software enumeration=
-s
-> for listing the valid DA9061 IRQs and a da9062_compatible_types enumera=
-tion
-> for distinguishing between DA9061/62 devices in software.
+> Add a da9062-onkey link to the existing onkey binding file.
 >=20
-> The core source code adds a new .compatible of_device_id entry. This is
-> extended from DA9062 to support both "dlg,da9061" and "dlg,da9062". The
-> .data entry now holds a reference to the enumerated device type.
+> Add a da9062-thermal link to the new temperature monitoring binding fil=
+e.
 >=20
-> A new regmap_irq_chip model is added for DA9061 and this supports the n=
-ew
-> list of regmap_irq entries. A new mfd_cell da9061_devs[] array lists th=
-e
-> new sub system components for DA9061. Support is added for a new DA9061
-> regmap_config which lists the correct readable, writable and volatile
-> ranges for this chip.
->=20
-> The probe function uses the device tree compatible string to switch on =
-the
-> da9062_compatible_types and configure the correct mfd cells, irq chip a=
-nd
-> regmap config.
-> =20
-> Kconfig is updated to reflect support for DA9061 and DA9062 PMICs.
+> Delete the da9062-watchdog section and replace it with a link to the ne=
+w
+> DA9061/62 binding information file.
 >=20
 > Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
 >=20
@@ -76,101 +60,162 @@ nd
 > This patch applies against linux-next and v4.8
 >=20
 > v2 -> v3
->  - NO CODE CHANGE
->  - Patch renamed from [PATCH V2 05/10] to [PATCH V3 5/9]
+>  - Patch renamed from [PATCH V2 04/10] to [PATCH V3 4/9]
+>  - Ensure binding description concentrates on the device not the
+>    device driver
+>  - Separate the DA9061 and DA9062 sub-device tables to distinguish
+>    the difference between the two devices
+>  - Update the commit message to describe this change
+>  - Add e-mail information about associated patches from this set
+>    without describing them as being explicitly dependent on this
+>    binding
 >=20
 > v1 -> v2
->  - Patch renamed from [PATCH V1 01/10] to [PATCH V2 05/10] -- these
+>  - Patch renamed from [PATCH V1 09/10] to [PATCH V2 04/10] -- these
 >    changes were made to fix checkpatch warnings caused by the patch
 >    set dependency order
->  - Fixed typo in the commit message "readble" to "readable"
->  - Removed the explicit cross-check to decide if there is a conflict
->    between the device tree compatible string and the hardware definitio=
-n.
->    This patch assumes the device tree is correctly written and therefor=
-e
->    removes the need for a hardware/DT sanity check.
->  - Removed extra semicolon in drivers/mfd/da9062-core.c:877
->  - Re-write compatible entries into numerical order
 >=20
-> Lee,
+> Hi,
 >=20
-> This patch adds support for the DA9061 PMIC. This is done as part of th=
-e
-> existing DA9062 device driver by extending the of_device_id match table=
-.
-> This in turn allows new MFD cells, irq chip and regmap definitions to
-> support DA9061.
+> Other information:
+> The device driver from this patch set (associated with this binding) is
+>=20
+> - [PATCH V3 1/9] mfd: da9061: MFD core support
+>=20
+> and also the following binding file changes:
+>=20
+> - [PATCH V3 1/9] Binding for onkey
+> - [PATCH V3 2/9] Binding for watchdog
+> - [PATCH V3 3/9] Binding for thermal
 >=20
 > Regards,
 > Steve Twiss, Dialog Semiconductor Ltd.
 >=20
 >=20
->  drivers/mfd/Kconfig                  |   5 +-
->  drivers/mfd/da9062-core.c            | 427 +++++++++++++++++++++++++++=
-++++++--
->  include/linux/mfd/da9062/core.h      |  27 ++-
->  include/linux/mfd/da9062/registers.h |   2 +
->  4 files changed, 441 insertions(+), 20 deletions(-)
-
-[...]
-
-> @@ -475,7 +855,25 @@ static int da9062_i2c_probe(struct i2c_client *i2c=
-,
->  		return -EINVAL;
->  	}
+>  Documentation/devicetree/bindings/mfd/da9062.txt | 52 ++++++++++++++++=
+++------
+>  1 file changed, 40 insertions(+), 12 deletions(-)
+>=20
+> diff --git a/Documentation/devicetree/bindings/mfd/da9062.txt b/Documen=
+tation/devicetree/bindings/mfd/da9062.txt
+> index 38802b5..56491c3 100644
+> --- a/Documentation/devicetree/bindings/mfd/da9062.txt
+> +++ b/Documentation/devicetree/bindings/mfd/da9062.txt
+> @@ -1,22 +1,39 @@
+>  * Dialog DA9062 Power Management Integrated Circuit (PMIC)
 > =20
-> -	chip->regmap =3D devm_regmap_init_i2c(i2c, &da9062_regmap_config);
-> +	switch (chip->chip_type) {
-> +	case(COMPAT_TYPE_DA9061):
-> +		cell =3D da9061_devs;
-> +		cell_num =3D ARRAY_SIZE(da9061_devs);
-> +		irq_chip =3D &da9061_irq_chip;
-> +		config =3D &da9061_regmap_config;
-> +		break;
-> +	case(COMPAT_TYPE_DA9062):
-> +		cell =3D da9062_devs;
-> +		cell_num =3D ARRAY_SIZE(da9062_devs);
-> +		irq_chip =3D &da9062_irq_chip;
-> +		config =3D &da9062_regmap_config;
-> +		break;
-> +	default:
-> +		dev_err(chip->dev, "Unrecognised chip type\n");
-> +		return -ENODEV;
-> +	}
-
-I very much dislike when MFD and OF functionality is mixed.
-
-In your case you can use da9062_get_device_type() to dynamically
-interrogate the device and register using the correct MFD cells that
-way.
-
-> +	chip->regmap =3D devm_regmap_init_i2c(i2c, config);
->  	if (IS_ERR(chip->regmap)) {
->  		ret =3D PTR_ERR(chip->regmap);
->  		dev_err(chip->dev, "Failed to allocate register map: %d\n",
-> @@ -493,7 +891,7 @@ static int da9062_i2c_probe(struct i2c_client *i2c,
+> -DA9062 consists of a large and varied group of sub-devices:
+> +Product information for the DA9062 and DA9061 devices can be found her=
+e:
+> +- http://www.dialog-semiconductor.com/products/da9062
+> +- http://www.dialog-semiconductor.com/products/da9061
+> +
+> +The DA9062 PMIC consists of:
 > =20
->  	ret =3D regmap_add_irq_chip(chip->regmap, i2c->irq,
->  			IRQF_TRIGGER_LOW | IRQF_ONESHOT | IRQF_SHARED,
-> -			-1, &da9062_irq_chip,
-> +			-1, irq_chip,
-
-What is -1?
-
->  			&chip->regmap_irq);
->  	if (ret) {
->  		dev_err(chip->dev, "Failed to request IRQ %d: %d\n",
-> @@ -503,8 +901,8 @@ static int da9062_i2c_probe(struct i2c_client *i2c,
+>  Device                   Supply Names    Description
+>  ------                   ------------    -----------
+>  da9062-regulator        :               : LDOs & BUCKs
+>  da9062-rtc              :               : Real-Time Clock
+> +da9062-onkey            :               : On Key
+> +da9062-watchdog         :               : Watchdog Timer
+> +da9062-thermal          :               : Thermal
+> +
+> +The DA9061 PMIC consists of:
+> +
+> +Device                   Supply Names    Description
+> +------                   ------------    -----------
+> +da9062-regulator        :               : LDOs & BUCKs
+> +da9062-onkey            :               : On Key
+>  da9062-watchdog         :               : Watchdog Timer
+> +da9062-thermal          :               : Thermal
 > =20
->  	irq_base =3D regmap_irq_chip_get_base(chip->regmap_irq);
+>  =3D=3D=3D=3D=3D=3D
 > =20
-> -	ret =3D mfd_add_devices(chip->dev, PLATFORM_DEVID_NONE, da9062_devs,
-> -			      ARRAY_SIZE(da9062_devs), NULL, irq_base,
-> +	ret =3D mfd_add_devices(chip->dev, PLATFORM_DEVID_NONE, cell,
-> +			      cell_num, NULL, irq_base,
+>  Required properties:
+> =20
+> -- compatible : Should be "dlg,da9062".
+> +- compatible : Should be
+> +    "dlg,da9062" for DA9062
+> +    "dlg,da9061" for DA9061
+>  - reg : Specifies the I2C slave address (this defaults to 0x58 but it =
+can be
+>    modified to match the chip's OTP settings).
+>  - interrupt-parent : Specifies the reference to the interrupt controll=
+er for
+> -  the DA9062.
+> +  the DA9062 or DA9061.
+>  - interrupts : IRQ line information.
+>  - interrupt-controller
+> =20
+> @@ -25,8 +42,8 @@ further information on IRQ bindings.
+> =20
+>  Sub-nodes:
+> =20
+> -- regulators : This node defines the settings for the LDOs and BUCKs. =
+The
+> -  DA9062 regulators are bound using their names listed below:
+> +- regulators : This node defines the settings for the LDOs and BUCKs.
+> +  The DA9062 regulators are bound using their names listed below:
+> =20
+>      buck1    : BUCK_1
+>      buck2    : BUCK_2
+> @@ -37,6 +54,16 @@ Sub-nodes:
+>      ldo3     : LDO_3
+>      ldo4     : LDO_4
+> =20
+> +  The DA9061 regulators are bound using their names listed below:
+> +
+> +    buck1    : BUCK_1
+> +    buck2    : BUCK_2
+> +    buck3    : BUCK_3
+> +    ldo1     : LDO_1
+> +    ldo2     : LDO_2
+> +    ldo3     : LDO_3
+> +    ldo4     : LDO_4
+> +
+>    The component follows the standard regulator framework and the bindi=
+ngs
+>    details of individual regulator device can be found in:
+>    Documentation/devicetree/bindings/regulator/regulator.txt
+> @@ -46,9 +73,14 @@ Sub-nodes:
+>    with the DA9062. There are currently no entries in this binding, how=
+ever
+>    compatible =3D "dlg,da9062-rtc" should be added if a node is created=
+.
+> =20
+> -- watchdog: This node defines the settings for the watchdog driver ass=
+ociated
+> -  with the DA9062 PMIC. The compatible =3D "dlg,da9062-watchdog" shoul=
+d be added
+> -  if a node is created.
+> +
+> +- onkey : See ../input/da9062-onkey.txt
+> +
+> +
+> +- watchdog: See ../watchdog/da9062-watchdog.txt
+> +
+> +
+> +- thermal : See ../thermal/da9062-thermal.txt
 
-[...]
+Remove all those extra lines in between.
+
+>  Example:
+> @@ -64,10 +96,6 @@ Example:
+>  			compatible =3D "dlg,da9062-rtc";
+>  		};
+> =20
+> -		watchdog {
+> -			compatible =3D "dlg,da9062-watchdog";
+> -		};
+> -
+
+Why don't you include a sub-node per child device and use
+of_platform_populate() to register the devices?
+
+
+>  		regulators {
+>  			DA9062_BUCK1: buck1 {
+>  				regulator-name =3D "BUCK1";
 
 --=20
 Lee Jones
