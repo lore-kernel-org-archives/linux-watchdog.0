@@ -1,9 +1,9 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pf0-f193.google.com ([209.85.192.193]:34669 "EHLO
-        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754965AbcKBIiO (ORCPT
+Received: from mail-pf0-f195.google.com ([209.85.192.195]:34656 "EHLO
+        mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753816AbcKBIiR (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 2 Nov 2016 04:38:14 -0400
+        Wed, 2 Nov 2016 04:38:17 -0400
 From: Richard Vidal-Dorsch <richard.dorsch@gmail.com>
 To: linus.walleij@linaro.org, gnurou@gmail.com, jdelvare@suse.com,
         linux@roeck-us.net, wsa@the-dreams.de, lee.jones@linaro.org,
@@ -15,9 +15,9 @@ To: linus.walleij@linaro.org, gnurou@gmail.com, jdelvare@suse.com,
 Cc: Richard Vidal-Dorsch <richard.dorsch@gmail.com>,
         jo.sunga@advantech.com, weilun.huang@advantech.com,
         andrew.chou@advantech.com
-Subject: [PATCH v4 6/6] Add Advantech iManager Watchdog driver
-Date: Wed,  2 Nov 2016 01:37:51 -0700
-Message-Id: <20161102083751.6335-7-richard.dorsch@gmail.com>
+Subject: [PATCH v4 5/6] Add Advantech iManager Backlight driver
+Date: Wed,  2 Nov 2016 01:37:50 -0700
+Message-Id: <20161102083751.6335-6-richard.dorsch@gmail.com>
 In-Reply-To: <20161102083751.6335-1-richard.dorsch@gmail.com>
 References: <20161102083751.6335-1-richard.dorsch@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -25,54 +25,52 @@ List-Id: linux-watchdog@vger.kernel.org
 
 Signed-off-by: Richard Vidal-Dorsch <richard.dorsch@gmail.com>
 ---
- drivers/watchdog/Kconfig        |  11 ++
- drivers/watchdog/Makefile       |   1 +
- drivers/watchdog/imanager_wdt.c | 303 ++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 315 insertions(+)
- create mode 100644 drivers/watchdog/imanager_wdt.c
+ drivers/video/backlight/Kconfig       |   8 ++
+ drivers/video/backlight/Makefile      |   1 +
+ drivers/video/backlight/imanager_bl.c | 210 ++++++++++++++++++++++++++++++++++
+ 3 files changed, 219 insertions(+)
+ create mode 100644 drivers/video/backlight/imanager_bl.c
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index fdd3228..d6859da 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -912,6 +912,17 @@ config WAFER_WDT
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called wafer5823wdt.
+diff --git a/drivers/video/backlight/Kconfig b/drivers/video/backlight/Kconfig
+index 5ffa4b4..2dac696 100644
+--- a/drivers/video/backlight/Kconfig
++++ b/drivers/video/backlight/Kconfig
+@@ -251,6 +251,14 @@ config BACKLIGHT_HP700
+ 	  If you have an HP Jornada 700 series,
+ 	  say Y to include backlight control driver.
  
-+config IMANAGER_WDT
-+	tristate "Advantech iManager Watchdog"
++config BACKLIGHT_IMANAGER
++	tristate "Advantech iManager Backlight/Brightness"
 +	depends on MFD_IMANAGER
-+	select WATCHDOG_CORE
 +	help
-+	  Support for Advantech iManager watchdog on some Advantech
-+	  SOM, MIO, AIMB, and PCM modules/boards.
++	  This enables support for Advantech iManager Backlight and
++	  Brightness control of some Advantech SOM, MIO, AIMB, and
++	  PCM modules/boards.
 +
-+	  This driver can also be built as a module.  If so, the module
-+	  will be called imanager_wdt.
-+
- config I6300ESB_WDT
- 	tristate "Intel 6300ESB Timer/Watchdog"
- 	depends on PCI
-diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index caa9f4a..eb7fccf 100644
---- a/drivers/watchdog/Makefile
-+++ b/drivers/watchdog/Makefile
-@@ -117,6 +117,7 @@ endif
- obj-$(CONFIG_IT8712F_WDT) += it8712f_wdt.o
- obj-$(CONFIG_IT87_WDT) += it87_wdt.o
- obj-$(CONFIG_HP_WATCHDOG) += hpwdt.o
-+obj-$(CONFIG_IMANAGER_WDT) += imanager_wdt.o
- obj-$(CONFIG_KEMPLD_WDT) += kempld_wdt.o
- obj-$(CONFIG_SC1200_WDT) += sc1200wdt.o
- obj-$(CONFIG_SCx200_WDT) += scx200_wdt.o
-diff --git a/drivers/watchdog/imanager_wdt.c b/drivers/watchdog/imanager_wdt.c
+ config BACKLIGHT_CARILLO_RANCH
+ 	tristate "Intel Carillo Ranch Backlight Driver"
+ 	depends on LCD_CLASS_DEVICE && PCI && X86 && FB_LE80578
+diff --git a/drivers/video/backlight/Makefile b/drivers/video/backlight/Makefile
+index 16ec534..713b406 100644
+--- a/drivers/video/backlight/Makefile
++++ b/drivers/video/backlight/Makefile
+@@ -35,6 +35,7 @@ obj-$(CONFIG_BACKLIGHT_GENERIC)		+= generic_bl.o
+ obj-$(CONFIG_BACKLIGHT_GPIO)		+= gpio_backlight.o
+ obj-$(CONFIG_BACKLIGHT_HP680)		+= hp680_bl.o
+ obj-$(CONFIG_BACKLIGHT_HP700)		+= jornada720_bl.o
++obj-$(CONFIG_BACKLIGHT_IMANAGER)	+= imanager_bl.o
+ obj-$(CONFIG_BACKLIGHT_IPAQ_MICRO)	+= ipaq_micro_bl.o
+ obj-$(CONFIG_BACKLIGHT_LM3533)		+= lm3533_bl.o
+ obj-$(CONFIG_BACKLIGHT_LM3630A)		+= lm3630a_bl.o
+diff --git a/drivers/video/backlight/imanager_bl.c b/drivers/video/backlight/imanager_bl.c
 new file mode 100644
-index 0000000..53b409e
+index 0000000..d8b4e3d
 --- /dev/null
-+++ b/drivers/watchdog/imanager_wdt.c
-@@ -0,0 +1,303 @@
++++ b/drivers/video/backlight/imanager_bl.c
+@@ -0,0 +1,210 @@
 +/*
-+ * Advantech iManager Watchdog driver
++ * Advantech iManager Backlight driver
++ * Partially derived from wm831x_bl
 + *
 + * Copyright (C) 2016 Advantech Co., Ltd.
 + * Author: Richard Vidal-Dorsch <richard.dorsch@advantech.com>
@@ -85,224 +83,171 @@ index 0000000..53b409e
 +
 +#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 +
-+#include <linux/bitops.h>
-+#include <linux/byteorder/generic.h>
++#include <linux/backlight.h>
 +#include <linux/device.h>
-+#include <linux/mfd/imanager.h>
++#include <linux/fb.h>
++#include <linux/init.h>
 +#include <linux/module.h>
 +#include <linux/moduleparam.h>
-+#include <linux/mutex.h>
++#include <linux/mfd/imanager.h>
 +#include <linux/platform_device.h>
-+#include <linux/watchdog.h>
++#include <linux/pwm.h>
 +
-+#define WDT_DEFAULT_TIMEOUT	30 /* seconds */
-+#define WDT_FREQ		10 /* Hz */
++#define BL_MAX_PWM	100
 +
-+struct imanager_wdt_data {
++enum backlight_units { BL_UNIT_1 = 0, BL_UNIT_2 };
++
++static bool polarity = PWM_POLARITY_NORMAL;
++module_param(polarity, bool, 0444);
++MODULE_PARM_DESC(polarity, "Select backlight polarity (inverted := 1)");
++
++static ushort unit = BL_UNIT_1;
++module_param(unit, ushort, 0444);
++MODULE_PARM_DESC(unit, "Select backlight control unit [0, 1] (defaults to 0)");
++
++struct imanager_backlight_data {
 +	struct imanager_device_data *imgr;
-+	struct watchdog_device wdt;
-+	ulong last_updated;
-+	uint timeout;
 +};
 +
-+static uint timeout = WDT_DEFAULT_TIMEOUT;
-+module_param(timeout, uint, 0444);
-+MODULE_PARM_DESC(timeout,
-+		 "Watchdog timeout in seconds. 1 <= timeout <= 65534, default="
-+		 __MODULE_STRING(WDT_DEFAULT_TIMEOUT) ".");
-+
-+static bool nowayout = WATCHDOG_NOWAYOUT;
-+module_param(nowayout, bool, 0444);
-+MODULE_PARM_DESC(nowayout,
-+		 "Watchdog cannot be stopped once started (default="
-+		 __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
-+
-+enum wdt_ctrl {
-+	START = 1, STOP, RESET, GET_TIMEOUT, SET_TIMEOUT, STOPBOOT = 8
++struct brightness_level {
++	uint value	: 7,	/* Brightness Value  - LSB [6..0] */
++	     enable	: 1;	/* Brightness Enable - MSB [7] */
 +};
 +
-+enum imanager_wdt_event {
-+	WDT_EVT_NONE,
-+	WDT_EVT_DELAY,
-+	WDT_EVT_PWRBTN,
-+	WDT_EVT_NMI,
-+	WDT_EVT_RESET,
-+	WDT_EVT_WDPIN,
-+	WDT_EVT_SCI,
++struct backlight_ctrl {
++	uint enable	: 1,	/* Backlight Control Enable - LSB [0] */
++	     pwmpol	: 1,	/* PWM Polarity		    - bit [1] */
++	     blpol	: 1,	/* Backlight Polarity	    - bit [2] */
++	     dnc	: 5;	/* Don't care		    - bit [7..3] */
 +};
 +
-+struct event_delay {
-+	u16	delay,
-+		pwrbtn,
-+		nmi,
-+		reset,
-+		wdpin,
-+		sci,
-+		dummy;
-+} __attribute__((__packed__));
-+
-+static int imanager_wdt_ctrl(struct imanager_ec_data *ec, int ctrl,
-+			     int event_type, uint timeout)
++static int imanager_bl_enable(struct imanager_ec_data *ec, int unit)
 +{
-+	struct imanager_ec_message msg = {
-+		IMANAGER_MSG_SIMPLE(0, 0, ctrl, NULL)
-+	};
-+	u8 *fevent = &msg.u.data[0];
-+	struct event_delay *event = (struct event_delay *)&msg.u.data[1];
-+	int val;
-+
-+	if (ctrl == SET_TIMEOUT) {
-+		memset(event, 0xff, sizeof(*event));
-+		msg.wlen = sizeof(*event);
-+		*fevent = 0;
-+		val = (!timeout) ? 0xffff : cpu_to_be16(timeout * WDT_FREQ);
-+
-+		switch (event_type) {
-+		case WDT_EVT_DELAY:
-+			event->delay = val;
-+			break;
-+		case WDT_EVT_PWRBTN:
-+			event->pwrbtn = val;
-+			break;
-+		case WDT_EVT_NMI:
-+			event->nmi = val;
-+			break;
-+		case WDT_EVT_RESET:
-+			event->reset = val;
-+			break;
-+		case WDT_EVT_WDPIN:
-+			event->wdpin = val;
-+			break;
-+		case WDT_EVT_SCI:
-+			event->sci = val;
-+			break;
-+		default:
-+			return -EINVAL;
-+		}
-+	}
-+
-+	return imanager_write(ec, EC_CMD_WDT_CTRL, &msg);
-+}
-+
-+static inline int imanager_wdt_disable_all(struct imanager_wdt_data *data)
-+{
-+	struct imanager_ec_data *ec = &data->imgr->ec;
-+
-+	return (imanager_wdt_ctrl(ec, STOP, WDT_EVT_NONE, 0) ||
-+		imanager_wdt_ctrl(ec, STOPBOOT, WDT_EVT_NONE, 0));
-+}
-+
-+static int imanager_wdt_set(struct imanager_wdt_data *data, uint timeout)
-+{
-+	struct imanager_ec_data *ec = &data->imgr->ec;
++	u8 val8;
++	struct brightness_level *ctrl = (struct brightness_level *)&val8;
++	u8 devid = ec->bl.attr[unit]->did;
++	u8 bl_unit = ec->bl.brightness[unit];
 +	int ret;
 +
-+	if (time_before(jiffies, data->last_updated + HZ + HZ / 2))
-+		return 0;
-+
-+	if (data->timeout == timeout)
-+		return 0;
-+
-+	ret = imanager_wdt_ctrl(ec, SET_TIMEOUT, WDT_EVT_PWRBTN, timeout);
++	ret = imanager_read_ram(ec, EC_RAM_ACPI, bl_unit, &val8, sizeof(val8));
 +	if (ret < 0)
 +		return ret;
 +
-+	data->timeout = timeout;
-+	data->last_updated = jiffies;
++	ctrl->enable = 1;
++
++	return imanager_write_ram(ec, EC_RAM_ACPI, devid, &val8, sizeof(val8));
++}
++
++static int imanager_bl_set_polarity(struct imanager_ec_data *ec, uint polarity)
++{
++	u8 val8;
++	struct backlight_ctrl *ctrl = (struct backlight_ctrl *)&val8;
++	int ret;
++
++	ret = imanager_read_ram(ec, EC_RAM_ACPI, EC_OFFSET_BACKLIGHT_CTRL,
++				&val8, sizeof(val8));
++	if (ret < 0)
++		return ret;
++
++	ctrl->blpol = polarity ? 1 : 0;
++
++	return imanager_write_ram(ec, EC_RAM_ACPI, EC_OFFSET_BACKLIGHT_CTRL,
++				  &val8, sizeof(val8));
++}
++
++static int imanager_bl_get_brightness(struct backlight_device *bd)
++{
++	struct imanager_backlight_data *data = bl_get_data(bd);
++	struct imanager_device_data *imgr = data->imgr;
++	u8 devid = imgr->ec.bl.attr[unit]->did;
++	int pwm;
++
++	mutex_lock(&imgr->lock);
++
++	pwm = imanager_read8(&imgr->ec, EC_CMD_HWP_RD, devid);
++	if (pwm < 0) {
++		dev_warn(&bd->dev, "Failed while reading PWM\n");
++		pwm = 0;
++	}
++
++	mutex_unlock(&imgr->lock);
++
++	return polarity ? BL_MAX_PWM - pwm : pwm;
++}
++
++static int imanager_bl_set_brightness(struct backlight_device *bd)
++{
++	struct imanager_backlight_data *data = bl_get_data(bd);
++	struct imanager_device_data *imgr = data->imgr;
++	u8 devid = imgr->ec.bl.attr[unit]->did;
++	u8 brightness = bd->props.brightness;
++	int ret;
++
++	if (bd->props.power != FB_BLANK_UNBLANK)
++		brightness = 0;
++
++	if (bd->props.fb_blank != FB_BLANK_UNBLANK)
++		brightness = 0;
++
++	if (bd->props.state & BL_CORE_SUSPENDED)
++		brightness = 0;
++
++	/* invert brightness if polarity is set */
++	brightness = polarity ? BL_MAX_PWM - brightness : brightness;
++
++	mutex_lock(&imgr->lock);
++	ret = imanager_write8(&imgr->ec, EC_CMD_HWP_WR, devid, brightness);
++	mutex_unlock(&imgr->lock);
++
++	return ret;
++}
++
++static const struct backlight_ops imanager_bl_ops = {
++	.options = BL_CORE_SUSPENDRESUME,
++	.get_brightness = imanager_bl_get_brightness,
++	.update_status  = imanager_bl_set_brightness,
++};
++
++static int imanager_bl_init(struct device *dev,
++			    struct imanager_backlight_data *data)
++{
++	struct backlight_device *bd;
++	struct backlight_properties props;
++	int ret;
++
++	memset(&props, 0, sizeof(props));
++	props.type = BACKLIGHT_PLATFORM;
++	props.max_brightness = BL_MAX_PWM;
++	bd = devm_backlight_device_register(dev, "imanager-backlight", dev,
++					    data, &imanager_bl_ops, &props);
++
++	if (IS_ERR(bd)) {
++		dev_err(dev, "Unable to register backlight device\n");
++		return PTR_ERR(bd);
++	}
++
++	bd->props.brightness = imanager_bl_get_brightness(bd);
++	bd->props.max_brightness = BL_MAX_PWM;
++	bd->props.power = FB_BLANK_UNBLANK;
++
++	backlight_update_status(bd);
++
++	ret = imanager_bl_enable(&data->imgr->ec, unit);
++	if (ret < 0)
++		dev_warn(dev, "Could not enable backlight control\n");
++
++	ret = imanager_bl_set_polarity(&data->imgr->ec, polarity);
++	if (ret < 0)
++		dev_warn(dev, "Could not set backlight polarity\n");
 +
 +	return 0;
 +}
 +
-+static int imanager_wdt_set_timeout(struct watchdog_device *wdt, uint timeout)
-+{
-+	struct imanager_wdt_data *data = watchdog_get_drvdata(wdt);
-+	struct imanager_device_data *imgr = data->imgr;
-+	int ret;
-+
-+	mutex_lock(&imgr->lock);
-+	ret = imanager_wdt_set(data, timeout);
-+	mutex_unlock(&imgr->lock);
-+
-+	return ret;
-+}
-+
-+static uint imanager_wdt_get_timeleft(struct watchdog_device *wdt)
-+{
-+	struct imanager_wdt_data *data = watchdog_get_drvdata(wdt);
-+	uint timeleft = 0;
-+	ulong time_diff = ((jiffies - data->last_updated) / HZ);
-+
-+	if (data->last_updated && (data->timeout > time_diff))
-+		timeleft = data->timeout - time_diff;
-+
-+	return timeleft;
-+}
-+
-+static int imanager_wdt_start(struct watchdog_device *wdt)
-+{
-+	struct imanager_wdt_data *data = watchdog_get_drvdata(wdt);
-+	struct imanager_device_data *imgr = data->imgr;
-+	int ret;
-+
-+	mutex_lock(&imgr->lock);
-+	ret = imanager_wdt_ctrl(&imgr->ec, START, WDT_EVT_NONE, 0);
-+	data->last_updated = jiffies;
-+	mutex_unlock(&imgr->lock);
-+
-+	return ret;
-+}
-+
-+static int imanager_wdt_stop(struct watchdog_device *wdt)
-+{
-+	struct imanager_wdt_data *data = watchdog_get_drvdata(wdt);
-+	struct imanager_device_data *imgr = data->imgr;
-+	int ret;
-+
-+	mutex_lock(&imgr->lock);
-+	ret = imanager_wdt_ctrl(&imgr->ec, STOP, WDT_EVT_NONE, 0);
-+	data->last_updated = 0;
-+	mutex_unlock(&imgr->lock);
-+
-+	return ret;
-+}
-+
-+static int imanager_wdt_ping(struct watchdog_device *wdt)
-+{
-+	struct imanager_wdt_data *data = watchdog_get_drvdata(wdt);
-+	struct imanager_device_data *imgr = data->imgr;
-+	int ret;
-+
-+	mutex_lock(&imgr->lock);
-+	ret = imanager_wdt_ctrl(&imgr->ec, RESET, WDT_EVT_NONE, 0);
-+	data->last_updated = jiffies;
-+	mutex_unlock(&imgr->lock);
-+
-+	return ret;
-+}
-+
-+static const struct watchdog_info imanager_wdt_info = {
-+	.options		= WDIOF_SETTIMEOUT |
-+				  WDIOF_KEEPALIVEPING |
-+				  WDIOF_MAGICCLOSE,
-+	.firmware_version	= 0,
-+	.identity		= "imanager-wdt",
-+};
-+
-+static const struct watchdog_ops imanager_wdt_ops = {
-+	.owner		= THIS_MODULE,
-+	.start		= imanager_wdt_start,
-+	.stop		= imanager_wdt_stop,
-+	.ping		= imanager_wdt_ping,
-+	.set_timeout	= imanager_wdt_set_timeout,
-+	.get_timeleft	= imanager_wdt_get_timeleft,
-+};
-+
-+static int imanager_wdt_probe(struct platform_device *pdev)
++static int imanager_bl_probe(struct platform_device *pdev)
 +{
 +	struct device *dev = &pdev->dev;
 +	struct imanager_device_data *imgr = dev_get_drvdata(dev->parent);
-+	struct imanager_wdt_data *data;
-+	struct watchdog_device *wdt_dev;
++	struct imanager_backlight_data *data;
 +	int ret;
 +
 +	data = devm_kzalloc(dev, sizeof(*data), GFP_KERNEL);
@@ -311,69 +256,28 @@ index 0000000..53b409e
 +
 +	data->imgr = imgr;
 +
-+	wdt_dev = &data->wdt;
-+	wdt_dev->info		= &imanager_wdt_info;
-+	wdt_dev->ops		= &imanager_wdt_ops;
-+	wdt_dev->timeout	= WDT_DEFAULT_TIMEOUT;
-+	wdt_dev->min_timeout	= 1;
-+	wdt_dev->max_timeout	= 0xfffe;
-+
-+	watchdog_set_nowayout(wdt_dev, nowayout);
-+	watchdog_set_drvdata(wdt_dev, data);
-+
-+	ret = watchdog_register_device(wdt_dev);
-+	if (ret) {
-+		dev_err(dev, "Could not register watchdog device\n");
++	ret = imanager_bl_init(dev, data);
++	if (ret)
 +		return ret;
-+	}
 +
 +	platform_set_drvdata(pdev, data);
 +
-+	imanager_wdt_disable_all(data);
-+	imanager_wdt_set_timeout(wdt_dev, timeout);
-+
-+	dev_info(dev, "Driver loaded (timeout=%d seconds)\n", timeout);
-+
 +	return 0;
 +}
 +
-+static int imanager_wdt_remove(struct platform_device *pdev)
-+{
-+	struct imanager_wdt_data *data = platform_get_drvdata(pdev);
-+
-+	if (!nowayout)
-+		imanager_wdt_disable_all(data);
-+
-+	watchdog_unregister_device(&data->wdt);
-+	platform_set_drvdata(pdev, NULL);
-+
-+	return 0;
-+}
-+
-+static void imanager_wdt_shutdown(struct platform_device *pdev)
-+{
-+	struct imanager_device_data *imgr = dev_get_drvdata(pdev->dev.parent);
-+
-+	mutex_lock(&imgr->lock);
-+	imanager_wdt_ctrl(&imgr->ec, STOP, WDT_EVT_NONE, 0);
-+	mutex_unlock(&imgr->lock);
-+}
-+
-+static struct platform_driver imanager_wdt_driver = {
++static struct platform_driver imanager_backlight_driver = {
 +	.driver = {
-+		.name	= "imanager-wdt",
++		.name	= "imanager-backlight",
 +	},
-+	.probe		= imanager_wdt_probe,
-+	.remove		= imanager_wdt_remove,
-+	.shutdown	= imanager_wdt_shutdown,
++	.probe	= imanager_bl_probe,
 +};
 +
-+module_platform_driver(imanager_wdt_driver);
++module_platform_driver(imanager_backlight_driver);
 +
-+MODULE_DESCRIPTION("Advantech iManager Watchdog Driver");
++MODULE_DESCRIPTION("Advantech iManager Backlight driver");
 +MODULE_AUTHOR("Richard Vidal-Dorsch <richard.dorsch at advantech.com>");
 +MODULE_LICENSE("GPL");
-+MODULE_ALIAS("platform:imanager-wdt");
++MODULE_ALIAS("platform:imanager-backlight");
 -- 
 2.10.1
 
