@@ -1,51 +1,49 @@
-Return-path: <wimvs@spo001.leaseweb.nl>
-Date: Sun, 6 Nov 2016 17:12:11 +0100
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Heinrich Schuchardt <xypron.glpk@gmx.de>,
-	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/1] watchdog: pcipcwd_show_card_info: wrong format string
-Message-ID: <20161106161211.GB7479@spo001.leaseweb.nl>
-References: <20161105145028.4894-1-xypron.glpk@gmx.de> <87276aec-7040-798e-fd91-1d0e616db303@roeck-us.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87276aec-7040-798e-fd91-1d0e616db303@roeck-us.net>
-Sender: <wimvs@spo001.leaseweb.nl>
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-ve1eur01on0110.outbound.protection.outlook.com ([104.47.1.110]:45280
+        "EHLO EUR01-VE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1750988AbcKGU6Z (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 7 Nov 2016 15:58:25 -0500
+From: Cor Peters <cpeters@victronenergy.com>
+To: <linux-watchdog@vger.kernel.org>
+Subject: omap watchdog boot status
+Date: Mon, 7 Nov 2016 15:26:02 +0100
+Message-ID: <1837421.P2zRp1Vi4u@corpeters>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="us-ascii"
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-Hi All,
+Hello everybody
 
-> On 11/05/2016 07:50 AM, Heinrich Schuchardt wrote:
-> >fw_rev_major and fw_rev_minor are defined as int.
-> >Use %d to print them.
-> >
-> >Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
-> >---
-> > drivers/watchdog/pcwd_pci.c | 2 +-
-> > 1 file changed, 1 insertion(+), 1 deletion(-)
-> >
-> >diff --git a/drivers/watchdog/pcwd_pci.c b/drivers/watchdog/pcwd_pci.c
-> >index c0d07ee..e1fbbf6 100644
-> >--- a/drivers/watchdog/pcwd_pci.c
-> >+++ b/drivers/watchdog/pcwd_pci.c
-> >@@ -234,7 +234,7 @@ static void pcipcwd_show_card_info(void)
-> > 	got_fw_rev = send_command(CMD_GET_FIRMWARE_VERSION, &fw_rev_major,
-> > 								&fw_rev_minor);
-> > 	if (got_fw_rev)
-> >-		sprintf(fw_ver_str, "%u.%02u", fw_rev_major, fw_rev_minor);
-> >+		sprintf(fw_ver_str, "%d.%02d", fw_rev_major, fw_rev_minor);
-> > 	else
-> > 		sprintf(fw_ver_str, "<card no answer>");
-> >
-> >
-> Hmm ... I don't think that a negative version number makes much sense.
-> Turns out inb() returns a char on some architectures, meaning it is signed,
-> meaning it _could_ return a negative number if the version number is 128
-> or above. I don't want to risk us reporting version number -128.-110 just
-> to make compilers happy.
+I was looking into an issue with the omap-wdt.c. The  watchdog driver not is 
+reporting a different boot status when a reset is being triggered by the 
+watchdog.
 
-I couldn't have said this better myself :-) version info is indeed to be consider as an unsigned int.
+>From what I gathered, the issue is that in the omap_wdt_probe function,
+pdev->dev->platform_data requires to be a reference to the PRM module,
+however it has not been set, and I was wondering how this should work in 
+an environment that uses the device tree method. (Link to usage:
+http://lxr.free-electrons.com/source/drivers/watchdog/omap_wdt.c#L268[1] ).
 
-Kind regards,
-Wim.
+My questions are as follows:
+1) Is my assertion correct that the current method does not work when 
+  the driver is being initialised from an device tree instead of a old style 
+  board file.
+2) If that is the case, what would be the best method of fixing this situation.
+
+Thank you very much in advance.
+-- 
+
+Met vriendelijke groet,
+With kind regards,
+   Cor Peters
+
+Victron Energy B.V.
+Koldingweg 9a, 9723HL Groningen
+Tel. +31 36 535 9774   Fax. +31 36 531 1666
+www.victronenergy.com
+
+--------
+[1] http://lxr.free-electrons.com/source/drivers/watchdog/omap_wdt.c#L268
