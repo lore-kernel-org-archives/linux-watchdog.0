@@ -1,118 +1,95 @@
-Return-path: <stwiss.opensource@diasemi.com>
-From: Steve Twiss <stwiss.opensource@diasemi.com>
-To: Lukasz Luba <lukasz.luba@arm.com>, Eduardo Valentin <edubezval@gmail.com>,
-	LINUX-KERNEL <linux-kernel@vger.kernel.org>, LINUX-PM
-	<linux-pm@vger.kernel.org>, Zhang Rui <rui.zhang@intel.com>
-CC: DEVICETREE <devicetree@vger.kernel.org>, Dmitry Torokhov
-	<dmitry.torokhov@gmail.com>, Guenter Roeck <linux@roeck-us.net>, LINUX-INPUT
-	<linux-input@vger.kernel.org>, LINUX-WATCHDOG
-	<linux-watchdog@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, "Liam
- Girdwood" <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Mark
- Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Support
- Opensource <Support.Opensource@diasemi.com>, Wim Van Sebroeck <wim@iguana.be>
-Subject: RE: [PATCH V3 8/9] thermal: da9062/61: Thermal junction temperature
- monitoring driver
-Date: Wed, 9 Nov 2016 18:20:58 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7018CCE91AE@SW-EX-MBX02.diasemi.com>
+Return-path: <robherring2@gmail.com>
+Date: Wed, 9 Nov 2016 12:24:41 -0600
+From: Rob Herring <robh@kernel.org>
+To: Steve Twiss <stwiss.opensource@diasemi.com>
+Cc: DEVICETREE <devicetree@vger.kernel.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	LINUX-INPUT <linux-input@vger.kernel.org>,
+	LINUX-KERNEL <linux-kernel@vger.kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Eduardo Valentin <edubezval@gmail.com>,
+	Guenter Roeck <linux@roeck-us.net>,
+	LINUX-PM <linux-pm@vger.kernel.org>,
+	LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
+	Lee Jones <lee.jones@linaro.org>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Mark Brown <broonie@kernel.org>,
+	Support Opensource <support.opensource@diasemi.com>,
+	Wim Van Sebroeck <wim@iguana.be>, Zhang Rui <rui.zhang@intel.com>
+Subject: Re: [PATCH V3 1/9] Documentation: devicetree: input: additions for
+ da9061 onkey driver
+Message-ID: <20161109182441.jlk5clp5sviocv2q@rob-hp-laptop>
 References: <cover.1477929725.git.stwiss.opensource@diasemi.com>
- <52d74c72cc445d2bc911014f38b79c1f10426878.1477929725.git.stwiss.opensource@diasemi.com>
- <b5789f09-0053-f0fc-ee35-c8c32969852b@arm.com>
-In-Reply-To: <b5789f09-0053-f0fc-ee35-c8c32969852b@arm.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+ <48abf6ce51f8ef02421ea2dd4f4e309b440efc85.1477929725.git.stwiss.opensource@diasemi.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <48abf6ce51f8ef02421ea2dd4f4e309b440efc85.1477929725.git.stwiss.opensource@diasemi.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On 02 November 2016 13:29, Lukasz Luba wrote:
-[...]
+On Mon, Oct 31, 2016 at 04:02:02PM +0000, Steve Twiss wrote:
+> From: Steve Twiss <stwiss.opensource@diasemi.com>
+> 
+> Add binding information for DA9061 onkey.
+> 
+> This patch updates the compatible string "dlg,da9061-onkey" to support
+> DA9061, removes the reference to KEY_SLEEP (which the driver no longer
+> supports) and fixes a typo in the example for DA9063.
+> 
+> Supporting KEY_SLEEP was not the general convention and the typical
+> solution should have been for KEY_POWER to support both cases of suspend
+> and S/W power off. This change was sent to the DA9063 ONKEY device
+> driver in a separate patch, but the documentation was not updated at
+> that time.
+> - f889bea Report KEY_POWER instead of KEY_SLEEP during power key-press
+> 
+> This patch also adds two new examples, one for DA9062 and one for DA9061.
+> The DA9061 examples uses a fall-back compatible string for the DA9062
+> onkey driver.
+> 
+> Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+> 
+> ---
+> This patch applies against linux-next and v4.8
+> 
+> v2 -> v3
+>  - Patch renamed from [PATCH V2 01/10] to [PATCH V3 1/9]
+>  - Each compatible line should be a valid combination of compatible
+>    strings, alter DA9061 line to include the fall back compatible string
+>  - Update the commit message to include KEY_SLEEP removal explanation and
+>    a link back to the original device driver commit. This will allow full
+>    traceability back to the original patch change
+>  - Link in information about associated patches from this set without
+>    describing them as being explicitly dependent on this binding
+> 
+> v1 -> v2
+>  - Patch renamed from [PATCH V1 06/10] to [PATCH V2 01/10] -- these
+>    changes were made to fix checkpatch warnings caused by the patch
+>    set dependency order
+>  - Typo s/ther/the/ in commit message
+>  - Explanation about why KEY_SLEEP was removed (see below)
+>  - Addition of DA9062 example
+>  - Addition of a DA9061 example to follow the driver fall-back compatible
+>    convention being applied for this device driver
+> 
+> Hi,
+> 
+> There is also new binding examples for DA9062 and DA9061. Importantly,
+> the Linux device driver changes for DA9061 were rejected because the
+> DA9062 device driver can be reused. For this reason, the DA9061 example
+> uses a fall-back compatible string.
+> 
+> Other information:
+> The device driver from this patch set (associated with this binding) was
+> applied by Dmitry Torokhov on 26-Oct-2016. See:
+>  - [PATCH V2 07/10] Input: da9061: onkey driver.
+>  - https://lkml.org/lkml/2016/10/26/1169
+> 
+> Regards,
+> Steve Twiss, Dialog Semiconductor Ltd.
+> 
+> 
+>  .../devicetree/bindings/input/da9062-onkey.txt     | 45 ++++++++++++++--------
+>  1 file changed, 30 insertions(+), 15 deletions(-)
 
-> Apart from these 2 comments, 10sec is not to long
-> (waiting for the temperature change)?
-
-Hi Lukasz,
-
-Are you saying the maximum polling time is too long or too short if it
-is fixed in the driver at 10 seconds?
-
-Certainly 10 seconds can be seen as either too long or too short a time
-when waiting for the temperature to fall-back below a threshold.
-But, this maximum polling time will be application dependent I think.
-
-However, this is a repeated polling event notifying of a warning
-over-temperature condition, so, it is already known that the
-temperature is above the threshold and action should already be
-in progress to reduce the temperature.
-
-#define DA9062_DEFAULT_POLLING_MS_PERIOD	3000
-#define DA9062_MAX_POLLING_MS_PERIOD		10000
-#define DA9062_MIN_POLLING_MS_PERIOD		1000
-
-The TEMP_WARN first level temperature supervision is intended for
-non-invasive temperature controlling measures for cooling the system
-and are left to the host software. This first level temperature
-TEMP_WARN (125 degC) is only +15degC off the next TEMP_CRIT
-(140 degC) temperature threshold. And this TEMP_CRIT is where
-the hardware will automatically shutdown.
-
-I suppose it all depends on how fast the temperature is expected to
-rise and fall.
-
-In any case, this 10 second polling maximum value was provided as part
-of guidance from a specific solution with this hardware. It would be expect=
-ed
-that any final implementation will also include a notify() function and any
-of these settings could be altered to match the application where
-appropriate.
-
-I've added a comment above these defined variables for the next code
-patch.
-
-> On 31/10/16 16:02, Steve Twiss wrote:
-> > From: Steve Twiss <stwiss.opensource@diasemi.com>
-> >
-> > +static int da9062_thermal_probe(struct platform_device *pdev)
-> > +{
-> > +	struct da9062 *chip =3D dev_get_drvdata(pdev->dev.parent);
-> > +	struct da9062_thermal *thermal;
-> > +	unsigned int pp_tmp =3D DA9062_DEFAULT_POLLING_MS_PERIOD;
-> > +	const struct of_device_id *match;
-> > +	int ret =3D 0;
-> > +
-> > +	match =3D of_match_node(da9062_compatible_reg_id_table,
-> > +			      pdev->dev.of_node);
-> > +	if (!match)
-> > +		return -ENXIO;
-> > +
-> > +	if (pdev->dev.of_node) {
-> > +		if (!of_property_read_u32(pdev->dev.of_node,
-> > +					"dlg,tjunc-temp-polling-period-ms",
-> > +					&pp_tmp)) {
-> > +			if (pp_tmp < DA9062_MIN_POLLING_MS_PERIOD ||
-> > +				pp_tmp > DA9062_MAX_POLLING_MS_PERIOD)
-> > +				pp_tmp =3D DA9062_DEFAULT_POLLING_MS_PERIOD;
->
-> Maybe it's worth to add some print here just to mention about
-> the DT value out of range. When you saw a dmesg with
-> this print on some bug report, you would know about wrong DT entry
-> (even if debug was not set).
-
-I can add a dev_warn() here explaining the invalid configuration.
-
-[...]
-
-> > +static int da9062_thermal_remove(struct platform_device *pdev)
-> > +{
-> > +	struct	da9062_thermal *thermal =3D platform_get_drvdata(pdev);
-> > +
-> > +	free_irq(thermal->irq, thermal);
-> > +	thermal_zone_device_unregister(thermal->zone);
-> > +	cancel_delayed_work_sync(&thermal->work);
->
-> You should change the order for these two functions
-> and cancel the work before unregistering thermal zone device.
-
-ok
-
-Regards,
-Steve
+Acked-by: Rob Herring <robh@kernel.org>
