@@ -1,46 +1,36 @@
-Return-path: <robherring2@gmail.com>
-Date: Wed, 9 Nov 2016 12:24:46 -0600
-From: Rob Herring <robh@kernel.org>
-To: Steve Twiss <stwiss.opensource@diasemi.com>
-Cc: DEVICETREE <devicetree@vger.kernel.org>,
-	Eduardo Valentin <edubezval@gmail.com>,
-	LINUX-KERNEL <linux-kernel@vger.kernel.org>,
-	LINUX-PM <linux-pm@vger.kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Zhang Rui <rui.zhang@intel.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Guenter Roeck <linux@roeck-us.net>,
-	LINUX-INPUT <linux-input@vger.kernel.org>,
-	LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
-	Lee Jones <lee.jones@linaro.org>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Mark Brown <broonie@kernel.org>,
-	Support Opensource <support.opensource@diasemi.com>,
-	Wim Van Sebroeck <wim@iguana.be>
-Subject: Re: [PATCH V3 3/9] Documentation: devicetree: thermal: da9062/61
- TJUNC temperature binding
-Message-ID: <20161109182446.2hdgqlcphxrris2b@rob-hp-laptop>
-References: <cover.1477929725.git.stwiss.opensource@diasemi.com>
- <318faafc8021e6adc683e62d57b8c031b9212e0f.1477929725.git.stwiss.opensource@diasemi.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <318faafc8021e6adc683e62d57b8c031b9212e0f.1477929725.git.stwiss.opensource@diasemi.com>
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from g9t1613g.houston.hpe.com ([15.241.32.99]:18652 "EHLO
+        g9t1613g.houston.hpe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S935170AbcKJUZe (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Thu, 10 Nov 2016 15:25:34 -0500
+From: Jimmy Vance <jimmy.vance@hpe.com>
+To: linux-watchdog@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Jimmy Vance <jimmy.vance@hpe.com>
+Subject: [PATCH] watchdog: hpwdt: changed maintainer information
+Date: Thu, 10 Nov 2016 15:25:27 -0500
+Message-Id: <1478809527-28967-1-git-send-email-jimmy.vance@hpe.com>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Oct 31, 2016 at 04:02:03PM +0000, Steve Twiss wrote:
-> From: Steve Twiss <stwiss.opensource@diasemi.com>
-> 
-> Device tree binding information for DA9062 and DA9061 thermal junction
-> temperature monitor.
-> 
-> Binding descriptions for the DA9061 and DA9062 thermal TJUNC supervisor
-> device driver, using a single THERMAL_TRIP_HOT trip-wire and allowing for
-> a configurable polling period for over-temperature polling.
-> 
-> This patch also adds two examples, one for DA9062 and one for DA9061. The 
-> DA9061 example uses a fall-back compatible string for the DA9062.
-> 
-> Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+Signed-off-by: Jimmy Vance <jimmy.vance@hpe.com>
+---
+ MAINTAINERS | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Acked-by: Rob Herring <robh@kernel.org>
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 411e3b8..1a4d0c5 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -5606,7 +5606,7 @@ S:	Maintained
+ F:	drivers/media/dvb-frontends/hd29l2*
+ 
+ HEWLETT PACKARD ENTERPRISE ILO NMI WATCHDOG DRIVER
+-M:	Brian Boylston <brian.boylston@hpe.com>
++M:	Jimmy Vance <jimmy.vance@hpe.com>
+ S:	Supported
+ F:	Documentation/watchdog/hpwdt.txt
+ F:	drivers/watchdog/hpwdt.c
+-- 
+1.8.3.1
+
