@@ -1,180 +1,112 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wm0-f54.google.com ([74.125.82.54]:35585 "EHLO
-        mail-wm0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752508AbcKKKes (ORCPT
+Received: from mail-pg0-f53.google.com ([74.125.83.53]:34613 "EHLO
+        mail-pg0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754572AbcKKNuq (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 11 Nov 2016 05:34:48 -0500
-Received: by mail-wm0-f54.google.com with SMTP id a197so417806841wmd.0
-        for <linux-watchdog@vger.kernel.org>; Fri, 11 Nov 2016 02:34:47 -0800 (PST)
-Date: Fri, 11 Nov 2016 10:37:34 +0000
-From: Lee Jones <lee.jones@linaro.org>
-To: Steve Twiss <stwiss.opensource@diasemi.com>
-Cc: LINUX-KERNEL <linux-kernel@vger.kernel.org>,
-        DEVICETREE <devicetree@vger.kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Eduardo Valentin <edubezval@gmail.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        LINUX-INPUT <linux-input@vger.kernel.org>,
-        LINUX-PM <linux-pm@vger.kernel.org>,
-        LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Support Opensource <support.opensource@diasemi.com>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        Zhang Rui <rui.zhang@intel.com>
-Subject: Re: [PATCH V2 05/10] mfd: da9061: MFD core support
-Message-ID: <20161111103734.GD13638@dell>
-References: <cover.1477501000.git.stwiss.opensource@diasemi.com>
- <bf02595c2fa32ba0c4311e2d480321b811fc9cf5.1477501000.git.stwiss.opensource@diasemi.com>
+        Fri, 11 Nov 2016 08:50:46 -0500
+Received: by mail-pg0-f53.google.com with SMTP id x23so10421965pgx.1
+        for <linux-watchdog@vger.kernel.org>; Fri, 11 Nov 2016 05:50:45 -0800 (PST)
+Message-ID: <5825CAFE.2080005@linaro.org>
+Date: Fri, 11 Nov 2016 21:43:26 +0800
+From: Hanjun Guo <hanjun.guo@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <bf02595c2fa32ba0c4311e2d480321b811fc9cf5.1477501000.git.stwiss.opensource@diasemi.com>
+To: Fu Wei <fu.wei@linaro.org>, Mark Rutland <mark.rutland@arm.com>
+CC: "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Len Brown <lenb@kernel.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        linux-arm-kernel@lists.infradead.org,
+        Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
+        rruigrok@codeaurora.org, "Abdulhamid, Harb" <harba@codeaurora.org>,
+        Christopher Covington <cov@codeaurora.org>,
+        Timur Tabi <timur@codeaurora.org>,
+        G Gregory <graeme.gregory@linaro.org>,
+        Al Stone <al.stone@linaro.org>, Jon Masters <jcm@redhat.com>,
+        Wei Huang <wei@redhat.com>, Arnd Bergmann <arnd@arndb.de>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
+        Leo Duran <leo.duran@amd.com>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Guenter Roeck <linux@roeck-us.net>,
+        linux-watchdog@vger.kernel.org, Tomasz Nowicki <tn@semihalf.com>,
+        Christoffer Dall <christoffer.dall@linaro.org>,
+        Julien Grall <julien.grall@arm.com>
+Subject: Re: [PATCH v14 4/9] acpi/arm64: Add GTDT table parse driver
+References: <1475086637-1914-1-git-send-email-fu.wei@linaro.org> <1475086637-1914-5-git-send-email-fu.wei@linaro.org> <20161020163719.GC27598@leverpostej> <CADyBb7tLJpPiMqWs4KZE=uCpo3HX3WcNVju2UKNuPOR0+M4UDw@mail.gmail.com>
+In-Reply-To: <CADyBb7tLJpPiMqWs4KZE=uCpo3HX3WcNVju2UKNuPOR0+M4UDw@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
 
-On Wed, 26 Oct 2016, Steve Twiss wrote:
+On 10/26/2016 07:10 PM, Fu Wei wrote:
+> Hi Mark,
+>
+> On 21 October 2016 at 00:37, Mark Rutland <mark.rutland@arm.com> wrote:
+>> Hi,
+>>
+>> As a heads-up, on v4.9-rc1 I see conflicts at least against
+>> arch/arm64/Kconfig. Luckily git am -3 seems to be able to fix that up
+>> automatically, but this will need to be rebased before the next posting
+>> and/or merging.
+>>
+>> On Thu, Sep 29, 2016 at 02:17:12AM +0800, fu.wei@linaro.org wrote:
+>>> +static int __init map_gt_gsi(u32 interrupt, u32 flags)
+>>> +{
+>>> +     int trigger, polarity;
+>>> +
+>>> +     if (!interrupt)
+>>> +             return 0;
+>>
+>> Urgh.
+>>
+>> Only the secure interrupt (which we do not need) is optional in this
+>> manner, and (hilariously), zero appears to also be a valid GSIV, per
+>> figure 5-24 in the ACPI 6.1 spec.
+>>
+>> So, I think that:
+>>
+>> (a) we should not bother parsing the secure interrupt
+>
+> If I understand correctly, from this point of view, kernel don't
+> handle the secure interrupt.
+> But the current arm_arch_timer driver still enable/disable/request
+> PHYS_SECURE_PPI
+> with PHYS_NONSECURE_PPI.
+> That means we still need to parse the secure interrupt.
+> Please correct me, if I misunderstand something? :-)
+>
+>> (b) we should drop the check above
+>
+> yes, if zero is a valid GSIV, this makes sense.
+>
+>> (c) we should report the spec issue to the ASWG
+>>
+>>> +/*
+>>> + * acpi_gtdt_c3stop - got c3stop info from GTDT
+>>> + *
+>>> + * Returns 1 if the timer is powered in deep idle state, 0 otherwise.
+>>> + */
+>>> +bool __init acpi_gtdt_c3stop(void)
+>>> +{
+>>> +     struct acpi_table_gtdt *gtdt = acpi_gtdt_desc.gtdt;
+>>> +
+>>> +     return !(gtdt->non_secure_el1_flags & ACPI_GTDT_ALWAYS_ON);
+>>> +}
+>>
+>> It looks like this can differ per interrupt. Shouldn't we check the
+>> appropriate one?
+>
+> yes, I think you are right.
 
-> From: Steve Twiss <stwiss.opensource@diasemi.com>
->=20
-> MFD support for DA9061 is provided as part of the DA9062 device driver.
->=20
-> The registers header file adds two new chip variant IDs defined in DA90=
-61
-> and DA9062 hardware. The core header file adds new software enumeration=
-s
-> for listing the valid DA9061 IRQs and a da9062_compatible_types enumera=
-tion
-> for distinguishing between DA9061/62 devices in software.
->=20
-> The core source code adds a new .compatible of_device_id entry. This is
-> extended from DA9062 to support both "dlg,da9061" and "dlg,da9062". The
-> .data entry now holds a reference to the enumerated device type.
->=20
-> A new regmap_irq_chip model is added for DA9061 and this supports the n=
-ew
-> list of regmap_irq entries. A new mfd_cell da9061_devs[] array lists th=
-e
-> new sub system components for DA9061. Support is added for a new DA9061
-> regmap_config which lists the correct readable, writable and volatile
-> ranges for this chip.
->=20
-> The probe function uses the device tree compatible string to switch on =
-the
-> da9062_compatible_types and configure the correct mfd cells, irq chip a=
-nd
-> regmap config.
-> =20
-> Kconfig is updated to reflect support for DA9061 and DA9062 PMICs.
->=20
-> Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
->=20
-> ---
-> This patch applies against linux-next and v4.8
->=20
-> v1 -> v2
->  - Patch renamed from [PATCH V1 01/10] to [PATCH V2 05/10] -- these
->    changes were made to fix checkpatch warnings caused by the patch
->    set dependency order
->  - Fixed typo in the commit message "readble" to "readable"
->  - Removed the explicit cross-check to decide if there is a conflict
->    between the device tree compatible string and the hardware definitio=
-n.
->    This patch assumes the device tree is correctly written and therefor=
-e
->    removes the need for a hardware/DT sanity check.
->  - Removed extra semicolon in drivers/mfd/da9062-core.c:877
->  - Re-write compatible entries into numerical order
->=20
-> Lee,
->=20
-> This patch adds support for the DA9061 PMIC. This is done as part of th=
-e
-> existing DA9062 device driver by extending the of_device_id match table=
-.
-> This in turn allows new MFD cells, irq chip and regmap definitions to
-> support DA9061.
->=20
-> Regards,
-> Steve Twiss, Dialog Semiconductor Ltd.
->=20
->=20
->  drivers/mfd/Kconfig                  |   5 +-
->  drivers/mfd/da9062-core.c            | 427 +++++++++++++++++++++++++++=
-++++++--
->  include/linux/mfd/da9062/core.h      |  27 ++-
->  include/linux/mfd/da9062/registers.h |   2 +
->  4 files changed, 441 insertions(+), 20 deletions(-)
+I think Mark already clarified this it's a global flag which defined
+in the spec, and we don't need to update it.
 
-[...]
-
-> +static struct resource da9061_core_resources[] =3D {
-> +	DEFINE_RES_NAMED(DA9061_IRQ_VDD_WARN, 1, "VDD_WARN", IORESOURCE_IRQ),
-> +};
-> +
-> +static struct resource da9061_regulators_resources[] =3D {
-> +	DEFINE_RES_NAMED(DA9061_IRQ_LDO_LIM, 1, "LDO_LIM", IORESOURCE_IRQ),
-> +};
-> +
-> +static struct resource da9061_thermal_resources[] =3D {
-> +	DEFINE_RES_NAMED(DA9061_IRQ_TEMP, 1, "THERMAL", IORESOURCE_IRQ),
-> +};
-> +
-> +static struct resource da9061_wdt_resources[] =3D {
-> +	DEFINE_RES_NAMED(DA9061_IRQ_WDG_WARN, 1, "WD_WARN", IORESOURCE_IRQ),
-> +};
-> +
-> +static struct resource da9061_onkey_resources[] =3D {
-> +	DEFINE_RES_NAMED(DA9061_IRQ_ONKEY, 1, "ONKEY", IORESOURCE_IRQ),
-> +};
-
-These should al be: DEFINE_RES_IO_NAMED()
-
-[...]
-
->  };
-> @@ -142,7 +257,7 @@ static const struct mfd_cell da9062_devs[] =3D {
->  		.name		=3D "da9062-watchdog",
->  		.num_resources	=3D ARRAY_SIZE(da9062_wdt_resources),
->  		.resources	=3D da9062_wdt_resources,
-> -		.of_compatible  =3D "dlg,da9062-wdt",
-> +		.of_compatible  =3D "dlg,da9062-watchdog",
-
-This should be a separate change.
-
->  	},
->  	{
->  		.name		=3D "da9062-thermal",
-> @@ -200,7 +315,8 @@ static int da9062_clear_fault_log(struct da9062 *ch=
-ip)
-> =20
->  static int da9062_get_device_type(struct da9062 *chip)
->  {
-> -	int device_id, variant_id, variant_mrc;
-> +	int device_id, variant_id, variant_mrc, variant_vrc;
-> +	char *type;
->  	int ret;
-> =20
->  	ret =3D regmap_read(chip->regmap, DA9062AA_DEVICE_ID, &device_id);
-> @@ -208,6 +324,7 @@ static int da9062_get_device_type(struct da9062 *ch=
-ip)
->  		dev_err(chip->dev, "Cannot read chip ID.\n");
->  		return -EIO;
->  	}
-> +
-
-Sneaky!
-
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Thanks
+Hanjun
