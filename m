@@ -1,37 +1,32 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail1.bemta3.messagelabs.com ([195.245.230.176]:28762 "EHLO
+Received: from mail1.bemta3.messagelabs.com ([195.245.230.172]:35780 "EHLO
         mail1.bemta3.messagelabs.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1753169AbcKNI1t (ORCPT
+        by vger.kernel.org with ESMTP id S1751199AbcKNI1t (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
         Mon, 14 Nov 2016 03:27:49 -0500
-Message-ID: <f7a705b1e1041efb77a2e4204db5d5222cea5702.1479111766.git.stwiss.opensource@diasemi.com>
+Message-ID: <513452e86124591bd2657c001cf3a7cfbb54a980.1479111766.git.stwiss.opensource@diasemi.com>
 In-Reply-To: <cover.1479111766.git.stwiss.opensource@diasemi.com>
 References: <cover.1479111766.git.stwiss.opensource@diasemi.com>
 From: Steve Twiss <stwiss.opensource@diasemi.com>
-Date: Mon, 14 Nov 2016 08:22:46 +0000
-Subject: [PATCH V4 8/8] MAINTAINERS: da9062/61 updates to the Dialog
- Semiconductor search terms
+Date: Mon, 14 Nov 2016 08:22:44 +0000
+Subject: [PATCH V4 3/8] Documentation: devicetree: mfd: da9062/61 MFD binding
 To: DEVICETREE <devicetree@vger.kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        LINUX-INPUT <linux-input@vger.kernel.org>,
+        LINUX-KERNEL <linux-kernel@vger.kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Rob Herring <robh+dt@kernel.org>
+CC: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Eduardo Valentin <edubezval@gmail.com>,
         Guenter Roeck <linux@roeck-us.net>,
         LINUX-INPUT <linux-input@vger.kernel.org>,
-        LINUX-KERNEL <linux-kernel@vger.kernel.org>,
-        LINUX-PM <linux-pm@vger.kernel.org>,
-        LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        Zhang Rui <rui.zhang@intel.com>
-CC: DEVICETREE <devicetree@vger.kernel.org>,
-        LINUX-INPUT <linux-input@vger.kernel.org>,
-        LINUX-KERNEL <linux-kernel@vger.kernel.org>,
         LINUX-PM <linux-pm@vger.kernel.org>,
         LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
         Lee Jones <lee.jones@linaro.org>,
         Liam Girdwood <lgirdwood@gmail.com>,
         Mark Brown <broonie@kernel.org>,
-        Support Opensource <support.opensource@diasemi.com>
+        Support Opensource <support.opensource@diasemi.com>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Zhang Rui <rui.zhang@intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -39,36 +34,54 @@ List-Id: linux-watchdog@vger.kernel.org
 
 From: Steve Twiss <stwiss.opensource@diasemi.com>
 
-Hi,
+Extend existing DA9062 binding information to include the DA9061 PMIC for
+MFD core and regulators.
 
-Dialog Semiconductor support would like to add to the MAINTAINERS search
-terms. This update will allow us to follow files for device tree bindings
-and source code relating to input onkey drivers, chip thermal monitoring
-and watchdog timers.
+Add a da9062-onkey link to the existing onkey binding file.
 
+Add a da9062-thermal link to the new temperature monitoring binding file.
+
+Delete the da9062-watchdog section and replace it with a link to the new
+DA9061/62 binding information file.
+
+Acked-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
 
 ---
 This patch applies against linux-next and v4.8
 
 v3 -> v4
- - NO CODE CHANGE
- - Patch renamed from [PATCH V3 9/9] to [PATCH V4 8/8]
+ - Patch renamed from [PATCH V3 4/9] to [PATCH V4 3/8]
+ - Remove double newline spacing in text file
+ - Added Acked-by Rob Herring
 
 v2 -> v3
- - NO CODE CHANGE
- - Patch renamed from [PATCH V2 10/10] to [PATCH V3 9/9]
+ - Patch renamed from [PATCH V2 04/10] to [PATCH V3 4/9]
+ - Ensure binding description concentrates on the device not the
+   device driver
+ - Separate the DA9061 and DA9062 sub-device tables to distinguish
+   the difference between the two devices
+ - Update the commit message to describe this change
+ - Add e-mail information about associated patches from this set
+   without describing them as being explicitly dependent on this
+   binding
 
 v1 -> v2
- - NO CODE CHANGE
+ - Patch renamed from [PATCH V1 09/10] to [PATCH V2 04/10] -- these
+   changes were made to fix checkpatch warnings caused by the patch
+   set dependency order
 
 Hi,
 
-This patch depends on acceptance of the following from this patch set:
+Added an Ack from Rob Herring for the PATCH V3 version.
 
-- [PATCH V4 7/8] PMIC temperature monitoring
+As previously:
+Other information:
+The device driver from this patch set (associated with this binding) is
 
-and also from the following binding file changes:
+- [PATCH V4 4/8] mfd: da9061: MFD core support
+
+and also the following binding file changes:
 
 - Binding for onkey (already applied by Dmitry Torokhov)
 - [PATCH V4 1/8] Binding for watchdog
@@ -78,32 +91,112 @@ Regards,
 Steve Twiss, Dialog Semiconductor Ltd.
 
 
- MAINTAINERS | 4 ++++
- 1 file changed, 4 insertions(+)
+ Documentation/devicetree/bindings/mfd/da9062.txt | 49 +++++++++++++++++-------
+ 1 file changed, 36 insertions(+), 13 deletions(-)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index f593300..a7fd809 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -3752,7 +3752,10 @@ W:	http://www.dialog-semiconductor.com/products
- S:	Supported
- F:	Documentation/hwmon/da90??
- F:	Documentation/devicetree/bindings/mfd/da90*.txt
-+F:	Documentation/devicetree/bindings/input/da90??-onkey.txt
-+F:	Documentation/devicetree/bindings/thermal/da90??-thermal.txt
- F:	Documentation/devicetree/bindings/regulator/da92*.txt
-+F:	Documentation/devicetree/bindings/watchdog/da92??-wdt.txt
- F:	Documentation/devicetree/bindings/sound/da[79]*.txt
- F:	drivers/gpio/gpio-da90??.c
- F:	drivers/hwmon/da90??-hwmon.c
-@@ -3767,6 +3770,7 @@ F:	drivers/power/da9052-battery.c
- F:	drivers/power/da91??-*.c
- F:	drivers/regulator/da903x.c
- F:	drivers/regulator/da9???-regulator.[ch]
-+F:	drivers/thermal/da90??-thermal.c
- F:	drivers/rtc/rtc-da90??.c
- F:	drivers/video/backlight/da90??_bl.c
- F:	drivers/watchdog/da90??_wdt.c
+diff --git a/Documentation/devicetree/bindings/mfd/da9062.txt b/Documentation/devicetree/bindings/mfd/da9062.txt
+index 38802b5..c0a418c 100644
+--- a/Documentation/devicetree/bindings/mfd/da9062.txt
++++ b/Documentation/devicetree/bindings/mfd/da9062.txt
+@@ -1,22 +1,39 @@
+ * Dialog DA9062 Power Management Integrated Circuit (PMIC)
+ 
+-DA9062 consists of a large and varied group of sub-devices:
++Product information for the DA9062 and DA9061 devices can be found here:
++- http://www.dialog-semiconductor.com/products/da9062
++- http://www.dialog-semiconductor.com/products/da9061
++
++The DA9062 PMIC consists of:
+ 
+ Device                   Supply Names    Description
+ ------                   ------------    -----------
+ da9062-regulator        :               : LDOs & BUCKs
+ da9062-rtc              :               : Real-Time Clock
++da9062-onkey            :               : On Key
++da9062-watchdog         :               : Watchdog Timer
++da9062-thermal          :               : Thermal
++
++The DA9061 PMIC consists of:
++
++Device                   Supply Names    Description
++------                   ------------    -----------
++da9062-regulator        :               : LDOs & BUCKs
++da9062-onkey            :               : On Key
+ da9062-watchdog         :               : Watchdog Timer
++da9062-thermal          :               : Thermal
+ 
+ ======
+ 
+ Required properties:
+ 
+-- compatible : Should be "dlg,da9062".
++- compatible : Should be
++    "dlg,da9062" for DA9062
++    "dlg,da9061" for DA9061
+ - reg : Specifies the I2C slave address (this defaults to 0x58 but it can be
+   modified to match the chip's OTP settings).
+ - interrupt-parent : Specifies the reference to the interrupt controller for
+-  the DA9062.
++  the DA9062 or DA9061.
+ - interrupts : IRQ line information.
+ - interrupt-controller
+ 
+@@ -25,8 +42,8 @@ further information on IRQ bindings.
+ 
+ Sub-nodes:
+ 
+-- regulators : This node defines the settings for the LDOs and BUCKs. The
+-  DA9062 regulators are bound using their names listed below:
++- regulators : This node defines the settings for the LDOs and BUCKs.
++  The DA9062 regulators are bound using their names listed below:
+ 
+     buck1    : BUCK_1
+     buck2    : BUCK_2
+@@ -37,19 +54,29 @@ Sub-nodes:
+     ldo3     : LDO_3
+     ldo4     : LDO_4
+ 
++  The DA9061 regulators are bound using their names listed below:
++
++    buck1    : BUCK_1
++    buck2    : BUCK_2
++    buck3    : BUCK_3
++    ldo1     : LDO_1
++    ldo2     : LDO_2
++    ldo3     : LDO_3
++    ldo4     : LDO_4
++
+   The component follows the standard regulator framework and the bindings
+   details of individual regulator device can be found in:
+   Documentation/devicetree/bindings/regulator/regulator.txt
+ 
+-
+ - rtc : This node defines settings required for the Real-Time Clock associated
+   with the DA9062. There are currently no entries in this binding, however
+   compatible = "dlg,da9062-rtc" should be added if a node is created.
+ 
+-- watchdog: This node defines the settings for the watchdog driver associated
+-  with the DA9062 PMIC. The compatible = "dlg,da9062-watchdog" should be added
+-  if a node is created.
++- onkey : See ../input/da9062-onkey.txt
++
++- watchdog: See ../watchdog/da9062-watchdog.txt
+ 
++- thermal : See ../thermal/da9062-thermal.txt
+ 
+ Example:
+ 
+@@ -64,10 +91,6 @@ Example:
+ 			compatible = "dlg,da9062-rtc";
+ 		};
+ 
+-		watchdog {
+-			compatible = "dlg,da9062-watchdog";
+-		};
+-
+ 		regulators {
+ 			DA9062_BUCK1: buck1 {
+ 				regulator-name = "BUCK1";
 -- 
 end-of-patch for PATCH V4
 
