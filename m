@@ -1,63 +1,74 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail1.bemta3.messagelabs.com ([195.245.230.164]:44471 "EHLO
-        mail1.bemta3.messagelabs.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1756493AbcKKPuT (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:59717 "EHLO
+        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751971AbcKNBmW (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 11 Nov 2016 10:50:19 -0500
-From: Steve Twiss <stwiss.opensource@diasemi.com>
-To: Lee Jones <lee.jones@linaro.org>
-CC: LINUX-KERNEL <linux-kernel@vger.kernel.org>,
-        DEVICETREE <devicetree@vger.kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Eduardo Valentin <edubezval@gmail.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        LINUX-INPUT <linux-input@vger.kernel.org>,
-        LINUX-PM <linux-pm@vger.kernel.org>,
-        LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        "Mark Rutland" <mark.rutland@arm.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        "Support Opensource" <Support.Opensource@diasemi.com>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        Zhang Rui <rui.zhang@intel.com>
-Subject: RE: [PATCH V2 05/10] mfd: da9061: MFD core support
-Date: Fri, 11 Nov 2016 15:50:12 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7018CCE9AB0@SW-EX-MBX02.diasemi.com>
-References: <cover.1477501000.git.stwiss.opensource@diasemi.com>
- <bf02595c2fa32ba0c4311e2d480321b811fc9cf5.1477501000.git.stwiss.opensource@diasemi.com>
- <20161111103734.GD13638@dell>
-In-Reply-To: <20161111103734.GD13638@dell>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+        Sun, 13 Nov 2016 20:42:22 -0500
+Subject: Re: [PATCH] watchdog: qcom: fix kernel panic due to external abort on
+ non-linefetch
+To: Christian Lamparter <chunkeey@googlemail.com>,
+        linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org
+References: <20161114011116.26210-1-chunkeey@gmail.com>
+Cc: Wim Van Sebroeck <wim@iguana.be>,
+        Matthew McClintock <mmcclint@codeaurora.org>
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <d9d6b6f5-0bef-aa7a-2bb1-92218cff43b3@roeck-us.net>
+Date: Sun, 13 Nov 2016 17:42:14 -0800
 MIME-Version: 1.0
+In-Reply-To: <20161114011116.26210-1-chunkeey@gmail.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-T24gMTEgTm92ZW1iZXIgMjAxNiAxMDozOCwgTGVlIEpvbmVzIHdyb3RlOg0KPiANCj4gPiArc3Rh
-dGljIHN0cnVjdCByZXNvdXJjZSBkYTkwNjFfY29yZV9yZXNvdXJjZXNbXSA9IHsNCj4gPiArCURF
-RklORV9SRVNfTkFNRUQoREE5MDYxX0lSUV9WRERfV0FSTiwgMSwgIlZERF9XQVJOIiwgSU9SRVNP
-VVJDRV9JUlEpLA0KPiA+ICt9Ow0KPiA+ICsNCj4gPiArc3RhdGljIHN0cnVjdCByZXNvdXJjZSBk
-YTkwNjFfcmVndWxhdG9yc19yZXNvdXJjZXNbXSA9IHsNCj4gPiArCURFRklORV9SRVNfTkFNRUQo
-REE5MDYxX0lSUV9MRE9fTElNLCAxLCAiTERPX0xJTSIsIElPUkVTT1VSQ0VfSVJRKSwNCj4gPiAr
-fTsNCj4gPiArDQo+ID4gK3N0YXRpYyBzdHJ1Y3QgcmVzb3VyY2UgZGE5MDYxX3RoZXJtYWxfcmVz
-b3VyY2VzW10gPSB7DQo+ID4gKwlERUZJTkVfUkVTX05BTUVEKERBOTA2MV9JUlFfVEVNUCwgMSwg
-IlRIRVJNQUwiLCBJT1JFU09VUkNFX0lSUSksDQo+ID4gK307DQo+ID4gKw0KPiA+ICtzdGF0aWMg
-c3RydWN0IHJlc291cmNlIGRhOTA2MV93ZHRfcmVzb3VyY2VzW10gPSB7DQo+ID4gKwlERUZJTkVf
-UkVTX05BTUVEKERBOTA2MV9JUlFfV0RHX1dBUk4sIDEsICJXRF9XQVJOIiwgSU9SRVNPVVJDRV9J
-UlEpLA0KPiA+ICt9Ow0KPiA+ICsNCj4gPiArc3RhdGljIHN0cnVjdCByZXNvdXJjZSBkYTkwNjFf
-b25rZXlfcmVzb3VyY2VzW10gPSB7DQo+ID4gKwlERUZJTkVfUkVTX05BTUVEKERBOTA2MV9JUlFf
-T05LRVksIDEsICJPTktFWSIsIElPUkVTT1VSQ0VfSVJRKSwNCj4gPiArfTsNCj4gDQo+IFRoZXNl
-IHNob3VsZCBhbCBiZTogREVGSU5FX1JFU19JT19OQU1FRCgpDQoNCkhhdmUgYWx0ZXJlZCB0aGVz
-ZSB0byBERUZJTkVfUkVTX0lSUV9OQU1FRCgpDQoNCj4gPiBAQCAtMTQyLDcgKzI1Nyw3IEBAIHN0
-YXRpYyBjb25zdCBzdHJ1Y3QgbWZkX2NlbGwgZGE5MDYyX2RldnNbXSA9IHsNCj4gPiAgCQkubmFt
-ZQkJPSAiZGE5MDYyLXdhdGNoZG9nIiwNCj4gPiAgCQkubnVtX3Jlc291cmNlcwk9IEFSUkFZX1NJ
-WkUoZGE5MDYyX3dkdF9yZXNvdXJjZXMpLA0KPiA+ICAJCS5yZXNvdXJjZXMJPSBkYTkwNjJfd2R0
-X3Jlc291cmNlcywNCj4gPiAtCQkub2ZfY29tcGF0aWJsZSAgPSAiZGxnLGRhOTA2Mi13ZHQiLA0K
-PiA+ICsJCS5vZl9jb21wYXRpYmxlICA9ICJkbGcsZGE5MDYyLXdhdGNoZG9nIiwNCj4gDQo+IFRo
-aXMgc2hvdWxkIGJlIGEgc2VwYXJhdGUgY2hhbmdlLg0KDQpPay4gcmV2ZXJ0ZWQuDQoNCj4gPiBA
-QCAtMjA4LDYgKzMyNCw3IEBAIHN0YXRpYyBpbnQgZGE5MDYyX2dldF9kZXZpY2VfdHlwZShzdHJ1
-Y3QgZGE5MDYyICpjaGlwKQ0KPiA+ICAJCWRldl9lcnIoY2hpcC0+ZGV2LCAiQ2Fubm90IHJlYWQg
-Y2hpcCBJRC5cbiIpOw0KPiA+ICAJCXJldHVybiAtRUlPOw0KPiA+ICAJfQ0KPiA+ICsNCj4gDQo+
-IFNuZWFreSENCg0KUmVtb3ZlZCB0aGUgd2hpdGVzcGFjZS4NCg==
+On 11/13/2016 05:11 PM, Christian Lamparter wrote:
+> This patch fixes a off-by-one in the "watchdog: qcom: add option for
+> standalone watchdog not in timer block" patch that causes the
+> following panic on boot:
+>
+>> Unhandled fault: external abort on non-linefetch (0x1008) at 0xc8874002
+>> pgd = c0204000
+>> [c8874002] *pgd=87806811, *pte=0b017653, *ppte=0b017453
+>> Internal error: : 1008 [#1] SMP ARM
+>> CPU: 2 PID: 1 Comm: swapper/0 Not tainted 4.8.6 #0
+>> Hardware name: Generic DT based system
+>> PC is at 0xc02222f4
+>> LR is at 0x1
+>> pc : [<c02222f4>]    lr : [<00000001>]    psr: 00000113
+>> sp : c782fc98  ip : 00000003  fp : 00000000
+>> r10: 00000004  r9 : c782e000  r8 : c04ab98c
+>> r7 : 00000001  r6 : c8874002  r5 : c782fe00  r4 : 00000002
+>> r3 : 00000000  r2 : c782fe00  r1 : 00100000  r0 : c8874002
+>> Flags: nzcv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
+>> Control: 10c5387d  Table: 8020406a  DAC: 00000051
+>> Process swapper/0 (pid: 1, stack limit = 0xc782e210)
+>> Stack: (0xc782fc98 to 0xc7830000)
+>> [...]
+>
+> The WDT_STS (status) needs to be translated via wdt_addr as well.
+>
+> fixes: f0d9d0f4b44a ("watchdog: qcom: add option for standalone watchdog not in timer block")
+> Cc: stable@vger.kernel.org # 4.8
+> Signed-off-by: Christian Lamparter <chunkeey@gmail.com>
+
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+
+> ---
+>  drivers/watchdog/qcom-wdt.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/watchdog/qcom-wdt.c b/drivers/watchdog/qcom-wdt.c
+> index 5796b5d..4f47b5e 100644
+> --- a/drivers/watchdog/qcom-wdt.c
+> +++ b/drivers/watchdog/qcom-wdt.c
+> @@ -209,7 +209,7 @@ static int qcom_wdt_probe(struct platform_device *pdev)
+>  	wdt->wdd.parent = &pdev->dev;
+>  	wdt->layout = regs;
+>
+> -	if (readl(wdt->base + WDT_STS) & 1)
+> +	if (readl(wdt_addr(wdt, WDT_STS)) & 1)
+>  		wdt->wdd.bootstatus = WDIOF_CARDRESET;
+>
+>  	/*
+>
+
