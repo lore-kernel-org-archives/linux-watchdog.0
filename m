@@ -1,74 +1,137 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:59717 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751971AbcKNBmW (ORCPT
+Received: from mail1.bemta3.messagelabs.com ([195.245.230.168]:45659 "EHLO
+        mail1.bemta3.messagelabs.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1751636AbcKNI1t (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 13 Nov 2016 20:42:22 -0500
-Subject: Re: [PATCH] watchdog: qcom: fix kernel panic due to external abort on
- non-linefetch
-To: Christian Lamparter <chunkeey@googlemail.com>,
-        linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org
-References: <20161114011116.26210-1-chunkeey@gmail.com>
-Cc: Wim Van Sebroeck <wim@iguana.be>,
-        Matthew McClintock <mmcclint@codeaurora.org>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <d9d6b6f5-0bef-aa7a-2bb1-92218cff43b3@roeck-us.net>
-Date: Sun, 13 Nov 2016 17:42:14 -0800
+        Mon, 14 Nov 2016 03:27:49 -0500
+Message-ID: <a835a5977e7cf43274293d055d3e19befffab019.1479111766.git.stwiss.opensource@diasemi.com>
+In-Reply-To: <cover.1479111766.git.stwiss.opensource@diasemi.com>
+References: <cover.1479111766.git.stwiss.opensource@diasemi.com>
+From: Steve Twiss <stwiss.opensource@diasemi.com>
+Date: Mon, 14 Nov 2016 08:22:44 +0000
+Subject: [PATCH V4 2/8] Documentation: devicetree: thermal: da9062/61 TJUNC
+ temperature binding
+To: DEVICETREE <devicetree@vger.kernel.org>,
+        Eduardo Valentin <edubezval@gmail.com>,
+        LINUX-KERNEL <linux-kernel@vger.kernel.org>,
+        LINUX-PM <linux-pm@vger.kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Zhang Rui <rui.zhang@intel.com>
+CC: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        LINUX-INPUT <linux-input@vger.kernel.org>,
+        LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
+        Lee Jones <lee.jones@linaro.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Lukasz Luba <lukasz.luba@arm.com>,
+        Mark Brown <broonie@kernel.org>,
+        Support Opensource <support.opensource@diasemi.com>,
+        Wim Van Sebroeck <wim@iguana.be>
 MIME-Version: 1.0
-In-Reply-To: <20161114011116.26210-1-chunkeey@gmail.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 11/13/2016 05:11 PM, Christian Lamparter wrote:
-> This patch fixes a off-by-one in the "watchdog: qcom: add option for
-> standalone watchdog not in timer block" patch that causes the
-> following panic on boot:
->
->> Unhandled fault: external abort on non-linefetch (0x1008) at 0xc8874002
->> pgd = c0204000
->> [c8874002] *pgd=87806811, *pte=0b017653, *ppte=0b017453
->> Internal error: : 1008 [#1] SMP ARM
->> CPU: 2 PID: 1 Comm: swapper/0 Not tainted 4.8.6 #0
->> Hardware name: Generic DT based system
->> PC is at 0xc02222f4
->> LR is at 0x1
->> pc : [<c02222f4>]    lr : [<00000001>]    psr: 00000113
->> sp : c782fc98  ip : 00000003  fp : 00000000
->> r10: 00000004  r9 : c782e000  r8 : c04ab98c
->> r7 : 00000001  r6 : c8874002  r5 : c782fe00  r4 : 00000002
->> r3 : 00000000  r2 : c782fe00  r1 : 00100000  r0 : c8874002
->> Flags: nzcv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
->> Control: 10c5387d  Table: 8020406a  DAC: 00000051
->> Process swapper/0 (pid: 1, stack limit = 0xc782e210)
->> Stack: (0xc782fc98 to 0xc7830000)
->> [...]
->
-> The WDT_STS (status) needs to be translated via wdt_addr as well.
->
-> fixes: f0d9d0f4b44a ("watchdog: qcom: add option for standalone watchdog not in timer block")
-> Cc: stable@vger.kernel.org # 4.8
-> Signed-off-by: Christian Lamparter <chunkeey@gmail.com>
+From: Steve Twiss <stwiss.opensource@diasemi.com>
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Device tree binding information for DA9062 and DA9061 thermal junction
+temperature monitor.
 
-> ---
->  drivers/watchdog/qcom-wdt.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/watchdog/qcom-wdt.c b/drivers/watchdog/qcom-wdt.c
-> index 5796b5d..4f47b5e 100644
-> --- a/drivers/watchdog/qcom-wdt.c
-> +++ b/drivers/watchdog/qcom-wdt.c
-> @@ -209,7 +209,7 @@ static int qcom_wdt_probe(struct platform_device *pdev)
->  	wdt->wdd.parent = &pdev->dev;
->  	wdt->layout = regs;
->
-> -	if (readl(wdt->base + WDT_STS) & 1)
-> +	if (readl(wdt_addr(wdt, WDT_STS)) & 1)
->  		wdt->wdd.bootstatus = WDIOF_CARDRESET;
->
->  	/*
->
+Binding descriptions for the DA9061 and DA9062 thermal TJUNC supervisor
+device driver, using a single THERMAL_TRIP_HOT trip-wire and allowing for
+a configurable polling period for over-temperature polling.
+
+This patch also adds two examples, one for DA9062 and one for DA9061. The 
+DA9061 example uses a fall-back compatible string for the DA9062.
+
+Acked-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+
+---
+This patch applies against linux-next and v4.8
+
+v3 -> v4
+ - NO CODE CHANGE
+ - Patch renamed from [PATCH V3 3/9] to [PATCH V4 2/8]
+ - Added Acked-by Rob Herring
+
+v2 -> v3
+ - Patch renamed from [PATCH V2 03/10] to [PATCH V3 3/9]
+ - Changes suggested from other component reviews by Rob Herring:
+ - Each compatible line should be a valid combination of compatible
+   strings: alter DA9061 line to include the fall back compatible string
+   and update the commit message accordingly
+ - Add e-mail information about associated patches from this set without
+   describing them as being explicitly dependent on this binding
+
+v1 -> v2
+ - Patch renamed from [PATCH V1 08/10] to [PATCH V2 03/10] -- these
+   changes were made to fix checkpatch warnings caused by the patch
+   set dependency order
+ - A second example for DA9061 is provided to highlight the use of a
+   fall-back compatible option for the DA9062
+
+Hi,
+
+No code changes for this version PATCH V4. Added an Ack by Rob Herring
+for PATCH V3.
+
+As previously:
+The device driver from this patch set (associated with this binding) is:
+  [PATCH V4 7/8] thermal: da9061: TJUNC temperature driver 
+
+Regards,
+Steve Twiss, Dialog Semiconductor Ltd.
+
+
+ .../devicetree/bindings/thermal/da9062-thermal.txt | 37 ++++++++++++++++++++++
+ 1 file changed, 37 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/thermal/da9062-thermal.txt
+
+diff --git a/Documentation/devicetree/bindings/thermal/da9062-thermal.txt b/Documentation/devicetree/bindings/thermal/da9062-thermal.txt
+new file mode 100644
+index 0000000..460ce68
+--- /dev/null
++++ b/Documentation/devicetree/bindings/thermal/da9062-thermal.txt
+@@ -0,0 +1,37 @@
++* Dialog DA9062/61 TJUNC Thermal Module
++
++This module is part of the DA9061/DA9062. For more details about entire
++DA9062 and DA9061 chips see Documentation/devicetree/bindings/mfd/da9062.txt
++
++Junction temperature thermal module uses an interrupt signal to identify
++high THERMAL_TRIP_HOT temperatures for the PMIC device.
++
++Required properties:
++
++- compatible: should be one of the following valid compatible string lines:
++        "dlg,da9061-thermal", "dlg,da9062-thermal"
++        "dlg,da9062-thermal"
++
++Optional properties:
++
++- dlg,tjunc-temp-polling-period-ms : Specify the polling period, measured
++    in milliseconds, between thermal zone device update checks.
++
++Example: DA9062
++
++	pmic0: da9062@58 {
++		thermal {
++			compatible = "dlg,da9062-thermal";
++			dlg,tjunc-temp-polling-period-ms = <3000>;
++		};
++	};
++
++Example: DA9061 using a fall-back compatible for the DA9062 onkey driver
++
++	pmic0: da9061@58 {
++		thermal {
++			compatible = "dlg,da9061-thermal", "dlg,da9062-thermal";
++			dlg,tjunc-temp-polling-period-ms = <3000>;
++		};
++	};
++
+-- 
+end-of-patch for PATCH V4
 
