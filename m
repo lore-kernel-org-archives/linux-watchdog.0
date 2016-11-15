@@ -1,8 +1,8 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:55628 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:45310 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932407AbcKONQH (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 15 Nov 2016 08:16:07 -0500
+        id S932987AbcKONO6 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 15 Nov 2016 08:14:58 -0500
 From: fu.wei@linaro.org
 To: rjw@rjwysocki.net, lenb@kernel.org, daniel.lezcano@linaro.org,
         tglx@linutronix.de, marc.zyngier@arm.com, mark.rutland@arm.com,
@@ -18,9 +18,9 @@ Cc: linux-arm-kernel@lists.infradead.org, linaro-acpi@lists.linaro.org,
         linux@roeck-us.net, linux-watchdog@vger.kernel.org,
         tn@semihalf.com, christoffer.dall@linaro.org, julien.grall@arm.com,
         Fu Wei <fu.wei@linaro.org>
-Subject: [PATCH v15 08/13] clocksource/drivers/arm_arch_timer: Refactor the timer init code to prepare for GTDT
-Date: Tue, 15 Nov 2016 21:13:30 +0800
-Message-Id: <1479215615-26950-9-git-send-email-fu.wei@linaro.org>
+Subject: [PATCH v15 03/13] clocksource/drivers/arm_arch_timer: Improve printk relevant code
+Date: Tue, 15 Nov 2016 21:13:25 +0800
+Message-Id: <1479215615-26950-4-git-send-email-fu.wei@linaro.org>
 In-Reply-To: <1479215615-26950-1-git-send-email-fu.wei@linaro.org>
 References: <1479215615-26950-1-git-send-email-fu.wei@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -28,214 +28,170 @@ List-Id: linux-watchdog@vger.kernel.org
 
 From: Fu Wei <fu.wei@linaro.org>
 
-The patch refactor original memory-mapped timer init code:
-    (1) Extract a subfunction for detecting a bast time frame:
-        is_best_frame.
-    (2) Refactor "arch_timer_mem_init", make it become a common code for
-        memory-mapped timer init.
-    (3) Add a new function "arch_timer_mem_of_init" for DT init.
+This patch defines pr_fmt(fmt) for all pr_* functions,
+then the pr_* doesn't need to add "arch_timer:" everytime.
+
+According to the suggestion from checkpatch.pl:
+(1) delete some Blank Spaces in arch_timer_banner;
+(2) delete a redundant Tab in a bland line of arch_timer_init(void)
+
+No functional change.
 
 Signed-off-by: Fu Wei <fu.wei@linaro.org>
+Acked-by: Mark Rutland <mark.rutland@arm.com>
 ---
- drivers/clocksource/arm_arch_timer.c | 153 ++++++++++++++++++++++++-----------
- 1 file changed, 104 insertions(+), 49 deletions(-)
+ drivers/clocksource/arm_arch_timer.c | 49 ++++++++++++++++++------------------
+ 1 file changed, 25 insertions(+), 24 deletions(-)
 
 diff --git a/drivers/clocksource/arm_arch_timer.c b/drivers/clocksource/arm_arch_timer.c
-index af22953..a44e44d 100644
+index 96c88bb..b0365043 100644
 --- a/drivers/clocksource/arm_arch_timer.c
 +++ b/drivers/clocksource/arm_arch_timer.c
-@@ -913,17 +913,35 @@ static int __init arch_timer_of_init(struct device_node *np)
- CLOCKSOURCE_OF_DECLARE(armv7_arch_timer, "arm,armv7-timer", arch_timer_of_init);
- CLOCKSOURCE_OF_DECLARE(armv8_arch_timer, "arm,armv8-timer", arch_timer_of_init);
+@@ -32,6 +32,9 @@
  
--static int __init arch_timer_mem_init(struct device_node *np)
-+static bool __init is_best_frame(void __iomem *cntctlbase, u32 cnttidr, int n)
-+{
-+	u32 cntacr = CNTACR_RFRQ | CNTACR_RWPT | CNTACR_RPCT | CNTACR_RWVT |
-+		     CNTACR_RVOFF | CNTACR_RVCT;
+ #include <clocksource/arm_arch_timer.h>
+ 
++#undef pr_fmt
++#define pr_fmt(fmt) "arch_timer: " fmt
 +
-+	/* Try enabling everything, and see what sticks */
-+	writel_relaxed(cntacr, cntctlbase + CNTACR(n));
-+	cntacr = readl_relaxed(cntctlbase + CNTACR(n));
-+
-+	if ((cnttidr & CNTTIDR_VIRT(n)) &&
-+	    !(~cntacr & (CNTACR_RWVT | CNTACR_RVCT)))
-+		arch_timer_mem_use_virtual = true;
-+	else if (~cntacr & (CNTACR_RWPT | CNTACR_RPCT))
-+		return false;
-+
-+	return true;
-+}
-+
-+static int __init arch_timer_mem_init(struct arch_timer_mem *timer_mem)
+ #define CNTTIDR		0x08
+ #define CNTTIDR_VIRT(n)	(BIT(1) << ((n) * 4))
+ 
+@@ -504,22 +507,22 @@ arch_timer_detect_rate(void __iomem *cntbase, struct device_node *np)
+ 
+ 	/* Check the timer frequency. */
+ 	if (arch_timer_rate == 0)
+-		pr_warn("Architected timer frequency not available\n");
++		pr_warn("frequency not available\n");
+ }
+ 
+ static void arch_timer_banner(unsigned type)
  {
--	struct device_node *frame, *best_frame = NULL;
- 	void __iomem *cntctlbase, *base;
--	unsigned int irq, ret = -EINVAL;
-+	struct arch_timer_mem_frame *best_frame = NULL;
-+	unsigned int irq;
- 	u32 cnttidr;
-+	int i, ret;
+-	pr_info("Architected %s%s%s timer(s) running at %lu.%02luMHz (%s%s%s).\n",
+-		     type & ARCH_CP15_TIMER ? "cp15" : "",
+-		     type == (ARCH_CP15_TIMER | ARCH_MEM_TIMER) ?  " and " : "",
+-		     type & ARCH_MEM_TIMER ? "mmio" : "",
+-		     (unsigned long)arch_timer_rate / 1000000,
+-		     (unsigned long)(arch_timer_rate / 10000) % 100,
+-		     type & ARCH_CP15_TIMER ?
+-		     (arch_timer_uses_ppi == VIRT_PPI) ? "virt" : "phys" :
++	pr_info("%s%s%s timer(s) running at %lu.%02luMHz (%s%s%s).\n",
++		type & ARCH_CP15_TIMER ? "cp15" : "",
++		type == (ARCH_CP15_TIMER | ARCH_MEM_TIMER) ?  " and " : "",
++		type & ARCH_MEM_TIMER ? "mmio" : "",
++		(unsigned long)arch_timer_rate / 1000000,
++		(unsigned long)(arch_timer_rate / 10000) % 100,
++		type & ARCH_CP15_TIMER ?
++			(arch_timer_uses_ppi == VIRT_PPI) ? "virt" : "phys" :
+ 			"",
+-		     type == (ARCH_CP15_TIMER | ARCH_MEM_TIMER) ?  "/" : "",
+-		     type & ARCH_MEM_TIMER ?
++		type == (ARCH_CP15_TIMER | ARCH_MEM_TIMER) ?  "/" : "",
++		type & ARCH_MEM_TIMER ?
+ 			arch_timer_mem_use_virtual ? "virt" : "phys" :
+ 			"");
+ }
+@@ -618,8 +621,7 @@ static void __init arch_counter_register(unsigned type)
  
--	arch_timers_present |= ARCH_TIMER_TYPE_MEM;
--	cntctlbase = of_iomap(np, 0);
-+	cntctlbase = ioremap(timer_mem->cntctlbase, timer_mem->size);
+ static void arch_timer_stop(struct clock_event_device *clk)
+ {
+-	pr_debug("arch_timer_teardown disable IRQ%d cpu #%d\n",
+-		 clk->irq, smp_processor_id());
++	pr_debug("disable IRQ%d cpu #%d\n", clk->irq, smp_processor_id());
+ 
+ 	disable_percpu_irq(arch_timer_ppi[arch_timer_uses_ppi]);
+ 	if (arch_timer_has_nonsecure_ppi())
+@@ -712,8 +714,7 @@ static int __init arch_timer_register(void)
+ 	}
+ 
+ 	if (err) {
+-		pr_err("arch_timer: can't register interrupt %d (%d)\n",
+-		       ppi, err);
++		pr_err("can't register interrupt %d (%d)\n", ppi, err);
+ 		goto out_free;
+ 	}
+ 
+@@ -766,7 +767,7 @@ static int __init arch_timer_mem_register(void __iomem *base, unsigned int irq)
+ 
+ 	ret = request_irq(irq, func, IRQF_TIMER, "arch_mem_timer", &t->evt);
+ 	if (ret) {
+-		pr_err("arch_timer: Failed to request mem timer irq\n");
++		pr_err("Failed to request mem timer irq\n");
+ 		kfree(t);
+ 	}
+ 
+@@ -844,7 +845,7 @@ static int __init arch_timer_init(void)
+ 		}
+ 
+ 		if (!has_ppi) {
+-			pr_warn("arch_timer: No interrupt available, giving up\n");
++			pr_warn("No interrupt available, giving up\n");
+ 			return -EINVAL;
+ 		}
+ 	}
+@@ -858,7 +859,7 @@ static int __init arch_timer_init(void)
+ 		return ret;
+ 
+ 	arch_timer_kvm_info.virtual_irq = arch_timer_ppi[VIRT_PPI];
+-	
++
+ 	return 0;
+ }
+ 
+@@ -867,7 +868,7 @@ static int __init arch_timer_of_init(struct device_node *np)
+ 	int i;
+ 
+ 	if (arch_timers_present & ARCH_CP15_TIMER) {
+-		pr_warn("arch_timer: multiple nodes in dt, skipping\n");
++		pr_warn("multiple nodes in dt, skipping\n");
+ 		return 0;
+ 	}
+ 
+@@ -911,7 +912,7 @@ static int __init arch_timer_mem_init(struct device_node *np)
+ 	arch_timers_present |= ARCH_MEM_TIMER;
+ 	cntctlbase = of_iomap(np, 0);
  	if (!cntctlbase) {
--		pr_err("Can't find CNTCTLBase\n");
-+		pr_err("Can't map CNTCTLBase.\n");
+-		pr_err("arch_timer: Can't find CNTCTLBase\n");
++		pr_err("Can't find CNTCTLBase\n");
  		return -ENXIO;
  	}
  
-@@ -933,69 +951,106 @@ static int __init arch_timer_mem_init(struct device_node *np)
- 	 * Try to find a virtual capable frame. Otherwise fall back to a
- 	 * physical capable frame.
- 	 */
--	for_each_available_child_of_node(np, frame) {
--		int n;
--		u32 cntacr;
--
--		if (of_property_read_u32(frame, "frame-number", &n)) {
--			pr_err("Missing frame-number\n");
--			of_node_put(frame);
--			goto out;
--		}
--
--		/* Try enabling everything, and see what sticks */
--		cntacr = CNTACR_RFRQ | CNTACR_RWPT | CNTACR_RPCT |
--			 CNTACR_RWVT | CNTACR_RVOFF | CNTACR_RVCT;
--		writel_relaxed(cntacr, cntctlbase + CNTACR(n));
--		cntacr = readl_relaxed(cntctlbase + CNTACR(n));
--
--		if ((cnttidr & CNTTIDR_VIRT(n)) &&
--		    !(~cntacr & (CNTACR_RWVT | CNTACR_RVCT))) {
--			of_node_put(best_frame);
--			best_frame = frame;
--			arch_timer_mem_use_virtual = true;
--			break;
-+	for (i = 0; i < timer_mem->num_frames; i++) {
-+		if (is_best_frame(cntctlbase, cnttidr,
-+				  timer_mem->frame[i].frame_nr)) {
-+			best_frame = &timer_mem->frame[i];
-+			if (arch_timer_mem_use_virtual)
-+				break;
- 		}
--
--		if (~cntacr & (CNTACR_RWPT | CNTACR_RPCT))
--			continue;
--
--		of_node_put(best_frame);
--		best_frame = of_node_get(frame);
- 	}
-+	iounmap(cntctlbase);
+@@ -926,7 +927,7 @@ static int __init arch_timer_mem_init(struct device_node *np)
+ 		u32 cntacr;
  
--	ret= -ENXIO;
--	base = arch_counter_base = of_iomap(best_frame, 0);
--	if (!base) {
--		pr_err("Can't map frame's registers\n");
--		goto out;
-+	if (!best_frame) {
-+		pr_err("Can't find frame for register\n");
-+		return -EINVAL;
- 	}
- 
- 	if (arch_timer_mem_use_virtual)
--		irq = irq_of_parse_and_map(best_frame, ARCH_TIMER_VIRT_SPI);
-+		irq = best_frame->virt_irq;
- 	else
--		irq = irq_of_parse_and_map(best_frame, ARCH_TIMER_PHYS_SPI);
-+		irq = best_frame->phys_irq;
- 
--	ret = -EINVAL;
- 	if (!irq) {
- 		pr_err("Frame missing %s irq",
- 		       arch_timer_mem_use_virtual ? "virt" : "phys");
--		goto out;
-+		return -EINVAL;
-+	}
-+
-+	base = ioremap(best_frame->cntbase, best_frame->size);
-+	if (!base) {
-+		pr_err("Can't map frame's registers\n");
-+		return -ENXIO;
- 	}
- 
--	arch_timer_detect_rate(base, np);
-+	arch_timer_detect_rate(base, NULL);
- 	ret = arch_timer_mem_register(base, irq);
--	if (ret)
-+	if (ret) {
-+		iounmap(base);
-+		return ret;
-+	}
-+
-+	arch_counter_base = base;
-+	arch_timers_present |= ARCH_TIMER_TYPE_MEM;
-+
-+	return 0;
-+}
-+
-+static int __init arch_timer_mem_of_init(struct device_node *np)
-+{
-+	struct arch_timer_mem *timer_mem;
-+	struct device_node *frame_node;
-+	struct resource res;
-+	int i, ret = -EINVAL;
-+
-+	timer_mem = kzalloc(sizeof(*timer_mem), GFP_KERNEL);
-+	if (!timer_mem)
-+		return -ENOMEM;
-+
-+	if (of_address_to_resource(np, 0, &res))
- 		goto out;
-+	timer_mem->cntctlbase = res.start;
-+	timer_mem->size = resource_size(&res);
- 
--	return arch_timer_common_init();
-+	i = 0;
-+	for_each_available_child_of_node(np, frame_node) {
-+		int n;
-+		struct arch_timer_mem_frame *frame = &timer_mem->frame[i];
-+
-+		if (of_property_read_u32(frame_node, "frame-number", &n)) {
+ 		if (of_property_read_u32(frame, "frame-number", &n)) {
+-			pr_err("arch_timer: Missing frame-number\n");
 +			pr_err("Missing frame-number\n");
-+			of_node_put(frame_node);
-+			goto out;
-+		}
-+		frame->frame_nr = n;
-+
-+		if (of_address_to_resource(frame_node, 0, &res)) {
-+			of_node_put(frame_node);
-+			goto out;
-+		}
-+		frame->cntbase = res.start;
-+		frame->size = resource_size(&res);
-+
-+		frame->virt_irq = irq_of_parse_and_map(frame_node,
-+						       ARCH_TIMER_VIRT_SPI);
-+		frame->phys_irq = irq_of_parse_and_map(frame_node,
-+						       ARCH_TIMER_PHYS_SPI);
-+
-+		if (++i >= ARCH_TIMER_MEM_MAX_FRAMES)
-+			break;
-+	}
-+	timer_mem->num_frames = i;
-+
-+	arch_timer_detect_rate(NULL, np);
-+	ret = arch_timer_mem_init(timer_mem);
-+	if (!ret)
-+		ret = arch_timer_common_init();
- out:
--	iounmap(cntctlbase);
--	of_node_put(best_frame);
-+	kfree(timer_mem);
- 	return ret;
- }
- CLOCKSOURCE_OF_DECLARE(armv7_arch_timer_mem, "arm,armv7-timer-mem",
--		       arch_timer_mem_init);
-+		       arch_timer_mem_of_init);
+ 			of_node_put(frame);
+ 			goto out;
+ 		}
+@@ -955,7 +956,7 @@ static int __init arch_timer_mem_init(struct device_node *np)
+ 	ret= -ENXIO;
+ 	base = arch_counter_base = of_iomap(best_frame, 0);
+ 	if (!base) {
+-		pr_err("arch_timer: Can't map frame's registers\n");
++		pr_err("Can't map frame's registers\n");
+ 		goto out;
+ 	}
  
- #ifdef CONFIG_ACPI
- static int __init map_generic_timer_interrupt(u32 interrupt, u32 flags)
+@@ -966,7 +967,7 @@ static int __init arch_timer_mem_init(struct device_node *np)
+ 
+ 	ret = -EINVAL;
+ 	if (!irq) {
+-		pr_err("arch_timer: Frame missing %s irq",
++		pr_err("Frame missing %s irq",
+ 		       arch_timer_mem_use_virtual ? "virt" : "phys");
+ 		goto out;
+ 	}
+@@ -1008,7 +1009,7 @@ static int __init arch_timer_acpi_init(struct acpi_table_header *table)
+ 	struct acpi_table_gtdt *gtdt;
+ 
+ 	if (arch_timers_present & ARCH_CP15_TIMER) {
+-		pr_warn("arch_timer: already initialized, skipping\n");
++		pr_warn("already initialized, skipping\n");
+ 		return -EINVAL;
+ 	}
+ 
 -- 
 2.7.4
 
