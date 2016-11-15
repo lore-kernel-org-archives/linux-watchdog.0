@@ -1,115 +1,90 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:34627 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:57854 "EHLO
         bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932228AbcKONq5 (ORCPT
+        with ESMTP id S932756AbcKOOJS (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 15 Nov 2016 08:46:57 -0500
-Subject: Re: wdt, gpio: move arch_initcall into subsys_initcall ?
-To: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>, hs@denx.de,
-        linux-watchdog@vger.kernel.org, linux-gpio@vger.kernel.org
-References: <582AE18A.2060405@denx.de>
- <afbf394e-e411-5c43-e2b0-667b3fbc2edf@mentor.com>
- <e4472c2d-effa-9583-aded-8dcdfdd57ee6@mentor.com>
-Cc: linux-arm-kernel@lists.infradead.org,
-        Shawn Guo <shawnguo@kernel.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        "Jonas Mark (ST-FIR/ENG1)" <Mark.Jonas@de.bosch.com>
+        Tue, 15 Nov 2016 09:09:18 -0500
+Subject: Re: [PATCH 1/2] Watchdog: omap_wdt: Retrieve bootstatus via syscon
+To: Cor Peters <cpeters@victronenergy.com>, linux-omap@vger.kernel.org
+References: <2736782.ivGPcGWbll@corpeters>
+Cc: linux-watchdog@vger.kernel.org
 From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <ee9824b8-f09f-3817-8893-8121c9fb9eb1@roeck-us.net>
-Date: Tue, 15 Nov 2016 05:46:53 -0800
+Message-ID: <bb5ceb32-80a7-2caa-ea70-26a24100b769@roeck-us.net>
+Date: Tue, 15 Nov 2016 06:09:16 -0800
 MIME-Version: 1.0
-In-Reply-To: <e4472c2d-effa-9583-aded-8dcdfdd57ee6@mentor.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+In-Reply-To: <2736782.ivGPcGWbll@corpeters>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 11/15/2016 03:32 AM, Vladimir Zapolskiy wrote:
-> On 11/15/2016 01:10 PM, Vladimir Zapolskiy wrote:
->> Hello Heiko,
->>
->> On 11/15/2016 12:20 PM, Heiko Schocher wrote:
->>> Hello,
->>>
->>> commit e188cbf7564f: "gpio: mxc: shift gpio_mxc_init() to subsys_initcall level"
->>> moves the gpio initialization of the mxc gpio driver
->>> from the arch_initcall level into subsys_initcall level.
->>>
->>> This leads now on mxc boards, which use a gpio wdt driver
->>> and the CONFIG_GPIO_WATCHDOG_ARCH_INITCALL option enabled,
->>> to unwanted driver probe deferrals during kernel boot.
->>>
->>> I see this currently on an imx6 based board (which has unfortunately
->>> 3 WDT: imx6 internal (disabled), gpio wdt and da9063 WDT ...).
->>>
->>> Also a side effect from above commit is, that the da9063 WDT driver
->>> is now probed before the gpio WDT driver ... so /dev/watchdog now
->>> does not point to the gpio_wdt, instead it points to the da9063 WDT.
->>>
->>> So there are 2 solutions possible:
->>>
->>> - add a CONFIG_GPIO_MCX_ARCH_INITCALL option
->>>   in drivers/gpio/gpio-mxc.c like for the gpio_wdt.c driver?
->>
->> in my opinion this is overly heavy solution and it might be
->> better to avoid it if possible.
->>
->> I would rather prefer to reconsider GPIO_WATCHDOG_ARCH_INITCALL
->> usage in the watchdog driver.
->>
->> Moreover adding this proposed GPIO_MCX_ARCH_INITCALL to call
->> the driver on arch level will result in deferring the GPIO driver.
->>
->>>   But how can we guarantee, that first the gpio driver and then
->>>   the gpio_wdt driver gets probed?
->>>
->>> - move the arch_initcall in gpio_wdt.c into a subsys_initcall
->>>   (Tested this, and the probe dereferral messages are gone ...)
->>>
->>>   But this may results in problems on boards, which needs an early
->>>   trigger on an gpio wdt ...
->>
->> The level of "earliness" can not be defined in absolute time value
->> in any case, why decreasing the init level of the watchdog driver
->> to subsys level can cause problems? For that there should exist
->> some kind of a dependency on IC or PCB hardware level, can you
->> name it please?
->>
->> Also please note that more than a half of all GPIO drivers settle
->> on subsys or later initcall level, this means that there is
->> an expected GPIO watchdog driver deferral for all of them.
+On 11/15/2016 12:44 AM, Cor Peters wrote:
+> The current way to retrieve the bootstatus does not work with
+> device-tree based systems. This patch uses syscon to retrieve the
+> watchdog boot status from the PRM_DEV registers.
 >
-> Please find two more late notes though.
->
->> I propose to send two patches for review:
->>
->> 1. remove GPIO_WATCHDOG_ARCH_INITCALL option completely and decouple
->>    module_platform_driver() into arch_initcall() and module_exit()
->>    unconditionally.
->>
->> 2. change arch_initcall() in the watchdog driver to subsys_initcall().
->>    This change removes probe deferrals on boot, when the driver is
->>    used with the most of the GPIO controllers.
->
-> Alternatively commit 5e53c8ed813d ("watchdog: gpio_wdt: Add option for
-> early registration") can be reverted and then module_platform_driver()
-> is decoupled into subsys_initcall() and module_exit() as its replacement.
->
-Sure, only the reason for that was that there are situations where
-subsys_initcall() was too late. Also, when using arch_initcall() only,
-we get deferrals again, which is apparently hated by many and a reason
-for all those "avoid probe deferrals" patches.
+> Signed-off-by: Cor Peters <cpeters@victronenergy.com>
 
-> And also please note that since quite many GPIO controller drivers
-> live on initcall levels after subsys_initcall(), the solution won't
-> let to avoid watchdog driver deferrals totally, this should be accepted.
->
-... except for others it isn't, and we are back to square one.
+For the subject: Patch 2/2 seems to be missing (or I wasn't copied).
 
-GPIO_WATCHDOG_ARCH_INITCALL was intended to be only used in situations
-where needed. Why is it used here in the first place if that is not
-the case ?
+> ---
+>  drivers/watchdog/omap_wdt.c | 16 ++++++++++++++--
+>  1 file changed, 14 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/watchdog/omap_wdt.c b/drivers/watchdog/omap_wdt.c
+> index 1b02bfa..fed3f9c 100644
+> --- a/drivers/watchdog/omap_wdt.c
+> +++ b/drivers/watchdog/omap_wdt.c
+> @@ -41,6 +41,8 @@
+>  #include <linux/slab.h>
+>  #include <linux/pm_runtime.h>
+>  #include <linux/platform_data/omap-wd-timer.h>
+> +#include <linux/regmap.h>
+> +#include <linux/mfd/syscon.h>
+>
+>  #include "omap_wdt.h"
+>
+> @@ -230,9 +232,11 @@ static unsigned int omap_wdt_get_timeleft(struct watchdog_device *wdog)
+>  static int omap_wdt_probe(struct platform_device *pdev)
+>  {
+>         struct omap_wd_timer_platform_data *pdata = dev_get_platdata(&pdev->dev);
+> +       struct regmap *rm = syscon_regmap_lookup_by_compatible("ti,omap3-prcm-dev");
+>         struct resource *res;
+>         struct omap_wdt_dev *wdev;
+>         int ret;
+> +       u32 rs = 0;
+>
+>         wdev = devm_kzalloc(&pdev->dev, sizeof(*wdev), GFP_KERNEL);
+>         if (!wdev)
+> @@ -267,9 +271,17 @@ static int omap_wdt_probe(struct platform_device *pdev)
+>
+>         if (pdata && pdata->read_reset_sources) {
+>                 u32 rs = pdata->read_reset_sources();
+
+You are still declaring rs here, meaning the new instance of rs is hidden.
+
+> -               if (rs & (1 << OMAP_MPU_WD_RST_SRC_ID_SHIFT))
+> -                       wdev->wdog.bootstatus = WDIOF_CARDRESET;
+>         }
+> +       else if (!IS_ERR(rm)) {
+> +               if (regmap_read(rm, 2 * sizeof(u32), &rs) >= 0) {
+
+Can you use a define instead of "2 * sizeof(u32)" here ? If the register is 0x0008
+it should be defined as 0x0008; the register address does not depend on the size
+of an u32.
+
+> +                       /* reset register */
+> +                       regmap_write(rm, 2 * sizeof(u32),
+> +                               (1 << OMAP_MPU_WD_RST_SRC_ID_SHIFT) );
+
+extra space between '')'.
+
+Why reset this register ? That isn't done for the non-DT case.
+
+Also, unless I misunderstand the code, OMAP_MPU_WD_RST_SRC_ID_SHIFT is a
+standardized "soft" value and does not reflect the physical reset bit in
+the SoC. I don't think you can just use that value and assume that it
+is the correct register bit to use.
 
 Guenter
 
