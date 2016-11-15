@@ -1,8 +1,8 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:42462 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:42672 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S934642AbcKONQ2 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 15 Nov 2016 08:16:28 -0500
+        id S933372AbcKONRA (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 15 Nov 2016 08:17:00 -0500
 From: fu.wei@linaro.org
 To: rjw@rjwysocki.net, lenb@kernel.org, daniel.lezcano@linaro.org,
         tglx@linutronix.de, marc.zyngier@arm.com, mark.rutland@arm.com,
@@ -18,9 +18,9 @@ Cc: linux-arm-kernel@lists.infradead.org, linaro-acpi@lists.linaro.org,
         linux@roeck-us.net, linux-watchdog@vger.kernel.org,
         tn@semihalf.com, christoffer.dall@linaro.org, julien.grall@arm.com,
         Fu Wei <fu.wei@linaro.org>
-Subject: [PATCH v15 10/13] clocksource/drivers/arm_arch_timer: Simplify ACPI support code.
-Date: Tue, 15 Nov 2016 21:13:32 +0800
-Message-Id: <1479215615-26950-11-git-send-email-fu.wei@linaro.org>
+Subject: [PATCH v15 12/13] clocksource/drivers/arm_arch_timer: Add GTDT support for memory-mapped timer
+Date: Tue, 15 Nov 2016 21:13:34 +0800
+Message-Id: <1479215615-26950-13-git-send-email-fu.wei@linaro.org>
 In-Reply-To: <1479215615-26950-1-git-send-email-fu.wei@linaro.org>
 References: <1479215615-26950-1-git-send-email-fu.wei@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -28,107 +28,58 @@ List-Id: linux-watchdog@vger.kernel.org
 
 From: Fu Wei <fu.wei@linaro.org>
 
-The patch update arm_arch_timer driver to use the function
-provided by the new GTDT driver of ACPI.
-By this way, arm_arch_timer.c can be simplified, and separate
-all the ACPI GTDT knowledge from this timer driver.
+The patch add memory-mapped timer register support by using the
+information provided by the new GTDT driver of ACPI.
 
 Signed-off-by: Fu Wei <fu.wei@linaro.org>
-Signed-off-by: Hanjun Guo <hanjun.guo@linaro.org>
 ---
- drivers/clocksource/arm_arch_timer.c | 55 +++++++++++++-----------------------
- 1 file changed, 19 insertions(+), 36 deletions(-)
+ drivers/clocksource/arm_arch_timer.c | 26 +++++++++++++++++++++++++-
+ 1 file changed, 25 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/clocksource/arm_arch_timer.c b/drivers/clocksource/arm_arch_timer.c
-index a44e44d..653374c 100644
+index 653374c..350d0b9 100644
 --- a/drivers/clocksource/arm_arch_timer.c
 +++ b/drivers/clocksource/arm_arch_timer.c
-@@ -1052,66 +1052,49 @@ static int __init arch_timer_mem_of_init(struct device_node *np)
- CLOCKSOURCE_OF_DECLARE(armv7_arch_timer_mem, "arm,armv7-timer-mem",
+@@ -1053,7 +1053,28 @@ CLOCKSOURCE_OF_DECLARE(armv7_arch_timer_mem, "arm,armv7-timer-mem",
  		       arch_timer_mem_of_init);
  
--#ifdef CONFIG_ACPI
--static int __init map_generic_timer_interrupt(u32 interrupt, u32 flags)
--{
--	int trigger, polarity;
--
--	if (!interrupt)
--		return 0;
--
--	trigger = (flags & ACPI_GTDT_INTERRUPT_MODE) ? ACPI_EDGE_SENSITIVE
--			: ACPI_LEVEL_SENSITIVE;
--
--	polarity = (flags & ACPI_GTDT_INTERRUPT_POLARITY) ? ACPI_ACTIVE_LOW
--			: ACPI_ACTIVE_HIGH;
--
--	return acpi_register_gsi(NULL, interrupt, trigger, polarity);
--}
--
-+#ifdef CONFIG_ACPI_GTDT
- /* Initialize per-processor generic timer */
+ #ifdef CONFIG_ACPI_GTDT
+-/* Initialize per-processor generic timer */
++static int __init arch_timer_mem_acpi_init(void)
++{
++	struct arch_timer_mem *timer_mem;
++	int ret = 0;
++	int i = 0;
++
++	timer_mem = kzalloc(sizeof(*timer_mem), GFP_KERNEL);
++	if (!timer_mem)
++		return -ENOMEM;
++
++	while (!gtdt_arch_timer_mem_init(timer_mem, i)) {
++		ret = arch_timer_mem_init(timer_mem);
++		if (ret)
++			break;
++		i++;
++	}
++
++	kfree(timer_mem);
++	return ret;
++}
++
++/* Initialize per-processor generic timer and memory-mapped timer(if present) */
  static int __init arch_timer_acpi_init(struct acpi_table_header *table)
  {
  	int ret;
--	struct acpi_table_gtdt *gtdt;
+@@ -1090,6 +1111,9 @@ static int __init arch_timer_acpi_init(struct acpi_table_header *table)
+ 	/* Get the frequency from CNTFRQ */
+ 	arch_timer_detect_rate(NULL, NULL);
  
- 	if (arch_timers_present & ARCH_TIMER_TYPE_CP15) {
- 		pr_warn("already initialized, skipping\n");
- 		return -EINVAL;
- 	}
- 
--	gtdt = container_of(table, struct acpi_table_gtdt, header);
--
- 	arch_timers_present |= ARCH_TIMER_TYPE_CP15;
- 
--	arch_timer_ppi[ARCH_TIMER_PHYS_SECURE_PPI] =
--		map_generic_timer_interrupt(gtdt->secure_el1_interrupt,
--		gtdt->secure_el1_flags);
-+	ret = acpi_gtdt_init(table);
-+	if (ret) {
-+		pr_err("Failed to init GTDT table.\n");
-+		return ret;
-+	}
- 
- 	arch_timer_ppi[ARCH_TIMER_PHYS_NONSECURE_PPI] =
--		map_generic_timer_interrupt(gtdt->non_secure_el1_interrupt,
--		gtdt->non_secure_el1_flags);
-+		acpi_gtdt_map_ppi(ARCH_TIMER_PHYS_NONSECURE_PPI);
- 
- 	arch_timer_ppi[ARCH_TIMER_VIRT_PPI] =
--		map_generic_timer_interrupt(gtdt->virtual_timer_interrupt,
--		gtdt->virtual_timer_flags);
-+		acpi_gtdt_map_ppi(ARCH_TIMER_VIRT_PPI);
- 
- 	arch_timer_ppi[ARCH_TIMER_HYP_PPI] =
--		map_generic_timer_interrupt(gtdt->non_secure_el2_interrupt,
--		gtdt->non_secure_el2_flags);
--
--	/* Get the frequency from CNTFRQ */
--	arch_timer_detect_rate(NULL, NULL);
-+		acpi_gtdt_map_ppi(ARCH_TIMER_HYP_PPI);
- 
- 	ret = arch_timer_uses_ppi_init();
- 	if (ret)
--		return ret;
-+		goto error;
- 
- 	/* Always-on capability */
--	arch_timer_c3stop = !(gtdt->non_secure_el1_flags & ACPI_GTDT_ALWAYS_ON);
-+	arch_timer_c3stop = acpi_gtdt_c3stop(arch_timer_uses_ppi);
- 
--	arch_timer_init();
--	return 0;
-+	/* Get the frequency from CNTFRQ */
-+	arch_timer_detect_rate(NULL, NULL);
++	if (arch_timer_mem_acpi_init())
++		pr_err("Failed to initialize memory-mapped timer.\n");
 +
-+	ret = arch_timer_init();
-+
-+error:
-+	acpi_gtdt_release();
-+	return ret;
- }
- CLOCKSOURCE_ACPI_DECLARE(arch_timer, ACPI_SIG_GTDT, arch_timer_acpi_init);
- #endif
+ 	ret = arch_timer_init();
+ 
+ error:
 -- 
 2.7.4
 
