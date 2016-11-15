@@ -1,34 +1,71 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-db5eur01on0134.outbound.protection.outlook.com ([104.47.2.134]:45343
-        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751481AbcKOLZK (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 15 Nov 2016 06:25:10 -0500
-From: Cor Peters <cpeters@victronenergy.com>
-To: <linux-omap@vger.kernel.org>
-CC: <linux-watchdog@vger.kernel.org>
-Subject: [PATCH 0/2] Watchdog: omap_wdt: Retrieve bootstatus via syscon (resend)
-Date: Tue, 15 Nov 2016 10:12:04 +0100
-Message-ID: <1629871.6xgARTdbXe@corpeters>
+Received: from muru.com ([72.249.23.125]:60296 "EHLO muru.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751790AbcKORfT (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 15 Nov 2016 12:35:19 -0500
+Date: Tue, 15 Nov 2016 09:35:15 -0800
+From: Tony Lindgren <tony@atomide.com>
+To: Cor Peters <cpeters@victronenergy.com>,
+        Tero Kristo <t-kristo@ti.com>
+Cc: linux-omap@vger.kernel.org, linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH 2/2] ARM: am33xx.dtsi: Added syscon compatible prcm_dev
+ device
+Message-ID: <20161115173515.GL4082@atomide.com>
+References: <3071466.kDDk30H73u@corpeters>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3071466.kDDk30H73u@corpeters>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This patch series adds device tree compatiblility to the watchdog status 
-feature from the omap-wdt driver and adds support for that feature to
-the am33xx.dti device-tree include.
+* Cor Peters <cpeters@victronenergy.com> [161115 01:00]:
+> This patch adds the PRM_DEV as a syscon compatible device to
+> am33xx.dtsi. This is needed for the watchdog bootstatus patch.
 
-It is my first patch so any comments/suggestions are welcome.
+We somehow need to see the bootreason for sure.. But we need to
+check with Tero on the reset driver work too.
 
-Cor Peters (2):
-  Watchdog: omap_wdt: Retrieve bootstatus via syscon.
-  ARM: am33xx.dtsi: Added syscon compatible prcm_dev device
+Tero, does setting up of PRM_DEVICE as syscon cause issues for
+your reset driver work?
 
- arch/arm/boot/dts/am33xx.dtsi |  6 ++++++
- drivers/watchdog/omap_wdt.c   | 14 ++++++++++++--
- 2 files changed, 18 insertions(+), 2 deletions(-)
+Regards,
 
--- 
-1.9.1
+Tony
+
+> 
+> Signed-off-by: Cor Peters <cpeters@victronenergy.com>
+> ---
+>  arch/arm/boot/dts/am33xx.dtsi | 6 ++++++
+>  1 file changed, 6 insertions(+)
+> 
+> diff --git a/arch/arm/boot/dts/am33xx.dtsi b/arch/arm/boot/dts/am33xx.dtsi
+> index 194d884..e8faf19 100644
+> --- a/arch/arm/boot/dts/am33xx.dtsi
+> +++ b/arch/arm/boot/dts/am33xx.dtsi
+> @@ -115,6 +115,7 @@
+>                         prcm: prcm@200000 {
+>                                 compatible = "ti,am3-prcm";
+>                                 reg = <0x200000 0x4000>;
+> +                               ranges = <0 0x200000 0x4000>;
+>  
+>                                 prcm_clocks: clocks {
+>                                         #address-cells = <1>;
+> @@ -123,6 +124,11 @@
+>  
+>                                 prcm_clockdomains: clockdomains {
+>                                 };
+> +
+> +                               prcm_wkup: prcm-wkup@f00 {
+> +                                       compatible = "ti,omap3-prcm-dev", "syscon";
+> +                                       reg = <0xf00 0xff>;
+> +                               };
+>                         };
+>  
+>                         scm: scm@210000 {
+> -- 
+> 1.9.1
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-omap" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
