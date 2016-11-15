@@ -1,16 +1,18 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from muru.com ([72.249.23.125]:60308 "EHLO muru.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751199AbcKORiU (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 15 Nov 2016 12:38:20 -0500
-Date: Tue, 15 Nov 2016 09:38:16 -0800
-From: Tony Lindgren <tony@atomide.com>
-To: Cor Peters <cpeters@victronenergy.com>,
-        Tero Kristo <t-kristo@ti.com>
-Cc: linux-omap@vger.kernel.org, linux-watchdog@vger.kernel.org
+Received: from bh-25.webhostbox.net ([208.91.199.152]:36739 "EHLO
+        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750928AbcKOSiy (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 15 Nov 2016 13:38:54 -0500
+Date: Tue, 15 Nov 2016 10:38:52 -0800
+From: Guenter Roeck <linux@roeck-us.net>
+To: Tony Lindgren <tony@atomide.com>
+Cc: Cor Peters <cpeters@victronenergy.com>,
+        Tero Kristo <t-kristo@ti.com>, linux-omap@vger.kernel.org,
+        linux-watchdog@vger.kernel.org
 Subject: Re: [PATCH 2/2] ARM: am33xx.dtsi: Added syscon compatible prcm_dev
  device
-Message-ID: <20161115173816.GM4082@atomide.com>
+Message-ID: <20161115183852.GA27474@roeck-us.net>
 References: <3071466.kDDk30H73u@corpeters>
  <20161115173515.GL4082@atomide.com>
 MIME-Version: 1.0
@@ -20,7 +22,7 @@ In-Reply-To: <20161115173515.GL4082@atomide.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-* Tony Lindgren <tony@atomide.com> [161115 09:35]:
+On Tue, Nov 15, 2016 at 09:35:15AM -0800, Tony Lindgren wrote:
 > * Cor Peters <cpeters@victronenergy.com> [161115 01:00]:
 > > This patch adds the PRM_DEV as a syscon compatible device to
 > > am33xx.dtsi. This is needed for the watchdog bootstatus patch.
@@ -28,15 +30,57 @@ List-Id: linux-watchdog@vger.kernel.org
 > We somehow need to see the bootreason for sure.. But we need to
 > check with Tero on the reset driver work too.
 > 
+Another problem is that the boot reason bit is not well defined and,
+if I understand correctly, can change with different SoCs. So this
+would also need a means to select the actual register bit to use.
+
+Thanks,
+Guenter
+
 > Tero, does setting up of PRM_DEVICE as syscon cause issues for
 > your reset driver work?
-
-The nightmare scenario is that we have drivers calling random
-syscon areas across various interconnect targets and then we have
-zero chance of getting genpd to ever to work properly.
-
-Do the reset drivers offer some way of exporting the reset status?
-
-Regards,
-
-Tony
+> 
+> Regards,
+> 
+> Tony
+> 
+> > 
+> > Signed-off-by: Cor Peters <cpeters@victronenergy.com>
+> > ---
+> >  arch/arm/boot/dts/am33xx.dtsi | 6 ++++++
+> >  1 file changed, 6 insertions(+)
+> > 
+> > diff --git a/arch/arm/boot/dts/am33xx.dtsi b/arch/arm/boot/dts/am33xx.dtsi
+> > index 194d884..e8faf19 100644
+> > --- a/arch/arm/boot/dts/am33xx.dtsi
+> > +++ b/arch/arm/boot/dts/am33xx.dtsi
+> > @@ -115,6 +115,7 @@
+> >                         prcm: prcm@200000 {
+> >                                 compatible = "ti,am3-prcm";
+> >                                 reg = <0x200000 0x4000>;
+> > +                               ranges = <0 0x200000 0x4000>;
+> >  
+> >                                 prcm_clocks: clocks {
+> >                                         #address-cells = <1>;
+> > @@ -123,6 +124,11 @@
+> >  
+> >                                 prcm_clockdomains: clockdomains {
+> >                                 };
+> > +
+> > +                               prcm_wkup: prcm-wkup@f00 {
+> > +                                       compatible = "ti,omap3-prcm-dev", "syscon";
+> > +                                       reg = <0xf00 0xff>;
+> > +                               };
+> >                         };
+> >  
+> >                         scm: scm@210000 {
+> > -- 
+> > 1.9.1
+> > --
+> > To unsubscribe from this list: send the line "unsubscribe linux-omap" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
