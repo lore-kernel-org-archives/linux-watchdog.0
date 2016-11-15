@@ -1,8 +1,8 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:52246 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:35644 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S933372AbcKONRJ (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 15 Nov 2016 08:17:09 -0500
+        id S935507AbcKONQP (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 15 Nov 2016 08:16:15 -0500
 From: fu.wei@linaro.org
 To: rjw@rjwysocki.net, lenb@kernel.org, daniel.lezcano@linaro.org,
         tglx@linutronix.de, marc.zyngier@arm.com, mark.rutland@arm.com,
@@ -18,180 +18,304 @@ Cc: linux-arm-kernel@lists.infradead.org, linaro-acpi@lists.linaro.org,
         linux@roeck-us.net, linux-watchdog@vger.kernel.org,
         tn@semihalf.com, christoffer.dall@linaro.org, julien.grall@arm.com,
         Fu Wei <fu.wei@linaro.org>
-Subject: [PATCH v15 13/13] acpi/arm64: Add SBSA Generic Watchdog support in GTDT driver
-Date: Tue, 15 Nov 2016 21:13:35 +0800
-Message-Id: <1479215615-26950-14-git-send-email-fu.wei@linaro.org>
+Subject: [PATCH v15 09/13] acpi/arm64: Add GTDT table parse driver
+Date: Tue, 15 Nov 2016 21:13:31 +0800
+Message-Id: <1479215615-26950-10-git-send-email-fu.wei@linaro.org>
 In-Reply-To: <1479215615-26950-1-git-send-email-fu.wei@linaro.org>
 References: <1479215615-26950-1-git-send-email-fu.wei@linaro.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
 
 From: Fu Wei <fu.wei@linaro.org>
 
-This driver adds support for parsing SBSA Generic Watchdog timer
-in GTDT, parse all info in SBSA Generic Watchdog Structure in GTDT,
-and creating a platform device with that information.
+This patch adds support for parsing arch timer in GTDT,
+provides some kernel APIs to parse all the PPIs and
+always-on info in GTDT and export them.
 
-This allows the operating system to obtain device data from the
-resource of platform device. The platform device named "sbsa-gwdt"
-can be used by the ARM SBSA Generic Watchdog driver.
+By this driver, we can simplify arm_arch_timer drivers, and
+separate the ACPI GTDT knowledge from it.
 
 Signed-off-by: Fu Wei <fu.wei@linaro.org>
 Signed-off-by: Hanjun Guo <hanjun.guo@linaro.org>
-Tested-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 ---
- drivers/acpi/arm64/gtdt.c | 100 ++++++++++++++++++++++++++++++++++++++++=
-++++++
- drivers/watchdog/Kconfig  |   1 +
- 2 files changed, 101 insertions(+)
+ arch/arm64/Kconfig          |   1 +
+ drivers/acpi/arm64/Kconfig  |   3 +
+ drivers/acpi/arm64/Makefile |   1 +
+ drivers/acpi/arm64/gtdt.c   | 216 ++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/acpi.h        |   7 ++
+ 5 files changed, 228 insertions(+)
 
-diff --git a/drivers/acpi/arm64/gtdt.c b/drivers/acpi/arm64/gtdt.c
-index 08d9506..69483f6 100644
---- a/drivers/acpi/arm64/gtdt.c
-+++ b/drivers/acpi/arm64/gtdt.c
-@@ -14,6 +14,7 @@
- #include <linux/acpi.h>
- #include <linux/init.h>
- #include <linux/kernel.h>
-+#include <linux/platform_device.h>
-=20
- #include <clocksource/arm_arch_timer.h>
-=20
-@@ -66,6 +67,14 @@ static inline bool is_watchdog(void *platform_timer)
- 	return gh->type =3D=3D ACPI_GTDT_TYPE_WATCHDOG;
- }
-=20
-+static inline struct acpi_gtdt_watchdog *get_watchdog(unsigned int index=
-)
-+{
-+	if (index >=3D acpi_gtdt_desc.watchdog_count || !watchdog)
-+		return NULL;
+diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
+index 969ef88..4277a21 100644
+--- a/arch/arm64/Kconfig
++++ b/arch/arm64/Kconfig
+@@ -2,6 +2,7 @@ config ARM64
+ 	def_bool y
+ 	select ACPI_CCA_REQUIRED if ACPI
+ 	select ACPI_GENERIC_GSI if ACPI
++	select ACPI_GTDT if ACPI
+ 	select ACPI_REDUCED_HARDWARE_ONLY if ACPI
+ 	select ACPI_MCFG if ACPI
+ 	select ACPI_SPCR_TABLE if ACPI
+diff --git a/drivers/acpi/arm64/Kconfig b/drivers/acpi/arm64/Kconfig
+index 4616da4..5a6f80f 100644
+--- a/drivers/acpi/arm64/Kconfig
++++ b/drivers/acpi/arm64/Kconfig
+@@ -4,3 +4,6 @@
+ 
+ config ACPI_IORT
+ 	bool
 +
-+	return watchdog[index];
++config ACPI_GTDT
++	bool
+diff --git a/drivers/acpi/arm64/Makefile b/drivers/acpi/arm64/Makefile
+index 72331f2..1017def 100644
+--- a/drivers/acpi/arm64/Makefile
++++ b/drivers/acpi/arm64/Makefile
+@@ -1 +1,2 @@
+ obj-$(CONFIG_ACPI_IORT) 	+= iort.o
++obj-$(CONFIG_ACPI_GTDT) 	+= gtdt.o
+diff --git a/drivers/acpi/arm64/gtdt.c b/drivers/acpi/arm64/gtdt.c
+new file mode 100644
+index 0000000..2de79aa
+--- /dev/null
++++ b/drivers/acpi/arm64/gtdt.c
+@@ -0,0 +1,216 @@
++/*
++ * ARM Specific GTDT table Support
++ *
++ * Copyright (C) 2016, Linaro Ltd.
++ * Author: Daniel Lezcano <daniel.lezcano@linaro.org>
++ *         Fu Wei <fu.wei@linaro.org>
++ *         Hanjun Guo <hanjun.guo@linaro.org>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++#include <linux/acpi.h>
++#include <linux/init.h>
++#include <linux/kernel.h>
++
++#include <clocksource/arm_arch_timer.h>
++
++#undef pr_fmt
++#define pr_fmt(fmt) "ACPI GTDT: " fmt
++
++struct acpi_gtdt_descriptor {
++	struct acpi_table_gtdt *gtdt;
++	void *gtdt_end;
++	unsigned int timer_block_count;
++	unsigned int watchdog_count;
++};
++
++static struct acpi_gtdt_descriptor acpi_gtdt_desc __initdata;
++static struct acpi_gtdt_timer_block **timer_block __initdata;
++static struct acpi_gtdt_watchdog **watchdog __initdata;
++
++static inline void *next_platform_timer(void *platform_timer)
++{
++	struct acpi_gtdt_header *gh = platform_timer;
++
++	platform_timer += gh->length;
++	if (platform_timer < acpi_gtdt_desc.gtdt_end)
++		return platform_timer;
++
++	return NULL;
 +}
 +
- static int __init map_gt_gsi(u32 interrupt, u32 flags)
- {
- 	int trigger, polarity;
-@@ -309,3 +318,94 @@ int __init gtdt_arch_timer_mem_init(struct arch_time=
-r_mem *data,
-=20
- 	return 0;
- }
++#define for_each_platform_timer(_g) for (; _g; _g = next_platform_timer(_g))
++
++static inline bool is_timer_block(void *platform_timer)
++{
++	struct acpi_gtdt_header *gh = platform_timer;
++
++	return gh->type == ACPI_GTDT_TYPE_TIMER_BLOCK;
++}
++
++static inline bool is_watchdog(void *platform_timer)
++{
++	struct acpi_gtdt_header *gh = platform_timer;
++
++	return gh->type == ACPI_GTDT_TYPE_WATCHDOG;
++}
++
++static int __init map_gt_gsi(u32 interrupt, u32 flags)
++{
++	int trigger, polarity;
++
++	trigger = (flags & ACPI_GTDT_INTERRUPT_MODE) ? ACPI_EDGE_SENSITIVE
++			: ACPI_LEVEL_SENSITIVE;
++
++	polarity = (flags & ACPI_GTDT_INTERRUPT_POLARITY) ? ACPI_ACTIVE_LOW
++			: ACPI_ACTIVE_HIGH;
++
++	return acpi_register_gsi(NULL, interrupt, trigger, polarity);
++}
 +
 +/*
-+ * Initialize a SBSA generic Watchdog platform device info from GTDT
++ * Map the PPIs of per-cpu arch_timer.
++ * @type: the type of PPI
++ * Returns 0 if error.
++ * Note: Linux on arm64 isn't supported on the secure side.
++ * So we only handle the non-secure timer PPIs,
++ * ARCH_TIMER_PHYS_SECURE_PPI is treated as invalid type.
 + */
-+static int __init gtdt_import_sbsa_gwdt(struct acpi_gtdt_watchdog *wd,
-+					int index)
++int __init acpi_gtdt_map_ppi(int type)
 +{
-+	struct platform_device *pdev;
-+	int irq =3D map_gt_gsi(wd->timer_interrupt, wd->timer_flags);
-+	int no_irq =3D 1;
++	struct acpi_table_gtdt *gtdt = acpi_gtdt_desc.gtdt;
 +
-+	/*
-+	 * According to SBSA specification the size of refresh and control
-+	 * frames of SBSA Generic Watchdog is SZ_4K(Offset 0x000 =E2=80=93 0xFF=
-F).
-+	 */
-+	struct resource res[] =3D {
-+		DEFINE_RES_MEM(wd->control_frame_address, SZ_4K),
-+		DEFINE_RES_MEM(wd->refresh_frame_address, SZ_4K),
-+		DEFINE_RES_IRQ(irq),
-+	};
++	switch (type) {
++	case ARCH_TIMER_PHYS_NONSECURE_PPI:
++		return map_gt_gsi(gtdt->non_secure_el1_interrupt,
++				  gtdt->non_secure_el1_flags);
++	case ARCH_TIMER_VIRT_PPI:
++		return map_gt_gsi(gtdt->virtual_timer_interrupt,
++				  gtdt->virtual_timer_flags);
 +
-+	pr_debug("found a Watchdog (0x%llx/0x%llx gsi:%u flags:0x%x).\n",
-+		 wd->refresh_frame_address, wd->control_frame_address,
-+		 wd->timer_interrupt, wd->timer_flags);
-+
-+	if (!(wd->refresh_frame_address && wd->control_frame_address)) {
-+		pr_err(FW_BUG "failed to get the Watchdog base address.\n");
-+		return -EINVAL;
-+	}
-+
-+	if (!wd->timer_interrupt)
-+		pr_warn(FW_BUG "failed to get the Watchdog interrupt.\n");
-+	else if (irq <=3D 0)
-+		pr_warn("failed to map the Watchdog interrupt.\n");
-+	else
-+		no_irq =3D 0;
-+
-+	/*
-+	 * Add a platform device named "sbsa-gwdt" to match the platform driver=
-.
-+	 * "sbsa-gwdt": SBSA(Server Base System Architecture) Generic Watchdog
-+	 * The platform driver (like drivers/watchdog/sbsa_gwdt.c)can get devic=
-e
-+	 * info below by matching this name.
-+	 */
-+	pdev =3D platform_device_register_simple("sbsa-gwdt", index, res,
-+					       ARRAY_SIZE(res) - no_irq);
-+	if (IS_ERR(pdev)) {
-+		acpi_unregister_gsi(wd->timer_interrupt);
-+		return PTR_ERR(pdev);
++	case ARCH_TIMER_HYP_PPI:
++		return map_gt_gsi(gtdt->non_secure_el2_interrupt,
++				  gtdt->non_secure_el2_flags);
++	default:
++		pr_err("Failed to map timer interrupt: invalid type.\n");
 +	}
 +
 +	return 0;
 +}
 +
-+static int __init gtdt_sbsa_gwdt_init(void)
++/*
++ * acpi_gtdt_c3stop - got c3stop info from GTDT
++ * @type: the type of PPI
++ * Returns 1 if the timer is powered in deep idle state, 0 otherwise.
++ */
++bool __init acpi_gtdt_c3stop(int type)
 +{
-+	int i, ret;
-+	struct acpi_table_header *table;
-+	struct acpi_gtdt_watchdog *watchdog;
++	struct acpi_table_gtdt *gtdt = acpi_gtdt_desc.gtdt;
 +
-+	if (acpi_disabled)
-+		return 0;
++	switch (type) {
++	case ARCH_TIMER_PHYS_NONSECURE_PPI:
++		return !(gtdt->non_secure_el1_flags & ACPI_GTDT_ALWAYS_ON);
 +
-+	if (ACPI_FAILURE(acpi_get_table(ACPI_SIG_GTDT, 0, &table)))
-+		return -EINVAL;
++	case ARCH_TIMER_VIRT_PPI:
++		return !(gtdt->virtual_timer_flags & ACPI_GTDT_ALWAYS_ON);
 +
-+	ret =3D acpi_gtdt_init(table);
-+	if (ret)
-+		return ret;
++	case ARCH_TIMER_HYP_PPI:
++		return !(gtdt->non_secure_el2_flags & ACPI_GTDT_ALWAYS_ON);
 +
-+	if (!acpi_gtdt_desc.watchdog_count)
-+		return 0;
-+
-+	for (i =3D 0; i < acpi_gtdt_desc.watchdog_count; i++) {
-+		watchdog =3D get_watchdog(i);
-+		if (!watchdog) {
-+			ret =3D -ENODEV;
-+			break;
-+		}
-+		ret =3D gtdt_import_sbsa_gwdt(watchdog, i);
-+		if (ret)
-+			break;
++	default:
++		pr_err("Failed to get c3stop info: invalid type.\n");
 +	}
 +
-+	pr_info("found %d SBSA generic Watchdog(s), %d imported.\n",
-+		acpi_gtdt_desc.watchdog_count, i);
-+
-+	acpi_gtdt_release();
-+	return ret;
++	return 0;
 +}
 +
-+device_initcall(gtdt_sbsa_gwdt_init);
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index fdd3228..e5ba1f0 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -218,6 +218,7 @@ config ARM_SBSA_WATCHDOG
- 	tristate "ARM SBSA Generic Watchdog"
- 	depends on ARM64
- 	depends on ARM_ARCH_TIMER
-+	depends on ACPI_GTDT || !ACPI
- 	select WATCHDOG_CORE
- 	help
- 	  ARM SBSA Generic Watchdog has two stage timeouts:
---=20
++/*
++ * Release the memory we have allocated in acpi_gtdt_init.
++ * This should be called, when the driver who called "acpi_gtdt_init" previously
++ * doesn't need the GTDT info anymore.
++ */
++void __init acpi_gtdt_release(void)
++{
++	kfree(timer_block);
++	kfree(watchdog);
++	timer_block = NULL;
++	watchdog = NULL;
++}
++
++/*
++ * Get some basic info from GTDT table, and init the global variables above
++ * for all timers initialization of Generic Timer.
++ * This function does some validation on GTDT table.
++ */
++int __init acpi_gtdt_init(struct acpi_table_header *table)
++{
++	int timer_count;
++	void *platform_timer;
++	struct acpi_table_gtdt *gtdt;
++
++	gtdt = container_of(table, struct acpi_table_gtdt, header);
++
++	if (table->revision < 2) {
++		pr_debug("Revision:%d doesn't support Platform Timers.\n",
++			 table->revision);
++		timer_count = 0;
++	} else if (!gtdt->platform_timer_count) {
++		pr_debug("No Platform Timer.\n");
++		timer_count = 0;
++	} else {
++		timer_count = gtdt->platform_timer_count;
++	}
++
++	acpi_gtdt_desc.gtdt = gtdt;
++	acpi_gtdt_desc.gtdt_end = (void *)table + table->length;
++
++	if (!timer_count)
++		return 0;
++
++	platform_timer = (void *)gtdt + gtdt->platform_timer_offset;
++	if (platform_timer < (void *)table + sizeof(struct acpi_table_gtdt)) {
++		pr_err(FW_BUG "Failed to retrieve timer info from firmware: invalid data.\n");
++		return -EINVAL;
++	}
++
++	timer_block = kcalloc(timer_count,
++			      sizeof(struct acpi_gtdt_timer_block *),
++			      GFP_KERNEL);
++	if (!timer_block)
++		return -ENOMEM;
++
++	watchdog = kcalloc(timer_count, sizeof(struct acpi_gtdt_watchdog *),
++			   GFP_KERNEL);
++	if (!watchdog) {
++		kfree(timer_block);
++		timer_block = NULL;
++		return -ENOMEM;
++	}
++
++	acpi_gtdt_desc.timer_block_count = 0;
++	acpi_gtdt_desc.watchdog_count = 0;
++	for_each_platform_timer(platform_timer) {
++		if (is_timer_block(platform_timer)) {
++			timer_block[acpi_gtdt_desc.timer_block_count++] =
++				platform_timer;
++		} else if (is_watchdog(platform_timer)) {
++			watchdog[acpi_gtdt_desc.watchdog_count++] =
++				platform_timer;
++		} else {
++			pr_err(FW_BUG "Invalid platform timer type.\n");
++			goto error;
++		}
++	}
++
++	if (timer_count == acpi_gtdt_desc.watchdog_count +
++			   acpi_gtdt_desc.timer_block_count)
++		return 0;
++
++	pr_err(FW_BUG "Invalid platform timer number.\n");
++error:
++	acpi_gtdt_release();
++	return -EINVAL;
++}
+diff --git a/include/linux/acpi.h b/include/linux/acpi.h
+index 61a3d90..a1611d1 100644
+--- a/include/linux/acpi.h
++++ b/include/linux/acpi.h
+@@ -577,6 +577,13 @@ enum acpi_reconfig_event  {
+ int acpi_reconfig_notifier_register(struct notifier_block *nb);
+ int acpi_reconfig_notifier_unregister(struct notifier_block *nb);
+ 
++#ifdef CONFIG_ACPI_GTDT
++int acpi_gtdt_init(struct acpi_table_header *table);
++int acpi_gtdt_map_ppi(int type);
++bool acpi_gtdt_c3stop(int type);
++void acpi_gtdt_release(void);
++#endif
++
+ #else	/* !CONFIG_ACPI */
+ 
+ #define acpi_disabled 1
+-- 
 2.7.4
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
