@@ -1,8 +1,8 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:51542 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:35448 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932987AbcKONPZ (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 15 Nov 2016 08:15:25 -0500
+        id S1753207AbcKONPs (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 15 Nov 2016 08:15:48 -0500
 From: fu.wei@linaro.org
 To: rjw@rjwysocki.net, lenb@kernel.org, daniel.lezcano@linaro.org,
         tglx@linutronix.de, marc.zyngier@arm.com, mark.rutland@arm.com,
@@ -18,9 +18,9 @@ Cc: linux-arm-kernel@lists.infradead.org, linaro-acpi@lists.linaro.org,
         linux@roeck-us.net, linux-watchdog@vger.kernel.org,
         tn@semihalf.com, christoffer.dall@linaro.org, julien.grall@arm.com,
         Fu Wei <fu.wei@linaro.org>
-Subject: [PATCH v15 05/13] clocksource/drivers/arm_arch_timer: fix a bug in arch_timer_register about arch_timer_uses_ppi
-Date: Tue, 15 Nov 2016 21:13:27 +0800
-Message-Id: <1479215615-26950-6-git-send-email-fu.wei@linaro.org>
+Subject: [PATCH v15 07/13] clocksource/drivers/arm_arch_timer: Introduce some new structs to prepare for GTDT
+Date: Tue, 15 Nov 2016 21:13:29 +0800
+Message-Id: <1479215615-26950-8-git-send-email-fu.wei@linaro.org>
 In-Reply-To: <1479215615-26950-1-git-send-email-fu.wei@linaro.org>
 References: <1479215615-26950-1-git-send-email-fu.wei@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -28,31 +28,54 @@ List-Id: linux-watchdog@vger.kernel.org
 
 From: Fu Wei <fu.wei@linaro.org>
 
-The patch fix a potential bug about arch_timer_uses_ppi in
-arch_timer_register.
-On ARM64, we don't use ARCH_TIMER_PHYS_SECURE_PPI in Linux, so we will
-just igorne it in init code. If arch_timer_uses_ppi is
-ARCH_TIMER_PHYS_NONSECURE_PPI, the orignal code of
-arch_timer_uses_ppi may go wrong.
+The patch introduce two new structs:
+        arch_timer_mem,
+        arch_timer_mem_frame.
+And also introduce a new define: ARCH_TIMER_MEM_MAX_FRAMES
+
+These will be used for refactoring the memory-mapped timer init code to
+prepare for GTDT
 
 Signed-off-by: Fu Wei <fu.wei@linaro.org>
 ---
- drivers/clocksource/arm_arch_timer.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/clocksource/arm_arch_timer.h | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
-diff --git a/drivers/clocksource/arm_arch_timer.c b/drivers/clocksource/arm_arch_timer.c
-index dd1040d..6de164f 100644
---- a/drivers/clocksource/arm_arch_timer.c
-+++ b/drivers/clocksource/arm_arch_timer.c
-@@ -699,7 +699,7 @@ static int __init arch_timer_register(void)
- 	case ARCH_TIMER_PHYS_NONSECURE_PPI:
- 		err = request_percpu_irq(ppi, arch_timer_handler_phys,
- 					 "arch_timer", arch_timer_evt);
--		if (!err && arch_timer_ppi[ARCH_TIMER_PHYS_NONSECURE_PPI]) {
-+		if (!err && arch_timer_has_nonsecure_ppi()) {
- 			ppi = arch_timer_ppi[ARCH_TIMER_PHYS_NONSECURE_PPI];
- 			err = request_percpu_irq(ppi, arch_timer_handler_phys,
- 						 "arch_timer", arch_timer_evt);
+diff --git a/include/clocksource/arm_arch_timer.h b/include/clocksource/arm_arch_timer.h
+index 2625ff1..cc986a3 100644
+--- a/include/clocksource/arm_arch_timer.h
++++ b/include/clocksource/arm_arch_timer.h
+@@ -57,6 +57,8 @@ enum arch_timer_spi_nr {
+ #define ARCH_TIMER_MEM_PHYS_ACCESS	2
+ #define ARCH_TIMER_MEM_VIRT_ACCESS	3
+ 
++#define ARCH_TIMER_MEM_MAX_FRAMES	8
++
+ #define ARCH_TIMER_USR_PCT_ACCESS_EN	BIT(0) /* physical counter */
+ #define ARCH_TIMER_USR_VCT_ACCESS_EN	BIT(1) /* virtual counter */
+ #define ARCH_TIMER_VIRT_EVT_EN		BIT(2)
+@@ -72,6 +74,21 @@ struct arch_timer_kvm_info {
+ 	int virtual_irq;
+ };
+ 
++struct arch_timer_mem_frame {
++	int frame_nr;
++	phys_addr_t cntbase;
++	size_t size;
++	int phys_irq;
++	int virt_irq;
++};
++
++struct arch_timer_mem {
++	phys_addr_t cntctlbase;
++	size_t size;
++	int num_frames;
++	struct arch_timer_mem_frame frame[ARCH_TIMER_MEM_MAX_FRAMES];
++};
++
+ #ifdef CONFIG_ARM_ARCH_TIMER
+ 
+ extern u32 arch_timer_get_rate(void);
 -- 
 2.7.4
 
