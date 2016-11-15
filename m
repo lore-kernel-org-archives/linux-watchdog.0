@@ -1,86 +1,59 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:36739 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750928AbcKOSiy (ORCPT
+Received: from lelnx193.ext.ti.com ([198.47.27.77]:61490 "EHLO
+        lelnx193.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751884AbcKOTSf (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 15 Nov 2016 13:38:54 -0500
-Date: Tue, 15 Nov 2016 10:38:52 -0800
-From: Guenter Roeck <linux@roeck-us.net>
-To: Tony Lindgren <tony@atomide.com>
-Cc: Cor Peters <cpeters@victronenergy.com>,
-        Tero Kristo <t-kristo@ti.com>, linux-omap@vger.kernel.org,
-        linux-watchdog@vger.kernel.org
+        Tue, 15 Nov 2016 14:18:35 -0500
 Subject: Re: [PATCH 2/2] ARM: am33xx.dtsi: Added syscon compatible prcm_dev
  device
-Message-ID: <20161115183852.GA27474@roeck-us.net>
-References: <3071466.kDDk30H73u@corpeters>
- <20161115173515.GL4082@atomide.com>
+To: Tony Lindgren <tony@atomide.com>,
+        Cor Peters <cpeters@victronenergy.com>
+References: <3071466.kDDk30H73u@corpeters> <20161115173515.GL4082@atomide.com>
+ <20161115173816.GM4082@atomide.com>
+CC: <linux-omap@vger.kernel.org>, <linux-watchdog@vger.kernel.org>
+From: Tero Kristo <t-kristo@ti.com>
+Message-ID: <6861ab40-8727-86ab-17bc-6bb7dc3de30a@ti.com>
+Date: Tue, 15 Nov 2016 21:18:29 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20161115173515.GL4082@atomide.com>
+In-Reply-To: <20161115173816.GM4082@atomide.com>
+Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, Nov 15, 2016 at 09:35:15AM -0800, Tony Lindgren wrote:
-> * Cor Peters <cpeters@victronenergy.com> [161115 01:00]:
-> > This patch adds the PRM_DEV as a syscon compatible device to
-> > am33xx.dtsi. This is needed for the watchdog bootstatus patch.
-> 
-> We somehow need to see the bootreason for sure.. But we need to
-> check with Tero on the reset driver work too.
-> 
-Another problem is that the boot reason bit is not well defined and,
-if I understand correctly, can change with different SoCs. So this
-would also need a means to select the actual register bit to use.
+On 15/11/16 19:38, Tony Lindgren wrote:
+> * Tony Lindgren <tony@atomide.com> [161115 09:35]:
+>> * Cor Peters <cpeters@victronenergy.com> [161115 01:00]:
+>>> This patch adds the PRM_DEV as a syscon compatible device to
+>>> am33xx.dtsi. This is needed for the watchdog bootstatus patch.
+>>
+>> We somehow need to see the bootreason for sure.. But we need to
+>> check with Tero on the reset driver work too.
+>>
+>> Tero, does setting up of PRM_DEVICE as syscon cause issues for
+>> your reset driver work?
 
-Thanks,
-Guenter
+Good question, currently the reset driver is on hold waiting for hwmod / 
+interconnect work to nudge forward. We could probably try to even re-use 
+the syscon reset driver for OMAPs (drivers/reset/reset-ti-syscon.c); 
+reset handling is not performance critical as such, and we only have few 
+sources for these so...
 
-> Tero, does setting up of PRM_DEVICE as syscon cause issues for
-> your reset driver work?
-> 
-> Regards,
-> 
-> Tony
-> 
-> > 
-> > Signed-off-by: Cor Peters <cpeters@victronenergy.com>
-> > ---
-> >  arch/arm/boot/dts/am33xx.dtsi | 6 ++++++
-> >  1 file changed, 6 insertions(+)
-> > 
-> > diff --git a/arch/arm/boot/dts/am33xx.dtsi b/arch/arm/boot/dts/am33xx.dtsi
-> > index 194d884..e8faf19 100644
-> > --- a/arch/arm/boot/dts/am33xx.dtsi
-> > +++ b/arch/arm/boot/dts/am33xx.dtsi
-> > @@ -115,6 +115,7 @@
-> >                         prcm: prcm@200000 {
-> >                                 compatible = "ti,am3-prcm";
-> >                                 reg = <0x200000 0x4000>;
-> > +                               ranges = <0 0x200000 0x4000>;
-> >  
-> >                                 prcm_clocks: clocks {
-> >                                         #address-cells = <1>;
-> > @@ -123,6 +124,11 @@
-> >  
-> >                                 prcm_clockdomains: clockdomains {
-> >                                 };
-> > +
-> > +                               prcm_wkup: prcm-wkup@f00 {
-> > +                                       compatible = "ti,omap3-prcm-dev", "syscon";
-> > +                                       reg = <0xf00 0xff>;
-> > +                               };
-> >                         };
-> >  
-> >                         scm: scm@210000 {
-> > -- 
-> > 1.9.1
-> > --
-> > To unsubscribe from this list: send the line "unsubscribe linux-omap" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
+> The nightmare scenario is that we have drivers calling random
+> syscon areas across various interconnect targets and then we have
+> zero chance of getting genpd to ever to work properly.
+
+Exporting this specific area exposes a few interesting features, like 
+performing a system wide reset or tweaking SRAM PM configs (preventing 
+SRAM LDOs from idling for example.)
+
+> Do the reset drivers offer some way of exporting the reset status?
+
+reset_control_status() can be used to read the reset status, this is 
+however mostly meant for checking if reset line is currently asserted or 
+not. We could in theory overload this for checking if reset has been 
+asserted previously or not (checking current status for watchdog reset 
+doesn't make much sense for example.)
+
+-Tero
