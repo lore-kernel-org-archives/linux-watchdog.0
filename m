@@ -1,59 +1,65 @@
-Return-path: <chunkeey@googlemail.com>
-From: Christian Lamparter <chunkeey@googlemail.com>
-To: linux-kernel@vger.kernel.org,
-	linux-watchdog@vger.kernel.org
-Cc: Guenter Roeck <linux@roeck-us.net>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Matthew McClintock <mmcclint@codeaurora.org>
-Subject: [PATCH] watchdog: qcom: fix kernel panic due to external abort on non-linefetch
-Date: Mon, 14 Nov 2016 02:11:16 +0100
-Message-Id: <20161114011116.26210-1-chunkeey@gmail.com>
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-out.m-online.net ([212.18.0.10]:43765 "EHLO
+        mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S966404AbcKOKVG (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 15 Nov 2016 05:21:06 -0500
+Reply-To: hs@denx.de
+To: linux-watchdog@vger.kernel.org, linux-gpio@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org,
+        Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        "Jonas Mark (ST-FIR/ENG1)" <Mark.Jonas@de.bosch.com>
+From: Heiko Schocher <hs@denx.de>
+Subject: wdt, gpio: move arch_initcall into subsys_initcall ?
+Message-ID: <582AE18A.2060405@denx.de>
+Date: Tue, 15 Nov 2016 11:20:58 +0100
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-This patch fixes a off-by-one in the "watchdog: qcom: add option for
-standalone watchdog not in timer block" patch that causes the
-following panic on boot:
+Hello,
 
-> Unhandled fault: external abort on non-linefetch (0x1008) at 0xc8874002
-> pgd = c0204000
-> [c8874002] *pgd=87806811, *pte=0b017653, *ppte=0b017453
-> Internal error: : 1008 [#1] SMP ARM
-> CPU: 2 PID: 1 Comm: swapper/0 Not tainted 4.8.6 #0
-> Hardware name: Generic DT based system
-> PC is at 0xc02222f4
-> LR is at 0x1
-> pc : [<c02222f4>]    lr : [<00000001>]    psr: 00000113
-> sp : c782fc98  ip : 00000003  fp : 00000000
-> r10: 00000004  r9 : c782e000  r8 : c04ab98c
-> r7 : 00000001  r6 : c8874002  r5 : c782fe00  r4 : 00000002
-> r3 : 00000000  r2 : c782fe00  r1 : 00100000  r0 : c8874002
-> Flags: nzcv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
-> Control: 10c5387d  Table: 8020406a  DAC: 00000051
-> Process swapper/0 (pid: 1, stack limit = 0xc782e210)
-> Stack: (0xc782fc98 to 0xc7830000)
-> [...]
+commit e188cbf7564f: "gpio: mxc: shift gpio_mxc_init() to subsys_initcall level"
+moves the gpio initialization of the mxc gpio driver
+from the arch_initcall level into subsys_initcall level.
 
-The WDT_STS (status) needs to be translated via wdt_addr as well.
+This leads now on mxc boards, which use a gpio wdt driver
+and the CONFIG_GPIO_WATCHDOG_ARCH_INITCALL option enabled,
+to unwanted driver probe deferrals during kernel boot.
 
-fixes: f0d9d0f4b44a ("watchdog: qcom: add option for standalone watchdog not in timer block")
-Cc: stable@vger.kernel.org # 4.8
-Signed-off-by: Christian Lamparter <chunkeey@gmail.com>
----
- drivers/watchdog/qcom-wdt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+I see this currently on an imx6 based board (which has unfortunately
+3 WDT: imx6 internal (disabled), gpio wdt and da9063 WDT ...).
 
-diff --git a/drivers/watchdog/qcom-wdt.c b/drivers/watchdog/qcom-wdt.c
-index 5796b5d..4f47b5e 100644
---- a/drivers/watchdog/qcom-wdt.c
-+++ b/drivers/watchdog/qcom-wdt.c
-@@ -209,7 +209,7 @@ static int qcom_wdt_probe(struct platform_device *pdev)
- 	wdt->wdd.parent = &pdev->dev;
- 	wdt->layout = regs;
- 
--	if (readl(wdt->base + WDT_STS) & 1)
-+	if (readl(wdt_addr(wdt, WDT_STS)) & 1)
- 		wdt->wdd.bootstatus = WDIOF_CARDRESET;
- 
- 	/*
+Also a side effect from above commit is, that the da9063 WDT driver
+is now probed before the gpio WDT driver ... so /dev/watchdog now
+does not point to the gpio_wdt, instead it points to the da9063 WDT.
+
+So there are 2 solutions possible:
+
+- add a CONFIG_GPIO_MCX_ARCH_INITCALL option
+   in drivers/gpio/gpio-mxc.c like for the gpio_wdt.c driver?
+
+   But how can we guarantee, that first the gpio driver and then
+   the gpio_wdt driver gets probed?
+
+- move the arch_initcall in gpio_wdt.c into a subsys_initcall
+   (Tested this, and the probe dereferral messages are gone ...)
+
+   But this may results in problems on boards, which needs an early
+   trigger on an gpio wdt ...
+
+Other ideas?
+
+Thanks for all suggestions!
+
+bye,
+Heiko
 -- 
-2.10.2
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
