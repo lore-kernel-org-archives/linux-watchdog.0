@@ -1,8 +1,8 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:40862 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:48906 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932987AbcKONOc (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 15 Nov 2016 08:14:32 -0500
+        id S932987AbcKONOm (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 15 Nov 2016 08:14:42 -0500
 From: fu.wei@linaro.org
 To: rjw@rjwysocki.net, lenb@kernel.org, daniel.lezcano@linaro.org,
         tglx@linutronix.de, marc.zyngier@arm.com, mark.rutland@arm.com,
@@ -18,9 +18,9 @@ Cc: linux-arm-kernel@lists.infradead.org, linaro-acpi@lists.linaro.org,
         linux@roeck-us.net, linux-watchdog@vger.kernel.org,
         tn@semihalf.com, christoffer.dall@linaro.org, julien.grall@arm.com,
         Fu Wei <fu.wei@linaro.org>
-Subject: [PATCH v15 01/13] clocksource/drivers/arm_arch_timer: Move enums and defines to header file
-Date: Tue, 15 Nov 2016 21:13:23 +0800
-Message-Id: <1479215615-26950-2-git-send-email-fu.wei@linaro.org>
+Subject: [PATCH v15 02/13] clocksource/drivers/arm_arch_timer: Add a new enum for spi type
+Date: Tue, 15 Nov 2016 21:13:24 +0800
+Message-Id: <1479215615-26950-3-git-send-email-fu.wei@linaro.org>
 In-Reply-To: <1479215615-26950-1-git-send-email-fu.wei@linaro.org>
 References: <1479215615-26950-1-git-send-email-fu.wei@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -28,78 +28,44 @@ List-Id: linux-watchdog@vger.kernel.org
 
 From: Fu Wei <fu.wei@linaro.org>
 
-To support the arm_arch_timer via ACPI we need to share defines and enums
-between the driver and the ACPI parser code.
-
-Split out the relevant defines and enums into arm_arch_timer.h, and
-change "enum ppi_nr" to "enum arch_timer_ppi_nr" to avoid the potential
-name clashes.
-No functional change.
+This patch add a new enum "arch_timer_spi_nr" and use it in the driver.
+Just for code's readability, no functional change.
 
 Signed-off-by: Fu Wei <fu.wei@linaro.org>
 Acked-by: Mark Rutland <mark.rutland@arm.com>
 ---
- drivers/clocksource/arm_arch_timer.c | 11 -----------
- include/clocksource/arm_arch_timer.h | 12 ++++++++++++
- 2 files changed, 12 insertions(+), 11 deletions(-)
+ drivers/clocksource/arm_arch_timer.c | 4 ++--
+ include/clocksource/arm_arch_timer.h | 6 ++++++
+ 2 files changed, 8 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/clocksource/arm_arch_timer.c b/drivers/clocksource/arm_arch_timer.c
-index 73c487d..9826f06 100644
+index 9826f06..96c88bb 100644
 --- a/drivers/clocksource/arm_arch_timer.c
 +++ b/drivers/clocksource/arm_arch_timer.c
-@@ -51,8 +51,6 @@
- #define CNTV_TVAL	0x38
- #define CNTV_CTL	0x3c
+@@ -960,9 +960,9 @@ static int __init arch_timer_mem_init(struct device_node *np)
+ 	}
  
--#define ARCH_CP15_TIMER	BIT(0)
--#define ARCH_MEM_TIMER	BIT(1)
- static unsigned arch_timers_present __initdata;
+ 	if (arch_timer_mem_use_virtual)
+-		irq = irq_of_parse_and_map(best_frame, 1);
++		irq = irq_of_parse_and_map(best_frame, ARCH_TIMER_VIRT_SPI);
+ 	else
+-		irq = irq_of_parse_and_map(best_frame, 0);
++		irq = irq_of_parse_and_map(best_frame, ARCH_TIMER_PHYS_SPI);
  
- static void __iomem *arch_counter_base;
-@@ -65,15 +63,6 @@ struct arch_timer {
- #define to_arch_timer(e) container_of(e, struct arch_timer, evt)
- 
- static u32 arch_timer_rate;
--
--enum ppi_nr {
--	PHYS_SECURE_PPI,
--	PHYS_NONSECURE_PPI,
--	VIRT_PPI,
--	HYP_PPI,
--	MAX_TIMER_PPI
--};
--
- static int arch_timer_ppi[MAX_TIMER_PPI];
- 
- static struct clock_event_device __percpu *arch_timer_evt;
+ 	ret = -EINVAL;
+ 	if (!irq) {
 diff --git a/include/clocksource/arm_arch_timer.h b/include/clocksource/arm_arch_timer.h
-index caedb74..557f869 100644
+index 557f869..d23c381 100644
 --- a/include/clocksource/arm_arch_timer.h
 +++ b/include/clocksource/arm_arch_timer.h
-@@ -16,9 +16,13 @@
- #ifndef __CLKSOURCE_ARM_ARCH_TIMER_H
- #define __CLKSOURCE_ARM_ARCH_TIMER_H
- 
-+#include <linux/bitops.h>
- #include <linux/timecounter.h>
- #include <linux/types.h>
- 
-+#define ARCH_CP15_TIMER			BIT(0)
-+#define ARCH_MEM_TIMER			BIT(1)
-+
- #define ARCH_TIMER_CTRL_ENABLE		(1 << 0)
- #define ARCH_TIMER_CTRL_IT_MASK		(1 << 1)
- #define ARCH_TIMER_CTRL_IT_STAT		(1 << 2)
-@@ -34,6 +38,14 @@ enum arch_timer_reg {
- 	ARCH_TIMER_REG_TVAL,
+@@ -46,6 +46,12 @@ enum arch_timer_ppi_nr {
+ 	MAX_TIMER_PPI
  };
  
-+enum arch_timer_ppi_nr {
-+	PHYS_SECURE_PPI,
-+	PHYS_NONSECURE_PPI,
-+	VIRT_PPI,
-+	HYP_PPI,
-+	MAX_TIMER_PPI
++enum arch_timer_spi_nr {
++	ARCH_TIMER_PHYS_SPI,
++	ARCH_TIMER_VIRT_SPI,
++	ARCH_TIMER_MAX_TIMER_SPI
 +};
 +
  #define ARCH_TIMER_PHYS_ACCESS		0
