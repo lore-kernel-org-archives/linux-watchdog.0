@@ -1,8 +1,8 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:48906 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:51542 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932987AbcKONOm (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 15 Nov 2016 08:14:42 -0500
+        id S932987AbcKONPZ (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 15 Nov 2016 08:15:25 -0500
 From: fu.wei@linaro.org
 To: rjw@rjwysocki.net, lenb@kernel.org, daniel.lezcano@linaro.org,
         tglx@linutronix.de, marc.zyngier@arm.com, mark.rutland@arm.com,
@@ -18,9 +18,9 @@ Cc: linux-arm-kernel@lists.infradead.org, linaro-acpi@lists.linaro.org,
         linux@roeck-us.net, linux-watchdog@vger.kernel.org,
         tn@semihalf.com, christoffer.dall@linaro.org, julien.grall@arm.com,
         Fu Wei <fu.wei@linaro.org>
-Subject: [PATCH v15 02/13] clocksource/drivers/arm_arch_timer: Add a new enum for spi type
-Date: Tue, 15 Nov 2016 21:13:24 +0800
-Message-Id: <1479215615-26950-3-git-send-email-fu.wei@linaro.org>
+Subject: [PATCH v15 05/13] clocksource/drivers/arm_arch_timer: fix a bug in arch_timer_register about arch_timer_uses_ppi
+Date: Tue, 15 Nov 2016 21:13:27 +0800
+Message-Id: <1479215615-26950-6-git-send-email-fu.wei@linaro.org>
 In-Reply-To: <1479215615-26950-1-git-send-email-fu.wei@linaro.org>
 References: <1479215615-26950-1-git-send-email-fu.wei@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -28,49 +28,31 @@ List-Id: linux-watchdog@vger.kernel.org
 
 From: Fu Wei <fu.wei@linaro.org>
 
-This patch add a new enum "arch_timer_spi_nr" and use it in the driver.
-Just for code's readability, no functional change.
+The patch fix a potential bug about arch_timer_uses_ppi in
+arch_timer_register.
+On ARM64, we don't use ARCH_TIMER_PHYS_SECURE_PPI in Linux, so we will
+just igorne it in init code. If arch_timer_uses_ppi is
+ARCH_TIMER_PHYS_NONSECURE_PPI, the orignal code of
+arch_timer_uses_ppi may go wrong.
 
 Signed-off-by: Fu Wei <fu.wei@linaro.org>
-Acked-by: Mark Rutland <mark.rutland@arm.com>
 ---
- drivers/clocksource/arm_arch_timer.c | 4 ++--
- include/clocksource/arm_arch_timer.h | 6 ++++++
- 2 files changed, 8 insertions(+), 2 deletions(-)
+ drivers/clocksource/arm_arch_timer.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/clocksource/arm_arch_timer.c b/drivers/clocksource/arm_arch_timer.c
-index 9826f06..96c88bb 100644
+index dd1040d..6de164f 100644
 --- a/drivers/clocksource/arm_arch_timer.c
 +++ b/drivers/clocksource/arm_arch_timer.c
-@@ -960,9 +960,9 @@ static int __init arch_timer_mem_init(struct device_node *np)
- 	}
- 
- 	if (arch_timer_mem_use_virtual)
--		irq = irq_of_parse_and_map(best_frame, 1);
-+		irq = irq_of_parse_and_map(best_frame, ARCH_TIMER_VIRT_SPI);
- 	else
--		irq = irq_of_parse_and_map(best_frame, 0);
-+		irq = irq_of_parse_and_map(best_frame, ARCH_TIMER_PHYS_SPI);
- 
- 	ret = -EINVAL;
- 	if (!irq) {
-diff --git a/include/clocksource/arm_arch_timer.h b/include/clocksource/arm_arch_timer.h
-index 557f869..d23c381 100644
---- a/include/clocksource/arm_arch_timer.h
-+++ b/include/clocksource/arm_arch_timer.h
-@@ -46,6 +46,12 @@ enum arch_timer_ppi_nr {
- 	MAX_TIMER_PPI
- };
- 
-+enum arch_timer_spi_nr {
-+	ARCH_TIMER_PHYS_SPI,
-+	ARCH_TIMER_VIRT_SPI,
-+	ARCH_TIMER_MAX_TIMER_SPI
-+};
-+
- #define ARCH_TIMER_PHYS_ACCESS		0
- #define ARCH_TIMER_VIRT_ACCESS		1
- #define ARCH_TIMER_MEM_PHYS_ACCESS	2
+@@ -699,7 +699,7 @@ static int __init arch_timer_register(void)
+ 	case ARCH_TIMER_PHYS_NONSECURE_PPI:
+ 		err = request_percpu_irq(ppi, arch_timer_handler_phys,
+ 					 "arch_timer", arch_timer_evt);
+-		if (!err && arch_timer_ppi[ARCH_TIMER_PHYS_NONSECURE_PPI]) {
++		if (!err && arch_timer_has_nonsecure_ppi()) {
+ 			ppi = arch_timer_ppi[ARCH_TIMER_PHYS_NONSECURE_PPI];
+ 			err = request_percpu_irq(ppi, arch_timer_handler_phys,
+ 						 "arch_timer", arch_timer_evt);
 -- 
 2.7.4
 
