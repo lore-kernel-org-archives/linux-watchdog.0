@@ -1,8 +1,8 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:56406 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:56534 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932982AbcKPNu7 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 16 Nov 2016 08:50:59 -0500
+        id S933016AbcKPNvE (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Wed, 16 Nov 2016 08:51:04 -0500
 From: fu.wei@linaro.org
 To: rjw@rjwysocki.net, lenb@kernel.org, daniel.lezcano@linaro.org,
         tglx@linutronix.de, marc.zyngier@arm.com, mark.rutland@arm.com,
@@ -18,9 +18,9 @@ Cc: linux-arm-kernel@lists.infradead.org, linaro-acpi@lists.linaro.org,
         linux@roeck-us.net, linux-watchdog@vger.kernel.org,
         tn@semihalf.com, christoffer.dall@linaro.org, julien.grall@arm.com,
         Fu Wei <fu.wei@linaro.org>
-Subject: [PATCH v16 07/15] clocksource/drivers/arm_arch_timer: Refactor arch_timer_detect_rate to keep dt code in *_of_init
-Date: Wed, 16 Nov 2016 21:49:00 +0800
-Message-Id: <1479304148-2965-8-git-send-email-fu.wei@linaro.org>
+Subject: [PATCH v16 08/15] clocksource/drivers/arm_arch_timer: Refactor arch_timer_needs_probing, and call it only if acpi disabled.
+Date: Wed, 16 Nov 2016 21:49:01 +0800
+Message-Id: <1479304148-2965-9-git-send-email-fu.wei@linaro.org>
 In-Reply-To: <1479304148-2965-1-git-send-email-fu.wei@linaro.org>
 References: <1479304148-2965-1-git-send-email-fu.wei@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -28,104 +28,73 @@ List-Id: linux-watchdog@vger.kernel.org
 
 From: Fu Wei <fu.wei@linaro.org>
 
-The patch refactor original arch_timer_detect_rate function:
-    (1) Separate out device-tree code, keep them in device-tree init
-    function:
-        arch_timer_of_init,
-        arch_timer_mem_init;
-    (2) Improve original mechanism, if getting from memory-mapped timer
-    fail, try arch_timer_get_cntfrq() again.
+The patch refactor original arch_timer_needs_probing function:
+    (1) Separate out arch_timer_needs_probing from arch_timer_common_init,
+    and call it only if acpi disabled.
+    (2) Rename arch_timer_needs_probing to arch_timer_needs_of_probing.
 
 Signed-off-by: Fu Wei <fu.wei@linaro.org>
 ---
- drivers/clocksource/arm_arch_timer.c | 45 +++++++++++++++++++++++-------------
- 1 file changed, 29 insertions(+), 16 deletions(-)
+ drivers/clocksource/arm_arch_timer.c | 34 +++++++++++++++++++---------------
+ 1 file changed, 19 insertions(+), 15 deletions(-)
 
 diff --git a/drivers/clocksource/arm_arch_timer.c b/drivers/clocksource/arm_arch_timer.c
-index af22953..fe4e812 100644
+index fe4e812..9ddc091 100644
 --- a/drivers/clocksource/arm_arch_timer.c
 +++ b/drivers/clocksource/arm_arch_timer.c
-@@ -487,27 +487,31 @@ static int arch_timer_starting_cpu(unsigned int cpu)
- 	return 0;
- }
+@@ -792,15 +792,28 @@ static const struct of_device_id arch_timer_mem_of_match[] __initconst = {
+ 	{},
+ };
  
--static void
--arch_timer_detect_rate(void __iomem *cntbase, struct device_node *np)
-+static void arch_timer_detect_rate(void __iomem *cntbase)
+-static bool __init
+-arch_timer_needs_probing(int type, const struct of_device_id *matches)
++static bool __init arch_timer_needs_of_probing(void)
  {
- 	/* Who has more than one independent system counter? */
- 	if (arch_timer_rate)
- 		return;
--
- 	/*
--	 * Try to determine the frequency from the device tree or CNTFRQ,
--	 * if ACPI is enabled, get the frequency from CNTFRQ ONLY.
-+	 * If we got memory-mapped timer(cntbase != NULL),
-+	 * try to determine the frequency from CNTFRQ in memory-mapped timer.
- 	 */
--	if (!acpi_disabled ||
--	    of_property_read_u32(np, "clock-frequency", &arch_timer_rate)) {
--		if (cntbase)
--			arch_timer_rate = readl_relaxed(cntbase + CNTFRQ);
--		else
--			arch_timer_rate = arch_timer_get_cntfrq();
--	}
-+	if (cntbase)
-+		arch_timer_rate = readl_relaxed(cntbase + CNTFRQ);
-+	/*
-+	 * Because in a system that implements both Secure and
-+	 * Non-secure states, CNTFRQ is only accessible in Secure state.
-+	 * So the operation above may fail, even if (cntbase != NULL),
-+	 * especially on ARM64.
-+	 * In this case, we can try cntfrq_el0(system coprocessor register).
-+	 */
-+	if (!arch_timer_rate)
-+		arch_timer_rate = arch_timer_get_cntfrq();
-+	else
-+		return;
- 
- 	/* Check the timer frequency. */
--	if (arch_timer_rate == 0)
-+	if (!arch_timer_rate)
- 		pr_warn("frequency not available\n");
- }
- 
-@@ -883,7 +887,9 @@ static int __init arch_timer_of_init(struct device_node *np)
- 	for (i = ARCH_TIMER_PHYS_SECURE_PPI; i < ARCH_TIMER_MAX_TIMER_PPI; i++)
- 		arch_timer_ppi[i] = irq_of_parse_and_map(np, i);
- 
--	arch_timer_detect_rate(NULL, np);
-+	if (!arch_timer_rate &&
-+	    of_property_read_u32(np, "clock-frequency", &arch_timer_rate))
-+		arch_timer_detect_rate(NULL);
- 
- 	arch_timer_c3stop = !of_property_read_bool(np, "always-on");
- 
-@@ -983,7 +989,14 @@ static int __init arch_timer_mem_init(struct device_node *np)
- 		goto out;
- 	}
- 
--	arch_timer_detect_rate(base, np);
-+	/*
-+	 * Try to determine the frequency from the device tree,
-+	 * if fail, get the frequency from CNTFRQ.
-+	 */
-+	if (!arch_timer_rate &&
-+	    of_property_read_u32(np, "clock-frequency", &arch_timer_rate))
-+		arch_timer_detect_rate(base);
+ 	struct device_node *dn;
+ 	bool needs_probing = false;
++	unsigned int mask = ARCH_TIMER_TYPE_CP15 | ARCH_TIMER_TYPE_MEM;
 +
- 	ret = arch_timer_mem_register(base, irq);
- 	if (ret)
- 		goto out;
-@@ -1046,7 +1059,7 @@ static int __init arch_timer_acpi_init(struct acpi_table_header *table)
- 		gtdt->non_secure_el2_flags);
++	/* We have two timers, and both device-tree nodes are probed. */
++	if ((arch_timers_present & mask) == mask)
++		return false;
++
++	/*
++	 * Only one type of timer is probed,
++	 * check if we have another type of timer node in device-tree.
++	 */
++	if (arch_timers_present & ARCH_TIMER_TYPE_CP15)
++		dn = of_find_matching_node(NULL, arch_timer_mem_of_match);
++	else
++		dn = of_find_matching_node(NULL, arch_timer_of_match);
  
- 	/* Get the frequency from CNTFRQ */
--	arch_timer_detect_rate(NULL, NULL);
-+	arch_timer_detect_rate(NULL);
+-	dn = of_find_matching_node(NULL, matches);
+-	if (dn && of_device_is_available(dn) && !(arch_timers_present & type))
++	if (dn && of_device_is_available(dn))
+ 		needs_probing = true;
++
+ 	of_node_put(dn);
  
- 	ret = arch_timer_uses_ppi_init();
- 	if (ret)
+ 	return needs_probing;
+@@ -808,17 +821,8 @@ arch_timer_needs_probing(int type, const struct of_device_id *matches)
+ 
+ static int __init arch_timer_common_init(void)
+ {
+-	unsigned int mask = ARCH_TIMER_TYPE_CP15 | ARCH_TIMER_TYPE_MEM;
+-
+-	/* Wait until both nodes are probed if we have two timers */
+-	if ((arch_timers_present & mask) != mask) {
+-		if (arch_timer_needs_probing(ARCH_TIMER_TYPE_MEM,
+-					     arch_timer_mem_of_match))
+-			return 0;
+-		if (arch_timer_needs_probing(ARCH_TIMER_TYPE_CP15,
+-					     arch_timer_of_match))
+-			return 0;
+-	}
++	if (acpi_disabled && arch_timer_needs_of_probing())
++		return 0;
+ 
+ 	arch_timer_banner(arch_timers_present);
+ 	arch_counter_register(arch_timers_present);
 -- 
 2.7.4
 
