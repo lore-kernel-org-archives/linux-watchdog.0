@@ -1,8 +1,8 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:41404 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:41318 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S933288AbcKPNvh (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 16 Nov 2016 08:51:37 -0500
+        id S932346AbcKPNvc (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Wed, 16 Nov 2016 08:51:32 -0500
 From: fu.wei@linaro.org
 To: rjw@rjwysocki.net, lenb@kernel.org, daniel.lezcano@linaro.org,
         tglx@linutronix.de, marc.zyngier@arm.com, mark.rutland@arm.com,
@@ -18,9 +18,9 @@ Cc: linux-arm-kernel@lists.infradead.org, linaro-acpi@lists.linaro.org,
         linux@roeck-us.net, linux-watchdog@vger.kernel.org,
         tn@semihalf.com, christoffer.dall@linaro.org, julien.grall@arm.com,
         Fu Wei <fu.wei@linaro.org>
-Subject: [PATCH v16 11/15] acpi/arm64: Add GTDT table parse driver
-Date: Wed, 16 Nov 2016 21:49:04 +0800
-Message-Id: <1479304148-2965-12-git-send-email-fu.wei@linaro.org>
+Subject: [PATCH v16 10/15] clocksource/drivers/arm_arch_timer: Refactor the timer init code to prepare for GTDT
+Date: Wed, 16 Nov 2016 21:49:03 +0800
+Message-Id: <1479304148-2965-11-git-send-email-fu.wei@linaro.org>
 In-Reply-To: <1479304148-2965-1-git-send-email-fu.wei@linaro.org>
 References: <1479304148-2965-1-git-send-email-fu.wei@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -28,294 +28,224 @@ List-Id: linux-watchdog@vger.kernel.org
 
 From: Fu Wei <fu.wei@linaro.org>
 
-This patch adds support for parsing arch timer in GTDT,
-provides some kernel APIs to parse all the PPIs and
-always-on info in GTDT and export them.
-
-By this driver, we can simplify arm_arch_timer drivers, and
-separate the ACPI GTDT knowledge from it.
+The patch refactor original memory-mapped timer init code:
+    (1) Extract a subfunction for detecting a bast time frame:
+        is_best_frame.
+    (2) Refactor "arch_timer_mem_init", make it become a common code for
+        memory-mapped timer init.
+    (3) Add a new function "arch_timer_mem_of_init" for DT init.
 
 Signed-off-by: Fu Wei <fu.wei@linaro.org>
-Signed-off-by: Hanjun Guo <hanjun.guo@linaro.org>
-Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 ---
- arch/arm64/Kconfig          |   1 +
- drivers/acpi/arm64/Kconfig  |   3 +
- drivers/acpi/arm64/Makefile |   1 +
- drivers/acpi/arm64/gtdt.c   | 216 ++++++++++++++++++++++++++++++++++++++++++++
- include/linux/acpi.h        |   7 ++
- 5 files changed, 228 insertions(+)
+ drivers/clocksource/arm_arch_timer.c | 162 +++++++++++++++++++++++------------
+ 1 file changed, 107 insertions(+), 55 deletions(-)
 
-diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-index 969ef88..4277a21 100644
---- a/arch/arm64/Kconfig
-+++ b/arch/arm64/Kconfig
-@@ -2,6 +2,7 @@ config ARM64
- 	def_bool y
- 	select ACPI_CCA_REQUIRED if ACPI
- 	select ACPI_GENERIC_GSI if ACPI
-+	select ACPI_GTDT if ACPI
- 	select ACPI_REDUCED_HARDWARE_ONLY if ACPI
- 	select ACPI_MCFG if ACPI
- 	select ACPI_SPCR_TABLE if ACPI
-diff --git a/drivers/acpi/arm64/Kconfig b/drivers/acpi/arm64/Kconfig
-index 4616da4..5a6f80f 100644
---- a/drivers/acpi/arm64/Kconfig
-+++ b/drivers/acpi/arm64/Kconfig
-@@ -4,3 +4,6 @@
+diff --git a/drivers/clocksource/arm_arch_timer.c b/drivers/clocksource/arm_arch_timer.c
+index 9ddc091..0836bb9 100644
+--- a/drivers/clocksource/arm_arch_timer.c
++++ b/drivers/clocksource/arm_arch_timer.c
+@@ -923,17 +923,35 @@ static int __init arch_timer_of_init(struct device_node *np)
+ CLOCKSOURCE_OF_DECLARE(armv7_arch_timer, "arm,armv7-timer", arch_timer_of_init);
+ CLOCKSOURCE_OF_DECLARE(armv8_arch_timer, "arm,armv8-timer", arch_timer_of_init);
  
- config ACPI_IORT
- 	bool
-+
-+config ACPI_GTDT
-+	bool
-diff --git a/drivers/acpi/arm64/Makefile b/drivers/acpi/arm64/Makefile
-index 72331f2..1017def 100644
---- a/drivers/acpi/arm64/Makefile
-+++ b/drivers/acpi/arm64/Makefile
-@@ -1 +1,2 @@
- obj-$(CONFIG_ACPI_IORT) 	+= iort.o
-+obj-$(CONFIG_ACPI_GTDT) 	+= gtdt.o
-diff --git a/drivers/acpi/arm64/gtdt.c b/drivers/acpi/arm64/gtdt.c
-new file mode 100644
-index 0000000..2de79aa
---- /dev/null
-+++ b/drivers/acpi/arm64/gtdt.c
-@@ -0,0 +1,216 @@
-+/*
-+ * ARM Specific GTDT table Support
-+ *
-+ * Copyright (C) 2016, Linaro Ltd.
-+ * Author: Daniel Lezcano <daniel.lezcano@linaro.org>
-+ *         Fu Wei <fu.wei@linaro.org>
-+ *         Hanjun Guo <hanjun.guo@linaro.org>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
-+
-+#include <linux/acpi.h>
-+#include <linux/init.h>
-+#include <linux/kernel.h>
-+
-+#include <clocksource/arm_arch_timer.h>
-+
-+#undef pr_fmt
-+#define pr_fmt(fmt) "ACPI GTDT: " fmt
-+
-+struct acpi_gtdt_descriptor {
-+	struct acpi_table_gtdt *gtdt;
-+	void *gtdt_end;
-+	unsigned int timer_block_count;
-+	unsigned int watchdog_count;
-+};
-+
-+static struct acpi_gtdt_descriptor acpi_gtdt_desc __initdata;
-+static struct acpi_gtdt_timer_block **timer_block __initdata;
-+static struct acpi_gtdt_watchdog **watchdog __initdata;
-+
-+static inline void *next_platform_timer(void *platform_timer)
+-static int __init arch_timer_mem_init(struct device_node *np)
++static bool __init is_best_frame(void __iomem *cntctlbase, u32 cnttidr, int n)
 +{
-+	struct acpi_gtdt_header *gh = platform_timer;
++	u32 cntacr = CNTACR_RFRQ | CNTACR_RWPT | CNTACR_RPCT | CNTACR_RWVT |
++		     CNTACR_RVOFF | CNTACR_RVCT;
 +
-+	platform_timer += gh->length;
-+	if (platform_timer < acpi_gtdt_desc.gtdt_end)
-+		return platform_timer;
++	/* Try enabling everything, and see what sticks */
++	writel_relaxed(cntacr, cntctlbase + CNTACR(n));
++	cntacr = readl_relaxed(cntctlbase + CNTACR(n));
 +
-+	return NULL;
++	if ((cnttidr & CNTTIDR_VIRT(n)) &&
++	    !(~cntacr & (CNTACR_RWVT | CNTACR_RVCT)))
++		arch_timer_mem_use_virtual = true;
++	else if (~cntacr & (CNTACR_RWPT | CNTACR_RPCT))
++		return false;
++
++	return true;
 +}
 +
-+#define for_each_platform_timer(_g) for (; _g; _g = next_platform_timer(_g))
-+
-+static inline bool is_timer_block(void *platform_timer)
-+{
-+	struct acpi_gtdt_header *gh = platform_timer;
-+
-+	return gh->type == ACPI_GTDT_TYPE_TIMER_BLOCK;
-+}
-+
-+static inline bool is_watchdog(void *platform_timer)
-+{
-+	struct acpi_gtdt_header *gh = platform_timer;
-+
-+	return gh->type == ACPI_GTDT_TYPE_WATCHDOG;
-+}
-+
-+static int __init map_gt_gsi(u32 interrupt, u32 flags)
-+{
-+	int trigger, polarity;
-+
-+	trigger = (flags & ACPI_GTDT_INTERRUPT_MODE) ? ACPI_EDGE_SENSITIVE
-+			: ACPI_LEVEL_SENSITIVE;
-+
-+	polarity = (flags & ACPI_GTDT_INTERRUPT_POLARITY) ? ACPI_ACTIVE_LOW
-+			: ACPI_ACTIVE_HIGH;
-+
-+	return acpi_register_gsi(NULL, interrupt, trigger, polarity);
-+}
-+
-+/*
-+ * Map the PPIs of per-cpu arch_timer.
-+ * @type: the type of PPI
-+ * Returns 0 if error.
-+ * Note: Linux on arm64 isn't supported on the secure side.
-+ * So we only handle the non-secure timer PPIs,
-+ * ARCH_TIMER_PHYS_SECURE_PPI is treated as invalid type.
-+ */
-+int __init acpi_gtdt_map_ppi(int type)
-+{
-+	struct acpi_table_gtdt *gtdt = acpi_gtdt_desc.gtdt;
-+
-+	switch (type) {
-+	case ARCH_TIMER_PHYS_NONSECURE_PPI:
-+		return map_gt_gsi(gtdt->non_secure_el1_interrupt,
-+				  gtdt->non_secure_el1_flags);
-+	case ARCH_TIMER_VIRT_PPI:
-+		return map_gt_gsi(gtdt->virtual_timer_interrupt,
-+				  gtdt->virtual_timer_flags);
-+
-+	case ARCH_TIMER_HYP_PPI:
-+		return map_gt_gsi(gtdt->non_secure_el2_interrupt,
-+				  gtdt->non_secure_el2_flags);
-+	default:
-+		pr_err("Failed to map timer interrupt: invalid type.\n");
-+	}
-+
-+	return 0;
-+}
-+
-+/*
-+ * acpi_gtdt_c3stop - got c3stop info from GTDT
-+ * @type: the type of PPI
-+ * Returns 1 if the timer is powered in deep idle state, 0 otherwise.
-+ */
-+bool __init acpi_gtdt_c3stop(int type)
-+{
-+	struct acpi_table_gtdt *gtdt = acpi_gtdt_desc.gtdt;
-+
-+	switch (type) {
-+	case ARCH_TIMER_PHYS_NONSECURE_PPI:
-+		return !(gtdt->non_secure_el1_flags & ACPI_GTDT_ALWAYS_ON);
-+
-+	case ARCH_TIMER_VIRT_PPI:
-+		return !(gtdt->virtual_timer_flags & ACPI_GTDT_ALWAYS_ON);
-+
-+	case ARCH_TIMER_HYP_PPI:
-+		return !(gtdt->non_secure_el2_flags & ACPI_GTDT_ALWAYS_ON);
-+
-+	default:
-+		pr_err("Failed to get c3stop info: invalid type.\n");
-+	}
-+
-+	return 0;
-+}
-+
-+/*
-+ * Release the memory we have allocated in acpi_gtdt_init.
-+ * This should be called, when the driver who called "acpi_gtdt_init" previously
-+ * doesn't need the GTDT info anymore.
-+ */
-+void __init acpi_gtdt_release(void)
-+{
-+	kfree(timer_block);
-+	kfree(watchdog);
-+	timer_block = NULL;
-+	watchdog = NULL;
-+}
-+
-+/*
-+ * Get some basic info from GTDT table, and init the global variables above
-+ * for all timers initialization of Generic Timer.
-+ * This function does some validation on GTDT table.
-+ */
-+int __init acpi_gtdt_init(struct acpi_table_header *table)
-+{
-+	int timer_count;
-+	void *platform_timer;
-+	struct acpi_table_gtdt *gtdt;
-+
-+	gtdt = container_of(table, struct acpi_table_gtdt, header);
-+
-+	if (table->revision < 2) {
-+		pr_debug("Revision:%d doesn't support Platform Timers.\n",
-+			 table->revision);
-+		timer_count = 0;
-+	} else if (!gtdt->platform_timer_count) {
-+		pr_debug("No Platform Timer.\n");
-+		timer_count = 0;
-+	} else {
-+		timer_count = gtdt->platform_timer_count;
-+	}
-+
-+	acpi_gtdt_desc.gtdt = gtdt;
-+	acpi_gtdt_desc.gtdt_end = (void *)table + table->length;
-+
-+	if (!timer_count)
-+		return 0;
-+
-+	platform_timer = (void *)gtdt + gtdt->platform_timer_offset;
-+	if (platform_timer < (void *)table + sizeof(struct acpi_table_gtdt)) {
-+		pr_err(FW_BUG "Failed to retrieve timer info from firmware: invalid data.\n");
++static int __init arch_timer_mem_init(struct arch_timer_mem *timer_mem)
+ {
+-	struct device_node *frame, *best_frame = NULL;
+ 	void __iomem *cntctlbase, *base;
+-	unsigned int irq, ret = -EINVAL;
++	struct arch_timer_mem_frame *best_frame = NULL;
++	unsigned int irq;
+ 	u32 cnttidr;
++	int i, ret;
+ 
+-	arch_timers_present |= ARCH_TIMER_TYPE_MEM;
+-	cntctlbase = of_iomap(np, 0);
++	cntctlbase = ioremap(timer_mem->cntctlbase, timer_mem->size);
+ 	if (!cntctlbase) {
+-		pr_err("Can't find CNTCTLBase\n");
++		pr_err("Can't map CNTCTLBase.\n");
+ 		return -ENXIO;
+ 	}
+ 
+@@ -943,76 +961,110 @@ static int __init arch_timer_mem_init(struct device_node *np)
+ 	 * Try to find a virtual capable frame. Otherwise fall back to a
+ 	 * physical capable frame.
+ 	 */
+-	for_each_available_child_of_node(np, frame) {
+-		int n;
+-		u32 cntacr;
+-
+-		if (of_property_read_u32(frame, "frame-number", &n)) {
+-			pr_err("Missing frame-number\n");
+-			of_node_put(frame);
+-			goto out;
+-		}
+-
+-		/* Try enabling everything, and see what sticks */
+-		cntacr = CNTACR_RFRQ | CNTACR_RWPT | CNTACR_RPCT |
+-			 CNTACR_RWVT | CNTACR_RVOFF | CNTACR_RVCT;
+-		writel_relaxed(cntacr, cntctlbase + CNTACR(n));
+-		cntacr = readl_relaxed(cntctlbase + CNTACR(n));
+-
+-		if ((cnttidr & CNTTIDR_VIRT(n)) &&
+-		    !(~cntacr & (CNTACR_RWVT | CNTACR_RVCT))) {
+-			of_node_put(best_frame);
+-			best_frame = frame;
+-			arch_timer_mem_use_virtual = true;
+-			break;
++	for (i = 0; i < timer_mem->num_frames; i++) {
++		if (is_best_frame(cntctlbase, cnttidr,
++				  timer_mem->frame[i].frame_nr)) {
++			best_frame = &timer_mem->frame[i];
++			if (arch_timer_mem_use_virtual)
++				break;
+ 		}
+-
+-		if (~cntacr & (CNTACR_RWPT | CNTACR_RPCT))
+-			continue;
+-
+-		of_node_put(best_frame);
+-		best_frame = of_node_get(frame);
+ 	}
++	iounmap(cntctlbase);
+ 
+-	ret= -ENXIO;
+-	base = arch_counter_base = of_iomap(best_frame, 0);
+-	if (!base) {
+-		pr_err("Can't map frame's registers\n");
+-		goto out;
++	if (!best_frame) {
++		pr_err("Can't find frame for register\n");
 +		return -EINVAL;
+ 	}
+ 
+ 	if (arch_timer_mem_use_virtual)
+-		irq = irq_of_parse_and_map(best_frame, ARCH_TIMER_VIRT_SPI);
++		irq = best_frame->virt_irq;
+ 	else
+-		irq = irq_of_parse_and_map(best_frame, ARCH_TIMER_PHYS_SPI);
++		irq = best_frame->phys_irq;
+ 
+-	ret = -EINVAL;
+ 	if (!irq) {
+ 		pr_err("Frame missing %s irq",
+ 		       arch_timer_mem_use_virtual ? "virt" : "phys");
+-		goto out;
++		return -EINVAL;
+ 	}
+ 
+-	/*
+-	 * Try to determine the frequency from the device tree,
+-	 * if fail, get the frequency from CNTFRQ.
+-	 */
+-	if (!arch_timer_rate &&
+-	    of_property_read_u32(np, "clock-frequency", &arch_timer_rate))
+-		arch_timer_detect_rate(base);
++	base = ioremap(best_frame->cntbase, best_frame->size);
++	if (!base) {
++		pr_err("Can't map frame's registers\n");
++		return -ENXIO;
 +	}
 +
-+	timer_block = kcalloc(timer_count,
-+			      sizeof(struct acpi_gtdt_timer_block *),
-+			      GFP_KERNEL);
-+	if (!timer_block)
-+		return -ENOMEM;
-+
-+	watchdog = kcalloc(timer_count, sizeof(struct acpi_gtdt_watchdog *),
-+			   GFP_KERNEL);
-+	if (!watchdog) {
-+		kfree(timer_block);
-+		timer_block = NULL;
-+		return -ENOMEM;
++	arch_timer_detect_rate(base);
+ 
+ 	ret = arch_timer_mem_register(base, irq);
+-	if (ret)
++	if (ret) {
++		iounmap(base);
++		return ret;
 +	}
 +
-+	acpi_gtdt_desc.timer_block_count = 0;
-+	acpi_gtdt_desc.watchdog_count = 0;
-+	for_each_platform_timer(platform_timer) {
-+		if (is_timer_block(platform_timer)) {
-+			timer_block[acpi_gtdt_desc.timer_block_count++] =
-+				platform_timer;
-+		} else if (is_watchdog(platform_timer)) {
-+			watchdog[acpi_gtdt_desc.watchdog_count++] =
-+				platform_timer;
-+		} else {
-+			pr_err(FW_BUG "Invalid platform timer type.\n");
-+			goto error;
-+		}
-+	}
++	arch_counter_base = base;
++	arch_timers_present |= ARCH_TIMER_TYPE_MEM;
 +
-+	if (timer_count == acpi_gtdt_desc.watchdog_count +
-+			   acpi_gtdt_desc.timer_block_count)
-+		return 0;
-+
-+	pr_err(FW_BUG "Invalid platform timer number.\n");
-+error:
-+	acpi_gtdt_release();
-+	return -EINVAL;
++	return 0;
 +}
-diff --git a/include/linux/acpi.h b/include/linux/acpi.h
-index 61a3d90..a1611d1 100644
---- a/include/linux/acpi.h
-+++ b/include/linux/acpi.h
-@@ -577,6 +577,13 @@ enum acpi_reconfig_event  {
- int acpi_reconfig_notifier_register(struct notifier_block *nb);
- int acpi_reconfig_notifier_unregister(struct notifier_block *nb);
- 
-+#ifdef CONFIG_ACPI_GTDT
-+int acpi_gtdt_init(struct acpi_table_header *table);
-+int acpi_gtdt_map_ppi(int type);
-+bool acpi_gtdt_c3stop(int type);
-+void acpi_gtdt_release(void);
-+#endif
 +
- #else	/* !CONFIG_ACPI */
++static int __init arch_timer_mem_of_init(struct device_node *np)
++{
++	struct arch_timer_mem *timer_mem;
++	struct device_node *frame_node;
++	struct resource res;
++	int i, ret = -EINVAL;
++
++	timer_mem = kzalloc(sizeof(*timer_mem), GFP_KERNEL);
++	if (!timer_mem)
++		return -ENOMEM;
++
++	if (of_address_to_resource(np, 0, &res))
+ 		goto out;
++	timer_mem->cntctlbase = res.start;
++	timer_mem->size = resource_size(&res);
  
- #define acpi_disabled 1
+-	return arch_timer_common_init();
++	i = 0;
++	for_each_available_child_of_node(np, frame_node) {
++		int n;
++		struct arch_timer_mem_frame *frame = &timer_mem->frame[i];
++
++		if (of_property_read_u32(frame_node, "frame-number", &n)) {
++			pr_err("Missing frame-number\n");
++			of_node_put(frame_node);
++			goto out;
++		}
++		frame->frame_nr = n;
++
++		if (of_address_to_resource(frame_node, 0, &res)) {
++			of_node_put(frame_node);
++			goto out;
++		}
++		frame->cntbase = res.start;
++		frame->size = resource_size(&res);
++
++		frame->virt_irq = irq_of_parse_and_map(frame_node,
++						       ARCH_TIMER_VIRT_SPI);
++		frame->phys_irq = irq_of_parse_and_map(frame_node,
++						       ARCH_TIMER_PHYS_SPI);
++
++		if (++i >= ARCH_TIMER_MEM_MAX_FRAMES)
++			break;
++	}
++	timer_mem->num_frames = i;
++
++	/* Try to determine the frequency from the device tree */
++	if (!arch_timer_rate)
++		of_property_read_u32(np, "clock-frequency", &arch_timer_rate);
++
++	ret = arch_timer_mem_init(timer_mem);
++	if (!ret)
++		ret = arch_timer_common_init();
+ out:
+-	iounmap(cntctlbase);
+-	of_node_put(best_frame);
++	kfree(timer_mem);
+ 	return ret;
+ }
+ CLOCKSOURCE_OF_DECLARE(armv7_arch_timer_mem, "arm,armv7-timer-mem",
+-		       arch_timer_mem_init);
++		       arch_timer_mem_of_init);
+ 
+ #ifdef CONFIG_ACPI
+ static int __init map_generic_timer_interrupt(u32 interrupt, u32 flags)
 -- 
 2.7.4
 
