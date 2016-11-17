@@ -1,42 +1,161 @@
-Return-path: <stwiss.opensource@diasemi.com>
-From: Steve Twiss <stwiss.opensource@diasemi.com>
-To: Lee Jones <lee.jones@linaro.org>
-CC: DEVICETREE <devicetree@vger.kernel.org>, LINUX-INPUT
-	<linux-input@vger.kernel.org>, LINUX-KERNEL <linux-kernel@vger.kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>,
-	"Dmitry Torokhov" <dmitry.torokhov@gmail.com>, Eduardo Valentin
-	<edubezval@gmail.com>, Guenter Roeck <linux@roeck-us.net>, LINUX-PM
-	<linux-pm@vger.kernel.org>, LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
-	Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Support
- Opensource <Support.Opensource@diasemi.com>, Wim Van Sebroeck
-	<wim@iguana.be>, Zhang Rui <rui.zhang@intel.com>
-Subject: RE: [PATCH V3 4/9] Documentation: devicetree: mfd: da9062/61 MFD
- binding
-Date: Mon, 7 Nov 2016 15:28:39 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7018CCE7CC5@SW-EX-MBX02.diasemi.com>
-References: <cover.1477929725.git.stwiss.opensource@diasemi.com>
- <502d13b97c67023f2193abfa235e8884eb0ea02f.1477929725.git.stwiss.opensource@diasemi.com>
- <20161102143201.GT13127@dell>
-In-Reply-To: <20161102143201.GT13127@dell>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+To: linux-kernel@vger.kernel.org
+Cc: rt@linuxtronix.de, Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Wim Van Sebroeck <wim@iguana.be>, Guenter Roeck <linux@roeck-us.net>,
+        linux-watchdog@vger.kernel.org
+Subject: [PATCH 11/20] watchdog/octeon: Convert to hotplug state machine
+Date: Thu, 17 Nov 2016 19:35:32 +0100
+Message-Id: <20161117183541.8588-12-bigeasy@linutronix.de>
+In-Reply-To: <20161117183541.8588-1-bigeasy@linutronix.de>
+References: <20161117183541.8588-1-bigeasy@linutronix.de>
 MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-T24gMDIgTm92ZW1iZXIgMjAxNiAxNDozMiwgTGVlIEpvbmVzIHdyb3RlOg0KDQo+IE9uIE1vbiwg
-MzEgT2N0IDIwMTYsIFN0ZXZlIFR3aXNzIHdyb3RlOg0KPiA+IEZyb206IFN0ZXZlIFR3aXNzIDxz
-dHdpc3Mub3BlbnNvdXJjZUBkaWFzZW1pLmNvbT4NCj4gPg0KPiA+IFsuLi5dDQo+ID4NCj4gPiAr
-LSBvbmtleSA6IFNlZSAuLi9pbnB1dC9kYTkwNjItb25rZXkudHh0DQo+ID4gKw0KPiA+ICsNCj4g
-PiArLSB3YXRjaGRvZzogU2VlIC4uL3dhdGNoZG9nL2RhOTA2Mi13YXRjaGRvZy50eHQNCj4gPiAr
-DQo+ID4gKw0KPiA+ICstIHRoZXJtYWwgOiBTZWUgLi4vdGhlcm1hbC9kYTkwNjItdGhlcm1hbC50
-eHQNCj4gDQo+IFJlbW92ZSBhbGwgdGhvc2UgZXh0cmEgbGluZXMgaW4gYmV0d2Vlbi4NCg0KT2su
-DQoNCj4gPiAgRXhhbXBsZToNCj4gPiBAQCAtNjQsMTAgKzk2LDYgQEAgRXhhbXBsZToNCj4gPiAg
-CQkJY29tcGF0aWJsZSA9ICJkbGcsZGE5MDYyLXJ0YyI7DQo+ID4gIAkJfTsNCj4gPg0KPiA+IC0J
-CXdhdGNoZG9nIHsNCj4gPiAtCQkJY29tcGF0aWJsZSA9ICJkbGcsZGE5MDYyLXdhdGNoZG9nIjsN
-Cj4gPiAtCQl9Ow0KPiA+IC0NCj4gDQo+IFdoeSBkb24ndCB5b3UgaW5jbHVkZSBhIHN1Yi1ub2Rl
-IHBlciBjaGlsZCBkZXZpY2UgYW5kIHVzZQ0KPiBvZl9wbGF0Zm9ybV9wb3B1bGF0ZSgpIHRvIHJl
-Z2lzdGVyIHRoZSBkZXZpY2VzPw0KDQpJbiB0aGlzIGNhc2UgSSdtIGp1c3QgbW92aW5nIHRoZSBi
-aW5kaW5nIGRlc2NyaXB0aW9ucyBpbnRvIGENCmRpZmZlcmVudCBmaWxlLiBJJ20gbm90IHN1cmUg
-SSB1bmRlcnN0YW5kIHdoYXQgeW91IG1lYW4gaGVyZS4NCldoYXQgZG8geW91IGhhdmUgaW4gbWlu
-ZD8NCg0KUmVnYXJkcywNClN0ZXZlDQo=
+Install the callbacks via the state machine and let the core invoke
+the callbacks on the already online CPUs.
+
+Cc: Wim Van Sebroeck <wim@iguana.be>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Cc: linux-watchdog@vger.kernel.org
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+---
+ drivers/watchdog/octeon-wdt-main.c | 62 +++++++++-------------------------=
+----
+ 1 file changed, 15 insertions(+), 47 deletions(-)
+
+diff --git a/drivers/watchdog/octeon-wdt-main.c b/drivers/watchdog/octeon-w=
+dt-main.c
+index b55981f88a08..529182d7d8a7 100644
+--- a/drivers/watchdog/octeon-wdt-main.c
++++ b/drivers/watchdog/octeon-wdt-main.c
+@@ -374,7 +374,7 @@ void octeon_wdt_nmi_stage3(u64 reg[32])
+ 	octeon_wdt_write_string("*** Chip soft reset soon ***\r\n");
+ }
+=20
+-static void octeon_wdt_disable_interrupt(int cpu)
++static int octeon_wdt_cpu_pre_down(unsigned int cpu)
+ {
+ 	unsigned int core;
+ 	unsigned int irq;
+@@ -392,9 +392,10 @@ static void octeon_wdt_disable_interrupt(int cpu)
+ 	cvmx_write_csr(CVMX_CIU_WDOGX(core), ciu_wdog.u64);
+=20
+ 	free_irq(irq, octeon_wdt_poke_irq);
++	return 0;
+ }
+=20
+-static void octeon_wdt_setup_interrupt(int cpu)
++static int octeon_wdt_cpu_online(unsigned int cpu)
+ {
+ 	unsigned int core;
+ 	unsigned int irq;
+@@ -424,25 +425,8 @@ static void octeon_wdt_setup_interrupt(int cpu)
+ 	ciu_wdog.s.len =3D timeout_cnt;
+ 	ciu_wdog.s.mode =3D 3;	/* 3 =3D Interrupt + NMI + Soft-Reset */
+ 	cvmx_write_csr(CVMX_CIU_WDOGX(core), ciu_wdog.u64);
+-}
+=20
+-static int octeon_wdt_cpu_callback(struct notifier_block *nfb,
+-					   unsigned long action, void *hcpu)
+-{
+-	unsigned int cpu =3D (unsigned long)hcpu;
+-
+-	switch (action & ~CPU_TASKS_FROZEN) {
+-	case CPU_DOWN_PREPARE:
+-		octeon_wdt_disable_interrupt(cpu);
+-		break;
+-	case CPU_ONLINE:
+-	case CPU_DOWN_FAILED:
+-		octeon_wdt_setup_interrupt(cpu);
+-		break;
+-	default:
+-		break;
+-	}
+-	return NOTIFY_OK;
++	return 0;
+ }
+=20
+ static int octeon_wdt_ping(struct watchdog_device __always_unused *wdog)
+@@ -531,10 +515,6 @@ static int octeon_wdt_stop(struct watchdog_device *wdo=
+g)
+ 	return 0;
+ }
+=20
+-static struct notifier_block octeon_wdt_cpu_notifier =3D {
+-	.notifier_call =3D octeon_wdt_cpu_callback,
+-};
+-
+ static const struct watchdog_info octeon_wdt_info =3D {
+ 	.options =3D WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE | WDIOF_KEEPALIVEPING,
+ 	.identity =3D "OCTEON",
+@@ -553,6 +533,7 @@ static struct watchdog_device octeon_wdt =3D {
+ 	.ops	=3D &octeon_wdt_ops,
+ };
+=20
++static enum cpuhp_state octeon_wdt_online;
+ /**
+  * Module/ driver initialization.
+  *
+@@ -562,7 +543,6 @@ static int __init octeon_wdt_init(void)
+ {
+ 	int i;
+ 	int ret;
+-	int cpu;
+ 	u64 *ptr;
+=20
+ 	/*
+@@ -610,14 +590,16 @@ static int __init octeon_wdt_init(void)
+=20
+ 	cpumask_clear(&irq_enabled_cpus);
+=20
+-	cpu_notifier_register_begin();
+-	for_each_online_cpu(cpu)
+-		octeon_wdt_setup_interrupt(cpu);
+-
+-	__register_hotcpu_notifier(&octeon_wdt_cpu_notifier);
+-	cpu_notifier_register_done();
+-
++	ret =3D cpuhp_setup_state(CPUHP_AP_ONLINE_DYN, "watchdog/octeon:online",
++				octeon_wdt_cpu_online, octeon_wdt_cpu_pre_down);
++	if (ret < 0)
++		goto err;
++	octeon_wdt_online =3D ret;
+ 	return 0;
++err:
++	cvmx_write_csr(CVMX_MIO_BOOT_LOC_CFGX(0), 0);
++	watchdog_unregister_device(&octeon_wdt);
++	return ret;
+ }
+=20
+ /**
+@@ -625,22 +607,8 @@ static int __init octeon_wdt_init(void)
+  */
+ static void __exit octeon_wdt_cleanup(void)
+ {
+-	int cpu;
+-
+ 	watchdog_unregister_device(&octeon_wdt);
+-
+-	cpu_notifier_register_begin();
+-	__unregister_hotcpu_notifier(&octeon_wdt_cpu_notifier);
+-
+-	for_each_online_cpu(cpu) {
+-		int core =3D cpu2core(cpu);
+-		/* Disable the watchdog */
+-		cvmx_write_csr(CVMX_CIU_WDOGX(core), 0);
+-		/* Free the interrupt handler */
+-		free_irq(OCTEON_IRQ_WDOG0 + core, octeon_wdt_poke_irq);
+-	}
+-
+-	cpu_notifier_register_done();
++	cpuhp_remove_state(octeon_wdt_online);
+=20
+ 	/*
+ 	 * Disable the boot-bus memory, the code it points to is soon
+--=20
+2.10.2
