@@ -1,66 +1,85 @@
 Return-path: <andriy.shevchenko@linux.intel.com>
-Message-ID: <1479571803.22212.47.camel@linux.intel.com>
-Subject: Re: [PATCH v1 1/1] intel-mid_wdt: make sure watchdog is not running
- at startup
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: Guenter Roeck <linux@roeck-us.net>, Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org, mika.westerberg@linux.intel.com
-Date: Sat, 19 Nov 2016 18:10:03 +0200
-In-Reply-To: <265e4708-7658-d45f-7036-f2804e12e585@roeck-us.net>
-References: <20161118145002.140630-1-andriy.shevchenko@linux.intel.com>
-	 <265e4708-7658-d45f-7036-f2804e12e585@roeck-us.net>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+To: Wim Van Sebroeck <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org,
+	Guenter Roeck <linux@roeck-us.net>,
+	mika.westerberg@linux.intel.com
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 1/1] intel-mid_wdt: Error code is just an integer
+Date: Fri, 18 Nov 2016 17:24:41 +0200
+Message-Id: <20161118152441.135932-1-andriy.shevchenko@linux.intel.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On Sat, 2016-11-19 at 07:55 -0800, Guenter Roeck wrote:
-> On 11/18/2016 06:50 AM, Andy Shevchenko wrote:
-> > Make sure that the watchdog is not running after loading
-> > and before it is started by opening /dev/watchdog.
-> > 
-> > Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> 
-> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Error code when printed is more readable if it's represented as plain decimal
+integer. Otherwise user will see something like
+	intel_mid_wdt: Error stopping watchdog: 0xffffffed
+which is not quite understandable ("Should I interpret it as a bitfield?").
 
-Thanks!
+Make it clear to use plaint integer specifier.
 
-> 
-> I don't really like turning off the watchdog, but I guess it is the
-> only
-> remedy we have if it doesn't tell us if it is running.
+While here, move struct device *dev local variable definition to the top of
+functions.
 
-That is my understanding based on current documentation and driver
-implementation we have.
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+ drivers/watchdog/intel-mid_wdt.c | 19 ++++++++-----------
+ 1 file changed, 8 insertions(+), 11 deletions(-)
 
-> 
-> Guenter
-> 
-> > ---
-> >  drivers/watchdog/intel-mid_wdt.c | 3 +++
-> >  1 file changed, 3 insertions(+)
-> > 
-> > diff --git a/drivers/watchdog/intel-mid_wdt.c
-> > b/drivers/watchdog/intel-mid_wdt.c
-> > index db36d12..ff099a3 100644
-> > --- a/drivers/watchdog/intel-mid_wdt.c
-> > +++ b/drivers/watchdog/intel-mid_wdt.c
-> > @@ -151,6 +151,9 @@ static int mid_wdt_probe(struct platform_device
-> > *pdev)
-> >  		return ret;
-> >  	}
-> > 
-> > +	/* Make sure the watchdog is not running */
-> > +	wdt_stop(wdt_dev);
-> > +
-> >  	ret = watchdog_register_device(wdt_dev);
-> >  	if (ret) {
-> >  		dev_err(&pdev->dev, "error registering watchdog
-> > device\n");
-> > 
-> 
-> 
-
+diff --git a/drivers/watchdog/intel-mid_wdt.c b/drivers/watchdog/intel-mid_wdt.c
+index ff099a3..a4b7292 100644
+--- a/drivers/watchdog/intel-mid_wdt.c
++++ b/drivers/watchdog/intel-mid_wdt.c
+@@ -43,6 +43,7 @@ static inline int wdt_command(int sub, u32 *in, int inlen)
+ 
+ static int wdt_start(struct watchdog_device *wd)
+ {
++	struct device *dev = watchdog_get_drvdata(wd);
+ 	int ret, in_size;
+ 	int timeout = wd->timeout;
+ 	struct ipc_wd_start {
+@@ -57,36 +58,32 @@ static int wdt_start(struct watchdog_device *wd)
+ 	in_size = DIV_ROUND_UP(sizeof(ipc_wd_start), 4);
+ 
+ 	ret = wdt_command(SCU_WATCHDOG_START, (u32 *)&ipc_wd_start, in_size);
+-	if (ret) {
+-		struct device *dev = watchdog_get_drvdata(wd);
++	if (ret)
+ 		dev_crit(dev, "error starting watchdog: %d\n", ret);
+-	}
+ 
+ 	return ret;
+ }
+ 
+ static int wdt_ping(struct watchdog_device *wd)
+ {
++	struct device *dev = watchdog_get_drvdata(wd);
+ 	int ret;
+ 
+ 	ret = wdt_command(SCU_WATCHDOG_KEEPALIVE, NULL, 0);
+-	if (ret) {
+-		struct device *dev = watchdog_get_drvdata(wd);
+-		dev_crit(dev, "Error executing keepalive: 0x%x\n", ret);
+-	}
++	if (ret)
++		dev_crit(dev, "Error executing keepalive: %d\n", ret);
+ 
+ 	return ret;
+ }
+ 
+ static int wdt_stop(struct watchdog_device *wd)
+ {
++	struct device *dev = watchdog_get_drvdata(wd);
+ 	int ret;
+ 
+ 	ret = wdt_command(SCU_WATCHDOG_STOP, NULL, 0);
+-	if (ret) {
+-		struct device *dev = watchdog_get_drvdata(wd);
+-		dev_crit(dev, "Error stopping watchdog: 0x%x\n", ret);
+-	}
++	if (ret)
++		dev_crit(dev, "Error stopping watchdog: %d\n", ret);
+ 
+ 	return ret;
+ }
 -- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+2.10.2
