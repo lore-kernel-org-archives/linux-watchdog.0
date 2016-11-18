@@ -1,9 +1,9 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from foss.arm.com ([217.140.101.70]:58394 "EHLO foss.arm.com"
+Received: from foss.arm.com ([217.140.101.70]:58520 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751971AbcKRUNf (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 18 Nov 2016 15:13:35 -0500
-Date: Fri, 18 Nov 2016 20:12:50 +0000
+        id S1752018AbcKRUUp (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 18 Nov 2016 15:20:45 -0500
+Date: Fri, 18 Nov 2016 20:20:00 +0000
 From: Mark Rutland <mark.rutland@arm.com>
 To: fu.wei@linaro.org
 Cc: rjw@rjwysocki.net, lenb@kernel.org, daniel.lezcano@linaro.org,
@@ -19,99 +19,90 @@ Cc: rjw@rjwysocki.net, lenb@kernel.org, daniel.lezcano@linaro.org,
         leo.duran@amd.com, wim@iguana.be, linux@roeck-us.net,
         linux-watchdog@vger.kernel.org, tn@semihalf.com,
         christoffer.dall@linaro.org, julien.grall@arm.com
-Subject: Re: [PATCH v16 11/15] acpi/arm64: Add GTDT table parse driver
-Message-ID: <20161118201250.GO1197@leverpostej>
+Subject: Re: [PATCH v16 14/15] clocksource/drivers/arm_arch_timer: Add GTDT
+ support for memory-mapped timer
+Message-ID: <20161118202000.GP1197@leverpostej>
 References: <1479304148-2965-1-git-send-email-fu.wei@linaro.org>
- <1479304148-2965-12-git-send-email-fu.wei@linaro.org>
+ <1479304148-2965-15-git-send-email-fu.wei@linaro.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1479304148-2965-12-git-send-email-fu.wei@linaro.org>
+In-Reply-To: <1479304148-2965-15-git-send-email-fu.wei@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Nov 16, 2016 at 09:49:04PM +0800, fu.wei@linaro.org wrote:
-
-> +#define for_each_platform_timer(_g) for (; _g; _g = next_platform_timer(_g))
-
-This doesn't fit the usual for_each_* pattern, since _g has to be
-manually initialised first. Either come up with a way of maknig this fit
-the usual pattern, or get rid of this, and use:
-
-	t = however_you_get_the_first_timer();
-
-	if (!t)
-		bailt_out_somehow();
-	
-	do { 
-		...
-	} while (t = next_platform_timer(t));
-
-> +/*
-> + * Release the memory we have allocated in acpi_gtdt_init.
-> + * This should be called, when the driver who called "acpi_gtdt_init" previously
-> + * doesn't need the GTDT info anymore.
-> + */
-> +void __init acpi_gtdt_release(void)
-> +{
-> +	kfree(timer_block);
-> +	kfree(watchdog);
-> +	timer_block = NULL;
-> +	watchdog = NULL;
-> +}
-
-Why is this not simply in the error path of acpi_gtdt_init()?
-
-> +
-> +/*
-> + * Get some basic info from GTDT table, and init the global variables above
-> + * for all timers initialization of Generic Timer.
-> + * This function does some validation on GTDT table.
-> + */
-> +int __init acpi_gtdt_init(struct acpi_table_header *table)
-> +{
-
-> +	timer_block = kcalloc(timer_count,
-> +			      sizeof(struct acpi_gtdt_timer_block *),
-> +			      GFP_KERNEL);
-> +	if (!timer_block)
-> +		return -ENOMEM;
-> +
-> +	watchdog = kcalloc(timer_count, sizeof(struct acpi_gtdt_watchdog *),
-> +			   GFP_KERNEL);
-> +	if (!watchdog) {
-> +		kfree(timer_block);
-> +		timer_block = NULL;
-> +		return -ENOMEM;
-> +	}
-
-Please have a common error path below, and branch to that when you need
-to free these.
-
-> +error:
-> +	acpi_gtdt_release();
-> +	return -EINVAL;
-> +}
-
-[...]
-
-> diff --git a/include/linux/acpi.h b/include/linux/acpi.h
-> index 61a3d90..a1611d1 100644
-> --- a/include/linux/acpi.h
-> +++ b/include/linux/acpi.h
-> @@ -577,6 +577,13 @@ enum acpi_reconfig_event  {
->  int acpi_reconfig_notifier_register(struct notifier_block *nb);
->  int acpi_reconfig_notifier_unregister(struct notifier_block *nb);
+On Wed, Nov 16, 2016 at 09:49:07PM +0800, fu.wei@linaro.org wrote:
+> From: Fu Wei <fu.wei@linaro.org>
+> 
+> The patch add memory-mapped timer register support by using the
+> information provided by the new GTDT driver of ACPI.
+> 
+> Signed-off-by: Fu Wei <fu.wei@linaro.org>
+> ---
+>  drivers/clocksource/arm_arch_timer.c | 26 +++++++++++++++++++++++++-
+>  1 file changed, 25 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/clocksource/arm_arch_timer.c b/drivers/clocksource/arm_arch_timer.c
+> index c494ca8..0aad60a 100644
+> --- a/drivers/clocksource/arm_arch_timer.c
+> +++ b/drivers/clocksource/arm_arch_timer.c
+> @@ -1067,7 +1067,28 @@ CLOCKSOURCE_OF_DECLARE(armv7_arch_timer_mem, "arm,armv7-timer-mem",
+>  		       arch_timer_mem_of_init);
 >  
-> +#ifdef CONFIG_ACPI_GTDT
-> +int acpi_gtdt_init(struct acpi_table_header *table);
-> +int acpi_gtdt_map_ppi(int type);
-> +bool acpi_gtdt_c3stop(int type);
-> +void acpi_gtdt_release(void);
+>  #ifdef CONFIG_ACPI_GTDT
+> -/* Initialize per-processor generic timer */
+> +static int __init arch_timer_mem_acpi_init(void)
+> +{
+> +	struct arch_timer_mem *timer_mem;
+> +	int ret = 0;
+> +	int i = 0;
+> +
+> +	timer_mem = kzalloc(sizeof(*timer_mem), GFP_KERNEL);
 
-Why do these need to be here?
+Why do you need it zeroed? You don't clear it between iterations, so
+either you don't need this, or you have a bug in the loop.
 
-What possible value is ther in exporting acpi_gtdt_release() !?
+> +	if (!timer_mem)
+> +		return -ENOMEM;
+> +
+> +	while (!gtdt_arch_timer_mem_init(timer_mem, i)) {
+
+Huh?
+
+Why doesn't GTDT expose a function to fill in the entire arch_timer_mem
+in one go?
+
+There shouldn't be multiple instances, as far as I am aware. Am I
+mistaken?
+
+> +		ret = arch_timer_mem_init(timer_mem);
+> +		if (ret)
+> +			break;
+> +		i++;
+> +	}
+> +
+> +	kfree(timer_mem);
+> +	return ret;
+> +}
+
+
+Regardless, arch_timer_mem is small enough that you don't need dynamic
+allocaiton. Just put it on the stack, e.g.
+
+static int __init arch_timer_mem_acpi_init(void)
+{
+	int i = 0;
+	struct arch_timer_mem timer_mem;
+
+	while (!gtdt_arch_timer_mem_init(timer_mem, i)) {
+		int ret = arch_timer_mem_init();
+		if (ret)
+			return ret;
+		i++
+	}
+
+	return 0;
+}
 
 Thanks,
 Mark.
