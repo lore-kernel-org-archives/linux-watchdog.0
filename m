@@ -1,27 +1,26 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-io0-f175.google.com ([209.85.223.175]:35075 "EHLO
-        mail-io0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S935750AbcKWLxO (ORCPT
+Received: from mail-io0-f181.google.com ([209.85.223.181]:35854 "EHLO
+        mail-io0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S934987AbcKWMGP (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 23 Nov 2016 06:53:14 -0500
-Received: by mail-io0-f175.google.com with SMTP id a124so19244707ioe.2
-        for <linux-watchdog@vger.kernel.org>; Wed, 23 Nov 2016 03:53:14 -0800 (PST)
+        Wed, 23 Nov 2016 07:06:15 -0500
+Received: by mail-io0-f181.google.com with SMTP id x94so19737346ioi.3
+        for <linux-watchdog@vger.kernel.org>; Wed, 23 Nov 2016 04:06:15 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20161118142249.GA18029@red-moon>
+In-Reply-To: <20161118201250.GO1197@leverpostej>
 References: <1479304148-2965-1-git-send-email-fu.wei@linaro.org>
- <1479304148-2965-14-git-send-email-fu.wei@linaro.org> <20161118142249.GA18029@red-moon>
+ <1479304148-2965-12-git-send-email-fu.wei@linaro.org> <20161118201250.GO1197@leverpostej>
 From: Fu Wei <fu.wei@linaro.org>
-Date: Wed, 23 Nov 2016 19:53:12 +0800
-Message-ID: <CADyBb7sTVWC3d6kRDTA=SGYz9J4pwWvaJxXu3AMBAgQT4y7fTw@mail.gmail.com>
-Subject: Re: [PATCH v16 13/15] acpi/arm64: Add memory-mapped timer support in
- GTDT driver
-To: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Date: Wed, 23 Nov 2016 20:06:14 +0800
+Message-ID: <CADyBb7s8sg1RRC1xa7GD3r4b5gGzNHotpxrCfH3b-CEsrK_b4g@mail.gmail.com>
+Subject: Re: [PATCH v16 11/15] acpi/arm64: Add GTDT table parse driver
+To: Mark Rutland <mark.rutland@arm.com>
 Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>,
         Len Brown <lenb@kernel.org>,
         Daniel Lezcano <daniel.lezcano@linaro.org>,
         Thomas Gleixner <tglx@linutronix.de>,
         Marc Zyngier <marc.zyngier@arm.com>,
-        Mark Rutland <mark.rutland@arm.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
         Sudeep Holla <sudeep.holla@arm.com>,
         Hanjun Guo <hanjun.guo@linaro.org>,
         linux-arm-kernel@lists.infradead.org,
@@ -44,254 +43,115 @@ Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>,
         Christoffer Dall <christoffer.dall@linaro.org>,
         Julien Grall <julien.grall@arm.com>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Lorenzo,
+Hi Mark,
 
-On 18 November 2016 at 22:22, Lorenzo Pieralisi
-<lorenzo.pieralisi@arm.com> wrote:
-> On Wed, Nov 16, 2016 at 09:49:06PM +0800, fu.wei@linaro.org wrote:
->> From: Fu Wei <fu.wei@linaro.org>
->>
->> On platforms booting with ACPI, architected memory-mapped timers'
->> configuration data is provided by firmware through the ACPI GTDT
->> static table.
->>
->> The clocksource architected timer kernel driver requires a firmware
->> interface to collect timer configuration and configure its driver.
->> this infrastructure is present for device tree systems, but it is
->> missing on systems booting with ACPI.
->>
->> Implement the kernel infrastructure required to parse the static
->> ACPI GTDT table so that the architected timer clocksource driver can
->> make use of it on systems booting with ACPI, therefore enabling
->> the corresponding timers configuration.
->>
->> Signed-off-by: Fu Wei <fu.wei@linaro.org>
->> Signed-off-by: Hanjun Guo <hanjun.guo@linaro.org>
->> ---
->>  drivers/acpi/arm64/gtdt.c | 95 ++++++++++++++++++++++++++++++++++++++++=
-+++++++
->>  include/linux/acpi.h      |  1 +
->>  2 files changed, 96 insertions(+)
->>
->> diff --git a/drivers/acpi/arm64/gtdt.c b/drivers/acpi/arm64/gtdt.c
->> index 2de79aa..08d9506 100644
->> --- a/drivers/acpi/arm64/gtdt.c
->> +++ b/drivers/acpi/arm64/gtdt.c
->> @@ -51,6 +51,14 @@ static inline bool is_timer_block(void *platform_time=
-r)
->>       return gh->type =3D=3D ACPI_GTDT_TYPE_TIMER_BLOCK;
->>  }
->>
->> +static inline struct acpi_gtdt_timer_block *get_timer_block(unsigned in=
-t index)
+
+On 19 November 2016 at 04:12, Mark Rutland <mark.rutland@arm.com> wrote:
+> On Wed, Nov 16, 2016 at 09:49:04PM +0800, fu.wei@linaro.org wrote:
+>
+>> +#define for_each_platform_timer(_g) for (; _g; _g = next_platform_timer(_g))
+>
+> This doesn't fit the usual for_each_* pattern, since _g has to be
+> manually initialised first. Either come up with a way of maknig this fit
+> the usual pattern, or get rid of this, and use:
+>
+>         t = however_you_get_the_first_timer();
+>
+>         if (!t)
+>                 bailt_out_somehow();
+>
+>         do {
+>                 ...
+>         } while (t = next_platform_timer(t));
+
+Thanks, will do
+
+>
+>> +/*
+>> + * Release the memory we have allocated in acpi_gtdt_init.
+>> + * This should be called, when the driver who called "acpi_gtdt_init" previously
+>> + * doesn't need the GTDT info anymore.
+>> + */
+>> +void __init acpi_gtdt_release(void)
 >> +{
->> +     if (index >=3D acpi_gtdt_desc.timer_block_count || !timer_block)
->> +             return NULL;
->> +
->> +     return timer_block[index];
+>> +     kfree(timer_block);
+>> +     kfree(watchdog);
+>> +     timer_block = NULL;
+>> +     watchdog = NULL;
 >> +}
->> +
->>  static inline bool is_watchdog(void *platform_timer)
->>  {
->>       struct acpi_gtdt_header *gh =3D platform_timer;
->> @@ -214,3 +222,90 @@ int __init acpi_gtdt_init(struct acpi_table_header =
-*table)
->>       acpi_gtdt_release();
->>       return -EINVAL;
->>  }
+>
+> Why is this not simply in the error path of acpi_gtdt_init()?
+>
 >> +
 >> +/*
->> + * Get ONE GT block info for memory-mapped timer from GTDT table.
->> + * @data: the GT block data (parsing result)
->> + * @index: the index number of GT block
->> + * Note: we already verify @data in caller, it can't be NULL here.
->> + * Returns 0 if success, -EINVAL/-ENODEV if error.
+>> + * Get some basic info from GTDT table, and init the global variables above
+>> + * for all timers initialization of Generic Timer.
+>> + * This function does some validation on GTDT table.
 >> + */
->
-> Documentation/kernel-doc-nano-HOWTO.txt
-
-Great thanks , will fix all the comments :-)
-
->
->> +int __init gtdt_arch_timer_mem_init(struct arch_timer_mem *data,
->> +                                 unsigned int index)
->
-> Nit: acpi_arch_timer_mem_init() to make it consistent with other ACPI
-> calls ?
-
-yes, it makes sense, will do this way for the function  which is exported
-
->
+>> +int __init acpi_gtdt_init(struct acpi_table_header *table)
 >> +{
->> +     struct acpi_gtdt_timer_block *block;
->> +     struct acpi_gtdt_timer_entry *frame;
->> +     int i;
+>
+>> +     timer_block = kcalloc(timer_count,
+>> +                           sizeof(struct acpi_gtdt_timer_block *),
+>> +                           GFP_KERNEL);
+>> +     if (!timer_block)
+>> +             return -ENOMEM;
 >> +
->> +     block =3D get_timer_block(index);
->> +     if (!block)
->> +             return -ENODEV;
->> +
->> +     if (!block->timer_count) {
->> +             pr_err(FW_BUG "GT block present, but frame count is zero."=
-);
->> +             return -ENODEV;
->> +     }
->> +
->> +     if (block->timer_count > ARCH_TIMER_MEM_MAX_FRAMES) {
->> +             pr_err(FW_BUG "GT block lists %d frames, ACPI spec only al=
-lows 8\n",
->> +                    block->timer_count);
->> +             return -EINVAL;
+>> +     watchdog = kcalloc(timer_count, sizeof(struct acpi_gtdt_watchdog *),
+>> +                        GFP_KERNEL);
+>> +     if (!watchdog) {
+>> +             kfree(timer_block);
+>> +             timer_block = NULL;
+>> +             return -ENOMEM;
 >> +     }
 >
-> Nit: these two checks can be carried out at GTDT init where the GTDT
-> is parsed first. Actually you could have two functions one to init
+> Please have a common error path below, and branch to that when you need
+> to free these.
 
-this check is  the verify the data in GT block, but the GTDT init
-won't get into the block,
-so I think that is better to keep this in GT block init function
-"acpi_arch_timer_mem_init()"
-
-> timers (say acpi_gtdt_timers_init()) and one watchdogs, that would
-> eliminate the duplicated timer_block/watchdog arrays (both sized
-> Platform Timer Count) and acpi_gtdt_timers_init() can return
-> the number of entries found so that you can loop with a determined
-> upper bound in the arm arch timer driver.
-
-Yes, I did this way in previous patchset, but we still need to do scan
-loop in both  functions for
-two types of platform timer.
-So I decide to keep the scan loop in the acpi_gtdt_init to get the
-number and the entries pointer
-of each type of platform timers in one go.  then we don't need to scan
-GTDT in two functions.
+OK , will do
 
 >
-> Just thinking aloud, these are just improvements I can carry them
-> out later, the more important question here is the interface between the
-> parsing code and the arch timer probing code which depends on other
-> patches and that needs to be agreed, this patch is not really a problem.
-
-yes, every time I modify the interface I have to change the driver :-(
-
->
->> +     data->cntctlbase =3D (phys_addr_t)block->block_address;
->> +     /*
->> +      * We can NOT get the size info from GTDT table,
->> +      * but according to "Table * CNTCTLBase memory map" of
->> +      * <ARM Architecture Reference Manual> for ARMv8,
->> +      * it should be 4KB(Offset 0x000 =E2=80=93 0xFFC).
->
-> That's the reason why it is not explicit in the GTDT table :)
->
->> +     data->size =3D SZ_4K;
->> +     data->num_frames =3D block->timer_count;
->> +
->> +     frame =3D (void *)block + block->timer_offset;
->> +     if (frame + block->timer_count !=3D (void *)block + block->header.=
-length)
->> +             return -EINVAL;
->> +
->> +     /*
->> +      * Get the GT timer Frame data for every GT Block Timer
->> +      */
->> +     for (i =3D 0; i < block->timer_count; i++, frame++) {
->> +             if (!frame->base_address || !frame->timer_interrupt)
->> +                     return -EINVAL;
->> +
->> +             data->frame[i].phys_irq =3D map_gt_gsi(frame->timer_interr=
-upt,
->> +                                                  frame->timer_flags);
->> +             if (data->frame[i].phys_irq <=3D 0) {
->> +                     pr_warn("failed to map physical timer irq in frame=
- %d.\n",
->> +                             i);
->> +                     return -EINVAL;
->> +             }
->> +
->> +             if (frame->virtual_timer_interrupt) {
->> +                     data->frame[i].virt_irq =3D
->> +                             map_gt_gsi(frame->virtual_timer_interrupt,
->> +                                        frame->virtual_timer_flags);
->> +                     if (data->frame[i].virt_irq <=3D 0) {
->> +                             pr_warn("failed to map virtual timer irq i=
-n frame %d.\n",
->> +                                     i);
->> +                             return -EINVAL;
->
-> You should unregister phys_irq here for correctness, right ?
-
-yup, thanks for pointing this  bug out. :-)
-
->
->> +                     }
->> +             }
->> +
->> +             data->frame[i].frame_nr =3D frame->frame_number;
->> +             data->frame[i].cntbase =3D frame->base_address;
->> +             /*
->> +              * We can NOT get the size info from GTDT table,
->> +              * but according to "Table * CNTBaseN memory map" of
->> +              * <ARM Architecture Reference Manual> for ARMv8,
->> +              * it should be 4KB(Offset 0x000 =E2=80=93 0xFFC).
->
-> See above.
-
-yes, you are right, I will fix both comments
-
->
->> +              */
->> +             data->frame[i].size =3D SZ_4K;
->> +     }
->> +
->> +     if (acpi_gtdt_desc.timer_block_count)
->> +             pr_info("parsed No.%d of %d memory-mapped timer block(s).\=
-n",
->> +                     index, acpi_gtdt_desc.timer_block_count);
->
-> I am not sure how helpful this message can be honestly.
-
-yup, I will simplify it  :-)
-
->
->> +
->> +     return 0;
+>> +error:
+>> +     acpi_gtdt_release();
+>> +     return -EINVAL;
 >> +}
+>
+> [...]
+>
 >> diff --git a/include/linux/acpi.h b/include/linux/acpi.h
->> index a1611d1..44b8c1b 100644
+>> index 61a3d90..a1611d1 100644
 >> --- a/include/linux/acpi.h
 >> +++ b/include/linux/acpi.h
->> @@ -582,6 +582,7 @@ int acpi_gtdt_init(struct acpi_table_header *table);
->>  int acpi_gtdt_map_ppi(int type);
->>  bool acpi_gtdt_c3stop(int type);
->>  void acpi_gtdt_release(void);
->> +int gtdt_arch_timer_mem_init(struct arch_timer_mem *data, unsigned int =
-index);
->
-> See above.
->
-> Overall it looks fine as long as the interface with clocksource is
-> settled, which is what really needs to be agreed upon in this series.
-
-Thanks for your help :-)
-
->
-> Lorenzo
->
->>  #endif
+>> @@ -577,6 +577,13 @@ enum acpi_reconfig_event  {
+>>  int acpi_reconfig_notifier_register(struct notifier_block *nb);
+>>  int acpi_reconfig_notifier_unregister(struct notifier_block *nb);
 >>
->>  #else        /* !CONFIG_ACPI */
->> --
->> 2.7.4
->>
+>> +#ifdef CONFIG_ACPI_GTDT
+>> +int acpi_gtdt_init(struct acpi_table_header *table);
+>> +int acpi_gtdt_map_ppi(int type);
+>> +bool acpi_gtdt_c3stop(int type);
+>> +void acpi_gtdt_release(void);
+>
+> Why do these need to be here?
+>
+> What possible value is ther in exporting acpi_gtdt_release() !?
+
+because I need to release these after mem timer init,
+But like your comment in 14/15, if I fill in the entire arch_timer_mem
+in one go, I don't need to export acpi_gtdt_release.
+
+Will try this way in v17
+
+>
+> Thanks,
+> Mark.
 
 
 
---=20
+-- 
 Best regards,
 
 Fu Wei
