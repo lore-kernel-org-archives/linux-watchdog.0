@@ -1,99 +1,47 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:59639 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755878AbcKWQL1 (ORCPT
+Received: from lelnx193.ext.ti.com ([198.47.27.77]:47082 "EHLO
+        lelnx193.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S938576AbcKXM76 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 23 Nov 2016 11:11:27 -0500
-Date: Wed, 23 Nov 2016 08:11:24 -0800
-From: Guenter Roeck <linux@roeck-us.net>
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-        mika.westerberg@linux.intel.com
-Subject: Re: [PATCH v1 1/1] intel-mid_wdt: Error code is just an integer
-Message-ID: <20161123161124.GA15572@roeck-us.net>
-References: <20161118152441.135932-1-andriy.shevchenko@linux.intel.com>
+        Thu, 24 Nov 2016 07:59:58 -0500
+From: Tero Kristo <t-kristo@ti.com>
+To: <wim@iguana.be>
+CC: <linux@roeck-us.net>, <linux-watchdog@vger.kernel.org>
+Subject: [PATCH] watchdog: davinci: add support for deferred probing
+Date: Thu, 24 Nov 2016 14:58:28 +0200
+Message-ID: <1479992308-27473-1-git-send-email-t-kristo@ti.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20161118152441.135932-1-andriy.shevchenko@linux.intel.com>
+Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, Nov 18, 2016 at 05:24:41PM +0200, Andy Shevchenko wrote:
-> Error code when printed is more readable if it's represented as plain decimal
-> integer. Otherwise user will see something like
-> 	intel_mid_wdt: Error stopping watchdog: 0xffffffed
-> which is not quite understandable ("Should I interpret it as a bitfield?").
-> 
-> Make it clear to use plaint integer specifier.
-> 
-> While here, move struct device *dev local variable definition to the top of
-> functions.
-> 
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+devm_clk_get can fail with EPROBE_DEFER in case the clock provider is
+not ready yet. Handle this case gracefully, rather than dumping out
+a huge warning.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Tero Kristo <t-kristo@ti.com>
+---
+ drivers/watchdog/davinci_wdt.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-> ---
->  drivers/watchdog/intel-mid_wdt.c | 19 ++++++++-----------
->  1 file changed, 8 insertions(+), 11 deletions(-)
-> 
-> diff --git a/drivers/watchdog/intel-mid_wdt.c b/drivers/watchdog/intel-mid_wdt.c
-> index ff099a3..a4b7292 100644
-> --- a/drivers/watchdog/intel-mid_wdt.c
-> +++ b/drivers/watchdog/intel-mid_wdt.c
-> @@ -43,6 +43,7 @@ static inline int wdt_command(int sub, u32 *in, int inlen)
->  
->  static int wdt_start(struct watchdog_device *wd)
->  {
-> +	struct device *dev = watchdog_get_drvdata(wd);
->  	int ret, in_size;
->  	int timeout = wd->timeout;
->  	struct ipc_wd_start {
-> @@ -57,36 +58,32 @@ static int wdt_start(struct watchdog_device *wd)
->  	in_size = DIV_ROUND_UP(sizeof(ipc_wd_start), 4);
->  
->  	ret = wdt_command(SCU_WATCHDOG_START, (u32 *)&ipc_wd_start, in_size);
-> -	if (ret) {
-> -		struct device *dev = watchdog_get_drvdata(wd);
-> +	if (ret)
->  		dev_crit(dev, "error starting watchdog: %d\n", ret);
-> -	}
->  
->  	return ret;
->  }
->  
->  static int wdt_ping(struct watchdog_device *wd)
->  {
-> +	struct device *dev = watchdog_get_drvdata(wd);
->  	int ret;
->  
->  	ret = wdt_command(SCU_WATCHDOG_KEEPALIVE, NULL, 0);
-> -	if (ret) {
-> -		struct device *dev = watchdog_get_drvdata(wd);
-> -		dev_crit(dev, "Error executing keepalive: 0x%x\n", ret);
-> -	}
-> +	if (ret)
-> +		dev_crit(dev, "Error executing keepalive: %d\n", ret);
->  
->  	return ret;
->  }
->  
->  static int wdt_stop(struct watchdog_device *wd)
->  {
-> +	struct device *dev = watchdog_get_drvdata(wd);
->  	int ret;
->  
->  	ret = wdt_command(SCU_WATCHDOG_STOP, NULL, 0);
-> -	if (ret) {
-> -		struct device *dev = watchdog_get_drvdata(wd);
-> -		dev_crit(dev, "Error stopping watchdog: 0x%x\n", ret);
-> -	}
-> +	if (ret)
-> +		dev_crit(dev, "Error stopping watchdog: %d\n", ret);
->  
->  	return ret;
->  }
-> -- 
-> 2.10.2
-> 
+diff --git a/drivers/watchdog/davinci_wdt.c b/drivers/watchdog/davinci_wdt.c
+index 17454ca..0e731d7 100644
+--- a/drivers/watchdog/davinci_wdt.c
++++ b/drivers/watchdog/davinci_wdt.c
+@@ -166,8 +166,12 @@ static int davinci_wdt_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
+ 
+ 	davinci_wdt->clk = devm_clk_get(dev, NULL);
+-	if (WARN_ON(IS_ERR(davinci_wdt->clk)))
++
++	if (IS_ERR(davinci_wdt->clk)) {
++		if (PTR_ERR(davinci_wdt->clk) != -EPROBE_DEFER)
++			dev_err(&pdev->dev, "failed to get clock node\n");
+ 		return PTR_ERR(davinci_wdt->clk);
++	}
+ 
+ 	clk_prepare_enable(davinci_wdt->clk);
+ 
+-- 
+1.9.1
+
