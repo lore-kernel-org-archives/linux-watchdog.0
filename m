@@ -1,8 +1,8 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:40480 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:40296 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753732AbcKYIrj (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 25 Nov 2016 03:47:39 -0500
+        id S1753193AbcKYIru (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 25 Nov 2016 03:47:50 -0500
 From: fu.wei@linaro.org
 To: rjw@rjwysocki.net, lenb@kernel.org, daniel.lezcano@linaro.org,
         tglx@linutronix.de, marc.zyngier@arm.com, mark.rutland@arm.com,
@@ -18,9 +18,9 @@ Cc: linux-arm-kernel@lists.infradead.org, linaro-acpi@lists.linaro.org,
         linux@roeck-us.net, linux-watchdog@vger.kernel.org,
         tn@semihalf.com, christoffer.dall@linaro.org, julien.grall@arm.com,
         Fu Wei <fu.wei@linaro.org>
-Subject: [PATCH v17 05/15] clocksource/drivers/arm_arch_timer: rework PPI determination
-Date: Fri, 25 Nov 2016 16:46:13 +0800
-Message-Id: <20161125084623.22515-6-fu.wei@linaro.org>
+Subject: [PATCH v17 06/15] clocksource/drivers/arm_arch_timer: Rework counter frequency detection.
+Date: Fri, 25 Nov 2016 16:46:14 +0800
+Message-Id: <20161125084623.22515-7-fu.wei@linaro.org>
 In-Reply-To: <20161125084623.22515-1-fu.wei@linaro.org>
 References: <20161125084623.22515-1-fu.wei@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -28,145 +28,111 @@ List-Id: linux-watchdog@vger.kernel.org
 
 From: Fu Wei <fu.wei@linaro.org>
 
-Currently, the arch timer driver uses ARCH_TIMER_PHYS_SECURE_PPI to
-mean the driver will use the secure PPI *and* potentialy also use the
-non-secure PPI. This is somewhat confusing.
+Currently, the counter frequency detection call(arch_timer_detect_rate)
+combines all the ways to get counter frequency: device-tree property,
+system coprocessor register, MMIO timer. But in the most of use cases,
+we don't need all the ways to try:
+For example, reading device-tree property will be needed only when
+system boot with device-tree, getting frequency from MMIO timer register
+will beneeded only when we init MMIO timer.
 
-For arm64, where it never makes sense to use the secure PPI, this
-means we must always request the useless secure PPI, adding to the
-confusion. For ACPI, where we may not even have a valid secure PPI
-number, this is additionally problematic. We need the driver to be
-able to use *only* the non-secure PPI.
-
-The logic to choose which PPI to use is intertwined with other logic
-in arch_timer_init(). This patch factors the PPI determination out
-into a new function named arch_timer_select_ppi, and then reworks it
-so that we can handle having only a non-secure PPI.
-
-This patch also moves arch_timer_ppi verification out to caller,
-because we can verify the configuration from device-tree for ARM by this
-way.
-
-Meanwhile, because we will select ARCH_TIMER_PHYS_NONSECURE_PPI for ARM64,
-the logic in arch_timer_register also need to be updated.
+This patch separates paths to determine frequency:
+Separate out device-tree code, keep them in device-tree init function.
+Separate out the MMIO frequency and the sysreg frequency detection call,
+and use the appropriate one for the counter.
 
 Signed-off-by: Fu Wei <fu.wei@linaro.org>
 ---
- drivers/clocksource/arm_arch_timer.c | 77 +++++++++++++++++++++---------------
- 1 file changed, 46 insertions(+), 31 deletions(-)
+ drivers/clocksource/arm_arch_timer.c | 49 +++++++++++++++++++++++-------------
+ 1 file changed, 31 insertions(+), 18 deletions(-)
 
 diff --git a/drivers/clocksource/arm_arch_timer.c b/drivers/clocksource/arm_arch_timer.c
-index 231175b..e43be0a 100644
+index e43be0a..e554081 100644
 --- a/drivers/clocksource/arm_arch_timer.c
 +++ b/drivers/clocksource/arm_arch_timer.c
-@@ -699,7 +699,7 @@ static int __init arch_timer_register(void)
- 	case ARCH_TIMER_PHYS_NONSECURE_PPI:
- 		err = request_percpu_irq(ppi, arch_timer_handler_phys,
- 					 "arch_timer", arch_timer_evt);
--		if (!err && arch_timer_ppi[ARCH_TIMER_PHYS_NONSECURE_PPI]) {
-+		if (!err && arch_timer_has_nonsecure_ppi()) {
- 			ppi = arch_timer_ppi[ARCH_TIMER_PHYS_NONSECURE_PPI];
- 			err = request_percpu_irq(ppi, arch_timer_handler_phys,
- 						 "arch_timer", arch_timer_evt);
-@@ -821,39 +821,41 @@ static int __init arch_timer_common_init(void)
- 	return arch_timer_arch_init();
+@@ -487,27 +487,31 @@ static int arch_timer_starting_cpu(unsigned int cpu)
+ 	return 0;
  }
  
--static int __init arch_timer_init(void)
-+/**
-+ * arch_timer_select_ppi() - Select suitable PPI for the current system.
-+ *
-+ * If HYP mode is available, we know that the physical timer
-+ * has been configured to be accessible from PL1. Use it, so
-+ * that a guest can use the virtual timer instead.
-+ *
-+ * On ARMv8.1 with VH extensions, the kernel runs in HYP. VHE
-+ * accesses to CNTP_*_EL1 registers are silently redirected to
-+ * their CNTHP_*_EL2 counterparts, and use a different PPI
-+ * number.
-+ *
-+ * If no interrupt provided for virtual timer, we'll have to
-+ * stick to the physical timer. It'd better be accessible...
-+ * For arm64 we never use the secure interrupt.
-+ *
-+ * Return: a suitable PPI type for the current system.
-+ */
-+static enum arch_timer_ppi_nr __init arch_timer_select_ppi(void)
+-static void
+-arch_timer_detect_rate(void __iomem *cntbase, struct device_node *np)
++static void arch_timer_detect_rate(void)
  {
--	int ret;
--	/*
--	 * If HYP mode is available, we know that the physical timer
--	 * has been configured to be accessible from PL1. Use it, so
--	 * that a guest can use the virtual timer instead.
--	 *
--	 * If no interrupt provided for virtual timer, we'll have to
--	 * stick to the physical timer. It'd better be accessible...
--	 *
--	 * On ARMv8.1 with VH extensions, the kernel runs in HYP. VHE
--	 * accesses to CNTP_*_EL1 registers are silently redirected to
--	 * their CNTHP_*_EL2 counterparts, and use a different PPI
--	 * number.
--	 */
--	if (is_hyp_mode_available() || !arch_timer_ppi[ARCH_TIMER_VIRT_PPI]) {
--		bool has_ppi;
-+	if (is_hyp_mode_available() && is_kernel_in_hyp_mode())
-+		return ARCH_TIMER_HYP_PPI;
- 
--		if (is_kernel_in_hyp_mode()) {
--			arch_timer_uses_ppi = ARCH_TIMER_HYP_PPI;
--			has_ppi = !!arch_timer_ppi[ARCH_TIMER_HYP_PPI];
--		} else {
--			arch_timer_uses_ppi = ARCH_TIMER_PHYS_SECURE_PPI;
--			has_ppi = (!!arch_timer_ppi[ARCH_TIMER_PHYS_SECURE_PPI] ||
--				   !!arch_timer_ppi[ARCH_TIMER_PHYS_NONSECURE_PPI]);
--		}
-+	if (arch_timer_ppi[ARCH_TIMER_VIRT_PPI])
-+		return ARCH_TIMER_VIRT_PPI;
- 
--		if (!has_ppi) {
--			pr_warn("No interrupt available, giving up\n");
--			return -EINVAL;
--		}
--	}
-+	if (IS_ENABLED(CONFIG_ARM64))
-+		return ARCH_TIMER_PHYS_NONSECURE_PPI;
+-	/* Who has more than one independent system counter? */
+-	if (arch_timer_rate)
+-		return;
++	/*
++	 * Try to get the timer frequency from
++	 * cntfrq_el0(system coprocessor register).
++	 */
++	if (!arch_timer_rate)
++		arch_timer_rate = arch_timer_get_cntfrq();
 +
-+	return ARCH_TIMER_PHYS_SECURE_PPI;
++	/* Check the timer frequency. */
++	if (!arch_timer_rate)
++		pr_warn("frequency not available\n");
 +}
-+
-+static int __init arch_timer_init(void)
+ 
++static void arch_timer_mem_detect_rate(void __iomem *cntbase)
 +{
-+	int ret;
+ 	/*
+-	 * Try to determine the frequency from the device tree or CNTFRQ,
+-	 * if ACPI is enabled, get the frequency from CNTFRQ ONLY.
++	 * Try to determine the frequency from
++	 * CNTFRQ in memory-mapped timer.
+ 	 */
+-	if (!acpi_disabled ||
+-	    of_property_read_u32(np, "clock-frequency", &arch_timer_rate)) {
+-		if (cntbase)
+-			arch_timer_rate = readl_relaxed(cntbase + CNTFRQ);
+-		else
+-			arch_timer_rate = arch_timer_get_cntfrq();
+-	}
++	if (!arch_timer_rate)
++		arch_timer_rate = readl_relaxed(cntbase + CNTFRQ);
  
- 	ret = arch_timer_register();
- 	if (ret)
-@@ -901,6 +903,13 @@ static int __init arch_timer_of_init(struct device_node *np)
- 	if (IS_ENABLED(CONFIG_ARM) &&
- 	    of_property_read_bool(np, "arm,cpu-registers-not-fw-configured"))
- 		arch_timer_uses_ppi = ARCH_TIMER_PHYS_SECURE_PPI;
-+	else
-+		arch_timer_uses_ppi = arch_timer_select_ppi();
-+
-+	if (!arch_timer_ppi[arch_timer_uses_ppi]) {
-+		pr_err("No interrupt available, giving up\n");
-+		return -EINVAL;
-+	}
- 
- 	return arch_timer_init();
+ 	/* Check the timer frequency. */
+-	if (arch_timer_rate == 0)
++	if (!arch_timer_rate)
+ 		pr_warn("frequency not available\n");
  }
-@@ -1041,6 +1050,12 @@ static int __init arch_timer_acpi_init(struct acpi_table_header *table)
- 	/* Get the frequency from CNTFRQ */
- 	arch_timer_detect_rate(NULL, NULL);
  
-+	arch_timer_uses_ppi = arch_timer_select_ppi();
-+	if (!arch_timer_ppi[arch_timer_uses_ppi]) {
-+		pr_err("No interrupt available, giving up\n");
-+		return -EINVAL;
-+	}
+@@ -883,7 +887,9 @@ static int __init arch_timer_of_init(struct device_node *np)
+ 	for (i = ARCH_TIMER_PHYS_SECURE_PPI; i < ARCH_TIMER_MAX_TIMER_PPI; i++)
+ 		arch_timer_ppi[i] = irq_of_parse_and_map(np, i);
+ 
+-	arch_timer_detect_rate(NULL, np);
++	if (!arch_timer_rate &&
++	    of_property_read_u32(np, "clock-frequency", &arch_timer_rate))
++		arch_timer_detect_rate();
+ 
+ 	arch_timer_c3stop = !of_property_read_bool(np, "always-on");
+ 
+@@ -986,7 +992,14 @@ static int __init arch_timer_mem_init(struct device_node *np)
+ 		goto out;
+ 	}
+ 
+-	arch_timer_detect_rate(base, np);
++	/*
++	 * Try to determine the frequency from the device tree,
++	 * if fail, get the frequency from CNTFRQ.
++	 */
++	if (!arch_timer_rate &&
++	    of_property_read_u32(np, "clock-frequency", &arch_timer_rate))
++		arch_timer_mem_detect_rate(base);
 +
- 	/* Always-on capability */
- 	arch_timer_c3stop = !(gtdt->non_secure_el1_flags & ACPI_GTDT_ALWAYS_ON);
+ 	ret = arch_timer_mem_register(base, irq);
+ 	if (ret)
+ 		goto out;
+@@ -1048,7 +1061,7 @@ static int __init arch_timer_acpi_init(struct acpi_table_header *table)
+ 		gtdt->non_secure_el2_flags);
  
+ 	/* Get the frequency from CNTFRQ */
+-	arch_timer_detect_rate(NULL, NULL);
++	arch_timer_detect_rate();
+ 
+ 	arch_timer_uses_ppi = arch_timer_select_ppi();
+ 	if (!arch_timer_ppi[arch_timer_uses_ppi]) {
 -- 
 2.9.3
 
