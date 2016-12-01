@@ -1,69 +1,129 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ec2-52-27-115-49.us-west-2.compute.amazonaws.com ([52.27.115.49]:51339
-        "EHLO osg.samsung.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1755180AbcK3Mlm (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 30 Nov 2016 07:41:42 -0500
-Subject: Re: [PATCH] watchdog: meson: Remove unneeded platform MODULE_ALIAS
-To: Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@iguana.be>
-References: <1476906582-14241-1-git-send-email-javier@osg.samsung.com>
- <20161020222833.GA27421@roeck-us.net>
- <d7149198-b513-4022-5fbc-10067d420191@osg.samsung.com>
- <66487a0e-1d20-519f-6cbf-645f8bfd33da@roeck-us.net>
-Cc: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        Kevin Hilman <khilman@baylibre.com>,
-        Carlo Caione <carlo@caione.org>,
-        linux-amlogic@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-Message-ID: <ef0f36c3-a36b-b01d-f4ef-07f89f3320c3@osg.samsung.com>
-Date: Wed, 30 Nov 2016 09:41:32 -0300
+Received: from mx1.redhat.com ([209.132.183.28]:54858 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S934316AbcLAMeN (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Thu, 1 Dec 2016 07:34:13 -0500
+Subject: [PATCH 34/39] Annotate hardware config module parameters in
+ drivers/watchdog/
+From: David Howells <dhowells@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: gnomes@lxorguk.ukuu.org.uk, linux-watchdog@vger.kernel.org,
+        minyard@acm.org, Zwane Mwaikambo <zwanem@gmail.com>,
+        linux-security-module@vger.kernel.org, dhowells@redhat.com,
+        Wim Van Sebroeck <wim@iguana.be>, keyrings@vger.kernel.org
+Date: Thu, 01 Dec 2016 12:34:10 +0000
+Message-ID: <148059564995.31612.9567297542032305179.stgit@warthog.procyon.org.uk>
+In-Reply-To: <148059537897.31612.9461043954611464597.stgit@warthog.procyon.org.uk>
+References: <148059537897.31612.9461043954611464597.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
-In-Reply-To: <66487a0e-1d20-519f-6cbf-645f8bfd33da@roeck-us.net>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hello Guenter,
+When the kernel is running in secure boot mode, we lock down the kernel to
+prevent userspace from modifying the running kernel image.  Whilst this
+includes prohibiting access to things like /dev/mem, it must also prevent
+access by means of configuring driver modules in such a way as to cause a
+device to access or modify the kernel image.
 
-On 11/30/2016 07:59 AM, Guenter Roeck wrote:
-> On 11/29/2016 06:57 AM, Javier Martinez Canillas wrote:
->> Hello Wim,
->>
->> On 10/20/2016 07:28 PM, Guenter Roeck wrote:
->>> On Wed, Oct 19, 2016 at 04:49:42PM -0300, Javier Martinez Canillas wrote:
->>>> The Amlogic Meson is a DT-only platform, which means the devices are
->>>> registered via OF and not using the legacy platform devices support.
->>>>
->>>> So there's no need to have a MODULE_ALIAS("platform:meson-gxbb-wdt")
->>>> since the reported uevent MODALIAS to user-space will be the OF one.
->>>>
->>>> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
->>>
->>> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
->>>
->>
->> Any comments about this patch? There are other two similar fixes for
->> watchdog drivers that were also reviewed by Guenter but never picked:
->>
->> https://lkml.org/lkml/2016/10/14/412
->> https://lkml.org/lkml/2016/10/14/413
->>
->> Best regards,
->>
-> The patches are all in my watchdog-next branch, so Wim will hopefully
-> pick them up for the next release.
->
+To this end, annotate module_param* statements that refer to hardware
+configuration and indicate for future reference what type of parameter they
+specify.  The parameter parser in the core sees this information and can
+skip such parameters with an error message if the kernel is locked down.
+The module initialisation then runs as normal, but just sees whatever the
+default values for those parameters is.
 
-Great, thanks a lot for the info.
+Note that we do still need to do the module initialisation because some
+drivers have viable defaults set in case parameters aren't specified and
+some drivers support automatic configuration (e.g. PNP or PCI) in addition
+to manually coded parameters.
+
+This patch annotates drivers in drivers/watchdog/.
+
+Suggested-by: One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: Wim Van Sebroeck <wim@iguana.be>
+cc: Zwane Mwaikambo <zwanem@gmail.com>
+cc: linux-watchdog@vger.kernel.org
+---
+
+ drivers/watchdog/cpu5wdt.c     |    2 +-
+ drivers/watchdog/eurotechwdt.c |    4 ++--
+ drivers/watchdog/pc87413_wdt.c |    2 +-
+ drivers/watchdog/sc1200wdt.c   |    2 +-
+ drivers/watchdog/wdt.c         |    4 ++--
+ 5 files changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/watchdog/cpu5wdt.c b/drivers/watchdog/cpu5wdt.c
+index 6d03e8e30f8b..6c3f78e45c26 100644
+--- a/drivers/watchdog/cpu5wdt.c
++++ b/drivers/watchdog/cpu5wdt.c
+@@ -289,7 +289,7 @@ MODULE_DESCRIPTION("sma cpu5 watchdog driver");
+ MODULE_SUPPORTED_DEVICE("sma cpu5 watchdog");
+ MODULE_LICENSE("GPL");
  
-> Guenter
-> 
+-module_param(port, int, 0);
++module_param_hw(port, int, ioport, 0);
+ MODULE_PARM_DESC(port, "base address of watchdog card, default is 0x91");
+ 
+ module_param(verbose, int, 0);
+diff --git a/drivers/watchdog/eurotechwdt.c b/drivers/watchdog/eurotechwdt.c
+index 23ee53240c4c..38e96712264f 100644
+--- a/drivers/watchdog/eurotechwdt.c
++++ b/drivers/watchdog/eurotechwdt.c
+@@ -97,9 +97,9 @@ MODULE_PARM_DESC(nowayout,
+ #define WDT_TIMER_CFG		0xf3
+ 
+ 
+-module_param(io, int, 0);
++module_param_hw(io, int, ioport, 0);
+ MODULE_PARM_DESC(io, "Eurotech WDT io port (default=0x3f0)");
+-module_param(irq, int, 0);
++module_param_hw(irq, int, irq, 0);
+ MODULE_PARM_DESC(irq, "Eurotech WDT irq (default=10)");
+ module_param(ev, charp, 0);
+ MODULE_PARM_DESC(ev, "Eurotech WDT event type (default is `int')");
+diff --git a/drivers/watchdog/pc87413_wdt.c b/drivers/watchdog/pc87413_wdt.c
+index 9f15dd9435d1..06a892e36a8d 100644
+--- a/drivers/watchdog/pc87413_wdt.c
++++ b/drivers/watchdog/pc87413_wdt.c
+@@ -579,7 +579,7 @@ MODULE_AUTHOR("Marcus Junker <junker@anduras.de>");
+ MODULE_DESCRIPTION("PC87413 WDT driver");
+ MODULE_LICENSE("GPL");
+ 
+-module_param(io, int, 0);
++module_param_hw(io, int, ioport, 0);
+ MODULE_PARM_DESC(io, MODNAME " I/O port (default: "
+ 					__MODULE_STRING(IO_DEFAULT) ").");
+ 
+diff --git a/drivers/watchdog/sc1200wdt.c b/drivers/watchdog/sc1200wdt.c
+index 131193a7acdf..b34d3d5ba632 100644
+--- a/drivers/watchdog/sc1200wdt.c
++++ b/drivers/watchdog/sc1200wdt.c
+@@ -88,7 +88,7 @@ MODULE_PARM_DESC(isapnp,
+ 	"When set to 0 driver ISA PnP support will be disabled");
+ #endif
+ 
+-module_param(io, int, 0);
++module_param_hw(io, int, ioport, 0);
+ MODULE_PARM_DESC(io, "io port");
+ module_param(timeout, int, 0);
+ MODULE_PARM_DESC(timeout, "range is 0-255 minutes, default is 1");
+diff --git a/drivers/watchdog/wdt.c b/drivers/watchdog/wdt.c
+index e0206b5b7d89..e481fbbc4ae7 100644
+--- a/drivers/watchdog/wdt.c
++++ b/drivers/watchdog/wdt.c
+@@ -78,9 +78,9 @@ static int irq = 11;
+ 
+ static DEFINE_SPINLOCK(wdt_lock);
+ 
+-module_param(io, int, 0);
++module_param_hw(io, int, ioport, 0);
+ MODULE_PARM_DESC(io, "WDT io port (default=0x240)");
+-module_param(irq, int, 0);
++module_param_hw(irq, int, irq, 0);
+ MODULE_PARM_DESC(irq, "WDT irq (default=11)");
+ 
+ /* Support for the Fan Tachometer on the WDT501-P */
 
-Best regards,
--- 
-Javier Martinez Canillas
-Open Source Group
-Samsung Research America
