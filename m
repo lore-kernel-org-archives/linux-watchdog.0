@@ -1,141 +1,254 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:45562 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754963AbcLAM7C (ORCPT
+Received: from mail-pg0-f67.google.com ([74.125.83.67]:33301 "EHLO
+        mail-pg0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751111AbcLDPFq (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 1 Dec 2016 07:59:02 -0500
-Subject: Re: [PATCH 34/39] Annotate hardware config module parameters in
- drivers/watchdog/
-To: David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org
-References: <148059537897.31612.9461043954611464597.stgit@warthog.procyon.org.uk>
- <148059564995.31612.9567297542032305179.stgit@warthog.procyon.org.uk>
-Cc: gnomes@lxorguk.ukuu.org.uk, linux-watchdog@vger.kernel.org,
-        minyard@acm.org, Zwane Mwaikambo <zwanem@gmail.com>,
-        linux-security-module@vger.kernel.org,
-        Wim Van Sebroeck <wim@iguana.be>, keyrings@vger.kernel.org
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <57fb9ebe-aa11-6844-4ab1-a8139438532d@roeck-us.net>
-Date: Thu, 1 Dec 2016 04:58:54 -0800
+        Sun, 4 Dec 2016 10:05:46 -0500
+Date: Sun, 4 Dec 2016 23:02:50 +0800
+From: Yang Ling <gnaygnil@gmail.com>
+To: wim@iguana.be, linux@roeck-us.net, keguang.zhang@gmail.com
+Cc: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-mips@linux-mips.org, gnaygnil@gmail.com
+Subject: [PATCH v2.3 2/3] watchdog: loongson1: Add Loongson1 SoC watchdog
+ driver
+Message-ID: <20161204150250.GA29772@ubuntu>
 MIME-Version: 1.0
-In-Reply-To: <148059564995.31612.9567297542032305179.stgit@warthog.procyon.org.uk>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 12/01/2016 04:34 AM, David Howells wrote:
-> When the kernel is running in secure boot mode, we lock down the kernel to
-> prevent userspace from modifying the running kernel image.  Whilst this
-> includes prohibiting access to things like /dev/mem, it must also prevent
-> access by means of configuring driver modules in such a way as to cause a
-> device to access or modify the kernel image.
->
-> To this end, annotate module_param* statements that refer to hardware
-> configuration and indicate for future reference what type of parameter they
-> specify.  The parameter parser in the core sees this information and can
-> skip such parameters with an error message if the kernel is locked down.
-> The module initialisation then runs as normal, but just sees whatever the
-> default values for those parameters is.
->
-> Note that we do still need to do the module initialisation because some
-> drivers have viable defaults set in case parameters aren't specified and
-> some drivers support automatic configuration (e.g. PNP or PCI) in addition
-> to manually coded parameters.
->
-> This patch annotates drivers in drivers/watchdog/.
->
-> Suggested-by: One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>
-> Signed-off-by: David Howells <dhowells@redhat.com>
-> cc: Wim Van Sebroeck <wim@iguana.be>
-> cc: Zwane Mwaikambo <zwanem@gmail.com>
-> cc: linux-watchdog@vger.kernel.org
+Add watchdog timer specific driver for Loongson1 SoC.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Yang Ling <gnaygnil@gmail.com>
 
-> ---
->
->  drivers/watchdog/cpu5wdt.c     |    2 +-
->  drivers/watchdog/eurotechwdt.c |    4 ++--
->  drivers/watchdog/pc87413_wdt.c |    2 +-
->  drivers/watchdog/sc1200wdt.c   |    2 +-
->  drivers/watchdog/wdt.c         |    4 ++--
->  5 files changed, 7 insertions(+), 7 deletions(-)
->
-> diff --git a/drivers/watchdog/cpu5wdt.c b/drivers/watchdog/cpu5wdt.c
-> index 6d03e8e30f8b..6c3f78e45c26 100644
-> --- a/drivers/watchdog/cpu5wdt.c
-> +++ b/drivers/watchdog/cpu5wdt.c
-> @@ -289,7 +289,7 @@ MODULE_DESCRIPTION("sma cpu5 watchdog driver");
->  MODULE_SUPPORTED_DEVICE("sma cpu5 watchdog");
->  MODULE_LICENSE("GPL");
->
-> -module_param(port, int, 0);
-> +module_param_hw(port, int, ioport, 0);
->  MODULE_PARM_DESC(port, "base address of watchdog card, default is 0x91");
->
->  module_param(verbose, int, 0);
-> diff --git a/drivers/watchdog/eurotechwdt.c b/drivers/watchdog/eurotechwdt.c
-> index 23ee53240c4c..38e96712264f 100644
-> --- a/drivers/watchdog/eurotechwdt.c
-> +++ b/drivers/watchdog/eurotechwdt.c
-> @@ -97,9 +97,9 @@ MODULE_PARM_DESC(nowayout,
->  #define WDT_TIMER_CFG		0xf3
->
->
-> -module_param(io, int, 0);
-> +module_param_hw(io, int, ioport, 0);
->  MODULE_PARM_DESC(io, "Eurotech WDT io port (default=0x3f0)");
-> -module_param(irq, int, 0);
-> +module_param_hw(irq, int, irq, 0);
->  MODULE_PARM_DESC(irq, "Eurotech WDT irq (default=10)");
->  module_param(ev, charp, 0);
->  MODULE_PARM_DESC(ev, "Eurotech WDT event type (default is `int')");
-> diff --git a/drivers/watchdog/pc87413_wdt.c b/drivers/watchdog/pc87413_wdt.c
-> index 9f15dd9435d1..06a892e36a8d 100644
-> --- a/drivers/watchdog/pc87413_wdt.c
-> +++ b/drivers/watchdog/pc87413_wdt.c
-> @@ -579,7 +579,7 @@ MODULE_AUTHOR("Marcus Junker <junker@anduras.de>");
->  MODULE_DESCRIPTION("PC87413 WDT driver");
->  MODULE_LICENSE("GPL");
->
-> -module_param(io, int, 0);
-> +module_param_hw(io, int, ioport, 0);
->  MODULE_PARM_DESC(io, MODNAME " I/O port (default: "
->  					__MODULE_STRING(IO_DEFAULT) ").");
->
-> diff --git a/drivers/watchdog/sc1200wdt.c b/drivers/watchdog/sc1200wdt.c
-> index 131193a7acdf..b34d3d5ba632 100644
-> --- a/drivers/watchdog/sc1200wdt.c
-> +++ b/drivers/watchdog/sc1200wdt.c
-> @@ -88,7 +88,7 @@ MODULE_PARM_DESC(isapnp,
->  	"When set to 0 driver ISA PnP support will be disabled");
->  #endif
->
-> -module_param(io, int, 0);
-> +module_param_hw(io, int, ioport, 0);
->  MODULE_PARM_DESC(io, "io port");
->  module_param(timeout, int, 0);
->  MODULE_PARM_DESC(timeout, "range is 0-255 minutes, default is 1");
-> diff --git a/drivers/watchdog/wdt.c b/drivers/watchdog/wdt.c
-> index e0206b5b7d89..e481fbbc4ae7 100644
-> --- a/drivers/watchdog/wdt.c
-> +++ b/drivers/watchdog/wdt.c
-> @@ -78,9 +78,9 @@ static int irq = 11;
->
->  static DEFINE_SPINLOCK(wdt_lock);
->
-> -module_param(io, int, 0);
-> +module_param_hw(io, int, ioport, 0);
->  MODULE_PARM_DESC(io, "WDT io port (default=0x240)");
-> -module_param(irq, int, 0);
-> +module_param_hw(irq, int, irq, 0);
->  MODULE_PARM_DESC(irq, "WDT irq (default=11)");
->
->  /* Support for the Fan Tachometer on the WDT501-P */
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
+---
+V2.3:
+  Set DEFAULT_HEARTBEAT value to ls1x_wdt->timeout.
+V2.2:
+  Remove the wide character.
+  Check the return value for clk_get_rate().
+V2.1 from Kelvin Cheung:
+  Use max_hw_heartbeat_ms instead of max_timeout.
+V2.0:
+  Increase the value of the default heartbeat.
+  Modify the setup process for register.
+  Order include files and Makefile alphabetically.
+V1.1:
+  Add a little debugging information.
+---
+ drivers/watchdog/Kconfig         |   7 ++
+ drivers/watchdog/Makefile        |   1 +
+ drivers/watchdog/loongson1_wdt.c | 170 +++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 178 insertions(+)
+ create mode 100644 drivers/watchdog/loongson1_wdt.c
+
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index fdd3228..c5b9c6e 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -1513,6 +1513,13 @@ config LANTIQ_WDT
+ 	help
+ 	  Hardware driver for the Lantiq SoC Watchdog Timer.
+ 
++config LOONGSON1_WDT
++	tristate "Loongson1 SoC hardware watchdog"
++	depends on MACH_LOONGSON32
++	select WATCHDOG_CORE
++	help
++	  Hardware driver for the Loongson1 SoC Watchdog Timer.
++
+ config RALINK_WDT
+ 	tristate "Ralink SoC watchdog"
+ 	select WATCHDOG_CORE
+diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+index caa9f4a..0c3d35e 100644
+--- a/drivers/watchdog/Makefile
++++ b/drivers/watchdog/Makefile
+@@ -163,6 +163,7 @@ obj-$(CONFIG_TXX9_WDT) += txx9wdt.o
+ obj-$(CONFIG_OCTEON_WDT) += octeon-wdt.o
+ octeon-wdt-y := octeon-wdt-main.o octeon-wdt-nmi.o
+ obj-$(CONFIG_LANTIQ_WDT) += lantiq_wdt.o
++obj-$(CONFIG_LOONGSON1_WDT) += loongson1_wdt.o
+ obj-$(CONFIG_RALINK_WDT) += rt2880_wdt.o
+ obj-$(CONFIG_IMGPDC_WDT) += imgpdc_wdt.o
+ obj-$(CONFIG_MT7621_WDT) += mt7621_wdt.o
+diff --git a/drivers/watchdog/loongson1_wdt.c b/drivers/watchdog/loongson1_wdt.c
+new file mode 100644
+index 0000000..c43ad38
+--- /dev/null
++++ b/drivers/watchdog/loongson1_wdt.c
+@@ -0,0 +1,170 @@
++/*
++ * Copyright (c) 2016 Yang Ling <gnaygnil@gmail.com>
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the
++ * Free Software Foundation; either version 2 of the License, or (at your
++ * option) any later version.
++ */
++
++#include <linux/clk.h>
++#include <linux/module.h>
++#include <linux/platform_device.h>
++#include <linux/watchdog.h>
++#include <loongson1.h>
++
++#define DEFAULT_HEARTBEAT	30
++
++static bool nowayout = WATCHDOG_NOWAYOUT;
++module_param(nowayout, bool, 0444);
++
++static unsigned int heartbeat = DEFAULT_HEARTBEAT;
++module_param(heartbeat, uint, 0444);
++
++struct ls1x_wdt_drvdata {
++	void __iomem *base;
++	struct clk *clk;
++	unsigned long clk_rate;
++	struct watchdog_device wdt;
++};
++
++static int ls1x_wdt_ping(struct watchdog_device *wdt_dev)
++{
++	struct ls1x_wdt_drvdata *drvdata = watchdog_get_drvdata(wdt_dev);
++
++	writel(0x1, drvdata->base + WDT_SET);
++
++	return 0;
++}
++
++static int ls1x_wdt_set_timeout(struct watchdog_device *wdt_dev,
++				unsigned int timeout)
++{
++	struct ls1x_wdt_drvdata *drvdata = watchdog_get_drvdata(wdt_dev);
++	unsigned int max_hw_heartbeat = wdt_dev->max_hw_heartbeat_ms / 1000;
++	unsigned int counts;
++
++	wdt_dev->timeout = timeout;
++
++	counts = drvdata->clk_rate * min(timeout, max_hw_heartbeat);
++	writel(counts, drvdata->base + WDT_TIMER);
++
++	return 0;
++}
++
++static int ls1x_wdt_start(struct watchdog_device *wdt_dev)
++{
++	struct ls1x_wdt_drvdata *drvdata = watchdog_get_drvdata(wdt_dev);
++
++	writel(0x1, drvdata->base + WDT_EN);
++
++	return 0;
++}
++
++static int ls1x_wdt_stop(struct watchdog_device *wdt_dev)
++{
++	struct ls1x_wdt_drvdata *drvdata = watchdog_get_drvdata(wdt_dev);
++
++	writel(0x0, drvdata->base + WDT_EN);
++
++	return 0;
++}
++
++static const struct watchdog_info ls1x_wdt_info = {
++	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
++	.identity = "Loongson1 Watchdog",
++};
++
++static const struct watchdog_ops ls1x_wdt_ops = {
++	.owner = THIS_MODULE,
++	.start = ls1x_wdt_start,
++	.stop = ls1x_wdt_stop,
++	.ping = ls1x_wdt_ping,
++	.set_timeout = ls1x_wdt_set_timeout,
++};
++
++static int ls1x_wdt_probe(struct platform_device *pdev)
++{
++	struct ls1x_wdt_drvdata *drvdata;
++	struct watchdog_device *ls1x_wdt;
++	unsigned long clk_rate;
++	struct resource *res;
++	int err;
++
++	drvdata = devm_kzalloc(&pdev->dev, sizeof(*drvdata), GFP_KERNEL);
++	if (!drvdata)
++		return -ENOMEM;
++
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	drvdata->base = devm_ioremap_resource(&pdev->dev, res);
++	if (IS_ERR(drvdata->base))
++		return PTR_ERR(drvdata->base);
++
++	drvdata->clk = devm_clk_get(&pdev->dev, pdev->name);
++	if (IS_ERR(drvdata->clk))
++		return PTR_ERR(drvdata->clk);
++
++	err = clk_prepare_enable(drvdata->clk);
++	if (err) {
++		dev_err(&pdev->dev, "clk enable failed\n");
++		return err;
++	}
++
++	clk_rate = clk_get_rate(drvdata->clk);
++	if (!clk_rate) {
++		err = -EINVAL;
++		goto err0;
++	}
++	drvdata->clk_rate = clk_rate;
++
++	ls1x_wdt = &drvdata->wdt;
++	ls1x_wdt->info = &ls1x_wdt_info;
++	ls1x_wdt->ops = &ls1x_wdt_ops;
++	ls1x_wdt->timeout = DEFAULT_HEARTBEAT;
++	ls1x_wdt->min_timeout = 1;
++	ls1x_wdt->max_hw_heartbeat_ms = U32_MAX / clk_rate * 1000;
++	ls1x_wdt->parent = &pdev->dev;
++
++	watchdog_init_timeout(ls1x_wdt, heartbeat, &pdev->dev);
++	watchdog_set_nowayout(ls1x_wdt, nowayout);
++	watchdog_set_drvdata(ls1x_wdt, drvdata);
++
++	err = watchdog_register_device(&drvdata->wdt);
++	if (err) {
++		dev_err(&pdev->dev, "failed to register watchdog device\n");
++		goto err0;
++	}
++
++	platform_set_drvdata(pdev, drvdata);
++
++	dev_info(&pdev->dev, "Loongson1 Watchdog driver registered\n");
++
++	return 0;
++err0:
++	clk_disable_unprepare(drvdata->clk);
++	return err;
++}
++
++static int ls1x_wdt_remove(struct platform_device *pdev)
++{
++	struct ls1x_wdt_drvdata *drvdata = platform_get_drvdata(pdev);
++
++	watchdog_unregister_device(&drvdata->wdt);
++	clk_disable_unprepare(drvdata->clk);
++
++	return 0;
++}
++
++static struct platform_driver ls1x_wdt_driver = {
++	.probe = ls1x_wdt_probe,
++	.remove = ls1x_wdt_remove,
++	.driver = {
++		.name = "ls1x-wdt",
++	},
++};
++
++module_platform_driver(ls1x_wdt_driver);
++
++MODULE_AUTHOR("Yang Ling <gnaygnil@gmail.com>");
++MODULE_DESCRIPTION("Loongson1 Watchdog Driver");
++MODULE_LICENSE("GPL");
+-- 
+1.9.1
 
