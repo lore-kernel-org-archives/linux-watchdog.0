@@ -1,168 +1,85 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:50018 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751064AbcLHOPU (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 8 Dec 2016 09:15:20 -0500
-Subject: Re: [PATCH v2] watchdog: nic7018_wdt: Add NIC7018 watchdog driver
-To: Hui Chun Ong <hui.chun.ong@ni.com>,
-        "corbet@lwn.net" <corbet@lwn.net>, "wim@iguana.be" <wim@iguana.be>
-References: <1479266515-9205-1-git-send-email-hui.chun.ong@ni.com>
- <ba6df233-af61-2553-27ab-72d5153c4f19@roeck-us.net>
- <1481188760.20527.16.camel@ni.com>
-Cc: "rjw@rjwysocki.net" <rjw@rjwysocki.net>,
-        Julia Cartwright <julia.cartwright@ni.com>,
-        "mika.westerberg@linux.intel.com" <mika.westerberg@linux.intel.com>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-        Jonathan Hearn <jonathan.hearn@ni.com>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <c0d35005-3d8e-c7c6-c725-3f8cc526b00d@roeck-us.net>
-Date: Thu, 8 Dec 2016 06:15:15 -0800
-MIME-Version: 1.0
-In-Reply-To: <1481188760.20527.16.camel@ni.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-path: <slemieux.tyco@gmail.com>
+From: Sylvain Lemieux <slemieux.tyco@gmail.com>
+To: wim@iguana.be,
+	linux@roeck-us.net
+Cc: linux-watchdog@vger.kernel.org
+Subject: [PATCH] watchdog: gpio: Add "keep-armed-on-close" feature
+Date: Wed,  7 Dec 2016 14:46:20 -0500
+Message-Id: <1481139980-13429-1-git-send-email-slemieux.tyco@gmail.com>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 12/08/2016 01:19 AM, Hui Chun Ong wrote:
-> On Thu, 2016-11-24 at 11:56 -0800, Guenter Roeck wrote:
->> On 11/15/2016 07:21 PM, Hui Chun Ong wrote:
->>>
->>> Add support for the watchdog timer on PXI Embedded Controller.
->>>
->>> Signed-off-by: Hui Chun Ong <hui.chun.ong@ni.com>
->>> ---
->>> v1: Remove non-standard attributes.
->>>     Change from acpi_driver to platform_driver.
->>>     Rename driver from ni7018_wdt to nic7018_wdt.
->>> ---
->>>  Documentation/watchdog/watchdog-parameters.txt |   5 +
->>>  drivers/watchdog/Kconfig                       |  10 +
->>>  drivers/watchdog/Makefile                      |   1 +
->>>  drivers/watchdog/nic7018_wdt.c                 | 303 +++++++++++++++++++++++++
->>>  4 files changed, 319 insertions(+)
->>>  create mode 100644 drivers/watchdog/nic7018_wdt.c
->>>
->>> diff --git a/Documentation/watchdog/watchdog-parameters.txt b/Documentation/watchdog/watchdog-parameters.txt
->>> index a8d3642..bd142fa 100644
->>> --- a/Documentation/watchdog/watchdog-parameters.txt
->>> +++ b/Documentation/watchdog/watchdog-parameters.txt
->>> @@ -209,6 +209,11 @@ timeout: Initial watchdog timeout in seconds (0
->>>  nowayout: Watchdog cannot be stopped once started
->>>  	(default=kernel config parameter)
->>>  -------------------------------------------------
->>> +nic7018_wdt:
->>> +timeout: Initial watchdog timeout in seconds (0
->>> +nowayout: Watchdog cannot be stopped once started
->>> +	(default=kernel config parameter)
->>> +-------------------------------------------------
->>>  nuc900_wdt:
->>>  heartbeat: Watchdog heartbeats in seconds.
->>>  	(default = 15)
->>> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
->>> index fdd3228..79fb224 100644
->>> --- a/drivers/watchdog/Kconfig
->>> +++ b/drivers/watchdog/Kconfig
->>> @@ -1325,6 +1325,16 @@ config NI903X_WDT
->>>  	  To compile this driver as a module, choose M here: the module will be
->>>  	  called ni903x_wdt.
->>>
->>> +config NIC7018_WDT
->>> +	tristate "NIC7018 Watchdog"
->>> +	depends on X86 && ACPI
->>> +	select WATCHDOG_CORE
->>> +	---help---
->>> +	  This is the device driver for National Instruments NIC7018 Watchdog.
->>> +
->> This should describe what the watchdog is for.
->>
->> "Support for National Instruments NIC7018 Watchdog".
->>
->>>
->>> +	  To compile this driver as a module, choose M here: the module will be
->>> +	  called nic7018_wdt.
->>> +
->>>  # M32R Architecture
->>>
->>>  # M68K Architecture
->>> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
->>> index caa9f4a..bd88e2e 100644
->>> --- a/drivers/watchdog/Makefile
->>> +++ b/drivers/watchdog/Makefile
->>> @@ -139,6 +139,7 @@ obj-$(CONFIG_INTEL_SCU_WATCHDOG) += intel_scu_watchdog.o
->>>  obj-$(CONFIG_INTEL_MID_WATCHDOG) += intel-mid_wdt.o
->>>  obj-$(CONFIG_INTEL_MEI_WDT) += mei_wdt.o
->>>  obj-$(CONFIG_NI903X_WDT) += ni903x_wdt.o
->>> +obj-$(CONFIG_NIC7018_WDT) += nic7018_wdt.o
->>>
->>>  # M32R Architecture
->>>
->>> diff --git a/drivers/watchdog/nic7018_wdt.c b/drivers/watchdog/nic7018_wdt.c
->>> new file mode 100644
->>> index 0000000..780edc6
->>> --- /dev/null
->>> +++ b/drivers/watchdog/nic7018_wdt.c
->>> @@ -0,0 +1,303 @@
->>> +/*
->>> + * Copyright (C) 2016 National Instruments Corp.
->>> + *
->>> + * This program is free software; you can redistribute it and/or modify
->>> + * it under the terms of the GNU General Public License as published by
->>> + * the Free Software Foundation; either version 2 of the License, or
->>> + * (at your option) any later version.
->>> + *
->>> + * This program is distributed in the hope that it will be useful,
->>> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
->>> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
->>> + * GNU General Public License for more details.
->>> + */
->>> +
->>> +#include
->>> +#include
->>> +#include
->>> +#include
->>> +#include
->>> +#include
->>> +#include
->>> +
->>> +#define LOCK			0xA5
->>> +#define UNLOCK			0x5A
->>> +
->>> +#define WDT_CTRL_RESET_EN	BIT(7)
->>> +#define WDT_RELOAD_PORT_EN	BIT(7)
->>> +
->> Should include linux/bitops.h
->>
->>>
->>> +#define WDT_CTRL		1
->>> +#define WDT_RELOAD_CTRL		2
->>> +#define WDT_PRESET_PRESCALE	4
->>> +#define WDT_REG_LOCK		5
->>> +#define WDT_COUNT		6
->>> +#define WDT_RELOAD_PORT		7
->>> +
->>> +#define WDT_MIN_TIMEOUT		1
->>> +#define WDT_MAX_TIMEOUT		464
->> 32 * 15 would be 480 ? I assume the limit above is because of the rounding down
->> by 16 in the driver, but that only shows that this rounding is maybe not the best
->> idea. After all, the maximum timeout _is_ 480 seconds, if I understand the code
->> correctly.
->>
-> The formula for timeout calculation is = (period * counter) - (period / 2). So in this case, (32 * 15) - (32 / 2) = 464
->
+From: Sylvain Lemieux <slemieux@tycoint.com>
 
-I understand that this is the formula used here. But is it the real timeout ?
-It appears unlikely for any hardware to use a subtract operation internally
-to calculate a timeout.
+There is a need to allow a grace period after the watchdog software
+client has closed. It could be used for syncing the filesystem or
+allow graceful termination while still providing a hardware reset
+in case the system has hung.
 
-Same for the default timeout. Question there is: If you set the default timeout as
-set to 80 seconds, does the watchdog time out after 80 seconds, or after 96 seconds ?
+The "always-running" configuration from device-tree does not provide
+this since it will automatically keep the hardware watchdog alive as
+soon as the software client closes (i.e. keep toggling the GPIO line
+regardless of the state of the soft part of the watchdog).
 
-Similar, if one sets the timeout value to the minimum, which per your calculation
-should be 16 seconds, does the watchdog really time out after 16 seconds, or does
-it time out after 32 seconds ? This should be easy to verify with real hardware.
+The "keep-armed-on-close" member in the GPIO watchdog implementation
+indicates if an expired timeout should cause a reset.
 
-Guenter
+This patch add a new "keep-armed-on-close" device-tree configuration
+that will keep the watchdog "armed" until the next timeout period after
+a close. During this period, the hardware watchdog is kept alive.
 
+A software watchdog client that wants to provide a grace period,
+before a hard reset, can set the timeout before properly closing.
+
+Signed-off-by: Sylvain Lemieux <slemieux@tycoint.com>
+---
+ Documentation/devicetree/bindings/watchdog/gpio-wdt.txt | 3 +++
+ drivers/watchdog/gpio_wdt.c                             | 6 ++++++
+ 2 files changed, 9 insertions(+)
+
+diff --git a/Documentation/devicetree/bindings/watchdog/gpio-wdt.txt b/Documentation/devicetree/bindings/watchdog/gpio-wdt.txt
+index 83d2814..2669735 100644
+--- a/Documentation/devicetree/bindings/watchdog/gpio-wdt.txt
++++ b/Documentation/devicetree/bindings/watchdog/gpio-wdt.txt
+@@ -17,6 +17,9 @@ Optional Properties:
+ - always-running: If the watchdog timer cannot be disabled, add this flag to
+   have the driver keep toggling the signal without a client. It will only cease
+   to toggle the signal when the device is open and the timeout elapsed.
++- keep-armed-on-close: if the watchdog timer need to keep toggling the signal
++  when close, until the timeout elapsed, add this flag to have the driver
++  keep toggling the signal, until the timeout elapsed.
+ - timeout-sec: Contains the watchdog timeout in seconds.
+ - start-at-init: Start kicking watchdog as soon as driver is loaded.
+ 
+diff --git a/drivers/watchdog/gpio_wdt.c b/drivers/watchdog/gpio_wdt.c
+index ef9ab91..ba9091a 100644
+--- a/drivers/watchdog/gpio_wdt.c
++++ b/drivers/watchdog/gpio_wdt.c
+@@ -32,6 +32,7 @@ struct gpio_wdt_priv {
+ 	bool			active_low;
+ 	bool			state;
+ 	bool			always_running;
++	bool			keep_armed_on_close;
+ 	bool			armed;
+ 	unsigned int		hw_algo;
+ 	unsigned int		hw_margin;
+@@ -72,6 +73,9 @@ static int gpio_wdt_stop(struct watchdog_device *wdd)
+ {
+ 	struct gpio_wdt_priv *priv = watchdog_get_drvdata(wdd);
+ 
++	if(priv->keep_armed_on_close)
++		return 0;
++
+ 	priv->armed = false;
+ 	if (!priv->always_running) {
+ 		mod_timer(&priv->timer, 0);
+@@ -210,6 +214,8 @@ static int gpio_wdt_probe(struct platform_device *pdev)
+ 
+ 	priv->always_running = of_property_read_bool(pdev->dev.of_node,
+ 						     "always-running");
++	priv->keep_armed_on_close = of_property_read_bool(pdev->dev.of_node,
++						 "keep-armed-on-close");
+ 
+ 	watchdog_set_drvdata(&priv->wdd, priv);
+ 
+-- 
+1.8.3.1
