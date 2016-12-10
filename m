@@ -1,108 +1,374 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:60151 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751989AbcLIVHP (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 9 Dec 2016 16:07:15 -0500
-Date: Fri, 9 Dec 2016 13:07:12 -0800
-From: Guenter Roeck <linux@roeck-us.net>
-To: Sylvain Lemieux <slemieux.tyco@gmail.com>
-Cc: wim@iguana.be, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH] watchdog: gpio: Add "keep-armed-on-close" feature
-Message-ID: <20161209210712.GA14339@roeck-us.net>
-References: <1481139980-13429-1-git-send-email-slemieux.tyco@gmail.com>
+Received: from skprod3.natinst.com ([130.164.80.24]:33726 "EHLO ni.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751981AbcLJK1O (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Sat, 10 Dec 2016 05:27:14 -0500
+From: Hui Chun Ong <hui.chun.ong@ni.com>
+To: <wim@iguana.be>, <linux@roeck-us.net>, <corbet@lwn.net>
+CC: <linux-watchdog@vger.kernel.org>, <linux-doc@vger.kernel.org>,
+        <jonathan.hearn@ni.com>, <julia.cartwright@ni.com>,
+        <rjw@rjwysocki.net>, <mika.westerberg@linux.intel.com>,
+        Hui Chun Ong <hui.chun.ong@ni.com>
+Subject: [PATCH v3] watchdog: nic7018_wdt: Add NIC7018 watchdog driver
+Date: Sat, 10 Dec 2016 18:25:45 +0800
+Message-ID: <1481365545-49894-1-git-send-email-hui.chun.ong@ni.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1481139980-13429-1-git-send-email-slemieux.tyco@gmail.com>
+Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Dec 07, 2016 at 02:46:20PM -0500, Sylvain Lemieux wrote:
-> From: Sylvain Lemieux <slemieux@tycoint.com>
-> 
-> There is a need to allow a grace period after the watchdog software
-> client has closed. It could be used for syncing the filesystem or
-> allow graceful termination while still providing a hardware reset
-> in case the system has hung.
-> 
-> The "always-running" configuration from device-tree does not provide
-> this since it will automatically keep the hardware watchdog alive as
-> soon as the software client closes (i.e. keep toggling the GPIO line
-> regardless of the state of the soft part of the watchdog).
-> 
-> The "keep-armed-on-close" member in the GPIO watchdog implementation
-> indicates if an expired timeout should cause a reset.
-> 
-> This patch add a new "keep-armed-on-close" device-tree configuration
-> that will keep the watchdog "armed" until the next timeout period after
-> a close. During this period, the hardware watchdog is kept alive.
-> 
-> A software watchdog client that wants to provide a grace period,
-> before a hard reset, can set the timeout before properly closing.
-> 
-> Signed-off-by: Sylvain Lemieux <slemieux@tycoint.com>
+Add support for the watchdog timer on PXI Embedded Controller.
 
-Rather than changing the current gpio watchdog code, I would prefer to start
-with https://lkml.org/lkml/2016/1/26/517, which moves part of its code into
-the watchdog core - even more so here since I suspect that the suggested
-changes won't work anymore after the above patch is applied.
+Signed-off-by: Hui Chun Ong <hui.chun.ong@ni.com>
+---
+v2: Remove mutex lock and platform_device *pdev fields from struct nic7018_wdt.
+    Update config NIC7018_WDT description.
+    Update nic7018_get_config() to never return error.
+    Remove checking for IO resource size in nic7018_probe().
 
-Also, isn't this quite identical to nowayout ?
+v1: Remove non-standard attributes.
+    Change from acpi_driver to platform_driver.
+    Rename driver from ni7018_wdt to nic7018_wdt.
+---
+ Documentation/watchdog/watchdog-parameters.txt |   5 +
+ drivers/watchdog/Kconfig                       |  10 +
+ drivers/watchdog/Makefile                      |   1 +
+ drivers/watchdog/nic7018_wdt.c                 | 277 +++++++++++++++++++++++++
+ 4 files changed, 293 insertions(+)
+ create mode 100644 drivers/watchdog/nic7018_wdt.c
 
-Thanks,
-Guenter
+diff --git a/Documentation/watchdog/watchdog-parameters.txt b/Documentation/watchdog/watchdog-parameters.txt
+index a8d3642..bd142fa 100644
+--- a/Documentation/watchdog/watchdog-parameters.txt
++++ b/Documentation/watchdog/watchdog-parameters.txt
+@@ -209,6 +209,11 @@ timeout: Initial watchdog timeout in seconds (0<timeout<516, default=60)
+ nowayout: Watchdog cannot be stopped once started
+ 	(default=kernel config parameter)
+ -------------------------------------------------
++nic7018_wdt:
++timeout: Initial watchdog timeout in seconds (0<timeout<464, default=80)
++nowayout: Watchdog cannot be stopped once started
++	(default=kernel config parameter)
++-------------------------------------------------
+ nuc900_wdt:
+ heartbeat: Watchdog heartbeats in seconds.
+ 	(default = 15)
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index fdd3228..baa79825 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -1325,6 +1325,16 @@ config NI903X_WDT
+ 	  To compile this driver as a module, choose M here: the module will be
+ 	  called ni903x_wdt.
 
-> ---
->  Documentation/devicetree/bindings/watchdog/gpio-wdt.txt | 3 +++
->  drivers/watchdog/gpio_wdt.c                             | 6 ++++++
->  2 files changed, 9 insertions(+)
-> 
-> diff --git a/Documentation/devicetree/bindings/watchdog/gpio-wdt.txt b/Documentation/devicetree/bindings/watchdog/gpio-wdt.txt
-> index 83d2814..2669735 100644
-> --- a/Documentation/devicetree/bindings/watchdog/gpio-wdt.txt
-> +++ b/Documentation/devicetree/bindings/watchdog/gpio-wdt.txt
-> @@ -17,6 +17,9 @@ Optional Properties:
->  - always-running: If the watchdog timer cannot be disabled, add this flag to
->    have the driver keep toggling the signal without a client. It will only cease
->    to toggle the signal when the device is open and the timeout elapsed.
-> +- keep-armed-on-close: if the watchdog timer need to keep toggling the signal
-> +  when close, until the timeout elapsed, add this flag to have the driver
-> +  keep toggling the signal, until the timeout elapsed.
->  - timeout-sec: Contains the watchdog timeout in seconds.
->  - start-at-init: Start kicking watchdog as soon as driver is loaded.
->  
-> diff --git a/drivers/watchdog/gpio_wdt.c b/drivers/watchdog/gpio_wdt.c
-> index ef9ab91..ba9091a 100644
-> --- a/drivers/watchdog/gpio_wdt.c
-> +++ b/drivers/watchdog/gpio_wdt.c
-> @@ -32,6 +32,7 @@ struct gpio_wdt_priv {
->  	bool			active_low;
->  	bool			state;
->  	bool			always_running;
-> +	bool			keep_armed_on_close;
->  	bool			armed;
->  	unsigned int		hw_algo;
->  	unsigned int		hw_margin;
-> @@ -72,6 +73,9 @@ static int gpio_wdt_stop(struct watchdog_device *wdd)
->  {
->  	struct gpio_wdt_priv *priv = watchdog_get_drvdata(wdd);
->  
-> +	if(priv->keep_armed_on_close)
-> +		return 0;
-> +
->  	priv->armed = false;
->  	if (!priv->always_running) {
->  		mod_timer(&priv->timer, 0);
-> @@ -210,6 +214,8 @@ static int gpio_wdt_probe(struct platform_device *pdev)
->  
->  	priv->always_running = of_property_read_bool(pdev->dev.of_node,
->  						     "always-running");
-> +	priv->keep_armed_on_close = of_property_read_bool(pdev->dev.of_node,
-> +						 "keep-armed-on-close");
->  
->  	watchdog_set_drvdata(&priv->wdd, priv);
->  
-> -- 
-> 1.8.3.1
-> 
++config NIC7018_WDT
++	tristate "NIC7018 Watchdog"
++	depends on X86 && ACPI
++	select WATCHDOG_CORE
++	---help---
++	  Support for National Instruments NIC7018 Watchdog.
++
++	  To compile this driver as a module, choose M here: the module will be
++	  called nic7018_wdt.
++
+ # M32R Architecture
+
+ # M68K Architecture
+diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+index caa9f4a..bd88e2e 100644
+--- a/drivers/watchdog/Makefile
++++ b/drivers/watchdog/Makefile
+@@ -139,6 +139,7 @@ obj-$(CONFIG_INTEL_SCU_WATCHDOG) += intel_scu_watchdog.o
+ obj-$(CONFIG_INTEL_MID_WATCHDOG) += intel-mid_wdt.o
+ obj-$(CONFIG_INTEL_MEI_WDT) += mei_wdt.o
+ obj-$(CONFIG_NI903X_WDT) += ni903x_wdt.o
++obj-$(CONFIG_NIC7018_WDT) += nic7018_wdt.o
+
+ # M32R Architecture
+
+diff --git a/drivers/watchdog/nic7018_wdt.c b/drivers/watchdog/nic7018_wdt.c
+new file mode 100644
+index 0000000..9b7b8d3
+--- /dev/null
++++ b/drivers/watchdog/nic7018_wdt.c
+@@ -0,0 +1,277 @@
++/*
++ * Copyright (C) 2016 National Instruments Corp.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ */
++
++#include <linux/acpi.h>
++#include <linux/bitops.h>
++#include <linux/device.h>
++#include <linux/io.h>
++#include <linux/module.h>
++#include <linux/platform_device.h>
++#include <linux/watchdog.h>
++
++#define LOCK			0xA5
++#define UNLOCK			0x5A
++
++#define WDT_CTRL_RESET_EN	BIT(7)
++#define WDT_RELOAD_PORT_EN	BIT(7)
++
++#define WDT_CTRL		1
++#define WDT_RELOAD_CTRL		2
++#define WDT_PRESET_PRESCALE	4
++#define WDT_REG_LOCK		5
++#define WDT_COUNT		6
++#define WDT_RELOAD_PORT		7
++
++#define WDT_MIN_TIMEOUT		1
++#define WDT_MAX_TIMEOUT		464
++#define WDT_DEFAULT_TIMEOUT	80
++
++#define WDT_MAX_COUNTER		15
++
++static unsigned int timeout;
++module_param(timeout, uint, 0);
++MODULE_PARM_DESC(timeout,
++		 "Watchdog timeout in seconds. (default="
++		 __MODULE_STRING(WDT_DEFAULT_TIMEOUT) ")");
++
++static bool nowayout = WATCHDOG_NOWAYOUT;
++module_param(nowayout, bool, 0);
++MODULE_PARM_DESC(nowayout,
++		 "Watchdog cannot be stopped once started. (default="
++		 __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
++
++struct nic7018_wdt {
++	u16 io_base;
++	u32 period_ms;
++	struct watchdog_device wdd;
++};
++
++struct nic7018_config {
++	u32 period_ms;
++	u8 divider;
++};
++
++static const struct nic7018_config nic7018_configs[] = {
++	{   125, 3 },
++	{  2000, 4 },
++	{ 32000, 5 },
++};
++
++static inline u32 nic7018_timeout_ms(u32 period_ms, u8 counter)
++{
++	return period_ms * counter - period_ms / 2;
++}
++
++static const struct nic7018_config *nic7018_get_config(u32 timeout_ms,
++						       u8 *counter)
++{
++	u32 delta, i, best_delta = U32_MAX;
++	const struct nic7018_config *config, *best_config = NULL;
++	u8 count;
++	*counter = WDT_MAX_COUNTER;
++
++	for (i = 0; i < ARRAY_SIZE(nic7018_configs); i++) {
++		config = &nic7018_configs[i];
++
++		count = DIV_ROUND_UP(timeout_ms + config->period_ms / 2,
++				     config->period_ms);
++
++		if (count > WDT_MAX_COUNTER)
++			continue;
++
++		delta = nic7018_timeout_ms(config->period_ms, count) -
++			timeout_ms;
++
++		if (delta < best_delta) {
++			best_delta = delta;
++			best_config = config;
++			*counter = count;
++		}
++	}
++
++	return (!best_config) ? config : best_config;
++}
++
++static int nic7018_set_timeout(struct watchdog_device *wdd,
++			       unsigned int timeout)
++{
++	struct nic7018_wdt *wdt = watchdog_get_drvdata(wdd);
++	const struct nic7018_config *config;
++	u8 counter;
++
++	config = nic7018_get_config(timeout * 1000, &counter);
++
++	outb(counter << 4 | config->divider,
++	     wdt->io_base + WDT_PRESET_PRESCALE);
++
++	wdd->timeout = nic7018_timeout_ms(config->period_ms, counter) / 1000;
++	wdt->period_ms = config->period_ms;
++
++	return 0;
++}
++
++static int nic7018_start(struct watchdog_device *wdd)
++{
++	struct nic7018_wdt *wdt = watchdog_get_drvdata(wdd);
++	u8 control;
++
++	nic7018_set_timeout(wdd, wdd->timeout);
++
++	control = inb(wdt->io_base + WDT_RELOAD_CTRL);
++	outb(control | WDT_RELOAD_PORT_EN, wdt->io_base + WDT_RELOAD_CTRL);
++
++	outb(1, wdt->io_base + WDT_RELOAD_PORT);
++
++	control = inb(wdt->io_base + WDT_CTRL);
++	outb(control | WDT_CTRL_RESET_EN, wdt->io_base + WDT_CTRL);
++
++	return 0;
++}
++
++static int nic7018_stop(struct watchdog_device *wdd)
++{
++	struct nic7018_wdt *wdt = watchdog_get_drvdata(wdd);
++
++	outb(0, wdt->io_base + WDT_CTRL);
++	outb(0, wdt->io_base + WDT_RELOAD_CTRL);
++	outb(0xF0, wdt->io_base + WDT_PRESET_PRESCALE);
++
++	return 0;
++}
++
++static int nic7018_ping(struct watchdog_device *wdd)
++{
++	struct nic7018_wdt *wdt = watchdog_get_drvdata(wdd);
++
++	outb(1, wdt->io_base + WDT_RELOAD_PORT);
++
++	return 0;
++}
++
++static unsigned int nic7018_get_timeleft(struct watchdog_device *wdd)
++{
++	struct nic7018_wdt *wdt = watchdog_get_drvdata(wdd);
++	u8 count;
++
++	count = inb(wdt->io_base + WDT_COUNT) & 0xF;
++
++	if (!count)
++		return 0;
++
++	return nic7018_timeout_ms(wdt->period_ms, count) / 1000;
++}
++
++static const struct watchdog_info nic7018_wdd_info = {
++	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
++	.identity = "NIC7018 Watchdog",
++};
++
++static const struct watchdog_ops nic7018_wdd_ops = {
++	.owner = THIS_MODULE,
++	.start = nic7018_start,
++	.stop = nic7018_stop,
++	.ping = nic7018_ping,
++	.set_timeout = nic7018_set_timeout,
++	.get_timeleft = nic7018_get_timeleft,
++};
++
++static int nic7018_probe(struct platform_device *pdev)
++{
++	struct device *dev = &pdev->dev;
++	struct watchdog_device *wdd;
++	struct nic7018_wdt *wdt;
++	struct resource *io_rc;
++	int ret;
++
++	wdt = devm_kzalloc(dev, sizeof(*wdt), GFP_KERNEL);
++	if (!wdt)
++		return -ENOMEM;
++
++	platform_set_drvdata(pdev, wdt);
++
++	io_rc = platform_get_resource(pdev, IORESOURCE_IO, 0);
++	if (!io_rc) {
++		dev_err(dev, "missing IO resources\n");
++		return -EINVAL;
++	}
++
++	if (!devm_request_region(dev, io_rc->start, resource_size(io_rc),
++				 KBUILD_MODNAME)) {
++		dev_err(dev, "failed to get IO region\n");
++		return -EBUSY;
++	}
++
++	wdt->io_base = io_rc->start;
++	wdd = &wdt->wdd;
++	wdd->info = &nic7018_wdd_info;
++	wdd->ops = &nic7018_wdd_ops;
++	wdd->min_timeout = WDT_MIN_TIMEOUT;
++	wdd->max_timeout = WDT_MAX_TIMEOUT;
++	wdd->timeout = WDT_DEFAULT_TIMEOUT;
++	wdd->parent = dev;
++
++	watchdog_set_drvdata(wdd, wdt);
++	watchdog_set_nowayout(wdd, nowayout);
++
++	ret = watchdog_init_timeout(wdd, timeout, dev);
++	if (ret)
++		dev_warn(dev, "unable to set timeout value, using default\n");
++
++	ret = watchdog_register_device(wdd);
++	if (ret) {
++		dev_err(dev, "failed to register watchdog\n");
++		return ret;
++	}
++
++	/* Unlock WDT register */
++	outb(UNLOCK, wdt->io_base + WDT_REG_LOCK);
++
++	dev_dbg(dev, "io_base=0x%04X, timeout=%d, nowayout=%d\n",
++		wdt->io_base, timeout, nowayout);
++	return 0;
++}
++
++static int nic7018_remove(struct platform_device *pdev)
++{
++	struct nic7018_wdt *wdt = platform_get_drvdata(pdev);
++
++	nic7018_stop(&wdt->wdd);
++	watchdog_unregister_device(&wdt->wdd);
++
++	/* Lock WDT register */
++	outb(LOCK, wdt->io_base + WDT_REG_LOCK);
++
++	return 0;
++}
++
++static const struct acpi_device_id nic7018_device_ids[] = {
++	{"NIC7018", 0},
++	{"", 0},
++};
++MODULE_DEVICE_TABLE(acpi, nic7018_device_ids);
++
++static struct platform_driver watchdog_driver = {
++	.probe = nic7018_probe,
++	.remove = nic7018_remove,
++	.driver = {
++		.name = KBUILD_MODNAME,
++		.acpi_match_table = ACPI_PTR(nic7018_device_ids),
++	},
++};
++
++module_platform_driver(watchdog_driver);
++
++MODULE_DESCRIPTION("National Instruments NIC7018 Watchdog driver");
++MODULE_AUTHOR("Hui Chun Ong <hui.chun.ong@ni.com>");
++MODULE_LICENSE("GPL");
+--
+2.7.4
+
