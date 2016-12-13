@@ -1,272 +1,298 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-sn1nam01on0105.outbound.protection.outlook.com ([104.47.32.105]:26912
-        "EHLO NAM01-SN1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1752937AbcLMKQ1 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 13 Dec 2016 05:16:27 -0500
-From: Hui Chun Ong <hui.chun.ong@ni.com>
-To: "linux@roeck-us.net" <linux@roeck-us.net>,
-        "corbet@lwn.net" <corbet@lwn.net>, "wim@iguana.be" <wim@iguana.be>
-CC: "rjw@rjwysocki.net" <rjw@rjwysocki.net>,
+Received: from bh-25.webhostbox.net ([208.91.199.152]:39772 "EHLO
+        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S933861AbcLMRFf (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 13 Dec 2016 12:05:35 -0500
+Date: Tue, 13 Dec 2016 09:05:27 -0800
+From: Guenter Roeck <linux@roeck-us.net>
+To: Hui Chun Ong <hui.chun.ong@ni.com>
+Cc: "corbet@lwn.net" <corbet@lwn.net>, "wim@iguana.be" <wim@iguana.be>,
+        "rjw@rjwysocki.net" <rjw@rjwysocki.net>,
         Julia Cartwright <julia.cartwright@ni.com>,
         "mika.westerberg@linux.intel.com" <mika.westerberg@linux.intel.com>,
         "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
         "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
         Jonathan Hearn <jonathan.hearn@ni.com>
 Subject: Re: [PATCH v3] watchdog: nic7018_wdt: Add NIC7018 watchdog driver
-Date: Tue, 13 Dec 2016 10:16:23 +0000
-Message-ID: <1481624182.54688.13.camel@ni.com>
+Message-ID: <20161213170527.GB29124@roeck-us.net>
 References: <1481365545-49894-1-git-send-email-hui.chun.ong@ni.com>
-         <5f137b29-b90b-df10-ca8f-0059f1c556c1@roeck-us.net>
-In-Reply-To: <5f137b29-b90b-df10-ca8f-0059f1c556c1@roeck-us.net>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <DABDBC5550BF6244BF79FD0D3221E69F@namprd04.prod.outlook.com>
-Content-Transfer-Encoding: base64
+ <5f137b29-b90b-df10-ca8f-0059f1c556c1@roeck-us.net>
+ <1481624182.54688.13.camel@ni.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <1481624182.54688.13.camel@ni.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
 
-T24gU2F0LCAyMDE2LTEyLTEwIGF0IDA5OjIyIC0wODAwLCBHdWVudGVyIFJvZWNrIHdyb3RlOg0K
-PiBPbiAxMi8xMC8yMDE2IDAyOjI1IEFNLCBIdWkgQ2h1biBPbmcgd3JvdGU6DQo+ID4gDQo+ID4g
-QWRkIHN1cHBvcnQgZm9yIHRoZSB3YXRjaGRvZyB0aW1lciBvbiBQWEkgRW1iZWRkZWQgQ29udHJv
-bGxlci4NCj4gPiANCj4gPiBTaWduZWQtb2ZmLWJ5OiBIdWkgQ2h1biBPbmcgPGh1aS5jaHVuLm9u
-Z0BuaS5jb20+DQo+ID4gLS0tDQo+ID4gdjI6IFJlbW92ZSBtdXRleCBsb2NrIGFuZCBwbGF0Zm9y
-bV9kZXZpY2UgKnBkZXYgZmllbGRzIGZyb20gc3RydWN0DQo+ID4gbmljNzAxOF93ZHQuDQo+ID4g
-wqDCoMKgwqBVcGRhdGUgY29uZmlnIE5JQzcwMThfV0RUIGRlc2NyaXB0aW9uLg0KPiA+IMKgwqDC
-oMKgVXBkYXRlIG5pYzcwMThfZ2V0X2NvbmZpZygpIHRvIG5ldmVyIHJldHVybiBlcnJvci4NCj4g
-PiDCoMKgwqDCoFJlbW92ZSBjaGVja2luZyBmb3IgSU8gcmVzb3VyY2Ugc2l6ZSBpbiBuaWM3MDE4
-X3Byb2JlKCkuDQo+ID4gDQo+ID4gdjE6IFJlbW92ZSBub24tc3RhbmRhcmQgYXR0cmlidXRlcy4N
-Cj4gPiDCoMKgwqDCoENoYW5nZSBmcm9tIGFjcGlfZHJpdmVyIHRvIHBsYXRmb3JtX2RyaXZlci4N
-Cj4gPiDCoMKgwqDCoFJlbmFtZSBkcml2ZXIgZnJvbSBuaTcwMThfd2R0IHRvIG5pYzcwMThfd2R0
-Lg0KPiA+IC0tLQ0KPiA+IMKgRG9jdW1lbnRhdGlvbi93YXRjaGRvZy93YXRjaGRvZy1wYXJhbWV0
-ZXJzLnR4dCB8wqDCoMKgNSArDQo+ID4gwqBkcml2ZXJzL3dhdGNoZG9nL0tjb25maWfCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgfMKgwqAxMCArDQo+ID4gwqBk
-cml2ZXJzL3dhdGNoZG9nL01ha2VmaWxlwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqB8wqDCoMKgMSArDQo+ID4gwqBkcml2ZXJzL3dhdGNoZG9nL25pYzcwMThfd2R0
-LmPCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgfCAyNzcNCj4gPiArKysrKysrKysr
-KysrKysrKysrKysrKysrDQo+ID4gwqA0IGZpbGVzIGNoYW5nZWQsIDI5MyBpbnNlcnRpb25zKCsp
-DQo+ID4gwqBjcmVhdGUgbW9kZSAxMDA2NDQgZHJpdmVycy93YXRjaGRvZy9uaWM3MDE4X3dkdC5j
-DQo+ID4gDQo+ID4gZGlmZiAtLWdpdCBhL0RvY3VtZW50YXRpb24vd2F0Y2hkb2cvd2F0Y2hkb2ct
-cGFyYW1ldGVycy50eHQNCj4gPiBiL0RvY3VtZW50YXRpb24vd2F0Y2hkb2cvd2F0Y2hkb2ctcGFy
-YW1ldGVycy50eHQNCj4gPiBpbmRleCBhOGQzNjQyLi5iZDE0MmZhIDEwMDY0NA0KPiA+IC0tLSBh
-L0RvY3VtZW50YXRpb24vd2F0Y2hkb2cvd2F0Y2hkb2ctcGFyYW1ldGVycy50eHQNCj4gPiArKysg
-Yi9Eb2N1bWVudGF0aW9uL3dhdGNoZG9nL3dhdGNoZG9nLXBhcmFtZXRlcnMudHh0DQo+ID4gQEAg
-LTIwOSw2ICsyMDksMTEgQEAgdGltZW91dDogSW5pdGlhbCB3YXRjaGRvZyB0aW1lb3V0IGluIHNl
-Y29uZHMNCj4gPiAoMDx0aW1lb3V0PDUxNiwgZGVmYXVsdD02MCkNCj4gPiDCoG5vd2F5b3V0OiBX
-YXRjaGRvZyBjYW5ub3QgYmUgc3RvcHBlZCBvbmNlIHN0YXJ0ZWQNCj4gPiDCoAkoZGVmYXVsdD1r
-ZXJuZWwgY29uZmlnIHBhcmFtZXRlcikNCj4gPiDCoC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0NCj4gPiArbmljNzAxOF93ZHQ6DQo+ID4gK3RpbWVvdXQ6
-IEluaXRpYWwgd2F0Y2hkb2cgdGltZW91dCBpbiBzZWNvbmRzICgwPHRpbWVvdXQ8NDY0LA0KPiA+
-IGRlZmF1bHQ9ODApDQo+ID4gK25vd2F5b3V0OiBXYXRjaGRvZyBjYW5ub3QgYmUgc3RvcHBlZCBv
-bmNlIHN0YXJ0ZWQNCj4gPiArCShkZWZhdWx0PWtlcm5lbCBjb25maWcgcGFyYW1ldGVyKQ0KPiA+
-ICstLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tDQo+ID4g
-wqBudWM5MDBfd2R0Og0KPiA+IMKgaGVhcnRiZWF0OiBXYXRjaGRvZyBoZWFydGJlYXRzIGluIHNl
-Y29uZHMuDQo+ID4gwqAJKGRlZmF1bHQgPSAxNSkNCj4gPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy93
-YXRjaGRvZy9LY29uZmlnIGIvZHJpdmVycy93YXRjaGRvZy9LY29uZmlnDQo+ID4gaW5kZXggZmRk
-MzIyOC4uYmFhNzk4MjUgMTAwNjQ0DQo+ID4gLS0tIGEvZHJpdmVycy93YXRjaGRvZy9LY29uZmln
-DQo+ID4gKysrIGIvZHJpdmVycy93YXRjaGRvZy9LY29uZmlnDQo+ID4gQEAgLTEzMjUsNiArMTMy
-NSwxNiBAQCBjb25maWcgTkk5MDNYX1dEVA0KPiA+IMKgCcKgwqBUbyBjb21waWxlIHRoaXMgZHJp
-dmVyIGFzIGEgbW9kdWxlLCBjaG9vc2UgTSBoZXJlOiB0aGUNCj4gPiBtb2R1bGUgd2lsbCBiZQ0K
-PiA+IMKgCcKgwqBjYWxsZWQgbmk5MDN4X3dkdC4NCj4gPiANCj4gPiArY29uZmlnIE5JQzcwMThf
-V0RUDQo+ID4gKwl0cmlzdGF0ZSAiTklDNzAxOCBXYXRjaGRvZyINCj4gPiArCWRlcGVuZHMgb24g
-WDg2ICYmIEFDUEkNCj4gPiArCXNlbGVjdCBXQVRDSERPR19DT1JFDQo+ID4gKwktLS1oZWxwLS0t
-DQo+ID4gKwnCoMKgU3VwcG9ydCBmb3IgTmF0aW9uYWwgSW5zdHJ1bWVudHMgTklDNzAxOCBXYXRj
-aGRvZy4NCj4gPiArDQo+ID4gKwnCoMKgVG8gY29tcGlsZSB0aGlzIGRyaXZlciBhcyBhIG1vZHVs
-ZSwgY2hvb3NlIE0gaGVyZTogdGhlDQo+ID4gbW9kdWxlIHdpbGwgYmUNCj4gPiArCcKgwqBjYWxs
-ZWQgbmljNzAxOF93ZHQuDQo+ID4gKw0KPiA+IMKgIyBNMzJSIEFyY2hpdGVjdHVyZQ0KPiA+IA0K
-PiA+IMKgIyBNNjhLIEFyY2hpdGVjdHVyZQ0KPiA+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3dhdGNo
-ZG9nL01ha2VmaWxlIGIvZHJpdmVycy93YXRjaGRvZy9NYWtlZmlsZQ0KPiA+IGluZGV4IGNhYTlm
-NGEuLmJkODhlMmUgMTAwNjQ0DQo+ID4gLS0tIGEvZHJpdmVycy93YXRjaGRvZy9NYWtlZmlsZQ0K
-PiA+ICsrKyBiL2RyaXZlcnMvd2F0Y2hkb2cvTWFrZWZpbGUNCj4gPiBAQCAtMTM5LDYgKzEzOSw3
-IEBAIG9iai0kKENPTkZJR19JTlRFTF9TQ1VfV0FUQ0hET0cpICs9DQo+ID4gaW50ZWxfc2N1X3dh
-dGNoZG9nLm8NCj4gPiDCoG9iai0kKENPTkZJR19JTlRFTF9NSURfV0FUQ0hET0cpICs9IGludGVs
-LW1pZF93ZHQubw0KPiA+IMKgb2JqLSQoQ09ORklHX0lOVEVMX01FSV9XRFQpICs9IG1laV93ZHQu
-bw0KPiA+IMKgb2JqLSQoQ09ORklHX05JOTAzWF9XRFQpICs9IG5pOTAzeF93ZHQubw0KPiA+ICtv
-YmotJChDT05GSUdfTklDNzAxOF9XRFQpICs9IG5pYzcwMThfd2R0Lm8NCj4gPiANCj4gPiDCoCMg
-TTMyUiBBcmNoaXRlY3R1cmUNCj4gPiANCj4gPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy93YXRjaGRv
-Zy9uaWM3MDE4X3dkdC5jDQo+ID4gYi9kcml2ZXJzL3dhdGNoZG9nL25pYzcwMThfd2R0LmMNCj4g
-PiBuZXcgZmlsZSBtb2RlIDEwMDY0NA0KPiA+IGluZGV4IDAwMDAwMDAuLjliN2I4ZDMNCj4gPiAt
-LS0gL2Rldi9udWxsDQo+ID4gKysrIGIvZHJpdmVycy93YXRjaGRvZy9uaWM3MDE4X3dkdC5jDQo+
-ID4gQEAgLTAsMCArMSwyNzcgQEANCj4gPiArLyoNCj4gPiArICogQ29weXJpZ2h0IChDKSAyMDE2
-IE5hdGlvbmFsIEluc3RydW1lbnRzIENvcnAuDQo+ID4gKyAqDQo+ID4gKyAqIFRoaXMgcHJvZ3Jh
-bSBpcyBmcmVlIHNvZnR3YXJlOyB5b3UgY2FuIHJlZGlzdHJpYnV0ZSBpdCBhbmQvb3INCj4gPiBt
-b2RpZnkNCj4gPiArICogaXQgdW5kZXIgdGhlIHRlcm1zIG9mIHRoZSBHTlUgR2VuZXJhbCBQdWJs
-aWMgTGljZW5zZSBhcw0KPiA+IHB1Ymxpc2hlZCBieQ0KPiA+ICsgKiB0aGUgRnJlZSBTb2Z0d2Fy
-ZSBGb3VuZGF0aW9uOyBlaXRoZXIgdmVyc2lvbiAyIG9mIHRoZSBMaWNlbnNlLA0KPiA+IG9yDQo+
-ID4gKyAqIChhdCB5b3VyIG9wdGlvbikgYW55IGxhdGVyIHZlcnNpb24uDQo+ID4gKyAqDQo+ID4g
-KyAqIFRoaXMgcHJvZ3JhbSBpcyBkaXN0cmlidXRlZCBpbiB0aGUgaG9wZSB0aGF0IGl0IHdpbGwg
-YmUgdXNlZnVsLA0KPiA+ICsgKiBidXQgV0lUSE9VVCBBTlkgV0FSUkFOVFk7IHdpdGhvdXQgZXZl
-biB0aGUgaW1wbGllZCB3YXJyYW50eSBvZg0KPiA+ICsgKiBNRVJDSEFOVEFCSUxJVFkgb3IgRklU
-TkVTUyBGT1IgQSBQQVJUSUNVTEFSIFBVUlBPU0UuwqDCoFNlZSB0aGUNCj4gPiArICogR05VIEdl
-bmVyYWwgUHVibGljIExpY2Vuc2UgZm9yIG1vcmUgZGV0YWlscy4NCj4gPiArICovDQo+ID4gKw0K
-PiA+ICsjaW5jbHVkZSA8bGludXgvYWNwaS5oPg0KPiA+ICsjaW5jbHVkZSA8bGludXgvYml0b3Bz
-Lmg+DQo+ID4gKyNpbmNsdWRlIDxsaW51eC9kZXZpY2UuaD4NCj4gPiArI2luY2x1ZGUgPGxpbnV4
-L2lvLmg+DQo+ID4gKyNpbmNsdWRlIDxsaW51eC9tb2R1bGUuaD4NCj4gPiArI2luY2x1ZGUgPGxp
-bnV4L3BsYXRmb3JtX2RldmljZS5oPg0KPiA+ICsjaW5jbHVkZSA8bGludXgvd2F0Y2hkb2cuaD4N
-Cj4gPiArDQo+ID4gKyNkZWZpbmUgTE9DSwkJCTB4QTUNCj4gPiArI2RlZmluZSBVTkxPQ0sJCQkw
-eDVBDQo+ID4gKw0KPiA+ICsjZGVmaW5lIFdEVF9DVFJMX1JFU0VUX0VOCUJJVCg3KQ0KPiA+ICsj
-ZGVmaW5lIFdEVF9SRUxPQURfUE9SVF9FTglCSVQoNykNCj4gPiArDQo+ID4gKyNkZWZpbmUgV0RU
-X0NUUkwJCTENCj4gPiArI2RlZmluZSBXRFRfUkVMT0FEX0NUUkwJCTINCj4gPiArI2RlZmluZSBX
-RFRfUFJFU0VUX1BSRVNDQUxFCTQNCj4gPiArI2RlZmluZSBXRFRfUkVHX0xPQ0sJCTUNCj4gPiAr
-I2RlZmluZSBXRFRfQ09VTlQJCTYNCj4gPiArI2RlZmluZSBXRFRfUkVMT0FEX1BPUlQJCTcNCj4g
-PiArDQo+ID4gKyNkZWZpbmUgV0RUX01JTl9USU1FT1VUCQkxDQo+ID4gKyNkZWZpbmUgV0RUX01B
-WF9USU1FT1VUCQk0NjQNCj4gPiArI2RlZmluZSBXRFRfREVGQVVMVF9USU1FT1VUCTgwDQo+ID4g
-Kw0KPiA+ICsjZGVmaW5lIFdEVF9NQVhfQ09VTlRFUgkJMTUNCj4gPiArDQo+ID4gK3N0YXRpYyB1
-bnNpZ25lZCBpbnQgdGltZW91dDsNCj4gPiArbW9kdWxlX3BhcmFtKHRpbWVvdXQsIHVpbnQsIDAp
-Ow0KPiA+ICtNT0RVTEVfUEFSTV9ERVNDKHRpbWVvdXQsDQo+ID4gKwkJwqAiV2F0Y2hkb2cgdGlt
-ZW91dCBpbiBzZWNvbmRzLiAoZGVmYXVsdD0iDQo+ID4gKwkJwqBfX01PRFVMRV9TVFJJTkcoV0RU
-X0RFRkFVTFRfVElNRU9VVCkgIikiKTsNCj4gPiArDQo+ID4gK3N0YXRpYyBib29sIG5vd2F5b3V0
-ID0gV0FUQ0hET0dfTk9XQVlPVVQ7DQo+ID4gK21vZHVsZV9wYXJhbShub3dheW91dCwgYm9vbCwg
-MCk7DQo+ID4gK01PRFVMRV9QQVJNX0RFU0Mobm93YXlvdXQsDQo+ID4gKwkJwqAiV2F0Y2hkb2cg
-Y2Fubm90IGJlIHN0b3BwZWQgb25jZSBzdGFydGVkLg0KPiA+IChkZWZhdWx0PSINCj4gPiArCQnC
-oF9fTU9EVUxFX1NUUklORyhXQVRDSERPR19OT1dBWU9VVCkgIikiKTsNCj4gPiArDQo+ID4gK3N0
-cnVjdCBuaWM3MDE4X3dkdCB7DQo+ID4gKwl1MTYgaW9fYmFzZTsNCj4gPiArCXUzMiBwZXJpb2Rf
-bXM7DQo+ID4gKwlzdHJ1Y3Qgd2F0Y2hkb2dfZGV2aWNlIHdkZDsNCj4gPiArfTsNCj4gPiArDQo+
-ID4gK3N0cnVjdCBuaWM3MDE4X2NvbmZpZyB7DQo+ID4gKwl1MzIgcGVyaW9kX21zOw0KPiA+ICsJ
-dTggZGl2aWRlcjsNCj4gPiArfTsNCj4gPiArDQo+ID4gK3N0YXRpYyBjb25zdCBzdHJ1Y3Qgbmlj
-NzAxOF9jb25maWcgbmljNzAxOF9jb25maWdzW10gPSB7DQo+ID4gKwl7wqDCoMKgMTI1LCAzIH0s
-DQo+IFRoZSBtYXhpbXVtIHRpbWVvdXQgaXMgKDEyNSAqIDE1KSAtIDYyLCBvciAxODEzIG1zLiBU
-aGlzIHdpbGwgbmV2ZXINCj4gYmUgc2VsZWN0ZWQsDQo+IHNpbmNlIHdpdGggYSB0aW1lb3V0IG9m
-IDJzIGNvdW50IHdpbGwgYmUgMTcgYmVsb3csIGFuZCB0aGUgZW50cnkgd2lsbA0KPiBiZSBza2lw
-cGVkLg0KPiBXaXRoIGEgdGltZW91dCBvZiAxMDAwLCB0aGUgc2Vjb25kIHRhYmxlIGVudHJ5IHdp
-bGwgYmUgdXNlZCBhcyB3ZWxsDQo+IHNpbmNlIHRoZQ0KPiB0aW1lb3V0IHdpdGggdGhlIGZpcnN0
-IGVudHJ5IGlzIG5vdCBleGFjdGx5IDEgc2Vjb25kLg0KPiANCj4gR2l2ZW4gdGhhdCwgeW91IG1p
-Z2h0IGFzIHdlbGwgZHJvcCB0aGlzIGVudHJ5Lg0KPiANCj4gDQo+ID4gDQo+ID4gKwl7wqDCoDIw
-MDAsIDQgfSwNCj4gPiArCXsgMzIwMDAsIDUgfSwNCj4gPiArfTsNCj4gPiArDQo+ID4gK3N0YXRp
-YyBpbmxpbmUgdTMyIG5pYzcwMThfdGltZW91dF9tcyh1MzIgcGVyaW9kX21zLCB1OCBjb3VudGVy
-KQ0KPiA+ICt7DQo+ID4gKwlyZXR1cm4gcGVyaW9kX21zICogY291bnRlciAtIHBlcmlvZF9tcyAv
-IDI7DQo+ID4gK30NCj4gPiArDQo+ID4gK3N0YXRpYyBjb25zdCBzdHJ1Y3QgbmljNzAxOF9jb25m
-aWcgKm5pYzcwMThfZ2V0X2NvbmZpZyh1MzINCj4gPiB0aW1lb3V0X21zLA0KPiA+ICsJCQkJCQnC
-oMKgwqDCoMKgwqDCoHU4DQo+ID4gKmNvdW50ZXIpDQo+ID4gK3sNCj4gPiArCXUzMiBkZWx0YSwg
-aSwgYmVzdF9kZWx0YSA9IFUzMl9NQVg7DQo+ID4gKwljb25zdCBzdHJ1Y3QgbmljNzAxOF9jb25m
-aWcgKmNvbmZpZywgKmJlc3RfY29uZmlnID0gTlVMTDsNCj4gPiArCXU4IGNvdW50Ow0KPiA+ICsJ
-KmNvdW50ZXIgPSBXRFRfTUFYX0NPVU5URVI7DQo+ID4gKw0KPiA+ICsJZm9yIChpID0gMDsgaSA8
-IEFSUkFZX1NJWkUobmljNzAxOF9jb25maWdzKTsgaSsrKSB7DQo+ID4gKwkJY29uZmlnID0gJm5p
-YzcwMThfY29uZmlnc1tpXTsNCj4gPiArDQo+ID4gKwkJY291bnQgPSBESVZfUk9VTkRfVVAodGlt
-ZW91dF9tcyArIGNvbmZpZy0NCj4gPiA+cGVyaW9kX21zIC8gMiwNCj4gPiArCQkJCcKgwqDCoMKg
-wqBjb25maWctPnBlcmlvZF9tcyk7DQo+ID4gKw0KPiA+ICsJCWlmIChjb3VudCA+IFdEVF9NQVhf
-Q09VTlRFUikNCj4gPiArCQkJY29udGludWU7DQo+ID4gKw0KPiA+ICsJCWRlbHRhID0gbmljNzAx
-OF90aW1lb3V0X21zKGNvbmZpZy0+cGVyaW9kX21zLA0KPiA+IGNvdW50KSAtDQo+ID4gKwkJCXRp
-bWVvdXRfbXM7DQo+ID4gKw0KPiA+ICsJCWlmIChkZWx0YSA8IGJlc3RfZGVsdGEpIHsNCj4gPiAr
-CQkJYmVzdF9kZWx0YSA9IGRlbHRhOw0KPiA+ICsJCQliZXN0X2NvbmZpZyA9IGNvbmZpZzsNCj4g
-PiArCQkJKmNvdW50ZXIgPSBjb3VudDsNCj4gPiArCQl9DQo+ID4gKwl9DQo+ID4gKw0KPiA+ICsJ
-cmV0dXJuICghYmVzdF9jb25maWcpID8gY29uZmlnIDogYmVzdF9jb25maWc7DQo+IFVuZWNlc3Nh
-cnkgKCksIGFuZA0KPiAJcmV0dXJuIGJlc3RfY29uZmlnID8gOiBjb25maWc7DQo+IHdvcmtzIHdp
-dGhvdXQgdGhlICchJy4NCj4gDQo+IEFsc28sIGdpdmVuIHRoZSBhYm92ZSwgaXQgc2VlbXMgdG8g
-bWUgdGhhdA0KPiANCj4gCWlmICh0aW1lb3V0IDwgMzAgJiYgdGltZW91dCAhPSAxNikgew0KPiAJ
-CWNvbmZpZyA9ICZuaWM3MDE4X2NvbmZpZ3NbMF07DQo+IAkJY291bnQgPSB0aW1lb3V0IC8gMiAr
-IDE7DQo+IAl9IGVsc2Ugew0KPiAJCWNvbmZpZyA9ICZuaWM3MDE4X2NvbmZpZ3NbMV07DQo+IAkJ
-Y291bnQgPSBESVZfUk9VTkRfVVAodGltZW91dCArIDE2LCAzMik7DQo+IAkJaWYgKGNvdW50ID4g
-V0RUX01BWF9DT1VOVEVSOw0KPiAJCQljb3VudCA9IFdEVF9NQVhfQ09VTlRFUjsNCj4gCX0NCj4g
-CSpjb3VudGVyID0gY291bnQ7DQo+IAlyZXR1cm4gY29uZmlnOw0KPiANCj4gd291bGQgYWNjb21w
-bGlzaCB0aGUgc2FtZSBhcyB5b3VyIGNvZGUgYW5kIGJlIG11Y2ggbGVzcyBjb21wbGV4IGFuZA0K
-PiBlYXNpZXINCj4gdG8gdW5kZXJzdGFuZC4gQXMgYSBzaWRlIGVmZmVjdCwgeW91IGNvdWxkIGtl
-ZXAgYWxsIHRpbWVvdXRzIGluDQo+IHNlY29uZHMNCj4gYW5kIHdvdWxkIG5vdCBoYXZlIHRvIGRl
-YWwgd2l0aCBtaWxsaXNlY29uZHMgYXQgYWxsLg0KPiANCg0KSXMgaXQgcG9zc2libGUgdG8ga2Vl
-cCB0aGUgbWlsaXNlY29uZHMgY2FsY3VsYXRpb24gaW4gdGhlIGRyaXZlciBldmVuDQp0aG91Z2gg
-aXRzIGRvZXNuJ3Qgc2VlbSB0byBiZSBuZWVkZWQ/IFRoZSByZWFzb24gaXMgYmVjYXVzZSB0aGUN
-CndhdGNoZG9nIHRpbWVyIGhhcyBtaWxpc2Vjb25kcyB0aW1lb3V0IHJlc29sdXRpb24gdGhhdCB3
-ZSBwbGFuIHRvDQp1dGlsaXplIGZvciBvdXIgc3BlY2lmaWMgYXBwbGljYXRpb24uIERvIHlvdSBm
-b3Jlc2VlIHRoZSB3YXRjaGRvZyBjb3JlDQphZGRpbmcgc3VwcG9ydCBmb3IgbWlsaXNlY29uZHMg
-dGltZW91dD8NCg0KPiA+IA0KPiA+ICt9DQo+ID4gKw0KPiA+ICtzdGF0aWMgaW50IG5pYzcwMThf
-c2V0X3RpbWVvdXQoc3RydWN0IHdhdGNoZG9nX2RldmljZSAqd2RkLA0KPiA+ICsJCQnCoMKgwqDC
-oMKgwqDCoHVuc2lnbmVkIGludCB0aW1lb3V0KQ0KPiA+ICt7DQo+ID4gKwlzdHJ1Y3QgbmljNzAx
-OF93ZHQgKndkdCA9IHdhdGNoZG9nX2dldF9kcnZkYXRhKHdkZCk7DQo+ID4gKwljb25zdCBzdHJ1
-Y3QgbmljNzAxOF9jb25maWcgKmNvbmZpZzsNCj4gPiArCXU4IGNvdW50ZXI7DQo+ID4gKw0KPiA+
-ICsJY29uZmlnID0gbmljNzAxOF9nZXRfY29uZmlnKHRpbWVvdXQgKiAxMDAwLCAmY291bnRlcik7
-DQo+ID4gKw0KPiA+ICsJb3V0Yihjb3VudGVyIDw8IDQgfCBjb25maWctPmRpdmlkZXIsDQo+ID4g
-KwnCoMKgwqDCoMKgd2R0LT5pb19iYXNlICsgV0RUX1BSRVNFVF9QUkVTQ0FMRSk7DQo+ID4gKw0K
-PiA+ICsJd2RkLT50aW1lb3V0ID0gbmljNzAxOF90aW1lb3V0X21zKGNvbmZpZy0+cGVyaW9kX21z
-LA0KPiA+IGNvdW50ZXIpIC8gMTAwMDsNCj4gPiArCXdkdC0+cGVyaW9kX21zID0gY29uZmlnLT5w
-ZXJpb2RfbXM7DQo+ID4gKw0KPiA+ICsJcmV0dXJuIDA7DQo+ID4gK30NCj4gPiArDQo+ID4gK3N0
-YXRpYyBpbnQgbmljNzAxOF9zdGFydChzdHJ1Y3Qgd2F0Y2hkb2dfZGV2aWNlICp3ZGQpDQo+ID4g
-K3sNCj4gPiArCXN0cnVjdCBuaWM3MDE4X3dkdCAqd2R0ID0gd2F0Y2hkb2dfZ2V0X2RydmRhdGEo
-d2RkKTsNCj4gPiArCXU4IGNvbnRyb2w7DQo+ID4gKw0KPiA+ICsJbmljNzAxOF9zZXRfdGltZW91
-dCh3ZGQsIHdkZC0+dGltZW91dCk7DQo+ID4gKw0KPiA+ICsJY29udHJvbCA9IGluYih3ZHQtPmlv
-X2Jhc2UgKyBXRFRfUkVMT0FEX0NUUkwpOw0KPiA+ICsJb3V0Yihjb250cm9sIHwgV0RUX1JFTE9B
-RF9QT1JUX0VOLCB3ZHQtPmlvX2Jhc2UgKw0KPiA+IFdEVF9SRUxPQURfQ1RSTCk7DQo+ID4gKw0K
-PiA+ICsJb3V0YigxLCB3ZHQtPmlvX2Jhc2UgKyBXRFRfUkVMT0FEX1BPUlQpOw0KPiA+ICsNCj4g
-PiArCWNvbnRyb2wgPSBpbmIod2R0LT5pb19iYXNlICsgV0RUX0NUUkwpOw0KPiA+ICsJb3V0Yihj
-b250cm9sIHwgV0RUX0NUUkxfUkVTRVRfRU4sIHdkdC0+aW9fYmFzZSArDQo+ID4gV0RUX0NUUkwp
-Ow0KPiA+ICsNCj4gPiArCXJldHVybiAwOw0KPiA+ICt9DQo+ID4gKw0KPiA+ICtzdGF0aWMgaW50
-IG5pYzcwMThfc3RvcChzdHJ1Y3Qgd2F0Y2hkb2dfZGV2aWNlICp3ZGQpDQo+ID4gK3sNCj4gPiAr
-CXN0cnVjdCBuaWM3MDE4X3dkdCAqd2R0ID0gd2F0Y2hkb2dfZ2V0X2RydmRhdGEod2RkKTsNCj4g
-PiArDQo+ID4gKwlvdXRiKDAsIHdkdC0+aW9fYmFzZSArIFdEVF9DVFJMKTsNCj4gPiArCW91dGIo
-MCwgd2R0LT5pb19iYXNlICsgV0RUX1JFTE9BRF9DVFJMKTsNCj4gPiArCW91dGIoMHhGMCwgd2R0
-LT5pb19iYXNlICsgV0RUX1BSRVNFVF9QUkVTQ0FMRSk7DQo+ID4gKw0KPiA+ICsJcmV0dXJuIDA7
-DQo+ID4gK30NCj4gPiArDQo+ID4gK3N0YXRpYyBpbnQgbmljNzAxOF9waW5nKHN0cnVjdCB3YXRj
-aGRvZ19kZXZpY2UgKndkZCkNCj4gPiArew0KPiA+ICsJc3RydWN0IG5pYzcwMThfd2R0ICp3ZHQg
-PSB3YXRjaGRvZ19nZXRfZHJ2ZGF0YSh3ZGQpOw0KPiA+ICsNCj4gPiArCW91dGIoMSwgd2R0LT5p
-b19iYXNlICsgV0RUX1JFTE9BRF9QT1JUKTsNCj4gPiArDQo+ID4gKwlyZXR1cm4gMDsNCj4gPiAr
-fQ0KPiA+ICsNCj4gPiArc3RhdGljIHVuc2lnbmVkIGludCBuaWM3MDE4X2dldF90aW1lbGVmdChz
-dHJ1Y3Qgd2F0Y2hkb2dfZGV2aWNlDQo+ID4gKndkZCkNCj4gPiArew0KPiA+ICsJc3RydWN0IG5p
-YzcwMThfd2R0ICp3ZHQgPSB3YXRjaGRvZ19nZXRfZHJ2ZGF0YSh3ZGQpOw0KPiA+ICsJdTggY291
-bnQ7DQo+ID4gKw0KPiA+ICsJY291bnQgPSBpbmIod2R0LT5pb19iYXNlICsgV0RUX0NPVU5UKSAm
-IDB4RjsNCj4gPiArDQo+ID4gKwlpZiAoIWNvdW50KQ0KPiA+ICsJCXJldHVybiAwOw0KPiA+ICsN
-Cj4gPiArCXJldHVybiBuaWM3MDE4X3RpbWVvdXRfbXMod2R0LT5wZXJpb2RfbXMsIGNvdW50KSAv
-IDEwMDA7DQo+ID4gK30NCj4gPiArDQo+ID4gK3N0YXRpYyBjb25zdCBzdHJ1Y3Qgd2F0Y2hkb2df
-aW5mbyBuaWM3MDE4X3dkZF9pbmZvID0gew0KPiA+ICsJLm9wdGlvbnMgPSBXRElPRl9TRVRUSU1F
-T1VUIHwgV0RJT0ZfS0VFUEFMSVZFUElORyB8DQo+ID4gV0RJT0ZfTUFHSUNDTE9TRSwNCj4gPiAr
-CS5pZGVudGl0eSA9ICJOSUM3MDE4IFdhdGNoZG9nIiwNCj4gPiArfTsNCj4gPiArDQo+ID4gK3N0
-YXRpYyBjb25zdCBzdHJ1Y3Qgd2F0Y2hkb2dfb3BzIG5pYzcwMThfd2RkX29wcyA9IHsNCj4gPiAr
-CS5vd25lciA9IFRISVNfTU9EVUxFLA0KPiA+ICsJLnN0YXJ0ID0gbmljNzAxOF9zdGFydCwNCj4g
-PiArCS5zdG9wID0gbmljNzAxOF9zdG9wLA0KPiA+ICsJLnBpbmcgPSBuaWM3MDE4X3BpbmcsDQo+
-ID4gKwkuc2V0X3RpbWVvdXQgPSBuaWM3MDE4X3NldF90aW1lb3V0LA0KPiA+ICsJLmdldF90aW1l
-bGVmdCA9IG5pYzcwMThfZ2V0X3RpbWVsZWZ0LA0KPiA+ICt9Ow0KPiA+ICsNCj4gPiArc3RhdGlj
-IGludCBuaWM3MDE4X3Byb2JlKHN0cnVjdCBwbGF0Zm9ybV9kZXZpY2UgKnBkZXYpDQo+ID4gK3sN
-Cj4gPiArCXN0cnVjdCBkZXZpY2UgKmRldiA9ICZwZGV2LT5kZXY7DQo+ID4gKwlzdHJ1Y3Qgd2F0
-Y2hkb2dfZGV2aWNlICp3ZGQ7DQo+ID4gKwlzdHJ1Y3QgbmljNzAxOF93ZHQgKndkdDsNCj4gPiAr
-CXN0cnVjdCByZXNvdXJjZSAqaW9fcmM7DQo+ID4gKwlpbnQgcmV0Ow0KPiA+ICsNCj4gPiArCXdk
-dCA9IGRldm1fa3phbGxvYyhkZXYsIHNpemVvZigqd2R0KSwgR0ZQX0tFUk5FTCk7DQo+ID4gKwlp
-ZiAoIXdkdCkNCj4gPiArCQlyZXR1cm4gLUVOT01FTTsNCj4gPiArDQo+ID4gKwlwbGF0Zm9ybV9z
-ZXRfZHJ2ZGF0YShwZGV2LCB3ZHQpOw0KPiA+ICsNCj4gPiArCWlvX3JjID0gcGxhdGZvcm1fZ2V0
-X3Jlc291cmNlKHBkZXYsIElPUkVTT1VSQ0VfSU8sIDApOw0KPiA+ICsJaWYgKCFpb19yYykgew0K
-PiA+ICsJCWRldl9lcnIoZGV2LCAibWlzc2luZyBJTyByZXNvdXJjZXNcbiIpOw0KPiA+ICsJCXJl
-dHVybiAtRUlOVkFMOw0KPiA+ICsJfQ0KPiA+ICsNCj4gPiArCWlmICghZGV2bV9yZXF1ZXN0X3Jl
-Z2lvbihkZXYsIGlvX3JjLT5zdGFydCwNCj4gPiByZXNvdXJjZV9zaXplKGlvX3JjKSwNCj4gPiAr
-CQkJCcKgS0JVSUxEX01PRE5BTUUpKSB7DQo+ID4gKwkJZGV2X2VycihkZXYsICJmYWlsZWQgdG8g
-Z2V0IElPIHJlZ2lvblxuIik7DQo+ID4gKwkJcmV0dXJuIC1FQlVTWTsNCj4gPiArCX0NCj4gPiAr
-DQo+ID4gKwl3ZHQtPmlvX2Jhc2UgPSBpb19yYy0+c3RhcnQ7DQo+ID4gKwl3ZGQgPSAmd2R0LT53
-ZGQ7DQo+ID4gKwl3ZGQtPmluZm8gPSAmbmljNzAxOF93ZGRfaW5mbzsNCj4gPiArCXdkZC0+b3Bz
-ID0gJm5pYzcwMThfd2RkX29wczsNCj4gPiArCXdkZC0+bWluX3RpbWVvdXQgPSBXRFRfTUlOX1RJ
-TUVPVVQ7DQo+ID4gKwl3ZGQtPm1heF90aW1lb3V0ID0gV0RUX01BWF9USU1FT1VUOw0KPiA+ICsJ
-d2RkLT50aW1lb3V0ID0gV0RUX0RFRkFVTFRfVElNRU9VVDsNCj4gPiArCXdkZC0+cGFyZW50ID0g
-ZGV2Ow0KPiA+ICsNCj4gPiArCXdhdGNoZG9nX3NldF9kcnZkYXRhKHdkZCwgd2R0KTsNCj4gPiAr
-CXdhdGNoZG9nX3NldF9ub3dheW91dCh3ZGQsIG5vd2F5b3V0KTsNCj4gPiArDQo+ID4gKwlyZXQg
-PSB3YXRjaGRvZ19pbml0X3RpbWVvdXQod2RkLCB0aW1lb3V0LCBkZXYpOw0KPiA+ICsJaWYgKHJl
-dCkNCj4gPiArCQlkZXZfd2FybihkZXYsICJ1bmFibGUgdG8gc2V0IHRpbWVvdXQgdmFsdWUsIHVz
-aW5nDQo+ID4gZGVmYXVsdFxuIik7DQo+ID4gKw0KPiA+ICsJcmV0ID0gd2F0Y2hkb2dfcmVnaXN0
-ZXJfZGV2aWNlKHdkZCk7DQo+ID4gKwlpZiAocmV0KSB7DQo+ID4gKwkJZGV2X2VycihkZXYsICJm
-YWlsZWQgdG8gcmVnaXN0ZXIgd2F0Y2hkb2dcbiIpOw0KPiA+ICsJCXJldHVybiByZXQ7DQo+ID4g
-Kwl9DQo+ID4gKw0KPiA+ICsJLyogVW5sb2NrIFdEVCByZWdpc3RlciAqLw0KPiA+ICsJb3V0YihV
-TkxPQ0ssIHdkdC0+aW9fYmFzZSArIFdEVF9SRUdfTE9DSyk7DQo+ID4gKw0KPiBUaGUgd2F0Y2hk
-b2cgZHJpdmVyIG1heSBiZSBvcGVuZWQgcmlnaHQgYWZ0ZXIgdGhlIGNhbGwgdG8NCj4gd2F0Y2hk
-b2dfcmVnaXN0ZXJfZGV2aWNlKCksDQo+IG1lYW5pbmcgdGhpcyBpcyByYWN5IHNpbmNlIHRoZSBv
-cGVuIG1heSBhbHJlYWR5IGhhdmUgaGFwcGVuZWQuIFlvdSdsbA0KPiBuZWVkIHRvIHNldA0KPiB0
-aGlzIGJlZm9yZSB0aGUgY2FsbCB0byB3YXRjaGRvZ19yZWdpc3Rlcl9kZXZpY2UoKS4NCj4gDQo+
-ID4gDQo+ID4gKwlkZXZfZGJnKGRldiwgImlvX2Jhc2U9MHglMDRYLCB0aW1lb3V0PSVkLCBub3dh
-eW91dD0lZFxuIiwNCj4gPiArCQl3ZHQtPmlvX2Jhc2UsIHRpbWVvdXQsIG5vd2F5b3V0KTsNCj4g
-PiArCXJldHVybiAwOw0KPiA+ICt9DQo+ID4gKw0KPiA+ICtzdGF0aWMgaW50IG5pYzcwMThfcmVt
-b3ZlKHN0cnVjdCBwbGF0Zm9ybV9kZXZpY2UgKnBkZXYpDQo+ID4gK3sNCj4gPiArCXN0cnVjdCBu
-aWM3MDE4X3dkdCAqd2R0ID0gcGxhdGZvcm1fZ2V0X2RydmRhdGEocGRldik7DQo+ID4gKw0KPiA+
-ICsJbmljNzAxOF9zdG9wKCZ3ZHQtPndkZCk7DQo+ID4gKwl3YXRjaGRvZ191bnJlZ2lzdGVyX2Rl
-dmljZSgmd2R0LT53ZGQpOw0KPiA+ICsNCj4gPiArCS8qIExvY2sgV0RUIHJlZ2lzdGVyICovDQo+
-ID4gKwlvdXRiKExPQ0ssIHdkdC0+aW9fYmFzZSArIFdEVF9SRUdfTE9DSyk7DQo+ID4gKw0KPiA+
-ICsJcmV0dXJuIDA7DQo+ID4gK30NCj4gPiArDQo+ID4gK3N0YXRpYyBjb25zdCBzdHJ1Y3QgYWNw
-aV9kZXZpY2VfaWQgbmljNzAxOF9kZXZpY2VfaWRzW10gPSB7DQo+ID4gKwl7Ik5JQzcwMTgiLCAw
-fSwNCj4gPiArCXsiIiwgMH0sDQo+ID4gK307DQo+ID4gK01PRFVMRV9ERVZJQ0VfVEFCTEUoYWNw
-aSwgbmljNzAxOF9kZXZpY2VfaWRzKTsNCj4gPiArDQo+ID4gK3N0YXRpYyBzdHJ1Y3QgcGxhdGZv
-cm1fZHJpdmVyIHdhdGNoZG9nX2RyaXZlciA9IHsNCj4gPiArCS5wcm9iZSA9IG5pYzcwMThfcHJv
-YmUsDQo+ID4gKwkucmVtb3ZlID0gbmljNzAxOF9yZW1vdmUsDQo+ID4gKwkuZHJpdmVyID0gew0K
-PiA+ICsJCS5uYW1lID0gS0JVSUxEX01PRE5BTUUsDQo+ID4gKwkJLmFjcGlfbWF0Y2hfdGFibGUg
-PSBBQ1BJX1BUUihuaWM3MDE4X2RldmljZV9pZHMpLA0KPiA+ICsJfSwNCj4gPiArfTsNCj4gPiAr
-DQo+ID4gK21vZHVsZV9wbGF0Zm9ybV9kcml2ZXIod2F0Y2hkb2dfZHJpdmVyKTsNCj4gPiArDQo+
-ID4gK01PRFVMRV9ERVNDUklQVElPTigiTmF0aW9uYWwgSW5zdHJ1bWVudHMgTklDNzAxOCBXYXRj
-aGRvZw0KPiA+IGRyaXZlciIpOw0KPiA+ICtNT0RVTEVfQVVUSE9SKCJIdWkgQ2h1biBPbmcgPGh1
-aS5jaHVuLm9uZ0BuaS5jb20+Iik7DQo+ID4gK01PRFVMRV9MSUNFTlNFKCJHUEwiKTsNCj4gPiAt
-LQ0KPiA+IDIuNy40DQo+ID4gDQo+ID4gLS0NCj4gPiBUbyB1bnN1YnNjcmliZSBmcm9tIHRoaXMg
-bGlzdDogc2VuZCB0aGUgbGluZSAidW5zdWJzY3JpYmUgbGludXgtDQo+ID4gd2F0Y2hkb2ciIGlu
-DQo+ID4gdGhlIGJvZHkgb2YgYSBtZXNzYWdlIHRvIG1ham9yZG9tb0B2Z2VyLmtlcm5lbC5vcmcN
-Cj4gPiBNb3JlIG1ham9yZG9tbyBpbmZvIGF0wqDCoGh0dHA6Ly92Z2VyLmtlcm5lbC5vcmcvbWFq
-b3Jkb21vLWluZm8uaHRtbA0KPiA+IA==
+On Tue, Dec 13, 2016 at 10:16:23AM +0000, Hui Chun Ong wrote:
+> On Sat, 2016-12-10 at 09:22 -0800, Guenter Roeck wrote:
+> > On 12/10/2016 02:25 AM, Hui Chun Ong wrote:
+> > >=20
+> > > Add support for the watchdog timer on PXI Embedded Controller.
+> > >=20
+> > > Signed-off-by: Hui Chun Ong <hui.chun.ong@ni.com>
+> > > ---
+> > > v2: Remove mutex lock and platform_device *pdev fields from struct
+> > > nic7018_wdt.
+> > > =A0=A0=A0=A0Update config NIC7018_WDT description.
+> > > =A0=A0=A0=A0Update nic7018_get_config() to never return error.
+> > > =A0=A0=A0=A0Remove checking for IO resource size in nic7018_probe()=
+.
+> > >=20
+> > > v1: Remove non-standard attributes.
+> > > =A0=A0=A0=A0Change from acpi_driver to platform_driver.
+> > > =A0=A0=A0=A0Rename driver from ni7018_wdt to nic7018_wdt.
+> > > ---
+> > > =A0Documentation/watchdog/watchdog-parameters.txt |=A0=A0=A05 +
+> > > =A0drivers/watchdog/Kconfig=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0|=A0=A010 +
+> > > =A0drivers/watchdog/Makefile=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0|=A0=A0=A01 +
+> > > =A0drivers/watchdog/nic7018_wdt.c=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0| 277
+> > > +++++++++++++++++++++++++
+> > > =A04 files changed, 293 insertions(+)
+> > > =A0create mode 100644 drivers/watchdog/nic7018_wdt.c
+> > >=20
+> > > diff --git a/Documentation/watchdog/watchdog-parameters.txt
+> > > b/Documentation/watchdog/watchdog-parameters.txt
+> > > index a8d3642..bd142fa 100644
+> > > --- a/Documentation/watchdog/watchdog-parameters.txt
+> > > +++ b/Documentation/watchdog/watchdog-parameters.txt
+> > > @@ -209,6 +209,11 @@ timeout: Initial watchdog timeout in seconds
+> > > (0<timeout<516, default=3D60)
+> > > =A0nowayout: Watchdog cannot be stopped once started
+> > > =A0	(default=3Dkernel config parameter)
+> > > =A0-------------------------------------------------
+> > > +nic7018_wdt:
+> > > +timeout: Initial watchdog timeout in seconds (0<timeout<464,
+> > > default=3D80)
+> > > +nowayout: Watchdog cannot be stopped once started
+> > > +	(default=3Dkernel config parameter)
+> > > +-------------------------------------------------
+> > > =A0nuc900_wdt:
+> > > =A0heartbeat: Watchdog heartbeats in seconds.
+> > > =A0	(default =3D 15)
+> > > diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> > > index fdd3228..baa79825 100644
+> > > --- a/drivers/watchdog/Kconfig
+> > > +++ b/drivers/watchdog/Kconfig
+> > > @@ -1325,6 +1325,16 @@ config NI903X_WDT
+> > > =A0	=A0=A0To compile this driver as a module, choose M here: the
+> > > module will be
+> > > =A0	=A0=A0called ni903x_wdt.
+> > >=20
+> > > +config NIC7018_WDT
+> > > +	tristate "NIC7018 Watchdog"
+> > > +	depends on X86 && ACPI
+> > > +	select WATCHDOG_CORE
+> > > +	---help---
+> > > +	=A0=A0Support for National Instruments NIC7018 Watchdog.
+> > > +
+> > > +	=A0=A0To compile this driver as a module, choose M here: the
+> > > module will be
+> > > +	=A0=A0called nic7018_wdt.
+> > > +
+> > > =A0# M32R Architecture
+> > >=20
+> > > =A0# M68K Architecture
+> > > diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+> > > index caa9f4a..bd88e2e 100644
+> > > --- a/drivers/watchdog/Makefile
+> > > +++ b/drivers/watchdog/Makefile
+> > > @@ -139,6 +139,7 @@ obj-$(CONFIG_INTEL_SCU_WATCHDOG) +=3D
+> > > intel_scu_watchdog.o
+> > > =A0obj-$(CONFIG_INTEL_MID_WATCHDOG) +=3D intel-mid_wdt.o
+> > > =A0obj-$(CONFIG_INTEL_MEI_WDT) +=3D mei_wdt.o
+> > > =A0obj-$(CONFIG_NI903X_WDT) +=3D ni903x_wdt.o
+> > > +obj-$(CONFIG_NIC7018_WDT) +=3D nic7018_wdt.o
+> > >=20
+> > > =A0# M32R Architecture
+> > >=20
+> > > diff --git a/drivers/watchdog/nic7018_wdt.c
+> > > b/drivers/watchdog/nic7018_wdt.c
+> > > new file mode 100644
+> > > index 0000000..9b7b8d3
+> > > --- /dev/null
+> > > +++ b/drivers/watchdog/nic7018_wdt.c
+> > > @@ -0,0 +1,277 @@
+> > > +/*
+> > > + * Copyright (C) 2016 National Instruments Corp.
+> > > + *
+> > > + * This program is free software; you can redistribute it and/or
+> > > modify
+> > > + * it under the terms of the GNU General Public License as
+> > > published by
+> > > + * the Free Software Foundation; either version 2 of the License,
+> > > or
+> > > + * (at your option) any later version.
+> > > + *
+> > > + * This program is distributed in the hope that it will be useful,
+> > > + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> > > + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.=A0=A0See t=
+he
+> > > + * GNU General Public License for more details.
+> > > + */
+> > > +
+> > > +#include <linux/acpi.h>
+> > > +#include <linux/bitops.h>
+> > > +#include <linux/device.h>
+> > > +#include <linux/io.h>
+> > > +#include <linux/module.h>
+> > > +#include <linux/platform_device.h>
+> > > +#include <linux/watchdog.h>
+> > > +
+> > > +#define LOCK			0xA5
+> > > +#define UNLOCK			0x5A
+> > > +
+> > > +#define WDT_CTRL_RESET_EN	BIT(7)
+> > > +#define WDT_RELOAD_PORT_EN	BIT(7)
+> > > +
+> > > +#define WDT_CTRL		1
+> > > +#define WDT_RELOAD_CTRL		2
+> > > +#define WDT_PRESET_PRESCALE	4
+> > > +#define WDT_REG_LOCK		5
+> > > +#define WDT_COUNT		6
+> > > +#define WDT_RELOAD_PORT		7
+> > > +
+> > > +#define WDT_MIN_TIMEOUT		1
+> > > +#define WDT_MAX_TIMEOUT		464
+> > > +#define WDT_DEFAULT_TIMEOUT	80
+> > > +
+> > > +#define WDT_MAX_COUNTER		15
+> > > +
+> > > +static unsigned int timeout;
+> > > +module_param(timeout, uint, 0);
+> > > +MODULE_PARM_DESC(timeout,
+> > > +		=A0"Watchdog timeout in seconds. (default=3D"
+> > > +		=A0__MODULE_STRING(WDT_DEFAULT_TIMEOUT) ")");
+> > > +
+> > > +static bool nowayout =3D WATCHDOG_NOWAYOUT;
+> > > +module_param(nowayout, bool, 0);
+> > > +MODULE_PARM_DESC(nowayout,
+> > > +		=A0"Watchdog cannot be stopped once started.
+> > > (default=3D"
+> > > +		=A0__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+> > > +
+> > > +struct nic7018_wdt {
+> > > +	u16 io_base;
+> > > +	u32 period_ms;
+> > > +	struct watchdog_device wdd;
+> > > +};
+> > > +
+> > > +struct nic7018_config {
+> > > +	u32 period_ms;
+> > > +	u8 divider;
+> > > +};
+> > > +
+> > > +static const struct nic7018_config nic7018_configs[] =3D {
+> > > +	{=A0=A0=A0125, 3 },
+> > The maximum timeout is (125 * 15) - 62, or 1813 ms. This will never
+> > be selected,
+> > since with a timeout of 2s count will be 17 below, and the entry will
+> > be skipped.
+> > With a timeout of 1000, the second table entry will be used as well
+> > since the
+> > timeout with the first entry is not exactly 1 second.
+> >=20
+> > Given that, you might as well drop this entry.
+> >=20
+> >=20
+> > >=20
+> > > +	{=A0=A02000, 4 },
+> > > +	{ 32000, 5 },
+> > > +};
+> > > +
+> > > +static inline u32 nic7018_timeout_ms(u32 period_ms, u8 counter)
+> > > +{
+> > > +	return period_ms * counter - period_ms / 2;
+> > > +}
+> > > +
+> > > +static const struct nic7018_config *nic7018_get_config(u32
+> > > timeout_ms,
+> > > +						=A0=A0=A0=A0=A0=A0=A0u8
+> > > *counter)
+> > > +{
+> > > +	u32 delta, i, best_delta =3D U32_MAX;
+> > > +	const struct nic7018_config *config, *best_config =3D NULL;
+> > > +	u8 count;
+> > > +	*counter =3D WDT_MAX_COUNTER;
+> > > +
+> > > +	for (i =3D 0; i < ARRAY_SIZE(nic7018_configs); i++) {
+> > > +		config =3D &nic7018_configs[i];
+> > > +
+> > > +		count =3D DIV_ROUND_UP(timeout_ms + config-
+> > > >period_ms / 2,
+> > > +				=A0=A0=A0=A0=A0config->period_ms);
+> > > +
+> > > +		if (count > WDT_MAX_COUNTER)
+> > > +			continue;
+> > > +
+> > > +		delta =3D nic7018_timeout_ms(config->period_ms,
+> > > count) -
+> > > +			timeout_ms;
+> > > +
+> > > +		if (delta < best_delta) {
+> > > +			best_delta =3D delta;
+> > > +			best_config =3D config;
+> > > +			*counter =3D count;
+> > > +		}
+> > > +	}
+> > > +
+> > > +	return (!best_config) ? config : best_config;
+> > Unecessary (), and
+> > 	return best_config ? : config;
+> > works without the '!'.
+> >=20
+> > Also, given the above, it seems to me that
+> >=20
+> > 	if (timeout < 30 && timeout !=3D 16) {
+> > 		config =3D &nic7018_configs[0];
+> > 		count =3D timeout / 2 + 1;
+> > 	} else {
+> > 		config =3D &nic7018_configs[1];
+> > 		count =3D DIV_ROUND_UP(timeout + 16, 32);
+> > 		if (count > WDT_MAX_COUNTER;
+> > 			count =3D WDT_MAX_COUNTER;
+> > 	}
+> > 	*counter =3D count;
+> > 	return config;
+> >=20
+> > would accomplish the same as your code and be much less complex and
+> > easier
+> > to understand. As a side effect, you could keep all timeouts in
+> > seconds
+> > and would not have to deal with milliseconds at all.
+> >=20
+>=20
+> Is it possible to keep the miliseconds calculation in the driver even
+> though its doesn't seem to be needed? The reason is because the
+> watchdog timer has miliseconds timeout resolution that we plan to
+> utilize for our specific application. Do you foresee the watchdog core
+> adding support for miliseconds timeout?
+>=20
+
+Not anytime soon. There was some argument about it, but in practice Linux
+user space demons have a hard time meeting low-second timeouts. On top of=
+ that,
+it really would only make sense for low-second or sub-second timeouts, bu=
+t for
+those I don't really see the point because it takes much longer to reboot=
+ the
+kernel.
+
+In my opinion, it is better to keep the code simple and add complexity la=
+ter
+if/when needed. Writing complex code just in case it may be needed at som=
+e
+point in the future doesn't make much sense to me.
+
+Guenter
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
