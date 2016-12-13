@@ -1,224 +1,272 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:59861 "EHLO
-        metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1752772AbcLKM2O (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 11 Dec 2016 07:28:14 -0500
-Date: Sun, 11 Dec 2016 13:28:06 +0100
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-        <u.kleine-koenig@pengutronix.de>
-To: Vladimir Zapolskiy <vz@mleia.com>
-Cc: Shawn Guo <shawnguo@kernel.org>, Wim Van Sebroeck <wim@iguana.be>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Fabio Estevam <fabio.estevam@nxp.com>,
-        Sascha Hauer <kernel@pengutronix.de>,
-        Magnus Lilja <lilja.magnus@gmail.com>,
-        linux-watchdog@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH v1] watchdog: imx2: fix hang-up on boot for i.MX21,
- i.MX27 and i.MX31 SoCs
-Message-ID: <20161211122806.vee7e7fmkpt4xj77@pengutronix.de>
-References: <20161211010648.6591-1-vz@mleia.com>
- <20161211093519.xrxxhrqpc7fmadfr@pengutronix.de>
- <d6d987f1-3461-214a-0ca1-16d310ddd370@mleia.com>
- <20161211102634.jn3awmlzdrm3pqai@pengutronix.de>
- <2fc2558d-fe05-14a7-745e-f71d2178bad6@mleia.com>
+Received: from mail-sn1nam01on0105.outbound.protection.outlook.com ([104.47.32.105]:26912
+        "EHLO NAM01-SN1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1752937AbcLMKQ1 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 13 Dec 2016 05:16:27 -0500
+From: Hui Chun Ong <hui.chun.ong@ni.com>
+To: "linux@roeck-us.net" <linux@roeck-us.net>,
+        "corbet@lwn.net" <corbet@lwn.net>, "wim@iguana.be" <wim@iguana.be>
+CC: "rjw@rjwysocki.net" <rjw@rjwysocki.net>,
+        Julia Cartwright <julia.cartwright@ni.com>,
+        "mika.westerberg@linux.intel.com" <mika.westerberg@linux.intel.com>,
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
+        Jonathan Hearn <jonathan.hearn@ni.com>
+Subject: Re: [PATCH v3] watchdog: nic7018_wdt: Add NIC7018 watchdog driver
+Date: Tue, 13 Dec 2016 10:16:23 +0000
+Message-ID: <1481624182.54688.13.camel@ni.com>
+References: <1481365545-49894-1-git-send-email-hui.chun.ong@ni.com>
+         <5f137b29-b90b-df10-ca8f-0059f1c556c1@roeck-us.net>
+In-Reply-To: <5f137b29-b90b-df10-ca8f-0059f1c556c1@roeck-us.net>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <DABDBC5550BF6244BF79FD0D3221E69F@namprd04.prod.outlook.com>
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <2fc2558d-fe05-14a7-745e-f71d2178bad6@mleia.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
 
-On Sun, Dec 11, 2016 at 01:21:16PM +0200, Vladimir Zapolskiy wrote:
-> On 12/11/2016 12:26 PM, Uwe Kleine-K=F6nig wrote:
-> > . With the change to the driver it's like using the watchdog driver i=
-n
-> > it's pre-5fe65ce7ccbb4-state on it. If this is bad, we must indeed ma=
-ke
-> > fsl,imx53-wdt known to the driver. If not, just adding a single new
-> > compatible to the driver is just fine.
-
-<sarcasm>You can also add "marvell,armada-xp-wdt" to the end of the
-list. If your kernel is configured correctly still the right thing will
-happen.</sarcasm>
-
-> The change under discussion preserves the current runtime behaviour for
-> i.MX53 and its friends, the watchdog power down counter in WMCR is
-> disabled on boot (you may want to confirm it by testing though), anothe=
-r
-> question is if it is wanted for e.g. i.MX53 right from the beginning.
->=20
-> To keep the runtime compatibility of a newer kernel with old DTBs such
-> a long list of device compatibles has to be inserted.
->=20
-> >=20
-> > If you want to call it imx25 or imx35 doesn't matter much. The reason=
- I
-> > picked imx35 is that this one was already picked before for cspi. Thi=
-s
-> > suggests that i.MX35 is older than i.MX25 and so this is the canonica=
-l
-> > choice.
->=20
-> Accepted, from the Wikipedia both i.MX25 and i.MX35 are released in 200=
-9,
-> which one is the first I don't know for sure, I supposed it could be
-> i.MX25 as a SoC with a weaker core.
->=20
-> >=20
-> >> $ grep -H 'fsl,imx.*-wdt' arch/arm/boot/dts/*.dtsi
-> >> arch/arm/boot/dts/imx25.dtsi:				compatible =3D "fsl,imx25-wdt", "fs=
-l,imx21-wdt";
-> >> arch/arm/boot/dts/imx27.dtsi:				compatible =3D "fsl,imx27-wdt", "fs=
-l,imx21-wdt";
-> >> arch/arm/boot/dts/imx35.dtsi:				compatible =3D "fsl,imx35-wdt", "fs=
-l,imx21-wdt";
-> >> arch/arm/boot/dts/imx50.dtsi:				compatible =3D "fsl,imx50-wdt", "fs=
-l,imx21-wdt";
-> >> arch/arm/boot/dts/imx51.dtsi:				compatible =3D "fsl,imx51-wdt", "fs=
-l,imx21-wdt";
-> >> arch/arm/boot/dts/imx51.dtsi:				compatible =3D "fsl,imx51-wdt", "fs=
-l,imx21-wdt";
-> >> arch/arm/boot/dts/imx53.dtsi:				compatible =3D "fsl,imx53-wdt", "fs=
-l,imx21-wdt";
-> >> arch/arm/boot/dts/imx53.dtsi:				compatible =3D "fsl,imx53-wdt", "fs=
-l,imx21-wdt";
-> >> arch/arm/boot/dts/imx6qdl.dtsi:				compatible =3D "fsl,imx6q-wdt", "=
-fsl,imx21-wdt";
-> >> arch/arm/boot/dts/imx6qdl.dtsi:				compatible =3D "fsl,imx6q-wdt", "=
-fsl,imx21-wdt";
-> >> arch/arm/boot/dts/imx6sl.dtsi:				compatible =3D "fsl,imx6sl-wdt", "=
-fsl,imx21-wdt";
-> >> arch/arm/boot/dts/imx6sl.dtsi:				compatible =3D "fsl,imx6sl-wdt", "=
-fsl,imx21-wdt";
-> >> arch/arm/boot/dts/imx6sx.dtsi:				compatible =3D "fsl,imx6sx-wdt", "=
-fsl,imx21-wdt";
-> >> arch/arm/boot/dts/imx6sx.dtsi:				compatible =3D "fsl,imx6sx-wdt", "=
-fsl,imx21-wdt";
-> >> arch/arm/boot/dts/imx6sx.dtsi:				compatible =3D "fsl,imx6sx-wdt", "=
-fsl,imx21-wdt";
-> >> arch/arm/boot/dts/imx6ul.dtsi:				compatible =3D "fsl,imx6ul-wdt", "=
-fsl,imx21-wdt";
-> >> arch/arm/boot/dts/imx6ul.dtsi:				compatible =3D "fsl,imx6ul-wdt", "=
-fsl,imx21-wdt";
-> >> arch/arm/boot/dts/imx7s.dtsi:				compatible =3D "fsl,imx7d-wdt", "fs=
-l,imx21-wdt";
-> >> arch/arm/boot/dts/imx7s.dtsi:				compatible =3D "fsl,imx7d-wdt", "fs=
-l,imx21-wdt";
-> >> arch/arm/boot/dts/imx7s.dtsi:				compatible =3D "fsl,imx7d-wdt", "fs=
-l,imx21-wdt";
-> >> arch/arm/boot/dts/imx7s.dtsi:				compatible =3D "fsl,imx7d-wdt", "fs=
-l,imx21-wdt";
-> >> arch/arm/boot/dts/ls1021a.dtsi:			compatible =3D "fsl,imx21-wdt";
-> >> arch/arm/boot/dts/vfxxx.dtsi:				compatible =3D "fsl,vf610-wdt", "fs=
-l,imx21-wdt";
-> >>
-> >> I don't see a confirmation of the fact that "fsl,imx35-wdt" is the b=
-est
-> >> selection, hence definitely "fsl,imx25-wdt" overscores it.
-> >=20
-> > I stated my reason to pick imx35 over imx25 above. Why do yo prefer
-> > imx25?
->=20
-> As you said right now and until it is added into DTS files "fsl,imx25-w=
-dt" and
-> "fsl,imx35-wdt" are equal as a compatible representation of WMCR-aware =
-watchdogs.
->=20
-> I may be wrong, if I assume that i.MX25 is released before i.MX35 (look=
-s like
-> they are released in parallel), but "imx25" precedes in alphanumericall=
-y sorted
-> list of SoC names.
-
-I'm sure Shawn could say something here, but I would be surprised if the
-i.MX25 came first.
-
-> >>> A reason to add e.g. fsl,imx6sl-wdt is that dtbs in the wild use
-> >>>
-> >>> 	"fsl,imx6sl-wdt", "fsl,imx21-wdt"
-> >>>
-> >>> . But then I wonder if=20
-> >>>
-> >>> 	5fe65ce7ccbb ("watchdog: imx2_wdt: Disable power down counter on b=
-oot")
-> >>>
-> >>> is that important to justify to add these all.
-> >>
-> >> About this comment I don't know, you may have better insight about t=
-he original
-> >> change. By the way, in barebox you may want to fix the same hang-up,=
- because
-> >> you touch WMCR unconditionally.
-> >=20
-> > Sure.
-> > =20
-> >>> Independant of this I'd like to have all dtsi for the newer SoCs ch=
-anged
-> >>> to get
-> >>>
-> >>> 	"fsl,imx6sl-wdt", "fsl,imx35-wdt"
-> >>>
-> >>> and if you really want to add all these compatibles, add a comment =
-that
-> >>> these are really fsl,imx35-wdt and were added to work around broken
-> >>> dtbs.
-> >>
-> >> No objections, but
-> >>
-> >> 1) I'd like to see "fsl,imx25-wdt" as a new common compatible, and t=
-hat's
-> >> what have been proposed and shared in RFC 2/2.
-> >=20
-> > Yeah, I missed that other patch (which was not part of this series).
-> >=20
-> >> 2) Please remind me, why do you ask to drop "fsl,imx21-wdt" from the=
- list?
-> >>
-> >>      compatible =3D "fsl,imx6sx-wdt", "fsl,imx25-wdt", "fsl,imx21-wd=
-t";
-> >>
-> >> The list of compatibles above is valid (from the most specific on th=
-e left
-> >> to the most generic on the right), and that compatible property is r=
-ightly
-> >> handled in the driver with this change applied. I don't see a need t=
-o
-> >> drop "fsl,imx21-wdt".
-> >=20
-> > If the wdt in the i.MX6SX can be operated by the watchdog driver in i=
-t's
-> > imx21 mode, you should keep the imx21 entry. If not, you shouldn't.
->=20
-> The DTS description shall be rather independent from any particular sof=
-tware
-> implementation, someone may want to reuse the same DTB in bootloaders a=
-nd OS
-> kernels of different versions.
-
-Full ack.
-
-> Assuming that I have a bootloader/kernel with a pure i.MX21 watchdog
-> driver and run it on i.MX6SX, I'd prefer to match
-> "fsl,imx21-wdt" compatible.
-
-I'd prefer to notice that the i.MX6SX has a (maybe only slightly)
-different watchdog and so the i.MX21 aware driver should not bind to the
-i.MX6SX hardware. So (as you said above) the compatible should be
-independent from already existing i.MX21 wdt support in a driver.
-
-Best regards
-Uwe
-
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig          =
-  |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  =
-|
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+T24gU2F0LCAyMDE2LTEyLTEwIGF0IDA5OjIyIC0wODAwLCBHdWVudGVyIFJvZWNrIHdyb3RlOg0K
+PiBPbiAxMi8xMC8yMDE2IDAyOjI1IEFNLCBIdWkgQ2h1biBPbmcgd3JvdGU6DQo+ID4gDQo+ID4g
+QWRkIHN1cHBvcnQgZm9yIHRoZSB3YXRjaGRvZyB0aW1lciBvbiBQWEkgRW1iZWRkZWQgQ29udHJv
+bGxlci4NCj4gPiANCj4gPiBTaWduZWQtb2ZmLWJ5OiBIdWkgQ2h1biBPbmcgPGh1aS5jaHVuLm9u
+Z0BuaS5jb20+DQo+ID4gLS0tDQo+ID4gdjI6IFJlbW92ZSBtdXRleCBsb2NrIGFuZCBwbGF0Zm9y
+bV9kZXZpY2UgKnBkZXYgZmllbGRzIGZyb20gc3RydWN0DQo+ID4gbmljNzAxOF93ZHQuDQo+ID4g
+wqDCoMKgwqBVcGRhdGUgY29uZmlnIE5JQzcwMThfV0RUIGRlc2NyaXB0aW9uLg0KPiA+IMKgwqDC
+oMKgVXBkYXRlIG5pYzcwMThfZ2V0X2NvbmZpZygpIHRvIG5ldmVyIHJldHVybiBlcnJvci4NCj4g
+PiDCoMKgwqDCoFJlbW92ZSBjaGVja2luZyBmb3IgSU8gcmVzb3VyY2Ugc2l6ZSBpbiBuaWM3MDE4
+X3Byb2JlKCkuDQo+ID4gDQo+ID4gdjE6IFJlbW92ZSBub24tc3RhbmRhcmQgYXR0cmlidXRlcy4N
+Cj4gPiDCoMKgwqDCoENoYW5nZSBmcm9tIGFjcGlfZHJpdmVyIHRvIHBsYXRmb3JtX2RyaXZlci4N
+Cj4gPiDCoMKgwqDCoFJlbmFtZSBkcml2ZXIgZnJvbSBuaTcwMThfd2R0IHRvIG5pYzcwMThfd2R0
+Lg0KPiA+IC0tLQ0KPiA+IMKgRG9jdW1lbnRhdGlvbi93YXRjaGRvZy93YXRjaGRvZy1wYXJhbWV0
+ZXJzLnR4dCB8wqDCoMKgNSArDQo+ID4gwqBkcml2ZXJzL3dhdGNoZG9nL0tjb25maWfCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgfMKgwqAxMCArDQo+ID4gwqBk
+cml2ZXJzL3dhdGNoZG9nL01ha2VmaWxlwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqB8wqDCoMKgMSArDQo+ID4gwqBkcml2ZXJzL3dhdGNoZG9nL25pYzcwMThfd2R0
+LmPCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgfCAyNzcNCj4gPiArKysrKysrKysr
+KysrKysrKysrKysrKysrDQo+ID4gwqA0IGZpbGVzIGNoYW5nZWQsIDI5MyBpbnNlcnRpb25zKCsp
+DQo+ID4gwqBjcmVhdGUgbW9kZSAxMDA2NDQgZHJpdmVycy93YXRjaGRvZy9uaWM3MDE4X3dkdC5j
+DQo+ID4gDQo+ID4gZGlmZiAtLWdpdCBhL0RvY3VtZW50YXRpb24vd2F0Y2hkb2cvd2F0Y2hkb2ct
+cGFyYW1ldGVycy50eHQNCj4gPiBiL0RvY3VtZW50YXRpb24vd2F0Y2hkb2cvd2F0Y2hkb2ctcGFy
+YW1ldGVycy50eHQNCj4gPiBpbmRleCBhOGQzNjQyLi5iZDE0MmZhIDEwMDY0NA0KPiA+IC0tLSBh
+L0RvY3VtZW50YXRpb24vd2F0Y2hkb2cvd2F0Y2hkb2ctcGFyYW1ldGVycy50eHQNCj4gPiArKysg
+Yi9Eb2N1bWVudGF0aW9uL3dhdGNoZG9nL3dhdGNoZG9nLXBhcmFtZXRlcnMudHh0DQo+ID4gQEAg
+LTIwOSw2ICsyMDksMTEgQEAgdGltZW91dDogSW5pdGlhbCB3YXRjaGRvZyB0aW1lb3V0IGluIHNl
+Y29uZHMNCj4gPiAoMDx0aW1lb3V0PDUxNiwgZGVmYXVsdD02MCkNCj4gPiDCoG5vd2F5b3V0OiBX
+YXRjaGRvZyBjYW5ub3QgYmUgc3RvcHBlZCBvbmNlIHN0YXJ0ZWQNCj4gPiDCoAkoZGVmYXVsdD1r
+ZXJuZWwgY29uZmlnIHBhcmFtZXRlcikNCj4gPiDCoC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0NCj4gPiArbmljNzAxOF93ZHQ6DQo+ID4gK3RpbWVvdXQ6
+IEluaXRpYWwgd2F0Y2hkb2cgdGltZW91dCBpbiBzZWNvbmRzICgwPHRpbWVvdXQ8NDY0LA0KPiA+
+IGRlZmF1bHQ9ODApDQo+ID4gK25vd2F5b3V0OiBXYXRjaGRvZyBjYW5ub3QgYmUgc3RvcHBlZCBv
+bmNlIHN0YXJ0ZWQNCj4gPiArCShkZWZhdWx0PWtlcm5lbCBjb25maWcgcGFyYW1ldGVyKQ0KPiA+
+ICstLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tDQo+ID4g
+wqBudWM5MDBfd2R0Og0KPiA+IMKgaGVhcnRiZWF0OiBXYXRjaGRvZyBoZWFydGJlYXRzIGluIHNl
+Y29uZHMuDQo+ID4gwqAJKGRlZmF1bHQgPSAxNSkNCj4gPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy93
+YXRjaGRvZy9LY29uZmlnIGIvZHJpdmVycy93YXRjaGRvZy9LY29uZmlnDQo+ID4gaW5kZXggZmRk
+MzIyOC4uYmFhNzk4MjUgMTAwNjQ0DQo+ID4gLS0tIGEvZHJpdmVycy93YXRjaGRvZy9LY29uZmln
+DQo+ID4gKysrIGIvZHJpdmVycy93YXRjaGRvZy9LY29uZmlnDQo+ID4gQEAgLTEzMjUsNiArMTMy
+NSwxNiBAQCBjb25maWcgTkk5MDNYX1dEVA0KPiA+IMKgCcKgwqBUbyBjb21waWxlIHRoaXMgZHJp
+dmVyIGFzIGEgbW9kdWxlLCBjaG9vc2UgTSBoZXJlOiB0aGUNCj4gPiBtb2R1bGUgd2lsbCBiZQ0K
+PiA+IMKgCcKgwqBjYWxsZWQgbmk5MDN4X3dkdC4NCj4gPiANCj4gPiArY29uZmlnIE5JQzcwMThf
+V0RUDQo+ID4gKwl0cmlzdGF0ZSAiTklDNzAxOCBXYXRjaGRvZyINCj4gPiArCWRlcGVuZHMgb24g
+WDg2ICYmIEFDUEkNCj4gPiArCXNlbGVjdCBXQVRDSERPR19DT1JFDQo+ID4gKwktLS1oZWxwLS0t
+DQo+ID4gKwnCoMKgU3VwcG9ydCBmb3IgTmF0aW9uYWwgSW5zdHJ1bWVudHMgTklDNzAxOCBXYXRj
+aGRvZy4NCj4gPiArDQo+ID4gKwnCoMKgVG8gY29tcGlsZSB0aGlzIGRyaXZlciBhcyBhIG1vZHVs
+ZSwgY2hvb3NlIE0gaGVyZTogdGhlDQo+ID4gbW9kdWxlIHdpbGwgYmUNCj4gPiArCcKgwqBjYWxs
+ZWQgbmljNzAxOF93ZHQuDQo+ID4gKw0KPiA+IMKgIyBNMzJSIEFyY2hpdGVjdHVyZQ0KPiA+IA0K
+PiA+IMKgIyBNNjhLIEFyY2hpdGVjdHVyZQ0KPiA+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3dhdGNo
+ZG9nL01ha2VmaWxlIGIvZHJpdmVycy93YXRjaGRvZy9NYWtlZmlsZQ0KPiA+IGluZGV4IGNhYTlm
+NGEuLmJkODhlMmUgMTAwNjQ0DQo+ID4gLS0tIGEvZHJpdmVycy93YXRjaGRvZy9NYWtlZmlsZQ0K
+PiA+ICsrKyBiL2RyaXZlcnMvd2F0Y2hkb2cvTWFrZWZpbGUNCj4gPiBAQCAtMTM5LDYgKzEzOSw3
+IEBAIG9iai0kKENPTkZJR19JTlRFTF9TQ1VfV0FUQ0hET0cpICs9DQo+ID4gaW50ZWxfc2N1X3dh
+dGNoZG9nLm8NCj4gPiDCoG9iai0kKENPTkZJR19JTlRFTF9NSURfV0FUQ0hET0cpICs9IGludGVs
+LW1pZF93ZHQubw0KPiA+IMKgb2JqLSQoQ09ORklHX0lOVEVMX01FSV9XRFQpICs9IG1laV93ZHQu
+bw0KPiA+IMKgb2JqLSQoQ09ORklHX05JOTAzWF9XRFQpICs9IG5pOTAzeF93ZHQubw0KPiA+ICtv
+YmotJChDT05GSUdfTklDNzAxOF9XRFQpICs9IG5pYzcwMThfd2R0Lm8NCj4gPiANCj4gPiDCoCMg
+TTMyUiBBcmNoaXRlY3R1cmUNCj4gPiANCj4gPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy93YXRjaGRv
+Zy9uaWM3MDE4X3dkdC5jDQo+ID4gYi9kcml2ZXJzL3dhdGNoZG9nL25pYzcwMThfd2R0LmMNCj4g
+PiBuZXcgZmlsZSBtb2RlIDEwMDY0NA0KPiA+IGluZGV4IDAwMDAwMDAuLjliN2I4ZDMNCj4gPiAt
+LS0gL2Rldi9udWxsDQo+ID4gKysrIGIvZHJpdmVycy93YXRjaGRvZy9uaWM3MDE4X3dkdC5jDQo+
+ID4gQEAgLTAsMCArMSwyNzcgQEANCj4gPiArLyoNCj4gPiArICogQ29weXJpZ2h0IChDKSAyMDE2
+IE5hdGlvbmFsIEluc3RydW1lbnRzIENvcnAuDQo+ID4gKyAqDQo+ID4gKyAqIFRoaXMgcHJvZ3Jh
+bSBpcyBmcmVlIHNvZnR3YXJlOyB5b3UgY2FuIHJlZGlzdHJpYnV0ZSBpdCBhbmQvb3INCj4gPiBt
+b2RpZnkNCj4gPiArICogaXQgdW5kZXIgdGhlIHRlcm1zIG9mIHRoZSBHTlUgR2VuZXJhbCBQdWJs
+aWMgTGljZW5zZSBhcw0KPiA+IHB1Ymxpc2hlZCBieQ0KPiA+ICsgKiB0aGUgRnJlZSBTb2Z0d2Fy
+ZSBGb3VuZGF0aW9uOyBlaXRoZXIgdmVyc2lvbiAyIG9mIHRoZSBMaWNlbnNlLA0KPiA+IG9yDQo+
+ID4gKyAqIChhdCB5b3VyIG9wdGlvbikgYW55IGxhdGVyIHZlcnNpb24uDQo+ID4gKyAqDQo+ID4g
+KyAqIFRoaXMgcHJvZ3JhbSBpcyBkaXN0cmlidXRlZCBpbiB0aGUgaG9wZSB0aGF0IGl0IHdpbGwg
+YmUgdXNlZnVsLA0KPiA+ICsgKiBidXQgV0lUSE9VVCBBTlkgV0FSUkFOVFk7IHdpdGhvdXQgZXZl
+biB0aGUgaW1wbGllZCB3YXJyYW50eSBvZg0KPiA+ICsgKiBNRVJDSEFOVEFCSUxJVFkgb3IgRklU
+TkVTUyBGT1IgQSBQQVJUSUNVTEFSIFBVUlBPU0UuwqDCoFNlZSB0aGUNCj4gPiArICogR05VIEdl
+bmVyYWwgUHVibGljIExpY2Vuc2UgZm9yIG1vcmUgZGV0YWlscy4NCj4gPiArICovDQo+ID4gKw0K
+PiA+ICsjaW5jbHVkZSA8bGludXgvYWNwaS5oPg0KPiA+ICsjaW5jbHVkZSA8bGludXgvYml0b3Bz
+Lmg+DQo+ID4gKyNpbmNsdWRlIDxsaW51eC9kZXZpY2UuaD4NCj4gPiArI2luY2x1ZGUgPGxpbnV4
+L2lvLmg+DQo+ID4gKyNpbmNsdWRlIDxsaW51eC9tb2R1bGUuaD4NCj4gPiArI2luY2x1ZGUgPGxp
+bnV4L3BsYXRmb3JtX2RldmljZS5oPg0KPiA+ICsjaW5jbHVkZSA8bGludXgvd2F0Y2hkb2cuaD4N
+Cj4gPiArDQo+ID4gKyNkZWZpbmUgTE9DSwkJCTB4QTUNCj4gPiArI2RlZmluZSBVTkxPQ0sJCQkw
+eDVBDQo+ID4gKw0KPiA+ICsjZGVmaW5lIFdEVF9DVFJMX1JFU0VUX0VOCUJJVCg3KQ0KPiA+ICsj
+ZGVmaW5lIFdEVF9SRUxPQURfUE9SVF9FTglCSVQoNykNCj4gPiArDQo+ID4gKyNkZWZpbmUgV0RU
+X0NUUkwJCTENCj4gPiArI2RlZmluZSBXRFRfUkVMT0FEX0NUUkwJCTINCj4gPiArI2RlZmluZSBX
+RFRfUFJFU0VUX1BSRVNDQUxFCTQNCj4gPiArI2RlZmluZSBXRFRfUkVHX0xPQ0sJCTUNCj4gPiAr
+I2RlZmluZSBXRFRfQ09VTlQJCTYNCj4gPiArI2RlZmluZSBXRFRfUkVMT0FEX1BPUlQJCTcNCj4g
+PiArDQo+ID4gKyNkZWZpbmUgV0RUX01JTl9USU1FT1VUCQkxDQo+ID4gKyNkZWZpbmUgV0RUX01B
+WF9USU1FT1VUCQk0NjQNCj4gPiArI2RlZmluZSBXRFRfREVGQVVMVF9USU1FT1VUCTgwDQo+ID4g
+Kw0KPiA+ICsjZGVmaW5lIFdEVF9NQVhfQ09VTlRFUgkJMTUNCj4gPiArDQo+ID4gK3N0YXRpYyB1
+bnNpZ25lZCBpbnQgdGltZW91dDsNCj4gPiArbW9kdWxlX3BhcmFtKHRpbWVvdXQsIHVpbnQsIDAp
+Ow0KPiA+ICtNT0RVTEVfUEFSTV9ERVNDKHRpbWVvdXQsDQo+ID4gKwkJwqAiV2F0Y2hkb2cgdGlt
+ZW91dCBpbiBzZWNvbmRzLiAoZGVmYXVsdD0iDQo+ID4gKwkJwqBfX01PRFVMRV9TVFJJTkcoV0RU
+X0RFRkFVTFRfVElNRU9VVCkgIikiKTsNCj4gPiArDQo+ID4gK3N0YXRpYyBib29sIG5vd2F5b3V0
+ID0gV0FUQ0hET0dfTk9XQVlPVVQ7DQo+ID4gK21vZHVsZV9wYXJhbShub3dheW91dCwgYm9vbCwg
+MCk7DQo+ID4gK01PRFVMRV9QQVJNX0RFU0Mobm93YXlvdXQsDQo+ID4gKwkJwqAiV2F0Y2hkb2cg
+Y2Fubm90IGJlIHN0b3BwZWQgb25jZSBzdGFydGVkLg0KPiA+IChkZWZhdWx0PSINCj4gPiArCQnC
+oF9fTU9EVUxFX1NUUklORyhXQVRDSERPR19OT1dBWU9VVCkgIikiKTsNCj4gPiArDQo+ID4gK3N0
+cnVjdCBuaWM3MDE4X3dkdCB7DQo+ID4gKwl1MTYgaW9fYmFzZTsNCj4gPiArCXUzMiBwZXJpb2Rf
+bXM7DQo+ID4gKwlzdHJ1Y3Qgd2F0Y2hkb2dfZGV2aWNlIHdkZDsNCj4gPiArfTsNCj4gPiArDQo+
+ID4gK3N0cnVjdCBuaWM3MDE4X2NvbmZpZyB7DQo+ID4gKwl1MzIgcGVyaW9kX21zOw0KPiA+ICsJ
+dTggZGl2aWRlcjsNCj4gPiArfTsNCj4gPiArDQo+ID4gK3N0YXRpYyBjb25zdCBzdHJ1Y3Qgbmlj
+NzAxOF9jb25maWcgbmljNzAxOF9jb25maWdzW10gPSB7DQo+ID4gKwl7wqDCoMKgMTI1LCAzIH0s
+DQo+IFRoZSBtYXhpbXVtIHRpbWVvdXQgaXMgKDEyNSAqIDE1KSAtIDYyLCBvciAxODEzIG1zLiBU
+aGlzIHdpbGwgbmV2ZXINCj4gYmUgc2VsZWN0ZWQsDQo+IHNpbmNlIHdpdGggYSB0aW1lb3V0IG9m
+IDJzIGNvdW50IHdpbGwgYmUgMTcgYmVsb3csIGFuZCB0aGUgZW50cnkgd2lsbA0KPiBiZSBza2lw
+cGVkLg0KPiBXaXRoIGEgdGltZW91dCBvZiAxMDAwLCB0aGUgc2Vjb25kIHRhYmxlIGVudHJ5IHdp
+bGwgYmUgdXNlZCBhcyB3ZWxsDQo+IHNpbmNlIHRoZQ0KPiB0aW1lb3V0IHdpdGggdGhlIGZpcnN0
+IGVudHJ5IGlzIG5vdCBleGFjdGx5IDEgc2Vjb25kLg0KPiANCj4gR2l2ZW4gdGhhdCwgeW91IG1p
+Z2h0IGFzIHdlbGwgZHJvcCB0aGlzIGVudHJ5Lg0KPiANCj4gDQo+ID4gDQo+ID4gKwl7wqDCoDIw
+MDAsIDQgfSwNCj4gPiArCXsgMzIwMDAsIDUgfSwNCj4gPiArfTsNCj4gPiArDQo+ID4gK3N0YXRp
+YyBpbmxpbmUgdTMyIG5pYzcwMThfdGltZW91dF9tcyh1MzIgcGVyaW9kX21zLCB1OCBjb3VudGVy
+KQ0KPiA+ICt7DQo+ID4gKwlyZXR1cm4gcGVyaW9kX21zICogY291bnRlciAtIHBlcmlvZF9tcyAv
+IDI7DQo+ID4gK30NCj4gPiArDQo+ID4gK3N0YXRpYyBjb25zdCBzdHJ1Y3QgbmljNzAxOF9jb25m
+aWcgKm5pYzcwMThfZ2V0X2NvbmZpZyh1MzINCj4gPiB0aW1lb3V0X21zLA0KPiA+ICsJCQkJCQnC
+oMKgwqDCoMKgwqDCoHU4DQo+ID4gKmNvdW50ZXIpDQo+ID4gK3sNCj4gPiArCXUzMiBkZWx0YSwg
+aSwgYmVzdF9kZWx0YSA9IFUzMl9NQVg7DQo+ID4gKwljb25zdCBzdHJ1Y3QgbmljNzAxOF9jb25m
+aWcgKmNvbmZpZywgKmJlc3RfY29uZmlnID0gTlVMTDsNCj4gPiArCXU4IGNvdW50Ow0KPiA+ICsJ
+KmNvdW50ZXIgPSBXRFRfTUFYX0NPVU5URVI7DQo+ID4gKw0KPiA+ICsJZm9yIChpID0gMDsgaSA8
+IEFSUkFZX1NJWkUobmljNzAxOF9jb25maWdzKTsgaSsrKSB7DQo+ID4gKwkJY29uZmlnID0gJm5p
+YzcwMThfY29uZmlnc1tpXTsNCj4gPiArDQo+ID4gKwkJY291bnQgPSBESVZfUk9VTkRfVVAodGlt
+ZW91dF9tcyArIGNvbmZpZy0NCj4gPiA+cGVyaW9kX21zIC8gMiwNCj4gPiArCQkJCcKgwqDCoMKg
+wqBjb25maWctPnBlcmlvZF9tcyk7DQo+ID4gKw0KPiA+ICsJCWlmIChjb3VudCA+IFdEVF9NQVhf
+Q09VTlRFUikNCj4gPiArCQkJY29udGludWU7DQo+ID4gKw0KPiA+ICsJCWRlbHRhID0gbmljNzAx
+OF90aW1lb3V0X21zKGNvbmZpZy0+cGVyaW9kX21zLA0KPiA+IGNvdW50KSAtDQo+ID4gKwkJCXRp
+bWVvdXRfbXM7DQo+ID4gKw0KPiA+ICsJCWlmIChkZWx0YSA8IGJlc3RfZGVsdGEpIHsNCj4gPiAr
+CQkJYmVzdF9kZWx0YSA9IGRlbHRhOw0KPiA+ICsJCQliZXN0X2NvbmZpZyA9IGNvbmZpZzsNCj4g
+PiArCQkJKmNvdW50ZXIgPSBjb3VudDsNCj4gPiArCQl9DQo+ID4gKwl9DQo+ID4gKw0KPiA+ICsJ
+cmV0dXJuICghYmVzdF9jb25maWcpID8gY29uZmlnIDogYmVzdF9jb25maWc7DQo+IFVuZWNlc3Nh
+cnkgKCksIGFuZA0KPiAJcmV0dXJuIGJlc3RfY29uZmlnID8gOiBjb25maWc7DQo+IHdvcmtzIHdp
+dGhvdXQgdGhlICchJy4NCj4gDQo+IEFsc28sIGdpdmVuIHRoZSBhYm92ZSwgaXQgc2VlbXMgdG8g
+bWUgdGhhdA0KPiANCj4gCWlmICh0aW1lb3V0IDwgMzAgJiYgdGltZW91dCAhPSAxNikgew0KPiAJ
+CWNvbmZpZyA9ICZuaWM3MDE4X2NvbmZpZ3NbMF07DQo+IAkJY291bnQgPSB0aW1lb3V0IC8gMiAr
+IDE7DQo+IAl9IGVsc2Ugew0KPiAJCWNvbmZpZyA9ICZuaWM3MDE4X2NvbmZpZ3NbMV07DQo+IAkJ
+Y291bnQgPSBESVZfUk9VTkRfVVAodGltZW91dCArIDE2LCAzMik7DQo+IAkJaWYgKGNvdW50ID4g
+V0RUX01BWF9DT1VOVEVSOw0KPiAJCQljb3VudCA9IFdEVF9NQVhfQ09VTlRFUjsNCj4gCX0NCj4g
+CSpjb3VudGVyID0gY291bnQ7DQo+IAlyZXR1cm4gY29uZmlnOw0KPiANCj4gd291bGQgYWNjb21w
+bGlzaCB0aGUgc2FtZSBhcyB5b3VyIGNvZGUgYW5kIGJlIG11Y2ggbGVzcyBjb21wbGV4IGFuZA0K
+PiBlYXNpZXINCj4gdG8gdW5kZXJzdGFuZC4gQXMgYSBzaWRlIGVmZmVjdCwgeW91IGNvdWxkIGtl
+ZXAgYWxsIHRpbWVvdXRzIGluDQo+IHNlY29uZHMNCj4gYW5kIHdvdWxkIG5vdCBoYXZlIHRvIGRl
+YWwgd2l0aCBtaWxsaXNlY29uZHMgYXQgYWxsLg0KPiANCg0KSXMgaXQgcG9zc2libGUgdG8ga2Vl
+cCB0aGUgbWlsaXNlY29uZHMgY2FsY3VsYXRpb24gaW4gdGhlIGRyaXZlciBldmVuDQp0aG91Z2gg
+aXRzIGRvZXNuJ3Qgc2VlbSB0byBiZSBuZWVkZWQ/IFRoZSByZWFzb24gaXMgYmVjYXVzZSB0aGUN
+CndhdGNoZG9nIHRpbWVyIGhhcyBtaWxpc2Vjb25kcyB0aW1lb3V0IHJlc29sdXRpb24gdGhhdCB3
+ZSBwbGFuIHRvDQp1dGlsaXplIGZvciBvdXIgc3BlY2lmaWMgYXBwbGljYXRpb24uIERvIHlvdSBm
+b3Jlc2VlIHRoZSB3YXRjaGRvZyBjb3JlDQphZGRpbmcgc3VwcG9ydCBmb3IgbWlsaXNlY29uZHMg
+dGltZW91dD8NCg0KPiA+IA0KPiA+ICt9DQo+ID4gKw0KPiA+ICtzdGF0aWMgaW50IG5pYzcwMThf
+c2V0X3RpbWVvdXQoc3RydWN0IHdhdGNoZG9nX2RldmljZSAqd2RkLA0KPiA+ICsJCQnCoMKgwqDC
+oMKgwqDCoHVuc2lnbmVkIGludCB0aW1lb3V0KQ0KPiA+ICt7DQo+ID4gKwlzdHJ1Y3QgbmljNzAx
+OF93ZHQgKndkdCA9IHdhdGNoZG9nX2dldF9kcnZkYXRhKHdkZCk7DQo+ID4gKwljb25zdCBzdHJ1
+Y3QgbmljNzAxOF9jb25maWcgKmNvbmZpZzsNCj4gPiArCXU4IGNvdW50ZXI7DQo+ID4gKw0KPiA+
+ICsJY29uZmlnID0gbmljNzAxOF9nZXRfY29uZmlnKHRpbWVvdXQgKiAxMDAwLCAmY291bnRlcik7
+DQo+ID4gKw0KPiA+ICsJb3V0Yihjb3VudGVyIDw8IDQgfCBjb25maWctPmRpdmlkZXIsDQo+ID4g
+KwnCoMKgwqDCoMKgd2R0LT5pb19iYXNlICsgV0RUX1BSRVNFVF9QUkVTQ0FMRSk7DQo+ID4gKw0K
+PiA+ICsJd2RkLT50aW1lb3V0ID0gbmljNzAxOF90aW1lb3V0X21zKGNvbmZpZy0+cGVyaW9kX21z
+LA0KPiA+IGNvdW50ZXIpIC8gMTAwMDsNCj4gPiArCXdkdC0+cGVyaW9kX21zID0gY29uZmlnLT5w
+ZXJpb2RfbXM7DQo+ID4gKw0KPiA+ICsJcmV0dXJuIDA7DQo+ID4gK30NCj4gPiArDQo+ID4gK3N0
+YXRpYyBpbnQgbmljNzAxOF9zdGFydChzdHJ1Y3Qgd2F0Y2hkb2dfZGV2aWNlICp3ZGQpDQo+ID4g
+K3sNCj4gPiArCXN0cnVjdCBuaWM3MDE4X3dkdCAqd2R0ID0gd2F0Y2hkb2dfZ2V0X2RydmRhdGEo
+d2RkKTsNCj4gPiArCXU4IGNvbnRyb2w7DQo+ID4gKw0KPiA+ICsJbmljNzAxOF9zZXRfdGltZW91
+dCh3ZGQsIHdkZC0+dGltZW91dCk7DQo+ID4gKw0KPiA+ICsJY29udHJvbCA9IGluYih3ZHQtPmlv
+X2Jhc2UgKyBXRFRfUkVMT0FEX0NUUkwpOw0KPiA+ICsJb3V0Yihjb250cm9sIHwgV0RUX1JFTE9B
+RF9QT1JUX0VOLCB3ZHQtPmlvX2Jhc2UgKw0KPiA+IFdEVF9SRUxPQURfQ1RSTCk7DQo+ID4gKw0K
+PiA+ICsJb3V0YigxLCB3ZHQtPmlvX2Jhc2UgKyBXRFRfUkVMT0FEX1BPUlQpOw0KPiA+ICsNCj4g
+PiArCWNvbnRyb2wgPSBpbmIod2R0LT5pb19iYXNlICsgV0RUX0NUUkwpOw0KPiA+ICsJb3V0Yihj
+b250cm9sIHwgV0RUX0NUUkxfUkVTRVRfRU4sIHdkdC0+aW9fYmFzZSArDQo+ID4gV0RUX0NUUkwp
+Ow0KPiA+ICsNCj4gPiArCXJldHVybiAwOw0KPiA+ICt9DQo+ID4gKw0KPiA+ICtzdGF0aWMgaW50
+IG5pYzcwMThfc3RvcChzdHJ1Y3Qgd2F0Y2hkb2dfZGV2aWNlICp3ZGQpDQo+ID4gK3sNCj4gPiAr
+CXN0cnVjdCBuaWM3MDE4X3dkdCAqd2R0ID0gd2F0Y2hkb2dfZ2V0X2RydmRhdGEod2RkKTsNCj4g
+PiArDQo+ID4gKwlvdXRiKDAsIHdkdC0+aW9fYmFzZSArIFdEVF9DVFJMKTsNCj4gPiArCW91dGIo
+MCwgd2R0LT5pb19iYXNlICsgV0RUX1JFTE9BRF9DVFJMKTsNCj4gPiArCW91dGIoMHhGMCwgd2R0
+LT5pb19iYXNlICsgV0RUX1BSRVNFVF9QUkVTQ0FMRSk7DQo+ID4gKw0KPiA+ICsJcmV0dXJuIDA7
+DQo+ID4gK30NCj4gPiArDQo+ID4gK3N0YXRpYyBpbnQgbmljNzAxOF9waW5nKHN0cnVjdCB3YXRj
+aGRvZ19kZXZpY2UgKndkZCkNCj4gPiArew0KPiA+ICsJc3RydWN0IG5pYzcwMThfd2R0ICp3ZHQg
+PSB3YXRjaGRvZ19nZXRfZHJ2ZGF0YSh3ZGQpOw0KPiA+ICsNCj4gPiArCW91dGIoMSwgd2R0LT5p
+b19iYXNlICsgV0RUX1JFTE9BRF9QT1JUKTsNCj4gPiArDQo+ID4gKwlyZXR1cm4gMDsNCj4gPiAr
+fQ0KPiA+ICsNCj4gPiArc3RhdGljIHVuc2lnbmVkIGludCBuaWM3MDE4X2dldF90aW1lbGVmdChz
+dHJ1Y3Qgd2F0Y2hkb2dfZGV2aWNlDQo+ID4gKndkZCkNCj4gPiArew0KPiA+ICsJc3RydWN0IG5p
+YzcwMThfd2R0ICp3ZHQgPSB3YXRjaGRvZ19nZXRfZHJ2ZGF0YSh3ZGQpOw0KPiA+ICsJdTggY291
+bnQ7DQo+ID4gKw0KPiA+ICsJY291bnQgPSBpbmIod2R0LT5pb19iYXNlICsgV0RUX0NPVU5UKSAm
+IDB4RjsNCj4gPiArDQo+ID4gKwlpZiAoIWNvdW50KQ0KPiA+ICsJCXJldHVybiAwOw0KPiA+ICsN
+Cj4gPiArCXJldHVybiBuaWM3MDE4X3RpbWVvdXRfbXMod2R0LT5wZXJpb2RfbXMsIGNvdW50KSAv
+IDEwMDA7DQo+ID4gK30NCj4gPiArDQo+ID4gK3N0YXRpYyBjb25zdCBzdHJ1Y3Qgd2F0Y2hkb2df
+aW5mbyBuaWM3MDE4X3dkZF9pbmZvID0gew0KPiA+ICsJLm9wdGlvbnMgPSBXRElPRl9TRVRUSU1F
+T1VUIHwgV0RJT0ZfS0VFUEFMSVZFUElORyB8DQo+ID4gV0RJT0ZfTUFHSUNDTE9TRSwNCj4gPiAr
+CS5pZGVudGl0eSA9ICJOSUM3MDE4IFdhdGNoZG9nIiwNCj4gPiArfTsNCj4gPiArDQo+ID4gK3N0
+YXRpYyBjb25zdCBzdHJ1Y3Qgd2F0Y2hkb2dfb3BzIG5pYzcwMThfd2RkX29wcyA9IHsNCj4gPiAr
+CS5vd25lciA9IFRISVNfTU9EVUxFLA0KPiA+ICsJLnN0YXJ0ID0gbmljNzAxOF9zdGFydCwNCj4g
+PiArCS5zdG9wID0gbmljNzAxOF9zdG9wLA0KPiA+ICsJLnBpbmcgPSBuaWM3MDE4X3BpbmcsDQo+
+ID4gKwkuc2V0X3RpbWVvdXQgPSBuaWM3MDE4X3NldF90aW1lb3V0LA0KPiA+ICsJLmdldF90aW1l
+bGVmdCA9IG5pYzcwMThfZ2V0X3RpbWVsZWZ0LA0KPiA+ICt9Ow0KPiA+ICsNCj4gPiArc3RhdGlj
+IGludCBuaWM3MDE4X3Byb2JlKHN0cnVjdCBwbGF0Zm9ybV9kZXZpY2UgKnBkZXYpDQo+ID4gK3sN
+Cj4gPiArCXN0cnVjdCBkZXZpY2UgKmRldiA9ICZwZGV2LT5kZXY7DQo+ID4gKwlzdHJ1Y3Qgd2F0
+Y2hkb2dfZGV2aWNlICp3ZGQ7DQo+ID4gKwlzdHJ1Y3QgbmljNzAxOF93ZHQgKndkdDsNCj4gPiAr
+CXN0cnVjdCByZXNvdXJjZSAqaW9fcmM7DQo+ID4gKwlpbnQgcmV0Ow0KPiA+ICsNCj4gPiArCXdk
+dCA9IGRldm1fa3phbGxvYyhkZXYsIHNpemVvZigqd2R0KSwgR0ZQX0tFUk5FTCk7DQo+ID4gKwlp
+ZiAoIXdkdCkNCj4gPiArCQlyZXR1cm4gLUVOT01FTTsNCj4gPiArDQo+ID4gKwlwbGF0Zm9ybV9z
+ZXRfZHJ2ZGF0YShwZGV2LCB3ZHQpOw0KPiA+ICsNCj4gPiArCWlvX3JjID0gcGxhdGZvcm1fZ2V0
+X3Jlc291cmNlKHBkZXYsIElPUkVTT1VSQ0VfSU8sIDApOw0KPiA+ICsJaWYgKCFpb19yYykgew0K
+PiA+ICsJCWRldl9lcnIoZGV2LCAibWlzc2luZyBJTyByZXNvdXJjZXNcbiIpOw0KPiA+ICsJCXJl
+dHVybiAtRUlOVkFMOw0KPiA+ICsJfQ0KPiA+ICsNCj4gPiArCWlmICghZGV2bV9yZXF1ZXN0X3Jl
+Z2lvbihkZXYsIGlvX3JjLT5zdGFydCwNCj4gPiByZXNvdXJjZV9zaXplKGlvX3JjKSwNCj4gPiAr
+CQkJCcKgS0JVSUxEX01PRE5BTUUpKSB7DQo+ID4gKwkJZGV2X2VycihkZXYsICJmYWlsZWQgdG8g
+Z2V0IElPIHJlZ2lvblxuIik7DQo+ID4gKwkJcmV0dXJuIC1FQlVTWTsNCj4gPiArCX0NCj4gPiAr
+DQo+ID4gKwl3ZHQtPmlvX2Jhc2UgPSBpb19yYy0+c3RhcnQ7DQo+ID4gKwl3ZGQgPSAmd2R0LT53
+ZGQ7DQo+ID4gKwl3ZGQtPmluZm8gPSAmbmljNzAxOF93ZGRfaW5mbzsNCj4gPiArCXdkZC0+b3Bz
+ID0gJm5pYzcwMThfd2RkX29wczsNCj4gPiArCXdkZC0+bWluX3RpbWVvdXQgPSBXRFRfTUlOX1RJ
+TUVPVVQ7DQo+ID4gKwl3ZGQtPm1heF90aW1lb3V0ID0gV0RUX01BWF9USU1FT1VUOw0KPiA+ICsJ
+d2RkLT50aW1lb3V0ID0gV0RUX0RFRkFVTFRfVElNRU9VVDsNCj4gPiArCXdkZC0+cGFyZW50ID0g
+ZGV2Ow0KPiA+ICsNCj4gPiArCXdhdGNoZG9nX3NldF9kcnZkYXRhKHdkZCwgd2R0KTsNCj4gPiAr
+CXdhdGNoZG9nX3NldF9ub3dheW91dCh3ZGQsIG5vd2F5b3V0KTsNCj4gPiArDQo+ID4gKwlyZXQg
+PSB3YXRjaGRvZ19pbml0X3RpbWVvdXQod2RkLCB0aW1lb3V0LCBkZXYpOw0KPiA+ICsJaWYgKHJl
+dCkNCj4gPiArCQlkZXZfd2FybihkZXYsICJ1bmFibGUgdG8gc2V0IHRpbWVvdXQgdmFsdWUsIHVz
+aW5nDQo+ID4gZGVmYXVsdFxuIik7DQo+ID4gKw0KPiA+ICsJcmV0ID0gd2F0Y2hkb2dfcmVnaXN0
+ZXJfZGV2aWNlKHdkZCk7DQo+ID4gKwlpZiAocmV0KSB7DQo+ID4gKwkJZGV2X2VycihkZXYsICJm
+YWlsZWQgdG8gcmVnaXN0ZXIgd2F0Y2hkb2dcbiIpOw0KPiA+ICsJCXJldHVybiByZXQ7DQo+ID4g
+Kwl9DQo+ID4gKw0KPiA+ICsJLyogVW5sb2NrIFdEVCByZWdpc3RlciAqLw0KPiA+ICsJb3V0YihV
+TkxPQ0ssIHdkdC0+aW9fYmFzZSArIFdEVF9SRUdfTE9DSyk7DQo+ID4gKw0KPiBUaGUgd2F0Y2hk
+b2cgZHJpdmVyIG1heSBiZSBvcGVuZWQgcmlnaHQgYWZ0ZXIgdGhlIGNhbGwgdG8NCj4gd2F0Y2hk
+b2dfcmVnaXN0ZXJfZGV2aWNlKCksDQo+IG1lYW5pbmcgdGhpcyBpcyByYWN5IHNpbmNlIHRoZSBv
+cGVuIG1heSBhbHJlYWR5IGhhdmUgaGFwcGVuZWQuIFlvdSdsbA0KPiBuZWVkIHRvIHNldA0KPiB0
+aGlzIGJlZm9yZSB0aGUgY2FsbCB0byB3YXRjaGRvZ19yZWdpc3Rlcl9kZXZpY2UoKS4NCj4gDQo+
+ID4gDQo+ID4gKwlkZXZfZGJnKGRldiwgImlvX2Jhc2U9MHglMDRYLCB0aW1lb3V0PSVkLCBub3dh
+eW91dD0lZFxuIiwNCj4gPiArCQl3ZHQtPmlvX2Jhc2UsIHRpbWVvdXQsIG5vd2F5b3V0KTsNCj4g
+PiArCXJldHVybiAwOw0KPiA+ICt9DQo+ID4gKw0KPiA+ICtzdGF0aWMgaW50IG5pYzcwMThfcmVt
+b3ZlKHN0cnVjdCBwbGF0Zm9ybV9kZXZpY2UgKnBkZXYpDQo+ID4gK3sNCj4gPiArCXN0cnVjdCBu
+aWM3MDE4X3dkdCAqd2R0ID0gcGxhdGZvcm1fZ2V0X2RydmRhdGEocGRldik7DQo+ID4gKw0KPiA+
+ICsJbmljNzAxOF9zdG9wKCZ3ZHQtPndkZCk7DQo+ID4gKwl3YXRjaGRvZ191bnJlZ2lzdGVyX2Rl
+dmljZSgmd2R0LT53ZGQpOw0KPiA+ICsNCj4gPiArCS8qIExvY2sgV0RUIHJlZ2lzdGVyICovDQo+
+ID4gKwlvdXRiKExPQ0ssIHdkdC0+aW9fYmFzZSArIFdEVF9SRUdfTE9DSyk7DQo+ID4gKw0KPiA+
+ICsJcmV0dXJuIDA7DQo+ID4gK30NCj4gPiArDQo+ID4gK3N0YXRpYyBjb25zdCBzdHJ1Y3QgYWNw
+aV9kZXZpY2VfaWQgbmljNzAxOF9kZXZpY2VfaWRzW10gPSB7DQo+ID4gKwl7Ik5JQzcwMTgiLCAw
+fSwNCj4gPiArCXsiIiwgMH0sDQo+ID4gK307DQo+ID4gK01PRFVMRV9ERVZJQ0VfVEFCTEUoYWNw
+aSwgbmljNzAxOF9kZXZpY2VfaWRzKTsNCj4gPiArDQo+ID4gK3N0YXRpYyBzdHJ1Y3QgcGxhdGZv
+cm1fZHJpdmVyIHdhdGNoZG9nX2RyaXZlciA9IHsNCj4gPiArCS5wcm9iZSA9IG5pYzcwMThfcHJv
+YmUsDQo+ID4gKwkucmVtb3ZlID0gbmljNzAxOF9yZW1vdmUsDQo+ID4gKwkuZHJpdmVyID0gew0K
+PiA+ICsJCS5uYW1lID0gS0JVSUxEX01PRE5BTUUsDQo+ID4gKwkJLmFjcGlfbWF0Y2hfdGFibGUg
+PSBBQ1BJX1BUUihuaWM3MDE4X2RldmljZV9pZHMpLA0KPiA+ICsJfSwNCj4gPiArfTsNCj4gPiAr
+DQo+ID4gK21vZHVsZV9wbGF0Zm9ybV9kcml2ZXIod2F0Y2hkb2dfZHJpdmVyKTsNCj4gPiArDQo+
+ID4gK01PRFVMRV9ERVNDUklQVElPTigiTmF0aW9uYWwgSW5zdHJ1bWVudHMgTklDNzAxOCBXYXRj
+aGRvZw0KPiA+IGRyaXZlciIpOw0KPiA+ICtNT0RVTEVfQVVUSE9SKCJIdWkgQ2h1biBPbmcgPGh1
+aS5jaHVuLm9uZ0BuaS5jb20+Iik7DQo+ID4gK01PRFVMRV9MSUNFTlNFKCJHUEwiKTsNCj4gPiAt
+LQ0KPiA+IDIuNy40DQo+ID4gDQo+ID4gLS0NCj4gPiBUbyB1bnN1YnNjcmliZSBmcm9tIHRoaXMg
+bGlzdDogc2VuZCB0aGUgbGluZSAidW5zdWJzY3JpYmUgbGludXgtDQo+ID4gd2F0Y2hkb2ciIGlu
+DQo+ID4gdGhlIGJvZHkgb2YgYSBtZXNzYWdlIHRvIG1ham9yZG9tb0B2Z2VyLmtlcm5lbC5vcmcN
+Cj4gPiBNb3JlIG1ham9yZG9tbyBpbmZvIGF0wqDCoGh0dHA6Ly92Z2VyLmtlcm5lbC5vcmcvbWFq
+b3Jkb21vLWluZm8uaHRtbA0KPiA+IA==
