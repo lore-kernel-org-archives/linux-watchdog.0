@@ -1,43 +1,54 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:57612 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752895AbcL2Rjm (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 29 Dec 2016 12:39:42 -0500
-From: Guenter Roeck <linux@roeck-us.net>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-watchdog@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 2/2] watchdog: pnx833x_wdt: Mark as broken
-Date: Thu, 29 Dec 2016 09:39:35 -0800
-Message-Id: <1483033175-19563-2-git-send-email-linux@roeck-us.net>
-In-Reply-To: <1483033175-19563-1-git-send-email-linux@roeck-us.net>
-References: <1483033175-19563-1-git-send-email-linux@roeck-us.net>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-path: <prvs=149622c30=Rasmus.Villemoes@prevas.dk>
+From: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+To: <linux-watchdog@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+CC: Rasmus Villemoes <rasmus.villemoes@prevas.dk>, Guenter Roeck
+	<linux@roeck-us.net>
+Subject: [PATCH v3 0/2] watchdog: allow setting deadline for opening /dev/watchdogN
+Date: Wed, 14 Dec 2016 14:37:32 +0100
+Message-ID: <1481722654-6266-1-git-send-email-rasmus.villemoes@prevas.dk>
+In-Reply-To: <1481534273-7600-1-git-send-email-rasmus.villemoes@prevas.dk>
+References: <1481534273-7600-1-git-send-email-rasmus.villemoes@prevas.dk>
+MIME-Version: 1.0
+Content-Type: text/plain
+List-ID: <linux-watchdog@vger.kernel.org>
 
-pnx833x_wdt does not compile if enabled. Bit operations expect an unsigned
-long as argument. If that is fixed, the build still fails because put_user,
-get_user, and copy_to_user are undefined.
+If a watchdog driver tells the framework that the device is running,
+the framework takes care of feeding the watchdog until userspace opens
+the device. If the userspace application which is supposed to do that
+never comes up properly, the watchdog is fed indefinitely by the
+kernel. This can be especially problematic for embedded devices.
 
-Mark it as broken.
+These patches allow one to set a maximum time for which the kernel
+will feed the watchdog, thus ensuring that either userspace has come
+up, or the board gets reset. This allows fallback logic in the
+bootloader to attempt some recovery (for example, if an automatic
+update is in progress, it could roll back to the previous version).
 
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
----
- drivers/watchdog/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+The patches have been tested on a Raspberry Pi 2 (with a suitably
+modified driver for setting WDOG_HW_RUNNING) and a Wandboard.
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index d49ac4c509dc..fcea8a3e1267 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -1401,6 +1401,7 @@ config WDT_MTX1
- config PNX833X_WDT
- 	tristate "PNX833x Hardware Watchdog"
- 	depends on SOC_PNX8335
-+	depends on BROKEN
- 	help
- 	  Hardware driver for the PNX833x's watchdog. This is a
- 	  watchdog timer that will reboot the machine after a programmable
+Changes since v2:
+
+ - Use device_property_read_u32 rather than of_property_read_u32
+
+  - Remove config option to ifdef this completely out, instead set the
+    default timeout to "infinite" to preserve existing behaviour.
+
+Changes since v1:
+
+ - Take the timeout value from the device tree node rather than a
+   watchdog module parameter.
+
+
+Rasmus Villemoes (2):
+  watchdog: introduce watchdog_worker_should_ping helper
+  watchdog: introduce CONFIG_WATCHDOG_OPEN_TIMEOUT
+
+ drivers/watchdog/Kconfig         | 14 ++++++++++++++
+ drivers/watchdog/watchdog_core.c | 16 ++++++++++++++++
+ drivers/watchdog/watchdog_dev.c  | 27 ++++++++++++++++++++++++++-
+ include/linux/watchdog.h         |  7 +++++++
+ 4 files changed, 63 insertions(+), 1 deletion(-)
+
 -- 
 2.7.4
-
