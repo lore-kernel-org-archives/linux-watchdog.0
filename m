@@ -1,9 +1,9 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.savoirfairelinux.com ([208.88.110.44]:45002 "EHLO
+Received: from mail.savoirfairelinux.com ([208.88.110.44]:45036 "EHLO
         mail.savoirfairelinux.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S934133AbcLNXM4 (ORCPT
+        with ESMTP id S934133AbcLNXMw (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 14 Dec 2016 18:12:56 -0500
+        Wed, 14 Dec 2016 18:12:52 -0500
 From: Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>
 To: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
@@ -18,322 +18,183 @@ Cc: mark@embeddedarm.com, kris@embeddedarm.com,
         suzuki.poulose@arm.com, linus.walleij@linaro.org,
         will.deacon@arm.com, yamada.masahiro@socionext.com,
         Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>
-Subject: [PATCH 6/6] watchdog: ts4600: add driver for TS-4600 watchdog
-Date: Wed, 14 Dec 2016 18:12:36 -0500
-Message-Id: <20161214231237.17496-7-sebastien.bourdelin@savoirfairelinux.com>
+Subject: [PATCH 2/6] ARM: dts: TS-4600: add basic device tree
+Date: Wed, 14 Dec 2016 18:12:37 -0500
+Message-Id: <20161214231237.17496-8-sebastien.bourdelin@savoirfairelinux.com>
 In-Reply-To: <20161214231237.17496-1-sebastien.bourdelin@savoirfairelinux.com>
 References: <20161214231237.17496-1-sebastien.bourdelin@savoirfairelinux.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This watchdog is instantiated in a FPGA and can only be access using a
-GPIOs bit-banged bus, called the NBUS by Technologic Systems.
-The watchdog is made of only one register, called the feed register.
-Writing to this register will re-arm the watchdog for a given time (and
-enable it if it was disable). It can be disabled by writing a special
-value into it.
+These device trees add support for the TS-4600 by Technologic Systems.
+
+More details here:
+  http://wiki.embeddedarm.com/wiki/TS-4600
 
 Signed-off-by: Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>
 ---
- .../devicetree/bindings/watchdog/ts4600-wdt.txt    |  16 ++
- arch/arm/boot/dts/imx28-ts4600-common.dtsi         |   5 +
- drivers/watchdog/Kconfig                           |  10 +
- drivers/watchdog/Makefile                          |   1 +
- drivers/watchdog/ts4600_wdt.c                      | 213 +++++++++++++++++++++
- 5 files changed, 245 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/watchdog/ts4600-wdt.txt
- create mode 100644 drivers/watchdog/ts4600_wdt.c
+ arch/arm/boot/dts/Makefile                 |  2 +
+ arch/arm/boot/dts/imx28-ts4600-common.dtsi | 78 ++++++++++++++++++++++++++++++
+ arch/arm/boot/dts/imx28-ts4600-rev-a.dts   | 22 +++++++++
+ arch/arm/boot/dts/imx28-ts4600-rev-b.dts   | 22 +++++++++
+ 4 files changed, 124 insertions(+)
+ create mode 100644 arch/arm/boot/dts/imx28-ts4600-common.dtsi
+ create mode 100644 arch/arm/boot/dts/imx28-ts4600-rev-a.dts
+ create mode 100644 arch/arm/boot/dts/imx28-ts4600-rev-b.dts
 
-diff --git a/Documentation/devicetree/bindings/watchdog/ts4600-wdt.txt b/Documentation/devicetree/bindings/watchdog/ts4600-wdt.txt
-new file mode 100644
-index 0000000..61d620e
---- /dev/null
-+++ b/Documentation/devicetree/bindings/watchdog/ts4600-wdt.txt
-@@ -0,0 +1,16 @@
-+TS-4600 Technologic Systems Watchdog
-+
-+Required properties:
-+- compatible: must be "technologic,ts4600-wdt"
-+- reg: offset to the FPGA's watchdog register
-+
-+Optional property:
-+- timeout-sec: contains the watchdog timeout in seconds.
-+
-+Example:
-+
-+wdt {
-+	compatible = "technologic,ts4600-wdt";
-+	reg = <0x2a>;
-+	timeout-sec = <10>;
-+};
+diff --git a/arch/arm/boot/dts/Makefile b/arch/arm/boot/dts/Makefile
+index c558ba7..5a79fab 100644
+--- a/arch/arm/boot/dts/Makefile
++++ b/arch/arm/boot/dts/Makefile
+@@ -466,6 +466,8 @@ dtb-$(CONFIG_ARCH_MXS) += \
+ 	imx28-m28cu3.dtb \
+ 	imx28-m28evk.dtb \
+ 	imx28-sps1.dtb \
++	imx28-ts4600-rev-a.dtb \
++	imx28-ts4600-rev-b.dtb \
+ 	imx28-tx28.dtb
+ dtb-$(CONFIG_ARCH_NOMADIK) += \
+ 	ste-nomadik-s8815.dtb \
 diff --git a/arch/arm/boot/dts/imx28-ts4600-common.dtsi b/arch/arm/boot/dts/imx28-ts4600-common.dtsi
-index b668933..dd7318c 100644
---- a/arch/arm/boot/dts/imx28-ts4600-common.dtsi
-+++ b/arch/arm/boot/dts/imx28-ts4600-common.dtsi
-@@ -116,6 +116,11 @@
- 		strobe-gpios = <&gpio0 25 GPIO_ACTIVE_HIGH>;
- 		ale-gpios    = <&gpio0 26 GPIO_ACTIVE_HIGH>;
- 		rdy-gpios    = <&gpio0 21 GPIO_ACTIVE_HIGH>;
-+
-+		wdt@2a {
-+			compatible = "technologic,ts4600-wdt";
-+			reg = <0x2a>;
-+		};
- 	};
- 
- };
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 3eb58cb..7a8e176 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -500,6 +500,16 @@ config NUC900_WATCHDOG
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called nuc900_wdt.
- 
-+config TS4600_WATCHDOG
-+	tristate "TS-4600 Watchdog"
-+	depends on HAS_IOMEM && OF
-+	depends on SOC_IMX28 || COMPILE_TEST
-+	select WATCHDOG_CORE
-+	help
-+	  Technologic Systems TS-4600 has watchdog timer implemented in
-+	  an external FPGA. Say Y here if you want to support for the
-+	  watchdog timer on TS-4600 board.
-+
- config TS4800_WATCHDOG
- 	tristate "TS-4800 Watchdog"
- 	depends on HAS_IOMEM && OF
-diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index caa9f4a..d4b4bd2 100644
---- a/drivers/watchdog/Makefile
-+++ b/drivers/watchdog/Makefile
-@@ -61,6 +61,7 @@ obj-$(CONFIG_RN5T618_WATCHDOG) += rn5t618_wdt.o
- obj-$(CONFIG_COH901327_WATCHDOG) += coh901327_wdt.o
- obj-$(CONFIG_STMP3XXX_RTC_WATCHDOG) += stmp3xxx_rtc_wdt.o
- obj-$(CONFIG_NUC900_WATCHDOG) += nuc900_wdt.o
-+obj-$(CONFIG_TS4600_WATCHDOG) += ts4600_wdt.o
- obj-$(CONFIG_TS4800_WATCHDOG) += ts4800_wdt.o
- obj-$(CONFIG_TS72XX_WATCHDOG) += ts72xx_wdt.o
- obj-$(CONFIG_IMX2_WDT) += imx2_wdt.o
-diff --git a/drivers/watchdog/ts4600_wdt.c b/drivers/watchdog/ts4600_wdt.c
 new file mode 100644
-index 0000000..db91b40
+index 0000000..04bd5a5
 --- /dev/null
-+++ b/drivers/watchdog/ts4600_wdt.c
-@@ -0,0 +1,213 @@
++++ b/arch/arm/boot/dts/imx28-ts4600-common.dtsi
+@@ -0,0 +1,78 @@
 +/*
-+ * Watchdog driver for TS-4600 based boards
-+ *
-+ * Copyright (c) 2016 - Savoir-faire Linux
++ * Copyright (C) 2016 Savoir-Faire Linux
 + * Author: Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>
 + *
-+ * This file is licensed under the terms of the GNU General Public
-+ * License version 2. This program is licensed "as is" without any
-+ * warranty of any kind, whether express or implied.
++ * The code contained herein is licensed under the GNU General Public
++ * License. You may obtain a copy of the GNU General Public License
++ * Version 2 or later at the following locations:
 + *
-+ * The watchdog on the TS-4600 based boards is in an FPGA and can only be
-+ * accessed using a GPIO bit-banged bus called the NBUS by Technologic Systems.
-+ * The logic for the watchdog is the same then for the TS-4800 SoM, only the way
-+ * to access it change, therefore this driver is heavely based on the ts4800_wdt
-+ * driver from Damien Riegel <damien.riegel@savoirfairelinux.com>.
++ * http://www.opensource.org/licenses/gpl-license.html
++ * http://www.gnu.org/copyleft/gpl.html
 + */
 +
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/of.h>
-+#include <linux/platform_device.h>
-+#include <linux/ts-nbus.h>
-+#include <linux/watchdog.h>
++/dts-v1/;
++#include "imx28.dtsi"
++#include "dt-bindings/gpio/gpio.h"
 +
-+static bool nowayout = WATCHDOG_NOWAYOUT;
-+module_param(nowayout, bool, 0);
-+MODULE_PARM_DESC(nowayout,
-+	"Watchdog cannot be stopped once started (default="
-+	__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
++/ {
 +
-+/* possible feed values */
-+#define TS4600_WDT_FEED_2S       0x1
-+#define TS4600_WDT_FEED_10S      0x2
-+#define TS4600_WDT_DISABLE       0x3
++	compatible = "technologic,imx28-ts4600", "fsl,imx28";
 +
-+struct ts4600_wdt {
-+	struct watchdog_device  wdd;
-+	u32                     feed_offset;
-+	u32                     feed_val;
++	apb@80000000 {
++		apbh@80000000 {
++			ssp0: ssp@80010000 {
++				compatible = "fsl,imx28-mmc";
++				pinctrl-names = "default";
++				pinctrl-0 = <&mmc0_4bit_pins_a
++					     &mmc0_sck_cfg
++					     &en_sd_pwr>;
++				broken-cd = <1>;
++				bus-width = <4>;
++				vmmc-supply = <&reg_vddio_sd0>;
++				status = "okay";
++			};
++
++			pinctrl@80018000 {
++				pinctrl-names = "default";
++
++				en_sd_pwr: en_sd_pwr {
++					fsl,pinmux-ids = <
++						MX28_PAD_PWM3__GPIO_3_28
++					>;
++					fsl,drive-strength = <MXS_DRIVE_4mA>;
++					fsl,voltage = <MXS_VOLTAGE_HIGH>;
++					fsl,pull-up = <MXS_PULL_DISABLE>;
++				};
++
++			};
++		};
++
++		apbx@80040000 {
++			pwm: pwm@80064000 {
++				pinctrl-names = "default";
++				pinctrl-0 = <&pwm2_pins_a>;
++				status = "okay";
++			};
++
++			duart: serial@80074000 {
++				pinctrl-names = "default";
++				pinctrl-0 = <&duart_pins_a>;
++				status = "okay";
++			};
++		};
++	};
++
++	regulators {
++		compatible = "simple-bus";
++
++		reg_vddio_sd0: vddio-sd0 {
++			compatible = "regulator-fixed";
++			regulator-name = "vddio-sd0";
++			regulator-min-microvolt = <3300000>;
++			regulator-max-microvolt = <3300000>;
++			regulator-boot-on;
++			gpio = <&gpio3 28 0>;
++		};
++	};
++
 +};
-+
+diff --git a/arch/arm/boot/dts/imx28-ts4600-rev-a.dts b/arch/arm/boot/dts/imx28-ts4600-rev-a.dts
+new file mode 100644
+index 0000000..e8cb729
+--- /dev/null
++++ b/arch/arm/boot/dts/imx28-ts4600-rev-a.dts
+@@ -0,0 +1,22 @@
 +/*
-+ * TS-4600 supports the following timeout values:
++ * Copyright (C) 2016 Savoir-Faire Linux
++ * Author: Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>
 + *
-+ *   value desc
-+ *   ---------------------
-+ *     0    feed for 338ms
-+ *     1    feed for 2.706s
-+ *     2    feed for 10.824s
-+ *     3    disable watchdog
++ * The code contained herein is licensed under the GNU General Public
++ * License. You may obtain a copy of the GNU General Public License
++ * Version 2 or later at the following locations:
 + *
-+ * Keep the regmap/timeout map ordered by timeout
++ * http://www.opensource.org/licenses/gpl-license.html
++ * http://www.gnu.org/copyleft/gpl.html
 + */
-+static const struct {
-+	const int timeout;
-+	const int regval;
-+} ts4600_wdt_map[] = {
-+	{ 2,  TS4600_WDT_FEED_2S },
-+	{ 10, TS4600_WDT_FEED_10S },
++
++#include "imx28-ts4600-common.dtsi"
++
++/ {
++	model = "Technologic Systems i.MX28 TS-4600 Rev A";
++
++	memory {
++		reg = <0x40000000 0x08000000>;   /* 128MB */
++	};
++
 +};
+diff --git a/arch/arm/boot/dts/imx28-ts4600-rev-b.dts b/arch/arm/boot/dts/imx28-ts4600-rev-b.dts
+new file mode 100644
+index 0000000..a115f83
+--- /dev/null
++++ b/arch/arm/boot/dts/imx28-ts4600-rev-b.dts
+@@ -0,0 +1,22 @@
++/*
++ * Copyright (C) 2016 Savoir-Faire Linux
++ * Author: Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>
++ *
++ * The code contained herein is licensed under the GNU General Public
++ * License. You may obtain a copy of the GNU General Public License
++ * Version 2 or later at the following locations:
++ *
++ * http://www.opensource.org/licenses/gpl-license.html
++ * http://www.gnu.org/copyleft/gpl.html
++ */
 +
-+#define MAX_TIMEOUT_INDEX       (ARRAY_SIZE(ts4600_wdt_map) - 1)
++#include "imx28-ts4600-common.dtsi"
 +
-+static void ts4600_write_feed(struct ts4600_wdt *wdt, u32 val)
-+{
-+	ts_nbus_write(wdt->feed_offset, val);
-+}
++/ {
++	model = "Technologic Systems i.MX28 TS-4600 Rev B";
 +
-+static int ts4600_wdt_start(struct watchdog_device *wdd)
-+{
-+	struct ts4600_wdt *wdt = watchdog_get_drvdata(wdd);
++	memory {
++		reg = <0x40000000 0x10000000>;   /* 256MB */
++	};
 +
-+	ts4600_write_feed(wdt, wdt->feed_val);
-+
-+	return 0;
-+}
-+
-+static int ts4600_wdt_stop(struct watchdog_device *wdd)
-+{
-+	struct ts4600_wdt *wdt = watchdog_get_drvdata(wdd);
-+
-+	ts4600_write_feed(wdt, TS4600_WDT_DISABLE);
-+	return 0;
-+}
-+
-+static int ts4600_wdt_set_timeout(struct watchdog_device *wdd,
-+				  unsigned int timeout)
-+{
-+	struct ts4600_wdt *wdt = watchdog_get_drvdata(wdd);
-+	int i;
-+
-+	for (i = 0; i < MAX_TIMEOUT_INDEX; i++) {
-+		if (ts4600_wdt_map[i].timeout >= timeout)
-+			break;
-+	}
-+
-+	wdd->timeout = ts4600_wdt_map[i].timeout;
-+	wdt->feed_val = ts4600_wdt_map[i].regval;
-+
-+	return 0;
-+}
-+
-+static const struct watchdog_ops ts4600_wdt_ops = {
-+	.owner = THIS_MODULE,
-+	.start = ts4600_wdt_start,
-+	.stop = ts4600_wdt_stop,
-+	.set_timeout = ts4600_wdt_set_timeout,
 +};
-+
-+static const struct watchdog_info ts4600_wdt_info = {
-+	.options = WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE | WDIOF_KEEPALIVEPING,
-+	.identity = "TS-4600 Watchdog",
-+};
-+
-+static int ts4600_wdt_probe(struct platform_device *pdev)
-+{
-+	struct device_node *np = pdev->dev.of_node;
-+	struct watchdog_device *wdd;
-+	struct ts4600_wdt *wdt;
-+	u32 reg;
-+	int ret;
-+
-+	ret = of_property_read_u32(np, "reg", &reg);
-+	if (ret < 0) {
-+		dev_err(&pdev->dev, "missing reg property\n");
-+		return ret;
-+	}
-+
-+	/* check for the NBUS state and defer the probing if it is not ready */
-+	if (!ts_nbus_is_ready())
-+		return -EPROBE_DEFER;
-+
-+	/* allocate memory for watchdog struct */
-+	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
-+	if (!wdt)
-+		return -ENOMEM;
-+
-+	/* set offset to know where to write */
-+	wdt->feed_offset = reg;
-+
-+	/* Initialize struct watchdog_device */
-+	wdd = &wdt->wdd;
-+	wdd->parent = &pdev->dev;
-+	wdd->info = &ts4600_wdt_info;
-+	wdd->ops = &ts4600_wdt_ops;
-+	wdd->min_timeout = ts4600_wdt_map[0].timeout;
-+	wdd->max_timeout = ts4600_wdt_map[MAX_TIMEOUT_INDEX].timeout;
-+
-+	watchdog_set_drvdata(wdd, wdt);
-+	watchdog_set_nowayout(wdd, nowayout);
-+	watchdog_init_timeout(wdd, 0, &pdev->dev);
-+
-+	/*
-+	 * As this watchdog supports only a few values, ts4600_wdt_set_timeout
-+	 * must be called to initialize timeout and feed_val with valid values.
-+	 * Default to maximum timeout if none, or an invalid one, is provided in
-+	 * device tree.
-+	 */
-+	if (!wdd->timeout)
-+		wdd->timeout = wdd->max_timeout;
-+	ts4600_wdt_set_timeout(wdd, wdd->timeout);
-+
-+	/*
-+	 * The feed register is write-only, so it is not possible to determine
-+	 * watchdog's state. Disable it to be in a known state.
-+	 */
-+	ts4600_wdt_stop(wdd);
-+
-+	ret = watchdog_register_device(wdd);
-+	if (ret) {
-+		dev_err(&pdev->dev,
-+			"failed to register watchdog device\n");
-+		return ret;
-+	}
-+
-+	platform_set_drvdata(pdev, wdt);
-+
-+	dev_info(&pdev->dev,
-+		 "initialized (timeout = %d sec, nowayout = %d)\n",
-+		 wdd->timeout, nowayout);
-+
-+	return 0;
-+}
-+
-+static int ts4600_wdt_remove(struct platform_device *pdev)
-+{
-+	struct ts4600_wdt *wdt = platform_get_drvdata(pdev);
-+
-+	watchdog_unregister_device(&wdt->wdd);
-+
-+	return 0;
-+}
-+
-+static const struct of_device_id ts4600_wdt_of_match[] = {
-+	{ .compatible = "technologic,ts4600-wdt", },
-+	{ },
-+};
-+MODULE_DEVICE_TABLE(of, ts4600_wdt_of_match);
-+
-+static struct platform_driver ts4600_wdt_driver = {
-+	.probe		= ts4600_wdt_probe,
-+	.remove		= ts4600_wdt_remove,
-+	.driver		= {
-+		.name	= "ts4600_wdt",
-+		.of_match_table = ts4600_wdt_of_match,
-+	},
-+};
-+
-+module_platform_driver(ts4600_wdt_driver);
-+
-+MODULE_AUTHOR("Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>");
-+MODULE_LICENSE("GPL v2");
-+MODULE_ALIAS("platform:ts4600_wdt");
 -- 
 2.10.2
 
