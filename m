@@ -1,83 +1,80 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from nbd.name ([46.4.11.11]:53562 "EHLO nbd.name"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753884AbcLTS4u (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 20 Dec 2016 13:56:50 -0500
-From: John Crispin <john@phrozen.org>
-To: Wim Van Sebroeck <wim@iguana.be>,
-        Guenter Roeck <linux@roeck-us.net>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        John Crispin <john@phrozen.org>
-Subject: [PATCH] watchdog: update my email address
-Date: Tue, 20 Dec 2016 19:56:59 +0100
-Message-Id: <1482260219-61453-1-git-send-email-john@phrozen.org>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-path: <sebastien.bourdelin@savoirfairelinux.com>
+From: Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>
+To: linux-kernel@vger.kernel.org,
+	linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	devicetree@vger.kernel.org,
+	kernel@savoirfairelinux.com
+Cc: mark@embeddedarm.com,
+	kris@embeddedarm.com,
+	horms+renesas@verge.net.au,
+	treding@nvidia.com,
+	jonathanh@nvidia.com,
+	f.fainelli@gmail.com,
+	fabio.estevam@nxp.com,
+	kernel@pengutronix.de,
+	shawnguo@kernel.org,
+	linux@armlinux.org.uk,
+	linux@roeck-us.net,
+	wim@iguana.be,
+	mark.rutland@arm.com,
+	robh+dt@kernel.org,
+	damien.riegel@savoirfairelinux.com,
+	lucile.quirion@savoirfairelinux.com,
+	olof@lixom.net,
+	arnd@arndb.de,
+	suzuki.poulose@arm.com,
+	linus.walleij@linaro.org,
+	will.deacon@arm.com,
+	yamada.masahiro@socionext.com,
+	Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>
+Subject: [PATCH 0/6] Add board support for TS-4600
+Date: Wed, 14 Dec 2016 18:12:30 -0500
+Message-Id: <20161214231237.17496-1-sebastien.bourdelin@savoirfairelinux.com>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-This patch updates my email address as I no longer have access to the old
-one.
+This patch serie adds support for the TS-4600 boards rev A and B. These
+boards, manufactured by Technologic Systems, are based on an i.MX28.
 
-Signed-off-by: John Crispin <john@phrozen.org>
----
- drivers/watchdog/lantiq_wdt.c |    4 ++--
- drivers/watchdog/mt7621_wdt.c |    4 ++--
- drivers/watchdog/rt2880_wdt.c |    2 +-
- 3 files changed, 5 insertions(+), 5 deletions(-)
+This serie include the support for the watchdog which could be enable
+at Linux boot time depending on the bootloader.
 
-diff --git a/drivers/watchdog/lantiq_wdt.c b/drivers/watchdog/lantiq_wdt.c
-index 582f2fa..e082367 100644
---- a/drivers/watchdog/lantiq_wdt.c
-+++ b/drivers/watchdog/lantiq_wdt.c
-@@ -3,7 +3,7 @@
-  *  under the terms of the GNU General Public License version 2 as published
-  *  by the Free Software Foundation.
-  *
-- *  Copyright (C) 2010 John Crispin <blogic@openwrt.org>
-+ *  Copyright (C) 2010 John Crispin <john@phrozen.org>
-  *  Based on EP93xx wdt driver
-  */
- 
-@@ -240,6 +240,6 @@
- 
- module_param(nowayout, bool, 0);
- MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started");
--MODULE_AUTHOR("John Crispin <blogic@openwrt.org>");
-+MODULE_AUTHOR("John Crispin <john@phrozen.org>");
- MODULE_DESCRIPTION("Lantiq SoC Watchdog");
- MODULE_LICENSE("GPL");
-diff --git a/drivers/watchdog/mt7621_wdt.c b/drivers/watchdog/mt7621_wdt.c
-index d5735c1..2fb5a30 100644
---- a/drivers/watchdog/mt7621_wdt.c
-+++ b/drivers/watchdog/mt7621_wdt.c
-@@ -1,7 +1,7 @@
- /*
-  * Ralink MT7621/MT7628 built-in hardware watchdog timer
-  *
-- * Copyright (C) 2014 John Crispin <blogic@openwrt.org>
-+ * Copyright (C) 2014 John Crispin <john@phrozen.org>
-  *
-  * This driver was based on: drivers/watchdog/rt2880_wdt.c
-  *
-@@ -181,5 +181,5 @@ static void mt7621_wdt_shutdown(struct platform_device *pdev)
- module_platform_driver(mt7621_wdt_driver);
- 
- MODULE_DESCRIPTION("MediaTek MT762x hardware watchdog driver");
--MODULE_AUTHOR("John Crispin <blogic@openwrt.org");
-+MODULE_AUTHOR("John Crispin <john@phrozen.org");
- MODULE_LICENSE("GPL v2");
-diff --git a/drivers/watchdog/rt2880_wdt.c b/drivers/watchdog/rt2880_wdt.c
-index 14b4fd4..4c471fe7 100644
---- a/drivers/watchdog/rt2880_wdt.c
-+++ b/drivers/watchdog/rt2880_wdt.c
-@@ -2,7 +2,7 @@
-  * Ralink RT288x/RT3xxx/MT76xx built-in hardware watchdog timer
-  *
-  * Copyright (C) 2011 Gabor Juhos <juhosg@openwrt.org>
-- * Copyright (C) 2013 John Crispin <blogic@openwrt.org>
-+ * Copyright (C) 2013 John Crispin <john@phrozen.org>
-  *
-  * This driver was based on: drivers/watchdog/softdog.c
-  *
+The watchdog and few peripherals are implemented in a FPGA, and can
+only be access using a custom GPIOs bit-banged bus which is called the
+NBUS by Technologic Systems.
+A driver for this bus is also included and used by the watchdog.
+
+Sebastien Bourdelin (6):
+  of: documentation: add bindings documentation for TS-4600
+  ARM: dts: TS-4600: add basic device tree
+  dt-bindings: bus: Add documentation for the Technologic Systems NBUS
+  bus: add driver for the Technologic Systems NBUS
+  ARM: dts: TS-4600: add NBUS support
+  watchdog: ts4600: add driver for TS-4600 watchdog
+
+ .../devicetree/bindings/arm/technologic.txt        |   5 +
+ Documentation/devicetree/bindings/bus/ts-nbus.txt  |  50 +++
+ .../devicetree/bindings/watchdog/ts4600-wdt.txt    |  16 +
+ arch/arm/boot/dts/Makefile                         |   2 +
+ arch/arm/boot/dts/imx28-ts4600-common.dtsi         | 126 ++++++
+ arch/arm/boot/dts/imx28-ts4600-rev-a.dts           |  22 +
+ arch/arm/boot/dts/imx28-ts4600-rev-b.dts           |  22 +
+ drivers/bus/Kconfig                                |   9 +
+ drivers/bus/Makefile                               |   1 +
+ drivers/bus/ts-nbus.c                              | 451 +++++++++++++++++++++
+ drivers/watchdog/Kconfig                           |  10 +
+ drivers/watchdog/Makefile                          |   1 +
+ drivers/watchdog/ts4600_wdt.c                      | 213 ++++++++++
+ include/linux/ts-nbus.h                            |  17 +
+ 14 files changed, 945 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/bus/ts-nbus.txt
+ create mode 100644 Documentation/devicetree/bindings/watchdog/ts4600-wdt.txt
+ create mode 100644 arch/arm/boot/dts/imx28-ts4600-common.dtsi
+ create mode 100644 arch/arm/boot/dts/imx28-ts4600-rev-a.dts
+ create mode 100644 arch/arm/boot/dts/imx28-ts4600-rev-b.dts
+ create mode 100644 drivers/bus/ts-nbus.c
+ create mode 100644 drivers/watchdog/ts4600_wdt.c
+ create mode 100644 include/linux/ts-nbus.h
+
 -- 
-1.7.10.4
-
+2.10.2
