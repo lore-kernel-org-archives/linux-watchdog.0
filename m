@@ -1,296 +1,194 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:39772 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933861AbcLMRFf (ORCPT
+Received: from mail1.bemta6.messagelabs.com ([193.109.254.109]:54395 "EHLO
+        mail1.bemta6.messagelabs.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1752952AbcLOTOf (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 13 Dec 2016 12:05:35 -0500
-Date: Tue, 13 Dec 2016 09:05:27 -0800
-From: Guenter Roeck <linux@roeck-us.net>
-To: Hui Chun Ong <hui.chun.ong@ni.com>
-Cc: "corbet@lwn.net" <corbet@lwn.net>, "wim@iguana.be" <wim@iguana.be>,
-        "rjw@rjwysocki.net" <rjw@rjwysocki.net>,
-        Julia Cartwright <julia.cartwright@ni.com>,
-        "mika.westerberg@linux.intel.com" <mika.westerberg@linux.intel.com>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-        Jonathan Hearn <jonathan.hearn@ni.com>
-Subject: Re: [PATCH v3] watchdog: nic7018_wdt: Add NIC7018 watchdog driver
-Message-ID: <20161213170527.GB29124@roeck-us.net>
-References: <1481365545-49894-1-git-send-email-hui.chun.ong@ni.com>
- <5f137b29-b90b-df10-ca8f-0059f1c556c1@roeck-us.net>
- <1481624182.54688.13.camel@ni.com>
+        Thu, 15 Dec 2016 14:14:35 -0500
+From: Steve Twiss <stwiss.opensource@diasemi.com>
+To: Eduardo Valentin <edubezval@gmail.com>
+CC: LINUX-KERNEL <linux-kernel@vger.kernel.org>,
+        LINUX-PM <linux-pm@vger.kernel.org>,
+        Zhang Rui <rui.zhang@intel.com>,
+        DEVICETREE <devicetree@vger.kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        LINUX-INPUT <linux-input@vger.kernel.org>,
+        LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
+        Lee Jones <lee.jones@linaro.org>,
+        "Liam Girdwood" <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Support Opensource <Support.Opensource@diasemi.com>,
+        Wim Van Sebroeck <wim@iguana.be>
+Subject: RE: [PATCH V2 09/10] thermal: da9062/61: Thermal junction
+ temperature monitoring driver
+Date: Thu, 15 Dec 2016 19:06:35 +0000
+Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7018CD34C5F@SW-EX-MBX02.diasemi.com>
+References: <cover.1477501000.git.stwiss.opensource@diasemi.com>
+ <20fefc922818ab0511101f73b1a4d3468c9a8ed3.1477501000.git.stwiss.opensource@diasemi.com>
+ <20161129012409.GA2813@localhost.localdomain>
+ <6ED8E3B22081A4459DAC7699F3695FB7018CCEC2F8@SW-EX-MBX02.diasemi.com>
+ <20161130060956.GA28175@localhost.localdomain>
+In-Reply-To: <20161130060956.GA28175@localhost.localdomain>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <1481624182.54688.13.camel@ni.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Dec 13, 2016 at 10:16:23AM +0000, Hui Chun Ong wrote:
-> On Sat, 2016-12-10 at 09:22 -0800, Guenter Roeck wrote:
-> > On 12/10/2016 02:25 AM, Hui Chun Ong wrote:
-> > >=20
-> > > Add support for the watchdog timer on PXI Embedded Controller.
-> > >=20
-> > > Signed-off-by: Hui Chun Ong <hui.chun.ong@ni.com>
-> > > ---
-> > > v2: Remove mutex lock and platform_device *pdev fields from struct
-> > > nic7018_wdt.
-> > > =A0=A0=A0=A0Update config NIC7018_WDT description.
-> > > =A0=A0=A0=A0Update nic7018_get_config() to never return error.
-> > > =A0=A0=A0=A0Remove checking for IO resource size in nic7018_probe()=
-.
-> > >=20
-> > > v1: Remove non-standard attributes.
-> > > =A0=A0=A0=A0Change from acpi_driver to platform_driver.
-> > > =A0=A0=A0=A0Rename driver from ni7018_wdt to nic7018_wdt.
-> > > ---
-> > > =A0Documentation/watchdog/watchdog-parameters.txt |=A0=A0=A05 +
-> > > =A0drivers/watchdog/Kconfig=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0|=A0=A010 +
-> > > =A0drivers/watchdog/Makefile=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0|=A0=A0=A01 +
-> > > =A0drivers/watchdog/nic7018_wdt.c=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0| 277
-> > > +++++++++++++++++++++++++
-> > > =A04 files changed, 293 insertions(+)
-> > > =A0create mode 100644 drivers/watchdog/nic7018_wdt.c
-> > >=20
-> > > diff --git a/Documentation/watchdog/watchdog-parameters.txt
-> > > b/Documentation/watchdog/watchdog-parameters.txt
-> > > index a8d3642..bd142fa 100644
-> > > --- a/Documentation/watchdog/watchdog-parameters.txt
-> > > +++ b/Documentation/watchdog/watchdog-parameters.txt
-> > > @@ -209,6 +209,11 @@ timeout: Initial watchdog timeout in seconds
-> > > (0<timeout<516, default=3D60)
-> > > =A0nowayout: Watchdog cannot be stopped once started
-> > > =A0	(default=3Dkernel config parameter)
-> > > =A0-------------------------------------------------
-> > > +nic7018_wdt:
-> > > +timeout: Initial watchdog timeout in seconds (0<timeout<464,
-> > > default=3D80)
-> > > +nowayout: Watchdog cannot be stopped once started
-> > > +	(default=3Dkernel config parameter)
-> > > +-------------------------------------------------
-> > > =A0nuc900_wdt:
-> > > =A0heartbeat: Watchdog heartbeats in seconds.
-> > > =A0	(default =3D 15)
-> > > diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> > > index fdd3228..baa79825 100644
-> > > --- a/drivers/watchdog/Kconfig
-> > > +++ b/drivers/watchdog/Kconfig
-> > > @@ -1325,6 +1325,16 @@ config NI903X_WDT
-> > > =A0	=A0=A0To compile this driver as a module, choose M here: the
-> > > module will be
-> > > =A0	=A0=A0called ni903x_wdt.
-> > >=20
-> > > +config NIC7018_WDT
-> > > +	tristate "NIC7018 Watchdog"
-> > > +	depends on X86 && ACPI
-> > > +	select WATCHDOG_CORE
-> > > +	---help---
-> > > +	=A0=A0Support for National Instruments NIC7018 Watchdog.
-> > > +
-> > > +	=A0=A0To compile this driver as a module, choose M here: the
-> > > module will be
-> > > +	=A0=A0called nic7018_wdt.
-> > > +
-> > > =A0# M32R Architecture
-> > >=20
-> > > =A0# M68K Architecture
-> > > diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-> > > index caa9f4a..bd88e2e 100644
-> > > --- a/drivers/watchdog/Makefile
-> > > +++ b/drivers/watchdog/Makefile
-> > > @@ -139,6 +139,7 @@ obj-$(CONFIG_INTEL_SCU_WATCHDOG) +=3D
-> > > intel_scu_watchdog.o
-> > > =A0obj-$(CONFIG_INTEL_MID_WATCHDOG) +=3D intel-mid_wdt.o
-> > > =A0obj-$(CONFIG_INTEL_MEI_WDT) +=3D mei_wdt.o
-> > > =A0obj-$(CONFIG_NI903X_WDT) +=3D ni903x_wdt.o
-> > > +obj-$(CONFIG_NIC7018_WDT) +=3D nic7018_wdt.o
-> > >=20
-> > > =A0# M32R Architecture
-> > >=20
-> > > diff --git a/drivers/watchdog/nic7018_wdt.c
-> > > b/drivers/watchdog/nic7018_wdt.c
-> > > new file mode 100644
-> > > index 0000000..9b7b8d3
-> > > --- /dev/null
-> > > +++ b/drivers/watchdog/nic7018_wdt.c
-> > > @@ -0,0 +1,277 @@
-> > > +/*
-> > > + * Copyright (C) 2016 National Instruments Corp.
-> > > + *
-> > > + * This program is free software; you can redistribute it and/or
-> > > modify
-> > > + * it under the terms of the GNU General Public License as
-> > > published by
-> > > + * the Free Software Foundation; either version 2 of the License,
-> > > or
-> > > + * (at your option) any later version.
-> > > + *
-> > > + * This program is distributed in the hope that it will be useful,
-> > > + * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> > > + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.=A0=A0See t=
-he
-> > > + * GNU General Public License for more details.
-> > > + */
-> > > +
-> > > +#include <linux/acpi.h>
-> > > +#include <linux/bitops.h>
-> > > +#include <linux/device.h>
-> > > +#include <linux/io.h>
-> > > +#include <linux/module.h>
-> > > +#include <linux/platform_device.h>
-> > > +#include <linux/watchdog.h>
-> > > +
-> > > +#define LOCK			0xA5
-> > > +#define UNLOCK			0x5A
-> > > +
-> > > +#define WDT_CTRL_RESET_EN	BIT(7)
-> > > +#define WDT_RELOAD_PORT_EN	BIT(7)
-> > > +
-> > > +#define WDT_CTRL		1
-> > > +#define WDT_RELOAD_CTRL		2
-> > > +#define WDT_PRESET_PRESCALE	4
-> > > +#define WDT_REG_LOCK		5
-> > > +#define WDT_COUNT		6
-> > > +#define WDT_RELOAD_PORT		7
-> > > +
-> > > +#define WDT_MIN_TIMEOUT		1
-> > > +#define WDT_MAX_TIMEOUT		464
-> > > +#define WDT_DEFAULT_TIMEOUT	80
-> > > +
-> > > +#define WDT_MAX_COUNTER		15
-> > > +
-> > > +static unsigned int timeout;
-> > > +module_param(timeout, uint, 0);
-> > > +MODULE_PARM_DESC(timeout,
-> > > +		=A0"Watchdog timeout in seconds. (default=3D"
-> > > +		=A0__MODULE_STRING(WDT_DEFAULT_TIMEOUT) ")");
-> > > +
-> > > +static bool nowayout =3D WATCHDOG_NOWAYOUT;
-> > > +module_param(nowayout, bool, 0);
-> > > +MODULE_PARM_DESC(nowayout,
-> > > +		=A0"Watchdog cannot be stopped once started.
-> > > (default=3D"
-> > > +		=A0__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
-> > > +
-> > > +struct nic7018_wdt {
-> > > +	u16 io_base;
-> > > +	u32 period_ms;
-> > > +	struct watchdog_device wdd;
-> > > +};
-> > > +
-> > > +struct nic7018_config {
-> > > +	u32 period_ms;
-> > > +	u8 divider;
-> > > +};
-> > > +
-> > > +static const struct nic7018_config nic7018_configs[] =3D {
-> > > +	{=A0=A0=A0125, 3 },
-> > The maximum timeout is (125 * 15) - 62, or 1813 ms. This will never
-> > be selected,
-> > since with a timeout of 2s count will be 17 below, and the entry will
-> > be skipped.
-> > With a timeout of 1000, the second table entry will be used as well
-> > since the
-> > timeout with the first entry is not exactly 1 second.
-> >=20
-> > Given that, you might as well drop this entry.
-> >=20
-> >=20
-> > >=20
-> > > +	{=A0=A02000, 4 },
-> > > +	{ 32000, 5 },
-> > > +};
-> > > +
-> > > +static inline u32 nic7018_timeout_ms(u32 period_ms, u8 counter)
-> > > +{
-> > > +	return period_ms * counter - period_ms / 2;
-> > > +}
-> > > +
-> > > +static const struct nic7018_config *nic7018_get_config(u32
-> > > timeout_ms,
-> > > +						=A0=A0=A0=A0=A0=A0=A0u8
-> > > *counter)
-> > > +{
-> > > +	u32 delta, i, best_delta =3D U32_MAX;
-> > > +	const struct nic7018_config *config, *best_config =3D NULL;
-> > > +	u8 count;
-> > > +	*counter =3D WDT_MAX_COUNTER;
-> > > +
-> > > +	for (i =3D 0; i < ARRAY_SIZE(nic7018_configs); i++) {
-> > > +		config =3D &nic7018_configs[i];
-> > > +
-> > > +		count =3D DIV_ROUND_UP(timeout_ms + config-
-> > > >period_ms / 2,
-> > > +				=A0=A0=A0=A0=A0config->period_ms);
-> > > +
-> > > +		if (count > WDT_MAX_COUNTER)
-> > > +			continue;
-> > > +
-> > > +		delta =3D nic7018_timeout_ms(config->period_ms,
-> > > count) -
-> > > +			timeout_ms;
-> > > +
-> > > +		if (delta < best_delta) {
-> > > +			best_delta =3D delta;
-> > > +			best_config =3D config;
-> > > +			*counter =3D count;
-> > > +		}
-> > > +	}
-> > > +
-> > > +	return (!best_config) ? config : best_config;
-> > Unecessary (), and
-> > 	return best_config ? : config;
-> > works without the '!'.
-> >=20
-> > Also, given the above, it seems to me that
-> >=20
-> > 	if (timeout < 30 && timeout !=3D 16) {
-> > 		config =3D &nic7018_configs[0];
-> > 		count =3D timeout / 2 + 1;
-> > 	} else {
-> > 		config =3D &nic7018_configs[1];
-> > 		count =3D DIV_ROUND_UP(timeout + 16, 32);
-> > 		if (count > WDT_MAX_COUNTER;
-> > 			count =3D WDT_MAX_COUNTER;
-> > 	}
-> > 	*counter =3D count;
-> > 	return config;
-> >=20
-> > would accomplish the same as your code and be much less complex and
-> > easier
-> > to understand. As a side effect, you could keep all timeouts in
-> > seconds
-> > and would not have to deal with milliseconds at all.
-> >=20
->=20
-> Is it possible to keep the miliseconds calculation in the driver even
-> though its doesn't seem to be needed? The reason is because the
-> watchdog timer has miliseconds timeout resolution that we plan to
-> utilize for our specific application. Do you foresee the watchdog core
-> adding support for miliseconds timeout?
->=20
+Hi Eduardo,
 
-Not anytime soon. There was some argument about it, but in practice Linux
-user space demons have a hard time meeting low-second timeouts. On top of=
- that,
-it really would only make sense for low-second or sub-second timeouts, bu=
-t for
-those I don't really see the point because it takes much longer to reboot=
+Thank you for your review comments,
+
+On 30 November 2016 06:10, Eduardo Valentin wrote,
+
+> On Tue, Nov 29, 2016 at 11:11:59AM +0000, Steve Twiss wrote:
+> > On 29 November 2016 01:24, Eduardo Valentin, wrote:
+> > > On Wed, Oct 26, 2016 at 05:56:39PM +0100, Steve Twiss wrote:
+
+[...]
+
+> > > > +static irqreturn_t da9062_thermal_irq_handler(int irq, void *dat=
+a)
+> > > > +{
+> > > > +	struct da9062_thermal *thermal =3D data;
+> > > > +
+> > > > +	disable_irq_nosync(thermal->irq);
+> > > > +	schedule_delayed_work(&thermal->work, 0);
+[...]
+> >
+> > Over-temperature triggering is event based: an interrupt happens when=
  the
-kernel.
+> > temperature rises above 125 degC. However, this event based system ch=
+anges into
+> > a polling operation to detect when the temperature falls below the th=
+reshold
+> > level again. This asymmetry in the chip's behaviour is the reasoning =
+behind
+> > why I am not using the thermal core's built-in polling functionality.
+> >
+> > When over-temperature is reached, the interrupt from the DA9061/2 wil=
+l be
+> > repeatedly triggered. The IRQ is disabled when the first over-tempera=
+ture event
+> > happens and the status bit is polled using the work-queue until it be=
+comes false.
+> > After that, the IRQ is re-enabled again so a new critical temperature=
+ event can
+> > be detected.
+> >
+> > After the interrupt has happened, event bit for the interrupt switche=
+s into a status
+> > bit and is used for polling and detecting when the temperature drops =
+below the
+> > threshold.
+>=20
+> OK. got it. Then, I am assuming your strategy here is to keep periodica=
+lly issuing uevents
+> (HOT trip point) to userland, hoping that something would change the
+> system power consumption, then, relying on the hardware shutdown protec=
+tion
+> if nothing happens.
+>=20
+> I would say, your above explanation, and the uevent based strategy,
+> deserves to be at least in the commit message, preferably in the driver
+> documentation, so people know what to expect from the driver.
 
-In my opinion, it is better to keep the code simple and add complexity la=
-ter
-if/when needed. Writing complex code just in case it may be needed at som=
+Ah, yes. I did not discuss that part in the design. Looking at this objec=
+tively, it is not
+immediately obvious -- although you did describe my intentions exactly. I=
+ will add
+those two changes into the next PATCH V5 submission so the meaning is exp=
+licit.
+
+> The data sheet does not mention anything, but does one have any silicon
+> lifetime implication if one leaves the PMIC running for very long time
+> in a temperature between Twarn and Tcrit?
+
+As of writing this reply, the latest available datasheet for DA9062 conta=
+ins
+sections on "Absolute Maximum Ratings" and "Recommended Operating Conditi=
+ons"
+for the junction temperature.
+
+Regarding the warning temperature the datasheet says, "Operating the devi=
+ce in
+conditions exceeding [this level] [...] for extended periods of time may
+affect device reliability".
+
+Reference to the documentation in the Linux kernel would also be useful o=
+n
+the warning threshold. The driver defines this trip-point as,
+
+Documentation/devicetree/bindings/thermal/thermal.txt
+"hot": A trip point to notify emergency
+
+I chose this trip point to indicate a strong recommendation that the
+temperature warning is treated as an emergency, and should be brought und=
+er
+control as fast as possible. This will stop any potential reliability pro=
+blems before
+the hardware enforces "a shutdown sequence to RESET mode" in the PMIC.
+
+> Now, if my understand is correct, would it make sense to have still a
+> failsafe mechanism in the driver? Maybe having a max number of polling?
+
+I'm not certain what failsafe capability the general driver "should" have=
+.
+I am not implementing a notify function for instance. I expect the genera=
+l
+driver to be modified by the designers of the final integrated system. Th=
+ey
+will also have access to the PMIC product datasheet and the information o=
+n
+over-temperature and would be best placed to make a decision for their
+system.
+
+> > > > +	thermal->zone =3D thermal_zone_device_register(thermal->config-=
+>name,
+> > > > +					1, 0, thermal,
+> > > > +					&da9062_thermal_ops, NULL, 0,
+> > > > +					0);
+> > >
+> > > Did you try using of-thermal?
+> > >
+> > > So you would avoid having specific DT properties for something that
+> > > there is already a defined property?
+
+[...]
+
+> using the of-thermal DT support to get the polling value, instead of
+> you having a manufacturer specific property:
+> Documentation/devicetree/bindings/thermal/thermal.txt
+>=20
+> But given that your case is more specific, I start to see why you
+> avoided using it. But still, you could probably get the polling
+> values from of-thermal, populated in the tz struct, then using them fro=
+m
+> the tz, when handling the IRQ event.
+>=20
+> Probably your regular polling should always be set to 0, and the passiv=
 e
-point in the future doesn't make much sense to me.
+> polling to the value you want.
 
-Guenter
+Thank you for your additional explanation.
+
+I will implement this as part of the next PATCH V5 submission.
+
+> then again, this comment is more from a DT perspective than from the
+> driver code itself. Just trying to avoid specific properties that may
+> get described by what is already defined.
+
+I agree. If I can possibly avoid creating device specific properties that=
+ are not
+required and instead re-use existing core ones, I should do that.
+
+[...]
+=20
+Regards,
+Steve
 --
 To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
  in
