@@ -1,90 +1,64 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:44781 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753031AbcLTV7m (ORCPT
+Received: from mail-io0-f195.google.com ([209.85.223.195]:34671 "EHLO
+        mail-io0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932473AbcLSW2t (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 20 Dec 2016 16:59:42 -0500
-Subject: Re: [PATCH] watchdog: update my email address
-To: John Crispin <john@phrozen.org>, Wim Van Sebroeck <wim@iguana.be>
-References: <1482260219-61453-1-git-send-email-john@phrozen.org>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <d5277d18-841c-286e-6d77-c61be39309f4@roeck-us.net>
-Date: Tue, 20 Dec 2016 12:28:10 -0800
+        Mon, 19 Dec 2016 17:28:49 -0500
+Date: Mon, 19 Dec 2016 16:28:46 -0600
+From: Rob Herring <robh@kernel.org>
+To: Steve Twiss <stwiss.opensource@diasemi.com>
+Cc: DEVICETREE <devicetree@vger.kernel.org>,
+        Eduardo Valentin <edubezval@gmail.com>,
+        LINUX-KERNEL <linux-kernel@vger.kernel.org>,
+        LINUX-PM <linux-pm@vger.kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Zhang Rui <rui.zhang@intel.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        LINUX-INPUT <linux-input@vger.kernel.org>,
+        LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
+        Lee Jones <lee.jones@linaro.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Lukasz Luba <lukasz.luba@arm.com>,
+        Mark Brown <broonie@kernel.org>,
+        Support Opensource <support.opensource@diasemi.com>,
+        Wim Van Sebroeck <wim@iguana.be>
+Subject: Re: [PATCH V5 2/8] Documentation: devicetree: thermal: da9062/61
+ TJUNC temperature binding
+Message-ID: <20161219222846.wkj2tshtxfnwqref@rob-hp-laptop>
+References: <cover.1481828921.git.stwiss.opensource@diasemi.com>
+ <ae903f7c3c6325420b90c7f691655d902d137d1f.1481828921.git.stwiss.opensource@diasemi.com>
 MIME-Version: 1.0
-In-Reply-To: <1482260219-61453-1-git-send-email-john@phrozen.org>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ae903f7c3c6325420b90c7f691655d902d137d1f.1481828921.git.stwiss.opensource@diasemi.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 12/20/2016 10:56 AM, John Crispin wrote:
-> This patch updates my email address as I no longer have access to the old
-> one.
->
-> Signed-off-by: John Crispin <john@phrozen.org>
-
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-
+On Thu, Dec 15, 2016 at 07:08:39PM +0000, Steve Twiss wrote:
+> From: Steve Twiss <stwiss.opensource@diasemi.com>
+> 
+> Device tree binding information for DA9062 and DA9061 thermal junction
+> temperature monitor.
+> 
+> Binding descriptions for the DA9061 and DA9062 thermal TJUNC supervisor
+> device driver, using a single THERMAL_TRIP_HOT trip-wire and allowing for
+> a configurable polling period for over-temperature polling.
+> 
+> This patch also adds two examples, one for DA9062 and one for DA9061. The 
+> DA9061 example uses a fall-back compatible string for the DA9062.
+> 
+> Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+> 
 > ---
->  drivers/watchdog/lantiq_wdt.c |    4 ++--
->  drivers/watchdog/mt7621_wdt.c |    4 ++--
->  drivers/watchdog/rt2880_wdt.c |    2 +-
->  3 files changed, 5 insertions(+), 5 deletions(-)
->
-> diff --git a/drivers/watchdog/lantiq_wdt.c b/drivers/watchdog/lantiq_wdt.c
-> index 582f2fa..e082367 100644
-> --- a/drivers/watchdog/lantiq_wdt.c
-> +++ b/drivers/watchdog/lantiq_wdt.c
-> @@ -3,7 +3,7 @@
->   *  under the terms of the GNU General Public License version 2 as published
->   *  by the Free Software Foundation.
->   *
-> - *  Copyright (C) 2010 John Crispin <blogic@openwrt.org>
-> + *  Copyright (C) 2010 John Crispin <john@phrozen.org>
->   *  Based on EP93xx wdt driver
->   */
->
-> @@ -240,6 +240,6 @@
->
->  module_param(nowayout, bool, 0);
->  MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started");
-> -MODULE_AUTHOR("John Crispin <blogic@openwrt.org>");
-> +MODULE_AUTHOR("John Crispin <john@phrozen.org>");
->  MODULE_DESCRIPTION("Lantiq SoC Watchdog");
->  MODULE_LICENSE("GPL");
-> diff --git a/drivers/watchdog/mt7621_wdt.c b/drivers/watchdog/mt7621_wdt.c
-> index d5735c1..2fb5a30 100644
-> --- a/drivers/watchdog/mt7621_wdt.c
-> +++ b/drivers/watchdog/mt7621_wdt.c
-> @@ -1,7 +1,7 @@
->  /*
->   * Ralink MT7621/MT7628 built-in hardware watchdog timer
->   *
-> - * Copyright (C) 2014 John Crispin <blogic@openwrt.org>
-> + * Copyright (C) 2014 John Crispin <john@phrozen.org>
->   *
->   * This driver was based on: drivers/watchdog/rt2880_wdt.c
->   *
-> @@ -181,5 +181,5 @@ static void mt7621_wdt_shutdown(struct platform_device *pdev)
->  module_platform_driver(mt7621_wdt_driver);
->
->  MODULE_DESCRIPTION("MediaTek MT762x hardware watchdog driver");
-> -MODULE_AUTHOR("John Crispin <blogic@openwrt.org");
-> +MODULE_AUTHOR("John Crispin <john@phrozen.org");
->  MODULE_LICENSE("GPL v2");
-> diff --git a/drivers/watchdog/rt2880_wdt.c b/drivers/watchdog/rt2880_wdt.c
-> index 14b4fd4..4c471fe7 100644
-> --- a/drivers/watchdog/rt2880_wdt.c
-> +++ b/drivers/watchdog/rt2880_wdt.c
-> @@ -2,7 +2,7 @@
->   * Ralink RT288x/RT3xxx/MT76xx built-in hardware watchdog timer
->   *
->   * Copyright (C) 2011 Gabor Juhos <juhosg@openwrt.org>
-> - * Copyright (C) 2013 John Crispin <blogic@openwrt.org>
-> + * Copyright (C) 2013 John Crispin <john@phrozen.org>
->   *
->   * This driver was based on: drivers/watchdog/softdog.c
->   *
->
+> This patch applies against linux-next and v4.9
+> 
+> v4 -> v5
+>  - Rebased from v4.8 to v4.9
+>  - Updates from comments by Eduardo Valentin
+>  - Replace vendor defined dlg,tjunc-temp-polling-period-ms with standard
+>    thermal core polling-delay-passive as part of the device tree
+>    initialisation
+>  - Remove Acked-by Rob Herring
 
+Acked-by: Rob Herring <robh@kernel.org>
