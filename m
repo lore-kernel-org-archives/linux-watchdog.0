@@ -1,91 +1,83 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:56581 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753105AbcLPDpF (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 15 Dec 2016 22:45:05 -0500
-Subject: Re: [PATCH] watchdog: it87_wdt: add IT8620E ID
-To: "Maciej S. Szmigiero" <mail@maciej.szmigiero.name>,
-        Wim Van Sebroeck <wim@iguana.be>
-References: <ad227ebe-5756-be5d-37d6-9898e088769a@maciej.szmigiero.name>
-Cc: linux-watchdog@vger.kernel.org,
-        linux-kernel <linux-kernel@vger.kernel.org>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <da925695-85e7-43a4-064d-bc20fb89425a@roeck-us.net>
-Date: Thu, 15 Dec 2016 19:45:02 -0800
-MIME-Version: 1.0
-In-Reply-To: <ad227ebe-5756-be5d-37d6-9898e088769a@maciej.szmigiero.name>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Received: from nbd.name ([46.4.11.11]:53562 "EHLO nbd.name"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753884AbcLTS4u (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 20 Dec 2016 13:56:50 -0500
+From: John Crispin <john@phrozen.org>
+To: Wim Van Sebroeck <wim@iguana.be>,
+        Guenter Roeck <linux@roeck-us.net>
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+        John Crispin <john@phrozen.org>
+Subject: [PATCH] watchdog: update my email address
+Date: Tue, 20 Dec 2016 19:56:59 +0100
+Message-Id: <1482260219-61453-1-git-send-email-john@phrozen.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 12/15/2016 02:52 PM, Maciej S. Szmigiero wrote:
-> This adds IT8620E chip ID to it87_wdt driver.
-> Such chip is often found on current Gigabyte motherboards, it is allegedly
-> custom made for this manufacturer.
->
-> Upon testing it looks like it has a 16-bit timer and cannot be reset via
-> game port (only via CIR), so it is similar to IT87{18,20,21,28,83} chips.
->
-> Tested on GA-F2A88XM-HD3P board.
->
-> Signed-off-by: Maciej S. Szmigiero <mail@maciej.szmigiero.name>
+This patch updates my email address as I no longer have access to the old
+one.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: John Crispin <john@phrozen.org>
+---
+ drivers/watchdog/lantiq_wdt.c |    4 ++--
+ drivers/watchdog/mt7621_wdt.c |    4 ++--
+ drivers/watchdog/rt2880_wdt.c |    2 +-
+ 3 files changed, 5 insertions(+), 5 deletions(-)
 
-> ---
->  drivers/watchdog/Kconfig    | 4 ++--
->  drivers/watchdog/it87_wdt.c | 4 +++-
->  2 files changed, 5 insertions(+), 3 deletions(-)
->
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index f1de1214f10f..acb00b53a520 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -1008,8 +1008,8 @@ config IT87_WDT
->  	tristate "IT87 Watchdog Timer"
->  	depends on X86
->  	---help---
-> -	  This is the driver for the hardware watchdog on the ITE IT8702,
-> -	  IT8712, IT8716, IT8718, IT8720, IT8721, IT8726 and IT8728
-> +	  This is the driver for the hardware watchdog on the ITE IT8620,
-> +	  IT8702, IT8712, IT8716, IT8718, IT8720, IT8721, IT8726 and IT8728
->  	  Super I/O chips.
->
->  	  If the driver does not work, then make sure that the game port in
-> diff --git a/drivers/watchdog/it87_wdt.c b/drivers/watchdog/it87_wdt.c
-> index e54839b12650..b9878c41598f 100644
-> --- a/drivers/watchdog/it87_wdt.c
-> +++ b/drivers/watchdog/it87_wdt.c
-> @@ -12,7 +12,7 @@
->   *		    http://www.ite.com.tw/
->   *
->   *	Support of the watchdog timers, which are available on
-> - *	IT8702, IT8712, IT8716, IT8718, IT8720, IT8721, IT8726,
-> + *	IT8620, IT8702, IT8712, IT8716, IT8718, IT8720, IT8721, IT8726,
->   *	IT8728 and IT8783.
->   *
->   *	This program is free software; you can redistribute it and/or
-> @@ -78,6 +78,7 @@
->
->  /* Chip Id numbers */
->  #define NO_DEV_ID	0xffff
-> +#define IT8620_ID	0x8620
->  #define IT8702_ID	0x8702
->  #define IT8705_ID	0x8705
->  #define IT8712_ID	0x8712
-> @@ -630,6 +631,7 @@ static int __init it87_wdt_init(void)
->  	case IT8726_ID:
->  		max_units = 65535;
->  		break;
-> +	case IT8620_ID:
->  	case IT8718_ID:
->  	case IT8720_ID:
->  	case IT8721_ID:
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
+diff --git a/drivers/watchdog/lantiq_wdt.c b/drivers/watchdog/lantiq_wdt.c
+index 582f2fa..e082367 100644
+--- a/drivers/watchdog/lantiq_wdt.c
++++ b/drivers/watchdog/lantiq_wdt.c
+@@ -3,7 +3,7 @@
+  *  under the terms of the GNU General Public License version 2 as published
+  *  by the Free Software Foundation.
+  *
+- *  Copyright (C) 2010 John Crispin <blogic@openwrt.org>
++ *  Copyright (C) 2010 John Crispin <john@phrozen.org>
+  *  Based on EP93xx wdt driver
+  */
+ 
+@@ -240,6 +240,6 @@
+ 
+ module_param(nowayout, bool, 0);
+ MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started");
+-MODULE_AUTHOR("John Crispin <blogic@openwrt.org>");
++MODULE_AUTHOR("John Crispin <john@phrozen.org>");
+ MODULE_DESCRIPTION("Lantiq SoC Watchdog");
+ MODULE_LICENSE("GPL");
+diff --git a/drivers/watchdog/mt7621_wdt.c b/drivers/watchdog/mt7621_wdt.c
+index d5735c1..2fb5a30 100644
+--- a/drivers/watchdog/mt7621_wdt.c
++++ b/drivers/watchdog/mt7621_wdt.c
+@@ -1,7 +1,7 @@
+ /*
+  * Ralink MT7621/MT7628 built-in hardware watchdog timer
+  *
+- * Copyright (C) 2014 John Crispin <blogic@openwrt.org>
++ * Copyright (C) 2014 John Crispin <john@phrozen.org>
+  *
+  * This driver was based on: drivers/watchdog/rt2880_wdt.c
+  *
+@@ -181,5 +181,5 @@ static void mt7621_wdt_shutdown(struct platform_device *pdev)
+ module_platform_driver(mt7621_wdt_driver);
+ 
+ MODULE_DESCRIPTION("MediaTek MT762x hardware watchdog driver");
+-MODULE_AUTHOR("John Crispin <blogic@openwrt.org");
++MODULE_AUTHOR("John Crispin <john@phrozen.org");
+ MODULE_LICENSE("GPL v2");
+diff --git a/drivers/watchdog/rt2880_wdt.c b/drivers/watchdog/rt2880_wdt.c
+index 14b4fd4..4c471fe7 100644
+--- a/drivers/watchdog/rt2880_wdt.c
++++ b/drivers/watchdog/rt2880_wdt.c
+@@ -2,7 +2,7 @@
+  * Ralink RT288x/RT3xxx/MT76xx built-in hardware watchdog timer
+  *
+  * Copyright (C) 2011 Gabor Juhos <juhosg@openwrt.org>
+- * Copyright (C) 2013 John Crispin <blogic@openwrt.org>
++ * Copyright (C) 2013 John Crispin <john@phrozen.org>
+  *
+  * This driver was based on: drivers/watchdog/softdog.c
+  *
+-- 
+1.7.10.4
 
