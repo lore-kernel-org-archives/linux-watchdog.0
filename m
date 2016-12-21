@@ -1,718 +1,200 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail1.bemta5.messagelabs.com ([195.245.231.148]:59350 "EHLO
-        mail1.bemta5.messagelabs.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1753273AbcLOTjR (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 15 Dec 2016 14:39:17 -0500
-Message-ID: <ad649a91daa6191f2385dfe79c6ec8ca339f597c.1481828921.git.stwiss.opensource@diasemi.com>
-In-Reply-To: <cover.1481828921.git.stwiss.opensource@diasemi.com>
-References: <cover.1481828921.git.stwiss.opensource@diasemi.com>
-From: Steve Twiss <stwiss.opensource@diasemi.com>
-Date: Thu, 15 Dec 2016 19:08:40 +0000
-Subject: [PATCH V5 4/8] mfd: da9061: MFD core support
-To: LINUX-KERNEL <linux-kernel@vger.kernel.org>,
-        Lee Jones <lee.jones@linaro.org>
-CC: DEVICETREE <devicetree@vger.kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Eduardo Valentin <edubezval@gmail.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        LINUX-INPUT <linux-input@vger.kernel.org>,
-        LINUX-PM <linux-pm@vger.kernel.org>,
-        LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Support Opensource <support.opensource@diasemi.com>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        Zhang Rui <rui.zhang@intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain
+Received: from mx1.redhat.com ([209.132.183.28]:44940 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751583AbcLUGq3 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Wed, 21 Dec 2016 01:46:29 -0500
+From: fu.wei@linaro.org
+To: rjw@rjwysocki.net, lenb@kernel.org, daniel.lezcano@linaro.org,
+        tglx@linutronix.de, marc.zyngier@arm.com, mark.rutland@arm.com,
+        lorenzo.pieralisi@arm.com, sudeep.holla@arm.com,
+        hanjun.guo@linaro.org
+Cc: linux-arm-kernel@lists.infradead.org, linaro-acpi@lists.linaro.org,
+        linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
+        rruigrok@codeaurora.org, harba@codeaurora.org, cov@codeaurora.org,
+        timur@codeaurora.org, graeme.gregory@linaro.org,
+        al.stone@linaro.org, jcm@redhat.com, wei@redhat.com, arnd@arndb.de,
+        catalin.marinas@arm.com, will.deacon@arm.com,
+        Suravee.Suthikulpanit@amd.com, leo.duran@amd.com, wim@iguana.be,
+        linux@roeck-us.net, linux-watchdog@vger.kernel.org,
+        tn@semihalf.com, christoffer.dall@linaro.org, julien.grall@arm.com,
+        Fu Wei <fu.wei@linaro.org>
+Subject: [PATCH v19 00/15] acpi, clocksource: add GTDT driver and GTDT support in arm_arch_timer
+Date: Wed, 21 Dec 2016 14:45:48 +0800
+Message-Id: <20161221064603.11830-1-fu.wei@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-From: Steve Twiss <stwiss.opensource@diasemi.com>
+From: Fu Wei <fu.wei@linaro.org>
 
-MFD support for DA9061 is provided as part of the DA9062 device driver.
+This patchset:
+    (1)Preparation for adding GTDT support in arm_arch_timer:
+        1. Move some enums and marcos to header file;
+        2. Add a new enum for spi type;
+        3. Improve printk relevant code;
+        4. Rename some enums and defines;
+        5. Rework PPI determination;
+        6. Rework counter frequency detection;
+        7. Refactor arch_timer_needs_probing, move it into DT init call
+        8. Introduce some new structs and refactor the MMIO timer init code
+        for reusing some common code.
 
-The registers header file adds two new chip variant IDs defined in DA9061
-and DA9062 hardware. The core header file adds new software enumerations
-for listing the valid DA9061 IRQs and a da9062_compatible_types enumeration
-for distinguishing between DA9061/62 devices in software.
+    (2)Introduce ACPI GTDT parser: drivers/acpi/arm64/acpi_gtdt.c
+    Parse all kinds of timer in GTDT table of ACPI:arch timer,
+    memory-mapped timer and SBSA Generic Watchdog timer.
+    This driver can help to simplify all the relevant timer drivers,
+    and separate all the ACPI GTDT knowledge from them.
 
-The core source code adds a new .compatible of_device_id entry. This is
-extended from DA9062 to support both "dlg,da9061" and "dlg,da9062". The
-.data entry now holds a reference to the enumerated device type.
+    (3)Simplify ACPI code for arm_arch_timer
 
-A new regmap_irq_chip model is added for DA9061 and this supports the new
-list of regmap_irq entries. A new mfd_cell da9061_devs[] array lists the
-new sub system components for DA9061. Support is added for a new DA9061
-regmap_config which lists the correct readable, writable and volatile
-ranges for this chip.
+    (4)Add GTDT support for ARM memory-mapped timer.
 
-The probe function uses the device tree compatible string to switch on the
-da9062_compatible_types and configure the correct mfd cells, irq chip and
-regmap config.
- 
-Kconfig is updated to reflect support for DA9061 and DA9062 PMICs.
+This patchset has been tested on the following platforms with ACPI enabled:
+    (1)ARM Foundation v8 model
 
-Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+Changelog:
+v19: https://lkml.org/lkml/2016/12/21/
+     Fix a '\n' missing in a error message in arch_timer_mem_init.
+     Add "request_mem_region" for ioremapping cntbase, according to
+     f947ee1 clocksource/drivers/arm_arch_timer: Map frame with of_io_request_and_map()
+     Rebase to 4.9.0-gfb779ff
 
----
-This patch applies against linux-next and v4.9
+v18: https://lkml.org/lkml/2016/12/8/446
+     Fix 8/15 patch problem of "int ret;" in arch_timer_acpi_init.
+     Rebase to 4.9.0-rc8-g9269898
 
-v4 -> v5
- - NO CODE CHANGE
- - Rebased from v4.8 to v4.9
+v17: https://lkml.org/lkml/2016/11/25/140
+     Take out some cleanups from 4/15.
+     Merge 5/15 and 6/15, improve PPI determination code,
+     improve commit message.
+     Rework counter frequency detection.
+     Move arch_timer_needs_of_probing into DT init call.
+     Move Platform Timer scan loop back to timer init call to avoid allocating
+     and free memory.
+     Improve all the exported functions' comment.
 
-v3 -> v4
- - Patch renamed from [PATCH V3 5/9] to [PATCH V4 4/8]
- - Removed DEFINE_RES_NAMED() macros for DA9061 resources and replaced
-   them with DEFINE_RES_IRQ_NAMED().
- - Removed whitespace
- - Reverted change for badly defined mfd_cell da9062_devs of_compatible
-   string from "dlg,da9062-watchdog" back to "dlg,da9062-wdt"
+v16: https://lkml.org/lkml/2016/11/16/268
+     Fix patchset problem about static enum ppi_nr of 01/13 in v15.
+     Refactor arch_timer_detect_rate.
+     Refactor arch_timer_needs_probing.
 
-v2 -> v3
- - NO CODE CHANGE
- - Patch renamed from [PATCH V2 05/10] to [PATCH V3 5/9]
+v15: https://lkml.org/lkml/2016/11/15/366
+     Re-order patches
+     Add arm_arch_timer refactoring patches to prepare for GTDT:
+         1. rename some  enums and defines, and some cleanups
+         2. separate out arch_timer_uses_ppi init code and fix a potential bug
+         3. Improve some new structs, refactor the timer init code.
+     Since the some structs have been changed, GTDT parser for memory-mapped
+     timer and SBSA Generic Watchdog timer have been update.
 
-v1 -> v2
- - Patch renamed from [PATCH V1 01/10] to [PATCH V2 05/10] -- these
-   changes were made to fix checkpatch warnings caused by the patch
-   set dependency order
- - Fixed typo in the commit message "readble" to "readable"
- - Removed the explicit cross-check to decide if there is a conflict
-   between the device tree compatible string and the hardware definition.
-   This patch assumes the device tree is correctly written and therefore
-   removes the need for a hardware/DT sanity check.
- - Removed extra semicolon in drivers/mfd/da9062-core.c:877
- - Re-write compatible entries into numerical order
+v14: https://lkml.org/lkml/2016/9/28/573
+     Separate memory-mapped timer GTDT support into two patches
+         1. Refactor the timer init code to prepare for GTDT
+         2. Add GTDT support for memory-mapped timer
 
-Lee,
+v13: http://www.mail-archive.com/linux-kernel@vger.kernel.org/msg1231717.html
+     Improve arm_arch_timer code for memory-mapped
+     timer GTDT support, refactor original memory-mapped timer
+     dt support for reusing some common code.
 
-Changes as described in the version history above.
+v12: https://lkml.org/lkml/2016/9/13/250
+     Rebase to latest Linux 4.8-rc6
+     Delete the confusing "skipping" in the error message.
 
-As previously:
-This patch adds support for the DA9061 PMIC. This is done as part of the
-existing DA9062 device driver by extending the of_device_id match table.
-This in turn allows new MFD cells, irq chip and regmap definitions to
-support DA9061.
+V11: https://lkml.org/lkml/2016/9/6/354
+     Rebase to latest Linux 4.8-rc5
+     Delete typedef (suggested by checkpatch.pl)
 
-Regards,
-Steve Twiss, Dialog Semiconductor Ltd.
+V10: https://lkml.org/lkml/2016/7/26/215
+     Drop the "readq" patch.
+     Rebase to latest Linux 4.7.
 
+V9: https://lkml.org/lkml/2016/7/25/345
+    Improve pr_err message in acpi gtdt driver.
+    Update Commit message for 7/9
+    shorten the irq mapping function name
+    Improve GTDT driver for memory-mapped timer
 
- drivers/mfd/Kconfig                  |   5 +-
- drivers/mfd/da9062-core.c            | 424 +++++++++++++++++++++++++++++++++--
- include/linux/mfd/da9062/core.h      |  27 ++-
- include/linux/mfd/da9062/registers.h |   2 +
- 4 files changed, 439 insertions(+), 19 deletions(-)
+v8: https://lkml.org/lkml/2016/7/19/660
+    Improve "pr_fmt(fmt)" definition: add "ACPI" in front of "GTDT",
+    and also improve printk message.
+    Simplify is_timer_block and is_watchdog.
+    Merge acpi_gtdt_desc_init and gtdt_arch_timer_init into acpi_gtdt_init();
+    Delete __init in include/linux/acpi.h for GTDT API
+    Make ARM64 select GTDT.
+    Delete "#include <linux/module.h>" from acpi_gtdt.c
+    Simplify GT block parse code.
 
-diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
-index c6df644..a1a780c 100644
---- a/drivers/mfd/Kconfig
-+++ b/drivers/mfd/Kconfig
-@@ -246,13 +246,14 @@ config MFD_DA9055
- 	  called "da9055"
- 
- config MFD_DA9062
--	tristate "Dialog Semiconductor DA9062 PMIC Support"
-+	tristate "Dialog Semiconductor DA9062/61 PMIC Support"
- 	select MFD_CORE
- 	select REGMAP_I2C
- 	select REGMAP_IRQ
- 	depends on I2C
- 	help
--	  Say yes here for support for the Dialog Semiconductor DA9062 PMIC.
-+	  Say yes here for support for the Dialog Semiconductor DA9061 and
-+	  DA9062 PMICs.
- 	  This includes the I2C driver and core APIs.
- 	  Additional drivers must be enabled in order to use the functionality
- 	  of the device.
-diff --git a/drivers/mfd/da9062-core.c b/drivers/mfd/da9062-core.c
-index 8f873866..4b5f70f 100644
---- a/drivers/mfd/da9062-core.c
-+++ b/drivers/mfd/da9062-core.c
-@@ -1,5 +1,5 @@
- /*
-- * Core, IRQ and I2C device driver for DA9062 PMIC
-+ * Core, IRQ and I2C device driver for DA9061 and DA9062 PMICs
-  * Copyright (C) 2015  Dialog Semiconductor Ltd.
-  *
-  * This program is free software; you can redistribute it and/or
-@@ -30,6 +30,70 @@
- #define	DA9062_REG_EVENT_B_OFFSET	1
- #define	DA9062_REG_EVENT_C_OFFSET	2
- 
-+static struct regmap_irq da9061_irqs[] = {
-+	/* EVENT A */
-+	[DA9061_IRQ_ONKEY] = {
-+		.reg_offset = DA9062_REG_EVENT_A_OFFSET,
-+		.mask = DA9062AA_M_NONKEY_MASK,
-+	},
-+	[DA9061_IRQ_WDG_WARN] = {
-+		.reg_offset = DA9062_REG_EVENT_A_OFFSET,
-+		.mask = DA9062AA_M_WDG_WARN_MASK,
-+	},
-+	[DA9061_IRQ_SEQ_RDY] = {
-+		.reg_offset = DA9062_REG_EVENT_A_OFFSET,
-+		.mask = DA9062AA_M_SEQ_RDY_MASK,
-+	},
-+	/* EVENT B */
-+	[DA9061_IRQ_TEMP] = {
-+		.reg_offset = DA9062_REG_EVENT_B_OFFSET,
-+		.mask = DA9062AA_M_TEMP_MASK,
-+	},
-+	[DA9061_IRQ_LDO_LIM] = {
-+		.reg_offset = DA9062_REG_EVENT_B_OFFSET,
-+		.mask = DA9062AA_M_LDO_LIM_MASK,
-+	},
-+	[DA9061_IRQ_DVC_RDY] = {
-+		.reg_offset = DA9062_REG_EVENT_B_OFFSET,
-+		.mask = DA9062AA_M_DVC_RDY_MASK,
-+	},
-+	[DA9061_IRQ_VDD_WARN] = {
-+		.reg_offset = DA9062_REG_EVENT_B_OFFSET,
-+		.mask = DA9062AA_M_VDD_WARN_MASK,
-+	},
-+	/* EVENT C */
-+	[DA9061_IRQ_GPI0] = {
-+		.reg_offset = DA9062_REG_EVENT_C_OFFSET,
-+		.mask = DA9062AA_M_GPI0_MASK,
-+	},
-+	[DA9061_IRQ_GPI1] = {
-+		.reg_offset = DA9062_REG_EVENT_C_OFFSET,
-+		.mask = DA9062AA_M_GPI1_MASK,
-+	},
-+	[DA9061_IRQ_GPI2] = {
-+		.reg_offset = DA9062_REG_EVENT_C_OFFSET,
-+		.mask = DA9062AA_M_GPI2_MASK,
-+	},
-+	[DA9061_IRQ_GPI3] = {
-+		.reg_offset = DA9062_REG_EVENT_C_OFFSET,
-+		.mask = DA9062AA_M_GPI3_MASK,
-+	},
-+	[DA9061_IRQ_GPI4] = {
-+		.reg_offset = DA9062_REG_EVENT_C_OFFSET,
-+		.mask = DA9062AA_M_GPI4_MASK,
-+	},
-+};
-+
-+static struct regmap_irq_chip da9061_irq_chip = {
-+	.name = "da9061-irq",
-+	.irqs = da9061_irqs,
-+	.num_irqs = DA9061_NUM_IRQ,
-+	.num_regs = 3,
-+	.status_base = DA9062AA_EVENT_A,
-+	.mask_base = DA9062AA_IRQ_MASK_A,
-+	.ack_base = DA9062AA_EVENT_A,
-+};
-+
- static struct regmap_irq da9062_irqs[] = {
- 	/* EVENT A */
- 	[DA9062_IRQ_ONKEY] = {
-@@ -102,6 +166,57 @@
- 	.ack_base = DA9062AA_EVENT_A,
- };
- 
-+static struct resource da9061_core_resources[] = {
-+	DEFINE_RES_IRQ_NAMED(DA9061_IRQ_VDD_WARN, "VDD_WARN"),
-+};
-+
-+static struct resource da9061_regulators_resources[] = {
-+	DEFINE_RES_IRQ_NAMED(DA9061_IRQ_LDO_LIM, "LDO_LIM"),
-+};
-+
-+static struct resource da9061_thermal_resources[] = {
-+	DEFINE_RES_IRQ_NAMED(DA9061_IRQ_TEMP, "THERMAL"),
-+};
-+
-+static struct resource da9061_wdt_resources[] = {
-+	DEFINE_RES_IRQ_NAMED(DA9061_IRQ_WDG_WARN, "WD_WARN"),
-+};
-+
-+static struct resource da9061_onkey_resources[] = {
-+	DEFINE_RES_IRQ_NAMED(DA9061_IRQ_ONKEY, "ONKEY"),
-+};
-+
-+static const struct mfd_cell da9061_devs[] = {
-+	{
-+		.name		= "da9061-core",
-+		.num_resources	= ARRAY_SIZE(da9061_core_resources),
-+		.resources	= da9061_core_resources,
-+	},
-+	{
-+		.name		= "da9062-regulators",
-+		.num_resources	= ARRAY_SIZE(da9061_regulators_resources),
-+		.resources	= da9061_regulators_resources,
-+	},
-+	{
-+		.name		= "da9061-watchdog",
-+		.num_resources	= ARRAY_SIZE(da9061_wdt_resources),
-+		.resources	= da9061_wdt_resources,
-+		.of_compatible  = "dlg,da9061-watchdog",
-+	},
-+	{
-+		.name		= "da9061-thermal",
-+		.num_resources	= ARRAY_SIZE(da9061_thermal_resources),
-+		.resources	= da9061_thermal_resources,
-+		.of_compatible  = "dlg,da9061-thermal",
-+	},
-+	{
-+		.name		= "da9061-onkey",
-+		.num_resources	= ARRAY_SIZE(da9061_onkey_resources),
-+		.resources	= da9061_onkey_resources,
-+		.of_compatible = "dlg,da9061-onkey",
-+	},
-+};
-+
- static struct resource da9062_core_resources[] = {
- 	DEFINE_RES_NAMED(DA9062_IRQ_VDD_WARN, 1, "VDD_WARN", IORESOURCE_IRQ),
- };
-@@ -200,7 +315,8 @@ static int da9062_clear_fault_log(struct da9062 *chip)
- 
- static int da9062_get_device_type(struct da9062 *chip)
- {
--	int device_id, variant_id, variant_mrc;
-+	int device_id, variant_id, variant_mrc, variant_vrc;
-+	char *type;
- 	int ret;
- 
- 	ret = regmap_read(chip->regmap, DA9062AA_DEVICE_ID, &device_id);
-@@ -219,9 +335,23 @@ static int da9062_get_device_type(struct da9062 *chip)
- 		return -EIO;
- 	}
- 
-+	variant_vrc = (variant_id & DA9062AA_VRC_MASK) >> DA9062AA_VRC_SHIFT;
-+
-+	switch (variant_vrc) {
-+	case DA9062_PMIC_VARIANT_VRC_DA9061:
-+		type = "DA9061";
-+		break;
-+	case DA9062_PMIC_VARIANT_VRC_DA9062:
-+		type = "DA9062";
-+		break;
-+	default:
-+		type = "Unknown";
-+		break;
-+	}
-+
- 	dev_info(chip->dev,
--		 "Device detected (device-ID: 0x%02X, var-ID: 0x%02X)\n",
--		 device_id, variant_id);
-+		 "Device detected (device-ID: 0x%02X, var-ID: 0x%02X, %s)\n",
-+		 device_id, variant_id, type);
- 
- 	variant_mrc = (variant_id & DA9062AA_MRC_MASK) >> DA9062AA_MRC_SHIFT;
- 
-@@ -234,6 +364,234 @@ static int da9062_get_device_type(struct da9062 *chip)
- 	return ret;
- }
- 
-+static const struct regmap_range da9061_aa_readable_ranges[] = {
-+	{
-+		.range_min = DA9062AA_PAGE_CON,
-+		.range_max = DA9062AA_STATUS_B,
-+	}, {
-+		.range_min = DA9062AA_STATUS_D,
-+		.range_max = DA9062AA_EVENT_C,
-+	}, {
-+		.range_min = DA9062AA_IRQ_MASK_A,
-+		.range_max = DA9062AA_IRQ_MASK_C,
-+	}, {
-+		.range_min = DA9062AA_CONTROL_A,
-+		.range_max = DA9062AA_GPIO_4,
-+	}, {
-+		.range_min = DA9062AA_GPIO_WKUP_MODE,
-+		.range_max = DA9062AA_GPIO_OUT3_4,
-+	}, {
-+		.range_min = DA9062AA_BUCK1_CONT,
-+		.range_max = DA9062AA_BUCK4_CONT,
-+	}, {
-+		.range_min = DA9062AA_BUCK3_CONT,
-+		.range_max = DA9062AA_BUCK3_CONT,
-+	}, {
-+		.range_min = DA9062AA_LDO1_CONT,
-+		.range_max = DA9062AA_LDO4_CONT,
-+	}, {
-+		.range_min = DA9062AA_DVC_1,
-+		.range_max = DA9062AA_DVC_1,
-+	}, {
-+		.range_min = DA9062AA_SEQ,
-+		.range_max = DA9062AA_ID_4_3,
-+	}, {
-+		.range_min = DA9062AA_ID_12_11,
-+		.range_max = DA9062AA_ID_16_15,
-+	}, {
-+		.range_min = DA9062AA_ID_22_21,
-+		.range_max = DA9062AA_ID_32_31,
-+	}, {
-+		.range_min = DA9062AA_SEQ_A,
-+		.range_max = DA9062AA_WAIT,
-+	}, {
-+		.range_min = DA9062AA_RESET,
-+		.range_max = DA9062AA_BUCK_ILIM_C,
-+	}, {
-+		.range_min = DA9062AA_BUCK1_CFG,
-+		.range_max = DA9062AA_BUCK3_CFG,
-+	}, {
-+		.range_min = DA9062AA_VBUCK1_A,
-+		.range_max = DA9062AA_VBUCK4_A,
-+	}, {
-+		.range_min = DA9062AA_VBUCK3_A,
-+		.range_max = DA9062AA_VBUCK3_A,
-+	}, {
-+		.range_min = DA9062AA_VLDO1_A,
-+		.range_max = DA9062AA_VLDO4_A,
-+	}, {
-+		.range_min = DA9062AA_VBUCK1_B,
-+		.range_max = DA9062AA_VBUCK4_B,
-+	}, {
-+		.range_min = DA9062AA_VBUCK3_B,
-+		.range_max = DA9062AA_VBUCK3_B,
-+	}, {
-+		.range_min = DA9062AA_VLDO1_B,
-+		.range_max = DA9062AA_VLDO4_B,
-+	}, {
-+		.range_min = DA9062AA_BBAT_CONT,
-+		.range_max = DA9062AA_BBAT_CONT,
-+	}, {
-+		.range_min = DA9062AA_INTERFACE,
-+		.range_max = DA9062AA_CONFIG_E,
-+	}, {
-+		.range_min = DA9062AA_CONFIG_G,
-+		.range_max = DA9062AA_CONFIG_K,
-+	}, {
-+		.range_min = DA9062AA_CONFIG_M,
-+		.range_max = DA9062AA_CONFIG_M,
-+	}, {
-+		.range_min = DA9062AA_GP_ID_0,
-+		.range_max = DA9062AA_GP_ID_19,
-+	}, {
-+		.range_min = DA9062AA_DEVICE_ID,
-+		.range_max = DA9062AA_CONFIG_ID,
-+	},
-+};
-+
-+static const struct regmap_range da9061_aa_writeable_ranges[] = {
-+	{
-+		.range_min = DA9062AA_PAGE_CON,
-+		.range_max = DA9062AA_PAGE_CON,
-+	}, {
-+		.range_min = DA9062AA_FAULT_LOG,
-+		.range_max = DA9062AA_EVENT_C,
-+	}, {
-+		.range_min = DA9062AA_IRQ_MASK_A,
-+		.range_max = DA9062AA_IRQ_MASK_C,
-+	}, {
-+		.range_min = DA9062AA_CONTROL_A,
-+		.range_max = DA9062AA_GPIO_4,
-+	}, {
-+		.range_min = DA9062AA_GPIO_WKUP_MODE,
-+		.range_max = DA9062AA_GPIO_OUT3_4,
-+	}, {
-+		.range_min = DA9062AA_BUCK1_CONT,
-+		.range_max = DA9062AA_BUCK4_CONT,
-+	}, {
-+		.range_min = DA9062AA_BUCK3_CONT,
-+		.range_max = DA9062AA_BUCK3_CONT,
-+	}, {
-+		.range_min = DA9062AA_LDO1_CONT,
-+		.range_max = DA9062AA_LDO4_CONT,
-+	}, {
-+		.range_min = DA9062AA_DVC_1,
-+		.range_max = DA9062AA_DVC_1,
-+	}, {
-+		.range_min = DA9062AA_SEQ,
-+		.range_max = DA9062AA_ID_4_3,
-+	}, {
-+		.range_min = DA9062AA_ID_12_11,
-+		.range_max = DA9062AA_ID_16_15,
-+	}, {
-+		.range_min = DA9062AA_ID_22_21,
-+		.range_max = DA9062AA_ID_32_31,
-+	}, {
-+		.range_min = DA9062AA_SEQ_A,
-+		.range_max = DA9062AA_WAIT,
-+	}, {
-+		.range_min = DA9062AA_RESET,
-+		.range_max = DA9062AA_BUCK_ILIM_C,
-+	}, {
-+		.range_min = DA9062AA_BUCK1_CFG,
-+		.range_max = DA9062AA_BUCK3_CFG,
-+	}, {
-+		.range_min = DA9062AA_VBUCK1_A,
-+		.range_max = DA9062AA_VBUCK4_A,
-+	}, {
-+		.range_min = DA9062AA_VBUCK3_A,
-+		.range_max = DA9062AA_VBUCK3_A,
-+	}, {
-+		.range_min = DA9062AA_VLDO1_A,
-+		.range_max = DA9062AA_VLDO4_A,
-+	}, {
-+		.range_min = DA9062AA_VBUCK1_B,
-+		.range_max = DA9062AA_VBUCK4_B,
-+	}, {
-+		.range_min = DA9062AA_VBUCK3_B,
-+		.range_max = DA9062AA_VBUCK3_B,
-+	}, {
-+		.range_min = DA9062AA_VLDO1_B,
-+		.range_max = DA9062AA_VLDO4_B,
-+	}, {
-+		.range_min = DA9062AA_BBAT_CONT,
-+		.range_max = DA9062AA_BBAT_CONT,
-+	}, {
-+		.range_min = DA9062AA_GP_ID_0,
-+		.range_max = DA9062AA_GP_ID_19,
-+	},
-+};
-+
-+static const struct regmap_range da9061_aa_volatile_ranges[] = {
-+	{
-+		.range_min = DA9062AA_PAGE_CON,
-+		.range_max = DA9062AA_STATUS_B,
-+	}, {
-+		.range_min = DA9062AA_STATUS_D,
-+		.range_max = DA9062AA_EVENT_C,
-+	}, {
-+		.range_min = DA9062AA_CONTROL_A,
-+		.range_max = DA9062AA_CONTROL_B,
-+	}, {
-+		.range_min = DA9062AA_CONTROL_E,
-+		.range_max = DA9062AA_CONTROL_F,
-+	}, {
-+		.range_min = DA9062AA_BUCK1_CONT,
-+		.range_max = DA9062AA_BUCK4_CONT,
-+	}, {
-+		.range_min = DA9062AA_BUCK3_CONT,
-+		.range_max = DA9062AA_BUCK3_CONT,
-+	}, {
-+		.range_min = DA9062AA_LDO1_CONT,
-+		.range_max = DA9062AA_LDO4_CONT,
-+	}, {
-+		.range_min = DA9062AA_DVC_1,
-+		.range_max = DA9062AA_DVC_1,
-+	}, {
-+		.range_min = DA9062AA_SEQ,
-+		.range_max = DA9062AA_SEQ,
-+	},
-+};
-+
-+static const struct regmap_access_table da9061_aa_readable_table = {
-+	.yes_ranges = da9061_aa_readable_ranges,
-+	.n_yes_ranges = ARRAY_SIZE(da9061_aa_readable_ranges),
-+};
-+
-+static const struct regmap_access_table da9061_aa_writeable_table = {
-+	.yes_ranges = da9061_aa_writeable_ranges,
-+	.n_yes_ranges = ARRAY_SIZE(da9061_aa_writeable_ranges),
-+};
-+
-+static const struct regmap_access_table da9061_aa_volatile_table = {
-+	.yes_ranges = da9061_aa_volatile_ranges,
-+	.n_yes_ranges = ARRAY_SIZE(da9061_aa_volatile_ranges),
-+};
-+
-+static const struct regmap_range_cfg da9061_range_cfg[] = {
-+	{
-+		.range_min = DA9062AA_PAGE_CON,
-+		.range_max = DA9062AA_CONFIG_ID,
-+		.selector_reg = DA9062AA_PAGE_CON,
-+		.selector_mask = 1 << DA9062_I2C_PAGE_SEL_SHIFT,
-+		.selector_shift = DA9062_I2C_PAGE_SEL_SHIFT,
-+		.window_start = 0,
-+		.window_len = 256,
-+	}
-+};
-+
-+static struct regmap_config da9061_regmap_config = {
-+	.reg_bits = 8,
-+	.val_bits = 8,
-+	.ranges = da9061_range_cfg,
-+	.num_ranges = ARRAY_SIZE(da9061_range_cfg),
-+	.max_register = DA9062AA_CONFIG_ID,
-+	.cache_type = REGCACHE_RBTREE,
-+	.rd_table = &da9061_aa_readable_table,
-+	.wr_table = &da9061_aa_writeable_table,
-+	.volatile_table = &da9061_aa_volatile_table,
-+};
-+
- static const struct regmap_range da9062_aa_readable_ranges[] = {
- 	{
- 		.range_min = DA9062AA_PAGE_CON,
-@@ -456,17 +814,38 @@ static int da9062_get_device_type(struct da9062 *chip)
- 	.volatile_table = &da9062_aa_volatile_table,
- };
- 
-+static const struct of_device_id da9062_dt_ids[] = {
-+	{ .compatible = "dlg,da9061", .data = (void *)COMPAT_TYPE_DA9061, },
-+	{ .compatible = "dlg,da9062", .data = (void *)COMPAT_TYPE_DA9062, },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(of, da9062_dt_ids);
-+
- static int da9062_i2c_probe(struct i2c_client *i2c,
- 	const struct i2c_device_id *id)
- {
- 	struct da9062 *chip;
-+	const struct of_device_id *match;
- 	unsigned int irq_base;
-+	const struct mfd_cell *cell;
-+	const struct regmap_irq_chip *irq_chip;
-+	const struct regmap_config *config;
-+	int cell_num;
- 	int ret;
- 
- 	chip = devm_kzalloc(&i2c->dev, sizeof(*chip), GFP_KERNEL);
- 	if (!chip)
- 		return -ENOMEM;
- 
-+	if (i2c->dev.of_node) {
-+		match = of_match_node(da9062_dt_ids, i2c->dev.of_node);
-+		if (!match)
-+			return -EINVAL;
-+
-+		chip->chip_type = (int)match->data;
-+	} else
-+		chip->chip_type = id->driver_data;
-+
- 	i2c_set_clientdata(i2c, chip);
- 	chip->dev = &i2c->dev;
- 
-@@ -475,7 +854,25 @@ static int da9062_i2c_probe(struct i2c_client *i2c,
- 		return -EINVAL;
- 	}
- 
--	chip->regmap = devm_regmap_init_i2c(i2c, &da9062_regmap_config);
-+	switch (chip->chip_type) {
-+	case(COMPAT_TYPE_DA9061):
-+		cell = da9061_devs;
-+		cell_num = ARRAY_SIZE(da9061_devs);
-+		irq_chip = &da9061_irq_chip;
-+		config = &da9061_regmap_config;
-+		break;
-+	case(COMPAT_TYPE_DA9062):
-+		cell = da9062_devs;
-+		cell_num = ARRAY_SIZE(da9062_devs);
-+		irq_chip = &da9062_irq_chip;
-+		config = &da9062_regmap_config;
-+		break;
-+	default:
-+		dev_err(chip->dev, "Unrecognised chip type\n");
-+		return -ENODEV;
-+	}
-+
-+	chip->regmap = devm_regmap_init_i2c(i2c, config);
- 	if (IS_ERR(chip->regmap)) {
- 		ret = PTR_ERR(chip->regmap);
- 		dev_err(chip->dev, "Failed to allocate register map: %d\n",
-@@ -493,7 +890,7 @@ static int da9062_i2c_probe(struct i2c_client *i2c,
- 
- 	ret = regmap_add_irq_chip(chip->regmap, i2c->irq,
- 			IRQF_TRIGGER_LOW | IRQF_ONESHOT | IRQF_SHARED,
--			-1, &da9062_irq_chip,
-+			-1, irq_chip,
- 			&chip->regmap_irq);
- 	if (ret) {
- 		dev_err(chip->dev, "Failed to request IRQ %d: %d\n",
-@@ -503,8 +900,8 @@ static int da9062_i2c_probe(struct i2c_client *i2c,
- 
- 	irq_base = regmap_irq_chip_get_base(chip->regmap_irq);
- 
--	ret = mfd_add_devices(chip->dev, PLATFORM_DEVID_NONE, da9062_devs,
--			      ARRAY_SIZE(da9062_devs), NULL, irq_base,
-+	ret = mfd_add_devices(chip->dev, PLATFORM_DEVID_NONE, cell,
-+			      cell_num, NULL, irq_base,
- 			      NULL);
- 	if (ret) {
- 		dev_err(chip->dev, "Cannot register child devices\n");
-@@ -526,17 +923,12 @@ static int da9062_i2c_remove(struct i2c_client *i2c)
- }
- 
- static const struct i2c_device_id da9062_i2c_id[] = {
--	{ "da9062", 0 },
-+	{ "da9061", COMPAT_TYPE_DA9061 },
-+	{ "da9062", COMPAT_TYPE_DA9062 },
- 	{ },
- };
- MODULE_DEVICE_TABLE(i2c, da9062_i2c_id);
- 
--static const struct of_device_id da9062_dt_ids[] = {
--	{ .compatible = "dlg,da9062", },
--	{ }
--};
--MODULE_DEVICE_TABLE(of, da9062_dt_ids);
--
- static struct i2c_driver da9062_i2c_driver = {
- 	.driver = {
- 		.name = "da9062",
-@@ -549,6 +941,6 @@ static int da9062_i2c_remove(struct i2c_client *i2c)
- 
- module_i2c_driver(da9062_i2c_driver);
- 
--MODULE_DESCRIPTION("Core device driver for Dialog DA9062");
-+MODULE_DESCRIPTION("Core device driver for Dialog DA9061 and DA9062");
- MODULE_AUTHOR("Steve Twiss <stwiss.opensource@diasemi.com>");
- MODULE_LICENSE("GPL");
-diff --git a/include/linux/mfd/da9062/core.h b/include/linux/mfd/da9062/core.h
-index 376ba84..199c524 100644
---- a/include/linux/mfd/da9062/core.h
-+++ b/include/linux/mfd/da9062/core.h
-@@ -18,7 +18,31 @@
- #include <linux/interrupt.h>
- #include <linux/mfd/da9062/registers.h>
- 
--/* Interrupts */
-+enum da9062_compatible_types {
-+	COMPAT_TYPE_DA9061 = 1,
-+	COMPAT_TYPE_DA9062,
-+};
-+
-+enum da9061_irqs {
-+	/* IRQ A */
-+	DA9061_IRQ_ONKEY,
-+	DA9061_IRQ_WDG_WARN,
-+	DA9061_IRQ_SEQ_RDY,
-+	/* IRQ B*/
-+	DA9061_IRQ_TEMP,
-+	DA9061_IRQ_LDO_LIM,
-+	DA9061_IRQ_DVC_RDY,
-+	DA9061_IRQ_VDD_WARN,
-+	/* IRQ C */
-+	DA9061_IRQ_GPI0,
-+	DA9061_IRQ_GPI1,
-+	DA9061_IRQ_GPI2,
-+	DA9061_IRQ_GPI3,
-+	DA9061_IRQ_GPI4,
-+
-+	DA9061_NUM_IRQ,
-+};
-+
- enum da9062_irqs {
- 	/* IRQ A */
- 	DA9062_IRQ_ONKEY,
-@@ -45,6 +69,7 @@ struct da9062 {
- 	struct device *dev;
- 	struct regmap *regmap;
- 	struct regmap_irq_chip_data *regmap_irq;
-+	enum da9062_compatible_types chip_type;
- };
- 
- #endif /* __MFD_DA9062_CORE_H__ */
-diff --git a/include/linux/mfd/da9062/registers.h b/include/linux/mfd/da9062/registers.h
-index 97790d1..4457fdc 100644
---- a/include/linux/mfd/da9062/registers.h
-+++ b/include/linux/mfd/da9062/registers.h
-@@ -18,6 +18,8 @@
- 
- #define DA9062_PMIC_DEVICE_ID		0x62
- #define DA9062_PMIC_VARIANT_MRC_AA	0x01
-+#define DA9062_PMIC_VARIANT_VRC_DA9061	0x01
-+#define DA9062_PMIC_VARIANT_VRC_DA9062	0x02
- 
- #define DA9062_I2C_PAGE_SEL_SHIFT	1
- 
+v7: https://lkml.org/lkml/2016/7/13/769
+    Move the GTDT driver to drivers/acpi/arm64
+    Add add the ARM64-specific ACPI Support maintainers in MAINTAINERS
+    Merge 3 patches of GTDT parser driver.
+    Fix the for_each_platform_timer bug.
+
+v6: https://lkml.org/lkml/2016/6/29/580
+    split the GTDT driver to 4 parts: basic, arch_timer, memory-mapped timer,
+    and SBSA Generic Watchdog timer
+    Improve driver by suggestions and example code from Daniel Lezcano
+
+v5: https://lkml.org/lkml/2016/5/24/356
+    Sorting out all patches, simplify the API of GTDT driver:
+    GTDT driver just fills the data struct for arm_arch_timer driver.
+
+v4: https://lists.linaro.org/pipermail/linaro-acpi/2016-March/006667.html
+    Delete the kvm relevant patches
+    Separate two patches for sorting out the code for arm_arch_timer.
+    Improve irq info export code to allow missing irq info in GTDT table.
+
+v3: https://lkml.org/lkml/2016/2/1/658
+    Improve GTDT driver code:
+      (1)improve pr_* by defining pr_fmt(fmt)
+      (2)simplify gtdt_sbsa_gwdt_init
+      (3)improve gtdt_arch_timer_data_init, if table is NULL, it will try
+      to get GTDT table.
+    Move enum ppi_nr to arm_arch_timer.h, and add enum spi_nr.
+    Add arm_arch_timer get ppi from DT and GTDT support for kvm.
+
+v2: https://lkml.org/lkml/2015/12/2/10
+    Rebase to latest kernel version(4.4-rc3).
+    Fix the bug about the config problem,
+    use CONFIG_ACPI_GTDT instead of CONFIG_ACPI in arm_arch_timer.c
+
+v1: The first upstreaming version: https://lkml.org/lkml/2015/10/28/553
+
+Fu Wei (15):
+  clocksource/drivers/arm_arch_timer: Move enums and defines to header
+    file
+  clocksource/drivers/arm_arch_timer: Add a new enum for spi type
+  clocksource/drivers/arm_arch_timer: Improve printk relevant code
+  clocksource/drivers/arm_arch_timer: rename some enums and defines.
+  clocksource/drivers/arm_arch_timer: rework PPI determination
+  clocksource/drivers/arm_arch_timer: Rework counter frequency
+    detection.
+  clocksource/drivers/arm_arch_timer: Refactor arch_timer_needs_probing
+  clocksource/drivers/arm_arch_timer: move arch_timer_needs_of_probing
+    into DT init call
+  clocksource/drivers/arm_arch_timer: Introduce some new structs to
+    prepare for GTDT
+  clocksource/drivers/arm_arch_timer: Refactor the timer init code to
+    prepare for GTDT
+  acpi/arm64: Add GTDT table parse driver
+  clocksource/drivers/arm_arch_timer: Simplify ACPI support code.
+  acpi/arm64: Add memory-mapped timer support in GTDT driver
+  clocksource/drivers/arm_arch_timer: Add GTDT support for memory-mapped
+    timer
+  acpi/arm64: Add SBSA Generic Watchdog support in GTDT driver
+
+ arch/arm64/Kconfig                   |   1 +
+ drivers/acpi/arm64/Kconfig           |   3 +
+ drivers/acpi/arm64/Makefile          |   1 +
+ drivers/acpi/arm64/gtdt.c            | 374 +++++++++++++++++++++++++++
+ drivers/clocksource/arm_arch_timer.c | 483 ++++++++++++++++++++---------------
+ drivers/watchdog/Kconfig             |   1 +
+ include/clocksource/arm_arch_timer.h |  45 +++-
+ include/linux/acpi.h                 |   7 +
+ virt/kvm/arm/hyp/timer-sr.c          |   6 +-
+ 9 files changed, 712 insertions(+), 209 deletions(-)
+ create mode 100644 drivers/acpi/arm64/gtdt.c
+
 -- 
-end-of-patch for PATCH V5
+2.9.3
 
