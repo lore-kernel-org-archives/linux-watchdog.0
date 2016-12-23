@@ -1,119 +1,125 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:39546 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754242AbcLUGqk (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 21 Dec 2016 01:46:40 -0500
-From: fu.wei@linaro.org
-To: rjw@rjwysocki.net, lenb@kernel.org, daniel.lezcano@linaro.org,
-        tglx@linutronix.de, marc.zyngier@arm.com, mark.rutland@arm.com,
-        lorenzo.pieralisi@arm.com, sudeep.holla@arm.com,
-        hanjun.guo@linaro.org
-Cc: linux-arm-kernel@lists.infradead.org, linaro-acpi@lists.linaro.org,
-        linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
-        rruigrok@codeaurora.org, harba@codeaurora.org, cov@codeaurora.org,
-        timur@codeaurora.org, graeme.gregory@linaro.org,
-        al.stone@linaro.org, jcm@redhat.com, wei@redhat.com, arnd@arndb.de,
-        catalin.marinas@arm.com, will.deacon@arm.com,
-        Suravee.Suthikulpanit@amd.com, leo.duran@amd.com, wim@iguana.be,
-        linux@roeck-us.net, linux-watchdog@vger.kernel.org,
-        tn@semihalf.com, christoffer.dall@linaro.org, julien.grall@arm.com,
-        Fu Wei <fu.wei@linaro.org>
-Subject: [PATCH v19 01/15] clocksource/drivers/arm_arch_timer: Move enums and defines to header file
-Date: Wed, 21 Dec 2016 14:45:49 +0800
-Message-Id: <20161221064603.11830-2-fu.wei@linaro.org>
-In-Reply-To: <20161221064603.11830-1-fu.wei@linaro.org>
-References: <20161221064603.11830-1-fu.wei@linaro.org>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:48877 "EHLO
+        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754494AbcLWTkR (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 23 Dec 2016 14:40:17 -0500
+Date: Fri, 23 Dec 2016 11:40:04 -0800
+From: Guenter Roeck <linux@roeck-us.net>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Wim Van Sebroeck <wim@iguana.be>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>
+Subject: Re: [GIT PULL REQUEST] watchdog - v4.10 merge window
+Message-ID: <20161223194004.GA25072@roeck-us.net>
+References: <20161223100754.GA19660@spo001.leaseweb.nl>
+ <CA+55aFzmP72eO+oQroCHqaKirZxBS8OqbBRua93URY9b7rPz1w@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CA+55aFzmP72eO+oQroCHqaKirZxBS8OqbBRua93URY9b7rPz1w@mail.gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-From: Fu Wei <fu.wei@linaro.org>
+On Fri, Dec 23, 2016 at 10:22:06AM -0800, Linus Torvalds wrote:
+> On Fri, Dec 23, 2016 at 2:07 AM, Wim Van Sebroeck <wim@iguana.be> wrote:
+> > Hi Linus,
+> >
+> > Due to time constraints and personal issues Guenter and I decided that this window will be a pull from another location.
+> > So please pull from 'watchdog-for-linus-v4.10' branch of
+> 
+> No shortlog, no diffstat. I won't be pulling, because I have no way to
+> validate what I actually get.
+> 
 
-To support the arm_arch_timer via ACPI we need to share defines and enums
-between the driver and the ACPI parser code.
 
-Split out the relevant defines and enums into arm_arch_timer.h, and
-change "enum ppi_nr" to "enum arch_timer_ppi_nr" to avoid the potential
-name clashes.
-Also switch "enum ppi_nr" to "enum arch_timer_ppi_nr" in
-arm_arch_timer.c.
-No functional change.
+FWIW:
 
-Signed-off-by: Fu Wei <fu.wei@linaro.org>
-Acked-by: Mark Rutland <mark.rutland@arm.com>
-Tested-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
----
- drivers/clocksource/arm_arch_timer.c | 13 +------------
- include/clocksource/arm_arch_timer.h | 12 ++++++++++++
- 2 files changed, 13 insertions(+), 12 deletions(-)
+------
 
-diff --git a/drivers/clocksource/arm_arch_timer.c b/drivers/clocksource/arm_arch_timer.c
-index 02fef68..6c8cb01 100644
---- a/drivers/clocksource/arm_arch_timer.c
-+++ b/drivers/clocksource/arm_arch_timer.c
-@@ -51,8 +51,6 @@
- #define CNTV_TVAL	0x38
- #define CNTV_CTL	0x3c
- 
--#define ARCH_CP15_TIMER	BIT(0)
--#define ARCH_MEM_TIMER	BIT(1)
- static unsigned arch_timers_present __initdata;
- 
- static void __iomem *arch_counter_base;
-@@ -65,20 +63,11 @@ struct arch_timer {
- #define to_arch_timer(e) container_of(e, struct arch_timer, evt)
- 
- static u32 arch_timer_rate;
--
--enum ppi_nr {
--	PHYS_SECURE_PPI,
--	PHYS_NONSECURE_PPI,
--	VIRT_PPI,
--	HYP_PPI,
--	MAX_TIMER_PPI
--};
--
- static int arch_timer_ppi[MAX_TIMER_PPI];
- 
- static struct clock_event_device __percpu *arch_timer_evt;
- 
--static enum ppi_nr arch_timer_uses_ppi = VIRT_PPI;
-+static enum arch_timer_ppi_nr arch_timer_uses_ppi = VIRT_PPI;
- static bool arch_timer_c3stop;
- static bool arch_timer_mem_use_virtual;
- static bool arch_counter_suspend_stop;
-diff --git a/include/clocksource/arm_arch_timer.h b/include/clocksource/arm_arch_timer.h
-index caedb74..557f869 100644
---- a/include/clocksource/arm_arch_timer.h
-+++ b/include/clocksource/arm_arch_timer.h
-@@ -16,9 +16,13 @@
- #ifndef __CLKSOURCE_ARM_ARCH_TIMER_H
- #define __CLKSOURCE_ARM_ARCH_TIMER_H
- 
-+#include <linux/bitops.h>
- #include <linux/timecounter.h>
- #include <linux/types.h>
- 
-+#define ARCH_CP15_TIMER			BIT(0)
-+#define ARCH_MEM_TIMER			BIT(1)
-+
- #define ARCH_TIMER_CTRL_ENABLE		(1 << 0)
- #define ARCH_TIMER_CTRL_IT_MASK		(1 << 1)
- #define ARCH_TIMER_CTRL_IT_STAT		(1 << 2)
-@@ -34,6 +38,14 @@ enum arch_timer_reg {
- 	ARCH_TIMER_REG_TVAL,
- };
- 
-+enum arch_timer_ppi_nr {
-+	PHYS_SECURE_PPI,
-+	PHYS_NONSECURE_PPI,
-+	VIRT_PPI,
-+	HYP_PPI,
-+	MAX_TIMER_PPI
-+};
-+
- #define ARCH_TIMER_PHYS_ACCESS		0
- #define ARCH_TIMER_VIRT_ACCESS		1
- #define ARCH_TIMER_MEM_PHYS_ACCESS	2
--- 
-2.9.3
+The following changes since commit 69973b830859bc6529a7a0468ba0d80ee5117826:
 
+  Linux 4.9 (2016-12-11 11:17:54 -0800)
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git tags/watchdog-for-linus-v4.10
+
+for you to fetch changes up to 067161281f428aa7c6e153e06aab7b5fe1ed1e98:
+
+  watchdog: it87_wdt: add IT8620E ID (2016-12-16 06:53:56 -0800)
+
+----------------------------------------------------------------
+Watchdog updates for v4.10
+
+New driver for Add Loongson1 SoC.
+Minor cleanup and fixes in various drivers.
+
+----------------------------------------------------------------
+Alexander Usyskin (1):
+      watchdog: mei_wdt: request stop on reboot to prevent false positive event
+
+Amit Kushwaha (1):
+      watchdog: cpwd: remove memory allocate failure message
+
+Andy Shevchenko (2):
+      intel-mid_wdt: make sure watchdog is not running at startup
+      intel-mid_wdt: Error code is just an integer
+
+Christian Lamparter (1):
+      watchdog: qcom: fix kernel panic due to external abort on non-linefetch
+
+Corentin Labbe (2):
+      watchdog: octeon: Remove unneeded linux/miscdevice.h include
+      watchdog: mpc8xxx: Remove unneeded linux/miscdevice.h include
+
+Javier Martinez Canillas (3):
+      watchdog: bcm7038_wdt: fix module autoload
+      watchdog: max77620_wdt: fix module autoload
+      watchdog: meson: Remove unneeded platform MODULE_ALIAS
+
+Jimmy Vance (1):
+      watchdog: hpwdt: changed maintainer information
+
+Maciej S. Szmigiero (1):
+      watchdog: it87_wdt: add IT8620E ID
+
+Rasmus Villemoes (1):
+      watchdog: bcm2835_wdt: set WDOG_HW_RUNNING bit when appropriate
+
+Robert P. J. Day (1):
+      watchdog: Standardize leading tabs and spaces in Kconfig file
+
+Stephen Boyd (1):
+      watchdog: jz4740: Fix modular build
+
+Steve Twiss (1):
+      watchdog: da9062/61: watchdog driver
+
+Tero Kristo (1):
+      watchdog: davinci: add support for deferred probing
+
+Yang Ling (1):
+      watchdog: loongson1: Add Loongson1 SoC watchdog driver
+
+ MAINTAINERS                        |   2 +-
+ drivers/watchdog/Kconfig           |  49 ++++++-----
+ drivers/watchdog/Makefile          |   1 +
+ drivers/watchdog/bcm2835_wdt.c     |  20 +++++
+ drivers/watchdog/bcm7038_wdt.c     |   1 +
+ drivers/watchdog/cpwd.c            |  23 ++---
+ drivers/watchdog/da9062_wdt.c      |  12 ++-
+ drivers/watchdog/davinci_wdt.c     |   6 +-
+ drivers/watchdog/intel-mid_wdt.c   |  22 ++---
+ drivers/watchdog/it87_wdt.c        |   4 +-
+ drivers/watchdog/jz4740_wdt.c      |   2 +-
+ drivers/watchdog/loongson1_wdt.c   | 170 +++++++++++++++++++++++++++++++++++++
+ drivers/watchdog/max77620_wdt.c    |   1 +
+ drivers/watchdog/mei_wdt.c         |   2 +
+ drivers/watchdog/meson_gxbb_wdt.c  |   1 -
+ drivers/watchdog/mpc8xxx_wdt.c     |   1 -
+ drivers/watchdog/octeon-wdt-main.c |   1 -
+ drivers/watchdog/qcom-wdt.c        |   2 +-
+ 18 files changed, 262 insertions(+), 58 deletions(-)
+ create mode 100644 drivers/watchdog/loongson1_wdt.c
