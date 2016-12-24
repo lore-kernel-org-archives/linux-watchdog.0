@@ -1,52 +1,43 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:49302 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753368AbcLZKji (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 26 Dec 2016 05:39:38 -0500
-Subject: Re: [PATCH] drivers: watchdog: pika_wdt: add __ro_after_init to ident
-To: Bhumika Goyal <bhumirks@gmail.com>, julia.lawall@lip6.fr,
-        wim@iguana.be, linux-watchdog@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <1482652824-8648-1-git-send-email-bhumirks@gmail.com>
-Cc: keescook@chromium.org
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <182d4c22-53d1-5b93-5eb5-2763005a94be@roeck-us.net>
-Date: Mon, 26 Dec 2016 02:39:35 -0800
+Return-path: <festevam@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <1482652824-8648-1-git-send-email-bhumirks@gmail.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+In-Reply-To: <20161211010648.6591-1-vz@mleia.com>
+References: <20161211010648.6591-1-vz@mleia.com>
+From: Fabio Estevam <festevam@gmail.com>
+Date: Sat, 24 Dec 2016 11:00:59 -0200
+Message-ID: <CAOMZO5CqpfH6nq_mqPitztfSX4-oR4-61z7PnYhvOYAVnYF0yA@mail.gmail.com>
+Subject: Re: [PATCH v1] watchdog: imx2: fix hang-up on boot for i.MX21, i.MX27
+ and i.MX31 SoCs
+To: Vladimir Zapolskiy <vz@mleia.com>
+Cc: Shawn Guo <shawnguo@kernel.org>, Wim Van Sebroeck <wim@iguana.be>,
+	Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org,
+	Magnus Lilja <lilja.magnus@gmail.com>, Sascha Hauer <kernel@pengutronix.de>,
+	=?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <u.kleine-koenig@pengutronix.de>,
+	Fabio Estevam <fabio.estevam@nxp.com>,
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+Content-Type: text/plain; charset=UTF-8
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 12/25/2016 12:00 AM, Bhumika Goyal wrote:
-> The object ident of type watchdog_info structure is not
-> modified after getting initialized by pikawdt_init. Apart from getting
-> referenced in init it is also passed as an argument to the function
-> copy_to_user but this argument is of type const void *. Therefore add
-> __ro_after_init to its declaration.
->
-> Signed-off-by: Bhumika Goyal <bhumirks@gmail.com>
+On Sat, Dec 10, 2016 at 11:06 PM, Vladimir Zapolskiy <vz@mleia.com> wrote:
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+>  static const struct of_device_id imx2_wdt_dt_ids[] = {
+> -       { .compatible = "fsl,imx21-wdt", },
+> +       { .compatible = "fsl,imx21-wdt", .data = IMX2_WDT_NO_WMCR },
+> +       { .compatible = "fsl,imx25-wdt",  },
+> +       { .compatible = "fsl,imx27-wdt", .data = IMX2_WDT_NO_WMCR },
+> +       { .compatible = "fsl,imx31-wdt", .data = IMX2_WDT_NO_WMCR },
+> +       { .compatible = "fsl,imx35-wdt",  },
+> +       { .compatible = "fsl,imx50-wdt",  },
+> +       { .compatible = "fsl,imx51-wdt",  },
+> +       { .compatible = "fsl,imx53-wdt",  },
+> +       { .compatible = "fsl,imx6q-wdt",  },
+> +       { .compatible = "fsl,imx6sl-wdt", },
+> +       { .compatible = "fsl,imx6sx-wdt", },
+> +       { .compatible = "fsl,imx6ul-wdt", },
+> +       { .compatible = "fsl,imx7d-wdt",  },
+> +       { .compatible = "fsl,vf610-wdt",  },
+>         { /* sentinel */ }
 
-> ---
->  drivers/watchdog/pika_wdt.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/watchdog/pika_wdt.c b/drivers/watchdog/pika_wdt.c
-> index 0cdfee2..e35cf5e 100644
-> --- a/drivers/watchdog/pika_wdt.c
-> +++ b/drivers/watchdog/pika_wdt.c
-> @@ -54,7 +54,7 @@
->  	struct timer_list timer;	/* The timer that pings the watchdog */
->  } pikawdt_private;
->
-> -static struct watchdog_info ident = {
-> +static struct watchdog_info ident __ro_after_init = {
->  	.identity	= DRV_NAME,
->  	.options	= WDIOF_CARDRESET |
->  			  WDIOF_SETTIMEOUT |
->
+I understand this compatible list is not very nice, but in order to
+keep old dtb's working I don't see a better solution, so:
 
+Reviewed-by: Fabio Estevam <fabio.estevam@nxp.com>
