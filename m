@@ -1,362 +1,230 @@
-Return-path: <hui.chun.ong@ni.com>
-From: Hui Chun Ong <hui.chun.ong@ni.com>
-To: <wim@iguana.be>, <linux@roeck-us.net>, <corbet@lwn.net>
-CC: <linux-watchdog@vger.kernel.org>, <linux-doc@vger.kernel.org>,
-        <jonathan.hearn@ni.com>, <julia.cartwright@ni.com>,
-        <rjw@rjwysocki.net>, <mika.westerberg@linux.intel.com>,
-        Hui Chun Ong <hui.chun.ong@ni.com>
-Subject: [PATCH v5] watchdog: nic7018_wdt: Add NIC7018 watchdog driver
-Date: Wed, 28 Dec 2016 15:51:40 +0800
-Message-ID: <1482911500-111984-1-git-send-email-hui.chun.ong@ni.com>
-MIME-Version: 1.0
-Content-Type: text/plain
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-pg0-f67.google.com ([74.125.83.67]:33491 "EHLO
+        mail-pg0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754261AbcLZRGQ (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 26 Dec 2016 12:06:16 -0500
+From: Bhumika Goyal <bhumirks@gmail.com>
+To: julia.lawall@lip6.fr, wim@iguana.be, linux@roeck-us.net,
+        f.fainelli@gmail.com, rjui@broadcom.com, sbranden@broadcom.com,
+        bcm-kernel-feedback-list@broadcom.com,
+        support.opensource@diasemi.com, baruch@tkos.co.il,
+        manabian@gmail.com, linux-watchdog@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Cc: Bhumika Goyal <bhumirks@gmail.com>
+Subject: [PATCH v2] watchdog: constify watchdog_info structures
+Date: Mon, 26 Dec 2016 22:35:11 +0530
+Message-Id: <1482771911-13548-1-git-send-email-bhumirks@gmail.com>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-Add support for the watchdog timer on PXI Embedded Controller.
+Declare watchdog_info structures as const as they are only stored in the
+info field of watchdog_device structures. This field is of type const
+struct watchdog_info *, so watchdog_info structures having this property
+can be declared const too.
+Done using Coccinelle:
 
-Signed-off-by: Hui Chun Ong <hui.chun.ong@ni.com>
+@r1 disable optional_qualifier@
+identifier i;
+position p;
+@@
+static struct watchdog_info i@p={...};
+
+@ok@
+identifier r1.i;
+position p;
+struct watchdog_device obj;
+@@
+obj.info=&i@p;
+
+@bad@
+position p!={r1.p,ok.p};
+identifier r1.i;
+@@
+i@p
+
+@depends on !bad disable optional_qualifier@
+identifier r1.i;
+@@
++const
+struct watchdog_info i;
+
+Signed-off-by: Bhumika Goyal <bhumirks@gmail.com>
 ---
-v4: Remove nic7018_stop() from nic7018_remove().
-    Lock WDT registers when watchdog_register_device() call failed.
+Changes in v2:
+  * Drop "drivers:" from the subject line.
+  * Remove the file size details.
 
-v3: Update timeout calculation from miliseconds to seconds.
-    Reorder watchdog_regiser_device() call to prevent potential race condition.
+ drivers/watchdog/bcm7038_wdt.c   | 2 +-
+ drivers/watchdog/bcm_kona_wdt.c  | 2 +-
+ drivers/watchdog/cadence_wdt.c   | 2 +-
+ drivers/watchdog/da9052_wdt.c    | 2 +-
+ drivers/watchdog/da9055_wdt.c    | 2 +-
+ drivers/watchdog/digicolor_wdt.c | 2 +-
+ drivers/watchdog/imgpdc_wdt.c    | 2 +-
+ drivers/watchdog/kempld_wdt.c    | 2 +-
+ drivers/watchdog/lpc18xx_wdt.c   | 2 +-
+ drivers/watchdog/rn5t618_wdt.c   | 2 +-
+ drivers/watchdog/sbsa_gwdt.c     | 2 +-
+ drivers/watchdog/w83627hf_wdt.c  | 2 +-
+ 12 files changed, 12 insertions(+), 12 deletions(-)
 
-v2: Remove mutex lock and platform_device *pdev fields from struct nic7018_wdt.
-    Update config NIC7018_WDT description.
-    Update nic7018_get_config() to never return error.
-    Remove checking for IO resource size in nic7018_probe().
+diff --git a/drivers/watchdog/bcm7038_wdt.c b/drivers/watchdog/bcm7038_wdt.c
+index e238df4..37c6a49 100644
+--- a/drivers/watchdog/bcm7038_wdt.c
++++ b/drivers/watchdog/bcm7038_wdt.c
+@@ -101,7 +101,7 @@ static unsigned int bcm7038_wdt_get_timeleft(struct watchdog_device *wdog)
+ 	return time_left / wdt->rate;
+ }
+ 
+-static struct watchdog_info bcm7038_wdt_info = {
++static const struct watchdog_info bcm7038_wdt_info = {
+ 	.identity	= "Broadcom BCM7038 Watchdog Timer",
+ 	.options	= WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING |
+ 				WDIOF_MAGICCLOSE
+diff --git a/drivers/watchdog/bcm_kona_wdt.c b/drivers/watchdog/bcm_kona_wdt.c
+index e0c9842..76b0080 100644
+--- a/drivers/watchdog/bcm_kona_wdt.c
++++ b/drivers/watchdog/bcm_kona_wdt.c
+@@ -274,7 +274,7 @@ static int bcm_kona_wdt_stop(struct watchdog_device *wdog)
+ 	.get_timeleft =	bcm_kona_wdt_get_timeleft,
+ };
+ 
+-static struct watchdog_info bcm_kona_wdt_info = {
++static const struct watchdog_info bcm_kona_wdt_info = {
+ 	.options =	WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE |
+ 			WDIOF_KEEPALIVEPING,
+ 	.identity =	"Broadcom Kona Watchdog Timer",
+diff --git a/drivers/watchdog/cadence_wdt.c b/drivers/watchdog/cadence_wdt.c
+index 98acef7..8d61e8b 100644
+--- a/drivers/watchdog/cadence_wdt.c
++++ b/drivers/watchdog/cadence_wdt.c
+@@ -262,7 +262,7 @@ static irqreturn_t cdns_wdt_irq_handler(int irq, void *dev_id)
+  * Info structure used to indicate the features supported by the device
+  * to the upper layers. This is defined in watchdog.h header file.
+  */
+-static struct watchdog_info cdns_wdt_info = {
++static const struct watchdog_info cdns_wdt_info = {
+ 	.identity	= "cdns_wdt watchdog",
+ 	.options	= WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING |
+ 			  WDIOF_MAGICCLOSE,
+diff --git a/drivers/watchdog/da9052_wdt.c b/drivers/watchdog/da9052_wdt.c
+index 2fc19a3..d86a57e 100644
+--- a/drivers/watchdog/da9052_wdt.c
++++ b/drivers/watchdog/da9052_wdt.c
+@@ -140,7 +140,7 @@ static int da9052_wdt_ping(struct watchdog_device *wdt_dev)
+ 	return ret;
+ }
+ 
+-static struct watchdog_info da9052_wdt_info = {
++static const struct watchdog_info da9052_wdt_info = {
+ 	.options	= WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
+ 	.identity	= "DA9052 Watchdog",
+ };
+diff --git a/drivers/watchdog/da9055_wdt.c b/drivers/watchdog/da9055_wdt.c
+index 8377c43..4f30818 100644
+--- a/drivers/watchdog/da9055_wdt.c
++++ b/drivers/watchdog/da9055_wdt.c
+@@ -108,7 +108,7 @@ static int da9055_wdt_stop(struct watchdog_device *wdt_dev)
+ 	return da9055_wdt_set_timeout(wdt_dev, 0);
+ }
+ 
+-static struct watchdog_info da9055_wdt_info = {
++static const struct watchdog_info da9055_wdt_info = {
+ 	.options	= WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
+ 	.identity	= "DA9055 Watchdog",
+ };
+diff --git a/drivers/watchdog/digicolor_wdt.c b/drivers/watchdog/digicolor_wdt.c
+index 77df772..dfe7294 100644
+--- a/drivers/watchdog/digicolor_wdt.c
++++ b/drivers/watchdog/digicolor_wdt.c
+@@ -105,7 +105,7 @@ static unsigned int dc_wdt_get_timeleft(struct watchdog_device *wdog)
+ 	.restart        = dc_wdt_restart,
+ };
+ 
+-static struct watchdog_info dc_wdt_info = {
++static const struct watchdog_info dc_wdt_info = {
+ 	.options	= WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE
+ 			| WDIOF_KEEPALIVEPING,
+ 	.identity	= "Conexant Digicolor Watchdog",
+diff --git a/drivers/watchdog/imgpdc_wdt.c b/drivers/watchdog/imgpdc_wdt.c
+index 516fbef..6ed39de 100644
+--- a/drivers/watchdog/imgpdc_wdt.c
++++ b/drivers/watchdog/imgpdc_wdt.c
+@@ -161,7 +161,7 @@ static int pdc_wdt_restart(struct watchdog_device *wdt_dev,
+ 	return 0;
+ }
+ 
+-static struct watchdog_info pdc_wdt_info = {
++static const struct watchdog_info pdc_wdt_info = {
+ 	.identity	= "IMG PDC Watchdog",
+ 	.options	= WDIOF_SETTIMEOUT |
+ 			  WDIOF_KEEPALIVEPING |
+diff --git a/drivers/watchdog/kempld_wdt.c b/drivers/watchdog/kempld_wdt.c
+index 8e302d0..73c46b3 100644
+--- a/drivers/watchdog/kempld_wdt.c
++++ b/drivers/watchdog/kempld_wdt.c
+@@ -422,7 +422,7 @@ static int kempld_wdt_probe_stages(struct watchdog_device *wdd)
+ 	return 0;
+ }
+ 
+-static struct watchdog_info kempld_wdt_info = {
++static const struct watchdog_info kempld_wdt_info = {
+ 	.identity	= "KEMPLD Watchdog",
+ 	.options	= WDIOF_SETTIMEOUT |
+ 			WDIOF_KEEPALIVEPING |
+diff --git a/drivers/watchdog/lpc18xx_wdt.c b/drivers/watchdog/lpc18xx_wdt.c
+index fd171e6..3b8bb59 100644
+--- a/drivers/watchdog/lpc18xx_wdt.c
++++ b/drivers/watchdog/lpc18xx_wdt.c
+@@ -181,7 +181,7 @@ static int lpc18xx_wdt_restart(struct watchdog_device *wdt_dev,
+ 	return 0;
+ }
+ 
+-static struct watchdog_info lpc18xx_wdt_info = {
++static const struct watchdog_info lpc18xx_wdt_info = {
+ 	.identity	= "NXP LPC18xx Watchdog",
+ 	.options	= WDIOF_SETTIMEOUT |
+ 			  WDIOF_KEEPALIVEPING |
+diff --git a/drivers/watchdog/rn5t618_wdt.c b/drivers/watchdog/rn5t618_wdt.c
+index 0805ee2..e60f557 100644
+--- a/drivers/watchdog/rn5t618_wdt.c
++++ b/drivers/watchdog/rn5t618_wdt.c
+@@ -130,7 +130,7 @@ static int rn5t618_wdt_ping(struct watchdog_device *wdt_dev)
+ 				  RN5T618_PWRIRQ_IR_WDOG, 0);
+ }
+ 
+-static struct watchdog_info rn5t618_wdt_info = {
++static const struct watchdog_info rn5t618_wdt_info = {
+ 	.options	= WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE |
+ 			  WDIOF_KEEPALIVEPING,
+ 	.identity	= DRIVER_NAME,
+diff --git a/drivers/watchdog/sbsa_gwdt.c b/drivers/watchdog/sbsa_gwdt.c
+index ce0c38b..e9966bc 100644
+--- a/drivers/watchdog/sbsa_gwdt.c
++++ b/drivers/watchdog/sbsa_gwdt.c
+@@ -207,7 +207,7 @@ static irqreturn_t sbsa_gwdt_interrupt(int irq, void *dev_id)
+ 	return IRQ_HANDLED;
+ }
+ 
+-static struct watchdog_info sbsa_gwdt_info = {
++static const struct watchdog_info sbsa_gwdt_info = {
+ 	.identity	= WATCHDOG_NAME,
+ 	.options	= WDIOF_SETTIMEOUT |
+ 			  WDIOF_KEEPALIVEPING |
+diff --git a/drivers/watchdog/w83627hf_wdt.c b/drivers/watchdog/w83627hf_wdt.c
+index ef2ecaf..98fd186 100644
+--- a/drivers/watchdog/w83627hf_wdt.c
++++ b/drivers/watchdog/w83627hf_wdt.c
+@@ -297,7 +297,7 @@ static unsigned int wdt_get_time(struct watchdog_device *wdog)
+  *	Kernel Interfaces
+  */
+ 
+-static struct watchdog_info wdt_info = {
++static const struct watchdog_info wdt_info = {
+ 	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
+ 	.identity = "W83627HF Watchdog",
+ };
+-- 
+1.9.1
 
-v1: Remove non-standard attributes.
-    Change from acpi_driver to platform_driver.
-    Rename driver from ni7018_wdt to nic7018_wdt.
----
- Documentation/watchdog/watchdog-parameters.txt |   5 +
- drivers/watchdog/Kconfig                       |  10 +
- drivers/watchdog/Makefile                      |   1 +
- drivers/watchdog/nic7018_wdt.c                 | 265 +++++++++++++++++++++++++
- 4 files changed, 281 insertions(+)
- create mode 100644 drivers/watchdog/nic7018_wdt.c
-
-diff --git a/Documentation/watchdog/watchdog-parameters.txt b/Documentation/watchdog/watchdog-parameters.txt
-index e21850e..4f7d86d 100644
---- a/Documentation/watchdog/watchdog-parameters.txt
-+++ b/Documentation/watchdog/watchdog-parameters.txt
-@@ -209,6 +209,11 @@ timeout: Initial watchdog timeout in seconds (0<timeout<516, default=60)
- nowayout: Watchdog cannot be stopped once started
- 	(default=kernel config parameter)
- -------------------------------------------------
-+nic7018_wdt:
-+timeout: Initial watchdog timeout in seconds (0<timeout<464, default=80)
-+nowayout: Watchdog cannot be stopped once started
-+	(default=kernel config parameter)
-+-------------------------------------------------
- nuc900_wdt:
- heartbeat: Watchdog heartbeats in seconds.
- 	(default = 15)
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index acb00b5..e20eb42 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -1326,6 +1326,16 @@ config NI903X_WDT
- 	  To compile this driver as a module, choose M here: the module will be
- 	  called ni903x_wdt.
-
-+config NIC7018_WDT
-+	tristate "NIC7018 Watchdog"
-+	depends on X86 && ACPI
-+	select WATCHDOG_CORE
-+	---help---
-+	  Support for National Instruments NIC7018 Watchdog.
-+
-+	  To compile this driver as a module, choose M here: the module will be
-+	  called nic7018_wdt.
-+
- # M32R Architecture
-
- # M68K Architecture
-diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index 0c3d35e..3af3588 100644
---- a/drivers/watchdog/Makefile
-+++ b/drivers/watchdog/Makefile
-@@ -139,6 +139,7 @@ obj-$(CONFIG_INTEL_SCU_WATCHDOG) += intel_scu_watchdog.o
- obj-$(CONFIG_INTEL_MID_WATCHDOG) += intel-mid_wdt.o
- obj-$(CONFIG_INTEL_MEI_WDT) += mei_wdt.o
- obj-$(CONFIG_NI903X_WDT) += ni903x_wdt.o
-+obj-$(CONFIG_NIC7018_WDT) += nic7018_wdt.o
-
- # M32R Architecture
-
-diff --git a/drivers/watchdog/nic7018_wdt.c b/drivers/watchdog/nic7018_wdt.c
-new file mode 100644
-index 0000000..dcd2656
---- /dev/null
-+++ b/drivers/watchdog/nic7018_wdt.c
-@@ -0,0 +1,265 @@
-+/*
-+ * Copyright (C) 2016 National Instruments Corp.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ */
-+
-+#include <linux/acpi.h>
-+#include <linux/bitops.h>
-+#include <linux/device.h>
-+#include <linux/io.h>
-+#include <linux/module.h>
-+#include <linux/platform_device.h>
-+#include <linux/watchdog.h>
-+
-+#define LOCK			0xA5
-+#define UNLOCK			0x5A
-+
-+#define WDT_CTRL_RESET_EN	BIT(7)
-+#define WDT_RELOAD_PORT_EN	BIT(7)
-+
-+#define WDT_CTRL		1
-+#define WDT_RELOAD_CTRL		2
-+#define WDT_PRESET_PRESCALE	4
-+#define WDT_REG_LOCK		5
-+#define WDT_COUNT		6
-+#define WDT_RELOAD_PORT		7
-+
-+#define WDT_MIN_TIMEOUT		1
-+#define WDT_MAX_TIMEOUT		464
-+#define WDT_DEFAULT_TIMEOUT	80
-+
-+#define WDT_MAX_COUNTER		15
-+
-+static unsigned int timeout;
-+module_param(timeout, uint, 0);
-+MODULE_PARM_DESC(timeout,
-+		 "Watchdog timeout in seconds. (default="
-+		 __MODULE_STRING(WDT_DEFAULT_TIMEOUT) ")");
-+
-+static bool nowayout = WATCHDOG_NOWAYOUT;
-+module_param(nowayout, bool, 0);
-+MODULE_PARM_DESC(nowayout,
-+		 "Watchdog cannot be stopped once started. (default="
-+		 __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
-+
-+struct nic7018_wdt {
-+	u16 io_base;
-+	u32 period;
-+	struct watchdog_device wdd;
-+};
-+
-+struct nic7018_config {
-+	u32 period;
-+	u8 divider;
-+};
-+
-+static const struct nic7018_config nic7018_configs[] = {
-+	{  2, 4 },
-+	{ 32, 5 },
-+};
-+
-+static inline u32 nic7018_timeout(u32 period, u8 counter)
-+{
-+	return period * counter - period / 2;
-+}
-+
-+static const struct nic7018_config *nic7018_get_config(u32 timeout,
-+						       u8 *counter)
-+{
-+	const struct nic7018_config *config;
-+	u8 count;
-+
-+	if (timeout < 30 && timeout != 16) {
-+		config = &nic7018_configs[0];
-+		count = timeout / 2 + 1;
-+	} else {
-+		config = &nic7018_configs[1];
-+		count = DIV_ROUND_UP(timeout + 16, 32);
-+
-+		if (count > WDT_MAX_COUNTER)
-+			count = WDT_MAX_COUNTER;
-+	}
-+	*counter = count;
-+	return config;
-+}
-+
-+static int nic7018_set_timeout(struct watchdog_device *wdd,
-+			       unsigned int timeout)
-+{
-+	struct nic7018_wdt *wdt = watchdog_get_drvdata(wdd);
-+	const struct nic7018_config *config;
-+	u8 counter;
-+
-+	config = nic7018_get_config(timeout, &counter);
-+
-+	outb(counter << 4 | config->divider,
-+	     wdt->io_base + WDT_PRESET_PRESCALE);
-+
-+	wdd->timeout = nic7018_timeout(config->period, counter);
-+	wdt->period = config->period;
-+
-+	return 0;
-+}
-+
-+static int nic7018_start(struct watchdog_device *wdd)
-+{
-+	struct nic7018_wdt *wdt = watchdog_get_drvdata(wdd);
-+	u8 control;
-+
-+	nic7018_set_timeout(wdd, wdd->timeout);
-+
-+	control = inb(wdt->io_base + WDT_RELOAD_CTRL);
-+	outb(control | WDT_RELOAD_PORT_EN, wdt->io_base + WDT_RELOAD_CTRL);
-+
-+	outb(1, wdt->io_base + WDT_RELOAD_PORT);
-+
-+	control = inb(wdt->io_base + WDT_CTRL);
-+	outb(control | WDT_CTRL_RESET_EN, wdt->io_base + WDT_CTRL);
-+
-+	return 0;
-+}
-+
-+static int nic7018_stop(struct watchdog_device *wdd)
-+{
-+	struct nic7018_wdt *wdt = watchdog_get_drvdata(wdd);
-+
-+	outb(0, wdt->io_base + WDT_CTRL);
-+	outb(0, wdt->io_base + WDT_RELOAD_CTRL);
-+	outb(0xF0, wdt->io_base + WDT_PRESET_PRESCALE);
-+
-+	return 0;
-+}
-+
-+static int nic7018_ping(struct watchdog_device *wdd)
-+{
-+	struct nic7018_wdt *wdt = watchdog_get_drvdata(wdd);
-+
-+	outb(1, wdt->io_base + WDT_RELOAD_PORT);
-+
-+	return 0;
-+}
-+
-+static unsigned int nic7018_get_timeleft(struct watchdog_device *wdd)
-+{
-+	struct nic7018_wdt *wdt = watchdog_get_drvdata(wdd);
-+	u8 count;
-+
-+	count = inb(wdt->io_base + WDT_COUNT) & 0xF;
-+	if (!count)
-+		return 0;
-+
-+	return nic7018_timeout(wdt->period, count);
-+}
-+
-+static const struct watchdog_info nic7018_wdd_info = {
-+	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
-+	.identity = "NIC7018 Watchdog",
-+};
-+
-+static const struct watchdog_ops nic7018_wdd_ops = {
-+	.owner = THIS_MODULE,
-+	.start = nic7018_start,
-+	.stop = nic7018_stop,
-+	.ping = nic7018_ping,
-+	.set_timeout = nic7018_set_timeout,
-+	.get_timeleft = nic7018_get_timeleft,
-+};
-+
-+static int nic7018_probe(struct platform_device *pdev)
-+{
-+	struct device *dev = &pdev->dev;
-+	struct watchdog_device *wdd;
-+	struct nic7018_wdt *wdt;
-+	struct resource *io_rc;
-+	int ret;
-+
-+	wdt = devm_kzalloc(dev, sizeof(*wdt), GFP_KERNEL);
-+	if (!wdt)
-+		return -ENOMEM;
-+
-+	platform_set_drvdata(pdev, wdt);
-+
-+	io_rc = platform_get_resource(pdev, IORESOURCE_IO, 0);
-+	if (!io_rc) {
-+		dev_err(dev, "missing IO resources\n");
-+		return -EINVAL;
-+	}
-+
-+	if (!devm_request_region(dev, io_rc->start, resource_size(io_rc),
-+				 KBUILD_MODNAME)) {
-+		dev_err(dev, "failed to get IO region\n");
-+		return -EBUSY;
-+	}
-+
-+	wdt->io_base = io_rc->start;
-+	wdd = &wdt->wdd;
-+	wdd->info = &nic7018_wdd_info;
-+	wdd->ops = &nic7018_wdd_ops;
-+	wdd->min_timeout = WDT_MIN_TIMEOUT;
-+	wdd->max_timeout = WDT_MAX_TIMEOUT;
-+	wdd->timeout = WDT_DEFAULT_TIMEOUT;
-+	wdd->parent = dev;
-+
-+	watchdog_set_drvdata(wdd, wdt);
-+	watchdog_set_nowayout(wdd, nowayout);
-+
-+	ret = watchdog_init_timeout(wdd, timeout, dev);
-+	if (ret)
-+		dev_warn(dev, "unable to set timeout value, using default\n");
-+
-+	/* Unlock WDT register */
-+	outb(UNLOCK, wdt->io_base + WDT_REG_LOCK);
-+
-+	ret = watchdog_register_device(wdd);
-+	if (ret) {
-+		outb(LOCK, wdt->io_base + WDT_REG_LOCK);
-+		dev_err(dev, "failed to register watchdog\n");
-+		return ret;
-+	}
-+
-+	dev_dbg(dev, "io_base=0x%04X, timeout=%d, nowayout=%d\n",
-+		wdt->io_base, timeout, nowayout);
-+	return 0;
-+}
-+
-+static int nic7018_remove(struct platform_device *pdev)
-+{
-+	struct nic7018_wdt *wdt = platform_get_drvdata(pdev);
-+
-+	watchdog_unregister_device(&wdt->wdd);
-+
-+	/* Lock WDT register */
-+	outb(LOCK, wdt->io_base + WDT_REG_LOCK);
-+
-+	return 0;
-+}
-+
-+static const struct acpi_device_id nic7018_device_ids[] = {
-+	{"NIC7018", 0},
-+	{"", 0},
-+};
-+MODULE_DEVICE_TABLE(acpi, nic7018_device_ids);
-+
-+static struct platform_driver watchdog_driver = {
-+	.probe = nic7018_probe,
-+	.remove = nic7018_remove,
-+	.driver = {
-+		.name = KBUILD_MODNAME,
-+		.acpi_match_table = ACPI_PTR(nic7018_device_ids),
-+	},
-+};
-+
-+module_platform_driver(watchdog_driver);
-+
-+MODULE_DESCRIPTION("National Instruments NIC7018 Watchdog driver");
-+MODULE_AUTHOR("Hui Chun Ong <hui.chun.ong@ni.com>");
-+MODULE_LICENSE("GPL");
---
-2.7.4
