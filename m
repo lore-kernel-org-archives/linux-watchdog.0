@@ -1,46 +1,66 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-oi0-f68.google.com ([209.85.218.68]:35309 "EHLO
-        mail-oi0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750890AbcLZUMi (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 26 Dec 2016 15:12:38 -0500
+Return-path: <baruch@tkos.co.il>
+Date: Tue, 27 Dec 2016 07:07:40 +0200
+From: Baruch Siach <baruch@tkos.co.il>
+To: Bhumika Goyal <bhumirks@gmail.com>
+Cc: julia.lawall@lip6.fr, wim@iguana.be, linux@roeck-us.net,
+	f.fainelli@gmail.com, rjui@broadcom.com, sbranden@broadcom.com,
+	bcm-kernel-feedback-list@broadcom.com,
+	support.opensource@diasemi.com, manabian@gmail.com,
+	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org
 Subject: Re: [PATCH v2] watchdog: constify watchdog_info structures
-To: Bhumika Goyal <bhumirks@gmail.com>, julia.lawall@lip6.fr,
-        wim@iguana.be, linux@roeck-us.net, rjui@broadcom.com,
-        sbranden@broadcom.com, bcm-kernel-feedback-list@broadcom.com,
-        support.opensource@diasemi.com, baruch@tkos.co.il,
-        manabian@gmail.com, linux-watchdog@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Message-ID: <20161227050740.fqpmxxqxtalkovka@tarshish>
 References: <1482771911-13548-1-git-send-email-bhumirks@gmail.com>
-From: Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <4e7daea3-19d1-a8a8-c15a-9e3f5785d817@gmail.com>
-Date: Mon, 26 Dec 2016 12:12:35 -0800
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 In-Reply-To: <1482771911-13548-1-git-send-email-bhumirks@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+List-ID: <linux-watchdog@vger.kernel.org>
 
-Le 12/26/16 à 09:05, Bhumika Goyal a écrit :
-> Signed-off-by: Bhumika Goyal <bhumirks@gmail.com>
-> ---
-> Changes in v2:
->   * Drop "drivers:" from the subject line.
->   * Remove the file size details.
+Hi Bhumika Goyal,
+
+On Mon, Dec 26, 2016 at 10:35:11PM +0530, Bhumika Goyal wrote:
+> Declare watchdog_info structures as const as they are only stored in the
+> info field of watchdog_device structures. This field is of type const
+> struct watchdog_info *, so watchdog_info structures having this property
+> can be declared const too.
+> Done using Coccinelle:
 > 
->  drivers/watchdog/bcm7038_wdt.c   | 2 +-
+> @r1 disable optional_qualifier@
+> identifier i;
+> position p;
+> @@
+> static struct watchdog_info i@p={...};
+> 
+> @ok@
+> identifier r1.i;
+> position p;
+> struct watchdog_device obj;
+> @@
+> obj.info=&i@p;
+> 
+> @bad@
+> position p!={r1.p,ok.p};
+> identifier r1.i;
+> @@
+> i@p
+> 
+> @depends on !bad disable optional_qualifier@
+> identifier r1.i;
+> @@
+> +const
+> struct watchdog_info i;
+> 
+> Signed-off-by: Bhumika Goyal <bhumirks@gmail.com>
 
-> diff --git a/drivers/watchdog/bcm7038_wdt.c b/drivers/watchdog/bcm7038_wdt.c
-> index e238df4..37c6a49 100644
-> --- a/drivers/watchdog/bcm7038_wdt.c
-> +++ b/drivers/watchdog/bcm7038_wdt.c
-> @@ -101,7 +101,7 @@ static unsigned int bcm7038_wdt_get_timeleft(struct watchdog_device *wdog)
->  	return time_left / wdt->rate;
->  }
+For digicolor_wdt.c:
 
-For BCM7038 WDT:
+Acked-by: Baruch Siach <baruch@tkos.co.il>
 
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Thanks,
+baruch
+
 -- 
-Florian
+     http://baruch.siach.name/blog/                  ~. .~   Tk Open Systems
+=}------------------------------------------------ooO--U--Ooo------------{=
+   - baruch@tkos.co.il - tel: +972.52.368.4656, http://www.tkos.co.il -
