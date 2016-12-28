@@ -1,125 +1,47 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:48877 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754494AbcLWTkR (ORCPT
+Received: from mail-oi0-f66.google.com ([209.85.218.66]:36046 "EHLO
+        mail-oi0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751159AbcL1VeX (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 23 Dec 2016 14:40:17 -0500
-Date: Fri, 23 Dec 2016 11:40:04 -0800
-From: Guenter Roeck <linux@roeck-us.net>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Wim Van Sebroeck <wim@iguana.be>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>
-Subject: Re: [GIT PULL REQUEST] watchdog - v4.10 merge window
-Message-ID: <20161223194004.GA25072@roeck-us.net>
-References: <20161223100754.GA19660@spo001.leaseweb.nl>
- <CA+55aFzmP72eO+oQroCHqaKirZxBS8OqbBRua93URY9b7rPz1w@mail.gmail.com>
+        Wed, 28 Dec 2016 16:34:23 -0500
+Received: by mail-oi0-f66.google.com with SMTP id u15so52616268oie.3
+        for <linux-watchdog@vger.kernel.org>; Wed, 28 Dec 2016 13:33:27 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CA+55aFzmP72eO+oQroCHqaKirZxBS8OqbBRua93URY9b7rPz1w@mail.gmail.com>
+In-Reply-To: <20161228205419.la74jr4rfes7fa4v@pengutronix.de>
+References: <20161211102634.jn3awmlzdrm3pqai@pengutronix.de>
+ <2fc2558d-fe05-14a7-745e-f71d2178bad6@mleia.com> <fe9b03bf-9c37-862f-b3aa-0f9b5a4dfefb@roeck-us.net>
+ <bedae3d8-3057-36e4-1d89-ec41f9f1a25b@mleia.com> <20161223083256.3wdqou5xmhr7fidn@pengutronix.de>
+ <74751709-c32e-b1b3-4fa3-613f7d57d1d8@mleia.com> <20161223100113.s57bi7257yero7f7@pengutronix.de>
+ <7018c466-2467-a9fc-2382-889d3a62741e@mentor.com> <20161223141139.rlsvoonih5lhnnpu@pengutronix.de>
+ <c22600d5-f6b5-4c13-59b4-ba391ea29a4c@mleia.com> <20161228205419.la74jr4rfes7fa4v@pengutronix.de>
+From: Fabio Estevam <festevam@gmail.com>
+Date: Wed, 28 Dec 2016 19:33:26 -0200
+Message-ID: <CAOMZO5BD3Y6vXwt7_bdv_KyGvKSYru1vzDowsD81fzEbM4gHPA@mail.gmail.com>
+Subject: Re: [PATCH v1] watchdog: imx2: fix hang-up on boot for i.MX21, i.MX27
+ and i.MX31 SoCs
+To: =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?=
+        <u.kleine-koenig@pengutronix.de>
+Cc: Vladimir Zapolskiy <vz@mleia.com>, linux-watchdog@vger.kernel.org,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Magnus Lilja <lilja.magnus@gmail.com>,
+        "linux-arm-kernel@lists.infradead.org"
+        <linux-arm-kernel@lists.infradead.org>,
+        Sascha Hauer <kernel@pengutronix.de>,
+        Fabio Estevam <fabio.estevam@nxp.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, Dec 23, 2016 at 10:22:06AM -0800, Linus Torvalds wrote:
-> On Fri, Dec 23, 2016 at 2:07 AM, Wim Van Sebroeck <wim@iguana.be> wrote:
-> > Hi Linus,
-> >
-> > Due to time constraints and personal issues Guenter and I decided that this window will be a pull from another location.
-> > So please pull from 'watchdog-for-linus-v4.10' branch of
-> 
-> No shortlog, no diffstat. I won't be pulling, because I have no way to
-> validate what I actually get.
-> 
+On Wed, Dec 28, 2016 at 6:54 PM, Uwe Kleine-K=C3=B6nig
+<u.kleine-koenig@pengutronix.de> wrote:
 
+> I'd do it the other way around and so get more and simpler patches:
+>
+>  - make driver aware of i.MX35
+>  - fix dtsi to use i.MX35 type where applicable
 
-FWIW:
-
-------
-
-The following changes since commit 69973b830859bc6529a7a0468ba0d80ee5117826:
-
-  Linux 4.9 (2016-12-11 11:17:54 -0800)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git tags/watchdog-for-linus-v4.10
-
-for you to fetch changes up to 067161281f428aa7c6e153e06aab7b5fe1ed1e98:
-
-  watchdog: it87_wdt: add IT8620E ID (2016-12-16 06:53:56 -0800)
-
-----------------------------------------------------------------
-Watchdog updates for v4.10
-
-New driver for Add Loongson1 SoC.
-Minor cleanup and fixes in various drivers.
-
-----------------------------------------------------------------
-Alexander Usyskin (1):
-      watchdog: mei_wdt: request stop on reboot to prevent false positive event
-
-Amit Kushwaha (1):
-      watchdog: cpwd: remove memory allocate failure message
-
-Andy Shevchenko (2):
-      intel-mid_wdt: make sure watchdog is not running at startup
-      intel-mid_wdt: Error code is just an integer
-
-Christian Lamparter (1):
-      watchdog: qcom: fix kernel panic due to external abort on non-linefetch
-
-Corentin Labbe (2):
-      watchdog: octeon: Remove unneeded linux/miscdevice.h include
-      watchdog: mpc8xxx: Remove unneeded linux/miscdevice.h include
-
-Javier Martinez Canillas (3):
-      watchdog: bcm7038_wdt: fix module autoload
-      watchdog: max77620_wdt: fix module autoload
-      watchdog: meson: Remove unneeded platform MODULE_ALIAS
-
-Jimmy Vance (1):
-      watchdog: hpwdt: changed maintainer information
-
-Maciej S. Szmigiero (1):
-      watchdog: it87_wdt: add IT8620E ID
-
-Rasmus Villemoes (1):
-      watchdog: bcm2835_wdt: set WDOG_HW_RUNNING bit when appropriate
-
-Robert P. J. Day (1):
-      watchdog: Standardize leading tabs and spaces in Kconfig file
-
-Stephen Boyd (1):
-      watchdog: jz4740: Fix modular build
-
-Steve Twiss (1):
-      watchdog: da9062/61: watchdog driver
-
-Tero Kristo (1):
-      watchdog: davinci: add support for deferred probing
-
-Yang Ling (1):
-      watchdog: loongson1: Add Loongson1 SoC watchdog driver
-
- MAINTAINERS                        |   2 +-
- drivers/watchdog/Kconfig           |  49 ++++++-----
- drivers/watchdog/Makefile          |   1 +
- drivers/watchdog/bcm2835_wdt.c     |  20 +++++
- drivers/watchdog/bcm7038_wdt.c     |   1 +
- drivers/watchdog/cpwd.c            |  23 ++---
- drivers/watchdog/da9062_wdt.c      |  12 ++-
- drivers/watchdog/davinci_wdt.c     |   6 +-
- drivers/watchdog/intel-mid_wdt.c   |  22 ++---
- drivers/watchdog/it87_wdt.c        |   4 +-
- drivers/watchdog/jz4740_wdt.c      |   2 +-
- drivers/watchdog/loongson1_wdt.c   | 170 +++++++++++++++++++++++++++++++++++++
- drivers/watchdog/max77620_wdt.c    |   1 +
- drivers/watchdog/mei_wdt.c         |   2 +
- drivers/watchdog/meson_gxbb_wdt.c  |   1 -
- drivers/watchdog/mpc8xxx_wdt.c     |   1 -
- drivers/watchdog/octeon-wdt-main.c |   1 -
- drivers/watchdog/qcom-wdt.c        |   2 +-
- 18 files changed, 262 insertions(+), 58 deletions(-)
- create mode 100644 drivers/watchdog/loongson1_wdt.c
+This would not work for old dtb's as they are not aware of the  i.mx35 type=
+.
