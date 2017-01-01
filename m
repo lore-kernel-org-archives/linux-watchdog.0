@@ -1,60 +1,57 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:47670 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S967349AbdADBjH (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 3 Jan 2017 20:39:07 -0500
-Subject: Re: [PATCH 3/4] watchdog: iTCO_wdt: Use pdev for platform device and
- pci_dev for pci device
-To: Andy Shevchenko <andy.shevchenko@gmail.com>
-References: <1483454364-28650-1-git-send-email-linux@roeck-us.net>
- <1483454364-28650-3-git-send-email-linux@roeck-us.net>
- <CAHp75Vc0KR_w8k4bdacyU-i=CrKiS7jUqKTSMWEwTrcN-ZrcJQ@mail.gmail.com>
- <20170103234047.GB13952@roeck-us.net>
- <CAHp75VcYArTMypmCZxM=kj_m-iWqKuOXd7V=fnWNv5Q+jmN0xw@mail.gmail.com>
- <CAHp75VdVDG7aDgW8TOK-TQoAS5p8LC+U6jnhbZv-KwEoyzsDNQ@mail.gmail.com>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <2b44637f-d9aa-c0a5-1532-421b474e35e4@roeck-us.net>
-Date: Tue, 3 Jan 2017 17:38:58 -0800
-MIME-Version: 1.0
-In-Reply-To: <CAHp75VdVDG7aDgW8TOK-TQoAS5p8LC+U6jnhbZv-KwEoyzsDNQ@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-path: <wimvs@spo001.leaseweb.nl>
+Date: Sun, 1 Jan 2017 12:14:22 +0100
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	Laxman Dewangan <ldewangan@nvidia.com>,
+	Mans Rullgard <mans@mansr.com>, Justin Chen <justinpopo6@gmail.com>,
+	Wenyou Yang <wenyou.yang@atmel.com>,
+	Naidu Tellapati <naidu.tellapati@gmail.com>
+Subject: Re: Stopping watchdog in watchdog driver remove functions
+Message-ID: <20170101111421.GA9695@spo001.leaseweb.nl>
+References: <64c83c02-2c64-c536-3302-8079f438f0ab@roeck-us.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <64c83c02-2c64-c536-3302-8079f438f0ab@roeck-us.net>
+Sender: <wimvs@spo001.leaseweb.nl>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 01/03/2017 03:50 PM, Andy Shevchenko wrote:
-> On Wed, Jan 4, 2017 at 1:48 AM, Andy Shevchenko
-> <andy.shevchenko@gmail.com> wrote:
->> On Wed, Jan 4, 2017 at 1:40 AM, Guenter Roeck <linux@roeck-us.net> wrote:
->>> On Wed, Jan 04, 2017 at 12:39:59AM +0200, Andy Shevchenko wrote:
->>>> On Tue, Jan 3, 2017 at 4:39 PM, Guenter Roeck <linux@roeck-us.net> wrote:
->>>>> Use pdev for struct platform_device, pcidev for struct pci_dev, and dev
->>>>> for struct device variables to improve consistency.
->>>>>
->>>>> Remove 'struct platform_device *dev;' from struct iTCO_wdt_private since
->>>>> it was unused.
->>>>
->>>> Would pci_dev work?
->>>>
->>> Sure, or maybe just 'pci'. Any preference ?
->>
->> Just slightly prefer pci_dev over others (pcidev, pci), but do not
->> insist. Up to you.
->
-> Or even
->
-> struct device *dev;
-> ...
-> struct pci_dev *pci_dev = to_pci_dev(dev);
->
+Hi Guenter,
 
-'dev' would have to be a pointer to the parent device. If I consider using
-dev_{info,err}, I'll need 'dev' in struct iTCO_wdt_private. I think I'll
-stick with pci_dev.
+> I noticed that several watchdog drivers stop the watchdog in trhe driver 
+> remove function.
+> A non-exhaustive list of drivers doing that is
+> 
+> 	drivers/watchdog/bcm7038_wdt.c
+> 	drivers/watchdog/cadence_wdt.c
+> 	drivers/watchdog/imgpdc_wdt.c
+> 	drivers/watchdog/jz4740_wdt.c
+> 	drivers/watchdog/kempld_wdt.c
+> 	drivers/watchdog/max77620_wdt.c
+> 	drivers/watchdog/moxart_wdt.c
+> 	drivers/watchdog/sama5d4_wdt.c
+> 	drivers/watchdog/tangox_wdt.c
+> 	drivers/watchdog/tegra_wdt.c
+> 
+> Since a watchdog has to be closed for its driver to be removable, one 
+> situation
+> where a watchdog is still running on unload is where the watchdog was 
+> opened but
+> not closed properly (eg by killing the watchdog application, or if the 
+> 'nowayout'
+> flag is set).
+> 
+> Given that, does it even make sense to stop the watchdog in the remove 
+> function ?
+> Should it even be permitted ?
 
-Thanks,
-Guenter
+>From an API point of view: if WDIOF_MAGICCLOSE is being used then the watchdog
+_SHOULD_ continue to run when the watchdog was not properly closed (which
+normally also results in a reboot of the system).
+if WDIOF_MAGICCLOSE is not being used then closing the watchdog device means
+that the driver needs to stop the watchdog.
 
+Kind regards and happy new year to you all,
+Wim.
