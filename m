@@ -1,77 +1,64 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-qk0-f179.google.com ([209.85.220.179]:35839 "EHLO
-        mail-qk0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751829AbcL3IBY (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 30 Dec 2016 03:01:24 -0500
-Received: by mail-qk0-f179.google.com with SMTP id u25so280961274qki.2
-        for <linux-watchdog@vger.kernel.org>; Fri, 30 Dec 2016 00:01:23 -0800 (PST)
+Return-path: <linux+linux=roeck-us.net@armlinux.org.uk>
+Date: Mon, 2 Jan 2017 12:48:17 +0000
+From: Russell King - ARM Linux <linux@armlinux.org.uk>
+To: Vladimir Zapolskiy <vz@mleia.com>
+Cc: Wim Van Sebroeck <wim@iguana.be>, Guenter Roeck <linux@roeck-us.net>,
+	Robert Jarzmik <robert.jarzmik@free.fr>,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH] watchdog: sa11x0/pxa: fix error path of driver
+ initialization
+Message-ID: <20170102124816.GC14217@n2100.armlinux.org.uk>
+References: <20161221011816.3809-1-vz@mleia.com>
 MIME-Version: 1.0
-In-Reply-To: <20161214231237.17496-6-sebastien.bourdelin@savoirfairelinux.com>
-References: <20161214231237.17496-1-sebastien.bourdelin@savoirfairelinux.com> <20161214231237.17496-6-sebastien.bourdelin@savoirfairelinux.com>
-From: Linus Walleij <linus.walleij@linaro.org>
-Date: Fri, 30 Dec 2016 09:01:22 +0100
-Message-ID: <CACRpkdbLnDEo-7k1rsD6NT6U165CHjTyZwT9eqv+w7MVHYgNEA@mail.gmail.com>
-Subject: Re: [PATCH 5/6] ARM: dts: TS-4600: add NBUS support
-To: Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        linux-watchdog@vger.kernel.org,
-        "linux-arm-kernel@lists.infradead.org"
-        <linux-arm-kernel@lists.infradead.org>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        kernel <kernel@savoirfairelinux.com>, mark@embeddedarm.com,
-        kris@embeddedarm.com, Simon Horman <horms+renesas@verge.net.au>,
-        Thierry Reding <treding@nvidia.com>,
-        Jon Hunter <jonathanh@nvidia.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Fabio Estevam <fabio.estevam@nxp.com>,
-        Sascha Hauer <kernel@pengutronix.de>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        damien.riegel@savoirfairelinux.com,
-        Lucile Quirion <lucile.quirion@savoirfairelinux.com>,
-        Olof Johansson <olof@lixom.net>, Arnd Bergmann <arnd@arndb.de>,
-        "Suzuki K. Poulose" <suzuki.poulose@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>
-Content-Type: text/plain; charset=UTF-8
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20161221011816.3809-1-vz@mleia.com>
+Sender: Russell King - ARM Linux <linux@armlinux.org.uk>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On Thu, Dec 15, 2016 at 12:12 AM, Sebastien Bourdelin
-<sebastien.bourdelin@savoirfairelinux.com> wrote:
+On Wed, Dec 21, 2016 at 03:18:16AM +0200, Vladimir Zapolskiy wrote:
+> The change corrects release of captured resources on error path, namely
+> the clock is disabled and put if misc device registration fails and not
+> enabled clock is not disabled now.
+> 
+> Fixes: 6924089c488e ("watchdog: sa11x0/pxa: get rid of get_clock_tick_rate")
+> Signed-off-by: Vladimir Zapolskiy <vz@mleia.com>
 
-> This commit enables the NBUS on the TS-4600, using the ts-nbus driver.
->
-> Signed-off-by: Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>
+Looks correct to me, thanks.
 
-> +       nbus {
-> +               compatible = "technologic,ts-nbus", "simple-bus";
-> +               pinctrl-0 = <&nbus_pins>;
-> +               #address-cells = <1>;
-> +               #size-cells = <0>;
-> +               pwms = <&pwm 2 83>;
-> +               data-gpios   = <&gpio0 0 GPIO_ACTIVE_HIGH
-> +                               &gpio0 1 GPIO_ACTIVE_HIGH
-> +                               &gpio0 2 GPIO_ACTIVE_HIGH
-> +                               &gpio0 3 GPIO_ACTIVE_HIGH
-> +                               &gpio0 4 GPIO_ACTIVE_HIGH
-> +                               &gpio0 5 GPIO_ACTIVE_HIGH
-> +                               &gpio0 6 GPIO_ACTIVE_HIGH
-> +                               &gpio0 7 GPIO_ACTIVE_HIGH>;
-> +               csn-gpios    = <&gpio0 16 GPIO_ACTIVE_HIGH>;
-> +               txrx-gpios   = <&gpio0 24 GPIO_ACTIVE_HIGH>;
-> +               strobe-gpios = <&gpio0 25 GPIO_ACTIVE_HIGH>;
-> +               ale-gpios    = <&gpio0 26 GPIO_ACTIVE_HIGH>;
-> +               rdy-gpios    = <&gpio0 21 GPIO_ACTIVE_HIGH>;
+Acked-by: Russell King <rmk+kernel@armlinux.org.uk>
 
-devm_gpiod_get(&pdev->dev, "csn", GPIOD_OUT_HIGH); etc will get these
-from the spawned
-platform device.
+> ---
+>  drivers/watchdog/sa1100_wdt.c | 8 +++++---
+>  1 file changed, 5 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/watchdog/sa1100_wdt.c b/drivers/watchdog/sa1100_wdt.c
+> index 8965e3f..d3be4f8 100644
+> --- a/drivers/watchdog/sa1100_wdt.c
+> +++ b/drivers/watchdog/sa1100_wdt.c
+> @@ -188,12 +188,14 @@ static int __init sa1100dog_init(void)
+>  	pre_margin = oscr_freq * margin;
+>  
+>  	ret = misc_register(&sa1100dog_miscdev);
+> -	if (ret == 0)
+> +	if (ret == 0) {
+>  		pr_info("SA1100/PXA2xx Watchdog Timer: timer margin %d sec\n",
+>  			margin);
+> -	return ret;
+> -err:
+> +		return 0;
+> +	}
+> +
+>  	clk_disable_unprepare(clk);
+> +err:
+>  	clk_put(clk);
+>  	return ret;
+>  }
+> -- 
+> 2.10.2
+> 
 
-Yours,
-Linus Walleij
+-- 
+RMK's Patch system: http://www.armlinux.org.uk/developer/patches/
+FTTC broadband for 0.8mile line: currently at 9.6Mbps down 400kbps up
+according to speedtest.net.
