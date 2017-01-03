@@ -1,200 +1,179 @@
-Return-path: <andy.shevchenko@gmail.com>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-qk0-f196.google.com ([209.85.220.196]:32773 "EHLO
+        mail-qk0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752763AbdACWl5 (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 3 Jan 2017 17:41:57 -0500
 MIME-Version: 1.0
-In-Reply-To: <1483454364-28650-3-git-send-email-linux@roeck-us.net>
-References: <1483454364-28650-1-git-send-email-linux@roeck-us.net> <1483454364-28650-3-git-send-email-linux@roeck-us.net>
+In-Reply-To: <1483454364-28650-2-git-send-email-linux@roeck-us.net>
+References: <1483454364-28650-1-git-send-email-linux@roeck-us.net> <1483454364-28650-2-git-send-email-linux@roeck-us.net>
 From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Date: Wed, 4 Jan 2017 00:39:59 +0200
-Message-ID: <CAHp75Vc0KR_w8k4bdacyU-i=CrKiS7jUqKTSMWEwTrcN-ZrcJQ@mail.gmail.com>
-Subject: Re: [PATCH 3/4] watchdog: iTCO_wdt: Use pdev for platform device and
- pci_dev for pci device
+Date: Wed, 4 Jan 2017 00:41:56 +0200
+Message-ID: <CAHp75VeUC+Nn4am-O2chdS-j953R1Bo-U9DFu4ViLTyjgM2qLA@mail.gmail.com>
+Subject: Re: [PATCH 2/4] watchdog: iTCO_wdt: Use device managed resources
 To: Guenter Roeck <linux@roeck-us.net>
 Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Matt Fleming <matt.fleming@intel.com>
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Matt Fleming <matt.fleming@intel.com>
 Content-Type: text/plain; charset=UTF-8
-List-ID: <linux-watchdog@vger.kernel.org>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
 On Tue, Jan 3, 2017 at 4:39 PM, Guenter Roeck <linux@roeck-us.net> wrote:
-> Use pdev for struct platform_device, pcidev for struct pci_dev, and dev
-> for struct device variables to improve consistency.
->
-> Remove 'struct platform_device *dev;' from struct iTCO_wdt_private since
-> it was unused.
-
-Would pci_dev work?
-
-In any case
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-
+> Using device managed resources simplifies error handling and cleanup,
+> and to reduce the likelyhood of errors.
 >
 > Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+
+Does it make sense to convert to dev_err() at some point?
+
 > ---
->  drivers/watchdog/iTCO_wdt.c | 53 ++++++++++++++++++++++-----------------------
->  1 file changed, 26 insertions(+), 27 deletions(-)
+>  drivers/watchdog/iTCO_wdt.c | 80 ++++++++++-----------------------------------
+>  1 file changed, 17 insertions(+), 63 deletions(-)
 >
 > diff --git a/drivers/watchdog/iTCO_wdt.c b/drivers/watchdog/iTCO_wdt.c
-> index eed1dee6de19..ad29ae03a30b 100644
+> index a35a9164ccd0..eed1dee6de19 100644
 > --- a/drivers/watchdog/iTCO_wdt.c
 > +++ b/drivers/watchdog/iTCO_wdt.c
-> @@ -102,9 +102,8 @@ struct iTCO_wdt_private {
->         unsigned long __iomem *gcs_pmc;
->         /* the lock for io operations */
->         spinlock_t io_lock;
-> -       struct platform_device *dev;
->         /* the PCI-device */
-> -       struct pci_dev *pdev;
-> +       struct pci_dev *pcidev;
->         /* whether or not the watchdog has been suspended */
->         bool suspended;
->  };
-> @@ -181,9 +180,9 @@ static void iTCO_wdt_set_NO_REBOOT_bit(struct iTCO_wdt_private *p)
->                 val32 |= no_reboot_bit(p);
->                 writel(val32, p->gcs_pmc);
->         } else if (p->iTCO_version == 1) {
-> -               pci_read_config_dword(p->pdev, 0xd4, &val32);
-> +               pci_read_config_dword(p->pcidev, 0xd4, &val32);
->                 val32 |= no_reboot_bit(p);
-> -               pci_write_config_dword(p->pdev, 0xd4, val32);
-> +               pci_write_config_dword(p->pcidev, 0xd4, val32);
->         }
->  }
->
-> @@ -200,11 +199,11 @@ static int iTCO_wdt_unset_NO_REBOOT_bit(struct iTCO_wdt_private *p)
->
->                 val32 = readl(p->gcs_pmc);
->         } else if (p->iTCO_version == 1) {
-> -               pci_read_config_dword(p->pdev, 0xd4, &val32);
-> +               pci_read_config_dword(p->pcidev, 0xd4, &val32);
->                 val32 &= ~enable_bit;
-> -               pci_write_config_dword(p->pdev, 0xd4, val32);
-> +               pci_write_config_dword(p->pcidev, 0xd4, val32);
->
-> -               pci_read_config_dword(p->pdev, 0xd4, &val32);
-> +               pci_read_config_dword(p->pcidev, 0xd4, &val32);
->         }
->
->         if (val32 & enable_bit)
-> @@ -401,9 +400,10 @@ static const struct watchdog_ops iTCO_wdt_ops = {
+> @@ -401,27 +401,6 @@ static const struct watchdog_ops iTCO_wdt_ops = {
 >   *     Init & exit routines
 >   */
 >
-> -static int iTCO_wdt_probe(struct platform_device *dev)
-> +static int iTCO_wdt_probe(struct platform_device *pdev)
+> -static void iTCO_wdt_cleanup(struct iTCO_wdt_private *p)
+> -{
+> -       /* Stop the timer before we leave */
+> -       if (!nowayout)
+> -               iTCO_wdt_stop(&p->wddev);
+> -
+> -       /* Deregister */
+> -       watchdog_unregister_device(&p->wddev);
+> -
+> -       /* release resources */
+> -       release_region(p->tco_res->start,
+> -                       resource_size(p->tco_res));
+> -       release_region(p->smi_res->start,
+> -                       resource_size(p->smi_res));
+> -       if (p->iTCO_version >= 2) {
+> -               iounmap(p->gcs_pmc);
+> -               release_mem_region(p->gcs_pmc_res->start,
+> -                               resource_size(p->gcs_pmc_res));
+> -       }
+> -}
+> -
+>  static int iTCO_wdt_probe(struct platform_device *dev)
 >  {
-> -       struct itco_wdt_platform_data *pdata = dev_get_platdata(&dev->dev);
-> +       struct device *dev = &pdev->dev;
-> +       struct itco_wdt_platform_data *pdata = dev_get_platdata(dev);
->         struct iTCO_wdt_private *p;
->         unsigned long val32;
->         int ret;
-> @@ -411,33 +411,32 @@ static int iTCO_wdt_probe(struct platform_device *dev)
->         if (!pdata)
->                 return -ENODEV;
->
-> -       p = devm_kzalloc(&dev->dev, sizeof(*p), GFP_KERNEL);
-> +       p = devm_kzalloc(dev, sizeof(*p), GFP_KERNEL);
->         if (!p)
->                 return -ENOMEM;
->
->         spin_lock_init(&p->io_lock);
->
-> -       p->tco_res = platform_get_resource(dev, IORESOURCE_IO, ICH_RES_IO_TCO);
-> +       p->tco_res = platform_get_resource(pdev, IORESOURCE_IO, ICH_RES_IO_TCO);
->         if (!p->tco_res)
->                 return -ENODEV;
->
-> -       p->smi_res = platform_get_resource(dev, IORESOURCE_IO, ICH_RES_IO_SMI);
-> +       p->smi_res = platform_get_resource(pdev, IORESOURCE_IO, ICH_RES_IO_SMI);
->         if (!p->smi_res)
->                 return -ENODEV;
->
->         p->iTCO_version = pdata->version;
-> -       p->dev = dev;
-> -       p->pdev = to_pci_dev(dev->dev.parent);
-> +       p->pcidev = to_pci_dev(dev->parent);
->
->         /*
->          * Get the Memory-Mapped GCS or PMC register, we need it for the
->          * NO_REBOOT flag (TCO v2 and v3).
->          */
->         if (p->iTCO_version >= 2) {
-> -               p->gcs_pmc_res = platform_get_resource(dev,
-> +               p->gcs_pmc_res = platform_get_resource(pdev,
+>         struct itco_wdt_platform_data *pdata = dev_get_platdata(&dev->dev);
+> @@ -458,41 +437,28 @@ static int iTCO_wdt_probe(struct platform_device *dev)
+>                 p->gcs_pmc_res = platform_get_resource(dev,
 >                                                        IORESOURCE_MEM,
 >                                                        ICH_RES_MEM_GCS_PMC);
-> -               p->gcs_pmc = devm_ioremap_resource(&dev->dev, p->gcs_pmc_res);
-> +               p->gcs_pmc = devm_ioremap_resource(dev, p->gcs_pmc_res);
->                 if (IS_ERR(p->gcs_pmc))
->                         return PTR_ERR(p->gcs_pmc);
+> -
+> -               if (!p->gcs_pmc_res)
+> -                       return -ENODEV;
+> -
+> -               if (!request_mem_region(p->gcs_pmc_res->start,
+> -                                       resource_size(p->gcs_pmc_res),
+> -                                       dev->name))
+> -                       return -EBUSY;
+> -
+> -               p->gcs_pmc = ioremap(p->gcs_pmc_res->start,
+> -                                    resource_size(p->gcs_pmc_res));
+> -               if (!p->gcs_pmc) {
+> -                       ret = -EIO;
+> -                       goto unreg_gcs_pmc;
+> -               }
+> +               p->gcs_pmc = devm_ioremap_resource(&dev->dev, p->gcs_pmc_res);
+> +               if (IS_ERR(p->gcs_pmc))
+> +                       return PTR_ERR(p->gcs_pmc);
 >         }
-> @@ -453,9 +452,9 @@ static int iTCO_wdt_probe(struct platform_device *dev)
+>
+>         /* Check chipset's NO_REBOOT bit */
+>         if (iTCO_wdt_unset_NO_REBOOT_bit(p) &&
+>             iTCO_vendor_check_noreboot_on()) {
+>                 pr_info("unable to reset NO_REBOOT flag, device disabled by hardware/BIOS\n");
+> -               ret = -ENODEV;  /* Cannot reset NO_REBOOT bit */
+> -               goto unmap_gcs_pmc;
+> +               return -ENODEV; /* Cannot reset NO_REBOOT bit */
+>         }
+>
+>         /* Set the NO_REBOOT bit to prevent later reboots, just for sure */
 >         iTCO_wdt_set_NO_REBOOT_bit(p);
 >
 >         /* The TCO logic uses the TCO_EN bit in the SMI_EN register */
-> -       if (!devm_request_region(&dev->dev, p->smi_res->start,
-> +       if (!devm_request_region(dev, p->smi_res->start,
->                                  resource_size(p->smi_res),
-> -                                dev->name)) {
-> +                                pdev->name)) {
+> -       if (!request_region(p->smi_res->start,
+> -                           resource_size(p->smi_res), dev->name)) {
+> +       if (!devm_request_region(&dev->dev, p->smi_res->start,
+> +                                resource_size(p->smi_res),
+> +                                dev->name)) {
 >                 pr_err("I/O address 0x%04llx already in use, device disabled\n",
 >                        (u64)SMI_EN(p));
->                 return -EBUSY;
-> @@ -470,9 +469,9 @@ static int iTCO_wdt_probe(struct platform_device *dev)
+> -               ret = -EBUSY;
+> -               goto unmap_gcs_pmc;
+> +               return -EBUSY;
+>         }
+>         if (turn_SMI_watchdog_clear_off >= p->iTCO_version) {
+>                 /*
+> @@ -504,12 +470,12 @@ static int iTCO_wdt_probe(struct platform_device *dev)
 >                 outl(val32, SMI_EN(p));
 >         }
 >
-> -       if (!devm_request_region(&dev->dev, p->tco_res->start,
-> +       if (!devm_request_region(dev, p->tco_res->start,
->                                  resource_size(p->tco_res),
-> -                                dev->name)) {
-> +                                pdev->name)) {
+> -       if (!request_region(p->tco_res->start,
+> -                           resource_size(p->tco_res), dev->name)) {
+> +       if (!devm_request_region(&dev->dev, p->tco_res->start,
+> +                                resource_size(p->tco_res),
+> +                                dev->name)) {
 >                 pr_err("I/O address 0x%04llx already in use, device disabled\n",
 >                        (u64)TCOBASE(p));
->                 return -EBUSY;
-> @@ -505,10 +504,10 @@ static int iTCO_wdt_probe(struct platform_device *dev)
->         p->wddev.bootstatus = 0;
->         p->wddev.timeout = WATCHDOG_TIMEOUT;
->         watchdog_set_nowayout(&p->wddev, nowayout);
-> -       p->wddev.parent = &dev->dev;
-> +       p->wddev.parent = dev;
+> -               ret = -EBUSY;
+> -               goto unreg_smi;
+> +               return -EBUSY;
+>         }
 >
->         watchdog_set_drvdata(&p->wddev, p);
-> -       platform_set_drvdata(dev, p);
-> +       platform_set_drvdata(pdev, p);
->
->         /* Make sure the watchdog is not running */
->         iTCO_wdt_stop(&p->wddev);
-> @@ -521,7 +520,7 @@ static int iTCO_wdt_probe(struct platform_device *dev)
+>         pr_info("Found a %s TCO device (Version=%d, TCOBASE=0x%04llx)\n",
+> @@ -555,37 +521,25 @@ static int iTCO_wdt_probe(struct platform_device *dev)
 >                         WATCHDOG_TIMEOUT);
 >         }
 >
-> -       ret = devm_watchdog_register_device(&dev->dev, &p->wddev);
-> +       ret = devm_watchdog_register_device(dev, &p->wddev);
+> -       ret = watchdog_register_device(&p->wddev);
+> +       ret = devm_watchdog_register_device(&dev->dev, &p->wddev);
 >         if (ret != 0) {
 >                 pr_err("cannot register watchdog device (err=%d)\n", ret);
->                 return ret;
-> @@ -533,9 +532,9 @@ static int iTCO_wdt_probe(struct platform_device *dev)
+> -               goto unreg_tco;
+> +               return ret;
+>         }
+>
+>         pr_info("initialized. heartbeat=%d sec (nowayout=%d)\n",
+>                 heartbeat, nowayout);
+>
 >         return 0;
+> -
+> -unreg_tco:
+> -       release_region(p->tco_res->start, resource_size(p->tco_res));
+> -unreg_smi:
+> -       release_region(p->smi_res->start, resource_size(p->smi_res));
+> -unmap_gcs_pmc:
+> -       if (p->iTCO_version >= 2)
+> -               iounmap(p->gcs_pmc);
+> -unreg_gcs_pmc:
+> -       if (p->iTCO_version >= 2)
+> -               release_mem_region(p->gcs_pmc_res->start,
+> -                                  resource_size(p->gcs_pmc_res));
+> -       return ret;
 >  }
 >
-> -static int iTCO_wdt_remove(struct platform_device *dev)
-> +static int iTCO_wdt_remove(struct platform_device *pdev)
+>  static int iTCO_wdt_remove(struct platform_device *dev)
 >  {
-> -       struct iTCO_wdt_private *p = platform_get_drvdata(dev);
-> +       struct iTCO_wdt_private *p = platform_get_drvdata(pdev);
+>         struct iTCO_wdt_private *p = platform_get_drvdata(dev);
 >
->         /* Stop the timer before we leave */
->         if (!nowayout)
-> @@ -544,9 +543,9 @@ static int iTCO_wdt_remove(struct platform_device *dev)
+> -       if (p->tco_res || p->smi_res)
+> -               iTCO_wdt_cleanup(p);
+> +       /* Stop the timer before we leave */
+> +       if (!nowayout)
+> +               iTCO_wdt_stop(&p->wddev);
+>
 >         return 0;
->  }
->
-> -static void iTCO_wdt_shutdown(struct platform_device *dev)
-> +static void iTCO_wdt_shutdown(struct platform_device *pdev)
->  {
-> -       struct iTCO_wdt_private *p = platform_get_drvdata(dev);
-> +       struct iTCO_wdt_private *p = platform_get_drvdata(pdev);
->
->         iTCO_wdt_stop(&p->wddev);
 >  }
 > --
 > 2.7.4
