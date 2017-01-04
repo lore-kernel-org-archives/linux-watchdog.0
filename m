@@ -1,421 +1,769 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:49210 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755554AbdACE04 (ORCPT
+Received: from mail-wj0-f181.google.com ([209.85.210.181]:34682 "EHLO
+        mail-wj0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751512AbdADKIm (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 2 Jan 2017 23:26:56 -0500
-Subject: Re: [PATCH v6] watchdog: nic7018_wdt: Add NIC7018 watchdog driver
-To: Hui Chun Ong <hui.chun.ong@ni.com>,
-        "corbet@lwn.net" <corbet@lwn.net>, "wim@iguana.be" <wim@iguana.be>
-References: <1482994611-14129-1-git-send-email-hui.chun.ong@ni.com>
- <d1de21d3-ef8b-c47f-51e3-cc3d29b1d55e@roeck-us.net>
- <1483413755.3066.1.camel@ni.com>
-Cc: "rjw@rjwysocki.net" <rjw@rjwysocki.net>,
-        Julia Cartwright <julia.cartwright@ni.com>,
-        "mika.westerberg@linux.intel.com" <mika.westerberg@linux.intel.com>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-        Jonathan Hearn <jonathan.hearn@ni.com>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <9ae6bd28-10bb-3804-bbe4-3155d670d0b7@roeck-us.net>
-Date: Mon, 2 Jan 2017 20:26:52 -0800
+        Wed, 4 Jan 2017 05:08:42 -0500
+Received: by mail-wj0-f181.google.com with SMTP id tn15so6548262wjb.1
+        for <linux-watchdog@vger.kernel.org>; Wed, 04 Jan 2017 02:08:41 -0800 (PST)
+Date: Wed, 4 Jan 2017 10:12:21 +0000
+From: Lee Jones <lee.jones@linaro.org>
+To: Steve Twiss <stwiss.opensource@diasemi.com>
+Cc: LINUX-KERNEL <linux-kernel@vger.kernel.org>,
+        DEVICETREE <devicetree@vger.kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Eduardo Valentin <edubezval@gmail.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        LINUX-INPUT <linux-input@vger.kernel.org>,
+        LINUX-PM <linux-pm@vger.kernel.org>,
+        LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Support Opensource <support.opensource@diasemi.com>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Zhang Rui <rui.zhang@intel.com>
+Subject: Re: [PATCH V5 4/8] mfd: da9061: MFD core support
+Message-ID: <20170104101221.GT27589@dell>
+References: <cover.1481828921.git.stwiss.opensource@diasemi.com>
+ <ad649a91daa6191f2385dfe79c6ec8ca339f597c.1481828921.git.stwiss.opensource@diasemi.com>
 MIME-Version: 1.0
-In-Reply-To: <1483413755.3066.1.camel@ni.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <ad649a91daa6191f2385dfe79c6ec8ca339f597c.1481828921.git.stwiss.opensource@diasemi.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
 
-On 01/02/2017 07:22 PM, Hui Chun Ong wrote:
-> On Thu, 2016-12-29 at 02:09 -0800, Guenter Roeck wrote:
->> On 12/28/2016 10:56 PM, Hui Chun Ong wrote:
->>>
->>> Add support for the watchdog timer on PXI Embedded Controller.
->>>
->>> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
->>> Signed-off-by: Hui Chun Ong <hui.chun.ong@ni.com>
->>> ---
->>> v5: Add Reviewed-by.
->> There is no need to re-send a patch just to add a Reviewed-by:.
->>
->> Guenter
->>
-> Is there anything else that I need to do to get the patch into
-> mainline?
->
+On Thu, 15 Dec 2016, Steve Twiss wrote:
 
-No.
+> From: Steve Twiss <stwiss.opensource@diasemi.com>
+>=20
+> MFD support for DA9061 is provided as part of the DA9062 device driver.
+>=20
+> The registers header file adds two new chip variant IDs defined in DA90=
+61
+> and DA9062 hardware. The core header file adds new software enumeration=
+s
+> for listing the valid DA9061 IRQs and a da9062_compatible_types enumera=
+tion
+> for distinguishing between DA9061/62 devices in software.
+>=20
+> The core source code adds a new .compatible of_device_id entry. This is
+> extended from DA9062 to support both "dlg,da9061" and "dlg,da9062". The
+> .data entry now holds a reference to the enumerated device type.
+>=20
+> A new regmap_irq_chip model is added for DA9061 and this supports the n=
+ew
+> list of regmap_irq entries. A new mfd_cell da9061_devs[] array lists th=
+e
+> new sub system components for DA9061. Support is added for a new DA9061
+> regmap_config which lists the correct readable, writable and volatile
+> ranges for this chip.
+>=20
+> The probe function uses the device tree compatible string to switch on =
+the
+> da9062_compatible_types and configure the correct mfd cells, irq chip a=
+nd
+> regmap config.
+> =20
+> Kconfig is updated to reflect support for DA9061 and DA9062 PMICs.
+>=20
+> Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+>=20
+> ---
+> This patch applies against linux-next and v4.9
+>=20
+> v4 -> v5
+>  - NO CODE CHANGE
+>  - Rebased from v4.8 to v4.9
+>=20
+> v3 -> v4
+>  - Patch renamed from [PATCH V3 5/9] to [PATCH V4 4/8]
+>  - Removed DEFINE_RES_NAMED() macros for DA9061 resources and replaced
+>    them with DEFINE_RES_IRQ_NAMED().
+>  - Removed whitespace
+>  - Reverted change for badly defined mfd_cell da9062_devs of_compatible
+>    string from "dlg,da9062-watchdog" back to "dlg,da9062-wdt"
+>=20
+> v2 -> v3
+>  - NO CODE CHANGE
+>  - Patch renamed from [PATCH V2 05/10] to [PATCH V3 5/9]
+>=20
+> v1 -> v2
+>  - Patch renamed from [PATCH V1 01/10] to [PATCH V2 05/10] -- these
+>    changes were made to fix checkpatch warnings caused by the patch
+>    set dependency order
+>  - Fixed typo in the commit message "readble" to "readable"
+>  - Removed the explicit cross-check to decide if there is a conflict
+>    between the device tree compatible string and the hardware definitio=
+n.
+>    This patch assumes the device tree is correctly written and therefor=
+e
+>    removes the need for a hardware/DT sanity check.
+>  - Removed extra semicolon in drivers/mfd/da9062-core.c:877
+>  - Re-write compatible entries into numerical order
+>=20
+> Lee,
+>=20
+> Changes as described in the version history above.
+>=20
+> As previously:
+> This patch adds support for the DA9061 PMIC. This is done as part of th=
+e
+> existing DA9062 device driver by extending the of_device_id match table=
+.
+> This in turn allows new MFD cells, irq chip and regmap definitions to
+> support DA9061.
+>=20
+> Regards,
+> Steve Twiss, Dialog Semiconductor Ltd.
+>=20
+>=20
+>  drivers/mfd/Kconfig                  |   5 +-
+>  drivers/mfd/da9062-core.c            | 424 +++++++++++++++++++++++++++=
+++++++--
+>  include/linux/mfd/da9062/core.h      |  27 ++-
+>  include/linux/mfd/da9062/registers.h |   2 +
+>  4 files changed, 439 insertions(+), 19 deletions(-)
+>=20
+> diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
+> index c6df644..a1a780c 100644
+> --- a/drivers/mfd/Kconfig
+> +++ b/drivers/mfd/Kconfig
+> @@ -246,13 +246,14 @@ config MFD_DA9055
+>  	  called "da9055"
+> =20
+>  config MFD_DA9062
+> -	tristate "Dialog Semiconductor DA9062 PMIC Support"
+> +	tristate "Dialog Semiconductor DA9062/61 PMIC Support"
+>  	select MFD_CORE
+>  	select REGMAP_I2C
+>  	select REGMAP_IRQ
+>  	depends on I2C
+>  	help
+> -	  Say yes here for support for the Dialog Semiconductor DA9062 PMIC.
+> +	  Say yes here for support for the Dialog Semiconductor DA9061 and
+> +	  DA9062 PMICs.
+>  	  This includes the I2C driver and core APIs.
+>  	  Additional drivers must be enabled in order to use the functionalit=
+y
+>  	  of the device.
+> diff --git a/drivers/mfd/da9062-core.c b/drivers/mfd/da9062-core.c
+> index 8f873866..4b5f70f 100644
+> --- a/drivers/mfd/da9062-core.c
+> +++ b/drivers/mfd/da9062-core.c
+> @@ -1,5 +1,5 @@
+>  /*
+> - * Core, IRQ and I2C device driver for DA9062 PMIC
+> + * Core, IRQ and I2C device driver for DA9061 and DA9062 PMICs
+>   * Copyright (C) 2015  Dialog Semiconductor Ltd.
+>   *
+>   * This program is free software; you can redistribute it and/or
+> @@ -30,6 +30,70 @@
+>  #define	DA9062_REG_EVENT_B_OFFSET	1
+>  #define	DA9062_REG_EVENT_C_OFFSET	2
+> =20
+> +static struct regmap_irq da9061_irqs[] =3D {
+> +	/* EVENT A */
+> +	[DA9061_IRQ_ONKEY] =3D {
+> +		.reg_offset =3D DA9062_REG_EVENT_A_OFFSET,
+> +		.mask =3D DA9062AA_M_NONKEY_MASK,
+> +	},
+> +	[DA9061_IRQ_WDG_WARN] =3D {
+> +		.reg_offset =3D DA9062_REG_EVENT_A_OFFSET,
+> +		.mask =3D DA9062AA_M_WDG_WARN_MASK,
+> +	},
+> +	[DA9061_IRQ_SEQ_RDY] =3D {
+> +		.reg_offset =3D DA9062_REG_EVENT_A_OFFSET,
+> +		.mask =3D DA9062AA_M_SEQ_RDY_MASK,
+> +	},
+> +	/* EVENT B */
+> +	[DA9061_IRQ_TEMP] =3D {
+> +		.reg_offset =3D DA9062_REG_EVENT_B_OFFSET,
+> +		.mask =3D DA9062AA_M_TEMP_MASK,
+> +	},
+> +	[DA9061_IRQ_LDO_LIM] =3D {
+> +		.reg_offset =3D DA9062_REG_EVENT_B_OFFSET,
+> +		.mask =3D DA9062AA_M_LDO_LIM_MASK,
+> +	},
+> +	[DA9061_IRQ_DVC_RDY] =3D {
+> +		.reg_offset =3D DA9062_REG_EVENT_B_OFFSET,
+> +		.mask =3D DA9062AA_M_DVC_RDY_MASK,
+> +	},
+> +	[DA9061_IRQ_VDD_WARN] =3D {
+> +		.reg_offset =3D DA9062_REG_EVENT_B_OFFSET,
+> +		.mask =3D DA9062AA_M_VDD_WARN_MASK,
+> +	},
+> +	/* EVENT C */
+> +	[DA9061_IRQ_GPI0] =3D {
+> +		.reg_offset =3D DA9062_REG_EVENT_C_OFFSET,
+> +		.mask =3D DA9062AA_M_GPI0_MASK,
+> +	},
+> +	[DA9061_IRQ_GPI1] =3D {
+> +		.reg_offset =3D DA9062_REG_EVENT_C_OFFSET,
+> +		.mask =3D DA9062AA_M_GPI1_MASK,
+> +	},
+> +	[DA9061_IRQ_GPI2] =3D {
+> +		.reg_offset =3D DA9062_REG_EVENT_C_OFFSET,
+> +		.mask =3D DA9062AA_M_GPI2_MASK,
+> +	},
+> +	[DA9061_IRQ_GPI3] =3D {
+> +		.reg_offset =3D DA9062_REG_EVENT_C_OFFSET,
+> +		.mask =3D DA9062AA_M_GPI3_MASK,
+> +	},
+> +	[DA9061_IRQ_GPI4] =3D {
+> +		.reg_offset =3D DA9062_REG_EVENT_C_OFFSET,
+> +		.mask =3D DA9062AA_M_GPI4_MASK,
+> +	},
+> +};
+> +
+> +static struct regmap_irq_chip da9061_irq_chip =3D {
+> +	.name =3D "da9061-irq",
+> +	.irqs =3D da9061_irqs,
+> +	.num_irqs =3D DA9061_NUM_IRQ,
+> +	.num_regs =3D 3,
+> +	.status_base =3D DA9062AA_EVENT_A,
+> +	.mask_base =3D DA9062AA_IRQ_MASK_A,
+> +	.ack_base =3D DA9062AA_EVENT_A,
+> +};
+> +
+>  static struct regmap_irq da9062_irqs[] =3D {
+>  	/* EVENT A */
+>  	[DA9062_IRQ_ONKEY] =3D {
+> @@ -102,6 +166,57 @@
+>  	.ack_base =3D DA9062AA_EVENT_A,
+>  };
+> =20
+> +static struct resource da9061_core_resources[] =3D {
+> +	DEFINE_RES_IRQ_NAMED(DA9061_IRQ_VDD_WARN, "VDD_WARN"),
+> +};
+> +
+> +static struct resource da9061_regulators_resources[] =3D {
+> +	DEFINE_RES_IRQ_NAMED(DA9061_IRQ_LDO_LIM, "LDO_LIM"),
+> +};
+> +
+> +static struct resource da9061_thermal_resources[] =3D {
+> +	DEFINE_RES_IRQ_NAMED(DA9061_IRQ_TEMP, "THERMAL"),
+> +};
+> +
+> +static struct resource da9061_wdt_resources[] =3D {
+> +	DEFINE_RES_IRQ_NAMED(DA9061_IRQ_WDG_WARN, "WD_WARN"),
+> +};
+> +
+> +static struct resource da9061_onkey_resources[] =3D {
+> +	DEFINE_RES_IRQ_NAMED(DA9061_IRQ_ONKEY, "ONKEY"),
+> +};
+> +
+> +static const struct mfd_cell da9061_devs[] =3D {
+> +	{
+> +		.name		=3D "da9061-core",
+> +		.num_resources	=3D ARRAY_SIZE(da9061_core_resources),
+> +		.resources	=3D da9061_core_resources,
+> +	},
+> +	{
+> +		.name		=3D "da9062-regulators",
+> +		.num_resources	=3D ARRAY_SIZE(da9061_regulators_resources),
+> +		.resources	=3D da9061_regulators_resources,
+> +	},
+> +	{
+> +		.name		=3D "da9061-watchdog",
+> +		.num_resources	=3D ARRAY_SIZE(da9061_wdt_resources),
+> +		.resources	=3D da9061_wdt_resources,
+> +		.of_compatible  =3D "dlg,da9061-watchdog",
+> +	},
+> +	{
+> +		.name		=3D "da9061-thermal",
+> +		.num_resources	=3D ARRAY_SIZE(da9061_thermal_resources),
+> +		.resources	=3D da9061_thermal_resources,
+> +		.of_compatible  =3D "dlg,da9061-thermal",
+> +	},
+> +	{
+> +		.name		=3D "da9061-onkey",
+> +		.num_resources	=3D ARRAY_SIZE(da9061_onkey_resources),
+> +		.resources	=3D da9061_onkey_resources,
+> +		.of_compatible =3D "dlg,da9061-onkey",
+> +	},
+> +};
+> +
+>  static struct resource da9062_core_resources[] =3D {
+>  	DEFINE_RES_NAMED(DA9062_IRQ_VDD_WARN, 1, "VDD_WARN", IORESOURCE_IRQ),
+>  };
+> @@ -200,7 +315,8 @@ static int da9062_clear_fault_log(struct da9062 *ch=
+ip)
+> =20
+>  static int da9062_get_device_type(struct da9062 *chip)
+>  {
+> -	int device_id, variant_id, variant_mrc;
+> +	int device_id, variant_id, variant_mrc, variant_vrc;
+> +	char *type;
+>  	int ret;
+> =20
+>  	ret =3D regmap_read(chip->regmap, DA9062AA_DEVICE_ID, &device_id);
+> @@ -219,9 +335,23 @@ static int da9062_get_device_type(struct da9062 *c=
+hip)
+>  		return -EIO;
+>  	}
+> =20
+> +	variant_vrc =3D (variant_id & DA9062AA_VRC_MASK) >> DA9062AA_VRC_SHIF=
+T;
+> +
+> +	switch (variant_vrc) {
+> +	case DA9062_PMIC_VARIANT_VRC_DA9061:
+> +		type =3D "DA9061";
+> +		break;
+> +	case DA9062_PMIC_VARIANT_VRC_DA9062:
+> +		type =3D "DA9062";
+> +		break;
+> +	default:
+> +		type =3D "Unknown";
+> +		break;
+> +	}
+> +
+>  	dev_info(chip->dev,
+> -		 "Device detected (device-ID: 0x%02X, var-ID: 0x%02X)\n",
+> -		 device_id, variant_id);
+> +		 "Device detected (device-ID: 0x%02X, var-ID: 0x%02X, %s)\n",
+> +		 device_id, variant_id, type);
+> =20
+>  	variant_mrc =3D (variant_id & DA9062AA_MRC_MASK) >> DA9062AA_MRC_SHIF=
+T;
+> =20
+> @@ -234,6 +364,234 @@ static int da9062_get_device_type(struct da9062 *=
+chip)
+>  	return ret;
+>  }
+> =20
+> +static const struct regmap_range da9061_aa_readable_ranges[] =3D {
+> +	{
+> +		.range_min =3D DA9062AA_PAGE_CON,
+> +		.range_max =3D DA9062AA_STATUS_B,
+> +	}, {
+> +		.range_min =3D DA9062AA_STATUS_D,
+> +		.range_max =3D DA9062AA_EVENT_C,
+> +	}, {
+> +		.range_min =3D DA9062AA_IRQ_MASK_A,
+> +		.range_max =3D DA9062AA_IRQ_MASK_C,
+> +	}, {
+> +		.range_min =3D DA9062AA_CONTROL_A,
+> +		.range_max =3D DA9062AA_GPIO_4,
+> +	}, {
+> +		.range_min =3D DA9062AA_GPIO_WKUP_MODE,
+> +		.range_max =3D DA9062AA_GPIO_OUT3_4,
+> +	}, {
+> +		.range_min =3D DA9062AA_BUCK1_CONT,
+> +		.range_max =3D DA9062AA_BUCK4_CONT,
+> +	}, {
+> +		.range_min =3D DA9062AA_BUCK3_CONT,
+> +		.range_max =3D DA9062AA_BUCK3_CONT,
+> +	}, {
+> +		.range_min =3D DA9062AA_LDO1_CONT,
+> +		.range_max =3D DA9062AA_LDO4_CONT,
+> +	}, {
+> +		.range_min =3D DA9062AA_DVC_1,
+> +		.range_max =3D DA9062AA_DVC_1,
+> +	}, {
+> +		.range_min =3D DA9062AA_SEQ,
+> +		.range_max =3D DA9062AA_ID_4_3,
+> +	}, {
+> +		.range_min =3D DA9062AA_ID_12_11,
+> +		.range_max =3D DA9062AA_ID_16_15,
+> +	}, {
+> +		.range_min =3D DA9062AA_ID_22_21,
+> +		.range_max =3D DA9062AA_ID_32_31,
+> +	}, {
+> +		.range_min =3D DA9062AA_SEQ_A,
+> +		.range_max =3D DA9062AA_WAIT,
+> +	}, {
+> +		.range_min =3D DA9062AA_RESET,
+> +		.range_max =3D DA9062AA_BUCK_ILIM_C,
+> +	}, {
+> +		.range_min =3D DA9062AA_BUCK1_CFG,
+> +		.range_max =3D DA9062AA_BUCK3_CFG,
+> +	}, {
+> +		.range_min =3D DA9062AA_VBUCK1_A,
+> +		.range_max =3D DA9062AA_VBUCK4_A,
+> +	}, {
+> +		.range_min =3D DA9062AA_VBUCK3_A,
+> +		.range_max =3D DA9062AA_VBUCK3_A,
+> +	}, {
+> +		.range_min =3D DA9062AA_VLDO1_A,
+> +		.range_max =3D DA9062AA_VLDO4_A,
+> +	}, {
+> +		.range_min =3D DA9062AA_VBUCK1_B,
+> +		.range_max =3D DA9062AA_VBUCK4_B,
+> +	}, {
+> +		.range_min =3D DA9062AA_VBUCK3_B,
+> +		.range_max =3D DA9062AA_VBUCK3_B,
+> +	}, {
+> +		.range_min =3D DA9062AA_VLDO1_B,
+> +		.range_max =3D DA9062AA_VLDO4_B,
+> +	}, {
+> +		.range_min =3D DA9062AA_BBAT_CONT,
+> +		.range_max =3D DA9062AA_BBAT_CONT,
+> +	}, {
+> +		.range_min =3D DA9062AA_INTERFACE,
+> +		.range_max =3D DA9062AA_CONFIG_E,
+> +	}, {
+> +		.range_min =3D DA9062AA_CONFIG_G,
+> +		.range_max =3D DA9062AA_CONFIG_K,
+> +	}, {
+> +		.range_min =3D DA9062AA_CONFIG_M,
+> +		.range_max =3D DA9062AA_CONFIG_M,
+> +	}, {
+> +		.range_min =3D DA9062AA_GP_ID_0,
+> +		.range_max =3D DA9062AA_GP_ID_19,
+> +	}, {
+> +		.range_min =3D DA9062AA_DEVICE_ID,
+> +		.range_max =3D DA9062AA_CONFIG_ID,
+> +	},
+> +};
+> +
+> +static const struct regmap_range da9061_aa_writeable_ranges[] =3D {
+> +	{
+> +		.range_min =3D DA9062AA_PAGE_CON,
+> +		.range_max =3D DA9062AA_PAGE_CON,
+> +	}, {
+> +		.range_min =3D DA9062AA_FAULT_LOG,
+> +		.range_max =3D DA9062AA_EVENT_C,
+> +	}, {
+> +		.range_min =3D DA9062AA_IRQ_MASK_A,
+> +		.range_max =3D DA9062AA_IRQ_MASK_C,
+> +	}, {
+> +		.range_min =3D DA9062AA_CONTROL_A,
+> +		.range_max =3D DA9062AA_GPIO_4,
+> +	}, {
+> +		.range_min =3D DA9062AA_GPIO_WKUP_MODE,
+> +		.range_max =3D DA9062AA_GPIO_OUT3_4,
+> +	}, {
+> +		.range_min =3D DA9062AA_BUCK1_CONT,
+> +		.range_max =3D DA9062AA_BUCK4_CONT,
+> +	}, {
+> +		.range_min =3D DA9062AA_BUCK3_CONT,
+> +		.range_max =3D DA9062AA_BUCK3_CONT,
+> +	}, {
+> +		.range_min =3D DA9062AA_LDO1_CONT,
+> +		.range_max =3D DA9062AA_LDO4_CONT,
+> +	}, {
+> +		.range_min =3D DA9062AA_DVC_1,
+> +		.range_max =3D DA9062AA_DVC_1,
+> +	}, {
+> +		.range_min =3D DA9062AA_SEQ,
+> +		.range_max =3D DA9062AA_ID_4_3,
+> +	}, {
+> +		.range_min =3D DA9062AA_ID_12_11,
+> +		.range_max =3D DA9062AA_ID_16_15,
+> +	}, {
+> +		.range_min =3D DA9062AA_ID_22_21,
+> +		.range_max =3D DA9062AA_ID_32_31,
+> +	}, {
+> +		.range_min =3D DA9062AA_SEQ_A,
+> +		.range_max =3D DA9062AA_WAIT,
+> +	}, {
+> +		.range_min =3D DA9062AA_RESET,
+> +		.range_max =3D DA9062AA_BUCK_ILIM_C,
+> +	}, {
+> +		.range_min =3D DA9062AA_BUCK1_CFG,
+> +		.range_max =3D DA9062AA_BUCK3_CFG,
+> +	}, {
+> +		.range_min =3D DA9062AA_VBUCK1_A,
+> +		.range_max =3D DA9062AA_VBUCK4_A,
+> +	}, {
+> +		.range_min =3D DA9062AA_VBUCK3_A,
+> +		.range_max =3D DA9062AA_VBUCK3_A,
+> +	}, {
+> +		.range_min =3D DA9062AA_VLDO1_A,
+> +		.range_max =3D DA9062AA_VLDO4_A,
+> +	}, {
+> +		.range_min =3D DA9062AA_VBUCK1_B,
+> +		.range_max =3D DA9062AA_VBUCK4_B,
+> +	}, {
+> +		.range_min =3D DA9062AA_VBUCK3_B,
+> +		.range_max =3D DA9062AA_VBUCK3_B,
+> +	}, {
+> +		.range_min =3D DA9062AA_VLDO1_B,
+> +		.range_max =3D DA9062AA_VLDO4_B,
+> +	}, {
+> +		.range_min =3D DA9062AA_BBAT_CONT,
+> +		.range_max =3D DA9062AA_BBAT_CONT,
+> +	}, {
+> +		.range_min =3D DA9062AA_GP_ID_0,
+> +		.range_max =3D DA9062AA_GP_ID_19,
+> +	},
+> +};
+> +
+> +static const struct regmap_range da9061_aa_volatile_ranges[] =3D {
+> +	{
+> +		.range_min =3D DA9062AA_PAGE_CON,
+> +		.range_max =3D DA9062AA_STATUS_B,
+> +	}, {
+> +		.range_min =3D DA9062AA_STATUS_D,
+> +		.range_max =3D DA9062AA_EVENT_C,
+> +	}, {
+> +		.range_min =3D DA9062AA_CONTROL_A,
+> +		.range_max =3D DA9062AA_CONTROL_B,
+> +	}, {
+> +		.range_min =3D DA9062AA_CONTROL_E,
+> +		.range_max =3D DA9062AA_CONTROL_F,
+> +	}, {
+> +		.range_min =3D DA9062AA_BUCK1_CONT,
+> +		.range_max =3D DA9062AA_BUCK4_CONT,
+> +	}, {
+> +		.range_min =3D DA9062AA_BUCK3_CONT,
+> +		.range_max =3D DA9062AA_BUCK3_CONT,
+> +	}, {
+> +		.range_min =3D DA9062AA_LDO1_CONT,
+> +		.range_max =3D DA9062AA_LDO4_CONT,
+> +	}, {
+> +		.range_min =3D DA9062AA_DVC_1,
+> +		.range_max =3D DA9062AA_DVC_1,
+> +	}, {
+> +		.range_min =3D DA9062AA_SEQ,
+> +		.range_max =3D DA9062AA_SEQ,
+> +	},
+> +};
+> +
+> +static const struct regmap_access_table da9061_aa_readable_table =3D {
+> +	.yes_ranges =3D da9061_aa_readable_ranges,
+> +	.n_yes_ranges =3D ARRAY_SIZE(da9061_aa_readable_ranges),
+> +};
+> +
+> +static const struct regmap_access_table da9061_aa_writeable_table =3D =
+{
+> +	.yes_ranges =3D da9061_aa_writeable_ranges,
+> +	.n_yes_ranges =3D ARRAY_SIZE(da9061_aa_writeable_ranges),
+> +};
+> +
+> +static const struct regmap_access_table da9061_aa_volatile_table =3D {
+> +	.yes_ranges =3D da9061_aa_volatile_ranges,
+> +	.n_yes_ranges =3D ARRAY_SIZE(da9061_aa_volatile_ranges),
+> +};
+> +
+> +static const struct regmap_range_cfg da9061_range_cfg[] =3D {
+> +	{
+> +		.range_min =3D DA9062AA_PAGE_CON,
+> +		.range_max =3D DA9062AA_CONFIG_ID,
+> +		.selector_reg =3D DA9062AA_PAGE_CON,
+> +		.selector_mask =3D 1 << DA9062_I2C_PAGE_SEL_SHIFT,
+> +		.selector_shift =3D DA9062_I2C_PAGE_SEL_SHIFT,
+> +		.window_start =3D 0,
+> +		.window_len =3D 256,
+> +	}
+> +};
+> +
+> +static struct regmap_config da9061_regmap_config =3D {
+> +	.reg_bits =3D 8,
+> +	.val_bits =3D 8,
+> +	.ranges =3D da9061_range_cfg,
+> +	.num_ranges =3D ARRAY_SIZE(da9061_range_cfg),
+> +	.max_register =3D DA9062AA_CONFIG_ID,
+> +	.cache_type =3D REGCACHE_RBTREE,
+> +	.rd_table =3D &da9061_aa_readable_table,
+> +	.wr_table =3D &da9061_aa_writeable_table,
+> +	.volatile_table =3D &da9061_aa_volatile_table,
+> +};
+> +
+>  static const struct regmap_range da9062_aa_readable_ranges[] =3D {
+>  	{
+>  		.range_min =3D DA9062AA_PAGE_CON,
+> @@ -456,17 +814,38 @@ static int da9062_get_device_type(struct da9062 *=
+chip)
+>  	.volatile_table =3D &da9062_aa_volatile_table,
+>  };
+> =20
+> +static const struct of_device_id da9062_dt_ids[] =3D {
+> +	{ .compatible =3D "dlg,da9061", .data =3D (void *)COMPAT_TYPE_DA9061,=
+ },
+> +	{ .compatible =3D "dlg,da9062", .data =3D (void *)COMPAT_TYPE_DA9062,=
+ },
 
-Guenter
+It looks like this device can dynamically obtain this information from
+the device.  Please use that method instead.
 
->>>
->>>
->>> v4: Remove nic7018_stop() from nic7018_remove().
->>>     Lock WDT registers when watchdog_register_device() call failed.
->>>
->>> v3: Update timeout calculation from miliseconds to seconds.
->>>     Reorder watchdog_regiser_device() call to prevent potential
->>> race condition.
->>>
->>> v2: Remove mutex lock and platform_device *pdev fields from struct
->>> nic7018_wdt.
->>>     Update config NIC7018_WDT description.
->>>     Update nic7018_get_config() to never return error.
->>>     Remove checking for IO resource size in nic7018_probe().
->>>
->>> v1: Remove non-standard attributes.
->>>     Change from acpi_driver to platform_driver.
->>>     Rename driver from ni7018_wdt to nic7018_wdt.
->>> ---
->>>  Documentation/watchdog/watchdog-parameters.txt |   5 +
->>>  drivers/watchdog/Kconfig                       |  10 +
->>>  drivers/watchdog/Makefile                      |   1 +
->>>  drivers/watchdog/nic7018_wdt.c                 | 265
->>> +++++++++++++++++++++++++
->>>  4 files changed, 281 insertions(+)
->>>  create mode 100644 drivers/watchdog/nic7018_wdt.c
->>>
->>> diff --git a/Documentation/watchdog/watchdog-parameters.txt
->>> b/Documentation/watchdog/watchdog-parameters.txt
->>> index e21850e..4f7d86d 100644
->>> --- a/Documentation/watchdog/watchdog-parameters.txt
->>> +++ b/Documentation/watchdog/watchdog-parameters.txt
->>> @@ -209,6 +209,11 @@ timeout: Initial watchdog timeout in seconds
->>> (0<timeout<516, default=60)
->>>  nowayout: Watchdog cannot be stopped once started
->>>  	(default=kernel config parameter)
->>>  -------------------------------------------------
->>> +nic7018_wdt:
->>> +timeout: Initial watchdog timeout in seconds (0<timeout<464,
->>> default=80)
->>> +nowayout: Watchdog cannot be stopped once started
->>> +	(default=kernel config parameter)
->>> +-------------------------------------------------
->>>  nuc900_wdt:
->>>  heartbeat: Watchdog heartbeats in seconds.
->>>  	(default = 15)
->>> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
->>> index acb00b5..e20eb42 100644
->>> --- a/drivers/watchdog/Kconfig
->>> +++ b/drivers/watchdog/Kconfig
->>> @@ -1326,6 +1326,16 @@ config NI903X_WDT
->>>  	  To compile this driver as a module, choose M here: the
->>> module will be
->>>  	  called ni903x_wdt.
->>>
->>> +config NIC7018_WDT
->>> +	tristate "NIC7018 Watchdog"
->>> +	depends on X86 && ACPI
->>> +	select WATCHDOG_CORE
->>> +	---help---
->>> +	  Support for National Instruments NIC7018 Watchdog.
->>> +
->>> +	  To compile this driver as a module, choose M here: the
->>> module will be
->>> +	  called nic7018_wdt.
->>> +
->>>  # M32R Architecture
->>>
->>>  # M68K Architecture
->>> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
->>> index 0c3d35e..3af3588 100644
->>> --- a/drivers/watchdog/Makefile
->>> +++ b/drivers/watchdog/Makefile
->>> @@ -139,6 +139,7 @@ obj-$(CONFIG_INTEL_SCU_WATCHDOG) +=
->>> intel_scu_watchdog.o
->>>  obj-$(CONFIG_INTEL_MID_WATCHDOG) += intel-mid_wdt.o
->>>  obj-$(CONFIG_INTEL_MEI_WDT) += mei_wdt.o
->>>  obj-$(CONFIG_NI903X_WDT) += ni903x_wdt.o
->>> +obj-$(CONFIG_NIC7018_WDT) += nic7018_wdt.o
->>>
->>>  # M32R Architecture
->>>
->>> diff --git a/drivers/watchdog/nic7018_wdt.c
->>> b/drivers/watchdog/nic7018_wdt.c
->>> new file mode 100644
->>> index 0000000..dcd2656
->>> --- /dev/null
->>> +++ b/drivers/watchdog/nic7018_wdt.c
->>> @@ -0,0 +1,265 @@
->>> +/*
->>> + * Copyright (C) 2016 National Instruments Corp.
->>> + *
->>> + * This program is free software; you can redistribute it and/or
->>> modify
->>> + * it under the terms of the GNU General Public License as
->>> published by
->>> + * the Free Software Foundation; either version 2 of the License,
->>> or
->>> + * (at your option) any later version.
->>> + *
->>> + * This program is distributed in the hope that it will be useful,
->>> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
->>> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
->>> + * GNU General Public License for more details.
->>> + */
->>> +
->>> +#include <linux/acpi.h>
->>> +#include <linux/bitops.h>
->>> +#include <linux/device.h>
->>> +#include <linux/io.h>
->>> +#include <linux/module.h>
->>> +#include <linux/platform_device.h>
->>> +#include <linux/watchdog.h>
->>> +
->>> +#define LOCK			0xA5
->>> +#define UNLOCK			0x5A
->>> +
->>> +#define WDT_CTRL_RESET_EN	BIT(7)
->>> +#define WDT_RELOAD_PORT_EN	BIT(7)
->>> +
->>> +#define WDT_CTRL		1
->>> +#define WDT_RELOAD_CTRL		2
->>> +#define WDT_PRESET_PRESCALE	4
->>> +#define WDT_REG_LOCK		5
->>> +#define WDT_COUNT		6
->>> +#define WDT_RELOAD_PORT		7
->>> +
->>> +#define WDT_MIN_TIMEOUT		1
->>> +#define WDT_MAX_TIMEOUT		464
->>> +#define WDT_DEFAULT_TIMEOUT	80
->>> +
->>> +#define WDT_MAX_COUNTER		15
->>> +
->>> +static unsigned int timeout;
->>> +module_param(timeout, uint, 0);
->>> +MODULE_PARM_DESC(timeout,
->>> +		 "Watchdog timeout in seconds. (default="
->>> +		 __MODULE_STRING(WDT_DEFAULT_TIMEOUT) ")");
->>> +
->>> +static bool nowayout = WATCHDOG_NOWAYOUT;
->>> +module_param(nowayout, bool, 0);
->>> +MODULE_PARM_DESC(nowayout,
->>> +		 "Watchdog cannot be stopped once started.
->>> (default="
->>> +		 __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
->>> +
->>> +struct nic7018_wdt {
->>> +	u16 io_base;
->>> +	u32 period;
->>> +	struct watchdog_device wdd;
->>> +};
->>> +
->>> +struct nic7018_config {
->>> +	u32 period;
->>> +	u8 divider;
->>> +};
->>> +
->>> +static const struct nic7018_config nic7018_configs[] = {
->>> +	{  2, 4 },
->>> +	{ 32, 5 },
->>> +};
->>> +
->>> +static inline u32 nic7018_timeout(u32 period, u8 counter)
->>> +{
->>> +	return period * counter - period / 2;
->>> +}
->>> +
->>> +static const struct nic7018_config *nic7018_get_config(u32
->>> timeout,
->>> +						       u8
->>> *counter)
->>> +{
->>> +	const struct nic7018_config *config;
->>> +	u8 count;
->>> +
->>> +	if (timeout < 30 && timeout != 16) {
->>> +		config = &nic7018_configs[0];
->>> +		count = timeout / 2 + 1;
->>> +	} else {
->>> +		config = &nic7018_configs[1];
->>> +		count = DIV_ROUND_UP(timeout + 16, 32);
->>> +
->>> +		if (count > WDT_MAX_COUNTER)
->>> +			count = WDT_MAX_COUNTER;
->>> +	}
->>> +	*counter = count;
->>> +	return config;
->>> +}
->>> +
->>> +static int nic7018_set_timeout(struct watchdog_device *wdd,
->>> +			       unsigned int timeout)
->>> +{
->>> +	struct nic7018_wdt *wdt = watchdog_get_drvdata(wdd);
->>> +	const struct nic7018_config *config;
->>> +	u8 counter;
->>> +
->>> +	config = nic7018_get_config(timeout, &counter);
->>> +
->>> +	outb(counter << 4 | config->divider,
->>> +	     wdt->io_base + WDT_PRESET_PRESCALE);
->>> +
->>> +	wdd->timeout = nic7018_timeout(config->period, counter);
->>> +	wdt->period = config->period;
->>> +
->>> +	return 0;
->>> +}
->>> +
->>> +static int nic7018_start(struct watchdog_device *wdd)
->>> +{
->>> +	struct nic7018_wdt *wdt = watchdog_get_drvdata(wdd);
->>> +	u8 control;
->>> +
->>> +	nic7018_set_timeout(wdd, wdd->timeout);
->>> +
->>> +	control = inb(wdt->io_base + WDT_RELOAD_CTRL);
->>> +	outb(control | WDT_RELOAD_PORT_EN, wdt->io_base +
->>> WDT_RELOAD_CTRL);
->>> +
->>> +	outb(1, wdt->io_base + WDT_RELOAD_PORT);
->>> +
->>> +	control = inb(wdt->io_base + WDT_CTRL);
->>> +	outb(control | WDT_CTRL_RESET_EN, wdt->io_base +
->>> WDT_CTRL);
->>> +
->>> +	return 0;
->>> +}
->>> +
->>> +static int nic7018_stop(struct watchdog_device *wdd)
->>> +{
->>> +	struct nic7018_wdt *wdt = watchdog_get_drvdata(wdd);
->>> +
->>> +	outb(0, wdt->io_base + WDT_CTRL);
->>> +	outb(0, wdt->io_base + WDT_RELOAD_CTRL);
->>> +	outb(0xF0, wdt->io_base + WDT_PRESET_PRESCALE);
->>> +
->>> +	return 0;
->>> +}
->>> +
->>> +static int nic7018_ping(struct watchdog_device *wdd)
->>> +{
->>> +	struct nic7018_wdt *wdt = watchdog_get_drvdata(wdd);
->>> +
->>> +	outb(1, wdt->io_base + WDT_RELOAD_PORT);
->>> +
->>> +	return 0;
->>> +}
->>> +
->>> +static unsigned int nic7018_get_timeleft(struct watchdog_device
->>> *wdd)
->>> +{
->>> +	struct nic7018_wdt *wdt = watchdog_get_drvdata(wdd);
->>> +	u8 count;
->>> +
->>> +	count = inb(wdt->io_base + WDT_COUNT) & 0xF;
->>> +	if (!count)
->>> +		return 0;
->>> +
->>> +	return nic7018_timeout(wdt->period, count);
->>> +}
->>> +
->>> +static const struct watchdog_info nic7018_wdd_info = {
->>> +	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING |
->>> WDIOF_MAGICCLOSE,
->>> +	.identity = "NIC7018 Watchdog",
->>> +};
->>> +
->>> +static const struct watchdog_ops nic7018_wdd_ops = {
->>> +	.owner = THIS_MODULE,
->>> +	.start = nic7018_start,
->>> +	.stop = nic7018_stop,
->>> +	.ping = nic7018_ping,
->>> +	.set_timeout = nic7018_set_timeout,
->>> +	.get_timeleft = nic7018_get_timeleft,
->>> +};
->>> +
->>> +static int nic7018_probe(struct platform_device *pdev)
->>> +{
->>> +	struct device *dev = &pdev->dev;
->>> +	struct watchdog_device *wdd;
->>> +	struct nic7018_wdt *wdt;
->>> +	struct resource *io_rc;
->>> +	int ret;
->>> +
->>> +	wdt = devm_kzalloc(dev, sizeof(*wdt), GFP_KERNEL);
->>> +	if (!wdt)
->>> +		return -ENOMEM;
->>> +
->>> +	platform_set_drvdata(pdev, wdt);
->>> +
->>> +	io_rc = platform_get_resource(pdev, IORESOURCE_IO, 0);
->>> +	if (!io_rc) {
->>> +		dev_err(dev, "missing IO resources\n");
->>> +		return -EINVAL;
->>> +	}
->>> +
->>> +	if (!devm_request_region(dev, io_rc->start,
->>> resource_size(io_rc),
->>> +				 KBUILD_MODNAME)) {
->>> +		dev_err(dev, "failed to get IO region\n");
->>> +		return -EBUSY;
->>> +	}
->>> +
->>> +	wdt->io_base = io_rc->start;
->>> +	wdd = &wdt->wdd;
->>> +	wdd->info = &nic7018_wdd_info;
->>> +	wdd->ops = &nic7018_wdd_ops;
->>> +	wdd->min_timeout = WDT_MIN_TIMEOUT;
->>> +	wdd->max_timeout = WDT_MAX_TIMEOUT;
->>> +	wdd->timeout = WDT_DEFAULT_TIMEOUT;
->>> +	wdd->parent = dev;
->>> +
->>> +	watchdog_set_drvdata(wdd, wdt);
->>> +	watchdog_set_nowayout(wdd, nowayout);
->>> +
->>> +	ret = watchdog_init_timeout(wdd, timeout, dev);
->>> +	if (ret)
->>> +		dev_warn(dev, "unable to set timeout value, using
->>> default\n");
->>> +
->>> +	/* Unlock WDT register */
->>> +	outb(UNLOCK, wdt->io_base + WDT_REG_LOCK);
->>> +
->>> +	ret = watchdog_register_device(wdd);
->>> +	if (ret) {
->>> +		outb(LOCK, wdt->io_base + WDT_REG_LOCK);
->>> +		dev_err(dev, "failed to register watchdog\n");
->>> +		return ret;
->>> +	}
->>> +
->>> +	dev_dbg(dev, "io_base=0x%04X, timeout=%d, nowayout=%d\n",
->>> +		wdt->io_base, timeout, nowayout);
->>> +	return 0;
->>> +}
->>> +
->>> +static int nic7018_remove(struct platform_device *pdev)
->>> +{
->>> +	struct nic7018_wdt *wdt = platform_get_drvdata(pdev);
->>> +
->>> +	watchdog_unregister_device(&wdt->wdd);
->>> +
->>> +	/* Lock WDT register */
->>> +	outb(LOCK, wdt->io_base + WDT_REG_LOCK);
->>> +
->>> +	return 0;
->>> +}
->>> +
->>> +static const struct acpi_device_id nic7018_device_ids[] = {
->>> +	{"NIC7018", 0},
->>> +	{"", 0},
->>> +};
->>> +MODULE_DEVICE_TABLE(acpi, nic7018_device_ids);
->>> +
->>> +static struct platform_driver watchdog_driver = {
->>> +	.probe = nic7018_probe,
->>> +	.remove = nic7018_remove,
->>> +	.driver = {
->>> +		.name = KBUILD_MODNAME,
->>> +		.acpi_match_table = ACPI_PTR(nic7018_device_ids),
->>> +	},
->>> +};
->>> +
->>> +module_platform_driver(watchdog_driver);
->>> +
->>> +MODULE_DESCRIPTION("National Instruments NIC7018 Watchdog
->>> driver");
->>> +MODULE_AUTHOR("Hui Chun Ong <hui.chun.ong@ni.com>");
->>> +MODULE_LICENSE("GPL");
->>> --
->>> 2.7.4
->>>
+> +	{ }
+> +};
+> +MODULE_DEVICE_TABLE(of, da9062_dt_ids);
+> +
+>  static int da9062_i2c_probe(struct i2c_client *i2c,
+>  	const struct i2c_device_id *id)
+>  {
+>  	struct da9062 *chip;
+> +	const struct of_device_id *match;
+>  	unsigned int irq_base;
+> +	const struct mfd_cell *cell;
+> +	const struct regmap_irq_chip *irq_chip;
+> +	const struct regmap_config *config;
+> +	int cell_num;
+>  	int ret;
+> =20
+>  	chip =3D devm_kzalloc(&i2c->dev, sizeof(*chip), GFP_KERNEL);
+>  	if (!chip)
+>  		return -ENOMEM;
+> =20
+> +	if (i2c->dev.of_node) {
+> +		match =3D of_match_node(da9062_dt_ids, i2c->dev.of_node);
+> +		if (!match)
+> +			return -EINVAL;
+> +
+> +		chip->chip_type =3D (int)match->data;
+> +	} else
+> +		chip->chip_type =3D id->driver_data;
 
+Please obtain this information from DA9062AA_VARIANT_ID.
+
+>  	i2c_set_clientdata(i2c, chip);
+>  	chip->dev =3D &i2c->dev;
+> =20
+> @@ -475,7 +854,25 @@ static int da9062_i2c_probe(struct i2c_client *i2c=
+,
+>  		return -EINVAL;
+>  	}
+> =20
+> -	chip->regmap =3D devm_regmap_init_i2c(i2c, &da9062_regmap_config);
+> +	switch (chip->chip_type) {
+> +	case(COMPAT_TYPE_DA9061):
+> +		cell =3D da9061_devs;
+> +		cell_num =3D ARRAY_SIZE(da9061_devs);
+> +		irq_chip =3D &da9061_irq_chip;
+> +		config =3D &da9061_regmap_config;
+> +		break;
+> +	case(COMPAT_TYPE_DA9062):
+> +		cell =3D da9062_devs;
+> +		cell_num =3D ARRAY_SIZE(da9062_devs);
+> +		irq_chip =3D &da9062_irq_chip;
+> +		config =3D &da9062_regmap_config;
+> +		break;
+> +	default:
+> +		dev_err(chip->dev, "Unrecognised chip type\n");
+> +		return -ENODEV;
+> +	}
+> +
+> +	chip->regmap =3D devm_regmap_init_i2c(i2c, config);
+>  	if (IS_ERR(chip->regmap)) {
+>  		ret =3D PTR_ERR(chip->regmap);
+>  		dev_err(chip->dev, "Failed to allocate register map: %d\n",
+> @@ -493,7 +890,7 @@ static int da9062_i2c_probe(struct i2c_client *i2c,
+> =20
+>  	ret =3D regmap_add_irq_chip(chip->regmap, i2c->irq,
+>  			IRQF_TRIGGER_LOW | IRQF_ONESHOT | IRQF_SHARED,
+> -			-1, &da9062_irq_chip,
+> +			-1, irq_chip,
+>  			&chip->regmap_irq);
+>  	if (ret) {
+>  		dev_err(chip->dev, "Failed to request IRQ %d: %d\n",
+> @@ -503,8 +900,8 @@ static int da9062_i2c_probe(struct i2c_client *i2c,
+> =20
+>  	irq_base =3D regmap_irq_chip_get_base(chip->regmap_irq);
+> =20
+> -	ret =3D mfd_add_devices(chip->dev, PLATFORM_DEVID_NONE, da9062_devs,
+> -			      ARRAY_SIZE(da9062_devs), NULL, irq_base,
+> +	ret =3D mfd_add_devices(chip->dev, PLATFORM_DEVID_NONE, cell,
+> +			      cell_num, NULL, irq_base,
+>  			      NULL);
+>  	if (ret) {
+>  		dev_err(chip->dev, "Cannot register child devices\n");
+> @@ -526,17 +923,12 @@ static int da9062_i2c_remove(struct i2c_client *i=
+2c)
+>  }
+> =20
+>  static const struct i2c_device_id da9062_i2c_id[] =3D {
+> -	{ "da9062", 0 },
+> +	{ "da9061", COMPAT_TYPE_DA9061 },
+> +	{ "da9062", COMPAT_TYPE_DA9062 },
+
+This too.
+
+>  	{ },
+>  };
+>  MODULE_DEVICE_TABLE(i2c, da9062_i2c_id);
+> =20
+> -static const struct of_device_id da9062_dt_ids[] =3D {
+> -	{ .compatible =3D "dlg,da9062", },
+> -	{ }
+> -};
+> -MODULE_DEVICE_TABLE(of, da9062_dt_ids);
+> -
+>  static struct i2c_driver da9062_i2c_driver =3D {
+>  	.driver =3D {
+>  		.name =3D "da9062",
+> @@ -549,6 +941,6 @@ static int da9062_i2c_remove(struct i2c_client *i2c=
+)
+> =20
+>  module_i2c_driver(da9062_i2c_driver);
+> =20
+> -MODULE_DESCRIPTION("Core device driver for Dialog DA9062");
+> +MODULE_DESCRIPTION("Core device driver for Dialog DA9061 and DA9062");
+>  MODULE_AUTHOR("Steve Twiss <stwiss.opensource@diasemi.com>");
+>  MODULE_LICENSE("GPL");
+> diff --git a/include/linux/mfd/da9062/core.h b/include/linux/mfd/da9062=
+/core.h
+> index 376ba84..199c524 100644
+> --- a/include/linux/mfd/da9062/core.h
+> +++ b/include/linux/mfd/da9062/core.h
+> @@ -18,7 +18,31 @@
+>  #include <linux/interrupt.h>
+>  #include <linux/mfd/da9062/registers.h>
+> =20
+> -/* Interrupts */
+> +enum da9062_compatible_types {
+> +	COMPAT_TYPE_DA9061 =3D 1,
+> +	COMPAT_TYPE_DA9062,
+> +};
+> +
+> +enum da9061_irqs {
+> +	/* IRQ A */
+> +	DA9061_IRQ_ONKEY,
+> +	DA9061_IRQ_WDG_WARN,
+> +	DA9061_IRQ_SEQ_RDY,
+> +	/* IRQ B*/
+> +	DA9061_IRQ_TEMP,
+> +	DA9061_IRQ_LDO_LIM,
+> +	DA9061_IRQ_DVC_RDY,
+> +	DA9061_IRQ_VDD_WARN,
+> +	/* IRQ C */
+> +	DA9061_IRQ_GPI0,
+> +	DA9061_IRQ_GPI1,
+> +	DA9061_IRQ_GPI2,
+> +	DA9061_IRQ_GPI3,
+> +	DA9061_IRQ_GPI4,
+> +
+> +	DA9061_NUM_IRQ,
+> +};
+> +
+>  enum da9062_irqs {
+>  	/* IRQ A */
+>  	DA9062_IRQ_ONKEY,
+> @@ -45,6 +69,7 @@ struct da9062 {
+>  	struct device *dev;
+>  	struct regmap *regmap;
+>  	struct regmap_irq_chip_data *regmap_irq;
+> +	enum da9062_compatible_types chip_type;
+>  };
+> =20
+>  #endif /* __MFD_DA9062_CORE_H__ */
+> diff --git a/include/linux/mfd/da9062/registers.h b/include/linux/mfd/d=
+a9062/registers.h
+> index 97790d1..4457fdc 100644
+> --- a/include/linux/mfd/da9062/registers.h
+> +++ b/include/linux/mfd/da9062/registers.h
+> @@ -18,6 +18,8 @@
+> =20
+>  #define DA9062_PMIC_DEVICE_ID		0x62
+>  #define DA9062_PMIC_VARIANT_MRC_AA	0x01
+> +#define DA9062_PMIC_VARIANT_VRC_DA9061	0x01
+> +#define DA9062_PMIC_VARIANT_VRC_DA9062	0x02
+> =20
+>  #define DA9062_I2C_PAGE_SEL_SHIFT	1
+> =20
+
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
