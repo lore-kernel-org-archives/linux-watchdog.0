@@ -1,49 +1,176 @@
-Return-path: <linux@roeck-us.net>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:53982 "EHLO
+        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1760655AbdADDO3 (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 3 Jan 2017 22:14:29 -0500
 From: Guenter Roeck <linux@roeck-us.net>
 To: Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Mika Westerberg <mika.westerberg@linux.intel.com>,
-	Andy Shevchenko <andy.shevchenko@gmail.com>,
-	Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH v2 4/4] watchdog: iTCO_wdt: Simplify module init function
-Date: Tue,  3 Jan 2017 19:14:15 -0800
-Message-Id: <1483499655-24562-4-git-send-email-linux@roeck-us.net>
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH v2 2/4] watchdog: iTCO_wdt: Use device managed resources
+Date: Tue,  3 Jan 2017 19:14:13 -0800
+Message-Id: <1483499655-24562-2-git-send-email-linux@roeck-us.net>
 In-Reply-To: <1483499655-24562-1-git-send-email-linux@roeck-us.net>
 References: <1483499655-24562-1-git-send-email-linux@roeck-us.net>
-List-ID: <linux-watchdog@vger.kernel.org>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-The 'ret' variable in iTCO_wdt_init_module() does not add any value;
-drop it.
+Using device managed resources simplifies error handling and cleanup,
+and to reduce the likelyhood of errors.
 
 Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
 v2: Added Reviewed-by:
 
- drivers/watchdog/iTCO_wdt.c | 8 +-------
- 1 file changed, 1 insertion(+), 7 deletions(-)
+ drivers/watchdog/iTCO_wdt.c | 80 ++++++++++-----------------------------------
+ 1 file changed, 17 insertions(+), 63 deletions(-)
 
 diff --git a/drivers/watchdog/iTCO_wdt.c b/drivers/watchdog/iTCO_wdt.c
-index 9b60f4201c26..d8bb7bf5e669 100644
+index a35a9164ccd0..eed1dee6de19 100644
 --- a/drivers/watchdog/iTCO_wdt.c
 +++ b/drivers/watchdog/iTCO_wdt.c
-@@ -612,15 +612,9 @@ static struct platform_driver iTCO_wdt_driver = {
+@@ -401,27 +401,6 @@ static const struct watchdog_ops iTCO_wdt_ops = {
+  *	Init & exit routines
+  */
  
- static int __init iTCO_wdt_init_module(void)
+-static void iTCO_wdt_cleanup(struct iTCO_wdt_private *p)
+-{
+-	/* Stop the timer before we leave */
+-	if (!nowayout)
+-		iTCO_wdt_stop(&p->wddev);
+-
+-	/* Deregister */
+-	watchdog_unregister_device(&p->wddev);
+-
+-	/* release resources */
+-	release_region(p->tco_res->start,
+-			resource_size(p->tco_res));
+-	release_region(p->smi_res->start,
+-			resource_size(p->smi_res));
+-	if (p->iTCO_version >= 2) {
+-		iounmap(p->gcs_pmc);
+-		release_mem_region(p->gcs_pmc_res->start,
+-				resource_size(p->gcs_pmc_res));
+-	}
+-}
+-
+ static int iTCO_wdt_probe(struct platform_device *dev)
  {
--	int err;
+ 	struct itco_wdt_platform_data *pdata = dev_get_platdata(&dev->dev);
+@@ -458,41 +437,28 @@ static int iTCO_wdt_probe(struct platform_device *dev)
+ 		p->gcs_pmc_res = platform_get_resource(dev,
+ 						       IORESOURCE_MEM,
+ 						       ICH_RES_MEM_GCS_PMC);
 -
- 	pr_info("Intel TCO WatchDog Timer Driver v%s\n", DRV_VERSION);
+-		if (!p->gcs_pmc_res)
+-			return -ENODEV;
+-
+-		if (!request_mem_region(p->gcs_pmc_res->start,
+-					resource_size(p->gcs_pmc_res),
+-					dev->name))
+-			return -EBUSY;
+-
+-		p->gcs_pmc = ioremap(p->gcs_pmc_res->start,
+-				     resource_size(p->gcs_pmc_res));
+-		if (!p->gcs_pmc) {
+-			ret = -EIO;
+-			goto unreg_gcs_pmc;
+-		}
++		p->gcs_pmc = devm_ioremap_resource(&dev->dev, p->gcs_pmc_res);
++		if (IS_ERR(p->gcs_pmc))
++			return PTR_ERR(p->gcs_pmc);
+ 	}
  
--	err = platform_driver_register(&iTCO_wdt_driver);
--	if (err)
--		return err;
+ 	/* Check chipset's NO_REBOOT bit */
+ 	if (iTCO_wdt_unset_NO_REBOOT_bit(p) &&
+ 	    iTCO_vendor_check_noreboot_on()) {
+ 		pr_info("unable to reset NO_REBOOT flag, device disabled by hardware/BIOS\n");
+-		ret = -ENODEV;	/* Cannot reset NO_REBOOT bit */
+-		goto unmap_gcs_pmc;
++		return -ENODEV;	/* Cannot reset NO_REBOOT bit */
+ 	}
+ 
+ 	/* Set the NO_REBOOT bit to prevent later reboots, just for sure */
+ 	iTCO_wdt_set_NO_REBOOT_bit(p);
+ 
+ 	/* The TCO logic uses the TCO_EN bit in the SMI_EN register */
+-	if (!request_region(p->smi_res->start,
+-			    resource_size(p->smi_res), dev->name)) {
++	if (!devm_request_region(&dev->dev, p->smi_res->start,
++				 resource_size(p->smi_res),
++				 dev->name)) {
+ 		pr_err("I/O address 0x%04llx already in use, device disabled\n",
+ 		       (u64)SMI_EN(p));
+-		ret = -EBUSY;
+-		goto unmap_gcs_pmc;
++		return -EBUSY;
+ 	}
+ 	if (turn_SMI_watchdog_clear_off >= p->iTCO_version) {
+ 		/*
+@@ -504,12 +470,12 @@ static int iTCO_wdt_probe(struct platform_device *dev)
+ 		outl(val32, SMI_EN(p));
+ 	}
+ 
+-	if (!request_region(p->tco_res->start,
+-			    resource_size(p->tco_res), dev->name)) {
++	if (!devm_request_region(&dev->dev, p->tco_res->start,
++				 resource_size(p->tco_res),
++				 dev->name)) {
+ 		pr_err("I/O address 0x%04llx already in use, device disabled\n",
+ 		       (u64)TCOBASE(p));
+-		ret = -EBUSY;
+-		goto unreg_smi;
++		return -EBUSY;
+ 	}
+ 
+ 	pr_info("Found a %s TCO device (Version=%d, TCOBASE=0x%04llx)\n",
+@@ -555,37 +521,25 @@ static int iTCO_wdt_probe(struct platform_device *dev)
+ 			WATCHDOG_TIMEOUT);
+ 	}
+ 
+-	ret = watchdog_register_device(&p->wddev);
++	ret = devm_watchdog_register_device(&dev->dev, &p->wddev);
+ 	if (ret != 0) {
+ 		pr_err("cannot register watchdog device (err=%d)\n", ret);
+-		goto unreg_tco;
++		return ret;
+ 	}
+ 
+ 	pr_info("initialized. heartbeat=%d sec (nowayout=%d)\n",
+ 		heartbeat, nowayout);
+ 
+ 	return 0;
 -
--	return 0;
-+	return platform_driver_register(&iTCO_wdt_driver);
+-unreg_tco:
+-	release_region(p->tco_res->start, resource_size(p->tco_res));
+-unreg_smi:
+-	release_region(p->smi_res->start, resource_size(p->smi_res));
+-unmap_gcs_pmc:
+-	if (p->iTCO_version >= 2)
+-		iounmap(p->gcs_pmc);
+-unreg_gcs_pmc:
+-	if (p->iTCO_version >= 2)
+-		release_mem_region(p->gcs_pmc_res->start,
+-				   resource_size(p->gcs_pmc_res));
+-	return ret;
  }
  
- static void __exit iTCO_wdt_cleanup_module(void)
+ static int iTCO_wdt_remove(struct platform_device *dev)
+ {
+ 	struct iTCO_wdt_private *p = platform_get_drvdata(dev);
+ 
+-	if (p->tco_res || p->smi_res)
+-		iTCO_wdt_cleanup(p);
++	/* Stop the timer before we leave */
++	if (!nowayout)
++		iTCO_wdt_stop(&p->wddev);
+ 
+ 	return 0;
+ }
 -- 
 2.7.4
+
