@@ -4,9 +4,11 @@ To: Wim Van Sebroeck <wim@iguana.be>
 Cc: Guenter Roeck <linux@roeck-us.net>,
 	linux-watchdog@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH 1/4] watchdog: asm9260_wdt: Use watchdog core to install restart handler
-Date: Wed,  4 Jan 2017 13:28:35 -0800
-Message-Id: <1483565318-25578-1-git-send-email-linux@roeck-us.net>
+Subject: [PATCH 3/4] watchdog: dw_wdt: Use watchdog core to install restart handler
+Date: Wed,  4 Jan 2017 13:28:37 -0800
+Message-Id: <1483565318-25578-3-git-send-email-linux@roeck-us.net>
+In-Reply-To: <1483565318-25578-1-git-send-email-linux@roeck-us.net>
+References: <1483565318-25578-1-git-send-email-linux@roeck-us.net>
 List-ID: <linux-watchdog@vger.kernel.org>
 
 Use the infrastructure provided by the watchdog core to install
@@ -14,78 +16,88 @@ the restart handler.
 
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/watchdog/asm9260_wdt.c | 20 +++++---------------
- 1 file changed, 5 insertions(+), 15 deletions(-)
+ drivers/watchdog/dw_wdt.c | 21 +++++----------------
+ 1 file changed, 5 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/watchdog/asm9260_wdt.c b/drivers/watchdog/asm9260_wdt.c
-index d0b59ba0f661..05a2b922304b 100644
---- a/drivers/watchdog/asm9260_wdt.c
-+++ b/drivers/watchdog/asm9260_wdt.c
-@@ -14,7 +14,6 @@
+diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
+index 3c6a3de13a1b..158054904876 100644
+--- a/drivers/watchdog/dw_wdt.c
++++ b/drivers/watchdog/dw_wdt.c
+@@ -26,11 +26,9 @@
+ #include <linux/kernel.h>
  #include <linux/module.h>
+ #include <linux/moduleparam.h>
+-#include <linux/notifier.h>
  #include <linux/of.h>
+ #include <linux/pm.h>
  #include <linux/platform_device.h>
 -#include <linux/reboot.h>
- #include <linux/reset.h>
  #include <linux/watchdog.h>
  
-@@ -59,7 +58,6 @@ struct asm9260_wdt_priv {
+ #define WDOG_CONTROL_REG_OFFSET		    0x00
+@@ -55,7 +53,6 @@ struct dw_wdt {
+ 	void __iomem		*regs;
  	struct clk		*clk;
- 	struct clk		*clk_ahb;
- 	struct reset_control	*rst;
+ 	unsigned long		rate;
 -	struct notifier_block	restart_handler;
+ 	struct watchdog_device	wdd;
+ };
  
- 	void __iomem		*iobase;
- 	int			irq;
-@@ -172,15 +170,14 @@ static irqreturn_t asm9260_wdt_irq(int irq, void *devid)
- 	return IRQ_HANDLED;
+@@ -136,14 +133,12 @@ static int dw_wdt_start(struct watchdog_device *wdd)
+ 	return 0;
  }
  
--static int asm9260_restart_handler(struct notifier_block *this,
--				   unsigned long mode, void *cmd)
-+static int asm9260_restart(struct watchdog_device *wdd, unsigned long action,
-+			   void *data)
+-static int dw_wdt_restart_handle(struct notifier_block *this,
+-				 unsigned long mode, void *cmd)
++static int dw_wdt_restart(struct watchdog_device *wdd,
++			  unsigned long action, void *data)
  {
--	struct asm9260_wdt_priv *priv =
--		container_of(this, struct asm9260_wdt_priv, restart_handler);
-+	struct asm9260_wdt_priv *priv = watchdog_get_drvdata(wdd);
+-	struct dw_wdt *dw_wdt;
++	struct dw_wdt *dw_wdt = to_dw_wdt(wdd);
+ 	u32 val;
  
- 	asm9260_wdt_sys_reset(priv);
+-	dw_wdt = container_of(this, struct dw_wdt, restart_handler);
+-
+ 	writel(0, dw_wdt->regs + WDOG_TIMEOUT_RANGE_REG_OFFSET);
+ 	val = readl(dw_wdt->regs + WDOG_CONTROL_REG_OFFSET);
+ 	if (val & WDOG_CONTROL_REG_WDT_EN_MASK)
+@@ -156,7 +151,7 @@ static int dw_wdt_restart_handle(struct notifier_block *this,
+ 	/* wait for reset to assert... */
+ 	mdelay(500);
  
 -	return NOTIFY_DONE;
 +	return 0;
  }
  
- static const struct watchdog_info asm9260_wdt_ident = {
-@@ -196,6 +193,7 @@ static struct watchdog_ops asm9260_wdt_ops = {
- 	.get_timeleft	= asm9260_wdt_gettimeleft,
- 	.ping		= asm9260_wdt_feed,
- 	.set_timeout	= asm9260_wdt_settimeout,
-+	.restart	= asm9260_restart,
+ static unsigned int dw_wdt_get_timeleft(struct watchdog_device *wdd)
+@@ -179,6 +174,7 @@ static const struct watchdog_ops dw_wdt_ops = {
+ 	.ping		= dw_wdt_ping,
+ 	.set_timeout	= dw_wdt_set_timeout,
+ 	.get_timeleft	= dw_wdt_get_timeleft,
++	.restart	= dw_wdt_restart,
  };
  
- static int asm9260_wdt_get_dt_clks(struct asm9260_wdt_priv *priv)
-@@ -341,12 +339,6 @@ static int asm9260_wdt_probe(struct platform_device *pdev)
+ #ifdef CONFIG_PM_SLEEP
+@@ -269,12 +265,6 @@ static int dw_wdt_drv_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		goto out_disable_clk;
  
- 	platform_set_drvdata(pdev, priv);
- 
--	priv->restart_handler.notifier_call = asm9260_restart_handler;
--	priv->restart_handler.priority = 128;
--	ret = register_restart_handler(&priv->restart_handler);
+-	dw_wdt->restart_handler.notifier_call = dw_wdt_restart_handle;
+-	dw_wdt->restart_handler.priority = 128;
+-	ret = register_restart_handler(&dw_wdt->restart_handler);
 -	if (ret)
--		dev_warn(&pdev->dev, "cannot register restart handler\n");
+-		pr_warn("cannot register restart handler\n");
 -
- 	dev_info(&pdev->dev, "Watchdog enabled (timeout: %d sec, mode: %s)\n",
- 		 wdd->timeout, mode_name[priv->mode]);
  	return 0;
-@@ -370,8 +362,6 @@ static int asm9260_wdt_remove(struct platform_device *pdev)
  
- 	asm9260_wdt_disable(&priv->wdd);
+ out_disable_clk:
+@@ -286,7 +276,6 @@ static int dw_wdt_drv_remove(struct platform_device *pdev)
+ {
+ 	struct dw_wdt *dw_wdt = platform_get_drvdata(pdev);
  
--	unregister_restart_handler(&priv->restart_handler);
--
- 	watchdog_unregister_device(&priv->wdd);
+-	unregister_restart_handler(&dw_wdt->restart_handler);
+ 	watchdog_unregister_device(&dw_wdt->wdd);
+ 	clk_disable_unprepare(dw_wdt->clk);
  
- 	clk_disable_unprepare(priv->clk);
 -- 
 2.7.4
