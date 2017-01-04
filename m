@@ -1,12 +1,12 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wj0-f181.google.com ([209.85.210.181]:34682 "EHLO
-        mail-wj0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751512AbdADKIm (ORCPT
+Received: from mail-wj0-f170.google.com ([209.85.210.170]:36442 "EHLO
+        mail-wj0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1757721AbdADMPU (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 4 Jan 2017 05:08:42 -0500
-Received: by mail-wj0-f181.google.com with SMTP id tn15so6548262wjb.1
-        for <linux-watchdog@vger.kernel.org>; Wed, 04 Jan 2017 02:08:41 -0800 (PST)
-Date: Wed, 4 Jan 2017 10:12:21 +0000
+        Wed, 4 Jan 2017 07:15:20 -0500
+Received: by mail-wj0-f170.google.com with SMTP id c11so262731079wjx.3
+        for <linux-watchdog@vger.kernel.org>; Wed, 04 Jan 2017 04:15:19 -0800 (PST)
+Date: Wed, 4 Jan 2017 12:19:01 +0000
 From: Lee Jones <lee.jones@linaro.org>
 To: Steve Twiss <stwiss.opensource@diasemi.com>
 Cc: LINUX-KERNEL <linux-kernel@vger.kernel.org>,
@@ -25,7 +25,7 @@ Cc: LINUX-KERNEL <linux-kernel@vger.kernel.org>,
         Wim Van Sebroeck <wim@iguana.be>,
         Zhang Rui <rui.zhang@intel.com>
 Subject: Re: [PATCH V5 4/8] mfd: da9061: MFD core support
-Message-ID: <20170104101221.GT27589@dell>
+Message-ID: <20170104121901.GC24225@dell>
 References: <cover.1481828921.git.stwiss.opensource@diasemi.com>
  <ad649a91daa6191f2385dfe79c6ec8ca339f597c.1481828921.git.stwiss.opensource@diasemi.com>
 MIME-Version: 1.0
@@ -127,7 +127,10 @@ e
 >  include/linux/mfd/da9062/core.h      |  27 ++-
 >  include/linux/mfd/da9062/registers.h |   2 +
 >  4 files changed, 439 insertions(+), 19 deletions(-)
->=20
+
+For my own reference:
+  Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
+ =20
 > diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
 > index c6df644..a1a780c 100644
 > --- a/drivers/mfd/Kconfig
@@ -577,10 +580,6 @@ chip)
  },
 > +	{ .compatible =3D "dlg,da9062", .data =3D (void *)COMPAT_TYPE_DA9062,=
  },
-
-It looks like this device can dynamically obtain this information from
-the device.  Please use that method instead.
-
 > +	{ }
 > +};
 > +MODULE_DEVICE_TABLE(of, da9062_dt_ids);
@@ -609,9 +608,7 @@ the device.  Please use that method instead.
 > +		chip->chip_type =3D (int)match->data;
 > +	} else
 > +		chip->chip_type =3D id->driver_data;
-
-Please obtain this information from DA9062AA_VARIANT_ID.
-
+> +
 >  	i2c_set_clientdata(i2c, chip);
 >  	chip->dev =3D &i2c->dev;
 > =20
@@ -671,9 +668,6 @@ Please obtain this information from DA9062AA_VARIANT_ID.
 > -	{ "da9062", 0 },
 > +	{ "da9061", COMPAT_TYPE_DA9061 },
 > +	{ "da9062", COMPAT_TYPE_DA9062 },
-
-This too.
-
 >  	{ },
 >  };
 >  MODULE_DEVICE_TABLE(i2c, da9062_i2c_id);
