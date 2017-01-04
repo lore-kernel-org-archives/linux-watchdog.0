@@ -1,70 +1,54 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:56254 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:57681 "EHLO
         bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932079AbdAAQwU (ORCPT
+        with ESMTP id S1753169AbdADALs (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 1 Jan 2017 11:52:20 -0500
-Subject: Re: Stopping watchdog in watchdog driver remove functions
-To: Wim Van Sebroeck <wim@iguana.be>
-References: <64c83c02-2c64-c536-3302-8079f438f0ab@roeck-us.net>
- <20170101111421.GA9695@spo001.leaseweb.nl>
-Cc: "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Laxman Dewangan <ldewangan@nvidia.com>,
-        Mans Rullgard <mans@mansr.com>,
-        Justin Chen <justinpopo6@gmail.com>,
-        Wenyou Yang <wenyou.yang@atmel.com>,
-        Naidu Tellapati <naidu.tellapati@gmail.com>
+        Tue, 3 Jan 2017 19:11:48 -0500
+Date: Tue, 3 Jan 2017 16:11:45 -0800
 From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <a7f0a6b8-d572-99de-a5ba-0f448b82a1ab@roeck-us.net>
-Date: Sun, 1 Jan 2017 08:52:09 -0800
+To: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: "wim@iguana.be" <wim@iguana.be>,
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Auto-conversion of watchdog drivers to use devm functions
+Message-ID: <20170104001145.GA15099@roeck-us.net>
+References: <8fb3f1a7-1b72-8da3-adcd-11677c455f82@roeck-us.net>
+ <CAHp75VcPRkscW8MaM3-nO-tzJnuC9f2fa3wc6oODo_aq+9Wdcg@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20170101111421.GA9695@spo001.leaseweb.nl>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAHp75VcPRkscW8MaM3-nO-tzJnuC9f2fa3wc6oODo_aq+9Wdcg@mail.gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 01/01/2017 03:14 AM, Wim Van Sebroeck wrote:
-> Hi Guenter,
->
->> I noticed that several watchdog drivers stop the watchdog in trhe driver
->> remove function.
->> A non-exhaustive list of drivers doing that is
->>
->> 	drivers/watchdog/bcm7038_wdt.c
->> 	drivers/watchdog/cadence_wdt.c
->> 	drivers/watchdog/imgpdc_wdt.c
->> 	drivers/watchdog/jz4740_wdt.c
->> 	drivers/watchdog/kempld_wdt.c
->> 	drivers/watchdog/max77620_wdt.c
->> 	drivers/watchdog/moxart_wdt.c
->> 	drivers/watchdog/sama5d4_wdt.c
->> 	drivers/watchdog/tangox_wdt.c
->> 	drivers/watchdog/tegra_wdt.c
->>
->> Since a watchdog has to be closed for its driver to be removable, one
->> situation
->> where a watchdog is still running on unload is where the watchdog was
->> opened but
->> not closed properly (eg by killing the watchdog application, or if the
->> 'nowayout'
->> flag is set).
->>
->> Given that, does it even make sense to stop the watchdog in the remove
->> function ?
->> Should it even be permitted ?
->
->>From an API point of view: if WDIOF_MAGICCLOSE is being used then the watchdog
-> _SHOULD_ continue to run when the watchdog was not properly closed (which
-> normally also results in a reboot of the system).
-> if WDIOF_MAGICCLOSE is not being used then closing the watchdog device means
-> that the driver needs to stop the watchdog.
->
-All the above have WDIOF_MAGICCLOSE set. Does that mean they should not stop
-the watchdog on remove ?
+On Wed, Jan 04, 2017 at 01:55:39AM +0200, Andy Shevchenko wrote:
+> On Mon, Jan 2, 2017 at 1:53 AM, Guenter Roeck <linux@roeck-us.net> wrote:
+> > Hi Wim,
+> >
+> > With heavy support by Julia Lawall, I created a number of coccinelle scripts
+> > to auto-convert watchdog platform drivers to use devm functions. The result
+> > is quite impressive - many drivers won't even need remove functions anymore
+> > after the conversion.
+> >
+> > Question is now how to submit the patches. There are 12 rule files affecting
+> > a total of 62 drivers. Should I submit one patch per driver (62 patches),
+> > one patch per rule (12), or one patch per rule file per driver (183) ?
+> 
+> One per driver.
+> 
+> > Also, how should I refer to the rules ? The total number of rule lines
+> > is more than 1,000, which seems to be a bit much for the commit log (even
+> > though not all rules apply to all files).
+> 
+> No need, perhaps some URL?
+> 
+Yes, that is what I ended up doing - I created a repository on github and
+pushed the semantic patches as well as the scripts used to generate the
+actual patches into it. I am going to reference that repository in the
+patches, together with a summary of the changes made.
 
-Happy new year everyone !
+An interesting exercise is to let the semantic patches run on the entire
+kernel. It generates almost 1,500 patches.
 
+Thanks,
 Guenter
-
