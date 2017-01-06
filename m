@@ -1,64 +1,41 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from anholt.net ([50.246.234.109]:37994 "EHLO anholt.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1030967AbdAFSPD (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 6 Jan 2017 13:15:03 -0500
-From: Eric Anholt <eric@anholt.net>
-To: Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@iguana.be>
-Cc: Guenter Roeck <linux@roeck-us.net>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Ray Jui <rjui@broadcom.com>,
-        Scott Branden <sbranden@broadcom.com>,
-        bcm-kernel-feedback-list@broadcom.com,
-        Stephen Warren <swarren@wwwdotorg.org>,
-        Lee Jones <lee@kernel.org>, linux-watchdog@vger.kernel.org,
-        linux-rpi-kernel@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 2/4] watchdog: bcm2835_wdt: Use watchdog core to install restart handler
-In-Reply-To: <1483674720-4870-2-git-send-email-linux@roeck-us.net>
-References: <1483674720-4870-1-git-send-email-linux@roeck-us.net> <1483674720-4870-2-git-send-email-linux@roeck-us.net>
-Date: Fri, 06 Jan 2017 10:15:00 -0800
-Message-ID: <87a8b4njh7.fsf@eliezer.anholt.net>
-MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
-        micalg=pgp-sha512; protocol="application/pgp-signature"
+Received: from bh-25.webhostbox.net ([208.91.199.152]:44581 "EHLO
+        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1757675AbdAFOis (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 6 Jan 2017 09:38:48 -0500
+From: Guenter Roeck <linux@roeck-us.net>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH] watchdog: bcm47xx_wdt: Don't validate platform data on remove
+Date: Fri,  6 Jan 2017 06:38:42 -0800
+Message-Id: <1483713522-2986-1-git-send-email-linux@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
---=-=-=
-Content-Type: text/plain
+Platform data was already validated in the probe function. If it was NULL,
+the remove function will never be called. Remove the unnecessary check.
 
-Guenter Roeck <linux@roeck-us.net> writes:
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+---
+ drivers/watchdog/bcm47xx_wdt.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-> Use the infrastructure provided by the watchdog core to install
-> the restart handler.
->
-> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-> ---
-> v2: Need to call watchdog_set_restart_priority()
+diff --git a/drivers/watchdog/bcm47xx_wdt.c b/drivers/watchdog/bcm47xx_wdt.c
+index a1900b9ab6c4..35725e21b18a 100644
+--- a/drivers/watchdog/bcm47xx_wdt.c
++++ b/drivers/watchdog/bcm47xx_wdt.c
+@@ -226,9 +226,6 @@ static int bcm47xx_wdt_remove(struct platform_device *pdev)
+ {
+ 	struct bcm47xx_wdt *wdt = dev_get_platdata(&pdev->dev);
+ 
+-	if (!wdt)
+-		return -ENXIO;
+-
+ 	watchdog_unregister_device(&wdt->wdd);
+ 
+ 	return 0;
+-- 
+2.7.4
 
-Seems fine.
-
-Acked-by: Eric Anholt <eric@anholt.net>
-
---=-=-=
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCgAdFiEE/JuuFDWp9/ZkuCBXtdYpNtH8nugFAlhv3qQACgkQtdYpNtH8
-nuhhAQ/+Lv7YchYECmuhOMH+87uQrUyo//Ch/A8Dfwg5ajAXFDxjzikhGwNby1zM
-s8iOk3nT2qX4j5k04eZqOEV/6XxxPJHz6F+liEz/eeGYYY+BWnaT5ElBM3nPgmTX
-ZzP1sOV0rR1dvdESvUrH2KWdBosg+bxbCTIXSaQS9Dxn82m7+0lPencfeTsFpL2c
-6ch6h5R5VAY/ncTFxe2vPyLW5VnonXgcdfY0GfDYoSLygfubGGBoGHL8yCt9Mc5u
-YTGpc91KCW4Y5zSKgCuZvp8NTftVnkcM3xZq8cLrSdO3COynlmi8eSysQ1XJJAWy
-FDWnIOtC7GlJ/PKiYxAc6txC8W9HdLBIhsFh/VAid1cCWRMOKH6WJKtBv28uM9hP
-0vLVGL0/bf3rL6yCD2YPzSSW00u08XtoUB3hrHPTIXugnYKD7oNwLTWnz56B2PH4
-4VN9GtqBT6SIHPyb0MZ/xQ8MOD5tNBTvV6N6oWY9ft/xlTBwZZ9NkS1PDAvYC38I
-VBPYsGiPKgzhVsclPJpiHzBN6Vp6EzYvgyWBz6YQaUw4KBPJE66rx0NlYCA35KXK
-RCKI56z36PbcZoZXEs09DKo92xPFI/6Jpej8/Ma8Qvbd8IyFdNkhnsBJv1Zyys18
-vuhFAnwRBe4UbRiB38UlXlH7xvYMzvRH6hbTUoBGLMGFochhw8c=
-=PzmE
------END PGP SIGNATURE-----
---=-=-=--
