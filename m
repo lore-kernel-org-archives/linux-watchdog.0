@@ -2,20 +2,11 @@ Return-path: <linux@roeck-us.net>
 From: Guenter Roeck <linux@roeck-us.net>
 To: Wim Van Sebroeck <wim@iguana.be>
 Cc: Guenter Roeck <linux@roeck-us.net>,
-	Florian Fainelli <f.fainelli@gmail.com>,
-	Ray Jui <rjui@broadcom.com>,
-	Scott Branden <sbranden@broadcom.com>,
-	bcm-kernel-feedback-list@broadcom.com,
-	Stephen Warren <swarren@wwwdotorg.org>,
-	Lee Jones <lee@kernel.org>,
-	Eric Anholt <eric@anholt.net>,
 	linux-watchdog@vger.kernel.org,
-	linux-rpi-kernel@lists.infradead.org,
-	linux-arm-kernel@lists.infradead.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v2 2/4] watchdog: bcm2835_wdt: Use watchdog core to install restart handler
-Date: Thu,  5 Jan 2017 19:51:58 -0800
-Message-Id: <1483674720-4870-2-git-send-email-linux@roeck-us.net>
+Subject: [PATCH v2 3/4] watchdog: dw_wdt: Use watchdog core to install restart handler
+Date: Thu,  5 Jan 2017 19:51:59 -0800
+Message-Id: <1483674720-4870-3-git-send-email-linux@roeck-us.net>
 In-Reply-To: <1483674720-4870-1-git-send-email-linux@roeck-us.net>
 References: <1483674720-4870-1-git-send-email-linux@roeck-us.net>
 List-ID: <linux-watchdog@vger.kernel.org>
@@ -27,130 +18,94 @@ Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
 v2: Need to call watchdog_set_restart_priority()
 
- drivers/watchdog/bcm2835_wdt.c | 57 ++++++++++++++++++++++--------------------
- 1 file changed, 30 insertions(+), 27 deletions(-)
+ drivers/watchdog/dw_wdt.c | 23 +++++++----------------
+ 1 file changed, 7 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/watchdog/bcm2835_wdt.c b/drivers/watchdog/bcm2835_wdt.c
-index c32c45bd8b09..4e0adb6c88f0 100644
---- a/drivers/watchdog/bcm2835_wdt.c
-+++ b/drivers/watchdog/bcm2835_wdt.c
-@@ -14,7 +14,6 @@
-  */
- 
- #include <linux/delay.h>
--#include <linux/reboot.h>
- #include <linux/types.h>
+diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
+index 3c6a3de13a1b..914da3a4d334 100644
+--- a/drivers/watchdog/dw_wdt.c
++++ b/drivers/watchdog/dw_wdt.c
+@@ -26,11 +26,9 @@
+ #include <linux/kernel.h>
  #include <linux/module.h>
- #include <linux/io.h>
-@@ -49,7 +48,6 @@
- struct bcm2835_wdt {
- 	void __iomem		*base;
- 	spinlock_t		lock;
+ #include <linux/moduleparam.h>
+-#include <linux/notifier.h>
+ #include <linux/of.h>
+ #include <linux/pm.h>
+ #include <linux/platform_device.h>
+-#include <linux/reboot.h>
+ #include <linux/watchdog.h>
+ 
+ #define WDOG_CONTROL_REG_OFFSET		    0x00
+@@ -55,7 +53,6 @@ struct dw_wdt {
+ 	void __iomem		*regs;
+ 	struct clk		*clk;
+ 	unsigned long		rate;
 -	struct notifier_block	restart_handler;
+ 	struct watchdog_device	wdd;
  };
  
- static unsigned int heartbeat;
-@@ -99,11 +97,37 @@ static unsigned int bcm2835_wdt_get_timeleft(struct watchdog_device *wdog)
- 	return WDOG_TICKS_TO_SECS(ret & PM_WDOG_TIME_SET);
+@@ -136,14 +133,12 @@ static int dw_wdt_start(struct watchdog_device *wdd)
+ 	return 0;
  }
  
-+static void __bcm2835_restart(struct bcm2835_wdt *wdt)
-+{
-+	u32 val;
-+
-+	/* use a timeout of 10 ticks (~150us) */
-+	writel_relaxed(10 | PM_PASSWORD, wdt->base + PM_WDOG);
-+	val = readl_relaxed(wdt->base + PM_RSTC);
-+	val &= PM_RSTC_WRCFG_CLR;
-+	val |= PM_PASSWORD | PM_RSTC_WRCFG_FULL_RESET;
-+	writel_relaxed(val, wdt->base + PM_RSTC);
-+
-+	/* No sleeping, possibly atomic. */
-+	mdelay(1);
-+}
-+
-+static int bcm2835_restart(struct watchdog_device *wdog,
-+			   unsigned long action, void *data)
-+{
-+	struct bcm2835_wdt *wdt = watchdog_get_drvdata(wdog);
-+
-+	__bcm2835_restart(wdt);
-+
-+	return 0;
-+}
-+
- static const struct watchdog_ops bcm2835_wdt_ops = {
- 	.owner =	THIS_MODULE,
- 	.start =	bcm2835_wdt_start,
- 	.stop =		bcm2835_wdt_stop,
- 	.get_timeleft =	bcm2835_wdt_get_timeleft,
-+	.restart =	bcm2835_restart,
- };
- 
- static const struct watchdog_info bcm2835_wdt_info = {
-@@ -120,26 +144,6 @@ static struct watchdog_device bcm2835_wdt_wdd = {
- 	.timeout =	WDOG_TICKS_TO_SECS(PM_WDOG_TIME_SET),
- };
- 
--static int
--bcm2835_restart(struct notifier_block *this, unsigned long mode, void *cmd)
--{
--	struct bcm2835_wdt *wdt = container_of(this, struct bcm2835_wdt,
--					       restart_handler);
--	u32 val;
--
--	/* use a timeout of 10 ticks (~150us) */
--	writel_relaxed(10 | PM_PASSWORD, wdt->base + PM_WDOG);
--	val = readl_relaxed(wdt->base + PM_RSTC);
--	val &= PM_RSTC_WRCFG_CLR;
--	val |= PM_PASSWORD | PM_RSTC_WRCFG_FULL_RESET;
--	writel_relaxed(val, wdt->base + PM_RSTC);
--
--	/* No sleeping, possibly atomic. */
--	mdelay(1);
--
--	return 0;
--}
--
- /*
-  * We can't really power off, but if we do the normal reset scheme, and
-  * indicate to bootcode.bin not to reboot, then most of the chip will be
-@@ -163,7 +167,7 @@ static void bcm2835_power_off(void)
- 	writel_relaxed(val, wdt->base + PM_RSTS);
- 
- 	/* Continue with normal reset mechanism */
--	bcm2835_restart(&wdt->restart_handler, REBOOT_HARD, NULL);
-+	__bcm2835_restart(wdt);
- }
- 
- static int bcm2835_wdt_probe(struct platform_device *pdev)
-@@ -201,6 +205,9 @@ static int bcm2835_wdt_probe(struct platform_device *pdev)
- 		 */
- 		set_bit(WDOG_HW_RUNNING, &bcm2835_wdt_wdd.status);
- 	}
-+
-+	watchdog_set_restart_priority(&bcm2835_wdt_wdd, 128);
-+
- 	err = watchdog_register_device(&bcm2835_wdt_wdd);
- 	if (err) {
- 		dev_err(dev, "Failed to register watchdog device");
-@@ -208,9 +215,6 @@ static int bcm2835_wdt_probe(struct platform_device *pdev)
- 		return err;
- 	}
- 
--	wdt->restart_handler.notifier_call = bcm2835_restart;
--	wdt->restart_handler.priority = 128;
--	register_restart_handler(&wdt->restart_handler);
- 	if (pm_power_off == NULL)
- 		pm_power_off = bcm2835_power_off;
- 
-@@ -222,7 +226,6 @@ static int bcm2835_wdt_remove(struct platform_device *pdev)
+-static int dw_wdt_restart_handle(struct notifier_block *this,
+-				 unsigned long mode, void *cmd)
++static int dw_wdt_restart(struct watchdog_device *wdd,
++			  unsigned long action, void *data)
  {
- 	struct bcm2835_wdt *wdt = platform_get_drvdata(pdev);
+-	struct dw_wdt *dw_wdt;
++	struct dw_wdt *dw_wdt = to_dw_wdt(wdd);
+ 	u32 val;
  
--	unregister_restart_handler(&wdt->restart_handler);
- 	if (pm_power_off == bcm2835_power_off)
- 		pm_power_off = NULL;
- 	watchdog_unregister_device(&bcm2835_wdt_wdd);
+-	dw_wdt = container_of(this, struct dw_wdt, restart_handler);
+-
+ 	writel(0, dw_wdt->regs + WDOG_TIMEOUT_RANGE_REG_OFFSET);
+ 	val = readl(dw_wdt->regs + WDOG_CONTROL_REG_OFFSET);
+ 	if (val & WDOG_CONTROL_REG_WDT_EN_MASK)
+@@ -156,7 +151,7 @@ static int dw_wdt_restart_handle(struct notifier_block *this,
+ 	/* wait for reset to assert... */
+ 	mdelay(500);
+ 
+-	return NOTIFY_DONE;
++	return 0;
+ }
+ 
+ static unsigned int dw_wdt_get_timeleft(struct watchdog_device *wdd)
+@@ -179,6 +174,7 @@ static const struct watchdog_ops dw_wdt_ops = {
+ 	.ping		= dw_wdt_ping,
+ 	.set_timeout	= dw_wdt_set_timeout,
+ 	.get_timeleft	= dw_wdt_get_timeleft,
++	.restart	= dw_wdt_restart,
+ };
+ 
+ #ifdef CONFIG_PM_SLEEP
+@@ -265,16 +261,12 @@ static int dw_wdt_drv_probe(struct platform_device *pdev)
+ 
+ 	platform_set_drvdata(pdev, dw_wdt);
+ 
++	watchdog_set_restart_priority(wdd, 128);
++
+ 	ret = watchdog_register_device(wdd);
+ 	if (ret)
+ 		goto out_disable_clk;
+ 
+-	dw_wdt->restart_handler.notifier_call = dw_wdt_restart_handle;
+-	dw_wdt->restart_handler.priority = 128;
+-	ret = register_restart_handler(&dw_wdt->restart_handler);
+-	if (ret)
+-		pr_warn("cannot register restart handler\n");
+-
+ 	return 0;
+ 
+ out_disable_clk:
+@@ -286,7 +278,6 @@ static int dw_wdt_drv_remove(struct platform_device *pdev)
+ {
+ 	struct dw_wdt *dw_wdt = platform_get_drvdata(pdev);
+ 
+-	unregister_restart_handler(&dw_wdt->restart_handler);
+ 	watchdog_unregister_device(&dw_wdt->wdd);
+ 	clk_disable_unprepare(dw_wdt->clk);
+ 
 -- 
 2.7.4
