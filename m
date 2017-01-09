@@ -1,48 +1,57 @@
 Return-path: <prvs=1756365f6=Rasmus.Villemoes@prevas.dk>
 From: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
-To: <linux-watchdog@vger.kernel.org>, <linux-doc@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>
+To: Wim Van Sebroeck <wim@iguana.be>, Guenter Roeck <linux@roeck-us.net>
 CC: Sylvain Lemieux <slemieux.tyco@gmail.com>, Rasmus Villemoes
-	<rasmus.villemoes@prevas.dk>, Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH v4 0/3] watchdog: allow setting deadline for opening /dev/watchdogN
-Date: Mon, 9 Jan 2017 16:02:30 +0100
-Message-ID: <1483974153-466-1-git-send-email-rasmus.villemoes@prevas.dk>
+	<rasmus.villemoes@prevas.dk>, <linux-watchdog@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>
+Subject: [PATCH v4 1/3] watchdog: introduce watchdog_worker_should_ping helper
+Date: Mon, 9 Jan 2017 16:02:31 +0100
+Message-ID: <1483974153-466-2-git-send-email-rasmus.villemoes@prevas.dk>
+In-Reply-To: <1483974153-466-1-git-send-email-rasmus.villemoes@prevas.dk>
+References: <1483974153-466-1-git-send-email-rasmus.villemoes@prevas.dk>
 MIME-Version: 1.0
 Content-Type: text/plain
 List-ID: <linux-watchdog@vger.kernel.org>
 
-If a watchdog driver tells the framework that the device is running,
-the framework takes care of feeding the watchdog until userspace opens
-the device. If the userspace application which is supposed to do that
-never comes up properly, the watchdog is fed indefinitely by the
-kernel. This can be especially problematic for embedded devices.
+This will be useful when the condition becomes slightly more
+complicated in the next patch.
 
-These patches allow one to set a maximum time for which the kernel
-will feed the watchdog, thus ensuring that either userspace has come
-up, or the board gets reset. This allows fallback logic in the
-bootloader to attempt some recovery (for example, if an automatic
-update is in progress, it could roll back to the previous version).
+Signed-off-by: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+---
+ drivers/watchdog/watchdog_dev.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-The patches have been tested on a Raspberry Pi 2 and a Wandboard.
-
-v4 is mostly identical to v1. The differences are that the ability to
-compile out this feature is removed, and the ability to set the
-default value for the watchdog.open_timeout command line parameter via
-Kconfig is split into a separate patch.
-
-Compared to v2/v3, this drops the ability to set the open_timeout via
-a device property; I'll leave implementing that to those who actually
-need it.
-
-Rasmus Villemoes (3):
-  watchdog: introduce watchdog_worker_should_ping helper
-  watchdog: introduce watchdog.open_timeout commandline parameter
-  watchdog: introduce CONFIG_WATCHDOG_OPEN_TIMEOUT
-
- Documentation/watchdog/watchdog-parameters.txt | 10 +++++++
- drivers/watchdog/Kconfig                       |  9 +++++++
- drivers/watchdog/watchdog_dev.c                | 37 +++++++++++++++++++++++---
- 3 files changed, 52 insertions(+), 4 deletions(-)
-
+diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
+index 32930a0..21809e4 100644
+--- a/drivers/watchdog/watchdog_dev.c
++++ b/drivers/watchdog/watchdog_dev.c
+@@ -192,18 +192,23 @@ static int watchdog_ping(struct watchdog_device *wdd)
+ 	return __watchdog_ping(wdd);
+ }
+ 
++static bool watchdog_worker_should_ping(struct watchdog_core_data *wd_data)
++{
++	struct watchdog_device *wdd = wd_data->wdd;
++
++	return wdd && (watchdog_active(wdd) || watchdog_hw_running(wdd));
++}
++
+ static void watchdog_ping_work(struct work_struct *work)
+ {
+ 	struct watchdog_core_data *wd_data;
+-	struct watchdog_device *wdd;
+ 
+ 	wd_data = container_of(to_delayed_work(work), struct watchdog_core_data,
+ 			       work);
+ 
+ 	mutex_lock(&wd_data->lock);
+-	wdd = wd_data->wdd;
+-	if (wdd && (watchdog_active(wdd) || watchdog_hw_running(wdd)))
+-		__watchdog_ping(wdd);
++	if (watchdog_worker_should_ping(wd_data))
++		__watchdog_ping(wd_data->wdd);
+ 	mutex_unlock(&wd_data->lock);
+ }
+ 
 -- 
 2.7.4
