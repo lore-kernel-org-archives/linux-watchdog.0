@@ -1,51 +1,43 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:36082 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1031145AbdAIRUD (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 9 Jan 2017 12:20:03 -0500
-Date: Mon, 9 Jan 2017 09:19:59 -0800
-From: Guenter Roeck <linux@roeck-us.net>
-To: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-        <u.kleine-koenig@pengutronix.de>
+Return-path: <ukl@pengutronix.de>
+Date: Mon, 9 Jan 2017 21:06:29 +0100
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>
+To: Guenter Roeck <linux@roeck-us.net>
 Cc: Vladimir Zapolskiy <vz@mleia.com>, Shawn Guo <shawnguo@kernel.org>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        Fabio Estevam <fabio.estevam@nxp.com>, kernel@pengutronix.de,
-        Magnus Lilja <lilja.magnus@gmail.com>,
-        linux-watchdog@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
+	Wim Van Sebroeck <wim@iguana.be>,
+	Fabio Estevam <fabio.estevam@nxp.com>, kernel@pengutronix.de,
+	Magnus Lilja <lilja.magnus@gmail.com>,
+	linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org
 Subject: Re: [PATCH 0/3] watchdog: imx2: handle WMCR only being available on
  i.MX35 and later
-Message-ID: <20170109171959.GA7274@roeck-us.net>
+Message-ID: <20170109200629.jwknq6lauknlzsqi@pengutronix.de>
 References: <20170109095039.11979-1-u.kleine-koenig@pengutronix.de>
+ <20170109171959.GA7274@roeck-us.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20170109095039.11979-1-u.kleine-koenig@pengutronix.de>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+In-Reply-To: <20170109171959.GA7274@roeck-us.net>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On Mon, Jan 09, 2017 at 10:50:36AM +0100, Uwe Kleine-König wrote:
-> Hello,
+On Mon, Jan 09, 2017 at 09:19:59AM -0800, Guenter Roeck wrote:
+> On Mon, Jan 09, 2017 at 10:50:36AM +0100, Uwe Kleine-König wrote:
+> > this is my approach to fix the issue reported by Vladimir Zapolskiy.
+> > 
+> So ...
 > 
-> this is my approach to fix the issue reported by Vladimir Zapolskiy.
-> 
-So ...
+> Unfortunately, I don't see any convergence on this issue. My take is that,
+> given the lack of convergence, it can't be that severe since no one feels
+> that it is important enough to get it fixed one way or the other to budge
+> from your positions.
 
-Unfortunately, I don't see any convergence on this issue. My take is that,
-given the lack of convergence, it can't be that severe since no one feels
-that it is important enough to get it fixed one way or the other to budge
-from your positions.
+I didn't get any critic for my patch set yet apart from being a second
+one to address the same problem. So until proven differently I assume
+that mine is fine.
 
-I had the other patch in my watchdog-next branch. I'll drop it, and wait for
-the two of you to agree to something. You can either agree to that something,
-or try to convince Wim to accept one or the other patch set. For my part, I'll
-only accept a patch or patch series which has a Signed-off: and/or Reviewed-by:
-from both of you.
+Best regards
+Uwe
 
-Maybe you can get together into a room and agree not to leave it until white
-smoke comes out of the chimney. Just an idea.
-
-Thanks,
-Guenter
+-- 
+Pengutronix e.K.                           | Uwe Kleine-König            |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
