@@ -1,114 +1,48 @@
-Return-path: <linux@roeck-us.net>
-From: Guenter Roeck <linux@roeck-us.net>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Guenter Roeck <linux@roeck-us.net>,
-	patches@opensource.wolfsonmicro.com
-Subject: [PATCH 62/62] watchdog: wm831x_wdt: Convert to use device managed functions
-Date: Tue, 10 Jan 2017 18:09:16 -0800
-Message-Id: <1484100561-17638-11-git-send-email-linux@roeck-us.net>
-In-Reply-To: <1484100561-17638-1-git-send-email-linux@roeck-us.net>
-References: <1484091325-9199-1-git-send-email-linux@roeck-us.net>
- <1484100561-17638-1-git-send-email-linux@roeck-us.net>
+Return-path: <prvs=1756365f6=Rasmus.Villemoes@prevas.dk>
+From: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+To: <linux-watchdog@vger.kernel.org>, <linux-doc@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>
+CC: Sylvain Lemieux <slemieux.tyco@gmail.com>, Rasmus Villemoes
+	<rasmus.villemoes@prevas.dk>, Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH v4 0/3] watchdog: allow setting deadline for opening /dev/watchdogN
+Date: Mon, 9 Jan 2017 16:02:30 +0100
+Message-ID: <1483974153-466-1-git-send-email-rasmus.villemoes@prevas.dk>
+MIME-Version: 1.0
+Content-Type: text/plain
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Use device managed functions to simplify error handling, reduce
-source code size, improve readability, and reduce the likelyhood of bugs.
+If a watchdog driver tells the framework that the device is running,
+the framework takes care of feeding the watchdog until userspace opens
+the device. If the userspace application which is supposed to do that
+never comes up properly, the watchdog is fed indefinitely by the
+kernel. This can be especially problematic for embedded devices.
 
-The conversion was done automatically with coccinelle using the
-following semantic patches. The semantic patches and the scripts used
-to generate this commit log are available at
-https://github.com/groeck/coccinelle-patches
+These patches allow one to set a maximum time for which the kernel
+will feed the watchdog, thus ensuring that either userspace has come
+up, or the board gets reset. This allows fallback logic in the
+bootloader to attempt some recovery (for example, if an automatic
+update is in progress, it could roll back to the previous version).
 
-- Replace 'goto l; ... l: return e;' with 'return e;'
-- Replace 'val = e; return val;' with 'return e;'
-- Drop assignments to otherwise unused variables
-- Replace 'if (e) { return expr; }' with 'if (e) return expr;'
-- Drop remove function
-- Drop platform_set_drvdata()
-- Use devm_watchdog_register_driver() to register watchdog device
+The patches have been tested on a Raspberry Pi 2 and a Wandboard.
 
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
----
- drivers/watchdog/wm831x_wdt.c | 31 +++++++------------------------
- 1 file changed, 7 insertions(+), 24 deletions(-)
+v4 is mostly identical to v1. The differences are that the ability to
+compile out this feature is removed, and the ability to set the
+default value for the watchdog.open_timeout command line parameter via
+Kconfig is split into a separate patch.
 
-diff --git a/drivers/watchdog/wm831x_wdt.c b/drivers/watchdog/wm831x_wdt.c
-index 8d1184aee932..1ddc1f742cd4 100644
---- a/drivers/watchdog/wm831x_wdt.c
-+++ b/drivers/watchdog/wm831x_wdt.c
-@@ -194,7 +194,7 @@ static int wm831x_wdt_probe(struct platform_device *pdev)
- 	if (ret < 0) {
- 		dev_err(wm831x->dev, "Failed to read watchdog status: %d\n",
- 			ret);
--		goto err;
-+		return ret;
- 	}
- 	reg = ret;
- 
-@@ -203,10 +203,8 @@ static int wm831x_wdt_probe(struct platform_device *pdev)
- 
- 	driver_data = devm_kzalloc(&pdev->dev, sizeof(*driver_data),
- 				   GFP_KERNEL);
--	if (!driver_data) {
--		ret = -ENOMEM;
--		goto err;
--	}
-+	if (!driver_data)
-+		return -ENOMEM;
- 
- 	mutex_init(&driver_data->lock);
- 	driver_data->wm831x = wm831x;
-@@ -253,7 +251,7 @@ static int wm831x_wdt_probe(struct platform_device *pdev)
- 				dev_err(wm831x->dev,
- 					"Failed to request update GPIO: %d\n",
- 					ret);
--				goto err;
-+				return ret;
- 			}
- 
- 			driver_data->update_gpio = pdata->update_gpio;
-@@ -269,37 +267,22 @@ static int wm831x_wdt_probe(struct platform_device *pdev)
- 		} else {
- 			dev_err(wm831x->dev,
- 				"Failed to unlock security key: %d\n", ret);
--			goto err;
-+			return ret;
- 		}
- 	}
- 
--	ret = watchdog_register_device(&driver_data->wdt);
-+	ret = devm_watchdog_register_device(&pdev->dev, &driver_data->wdt);
- 	if (ret != 0) {
- 		dev_err(wm831x->dev, "watchdog_register_device() failed: %d\n",
- 			ret);
--		goto err;
-+		return ret;
- 	}
- 
--	platform_set_drvdata(pdev, driver_data);
--
--	return 0;
--
--err:
--	return ret;
--}
--
--static int wm831x_wdt_remove(struct platform_device *pdev)
--{
--	struct wm831x_wdt_drvdata *driver_data = platform_get_drvdata(pdev);
--
--	watchdog_unregister_device(&driver_data->wdt);
--
- 	return 0;
- }
- 
- static struct platform_driver wm831x_wdt_driver = {
- 	.probe = wm831x_wdt_probe,
--	.remove = wm831x_wdt_remove,
- 	.driver = {
- 		.name = "wm831x-watchdog",
- 	},
+Compared to v2/v3, this drops the ability to set the open_timeout via
+a device property; I'll leave implementing that to those who actually
+need it.
+
+Rasmus Villemoes (3):
+  watchdog: introduce watchdog_worker_should_ping helper
+  watchdog: introduce watchdog.open_timeout commandline parameter
+  watchdog: introduce CONFIG_WATCHDOG_OPEN_TIMEOUT
+
+ Documentation/watchdog/watchdog-parameters.txt | 10 +++++++
+ drivers/watchdog/Kconfig                       |  9 +++++++
+ drivers/watchdog/watchdog_dev.c                | 37 +++++++++++++++++++++++---
+ 3 files changed, 52 insertions(+), 4 deletions(-)
+
 -- 
 2.7.4
