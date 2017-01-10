@@ -4,97 +4,61 @@ To: Wim Van Sebroeck <wim@iguana.be>
 Cc: linux-watchdog@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 19/62] watchdog: gpio_wdt: Convert to use device managed functions
-Date: Tue, 10 Jan 2017 15:34:36 -0800
-Message-Id: <1484091325-9199-20-git-send-email-linux@roeck-us.net>
+Subject: [PATCH 20/62] watchdog: iTCO_wdt: Replace shutdown function with call to watchdog_stop_on_reboot
+Date: Tue, 10 Jan 2017 15:34:37 -0800
+Message-Id: <1484091325-9199-21-git-send-email-linux@roeck-us.net>
 In-Reply-To: <1484091325-9199-1-git-send-email-linux@roeck-us.net>
 References: <1484091325-9199-1-git-send-email-linux@roeck-us.net>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Use device managed functions to simplify error handling, reduce
-source code size, improve readability, and reduce the likelyhood of bugs.
+The shutdown function calls the stop function.
+Call watchdog_stop_on_reboot() from probe instead.
 
 The conversion was done automatically with coccinelle using the
 following semantic patches. The semantic patches and the scripts used
 to generate this commit log are available at
 https://github.com/groeck/coccinelle-patches
 
-- Drop assignments to otherwise unused variables
-- Drop remove function
-- Drop platform_set_drvdata()
-- Call del_timer_sync() using devm_add_action()
-  Introduce helper function since we can not call del_timer_sync() directly
-- Use devm_watchdog_register_driver() to register watchdog device
+- Replace shutdown function with call to watchdog_stop_on_reboot()
 
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/watchdog/gpio_wdt.c | 23 +++++++++--------------
- 1 file changed, 9 insertions(+), 14 deletions(-)
+ drivers/watchdog/iTCO_wdt.c | 9 +--------
+ 1 file changed, 1 insertion(+), 8 deletions(-)
 
-diff --git a/drivers/watchdog/gpio_wdt.c b/drivers/watchdog/gpio_wdt.c
-index 93457cabc178..2c09e4d8e6e2 100644
---- a/drivers/watchdog/gpio_wdt.c
-+++ b/drivers/watchdog/gpio_wdt.c
-@@ -138,6 +138,11 @@ static const struct watchdog_ops gpio_wdt_ops = {
- 	.set_timeout	= gpio_wdt_set_timeout,
- };
+diff --git a/drivers/watchdog/iTCO_wdt.c b/drivers/watchdog/iTCO_wdt.c
+index d8bb7bf5e669..3d0abc0d59b4 100644
+--- a/drivers/watchdog/iTCO_wdt.c
++++ b/drivers/watchdog/iTCO_wdt.c
+@@ -520,6 +520,7 @@ static int iTCO_wdt_probe(struct platform_device *pdev)
+ 			WATCHDOG_TIMEOUT);
+ 	}
  
-+static void __del_timer_sync_cb(void *t)
-+{
-+	del_timer_sync(t);
-+}
-+
- static int gpio_wdt_probe(struct platform_device *pdev)
- {
- 	struct gpio_wdt_priv *priv;
-@@ -151,8 +156,6 @@ static int gpio_wdt_probe(struct platform_device *pdev)
- 	if (!priv)
- 		return -ENOMEM;
- 
--	platform_set_drvdata(pdev, priv);
--
- 	priv->gpio = of_get_gpio_flags(pdev->dev.of_node, 0, &flags);
- 	if (!gpio_is_valid(priv->gpio))
- 		return priv->gpio;
-@@ -203,10 +206,13 @@ static int gpio_wdt_probe(struct platform_device *pdev)
- 		priv->wdd.timeout = SOFT_TIMEOUT_DEF;
- 
- 	setup_timer(&priv->timer, gpio_wdt_hwping, (unsigned long)&priv->wdd);
-+	ret = devm_add_action(&pdev->dev, __del_timer_sync_cb, &priv->timer);
-+	if (ret)
-+		return ret;
- 
- 	watchdog_stop_on_reboot(&priv->wdd);
- 
--	ret = watchdog_register_device(&priv->wdd);
-+	ret = devm_watchdog_register_device(&pdev->dev, &priv->wdd);
- 	if (ret)
- 		return ret;
- 
-@@ -216,16 +222,6 @@ static int gpio_wdt_probe(struct platform_device *pdev)
++	watchdog_stop_on_reboot(&p->wddev);
+ 	ret = devm_watchdog_register_device(dev, &p->wddev);
+ 	if (ret != 0) {
+ 		pr_err("cannot register watchdog device (err=%d)\n", ret);
+@@ -543,13 +544,6 @@ static int iTCO_wdt_remove(struct platform_device *pdev)
  	return 0;
  }
  
--static int gpio_wdt_remove(struct platform_device *pdev)
+-static void iTCO_wdt_shutdown(struct platform_device *pdev)
 -{
--	struct gpio_wdt_priv *priv = platform_get_drvdata(pdev);
+-	struct iTCO_wdt_private *p = platform_get_drvdata(pdev);
 -
--	del_timer_sync(&priv->timer);
--	watchdog_unregister_device(&priv->wdd);
--
--	return 0;
+-	iTCO_wdt_stop(&p->wddev);
 -}
 -
- static const struct of_device_id gpio_wdt_dt_ids[] = {
- 	{ .compatible = "linux,wdt-gpio", },
- 	{ }
-@@ -238,7 +234,6 @@ static struct platform_driver gpio_wdt_driver = {
- 		.of_match_table	= gpio_wdt_dt_ids,
- 	},
- 	.probe	= gpio_wdt_probe,
--	.remove	= gpio_wdt_remove,
- };
- 
- #ifdef CONFIG_GPIO_WATCHDOG_ARCH_INITCALL
+ #ifdef CONFIG_PM_SLEEP
+ /*
+  * Suspend-to-idle requires this, because it stops the ticks and timekeeping, so
+@@ -603,7 +597,6 @@ static const struct dev_pm_ops iTCO_wdt_pm = {
+ static struct platform_driver iTCO_wdt_driver = {
+ 	.probe          = iTCO_wdt_probe,
+ 	.remove         = iTCO_wdt_remove,
+-	.shutdown       = iTCO_wdt_shutdown,
+ 	.driver         = {
+ 		.name   = DRV_NAME,
+ 		.pm     = ITCO_WDT_PM_OPS,
 -- 
 2.7.4
