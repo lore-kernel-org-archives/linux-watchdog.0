@@ -4,105 +4,99 @@ To: Wim Van Sebroeck <wim@iguana.be>
 Cc: linux-watchdog@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 06/62] watchdog: bcm47xx_wdt: Convert to use device managed functions
-Date: Tue, 10 Jan 2017 15:34:23 -0800
-Message-Id: <1484091325-9199-7-git-send-email-linux@roeck-us.net>
+Subject: [PATCH 07/62] watchdog: bcm7038_wdt: Convert to use device managed functions and other improvements
+Date: Tue, 10 Jan 2017 15:34:24 -0800
+Message-Id: <1484091325-9199-8-git-send-email-linux@roeck-us.net>
 In-Reply-To: <1484091325-9199-1-git-send-email-linux@roeck-us.net>
 References: <1484091325-9199-1-git-send-email-linux@roeck-us.net>
 List-ID: <linux-watchdog@vger.kernel.org>
 
 Use device managed functions to simplify error handling, reduce
 source code size, improve readability, and reduce the likelyhood of bugs.
+Other improvements as listed below.
 
 The conversion was done automatically with coccinelle using the
 following semantic patches. The semantic patches and the scripts used
 to generate this commit log are available at
 https://github.com/groeck/coccinelle-patches
 
-- Replace 'goto l; ... l: return e;' with 'return e;'
-- Drop assignments to otherwise unused variables
-- Drop remove function
-- Call del_timer_sync() using devm_add_action()
-  Introduce helper function since we can not call del_timer_sync() directly
+- Use devm_add_action_or_reset() for calls to clk_disable_unprepare
+- Check return value from clk_prepare_enable()
+- Replace &pdev->dev with dev if 'struct device *dev' is a declared
+  variable
 - Use devm_watchdog_register_driver() to register watchdog device
+- Replace shutdown function with call to watchdog_stop_on_reboot()
 
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/watchdog/bcm47xx_wdt.c | 31 ++++++++++++-------------------
- 1 file changed, 12 insertions(+), 19 deletions(-)
+ drivers/watchdog/bcm7038_wdt.c | 25 ++++++++++---------------
+ 1 file changed, 10 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/watchdog/bcm47xx_wdt.c b/drivers/watchdog/bcm47xx_wdt.c
-index 35725e21b18a..83455ca1712e 100644
---- a/drivers/watchdog/bcm47xx_wdt.c
-+++ b/drivers/watchdog/bcm47xx_wdt.c
-@@ -177,6 +177,11 @@ static struct watchdog_ops bcm47xx_wdt_soft_ops = {
- 	.restart        = bcm47xx_wdt_restart,
- };
+diff --git a/drivers/watchdog/bcm7038_wdt.c b/drivers/watchdog/bcm7038_wdt.c
+index c1b8e534fb55..a17942e5e0a6 100644
+--- a/drivers/watchdog/bcm7038_wdt.c
++++ b/drivers/watchdog/bcm7038_wdt.c
+@@ -136,7 +136,14 @@ static int bcm7038_wdt_probe(struct platform_device *pdev)
+ 	wdt->clk = devm_clk_get(dev, NULL);
+ 	/* If unable to get clock, use default frequency */
+ 	if (!IS_ERR(wdt->clk)) {
+-		clk_prepare_enable(wdt->clk);
++		err = clk_prepare_enable(wdt->clk);
++		if (err)
++			return err;
++		err = devm_add_action_or_reset(dev,
++					(void(*)(void *))clk_disable_unprepare,
++					wdt->clk);
++		if (err)
++			return err;
+ 		wdt->rate = clk_get_rate(wdt->clk);
+ 		/* Prevent divide-by-zero exception */
+ 		if (!wdt->rate)
+@@ -154,10 +161,10 @@ static int bcm7038_wdt_probe(struct platform_device *pdev)
+ 	wdt->wdd.parent		= dev;
+ 	watchdog_set_drvdata(&wdt->wdd, wdt);
  
-+static void __del_timer_sync_cb(void *t)
-+{
-+	del_timer_sync(t);
-+}
-+
- static int bcm47xx_wdt_probe(struct platform_device *pdev)
- {
- 	int ret;
-@@ -192,6 +197,10 @@ static int bcm47xx_wdt_probe(struct platform_device *pdev)
- 		wdt->wdd.ops = &bcm47xx_wdt_soft_ops;
- 		setup_timer(&wdt->soft_timer, bcm47xx_wdt_soft_timer_tick,
- 			    (long unsigned int)wdt);
-+		ret = devm_add_action(&pdev->dev, __del_timer_sync_cb,
-+				       &wdt->soft_timer);
-+		if (ret)
-+			return ret;
- 	} else {
- 		wdt->wdd.ops = &bcm47xx_wdt_hard_ops;
+-	err = watchdog_register_device(&wdt->wdd);
++	watchdog_stop_on_reboot(&wdt->wdd);
++	err = devm_watchdog_register_device(dev, &wdt->wdd);
+ 	if (err) {
+ 		dev_err(dev, "Failed to register watchdog device\n");
+-		clk_disable_unprepare(wdt->clk);
+ 		return err;
  	}
-@@ -201,34 +210,19 @@ static int bcm47xx_wdt_probe(struct platform_device *pdev)
- 	wdt->wdd.parent = &pdev->dev;
- 	ret = wdt->wdd.ops->set_timeout(&wdt->wdd, timeout);
- 	if (ret)
--		goto err_timer;
-+		return ret;
- 	watchdog_set_nowayout(&wdt->wdd, nowayout);
- 	watchdog_set_restart_priority(&wdt->wdd, 64);
- 	watchdog_stop_on_reboot(&wdt->wdd);
  
--	ret = watchdog_register_device(&wdt->wdd);
-+	ret = devm_watchdog_register_device(&pdev->dev, &wdt->wdd);
- 	if (ret)
--		goto err_timer;
-+		return ret;
+@@ -173,9 +180,6 @@ static int bcm7038_wdt_remove(struct platform_device *pdev)
+ 	if (!nowayout)
+ 		bcm7038_wdt_stop(&wdt->wdd);
  
- 	dev_info(&pdev->dev, "BCM47xx Watchdog Timer enabled (%d seconds%s%s)\n",
- 		timeout, nowayout ? ", nowayout" : "",
- 		soft ? ", Software Timer" : "");
- 	return 0;
--
--err_timer:
--	if (soft)
--		del_timer_sync(&wdt->soft_timer);
--
--	return ret;
--}
--
--static int bcm47xx_wdt_remove(struct platform_device *pdev)
--{
--	struct bcm47xx_wdt *wdt = dev_get_platdata(&pdev->dev);
--
 -	watchdog_unregister_device(&wdt->wdd);
+-	clk_disable_unprepare(wdt->clk);
 -
--	return 0;
+ 	return 0;
  }
  
- static struct platform_driver bcm47xx_wdt_driver = {
-@@ -236,7 +230,6 @@ static struct platform_driver bcm47xx_wdt_driver = {
- 		.name	= "bcm47xx-wdt",
- 	},
- 	.probe		= bcm47xx_wdt_probe,
--	.remove		= bcm47xx_wdt_remove,
- };
+@@ -204,14 +208,6 @@ static int bcm7038_wdt_resume(struct device *dev)
+ static SIMPLE_DEV_PM_OPS(bcm7038_wdt_pm_ops, bcm7038_wdt_suspend,
+ 			 bcm7038_wdt_resume);
  
- module_platform_driver(bcm47xx_wdt_driver);
+-static void bcm7038_wdt_shutdown(struct platform_device *pdev)
+-{
+-	struct bcm7038_watchdog *wdt = platform_get_drvdata(pdev);
+-
+-	if (watchdog_active(&wdt->wdd))
+-		bcm7038_wdt_stop(&wdt->wdd);
+-}
+-
+ static const struct of_device_id bcm7038_wdt_match[] = {
+ 	{ .compatible = "brcm,bcm7038-wdt" },
+ 	{},
+@@ -221,7 +217,6 @@ MODULE_DEVICE_TABLE(of, bcm7038_wdt_match);
+ static struct platform_driver bcm7038_wdt_driver = {
+ 	.probe		= bcm7038_wdt_probe,
+ 	.remove		= bcm7038_wdt_remove,
+-	.shutdown	= bcm7038_wdt_shutdown,
+ 	.driver		= {
+ 		.name		= "bcm7038-wdt",
+ 		.of_match_table	= bcm7038_wdt_match,
 -- 
 2.7.4
