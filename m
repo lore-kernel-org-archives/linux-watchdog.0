@@ -3,76 +3,100 @@ From: Guenter Roeck <linux@roeck-us.net>
 To: Wim Van Sebroeck <wim@iguana.be>
 Cc: linux-watchdog@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 25/62] watchdog: kempld_wdt: Convert to use device managed functions and other improvements
-Date: Tue, 10 Jan 2017 15:34:42 -0800
-Message-Id: <1484091325-9199-26-git-send-email-linux@roeck-us.net>
+	Guenter Roeck <linux@roeck-us.net>,
+	Keguang Zhang <keguang.zhang@gmail.com>,
+	linux-mips@linux-mips.org
+Subject: [PATCH 26/62] watchdog: loongson1_wdt: Convert to use device managed functions
+Date: Tue, 10 Jan 2017 15:34:43 -0800
+Message-Id: <1484091325-9199-27-git-send-email-linux@roeck-us.net>
 In-Reply-To: <1484091325-9199-1-git-send-email-linux@roeck-us.net>
 References: <1484091325-9199-1-git-send-email-linux@roeck-us.net>
 List-ID: <linux-watchdog@vger.kernel.org>
 
 Use device managed functions to simplify error handling, reduce
 source code size, improve readability, and reduce the likelyhood of bugs.
-Other improvements as listed below.
 
 The conversion was done automatically with coccinelle using the
 following semantic patches. The semantic patches and the scripts used
 to generate this commit log are available at
 https://github.com/groeck/coccinelle-patches
 
-- Replace &pdev->dev with dev if 'struct device *dev' is a declared
-  variable
+- Use devm_add_action_or_reset() for calls to clk_disable_unprepare
+- Replace 'goto l; ... l: return e;' with 'return e;'
+- Replace 'val = e; return val;' with 'return e;'
+- Drop assignments to otherwise unused variables
+- Replace 'if (e) { return expr; }' with 'if (e) return expr;'
+- Drop remove function
+- Drop platform_set_drvdata()
 - Use devm_watchdog_register_driver() to register watchdog device
-- Replace shutdown function with call to watchdog_stop_on_reboot()
 
+Cc: Keguang Zhang <keguang.zhang@gmail.com>
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/watchdog/kempld_wdt.c | 12 ++----------
- 1 file changed, 2 insertions(+), 10 deletions(-)
+ drivers/watchdog/loongson1_wdt.c | 31 +++++++++----------------------
+ 1 file changed, 9 insertions(+), 22 deletions(-)
 
-diff --git a/drivers/watchdog/kempld_wdt.c b/drivers/watchdog/kempld_wdt.c
-index 73c46b3a09ab..440b34ba3017 100644
---- a/drivers/watchdog/kempld_wdt.c
-+++ b/drivers/watchdog/kempld_wdt.c
-@@ -490,7 +490,8 @@ static int kempld_wdt_probe(struct platform_device *pdev)
+diff --git a/drivers/watchdog/loongson1_wdt.c b/drivers/watchdog/loongson1_wdt.c
+index 3aee50c64a36..36f0c7e02745 100644
+--- a/drivers/watchdog/loongson1_wdt.c
++++ b/drivers/watchdog/loongson1_wdt.c
+@@ -109,12 +109,15 @@ static int ls1x_wdt_probe(struct platform_device *pdev)
+ 		dev_err(&pdev->dev, "clk enable failed\n");
+ 		return err;
+ 	}
++	err = devm_add_action_or_reset(&pdev->dev,
++				       (void(*)(void *))clk_disable_unprepare,
++				       drvdata->clk);
++	if (err)
++		return err;
+ 
+ 	clk_rate = clk_get_rate(drvdata->clk);
+-	if (!clk_rate) {
+-		err = -EINVAL;
+-		goto err0;
+-	}
++	if (!clk_rate)
++		return -EINVAL;
+ 	drvdata->clk_rate = clk_rate;
+ 
+ 	ls1x_wdt = &drvdata->wdt;
+@@ -129,35 +132,19 @@ static int ls1x_wdt_probe(struct platform_device *pdev)
+ 	watchdog_set_nowayout(ls1x_wdt, nowayout);
+ 	watchdog_set_drvdata(ls1x_wdt, drvdata);
+ 
+-	err = watchdog_register_device(&drvdata->wdt);
++	err = devm_watchdog_register_device(&pdev->dev, &drvdata->wdt);
+ 	if (err) {
+ 		dev_err(&pdev->dev, "failed to register watchdog device\n");
+-		goto err0;
++		return err;
  	}
  
- 	platform_set_drvdata(pdev, wdt_data);
--	ret = watchdog_register_device(wdd);
-+	watchdog_stop_on_reboot(wdd);
-+	ret = devm_watchdog_register_device(dev, wdd);
- 	if (ret)
- 		return ret;
- 
-@@ -499,13 +500,6 @@ static int kempld_wdt_probe(struct platform_device *pdev)
- 	return 0;
- }
- 
--static void kempld_wdt_shutdown(struct platform_device *pdev)
--{
--	struct kempld_wdt_data *wdt_data = platform_get_drvdata(pdev);
+-	platform_set_drvdata(pdev, drvdata);
 -
--	kempld_wdt_stop(&wdt_data->wdd);
+ 	dev_info(&pdev->dev, "Loongson1 Watchdog driver registered\n");
+ 
+ 	return 0;
+-err0:
+-	clk_disable_unprepare(drvdata->clk);
+-	return err;
 -}
 -
- static int kempld_wdt_remove(struct platform_device *pdev)
- {
- 	struct kempld_wdt_data *wdt_data = platform_get_drvdata(pdev);
-@@ -514,7 +508,6 @@ static int kempld_wdt_remove(struct platform_device *pdev)
- 
- 	if (!nowayout)
- 		ret = kempld_wdt_stop(wdd);
--	watchdog_unregister_device(wdd);
- 
- 	return ret;
+-static int ls1x_wdt_remove(struct platform_device *pdev)
+-{
+-	struct ls1x_wdt_drvdata *drvdata = platform_get_drvdata(pdev);
+-
+-	watchdog_unregister_device(&drvdata->wdt);
+-	clk_disable_unprepare(drvdata->clk);
+-
+-	return 0;
  }
-@@ -566,7 +559,6 @@ static struct platform_driver kempld_wdt_driver = {
+ 
+ static struct platform_driver ls1x_wdt_driver = {
+ 	.probe = ls1x_wdt_probe,
+-	.remove = ls1x_wdt_remove,
+ 	.driver = {
+ 		.name = "ls1x-wdt",
  	},
- 	.probe		= kempld_wdt_probe,
- 	.remove		= kempld_wdt_remove,
--	.shutdown	= kempld_wdt_shutdown,
- 	.suspend	= kempld_wdt_suspend,
- 	.resume		= kempld_wdt_resume,
- };
 -- 
 2.7.4
