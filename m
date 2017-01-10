@@ -3,10 +3,19 @@ From: Guenter Roeck <linux@roeck-us.net>
 To: Wim Van Sebroeck <wim@iguana.be>
 Cc: linux-watchdog@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 04/62] watchdog: atlas7_wdt: Convert to use device managed functions and other improvements
-Date: Tue, 10 Jan 2017 15:34:21 -0800
-Message-Id: <1484091325-9199-5-git-send-email-linux@roeck-us.net>
+	Guenter Roeck <linux@roeck-us.net>,
+	Stephen Warren <swarren@wwwdotorg.org>,
+	Lee Jones <lee@kernel.org>,
+	Eric Anholt <eric@anholt.net>,
+	Florian Fainelli <f.fainelli@gmail.com>,
+	Ray Jui <rjui@broadcom.com>,
+	Scott Branden <sbranden@broadcom.com>,
+	bcm-kernel-feedback-list@broadcom.com,
+	linux-arm-kernel@lists.infradead.org,
+	linux-rpi-kernel@lists.infradead.org
+Subject: [PATCH 05/62] watchdog: bcm2835_wdt: Convert to use device managed functions and other improvements
+Date: Tue, 10 Jan 2017 15:34:22 -0800
+Message-Id: <1484091325-9199-6-git-send-email-linux@roeck-us.net>
 In-Reply-To: <1484091325-9199-1-git-send-email-linux@roeck-us.net>
 References: <1484091325-9199-1-git-send-email-linux@roeck-us.net>
 List-ID: <linux-watchdog@vger.kernel.org>
@@ -20,112 +29,104 @@ following semantic patches. The semantic patches and the scripts used
 to generate this commit log are available at
 https://github.com/groeck/coccinelle-patches
 
-- Use devm_add_action_or_reset() for calls to clk_disable_unprepare
-- Replace 'goto l; ... l: return e;' with 'return e;'
-- Replace 'val = e; return val;' with 'return e;'
-- Replace 'if (e) return e; return 0;' with 'return e;'
 - Drop assignments to otherwise unused variables
-- Replace 'if (e) { return expr; }' with 'if (e) return expr;'
-- Replace 'of_clk_get(np, 0)' with 'devm_clk_get(dev, NULL)'
+- Replace of_iomap() with platform_get_resource() followed by
+  devm_ioremap_resource()
+- Replace &pdev->dev with dev if 'struct device *dev' is a declared
+  variable
 - Use devm_watchdog_register_driver() to register watchdog device
 - Replace shutdown function with call to watchdog_stop_on_reboot()
 
+Cc: Stephen Warren <swarren@wwwdotorg.org>
+Cc: Lee Jones <lee@kernel.org>
+Cc: Eric Anholt <eric@anholt.net>
+Cc: Florian Fainelli <f.fainelli@gmail.com>
+Cc: Ray Jui <rjui@broadcom.com>
+Cc: Scott Branden <sbranden@broadcom.com>
+Cc: bcm-kernel-feedback-list@broadcom.com
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/watchdog/atlas7_wdt.c | 43 ++++++++++++-------------------------------
- 1 file changed, 12 insertions(+), 31 deletions(-)
+ drivers/watchdog/bcm2835_wdt.c | 27 ++++++++-------------------
+ 1 file changed, 8 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/watchdog/atlas7_wdt.c b/drivers/watchdog/atlas7_wdt.c
-index ed80734befae..62b75d34f1a0 100644
---- a/drivers/watchdog/atlas7_wdt.c
-+++ b/drivers/watchdog/atlas7_wdt.c
-@@ -127,7 +127,6 @@ static const struct of_device_id atlas7_wdt_ids[] = {
+diff --git a/drivers/watchdog/bcm2835_wdt.c b/drivers/watchdog/bcm2835_wdt.c
+index 4e0adb6c88f0..496f6c106bb1 100644
+--- a/drivers/watchdog/bcm2835_wdt.c
++++ b/drivers/watchdog/bcm2835_wdt.c
+@@ -172,8 +172,8 @@ static void bcm2835_power_off(void)
  
- static int atlas7_wdt_probe(struct platform_device *pdev)
+ static int bcm2835_wdt_probe(struct platform_device *pdev)
  {
--	struct device_node *np = pdev->dev.of_node;
- 	struct atlas7_wdog *wdt;
- 	struct resource *res;
- 	struct clk *clk;
-@@ -141,23 +140,26 @@ static int atlas7_wdt_probe(struct platform_device *pdev)
- 	if (IS_ERR(wdt->base))
- 		return PTR_ERR(wdt->base);
++	struct resource *res;
+ 	struct device *dev = &pdev->dev;
+-	struct device_node *np = dev->of_node;
+ 	struct bcm2835_wdt *wdt;
+ 	int err;
  
--	clk = of_clk_get(np, 0);
-+	clk = devm_clk_get(&pdev->dev, NULL);
- 	if (IS_ERR(clk))
- 		return PTR_ERR(clk);
- 	ret = clk_prepare_enable(clk);
- 	if (ret) {
- 		dev_err(&pdev->dev, "clk enable failed\n");
--		goto err;
-+		return ret;
- 	}
-+	ret = devm_add_action_or_reset(&pdev->dev,
-+				       (void(*)(void *))clk_disable_unprepare,
-+				       clk);
-+	if (ret)
-+		return ret;
+@@ -184,16 +184,15 @@ static int bcm2835_wdt_probe(struct platform_device *pdev)
  
- 	/* disable watchdog hardware */
- 	writel(0, wdt->base + ATLAS7_WDT_CNT_CTRL);
+ 	spin_lock_init(&wdt->lock);
  
- 	wdt->tick_rate = clk_get_rate(clk);
--	if (!wdt->tick_rate) {
--		ret = -EINVAL;
--		goto err1;
+-	wdt->base = of_iomap(np, 0);
+-	if (!wdt->base) {
+-		dev_err(dev, "Failed to remap watchdog regs");
+-		return -ENODEV;
 -	}
-+	if (!wdt->tick_rate)
-+		return -EINVAL;
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	wdt->base = devm_ioremap_resource(dev, res);
++	if (IS_ERR(wdt->base))
++		return PTR_ERR(wdt->base);
  
- 	wdt->clk = clk;
- 	atlas7_wdd.min_timeout = 1;
-@@ -169,35 +171,15 @@ static int atlas7_wdt_probe(struct platform_device *pdev)
- 	watchdog_set_drvdata(&atlas7_wdd, wdt);
- 	platform_set_drvdata(pdev, &atlas7_wdd);
+ 	watchdog_set_drvdata(&bcm2835_wdt_wdd, wdt);
+ 	watchdog_init_timeout(&bcm2835_wdt_wdd, heartbeat, dev);
+ 	watchdog_set_nowayout(&bcm2835_wdt_wdd, nowayout);
+-	bcm2835_wdt_wdd.parent = &pdev->dev;
++	bcm2835_wdt_wdd.parent = dev;
+ 	if (bcm2835_wdt_is_running(wdt)) {
+ 		/*
+ 		 * The currently active timeout value (set by the
+@@ -208,10 +207,10 @@ static int bcm2835_wdt_probe(struct platform_device *pdev)
  
--	ret = watchdog_register_device(&atlas7_wdd);
--	if (ret)
--		goto err1;
--
--	return 0;
--
--err1:
--	clk_disable_unprepare(clk);
--err:
--	clk_put(clk);
--	return ret;
--}
--
--static void atlas7_wdt_shutdown(struct platform_device *pdev)
--{
--	struct watchdog_device *wdd = platform_get_drvdata(pdev);
--	struct atlas7_wdog *wdt = watchdog_get_drvdata(wdd);
--
--	atlas7_wdt_disable(wdd);
--	clk_disable_unprepare(wdt->clk);
-+	watchdog_stop_on_reboot(&atlas7_wdd);
-+	return devm_watchdog_register_device(&pdev->dev, &atlas7_wdd);
- }
+ 	watchdog_set_restart_priority(&bcm2835_wdt_wdd, 128);
  
- static int atlas7_wdt_remove(struct platform_device *pdev)
+-	err = watchdog_register_device(&bcm2835_wdt_wdd);
++	watchdog_stop_on_reboot(&bcm2835_wdt_wdd);
++	err = devm_watchdog_register_device(dev, &bcm2835_wdt_wdd);
+ 	if (err) {
+ 		dev_err(dev, "Failed to register watchdog device");
+-		iounmap(wdt->base);
+ 		return err;
+ 	}
+ 
+@@ -224,21 +223,12 @@ static int bcm2835_wdt_probe(struct platform_device *pdev)
+ 
+ static int bcm2835_wdt_remove(struct platform_device *pdev)
  {
- 	struct watchdog_device *wdd = platform_get_drvdata(pdev);
--	struct atlas7_wdog *wdt = watchdog_get_drvdata(wdd);
+-	struct bcm2835_wdt *wdt = platform_get_drvdata(pdev);
+-
+ 	if (pm_power_off == bcm2835_power_off)
+ 		pm_power_off = NULL;
+-	watchdog_unregister_device(&bcm2835_wdt_wdd);
+-	iounmap(wdt->base);
  
--	atlas7_wdt_shutdown(pdev);
--	clk_put(wdt->clk);
-+	atlas7_wdt_disable(wdd);
  	return 0;
  }
  
-@@ -237,7 +219,6 @@ static struct platform_driver atlas7_wdt_driver = {
- 	},
- 	.probe = atlas7_wdt_probe,
- 	.remove = atlas7_wdt_remove,
--	.shutdown = atlas7_wdt_shutdown,
- };
- module_platform_driver(atlas7_wdt_driver);
- 
+-static void bcm2835_wdt_shutdown(struct platform_device *pdev)
+-{
+-	bcm2835_wdt_stop(&bcm2835_wdt_wdd);
+-}
+-
+ static const struct of_device_id bcm2835_wdt_of_match[] = {
+ 	{ .compatible = "brcm,bcm2835-pm-wdt", },
+ 	{},
+@@ -248,7 +238,6 @@ MODULE_DEVICE_TABLE(of, bcm2835_wdt_of_match);
+ static struct platform_driver bcm2835_wdt_driver = {
+ 	.probe		= bcm2835_wdt_probe,
+ 	.remove		= bcm2835_wdt_remove,
+-	.shutdown	= bcm2835_wdt_shutdown,
+ 	.driver = {
+ 		.name =		"bcm2835-wdt",
+ 		.of_match_table = bcm2835_wdt_of_match,
 -- 
 2.7.4
