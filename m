@@ -3,10 +3,14 @@ From: Guenter Roeck <linux@roeck-us.net>
 To: Wim Van Sebroeck <wim@iguana.be>
 Cc: linux-watchdog@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 07/62] watchdog: bcm7038_wdt: Convert to use device managed functions and other improvements
-Date: Tue, 10 Jan 2017 15:34:24 -0800
-Message-Id: <1484091325-9199-8-git-send-email-linux@roeck-us.net>
+	Guenter Roeck <linux@roeck-us.net>,
+	Florian Fainelli <f.fainelli@gmail.com>,
+	Ray Jui <rjui@broadcom.com>,
+	Scott Branden <sbranden@broadcom.com>,
+	bcm-kernel-feedback-list@broadcom.com
+Subject: [PATCH 08/62] watchdog: bcm_kona_wdt: Convert to use device managed functions and other improvements
+Date: Tue, 10 Jan 2017 15:34:25 -0800
+Message-Id: <1484091325-9199-9-git-send-email-linux@roeck-us.net>
 In-Reply-To: <1484091325-9199-1-git-send-email-linux@roeck-us.net>
 References: <1484091325-9199-1-git-send-email-linux@roeck-us.net>
 List-ID: <linux-watchdog@vger.kernel.org>
@@ -20,83 +24,72 @@ following semantic patches. The semantic patches and the scripts used
 to generate this commit log are available at
 https://github.com/groeck/coccinelle-patches
 
-- Use devm_add_action_or_reset() for calls to clk_disable_unprepare
-- Check return value from clk_prepare_enable()
 - Replace &pdev->dev with dev if 'struct device *dev' is a declared
   variable
 - Use devm_watchdog_register_driver() to register watchdog device
 - Replace shutdown function with call to watchdog_stop_on_reboot()
 
+Cc: Florian Fainelli <f.fainelli@gmail.com>
+Cc: Ray Jui <rjui@broadcom.com>
+Cc: Scott Branden <sbranden@broadcom.com>
+Cc: bcm-kernel-feedback-list@broadcom.com
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/watchdog/bcm7038_wdt.c | 25 ++++++++++---------------
- 1 file changed, 10 insertions(+), 15 deletions(-)
+ drivers/watchdog/bcm_kona_wdt.c | 14 ++++----------
+ 1 file changed, 4 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/watchdog/bcm7038_wdt.c b/drivers/watchdog/bcm7038_wdt.c
-index c1b8e534fb55..a17942e5e0a6 100644
---- a/drivers/watchdog/bcm7038_wdt.c
-+++ b/drivers/watchdog/bcm7038_wdt.c
-@@ -136,7 +136,14 @@ static int bcm7038_wdt_probe(struct platform_device *pdev)
- 	wdt->clk = devm_clk_get(dev, NULL);
- 	/* If unable to get clock, use default frequency */
- 	if (!IS_ERR(wdt->clk)) {
--		clk_prepare_enable(wdt->clk);
-+		err = clk_prepare_enable(wdt->clk);
-+		if (err)
-+			return err;
-+		err = devm_add_action_or_reset(dev,
-+					(void(*)(void *))clk_disable_unprepare,
-+					wdt->clk);
-+		if (err)
-+			return err;
- 		wdt->rate = clk_get_rate(wdt->clk);
- 		/* Prevent divide-by-zero exception */
- 		if (!wdt->rate)
-@@ -154,10 +161,10 @@ static int bcm7038_wdt_probe(struct platform_device *pdev)
- 	wdt->wdd.parent		= dev;
- 	watchdog_set_drvdata(&wdt->wdd, wdt);
+diff --git a/drivers/watchdog/bcm_kona_wdt.c b/drivers/watchdog/bcm_kona_wdt.c
+index 76b00805cd87..4592a205d8f9 100644
+--- a/drivers/watchdog/bcm_kona_wdt.c
++++ b/drivers/watchdog/bcm_kona_wdt.c
+@@ -288,11 +288,6 @@ static struct watchdog_device bcm_kona_wdt_wdd = {
+ 	.timeout =	SECWDOG_MAX_COUNT >> SECWDOG_DEFAULT_RESOLUTION,
+ };
  
--	err = watchdog_register_device(&wdt->wdd);
-+	watchdog_stop_on_reboot(&wdt->wdd);
-+	err = devm_watchdog_register_device(dev, &wdt->wdd);
- 	if (err) {
- 		dev_err(dev, "Failed to register watchdog device\n");
--		clk_disable_unprepare(wdt->clk);
- 		return err;
- 	}
- 
-@@ -173,9 +180,6 @@ static int bcm7038_wdt_remove(struct platform_device *pdev)
- 	if (!nowayout)
- 		bcm7038_wdt_stop(&wdt->wdd);
- 
--	watchdog_unregister_device(&wdt->wdd);
--	clk_disable_unprepare(wdt->clk);
--
- 	return 0;
- }
- 
-@@ -204,14 +208,6 @@ static int bcm7038_wdt_resume(struct device *dev)
- static SIMPLE_DEV_PM_OPS(bcm7038_wdt_pm_ops, bcm7038_wdt_suspend,
- 			 bcm7038_wdt_resume);
- 
--static void bcm7038_wdt_shutdown(struct platform_device *pdev)
+-static void bcm_kona_wdt_shutdown(struct platform_device *pdev)
 -{
--	struct bcm7038_watchdog *wdt = platform_get_drvdata(pdev);
--
--	if (watchdog_active(&wdt->wdd))
--		bcm7038_wdt_stop(&wdt->wdd);
+-	bcm_kona_wdt_stop(&bcm_kona_wdt_wdd);
 -}
 -
- static const struct of_device_id bcm7038_wdt_match[] = {
- 	{ .compatible = "brcm,bcm7038-wdt" },
- 	{},
-@@ -221,7 +217,6 @@ MODULE_DEVICE_TABLE(of, bcm7038_wdt_match);
- static struct platform_driver bcm7038_wdt_driver = {
- 	.probe		= bcm7038_wdt_probe,
- 	.remove		= bcm7038_wdt_remove,
--	.shutdown	= bcm7038_wdt_shutdown,
- 	.driver		= {
- 		.name		= "bcm7038-wdt",
- 		.of_match_table	= bcm7038_wdt_match,
+ static int bcm_kona_wdt_probe(struct platform_device *pdev)
+ {
+ 	struct device *dev = &pdev->dev;
+@@ -319,7 +314,7 @@ static int bcm_kona_wdt_probe(struct platform_device *pdev)
+ 	spin_lock_init(&wdt->lock);
+ 	platform_set_drvdata(pdev, wdt);
+ 	watchdog_set_drvdata(&bcm_kona_wdt_wdd, wdt);
+-	bcm_kona_wdt_wdd.parent = &pdev->dev;
++	bcm_kona_wdt_wdd.parent = dev;
+ 
+ 	ret = bcm_kona_wdt_set_timeout_reg(&bcm_kona_wdt_wdd, 0);
+ 	if (ret) {
+@@ -327,7 +322,8 @@ static int bcm_kona_wdt_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
+ 
+-	ret = watchdog_register_device(&bcm_kona_wdt_wdd);
++	watchdog_stop_on_reboot(&bcm_kona_wdt_wdd);
++	ret = devm_watchdog_register_device(dev, &bcm_kona_wdt_wdd);
+ 	if (ret) {
+ 		dev_err(dev, "Failed to register watchdog device");
+ 		return ret;
+@@ -342,8 +338,7 @@ static int bcm_kona_wdt_probe(struct platform_device *pdev)
+ static int bcm_kona_wdt_remove(struct platform_device *pdev)
+ {
+ 	bcm_kona_wdt_debug_exit(pdev);
+-	bcm_kona_wdt_shutdown(pdev);
+-	watchdog_unregister_device(&bcm_kona_wdt_wdd);
++	bcm_kona_wdt_stop(platform_get_drvdata(pdev));
+ 	dev_dbg(&pdev->dev, "Watchdog driver disabled");
+ 
+ 	return 0;
+@@ -362,7 +357,6 @@ static struct platform_driver bcm_kona_wdt_driver = {
+ 		  },
+ 	.probe = bcm_kona_wdt_probe,
+ 	.remove = bcm_kona_wdt_remove,
+-	.shutdown = bcm_kona_wdt_shutdown,
+ };
+ 
+ module_platform_driver(bcm_kona_wdt_driver);
 -- 
 2.7.4
