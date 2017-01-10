@@ -3,17 +3,18 @@ From: Guenter Roeck <linux@roeck-us.net>
 To: Wim Van Sebroeck <wim@iguana.be>
 Cc: linux-watchdog@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 09/62] watchdog: cadence_wdt: Convert to use device managed functions and other improvements
-Date: Tue, 10 Jan 2017 15:34:26 -0800
-Message-Id: <1484091325-9199-10-git-send-email-linux@roeck-us.net>
+	Guenter Roeck <linux@roeck-us.net>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	linux-arm-kernel@lists.infradead.org
+Subject: [PATCH 10/62] watchdog: coh901327_wdt: Convert to use device managed functions
+Date: Tue, 10 Jan 2017 15:34:27 -0800
+Message-Id: <1484091325-9199-11-git-send-email-linux@roeck-us.net>
 In-Reply-To: <1484091325-9199-1-git-send-email-linux@roeck-us.net>
 References: <1484091325-9199-1-git-send-email-linux@roeck-us.net>
 List-ID: <linux-watchdog@vger.kernel.org>
 
 Use device managed functions to simplify error handling, reduce
 source code size, improve readability, and reduce the likelyhood of bugs.
-Other improvements as listed below.
 
 The conversion was done automatically with coccinelle using the
 following semantic patches. The semantic patches and the scripts used
@@ -21,103 +22,98 @@ to generate this commit log are available at
 https://github.com/groeck/coccinelle-patches
 
 - Use devm_add_action_or_reset() for calls to clk_disable_unprepare
+- Use devm_clk_get() if the device parameter is not NULL
 - Replace 'goto l; ... l: return e;' with 'return e;'
 - Replace 'val = e; return val;' with 'return e;'
+- Replace 'if (e) { return expr; }' with 'if (e) return expr;'
+- Replace request_irq, request_threaded_irq, and request_any_context_irq
+  with their device managed equivalent
+- Replace &pdev->dev with dev if 'struct device *dev' is a declared
+  variable
 - Use devm_watchdog_register_driver() to register watchdog device
-- Replace shutdown function with call to watchdog_stop_on_reboot()
 
+Cc: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/watchdog/cadence_wdt.c | 35 +++++++++--------------------------
- 1 file changed, 9 insertions(+), 26 deletions(-)
+ drivers/watchdog/coh901327_wdt.c | 33 ++++++++++++---------------------
+ 1 file changed, 12 insertions(+), 21 deletions(-)
 
-diff --git a/drivers/watchdog/cadence_wdt.c b/drivers/watchdog/cadence_wdt.c
-index 8d61e8bfe60b..a77c4be54da9 100644
---- a/drivers/watchdog/cadence_wdt.c
-+++ b/drivers/watchdog/cadence_wdt.c
-@@ -340,8 +340,7 @@ static int cdns_wdt_probe(struct platform_device *pdev)
- 	wdt->clk = devm_clk_get(&pdev->dev, NULL);
- 	if (IS_ERR(wdt->clk)) {
- 		dev_err(&pdev->dev, "input clock not found\n");
--		ret = PTR_ERR(wdt->clk);
--		return ret;
-+		return PTR_ERR(wdt->clk);
- 	}
+diff --git a/drivers/watchdog/coh901327_wdt.c b/drivers/watchdog/coh901327_wdt.c
+index 38dd60f0cfcc..8b6f7f35c479 100644
+--- a/drivers/watchdog/coh901327_wdt.c
++++ b/drivers/watchdog/coh901327_wdt.c
+@@ -241,11 +241,7 @@ static struct watchdog_device coh901327_wdt = {
  
- 	ret = clk_prepare_enable(wdt->clk);
-@@ -349,6 +348,11 @@ static int cdns_wdt_probe(struct platform_device *pdev)
- 		dev_err(&pdev->dev, "unable to enable clock\n");
- 		return ret;
+ static int __exit coh901327_remove(struct platform_device *pdev)
+ {
+-	watchdog_unregister_device(&coh901327_wdt);
+ 	coh901327_disable();
+-	free_irq(irq, pdev);
+-	clk_disable_unprepare(clk);
+-	clk_put(clk);
+ 	return 0;
+ }
+ 
+@@ -263,7 +259,7 @@ static int __init coh901327_probe(struct platform_device *pdev)
+ 	if (IS_ERR(virtbase))
+ 		return PTR_ERR(virtbase);
+ 
+-	clk = clk_get(dev, NULL);
++	clk = devm_clk_get(dev, NULL);
+ 	if (IS_ERR(clk)) {
+ 		ret = PTR_ERR(clk);
+ 		dev_err(dev, "could not get clock\n");
+@@ -272,8 +268,13 @@ static int __init coh901327_probe(struct platform_device *pdev)
+ 	ret = clk_prepare_enable(clk);
+ 	if (ret) {
+ 		dev_err(dev, "could not prepare and enable clock\n");
+-		goto out_no_clk_enable;
++		return ret;
  	}
-+	ret = devm_add_action_or_reset(&pdev->dev,
++	ret = devm_add_action_or_reset(dev,
 +				       (void(*)(void *))clk_disable_unprepare,
-+				       wdt->clk);
++				       clk);
 +	if (ret)
 +		return ret;
  
- 	clock_f = clk_get_rate(wdt->clk);
- 	if (clock_f <= CDNS_WDT_CLK_75MHZ) {
-@@ -361,10 +365,11 @@ static int cdns_wdt_probe(struct platform_device *pdev)
+ 	val = readw(virtbase + U300_WDOG_SR);
+ 	switch (val) {
+@@ -309,31 +310,21 @@ static int __init coh901327_probe(struct platform_device *pdev)
+ 	writew(U300_WDOG_SR_RESET_STATUS_RESET, virtbase + U300_WDOG_SR);
  
- 	spin_lock_init(&wdt->io_lock);
+ 	irq = platform_get_irq(pdev, 0);
+-	if (request_irq(irq, coh901327_interrupt, 0,
+-			DRV_NAME " Bark", pdev)) {
+-		ret = -EIO;
+-		goto out_no_irq;
+-	}
++	if (devm_request_irq(dev, irq, coh901327_interrupt, 0,
++			     DRV_NAME " Bark", pdev))
++		return -EIO;
  
--	ret = watchdog_register_device(cdns_wdt_device);
-+	watchdog_stop_on_reboot(cdns_wdt_device);
-+	ret = devm_watchdog_register_device(&pdev->dev, cdns_wdt_device);
- 	if (ret) {
- 		dev_err(&pdev->dev, "Failed to register wdt device\n");
--		goto err_clk_disable;
+ 	ret = watchdog_init_timeout(&coh901327_wdt, margin, dev);
+ 	if (ret < 0)
+ 		coh901327_wdt.timeout = 60;
+ 
+ 	coh901327_wdt.parent = dev;
+-	ret = watchdog_register_device(&coh901327_wdt);
++	ret = devm_watchdog_register_device(dev, &coh901327_wdt);
+ 	if (ret)
+-		goto out_no_wdog;
 +		return ret;
- 	}
- 	platform_set_drvdata(pdev, wdt);
  
-@@ -373,11 +378,6 @@ static int cdns_wdt_probe(struct platform_device *pdev)
- 		 nowayout ? ", nowayout" : "");
- 
+ 	dev_info(dev, "initialized. timer margin=%d sec\n", margin);
  	return 0;
 -
--err_clk_disable:
--	clk_disable_unprepare(wdt->clk);
--
+-out_no_wdog:
+-	free_irq(irq, pdev);
+-out_no_irq:
+-	clk_disable_unprepare(clk);
+-out_no_clk_enable:
+-	clk_put(clk);
 -	return ret;
  }
  
- /**
-@@ -393,27 +393,11 @@ static int cdns_wdt_remove(struct platform_device *pdev)
- 	struct cdns_wdt *wdt = platform_get_drvdata(pdev);
- 
- 	cdns_wdt_stop(&wdt->cdns_wdt_device);
--	watchdog_unregister_device(&wdt->cdns_wdt_device);
--	clk_disable_unprepare(wdt->clk);
- 
- 	return 0;
- }
- 
- /**
-- * cdns_wdt_shutdown - Stop the device.
-- *
-- * @pdev: handle to the platform structure.
-- *
-- */
--static void cdns_wdt_shutdown(struct platform_device *pdev)
--{
--	struct cdns_wdt *wdt = platform_get_drvdata(pdev);
--
--	cdns_wdt_stop(&wdt->cdns_wdt_device);
--	clk_disable_unprepare(wdt->clk);
--}
--
--/**
-  * cdns_wdt_suspend - Stop the device.
-  *
-  * @dev: handle to the device structure.
-@@ -468,7 +452,6 @@ MODULE_DEVICE_TABLE(of, cdns_wdt_of_match);
- static struct platform_driver cdns_wdt_driver = {
- 	.probe		= cdns_wdt_probe,
- 	.remove		= cdns_wdt_remove,
--	.shutdown	= cdns_wdt_shutdown,
- 	.driver		= {
- 		.name	= "cdns-wdt",
- 		.of_match_table = cdns_wdt_of_match,
+ #ifdef CONFIG_PM
 -- 
 2.7.4
