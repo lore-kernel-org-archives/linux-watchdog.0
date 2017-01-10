@@ -3,10 +3,12 @@ From: Guenter Roeck <linux@roeck-us.net>
 To: Wim Van Sebroeck <wim@iguana.be>
 Cc: linux-watchdog@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 15/62] watchdog: davinci_wdt: Convert to use device managed functions and other improvements
-Date: Tue, 10 Jan 2017 15:34:32 -0800
-Message-Id: <1484091325-9199-16-git-send-email-linux@roeck-us.net>
+	Guenter Roeck <linux@roeck-us.net>,
+	Baruch Siach <baruch@tkos.co.il>,
+	linux-arm-kernel@lists.infradead.org
+Subject: [PATCH 16/62] watchdog: digicolor_wdt: Convert to use device managed functions and other improvements
+Date: Tue, 10 Jan 2017 15:34:33 -0800
+Message-Id: <1484091325-9199-17-git-send-email-linux@roeck-us.net>
 In-Reply-To: <1484091325-9199-1-git-send-email-linux@roeck-us.net>
 References: <1484091325-9199-1-git-send-email-linux@roeck-us.net>
 List-ID: <linux-watchdog@vger.kernel.org>
@@ -20,88 +22,112 @@ following semantic patches. The semantic patches and the scripts used
 to generate this commit log are available at
 https://github.com/groeck/coccinelle-patches
 
-- Use devm_add_action_or_reset() for calls to clk_disable_unprepare
-- Check return value from clk_prepare_enable()
+- Replace 'goto l; ... l: return e;' with 'return e;'
+- Replace 'val = e; return val;' with 'return e;'
 - Drop assignments to otherwise unused variables
+- Replace 'if (e) { return expr; }' with 'if (e) return expr;'
 - Drop remove function
+- Replace of_iomap() with platform_get_resource() followed by
+  devm_ioremap_resource()
 - Drop platform_set_drvdata()
 - Replace &pdev->dev with dev if 'struct device *dev' is a declared
   variable
 - Use devm_watchdog_register_driver() to register watchdog device
+- Replace shutdown function with call to watchdog_stop_on_reboot()
 
+Cc: Baruch Siach <baruch@tkos.co.il>
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/watchdog/davinci_wdt.c | 28 +++++++++++-----------------
- 1 file changed, 11 insertions(+), 17 deletions(-)
+ drivers/watchdog/digicolor_wdt.c | 48 ++++++++++------------------------------
+ 1 file changed, 12 insertions(+), 36 deletions(-)
 
-diff --git a/drivers/watchdog/davinci_wdt.c b/drivers/watchdog/davinci_wdt.c
-index 0e731d797a2a..98427a30fb17 100644
---- a/drivers/watchdog/davinci_wdt.c
-+++ b/drivers/watchdog/davinci_wdt.c
-@@ -169,13 +169,18 @@ static int davinci_wdt_probe(struct platform_device *pdev)
+diff --git a/drivers/watchdog/digicolor_wdt.c b/drivers/watchdog/digicolor_wdt.c
+index dfe72944822d..870694d9ebc7 100644
+--- a/drivers/watchdog/digicolor_wdt.c
++++ b/drivers/watchdog/digicolor_wdt.c
+@@ -119,62 +119,40 @@ static struct watchdog_device dc_wdt_wdd = {
  
- 	if (IS_ERR(davinci_wdt->clk)) {
- 		if (PTR_ERR(davinci_wdt->clk) != -EPROBE_DEFER)
--			dev_err(&pdev->dev, "failed to get clock node\n");
-+			dev_err(dev, "failed to get clock node\n");
- 		return PTR_ERR(davinci_wdt->clk);
+ static int dc_wdt_probe(struct platform_device *pdev)
+ {
++	struct resource *res;
+ 	struct device *dev = &pdev->dev;
+-	struct device_node *np = dev->of_node;
+ 	struct dc_wdt *wdt;
+ 	int ret;
+ 
+ 	wdt = devm_kzalloc(dev, sizeof(struct dc_wdt), GFP_KERNEL);
+ 	if (!wdt)
+ 		return -ENOMEM;
+-	platform_set_drvdata(pdev, wdt);
+ 
+-	wdt->base = of_iomap(np, 0);
+-	if (!wdt->base) {
+-		dev_err(dev, "Failed to remap watchdog regs");
+-		return -ENODEV;
+-	}
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	wdt->base = devm_ioremap_resource(dev, res);
++	if (IS_ERR(wdt->base))
++		return PTR_ERR(wdt->base);
+ 
+-	wdt->clk = devm_clk_get(&pdev->dev, NULL);
+-	if (IS_ERR(wdt->clk)) {
+-		ret = PTR_ERR(wdt->clk);
+-		goto err_iounmap;
+-	}
++	wdt->clk = devm_clk_get(dev, NULL);
++	if (IS_ERR(wdt->clk))
++		return PTR_ERR(wdt->clk);
+ 	dc_wdt_wdd.max_timeout = U32_MAX / clk_get_rate(wdt->clk);
+ 	dc_wdt_wdd.timeout = dc_wdt_wdd.max_timeout;
+-	dc_wdt_wdd.parent = &pdev->dev;
++	dc_wdt_wdd.parent = dev;
+ 
+ 	spin_lock_init(&wdt->lock);
+ 
+ 	watchdog_set_drvdata(&dc_wdt_wdd, wdt);
+ 	watchdog_set_restart_priority(&dc_wdt_wdd, 128);
+ 	watchdog_init_timeout(&dc_wdt_wdd, timeout, dev);
+-	ret = watchdog_register_device(&dc_wdt_wdd);
++	watchdog_stop_on_reboot(&dc_wdt_wdd);
++	ret = devm_watchdog_register_device(dev, &dc_wdt_wdd);
+ 	if (ret) {
+ 		dev_err(dev, "Failed to register watchdog device");
+-		goto err_iounmap;
++		return ret;
  	}
  
--	clk_prepare_enable(davinci_wdt->clk);
+ 	return 0;
 -
--	platform_set_drvdata(pdev, davinci_wdt);
-+	ret = clk_prepare_enable(davinci_wdt->clk);
-+	if (ret)
-+		return ret;
-+	ret = devm_add_action_or_reset(dev,
-+				       (void(*)(void *))clk_disable_unprepare,
-+				       davinci_wdt->clk);
-+	if (ret)
-+		return ret;
- 
- 	wdd			= &davinci_wdt->wdd;
- 	wdd->info		= &davinci_wdt_info;
-@@ -183,7 +188,7 @@ static int davinci_wdt_probe(struct platform_device *pdev)
- 	wdd->min_timeout	= 1;
- 	wdd->max_timeout	= MAX_HEARTBEAT;
- 	wdd->timeout		= DEFAULT_HEARTBEAT;
--	wdd->parent		= &pdev->dev;
-+	wdd->parent		= dev;
- 
- 	watchdog_init_timeout(wdd, heartbeat, dev);
- 
-@@ -197,23 +202,13 @@ static int davinci_wdt_probe(struct platform_device *pdev)
- 	if (IS_ERR(davinci_wdt->base))
- 		return PTR_ERR(davinci_wdt->base);
- 
--	ret = watchdog_register_device(wdd);
-+	ret = devm_watchdog_register_device(dev, wdd);
- 	if (ret < 0)
- 		dev_err(dev, "cannot register watchdog device\n");
- 
- 	return ret;
- }
- 
--static int davinci_wdt_remove(struct platform_device *pdev)
+-err_iounmap:
+-	iounmap(wdt->base);
+-	return ret;
+-}
+-
+-static int dc_wdt_remove(struct platform_device *pdev)
 -{
--	struct davinci_wdt_device *davinci_wdt = platform_get_drvdata(pdev);
+-	struct dc_wdt *wdt = platform_get_drvdata(pdev);
 -
--	watchdog_unregister_device(&davinci_wdt->wdd);
--	clk_disable_unprepare(davinci_wdt->clk);
+-	watchdog_unregister_device(&dc_wdt_wdd);
+-	iounmap(wdt->base);
 -
 -	return 0;
 -}
 -
- static const struct of_device_id davinci_wdt_of_match[] = {
- 	{ .compatible = "ti,davinci-wdt", },
- 	{},
-@@ -226,7 +221,6 @@ static struct platform_driver platform_wdt_driver = {
- 		.of_match_table = davinci_wdt_of_match,
- 	},
- 	.probe = davinci_wdt_probe,
--	.remove = davinci_wdt_remove,
- };
+-static void dc_wdt_shutdown(struct platform_device *pdev)
+-{
+-	dc_wdt_stop(&dc_wdt_wdd);
+ }
  
- module_platform_driver(platform_wdt_driver);
+ static const struct of_device_id dc_wdt_of_match[] = {
+@@ -185,8 +163,6 @@ MODULE_DEVICE_TABLE(of, dc_wdt_of_match);
+ 
+ static struct platform_driver dc_wdt_driver = {
+ 	.probe		= dc_wdt_probe,
+-	.remove		= dc_wdt_remove,
+-	.shutdown	= dc_wdt_shutdown,
+ 	.driver = {
+ 		.name =		"digicolor-wdt",
+ 		.of_match_table = dc_wdt_of_match,
 -- 
 2.7.4
