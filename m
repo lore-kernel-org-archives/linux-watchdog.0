@@ -3,130 +3,106 @@ From: Guenter Roeck <linux@roeck-us.net>
 To: Wim Van Sebroeck <wim@iguana.be>
 Cc: linux-watchdog@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	Guenter Roeck <linux@roeck-us.net>,
-	Stephen Warren <swarren@wwwdotorg.org>,
-	Lee Jones <lee@kernel.org>,
-	Eric Anholt <eric@anholt.net>,
-	Florian Fainelli <f.fainelli@gmail.com>,
-	Ray Jui <rjui@broadcom.com>,
-	Scott Branden <sbranden@broadcom.com>,
-	bcm-kernel-feedback-list@broadcom.com,
-	linux-arm-kernel@lists.infradead.org,
-	linux-rpi-kernel@lists.infradead.org
-Subject: [PATCH 05/62] watchdog: bcm2835_wdt: Convert to use device managed functions and other improvements
-Date: Tue, 10 Jan 2017 15:34:22 -0800
-Message-Id: <1484091325-9199-6-git-send-email-linux@roeck-us.net>
+	Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 06/62] watchdog: bcm47xx_wdt: Convert to use device managed functions
+Date: Tue, 10 Jan 2017 15:34:23 -0800
+Message-Id: <1484091325-9199-7-git-send-email-linux@roeck-us.net>
 In-Reply-To: <1484091325-9199-1-git-send-email-linux@roeck-us.net>
 References: <1484091325-9199-1-git-send-email-linux@roeck-us.net>
 List-ID: <linux-watchdog@vger.kernel.org>
 
 Use device managed functions to simplify error handling, reduce
 source code size, improve readability, and reduce the likelyhood of bugs.
-Other improvements as listed below.
 
 The conversion was done automatically with coccinelle using the
 following semantic patches. The semantic patches and the scripts used
 to generate this commit log are available at
 https://github.com/groeck/coccinelle-patches
 
+- Replace 'goto l; ... l: return e;' with 'return e;'
 - Drop assignments to otherwise unused variables
-- Replace of_iomap() with platform_get_resource() followed by
-  devm_ioremap_resource()
-- Replace &pdev->dev with dev if 'struct device *dev' is a declared
-  variable
+- Drop remove function
+- Call del_timer_sync() using devm_add_action()
+  Introduce helper function since we can not call del_timer_sync() directly
 - Use devm_watchdog_register_driver() to register watchdog device
-- Replace shutdown function with call to watchdog_stop_on_reboot()
 
-Cc: Stephen Warren <swarren@wwwdotorg.org>
-Cc: Lee Jones <lee@kernel.org>
-Cc: Eric Anholt <eric@anholt.net>
-Cc: Florian Fainelli <f.fainelli@gmail.com>
-Cc: Ray Jui <rjui@broadcom.com>
-Cc: Scott Branden <sbranden@broadcom.com>
-Cc: bcm-kernel-feedback-list@broadcom.com
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/watchdog/bcm2835_wdt.c | 27 ++++++++-------------------
- 1 file changed, 8 insertions(+), 19 deletions(-)
+ drivers/watchdog/bcm47xx_wdt.c | 31 ++++++++++++-------------------
+ 1 file changed, 12 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/watchdog/bcm2835_wdt.c b/drivers/watchdog/bcm2835_wdt.c
-index 4e0adb6c88f0..496f6c106bb1 100644
---- a/drivers/watchdog/bcm2835_wdt.c
-+++ b/drivers/watchdog/bcm2835_wdt.c
-@@ -172,8 +172,8 @@ static void bcm2835_power_off(void)
+diff --git a/drivers/watchdog/bcm47xx_wdt.c b/drivers/watchdog/bcm47xx_wdt.c
+index 35725e21b18a..83455ca1712e 100644
+--- a/drivers/watchdog/bcm47xx_wdt.c
++++ b/drivers/watchdog/bcm47xx_wdt.c
+@@ -177,6 +177,11 @@ static struct watchdog_ops bcm47xx_wdt_soft_ops = {
+ 	.restart        = bcm47xx_wdt_restart,
+ };
  
- static int bcm2835_wdt_probe(struct platform_device *pdev)
++static void __del_timer_sync_cb(void *t)
++{
++	del_timer_sync(t);
++}
++
+ static int bcm47xx_wdt_probe(struct platform_device *pdev)
  {
-+	struct resource *res;
- 	struct device *dev = &pdev->dev;
--	struct device_node *np = dev->of_node;
- 	struct bcm2835_wdt *wdt;
- 	int err;
- 
-@@ -184,16 +184,15 @@ static int bcm2835_wdt_probe(struct platform_device *pdev)
- 
- 	spin_lock_init(&wdt->lock);
- 
--	wdt->base = of_iomap(np, 0);
--	if (!wdt->base) {
--		dev_err(dev, "Failed to remap watchdog regs");
--		return -ENODEV;
--	}
-+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	wdt->base = devm_ioremap_resource(dev, res);
-+	if (IS_ERR(wdt->base))
-+		return PTR_ERR(wdt->base);
- 
- 	watchdog_set_drvdata(&bcm2835_wdt_wdd, wdt);
- 	watchdog_init_timeout(&bcm2835_wdt_wdd, heartbeat, dev);
- 	watchdog_set_nowayout(&bcm2835_wdt_wdd, nowayout);
--	bcm2835_wdt_wdd.parent = &pdev->dev;
-+	bcm2835_wdt_wdd.parent = dev;
- 	if (bcm2835_wdt_is_running(wdt)) {
- 		/*
- 		 * The currently active timeout value (set by the
-@@ -208,10 +207,10 @@ static int bcm2835_wdt_probe(struct platform_device *pdev)
- 
- 	watchdog_set_restart_priority(&bcm2835_wdt_wdd, 128);
- 
--	err = watchdog_register_device(&bcm2835_wdt_wdd);
-+	watchdog_stop_on_reboot(&bcm2835_wdt_wdd);
-+	err = devm_watchdog_register_device(dev, &bcm2835_wdt_wdd);
- 	if (err) {
- 		dev_err(dev, "Failed to register watchdog device");
--		iounmap(wdt->base);
- 		return err;
+ 	int ret;
+@@ -192,6 +197,10 @@ static int bcm47xx_wdt_probe(struct platform_device *pdev)
+ 		wdt->wdd.ops = &bcm47xx_wdt_soft_ops;
+ 		setup_timer(&wdt->soft_timer, bcm47xx_wdt_soft_timer_tick,
+ 			    (long unsigned int)wdt);
++		ret = devm_add_action(&pdev->dev, __del_timer_sync_cb,
++				       &wdt->soft_timer);
++		if (ret)
++			return ret;
+ 	} else {
+ 		wdt->wdd.ops = &bcm47xx_wdt_hard_ops;
  	}
+@@ -201,34 +210,19 @@ static int bcm47xx_wdt_probe(struct platform_device *pdev)
+ 	wdt->wdd.parent = &pdev->dev;
+ 	ret = wdt->wdd.ops->set_timeout(&wdt->wdd, timeout);
+ 	if (ret)
+-		goto err_timer;
++		return ret;
+ 	watchdog_set_nowayout(&wdt->wdd, nowayout);
+ 	watchdog_set_restart_priority(&wdt->wdd, 64);
+ 	watchdog_stop_on_reboot(&wdt->wdd);
  
-@@ -224,21 +223,12 @@ static int bcm2835_wdt_probe(struct platform_device *pdev)
+-	ret = watchdog_register_device(&wdt->wdd);
++	ret = devm_watchdog_register_device(&pdev->dev, &wdt->wdd);
+ 	if (ret)
+-		goto err_timer;
++		return ret;
  
- static int bcm2835_wdt_remove(struct platform_device *pdev)
- {
--	struct bcm2835_wdt *wdt = platform_get_drvdata(pdev);
--
- 	if (pm_power_off == bcm2835_power_off)
- 		pm_power_off = NULL;
--	watchdog_unregister_device(&bcm2835_wdt_wdd);
--	iounmap(wdt->base);
- 
+ 	dev_info(&pdev->dev, "BCM47xx Watchdog Timer enabled (%d seconds%s%s)\n",
+ 		timeout, nowayout ? ", nowayout" : "",
+ 		soft ? ", Software Timer" : "");
  	return 0;
- }
- 
--static void bcm2835_wdt_shutdown(struct platform_device *pdev)
--{
--	bcm2835_wdt_stop(&bcm2835_wdt_wdd);
+-
+-err_timer:
+-	if (soft)
+-		del_timer_sync(&wdt->soft_timer);
+-
+-	return ret;
 -}
 -
- static const struct of_device_id bcm2835_wdt_of_match[] = {
- 	{ .compatible = "brcm,bcm2835-pm-wdt", },
- 	{},
-@@ -248,7 +238,6 @@ MODULE_DEVICE_TABLE(of, bcm2835_wdt_of_match);
- static struct platform_driver bcm2835_wdt_driver = {
- 	.probe		= bcm2835_wdt_probe,
- 	.remove		= bcm2835_wdt_remove,
--	.shutdown	= bcm2835_wdt_shutdown,
- 	.driver = {
- 		.name =		"bcm2835-wdt",
- 		.of_match_table = bcm2835_wdt_of_match,
+-static int bcm47xx_wdt_remove(struct platform_device *pdev)
+-{
+-	struct bcm47xx_wdt *wdt = dev_get_platdata(&pdev->dev);
+-
+-	watchdog_unregister_device(&wdt->wdd);
+-
+-	return 0;
+ }
+ 
+ static struct platform_driver bcm47xx_wdt_driver = {
+@@ -236,7 +230,6 @@ static struct platform_driver bcm47xx_wdt_driver = {
+ 		.name	= "bcm47xx-wdt",
+ 	},
+ 	.probe		= bcm47xx_wdt_probe,
+-	.remove		= bcm47xx_wdt_remove,
+ };
+ 
+ module_platform_driver(bcm47xx_wdt_driver);
 -- 
 2.7.4
