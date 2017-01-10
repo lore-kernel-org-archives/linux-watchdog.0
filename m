@@ -5,9 +5,9 @@ Cc: linux-watchdog@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	Guenter Roeck <linux@roeck-us.net>,
 	Support Opensource <support.opensource@diasemi.com>
-Subject: [PATCH 11/62] watchdog: da9052_wdt: Convert to use device managed functions
-Date: Tue, 10 Jan 2017 15:34:28 -0800
-Message-Id: <1484091325-9199-12-git-send-email-linux@roeck-us.net>
+Subject: [PATCH 12/62] watchdog: da9055_wdt: Convert to use device managed functions
+Date: Tue, 10 Jan 2017 15:34:29 -0800
+Message-Id: <1484091325-9199-13-git-send-email-linux@roeck-us.net>
 In-Reply-To: <1484091325-9199-1-git-send-email-linux@roeck-us.net>
 References: <1484091325-9199-1-git-send-email-linux@roeck-us.net>
 List-ID: <linux-watchdog@vger.kernel.org>
@@ -21,9 +21,7 @@ to generate this commit log are available at
 https://github.com/groeck/coccinelle-patches
 
 - Replace 'goto l; ... l: return e;' with 'return e;'
-- Replace 'val = e; return val;' with 'return e;'
 - Drop assignments to otherwise unused variables
-- Replace 'if (e) { return expr; }' with 'if (e) return expr;'
 - Drop remove function
 - Drop platform_set_drvdata()
 - Use devm_watchdog_register_driver() to register watchdog device
@@ -31,82 +29,47 @@ https://github.com/groeck/coccinelle-patches
 Cc: Support Opensource <support.opensource@diasemi.com>
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/watchdog/da9052_wdt.c | 32 ++++++++------------------------
- 1 file changed, 8 insertions(+), 24 deletions(-)
+ drivers/watchdog/da9055_wdt.c | 17 ++---------------
+ 1 file changed, 2 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/watchdog/da9052_wdt.c b/drivers/watchdog/da9052_wdt.c
-index d86a57e3d17d..d6d5006efa71 100644
---- a/drivers/watchdog/da9052_wdt.c
-+++ b/drivers/watchdog/da9052_wdt.c
-@@ -128,16 +128,14 @@ static int da9052_wdt_ping(struct watchdog_device *wdt_dev)
- 	ret = da9052_reg_update(da9052, DA9052_CONTROL_D_REG,
- 				DA9052_CONTROLD_WATCHDOG, 1 << 7);
- 	if (ret < 0)
--		goto err_strobe;
-+		return ret;
- 
- 	/*
- 	 * FIXME: Reset the watchdog core, in general PMIC
- 	 * is supposed to do this
- 	 */
--	ret = da9052_reg_update(da9052, DA9052_CONTROL_D_REG,
--				DA9052_CONTROLD_WATCHDOG, 0 << 7);
--err_strobe:
--	return ret;
-+	return da9052_reg_update(da9052, DA9052_CONTROL_D_REG,
-+				 DA9052_CONTROLD_WATCHDOG, 0 << 7);
- }
- 
- static const struct watchdog_info da9052_wdt_info = {
-@@ -163,10 +161,8 @@ static int da9052_wdt_probe(struct platform_device *pdev)
- 
- 	driver_data = devm_kzalloc(&pdev->dev, sizeof(*driver_data),
- 				   GFP_KERNEL);
--	if (!driver_data) {
--		ret = -ENOMEM;
--		goto err;
--	}
-+	if (!driver_data)
-+		return -ENOMEM;
- 	driver_data->da9052 = da9052;
- 
- 	da9052_wdt = &driver_data->wdt;
-@@ -182,33 +178,21 @@ static int da9052_wdt_probe(struct platform_device *pdev)
+diff --git a/drivers/watchdog/da9055_wdt.c b/drivers/watchdog/da9055_wdt.c
+index 4f30818cf93f..50bdd1022186 100644
+--- a/drivers/watchdog/da9055_wdt.c
++++ b/drivers/watchdog/da9055_wdt.c
+@@ -147,32 +147,19 @@ static int da9055_wdt_probe(struct platform_device *pdev)
+ 	ret = da9055_wdt_stop(da9055_wdt);
  	if (ret < 0) {
- 		dev_err(&pdev->dev, "Failed to disable watchdog bits, %d\n",
- 			ret);
--		goto err;
-+		return ret;
- 	}
- 
--	ret = watchdog_register_device(&driver_data->wdt);
-+	ret = devm_watchdog_register_device(&pdev->dev, &driver_data->wdt);
- 	if (ret != 0) {
- 		dev_err(da9052->dev, "watchdog_register_device() failed: %d\n",
- 			ret);
+ 		dev_err(&pdev->dev, "Failed to stop watchdog, %d\n", ret);
 -		goto err;
 +		return ret;
  	}
  
 -	platform_set_drvdata(pdev, driver_data);
+-
+-	ret = watchdog_register_device(&driver_data->wdt);
++	ret = devm_watchdog_register_device(&pdev->dev, &driver_data->wdt);
+ 	if (ret != 0)
+ 		dev_err(da9055->dev, "watchdog_register_device() failed: %d\n",
+ 			ret);
+ 
 -err:
  	return ret;
  }
  
--static int da9052_wdt_remove(struct platform_device *pdev)
+-static int da9055_wdt_remove(struct platform_device *pdev)
 -{
--	struct da9052_wdt_data *driver_data = platform_get_drvdata(pdev);
+-	struct da9055_wdt_data *driver_data = platform_get_drvdata(pdev);
 -
 -	watchdog_unregister_device(&driver_data->wdt);
 -
 -	return 0;
 -}
 -
- static struct platform_driver da9052_wdt_driver = {
- 	.probe = da9052_wdt_probe,
--	.remove = da9052_wdt_remove,
+ static struct platform_driver da9055_wdt_driver = {
+ 	.probe = da9055_wdt_probe,
+-	.remove = da9055_wdt_remove,
  	.driver = {
- 		.name	= "da9052-watchdog",
+ 		.name	= "da9055-watchdog",
  	},
 -- 
 2.7.4
