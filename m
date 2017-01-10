@@ -3,11 +3,10 @@ From: Guenter Roeck <linux@roeck-us.net>
 To: Wim Van Sebroeck <wim@iguana.be>
 Cc: linux-watchdog@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	Guenter Roeck <linux@roeck-us.net>,
-	Joel Stanley <joel@jms.id.au>
-Subject: [PATCH 02/62] watchdog: aspeed_wdt: Convert to use device managed functions
-Date: Tue, 10 Jan 2017 15:34:19 -0800
-Message-Id: <1484091325-9199-3-git-send-email-linux@roeck-us.net>
+	Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 03/62] watchdog: at91sam9_wdt: Convert to use device managed functions
+Date: Tue, 10 Jan 2017 15:34:20 -0800
+Message-Id: <1484091325-9199-4-git-send-email-linux@roeck-us.net>
 In-Reply-To: <1484091325-9199-1-git-send-email-linux@roeck-us.net>
 References: <1484091325-9199-1-git-send-email-linux@roeck-us.net>
 List-ID: <linux-watchdog@vger.kernel.org>
@@ -20,58 +19,125 @@ following semantic patches. The semantic patches and the scripts used
 to generate this commit log are available at
 https://github.com/groeck/coccinelle-patches
 
+- Use devm_add_action_or_reset() for calls to clk_disable_unprepare
+- Replace 'goto l; ... l: return e;' with 'return e;'
 - Drop assignments to otherwise unused variables
 - Drop remove function
+- Replace request_irq, request_threaded_irq, and request_any_context_irq
+  with their device managed equivalent
 - Drop platform_set_drvdata()
+- Call del_timer() using devm_add_action()
 - Use devm_watchdog_register_driver() to register watchdog device
 
-Cc: Joel Stanley <joel@jms.id.au>
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/watchdog/aspeed_wdt.c | 14 +-------------
- 1 file changed, 1 insertion(+), 13 deletions(-)
+ drivers/watchdog/at91sam9_wdt.c | 48 ++++++++++++++---------------------------
+ 1 file changed, 16 insertions(+), 32 deletions(-)
 
-diff --git a/drivers/watchdog/aspeed_wdt.c b/drivers/watchdog/aspeed_wdt.c
-index f5ad8023c2e6..1c652582de40 100644
---- a/drivers/watchdog/aspeed_wdt.c
-+++ b/drivers/watchdog/aspeed_wdt.c
-@@ -136,15 +136,6 @@ static const struct watchdog_info aspeed_wdt_info = {
- 	.identity	= KBUILD_MODNAME,
- };
+diff --git a/drivers/watchdog/at91sam9_wdt.c b/drivers/watchdog/at91sam9_wdt.c
+index 7e6acaf3ece4..7c3c3554348d 100644
+--- a/drivers/watchdog/at91sam9_wdt.c
++++ b/drivers/watchdog/at91sam9_wdt.c
+@@ -209,10 +209,9 @@ static int at91_wdt_init(struct platform_device *pdev, struct at91wdt *wdt)
+ 			 "min heartbeat and max heartbeat might be too close for the system to handle it correctly\n");
  
--static int aspeed_wdt_remove(struct platform_device *pdev)
--{
--	struct aspeed_wdt *wdt = platform_get_drvdata(pdev);
--
--	watchdog_unregister_device(&wdt->wdd);
--
--	return 0;
--}
--
- static int aspeed_wdt_probe(struct platform_device *pdev)
- {
- 	struct aspeed_wdt *wdt;
-@@ -187,20 +178,17 @@ static int aspeed_wdt_probe(struct platform_device *pdev)
- 		set_bit(WDOG_HW_RUNNING, &wdt->wdd.status);
+ 	if ((tmp & AT91_WDT_WDFIEN) && wdt->irq) {
+-		err = request_irq(wdt->irq, wdt_interrupt,
+-				  IRQF_SHARED | IRQF_IRQPOLL |
+-				  IRQF_NO_SUSPEND,
+-				  pdev->name, wdt);
++		err = devm_request_irq(&pdev->dev, wdt->irq, wdt_interrupt,
++				IRQF_SHARED | IRQF_IRQPOLL | IRQF_NO_SUSPEND,
++				pdev->name, wdt);
+ 		if (err)
+ 			return err;
  	}
+@@ -223,6 +222,10 @@ static int at91_wdt_init(struct platform_device *pdev, struct at91wdt *wdt)
+ 			 tmp & wdt->mr_mask, wdt->mr & wdt->mr_mask);
  
--	ret = watchdog_register_device(&wdt->wdd);
-+	ret = devm_watchdog_register_device(&pdev->dev, &wdt->wdd);
- 	if (ret) {
- 		dev_err(&pdev->dev, "failed to register\n");
- 		return ret;
- 	}
+ 	setup_timer(&wdt->timer, at91_ping, (unsigned long)wdt);
++	err = devm_add_action(&pdev->dev, (void(*)(void *))del_timer,
++			       &wdt->timer);
++	if (err)
++		return err;
  
--	platform_set_drvdata(pdev, wdt);
--
+ 	/*
+ 	 * Use min_heartbeat the first time to avoid spurious watchdog reset:
+@@ -237,17 +240,13 @@ static int at91_wdt_init(struct platform_device *pdev, struct at91wdt *wdt)
+ 	if (watchdog_init_timeout(&wdt->wdd, 0, dev))
+ 		watchdog_init_timeout(&wdt->wdd, heartbeat, dev);
+ 	watchdog_set_nowayout(&wdt->wdd, wdt->nowayout);
+-	err = watchdog_register_device(&wdt->wdd);
++	err = devm_watchdog_register_device(&pdev->dev, &wdt->wdd);
+ 	if (err)
+-		goto out_stop_timer;
++		return err;
+ 
+ 	wdt->next_heartbeat = jiffies + wdt->wdd.timeout * HZ;
+ 
  	return 0;
+-
+-out_stop_timer:
+-	del_timer(&wdt->timer);
+-	return err;
  }
  
- static struct platform_driver aspeed_watchdog_driver = {
- 	.probe = aspeed_wdt_probe,
--	.remove = aspeed_wdt_remove,
- 	.driver = {
- 		.name = KBUILD_MODNAME,
- 		.of_match_table = of_match_ptr(aspeed_wdt_of_table),
+ /* ......................................................................... */
+@@ -363,40 +362,26 @@ static int __init at91wdt_probe(struct platform_device *pdev)
+ 		dev_err(&pdev->dev, "Could not enable slow clock\n");
+ 		return err;
+ 	}
++	err = devm_add_action_or_reset(&pdev->dev,
++				       (void(*)(void *))clk_disable_unprepare,
++				       wdt->sclk);
++	if (err)
++		return err;
+ 
+ 	if (pdev->dev.of_node) {
+ 		err = of_at91wdt_init(pdev->dev.of_node, wdt);
+ 		if (err)
+-			goto err_clk;
++			return err;
+ 	}
+ 
+ 	err = at91_wdt_init(pdev, wdt);
+ 	if (err)
+-		goto err_clk;
+-
+-	platform_set_drvdata(pdev, wdt);
++		return err;
+ 
+ 	pr_info("enabled (heartbeat=%d sec, nowayout=%d)\n",
+ 		wdt->wdd.timeout, wdt->nowayout);
+ 
+ 	return 0;
+-
+-err_clk:
+-	clk_disable_unprepare(wdt->sclk);
+-
+-	return err;
+-}
+-
+-static int __exit at91wdt_remove(struct platform_device *pdev)
+-{
+-	struct at91wdt *wdt = platform_get_drvdata(pdev);
+-	watchdog_unregister_device(&wdt->wdd);
+-
+-	pr_warn("I quit now, hardware will probably reboot!\n");
+-	del_timer(&wdt->timer);
+-	clk_disable_unprepare(wdt->sclk);
+-
+-	return 0;
+ }
+ 
+ #if defined(CONFIG_OF)
+@@ -409,7 +394,6 @@ MODULE_DEVICE_TABLE(of, at91_wdt_dt_ids);
+ #endif
+ 
+ static struct platform_driver at91wdt_driver = {
+-	.remove		= __exit_p(at91wdt_remove),
+ 	.driver		= {
+ 		.name	= "at91_wdt",
+ 		.of_match_table = of_match_ptr(at91_wdt_dt_ids),
 -- 
 2.7.4
