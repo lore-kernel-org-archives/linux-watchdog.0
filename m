@@ -4,9 +4,9 @@ To: Wim Van Sebroeck <wim@iguana.be>
 Cc: linux-watchdog@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 22/62] watchdog: imx2_wdt: Convert to use device managed functions
-Date: Tue, 10 Jan 2017 15:34:39 -0800
-Message-Id: <1484091325-9199-23-git-send-email-linux@roeck-us.net>
+Subject: [PATCH 23/62] watchdog: intel-mid_wdt: Convert to use device managed functions
+Date: Tue, 10 Jan 2017 15:34:40 -0800
+Message-Id: <1484091325-9199-24-git-send-email-linux@roeck-us.net>
 In-Reply-To: <1484091325-9199-1-git-send-email-linux@roeck-us.net>
 References: <1484091325-9199-1-git-send-email-linux@roeck-us.net>
 List-ID: <linux-watchdog@vger.kernel.org>
@@ -19,62 +19,53 @@ following semantic patches. The semantic patches and the scripts used
 to generate this commit log are available at
 https://github.com/groeck/coccinelle-patches
 
-- Use devm_add_action_or_reset() for calls to clk_disable_unprepare
-- Replace 'goto l; ... l: return e;' with 'return e;'
+- Drop assignments to otherwise unused variables
+- Drop remove function
+- Drop platform_set_drvdata()
 - Use devm_watchdog_register_driver() to register watchdog device
 
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/watchdog/imx2_wdt.c | 15 +++++++--------
- 1 file changed, 7 insertions(+), 8 deletions(-)
+ drivers/watchdog/intel-mid_wdt.c | 11 +----------
+ 1 file changed, 1 insertion(+), 10 deletions(-)
 
-diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
-index 4874b0f18650..8993351bc8df 100644
---- a/drivers/watchdog/imx2_wdt.c
-+++ b/drivers/watchdog/imx2_wdt.c
-@@ -287,6 +287,11 @@ static int __init imx2_wdt_probe(struct platform_device *pdev)
- 	ret = clk_prepare_enable(wdev->clk);
- 	if (ret)
- 		return ret;
-+	ret = devm_add_action_or_reset(&pdev->dev,
-+				       (void(*)(void *))clk_disable_unprepare,
-+				       wdev->clk);
-+	if (ret)
-+		return ret;
+diff --git a/drivers/watchdog/intel-mid_wdt.c b/drivers/watchdog/intel-mid_wdt.c
+index a4b729259b12..45e4d02221b5 100644
+--- a/drivers/watchdog/intel-mid_wdt.c
++++ b/drivers/watchdog/intel-mid_wdt.c
+@@ -137,7 +137,6 @@ static int mid_wdt_probe(struct platform_device *pdev)
+ 	wdt_dev->parent = &pdev->dev;
  
- 	regmap_read(wdev->regmap, IMX2_WDT_WRSR, &val);
- 	wdog->bootstatus = val & IMX2_WDT_WRSR_TOUT ? WDIOF_CARDRESET : 0;
-@@ -316,20 +321,16 @@ static int __init imx2_wdt_probe(struct platform_device *pdev)
- 	 */
- 	regmap_write(wdev->regmap, IMX2_WDT_WMCR, 0);
+ 	watchdog_set_drvdata(wdt_dev, &pdev->dev);
+-	platform_set_drvdata(pdev, wdt_dev);
  
--	ret = watchdog_register_device(wdog);
-+	ret = devm_watchdog_register_device(&pdev->dev, wdog);
+ 	ret = devm_request_irq(&pdev->dev, pdata->irq, mid_wdt_irq,
+ 			       IRQF_SHARED | IRQF_NO_SUSPEND, "watchdog",
+@@ -151,7 +150,7 @@ static int mid_wdt_probe(struct platform_device *pdev)
+ 	/* Make sure the watchdog is not running */
+ 	wdt_stop(wdt_dev);
+ 
+-	ret = watchdog_register_device(wdt_dev);
++	ret = devm_watchdog_register_device(&pdev->dev, wdt_dev);
  	if (ret) {
- 		dev_err(&pdev->dev, "cannot register watchdog device\n");
--		goto disable_clk;
-+		return ret;
- 	}
- 
- 	dev_info(&pdev->dev, "timeout %d sec (nowayout=%d)\n",
- 		 wdog->timeout, nowayout);
- 
+ 		dev_err(&pdev->dev, "error registering watchdog device\n");
+ 		return ret;
+@@ -162,16 +161,8 @@ static int mid_wdt_probe(struct platform_device *pdev)
  	return 0;
--
--disable_clk:
--	clk_disable_unprepare(wdev->clk);
--	return ret;
  }
  
- static int __exit imx2_wdt_remove(struct platform_device *pdev)
-@@ -337,8 +338,6 @@ static int __exit imx2_wdt_remove(struct platform_device *pdev)
- 	struct watchdog_device *wdog = platform_get_drvdata(pdev);
- 	struct imx2_wdt_device *wdev = watchdog_get_drvdata(wdog);
- 
--	watchdog_unregister_device(wdog);
+-static int mid_wdt_remove(struct platform_device *pdev)
+-{
+-	struct watchdog_device *wd = platform_get_drvdata(pdev);
+-	watchdog_unregister_device(wd);
+-	return 0;
+-}
 -
- 	if (imx2_wdt_is_running(wdev)) {
- 		imx2_wdt_ping(wdog);
- 		dev_crit(&pdev->dev, "Device removed: Expect reboot!\n");
+ static struct platform_driver mid_wdt_driver = {
+ 	.probe		= mid_wdt_probe,
+-	.remove		= mid_wdt_remove,
+ 	.driver		= {
+ 		.name	= "intel_mid_wdt",
+ 	},
 -- 
 2.7.4
