@@ -4,80 +4,75 @@ To: Wim Van Sebroeck <wim@iguana.be>
 Cc: linux-watchdog@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 24/62] watchdog: jz4740_wdt: Convert to use device managed functions
-Date: Tue, 10 Jan 2017 15:34:41 -0800
-Message-Id: <1484091325-9199-25-git-send-email-linux@roeck-us.net>
+Subject: [PATCH 25/62] watchdog: kempld_wdt: Convert to use device managed functions and other improvements
+Date: Tue, 10 Jan 2017 15:34:42 -0800
+Message-Id: <1484091325-9199-26-git-send-email-linux@roeck-us.net>
 In-Reply-To: <1484091325-9199-1-git-send-email-linux@roeck-us.net>
 References: <1484091325-9199-1-git-send-email-linux@roeck-us.net>
 List-ID: <linux-watchdog@vger.kernel.org>
 
 Use device managed functions to simplify error handling, reduce
 source code size, improve readability, and reduce the likelyhood of bugs.
+Other improvements as listed below.
 
 The conversion was done automatically with coccinelle using the
 following semantic patches. The semantic patches and the scripts used
 to generate this commit log are available at
 https://github.com/groeck/coccinelle-patches
 
-- Use devm_clk_get() if the device parameter is not NULL
-- Replace 'goto l; ... l: return e;' with 'return e;'
-- Replace 'val = e; return val;' with 'return e;'
-- Replace 'if (e) { return expr; }' with 'if (e) return expr;'
+- Replace &pdev->dev with dev if 'struct device *dev' is a declared
+  variable
 - Use devm_watchdog_register_driver() to register watchdog device
+- Replace shutdown function with call to watchdog_stop_on_reboot()
 
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/watchdog/jz4740_wdt.c | 22 ++++++----------------
- 1 file changed, 6 insertions(+), 16 deletions(-)
+ drivers/watchdog/kempld_wdt.c | 12 ++----------
+ 1 file changed, 2 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/watchdog/jz4740_wdt.c b/drivers/watchdog/jz4740_wdt.c
-index 20627f22baf6..1d0c85aceaab 100644
---- a/drivers/watchdog/jz4740_wdt.c
-+++ b/drivers/watchdog/jz4740_wdt.c
-@@ -178,29 +178,21 @@ static int jz4740_wdt_probe(struct platform_device *pdev)
- 
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	drvdata->base = devm_ioremap_resource(&pdev->dev, res);
--	if (IS_ERR(drvdata->base)) {
--		ret = PTR_ERR(drvdata->base);
--		goto err_out;
--	}
-+	if (IS_ERR(drvdata->base))
-+		return PTR_ERR(drvdata->base);
- 
--	drvdata->rtc_clk = clk_get(&pdev->dev, "rtc");
-+	drvdata->rtc_clk = devm_clk_get(&pdev->dev, "rtc");
- 	if (IS_ERR(drvdata->rtc_clk)) {
- 		dev_err(&pdev->dev, "cannot find RTC clock\n");
--		ret = PTR_ERR(drvdata->rtc_clk);
--		goto err_out;
-+		return PTR_ERR(drvdata->rtc_clk);
+diff --git a/drivers/watchdog/kempld_wdt.c b/drivers/watchdog/kempld_wdt.c
+index 73c46b3a09ab..440b34ba3017 100644
+--- a/drivers/watchdog/kempld_wdt.c
++++ b/drivers/watchdog/kempld_wdt.c
+@@ -490,7 +490,8 @@ static int kempld_wdt_probe(struct platform_device *pdev)
  	}
  
--	ret = watchdog_register_device(&drvdata->wdt);
-+	ret = devm_watchdog_register_device(&pdev->dev, &drvdata->wdt);
- 	if (ret < 0)
--		goto err_disable_clk;
-+		return ret;
+ 	platform_set_drvdata(pdev, wdt_data);
+-	ret = watchdog_register_device(wdd);
++	watchdog_stop_on_reboot(wdd);
++	ret = devm_watchdog_register_device(dev, wdd);
+ 	if (ret)
+ 		return ret;
  
- 	platform_set_drvdata(pdev, drvdata);
+@@ -499,13 +500,6 @@ static int kempld_wdt_probe(struct platform_device *pdev)
  	return 0;
+ }
+ 
+-static void kempld_wdt_shutdown(struct platform_device *pdev)
+-{
+-	struct kempld_wdt_data *wdt_data = platform_get_drvdata(pdev);
 -
--err_disable_clk:
--	clk_put(drvdata->rtc_clk);
--err_out:
--	return ret;
+-	kempld_wdt_stop(&wdt_data->wdd);
+-}
+-
+ static int kempld_wdt_remove(struct platform_device *pdev)
+ {
+ 	struct kempld_wdt_data *wdt_data = platform_get_drvdata(pdev);
+@@ -514,7 +508,6 @@ static int kempld_wdt_remove(struct platform_device *pdev)
+ 
+ 	if (!nowayout)
+ 		ret = kempld_wdt_stop(wdd);
+-	watchdog_unregister_device(wdd);
+ 
+ 	return ret;
  }
- 
- static int jz4740_wdt_remove(struct platform_device *pdev)
-@@ -208,8 +200,6 @@ static int jz4740_wdt_remove(struct platform_device *pdev)
- 	struct jz4740_wdt_drvdata *drvdata = platform_get_drvdata(pdev);
- 
- 	jz4740_wdt_stop(&drvdata->wdt);
--	watchdog_unregister_device(&drvdata->wdt);
--	clk_put(drvdata->rtc_clk);
- 
- 	return 0;
- }
+@@ -566,7 +559,6 @@ static struct platform_driver kempld_wdt_driver = {
+ 	},
+ 	.probe		= kempld_wdt_probe,
+ 	.remove		= kempld_wdt_remove,
+-	.shutdown	= kempld_wdt_shutdown,
+ 	.suspend	= kempld_wdt_suspend,
+ 	.resume		= kempld_wdt_resume,
+ };
 -- 
 2.7.4
