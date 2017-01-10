@@ -4,9 +4,9 @@ To: Wim Van Sebroeck <wim@iguana.be>
 Cc: linux-watchdog@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 28/62] watchdog: max63xx_wdt: Convert to use device managed functions
-Date: Tue, 10 Jan 2017 15:34:45 -0800
-Message-Id: <1484091325-9199-29-git-send-email-linux@roeck-us.net>
+Subject: [PATCH 29/62] watchdog: max77620_wdt: Convert to use device managed functions
+Date: Tue, 10 Jan 2017 15:34:46 -0800
+Message-Id: <1484091325-9199-30-git-send-email-linux@roeck-us.net>
 In-Reply-To: <1484091325-9199-1-git-send-email-linux@roeck-us.net>
 References: <1484091325-9199-1-git-send-email-linux@roeck-us.net>
 List-ID: <linux-watchdog@vger.kernel.org>
@@ -19,59 +19,33 @@ following semantic patches. The semantic patches and the scripts used
 to generate this commit log are available at
 https://github.com/groeck/coccinelle-patches
 
-- Drop assignments to otherwise unused variables
-- Drop remove function
-- Drop platform_set_drvdata()
 - Use devm_watchdog_register_driver() to register watchdog device
 
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/watchdog/max63xx_wdt.c | 12 +-----------
- 1 file changed, 1 insertion(+), 11 deletions(-)
+ drivers/watchdog/max77620_wdt.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/watchdog/max63xx_wdt.c b/drivers/watchdog/max63xx_wdt.c
-index ac5840d9689a..140897ca1fe5 100644
---- a/drivers/watchdog/max63xx_wdt.c
-+++ b/drivers/watchdog/max63xx_wdt.c
-@@ -225,7 +225,6 @@ static int max63xx_wdt_probe(struct platform_device *pdev)
- 	if (err)
- 		return err;
+diff --git a/drivers/watchdog/max77620_wdt.c b/drivers/watchdog/max77620_wdt.c
+index 68c41fa2be27..fad139a2ebe6 100644
+--- a/drivers/watchdog/max77620_wdt.c
++++ b/drivers/watchdog/max77620_wdt.c
+@@ -182,7 +182,7 @@ static int max77620_wdt_probe(struct platform_device *pdev)
+ 	watchdog_set_nowayout(wdt_dev, nowayout);
+ 	watchdog_set_drvdata(wdt_dev, wdt);
  
--	platform_set_drvdata(pdev, &wdt->wdd);
- 	watchdog_set_drvdata(&wdt->wdd, wdt);
+-	ret = watchdog_register_device(wdt_dev);
++	ret = devm_watchdog_register_device(&pdev->dev, wdt_dev);
+ 	if (ret < 0) {
+ 		dev_err(&pdev->dev, "watchdog registration failed: %d\n", ret);
+ 		return ret;
+@@ -196,7 +196,6 @@ static int max77620_wdt_remove(struct platform_device *pdev)
+ 	struct max77620_wdt *wdt = platform_get_drvdata(pdev);
  
- 	wdt->wdd.parent = &pdev->dev;
-@@ -235,7 +234,7 @@ static int max63xx_wdt_probe(struct platform_device *pdev)
+ 	max77620_wdt_stop(&wdt->wdt_dev);
+-	watchdog_unregister_device(&wdt->wdt_dev);
  
- 	watchdog_set_nowayout(&wdt->wdd, nowayout);
- 
--	err = watchdog_register_device(&wdt->wdd);
-+	err = devm_watchdog_register_device(&pdev->dev, &wdt->wdd);
- 	if (err)
- 		return err;
- 
-@@ -244,14 +243,6 @@ static int max63xx_wdt_probe(struct platform_device *pdev)
  	return 0;
  }
- 
--static int max63xx_wdt_remove(struct platform_device *pdev)
--{
--	struct watchdog_device *wdd = platform_get_drvdata(pdev);
--
--	watchdog_unregister_device(wdd);
--	return 0;
--}
--
- static const struct platform_device_id max63xx_id_table[] = {
- 	{ "max6369_wdt", (kernel_ulong_t)max6369_table, },
- 	{ "max6370_wdt", (kernel_ulong_t)max6369_table, },
-@@ -265,7 +256,6 @@ MODULE_DEVICE_TABLE(platform, max63xx_id_table);
- 
- static struct platform_driver max63xx_wdt_driver = {
- 	.probe		= max63xx_wdt_probe,
--	.remove		= max63xx_wdt_remove,
- 	.id_table	= max63xx_id_table,
- 	.driver		= {
- 		.name	= "max63xx_wdt",
 -- 
 2.7.4
