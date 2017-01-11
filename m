@@ -4,9 +4,9 @@ To: Wim Van Sebroeck <wim@iguana.be>
 Cc: linux-watchdog@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 58/62] watchdog: ts4800_wdt: Convert to use device managed functions
-Date: Tue, 10 Jan 2017 18:09:12 -0800
-Message-Id: <1484100561-17638-7-git-send-email-linux@roeck-us.net>
+Subject: [PATCH 59/62] watchdog: twl4030_wdt: Convert to use device managed functions
+Date: Tue, 10 Jan 2017 18:09:13 -0800
+Message-Id: <1484100561-17638-8-git-send-email-linux@roeck-us.net>
 In-Reply-To: <1484100561-17638-1-git-send-email-linux@roeck-us.net>
 References: <1484091325-9199-1-git-send-email-linux@roeck-us.net>
  <1484100561-17638-1-git-send-email-linux@roeck-us.net>
@@ -20,60 +20,58 @@ following semantic patches. The semantic patches and the scripts used
 to generate this commit log are available at
 https://github.com/groeck/coccinelle-patches
 
+- Replace 'val = e; return val;' with 'return e;'
+- Replace 'if (e) return e; return 0;' with 'return e;'
 - Drop assignments to otherwise unused variables
 - Drop remove function
-- Drop platform_set_drvdata()
 - Use devm_watchdog_register_driver() to register watchdog device
 
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/watchdog/ts4800_wdt.c | 14 +-------------
- 1 file changed, 1 insertion(+), 13 deletions(-)
+ drivers/watchdog/twl4030_wdt.c | 17 +----------------
+ 1 file changed, 1 insertion(+), 16 deletions(-)
 
-diff --git a/drivers/watchdog/ts4800_wdt.c b/drivers/watchdog/ts4800_wdt.c
-index 2b8de8602b67..93e0da560b48 100644
---- a/drivers/watchdog/ts4800_wdt.c
-+++ b/drivers/watchdog/ts4800_wdt.c
-@@ -168,15 +168,13 @@ static int ts4800_wdt_probe(struct platform_device *pdev)
- 	 */
- 	ts4800_wdt_stop(wdd);
+diff --git a/drivers/watchdog/twl4030_wdt.c b/drivers/watchdog/twl4030_wdt.c
+index 9bf3cc0f3961..9fd8073b0cde 100644
+--- a/drivers/watchdog/twl4030_wdt.c
++++ b/drivers/watchdog/twl4030_wdt.c
+@@ -70,7 +70,6 @@ static const struct watchdog_ops twl4030_wdt_ops = {
  
--	ret = watchdog_register_device(wdd);
-+	ret = devm_watchdog_register_device(&pdev->dev, wdd);
- 	if (ret) {
- 		dev_err(&pdev->dev,
- 			"failed to register watchdog device\n");
- 		return ret;
- 	}
+ static int twl4030_wdt_probe(struct platform_device *pdev)
+ {
+-	int ret = 0;
+ 	struct watchdog_device *wdt;
  
--	platform_set_drvdata(pdev, wdt);
--
- 	dev_info(&pdev->dev,
- 		 "initialized (timeout = %d sec, nowayout = %d)\n",
- 		 wdd->timeout, nowayout);
-@@ -184,15 +182,6 @@ static int ts4800_wdt_probe(struct platform_device *pdev)
- 	return 0;
- }
+ 	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
+@@ -90,20 +89,7 @@ static int twl4030_wdt_probe(struct platform_device *pdev)
  
--static int ts4800_wdt_remove(struct platform_device *pdev)
--{
--	struct ts4800_wdt *wdt = platform_get_drvdata(pdev);
--
--	watchdog_unregister_device(&wdt->wdd);
+ 	twl4030_wdt_stop(wdt);
+ 
+-	ret = watchdog_register_device(wdt);
+-	if (ret)
+-		return ret;
 -
 -	return 0;
 -}
 -
- static const struct of_device_id ts4800_wdt_of_match[] = {
- 	{ .compatible = "technologic,ts4800-wdt", },
- 	{ },
-@@ -201,7 +190,6 @@ MODULE_DEVICE_TABLE(of, ts4800_wdt_of_match);
+-static int twl4030_wdt_remove(struct platform_device *pdev)
+-{
+-	struct watchdog_device *wdt = platform_get_drvdata(pdev);
+-
+-	watchdog_unregister_device(wdt);
+-
+-	return 0;
++	return devm_watchdog_register_device(&pdev->dev, wdt);
+ }
  
- static struct platform_driver ts4800_wdt_driver = {
- 	.probe		= ts4800_wdt_probe,
--	.remove		= ts4800_wdt_remove,
+ #ifdef CONFIG_PM
+@@ -137,7 +123,6 @@ MODULE_DEVICE_TABLE(of, twl_wdt_of_match);
+ 
+ static struct platform_driver twl4030_wdt_driver = {
+ 	.probe		= twl4030_wdt_probe,
+-	.remove		= twl4030_wdt_remove,
+ 	.suspend	= twl4030_wdt_suspend,
+ 	.resume		= twl4030_wdt_resume,
  	.driver		= {
- 		.name	= "ts4800_wdt",
- 		.of_match_table = ts4800_wdt_of_match,
 -- 
 2.7.4
