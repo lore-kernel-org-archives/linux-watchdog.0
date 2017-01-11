@@ -1,19 +1,16 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:42216 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:42039 "EHLO
         bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S935059AbdAKAqp (ORCPT
+        with ESMTP id S935023AbdAKAqm (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 10 Jan 2017 19:46:45 -0500
+        Tue, 10 Jan 2017 19:46:42 -0500
 From: Guenter Roeck <linux@roeck-us.net>
 To: Wim Van Sebroeck <wim@iguana.be>
 Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Guenter Roeck <linux@roeck-us.net>,
-        Vladimir Zapolskiy <vz@mleia.com>,
-        Sylvain Lemieux <slemieux.tyco@gmail.com>,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH 44/62] watchdog: pnx4008_wdt: Convert to use device managed functions
-Date: Tue, 10 Jan 2017 16:44:53 -0800
-Message-Id: <1484095516-12720-14-git-send-email-linux@roeck-us.net>
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 42/62] watchdog: pic32-dmt: Convert to use device managed functions
+Date: Tue, 10 Jan 2017 16:44:51 -0800
+Message-Id: <1484095516-12720-12-git-send-email-linux@roeck-us.net>
 In-Reply-To: <1484095516-12720-1-git-send-email-linux@roeck-us.net>
 References: <1484091325-9199-1-git-send-email-linux@roeck-us.net>
  <1484095516-12720-1-git-send-email-linux@roeck-us.net>
@@ -30,71 +27,80 @@ https://github.com/groeck/coccinelle-patches
 
 - Use devm_add_action_or_reset() for calls to clk_disable_unprepare
 - Replace 'goto l; ... l: return e;' with 'return e;'
+- Replace 'val = e; return val;' with 'return e;'
+- Drop assignments to otherwise unused variables
 - Drop remove function
+- Drop platform_set_drvdata()
 - Use devm_watchdog_register_driver() to register watchdog device
 
-Cc: Vladimir Zapolskiy <vz@mleia.com>
-Cc: Sylvain Lemieux <slemieux.tyco@gmail.com>
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/watchdog/pnx4008_wdt.c | 23 +++++++----------------
- 1 file changed, 7 insertions(+), 16 deletions(-)
+ drivers/watchdog/pic32-dmt.c | 29 ++++++++---------------------
+ 1 file changed, 8 insertions(+), 21 deletions(-)
 
-diff --git a/drivers/watchdog/pnx4008_wdt.c b/drivers/watchdog/pnx4008_wdt.c
-index 0529aed158a4..a0cda8748c9b 100644
---- a/drivers/watchdog/pnx4008_wdt.c
-+++ b/drivers/watchdog/pnx4008_wdt.c
-@@ -202,6 +202,11 @@ static int pnx4008_wdt_probe(struct platform_device *pdev)
- 	ret = clk_prepare_enable(wdt_clk);
+diff --git a/drivers/watchdog/pic32-dmt.c b/drivers/watchdog/pic32-dmt.c
+index c797305f8338..31d635639049 100644
+--- a/drivers/watchdog/pic32-dmt.c
++++ b/drivers/watchdog/pic32-dmt.c
+@@ -193,13 +193,17 @@ static int pic32_dmt_probe(struct platform_device *pdev)
+ 	ret = clk_prepare_enable(dmt->clk);
  	if (ret)
  		return ret;
 +	ret = devm_add_action_or_reset(&pdev->dev,
 +				       (void(*)(void *))clk_disable_unprepare,
-+				       wdt_clk);
++				       dmt->clk);
 +	if (ret)
 +		return ret;
  
- 	pnx4008_wdd.bootstatus = (readl(WDTIM_RES(wdt_base)) & WDOG_RESET) ?
- 			WDIOF_CARDRESET : 0;
-@@ -211,28 +216,15 @@ static int pnx4008_wdt_probe(struct platform_device *pdev)
+ 	wdd->timeout = pic32_dmt_get_timeout_secs(dmt);
+ 	if (!wdd->timeout) {
+ 		dev_err(&pdev->dev,
+ 			"failed to read watchdog register timeout\n");
+-		ret = -EINVAL;
+-		goto out_disable_clk;
++		return -EINVAL;
+ 	}
  
- 	pnx4008_wdt_stop(&pnx4008_wdd);	/* disable for now */
+ 	dev_info(&pdev->dev, "timeout %d\n", wdd->timeout);
+@@ -209,28 +213,12 @@ static int pic32_dmt_probe(struct platform_device *pdev)
+ 	watchdog_set_nowayout(wdd, WATCHDOG_NOWAYOUT);
+ 	watchdog_set_drvdata(wdd, dmt);
  
--	ret = watchdog_register_device(&pnx4008_wdd);
-+	ret = devm_watchdog_register_device(&pdev->dev, &pnx4008_wdd);
- 	if (ret < 0) {
- 		dev_err(&pdev->dev, "cannot register watchdog device\n");
--		goto disable_clk;
+-	ret = watchdog_register_device(wdd);
++	ret = devm_watchdog_register_device(&pdev->dev, wdd);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "watchdog register failed, err %d\n", ret);
+-		goto out_disable_clk;
 +		return ret;
  	}
  
- 	dev_info(&pdev->dev, "heartbeat %d sec\n", pnx4008_wdd.timeout);
- 
- 	return 0;
+-	platform_set_drvdata(pdev, wdd);
+-	return 0;
 -
--disable_clk:
--	clk_disable_unprepare(wdt_clk);
+-out_disable_clk:
+-	clk_disable_unprepare(dmt->clk);
 -	return ret;
 -}
 -
--static int pnx4008_wdt_remove(struct platform_device *pdev)
+-static int pic32_dmt_remove(struct platform_device *pdev)
 -{
--	watchdog_unregister_device(&pnx4008_wdd);
+-	struct watchdog_device *wdd = platform_get_drvdata(pdev);
+-	struct pic32_dmt *dmt = watchdog_get_drvdata(wdd);
 -
--	clk_disable_unprepare(wdt_clk);
+-	watchdog_unregister_device(wdd);
+-	clk_disable_unprepare(dmt->clk);
 -
--	return 0;
+ 	return 0;
  }
  
- #ifdef CONFIG_OF
-@@ -249,7 +241,6 @@ static struct platform_driver platform_wdt_driver = {
- 		.of_match_table = of_match_ptr(pnx4008_wdt_match),
- 	},
- 	.probe = pnx4008_wdt_probe,
--	.remove = pnx4008_wdt_remove,
- };
+@@ -242,7 +230,6 @@ MODULE_DEVICE_TABLE(of, pic32_dmt_of_ids);
  
- module_platform_driver(platform_wdt_driver);
+ static struct platform_driver pic32_dmt_driver = {
+ 	.probe		= pic32_dmt_probe,
+-	.remove		= pic32_dmt_remove,
+ 	.driver		= {
+ 		.name		= "pic32-dmt",
+ 		.of_match_table = of_match_ptr(pic32_dmt_of_ids),
 -- 
 2.7.4
 
