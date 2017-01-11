@@ -1,16 +1,19 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:42287 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:42216 "EHLO
         bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S935105AbdAKAqv (ORCPT
+        with ESMTP id S935059AbdAKAqp (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 10 Jan 2017 19:46:51 -0500
+        Tue, 10 Jan 2017 19:46:45 -0500
 From: Guenter Roeck <linux@roeck-us.net>
 To: Wim Van Sebroeck <wim@iguana.be>
 Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 45/62] watchdog: qcom-wdt: Convert to use device managed functions
-Date: Tue, 10 Jan 2017 16:44:54 -0800
-Message-Id: <1484095516-12720-15-git-send-email-linux@roeck-us.net>
+        Guenter Roeck <linux@roeck-us.net>,
+        Vladimir Zapolskiy <vz@mleia.com>,
+        Sylvain Lemieux <slemieux.tyco@gmail.com>,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH 44/62] watchdog: pnx4008_wdt: Convert to use device managed functions
+Date: Tue, 10 Jan 2017 16:44:53 -0800
+Message-Id: <1484095516-12720-14-git-send-email-linux@roeck-us.net>
 In-Reply-To: <1484095516-12720-1-git-send-email-linux@roeck-us.net>
 References: <1484091325-9199-1-git-send-email-linux@roeck-us.net>
  <1484095516-12720-1-git-send-email-linux@roeck-us.net>
@@ -27,80 +30,71 @@ https://github.com/groeck/coccinelle-patches
 
 - Use devm_add_action_or_reset() for calls to clk_disable_unprepare
 - Replace 'goto l; ... l: return e;' with 'return e;'
-- Replace 'val = e; return val;' with 'return e;'
-- Drop assignments to otherwise unused variables
 - Drop remove function
-- Drop platform_set_drvdata()
 - Use devm_watchdog_register_driver() to register watchdog device
 
+Cc: Vladimir Zapolskiy <vz@mleia.com>
+Cc: Sylvain Lemieux <slemieux.tyco@gmail.com>
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/watchdog/qcom-wdt.c | 27 ++++++++-------------------
- 1 file changed, 8 insertions(+), 19 deletions(-)
+ drivers/watchdog/pnx4008_wdt.c | 23 +++++++----------------
+ 1 file changed, 7 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/watchdog/qcom-wdt.c b/drivers/watchdog/qcom-wdt.c
-index 4f47b5e90956..e021aaf73b47 100644
---- a/drivers/watchdog/qcom-wdt.c
-+++ b/drivers/watchdog/qcom-wdt.c
-@@ -185,6 +185,11 @@ static int qcom_wdt_probe(struct platform_device *pdev)
- 		dev_err(&pdev->dev, "failed to setup clock\n");
+diff --git a/drivers/watchdog/pnx4008_wdt.c b/drivers/watchdog/pnx4008_wdt.c
+index 0529aed158a4..a0cda8748c9b 100644
+--- a/drivers/watchdog/pnx4008_wdt.c
++++ b/drivers/watchdog/pnx4008_wdt.c
+@@ -202,6 +202,11 @@ static int pnx4008_wdt_probe(struct platform_device *pdev)
+ 	ret = clk_prepare_enable(wdt_clk);
+ 	if (ret)
  		return ret;
- 	}
 +	ret = devm_add_action_or_reset(&pdev->dev,
 +				       (void(*)(void *))clk_disable_unprepare,
-+				       wdt->clk);
++				       wdt_clk);
 +	if (ret)
 +		return ret;
  
- 	/*
- 	 * We use the clock rate to calculate the max timeout, so ensure it's
-@@ -198,8 +203,7 @@ static int qcom_wdt_probe(struct platform_device *pdev)
- 	if (wdt->rate == 0 ||
- 	    wdt->rate > 0x10000000U) {
- 		dev_err(&pdev->dev, "invalid clock rate\n");
--		ret = -EINVAL;
--		goto err_clk_unprepare;
-+		return -EINVAL;
- 	}
+ 	pnx4008_wdd.bootstatus = (readl(WDTIM_RES(wdt_base)) & WDOG_RESET) ?
+ 			WDIOF_CARDRESET : 0;
+@@ -211,28 +216,15 @@ static int pnx4008_wdt_probe(struct platform_device *pdev)
  
- 	wdt->wdd.info = &qcom_wdt_info;
-@@ -220,26 +224,12 @@ static int qcom_wdt_probe(struct platform_device *pdev)
- 	wdt->wdd.timeout = min(wdt->wdd.max_timeout, 30U);
- 	watchdog_init_timeout(&wdt->wdd, 0, &pdev->dev);
+ 	pnx4008_wdt_stop(&pnx4008_wdd);	/* disable for now */
  
--	ret = watchdog_register_device(&wdt->wdd);
-+	ret = devm_watchdog_register_device(&pdev->dev, &wdt->wdd);
- 	if (ret) {
- 		dev_err(&pdev->dev, "failed to register watchdog\n");
--		goto err_clk_unprepare;
+-	ret = watchdog_register_device(&pnx4008_wdd);
++	ret = devm_watchdog_register_device(&pdev->dev, &pnx4008_wdd);
+ 	if (ret < 0) {
+ 		dev_err(&pdev->dev, "cannot register watchdog device\n");
+-		goto disable_clk;
 +		return ret;
  	}
  
--	platform_set_drvdata(pdev, wdt);
--	return 0;
+ 	dev_info(&pdev->dev, "heartbeat %d sec\n", pnx4008_wdd.timeout);
+ 
+ 	return 0;
 -
--err_clk_unprepare:
--	clk_disable_unprepare(wdt->clk);
+-disable_clk:
+-	clk_disable_unprepare(wdt_clk);
 -	return ret;
 -}
 -
--static int qcom_wdt_remove(struct platform_device *pdev)
+-static int pnx4008_wdt_remove(struct platform_device *pdev)
 -{
--	struct qcom_wdt *wdt = platform_get_drvdata(pdev);
+-	watchdog_unregister_device(&pnx4008_wdd);
 -
--	watchdog_unregister_device(&wdt->wdd);
--	clk_disable_unprepare(wdt->clk);
- 	return 0;
+-	clk_disable_unprepare(wdt_clk);
+-
+-	return 0;
  }
  
-@@ -253,7 +243,6 @@ MODULE_DEVICE_TABLE(of, qcom_wdt_of_table);
+ #ifdef CONFIG_OF
+@@ -249,7 +241,6 @@ static struct platform_driver platform_wdt_driver = {
+ 		.of_match_table = of_match_ptr(pnx4008_wdt_match),
+ 	},
+ 	.probe = pnx4008_wdt_probe,
+-	.remove = pnx4008_wdt_remove,
+ };
  
- static struct platform_driver qcom_watchdog_driver = {
- 	.probe	= qcom_wdt_probe,
--	.remove	= qcom_wdt_remove,
- 	.driver	= {
- 		.name		= KBUILD_MODNAME,
- 		.of_match_table	= qcom_wdt_of_table,
+ module_platform_driver(platform_wdt_driver);
 -- 
 2.7.4
 
