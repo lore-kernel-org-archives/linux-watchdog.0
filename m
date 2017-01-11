@@ -3,13 +3,10 @@ From: Guenter Roeck <linux@roeck-us.net>
 To: Wim Van Sebroeck <wim@iguana.be>
 Cc: linux-watchdog@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	Guenter Roeck <linux@roeck-us.net>,
-	Patrice Chotard <patrice.chotard@st.com>,
-	kernel@stlinux.com,
-	linux-arm-kernel@lists.infradead.org
-Subject: [PATCH 53/62] watchdog: st_lpc_wdt: Convert to use device managed functions
-Date: Tue, 10 Jan 2017 18:09:07 -0800
-Message-Id: <1484100561-17638-2-git-send-email-linux@roeck-us.net>
+	Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 54/62] watchdog: stmp3xxx_rtc_wdt: Convert to use device managed functions
+Date: Tue, 10 Jan 2017 18:09:08 -0800
+Message-Id: <1484100561-17638-3-git-send-email-linux@roeck-us.net>
 In-Reply-To: <1484100561-17638-1-git-send-email-linux@roeck-us.net>
 References: <1484091325-9199-1-git-send-email-linux@roeck-us.net>
  <1484100561-17638-1-git-send-email-linux@roeck-us.net>
@@ -23,55 +20,33 @@ following semantic patches. The semantic patches and the scripts used
 to generate this commit log are available at
 https://github.com/groeck/coccinelle-patches
 
-- Use devm_add_action_or_reset() for calls to clk_disable_unprepare
 - Use devm_watchdog_register_driver() to register watchdog device
 
-Cc: Patrice Chotard <patrice.chotard@st.com>
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/watchdog/st_lpc_wdt.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ drivers/watchdog/stmp3xxx_rtc_wdt.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/watchdog/st_lpc_wdt.c b/drivers/watchdog/st_lpc_wdt.c
-index e6100e447dd8..d561fbf1df85 100644
---- a/drivers/watchdog/st_lpc_wdt.c
-+++ b/drivers/watchdog/st_lpc_wdt.c
-@@ -215,6 +215,11 @@ static int st_wdog_probe(struct platform_device *pdev)
- 		dev_err(&pdev->dev, "Unable to enable clock\n");
+diff --git a/drivers/watchdog/stmp3xxx_rtc_wdt.c b/drivers/watchdog/stmp3xxx_rtc_wdt.c
+index d8b11eb269ad..c67f48fba8e1 100644
+--- a/drivers/watchdog/stmp3xxx_rtc_wdt.c
++++ b/drivers/watchdog/stmp3xxx_rtc_wdt.c
+@@ -99,7 +99,7 @@ static int stmp3xxx_wdt_probe(struct platform_device *pdev)
+ 	stmp3xxx_wdd.timeout = clamp_t(unsigned, heartbeat, 1, STMP3XXX_MAX_TIMEOUT);
+ 	stmp3xxx_wdd.parent = &pdev->dev;
+ 
+-	ret = watchdog_register_device(&stmp3xxx_wdd);
++	ret = devm_watchdog_register_device(&pdev->dev, &stmp3xxx_wdd);
+ 	if (ret < 0) {
+ 		dev_err(&pdev->dev, "cannot register watchdog device\n");
  		return ret;
- 	}
-+	ret = devm_add_action_or_reset(&pdev->dev,
-+				       (void(*)(void *))clk_disable_unprepare,
-+				       clk);
-+	if (ret)
-+		return ret;
- 
- 	watchdog_set_drvdata(&st_wdog_dev, st_wdog);
- 	watchdog_set_nowayout(&st_wdog_dev, WATCHDOG_NOWAYOUT);
-@@ -223,14 +228,12 @@ static int st_wdog_probe(struct platform_device *pdev)
- 	ret = watchdog_init_timeout(&st_wdog_dev, 0, &pdev->dev);
- 	if (ret) {
- 		dev_err(&pdev->dev, "Unable to initialise watchdog timeout\n");
--		clk_disable_unprepare(clk);
- 		return ret;
- 	}
- 
--	ret = watchdog_register_device(&st_wdog_dev);
-+	ret = devm_watchdog_register_device(&pdev->dev, &st_wdog_dev);
- 	if (ret) {
- 		dev_err(&pdev->dev, "Unable to register watchdog\n");
--		clk_disable_unprepare(clk);
- 		return ret;
- 	}
- 
-@@ -247,8 +250,6 @@ static int st_wdog_remove(struct platform_device *pdev)
- 	struct st_wdog *st_wdog = watchdog_get_drvdata(&st_wdog_dev);
- 
- 	st_wdog_setup(st_wdog, false);
--	watchdog_unregister_device(&st_wdog_dev);
--	clk_disable_unprepare(st_wdog->clk);
- 
+@@ -116,7 +116,6 @@ static int stmp3xxx_wdt_probe(struct platform_device *pdev)
+ static int stmp3xxx_wdt_remove(struct platform_device *pdev)
+ {
+ 	unregister_reboot_notifier(&wdt_notifier);
+-	watchdog_unregister_device(&stmp3xxx_wdd);
  	return 0;
  }
+ 
 -- 
 2.7.4
