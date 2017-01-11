@@ -1,16 +1,16 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:42039 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:42145 "EHLO
         bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S935023AbdAKAqm (ORCPT
+        with ESMTP id S934946AbdAKAqi (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 10 Jan 2017 19:46:42 -0500
+        Tue, 10 Jan 2017 19:46:38 -0500
 From: Guenter Roeck <linux@roeck-us.net>
 To: Wim Van Sebroeck <wim@iguana.be>
 Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
         Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 42/62] watchdog: pic32-dmt: Convert to use device managed functions
-Date: Tue, 10 Jan 2017 16:44:51 -0800
-Message-Id: <1484095516-12720-12-git-send-email-linux@roeck-us.net>
+Subject: [PATCH 43/62] watchdog: pic32-wdt: Convert to use device managed functions
+Date: Tue, 10 Jan 2017 16:44:52 -0800
+Message-Id: <1484095516-12720-13-git-send-email-linux@roeck-us.net>
 In-Reply-To: <1484095516-12720-1-git-send-email-linux@roeck-us.net>
 References: <1484091325-9199-1-git-send-email-linux@roeck-us.net>
  <1484095516-12720-1-git-send-email-linux@roeck-us.net>
@@ -35,24 +35,31 @@ https://github.com/groeck/coccinelle-patches
 
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/watchdog/pic32-dmt.c | 29 ++++++++---------------------
- 1 file changed, 8 insertions(+), 21 deletions(-)
+ drivers/watchdog/pic32-wdt.c | 34 +++++++++-------------------------
+ 1 file changed, 9 insertions(+), 25 deletions(-)
 
-diff --git a/drivers/watchdog/pic32-dmt.c b/drivers/watchdog/pic32-dmt.c
-index c797305f8338..31d635639049 100644
---- a/drivers/watchdog/pic32-dmt.c
-+++ b/drivers/watchdog/pic32-dmt.c
-@@ -193,13 +193,17 @@ static int pic32_dmt_probe(struct platform_device *pdev)
- 	ret = clk_prepare_enable(dmt->clk);
- 	if (ret)
+diff --git a/drivers/watchdog/pic32-wdt.c b/drivers/watchdog/pic32-wdt.c
+index e2761068dc6f..818d868c4f3e 100644
+--- a/drivers/watchdog/pic32-wdt.c
++++ b/drivers/watchdog/pic32-wdt.c
+@@ -197,19 +197,22 @@ static int pic32_wdt_drv_probe(struct platform_device *pdev)
+ 		dev_err(&pdev->dev, "clk enable failed\n");
  		return ret;
+ 	}
 +	ret = devm_add_action_or_reset(&pdev->dev,
 +				       (void(*)(void *))clk_disable_unprepare,
-+				       dmt->clk);
++				       wdt->clk);
 +	if (ret)
 +		return ret;
  
- 	wdd->timeout = pic32_dmt_get_timeout_secs(dmt);
+ 	if (pic32_wdt_is_win_enabled(wdt)) {
+ 		dev_err(&pdev->dev, "windowed-clear mode is not supported.\n");
+-		ret = -ENODEV;
+-		goto out_disable_clk;
++		return -ENODEV;
+ 	}
+ 
+ 	wdd->timeout = pic32_wdt_get_timeout_secs(wdt, &pdev->dev);
  	if (!wdd->timeout) {
  		dev_err(&pdev->dev,
  			"failed to read watchdog register timeout\n");
@@ -62,9 +69,9 @@ index c797305f8338..31d635639049 100644
  	}
  
  	dev_info(&pdev->dev, "timeout %d\n", wdd->timeout);
-@@ -209,28 +213,12 @@ static int pic32_dmt_probe(struct platform_device *pdev)
+@@ -219,36 +222,17 @@ static int pic32_wdt_drv_probe(struct platform_device *pdev)
  	watchdog_set_nowayout(wdd, WATCHDOG_NOWAYOUT);
- 	watchdog_set_drvdata(wdd, dmt);
+ 	watchdog_set_drvdata(wdd, wdt);
  
 -	ret = watchdog_register_device(wdd);
 +	ret = devm_watchdog_register_device(&pdev->dev, wdd);
@@ -75,32 +82,32 @@ index c797305f8338..31d635639049 100644
  	}
  
 -	platform_set_drvdata(pdev, wdd);
+-
 -	return 0;
 -
 -out_disable_clk:
--	clk_disable_unprepare(dmt->clk);
+-	clk_disable_unprepare(wdt->clk);
+-
 -	return ret;
 -}
 -
--static int pic32_dmt_remove(struct platform_device *pdev)
+-static int pic32_wdt_drv_remove(struct platform_device *pdev)
 -{
 -	struct watchdog_device *wdd = platform_get_drvdata(pdev);
--	struct pic32_dmt *dmt = watchdog_get_drvdata(wdd);
+-	struct pic32_wdt *wdt = watchdog_get_drvdata(wdd);
 -
 -	watchdog_unregister_device(wdd);
--	clk_disable_unprepare(dmt->clk);
+-	clk_disable_unprepare(wdt->clk);
 -
  	return 0;
  }
  
-@@ -242,7 +230,6 @@ MODULE_DEVICE_TABLE(of, pic32_dmt_of_ids);
- 
- static struct platform_driver pic32_dmt_driver = {
- 	.probe		= pic32_dmt_probe,
--	.remove		= pic32_dmt_remove,
+ static struct platform_driver pic32_wdt_driver = {
+ 	.probe		= pic32_wdt_drv_probe,
+-	.remove		= pic32_wdt_drv_remove,
  	.driver		= {
- 		.name		= "pic32-dmt",
- 		.of_match_table = of_match_ptr(pic32_dmt_of_ids),
+ 		.name		= "pic32-wdt",
+ 		.of_match_table = of_match_ptr(pic32_wdt_dt_ids),
 -- 
 2.7.4
 
