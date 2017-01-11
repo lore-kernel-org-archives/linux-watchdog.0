@@ -1,38 +1,39 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from unicorn.mansr.com ([81.2.72.234]:38274 "EHLO unicorn.mansr.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S936888AbdAKOnc (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 11 Jan 2017 09:43:32 -0500
-From: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mans@mansr.com>
+Received: from mail1.bemta12.messagelabs.com ([216.82.251.8]:41472 "EHLO
+        mail1.bemta12.messagelabs.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S937077AbdAKP2T (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Wed, 11 Jan 2017 10:28:19 -0500
+Subject: Re: [PATCH 56/62] watchdog: tangox_wdt: Convert to use device managed
+ functions
 To: Guenter Roeck <linux@roeck-us.net>
-Cc: Marc Gonzalez <marc_gonzalez@sigmadesigns.com>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
+CC: Wim Van Sebroeck <wim@iguana.be>, <linux-watchdog@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        Mans Rullgard <mans@mansr.com>,
         Thibaud Cornic <thibaud_cornic@sigmadesigns.com>,
         Mark Rutland <mark.rutland@arm.com>,
         Uwe Kleine-Konig <u.kleine-koenig@pengutronix.de>,
         Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH 56/62] watchdog: tangox_wdt: Convert to use device managed functions
 References: <1484091325-9199-1-git-send-email-linux@roeck-us.net>
-        <1484100561-17638-1-git-send-email-linux@roeck-us.net>
-        <1484100561-17638-5-git-send-email-linux@roeck-us.net>
-        <bd56e90c-5cb8-02d8-3518-c8f5483a6df4@sigmadesigns.com>
-        <94c4d5c0-f639-eab1-6706-335977690e88@roeck-us.net>
-        <a45ed205-7c1b-a298-50c0-fc8b80a846c5@sigmadesigns.com>
-        <a61eb838-4167-3032-bde8-3a8845b780f8@roeck-us.net>
-Date: Wed, 11 Jan 2017 14:43:27 +0000
-In-Reply-To: <a61eb838-4167-3032-bde8-3a8845b780f8@roeck-us.net> (Guenter
-        Roeck's message of "Wed, 11 Jan 2017 06:25:35 -0800")
-Message-ID: <yw1x60llmzcg.fsf@unicorn.mansr.com>
+ <1484100561-17638-1-git-send-email-linux@roeck-us.net>
+ <1484100561-17638-5-git-send-email-linux@roeck-us.net>
+ <bd56e90c-5cb8-02d8-3518-c8f5483a6df4@sigmadesigns.com>
+ <94c4d5c0-f639-eab1-6706-335977690e88@roeck-us.net>
+ <a45ed205-7c1b-a298-50c0-fc8b80a846c5@sigmadesigns.com>
+ <a61eb838-4167-3032-bde8-3a8845b780f8@roeck-us.net>
+From: Marc Gonzalez <marc_gonzalez@sigmadesigns.com>
+Message-ID: <f7d9227c-4912-5c52-5ba7-ae7fa3b89857@sigmadesigns.com>
+Date: Wed, 11 Jan 2017 16:28:12 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+In-Reply-To: <a61eb838-4167-3032-bde8-3a8845b780f8@roeck-us.net>
+Content-Type: text/plain; charset="UTF-8"
+Content-Language: 
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Guenter Roeck <linux@roeck-us.net> writes:
-
+On 11/01/2017 15:25, Guenter Roeck wrote:
 > On 01/11/2017 04:31 AM, Marc Gonzalez wrote:
 >> On 11/01/2017 11:52, Guenter Roeck wrote:
 >>
@@ -66,24 +67,56 @@ Guenter Roeck <linux@roeck-us.net> writes:
 >> In my opinion, it's not a good idea to rely on the fact that casting
 >> void(*)(struct clk *clk) to void(*)(void *) is likely to work as expected
 >> on most platforms. (It has undefined behavior, strictly speaking.)
->>
-> I do hear that you object to this code.
 >
+> I do hear that you object to this code.
+> 
 > However, I must admit that you completely lost me here. It is a cast from
-> one function pointer to another, passed as argument to another function,
+> one function pointer to another,
+
+Perhaps you are used to work at the assembly level, where pointers are
+just addresses, and all pointers are interchangeable.
+
+At a slightly higher level (C abstract machine), it is not so.
+
+> passed as argument to another function,
 > with a secondary cast of its argument from a typed pointer to a void pointer.
 > I don't think C permits for "undefined behavior, strictly speaking".
+
+The C standard leaves quite a lot of behavior undefined, e.g.
+
+char *foo = "hello";
+foo[1] = 'a'; // UB
+
+char buf[4];
+*(int *)&buf = 0xdeadbeef; // UB
+
+1 << 64; // UB
+
 > Besides, that same mechanism is already used elsewhere, which is how I
 > got the idea. Are you claiming that there are situations where it won't
 > work ?
 
-A pointer to void is interchangeable with any other pointer type.  That
-doesn't necessarily imply that pointers to functions taking arguments of
-different pointer types (as we have here) are always compatible.  I'd
-have to read the C standard carefully to see if there's any such
-promise, and I have other things to do right now.  I am, however, not
-aware of any ABI (certainly none used by Linux) where it would pose a
-problem.
+If this technique is already used elsewhere in the kernel, then I'll
+crawl back under my rock (and weep).
 
--- 
-Måns Rullgård
+I can see two issues with the code you propose.
+
+First is the same for all casts: silencing potential warnings,
+e.g. if the prototype of clk_disable_unprepare ever changed.
+(Though casts are required for vararg function arguments.)
+
+Second is just theory and not a real-world concern.
+
+>> Do you really dislike the portable solution I suggested? :-(
+>
+> It is not more portable than the above. It is more expensive and adds more
+> code.
+
+Maybe I am mistaken. Can you tell me why adding an auxiliary function
+is more expensive? (In CPU cycles?)
+
+clk_disable_unprepare() is static inline, so an auxiliary function
+exists either way (implicit or explicit).
+
+Regards.
+
