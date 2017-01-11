@@ -1,32 +1,35 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-qt0-f171.google.com ([209.85.216.171]:33389 "EHLO
-        mail-qt0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1756366AbdAKPs0 (ORCPT
+Received: from mail-pg0-f43.google.com ([74.125.83.43]:33537 "EHLO
+        mail-pg0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750927AbdAKSos (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 11 Jan 2017 10:48:26 -0500
-Received: by mail-qt0-f171.google.com with SMTP id v23so198802247qtb.0
-        for <linux-watchdog@vger.kernel.org>; Wed, 11 Jan 2017 07:48:26 -0800 (PST)
-MIME-Version: 1.0
-In-Reply-To: <1484091325-9199-11-git-send-email-linux@roeck-us.net>
-References: <1484091325-9199-1-git-send-email-linux@roeck-us.net> <1484091325-9199-11-git-send-email-linux@roeck-us.net>
-From: Linus Walleij <linus.walleij@linaro.org>
-Date: Wed, 11 Jan 2017 16:48:25 +0100
-Message-ID: <CACRpkdakLhH1Te85deJ3Gmwo0VNSrTspcFjBA75N_vgYwESc+Q@mail.gmail.com>
-Subject: Re: [PATCH 10/62] watchdog: coh901327_wdt: Convert to use device
- managed functions
+        Wed, 11 Jan 2017 13:44:48 -0500
+Received: by mail-pg0-f43.google.com with SMTP id 204so30277970pge.0
+        for <linux-watchdog@vger.kernel.org>; Wed, 11 Jan 2017 10:44:48 -0800 (PST)
+From: Kevin Hilman <khilman@baylibre.com>
 To: Guenter Roeck <linux@roeck-us.net>
 Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-arm-kernel@lists.infradead.org"
-        <linux-arm-kernel@lists.infradead.org>
-Content-Type: text/plain; charset=UTF-8
+        linux-kernel@vger.kernel.org, Carlo Caione <carlo@caione.org>,
+        linux-amlogic@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH 32/62] watchdog: meson_gxbb_wdt: Convert to use device managed functions and other improvements
+References: <1484091325-9199-1-git-send-email-linux@roeck-us.net>
+        <1484095516-12720-1-git-send-email-linux@roeck-us.net>
+        <1484095516-12720-2-git-send-email-linux@roeck-us.net>
+Date: Wed, 11 Jan 2017 10:44:45 -0800
+In-Reply-To: <1484095516-12720-2-git-send-email-linux@roeck-us.net> (Guenter
+        Roeck's message of "Tue, 10 Jan 2017 16:44:41 -0800")
+Message-ID: <m2o9zd77xe.fsf@baylibre.com>
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Jan 11, 2017 at 12:34 AM, Guenter Roeck <linux@roeck-us.net> wrote:
+Guenter Roeck <linux@roeck-us.net> writes:
 
 > Use device managed functions to simplify error handling, reduce
 > source code size, improve readability, and reduce the likelyhood of bugs.
+> Other improvements as listed below.
 >
 > The conversion was done automatically with coccinelle using the
 > following semantic patches. The semantic patches and the scripts used
@@ -34,20 +37,20 @@ On Wed, Jan 11, 2017 at 12:34 AM, Guenter Roeck <linux@roeck-us.net> wrote:
 > https://github.com/groeck/coccinelle-patches
 >
 > - Use devm_add_action_or_reset() for calls to clk_disable_unprepare
-> - Use devm_clk_get() if the device parameter is not NULL
-> - Replace 'goto l; ... l: return e;' with 'return e;'
+> - Check return value from clk_prepare_enable()
 > - Replace 'val = e; return val;' with 'return e;'
+> - Replace 'if (e) return e; return 0;' with 'return e;'
+> - Drop assignments to otherwise unused variables
 > - Replace 'if (e) { return expr; }' with 'if (e) return expr;'
-> - Replace request_irq, request_threaded_irq, and request_any_context_irq
->   with their device managed equivalent
-> - Replace &pdev->dev with dev if 'struct device *dev' is a declared
->   variable
+> - Drop remove function
 > - Use devm_watchdog_register_driver() to register watchdog device
+> - Replace shutdown function with call to watchdog_stop_on_reboot()
 >
-> Cc: Linus Walleij <linus.walleij@linaro.org>
+> Cc: Carlo Caione <carlo@caione.org>
+> Cc: Kevin Hilman <khilman@baylibre.com>
 > Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Nice, thanks for the cleanup!
 
-Yours,
-Linus Walleij
+Acked-by: Kevin Hilman <khilman@baylibre.com>
+
