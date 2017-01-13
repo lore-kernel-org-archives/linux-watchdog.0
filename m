@@ -1,115 +1,111 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:48577 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753872AbdA3QyN (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 30 Jan 2017 11:54:13 -0500
-Date: Mon, 30 Jan 2017 08:53:59 -0800
-From: Guenter Roeck <linux@roeck-us.net>
-To: Baoyou Xie <baoyou.xie@linaro.org>
-Cc: Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Jun Nie <jun.nie@linaro.org>, wim@iguana.be,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        linux-arm Mailing List <linux-arm-kernel@lists.infradead.org>,
-        linux-watchdog@vger.kernel.org,
-        devicetree <devicetree@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Shawn Guo <shawnguo@kernel.org>,
-        "xie.baoyou" <xie.baoyou@zte.com.cn>, chen.chaokai@zte.com.cn,
-        wang.qiang01@zte.com.cn
-Subject: Re: [PATCH v6 3/3] watchdog: zx2967: add watchdog controller driver
- for ZTE's zx2967 family
-Message-ID: <20170130165359.GA20288@roeck-us.net>
-References: <1485312289-18354-1-git-send-email-baoyou.xie@linaro.org>
- <1485312289-18354-3-git-send-email-baoyou.xie@linaro.org>
- <20170125162346.GA591@linaro.org>
- <CA+DQWkxpcHqVfDSGuUK-i4DOVXsYEYo60MG5y_oBDNp+ykEdLQ@mail.gmail.com>
- <20170126161729.GA1515@linaro.org>
- <CA+DQWkyPtndGEz-QYvmKaXoGNKQ69Zqu-aG7tCKnT-Mrmx5Wsw@mail.gmail.com>
+Return-path: <prvs=17923fc9e=Rasmus.Villemoes@prevas.dk>
+Subject: Re: [PATCH v4 2/3] watchdog: introduce watchdog.open_timeout
+ commandline parameter
+To: Guenter Roeck <linux@roeck-us.net>
+References: <1483974153-466-1-git-send-email-rasmus.villemoes@prevas.dk>
+ <1483974153-466-3-git-send-email-rasmus.villemoes@prevas.dk>
+ <20170110180818.GC13904@roeck-us.net>
+ <be196ed2-d9e5-b575-a4bc-819e95d59d1d@prevas.dk>
+ <36f7e6eb-e9e6-e33a-6a33-2ae42451637c@roeck-us.net>
+CC: Wim Van Sebroeck <wim@iguana.be>, Jonathan Corbet <corbet@lwn.net>,
+	Sylvain Lemieux <slemieux.tyco@gmail.com>, <linux-watchdog@vger.kernel.org>,
+	<linux-doc@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+From: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+Message-ID: <7d6b0bb9-43ec-d600-607a-0b43dea39f24@prevas.dk>
+Date: Fri, 13 Jan 2017 10:11:42 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CA+DQWkyPtndGEz-QYvmKaXoGNKQ69Zqu-aG7tCKnT-Mrmx5Wsw@mail.gmail.com>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+In-Reply-To: <36f7e6eb-e9e6-e33a-6a33-2ae42451637c@roeck-us.net>
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On Fri, Jan 27, 2017 at 10:40:09AM +0800, Baoyou Xie wrote:
-> On 27 January 2017 at 00:17, Mathieu Poirier <mathieu.poirier@linaro.org>
-> wrote:
+On 2017-01-11 12:02, Guenter Roeck wrote:
+> On 01/11/2017 12:11 AM, Rasmus Villemoes wrote:
+>> On 2017-01-10 19:08, Guenter Roeck wrote:
+>>> On Mon, Jan 09, 2017 at 04:02:32PM +0100, Rasmus Villemoes wrote:
+>>>>
+>>>> +static unsigned open_timeout;
+>>>> +module_param(open_timeout, uint, 0644);
+>>>> +
+>>>> +static bool watchdog_past_open_deadline(struct watchdog_core_data
+>>>> *data)
+>>>> +{
+>>>> +    if (!open_timeout)
+>>>> +        return false;
+>>>> +    return time_is_before_jiffies(data->open_deadline);
+>>>
+>>> Doesn't this return true if the time is _before_ the open deadline ?
+>>> Should it be time_is_after_jiffies() ?
+>>
+>> Yes, time_is_before_jiffies(foo) means foo < jiffies, and that is what
+>> we want when we're querying whether we've passed the deadline.
+>>
+> So you want the function to return true if the timeout has _not_ expired ?
+
+No, I want it to return true if the timeout has expired, just as its
+name hopefully suggests ("are we now past the deadline for opening").
+
+time_is_before_jiffies(foo) expands to time_after(jiffies, foo), which
+in turn expands to (aside from some type checking)
+
+(long)((foo) - (jiffies)) < 0
+
+which is true precisely when jiffies > foo, i.e., when the current time
+is later than foo. [Yes, just as every other user of the time_* helpers
+this only works if the times being compared are within LONG_MAX jiffies
+of each other.]
+
 > 
-> > On Thu, Jan 26, 2017 at 09:32:56AM +0800, Baoyou Xie wrote:
-> > > On 26 January 2017 at 00:23, Mathieu Poirier <mathieu.poirier@linaro.org
-> > >
-> > > wrote:
-> > >
-> > > > On Wed, Jan 25, 2017 at 10:44:49AM +0800, Baoyou Xie wrote:
-> > > > > This patch adds watchdog controller driver for ZTE's zx2967 family.
-> > > > >
-> > > > > Signed-off-by: Baoyou Xie <baoyou.xie@linaro.org>
-> > > > > ---
-[ ... ]
-> > > > > +     reset_control_assert(rstc);
-> > > > > +     usleep_range(500, 20000);
-> > > >
-> > > > Alright, I'm officially confused.
-> > > >
-> > > > First and foremost you still haven't provided an explanation as to why
-> > > > this is
-> > > > required.  Second, in your previous submission you had:
-> > > >
-> > > >         mdelay(10);
-> > > >
-> > > > That is a busy loop of 10ms.  In this post using usleep_range() is a
-> > step
-> > > > in the
-> > > > right direction but the min and max values to wait for don't make
-> > sense.
-> > > > Here
-> > > > you have 500 and 20000, which is 0.5ms and 20ms.
-> > > >
-> > > > In fact, sleeping for 0.5ms is enough.
-> > > we extended the sleeping time to 20ms, the purpose is merging the timer
-> > > interrupts. of course, it's happy to replace it with usleep_range(500,
-> > > 1000).
-> >
-> > "merging the timer interrupts" - you mean trying to get the WD tick to be
-> > closer
-> > to other timers?  If so I really don't see why.  Timers are asynchronous by
-> > nature and there can be dozens of them enabled at any given time.
-> >
-> > Really?
-> Even if the system runs asynchronously, early process may trigger delayed
-> process, for example delayed work queue or timers, we can merge our
-> watchdog timer and those delayed work's timers.
+> [ Can you try to work with line wraps ? ]
+
+Sorry about that, I hope I've now managed to make Thunderbird not mess
+it up.
+
+> Uuh, no. I didn't realize that you apply that case to the "userspace app
+> gracefully
+> closes the watchdog device" case as well. This is clearly a separate use
+> case.
 > 
-In the probe function ?
-
-> Furthermore, what happen if we build this driver as module?
+> Looks like there are now three use cases for 'open timeout'.
+> - time after boot
+> - timer after loading the watchdog device
+> - time after closing watchdog device and before reopening it
 > 
-If every driver writer would use that line of argument, booting would
-take much longer than necessary, with every process sitting on unnecessary
-wait or sleep calls for perceived "optimization" purposes. Probe functions
-run exactly once, and should be time optimized. You should have an idea
-what the minimum reset hold time is, and follow it.
+> I would have thought the first use case is the important one, and the
+> other ones are,
+> at best, secondary. Given that, we are clearly not there yet. This will
+> require input
+> from others on the semantics.
 
-> But, as i said early, it's a trial optimization but can be instead with
-> usleep_range(500, 1000).
-> 
-> In some case, such optimization is helpful. I'd like to talk a story here,
-> about before ten years, I pressed a return key in console, you know, in
-> this case, a process be created and exited, so the cpu core that process
-> run at sent an IPI to other CPU, IPI interrupt resulted in the performance
-> decreased by 20%, so sad:)
-> 
-It appears to be somewhat unlikely that each keypress resulted in a driver
-being instantiated. If it did, a sleep in its probe function was the least
-of your problems.
+I agree, it would be nice to have others chime in on whether they'd even
+find this useful, and what semantics they'd like.
 
-> Unless there is a H/W constraint requiring a delay between the
-> > assert/deassert
-> > of the WD, I don't think adding a wait operation (of any kind) make sense.
+But for the record, for us, both the "time after boot" and "time after
+closing" are important use cases. In practice, approximating boot time
+with time of first registration effectively just pushes the deadline a
+little further out, which I think is acceptable (boot time anyway means
+"when timekeeping began", and even when the deadline is passed, it takes
+up to whatever the hardware is configured to before the board actually
+resets, so there's already some slack involved). If one really wants to
+measure with respect to boot time, I think one can just make
+set_open_deadline take an additional "from" parameter, passing
+INITIAL_JIFFIES from watchdog_cdev_register and jiffies from
+watchdog_release.
 
-Correct.
+(That won't work for the hotplug case, but please ignore that; it was a
+bad example, and certainly not a use case we actually have in mind).
 
-Guenter
+
+Thanks,
+Rasmus
+
+
+-- 
+Rasmus Villemoes
+Software Developer
+Prevas A/S
+Hedeager 1
+DK-8200 Aarhus N
++45 51210274
+rasmus.villemoes@prevas.dk
+www.prevas.dk
