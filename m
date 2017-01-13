@@ -1,70 +1,69 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:42343 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S935059AbdAKAq5 (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 10 Jan 2017 19:46:57 -0500
-From: Guenter Roeck <linux@roeck-us.net>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 46/62] watchdog: renesas_wdt: Convert to use device managed functions
-Date: Tue, 10 Jan 2017 16:44:55 -0800
-Message-Id: <1484095516-12720-16-git-send-email-linux@roeck-us.net>
-In-Reply-To: <1484095516-12720-1-git-send-email-linux@roeck-us.net>
-References: <1484091325-9199-1-git-send-email-linux@roeck-us.net>
- <1484095516-12720-1-git-send-email-linux@roeck-us.net>
+Received: from foss.arm.com ([217.140.101.70]:54858 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750760AbdAMTbJ (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 13 Jan 2017 14:31:09 -0500
+Date: Fri, 13 Jan 2017 19:29:21 +0000
+From: Mark Rutland <mark.rutland@arm.com>
+To: fu.wei@linaro.org
+Cc: rjw@rjwysocki.net, lenb@kernel.org, daniel.lezcano@linaro.org,
+        tglx@linutronix.de, marc.zyngier@arm.com,
+        lorenzo.pieralisi@arm.com, sudeep.holla@arm.com,
+        hanjun.guo@linaro.org, linux-arm-kernel@lists.infradead.org,
+        linaro-acpi@lists.linaro.org, linux-kernel@vger.kernel.org,
+        linux-acpi@vger.kernel.org, rruigrok@codeaurora.org,
+        harba@codeaurora.org, cov@codeaurora.org, timur@codeaurora.org,
+        graeme.gregory@linaro.org, al.stone@linaro.org, jcm@redhat.com,
+        wei@redhat.com, arnd@arndb.de, catalin.marinas@arm.com,
+        will.deacon@arm.com, Suravee.Suthikulpanit@amd.com,
+        leo.duran@amd.com, wim@iguana.be, linux@roeck-us.net,
+        linux-watchdog@vger.kernel.org, tn@semihalf.com,
+        christoffer.dall@linaro.org, julien.grall@arm.com
+Subject: Re: [PATCH v18 00/15] acpi, clocksource: add GTDT driver and GTDT
+ support in arm_arch_timer
+Message-ID: <20170113192920.GF2472@leverpostej>
+References: <20161208173319.6618-1-fu.wei@linaro.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20161208173319.6618-1-fu.wei@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Use device managed functions to simplify error handling, reduce
-source code size, improve readability, and reduce the likelyhood of bugs.
+Hi,
 
-The conversion was done automatically with coccinelle using the
-following semantic patches. The semantic patches and the scripts used
-to generate this commit log are available at
-https://github.com/groeck/coccinelle-patches
+On Fri, Dec 09, 2016 at 01:33:04AM +0800, fu.wei@linaro.org wrote:
+> From: Fu Wei <fu.wei@linaro.org>
+> 
+> This patchset:
+>     (1)Preparation for adding GTDT support in arm_arch_timer:
+>         1. Move some enums and marcos to header file;
+>         2. Add a new enum for spi type;
+>         3. Improve printk relevant code;
+>         4. Rename some enums and defines;
+>         5. Rework PPI determination;
+>         6. Rework counter frequency detection;
+>         7. Refactor arch_timer_needs_probing, move it into DT init call
+>         8. Introduce some new structs and refactor the MMIO timer init code
+>         for reusing some common code.
+> 
+>     (2)Introduce ACPI GTDT parser: drivers/acpi/arm64/acpi_gtdt.c
+>     Parse all kinds of timer in GTDT table of ACPI:arch timer,
+>     memory-mapped timer and SBSA Generic Watchdog timer.
+>     This driver can help to simplify all the relevant timer drivers,
+>     and separate all the ACPI GTDT knowledge from them.
+> 
+>     (3)Simplify ACPI code for arm_arch_timer
+> 
+>     (4)Add GTDT support for ARM memory-mapped timer.
+> 
+> This patchset has been tested on the following platforms with ACPI enabled:
+>     (1)ARM Foundation v8 model
 
-- Drop assignments to otherwise unused variables
-- Drop platform_set_drvdata()
-- Use devm_watchdog_register_driver() to register watchdog device
+Once v4.10-rc4 comes out this weekend, could you please rebase and
+repost this?
 
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
----
- drivers/watchdog/renesas_wdt.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+Marc and I will be happy to take a look then.
 
-diff --git a/drivers/watchdog/renesas_wdt.c b/drivers/watchdog/renesas_wdt.c
-index cf61c92f7ecd..f11a5c0583be 100644
---- a/drivers/watchdog/renesas_wdt.c
-+++ b/drivers/watchdog/renesas_wdt.c
-@@ -157,7 +157,6 @@ static int rwdt_probe(struct platform_device *pdev)
- 	priv->wdev.max_timeout = 65536 / clks_per_sec;
- 	priv->wdev.timeout = min(priv->wdev.max_timeout, RWDT_DEFAULT_TIMEOUT);
- 
--	platform_set_drvdata(pdev, priv);
- 	watchdog_set_drvdata(&priv->wdev, priv);
- 	watchdog_set_nowayout(&priv->wdev, nowayout);
- 
-@@ -166,7 +165,7 @@ static int rwdt_probe(struct platform_device *pdev)
- 	if (ret)
- 		dev_warn(&pdev->dev, "Specified timeout value invalid, using default\n");
- 
--	ret = watchdog_register_device(&priv->wdev);
-+	ret = devm_watchdog_register_device(&pdev->dev, &priv->wdev);
- 	if (ret < 0) {
- 		pm_runtime_put(&pdev->dev);
- 		pm_runtime_disable(&pdev->dev);
-@@ -178,9 +177,6 @@ static int rwdt_probe(struct platform_device *pdev)
- 
- static int rwdt_remove(struct platform_device *pdev)
- {
--	struct rwdt_priv *priv = platform_get_drvdata(pdev);
--
--	watchdog_unregister_device(&priv->wdev);
- 	pm_runtime_put(&pdev->dev);
- 	pm_runtime_disable(&pdev->dev);
- 
--- 
-2.7.4
-
+Thanks,
+Mark.
