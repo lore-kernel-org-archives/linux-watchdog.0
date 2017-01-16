@@ -1,11 +1,21 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from foss.arm.com ([217.140.101.70]:51490 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750982AbdAPMC0 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 16 Jan 2017 07:02:26 -0500
-Date: Mon, 16 Jan 2017 12:01:23 +0000
-From: Mark Rutland <mark.rutland@arm.com>
-To: Fu Wei <fu.wei@linaro.org>
+Received: from mail-it0-f42.google.com ([209.85.214.42]:38160 "EHLO
+        mail-it0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750981AbdAPMEU (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 16 Jan 2017 07:04:20 -0500
+Received: by mail-it0-f42.google.com with SMTP id c7so20055248itd.1
+        for <linux-watchdog@vger.kernel.org>; Mon, 16 Jan 2017 04:04:20 -0800 (PST)
+MIME-Version: 1.0
+In-Reply-To: <20170116120123.GD5908@leverpostej>
+References: <20161221064603.11830-1-fu.wei@linaro.org> <CADyBb7vbTLWKgmGe7jH=4OJx7sZ4Ck4iR-spvnHUrStF5XGxKw@mail.gmail.com>
+ <20170116120123.GD5908@leverpostej>
+From: Fu Wei <fu.wei@linaro.org>
+Date: Mon, 16 Jan 2017 20:04:19 +0800
+Message-ID: <CADyBb7uqExeV81Co_-++2fGRZf+9Y-p23K+hh4B0R30jv5K6tw@mail.gmail.com>
+Subject: Re: [PATCH v19 00/15] acpi, clocksource: add GTDT driver and GTDT
+ support in arm_arch_timer
+To: Mark Rutland <mark.rutland@arm.com>
 Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>,
         Len Brown <lenb@kernel.org>,
         Daniel Lezcano <daniel.lezcano@linaro.org>,
@@ -33,26 +43,33 @@ Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>,
         linux-watchdog@vger.kernel.org, Tomasz Nowicki <tn@semihalf.com>,
         Christoffer Dall <christoffer.dall@linaro.org>,
         Julien Grall <julien.grall@arm.com>
-Subject: Re: [PATCH v19 00/15] acpi, clocksource: add GTDT driver and GTDT
- support in arm_arch_timer
-Message-ID: <20170116120123.GD5908@leverpostej>
-References: <20161221064603.11830-1-fu.wei@linaro.org>
- <CADyBb7vbTLWKgmGe7jH=4OJx7sZ4Ck4iR-spvnHUrStF5XGxKw@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CADyBb7vbTLWKgmGe7jH=4OJx7sZ4Ck4iR-spvnHUrStF5XGxKw@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Jan 16, 2017 at 02:26:54PM +0800, Fu Wei wrote:
-> Hi Mark,
-> 
-> This v19 (I have mentioned it in my previous email) is the latest
-> patchset which can be applied on v4.10-rc4 directly.
-> 
-> please review this patchset, thanks! :-)
+Hi Mark,
 
-Thanks for the pointer; I will look at this shortly.
+On 16 January 2017 at 20:01, Mark Rutland <mark.rutland@arm.com> wrote:
+> On Mon, Jan 16, 2017 at 02:26:54PM +0800, Fu Wei wrote:
+>> Hi Mark,
+>>
+>> This v19 (I have mentioned it in my previous email) is the latest
+>> patchset which can be applied on v4.10-rc4 directly.
+>>
+>> please review this patchset, thanks! :-)
+>
+> Thanks for the pointer; I will look at this shortly.
 
-Mark.
+Great thanks, looking forward to your feedback! :-)
+
+>
+> Mark.
+
+
+
+-- 
+Best regards,
+
+Fu Wei
+Software Engineer
+Red Hat
