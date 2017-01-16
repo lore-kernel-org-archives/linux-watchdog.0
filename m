@@ -1,18 +1,19 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ot0-f194.google.com ([74.125.82.194]:35953 "EHLO
-        mail-ot0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750884AbdAPSeB (ORCPT
+Received: from mail-ot0-f196.google.com ([74.125.82.196]:33543 "EHLO
+        mail-ot0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750777AbdAPSf1 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 16 Jan 2017 13:34:01 -0500
-Received: by mail-ot0-f194.google.com with SMTP id 36so7158266otx.3
-        for <linux-watchdog@vger.kernel.org>; Mon, 16 Jan 2017 10:34:01 -0800 (PST)
+        Mon, 16 Jan 2017 13:35:27 -0500
+Received: by mail-ot0-f196.google.com with SMTP id f9so7158324otd.0
+        for <linux-watchdog@vger.kernel.org>; Mon, 16 Jan 2017 10:35:27 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20170109095039.11979-2-u.kleine-koenig@pengutronix.de>
-References: <20170109095039.11979-1-u.kleine-koenig@pengutronix.de> <20170109095039.11979-2-u.kleine-koenig@pengutronix.de>
+In-Reply-To: <20170109095039.11979-3-u.kleine-koenig@pengutronix.de>
+References: <20170109095039.11979-1-u.kleine-koenig@pengutronix.de> <20170109095039.11979-3-u.kleine-koenig@pengutronix.de>
 From: Fabio Estevam <festevam@gmail.com>
-Date: Mon, 16 Jan 2017 16:34:00 -0200
-Message-ID: <CAOMZO5Bd8_R8i7SeoKuaVJ2EEFD-DA3PJ=QOmcnPtSdXqd+zHQ@mail.gmail.com>
-Subject: Re: [PATCH 1/3] watchdog: imx2: Only i.MX35 and later have a WMCR register
+Date: Mon, 16 Jan 2017 16:35:26 -0200
+Message-ID: <CAOMZO5CjkW1SdSAcSOj8Uws-xjoh=iZ1Ey9dwBdOdBzQLS6h8w@mail.gmail.com>
+Subject: Re: [PATCH 2/3] dts: teach newer i.MX machines to have the i.MX35
+ type watchdog
 To: =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?=
         <u.kleine-koenig@pengutronix.de>
 Cc: Vladimir Zapolskiy <vz@mleia.com>, Shawn Guo <shawnguo@kernel.org>,
@@ -31,16 +32,12 @@ List-Id: linux-watchdog@vger.kernel.org
 
 On Mon, Jan 9, 2017 at 7:50 AM, Uwe Kleine-K=C3=B6nig
 <u.kleine-koenig@pengutronix.de> wrote:
-> Commit 5fe65ce7ccbb ("watchdog: imx2_wdt: Disable power down counter on
-> boot") introduced a write to the WMCR register that doesn't exist on
-> i.MX21, i.MX27 and i.MX31 and so makes the SoC hang during probe.
->
-> So teach the driver to differentiate between these two types. Note that
-> this effectively undoes commit 5fe65ce7ccbb for machines using dt until
-> their dtb is updated accordingly. This is critical iff the bootloader
-> doesn't disable the power down counter and the #WDOG signal actually
-> does something to the machine.
+> Only i.MX35 and newer feature a WMCR register that should be written to. =
+Older
+> SoCs hang when this address is written.
 >
 > Signed-off-by: Uwe Kleine-K=C3=B6nig <u.kleine-koenig@pengutronix.de>
 
 Reviewed-by: Fabio Estevam <fabio.estevam@nxp.com>
+
+Only a minor nit: Subject could: ARM: dts: imx: teach...
