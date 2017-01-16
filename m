@@ -1,9 +1,9 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from foss.arm.com ([217.140.101.70]:59392 "EHLO foss.arm.com"
+Received: from foss.arm.com ([217.140.101.70]:59828 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751038AbdAPRaq (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 16 Jan 2017 12:30:46 -0500
-Date: Mon, 16 Jan 2017 17:29:28 +0000
+        id S1750877AbdAPRv3 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 16 Jan 2017 12:51:29 -0500
+Date: Mon, 16 Jan 2017 17:50:26 +0000
 From: Mark Rutland <mark.rutland@arm.com>
 To: fu.wei@linaro.org
 Cc: rjw@rjwysocki.net, lenb@kernel.org, daniel.lezcano@linaro.org,
@@ -19,101 +19,104 @@ Cc: rjw@rjwysocki.net, lenb@kernel.org, daniel.lezcano@linaro.org,
         leo.duran@amd.com, wim@iguana.be, linux@roeck-us.net,
         linux-watchdog@vger.kernel.org, tn@semihalf.com,
         christoffer.dall@linaro.org, julien.grall@arm.com
-Subject: Re: [PATCH v19 05/15] clocksource/drivers/arm_arch_timer: rework PPI
- determination
-Message-ID: <20170116172927.GI5908@leverpostej>
+Subject: Re: [PATCH v19 06/15] clocksource/drivers/arm_arch_timer: Rework
+ counter frequency detection.
+Message-ID: <20170116175025.GJ5908@leverpostej>
 References: <20161221064603.11830-1-fu.wei@linaro.org>
- <20161221064603.11830-6-fu.wei@linaro.org>
+ <20161221064603.11830-7-fu.wei@linaro.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20161221064603.11830-6-fu.wei@linaro.org>
+In-Reply-To: <20161221064603.11830-7-fu.wei@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Dec 21, 2016 at 02:45:53PM +0800, fu.wei@linaro.org wrote:
-[...]
+On Wed, Dec 21, 2016 at 02:45:54PM +0800, fu.wei@linaro.org wrote:
+> From: Fu Wei <fu.wei@linaro.org>
+> 
+> Currently, the counter frequency detection call(arch_timer_detect_rate)
+> combines all the ways to get counter frequency: device-tree property,
+> system coprocessor register, MMIO timer. But in the most of use cases,
+> we don't need all the ways to try:
+> For example, reading device-tree property will be needed only when
+> system boot with device-tree, getting frequency from MMIO timer register
+> will beneeded only when we init MMIO timer.
+> 
+> This patch separates paths to determine frequency:
+> Separate out device-tree code, keep them in device-tree init function.
 
-> -	if (is_hyp_mode_available() || !arch_timer_ppi[ARCH_TIMER_VIRT_PPI]) {
-> -		bool has_ppi;
-> +	if (is_hyp_mode_available() && is_kernel_in_hyp_mode())
-> +		return ARCH_TIMER_HYP_PPI;
+Splitting these out makes sense to me.
+
+> Separate out the MMIO frequency and the sysreg frequency detection call,
+> and use the appropriate one for the counter.
+
+> Signed-off-by: Fu Wei <fu.wei@linaro.org>
+> Tested-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+> ---
+>  drivers/clocksource/arm_arch_timer.c | 49 +++++++++++++++++++++++-------------
+>  1 file changed, 31 insertions(+), 18 deletions(-)
+> 
+> diff --git a/drivers/clocksource/arm_arch_timer.c b/drivers/clocksource/arm_arch_timer.c
+> index c7b4482..9a1f138 100644
+> --- a/drivers/clocksource/arm_arch_timer.c
+> +++ b/drivers/clocksource/arm_arch_timer.c
+> @@ -488,27 +488,31 @@ static int arch_timer_starting_cpu(unsigned int cpu)
+>  	return 0;
+>  }
 >  
-> -		if (is_kernel_in_hyp_mode()) {
-> -			arch_timer_uses_ppi = ARCH_TIMER_HYP_PPI;
-> -			has_ppi = !!arch_timer_ppi[ARCH_TIMER_HYP_PPI];
-> -		} else {
-> -			arch_timer_uses_ppi = ARCH_TIMER_PHYS_SECURE_PPI;
-> -			has_ppi = (!!arch_timer_ppi[ARCH_TIMER_PHYS_SECURE_PPI] ||
-> -				   !!arch_timer_ppi[ARCH_TIMER_PHYS_NONSECURE_PPI]);
-> -		}
-> +	if (arch_timer_ppi[ARCH_TIMER_VIRT_PPI])
-> +		return ARCH_TIMER_VIRT_PPI;
->  
-> -		if (!has_ppi) {
-> -			pr_warn("No interrupt available, giving up\n");
-> -			return -EINVAL;
-> -		}
-> -	}
-> +	if (IS_ENABLED(CONFIG_ARM64))
-> +		return ARCH_TIMER_PHYS_NONSECURE_PPI;
+> -static void
+> -arch_timer_detect_rate(void __iomem *cntbase, struct device_node *np)
+> +static void arch_timer_detect_rate(void)
+>  {
+> -	/* Who has more than one independent system counter? */
+> -	if (arch_timer_rate)
+> -		return;
+> +	/*
+> +	 * Try to get the timer frequency from
+> +	 * cntfrq_el0(system coprocessor register).
+> +	 */
+> +	if (!arch_timer_rate)
+> +		arch_timer_rate = arch_timer_get_cntfrq();
 > +
-> +	return ARCH_TIMER_PHYS_SECURE_PPI;
-
-For a 32-bit platform booted at hyp (with a virt PPI available), the new
-logic will select ARCH_TIMER_VIRT_PPI. I beleive that will break KVM.
-
-I think the logic should be:
-
-	if (is_kernel_in_hyp_mode())
-		return ARCH_TIMER_HYP_PPI;
-
-	if (!is_hyp_mode_available() &&
-	    arch_timer_ppi[ARCH_TIMER_VIRT_PPI])
-	    	return ARCH_TIMER_VIRT_PPI;
-	
-	if (IS_ENABLED(CONFIG_ARM64))
-		return ARCH_TIMER_PHYS_NONSECURE_PPI;
-	
-	return ARCH_TIMER_PHYS_SECURE_PPI;
-
-Please use that instead (keeping the comment you retained).
-
-> +static int __init arch_timer_init(void)
+> +	/* Check the timer frequency. */
+> +	if (!arch_timer_rate)
+> +		pr_warn("frequency not available\n");
+> +}
+>  
+> +static void arch_timer_mem_detect_rate(void __iomem *cntbase)
 > +{
-> +	int ret;
+>  	/*
+> -	 * Try to determine the frequency from the device tree or CNTFRQ,
+> -	 * if ACPI is enabled, get the frequency from CNTFRQ ONLY.
+> +	 * Try to determine the frequency from
+> +	 * CNTFRQ in memory-mapped timer.
+>  	 */
+> -	if (!acpi_disabled ||
+> -	    of_property_read_u32(np, "clock-frequency", &arch_timer_rate)) {
+> -		if (cntbase)
+> -			arch_timer_rate = readl_relaxed(cntbase + CNTFRQ);
+> -		else
+> -			arch_timer_rate = arch_timer_get_cntfrq();
+> -	}
+> +	if (!arch_timer_rate)
+> +		arch_timer_rate = readl_relaxed(cntbase + CNTFRQ);
 >  
->  	ret = arch_timer_register();
->  	if (ret)
-> @@ -904,6 +906,13 @@ static int __init arch_timer_of_init(struct device_node *np)
->  	if (IS_ENABLED(CONFIG_ARM) &&
->  	    of_property_read_bool(np, "arm,cpu-registers-not-fw-configured"))
->  		arch_timer_uses_ppi = ARCH_TIMER_PHYS_SECURE_PPI;
-> +	else
-> +		arch_timer_uses_ppi = arch_timer_select_ppi();
-> +
-> +	if (!arch_timer_ppi[arch_timer_uses_ppi]) {
-> +		pr_err("No interrupt available, giving up\n");
-> +		return -EINVAL;
-> +	}
->  
->  	/* On some systems, the counter stops ticking when in suspend. */
->  	arch_counter_suspend_stop = of_property_read_bool(np,
-> @@ -1049,6 +1058,12 @@ static int __init arch_timer_acpi_init(struct acpi_table_header *table)
->  	/* Get the frequency from CNTFRQ */
->  	arch_timer_detect_rate(NULL, NULL);
->  
-> +	arch_timer_uses_ppi = arch_timer_select_ppi();
-> +	if (!arch_timer_ppi[arch_timer_uses_ppi]) {
-> +		pr_err("No interrupt available, giving up\n");
-> +		return -EINVAL;
-> +	}
+>  	/* Check the timer frequency. */
+> -	if (arch_timer_rate == 0)
+> +	if (!arch_timer_rate)
+>  		pr_warn("frequency not available\n");
+>  }
 
-I see that we have to duplicate this so we can special-case the
-DT-specific behaviour, so that's fine by me.
+There's a subtle change in behaviour here. Previously for ACPI we'd only
+ever use the sysreg CNTFRQ value for arch_timer_rate, whereas now we
+might use the MMIO timer rate. Maybe that's not a big deal, but I will
+need to think.
 
-If you can fix the arch_timer_select_ppi() logic as above, this should
-be fine.
+Generally, the logic to determine the rate is fairly gnarly regardless.
+
+It would be nice if we could split the MMIO and sysreg rates entirely,
+and kill the implicit relationship between the two, or at least make one
+canonical and warn if the two differ.
 
 Thanks,
 Mark.
