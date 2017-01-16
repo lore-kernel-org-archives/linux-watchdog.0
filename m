@@ -1,55 +1,52 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-oi0-f65.google.com ([209.85.218.65]:33310 "EHLO
-        mail-oi0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751145AbdAPShA (ORCPT
+Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:47865 "EHLO
+        metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1750968AbdAPUoQ (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 16 Jan 2017 13:37:00 -0500
-Received: by mail-oi0-f65.google.com with SMTP id j15so13274335oih.0
-        for <linux-watchdog@vger.kernel.org>; Mon, 16 Jan 2017 10:37:00 -0800 (PST)
-MIME-Version: 1.0
-In-Reply-To: <20170109095039.11979-4-u.kleine-koenig@pengutronix.de>
-References: <20170109095039.11979-1-u.kleine-koenig@pengutronix.de> <20170109095039.11979-4-u.kleine-koenig@pengutronix.de>
-From: Fabio Estevam <festevam@gmail.com>
-Date: Mon, 16 Jan 2017 16:36:54 -0200
-Message-ID: <CAOMZO5DKtWMuYxOzuwkvVC5nqVRqHFj06X_vLxxkJ5i3hrpO4Q@mail.gmail.com>
-Subject: Re: [PATCH 3/3] watchdog: imx2: add compatibility for new i.MX35 type watchdog
-To: =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?=
+        Mon, 16 Jan 2017 15:44:16 -0500
+Date: Mon, 16 Jan 2017 21:43:37 +0100
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
         <u.kleine-koenig@pengutronix.de>
-Cc: Vladimir Zapolskiy <vz@mleia.com>, Shawn Guo <shawnguo@kernel.org>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Fabio Estevam <fabio.estevam@nxp.com>,
-        "linux-arm-kernel@lists.infradead.org"
-        <linux-arm-kernel@lists.infradead.org>,
+To: Fabio Estevam <festevam@gmail.com>, Shawn Guo <shawnguo@kernel.org>
+Cc: linux-watchdog@vger.kernel.org,
         Magnus Lilja <lilja.magnus@gmail.com>,
-        linux-watchdog@vger.kernel.org,
-        Sascha Hauer <kernel@pengutronix.de>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+        Vladimir Zapolskiy <vz@mleia.com>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Guenter Roeck <linux@roeck-us.net>, kernel@pengutronix.de,
+        Fabio Estevam <fabio.estevam@nxp.com>,
+        linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH 2/3] dts: teach newer i.MX machines to have the i.MX35
+ type watchdog
+Message-ID: <20170116204337.j67oeknraas7ryib@pengutronix.de>
+References: <20170109095039.11979-1-u.kleine-koenig@pengutronix.de>
+ <20170109095039.11979-3-u.kleine-koenig@pengutronix.de>
+ <CAOMZO5CjkW1SdSAcSOj8Uws-xjoh=iZ1Ey9dwBdOdBzQLS6h8w@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAOMZO5CjkW1SdSAcSOj8Uws-xjoh=iZ1Ey9dwBdOdBzQLS6h8w@mail.gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Jan 9, 2017 at 7:50 AM, Uwe Kleine-K=C3=B6nig
-<u.kleine-koenig@pengutronix.de> wrote:
-> When the watchdog driver learned about the i.MX35 type watchdog a new
-> compatibility string was introduced. Older dtb continue to use the
-> old fsl,imx21-wdt string and so stop writing the WMCR register which is
-> critical iff the machine powers off when WDOG becomes active and the
-> bootloader doesn't stop the power down counter.
->
-> It's unknown which boards are affected and I guess most of them are not.
+On Mon, Jan 16, 2017 at 04:35:26PM -0200, Fabio Estevam wrote:
+> On Mon, Jan 9, 2017 at 7:50 AM, Uwe Kleine-König
+> <u.kleine-koenig@pengutronix.de> wrote:
+> > Only i.MX35 and newer feature a WMCR register that should be written to. Older
+> > SoCs hang when this address is written.
+> >
+> > Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+> 
+> Reviewed-by: Fabio Estevam <fabio.estevam@nxp.com>
+> 
+> Only a minor nit: Subject could: ARM: dts: imx: teach...
 
-At least imx31 pdk is affected.
+Ack. To reference the commit id of the first patch in the third I can
+prepare a branch to pull. There I'd fix the Subject. Shawn, is this OK?
 
-> Also note this is only an issue if a new kernel is operated with an old
-> dtb as the SoC dtsi files are fixed accordingly.
->
-> XXX: the XXX introduced needs to be changed to HEAD~2 when got a stable c=
-ommit id.
+Best regards
+Uwe
 
-This comment should not be here.
-
-
-Other than that:
-
-Reviewed-by: Fabio Estevam <fabio.estevam@nxp.com>
+-- 
+Pengutronix e.K.                           | Uwe Kleine-König            |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
