@@ -1,481 +1,239 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pf0-f180.google.com ([209.85.192.180]:34993 "EHLO
-        mail-pf0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751090AbdAPEUe (ORCPT
+Received: from mail-io0-f174.google.com ([209.85.223.174]:35724 "EHLO
+        mail-io0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750845AbdAPG04 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 15 Jan 2017 23:20:34 -0500
-Received: by mail-pf0-f180.google.com with SMTP id f144so50012108pfa.2
-        for <linux-watchdog@vger.kernel.org>; Sun, 15 Jan 2017 20:20:33 -0800 (PST)
-From: Baoyou Xie <baoyou.xie@linaro.org>
-To: jun.nie@linaro.org, wim@iguana.be, linux@roeck-us.net,
-        robh+dt@kernel.org, mark.rutland@arm.com
+        Mon, 16 Jan 2017 01:26:56 -0500
+Received: by mail-io0-f174.google.com with SMTP id j18so85107996ioe.2
+        for <linux-watchdog@vger.kernel.org>; Sun, 15 Jan 2017 22:26:55 -0800 (PST)
+MIME-Version: 1.0
+In-Reply-To: <20161221064603.11830-1-fu.wei@linaro.org>
+References: <20161221064603.11830-1-fu.wei@linaro.org>
+From: Fu Wei <fu.wei@linaro.org>
+Date: Mon, 16 Jan 2017 14:26:54 +0800
+Message-ID: <CADyBb7vbTLWKgmGe7jH=4OJx7sZ4Ck4iR-spvnHUrStF5XGxKw@mail.gmail.com>
+Subject: Re: [PATCH v19 00/15] acpi, clocksource: add GTDT driver and GTDT
+ support in arm_arch_timer
+To: "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Len Brown <lenb@kernel.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Hanjun Guo <hanjun.guo@linaro.org>
 Cc: linux-arm-kernel@lists.infradead.org,
-        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, shawnguo@kernel.org,
-        baoyou.xie@linaro.org, xie.baoyou@zte.com.cn,
-        chen.chaokai@zte.com.cn, wang.qiang01@zte.com.cn
-Subject: [PATCH v1 3/3] watchdog: zx2967: add watchdog controller driver for ZTE's zx2967 family
-Date: Mon, 16 Jan 2017 12:19:55 +0800
-Message-Id: <1484540395-3335-3-git-send-email-baoyou.xie@linaro.org>
-In-Reply-To: <1484540395-3335-1-git-send-email-baoyou.xie@linaro.org>
-References: <1484540395-3335-1-git-send-email-baoyou.xie@linaro.org>
+        Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
+        rruigrok@codeaurora.org, "Abdulhamid, Harb" <harba@codeaurora.org>,
+        Christopher Covington <cov@codeaurora.org>,
+        Timur Tabi <timur@codeaurora.org>,
+        G Gregory <graeme.gregory@linaro.org>,
+        Al Stone <al.stone@linaro.org>, Jon Masters <jcm@redhat.com>,
+        Wei Huang <wei@redhat.com>, Arnd Bergmann <arnd@arndb.de>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
+        Leo Duran <leo.duran@amd.com>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Guenter Roeck <linux@roeck-us.net>,
+        linux-watchdog@vger.kernel.org, Tomasz Nowicki <tn@semihalf.com>,
+        Christoffer Dall <christoffer.dall@linaro.org>,
+        Julien Grall <julien.grall@arm.com>, Fu Wei <fu.wei@linaro.org>
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This patch adds watchdog controller driver for ZTE's zx2967 family.
+Hi Mark,
 
-Signed-off-by: Baoyou Xie <baoyou.xie@linaro.org>
----
- drivers/watchdog/Kconfig      |  10 ++
- drivers/watchdog/Makefile     |   1 +
- drivers/watchdog/zx2967_wdt.c | 405 ++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 416 insertions(+)
- create mode 100644 drivers/watchdog/zx2967_wdt.c
+This v19 (I have mentioned it in my previous email) is the latest
+patchset which can be applied on v4.10-rc4 directly.
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 3eb58cb..79027da 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -714,6 +714,16 @@ config ASPEED_WATCHDOG
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called aspeed_wdt.
- 
-+config ZX2967_WATCHDOG
-+	tristate "ZTE zx2967 SoCs watchdog support"
-+	depends on ARCH_ZX
-+	select WATCHDOG_CORE
-+	help
-+	  Say Y here to include support for the watchdog timer
-+	  in ZTE zx2967 SoCs.
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called zx2967_wdt.
-+
- # AVR32 Architecture
- 
- config AT32AP700X_WDT
-diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index caa9f4a..ea08925 100644
---- a/drivers/watchdog/Makefile
-+++ b/drivers/watchdog/Makefile
-@@ -82,6 +82,7 @@ obj-$(CONFIG_BCM7038_WDT) += bcm7038_wdt.o
- obj-$(CONFIG_ATLAS7_WATCHDOG) += atlas7_wdt.o
- obj-$(CONFIG_RENESAS_WDT) += renesas_wdt.o
- obj-$(CONFIG_ASPEED_WATCHDOG) += aspeed_wdt.o
-+obj-$(CONFIG_ZX2967_WATCHDOG) += zx2967_wdt.o
- 
- # AVR32 Architecture
- obj-$(CONFIG_AT32AP700X_WDT) += at32ap700x_wdt.o
-diff --git a/drivers/watchdog/zx2967_wdt.c b/drivers/watchdog/zx2967_wdt.c
-new file mode 100644
-index 0000000..8791dd2
---- /dev/null
-+++ b/drivers/watchdog/zx2967_wdt.c
-@@ -0,0 +1,405 @@
-+/*
-+ * watchdog driver for ZTE's zx2967 family
-+ *
-+ * Copyright (C) 2017 ZTE Ltd.
-+ *
-+ * Author: Baoyou Xie <baoyou.xie@linaro.org>
-+ *
-+ * License terms: GNU General Public License (GPL) version 2
-+ */
-+
-+#include <linux/clk.h>
-+#include <linux/delay.h>
-+#include <linux/io.h>
-+#include <linux/module.h>
-+#include <linux/of_address.h>
-+#include <linux/platform_device.h>
-+#include <linux/reboot.h>
-+#include <linux/reset.h>
-+#include <linux/watchdog.h>
-+
-+#define ZX2967_WDT_CFG_REG			0x4
-+#define ZX2967_WDT_LOAD_REG			0x8
-+#define ZX2967_WDT_REFRESH_REG			0x18
-+#define ZX2967_WDT_START_REG			0x1c
-+
-+#define ZX2967_WDT_REFRESH_MASK			0x3f
-+
-+#define ZX2967_WDT_CFG_DIV(n)			((((n)&0xff) - 1) << 8)
-+#define ZX2967_WDT_START_EN			0x1
-+
-+#define ZX2967_WDT_WRITEKEY			0x12340000
-+
-+#define ZX2967_WDT_DIV_DEFAULT			16
-+#define ZX2967_WDT_DEFAULT_TIMEOUT		32
-+#define ZX2967_WDT_MIN_TIMEOUT			1
-+#define ZX2967_WDT_MAX_TIMEOUT			500
-+#define ZX2967_WDT_MAX_COUNT			0xffff
-+
-+#define ZX2967_WDT_FLAG_REBOOT_MON		(1 << 0)
-+
-+#define ZX2967_RESET_MASK_REG			0xb0
-+
-+#define zx2967_wdt_write_reg(v, r) \
-+			writel((v) | ZX2967_WDT_WRITEKEY, r)
-+#define zx2967_wdt_read_reg(r)			readl(r)
-+
-+static bool nowayout = WATCHDOG_NOWAYOUT;
-+static unsigned int timeout = ZX2967_WDT_DEFAULT_TIMEOUT;
-+
-+struct zx2967_wdt {
-+	struct device		*dev;
-+	struct clk		*clock;
-+	void __iomem		*reg_base;
-+	unsigned int		conf;
-+	unsigned int		load;
-+	unsigned int		flags;
-+	spinlock_t		lock;
-+	struct watchdog_device	wdt_device;
-+	struct notifier_block	restart_handler;
-+	struct notifier_block	reboot_handler;
-+};
-+
-+static void zx2967_wdt_refresh(struct zx2967_wdt *wdt)
-+{
-+	unsigned int val;
-+
-+	spin_lock(&wdt->lock);
-+
-+	val = zx2967_wdt_read_reg(wdt->reg_base + ZX2967_WDT_REFRESH_REG);
-+	val ^= ZX2967_WDT_REFRESH_MASK;
-+	zx2967_wdt_write_reg(val, wdt->reg_base + ZX2967_WDT_REFRESH_REG);
-+
-+	spin_unlock(&wdt->lock);
-+}
-+
-+static void __zx2967_wdt_stop(struct zx2967_wdt *wdt)
-+{
-+	unsigned int val;
-+
-+	spin_lock(&wdt->lock);
-+
-+	val = zx2967_wdt_read_reg(wdt->reg_base + ZX2967_WDT_START_REG);
-+	val &= ~(ZX2967_WDT_START_EN);
-+	zx2967_wdt_write_reg(val, wdt->reg_base + ZX2967_WDT_START_REG);
-+
-+	spin_unlock(&wdt->lock);
-+}
-+
-+static void __zx2967_wdt_start(struct zx2967_wdt *wdt)
-+{
-+	unsigned int val;
-+
-+	spin_lock(&wdt->lock);
-+
-+	val = zx2967_wdt_read_reg(wdt->reg_base + ZX2967_WDT_START_REG);
-+	val |= ZX2967_WDT_START_EN;
-+	zx2967_wdt_write_reg(val, wdt->reg_base + ZX2967_WDT_START_REG);
-+
-+	spin_unlock(&wdt->lock);
-+}
-+
-+static unsigned int
-+__zx2967_wdt_set_timeout(struct zx2967_wdt *wdt, unsigned int timeout)
-+{
-+	unsigned int freq = clk_get_rate(wdt->clock);
-+	unsigned int divisor = ZX2967_WDT_DIV_DEFAULT, count;
-+
-+	count = timeout * freq;
-+	if (count > divisor * ZX2967_WDT_MAX_COUNT)
-+		divisor = DIV_ROUND_UP(count, ZX2967_WDT_MAX_COUNT);
-+	count = DIV_ROUND_UP(count, divisor);
-+	zx2967_wdt_write_reg(ZX2967_WDT_CFG_DIV(divisor),
-+			     wdt->reg_base + ZX2967_WDT_CFG_REG);
-+	zx2967_wdt_write_reg(count, wdt->reg_base + ZX2967_WDT_LOAD_REG);
-+	zx2967_wdt_refresh(wdt);
-+
-+	wdt->load = count;
-+	dev_info(wdt->dev, "count=%d, timeout=%d, divisor=%d\n",
-+		 count, timeout, divisor);
-+
-+	return (count * divisor) / freq;
-+}
-+
-+static int zx2967_wdt_set_timeout(struct watchdog_device *wdd,
-+				  unsigned int timeout)
-+{
-+	struct zx2967_wdt *wdt = watchdog_get_drvdata(wdd);
-+
-+	if (watchdog_timeout_invalid(&wdt->wdt_device, timeout)) {
-+		dev_err(wdt->dev, "timeout %d is invalid\n", timeout);
-+
-+		return -EINVAL;
-+	}
-+
-+	wdd->timeout = __zx2967_wdt_set_timeout(wdt, timeout);
-+
-+	return 0;
-+}
-+
-+static int zx2967_wdt_start(struct watchdog_device *wdd)
-+{
-+	struct zx2967_wdt *wdt = watchdog_get_drvdata(wdd);
-+
-+	__zx2967_wdt_stop(wdt);
-+	zx2967_wdt_set_timeout(wdd, wdd->timeout);
-+	__zx2967_wdt_start(wdt);
-+
-+	return 0;
-+}
-+
-+static int zx2967_wdt_stop(struct watchdog_device *wdd)
-+{
-+	struct zx2967_wdt *wdt = watchdog_get_drvdata(wdd);
-+
-+	__zx2967_wdt_stop(wdt);
-+
-+	return 0;
-+}
-+
-+static int zx2967_wdt_keepalive(struct watchdog_device *wdd)
-+{
-+	struct zx2967_wdt *wdt = watchdog_get_drvdata(wdd);
-+
-+	zx2967_wdt_refresh(wdt);
-+
-+	return 0;
-+}
-+
-+#define ZX2967_WDT_OPTIONS \
-+	(WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE)
-+static const struct watchdog_info zx2967_wdt_ident = {
-+	.options          =     ZX2967_WDT_OPTIONS,
-+	.firmware_version =	0,
-+	.identity         =	"zx2967 watchdog",
-+};
-+
-+static struct watchdog_ops zx2967_wdt_ops = {
-+	.owner = THIS_MODULE,
-+	.start = zx2967_wdt_start,
-+	.stop = zx2967_wdt_stop,
-+	.ping = zx2967_wdt_keepalive,
-+	.set_timeout = zx2967_wdt_set_timeout,
-+};
-+
-+static void zx2967_wdt_fix_sysdown(struct zx2967_wdt *wdt)
-+{
-+	__zx2967_wdt_stop(wdt);
-+	__zx2967_wdt_set_timeout(wdt, 15);
-+	__zx2967_wdt_start(wdt);
-+}
-+
-+static int zx2967_wdt_notify_sys(struct notifier_block *this,
-+			     unsigned long code, void *unused)
-+{
-+	struct zx2967_wdt *wdt = container_of(this, struct zx2967_wdt,
-+					      reboot_handler);
-+
-+	wdt->flags |= ZX2967_WDT_FLAG_REBOOT_MON;
-+	switch (code) {
-+	case SYS_HALT:
-+	case SYS_POWER_OFF:
-+	case SYS_RESTART:
-+		zx2967_wdt_fix_sysdown(wdt);
-+		break;
-+	default:
-+		break;
-+	}
-+
-+	return 0;
-+}
-+
-+static int zx2967_wdt_restart(struct notifier_block *this,
-+			      unsigned long mode, void *cmd)
-+{
-+	struct zx2967_wdt *wdt;
-+
-+	wdt = container_of(this, struct zx2967_wdt, restart_handler);
-+
-+	zx2967_wdt_stop(&wdt->wdt_device);
-+
-+	zx2967_wdt_write_reg(0x80, wdt->reg_base + ZX2967_WDT_LOAD_REG);
-+	zx2967_wdt_refresh(wdt);
-+	zx2967_wdt_write_reg(ZX2967_WDT_START_EN,
-+			     wdt->reg_base + ZX2967_WDT_START_REG);
-+
-+	zx2967_wdt_start(&wdt->wdt_device);
-+	/* wait for reset*/
-+	mdelay(500);
-+
-+	return NOTIFY_DONE;
-+}
-+
-+static void zx2967_reset_mask_config(struct device *dev)
-+{
-+	struct device_node *np = NULL;
-+	void __iomem *reg;
-+	unsigned int  val, mask, config, size;
-+	const unsigned int *prop;
-+
-+	prop = of_get_property(dev->of_node, "reset-mask-config", &size);
-+	if (size < (sizeof(*prop) * 2)) {
-+		dev_err(dev, "bad data for reset-mask-config");
-+		return;
-+	}
-+	config = be32_to_cpup(prop++);
-+	mask = be32_to_cpup(prop);
-+	np = of_find_compatible_node(NULL, NULL, "zte,aon-sysctrl");
-+	if (!np) {
-+		dev_err(dev, "Cannot found pcu device node\n");
-+		return;
-+	}
-+	reg = of_iomap(np, 0) + ZX2967_RESET_MASK_REG;
-+	of_node_put(np);
-+
-+	val = readl(reg);
-+	val &= ~mask;
-+	val |= config;
-+	writel(val, reg);
-+}
-+
-+static int zx2967_wdt_probe(struct platform_device *pdev)
-+{
-+	struct device *dev;
-+	struct zx2967_wdt *wdt;
-+	struct resource *base;
-+	int err, ret = 0;
-+	unsigned int rate, val;
-+
-+	struct reset_control *rstc;
-+
-+	dev = &pdev->dev;
-+
-+	wdt = devm_kzalloc(dev, sizeof(*wdt), GFP_KERNEL);
-+	if (!wdt) {
-+		ret = -ENOMEM;
-+		goto out;
-+	}
-+
-+	platform_set_drvdata(pdev, wdt);
-+
-+	wdt->dev = dev;
-+	spin_lock_init(&wdt->lock);
-+
-+	wdt->wdt_device.info = &zx2967_wdt_ident;
-+	wdt->wdt_device.ops = &zx2967_wdt_ops;
-+	wdt->wdt_device.timeout = ZX2967_WDT_DEFAULT_TIMEOUT;
-+	wdt->wdt_device.max_timeout = ZX2967_WDT_MAX_TIMEOUT;
-+	wdt->wdt_device.min_timeout = ZX2967_WDT_MIN_TIMEOUT;
-+	wdt->wdt_device.parent = &pdev->dev;
-+
-+	base = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	wdt->reg_base = devm_ioremap_resource(dev, base);
-+
-+	if (of_find_property(dev->of_node, "reset-mask-config", NULL))
-+		zx2967_reset_mask_config(dev);
-+
-+	wdt->reboot_handler.notifier_call = zx2967_wdt_notify_sys;
-+	ret = register_reboot_notifier(&wdt->reboot_handler);
-+	wdt->clock = devm_clk_get(dev, "wdtclk");
-+	if (IS_ERR(wdt->clock)) {
-+		dev_err(dev, "failed to find watchdog clock source\n");
-+		ret = PTR_ERR(wdt->clock);
-+		goto out;
-+	}
-+	ret = clk_prepare_enable(wdt->clock);
-+	if (ret < 0) {
-+		dev_err(dev, "failed to enable clock\n");
-+		goto out;
-+	}
-+
-+	rate = clk_get_rate(wdt->clock);
-+	if (rate == 24000000)
-+		ret = clk_set_rate(wdt->clock, 32768);
-+	rate = clk_get_rate(wdt->clock);
-+
-+	rstc = devm_reset_control_get(dev, "wdtrst");
-+	if (!rstc) {
-+		dev_info(dev, "rstc get failed");
-+	} else {
-+		reset_control_assert(rstc);
-+		mdelay(10);
-+		reset_control_deassert(rstc);
-+	}
-+
-+	watchdog_set_drvdata(&wdt->wdt_device, wdt);
-+
-+	watchdog_init_timeout(&wdt->wdt_device, timeout, &pdev->dev);
-+	watchdog_set_nowayout(&wdt->wdt_device, nowayout);
-+
-+	zx2967_wdt_stop(&wdt->wdt_device);
-+
-+	err = watchdog_register_device(&wdt->wdt_device);
-+	if (unlikely(err)) {
-+		ret = err;
-+		goto fail_register;
-+	}
-+
-+	wdt->restart_handler.notifier_call = zx2967_wdt_restart;
-+	wdt->restart_handler.priority = 128;
-+	ret = register_restart_handler(&wdt->restart_handler);
-+	if (ret) {
-+		pr_err("cannot register restart handler, %d\n", ret);
-+		goto fail_restart;
-+	}
-+
-+	val = zx2967_wdt_read_reg(wdt->reg_base + ZX2967_WDT_START_REG);
-+	dev_info(&pdev->dev, "watchdog enabled (timeout=%d sec, nowayout=%d)",
-+		 wdt->wdt_device.timeout, nowayout);
-+
-+	return 0;
-+
-+fail_restart:
-+	watchdog_unregister_device(&wdt->wdt_device);
-+fail_register:
-+	clk_disable_unprepare(wdt->clock);
-+out:
-+	return ret;
-+}
-+
-+static int zx2967_wdt_remove(struct platform_device *pdev)
-+{
-+	struct zx2967_wdt *wdt = platform_get_drvdata(pdev);
-+
-+	unregister_restart_handler(&wdt->restart_handler);
-+	watchdog_unregister_device(&wdt->wdt_device);
-+	clk_disable_unprepare(wdt->clock);
-+
-+	return 0;
-+}
-+
-+static void zx2967_wdt_shutdown(struct platform_device *pdev)
-+{
-+	struct zx2967_wdt *wdt = platform_get_drvdata(pdev);
-+
-+	if (!(wdt->flags & ZX2967_WDT_FLAG_REBOOT_MON))
-+		zx2967_wdt_stop(&wdt->wdt_device);
-+}
-+
-+static const struct of_device_id zx2967_wdt_match[] = {
-+	{ .compatible = "zte,zx296718-wdt", },
-+	{}
-+};
-+MODULE_DEVICE_TABLE(of, zx2967_wdt_match);
-+
-+static const struct platform_device_id zx2967_wdt_ids[] = {
-+	{ .name = "zx2967-wdt", },
-+	{}
-+};
-+MODULE_DEVICE_TABLE(platform, zx2967_wdt_ids);
-+
-+static struct platform_driver zx2967_wdt_driver = {
-+	.probe		= zx2967_wdt_probe,
-+	.remove		= zx2967_wdt_remove,
-+	.shutdown	= zx2967_wdt_shutdown,
-+	.id_table	= zx2967_wdt_ids,
-+	.driver		= {
-+		.name	= "zx2967-wdt",
-+		.of_match_table	= of_match_ptr(zx2967_wdt_match),
-+	},
-+};
-+module_platform_driver(zx2967_wdt_driver);
-+
-+MODULE_AUTHOR("Baoyou Xie <baoyou.xie@linaro.org>");
-+MODULE_DESCRIPTION("ZTE zx2967 Watchdog Device Driver");
-+MODULE_LICENSE("GPL");
+please review this patchset, thanks! :-)
+
+On 21 December 2016 at 14:45,  <fu.wei@linaro.org> wrote:
+> From: Fu Wei <fu.wei@linaro.org>
+>
+> This patchset:
+>     (1)Preparation for adding GTDT support in arm_arch_timer:
+>         1. Move some enums and marcos to header file;
+>         2. Add a new enum for spi type;
+>         3. Improve printk relevant code;
+>         4. Rename some enums and defines;
+>         5. Rework PPI determination;
+>         6. Rework counter frequency detection;
+>         7. Refactor arch_timer_needs_probing, move it into DT init call
+>         8. Introduce some new structs and refactor the MMIO timer init code
+>         for reusing some common code.
+>
+>     (2)Introduce ACPI GTDT parser: drivers/acpi/arm64/acpi_gtdt.c
+>     Parse all kinds of timer in GTDT table of ACPI:arch timer,
+>     memory-mapped timer and SBSA Generic Watchdog timer.
+>     This driver can help to simplify all the relevant timer drivers,
+>     and separate all the ACPI GTDT knowledge from them.
+>
+>     (3)Simplify ACPI code for arm_arch_timer
+>
+>     (4)Add GTDT support for ARM memory-mapped timer.
+>
+> This patchset has been tested on the following platforms with ACPI enabled:
+>     (1)ARM Foundation v8 model
+>
+> Changelog:
+> v19: https://lkml.org/lkml/2016/12/21/
+>      Fix a '\n' missing in a error message in arch_timer_mem_init.
+>      Add "request_mem_region" for ioremapping cntbase, according to
+>      f947ee1 clocksource/drivers/arm_arch_timer: Map frame with of_io_request_and_map()
+>      Rebase to 4.9.0-gfb779ff
+>
+> v18: https://lkml.org/lkml/2016/12/8/446
+>      Fix 8/15 patch problem of "int ret;" in arch_timer_acpi_init.
+>      Rebase to 4.9.0-rc8-g9269898
+>
+> v17: https://lkml.org/lkml/2016/11/25/140
+>      Take out some cleanups from 4/15.
+>      Merge 5/15 and 6/15, improve PPI determination code,
+>      improve commit message.
+>      Rework counter frequency detection.
+>      Move arch_timer_needs_of_probing into DT init call.
+>      Move Platform Timer scan loop back to timer init call to avoid allocating
+>      and free memory.
+>      Improve all the exported functions' comment.
+>
+> v16: https://lkml.org/lkml/2016/11/16/268
+>      Fix patchset problem about static enum ppi_nr of 01/13 in v15.
+>      Refactor arch_timer_detect_rate.
+>      Refactor arch_timer_needs_probing.
+>
+> v15: https://lkml.org/lkml/2016/11/15/366
+>      Re-order patches
+>      Add arm_arch_timer refactoring patches to prepare for GTDT:
+>          1. rename some  enums and defines, and some cleanups
+>          2. separate out arch_timer_uses_ppi init code and fix a potential bug
+>          3. Improve some new structs, refactor the timer init code.
+>      Since the some structs have been changed, GTDT parser for memory-mapped
+>      timer and SBSA Generic Watchdog timer have been update.
+>
+> v14: https://lkml.org/lkml/2016/9/28/573
+>      Separate memory-mapped timer GTDT support into two patches
+>          1. Refactor the timer init code to prepare for GTDT
+>          2. Add GTDT support for memory-mapped timer
+>
+> v13: http://www.mail-archive.com/linux-kernel@vger.kernel.org/msg1231717.html
+>      Improve arm_arch_timer code for memory-mapped
+>      timer GTDT support, refactor original memory-mapped timer
+>      dt support for reusing some common code.
+>
+> v12: https://lkml.org/lkml/2016/9/13/250
+>      Rebase to latest Linux 4.8-rc6
+>      Delete the confusing "skipping" in the error message.
+>
+> V11: https://lkml.org/lkml/2016/9/6/354
+>      Rebase to latest Linux 4.8-rc5
+>      Delete typedef (suggested by checkpatch.pl)
+>
+> V10: https://lkml.org/lkml/2016/7/26/215
+>      Drop the "readq" patch.
+>      Rebase to latest Linux 4.7.
+>
+> V9: https://lkml.org/lkml/2016/7/25/345
+>     Improve pr_err message in acpi gtdt driver.
+>     Update Commit message for 7/9
+>     shorten the irq mapping function name
+>     Improve GTDT driver for memory-mapped timer
+>
+> v8: https://lkml.org/lkml/2016/7/19/660
+>     Improve "pr_fmt(fmt)" definition: add "ACPI" in front of "GTDT",
+>     and also improve printk message.
+>     Simplify is_timer_block and is_watchdog.
+>     Merge acpi_gtdt_desc_init and gtdt_arch_timer_init into acpi_gtdt_init();
+>     Delete __init in include/linux/acpi.h for GTDT API
+>     Make ARM64 select GTDT.
+>     Delete "#include <linux/module.h>" from acpi_gtdt.c
+>     Simplify GT block parse code.
+>
+> v7: https://lkml.org/lkml/2016/7/13/769
+>     Move the GTDT driver to drivers/acpi/arm64
+>     Add add the ARM64-specific ACPI Support maintainers in MAINTAINERS
+>     Merge 3 patches of GTDT parser driver.
+>     Fix the for_each_platform_timer bug.
+>
+> v6: https://lkml.org/lkml/2016/6/29/580
+>     split the GTDT driver to 4 parts: basic, arch_timer, memory-mapped timer,
+>     and SBSA Generic Watchdog timer
+>     Improve driver by suggestions and example code from Daniel Lezcano
+>
+> v5: https://lkml.org/lkml/2016/5/24/356
+>     Sorting out all patches, simplify the API of GTDT driver:
+>     GTDT driver just fills the data struct for arm_arch_timer driver.
+>
+> v4: https://lists.linaro.org/pipermail/linaro-acpi/2016-March/006667.html
+>     Delete the kvm relevant patches
+>     Separate two patches for sorting out the code for arm_arch_timer.
+>     Improve irq info export code to allow missing irq info in GTDT table.
+>
+> v3: https://lkml.org/lkml/2016/2/1/658
+>     Improve GTDT driver code:
+>       (1)improve pr_* by defining pr_fmt(fmt)
+>       (2)simplify gtdt_sbsa_gwdt_init
+>       (3)improve gtdt_arch_timer_data_init, if table is NULL, it will try
+>       to get GTDT table.
+>     Move enum ppi_nr to arm_arch_timer.h, and add enum spi_nr.
+>     Add arm_arch_timer get ppi from DT and GTDT support for kvm.
+>
+> v2: https://lkml.org/lkml/2015/12/2/10
+>     Rebase to latest kernel version(4.4-rc3).
+>     Fix the bug about the config problem,
+>     use CONFIG_ACPI_GTDT instead of CONFIG_ACPI in arm_arch_timer.c
+>
+> v1: The first upstreaming version: https://lkml.org/lkml/2015/10/28/553
+>
+> Fu Wei (15):
+>   clocksource/drivers/arm_arch_timer: Move enums and defines to header
+>     file
+>   clocksource/drivers/arm_arch_timer: Add a new enum for spi type
+>   clocksource/drivers/arm_arch_timer: Improve printk relevant code
+>   clocksource/drivers/arm_arch_timer: rename some enums and defines.
+>   clocksource/drivers/arm_arch_timer: rework PPI determination
+>   clocksource/drivers/arm_arch_timer: Rework counter frequency
+>     detection.
+>   clocksource/drivers/arm_arch_timer: Refactor arch_timer_needs_probing
+>   clocksource/drivers/arm_arch_timer: move arch_timer_needs_of_probing
+>     into DT init call
+>   clocksource/drivers/arm_arch_timer: Introduce some new structs to
+>     prepare for GTDT
+>   clocksource/drivers/arm_arch_timer: Refactor the timer init code to
+>     prepare for GTDT
+>   acpi/arm64: Add GTDT table parse driver
+>   clocksource/drivers/arm_arch_timer: Simplify ACPI support code.
+>   acpi/arm64: Add memory-mapped timer support in GTDT driver
+>   clocksource/drivers/arm_arch_timer: Add GTDT support for memory-mapped
+>     timer
+>   acpi/arm64: Add SBSA Generic Watchdog support in GTDT driver
+>
+>  arch/arm64/Kconfig                   |   1 +
+>  drivers/acpi/arm64/Kconfig           |   3 +
+>  drivers/acpi/arm64/Makefile          |   1 +
+>  drivers/acpi/arm64/gtdt.c            | 374 +++++++++++++++++++++++++++
+>  drivers/clocksource/arm_arch_timer.c | 483 ++++++++++++++++++++---------------
+>  drivers/watchdog/Kconfig             |   1 +
+>  include/clocksource/arm_arch_timer.h |  45 +++-
+>  include/linux/acpi.h                 |   7 +
+>  virt/kvm/arm/hyp/timer-sr.c          |   6 +-
+>  9 files changed, 712 insertions(+), 209 deletions(-)
+>  create mode 100644 drivers/acpi/arm64/gtdt.c
+>
+> --
+> 2.9.3
+>
+
+
+
 -- 
-2.7.4
+Best regards,
 
+Fu Wei
+Software Engineer
+Red Hat
