@@ -1,92 +1,77 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.136]:50794 "EHLO mail.kernel.org"
+Received: from foss.arm.com ([217.140.101.70]:51402 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750919AbdAPJEz (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 16 Jan 2017 04:04:55 -0500
-Date: Mon, 16 Jan 2017 17:04:39 +0800
-From: Shawn Guo <shawnguo@kernel.org>
-To: Baoyou Xie <baoyou.xie@linaro.org>
-Cc: jun.nie@linaro.org, wim@iguana.be, linux@roeck-us.net,
-        robh+dt@kernel.org, mark.rutland@arm.com,
+        id S1750982AbdAPMAt (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 16 Jan 2017 07:00:49 -0500
+Date: Mon, 16 Jan 2017 11:59:40 +0000
+From: Mark Rutland <mark.rutland@arm.com>
+To: Fu Wei <fu.wei@linaro.org>
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Len Brown <lenb@kernel.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Hanjun Guo <hanjun.guo@linaro.org>,
         linux-arm-kernel@lists.infradead.org,
-        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, xie.baoyou@zte.com.cn,
-        chen.chaokai@zte.com.cn, wang.qiang01@zte.com.cn
-Subject: Re: [PATCH v1 1/3] dt: bindings: add documentation for zx2967 family
- watchdog controller
-Message-ID: <20170116090438.GC11600@x250>
-References: <1484540395-3335-1-git-send-email-baoyou.xie@linaro.org>
+        Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
+        rruigrok@codeaurora.org, "Abdulhamid, Harb" <harba@codeaurora.org>,
+        Christopher Covington <cov@codeaurora.org>,
+        Timur Tabi <timur@codeaurora.org>,
+        G Gregory <graeme.gregory@linaro.org>,
+        Al Stone <al.stone@linaro.org>, Jon Masters <jcm@redhat.com>,
+        Wei Huang <wei@redhat.com>, Arnd Bergmann <arnd@arndb.de>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
+        Leo Duran <leo.duran@amd.com>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Guenter Roeck <linux@roeck-us.net>,
+        linux-watchdog@vger.kernel.org, Tomasz Nowicki <tn@semihalf.com>,
+        Christoffer Dall <christoffer.dall@linaro.org>,
+        Julien Grall <julien.grall@arm.com>
+Subject: Re: [PATCH v18 00/15] acpi, clocksource: add GTDT driver and GTDT
+ support in arm_arch_timer
+Message-ID: <20170116115940.GC5908@leverpostej>
+References: <20161208173319.6618-1-fu.wei@linaro.org>
+ <20170113192920.GF2472@leverpostej>
+ <CADyBb7vF0v2DwXA8fNUOTQcqriJK1Hp57_G8DKi0WO9FnvrB5w@mail.gmail.com>
+ <CADyBb7ugz_YpxKQUsJbF1vdjm_Nzyh2mH8TZMPqj1cSHGSPCFw@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1484540395-3335-1-git-send-email-baoyou.xie@linaro.org>
+In-Reply-To: <CADyBb7ugz_YpxKQUsJbF1vdjm_Nzyh2mH8TZMPqj1cSHGSPCFw@mail.gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Jan 16, 2017 at 12:19:53PM +0800, Baoyou Xie wrote:
-> This patch adds dt-binding documentation for zx2967 family
-> watchdog controller.
+On Mon, Jan 16, 2017 at 08:54:46AM +0800, Fu Wei wrote:
+> On 14 January 2017 at 19:34, Fu Wei <fu.wei@linaro.org> wrote:
+> > On 14 January 2017 at 03:29, Mark Rutland <mark.rutland@arm.com> wrote:
+
+> >> Once v4.10-rc4 comes out this weekend, could you please rebase and
+> >> repost this?
+> >
+> > Yes, of course.
+> >
+> > I have rebased v19 to the latest v4.10-rc3-e96f8f1, it dosen't need
+> > any modification.
+> > I will rebase it every day, and will repost it if it need any  modification.
+> >
+> > But for now, V19 works well with the master branch of upstream kernel.
+> > Do I need to re-post it even if it doesn't need any improvement or
+> > modification? :-)
 > 
-> Signed-off-by: Baoyou Xie <baoyou.xie@linaro.org>
-> ---
->  .../bindings/watchdog/zte,zx2967-wdt.txt           | 29 ++++++++++++++++++++++
->  1 file changed, 29 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/watchdog/zte,zx2967-wdt.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/watchdog/zte,zx2967-wdt.txt b/Documentation/devicetree/bindings/watchdog/zte,zx2967-wdt.txt
-> new file mode 100644
-> index 0000000..0fe0d40
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/watchdog/zte,zx2967-wdt.txt
-> @@ -0,0 +1,29 @@
-> +ZTE zx2967 Watchdog timer
-> +
-> +Required properties:
-> +
-> +- compatible : should be one of the following.
-> +       * zte,zx296718-wdt
-> +- reg : Specifies base physical address and size of the registers.
-> +- clocks : Pairs of phandle and specifier referencing the controller's clocks.
-> +- clock-names: "wdtclk" for the watchdog clock.
+> I just fetched the latest mainline kernel, and rebase v19 on the top
+> of 4.10-rc4.
+> I have double checked it, V19 works well with  4.10-rc4.
+> For rebasing,  it doesn't need any modification.
 
-clock-names only makes sense when there are multiple clock phandles in
-'clocks' property.  When clock-names is not present, the driver code
-calls devm_clk_get() with the second parameter being NULL.
+Ok. Assuming that the patches apply cleanly atop of v4.10-rc4, I will
+look over this shortly.
 
-> +- resets : Reference to the reset controller controlling the watchdog
-> +           controller.
-> +- reset-names : Must include the following entries:
-> +       * wdtrst
+Thanks for checking that!
 
-Same as clock-names.
-
-> +
-> +Optional properties:
-> +
-> +- reset-mask-config : Mask and configuare value that be wrote to aon-sysctrl.
-
-First of all, for vendor specific properties, we should have a vendor
-prefix, something like "zte,reset-mask-config".
-
-Secondly, we should really have more comments to explain why this
-property is optional, i.e. in which cases it should be present, and in
-which cases it can be missing.  Also, the relationship between this
-reset and 'resets = <&toprst 35>' should be explained a bit as well.
-
-Shawn
-
-> +
-> +Example:
-> +
-> +wdt_ares: watchdog@1465000 {
-> +	compatible = "zte,zx296718-wdt";
-> +	reg = <0x1465000 0x1000>;
-> +	clocks = <&topcrm WDT_WCLK>;
-> +	clock-names = "wdtclk";
-> +	resets = <&toprst 35>;
-> +	reset-names = "wdtrst";
-> +	reset-mask-config = <1 0x115>;
-> +};
-> -- 
-> 2.7.4
-> 
+Mark.
