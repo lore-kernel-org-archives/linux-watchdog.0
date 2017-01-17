@@ -1,13 +1,13 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from smtp.codeaurora.org ([198.145.29.96]:57326 "EHLO
-        smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751071AbdAQMSW (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 17 Jan 2017 07:18:22 -0500
-Subject: Re: [PATCH v19 10/15] clocksource/drivers/arm_arch_timer: Refactor
- the timer init code to prepare for GTDT
-To: Fu Wei <fu.wei@linaro.org>, Mark Rutland <mark.rutland@arm.com>
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+Received: from foss.arm.com ([217.140.101.70]:50234 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751196AbdAQMhC (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 17 Jan 2017 07:37:02 -0500
+Date: Tue, 17 Jan 2017 12:29:21 +0000
+From: Mark Rutland <mark.rutland@arm.com>
+To: Timur Tabi <timur@codeaurora.org>
+Cc: Fu Wei <fu.wei@linaro.org>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
         Len Brown <lenb@kernel.org>,
         Daniel Lezcano <daniel.lezcano@linaro.org>,
         Thomas Gleixner <tglx@linutronix.de>,
@@ -33,28 +33,39 @@ Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>,
         linux-watchdog@vger.kernel.org, Tomasz Nowicki <tn@semihalf.com>,
         Christoffer Dall <christoffer.dall@linaro.org>,
         Julien Grall <julien.grall@arm.com>
+Subject: Re: [PATCH v19 10/15] clocksource/drivers/arm_arch_timer: Refactor
+ the timer init code to prepare for GTDT
+Message-ID: <20170117122921.GE11939@leverpostej>
 References: <20161221064603.11830-1-fu.wei@linaro.org>
  <20161221064603.11830-11-fu.wei@linaro.org>
  <20170116183032.GL5908@leverpostej>
  <CADyBb7tFaSshUmZsJbNO2tnbqAKEii39NQVfcx5CqDiDsK5OJA@mail.gmail.com>
-From: Timur Tabi <timur@codeaurora.org>
-Message-ID: <b977f47b-a85e-d4d5-666c-b8c9cd21c25e@codeaurora.org>
-Date: Tue, 17 Jan 2017 06:18:12 -0600
+ <b977f47b-a85e-d4d5-666c-b8c9cd21c25e@codeaurora.org>
 MIME-Version: 1.0
-In-Reply-To: <CADyBb7tFaSshUmZsJbNO2tnbqAKEii39NQVfcx5CqDiDsK5OJA@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <b977f47b-a85e-d4d5-666c-b8c9cd21c25e@codeaurora.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Fu Wei wrote:
-> if (i >= ARCH_TIMER_MEM_MAX_FRAMES) {
->         pr_err(FW_BUG "too many frames, ARMv8 spec only allows 8.\n");
+On Tue, Jan 17, 2017 at 06:18:12AM -0600, Timur Tabi wrote:
+> Fu Wei wrote:
+> >if (i >= ARCH_TIMER_MEM_MAX_FRAMES) {
+> >        pr_err(FW_BUG "too many frames, ARMv8 spec only allows 8.\n");
+> 
+> pr_err(FW_BUG "too many frames, ARMv8 spec only allows %u.\n",
+> 	ARCH_TIMER_MEM_MAX_FRAMES);
 
-pr_err(FW_BUG "too many frames, ARMv8 spec only allows %u.\n",
-	ARCH_TIMER_MEM_MAX_FRAMES);
+While I don't see ARCH_TIMER_MEM_MAX_FRAMES changing, this would be
+nicer to ensure the result obviously matches.
 
--- 
-Sent by an employee of the Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the
-Code Aurora Forum, hosted by The Linux Foundation.
+As for wording, I'd perfer:
+
+	pr_err(FW_BUG "too many frames, only %u are permitted.\n",
+	       ARCH_TIMER_MEM_MAX_FRAMES);
+
+... so as to avoid any confusion between spec versions and so on. We can
+reconsider the message if/when that changes.
+
+Thanks,
+Mark.
