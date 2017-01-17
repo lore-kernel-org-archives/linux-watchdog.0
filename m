@@ -1,117 +1,180 @@
 Return-path: <ukl@pengutronix.de>
-Date: Tue, 17 Jan 2017 09:10:06 +0100
+Date: Tue, 17 Jan 2017 09:38:47 +0100
 From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>
 To: Vladimir Zapolskiy <vz@mleia.com>
-Cc: Fabio Estevam <festevam@gmail.com>, Shawn Guo <shawnguo@kernel.org>,
-	linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
-	Magnus Lilja <lilja.magnus@gmail.com>,
-	linux-arm-kernel@lists.infradead.org, kernel@pengutronix.de,
+Cc: Wim Van Sebroeck <wim@iguana.be>, Guenter Roeck <linux@roeck-us.net>,
+	Shawn Guo <shawnguo@kernel.org>,
 	Fabio Estevam <fabio.estevam@nxp.com>,
-	Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH 2/3] dts: teach newer i.MX machines to have the i.MX35
- type watchdog
-Message-ID: <20170117081006.rptalfhzois5sjvu@pengutronix.de>
-References: <20170109095039.11979-1-u.kleine-koenig@pengutronix.de>
- <20170109095039.11979-3-u.kleine-koenig@pengutronix.de>
- <CAOMZO5CjkW1SdSAcSOj8Uws-xjoh=iZ1Ey9dwBdOdBzQLS6h8w@mail.gmail.com>
- <20170116204337.j67oeknraas7ryib@pengutronix.de>
- <0586b2cd-6cbb-2e8a-9cd6-d7220708931d@mleia.com>
+	Magnus Lilja <lilja.magnus@gmail.com>,
+	Stefan Agner <stefan@agner.ch>, linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org
+Subject: Re: [PATCH v2] watchdog: imx2: fix hang-up on boot for i.MX21,
+ i.MX27 and i.MX31 SoCs
+Message-ID: <20170117083847.ijrvafqjdwduele6@pengutronix.de>
+References: <20170117012353.6948-1-vz@mleia.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <0586b2cd-6cbb-2e8a-9cd6-d7220708931d@mleia.com>
+In-Reply-To: <20170117012353.6948-1-vz@mleia.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
 Hello Vladimir,
 
-On Mon, Jan 16, 2017 at 11:48:40PM +0200, Vladimir Zapolskiy wrote:
-> On 01/16/2017 10:43 PM, Uwe Kleine-König wrote:
-> > On Mon, Jan 16, 2017 at 04:35:26PM -0200, Fabio Estevam wrote:
-> >> On Mon, Jan 9, 2017 at 7:50 AM, Uwe Kleine-König
-> >> <u.kleine-koenig@pengutronix.de> wrote:
-> >>> Only i.MX35 and newer feature a WMCR register that should be written to. Older
-> >>> SoCs hang when this address is written.
-> >>>
-> >>> Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-> >>
-> >> Reviewed-by: Fabio Estevam <fabio.estevam@nxp.com>
-> >>
-> >> Only a minor nit: Subject could: ARM: dts: imx: teach...
-> > 
-> > Ack. To reference the commit id of the first patch in the third I can
-> > prepare a branch to pull. There I'd fix the Subject. Shawn, is this OK?
-> > 
+On Tue, Jan 17, 2017 at 03:23:53AM +0200, Vladimir Zapolskiy wrote:
+> Power down counter enable/disable bit switch is located in WMCR register,
+> but watchdog controllers found on legacy i.MX21, i.MX27 and i.MX31 SoCs
+> don't have this register. As a result of writing data to the non-existing
+> register on driver probe the SoC hangs up, to fix the problem add more OF
+> compatible strings and on this basis get information about availability of
+> the WMCR register.
 > 
-> This is too early for changes, which are not reviewed by Linux watchdog masters.
+> Fixes: 5fe65ce7ccbb ("watchdog: imx2_wdt: Disable power down counter on boot")
+> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+> Tested-by: Magnus Lilja <lilja.magnus@gmail.com>
+> Reviewed-by: Fabio Estevam <fabio.estevam@nxp.com>
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Vladimir Zapolskiy <vz@mleia.com>
+> ---
+> Changes from v1 to v2:
+> * removed i.MX27 and i.MX31 compatibles from the list, since it is expected
+>   that their DTB files has a reference to the listed i.MX21 compatible,
+>   many thanks to Uwe Kleine-König for the hint,
+> * start the list of compatibles from an i.MX35 specific one, since it is
+>   agreed that i.MX35 precedes i.MX25, thanks to Uwe Kleine-König for review,
+> * added a comment describing any potential changes in future over the list
+>   of watchdog compatible values,
+> * added all collected tags to the commit message.
 > 
-> As I emphasized multiple times in our discussions your series is organized
-> improperly, it has interdependencies between DTS and driver, it lacks
-> atomicity feature of a proper fix, in the middle it breaks backward compatibility
-> with old DTB, all that makes it impossible to send an atomic fix for linux-stable,
+> Changes from RFC to v1:
+> * replaced private data struct with a macro as suggested by Guenter,
 
-Oh, I must have missed that. In my inbox there are two replys to my
-series, the one I reply to being the first to mention these critics.
+I didn't see the RFC, but I like a data struct better. It has some
+overhead, but allows for easier expansion later, needs less casting and
+is easier to understand for a reader (see below).
 
-Regarding your critics:
+> * updated the comment in the source code to reflect the change,
+> * rearranged and simplified the logic of detecting WMCR presence,
+> * pulled the fix out from the series with optional proposed DTS changes.
+> 
+>  drivers/watchdog/imx2_wdt.c | 41 ++++++++++++++++++++++++++++++++++++-----
+>  1 file changed, 36 insertions(+), 5 deletions(-)
+> 
+> diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
+> index 4874b0f..e08c367 100644
+> --- a/drivers/watchdog/imx2_wdt.c
+> +++ b/drivers/watchdog/imx2_wdt.c
+> @@ -30,6 +30,7 @@
+>  #include <linux/module.h>
+>  #include <linux/moduleparam.h>
+>  #include <linux/of_address.h>
+> +#include <linux/of_device.h>
+>  #include <linux/platform_device.h>
+>  #include <linux/regmap.h>
+>  #include <linux/watchdog.h>
+> @@ -57,6 +58,7 @@
+>  #define IMX2_WDT_WICR_WICT	0xFF		/* -> Interrupt Count Timeout */
+>  
+>  #define IMX2_WDT_WMCR		0x08		/* Misc Register */
+> +#define IMX2_WDT_NO_WMCR	((void *)true)	/* Indicates unavailable WMCR */
 
- - organized improperly: that alone is too abstract to understand what
-   you mean.
- - interdependencies between DTS and driver, lacks atomicity, impossible
-   to send an atomic fix for linux-stable: I wonder how you want to get
-   rid of that. Yes there are interdependencies, that's because both
-   driver and dts need adaption. Well, I could squash together some of
-   the changes, then there is a single patch that atomically fixes
-   everything. Personally I prefer to have three commits, each one
-   changing a single thing and considering all three together as a fix
-   for stable.
- - in the middle it breaks backward compatibility: There are three
-   patches:
+I wouldn't group this to the register definition because it serves a
+different purpose. Also the negation isn't that nice, making it hard to
+understand
 
-   	1) watchdog: imx2: Only i.MX35 and later have a WMCR register
-	2) dts: teach newer i.MX machines to have the i.MX35 type watchdog
-	3) watchdog: imx2: add compatibility for new i.MX35 type watchdog
+	if (of_id && !of_id->data)
 
-   Before the first patch we have:
+below. If a struct would be used, the code would be much easier to
+understand. Compare to 
 
-	- newer i.mx dtsi wrongly claims to have i.mx21 type watchdog
-	- watchdog handles i.MX21 as if it were i.MX35
+	if (type->has_WMCR)
 
-   After the first patch we have:
+in my patch which is understandable on first sight.
 
-	- newer i.mx dtsi wrongly claims to have i.mx21 type watchdog
+>  #define IMX2_WDT_MAX_TIME	128
+>  #define IMX2_WDT_DEFAULT_TIME	60		/* in seconds */
+> @@ -70,6 +72,8 @@ struct imx2_wdt_device {
+>  	bool ext_reset;
+>  };
+>  
+> +static const struct of_device_id imx2_wdt_dt_ids[];
 
-   And after the second everything is fine (assuming a dtb not older
-   than the kernel). So each patch fixes a single thing.
+You don't need this if you use dev->driver->of_match_table (or still
+better of_device_get_match_data (see my patch)).
 
-   Yes, after the first patch machines having an i.MX35 type watchdog
-   might have a problem. That's because there are two things to fix (so
-   there are two patches): The driver must know about the new type and
-   the dts must make use of it. And fixing the first makes the second
-   visible, but doesn't introduce it (after all the i.MX35 dtsi is wrong
-   claiming to have the i.MX21 type).
+> +
+>  static bool nowayout = WATCHDOG_NOWAYOUT;
+>  module_param(nowayout, bool, 0);
+>  MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
+> @@ -242,6 +246,7 @@ static const struct regmap_config imx2_wdt_regmap_config = {
+>  
+>  static int __init imx2_wdt_probe(struct platform_device *pdev)
+>  {
+> +	const struct of_device_id *of_id;
+>  	struct imx2_wdt_device *wdev;
+>  	struct watchdog_device *wdog;
+>  	struct resource *res;
+> @@ -310,11 +315,13 @@ static int __init imx2_wdt_probe(struct platform_device *pdev)
+>  	}
+>  
+>  	/*
+> -	 * Disable the watchdog power down counter at boot. Otherwise the power
+> -	 * down counter will pull down the #WDOG interrupt line for one clock
+> -	 * cycle.
+> +	 * If watchdog controller has WMCR, disable the watchdog power
+> +	 * down counter at boot. Otherwise the power down counter will
+> +	 * pull down the #WDOG interrupt line for one clock cycle.
+>  	 */
+> -	regmap_write(wdev->regmap, IMX2_WDT_WMCR, 0);
+> +	of_id = of_match_device(imx2_wdt_dt_ids, &pdev->dev);
+> +	if (of_id && !of_id->data)
+> +		regmap_write(wdev->regmap, IMX2_WDT_WMCR, 0);
 
-Now that there are machines known that suffer from the problem under
-discussion it's obvious that we want the changes from the third patch.
-Personally I don't care much if it stays separate or is squashed into
-the first one.
+The fix is not complete as this test doesn't work correctly when the wdt
+device isn't instanciated by dt but by a platform file (see my patch).
 
-> some of the changes are captured from mine ones without preserving the authorship
-> or even a reported-by credit.
+>  	ret = watchdog_register_device(wdog);
+>  	if (ret) {
+> @@ -411,8 +418,32 @@ static int imx2_wdt_resume(struct device *dev)
+>  static SIMPLE_DEV_PM_OPS(imx2_wdt_pm_ops, imx2_wdt_suspend,
+>  			 imx2_wdt_resume);
+>  
+> +/*
+> + * The list of compatibles is added to achieve compatibility between
+> + * old DTS and new kernel while fixing the incompatibility between
+> + * i.MX21/i.MX27/i.MX31 and i.MX35/i.MX25/etc. watchdog controllers.
 
-Compared to your v1 the similarities are AFAICT:
+This comment should be after fsl,imx21-wdt and fsl,imx35-wdt. After all
+these are not there for backward compatibility.
 
- - added .data to dt_ids array
- - added an if to only conditionally execute the breaking command
- - added a new compatible to several dtsi files
+> + * Please do *NOT* extend the list by adding a compatible value for
+> + * a controller, which is compatible with one of the already listed,
+> + * almost certainly "fsl,imx35-wdt" compatible serves newer i.MX SoCs.
+> + *
+> + * You may consider to shrink the list at your own risk, but this may
+> + * break the backward compatibility and users may have to update their
+> + * DTB, which is good eventually.
 
-All these are necessary to fix the problem discussed here. The way I
-implemented the first two ones are different to your way. So IMHO it's
-at least questionable if you or I should be the author of the patches I
-sent.
+I'd skip the last paragraph.
 
-I'm ok to add a Reported-by for you. I usually add such a tag only after
-a request for it. I missed to ask for that, please excuse this.
+> + */
+>  static const struct of_device_id imx2_wdt_dt_ids[] = {
+> -	{ .compatible = "fsl,imx21-wdt", },
+> +	{ .compatible = "fsl,imx21-wdt", .data = IMX2_WDT_NO_WMCR },
+> +	{ .compatible = "fsl,imx35-wdt",  },
+> +	{ .compatible = "fsl,imx25-wdt",  },
+> +	{ .compatible = "fsl,imx50-wdt",  },
+> +	{ .compatible = "fsl,imx51-wdt",  },
+> +	{ .compatible = "fsl,imx53-wdt",  },
+> +	{ .compatible = "fsl,imx6q-wdt",  },
+> +	{ .compatible = "fsl,imx6sl-wdt", },
+> +	{ .compatible = "fsl,imx6sx-wdt", },
+> +	{ .compatible = "fsl,imx6ul-wdt", },
+> +	{ .compatible = "fsl,imx7d-wdt",  },
+> +	{ .compatible = "fsl,vf610-wdt",  },
+>  	{ /* sentinel */ }
+>  };
+>  MODULE_DEVICE_TABLE(of, imx2_wdt_dt_ids);
 
 Best regards
 Uwe
