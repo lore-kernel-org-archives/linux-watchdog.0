@@ -1,22 +1,22 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail1.bemta3.messagelabs.com ([195.245.230.162]:52983 "EHLO
-        mail1.bemta3.messagelabs.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1751127AbdAQORf (ORCPT
+Received: from mail1.bemta5.messagelabs.com ([195.245.231.153]:35059 "EHLO
+        mail1.bemta5.messagelabs.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1750965AbdAQOTh (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 17 Jan 2017 09:17:35 -0500
+        Tue, 17 Jan 2017 09:19:37 -0500
 From: Adam Thomson <Adam.Thomson.Opensource@diasemi.com>
 To: Guenter Roeck <linux@roeck-us.net>,
         Wim Van Sebroeck <wim@iguana.be>
 CC: "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
         "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
         "Support Opensource" <Support.Opensource@diasemi.com>
-Subject: RE: [PATCH 13/62] watchdog: da9062_wdt: Convert to use device
+Subject: RE: [PATCH 14/62] watchdog: da9063_wdt: Convert to use device
  managed functions
-Date: Tue, 17 Jan 2017 14:17:01 +0000
-Message-ID: <2E89032DDAA8B9408CB92943514A03370142A77D4F@SW-EX-MBX01.diasemi.com>
+Date: Tue, 17 Jan 2017 14:19:31 +0000
+Message-ID: <2E89032DDAA8B9408CB92943514A03370142A77D5D@SW-EX-MBX01.diasemi.com>
 References: <1484091325-9199-1-git-send-email-linux@roeck-us.net>
- <1484091325-9199-14-git-send-email-linux@roeck-us.net>
-In-Reply-To: <1484091325-9199-14-git-send-email-linux@roeck-us.net>
+ <1484091325-9199-15-git-send-email-linux@roeck-us.net>
+In-Reply-To: <1484091325-9199-15-git-send-email-linux@roeck-us.net>
 Content-Language: en-US
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
@@ -35,7 +35,9 @@ On 10 January 2017 23:35, Guenter Roeck wrote:
 > https://github.com/groeck/coccinelle-patches
 > 
 > - Replace 'val = e; return val;' with 'return e;'
+> - Replace 'if (e) return e; return 0;' with 'return e;'
 > - Drop assignments to otherwise unused variables
+> - Drop unused variables
 > - Drop remove function
 > - Drop dev_set_drvdata()
 > - Use devm_watchdog_register_driver() to register watchdog device
