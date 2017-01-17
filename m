@@ -1,38 +1,45 @@
-Return-path: <Adam.Thomson.Opensource@diasemi.com>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail1.bemta3.messagelabs.com ([195.245.230.162]:52983 "EHLO
+        mail1.bemta3.messagelabs.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1751127AbdAQORf (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 17 Jan 2017 09:17:35 -0500
 From: Adam Thomson <Adam.Thomson.Opensource@diasemi.com>
-To: Guenter Roeck <linux@roeck-us.net>, Wim Van Sebroeck <wim@iguana.be>
+To: Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@iguana.be>
 CC: "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Support
- Opensource" <Support.Opensource@diasemi.com>
-Subject: RE: [PATCH 12/62] watchdog: da9055_wdt: Convert to use device
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "Support Opensource" <Support.Opensource@diasemi.com>
+Subject: RE: [PATCH 13/62] watchdog: da9062_wdt: Convert to use device
  managed functions
-Date: Tue, 17 Jan 2017 13:58:09 +0000
-Message-ID: <2E89032DDAA8B9408CB92943514A03370142A77D22@SW-EX-MBX01.diasemi.com>
+Date: Tue, 17 Jan 2017 14:17:01 +0000
+Message-ID: <2E89032DDAA8B9408CB92943514A03370142A77D4F@SW-EX-MBX01.diasemi.com>
 References: <1484091325-9199-1-git-send-email-linux@roeck-us.net>
- <1484091325-9199-13-git-send-email-linux@roeck-us.net>
-In-Reply-To: <1484091325-9199-13-git-send-email-linux@roeck-us.net>
+ <1484091325-9199-14-git-send-email-linux@roeck-us.net>
+In-Reply-To: <1484091325-9199-14-git-send-email-linux@roeck-us.net>
 Content-Language: en-US
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-List-ID: <linux-watchdog@vger.kernel.org>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-On 10 January 2017 23:34, Guenter Roeck wrote:
+On 10 January 2017 23:35, Guenter Roeck wrote:
 
 > Use device managed functions to simplify error handling, reduce
 > source code size, improve readability, and reduce the likelyhood of bugs.
->=20
+> 
 > The conversion was done automatically with coccinelle using the
 > following semantic patches. The semantic patches and the scripts used
 > to generate this commit log are available at
 > https://github.com/groeck/coccinelle-patches
->=20
-> - Replace 'goto l; ... l: return e;' with 'return e;'
+> 
+> - Replace 'val = e; return val;' with 'return e;'
 > - Drop assignments to otherwise unused variables
 > - Drop remove function
-> - Drop platform_set_drvdata()
+> - Drop dev_set_drvdata()
 > - Use devm_watchdog_register_driver() to register watchdog device
->=20
+> 
 > Cc: Support Opensource <support.opensource@diasemi.com>
 > Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 > ---
