@@ -1,12 +1,23 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from foss.arm.com ([217.140.101.70]:50234 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751196AbdAQMhC (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 17 Jan 2017 07:37:02 -0500
-Date: Tue, 17 Jan 2017 12:29:21 +0000
-From: Mark Rutland <mark.rutland@arm.com>
-To: Timur Tabi <timur@codeaurora.org>
-Cc: Fu Wei <fu.wei@linaro.org>,
+Received: from mail-io0-f174.google.com ([209.85.223.174]:35643 "EHLO
+        mail-io0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751103AbdAQNXK (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 17 Jan 2017 08:23:10 -0500
+Received: by mail-io0-f174.google.com with SMTP id j18so114133646ioe.2
+        for <linux-watchdog@vger.kernel.org>; Tue, 17 Jan 2017 05:22:18 -0800 (PST)
+MIME-Version: 1.0
+In-Reply-To: <20170117122921.GE11939@leverpostej>
+References: <20161221064603.11830-1-fu.wei@linaro.org> <20161221064603.11830-11-fu.wei@linaro.org>
+ <20170116183032.GL5908@leverpostej> <CADyBb7tFaSshUmZsJbNO2tnbqAKEii39NQVfcx5CqDiDsK5OJA@mail.gmail.com>
+ <b977f47b-a85e-d4d5-666c-b8c9cd21c25e@codeaurora.org> <20170117122921.GE11939@leverpostej>
+From: Fu Wei <fu.wei@linaro.org>
+Date: Tue, 17 Jan 2017 21:22:17 +0800
+Message-ID: <CADyBb7ugEbFB42PcoJc0J8q4BAzCC5HfC8638sMm-5nzA3zcZA@mail.gmail.com>
+Subject: Re: [PATCH v19 10/15] clocksource/drivers/arm_arch_timer: Refactor
+ the timer init code to prepare for GTDT
+To: Mark Rutland <mark.rutland@arm.com>
+Cc: Timur Tabi <timur@codeaurora.org>,
         "Rafael J. Wysocki" <rjw@rjwysocki.net>,
         Len Brown <lenb@kernel.org>,
         Daniel Lezcano <daniel.lezcano@linaro.org>,
@@ -33,39 +44,44 @@ Cc: Fu Wei <fu.wei@linaro.org>,
         linux-watchdog@vger.kernel.org, Tomasz Nowicki <tn@semihalf.com>,
         Christoffer Dall <christoffer.dall@linaro.org>,
         Julien Grall <julien.grall@arm.com>
-Subject: Re: [PATCH v19 10/15] clocksource/drivers/arm_arch_timer: Refactor
- the timer init code to prepare for GTDT
-Message-ID: <20170117122921.GE11939@leverpostej>
-References: <20161221064603.11830-1-fu.wei@linaro.org>
- <20161221064603.11830-11-fu.wei@linaro.org>
- <20170116183032.GL5908@leverpostej>
- <CADyBb7tFaSshUmZsJbNO2tnbqAKEii39NQVfcx5CqDiDsK5OJA@mail.gmail.com>
- <b977f47b-a85e-d4d5-666c-b8c9cd21c25e@codeaurora.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <b977f47b-a85e-d4d5-666c-b8c9cd21c25e@codeaurora.org>
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, Jan 17, 2017 at 06:18:12AM -0600, Timur Tabi wrote:
-> Fu Wei wrote:
-> >if (i >= ARCH_TIMER_MEM_MAX_FRAMES) {
-> >        pr_err(FW_BUG "too many frames, ARMv8 spec only allows 8.\n");
-> 
-> pr_err(FW_BUG "too many frames, ARMv8 spec only allows %u.\n",
-> 	ARCH_TIMER_MEM_MAX_FRAMES);
+Hi Mark,
 
-While I don't see ARCH_TIMER_MEM_MAX_FRAMES changing, this would be
-nicer to ensure the result obviously matches.
+On 17 January 2017 at 20:29, Mark Rutland <mark.rutland@arm.com> wrote:
+> On Tue, Jan 17, 2017 at 06:18:12AM -0600, Timur Tabi wrote:
+>> Fu Wei wrote:
+>> >if (i >= ARCH_TIMER_MEM_MAX_FRAMES) {
+>> >        pr_err(FW_BUG "too many frames, ARMv8 spec only allows 8.\n");
+>>
+>> pr_err(FW_BUG "too many frames, ARMv8 spec only allows %u.\n",
+>>       ARCH_TIMER_MEM_MAX_FRAMES);
+>
+> While I don't see ARCH_TIMER_MEM_MAX_FRAMES changing, this would be
+> nicer to ensure the result obviously matches.
+>
+> As for wording, I'd perfer:
+>
+>         pr_err(FW_BUG "too many frames, only %u are permitted.\n",
+>                ARCH_TIMER_MEM_MAX_FRAMES);
 
-As for wording, I'd perfer:
+OK, will do so.
+Thanks!
 
-	pr_err(FW_BUG "too many frames, only %u are permitted.\n",
-	       ARCH_TIMER_MEM_MAX_FRAMES);
+>
+> ... so as to avoid any confusion between spec versions and so on. We can
+> reconsider the message if/when that changes.
+>
+> Thanks,
+> Mark.
 
-... so as to avoid any confusion between spec versions and so on. We can
-reconsider the message if/when that changes.
 
-Thanks,
-Mark.
+
+-- 
+Best regards,
+
+Fu Wei
+Software Engineer
+Red Hat
