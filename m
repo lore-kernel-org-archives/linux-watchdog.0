@@ -1,230 +1,109 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-it0-f43.google.com ([209.85.214.43]:35685 "EHLO
-        mail-it0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751356AbdARE1j (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 17 Jan 2017 23:27:39 -0500
-Received: by mail-it0-f43.google.com with SMTP id 203so110130952ith.0
-        for <linux-watchdog@vger.kernel.org>; Tue, 17 Jan 2017 20:27:38 -0800 (PST)
-MIME-Version: 1.0
-In-Reply-To: <20170116175025.GJ5908@leverpostej>
-References: <20161221064603.11830-1-fu.wei@linaro.org> <20161221064603.11830-7-fu.wei@linaro.org>
- <20170116175025.GJ5908@leverpostej>
-From: Fu Wei <fu.wei@linaro.org>
-Date: Wed, 18 Jan 2017 12:27:37 +0800
-Message-ID: <CADyBb7tMaOJ9D-AYnaNP1OX8kkst7DCkVT0giB2HqdrjSpgX3A@mail.gmail.com>
-Subject: Re: [PATCH v19 06/15] clocksource/drivers/arm_arch_timer: Rework
- counter frequency detection.
-To: Mark Rutland <mark.rutland@arm.com>
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Len Brown <lenb@kernel.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Marc Zyngier <marc.zyngier@arm.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Hanjun Guo <hanjun.guo@linaro.org>,
-        linux-arm-kernel@lists.infradead.org,
-        Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
-        rruigrok@codeaurora.org, "Abdulhamid, Harb" <harba@codeaurora.org>,
-        Christopher Covington <cov@codeaurora.org>,
-        Timur Tabi <timur@codeaurora.org>,
-        G Gregory <graeme.gregory@linaro.org>,
-        Al Stone <al.stone@linaro.org>, Jon Masters <jcm@redhat.com>,
-        Wei Huang <wei@redhat.com>, Arnd Bergmann <arnd@arndb.de>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
-        Leo Duran <leo.duran@amd.com>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        Guenter Roeck <linux@roeck-us.net>,
-        linux-watchdog@vger.kernel.org, Tomasz Nowicki <tn@semihalf.com>,
-        Christoffer Dall <christoffer.dall@linaro.org>,
-        Julien Grall <julien.grall@arm.com>
-Content-Type: text/plain; charset=UTF-8
+Received: from mx1.redhat.com ([209.132.183.28]:52406 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753234AbdARN0y (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Wed, 18 Jan 2017 08:26:54 -0500
+From: fu.wei@linaro.org
+To: rjw@rjwysocki.net, lenb@kernel.org, daniel.lezcano@linaro.org,
+        tglx@linutronix.de, marc.zyngier@arm.com, mark.rutland@arm.com,
+        lorenzo.pieralisi@arm.com, sudeep.holla@arm.com,
+        hanjun.guo@linaro.org
+Cc: linux-arm-kernel@lists.infradead.org, linaro-acpi@lists.linaro.org,
+        linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
+        rruigrok@codeaurora.org, harba@codeaurora.org, cov@codeaurora.org,
+        timur@codeaurora.org, graeme.gregory@linaro.org,
+        al.stone@linaro.org, jcm@redhat.com, wei@redhat.com, arnd@arndb.de,
+        catalin.marinas@arm.com, will.deacon@arm.com,
+        Suravee.Suthikulpanit@amd.com, leo.duran@amd.com, wim@iguana.be,
+        linux@roeck-us.net, linux-watchdog@vger.kernel.org,
+        tn@semihalf.com, christoffer.dall@linaro.org, julien.grall@arm.com,
+        Fu Wei <fu.wei@linaro.org>
+Subject: [PATCH v20 04/17] clocksource/drivers/arm_arch_timer: Move enums and defines to header file.
+Date: Wed, 18 Jan 2017 21:25:28 +0800
+Message-Id: <20170118132541.8989-5-fu.wei@linaro.org>
+In-Reply-To: <20170118132541.8989-1-fu.wei@linaro.org>
+References: <20170118132541.8989-1-fu.wei@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Mark,
+From: Fu Wei <fu.wei@linaro.org>
 
-On 17 January 2017 at 01:50, Mark Rutland <mark.rutland@arm.com> wrote:
-> On Wed, Dec 21, 2016 at 02:45:54PM +0800, fu.wei@linaro.org wrote:
->> From: Fu Wei <fu.wei@linaro.org>
->>
->> Currently, the counter frequency detection call(arch_timer_detect_rate)
->> combines all the ways to get counter frequency: device-tree property,
->> system coprocessor register, MMIO timer. But in the most of use cases,
->> we don't need all the ways to try:
->> For example, reading device-tree property will be needed only when
->> system boot with device-tree, getting frequency from MMIO timer register
->> will beneeded only when we init MMIO timer.
->>
->> This patch separates paths to determine frequency:
->> Separate out device-tree code, keep them in device-tree init function.
->
-> Splitting these out makes sense to me.
+To support the arm_arch_timer via ACPI we need to share defines and enums
+between the driver and the ACPI parser code.
+So we split out the relevant defines and enums into arm_arch_timer.h.
 
-OK , will do
+No functional change.
 
->
->> Separate out the MMIO frequency and the sysreg frequency detection call,
->> and use the appropriate one for the counter.
->
->> Signed-off-by: Fu Wei <fu.wei@linaro.org>
->> Tested-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
->> ---
->>  drivers/clocksource/arm_arch_timer.c | 49 +++++++++++++++++++++++-------------
->>  1 file changed, 31 insertions(+), 18 deletions(-)
->>
->> diff --git a/drivers/clocksource/arm_arch_timer.c b/drivers/clocksource/arm_arch_timer.c
->> index c7b4482..9a1f138 100644
->> --- a/drivers/clocksource/arm_arch_timer.c
->> +++ b/drivers/clocksource/arm_arch_timer.c
->> @@ -488,27 +488,31 @@ static int arch_timer_starting_cpu(unsigned int cpu)
->>       return 0;
->>  }
->>
->> -static void
->> -arch_timer_detect_rate(void __iomem *cntbase, struct device_node *np)
->> +static void arch_timer_detect_rate(void)
->>  {
->> -     /* Who has more than one independent system counter? */
->> -     if (arch_timer_rate)
->> -             return;
->> +     /*
->> +      * Try to get the timer frequency from
->> +      * cntfrq_el0(system coprocessor register).
->> +      */
->> +     if (!arch_timer_rate)
->> +             arch_timer_rate = arch_timer_get_cntfrq();
->> +
->> +     /* Check the timer frequency. */
->> +     if (!arch_timer_rate)
->> +             pr_warn("frequency not available\n");
->> +}
->>
->> +static void arch_timer_mem_detect_rate(void __iomem *cntbase)
->> +{
->>       /*
->> -      * Try to determine the frequency from the device tree or CNTFRQ,
->> -      * if ACPI is enabled, get the frequency from CNTFRQ ONLY.
->> +      * Try to determine the frequency from
->> +      * CNTFRQ in memory-mapped timer.
->>        */
->> -     if (!acpi_disabled ||
->> -         of_property_read_u32(np, "clock-frequency", &arch_timer_rate)) {
->> -             if (cntbase)
->> -                     arch_timer_rate = readl_relaxed(cntbase + CNTFRQ);
->> -             else
->> -                     arch_timer_rate = arch_timer_get_cntfrq();
->> -     }
->> +     if (!arch_timer_rate)
->> +             arch_timer_rate = readl_relaxed(cntbase + CNTFRQ);
->>
->>       /* Check the timer frequency. */
->> -     if (arch_timer_rate == 0)
->> +     if (!arch_timer_rate)
+Signed-off-by: Fu Wei <fu.wei@linaro.org>
+Acked-by: Mark Rutland <mark.rutland@arm.com>
+Tested-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+---
+ drivers/clocksource/arm_arch_timer.c | 11 -----------
+ include/clocksource/arm_arch_timer.h | 12 ++++++++++++
+ 2 files changed, 12 insertions(+), 11 deletions(-)
 
-I think you mean this one, this is for keeping consistency with
-arch_timer_detect_rate.
-
->>               pr_warn("frequency not available\n");
->>  }
->
-> There's a subtle change in behaviour here. Previously for ACPI we'd only
-> ever use the sysreg CNTFRQ value for arch_timer_rate, whereas now we
-> might use the MMIO timer rate. Maybe that's not a big deal, but I will
-> need to think.
->
-> Generally, the logic to determine the rate is fairly gnarly regardless.
->
-> It would be nice if we could split the MMIO and sysreg rates entirely,
-
-Yes, I am doing this way,
-
-For sysreg rates,
-static void arch_timer_detect_rate(void)
-{
-/*
-* Try to get the timer frequency from
-* cntfrq_el0(system coprocessor register).
-*/
-if (!arch_timer_rate)
-arch_timer_rate = arch_timer_get_cntfrq();
-
-/* Check the timer frequency. */
-if (!arch_timer_rate)
-pr_warn("frequency not available\n");
-}
-
-For MMIO timer,
-static void arch_timer_mem_detect_rate(void __iomem *cntbase)
-{
-/*
-* Try to determine the frequency from
-* CNTFRQ in memory-mapped timer.
-*/
-if (!arch_timer_rate)
-arch_timer_rate = readl_relaxed(cntbase + CNTFRQ);
-
-/* Check the timer frequency. */
-if (!arch_timer_rate)
-pr_warn("frequency not available\n");
-}
-
-in arch_time_*_init, only call  arch_timer_detect_rate,
-in arch_timer_mem_init, only call arch_timer_mem_detect_rate.
-
-But you are right, this is fairly gnarly regardless.
-
-> and kill the implicit relationship between the two, or at least make one
-> canonical and warn if the two differ.
-
-So I think maybe we can do this:
-
-static void __arch_timer_determine_rate(u32 rate)
-{
-/* Check the timer frequency. */
-if (!arch_timer_rate)
-if (rate)
-arch_timer_rate = rate;
-else
-pr_warn("frequency not available\n");
-else if (arch_timer_rate != rate)
-pr_warn("got different frequency, keep original.\n");
-}
-
-static void arch_timer_detect_rate(void)
-{
-/*
-* Try to get the timer frequency from
-* cntfrq_el0(system coprocessor register).
-*/
-__arch_timer_determine_rate(arch_timer_get_cntfrq());
-}
-
-static void arch_timer_mem_detect_rate(void __iomem *cntbase)
-{
-/*
-* Try to get the timer frequency from
-* CNTFRQ in the MMIO timer.
-*/
-__arch_timer_determine_rate(readl_relaxed(cntbase + CNTFRQ));
-}
-
-any thought?
-
->
-> Thanks,
-> Mark.
-
-
-
+diff --git a/drivers/clocksource/arm_arch_timer.c b/drivers/clocksource/arm_arch_timer.c
+index d5a1664..90b6661 100644
+--- a/drivers/clocksource/arm_arch_timer.c
++++ b/drivers/clocksource/arm_arch_timer.c
+@@ -54,8 +54,6 @@
+ #define CNTV_TVAL	0x38
+ #define CNTV_CTL	0x3c
+ 
+-#define ARCH_TIMER_TYPE_CP15		BIT(0)
+-#define ARCH_TIMER_TYPE_MEM		BIT(1)
+ static unsigned arch_timers_present __initdata;
+ 
+ static void __iomem *arch_counter_base;
+@@ -68,15 +66,6 @@ struct arch_timer {
+ #define to_arch_timer(e) container_of(e, struct arch_timer, evt)
+ 
+ static u32 arch_timer_rate;
+-
+-enum arch_timer_ppi_nr {
+-	ARCH_TIMER_PHYS_SECURE_PPI,
+-	ARCH_TIMER_PHYS_NONSECURE_PPI,
+-	ARCH_TIMER_VIRT_PPI,
+-	ARCH_TIMER_HYP_PPI,
+-	ARCH_TIMER_MAX_TIMER_PPI
+-};
+-
+ static int arch_timer_ppi[ARCH_TIMER_MAX_TIMER_PPI];
+ 
+ static struct clock_event_device __percpu *arch_timer_evt;
+diff --git a/include/clocksource/arm_arch_timer.h b/include/clocksource/arm_arch_timer.h
+index caedb74..b898637 100644
+--- a/include/clocksource/arm_arch_timer.h
++++ b/include/clocksource/arm_arch_timer.h
+@@ -16,9 +16,13 @@
+ #ifndef __CLKSOURCE_ARM_ARCH_TIMER_H
+ #define __CLKSOURCE_ARM_ARCH_TIMER_H
+ 
++#include <linux/bitops.h>
+ #include <linux/timecounter.h>
+ #include <linux/types.h>
+ 
++#define ARCH_TIMER_TYPE_CP15		BIT(0)
++#define ARCH_TIMER_TYPE_MEM		BIT(1)
++
+ #define ARCH_TIMER_CTRL_ENABLE		(1 << 0)
+ #define ARCH_TIMER_CTRL_IT_MASK		(1 << 1)
+ #define ARCH_TIMER_CTRL_IT_STAT		(1 << 2)
+@@ -34,6 +38,14 @@ enum arch_timer_reg {
+ 	ARCH_TIMER_REG_TVAL,
+ };
+ 
++enum arch_timer_ppi_nr {
++	ARCH_TIMER_PHYS_SECURE_PPI,
++	ARCH_TIMER_PHYS_NONSECURE_PPI,
++	ARCH_TIMER_VIRT_PPI,
++	ARCH_TIMER_HYP_PPI,
++	ARCH_TIMER_MAX_TIMER_PPI
++};
++
+ #define ARCH_TIMER_PHYS_ACCESS		0
+ #define ARCH_TIMER_VIRT_ACCESS		1
+ #define ARCH_TIMER_MEM_PHYS_ACCESS	2
 -- 
-Best regards,
+2.9.3
 
-Fu Wei
-Software Engineer
-Red Hat
