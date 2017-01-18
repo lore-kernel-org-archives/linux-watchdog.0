@@ -1,8 +1,8 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:58854 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:57892 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751894AbdARN0Q (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 18 Jan 2017 08:26:16 -0500
+        id S1751842AbdARN0c (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Wed, 18 Jan 2017 08:26:32 -0500
 From: fu.wei@linaro.org
 To: rjw@rjwysocki.net, lenb@kernel.org, daniel.lezcano@linaro.org,
         tglx@linutronix.de, marc.zyngier@arm.com, mark.rutland@arm.com,
@@ -18,9 +18,9 @@ Cc: linux-arm-kernel@lists.infradead.org, linaro-acpi@lists.linaro.org,
         linux@roeck-us.net, linux-watchdog@vger.kernel.org,
         tn@semihalf.com, christoffer.dall@linaro.org, julien.grall@arm.com,
         Fu Wei <fu.wei@linaro.org>
-Subject: [PATCH v20 01/17] clocksource/drivers/arm_arch_timer: Improve printk relevant code
-Date: Wed, 18 Jan 2017 21:25:25 +0800
-Message-Id: <20170118132541.8989-2-fu.wei@linaro.org>
+Subject: [PATCH v20 02/17] clocksource/drivers/arm_arch_timer: Rename the timer type macros.
+Date: Wed, 18 Jan 2017 21:25:26 +0800
+Message-Id: <20170118132541.8989-3-fu.wei@linaro.org>
 In-Reply-To: <20170118132541.8989-1-fu.wei@linaro.org>
 References: <20170118132541.8989-1-fu.wei@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -28,171 +28,152 @@ List-Id: linux-watchdog@vger.kernel.org
 
 From: Fu Wei <fu.wei@linaro.org>
 
-This patch defines pr_fmt(fmt) for all pr_* functions,
-then the pr_* doesn't need to add "arch_timer:" everytime.
-
-According to the suggestion from checkpatch.pl:
-(1) delete some Blank Spaces in arch_timer_banner;
-(2) delete a redundant Tab in a bland line of arch_timer_init(void)
+Rename the timer type macros to unify the format of macros in
+arm_arch_timer.c, also update all the users of these macros.
 
 No functional change.
 
 Signed-off-by: Fu Wei <fu.wei@linaro.org>
-Acked-by: Mark Rutland <mark.rutland@arm.com>
 Tested-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
 ---
- drivers/clocksource/arm_arch_timer.c | 49 ++++++++++++++++++------------------
- 1 file changed, 25 insertions(+), 24 deletions(-)
+ drivers/clocksource/arm_arch_timer.c | 43 +++++++++++++++++++-----------------
+ 1 file changed, 23 insertions(+), 20 deletions(-)
 
 diff --git a/drivers/clocksource/arm_arch_timer.c b/drivers/clocksource/arm_arch_timer.c
-index 4c8c3fb..923bd5c 100644
+index 923bd5c..36998db 100644
 --- a/drivers/clocksource/arm_arch_timer.c
 +++ b/drivers/clocksource/arm_arch_timer.c
-@@ -32,6 +32,9 @@
+@@ -54,8 +54,8 @@
+ #define CNTV_TVAL	0x38
+ #define CNTV_CTL	0x3c
  
- #include <clocksource/arm_arch_timer.h>
+-#define ARCH_CP15_TIMER	BIT(0)
+-#define ARCH_MEM_TIMER	BIT(1)
++#define ARCH_TIMER_TYPE_CP15		BIT(0)
++#define ARCH_TIMER_TYPE_MEM		BIT(1)
+ static unsigned arch_timers_present __initdata;
  
-+#undef pr_fmt
-+#define pr_fmt(fmt) "arch_timer: " fmt
-+
- #define CNTTIDR		0x08
- #define CNTTIDR_VIRT(n)	(BIT(1) << ((n) * 4))
+ static void __iomem *arch_counter_base;
+@@ -364,7 +364,7 @@ static void __arch_timer_setup(unsigned type,
+ {
+ 	clk->features = CLOCK_EVT_FEAT_ONESHOT;
  
-@@ -516,22 +519,22 @@ arch_timer_detect_rate(void __iomem *cntbase, struct device_node *np)
+-	if (type == ARCH_CP15_TIMER) {
++	if (type == ARCH_TIMER_TYPE_CP15) {
+ 		if (arch_timer_c3stop)
+ 			clk->features |= CLOCK_EVT_FEAT_C3STOP;
+ 		clk->name = "arch_sys_timer";
+@@ -481,7 +481,7 @@ static int arch_timer_starting_cpu(unsigned int cpu)
+ 	struct clock_event_device *clk = this_cpu_ptr(arch_timer_evt);
+ 	u32 flags;
  
- 	/* Check the timer frequency. */
- 	if (arch_timer_rate == 0)
--		pr_warn("Architected timer frequency not available\n");
-+		pr_warn("frequency not available\n");
- }
+-	__arch_timer_setup(ARCH_CP15_TIMER, clk);
++	__arch_timer_setup(ARCH_TIMER_TYPE_CP15, clk);
  
+ 	flags = check_ppi_trigger(arch_timer_ppi[arch_timer_uses_ppi]);
+ 	enable_percpu_irq(arch_timer_ppi[arch_timer_uses_ppi], flags);
+@@ -525,16 +525,17 @@ arch_timer_detect_rate(void __iomem *cntbase, struct device_node *np)
  static void arch_timer_banner(unsigned type)
  {
--	pr_info("Architected %s%s%s timer(s) running at %lu.%02luMHz (%s%s%s).\n",
--		     type & ARCH_CP15_TIMER ? "cp15" : "",
--		     type == (ARCH_CP15_TIMER | ARCH_MEM_TIMER) ?  " and " : "",
--		     type & ARCH_MEM_TIMER ? "mmio" : "",
--		     (unsigned long)arch_timer_rate / 1000000,
--		     (unsigned long)(arch_timer_rate / 10000) % 100,
--		     type & ARCH_CP15_TIMER ?
--		     (arch_timer_uses_ppi == VIRT_PPI) ? "virt" : "phys" :
-+	pr_info("%s%s%s timer(s) running at %lu.%02luMHz (%s%s%s).\n",
-+		type & ARCH_CP15_TIMER ? "cp15" : "",
-+		type == (ARCH_CP15_TIMER | ARCH_MEM_TIMER) ?  " and " : "",
-+		type & ARCH_MEM_TIMER ? "mmio" : "",
-+		(unsigned long)arch_timer_rate / 1000000,
-+		(unsigned long)(arch_timer_rate / 10000) % 100,
-+		type & ARCH_CP15_TIMER ?
-+			(arch_timer_uses_ppi == VIRT_PPI) ? "virt" : "phys" :
+ 	pr_info("%s%s%s timer(s) running at %lu.%02luMHz (%s%s%s).\n",
+-		type & ARCH_CP15_TIMER ? "cp15" : "",
+-		type == (ARCH_CP15_TIMER | ARCH_MEM_TIMER) ?  " and " : "",
+-		type & ARCH_MEM_TIMER ? "mmio" : "",
++		type & ARCH_TIMER_TYPE_CP15 ? "cp15" : "",
++		type == (ARCH_TIMER_TYPE_CP15 | ARCH_TIMER_TYPE_MEM) ?
++			" and " : "",
++		type & ARCH_TIMER_TYPE_MEM ? "mmio" : "",
+ 		(unsigned long)arch_timer_rate / 1000000,
+ 		(unsigned long)(arch_timer_rate / 10000) % 100,
+-		type & ARCH_CP15_TIMER ?
++		type & ARCH_TIMER_TYPE_CP15 ?
+ 			(arch_timer_uses_ppi == VIRT_PPI) ? "virt" : "phys" :
  			"",
--		     type == (ARCH_CP15_TIMER | ARCH_MEM_TIMER) ?  "/" : "",
--		     type & ARCH_MEM_TIMER ?
-+		type == (ARCH_CP15_TIMER | ARCH_MEM_TIMER) ?  "/" : "",
-+		type & ARCH_MEM_TIMER ?
+-		type == (ARCH_CP15_TIMER | ARCH_MEM_TIMER) ?  "/" : "",
+-		type & ARCH_MEM_TIMER ?
++		type == (ARCH_TIMER_TYPE_CP15 | ARCH_TIMER_TYPE_MEM) ? "/" : "",
++		type & ARCH_TIMER_TYPE_MEM ?
  			arch_timer_mem_use_virtual ? "virt" : "phys" :
  			"");
  }
-@@ -632,8 +635,7 @@ static void __init arch_counter_register(unsigned type)
+@@ -600,7 +601,7 @@ static void __init arch_counter_register(unsigned type)
+ 	u64 start_count;
  
- static void arch_timer_stop(struct clock_event_device *clk)
+ 	/* Register the CP15 based counter if we have one */
+-	if (type & ARCH_CP15_TIMER) {
++	if (type & ARCH_TIMER_TYPE_CP15) {
+ 		if (IS_ENABLED(CONFIG_ARM64) || arch_timer_uses_ppi == VIRT_PPI)
+ 			arch_timer_read_counter = arch_counter_get_cntvct;
+ 		else
+@@ -772,7 +773,7 @@ static int __init arch_timer_mem_register(void __iomem *base, unsigned int irq)
+ 
+ 	t->base = base;
+ 	t->evt.irq = irq;
+-	__arch_timer_setup(ARCH_MEM_TIMER, &t->evt);
++	__arch_timer_setup(ARCH_TIMER_TYPE_MEM, &t->evt);
+ 
+ 	if (arch_timer_mem_use_virtual)
+ 		func = arch_timer_handler_virt_mem;
+@@ -815,13 +816,15 @@ arch_timer_needs_probing(int type, const struct of_device_id *matches)
+ 
+ static int __init arch_timer_common_init(void)
  {
--	pr_debug("arch_timer_teardown disable IRQ%d cpu #%d\n",
--		 clk->irq, smp_processor_id());
-+	pr_debug("disable IRQ%d cpu #%d\n", clk->irq, smp_processor_id());
+-	unsigned mask = ARCH_CP15_TIMER | ARCH_MEM_TIMER;
++	unsigned mask = ARCH_TIMER_TYPE_CP15 | ARCH_TIMER_TYPE_MEM;
  
- 	disable_percpu_irq(arch_timer_ppi[arch_timer_uses_ppi]);
- 	if (arch_timer_has_nonsecure_ppi())
-@@ -726,8 +728,7 @@ static int __init arch_timer_register(void)
+ 	/* Wait until both nodes are probed if we have two timers */
+ 	if ((arch_timers_present & mask) != mask) {
+-		if (arch_timer_needs_probing(ARCH_MEM_TIMER, arch_timer_mem_of_match))
++		if (arch_timer_needs_probing(ARCH_TIMER_TYPE_MEM,
++					     arch_timer_mem_of_match))
+ 			return 0;
+-		if (arch_timer_needs_probing(ARCH_CP15_TIMER, arch_timer_of_match))
++		if (arch_timer_needs_probing(ARCH_TIMER_TYPE_CP15,
++					     arch_timer_of_match))
+ 			return 0;
  	}
  
- 	if (err) {
--		pr_err("arch_timer: can't register interrupt %d (%d)\n",
--		       ppi, err);
-+		pr_err("can't register interrupt %d (%d)\n", ppi, err);
- 		goto out_free;
- 	}
- 
-@@ -780,7 +781,7 @@ static int __init arch_timer_mem_register(void __iomem *base, unsigned int irq)
- 
- 	ret = request_irq(irq, func, IRQF_TIMER, "arch_mem_timer", &t->evt);
- 	if (ret) {
--		pr_err("arch_timer: Failed to request mem timer irq\n");
-+		pr_err("Failed to request mem timer irq\n");
- 		kfree(t);
- 	}
- 
-@@ -858,7 +859,7 @@ static int __init arch_timer_init(void)
- 		}
- 
- 		if (!has_ppi) {
--			pr_warn("arch_timer: No interrupt available, giving up\n");
-+			pr_warn("No interrupt available, giving up\n");
- 			return -EINVAL;
- 		}
- 	}
-@@ -872,7 +873,7 @@ static int __init arch_timer_init(void)
- 		return ret;
- 
- 	arch_timer_kvm_info.virtual_irq = arch_timer_ppi[VIRT_PPI];
--	
-+
- 	return 0;
- }
- 
-@@ -881,7 +882,7 @@ static int __init arch_timer_of_init(struct device_node *np)
+@@ -881,12 +884,12 @@ static int __init arch_timer_of_init(struct device_node *np)
+ {
  	int i;
  
- 	if (arch_timers_present & ARCH_CP15_TIMER) {
--		pr_warn("arch_timer: multiple nodes in dt, skipping\n");
-+		pr_warn("multiple nodes in dt, skipping\n");
+-	if (arch_timers_present & ARCH_CP15_TIMER) {
++	if (arch_timers_present & ARCH_TIMER_TYPE_CP15) {
+ 		pr_warn("multiple nodes in dt, skipping\n");
  		return 0;
  	}
  
-@@ -929,7 +930,7 @@ static int __init arch_timer_mem_init(struct device_node *np)
- 	arch_timers_present |= ARCH_MEM_TIMER;
+-	arch_timers_present |= ARCH_CP15_TIMER;
++	arch_timers_present |= ARCH_TIMER_TYPE_CP15;
+ 	for (i = PHYS_SECURE_PPI; i < MAX_TIMER_PPI; i++)
+ 		arch_timer_ppi[i] = irq_of_parse_and_map(np, i);
+ 
+@@ -927,7 +930,7 @@ static int __init arch_timer_mem_init(struct device_node *np)
+ 	unsigned int irq, ret = -EINVAL;
+ 	u32 cnttidr;
+ 
+-	arch_timers_present |= ARCH_MEM_TIMER;
++	arch_timers_present |= ARCH_TIMER_TYPE_MEM;
  	cntctlbase = of_iomap(np, 0);
  	if (!cntctlbase) {
--		pr_err("arch_timer: Can't find CNTCTLBase\n");
-+		pr_err("Can't find CNTCTLBase\n");
- 		return -ENXIO;
- 	}
- 
-@@ -944,7 +945,7 @@ static int __init arch_timer_mem_init(struct device_node *np)
- 		u32 cntacr;
- 
- 		if (of_property_read_u32(frame, "frame-number", &n)) {
--			pr_err("arch_timer: Missing frame-number\n");
-+			pr_err("Missing frame-number\n");
- 			of_node_put(frame);
- 			goto out;
- 		}
-@@ -974,7 +975,7 @@ static int __init arch_timer_mem_init(struct device_node *np)
- 	base = arch_counter_base = of_io_request_and_map(best_frame, 0,
- 							 "arch_mem_timer");
- 	if (IS_ERR(base)) {
--		pr_err("arch_timer: Can't map frame's registers\n");
-+		pr_err("Can't map frame's registers\n");
- 		goto out;
- 	}
- 
-@@ -985,7 +986,7 @@ static int __init arch_timer_mem_init(struct device_node *np)
- 
- 	ret = -EINVAL;
- 	if (!irq) {
--		pr_err("arch_timer: Frame missing %s irq",
-+		pr_err("Frame missing %s irq.\n",
- 		       arch_timer_mem_use_virtual ? "virt" : "phys");
- 		goto out;
- 	}
-@@ -1027,7 +1028,7 @@ static int __init arch_timer_acpi_init(struct acpi_table_header *table)
+ 		pr_err("Can't find CNTCTLBase\n");
+@@ -1027,14 +1030,14 @@ static int __init arch_timer_acpi_init(struct acpi_table_header *table)
+ {
  	struct acpi_table_gtdt *gtdt;
  
- 	if (arch_timers_present & ARCH_CP15_TIMER) {
--		pr_warn("arch_timer: already initialized, skipping\n");
-+		pr_warn("already initialized, skipping\n");
+-	if (arch_timers_present & ARCH_CP15_TIMER) {
++	if (arch_timers_present & ARCH_TIMER_TYPE_CP15) {
+ 		pr_warn("already initialized, skipping\n");
  		return -EINVAL;
  	}
  
+ 	gtdt = container_of(table, struct acpi_table_gtdt, header);
+ 
+-	arch_timers_present |= ARCH_CP15_TIMER;
++	arch_timers_present |= ARCH_TIMER_TYPE_CP15;
+ 
+ 	arch_timer_ppi[PHYS_SECURE_PPI] =
+ 		map_generic_timer_interrupt(gtdt->secure_el1_interrupt,
 -- 
 2.9.3
 
