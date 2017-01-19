@@ -1,18 +1,18 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pg0-f46.google.com ([74.125.83.46]:35799 "EHLO
-        mail-pg0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752171AbdASMnH (ORCPT
+Received: from mail-pf0-f179.google.com ([209.85.192.179]:36671 "EHLO
+        mail-pf0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752364AbdASMty (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 19 Jan 2017 07:43:07 -0500
-Received: by mail-pg0-f46.google.com with SMTP id 194so14114358pgd.2
-        for <linux-watchdog@vger.kernel.org>; Thu, 19 Jan 2017 04:43:06 -0800 (PST)
-Subject: Re: [PATCH v20 16/17] clocksource/drivers/arm_arch_timer: Add GTDT
- support for memory-mapped timer
+        Thu, 19 Jan 2017 07:49:54 -0500
+Received: by mail-pf0-f179.google.com with SMTP id 189so13506916pfu.3
+        for <linux-watchdog@vger.kernel.org>; Thu, 19 Jan 2017 04:49:02 -0800 (PST)
+Subject: Re: [PATCH v20 08/17] clocksource/drivers/arm_arch_timer: Rework
+ counter frequency detection.
 To: Fu Wei <fu.wei@linaro.org>
 References: <20170118132541.8989-1-fu.wei@linaro.org>
- <20170118132541.8989-17-fu.wei@linaro.org>
- <ed4efe25-1b40-66e2-ae3f-77a4e32715b6@linaro.org>
- <CADyBb7tpDynA0EEUkFZXpUAksjvXeUzuoC82GnbVA2O1w2T22g@mail.gmail.com>
+ <20170118132541.8989-9-fu.wei@linaro.org>
+ <cafa8c7a-9c7c-51ba-5566-0cfe1fe6f764@linaro.org>
+ <CADyBb7uGVu6Po4hCD45WOrQvWYwZgtSbE5z9rbRa7gZ1P5-4tg@mail.gmail.com>
 Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>,
         Len Brown <lenb@kernel.org>,
         Daniel Lezcano <daniel.lezcano@linaro.org>,
@@ -41,113 +41,90 @@ Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>,
         Christoffer Dall <christoffer.dall@linaro.org>,
         Julien Grall <julien.grall@arm.com>
 From: Hanjun Guo <hanjun.guo@linaro.org>
-Message-ID: <c1821a5b-8b32-e194-125c-3fd243059425@linaro.org>
-Date: Thu, 19 Jan 2017 20:42:59 +0800
+Message-ID: <74160889-5eb0-ceb2-2727-61e9d538cf2f@linaro.org>
+Date: Thu, 19 Jan 2017 20:41:14 +0800
 MIME-Version: 1.0
-In-Reply-To: <CADyBb7tpDynA0EEUkFZXpUAksjvXeUzuoC82GnbVA2O1w2T22g@mail.gmail.com>
+In-Reply-To: <CADyBb7uGVu6Po4hCD45WOrQvWYwZgtSbE5z9rbRa7gZ1P5-4tg@mail.gmail.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
 
-On 2017/1/19 18:02, Fu Wei wrote:
+On 2017/1/19 17:44, Fu Wei wrote:
 > Hi Hanjun,
 >
-> On 19 January 2017 at 17:16, Hanjun Guo <hanjun.guo@linaro.org> wrote:
+> On 19 January 2017 at 16:02, Hanjun Guo <hanjun.guo@linaro.org> wrote:
+>> Hi Fuwei,
+>>
+>> One comments below.
+>>
+>>
 >> On 2017/1/18 21:25, fu.wei@linaro.org wrote:
 >>>
 >>> From: Fu Wei <fu.wei@linaro.org>
 >>>
->>> The patch add memory-mapped timer register support by using the
->>> information provided by the new GTDT driver of ACPI.
+>>> The counter frequency detection call(arch_timer_detect_rate) combines=
+ two
+>>> ways to get counter frequency: system coprocessor register and MMIO t=
+imer.
+>>> But in a specific timer init code, we only need one way to try:
+>>> getting frequency from MMIO timer register will be needed only when w=
+e
+>>> init MMIO timer; getting frequency from system coprocessor register w=
+ill
+>>> be needed only when we init arch timer.
+>>>
+>>> This patch separates paths to determine frequency:
+>>> Separate out the MMIO frequency and the sysreg frequency detection ca=
+ll,
+>>> and use the appropriate one for the counter.
 >>>
 >>> Signed-off-by: Fu Wei <fu.wei@linaro.org>
 >>> ---
->>>  drivers/clocksource/arm_arch_timer.c | 35
->>> ++++++++++++++++++++++++++++++++---
->>>  1 file changed, 32 insertions(+), 3 deletions(-)
+>>>  drivers/clocksource/arm_arch_timer.c | 40
+>>> ++++++++++++++++++++++--------------
+>>>  1 file changed, 25 insertions(+), 15 deletions(-)
 >>>
 >>> diff --git a/drivers/clocksource/arm_arch_timer.c
 >>> b/drivers/clocksource/arm_arch_timer.c
->>> index 79dc004..7ca2da7 100644
+>>> index 6484f84..9482481 100644
 >>> --- a/drivers/clocksource/arm_arch_timer.c
 >>> +++ b/drivers/clocksource/arm_arch_timer.c
->>> @@ -1077,10 +1077,36 @@ CLOCKSOURCE_OF_DECLARE(armv7_arch_timer_mem,
->>> "arm,armv7-timer-mem",
->>>                        arch_timer_mem_of_init);
+>>> @@ -488,23 +488,33 @@ static int arch_timer_starting_cpu(unsigned int=
+ cpu)
+>>>         return 0;
+>>>  }
 >>>
->>>  #ifdef CONFIG_ACPI_GTDT
->>> -/* Initialize per-processor generic timer */
->>> +static int __init arch_timer_mem_acpi_init(int platform_timer_count)
->>> +{
->>> +       struct arch_timer_mem *timer_mem;
->>> +       int timer_count, i, ret;
->>> +
->>
->>
->> if (!platform_timer_count)
->>         return 0;
->>
->> Did I miss something?
->
-> Ah, thanks, I guess I miss this check below.
->
->>
->> Thanks
->> Hanjun
->>
->>
->>> +       timer_mem = kcalloc(platform_timer_count, sizeof(*timer_mem),
->>> +                           GFP_KERNEL);
->>> +       if (!timer_mem)
->>> +               return -ENOMEM;
->>> +
->>> +       ret = acpi_arch_timer_mem_init(timer_mem, &timer_count);
->>> +       if (ret || !timer_count)
->>> +               goto error;
->>> +
->>> +       for (i = 0; i < timer_count; i++) {
->>> +               ret = arch_timer_mem_init(timer_mem);
->>> +               if (!ret)
->>> +                       break;
->>> +               timer_mem++;
->>> +       }
->>> +
->>> +error:
->>> +       kfree(timer_mem);
->>> +       return ret;
->>> +}
->>> +
->>> +/* Initialize per-processor generic timer and memory-mapped timer(if
->>> present) */
->>>  static int __init arch_timer_acpi_init(struct acpi_table_header *table)
+>>> -static void arch_timer_detect_rate(void __iomem *cntbase)
+>>> +static void __arch_timer_determine_rate(u32 rate)
 >>>  {
->>> -       int ret;
->>> +       int ret, platform_timer_count;
->>>
->>>         if (arch_timers_present & ARCH_TIMER_TYPE_CP15) {
->>>                 pr_warn("already initialized, skipping\n");
->>> @@ -1089,7 +1115,7 @@ static int __init arch_timer_acpi_init(struct
->>> acpi_table_header *table)
->>>
->>>         arch_timers_present |= ARCH_TIMER_TYPE_CP15;
->>>
->>> -       ret = acpi_gtdt_init(table, NULL);
->>> +       ret = acpi_gtdt_init(table, &platform_timer_count);
->>>         if (ret) {
->>>                 pr_err("Failed to init GTDT table.\n");
->>>                 return ret;
->>> @@ -1122,6 +1148,9 @@ static int __init arch_timer_acpi_init(struct
->>> acpi_table_header *table)
->>>         if (ret)
->>>                 return ret;
->>>
->>> +       if (arch_timer_mem_acpi_init(platform_timer_count))
+>>> -       /* Who has more than one independent system counter? */
+>>> -       if (arch_timer_rate)
+>>> -               return;
+>>> +       /* Check the timer frequency. */
+>>> +       if (!arch_timer_rate) {
+>>> +               if (rate)
+>>> +                       arch_timer_rate =3D rate;
+>>> +               else
+>>> +                       pr_warn("frequency not available\n");
+>>> +       } else if (rate && arch_timer_rate !=3D rate) {
+>>
+>>                         ^
+>> Typo? I think it's "&" here.
 >
-> +       if (platform_timer_count &&
-> +           arch_timer_mem_acpi_init(platform_timer_count))
+> Not a typo, It's definitely a =E2=80=9C&&=E2=80=9D  :-)
+>
+> Here arch_timer_rate is not zero.
+>
+> If rate is not zero(that means we got a valid rate), and
+> arch_timer_rate !=3D rate ,
+> we will print warning message.
 
-It's better.
+Ah, misreading the code, thanks for clarify :)
 
-Thanks
 Hanjun
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
