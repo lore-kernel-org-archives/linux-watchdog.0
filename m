@@ -1,20 +1,20 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-io0-f170.google.com ([209.85.223.170]:33414 "EHLO
-        mail-io0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751252AbdASJyh (ORCPT
+Received: from mail-it0-f53.google.com ([209.85.214.53]:32964 "EHLO
+        mail-it0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751734AbdASKDA (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 19 Jan 2017 04:54:37 -0500
-Received: by mail-io0-f170.google.com with SMTP id v96so33596202ioi.0
-        for <linux-watchdog@vger.kernel.org>; Thu, 19 Jan 2017 01:54:26 -0800 (PST)
+        Thu, 19 Jan 2017 05:03:00 -0500
+Received: by mail-it0-f53.google.com with SMTP id d9so3565911itc.0
+        for <linux-watchdog@vger.kernel.org>; Thu, 19 Jan 2017 02:03:00 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <a47f2474-fb29-9217-3de1-6e2a6a36f21f@linaro.org>
-References: <20170118132541.8989-1-fu.wei@linaro.org> <20170118132541.8989-12-fu.wei@linaro.org>
- <a47f2474-fb29-9217-3de1-6e2a6a36f21f@linaro.org>
+In-Reply-To: <ed4efe25-1b40-66e2-ae3f-77a4e32715b6@linaro.org>
+References: <20170118132541.8989-1-fu.wei@linaro.org> <20170118132541.8989-17-fu.wei@linaro.org>
+ <ed4efe25-1b40-66e2-ae3f-77a4e32715b6@linaro.org>
 From: Fu Wei <fu.wei@linaro.org>
-Date: Thu, 19 Jan 2017 17:47:14 +0800
-Message-ID: <CADyBb7uhwU_ACGQRvw8zPg-VCdxyO2L1MEoeZWS1zYdveLK6PA@mail.gmail.com>
-Subject: Re: [PATCH v20 11/17] clocksource/drivers/arm_arch_timer: Introduce
- some new structs to prepare for GTDT
+Date: Thu, 19 Jan 2017 18:02:59 +0800
+Message-ID: <CADyBb7tpDynA0EEUkFZXpUAksjvXeUzuoC82GnbVA2O1w2T22g@mail.gmail.com>
+Subject: Re: [PATCH v20 16/17] clocksource/drivers/arm_arch_timer: Add GTDT
+ support for memory-mapped timer
 To: Hanjun Guo <hanjun.guo@linaro.org>
 Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>,
         Len Brown <lenb@kernel.org>,
@@ -49,64 +49,109 @@ List-Id: linux-watchdog@vger.kernel.org
 
 Hi Hanjun,
 
-On 19 January 2017 at 16:28, Hanjun Guo <hanjun.guo@linaro.org> wrote:
+On 19 January 2017 at 17:16, Hanjun Guo <hanjun.guo@linaro.org> wrote:
 > On 2017/1/18 21:25, fu.wei@linaro.org wrote:
 >>
 >> From: Fu Wei <fu.wei@linaro.org>
 >>
->> The patch introduce two new structs: arch_timer_mem, arch_timer_mem_frame.
->> And also introduce a new define: ARCH_TIMER_MEM_MAX_FRAMES
->>
->> These will be used for refactoring the memory-mapped timer init code to
->> prepare for GTDT
+>> The patch add memory-mapped timer register support by using the
+>> information provided by the new GTDT driver of ACPI.
 >>
 >> Signed-off-by: Fu Wei <fu.wei@linaro.org>
 >> ---
->>  include/clocksource/arm_arch_timer.h | 17 +++++++++++++++++
->>  1 file changed, 17 insertions(+)
+>>  drivers/clocksource/arm_arch_timer.c | 35
+>> ++++++++++++++++++++++++++++++++---
+>>  1 file changed, 32 insertions(+), 3 deletions(-)
 >>
->> diff --git a/include/clocksource/arm_arch_timer.h
->> b/include/clocksource/arm_arch_timer.h
->> index 4a98c06..b7dd185 100644
->> --- a/include/clocksource/arm_arch_timer.h
->> +++ b/include/clocksource/arm_arch_timer.h
->> @@ -57,6 +57,8 @@ enum arch_timer_spi_nr {
->>  #define ARCH_TIMER_MEM_PHYS_ACCESS     2
->>  #define ARCH_TIMER_MEM_VIRT_ACCESS     3
+>> diff --git a/drivers/clocksource/arm_arch_timer.c
+>> b/drivers/clocksource/arm_arch_timer.c
+>> index 79dc004..7ca2da7 100644
+>> --- a/drivers/clocksource/arm_arch_timer.c
+>> +++ b/drivers/clocksource/arm_arch_timer.c
+>> @@ -1077,10 +1077,36 @@ CLOCKSOURCE_OF_DECLARE(armv7_arch_timer_mem,
+>> "arm,armv7-timer-mem",
+>>                        arch_timer_mem_of_init);
 >>
->> +#define ARCH_TIMER_MEM_MAX_FRAMES      8
+>>  #ifdef CONFIG_ACPI_GTDT
+>> -/* Initialize per-processor generic timer */
+>> +static int __init arch_timer_mem_acpi_init(int platform_timer_count)
+>> +{
+>> +       struct arch_timer_mem *timer_mem;
+>> +       int timer_count, i, ret;
 >> +
->>  #define ARCH_TIMER_USR_PCT_ACCESS_EN   (1 << 0) /* physical counter */
->>  #define ARCH_TIMER_USR_VCT_ACCESS_EN   (1 << 1) /* virtual counter */
->>  #define ARCH_TIMER_VIRT_EVT_EN         (1 << 2)
->> @@ -72,6 +74,21 @@ struct arch_timer_kvm_info {
->>         int virtual_irq;
->>  };
->>
->> +struct arch_timer_mem_frame {
->> +       int frame_nr;
->> +       phys_addr_t cntbase;
->> +       size_t size;
->> +       int phys_irq;
->> +       int virt_irq;
->> +};
->> +
->> +struct arch_timer_mem {
->> +       phys_addr_t cntctlbase;
->> +       size_t size;
->> +       int num_frames;
->> +       struct arch_timer_mem_frame frame[ARCH_TIMER_MEM_MAX_FRAMES];
->> +};
 >
 >
-> Since struct is introduced but not used in this patch, how about
-> squash it with patch 12/17?
+> if (!platform_timer_count)
+>         return 0;
+>
+> Did I miss something?
 
-In the previous patchset, I have been suggested that I should split it out.
+Ah, thanks, I guess I miss this check below.
 
 >
 > Thanks
 > Hanjun
+>
+>
+>> +       timer_mem = kcalloc(platform_timer_count, sizeof(*timer_mem),
+>> +                           GFP_KERNEL);
+>> +       if (!timer_mem)
+>> +               return -ENOMEM;
+>> +
+>> +       ret = acpi_arch_timer_mem_init(timer_mem, &timer_count);
+>> +       if (ret || !timer_count)
+>> +               goto error;
+>> +
+>> +       for (i = 0; i < timer_count; i++) {
+>> +               ret = arch_timer_mem_init(timer_mem);
+>> +               if (!ret)
+>> +                       break;
+>> +               timer_mem++;
+>> +       }
+>> +
+>> +error:
+>> +       kfree(timer_mem);
+>> +       return ret;
+>> +}
+>> +
+>> +/* Initialize per-processor generic timer and memory-mapped timer(if
+>> present) */
+>>  static int __init arch_timer_acpi_init(struct acpi_table_header *table)
+>>  {
+>> -       int ret;
+>> +       int ret, platform_timer_count;
+>>
+>>         if (arch_timers_present & ARCH_TIMER_TYPE_CP15) {
+>>                 pr_warn("already initialized, skipping\n");
+>> @@ -1089,7 +1115,7 @@ static int __init arch_timer_acpi_init(struct
+>> acpi_table_header *table)
+>>
+>>         arch_timers_present |= ARCH_TIMER_TYPE_CP15;
+>>
+>> -       ret = acpi_gtdt_init(table, NULL);
+>> +       ret = acpi_gtdt_init(table, &platform_timer_count);
+>>         if (ret) {
+>>                 pr_err("Failed to init GTDT table.\n");
+>>                 return ret;
+>> @@ -1122,6 +1148,9 @@ static int __init arch_timer_acpi_init(struct
+>> acpi_table_header *table)
+>>         if (ret)
+>>                 return ret;
+>>
+>> +       if (arch_timer_mem_acpi_init(platform_timer_count))
+
++       if (platform_timer_count &&
++           arch_timer_mem_acpi_init(platform_timer_count))
+
+
+>> +               pr_err("Failed to initialize memory-mapped timer.\n");
+>> +
+>>         return arch_timer_common_init();
+>>  }
+>>  CLOCKSOURCE_ACPI_DECLARE(arch_timer, ACPI_SIG_GTDT,
+>> arch_timer_acpi_init);
+>>
+>
 
 
 
