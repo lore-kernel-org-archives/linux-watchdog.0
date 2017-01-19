@@ -1,88 +1,69 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:36828 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751025AbdAUTBZ (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 21 Jan 2017 14:01:25 -0500
-Subject: Re: [PATCH] watchdog: softdog: make pretimeout support a compile
- option
-To: Wolfram Sang <wsa@the-dreams.de>
-References: <20170106084144.22324-1-wsa+renesas@sang-engineering.com>
- <20170110175840.GB13904@roeck-us.net>
- <20170119201452.hv3zkmlhiz7rzb44@ninjato>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        linux-watchdog@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
-        Vladimir Zapolskiy <vz@mleia.com>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <073c43b8-41ae-92c0-957a-0d57b6874066@roeck-us.net>
-Date: Sat, 21 Jan 2017 11:01:21 -0800
+Return-path: <thierry.reding@gmail.com>
+Date: Thu, 19 Jan 2017 12:04:07 +0100
+From: Thierry Reding <thierry.reding@gmail.com>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Stephen Warren <swarren@wwwdotorg.org>,
+	Alexandre Courbot <gnurou@gmail.com>, linux-tegra@vger.kernel.org
+Subject: Re: [PATCH 57/62] watchdog: tegra_wdt: Convert to use device managed
+ functions
+Message-ID: <20170119110407.GE30182@ulmo.ba.sec>
+References: <1484091325-9199-1-git-send-email-linux@roeck-us.net>
+ <1484100561-17638-1-git-send-email-linux@roeck-us.net>
+ <1484100561-17638-6-git-send-email-linux@roeck-us.net>
 MIME-Version: 1.0
-In-Reply-To: <20170119201452.hv3zkmlhiz7rzb44@ninjato>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="7CZp05NP8/gJM8Cl"
+Content-Disposition: inline
+In-Reply-To: <1484100561-17638-6-git-send-email-linux@roeck-us.net>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 01/19/2017 12:14 PM, Wolfram Sang wrote:
->
->>> +#if IS_ENABLED(CONFIG_SOFT_WATCHDOG_PRETIMEOUT)
->>>  static void softdog_pretimeout(unsigned long data)
->>
->> I would prefer __maybe_unused here ..
->>
->>>  {
->>>  	watchdog_notify_pretimeout(&softdog_dev);
->>> @@ -82,16 +83,23 @@ static void softdog_pretimeout(unsigned long data)
->>>  static struct timer_list softdog_preticktock =
->>>  		TIMER_INITIALIZER(softdog_pretimeout, 0, 0);
->>>
->>> +static struct timer_list *softdog_preticktock_ptr = &softdog_preticktock;
->>> +#else
->>> +static void *softdog_preticktock_ptr = NULL;
->>> +#endif /* CONFIG_SOFT_WATCHDOG_PRETIMEOUT */
->>> +
->>>  static int softdog_ping(struct watchdog_device *w)
->>>  {
->>>  	if (!mod_timer(&softdog_ticktock, jiffies + (w->timeout * HZ)))
->>>  		__module_get(THIS_MODULE);
->>>
->>> -	if (w->pretimeout)
->>> -		mod_timer(&softdog_preticktock, jiffies +
->>> -			  (w->timeout - w->pretimeout) * HZ);
->>> -	else
->>> -		del_timer(&softdog_preticktock);
->>> +	if (softdog_preticktock_ptr) {
->>
->> and "if (IS_ENABLED(CONFIG_SOFT_WATCHDOG_PRETIMEOUT))" here.
->>
->>> +		if (w->pretimeout)
->>> +			mod_timer(softdog_preticktock_ptr, jiffies +
->>> +				  (w->timeout - w->pretimeout) * HZ);
->>> +		else
->>> +			del_timer(softdog_preticktock_ptr);
->>> +	}
->>>
->>>  	return 0;
->>>  }
->>> @@ -101,15 +109,15 @@ static int softdog_stop(struct watchdog_device *w)
->>>  	if (del_timer(&softdog_ticktock))
->>>  		module_put(THIS_MODULE);
->>>
->>> -	del_timer(&softdog_preticktock);
->>> +	if (softdog_preticktock_ptr)
->>
->> Is this conditional needed (assuming we get rid of softdog_preticktock_ptr) ?
->> Ok though if you want to use it to drop the code if not needed.
->
-> Yes. I tried a few variations and this is the outcome which I liked
-> best, because it is quite readable, keeps all the extra stuff within one
-> block and has 0 size penalty when the feature is not enabled.
->
-> I'd like to keep it this way unless you have a strong opinion.
->
->
-I personally prefer the use of IS_ENABLED over #ifdefs, because it ensures
-that the code always compiles, and it doesn't incur any runtime penalties either.
 
-Guenter
+--7CZp05NP8/gJM8Cl
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+On Tue, Jan 10, 2017 at 06:09:11PM -0800, Guenter Roeck wrote:
+> Use device managed functions to simplify error handling, reduce
+> source code size, improve readability, and reduce the likelyhood of bugs.
+>=20
+> The conversion was done automatically with coccinelle using the
+> following semantic patches. The semantic patches and the scripts used
+> to generate this commit log are available at
+> https://github.com/groeck/coccinelle-patches
+>=20
+> - Use devm_watchdog_register_driver() to register watchdog device
+>=20
+> Cc: Stephen Warren <swarren@wwwdotorg.org>
+> Cc: Thierry Reding <thierry.reding@gmail.com>
+> Cc: Alexandre Courbot <gnurou@gmail.com>
+> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+> ---
+>  drivers/watchdog/tegra_wdt.c | 4 +---
+>  1 file changed, 1 insertion(+), 3 deletions(-)
+
+Acked-by: Thierry Reding <treding@nvidia.com>
+
+--7CZp05NP8/gJM8Cl
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAliAnSYACgkQ3SOs138+
+s6Gxyg//Vl6DcjUBZyclJ177ITiPvPIvG/frmNm0C6T6c82rTlB8pScygjaOlWCK
+YXA2+bS2qz8eseAbijwmwLYnlSZvAeGSBFaExOAlXIkyafTQyt+FE2vL00zV0cPa
+n8V/zUuMnucEsCbw6Wke1xLcigdK0iKi/jxfeYFvC7v74CTMR48tmFcVry21h8/K
+oFeIz0DsBvb0aM35S2coz9pU/WFPyHOxi7R3TZE11wzxplJoufUvXJh1CkBRqWWe
+RI9s7ahIj0Dl+cIekE8Ge0owUBmN4bvu1C05lvsBqjht0OJhEkXM8mNIRSgfZwH/
+50CCqffPgVJu+mY2WNgeNbcnM9wHDqIaiHBf/sYNr1nfGmAphD3umsYb1u4zlFD/
+eWcQG88WYA+6idBBMaa44Z7UuFP0ItusNHmcC5efj8xxaNx4JkLGJg+wymU7In/F
+bYcvJVvaEVmwMrAqDwlWghoG5AZiHpDiy4LfZULN7bVR1PdlocV9/HGNSjOuSzEO
+JPZ+DuCk0Ldtpd+mUTDLbnitkmGlve9QmZSY4BGs0JWsPBeCfdBVjNkgSDkbO2J1
+rZ1lekInNryXo9WuyO08g2jWhKrQva3XwlAiCfoCc58IhRGWEBbb641ILc6iWWJV
+FqqDTUs99F2dRipwhO6MfmL5aAK/gtbYnVKanb9cNA7TZqj+kdc=
+=s9zz
+-----END PGP SIGNATURE-----
+
+--7CZp05NP8/gJM8Cl--
