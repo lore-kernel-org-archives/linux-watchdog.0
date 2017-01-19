@@ -1,49 +1,70 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail1.bemta5.messagelabs.com ([195.245.231.139]:19087 "EHLO
-        mail1.bemta5.messagelabs.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1751002AbdAQOUj (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 17 Jan 2017 09:20:39 -0500
-From: Adam Thomson <Adam.Thomson.Opensource@diasemi.com>
-To: Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@iguana.be>
-CC: "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "Support Opensource" <Support.Opensource@diasemi.com>
-Subject: RE: [PATCH 11/62] watchdog: da9052_wdt: Convert to use device
- managed functions
-Date: Tue, 17 Jan 2017 14:12:03 +0000
-Message-ID: <2E89032DDAA8B9408CB92943514A03370142A77D3E@SW-EX-MBX01.diasemi.com>
-References: <1484091325-9199-1-git-send-email-linux@roeck-us.net>
- <1484091325-9199-12-git-send-email-linux@roeck-us.net>
-In-Reply-To: <1484091325-9199-12-git-send-email-linux@roeck-us.net>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-MIME-Version: 1.0
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-path: <baoyou.xie@linaro.org>
+From: Baoyou Xie <baoyou.xie@linaro.org>
+To: jun.nie@linaro.org,
+	wim@iguana.be,
+	linux@roeck-us.net,
+	robh+dt@kernel.org,
+	mark.rutland@arm.com
+Cc: linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	shawnguo@kernel.org,
+	baoyou.xie@linaro.org,
+	xie.baoyou@zte.com.cn,
+	chen.chaokai@zte.com.cn,
+	wang.qiang01@zte.com.cn
+Subject: [PATCH v2 1/3] dt: bindings: add documentation for zx2967 family watchdog controller
+Date: Thu, 19 Jan 2017 09:59:50 +0800
+Message-Id: <1484791192-31674-1-git-send-email-baoyou.xie@linaro.org>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 10 January 2017 23:34, Guenter Roeck wrote:
+This patch adds dt-binding documentation for zx2967 family
+watchdog controller.
 
-> Use device managed functions to simplify error handling, reduce
-> source code size, improve readability, and reduce the likelyhood of bugs.
-> 
-> The conversion was done automatically with coccinelle using the
-> following semantic patches. The semantic patches and the scripts used
-> to generate this commit log are available at
-> https://github.com/groeck/coccinelle-patches
-> 
-> - Replace 'goto l; ... l: return e;' with 'return e;'
-> - Replace 'val = e; return val;' with 'return e;'
-> - Drop assignments to otherwise unused variables
-> - Replace 'if (e) { return expr; }' with 'if (e) return expr;'
-> - Drop remove function
-> - Drop platform_set_drvdata()
-> - Use devm_watchdog_register_driver() to register watchdog device
-> 
-> Cc: Support Opensource <support.opensource@diasemi.com>
-> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-> ---
+Signed-off-by: Baoyou Xie <baoyou.xie@linaro.org>
+---
+ .../bindings/watchdog/zte,zx2967-wdt.txt           | 32 ++++++++++++++++++++++
+ 1 file changed, 32 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/zte,zx2967-wdt.txt
 
-Acked-by: Adam Thomson <Adam.Thomson.Opensource@diasemi.com>
+diff --git a/Documentation/devicetree/bindings/watchdog/zte,zx2967-wdt.txt b/Documentation/devicetree/bindings/watchdog/zte,zx2967-wdt.txt
+new file mode 100644
+index 0000000..6e35ce7
+--- /dev/null
++++ b/Documentation/devicetree/bindings/watchdog/zte,zx2967-wdt.txt
+@@ -0,0 +1,32 @@
++ZTE zx2967 Watchdog timer
++
++Required properties:
++
++- compatible : should be one of the following.
++       * zte,zx296718-wdt
++- reg : Specifies base physical address and size of the registers.
++- clocks : Pairs of phandle and specifier referencing the controller's clocks.
++- clock-names: "wdtclk" for the watchdog clock.
++- resets : Reference to the reset controller controlling the watchdog
++           controller.
++- reset-names : Must include the following entries:
++       * wdtrst
++
++Optional properties:
++
++- wdt-reset-sysctrl : should include following fields.
++	* phandle of aon-sysctrl.
++	* configuare value that be wrote to aon-sysctrl.
++	* bit mask, corresponding bits will be affected.
++
++Example:
++
++wdt_ares: watchdog@1465000 {
++	compatible = "zte,zx296718-wdt";
++	reg = <0x1465000 0x1000>;
++	clocks = <&topcrm WDT_WCLK>;
++	clock-names = "wdtclk";
++	resets = <&toprst 35>;
++	reset-names = "wdtrst";
++	wdt-reset-sysctrl = <&aon_sysctrl 1 0x115>;
++};
+-- 
+2.7.4
