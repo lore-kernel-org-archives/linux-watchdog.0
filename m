@@ -1,11 +1,21 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from foss.arm.com ([217.140.101.70]:47074 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752088AbdASLS1 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 19 Jan 2017 06:18:27 -0500
-Date: Thu, 19 Jan 2017 11:16:28 +0000
-From: Mark Rutland <mark.rutland@arm.com>
-To: Fu Wei <fu.wei@linaro.org>
+Received: from mail-io0-f179.google.com ([209.85.223.179]:33203 "EHLO
+        mail-io0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752364AbdASM2p (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Thu, 19 Jan 2017 07:28:45 -0500
+Received: by mail-io0-f179.google.com with SMTP id v96so36133988ioi.0
+        for <linux-watchdog@vger.kernel.org>; Thu, 19 Jan 2017 04:28:15 -0800 (PST)
+MIME-Version: 1.0
+In-Reply-To: <20170119111628.GC11176@leverpostej>
+References: <20170118132541.8989-1-fu.wei@linaro.org> <20170118132541.8989-14-fu.wei@linaro.org>
+ <e69d80d1-0954-b1be-817e-c0be6fc24b77@linaro.org> <CADyBb7tdfw+wbTZbcnsaHRa=aG6i9acLp7rzMpfMs-vOHXL6pQ@mail.gmail.com>
+ <20170119111628.GC11176@leverpostej>
+From: Fu Wei <fu.wei@linaro.org>
+Date: Thu, 19 Jan 2017 20:28:14 +0800
+Message-ID: <CADyBb7veiR9_d3_v=Npny0AK3HiAU4d6UjUVRR9Y+hBX8xWWfQ@mail.gmail.com>
+Subject: Re: [PATCH v20 13/17] acpi/arm64: Add GTDT table parse driver
+To: Mark Rutland <mark.rutland@arm.com>
 Cc: Hanjun Guo <hanjun.guo@linaro.org>,
         "Rafael J. Wysocki" <rjw@rjwysocki.net>,
         Len Brown <lenb@kernel.org>,
@@ -33,47 +43,54 @@ Cc: Hanjun Guo <hanjun.guo@linaro.org>,
         linux-watchdog@vger.kernel.org, Tomasz Nowicki <tn@semihalf.com>,
         Christoffer Dall <christoffer.dall@linaro.org>,
         Julien Grall <julien.grall@arm.com>
-Subject: Re: [PATCH v20 13/17] acpi/arm64: Add GTDT table parse driver
-Message-ID: <20170119111628.GC11176@leverpostej>
-References: <20170118132541.8989-1-fu.wei@linaro.org>
- <20170118132541.8989-14-fu.wei@linaro.org>
- <e69d80d1-0954-b1be-817e-c0be6fc24b77@linaro.org>
- <CADyBb7tdfw+wbTZbcnsaHRa=aG6i9acLp7rzMpfMs-vOHXL6pQ@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CADyBb7tdfw+wbTZbcnsaHRa=aG6i9acLp7rzMpfMs-vOHXL6pQ@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Thu, Jan 19, 2017 at 06:32:55PM +0800, Fu Wei wrote:
-> On 19 January 2017 at 17:11, Hanjun Guo <hanjun.guo@linaro.org> wrote:
-> > On 2017/1/18 21:25, fu.wei@linaro.org wrote:
-> >> From: Fu Wei <fu.wei@linaro.org>
+Hi Mark,
 
-> >> +       else if (!gtdt->platform_timer_count)
-> >> +               pr_debug("No Platform Timer.\n");
-> >> +       else
-> >> +               timer_count = gtdt->platform_timer_count;
-> >> +
-> >> +       if (timer_count) {
-> >> +               platform_timer = (void *)gtdt +
-> >> gtdt->platform_timer_offset;
-> >> +               if (platform_timer < (void *)table +
-> >> +                                    sizeof(struct acpi_table_gtdt)) {
-> >> +                       pr_err(FW_BUG "invalid timer data.\n");
-> >
-> >
-> > It's ok but I didn't see other ACPI tables parsing did this check,
-> > maybe we can just remove it :)
-> 
-> here, I want to make sure the FW is valid.
-> Once there is a FW bug, we could just return with error.  :-)
+On 19 January 2017 at 19:16, Mark Rutland <mark.rutland@arm.com> wrote:
+> On Thu, Jan 19, 2017 at 06:32:55PM +0800, Fu Wei wrote:
+>> On 19 January 2017 at 17:11, Hanjun Guo <hanjun.guo@linaro.org> wrote:
+>> > On 2017/1/18 21:25, fu.wei@linaro.org wrote:
+>> >> From: Fu Wei <fu.wei@linaro.org>
+>
+>> >> +       else if (!gtdt->platform_timer_count)
+>> >> +               pr_debug("No Platform Timer.\n");
+>> >> +       else
+>> >> +               timer_count = gtdt->platform_timer_count;
+>> >> +
+>> >> +       if (timer_count) {
+>> >> +               platform_timer = (void *)gtdt +
+>> >> gtdt->platform_timer_offset;
+>> >> +               if (platform_timer < (void *)table +
+>> >> +                                    sizeof(struct acpi_table_gtdt)) {
+>> >> +                       pr_err(FW_BUG "invalid timer data.\n");
+>> >
+>> >
+>> > It's ok but I didn't see other ACPI tables parsing did this check,
+>> > maybe we can just remove it :)
+>>
+>> here, I want to make sure the FW is valid.
+>> Once there is a FW bug, we could just return with error.  :-)
+>
+> Yes, please keep the check!
 
-Yes, please keep the check!
+Yes, we will keep this check   :-)
 
-If anything, it would be nicer for the other ACPI code to verify things
-a little more stringently.
+Thanks!
+>
+> If anything, it would be nicer for the other ACPI code to verify things
+> a little more stringently.
+>
+> Thanks,
+> Mark.
 
-Thanks,
-Mark.
+
+
+-- 
+Best regards,
+
+Fu Wei
+Software Engineer
+Red Hat
