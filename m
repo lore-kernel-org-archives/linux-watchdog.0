@@ -1,85 +1,128 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pf0-f179.google.com ([209.85.192.179]:32976 "EHLO
-        mail-pf0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751504AbdASJ3M (ORCPT
+Received: from mail-it0-f41.google.com ([209.85.214.41]:36784 "EHLO
+        mail-it0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751162AbdASJpL (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 19 Jan 2017 04:29:12 -0500
-Received: by mail-pf0-f179.google.com with SMTP id y143so12263933pfb.0
-        for <linux-watchdog@vger.kernel.org>; Thu, 19 Jan 2017 01:29:11 -0800 (PST)
-Subject: Re: [PATCH v20 00/17] acpi, clocksource: add GTDT driver and GTDT
- support in arm_arch_timer
-To: fu.wei@linaro.org, rjw@rjwysocki.net, lenb@kernel.org,
-        daniel.lezcano@linaro.org, tglx@linutronix.de,
-        marc.zyngier@arm.com, mark.rutland@arm.com,
-        lorenzo.pieralisi@arm.com, sudeep.holla@arm.com
-References: <20170118132541.8989-1-fu.wei@linaro.org>
-Cc: linux-arm-kernel@lists.infradead.org, linaro-acpi@lists.linaro.org,
-        linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
-        rruigrok@codeaurora.org, harba@codeaurora.org, cov@codeaurora.org,
-        timur@codeaurora.org, graeme.gregory@linaro.org,
-        al.stone@linaro.org, jcm@redhat.com, wei@redhat.com, arnd@arndb.de,
-        catalin.marinas@arm.com, will.deacon@arm.com,
-        Suravee.Suthikulpanit@amd.com, leo.duran@amd.com, wim@iguana.be,
-        linux@roeck-us.net, linux-watchdog@vger.kernel.org,
-        tn@semihalf.com, christoffer.dall@linaro.org, julien.grall@arm.com
-From: Hanjun Guo <hanjun.guo@linaro.org>
-Message-ID: <bddc52ed-d1c9-c3c9-cb79-2c15d97450cc@linaro.org>
-Date: Thu, 19 Jan 2017 17:20:07 +0800
+        Thu, 19 Jan 2017 04:45:11 -0500
+Received: by mail-it0-f41.google.com with SMTP id c7so136577802itd.1
+        for <linux-watchdog@vger.kernel.org>; Thu, 19 Jan 2017 01:44:47 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20170118132541.8989-1-fu.wei@linaro.org>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <cafa8c7a-9c7c-51ba-5566-0cfe1fe6f764@linaro.org>
+References: <20170118132541.8989-1-fu.wei@linaro.org> <20170118132541.8989-9-fu.wei@linaro.org>
+ <cafa8c7a-9c7c-51ba-5566-0cfe1fe6f764@linaro.org>
+From: Fu Wei <fu.wei@linaro.org>
+Date: Thu, 19 Jan 2017 17:44:46 +0800
+Message-ID: <CADyBb7uGVu6Po4hCD45WOrQvWYwZgtSbE5z9rbRa7gZ1P5-4tg@mail.gmail.com>
+Subject: Re: [PATCH v20 08/17] clocksource/drivers/arm_arch_timer: Rework
+ counter frequency detection.
+To: Hanjun Guo <hanjun.guo@linaro.org>
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Len Brown <lenb@kernel.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        linux-arm-kernel@lists.infradead.org,
+        Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
+        rruigrok@codeaurora.org, "Abdulhamid, Harb" <harba@codeaurora.org>,
+        Christopher Covington <cov@codeaurora.org>,
+        Timur Tabi <timur@codeaurora.org>,
+        G Gregory <graeme.gregory@linaro.org>,
+        Al Stone <al.stone@linaro.org>, Jon Masters <jcm@redhat.com>,
+        Wei Huang <wei@redhat.com>, Arnd Bergmann <arnd@arndb.de>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
+        Leo Duran <leo.duran@amd.com>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Guenter Roeck <linux@roeck-us.net>,
+        linux-watchdog@vger.kernel.org, Tomasz Nowicki <tn@semihalf.com>,
+        Christoffer Dall <christoffer.dall@linaro.org>,
+        Julien Grall <julien.grall@arm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Fuwei,
+Hi Hanjun,
 
-On 2017/1/18 21:25, fu.wei@linaro.org wrote:
-> From: Fu Wei <fu.wei@linaro.org>
+On 19 January 2017 at 16:02, Hanjun Guo <hanjun.guo@linaro.org> wrote:
+> Hi Fuwei,
 >
-> This patchset:
->     (1)Preparation for adding GTDT support in arm_arch_timer:
->         1. Clean up printk() usage
->         2. Rename the type macros
->         3. Rename the PPI enum & enum values
->         4. Move the type macro and PPI enum into the header file
->         5. Add new enum for SPIs
->         6. Rework PPI determination;
->         7. Rework counter frequency detection;
->         8. Refactor arch_timer_needs_probing, move it into DT init call
->         9. Introduce some new structs and refactor the MMIO timer init code
->         for reusing some common code.
+> One comments below.
 >
->     (2)Introduce ACPI GTDT parser: drivers/acpi/arm64/acpi_gtdt.c
->     Parse all kinds of timer in GTDT table of ACPI:arch timer,
->     memory-mapped timer and SBSA Generic Watchdog timer.
->     This driver can help to simplify all the relevant timer drivers,
->     and separate all the ACPI GTDT knowledge from them.
 >
->     (3)Simplify ACPI code for arm_arch_timer
+> On 2017/1/18 21:25, fu.wei@linaro.org wrote:
+>>
+>> From: Fu Wei <fu.wei@linaro.org>
+>>
+>> The counter frequency detection call(arch_timer_detect_rate) combines tw=
+o
+>> ways to get counter frequency: system coprocessor register and MMIO time=
+r.
+>> But in a specific timer init code, we only need one way to try:
+>> getting frequency from MMIO timer register will be needed only when we
+>> init MMIO timer; getting frequency from system coprocessor register will
+>> be needed only when we init arch timer.
+>>
+>> This patch separates paths to determine frequency:
+>> Separate out the MMIO frequency and the sysreg frequency detection call,
+>> and use the appropriate one for the counter.
+>>
+>> Signed-off-by: Fu Wei <fu.wei@linaro.org>
+>> ---
+>>  drivers/clocksource/arm_arch_timer.c | 40
+>> ++++++++++++++++++++++--------------
+>>  1 file changed, 25 insertions(+), 15 deletions(-)
+>>
+>> diff --git a/drivers/clocksource/arm_arch_timer.c
+>> b/drivers/clocksource/arm_arch_timer.c
+>> index 6484f84..9482481 100644
+>> --- a/drivers/clocksource/arm_arch_timer.c
+>> +++ b/drivers/clocksource/arm_arch_timer.c
+>> @@ -488,23 +488,33 @@ static int arch_timer_starting_cpu(unsigned int cp=
+u)
+>>         return 0;
+>>  }
+>>
+>> -static void arch_timer_detect_rate(void __iomem *cntbase)
+>> +static void __arch_timer_determine_rate(u32 rate)
+>>  {
+>> -       /* Who has more than one independent system counter? */
+>> -       if (arch_timer_rate)
+>> -               return;
+>> +       /* Check the timer frequency. */
+>> +       if (!arch_timer_rate) {
+>> +               if (rate)
+>> +                       arch_timer_rate =3D rate;
+>> +               else
+>> +                       pr_warn("frequency not available\n");
+>> +       } else if (rate && arch_timer_rate !=3D rate) {
 >
->     (4)Add GTDT support for ARM memory-mapped timer.
->
-> This patchset has been tested on the following platforms with ACPI enabled:
->     (1)ARM Foundation v8 model
->
-> Changelog:
-> v20: https://lkml.org/lkml/2017/1/18/
->      Reorder the first 4 patches and split the 4th patches.
->      Leave CNTHCTL_* as they originally were.
->      Fix the bug in arch_timer_select_ppi.
->      Split "Rework counter frequency detection" patch.
->      Rework the arch_timer_detect_rate function.
->      Improve the commit message of "Refactor MMIO timer probing".
->      Rebase to 4.10.0-rc4
+>                         ^
+> Typo? I think it's "&" here.
 
-Other than some minor comments I raised, the patch set
-looks fine to me, and I tested this patch set on D03,
-the percpu arch timer works fine as before.
+Not a typo, It's definitely a =E2=80=9C&&=E2=80=9D  :-)
 
-With the comments fixed,
-Reviewed-by: Hanjun Guo <hanjun.gu@linaro.org>
-Tested-by: Hanjun Guo <hanjun.gu@linaro.org>
+Here arch_timer_rate is not zero.
 
-Thanks
-Hanjun
+If rate is not zero(that means we got a valid rate), and
+arch_timer_rate !=3D rate ,
+we will print warning message.
+
+>
+> Thanks
+> Hanjun
+
+
+
+--=20
+Best regards,
+
+Fu Wei
+Software Engineer
+Red Hat
