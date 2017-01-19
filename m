@@ -1,19 +1,19 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-it0-f42.google.com ([209.85.214.42]:36079 "EHLO
-        mail-it0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751571AbdASKdo (ORCPT
+Received: from mail-it0-f43.google.com ([209.85.214.43]:37466 "EHLO
+        mail-it0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752107AbdASLMm (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 19 Jan 2017 05:33:44 -0500
-Received: by mail-it0-f42.google.com with SMTP id c7so137266934itd.1
-        for <linux-watchdog@vger.kernel.org>; Thu, 19 Jan 2017 02:32:56 -0800 (PST)
+        Thu, 19 Jan 2017 06:12:42 -0500
+Received: by mail-it0-f43.google.com with SMTP id r185so31330091ita.0
+        for <linux-watchdog@vger.kernel.org>; Thu, 19 Jan 2017 03:12:37 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <e69d80d1-0954-b1be-817e-c0be6fc24b77@linaro.org>
-References: <20170118132541.8989-1-fu.wei@linaro.org> <20170118132541.8989-14-fu.wei@linaro.org>
- <e69d80d1-0954-b1be-817e-c0be6fc24b77@linaro.org>
+In-Reply-To: <bddc52ed-d1c9-c3c9-cb79-2c15d97450cc@linaro.org>
+References: <20170118132541.8989-1-fu.wei@linaro.org> <bddc52ed-d1c9-c3c9-cb79-2c15d97450cc@linaro.org>
 From: Fu Wei <fu.wei@linaro.org>
-Date: Thu, 19 Jan 2017 18:32:55 +0800
-Message-ID: <CADyBb7tdfw+wbTZbcnsaHRa=aG6i9acLp7rzMpfMs-vOHXL6pQ@mail.gmail.com>
-Subject: Re: [PATCH v20 13/17] acpi/arm64: Add GTDT table parse driver
+Date: Thu, 19 Jan 2017 19:06:10 +0800
+Message-ID: <CADyBb7sA_sMmTcBtXDSNNFzZ_BjVAUL+c-FXWmHaEnH_SXyCUg@mail.gmail.com>
+Subject: Re: [PATCH v20 00/17] acpi, clocksource: add GTDT driver and GTDT
+ support in arm_arch_timer
 To: Hanjun Guo <hanjun.guo@linaro.org>
 Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>,
         Len Brown <lenb@kernel.org>,
@@ -48,158 +48,65 @@ List-Id: linux-watchdog@vger.kernel.org
 
 Hi Hanjun,
 
-On 19 January 2017 at 17:11, Hanjun Guo <hanjun.guo@linaro.org> wrote:
+On 19 January 2017 at 17:20, Hanjun Guo <hanjun.guo@linaro.org> wrote:
+> Hi Fuwei,
+>
+>
 > On 2017/1/18 21:25, fu.wei@linaro.org wrote:
 >>
 >> From: Fu Wei <fu.wei@linaro.org>
 >>
->> This patch adds support for parsing arch timer info in GTDT,
->> provides some kernel APIs to parse all the PPIs and
->> always-on info in GTDT and export them.
+>> This patchset:
+>>     (1)Preparation for adding GTDT support in arm_arch_timer:
+>>         1. Clean up printk() usage
+>>         2. Rename the type macros
+>>         3. Rename the PPI enum & enum values
+>>         4. Move the type macro and PPI enum into the header file
+>>         5. Add new enum for SPIs
+>>         6. Rework PPI determination;
+>>         7. Rework counter frequency detection;
+>>         8. Refactor arch_timer_needs_probing, move it into DT init call
+>>         9. Introduce some new structs and refactor the MMIO timer init
+>> code
+>>         for reusing some common code.
 >>
->> By this driver, we can simplify arm_arch_timer drivers, and
->> separate the ACPI GTDT knowledge from it.
+>>     (2)Introduce ACPI GTDT parser: drivers/acpi/arm64/acpi_gtdt.c
+>>     Parse all kinds of timer in GTDT table of ACPI:arch timer,
+>>     memory-mapped timer and SBSA Generic Watchdog timer.
+>>     This driver can help to simplify all the relevant timer drivers,
+>>     and separate all the ACPI GTDT knowledge from them.
 >>
->> Signed-off-by: Fu Wei <fu.wei@linaro.org>
->> Signed-off-by: Hanjun Guo <hanjun.guo@linaro.org>
->> Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
->> Tested-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
->> ---
->>  arch/arm64/Kconfig          |   1 +
->>  drivers/acpi/arm64/Kconfig  |   3 +
->>  drivers/acpi/arm64/Makefile |   1 +
->>  drivers/acpi/arm64/gtdt.c   | 157
->> ++++++++++++++++++++++++++++++++++++++++++++
->>  include/linux/acpi.h        |   6 ++
->>  5 files changed, 168 insertions(+)
+>>     (3)Simplify ACPI code for arm_arch_timer
 >>
->> diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
->> index 1117421..ab1ee10 100644
->> --- a/arch/arm64/Kconfig
->> +++ b/arch/arm64/Kconfig
->> @@ -2,6 +2,7 @@ config ARM64
->>         def_bool y
->>         select ACPI_CCA_REQUIRED if ACPI
->>         select ACPI_GENERIC_GSI if ACPI
->> +       select ACPI_GTDT if ACPI
->>         select ACPI_REDUCED_HARDWARE_ONLY if ACPI
->>         select ACPI_MCFG if ACPI
->>         select ACPI_SPCR_TABLE if ACPI
->> diff --git a/drivers/acpi/arm64/Kconfig b/drivers/acpi/arm64/Kconfig
->> index 4616da4..5a6f80f 100644
->> --- a/drivers/acpi/arm64/Kconfig
->> +++ b/drivers/acpi/arm64/Kconfig
->> @@ -4,3 +4,6 @@
+>>     (4)Add GTDT support for ARM memory-mapped timer.
 >>
->>  config ACPI_IORT
->>         bool
->> +
->> +config ACPI_GTDT
->> +       bool
->> diff --git a/drivers/acpi/arm64/Makefile b/drivers/acpi/arm64/Makefile
->> index 72331f2..1017def 100644
->> --- a/drivers/acpi/arm64/Makefile
->> +++ b/drivers/acpi/arm64/Makefile
->> @@ -1 +1,2 @@
->>  obj-$(CONFIG_ACPI_IORT)        += iort.o
->> +obj-$(CONFIG_ACPI_GTDT)        += gtdt.o
->> diff --git a/drivers/acpi/arm64/gtdt.c b/drivers/acpi/arm64/gtdt.c
->> new file mode 100644
->> index 0000000..d93a790
->> --- /dev/null
->> +++ b/drivers/acpi/arm64/gtdt.c
->> @@ -0,0 +1,157 @@
->
-> [...]
->
->> +
->> +/**
->> + * acpi_gtdt_init() - Get the info of GTDT table to prepare for further
->> init.
->> + * @table:     The pointer to GTDT table.
->> + * @platform_timer_count:      The pointer of int variate for returning
->> the
->> + *                             number of platform timers. It can be NULL,
->> if
->> + *                             driver don't need this info.
->> + *
->> + * Return: 0 if success, -EINVAL if error.
->> + */
->> +int __init acpi_gtdt_init(struct acpi_table_header *table,
->> +                         int *platform_timer_count)
->> +{
->> +       int ret = 0;
->> +       int timer_count = 0;
->> +       void *platform_timer = NULL;
->> +       struct acpi_table_gtdt *gtdt;
->> +
->> +       gtdt = container_of(table, struct acpi_table_gtdt, header);
->> +       acpi_gtdt_desc.gtdt = gtdt;
->> +       acpi_gtdt_desc.gtdt_end = (void *)table + table->length;
->> +
->> +       if (table->revision < 2)
->> +               pr_debug("Revision:%d doesn't support Platform Timers.\n",
->> +                        table->revision);
+>> This patchset has been tested on the following platforms with ACPI
+>> enabled:
+>>     (1)ARM Foundation v8 model
+>>
+>> Changelog:
+>> v20: https://lkml.org/lkml/2017/1/18/
+>>      Reorder the first 4 patches and split the 4th patches.
+>>      Leave CNTHCTL_* as they originally were.
+>>      Fix the bug in arch_timer_select_ppi.
+>>      Split "Rework counter frequency detection" patch.
+>>      Rework the arch_timer_detect_rate function.
+>>      Improve the commit message of "Refactor MMIO timer probing".
+>>      Rebase to 4.10.0-rc4
 >
 >
-> GTDT table revision is updated to 2 in ACPI 5.1, we will
-> not support ACPI version under 5.1 and disable ACPI in FADT
-> parse before this code is called, so if we get revision
-> <2 here, I think we need to print warning (we need to keep
-> the firmware stick to the spec on ARM64).
+> Other than some minor comments I raised, the patch set
+> looks fine to me, and I tested this patch set on D03,
+> the percpu arch timer works fine as before.
+>
+> With the comments fixed,
+> Reviewed-by: Hanjun Guo <hanjun.gu@linaro.org>
+> Tested-by: Hanjun Guo <hanjun.gu@linaro.org>
 
-agree, will change pr_debug to pr_warn.
+Great thanks for your testing. :-)
 
-Thanks :-)
-
->
->> +       else if (!gtdt->platform_timer_count)
->> +               pr_debug("No Platform Timer.\n");
->> +       else
->> +               timer_count = gtdt->platform_timer_count;
->> +
->> +       if (timer_count) {
->> +               platform_timer = (void *)gtdt +
->> gtdt->platform_timer_offset;
->> +               if (platform_timer < (void *)table +
->> +                                    sizeof(struct acpi_table_gtdt)) {
->> +                       pr_err(FW_BUG "invalid timer data.\n");
->
->
-> It's ok but I didn't see other ACPI tables parsing did this check,
-> maybe we can just remove it :)
-
-here, I want to make sure the FW is valid.
-Once there is a FW bug, we could just return with error.  :-)
-
->
->> +                       timer_count = 0;
->> +                       platform_timer = NULL;
->> +                       ret = -EINVAL;
->> +               }
->> +       }
->> +
->> +       acpi_gtdt_desc.platform_timer = platform_timer;
->> +       if (platform_timer_count)
->> +               *platform_timer_count = timer_count;
->
->
-> Then the code will much simple:
->
-> if (gtdt->platform_timer_count) {
->         acpi_gtdt_desc.platform_timer = (void *)gtdt +
-> gtdt->platform_timer_offset;
->         if (platform_timer_count)
->                 *platform_timer_count = gtdt->platform_timer_count;
-> }
->
-> return 0;
->
-> and remove ret, timer_count and platform_timer.
-
-yes, this may can simplify the function, but this will be released at
-the end of init because of "__init" :-)
-So how about let's just keep this check to make sure the FW is OK.  :-)
+will apply Reviewed-by: Hanjun Guo <hanjun.guo@linaro.org> on all patches,
+and Tested-by: Hanjun Guo <hanjun.guo@linaro.org> on arch_timer patches.
 
 >
 > Thanks
