@@ -1,9 +1,9 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.136]:47128 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.136]:37742 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754013AbdATByK (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 19 Jan 2017 20:54:10 -0500
-Date: Fri, 20 Jan 2017 09:53:39 +0800
+        id S1751344AbdATGIg (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 20 Jan 2017 01:08:36 -0500
+Date: Fri, 20 Jan 2017 14:08:18 +0800
 From: Shawn Guo <shawnguo@kernel.org>
 To: Baoyou Xie <baoyou.xie@linaro.org>
 Cc: jun.nie@linaro.org, wim@iguana.be, linux@roeck-us.net,
@@ -12,95 +12,497 @@ Cc: jun.nie@linaro.org, wim@iguana.be, linux@roeck-us.net,
         linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, xie.baoyou@zte.com.cn,
         chen.chaokai@zte.com.cn, wang.qiang01@zte.com.cn
-Subject: Re: [PATCH v2 1/3] dt: bindings: add documentation for zx2967 family
- watchdog controller
-Message-ID: <20170120015337.GA17299@dragon>
+Subject: Re: [PATCH v2 3/3] watchdog: zx2967: add watchdog controller driver
+ for ZTE's zx2967 family
+Message-ID: <20170120060759.GB17299@dragon>
 References: <1484791192-31674-1-git-send-email-baoyou.xie@linaro.org>
+ <1484791192-31674-3-git-send-email-baoyou.xie@linaro.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1484791192-31674-1-git-send-email-baoyou.xie@linaro.org>
+In-Reply-To: <1484791192-31674-3-git-send-email-baoyou.xie@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Thu, Jan 19, 2017 at 09:59:50AM +0800, Baoyou Xie wrote:
-> This patch adds dt-binding documentation for zx2967 family
-> watchdog controller.
+On Thu, Jan 19, 2017 at 09:59:52AM +0800, Baoyou Xie wrote:
+> This patch adds watchdog controller driver for ZTE's zx2967 family.
 > 
 > Signed-off-by: Baoyou Xie <baoyou.xie@linaro.org>
-
-It seems that the comments I put on v1 remains unresolved.
-
 > ---
->  .../bindings/watchdog/zte,zx2967-wdt.txt           | 32 ++++++++++++++++++++++
->  1 file changed, 32 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/watchdog/zte,zx2967-wdt.txt
+>  drivers/watchdog/Kconfig      |  10 ++
+>  drivers/watchdog/Makefile     |   1 +
+>  drivers/watchdog/zx2967_wdt.c | 383 ++++++++++++++++++++++++++++++++++++++++++
+>  3 files changed, 394 insertions(+)
+>  create mode 100644 drivers/watchdog/zx2967_wdt.c
 > 
-> diff --git a/Documentation/devicetree/bindings/watchdog/zte,zx2967-wdt.txt b/Documentation/devicetree/bindings/watchdog/zte,zx2967-wdt.txt
+> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> index acb00b5..05093a2 100644
+> --- a/drivers/watchdog/Kconfig
+> +++ b/drivers/watchdog/Kconfig
+> @@ -714,6 +714,16 @@ config ASPEED_WATCHDOG
+>  	  To compile this driver as a module, choose M here: the
+>  	  module will be called aspeed_wdt.
+>  
+> +config ZX2967_WATCHDOG
+> +	tristate "ZTE zx2967 SoCs watchdog support"
+> +	depends on ARCH_ZX
+> +	select WATCHDOG_CORE
+> +	help
+> +	  Say Y here to include support for the watchdog timer
+> +	  in ZTE zx2967 SoCs.
+> +	  To compile this driver as a module, choose M here: the
+> +	  module will be called zx2967_wdt.
+> +
+>  # AVR32 Architecture
+>  
+>  config AT32AP700X_WDT
+> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+> index 0c3d35e..bf2d296 100644
+> --- a/drivers/watchdog/Makefile
+> +++ b/drivers/watchdog/Makefile
+> @@ -82,6 +82,7 @@ obj-$(CONFIG_BCM7038_WDT) += bcm7038_wdt.o
+>  obj-$(CONFIG_ATLAS7_WATCHDOG) += atlas7_wdt.o
+>  obj-$(CONFIG_RENESAS_WDT) += renesas_wdt.o
+>  obj-$(CONFIG_ASPEED_WATCHDOG) += aspeed_wdt.o
+> +obj-$(CONFIG_ZX2967_WATCHDOG) += zx2967_wdt.o
+>  
+>  # AVR32 Architecture
+>  obj-$(CONFIG_AT32AP700X_WDT) += at32ap700x_wdt.o
+> diff --git a/drivers/watchdog/zx2967_wdt.c b/drivers/watchdog/zx2967_wdt.c
 > new file mode 100644
-> index 0000000..6e35ce7
+> index 0000000..35eaecd
 > --- /dev/null
-> +++ b/Documentation/devicetree/bindings/watchdog/zte,zx2967-wdt.txt
-> @@ -0,0 +1,32 @@
-> +ZTE zx2967 Watchdog timer
+> +++ b/drivers/watchdog/zx2967_wdt.c
+> @@ -0,0 +1,383 @@
+> +/*
+> + * watchdog driver for ZTE's zx2967 family
+> + *
+> + * Copyright (C) 2017 ZTE Ltd.
+> + *
+> + * Author: Baoyou Xie <baoyou.xie@linaro.org>
+> + *
+> + * License terms: GNU General Public License (GPL) version 2
+> + */
 > +
-> +Required properties:
+> +#include <linux/clk.h>
+> +#include <linux/delay.h>
+> +#include <linux/io.h>
+> +#include <linux/mfd/syscon.h>
+> +#include <linux/module.h>
+> +#include <linux/of_address.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/reboot.h>
+> +#include <linux/regmap.h>
+> +#include <linux/reset.h>
+> +#include <linux/watchdog.h>
 > +
-> +- compatible : should be one of the following.
-> +       * zte,zx296718-wdt
-> +- reg : Specifies base physical address and size of the registers.
-> +- clocks : Pairs of phandle and specifier referencing the controller's clocks.
-> +- clock-names: "wdtclk" for the watchdog clock.
-> +- resets : Reference to the reset controller controlling the watchdog
-> +           controller.
-> +- reset-names : Must include the following entries:
-> +       * wdtrst
+> +#define ZX2967_WDT_CFG_REG			0x4
+> +#define ZX2967_WDT_LOAD_REG			0x8
+> +#define ZX2967_WDT_REFRESH_REG			0x18
+> +#define ZX2967_WDT_START_REG			0x1c
+> +
+> +#define ZX2967_WDT_REFRESH_MASK			0x3f
+> +
+> +#define ZX2967_WDT_CFG_DIV(n)			((((n) & 0xff) - 1) << 8)
+> +#define ZX2967_WDT_START_EN			0x1
+> +
+> +#define ZX2967_WDT_WRITEKEY			0x12340000
+> +
+> +#define ZX2967_WDT_DIV_DEFAULT			16
+> +#define ZX2967_WDT_DEFAULT_TIMEOUT		32
+> +#define ZX2967_WDT_MIN_TIMEOUT			1
+> +#define ZX2967_WDT_MAX_TIMEOUT			500
+> +#define ZX2967_WDT_MAX_COUNT			0xffff
+> +
+> +#define ZX2967_WDT_FLAG_REBOOT_MON		(1 << 0)
+> +
+> +#define ZX2967_RESET_MASK_REG			0xb0
+> +
+> +struct zx2967_wdt {
+> +	struct device		*dev;
+> +	struct clk		*clock;
+> +	void __iomem		*reg_base;
+> +	unsigned int		conf;
+> +	unsigned int		load;
+> +	unsigned int		flags;
+> +	struct watchdog_device	wdt_device;
+> +	struct notifier_block	restart_handler;
+> +	struct notifier_block	reboot_handler;
+> +};
+> +
+> +#define zx2967_wdt_read_reg(r)                  readl_relaxed(r)
+> +
+> +static inline void
+> +zx2967_wdt_write_reg(u32 val, void __iomem *addr)
+> +{
+> +	writel_relaxed(val | ZX2967_WDT_WRITEKEY, addr);
+> +}
 
-I do not think clock-names and reset-names are really necessary, since
-there is only one clock and reset signal.
+static inline u32 zx2967_wdt_readl(struct zx2967_wdt *wdt, u16 reg)
+{
+	return readl_relaxed(wdt->reg_base + reg);
+}
+
+static inline void zx2967_wdt_writel(struct zx2967_wdt *wdt, u16 reg, u32 val)
+{
+	writel_relaxed(val | ZX2967_WDT_WRITEKEY, wdt->reg_base + reg);
+}
+
+This is what I would suggest to make the caller a bit easier.  Anyway,
+it's just a suggestion, not a strong opinion.
 
 > +
-> +Optional properties:
+> +static void zx2967_wdt_refresh(struct zx2967_wdt *wdt)
+> +{
+> +	u32 val;
 > +
-> +- wdt-reset-sysctrl : should include following fields.
+> +	val = zx2967_wdt_read_reg(wdt->reg_base + ZX2967_WDT_REFRESH_REG);
+> +	val ^= ZX2967_WDT_REFRESH_MASK;
+> +	zx2967_wdt_write_reg(val, wdt->reg_base + ZX2967_WDT_REFRESH_REG);
+> +}
+> +
+> +static unsigned int
+> +__zx2967_wdt_set_timeout(struct zx2967_wdt *wdt, unsigned int timeout)
+> +{
+> +	unsigned int freq = clk_get_rate(wdt->clock);
+> +	unsigned int divisor = ZX2967_WDT_DIV_DEFAULT;
+> +	unsigned int count;
+> +
+> +	count = timeout * freq;
+> +	if (count > divisor * ZX2967_WDT_MAX_COUNT)
+> +		divisor = DIV_ROUND_UP(count, ZX2967_WDT_MAX_COUNT);
+> +	count = DIV_ROUND_UP(count, divisor);
+> +	zx2967_wdt_write_reg(ZX2967_WDT_CFG_DIV(divisor),
+> +			     wdt->reg_base + ZX2967_WDT_CFG_REG);
+> +	zx2967_wdt_write_reg(count, wdt->reg_base + ZX2967_WDT_LOAD_REG);
+> +	zx2967_wdt_refresh(wdt);
+> +	wdt->load = count;
+> +
+> +	return (count * divisor) / freq;
+> +}
+> +
+> +static int zx2967_wdt_set_timeout(struct watchdog_device *wdd,
+> +				  unsigned int timeout)
+> +{
+> +	struct zx2967_wdt *wdt = watchdog_get_drvdata(wdd);
+> +
+> +	if (watchdog_timeout_invalid(&wdt->wdt_device, timeout)) {
+> +		dev_err(wdt->dev, "timeout %d is invalid\n", timeout);
+> +		return -EINVAL;
+> +	}
+> +
+> +	wdd->timeout = __zx2967_wdt_set_timeout(wdt, timeout);
+> +
+> +	return 0;
+> +}
+> +
+> +static void __zx2967_wdt_start(struct zx2967_wdt *wdt)
+> +{
+> +	u32 val;
+> +
+> +	val = zx2967_wdt_read_reg(wdt->reg_base + ZX2967_WDT_START_REG);
+> +	val |= ZX2967_WDT_START_EN;
+> +	zx2967_wdt_write_reg(val, wdt->reg_base + ZX2967_WDT_START_REG);
+> +}
+> +
+> +static void __zx2967_wdt_stop(struct zx2967_wdt *wdt)
+> +{
+> +	u32 val;
+> +
+> +	val = zx2967_wdt_read_reg(wdt->reg_base + ZX2967_WDT_START_REG);
+> +	val &= ~ZX2967_WDT_START_EN;
+> +	zx2967_wdt_write_reg(val, wdt->reg_base + ZX2967_WDT_START_REG);
+> +}
+> +
+> +static int zx2967_wdt_start(struct watchdog_device *wdd)
+> +{
+> +	struct zx2967_wdt *wdt = watchdog_get_drvdata(wdd);
+> +
+> +	__zx2967_wdt_stop(wdt);
+> +	zx2967_wdt_set_timeout(wdd, wdd->timeout);
+> +	__zx2967_wdt_start(wdt);
+> +
+> +	return 0;
+> +}
+> +
+> +static int zx2967_wdt_stop(struct watchdog_device *wdd)
+> +{
+> +	struct zx2967_wdt *wdt = watchdog_get_drvdata(wdd);
+> +
+> +	__zx2967_wdt_stop(wdt);
+> +
+> +	return 0;
+> +}
+> +
+> +static int zx2967_wdt_keepalive(struct watchdog_device *wdd)
+> +{
+> +	struct zx2967_wdt *wdt = watchdog_get_drvdata(wdd);
+> +
+> +	zx2967_wdt_refresh(wdt);
+> +
+> +	return 0;
+> +}
+> +
+> +#define ZX2967_WDT_OPTIONS \
+> +	(WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE)
+> +static const struct watchdog_info zx2967_wdt_ident = {
+> +	.options          =     ZX2967_WDT_OPTIONS,
+> +	.firmware_version =	0,
+> +	.identity         =	"zx2967 watchdog",
+> +};
+> +
+> +static struct watchdog_ops zx2967_wdt_ops = {
+> +	.owner = THIS_MODULE,
+> +	.start = zx2967_wdt_start,
+> +	.stop = zx2967_wdt_stop,
+> +	.ping = zx2967_wdt_keepalive,
+> +	.set_timeout = zx2967_wdt_set_timeout,
+> +};
+> +
+> +static void zx2967_wdt_fix_sysdown(struct zx2967_wdt *wdt)
+> +{
+> +	__zx2967_wdt_stop(wdt);
+> +	__zx2967_wdt_set_timeout(wdt, 15);
+> +	__zx2967_wdt_start(wdt);
+> +}
+> +
+> +static int zx2967_wdt_notify_sys(struct notifier_block *this,
+> +			     unsigned long code, void *unused)
+> +{
+> +	struct zx2967_wdt *wdt = container_of(this, struct zx2967_wdt,
+> +					      reboot_handler);
+> +
+> +	wdt->flags |= ZX2967_WDT_FLAG_REBOOT_MON;
+> +	switch (code) {
+> +	case SYS_HALT:
+> +	case SYS_POWER_OFF:
+> +	case SYS_RESTART:
+> +		zx2967_wdt_fix_sysdown(wdt);
+> +		break;
+> +	default:
+> +		break;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static int zx2967_wdt_restart(struct notifier_block *this,
+> +			      unsigned long mode, void *cmd)
+> +{
+> +	struct zx2967_wdt *wdt;
+> +
+> +	wdt = container_of(this, struct zx2967_wdt, restart_handler);
+> +
+> +	zx2967_wdt_stop(&wdt->wdt_device);
+> +
+> +	zx2967_wdt_write_reg(0x80, wdt->reg_base + ZX2967_WDT_LOAD_REG);
+> +	zx2967_wdt_refresh(wdt);
+> +	zx2967_wdt_write_reg(ZX2967_WDT_START_EN,
+> +			     wdt->reg_base + ZX2967_WDT_START_REG);
+> +
+> +	zx2967_wdt_start(&wdt->wdt_device);
+> +	/* wait for reset*/
+> +	mdelay(500);
+> +
+> +	return NOTIFY_DONE;
+> +}
+> +
+> +static void zx2967_wdt_reset_sysctrl(struct device *dev)
+> +{
+> +	int ret;
+> +	struct device_node *np = NULL;
+> +	void __iomem *regmap;
+> +	unsigned int  val, mask, config;
+> +	struct of_phandle_args out_args;
+> +
+> +	ret = of_parse_phandle_with_fixed_args(dev->of_node,
+> +			"wdt-reset-sysctrl", 2, 0, &out_args);
+> +	if (ret) {
+> +		dev_info(dev, "have no wdt-reset-sysctrl node");
 
-We need a vendor prefix for vendor specific property.
+wdt-reset-sysctrl is not a node but a property.  Also, the call can fail
+on other reasons, e.g. the arguments are not two.  So I suggest the
+message like "failed to parse wdt-reset-sysctrl".
 
-> +	* phandle of aon-sysctrl.
-> +	* configuare value that be wrote to aon-sysctrl.
+> +		return;
+> +	}
+> +	config = out_args.args[0];
+> +	mask = out_args.args[1];
+> +
+> +	regmap = syscon_node_to_regmap(out_args.np);
+> +	if (IS_ERR(regmap))
+> +		goto out;
+> +
+> +	ret = regmap_read(regmap, ZX2967_RESET_MASK_REG, &val);
 
-s/configuare/configure, s/wrote/written
-
-> +	* bit mask, corresponding bits will be affected.
-
-I think we need some comments for bindings users to understand the
-different role between "resets" and "wdt-reset-sysctrl".  Also, why is
-wdt-reset-sysctrl is optional?  Does it still work well without this
-property.
-
-FYI. I have a similar bindings for TVENC below, which you may find
-useful.
-
-http://www.spinics.net/lists/devicetree/msg159668.html
+I think this register offset can also be an argument of phandle in
+device tree.
 
 > +
-> +Example:
-> +
-> +wdt_ares: watchdog@1465000 {
+> +	val &= ~mask;
+> +	val |= config;
+> +	regmap_write(regmap, ZX2967_RESET_MASK_REG, val);
 
-What does the suffix "ares" mean?  I guess "wdt" is good enough as the
-label name.
+regmap_update_bits() can be used.
+
+> +out:
+> +	of_node_put(np);
+> +}
+> +
+> +static int zx2967_wdt_probe(struct platform_device *pdev)
+> +{
+> +	struct device *dev;
+> +	struct zx2967_wdt *wdt;
+> +	struct resource *base;
+> +	int err, ret = 0;
+> +	unsigned int rate;
+> +
+> +	struct reset_control *rstc;
+> +
+> +	dev = &pdev->dev;
+> +
+> +	wdt = devm_kzalloc(dev, sizeof(*wdt), GFP_KERNEL);
+> +	if (!wdt)
+> +		return -ENOMEM;
+> +
+> +	platform_set_drvdata(pdev, wdt);
+> +
+> +	wdt->dev = dev;
+> +	wdt->wdt_device.info = &zx2967_wdt_ident;
+> +	wdt->wdt_device.ops = &zx2967_wdt_ops;
+> +	wdt->wdt_device.timeout = ZX2967_WDT_DEFAULT_TIMEOUT;
+> +	wdt->wdt_device.max_timeout = ZX2967_WDT_MAX_TIMEOUT;
+> +	wdt->wdt_device.min_timeout = ZX2967_WDT_MIN_TIMEOUT;
+> +	wdt->wdt_device.parent = &pdev->dev;
+> +
+> +	base = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +	wdt->reg_base = devm_ioremap_resource(dev, base);
+> +	if (IS_ERR(wdt->reg_base)) {
+> +		dev_err(dev, "ioremap failed\n");
+> +		return PTR_ERR(wdt->reg_base);
+> +	}
+> +
+> +	zx2967_wdt_reset_sysctrl(dev);
+> +
+> +	wdt->reboot_handler.notifier_call = zx2967_wdt_notify_sys;
+> +	ret = register_reboot_notifier(&wdt->reboot_handler);
+> +	wdt->clock = devm_clk_get(dev, "wdtclk");
+
+devm_clk_get(dev, NULL), so that clock-names can be saved from DT.
+
+> +	if (IS_ERR(wdt->clock)) {
+> +		dev_err(dev, "failed to find watchdog clock source\n");
+> +		return PTR_ERR(wdt->clock);
+> +	}
+> +	ret = clk_prepare_enable(wdt->clock);
+> +	if (ret < 0) {
+> +		dev_err(dev, "failed to enable clock\n");
+> +		return ret;
+> +	}
+> +
+> +	rate = clk_get_rate(wdt->clock);
+> +	if (rate == 24000000)
+> +		clk_set_rate(wdt->clock, 32768);
+
+What's the logic behind this?  We need to set the frequency to 32768
+only when it's 24000000?  Any other frequency will just work?
+
+> +
+> +	rstc = devm_reset_control_get(dev, "wdtrst");
+
+devm_reset_control_get(dev, NULL), so that reset-names can be saved.
+
+> +	if (!rstc) {
+> +		dev_err(dev, "rstc get failed");
+
+Will it still work if "reset" property is missing?  If yes, the property
+should be documented as optional, not required.  If no, we should stop
+probing and return error right here.
+
+> +	} else {
+> +		reset_control_assert(rstc);
+> +		mdelay(10);
+> +		reset_control_deassert(rstc);
+> +	}
+> +
+> +	watchdog_set_drvdata(&wdt->wdt_device, wdt);
+> +
+> +	watchdog_init_timeout(&wdt->wdt_device,
+> +			      ZX2967_WDT_DEFAULT_TIMEOUT, dev);
+> +	watchdog_set_nowayout(&wdt->wdt_device, WATCHDOG_NOWAYOUT);
+> +
+> +	zx2967_wdt_stop(&wdt->wdt_device);
+> +
+> +	err = watchdog_register_device(&wdt->wdt_device);
+
+Why not use 'ret' directly?
 
 Shawn
 
-> +	compatible = "zte,zx296718-wdt";
-> +	reg = <0x1465000 0x1000>;
-> +	clocks = <&topcrm WDT_WCLK>;
-> +	clock-names = "wdtclk";
-> +	resets = <&toprst 35>;
-> +	reset-names = "wdtrst";
-> +	wdt-reset-sysctrl = <&aon_sysctrl 1 0x115>;
+> +	if (unlikely(err)) {
+> +		ret = err;
+> +		goto fail_register;
+> +	}
+> +
+> +	wdt->restart_handler.notifier_call = zx2967_wdt_restart;
+> +	wdt->restart_handler.priority = 128;
+> +	ret = register_restart_handler(&wdt->restart_handler);
+> +	if (ret) {
+> +		dev_err(dev, "cannot register restart handler, %d\n", ret);
+> +		goto fail_restart;
+> +	}
+> +
+> +	dev_info(dev, "watchdog enabled (timeout=%d sec, nowayout=%d)",
+> +		 wdt->wdt_device.timeout, WATCHDOG_NOWAYOUT);
+> +
+> +	return 0;
+> +
+> +fail_restart:
+> +	watchdog_unregister_device(&wdt->wdt_device);
+> +fail_register:
+> +	clk_disable_unprepare(wdt->clock);
+> +	return ret;
+> +}
+> +
+> +static int zx2967_wdt_remove(struct platform_device *pdev)
+> +{
+> +	struct zx2967_wdt *wdt = platform_get_drvdata(pdev);
+> +
+> +	unregister_restart_handler(&wdt->restart_handler);
+> +	watchdog_unregister_device(&wdt->wdt_device);
+> +	clk_disable_unprepare(wdt->clock);
+> +
+> +	return 0;
+> +}
+> +
+> +static void zx2967_wdt_shutdown(struct platform_device *pdev)
+> +{
+> +	struct zx2967_wdt *wdt = platform_get_drvdata(pdev);
+> +
+> +	if (!(wdt->flags & ZX2967_WDT_FLAG_REBOOT_MON))
+> +		zx2967_wdt_stop(&wdt->wdt_device);
+> +}
+> +
+> +static const struct of_device_id zx2967_wdt_match[] = {
+> +	{ .compatible = "zte,zx296718-wdt", },
+> +	{}
 > +};
+> +MODULE_DEVICE_TABLE(of, zx2967_wdt_match);
+> +
+> +static struct platform_driver zx2967_wdt_driver = {
+> +	.probe		= zx2967_wdt_probe,
+> +	.remove		= zx2967_wdt_remove,
+> +	.shutdown	= zx2967_wdt_shutdown,
+> +	.driver		= {
+> +		.name	= "zx2967-wdt",
+> +		.of_match_table	= of_match_ptr(zx2967_wdt_match),
+> +	},
+> +};
+> +module_platform_driver(zx2967_wdt_driver);
+> +
+> +MODULE_AUTHOR("Baoyou Xie <baoyou.xie@linaro.org>");
+> +MODULE_DESCRIPTION("ZTE zx2967 Watchdog Device Driver");
+> +MODULE_LICENSE("GPL v2");
 > -- 
 > 2.7.4
 > 
