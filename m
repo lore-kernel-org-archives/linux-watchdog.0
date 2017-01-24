@@ -1,77 +1,71 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:45777 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750788AbdAXWTd (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 24 Jan 2017 17:19:33 -0500
-Date: Tue, 24 Jan 2017 14:19:29 -0800
-From: Guenter Roeck <linux@roeck-us.net>
-To: William Breathitt Gray <vilhelm.gray@gmail.com>
-Cc: wim@iguana.be, linux-watchdog@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2] watchdog: ebc-c384_wdt: Utilize devm_ functions in
- driver probe callback
-Message-ID: <20170124221929.GA11399@roeck-us.net>
-References: <20170124220233.3389-1-vilhelm.gray@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20170124220233.3389-1-vilhelm.gray@gmail.com>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-path: <baoyou.xie@linaro.org>
+From: Baoyou Xie <baoyou.xie@linaro.org>
+To: jun.nie@linaro.org,
+	wim@iguana.be,
+	linux@roeck-us.net,
+	robh+dt@kernel.org,
+	mark.rutland@arm.com,
+	mathieu.poirier@linaro.org
+Cc: linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	shawnguo@kernel.org,
+	baoyou.xie@linaro.org,
+	xie.baoyou@zte.com.cn,
+	chen.chaokai@zte.com.cn,
+	wang.qiang01@zte.com.cn
+Subject: [PATCH v5 1/3] dt: bindings: add documentation for zx2967 family watchdog controller
+Date: Tue, 24 Jan 2017 16:58:40 +0800
+Message-Id: <1485248322-24299-1-git-send-email-baoyou.xie@linaro.org>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On Tue, Jan 24, 2017 at 05:02:33PM -0500, William Breathitt Gray wrote:
-> The devm_ resource manager functions allow memory to be automatically
-> released when a device is unbound. This patch takes advantage of the
-> resource manager functions and replaces the watchdog_register_device
-> call with the devm_watchdog_register_device call. In addition, the
-> ebc_c384_wdt_remove function has been removed as no longer necessary due
-> to the use of the relevant devm_ resource manager functions.
-> 
-> Signed-off-by: William Breathitt Gray <vilhelm.gray@gmail.com>
+This patch adds dt-binding documentation for zx2967 family
+watchdog controller.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Baoyou Xie <baoyou.xie@linaro.org>
+Acked-by: Rob Herring <robh@kernel.org>
+---
+ .../bindings/watchdog/zte,zx2967-wdt.txt           | 31 ++++++++++++++++++++++
+ 1 file changed, 31 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/zte,zx2967-wdt.txt
 
-> ---
-> Changes in v2:
->   - Removed dev_set_drvdata call in ebc_c384_wdt_probe; now that
->     ebc_c384_wdt_remove is gone, the driver_data doesn't need to be set
-> 
->  drivers/watchdog/ebc-c384_wdt.c | 14 +-------------
->  1 file changed, 1 insertion(+), 13 deletions(-)
-> 
-> diff --git a/drivers/watchdog/ebc-c384_wdt.c b/drivers/watchdog/ebc-c384_wdt.c
-> index 4b849b8e..2170b275 100644
-> --- a/drivers/watchdog/ebc-c384_wdt.c
-> +++ b/drivers/watchdog/ebc-c384_wdt.c
-> @@ -121,18 +121,7 @@ static int ebc_c384_wdt_probe(struct device *dev, unsigned int id)
->  		dev_warn(dev, "Invalid timeout (%u seconds), using default (%u seconds)\n",
->  			timeout, WATCHDOG_TIMEOUT);
->  
-> -	dev_set_drvdata(dev, wdd);
-> -
-> -	return watchdog_register_device(wdd);
-> -}
-> -
-> -static int ebc_c384_wdt_remove(struct device *dev, unsigned int id)
-> -{
-> -	struct watchdog_device *wdd = dev_get_drvdata(dev);
-> -
-> -	watchdog_unregister_device(wdd);
-> -
-> -	return 0;
-> +	return devm_watchdog_register_device(dev, wdd);
->  }
->  
->  static struct isa_driver ebc_c384_wdt_driver = {
-> @@ -140,7 +129,6 @@ static struct isa_driver ebc_c384_wdt_driver = {
->  	.driver = {
->  		.name = MODULE_NAME
->  	},
-> -	.remove = ebc_c384_wdt_remove
->  };
->  
->  static int __init ebc_c384_wdt_init(void)
-> -- 
-> 2.11.0
-> 
+diff --git a/Documentation/devicetree/bindings/watchdog/zte,zx2967-wdt.txt b/Documentation/devicetree/bindings/watchdog/zte,zx2967-wdt.txt
+new file mode 100644
+index 0000000..772403a
+--- /dev/null
++++ b/Documentation/devicetree/bindings/watchdog/zte,zx2967-wdt.txt
+@@ -0,0 +1,31 @@
++ZTE zx2967 Watchdog timer
++
++Required properties:
++
++- compatible : should be one of the following.
++       * zte,zx296718-wdt
++- reg : Specifies base physical address and size of the registers.
++- clocks : Pairs of phandle and specifier referencing the controller's clocks.
++- resets : Reference to the reset controller controlling the watchdog
++           controller.
++
++Optional properties:
++
++- zte,wdt-reset-sysctrl : Directs how to reset system by the watchdog.
++	if we don't want to restart system when watchdog been triggered,
++	it's not required, vice versa.
++	It should include following fields.
++	  * phandle of aon-sysctrl.
++	  * offset of register that be written, should be 0xb0.
++	  * configure value that be written to aon-sysctrl.
++	  * bit mask, corresponding bits will be affected.
++
++Example:
++
++wdt: watchdog@1465000 {
++	compatible = "zte,zx296718-wdt";
++	reg = <0x1465000 0x1000>;
++	clocks = <&topcrm WDT_WCLK>;
++	resets = <&toprst 35>;
++	zte,wdt-reset-sysctrl = <&aon_sysctrl 0xb0 1 0x115>;
++};
+-- 
+2.7.4
