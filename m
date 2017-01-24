@@ -1,34 +1,28 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:53291 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750914AbdAXOuh (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 24 Jan 2017 09:50:37 -0500
+Return-path: <mathieu.poirier@linaro.org>
+Date: Tue, 24 Jan 2017 09:12:27 -0700
+From: Mathieu Poirier <mathieu.poirier@linaro.org>
+To: Baoyou Xie <baoyou.xie@linaro.org>
+Cc: jun.nie@linaro.org, wim@iguana.be, linux@roeck-us.net,
+	robh+dt@kernel.org, mark.rutland@arm.com,
+	linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org, shawnguo@kernel.org,
+	xie.baoyou@zte.com.cn, chen.chaokai@zte.com.cn,
+	wang.qiang01@zte.com.cn
 Subject: Re: [PATCH v5 3/3] watchdog: zx2967: add watchdog controller driver
  for ZTE's zx2967 family
-To: Baoyou Xie <baoyou.xie@linaro.org>, jun.nie@linaro.org,
-        wim@iguana.be, robh+dt@kernel.org, mark.rutland@arm.com,
-        mathieu.poirier@linaro.org
+Message-ID: <20170124161227.GA14385@linaro.org>
 References: <1485248322-24299-1-git-send-email-baoyou.xie@linaro.org>
  <1485248322-24299-3-git-send-email-baoyou.xie@linaro.org>
-Cc: linux-arm-kernel@lists.infradead.org,
-        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, shawnguo@kernel.org,
-        xie.baoyou@zte.com.cn, chen.chaokai@zte.com.cn,
-        wang.qiang01@zte.com.cn
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <35dcd00f-a4bd-a313-0d6f-932a3f5888f0@roeck-us.net>
-Date: Tue, 24 Jan 2017 06:50:28 -0800
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 In-Reply-To: <1485248322-24299-3-git-send-email-baoyou.xie@linaro.org>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 01/24/2017 12:58 AM, Baoyou Xie wrote:
+On Tue, Jan 24, 2017 at 04:58:42PM +0800, Baoyou Xie wrote:
 > This patch adds watchdog controller driver for ZTE's zx2967 family.
->
+> 
 > Signed-off-by: Baoyou Xie <baoyou.xie@linaro.org>
 > ---
 >  drivers/watchdog/Kconfig      |  10 ++
@@ -36,7 +30,7 @@ On 01/24/2017 12:58 AM, Baoyou Xie wrote:
 >  drivers/watchdog/zx2967_wdt.c | 274 ++++++++++++++++++++++++++++++++++++++++++
 >  3 files changed, 285 insertions(+)
 >  create mode 100644 drivers/watchdog/zx2967_wdt.c
->
+> 
 > diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
 > index acb00b5..05093a2 100644
 > --- a/drivers/watchdog/Kconfig
@@ -44,7 +38,7 @@ On 01/24/2017 12:58 AM, Baoyou Xie wrote:
 > @@ -714,6 +714,16 @@ config ASPEED_WATCHDOG
 >  	  To compile this driver as a module, choose M here: the
 >  	  module will be called aspeed_wdt.
->
+>  
 > +config ZX2967_WATCHDOG
 > +	tristate "ZTE zx2967 SoCs watchdog support"
 > +	depends on ARCH_ZX
@@ -56,7 +50,7 @@ On 01/24/2017 12:58 AM, Baoyou Xie wrote:
 > +	  module will be called zx2967_wdt.
 > +
 >  # AVR32 Architecture
->
+>  
 >  config AT32AP700X_WDT
 > diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
 > index 0c3d35e..bf2d296 100644
@@ -67,7 +61,7 @@ On 01/24/2017 12:58 AM, Baoyou Xie wrote:
 >  obj-$(CONFIG_RENESAS_WDT) += renesas_wdt.o
 >  obj-$(CONFIG_ASPEED_WATCHDOG) += aspeed_wdt.o
 > +obj-$(CONFIG_ZX2967_WATCHDOG) += zx2967_wdt.o
->
+>  
 >  # AVR32 Architecture
 >  obj-$(CONFIG_AT32AP700X_WDT) += at32ap700x_wdt.o
 > diff --git a/drivers/watchdog/zx2967_wdt.c b/drivers/watchdog/zx2967_wdt.c
@@ -113,9 +107,6 @@ On 01/24/2017 12:58 AM, Baoyou Xie wrote:
 > +#define ZX2967_WDT_DEFAULT_TIMEOUT		32
 > +#define ZX2967_WDT_MIN_TIMEOUT			1
 > +#define ZX2967_WDT_MAX_TIMEOUT			500
-
-Why not use the real maximum ? Just wondering.
-
 > +#define ZX2967_WDT_MAX_COUNT			0xffff
 > +
 > +#define ZX2967_WDT_CLK_FREQ			0x8000
@@ -216,14 +207,7 @@ Why not use the real maximum ? Just wondering.
 > +	(WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE)
 > +static const struct watchdog_info zx2967_wdt_ident = {
 > +	.options          =     ZX2967_WDT_OPTIONS,
-
-Does that make the code easier to read ? I presonally like being able to grep for
-"options" in the driver to get a glimpse.
-
 > +	.firmware_version =	0,
-
-Initializing a static field to 0 is unnecessary.
-
 > +	.identity         =	"zx2967 watchdog",
 > +};
 > +
@@ -244,6 +228,9 @@ Initializing a static field to 0 is unnecessary.
 > +
 > +	ret = of_parse_phandle_with_fixed_args(dev->of_node,
 > +			"zte,wdt-reset-sysctrl", 3, 0, &out_args);
+
+Go read the comment I made on your V4 post.
+
 > +	if (ret)
 > +		return;
 > +
@@ -256,11 +243,6 @@ Initializing a static field to 0 is unnecessary.
 > +		return;
 > +
 > +	regmap_update_bits(regmap, offset, mask, config);
-
-Another comment suggested adding
-	of_node_put(out_args.np);
-here.
-
 > +}
 > +
 > +static int zx2967_wdt_probe(struct platform_device *pdev)
@@ -316,14 +298,16 @@ here.
 > +	reset_control_assert(rstc);
 > +	mdelay(10);
 > +	reset_control_deassert(rstc);
+
+Still no explanation as to why we need to have a busy loop here.  I suggest you
+take a look at:
+
+https://www.kernel.org/doc/Documentation/timers/timers-howto.txt
+
+
 > +
 > +	watchdog_set_drvdata(&wdt->wdt_device, wdt);
 > +	watchdog_set_nowayout(&wdt->wdt_device, WATCHDOG_NOWAYOUT);
-
-A call to watchdog_init_timeout() may be valuable here to catch
-timeout values from devicetree. Otherwise, displaying the selected timeout
-below (which is a constant) doesn't really add much value.
-
 > +
 > +	ret = watchdog_register_device(&wdt->wdt_device);
 > +	if (ret)
@@ -336,9 +320,6 @@ below (which is a constant) doesn't really add much value.
 > +
 > +fail_register:
 > +	watchdog_unregister_device(&wdt->wdt_device);
-
-As asked before - why try to unregister if the registration failed ?
-
 > +fail_get_reset_control:
 > +	clk_disable_unprepare(wdt->clock);
 > +	return ret;
@@ -373,5 +354,6 @@ As asked before - why try to unregister if the registration failed ?
 > +MODULE_AUTHOR("Baoyou Xie <baoyou.xie@linaro.org>");
 > +MODULE_DESCRIPTION("ZTE zx2967 Watchdog Device Driver");
 > +MODULE_LICENSE("GPL v2");
->
-
+> -- 
+> 2.7.4
+> 
