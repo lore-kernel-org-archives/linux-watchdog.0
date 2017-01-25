@@ -1,93 +1,72 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:48879 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752422AbdAYW2l (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 25 Jan 2017 17:28:41 -0500
-From: Guenter Roeck <linux@roeck-us.net>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-watchdog@vger.kernel.org, linux-doc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH] watchdog: Introduce watchdog_stop_on_unregister helper
-Date: Wed, 25 Jan 2017 14:28:36 -0800
-Message-Id: <1485383316-12669-1-git-send-email-linux@roeck-us.net>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-path: <baoyou.xie@linaro.org>
+From: Baoyou Xie <baoyou.xie@linaro.org>
+To: jun.nie@linaro.org,
+	wim@iguana.be,
+	linux@roeck-us.net,
+	robh+dt@kernel.org,
+	mark.rutland@arm.com,
+	mathieu.poirier@linaro.org
+Cc: linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	shawnguo@kernel.org,
+	baoyou.xie@linaro.org,
+	xie.baoyou@zte.com.cn,
+	chen.chaokai@zte.com.cn,
+	wang.qiang01@zte.com.cn
+Subject: [PATCH v6 1/3] dt: bindings: add documentation for zx2967 family watchdog controller
+Date: Wed, 25 Jan 2017 10:44:47 +0800
+Message-Id: <1485312289-18354-1-git-send-email-baoyou.xie@linaro.org>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-Many watchdog drivers explicitly stop the watchdog when unregistering it.
-While it is unclear if this is actually needed (the whatdog should not be
-running at that time if it can be stopped), introduce a helper to
-explicitly stop the watchdog in the watchdog core when unregistering it.
-This helps reducing driver code size while retaining functionality.
+This patch adds dt-binding documentation for zx2967 family
+watchdog controller.
 
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Baoyou Xie <baoyou.xie@linaro.org>
+Acked-by: Rob Herring <robh@kernel.org>
 ---
- Documentation/watchdog/watchdog-kernel-api.txt |  6 ++++++
- drivers/watchdog/watchdog_dev.c                |  5 +++++
- include/linux/watchdog.h                       | 10 ++++++++++
- 3 files changed, 21 insertions(+)
+ .../bindings/watchdog/zte,zx2967-wdt.txt           | 32 ++++++++++++++++++++++
+ 1 file changed, 32 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/zte,zx2967-wdt.txt
 
-diff --git a/Documentation/watchdog/watchdog-kernel-api.txt b/Documentation/watchdog/watchdog-kernel-api.txt
-index ea277478982f..9b93953f69cf 100644
---- a/Documentation/watchdog/watchdog-kernel-api.txt
-+++ b/Documentation/watchdog/watchdog-kernel-api.txt
-@@ -280,6 +280,12 @@ To disable the watchdog on reboot, the user must call the following helper:
- 
- static inline void watchdog_stop_on_reboot(struct watchdog_device *wdd);
- 
-+To disable the watchdog when unregistering the watchdog, the user must call
-+the following helper. Note that this will only stop the watchdog if the
-+nowayout flag is not set.
+diff --git a/Documentation/devicetree/bindings/watchdog/zte,zx2967-wdt.txt b/Documentation/devicetree/bindings/watchdog/zte,zx2967-wdt.txt
+new file mode 100644
+index 0000000..06ce677
+--- /dev/null
++++ b/Documentation/devicetree/bindings/watchdog/zte,zx2967-wdt.txt
+@@ -0,0 +1,32 @@
++ZTE zx2967 Watchdog timer
 +
-+static inline void watchdog_stop_on_unregister(struct watchdog_device *wdd);
++Required properties:
 +
- To change the priority of the restart handler the following helper should be
- used:
- 
-diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-index 32930a073a12..d5d2bbd8f428 100644
---- a/drivers/watchdog/watchdog_dev.c
-+++ b/drivers/watchdog/watchdog_dev.c
-@@ -987,6 +987,11 @@ static void watchdog_cdev_unregister(struct watchdog_device *wdd)
- 	wdd->wd_data = NULL;
- 	mutex_unlock(&wd_data->lock);
- 
-+	if (watchdog_active(wdd) &&
-+	    test_bit(WDOG_STOP_ON_UNREGISTER, &wdd->status)) {
-+		watchdog_stop(wdd);
-+	}
++- compatible : should be one of the following.
++       * zte,zx296718-wdt
++- reg : Specifies base physical address and size of the registers.
++- clocks : Pairs of phandle and specifier referencing the controller's clocks.
++- resets : Reference to the reset controller controlling the watchdog
++           controller.
 +
- 	cancel_delayed_work_sync(&wd_data->work);
- 
- 	kref_put(&wd_data->kref, watchdog_core_data_release);
-diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
-index 35a4d8185b51..b0df1b987d82 100644
---- a/include/linux/watchdog.h
-+++ b/include/linux/watchdog.h
-@@ -117,6 +117,7 @@ struct watchdog_device {
- #define WDOG_NO_WAY_OUT		1	/* Is 'nowayout' feature set ? */
- #define WDOG_STOP_ON_REBOOT	2	/* Should be stopped on reboot */
- #define WDOG_HW_RUNNING		3	/* True if HW watchdog running */
-+#define WDOG_STOP_ON_UNREGISTER	4	/* Should be stopped on unregister */
- 	struct list_head deferred;
- };
- 
-@@ -151,6 +152,15 @@ static inline void watchdog_stop_on_reboot(struct watchdog_device *wdd)
- 	set_bit(WDOG_STOP_ON_REBOOT, &wdd->status);
- }
- 
-+/*
-+ * Use the following function to stop the watchdog when unregistering the
-+ * watchdog
-+ */
-+static inline void watchdog_stop_on_unregister(struct watchdog_device *wdd)
-+{
-+	set_bit(WDOG_STOP_ON_UNREGISTER, &wdd->status);
-+}
++Optional properties:
 +
- /* Use the following function to check if a timeout value is invalid */
- static inline bool watchdog_timeout_invalid(struct watchdog_device *wdd, unsigned int t)
- {
++- timeout-sec : Contains the watchdog timeout in seconds.
++- zte,wdt-reset-sysctrl : Directs how to reset system by the watchdog.
++	if we don't want to restart system when watchdog been triggered,
++	it's not required, vice versa.
++	It should include following fields.
++	  * phandle of aon-sysctrl.
++	  * offset of register that be written, should be 0xb0.
++	  * configure value that be written to aon-sysctrl.
++	  * bit mask, corresponding bits will be affected.
++
++Example:
++
++wdt: watchdog@1465000 {
++	compatible = "zte,zx296718-wdt";
++	reg = <0x1465000 0x1000>;
++	clocks = <&topcrm WDT_WCLK>;
++	resets = <&toprst 35>;
++	zte,wdt-reset-sysctrl = <&aon_sysctrl 0xb0 1 0x115>;
++};
 -- 
 2.7.4
-
