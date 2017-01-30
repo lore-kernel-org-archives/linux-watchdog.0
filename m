@@ -1,171 +1,115 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:44280 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:48577 "EHLO
         bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753443AbdA3SQU (ORCPT
+        with ESMTP id S1753872AbdA3QyN (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 30 Jan 2017 13:16:20 -0500
-Date: Mon, 30 Jan 2017 09:58:13 -0800
+        Mon, 30 Jan 2017 11:54:13 -0500
+Date: Mon, 30 Jan 2017 08:53:59 -0800
 From: Guenter Roeck <linux@roeck-us.net>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Wim Van Sebroeck <wim@iguana.be>,
-        Nicolas Ferre <nicolas.ferre@atmel.com>,
+To: Baoyou Xie <baoyou.xie@linaro.org>
+Cc: Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Jun Nie <jun.nie@linaro.org>, wim@iguana.be,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        linux-arm Mailing List <linux-arm-kernel@lists.infradead.org>,
         linux-watchdog@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] watchdog: sama5d4: Cache MR instead of a partial
- config
-Message-ID: <20170130175813.GA23087@roeck-us.net>
-References: <20170130171848.31598-1-alexandre.belloni@free-electrons.com>
+        devicetree <devicetree@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Shawn Guo <shawnguo@kernel.org>,
+        "xie.baoyou" <xie.baoyou@zte.com.cn>, chen.chaokai@zte.com.cn,
+        wang.qiang01@zte.com.cn
+Subject: Re: [PATCH v6 3/3] watchdog: zx2967: add watchdog controller driver
+ for ZTE's zx2967 family
+Message-ID: <20170130165359.GA20288@roeck-us.net>
+References: <1485312289-18354-1-git-send-email-baoyou.xie@linaro.org>
+ <1485312289-18354-3-git-send-email-baoyou.xie@linaro.org>
+ <20170125162346.GA591@linaro.org>
+ <CA+DQWkxpcHqVfDSGuUK-i4DOVXsYEYo60MG5y_oBDNp+ykEdLQ@mail.gmail.com>
+ <20170126161729.GA1515@linaro.org>
+ <CA+DQWkyPtndGEz-QYvmKaXoGNKQ69Zqu-aG7tCKnT-Mrmx5Wsw@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20170130171848.31598-1-alexandre.belloni@free-electrons.com>
+In-Reply-To: <CA+DQWkyPtndGEz-QYvmKaXoGNKQ69Zqu-aG7tCKnT-Mrmx5Wsw@mail.gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Jan 30, 2017 at 06:18:47PM +0100, Alexandre Belloni wrote:
-> .config is used to cache a part of WDT_MR at probe time and is not used
-> afterwards. Instead of doing that, actually cache MR and avoid reading it
-> every time it is modified.
+On Fri, Jan 27, 2017 at 10:40:09AM +0800, Baoyou Xie wrote:
+> On 27 January 2017 at 00:17, Mathieu Poirier <mathieu.poirier@linaro.org>
+> wrote:
 > 
-The semantic change here is that the old code leaves "other" bits in the
-mr register alone. I assume you have verified that clearing those bits
-does not have negative impact.
-
-Also, I am not really sure if replacing a read from a register is more
-costly than a read from memory. Is that change really worth it ?
-I mean, sure, the way the 'config' variable is used is a bit odd,
-but I don't really see the improvement in its replacement either.
-
-> Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> ---
->  drivers/watchdog/sama5d4_wdt.c | 45 ++++++++++++++++++------------------------
->  1 file changed, 19 insertions(+), 26 deletions(-)
+> > On Thu, Jan 26, 2017 at 09:32:56AM +0800, Baoyou Xie wrote:
+> > > On 26 January 2017 at 00:23, Mathieu Poirier <mathieu.poirier@linaro.org
+> > >
+> > > wrote:
+> > >
+> > > > On Wed, Jan 25, 2017 at 10:44:49AM +0800, Baoyou Xie wrote:
+> > > > > This patch adds watchdog controller driver for ZTE's zx2967 family.
+> > > > >
+> > > > > Signed-off-by: Baoyou Xie <baoyou.xie@linaro.org>
+> > > > > ---
+[ ... ]
+> > > > > +     reset_control_assert(rstc);
+> > > > > +     usleep_range(500, 20000);
+> > > >
+> > > > Alright, I'm officially confused.
+> > > >
+> > > > First and foremost you still haven't provided an explanation as to why
+> > > > this is
+> > > > required.  Second, in your previous submission you had:
+> > > >
+> > > >         mdelay(10);
+> > > >
+> > > > That is a busy loop of 10ms.  In this post using usleep_range() is a
+> > step
+> > > > in the
+> > > > right direction but the min and max values to wait for don't make
+> > sense.
+> > > > Here
+> > > > you have 500 and 20000, which is 0.5ms and 20ms.
+> > > >
+> > > > In fact, sleeping for 0.5ms is enough.
+> > > we extended the sleeping time to 20ms, the purpose is merging the timer
+> > > interrupts. of course, it's happy to replace it with usleep_range(500,
+> > > 1000).
+> >
+> > "merging the timer interrupts" - you mean trying to get the WD tick to be
+> > closer
+> > to other timers?  If so I really don't see why.  Timers are asynchronous by
+> > nature and there can be dozens of them enabled at any given time.
+> >
+> > Really?
+> Even if the system runs asynchronously, early process may trigger delayed
+> process, for example delayed work queue or timers, we can merge our
+> watchdog timer and those delayed work's timers.
 > 
-> diff --git a/drivers/watchdog/sama5d4_wdt.c b/drivers/watchdog/sama5d4_wdt.c
-> index a49634cdc1cc..6dd07bef515a 100644
-> --- a/drivers/watchdog/sama5d4_wdt.c
-> +++ b/drivers/watchdog/sama5d4_wdt.c
-> @@ -28,7 +28,7 @@
->  struct sama5d4_wdt {
->  	struct watchdog_device	wdd;
->  	void __iomem		*reg_base;
-> -	u32	config;
-> +	u32			mr;
->  };
->  
->  static int wdt_timeout = WDT_DEFAULT_TIMEOUT;
-> @@ -53,11 +53,9 @@ MODULE_PARM_DESC(nowayout,
->  static int sama5d4_wdt_start(struct watchdog_device *wdd)
->  {
->  	struct sama5d4_wdt *wdt = watchdog_get_drvdata(wdd);
-> -	u32 reg;
->  
-> -	reg = wdt_read(wdt, AT91_WDT_MR);
-> -	reg &= ~AT91_WDT_WDDIS;
-> -	wdt_write(wdt, AT91_WDT_MR, reg);
-> +	wdt->mr &= ~AT91_WDT_WDDIS;
-> +	wdt_write(wdt, AT91_WDT_MR, wdt->mr);
->  
->  	return 0;
->  }
-> @@ -65,11 +63,9 @@ static int sama5d4_wdt_start(struct watchdog_device *wdd)
->  static int sama5d4_wdt_stop(struct watchdog_device *wdd)
->  {
->  	struct sama5d4_wdt *wdt = watchdog_get_drvdata(wdd);
-> -	u32 reg;
->  
-> -	reg = wdt_read(wdt, AT91_WDT_MR);
-> -	reg |= AT91_WDT_WDDIS;
-> -	wdt_write(wdt, AT91_WDT_MR, reg);
-> +	wdt->mr |= AT91_WDT_WDDIS;
-> +	wdt_write(wdt, AT91_WDT_MR, wdt->mr);
->  
->  	return 0;
->  }
-> @@ -88,14 +84,12 @@ static int sama5d4_wdt_set_timeout(struct watchdog_device *wdd,
->  {
->  	struct sama5d4_wdt *wdt = watchdog_get_drvdata(wdd);
->  	u32 value = WDT_SEC2TICKS(timeout);
-> -	u32 reg;
->  
-> -	reg = wdt_read(wdt, AT91_WDT_MR);
-> -	reg &= ~AT91_WDT_WDV;
-> -	reg &= ~AT91_WDT_WDD;
-> -	reg |= AT91_WDT_SET_WDV(value);
-> -	reg |= AT91_WDT_SET_WDD(value);
-> -	wdt_write(wdt, AT91_WDT_MR, reg);
-> +	wdt->mr &= ~AT91_WDT_WDV;
-> +	wdt->mr &= ~AT91_WDT_WDD;
-> +	wdt->mr |= AT91_WDT_SET_WDV(value);
-> +	wdt->mr |= AT91_WDT_SET_WDD(value);
-> +	wdt_write(wdt, AT91_WDT_MR, wdt->mr);
->  
->  	wdd->timeout = timeout;
->  
-> @@ -132,19 +126,19 @@ static int of_sama5d4_wdt_init(struct device_node *np, struct sama5d4_wdt *wdt)
->  {
->  	const char *tmp;
->  
-> -	wdt->config = AT91_WDT_WDDIS;
-> +	wdt->mr = AT91_WDT_WDDIS;
->  
->  	if (!of_property_read_string(np, "atmel,watchdog-type", &tmp) &&
->  	    !strcmp(tmp, "software"))
-> -		wdt->config |= AT91_WDT_WDFIEN;
-> +		wdt->mr |= AT91_WDT_WDFIEN;
->  	else
-> -		wdt->config |= AT91_WDT_WDRSTEN;
-> +		wdt->mr |= AT91_WDT_WDRSTEN;
->  
->  	if (of_property_read_bool(np, "atmel,idle-halt"))
-> -		wdt->config |= AT91_WDT_WDIDLEHLT;
-> +		wdt->mr |= AT91_WDT_WDIDLEHLT;
->  
->  	if (of_property_read_bool(np, "atmel,dbg-halt"))
-> -		wdt->config |= AT91_WDT_WDDBGHLT;
-> +		wdt->mr |= AT91_WDT_WDDBGHLT;
->  
->  	return 0;
->  }
-> @@ -163,11 +157,10 @@ static int sama5d4_wdt_init(struct sama5d4_wdt *wdt)
->  	reg &= ~AT91_WDT_WDDIS;
->  	wdt_write(wdt, AT91_WDT_MR, reg);
->  
-There is (at least) one read of the mr register left above this code.
-It is not entirely obvious to me why it would make sense to retain
-this single read instead of just clearing the AT91_WDT_WDDIS bit
-from the cached value and writing the rest. Maybe this is to make
-sure that WDV or WDD isn't changed with the bit set, but ....
-the explanation associated with clearing the bit is a bit odd either
-case. It states that AT91_WDT_WDDIS must not be set (meaning the watchdog
-must be running ? Shouldn't it be the opposite ?) when changing WDV or WDD,
-then violates this rule when updating the timeout (which can happen with
-the watchdog running or not).
+In the probe function ?
 
-> -	reg = wdt->config;
-> -	reg |= AT91_WDT_SET_WDD(value);
-> -	reg |= AT91_WDT_SET_WDV(value);
-> +	wdt->mr |= AT91_WDT_SET_WDD(value);
-> +	wdt->mr |= AT91_WDT_SET_WDV(value);
->  
-> -	wdt_write(wdt, AT91_WDT_MR, reg);
-> +	wdt_write(wdt, AT91_WDT_MR, wdt->mr);
->  
->  	return 0;
->  }
-> @@ -211,7 +204,7 @@ static int sama5d4_wdt_probe(struct platform_device *pdev)
->  			return ret;
->  	}
->  
-> -	if ((wdt->config & AT91_WDT_WDFIEN) && irq) {
-> +	if ((wdt->mr & AT91_WDT_WDFIEN) && irq) {
->  		ret = devm_request_irq(&pdev->dev, irq, sama5d4_wdt_irq_handler,
->  				       IRQF_SHARED | IRQF_IRQPOLL |
->  				       IRQF_NO_SUSPEND, pdev->name, pdev);
-> -- 
-> 2.11.0
+> Furthermore, what happen if we build this driver as module?
 > 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+If every driver writer would use that line of argument, booting would
+take much longer than necessary, with every process sitting on unnecessary
+wait or sleep calls for perceived "optimization" purposes. Probe functions
+run exactly once, and should be time optimized. You should have an idea
+what the minimum reset hold time is, and follow it.
+
+> But, as i said early, it's a trial optimization but can be instead with
+> usleep_range(500, 1000).
+> 
+> In some case, such optimization is helpful. I'd like to talk a story here,
+> about before ten years, I pressed a return key in console, you know, in
+> this case, a process be created and exited, so the cpu core that process
+> run at sent an IPI to other CPU, IPI interrupt resulted in the performance
+> decreased by 20%, so sad:)
+> 
+It appears to be somewhat unlikely that each keypress resulted in a driver
+being instantiated. If it did, a sleep in its probe function was the least
+of your problems.
+
+> Unless there is a H/W constraint requiring a delay between the
+> > assert/deassert
+> > of the WD, I don't think adding a wait operation (of any kind) make sense.
+
+Correct.
+
+Guenter
