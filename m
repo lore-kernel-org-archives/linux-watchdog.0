@@ -1,20 +1,21 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from dukecmmtar03.coxmail.com ([68.99.120.44]:34942 "EHLO
-        dukecmmtar03.coxmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750869AbdAaQd7 (ORCPT
+Received: from dukecmmtar04.coxmail.com ([68.99.120.47]:38364 "EHLO
+        dukecmmtar04.coxmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750970AbdA3SRR (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 31 Jan 2017 11:33:59 -0500
+        Mon, 30 Jan 2017 13:17:17 -0500
 From: H Hartley Sweeten <hsweeten@visionengravers.com>
 To: linux-watchdog@vger.kernel.org
-Cc: H Hartley Sweeten <hsweeten@visionengravers.com>,
+Cc: linux-kernel@vger.kernel.org,
+        H Hartley Sweeten <hsweeten@visionengravers.com>,
         Mika Westerberg <mika.westerberg@iki.fi>,
         Wim Van Sebroeck <wim@iguana.be>,
         Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH v3 2/2] watchdog: ts72xx_wdt: convert driver to watchdog core
-Date: Tue, 31 Jan 2017 09:33:30 -0700
-Message-Id: <20170131163330.20092-3-hsweeten@visionengravers.com>
-In-Reply-To: <20170131163330.20092-1-hsweeten@visionengravers.com>
-References: <20170131163330.20092-1-hsweeten@visionengravers.com>
+Subject: [PATCH 2/2] watchdog: ts72xx_wdt: convert driver to watchdog core
+Date: Mon, 30 Jan 2017 09:55:48 -0700
+Message-Id: <20170130165548.40965-3-hsweeten@visionengravers.com>
+In-Reply-To: <20170130165548.40965-1-hsweeten@visionengravers.com>
+References: <20170130165548.40965-1-hsweeten@visionengravers.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
@@ -26,13 +27,13 @@ Cc: Wim Van Sebroeck <wim@iguana.be>
 Cc: Guenter Roeck <linux@roeck-us.net>
 ---
  drivers/watchdog/ts72xx_wdt.c | 447 +++++++++---------------------------------
- 1 file changed, 89 insertions(+), 358 deletions(-)
+ 1 file changed, 93 insertions(+), 354 deletions(-)
 
 diff --git a/drivers/watchdog/ts72xx_wdt.c b/drivers/watchdog/ts72xx_wdt.c
-index 4b54193..8b80db2 100644
+index 4b54193..857ab71 100644
 --- a/drivers/watchdog/ts72xx_wdt.c
 +++ b/drivers/watchdog/ts72xx_wdt.c
-@@ -13,428 +13,159 @@
+@@ -13,413 +13,149 @@
   * warranty of any kind, whether express or implied.
   */
  
@@ -47,20 +48,17 @@ index 4b54193..8b80db2 100644
 +#include <linux/module.h>
  #include <linux/watchdog.h>
 -#include <linux/uaccess.h>
-+#include <linux/io.h>
- 
+-
 -#define TS72XX_WDT_FEED_VAL		0x05
 -#define TS72XX_WDT_DEFAULT_TIMEOUT	8
-+#define TS72XX_WDT_DEFAULT_TIMEOUT	30
- 
+-
 -static int timeout = TS72XX_WDT_DEFAULT_TIMEOUT;
-+static int timeout = 0;
- module_param(timeout, int, 0);
+-module_param(timeout, int, 0);
 -MODULE_PARM_DESC(timeout, "Watchdog timeout in seconds. "
 -			  "(1 <= timeout <= 8, default="
 -			  __MODULE_STRING(TS72XX_WDT_DEFAULT_TIMEOUT)
 -			  ")");
-+MODULE_PARM_DESC(timeout, "Watchdog timeout in seconds.");
++#include <linux/io.h>
  
  static bool nowayout = WATCHDOG_NOWAYOUT;
  module_param(nowayout, bool, 0);
@@ -145,12 +143,16 @@ index 4b54193..8b80db2 100644
 - * not possible, function returns %-EINVAL.
 - */
 -static int timeout_to_regval(int new_timeout)
--{
++static int ts72xx_wdt_start(struct watchdog_device *wdd)
+ {
 -	int i;
--
++	struct ts72xx_wdt_priv *priv = watchdog_get_drvdata(wdd);
+ 
 -	/* first limit it to 1 - 8 seconds */
 -	new_timeout = clamp_val(new_timeout, 1, 8);
--
++	writeb(TS72XX_WDT_FEED_VAL, priv->feed_reg);
++	writeb(priv->regval, priv->control_reg);
+ 
 -	for (i = 0; i < ARRAY_SIZE(ts72xx_wdt_map); i++) {
 -		if (ts72xx_wdt_map[i].timeout >= new_timeout)
 -			return ts72xx_wdt_map[i].regval;
@@ -167,22 +169,17 @@ index 4b54193..8b80db2 100644
 - * If @regval cannot be converted, function returns %-EINVAL.
 - */
 -static int regval_to_timeout(int regval)
-+static int ts72xx_wdt_start(struct watchdog_device *wdd)
- {
+-{
 -	int i;
-+	struct ts72xx_wdt_priv *priv = watchdog_get_drvdata(wdd);
- 
+-
 -	for (i = 0; i < ARRAY_SIZE(ts72xx_wdt_map); i++) {
 -		if (ts72xx_wdt_map[i].regval == regval)
 -			return ts72xx_wdt_map[i].timeout;
 -	}
-+	writeb(TS72XX_WDT_FEED_VAL, priv->feed_reg);
-+	writeb(priv->regval, priv->control_reg);
- 
+-
 -	return -EINVAL;
-+	return 0;
- }
- 
+-}
+-
 -/**
 - * ts72xx_wdt_kick() - kick the watchdog
 - * @wdt: watchdog to be kicked
@@ -190,12 +187,10 @@ index 4b54193..8b80db2 100644
 - * Called with @wdt->lock held.
 - */
 -static inline void ts72xx_wdt_kick(struct ts72xx_wdt *wdt)
-+static int ts72xx_wdt_stop(struct watchdog_device *wdd)
- {
+-{
 -	__raw_writeb(TS72XX_WDT_FEED_VAL, wdt->feed_reg);
 -}
-+	struct ts72xx_wdt_priv *priv = watchdog_get_drvdata(wdd);
- 
+-
 -/**
 - * ts72xx_wdt_start() - starts the watchdog timer
 - * @wdt: watchdog to be started
@@ -215,9 +210,7 @@ index 4b54193..8b80db2 100644
 -	ts72xx_wdt_kick(wdt);
 -	__raw_writeb((u8)wdt->regval, wdt->control_reg);
 -}
-+	writeb(TS72XX_WDT_FEED_VAL, priv->feed_reg);
-+	writeb(TS72XX_WDT_CTRL_DISABLE, priv->control_reg);
- 
+-
 -/**
 - * ts72xx_wdt_stop() - stops the watchdog timer
 - * @wdt: watchdog to be stopped
@@ -232,7 +225,7 @@ index 4b54193..8b80db2 100644
  }
  
 -static int ts72xx_wdt_open(struct inode *inode, struct file *file)
-+static int ts72xx_wdt_ping(struct watchdog_device *wdd)
++static int ts72xx_wdt_stop(struct watchdog_device *wdd)
  {
 -	struct ts72xx_wdt *wdt = platform_get_drvdata(ts72xx_wdt_pdev);
 -	int regval;
@@ -251,27 +244,28 @@ index 4b54193..8b80db2 100644
 -
 -	if (mutex_lock_interruptible(&wdt->lock))
 -		return -ERESTARTSYS;
-+	struct ts72xx_wdt_priv *priv = watchdog_get_drvdata(wdd);
- 
+-
 -	if ((wdt->flags & TS72XX_WDT_BUSY_FLAG) != 0) {
 -		mutex_unlock(&wdt->lock);
 -		return -EBUSY;
 -	}
--
++	struct ts72xx_wdt_priv *priv = watchdog_get_drvdata(wdd);
+ 
 -	wdt->flags = TS72XX_WDT_BUSY_FLAG;
 -	wdt->regval = regval;
 -	file->private_data = wdt;
--
--	ts72xx_wdt_start(wdt);
 +	writeb(TS72XX_WDT_FEED_VAL, priv->feed_reg);
++	writeb(TS72XX_WDT_CTRL_DISABLE, priv->control_reg);
  
+-	ts72xx_wdt_start(wdt);
+-
 -	mutex_unlock(&wdt->lock);
 -	return nonseekable_open(inode, file);
 +	return 0;
  }
  
 -static int ts72xx_wdt_release(struct inode *inode, struct file *file)
-+static int ts72xx_wdt_settimeout(struct watchdog_device *wdd, unsigned int to)
++static int ts72xx_wdt_ping(struct watchdog_device *wdd)
  {
 -	struct ts72xx_wdt *wdt = file->private_data;
 -
@@ -280,16 +274,7 @@ index 4b54193..8b80db2 100644
 -
 -	if ((wdt->flags & TS72XX_WDT_EXPECT_CLOSE_FLAG) != 0) {
 -		ts72xx_wdt_stop(wdt);
-+	struct ts72xx_wdt_priv *priv = watchdog_get_drvdata(wdd);
-+
-+	if (to == 1) {
-+		priv->regval = TS72XX_WDT_CTRL_1SEC;
-+	} else if (to == 2) {
-+		priv->regval = TS72XX_WDT_CTRL_2SEC;
-+	} else if (to <= 4) {
-+		priv->regval = TS72XX_WDT_CTRL_4SEC;
-+		to = 4;
- 	} else {
+-	} else {
 -		dev_warn(&wdt->pdev->dev,
 -			 "TS-72XX WDT device closed unexpectly. "
 -			 "Watchdog timer will not stop!\n");
@@ -299,23 +284,22 @@ index 4b54193..8b80db2 100644
 -		 * daemon).
 -		 */
 -		ts72xx_wdt_kick(wdt);
-+		priv->regval = TS72XX_WDT_CTRL_8SEC;
-+		if (to <= 8)
-+			to = 8;
- 	}
+-	}
++	struct ts72xx_wdt_priv *priv = watchdog_get_drvdata(wdd);
  
 -	wdt->flags = 0;
-+	wdd->timeout = to;
++	writeb(TS72XX_WDT_FEED_VAL, priv->feed_reg);
  
 -	mutex_unlock(&wdt->lock);
--	return 0;
--}
--
+ 	return 0;
+ }
+ 
 -static ssize_t ts72xx_wdt_write(struct file *file,
 -				const char __user *data,
 -				size_t len,
 -				loff_t *ppos)
--{
++static int ts72xx_wdt_settimeout(struct watchdog_device *wdd, unsigned int to)
+ {
 -	struct ts72xx_wdt *wdt = file->private_data;
 -
 -	if (!len)
@@ -350,26 +334,20 @@ index 4b54193..8b80db2 100644
 -				break;
 -			}
 -		}
-+	if (watchdog_active(wdd)) {
-+		ts72xx_wdt_stop(wdd);
-+		ts72xx_wdt_start(wdd);
- 	}
- 
+-	}
+-
 -	mutex_unlock(&wdt->lock);
 -	return len;
-+	return 0;
- }
+-}
++	struct ts72xx_wdt_priv *priv = watchdog_get_drvdata(wdd);
  
 -static const struct watchdog_info winfo = {
 -	.options		= WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT |
-+static const struct watchdog_info ts72xx_wdt_ident = {
-+	.options		= WDIOF_KEEPALIVEPING |
-+				  WDIOF_SETTIMEOUT |
- 				  WDIOF_MAGICCLOSE,
- 	.firmware_version	= 1,
- 	.identity		= "TS-72XX WDT",
- };
- 
+-				  WDIOF_MAGICCLOSE,
+-	.firmware_version	= 1,
+-	.identity		= "TS-72XX WDT",
+-};
+-
 -static long ts72xx_wdt_ioctl(struct file *file, unsigned int cmd,
 -			     unsigned long arg)
 -{
@@ -385,16 +363,23 @@ index 4b54193..8b80db2 100644
 -	case WDIOC_GETSUPPORT:
 -		if (copy_to_user(argp, &winfo, sizeof(winfo)))
 -			error = -EFAULT;
--		break;
++	switch (to) {
++	case 1:
++		priv->regval = TS72XX_WDT_CTRL_1SEC;
+ 		break;
 -
 -	case WDIOC_GETSTATUS:
 -	case WDIOC_GETBOOTSTATUS:
 -		error = put_user(0, p);
--		break;
++	case 2:
++		priv->regval = TS72XX_WDT_CTRL_2SEC;
+ 		break;
 -
 -	case WDIOC_KEEPALIVE:
 -		ts72xx_wdt_kick(wdt);
--		break;
++	case 4:
++		priv->regval = TS72XX_WDT_CTRL_4SEC;
+ 		break;
 -
 -	case WDIOC_SETOPTIONS: {
 -		int options;
@@ -414,9 +399,13 @@ index 4b54193..8b80db2 100644
 -			error = 0;
 -		}
 -
--		break;
--	}
--
++	case 8:
++		priv->regval = TS72XX_WDT_CTRL_8SEC;
+ 		break;
++	default:
++		return -EINVAL;
+ 	}
+ 
 -	case WDIOC_SETTIMEOUT: {
 -		int new_timeout;
 -		int regval;
@@ -440,30 +429,42 @@ index 4b54193..8b80db2 100644
 -	case WDIOC_GETTIMEOUT:
 -		error = put_user(regval_to_timeout(wdt->regval), p);
 -		break;
--
++	wdd->timeout = to;
+ 
 -	default:
 -		error = -ENOTTY;
 -		break;
--	}
--
++	if (watchdog_active(wdd)) {
++		ts72xx_wdt_stop(wdd);
++		ts72xx_wdt_start(wdd);
+ 	}
+ 
 -	mutex_unlock(&wdt->lock);
 -	return error;
--}
--
++	return 0;
+ }
+ 
 -static const struct file_operations ts72xx_wdt_fops = {
-+static struct watchdog_ops ts72xx_wdt_ops = {
- 	.owner		= THIS_MODULE,
+-	.owner		= THIS_MODULE,
 -	.llseek		= no_llseek,
 -	.open		= ts72xx_wdt_open,
 -	.release	= ts72xx_wdt_release,
 -	.write		= ts72xx_wdt_write,
 -	.unlocked_ioctl	= ts72xx_wdt_ioctl,
--};
--
++static const struct watchdog_info ts72xx_wdt_ident = {
++	.options		= WDIOF_KEEPALIVEPING |
++				  WDIOF_SETTIMEOUT |
++				  WDIOF_MAGICCLOSE,
++	.firmware_version	= 1,
++	.identity		= "TS-72XX WDT",
+ };
+ 
 -static struct miscdevice ts72xx_wdt_miscdev = {
 -	.minor		= WATCHDOG_MINOR,
 -	.name		= "watchdog",
 -	.fops		= &ts72xx_wdt_fops,
++static struct watchdog_ops ts72xx_wdt_ops = {
++	.owner		= THIS_MODULE,
 +	.start		= ts72xx_wdt_start,
 +	.stop		= ts72xx_wdt_stop,
 +	.ping		= ts72xx_wdt_ping,
@@ -512,7 +513,8 @@ index 4b54193..8b80db2 100644
 +	wdd->info = &ts72xx_wdt_ident;
 +	wdd->ops = &ts72xx_wdt_ops;
 +	wdd->min_timeout = 1;
-+	wdd->max_hw_heartbeat_ms = 8000;
++	wdd->max_timeout = 8;
++	wdd->timeout = 8;
 +	wdd->parent = &pdev->dev;
  
 -	/* make sure that the watchdog is disabled */
@@ -524,32 +526,28 @@ index 4b54193..8b80db2 100644
 -		dev_err(&pdev->dev, "failed to register miscdev\n");
 -		return error;
 -	}
-+	wdd->timeout = TS72XX_WDT_DEFAULT_TIMEOUT;
-+	watchdog_init_timeout(wdd, timeout, &pdev->dev);
- 
--	dev_info(&pdev->dev, "TS-72xx Watchdog driver\n");
 +	watchdog_set_drvdata(wdd, priv);
- 
--	return 0;
--}
-+	ret = devm_watchdog_register_device(&pdev->dev, wdd);
++
++	ret = watchdog_register_device(wdd);
 +	if (ret)
 +		return ret;
 +
-+	dev_info(&pdev->dev, "TS-72xx Watchdog driver\n");
++	platform_set_drvdata(pdev, priv);
  
--static int ts72xx_wdt_remove(struct platform_device *pdev)
--{
+ 	dev_info(&pdev->dev, "TS-72xx Watchdog driver\n");
+ 
+@@ -428,7 +164,10 @@ static int ts72xx_wdt_probe(struct platform_device *pdev)
+ 
+ static int ts72xx_wdt_remove(struct platform_device *pdev)
+ {
 -	misc_deregister(&ts72xx_wdt_miscdev);
++	struct ts72xx_wdt_priv *priv = platform_get_drvdata(pdev);
++
++	watchdog_unregister_device(&priv->wdd);
++
  	return 0;
  }
  
- static struct platform_driver ts72xx_wdt_driver = {
- 	.probe		= ts72xx_wdt_probe,
--	.remove		= ts72xx_wdt_remove,
- 	.driver		= {
- 		.name	= "ts72xx-wdt",
- 	},
 -- 
 2.10.0
 
