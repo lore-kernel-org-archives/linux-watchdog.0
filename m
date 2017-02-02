@@ -1,101 +1,74 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.savoirfairelinux.com ([208.88.110.44]:56734 "EHLO
-        mail.savoirfairelinux.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751981AbdBAT4O (ORCPT
+Received: from mail-pg0-f53.google.com ([74.125.83.53]:33269 "EHLO
+        mail-pg0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751037AbdBBJJL (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 1 Feb 2017 14:56:14 -0500
-Subject: Re: [PATCH 4/6] bus: add driver for the Technologic Systems NBUS
-To: Linus Walleij <linus.walleij@linaro.org>
-References: <20161214231237.17496-1-sebastien.bourdelin@savoirfairelinux.com>
- <20161214231237.17496-5-sebastien.bourdelin@savoirfairelinux.com>
- <CACRpkdYHHrYY-fAPnNmV94ejFJ36rhSF0SqSVHkTNq+YCRNNZw@mail.gmail.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        linux-watchdog@vger.kernel.org,
-        "linux-arm-kernel@lists.infradead.org"
-        <linux-arm-kernel@lists.infradead.org>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        kernel <kernel@savoirfairelinux.com>, mark@embeddedarm.com,
-        kris@embeddedarm.com, Simon Horman <horms+renesas@verge.net.au>,
-        Thierry Reding <treding@nvidia.com>,
-        Jon Hunter <jonathanh@nvidia.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Fabio Estevam <fabio.estevam@nxp.com>,
-        Sascha Hauer <kernel@pengutronix.de>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        damien.riegel@savoirfairelinux.com,
-        Lucile Quirion <lucile.quirion@savoirfairelinux.com>,
-        Olof Johansson <olof@lixom.net>, Arnd Bergmann <arnd@arndb.de>,
-        "Suzuki K. Poulose" <suzuki.poulose@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>
-From: Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>
-Message-ID: <7bc0871f-ac0a-e8a0-0c84-a0e61b3991a8@savoirfairelinux.com>
-Date: Wed, 1 Feb 2017 14:56:11 -0500
-MIME-Version: 1.0
-In-Reply-To: <CACRpkdYHHrYY-fAPnNmV94ejFJ36rhSF0SqSVHkTNq+YCRNNZw@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+        Thu, 2 Feb 2017 04:09:11 -0500
+Received: by mail-pg0-f53.google.com with SMTP id 204so4280605pge.0
+        for <linux-watchdog@vger.kernel.org>; Thu, 02 Feb 2017 01:09:11 -0800 (PST)
+From: Baoyou Xie <baoyou.xie@linaro.org>
+To: jun.nie@linaro.org, wim@iguana.be, linux@roeck-us.net,
+        robh+dt@kernel.org, mark.rutland@arm.com,
+        mathieu.poirier@linaro.org
+Cc: linux-arm-kernel@lists.infradead.org,
+        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, shawnguo@kernel.org,
+        baoyou.xie@linaro.org, xie.baoyou@zte.com.cn,
+        chen.chaokai@zte.com.cn, wang.qiang01@zte.com.cn
+Subject: [PATCH v7 1/3] dt: bindings: add documentation for zx2967 family  watchdog controller
+Date: Thu,  2 Feb 2017 17:03:46 +0800
+Message-Id: <1486026228-21878-1-git-send-email-baoyou.xie@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Linus,
+This patch adds dt-binding documentation for zx2967 family
+watchdog controller.
 
-Thanks for your feedback.
-I have a question regarding your recommendation, see below.
+Signed-off-by: Baoyou Xie <baoyou.xie@linaro.org>
+Acked-by: Rob Herring <robh@kernel.org>
+---
+ .../bindings/watchdog/zte,zx2967-wdt.txt           | 32 ++++++++++++++++++++++
+ 1 file changed, 32 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/zte,zx2967-wdt.txt
 
-On 12/30/2016 02:58 AM, Linus Walleij wrote:
+diff --git a/Documentation/devicetree/bindings/watchdog/zte,zx2967-wdt.txt b/Documentation/devicetree/bindings/watchdog/zte,zx2967-wdt.txt
+new file mode 100644
+index 0000000..06ce677
+--- /dev/null
++++ b/Documentation/devicetree/bindings/watchdog/zte,zx2967-wdt.txt
+@@ -0,0 +1,32 @@
++ZTE zx2967 Watchdog timer
++
++Required properties:
++
++- compatible : should be one of the following.
++       * zte,zx296718-wdt
++- reg : Specifies base physical address and size of the registers.
++- clocks : Pairs of phandle and specifier referencing the controller's clocks.
++- resets : Reference to the reset controller controlling the watchdog
++           controller.
++
++Optional properties:
++
++- timeout-sec : Contains the watchdog timeout in seconds.
++- zte,wdt-reset-sysctrl : Directs how to reset system by the watchdog.
++	if we don't want to restart system when watchdog been triggered,
++	it's not required, vice versa.
++	It should include following fields.
++	  * phandle of aon-sysctrl.
++	  * offset of register that be written, should be 0xb0.
++	  * configure value that be written to aon-sysctrl.
++	  * bit mask, corresponding bits will be affected.
++
++Example:
++
++wdt: watchdog@1465000 {
++	compatible = "zte,zx296718-wdt";
++	reg = <0x1465000 0x1000>;
++	clocks = <&topcrm WDT_WCLK>;
++	resets = <&toprst 35>;
++	zte,wdt-reset-sysctrl = <&aon_sysctrl 0xb0 1 0x115>;
++};
+-- 
+2.7.4
 
->> +
->> +static DEFINE_MUTEX(ts_nbus_lock);
->> +static bool ts_nbus_ready;
-> 
-> Why not move this to the struct ts_nbus state container?
-> 
-> It seems to be per-bus not per-system.
-> 
->> +#define TS_NBUS_READ_MODE  0
->> +#define TS_NBUS_WRITE_MODE 1
->> +#define TS_NBUS_DIRECTION_IN  0
->> +#define TS_NBUS_DIRECTION_OUT 1
->> +#define TS_NBUS_WRITE_ADR 0
->> +#define TS_NBUS_WRITE_VAL 1
->> +
->> +struct ts_nbus {
->> +       struct pwm_device *pwm;
->> +       int num_data;
->> +       int *data;
->> +       int csn;
->> +       int txrx;
->> +       int strobe;
->> +       int ale;
->> +       int rdy;
->> +};
->> +
->> +static struct ts_nbus *ts_nbus;
-> 
-> Nopes. No singletons please.
-> 
-> Use the state container pattern:
-> Documentation/driver-model/design-patterns.txt
-> 
-
-I understand the idea but have problem to find a good way to implement it.
-
-Other drivers using the NBUS which are child nodes in the device tree
-will use the ts_nbus_write() and ts_nbus_read() functions, it means these
-drivers should have a pointer to the allocated ts_nbus and pass it to
-the write() and read() functions as an argument if i'm not using a
-singleton here.
-But i'm lacking knowledge on how to properly share this pointer when
-initializing the NBUS driver with the child nodes.
-
-Perhaps my design is not appropriate for what i'm doing, if someone can
-point me on a similar problematic it will be really helpful.
-
-Best Regards,
-Sebastien.
