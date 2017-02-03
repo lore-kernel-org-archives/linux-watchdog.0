@@ -1,7 +1,7 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.savoirfairelinux.com ([208.88.110.44]:49186 "EHLO
+Received: from mail.savoirfairelinux.com ([208.88.110.44]:49132 "EHLO
         mail.savoirfairelinux.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750898AbdBCTrd (ORCPT
+        with ESMTP id S1752166AbdBCTrd (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
         Fri, 3 Feb 2017 14:47:33 -0500
 From: Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>
@@ -18,86 +18,55 @@ Cc: fabio.estevam@nxp.com, mark@embeddedarm.com, kris@embeddedarm.com,
         suzuki.poulose@arm.com, will.deacon@arm.com,
         yamada.masahiro@socionext.com,
         Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>
-Subject: [PATCH v2 3/6] dt-bindings: bus: Add documentation for the Technologic Systems NBUS
-Date: Fri,  3 Feb 2017 14:47:26 -0500
-Message-Id: <20170203194729.20995-4-sebastien.bourdelin@savoirfairelinux.com>
-In-Reply-To: <20170203194729.20995-1-sebastien.bourdelin@savoirfairelinux.com>
-References: <20170203194729.20995-1-sebastien.bourdelin@savoirfairelinux.com>
+Subject: [PATCH v2 0/6] Add board support for TS-4600
+Date: Fri,  3 Feb 2017 14:47:23 -0500
+Message-Id: <20170203194729.20995-1-sebastien.bourdelin@savoirfairelinux.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Add binding documentation for the Technologic Systems NBUS that is used
-to interface with peripherals in the FPGA of the TS-4600 SoM.
+This patch serie adds support for the TS-4600 boards rev A and B. These
+boards, manufactured by Technologic Systems, are based on an i.MX28.
 
----
-Changes v1 -> v2:
-  - rebase on master
-  - remove the simple-bus compatibility as the root node will now
-  populate child nodes (suggested by Rob Herring)
-  - use the ts vendor prefix for gpios (suggested by Rob Herring)
+This serie include the support for the watchdog which could be enable
+at Linux boot time depending on the bootloader.
 
-Signed-off-by: Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>
----
- Documentation/devicetree/bindings/bus/ts-nbus.txt | 50 +++++++++++++++++++++++
- 1 file changed, 50 insertions(+)
+The watchdog and few peripherals are implemented in a FPGA, and can
+only be access using a custom GPIOs bit-banged bus which is called the
+NBUS by Technologic Systems.
+A driver for this bus is also included and used by the watchdog.
+
+Sebastien Bourdelin (6):
+  of: documentation: add bindings documentation for TS-4600
+  ARM: dts: TS-4600: add basic device tree
+  dt-bindings: bus: Add documentation for the Technologic Systems NBUS
+  bus: add driver for the Technologic Systems NBUS
+  ARM: dts: TS-4600: add NBUS support
+  watchdog: ts4600: add driver for TS-4600 watchdog
+
+ .../devicetree/bindings/arm/technologic.txt        |   5 +
+ Documentation/devicetree/bindings/bus/ts-nbus.txt  |  50 +++
+ .../devicetree/bindings/watchdog/ts4600-wdt.txt    |  16 +
+ arch/arm/boot/dts/Makefile                         |   2 +
+ arch/arm/boot/dts/imx28-ts4600-common.dtsi         | 126 ++++++++
+ arch/arm/boot/dts/imx28-ts4600-rev-a.dts           |  22 ++
+ arch/arm/boot/dts/imx28-ts4600-rev-b.dts           |  22 ++
+ drivers/bus/Kconfig                                |   8 +
+ drivers/bus/Makefile                               |   1 +
+ drivers/bus/ts-nbus.c                              | 357 +++++++++++++++++++++
+ drivers/watchdog/Kconfig                           |  11 +
+ drivers/watchdog/Makefile                          |   1 +
+ drivers/watchdog/ts4600_wdt.c                      | 217 +++++++++++++
+ include/linux/ts-nbus.h                            |  26 ++
+ 14 files changed, 864 insertions(+)
  create mode 100644 Documentation/devicetree/bindings/bus/ts-nbus.txt
+ create mode 100644 Documentation/devicetree/bindings/watchdog/ts4600-wdt.txt
+ create mode 100644 arch/arm/boot/dts/imx28-ts4600-common.dtsi
+ create mode 100644 arch/arm/boot/dts/imx28-ts4600-rev-a.dts
+ create mode 100644 arch/arm/boot/dts/imx28-ts4600-rev-b.dts
+ create mode 100644 drivers/bus/ts-nbus.c
+ create mode 100644 drivers/watchdog/ts4600_wdt.c
+ create mode 100644 include/linux/ts-nbus.h
 
-diff --git a/Documentation/devicetree/bindings/bus/ts-nbus.txt b/Documentation/devicetree/bindings/bus/ts-nbus.txt
-new file mode 100644
-index 000000000000..c8a1f2cbe6a0
---- /dev/null
-+++ b/Documentation/devicetree/bindings/bus/ts-nbus.txt
-@@ -0,0 +1,50 @@
-+Technologic Systems NBUS
-+
-+The NBUS is a bus used to interface with peripherals in the Technologic
-+Systems FPGA on the TS-4600 SoM.
-+
-+Required properties :
-+ - compatible     : "technologic,ts-nbus"
-+ - #address-cells : must be 1
-+ - #size-cells    : must be 0
-+ - pws            : The PWM binded to the FPGA
-+ - data-gpios	  : The GPIO pin connected to the data line on the FPGA
-+ - csn-gpios	  : The GPIO pin connected to the csn line on the FPGA
-+ - txrx-gpios	  : The GPIO pin connected to the txrx line on the FPGA
-+ - strobe-gpios	  : The GPIO pin connected to the stobe line on the FPGA
-+ - ale-gpios	  : The GPIO pin connected to the ale line on the FPGA
-+ - rdy-gpios	  : The GPIO pin connected to the rdy line on the FPGA
-+
-+Child nodes:
-+
-+The NBUS node can contain zero or more child nodes representing peripherals
-+on the bus.
-+
-+Example:
-+
-+	nbus {
-+		compatible = "technologic,ts-nbus";
-+		pinctrl-0 = <&nbus_pins>;
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		pwms = <&pwm 2 83>;
-+		ts-data-gpios   = <&gpio0 0 GPIO_ACTIVE_HIGH
-+				   &gpio0 1 GPIO_ACTIVE_HIGH
-+				   &gpio0 2 GPIO_ACTIVE_HIGH
-+				   &gpio0 3 GPIO_ACTIVE_HIGH
-+				   &gpio0 4 GPIO_ACTIVE_HIGH
-+				   &gpio0 5 GPIO_ACTIVE_HIGH
-+				   &gpio0 6 GPIO_ACTIVE_HIGH
-+				   &gpio0 7 GPIO_ACTIVE_HIGH>;
-+		ts-csn-gpios    = <&gpio0 16 GPIO_ACTIVE_HIGH>;
-+		ts-txrx-gpios   = <&gpio0 24 GPIO_ACTIVE_HIGH>;
-+		ts-strobe-gpios = <&gpio0 25 GPIO_ACTIVE_HIGH>;
-+		ts-ale-gpios    = <&gpio0 26 GPIO_ACTIVE_HIGH>;
-+		ts-rdy-gpios    = <&gpio0 21 GPIO_ACTIVE_HIGH>;
-+
-+		watchdog@2a {
-+			compatible = "...";
-+
-+			/* ... */
-+		};
-+	};
 -- 
 2.11.0
 
