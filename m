@@ -1,76 +1,104 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.savoirfairelinux.com ([208.88.110.44]:54988 "EHLO
+Received: from mail.savoirfairelinux.com ([208.88.110.44]:49226 "EHLO
         mail.savoirfairelinux.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751027AbdBCP4r (ORCPT
+        with ESMTP id S1751154AbdBCTre (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 3 Feb 2017 10:56:47 -0500
-Subject: Re: [PATCH 4/6] bus: add driver for the Technologic Systems NBUS
-To: Linus Walleij <linus.walleij@linaro.org>
-References: <20161214231237.17496-1-sebastien.bourdelin@savoirfairelinux.com>
- <20161214231237.17496-5-sebastien.bourdelin@savoirfairelinux.com>
- <CACRpkdYHHrYY-fAPnNmV94ejFJ36rhSF0SqSVHkTNq+YCRNNZw@mail.gmail.com>
- <7bc0871f-ac0a-e8a0-0c84-a0e61b3991a8@savoirfairelinux.com>
- <CACRpkdbAYyxTOq_ZAwjSJAhCbrzTaUMSG9N7t8Wq1ifTDFBLrQ@mail.gmail.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        linux-watchdog@vger.kernel.org,
-        "linux-arm-kernel@lists.infradead.org"
-        <linux-arm-kernel@lists.infradead.org>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        kernel <kernel@savoirfairelinux.com>,
-        Mark Featherston <mark@embeddedarm.com>, kris@embeddedarm.com,
-        Simon Horman <horms+renesas@verge.net.au>,
-        Thierry Reding <treding@nvidia.com>,
-        Jon Hunter <jonathanh@nvidia.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Fabio Estevam <fabio.estevam@nxp.com>,
-        Sascha Hauer <kernel@pengutronix.de>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        damien.riegel@savoirfairelinux.com,
-        Lucile Quirion <lucile.quirion@savoirfairelinux.com>,
-        Olof Johansson <olof@lixom.net>, Arnd Bergmann <arnd@arndb.de>,
-        "Suzuki K. Poulose" <suzuki.poulose@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>
+        Fri, 3 Feb 2017 14:47:34 -0500
 From: Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>
-Message-ID: <3f3cd438-63dc-dea8-e17b-7eb3e588cc36@savoirfairelinux.com>
-Date: Fri, 3 Feb 2017 10:56:34 -0500
-MIME-Version: 1.0
-In-Reply-To: <CACRpkdbAYyxTOq_ZAwjSJAhCbrzTaUMSG9N7t8Wq1ifTDFBLrQ@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+To: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
+        kernel@savoirfairelinux.com, robh@kernel.org, linux@roeck-us.net,
+        linus.walleij@linaro.org
+Cc: fabio.estevam@nxp.com, mark@embeddedarm.com, kris@embeddedarm.com,
+        horms+renesas@verge.net.au, treding@nvidia.com,
+        jonathanh@nvidia.com, f.fainelli@gmail.com, kernel@pengutronix.de,
+        shawnguo@kernel.org, linux@armlinux.org.uk, wim@iguana.be,
+        mark.rutland@arm.com, damien.riegel@savoirfairelinux.com,
+        lucile.quirion@savoirfairelinux.com, olof@lixom.net, arnd@arndb.de,
+        suzuki.poulose@arm.com, will.deacon@arm.com,
+        yamada.masahiro@socionext.com,
+        Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>
+Subject: [PATCH v2 5/6] ARM: dts: TS-4600: add NBUS support
+Date: Fri,  3 Feb 2017 14:47:28 -0500
+Message-Id: <20170203194729.20995-6-sebastien.bourdelin@savoirfairelinux.com>
+In-Reply-To: <20170203194729.20995-1-sebastien.bourdelin@savoirfairelinux.com>
+References: <20170203194729.20995-1-sebastien.bourdelin@savoirfairelinux.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Linus,
+This commit enables the NBUS on the TS-4600, using the ts-nbus driver.
 
-On 02/03/2017 08:51 AM, Linus Walleij wrote:
-> Your child nodes I guess will be instatiated as devices as well.
-> 
-> These devices will have the NBUS driver as .parent in their
-> struct device I guess. Else the design of this bus is tilted.
-> 
-> If the NBUS driver use dev_set_drvdata(dev, state_container_cookie)
-> the children can use dev_get_drvdata(dev->parent); to get a pointer to
-> the same cookie.
-> 
-> The subdrivers don't even need to know the members of the state
-> container as long as you're just passing a pointer to it. It's
-> enough if you forward-declare it as a "pointer to some struct":
-> 
-> struct foo;
-> 
-> {
->    struct foo *fooptr = dev_get_drvdata(dev->parent);
->    write(fooptr, 0x10);
-> 
-> etc
+---
+Changes v1 -> v2:
+  - rebase on master
+  - remove the simple-bus compatibility as the root node will now
+  populate the child nodes (suggested by Rob Herring)
+  - add the vendor prefix to all gpio (suggested by Rob Herring)
 
-Thanks a lot, this is perfect!
+Signed-off-by: Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>
+---
+ arch/arm/boot/dts/imx28-ts4600-common.dtsi | 43 ++++++++++++++++++++++++++++++
+ 1 file changed, 43 insertions(+)
 
-Best Regards,
-Sebastien.
+diff --git a/arch/arm/boot/dts/imx28-ts4600-common.dtsi b/arch/arm/boot/dts/imx28-ts4600-common.dtsi
+index 04bd5a5c0cb4..c6282d5479de 100644
+--- a/arch/arm/boot/dts/imx28-ts4600-common.dtsi
++++ b/arch/arm/boot/dts/imx28-ts4600-common.dtsi
+@@ -44,6 +44,28 @@
+ 					fsl,pull-up = <MXS_PULL_DISABLE>;
+ 				};
+ 
++				nbus_pins: nbus_pins {
++					fsl,pinmux-ids = <
++						MX28_PAD_GPMI_D00__GPIO_0_0
++						MX28_PAD_GPMI_D01__GPIO_0_1
++						MX28_PAD_GPMI_D02__GPIO_0_2
++						MX28_PAD_GPMI_D03__GPIO_0_3
++						MX28_PAD_GPMI_D04__GPIO_0_4
++						MX28_PAD_GPMI_D05__GPIO_0_5
++						MX28_PAD_GPMI_D06__GPIO_0_6
++						MX28_PAD_GPMI_D07__GPIO_0_7
++						MX28_PAD_GPMI_CE0N__GPIO_0_16
++						MX28_PAD_GPMI_RDY1__GPIO_0_21
++						MX28_PAD_GPMI_RDN__GPIO_0_24
++						MX28_PAD_GPMI_WRN__GPIO_0_25
++						MX28_PAD_GPMI_ALE__GPIO_0_26
++					>;
++					fsl,drive-strength = <MXS_DRIVE_4mA>;
++					fsl,voltage = <MXS_VOLTAGE_HIGH>;
++					fsl,pull-up = <MXS_PULL_DISABLE>;
++
++				};
++
+ 			};
+ 		};
+ 
+@@ -75,4 +97,25 @@
+ 		};
+ 	};
+ 
++	nbus {
++		compatible = "technologic,ts-nbus";
++		pinctrl-0 = <&nbus_pins>;
++		#address-cells = <1>;
++		#size-cells = <0>;
++		pwms = <&pwm 2 83>;
++		ts-data-gpios   = <&gpio0 0 GPIO_ACTIVE_HIGH
++				   &gpio0 1 GPIO_ACTIVE_HIGH
++				   &gpio0 2 GPIO_ACTIVE_HIGH
++				   &gpio0 3 GPIO_ACTIVE_HIGH
++				   &gpio0 4 GPIO_ACTIVE_HIGH
++				   &gpio0 5 GPIO_ACTIVE_HIGH
++				   &gpio0 6 GPIO_ACTIVE_HIGH
++				   &gpio0 7 GPIO_ACTIVE_HIGH>;
++		ts-csn-gpios    = <&gpio0 16 GPIO_ACTIVE_HIGH>;
++		ts-txrx-gpios   = <&gpio0 24 GPIO_ACTIVE_HIGH>;
++		ts-strobe-gpios = <&gpio0 25 GPIO_ACTIVE_HIGH>;
++		ts-ale-gpios    = <&gpio0 26 GPIO_ACTIVE_HIGH>;
++		ts-rdy-gpios    = <&gpio0 21 GPIO_ACTIVE_HIGH>;
++	};
++
+ };
+-- 
+2.11.0
+
