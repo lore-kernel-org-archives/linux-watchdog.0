@@ -1,60 +1,289 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.savoirfairelinux.com ([208.88.110.44]:49130 "EHLO
-        mail.savoirfairelinux.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752159AbdBCTrd (ORCPT
+Received: from mail-it0-f43.google.com ([209.85.214.43]:36356 "EHLO
+        mail-it0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753924AbdBDKOu (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 3 Feb 2017 14:47:33 -0500
-From: Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>
-To: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
-        kernel@savoirfairelinux.com, robh@kernel.org, linux@roeck-us.net,
-        linus.walleij@linaro.org
-Cc: fabio.estevam@nxp.com, mark@embeddedarm.com, kris@embeddedarm.com,
-        horms+renesas@verge.net.au, treding@nvidia.com,
-        jonathanh@nvidia.com, f.fainelli@gmail.com, kernel@pengutronix.de,
-        shawnguo@kernel.org, linux@armlinux.org.uk, wim@iguana.be,
-        mark.rutland@arm.com, damien.riegel@savoirfairelinux.com,
-        lucile.quirion@savoirfairelinux.com, olof@lixom.net, arnd@arndb.de,
-        suzuki.poulose@arm.com, will.deacon@arm.com,
-        yamada.masahiro@socionext.com,
-        Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>
-Subject: [PATCH v2 1/6] of: documentation: add bindings documentation for TS-4600
-Date: Fri,  3 Feb 2017 14:47:24 -0500
-Message-Id: <20170203194729.20995-2-sebastien.bourdelin@savoirfairelinux.com>
-In-Reply-To: <20170203194729.20995-1-sebastien.bourdelin@savoirfairelinux.com>
-References: <20170203194729.20995-1-sebastien.bourdelin@savoirfairelinux.com>
+        Sat, 4 Feb 2017 05:14:50 -0500
+Received: by mail-it0-f43.google.com with SMTP id c7so27574671itd.1
+        for <linux-watchdog@vger.kernel.org>; Sat, 04 Feb 2017 02:14:50 -0800 (PST)
+MIME-Version: 1.0
+In-Reply-To: <20170203194729.20995-5-sebastien.bourdelin@savoirfairelinux.com>
+References: <20170203194729.20995-1-sebastien.bourdelin@savoirfairelinux.com> <20170203194729.20995-5-sebastien.bourdelin@savoirfairelinux.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Date: Sat, 4 Feb 2017 11:14:48 +0100
+Message-ID: <CACRpkdYfGmVBYgAc4KZGN6634WM_EyzNj_SBbALEs4WYipXRQA@mail.gmail.com>
+Subject: Re: [PATCH v2 4/6] bus: add driver for the Technologic Systems NBUS
+To: Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        linux-watchdog@vger.kernel.org,
+        "linux-arm-kernel@lists.infradead.org"
+        <linux-arm-kernel@lists.infradead.org>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        kernel <kernel@savoirfairelinux.com>,
+        Rob Herring <robh@kernel.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Fabio Estevam <fabio.estevam@nxp.com>,
+        Mark Featherston <mark@embeddedarm.com>, kris@embeddedarm.com,
+        Simon Horman <horms+renesas@verge.net.au>,
+        Thierry Reding <treding@nvidia.com>,
+        Jon Hunter <jonathanh@nvidia.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Sascha Hauer <kernel@pengutronix.de>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Russell King <linux@armlinux.org.uk>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Mark Rutland <mark.rutland@arm.com>,
+        damien.riegel@savoirfairelinux.com,
+        Lucile Quirion <lucile.quirion@savoirfairelinux.com>,
+        Olof Johansson <olof@lixom.net>, Arnd Bergmann <arnd@arndb.de>,
+        "Suzuki K. Poulose" <suzuki.poulose@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This adds the documentation for the TS-4600 by Technologic Systems.
+On Fri, Feb 3, 2017 at 8:47 PM, Sebastien Bourdelin
+<sebastien.bourdelin@savoirfairelinux.com> wrote:
 
-Acked-by: Rob Herring <robh@kernel.org>
----
-Changes v1 -> v2:
-  - rebase on master
-  - add ack by Rob Herring <robh@kernel.org>
+> This driver implements a GPIOs bit-banged bus, called the NBUS by
+> Technologic Systems. It is used to communicate with the peripherals in
+> the FPGA on the TS-4600 SoM.
+>
+> ---
+> Changes v1 -> v2:
+>   - rebase on master
+>   - the driver now populate its child nodes
+>   - remove the 'default y' option from the Kconfig
+>   - rework the driver to not use singleton anymore (suggested by Linus
+>   Walleij)
+>   - replace the use of the legacy GPIO API with gpiod (suggested by
+>   Linus Walleij)
+>   - use the ts vendor prefix for gpios (suggested by Rob Herring)
+>
+> Signed-off-by: Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>
 
-Signed-off-by: Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>
----
- Documentation/devicetree/bindings/arm/technologic.txt | 5 +++++
- 1 file changed, 5 insertions(+)
+This is starting to look nice!
 
-diff --git a/Documentation/devicetree/bindings/arm/technologic.txt b/Documentation/devicetree/bindings/arm/technologic.txt
-index 33797acad846..e9d6d6575566 100644
---- a/Documentation/devicetree/bindings/arm/technologic.txt
-+++ b/Documentation/devicetree/bindings/arm/technologic.txt
-@@ -1,6 +1,11 @@
- Technologic Systems Platforms Device Tree Bindings
- --------------------------------------------------
- 
-+TS-4600 is a System-on-Module based on the Freescale i.MX28 System-on-Chip.
-+It can be mounted on a carrier board providing additional peripheral connectors.
-+Required root node properties:
-+	- compatible = "technologic,imx28-ts4600", "fsl,imx28"
-+
- TS-4800 board
- Required root node properties:
- 	- compatible = "technologic,imx51-ts4800", "fsl,imx51";
--- 
-2.11.0
+More comments:
 
+First, you sprinked "inline" like cinnamon over everything, skip that. The
+compiler will inline selectively as it seems fit if you turn on optimization.
+
+> +static DEFINE_MUTEX(ts_nbus_lock);
+
+Move this into struct ts_nbus, initialize the mutex in probe()
+and just mutex_lock(&ts_nbus->lock); etc.
+
+> + * the txrx gpio is used by the FPGA to know if the following transactions
+> + * should be handled to read or write a value.
+> + */
+> +static inline void ts_nbus_set_mode(struct ts_nbus *ts_nbus, int mode)
+
+Why inline? Let the compiler decide about that.
+
+> +{
+> +       if (mode == TS_NBUS_READ_MODE)
+
+This mode parameter is too complicated. Isn't it just a bool?
+(not superimportant)
+
+> +               gpiod_set_value_cansleep(ts_nbus->txrx, 0);
+> +       else
+> +               gpiod_set_value_cansleep(ts_nbus->txrx, 1);
+> +}
+
+You're certainly just using it as a bool.
+
+> +static inline void ts_nbus_set_direction(struct ts_nbus *ts_nbus, int direction)
+> +{
+> +       int i;
+> +
+> +       for (i = 0; i < ts_nbus->data->ndescs; i++) {
+> +               if (direction == TS_NBUS_DIRECTION_IN)
+> +                       gpiod_direction_input(ts_nbus->data->desc[i]);
+> +               else
+> +                       gpiod_direction_output(ts_nbus->data->desc[i], 1);
+
+Add a comment here explaining why you driver the line high by default
+when setting it to output mode. It certainly makes sense but how
+does the electronics work and why?
+
+> +static inline void ts_nbus_reset_bus(struct ts_nbus *ts_nbus)
+> +{
+> +       int i;
+> +       int values[ts_nbus->data->ndescs];
+> +
+> +       for (i = 0; i < ts_nbus->data->ndescs; i++)
+> +               values[i] = 0;
+> +
+> +       gpiod_set_array_value_cansleep(ts_nbus->data->ndescs,
+> +                       ts_nbus->data->desc, values);
+> +       gpiod_set_value_cansleep(ts_nbus->csn, 0);
+> +       gpiod_set_value_cansleep(ts_nbus->strobe, 0);
+> +       gpiod_set_value_cansleep(ts_nbus->ale, 0);
+
+Add a comment about the process taken when this bus is reset. We
+see what is happening, but why?
+
+> +/*
+> + * let the FPGA knows it can process.
+> + */
+> +static inline void ts_nbus_start_transaction(struct ts_nbus *ts_nbus)
+
+Why inline?
+
+> +{
+> +       gpiod_set_value_cansleep(ts_nbus->strobe, 1);
+> +}
+
+For example this is a well commented function. We see what is happening
+and stobe has an evident name. Nice work!
+
+> +/*
+> + * return the byte value read from the data gpios.
+> + */
+> +static inline u8 ts_nbus_read_byte(struct ts_nbus *ts_nbus)
+
+Why inline?
+
+Then this cannot fail can it?
+
+I think this accessor should be changed to return an error code.
+
+static int ts_nbus_read_byte(struct ts_nbus *ts_nbus, u8 *val);
+
+Then if the return value from the function is != 0 it failed. Simple
+to check, just pass a pointer to the value you are getting in
+val.
+
+I KNOW I KNOW, not you have to put in error handling everywhere,
+what a DRAG! But we usually follow that pattern because...
+
+> +{
+> +       struct gpio_descs *gpios = ts_nbus->data;
+> +       int i;
+> +       u8 value = 0;
+> +
+> +       for (i = 0; i < gpios->ndescs; i++)
+
+Using gpios->ndescs is a bit overparametrized right? Isn't it
+simply 8 bits? Just putting 8 there is fine IMO. All 8 descs
+must be available for the thing to work anyway right?
+
+> +               if (gpiod_get_value_cansleep(gpios->desc[i]))
+
+This can fail and you should return an error if < 0...
+
+You are ignoring that right now. That is why the function should
+be returning an error code that is usually 0.
+
+> +                       value |= 1 << i;
+
+Use:
+#include <linux/bitops.h>
+
+value |= BIT(i);
+
+> +/*
+> + * set the data gpios accordingly to the byte value.
+> + */
+> +static inline void ts_nbus_write_byte(struct ts_nbus *ts_nbus, u8 byte)
+> +{
+> +       struct gpio_descs *gpios = ts_nbus->data;
+> +       int i;
+> +       int values[gpios->ndescs];
+> +
+> +       for (i = 0; i < gpios->ndescs; i++)
+> +               if (byte & (1 << i))
+> +                       values[i] = 1;
+> +               else
+> +                       values[i] = 0;
+> +
+> +       gpiod_set_array_value_cansleep(gpios->ndescs, gpios->desc, values);
+
+This can also fail and you should check the return code and print an error
+message if it does.
+
+> +/*
+> + * reading the bus consists of resetting the bus, then notifying the FPGA to
+> + * send the data in the data gpios and return the read value.
+> + */
+> +static inline u8 ts_nbus_read_bus(struct ts_nbus *ts_nbus)
+
+All this inline...
+
+> +/*
+> + * writing to the bus consists of resetting the bus, then define the type of
+> + * command (address/value), write the data and notify the FPGA to retrieve the
+> + * value in the data gpios.
+> + */
+> +static inline void ts_nbus_write_bus(struct ts_nbus *ts_nbus, int cmd, u8 value)
+> +{
+> +       ts_nbus_reset_bus(ts_nbus);
+> +
+> +       if (cmd == TS_NBUS_WRITE_ADR)
+> +               gpiod_set_value_cansleep(ts_nbus->ale, 1);
+> +
+> +       ts_nbus_write_byte(ts_nbus, value);
+> +       ts_nbus_start_transaction(ts_nbus);
+
+Error codes?
+
+> +       /* reading value MSB first */
+> +       do {
+> +               val = 0;
+> +               for (i = 1; i >= 0; i--)
+> +                       val |= (ts_nbus_read_bus(ts_nbus) << (i * 8));
+
+Hard to deal with errors in this loop!
+
+> +               gpiod_set_value_cansleep(ts_nbus->csn, 1);
+
+Here too.
+
+> +++ b/include/linux/ts-nbus.h
+> @@ -0,0 +1,26 @@
+> +/*
+> + * Copyright (c) 2016 - Savoir-faire Linux
+> + * Author: Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>
+> + *
+> + * This file is licensed under the terms of the GNU General Public
+> + * License version 2. This program is licensed "as is" without any
+> + * warranty of any kind, whether express or implied.
+> + */
+> +
+> +#ifndef _TS_NBUS_H
+> +#define _TS_NBUS_H
+> +
+> +struct ts_nbus {
+> +       struct pwm_device *pwm;
+> +       struct gpio_descs *data;
+> +       struct gpio_desc *csn;
+> +       struct gpio_desc *txrx;
+> +       struct gpio_desc *strobe;
+> +       struct gpio_desc *ale;
+> +       struct gpio_desc *rdy;
+> +};
+
+Is any consumer really looking into this struct? If not, why
+do you expose it?
+
+Move it to the ts-nbus.c file.
+
+The only thing you need in this header is:
+
+struct ts_nbus;
+
+Just that one line. The rest of the code, like the declarations
+below and all call sites, are just dealing with "pointers to something",
+they don't need to know what it is. You'll be amazed to see how it compiles.
+struct gpio_desc works exactly like that.
+
+> +extern u16 ts_nbus_read(struct ts_nbus *, u8 adr);
+> +extern int ts_nbus_write(struct ts_nbus *, u8 adr, u16 value);
+
+I suspect the first function should be augmented to return an error code.
+
+Yours,
+Linus Walleij
