@@ -1,151 +1,136 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:40415 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751273AbdBEBDI (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 4 Feb 2017 20:03:08 -0500
-Subject: Re: [PATCH 1/2] watchdog: sama5d4: Cache MR instead of a partial
- config
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-References: <20170130171848.31598-1-alexandre.belloni@free-electrons.com>
-Cc: Wim Van Sebroeck <wim@iguana.be>,
-        Nicolas Ferre <nicolas.ferre@atmel.com>,
-        linux-watchdog@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <21db54ab-13d5-7027-6c82-68676109ac1b@roeck-us.net>
-Date: Sat, 4 Feb 2017 15:55:36 -0800
+Return-path: <baoyou.xie@linaro.org>
 MIME-Version: 1.0
-In-Reply-To: <20170130171848.31598-1-alexandre.belloni@free-electrons.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+In-Reply-To: <4cba1be6-ee85-7371-ea02-1bf8e7eb628e@roeck-us.net>
+References: <1486172055-13162-1-git-send-email-baoyou.xie@linaro.org>
+ <1486172055-13162-2-git-send-email-baoyou.xie@linaro.org> <4cba1be6-ee85-7371-ea02-1bf8e7eb628e@roeck-us.net>
+From: Baoyou Xie <baoyou.xie@linaro.org>
+Date: Sun, 5 Feb 2017 10:36:38 +0800
+Message-ID: <CA+DQWkyOZPQORy-rVSqGY8Ht9xWttYt6Csp6pvShGG4OVA_2YQ@mail.gmail.com>
+Subject: Re: [PATCH v9 2/3] MAINTAINERS: add zx2967 watchdog controller driver
+ to ARM ZTE architecture
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Jun Nie <jun.nie@linaro.org>, wim@iguana.be, Rob Herring <robh+dt@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>, Mathieu Poirier <mathieu.poirier@linaro.org>,
+	linux-arm Mailing List <linux-arm-kernel@lists.infradead.org>, linux-watchdog@vger.kernel.org,
+	devicetree <devicetree@vger.kernel.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Shawn Guo <shawnguo@kernel.org>,
+	"xie.baoyou" <xie.baoyou@zte.com.cn>, chen.chaokai@zte.com.cn, wang.qiang01@zte.com.cn
+Content-Type: multipart/alternative; boundary=001a11414d7070a7af0547bf6279
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 01/30/2017 09:18 AM, Alexandre Belloni wrote:
-> .config is used to cache a part of WDT_MR at probe time and is not used
-> afterwards. Instead of doing that, actually cache MR and avoid reading it
-> every time it is modified.
+--001a11414d7070a7af0547bf6279
+Content-Type: text/plain; charset=UTF-8
+
+On 5 February 2017 at 08:05, Guenter Roeck <linux@roeck-us.net> wrote:
+
+> On 02/03/2017 05:34 PM, Baoyou Xie wrote:
 >
-> Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+>> Add the zx2967 watchdog controller driver as maintained by ARM ZTE
+>> architecture maintainers, as they're parts of the core IP.
+>>
+>> Signed-off-by: Baoyou Xie <baoyou.xie@linaro.org>
+>>
+>
+> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+>
+> I assume you'll submit this patch through the arm tree ?
+>
+> Could you please submit all three patches through your tree? Thanks a lot
+:)
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-[ hoping that you'll remember to fix the problem in the set_timeout function ]
-
+> Guenter
+>
+>
 > ---
->  drivers/watchdog/sama5d4_wdt.c | 45 ++++++++++++++++++------------------------
->  1 file changed, 19 insertions(+), 26 deletions(-)
->
-> diff --git a/drivers/watchdog/sama5d4_wdt.c b/drivers/watchdog/sama5d4_wdt.c
-> index a49634cdc1cc..6dd07bef515a 100644
-> --- a/drivers/watchdog/sama5d4_wdt.c
-> +++ b/drivers/watchdog/sama5d4_wdt.c
-> @@ -28,7 +28,7 @@
->  struct sama5d4_wdt {
->  	struct watchdog_device	wdd;
->  	void __iomem		*reg_base;
-> -	u32	config;
-> +	u32			mr;
->  };
->
->  static int wdt_timeout = WDT_DEFAULT_TIMEOUT;
-> @@ -53,11 +53,9 @@ MODULE_PARM_DESC(nowayout,
->  static int sama5d4_wdt_start(struct watchdog_device *wdd)
->  {
->  	struct sama5d4_wdt *wdt = watchdog_get_drvdata(wdd);
-> -	u32 reg;
->
-> -	reg = wdt_read(wdt, AT91_WDT_MR);
-> -	reg &= ~AT91_WDT_WDDIS;
-> -	wdt_write(wdt, AT91_WDT_MR, reg);
-> +	wdt->mr &= ~AT91_WDT_WDDIS;
-> +	wdt_write(wdt, AT91_WDT_MR, wdt->mr);
->
->  	return 0;
->  }
-> @@ -65,11 +63,9 @@ static int sama5d4_wdt_start(struct watchdog_device *wdd)
->  static int sama5d4_wdt_stop(struct watchdog_device *wdd)
->  {
->  	struct sama5d4_wdt *wdt = watchdog_get_drvdata(wdd);
-> -	u32 reg;
->
-> -	reg = wdt_read(wdt, AT91_WDT_MR);
-> -	reg |= AT91_WDT_WDDIS;
-> -	wdt_write(wdt, AT91_WDT_MR, reg);
-> +	wdt->mr |= AT91_WDT_WDDIS;
-> +	wdt_write(wdt, AT91_WDT_MR, wdt->mr);
->
->  	return 0;
->  }
-> @@ -88,14 +84,12 @@ static int sama5d4_wdt_set_timeout(struct watchdog_device *wdd,
->  {
->  	struct sama5d4_wdt *wdt = watchdog_get_drvdata(wdd);
->  	u32 value = WDT_SEC2TICKS(timeout);
-> -	u32 reg;
->
-> -	reg = wdt_read(wdt, AT91_WDT_MR);
-> -	reg &= ~AT91_WDT_WDV;
-> -	reg &= ~AT91_WDT_WDD;
-> -	reg |= AT91_WDT_SET_WDV(value);
-> -	reg |= AT91_WDT_SET_WDD(value);
-> -	wdt_write(wdt, AT91_WDT_MR, reg);
-> +	wdt->mr &= ~AT91_WDT_WDV;
-> +	wdt->mr &= ~AT91_WDT_WDD;
-> +	wdt->mr |= AT91_WDT_SET_WDV(value);
-> +	wdt->mr |= AT91_WDT_SET_WDD(value);
-> +	wdt_write(wdt, AT91_WDT_MR, wdt->mr);
->
->  	wdd->timeout = timeout;
->
-> @@ -132,19 +126,19 @@ static int of_sama5d4_wdt_init(struct device_node *np, struct sama5d4_wdt *wdt)
->  {
->  	const char *tmp;
->
-> -	wdt->config = AT91_WDT_WDDIS;
-> +	wdt->mr = AT91_WDT_WDDIS;
->
->  	if (!of_property_read_string(np, "atmel,watchdog-type", &tmp) &&
->  	    !strcmp(tmp, "software"))
-> -		wdt->config |= AT91_WDT_WDFIEN;
-> +		wdt->mr |= AT91_WDT_WDFIEN;
->  	else
-> -		wdt->config |= AT91_WDT_WDRSTEN;
-> +		wdt->mr |= AT91_WDT_WDRSTEN;
->
->  	if (of_property_read_bool(np, "atmel,idle-halt"))
-> -		wdt->config |= AT91_WDT_WDIDLEHLT;
-> +		wdt->mr |= AT91_WDT_WDIDLEHLT;
->
->  	if (of_property_read_bool(np, "atmel,dbg-halt"))
-> -		wdt->config |= AT91_WDT_WDDBGHLT;
-> +		wdt->mr |= AT91_WDT_WDDBGHLT;
->
->  	return 0;
->  }
-> @@ -163,11 +157,10 @@ static int sama5d4_wdt_init(struct sama5d4_wdt *wdt)
->  	reg &= ~AT91_WDT_WDDIS;
->  	wdt_write(wdt, AT91_WDT_MR, reg);
->
-> -	reg = wdt->config;
-> -	reg |= AT91_WDT_SET_WDD(value);
-> -	reg |= AT91_WDT_SET_WDV(value);
-> +	wdt->mr |= AT91_WDT_SET_WDD(value);
-> +	wdt->mr |= AT91_WDT_SET_WDV(value);
->
-> -	wdt_write(wdt, AT91_WDT_MR, reg);
-> +	wdt_write(wdt, AT91_WDT_MR, wdt->mr);
->
->  	return 0;
->  }
-> @@ -211,7 +204,7 @@ static int sama5d4_wdt_probe(struct platform_device *pdev)
->  			return ret;
->  	}
->
-> -	if ((wdt->config & AT91_WDT_WDFIEN) && irq) {
-> +	if ((wdt->mr & AT91_WDT_WDFIEN) && irq) {
->  		ret = devm_request_irq(&pdev->dev, irq, sama5d4_wdt_irq_handler,
->  				       IRQF_SHARED | IRQF_IRQPOLL |
->  				       IRQF_NO_SUSPEND, pdev->name, pdev);
+>>  MAINTAINERS | 2 ++
+>>  1 file changed, 2 insertions(+)
+>>
+>> diff --git a/MAINTAINERS b/MAINTAINERS
+>> index edfdea3..275c434 100644
+>> --- a/MAINTAINERS
+>> +++ b/MAINTAINERS
+>> @@ -1990,11 +1990,13 @@ F:      drivers/clk/zte/
+>>  F:     drivers/reset/reset-zx2967.c
+>>  F:     drivers/soc/zte/
+>>  F:     drivers/thermal/zx*
+>> +F:     drivers/watchdog/zx2967_wdt.c
+>>  F:     Documentation/devicetree/bindings/arm/zte.txt
+>>  F:     Documentation/devicetree/bindings/clock/zx296702-clk.txt
+>>  F:     Documentation/devicetree/bindings/reset/zte,zx2967-reset.txt
+>>  F:     Documentation/devicetree/bindings/soc/zte/
+>>  F:     Documentation/devicetree/bindings/thermal/zx*
+>> +F:     Documentation/devicetree/bindings/watchdog/zte,zx2967-wdt.txt
+>>  F:     include/dt-bindings/soc/zx*.h
+>>
+>>  ARM/ZYNQ ARCHITECTURE
+>>
+>>
 >
 
+--001a11414d7070a7af0547bf6279
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><br><div class=3D"gmail_extra"><br><div class=3D"gmail_quo=
+te">On 5 February 2017 at 08:05, Guenter Roeck <span dir=3D"ltr">&lt;<a hre=
+f=3D"mailto:linux@roeck-us.net" target=3D"_blank">linux@roeck-us.net</a>&gt=
+;</span> wrote:<br><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 =
+.8ex;border-left:1px #ccc solid;padding-left:1ex"><span class=3D"">On 02/03=
+/2017 05:34 PM, Baoyou Xie wrote:<br>
+<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
+x #ccc solid;padding-left:1ex">
+Add the zx2967 watchdog controller driver as maintained by ARM ZTE<br>
+architecture maintainers, as they&#39;re parts of the core IP.<br>
+<br>
+Signed-off-by: Baoyou Xie &lt;<a href=3D"mailto:baoyou.xie@linaro.org" targ=
+et=3D"_blank">baoyou.xie@linaro.org</a>&gt;<br>
+</blockquote>
+<br></span>
+Reviewed-by: Guenter Roeck &lt;<a href=3D"mailto:linux@roeck-us.net" target=
+=3D"_blank">linux@roeck-us.net</a>&gt;<br>
+<br>
+I assume you&#39;ll submit this patch through the arm tree ?<span class=3D"=
+HOEnZb"><font color=3D"#888888"><br>
+<br></font></span></blockquote><div>Could you please submit all three patch=
+es through your tree? Thanks a lot :)<br></div><div>=C2=A0</div><blockquote=
+ class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc soli=
+d;padding-left:1ex"><span class=3D"HOEnZb"><font color=3D"#888888">
+Guenter</font></span><div class=3D"HOEnZb"><div class=3D"h5"><br>
+<br>
+<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
+x #ccc solid;padding-left:1ex">
+---<br>
+=C2=A0MAINTAINERS | 2 ++<br>
+=C2=A01 file changed, 2 insertions(+)<br>
+<br>
+diff --git a/MAINTAINERS b/MAINTAINERS<br>
+index edfdea3..275c434 100644<br>
+--- a/MAINTAINERS<br>
++++ b/MAINTAINERS<br>
+@@ -1990,11 +1990,13 @@ F:=C2=A0 =C2=A0 =C2=A0 drivers/clk/zte/<br>
+=C2=A0F:=C2=A0 =C2=A0 =C2=A0drivers/reset/reset-zx2967.c<br>
+=C2=A0F:=C2=A0 =C2=A0 =C2=A0drivers/soc/zte/<br>
+=C2=A0F:=C2=A0 =C2=A0 =C2=A0drivers/thermal/zx*<br>
++F:=C2=A0 =C2=A0 =C2=A0drivers/watchdog/zx2967_wdt.c<br>
+=C2=A0F:=C2=A0 =C2=A0 =C2=A0Documentation/devicetree/bind<wbr>ings/arm/zte.=
+txt<br>
+=C2=A0F:=C2=A0 =C2=A0 =C2=A0Documentation/devicetree/bind<wbr>ings/clock/zx=
+296702-clk.txt<br>
+=C2=A0F:=C2=A0 =C2=A0 =C2=A0Documentation/devicetree/bind<wbr>ings/reset/zt=
+e,zx2967-reset.<wbr>txt<br>
+=C2=A0F:=C2=A0 =C2=A0 =C2=A0Documentation/devicetree/bind<wbr>ings/soc/zte/=
+<br>
+=C2=A0F:=C2=A0 =C2=A0 =C2=A0Documentation/devicetree/bind<wbr>ings/thermal/=
+zx*<br>
++F:=C2=A0 =C2=A0 =C2=A0Documentation/devicetree/bind<wbr>ings/watchdog/zte,=
+zx2967-wdt.<wbr>txt<br>
+=C2=A0F:=C2=A0 =C2=A0 =C2=A0include/dt-bindings/soc/zx*.h<br>
+<br>
+=C2=A0ARM/ZYNQ ARCHITECTURE<br>
+<br>
+</blockquote>
+<br>
+</div></div></blockquote></div><br></div></div>
+
+--001a11414d7070a7af0547bf6279--
