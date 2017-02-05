@@ -1,374 +1,391 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:46496 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:52235 "EHLO
         bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751239AbdBEAGs (ORCPT
+        with ESMTP id S1751239AbdBEAVQ (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 4 Feb 2017 19:06:48 -0500
-Subject: Re: [PATCH v9 3/3] watchdog: zx2967: add watchdog controller driver
- for ZTE's zx2967 family
-To: Baoyou Xie <baoyou.xie@linaro.org>, jun.nie@linaro.org,
-        wim@iguana.be, robh+dt@kernel.org, mark.rutland@arm.com,
-        mathieu.poirier@linaro.org
-References: <1486172055-13162-1-git-send-email-baoyou.xie@linaro.org>
- <1486172055-13162-3-git-send-email-baoyou.xie@linaro.org>
-Cc: linux-arm-kernel@lists.infradead.org,
-        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, shawnguo@kernel.org,
-        xie.baoyou@zte.com.cn, chen.chaokai@zte.com.cn,
-        wang.qiang01@zte.com.cn
+        Sat, 4 Feb 2017 19:21:16 -0500
+Date: Sat, 4 Feb 2017 16:21:03 -0800
 From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <9b6ddb68-f67f-e155-3ae2-256faff15ef0@roeck-us.net>
-Date: Sat, 4 Feb 2017 16:06:45 -0800
+To: Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>
+Cc: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
+        kernel@savoirfairelinux.com, robh@kernel.org,
+        linus.walleij@linaro.org, fabio.estevam@nxp.com,
+        mark@embeddedarm.com, kris@embeddedarm.com,
+        horms+renesas@verge.net.au, treding@nvidia.com,
+        jonathanh@nvidia.com, f.fainelli@gmail.com, kernel@pengutronix.de,
+        shawnguo@kernel.org, linux@armlinux.org.uk, wim@iguana.be,
+        mark.rutland@arm.com, damien.riegel@savoirfairelinux.com,
+        lucile.quirion@savoirfairelinux.com, olof@lixom.net, arnd@arndb.de,
+        suzuki.poulose@arm.com, will.deacon@arm.com,
+        yamada.masahiro@socionext.com
+Subject: Re: [v2,6/6] watchdog: ts4600: add driver for TS-4600 watchdog
+Message-ID: <20170205002103.GA22672@roeck-us.net>
+References: <20170203194729.20995-7-sebastien.bourdelin@savoirfairelinux.com>
 MIME-Version: 1.0
-In-Reply-To: <1486172055-13162-3-git-send-email-baoyou.xie@linaro.org>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20170203194729.20995-7-sebastien.bourdelin@savoirfairelinux.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 02/03/2017 05:34 PM, Baoyou Xie wrote:
-> This patch adds watchdog controller driver for ZTE's zx2967 family.
->
-> Signed-off-by: Baoyou Xie <baoyou.xie@linaro.org>
-
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-
+On Fri, Feb 03, 2017 at 02:47:29PM -0500, Sebastien Bourdelin wrote:
+> This watchdog is instantiated in a FPGA and can only be access using a
+> GPIOs bit-banged bus, called the NBUS by Technologic Systems.
+> The watchdog is made of only one register, called the feed register.
+> Writing to this register will re-arm the watchdog for a given time (and
+> enable it if it was disable). It can be disabled by writing a special
+> value into it.
 > ---
->  drivers/watchdog/Kconfig      |  10 ++
->  drivers/watchdog/Makefile     |   1 +
->  drivers/watchdog/zx2967_wdt.c | 291 ++++++++++++++++++++++++++++++++++++++++++
->  3 files changed, 302 insertions(+)
->  create mode 100644 drivers/watchdog/zx2967_wdt.c
->
+> Changes v1 -> v2:
+>   - rebase on master
+>   - retrieve the ts_nbus instantiated by the parent node (suggested by
+>   Linus Walleij)
+>   - rename the wdt by watchdog in the device tree and in the
+>   documentation (suggested by Rob Herring)
+>   - add a dependency to the TS_NBUS driver in the Kconfig (suggested by
+>   Guenter Roeck)
+>   - simplify the set_timeout function (suggested by Guenter Roeck)
+>   - use the max_hw_heartbeat_ms callback instead of the max_timeout
+>   callback (suggested by Guenter Roeck)
+> 
+> Signed-off-by: Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>
+> ---
+>  .../devicetree/bindings/watchdog/ts4600-wdt.txt    |  16 ++
+>  arch/arm/boot/dts/imx28-ts4600-common.dtsi         |   5 +
+>  drivers/watchdog/Kconfig                           |  11 ++
+>  drivers/watchdog/Makefile                          |   1 +
+>  drivers/watchdog/ts4600_wdt.c                      | 217 +++++++++++++++++++++
+>  5 files changed, 250 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/watchdog/ts4600-wdt.txt
+>  create mode 100644 drivers/watchdog/ts4600_wdt.c
+> 
+> diff --git a/Documentation/devicetree/bindings/watchdog/ts4600-wdt.txt b/Documentation/devicetree/bindings/watchdog/ts4600-wdt.txt
+> new file mode 100644
+> index 000000000000..7de00ceae341
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/watchdog/ts4600-wdt.txt
+> @@ -0,0 +1,16 @@
+> +TS-4600 Technologic Systems Watchdog
+> +
+> +Required properties:
+> +- compatible: must be "technologic,ts4600-wdt"
+> +- reg: offset to the FPGA's watchdog register
+> +
+> +Optional property:
+> +- timeout-sec: contains the watchdog timeout in seconds.
+> +
+> +Example:
+> +
+> +watchdog {
+> +	compatible = "technologic,ts4600-wdt";
+> +	reg = <0x2a>;
+> +	timeout-sec = <10>;
+> +};
+> diff --git a/arch/arm/boot/dts/imx28-ts4600-common.dtsi b/arch/arm/boot/dts/imx28-ts4600-common.dtsi
+> index c6282d5479de..092c2eed0fe7 100644
+> --- a/arch/arm/boot/dts/imx28-ts4600-common.dtsi
+> +++ b/arch/arm/boot/dts/imx28-ts4600-common.dtsi
+> @@ -116,6 +116,11 @@
+>  		ts-strobe-gpios = <&gpio0 25 GPIO_ACTIVE_HIGH>;
+>  		ts-ale-gpios    = <&gpio0 26 GPIO_ACTIVE_HIGH>;
+>  		ts-rdy-gpios    = <&gpio0 21 GPIO_ACTIVE_HIGH>;
+> +
+> +		watchdog@2a {
+> +			compatible = "technologic,ts4600-wdt";
+> +			reg = <0x2a>;
+> +		};
+>  	};
+>  
+>  };
 > diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index acb00b5..05093a2 100644
+> index acb00b53a520..ab1355eefad1 100644
 > --- a/drivers/watchdog/Kconfig
 > +++ b/drivers/watchdog/Kconfig
-> @@ -714,6 +714,16 @@ config ASPEED_WATCHDOG
+> @@ -500,6 +500,17 @@ config NUC900_WATCHDOG
 >  	  To compile this driver as a module, choose M here: the
->  	  module will be called aspeed_wdt.
->
-> +config ZX2967_WATCHDOG
-> +	tristate "ZTE zx2967 SoCs watchdog support"
-> +	depends on ARCH_ZX
+>  	  module will be called nuc900_wdt.
+>  
+> +config TS4600_WATCHDOG
+> +	tristate "TS-4600 Watchdog"
+> +	depends on TS_NBUS
+> +	depends on HAS_IOMEM && OF
+> +	depends on SOC_IMX28 || COMPILE_TEST
 > +	select WATCHDOG_CORE
 > +	help
-> +	  Say Y here to include support for the watchdog timer
-> +	  in ZTE zx2967 SoCs.
-> +	  To compile this driver as a module, choose M here: the
-> +	  module will be called zx2967_wdt.
+> +	  Technologic Systems TS-4600 has watchdog timer implemented in
+> +	  an external FPGA. Say Y here if you want to support for the
+> +	  watchdog timer on TS-4600 board.
 > +
->  # AVR32 Architecture
->
->  config AT32AP700X_WDT
+>  config TS4800_WATCHDOG
+>  	tristate "TS-4800 Watchdog"
+>  	depends on HAS_IOMEM && OF
 > diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-> index 0c3d35e..bf2d296 100644
+> index 0c3d35e3c334..d5e164d2b4cd 100644
 > --- a/drivers/watchdog/Makefile
 > +++ b/drivers/watchdog/Makefile
-> @@ -82,6 +82,7 @@ obj-$(CONFIG_BCM7038_WDT) += bcm7038_wdt.o
->  obj-$(CONFIG_ATLAS7_WATCHDOG) += atlas7_wdt.o
->  obj-$(CONFIG_RENESAS_WDT) += renesas_wdt.o
->  obj-$(CONFIG_ASPEED_WATCHDOG) += aspeed_wdt.o
-> +obj-$(CONFIG_ZX2967_WATCHDOG) += zx2967_wdt.o
->
->  # AVR32 Architecture
->  obj-$(CONFIG_AT32AP700X_WDT) += at32ap700x_wdt.o
-> diff --git a/drivers/watchdog/zx2967_wdt.c b/drivers/watchdog/zx2967_wdt.c
+> @@ -61,6 +61,7 @@ obj-$(CONFIG_RN5T618_WATCHDOG) += rn5t618_wdt.o
+>  obj-$(CONFIG_COH901327_WATCHDOG) += coh901327_wdt.o
+>  obj-$(CONFIG_STMP3XXX_RTC_WATCHDOG) += stmp3xxx_rtc_wdt.o
+>  obj-$(CONFIG_NUC900_WATCHDOG) += nuc900_wdt.o
+> +obj-$(CONFIG_TS4600_WATCHDOG) += ts4600_wdt.o
+>  obj-$(CONFIG_TS4800_WATCHDOG) += ts4800_wdt.o
+>  obj-$(CONFIG_TS72XX_WATCHDOG) += ts72xx_wdt.o
+>  obj-$(CONFIG_IMX2_WDT) += imx2_wdt.o
+> diff --git a/drivers/watchdog/ts4600_wdt.c b/drivers/watchdog/ts4600_wdt.c
 > new file mode 100644
-> index 0000000..e290d5a
+> index 000000000000..d7bf6cc04986
 > --- /dev/null
-> +++ b/drivers/watchdog/zx2967_wdt.c
-> @@ -0,0 +1,291 @@
+> +++ b/drivers/watchdog/ts4600_wdt.c
+> @@ -0,0 +1,217 @@
 > +/*
-> + * watchdog driver for ZTE's zx2967 family
+> + * Watchdog driver for TS-4600 based boards
 > + *
-> + * Copyright (C) 2017 ZTE Ltd.
+> + * Copyright (c) 2016 - Savoir-faire Linux
+> + * Author: Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>
 > + *
-> + * Author: Baoyou Xie <baoyou.xie@linaro.org>
+> + * This file is licensed under the terms of the GNU General Public
+> + * License version 2. This program is licensed "as is" without any
+> + * warranty of any kind, whether express or implied.
 > + *
-> + * License terms: GNU General Public License (GPL) version 2
+> + * The watchdog on the TS-4600 based boards is in an FPGA and can only be
+> + * accessed using a GPIO bit-banged bus called the NBUS by Technologic Systems.
+> + * The logic for the watchdog is the same then for the TS-4800 SoM, only the way
+> + * to access it change, therefore this driver is heavely based on the ts4800_wdt
+> + * driver from Damien Riegel <damien.riegel@savoirfairelinux.com>.
 > + */
 > +
-> +#include <linux/clk.h>
-> +#include <linux/io.h>
-> +#include <linux/mfd/syscon.h>
+> +#include <linux/kernel.h>
 > +#include <linux/module.h>
-> +#include <linux/of_address.h>
+> +#include <linux/of.h>
 > +#include <linux/platform_device.h>
-> +#include <linux/regmap.h>
-> +#include <linux/reset.h>
+> +#include <linux/ts-nbus.h>
 > +#include <linux/watchdog.h>
 > +
-> +#define ZX2967_WDT_CFG_REG			0x4
-> +#define ZX2967_WDT_LOAD_REG			0x8
-> +#define ZX2967_WDT_REFRESH_REG			0x18
-> +#define ZX2967_WDT_START_REG			0x1c
+> +static bool nowayout = WATCHDOG_NOWAYOUT;
+> +module_param(nowayout, bool, 0);
+> +MODULE_PARM_DESC(nowayout,
+> +	"Watchdog cannot be stopped once started (default="
+> +	__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
 > +
-> +#define ZX2967_WDT_REFRESH_MASK			GENMASK(5, 0)
+> +/* possible feed values */
+> +#define TS4600_WDT_FEED_2S       0x1
+> +#define TS4600_WDT_FEED_10S      0x2
+> +#define TS4600_WDT_DISABLE       0x3
 > +
-> +#define ZX2967_WDT_CFG_DIV(n)			((((n) & 0xff) - 1) << 8)
-> +#define ZX2967_WDT_START_EN			0x1
+> +struct ts4600_wdt {
+> +	struct watchdog_device  wdd;
+> +	struct ts_nbus		*ts_nbus;
+> +	u32                     feed_offset;
+> +	u32                     feed_val;
+> +};
 > +
 > +/*
-> + * Hardware magic number.
-> + * When watchdog reg is written, the lowest 16 bits are valid, but
-> + * the highest 16 bits should be always this number.
+> + * TS-4600 supports the following timeout values:
+> + *
+> + *   value desc
+> + *   ---------------------
+> + *     0    feed for 338ms
+> + *     1    feed for 2.706s
+> + *     2    feed for 10.824s
+> + *     3    disable watchdog
+> + *
+> + * Keep the regmap/timeout map ordered by timeout
 > + */
-> +#define ZX2967_WDT_WRITEKEY			(0x1234 << 16)
-> +#define ZX2967_WDT_VAL_MASK			GENMASK(15, 0)
-> +
-> +#define ZX2967_WDT_DIV_DEFAULT			16
-> +#define ZX2967_WDT_DEFAULT_TIMEOUT		32
-> +#define ZX2967_WDT_MIN_TIMEOUT			1
-> +#define ZX2967_WDT_MAX_TIMEOUT			524
-> +#define ZX2967_WDT_MAX_COUNT			0xffff
-> +
-> +#define ZX2967_WDT_CLK_FREQ			0x8000
-> +
-> +#define ZX2967_WDT_FLAG_REBOOT_MON		BIT(0)
-> +
-> +struct zx2967_wdt {
-> +	struct watchdog_device	wdt_device;
-> +	void __iomem		*reg_base;
-> +	struct clk		*clock;
+> +static const struct {
+> +	const int timeout;
+> +	const int regval;
+> +} ts4600_wdt_map[] = {
+> +	{ 2,  TS4600_WDT_FEED_2S },
+> +	{ 10, TS4600_WDT_FEED_10S },
 > +};
+
+Does this table really do any good ? Seems to me it might be simpler
+to just use raw values where needed.
+
 > +
-> +static inline u32 zx2967_wdt_readl(struct zx2967_wdt *wdt, u16 reg)
+> +#define MAX_TIMEOUT_INDEX       (ARRAY_SIZE(ts4600_wdt_map) - 1)
+> +
+> +static void ts4600_write_feed(struct ts4600_wdt *wdt, u32 val)
 > +{
-> +	return readl_relaxed(wdt->reg_base + reg);
+> +	ts_nbus_write(wdt->ts_nbus, wdt->feed_offset, val);
 > +}
 > +
-> +static inline void zx2967_wdt_writel(struct zx2967_wdt *wdt, u16 reg, u32 val)
+> +static int ts4600_wdt_start(struct watchdog_device *wdd)
 > +{
-> +	writel_relaxed(val | ZX2967_WDT_WRITEKEY, wdt->reg_base + reg);
-> +}
+> +	struct ts4600_wdt *wdt = watchdog_get_drvdata(wdd);
 > +
-> +static void zx2967_wdt_refresh(struct zx2967_wdt *wdt)
-> +{
-> +	u32 val;
-> +
-> +	val = zx2967_wdt_readl(wdt, ZX2967_WDT_REFRESH_REG);
-> +	/*
-> +	 * Bit 4-5, 1 and 2: refresh config info
-> +	 * Bit 2-3, 1 and 2: refresh counter
-> +	 * Bit 0-1, 1 and 2: refresh int-value
-> +	 * we shift each group value between 1 and 2 to refresh all data.
-> +	 */
-> +	val ^= ZX2967_WDT_REFRESH_MASK;
-> +	zx2967_wdt_writel(wdt, ZX2967_WDT_REFRESH_REG,
-> +			  val & ZX2967_WDT_VAL_MASK);
-> +}
-> +
-> +static int
-> +zx2967_wdt_set_timeout(struct watchdog_device *wdd, unsigned int timeout)
-> +{
-> +	struct zx2967_wdt *wdt = watchdog_get_drvdata(wdd);
-> +	unsigned int divisor = ZX2967_WDT_DIV_DEFAULT;
-> +	u32 count;
-> +
-> +	count = timeout * ZX2967_WDT_CLK_FREQ;
-> +	if (count > divisor * ZX2967_WDT_MAX_COUNT)
-> +		divisor = DIV_ROUND_UP(count, ZX2967_WDT_MAX_COUNT);
-> +	count = DIV_ROUND_UP(count, divisor);
-> +	zx2967_wdt_writel(wdt, ZX2967_WDT_CFG_REG,
-> +			ZX2967_WDT_CFG_DIV(divisor) & ZX2967_WDT_VAL_MASK);
-> +	zx2967_wdt_writel(wdt, ZX2967_WDT_LOAD_REG,
-> +			count & ZX2967_WDT_VAL_MASK);
-> +	zx2967_wdt_refresh(wdt);
-> +	wdd->timeout =  (count * divisor) / ZX2967_WDT_CLK_FREQ;
+> +	ts4600_write_feed(wdt, wdt->feed_val);
 > +
 > +	return 0;
 > +}
 > +
-> +static void __zx2967_wdt_start(struct zx2967_wdt *wdt)
+> +static int ts4600_wdt_stop(struct watchdog_device *wdd)
 > +{
-> +	u32 val;
+> +	struct ts4600_wdt *wdt = watchdog_get_drvdata(wdd);
 > +
-> +	val = zx2967_wdt_readl(wdt, ZX2967_WDT_START_REG);
-> +	val |= ZX2967_WDT_START_EN;
-> +	zx2967_wdt_writel(wdt, ZX2967_WDT_START_REG,
-> +			val & ZX2967_WDT_VAL_MASK);
-> +}
-> +
-> +static void __zx2967_wdt_stop(struct zx2967_wdt *wdt)
-> +{
-> +	u32 val;
-> +
-> +	val = zx2967_wdt_readl(wdt, ZX2967_WDT_START_REG);
-> +	val &= ~ZX2967_WDT_START_EN;
-> +	zx2967_wdt_writel(wdt, ZX2967_WDT_START_REG,
-> +			val & ZX2967_WDT_VAL_MASK);
-> +}
-> +
-> +static int zx2967_wdt_start(struct watchdog_device *wdd)
-> +{
-> +	struct zx2967_wdt *wdt = watchdog_get_drvdata(wdd);
-> +
-> +	zx2967_wdt_set_timeout(wdd, wdd->timeout);
-> +	__zx2967_wdt_start(wdt);
-> +
+> +	ts4600_write_feed(wdt, TS4600_WDT_DISABLE);
 > +	return 0;
 > +}
 > +
-> +static int zx2967_wdt_stop(struct watchdog_device *wdd)
+> +static int ts4600_wdt_set_timeout(struct watchdog_device *wdd,
+> +				  unsigned int timeout)
 > +{
-> +	struct zx2967_wdt *wdt = watchdog_get_drvdata(wdd);
+> +	struct ts4600_wdt *wdt = watchdog_get_drvdata(wdd);
+> +	int i = 0;
 > +
-> +	__zx2967_wdt_stop(wdt);
+> +	if (ts4600_wdt_map[i].timeout < timeout)
+> +		i = MAX_TIMEOUT_INDEX;
 > +
+> +	wdd->timeout = ts4600_wdt_map[i].timeout;
+
+This is not correct. you would only set wdd->timeout to the value from
+the table if the timeout is <= the requested timeout. Otherwise,
+set the requested timeout value. Otherwise the timeout will be set
+to a maximum of 10 seconds, and using the core to support larger
+timeouts does not work.
+
+> +	wdt->feed_val = ts4600_wdt_map[i].regval;
+> +
+
+FWIW, personally I think that
+	if (timeout <= 2) {
+		wdd->timeout = 2;
+		wdt->feed_val = TS4600_WDT_FEED_2S;
+	} else {
+		wdd->timeout = timeout < 10 ? 10 : timeout;
+		wdt->feed_val = TS4600_WDT_FEED_10S;
+	}
+
+would be simpler than dealing with the table.
+
 > +	return 0;
 > +}
 > +
-> +static int zx2967_wdt_keepalive(struct watchdog_device *wdd)
-> +{
-> +	struct zx2967_wdt *wdt = watchdog_get_drvdata(wdd);
-> +
-> +	zx2967_wdt_refresh(wdt);
-> +
-> +	return 0;
-> +}
-> +
-> +#define ZX2967_WDT_OPTIONS \
-> +	(WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE)
-> +static const struct watchdog_info zx2967_wdt_ident = {
-> +	.options          =     ZX2967_WDT_OPTIONS,
-> +	.identity         =	"zx2967 watchdog",
-> +};
-> +
-> +static struct watchdog_ops zx2967_wdt_ops = {
+> +static const struct watchdog_ops ts4600_wdt_ops = {
 > +	.owner = THIS_MODULE,
-> +	.start = zx2967_wdt_start,
-> +	.stop = zx2967_wdt_stop,
-> +	.ping = zx2967_wdt_keepalive,
-> +	.set_timeout = zx2967_wdt_set_timeout,
+> +	.start = ts4600_wdt_start,
+> +	.stop = ts4600_wdt_stop,
+> +	.set_timeout = ts4600_wdt_set_timeout,
 > +};
 > +
-> +static void zx2967_wdt_reset_sysctrl(struct device *dev)
-> +{
-> +	int ret;
-> +	void __iomem *regmap;
-> +	unsigned int offset, mask, config;
-> +	struct of_phandle_args out_args;
+> +static const struct watchdog_info ts4600_wdt_info = {
+> +	.options = WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE | WDIOF_KEEPALIVEPING,
+> +	.identity = "TS-4600 Watchdog",
+> +};
 > +
-> +	ret = of_parse_phandle_with_fixed_args(dev->of_node,
-> +			"zte,wdt-reset-sysctrl", 3, 0, &out_args);
-> +	if (ret)
-> +		return;
-> +
-> +	offset = out_args.args[0];
-> +	config = out_args.args[1];
-> +	mask = out_args.args[2];
-> +
-> +	regmap = syscon_node_to_regmap(out_args.np);
-> +	if (IS_ERR(regmap)) {
-> +		of_node_put(out_args.np);
-> +		return;
-> +	}
-> +
-> +	regmap_update_bits(regmap, offset, mask, config);
-> +	of_node_put(out_args.np);
-> +}
-> +
-> +static int zx2967_wdt_probe(struct platform_device *pdev)
+> +static int ts4600_wdt_probe(struct platform_device *pdev)
 > +{
 > +	struct device *dev = &pdev->dev;
-> +	struct zx2967_wdt *wdt;
-> +	struct resource *base;
+> +	struct device_node *np = dev->of_node;
+> +	struct ts_nbus *ts_nbus;
+> +	struct watchdog_device *wdd;
+> +	struct ts4600_wdt *wdt;
+> +	u32 reg;
 > +	int ret;
-> +	struct reset_control *rstc;
 > +
+> +	ret = of_property_read_u32(np, "reg", &reg);
+> +	if (ret < 0) {
+> +		dev_err(&pdev->dev, "missing reg property\n");
+> +		return ret;
+> +	}
+> +
+> +	/* allocate memory for watchdog struct */
 > +	wdt = devm_kzalloc(dev, sizeof(*wdt), GFP_KERNEL);
 > +	if (!wdt)
 > +		return -ENOMEM;
 > +
-> +	platform_set_drvdata(pdev, wdt);
+> +	/* set offset to know where to write */
+> +	wdt->feed_offset = reg;
 > +
-> +	wdt->wdt_device.info = &zx2967_wdt_ident;
-> +	wdt->wdt_device.ops = &zx2967_wdt_ops;
-> +	wdt->wdt_device.timeout = ZX2967_WDT_DEFAULT_TIMEOUT;
-> +	wdt->wdt_device.max_timeout = ZX2967_WDT_MAX_TIMEOUT;
-> +	wdt->wdt_device.min_timeout = ZX2967_WDT_MIN_TIMEOUT;
-> +	wdt->wdt_device.parent = &pdev->dev;
-> +
-> +	base = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> +	wdt->reg_base = devm_ioremap_resource(dev, base);
-> +	if (IS_ERR(wdt->reg_base)) {
-> +		dev_err(dev, "ioremap failed\n");
-> +		return PTR_ERR(wdt->reg_base);
+> +	/* keep a pointer to the ts_nbus instanciated by the parent node */
+> +	ts_nbus = dev_get_drvdata(dev->parent);
+> +	if (!ts_nbus) {
+> +		dev_err(dev, "missing ts-nbus compatible parent node\n");
+> +		return PTR_ERR(ts_nbus);
 > +	}
+> +	wdt->ts_nbus = ts_nbus;
 > +
-> +	zx2967_wdt_reset_sysctrl(dev);
+> +	/* Initialize struct watchdog_device */
+> +	wdd = &wdt->wdd;
+> +	wdd->parent = dev;
+> +	wdd->info = &ts4600_wdt_info;
+> +	wdd->ops = &ts4600_wdt_ops;
+> +	wdd->min_timeout = ts4600_wdt_map[0].timeout;
+> +	wdd->max_hw_heartbeat_ms =
+> +		ts4600_wdt_map[MAX_TIMEOUT_INDEX].timeout * 1000;
+
+Why not 10824 ?
+
 > +
-> +	wdt->clock = devm_clk_get(dev, NULL);
-> +	if (IS_ERR(wdt->clock)) {
-> +		dev_err(dev, "failed to find watchdog clock source\n");
-> +		return PTR_ERR(wdt->clock);
-> +	}
+> +	watchdog_set_drvdata(wdd, wdt);
+> +	watchdog_set_nowayout(wdd, nowayout);
+> +	watchdog_init_timeout(wdd, 0, dev);
 > +
-> +	ret = clk_prepare_enable(wdt->clock);
-> +	if (ret < 0) {
-> +		dev_err(dev, "failed to enable clock\n");
+> +	/*
+> +	 * As this watchdog supports only a few values, ts4600_wdt_set_timeout
+> +	 * must be called to initialize timeout and feed_val with valid values.
+> +	 * Default to maximum timeout if none, or an invalid one, is provided in
+> +	 * device tree.
+> +	 */
+> +	if (!wdd->timeout)
+> +		wdd->timeout = wdd->max_timeout;
+
+There is no max_timeout anymore. Just initialize timeout with a value
+of your choice, such as 30 seconds, before calling watchdog_init_timeout().
+
+> +	ts4600_wdt_set_timeout(wdd, wdd->timeout);
+> +
+> +	/*
+> +	 * The feed register is write-only, so it is not possible to determine
+> +	 * watchdog's state. Disable it to be in a known state.
+> +	 */
+> +	ts4600_wdt_stop(wdd);
+> +
+> +	ret = watchdog_register_device(wdd);
+
+Optimal candidate for devm_wtchdog_register_device(). It lets you drop
+the remove function and platform_set_drvdata().
+
+> +	if (ret) {
+> +		dev_err(dev, "failed to register watchdog device\n");
 > +		return ret;
 > +	}
-> +	clk_set_rate(wdt->clock, ZX2967_WDT_CLK_FREQ);
 > +
-> +	rstc = devm_reset_control_get(dev, NULL);
-> +	if (IS_ERR(rstc)) {
-> +		dev_err(dev, "failed to get rstc");
-> +		ret = PTR_ERR(rstc);
-> +		goto err;
-> +	}
+> +	platform_set_drvdata(pdev, wdt);
 > +
-> +	reset_control_assert(rstc);
-> +	reset_control_deassert(rstc);
-> +
-> +	watchdog_set_drvdata(&wdt->wdt_device, wdt);
-> +	watchdog_init_timeout(&wdt->wdt_device,
-> +			ZX2967_WDT_DEFAULT_TIMEOUT, dev);
-> +	watchdog_set_nowayout(&wdt->wdt_device, WATCHDOG_NOWAYOUT);
-> +
-> +	ret = watchdog_register_device(&wdt->wdt_device);
-> +	if (ret)
-> +		goto err;
-> +
-> +	dev_info(dev, "watchdog enabled (timeout=%d sec, nowayout=%d)",
-> +		 wdt->wdt_device.timeout, WATCHDOG_NOWAYOUT);
+> +	dev_info(dev, "initialized (timeout = %d sec, nowayout = %d)\n",
+> +		 wdd->timeout, nowayout);
 > +
 > +	return 0;
-> +
-> +err:
-> +	clk_disable_unprepare(wdt->clock);
-> +	return ret;
 > +}
 > +
-> +static int zx2967_wdt_remove(struct platform_device *pdev)
+> +static int ts4600_wdt_remove(struct platform_device *pdev)
 > +{
-> +	struct zx2967_wdt *wdt = platform_get_drvdata(pdev);
+> +	struct ts4600_wdt *wdt = platform_get_drvdata(pdev);
 > +
-> +	watchdog_unregister_device(&wdt->wdt_device);
-> +	clk_disable_unprepare(wdt->clock);
+> +	watchdog_unregister_device(&wdt->wdd);
 > +
 > +	return 0;
 > +}
 > +
-> +static const struct of_device_id zx2967_wdt_match[] = {
-> +	{ .compatible = "zte,zx296718-wdt", },
-> +	{}
+> +static const struct of_device_id ts4600_wdt_of_match[] = {
+> +	{ .compatible = "technologic,ts4600-wdt", },
+> +	{ },
 > +};
-> +MODULE_DEVICE_TABLE(of, zx2967_wdt_match);
+> +MODULE_DEVICE_TABLE(of, ts4600_wdt_of_match);
 > +
-> +static struct platform_driver zx2967_wdt_driver = {
-> +	.probe		= zx2967_wdt_probe,
-> +	.remove		= zx2967_wdt_remove,
+> +static struct platform_driver ts4600_wdt_driver = {
+> +	.probe		= ts4600_wdt_probe,
+> +	.remove		= ts4600_wdt_remove,
 > +	.driver		= {
-> +		.name	= "zx2967-wdt",
-> +		.of_match_table	= of_match_ptr(zx2967_wdt_match),
+> +		.name	= "ts4600_wdt",
+> +		.of_match_table = ts4600_wdt_of_match,
 > +	},
 > +};
-> +module_platform_driver(zx2967_wdt_driver);
 > +
-> +MODULE_AUTHOR("Baoyou Xie <baoyou.xie@linaro.org>");
-> +MODULE_DESCRIPTION("ZTE zx2967 Watchdog Device Driver");
+> +module_platform_driver(ts4600_wdt_driver);
+> +
+> +MODULE_AUTHOR("Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>");
 > +MODULE_LICENSE("GPL v2");
->
-
+> +MODULE_ALIAS("platform:ts4600_wdt");
