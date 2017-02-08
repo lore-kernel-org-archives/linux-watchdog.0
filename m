@@ -1,5 +1,5 @@
 Return-path: <robherring2@gmail.com>
-Date: Wed, 8 Feb 2017 15:48:57 -0600
+Date: Wed, 8 Feb 2017 15:50:14 -0600
 From: Rob Herring <robh@kernel.org>
 To: Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>
 Cc: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
@@ -14,98 +14,47 @@ Cc: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
 	lucile.quirion@savoirfairelinux.com, olof@lixom.net, arnd@arndb.de,
 	suzuki.poulose@arm.com, will.deacon@arm.com,
 	yamada.masahiro@socionext.com
-Subject: Re: [PATCH v2 3/6] dt-bindings: bus: Add documentation for the
- Technologic Systems NBUS
-Message-ID: <20170208214857.snplcpp55daa47so@rob-hp-laptop>
+Subject: Re: [PATCH v2 6/6] watchdog: ts4600: add driver for TS-4600 watchdog
+Message-ID: <20170208215014.d2tblyu7olhph5qx@rob-hp-laptop>
 References: <20170203194729.20995-1-sebastien.bourdelin@savoirfairelinux.com>
- <20170203194729.20995-4-sebastien.bourdelin@savoirfairelinux.com>
+ <20170203194729.20995-7-sebastien.bourdelin@savoirfairelinux.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20170203194729.20995-4-sebastien.bourdelin@savoirfairelinux.com>
+In-Reply-To: <20170203194729.20995-7-sebastien.bourdelin@savoirfairelinux.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On Fri, Feb 03, 2017 at 02:47:26PM -0500, Sebastien Bourdelin wrote:
-> Add binding documentation for the Technologic Systems NBUS that is used
-> to interface with peripherals in the FPGA of the TS-4600 SoM.
+On Fri, Feb 03, 2017 at 02:47:29PM -0500, Sebastien Bourdelin wrote:
+> This watchdog is instantiated in a FPGA and can only be access using a
+> GPIOs bit-banged bus, called the NBUS by Technologic Systems.
+> The watchdog is made of only one register, called the feed register.
+> Writing to this register will re-arm the watchdog for a given time (and
+> enable it if it was disable). It can be disabled by writing a special
+> value into it.
 > 
 > ---
 > Changes v1 -> v2:
 >   - rebase on master
->   - remove the simple-bus compatibility as the root node will now
->   populate child nodes (suggested by Rob Herring)
->   - use the ts vendor prefix for gpios (suggested by Rob Herring)
+>   - retrieve the ts_nbus instantiated by the parent node (suggested by
+>   Linus Walleij)
+>   - rename the wdt by watchdog in the device tree and in the
+>   documentation (suggested by Rob Herring)
+>   - add a dependency to the TS_NBUS driver in the Kconfig (suggested by
+>   Guenter Roeck)
+>   - simplify the set_timeout function (suggested by Guenter Roeck)
+>   - use the max_hw_heartbeat_ms callback instead of the max_timeout
+>   callback (suggested by Guenter Roeck)
 > 
 > Signed-off-by: Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>
 > ---
->  Documentation/devicetree/bindings/bus/ts-nbus.txt | 50 +++++++++++++++++++++++
->  1 file changed, 50 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/bus/ts-nbus.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/bus/ts-nbus.txt b/Documentation/devicetree/bindings/bus/ts-nbus.txt
-> new file mode 100644
-> index 000000000000..c8a1f2cbe6a0
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/bus/ts-nbus.txt
-> @@ -0,0 +1,50 @@
-> +Technologic Systems NBUS
-> +
-> +The NBUS is a bus used to interface with peripherals in the Technologic
-> +Systems FPGA on the TS-4600 SoM.
-> +
-> +Required properties :
-> + - compatible     : "technologic,ts-nbus"
-> + - #address-cells : must be 1
-> + - #size-cells    : must be 0
-> + - pws            : The PWM binded to the FPGA
+>  .../devicetree/bindings/watchdog/ts4600-wdt.txt    |  16 ++
+>  arch/arm/boot/dts/imx28-ts4600-common.dtsi         |   5 +
 
-Should be pwms?
+Acked-by: Rob Herring <robh@kernel.org>
 
-s/binded/bound/
-
-> + - data-gpios	  : The GPIO pin connected to the data line on the FPGA
-
-lines? How many? Always 8 like the example?
-
-> + - csn-gpios	  : The GPIO pin connected to the csn line on the FPGA
-> + - txrx-gpios	  : The GPIO pin connected to the txrx line on the FPGA
-> + - strobe-gpios	  : The GPIO pin connected to the stobe line on the FPGA
-> + - ale-gpios	  : The GPIO pin connected to the ale line on the FPGA
-> + - rdy-gpios	  : The GPIO pin connected to the rdy line on the FPGA
-> +
-> +Child nodes:
-> +
-> +The NBUS node can contain zero or more child nodes representing peripherals
-> +on the bus.
-> +
-> +Example:
-> +
-> +	nbus {
-> +		compatible = "technologic,ts-nbus";
-> +		pinctrl-0 = <&nbus_pins>;
-> +		#address-cells = <1>;
-> +		#size-cells = <0>;
-> +		pwms = <&pwm 2 83>;
-> +		ts-data-gpios   = <&gpio0 0 GPIO_ACTIVE_HIGH
-> +				   &gpio0 1 GPIO_ACTIVE_HIGH
-> +				   &gpio0 2 GPIO_ACTIVE_HIGH
-> +				   &gpio0 3 GPIO_ACTIVE_HIGH
-> +				   &gpio0 4 GPIO_ACTIVE_HIGH
-> +				   &gpio0 5 GPIO_ACTIVE_HIGH
-> +				   &gpio0 6 GPIO_ACTIVE_HIGH
-> +				   &gpio0 7 GPIO_ACTIVE_HIGH>;
-> +		ts-csn-gpios    = <&gpio0 16 GPIO_ACTIVE_HIGH>;
-> +		ts-txrx-gpios   = <&gpio0 24 GPIO_ACTIVE_HIGH>;
-> +		ts-strobe-gpios = <&gpio0 25 GPIO_ACTIVE_HIGH>;
-> +		ts-ale-gpios    = <&gpio0 26 GPIO_ACTIVE_HIGH>;
-> +		ts-rdy-gpios    = <&gpio0 21 GPIO_ACTIVE_HIGH>;
-> +
-> +		watchdog@2a {
-> +			compatible = "...";
-> +
-> +			/* ... */
-> +		};
-> +	};
-> -- 
-> 2.11.0
-> 
+>  drivers/watchdog/Kconfig                           |  11 ++
+>  drivers/watchdog/Makefile                          |   1 +
+>  drivers/watchdog/ts4600_wdt.c                      | 217 +++++++++++++++++++++
+>  5 files changed, 250 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/watchdog/ts4600-wdt.txt
+>  create mode 100644 drivers/watchdog/ts4600_wdt.c
