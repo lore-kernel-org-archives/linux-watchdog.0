@@ -7,78 +7,49 @@ Cc: Wim Van Sebroeck <wim@iguana.be>,
 	linux-arm-kernel@lists.infradead.org,
 	linux-kernel@vger.kernel.org,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [PATCH v2 3/3] watchdog: sama5d4: Implement resume hook
-Date: Thu, 16 Feb 2017 20:30:53 +0100
-Message-Id: <20170216193053.5546-3-alexandre.belloni@free-electrons.com>
+Subject: [PATCH v2 2/3] watchdog: sama5d4: Fix setting timeout when watchdog is disabled
+Date: Thu, 16 Feb 2017 20:30:52 +0100
+Message-Id: <20170216193053.5546-2-alexandre.belloni@free-electrons.com>
 In-Reply-To: <20170216193053.5546-1-alexandre.belloni@free-electrons.com>
 References: <20170216193053.5546-1-alexandre.belloni@free-electrons.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-When resuming for the deepest state on sama5d2, it is necessary to restore
-MR as the registers are lost.
+The datasheet states: "When setting the WDDIS bit, and while it is set, the
+fields WDV and WDD must not be modified."
+
+Ensure WDDIS is not set when changing the timeout and set it afterwards if
+the watchdog was disabled.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 ---
 Changes in v2:
- - cache mr beofre suspending
-
- drivers/watchdog/sama5d4_wdt.c | 32 ++++++++++++++++++++++++++++++++
- 1 file changed, 32 insertions(+)
+ - new patch
+ drivers/watchdog/sama5d4_wdt.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/watchdog/sama5d4_wdt.c b/drivers/watchdog/sama5d4_wdt.c
-index 2a60251806d2..5ddeb4803dc3 100644
+index 2c6f5a70ae67..2a60251806d2 100644
 --- a/drivers/watchdog/sama5d4_wdt.c
 +++ b/drivers/watchdog/sama5d4_wdt.c
-@@ -28,6 +28,7 @@
- struct sama5d4_wdt {
- 	struct watchdog_device	wdd;
- 	void __iomem		*reg_base;
-+	u32			mr;
- };
+@@ -90,11 +90,18 @@ static int sama5d4_wdt_set_timeout(struct watchdog_device *wdd,
+ 	u32 reg;
  
- static int wdt_timeout = WDT_DEFAULT_TIMEOUT;
-@@ -248,11 +249,42 @@ static const struct of_device_id sama5d4_wdt_of_match[] = {
- };
- MODULE_DEVICE_TABLE(of, sama5d4_wdt_of_match);
- 
-+#ifdef CONFIG_PM_SLEEP
-+static int sama5d4_wdt_suspend(struct device *dev)
-+{
-+	struct sama5d4_wdt *wdt = dev_get_drvdata(dev);
+ 	reg = wdt_read(wdt, AT91_WDT_MR);
 +
-+	wdt->mr = wdt_read(wdt, AT91_WDT_MR);
-+
-+	return 0;
-+}
-+
-+static int sama5d4_wdt_resume(struct device *dev)
-+{
-+	struct sama5d4_wdt *wdt = dev_get_drvdata(dev);
-+	u32 reg;
-+
-+	reg = wdt_read(wdt, AT91_WDT_MR);
 +	if (reg & AT91_WDT_WDDIS)
 +		wdt_write(wdt, AT91_WDT_MR, reg & ~AT91_WDT_WDDIS);
 +
-+	wdt_write(wdt, AT91_WDT_MR, wdt->mr & ~AT91_WDT_WDDIS);
-+	if (wdt->mr & AT91_WDT_WDDIS)
-+		wdt_write(wdt, AT91_WDT_MR, wdt->mr);
+ 	reg &= ~AT91_WDT_WDV;
+ 	reg &= ~AT91_WDT_WDD;
+ 	reg |= AT91_WDT_SET_WDV(value);
+ 	reg |= AT91_WDT_SET_WDD(value);
+-	wdt_write(wdt, AT91_WDT_MR, reg);
++	wdt_write(wdt, AT91_WDT_MR, reg & ~AT91_WDT_WDDIS);
 +
-+	return 0;
-+}
-+#endif
-+
-+static SIMPLE_DEV_PM_OPS(sama5d4_wdt_pm_ops, sama5d4_wdt_suspend,
-+			 sama5d4_wdt_resume);
-+
- static struct platform_driver sama5d4_wdt_driver = {
- 	.probe		= sama5d4_wdt_probe,
- 	.remove		= sama5d4_wdt_remove,
- 	.driver		= {
- 		.name	= "sama5d4_wdt",
-+		.pm	= &sama5d4_wdt_pm_ops,
- 		.of_match_table = sama5d4_wdt_of_match,
- 	}
- };
++	if (reg & AT91_WDT_WDDIS)
++		wdt_write(wdt, AT91_WDT_MR, reg);
+ 
+ 	wdd->timeout = timeout;
+ 
 -- 
 2.11.0
