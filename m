@@ -1,70 +1,72 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:33564 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S934309AbdBQOki (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 17 Feb 2017 09:40:38 -0500
-Subject: Re: [PATCH v2 2/3] watchdog: sama5d4: Fix setting timeout when
- watchdog is disabled
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-References: <20170216193053.5546-1-alexandre.belloni@free-electrons.com>
- <20170216193053.5546-2-alexandre.belloni@free-electrons.com>
-Cc: Wim Van Sebroeck <wim@iguana.be>,
-        Nicolas Ferre <nicolas.ferre@atmel.com>,
-        linux-watchdog@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <968ef53e-c3c4-5322-020a-8382ce367931@roeck-us.net>
-Date: Fri, 17 Feb 2017 06:40:33 -0800
+Return-path: <Chris.Brandt@renesas.com>
+From: Chris Brandt <Chris.Brandt@renesas.com>
+To: Guenter Roeck <linux@roeck-us.net>, Geert Uytterhoeven
+	<geert@linux-m68k.org>
+CC: Wim Van Sebroeck <wim@iguana.be>, Sebastian Reichel <sre@kernel.org>, "Rob
+ Herring" <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, "Simon
+ Horman" <horms@verge.net.au>, "linux-renesas-soc@vger.kernel.org"
+	<linux-renesas-soc@vger.kernel.org>, "linux-pm@vger.kernel.org"
+	<linux-pm@vger.kernel.org>, "devicetree@vger.kernel.org"
+	<devicetree@vger.kernel.org>, "linux-watchdog@vger.kernel.org"
+	<linux-watchdog@vger.kernel.org>
+Subject: RE: [PATCH v2 1/3] power: reset: Add Renesas reset driver
+Date: Fri, 17 Feb 2017 13:49:34 +0000
+Message-ID: <SG2PR06MB11659AB2F7D659FF1AB8FEDB8A5D0@SG2PR06MB1165.apcprd06.prod.outlook.com>
+References: <20170216172320.10897-1-chris.brandt@renesas.com>
+ <20170216172320.10897-2-chris.brandt@renesas.com>
+ <20170216182644.GA17814@roeck-us.net>
+ <PS1PR06MB1162A4C12D144C321379E3028A5A0@PS1PR06MB1162.apcprd06.prod.outlook.com>
+ <20170216222014.GA29672@roeck-us.net>
+ <PS1PR06MB11622077DE4673C1879C05278A5D0@PS1PR06MB1162.apcprd06.prod.outlook.com>
+ <55cf087f-aa70-3660-1186-af9b9b20376d@roeck-us.net>
+ <CAMuHMdUChhntL0Mw2CY7au87WHj11nBi+0Q2mWSi+RcYpHXgAQ@mail.gmail.com>
+ <fb92af5b-6ed8-ef52-d1d1-4615b5026738@roeck-us.net>
+In-Reply-To: <fb92af5b-6ed8-ef52-d1d1-4615b5026738@roeck-us.net>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-In-Reply-To: <20170216193053.5546-2-alexandre.belloni@free-electrons.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 02/16/2017 11:30 AM, Alexandre Belloni wrote:
-> The datasheet states: "When setting the WDDIS bit, and while it is set, the
-> fields WDV and WDD must not be modified."
->
-> Ensure WDDIS is not set when changing the timeout and set it afterwards if
-> the watchdog was disabled.
->
-> Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> ---
-> Changes in v2:
->  - new patch
->  drivers/watchdog/sama5d4_wdt.c | 9 ++++++++-
->  1 file changed, 8 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/watchdog/sama5d4_wdt.c b/drivers/watchdog/sama5d4_wdt.c
-> index 2c6f5a70ae67..2a60251806d2 100644
-> --- a/drivers/watchdog/sama5d4_wdt.c
-> +++ b/drivers/watchdog/sama5d4_wdt.c
-> @@ -90,11 +90,18 @@ static int sama5d4_wdt_set_timeout(struct watchdog_device *wdd,
->  	u32 reg;
->
->  	reg = wdt_read(wdt, AT91_WDT_MR);
-> +
-> +	if (reg & AT91_WDT_WDDIS)
-> +		wdt_write(wdt, AT91_WDT_MR, reg & ~AT91_WDT_WDDIS);
-> +
->  	reg &= ~AT91_WDT_WDV;
->  	reg &= ~AT91_WDT_WDD;
->  	reg |= AT91_WDT_SET_WDV(value);
->  	reg |= AT91_WDT_SET_WDD(value);
-> -	wdt_write(wdt, AT91_WDT_MR, reg);
-> +	wdt_write(wdt, AT91_WDT_MR, reg & ~AT91_WDT_WDDIS);
-> +
-> +	if (reg & AT91_WDT_WDDIS)
-> +		wdt_write(wdt, AT91_WDT_MR, reg);
->
-That means if the watchdog is running, the timeout would not be updated.
-It should be updated no matter if it is running or not.
-
-Guenter
-
->  	wdd->timeout = timeout;
->
->
-
+SGkgR8O8bnRlciBhbmQgR2VlcnQsDQoNCkNhdGNoaW5nIHVwIG9uIHRoZSBzdWJqZWN0IChiZWNh
+dXNlIEkgd2FzIHNsZWVwaW5nIGhlcmUgaW4gdGhlIFVTLi4uKQ0KDQoNCk9uIEZyaWRheSwgRmVi
+cnVhcnkgMTcsIDIwMTcsIEdlZXJ0IFV5dHRlcmhvZXZlbiB3cm90ZToNCj4gPiBGV0lXLCB0aGUg
+d2F0Y2hkb2cgc3Vic3lzdGVtIHNob3VsZCBzdXBwb3J0IHRoYXQgZWFzaWx5LCBldmVuIHdpdGgg
+MTI1DQo+ID4gbXMgaGFyZHdhcmUgdGltZW91dC4gV2UgYWRkZWQgdGhhdCBjYXBhYmlsaXR5IGZv
+ciB0aGF0IHZlcnkgcHVycG9zZS4NCj4gPiBUaGF0IHdvdWxkIG9ubHkgZmFpbCBpZiB0aGUgc3lz
+dGVtIGlzIHN0dWNrIHdpdGggaW50ZXJydXB0cyBkaXNhYmxlZA0KPiA+IGZvciBtb3JlIHRoYW4g
+MTI1IG1zLCB3aGljaCBzZWVtcyB1bmxpa2VseS4gSSB0aGluayB0aGUgZ3BpbyB3YXRjaGRvZw0K
+PiA+IG9uIHNvbWUgc3lzdGVtcyBoYXMgYSBzaW1pbGFyIGxvdyBoYXJkd2FyZSB0aW1lb3V0Lg0K
+PiANCj4gSSBhbHNvIHRob3VnaHQgMTI1bXMgd2FzIGEgYml0IHNob3J0LCBidXQgSSdtIGhhcHB5
+IHRvIGJlIHByb3ZlbiB3cm9uZyENCj4gTGV0J3MgbWFrZSBhIHJlYWwgd2F0Y2hkb2cgZHJpdmVy
+IGluc3RlYWQgOy0pDQoNCk9LLCBJJ2xsIHNlZSBhYm91dCBzd2l0Y2hpbmcgb3ZlciB0byBhIHJl
+YWwgd2F0Y2hkb2cgZHJpdmVyLiBBcyBsb25nIGFzIEkNCmNhbiBnZXQgbXkgcmVzZXQgaGFuZGxl
+ciwgSSdsbCBiZSBoYXBweS4NCg0KQmVzaWRlcywgaWYgSSBnZXQgdGhlIDgtYml0IGNvdW50ZXIg
+cmVnaXN0ZXIgY2hhbmdlZCB0byAxNi1iaXQgKGEgdXNlZnVsDQpXRFQpLCB0aGVuIEkgYWxyZWFk
+eSBoYXZlIGEgV0RUIG1hZGUuDQoNClRoZSBnb29kIHRoaW5nIGlzIHRoYXQgdGhlIERUIGJpbmRp
+bmcgd2lsbCBzdGF5IGV4YWN0bHkgdGhlIHNhbWUsIEkganVzdA0KbmVlZCBhIG5ldyBkcml2ZXIu
+DQoNCkZXSVcsIGlmIEkgd2FzIG1ha2luZyBhIHJlYWwgcHJvZHVjdCBJIHdvdWxkIGFsd2F5cyBo
+YXZlIGEgV0RUIHJ1bm5pbmcgKGJ1dA0Kd2l0aCBhIDEtMyBzZWNvbmQgdGltZW91dCBqdXN0IHRv
+IG1ha2Ugc3VyZSBJIHdhcyBjb21wbGV0ZWx5IGRlYWQpLg0KDQojIHNpZGUgbm90ZSwgSSB0ZWxs
+IHBlb3BsZSB0byBzZXQgdXAgYSBETUEgd2l0aCBhIHRpbWVyIHRyaWdnZXIgYW5kDQphdXRvbWF0
+aWNhbGx5IGZlZWQgdGhlIFdEVCB0aGF0IHdheSwgdGhlbiB0aGV5IGNhbiBzZXQgdGhlIERNQSBj
+b3VudCB0bw0Kd2hhdGV2ZXIgZmFpbHNhZmUgdGltZW91dCB0aGV5IHdhbnQuIE5vdCBzdXJlIGlm
+IEkgY291bGQgc3VibWl0IHRoYXQga2luZA0Kb2YgaGFja2VyeSBpbiBhbiB1cHN0cmVhbSBkcml2
+ZXIuDQoNCg0KPiA+Pj4gSSBrbm93IEdlZXJ0J3Mgc3VnZ2VzdGlvbiB3YXMgaW4gcmVmZXJlbmNl
+IHRvIHNhdmluZyBwb3dlci4uLmJ1dCBpbg0KPiA+Pj4gcmVhbGl0eSBpdCdzIHByb2JhYmx5IG5l
+Z2xpZ2libGUgd2hlbiB3ZSBhcmUgdGFsa2luZyBhYm91dCA3Ljd1cy4NCj4gPj4+IFRoZSByZWJv
+b3QgaXMgZ29pbmcgdG8gYXV0b21hdGljYWxseSBzaHV0IG9mZiBhbGwgdGhlIHBlcmlwaGVyYWxz
+DQo+ID4+PiBjbG9ja3MgYXMgd2VsbC4NCj4gPj4NCj4gPj4gTWF5YmUgdWRlbGF5KDEwKTsgd291
+bGQgaGF2ZSBiZWVuIG1vcmUgYWNjZXB0YWJsZSAoYW5kIGFwcHJvcHJpYXRlKS4NCj4gPg0KPiA+
+IEluc2lkZSB0aGUgd2hpbGUgKDEpIGxvb3A/IFRoYXQncyB0aGUgc2FtZSBhcyBhIHBsYWluICJ3
+aGlsZSAoMSkgOyINCj4gPiA7LSkgT3IganVzdCB1ZGVsYXkoMTApIGFuZCByZXR1cm4sIHdpdGgg
+dGhlIGxhdHRlciBuZXZlciBoYXBwZW5pbmcgaWYNCj4gPiBldmVyeXRoaW5nIGdvZXMgd2VsbD8g
+VGhlbiB0aGUgbmV4dCByZXN0YXJ0IGhhbmRsZXIgd2lsbCBiZSB0cmllZCwgaWYNCj4gYXZhaWxh
+YmxlLg0KPiA+DQo+IA0KPiBUaGF0IGlzIHdoYXQgSSBtZWFudC4gT3IgdXNlIHVkZWxheSgyMCkg
+dG8gYmUgb24gdGhlIHNhZmUgc2lkZS4NCg0KT0suIFNvdW5kcyBsaWtlIHdlIGFncmVlIG9uOg0K
+DQoJLyogU3RhcnQgdGltZXIgKi8NCgl3cml0ZXcoV1RDU1JfTUFHSUMgfCBXVFNDUl9XVCB8IFdU
+U0NSX1RNRSwgYmFzZSArIFdUQ1NSKTsNCg0KCS8qIFdhaXQgZm9yIFdEVCBvdmVyZmxvdyAocmVz
+ZXQpICovDQoJVWRlbGF5KDIwKTsNCg0KCXJldHVybiBOT1RJRllfRE9ORTsNCn0NCg0KDQpGWUks
+IEknbGwgYmUgYXQgRUxDIG5leHQgd2Vlaywgc28gSSBtaWdodCBub3QgZ2V0IHRvIHRoaXMgdW50
+aWwgYWZ0ZXIgdGhlbi4NCg0KVGhhbmtzIGZvciB0aGUgZGlzY3Vzc2lvbi4NCg0KQ2hlZXJzDQoN
+CkNocmlzDQo=
