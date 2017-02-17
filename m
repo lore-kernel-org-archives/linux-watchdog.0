@@ -1,72 +1,95 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:42554 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:42719 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S934159AbdBQPQw (ORCPT
+        with ESMTP id S934164AbdBQPWI (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 17 Feb 2017 10:16:52 -0500
-Date: Fri, 17 Feb 2017 16:16:50 +0100
+        Fri, 17 Feb 2017 10:22:08 -0500
+Date: Fri, 17 Feb 2017 16:22:01 +0100
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 To: Guenter Roeck <linux@roeck-us.net>
 Cc: Wim Van Sebroeck <wim@iguana.be>,
         Nicolas Ferre <nicolas.ferre@atmel.com>,
         linux-watchdog@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 2/3] watchdog: sama5d4: Fix setting timeout when
- watchdog is disabled
-Message-ID: <20170217151625.hv2vn5imx2kyeftt@piout.net>
+Subject: Re: [PATCH v2 3/3] watchdog: sama5d4: Implement resume hook
+Message-ID: <20170217152201.ue5ujd5ia3iqcduh@piout.net>
 References: <20170216193053.5546-1-alexandre.belloni@free-electrons.com>
- <20170216193053.5546-2-alexandre.belloni@free-electrons.com>
- <968ef53e-c3c4-5322-020a-8382ce367931@roeck-us.net>
+ <20170216193053.5546-3-alexandre.belloni@free-electrons.com>
+ <0fe51486-2de0-eda6-2310-823fc4fd7c82@roeck-us.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <968ef53e-c3c4-5322-020a-8382ce367931@roeck-us.net>
+In-Reply-To: <0fe51486-2de0-eda6-2310-823fc4fd7c82@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 17/02/2017 at 06:40:33 -0800, Guenter Roeck wrote:
+On 17/02/2017 at 06:47:03 -0800, Guenter Roeck wrote:
 > On 02/16/2017 11:30 AM, Alexandre Belloni wrote:
-> > The datasheet states: "When setting the WDDIS bit, and while it is set, the
-> > fields WDV and WDD must not be modified."
-> > 
-> > Ensure WDDIS is not set when changing the timeout and set it afterwards if
-> > the watchdog was disabled.
+> > When resuming for the deepest state on sama5d2, it is necessary to restore
+> > MR as the registers are lost.
 > > 
 > > Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 > > ---
 > > Changes in v2:
-> >  - new patch
-> >  drivers/watchdog/sama5d4_wdt.c | 9 ++++++++-
-> >  1 file changed, 8 insertions(+), 1 deletion(-)
+> >  - cache mr beofre suspending
+> > 
+> >  drivers/watchdog/sama5d4_wdt.c | 32 ++++++++++++++++++++++++++++++++
+> >  1 file changed, 32 insertions(+)
 > > 
 > > diff --git a/drivers/watchdog/sama5d4_wdt.c b/drivers/watchdog/sama5d4_wdt.c
-> > index 2c6f5a70ae67..2a60251806d2 100644
+> > index 2a60251806d2..5ddeb4803dc3 100644
 > > --- a/drivers/watchdog/sama5d4_wdt.c
 > > +++ b/drivers/watchdog/sama5d4_wdt.c
-> > @@ -90,11 +90,18 @@ static int sama5d4_wdt_set_timeout(struct watchdog_device *wdd,
-> >  	u32 reg;
+> > @@ -28,6 +28,7 @@
+> >  struct sama5d4_wdt {
+> >  	struct watchdog_device	wdd;
+> >  	void __iomem		*reg_base;
+> > +	u32			mr;
+> 
+> Makes me wonder if we shouldn't just retain the original 'config'
+> (and maybe rename it to 'mr). After all, it _is_ used now.
+> 
+> >  };
 > > 
-> >  	reg = wdt_read(wdt, AT91_WDT_MR);
+> >  static int wdt_timeout = WDT_DEFAULT_TIMEOUT;
+> > @@ -248,11 +249,42 @@ static const struct of_device_id sama5d4_wdt_of_match[] = {
+> >  };
+> >  MODULE_DEVICE_TABLE(of, sama5d4_wdt_of_match);
+> > 
+> > +#ifdef CONFIG_PM_SLEEP
+> > +static int sama5d4_wdt_suspend(struct device *dev)
+> > +{
+> > +	struct sama5d4_wdt *wdt = dev_get_drvdata(dev);
 > > +
+> > +	wdt->mr = wdt_read(wdt, AT91_WDT_MR);
+> > +
+> 
+> Wouldn't you want to stop the watchdog here if it is running,
+> ie set AT91_WDT_WDDIS ?
+> 
+
+Some existing customers want the watchdog to continue to run while the
+system is suspended.
+
+> > +	return 0;
+> > +}
+> > +
+> > +static int sama5d4_wdt_resume(struct device *dev)
+> > +{
+> > +	struct sama5d4_wdt *wdt = dev_get_drvdata(dev);
+> > +	u32 reg;
+> > +
+> > +	reg = wdt_read(wdt, AT91_WDT_MR);
 > > +	if (reg & AT91_WDT_WDDIS)
 > > +		wdt_write(wdt, AT91_WDT_MR, reg & ~AT91_WDT_WDDIS);
 > > +
-> >  	reg &= ~AT91_WDT_WDV;
-> >  	reg &= ~AT91_WDT_WDD;
-> >  	reg |= AT91_WDT_SET_WDV(value);
-> >  	reg |= AT91_WDT_SET_WDD(value);
-> > -	wdt_write(wdt, AT91_WDT_MR, reg);
-> > +	wdt_write(wdt, AT91_WDT_MR, reg & ~AT91_WDT_WDDIS);
-> > +
-> > +	if (reg & AT91_WDT_WDDIS)
-> > +		wdt_write(wdt, AT91_WDT_MR, reg);
-> > 
-> That means if the watchdog is running, the timeout would not be updated.
-> It should be updated no matter if it is running or not.
+> > +	wdt_write(wdt, AT91_WDT_MR, wdt->mr & ~AT91_WDT_WDDIS);
+> 
+> Is that necessary ? Why not just write wdt->mr unconditionally ?
 > 
 
-No, it is enabling the watchdog, then changing WDV and WDD and finally
-disabling the watchdog if necessary. So, WDV and WDD are always changed.
+Because you can change WDV and WDD *OR* WDDIS but not both at the same
+time.
 
 -- 
 Alexandre Belloni, Free Electrons
