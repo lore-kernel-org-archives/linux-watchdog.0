@@ -1,16 +1,16 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-it0-f67.google.com ([209.85.214.67]:36849 "EHLO
-        mail-it0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932374AbdBQK16 (ORCPT
+Received: from mail-it0-f66.google.com ([209.85.214.66]:34971 "EHLO
+        mail-it0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932374AbdBQK31 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 17 Feb 2017 05:27:58 -0500
+        Fri, 17 Feb 2017 05:29:27 -0500
 MIME-Version: 1.0
-In-Reply-To: <20170216172320.10897-3-chris.brandt@renesas.com>
-References: <20170216172320.10897-1-chris.brandt@renesas.com> <20170216172320.10897-3-chris.brandt@renesas.com>
+In-Reply-To: <20170216172320.10897-4-chris.brandt@renesas.com>
+References: <20170216172320.10897-1-chris.brandt@renesas.com> <20170216172320.10897-4-chris.brandt@renesas.com>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Fri, 17 Feb 2017 11:27:56 +0100
-Message-ID: <CAMuHMdWH69WZrZP3c5S_QN+bn9GvC+LPWLmy0zs908d3w+1KHA@mail.gmail.com>
-Subject: Re: [PATCH v2 2/3] watchdog: renesas-wdt: add support for rza
+Date: Fri, 17 Feb 2017 11:29:25 +0100
+Message-ID: <CAMuHMdVMBo9fNMTqz_XdU27FF5TX98r-OE5pJ5atJ1s4XLxcTw@mail.gmail.com>
+Subject: Re: [PATCH v2 3/3] ARM: dts: r7s72100: Add reset handler
 To: Chris Brandt <chris.brandt@renesas.com>
 Cc: Wim Van Sebroeck <wim@iguana.be>,
         Guenter Roeck <linux@roeck-us.net>,
@@ -27,7 +27,7 @@ Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
 On Thu, Feb 16, 2017 at 6:23 PM, Chris Brandt <chris.brandt@renesas.com> wrote:
-> Describe the WDT hardware in the RZ/A series.
+> For the RZ/A1, the only way to do a reset is to overflow the WDT.
 >
 > Signed-off-by: Chris Brandt <chris.brandt@renesas.com>
 
