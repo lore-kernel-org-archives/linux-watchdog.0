@@ -1,69 +1,169 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([65.50.211.133]:34840 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751422AbdB1Tvk (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:53511 "EHLO
+        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932742AbdBQKGH (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 28 Feb 2017 14:51:40 -0500
-From: Randy Dunlap <rdunlap@infradead.org>
-Subject: [PATCH -next] watchdog/kempld_wdt: fix build for COMPILE_TEST
-To: linux-watchdog@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
-Cc: Wim Van Sebroeck <wim@iguana.be>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Michael Brunner <michael.brunner@kontron.com>
-Message-ID: <00718dc0-2a7c-391d-a091-c79e192dbeb2@infradead.org>
-Date: Tue, 28 Feb 2017 10:31:07 -0800
+        Fri, 17 Feb 2017 05:06:07 -0500
+Subject: Re: [PATCH v2 1/3] power: reset: Add Renesas reset driver
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+References: <20170216172320.10897-1-chris.brandt@renesas.com>
+ <20170216172320.10897-2-chris.brandt@renesas.com>
+ <20170216182644.GA17814@roeck-us.net>
+ <PS1PR06MB1162A4C12D144C321379E3028A5A0@PS1PR06MB1162.apcprd06.prod.outlook.com>
+ <20170216222014.GA29672@roeck-us.net>
+ <PS1PR06MB11622077DE4673C1879C05278A5D0@PS1PR06MB1162.apcprd06.prod.outlook.com>
+ <55cf087f-aa70-3660-1186-af9b9b20376d@roeck-us.net>
+ <CAMuHMdUChhntL0Mw2CY7au87WHj11nBi+0Q2mWSi+RcYpHXgAQ@mail.gmail.com>
+Cc: Chris Brandt <Chris.Brandt@renesas.com>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Sebastian Reichel <sre@kernel.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Simon Horman <horms@verge.net.au>,
+        "linux-renesas-soc@vger.kernel.org"
+        <linux-renesas-soc@vger.kernel.org>,
+        "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <fb92af5b-6ed8-ef52-d1d1-4615b5026738@roeck-us.net>
+Date: Fri, 17 Feb 2017 02:06:03 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <CAMuHMdUChhntL0Mw2CY7au87WHj11nBi+0Q2mWSi+RcYpHXgAQ@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
 
-From: Randy Dunlap <rdunlap@infradead.org>
+On 02/17/2017 12:09 AM, Geert Uytterhoeven wrote:
+> Hi G=C3=BCnter,
+>
+> On Fri, Feb 17, 2017 at 5:45 AM, Guenter Roeck <linux@roeck-us.net> wro=
+te:
+>> On 02/16/2017 06:00 PM, Chris Brandt wrote:
+>>> On Thursday, February 16, 2017, Guenter Roeck wrote:
+>>> If this WDT had a timeout longer than 125ms, I would make a real watc=
+hdog
+>>> driver
+>>> out of it. But at the moment, it just serves as the only way to reset=
+ the
+>>> chip.
+>>> Historically, this was the only way to reset a SH4 device...and we ju=
+st
+>>> lived
+>>> with that fact. When Renesas moved from SH4 to ARM, a lot of the desi=
+gn
+>>> teams
+>>> just kept the same philosophy (and copied the HW blocks they knew alr=
+eady
+>>> worked)
+>>
+>> FWIW, the watchdog subsystem should support that easily, even with 125=
+ ms
+>> hardware
+>> timeout. We added that capability for that very purpose. That would on=
+ly
+>> fail if
+>> the system is stuck with interrupts disabled for more than 125 ms, whi=
+ch
+>> seems
+>> unlikely. I think the gpio watchdog on some systems has a similar low
+>> hardware
+>> timeout.
+>
+> I also thought 125ms was a bit short, but I'm happy to be proven wrong!
+> Let's make a real watchdog driver instead ;-)
+>
+>>>>>>> v2: * changed DT bindings from 'wdt-reset' to 'rza-wdt' * changed
+>>>>>>> hard coded register values to defines * added msleep to while(1)
+>>>>>>> loop
+>>>>>>
+>>>>>> Sure you can sleep here ?
+>>>>>
+>>>>> As per Geert's review:
+>>>>>
+>>>>> On Wednesday, February 15, 2017, Geert Uytterhoeven wrote:
+>>>>>>>
+>>>>>>> + +       /* Wait for WDT overflow */ +       while (1)
+>>>>
+>>>> +               ;
+>>>>>>
+>>>>>> This burns CPU, and thus power, albeit for a very short time.
+>>>>>> Perhaps add an msleep() to the loop body?
+>>>>>
+>>>>> Note that you only have 7.7us before the restart occurs, so probabl=
+y
+>>>>> not much sleeping will be going on.
+>>>>>
+>>>> Let me rephrase my question. Is it guaranteed that you _can_ sleep i=
+n
+>>>> this
+>>>> function, or in other words that it is guaranteed that interrupts ar=
+e
+>>>> enabled ?
+>>>
+>>> Hmm, I'm not sure if will actually 'sleep' or not. Regardless, interr=
+upts
+>>> or not,
+>>> in 7.7us, the internal reset circuit is going to get triggered and th=
+e
+>>> whole system
+>>> is going to reboot not matter what is going on.
+>>>
+>>
+>> That isn't the point, really. You might get a WARN blob if msleep() is
+>> called
+>> with interrupts disabled, but of course you won't really see that beca=
+use it
+>> can
+>> not be displayed in 7.7 us.
+>
+> If it's not 100% guaranteed that we cannot sleep, we should not use msl=
+eep(),
+> and stick to busy waiting.
+> On ARM, we could also use wfi().
+>
+>>> I know Geert's suggestion was in reference to saving power...but in
+>>> reality it's
+>>> probably negligible when we are talking about 7.7us. The reboot is go=
+ing
+>>> to
+>>> automatically shut off all the peripherals clocks as well.
+>>
+>> Maybe udelay(10); would have been more acceptable (and appropriate).
+>
+> Inside the while (1) loop? That's the same as a plain "while (1) ;" ;-)
+> Or just udelay(10) and return, with the latter never happening if every=
+thing
+> goes well? Then the next restart handler will be tried, if available.
+>
 
-Fix kconfig dependencies when COMPILE_TEST is enabled so that
-interdependent module dependencies are configured as needed.
+That is what I meant. Or use udelay(20) to be on the safe side.
 
-Fixes build when MFD_KEMPLD=m and KEMPLD_WDT=y and COMPILE_TEST=y.
-The problem is in mixing tristate and boolean dependencies.
+Guenter
 
-This fixes 32 build errors like these (most are omitted here):
-drivers/built-in.o: In function `kempld_wdt_stop':
-kempld_wdt.c:(.text+0x19ab8d): undefined reference to `kempld_get_mutex'
-kempld_wdt.c:(.text+0x19ab99): undefined reference to `kempld_read8'
-kempld_wdt.c:(.text+0x19abaa): undefined reference to `kempld_write8'
-kempld_wdt.c:(.text+0x19abbf): undefined reference to `kempld_release_mutex'
-drivers/built-in.o: In function `kempld_wdt_keepalive':
-kempld_wdt.c:(.text+0x19ac24): undefined reference to `kempld_release_mutex'
-drivers/built-in.o: In function `kempld_wdt_set_stage_action.isra.4':
-kempld_wdt.c:(.text+0x19aca1): undefined reference to `kempld_get_mutex'
-drivers/built-in.o: In function `kempld_wdt_set_stage_timeout.isra.5':
-kempld_wdt.c:(.text+0x19adde): undefined reference to `kempld_release_mutex'
-drivers/built-in.o: In function `kempld_wdt_start':
-kempld_wdt.c:(.text+0x19ae89): undefined reference to `kempld_get_mutex'
-drivers/built-in.o: In function `kempld_wdt_get_timeout.isra.6':
-kempld_wdt.c:(.text+0x19b01a): undefined reference to `kempld_read8'
-drivers/built-in.o: In function `kempld_wdt_update_timeouts':
-kempld_wdt.c:(.text+0x19b0c6): undefined reference to `kempld_get_mutex'
-drivers/built-in.o: In function `kempld_wdt_suspend':
-kempld_wdt.c:(.text+0x19b136): undefined reference to `kempld_release_mutex'
-drivers/built-in.o: In function `kempld_wdt_probe':
-kempld_wdt.c:(.text+0x19b1a4): undefined reference to `kempld_get_mutex'
-kempld_wdt.c:(.text+0x19b1bd): undefined reference to `kempld_release_mutex'
+> Gr{oetje,eeting}s,
+>
+>                         Geert
+>
+> --
+> Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-=
+m68k.org
+>
+> In personal conversations with technical people, I call myself a hacker=
+. But
+> when I'm talking to journalists I just say "programmer" or something li=
+ke that.
+>                                 -- Linus Torvalds
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
+g" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
 
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Michael Brunner <michael.brunner@kontron.com>
----
- drivers/watchdog/Kconfig |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---- linux-next-20170228.orig/drivers/watchdog/Kconfig
-+++ linux-next-20170228/drivers/watchdog/Kconfig
-@@ -1063,7 +1063,7 @@ config HP_WATCHDOG
- 
- config KEMPLD_WDT
- 	tristate "Kontron COM Watchdog Timer"
--	depends on MFD_KEMPLD || COMPILE_TEST
-+	depends on MFD_KEMPLD || (MFD_KEMPLD=y && COMPILE_TEST)
- 	select WATCHDOG_CORE
- 	help
- 	  Support for the PLD watchdog on some Kontron ETX and COMexpress
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
