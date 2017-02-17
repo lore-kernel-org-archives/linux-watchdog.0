@@ -1,102 +1,411 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:49591 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754965AbdBQEpw (ORCPT
+Received: from mail-wr0-f194.google.com ([209.85.128.194]:34626 "EHLO
+        mail-wr0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S933054AbdBQJZd (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 16 Feb 2017 23:45:52 -0500
-Subject: Re: [PATCH v2 1/3] power: reset: Add Renesas reset driver
-To: Chris Brandt <Chris.Brandt@renesas.com>
-References: <20170216172320.10897-1-chris.brandt@renesas.com>
- <20170216172320.10897-2-chris.brandt@renesas.com>
- <20170216182644.GA17814@roeck-us.net>
- <PS1PR06MB1162A4C12D144C321379E3028A5A0@PS1PR06MB1162.apcprd06.prod.outlook.com>
- <20170216222014.GA29672@roeck-us.net>
- <PS1PR06MB11622077DE4673C1879C05278A5D0@PS1PR06MB1162.apcprd06.prod.outlook.com>
-Cc: Wim Van Sebroeck <wim@iguana.be>,
-        Sebastian Reichel <sre@kernel.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Simon Horman <horms@verge.net.au>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        "linux-renesas-soc@vger.kernel.org"
-        <linux-renesas-soc@vger.kernel.org>,
-        "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <55cf087f-aa70-3660-1186-af9b9b20376d@roeck-us.net>
-Date: Thu, 16 Feb 2017 20:45:47 -0800
-MIME-Version: 1.0
-In-Reply-To: <PS1PR06MB11622077DE4673C1879C05278A5D0@PS1PR06MB1162.apcprd06.prod.outlook.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+        Fri, 17 Feb 2017 04:25:33 -0500
+From: Alexey Klimov <klimov.linux@gmail.com>
+To: linux-watchdog@vger.kernel.org, linux@roeck-us.net
+Cc: wim@iguana.be, oneukum@suse.com, linux-usb@vger.kernel.org,
+        linux-kernel@vger.kernel.org, yury.norov@gmail.com,
+        Alexey Klimov <klimov.linux@gmail.com>
+Subject: [PATCH v3] watchdog: add driver for StreamLabs USB watchdog device
+Date: Fri, 17 Feb 2017 09:25:23 +0000
+Message-Id: <20170217092523.23358-1-klimov.linux@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 02/16/2017 06:00 PM, Chris Brandt wrote:
-> On Thursday, February 16, 2017, Guenter Roeck wrote:
->> Hmm, ok. Guess I don't have to understand that you can not use the
->> watchdog driver because of the above, but implementing exactly the same
->> functionality in a separate driver is ok.
->>
->> [ I am sure I am missing something here, so just ignore what I am saying ]
->
-> Honestly, I don't have a handle on all the latest 'policies and procedures'
-> for all the various subsystems. All I know is that I want to figure out how
-> to execute my 5 lines of code to reset the system when the user types "reboot"
-> on the command line.
->
-> If this WDT had a timeout longer than 125ms, I would make a real watchdog driver
-> out of it. But at the moment, it just serves as the only way to reset the chip.
-> Historically, this was the only way to reset a SH4 device...and we just lived
-> with that fact. When Renesas moved from SH4 to ARM, a lot of the design teams
-> just kept the same philosophy (and copied the HW blocks they knew already worked)
->
+This patch creates new driver that supports StreamLabs usb watchdog
+device. This device plugs into 9-pin usb header and connects to
+reset pin and reset button on common PC.
 
-FWIW, the watchdog subsystem should support that easily, even with 125 ms hardware
-timeout. We added that capability for that very purpose. That would only fail if
-the system is stuck with interrupts disabled for more than 125 ms, which seems
-unlikely. I think the gpio watchdog on some systems has a similar low hardware
-timeout.
+USB commands used to communicate with device were reverse
+engineered using usbmon.
 
->
->>>>> v2: * changed DT bindings from 'wdt-reset' to 'rza-wdt' * changed
->>>>> hard coded register values to defines * added msleep to while(1)
->>>>> loop
->>>>
->>>> Sure you can sleep here ?
->>>
->>> As per Geert's review:
->>>
->>> On Wednesday, February 15, 2017, Geert Uytterhoeven wrote:
->>>>> + +       /* Wait for WDT overflow */ +       while (1)
->> +               ;
->>>>
->>>> This burns CPU, and thus power, albeit for a very short time.
->>>> Perhaps add an msleep() to the loop body?
->>>
->>> Note that you only have 7.7us before the restart occurs, so probably
->>> not much sleeping will be going on.
->>>
->> Let me rephrase my question. Is it guaranteed that you _can_ sleep in this
->> function, or in other words that it is guaranteed that interrupts are
->> enabled ?
->
-> Hmm, I'm not sure if will actually 'sleep' or not. Regardless, interrupts or not,
-> in 7.7us, the internal reset circuit is going to get triggered and the whole system
-> is going to reboot not matter what is going on.
->
+Signed-off-by: Alexey Klimov <klimov.linux@gmail.com>
+---
 
-That isn't the point, really. You might get a WARN blob if msleep() is called
-with interrupts disabled, but of course you won't really see that because it can
-not be displayed in 7.7 us.
+Changes in v3:
+ -- coding style cleanups and rebase;
+ -- buffer is allocated with separate allocation;
+ -- adding comments about max/min limits;
+ -- rework start/stop commands implementation;
+ -- fix first if-check in probe() function;
 
-> I know Geert's suggestion was in reference to saving power...but in reality it's
-> probably negligible when we are talking about 7.7us. The reboot is going to
-> automatically shut off all the peripherals clocks as well.
->
+Previous version: https://www.spinics.net/lists/linux-watchdog/msg09092.html
 
-Maybe udelay(10); would have been more acceptable (and appropriate).
+ drivers/watchdog/Kconfig          |  16 ++
+ drivers/watchdog/Makefile         |   1 +
+ drivers/watchdog/streamlabs_wdt.c | 321 ++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 338 insertions(+)
+ create mode 100644 drivers/watchdog/streamlabs_wdt.c
 
-Guenter
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index acb00b53a520..6a2195d8cc5c 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -1852,6 +1852,22 @@ config USBPCWATCHDOG
+ 
+ 	  Most people will say N.
+ 
++config USB_STREAMLABS_WATCHDOG
++	tristate "StreamLabs USB watchdog driver"
++	depends on USB
++	---help---
++	  This is the driver for the USB Watchdog dongle from StreamLabs.
++	  If you correctly connect reset pins to motherboard Reset pin and
++	  to Reset button then this device will simply watch your kernel to make
++	  sure it doesn't freeze, and if it does, it reboots your computer
++	  after a certain amount of time.
++
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called streamlabs_wdt.
++
++	  Most people will say N. Say yes or M if you want to use such usb device.
++
+ comment "Watchdog Pretimeout Governors"
+ 
+ config WATCHDOG_PRETIMEOUT_GOV
+diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+index 0c3d35e3c334..d4a61222ccd2 100644
+--- a/drivers/watchdog/Makefile
++++ b/drivers/watchdog/Makefile
+@@ -31,6 +31,7 @@ obj-$(CONFIG_WDTPCI) += wdt_pci.o
+ 
+ # USB-based Watchdog Cards
+ obj-$(CONFIG_USBPCWATCHDOG) += pcwd_usb.o
++obj-$(CONFIG_USB_STREAMLABS_WATCHDOG) += streamlabs_wdt.o
+ 
+ # ALPHA Architecture
+ 
+diff --git a/drivers/watchdog/streamlabs_wdt.c b/drivers/watchdog/streamlabs_wdt.c
+new file mode 100644
+index 000000000000..4442d053d9f7
+--- /dev/null
++++ b/drivers/watchdog/streamlabs_wdt.c
+@@ -0,0 +1,321 @@
++/*
++ * StreamLabs USB Watchdog driver
++ *
++ * Copyright (c) 2016-2017 Alexey Klimov <klimov.linux@gmail.com>
++ *
++ * This program is free software; you may redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ */
++
++#include <linux/errno.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/mutex.h>
++#include <linux/slab.h>
++#include <linux/types.h>
++#include <linux/usb.h>
++#include <linux/watchdog.h>
++#include <asm/byteorder.h>
++
++/*
++ * USB Watchdog device from Streamlabs:
++ * https://www.stream-labs.com/en/catalog/?cat_id=1203&item_id=323
++ *
++ * USB commands have been reverse engineered using usbmon.
++ */
++
++#define DRIVER_AUTHOR "Alexey Klimov <klimov.linux@gmail.com>"
++#define DRIVER_DESC "StreamLabs USB watchdog driver"
++#define DRIVER_NAME "usb_streamlabs_wdt"
++
++MODULE_AUTHOR(DRIVER_AUTHOR);
++MODULE_DESCRIPTION(DRIVER_DESC);
++MODULE_LICENSE("GPL");
++
++#define USB_STREAMLABS_WATCHDOG_VENDOR	0x13c0
++#define USB_STREAMLABS_WATCHDOG_PRODUCT	0x0011
++
++/*
++ * one buffer is used for communication, however transmitted message is only
++ * 32 bytes long
++ */
++#define BUFFER_TRANSFER_LENGTH	32
++#define BUFFER_LENGTH		64
++#define USB_TIMEOUT		350
++
++#define STREAMLABS_CMD_START	0xaacc
++#define STREAMLABS_CMD_STOP	0xbbff
++
++/* timeouts values are taken from windows program */
++#define STREAMLABS_WDT_MIN_TIMEOUT	1
++#define STREAMLABS_WDT_MAX_TIMEOUT	46
++
++struct streamlabs_wdt {
++	struct watchdog_device wdt_dev;
++	struct usb_interface *intf;
++
++	struct mutex lock;
++	u8 *buffer;
++};
++
++static bool nowayout = WATCHDOG_NOWAYOUT;
++
++/*
++ * This function is used to check if watchdog actually changed
++ * its state to disabled that is reported in first two bytes of response
++ * message.
++ */
++static int usb_streamlabs_wdt_check_stop(u16 *buf)
++{
++	if (buf[0] != cpu_to_le16(STREAMLABS_CMD_STOP))
++		return -EINVAL;
++
++	return 0;
++}
++
++static int usb_streamlabs_wdt_validate_response(u8 *buf)
++{
++	/*
++	 * If watchdog device understood the command it will acknowledge
++	 * with values 1,2,3,4 at indexes 10, 11, 12, 13 in response message
++	 * when response treated as 8bit message.
++	 */
++	if (buf[10] != 1 || buf[11] != 2 || buf[12] != 3 || buf[13] != 4)
++		return -EINVAL;
++
++	return 0;
++}
++
++static void usb_streamlabs_wdt_prepare_buf(u16 *buf, u16 cmd,
++						unsigned long timeout_msec)
++{
++	/*
++	 * remaining elements expected to be zero everytime during
++	 * communication
++	 */
++	buf[0] = cpu_to_le16(cmd);
++	buf[1] = cpu_to_le16(0x8000);
++	buf[3] = cpu_to_le16(timeout_msec);
++	buf[5] = 0x0;
++	buf[6] = 0x0;
++}
++
++static int usb_streamlabs_wdt_cmd(struct streamlabs_wdt *wdt, u16 cmd)
++{
++	struct usb_device *usbdev;
++	unsigned long timeout_msec;
++	int retval;
++	int size;
++
++	if (unlikely(!wdt->intf))
++		return -ENODEV;
++
++	usbdev = interface_to_usbdev(wdt->intf);
++	timeout_msec = wdt->wdt_dev.timeout * MSEC_PER_SEC;
++
++	usb_streamlabs_wdt_prepare_buf((u16 *) wdt->buffer, cmd, timeout_msec);
++
++	/* send command to watchdog */
++	retval = usb_interrupt_msg(usbdev, usb_sndintpipe(usbdev, 0x02),
++					wdt->buffer, BUFFER_TRANSFER_LENGTH,
++					&size, USB_TIMEOUT);
++	if (retval)
++		return retval;
++
++	if (size != BUFFER_TRANSFER_LENGTH)
++		return -EIO;
++
++	/* and read response from watchdog */
++	retval = usb_interrupt_msg(usbdev, usb_rcvintpipe(usbdev, 0x81),
++					wdt->buffer, BUFFER_LENGTH,
++					&size, USB_TIMEOUT);
++	if (retval)
++		return retval;
++
++	if (size != BUFFER_LENGTH)
++		return -EIO;
++
++	/* check if watchdog actually acked/recognized command */
++	return usb_streamlabs_wdt_validate_response(wdt->buffer);
++}
++
++static int usb_streamlabs_wdt_stop_cmd(struct streamlabs_wdt *wdt)
++{
++	int retry_counter = 10; /* how many times to re-send stop cmd */
++	int retval;
++
++	/*
++	 * Transition from enabled to disabled state in this device
++	 * for stop command doesn't happen immediately. Usually, 2 or 3
++	 * (sometimes even 4) stop commands should be sent until
++	 * watchdog answers 'I'm stopped!'.
++	 * Retry only stop command if watchdog fails to answer correctly
++	 * about its state. After 10 attempts go out and return error.
++	 */
++
++	do {
++		retval = usb_streamlabs_wdt_cmd(wdt, STREAMLABS_CMD_STOP);
++		if (retval)
++			break;
++
++		retval = usb_streamlabs_wdt_check_stop((u16 *) wdt->buffer);
++
++	} while (retval && --retry_counter >= 0);
++
++	return retry_counter > 0 ? retval : -EIO;
++}
++
++static int usb_streamlabs_wdt_start(struct watchdog_device *wdt_dev)
++{
++	struct streamlabs_wdt *streamlabs_wdt = watchdog_get_drvdata(wdt_dev);
++	int retval;
++
++	mutex_lock(&streamlabs_wdt->lock);
++	retval = usb_streamlabs_wdt_cmd(streamlabs_wdt, STREAMLABS_CMD_START);
++	mutex_unlock(&streamlabs_wdt->lock);
++
++	return retval;
++}
++
++static int usb_streamlabs_wdt_stop(struct watchdog_device *wdt_dev)
++{
++	struct streamlabs_wdt *streamlabs_wdt = watchdog_get_drvdata(wdt_dev);
++	int retval;
++
++	mutex_lock(&streamlabs_wdt->lock);
++	retval = usb_streamlabs_wdt_stop_cmd(streamlabs_wdt);
++	mutex_unlock(&streamlabs_wdt->lock);
++
++	return retval;
++}
++
++static const struct watchdog_info streamlabs_wdt_ident = {
++	.options	= WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
++	.identity	= DRIVER_NAME,
++};
++
++static struct watchdog_ops usb_streamlabs_wdt_ops = {
++	.owner	= THIS_MODULE,
++	.start	= usb_streamlabs_wdt_start,
++	.stop	= usb_streamlabs_wdt_stop,
++};
++
++static int usb_streamlabs_wdt_probe(struct usb_interface *intf,
++					const struct usb_device_id *id)
++{
++	struct usb_device *usbdev = interface_to_usbdev(intf);
++	struct streamlabs_wdt *streamlabs_wdt;
++	int retval;
++
++	/*
++	 * USB IDs of this device appear to be weird/unregistered. Hence, do
++	 * an additional check on product and manufacturer.
++	 * If there is similar device in the field with same values then
++	 * there is stop command in probe() below that checks if the device
++	 * behaves as a watchdog.
++	 */
++	if (!usbdev->product || !usbdev->manufacturer
++		|| strncmp(usbdev->product, "USBkit", 6)
++		|| strncmp(usbdev->manufacturer, "STREAM LABS", 11))
++		return -ENODEV;
++
++	streamlabs_wdt = devm_kzalloc(&intf->dev, sizeof(struct streamlabs_wdt),
++								GFP_KERNEL);
++	if (!streamlabs_wdt)
++		return -ENOMEM;
++
++	streamlabs_wdt->buffer = kzalloc(BUFFER_LENGTH, GFP_KERNEL);
++	if (!streamlabs_wdt->buffer)
++		return -ENOMEM;
++
++	mutex_init(&streamlabs_wdt->lock);
++
++	streamlabs_wdt->wdt_dev.info = &streamlabs_wdt_ident;
++	streamlabs_wdt->wdt_dev.ops = &usb_streamlabs_wdt_ops;
++	streamlabs_wdt->wdt_dev.timeout = STREAMLABS_WDT_MAX_TIMEOUT;
++	streamlabs_wdt->wdt_dev.max_timeout = STREAMLABS_WDT_MAX_TIMEOUT;
++	streamlabs_wdt->wdt_dev.min_timeout = STREAMLABS_WDT_MIN_TIMEOUT;
++	streamlabs_wdt->wdt_dev.parent = &intf->dev;
++
++	streamlabs_wdt->intf = intf;
++	usb_set_intfdata(intf, &streamlabs_wdt->wdt_dev);
++	watchdog_set_drvdata(&streamlabs_wdt->wdt_dev, streamlabs_wdt);
++	watchdog_set_nowayout(&streamlabs_wdt->wdt_dev, nowayout);
++
++	retval = usb_streamlabs_wdt_stop(&streamlabs_wdt->wdt_dev);
++	if (retval)
++		goto free_buf;
++
++	retval = watchdog_register_device(&streamlabs_wdt->wdt_dev);
++	if (retval) {
++		dev_err(&intf->dev, "failed to register watchdog device\n");
++		goto free_buf;
++	}
++
++	dev_info(&intf->dev, "StreamLabs USB watchdog loaded.\n");
++	return 0;
++
++free_buf:
++	kfree(streamlabs_wdt->buffer);
++	return retval;
++}
++
++static int usb_streamlabs_wdt_suspend(struct usb_interface *intf,
++					pm_message_t message)
++{
++	struct streamlabs_wdt *streamlabs_wdt = usb_get_intfdata(intf);
++
++	if (watchdog_active(&streamlabs_wdt->wdt_dev))
++		return usb_streamlabs_wdt_stop(&streamlabs_wdt->wdt_dev);
++
++	return 0;
++}
++
++static int usb_streamlabs_wdt_resume(struct usb_interface *intf)
++{
++	struct streamlabs_wdt *streamlabs_wdt = usb_get_intfdata(intf);
++
++	if (watchdog_active(&streamlabs_wdt->wdt_dev))
++		return usb_streamlabs_wdt_start(&streamlabs_wdt->wdt_dev);
++
++	return 0;
++}
++
++static void usb_streamlabs_wdt_disconnect(struct usb_interface *intf)
++{
++	struct streamlabs_wdt *streamlabs_wdt = usb_get_intfdata(intf);
++
++	mutex_lock(&streamlabs_wdt->lock);
++	usb_streamlabs_wdt_stop_cmd(streamlabs_wdt);
++	usb_set_intfdata(intf, NULL);
++	streamlabs_wdt->intf = NULL;
++	mutex_unlock(&streamlabs_wdt->lock);
++
++	watchdog_unregister_device(&streamlabs_wdt->wdt_dev);
++}
++
++static struct usb_device_id usb_streamlabs_wdt_device_table[] = {
++	{ USB_DEVICE(USB_STREAMLABS_WATCHDOG_VENDOR, USB_STREAMLABS_WATCHDOG_PRODUCT) },
++	{ }	/* Terminating entry */
++};
++
++MODULE_DEVICE_TABLE(usb, usb_streamlabs_wdt_device_table);
++
++static struct usb_driver usb_streamlabs_wdt_driver = {
++	.name		= DRIVER_NAME,
++	.probe		= usb_streamlabs_wdt_probe,
++	.disconnect	= usb_streamlabs_wdt_disconnect,
++	.suspend	= usb_streamlabs_wdt_suspend,
++	.resume		= usb_streamlabs_wdt_resume,
++	.reset_resume	= usb_streamlabs_wdt_resume,
++	.id_table	= usb_streamlabs_wdt_device_table,
++};
++
++module_usb_driver(usb_streamlabs_wdt_driver);
+-- 
+2.11.0
 
