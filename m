@@ -1,95 +1,191 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:42719 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:43135 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S934164AbdBQPWI (ORCPT
+        with ESMTP id S933955AbdBQPfK (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 17 Feb 2017 10:22:08 -0500
-Date: Fri, 17 Feb 2017 16:22:01 +0100
+        Fri, 17 Feb 2017 10:35:10 -0500
+Date: Fri, 17 Feb 2017 16:35:05 +0100
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 To: Guenter Roeck <linux@roeck-us.net>
 Cc: Wim Van Sebroeck <wim@iguana.be>,
         Nicolas Ferre <nicolas.ferre@atmel.com>,
         linux-watchdog@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 3/3] watchdog: sama5d4: Implement resume hook
-Message-ID: <20170217152201.ue5ujd5ia3iqcduh@piout.net>
+Subject: Re: [PATCH v2 1/3] watchdog: sama5d4: Cleanup init
+Message-ID: <20170217153505.gv4kftvk3z6emmii@piout.net>
 References: <20170216193053.5546-1-alexandre.belloni@free-electrons.com>
- <20170216193053.5546-3-alexandre.belloni@free-electrons.com>
- <0fe51486-2de0-eda6-2310-823fc4fd7c82@roeck-us.net>
+ <14ea461a-5a95-ca85-1eb3-1c34e382bc48@roeck-us.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <0fe51486-2de0-eda6-2310-823fc4fd7c82@roeck-us.net>
+In-Reply-To: <14ea461a-5a95-ca85-1eb3-1c34e382bc48@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 17/02/2017 at 06:47:03 -0800, Guenter Roeck wrote:
+On 17/02/2017 at 06:48:36 -0800, Guenter Roeck wrote:
 > On 02/16/2017 11:30 AM, Alexandre Belloni wrote:
-> > When resuming for the deepest state on sama5d2, it is necessary to restore
-> > MR as the registers are lost.
+> > .config is used to cache a part of WDT_MR at probe time and is not used
+> > afterwards. Also functions are used while they always return 0. Simplify
+> > the flow by having everything in .probe().
 > > 
+> 
+> Does that really improve anything ? It makes the code harder to read
+> and, ultimately, the dropped value in sama5d4_wdt is added back in a
+> later patch as 'mr'.
+> 
+
+I don't find the current code to be particularly easy to read but maybe
+it is a matter of taste.
+
+I would still remove the test on pdev->dev.of_node because it will never
+be false anyway.
+
+
+> Guenter
+> 
 > > Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 > > ---
 > > Changes in v2:
-> >  - cache mr beofre suspending
+> >  - completely get rid of .config instead of caching it
+> >  - merge init functions in probe()
 > > 
-> >  drivers/watchdog/sama5d4_wdt.c | 32 ++++++++++++++++++++++++++++++++
-> >  1 file changed, 32 insertions(+)
+> >  drivers/watchdog/sama5d4_wdt.c | 92 ++++++++++++++++--------------------------
+> >  1 file changed, 34 insertions(+), 58 deletions(-)
 > > 
 > > diff --git a/drivers/watchdog/sama5d4_wdt.c b/drivers/watchdog/sama5d4_wdt.c
-> > index 2a60251806d2..5ddeb4803dc3 100644
+> > index a49634cdc1cc..2c6f5a70ae67 100644
 > > --- a/drivers/watchdog/sama5d4_wdt.c
 > > +++ b/drivers/watchdog/sama5d4_wdt.c
-> > @@ -28,6 +28,7 @@
+> > @@ -28,7 +28,6 @@
 > >  struct sama5d4_wdt {
 > >  	struct watchdog_device	wdd;
 > >  	void __iomem		*reg_base;
-> > +	u32			mr;
-> 
-> Makes me wonder if we shouldn't just retain the original 'config'
-> (and maybe rename it to 'mr). After all, it _is_ used now.
-> 
+> > -	u32	config;
 > >  };
 > > 
 > >  static int wdt_timeout = WDT_DEFAULT_TIMEOUT;
-> > @@ -248,11 +249,42 @@ static const struct of_device_id sama5d4_wdt_of_match[] = {
-> >  };
-> >  MODULE_DEVICE_TABLE(of, sama5d4_wdt_of_match);
+> > @@ -128,57 +127,15 @@ static irqreturn_t sama5d4_wdt_irq_handler(int irq, void *dev_id)
+> >  	return IRQ_HANDLED;
+> >  }
 > > 
-> > +#ifdef CONFIG_PM_SLEEP
-> > +static int sama5d4_wdt_suspend(struct device *dev)
-> > +{
-> > +	struct sama5d4_wdt *wdt = dev_get_drvdata(dev);
+> > -static int of_sama5d4_wdt_init(struct device_node *np, struct sama5d4_wdt *wdt)
+> > -{
+> > -	const char *tmp;
+> > -
+> > -	wdt->config = AT91_WDT_WDDIS;
+> > -
+> > -	if (!of_property_read_string(np, "atmel,watchdog-type", &tmp) &&
+> > -	    !strcmp(tmp, "software"))
+> > -		wdt->config |= AT91_WDT_WDFIEN;
+> > -	else
+> > -		wdt->config |= AT91_WDT_WDRSTEN;
+> > -
+> > -	if (of_property_read_bool(np, "atmel,idle-halt"))
+> > -		wdt->config |= AT91_WDT_WDIDLEHLT;
+> > -
+> > -	if (of_property_read_bool(np, "atmel,dbg-halt"))
+> > -		wdt->config |= AT91_WDT_WDDBGHLT;
+> > -
+> > -	return 0;
+> > -}
+> > -
+> > -static int sama5d4_wdt_init(struct sama5d4_wdt *wdt)
+> > -{
+> > -	struct watchdog_device *wdd = &wdt->wdd;
+> > -	u32 value = WDT_SEC2TICKS(wdd->timeout);
+> > -	u32 reg;
+> > -
+> > -	/*
+> > -	 * Because the fields WDV and WDD must not be modified when the WDDIS
+> > -	 * bit is set, so clear the WDDIS bit before writing the WDT_MR.
+> > -	 */
+> > -	reg = wdt_read(wdt, AT91_WDT_MR);
+> > -	reg &= ~AT91_WDT_WDDIS;
+> > -	wdt_write(wdt, AT91_WDT_MR, reg);
+> > -
+> > -	reg = wdt->config;
+> > -	reg |= AT91_WDT_SET_WDD(value);
+> > -	reg |= AT91_WDT_SET_WDV(value);
+> > -
+> > -	wdt_write(wdt, AT91_WDT_MR, reg);
+> > -
+> > -	return 0;
+> > -}
+> > -
+> >  static int sama5d4_wdt_probe(struct platform_device *pdev)
+> >  {
+> >  	struct watchdog_device *wdd;
+> >  	struct sama5d4_wdt *wdt;
+> >  	struct resource *res;
+> >  	void __iomem *regs;
+> > -	u32 irq = 0;
+> > +	struct device_node *np = pdev->dev.of_node;
+> > +	const char *tmp;
+> > +	u32 mr, reg, irq = 0;
+> >  	int ret;
+> > 
+> >  	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
+> > @@ -201,17 +158,26 @@ static int sama5d4_wdt_probe(struct platform_device *pdev)
+> > 
+> >  	wdt->reg_base = regs;
+> > 
+> > -	if (pdev->dev.of_node) {
+> > -		irq = irq_of_parse_and_map(pdev->dev.of_node, 0);
+> > -		if (!irq)
+> > -			dev_warn(&pdev->dev, "failed to get IRQ from DT\n");
+> > +	irq = irq_of_parse_and_map(np, 0);
+> > +	if (!irq)
+> > +		dev_warn(&pdev->dev, "failed to get IRQ from DT\n");
+> > 
+> > -		ret = of_sama5d4_wdt_init(pdev->dev.of_node, wdt);
+> > -		if (ret)
+> > -			return ret;
+> > -	}
+> > 
+> > -	if ((wdt->config & AT91_WDT_WDFIEN) && irq) {
+> > +	mr = AT91_WDT_WDDIS;
 > > +
-> > +	wdt->mr = wdt_read(wdt, AT91_WDT_MR);
+> > +	if (!of_property_read_string(np, "atmel,watchdog-type", &tmp) &&
+> > +	    !strcmp(tmp, "software"))
+> > +		mr |= AT91_WDT_WDFIEN;
+> > +	else
+> > +		mr |= AT91_WDT_WDRSTEN;
 > > +
-> 
-> Wouldn't you want to stop the watchdog here if it is running,
-> ie set AT91_WDT_WDDIS ?
-> 
-
-Some existing customers want the watchdog to continue to run while the
-system is suspended.
-
-> > +	return 0;
-> > +}
+> > +	if (of_property_read_bool(np, "atmel,idle-halt"))
+> > +		mr |= AT91_WDT_WDIDLEHLT;
 > > +
-> > +static int sama5d4_wdt_resume(struct device *dev)
-> > +{
-> > +	struct sama5d4_wdt *wdt = dev_get_drvdata(dev);
-> > +	u32 reg;
+> > +	if (of_property_read_bool(np, "atmel,dbg-halt"))
+> > +		mr |= AT91_WDT_WDDBGHLT;
 > > +
+> > +	if ((mr & AT91_WDT_WDFIEN) && irq) {
+> >  		ret = devm_request_irq(&pdev->dev, irq, sama5d4_wdt_irq_handler,
+> >  				       IRQF_SHARED | IRQF_IRQPOLL |
+> >  				       IRQF_NO_SUSPEND, pdev->name, pdev);
+> > @@ -228,9 +194,19 @@ static int sama5d4_wdt_probe(struct platform_device *pdev)
+> >  		return ret;
+> >  	}
+> > 
+> > -	ret = sama5d4_wdt_init(wdt);
+> > -	if (ret)
+> > -		return ret;
+> > +	/*
+> > +	 * WDV and WDD must not be modified when the WDDIS bit is set, so clear
+> > +	 * the WDDIS bit before writing the WDT_MR.
+> > +	 */
 > > +	reg = wdt_read(wdt, AT91_WDT_MR);
-> > +	if (reg & AT91_WDT_WDDIS)
-> > +		wdt_write(wdt, AT91_WDT_MR, reg & ~AT91_WDT_WDDIS);
+> > +	reg &= ~AT91_WDT_WDDIS;
+> > +	wdt_write(wdt, AT91_WDT_MR, reg);
 > > +
-> > +	wdt_write(wdt, AT91_WDT_MR, wdt->mr & ~AT91_WDT_WDDIS);
+> > +	reg = mr;
+> > +	reg |= AT91_WDT_SET_WDD(WDT_SEC2TICKS(wdd->timeout));
+> > +	reg |= AT91_WDT_SET_WDV(WDT_SEC2TICKS(wdd->timeout));
+> > +
+> > +	wdt_write(wdt, AT91_WDT_MR, reg);
+> > 
+> >  	watchdog_set_nowayout(wdd, nowayout);
+> > 
+> > 
 > 
-> Is that necessary ? Why not just write wdt->mr unconditionally ?
-> 
-
-Because you can change WDV and WDD *OR* WDDIS but not both at the same
-time.
 
 -- 
 Alexandre Belloni, Free Electrons
