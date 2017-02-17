@@ -1,72 +1,137 @@
-Return-path: <Chris.Brandt@renesas.com>
-From: Chris Brandt <Chris.Brandt@renesas.com>
-To: Guenter Roeck <linux@roeck-us.net>, Geert Uytterhoeven
-	<geert@linux-m68k.org>
-CC: Wim Van Sebroeck <wim@iguana.be>, Sebastian Reichel <sre@kernel.org>, "Rob
- Herring" <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, "Simon
- Horman" <horms@verge.net.au>, "linux-renesas-soc@vger.kernel.org"
-	<linux-renesas-soc@vger.kernel.org>, "linux-pm@vger.kernel.org"
-	<linux-pm@vger.kernel.org>, "devicetree@vger.kernel.org"
-	<devicetree@vger.kernel.org>, "linux-watchdog@vger.kernel.org"
-	<linux-watchdog@vger.kernel.org>
-Subject: RE: [PATCH v2 1/3] power: reset: Add Renesas reset driver
-Date: Fri, 17 Feb 2017 13:49:34 +0000
-Message-ID: <SG2PR06MB11659AB2F7D659FF1AB8FEDB8A5D0@SG2PR06MB1165.apcprd06.prod.outlook.com>
-References: <20170216172320.10897-1-chris.brandt@renesas.com>
- <20170216172320.10897-2-chris.brandt@renesas.com>
- <20170216182644.GA17814@roeck-us.net>
- <PS1PR06MB1162A4C12D144C321379E3028A5A0@PS1PR06MB1162.apcprd06.prod.outlook.com>
- <20170216222014.GA29672@roeck-us.net>
- <PS1PR06MB11622077DE4673C1879C05278A5D0@PS1PR06MB1162.apcprd06.prod.outlook.com>
- <55cf087f-aa70-3660-1186-af9b9b20376d@roeck-us.net>
- <CAMuHMdUChhntL0Mw2CY7au87WHj11nBi+0Q2mWSi+RcYpHXgAQ@mail.gmail.com>
- <fb92af5b-6ed8-ef52-d1d1-4615b5026738@roeck-us.net>
-In-Reply-To: <fb92af5b-6ed8-ef52-d1d1-4615b5026738@roeck-us.net>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Return-path: <niklas.cassel@axis.com>
+From: Niklas Cassel <niklas.cassel@axis.com>
+To: <wim@iguana.be>, <linux@roeck-us.net>, <edumazet@google.com>,
+	<peterz@infradead.org>
+CC: <linux-watchdog@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+	<niklass@axis.com>
+Subject: [PATCH] watchdog: softdog: fire watchdog even if softirqs do not get to run
+Date: Fri, 17 Feb 2017 19:25:02 +0100
+Message-ID: <1487355902-28020-1-git-send-email-niklass@axis.com>
 MIME-Version: 1.0
+Content-Type: text/plain
 List-ID: <linux-watchdog@vger.kernel.org>
 
-SGkgR8O8bnRlciBhbmQgR2VlcnQsDQoNCkNhdGNoaW5nIHVwIG9uIHRoZSBzdWJqZWN0IChiZWNh
-dXNlIEkgd2FzIHNsZWVwaW5nIGhlcmUgaW4gdGhlIFVTLi4uKQ0KDQoNCk9uIEZyaWRheSwgRmVi
-cnVhcnkgMTcsIDIwMTcsIEdlZXJ0IFV5dHRlcmhvZXZlbiB3cm90ZToNCj4gPiBGV0lXLCB0aGUg
-d2F0Y2hkb2cgc3Vic3lzdGVtIHNob3VsZCBzdXBwb3J0IHRoYXQgZWFzaWx5LCBldmVuIHdpdGgg
-MTI1DQo+ID4gbXMgaGFyZHdhcmUgdGltZW91dC4gV2UgYWRkZWQgdGhhdCBjYXBhYmlsaXR5IGZv
-ciB0aGF0IHZlcnkgcHVycG9zZS4NCj4gPiBUaGF0IHdvdWxkIG9ubHkgZmFpbCBpZiB0aGUgc3lz
-dGVtIGlzIHN0dWNrIHdpdGggaW50ZXJydXB0cyBkaXNhYmxlZA0KPiA+IGZvciBtb3JlIHRoYW4g
-MTI1IG1zLCB3aGljaCBzZWVtcyB1bmxpa2VseS4gSSB0aGluayB0aGUgZ3BpbyB3YXRjaGRvZw0K
-PiA+IG9uIHNvbWUgc3lzdGVtcyBoYXMgYSBzaW1pbGFyIGxvdyBoYXJkd2FyZSB0aW1lb3V0Lg0K
-PiANCj4gSSBhbHNvIHRob3VnaHQgMTI1bXMgd2FzIGEgYml0IHNob3J0LCBidXQgSSdtIGhhcHB5
-IHRvIGJlIHByb3ZlbiB3cm9uZyENCj4gTGV0J3MgbWFrZSBhIHJlYWwgd2F0Y2hkb2cgZHJpdmVy
-IGluc3RlYWQgOy0pDQoNCk9LLCBJJ2xsIHNlZSBhYm91dCBzd2l0Y2hpbmcgb3ZlciB0byBhIHJl
-YWwgd2F0Y2hkb2cgZHJpdmVyLiBBcyBsb25nIGFzIEkNCmNhbiBnZXQgbXkgcmVzZXQgaGFuZGxl
-ciwgSSdsbCBiZSBoYXBweS4NCg0KQmVzaWRlcywgaWYgSSBnZXQgdGhlIDgtYml0IGNvdW50ZXIg
-cmVnaXN0ZXIgY2hhbmdlZCB0byAxNi1iaXQgKGEgdXNlZnVsDQpXRFQpLCB0aGVuIEkgYWxyZWFk
-eSBoYXZlIGEgV0RUIG1hZGUuDQoNClRoZSBnb29kIHRoaW5nIGlzIHRoYXQgdGhlIERUIGJpbmRp
-bmcgd2lsbCBzdGF5IGV4YWN0bHkgdGhlIHNhbWUsIEkganVzdA0KbmVlZCBhIG5ldyBkcml2ZXIu
-DQoNCkZXSVcsIGlmIEkgd2FzIG1ha2luZyBhIHJlYWwgcHJvZHVjdCBJIHdvdWxkIGFsd2F5cyBo
-YXZlIGEgV0RUIHJ1bm5pbmcgKGJ1dA0Kd2l0aCBhIDEtMyBzZWNvbmQgdGltZW91dCBqdXN0IHRv
-IG1ha2Ugc3VyZSBJIHdhcyBjb21wbGV0ZWx5IGRlYWQpLg0KDQojIHNpZGUgbm90ZSwgSSB0ZWxs
-IHBlb3BsZSB0byBzZXQgdXAgYSBETUEgd2l0aCBhIHRpbWVyIHRyaWdnZXIgYW5kDQphdXRvbWF0
-aWNhbGx5IGZlZWQgdGhlIFdEVCB0aGF0IHdheSwgdGhlbiB0aGV5IGNhbiBzZXQgdGhlIERNQSBj
-b3VudCB0bw0Kd2hhdGV2ZXIgZmFpbHNhZmUgdGltZW91dCB0aGV5IHdhbnQuIE5vdCBzdXJlIGlm
-IEkgY291bGQgc3VibWl0IHRoYXQga2luZA0Kb2YgaGFja2VyeSBpbiBhbiB1cHN0cmVhbSBkcml2
-ZXIuDQoNCg0KPiA+Pj4gSSBrbm93IEdlZXJ0J3Mgc3VnZ2VzdGlvbiB3YXMgaW4gcmVmZXJlbmNl
-IHRvIHNhdmluZyBwb3dlci4uLmJ1dCBpbg0KPiA+Pj4gcmVhbGl0eSBpdCdzIHByb2JhYmx5IG5l
-Z2xpZ2libGUgd2hlbiB3ZSBhcmUgdGFsa2luZyBhYm91dCA3Ljd1cy4NCj4gPj4+IFRoZSByZWJv
-b3QgaXMgZ29pbmcgdG8gYXV0b21hdGljYWxseSBzaHV0IG9mZiBhbGwgdGhlIHBlcmlwaGVyYWxz
-DQo+ID4+PiBjbG9ja3MgYXMgd2VsbC4NCj4gPj4NCj4gPj4gTWF5YmUgdWRlbGF5KDEwKTsgd291
-bGQgaGF2ZSBiZWVuIG1vcmUgYWNjZXB0YWJsZSAoYW5kIGFwcHJvcHJpYXRlKS4NCj4gPg0KPiA+
-IEluc2lkZSB0aGUgd2hpbGUgKDEpIGxvb3A/IFRoYXQncyB0aGUgc2FtZSBhcyBhIHBsYWluICJ3
-aGlsZSAoMSkgOyINCj4gPiA7LSkgT3IganVzdCB1ZGVsYXkoMTApIGFuZCByZXR1cm4sIHdpdGgg
-dGhlIGxhdHRlciBuZXZlciBoYXBwZW5pbmcgaWYNCj4gPiBldmVyeXRoaW5nIGdvZXMgd2VsbD8g
-VGhlbiB0aGUgbmV4dCByZXN0YXJ0IGhhbmRsZXIgd2lsbCBiZSB0cmllZCwgaWYNCj4gYXZhaWxh
-YmxlLg0KPiA+DQo+IA0KPiBUaGF0IGlzIHdoYXQgSSBtZWFudC4gT3IgdXNlIHVkZWxheSgyMCkg
-dG8gYmUgb24gdGhlIHNhZmUgc2lkZS4NCg0KT0suIFNvdW5kcyBsaWtlIHdlIGFncmVlIG9uOg0K
-DQoJLyogU3RhcnQgdGltZXIgKi8NCgl3cml0ZXcoV1RDU1JfTUFHSUMgfCBXVFNDUl9XVCB8IFdU
-U0NSX1RNRSwgYmFzZSArIFdUQ1NSKTsNCg0KCS8qIFdhaXQgZm9yIFdEVCBvdmVyZmxvdyAocmVz
-ZXQpICovDQoJVWRlbGF5KDIwKTsNCg0KCXJldHVybiBOT1RJRllfRE9ORTsNCn0NCg0KDQpGWUks
-IEknbGwgYmUgYXQgRUxDIG5leHQgd2Vlaywgc28gSSBtaWdodCBub3QgZ2V0IHRvIHRoaXMgdW50
-aWwgYWZ0ZXIgdGhlbi4NCg0KVGhhbmtzIGZvciB0aGUgZGlzY3Vzc2lvbi4NCg0KQ2hlZXJzDQoN
-CkNocmlzDQo=
+From: Niklas Cassel <niklas.cassel@axis.com>
+
+Checking for timer expiration is done from the softirq TIMER_SOFTIRQ.
+
+Since commit 4cd13c21b207 ("softirq: Let ksoftirqd do its job"),
+pending softirqs are no longer always handled immediately, instead,
+if there are pending softirqs, and ksoftirqd is in state TASK_RUNNING,
+the handling of the softirqs are deferred, and are instead supposed
+to be handled by ksoftirqd, when ksoftirqd gets scheduled.
+
+If a user space process with a real-time policy starts to misbehave
+by never relinquishing the CPU while ksoftirqd is in state TASK_RUNNING,
+what will happen is that all softirqs will get deferred, while ksoftirqd,
+which is supposed to handle the deferred softirqs, will never get to run.
+
+To make sure that the watchdog is able to fire even when we do not get
+to run softirqs, replace the timers with hrtimers.
+
+Signed-off-by: Niklas Cassel <niklas.cassel@axis.com>
+---
+ drivers/watchdog/softdog.c | 40 ++++++++++++++++++++++++----------------
+ 1 file changed, 24 insertions(+), 16 deletions(-)
+
+diff --git a/drivers/watchdog/softdog.c b/drivers/watchdog/softdog.c
+index c7bdc986dca1..0f67cd068465 100644
+--- a/drivers/watchdog/softdog.c
++++ b/drivers/watchdog/softdog.c
+@@ -21,13 +21,12 @@
+ 
+ #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+ 
++#include <linux/hrtimer.h>
+ #include <linux/init.h>
+-#include <linux/jiffies.h>
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
+ #include <linux/reboot.h>
+-#include <linux/timer.h>
+ #include <linux/types.h>
+ #include <linux/watchdog.h>
+ 
+@@ -54,7 +53,10 @@ module_param(soft_panic, int, 0);
+ MODULE_PARM_DESC(soft_panic,
+ 	"Softdog action, set to 1 to panic, 0 to reboot (default=0)");
+ 
+-static void softdog_fire(unsigned long data)
++static struct hrtimer softdog_ticktock;
++static struct hrtimer softdog_preticktock;
++
++static enum hrtimer_restart softdog_fire(struct hrtimer *timer)
+ {
+ 	module_put(THIS_MODULE);
+ 	if (soft_noboot) {
+@@ -67,41 +69,42 @@ static void softdog_fire(unsigned long data)
+ 		emergency_restart();
+ 		pr_crit("Reboot didn't ?????\n");
+ 	}
+-}
+ 
+-static struct timer_list softdog_ticktock =
+-		TIMER_INITIALIZER(softdog_fire, 0, 0);
++	return HRTIMER_NORESTART;
++}
+ 
+ static struct watchdog_device softdog_dev;
+ 
+-static void softdog_pretimeout(unsigned long data)
++static enum hrtimer_restart softdog_pretimeout(struct hrtimer *timer)
+ {
+ 	watchdog_notify_pretimeout(&softdog_dev);
+-}
+ 
+-static struct timer_list softdog_preticktock =
+-		TIMER_INITIALIZER(softdog_pretimeout, 0, 0);
++	return HRTIMER_NORESTART;
++}
+ 
+ static int softdog_ping(struct watchdog_device *w)
+ {
+-	if (!mod_timer(&softdog_ticktock, jiffies + (w->timeout * HZ)))
++	if (!hrtimer_active(&softdog_ticktock))
+ 		__module_get(THIS_MODULE);
++	hrtimer_start(&softdog_ticktock, ktime_set(w->timeout, 0),
++		      HRTIMER_MODE_REL);
+ 
+ 	if (w->pretimeout)
+-		mod_timer(&softdog_preticktock, jiffies +
+-			  (w->timeout - w->pretimeout) * HZ);
++		hrtimer_start(&softdog_preticktock,
++			      ktime_set(w->timeout - w->pretimeout, 0),
++			      HRTIMER_MODE_REL);
+ 	else
+-		del_timer(&softdog_preticktock);
++		hrtimer_cancel(&softdog_preticktock);
+ 
+ 	return 0;
+ }
+ 
+ static int softdog_stop(struct watchdog_device *w)
+ {
+-	if (del_timer(&softdog_ticktock))
++	if (hrtimer_cancel(&softdog_ticktock))
+ 		module_put(THIS_MODULE);
+ 
+-	del_timer(&softdog_preticktock);
++	hrtimer_cancel(&softdog_preticktock);
+ 
+ 	return 0;
+ }
+@@ -134,6 +137,11 @@ static int __init softdog_init(void)
+ 	watchdog_set_nowayout(&softdog_dev, nowayout);
+ 	watchdog_stop_on_reboot(&softdog_dev);
+ 
++	hrtimer_init(&softdog_ticktock, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
++	softdog_ticktock.function = softdog_fire;
++	hrtimer_init(&softdog_preticktock, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
++	softdog_preticktock.function = softdog_pretimeout;
++
+ 	ret = watchdog_register_device(&softdog_dev);
+ 	if (ret)
+ 		return ret;
+-- 
+2.1.4
