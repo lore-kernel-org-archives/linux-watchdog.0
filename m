@@ -1,186 +1,137 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-io0-f194.google.com ([209.85.223.194]:34001 "EHLO
-        mail-io0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754715AbdBGS7x (ORCPT
+Received: from mail-it0-f65.google.com ([209.85.214.65]:34446 "EHLO
+        mail-it0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754199AbdBQIJy (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 7 Feb 2017 13:59:53 -0500
-Received: by mail-io0-f194.google.com with SMTP id c80so13740789iod.1
-        for <linux-watchdog@vger.kernel.org>; Tue, 07 Feb 2017 10:59:53 -0800 (PST)
-Subject: Re: [PATCH] watchdog: gpio: Add "keep-armed-on-close" feature
-From: Sylvain Lemieux <slemieux.tyco@gmail.com>
+        Fri, 17 Feb 2017 03:09:54 -0500
+MIME-Version: 1.0
+In-Reply-To: <55cf087f-aa70-3660-1186-af9b9b20376d@roeck-us.net>
+References: <20170216172320.10897-1-chris.brandt@renesas.com>
+ <20170216172320.10897-2-chris.brandt@renesas.com> <20170216182644.GA17814@roeck-us.net>
+ <PS1PR06MB1162A4C12D144C321379E3028A5A0@PS1PR06MB1162.apcprd06.prod.outlook.com>
+ <20170216222014.GA29672@roeck-us.net> <PS1PR06MB11622077DE4673C1879C05278A5D0@PS1PR06MB1162.apcprd06.prod.outlook.com>
+ <55cf087f-aa70-3660-1186-af9b9b20376d@roeck-us.net>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Fri, 17 Feb 2017 09:09:52 +0100
+Message-ID: <CAMuHMdUChhntL0Mw2CY7au87WHj11nBi+0Q2mWSi+RcYpHXgAQ@mail.gmail.com>
+Subject: Re: [PATCH v2 1/3] power: reset: Add Renesas reset driver
 To: Guenter Roeck <linux@roeck-us.net>
-Cc: wim@iguana.be, linux-watchdog@vger.kernel.org,
-        Rasmus Villemoes <rasmus.villemoes@prevas.dk>
-In-Reply-To: <20170103185946.GB10864@roeck-us.net>
-References: <1481139980-13429-1-git-send-email-slemieux.tyco@gmail.com>
-         <20161209210712.GA14339@roeck-us.net> <1481823963.26329.23.camel@localhost>
-         <1482258332.13119.16.camel@localhost> <1483456850.7643.0.camel@localhost>
-         <20170103185946.GB10864@roeck-us.net>
-Content-Type: text/plain; charset="UTF-8"
-Date: Tue, 07 Feb 2017 13:59:51 -0500
-Message-ID: <1486493991.32098.1.camel@localhost>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Cc: Chris Brandt <Chris.Brandt@renesas.com>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Sebastian Reichel <sre@kernel.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Simon Horman <horms@verge.net.au>,
+        "linux-renesas-soc@vger.kernel.org"
+        <linux-renesas-soc@vger.kernel.org>,
+        "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, 2017-01-03 at 10:59 -0800, Guenter Roeck wrote:
-> On Tue, Jan 03, 2017 at 10:20:50AM -0500, Sylvain Lemieux wrote:
-> > On Tue, 2016-12-20 at 13:25 -0500, Sylvain Lemieux wrote:
-> > > Hi Guenter,
-> > > 
-> > > On Thu, 2016-12-15 at 12:46 -0500, Sylvain Lemieux wrote:
-> > > > Hi Guenter,
-> > > > 
-> > > > On Fri, 2016-12-09 at 13:07 -0800, Guenter Roeck wrote:
-> > > > > On Wed, Dec 07, 2016 at 02:46:20PM -0500, Sylvain Lemieux wrote:
-> > > > > > From: Sylvain Lemieux <slemieux@tycoint.com>
-> > > > > > 
-> > > > > > There is a need to allow a grace period after the watchdog software
-> > > > > > client has closed. It could be used for syncing the filesystem or
-> > > > > > allow graceful termination while still providing a hardware reset
-> > > > > > in case the system has hung.
-> > > > > > 
-> > > > > > The "always-running" configuration from device-tree does not provide
-> > > > > > this since it will automatically keep the hardware watchdog alive as
-> > > > > > soon as the software client closes (i.e. keep toggling the GPIO line
-> > > > > > regardless of the state of the soft part of the watchdog).
-> > > > > > 
-> > > > > > The "keep-armed-on-close" member in the GPIO watchdog implementation
-> > > > > > indicates if an expired timeout should cause a reset.
-> > > > > > 
-> > > > > > This patch add a new "keep-armed-on-close" device-tree configuration
-> > > > > > that will keep the watchdog "armed" until the next timeout period after
-> > > > > > a close. During this period, the hardware watchdog is kept alive.
-> > > > > > 
-> > > > > > A software watchdog client that wants to provide a grace period,
-> > > > > > before a hard reset, can set the timeout before properly closing.
-> > > > > > 
-> > > > > > Signed-off-by: Sylvain Lemieux <slemieux@tycoint.com>
-> > > > > 
-> > > > > Rather than changing the current gpio watchdog code, I would prefer to start
-> > > > > with https://lkml.org/lkml/2016/1/26/517, which moves part of its code into
-> > > > > the watchdog core - even more so here since I suspect that the suggested
-> > > > > changes won't work anymore after the above patch is applied.
-> > > > > 
-> > > > I agree that we should apply the "keepalive" change for this driver
-> > > > first; ref. https://lkml.org/lkml/2016/2/28/239 (version v8).
-> > > > 
-> > > [...]
-> > > > 
-> > > I took the "watchdog: gpio: keepalives" patch and rebase this
-> > > patch on top of it.
-> > > 
-> > > We have a scenario that will open and close the GPIO watchdog
-> > > device a few times during the user-space initialization. This
-> > > scenario is working properly with this patch on top of v4.9.
-> > > 
-> > > With the "watchdog: gpio: keepalives", I am getting an error
-> > > when the GPIO watchdog driver is open for the 3rd time
-> > > during this initialization process.
-> > > 
-> > > This is a short summary of stack trace:
-> > > ------------[ cut here ]------------
-> > > WARNING: CPU: 0 PID: 808 at lib/kobject.c:597 kobject_get+0x6c/0xac
-> > > kobject: '(null)' (c397f304): is not initialized, yet kobject_get()
-> > > is being called.
-> > > ...
-> > > [<c01a97f8>] (kobject_get) from [<c00c1278>] (chrdev_open+0x54/0x21c)
-> > > [<c00c1224>] (chrdev_open) from [<c00b9df0>] (do_dentry_open
-> > > +0x188/0x2d8)
-> > > ...
-> > > [<c00cabcc>] (do_filp_open) from [<c00bb668>] (do_sys_open+0x114/0x1cc)
-> > > [<c00bb554>] (do_sys_open) from [<c00bb74c>] (SyS_open+0x2c/0x30)
-> > > [<c00bb720>] (SyS_open) from [<c000f840>] (ret_fast_syscall+0x0/0x38)
-> > > [   16.807133] ---[ end trace 7d55a0fe58991d4c ]---
-> > > [   16.807143] ------------[ cut here ]------------
-> > > 
-> > > Regards,
-> > > Sylvain
-> > > 
-> > ping
-> > 
-> Busy, sorry.
-> 
-> Guenter
-> 
-Just doing a follow-up.
+Hi G=C3=BCnter,
 
-> > Sylvain
-> > 
-> > > > 
-> > > > > Also, isn't this quite identical to nowayout ?
-> > > > > 
-> > > > Nowayout block the watchdog driver from being stop.
-> > > > 
-> > > > In this case, we want to stop the watchdog (i.e. close) and be able
-> > > > to reopen it within the timeout period. If the driver is not reopen
-> > > > within the timeout period, the board should reset.
-> > > > 
-> > > > Regards,
-> > > > Sylvain
-> > > > 
-> > > > > Thanks,
-> > > > > Guenter
-> > > > > 
-> > > > > > ---
-> > > > > >  Documentation/devicetree/bindings/watchdog/gpio-wdt.txt | 3 +++
-> > > > > >  drivers/watchdog/gpio_wdt.c                             | 6 ++++++
-> > > > > >  2 files changed, 9 insertions(+)
-> > > > > > 
-> > > > > > diff --git a/Documentation/devicetree/bindings/watchdog/gpio-wdt.txt b/Documentation/devicetree/bindings/watchdog/gpio-wdt.txt
-> > > > > > index 83d2814..2669735 100644
-> > > > > > --- a/Documentation/devicetree/bindings/watchdog/gpio-wdt.txt
-> > > > > > +++ b/Documentation/devicetree/bindings/watchdog/gpio-wdt.txt
-> > > > > > @@ -17,6 +17,9 @@ Optional Properties:
-> > > > > >  - always-running: If the watchdog timer cannot be disabled, add this flag to
-> > > > > >    have the driver keep toggling the signal without a client. It will only cease
-> > > > > >    to toggle the signal when the device is open and the timeout elapsed.
-> > > > > > +- keep-armed-on-close: if the watchdog timer need to keep toggling the signal
-> > > > > > +  when close, until the timeout elapsed, add this flag to have the driver
-> > > > > > +  keep toggling the signal, until the timeout elapsed.
-> > > > > >  - timeout-sec: Contains the watchdog timeout in seconds.
-> > > > > >  - start-at-init: Start kicking watchdog as soon as driver is loaded.
-> > > > > >  
-> > > > > > diff --git a/drivers/watchdog/gpio_wdt.c b/drivers/watchdog/gpio_wdt.c
-> > > > > > index ef9ab91..ba9091a 100644
-> > > > > > --- a/drivers/watchdog/gpio_wdt.c
-> > > > > > +++ b/drivers/watchdog/gpio_wdt.c
-> > > > > > @@ -32,6 +32,7 @@ struct gpio_wdt_priv {
-> > > > > >  	bool			active_low;
-> > > > > >  	bool			state;
-> > > > > >  	bool			always_running;
-> > > > > > +	bool			keep_armed_on_close;
-> > > > > >  	bool			armed;
-> > > > > >  	unsigned int		hw_algo;
-> > > > > >  	unsigned int		hw_margin;
-> > > > > > @@ -72,6 +73,9 @@ static int gpio_wdt_stop(struct watchdog_device *wdd)
-> > > > > >  {
-> > > > > >  	struct gpio_wdt_priv *priv = watchdog_get_drvdata(wdd);
-> > > > > >  
-> > > > > > +	if(priv->keep_armed_on_close)
-> > > > > > +		return 0;
-> > > > > > +
-> > > > > >  	priv->armed = false;
-> > > > > >  	if (!priv->always_running) {
-> > > > > >  		mod_timer(&priv->timer, 0);
-> > > > > > @@ -210,6 +214,8 @@ static int gpio_wdt_probe(struct platform_device *pdev)
-> > > > > >  
-> > > > > >  	priv->always_running = of_property_read_bool(pdev->dev.of_node,
-> > > > > >  						     "always-running");
-> > > > > > +	priv->keep_armed_on_close = of_property_read_bool(pdev->dev.of_node,
-> > > > > > +						 "keep-armed-on-close");
-> > > > > >  
-> > > > > >  	watchdog_set_drvdata(&priv->wdd, priv);
-> > > > > >  
-> > > > > > -- 
-> > > > > > 1.8.3.1
-> > > > > > 
-> > > > 
-> > > > 
-> > > 
-> > > 
-> > 
-> > 
+On Fri, Feb 17, 2017 at 5:45 AM, Guenter Roeck <linux@roeck-us.net> wrote:
+> On 02/16/2017 06:00 PM, Chris Brandt wrote:
+>> On Thursday, February 16, 2017, Guenter Roeck wrote:
+>> If this WDT had a timeout longer than 125ms, I would make a real watchdo=
+g
+>> driver
+>> out of it. But at the moment, it just serves as the only way to reset th=
+e
+>> chip.
+>> Historically, this was the only way to reset a SH4 device...and we just
+>> lived
+>> with that fact. When Renesas moved from SH4 to ARM, a lot of the design
+>> teams
+>> just kept the same philosophy (and copied the HW blocks they knew alread=
+y
+>> worked)
+>
+> FWIW, the watchdog subsystem should support that easily, even with 125 ms
+> hardware
+> timeout. We added that capability for that very purpose. That would only
+> fail if
+> the system is stuck with interrupts disabled for more than 125 ms, which
+> seems
+> unlikely. I think the gpio watchdog on some systems has a similar low
+> hardware
+> timeout.
 
+I also thought 125ms was a bit short, but I'm happy to be proven wrong!
+Let's make a real watchdog driver instead ;-)
 
+>>>>>> v2: * changed DT bindings from 'wdt-reset' to 'rza-wdt' * changed
+>>>>>> hard coded register values to defines * added msleep to while(1)
+>>>>>> loop
+>>>>>
+>>>>> Sure you can sleep here ?
+>>>>
+>>>> As per Geert's review:
+>>>>
+>>>> On Wednesday, February 15, 2017, Geert Uytterhoeven wrote:
+>>>>>>
+>>>>>> + +       /* Wait for WDT overflow */ +       while (1)
+>>>
+>>> +               ;
+>>>>>
+>>>>> This burns CPU, and thus power, albeit for a very short time.
+>>>>> Perhaps add an msleep() to the loop body?
+>>>>
+>>>> Note that you only have 7.7us before the restart occurs, so probably
+>>>> not much sleeping will be going on.
+>>>>
+>>> Let me rephrase my question. Is it guaranteed that you _can_ sleep in
+>>> this
+>>> function, or in other words that it is guaranteed that interrupts are
+>>> enabled ?
+>>
+>> Hmm, I'm not sure if will actually 'sleep' or not. Regardless, interrupt=
+s
+>> or not,
+>> in 7.7us, the internal reset circuit is going to get triggered and the
+>> whole system
+>> is going to reboot not matter what is going on.
+>>
+>
+> That isn't the point, really. You might get a WARN blob if msleep() is
+> called
+> with interrupts disabled, but of course you won't really see that because=
+ it
+> can
+> not be displayed in 7.7 us.
+
+If it's not 100% guaranteed that we cannot sleep, we should not use msleep(=
+),
+and stick to busy waiting.
+On ARM, we could also use wfi().
+
+>> I know Geert's suggestion was in reference to saving power...but in
+>> reality it's
+>> probably negligible when we are talking about 7.7us. The reboot is going
+>> to
+>> automatically shut off all the peripherals clocks as well.
+>
+> Maybe udelay(10); would have been more acceptable (and appropriate).
+
+Inside the while (1) loop? That's the same as a plain "while (1) ;" ;-)
+Or just udelay(10) and return, with the latter never happening if everythin=
+g
+goes well? Then the next restart handler will be tried, if available.
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k=
+.org
+
+In personal conversations with technical people, I call myself a hacker. Bu=
+t
+when I'm talking to journalists I just say "programmer" or something like t=
+hat.
+                                -- Linus Torvalds
