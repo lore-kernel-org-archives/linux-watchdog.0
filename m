@@ -1,137 +1,419 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-it0-f65.google.com ([209.85.214.65]:34446 "EHLO
-        mail-it0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754199AbdBQIJy (ORCPT
+Received: from mail-pf0-f194.google.com ([209.85.192.194]:34946 "EHLO
+        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750838AbdBSBkP (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 17 Feb 2017 03:09:54 -0500
-MIME-Version: 1.0
-In-Reply-To: <55cf087f-aa70-3660-1186-af9b9b20376d@roeck-us.net>
-References: <20170216172320.10897-1-chris.brandt@renesas.com>
- <20170216172320.10897-2-chris.brandt@renesas.com> <20170216182644.GA17814@roeck-us.net>
- <PS1PR06MB1162A4C12D144C321379E3028A5A0@PS1PR06MB1162.apcprd06.prod.outlook.com>
- <20170216222014.GA29672@roeck-us.net> <PS1PR06MB11622077DE4673C1879C05278A5D0@PS1PR06MB1162.apcprd06.prod.outlook.com>
- <55cf087f-aa70-3660-1186-af9b9b20376d@roeck-us.net>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Fri, 17 Feb 2017 09:09:52 +0100
-Message-ID: <CAMuHMdUChhntL0Mw2CY7au87WHj11nBi+0Q2mWSi+RcYpHXgAQ@mail.gmail.com>
-Subject: Re: [PATCH v2 1/3] power: reset: Add Renesas reset driver
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Chris Brandt <Chris.Brandt@renesas.com>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        Sebastian Reichel <sre@kernel.org>,
-        Rob Herring <robh+dt@kernel.org>,
+        Sat, 18 Feb 2017 20:40:15 -0500
+Date: Sat, 18 Feb 2017 17:40:10 -0800
+From: Eduardo Valentin <edubezval@gmail.com>
+To: Steve Twiss <stwiss.opensource@diasemi.com>
+Cc: LINUX-KERNEL <linux-kernel@vger.kernel.org>,
+        LINUX-PM <linux-pm@vger.kernel.org>,
+        Zhang Rui <rui.zhang@intel.com>,
+        DEVICETREE <devicetree@vger.kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        LINUX-INPUT <linux-input@vger.kernel.org>,
+        LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
+        Lee Jones <lee.jones@linaro.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Lukasz Luba <lukasz.luba@arm.com>,
+        Mark Brown <broonie@kernel.org>,
         Mark Rutland <mark.rutland@arm.com>,
-        Simon Horman <horms@verge.net.au>,
-        "linux-renesas-soc@vger.kernel.org"
-        <linux-renesas-soc@vger.kernel.org>,
-        "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+        Rob Herring <robh+dt@kernel.org>,
+        Support Opensource <support.opensource@diasemi.com>,
+        Wim Van Sebroeck <wim@iguana.be>
+Subject: Re: [RESEND PATCH V5 7/8] thermal: da9062/61: Thermal junction
+ temperature monitoring driver
+Message-ID: <20170219014007.GA20845@localhost.localdomain>
+References: <cover.1486026227.git.stwiss.opensource@diasemi.com>
+ <6a1a651530fdaedd3e380aa33749ca5fce1a80a8.1486026227.git.stwiss.opensource@diasemi.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <6a1a651530fdaedd3e380aa33749ca5fce1a80a8.1486026227.git.stwiss.opensource@diasemi.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi G=C3=BCnter,
+Steve,
 
-On Fri, Feb 17, 2017 at 5:45 AM, Guenter Roeck <linux@roeck-us.net> wrote:
-> On 02/16/2017 06:00 PM, Chris Brandt wrote:
->> On Thursday, February 16, 2017, Guenter Roeck wrote:
->> If this WDT had a timeout longer than 125ms, I would make a real watchdo=
-g
->> driver
->> out of it. But at the moment, it just serves as the only way to reset th=
-e
->> chip.
->> Historically, this was the only way to reset a SH4 device...and we just
->> lived
->> with that fact. When Renesas moved from SH4 to ARM, a lot of the design
->> teams
->> just kept the same philosophy (and copied the HW blocks they knew alread=
-y
->> worked)
->
-> FWIW, the watchdog subsystem should support that easily, even with 125 ms
-> hardware
-> timeout. We added that capability for that very purpose. That would only
-> fail if
-> the system is stuck with interrupts disabled for more than 125 ms, which
-> seems
-> unlikely. I think the gpio watchdog on some systems has a similar low
-> hardware
-> timeout.
+On Thu, Feb 02, 2017 at 09:03:47AM +0000, Steve Twiss wrote:
+> From: Steve Twiss <stwiss.opensource@diasemi.com>
+> 
+> Add junction temperature monitoring supervisor device driver, compatible
+> with the DA9062 and DA9061 PMICs. A MODULE_DEVICE_TABLE() macro is added.
+> 
+> If the PMIC's internal junction temperature rises above T_WARN (125 degC)
+> an interrupt is issued. This T_WARN level is defined as the
+> THERMAL_TRIP_HOT trip-wire inside the device driver.
+> 
+> The thermal triggering mechanism is interrupt based and happens when the
+> temperature rises above a given threshold level. The component cannot
+> return an exact temperature, it only has knowledge if the temperature is
+> above or below a given threshold value. A status bit must be polled to
+> detect when the temperature falls below that threshold level again. A
+> kernel work queue is configured to repeatedly poll and detect when the
+> temperature falls below this trip-wire, between 1 and 10 second intervals
+> (defaulting at 3 seconds).
+> 
+> This scheme is provided as an example. It would be expected that any
+> final implementation will also include a notify() function and any of these
+> settings could be altered to match the application where appropriate.
+> 
+> When over-temperature is reached, the interrupt from the DA9061/2 will be
+> repeatedly triggered. The IRQ is therefore disabled when the first
+> over-temperature event happens and the status bit is polled using a
+> work-queue until it becomes false.
+> 
+> This strategy is designed to allow the periodic transmission of uevents
+> (HOT trip point) as the first level of temperature supervision method. It
+> is intended for non-invasive temperature control, where the necessary
+> measures for cooling the system down are left to the host software. Once
+> the temperature falls again, the IRQ is re-enabled so a new critical
+> over-temperature event can be detected.
+> 
+> Reviewed-by: Lukasz Luba <lukasz.luba@arm.com>
+> Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+> 
 
-I also thought 125ms was a bit short, but I'm happy to be proven wrong!
-Let's make a real watchdog driver instead ;-)
+Apologize for the very late answer on your driver. I still have few
+minor requests, please check then:
 
->>>>>> v2: * changed DT bindings from 'wdt-reset' to 'rza-wdt' * changed
->>>>>> hard coded register values to defines * added msleep to while(1)
->>>>>> loop
->>>>>
->>>>> Sure you can sleep here ?
->>>>
->>>> As per Geert's review:
->>>>
->>>> On Wednesday, February 15, 2017, Geert Uytterhoeven wrote:
->>>>>>
->>>>>> + +       /* Wait for WDT overflow */ +       while (1)
->>>
->>> +               ;
->>>>>
->>>>> This burns CPU, and thus power, albeit for a very short time.
->>>>> Perhaps add an msleep() to the loop body?
->>>>
->>>> Note that you only have 7.7us before the restart occurs, so probably
->>>> not much sleeping will be going on.
->>>>
->>> Let me rephrase my question. Is it guaranteed that you _can_ sleep in
->>> this
->>> function, or in other words that it is guaranteed that interrupts are
->>> enabled ?
->>
->> Hmm, I'm not sure if will actually 'sleep' or not. Regardless, interrupt=
-s
->> or not,
->> in 7.7us, the internal reset circuit is going to get triggered and the
->> whole system
->> is going to reboot not matter what is going on.
->>
->
-> That isn't the point, really. You might get a WARN blob if msleep() is
-> called
-> with interrupts disabled, but of course you won't really see that because=
- it
-> can
-> not be displayed in 7.7 us.
 
-If it's not 100% guaranteed that we cannot sleep, we should not use msleep(=
-),
-and stick to busy waiting.
-On ARM, we could also use wfi().
+> ---
+> This patch applies against linux-next and v4.9
+> 
+> v4 -> v5
+>  - Rebased from v4.8 to v4.9
+>  - Updates from comments by Eduardo Valentin
+>  - Replace vendor defined dlg,tjunc-temp-polling-period-ms with standard
+>    thermal core polling-delay-passive as part of the device tree
+>    initialisation
+>  - Change to the commit message content and device driver source code to
+>    include an explanation of the repeated uevent strategy for monitoring
+>    over-temperature
+>  - Rename warning threshold name from TEMP_WARN to T_WARN to match the
+>    latest datasheet naming convention
+>  - Added reviewed-by Lukasz Luba to commit message
+> 
+> v3 -> v4
+>  - Patch renamed from [PATCH V3 8/9] to [PATCH V4 7/8]
+>  - Reordering of cancel_delayed_work_sync() in remove function
+>  - dev_warn() message for out-of-range polling period requests
+>  - Explanatory comment for expected values defined for
+>    DEFAULT_POLLING_MS_PERIOD, MAX_POLLING_MS_PERIOD and
+>    MIN_POLLING_MS_PERIOD
+> 
+> v2 -> v3
+>  - Patch renamed from [PATCH V2 09/10] to [PATCH V3 8/9]
+>  - Addition of MODULE_DEVICE_TABLE macro to allow modinfo additions
+> 
+> v1 -> v2
+>  - Patch renamed from [PATCH V1 05/10] to [PATCH V2 09/10] -- these
+>    changes were made to fix checkpatch warnings caused by the patch
+>    set dependency order
+>  - List the header files in alphabetical order
+>  - Remove "GPL v2" and replace with MODULE_LICENSE("GPL") to match the
+>    copyright "GNU Public License v2 or later" option in the header
+>    comment for this file. See the allowed identifiers in the file
+>    include/linux/module.h +170
+>  - Remove notify function "da9062_thermal_notify" function.
+>  - MODULE_AUTHOR() macros removes Company Name and just gives Name in
+>    accordance with include/linux/module.h +200
+>  - Remove the compatible "dlg,da9061-thermal" option in the of_device_id
+>    struct table. This patch now assumes the use of a DA9062 fallback
+>    compatible string in the DTS when using the DA9061 thermal component
+>    of the DA9061 device.
+>  - Re-ordered some assignments earlier in the probe() for thermal->hw,
+>    thermal->polling_period, thermal->mode, thermal->dev
+>  - Added further information in the patch description to explain the use
+>    of the device driver's built-in work-queue.
+> 
+> Regards,
+> Steve Twiss, Dialog Semiconductor Ltd.
+> 
+> 
+>  drivers/thermal/Kconfig          |  10 ++
+>  drivers/thermal/Makefile         |   1 +
+>  drivers/thermal/da9062-thermal.c | 314 +++++++++++++++++++++++++++++++++++++++
+>  3 files changed, 325 insertions(+)
+>  create mode 100644 drivers/thermal/da9062-thermal.c
+> 
+> diff --git a/drivers/thermal/Kconfig b/drivers/thermal/Kconfig
+> index a13541b..400d15c 100644
+> --- a/drivers/thermal/Kconfig
+> +++ b/drivers/thermal/Kconfig
+> @@ -292,6 +292,16 @@ config DB8500_CPUFREQ_COOLING
+>  	  bound cpufreq cooling device turns active to set CPU frequency low to
+>  	  cool down the CPU.
+>  
+> +config DA9062_THERMAL
+> +	tristate "DA9062/DA9061 Dialog Semiconductor thermal driver"
+> +	depends on MFD_DA9062
 
->> I know Geert's suggestion was in reference to saving power...but in
->> reality it's
->> probably negligible when we are talking about 7.7us. The reboot is going
->> to
->> automatically shut off all the peripherals clocks as well.
->
-> Maybe udelay(10); would have been more acceptable (and appropriate).
+I see no reason why this driver cannot have the COMPILE_TEST flag.
+Tested myself here so:
 
-Inside the while (1) loop? That's the same as a plain "while (1) ;" ;-)
-Or just udelay(10) and return, with the latter never happening if everythin=
-g
-goes well? Then the next restart handler will be tried, if available.
++	depends on MFD_DA9062 || COMPILE_TEST
 
-Gr{oetje,eeting}s,
+> +	depends on OF
+> +	help
+> +	  Enable this for the Dialog Semiconductor thermal sensor driver.
+> +	  This will report PMIC junction over-temperature for one thermal trip
+> +	  zone.
+> +	  Compatible with the DA9062 and DA9061 PMICs.
+> +
+>  config INTEL_POWERCLAMP
+>  	tristate "Intel PowerClamp idle injection driver"
+>  	depends on THERMAL
+> diff --git a/drivers/thermal/Makefile b/drivers/thermal/Makefile
+> index c92eb22..f7783b3 100644
+> --- a/drivers/thermal/Makefile
+> +++ b/drivers/thermal/Makefile
+> @@ -40,6 +40,7 @@ obj-$(CONFIG_IMX_THERMAL)	+= imx_thermal.o
+>  obj-$(CONFIG_MAX77620_THERMAL)	+= max77620_thermal.o
+>  obj-$(CONFIG_QORIQ_THERMAL)	+= qoriq_thermal.o
+>  obj-$(CONFIG_DB8500_CPUFREQ_COOLING)	+= db8500_cpufreq_cooling.o
+> +obj-$(CONFIG_DA9062_THERMAL)	+= da9062-thermal.o
+>  obj-$(CONFIG_INTEL_POWERCLAMP)	+= intel_powerclamp.o
+>  obj-$(CONFIG_X86_PKG_TEMP_THERMAL)	+= x86_pkg_temp_thermal.o
+>  obj-$(CONFIG_INTEL_SOC_DTS_IOSF_CORE)	+= intel_soc_dts_iosf.o
+> diff --git a/drivers/thermal/da9062-thermal.c b/drivers/thermal/da9062-thermal.c
+> new file mode 100644
+> index 0000000..52a095d
+> --- /dev/null
+> +++ b/drivers/thermal/da9062-thermal.c
+> @@ -0,0 +1,314 @@
+> +/*
+> + * Thermal device driver for DA9062 and DA9061
+> + * Copyright (C) 2016  Dialog Semiconductor Ltd.
+> + *
+> + * This program is free software; you can redistribute it and/or
+> + * modify it under the terms of the GNU General Public License
+> + * as published by the Free Software Foundation; either version 2
+> + * of the License, or (at your option) any later version.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
+> + */
+> +
+> +/* When over-temperature is reached, an interrupt from the device will be
+> + * triggered. Following this event the interrupt will be disabled and
+> + * periodic transmission of uevents (HOT trip point) should define the
+> + * first level of temperature supervision. It is expected that any final
+> + * implementation of the thermal driver will include a .notify() function
+> + * to implement these uevents to userspace.
+> + *
+> + * These uevents are intended to indicate non-invasive temperature control
+> + * of the system, where the necessary measures for cooling are the
+> + * responsibility of the host software. Once the temperature falls again,
+> + * the IRQ is re-enabled so the start of a new over-temperature event can
+> + * be detected without constant software monitoring.
+> + */
+> +
+> +#include <linux/errno.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/module.h>
+> +#include <linux/of.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/regmap.h>
+> +#include <linux/thermal.h>
+> +#include <linux/workqueue.h>
+> +
+> +#include <linux/mfd/da9062/core.h>
+> +#include <linux/mfd/da9062/registers.h>
+> +
 
-                        Geert
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k=
-.org
+please cleanup the minor issues checkpatch complains:
+/scripts/checkpatch.pl --strict <your patch>
 
-In personal conversations with technical people, I call myself a hacker. Bu=
-t
-when I'm talking to journalists I just say "programmer" or something like t=
-hat.
-                                -- Linus Torvalds
+WARNING: added, moved or deleted file(s), does MAINTAINERS need updating?
+#203: 
+new file mode 100644
+
+CHECK: spaces preferred around that '*' (ctx:VxV)
+#258: FILE: drivers/thermal/da9062-thermal.c:51:
++#define DA9062_MILLI_CELSIUS(t)			((t)*1000)
+                                			    ^
+
+CHECK: struct mutex definition without comment
+#269: FILE: drivers/thermal/da9062-thermal.c:62:
++	struct mutex lock;
+
+CHECK: Alignment should match open parenthesis
+#286: FILE: drivers/thermal/da9062-thermal.c:79:
++	ret = regmap_write(thermal->hw->regmap,
++				DA9062AA_EVENT_B,
+
+CHECK: Alignment should match open parenthesis
+#314: FILE: drivers/thermal/da9062-thermal.c:107:
++			schedule_delayed_work(&thermal->work,
++				msecs_to_jiffies(thermal->zone->passive_delay));
+
+WARNING: else is not generally useful after a break or return
+#316: FILE: drivers/thermal/da9062-thermal.c:109:
++			return;
++		} else {
+
+CHECK: Alignment should match open parenthesis
+#348: FILE: drivers/thermal/da9062-thermal.c:141:
++static int da9062_thermal_get_trip_type(struct thermal_zone_device *z,
++				int trip,
+
+WARNING: DT compatible string "dlg,da9062-thermal" appears un-documented -- check ./Documentation/devicetree/bindings/
+#409: FILE: drivers/thermal/da9062-thermal.c:202:
++	{ .compatible = "dlg,da9062-thermal", .data = &da9062_config },
+
+CHECK: Alignment should match open parenthesis
+#433: FILE: drivers/thermal/da9062-thermal.c:226:
++			if (pp_tmp < DA9062_MIN_POLLING_MS_PERIOD ||
++				pp_tmp > DA9062_MAX_POLLING_MS_PERIOD) {
+
+total: 0 errors, 3 warnings, 6 checks, 337 lines checked
+
+NOTE: For some of the reported defects, checkpatch may be able to
+      mechanically convert to the typical style using --fix or --fix-inplace.
+
+/home/ebv/tmpatches/9 has style problems, please review.
+
+NOTE: If any of the errors are false positives, please report
+      them to the maintainer, see CHECKPATCH in MAINTAINERS.
+
+> +/* Minimum, maximum and default polling millisecond periods are provided
+> + * here as an example. It is expected that any final implementation to also
+> + * include a modification of these settings to match the required
+> + * application.
+> + */
+> +#define DA9062_DEFAULT_POLLING_MS_PERIOD	3000
+> +#define DA9062_MAX_POLLING_MS_PERIOD		10000
+> +#define DA9062_MIN_POLLING_MS_PERIOD		1000
+> +
+> +#define DA9062_MILLI_CELSIUS(t)			((t)*1000)
+> +
+> +struct da9062_thermal_config {
+> +	const char *name;
+> +};
+> +
+> +struct da9062_thermal {
+> +	struct da9062 *hw;
+> +	struct delayed_work work;
+> +	struct thermal_zone_device *zone;
+> +	enum thermal_device_mode mode;
+> +	struct mutex lock;
+> +	int temperature;
+> +	int irq;
+> +	const struct da9062_thermal_config *config;
+> +	struct device *dev;
+> +};
+> +
+> +static void da9062_thermal_poll_on(struct work_struct *work)
+> +{
+> +	struct da9062_thermal *thermal = container_of(work,
+> +						struct da9062_thermal,
+> +						work.work);
+> +	unsigned int val;
+> +	int ret;
+> +
+> +	/* clear E_TEMP */
+> +	ret = regmap_write(thermal->hw->regmap,
+> +				DA9062AA_EVENT_B,
+> +				DA9062AA_E_TEMP_MASK);
+> +	if (ret < 0) {
+> +		dev_err(thermal->dev,
+> +			"Cannot clear the TJUNC temperature status\n");
+> +		goto err_enable_irq;
+> +	}
+> +
+> +	/* Now read E_TEMP again: it is acting like a status bit.
+> +	 * If over-temperature, then this status will be true.
+> +	 * If not over-temperature, this status will be false.
+> +	 */
+> +	ret = regmap_read(thermal->hw->regmap,
+> +			  DA9062AA_EVENT_B,
+> +			  &val);
+> +	if (ret < 0) {
+> +		dev_err(thermal->dev,
+> +			"Cannot check the TJUNC temperature status\n");
+> +		goto err_enable_irq;
+> +	} else {
+> +		if (val & DA9062AA_E_TEMP_MASK) {
+> +			mutex_lock(&thermal->lock);
+> +			thermal->temperature = DA9062_MILLI_CELSIUS(125);
+> +			mutex_unlock(&thermal->lock);
+> +			thermal_zone_device_update(thermal->zone,
+> +						   THERMAL_EVENT_UNSPECIFIED);
+> +
+> +			schedule_delayed_work(&thermal->work,
+> +				msecs_to_jiffies(thermal->zone->passive_delay));
+> +			return;
+> +		} else {
+> +			mutex_lock(&thermal->lock);
+> +			thermal->temperature = DA9062_MILLI_CELSIUS(0);
+> +			mutex_unlock(&thermal->lock);
+> +			thermal_zone_device_update(thermal->zone,
+> +						   THERMAL_EVENT_UNSPECIFIED);
+> +		}
+> +	}
+
+The above code is a little confusing, can it be maybe, better read like
+this?
+
+diff --git a/drivers/thermal/da9062-thermal.c b/drivers/thermal/da9062-thermal.c
+index 52a095d..6ac8574 100644
+--- a/drivers/thermal/da9062-thermal.c
++++ b/drivers/thermal/da9062-thermal.c
+@@ -95,26 +95,26 @@ static void da9062_thermal_poll_on(struct work_struct *work)
+ 		dev_err(thermal->dev,
+ 			"Cannot check the TJUNC temperature status\n");
+ 		goto err_enable_irq;
+-	} else {
+-		if (val & DA9062AA_E_TEMP_MASK) {
+-			mutex_lock(&thermal->lock);
+-			thermal->temperature = DA9062_MILLI_CELSIUS(125);
+-			mutex_unlock(&thermal->lock);
+-			thermal_zone_device_update(thermal->zone,
+-						   THERMAL_EVENT_UNSPECIFIED);
+-
+-			schedule_delayed_work(&thermal->work,
++	}
++
++	if (val & DA9062AA_E_TEMP_MASK) {
++		mutex_lock(&thermal->lock);
++		thermal->temperature = DA9062_MILLI_CELSIUS(125);
++		mutex_unlock(&thermal->lock);
++		thermal_zone_device_update(thermal->zone,
++				THERMAL_EVENT_UNSPECIFIED);
++
++		schedule_delayed_work(&thermal->work,
+ 				msecs_to_jiffies(thermal->zone->passive_delay));
+-			return;
+-		} else {
+-			mutex_lock(&thermal->lock);
+-			thermal->temperature = DA9062_MILLI_CELSIUS(0);
+-			mutex_unlock(&thermal->lock);
+-			thermal_zone_device_update(thermal->zone,
+-						   THERMAL_EVENT_UNSPECIFIED);
+-		}
++		return;
+ 	}
+ 
++	mutex_lock(&thermal->lock);
++	thermal->temperature = DA9062_MILLI_CELSIUS(0);
++	mutex_unlock(&thermal->lock);
++	thermal_zone_device_update(thermal->zone,
++			THERMAL_EVENT_UNSPECIFIED);
++
+ err_enable_irq:
+ 	enable_irq(thermal->irq);
+ }
+
+
+BR,
+
+Eduardo Valentin
+> -- 
+> end-of-patch for RESEND PATCH V5
+> 
