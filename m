@@ -1,151 +1,252 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:51421 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753803AbdBTPfK (ORCPT
+Received: from mail-it0-f41.google.com ([209.85.214.41]:35175 "EHLO
+        mail-it0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751341AbdBTQUy (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 20 Feb 2017 10:35:10 -0500
-Subject: Re: [PATCH] watchdog: softdog: fire watchdog even if softirqs do not
- get to run
-To: Niklas Cassel <niklas.cassel@axis.com>, wim@iguana.be,
-        edumazet@google.com, peterz@infradead.org
-References: <1487355902-28020-1-git-send-email-niklass@axis.com>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        niklass@axis.com
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <4a3ddc1a-6ce7-66da-7b5e-ba46504d4daf@roeck-us.net>
-Date: Mon, 20 Feb 2017 07:35:08 -0800
+        Mon, 20 Feb 2017 11:20:54 -0500
+Received: by mail-it0-f41.google.com with SMTP id 203so75669025ith.0
+        for <linux-watchdog@vger.kernel.org>; Mon, 20 Feb 2017 08:20:54 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <1487355902-28020-1-git-send-email-niklass@axis.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20170206185015.12296-1-fu.wei@linaro.org>
+References: <20170206185015.12296-1-fu.wei@linaro.org>
+From: Fu Wei <fu.wei@linaro.org>
+Date: Tue, 21 Feb 2017 00:20:52 +0800
+Message-ID: <CADyBb7t_zrLetPQQ8=k8oN6iMHhuMHO8O3XTZqGYvTT9p0evKw@mail.gmail.com>
+Subject: Re: [PATCH v21 00/13] acpi, clocksource: add GTDT driver and GTDT
+ support in arm_arch_timer
+To: "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Len Brown <lenb@kernel.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Hanjun Guo <hanjun.guo@linaro.org>
+Cc: linux-arm-kernel@lists.infradead.org,
+        Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
+        rruigrok@codeaurora.org, "Abdulhamid, Harb" <harba@codeaurora.org>,
+        Christopher Covington <cov@codeaurora.org>,
+        Timur Tabi <timur@codeaurora.org>,
+        G Gregory <graeme.gregory@linaro.org>,
+        Al Stone <al.stone@linaro.org>, Jon Masters <jcm@redhat.com>,
+        Wei Huang <wei@redhat.com>, Arnd Bergmann <arnd@arndb.de>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
+        Leo Duran <leo.duran@amd.com>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Guenter Roeck <linux@roeck-us.net>,
+        linux-watchdog@vger.kernel.org, Tomasz Nowicki <tn@semihalf.com>,
+        Christoffer Dall <christoffer.dall@linaro.org>,
+        Julien Grall <julien.grall@arm.com>, Fu Wei <fu.wei@linaro.org>
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 02/17/2017 10:25 AM, Niklas Cassel wrote:
-> From: Niklas Cassel <niklas.cassel@axis.com>
->
-> Checking for timer expiration is done from the softirq TIMER_SOFTIRQ.
->
-> Since commit 4cd13c21b207 ("softirq: Let ksoftirqd do its job"),
-> pending softirqs are no longer always handled immediately, instead,
-> if there are pending softirqs, and ksoftirqd is in state TASK_RUNNING,
-> the handling of the softirqs are deferred, and are instead supposed
-> to be handled by ksoftirqd, when ksoftirqd gets scheduled.
->
-> If a user space process with a real-time policy starts to misbehave
-> by never relinquishing the CPU while ksoftirqd is in state TASK_RUNNING,
-> what will happen is that all softirqs will get deferred, while ksoftirqd,
-> which is supposed to handle the deferred softirqs, will never get to run.
->
-> To make sure that the watchdog is able to fire even when we do not get
-> to run softirqs, replace the timers with hrtimers.
->
-> Signed-off-by: Niklas Cassel <niklas.cassel@axis.com>
+Hi Mark, Marc
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+On 7 February 2017 at 02:50,  <fu.wei@linaro.org> wrote:
+> From: Fu Wei <fu.wei@linaro.org>
+>
+> This patchset:
+>     (1)Preparation for adding GTDT support in arm_arch_timer:
+>         1. Introduce two functions to get the frequency from mmio and sysreg.
+>         2. separate out device-tree code from arch_timer_detect_rate
+>         3. remove arch_timer_detect_rate use arch_timer_get_*_freq directly
+>         4. split arch_timer_rate for different types of timer
+>         5. Refactor arch_timer_needs_probing, and move it into DT init call
+>         6. Introduce some new structs and refactor the MMIO timer init code
+>         for reusing some common code.
+>
+>     (2)Introduce ACPI GTDT parser: drivers/acpi/arm64/acpi_gtdt.c
+>     Parse all kinds of timer in GTDT table of ACPI:arch timer,
+>     memory-mapped timer and SBSA Generic Watchdog timer.
+>     This driver can help to simplify all the relevant timer drivers,
+>     and separate all the ACPI GTDT knowledge from them.
+>
+>     (3)Simplify ACPI code for arm_arch_timer
+>
+>     (4)Add GTDT support for ARM memory-mapped timer.
+>
+> This patchset has been tested on the following platforms with ACPI enabled:
+>     (1)ARM Foundation v8 model
+>
+> Changelog:
+> v21: https://lkml.org/lkml/2017/2/6/
+>      Introduce two functions to get the frequency from mmio and sysreg.
+>      Remove arch_timer_detect_rate use arch_timer_get_*_freq directly
+>      Split arch_timer_rate for different types of timer.
+>      Skip secure timer frame in GTDT driver.
+>      Rebase to git://git.kernel.org/pub/scm/linux/kernel/git/mark/linux.git arch-timer/cleanup
+>      (The first 6 patches in v20 have been merged into arch-timer/cleanup branch)
 
-> ---
->  drivers/watchdog/softdog.c | 40 ++++++++++++++++++++++++----------------
->  1 file changed, 24 insertions(+), 16 deletions(-)
+Did I follow your suggestion correctly?
+I wonder how to improve this patchset. May I have your some suggestion
+or feedback on v21? :-)
+
+Great thanks for your help!
+
 >
-> diff --git a/drivers/watchdog/softdog.c b/drivers/watchdog/softdog.c
-> index c7bdc986dca1..0f67cd068465 100644
-> --- a/drivers/watchdog/softdog.c
-> +++ b/drivers/watchdog/softdog.c
-> @@ -21,13 +21,12 @@
+> v20: https://lkml.org/lkml/2017/1/18/534
+>      Reorder the first 4 patches and split the 4th patches.
+>      Leave CNTHCTL_* as they originally were.
+>      Fix the bug in arch_timer_select_ppi.
+>      Split "Rework counter frequency detection" patch.
+>      Rework the arch_timer_detect_rate function.
+>      Improve the commit message of "Refactor MMIO timer probing".
+>      Rebase to 4.10.0-rc4
 >
->  #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+> v19: https://lkml.org/lkml/2016/12/21/25
+>      Fix a '\n' missing in a error message in arch_timer_mem_init.
+>      Add "request_mem_region" for ioremapping cntbase, according to
+>      f947ee1 clocksource/drivers/arm_arch_timer: Map frame with of_io_request_and_map()
+>      Rebase to 4.9.0-gfb779ff
 >
-> +#include <linux/hrtimer.h>
->  #include <linux/init.h>
-> -#include <linux/jiffies.h>
->  #include <linux/kernel.h>
->  #include <linux/module.h>
->  #include <linux/moduleparam.h>
->  #include <linux/reboot.h>
-> -#include <linux/timer.h>
->  #include <linux/types.h>
->  #include <linux/watchdog.h>
+> v18: https://lkml.org/lkml/2016/12/8/446
+>      Fix 8/15 patch problem of "int ret;" in arch_timer_acpi_init.
+>      Rebase to 4.9.0-rc8-g9269898
 >
-> @@ -54,7 +53,10 @@ module_param(soft_panic, int, 0);
->  MODULE_PARM_DESC(soft_panic,
->  	"Softdog action, set to 1 to panic, 0 to reboot (default=0)");
+> v17: https://lkml.org/lkml/2016/11/25/140
+>      Take out some cleanups from 4/15.
+>      Merge 5/15 and 6/15, improve PPI determination code,
+>      improve commit message.
+>      Rework counter frequency detection.
+>      Move arch_timer_needs_of_probing into DT init call.
+>      Move Platform Timer scan loop back to timer init call to avoid allocating
+>      and free memory.
+>      Improve all the exported functions' comment.
 >
-> -static void softdog_fire(unsigned long data)
-> +static struct hrtimer softdog_ticktock;
-> +static struct hrtimer softdog_preticktock;
-> +
-> +static enum hrtimer_restart softdog_fire(struct hrtimer *timer)
->  {
->  	module_put(THIS_MODULE);
->  	if (soft_noboot) {
-> @@ -67,41 +69,42 @@ static void softdog_fire(unsigned long data)
->  		emergency_restart();
->  		pr_crit("Reboot didn't ?????\n");
->  	}
-> -}
+> v16: https://lkml.org/lkml/2016/11/16/268
+>      Fix patchset problem about static enum ppi_nr of 01/13 in v15.
+>      Refactor arch_timer_detect_rate.
+>      Refactor arch_timer_needs_probing.
 >
-> -static struct timer_list softdog_ticktock =
-> -		TIMER_INITIALIZER(softdog_fire, 0, 0);
-> +	return HRTIMER_NORESTART;
-> +}
+> v15: https://lkml.org/lkml/2016/11/15/366
+>      Re-order patches
+>      Add arm_arch_timer refactoring patches to prepare for GTDT:
+>          1. rename some  enums and defines, and some cleanups
+>          2. separate out arch_timer_uses_ppi init code and fix a potential bug
+>          3. Improve some new structs, refactor the timer init code.
+>      Since the some structs have been changed, GTDT parser for memory-mapped
+>      timer and SBSA Generic Watchdog timer have been update.
 >
->  static struct watchdog_device softdog_dev;
+> v14: https://lkml.org/lkml/2016/9/28/573
+>      Separate memory-mapped timer GTDT support into two patches
+>          1. Refactor the timer init code to prepare for GTDT
+>          2. Add GTDT support for memory-mapped timer
 >
-> -static void softdog_pretimeout(unsigned long data)
-> +static enum hrtimer_restart softdog_pretimeout(struct hrtimer *timer)
->  {
->  	watchdog_notify_pretimeout(&softdog_dev);
-> -}
+> v13: http://www.mail-archive.com/linux-kernel@vger.kernel.org/msg1231717.html
+>      Improve arm_arch_timer code for memory-mapped
+>      timer GTDT support, refactor original memory-mapped timer
+>      dt support for reusing some common code.
 >
-> -static struct timer_list softdog_preticktock =
-> -		TIMER_INITIALIZER(softdog_pretimeout, 0, 0);
-> +	return HRTIMER_NORESTART;
-> +}
+> v12: https://lkml.org/lkml/2016/9/13/250
+>      Rebase to latest Linux 4.8-rc6
+>      Delete the confusing "skipping" in the error message.
 >
->  static int softdog_ping(struct watchdog_device *w)
->  {
-> -	if (!mod_timer(&softdog_ticktock, jiffies + (w->timeout * HZ)))
-> +	if (!hrtimer_active(&softdog_ticktock))
->  		__module_get(THIS_MODULE);
-> +	hrtimer_start(&softdog_ticktock, ktime_set(w->timeout, 0),
-> +		      HRTIMER_MODE_REL);
+> V11: https://lkml.org/lkml/2016/9/6/354
+>      Rebase to latest Linux 4.8-rc5
+>      Delete typedef (suggested by checkpatch.pl)
 >
->  	if (w->pretimeout)
-> -		mod_timer(&softdog_preticktock, jiffies +
-> -			  (w->timeout - w->pretimeout) * HZ);
-> +		hrtimer_start(&softdog_preticktock,
-> +			      ktime_set(w->timeout - w->pretimeout, 0),
-> +			      HRTIMER_MODE_REL);
->  	else
-> -		del_timer(&softdog_preticktock);
-> +		hrtimer_cancel(&softdog_preticktock);
+> V10: https://lkml.org/lkml/2016/7/26/215
+>      Drop the "readq" patch.
+>      Rebase to latest Linux 4.7.
 >
->  	return 0;
->  }
+> V9: https://lkml.org/lkml/2016/7/25/345
+>     Improve pr_err message in acpi gtdt driver.
+>     Update Commit message for 7/9
+>     shorten the irq mapping function name
+>     Improve GTDT driver for memory-mapped timer
 >
->  static int softdog_stop(struct watchdog_device *w)
->  {
-> -	if (del_timer(&softdog_ticktock))
-> +	if (hrtimer_cancel(&softdog_ticktock))
->  		module_put(THIS_MODULE);
+> v8: https://lkml.org/lkml/2016/7/19/660
+>     Improve "pr_fmt(fmt)" definition: add "ACPI" in front of "GTDT",
+>     and also improve printk message.
+>     Simplify is_timer_block and is_watchdog.
+>     Merge acpi_gtdt_desc_init and gtdt_arch_timer_init into acpi_gtdt_init();
+>     Delete __init in include/linux/acpi.h for GTDT API
+>     Make ARM64 select GTDT.
+>     Delete "#include <linux/module.h>" from acpi_gtdt.c
+>     Simplify GT block parse code.
 >
-> -	del_timer(&softdog_preticktock);
-> +	hrtimer_cancel(&softdog_preticktock);
+> v7: https://lkml.org/lkml/2016/7/13/769
+>     Move the GTDT driver to drivers/acpi/arm64
+>     Add add the ARM64-specific ACPI Support maintainers in MAINTAINERS
+>     Merge 3 patches of GTDT parser driver.
+>     Fix the for_each_platform_timer bug.
 >
->  	return 0;
->  }
-> @@ -134,6 +137,11 @@ static int __init softdog_init(void)
->  	watchdog_set_nowayout(&softdog_dev, nowayout);
->  	watchdog_stop_on_reboot(&softdog_dev);
+> v6: https://lkml.org/lkml/2016/6/29/580
+>     split the GTDT driver to 4 parts: basic, arch_timer, memory-mapped timer,
+>     and SBSA Generic Watchdog timer
+>     Improve driver by suggestions and example code from Daniel Lezcano
 >
-> +	hrtimer_init(&softdog_ticktock, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
-> +	softdog_ticktock.function = softdog_fire;
-> +	hrtimer_init(&softdog_preticktock, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
-> +	softdog_preticktock.function = softdog_pretimeout;
-> +
->  	ret = watchdog_register_device(&softdog_dev);
->  	if (ret)
->  		return ret;
+> v5: https://lkml.org/lkml/2016/5/24/356
+>     Sorting out all patches, simplify the API of GTDT driver:
+>     GTDT driver just fills the data struct for arm_arch_timer driver.
+>
+> v4: https://lists.linaro.org/pipermail/linaro-acpi/2016-March/006667.html
+>     Delete the kvm relevant patches
+>     Separate two patches for sorting out the code for arm_arch_timer.
+>     Improve irq info export code to allow missing irq info in GTDT table.
+>
+> v3: https://lkml.org/lkml/2016/2/1/658
+>     Improve GTDT driver code:
+>       (1)improve pr_* by defining pr_fmt(fmt)
+>       (2)simplify gtdt_sbsa_gwdt_init
+>       (3)improve gtdt_arch_timer_data_init, if table is NULL, it will try
+>       to get GTDT table.
+>     Move enum ppi_nr to arm_arch_timer.h, and add enum spi_nr.
+>     Add arm_arch_timer get ppi from DT and GTDT support for kvm.
+>
+> v2: https://lkml.org/lkml/2015/12/2/10
+>     Rebase to latest kernel version(4.4-rc3).
+>     Fix the bug about the config problem,
+>     use CONFIG_ACPI_GTDT instead of CONFIG_ACPI in arm_arch_timer.c
+>
+> v1: The first upstreaming version: https://lkml.org/lkml/2015/10/28/553
+>
+> Fu Wei (13):
+>   clocksource: arm_arch_timer: introduce two functions to get the
+>     frequency from mmio and sysreg.
+>   clocksource: arm_arch_timer: separate out device-tree code from
+>     arch_timer_detect_rate
+>   clocksource: arm_arch_timer: remove arch_timer_detect_rate
+>   clocksource: arm_arch_timer: split arch_timer_rate for different types
+>     of timer
+>   clocksource: arm_arch_timer: refactor arch_timer_needs_probing
+>   clocksource: arm_arch_timer: move arch_timer_needs_of_probing into DT
+>     init call
+>   clocksource: arm_arch_timer: introduce some new structs to prepare for
+>     GTDT
+>   clocksource: arm_arch_timer: refactor MMIO timer probing.
+>   acpi/arm64: Add GTDT table parse driver
+>   clocksource: arm_arch_timer: simplify ACPI support code.
+>   acpi/arm64: Add memory-mapped timer support in GTDT driver
+>   clocksource: arm_arch_timer: add GTDT support for memory-mapped timer
+>   acpi/arm64: Add SBSA Generic Watchdog support in GTDT driver
+>
+>  arch/arm64/Kconfig                   |   1 +
+>  drivers/acpi/arm64/Kconfig           |   3 +
+>  drivers/acpi/arm64/Makefile          |   1 +
+>  drivers/acpi/arm64/gtdt.c            | 378 +++++++++++++++++++++++++++++++++++
+>  drivers/clocksource/arm_arch_timer.c | 354 ++++++++++++++++++++------------
+>  drivers/watchdog/Kconfig             |   1 +
+>  include/clocksource/arm_arch_timer.h |  17 ++
+>  include/linux/acpi.h                 |   7 +
+>  8 files changed, 635 insertions(+), 127 deletions(-)
+>  create mode 100644 drivers/acpi/arm64/gtdt.c
+>
+> --
+> 2.9.3
 >
 
+
+
+-- 
+Best regards,
+
+Fu Wei
+Software Engineer
+Red Hat
