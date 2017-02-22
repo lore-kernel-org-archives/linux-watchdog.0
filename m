@@ -1,83 +1,72 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:51292 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753473AbdBTPb6 (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 20 Feb 2017 10:31:58 -0500
-Subject: Re: [PATCH] watchdog: softdog: fire watchdog even if softirqs do not
- get to run
-To: Niklas Cassel <niklas.cassel@axis.com>, wim@iguana.be,
-        edumazet@google.com, peterz@infradead.org
-References: <1487355902-28020-1-git-send-email-niklass@axis.com>
- <697d74e9-a492-f4bf-e09f-3c5c7b5708f3@roeck-us.net>
- <fa656ab6-31a2-1f46-0fd0-12d05f226a96@axis.com>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <36147346-16f8-3f4c-7b64-389348b1c8fa@roeck-us.net>
-Date: Mon, 20 Feb 2017 07:31:36 -0800
+Return-path: <lilja.magnus@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <fa656ab6-31a2-1f46-0fd0-12d05f226a96@axis.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+In-Reply-To: <20170117083847.ijrvafqjdwduele6@pengutronix.de>
+References: <20170117012353.6948-1-vz@mleia.com> <20170117083847.ijrvafqjdwduele6@pengutronix.de>
+From: Magnus Lilja <lilja.magnus@gmail.com>
+Date: Wed, 22 Feb 2017 20:44:00 +0100
+Message-ID: <CAM=E1R5zb4y9HK06C+BiLvY0cfp7YemrV2p6xdxP7DwWkMau1g@mail.gmail.com>
+Subject: Re: [PATCH v2] watchdog: imx2: fix hang-up on boot for i.MX21, i.MX27
+ and i.MX31 SoCs
+To: =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
+Cc: Vladimir Zapolskiy <vz@mleia.com>, Wim Van Sebroeck <wim@iguana.be>, Guenter Roeck <linux@roeck-us.net>,
+	Shawn Guo <shawnguo@kernel.org>, Fabio Estevam <fabio.estevam@nxp.com>,
+	Stefan Agner <stefan@agner.ch>, linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, "# 3 . 18 . x" <stable@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 02/20/2017 02:03 AM, Niklas Cassel wrote:
-> On 02/19/2017 05:46 PM, Guenter Roeck wrote:
->> Cc: Wolfram for input.
+Hi
+
+On 17 January 2017 at 09:38, Uwe Kleine-K=C3=B6nig
+<u.kleine-koenig@pengutronix.de> wrote:
+> Hello Vladimir,
+>
+> On Tue, Jan 17, 2017 at 03:23:53AM +0200, Vladimir Zapolskiy wrote:
+>> Power down counter enable/disable bit switch is located in WMCR register=
+,
+>> but watchdog controllers found on legacy i.MX21, i.MX27 and i.MX31 SoCs
+>> don't have this register. As a result of writing data to the non-existin=
+g
+>> register on driver probe the SoC hangs up, to fix the problem add more O=
+F
+>> compatible strings and on this basis get information about availability =
+of
+>> the WMCR register.
 >>
->> On 02/17/2017 10:25 AM, Niklas Cassel wrote:
->>> From: Niklas Cassel <niklas.cassel@axis.com>
->>>
->>> Checking for timer expiration is done from the softirq TIMER_SOFTIRQ.
->>>
->>> Since commit 4cd13c21b207 ("softirq: Let ksoftirqd do its job"),
->>> pending softirqs are no longer always handled immediately, instead,
->>> if there are pending softirqs, and ksoftirqd is in state TASK_RUNNING,
->>> the handling of the softirqs are deferred, and are instead supposed
->>> to be handled by ksoftirqd, when ksoftirqd gets scheduled.
->>>
->>> If a user space process with a real-time policy starts to misbehave
->>> by never relinquishing the CPU while ksoftirqd is in state TASK_RUNNING,
->>> what will happen is that all softirqs will get deferred, while ksoftirqd,
->>> which is supposed to handle the deferred softirqs, will never get to run.
->>>
->>> To make sure that the watchdog is able to fire even when we do not get
->>> to run softirqs, replace the timers with hrtimers.
->>>
+>> Fixes: 5fe65ce7ccbb ("watchdog: imx2_wdt: Disable power down counter on =
+boot")
+>> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+>> Tested-by: Magnus Lilja <lilja.magnus@gmail.com>
+>> Reviewed-by: Fabio Estevam <fabio.estevam@nxp.com>
+>> Cc: <stable@vger.kernel.org>
+>> Signed-off-by: Vladimir Zapolskiy <vz@mleia.com>
+>> ---
+>> Changes from v1 to v2:
+>> * removed i.MX27 and i.MX31 compatibles from the list, since it is expec=
+ted
+>>   that their DTB files has a reference to the listed i.MX21 compatible,
+>>   many thanks to Uwe Kleine-K=C3=B6nig for the hint,
+>> * start the list of compatibles from an i.MX35 specific one, since it is
+>>   agreed that i.MX35 precedes i.MX25, thanks to Uwe Kleine-K=C3=B6nig fo=
+r review,
+>> * added a comment describing any potential changes in future over the li=
+st
+>>   of watchdog compatible values,
+>> * added all collected tags to the commit message.
 >>
->> This makes the driver dependent on HIGH_RES_TIMERS, which is not available
->> on all architectures. Before adding that restriction, I would like to see
->> some discussion if this is the only feasible solution.
->>
->> Is this driver the only one with this problem, or is anything using
->> timers affected ?
+>> Changes from RFC to v1:
+>> * replaced private data struct with a macro as suggested by Guenter,
 >
-> Anything using timers is affected.
-> The timers will still get incremented, but the code checking for timer
-> expiration is run from a softirq, which in this case never gets to run,
-> so the timers will never expire.
+> I didn't see the RFC, but I like a data struct better. It has some
+> overhead, but allows for easier expansion later, needs less casting and
+> is easier to understand for a reader (see below).
 >
-> Before 4cd13c21b207 ("softirq: Let ksoftirqd do its job"), softirqs
-> were never deferred, so they always got to run when exiting an irq.
->
-> So previously with a user space process using all the CPU, like:
-> chrt -r 99 sh -c "while :; do :; done"
-> the softdog would still fire.
->
-> If we ask the system to run something all the time,
-> and the system does that, I don't think we can blame the system.
-> It is however important that the watchdog can still detect and
-> fire when this happens. Other drivers, not so much.
->
-> I guess another solution would be to modify the if-statements in
-> kernel/softirq.c to sometimes do the softirq directly, even if ksoftirqd
-> is in state TASK_RUNNING, if we also meet some other condition.
-> However, do we want to add that extra complexity?
+>> * updated the comment in the source code to reflect the change,
+>> * rearranged and simplified the logic of detecting WMCR presence,
+>> * pulled the fix out from the series with optional proposed DTS changes.
 
-No, in that respect using hrtimers is ok. I was more concerned about
-other users of timers. But, as you say, I guess that is considered ok.
+So, did we come to an agreement on a patch to be submitted? Perhaps I
+missed the info on it being accepted.
 
-Guenter
-
+Regards, Magnus
