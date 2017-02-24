@@ -9,15 +9,15 @@ To: Wim Van Sebroeck <wim@iguana.be>,
 	linux-kernel@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org,
 	linux-samsung-soc@vger.kernel.org
-Subject: [PATCH 2/7] watchdog: s3c2410: Select MFD_SYSCON on all Exynos platforms
-Date: Fri, 24 Feb 2017 23:07:41 +0200
-Message-Id: <20170224210746.12459-2-krzk@kernel.org>
+Subject: [PATCH 3/7] watchdog: s3c2410: Enable COMPILE_TEST
+Date: Fri, 24 Feb 2017 23:07:42 +0200
+Message-Id: <20170224210746.12459-3-krzk@kernel.org>
 In-Reply-To: <20170224210746.12459-1-krzk@kernel.org>
 References: <20170224210746.12459-1-krzk@kernel.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Syscon is used not only on Exynos5 SoCs but also on Exynos3250,
-Exynos4412 and ARMv8 versions (Exynos5433, Exynos7).
+Driver can be compile tested on other architectures as well so use it to
+increase build coverage.
 
 Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 ---
@@ -25,17 +25,17 @@ Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index acb00b53a520..338c5bc46f73 100644
+index 338c5bc46f73..82d5f07b5e64 100644
 --- a/drivers/watchdog/Kconfig
 +++ b/drivers/watchdog/Kconfig
-@@ -335,7 +335,7 @@ config S3C2410_WATCHDOG
+@@ -333,7 +333,7 @@ config HAVE_S3C2410_WATCHDOG
+ 
+ config S3C2410_WATCHDOG
  	tristate "S3C2410 Watchdog"
- 	depends on HAVE_S3C2410_WATCHDOG
+-	depends on HAVE_S3C2410_WATCHDOG
++	depends on HAVE_S3C2410_WATCHDOG || COMPILE_TEST
  	select WATCHDOG_CORE
--	select MFD_SYSCON if ARCH_EXYNOS5
-+	select MFD_SYSCON if ARCH_EXYNOS
+ 	select MFD_SYSCON if ARCH_EXYNOS
  	help
- 	  Watchdog timer block in the Samsung SoCs. This will reboot
- 	  the system when the timer expires with the watchdog enabled.
 -- 
 2.9.3
