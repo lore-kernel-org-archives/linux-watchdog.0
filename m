@@ -1,165 +1,130 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:56005 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751192AbdBXPh5 (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 24 Feb 2017 10:37:57 -0500
-Subject: Re: [PATCH 2/8] watchdog: s3c2410: Fix infinite interrupt in soft
- mode
-To: Krzysztof Kozlowski <krzk@kernel.org>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        Kukjin Kim <kgene@kernel.org>,
-        Javier Martinez Canillas <javier@osg.samsung.com>,
-        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-samsung-soc@vger.kernel.org
-References: <20170224151122.12142-1-krzk@kernel.org>
- <20170224151122.12142-3-krzk@kernel.org>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <1348b7de-b485-832b-1743-8f810a174dd5@roeck-us.net>
-Date: Fri, 24 Feb 2017 07:37:53 -0800
-MIME-Version: 1.0
-In-Reply-To: <20170224151122.12142-3-krzk@kernel.org>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-path: <krzk@kernel.org>
+From: Krzysztof Kozlowski <krzk@kernel.org>
+To: Wim Van Sebroeck <wim@iguana.be>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Kukjin Kim <kgene@kernel.org>,
+	Krzysztof Kozlowski <krzk@kernel.org>,
+	Javier Martinez Canillas <javier@osg.samsung.com>,
+	linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-samsung-soc@vger.kernel.org
+Subject: [PATCH 1/7] watchdog: s3c2410: Use dev_dbg instead of pr_info
+Date: Fri, 24 Feb 2017 23:07:40 +0200
+Message-Id: <20170224210746.12459-1-krzk@kernel.org>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 02/24/2017 07:11 AM, Krzysztof Kozlowski wrote:
-> In soft (no-reboot) mode, the driver self-pings watchdog upon expiration
-> of an interrupt.  However the interrupt itself was not cleared thus on
-> first hit, the system enters infinite interrupt handling loop.
->
-> On Odroid U3 (Exynos4412), when booted with s3c2410_wdt.soft_noboot=1
-> argument the console is flooded:
-> 	# killall -9 watchdog
-> 	[   60.523760] s3c2410-wdt 10060000.watchdog: watchdog timer expired (irq)
-> 	[   60.536744] s3c2410-wdt 10060000.watchdog: watchdog timer expired (irq)
->
-> Fix this by writing something to the WTCLRINT register to clear the
-> interrupt.  The register WTCLRINT however appeared in S3C6410 so a new
-> watchdog quirk and flavor are needed.
->
-> Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Replace the 'debug' module parameter and pr_info() with proper device
+dynamic debug calls because this is the preferred and flexible way of
+enabling debugging printks.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Also remove some obvious debug printks.
 
->
-> ---
->
-> I was thinking about CC-ing stable, especially when I thought about
-> adding unconditional WTCLRINT clear.  However it appears that S3C2410
-> does not have the WTCLRINT register, this a new chip flavor has to be
-> added.  This makes the fix spread over driver and DTS changes.
->
-> Worth adding:
-> 	Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-> ?
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+---
+ drivers/watchdog/s3c2410_wdt.c | 29 ++++++-----------------------
+ 1 file changed, 6 insertions(+), 23 deletions(-)
 
-How would that be different to Cc: stable ?
-
-> ---
->  .../devicetree/bindings/watchdog/samsung-wdt.txt    |  9 +++++----
->  drivers/watchdog/s3c2410_wdt.c                      | 21 ++++++++++++++++++---
->  2 files changed, 23 insertions(+), 7 deletions(-)
->
-> diff --git a/Documentation/devicetree/bindings/watchdog/samsung-wdt.txt b/Documentation/devicetree/bindings/watchdog/samsung-wdt.txt
-> index 8f3d96af81d7..1f6e101e299a 100644
-> --- a/Documentation/devicetree/bindings/watchdog/samsung-wdt.txt
-> +++ b/Documentation/devicetree/bindings/watchdog/samsung-wdt.txt
-> @@ -6,10 +6,11 @@ occurred.
->
->  Required properties:
->  - compatible : should be one among the following
-> -	(a) "samsung,s3c2410-wdt" for Exynos4 and previous SoCs
-> -	(b) "samsung,exynos5250-wdt" for Exynos5250
-> -	(c) "samsung,exynos5420-wdt" for Exynos5420
-> -	(c) "samsung,exynos7-wdt" for Exynos7
-> +	- "samsung,s3c2410-wdt" for S3C2410
-> +	- "samsung,s3c6410-wdt" for S3C6410, S5PV210 and Exynos4
-> +	- "samsung,exynos5250-wdt" for Exynos5250
-> +	- "samsung,exynos5420-wdt" for Exynos5420
-> +	- "samsung,exynos7-wdt" for Exynos7
->
->  - reg : base physical address of the controller and length of memory mapped
->  	region.
-> diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s3c2410_wdt.c
-> index 3e216f54cb6f..7db7847a005c 100644
-> --- a/drivers/watchdog/s3c2410_wdt.c
-> +++ b/drivers/watchdog/s3c2410_wdt.c
-> @@ -46,6 +46,7 @@
->  #define S3C2410_WTCON		0x00
->  #define S3C2410_WTDAT		0x04
->  #define S3C2410_WTCNT		0x08
-> +#define S3C2410_WTCLRINT	0x0c
->
->  #define S3C2410_WTCNT_MAXCNT	0xffff
->
-> @@ -72,6 +73,7 @@
->  #define EXYNOS5_WDT_MASK_RESET_REG_OFFSET	0x040c
->  #define QUIRK_HAS_PMU_CONFIG			(1 << 0)
->  #define QUIRK_HAS_RST_STAT			(1 << 1)
-> +#define QUIRK_HAS_WTCLRINT_REG			(1 << 2)
->
->  /* These quirks require that we have a PMU register map */
->  #define QUIRKS_HAVE_PMUREG			(QUIRK_HAS_PMU_CONFIG | \
-> @@ -143,13 +145,18 @@ static const struct s3c2410_wdt_variant drv_data_s3c2410 = {
->  };
->
->  #ifdef CONFIG_OF
-> +static const struct s3c2410_wdt_variant drv_data_s3c6410 = {
-> +	.quirks = QUIRK_HAS_WTCLRINT_REG,
-> +};
-> +
->  static const struct s3c2410_wdt_variant drv_data_exynos5250  = {
->  	.disable_reg = EXYNOS5_WDT_DISABLE_REG_OFFSET,
->  	.mask_reset_reg = EXYNOS5_WDT_MASK_RESET_REG_OFFSET,
->  	.mask_bit = 20,
->  	.rst_stat_reg = EXYNOS5_RST_STAT_REG_OFFSET,
->  	.rst_stat_bit = 20,
-> -	.quirks = QUIRK_HAS_PMU_CONFIG | QUIRK_HAS_RST_STAT,
-> +	.quirks = QUIRK_HAS_PMU_CONFIG | QUIRK_HAS_RST_STAT \
-> +		  | QUIRK_HAS_WTCLRINT_REG,
->  };
->
->  static const struct s3c2410_wdt_variant drv_data_exynos5420 = {
-> @@ -158,7 +165,8 @@ static const struct s3c2410_wdt_variant drv_data_exynos5420 = {
->  	.mask_bit = 0,
->  	.rst_stat_reg = EXYNOS5_RST_STAT_REG_OFFSET,
->  	.rst_stat_bit = 9,
-> -	.quirks = QUIRK_HAS_PMU_CONFIG | QUIRK_HAS_RST_STAT,
-> +	.quirks = QUIRK_HAS_PMU_CONFIG | QUIRK_HAS_RST_STAT \
-> +		  | QUIRK_HAS_WTCLRINT_REG,
->  };
->
->  static const struct s3c2410_wdt_variant drv_data_exynos7 = {
-> @@ -167,12 +175,15 @@ static const struct s3c2410_wdt_variant drv_data_exynos7 = {
->  	.mask_bit = 23,
->  	.rst_stat_reg = EXYNOS5_RST_STAT_REG_OFFSET,
->  	.rst_stat_bit = 23,	/* A57 WDTRESET */
-> -	.quirks = QUIRK_HAS_PMU_CONFIG | QUIRK_HAS_RST_STAT,
-> +	.quirks = QUIRK_HAS_PMU_CONFIG | QUIRK_HAS_RST_STAT \
-> +		  | QUIRK_HAS_WTCLRINT_REG,
->  };
->
->  static const struct of_device_id s3c2410_wdt_match[] = {
->  	{ .compatible = "samsung,s3c2410-wdt",
->  	  .data = &drv_data_s3c2410 },
-> +	{ .compatible = "samsung,s3c6410-wdt",
-> +	  .data = &drv_data_s3c6410 },
->  	{ .compatible = "samsung,exynos5250-wdt",
->  	  .data = &drv_data_exynos5250 },
->  	{ .compatible = "samsung,exynos5420-wdt",
-> @@ -418,6 +429,10 @@ static irqreturn_t s3c2410wdt_irq(int irqno, void *param)
->  	dev_info(wdt->dev, "watchdog timer expired (irq)\n");
->
->  	s3c2410wdt_keepalive(&wdt->wdt_device);
-> +
-> +	if (wdt->drv_data->quirks & QUIRK_HAS_WTCLRINT_REG)
-> +		writel(0x1, wdt->reg_base + S3C2410_WTCLRINT);
-> +
->  	return IRQ_HANDLED;
->  }
->
->
-
+diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s3c2410_wdt.c
+index 7db7847a005c..f7aad19d20ff 100644
+--- a/drivers/watchdog/s3c2410_wdt.c
++++ b/drivers/watchdog/s3c2410_wdt.c
+@@ -23,8 +23,6 @@
+  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+ 
+-#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+-
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
+ #include <linux/types.h>
+@@ -83,13 +81,11 @@ static bool nowayout	= WATCHDOG_NOWAYOUT;
+ static int tmr_margin;
+ static int tmr_atboot	= S3C2410_WATCHDOG_ATBOOT;
+ static int soft_noboot;
+-static int debug;
+ 
+ module_param(tmr_margin,  int, 0);
+ module_param(tmr_atboot,  int, 0);
+ module_param(nowayout,   bool, 0);
+ module_param(soft_noboot, int, 0);
+-module_param(debug,	  int, 0);
+ 
+ MODULE_PARM_DESC(tmr_margin, "Watchdog tmr_margin in seconds. (default="
+ 		__MODULE_STRING(S3C2410_WATCHDOG_DEFAULT_TIME) ")");
+@@ -100,7 +96,6 @@ MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
+ 			__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+ MODULE_PARM_DESC(soft_noboot, "Watchdog action, set to 1 to ignore reboots, "
+ 			"0 to reboot (default 0)");
+-MODULE_PARM_DESC(debug, "Watchdog debug, set to >1 for debug (default 0)");
+ 
+ /**
+  * struct s3c2410_wdt_variant - Per-variant config data
+@@ -204,14 +199,6 @@ static const struct platform_device_id s3c2410_wdt_ids[] = {
+ };
+ MODULE_DEVICE_TABLE(platform, s3c2410_wdt_ids);
+ 
+-/* watchdog control routines */
+-
+-#define DBG(fmt, ...)					\
+-do {							\
+-	if (debug)					\
+-		pr_info(fmt, ##__VA_ARGS__);		\
+-} while (0)
+-
+ /* functions */
+ 
+ static inline unsigned int s3c2410wdt_max_timeout(struct clk *clock)
+@@ -307,8 +294,8 @@ static int s3c2410wdt_start(struct watchdog_device *wdd)
+ 		wtcon |= S3C2410_WTCON_RSTEN;
+ 	}
+ 
+-	DBG("%s: count=0x%08x, wtcon=%08lx\n",
+-	    __func__, wdt->count, wtcon);
++	dev_dbg(wdt->dev, "Starting watchdog: count=0x%08x, wtcon=%08lx\n",
++		wdt->count, wtcon);
+ 
+ 	writel(wdt->count, wdt->reg_base + S3C2410_WTDAT);
+ 	writel(wdt->count, wdt->reg_base + S3C2410_WTCNT);
+@@ -337,8 +324,8 @@ static int s3c2410wdt_set_heartbeat(struct watchdog_device *wdd, unsigned timeou
+ 	freq = DIV_ROUND_UP(freq, 128);
+ 	count = timeout * freq;
+ 
+-	DBG("%s: count=%d, timeout=%d, freq=%lu\n",
+-	    __func__, count, timeout, freq);
++	dev_dbg(wdt->dev, "Heartbeat: count=%d, timeout=%d, freq=%lu\n",
++		count, timeout, freq);
+ 
+ 	/* if the count is bigger than the watchdog register,
+ 	   then work out what we need to do (and if) we can
+@@ -354,8 +341,8 @@ static int s3c2410wdt_set_heartbeat(struct watchdog_device *wdd, unsigned timeou
+ 		}
+ 	}
+ 
+-	DBG("%s: timeout=%d, divisor=%d, count=%d (%08x)\n",
+-	    __func__, timeout, divisor, count, DIV_ROUND_UP(count, divisor));
++	dev_dbg(wdt->dev, "Heartbeat: timeout=%d, divisor=%d, count=%d (%08x)\n",
++		timeout, divisor, count, DIV_ROUND_UP(count, divisor));
+ 
+ 	count = DIV_ROUND_UP(count, divisor);
+ 	wdt->count = count;
+@@ -544,8 +531,6 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
+ 	int started = 0;
+ 	int ret;
+ 
+-	DBG("%s: probe=%p\n", __func__, pdev);
+-
+ 	dev = &pdev->dev;
+ 
+ 	wdt = devm_kzalloc(dev, sizeof(*wdt), GFP_KERNEL);
+@@ -581,8 +566,6 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
+ 		goto err;
+ 	}
+ 
+-	DBG("probe: mapped reg_base=%p\n", wdt->reg_base);
+-
+ 	wdt->clock = devm_clk_get(dev, "watchdog");
+ 	if (IS_ERR(wdt->clock)) {
+ 		dev_err(dev, "failed to find watchdog clock source\n");
+-- 
+2.9.3
