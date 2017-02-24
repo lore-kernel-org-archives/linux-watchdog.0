@@ -1,8 +1,8 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.136]:55960 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.136]:55910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751163AbdBXVIc (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 24 Feb 2017 16:08:32 -0500
+        id S1751163AbdBXVI0 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 24 Feb 2017 16:08:26 -0500
 From: Krzysztof Kozlowski <krzk@kernel.org>
 To: Wim Van Sebroeck <wim@iguana.be>,
         Guenter Roeck <linux@roeck-us.net>,
@@ -12,138 +12,60 @@ To: Wim Van Sebroeck <wim@iguana.be>,
         linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org,
         linux-samsung-soc@vger.kernel.org
-Subject: [PATCH 7/7] watchdog: s3c2410: Minor code cleanup
-Date: Fri, 24 Feb 2017 23:07:46 +0200
-Message-Id: <20170224210746.12459-7-krzk@kernel.org>
+Subject: [PATCH 6/7] watchdog: s3c2410: Simplify getting driver data
+Date: Fri, 24 Feb 2017 23:07:45 +0200
+Message-Id: <20170224210746.12459-6-krzk@kernel.org>
 In-Reply-To: <20170224210746.12459-1-krzk@kernel.org>
 References: <20170224210746.12459-1-krzk@kernel.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Cleanup the code from minor readability issues (no functional changes):
-1. Fix checkpatch: ERROR: Do not include the paragraph about writing to
-   the Free Software Foundation's mailing address.
-2. Fix checkpatch: WARNING: quoted string split across lines
-3. Fix chechpatch: WARNING: Prefer 'unsigned int' to bare use of
-   'unsigned'
-4. Use 'dev' consistently in probe function instead of mixing dev with
-   &pdev->dev.
+Simplify the flow in helper function for getting the driver data by
+using of_device_get_match_data() and only one if() branch.
+
+The code should be equivalent.
 
 Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 ---
- drivers/watchdog/s3c2410_wdt.c | 35 +++++++++++++----------------------
- 1 file changed, 13 insertions(+), 22 deletions(-)
+ drivers/watchdog/s3c2410_wdt.c | 17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s3c2410_wdt.c
-index d7ddee0668c3..89c7e98ae278 100644
+index 5eaec319e499..d7ddee0668c3 100644
 --- a/drivers/watchdog/s3c2410_wdt.c
 +++ b/drivers/watchdog/s3c2410_wdt.c
-@@ -1,5 +1,4 @@
--/* linux/drivers/char/watchdog/s3c2410_wdt.c
-- *
-+/*
-  * Copyright (c) 2004 Simtec Electronics
-  *	Ben Dooks <ben@simtec.co.uk>
-  *
-@@ -17,11 +16,7 @@
-  * but WITHOUT ANY WARRANTY; without even the implied warranty of
-  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  * GNU General Public License for more details.
-- *
-- * You should have received a copy of the GNU General Public License
-- * along with this program; if not, write to the Free Software
-- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
--*/
-+ */
- 
- #include <linux/module.h>
- #include <linux/moduleparam.h>
-@@ -95,8 +90,7 @@ MODULE_PARM_DESC(tmr_atboot,
- 			__MODULE_STRING(S3C2410_WATCHDOG_ATBOOT));
- MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
- 			__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
--MODULE_PARM_DESC(soft_noboot, "Watchdog action, set to 1 to ignore reboots, "
--			"0 to reboot (default 0)");
-+MODULE_PARM_DESC(soft_noboot, "Watchdog action, set to 1 to ignore reboots, 0 to reboot (default 0)");
- 
- /**
-  * struct s3c2410_wdt_variant - Per-variant config data
-@@ -311,7 +305,8 @@ static inline int s3c2410wdt_is_running(struct s3c2410_wdt *wdt)
- 	return readl(wdt->reg_base + S3C2410_WTCON) & S3C2410_WTCON_ENABLE;
+@@ -37,6 +37,7 @@
+ #include <linux/slab.h>
+ #include <linux/err.h>
+ #include <linux/of.h>
++#include <linux/of_device.h>
+ #include <linux/mfd/syscon.h>
+ #include <linux/regmap.h>
+ #include <linux/delay.h>
+@@ -510,14 +511,16 @@ static inline unsigned int s3c2410wdt_get_bootstatus(struct s3c2410_wdt *wdt)
+ static inline const struct s3c2410_wdt_variant *
+ s3c2410_get_wdt_drv_data(struct platform_device *pdev)
+ {
+-	if (pdev->dev.of_node) {
+-		const struct of_device_id *match;
+-		match = of_match_node(s3c2410_wdt_match, pdev->dev.of_node);
+-		return (const struct s3c2410_wdt_variant *)match->data;
+-	} else {
+-		return (const struct s3c2410_wdt_variant *)
+-			platform_get_device_id(pdev)->driver_data;
++	const struct s3c2410_wdt_variant *variant;
++
++	variant = of_device_get_match_data(&pdev->dev);
++	if (!variant) {
++		/* Device matched by platform_device_id */
++		variant = (const struct s3c2410_wdt_variant *)
++			  platform_get_device_id(pdev)->driver_data;
+ 	}
++
++	return variant;
  }
  
--static int s3c2410wdt_set_heartbeat(struct watchdog_device *wdd, unsigned timeout)
-+static int s3c2410wdt_set_heartbeat(struct watchdog_device *wdd,
-+				    unsigned int timeout)
- {
- 	struct s3c2410_wdt *wdt = watchdog_get_drvdata(wdd);
- 	unsigned long freq = clk_get_rate(wdt->clock);
-@@ -525,7 +520,7 @@ s3c2410_get_wdt_drv_data(struct platform_device *pdev)
- 
  static int s3c2410wdt_probe(struct platform_device *pdev)
- {
--	struct device *dev;
-+	struct device *dev = &pdev->dev;
- 	struct s3c2410_wdt *wdt;
- 	struct resource *wdt_mem;
- 	struct resource *wdt_irq;
-@@ -533,13 +528,11 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
- 	int started = 0;
- 	int ret;
- 
--	dev = &pdev->dev;
--
- 	wdt = devm_kzalloc(dev, sizeof(*wdt), GFP_KERNEL);
- 	if (!wdt)
- 		return -ENOMEM;
- 
--	wdt->dev = &pdev->dev;
-+	wdt->dev = dev;
- 	spin_lock_init(&wdt->lock);
- 	wdt->wdt_device = s3c2410_wdd;
- 
-@@ -595,7 +588,7 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
- 	/* see if we can actually set the requested timer margin, and if
- 	 * not, try the default value */
- 
--	watchdog_init_timeout(&wdt->wdt_device, tmr_margin, &pdev->dev);
-+	watchdog_init_timeout(&wdt->wdt_device, tmr_margin, dev);
- 	ret = s3c2410wdt_set_heartbeat(&wdt->wdt_device,
- 					wdt->wdt_device.timeout);
- 	if (ret) {
-@@ -604,11 +597,10 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
- 
- 		if (started == 0)
- 			dev_info(dev,
--			   "tmr_margin value out of range, default %d used\n",
--			       S3C2410_WATCHDOG_DEFAULT_TIME);
-+				 "tmr_margin value out of range, default %d used\n",
-+				 S3C2410_WATCHDOG_DEFAULT_TIME);
- 		else
--			dev_info(dev, "default timer value is out of range, "
--							"cannot start\n");
-+			dev_info(dev, "default timer value is out of range, cannot start\n");
- 	}
- 
- 	ret = devm_request_irq(dev, wdt_irq->start, s3c2410wdt_irq, 0,
-@@ -622,7 +614,7 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
- 	watchdog_set_restart_priority(&wdt->wdt_device, 128);
- 
- 	wdt->wdt_device.bootstatus = s3c2410wdt_get_bootstatus(wdt);
--	wdt->wdt_device.parent = &pdev->dev;
-+	wdt->wdt_device.parent = dev;
- 
- 	ret = watchdog_register_device(&wdt->wdt_device);
- 	if (ret) {
-@@ -757,7 +749,6 @@ static struct platform_driver s3c2410wdt_driver = {
- 
- module_platform_driver(s3c2410wdt_driver);
- 
--MODULE_AUTHOR("Ben Dooks <ben@simtec.co.uk>, "
--	      "Dimitry Andric <dimitry.andric@tomtom.com>");
-+MODULE_AUTHOR("Ben Dooks <ben@simtec.co.uk>, Dimitry Andric <dimitry.andric@tomtom.com>");
- MODULE_DESCRIPTION("S3C2410 Watchdog Device Driver");
- MODULE_LICENSE("GPL");
 -- 
 2.9.3
 
