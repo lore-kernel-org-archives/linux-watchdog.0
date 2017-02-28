@@ -6,21 +6,23 @@ Cc: Wim Van Sebroeck <wim@iguana.be>,
 	Lee Jones <lee.jones@linaro.org>,
 	linux-kernel@vger.kernel.org,
 	Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 6/8] watchdog: sp805: add back AMBA dependency
-Date: Tue, 28 Feb 2017 22:01:21 +0100
-Message-Id: <20170228210123.3404816-7-arnd@arndb.de>
+Subject: [PATCH 8/8] watchdog: kempld: revert to full dependency
+Date: Tue, 28 Feb 2017 22:01:23 +0100
+Message-Id: <20170228210123.3404816-9-arnd@arndb.de>
 In-Reply-To: <20170228210123.3404816-1-arnd@arndb.de>
 References: <20170228210123.3404816-1-arnd@arndb.de>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-The driver fails to link if ARM_AMBA is disabled:
+The kempld watchdog driver requires the respective MFD driver:
 
-drivers/watchdog/sp805_wdt.o: In function `sp805_wdt_driver_init':
-sp805_wdt.c:(.init.text+0x4): undefined reference to `amba_driver_register'
+drivers/watchdog/built-in.o: In function `kempld_wdt_probe':
+kempld_wdt.c:(.text+0x5c78): undefined reference to `kempld_get_mutex'
+kempld_wdt.c:(.text+0x5c84): undefined reference to `kempld_read8'
+kempld_wdt.c:(.text+0x5c8e): undefined reference to `kempld_release_mutex'
+kempld_wdt.c:(.text+0x5d1c): undefined reference to `kempld_read8'
+kempld_wdt.c:(.text+0x5d2c): undefined reference to `kempld_write8'
 
-It seems that the COMPILE_TEST was added in the wrong place, as there
-is no architecture dependency, but a bus dependency. This moves
-the dependency accordingly.
+This adds the Kconfig dependency back.
 
 Fixes: da2a68b3eb47 ("watchdog: Enable COMPILE_TEST where possible")
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
@@ -29,17 +31,17 @@ Signed-off-by: Arnd Bergmann <arnd@arndb.de>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index ab0ec389e436..3216012170fa 100644
+index 8cb9b986ee2d..fcaab3139a5c 100644
 --- a/drivers/watchdog/Kconfig
 +++ b/drivers/watchdog/Kconfig
-@@ -218,7 +218,7 @@ config ZIIRAVE_WATCHDOG
+@@ -1064,7 +1064,7 @@ config HP_WATCHDOG
  
- config ARM_SP805_WATCHDOG
- 	tristate "ARM SP805 Watchdog"
--	depends on (ARM || ARM64) && (ARM_AMBA || COMPILE_TEST)
-+	depends on (ARM || ARM64 || COMPILE_TEST) && ARM_AMBA
+ config KEMPLD_WDT
+ 	tristate "Kontron COM Watchdog Timer"
+-	depends on MFD_KEMPLD || COMPILE_TEST
++	depends on MFD_KEMPLD
  	select WATCHDOG_CORE
  	help
- 	  ARM Primecell SP805 Watchdog timer. This will reboot your system when
+ 	  Support for the PLD watchdog on some Kontron ETX and COMexpress
 -- 
 2.9.0
