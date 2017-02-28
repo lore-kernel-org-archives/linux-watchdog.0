@@ -1,18 +1,17 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([65.50.211.133]:49030 "EHLO
+Received: from bombadil.infradead.org ([65.50.211.133]:34840 "EHLO
         bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751154AbdB1TLN (ORCPT
+        with ESMTP id S1751422AbdB1Tvk (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 28 Feb 2017 14:11:13 -0500
+        Tue, 28 Feb 2017 14:51:40 -0500
 From: Randy Dunlap <rdunlap@infradead.org>
-Subject: [PATCH -next] watchdog/wm831x: fix build when COMPILE_TEST is enabled
+Subject: [PATCH -next] watchdog/kempld_wdt: fix build for COMPILE_TEST
 To: linux-watchdog@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
 Cc: Wim Van Sebroeck <wim@iguana.be>,
         Guenter Roeck <linux@roeck-us.net>,
-        Mark Brown <broonie@kernel.org>,
-        patches@opensource.wolfsonmicro.com
-Message-ID: <8bb4874f-7d0e-225f-3a97-842c2d171c78@infradead.org>
-Date: Tue, 28 Feb 2017 10:31:15 -0800
+        Michael Brunner <michael.brunner@kontron.com>
+Message-ID: <00718dc0-2a7c-391d-a091-c79e192dbeb2@infradead.org>
+Date: Tue, 28 Feb 2017 10:31:07 -0800
 MIME-Version: 1.0
 Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
@@ -24,31 +23,47 @@ From: Randy Dunlap <rdunlap@infradead.org>
 Fix kconfig dependencies when COMPILE_TEST is enabled so that
 interdependent module dependencies are configured as needed.
 
-Fixes build when WM831X_WATCHDOG=m and COMPILE_TEST=y.
-No other WM831X drivers are enabled.
+Fixes build when MFD_KEMPLD=m and KEMPLD_WDT=y and COMPILE_TEST=y.
 The problem is in mixing tristate and boolean dependencies.
 
-ERROR: "wm831x_reg_write" [drivers/watchdog/wm831x_wdt.ko] undefined!
-ERROR: "wm831x_reg_read" [drivers/watchdog/wm831x_wdt.ko] undefined!
-ERROR: "wm831x_reg_unlock" [drivers/watchdog/wm831x_wdt.ko] undefined!
-ERROR: "wm831x_reg_lock" [drivers/watchdog/wm831x_wdt.ko] undefined!
-ERROR: "wm831x_set_bits" [drivers/watchdog/wm831x_wdt.ko] undefined!
+This fixes 32 build errors like these (most are omitted here):
+drivers/built-in.o: In function `kempld_wdt_stop':
+kempld_wdt.c:(.text+0x19ab8d): undefined reference to `kempld_get_mutex'
+kempld_wdt.c:(.text+0x19ab99): undefined reference to `kempld_read8'
+kempld_wdt.c:(.text+0x19abaa): undefined reference to `kempld_write8'
+kempld_wdt.c:(.text+0x19abbf): undefined reference to `kempld_release_mutex'
+drivers/built-in.o: In function `kempld_wdt_keepalive':
+kempld_wdt.c:(.text+0x19ac24): undefined reference to `kempld_release_mutex'
+drivers/built-in.o: In function `kempld_wdt_set_stage_action.isra.4':
+kempld_wdt.c:(.text+0x19aca1): undefined reference to `kempld_get_mutex'
+drivers/built-in.o: In function `kempld_wdt_set_stage_timeout.isra.5':
+kempld_wdt.c:(.text+0x19adde): undefined reference to `kempld_release_mutex'
+drivers/built-in.o: In function `kempld_wdt_start':
+kempld_wdt.c:(.text+0x19ae89): undefined reference to `kempld_get_mutex'
+drivers/built-in.o: In function `kempld_wdt_get_timeout.isra.6':
+kempld_wdt.c:(.text+0x19b01a): undefined reference to `kempld_read8'
+drivers/built-in.o: In function `kempld_wdt_update_timeouts':
+kempld_wdt.c:(.text+0x19b0c6): undefined reference to `kempld_get_mutex'
+drivers/built-in.o: In function `kempld_wdt_suspend':
+kempld_wdt.c:(.text+0x19b136): undefined reference to `kempld_release_mutex'
+drivers/built-in.o: In function `kempld_wdt_probe':
+kempld_wdt.c:(.text+0x19b1a4): undefined reference to `kempld_get_mutex'
+kempld_wdt.c:(.text+0x19b1bd): undefined reference to `kempld_release_mutex'
 
 Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc:	patches@opensource.wolfsonmicro.com
-Cc:	Mark Brown <broonie@kernel.org>
+Cc: Michael Brunner <michael.brunner@kontron.com>
 ---
  drivers/watchdog/Kconfig |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 --- linux-next-20170228.orig/drivers/watchdog/Kconfig
 +++ linux-next-20170228/drivers/watchdog/Kconfig
-@@ -176,7 +176,7 @@ config WDAT_WDT
+@@ -1063,7 +1063,7 @@ config HP_WATCHDOG
  
- config WM831X_WATCHDOG
- 	tristate "WM831x watchdog"
--	depends on MFD_WM831X || COMPILE_TEST
-+	depends on MFD_WM831X || (MFD_WM831X=y && COMPILE_TEST)
+ config KEMPLD_WDT
+ 	tristate "Kontron COM Watchdog Timer"
+-	depends on MFD_KEMPLD || COMPILE_TEST
++	depends on MFD_KEMPLD || (MFD_KEMPLD=y && COMPILE_TEST)
  	select WATCHDOG_CORE
  	help
- 	  Support for the watchdog in the WM831x AudioPlus PMICs.  When
+ 	  Support for the PLD watchdog on some Kontron ETX and COMexpress
