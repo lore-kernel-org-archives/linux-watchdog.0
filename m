@@ -1,48 +1,55 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:50333 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:58033 "EHLO
         bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751426AbdCAA3z (ORCPT
+        with ESMTP id S1751411AbdCAA34 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 28 Feb 2017 19:29:55 -0500
-Date: Tue, 28 Feb 2017 15:19:30 -0800
+        Tue, 28 Feb 2017 19:29:56 -0500
+Date: Tue, 28 Feb 2017 13:43:49 -0800
 From: Guenter Roeck <linux@roeck-us.net>
 To: Arnd Bergmann <arnd@arndb.de>
 Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-        Lee Jones <lee.jones@linaro.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2/8] mfd: db8500-prcmu: fix stub helper interface
-Message-ID: <20170228231930.GA10193@roeck-us.net>
+        Lee Jones <lee.jones@linaro.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 7/8] watchdog: bcm2835: add CONFIG_OF dependency
+Message-ID: <20170228214349.GI6651@roeck-us.net>
 References: <20170228210123.3404816-1-arnd@arndb.de>
- <20170228210123.3404816-3-arnd@arndb.de>
- <20170228214203.GE6651@roeck-us.net>
- <CAK8P3a3iu-2MAdD+-nRQfeOme--LLSAH1LRkREVGRo78m_ra7Q@mail.gmail.com>
+ <20170228210123.3404816-8-arnd@arndb.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAK8P3a3iu-2MAdD+-nRQfeOme--LLSAH1LRkREVGRo78m_ra7Q@mail.gmail.com>
+In-Reply-To: <20170228210123.3404816-8-arnd@arndb.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, Feb 28, 2017 at 10:47:02PM +0100, Arnd Bergmann wrote:
-> On Tue, Feb 28, 2017 at 10:42 PM, Guenter Roeck <linux@roeck-us.net> wrote:
-> > On Tue, Feb 28, 2017 at 10:01:17PM +0100, Arnd Bergmann wrote:
-> >> When the db8500 watchdog is enabled without the PRCMU, we get a lot of
-> >> warnings about duplicate or missing helper functions:
-> >>
-> >> In file included from drivers/watchdog/ux500_wdt.c:21:0:
-> >> include/linux/mfd/dbx500-prcmu.h:422:19: error: redefinition of 'prcmu_abb_read'
-> >>  static inline int prcmu_abb_read(u8 slave, u8 reg, u8 *value, u8 size)
-> >>
-> >> This removes the duplicate function definitions and moves the helpers in
-> >> dbx500-prcmu outside of the #ifdef that hides them.
-> >>
-> >
-> > Is that appropriate ? Maybe we should just disable COMPILE_TEST
-> > for this driver instead.
+On Tue, Feb 28, 2017 at 10:01:22PM +0100, Arnd Bergmann wrote:
+> Without CONFIG_OF, the driver fails to link:
 > 
-> Or we could do both. The MFD driver was written to support this in principle,
-> it just hasn't worked in a long time.
+> drivers/watchdog/built-in.o: In function `bcm2835_power_off':
+> bcm2835_wdt.c:(.text+0x1946): undefined reference to `of_find_device_by_node'
 > 
-Both sounds better to me at this point.
+> This adds a new dependency, to allow the COMPILE_TEST check to succeed.
+> 
+> Fixes: da2a68b3eb47 ("watchdog: Enable COMPILE_TEST where possible")
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 
-Guenter
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+
+> ---
+>  drivers/watchdog/Kconfig | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> index 3216012170fa..8cb9b986ee2d 100644
+> --- a/drivers/watchdog/Kconfig
+> +++ b/drivers/watchdog/Kconfig
+> @@ -1496,7 +1496,7 @@ config BCM63XX_WDT
+>  
+>  config BCM2835_WDT
+>  	tristate "Broadcom BCM2835 hardware watchdog"
+> -	depends on ARCH_BCM2835 || COMPILE_TEST
+> +	depends on ARCH_BCM2835 || (OF && COMPILE_TEST)
+>  	select WATCHDOG_CORE
+>  	help
+>  	  Watchdog driver for the built in watchdog hardware in Broadcom
+> -- 
+> 2.9.0
+> 
