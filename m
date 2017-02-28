@@ -1,17 +1,17 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:39817 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:50333 "EHLO
         bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751460AbdCAAHS (ORCPT
+        with ESMTP id S1751426AbdCAA3z (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 28 Feb 2017 19:07:18 -0500
-Date: Tue, 28 Feb 2017 15:24:59 -0800
+        Tue, 28 Feb 2017 19:29:55 -0500
+Date: Tue, 28 Feb 2017 15:19:30 -0800
 From: Guenter Roeck <linux@roeck-us.net>
 To: Arnd Bergmann <arnd@arndb.de>
 Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
         Lee Jones <lee.jones@linaro.org>,
         Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH 2/8] mfd: db8500-prcmu: fix stub helper interface
-Message-ID: <20170228232459.GA10512@roeck-us.net>
+Message-ID: <20170228231930.GA10193@roeck-us.net>
 References: <20170228210123.3404816-1-arnd@arndb.de>
  <20170228210123.3404816-3-arnd@arndb.de>
  <20170228214203.GE6651@roeck-us.net>
@@ -43,8 +43,6 @@ On Tue, Feb 28, 2017 at 10:47:02PM +0100, Arnd Bergmann wrote:
 > Or we could do both. The MFD driver was written to support this in principle,
 > it just hasn't worked in a long time.
 > 
+Both sounds better to me at this point.
 
-Can you send me patches to disable COMPILE_TEST for this driver and for retu ?
-
-Thanks,
 Guenter
