@@ -1,68 +1,78 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:35253 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:35229 "EHLO
         bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751360AbdB0OcJ (ORCPT
+        with ESMTP id S1752020AbdB1SnS (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 27 Feb 2017 09:32:09 -0500
-Subject: Re: watchdog: softdog: fire watchdog even if softirqs do not get to
- run
-To: Niklas Cassel <niklas.cassel@axis.com>
-References: <1487355902-28020-1-git-send-email-niklass@axis.com>
- <20170227040425.GA9023@roeck-us.net>
- <e550bcd0-2628-080a-c04c-f15623055a67@axis.com>
-Cc: wim@iguana.be, edumazet@google.com, peterz@infradead.org,
-        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+        Tue, 28 Feb 2017 13:43:18 -0500
+Date: Tue, 28 Feb 2017 10:43:14 -0800
 From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <ca40e1a7-e1cc-07f0-f8f4-d020cf36b1e8@roeck-us.net>
-Date: Mon, 27 Feb 2017 06:31:12 -0800
+To: Randy Dunlap <rdunlap@infradead.org>
+Cc: linux-watchdog@vger.kernel.org,
+        LKML <linux-kernel@vger.kernel.org>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Michael Brunner <michael.brunner@kontron.com>
+Subject: Re: [PATCH -next] watchdog/kempld_wdt: fix build for COMPILE_TEST
+Message-ID: <20170228184314.GA5589@roeck-us.net>
+References: <00718dc0-2a7c-391d-a091-c79e192dbeb2@infradead.org>
 MIME-Version: 1.0
-In-Reply-To: <e550bcd0-2628-080a-c04c-f15623055a67@axis.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <00718dc0-2a7c-391d-a091-c79e192dbeb2@infradead.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 02/27/2017 04:58 AM, Niklas Cassel wrote:
-> On 02/27/2017 05:04 AM, Guenter Roeck wrote:
->> On Fri, Feb 17, 2017 at 07:25:02PM +0100, Niklas Cassel wrote:
->>> From: Niklas Cassel <niklas.cassel@axis.com>
->>>
->>> Checking for timer expiration is done from the softirq TIMER_SOFTIRQ.
->>>
->>> Since commit 4cd13c21b207 ("softirq: Let ksoftirqd do its job"),
->>> pending softirqs are no longer always handled immediately, instead,
->>> if there are pending softirqs, and ksoftirqd is in state TASK_RUNNING,
->>> the handling of the softirqs are deferred, and are instead supposed
->>> to be handled by ksoftirqd, when ksoftirqd gets scheduled.
->>>
->>> If a user space process with a real-time policy starts to misbehave
->>> by never relinquishing the CPU while ksoftirqd is in state TASK_RUNNING,
->>> what will happen is that all softirqs will get deferred, while ksoftirqd,
->>> which is supposed to handle the deferred softirqs, will never get to run.
->>>
->>> To make sure that the watchdog is able to fire even when we do not get
->>> to run softirqs, replace the timers with hrtimers.
->>>
->>> Signed-off-by: Niklas Cassel <niklas.cassel@axis.com>
->>> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
->> Niklas,
->>
->> Please rebase onto current mainline, test, and resubmit.
->
-> I've sent out a v2 now :)
->
-> Although, I thought that it was a bit weird that the conflicting patch
-> was in Linus tree but is not in next-20170227.
->
-It was in the watchdog-next branch of my repository at kernel.org,
-which is not in -next. I'll have to sort that out with Wim at some point.
+On Tue, Feb 28, 2017 at 10:31:07AM -0800, Randy Dunlap wrote:
+> From: Randy Dunlap <rdunlap@infradead.org>
+> 
+> Fix kconfig dependencies when COMPILE_TEST is enabled so that
+> interdependent module dependencies are configured as needed.
+> 
+> Fixes build when MFD_KEMPLD=m and KEMPLD_WDT=y and COMPILE_TEST=y.
+> The problem is in mixing tristate and boolean dependencies.
+> 
+> This fixes 32 build errors like these (most are omitted here):
+> drivers/built-in.o: In function `kempld_wdt_stop':
+> kempld_wdt.c:(.text+0x19ab8d): undefined reference to `kempld_get_mutex'
+> kempld_wdt.c:(.text+0x19ab99): undefined reference to `kempld_read8'
+> kempld_wdt.c:(.text+0x19abaa): undefined reference to `kempld_write8'
+> kempld_wdt.c:(.text+0x19abbf): undefined reference to `kempld_release_mutex'
+> drivers/built-in.o: In function `kempld_wdt_keepalive':
+> kempld_wdt.c:(.text+0x19ac24): undefined reference to `kempld_release_mutex'
+> drivers/built-in.o: In function `kempld_wdt_set_stage_action.isra.4':
+> kempld_wdt.c:(.text+0x19aca1): undefined reference to `kempld_get_mutex'
+> drivers/built-in.o: In function `kempld_wdt_set_stage_timeout.isra.5':
+> kempld_wdt.c:(.text+0x19adde): undefined reference to `kempld_release_mutex'
+> drivers/built-in.o: In function `kempld_wdt_start':
+> kempld_wdt.c:(.text+0x19ae89): undefined reference to `kempld_get_mutex'
+> drivers/built-in.o: In function `kempld_wdt_get_timeout.isra.6':
+> kempld_wdt.c:(.text+0x19b01a): undefined reference to `kempld_read8'
+> drivers/built-in.o: In function `kempld_wdt_update_timeouts':
+> kempld_wdt.c:(.text+0x19b0c6): undefined reference to `kempld_get_mutex'
+> drivers/built-in.o: In function `kempld_wdt_suspend':
+> kempld_wdt.c:(.text+0x19b136): undefined reference to `kempld_release_mutex'
+> drivers/built-in.o: In function `kempld_wdt_probe':
+> kempld_wdt.c:(.text+0x19b1a4): undefined reference to `kempld_get_mutex'
+> kempld_wdt.c:(.text+0x19b1bd): undefined reference to `kempld_release_mutex'
+> 
+> Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+> Cc: Michael Brunner <michael.brunner@kontron.com>
 
-> I'm not sure if you are the web master for www.linux-watchdog.org,
-> but their cgit seems to be broken:
-> http://www.linux-watchdog.org/cgi-bin/gitweb.cgi?p=linux-watchdog.git;a=summary
-> http://www.linux-watchdog.org/cgi-bin/gitweb.cgi?p=linux-watchdog-next.git;a=summary
->
-Wim knows about it, and plans to replace the server.
+And I thought I had that all sorted out :-(
 
-Guenter
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
+> ---
+>  drivers/watchdog/Kconfig |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> --- linux-next-20170228.orig/drivers/watchdog/Kconfig
+> +++ linux-next-20170228/drivers/watchdog/Kconfig
+> @@ -1063,7 +1063,7 @@ config HP_WATCHDOG
+>  
+>  config KEMPLD_WDT
+>  	tristate "Kontron COM Watchdog Timer"
+> -	depends on MFD_KEMPLD || COMPILE_TEST
+> +	depends on MFD_KEMPLD || (MFD_KEMPLD=y && COMPILE_TEST)
+>  	select WATCHDOG_CORE
+>  	help
+>  	  Support for the PLD watchdog on some Kontron ETX and COMexpress
