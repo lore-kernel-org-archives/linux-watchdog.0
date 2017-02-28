@@ -1,172 +1,57 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:34683 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:59942 "EHLO
         bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752402AbdB1VmK (ORCPT
+        with ESMTP id S1752449AbdB1Vmm (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 28 Feb 2017 16:42:10 -0500
-Date: Tue, 28 Feb 2017 13:42:03 -0800
+        Tue, 28 Feb 2017 16:42:42 -0500
+Date: Tue, 28 Feb 2017 13:42:29 -0800
 From: Guenter Roeck <linux@roeck-us.net>
 To: Arnd Bergmann <arnd@arndb.de>
 Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
         Lee Jones <lee.jones@linaro.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/8] mfd: db8500-prcmu: fix stub helper interface
-Message-ID: <20170228214203.GE6651@roeck-us.net>
+Subject: Re: [PATCH 4/8] watchdog: geode: restore hard CS5535_MFGPT dependency
+Message-ID: <20170228214229.GF6651@roeck-us.net>
 References: <20170228210123.3404816-1-arnd@arndb.de>
- <20170228210123.3404816-3-arnd@arndb.de>
+ <20170228210123.3404816-5-arnd@arndb.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20170228210123.3404816-3-arnd@arndb.de>
+In-Reply-To: <20170228210123.3404816-5-arnd@arndb.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, Feb 28, 2017 at 10:01:17PM +0100, Arnd Bergmann wrote:
-> When the db8500 watchdog is enabled without the PRCMU, we get a lot of
-> warnings about duplicate or missing helper functions:
+On Tue, Feb 28, 2017 at 10:01:19PM +0100, Arnd Bergmann wrote:
+> Wtihout CONFIG_CS5535_MFGPT, the driver does not link right:
 > 
-> In file included from drivers/watchdog/ux500_wdt.c:21:0:
-> include/linux/mfd/dbx500-prcmu.h:422:19: error: redefinition of 'prcmu_abb_read'
->  static inline int prcmu_abb_read(u8 slave, u8 reg, u8 *value, u8 size)
+> drivers/watchdog/built-in.o: In function `geodewdt_probe':
+> geodewdt.c:(.init.text+0xca3): undefined reference to `cs5535_mfgpt_alloc_timer'
+> geodewdt.c:(.init.text+0xcd4): undefined reference to `cs5535_mfgpt_write'
+> geodewdt.c:(.init.text+0xcef): undefined reference to `cs5535_mfgpt_toggle_event'
 > 
-> This removes the duplicate function definitions and moves the helpers in
-> dbx500-prcmu outside of the #ifdef that hides them.
+> This adds back the dependency on this base driver.
 > 
-
-Is that appropriate ? Maybe we should just disable COMPILE_TEST
-for this driver instead.
-
 > Fixes: da2a68b3eb47 ("watchdog: Enable COMPILE_TEST where possible")
 > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+
 > ---
->  include/linux/mfd/db8500-prcmu.h | 27 ----------------------
->  include/linux/mfd/dbx500-prcmu.h | 49 ++++++++++++++++++++--------------------
->  2 files changed, 25 insertions(+), 51 deletions(-)
+>  drivers/watchdog/Kconfig | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> diff --git a/include/linux/mfd/db8500-prcmu.h b/include/linux/mfd/db8500-prcmu.h
-> index 7ba67b55b312..ac9b8a6b8e9c 100644
-> --- a/include/linux/mfd/db8500-prcmu.h
-> +++ b/include/linux/mfd/db8500-prcmu.h
-> @@ -500,17 +500,12 @@ void prcmu_configure_auto_pm(struct prcmu_auto_pm_config *sleep,
->  	struct prcmu_auto_pm_config *idle);
->  bool prcmu_is_auto_pm_enabled(void);
+> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> index 34a927703d64..de52495ef150 100644
+> --- a/drivers/watchdog/Kconfig
+> +++ b/drivers/watchdog/Kconfig
+> @@ -851,7 +851,7 @@ config SP5100_TCO
 >  
-> -int prcmu_config_clkout(u8 clkout, u8 source, u8 div);
->  int prcmu_set_clock_divider(u8 clock, u8 divider);
->  int db8500_prcmu_config_hotdog(u8 threshold);
->  int db8500_prcmu_config_hotmon(u8 low, u8 high);
->  int db8500_prcmu_start_temp_sense(u16 cycles32k);
->  int db8500_prcmu_stop_temp_sense(void);
-> -int prcmu_abb_read(u8 slave, u8 reg, u8 *value, u8 size);
-> -int prcmu_abb_write(u8 slave, u8 reg, u8 *value, u8 size);
->  
-> -int prcmu_ac_wake_req(void);
-> -void prcmu_ac_sleep_req(void);
->  void db8500_prcmu_modem_reset(void);
->  
->  int db8500_prcmu_config_a9wdog(u8 num, bool sleep_auto_off);
-> @@ -608,11 +603,6 @@ static inline bool prcmu_is_auto_pm_enabled(void)
->  	return false;
->  }
->  
-> -static inline int prcmu_config_clkout(u8 clkout, u8 source, u8 div)
-> -{
-> -	return 0;
-> -}
-> -
->  static inline int prcmu_set_clock_divider(u8 clock, u8 divider)
->  {
->  	return 0;
-> @@ -638,23 +628,6 @@ static inline int db8500_prcmu_stop_temp_sense(void)
->  	return 0;
->  }
->  
-> -static inline int prcmu_abb_read(u8 slave, u8 reg, u8 *value, u8 size)
-> -{
-> -	return -ENOSYS;
-> -}
-> -
-> -static inline int prcmu_abb_write(u8 slave, u8 reg, u8 *value, u8 size)
-> -{
-> -	return -ENOSYS;
-> -}
-> -
-> -static inline int prcmu_ac_wake_req(void)
-> -{
-> -	return 0;
-> -}
-> -
-> -static inline void prcmu_ac_sleep_req(void) {}
-> -
->  static inline void db8500_prcmu_modem_reset(void) {}
->  
->  static inline void db8500_prcmu_system_reset(u16 reset_code) {}
-> diff --git a/include/linux/mfd/dbx500-prcmu.h b/include/linux/mfd/dbx500-prcmu.h
-> index 2e2c6a63a065..533459c7ad08 100644
-> --- a/include/linux/mfd/dbx500-prcmu.h
-> +++ b/include/linux/mfd/dbx500-prcmu.h
-> @@ -376,30 +376,6 @@ static inline void prcmu_write_masked(unsigned int reg, u32 mask, u32 value)
->  	db8500_prcmu_write_masked(reg, mask, value);
->  }
->  
-> -static inline int prcmu_enable_a9wdog(u8 id)
-> -{
-> -	return db8500_prcmu_enable_a9wdog(id);
-> -}
-> -
-> -static inline int prcmu_disable_a9wdog(u8 id)
-> -{
-> -	return db8500_prcmu_disable_a9wdog(id);
-> -}
-> -
-> -static inline int prcmu_kick_a9wdog(u8 id)
-> -{
-> -	return db8500_prcmu_kick_a9wdog(id);
-> -}
-> -
-> -static inline int prcmu_load_a9wdog(u8 id, u32 timeout)
-> -{
-> -	return db8500_prcmu_load_a9wdog(id, timeout);
-> -}
-> -
-> -static inline int prcmu_config_a9wdog(u8 num, bool sleep_auto_off)
-> -{
-> -	return db8500_prcmu_config_a9wdog(num, sleep_auto_off);
-> -}
->  #else
->  
->  static inline void prcmu_early_init(u32 phy_base, u32 size) {}
-> @@ -569,6 +545,31 @@ static inline void prcmu_write_masked(unsigned int reg, u32 mask, u32 value) {}
->  
->  #endif
->  
-> +static inline int prcmu_enable_a9wdog(u8 id)
-> +{
-> +	return db8500_prcmu_enable_a9wdog(id);
-> +}
-> +
-> +static inline int prcmu_disable_a9wdog(u8 id)
-> +{
-> +	return db8500_prcmu_disable_a9wdog(id);
-> +}
-> +
-> +static inline int prcmu_kick_a9wdog(u8 id)
-> +{
-> +	return db8500_prcmu_kick_a9wdog(id);
-> +}
-> +
-> +static inline int prcmu_load_a9wdog(u8 id, u32 timeout)
-> +{
-> +	return db8500_prcmu_load_a9wdog(id, timeout);
-> +}
-> +
-> +static inline int prcmu_config_a9wdog(u8 num, bool sleep_auto_off)
-> +{
-> +	return db8500_prcmu_config_a9wdog(num, sleep_auto_off);
-> +}
-> +
->  static inline void prcmu_set(unsigned int reg, u32 bits)
->  {
->  	prcmu_write_masked(reg, bits, bits);
+>  config GEODE_WDT
+>  	tristate "AMD Geode CS5535/CS5536 Watchdog"
+> -	depends on CS5535_MFGPT || (X86 && COMPILE_TEST)
+> +	depends on CS5535_MFGPT
+>  	help
+>  	  This driver enables a watchdog capability built into the
+>  	  CS5535/CS5536 companion chips for the AMD Geode GX and LX
 > -- 
 > 2.9.0
 > 
