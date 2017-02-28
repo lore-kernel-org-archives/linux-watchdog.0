@@ -1,79 +1,172 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:52678 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:34683 "EHLO
         bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751882AbdB1VlO (ORCPT
+        with ESMTP id S1752402AbdB1VmK (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 28 Feb 2017 16:41:14 -0500
-Date: Tue, 28 Feb 2017 13:40:36 -0800
+        Tue, 28 Feb 2017 16:42:10 -0500
+Date: Tue, 28 Feb 2017 13:42:03 -0800
 From: Guenter Roeck <linux@roeck-us.net>
 To: Arnd Bergmann <arnd@arndb.de>
 Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
         Lee Jones <lee.jones@linaro.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/8] mfd: retu: add inline alternatives for CONFIG_RETU=n
-Message-ID: <20170228214036.GD6651@roeck-us.net>
+Subject: Re: [PATCH 2/8] mfd: db8500-prcmu: fix stub helper interface
+Message-ID: <20170228214203.GE6651@roeck-us.net>
 References: <20170228210123.3404816-1-arnd@arndb.de>
- <20170228210123.3404816-2-arnd@arndb.de>
+ <20170228210123.3404816-3-arnd@arndb.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20170228210123.3404816-2-arnd@arndb.de>
+In-Reply-To: <20170228210123.3404816-3-arnd@arndb.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, Feb 28, 2017 at 10:01:16PM +0100, Arnd Bergmann wrote:
-> The retu watchdog calls into the respective mfd driver, but fails to
-> link if that is diabled:
+On Tue, Feb 28, 2017 at 10:01:17PM +0100, Arnd Bergmann wrote:
+> When the db8500 watchdog is enabled without the PRCMU, we get a lot of
+> warnings about duplicate or missing helper functions:
 > 
-> drivers/watchdog/built-in.o: In function `retu_wdt_set_timeout':
-> ziirave_wdt.c:(.text+0x8c88): undefined reference to `retu_write'
-> ziirave_wdt.c:(.text+0x8c88): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `retu_write'
-> drivers/watchdog/built-in.o: In function `retu_wdt_start':
-> ziirave_wdt.c:(.text+0x8cc8): undefined reference to `retu_write'
-> ziirave_wdt.c:(.text+0x8cc8): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `retu_write'
+> In file included from drivers/watchdog/ux500_wdt.c:21:0:
+> include/linux/mfd/dbx500-prcmu.h:422:19: error: redefinition of 'prcmu_abb_read'
+>  static inline int prcmu_abb_read(u8 slave, u8 reg, u8 *value, u8 size)
 > 
-> This adds inline stub helpers that let us build the driver anyway.
+> This removes the duplicate function definitions and moves the helpers in
+> dbx500-prcmu outside of the #ifdef that hides them.
 > 
+
+Is that appropriate ? Maybe we should just disable COMPILE_TEST
+for this driver instead.
+
 > Fixes: da2a68b3eb47 ("watchdog: Enable COMPILE_TEST where possible")
 > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 > ---
->  drivers/watchdog/Kconfig | 2 +-
->  include/linux/mfd/retu.h | 5 +++++
->  2 files changed, 6 insertions(+), 1 deletion(-)
+>  include/linux/mfd/db8500-prcmu.h | 27 ----------------------
+>  include/linux/mfd/dbx500-prcmu.h | 49 ++++++++++++++++++++--------------------
+>  2 files changed, 25 insertions(+), 51 deletions(-)
 > 
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index c831b7967bf9..6ca2f3ae7f1e 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -585,7 +585,7 @@ config UX500_WATCHDOG
+> diff --git a/include/linux/mfd/db8500-prcmu.h b/include/linux/mfd/db8500-prcmu.h
+> index 7ba67b55b312..ac9b8a6b8e9c 100644
+> --- a/include/linux/mfd/db8500-prcmu.h
+> +++ b/include/linux/mfd/db8500-prcmu.h
+> @@ -500,17 +500,12 @@ void prcmu_configure_auto_pm(struct prcmu_auto_pm_config *sleep,
+>  	struct prcmu_auto_pm_config *idle);
+>  bool prcmu_is_auto_pm_enabled(void);
 >  
->  config RETU_WATCHDOG
->  	tristate "Retu watchdog"
-> -	depends on MFD_RETU || COMPILE_TEST
-> +	depends on MFD_RETU || (COMPILE_TEST && MFD_RETU=n)
-
-Let's just disable COMPILE_TEST for RETU_WATCHDOG instead.
-
->  	select WATCHDOG_CORE
->  	help
->  	  Retu watchdog driver for Nokia Internet Tablets (770, N800,
-> diff --git a/include/linux/mfd/retu.h b/include/linux/mfd/retu.h
-> index 65471c4a3926..a6828e899775 100644
-> --- a/include/linux/mfd/retu.h
-> +++ b/include/linux/mfd/retu.h
-> @@ -11,8 +11,13 @@
+> -int prcmu_config_clkout(u8 clkout, u8 source, u8 div);
+>  int prcmu_set_clock_divider(u8 clock, u8 divider);
+>  int db8500_prcmu_config_hotdog(u8 threshold);
+>  int db8500_prcmu_config_hotmon(u8 low, u8 high);
+>  int db8500_prcmu_start_temp_sense(u16 cycles32k);
+>  int db8500_prcmu_stop_temp_sense(void);
+> -int prcmu_abb_read(u8 slave, u8 reg, u8 *value, u8 size);
+> -int prcmu_abb_write(u8 slave, u8 reg, u8 *value, u8 size);
 >  
->  struct retu_dev;
+> -int prcmu_ac_wake_req(void);
+> -void prcmu_ac_sleep_req(void);
+>  void db8500_prcmu_modem_reset(void);
 >  
-> +#if IS_ENABLED(CONFIG_MFD_RETU)
->  int retu_read(struct retu_dev *, u8);
->  int retu_write(struct retu_dev *, u8, u16);
-> +#else
-> +static inline int retu_read(struct retu_dev *dev, u8 r)		{ return -EINVAL; }
-> +static inline int retu_write(struct retu_dev *dev, u8 r, u16 v)	{ return -EINVAL; }
-> +#endif
+>  int db8500_prcmu_config_a9wdog(u8 num, bool sleep_auto_off);
+> @@ -608,11 +603,6 @@ static inline bool prcmu_is_auto_pm_enabled(void)
+>  	return false;
+>  }
 >  
->  /* Registers */
->  #define RETU_REG_WATCHDOG	0x17		/* Watchdog */
+> -static inline int prcmu_config_clkout(u8 clkout, u8 source, u8 div)
+> -{
+> -	return 0;
+> -}
+> -
+>  static inline int prcmu_set_clock_divider(u8 clock, u8 divider)
+>  {
+>  	return 0;
+> @@ -638,23 +628,6 @@ static inline int db8500_prcmu_stop_temp_sense(void)
+>  	return 0;
+>  }
+>  
+> -static inline int prcmu_abb_read(u8 slave, u8 reg, u8 *value, u8 size)
+> -{
+> -	return -ENOSYS;
+> -}
+> -
+> -static inline int prcmu_abb_write(u8 slave, u8 reg, u8 *value, u8 size)
+> -{
+> -	return -ENOSYS;
+> -}
+> -
+> -static inline int prcmu_ac_wake_req(void)
+> -{
+> -	return 0;
+> -}
+> -
+> -static inline void prcmu_ac_sleep_req(void) {}
+> -
+>  static inline void db8500_prcmu_modem_reset(void) {}
+>  
+>  static inline void db8500_prcmu_system_reset(u16 reset_code) {}
+> diff --git a/include/linux/mfd/dbx500-prcmu.h b/include/linux/mfd/dbx500-prcmu.h
+> index 2e2c6a63a065..533459c7ad08 100644
+> --- a/include/linux/mfd/dbx500-prcmu.h
+> +++ b/include/linux/mfd/dbx500-prcmu.h
+> @@ -376,30 +376,6 @@ static inline void prcmu_write_masked(unsigned int reg, u32 mask, u32 value)
+>  	db8500_prcmu_write_masked(reg, mask, value);
+>  }
+>  
+> -static inline int prcmu_enable_a9wdog(u8 id)
+> -{
+> -	return db8500_prcmu_enable_a9wdog(id);
+> -}
+> -
+> -static inline int prcmu_disable_a9wdog(u8 id)
+> -{
+> -	return db8500_prcmu_disable_a9wdog(id);
+> -}
+> -
+> -static inline int prcmu_kick_a9wdog(u8 id)
+> -{
+> -	return db8500_prcmu_kick_a9wdog(id);
+> -}
+> -
+> -static inline int prcmu_load_a9wdog(u8 id, u32 timeout)
+> -{
+> -	return db8500_prcmu_load_a9wdog(id, timeout);
+> -}
+> -
+> -static inline int prcmu_config_a9wdog(u8 num, bool sleep_auto_off)
+> -{
+> -	return db8500_prcmu_config_a9wdog(num, sleep_auto_off);
+> -}
+>  #else
+>  
+>  static inline void prcmu_early_init(u32 phy_base, u32 size) {}
+> @@ -569,6 +545,31 @@ static inline void prcmu_write_masked(unsigned int reg, u32 mask, u32 value) {}
+>  
+>  #endif
+>  
+> +static inline int prcmu_enable_a9wdog(u8 id)
+> +{
+> +	return db8500_prcmu_enable_a9wdog(id);
+> +}
+> +
+> +static inline int prcmu_disable_a9wdog(u8 id)
+> +{
+> +	return db8500_prcmu_disable_a9wdog(id);
+> +}
+> +
+> +static inline int prcmu_kick_a9wdog(u8 id)
+> +{
+> +	return db8500_prcmu_kick_a9wdog(id);
+> +}
+> +
+> +static inline int prcmu_load_a9wdog(u8 id, u32 timeout)
+> +{
+> +	return db8500_prcmu_load_a9wdog(id, timeout);
+> +}
+> +
+> +static inline int prcmu_config_a9wdog(u8 num, bool sleep_auto_off)
+> +{
+> +	return db8500_prcmu_config_a9wdog(num, sleep_auto_off);
+> +}
+> +
+>  static inline void prcmu_set(unsigned int reg, u32 bits)
+>  {
+>  	prcmu_write_masked(reg, bits, bits);
 > -- 
 > 2.9.0
 > 
