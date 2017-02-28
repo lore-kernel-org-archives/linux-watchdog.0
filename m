@@ -6,40 +6,39 @@ Cc: Wim Van Sebroeck <wim@iguana.be>,
 	Lee Jones <lee.jones@linaro.org>,
 	linux-kernel@vger.kernel.org,
 	Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 4/8] watchdog: geode: restore hard CS5535_MFGPT dependency
-Date: Tue, 28 Feb 2017 22:01:19 +0100
-Message-Id: <20170228210123.3404816-5-arnd@arndb.de>
+Subject: [PATCH 5/8] watchdog: menf21bmc: add I2C dependency
+Date: Tue, 28 Feb 2017 22:01:20 +0100
+Message-Id: <20170228210123.3404816-6-arnd@arndb.de>
 In-Reply-To: <20170228210123.3404816-1-arnd@arndb.de>
 References: <20170228210123.3404816-1-arnd@arndb.de>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Wtihout CONFIG_CS5535_MFGPT, the driver does not link right:
+This driver fails to link when CONFIG_I2C is disabled or a loadable module while
+the watchdog is built-in:
 
-drivers/watchdog/built-in.o: In function `geodewdt_probe':
-geodewdt.c:(.init.text+0xca3): undefined reference to `cs5535_mfgpt_alloc_timer'
-geodewdt.c:(.init.text+0xcd4): undefined reference to `cs5535_mfgpt_write'
-geodewdt.c:(.init.text+0xcef): undefined reference to `cs5535_mfgpt_toggle_event'
+drivers/watchdog/built-in.o: In function `menf21bmc_wdt_shutdown':
+menf21bmc_wdt.c:(.text+0x9b44): undefined reference to `i2c_smbus_write_word_data'
+menf21bmc_wdt.c:(.text+0x9b44): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `i2c_smbus_write_word_data'
 
-This adds back the dependency on this base driver.
+This adds a Kconfig dependency for it, to enforce a valid configuration.
 
 Fixes: da2a68b3eb47 ("watchdog: Enable COMPILE_TEST where possible")
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- drivers/watchdog/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/watchdog/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
 diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 34a927703d64..de52495ef150 100644
+index de52495ef150..ab0ec389e436 100644
 --- a/drivers/watchdog/Kconfig
 +++ b/drivers/watchdog/Kconfig
-@@ -851,7 +851,7 @@ config SP5100_TCO
- 
- config GEODE_WDT
- 	tristate "AMD Geode CS5535/CS5536 Watchdog"
--	depends on CS5535_MFGPT || (X86 && COMPILE_TEST)
-+	depends on CS5535_MFGPT
+@@ -142,6 +142,7 @@ config GPIO_WATCHDOG_ARCH_INITCALL
+ config MENF21BMC_WATCHDOG
+ 	tristate "MEN 14F021P00 BMC Watchdog"
+ 	depends on MFD_MENF21BMC || COMPILE_TEST
++	depends on I2C
+ 	select WATCHDOG_CORE
  	help
- 	  This driver enables a watchdog capability built into the
- 	  CS5535/CS5536 companion chips for the AMD Geode GX and LX
+ 	  Say Y here to include support for the MEN 14F021P00 BMC Watchdog.
 -- 
 2.9.0
