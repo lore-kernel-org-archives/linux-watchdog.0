@@ -6,25 +6,19 @@ Cc: Wim Van Sebroeck <wim@iguana.be>,
 	Lee Jones <lee.jones@linaro.org>,
 	linux-kernel@vger.kernel.org,
 	Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 3/8] watchdog: wm831x watchdog really needs mfd
-Date: Tue, 28 Feb 2017 22:01:18 +0100
-Message-Id: <20170228210123.3404816-4-arnd@arndb.de>
+Subject: [PATCH 7/8] watchdog: bcm2835: add CONFIG_OF dependency
+Date: Tue, 28 Feb 2017 22:01:22 +0100
+Message-Id: <20170228210123.3404816-8-arnd@arndb.de>
 In-Reply-To: <20170228210123.3404816-1-arnd@arndb.de>
 References: <20170228210123.3404816-1-arnd@arndb.de>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-The wm831x watchdog driver can now be built without the wm831x mfd
-driver, which results in a link error:
+Without CONFIG_OF, the driver fails to link:
 
-(.text+0x1a95c): undefined reference to `wm831x_set_bits'
-(.text+0x1a95c): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `wm831x_set_bits'
-(.text+0x1a968): undefined reference to `wm831x_reg_lock'
-(.text+0x1a968): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `wm831x_reg_lock'
-(.text+0x1a9dc): undefined reference to `wm831x_reg_unlock'
-(.text+0x1a9dc): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `wm831x_reg_unlock'
+drivers/watchdog/built-in.o: In function `bcm2835_power_off':
+bcm2835_wdt.c:(.text+0x1946): undefined reference to `of_find_device_by_node'
 
-This adds back the dependency that was removed. We can still build test
-this driver on all architectures by enabling the MFD driver for it first.
+This adds a new dependency, to allow the COMPILE_TEST check to succeed.
 
 Fixes: da2a68b3eb47 ("watchdog: Enable COMPILE_TEST where possible")
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
@@ -33,17 +27,17 @@ Signed-off-by: Arnd Bergmann <arnd@arndb.de>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 6ca2f3ae7f1e..34a927703d64 100644
+index 3216012170fa..8cb9b986ee2d 100644
 --- a/drivers/watchdog/Kconfig
 +++ b/drivers/watchdog/Kconfig
-@@ -176,7 +176,7 @@ config WDAT_WDT
+@@ -1496,7 +1496,7 @@ config BCM63XX_WDT
  
- config WM831X_WATCHDOG
- 	tristate "WM831x watchdog"
--	depends on MFD_WM831X || COMPILE_TEST
-+	depends on MFD_WM831X
+ config BCM2835_WDT
+ 	tristate "Broadcom BCM2835 hardware watchdog"
+-	depends on ARCH_BCM2835 || COMPILE_TEST
++	depends on ARCH_BCM2835 || (OF && COMPILE_TEST)
  	select WATCHDOG_CORE
  	help
- 	  Support for the watchdog in the WM831x AudioPlus PMICs.  When
+ 	  Watchdog driver for the built in watchdog hardware in Broadcom
 -- 
 2.9.0
