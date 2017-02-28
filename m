@@ -1,64 +1,79 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:44808 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:52678 "EHLO
         bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751757AbdB1Vix (ORCPT
+        with ESMTP id S1751882AbdB1VlO (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 28 Feb 2017 16:38:53 -0500
-Date: Tue, 28 Feb 2017 13:36:14 -0800
+        Tue, 28 Feb 2017 16:41:14 -0500
+Date: Tue, 28 Feb 2017 13:40:36 -0800
 From: Guenter Roeck <linux@roeck-us.net>
 To: Arnd Bergmann <arnd@arndb.de>
 Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
         Lee Jones <lee.jones@linaro.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/8] watchdog: wm831x watchdog really needs mfd
-Message-ID: <20170228213614.GB6651@roeck-us.net>
+Subject: Re: [PATCH 1/8] mfd: retu: add inline alternatives for CONFIG_RETU=n
+Message-ID: <20170228214036.GD6651@roeck-us.net>
 References: <20170228210123.3404816-1-arnd@arndb.de>
- <20170228210123.3404816-4-arnd@arndb.de>
+ <20170228210123.3404816-2-arnd@arndb.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20170228210123.3404816-4-arnd@arndb.de>
+In-Reply-To: <20170228210123.3404816-2-arnd@arndb.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, Feb 28, 2017 at 10:01:18PM +0100, Arnd Bergmann wrote:
-> The wm831x watchdog driver can now be built without the wm831x mfd
-> driver, which results in a link error:
+On Tue, Feb 28, 2017 at 10:01:16PM +0100, Arnd Bergmann wrote:
+> The retu watchdog calls into the respective mfd driver, but fails to
+> link if that is diabled:
 > 
-> (.text+0x1a95c): undefined reference to `wm831x_set_bits'
-> (.text+0x1a95c): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `wm831x_set_bits'
-> (.text+0x1a968): undefined reference to `wm831x_reg_lock'
-> (.text+0x1a968): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `wm831x_reg_lock'
-> (.text+0x1a9dc): undefined reference to `wm831x_reg_unlock'
-> (.text+0x1a9dc): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `wm831x_reg_unlock'
+> drivers/watchdog/built-in.o: In function `retu_wdt_set_timeout':
+> ziirave_wdt.c:(.text+0x8c88): undefined reference to `retu_write'
+> ziirave_wdt.c:(.text+0x8c88): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `retu_write'
+> drivers/watchdog/built-in.o: In function `retu_wdt_start':
+> ziirave_wdt.c:(.text+0x8cc8): undefined reference to `retu_write'
+> ziirave_wdt.c:(.text+0x8cc8): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `retu_write'
 > 
-> This adds back the dependency that was removed. We can still build test
-> this driver on all architectures by enabling the MFD driver for it first.
+> This adds inline stub helpers that let us build the driver anyway.
 > 
 > Fixes: da2a68b3eb47 ("watchdog: Enable COMPILE_TEST where possible")
 > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 > ---
 >  drivers/watchdog/Kconfig | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>  include/linux/mfd/retu.h | 5 +++++
+>  2 files changed, 6 insertions(+), 1 deletion(-)
 > 
 > diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index 6ca2f3ae7f1e..34a927703d64 100644
+> index c831b7967bf9..6ca2f3ae7f1e 100644
 > --- a/drivers/watchdog/Kconfig
 > +++ b/drivers/watchdog/Kconfig
-> @@ -176,7 +176,7 @@ config WDAT_WDT
+> @@ -585,7 +585,7 @@ config UX500_WATCHDOG
 >  
->  config WM831X_WATCHDOG
->  	tristate "WM831x watchdog"
-> -	depends on MFD_WM831X || COMPILE_TEST
-> +	depends on MFD_WM831X
+>  config RETU_WATCHDOG
+>  	tristate "Retu watchdog"
+> -	depends on MFD_RETU || COMPILE_TEST
+> +	depends on MFD_RETU || (COMPILE_TEST && MFD_RETU=n)
 
-I prefer the fix proposed by Randy:
-
--       depends on MFD_WM831X || COMPILE_TEST
-+       depends on MFD_WM831X || (MFD_WM831X=y && COMPILE_TEST)
+Let's just disable COMPILE_TEST for RETU_WATCHDOG instead.
 
 >  	select WATCHDOG_CORE
 >  	help
->  	  Support for the watchdog in the WM831x AudioPlus PMICs.  When
+>  	  Retu watchdog driver for Nokia Internet Tablets (770, N800,
+> diff --git a/include/linux/mfd/retu.h b/include/linux/mfd/retu.h
+> index 65471c4a3926..a6828e899775 100644
+> --- a/include/linux/mfd/retu.h
+> +++ b/include/linux/mfd/retu.h
+> @@ -11,8 +11,13 @@
+>  
+>  struct retu_dev;
+>  
+> +#if IS_ENABLED(CONFIG_MFD_RETU)
+>  int retu_read(struct retu_dev *, u8);
+>  int retu_write(struct retu_dev *, u8, u16);
+> +#else
+> +static inline int retu_read(struct retu_dev *dev, u8 r)		{ return -EINVAL; }
+> +static inline int retu_write(struct retu_dev *dev, u8 r, u16 v)	{ return -EINVAL; }
+> +#endif
+>  
+>  /* Registers */
+>  #define RETU_REG_WATCHDOG	0x17		/* Watchdog */
 > -- 
 > 2.9.0
 > 
