@@ -1,7 +1,7 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from relmlor4.renesas.com ([210.160.252.174]:17943 "EHLO
-        relmlie3.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1752994AbdCAW4T (ORCPT
+Received: from relmlor1.renesas.com ([210.160.252.171]:24224 "EHLO
+        relmlie4.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1752845AbdCAW4T (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
         Wed, 1 Mar 2017 17:56:19 -0500
 From: Chris Brandt <chris.brandt@renesas.com>
@@ -15,50 +15,56 @@ To: Wim Van Sebroeck <wim@iguana.be>,
 Cc: linux-renesas-soc@vger.kernel.org, devicetree@vger.kernel.org,
         linux-watchdog@vger.kernel.org,
         Chris Brandt <chris.brandt@renesas.com>
-Subject: [PATCH v3 3/3] ARM: dts: r7s72100: Add watchdog timer
-Date: Wed,  1 Mar 2017 17:54:55 -0500
-Message-Id: <20170301225455.22818-4-chris.brandt@renesas.com>
+Subject: [PATCH v3 2/3] watchdog: renesas-wdt: add support for rza
+Date: Wed,  1 Mar 2017 17:54:54 -0500
+Message-Id: <20170301225455.22818-3-chris.brandt@renesas.com>
 In-Reply-To: <20170301225455.22818-1-chris.brandt@renesas.com>
 References: <20170301225455.22818-1-chris.brandt@renesas.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Add watchdog timer support for RZ/A1.
-For the RZ/A1, the only way to do a reset is to overflow the WDT, so this
-is useful even if you don't need the watchdog functionality.
+Describe the WDT hardware in the RZ/A series.
 
 Signed-off-by: Chris Brandt <chris.brandt@renesas.com>
 Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Acked-by: Rob Herring <robh@kernel.org>
 ---
 v3:
-* added Reviewed-by
+* Add Acked-by, Reviewed-by.
 v2:
-* changed "renesas,r7s72100-reset" to "renesas,r7s72100-wdt"
-* changed "renesas,wdt-reset" to "renesas,rza-wdt"
-* added interupt property (even though it is not used)
-* added clocks property
+* added to renesas-wdt.txt instead of creating a new file
+* changed commit title
+* added "renesas,rza-wdt" as a fallback
+* added interrupts property
 ---
- arch/arm/boot/dts/r7s72100.dtsi | 7 +++++++
- 1 file changed, 7 insertions(+)
+ Documentation/devicetree/bindings/watchdog/renesas-wdt.txt | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/r7s72100.dtsi b/arch/arm/boot/dts/r7s72100.dtsi
-index ed62e19..6ecee72 100644
---- a/arch/arm/boot/dts/r7s72100.dtsi
-+++ b/arch/arm/boot/dts/r7s72100.dtsi
-@@ -382,6 +382,13 @@
- 		cache-level = <2>;
- 	};
+diff --git a/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt b/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
+index da24e31..9e306af 100644
+--- a/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
++++ b/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
+@@ -2,10 +2,11 @@ Renesas Watchdog Timer (WDT) Controller
  
-+	wdt: timer@fcfe0000 {
-+		compatible = "renesas,r7s72100-wdt", "renesas,rza-wdt";
-+		reg = <0xfcfe0000 0x6>;
-+		interrupts = <GIC_SPI 106 IRQ_TYPE_EDGE_RISING>;
-+		clocks = <&p0_clk>;
-+	};
-+
- 	i2c0: i2c@fcfee000 {
- 		#address-cells = <1>;
- 		#size-cells = <0>;
+ Required properties:
+ - compatible : Should be "renesas,<soctype>-wdt", and
+-	       "renesas,rcar-gen3-wdt" as fallback.
++	       "renesas,rcar-gen3-wdt" or "renesas,rza-wdt" as fallback.
+ 	       Examples with soctypes are:
+ 	         - "renesas,r8a7795-wdt" (R-Car H3)
+ 	         - "renesas,r8a7796-wdt" (R-Car M3-W)
++	         - "renesas,r7s72100-wdt" (RZ/A1)
+ 
+   When compatible with the generic version, nodes must list the SoC-specific
+   version corresponding to the platform first, followed by the generic
+@@ -17,6 +18,7 @@ Required properties:
+ Optional properties:
+ - timeout-sec : Contains the watchdog timeout in seconds
+ - power-domains : the power domain the WDT belongs to
++- interrupts: Some WDTs have an interrupt when used in interval timer mode
+ 
+ Examples:
+ 
 -- 
 2.10.1
 
