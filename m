@@ -1,48 +1,51 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-oi0-f68.google.com ([209.85.218.68]:33310 "EHLO
-        mail-oi0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751447AbdCAJoL (ORCPT
+Received: from mx0b-001ae601.pphosted.com ([67.231.152.168]:33929 "EHLO
+        mx0b-001ae601.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1752476AbdCALl4 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 1 Mar 2017 04:44:11 -0500
+        Wed, 1 Mar 2017 06:41:56 -0500
+Date: Wed, 1 Mar 2017 10:49:19 +0000
+From: Charles Keepax <ckeepax@opensource.wolfsonmicro.com>
+To: Randy Dunlap <rdunlap@infradead.org>
+CC: <linux-watchdog@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Guenter Roeck <linux@roeck-us.net>,
+        "Mark Brown" <broonie@kernel.org>,
+        <patches@opensource.wolfsonmicro.com>
+Subject: Re: [PATCH -next] watchdog/wm831x: fix build when COMPILE_TEST is
+ enabled
+Message-ID: <20170301104919.GL2742@localhost.localdomain>
+References: <8bb4874f-7d0e-225f-3a97-842c2d171c78@infradead.org>
 MIME-Version: 1.0
-In-Reply-To: <20170228232459.GA10512@roeck-us.net>
-References: <20170228210123.3404816-1-arnd@arndb.de> <20170228210123.3404816-3-arnd@arndb.de>
- <20170228214203.GE6651@roeck-us.net> <CAK8P3a3iu-2MAdD+-nRQfeOme--LLSAH1LRkREVGRo78m_ra7Q@mail.gmail.com>
- <20170228232459.GA10512@roeck-us.net>
-From: Arnd Bergmann <arnd@arndb.de>
-Date: Wed, 1 Mar 2017 10:17:57 +0100
-Message-ID: <CAK8P3a10nAsU46uNvXRkK+5GboJHWDTikwiZX_2JHmsb5d3Mmg@mail.gmail.com>
-Subject: Re: [PATCH 2/8] mfd: db8500-prcmu: fix stub helper interface
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-        Lee Jones <lee.jones@linaro.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <8bb4874f-7d0e-225f-3a97-842c2d171c78@infradead.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Mar 1, 2017 at 12:24 AM, Guenter Roeck <linux@roeck-us.net> wrote:
-> On Tue, Feb 28, 2017 at 10:47:02PM +0100, Arnd Bergmann wrote:
->> On Tue, Feb 28, 2017 at 10:42 PM, Guenter Roeck <linux@roeck-us.net> wrote:
->> > On Tue, Feb 28, 2017 at 10:01:17PM +0100, Arnd Bergmann wrote:
->> >> When the db8500 watchdog is enabled without the PRCMU, we get a lot of
->> >> warnings about duplicate or missing helper functions:
->> >>
->> >> In file included from drivers/watchdog/ux500_wdt.c:21:0:
->> >> include/linux/mfd/dbx500-prcmu.h:422:19: error: redefinition of 'prcmu_abb_read'
->> >>  static inline int prcmu_abb_read(u8 slave, u8 reg, u8 *value, u8 size)
->> >>
->> >> This removes the duplicate function definitions and moves the helpers in
->> >> dbx500-prcmu outside of the #ifdef that hides them.
->> >>
->> >
->> > Is that appropriate ? Maybe we should just disable COMPILE_TEST
->> > for this driver instead.
->>
->> Or we could do both. The MFD driver was written to support this in principle,
->> it just hasn't worked in a long time.
->>
->
-> Can you send me patches to disable COMPILE_TEST for this driver and for retu ?
+On Tue, Feb 28, 2017 at 10:31:15AM -0800, Randy Dunlap wrote:
+> From: Randy Dunlap <rdunlap@infradead.org>
+> 
+> Fix kconfig dependencies when COMPILE_TEST is enabled so that
+> interdependent module dependencies are configured as needed.
+> 
+> Fixes build when WM831X_WATCHDOG=m and COMPILE_TEST=y.
+> No other WM831X drivers are enabled.
+> The problem is in mixing tristate and boolean dependencies.
+> 
+> ERROR: "wm831x_reg_write" [drivers/watchdog/wm831x_wdt.ko] undefined!
+> ERROR: "wm831x_reg_read" [drivers/watchdog/wm831x_wdt.ko] undefined!
+> ERROR: "wm831x_reg_unlock" [drivers/watchdog/wm831x_wdt.ko] undefined!
+> ERROR: "wm831x_reg_lock" [drivers/watchdog/wm831x_wdt.ko] undefined!
+> ERROR: "wm831x_set_bits" [drivers/watchdog/wm831x_wdt.ko] undefined!
+> 
+> Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+> Cc:	patches@opensource.wolfsonmicro.com
+> Cc:	Mark Brown <broonie@kernel.org>
+> ---
 
-Done.
+Acked-by: Charles Keepax <ckeepax@opensource.wolfsonmicro.com>
+
+Thanks,
+Charles
