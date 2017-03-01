@@ -1,65 +1,70 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:35398 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752979AbdCAWjP (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 1 Mar 2017 17:39:15 -0500
-From: Guenter Roeck <linux@roeck-us.net>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [GIT PULL] watchdog updates for v4.11 - take 2
-Date: Wed,  1 Mar 2017 14:38:59 -0800
-Message-Id: <1488407939-23923-1-git-send-email-linux@roeck-us.net>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-path: <chris.brandt@renesas.com>
+From: Chris Brandt <chris.brandt@renesas.com>
+To: Wim Van Sebroeck <wim@iguana.be>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Sebastian Reichel <sre@kernel.org>,
+	Rob Herring <robh+dt@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Simon Horman <horms@verge.net.au>,
+	Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: linux-renesas-soc@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-watchdog@vger.kernel.org,
+	Chris Brandt <chris.brandt@renesas.com>
+Subject: [PATCH v3 0/3] watchdog: add wdt and reset for renesas r7s72100
+Date: Wed,  1 Mar 2017 17:54:52 -0500
+Message-Id: <20170301225455.22818-1-chris.brandt@renesas.com>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi Linus,
+Some Renesas SoCs do not have a reset register and the only way to do a SW
+controlled reset is to use the watchdog timer. So while this series started
+out by only adding a reset feature, now it's a full watchdog timer driver that
+includes a reset handler.
 
-Please pull additional watchdog updates for Linux v4.11 from
-signed tag:
+The longest WDT overflow you can get with a RZ/A1 (R7S72100) with its 8-bit
+wide counter is 125ms. Not very long.
 
-    git://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git watchdog-for-linus-v4.11-2
+However, by setting max_hw_heartbeat_ms, the watchdog core will now handle
+pinging the WDT automatically and allow the user to set times as big as they
+want. Therefore, the default timeout for this driver is 30 seconds.
 
-Thanks,
-Guenter
-------
+Of course if system interrupts are disabled too long and wdt can't be pinged
+by the watchdog core, then the system will reset before the user specified
+timeout. But hey, it's better nothing.
 
-The following changes since commit 2d6be4abf514fc26c83d239c7f31da1f95e4a31d:
+This driver was tested on an RZ/A1 RSK board using watchdog-simple.c from
+samples/watchdog/.
 
-  Merge tag 'for-linus-4.11' of git://git.code.sf.net/p/openipmi/linux-ipmi (2017-02-28 21:06:30 -0800)
+v3:
+* changed from a reset driver to a watchdog timer driver
+* use udelay(20) instead of msleep for reset handler
+* added Reviewed-by for r7s72100.dtsi and renesas-wdt.txt
+* added Acked-by for renesas-wdt.txt
 
-are available in the git repository at:
+v2:
+* added to renesas-wdt.txt instead of creating a new file
+* changed "renesas,r7s72100-reset" to "renesas,r7s72100-wdt"
+* changed "renesas,wdt-reset" to "renesas,rza-wdt"
+* added "renesas,rza-wdt" as a fallback
+* added interupt property (even though it is not used)
+* added clocks property
+* changed hard coded register values to defines
+* added msleep to while(1) loop
+* removed unnecessary #include files
+* added Reviewed-by: Geert Uytterhoeven for renesas-reset.c
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git tags/watchdog-for-linus-v4.11-2
+Chris Brandt (3):
+  watchdog: add rza_wdt driver
+  watchdog: renesas-wdt: add support for rza
+  ARM: dts: r7s72100: Add watchdog timer
 
-for you to fetch changes up to 9ad82f117f057ed04643cc60ce16fbf59e1b167f:
+ .../devicetree/bindings/watchdog/renesas-wdt.txt   |   4 +-
+ arch/arm/boot/dts/r7s72100.dtsi                    |   7 +
+ drivers/watchdog/Kconfig                           |   8 +
+ drivers/watchdog/Makefile                          |   1 +
+ drivers/watchdog/rza_wdt.c                         | 208 +++++++++++++++++++++
+ 5 files changed, 227 insertions(+), 1 deletion(-)
+ create mode 100644 drivers/watchdog/rza_wdt.c
 
-  watchdog: retu: restore MFD dependency (2017-03-01 06:15:10 -0800)
-
-----------------------------------------------------------------
-watchdog updates for v4.11-rc1, take 2
-
-Fix fallout from enabling COMPILE_TEST
-Fix gcc-4.3 build of kempld watchdog driver
-Use hrtimer in softdog
-
-----------------------------------------------------------------
-Arnd Bergmann (9):
-      watchdog: wm831x watchdog really needs mfd
-      watchdog: geode: restore hard CS5535_MFGPT dependency
-      watchdog: menf21bmc: add I2C dependency
-      watchdog: sp805: add back AMBA dependency
-      watchdog: bcm2835: add CONFIG_OF dependency
-      watchdog: kempld: revert to full dependency
-      watchdog: kempld: fix gcc-4.3 build
-      watchdog: db8500: add back prmcu dependency
-      watchdog: retu: restore MFD dependency
-
-Niklas Cassel (1):
-      watchdog: softdog: fire watchdog even if softirqs do not get to run
-
- drivers/watchdog/Kconfig      | 15 ++++++++-------
- drivers/watchdog/kempld_wdt.c |  9 ++++++++-
- drivers/watchdog/softdog.c    | 44 ++++++++++++++++++++++++++-----------------
- 3 files changed, 43 insertions(+), 25 deletions(-)
+-- 
+2.10.1
