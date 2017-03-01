@@ -1,59 +1,65 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:40987 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:35398 "EHLO
         bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751834AbdCAOOC (ORCPT
+        with ESMTP id S1752979AbdCAWjP (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 1 Mar 2017 09:14:02 -0500
-Subject: Re: [PATCH 3/3] watchdog: retu: restore MFD dependency
-To: Arnd Bergmann <arnd@arndb.de>
-References: <20170301091531.522161-1-arnd@arndb.de>
- <20170301091531.522161-4-arnd@arndb.de>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-        Lee Jones <lee.jones@linaro.org>, linux-kernel@vger.kernel.org
+        Wed, 1 Mar 2017 17:39:15 -0500
 From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <7ed56c44-eac1-b830-a21a-43b097f2cb5d@roeck-us.net>
-Date: Wed, 1 Mar 2017 06:13:55 -0800
-MIME-Version: 1.0
-In-Reply-To: <20170301091531.522161-4-arnd@arndb.de>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [GIT PULL] watchdog updates for v4.11 - take 2
+Date: Wed,  1 Mar 2017 14:38:59 -0800
+Message-Id: <1488407939-23923-1-git-send-email-linux@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 03/01/2017 01:15 AM, Arnd Bergmann wrote:
-> The retu watchdog calls into the respective mfd driver, but fails to
-> link if that is diabled:
->
-> drivers/watchdog/built-in.o: In function `retu_wdt_set_timeout':
-> ziirave_wdt.c:(.text+0x8c88): undefined reference to `retu_write'
-> ziirave_wdt.c:(.text+0x8c88): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `retu_write'
-> drivers/watchdog/built-in.o: In function `retu_wdt_start':
-> ziirave_wdt.c:(.text+0x8cc8): undefined reference to `retu_write'
-> ziirave_wdt.c:(.text+0x8cc8): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `retu_write'
->
-> This restores the dependency as it was before
->
-> Fixes: da2a68b3eb47 ("watchdog: Enable COMPILE_TEST where possible")
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Hi Linus,
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Please pull additional watchdog updates for Linux v4.11 from
+signed tag:
 
-> ---
->  drivers/watchdog/Kconfig | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index a199e8536ce4..52a70ee6014f 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -586,7 +586,7 @@ config UX500_WATCHDOG
->
->  config RETU_WATCHDOG
->  	tristate "Retu watchdog"
-> -	depends on MFD_RETU || COMPILE_TEST
-> +	depends on MFD_RETU
->  	select WATCHDOG_CORE
->  	help
->  	  Retu watchdog driver for Nokia Internet Tablets (770, N800,
->
+    git://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git watchdog-for-linus-v4.11-2
 
+Thanks,
+Guenter
+------
+
+The following changes since commit 2d6be4abf514fc26c83d239c7f31da1f95e4a31d:
+
+  Merge tag 'for-linus-4.11' of git://git.code.sf.net/p/openipmi/linux-ipmi (2017-02-28 21:06:30 -0800)
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git tags/watchdog-for-linus-v4.11-2
+
+for you to fetch changes up to 9ad82f117f057ed04643cc60ce16fbf59e1b167f:
+
+  watchdog: retu: restore MFD dependency (2017-03-01 06:15:10 -0800)
+
+----------------------------------------------------------------
+watchdog updates for v4.11-rc1, take 2
+
+Fix fallout from enabling COMPILE_TEST
+Fix gcc-4.3 build of kempld watchdog driver
+Use hrtimer in softdog
+
+----------------------------------------------------------------
+Arnd Bergmann (9):
+      watchdog: wm831x watchdog really needs mfd
+      watchdog: geode: restore hard CS5535_MFGPT dependency
+      watchdog: menf21bmc: add I2C dependency
+      watchdog: sp805: add back AMBA dependency
+      watchdog: bcm2835: add CONFIG_OF dependency
+      watchdog: kempld: revert to full dependency
+      watchdog: kempld: fix gcc-4.3 build
+      watchdog: db8500: add back prmcu dependency
+      watchdog: retu: restore MFD dependency
+
+Niklas Cassel (1):
+      watchdog: softdog: fire watchdog even if softirqs do not get to run
+
+ drivers/watchdog/Kconfig      | 15 ++++++++-------
+ drivers/watchdog/kempld_wdt.c |  9 ++++++++-
+ drivers/watchdog/softdog.c    | 44 ++++++++++++++++++++++++++-----------------
+ 3 files changed, 43 insertions(+), 25 deletions(-)
