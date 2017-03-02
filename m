@@ -1,39 +1,54 @@
 Return-path: <alexandre.belloni@free-electrons.com>
-Date: Thu, 2 Mar 2017 18:35:41 +0100
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 To: Guenter Roeck <linux@roeck-us.net>
 Cc: Wim Van Sebroeck <wim@iguana.be>,
-	Nicolas Ferre <nicolas.ferre@atmel.com>,
+	Nicolas Ferre <nicolas.ferre@microchip.com>,
+	Wenyou.Yang@microchip.com,
 	linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 2/3] watchdog: sama5d4: Fix setting timeout when
- watchdog is disabled
-Message-ID: <20170302173541.ggkypwjbhmtftbvi@piout.net>
-References: <20170216193053.5546-1-alexandre.belloni@free-electrons.com>
- <20170216193053.5546-2-alexandre.belloni@free-electrons.com>
- <968ef53e-c3c4-5322-020a-8382ce367931@roeck-us.net>
- <20170217151625.hv2vn5imx2kyeftt@piout.net>
- <c9f336fd-8761-7999-4ac0-cf68eb6c8ba1@roeck-us.net>
- <20170219235213.qcxfne5yvs3uzwg3@piout.net>
- <cc75a19f-0d99-4d26-0789-6cd750983990@roeck-us.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <cc75a19f-0d99-4d26-0789-6cd750983990@roeck-us.net>
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [PATCH 0/4] watchdog: sama5d4: fix issues
+Date: Thu,  2 Mar 2017 18:31:10 +0100
+Message-Id: <20170302173114.28508-1-alexandre.belloni@free-electrons.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
 Hi,
 
-On 19/02/2017 at 20:46:13 -0800, Guenter Roeck wrote:
-> Please keep us in the loop.
-> 
+This is a rework of how the watchdog is getting programmed. Currently,
+there are multiple issue that have the same symptoms: the watchdog is
+unexpectidly resetting the SoCs when configuring it.
 
-I've sent a new series that solves the issues we were seeing. I've tied
-to document as much as possible and to make the driver as simple as
-possible.
+The first issue was how WDDIS was handled. To sum it up, the watchdog
+has to be configured when removing WDDIS instead of first removing it
+then configuring it. It is solved by only configuring the IP when
+enabling the watchdog.
+Note that there were no issue updating the timeout with the watchdog
+running.
 
+The second issue is how the write are synchronized inside the IP. The
+datasheet state that iit is necessary to wait 3 slow clock periods
+between a write to CR and subsequents writes to CR and MR. This was not
+done in the driver. Also, it apears it is necessary to wait the same
+amount of time between a write to MR and a write to CR or MR.
+
+Finally, a simplification of the probe is done and a comment is added in
+the resume function to explain why the reset may be delayed after a
+suspend/resume cycle (but it will still happen).
+
+Before the series, the watchdog would reset the SoC after a few
+configurations. Now, I've lett a test progam run that managed to do more
+than 1 000 000 configurations with the watchdog enabled and the same
+while disabled.
+
+Alexandre Belloni (4):
+  watchdog: sama5d4: fix WDDIS handling
+  watchdog: sama5d4: fix race condition
+  watchodg: sama5d4: simplify probe
+  watchdog: sama5d4: Add comment explaining what happens on resume
+
+ drivers/watchdog/sama5d4_wdt.c | 96 ++++++++++++++++++++++++++++++------------
+ 1 file changed, 68 insertions(+), 28 deletions(-)
 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+2.11.0
