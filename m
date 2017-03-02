@@ -1,49 +1,39 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mout.kundenserver.de ([212.227.17.24]:60078 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750892AbdCBMU3 (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 2 Mar 2017 07:20:29 -0500
-From: Arnd Bergmann <arnd@arndb.de>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: Arnd Bergmann <arnd@arndb.de>, Guenter Roeck <linux@roeck-us.net>,
-        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] watchdog: orion: fix compile-test dependencies
-Date: Thu,  2 Mar 2017 13:09:52 +0100
-Message-Id: <20170302121009.2348055-1-arnd@arndb.de>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-path: <alexandre.belloni@free-electrons.com>
+Date: Thu, 2 Mar 2017 18:35:41 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Wim Van Sebroeck <wim@iguana.be>,
+	Nicolas Ferre <nicolas.ferre@atmel.com>,
+	linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 2/3] watchdog: sama5d4: Fix setting timeout when
+ watchdog is disabled
+Message-ID: <20170302173541.ggkypwjbhmtftbvi@piout.net>
+References: <20170216193053.5546-1-alexandre.belloni@free-electrons.com>
+ <20170216193053.5546-2-alexandre.belloni@free-electrons.com>
+ <968ef53e-c3c4-5322-020a-8382ce367931@roeck-us.net>
+ <20170217151625.hv2vn5imx2kyeftt@piout.net>
+ <c9f336fd-8761-7999-4ac0-cf68eb6c8ba1@roeck-us.net>
+ <20170219235213.qcxfne5yvs3uzwg3@piout.net>
+ <cc75a19f-0d99-4d26-0789-6cd750983990@roeck-us.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <cc75a19f-0d99-4d26-0789-6cd750983990@roeck-us.net>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-I ran into one corner case with the orion watchdog using the
-atomic_io_modify interface:
+Hi,
 
-drivers/watchdog/orion_wdt.o: In function `orion_stop':
-orion_wdt.c:(.text.orion_stop+0x28): undefined reference to `atomic_io_modify'
-drivers/watchdog/orion_wdt.o: In function `armada375_stop':
-orion_wdt.c:(.text.armada375_stop+0x28): undefined reference to `atomic_io_modify'
+On 19/02/2017 at 20:46:13 -0800, Guenter Roeck wrote:
+> Please keep us in the loop.
+> 
 
-This function is available on all 32-bit ARM builds except for ebsa110, so
-we have to specifically exclude that from compile-testing.
+I've sent a new series that solves the issues we were seeing. I've tied
+to document as much as possible and to make the driver as simple as
+possible.
 
-Fixes: da2a68b3eb47 ("watchdog: Enable COMPILE_TEST where possible")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
----
- drivers/watchdog/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 657529fc1453..5c3deeed646a 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -452,7 +452,7 @@ config DAVINCI_WATCHDOG
- 
- config ORION_WATCHDOG
- 	tristate "Orion watchdog"
--	depends on ARCH_ORION5X || ARCH_DOVE || MACH_DOVE || ARCH_MVEBU || COMPILE_TEST
-+	depends on ARCH_ORION5X || ARCH_DOVE || MACH_DOVE || ARCH_MVEBU || (COMPILE_TEST && !ARCH_EBSA110)
- 	depends on ARM
- 	select WATCHDOG_CORE
- 	help
 -- 
-2.9.0
-
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
