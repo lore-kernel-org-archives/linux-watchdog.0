@@ -1,13 +1,14 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-qk0-f172.google.com ([209.85.220.172]:34248 "EHLO
-        mail-qk0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753585AbdCBAWs (ORCPT
+Received: from mail-qk0-f174.google.com ([209.85.220.174]:36452 "EHLO
+        mail-qk0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753900AbdCBAW6 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 1 Mar 2017 19:22:48 -0500
-Received: by mail-qk0-f172.google.com with SMTP id s186so98858101qkb.1
-        for <linux-watchdog@vger.kernel.org>; Wed, 01 Mar 2017 16:22:11 -0800 (PST)
+        Wed, 1 Mar 2017 19:22:58 -0500
+Received: by mail-qk0-f174.google.com with SMTP id n186so96336531qkb.3
+        for <linux-watchdog@vger.kernel.org>; Wed, 01 Mar 2017 16:22:57 -0800 (PST)
 From: Laura Abbott <labbott@redhat.com>
-To: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+To: Wim Van Sebroeck <wim@iguana.be>,
+        Guenter Roeck <linux@roeck-us.net>
 Cc: Laura Abbott <labbott@redhat.com>,
         Russell King <linux@armlinux.org.uk>,
         Catalin Marinas <catalin.marinas@arm.com>,
@@ -23,16 +24,15 @@ Cc: Laura Abbott <labbott@redhat.com>,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
         linux-s390@vger.kernel.org, linux-arch@vger.kernel.org,
         David Airlie <airlied@linux.ie>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        Guenter Roeck <linux@roeck-us.net>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
         linux-watchdog@vger.kernel.org,
         "David S. Miller" <davem@davemloft.net>,
         Daniel Borkmann <daniel@iogearbox.net>,
         Jessica Yu <jeyu@redhat.com>, Takashi Iwai <tiwai@suse.com>,
         Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCHv2 08/14] intel_th: Use set_memory.h header
-Date: Wed,  1 Mar 2017 16:15:00 -0800
-Message-Id: <1488413706-9739-9-git-send-email-labbott@redhat.com>
+Subject: [PATCHv2 09/14] watchdog: hpwdt: Use set_memory.h header
+Date: Wed,  1 Mar 2017 16:15:01 -0800
+Message-Id: <1488413706-9739-10-git-send-email-labbott@redhat.com>
 In-Reply-To: <1488413706-9739-1-git-send-email-labbott@redhat.com>
 References: <1488413706-9739-1-git-send-email-labbott@redhat.com>
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -44,22 +44,22 @@ explicitly.
 
 Signed-off-by: Laura Abbott <labbott@redhat.com>
 ---
- drivers/hwtracing/intel_th/msu.c | 2 +-
+ drivers/watchdog/hpwdt.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hwtracing/intel_th/msu.c b/drivers/hwtracing/intel_th/msu.c
-index e88afe1..f0e36c8 100644
---- a/drivers/hwtracing/intel_th/msu.c
-+++ b/drivers/hwtracing/intel_th/msu.c
-@@ -27,7 +27,7 @@
- #include <linux/io.h>
- #include <linux/dma-mapping.h>
- 
+diff --git a/drivers/watchdog/hpwdt.c b/drivers/watchdog/hpwdt.c
+index 70c7194..67fbe35 100644
+--- a/drivers/watchdog/hpwdt.c
++++ b/drivers/watchdog/hpwdt.c
+@@ -34,7 +34,7 @@
+ #include <linux/nmi.h>
+ #include <linux/kdebug.h>
+ #include <linux/notifier.h>
 -#include <asm/cacheflush.h>
 +#include <asm/set_memory.h>
- 
- #include "intel_th.h"
- #include "msu.h"
+ #endif /* CONFIG_HPWDT_NMI_DECODING */
+ #include <asm/nmi.h>
+ #include <asm/frame.h>
 -- 
 2.7.4
 
