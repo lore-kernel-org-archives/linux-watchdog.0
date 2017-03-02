@@ -1,56 +1,47 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:48706 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751735AbdCBUD7 (ORCPT
+Received: from www62.your-server.de ([213.133.104.62]:58350 "EHLO
+        www62.your-server.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752543AbdCBU1g (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 2 Mar 2017 15:03:59 -0500
-Subject: Re: [PATCH] watchdog: orion: fix compile-test dependencies
-To: Arnd Bergmann <arnd@arndb.de>, Wim Van Sebroeck <wim@iguana.be>
-References: <20170302121009.2348055-1-arnd@arndb.de>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <484651b0-32b3-f961-5302-85d295da3ec9@roeck-us.net>
-Date: Thu, 2 Mar 2017 06:25:50 -0800
+        Thu, 2 Mar 2017 15:27:36 -0500
+Message-ID: <58B87FE9.3090206@iogearbox.net>
+Date: Thu, 02 Mar 2017 21:26:17 +0100
+From: Daniel Borkmann <daniel@iogearbox.net>
 MIME-Version: 1.0
-In-Reply-To: <20170302121009.2348055-1-arnd@arndb.de>
+To: Laura Abbott <labbott@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>
+CC: Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Martin Schwidefsky <schwidefsky@de.ibm.com>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org,
+        Kees Cook <keescook@chromium.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-arch@vger.kernel.org,
+        David Airlie <airlied@linux.ie>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Guenter Roeck <linux@roeck-us.net>,
+        linux-watchdog@vger.kernel.org, Jessica Yu <jeyu@redhat.com>,
+        Takashi Iwai <tiwai@suse.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [PATCHv2 10/14] bpf: Use set_memory.h header
+References: <1488413706-9739-1-git-send-email-labbott@redhat.com> <1488413706-9739-11-git-send-email-labbott@redhat.com>
+In-Reply-To: <1488413706-9739-11-git-send-email-labbott@redhat.com>
 Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 03/02/2017 04:09 AM, Arnd Bergmann wrote:
-> I ran into one corner case with the orion watchdog using the
-> atomic_io_modify interface:
+On 03/02/2017 01:15 AM, Laura Abbott wrote:
+> set_memory_* functions have moved to set_memory.h. Switch to this
+> explicitly.
 >
-> drivers/watchdog/orion_wdt.o: In function `orion_stop':
-> orion_wdt.c:(.text.orion_stop+0x28): undefined reference to `atomic_io_modify'
-> drivers/watchdog/orion_wdt.o: In function `armada375_stop':
-> orion_wdt.c:(.text.armada375_stop+0x28): undefined reference to `atomic_io_modify'
->
-> This function is available on all 32-bit ARM builds except for ebsa110, so
-> we have to specifically exclude that from compile-testing.
->
-> Fixes: da2a68b3eb47 ("watchdog: Enable COMPILE_TEST where possible")
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> Signed-off-by: Laura Abbott <labbott@redhat.com>
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-
-> ---
->  drivers/watchdog/Kconfig | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index 657529fc1453..5c3deeed646a 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -452,7 +452,7 @@ config DAVINCI_WATCHDOG
->
->  config ORION_WATCHDOG
->  	tristate "Orion watchdog"
-> -	depends on ARCH_ORION5X || ARCH_DOVE || MACH_DOVE || ARCH_MVEBU || COMPILE_TEST
-> +	depends on ARCH_ORION5X || ARCH_DOVE || MACH_DOVE || ARCH_MVEBU || (COMPILE_TEST && !ARCH_EBSA110)
->  	depends on ARM
->  	select WATCHDOG_CORE
->  	help
->
-
+Acked-by: Daniel Borkmann <daniel@iogearbox.net>
