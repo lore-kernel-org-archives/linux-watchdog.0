@@ -8,46 +8,101 @@ Cc: Wim Van Sebroeck <wim@iguana.be>,
 	linux-arm-kernel@lists.infradead.org,
 	linux-kernel@vger.kernel.org,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [PATCH 3/4] watchodg: sama5d4: simplify probe
-Date: Thu,  2 Mar 2017 18:31:13 +0100
-Message-Id: <20170302173114.28508-4-alexandre.belloni@free-electrons.com>
+Subject: [PATCH 2/4] watchdog: sama5d4: fix race condition
+Date: Thu,  2 Mar 2017 18:31:12 +0100
+Message-Id: <20170302173114.28508-3-alexandre.belloni@free-electrons.com>
 In-Reply-To: <20170302173114.28508-1-alexandre.belloni@free-electrons.com>
 References: <20170302173114.28508-1-alexandre.belloni@free-electrons.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Because the only way to use the driver is to have a device tree enabling
-it, pdev->dev.of_node will never be NULL. Remove the unnecessary check.
+WDT_MR and WDT_CR must not updated within three slow clock periods after
+the last ping (write to WDT_CR or WDT_MR). Ensure enough time has elapsed
+before writing those registers.
+wdt_write() waits for 4 periods to ensure at least 3 edges are seen by the
+IP.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 ---
- drivers/watchdog/sama5d4_wdt.c | 14 ++++++--------
- 1 file changed, 6 insertions(+), 8 deletions(-)
+ drivers/watchdog/sama5d4_wdt.c | 33 +++++++++++++++++++++++++++++----
+ 1 file changed, 29 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/watchdog/sama5d4_wdt.c b/drivers/watchdog/sama5d4_wdt.c
-index 362fd229786d..d710014f3b7d 100644
+index 5cee20caca78..362fd229786d 100644
 --- a/drivers/watchdog/sama5d4_wdt.c
 +++ b/drivers/watchdog/sama5d4_wdt.c
-@@ -228,15 +228,13 @@ static int sama5d4_wdt_probe(struct platform_device *pdev)
+@@ -6,6 +6,7 @@
+  * Licensed under GPLv2.
+  */
  
- 	wdt->reg_base = regs;
++#include <linux/delay.h>
+ #include <linux/interrupt.h>
+ #include <linux/io.h>
+ #include <linux/kernel.h>
+@@ -29,6 +30,7 @@ struct sama5d4_wdt {
+ 	struct watchdog_device	wdd;
+ 	void __iomem		*reg_base;
+ 	u32			mr;
++	unsigned long		last_ping;
+ };
  
--	if (pdev->dev.of_node) {
--		irq = irq_of_parse_and_map(pdev->dev.of_node, 0);
--		if (!irq)
--			dev_warn(&pdev->dev, "failed to get IRQ from DT\n");
-+	irq = irq_of_parse_and_map(pdev->dev.of_node, 0);
-+	if (!irq)
-+		dev_warn(&pdev->dev, "failed to get IRQ from DT\n");
+ static int wdt_timeout = WDT_DEFAULT_TIMEOUT;
+@@ -49,8 +51,29 @@ MODULE_PARM_DESC(nowayout,
+ #define wdt_read(wdt, field) \
+ 	readl_relaxed((wdt)->reg_base + (field))
  
--		ret = of_sama5d4_wdt_init(pdev->dev.of_node, wdt);
--		if (ret)
--			return ret;
--	}
-+	ret = of_sama5d4_wdt_init(pdev->dev.of_node, wdt);
-+	if (ret)
-+		return ret;
+-#define wdt_write(wtd, field, val) \
+-	writel_relaxed((val), (wdt)->reg_base + (field))
++/* 4 slow clock periods is 4/32768 = 122.07µs*/
++#define WDT_DELAY	usecs_to_jiffies(123)
++
++static void wdt_write(struct sama5d4_wdt *wdt, u32 field, u32 val)
++{
++	/*
++	 * WDT_CR and WDT_MR must not be modified within three slow clock
++	 * periods following a restart of the watchdog performed by a write
++	 * access in WDT_CR.
++	 */
++	while (time_before(jiffies, wdt->last_ping + WDT_DELAY))
++		usleep_range(30, 125);
++	writel_relaxed(val, wdt->reg_base + field);
++	wdt->last_ping = jiffies;
++}
++
++static void wdt_write_nosleep(struct sama5d4_wdt *wdt, u32 field, u32 val)
++{
++	if (time_before(jiffies, wdt->last_ping + WDT_DELAY))
++		udelay(123);
++	writel_relaxed(val, wdt->reg_base + field);
++	wdt->last_ping = jiffies;
++}
  
- 	if ((wdt->mr & AT91_WDT_WDFIEN) && irq) {
- 		ret = devm_request_irq(&pdev->dev, irq, sama5d4_wdt_irq_handler,
+ static int sama5d4_wdt_start(struct watchdog_device *wdd)
+ {
+@@ -164,11 +187,12 @@ static int sama5d4_wdt_init(struct sama5d4_wdt *wdt)
+ 	 * Else, we have to disable it properly.
+ 	 */
+ 	if (wdt_enabled) {
+-		wdt_write(wdt, AT91_WDT_MR, wdt->mr);
++		wdt_write_nosleep(wdt, AT91_WDT_MR, wdt->mr);
+ 	} else {
+ 		reg = wdt_read(wdt, AT91_WDT_MR);
+ 		if (!(reg & AT91_WDT_WDDIS))
+-			wdt_write(wdt, AT91_WDT_MR, reg | AT91_WDT_WDDIS);
++			wdt_write_nosleep(wdt, AT91_WDT_MR,
++					  reg | AT91_WDT_WDDIS);
+ 	}
+ 	return 0;
+ }
+@@ -193,6 +217,7 @@ static int sama5d4_wdt_probe(struct platform_device *pdev)
+ 	wdd->ops = &sama5d4_wdt_ops;
+ 	wdd->min_timeout = MIN_WDT_TIMEOUT;
+ 	wdd->max_timeout = MAX_WDT_TIMEOUT;
++	wdt->last_ping = jiffies;
+ 
+ 	watchdog_set_drvdata(wdd, wdt);
+ 
 -- 
 2.11.0
