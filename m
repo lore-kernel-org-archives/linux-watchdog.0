@@ -1,27 +1,23 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-qk0-f178.google.com ([209.85.220.178]:33655 "EHLO
-        mail-qk0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751944AbdCBAWs (ORCPT
+Received: from mail-qk0-f171.google.com ([209.85.220.171]:35270 "EHLO
+        mail-qk0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753448AbdCBBSQ (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 1 Mar 2017 19:22:48 -0500
-Received: by mail-qk0-f178.google.com with SMTP id n127so99122233qkf.0
-        for <linux-watchdog@vger.kernel.org>; Wed, 01 Mar 2017 16:21:55 -0800 (PST)
+        Wed, 1 Mar 2017 20:18:16 -0500
+Received: by mail-qk0-f171.google.com with SMTP id u188so100840940qkc.2
+        for <linux-watchdog@vger.kernel.org>; Wed, 01 Mar 2017 17:18:01 -0800 (PST)
 From: Laura Abbott <labbott@redhat.com>
-To: Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>,
-        "H. Peter Anvin" <hpa@zytor.com>
-Cc: Laura Abbott <labbott@redhat.com>,
-        Russell King <linux@armlinux.org.uk>,
+To: Russell King <linux@armlinux.org.uk>,
         Catalin Marinas <catalin.marinas@arm.com>,
         Will Deacon <will.deacon@arm.com>,
         Martin Schwidefsky <schwidefsky@de.ibm.com>,
-        Heiko Carstens <heiko.carstens@de.ibm.com>, x86@kernel.org,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>,
+        "H. Peter Anvin" <hpa@zytor.com>,
         Kees Cook <keescook@chromium.org>,
         Mark Rutland <mark.rutland@arm.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-arch@vger.kernel.org,
-        David Airlie <airlied@linux.ie>,
+        Arnd Bergmann <arnd@arndb.de>, David Airlie <airlied@linux.ie>,
         Alexander Shishkin <alexander.shishkin@linux.intel.com>,
         Wim Van Sebroeck <wim@iguana.be>,
         Guenter Roeck <linux@roeck-us.net>,
@@ -30,201 +26,116 @@ Cc: Laura Abbott <labbott@redhat.com>,
         Daniel Borkmann <daniel@iogearbox.net>,
         Jessica Yu <jeyu@redhat.com>, Takashi Iwai <tiwai@suse.com>,
         Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCHv2 05/14] x86: Use set_memory.h header
-Date: Wed,  1 Mar 2017 16:14:57 -0800
-Message-Id: <1488413706-9739-6-git-send-email-labbott@redhat.com>
-In-Reply-To: <1488413706-9739-1-git-send-email-labbott@redhat.com>
-References: <1488413706-9739-1-git-send-email-labbott@redhat.com>
+Cc: Laura Abbott <labbott@redhat.com>, x86@kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-arch@vger.kernel.org
+Subject: [PATCHv2 00/14] set_memory_* functions header refactor
+Date: Wed,  1 Mar 2017 16:14:52 -0800
+Message-Id: <1488413706-9739-1-git-send-email-labbott@redhat.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+Hi,
 
-set_memory_* functions have moved to set_memory.h. Switch to this
-explicitly.
+This is v2 of my proposal to move set_memory_* function prototypes out of
+cacheflush.h and into their own header file. This came out of a comment
+Russell made while reviewing RODATA test cases
+http://lists.infradead.org/pipermail/linux-arm-kernel/2017-January/480855.html
+While the final result of that series was the rodata code was refactored into
+its own header file, the set_memory_* APIs are still out of place.
 
-Signed-off-by: Laura Abbott <labbott@redhat.com>
----
- arch/x86/kernel/amd_gart_64.c      | 2 +-
- arch/x86/kernel/cpu/amd.c          | 2 +-
- arch/x86/kernel/cpu/bugs.c         | 2 +-
- arch/x86/kernel/ftrace.c           | 2 +-
- arch/x86/kernel/machine_kexec_64.c | 1 +
- arch/x86/mm/init.c                 | 2 +-
- arch/x86/mm/init_64.c              | 2 +-
- arch/x86/mm/ioremap.c              | 2 +-
- arch/x86/mm/pageattr.c             | 1 +
- arch/x86/net/bpf_jit_comp.c        | 1 +
- arch/x86/pci/pcbios.c              | 2 +-
- arch/x86/platform/efi/efi.c        | 2 +-
- arch/x86/realmode/init.c           | 2 +-
- 13 files changed, 13 insertions(+), 10 deletions(-)
+This version refactored the common set_memory_* functions into an asm-generic
+header. s390x added some features so it can't just use the asm-generic header.
+I debated how much more to try and shove into the asm-generic version (e.g.
+stub prototypes for the ARM nommu case, set_kernel_text_*) but decided to stick
+with just the basics for this version.
 
-diff --git a/arch/x86/kernel/amd_gart_64.c b/arch/x86/kernel/amd_gart_64.c
-index 82dfe32..6c81048 100644
---- a/arch/x86/kernel/amd_gart_64.c
-+++ b/arch/x86/kernel/amd_gart_64.c
-@@ -35,7 +35,7 @@
- #include <asm/proto.h>
- #include <asm/iommu.h>
- #include <asm/gart.h>
--#include <asm/cacheflush.h>
-+#include <asm/set_memory.h>
- #include <asm/swiotlb.h>
- #include <asm/dma.h>
- #include <asm/amd_nb.h>
-diff --git a/arch/x86/kernel/cpu/amd.c b/arch/x86/kernel/cpu/amd.c
-index 4e95b2e..f77f7f4 100644
---- a/arch/x86/kernel/cpu/amd.c
-+++ b/arch/x86/kernel/cpu/amd.c
-@@ -15,7 +15,7 @@
- 
- #ifdef CONFIG_X86_64
- # include <asm/mmconfig.h>
--# include <asm/cacheflush.h>
-+# include <asm/set_memory.h>
- #endif
- 
- #include "cpu.h"
-diff --git a/arch/x86/kernel/cpu/bugs.c b/arch/x86/kernel/cpu/bugs.c
-index a44ef52..0af86d9 100644
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -17,7 +17,7 @@
- #include <asm/paravirt.h>
- #include <asm/alternative.h>
- #include <asm/pgtable.h>
--#include <asm/cacheflush.h>
-+#include <asm/set_memory.h>
- 
- void __init check_bugs(void)
- {
-diff --git a/arch/x86/kernel/ftrace.c b/arch/x86/kernel/ftrace.c
-index 8639bb2..da9f2b0 100644
---- a/arch/x86/kernel/ftrace.c
-+++ b/arch/x86/kernel/ftrace.c
-@@ -24,7 +24,7 @@
- 
- #include <trace/syscall.h>
- 
--#include <asm/cacheflush.h>
-+#include <asm/set_memory.h>
- #include <asm/kprobes.h>
- #include <asm/ftrace.h>
- #include <asm/nops.h>
-diff --git a/arch/x86/kernel/machine_kexec_64.c b/arch/x86/kernel/machine_kexec_64.c
-index 307b1f4..8887311 100644
---- a/arch/x86/kernel/machine_kexec_64.c
-+++ b/arch/x86/kernel/machine_kexec_64.c
-@@ -27,6 +27,7 @@
- #include <asm/debugreg.h>
- #include <asm/kexec-bzimage64.h>
- #include <asm/setup.h>
-+#include <asm/set_memory.h>
- 
- #ifdef CONFIG_KEXEC_FILE
- static struct kexec_file_ops *kexec_file_loaders[] = {
-diff --git a/arch/x86/mm/init.c b/arch/x86/mm/init.c
-index 22af912..adbfb09 100644
---- a/arch/x86/mm/init.c
-+++ b/arch/x86/mm/init.c
-@@ -5,7 +5,7 @@
- #include <linux/memblock.h>
- #include <linux/bootmem.h>	/* for max_low_pfn */
- 
--#include <asm/cacheflush.h>
-+#include <asm/set_memory.h>
- #include <asm/e820.h>
- #include <asm/init.h>
- #include <asm/page.h>
-diff --git a/arch/x86/mm/init_64.c b/arch/x86/mm/init_64.c
-index 15173d3..7eef172 100644
---- a/arch/x86/mm/init_64.c
-+++ b/arch/x86/mm/init_64.c
-@@ -50,7 +50,7 @@
- #include <asm/sections.h>
- #include <asm/kdebug.h>
- #include <asm/numa.h>
--#include <asm/cacheflush.h>
-+#include <asm/set_memory.h>
- #include <asm/init.h>
- #include <asm/uv/uv.h>
- #include <asm/setup.h>
-diff --git a/arch/x86/mm/ioremap.c b/arch/x86/mm/ioremap.c
-index 7aaa263..8ae010c 100644
---- a/arch/x86/mm/ioremap.c
-+++ b/arch/x86/mm/ioremap.c
-@@ -13,7 +13,7 @@
- #include <linux/vmalloc.h>
- #include <linux/mmiotrace.h>
- 
--#include <asm/cacheflush.h>
-+#include <asm/set_memory.h>
- #include <asm/e820.h>
- #include <asm/fixmap.h>
- #include <asm/pgtable.h>
-diff --git a/arch/x86/mm/pageattr.c b/arch/x86/mm/pageattr.c
-index 28d4213..bfcdd45 100644
---- a/arch/x86/mm/pageattr.c
-+++ b/arch/x86/mm/pageattr.c
-@@ -24,6 +24,7 @@
- #include <asm/pgalloc.h>
- #include <asm/proto.h>
- #include <asm/pat.h>
-+#include <asm/set_memory.h>
- 
- /*
-  * The current flushing context - we pass it instead of 5 arguments:
-diff --git a/arch/x86/net/bpf_jit_comp.c b/arch/x86/net/bpf_jit_comp.c
-index 32322ce..a63e6af 100644
---- a/arch/x86/net/bpf_jit_comp.c
-+++ b/arch/x86/net/bpf_jit_comp.c
-@@ -12,6 +12,7 @@
- #include <linux/filter.h>
- #include <linux/if_vlan.h>
- #include <asm/cacheflush.h>
-+#include <asm/set_memory.h>
- #include <linux/bpf.h>
- 
- int bpf_jit_enable __read_mostly;
-diff --git a/arch/x86/pci/pcbios.c b/arch/x86/pci/pcbios.c
-index 1d97cea..4d510a6 100644
---- a/arch/x86/pci/pcbios.c
-+++ b/arch/x86/pci/pcbios.c
-@@ -9,7 +9,7 @@
- #include <linux/uaccess.h>
- #include <asm/pci_x86.h>
- #include <asm/pci-functions.h>
--#include <asm/cacheflush.h>
-+#include <asm/set_memory.h>
- 
- /* BIOS32 signature: "_32_" */
- #define BIOS32_SIGNATURE	(('_' << 0) + ('3' << 8) + ('2' << 16) + ('_' << 24))
-diff --git a/arch/x86/platform/efi/efi.c b/arch/x86/platform/efi/efi.c
-index 565dff3..6867d88 100644
---- a/arch/x86/platform/efi/efi.c
-+++ b/arch/x86/platform/efi/efi.c
-@@ -48,7 +48,7 @@
- #include <asm/setup.h>
- #include <asm/efi.h>
- #include <asm/time.h>
--#include <asm/cacheflush.h>
-+#include <asm/set_memory.h>
- #include <asm/tlbflush.h>
- #include <asm/x86_init.h>
- #include <asm/uv/uv.h>
-diff --git a/arch/x86/realmode/init.c b/arch/x86/realmode/init.c
-index 5db706f1..a163a90 100644
---- a/arch/x86/realmode/init.c
-+++ b/arch/x86/realmode/init.c
-@@ -2,7 +2,7 @@
- #include <linux/slab.h>
- #include <linux/memblock.h>
- 
--#include <asm/cacheflush.h>
-+#include <asm/set_memory.h>
- #include <asm/pgtable.h>
- #include <asm/realmode.h>
- #include <asm/tlbflush.h>
+I split out the cacheflush.h -> set_memory.h conversions into separate patches
+to hopefully make merging easier. Worst case, the final patch to completely
+separate the two can be delayed if there are more problems found. I'd like
+for this to eventually go through the -mm tree so I'd like Acks where
+appropriate.
+
+As always, feedback appreciated.
+
+Thanks,
+Laura
+
+Laura Abbott (14):
+  treewide: Move set_memory_* functions away from cacheflush.h
+  arm: Use set_memory.h header
+  arm64: Use set_memory.h header
+  s390: Use set_memory.h header
+  x86: Use set_memory.h header
+  agp: Use set_memory.h header
+  drm: Use set_memory.h header
+  intel_th: Use set_memory.h header
+  watchdog: hpwdt: Use set_memory.h header
+  bpf: Use set_memory.h header
+  module: Use set_memory.h header
+  PM / hibernate: Use set_memory.h header
+  ALSA: hda: Use set_memory.h header
+  treewide: Decouple cacheflush.h and set_memory.h
+
+ arch/arm/include/asm/cacheflush.h        | 20 --------
+ arch/arm/include/asm/set_memory.h        | 32 ++++++++++++
+ arch/arm/mm/pageattr.c                   |  1 +
+ arch/arm/net/bpf_jit_32.c                |  2 +-
+ arch/arm64/include/asm/Kbuild            |  1 +
+ arch/arm64/include/asm/cacheflush.h      |  5 --
+ arch/arm64/mm/pageattr.c                 |  1 +
+ arch/arm64/net/bpf_jit_comp.c            |  1 +
+ arch/s390/include/asm/Kbuild             |  1 +
+ arch/s390/include/asm/cacheflush.h       | 34 -------------
+ arch/s390/include/asm/set_memory.h       | 31 ++++++++++++
+ arch/s390/kernel/ftrace.c                |  1 +
+ arch/s390/kernel/kprobes.c               |  2 +-
+ arch/s390/kernel/machine_kexec.c         |  1 +
+ arch/s390/mm/init.c                      |  1 +
+ arch/s390/mm/pageattr.c                  |  1 +
+ arch/s390/mm/vmem.c                      |  1 +
+ arch/s390/net/bpf_jit_comp.c             |  1 +
+ arch/x86/include/asm/cacheflush.h        | 85 -------------------------------
+ arch/x86/include/asm/set_memory.h        | 87 ++++++++++++++++++++++++++++++++
+ arch/x86/kernel/amd_gart_64.c            |  2 +-
+ arch/x86/kernel/cpu/amd.c                |  2 +-
+ arch/x86/kernel/cpu/bugs.c               |  2 +-
+ arch/x86/kernel/ftrace.c                 |  2 +-
+ arch/x86/kernel/machine_kexec_64.c       |  1 +
+ arch/x86/mm/init.c                       |  2 +-
+ arch/x86/mm/init_64.c                    |  2 +-
+ arch/x86/mm/ioremap.c                    |  2 +-
+ arch/x86/mm/pageattr.c                   |  1 +
+ arch/x86/net/bpf_jit_comp.c              |  1 +
+ arch/x86/pci/pcbios.c                    |  2 +-
+ arch/x86/platform/efi/efi.c              |  2 +-
+ arch/x86/realmode/init.c                 |  2 +-
+ drivers/char/agp/amd-k7-agp.c            |  1 +
+ drivers/char/agp/ati-agp.c               |  1 +
+ drivers/char/agp/generic.c               |  2 +-
+ drivers/char/agp/intel-gtt.c             |  1 +
+ drivers/char/agp/sworks-agp.c            |  1 +
+ drivers/gpu/drm/amd/amdgpu/amdgpu_gart.c |  1 +
+ drivers/gpu/drm/gma500/gtt.c             |  1 +
+ drivers/gpu/drm/gma500/psb_drv.c         |  1 +
+ drivers/gpu/drm/radeon/radeon_gart.c     |  1 +
+ drivers/gpu/drm/ttm/ttm_page_alloc.c     |  1 +
+ drivers/gpu/drm/ttm/ttm_page_alloc_dma.c |  1 +
+ drivers/gpu/drm/ttm/ttm_tt.c             |  1 +
+ drivers/hwtracing/intel_th/msu.c         |  2 +-
+ drivers/watchdog/hpwdt.c                 |  2 +-
+ include/asm-generic/set_memory.h         | 12 +++++
+ include/linux/filter.h                   |  2 +-
+ kernel/module.c                          |  1 +
+ kernel/power/snapshot.c                  |  1 +
+ sound/pci/hda/hda_intel.c                |  2 +-
+ 52 files changed, 206 insertions(+), 161 deletions(-)
+ create mode 100644 arch/arm/include/asm/set_memory.h
+ delete mode 100644 arch/s390/include/asm/cacheflush.h
+ create mode 100644 arch/s390/include/asm/set_memory.h
+ create mode 100644 arch/x86/include/asm/set_memory.h
+ create mode 100644 include/asm-generic/set_memory.h
+
 -- 
 2.7.4
 
