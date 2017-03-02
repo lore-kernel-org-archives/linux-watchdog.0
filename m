@@ -1,24 +1,28 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-qk0-f170.google.com ([209.85.220.170]:35350 "EHLO
-        mail-qk0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753589AbdCBARc (ORCPT
+Received: from mail-qk0-f172.google.com ([209.85.220.172]:34248 "EHLO
+        mail-qk0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753585AbdCBAWs (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 1 Mar 2017 19:17:32 -0500
-Received: by mail-qk0-f170.google.com with SMTP id u188so99067439qkc.2
-        for <linux-watchdog@vger.kernel.org>; Wed, 01 Mar 2017 16:16:15 -0800 (PST)
+        Wed, 1 Mar 2017 19:22:48 -0500
+Received: by mail-qk0-f172.google.com with SMTP id s186so98858101qkb.1
+        for <linux-watchdog@vger.kernel.org>; Wed, 01 Mar 2017 16:22:11 -0800 (PST)
 From: Laura Abbott <labbott@redhat.com>
-To: Russell King <linux@armlinux.org.uk>,
+To: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Laura Abbott <labbott@redhat.com>,
+        Russell King <linux@armlinux.org.uk>,
         Catalin Marinas <catalin.marinas@arm.com>,
         Will Deacon <will.deacon@arm.com>,
         Martin Schwidefsky <schwidefsky@de.ibm.com>,
         Heiko Carstens <heiko.carstens@de.ibm.com>,
         Thomas Gleixner <tglx@linutronix.de>,
         Ingo Molnar <mingo@redhat.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org,
         Kees Cook <keescook@chromium.org>,
         Mark Rutland <mark.rutland@arm.com>,
-        Arnd Bergmann <arnd@arndb.de>, David Airlie <airlied@linux.ie>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-arch@vger.kernel.org,
+        David Airlie <airlied@linux.ie>,
         Wim Van Sebroeck <wim@iguana.be>,
         Guenter Roeck <linux@roeck-us.net>,
         linux-watchdog@vger.kernel.org,
@@ -26,91 +30,36 @@ To: Russell King <linux@armlinux.org.uk>,
         Daniel Borkmann <daniel@iogearbox.net>,
         Jessica Yu <jeyu@redhat.com>, Takashi Iwai <tiwai@suse.com>,
         Andrew Morton <akpm@linux-foundation.org>
-Cc: Laura Abbott <labbott@redhat.com>, x86@kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-arch@vger.kernel.org
-Subject: [PATCHv2 14/14] treewide: Decouple cacheflush.h and set_memory.h
-Date: Wed,  1 Mar 2017 16:15:06 -0800
-Message-Id: <1488413706-9739-15-git-send-email-labbott@redhat.com>
+Subject: [PATCHv2 08/14] intel_th: Use set_memory.h header
+Date: Wed,  1 Mar 2017 16:15:00 -0800
+Message-Id: <1488413706-9739-9-git-send-email-labbott@redhat.com>
 In-Reply-To: <1488413706-9739-1-git-send-email-labbott@redhat.com>
 References: <1488413706-9739-1-git-send-email-labbott@redhat.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
 
-Now that all call sites, completely decouple cacheflush.h and
-set_memory.h
+set_memory_* functions have moved to set_memory.h. Switch to this
+explicitly.
 
 Signed-off-by: Laura Abbott <labbott@redhat.com>
 ---
- arch/arm/include/asm/cacheflush.h   | 1 -
- arch/arm64/include/asm/cacheflush.h | 1 -
- arch/s390/include/asm/Kbuild        | 1 +
- arch/s390/include/asm/cacheflush.h  | 8 --------
- arch/x86/include/asm/cacheflush.h   | 1 -
- 5 files changed, 1 insertion(+), 11 deletions(-)
- delete mode 100644 arch/s390/include/asm/cacheflush.h
+ drivers/hwtracing/intel_th/msu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/include/asm/cacheflush.h b/arch/arm/include/asm/cacheflush.h
-index 1cb9d11..d69bebf 100644
---- a/arch/arm/include/asm/cacheflush.h
-+++ b/arch/arm/include/asm/cacheflush.h
-@@ -16,7 +16,6 @@
- #include <asm/shmparam.h>
- #include <asm/cachetype.h>
- #include <asm/outercache.h>
--#include <asm/set_memory.h>
+diff --git a/drivers/hwtracing/intel_th/msu.c b/drivers/hwtracing/intel_th/msu.c
+index e88afe1..f0e36c8 100644
+--- a/drivers/hwtracing/intel_th/msu.c
++++ b/drivers/hwtracing/intel_th/msu.c
+@@ -27,7 +27,7 @@
+ #include <linux/io.h>
+ #include <linux/dma-mapping.h>
  
- #define CACHE_COLOUR(vaddr)	((vaddr & (SHMLBA - 1)) >> PAGE_SHIFT)
+-#include <asm/cacheflush.h>
++#include <asm/set_memory.h>
  
-diff --git a/arch/arm64/include/asm/cacheflush.h b/arch/arm64/include/asm/cacheflush.h
-index 7db6962..5812469 100644
---- a/arch/arm64/include/asm/cacheflush.h
-+++ b/arch/arm64/include/asm/cacheflush.h
-@@ -20,7 +20,6 @@
- #define __ASM_CACHEFLUSH_H
- 
- #include <linux/mm.h>
--#include <asm/set_memory.h>
- 
- /*
-  * This flag is used to indicate that the page pointed to by a pte is clean
-diff --git a/arch/s390/include/asm/Kbuild b/arch/s390/include/asm/Kbuild
-index 8aea32f..c0a7057 100644
---- a/arch/s390/include/asm/Kbuild
-+++ b/arch/s390/include/asm/Kbuild
-@@ -1,4 +1,5 @@
- generic-y += asm-offsets.h
-+generic-y += cacheflush.h
- generic-y += clkdev.h
- generic-y += dma-contiguous.h
- generic-y += export.h
-diff --git a/arch/s390/include/asm/cacheflush.h b/arch/s390/include/asm/cacheflush.h
-deleted file mode 100644
-index afe2965..0000000
---- a/arch/s390/include/asm/cacheflush.h
-+++ /dev/null
-@@ -1,8 +0,0 @@
--#ifndef _S390_CACHEFLUSH_H
--#define _S390_CACHEFLUSH_H
--
--/* Caches aren't brain-dead on the s390. */
--#include <asm-generic/cacheflush.h>
--#include <asm/set_memory.h>
--
--#endif /* _S390_CACHEFLUSH_H */
-diff --git a/arch/x86/include/asm/cacheflush.h b/arch/x86/include/asm/cacheflush.h
-index 3d7db6f..8b4140f 100644
---- a/arch/x86/include/asm/cacheflush.h
-+++ b/arch/x86/include/asm/cacheflush.h
-@@ -4,7 +4,6 @@
- /* Caches aren't brain-dead on the intel. */
- #include <asm-generic/cacheflush.h>
- #include <asm/special_insns.h>
--#include <asm/set_memory.h>
- 
- void clflush_cache_range(void *addr, unsigned int size);
- 
+ #include "intel_th.h"
+ #include "msu.h"
 -- 
 2.7.4
 
