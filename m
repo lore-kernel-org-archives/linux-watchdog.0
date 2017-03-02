@@ -1,51 +1,66 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx0b-001ae601.pphosted.com ([67.231.152.168]:33929 "EHLO
-        mx0b-001ae601.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1752476AbdCALl4 (ORCPT
+Received: from mail-qk0-f174.google.com ([209.85.220.174]:34620 "EHLO
+        mail-qk0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752865AbdCBARc (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 1 Mar 2017 06:41:56 -0500
-Date: Wed, 1 Mar 2017 10:49:19 +0000
-From: Charles Keepax <ckeepax@opensource.wolfsonmicro.com>
-To: Randy Dunlap <rdunlap@infradead.org>
-CC: <linux-watchdog@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
+        Wed, 1 Mar 2017 19:17:32 -0500
+Received: by mail-qk0-f174.google.com with SMTP id s186so98685351qkb.1
+        for <linux-watchdog@vger.kernel.org>; Wed, 01 Mar 2017 16:16:11 -0800 (PST)
+From: Laura Abbott <labbott@redhat.com>
+To: Takashi Iwai <tiwai@suse.com>
+Cc: Laura Abbott <labbott@redhat.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Martin Schwidefsky <schwidefsky@de.ibm.com>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org,
+        Kees Cook <keescook@chromium.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-arch@vger.kernel.org,
+        David Airlie <airlied@linux.ie>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
         Wim Van Sebroeck <wim@iguana.be>,
         Guenter Roeck <linux@roeck-us.net>,
-        "Mark Brown" <broonie@kernel.org>,
-        <patches@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH -next] watchdog/wm831x: fix build when COMPILE_TEST is
- enabled
-Message-ID: <20170301104919.GL2742@localhost.localdomain>
-References: <8bb4874f-7d0e-225f-3a97-842c2d171c78@infradead.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <8bb4874f-7d0e-225f-3a97-842c2d171c78@infradead.org>
+        linux-watchdog@vger.kernel.org,
+        "David S. Miller" <davem@davemloft.net>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jessica Yu <jeyu@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCHv2 13/14] ALSA: hda: Use set_memory.h header
+Date: Wed,  1 Mar 2017 16:15:05 -0800
+Message-Id: <1488413706-9739-14-git-send-email-labbott@redhat.com>
+In-Reply-To: <1488413706-9739-1-git-send-email-labbott@redhat.com>
+References: <1488413706-9739-1-git-send-email-labbott@redhat.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, Feb 28, 2017 at 10:31:15AM -0800, Randy Dunlap wrote:
-> From: Randy Dunlap <rdunlap@infradead.org>
-> 
-> Fix kconfig dependencies when COMPILE_TEST is enabled so that
-> interdependent module dependencies are configured as needed.
-> 
-> Fixes build when WM831X_WATCHDOG=m and COMPILE_TEST=y.
-> No other WM831X drivers are enabled.
-> The problem is in mixing tristate and boolean dependencies.
-> 
-> ERROR: "wm831x_reg_write" [drivers/watchdog/wm831x_wdt.ko] undefined!
-> ERROR: "wm831x_reg_read" [drivers/watchdog/wm831x_wdt.ko] undefined!
-> ERROR: "wm831x_reg_unlock" [drivers/watchdog/wm831x_wdt.ko] undefined!
-> ERROR: "wm831x_reg_lock" [drivers/watchdog/wm831x_wdt.ko] undefined!
-> ERROR: "wm831x_set_bits" [drivers/watchdog/wm831x_wdt.ko] undefined!
-> 
-> Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-> Cc:	patches@opensource.wolfsonmicro.com
-> Cc:	Mark Brown <broonie@kernel.org>
-> ---
 
-Acked-by: Charles Keepax <ckeepax@opensource.wolfsonmicro.com>
+set_memory_* functions have moved to set_memory.h. Switch to this
+explicitly.
 
-Thanks,
-Charles
+Signed-off-by: Laura Abbott <labbott@redhat.com>
+---
+ sound/pci/hda/hda_intel.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
+index 16108f0e..e3d8756 100644
+--- a/sound/pci/hda/hda_intel.c
++++ b/sound/pci/hda/hda_intel.c
+@@ -53,7 +53,7 @@
+ #ifdef CONFIG_X86
+ /* for snoop control */
+ #include <asm/pgtable.h>
+-#include <asm/cacheflush.h>
++#include <asm/set_memory.h>
+ #include <asm/cpufeature.h>
+ #endif
+ #include <sound/core.h>
+-- 
+2.7.4
+
