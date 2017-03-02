@@ -1,10 +1,10 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from foss.arm.com ([217.140.101.70]:59886 "EHLO foss.arm.com"
+Received: from mx1.redhat.com ([209.132.183.28]:54588 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752978AbdCBOTT (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 2 Mar 2017 09:19:19 -0500
-Date: Thu, 2 Mar 2017 14:11:50 +0000
-From: Mark Rutland <mark.rutland@arm.com>
+        id S1751804AbdCBRJg (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Thu, 2 Mar 2017 12:09:36 -0500
+Date: Thu, 2 Mar 2017 12:09:12 -0500
+From: Jessica Yu <jeyu@redhat.com>
 To: Laura Abbott <labbott@redhat.com>
 Cc: Russell King <linux@armlinux.org.uk>,
         Catalin Marinas <catalin.marinas@arm.com>,
@@ -13,92 +13,61 @@ Cc: Russell King <linux@armlinux.org.uk>,
         Heiko Carstens <heiko.carstens@de.ibm.com>,
         Thomas Gleixner <tglx@linutronix.de>,
         Ingo Molnar <mingo@redhat.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org,
         Kees Cook <keescook@chromium.org>,
-        Arnd Bergmann <arnd@arndb.de>, David Airlie <airlied@linux.ie>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-arch@vger.kernel.org,
+        David Airlie <airlied@linux.ie>,
         Alexander Shishkin <alexander.shishkin@linux.intel.com>,
         Wim Van Sebroeck <wim@iguana.be>,
         Guenter Roeck <linux@roeck-us.net>,
         linux-watchdog@vger.kernel.org,
         "David S. Miller" <davem@davemloft.net>,
         Daniel Borkmann <daniel@iogearbox.net>,
-        Jessica Yu <jeyu@redhat.com>, Takashi Iwai <tiwai@suse.com>,
-        Andrew Morton <akpm@linux-foundation.org>, x86@kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-arch@vger.kernel.org
-Subject: Re: [PATCHv2 01/14] treewide: Move set_memory_* functions away from
- cacheflush.h
-Message-ID: <20170302141150.GL19632@leverpostej>
+        Takashi Iwai <tiwai@suse.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [PATCHv2 11/14] module: Use set_memory.h header
+Message-ID: <20170302170912.GA13268@packer-debian-8-amd64.digitalocean.com>
 References: <1488413706-9739-1-git-send-email-labbott@redhat.com>
- <1488413706-9739-2-git-send-email-labbott@redhat.com>
+ <1488413706-9739-12-git-send-email-labbott@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <1488413706-9739-2-git-send-email-labbott@redhat.com>
+In-Reply-To: <1488413706-9739-12-git-send-email-labbott@redhat.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Mar 01, 2017 at 04:14:53PM -0800, Laura Abbott wrote:
-> diff --git a/arch/arm64/include/asm/Kbuild b/arch/arm64/include/asm/Kbuild
-> index a12f1af..e419965 100644
-> --- a/arch/arm64/include/asm/Kbuild
-> +++ b/arch/arm64/include/asm/Kbuild
-> @@ -27,6 +27,7 @@ generic-y += preempt.h
->  generic-y += resource.h
->  generic-y += rwsem.h
->  generic-y += segment.h
-> +generic-y += set_memory.h
->  generic-y += sembuf.h
->  generic-y += serial.h
++++ Laura Abbott [01/03/17 16:15 -0800]:
+>
+>set_memory_* functions have moved to set_memory.h. Switch to this
+>explicitly.
+>
+>Signed-off-by: Laura Abbott <labbott@redhat.com>
 
-Nit: alphabetical order, please.
-
->  generic-y += shmbuf.h
-> diff --git a/arch/arm64/include/asm/cacheflush.h b/arch/arm64/include/asm/cacheflush.h
-> index 5a2a6ee..7db6962 100644
-> --- a/arch/arm64/include/asm/cacheflush.h
-> +++ b/arch/arm64/include/asm/cacheflush.h
-> @@ -20,6 +20,7 @@
->  #define __ASM_CACHEFLUSH_H
->  
->  #include <linux/mm.h>
-> +#include <asm/set_memory.h>
->  
->  /*
->   * This flag is used to indicate that the page pointed to by a pte is clean
-> @@ -150,9 +151,4 @@ static inline void flush_cache_vunmap(unsigned long start, unsigned long end)
->  {
->  }
->  
-> -int set_memory_ro(unsigned long addr, int numpages);
-> -int set_memory_rw(unsigned long addr, int numpages);
-> -int set_memory_x(unsigned long addr, int numpages);
-> -int set_memory_nx(unsigned long addr, int numpages);
-> -
->  #endif
-
-> diff --git a/include/asm-generic/set_memory.h b/include/asm-generic/set_memory.h
-> new file mode 100644
-> index 0000000..83e81f8
-> --- /dev/null
-> +++ b/include/asm-generic/set_memory.h
-> @@ -0,0 +1,12 @@
-> +#ifndef __ASM_SET_MEMORY_H
-> +#define __ASM_SET_MEMORY_H
-> +
-> +/*
-> + * Functions to change memory attributes.
-> + */
-> +int set_memory_ro(unsigned long addr, int numpages);
-> +int set_memory_rw(unsigned long addr, int numpages);
-> +int set_memory_x(unsigned long addr, int numpages);
-> +int set_memory_nx(unsigned long addr, int numpages);
-> +
-> +#endif
-
-Otherwise, this looks fine to me. FWIW:
-
-Acked-by: Mark Rutland <mark.rutland@arm.com>
+Acked-by: Jessica Yu <jeyu@redhat.com>
 
 Thanks,
-Mark.
+
+Jessica
+
+>---
+> kernel/module.c | 1 +
+> 1 file changed, 1 insertion(+)
+>
+>diff --git a/kernel/module.c b/kernel/module.c
+>index 7eba6de..c0f04b3 100644
+>--- a/kernel/module.c
+>+++ b/kernel/module.c
+>@@ -49,6 +49,7 @@
+> #include <linux/rculist.h>
+> #include <linux/uaccess.h>
+> #include <asm/cacheflush.h>
+>+#include <asm/set_memory.h>
+> #include <asm/mmu_context.h>
+> #include <linux/license.h>
+> #include <asm/sections.h>
+>-- 
+>2.7.4
+>
