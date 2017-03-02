@@ -1,73 +1,67 @@
-Return-path: <chris.brandt@renesas.com>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from relmlor4.renesas.com ([210.160.252.174]:52743 "EHLO
+        relmlie3.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1752544AbdCBOCQ (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Thu, 2 Mar 2017 09:02:16 -0500
 From: Chris Brandt <chris.brandt@renesas.com>
 To: Wim Van Sebroeck <wim@iguana.be>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Sebastian Reichel <sre@kernel.org>,
-	Rob Herring <robh+dt@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Simon Horman <horms@verge.net.au>,
-	Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: linux-renesas-soc@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-watchdog@vger.kernel.org,
-	Chris Brandt <chris.brandt@renesas.com>
-Subject: [PATCH v4 0/3] watchdog: add wdt and reset for renesas r7s72100
-Date: Thu,  2 Mar 2017 08:57:43 -0500
-Message-Id: <20170302135746.30550-1-chris.brandt@renesas.com>
-List-ID: <linux-watchdog@vger.kernel.org>
+        Guenter Roeck <linux@roeck-us.net>,
+        Sebastian Reichel <sre@kernel.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Simon Horman <horms@verge.net.au>,
+        Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: linux-renesas-soc@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-watchdog@vger.kernel.org,
+        Chris Brandt <chris.brandt@renesas.com>
+Subject: [PATCH v4 3/3] ARM: dts: r7s72100: Add watchdog timer
+Date: Thu,  2 Mar 2017 08:57:46 -0500
+Message-Id: <20170302135746.30550-4-chris.brandt@renesas.com>
+In-Reply-To: <20170302135746.30550-1-chris.brandt@renesas.com>
+References: <20170302135746.30550-1-chris.brandt@renesas.com>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-Some Renesas SoCs do not have a reset register and the only way to do a SW
-controlled reset is to use the watchdog timer. So while this series started
-out by only adding a reset feature, now it's a full watchdog timer driver that
-includes a reset handler.
+Add watchdog timer support for RZ/A1.
+For the RZ/A1, the only way to do a reset is to overflow the WDT, so this
+is useful even if you don't need the watchdog functionality.
 
-The longest WDT overflow you can get with a RZ/A1 (R7S72100) with its 8-bit
-wide counter is 125ms. Not very long.
-
-However, by setting max_hw_heartbeat_ms, the watchdog core will now handle
-pinging the WDT automatically and allow the user to set times as big as they
-want. Therefore, the default timeout for this driver is 30 seconds.
-
-Of course if system interrupts are disabled too long and wdt can't be pinged
-by the watchdog core, then the system will reset before the user specified
-timeout. But hey, it's better nothing.
-
-This driver was tested on an RZ/A1 RSK board using watchdog-simple.c from
-samples/watchdog/.
-
+Signed-off-by: Chris Brandt <chris.brandt@renesas.com>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+---
 v4:
-* r7s72100.dtsi: changed from timer@ to watchdog@
-
+* changed from timer@ to watchdog@
 v3:
-* changed from a reset driver to a watchdog timer driver
-* use udelay(20) instead of msleep for reset handler
-* added Reviewed-by for r7s72100.dtsi and renesas-wdt.txt
-* added Acked-by for renesas-wdt.txt
-
+* added Reviewed-by
 v2:
-* added to renesas-wdt.txt instead of creating a new file
 * changed "renesas,r7s72100-reset" to "renesas,r7s72100-wdt"
 * changed "renesas,wdt-reset" to "renesas,rza-wdt"
-* added "renesas,rza-wdt" as a fallback
 * added interupt property (even though it is not used)
 * added clocks property
-* changed hard coded register values to defines
-* added msleep to while(1) loop
-* removed unnecessary #include files
-* added Reviewed-by: Geert Uytterhoeven for renesas-reset.c
+---
+ arch/arm/boot/dts/r7s72100.dtsi | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-Chris Brandt (3):
-  watchdog: add rza_wdt driver
-  watchdog: renesas-wdt: add support for rza
-  ARM: dts: r7s72100: Add watchdog timer
-
- .../devicetree/bindings/watchdog/renesas-wdt.txt   |   4 +-
- arch/arm/boot/dts/r7s72100.dtsi                    |   7 +
- drivers/watchdog/Kconfig                           |   8 +
- drivers/watchdog/Makefile                          |   1 +
- drivers/watchdog/rza_wdt.c                         | 208 +++++++++++++++++++++
- 5 files changed, 227 insertions(+), 1 deletion(-)
- create mode 100644 drivers/watchdog/rza_wdt.c
-
+diff --git a/arch/arm/boot/dts/r7s72100.dtsi b/arch/arm/boot/dts/r7s72100.dtsi
+index ed62e19..22f96b7 100644
+--- a/arch/arm/boot/dts/r7s72100.dtsi
++++ b/arch/arm/boot/dts/r7s72100.dtsi
+@@ -382,6 +382,13 @@
+ 		cache-level = <2>;
+ 	};
+ 
++	wdt: watchdog@fcfe0000 {
++		compatible = "renesas,r7s72100-wdt", "renesas,rza-wdt";
++		reg = <0xfcfe0000 0x6>;
++		interrupts = <GIC_SPI 106 IRQ_TYPE_EDGE_RISING>;
++		clocks = <&p0_clk>;
++	};
++
+ 	i2c0: i2c@fcfee000 {
+ 		#address-cells = <1>;
+ 		#size-cells = <0>;
 -- 
 2.10.1
+
+
