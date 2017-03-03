@@ -1,64 +1,88 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:46251 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752224AbdCDPG3 (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 4 Mar 2017 10:06:29 -0500
-Subject: Re: [PATCH 3/4] watchodg: sama5d4: simplify probe
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-References: <20170302173114.28508-1-alexandre.belloni@free-electrons.com>
- <20170302173114.28508-4-alexandre.belloni@free-electrons.com>
-Cc: Wim Van Sebroeck <wim@iguana.be>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Wenyou.Yang@microchip.com, linux-watchdog@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <126269ed-7b78-2885-7120-e57e2e40c14b@roeck-us.net>
-Date: Sat, 4 Mar 2017 07:06:26 -0800
-MIME-Version: 1.0
-In-Reply-To: <20170302173114.28508-4-alexandre.belloni@free-electrons.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-path: <chris.brandt@renesas.com>
+From: Chris Brandt <chris.brandt@renesas.com>
+To: Wim Van Sebroeck <wim@iguana.be>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Sebastian Reichel <sre@kernel.org>,
+	Rob Herring <robh+dt@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Simon Horman <horms@verge.net.au>,
+	Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: linux-renesas-soc@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-watchdog@vger.kernel.org,
+	Chris Brandt <chris.brandt@renesas.com>
+Subject: [PATCH v5 0/3] watchdog: add wdt and reset for renesas r7s72100
+Date: Fri,  3 Mar 2017 12:31:58 -0500
+Message-Id: <20170303173201.5597-1-chris.brandt@renesas.com>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 03/02/2017 09:31 AM, Alexandre Belloni wrote:
-> Because the only way to use the driver is to have a device tree enabling
-> it, pdev->dev.of_node will never be NULL. Remove the unnecessary check.
->
-> Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Some Renesas SoCs do not have a reset register and the only way to do a SW
+controlled reset is to use the watchdog timer. So while this series started
+out by only adding a reset feature, now it's a full watchdog timer driver that
+includes a reset handler.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+The longest WDT overflow you can get with a RZ/A1 (R7S72100) with its 8-bit
+wide counter is 125ms. Not very long.
 
-> ---
->  drivers/watchdog/sama5d4_wdt.c | 14 ++++++--------
->  1 file changed, 6 insertions(+), 8 deletions(-)
->
-> diff --git a/drivers/watchdog/sama5d4_wdt.c b/drivers/watchdog/sama5d4_wdt.c
-> index 362fd229786d..d710014f3b7d 100644
-> --- a/drivers/watchdog/sama5d4_wdt.c
-> +++ b/drivers/watchdog/sama5d4_wdt.c
-> @@ -228,15 +228,13 @@ static int sama5d4_wdt_probe(struct platform_device *pdev)
->
->  	wdt->reg_base = regs;
->
-> -	if (pdev->dev.of_node) {
-> -		irq = irq_of_parse_and_map(pdev->dev.of_node, 0);
-> -		if (!irq)
-> -			dev_warn(&pdev->dev, "failed to get IRQ from DT\n");
-> +	irq = irq_of_parse_and_map(pdev->dev.of_node, 0);
-> +	if (!irq)
-> +		dev_warn(&pdev->dev, "failed to get IRQ from DT\n");
->
-> -		ret = of_sama5d4_wdt_init(pdev->dev.of_node, wdt);
-> -		if (ret)
-> -			return ret;
-> -	}
-> +	ret = of_sama5d4_wdt_init(pdev->dev.of_node, wdt);
-> +	if (ret)
-> +		return ret;
->
->  	if ((wdt->mr & AT91_WDT_WDFIEN) && irq) {
->  		ret = devm_request_irq(&pdev->dev, irq, sama5d4_wdt_irq_handler,
->
+However, by setting max_hw_heartbeat_ms, the watchdog core will now handle
+pinging the WDT automatically and allow the user to set times as big as they
+want. Therefore, the default timeout for this driver is 30 seconds.
 
+Of course if system interrupts are disabled too long and wdt can't be pinged
+by the watchdog core, then the system will reset before the user specified
+timeout. But hey, it's better nothing.
+
+This driver was tested on an RZ/A1 RSK board using watchdog-simple.c from
+samples/watchdog/.
+
+v5:
+* rza_wdt.c changes only
+* removed extra lines from file header comments
+* changed (1<<#) to BIT(#)
+* changed #define WTSCR_CKS(i) i to (i)
+* changed format to #define SOMETHING<tab>value (and align values)
+* now check if clock rate < 16384
+* added space before and after '/' for "(1000 * U8_MAX) / rate"
+* changed dev_info to dev_dbg for printing max_hw_heartbeat_ms
+* added watchdog_init_timeout() for user to set timeout in DT
+* switched to using devm_watchdog_register_device()
+* added error message if register fails
+* simplified rza_wdt_probe() return
+* removed function rza_wdt_remove()
+
+v4:
+* r7s72100.dtsi: changed from timer@ to watchdog@
+
+v3:
+* changed from a reset driver to a watchdog timer driver
+* use udelay(20) instead of msleep for reset handler
+* added Reviewed-by for r7s72100.dtsi and renesas-wdt.txt
+* added Acked-by for renesas-wdt.txt
+
+v2:
+* added to renesas-wdt.txt instead of creating a new file
+* changed "renesas,r7s72100-reset" to "renesas,r7s72100-wdt"
+* changed "renesas,wdt-reset" to "renesas,rza-wdt"
+* added "renesas,rza-wdt" as a fallback
+* added interupt property (even though it is not used)
+* added clocks property
+* changed hard coded register values to defines
+* added msleep to while(1) loop
+* removed unnecessary #include files
+* added Reviewed-by: Geert Uytterhoeven for renesas-reset.c
+
+Chris Brandt (3):
+  watchdog: add rza_wdt driver
+  watchdog: renesas-wdt: add support for rza
+  ARM: dts: r7s72100: Add watchdog timer
+
+ .../devicetree/bindings/watchdog/renesas-wdt.txt   |   4 +-
+ arch/arm/boot/dts/r7s72100.dtsi                    |   7 +
+ drivers/watchdog/Kconfig                           |   8 +
+ drivers/watchdog/Makefile                          |   1 +
+ drivers/watchdog/rza_wdt.c                         | 199 +++++++++++++++++++++
+ 5 files changed, 218 insertions(+), 1 deletion(-)
+ create mode 100644 drivers/watchdog/rza_wdt.c
+
+-- 
+2.10.1
