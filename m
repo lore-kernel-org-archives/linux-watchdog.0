@@ -1,13 +1,14 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-qk0-f181.google.com ([209.85.220.181]:35813 "EHLO
-        mail-qk0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1756594AbdCGXtx (ORCPT
+Received: from mail-qk0-f175.google.com ([209.85.220.175]:36035 "EHLO
+        mail-qk0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1756421AbdCGXxm (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 7 Mar 2017 18:49:53 -0500
-Received: by mail-qk0-f181.google.com with SMTP id v125so32904145qkh.2
-        for <linux-watchdog@vger.kernel.org>; Tue, 07 Mar 2017 15:49:49 -0800 (PST)
+        Tue, 7 Mar 2017 18:53:42 -0500
+Received: by mail-qk0-f175.google.com with SMTP id 1so33413956qkl.3
+        for <linux-watchdog@vger.kernel.org>; Tue, 07 Mar 2017 15:53:08 -0800 (PST)
 From: Laura Abbott <labbott@redhat.com>
-To: Andrew Morton <akpm@linux-foundation.org>
+To: Wim Van Sebroeck <wim@iguana.be>,
+        Guenter Roeck <linux@roeck-us.net>
 Cc: Laura Abbott <labbott@redhat.com>,
         Russell King <linux@armlinux.org.uk>,
         Catalin Marinas <catalin.marinas@arm.com>,
@@ -24,15 +25,14 @@ Cc: Laura Abbott <labbott@redhat.com>,
         linux-s390@vger.kernel.org, linux-arch@vger.kernel.org,
         David Airlie <airlied@linux.ie>,
         Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        Guenter Roeck <linux@roeck-us.net>,
         linux-watchdog@vger.kernel.org,
         "David S. Miller" <davem@davemloft.net>,
         Daniel Borkmann <daniel@iogearbox.net>,
-        Jessica Yu <jeyu@redhat.com>, Takashi Iwai <tiwai@suse.com>
-Subject: [PATCHv3 14/16] misc: sram: Use set_memory.h header
-Date: Tue,  7 Mar 2017 12:55:31 -0800
-Message-Id: <1488920133-27229-15-git-send-email-labbott@redhat.com>
+        Jessica Yu <jeyu@redhat.com>, Takashi Iwai <tiwai@suse.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCHv3 09/16] watchdog: hpwdt: Use set_memory.h header
+Date: Tue,  7 Mar 2017 12:55:26 -0800
+Message-Id: <1488920133-27229-10-git-send-email-labbott@redhat.com>
 In-Reply-To: <1488920133-27229-1-git-send-email-labbott@redhat.com>
 References: <1488920133-27229-1-git-send-email-labbott@redhat.com>
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -41,29 +41,27 @@ List-Id: linux-watchdog@vger.kernel.org
 set_memory_* functions have moved to set_memory.h. Switch to this
 explicitly.
 
+Acked-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Laura Abbott <labbott@redhat.com>
 ---
-V3: New file which was not caught in the first pass.
+v3: No changes
 ---
- drivers/misc/sram-exec.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/watchdog/hpwdt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/misc/sram-exec.c b/drivers/misc/sram-exec.c
-index ac52241..3d528a1 100644
---- a/drivers/misc/sram-exec.c
-+++ b/drivers/misc/sram-exec.c
-@@ -16,9 +16,10 @@
- 
- #include <linux/device.h>
- #include <linux/genalloc.h>
-+#include <linux/mm.h>
- #include <linux/sram.h>
- 
+diff --git a/drivers/watchdog/hpwdt.c b/drivers/watchdog/hpwdt.c
+index 70c7194..67fbe35 100644
+--- a/drivers/watchdog/hpwdt.c
++++ b/drivers/watchdog/hpwdt.c
+@@ -34,7 +34,7 @@
+ #include <linux/nmi.h>
+ #include <linux/kdebug.h>
+ #include <linux/notifier.h>
 -#include <asm/cacheflush.h>
 +#include <asm/set_memory.h>
- 
- #include "sram.h"
- 
+ #endif /* CONFIG_HPWDT_NMI_DECODING */
+ #include <asm/nmi.h>
+ #include <asm/frame.h>
 -- 
 2.7.4
 
