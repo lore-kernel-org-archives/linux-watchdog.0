@@ -1,16 +1,17 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-qk0-f174.google.com ([209.85.220.174]:36812 "EHLO
-        mail-qk0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753196AbdCGVSl (ORCPT
+Received: from mail-qk0-f181.google.com ([209.85.220.181]:36357 "EHLO
+        mail-qk0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932867AbdCGVbr (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 7 Mar 2017 16:18:41 -0500
-Received: by mail-qk0-f174.google.com with SMTP id 1so26353977qkl.3
-        for <linux-watchdog@vger.kernel.org>; Tue, 07 Mar 2017 13:18:40 -0800 (PST)
+        Tue, 7 Mar 2017 16:31:47 -0500
+Received: by mail-qk0-f181.google.com with SMTP id 1so26981820qkl.3
+        for <linux-watchdog@vger.kernel.org>; Tue, 07 Mar 2017 13:31:46 -0800 (PST)
 From: Laura Abbott <labbott@redhat.com>
-To: Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will.deacon@arm.com>
+To: Andrew Morton <akpm@linux-foundation.org>
 Cc: Laura Abbott <labbott@redhat.com>,
         Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
         Martin Schwidefsky <schwidefsky@de.ibm.com>,
         Heiko Carstens <heiko.carstens@de.ibm.com>,
         Thomas Gleixner <tglx@linutronix.de>,
@@ -28,53 +29,38 @@ Cc: Laura Abbott <labbott@redhat.com>,
         linux-watchdog@vger.kernel.org,
         "David S. Miller" <davem@davemloft.net>,
         Daniel Borkmann <daniel@iogearbox.net>,
-        Jessica Yu <jeyu@redhat.com>, Takashi Iwai <tiwai@suse.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCHv3 03/16] arm64: Use set_memory.h header
-Date: Tue,  7 Mar 2017 12:55:20 -0800
-Message-Id: <1488920133-27229-4-git-send-email-labbott@redhat.com>
+        Jessica Yu <jeyu@redhat.com>, Takashi Iwai <tiwai@suse.com>
+Subject: [PATCHv3 12/16] PM / hibernate: Use set_memory.h header
+Date: Tue,  7 Mar 2017 12:55:29 -0800
+Message-Id: <1488920133-27229-13-git-send-email-labbott@redhat.com>
 In-Reply-To: <1488920133-27229-1-git-send-email-labbott@redhat.com>
 References: <1488920133-27229-1-git-send-email-labbott@redhat.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-
-The set_memory_* functions have moved to set_memory.h. Use that header
+set_memory_* functions have moved to set_memory.h. Switch to this
 explicitly.
 
-Acked-by: Catalin Marinas <catalin.marinas@arm.com>
-Acked-by: Mark Rutland <mark.rutland@arm.com>
 Signed-off-by: Laura Abbott <labbott@redhat.com>
 ---
-v3: Alphabetical order
+v3: #ifdef protection
 ---
- arch/arm64/mm/pageattr.c      | 1 +
- arch/arm64/net/bpf_jit_comp.c | 1 +
- 2 files changed, 2 insertions(+)
+ kernel/power/snapshot.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/arm64/mm/pageattr.c b/arch/arm64/mm/pageattr.c
-index 8def55e..26839f2 100644
---- a/arch/arm64/mm/pageattr.c
-+++ b/arch/arm64/mm/pageattr.c
-@@ -17,6 +17,7 @@
- #include <linux/vmalloc.h>
- 
+diff --git a/kernel/power/snapshot.c b/kernel/power/snapshot.c
+index d79a38d..3b1e0f3 100644
+--- a/kernel/power/snapshot.c
++++ b/kernel/power/snapshot.c
+@@ -36,6 +36,9 @@
  #include <asm/pgtable.h>
-+#include <asm/set_memory.h>
  #include <asm/tlbflush.h>
- 
- struct page_change_data {
-diff --git a/arch/arm64/net/bpf_jit_comp.c b/arch/arm64/net/bpf_jit_comp.c
-index a785554..efc1bf2 100644
---- a/arch/arm64/net/bpf_jit_comp.c
-+++ b/arch/arm64/net/bpf_jit_comp.c
-@@ -27,6 +27,7 @@
- #include <asm/byteorder.h>
- #include <asm/cacheflush.h>
- #include <asm/debug-monitors.h>
+ #include <asm/io.h>
++#ifdef CONFIG_STRICT_KERNEL_RWX
 +#include <asm/set_memory.h>
++#endif
  
- #include "bpf_jit.h"
+ #include "power.h"
  
 -- 
 2.7.4
