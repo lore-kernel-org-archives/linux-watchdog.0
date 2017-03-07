@@ -1,13 +1,13 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-qk0-f179.google.com ([209.85.220.179]:35822 "EHLO
-        mail-qk0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1756620AbdCHBCc (ORCPT
+Received: from mail-qk0-f175.google.com ([209.85.220.175]:36407 "EHLO
+        mail-qk0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S933400AbdCHDAM (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 7 Mar 2017 20:02:32 -0500
-Received: by mail-qk0-f179.google.com with SMTP id v125so35771916qkh.2
-        for <linux-watchdog@vger.kernel.org>; Tue, 07 Mar 2017 17:01:21 -0800 (PST)
+        Tue, 7 Mar 2017 22:00:12 -0500
+Received: by mail-qk0-f175.google.com with SMTP id 1so40698410qkl.3
+        for <linux-watchdog@vger.kernel.org>; Tue, 07 Mar 2017 19:00:11 -0800 (PST)
 From: Laura Abbott <labbott@redhat.com>
-To: Takashi Iwai <tiwai@suse.com>
+To: Alexander Shishkin <alexander.shishkin@linux.intel.com>
 Cc: Laura Abbott <labbott@redhat.com>,
         Russell King <linux@armlinux.org.uk>,
         Catalin Marinas <catalin.marinas@arm.com>,
@@ -23,17 +23,16 @@ Cc: Laura Abbott <labbott@redhat.com>,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
         linux-s390@vger.kernel.org, linux-arch@vger.kernel.org,
         David Airlie <airlied@linux.ie>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
         Wim Van Sebroeck <wim@iguana.be>,
         Guenter Roeck <linux@roeck-us.net>,
         linux-watchdog@vger.kernel.org,
         "David S. Miller" <davem@davemloft.net>,
         Daniel Borkmann <daniel@iogearbox.net>,
-        Jessica Yu <jeyu@redhat.com>,
+        Jessica Yu <jeyu@redhat.com>, Takashi Iwai <tiwai@suse.com>,
         Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCHv3 13/16] ALSA: Use set_memory.h header
-Date: Tue,  7 Mar 2017 12:55:30 -0800
-Message-Id: <1488920133-27229-14-git-send-email-labbott@redhat.com>
+Subject: [PATCHv3 08/16] intel_th: Use set_memory.h header
+Date: Tue,  7 Mar 2017 12:55:25 -0800
+Message-Id: <1488920133-27229-9-git-send-email-labbott@redhat.com>
 In-Reply-To: <1488920133-27229-1-git-send-email-labbott@redhat.com>
 References: <1488920133-27229-1-git-send-email-labbott@redhat.com>
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -42,56 +41,29 @@ List-Id: linux-watchdog@vger.kernel.org
 set_memory_* functions have moved to set_memory.h. Switch to this
 explicitly.
 
+Acked-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
 Signed-off-by: Laura Abbott <labbott@redhat.com>
 ---
-v3: Add a few other files caught by 0day bot
+v3: Add #ifdef CONFIG_X86
 ---
- sound/pci/hda/hda_intel.c    | 2 +-
- sound/pci/intel8x0.c         | 4 +++-
- sound/x86/intel_hdmi_audio.c | 2 +-
- 3 files changed, 5 insertions(+), 3 deletions(-)
+ drivers/hwtracing/intel_th/msu.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
-index c8256a8..64d6a34 100644
---- a/sound/pci/hda/hda_intel.c
-+++ b/sound/pci/hda/hda_intel.c
-@@ -53,7 +53,7 @@
- #ifdef CONFIG_X86
- /* for snoop control */
- #include <asm/pgtable.h>
--#include <asm/cacheflush.h>
-+#include <asm/set_memory.h>
- #include <asm/cpufeature.h>
- #endif
- #include <sound/core.h>
-diff --git a/sound/pci/intel8x0.c b/sound/pci/intel8x0.c
-index 9720a30..6d17b17 100644
---- a/sound/pci/intel8x0.c
-+++ b/sound/pci/intel8x0.c
-@@ -40,7 +40,9 @@
- #include <sound/initval.h>
- /* for 440MX workaround */
- #include <asm/pgtable.h>
+diff --git a/drivers/hwtracing/intel_th/msu.c b/drivers/hwtracing/intel_th/msu.c
+index e88afe1..dbbe31d 100644
+--- a/drivers/hwtracing/intel_th/msu.c
++++ b/drivers/hwtracing/intel_th/msu.c
+@@ -27,7 +27,9 @@
+ #include <linux/io.h>
+ #include <linux/dma-mapping.h>
+ 
 -#include <asm/cacheflush.h>
 +#ifdef CONFIG_X86
 +#include <asm/set_memory.h>
 +#endif
  
- MODULE_AUTHOR("Jaroslav Kysela <perex@perex.cz>");
- MODULE_DESCRIPTION("Intel 82801AA,82901AB,i810,i820,i830,i840,i845,MX440; SiS 7012; Ali 5455");
-diff --git a/sound/x86/intel_hdmi_audio.c b/sound/x86/intel_hdmi_audio.c
-index c505b01..664b7fe 100644
---- a/sound/x86/intel_hdmi_audio.c
-+++ b/sound/x86/intel_hdmi_audio.c
-@@ -30,7 +30,7 @@
- #include <linux/pm_runtime.h>
- #include <linux/dma-mapping.h>
- #include <linux/delay.h>
--#include <asm/cacheflush.h>
-+#include <asm/set_memory.h>
- #include <sound/core.h>
- #include <sound/asoundef.h>
- #include <sound/pcm.h>
+ #include "intel_th.h"
+ #include "msu.h"
 -- 
 2.7.4
 
