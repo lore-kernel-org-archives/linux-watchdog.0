@@ -1,51 +1,120 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.136]:33504 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1755299AbdCGLsk (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 7 Mar 2017 06:48:40 -0500
-Date: Tue, 7 Mar 2017 12:48:19 +0100
-From: Shawn Guo <shawnguo@kernel.org>
-To: Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>
-Cc: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
-        kernel@savoirfairelinux.com, robh@kernel.org, linux@roeck-us.net,
-        linus.walleij@linaro.org, fabio.estevam@nxp.com,
-        mark@embeddedarm.com, kris@embeddedarm.com,
-        horms+renesas@verge.net.au, treding@nvidia.com,
-        jonathanh@nvidia.com, f.fainelli@gmail.com, kernel@pengutronix.de,
-        linux@armlinux.org.uk, wim@iguana.be, mark.rutland@arm.com,
-        damien.riegel@savoirfairelinux.com,
-        lucile.quirion@savoirfairelinux.com, olof@lixom.net, arnd@arndb.de,
-        suzuki.poulose@arm.com, will.deacon@arm.com,
-        yamada.masahiro@socionext.com
-Subject: Re: [PATCH v2 1/6] of: documentation: add bindings documentation for
- TS-4600
-Message-ID: <20170307114818.GB6585@x250>
-References: <20170203194729.20995-1-sebastien.bourdelin@savoirfairelinux.com>
- <20170203194729.20995-2-sebastien.bourdelin@savoirfairelinux.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20170203194729.20995-2-sebastien.bourdelin@savoirfairelinux.com>
+Received: from mail-qk0-f171.google.com ([209.85.220.171]:36053 "EHLO
+        mail-qk0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755601AbdCGU5q (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 7 Mar 2017 15:57:46 -0500
+Received: by mail-qk0-f171.google.com with SMTP id 1so25297721qkl.3
+        for <linux-watchdog@vger.kernel.org>; Tue, 07 Mar 2017 12:56:51 -0800 (PST)
+From: Laura Abbott <labbott@redhat.com>
+To: Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Martin Schwidefsky <schwidefsky@de.ibm.com>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Kees Cook <keescook@chromium.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Arnd Bergmann <arnd@arndb.de>, David Airlie <airlied@linux.ie>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Guenter Roeck <linux@roeck-us.net>,
+        linux-watchdog@vger.kernel.org,
+        "David S. Miller" <davem@davemloft.net>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jessica Yu <jeyu@redhat.com>, Takashi Iwai <tiwai@suse.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Cc: Laura Abbott <labbott@redhat.com>, x86@kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-arch@vger.kernel.org
+Subject: [PATCHv3 16/16] treewide: Decouple cacheflush.h and set_memory.h
+Date: Tue,  7 Mar 2017 12:55:33 -0800
+Message-Id: <1488920133-27229-17-git-send-email-labbott@redhat.com>
+In-Reply-To: <1488920133-27229-1-git-send-email-labbott@redhat.com>
+References: <1488920133-27229-1-git-send-email-labbott@redhat.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, Feb 03, 2017 at 02:47:24PM -0500, Sebastien Bourdelin wrote:
-> This adds the documentation for the TS-4600 by Technologic Systems.
-> 
-> Acked-by: Rob Herring <robh@kernel.org>
-> ---
-> Changes v1 -> v2:
->   - rebase on master
->   - add ack by Rob Herring <robh@kernel.org>
-> 
-> Signed-off-by: Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>
 
-Your SoB should be put before the first '---'.  Otherwise, it will get
-lost during patch applying.
+Now that all call sites, completely decouple cacheflush.h and
+set_memory.h
 
-Shawn
+Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+Acked-by: Mark Rutland <mark.rutland@arm.com>
+Signed-off-by: Laura Abbott <labbott@redhat.com>
+---
+v3: No changes
+---
+ arch/arm/include/asm/cacheflush.h   | 1 -
+ arch/arm64/include/asm/cacheflush.h | 1 -
+ arch/s390/include/asm/Kbuild        | 1 +
+ arch/s390/include/asm/cacheflush.h  | 8 --------
+ arch/x86/include/asm/cacheflush.h   | 1 -
+ 5 files changed, 1 insertion(+), 11 deletions(-)
+ delete mode 100644 arch/s390/include/asm/cacheflush.h
 
-> ---
->  Documentation/devicetree/bindings/arm/technologic.txt | 5 +++++
->  1 file changed, 5 insertions(+)
+diff --git a/arch/arm/include/asm/cacheflush.h b/arch/arm/include/asm/cacheflush.h
+index 1cb9d11..d69bebf 100644
+--- a/arch/arm/include/asm/cacheflush.h
++++ b/arch/arm/include/asm/cacheflush.h
+@@ -16,7 +16,6 @@
+ #include <asm/shmparam.h>
+ #include <asm/cachetype.h>
+ #include <asm/outercache.h>
+-#include <asm/set_memory.h>
+ 
+ #define CACHE_COLOUR(vaddr)	((vaddr & (SHMLBA - 1)) >> PAGE_SHIFT)
+ 
+diff --git a/arch/arm64/include/asm/cacheflush.h b/arch/arm64/include/asm/cacheflush.h
+index 7db6962..5812469 100644
+--- a/arch/arm64/include/asm/cacheflush.h
++++ b/arch/arm64/include/asm/cacheflush.h
+@@ -20,7 +20,6 @@
+ #define __ASM_CACHEFLUSH_H
+ 
+ #include <linux/mm.h>
+-#include <asm/set_memory.h>
+ 
+ /*
+  * This flag is used to indicate that the page pointed to by a pte is clean
+diff --git a/arch/s390/include/asm/Kbuild b/arch/s390/include/asm/Kbuild
+index 8aea32f..c0a7057 100644
+--- a/arch/s390/include/asm/Kbuild
++++ b/arch/s390/include/asm/Kbuild
+@@ -1,4 +1,5 @@
+ generic-y += asm-offsets.h
++generic-y += cacheflush.h
+ generic-y += clkdev.h
+ generic-y += dma-contiguous.h
+ generic-y += export.h
+diff --git a/arch/s390/include/asm/cacheflush.h b/arch/s390/include/asm/cacheflush.h
+deleted file mode 100644
+index afe2965..0000000
+--- a/arch/s390/include/asm/cacheflush.h
++++ /dev/null
+@@ -1,8 +0,0 @@
+-#ifndef _S390_CACHEFLUSH_H
+-#define _S390_CACHEFLUSH_H
+-
+-/* Caches aren't brain-dead on the s390. */
+-#include <asm-generic/cacheflush.h>
+-#include <asm/set_memory.h>
+-
+-#endif /* _S390_CACHEFLUSH_H */
+diff --git a/arch/x86/include/asm/cacheflush.h b/arch/x86/include/asm/cacheflush.h
+index 3d7db6f..8b4140f 100644
+--- a/arch/x86/include/asm/cacheflush.h
++++ b/arch/x86/include/asm/cacheflush.h
+@@ -4,7 +4,6 @@
+ /* Caches aren't brain-dead on the intel. */
+ #include <asm-generic/cacheflush.h>
+ #include <asm/special_insns.h>
+-#include <asm/set_memory.h>
+ 
+ void clflush_cache_range(void *addr, unsigned int size);
+ 
+-- 
+2.7.4
+
