@@ -1,18 +1,16 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-qk0-f180.google.com ([209.85.220.180]:34747 "EHLO
-        mail-qk0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751935AbdCGU5q (ORCPT
+Received: from mail-qk0-f174.google.com ([209.85.220.174]:36812 "EHLO
+        mail-qk0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753196AbdCGVSl (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 7 Mar 2017 15:57:46 -0500
-Received: by mail-qk0-f180.google.com with SMTP id p64so25650442qke.1
-        for <linux-watchdog@vger.kernel.org>; Tue, 07 Mar 2017 12:56:47 -0800 (PST)
+        Tue, 7 Mar 2017 16:18:41 -0500
+Received: by mail-qk0-f174.google.com with SMTP id 1so26353977qkl.3
+        for <linux-watchdog@vger.kernel.org>; Tue, 07 Mar 2017 13:18:40 -0800 (PST)
 From: Laura Abbott <labbott@redhat.com>
-To: Andrew Morton <akpm@linux-foundation.org>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+To: Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will.deacon@arm.com>
 Cc: Laura Abbott <labbott@redhat.com>,
         Russell King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
         Martin Schwidefsky <schwidefsky@de.ibm.com>,
         Heiko Carstens <heiko.carstens@de.ibm.com>,
         Thomas Gleixner <tglx@linutronix.de>,
@@ -31,38 +29,52 @@ Cc: Laura Abbott <labbott@redhat.com>,
         "David S. Miller" <davem@davemloft.net>,
         Daniel Borkmann <daniel@iogearbox.net>,
         Jessica Yu <jeyu@redhat.com>, Takashi Iwai <tiwai@suse.com>,
-        linux-fbdev@vger.kernel.org
-Subject: [PATCHv3 15/16] video: vermilion: Use set_memory.h header
-Date: Tue,  7 Mar 2017 12:55:32 -0800
-Message-Id: <1488920133-27229-16-git-send-email-labbott@redhat.com>
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCHv3 03/16] arm64: Use set_memory.h header
+Date: Tue,  7 Mar 2017 12:55:20 -0800
+Message-Id: <1488920133-27229-4-git-send-email-labbott@redhat.com>
 In-Reply-To: <1488920133-27229-1-git-send-email-labbott@redhat.com>
 References: <1488920133-27229-1-git-send-email-labbott@redhat.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
 
-set_memory_* functions have moved to set_memory.h. Switch to this
+The set_memory_* functions have moved to set_memory.h. Use that header
 explicitly.
 
+Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+Acked-by: Mark Rutland <mark.rutland@arm.com>
 Signed-off-by: Laura Abbott <labbott@redhat.com>
 ---
-v3: New files not caught in the first pass
+v3: Alphabetical order
 ---
- drivers/video/fbdev/vermilion/vermilion.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/mm/pageattr.c      | 1 +
+ arch/arm64/net/bpf_jit_comp.c | 1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/drivers/video/fbdev/vermilion/vermilion.c b/drivers/video/fbdev/vermilion/vermilion.c
-index 1c1e95a..ce4c4729 100644
---- a/drivers/video/fbdev/vermilion/vermilion.c
-+++ b/drivers/video/fbdev/vermilion/vermilion.c
-@@ -37,7 +37,7 @@
- #include <linux/mm.h>
- #include <linux/fb.h>
- #include <linux/pci.h>
--#include <asm/cacheflush.h>
+diff --git a/arch/arm64/mm/pageattr.c b/arch/arm64/mm/pageattr.c
+index 8def55e..26839f2 100644
+--- a/arch/arm64/mm/pageattr.c
++++ b/arch/arm64/mm/pageattr.c
+@@ -17,6 +17,7 @@
+ #include <linux/vmalloc.h>
+ 
+ #include <asm/pgtable.h>
 +#include <asm/set_memory.h>
  #include <asm/tlbflush.h>
- #include <linux/mmzone.h>
+ 
+ struct page_change_data {
+diff --git a/arch/arm64/net/bpf_jit_comp.c b/arch/arm64/net/bpf_jit_comp.c
+index a785554..efc1bf2 100644
+--- a/arch/arm64/net/bpf_jit_comp.c
++++ b/arch/arm64/net/bpf_jit_comp.c
+@@ -27,6 +27,7 @@
+ #include <asm/byteorder.h>
+ #include <asm/cacheflush.h>
+ #include <asm/debug-monitors.h>
++#include <asm/set_memory.h>
+ 
+ #include "bpf_jit.h"
  
 -- 
 2.7.4
