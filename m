@@ -1,82 +1,38 @@
-Return-path: <Wenyou.Yang@microchip.com>
-From: <Wenyou.Yang@microchip.com>
-To: <alexandre.belloni@free-electrons.com>, <linux@roeck-us.net>
-CC: <wim@iguana.be>, <Nicolas.Ferre@microchip.com>,
-	<linux-watchdog@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>,
-	<linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH 2/4] watchdog: sama5d4: fix race condition
-Date: Tue, 7 Mar 2017 02:06:33 +0000
-Message-ID: <F9F4555C4E01D7469D37975B62D0EFBB4FC519@CHN-SV-EXMX07.mchp-main.com>
-References: <20170302173114.28508-1-alexandre.belloni@free-electrons.com>
- <20170302173114.28508-3-alexandre.belloni@free-electrons.com>
-In-Reply-To: <20170302173114.28508-3-alexandre.belloni@free-electrons.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Return-path: <horms@verge.net.au>
+Date: Fri, 10 Mar 2017 10:19:05 +0100
+From: Simon Horman <horms@verge.net.au>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Chris Brandt <chris.brandt@renesas.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Sebastian Reichel <sre@kernel.org>,
+	Rob Herring <robh+dt@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	linux-renesas-soc@vger.kernel.org, devicetree@vger.kernel.org,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH v6 3/3] ARM: dts: r7s72100: Add watchdog timer
+Message-ID: <20170310091905.GD21820@verge.net.au>
+References: <20170304223737.20419-1-chris.brandt@renesas.com>
+ <20170304223737.20419-4-chris.brandt@renesas.com>
+ <ef7f631f-efa9-9d8b-658d-aeaa5bce5bc7@roeck-us.net>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ef7f631f-efa9-9d8b-658d-aeaa5bce5bc7@roeck-us.net>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogQWxleGFuZHJlIEJlbGxv
-bmkgW21haWx0bzphbGV4YW5kcmUuYmVsbG9uaUBmcmVlLWVsZWN0cm9ucy5jb21dDQo+IFNlbnQ6
-IDIwMTflubQz5pyIM+aXpSAxOjMxDQo+IFRvOiBHdWVudGVyIFJvZWNrIDxsaW51eEByb2Vjay11
-cy5uZXQ+DQo+IENjOiBXaW0gVmFuIFNlYnJvZWNrIDx3aW1AaWd1YW5hLmJlPjsgTmljb2xhcyBG
-ZXJyZSAtIE00MzIzOA0KPiA8Tmljb2xhcy5GZXJyZUBtaWNyb2NoaXAuY29tPjsgV2VueW91IFlh
-bmcgLSBBNDE1MzUNCj4gPFdlbnlvdS5ZYW5nQG1pY3JvY2hpcC5jb20+OyBsaW51eC13YXRjaGRv
-Z0B2Z2VyLmtlcm5lbC5vcmc7IGxpbnV4LWFybS0NCj4ga2VybmVsQGxpc3RzLmluZnJhZGVhZC5v
-cmc7IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmc7IEFsZXhhbmRyZSBCZWxsb25pDQo+IDxh
-bGV4YW5kcmUuYmVsbG9uaUBmcmVlLWVsZWN0cm9ucy5jb20+DQo+IFN1YmplY3Q6IFtQQVRDSCAy
-LzRdIHdhdGNoZG9nOiBzYW1hNWQ0OiBmaXggcmFjZSBjb25kaXRpb24NCj4gDQo+IFdEVF9NUiBh
-bmQgV0RUX0NSIG11c3Qgbm90IHVwZGF0ZWQgd2l0aGluIHRocmVlIHNsb3cgY2xvY2sgcGVyaW9k
-cyBhZnRlcg0KPiB0aGUgbGFzdCBwaW5nICh3cml0ZSB0byBXRFRfQ1Igb3IgV0RUX01SKS4gRW5z
-dXJlIGVub3VnaCB0aW1lIGhhcyBlbGFwc2VkDQo+IGJlZm9yZSB3cml0aW5nIHRob3NlIHJlZ2lz
-dGVycy4NCj4gd2R0X3dyaXRlKCkgd2FpdHMgZm9yIDQgcGVyaW9kcyB0byBlbnN1cmUgYXQgbGVh
-c3QgMyBlZGdlcyBhcmUgc2VlbiBieSB0aGUgSVAuDQoNCkluZGVlZC4NCkFja2VkLWJ5OiBXZW55
-b3UuWWFuZyA8d2VueW91LnlhbmdAbWljcm9jaGlwLmNvbT4NCg0KVGhhbmtzDQoNCj4gDQo+IFNp
-Z25lZC1vZmYtYnk6IEFsZXhhbmRyZSBCZWxsb25pIDxhbGV4YW5kcmUuYmVsbG9uaUBmcmVlLWVs
-ZWN0cm9ucy5jb20+DQo+IC0tLQ0KPiAgZHJpdmVycy93YXRjaGRvZy9zYW1hNWQ0X3dkdC5jIHwg
-MzMgKysrKysrKysrKysrKysrKysrKysrKysrKysrKystLS0tDQo+ICAxIGZpbGUgY2hhbmdlZCwg
-MjkgaW5zZXJ0aW9ucygrKSwgNCBkZWxldGlvbnMoLSkNCj4gDQo+IGRpZmYgLS1naXQgYS9kcml2
-ZXJzL3dhdGNoZG9nL3NhbWE1ZDRfd2R0LmMgYi9kcml2ZXJzL3dhdGNoZG9nL3NhbWE1ZDRfd2R0
-LmMNCj4gaW5kZXggNWNlZTIwY2FjYTc4Li4zNjJmZDIyOTc4NmQgMTAwNjQ0DQo+IC0tLSBhL2Ry
-aXZlcnMvd2F0Y2hkb2cvc2FtYTVkNF93ZHQuYw0KPiArKysgYi9kcml2ZXJzL3dhdGNoZG9nL3Nh
-bWE1ZDRfd2R0LmMNCj4gQEAgLTYsNiArNiw3IEBADQo+ICAgKiBMaWNlbnNlZCB1bmRlciBHUEx2
-Mi4NCj4gICAqLw0KPiANCj4gKyNpbmNsdWRlIDxsaW51eC9kZWxheS5oPg0KPiAgI2luY2x1ZGUg
-PGxpbnV4L2ludGVycnVwdC5oPg0KPiAgI2luY2x1ZGUgPGxpbnV4L2lvLmg+DQo+ICAjaW5jbHVk
-ZSA8bGludXgva2VybmVsLmg+DQo+IEBAIC0yOSw2ICszMCw3IEBAIHN0cnVjdCBzYW1hNWQ0X3dk
-dCB7DQo+ICAJc3RydWN0IHdhdGNoZG9nX2RldmljZQl3ZGQ7DQo+ICAJdm9pZCBfX2lvbWVtCQkq
-cmVnX2Jhc2U7DQo+ICAJdTMyCQkJbXI7DQo+ICsJdW5zaWduZWQgbG9uZwkJbGFzdF9waW5nOw0K
-PiAgfTsNCj4gDQo+ICBzdGF0aWMgaW50IHdkdF90aW1lb3V0ID0gV0RUX0RFRkFVTFRfVElNRU9V
-VDsgQEAgLTQ5LDggKzUxLDI5IEBADQo+IE1PRFVMRV9QQVJNX0RFU0Mobm93YXlvdXQsICAjZGVm
-aW5lIHdkdF9yZWFkKHdkdCwgZmllbGQpIFwNCj4gIAlyZWFkbF9yZWxheGVkKCh3ZHQpLT5yZWdf
-YmFzZSArIChmaWVsZCkpDQo+IA0KPiAtI2RlZmluZSB3ZHRfd3JpdGUod3RkLCBmaWVsZCwgdmFs
-KSBcDQo+IC0Jd3JpdGVsX3JlbGF4ZWQoKHZhbCksICh3ZHQpLT5yZWdfYmFzZSArIChmaWVsZCkp
-DQo+ICsvKiA0IHNsb3cgY2xvY2sgcGVyaW9kcyBpcyA0LzMyNzY4ID0gMTIyLjA3wrVzKi8NCj4g
-KyNkZWZpbmUgV0RUX0RFTEFZCXVzZWNzX3RvX2ppZmZpZXMoMTIzKQ0KPiArDQo+ICtzdGF0aWMg
-dm9pZCB3ZHRfd3JpdGUoc3RydWN0IHNhbWE1ZDRfd2R0ICp3ZHQsIHUzMiBmaWVsZCwgdTMyIHZh
-bCkgew0KPiArCS8qDQo+ICsJICogV0RUX0NSIGFuZCBXRFRfTVIgbXVzdCBub3QgYmUgbW9kaWZp
-ZWQgd2l0aGluIHRocmVlIHNsb3cgY2xvY2sNCj4gKwkgKiBwZXJpb2RzIGZvbGxvd2luZyBhIHJl
-c3RhcnQgb2YgdGhlIHdhdGNoZG9nIHBlcmZvcm1lZCBieSBhIHdyaXRlDQo+ICsJICogYWNjZXNz
-IGluIFdEVF9DUi4NCj4gKwkgKi8NCj4gKwl3aGlsZSAodGltZV9iZWZvcmUoamlmZmllcywgd2R0
-LT5sYXN0X3BpbmcgKyBXRFRfREVMQVkpKQ0KPiArCQl1c2xlZXBfcmFuZ2UoMzAsIDEyNSk7DQo+
-ICsJd3JpdGVsX3JlbGF4ZWQodmFsLCB3ZHQtPnJlZ19iYXNlICsgZmllbGQpOw0KPiArCXdkdC0+
-bGFzdF9waW5nID0gamlmZmllczsNCj4gK30NCj4gKw0KPiArc3RhdGljIHZvaWQgd2R0X3dyaXRl
-X25vc2xlZXAoc3RydWN0IHNhbWE1ZDRfd2R0ICp3ZHQsIHUzMiBmaWVsZCwgdTMyDQo+ICt2YWwp
-IHsNCj4gKwlpZiAodGltZV9iZWZvcmUoamlmZmllcywgd2R0LT5sYXN0X3BpbmcgKyBXRFRfREVM
-QVkpKQ0KPiArCQl1ZGVsYXkoMTIzKTsNCj4gKwl3cml0ZWxfcmVsYXhlZCh2YWwsIHdkdC0+cmVn
-X2Jhc2UgKyBmaWVsZCk7DQo+ICsJd2R0LT5sYXN0X3BpbmcgPSBqaWZmaWVzOw0KPiArfQ0KPiAN
-Cj4gIHN0YXRpYyBpbnQgc2FtYTVkNF93ZHRfc3RhcnQoc3RydWN0IHdhdGNoZG9nX2RldmljZSAq
-d2RkKSAgeyBAQCAtMTY0LDExDQo+ICsxODcsMTIgQEAgc3RhdGljIGludCBzYW1hNWQ0X3dkdF9p
-bml0KHN0cnVjdCBzYW1hNWQ0X3dkdCAqd2R0KQ0KPiAgCSAqIEVsc2UsIHdlIGhhdmUgdG8gZGlz
-YWJsZSBpdCBwcm9wZXJseS4NCj4gIAkgKi8NCj4gIAlpZiAod2R0X2VuYWJsZWQpIHsNCj4gLQkJ
-d2R0X3dyaXRlKHdkdCwgQVQ5MV9XRFRfTVIsIHdkdC0+bXIpOw0KPiArCQl3ZHRfd3JpdGVfbm9z
-bGVlcCh3ZHQsIEFUOTFfV0RUX01SLCB3ZHQtPm1yKTsNCj4gIAl9IGVsc2Ugew0KPiAgCQlyZWcg
-PSB3ZHRfcmVhZCh3ZHQsIEFUOTFfV0RUX01SKTsNCj4gIAkJaWYgKCEocmVnICYgQVQ5MV9XRFRf
-V0RESVMpKQ0KPiAtCQkJd2R0X3dyaXRlKHdkdCwgQVQ5MV9XRFRfTVIsIHJlZyB8DQo+IEFUOTFf
-V0RUX1dERElTKTsNCj4gKwkJCXdkdF93cml0ZV9ub3NsZWVwKHdkdCwgQVQ5MV9XRFRfTVIsDQo+
-ICsJCQkJCSAgcmVnIHwgQVQ5MV9XRFRfV0RESVMpOw0KPiAgCX0NCj4gIAlyZXR1cm4gMDsNCj4g
-IH0NCj4gQEAgLTE5Myw2ICsyMTcsNyBAQCBzdGF0aWMgaW50IHNhbWE1ZDRfd2R0X3Byb2JlKHN0
-cnVjdCBwbGF0Zm9ybV9kZXZpY2UNCj4gKnBkZXYpDQo+ICAJd2RkLT5vcHMgPSAmc2FtYTVkNF93
-ZHRfb3BzOw0KPiAgCXdkZC0+bWluX3RpbWVvdXQgPSBNSU5fV0RUX1RJTUVPVVQ7DQo+ICAJd2Rk
-LT5tYXhfdGltZW91dCA9IE1BWF9XRFRfVElNRU9VVDsNCj4gKwl3ZHQtPmxhc3RfcGluZyA9IGpp
-ZmZpZXM7DQo+IA0KPiAgCXdhdGNoZG9nX3NldF9kcnZkYXRhKHdkZCwgd2R0KTsNCj4gDQo+IC0t
-DQo+IDIuMTEuMA0KDQoNCkJlc3QgUmVnYXJkcywNCldlbnlvdSBZYW5nDQoNCg==
+On Sun, Mar 05, 2017 at 08:04:57AM -0800, Guenter Roeck wrote:
+> On 03/04/2017 02:37 PM, Chris Brandt wrote:
+> >Add watchdog timer support for RZ/A1.
+> >For the RZ/A1, the only way to do a reset is to overflow the WDT, so this
+> >is useful even if you don't need the watchdog functionality.
+> >
+> >Signed-off-by: Chris Brandt <chris.brandt@renesas.com>
+> >Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+> 
+> Acked-by: Guenter Roeck <linux@roeck-us.net>
+
+Thanks,
+
+as the driver bindings have also been Acked I have queued up this
+change for v4.12.
