@@ -1,67 +1,45 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:41012 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753890AbdCKPy0 (ORCPT
+Received: from mail-wm0-f67.google.com ([74.125.82.67]:33165 "EHLO
+        mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S933157AbdCKR2x (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 11 Mar 2017 10:54:26 -0500
-Subject: Re: [PATCH v3] watchdog: intel-mid_wdt: Keep watchdog running
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        linux-watchdog@vger.kernel.org
-References: <20170310222217.87272-1-andriy.shevchenko@linux.intel.com>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <62ad208b-ac4e-d402-5b21-6943962db686@roeck-us.net>
-Date: Sat, 11 Mar 2017 07:54:22 -0800
+        Sat, 11 Mar 2017 12:28:53 -0500
+Date: Sat, 11 Mar 2017 19:28:41 +0200
+From: Krzysztof Kozlowski <krzk@kernel.org>
+To: Wim Van Sebroeck <wim@iguana.be>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Rob Herring <robh+dt@kernel.org>,
+        Kukjin Kim <kgene@kernel.org>,
+        Javier Martinez Canillas <javier@osg.samsung.com>,
+        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-samsung-soc@vger.kernel.org
+Subject: Re: [PATCH v2 1/8] watchdog: s3c2410: Remove confusing CONFIG prefix
+ from local defines
+Message-ID: <20170311172841.plxclb45qyp6yyqd@kozik-lap>
+References: <20170311172527.16368-1-krzk@kernel.org>
+ <20170311172527.16368-2-krzk@kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <20170310222217.87272-1-andriy.shevchenko@linux.intel.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20170311172527.16368-2-krzk@kernel.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 03/10/2017 02:22 PM, Andy Shevchenko wrote:
-> Firmware followed by bootloader leaves watchdog running.
->
-> Keep it running in the driver.
->
-> User will not need any additional options to reboot in case of panic
-> during boot.
->
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-
+On Sat, Mar 11, 2017 at 07:25:20PM +0200, Krzysztof Kozlowski wrote:
+> The CONFIG prefix from defines in the s3c2410_wdt.c might suggest that
+> these constants come from Kconfig.
+> 
+> Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 > ---
->  drivers/watchdog/intel-mid_wdt.c | 17 +++++++++++++++--
->  1 file changed, 15 insertions(+), 2 deletions(-)
+>  drivers/watchdog/s3c2410_wdt.c | 16 ++++++++--------
+>  1 file changed, 8 insertions(+), 8 deletions(-)
 >
-> diff --git a/drivers/watchdog/intel-mid_wdt.c b/drivers/watchdog/intel-mid_wdt.c
-> index 45e4d02221b5..72c108a12c19 100644
-> --- a/drivers/watchdog/intel-mid_wdt.c
-> +++ b/drivers/watchdog/intel-mid_wdt.c
-> @@ -147,8 +147,21 @@ static int mid_wdt_probe(struct platform_device *pdev)
->  		return ret;
->  	}
->
-> -	/* Make sure the watchdog is not running */
-> -	wdt_stop(wdt_dev);
-> +	/*
-> +	 * The firmware followed by U-Boot leaves the watchdog running
-> +	 * with the default threshold which may vary. When we get here
-> +	 * we should make a decision to prevent any side effects before
-> +	 * user space daemon will take care of it. The best option,
-> +	 * taking into consideration that there is no way to read values
-> +	 * back from hardware, is to enforce watchdog being run with
-> +	 * deterministic values.
-> +	 */
-> +	ret = wdt_start(wdt_dev);
-> +	if (ret)
-> +		return ret;
-> +
-> +	/* Make sure the watchdog is serviced */
-> +	set_bit(WDOG_HW_RUNNING, &wdt_dev->status);
->
->  	ret = devm_watchdog_register_device(&pdev->dev, wdt_dev);
->  	if (ret) {
->
+
+Ah, my mistake, I looked at watchdog-master but this is already in
+watchdog-next. Sorry for confusion.
+
+Best regards,
+Krzysztof
 
