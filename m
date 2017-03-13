@@ -1,160 +1,57 @@
-Return-path: <slemieux.tyco@gmail.com>
-Message-ID: <1489434778.30168.10.camel@gmail.com>
-Subject: Re: [PATCH] watchdog: gpio: Add "keep-armed-on-close" feature
-From: Sylvain Lemieux <slemieux.tyco@gmail.com>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mout.kundenserver.de ([217.72.192.73]:62097 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752351AbdCMQmP (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 13 Mar 2017 12:42:15 -0400
+From: Arnd Bergmann <arnd@arndb.de>
 To: Guenter Roeck <linux@roeck-us.net>
-Cc: wim@iguana.be, linux-watchdog@vger.kernel.org
-Date: Mon, 13 Mar 2017 15:52:58 -0400
-In-Reply-To: <20170103185946.GB10864@roeck-us.net>
-References: <1481139980-13429-1-git-send-email-slemieux.tyco@gmail.com>
-	 <20161209210712.GA14339@roeck-us.net> <1481823963.26329.23.camel@localhost>
-	 <1482258332.13119.16.camel@localhost> <1483456850.7643.0.camel@localhost>
-	 <20170103185946.GB10864@roeck-us.net>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-List-ID: <linux-watchdog@vger.kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [RESEND PATCH] watchdog: orion: fix compile-test dependencies
+Date: Mon, 13 Mar 2017 17:40:48 +0100
+Message-Id: <20170313164105.1038960-1-arnd@arndb.de>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-Hi Guenter,
+I ran into one corner case with the orion watchdog using the
+atomic_io_modify interface:
 
-On Tue, 2017-01-03 at 10:59 -0800, Guenter Roeck wrote:
-> On Tue, Jan 03, 2017 at 10:20:50AM -0500, Sylvain Lemieux wrote:
-> > On Tue, 2016-12-20 at 13:25 -0500, Sylvain Lemieux wrote:
-> > > Hi Guenter,
-> > > 
-> > > On Thu, 2016-12-15 at 12:46 -0500, Sylvain Lemieux wrote:
-> > > > Hi Guenter,
-> > > > 
-> > > > On Fri, 2016-12-09 at 13:07 -0800, Guenter Roeck wrote:
-> > > > > On Wed, Dec 07, 2016 at 02:46:20PM -0500, Sylvain Lemieux wrote:
-> > > > > > From: Sylvain Lemieux <slemieux@tycoint.com>
-> > > > > > 
-> > > > > > There is a need to allow a grace period after the watchdog software
-> > > > > > client has closed. It could be used for syncing the filesystem or
-> > > > > > allow graceful termination while still providing a hardware reset
-> > > > > > in case the system has hung.
-> > > > > > 
-> > > > > > The "always-running" configuration from device-tree does not provide
-> > > > > > this since it will automatically keep the hardware watchdog alive as
-> > > > > > soon as the software client closes (i.e. keep toggling the GPIO line
-> > > > > > regardless of the state of the soft part of the watchdog).
-> > > > > > 
-> > > > > > The "keep-armed-on-close" member in the GPIO watchdog implementation
-> > > > > > indicates if an expired timeout should cause a reset.
-> > > > > > 
-> > > > > > This patch add a new "keep-armed-on-close" device-tree configuration
-> > > > > > that will keep the watchdog "armed" until the next timeout period after
-> > > > > > a close. During this period, the hardware watchdog is kept alive.
-> > > > > > 
-> > > > > > A software watchdog client that wants to provide a grace period,
-> > > > > > before a hard reset, can set the timeout before properly closing.
-> > > > > > 
-> > > > > > Signed-off-by: Sylvain Lemieux <slemieux@tycoint.com>
-> > > > > 
-> > > > > Rather than changing the current gpio watchdog code, I would prefer to start
-> > > > > with https://lkml.org/lkml/2016/1/26/517, which moves part of its code into
-> > > > > the watchdog core - even more so here since I suspect that the suggested
-> > > > > changes won't work anymore after the above patch is applied.
-> > > > > 
-> > > > I agree that we should apply the "keepalive" change for this driver
-> > > > first; ref. https://lkml.org/lkml/2016/2/28/239 (version v8).
-> > > > 
-> > > [...]
-> > > > 
-> > > I took the "watchdog: gpio: keepalives" patch and rebase this
-> > > patch on top of it.
-> > > 
-> > > We have a scenario that will open and close the GPIO watchdog
-> > > device a few times during the user-space initialization. This
-> > > scenario is working properly with this patch on top of v4.9.
-> > > 
-> > > With the "watchdog: gpio: keepalives", I am getting an error
-> > > when the GPIO watchdog driver is open for the 3rd time
-> > > during this initialization process.
-> > > 
-[...]
+drivers/watchdog/orion_wdt.o: In function `orion_stop':
+orion_wdt.c:(.text.orion_stop+0x28): undefined reference to `atomic_io_modify'
+drivers/watchdog/orion_wdt.o: In function `armada375_stop':
+orion_wdt.c:(.text.armada375_stop+0x28): undefined reference to `atomic_io_modify'
 
-I apply the "keepalive" change, for this driver, on top of 4.11-rc1.
+This function is available on all 32-bit ARM builds except for ebsa110, so
+we have to specifically exclude that from compile-testing.
 
-There is an issue with this patch, and the handling of the
-WDOG_HW_RUNNING flag. I will submit a version 2, of this patch,
-rebase on top of the "keepalive" v8 patch
-(https://lkml.org/lkml/2016/2/28/239).
+Fixes: da2a68b3eb47 ("watchdog: Enable COMPILE_TEST where possible")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+---
+Originally submitted on March 2, still needed to address the one remaining
+kernelci.org build failure in v4.11-rc2:
 
-Regards,
-Sylvain
+https://kernelci.org/build/id/58c5dbdc59b514108e645533/
+---
+ drivers/watchdog/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> > > > 
-> > > > > Also, isn't this quite identical to nowayout ?
-> > > > > 
-> > > > Nowayout block the watchdog driver from being stop.
-> > > > 
-> > > > In this case, we want to stop the watchdog (i.e. close) and be able
-> > > > to reopen it within the timeout period. If the driver is not reopen
-> > > > within the timeout period, the board should reset.
-> > > > 
-> > > > Regards,
-> > > > Sylvain
-> > > > 
-> > > > > Thanks,
-> > > > > Guenter
-> > > > > 
-> > > > > > ---
-> > > > > >  Documentation/devicetree/bindings/watchdog/gpio-wdt.txt | 3 +++
-> > > > > >  drivers/watchdog/gpio_wdt.c                             | 6 ++++++
-> > > > > >  2 files changed, 9 insertions(+)
-> > > > > > 
-> > > > > > diff --git a/Documentation/devicetree/bindings/watchdog/gpio-wdt.txt b/Documentation/devicetree/bindings/watchdog/gpio-wdt.txt
-> > > > > > index 83d2814..2669735 100644
-> > > > > > --- a/Documentation/devicetree/bindings/watchdog/gpio-wdt.txt
-> > > > > > +++ b/Documentation/devicetree/bindings/watchdog/gpio-wdt.txt
-> > > > > > @@ -17,6 +17,9 @@ Optional Properties:
-> > > > > >  - always-running: If the watchdog timer cannot be disabled, add this flag to
-> > > > > >    have the driver keep toggling the signal without a client. It will only cease
-> > > > > >    to toggle the signal when the device is open and the timeout elapsed.
-> > > > > > +- keep-armed-on-close: if the watchdog timer need to keep toggling the signal
-> > > > > > +  when close, until the timeout elapsed, add this flag to have the driver
-> > > > > > +  keep toggling the signal, until the timeout elapsed.
-> > > > > >  - timeout-sec: Contains the watchdog timeout in seconds.
-> > > > > >  - start-at-init: Start kicking watchdog as soon as driver is loaded.
-> > > > > >  
-> > > > > > diff --git a/drivers/watchdog/gpio_wdt.c b/drivers/watchdog/gpio_wdt.c
-> > > > > > index ef9ab91..ba9091a 100644
-> > > > > > --- a/drivers/watchdog/gpio_wdt.c
-> > > > > > +++ b/drivers/watchdog/gpio_wdt.c
-> > > > > > @@ -32,6 +32,7 @@ struct gpio_wdt_priv {
-> > > > > >  	bool			active_low;
-> > > > > >  	bool			state;
-> > > > > >  	bool			always_running;
-> > > > > > +	bool			keep_armed_on_close;
-> > > > > >  	bool			armed;
-> > > > > >  	unsigned int		hw_algo;
-> > > > > >  	unsigned int		hw_margin;
-> > > > > > @@ -72,6 +73,9 @@ static int gpio_wdt_stop(struct watchdog_device *wdd)
-> > > > > >  {
-> > > > > >  	struct gpio_wdt_priv *priv = watchdog_get_drvdata(wdd);
-> > > > > >  
-> > > > > > +	if(priv->keep_armed_on_close)
-> > > > > > +		return 0;
-> > > > > > +
-> > > > > >  	priv->armed = false;
-> > > > > >  	if (!priv->always_running) {
-> > > > > >  		mod_timer(&priv->timer, 0);
-> > > > > > @@ -210,6 +214,8 @@ static int gpio_wdt_probe(struct platform_device *pdev)
-> > > > > >  
-> > > > > >  	priv->always_running = of_property_read_bool(pdev->dev.of_node,
-> > > > > >  						     "always-running");
-> > > > > > +	priv->keep_armed_on_close = of_property_read_bool(pdev->dev.of_node,
-> > > > > > +						 "keep-armed-on-close");
-> > > > > >  
-> > > > > >  	watchdog_set_drvdata(&priv->wdd, priv);
-> > > > > >  
-> > > > > > -- 
-> > > > > > 1.8.3.1
-> > > > > > 
-> > > > 
-> > > > 
-> > > 
-> > > 
-> > 
-> > 
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 52a70ee6014f..8b9049dac094 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -452,7 +452,7 @@ config DAVINCI_WATCHDOG
+ 
+ config ORION_WATCHDOG
+ 	tristate "Orion watchdog"
+-	depends on ARCH_ORION5X || ARCH_DOVE || MACH_DOVE || ARCH_MVEBU || COMPILE_TEST
++	depends on ARCH_ORION5X || ARCH_DOVE || MACH_DOVE || ARCH_MVEBU || (COMPILE_TEST && !ARCH_EBSA110)
+ 	depends on ARM
+ 	select WATCHDOG_CORE
+ 	help
+-- 
+2.9.0
+
