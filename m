@@ -1,156 +1,40 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:60311 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S934692AbdCLVB0 (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 12 Mar 2017 17:01:26 -0400
-Subject: Re: [PATCH v2 3/3] watchdog: s3c2410: Minor code cleanup
-To: Krzysztof Kozlowski <krzk@kernel.org>,
-        Kukjin Kim <kgene@kernel.org>,
-        Javier Martinez Canillas <javier@osg.samsung.com>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        linux-arm-kernel@lists.infradead.org,
-        linux-samsung-soc@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20170311174255.23327-1-krzk@kernel.org>
- <20170311174255.23327-4-krzk@kernel.org>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <a48816ad-d57f-94d6-b169-6ea0ebe68fc2@roeck-us.net>
-Date: Sun, 12 Mar 2017 14:01:19 -0700
-MIME-Version: 1.0
-In-Reply-To: <20170311174255.23327-4-krzk@kernel.org>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-path: <jhovold@gmail.com>
+Sender: Johan Hovold <jhovold@gmail.com>
+From: Johan Hovold <johan@kernel.org>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: Guenter Roeck <linux@roeck-us.net>,
+	linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Johan Hovold <johan@kernel.org>,
+	stable <stable@vger.kernel.org>
+Subject: [PATCH] watchdog: pcwd_usb: fix NULL-deref at probe
+Date: Mon, 13 Mar 2017 13:49:45 +0100
+Message-Id: <20170313124945.28923-1-johan@kernel.org>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 03/11/2017 09:42 AM, Krzysztof Kozlowski wrote:
-> Cleanup the code from minor readability issues (no functional changes):
-> 1. Fix checkpatch: ERROR: Do not include the paragraph about writing to
->    the Free Software Foundation's mailing address.
-> 2. Fix checkpatch: WARNING: quoted string split across lines
-> 3. Fix chechpatch: WARNING: Prefer 'unsigned int' to bare use of
->    'unsigned'
-> 4. Use 'dev' consistently in probe function instead of mixing dev with
->    &pdev->dev.
->
-> Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Make sure to check the number of endpoints to avoid dereferencing a
+NULL-pointer should a malicious device lack endpoints.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+---
+ drivers/watchdog/pcwd_usb.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-> ---
->  drivers/watchdog/s3c2410_wdt.c | 35 +++++++++++++----------------------
->  1 file changed, 13 insertions(+), 22 deletions(-)
->
-> diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s3c2410_wdt.c
-> index d7ddee0668c3..89c7e98ae278 100644
-> --- a/drivers/watchdog/s3c2410_wdt.c
-> +++ b/drivers/watchdog/s3c2410_wdt.c
-> @@ -1,5 +1,4 @@
-> -/* linux/drivers/char/watchdog/s3c2410_wdt.c
-> - *
-> +/*
->   * Copyright (c) 2004 Simtec Electronics
->   *	Ben Dooks <ben@simtec.co.uk>
->   *
-> @@ -17,11 +16,7 @@
->   * but WITHOUT ANY WARRANTY; without even the implied warranty of
->   * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
->   * GNU General Public License for more details.
-> - *
-> - * You should have received a copy of the GNU General Public License
-> - * along with this program; if not, write to the Free Software
-> - * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-> -*/
-> + */
->
->  #include <linux/module.h>
->  #include <linux/moduleparam.h>
-> @@ -95,8 +90,7 @@ MODULE_PARM_DESC(tmr_atboot,
->  			__MODULE_STRING(S3C2410_WATCHDOG_ATBOOT));
->  MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
->  			__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
-> -MODULE_PARM_DESC(soft_noboot, "Watchdog action, set to 1 to ignore reboots, "
-> -			"0 to reboot (default 0)");
-> +MODULE_PARM_DESC(soft_noboot, "Watchdog action, set to 1 to ignore reboots, 0 to reboot (default 0)");
->
->  /**
->   * struct s3c2410_wdt_variant - Per-variant config data
-> @@ -311,7 +305,8 @@ static inline int s3c2410wdt_is_running(struct s3c2410_wdt *wdt)
->  	return readl(wdt->reg_base + S3C2410_WTCON) & S3C2410_WTCON_ENABLE;
->  }
->
-> -static int s3c2410wdt_set_heartbeat(struct watchdog_device *wdd, unsigned timeout)
-> +static int s3c2410wdt_set_heartbeat(struct watchdog_device *wdd,
-> +				    unsigned int timeout)
->  {
->  	struct s3c2410_wdt *wdt = watchdog_get_drvdata(wdd);
->  	unsigned long freq = clk_get_rate(wdt->clock);
-> @@ -525,7 +520,7 @@ s3c2410_get_wdt_drv_data(struct platform_device *pdev)
->
->  static int s3c2410wdt_probe(struct platform_device *pdev)
->  {
-> -	struct device *dev;
-> +	struct device *dev = &pdev->dev;
->  	struct s3c2410_wdt *wdt;
->  	struct resource *wdt_mem;
->  	struct resource *wdt_irq;
-> @@ -533,13 +528,11 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
->  	int started = 0;
->  	int ret;
->
-> -	dev = &pdev->dev;
-> -
->  	wdt = devm_kzalloc(dev, sizeof(*wdt), GFP_KERNEL);
->  	if (!wdt)
->  		return -ENOMEM;
->
-> -	wdt->dev = &pdev->dev;
-> +	wdt->dev = dev;
->  	spin_lock_init(&wdt->lock);
->  	wdt->wdt_device = s3c2410_wdd;
->
-> @@ -595,7 +588,7 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
->  	/* see if we can actually set the requested timer margin, and if
->  	 * not, try the default value */
->
-> -	watchdog_init_timeout(&wdt->wdt_device, tmr_margin, &pdev->dev);
-> +	watchdog_init_timeout(&wdt->wdt_device, tmr_margin, dev);
->  	ret = s3c2410wdt_set_heartbeat(&wdt->wdt_device,
->  					wdt->wdt_device.timeout);
->  	if (ret) {
-> @@ -604,11 +597,10 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
->
->  		if (started == 0)
->  			dev_info(dev,
-> -			   "tmr_margin value out of range, default %d used\n",
-> -			       S3C2410_WATCHDOG_DEFAULT_TIME);
-> +				 "tmr_margin value out of range, default %d used\n",
-> +				 S3C2410_WATCHDOG_DEFAULT_TIME);
->  		else
-> -			dev_info(dev, "default timer value is out of range, "
-> -							"cannot start\n");
-> +			dev_info(dev, "default timer value is out of range, cannot start\n");
->  	}
->
->  	ret = devm_request_irq(dev, wdt_irq->start, s3c2410wdt_irq, 0,
-> @@ -622,7 +614,7 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
->  	watchdog_set_restart_priority(&wdt->wdt_device, 128);
->
->  	wdt->wdt_device.bootstatus = s3c2410wdt_get_bootstatus(wdt);
-> -	wdt->wdt_device.parent = &pdev->dev;
-> +	wdt->wdt_device.parent = dev;
->
->  	ret = watchdog_register_device(&wdt->wdt_device);
->  	if (ret) {
-> @@ -757,7 +749,6 @@ static struct platform_driver s3c2410wdt_driver = {
->
->  module_platform_driver(s3c2410wdt_driver);
->
-> -MODULE_AUTHOR("Ben Dooks <ben@simtec.co.uk>, "
-> -	      "Dimitry Andric <dimitry.andric@tomtom.com>");
-> +MODULE_AUTHOR("Ben Dooks <ben@simtec.co.uk>, Dimitry Andric <dimitry.andric@tomtom.com>");
->  MODULE_DESCRIPTION("S3C2410 Watchdog Device Driver");
->  MODULE_LICENSE("GPL");
->
-
+diff --git a/drivers/watchdog/pcwd_usb.c b/drivers/watchdog/pcwd_usb.c
+index 99ebf6ea3de6..5615f4013924 100644
+--- a/drivers/watchdog/pcwd_usb.c
++++ b/drivers/watchdog/pcwd_usb.c
+@@ -630,6 +630,9 @@ static int usb_pcwd_probe(struct usb_interface *interface,
+ 		return -ENODEV;
+ 	}
+ 
++	if (iface_desc->desc.bNumEndpoints < 1)
++		return -ENODEV;
++
+ 	/* check out the endpoint: it has to be Interrupt & IN */
+ 	endpoint = &iface_desc->endpoint[0].desc;
+ 
+-- 
+2.12.0
