@@ -1,67 +1,99 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailout3.samsung.com ([203.254.224.33]:44643 "EHLO
-        mailout3.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751047AbdCNNpH (ORCPT
+Received: from mail.savoirfairelinux.com ([208.88.110.44]:53182 "EHLO
+        mail.savoirfairelinux.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750848AbdCNPkM (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 14 Mar 2017 09:45:07 -0400
-From: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-To: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: Wim Van Sebroeck <wim@iguana.be>,
+        Tue, 14 Mar 2017 11:40:12 -0400
+Subject: Re: [PATCH v2 4/6] bus: add driver for the Technologic Systems NBUS
+To: Linus Walleij <linus.walleij@linaro.org>
+References: <20170203194729.20995-1-sebastien.bourdelin@savoirfairelinux.com>
+ <20170203194729.20995-5-sebastien.bourdelin@savoirfairelinux.com>
+ <CACRpkdYfGmVBYgAc4KZGN6634WM_EyzNj_SBbALEs4WYipXRQA@mail.gmail.com>
+ <82dfdbb8-58fc-45b4-685c-98be11341e45@savoirfairelinux.com>
+ <CACRpkdbjANV+kiO_W9+=OL=fzPtTVwH2CpWDmNa50t3JaHTFkQ@mail.gmail.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        linux-watchdog@vger.kernel.org,
+        "linux-arm-kernel@lists.infradead.org"
+        <linux-arm-kernel@lists.infradead.org>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        kernel <kernel@savoirfairelinux.com>,
+        Rob Herring <robh@kernel.org>,
         Guenter Roeck <linux@roeck-us.net>,
-        Rob Herring <robh+dt@kernel.org>,
-        Kukjin Kim <kgene@kernel.org>,
-        Javier Martinez Canillas <javier@osg.samsung.com>,
-        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-samsung-soc@vger.kernel.org
-Subject: Re: [PATCH v2 3/8] ARM: dts: exynos: Fix watchdog reset on Exynos4412
-Date: Tue, 14 Mar 2017 14:45 +0100
-Message-id: <1510739.WtREN49XT5@amdc3058>
-In-reply-to: <CAJKOXPcoP7c=TTFtWqBLMXT0BS_yi3fpu8X3q4sxCTM9m=mPmw@mail.gmail.com>
-MIME-version: 1.0
-Content-transfer-encoding: 7Bit
-Content-type: text/plain; charset=us-ascii
-References: <20170311172527.16368-1-krzk@kernel.org>
- <6788694.7QfyuOlrPv@amdc3058>
- <CAJKOXPcoP7c=TTFtWqBLMXT0BS_yi3fpu8X3q4sxCTM9m=mPmw@mail.gmail.com>
- <CGME20170314134503epcas1p178241245d202edf9f3ea5885c605ffb6@epcas1p1.samsung.com>
+        Fabio Estevam <fabio.estevam@nxp.com>,
+        Mark Featherston <mark@embeddedarm.com>, kris@embeddedarm.com,
+        Simon Horman <horms+renesas@verge.net.au>,
+        Thierry Reding <treding@nvidia.com>,
+        Jon Hunter <jonathanh@nvidia.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Sascha Hauer <kernel@pengutronix.de>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Russell King <linux@armlinux.org.uk>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Mark Rutland <mark.rutland@arm.com>,
+        damien.riegel@savoirfairelinux.com,
+        Lucile Quirion <lucile.quirion@savoirfairelinux.com>,
+        Olof Johansson <olof@lixom.net>, Arnd Bergmann <arnd@arndb.de>,
+        "Suzuki K. Poulose" <suzuki.poulose@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>
+From: Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>
+Message-ID: <07e0e4b2-36a5-a37e-ea04-d05158d11fba@savoirfairelinux.com>
+Date: Tue, 14 Mar 2017 11:40:08 -0400
+MIME-Version: 1.0
+In-Reply-To: <CACRpkdbjANV+kiO_W9+=OL=fzPtTVwH2CpWDmNa50t3JaHTFkQ@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tuesday, March 14, 2017 03:09:25 PM Krzysztof Kozlowski wrote:
-> On Tue, Mar 14, 2017 at 3:03 PM, Bartlomiej Zolnierkiewicz
-> <b.zolnierkie@samsung.com> wrote:
-> >
-> > Hi,
-> >
-> > On Saturday, March 11, 2017 07:25:22 PM Krzysztof Kozlowski wrote:
-> >> The Exynos4412 has the same watchdog as newer SoCs (e.g. Exynos5250).
-> >> Just like the others, for working it requires additional steps in Power
-> >> Management Unit: unmasking the reset request and enabling the system
-> >> reset.  Without these additional steps in PMU, the watchdog will not be
-> >> able to reset the system on expiration event.
-> >>
-> >> Change the compatible of Exynos4412 watchdog device node to
-> >> samsung,exynos5250-wdt which includes the additional PMU steps.
-> >
-> > This is going to confuse people.  How's about doing it cleanly
-> > (by adding samsung,exynos4412-wdt compatible and convert existing
-> > users to use instead)?
-> 
-> I don't find usage of 5250 in Exynos4412 DTS as confusing because
-> since long time I do not threat these numbers as having any meaning
-> (e.g. 3250 is newer...). Yes, we can duplicate the compatible for that
-> purpose. Care to send a patch for this?
+Hi Linus,
 
-I don't buy this argument. The point is not in the number itself
-but in the fact that you as developer know than 3250 is newer than
-4412 (the same way as you know that 5250 is also newer than 4412).
-This convention is used for all Exynos bindings so please don't
-break it.
+On 03/14/2017 09:23 AM, Linus Walleij wrote:
+> On Wed, Feb 22, 2017 at 5:56 PM, Sebastien Bourdelin
+> <sebastien.bourdelin@savoirfairelinux.com> wrote:
+>> On 02/04/2017 05:14 AM, Linus Walleij wrote:
+> 
+>>>> +       gpiod_set_array_value_cansleep(gpios->ndescs, gpios->desc, values);
+>>>
+>>> This can also fail and you should check the return code and print an error
+>>> message if it does.
+>>>
+>> As far as i understood, the "gpiod_set_array_value_cansleep(...)"
+>> function doesn't return
+>> anything, it will return immediately if gpios->desc is null but nothing
+>> else.
+>> Did i miss something?
+> 
+> No I did, sorry about that.
+> 
+> We *should* make these functions return errors but currently they do not.
+> 
+Ok got it.
+Thanks!
+
+>>> Error codes?
+>>>
+>> Same question here, these functions only make call to
+>> "gpiod_set_value_cansleep(...)",
+>> which as far as i understood doesn't return any error code.
+> 
+> Yeah, forget that.
+> 
+Ok.
+
+>>>> +               gpiod_set_value_cansleep(ts_nbus->csn, 1);
+>>>
+>>> Here too.
+>>>
+>> Same question, doesn't seem to have an error code.
+> 
+> That too.
+>
+Ok.
+
+> Yours,
+> Linus Walleij
+> 
 
 Best regards,
---
-Bartlomiej Zolnierkiewicz
-Samsung R&D Institute Poland
-Samsung Electronics
-
+Sebastien Bourdelin.
