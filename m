@@ -1,84 +1,66 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-io0-f181.google.com ([209.85.223.181]:33668 "EHLO
-        mail-io0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750861AbdCNNX7 (ORCPT
+Received: from mailout3.samsung.com ([203.254.224.33]:60082 "EHLO
+        mailout3.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751258AbdCNNap (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 14 Mar 2017 09:23:59 -0400
-Received: by mail-io0-f181.google.com with SMTP id f84so102819390ioj.0
-        for <linux-watchdog@vger.kernel.org>; Tue, 14 Mar 2017 06:23:58 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <82dfdbb8-58fc-45b4-685c-98be11341e45@savoirfairelinux.com>
-References: <20170203194729.20995-1-sebastien.bourdelin@savoirfairelinux.com>
- <20170203194729.20995-5-sebastien.bourdelin@savoirfairelinux.com>
- <CACRpkdYfGmVBYgAc4KZGN6634WM_EyzNj_SBbALEs4WYipXRQA@mail.gmail.com> <82dfdbb8-58fc-45b4-685c-98be11341e45@savoirfairelinux.com>
-From: Linus Walleij <linus.walleij@linaro.org>
-Date: Tue, 14 Mar 2017 14:23:57 +0100
-Message-ID: <CACRpkdbjANV+kiO_W9+=OL=fzPtTVwH2CpWDmNa50t3JaHTFkQ@mail.gmail.com>
-Subject: Re: [PATCH v2 4/6] bus: add driver for the Technologic Systems NBUS
-To: Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        linux-watchdog@vger.kernel.org,
-        "linux-arm-kernel@lists.infradead.org"
-        <linux-arm-kernel@lists.infradead.org>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        kernel <kernel@savoirfairelinux.com>,
-        Rob Herring <robh@kernel.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Fabio Estevam <fabio.estevam@nxp.com>,
-        Mark Featherston <mark@embeddedarm.com>, kris@embeddedarm.com,
-        Simon Horman <horms+renesas@verge.net.au>,
-        Thierry Reding <treding@nvidia.com>,
-        Jon Hunter <jonathanh@nvidia.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Sascha Hauer <kernel@pengutronix.de>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Russell King <linux@armlinux.org.uk>,
+        Tue, 14 Mar 2017 09:30:45 -0400
+From: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+To: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: linux-arm-kernel@lists.infradead.org,
         Wim Van Sebroeck <wim@iguana.be>,
-        Mark Rutland <mark.rutland@arm.com>,
-        damien.riegel@savoirfairelinux.com,
-        Lucile Quirion <lucile.quirion@savoirfairelinux.com>,
-        Olof Johansson <olof@lixom.net>, Arnd Bergmann <arnd@arndb.de>,
-        "Suzuki K. Poulose" <suzuki.poulose@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>
-Content-Type: text/plain; charset=UTF-8
+        Guenter Roeck <linux@roeck-us.net>,
+        Rob Herring <robh+dt@kernel.org>,
+        Kukjin Kim <kgene@kernel.org>,
+        Javier Martinez Canillas <javier@osg.samsung.com>,
+        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org
+Subject: Re: [PATCH v2 4/8] ARM: dts: s3c64xx: Enable watchdog on all S3C64xx
+ boards
+Date: Tue, 14 Mar 2017 14:30:29 +0100
+Message-id: <1633762.1QWnRjdako@amdc3058>
+In-reply-to: <CAJKOXPeCK1cjY78+PfcTprTnyXJ1k9zcUj8nW7onG8y0TWGzzQ@mail.gmail.com>
+MIME-version: 1.0
+Content-transfer-encoding: 7Bit
+Content-type: text/plain; charset=us-ascii
+References: <20170311172527.16368-1-krzk@kernel.org>
+ <4386279.iJpUOasmTG@amdc3058>
+ <CAJKOXPeCK1cjY78+PfcTprTnyXJ1k9zcUj8nW7onG8y0TWGzzQ@mail.gmail.com>
+ <CGME20170314133035epcas1p47a04430402688bbb6baebad69b8e5b24@epcas1p4.samsung.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Feb 22, 2017 at 5:56 PM, Sebastien Bourdelin
-<sebastien.bourdelin@savoirfairelinux.com> wrote:
-> On 02/04/2017 05:14 AM, Linus Walleij wrote:
+On Tuesday, March 14, 2017 03:04:28 PM Krzysztof Kozlowski wrote:
+> On Tue, Mar 14, 2017 at 2:58 PM, Bartlomiej Zolnierkiewicz
+> <b.zolnierkie@samsung.com> wrote:
+> >
+> > Hi,
+> >
+> > On Saturday, March 11, 2017 07:25:23 PM Krzysztof Kozlowski wrote:
+> >> Watchdog module does not have external dependencies so it can be safely
+> >> enabled in s3c64xx.dtsi thus making it available for all S3C64xx-based
+> >> boards.
+> >>
+> >> Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+> >
+> > Please first fix the driver w.r.t. infinite interrupt in soft mode
+> > issue and only then enable it on more hardware.  IOW this patch
+> > should be placed after patch #7 in the series.
+> 
+> The soft-interrupt mode is not the default one so this should not
+> cause any issues by default but I got your point. Makes sense. The
+> pity is the timing. There wasn't much interest in the patchset (no
+> comments since 24 of Feb) so I merged it yesterday evening. Does it
+> brake any platform/board?
 
->>> +       gpiod_set_array_value_cansleep(gpios->ndescs, gpios->desc, values);
->>
->> This can also fail and you should check the return code and print an error
->> message if it does.
->>
-> As far as i understood, the "gpiod_set_array_value_cansleep(...)"
-> function doesn't return
-> anything, it will return immediately if gpios->desc is null but nothing
-> else.
-> Did i miss something?
+OK, let it be as it as it doesn't break the default setup.
 
-No I did, sorry about that.
+However please consider the fact that posting revised patches
+(v2 was posted *yesterday*) for a review and then merging them
+the same day is not a good practice..
 
-We *should* make these functions return errors but currently they do not.
+Best regards,
+--
+Bartlomiej Zolnierkiewicz
+Samsung R&D Institute Poland
+Samsung Electronics
 
->> Error codes?
->>
-> Same question here, these functions only make call to
-> "gpiod_set_value_cansleep(...)",
-> which as far as i understood doesn't return any error code.
-
-Yeah, forget that.
-
->>> +               gpiod_set_value_cansleep(ts_nbus->csn, 1);
->>
->> Here too.
->>
-> Same question, doesn't seem to have an error code.
-
-That too.
-
-Yours,
-Linus Walleij
