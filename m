@@ -1,49 +1,84 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ot0-f193.google.com ([74.125.82.193]:33754 "EHLO
-        mail-ot0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750849AbdCNMJS (ORCPT
+Received: from mail-io0-f181.google.com ([209.85.223.181]:33668 "EHLO
+        mail-io0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750861AbdCNNX7 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 14 Mar 2017 08:09:18 -0400
+        Tue, 14 Mar 2017 09:23:59 -0400
+Received: by mail-io0-f181.google.com with SMTP id f84so102819390ioj.0
+        for <linux-watchdog@vger.kernel.org>; Tue, 14 Mar 2017 06:23:58 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20170314111449.m4kejht32bdejxfk@dell>
-References: <20170228210123.3404816-1-arnd@arndb.de> <20170228210123.3404816-3-arnd@arndb.de>
- <20170314111449.m4kejht32bdejxfk@dell>
-From: Arnd Bergmann <arnd@arndb.de>
-Date: Tue, 14 Mar 2017 13:09:17 +0100
-Message-ID: <CAK8P3a11maAoSYXPuTLwNsdc+aut4Lo71una7rZyMRdH23sFZw@mail.gmail.com>
-Subject: Re: [PATCH 2/8] mfd: db8500-prcmu: fix stub helper interface
-To: Lee Jones <lee.jones@linaro.org>
-Cc: Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@iguana.be>,
+In-Reply-To: <82dfdbb8-58fc-45b4-685c-98be11341e45@savoirfairelinux.com>
+References: <20170203194729.20995-1-sebastien.bourdelin@savoirfairelinux.com>
+ <20170203194729.20995-5-sebastien.bourdelin@savoirfairelinux.com>
+ <CACRpkdYfGmVBYgAc4KZGN6634WM_EyzNj_SBbALEs4WYipXRQA@mail.gmail.com> <82dfdbb8-58fc-45b4-685c-98be11341e45@savoirfairelinux.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Date: Tue, 14 Mar 2017 14:23:57 +0100
+Message-ID: <CACRpkdbjANV+kiO_W9+=OL=fzPtTVwH2CpWDmNa50t3JaHTFkQ@mail.gmail.com>
+Subject: Re: [PATCH v2 4/6] bus: add driver for the Technologic Systems NBUS
+To: Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
         linux-watchdog@vger.kernel.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+        "linux-arm-kernel@lists.infradead.org"
+        <linux-arm-kernel@lists.infradead.org>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        kernel <kernel@savoirfairelinux.com>,
+        Rob Herring <robh@kernel.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Fabio Estevam <fabio.estevam@nxp.com>,
+        Mark Featherston <mark@embeddedarm.com>, kris@embeddedarm.com,
+        Simon Horman <horms+renesas@verge.net.au>,
+        Thierry Reding <treding@nvidia.com>,
+        Jon Hunter <jonathanh@nvidia.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Sascha Hauer <kernel@pengutronix.de>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Russell King <linux@armlinux.org.uk>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Mark Rutland <mark.rutland@arm.com>,
+        damien.riegel@savoirfairelinux.com,
+        Lucile Quirion <lucile.quirion@savoirfairelinux.com>,
+        Olof Johansson <olof@lixom.net>, Arnd Bergmann <arnd@arndb.de>,
+        "Suzuki K. Poulose" <suzuki.poulose@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>
 Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, Mar 14, 2017 at 12:14 PM, Lee Jones <lee.jones@linaro.org> wrote:
-> On Tue, 28 Feb 2017, Arnd Bergmann wrote:
->
->> When the db8500 watchdog is enabled without the PRCMU, we get a lot of
->> warnings about duplicate or missing helper functions:
->>
->> In file included from drivers/watchdog/ux500_wdt.c:21:0:
->> include/linux/mfd/dbx500-prcmu.h:422:19: error: redefinition of 'prcmu_abb_read'
->>  static inline int prcmu_abb_read(u8 slave, u8 reg, u8 *value, u8 size)
->>
->> This removes the duplicate function definitions and moves the helpers in
->> dbx500-prcmu outside of the #ifdef that hides them.
->>
->> Fixes: da2a68b3eb47 ("watchdog: Enable COMPILE_TEST where possible")
->> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
->> ---
->>  include/linux/mfd/db8500-prcmu.h | 27 ----------------------
->>  include/linux/mfd/dbx500-prcmu.h | 49 ++++++++++++++++++++--------------------
->>  2 files changed, 25 insertions(+), 51 deletions(-)
->
-> Is this patch still valid?
+On Wed, Feb 22, 2017 at 5:56 PM, Sebastien Bourdelin
+<sebastien.bourdelin@savoirfairelinux.com> wrote:
+> On 02/04/2017 05:14 AM, Linus Walleij wrote:
 
-Yes. The build error was resolved with a different patch, but this is
-still a useful cleanup.
+>>> +       gpiod_set_array_value_cansleep(gpios->ndescs, gpios->desc, values);
+>>
+>> This can also fail and you should check the return code and print an error
+>> message if it does.
+>>
+> As far as i understood, the "gpiod_set_array_value_cansleep(...)"
+> function doesn't return
+> anything, it will return immediately if gpios->desc is null but nothing
+> else.
+> Did i miss something?
 
-    Arnd
+No I did, sorry about that.
+
+We *should* make these functions return errors but currently they do not.
+
+>> Error codes?
+>>
+> Same question here, these functions only make call to
+> "gpiod_set_value_cansleep(...)",
+> which as far as i understood doesn't return any error code.
+
+Yeah, forget that.
+
+>>> +               gpiod_set_value_cansleep(ts_nbus->csn, 1);
+>>
+>> Here too.
+>>
+> Same question, doesn't seem to have an error code.
+
+That too.
+
+Yours,
+Linus Walleij
