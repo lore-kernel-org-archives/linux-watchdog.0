@@ -6,30 +6,31 @@ Cc: Kukjin Kim <kgene@kernel.org>,
  Wim Van Sebroeck <wim@iguana.be>, Guenter Roeck <linux@roeck-us.net>,
  linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org,
  linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 2/3] watchdog: s3c2410: Simplify getting driver data
-Date: Tue, 14 Mar 2017 14:17:06 +0100
-Message-id: <2568764.DQnxL2m83S@amdc3058>
-In-reply-to: <20170313190726.2988-3-krzk@kernel.org>
+Subject: Re: [PATCH v3 3/3] watchdog: s3c2410: Minor code cleanup
+Date: Tue, 14 Mar 2017 14:20:21 +0100
+Message-id: <1563377.9eIcBQftln@amdc3058>
+In-reply-to: <20170313190726.2988-4-krzk@kernel.org>
 MIME-version: 1.0
 Content-transfer-encoding: 7Bit
 Content-type: text/plain; charset=us-ascii
 References: <20170313190726.2988-1-krzk@kernel.org>
- <20170313190726.2988-3-krzk@kernel.org>
- <CGME20170314131709epcas5p4e150e0df2a04a3369edf61b2075e2e8f@epcas5p4.samsung.com>
+ <20170313190726.2988-4-krzk@kernel.org>
+ <CGME20170314132022epcas1p26da7dbe4da6d77ebfc1a8e045ee370de@epcas1p2.samsung.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-
-Hi,
-
-On Monday, March 13, 2017 09:07:25 PM Krzysztof Kozlowski wrote:
-> Simplify the flow in helper function for getting the driver data by
-> using of_device_get_match_data() and only one if() branch.
+On Monday, March 13, 2017 09:07:26 PM Krzysztof Kozlowski wrote:
+> Cleanup the code from minor readability issues (no functional changes):
+> 1. Fix checkpatch: ERROR: Do not include the paragraph about writing to
+>    the Free Software Foundation's mailing address.
+> 2. Fix checkpatch: WARNING: quoted string split across lines
+> 3. Fix chechpatch: WARNING: Prefer 'unsigned int' to bare use of
+>    'unsigned'
+> 4. Use 'dev' consistently in probe function instead of mixing dev with
+>    &pdev->dev.
 > 
-> The code should be equivalent.
+> Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 
-While you are at it could you remove s3c2410_get_wdt_drv_data()
-helper?  It is used only once during probe and is marked inline
-anyway..
+Reviewed-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
 
 Best regards,
 --
