@@ -1,99 +1,76 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.savoirfairelinux.com ([208.88.110.44]:53182 "EHLO
-        mail.savoirfairelinux.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750848AbdCNPkM (ORCPT
+Received: from mail-wr0-f178.google.com ([209.85.128.178]:35758 "EHLO
+        mail-wr0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751878AbdCOK1F (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 14 Mar 2017 11:40:12 -0400
-Subject: Re: [PATCH v2 4/6] bus: add driver for the Technologic Systems NBUS
-To: Linus Walleij <linus.walleij@linaro.org>
-References: <20170203194729.20995-1-sebastien.bourdelin@savoirfairelinux.com>
- <20170203194729.20995-5-sebastien.bourdelin@savoirfairelinux.com>
- <CACRpkdYfGmVBYgAc4KZGN6634WM_EyzNj_SBbALEs4WYipXRQA@mail.gmail.com>
- <82dfdbb8-58fc-45b4-685c-98be11341e45@savoirfairelinux.com>
- <CACRpkdbjANV+kiO_W9+=OL=fzPtTVwH2CpWDmNa50t3JaHTFkQ@mail.gmail.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        linux-watchdog@vger.kernel.org,
-        "linux-arm-kernel@lists.infradead.org"
-        <linux-arm-kernel@lists.infradead.org>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        kernel <kernel@savoirfairelinux.com>,
-        Rob Herring <robh@kernel.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Fabio Estevam <fabio.estevam@nxp.com>,
-        Mark Featherston <mark@embeddedarm.com>, kris@embeddedarm.com,
-        Simon Horman <horms+renesas@verge.net.au>,
-        Thierry Reding <treding@nvidia.com>,
-        Jon Hunter <jonathanh@nvidia.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Sascha Hauer <kernel@pengutronix.de>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Russell King <linux@armlinux.org.uk>,
+        Wed, 15 Mar 2017 06:27:05 -0400
+Received: by mail-wr0-f178.google.com with SMTP id g10so7782894wrg.2
+        for <linux-watchdog@vger.kernel.org>; Wed, 15 Mar 2017 03:27:04 -0700 (PDT)
+Date: Wed, 15 Mar 2017 10:27:01 +0000
+From: Lee Jones <lee.jones@linaro.org>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Guenter Roeck <linux@roeck-us.net>,
         Wim Van Sebroeck <wim@iguana.be>,
-        Mark Rutland <mark.rutland@arm.com>,
-        damien.riegel@savoirfairelinux.com,
-        Lucile Quirion <lucile.quirion@savoirfairelinux.com>,
-        Olof Johansson <olof@lixom.net>, Arnd Bergmann <arnd@arndb.de>,
-        "Suzuki K. Poulose" <suzuki.poulose@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>
-From: Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>
-Message-ID: <07e0e4b2-36a5-a37e-ea04-d05158d11fba@savoirfairelinux.com>
-Date: Tue, 14 Mar 2017 11:40:08 -0400
+        linux-watchdog@vger.kernel.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2/8] mfd: db8500-prcmu: fix stub helper interface
+Message-ID: <20170315102701.ugauplmckezcj7rc@dell>
+References: <20170228210123.3404816-1-arnd@arndb.de>
+ <20170228210123.3404816-3-arnd@arndb.de>
+ <20170314111449.m4kejht32bdejxfk@dell>
+ <CAK8P3a11maAoSYXPuTLwNsdc+aut4Lo71una7rZyMRdH23sFZw@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <CACRpkdbjANV+kiO_W9+=OL=fzPtTVwH2CpWDmNa50t3JaHTFkQ@mail.gmail.com>
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <CAK8P3a11maAoSYXPuTLwNsdc+aut4Lo71una7rZyMRdH23sFZw@mail.gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
 
-Hi Linus,
+On Tue, 14 Mar 2017, Arnd Bergmann wrote:
 
-On 03/14/2017 09:23 AM, Linus Walleij wrote:
-> On Wed, Feb 22, 2017 at 5:56 PM, Sebastien Bourdelin
-> <sebastien.bourdelin@savoirfairelinux.com> wrote:
->> On 02/04/2017 05:14 AM, Linus Walleij wrote:
-> 
->>>> +       gpiod_set_array_value_cansleep(gpios->ndescs, gpios->desc, values);
->>>
->>> This can also fail and you should check the return code and print an error
->>> message if it does.
->>>
->> As far as i understood, the "gpiod_set_array_value_cansleep(...)"
->> function doesn't return
->> anything, it will return immediately if gpios->desc is null but nothing
->> else.
->> Did i miss something?
-> 
-> No I did, sorry about that.
-> 
-> We *should* make these functions return errors but currently they do not.
-> 
-Ok got it.
-Thanks!
+> On Tue, Mar 14, 2017 at 12:14 PM, Lee Jones <lee.jones@linaro.org> wrot=
+e:
+> > On Tue, 28 Feb 2017, Arnd Bergmann wrote:
+> >
+> >> When the db8500 watchdog is enabled without the PRCMU, we get a lot =
+of
+> >> warnings about duplicate or missing helper functions:
+> >>
+> >> In file included from drivers/watchdog/ux500_wdt.c:21:0:
+> >> include/linux/mfd/dbx500-prcmu.h:422:19: error: redefinition of 'prc=
+mu_abb_read'
+> >>  static inline int prcmu_abb_read(u8 slave, u8 reg, u8 *value, u8 si=
+ze)
+> >>
+> >> This removes the duplicate function definitions and moves the helper=
+s in
+> >> dbx500-prcmu outside of the #ifdef that hides them.
+> >>
+> >> Fixes: da2a68b3eb47 ("watchdog: Enable COMPILE_TEST where possible")
+> >> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> >> ---
+> >>  include/linux/mfd/db8500-prcmu.h | 27 ----------------------
+> >>  include/linux/mfd/dbx500-prcmu.h | 49 ++++++++++++++++++++---------=
+-----------
+> >>  2 files changed, 25 insertions(+), 51 deletions(-)
+> >
+> > Is this patch still valid?
+>=20
+> Yes. The build error was resolved with a different patch, but this is
+> still a useful cleanup.
 
->>> Error codes?
->>>
->> Same question here, these functions only make call to
->> "gpiod_set_value_cansleep(...)",
->> which as far as i understood doesn't return any error code.
-> 
-> Yeah, forget that.
-> 
-Ok.
+Okay, so at least it needs LinusW's Ack.
 
->>>> +               gpiod_set_value_cansleep(ts_nbus->csn, 1);
->>>
->>> Here too.
->>>
->> Same question, doesn't seem to have an error code.
-> 
-> That too.
->
-Ok.
+Once obtained can I take this independently from the rest of the set?=20
 
-> Yours,
-> Linus Walleij
-> 
-
-Best regards,
-Sebastien Bourdelin.
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
