@@ -1,84 +1,95 @@
-Return-path: <rajneesh.bhardwaj@intel.com>
-Date: Fri, 17 Mar 2017 17:13:13 +0530
-From: Rajneesh Bhardwaj <rajneesh.bhardwaj@intel.com>
-To: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
-Cc: andy@infradead.org, qipeng.zha@intel.com, dvhart@infradead.org,
-	david.e.box@linux.intel.com, platform-driver-x86@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux@roeck-us.net,
-	linux-watchdog@vger.kernel.org, wim@iguana.be
-Subject: Re: [PATCH v2 3/4] watchdog: iTCO_wdt: Fix PMC GCR memory mapping
- failure
-Message-ID: <20170317114313.GE24582@rajaneesh-OptiPlex-9010>
-References: <b89221c652d06c3c07fdf2ec32fd4fc8930c64df.1489710235.git.sathyanarayanan.kuppuswamy@linux.intel.com>
- <2c41b3b6344f9cb455ac57e1e41aa229adb2867d.1489710235.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:45203 "EHLO
+        metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1751384AbdCPJeU (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Thu, 16 Mar 2017 05:34:20 -0400
+Date: Thu, 16 Mar 2017 10:34:17 +0100
+From: Michael Tretter <m.tretter@pengutronix.de>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: linux-watchdog@vger.kernel.org, support.opensource@diasemi.com,
+        wim@iguana.be, p.zabel@pengutronix.de, kernel@pengutronix.de
+Subject: Re: [PATCH] watchdog: da9063: Disable watchdog before changing
+ timeout
+Message-ID: <20170316103417.17abac1d@litschi.hi.pengutronix.de>
+In-Reply-To: <20170315185446.GA5479@roeck-us.net>
+References: <20170315181701.28430-1-m.tretter@pengutronix.de>
+        <20170315185446.GA5479@roeck-us.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <2c41b3b6344f9cb455ac57e1e41aa229adb2867d.1489710235.git.sathyanarayanan.kuppuswamy@linux.intel.com>
-List-ID: <linux-watchdog@vger.kernel.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-On Thu, Mar 16, 2017 at 05:41:35PM -0700, Kuppuswamy Sathyanarayanan wrote:
-> Currently, iTCO watchdog driver uses memory map to access
-> PMC_CFG GCR register. But the entire GCR address space is
-> already mapped in intel_scu_ipc driver. So remapping the
-
-intel_pmc_ipc driver.
-
-> GCR register in this driver causes the mem request failure in
-> iTCO_wdt probe function. This patch fixes this issue by
-> using PMC GCR read/write API's to access PMC_CFG register.
+On Wed, 15 Mar 2017 11:54:46 -0700, Guenter Roeck wrote:
+> On Wed, Mar 15, 2017 at 07:17:01PM +0100, Michael Tretter wrote:
+> > The DA9063 watchdog always resets the system when systemd changes
+> > the timeout value after Barebox already set a timeout value.
+> > 
+> > If the watchdog is disabled before setting a new timeout, the
+> > system is not reset and the watchdog is still enabled.
+> > 
+> > This patch is based on a previous patch by Philipp Zabel [1], but
+> > does not wait for 150 us, because the DA9063 does not require a
+> > delay after disabling the watchdog.
+> > 
+> > [1] https://www.spinics.net/lists/linux-watchdog/msg07143.html
+> > 
+> > Signed-off-by: Michael Tretter <m.tretter@pengutronix.de>
+> > ---
+> >  drivers/watchdog/da9063_wdt.c | 15 +++++++++++++--
+> >  1 file changed, 13 insertions(+), 2 deletions(-)
+> > 
+> > diff --git a/drivers/watchdog/da9063_wdt.c
+> > b/drivers/watchdog/da9063_wdt.c index 4691c5509129..fcdc12d14d03
+> > 100644 --- a/drivers/watchdog/da9063_wdt.c
+> > +++ b/drivers/watchdog/da9063_wdt.c
+> > @@ -55,8 +55,19 @@ static unsigned int
+> > da9063_wdt_timeout_to_sel(unsigned int secs) 
+> >  static int _da9063_wdt_set_timeout(struct da9063 *da9063, unsigned
+> > int regval) {
+> > -	return regmap_update_bits(da9063->regmap,
+> > DA9063_REG_CONTROL_D,
+> > -				  DA9063_TWDSCALE_MASK, regval);
+> > +	int ret;
+> > +
+> > +	ret = regmap_update_bits(da9063->regmap,
+> > DA9063_REG_CONTROL_D,
+> > +			         DA9063_TWDSCALE_MASK,
+> > DA9063_TWDSCALE_DISABLE);
+> > +	if (ret)
+> > +		dev_warn(da9063->dev,
+> > +			 "Failed to disable watchdog before
+> > setting new timeout\n"); +
+> > +	if (regval)
 > 
-> Signed-off-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
-> ---
->  drivers/watchdog/iTCO_wdt.c | 31 +++++++------------------------
->  1 file changed, 7 insertions(+), 24 deletions(-)
+> Why this if() ? Even if needed (and I think it isn't), this would be
+> an unrelated change.
+
+I added the if() to avoid a duplicate disable, if regval is
+DA9063_TWDSCALE_DISABLE. The duplication is a direct consequence
+of the overall patch and therefore related. However, it's not really
+needed, because _da9063_wdt_set_timeout() is never called with a
+timeout 0.
+
+> On a side note, unless I am missing something,
+> da9063_wdt_set_timeout() unconditionally enables the watchdog as a
+> side effect. It should not do that.
+
+What would be the correct behavior? Caching the timeout value and only
+enabling the watchdog when da9063_wdt_start() is called?
+
+Michael
+
+> > +		ret = regmap_update_bits(da9063->regmap,
+> > DA9063_REG_CONTROL_D,
+> > +				DA9063_TWDSCALE_MASK, regval);
+> > +
+> > +	return ret;
+> >  }
+> >  
+> >  static int da9063_wdt_start(struct watchdog_device *wdd)
+> > -- 
+> > 2.11.0
+> > 
 > 
-> diff --git a/drivers/watchdog/iTCO_wdt.c b/drivers/watchdog/iTCO_wdt.c
-> index 3d0abc0..31abfc5 100644
-> --- a/drivers/watchdog/iTCO_wdt.c
-> +++ b/drivers/watchdog/iTCO_wdt.c
-> @@ -68,6 +68,8 @@
->  #include <linux/io.h>			/* For inb/outb/... */
->  #include <linux/platform_data/itco_wdt.h>
->  
-> +#include <asm/intel_pmc_ipc.h>
-> +
->  #include "iTCO_vendor.h"
->  
->  /* Address definitions for the TCO */
-> @@ -94,12 +96,6 @@ struct iTCO_wdt_private {
->  	unsigned int iTCO_version;
->  	struct resource *tco_res;
->  	struct resource *smi_res;
-> -	/*
-> -	 * NO_REBOOT flag is Memory-Mapped GCS register bit 5 (TCO version 2),
-> -	 * or memory-mapped PMC register bit 4 (TCO version 3).
-> -	 */
-
-Better to retain this comment elsewhere.
-
-> -	struct resource *gcs_pmc_res;
-> -	unsigned long __iomem *gcs_pmc;
->  	/* the lock for io operations */
->  	spinlock_t io_lock;
->  	/* the PCI-device */
-> @@ -176,9 +172,9 @@ static void iTCO_wdt_set_NO_REBOOT_bit(struct iTCO_wdt_private *p)
->  
->  	/* Set the NO_REBOOT bit: this disables reboots */
->  	if (p->iTCO_version >= 2) {
-> -		val32 = readl(p->gcs_pmc);
-> +		val32 = intel_pmc_gcr_read(PMC_GCR_PMC_CFG_REG);
-
-better to have protection and error handling, discussed in v2, 2/4.
-
-compiled and tested this on APL and i see iTCO_WDT driver loads fine. Since
-it impacts core WDT functionality, need to be thoroughly tested on various
-platforms.
-
-> -- 
-> 2.7.4
-> 
-
--- 
-Best Regards,
-Rajneesh
