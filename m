@@ -1,115 +1,80 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mga01.intel.com ([192.55.52.88]:25449 "EHLO mga01.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751047AbdCQOH1 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 17 Mar 2017 10:07:27 -0400
-Date: Fri, 17 Mar 2017 19:35:25 +0530
-From: Rajneesh Bhardwaj <rajneesh.bhardwaj@intel.com>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Kuppuswamy Sathyanarayanan
-        <sathyanarayanan.kuppuswamy@linux.intel.com>, andy@infradead.org,
-        qipeng.zha@intel.com, dvhart@infradead.org,
-        david.e.box@linux.intel.com, platform-driver-x86@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        wim@iguana.be, shanth.murthy@intel.com
-Subject: Re: [PATCH v2 3/4] watchdog: iTCO_wdt: Fix PMC GCR memory mapping
- failure
-Message-ID: <20170317140525.GA25658@rajaneesh-OptiPlex-9010>
+Received: from mail-qt0-f194.google.com ([209.85.216.194]:35842 "EHLO
+        mail-qt0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751057AbdCQOZa (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 17 Mar 2017 10:25:30 -0400
+MIME-Version: 1.0
+In-Reply-To: <0a68f91f-e396-90aa-8337-cad3aa28a0f7@roeck-us.net>
 References: <b89221c652d06c3c07fdf2ec32fd4fc8930c64df.1489710235.git.sathyanarayanan.kuppuswamy@linux.intel.com>
  <2c41b3b6344f9cb455ac57e1e41aa229adb2867d.1489710235.git.sathyanarayanan.kuppuswamy@linux.intel.com>
- <20170317114313.GE24582@rajaneesh-OptiPlex-9010>
- <0a68f91f-e396-90aa-8337-cad3aa28a0f7@roeck-us.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <0a68f91f-e396-90aa-8337-cad3aa28a0f7@roeck-us.net>
+ <20170317114313.GE24582@rajaneesh-OptiPlex-9010> <0a68f91f-e396-90aa-8337-cad3aa28a0f7@roeck-us.net>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Date: Fri, 17 Mar 2017 16:25:28 +0200
+Message-ID: <CAHp75VdyW-kH2nzk63_A=XD62ftrMbSfbec9nBiKbexpP+9zkg@mail.gmail.com>
+Subject: Re: [PATCH v2 3/4] watchdog: iTCO_wdt: Fix PMC GCR memory mapping failure
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Rajneesh Bhardwaj <rajneesh.bhardwaj@intel.com>,
+        Kuppuswamy Sathyanarayanan
+        <sathyanarayanan.kuppuswamy@linux.intel.com>,
+        Andy Shevchenko <andy@infradead.org>,
+        Zha Qipeng <qipeng.zha@intel.com>,
+        "dvhart@infradead.org" <dvhart@infradead.org>,
+        David Box <david.e.box@linux.intel.com>,
+        Platform Driver <platform-driver-x86@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, Mar 17, 2017 at 06:40:22AM -0700, Guenter Roeck wrote:
+On Fri, Mar 17, 2017 at 3:40 PM, Guenter Roeck <linux@roeck-us.net> wrote:
 > On 03/17/2017 04:43 AM, Rajneesh Bhardwaj wrote:
-> >On Thu, Mar 16, 2017 at 05:41:35PM -0700, Kuppuswamy Sathyanarayanan wrote:
-> >>Currently, iTCO watchdog driver uses memory map to access
-> >>PMC_CFG GCR register. But the entire GCR address space is
-> >>already mapped in intel_scu_ipc driver. So remapping the
-> >
-> >intel_pmc_ipc driver.
-> >
-> >>GCR register in this driver causes the mem request failure in
-> >>iTCO_wdt probe function. This patch fixes this issue by
-> >>using PMC GCR read/write API's to access PMC_CFG register.
-> >>
-> >>Signed-off-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
-> >>---
-> >> drivers/watchdog/iTCO_wdt.c | 31 +++++++------------------------
-> >> 1 file changed, 7 insertions(+), 24 deletions(-)
-> >>
-> >>diff --git a/drivers/watchdog/iTCO_wdt.c b/drivers/watchdog/iTCO_wdt.c
-> >>index 3d0abc0..31abfc5 100644
-> >>--- a/drivers/watchdog/iTCO_wdt.c
-> >>+++ b/drivers/watchdog/iTCO_wdt.c
-> >>@@ -68,6 +68,8 @@
-> >> #include <linux/io.h>			/* For inb/outb/... */
-> >> #include <linux/platform_data/itco_wdt.h>
-> >>
-> >>+#include <asm/intel_pmc_ipc.h>
-> >>+
-> >> #include "iTCO_vendor.h"
-> >>
-> >> /* Address definitions for the TCO */
-> >>@@ -94,12 +96,6 @@ struct iTCO_wdt_private {
-> >> 	unsigned int iTCO_version;
-> >> 	struct resource *tco_res;
-> >> 	struct resource *smi_res;
-> >>-	/*
-> >>-	 * NO_REBOOT flag is Memory-Mapped GCS register bit 5 (TCO version 2),
-> >>-	 * or memory-mapped PMC register bit 4 (TCO version 3).
-> >>-	 */
-> >
-> >Better to retain this comment elsewhere.
-> >
-> >>-	struct resource *gcs_pmc_res;
-> >>-	unsigned long __iomem *gcs_pmc;
-> >> 	/* the lock for io operations */
-> >> 	spinlock_t io_lock;
-> >> 	/* the PCI-device */
-> >>@@ -176,9 +172,9 @@ static void iTCO_wdt_set_NO_REBOOT_bit(struct iTCO_wdt_private *p)
-> >>
-> >> 	/* Set the NO_REBOOT bit: this disables reboots */
-> >> 	if (p->iTCO_version >= 2) {
-> >>-		val32 = readl(p->gcs_pmc);
-> >>+		val32 = intel_pmc_gcr_read(PMC_GCR_PMC_CFG_REG);
-> >
-> >better to have protection and error handling, discussed in v2, 2/4.
-> >
-> >compiled and tested this on APL and i see iTCO_WDT driver loads fine. Since
-> >it impacts core WDT functionality, need to be thoroughly tested on various
-> >platforms.
-> >
-> 
-> I don't think I (or the watchdog mailing list) was copied on the original patch.
-> Major immediate concern is that this introduces a dependency on external code.
+>> On Thu, Mar 16, 2017 at 05:41:35PM -0700, Kuppuswamy Sathyanarayanan
+>> wrote:
+>>>
+>>> Currently, iTCO watchdog driver uses memory map to access
+>>> PMC_CFG GCR register. But the entire GCR address space is
+>>> already mapped in intel_scu_ipc driver. So remapping the
+
+> I don't think I (or the watchdog mailing list) was copied on the original
+> patch.
+> Major immediate concern is that this introduces a dependency on external
+> code.
 > The pmc_ipc driver's Kconfig entry states "This is not needed for PC-type
-> machines". I don't know where the function is introduced, but I hope this change
-> does not require the pmc_ipc code to be present on such machines for the watchdog
-> to work. It would be bad if it does. If it doesn't, it appears that the function
+> machines". I don't know where the function is introduced, but I hope this
+> change
+> does not require the pmc_ipc code to be present on such machines for the
+> watchdog
+> to work. It would be bad if it does. If it doesn't, it appears that the
+> function
 > should not be declared in asm/intel_pmc_ipc.h.
 
-Yes i added you and the wdt mailing list since you were missed on original
-patch. Apparently, iTCO_wdt driver always had a dependency over PMC
-resources when iTCO_version >=2. The below threads should help you give some
-background on this.
-https://lkml.org/lkml/2017/3/16/504
-https://lkml.org/lkml/2017/2/13/282
+Agree.
 
-WDT driver fails to laod since the resources its requesting were reserved by
-the PMC driver since they belong to PMC GCR region. WDT driver remapping those
-resources is still ok but it cant reclaim them hence the problem.
+I already asked once [1] to fix up the mess we have in PDx86 regarding SCU IPC.
+(PMC IPC how it's called is actually just a [main] part of SCU in newer SoCs).
 
-> 
-> Guenter
-> 
+Rajneesh, Kuppuswamy,
+please pay attention on the below.
+
+We have two libraries doing almost the same (basics) one for old
+platforms, one for new.
+
+My vision what should be done before we go further is:
+1. Split out common part from intel_scu_ipc and intel_pmc_ipc to some library.
+2. Move headers to linux/platform_data/x86 for sharing with drivers
+that are supporting non-Intel / not-newest-Intel hardware.
+3. Fix the mess inside the intel_pmc_ipc code (like use devm_()
+helpers where it makes sense, no use of global variables, etc)
+
+On top of that
+4. Fix up Whiskey Cove PMIC code (See Hans' message [2] for the details)
+
+[1] Oops, it happened on internal mailing list Jan 27. And mentioned
+publicly after in a review on some patch here.
+[2] http://lkml.iu.edu/hypermail/linux/kernel/1702.3/01408.html
 
 -- 
-Best Regards,
-Rajneesh
+With Best Regards,
+Andy Shevchenko
