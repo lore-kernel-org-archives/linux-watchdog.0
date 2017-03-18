@@ -1,67 +1,45 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from foss.arm.com ([217.140.101.70]:50500 "EHLO foss.arm.com"
+Received: from mga07.intel.com ([134.134.136.100]:22327 "EHLO mga07.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751180AbdCQUE0 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 17 Mar 2017 16:04:26 -0400
-Date: Fri, 17 Mar 2017 20:03:47 +0000
-From: Mark Rutland <mark.rutland@arm.com>
-To: Fu Wei <fu.wei@linaro.org>
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Len Brown <lenb@kernel.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Marc Zyngier <marc.zyngier@arm.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Hanjun Guo <hanjun.guo@linaro.org>,
-        linux-arm-kernel@lists.infradead.org,
-        Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
-        rruigrok@codeaurora.org, "Abdulhamid, Harb" <harba@codeaurora.org>,
-        Christopher Covington <cov@codeaurora.org>,
-        Timur Tabi <timur@codeaurora.org>,
-        G Gregory <graeme.gregory@linaro.org>,
-        Al Stone <al.stone@linaro.org>, Jon Masters <jcm@redhat.com>,
-        Wei Huang <wei@redhat.com>, Arnd Bergmann <arnd@arndb.de>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
-        Leo Duran <leo.duran@amd.com>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        Guenter Roeck <linux@roeck-us.net>,
-        linux-watchdog@vger.kernel.org, Tomasz Nowicki <tn@semihalf.com>,
-        Christoffer Dall <christoffer.dall@linaro.org>,
-        Julien Grall <julien.grall@arm.com>
-Subject: Re: [PATCH v21 00/13] acpi, clocksource: add GTDT driver and GTDT
- support in arm_arch_timer
-Message-ID: <20170317200346.GG15909@leverpostej>
-References: <20170206185015.12296-1-fu.wei@linaro.org>
- <CADyBb7t_zrLetPQQ8=k8oN6iMHhuMHO8O3XTZqGYvTT9p0evKw@mail.gmail.com>
- <CADyBb7urVf87LTsyrtoaAExTeOZSBAvT91enGBK4cm6723q+1Q@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CADyBb7urVf87LTsyrtoaAExTeOZSBAvT91enGBK4cm6723q+1Q@mail.gmail.com>
+        id S1751117AbdCRCOB (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 17 Mar 2017 22:14:01 -0400
+From: Kuppuswamy Sathyanarayanan
+        <sathyanarayanan.kuppuswamy@linux.intel.com>
+To: andy@infradead.org, qipeng.zha@intel.com, dvhart@infradead.org,
+        linux@roeck-us.net
+Cc: wim@iguana.be, sathyaosid@gmail.com, david.e.box@linux.intel.com,
+        rajneesh.bhardwaj@intel.com,
+        sathyanarayanan.kuppuswamy@linux.intel.com,
+        platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-watchdog@vger.kernel.org
+Subject: [PATCH v3 1/5] platform/x86: intel_pmc_ipc: fix gcr offset
+Date: Fri, 17 Mar 2017 19:06:18 -0700
+Message-Id: <1ee0cc63c5ad4d4581fa46ae5e72001f0ac341c0.1489801590.git.sathyanarayanan.kuppuswamy@linux.intel.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Thu, Mar 09, 2017 at 11:47:16PM +0100, Fu Wei wrote:
-> Hi Mark, Marc,
+According to the PMC spec, gcr offset from ipc mem
+region is 0x1000(4K). But currently this driver uses
+0x1008 as gcr offset. This patch fixes this issue.
 
-Hi,
+Signed-off-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
+---
+ drivers/platform/x86/intel_pmc_ipc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> I have tried to rebase all the 19(6+13) patches  on 4.11-rc1,
-> all the patchse can directly apply on  4.11-rc1,
-> 
-> Could you help to review the patches, and see if there is anywhere I
-> can improve ?
+diff --git a/drivers/platform/x86/intel_pmc_ipc.c b/drivers/platform/x86/intel_pmc_ipc.c
+index 0651d47..0a33592 100644
+--- a/drivers/platform/x86/intel_pmc_ipc.c
++++ b/drivers/platform/x86/intel_pmc_ipc.c
+@@ -82,7 +82,7 @@
+ /* exported resources from IFWI */
+ #define PLAT_RESOURCE_IPC_INDEX		0
+ #define PLAT_RESOURCE_IPC_SIZE		0x1000
+-#define PLAT_RESOURCE_GCR_OFFSET	0x1008
++#define PLAT_RESOURCE_GCR_OFFSET	0x1000
+ #define PLAT_RESOURCE_GCR_SIZE		0x1000
+ #define PLAT_RESOURCE_BIOS_DATA_INDEX	1
+ #define PLAT_RESOURCE_BIOS_IFACE_INDEX	2
+-- 
+2.7.4
 
-I'm sorry I have taken so long to review this posting.
-
-This is generally looking much better. I'm not sure about a few details
-relating to the watchdog, but I'm largely happy to pick up the rest of
-the series, if you can address my comments.
-
-Thanks,
-Mark.
