@@ -1,121 +1,83 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mga07.intel.com ([134.134.136.100]:63627 "EHLO mga07.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751101AbdCRCTm (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 17 Mar 2017 22:19:42 -0400
-From: Kuppuswamy Sathyanarayanan
-        <sathyanarayanan.kuppuswamy@linux.intel.com>
-To: andy@infradead.org, qipeng.zha@intel.com, dvhart@infradead.org,
-        linux@roeck-us.net
-Cc: wim@iguana.be, sathyaosid@gmail.com, david.e.box@linux.intel.com,
-        rajneesh.bhardwaj@intel.com,
-        sathyanarayanan.kuppuswamy@linux.intel.com,
-        platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-watchdog@vger.kernel.org
-Subject: [PATCH v3 3/5] watchdog: iTCO_wdt: Add PMC specific noreboot update api
-Date: Fri, 17 Mar 2017 19:06:20 -0700
-Message-Id: <08193e33a1114de5401eb135691dea93dc9ec2a7.1489801590.git.sathyanarayanan.kuppuswamy@linux.intel.com>
-In-Reply-To: <1ee0cc63c5ad4d4581fa46ae5e72001f0ac341c0.1489801590.git.sathyanarayanan.kuppuswamy@linux.intel.com>
-References: <1ee0cc63c5ad4d4581fa46ae5e72001f0ac341c0.1489801590.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+Received: from mail-it0-f43.google.com ([209.85.214.43]:37603 "EHLO
+        mail-it0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751485AbdCTFJl (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 20 Mar 2017 01:09:41 -0400
+Received: by mail-it0-f43.google.com with SMTP id g138so82827115itb.0
+        for <linux-watchdog@vger.kernel.org>; Sun, 19 Mar 2017 22:09:40 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <20170317200346.GG15909@leverpostej>
+References: <20170206185015.12296-1-fu.wei@linaro.org> <CADyBb7t_zrLetPQQ8=k8oN6iMHhuMHO8O3XTZqGYvTT9p0evKw@mail.gmail.com>
+ <CADyBb7urVf87LTsyrtoaAExTeOZSBAvT91enGBK4cm6723q+1Q@mail.gmail.com> <20170317200346.GG15909@leverpostej>
+From: Fu Wei <fu.wei@linaro.org>
+Date: Mon, 20 Mar 2017 13:09:39 +0800
+Message-ID: <CADyBb7uinO7HVRusFa2hXFdKGXZ_5FnEb-7-S-xUNx=W2+NfCA@mail.gmail.com>
+Subject: Re: [PATCH v21 00/13] acpi, clocksource: add GTDT driver and GTDT
+ support in arm_arch_timer
+To: Mark Rutland <mark.rutland@arm.com>
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Len Brown <lenb@kernel.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Hanjun Guo <hanjun.guo@linaro.org>,
+        linux-arm-kernel@lists.infradead.org,
+        Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
+        rruigrok@codeaurora.org, "Abdulhamid, Harb" <harba@codeaurora.org>,
+        Christopher Covington <cov@codeaurora.org>,
+        Timur Tabi <timur@codeaurora.org>,
+        G Gregory <graeme.gregory@linaro.org>,
+        Al Stone <al.stone@linaro.org>, Jon Masters <jcm@redhat.com>,
+        Wei Huang <wei@redhat.com>, Arnd Bergmann <arnd@arndb.de>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
+        Leo Duran <leo.duran@amd.com>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Guenter Roeck <linux@roeck-us.net>,
+        linux-watchdog@vger.kernel.org, Tomasz Nowicki <tn@semihalf.com>,
+        Christoffer Dall <christoffer.dall@linaro.org>,
+        Julien Grall <julien.grall@arm.com>
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-In some SOCs, setting noreboot bit needs modification to
-PMC GC registers. But not all PMC drivers allow other drivers
-to memory map their GC region. This could create mem request
-conflict in watchdog driver. So this patch adds facility to allow
-PMC drivers to pass noreboot update function to watchdog
-drivers via platform data.
+Hi Mark,
 
-Signed-off-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
----
- drivers/watchdog/iTCO_wdt.c            | 28 +++++++++++++++++++---------
- include/linux/platform_data/itco_wdt.h |  1 +
- 2 files changed, 20 insertions(+), 9 deletions(-)
+On 18 March 2017 at 04:03, Mark Rutland <mark.rutland@arm.com> wrote:
+> On Thu, Mar 09, 2017 at 11:47:16PM +0100, Fu Wei wrote:
+>> Hi Mark, Marc,
+>
+> Hi,
+>
+>> I have tried to rebase all the 19(6+13) patches  on 4.11-rc1,
+>> all the patchse can directly apply on  4.11-rc1,
+>>
+>> Could you help to review the patches, and see if there is anywhere I
+>> can improve ?
+>
+> I'm sorry I have taken so long to review this posting.
+>
+> This is generally looking much better. I'm not sure about a few details
+> relating to the watchdog, but I'm largely happy to pick up the rest of
+> the series, if you can address my comments.
 
-Changes since v2: 
- * Removed use of PMC API's directly in watchdog driver.
- * Added update_noreboot_flag to handle no IPC PMC compatibility
-   issue mentioned by Guenter.
+Great thanks for your review, I will post a new v22 ASAP(before your Tuesday).
 
-diff --git a/drivers/watchdog/iTCO_wdt.c b/drivers/watchdog/iTCO_wdt.c
-index 3d0abc0..7c34259 100644
---- a/drivers/watchdog/iTCO_wdt.c
-+++ b/drivers/watchdog/iTCO_wdt.c
-@@ -100,6 +100,8 @@ struct iTCO_wdt_private {
- 	 */
- 	struct resource *gcs_pmc_res;
- 	unsigned long __iomem *gcs_pmc;
-+	/* pmc specific api to update noreboot flag */
-+	int (*update_noreboot_flag)(bool status);
- 	/* the lock for io operations */
- 	spinlock_t io_lock;
- 	/* the PCI-device */
-@@ -176,9 +178,13 @@ static void iTCO_wdt_set_NO_REBOOT_bit(struct iTCO_wdt_private *p)
- 
- 	/* Set the NO_REBOOT bit: this disables reboots */
- 	if (p->iTCO_version >= 2) {
--		val32 = readl(p->gcs_pmc);
--		val32 |= no_reboot_bit(p);
--		writel(val32, p->gcs_pmc);
-+		if (p->update_noreboot_flag)
-+			p->update_noreboot_flag(1);
-+		else {
-+			val32 = readl(p->gcs_pmc);
-+			val32 |= no_reboot_bit(p);
-+			writel(val32, p->gcs_pmc);
-+		}
- 	} else if (p->iTCO_version == 1) {
- 		pci_read_config_dword(p->pci_dev, 0xd4, &val32);
- 		val32 |= no_reboot_bit(p);
-@@ -193,11 +199,14 @@ static int iTCO_wdt_unset_NO_REBOOT_bit(struct iTCO_wdt_private *p)
- 
- 	/* Unset the NO_REBOOT bit: this enables reboots */
- 	if (p->iTCO_version >= 2) {
--		val32 = readl(p->gcs_pmc);
--		val32 &= ~enable_bit;
--		writel(val32, p->gcs_pmc);
--
--		val32 = readl(p->gcs_pmc);
-+		if (p->update_noreboot_flag)
-+			return p->update_noreboot_flag(0);
-+		else {
-+			val32 = readl(p->gcs_pmc);
-+			val32 &= ~enable_bit;
-+			writel(val32, p->gcs_pmc);
-+			val32 = readl(p->gcs_pmc);
-+		}
- 	} else if (p->iTCO_version == 1) {
- 		pci_read_config_dword(p->pci_dev, 0xd4, &val32);
- 		val32 &= ~enable_bit;
-@@ -426,13 +435,14 @@ static int iTCO_wdt_probe(struct platform_device *pdev)
- 		return -ENODEV;
- 
- 	p->iTCO_version = pdata->version;
-+	p->update_noreboot_flag = pdata->update_noreboot_flag;
- 	p->pci_dev = to_pci_dev(dev->parent);
- 
- 	/*
- 	 * Get the Memory-Mapped GCS or PMC register, we need it for the
- 	 * NO_REBOOT flag (TCO v2 and v3).
- 	 */
--	if (p->iTCO_version >= 2) {
-+	if (p->iTCO_version >= 2 && !p->update_noreboot_flag) {
- 		p->gcs_pmc_res = platform_get_resource(pdev,
- 						       IORESOURCE_MEM,
- 						       ICH_RES_MEM_GCS_PMC);
-diff --git a/include/linux/platform_data/itco_wdt.h b/include/linux/platform_data/itco_wdt.h
-index f16542c..ea1efb7 100644
---- a/include/linux/platform_data/itco_wdt.h
-+++ b/include/linux/platform_data/itco_wdt.h
-@@ -14,6 +14,7 @@
- struct itco_wdt_platform_data {
- 	char name[32];
- 	unsigned int version;
-+	int (*update_noreboot_flag)(bool status);
- };
- 
- #endif /* _ITCO_WDT_H_ */
+>
+> Thanks,
+> Mark.
+
+
+
 -- 
-2.7.4
+Best regards,
 
+Fu Wei
+Software Engineer
+Red Hat
