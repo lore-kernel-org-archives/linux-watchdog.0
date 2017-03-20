@@ -1,20 +1,19 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-it0-f43.google.com ([209.85.214.43]:37603 "EHLO
-        mail-it0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751485AbdCTFJl (ORCPT
+Received: from mail-it0-f53.google.com ([209.85.214.53]:36965 "EHLO
+        mail-it0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752153AbdCTH21 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 20 Mar 2017 01:09:41 -0400
-Received: by mail-it0-f43.google.com with SMTP id g138so82827115itb.0
-        for <linux-watchdog@vger.kernel.org>; Sun, 19 Mar 2017 22:09:40 -0700 (PDT)
+        Mon, 20 Mar 2017 03:28:27 -0400
+Received: by mail-it0-f53.google.com with SMTP id g138so85173740itb.0
+        for <linux-watchdog@vger.kernel.org>; Mon, 20 Mar 2017 00:27:52 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20170317200346.GG15909@leverpostej>
-References: <20170206185015.12296-1-fu.wei@linaro.org> <CADyBb7t_zrLetPQQ8=k8oN6iMHhuMHO8O3XTZqGYvTT9p0evKw@mail.gmail.com>
- <CADyBb7urVf87LTsyrtoaAExTeOZSBAvT91enGBK4cm6723q+1Q@mail.gmail.com> <20170317200346.GG15909@leverpostej>
+In-Reply-To: <20170317180725.GC15909@leverpostej>
+References: <20170206185015.12296-1-fu.wei@linaro.org> <20170206185015.12296-4-fu.wei@linaro.org>
+ <20170317180725.GC15909@leverpostej>
 From: Fu Wei <fu.wei@linaro.org>
-Date: Mon, 20 Mar 2017 13:09:39 +0800
-Message-ID: <CADyBb7uinO7HVRusFa2hXFdKGXZ_5FnEb-7-S-xUNx=W2+NfCA@mail.gmail.com>
-Subject: Re: [PATCH v21 00/13] acpi, clocksource: add GTDT driver and GTDT
- support in arm_arch_timer
+Date: Mon, 20 Mar 2017 14:59:35 +0800
+Message-ID: <CADyBb7spKzLKb2wZFRDcXLPBmxkgV+JPAoCiDbSXmFq9qqbuCw@mail.gmail.com>
+Subject: Re: [PATCH v21 03/13] clocksource: arm_arch_timer: remove arch_timer_detect_rate
 To: Mark Rutland <mark.rutland@arm.com>
 Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>,
         Len Brown <lenb@kernel.org>,
@@ -49,25 +48,37 @@ List-Id: linux-watchdog@vger.kernel.org
 
 Hi Mark,
 
-On 18 March 2017 at 04:03, Mark Rutland <mark.rutland@arm.com> wrote:
-> On Thu, Mar 09, 2017 at 11:47:16PM +0100, Fu Wei wrote:
->> Hi Mark, Marc,
->
-> Hi,
->
->> I have tried to rebase all the 19(6+13) patches  on 4.11-rc1,
->> all the patchse can directly apply on  4.11-rc1,
+On 18 March 2017 at 02:07, Mark Rutland <mark.rutland@arm.com> wrote:
+> On Tue, Feb 07, 2017 at 02:50:05AM +0800, fu.wei@linaro.org wrote:
+>> From: Fu Wei <fu.wei@linaro.org>
 >>
->> Could you help to review the patches, and see if there is anywhere I
->> can improve ?
+>> The original counter frequency detection call(arch_timer_detect_rate)
+>> include getting the frequency from the per-cpu arch-timer and the
+>> memory-mapped (MMIO) timer interfaces. But they will be needed only when
+>> the system initializes the relevant timer.
+>>
+>> This patch remove arch_timer_detect_rate founction, and use the
+>> arch_timer_get_sysreg_freq and arch_timer_get_mmio_freq directly.
+>>
+>> Signed-off-by: Fu Wei <fu.wei@linaro.org>
 >
-> I'm sorry I have taken so long to review this posting.
->
-> This is generally looking much better. I'm not sure about a few details
-> relating to the watchdog, but I'm largely happy to pick up the rest of
-> the series, if you can address my comments.
+> Could you please fold this with the prior patch?
 
-Great thanks for your review, I will post a new v22 ASAP(before your Tuesday).
+Sure, will do
+
+>
+>> @@ -1087,7 +1072,12 @@ static int __init arch_timer_mem_init(struct device_node *np)
+>>        */
+>>       if (!arch_timer_rate &&
+>>           of_property_read_u32(np, "clock-frequency", &arch_timer_rate))
+>> -             arch_timer_detect_rate(base);
+>> +             arch_timer_rate = arch_timer_get_mmio_freq(base);
+>> +     if (!arch_timer_rate) {
+>> +             pr_err(FW_BUG "frequency not available for MMIO timer.\n");
+>
+> It would be better to say "MMIO frequency not available.\n" here.
+
+thanks , will do
 
 >
 > Thanks,
