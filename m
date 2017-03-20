@@ -1,19 +1,20 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-it0-f53.google.com ([209.85.214.53]:36965 "EHLO
-        mail-it0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752153AbdCTH21 (ORCPT
+Received: from mail-it0-f48.google.com ([209.85.214.48]:34089 "EHLO
+        mail-it0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751586AbdCTHgi (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 20 Mar 2017 03:28:27 -0400
-Received: by mail-it0-f53.google.com with SMTP id g138so85173740itb.0
-        for <linux-watchdog@vger.kernel.org>; Mon, 20 Mar 2017 00:27:52 -0700 (PDT)
+        Mon, 20 Mar 2017 03:36:38 -0400
+Received: by mail-it0-f48.google.com with SMTP id y18so5184980itc.1
+        for <linux-watchdog@vger.kernel.org>; Mon, 20 Mar 2017 00:36:37 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20170317180725.GC15909@leverpostej>
-References: <20170206185015.12296-1-fu.wei@linaro.org> <20170206185015.12296-4-fu.wei@linaro.org>
- <20170317180725.GC15909@leverpostej>
+In-Reply-To: <20170317180513.GB15909@leverpostej>
+References: <20170206185015.12296-1-fu.wei@linaro.org> <20170206185015.12296-2-fu.wei@linaro.org>
+ <20170317180513.GB15909@leverpostej>
 From: Fu Wei <fu.wei@linaro.org>
-Date: Mon, 20 Mar 2017 14:59:35 +0800
-Message-ID: <CADyBb7spKzLKb2wZFRDcXLPBmxkgV+JPAoCiDbSXmFq9qqbuCw@mail.gmail.com>
-Subject: Re: [PATCH v21 03/13] clocksource: arm_arch_timer: remove arch_timer_detect_rate
+Date: Mon, 20 Mar 2017 15:36:36 +0800
+Message-ID: <CADyBb7vZ4G+q1y6w6OVQ7i-ZiTtcdx_w2BOSWqy=2jWhAV6Hmw@mail.gmail.com>
+Subject: Re: [PATCH v21 01/13] clocksource: arm_arch_timer: introduce two
+ functions to get the frequency from mmio and sysreg.
 To: Mark Rutland <mark.rutland@arm.com>
 Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>,
         Len Brown <lenb@kernel.org>,
@@ -48,38 +49,41 @@ List-Id: linux-watchdog@vger.kernel.org
 
 Hi Mark,
 
-On 18 March 2017 at 02:07, Mark Rutland <mark.rutland@arm.com> wrote:
-> On Tue, Feb 07, 2017 at 02:50:05AM +0800, fu.wei@linaro.org wrote:
->> From: Fu Wei <fu.wei@linaro.org>
->>
->> The original counter frequency detection call(arch_timer_detect_rate)
->> include getting the frequency from the per-cpu arch-timer and the
->> memory-mapped (MMIO) timer interfaces. But they will be needed only when
->> the system initializes the relevant timer.
->>
->> This patch remove arch_timer_detect_rate founction, and use the
->> arch_timer_get_sysreg_freq and arch_timer_get_mmio_freq directly.
->>
->> Signed-off-by: Fu Wei <fu.wei@linaro.org>
+On 18 March 2017 at 02:05, Mark Rutland <mark.rutland@arm.com> wrote:
+> On Tue, Feb 07, 2017 at 02:50:03AM +0800, fu.wei@linaro.org wrote:
+>> +static u32 arch_timer_get_sysreg_freq(void)
+>> +{
+>> +     /*
+>> +      * Try to get the frequency from the CNTFRQ of sysreg.
+>> +      */
+>> +     return arch_timer_get_cntfrq();
+>> +}
 >
-> Could you please fold this with the prior patch?
-
-Sure, will do
-
+> We already have arch_timer_get_cntfrq(), so I don't see the point in
+> this wrapper.
 >
->> @@ -1087,7 +1072,12 @@ static int __init arch_timer_mem_init(struct device_node *np)
->>        */
->>       if (!arch_timer_rate &&
->>           of_property_read_u32(np, "clock-frequency", &arch_timer_rate))
->> -             arch_timer_detect_rate(base);
->> +             arch_timer_rate = arch_timer_get_mmio_freq(base);
->> +     if (!arch_timer_rate) {
->> +             pr_err(FW_BUG "frequency not available for MMIO timer.\n");
+>> +static u32 arch_timer_get_mmio_freq(void __iomem *cntbase)
+>> +{
+>> +     /*
+>> +      * Try to get the frequency from the CNTFRQ of timer frame registers.
+>> +      * Note: please verify cntbase in caller.
+>> +      */
+>> +     return readl_relaxed(cntbase + CNTFRQ);
+>> +}
 >
-> It would be better to say "MMIO frequency not available.\n" here.
+> Wrapping the MMIO read makes sense if we're going to do this in more
+> than one place, so I'm happy with this wrapper.
+>
+> If you can s/arch_timer_get_mmio_freq/arch_timer_get_cntfrq/, and drop
 
-thanks , will do
+sorry, May I guess that is
+"s/arch_timer_get_mmio_freq/arch_timer_get_mmio_cntfrq/"
+or
+"s/arch_timer_get_mmio_freq/arch_timer_mem_get_cntfrq/"
 
+which one do you prefer? :-)
+
+> the comments, then this looks fine to me.
 >
 > Thanks,
 > Mark.
