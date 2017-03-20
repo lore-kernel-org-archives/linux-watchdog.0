@@ -1,21 +1,20 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-it0-f48.google.com ([209.85.214.48]:37565 "EHLO
-        mail-it0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753676AbdCTLTO (ORCPT
+Received: from mail-it0-f49.google.com ([209.85.214.49]:37684 "EHLO
+        mail-it0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753442AbdCTNfP (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 20 Mar 2017 07:19:14 -0400
-Received: by mail-it0-f48.google.com with SMTP id g138so90884437itb.0
-        for <linux-watchdog@vger.kernel.org>; Mon, 20 Mar 2017 04:19:14 -0700 (PDT)
+        Mon, 20 Mar 2017 09:35:15 -0400
+Received: by mail-it0-f49.google.com with SMTP id g138so95448278itb.0
+        for <linux-watchdog@vger.kernel.org>; Mon, 20 Mar 2017 06:35:14 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20170320104153.GA18585@leverpostej>
-References: <20170206185015.12296-1-fu.wei@linaro.org> <20170206185015.12296-2-fu.wei@linaro.org>
- <20170317180513.GB15909@leverpostej> <CADyBb7vZ4G+q1y6w6OVQ7i-ZiTtcdx_w2BOSWqy=2jWhAV6Hmw@mail.gmail.com>
- <CADyBb7vawnjnL6Phxc_owTnEK0qf95cYAUWPga9axGqEWc46Ww@mail.gmail.com> <20170320104153.GA18585@leverpostej>
+In-Reply-To: <20170317190539.GD15909@leverpostej>
+References: <20170206185015.12296-1-fu.wei@linaro.org> <20170206185015.12296-5-fu.wei@linaro.org>
+ <20170317190539.GD15909@leverpostej>
 From: Fu Wei <fu.wei@linaro.org>
-Date: Mon, 20 Mar 2017 19:09:56 +0800
-Message-ID: <CADyBb7udtijHnXXqGDhtE1YxeLBqJeDFRs97Yc-P0enCA2z8Lg@mail.gmail.com>
-Subject: Re: [PATCH v21 01/13] clocksource: arm_arch_timer: introduce two
- functions to get the frequency from mmio and sysreg.
+Date: Mon, 20 Mar 2017 21:35:12 +0800
+Message-ID: <CADyBb7utYy=VQ=hZnuecnCo1o=bXLg19ONHESUYfhBUdahoprw@mail.gmail.com>
+Subject: Re: [PATCH v21 04/13] clocksource: arm_arch_timer: split
+ arch_timer_rate for different types of timer
 To: Mark Rutland <mark.rutland@arm.com>
 Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>,
         Len Brown <lenb@kernel.org>,
@@ -50,48 +49,63 @@ List-Id: linux-watchdog@vger.kernel.org
 
 Hi Mark,
 
-On 20 March 2017 at 18:41, Mark Rutland <mark.rutland@arm.com> wrote:
-> On Mon, Mar 20, 2017 at 05:43:29PM +0800, Fu Wei wrote:
->> On 20 March 2017 at 15:36, Fu Wei <fu.wei@linaro.org> wrote:
->> > On 18 March 2017 at 02:05, Mark Rutland <mark.rutland@arm.com> wrote:
->> >> On Tue, Feb 07, 2017 at 02:50:03AM +0800, fu.wei@linaro.org wrote:
->
->> >>> +static u32 arch_timer_get_mmio_freq(void __iomem *cntbase)
->> >>> +{
->> >>> +     /*
->> >>> +      * Try to get the frequency from the CNTFRQ of timer frame registers.
->> >>> +      * Note: please verify cntbase in caller.
->> >>> +      */
->> >>> +     return readl_relaxed(cntbase + CNTFRQ);
->> >>> +}
->> >>
->> >> Wrapping the MMIO read makes sense if we're going to do this in more
->> >> than one place, so I'm happy with this wrapper.
->> >>
->> >> If you can s/arch_timer_get_mmio_freq/arch_timer_get_cntfrq/, and drop
->> >
->> > sorry, May I guess that is
->> > "s/arch_timer_get_mmio_freq/arch_timer_get_mmio_cntfrq/"
->> > or
->> > "s/arch_timer_get_mmio_freq/arch_timer_mem_get_cntfrq/"
->> >
->> > which one do you prefer? :-)
+On 18 March 2017 at 03:05, Mark Rutland <mark.rutland@arm.com> wrote:
+> On Tue, Feb 07, 2017 at 02:50:06AM +0800, fu.wei@linaro.org wrote:
+>> From: Fu Wei <fu.wei@linaro.org>
 >>
->> keeping using arch_timer_get_cntfrq();  for per-CPU arch timer, then
+>> Currently, arch_timer_rate is used to store the frequency got from per-cpu
+>> arch-timer or the memory-mapped (MMIO) timers. But those values come from
+>> different registers which should all be initialized by firmware.
 >>
->> +static u32 arch_timer_mem_get_cntfrq(void __iomem *cntbase)
->> +{
->> +       return readl_relaxed(cntbase + CNTFRQ);
->> +}
->> +
+>> This patch remove arch_timer_rate, and use arch_timer_sysreg_freq and
+>> arch_timer_mmio_freq instead.
+>>
+>> Signed-off-by: Fu Wei <fu.wei@linaro.org>
 >
-> That looks perfect to me.
+> Thanks for attacking this. Generally, I do think this is the right thing
+> to do.
 >
-> Sorry for the confusion above!
+> However...
+>
+>> @@ -1070,10 +1077,9 @@ static int __init arch_timer_mem_init(struct device_node *np)
+>>        * Try to determine the frequency from the device tree,
+>>        * if fail, get the frequency from the CNTFRQ reg of MMIO timer.
+>>        */
+>> -     if (!arch_timer_rate &&
+>> -         of_property_read_u32(np, "clock-frequency", &arch_timer_rate))
+>> -             arch_timer_rate = arch_timer_get_mmio_freq(base);
+>> -     if (!arch_timer_rate) {
+>> +     if (of_property_read_u32(np, "clock-frequency", &arch_timer_mmio_freq))
+>> +             arch_timer_mmio_freq = arch_timer_get_mmio_freq(base);
+>> +     if (!arch_timer_mmio_freq) {
+>>               pr_err(FW_BUG "frequency not available for MMIO timer.\n");
+>>               ret = -EINVAL;
+>>               goto out;
+>
+> ... unfortunately, I believe that this will break some DT platforms that
+> have been (unintentionally) relying on the way currently allow the
+> frequency to be probed from either the MMIO timer or the sysreg timer.
+>
 
-Great, thanks , doing this way :-)
+Ah, I 'm really not aware of this. Thanks for pointing it out.
+
+> So while the above was my suggestion, it was not my best.
+>
+> For the timebeing, let's leave the single arch_timer_rate, but ensure
+> that it doesn't get in the way fo the ACPI code, by making the ACPI
+> probe path:
+>
+> * Probe the sysreg timers first, using the sysreg cntfrq().
+>
+> * Probe the MMIO timers second, verifying that each MMIO cntfrq matches
+>   the already-probed sysreg cntfrq.
+>
+> ... which is what I believe you suggested previously.
+
+OK, NP, will do this way.
 
 >
+> Thanks,
 > Mark.
 
 
