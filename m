@@ -1,8 +1,8 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:49312 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:59590 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1756993AbdCUQcw (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 21 Mar 2017 12:32:52 -0400
+        id S1758187AbdCUQku (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 21 Mar 2017 12:40:50 -0400
 From: fu.wei@linaro.org
 To: rjw@rjwysocki.net, lenb@kernel.org, daniel.lezcano@linaro.org,
         tglx@linutronix.de, marc.zyngier@arm.com, mark.rutland@arm.com,
@@ -18,93 +18,162 @@ Cc: linux-arm-kernel@lists.infradead.org, linaro-acpi@lists.linaro.org,
         linux@roeck-us.net, linux-watchdog@vger.kernel.org,
         tn@semihalf.com, christoffer.dall@linaro.org, julien.grall@arm.com,
         Fu Wei <fu.wei@linaro.org>
-Subject: [PATCH v22 03/11] clocksource: arm_arch_timer: refactor arch_timer_needs_probing
-Date: Wed, 22 Mar 2017 00:31:14 +0800
-Message-Id: <20170321163122.9183-4-fu.wei@linaro.org>
+Subject: [PATCH v22 11/11] acpi/arm64: Add SBSA Generic Watchdog support in GTDT driver
+Date: Wed, 22 Mar 2017 00:31:22 +0800
+Message-Id: <20170321163122.9183-12-fu.wei@linaro.org>
 In-Reply-To: <20170321163122.9183-1-fu.wei@linaro.org>
 References: <20170321163122.9183-1-fu.wei@linaro.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
 
 From: Fu Wei <fu.wei@linaro.org>
 
-When system init with device-tree, we don't know which node will be
-initialized first. And the code in arch_timer_common_init should wait
-until per-cpu timer and MMIO timer are both initialized. So we need
-arch_timer_needs_probing to detect the init status of system.
+This driver adds support for parsing SBSA Generic Watchdog timer
+in GTDT, parse all info in SBSA Generic Watchdog Structure in GTDT,
+and creating a platform device with that information.
 
-But currently the code is dispersed in arch_timer_needs_probing and
-arch_timer_common_init. And the function name doesn't specify that
-it's only for device-tree. This is somewhat confusing.
-
-This patch move all related code from arch_timer_common_init to
-arch_timer_needs_probing, refactor it, and rename it to
-arch_timer_needs_of_probing. And make sure that it will be called
-only if acpi is disabled.
+This allows the operating system to obtain device data from the
+resource of platform device. The platform device named "sbsa-gwdt"
+can be used by the ARM SBSA Generic Watchdog driver.
 
 Signed-off-by: Fu Wei <fu.wei@linaro.org>
-Reviewed-by: Hanjun Guo <hanjun.guo@linaro.org>
+Signed-off-by: Hanjun Guo <hanjun.guo@linaro.org>
+Tested-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
 ---
- drivers/clocksource/arm_arch_timer.c | 34 +++++++++++++++++++---------------
- 1 file changed, 19 insertions(+), 15 deletions(-)
+ drivers/acpi/arm64/gtdt.c | 94 +++++++++++++++++++++++++++++++++++++++++=
+++++++
+ 1 file changed, 94 insertions(+)
 
-diff --git a/drivers/clocksource/arm_arch_timer.c b/drivers/clocksource/arm_arch_timer.c
-index 29ca7d6..d1a05d9 100644
---- a/drivers/clocksource/arm_arch_timer.c
-+++ b/drivers/clocksource/arm_arch_timer.c
-@@ -839,15 +839,28 @@ static const struct of_device_id arch_timer_mem_of_match[] __initconst = {
- 	{},
- };
- 
--static bool __init
--arch_timer_needs_probing(int type, const struct of_device_id *matches)
-+static bool __init arch_timer_needs_of_probing(void)
- {
- 	struct device_node *dn;
- 	bool needs_probing = false;
-+	unsigned int mask = ARCH_TIMER_TYPE_CP15 | ARCH_TIMER_TYPE_MEM;
- 
--	dn = of_find_matching_node(NULL, matches);
--	if (dn && of_device_is_available(dn) && !(arch_timers_present & type))
-+	/* We have two timers, and both device-tree nodes are probed. */
-+	if ((arch_timers_present & mask) == mask)
+diff --git a/drivers/acpi/arm64/gtdt.c b/drivers/acpi/arm64/gtdt.c
+index f471873..5d167f0 100644
+--- a/drivers/acpi/arm64/gtdt.c
++++ b/drivers/acpi/arm64/gtdt.c
+@@ -14,6 +14,7 @@
+ #include <linux/acpi.h>
+ #include <linux/init.h>
+ #include <linux/kernel.h>
++#include <linux/platform_device.h>
+=20
+ #include <clocksource/arm_arch_timer.h>
+=20
+@@ -59,6 +60,17 @@ static inline bool is_timer_block(void *platform_timer=
+)
+ 	return gh->type =3D=3D ACPI_GTDT_TYPE_TIMER_BLOCK;
+ }
+=20
++static inline bool is_non_secure_watchdog(void *platform_timer)
++{
++	struct acpi_gtdt_header *gh =3D platform_timer;
++	struct acpi_gtdt_watchdog *wd =3D platform_timer;
++
++	if (gh->type !=3D ACPI_GTDT_TYPE_WATCHDOG)
 +		return false;
 +
-+	/*
-+	 * Only one type of timer is probed,
-+	 * check if we have another type of timer node in device-tree.
-+	 */
-+	if (arch_timers_present & ARCH_TIMER_TYPE_CP15)
-+		dn = of_find_matching_node(NULL, arch_timer_mem_of_match);
-+	else
-+		dn = of_find_matching_node(NULL, arch_timer_of_match);
++	return !(wd->timer_flags & ACPI_GTDT_WATCHDOG_SECURE);
++}
 +
-+	if (dn && of_device_is_available(dn))
- 		needs_probing = true;
-+
- 	of_node_put(dn);
- 
- 	return needs_probing;
-@@ -855,17 +868,8 @@ arch_timer_needs_probing(int type, const struct of_device_id *matches)
- 
- static int __init arch_timer_common_init(void)
+ static int __init map_gt_gsi(u32 interrupt, u32 flags)
  {
--	unsigned mask = ARCH_TIMER_TYPE_CP15 | ARCH_TIMER_TYPE_MEM;
--
--	/* Wait until both nodes are probed if we have two timers */
--	if ((arch_timers_present & mask) != mask) {
--		if (arch_timer_needs_probing(ARCH_TIMER_TYPE_MEM,
--					     arch_timer_mem_of_match))
--			return 0;
--		if (arch_timer_needs_probing(ARCH_TIMER_TYPE_CP15,
--					     arch_timer_of_match))
--			return 0;
--	}
-+	if (acpi_disabled && arch_timer_needs_of_probing())
+ 	int trigger, polarity;
+@@ -285,3 +297,85 @@ int __init acpi_arch_timer_mem_init(struct arch_time=
+r_mem *timer_mem,
+=20
+ 	return 0;
+ }
++
++/*
++ * Initialize a SBSA generic Watchdog platform device info from GTDT
++ */
++static int __init gtdt_import_sbsa_gwdt(struct acpi_gtdt_watchdog *wd,
++					int index)
++{
++	struct platform_device *pdev;
++	int irq =3D map_gt_gsi(wd->timer_interrupt, wd->timer_flags);
++
++	/*
++	 * According to SBSA specification the size of refresh and control
++	 * frames of SBSA Generic Watchdog is SZ_4K(Offset 0x000 =E2=80=93 0xFF=
+F).
++	 */
++	struct resource res[] =3D {
++		DEFINE_RES_MEM(wd->control_frame_address, SZ_4K),
++		DEFINE_RES_MEM(wd->refresh_frame_address, SZ_4K),
++		DEFINE_RES_IRQ(irq),
++	};
++	int nr_res =3D ARRAY_SIZE(res);
++
++	pr_debug("found a Watchdog (0x%llx/0x%llx gsi:%u flags:0x%x).\n",
++		 wd->refresh_frame_address, wd->control_frame_address,
++		 wd->timer_interrupt, wd->timer_flags);
++
++	if (!(wd->refresh_frame_address && wd->control_frame_address)) {
++		pr_err(FW_BUG "failed to get the Watchdog base address.\n");
++		return -EINVAL;
++	}
++
++	if (irq <=3D 0) {
++		pr_warn("failed to map the Watchdog interrupt.\n");
++		nr_res--;
++	}
++
++	/*
++	 * Add a platform device named "sbsa-gwdt" to match the platform driver=
+.
++	 * "sbsa-gwdt": SBSA(Server Base System Architecture) Generic Watchdog
++	 * The platform driver (like drivers/watchdog/sbsa_gwdt.c)can get devic=
+e
++	 * info below by matching this name.
++	 */
++	pdev =3D platform_device_register_simple("sbsa-gwdt", index, res, nr_re=
+s);
++	if (IS_ERR(pdev)) {
++		acpi_unregister_gsi(wd->timer_interrupt);
++		return PTR_ERR(pdev);
++	}
++
++	return 0;
++}
++
++static int __init gtdt_sbsa_gwdt_init(void)
++{
++	int ret, i =3D 0;
++	void *platform_timer;
++	struct acpi_table_header *table;
++
++	if (acpi_disabled)
 +		return 0;
- 
- 	arch_timer_banner(arch_timers_present);
- 	arch_counter_register(arch_timers_present);
--- 
++
++	if (ACPI_FAILURE(acpi_get_table(ACPI_SIG_GTDT, 0, &table)))
++		return -EINVAL;
++
++	ret =3D acpi_gtdt_init(table, NULL);
++	if (ret)
++		return ret;
++
++	for_each_platform_timer(platform_timer) {
++		if (is_non_secure_watchdog(platform_timer)) {
++			ret =3D gtdt_import_sbsa_gwdt(platform_timer, i);
++			if (ret)
++				break;
++			i++;
++		}
++	}
++
++	if (i)
++		pr_info("found %d SBSA generic Watchdog(s).\n", i);
++
++	return ret;
++}
++
++device_initcall(gtdt_sbsa_gwdt_init);
+--=20
 2.9.3
 
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
