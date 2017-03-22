@@ -1,7 +1,7 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx07-00178001.pphosted.com ([62.209.51.94]:39278 "EHLO
+Received: from mx07-00178001.pphosted.com ([62.209.51.94]:47634 "EHLO
         mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S934671AbdCVNiD (ORCPT
+        by vger.kernel.org with ESMTP id S934655AbdCVNiD (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
         Wed, 22 Mar 2017 09:38:03 -0400
 From: Yannick Fertre <yannick.fertre@st.com>
@@ -17,48 +17,39 @@ CC: <linux-watchdog@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         Gabriel FERNANDEZ <gabriel.fernandez@st.com>,
         <devicetree@vger.kernel.org>,
         <linux-arm-kernel@lists.infradead.org>
-Subject: [PATCH v1 3/5] ARM: dts: stm32ap: Add watchdog support for STM32F429 SoC
-Date: Wed, 22 Mar 2017 14:36:24 +0100
-Message-ID: <1490189786-19232-4-git-send-email-yannick.fertre@st.com>
-In-Reply-To: <1490189786-19232-1-git-send-email-yannick.fertre@st.com>
-References: <1490189786-19232-1-git-send-email-yannick.fertre@st.com>
+Subject: [PATCH v1 0/5] STM32 Independant watchdog
+Date: Wed, 22 Mar 2017 14:36:21 +0100
+Message-ID: <1490189786-19232-1-git-send-email-yannick.fertre@st.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Signed-off-by: Yannick FERTRE <yannick.fertre@st.com>
----
- arch/arm/boot/dts/stm32f429.dtsi | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+Version 1:
+- Initial commit
 
-diff --git a/arch/arm/boot/dts/stm32f429.dtsi b/arch/arm/boot/dts/stm32f429.dtsi
-index ee0da97..148273b 100644
---- a/arch/arm/boot/dts/stm32f429.dtsi
-+++ b/arch/arm/boot/dts/stm32f429.dtsi
-@@ -65,7 +65,7 @@
- 			clock-frequency = <32768>;
- 		};
- 
--		clk-lsi {
-+		clk_lsi: clk-lsi {
- 			#clock-cells = <0>;
- 			compatible = "fixed-clock";
- 			clock-frequency = <32000>;
-@@ -812,6 +812,13 @@
- 			clocks = <&rcc 0 STM32F4_AHB2_CLOCK(RNG)>;
- 
- 		};
-+
-+		iwdg: iwdg@40003000 {
-+			compatible = "st,stm32-iwdg";
-+			reg = <0x40003000 0x400>;
-+			clocks = <&clk_lsi>;
-+			status = "disabled";
-+		};
- 	};
- };
- 
+The purpose of this set of patches is to add a new watchdog driver for
+stm32f429.
+This driver was developed and tested on evaluation board stm32429i.
+
+Yannick Fertre (5):
+  dt-bindings: Document STM32 IWDG bindings
+  drivers: watchdog: Add STM32 IWDG driver
+  ARM: dts: stm32ap: Add watchdog support for STM32F429 SoC
+  ARM: dts: stm32ap: Add watchdog support for STM32F429 eval board
+  ARM: configs: Add watchdog support in STM32 defconfig
+
+ .../devicetree/bindings/watchdog/st,stm32-iwdg.txt |  15 ++
+ arch/arm/boot/dts/stm32429i-eval.dts               |   4 +
+ arch/arm/boot/dts/stm32f429.dtsi                   |   9 +-
+ arch/arm/configs/stm32_defconfig                   |   1 +
+ drivers/watchdog/Kconfig                           |  11 +
+ drivers/watchdog/Makefile                          |   1 +
+ drivers/watchdog/stm32_iwdg.c                      | 289 +++++++++++++++++++++
+ 7 files changed, 329 insertions(+), 1 deletion(-)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/st,stm32-iwdg.txt
+ create mode 100644 drivers/watchdog/stm32_iwdg.c
+
 -- 
 1.9.1
 
