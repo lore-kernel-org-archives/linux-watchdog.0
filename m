@@ -1,140 +1,69 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:46062 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S933363AbdCUQoY (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 21 Mar 2017 12:44:24 -0400
-From: fu.wei@linaro.org
-To: rjw@rjwysocki.net, lenb@kernel.org, daniel.lezcano@linaro.org,
-        tglx@linutronix.de, marc.zyngier@arm.com, mark.rutland@arm.com,
-        lorenzo.pieralisi@arm.com, sudeep.holla@arm.com,
-        hanjun.guo@linaro.org
-Cc: linux-arm-kernel@lists.infradead.org, linaro-acpi@lists.linaro.org,
-        linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
-        rruigrok@codeaurora.org, harba@codeaurora.org, cov@codeaurora.org,
-        timur@codeaurora.org, graeme.gregory@linaro.org,
-        al.stone@linaro.org, jcm@redhat.com, wei@redhat.com, arnd@arndb.de,
-        catalin.marinas@arm.com, will.deacon@arm.com,
-        Suravee.Suthikulpanit@amd.com, leo.duran@amd.com, wim@iguana.be,
-        linux@roeck-us.net, linux-watchdog@vger.kernel.org,
-        tn@semihalf.com, christoffer.dall@linaro.org, julien.grall@arm.com,
-        Fu Wei <fu.wei@linaro.org>
-Subject: [PATCH v22 08/11] clocksource: arm_arch_timer: simplify ACPI support code.
-Date: Wed, 22 Mar 2017 00:31:19 +0800
-Message-Id: <20170321163122.9183-9-fu.wei@linaro.org>
-In-Reply-To: <20170321163122.9183-1-fu.wei@linaro.org>
-References: <20170321163122.9183-1-fu.wei@linaro.org>
+Received: from mx07-00178001.pphosted.com ([62.209.51.94]:38978 "EHLO
+        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S934030AbdCVNhx (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Wed, 22 Mar 2017 09:37:53 -0400
+From: Yannick Fertre <yannick.fertre@st.com>
+To: Wim Van Sebroeck <wim@iguana.be>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Rob Herring <robh+dt@kernel.org>,
+        Alexandre TORGUE <alexandre.torgue@st.com>,
+        Benjamin Gaignard <benjamin.gaignard@st.com>,
+        Yannick Fertre <yannick.fertre@st.com>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>
+CC: <linux-watchdog@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        Philippe Cornu <philippe.cornu@st.com>,
+        Gabriel FERNANDEZ <gabriel.fernandez@st.com>,
+        <devicetree@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>
+Subject: [PATCH v1 1/5] dt-bindings: Document STM32 IWDG bindings
+Date: Wed, 22 Mar 2017 14:36:22 +0100
+Message-ID: <1490189786-19232-2-git-send-email-yannick.fertre@st.com>
+In-Reply-To: <1490189786-19232-1-git-send-email-yannick.fertre@st.com>
+References: <1490189786-19232-1-git-send-email-yannick.fertre@st.com>
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-From: Fu Wei <fu.wei@linaro.org>
+From: Yannick Fertre <yfertre.stm32@gmail.com>
 
-The patch update arm_arch_timer driver to use the function
-provided by the new GTDT driver of ACPI.
-By this way, arm_arch_timer.c can be simplified, and separate
-all the ACPI GTDT knowledge from this timer driver.
+This adds documentation of device tree bindings for the STM32 IWDG
+(Independent WatchDoG).
 
-Signed-off-by: Fu Wei <fu.wei@linaro.org>
-Signed-off-by: Hanjun Guo <hanjun.guo@linaro.org>
-Tested-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
-Reviewed-by: Hanjun Guo <hanjun.guo@linaro.org>
-Tested-by: Hanjun Guo <hanjun.guo@linaro.org>
+Change-Id: Idadacc806d00205fe9af2e8606af229b4b760558
+Signed-off-by: Yannick Fertre <yfertre.stm32@gmail.com>
+Reviewed-on: https://gerrit.st.com/45217
+Reviewed-by: Yannick FERTRE <yannick.fertre@st.com>
+Tested-by: Yannick FERTRE <yannick.fertre@st.com>
+Reviewed-by: Ludovic BARRE <ludovic.barre@st.com>
 ---
- drivers/clocksource/arm_arch_timer.c | 54 ++++++++++++------------------------
- 1 file changed, 17 insertions(+), 37 deletions(-)
+ .../devicetree/bindings/watchdog/st,stm32-iwdg.txt        | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/st,stm32-iwdg.txt
 
-diff --git a/drivers/clocksource/arm_arch_timer.c b/drivers/clocksource/arm_arch_timer.c
-index 3ada5dc..ef747f3 100644
---- a/drivers/clocksource/arm_arch_timer.c
-+++ b/drivers/clocksource/arm_arch_timer.c
-@@ -1141,63 +1141,36 @@ static int __init arch_timer_mem_of_init(struct device_node *np)
- CLOCKSOURCE_OF_DECLARE(armv7_arch_timer_mem, "arm,armv7-timer-mem",
- 		       arch_timer_mem_of_init);
- 
--#ifdef CONFIG_ACPI
--static int __init map_generic_timer_interrupt(u32 interrupt, u32 flags)
--{
--	int trigger, polarity;
--
--	if (!interrupt)
--		return 0;
--
--	trigger = (flags & ACPI_GTDT_INTERRUPT_MODE) ? ACPI_EDGE_SENSITIVE
--			: ACPI_LEVEL_SENSITIVE;
--
--	polarity = (flags & ACPI_GTDT_INTERRUPT_POLARITY) ? ACPI_ACTIVE_LOW
--			: ACPI_ACTIVE_HIGH;
--
--	return acpi_register_gsi(NULL, interrupt, trigger, polarity);
--}
--
-+#ifdef CONFIG_ACPI_GTDT
- /* Initialize per-processor generic timer */
- static int __init arch_timer_acpi_init(struct acpi_table_header *table)
- {
- 	int ret;
--	struct acpi_table_gtdt *gtdt;
- 
- 	if (arch_timers_present & ARCH_TIMER_TYPE_CP15) {
- 		pr_warn("already initialized, skipping\n");
- 		return -EINVAL;
- 	}
- 
--	gtdt = container_of(table, struct acpi_table_gtdt, header);
--
- 	arch_timers_present |= ARCH_TIMER_TYPE_CP15;
- 
--	arch_timer_ppi[ARCH_TIMER_PHYS_SECURE_PPI] =
--		map_generic_timer_interrupt(gtdt->secure_el1_interrupt,
--		gtdt->secure_el1_flags);
-+	ret = acpi_gtdt_init(table, NULL);
-+	if (ret) {
-+		pr_err("Failed to init GTDT table.\n");
-+		return ret;
-+	}
- 
- 	arch_timer_ppi[ARCH_TIMER_PHYS_NONSECURE_PPI] =
--		map_generic_timer_interrupt(gtdt->non_secure_el1_interrupt,
--		gtdt->non_secure_el1_flags);
-+		acpi_gtdt_map_ppi(ARCH_TIMER_PHYS_NONSECURE_PPI);
- 
- 	arch_timer_ppi[ARCH_TIMER_VIRT_PPI] =
--		map_generic_timer_interrupt(gtdt->virtual_timer_interrupt,
--		gtdt->virtual_timer_flags);
-+		acpi_gtdt_map_ppi(ARCH_TIMER_VIRT_PPI);
- 
- 	arch_timer_ppi[ARCH_TIMER_HYP_PPI] =
--		map_generic_timer_interrupt(gtdt->non_secure_el2_interrupt,
--		gtdt->non_secure_el2_flags);
-+		acpi_gtdt_map_ppi(ARCH_TIMER_HYP_PPI);
- 
- 	arch_timer_kvm_info.virtual_irq = arch_timer_ppi[ARCH_TIMER_VIRT_PPI];
- 
--	/* Get the frequency from the sysreg CNTFRQ */
--	arch_timer_rate = arch_timer_get_cntfrq();
--	if (!arch_timer_rate) {
--		pr_err(FW_BUG "frequency not available.\n");
--		return -EINVAL;
--	}
--
- 	arch_timer_uses_ppi = arch_timer_select_ppi();
- 	if (!arch_timer_ppi[arch_timer_uses_ppi]) {
- 		pr_err("No interrupt available, giving up\n");
-@@ -1205,7 +1178,14 @@ static int __init arch_timer_acpi_init(struct acpi_table_header *table)
- 	}
- 
- 	/* Always-on capability */
--	arch_timer_c3stop = !(gtdt->non_secure_el1_flags & ACPI_GTDT_ALWAYS_ON);
-+	arch_timer_c3stop = acpi_gtdt_c3stop(arch_timer_uses_ppi);
+diff --git a/Documentation/devicetree/bindings/watchdog/st,stm32-iwdg.txt b/Documentation/devicetree/bindings/watchdog/st,stm32-iwdg.txt
+new file mode 100644
+index 0000000..9c6936b
+--- /dev/null
++++ b/Documentation/devicetree/bindings/watchdog/st,stm32-iwdg.txt
+@@ -0,0 +1,15 @@
++STM32 Independent WatchDoG (IWDG)
++---------------------------------
 +
-+	/* Get the frequency from the sysreg CNTFRQ */
-+	arch_timer_rate = arch_timer_get_cntfrq();
-+	if (!arch_timer_rate) {
-+		pr_err(FW_BUG "frequency not available.\n");
-+		return -EINVAL;
-+	}
- 
- 	ret = arch_timer_register();
- 	if (ret)
++Required properties:
++- compatible: "st,stm32-iwdg".
++- reg: physical base address and length of the registers set for the device;
++- clocks: Must contain a single entry describing the clock input
++
++Example:
++
++iwdg@40003000 {
++	compatible = "st,stm32-iwdg";
++	reg = <0x40003000 0x400>;
++	clocks = <&clk_lsi>;
++};
 -- 
-2.9.3
+1.9.1
 
