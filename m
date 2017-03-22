@@ -1,58 +1,58 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx08-00178001.pphosted.com ([91.207.212.93]:28729 "EHLO
-        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S934687AbdCVOOT (ORCPT
+Received: from mx07-00178001.pphosted.com ([62.209.51.94]:34201 "EHLO
+        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S934368AbdCVOLA (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 22 Mar 2017 10:14:19 -0400
-From: Yannick Fertre <yannick.fertre@st.com>
-To: Wim Van Sebroeck <wim@iguana.be>,
+        Wed, 22 Mar 2017 10:11:00 -0400
+Subject: Re: [PATCH v1 4/5] ARM: dts: stm32ap: Add watchdog support for
+ STM32F429 eval board
+To: Yannick Fertre <yannick.fertre@st.com>,
+        Wim Van Sebroeck <wim@iguana.be>,
         Guenter Roeck <linux@roeck-us.net>,
         Rob Herring <robh+dt@kernel.org>,
-        Alexandre TORGUE <alexandre.torgue@st.com>,
         Benjamin Gaignard <benjamin.gaignard@st.com>,
-        Yannick Fertre <yannick.fertre@st.com>,
         Maxime Coquelin <mcoquelin.stm32@gmail.com>
+References: <1490189786-19232-1-git-send-email-yannick.fertre@st.com>
+ <1490189786-19232-5-git-send-email-yannick.fertre@st.com>
 CC: <linux-watchdog@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         Philippe Cornu <philippe.cornu@st.com>,
         Gabriel FERNANDEZ <gabriel.fernandez@st.com>,
         <devicetree@vger.kernel.org>,
         <linux-arm-kernel@lists.infradead.org>
-Subject: [PATCH v2 0/5] STM32 Independant watchdog
-Date: Wed, 22 Mar 2017 15:12:49 +0100
-Message-ID: <1490191974-29722-1-git-send-email-yannick.fertre@st.com>
+From: Alexandre Torgue <alexandre.torgue@st.com>
+Message-ID: <877e3dbb-780c-1ece-04e1-594e8f783a5e@st.com>
+Date: Wed, 22 Mar 2017 14:51:12 +0100
 MIME-Version: 1.0
-Content-Type: text/plain
+In-Reply-To: <1490189786-19232-5-git-send-email-yannick.fertre@st.com>
+Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Version 2:
-- Add commit messages
+Hi
 
-Version 1:
-- Initial commit
+On 03/22/2017 02:36 PM, Yannick Fertre wrote:
+> Signed-off-by: Yannick Fertre <yannick.fertre@st.com>
+> ---
 
-The purpose of this set of patches is to add a new watchdog driver for
-stm32f429.
-This driver was developed and tested on evaluation board stm32429i.
+Please add a commit message and change commit header as following:
 
-Yannick Fertre (5):
-  dt-bindings: Document STM32 IWDG bindings
-  drivers: watchdog: Add STM32 IWDG driver
-  ARM: dts: stm32: Add watchdog support for STM32F429 SoC
-  ARM: dts: stm32: Add watchdog support for STM32F429 eval board
-  ARM: configs: Add watchdog support in STM32 defconfig
+ARM: dts: stm32: .....
 
- .../devicetree/bindings/watchdog/st,stm32-iwdg.txt |  15 ++
- arch/arm/boot/dts/stm32429i-eval.dts               |   4 +
- arch/arm/boot/dts/stm32f429.dtsi                   |   9 +-
- arch/arm/configs/stm32_defconfig                   |   1 +
- drivers/watchdog/Kconfig                           |  11 +
- drivers/watchdog/Makefile                          |   1 +
- drivers/watchdog/stm32_iwdg.c                      | 289 +++++++++++++++++++++
- 7 files changed, 329 insertions(+), 1 deletion(-)
- create mode 100644 Documentation/devicetree/bindings/watchdog/st,stm32-iwdg.txt
- create mode 100644 drivers/watchdog/stm32_iwdg.c
 
--- 
-1.9.1
-
+>  arch/arm/boot/dts/stm32429i-eval.dts | 4 ++++
+>  1 file changed, 4 insertions(+)
+>
+> diff --git a/arch/arm/boot/dts/stm32429i-eval.dts b/arch/arm/boot/dts/stm32429i-eval.dts
+> index 3c99466..aab81ed 100644
+> --- a/arch/arm/boot/dts/stm32429i-eval.dts
+> +++ b/arch/arm/boot/dts/stm32429i-eval.dts
+> @@ -181,3 +181,7 @@
+>  	pinctrl-names = "default";
+>  	status = "okay";
+>  };
+> +
+> +&iwdg {
+> +	status = "okay";
+> +};
+>
