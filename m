@@ -1,43 +1,89 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from hel-mailgw-01.vaisala.com ([193.143.230.17]:18508 "EHLO
-        hel-mailgw-01.vaisala.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752153AbdCTHhY (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 20 Mar 2017 03:37:24 -0400
-From: Tomas Melin <tomas.melin@vaisala.com>
-To: wim@iguana.be
-Cc: linux@roeck-us.net, linux-watchdog@vger.kernel.org,
-        Tomas Melin <tomas.melin@vaisala.com>
-Subject: [PATCH] watchdog: cadence_wdt: fix timeout setting
-Date: Mon, 20 Mar 2017 09:29:31 +0200
-Message-Id: <1489994971-56027-1-git-send-email-tomas.melin@vaisala.com>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-path: <stwiss.opensource@diasemi.com>
+Message-ID: <cover.1490608293.git.stwiss.opensource@diasemi.com>
+From: Steve Twiss <stwiss.opensource@diasemi.com>
+Date: Mon, 27 Mar 2017 10:51:33 +0100
+Subject: [PATCH V6 0/7]  da9061: DA9061 driver submission
+To: DEVICETREE <devicetree@vger.kernel.org>, Dmitry Torokhov
+	<dmitry.torokhov@gmail.com>, Eduardo Valentin <edubezval@gmail.com>, Guenter
+ Roeck <linux@roeck-us.net>, LINUX-INPUT <linux-input@vger.kernel.org>,
+	LINUX-KERNEL <linux-kernel@vger.kernel.org>, LINUX-PM
+	<linux-pm@vger.kernel.org>, LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
+	Lee Jones <lee.jones@linaro.org>, Liam Girdwood <lgirdwood@gmail.com>, Lukasz
+ Luba <lukasz.luba@arm.com>, Mark Brown <broonie@kernel.org>, Mark Rutland
+	<mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Steve Twiss
+	<stwiss.opensource@diasemi.com>, Wim Van Sebroeck <wim@iguana.be>, Zhang Rui
+	<rui.zhang@intel.com>
+CC: Support Opensource <support.opensource@diasemi.com>
+MIME-Version: 1.0
+Content-Type: text/plain
+List-ID: <linux-watchdog@vger.kernel.org>
 
-wdt_timeout must not be initialized to CDNS_WDT_DEFAULT_TIMEOUT in
-order to allow the value to be overriddden by a device tree setting.
+From: Steve Twiss <stwiss.opensource@diasemi.com>
 
-This way, the default timeout value will be used only in case module_param
-has not been set, or device tree timeout-sec has not been defined.
+This patch set adds support for the Dialog DA9061 Power Management IC.
+Support is made by altering the existing DA9062 device driver, where
+appropriate.
 
-Signed-off-by: Tomas Melin <tomas.melin@vaisala.com>
----
- drivers/watchdog/cadence_wdt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+In this patch set the following is provided:
 
-diff --git a/drivers/watchdog/cadence_wdt.c b/drivers/watchdog/cadence_wdt.c
-index f0d199a..85960c0 100644
---- a/drivers/watchdog/cadence_wdt.c
-+++ b/drivers/watchdog/cadence_wdt.c
-@@ -50,7 +50,7 @@
- /* Counter maximum value */
- #define CDNS_WDT_COUNTER_MAX 0xFFF
- 
--static int wdt_timeout = CDNS_WDT_DEFAULT_TIMEOUT;
-+static int wdt_timeout;
- static int nowayout = WATCHDOG_NOWAYOUT;
- 
- module_param(wdt_timeout, int, 0);
+[PATCH V5 1/8] Binding for watchdog
+[PATCH V5 2/8] Binding for thermal supervisor
+[PATCH V5 3/8] Binding for MFD and regulators
+[PATCH V5 4/8] MFD core support
+[PATCH V5 5/8] BUCKs and LDOs
+[PATCH V5 6/8] Watchdog
+[PATCH V5 7/8] PMIC temperature monitoring
+[PATCH V5 8/8] MAINTAINERS update
+
+Hello,
+
+The only minor changes this time.
+
+- minor comments to the thermal driver
+- rebase from v4.9 to v4.11-rc3
+- update the copyright header for the Dialog Legal dept
+- fix checkpatch warnings
+- add Acked-by
+
+Some previous patches from this set have been applied already:
+
+- Onkey binding
+- Onkey driver
+- Watchdog driver
+
+This patch applies against linux-next and v4.11-rc3 
+
+Thank you,
+Steve Twiss, Dialog Semiconductor
+
+Steve Twiss (7):
+  Documentation: devicetree: watchdog: da9062/61 watchdog timer binding
+  Documentation: devicetree: thermal: da9062/61 TJUNC temperature
+    binding
+  Documentation: devicetree: mfd: da9062/61 MFD binding
+  mfd: da9061: MFD core support
+  regulator: da9061: BUCK and LDO regulator driver
+  thermal: da9062/61: Thermal junction temperature monitoring driver
+  MAINTAINERS: da9062/61 updates to the Dialog Semiconductor search
+    terms
+
+ Documentation/devicetree/bindings/mfd/da9062.txt   |  49 ++-
+ .../devicetree/bindings/thermal/da9062-thermal.txt |  37 ++
+ .../devicetree/bindings/watchdog/da9062-wdt.txt    |  23 ++
+ MAINTAINERS                                        |   4 +
+ drivers/mfd/Kconfig                                |   5 +-
+ drivers/mfd/da9062-core.c                          | 427 ++++++++++++++++++++-
+ drivers/regulator/Kconfig                          |   4 +-
+ drivers/regulator/da9062-regulator.c               | 303 ++++++++++++++-
+ drivers/thermal/Kconfig                            |  10 +
+ drivers/thermal/Makefile                           |   1 +
+ drivers/thermal/da9062-thermal.c                   | 315 +++++++++++++++
+ include/linux/mfd/da9062/core.h                    |  29 +-
+ include/linux/mfd/da9062/registers.h               |   5 +-
+ 13 files changed, 1162 insertions(+), 50 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/thermal/da9062-thermal.txt
+ create mode 100644 Documentation/devicetree/bindings/watchdog/da9062-wdt.txt
+ create mode 100644 drivers/thermal/da9062-thermal.c
+
 -- 
-2.1.4
-
+end-of-patch for PATCH V6
