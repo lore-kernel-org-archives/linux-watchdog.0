@@ -1,88 +1,106 @@
 Return-path: <stwiss.opensource@diasemi.com>
-Message-ID: <cover.1490712213.git.stwiss.opensource@diasemi.com>
+Message-ID: <ed62a24ad7a926dd75cc96c3a1d07f4fa03994ea.1490712213.git.stwiss.opensource@diasemi.com>
+In-Reply-To: <cover.1490712213.git.stwiss.opensource@diasemi.com>
+References: <cover.1490712213.git.stwiss.opensource@diasemi.com>
 From: Steve Twiss <stwiss.opensource@diasemi.com>
 Date: Tue, 28 Mar 2017 15:43:33 +0100
-Subject: [PATCH V7 0/7]  da9061: DA9061 driver submission
+Subject: [PATCH V7 7/7] MAINTAINERS: da9062/61 updates to the Dialog
+ Semiconductor search terms
 To: DEVICETREE <devicetree@vger.kernel.org>, Dmitry Torokhov
 	<dmitry.torokhov@gmail.com>, Eduardo Valentin <edubezval@gmail.com>, Guenter
  Roeck <linux@roeck-us.net>, LINUX-INPUT <linux-input@vger.kernel.org>,
 	LINUX-KERNEL <linux-kernel@vger.kernel.org>, LINUX-PM
 	<linux-pm@vger.kernel.org>, LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
-	Lee Jones <lee.jones@linaro.org>, Liam Girdwood <lgirdwood@gmail.com>, Lukasz
- Luba <lukasz.luba@arm.com>, Mark Brown <broonie@kernel.org>, Mark Rutland
-	<mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Steve Twiss
-	<stwiss.opensource@diasemi.com>, Wim Van Sebroeck <wim@iguana.be>, Zhang Rui
-	<rui.zhang@intel.com>
-CC: Support Opensource <support.opensource@diasemi.com>
+	Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Wim
+ Van Sebroeck <wim@iguana.be>, Zhang Rui <rui.zhang@intel.com>
+CC: DEVICETREE <devicetree@vger.kernel.org>, LINUX-INPUT
+	<linux-input@vger.kernel.org>, LINUX-KERNEL <linux-kernel@vger.kernel.org>,
+	LINUX-PM <linux-pm@vger.kernel.org>, LINUX-WATCHDOG
+	<linux-watchdog@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Liam
+ Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Support
+ Opensource <support.opensource@diasemi.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 List-ID: <linux-watchdog@vger.kernel.org>
 
 From: Steve Twiss <stwiss.opensource@diasemi.com>
 
-This patch set adds support for the Dialog DA9061 Power Management IC.
-Support is made by altering the existing DA9062 device driver, where
-appropriate.
+Hi,
 
-Hello,
+Dialog Semiconductor support would like to add to the MAINTAINERS search
+terms. This update will allow us to follow files for device tree bindings
+and source code relating to input onkey drivers, chip thermal monitoring
+and watchdog timers.
 
-Previously, there were only minor changes for v6.
-The patch v7 introduces a compile test for x86 64-bit.
+Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
 
-This v7 has one minor change to the MFD core after a compile test robot
-turned-up some warnings on ARCH=x86_64.
+---
+This patch applies against linux-next and v4.11-rc3
 
-For v7:
-- compile tested ARCH=x86_64 for all components
-- removed da9062-core.c compilation warning during void* to integer cast
-  on x86_64 using compiler option -Wpointer-to-int-cast
+v6 -> v7
+ - NO CODE CHANGE
 
-For v6:
-- minor comments to the thermal driver
-- rebase from v4.9 to v4.11-rc3
-- update the copyright header for the Dialog Legal dept
-- fix checkpatch warnings
-- add Acked-by
+v5 -> v6
+ - NO CODE CHANGE
+ - Rebased from v4.8 to v4.11-rc3
+ - Patch renamed from [PATCH V5 8/8] to [PATCH V5 7/7]
 
-Some previous patches from this set have been applied already:
+v4 -> v5
+ - NO CODE CHANGE
+ - Rebased from v4.8 to v4.9
 
-- Onkey binding
-- Onkey driver
-- Watchdog driver
+v3 -> v4
+ - NO CODE CHANGE
+ - Patch renamed from [PATCH V3 9/9] to [PATCH V4 8/8]
 
-This patch applies against linux-next and v4.11-rc3 
+v2 -> v3
+ - NO CODE CHANGE
+ - Patch renamed from [PATCH V2 10/10] to [PATCH V3 9/9]
 
-Thank you,
+v1 -> v2
+ - NO CODE CHANGE
+
+Hi,
+
+This patch depends on acceptance of the following from this patch set:
+
+- [PATCH V5 7/8] PMIC temperature monitoring
+
+and also from the following binding file changes:
+
+- Binding for onkey (already applied by Dmitry Torokhov)
+- [PATCH V5 1/8] Binding for watchdog
+- [PATCH V5 2/8] Binding for thermal
+
+Regards,
 Steve Twiss, Dialog Semiconductor
 
-Steve Twiss (7):
-  Documentation: devicetree: watchdog: da9062/61 watchdog timer binding
-  Documentation: devicetree: thermal: da9062/61 TJUNC temperature
-    binding
-  Documentation: devicetree: mfd: da9062/61 MFD binding
-  mfd: da9061: MFD core support
-  regulator: da9061: BUCK and LDO regulator driver
-  thermal: da9062/61: Thermal junction temperature monitoring driver
-  MAINTAINERS: da9062/61 updates to the Dialog Semiconductor search
-    terms
 
- Documentation/devicetree/bindings/mfd/da9062.txt   |  49 ++-
- .../devicetree/bindings/thermal/da9062-thermal.txt |  37 ++
- .../devicetree/bindings/watchdog/da9062-wdt.txt    |  23 ++
- MAINTAINERS                                        |   4 +
- drivers/mfd/Kconfig                                |   5 +-
- drivers/mfd/da9062-core.c                          | 427 ++++++++++++++++++++-
- drivers/regulator/Kconfig                          |   4 +-
- drivers/regulator/da9062-regulator.c               | 303 ++++++++++++++-
- drivers/thermal/Kconfig                            |  10 +
- drivers/thermal/Makefile                           |   1 +
- drivers/thermal/da9062-thermal.c                   | 315 +++++++++++++++
- include/linux/mfd/da9062/core.h                    |  29 +-
- include/linux/mfd/da9062/registers.h               |   5 +-
- 13 files changed, 1162 insertions(+), 50 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/thermal/da9062-thermal.txt
- create mode 100644 Documentation/devicetree/bindings/watchdog/da9062-wdt.txt
- create mode 100644 drivers/thermal/da9062-thermal.c
+ MAINTAINERS | 4 ++++
+ 1 file changed, 4 insertions(+)
 
+diff --git a/MAINTAINERS b/MAINTAINERS
+index c776906..bab1e77 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -3926,7 +3926,10 @@ W:	http://www.dialog-semiconductor.com/products
+ S:	Supported
+ F:	Documentation/hwmon/da90??
+ F:	Documentation/devicetree/bindings/mfd/da90*.txt
++F:	Documentation/devicetree/bindings/input/da90??-onkey.txt
++F:	Documentation/devicetree/bindings/thermal/da90??-thermal.txt
+ F:	Documentation/devicetree/bindings/regulator/da92*.txt
++F:	Documentation/devicetree/bindings/watchdog/da92??-wdt.txt
+ F:	Documentation/devicetree/bindings/sound/da[79]*.txt
+ F:	drivers/gpio/gpio-da90??.c
+ F:	drivers/hwmon/da90??-hwmon.c
+@@ -3941,6 +3944,7 @@ F:	drivers/power/supply/da9052-battery.c
+ F:	drivers/power/supply/da91??-*.c
+ F:	drivers/regulator/da903x.c
+ F:	drivers/regulator/da9???-regulator.[ch]
++F:	drivers/thermal/da90??-thermal.c
+ F:	drivers/rtc/rtc-da90??.c
+ F:	drivers/video/backlight/da90??_bl.c
+ F:	drivers/watchdog/da90??_wdt.c
 -- 
 end-of-patch for PATCH V7
