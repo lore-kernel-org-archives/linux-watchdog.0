@@ -1,68 +1,88 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:37438 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752395AbdC2DPx (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 28 Mar 2017 23:15:53 -0400
-Subject: Re: [PATCH v3 1/5] dt-bindings: Document STM32 IWDG bindings
-To: Yannick Fertre <yannick.fertre@st.com>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        Rob Herring <robh+dt@kernel.org>,
-        Alexandre TORGUE <alexandre.torgue@st.com>,
-        Benjamin Gaignard <benjamin.gaignard@st.com>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>
-References: <1490195083-25117-1-git-send-email-yannick.fertre@st.com>
- <1490195083-25117-2-git-send-email-yannick.fertre@st.com>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Philippe Cornu <philippe.cornu@st.com>,
-        Gabriel FERNANDEZ <gabriel.fernandez@st.com>,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <425a174f-91ca-75eb-cf3b-af8a1d06c705@roeck-us.net>
-Date: Tue, 28 Mar 2017 20:15:40 -0700
+Return-path: <stwiss.opensource@diasemi.com>
+Message-ID: <cover.1490712213.git.stwiss.opensource@diasemi.com>
+From: Steve Twiss <stwiss.opensource@diasemi.com>
+Date: Tue, 28 Mar 2017 15:43:33 +0100
+Subject: [PATCH V7 0/7]  da9061: DA9061 driver submission
+To: DEVICETREE <devicetree@vger.kernel.org>, Dmitry Torokhov
+	<dmitry.torokhov@gmail.com>, Eduardo Valentin <edubezval@gmail.com>, Guenter
+ Roeck <linux@roeck-us.net>, LINUX-INPUT <linux-input@vger.kernel.org>,
+	LINUX-KERNEL <linux-kernel@vger.kernel.org>, LINUX-PM
+	<linux-pm@vger.kernel.org>, LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
+	Lee Jones <lee.jones@linaro.org>, Liam Girdwood <lgirdwood@gmail.com>, Lukasz
+ Luba <lukasz.luba@arm.com>, Mark Brown <broonie@kernel.org>, Mark Rutland
+	<mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Steve Twiss
+	<stwiss.opensource@diasemi.com>, Wim Van Sebroeck <wim@iguana.be>, Zhang Rui
+	<rui.zhang@intel.com>
+CC: Support Opensource <support.opensource@diasemi.com>
 MIME-Version: 1.0
-In-Reply-To: <1490195083-25117-2-git-send-email-yannick.fertre@st.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Content-Type: text/plain
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 03/22/2017 08:04 AM, Yannick Fertre wrote:
-> From: Yannick Fertre <yfertre.stm32@gmail.com>
->
-> This adds documentation of device tree bindings for the STM32 IWDG
-> (Independent WatchDoG).
->
-> Change-Id: Idadacc806d00205fe9af2e8606af229b4b760558
+From: Steve Twiss <stwiss.opensource@diasemi.com>
 
-Please drop.
+This patch set adds support for the Dialog DA9061 Power Management IC.
+Support is made by altering the existing DA9062 device driver, where
+appropriate.
 
-> Signed-off-by: Yannick Fertre <yannick.fertre@st.com>
-> ---
->  .../devicetree/bindings/watchdog/st,stm32-iwdg.txt        | 15 +++++++++++++++
->  1 file changed, 15 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/watchdog/st,stm32-iwdg.txt
->
-> diff --git a/Documentation/devicetree/bindings/watchdog/st,stm32-iwdg.txt b/Documentation/devicetree/bindings/watchdog/st,stm32-iwdg.txt
-> new file mode 100644
-> index 0000000..036b040
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/watchdog/st,stm32-iwdg.txt
-> @@ -0,0 +1,15 @@
-> +STM32 Independent WatchDoG (IWDG)
-> +---------------------------------
-> +
-> +Required properties:
-> +- compatible: "st,stm32-iwdg"
-> +- reg: physical base address and length of the registers set for the device
-> +- clocks: must contain a single entry describing the clock input
-> +
-> +Example:
-> +
-> +iwdg@40003000 {
-> +	compatible = "st,stm32-iwdg";
-> +	reg = <0x40003000 0x400>;
-> +	clocks = <&clk_lsi>;
-> +};
->
+Hello,
 
+Previously, there were only minor changes for v6.
+The patch v7 introduces a compile test for x86 64-bit.
+
+This v7 has one minor change to the MFD core after a compile test robot
+turned-up some warnings on ARCH=x86_64.
+
+For v7:
+- compile tested ARCH=x86_64 for all components
+- removed da9062-core.c compilation warning during void* to integer cast
+  on x86_64 using compiler option -Wpointer-to-int-cast
+
+For v6:
+- minor comments to the thermal driver
+- rebase from v4.9 to v4.11-rc3
+- update the copyright header for the Dialog Legal dept
+- fix checkpatch warnings
+- add Acked-by
+
+Some previous patches from this set have been applied already:
+
+- Onkey binding
+- Onkey driver
+- Watchdog driver
+
+This patch applies against linux-next and v4.11-rc3 
+
+Thank you,
+Steve Twiss, Dialog Semiconductor
+
+Steve Twiss (7):
+  Documentation: devicetree: watchdog: da9062/61 watchdog timer binding
+  Documentation: devicetree: thermal: da9062/61 TJUNC temperature
+    binding
+  Documentation: devicetree: mfd: da9062/61 MFD binding
+  mfd: da9061: MFD core support
+  regulator: da9061: BUCK and LDO regulator driver
+  thermal: da9062/61: Thermal junction temperature monitoring driver
+  MAINTAINERS: da9062/61 updates to the Dialog Semiconductor search
+    terms
+
+ Documentation/devicetree/bindings/mfd/da9062.txt   |  49 ++-
+ .../devicetree/bindings/thermal/da9062-thermal.txt |  37 ++
+ .../devicetree/bindings/watchdog/da9062-wdt.txt    |  23 ++
+ MAINTAINERS                                        |   4 +
+ drivers/mfd/Kconfig                                |   5 +-
+ drivers/mfd/da9062-core.c                          | 427 ++++++++++++++++++++-
+ drivers/regulator/Kconfig                          |   4 +-
+ drivers/regulator/da9062-regulator.c               | 303 ++++++++++++++-
+ drivers/thermal/Kconfig                            |  10 +
+ drivers/thermal/Makefile                           |   1 +
+ drivers/thermal/da9062-thermal.c                   | 315 +++++++++++++++
+ include/linux/mfd/da9062/core.h                    |  29 +-
+ include/linux/mfd/da9062/registers.h               |   5 +-
+ 13 files changed, 1162 insertions(+), 50 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/thermal/da9062-thermal.txt
+ create mode 100644 Documentation/devicetree/bindings/watchdog/da9062-wdt.txt
+ create mode 100644 drivers/thermal/da9062-thermal.c
+
+-- 
+end-of-patch for PATCH V7
