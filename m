@@ -1,32 +1,33 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail1.bemta5.messagelabs.com ([195.245.231.146]:39174 "EHLO
+Received: from mail1.bemta5.messagelabs.com ([195.245.231.151]:18437 "EHLO
         mail1.bemta5.messagelabs.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1754364AbdC1O5V (ORCPT
+        by vger.kernel.org with ESMTP id S1755106AbdC1O6O (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 28 Mar 2017 10:57:21 -0400
-Message-ID: <ad62125e709ed65f5738ce579d4e6d22fae12f5e.1490712213.git.stwiss.opensource@diasemi.com>
+        Tue, 28 Mar 2017 10:58:14 -0400
+Message-ID: <c9c52a83336ac508789c25849d2a88296b7b4b3a.1490712213.git.stwiss.opensource@diasemi.com>
 In-Reply-To: <cover.1490712213.git.stwiss.opensource@diasemi.com>
 References: <cover.1490712213.git.stwiss.opensource@diasemi.com>
 From: Steve Twiss <stwiss.opensource@diasemi.com>
-Date: Tue, 28 Mar 2017 15:43:30 +0100
-Subject: [PATCH V7 1/7] Documentation: devicetree: watchdog: da9062/61
- watchdog timer binding
+Date: Tue, 28 Mar 2017 15:43:31 +0100
+Subject: [PATCH V7 2/7] Documentation: devicetree: thermal: da9062/61 TJUNC
+ temperature binding
 To: DEVICETREE <devicetree@vger.kernel.org>,
-        Guenter Roeck <linux@roeck-us.net>,
+        Eduardo Valentin <edubezval@gmail.com>,
         LINUX-KERNEL <linux-kernel@vger.kernel.org>,
-        LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
+        LINUX-PM <linux-pm@vger.kernel.org>,
         Mark Rutland <mark.rutland@arm.com>,
         Rob Herring <robh+dt@kernel.org>,
-        Wim Van Sebroeck <wim@iguana.be>
+        Zhang Rui <rui.zhang@intel.com>
 CC: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Eduardo Valentin <edubezval@gmail.com>,
+        Guenter Roeck <linux@roeck-us.net>,
         LINUX-INPUT <linux-input@vger.kernel.org>,
-        LINUX-PM <linux-pm@vger.kernel.org>,
+        LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
         Lee Jones <lee.jones@linaro.org>,
         Liam Girdwood <lgirdwood@gmail.com>,
+        Lukasz Luba <lukasz.luba@arm.com>,
         Mark Brown <broonie@kernel.org>,
         Support Opensource <support.opensource@diasemi.com>,
-        Zhang Rui <rui.zhang@intel.com>
+        Wim Van Sebroeck <wim@iguana.be>
 MIME-Version: 1.0
 Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -34,17 +35,15 @@ List-Id: linux-watchdog@vger.kernel.org
 
 From: Steve Twiss <stwiss.opensource@diasemi.com>
 
-Add binding information for DA9062 and DA9061 watchdog.
+Device tree binding information for DA9062 and DA9061 thermal junction
+temperature monitor.
 
-Example bindings for both DA9062 and DA9061 devices are added. For
-the DA9061 device, a fallback compatible line is added as a valid
-combination of compatible strings.
+Binding descriptions for the DA9061 and DA9062 thermal TJUNC supervisor
+device driver, using a single THERMAL_TRIP_HOT trip-wire and allowing for
+a configurable polling period for over-temperature polling.
 
-The original binding for DA9062 (only) used to reside inside the
-Documentation/devicetree/bindings/mfd/da9062.txt MFD document.
-The da9062-watchdog section was deleted in that file and replaced
-with a link to the new DA9061/62 binding information stored in this
-patch.
+This patch also adds two examples, one for DA9062 and one for DA9061. The 
+DA9061 example uses a fall-back compatible string for the DA9062.
 
 Acked-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
@@ -58,84 +57,96 @@ v6 -> v7
 v5 -> v6
  - NO CODE CHANGE
  - Rebased from v4.9 to v4.11-rc3
+ - Added Acked-by Rob Herring
 
 v4 -> v5
- - NO CODE CHANGE
  - Rebased from v4.8 to v4.9
+ - Updates from comments by Eduardo Valentin
+ - Replace vendor defined dlg,tjunc-temp-polling-period-ms with standard
+   thermal core polling-delay-passive as part of the device tree
+   initialisation
+ - Remove Acked-by Rob Herring
 
 v3 -> v4
  - NO CODE CHANGE
- - Patch renamed from [PATCH V3 2/9] to [PATCH V4 1/8]
+ - Patch renamed from [PATCH V3 3/9] to [PATCH V4 2/8]
  - Added Acked-by Rob Herring
 
 v2 -> v3
- - Patch renamed from [PATCH V1 02/10] to [PATCH V3 2/9]
+ - Patch renamed from [PATCH V2 03/10] to [PATCH V3 3/9]
+ - Changes suggested from other component reviews by Rob Herring:
  - Each compatible line should be a valid combination of compatible
-   strings, alter DA9061 line to include the fall back compatible string
- - Update the commit message to describe this change
- - Add information about associated patches from this set without
+   strings: alter DA9061 line to include the fall back compatible string
+   and update the commit message accordingly
+ - Add e-mail information about associated patches from this set without
    describing them as being explicitly dependent on this binding
 
 v1 -> v2
- - Patch renamed from [PATCH V1 07/10] to [PATCH V2 02/10] -- these
+ - Patch renamed from [PATCH V1 08/10] to [PATCH V2 03/10] -- these
    changes were made to fix checkpatch warnings caused by the patch
    set dependency order
- - Updated the patch description to be explicit about where parts of
-   this binding had originally been stored
  - A second example for DA9061 is provided to highlight the use of a
-   fall-back compatible option for the DA9062 watchdog driver
+   fall-back compatible option for the DA9062
 
 Hi,
 
 No code changes for this version PATCH V5.
 
 As previously:
-For the watchdog case: the DA9062 device driver is compatible with the
-DA9061 and for this reason there is minimal change required to the DA9062
-watchdog device driver. The example for the DA9061 watchdog shows the
-use of a fall-back compatible string.
+The device driver from this patch set (associated with this binding) is:
+  [PATCH V5 7/8] thermal: da9061: TJUNC temperature driver 
 
-Other information:
-The device driver from this patch set (associated with this binding) is
-  [PATCH V5 6/8] watchdog: da9061: watchdog driver
- 
 Regards,
 Steve Twiss, Dialog Semiconductor
 
 
- .../devicetree/bindings/watchdog/da9062-wdt.txt    | 23 ++++++++++++++++++++++
- 1 file changed, 23 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/watchdog/da9062-wdt.txt
+ .../devicetree/bindings/thermal/da9062-thermal.txt | 37 ++++++++++++++++++++++
+ 1 file changed, 37 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/thermal/da9062-thermal.txt
 
-diff --git a/Documentation/devicetree/bindings/watchdog/da9062-wdt.txt b/Documentation/devicetree/bindings/watchdog/da9062-wdt.txt
+diff --git a/Documentation/devicetree/bindings/thermal/da9062-thermal.txt b/Documentation/devicetree/bindings/thermal/da9062-thermal.txt
 new file mode 100644
-index 0000000..b935b52
+index 0000000..08cc72e
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/watchdog/da9062-wdt.txt
-@@ -0,0 +1,23 @@
-+* Dialog Semiconductor DA9062/61 Watchdog Timer
++++ b/Documentation/devicetree/bindings/thermal/da9062-thermal.txt
+@@ -0,0 +1,37 @@
++* Dialog DA9062/61 TJUNC Thermal Module
++
++This module is part of the DA9061/DA9062. For more details about entire
++DA9062 and DA9061 chips see Documentation/devicetree/bindings/mfd/da9062.txt
++
++Junction temperature thermal module uses an interrupt signal to identify
++high THERMAL_TRIP_HOT temperatures for the PMIC device.
 +
 +Required properties:
 +
 +- compatible: should be one of the following valid compatible string lines:
-+	"dlg,da9061-watchdog", "dlg,da9062-watchdog"
-+	"dlg,da9062-watchdog"
++        "dlg,da9061-thermal", "dlg,da9062-thermal"
++        "dlg,da9062-thermal"
++
++Optional properties:
++
++- polling-delay-passive : Specify the polling period, measured in
++    milliseconds, between thermal zone device update checks.
 +
 +Example: DA9062
 +
 +	pmic0: da9062@58 {
-+		watchdog {
-+			compatible = "dlg,da9062-watchdog";
++		thermal {
++			compatible = "dlg,da9062-thermal";
++			polling-delay-passive = <3000>;
 +		};
 +	};
 +
-+Example: DA9061 using a fall-back compatible for the DA9062 watchdog driver
++Example: DA9061 using a fall-back compatible for the DA9062 onkey driver
 +
 +	pmic0: da9061@58 {
-+		watchdog {
-+			compatible = "dlg,da9061-watchdog", "dlg,da9062-watchdog";
++		thermal {
++			compatible = "dlg,da9061-thermal", "dlg,da9062-thermal";
++			polling-delay-passive = <3000>;
 +		};
 +	};
++
 -- 
 end-of-patch for PATCH V7
 
