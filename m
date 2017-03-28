@@ -1,185 +1,88 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wr0-f170.google.com ([209.85.128.170]:36447 "EHLO
-        mail-wr0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752600AbdC1O6Z (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 28 Mar 2017 10:58:25 -0400
-Received: by mail-wr0-f170.google.com with SMTP id w11so89918434wrc.3
-        for <linux-watchdog@vger.kernel.org>; Tue, 28 Mar 2017 07:58:19 -0700 (PDT)
-Date: Tue, 28 Mar 2017 16:58:14 +0200
-From: Daniel Lezcano <daniel.lezcano@linaro.org>
-To: fu.wei@linaro.org
-Cc: rjw@rjwysocki.net, lenb@kernel.org, tglx@linutronix.de,
-        marc.zyngier@arm.com, mark.rutland@arm.com,
-        lorenzo.pieralisi@arm.com, sudeep.holla@arm.com,
-        hanjun.guo@linaro.org, linux-arm-kernel@lists.infradead.org,
-        linaro-acpi@lists.linaro.org, linux-kernel@vger.kernel.org,
-        linux-acpi@vger.kernel.org, rruigrok@codeaurora.org,
-        harba@codeaurora.org, cov@codeaurora.org, timur@codeaurora.org,
-        graeme.gregory@linaro.org, al.stone@linaro.org, jcm@redhat.com,
-        wei@redhat.com, arnd@arndb.de, catalin.marinas@arm.com,
-        will.deacon@arm.com, Suravee.Suthikulpanit@amd.com,
-        leo.duran@amd.com, wim@iguana.be, linux@roeck-us.net,
-        linux-watchdog@vger.kernel.org, tn@semihalf.com,
-        christoffer.dall@linaro.org, julien.grall@arm.com
-Subject: Re: [PATCH v22 02/11] clocksource: arm_arch_timer: separate out
- device-tree code and remove arch_timer_detect_rate
-Message-ID: <20170328145814.GE2123@mai>
+Received: from foss.arm.com ([217.140.101.70]:50684 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1753603AbdC1PBv (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 28 Mar 2017 11:01:51 -0400
+Date: Tue, 28 Mar 2017 15:53:26 +0100
+From: Mark Rutland <mark.rutland@arm.com>
+To: Fu Wei <fu.wei@linaro.org>
+Cc: Jon Masters <jcm@jonmasters.org>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Len Brown <lenb@kernel.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Hanjun Guo <hanjun.guo@linaro.org>,
+        linux-arm-kernel@lists.infradead.org,
+        Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
+        rruigrok@codeaurora.org, "Abdulhamid, Harb" <harba@codeaurora.org>,
+        Christopher Covington <cov@codeaurora.org>,
+        Timur Tabi <timur@codeaurora.org>,
+        G Gregory <graeme.gregory@linaro.org>,
+        Al Stone <al.stone@linaro.org>, Jon Masters <jcm@redhat.com>,
+        Wei Huang <wei@redhat.com>, Arnd Bergmann <arnd@arndb.de>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
+        Leo Duran <leo.duran@amd.com>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Guenter Roeck <linux@roeck-us.net>,
+        linux-watchdog@vger.kernel.org, Tomasz Nowicki <tn@semihalf.com>,
+        Christoffer Dall <christoffer.dall@linaro.org>,
+        Julien Grall <julien.grall@arm.com>
+Subject: Re: [PATCH v22 00/11] acpi, clocksource: add GTDT driver and GTDT
+ support in arm_arch_timer
+Message-ID: <20170328145325.GD8643@leverpostej>
 References: <20170321163122.9183-1-fu.wei@linaro.org>
- <20170321163122.9183-3-fu.wei@linaro.org>
+ <1cc5a994-0af6-79ea-930d-44b3fc789427@jonmasters.org>
+ <CADyBb7ujZKDF0aUJZRUN81jor04mZ-V5ESWScAjaxoHQUeVFSA@mail.gmail.com>
+ <20170328130552.GA8643@leverpostej>
+ <CADyBb7vddnQ4TZXaem3q=+v=vC41J7O4cVsokn04S2jGGU8veA@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20170321163122.9183-3-fu.wei@linaro.org>
+In-Reply-To: <CADyBb7vddnQ4TZXaem3q=+v=vC41J7O4cVsokn04S2jGGU8veA@mail.gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
 
-On Wed, Mar 22, 2017 at 12:31:13AM +0800, fu.wei@linaro.org wrote:
-> From: Fu Wei <fu.wei@linaro.org>
->=20
-> Currently, the counter frequency detection call(arch_timer_detect_rate)
-> includes getting the frequency from the device-tree property, the per-c=
-pu
-> arch-timer and the memory-mapped (MMIO) timer interfaces.
-> But reading device-tree property will be needed only when system boot w=
-ith
-> device-tree, and reading from the per-cpu arch-timer and the memory-map=
-ped
-> (MMIO) timer interfaces will be needed only when the system initializes
-> the relevant timer.
->=20
-> This patch separates out device-tree code, keep them in device-tree ini=
-t
-> function, and removes arch_timer_detect_rate founction, then uses the
-> arch_timer_get_cntfrq and arch_timer_mem_get_cntfrq directly.
->=20
-> Signed-off-by: Fu Wei <fu.wei@linaro.org>
-> ---
->  drivers/clocksource/arm_arch_timer.c | 58 +++++++++++++++++++---------=
---------
->  1 file changed, 30 insertions(+), 28 deletions(-)
->=20
-> diff --git a/drivers/clocksource/arm_arch_timer.c b/drivers/clocksource=
-/arm_arch_timer.c
-> index 843f923..29ca7d6 100644
-> --- a/drivers/clocksource/arm_arch_timer.c
-> +++ b/drivers/clocksource/arm_arch_timer.c
-> @@ -560,30 +560,6 @@ static u32 arch_timer_mem_get_cntfrq(void __iomem =
-*cntbase)
->  	return readl_relaxed(cntbase + CNTFRQ);
->  }
-> =20
-> -static void
-> -arch_timer_detect_rate(void __iomem *cntbase, struct device_node *np)
-> -{
-> -	/* Who has more than one independent system counter? */
-> -	if (arch_timer_rate)
-> -		return;
-> -
-> -	/*
-> -	 * Try to determine the frequency from the device tree or CNTFRQ,
-> -	 * if ACPI is enabled, get the frequency from CNTFRQ ONLY.
-> -	 */
-> -	if (!acpi_disabled ||
-> -	    of_property_read_u32(np, "clock-frequency", &arch_timer_rate)) {
-> -		if (cntbase)
-> -			arch_timer_rate =3D arch_timer_mem_get_cntfrq(cntbase);
-> -		else
-> -			arch_timer_rate =3D arch_timer_get_cntfrq();
-> -	}
-> -
-> -	/* Check the timer frequency. */
-> -	if (arch_timer_rate =3D=3D 0)
-> -		pr_warn("frequency not available\n");
-> -}
-> -
->  static void arch_timer_banner(unsigned type)
->  {
->  	pr_info("%s%s%s timer(s) running at %lu.%02luMHz (%s%s%s).\n",
-> @@ -958,7 +934,17 @@ static int __init arch_timer_of_init(struct device=
-_node *np)
->  	for (i =3D ARCH_TIMER_PHYS_SECURE_PPI; i < ARCH_TIMER_MAX_TIMER_PPI; =
-i++)
->  		arch_timer_ppi[i] =3D irq_of_parse_and_map(np, i);
-> =20
-> -	arch_timer_detect_rate(NULL, np);
-> +	/*
-> +	 * Try to determine the frequency from the device tree,
-> +	 * if fail, get the frequency from the sysreg CNTFRQ.
-> +	 */
-> +	if (!arch_timer_rate &&
+Hi,
 
-This variable is set only if "arm,armv7-timer" and "arm,armv7-timer-mem" =
-are
-declared together in the DT, right ?
+On Tue, Mar 28, 2017 at 10:29:10PM +0800, Fu Wei wrote:
+> On 28 March 2017 at 21:05, Mark Rutland <mark.rutland@arm.com> wrote:
+> > Sorry for the delay; I have not had the time to focus on this as I would
+> > like to. I'm happy with patches 1-4, but from patch 5 onwards, there's
+> > one change I'd like to see.
+> >
+> > I'd prefer that mmio timer frame rame N was always stored at
+> > arch_timer_mem::frame[N], rather than arch_timer_mem::frame[] being in
+> > an arbitrary order. That will make arch_timer_mem_frame::frame_nr
+> > redundant.
+> >
+> > To allow arch_timer_mem::frame[] this to be sparse, I'm happy to have a
+> > bool arch_timer_mem_frame::valid field that we set when probing each
+> > frame. Then we don't need arch_timer_mem::num_frames.
+> >
+> > This will make iterating over the frames far less confusing, and makes
+> > it simple to detect when a frame number is erroneously reused.
+> >
+> > Otherwise, I'm largely happy to pick the rest and apply any fixups
+> > myself.
+> 
+> Great thanks for your feedback!
+> I will follow your suggestion to improve my patches, then post it in a day.
 
-Two declarations for a single variable ? Ignore the !arch_timer_rate.
+Thanks, that is much appreciated.
 
-> +	    of_property_read_u32(np, "clock-frequency", &arch_timer_rate))
-> +		arch_timer_rate =3D arch_timer_get_cntfrq();
-> +	if (!arch_timer_rate) {
-> +		pr_err(FW_BUG "frequency not available.\n");
-> +		return -EINVAL;
-> +	}
+> So I will rebase my patchset on arch-timer/gtdt branch of your REPO
+> https://git.kernel.org/pub/scm/linux/kernel/git/mark/linux.git/log/?h=arch-timer/gtdt
 
-Please, clarify this block, the conditions are unclear.
+Yes please! The current HEAD should be:
 
-> =20
->  	arch_timer_c3stop =3D !of_property_read_bool(np, "always-on");
-> =20
-> @@ -1069,7 +1055,19 @@ static int __init arch_timer_mem_init(struct dev=
-ice_node *np)
->  		goto out;
->  	}
-> =20
-> -	arch_timer_detect_rate(base, np);
-> +	/*
-> +	 * Try to determine the frequency from the device tree,
-> +	 * if fail, get the frequency from the CNTFRQ reg of MMIO timer.
-> +	 */
-> +	if (!arch_timer_rate &&
-> +	    of_property_read_u32(np, "clock-frequency", &arch_timer_rate))
-> +		arch_timer_rate =3D arch_timer_mem_get_cntfrq(base);
-> +	if (!arch_timer_rate) {
-> +		pr_err(FW_BUG "MMIO frequency not available.\n");
-> +		ret =3D -EINVAL;
-> +		goto out;
-> +	}
-> +
->  	ret =3D arch_timer_mem_register(base, irq);
->  	if (ret)
->  		goto out;
-> @@ -1130,8 +1128,12 @@ static int __init arch_timer_acpi_init(struct ac=
-pi_table_header *table)
->  		map_generic_timer_interrupt(gtdt->non_secure_el2_interrupt,
->  		gtdt->non_secure_el2_flags);
-> =20
-> -	/* Get the frequency from CNTFRQ */
-> -	arch_timer_detect_rate(NULL, NULL);
-> +	/* Get the frequency from the sysreg CNTFRQ */
-> +	arch_timer_rate =3D arch_timer_get_cntfrq();
-> +	if (!arch_timer_rate) {
-> +		pr_err(FW_BUG "frequency not available.\n");
-> +		return -EINVAL;
-> +	}
-> =20
->  	arch_timer_uses_ppi =3D arch_timer_select_ppi();
->  	if (!arch_timer_ppi[arch_timer_uses_ppi]) {
-> --=20
-> 2.9.3
->=20
+ebbfe8889cffa12f ("clocksource: arm_arch_timer: move arch_timer_needs_of_probing into DT init call").
 
---=20
-
- <http://www.linaro.org/> Linaro.org =E2=94=82 Open source software for A=
-RM SoCs
-
-Follow Linaro:  <http://www.facebook.com/pages/Linaro> Facebook |
-<http://twitter.com/#!/linaroorg> Twitter |
-<http://www.linaro.org/linaro-blog/> Blog
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Thanks,
+Mark.
