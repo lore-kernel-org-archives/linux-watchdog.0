@@ -1,268 +1,116 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-it0-f53.google.com ([209.85.214.53]:35731 "EHLO
-        mail-it0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752754AbdC2FMK (ORCPT
+Received: from mail-wm0-f53.google.com ([74.125.82.53]:38597 "EHLO
+        mail-wm0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754184AbdC2IbE (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 29 Mar 2017 01:12:10 -0400
-Received: by mail-it0-f53.google.com with SMTP id y18so139662953itc.0
-        for <linux-watchdog@vger.kernel.org>; Tue, 28 Mar 2017 22:12:04 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <CADyBb7uD1OqpPZf+ADsgbWryCGMGE3GqXOxz_4+1RzC1Pqsccg@mail.gmail.com>
-References: <20170321163122.9183-1-fu.wei@linaro.org> <20170321163122.9183-3-fu.wei@linaro.org>
- <20170328145814.GE2123@mai> <CADyBb7uD1OqpPZf+ADsgbWryCGMGE3GqXOxz_4+1RzC1Pqsccg@mail.gmail.com>
-From: Fu Wei <fu.wei@linaro.org>
-Date: Wed, 29 Mar 2017 13:11:58 +0800
-Message-ID: <CADyBb7tzJAuvG73v6ZoBVO4ehCC3RMsc1pq5gKF2eQ94j6GXrg@mail.gmail.com>
-Subject: Re: [PATCH v22 02/11] clocksource: arm_arch_timer: separate out
- device-tree code and remove arch_timer_detect_rate
-To: Daniel Lezcano <daniel.lezcano@linaro.org>
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Len Brown <lenb@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Marc Zyngier <marc.zyngier@arm.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Hanjun Guo <hanjun.guo@linaro.org>,
-        linux-arm-kernel@lists.infradead.org,
-        Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
-        rruigrok@codeaurora.org, "Abdulhamid, Harb" <harba@codeaurora.org>,
-        Christopher Covington <cov@codeaurora.org>,
-        Timur Tabi <timur@codeaurora.org>,
-        G Gregory <graeme.gregory@linaro.org>,
-        Al Stone <al.stone@linaro.org>, Jon Masters <jcm@redhat.com>,
-        Wei Huang <wei@redhat.com>, Arnd Bergmann <arnd@arndb.de>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
-        Leo Duran <leo.duran@amd.com>,
-        Wim Van Sebroeck <wim@iguana.be>,
+        Wed, 29 Mar 2017 04:31:04 -0400
+Received: by mail-wm0-f53.google.com with SMTP id t189so18233093wmt.1
+        for <linux-watchdog@vger.kernel.org>; Wed, 29 Mar 2017 01:31:02 -0700 (PDT)
+Date: Wed, 29 Mar 2017 09:30:58 +0100
+From: Lee Jones <lee.jones@linaro.org>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Steve Twiss <stwiss.opensource@diasemi.com>,
+        kbuild test robot <lkp@intel.com>,
+        "kbuild-all@01.org" <kbuild-all@01.org>,
+        LINUX-KERNEL <linux-kernel@vger.kernel.org>,
+        DEVICETREE <devicetree@vger.kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Eduardo Valentin <edubezval@gmail.com>,
         Guenter Roeck <linux@roeck-us.net>,
-        linux-watchdog@vger.kernel.org, Tomasz Nowicki <tn@semihalf.com>,
-        Christoffer Dall <christoffer.dall@linaro.org>,
-        Julien Grall <julien.grall@arm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+        LINUX-INPUT <linux-input@vger.kernel.org>,
+        LINUX-PM <linux-pm@vger.kernel.org>,
+        LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Support Opensource <Support.Opensource@diasemi.com>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Zhang Rui <rui.zhang@intel.com>
+Subject: Re: [PATCH V6 4/7] mfd: da9061: MFD core support
+Message-ID: <20170329083058.6pcslbsq3qnifwjv@dell>
+References: <539b8756120ab3558c906f7457e65f94dbe37425.1490608293.git.stwiss.opensource@diasemi.com>
+ <201703272258.hWlipe1g%fengguang.wu@intel.com>
+ <20170328082141.u2rgnhei5yhhzxdn@dell>
+ <CAMuHMdX8WH959h50zGQCV7o4E249xBKDn_cVtRbFwYVsVebu9w@mail.gmail.com>
+ <6ED8E3B22081A4459DAC7699F3695FB7018CD69ECA@SW-EX-MBX02.diasemi.com>
+ <CAMuHMdU-kaAZ-Reji2v3jSypoDSiwYEWqD0vyYWwJpr6+rAPOA@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <CAMuHMdU-kaAZ-Reji2v3jSypoDSiwYEWqD0vyYWwJpr6+rAPOA@mail.gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
 
-Hi Daniel,
+On Tue, 28 Mar 2017, Geert Uytterhoeven wrote:
 
-On 29 March 2017 at 11:41, Fu Wei <fu.wei@linaro.org> wrote:
-> Hi Daniel,
->
-> Great thanks for your review, allow me to answer your question below:
->
-> On 28 March 2017 at 22:58, Daniel Lezcano <daniel.lezcano@linaro.org> wro=
-te:
->> On Wed, Mar 22, 2017 at 12:31:13AM +0800, fu.wei@linaro.org wrote:
->>> From: Fu Wei <fu.wei@linaro.org>
->>>
->>> Currently, the counter frequency detection call(arch_timer_detect_rate)
->>> includes getting the frequency from the device-tree property, the per-c=
-pu
->>> arch-timer and the memory-mapped (MMIO) timer interfaces.
->>> But reading device-tree property will be needed only when system boot w=
-ith
->>> device-tree, and reading from the per-cpu arch-timer and the memory-map=
-ped
->>> (MMIO) timer interfaces will be needed only when the system initializes
->>> the relevant timer.
->>>
->>> This patch separates out device-tree code, keep them in device-tree ini=
-t
->>> function, and removes arch_timer_detect_rate founction, then uses the
->>> arch_timer_get_cntfrq and arch_timer_mem_get_cntfrq directly.
->>>
->>> Signed-off-by: Fu Wei <fu.wei@linaro.org>
->>> ---
->>>  drivers/clocksource/arm_arch_timer.c | 58 +++++++++++++++++++---------=
---------
->>>  1 file changed, 30 insertions(+), 28 deletions(-)
->>>
->>> diff --git a/drivers/clocksource/arm_arch_timer.c b/drivers/clocksource=
-/arm_arch_timer.c
->>> index 843f923..29ca7d6 100644
->>> --- a/drivers/clocksource/arm_arch_timer.c
->>> +++ b/drivers/clocksource/arm_arch_timer.c
->>> @@ -560,30 +560,6 @@ static u32 arch_timer_mem_get_cntfrq(void __iomem =
-*cntbase)
->>>       return readl_relaxed(cntbase + CNTFRQ);
->>>  }
->>>
->>> -static void
->>> -arch_timer_detect_rate(void __iomem *cntbase, struct device_node *np)
->>> -{
->>> -     /* Who has more than one independent system counter? */
->>> -     if (arch_timer_rate)
->>> -             return;
->>> -
->>> -     /*
->>> -      * Try to determine the frequency from the device tree or CNTFRQ,
->>> -      * if ACPI is enabled, get the frequency from CNTFRQ ONLY.
->>> -      */
->>> -     if (!acpi_disabled ||
->>> -         of_property_read_u32(np, "clock-frequency", &arch_timer_rate)=
-) {
->>> -             if (cntbase)
->>> -                     arch_timer_rate =3D arch_timer_mem_get_cntfrq(cnt=
-base);
->>> -             else
->>> -                     arch_timer_rate =3D arch_timer_get_cntfrq();
->>> -     }
->>> -
->>> -     /* Check the timer frequency. */
->>> -     if (arch_timer_rate =3D=3D 0)
->>> -             pr_warn("frequency not available\n");
->>> -}
->>> -
->>>  static void arch_timer_banner(unsigned type)
->>>  {
->>>       pr_info("%s%s%s timer(s) running at %lu.%02luMHz (%s%s%s).\n",
->>> @@ -958,7 +934,17 @@ static int __init arch_timer_of_init(struct device=
-_node *np)
->>>       for (i =3D ARCH_TIMER_PHYS_SECURE_PPI; i < ARCH_TIMER_MAX_TIMER_P=
-PI; i++)
->>>               arch_timer_ppi[i] =3D irq_of_parse_and_map(np, i);
->>>
->>> -     arch_timer_detect_rate(NULL, np);
->>> +     /*
->>> +      * Try to determine the frequency from the device tree,
->>> +      * if fail, get the frequency from the sysreg CNTFRQ.
->>> +      */
->>> +     if (!arch_timer_rate &&
->>
->> This variable is set only if "arm,armv7-timer" and "arm,armv7-timer-mem"=
- are
->> declared together in the DT, right ?
->>
->> Two declarations for a single variable ? Ignore the !arch_timer_rate.
->
-> In this function, we try to initialize per-CPU arm arch_timer by DT.
-> this "!arch_timer_rate" is for testing that if we have got system
-> counter frequency from the memory-mapped timer. If so, we just skip
-> getting the frequency from DT or sysreg cntfrq again.
-> This variable is set only if "arm,armv7-timer-mem" is initialized
-> earlier than "arm,armv7-timer", in another word, maybe the node of
-> "arm,armv7-timer-mem" is declared earlier than  "arm,armv7-timer-mem"
-> one in DT.
->
-> we do this check is for keeping the same init logic as before in the
-> DT, try to avoid any possibility of  breaking devices which boot by
-> DT.
->
->>
->>> +         of_property_read_u32(np, "clock-frequency", &arch_timer_rate)=
-)
->>> +             arch_timer_rate =3D arch_timer_get_cntfrq();
->>> +     if (!arch_timer_rate) {
->>> +             pr_err(FW_BUG "frequency not available.\n");
->>> +             return -EINVAL;
->>> +     }
->>
->> Please, clarify this block, the conditions are unclear.
->
-> this "!arch_timer_rate" is for verifying that if the system counter
-> frequency we just got from DT or sysreg cntfrq is valid(non-zero).
->
-> So here, you can see I check arch_timer_rate twice, but they are for
-> different cases.
+> Hi Steve,
+>=20
+> On Tue, Mar 28, 2017 at 12:42 PM, Steve Twiss
+> <stwiss.opensource@diasemi.com> wrote:
+> > On 28 March 2017 09:37, Geert Uytterhoeven wrote:
+> >> Subject: Re: [PATCH V6 4/7] mfd: da9061: MFD core support
+> >> On Tue, Mar 28, 2017 at 10:21 AM, Lee Jones <lee.jones@linaro.org> w=
+rote:
+> >> >> [auto build test WARNING on ljones-mfd/for-mfd-next]
+> >> >> [also build test WARNING on v4.11-rc4 next-20170327]
+> >> >> base:   https://git.kernel.org/pub/scm/linux/kernel/git/lee/mfd.g=
+it for-mfd-next
+> >> >> config: x86_64-randconfig-x009-201713 (attached as .config)
+> >> >> compiler: gcc-6 (Debian 6.2.0-3) 6.2.0 20160901
+> >> >> reproduce:
+> >> >>         # save the attached .config to linux build tree
+> >> >>         make ARCH=3Dx86_64
+> >> >>
+> >> >> All warnings (new ones prefixed by >>):
+> >> >>
+> >> >>    drivers//mfd/da9062-core.c: In function 'da9062_i2c_probe':
+> >> >> >> drivers//mfd/da9062-core.c:845:21: warning: cast from pointer =
+to integer of different size [-Wpointer-to-int-cast]
+> >> >>       chip->chip_type =3D (int)match->data;
+> >> >>                        ^
+> >> >
+> >> > Please use longs or enums.
+> >>
+> >> Enums would still give a warning on 64-bit.
+> >> The simple fix is change the cast from (int) to (uintptr_t).
+> >
+> > Hi Lee and Geert,
+> >
+> > How about this? Fix by redefining the enum chip_type to be an int.
+> > Then, just use substitution:
+> > #define COMPAT_TYPE_DA9061  1
+> > #define COMPAT_TYPE_DA9062  2
+> >
+> > That would be simple.
+> > Are there any reasons this would not be acceptable?
+>=20
+> I don't see how that can help.
+> The warning is caused by casting the "void *" (which is either 32-bit o=
+r
+> 64-bit) in of_device_if.data to an integer or enum (which is always 32-=
+bit).
+>=20
+> The right fix is to cast it to uintptr_t intead of int, like other driv=
+ers do.
 
-I think about this several times,
-For this block, it is a little unclear, so I think this will be better:
+That's a hack though, isn't it?  chip->chip_type is not of type
+uintptr_t, so all you're doing here is making the compiler happy.
 
-+ /*
-+ * Try to determine the frequency:
-+ * If we have got it in arch_timer_mem_of_init, we don't need to get
-it again, skip.
-+ * Otherwise, try to get the frequency from the device tree,
-+ * if fail, try to get it from the sysreg CNTFRQ.
-+ * Last, verify the arch_timer_rate before leaving this block.
-+ */
-+ if (!arch_timer_rate) {
-+         if (of_property_read_u32(np, "clock-frequency", &arch_timer_rate)=
-)
-+                 arch_timer_rate =3D arch_timer_get_cntfrq();
-+         if (!arch_timer_rate) {
-+                 pr_err(FW_BUG "frequency not available.\n");
-+                 return -EINVAL;
-+         }
-+ }
+I see people using (int)(uintptr_t), which I guess keeps the
+compiler happy in the first instance and actually culminates in a
+correct cast to the right type.
 
->
->>
->>>
->>>       arch_timer_c3stop =3D !of_property_read_bool(np, "always-on");
->>>
->>> @@ -1069,7 +1055,19 @@ static int __init arch_timer_mem_init(struct dev=
-ice_node *np)
->>>               goto out;
->>>       }
->>>
->>> -     arch_timer_detect_rate(base, np);
->>> +     /*
->>> +      * Try to determine the frequency from the device tree,
->>> +      * if fail, get the frequency from the CNTFRQ reg of MMIO timer.
->>> +      */
->>> +     if (!arch_timer_rate &&
->>> +         of_property_read_u32(np, "clock-frequency", &arch_timer_rate)=
-)
->>> +             arch_timer_rate =3D arch_timer_mem_get_cntfrq(base);
->>> +     if (!arch_timer_rate) {
->>> +             pr_err(FW_BUG "MMIO frequency not available.\n");
->>> +             ret =3D -EINVAL;
->>> +             goto out;
->>> +     }
->>> +
->>>       ret =3D arch_timer_mem_register(base, irq);
->>>       if (ret)
->>>               goto out;
->>> @@ -1130,8 +1128,12 @@ static int __init arch_timer_acpi_init(struct ac=
-pi_table_header *table)
->>>               map_generic_timer_interrupt(gtdt->non_secure_el2_interrup=
-t,
->>>               gtdt->non_secure_el2_flags);
->>>
->>> -     /* Get the frequency from CNTFRQ */
->>> -     arch_timer_detect_rate(NULL, NULL);
->>> +     /* Get the frequency from the sysreg CNTFRQ */
->>> +     arch_timer_rate =3D arch_timer_get_cntfrq();
->>> +     if (!arch_timer_rate) {
->>> +             pr_err(FW_BUG "frequency not available.\n");
->>> +             return -EINVAL;
->>> +     }
->>>
->>>       arch_timer_uses_ppi =3D arch_timer_select_ppi();
->>>       if (!arch_timer_ppi[arch_timer_uses_ppi]) {
->>> --
->>> 2.9.3
->>>
->>
->> --
->>
->>  <http://www.linaro.org/> Linaro.org =E2=94=82 Open source software for =
-ARM SoCs
->>
->> Follow Linaro:  <http://www.facebook.com/pages/Linaro> Facebook |
->> <http://twitter.com/#!/linaroorg> Twitter |
->> <http://www.linaro.org/linaro-blog/> Blog
->
->
->
-> --
-> Best regards,
->
-> Fu Wei
-> Software Engineer
-> Red Hat
-
-
+So how about something like (enum da9062_compatible_types)(long)?
 
 --=20
-Best regards,
-
-Fu Wei
-Software Engineer
-Red Hat
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
