@@ -1,71 +1,65 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ot0-f193.google.com ([74.125.82.193]:34743 "EHLO
-        mail-ot0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932673AbdC2Bk3 (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:37563 "EHLO
+        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752162AbdC2DBC (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 28 Mar 2017 21:40:29 -0400
-Date: Tue, 28 Mar 2017 20:40:26 -0500
-From: Rob Herring <robh@kernel.org>
-To: Yannick Fertre <yannick.fertre@st.com>
-Cc: Wim Van Sebroeck <wim@iguana.be>,
-        Guenter Roeck <linux@roeck-us.net>,
+        Tue, 28 Mar 2017 23:01:02 -0400
+Subject: Re: [PATCH v3 0/5] STM32 Independant watchdog
+To: Yannick Fertre <yannick.fertre@st.com>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Rob Herring <robh+dt@kernel.org>,
         Alexandre TORGUE <alexandre.torgue@st.com>,
         Benjamin Gaignard <benjamin.gaignard@st.com>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>
+References: <1490195083-25117-1-git-send-email-yannick.fertre@st.com>
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
         Philippe Cornu <philippe.cornu@st.com>,
         Gabriel FERNANDEZ <gabriel.fernandez@st.com>,
         devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH v3 1/5] dt-bindings: Document STM32 IWDG bindings
-Message-ID: <20170329014026.fxrv7hwoueh6tplm@rob-hp-laptop>
-References: <1490195083-25117-1-git-send-email-yannick.fertre@st.com>
- <1490195083-25117-2-git-send-email-yannick.fertre@st.com>
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <1390e264-2b54-c07b-89d3-9f5dd7d7254e@roeck-us.net>
+Date: Tue, 28 Mar 2017 20:00:57 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1490195083-25117-2-git-send-email-yannick.fertre@st.com>
+In-Reply-To: <1490195083-25117-1-git-send-email-yannick.fertre@st.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Mar 22, 2017 at 04:04:39PM +0100, Yannick Fertre wrote:
-> From: Yannick Fertre <yfertre.stm32@gmail.com>
+Subject: s/Independant/Independent/
 
-"dt-bindings: watchdog: ..." for subject.
-> 
-> This adds documentation of device tree bindings for the STM32 IWDG
-> (Independent WatchDoG).
-> 
-> Change-Id: Idadacc806d00205fe9af2e8606af229b4b760558
-> Signed-off-by: Yannick Fertre <yannick.fertre@st.com>
-> ---
->  .../devicetree/bindings/watchdog/st,stm32-iwdg.txt        | 15 +++++++++++++++
->  1 file changed, 15 insertions(+)
+On 03/22/2017 08:04 AM, Yannick Fertre wrote:
+> Version 3:
+> - Update typo into  bindings file
+> - Reorder node in devicetree (ordering by address)
+> - Remove unecessary lines in commits
+>
+> Version 2:
+> - Add commit messages
+>
+> Version 1:
+> - Initial commit
+>
+> The purpose of this set of patches is to add a new watchdog driver for
+> stm32f429.
+> This driver was developed and tested on evaluation board stm32429i.
+>
+> Yannick Fertre (5):
+>   dt-bindings: Document STM32 IWDG bindings
+>   drivers: watchdog: Add STM32 IWDG driver
+>   ARM: dts: stm32: Add watchdog support for STM32F429 SoC
+>   ARM: dts: stm32: Add watchdog support for STM32F429 eval board
+>   ARM: configs: Add watchdog support in STM32 defconfig
+>
+>  .../devicetree/bindings/watchdog/st,stm32-iwdg.txt |  15 ++
+>  arch/arm/boot/dts/stm32429i-eval.dts               |   4 +
+>  arch/arm/boot/dts/stm32f429.dtsi                   |   9 +-
+>  arch/arm/configs/stm32_defconfig                   |   1 +
+>  drivers/watchdog/Kconfig                           |  11 +
+>  drivers/watchdog/Makefile                          |   1 +
+>  drivers/watchdog/stm32_iwdg.c                      | 289 +++++++++++++++++++++
+>  7 files changed, 329 insertions(+), 1 deletion(-)
 >  create mode 100644 Documentation/devicetree/bindings/watchdog/st,stm32-iwdg.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/watchdog/st,stm32-iwdg.txt b/Documentation/devicetree/bindings/watchdog/st,stm32-iwdg.txt
-> new file mode 100644
-> index 0000000..036b040
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/watchdog/st,stm32-iwdg.txt
-> @@ -0,0 +1,15 @@
-> +STM32 Independent WatchDoG (IWDG)
-> +---------------------------------
-> +
-> +Required properties:
-> +- compatible: "st,stm32-iwdg"
-> +- reg: physical base address and length of the registers set for the device
-> +- clocks: must contain a single entry describing the clock input
-> +
-> +Example:
-> +
-> +iwdg@40003000 {
+>  create mode 100644 drivers/watchdog/stm32_iwdg.c
+>
 
-watchdog@...
-
-> +	compatible = "st,stm32-iwdg";
-> +	reg = <0x40003000 0x400>;
-> +	clocks = <&clk_lsi>;
-> +};
-> -- 
-> 1.9.1
-> 
