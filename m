@@ -1,8 +1,8 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:37742 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:33478 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S933727AbdCaRxI (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 31 Mar 2017 13:53:08 -0400
+        id S933419AbdCaRwa (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 31 Mar 2017 13:52:30 -0400
 From: fu.wei@linaro.org
 To: rjw@rjwysocki.net, lenb@kernel.org, daniel.lezcano@linaro.org,
         tglx@linutronix.de, marc.zyngier@arm.com, mark.rutland@arm.com,
@@ -18,9 +18,9 @@ Cc: linux-arm-kernel@lists.infradead.org, linaro-acpi@lists.linaro.org,
         linux@roeck-us.net, linux-watchdog@vger.kernel.org,
         tn@semihalf.com, christoffer.dall@linaro.org, julien.grall@arm.com,
         Fu Wei <fu.wei@linaro.org>
-Subject: [PATCH v23 07/11] acpi/arm64: Add GTDT table parse driver
-Date: Sat,  1 Apr 2017 01:51:01 +0800
-Message-Id: <20170331175105.8370-8-fu.wei@linaro.org>
+Subject: [PATCH v23 04/11] clocksource: arm_arch_timer: move arch_timer_needs_of_probing into DT init call
+Date: Sat,  1 Apr 2017 01:50:58 +0800
+Message-Id: <20170331175105.8370-5-fu.wei@linaro.org>
 In-Reply-To: <20170331175105.8370-1-fu.wei@linaro.org>
 References: <20170331175105.8370-1-fu.wei@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -28,238 +28,128 @@ List-Id: linux-watchdog@vger.kernel.org
 
 From: Fu Wei <fu.wei@linaro.org>
 
-This patch adds support for parsing arch timer info in GTDT,
-provides some kernel APIs to parse all the PPIs and
-always-on info in GTDT and export them.
+To cleanly split code paths specific to ACPI or DT at a higher level,
+this patch removes arch_timer_init(), folding the relevant
+parts of its logic into existing callers.
 
-By this driver, we can simplify arm_arch_timer drivers, and
-separate the ACPI GTDT knowledge from it.
+This patches the way for further rework, and saves a few lines.
 
 Signed-off-by: Fu Wei <fu.wei@linaro.org>
-Signed-off-by: Hanjun Guo <hanjun.guo@linaro.org>
-Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Tested-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
 Reviewed-by: Hanjun Guo <hanjun.guo@linaro.org>
-Tested-by: Hanjun Guo <hanjun.guo@linaro.org>
-Acked-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+[Mark: reword commit message]
+Signed-off-by: Mark Rutland <mark.rutland@arm.com>
 ---
- arch/arm64/Kconfig          |   1 +
- drivers/acpi/arm64/Kconfig  |   3 +
- drivers/acpi/arm64/Makefile |   1 +
- drivers/acpi/arm64/gtdt.c   | 157 ++++++++++++++++++++++++++++++++++++++++++++
- include/linux/acpi.h        |   6 ++
- 5 files changed, 168 insertions(+)
+ drivers/clocksource/arm_arch_timer.c | 46 ++++++++++++++++--------------------
+ 1 file changed, 21 insertions(+), 25 deletions(-)
 
-diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-index 3741859..7e2baec 100644
---- a/arch/arm64/Kconfig
-+++ b/arch/arm64/Kconfig
-@@ -2,6 +2,7 @@ config ARM64
- 	def_bool y
- 	select ACPI_CCA_REQUIRED if ACPI
- 	select ACPI_GENERIC_GSI if ACPI
-+	select ACPI_GTDT if ACPI
- 	select ACPI_REDUCED_HARDWARE_ONLY if ACPI
- 	select ACPI_MCFG if ACPI
- 	select ACPI_SPCR_TABLE if ACPI
-diff --git a/drivers/acpi/arm64/Kconfig b/drivers/acpi/arm64/Kconfig
-index 4616da4..5a6f80f 100644
---- a/drivers/acpi/arm64/Kconfig
-+++ b/drivers/acpi/arm64/Kconfig
-@@ -4,3 +4,6 @@
+diff --git a/drivers/clocksource/arm_arch_timer.c b/drivers/clocksource/arm_arch_timer.c
+index ed215d9..9433276 100644
+--- a/drivers/clocksource/arm_arch_timer.c
++++ b/drivers/clocksource/arm_arch_timer.c
+@@ -868,9 +868,6 @@ static bool __init arch_timer_needs_of_probing(void)
  
- config ACPI_IORT
- 	bool
+ static int __init arch_timer_common_init(void)
+ {
+-	if (acpi_disabled && arch_timer_needs_of_probing())
+-		return 0;
+-
+ 	arch_timer_banner(arch_timers_present);
+ 	arch_counter_register(arch_timers_present);
+ 	return arch_timer_arch_init();
+@@ -908,26 +905,9 @@ static enum arch_timer_ppi_nr __init arch_timer_select_ppi(void)
+ 	return ARCH_TIMER_PHYS_SECURE_PPI;
+ }
+ 
+-static int __init arch_timer_init(void)
+-{
+-	int ret;
+-
+-	ret = arch_timer_register();
+-	if (ret)
+-		return ret;
+-
+-	ret = arch_timer_common_init();
+-	if (ret)
+-		return ret;
+-
+-	arch_timer_kvm_info.virtual_irq = arch_timer_ppi[ARCH_TIMER_VIRT_PPI];
+-
+-	return 0;
+-}
+-
+ static int __init arch_timer_of_init(struct device_node *np)
+ {
+-	int i;
++	int i, ret;
+ 
+ 	if (arch_timers_present & ARCH_TIMER_TYPE_CP15) {
+ 		pr_warn("multiple nodes in dt, skipping\n");
+@@ -938,6 +918,8 @@ static int __init arch_timer_of_init(struct device_node *np)
+ 	for (i = ARCH_TIMER_PHYS_SECURE_PPI; i < ARCH_TIMER_MAX_TIMER_PPI; i++)
+ 		arch_timer_ppi[i] = irq_of_parse_and_map(np, i);
+ 
++	arch_timer_kvm_info.virtual_irq = arch_timer_ppi[ARCH_TIMER_VIRT_PPI];
 +
-+config ACPI_GTDT
-+	bool
-diff --git a/drivers/acpi/arm64/Makefile b/drivers/acpi/arm64/Makefile
-index 72331f2..1017def 100644
---- a/drivers/acpi/arm64/Makefile
-+++ b/drivers/acpi/arm64/Makefile
-@@ -1 +1,2 @@
- obj-$(CONFIG_ACPI_IORT) 	+= iort.o
-+obj-$(CONFIG_ACPI_GTDT) 	+= gtdt.o
-diff --git a/drivers/acpi/arm64/gtdt.c b/drivers/acpi/arm64/gtdt.c
-new file mode 100644
-index 0000000..3d95af8
---- /dev/null
-+++ b/drivers/acpi/arm64/gtdt.c
-@@ -0,0 +1,157 @@
-+/*
-+ * ARM Specific GTDT table Support
-+ *
-+ * Copyright (C) 2016, Linaro Ltd.
-+ * Author: Daniel Lezcano <daniel.lezcano@linaro.org>
-+ *         Fu Wei <fu.wei@linaro.org>
-+ *         Hanjun Guo <hanjun.guo@linaro.org>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
+ 	/*
+ 	 * Determine the frequency of system counter:
+ 	 * Try to get the frequency from the device tree.
+@@ -983,7 +965,14 @@ static int __init arch_timer_of_init(struct device_node *np)
+ 	arch_counter_suspend_stop = of_property_read_bool(np,
+ 							 "arm,no-tick-in-suspend");
+ 
+-	return arch_timer_init();
++	ret = arch_timer_register();
++	if (ret)
++		return ret;
 +
-+#include <linux/acpi.h>
-+#include <linux/init.h>
-+#include <linux/kernel.h>
-+
-+#include <clocksource/arm_arch_timer.h>
-+
-+#undef pr_fmt
-+#define pr_fmt(fmt) "ACPI GTDT: " fmt
-+
-+/**
-+ * struct acpi_gtdt_descriptor - Store the key info of GTDT for all functions
-+ * @gtdt:	The pointer to the struct acpi_table_gtdt of GTDT table.
-+ * @gtdt_end:	The pointer to the end of GTDT table.
-+ * @platform_timer:	The pointer to the start of Platform Timer Structure
-+ *
-+ * The struct store the key info of GTDT table, it should be initialized by
-+ * acpi_gtdt_init.
-+ */
-+struct acpi_gtdt_descriptor {
-+	struct acpi_table_gtdt *gtdt;
-+	void *gtdt_end;
-+	void *platform_timer;
-+};
-+
-+static struct acpi_gtdt_descriptor acpi_gtdt_desc __initdata;
-+
-+static int __init map_gt_gsi(u32 interrupt, u32 flags)
-+{
-+	int trigger, polarity;
-+
-+	trigger = (flags & ACPI_GTDT_INTERRUPT_MODE) ? ACPI_EDGE_SENSITIVE
-+			: ACPI_LEVEL_SENSITIVE;
-+
-+	polarity = (flags & ACPI_GTDT_INTERRUPT_POLARITY) ? ACPI_ACTIVE_LOW
-+			: ACPI_ACTIVE_HIGH;
-+
-+	return acpi_register_gsi(NULL, interrupt, trigger, polarity);
-+}
-+
-+/**
-+ * acpi_gtdt_map_ppi() - Map the PPIs of per-cpu arch_timer.
-+ * @type:	the type of PPI.
-+ *
-+ * Note: Secure state is not managed by the kernel on ARM64 systems.
-+ * So we only handle the non-secure timer PPIs,
-+ * ARCH_TIMER_PHYS_SECURE_PPI is treated as invalid type.
-+ *
-+ * Return: the mapped PPI value, 0 if error.
-+ */
-+int __init acpi_gtdt_map_ppi(int type)
-+{
-+	struct acpi_table_gtdt *gtdt = acpi_gtdt_desc.gtdt;
-+
-+	switch (type) {
-+	case ARCH_TIMER_PHYS_NONSECURE_PPI:
-+		return map_gt_gsi(gtdt->non_secure_el1_interrupt,
-+				  gtdt->non_secure_el1_flags);
-+	case ARCH_TIMER_VIRT_PPI:
-+		return map_gt_gsi(gtdt->virtual_timer_interrupt,
-+				  gtdt->virtual_timer_flags);
-+
-+	case ARCH_TIMER_HYP_PPI:
-+		return map_gt_gsi(gtdt->non_secure_el2_interrupt,
-+				  gtdt->non_secure_el2_flags);
-+	default:
-+		pr_err("Failed to map timer interrupt: invalid type.\n");
-+	}
-+
-+	return 0;
-+}
-+
-+/**
-+ * acpi_gtdt_c3stop() - Got c3stop info from GTDT according to the type of PPI.
-+ * @type:	the type of PPI.
-+ *
-+ * Return: true if the timer HW state is lost when a CPU enters an idle state,
-+ * false otherwise
-+ */
-+bool __init acpi_gtdt_c3stop(int type)
-+{
-+	struct acpi_table_gtdt *gtdt = acpi_gtdt_desc.gtdt;
-+
-+	switch (type) {
-+	case ARCH_TIMER_PHYS_NONSECURE_PPI:
-+		return !(gtdt->non_secure_el1_flags & ACPI_GTDT_ALWAYS_ON);
-+
-+	case ARCH_TIMER_VIRT_PPI:
-+		return !(gtdt->virtual_timer_flags & ACPI_GTDT_ALWAYS_ON);
-+
-+	case ARCH_TIMER_HYP_PPI:
-+		return !(gtdt->non_secure_el2_flags & ACPI_GTDT_ALWAYS_ON);
-+
-+	default:
-+		pr_err("Failed to get c3stop info: invalid type.\n");
-+	}
-+
-+	return false;
-+}
-+
-+/**
-+ * acpi_gtdt_init() - Get the info of GTDT table to prepare for further init.
-+ * @table:			The pointer to GTDT table.
-+ * @platform_timer_count:	It points to a integer variable which is used
-+ *				for storing the number of platform timers.
-+ *				This pointer could be NULL, if the caller
-+ *				doesn't need this info.
-+ *
-+ * Return: 0 if success, -EINVAL if error.
-+ */
-+int __init acpi_gtdt_init(struct acpi_table_header *table,
-+			  int *platform_timer_count)
-+{
-+	void *platform_timer;
-+	struct acpi_table_gtdt *gtdt;
-+
-+	gtdt = container_of(table, struct acpi_table_gtdt, header);
-+	acpi_gtdt_desc.gtdt = gtdt;
-+	acpi_gtdt_desc.gtdt_end = (void *)table + table->length;
-+	acpi_gtdt_desc.platform_timer = NULL;
-+	if (platform_timer_count)
-+		*platform_timer_count = 0;
-+
-+	if (table->revision < 2) {
-+		pr_warn("Revision:%d doesn't support Platform Timers.\n",
-+			table->revision);
++	if (arch_timer_needs_of_probing())
 +		return 0;
-+	}
 +
-+	if (!gtdt->platform_timer_count) {
-+		pr_debug("No Platform Timer.\n");
-+		return 0;
-+	}
-+
-+	platform_timer = (void *)gtdt + gtdt->platform_timer_offset;
-+	if (platform_timer < (void *)table + sizeof(struct acpi_table_gtdt)) {
-+		pr_err(FW_BUG "invalid timer data.\n");
-+		return -EINVAL;
-+	}
-+	acpi_gtdt_desc.platform_timer = platform_timer;
-+	if (platform_timer_count)
-+		*platform_timer_count = gtdt->platform_timer_count;
-+
-+	return 0;
-+}
-diff --git a/include/linux/acpi.h b/include/linux/acpi.h
-index 9b05886..4b5c146 100644
---- a/include/linux/acpi.h
-+++ b/include/linux/acpi.h
-@@ -595,6 +595,12 @@ enum acpi_reconfig_event  {
- int acpi_reconfig_notifier_register(struct notifier_block *nb);
- int acpi_reconfig_notifier_unregister(struct notifier_block *nb);
++	return arch_timer_common_init();
+ }
+ CLOCKSOURCE_OF_DECLARE(armv7_arch_timer, "arm,armv7-timer", arch_timer_of_init);
+ CLOCKSOURCE_OF_DECLARE(armv8_arch_timer, "arm,armv8-timer", arch_timer_of_init);
+@@ -1076,7 +1065,8 @@ static int __init arch_timer_mem_init(struct device_node *np)
+ 	if (ret)
+ 		goto out;
  
-+#ifdef CONFIG_ACPI_GTDT
-+int acpi_gtdt_init(struct acpi_table_header *table, int *platform_timer_count);
-+int acpi_gtdt_map_ppi(int type);
-+bool acpi_gtdt_c3stop(int type);
-+#endif
-+
- #else	/* !CONFIG_ACPI */
+-	return arch_timer_common_init();
++	if (!arch_timer_needs_of_probing())
++		ret = arch_timer_common_init();
+ out:
+ 	iounmap(cntctlbase);
+ 	of_node_put(best_frame);
+@@ -1105,6 +1095,7 @@ static int __init map_generic_timer_interrupt(u32 interrupt, u32 flags)
+ /* Initialize per-processor generic timer */
+ static int __init arch_timer_acpi_init(struct acpi_table_header *table)
+ {
++	int ret;
+ 	struct acpi_table_gtdt *gtdt;
  
- #define acpi_disabled 1
+ 	if (arch_timers_present & ARCH_TIMER_TYPE_CP15) {
+@@ -1132,6 +1123,8 @@ static int __init arch_timer_acpi_init(struct acpi_table_header *table)
+ 		map_generic_timer_interrupt(gtdt->non_secure_el2_interrupt,
+ 		gtdt->non_secure_el2_flags);
+ 
++	arch_timer_kvm_info.virtual_irq = arch_timer_ppi[ARCH_TIMER_VIRT_PPI];
++
+ 	/* Get the frequency from the sysreg CNTFRQ */
+ 	arch_timer_rate = arch_timer_get_cntfrq();
+ 	if (!arch_timer_rate) {
+@@ -1148,8 +1141,11 @@ static int __init arch_timer_acpi_init(struct acpi_table_header *table)
+ 	/* Always-on capability */
+ 	arch_timer_c3stop = !(gtdt->non_secure_el1_flags & ACPI_GTDT_ALWAYS_ON);
+ 
+-	arch_timer_init();
+-	return 0;
++	ret = arch_timer_register();
++	if (ret)
++		return ret;
++
++	return arch_timer_common_init();
+ }
+ CLOCKSOURCE_ACPI_DECLARE(arch_timer, ACPI_SIG_GTDT, arch_timer_acpi_init);
+ #endif
 -- 
 2.9.3
 
