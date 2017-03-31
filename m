@@ -1,226 +1,108 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:55668 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S933363AbdCaRvl (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 31 Mar 2017 13:51:41 -0400
-From: fu.wei@linaro.org
-To: rjw@rjwysocki.net, lenb@kernel.org, daniel.lezcano@linaro.org,
-        tglx@linutronix.de, marc.zyngier@arm.com, mark.rutland@arm.com,
-        lorenzo.pieralisi@arm.com, sudeep.holla@arm.com,
-        hanjun.guo@linaro.org
-Cc: linux-arm-kernel@lists.infradead.org, linaro-acpi@lists.linaro.org,
-        linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
-        rruigrok@codeaurora.org, harba@codeaurora.org, cov@codeaurora.org,
-        timur@codeaurora.org, graeme.gregory@linaro.org,
-        al.stone@linaro.org, jcm@redhat.com, wei@redhat.com, arnd@arndb.de,
-        catalin.marinas@arm.com, will.deacon@arm.com,
-        Suravee.Suthikulpanit@amd.com, leo.duran@amd.com, wim@iguana.be,
-        linux@roeck-us.net, linux-watchdog@vger.kernel.org,
-        tn@semihalf.com, christoffer.dall@linaro.org, julien.grall@arm.com,
-        Fu Wei <fu.wei@linaro.org>
-Subject: [PATCH v23 00/11] acpi, clocksource: add GTDT driver and GTDT support in arm_arch_timer
-Date: Sat,  1 Apr 2017 01:50:54 +0800
-Message-Id: <20170331175105.8370-1-fu.wei@linaro.org>
+Received: from mail-io0-f173.google.com ([209.85.223.173]:34201 "EHLO
+        mail-io0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S933419AbdCaRzb (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 31 Mar 2017 13:55:31 -0400
+Received: by mail-io0-f173.google.com with SMTP id b140so44450735iof.1
+        for <linux-watchdog@vger.kernel.org>; Fri, 31 Mar 2017 10:55:30 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <20170328145325.GD8643@leverpostej>
+References: <20170321163122.9183-1-fu.wei@linaro.org> <1cc5a994-0af6-79ea-930d-44b3fc789427@jonmasters.org>
+ <CADyBb7ujZKDF0aUJZRUN81jor04mZ-V5ESWScAjaxoHQUeVFSA@mail.gmail.com>
+ <20170328130552.GA8643@leverpostej> <CADyBb7vddnQ4TZXaem3q=+v=vC41J7O4cVsokn04S2jGGU8veA@mail.gmail.com>
+ <20170328145325.GD8643@leverpostej>
+From: Fu Wei <fu.wei@linaro.org>
+Date: Sat, 1 Apr 2017 01:55:29 +0800
+Message-ID: <CADyBb7uP031z6UoB75yEW10xsgZmY2j6-TmZuF8YaRxi1bmSfg@mail.gmail.com>
+Subject: Re: [PATCH v22 00/11] acpi, clocksource: add GTDT driver and GTDT
+ support in arm_arch_timer
+To: Mark Rutland <mark.rutland@arm.com>
+Cc: Jon Masters <jcm@jonmasters.org>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Len Brown <lenb@kernel.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Hanjun Guo <hanjun.guo@linaro.org>,
+        linux-arm-kernel@lists.infradead.org,
+        Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
+        rruigrok@codeaurora.org, "Abdulhamid, Harb" <harba@codeaurora.org>,
+        Christopher Covington <cov@codeaurora.org>,
+        Timur Tabi <timur@codeaurora.org>,
+        G Gregory <graeme.gregory@linaro.org>,
+        Al Stone <al.stone@linaro.org>, Jon Masters <jcm@redhat.com>,
+        Wei Huang <wei@redhat.com>, Arnd Bergmann <arnd@arndb.de>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
+        Leo Duran <leo.duran@amd.com>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Guenter Roeck <linux@roeck-us.net>,
+        linux-watchdog@vger.kernel.org, Tomasz Nowicki <tn@semihalf.com>,
+        Christoffer Dall <christoffer.dall@linaro.org>,
+        Julien Grall <julien.grall@arm.com>
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-From: Fu Wei <fu.wei@linaro.org>
+Hi Mark,
 
-This patchset:
-    (1)Preparation for adding GTDT support in arm_arch_timer:
-        1. Introduce a MMIO CNTFRQ helper.
-        2. separate out device-tree code from arch_timer_detect_rate
-        3. remove arch_timer_detect_rate use arch_timer_*get_cntfrq directly
-        4. Refactor arch_timer_needs_probing, and move it into DT init call
-        5. Introduce some new structs and refactor the MMIO timer init code
-        for reusing some common code.
+On 28 March 2017 at 22:53, Mark Rutland <mark.rutland@arm.com> wrote:
+> Hi,
+>
+> On Tue, Mar 28, 2017 at 10:29:10PM +0800, Fu Wei wrote:
+>> On 28 March 2017 at 21:05, Mark Rutland <mark.rutland@arm.com> wrote:
+>> > Sorry for the delay; I have not had the time to focus on this as I would
+>> > like to. I'm happy with patches 1-4, but from patch 5 onwards, there's
+>> > one change I'd like to see.
+>> >
+>> > I'd prefer that mmio timer frame rame N was always stored at
+>> > arch_timer_mem::frame[N], rather than arch_timer_mem::frame[] being in
+>> > an arbitrary order. That will make arch_timer_mem_frame::frame_nr
+>> > redundant.
+>> >
+>> > To allow arch_timer_mem::frame[] this to be sparse, I'm happy to have a
+>> > bool arch_timer_mem_frame::valid field that we set when probing each
+>> > frame. Then we don't need arch_timer_mem::num_frames.
+>> >
+>> > This will make iterating over the frames far less confusing, and makes
+>> > it simple to detect when a frame number is erroneously reused.
+>> >
+>> > Otherwise, I'm largely happy to pick the rest and apply any fixups
+>> > myself.
+>>
+>> Great thanks for your feedback!
+>> I will follow your suggestion to improve my patches, then post it in a day.
+>
+> Thanks, that is much appreciated.
+>
+>> So I will rebase my patchset on arch-timer/gtdt branch of your REPO
+>> https://git.kernel.org/pub/scm/linux/kernel/git/mark/linux.git/log/?h=arch-timer/gtdt
+>
+> Yes please! The current HEAD should be:
+>
+> ebbfe8889cffa12f ("clocksource: arm_arch_timer: move arch_timer_needs_of_probing into DT init call").
 
-    (2)Introduce ACPI GTDT parser: drivers/acpi/arm64/acpi_gtdt.c
-    Parse all kinds of timer in GTDT table of ACPI:arch timer,
-    memory-mapped timer and SBSA Generic Watchdog timer.
-    This driver can help to simplify all the relevant timer drivers,
-    and separate all the ACPI GTDT knowledge from them.
+Because there are some improvements on the first 4 patches, so I
+fetched your gtdt branch, then rebase my v23  to the
+arch-timer/cleanup
 
-    (3)Simplify ACPI code for arm_arch_timer
+Thanks for your help! :-)
 
-    (4)Add GTDT support for ARM memory-mapped timer.
+>
+> Thanks,
+> Mark.
 
-This patchset has been tested on the following platforms with ACPI enabled:
-    (1)ARM Foundation v8 model
 
-Changelog:
-v23: https://lkml.org/lkml/2017/3/31/
-     Rebase to git://git.kernel.org/pub/scm/linux/kernel/git/mark/linux.git arch-timer/cleanup
-     Improve the data struct of arch_timer_mem and arch_timer_mem_frame to
-     improve the parser of GT blocks and arch_timer_mem initualization.
-     Improve arch_timer_rate detection: sysreg frequency is primary in DT boot
-     Improve some comments in GTDT parser driver.
-     Improve acpi_gtdt_init function, and make a comment for the multiple calls.
-     Improve the unwinding for the irq of timers, when an error occurs.
-     Handle the case of virtual timer GSIV is 0.
-
-v22: https://lkml.org/lkml/2017/3/21/523
-     Rebase to git://git.kernel.org/pub/scm/linux/kernel/git/mark/linux.git arch-timer/cleanup
-     Only Introduce arch_timer_mem_get_cntfrq to get the frequency from mmio.
-     Merged patch 2,3(about arch_timer_detect_rate).
-     Keep arch_timer_rate, do NOT split it for different types of timer.
-     Improve  memory-mapped timer support by comments and variable name:
-         data-->timer_mem
-         frame-->gtdt_frame
-     Delete zero check for SBSA watchdog irq.
-     Skip secure SBSA watchdog in GTDT driver.
-     Delete Kconfig modification for SBSA watchdog driver.
-     Delete no_irq, using nr_res instead.
-
-v21: https://lkml.org/lkml/2017/2/6/734
-     Introduce two functions to get the frequency from mmio and sysreg.
-     Remove arch_timer_detect_rate use arch_timer_get_*_freq directly
-     Split arch_timer_rate for different types of timer.
-     Skip secure timer frame in GTDT driver.
-     Rebase to git://git.kernel.org/pub/scm/linux/kernel/git/mark/linux.git arch-timer/cleanup
-     (The first 6 patches in v20 have been merged into arch-timer/cleanup branch)
-
-v20: https://lkml.org/lkml/2017/1/18/534
-     Reorder the first 4 patches and split the 4th patches.
-     Leave CNTHCTL_* as they originally were.
-     Fix the bug in arch_timer_select_ppi.
-     Split "Rework counter frequency detection" patch.
-     Rework the arch_timer_detect_rate function.
-     Improve the commit message of "Refactor MMIO timer probing".
-     Rebase to 4.10.0-rc4
-
-v19: https://lkml.org/lkml/2016/12/21/25
-     Fix a '\n' missing in a error message in arch_timer_mem_init.
-     Add "request_mem_region" for ioremapping cntbase, according to
-     f947ee1 clocksource/drivers/arm_arch_timer: Map frame with of_io_request_and_map()
-     Rebase to 4.9.0-gfb779ff
-
-v18: https://lkml.org/lkml/2016/12/8/446
-     Fix 8/15 patch problem of "int ret;" in arch_timer_acpi_init.
-     Rebase to 4.9.0-rc8-g9269898
-
-v17: https://lkml.org/lkml/2016/11/25/140
-     Take out some cleanups from 4/15.
-     Merge 5/15 and 6/15, improve PPI determination code,
-     improve commit message.
-     Rework counter frequency detection.
-     Move arch_timer_needs_of_probing into DT init call.
-     Move Platform Timer scan loop back to timer init call to avoid allocating
-     and free memory.
-     Improve all the exported functions' comment.
-
-v16: https://lkml.org/lkml/2016/11/16/268
-     Fix patchset problem about static enum ppi_nr of 01/13 in v15.
-     Refactor arch_timer_detect_rate.
-     Refactor arch_timer_needs_probing.
-
-v15: https://lkml.org/lkml/2016/11/15/366
-     Re-order patches
-     Add arm_arch_timer refactoring patches to prepare for GTDT:
-         1. rename some  enums and defines, and some cleanups
-         2. separate out arch_timer_uses_ppi init code and fix a potential bug
-         3. Improve some new structs, refactor the timer init code.
-     Since the some structs have been changed, GTDT parser for memory-mapped
-     timer and SBSA Generic Watchdog timer have been update.
-
-v14: https://lkml.org/lkml/2016/9/28/573
-     Separate memory-mapped timer GTDT support into two patches
-         1. Refactor the timer init code to prepare for GTDT
-         2. Add GTDT support for memory-mapped timer
-
-v13: http://www.mail-archive.com/linux-kernel@vger.kernel.org/msg1231717.html
-     Improve arm_arch_timer code for memory-mapped
-     timer GTDT support, refactor original memory-mapped timer
-     dt support for reusing some common code.
-
-v12: https://lkml.org/lkml/2016/9/13/250
-     Rebase to latest Linux 4.8-rc6
-     Delete the confusing "skipping" in the error message.
-
-V11: https://lkml.org/lkml/2016/9/6/354
-     Rebase to latest Linux 4.8-rc5
-     Delete typedef (suggested by checkpatch.pl)
-
-V10: https://lkml.org/lkml/2016/7/26/215
-     Drop the "readq" patch.
-     Rebase to latest Linux 4.7.
-
-V9: https://lkml.org/lkml/2016/7/25/345
-    Improve pr_err message in acpi gtdt driver.
-    Update Commit message for 7/9
-    shorten the irq mapping function name
-    Improve GTDT driver for memory-mapped timer
-
-v8: https://lkml.org/lkml/2016/7/19/660
-    Improve "pr_fmt(fmt)" definition: add "ACPI" in front of "GTDT",
-    and also improve printk message.
-    Simplify is_timer_block and is_watchdog.
-    Merge acpi_gtdt_desc_init and gtdt_arch_timer_init into acpi_gtdt_init();
-    Delete __init in include/linux/acpi.h for GTDT API
-    Make ARM64 select GTDT.
-    Delete "#include <linux/module.h>" from acpi_gtdt.c
-    Simplify GT block parse code.
-
-v7: https://lkml.org/lkml/2016/7/13/769
-    Move the GTDT driver to drivers/acpi/arm64
-    Add add the ARM64-specific ACPI Support maintainers in MAINTAINERS
-    Merge 3 patches of GTDT parser driver.
-    Fix the for_each_platform_timer bug.
-
-v6: https://lkml.org/lkml/2016/6/29/580
-    split the GTDT driver to 4 parts: basic, arch_timer, memory-mapped timer,
-    and SBSA Generic Watchdog timer
-    Improve driver by suggestions and example code from Daniel Lezcano
-
-v5: https://lkml.org/lkml/2016/5/24/356
-    Sorting out all patches, simplify the API of GTDT driver:
-    GTDT driver just fills the data struct for arm_arch_timer driver.
-
-v4: https://lists.linaro.org/pipermail/linaro-acpi/2016-March/006667.html
-    Delete the kvm relevant patches
-    Separate two patches for sorting out the code for arm_arch_timer.
-    Improve irq info export code to allow missing irq info in GTDT table.
-
-v3: https://lkml.org/lkml/2016/2/1/658
-    Improve GTDT driver code:
-      (1)improve pr_* by defining pr_fmt(fmt)
-      (2)simplify gtdt_sbsa_gwdt_init
-      (3)improve gtdt_arch_timer_data_init, if table is NULL, it will try
-      to get GTDT table.
-    Move enum ppi_nr to arm_arch_timer.h, and add enum spi_nr.
-    Add arm_arch_timer get ppi from DT and GTDT support for kvm.
-
-v2: https://lkml.org/lkml/2015/12/2/10
-    Rebase to latest kernel version(4.4-rc3).
-    Fix the bug about the config problem,
-    use CONFIG_ACPI_GTDT instead of CONFIG_ACPI in arm_arch_timer.c
-
-v1: The first upstreaming version: https://lkml.org/lkml/2015/10/28/553
-
-Fu Wei (11):
-  clocksource: arm_arch_timer: add MMIO CNTFRQ helper
-  clocksource: arm_arch_timer: split dt-only rate handling
-  clocksource: arm_arch_timer: refactor arch_timer_needs_probing
-  clocksource: arm_arch_timer: move arch_timer_needs_of_probing into DT
-    init call
-  clocksource: arm_arch_timer: add structs to describe MMIO timer
-  clocksource: arm_arch_timer: refactor MMIO timer probing.
-  acpi/arm64: Add GTDT table parse driver
-  clocksource: arm_arch_timer: simplify ACPI support code.
-  acpi/arm64: Add memory-mapped timer support in GTDT driver
-  clocksource: arm_arch_timer: add GTDT support for memory-mapped timer
-  acpi/arm64: Add SBSA Generic Watchdog support in GTDT driver
-
- arch/arm64/Kconfig                   |   1 +
- drivers/acpi/arm64/Kconfig           |   3 +
- drivers/acpi/arm64/Makefile          |   1 +
- drivers/acpi/arm64/gtdt.c            | 406 +++++++++++++++++++++++++++++++++++
- drivers/clocksource/arm_arch_timer.c | 338 ++++++++++++++++++-----------
- include/clocksource/arm_arch_timer.h |  16 ++
- include/linux/acpi.h                 |   7 +
- 7 files changed, 648 insertions(+), 124 deletions(-)
- create mode 100644 drivers/acpi/arm64/gtdt.c
 
 -- 
-2.9.3
+Best regards,
 
+Fu Wei
+Software Engineer
+Red Hat
