@@ -1,8 +1,8 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:55934 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:39942 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S933419AbdCaRwM (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 31 Mar 2017 13:52:12 -0400
+        id S933395AbdCaRwj (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 31 Mar 2017 13:52:39 -0400
 From: fu.wei@linaro.org
 To: rjw@rjwysocki.net, lenb@kernel.org, daniel.lezcano@linaro.org,
         tglx@linutronix.de, marc.zyngier@arm.com, mark.rutland@arm.com,
@@ -18,9 +18,9 @@ Cc: linux-arm-kernel@lists.infradead.org, linaro-acpi@lists.linaro.org,
         linux@roeck-us.net, linux-watchdog@vger.kernel.org,
         tn@semihalf.com, christoffer.dall@linaro.org, julien.grall@arm.com,
         Fu Wei <fu.wei@linaro.org>
-Subject: [PATCH v23 03/11] clocksource: arm_arch_timer: refactor arch_timer_needs_probing
-Date: Sat,  1 Apr 2017 01:50:57 +0800
-Message-Id: <20170331175105.8370-4-fu.wei@linaro.org>
+Subject: [PATCH v23 05/11] clocksource: arm_arch_timer: add structs to describe MMIO timer
+Date: Sat,  1 Apr 2017 01:50:59 +0800
+Message-Id: <20170331175105.8370-6-fu.wei@linaro.org>
 In-Reply-To: <20170331175105.8370-1-fu.wei@linaro.org>
 References: <20170331175105.8370-1-fu.wei@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -28,84 +28,54 @@ List-Id: linux-watchdog@vger.kernel.org
 
 From: Fu Wei <fu.wei@linaro.org>
 
-When booting with DT, it's possible for timer nodes to be probed in any
-order. Some common initialisation needs to occur after all nodes have
-been probed, and arch_timer_common_init() has code to detect when this
-has happened.
+In preparation for ACPI GTDT support, this patch adds structs to
+describe the MMIO timers indepedent of the firmware interface.
 
-This logic is DT-specific, and it would be best to factor it out of the
-common code that will be shared with ACPI.
+Subsequent patches will use these to split the FW/HW probing logic, so
+that the HW probing logic can be shared by ACPI and DT.
 
-This patch folds this into the existing arch_timer_needs_probing(),
-which is renamed to arch_timer_needs_of_probing(), and no longer takes
-any arguments. This is only called when using DT, and not when using
-ACPI, which will have a deterministic probe order.
+[Mark: reword commit message]
 
 Signed-off-by: Fu Wei <fu.wei@linaro.org>
 Reviewed-by: Hanjun Guo <hanjun.guo@linaro.org>
-[Mark: reword commit message]
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
 ---
- drivers/clocksource/arm_arch_timer.c | 34 +++++++++++++++++++---------------
- 1 file changed, 19 insertions(+), 15 deletions(-)
+ include/clocksource/arm_arch_timer.h | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/drivers/clocksource/arm_arch_timer.c b/drivers/clocksource/arm_arch_timer.c
-index 1b6a7e6..ed215d9 100644
---- a/drivers/clocksource/arm_arch_timer.c
-+++ b/drivers/clocksource/arm_arch_timer.c
-@@ -839,15 +839,28 @@ static const struct of_device_id arch_timer_mem_of_match[] __initconst = {
- 	{},
+diff --git a/include/clocksource/arm_arch_timer.h b/include/clocksource/arm_arch_timer.h
+index 4a98c06..cc805b7 100644
+--- a/include/clocksource/arm_arch_timer.h
++++ b/include/clocksource/arm_arch_timer.h
+@@ -57,6 +57,8 @@ enum arch_timer_spi_nr {
+ #define ARCH_TIMER_MEM_PHYS_ACCESS	2
+ #define ARCH_TIMER_MEM_VIRT_ACCESS	3
+ 
++#define ARCH_TIMER_MEM_MAX_FRAMES	8
++
+ #define ARCH_TIMER_USR_PCT_ACCESS_EN	(1 << 0) /* physical counter */
+ #define ARCH_TIMER_USR_VCT_ACCESS_EN	(1 << 1) /* virtual counter */
+ #define ARCH_TIMER_VIRT_EVT_EN		(1 << 2)
+@@ -72,6 +74,20 @@ struct arch_timer_kvm_info {
+ 	int virtual_irq;
  };
  
--static bool __init
--arch_timer_needs_probing(int type, const struct of_device_id *matches)
-+static bool __init arch_timer_needs_of_probing(void)
- {
- 	struct device_node *dn;
- 	bool needs_probing = false;
-+	unsigned int mask = ARCH_TIMER_TYPE_CP15 | ARCH_TIMER_TYPE_MEM;
- 
--	dn = of_find_matching_node(NULL, matches);
--	if (dn && of_device_is_available(dn) && !(arch_timers_present & type))
-+	/* We have two timers, and both device-tree nodes are probed. */
-+	if ((arch_timers_present & mask) == mask)
-+		return false;
++struct arch_timer_mem_frame {
++	bool valid;
++	phys_addr_t cntbase;
++	size_t size;
++	int phys_irq;
++	int virt_irq;
++};
 +
-+	/*
-+	 * Only one type of timer is probed,
-+	 * check if we have another type of timer node in device-tree.
-+	 */
-+	if (arch_timers_present & ARCH_TIMER_TYPE_CP15)
-+		dn = of_find_matching_node(NULL, arch_timer_mem_of_match);
-+	else
-+		dn = of_find_matching_node(NULL, arch_timer_of_match);
++struct arch_timer_mem {
++	phys_addr_t cntctlbase;
++	size_t size;
++	struct arch_timer_mem_frame frame[ARCH_TIMER_MEM_MAX_FRAMES];
++};
 +
-+	if (dn && of_device_is_available(dn))
- 		needs_probing = true;
-+
- 	of_node_put(dn);
+ #ifdef CONFIG_ARM_ARCH_TIMER
  
- 	return needs_probing;
-@@ -855,17 +868,8 @@ arch_timer_needs_probing(int type, const struct of_device_id *matches)
- 
- static int __init arch_timer_common_init(void)
- {
--	unsigned mask = ARCH_TIMER_TYPE_CP15 | ARCH_TIMER_TYPE_MEM;
--
--	/* Wait until both nodes are probed if we have two timers */
--	if ((arch_timers_present & mask) != mask) {
--		if (arch_timer_needs_probing(ARCH_TIMER_TYPE_MEM,
--					     arch_timer_mem_of_match))
--			return 0;
--		if (arch_timer_needs_probing(ARCH_TIMER_TYPE_CP15,
--					     arch_timer_of_match))
--			return 0;
--	}
-+	if (acpi_disabled && arch_timer_needs_of_probing())
-+		return 0;
- 
- 	arch_timer_banner(arch_timers_present);
- 	arch_counter_register(arch_timers_present);
+ extern u32 arch_timer_get_rate(void);
 -- 
 2.9.3
 
