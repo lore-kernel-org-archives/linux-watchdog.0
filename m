@@ -1,7 +1,7 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail7.pr.hu ([87.242.0.7]:56124 "EHLO mail7.pr.hu"
+Received: from mail7.pr.hu ([87.242.0.7]:53374 "EHLO mail7.pr.hu"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751335AbdDAKHX (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        id S1751376AbdDAKHX (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
         Sat, 1 Apr 2017 06:07:23 -0400
 From: =?UTF-8?q?Zolt=C3=A1n=20B=C3=B6sz=C3=B6rm=C3=A9nyi?=
         <zboszor@pr.hu>
@@ -10,9 +10,9 @@ To: linux-usb@vger.kernel.org, linux-watchdog@vger.kernel.org,
 Cc: linux-kernel@vger.kernel.org,
         =?UTF-8?q?B=C3=B6sz=C3=B6rm=C3=A9nyi=20Zolt=C3=A1n?=
         <zboszor@pr.hu>
-Subject: [PATCH 1/3] usb: pci-quirks: Add a header for SB800 I/O ports and mutex for locking
-Date: Sat,  1 Apr 2017 12:06:07 +0200
-Message-Id: <20170401100609.9054-2-zboszor@pr.hu>
+Subject: [PATCH 3/3] watchdog: sp5100_tco: Synchronize I/O port accesses
+Date: Sat,  1 Apr 2017 12:06:09 +0200
+Message-Id: <20170401100609.9054-4-zboszor@pr.hu>
 In-Reply-To: <20170401100609.9054-1-zboszor@pr.hu>
 References: <20170401100609.9054-1-zboszor@pr.hu>
 MIME-Version: 1.0
@@ -23,81 +23,177 @@ List-Id: linux-watchdog@vger.kernel.org
 
 From: Böszörményi Zoltán <zboszor@pr.hu>
 
-This patch adds:
-* a mutex in the USB PCI quirks code for synchronizing access to
-  the I/O ports on SB800
-* a new header that contains symbols for the index and data I/O ports
-  and wrappers for locking and unlocking the mutex.
-* locking around the I/O port access for SB800
+Use the new header and the mutex from usb/host/pci-quirks.c
+
+This change will allow accesses to the SB800 I/O port pair
+synchronized with the PCI quirk when isochronous USB transfers
+are performed and with i2c-piix4.
+
+At the same time, remove the request_region() call to reserve
+these I/O ports, similarly to i2c-piix4 so the code is now uniform
+across the three individual drivers.
 
 Signed-off-by: Zoltán Böszörményi <zboszor@pr.hu>
 ---
- drivers/usb/host/pci-quirks.c | 14 ++++++++++----
- include/linux/sb800.h         | 15 +++++++++++++++
- 2 files changed, 25 insertions(+), 4 deletions(-)
- create mode 100644 include/linux/sb800.h
+ drivers/watchdog/sp5100_tco.c | 24 +++++++++++-------------
+ drivers/watchdog/sp5100_tco.h | 10 ++++++----
+ 2 files changed, 17 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/usb/host/pci-quirks.c b/drivers/usb/host/pci-quirks.c
-index a9a1e4c..9b0445c 100644
---- a/drivers/usb/host/pci-quirks.c
-+++ b/drivers/usb/host/pci-quirks.c
-@@ -15,6 +15,7 @@
- #include <linux/export.h>
- #include <linux/acpi.h>
- #include <linux/dmi.h>
-+#include <linux/sb800.h>
- #include "pci-quirks.h"
- #include "xhci-ext-caps.h"
+diff --git a/drivers/watchdog/sp5100_tco.c b/drivers/watchdog/sp5100_tco.c
+index 028618c..dc125df 100644
+--- a/drivers/watchdog/sp5100_tco.c
++++ b/drivers/watchdog/sp5100_tco.c
+@@ -48,7 +48,6 @@
+ static u32 tcobase_phys;
+ static u32 tco_wdt_fired;
+ static void __iomem *tcobase;
+-static unsigned int pm_iobase;
+ static DEFINE_SPINLOCK(tco_lock);	/* Guards the hardware */
+ static unsigned long timer_alive;
+ static char tco_expect_close;
+@@ -138,6 +137,8 @@ static void tco_timer_enable(void)
  
-@@ -279,6 +280,9 @@ bool usb_amd_prefetch_quirk(void)
+ 	if (!tco_has_sp5100_reg_layout(sp5100_tco_pci)) {
+ 		/* For SB800 or later */
++		enter_sb800();
++
+ 		/* Set the Watchdog timer resolution to 1 sec */
+ 		outb(SB800_PM_WATCHDOG_CONFIG, SB800_IO_PM_INDEX_REG);
+ 		val = inb(SB800_IO_PM_DATA_REG);
+@@ -150,6 +151,8 @@ static void tco_timer_enable(void)
+ 		val |= SB800_PCI_WATCHDOG_DECODE_EN;
+ 		val &= ~SB800_PM_WATCHDOG_DISABLE;
+ 		outb(val, SB800_IO_PM_DATA_REG);
++
++		leave_sb800();
+ 	} else {
+ 		/* For SP5100 or SB7x0 */
+ 		/* Enable watchdog decode bit */
+@@ -164,11 +167,13 @@ static void tco_timer_enable(void)
+ 				       val);
+ 
+ 		/* Enable Watchdog timer and set the resolution to 1 sec */
++		enter_sb800();
+ 		outb(SP5100_PM_WATCHDOG_CONTROL, SP5100_IO_PM_INDEX_REG);
+ 		val = inb(SP5100_IO_PM_DATA_REG);
+ 		val |= SP5100_PM_WATCHDOG_SECOND_RES;
+ 		val &= ~SP5100_PM_WATCHDOG_DISABLE;
+ 		outb(val, SP5100_IO_PM_DATA_REG);
++		leave_sb800();
+ 	}
  }
- EXPORT_SYMBOL_GPL(usb_amd_prefetch_quirk);
  
-+DEFINE_MUTEX(sb800_mutex);
-+EXPORT_SYMBOL_GPL(sb800_mutex);
+@@ -361,16 +366,10 @@ static unsigned char sp5100_tco_setupdevice(void)
+ 		base_addr = SB800_PM_WATCHDOG_BASE;
+ 	}
+ 
+-	/* Request the IO ports used by this driver */
+-	pm_iobase = SP5100_IO_PM_INDEX_REG;
+-	if (!request_region(pm_iobase, SP5100_PM_IOPORTS_SIZE, dev_name)) {
+-		pr_err("I/O address 0x%04x already in use\n", pm_iobase);
+-		goto exit;
+-	}
+-
+ 	/*
+ 	 * First, Find the watchdog timer MMIO address from indirect I/O.
+ 	 */
++	enter_sb800();
+ 	outb(base_addr+3, index_reg);
+ 	val = inb(data_reg);
+ 	outb(base_addr+2, index_reg);
+@@ -380,6 +379,7 @@ static unsigned char sp5100_tco_setupdevice(void)
+ 	outb(base_addr+0, index_reg);
+ 	/* Low three bits of BASE are reserved */
+ 	val = val << 8 | (inb(data_reg) & 0xf8);
++	leave_sb800();
+ 
+ 	pr_debug("Got 0x%04x from indirect I/O\n", val);
+ 
+@@ -400,6 +400,7 @@ static unsigned char sp5100_tco_setupdevice(void)
+ 				      SP5100_SB_RESOURCE_MMIO_BASE, &val);
+ 	} else {
+ 		/* Read SBResource_MMIO from AcpiMmioEn(PM_Reg: 24h) */
++		enter_sb800();
+ 		outb(SB800_PM_ACPI_MMIO_EN+3, SB800_IO_PM_INDEX_REG);
+ 		val = inb(SB800_IO_PM_DATA_REG);
+ 		outb(SB800_PM_ACPI_MMIO_EN+2, SB800_IO_PM_INDEX_REG);
+@@ -408,6 +409,7 @@ static unsigned char sp5100_tco_setupdevice(void)
+ 		val = val << 8 | inb(SB800_IO_PM_DATA_REG);
+ 		outb(SB800_PM_ACPI_MMIO_EN+0, SB800_IO_PM_INDEX_REG);
+ 		val = val << 8 | inb(SB800_IO_PM_DATA_REG);
++		leave_sb800();
+ 	}
+ 
+ 	/* The SBResource_MMIO is enabled and mapped memory space? */
+@@ -429,7 +431,7 @@ static unsigned char sp5100_tco_setupdevice(void)
+ 		pr_debug("SBResource_MMIO is disabled(0x%04x)\n", val);
+ 
+ 	pr_notice("failed to find MMIO address, giving up.\n");
+-	goto  unreg_region;
++	goto  exit;
+ 
+ setup_wdt:
+ 	tcobase_phys = val;
+@@ -469,8 +471,6 @@ static unsigned char sp5100_tco_setupdevice(void)
+ 
+ unreg_mem_region:
+ 	release_mem_region(tcobase_phys, SP5100_WDT_MEM_MAP_SIZE);
+-unreg_region:
+-	release_region(pm_iobase, SP5100_PM_IOPORTS_SIZE);
+ exit:
+ 	return 0;
+ }
+@@ -517,7 +517,6 @@ static int sp5100_tco_init(struct platform_device *dev)
+ exit:
+ 	iounmap(tcobase);
+ 	release_mem_region(tcobase_phys, SP5100_WDT_MEM_MAP_SIZE);
+-	release_region(pm_iobase, SP5100_PM_IOPORTS_SIZE);
+ 	return ret;
+ }
+ 
+@@ -531,7 +530,6 @@ static void sp5100_tco_cleanup(void)
+ 	misc_deregister(&sp5100_tco_miscdev);
+ 	iounmap(tcobase);
+ 	release_mem_region(tcobase_phys, SP5100_WDT_MEM_MAP_SIZE);
+-	release_region(pm_iobase, SP5100_PM_IOPORTS_SIZE);
+ }
+ 
+ static int sp5100_tco_remove(struct platform_device *dev)
+diff --git a/drivers/watchdog/sp5100_tco.h b/drivers/watchdog/sp5100_tco.h
+index 2b28c00..f5d9402 100644
+--- a/drivers/watchdog/sp5100_tco.h
++++ b/drivers/watchdog/sp5100_tco.h
+@@ -6,6 +6,8 @@
+  *	TCO timer driver for sp5100 chipsets
+  */
+ 
++#include <linux/sb800.h>
 +
  /*
-  * The hardware normally enables the A-link power management feature, which
-  * lets the system lower the power consumption in idle states.
-@@ -314,11 +318,13 @@ static void usb_amd_quirk_pll(int disable)
- 	if (amd_chipset.sb_type.gen == AMD_CHIPSET_SB800 ||
- 			amd_chipset.sb_type.gen == AMD_CHIPSET_HUDSON2 ||
- 			amd_chipset.sb_type.gen == AMD_CHIPSET_BOLTON) {
--		outb_p(AB_REG_BAR_LOW, 0xcd6);
--		addr_low = inb_p(0xcd7);
--		outb_p(AB_REG_BAR_HIGH, 0xcd6);
--		addr_high = inb_p(0xcd7);
-+		enter_sb800();
-+		outb_p(AB_REG_BAR_LOW, SB800_PIIX4_SMB_IDX);
-+		addr_low = inb_p(SB800_PIIX4_SMB_DATA);
-+		outb_p(AB_REG_BAR_HIGH, SB800_PIIX4_SMB_IDX);
-+		addr_high = inb_p(SB800_PIIX4_SMB_DATA);
- 		addr = addr_high << 8 | addr_low;
-+		leave_sb800();
+  * Some address definitions for the Watchdog
+  */
+@@ -24,8 +26,8 @@
+  */
  
- 		outl_p(0x30, AB_INDX(addr));
- 		outl_p(0x40, AB_DATA(addr));
-diff --git a/include/linux/sb800.h b/include/linux/sb800.h
-new file mode 100644
-index 0000000..5650b7d
---- /dev/null
-+++ b/include/linux/sb800.h
-@@ -0,0 +1,15 @@
-+
-+#ifndef SB800_H
-+#define SB800_H
-+
-+#include <linux/mutex.h>
-+
-+#define SB800_PIIX4_SMB_IDX		0xcd6
-+#define SB800_PIIX4_SMB_DATA	0xcd7
-+
-+extern struct mutex sb800_mutex;
-+
-+#define enter_sb800()	mutex_lock(&sb800_mutex)
-+#define leave_sb800()	mutex_unlock(&sb800_mutex)
-+
-+#endif
+ /*  For SP5100/SB7x0 chipset */
+-#define SP5100_IO_PM_INDEX_REG		0xCD6
+-#define SP5100_IO_PM_DATA_REG		0xCD7
++#define SP5100_IO_PM_INDEX_REG		SB800_PIIX4_SMB_IDX
++#define SP5100_IO_PM_DATA_REG		SB800_PIIX4_SMB_DATA
+ 
+ #define SP5100_SB_RESOURCE_MMIO_BASE	0x9C
+ 
+@@ -45,8 +47,8 @@
+ 
+ 
+ /*  For SB8x0(or later) chipset */
+-#define SB800_IO_PM_INDEX_REG		0xCD6
+-#define SB800_IO_PM_DATA_REG		0xCD7
++#define SB800_IO_PM_INDEX_REG		SB800_PIIX4_SMB_IDX
++#define SB800_IO_PM_DATA_REG		SB800_PIIX4_SMB_DATA
+ 
+ #define SB800_PM_ACPI_MMIO_EN		0x24
+ #define SB800_PM_WATCHDOG_CONTROL	0x48
 -- 
 2.9.3
 
