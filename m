@@ -1,58 +1,62 @@
-Return-path: <zboszor@pr.hu>
-From: Boszormenyi Zoltan <zboszor@pr.hu>
-Subject: Re: [Regression] Changes to i2c-piix4.c initialisation prevent
- loading of sp5100_tco watchdog driver on AMD SB800 chipset
-To: Guenter Roeck <linux@roeck-us.net>
-References: <1485728348.3220.10.camel@googlemail.com>
- <1488530782.2457.41.camel@users.sourceforge.net>
- <20170303101702.GA1669@katana>
- <1490944639.2653.182.camel@users.sourceforge.net>
- <585a27fb-be15-df9f-00a9-bd4c3a654142@roeck-us.net>
- <d1152062-77c5-f1b7-6be9-d24ee221ada9@pr.hu>
- <20170331150524.GA31555@roeck-us.net>
-Cc: Paul Menzel <paulepanter@users.sourceforge.net>,
- Wolfram Sang <wsa@the-dreams.de>, Christian Fetzer <fetzer.ch@gmail.com>,
- Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org,
- linux-watchdog@vger.kernel.org, 853122@bugs.debian.org,
- Wim Van Sebroeck <wim@iguana.be>, Tim Small <tim@seoss.co.uk>,
- Nehal Shah <nehal-bakulchandra.shah@amd.com>,
- Mika Westerberg <mika.westerberg@linux.intel.com>,
- Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
- Thomas Brandon <tbrandonau@gmail.com>, Eddi De Pieri <eddi@depieri.net>,
- linux-kernel@vger.kernel.org
-Message-ID: <efce69fc-3899-43f4-c8ee-12b78a571e5a@pr.hu>
-Date: Sat, 1 Apr 2017 12:13:08 +0200
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail7.pr.hu ([87.242.0.7]:39681 "EHLO mail7.pr.hu"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750948AbdDAKHX (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Sat, 1 Apr 2017 06:07:23 -0400
+From: =?UTF-8?q?Zolt=C3=A1n=20B=C3=B6sz=C3=B6rm=C3=A9nyi?=
+        <zboszor@pr.hu>
+To: linux-usb@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        =?UTF-8?q?Zolt=C3=A1n=20B=C3=B6sz=C3=B6rm=C3=A9nyi?=
+        <zboszor@pr.hu>
+Subject: [PATCH 0/3] Fix sp5100_tco watchdog driver regression
+Date: Sat,  1 Apr 2017 12:06:06 +0200
+Message-Id: <20170401100609.9054-1-zboszor@pr.hu>
 MIME-Version: 1.0
-In-Reply-To: <20170331150524.GA31555@roeck-us.net>
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-List-ID: <linux-watchdog@vger.kernel.org>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-2017-03-31 17:05 keltezéssel, Guenter Roeck írta:
-> On Fri, Mar 31, 2017 at 04:46:02PM +0200, Boszormenyi Zoltan wrote:
->> 2017-03-31 14:49 keltezéssel, Guenter Roeck írta:
->>> request_muxed_region() can fail, and literally every other driver
->>> using it checks for that failure. Please do the same.
->>
->> In what circumstances can request_muxed_region() fail? As far as
->> I can see, only if two drivers use the same I/O port base and the
->> already present region did not use IORESOURCE_MUXED which is
->> not the case here. When request_muxed_region() is used consistently,
->> subsequent requests are put on a wait queue and the first one is
->> woken up when the region is released. So, it's basically a mutex.
->> Am I missing something here?
->>
->
-> Yes. failure to allocate the resource is one.
+Three drivers are accessing the same I/O ports (0xcd6 / 0xcd7) on
+AMD SB800 based machines without synchronization or with excluding
+each other out:
+* the USB quirk for isochronous transfers on SB800 (no locking)
+* sp5100_tco (request_region)
+* i2c-piix4 (request_region)
 
-So, a common mutex should be used.
+Historically, the sp5100_tco watchdog driver used request_region()
+for these I/O ports but an i2c-piix4 improvement for SB800 in
+Linux 4.4-rc4 also added a request_region() call. Because of this
+and the load order of these drivers, this caused a regression and
+the watchdog function became non-functional. The commit that caused
+the regression is:
 
-I have also added synchronization to the USB PCI quirks code and
-have split the patch into three pieces now (USB quirks, i2c-piix4 and
-sp5100_tco) and they were sent to the relevant mailing lists.
+commit 2fee61d22e606fc99ade9079fda15fdee83ec33e
+Author: Christian Fetzer <fetzer.ch@gmail.com>
+Date:   Thu Nov 19 20:13:48 2015 +0100
 
-I don't know which subsystem wants to take it, all 3 patches are
-needed at once.
+    i2c: piix4: Add support for multiplexed main adapter in SB800
 
-Best regards,
-Zoltán Böszörményi
+I was informed by Guenter Roeck <linux@roeck-us.net> that the
+alternative, i.e. using request_muxed_region() can fail, either
+because of a resource allocation failure, which is quite possible
+with long uptimes, or because there are no guarantees that an as yet
+unknown driver would also use request_muxed_region() consistently.
+
+Because of this, a common mutex across these driver was chosen to
+synchronize I/O port accesses and request_region() calls are removed
+from both i2c-piix4 and sp5100_tco to make the code uniform.
+
+This patch series implements this and restores the watchdog function.
+
+Signed-off-by: Zoltán Böszörményi <zboszor@pr.hu>
+
+ drivers/i2c/busses/i2c-piix4.c | 59 ++++++++++++--------------------------
+ drivers/usb/host/pci-quirks.c  | 14 ++++++---
+ drivers/watchdog/sp5100_tco.c  | 24 +++++++---------
+ drivers/watchdog/sp5100_tco.h  | 10 ++++---
+ include/linux/sb800.h          | 15 ++++++++++
+ 5 files changed, 61 insertions(+), 61 deletions(-)
+
