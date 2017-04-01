@@ -1,81 +1,108 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:53411 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751574AbdDANcn (ORCPT
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:59021 "EHLO
+        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1751479AbdDAOQN (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 1 Apr 2017 09:32:43 -0400
-Subject: Re: [Regression] Changes to i2c-piix4.c initialisation prevent
- loading of sp5100_tco watchdog driver on AMD SB800 chipset
-To: Boszormenyi Zoltan <zboszor@pr.hu>
-References: <1485728348.3220.10.camel@googlemail.com>
- <1488530782.2457.41.camel@users.sourceforge.net>
- <20170303101702.GA1669@katana>
- <1490944639.2653.182.camel@users.sourceforge.net>
- <585a27fb-be15-df9f-00a9-bd4c3a654142@roeck-us.net>
- <d1152062-77c5-f1b7-6be9-d24ee221ada9@pr.hu>
- <20170331150524.GA31555@roeck-us.net>
- <efce69fc-3899-43f4-c8ee-12b78a571e5a@pr.hu>
-Cc: Paul Menzel <paulepanter@users.sourceforge.net>,
-        Wolfram Sang <wsa@the-dreams.de>,
-        Christian Fetzer <fetzer.ch@gmail.com>,
-        Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org,
-        linux-watchdog@vger.kernel.org, 853122@bugs.debian.org,
-        Wim Van Sebroeck <wim@iguana.be>,
-        Tim Small <tim@seoss.co.uk>,
-        Nehal Shah <nehal-bakulchandra.shah@amd.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Thomas Brandon <tbrandonau@gmail.com>,
-        Eddi De Pieri <eddi@depieri.net>,
-        linux-kernel@vger.kernel.org
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <0b32728a-f545-be43-2870-94688f1f9da5@roeck-us.net>
-Date: Sat, 1 Apr 2017 06:32:37 -0700
+        Sat, 1 Apr 2017 10:16:13 -0400
+Date: Sat, 1 Apr 2017 15:59:57 +0200
+From: Greg KH <greg@kroah.com>
+To: Zoltan Boszormenyi <zboszor@pr.hu>
+Cc: linux-usb@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/3] usb: pci-quirks: Add a header for SB800 I/O ports
+ and mutex for locking
+Message-ID: <20170401135957.GA9493@kroah.com>
+References: <20170401100609.9054-1-zboszor@pr.hu>
+ <20170401110223.12056-1-zboszor@pr.hu>
+ <20170401110223.12056-2-zboszor@pr.hu>
 MIME-Version: 1.0
-In-Reply-To: <efce69fc-3899-43f4-c8ee-12b78a571e5a@pr.hu>
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <20170401110223.12056-2-zboszor@pr.hu>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 04/01/2017 03:13 AM, Boszormenyi Zoltan wrote:
-> 2017-03-31 17:05 keltezéssel, Guenter Roeck írta:
->> On Fri, Mar 31, 2017 at 04:46:02PM +0200, Boszormenyi Zoltan wrote:
->>> 2017-03-31 14:49 keltezéssel, Guenter Roeck írta:
->>>> request_muxed_region() can fail, and literally every other driver
->>>> using it checks for that failure. Please do the same.
->>>
->>> In what circumstances can request_muxed_region() fail? As far as
->>> I can see, only if two drivers use the same I/O port base and the
->>> already present region did not use IORESOURCE_MUXED which is
->>> not the case here. When request_muxed_region() is used consistently,
->>> subsequent requests are put on a wait queue and the first one is
->>> woken up when the region is released. So, it's basically a mutex.
->>> Am I missing something here?
->>>
->>
->> Yes. failure to allocate the resource is one.
->
-> So, a common mutex should be used.
->
+On Sat, Apr 01, 2017 at 01:02:21PM +0200, Zoltan Boszormenyi wrote:
+> From: B�sz�rm�nyi Zolt�n <zboszor@pr.hu>
+> 
+> This patch adds:
+> * a mutex in the USB PCI quirks code for synchronizing access to
+>   the I/O ports on SB800
+> * a new header that contains symbols for the index and data I/O ports
+>   and wrappers for locking and unlocking the mutex.
+> * locking around the I/O port access for SB800
+> 
+> Signed-off-by: Zoltan Boszormenyi <zboszor@pr.hu>
+> ---
+>  drivers/usb/host/pci-quirks.c | 14 ++++++++++----
+>  include/linux/sb800.h         | 15 +++++++++++++++
+>  2 files changed, 25 insertions(+), 4 deletions(-)
+>  create mode 100644 include/linux/sb800.h
+> 
+> diff --git a/drivers/usb/host/pci-quirks.c b/drivers/usb/host/pci-quirks.c
+> index a9a1e4c..9b0445c 100644
+> --- a/drivers/usb/host/pci-quirks.c
+> +++ b/drivers/usb/host/pci-quirks.c
+> @@ -15,6 +15,7 @@
+>  #include <linux/export.h>
+>  #include <linux/acpi.h>
+>  #include <linux/dmi.h>
+> +#include <linux/sb800.h>
+>  #include "pci-quirks.h"
+>  #include "xhci-ext-caps.h"
+>  
+> @@ -279,6 +280,9 @@ bool usb_amd_prefetch_quirk(void)
+>  }
+>  EXPORT_SYMBOL_GPL(usb_amd_prefetch_quirk);
+>  
+> +DEFINE_MUTEX(sb800_mutex);
+> +EXPORT_SYMBOL_GPL(sb800_mutex);
+> +
+>  /*
+>   * The hardware normally enables the A-link power management feature, which
+>   * lets the system lower the power consumption in idle states.
+> @@ -314,11 +318,13 @@ static void usb_amd_quirk_pll(int disable)
+>  	if (amd_chipset.sb_type.gen == AMD_CHIPSET_SB800 ||
+>  			amd_chipset.sb_type.gen == AMD_CHIPSET_HUDSON2 ||
+>  			amd_chipset.sb_type.gen == AMD_CHIPSET_BOLTON) {
+> -		outb_p(AB_REG_BAR_LOW, 0xcd6);
+> -		addr_low = inb_p(0xcd7);
+> -		outb_p(AB_REG_BAR_HIGH, 0xcd6);
+> -		addr_high = inb_p(0xcd7);
+> +		enter_sb800();
+> +		outb_p(AB_REG_BAR_LOW, SB800_PIIX4_SMB_IDX);
+> +		addr_low = inb_p(SB800_PIIX4_SMB_DATA);
+> +		outb_p(AB_REG_BAR_HIGH, SB800_PIIX4_SMB_IDX);
+> +		addr_high = inb_p(SB800_PIIX4_SMB_DATA);
+>  		addr = addr_high << 8 | addr_low;
+> +		leave_sb800();
+>  
+>  		outl_p(0x30, AB_INDX(addr));
+>  		outl_p(0x40, AB_DATA(addr));
+> diff --git a/include/linux/sb800.h b/include/linux/sb800.h
+> new file mode 100644
+> index 0000000..5650b7d
+> --- /dev/null
+> +++ b/include/linux/sb800.h
+> @@ -0,0 +1,15 @@
+> +
+> +#ifndef SB800_H
+> +#define SB800_H
+> +
+> +#include <linux/mutex.h>
+> +
+> +#define SB800_PIIX4_SMB_IDX		0xcd6
+> +#define SB800_PIIX4_SMB_DATA	0xcd7
+> +
+> +extern struct mutex sb800_mutex;
+> +
+> +#define enter_sb800()	mutex_lock(&sb800_mutex)
+> +#define leave_sb800()	mutex_unlock(&sb800_mutex)
 
-Just because you don't want to check for errors ?
+Don't hide the mutex, just spell it out in the code itself.  No need for
+these defines at all.
 
-I am not on favor of your new solution. I think it violates layering all over
-the place, and I dislike the idea of having a global mutex as you propose.
-I won't shut it down, but I'll let others provide feedback on your new series
-of patches.
+thanks,
 
-Guenter
-
-> I have also added synchronization to the USB PCI quirks code and
-> have split the patch into three pieces now (USB quirks, i2c-piix4 and
-> sp5100_tco) and they were sent to the relevant mailing lists.
->
-> I don't know which subsystem wants to take it, all 3 patches are
-> needed at once.
->
-> Best regards,
-> Zoltán Böszörményi
->
-
+greg k-h
