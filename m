@@ -1,215 +1,81 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail7.pr.hu ([87.242.0.7]:60728 "EHLO mail7.pr.hu"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752669AbdDALJG (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 1 Apr 2017 07:09:06 -0400
-From: Zoltan Boszormenyi <zboszor@pr.hu>
-To: linux-usb@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        linux-i2c@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Zoltan Boszormenyi <zboszor@pr.hu>
-Subject: [PATCH 2/3] i2c: i2c-piix4: Synchronize I/O port accesses with the SB800 USB quirk
-Date: Sat,  1 Apr 2017 13:08:47 +0200
-Message-Id: <20170401110847.12857-1-zboszor@pr.hu>
-In-Reply-To: <20170401100609.9054-1-zboszor@pr.hu>
-References: <20170401100609.9054-1-zboszor@pr.hu>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:53411 "EHLO
+        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751574AbdDANcn (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Sat, 1 Apr 2017 09:32:43 -0400
+Subject: Re: [Regression] Changes to i2c-piix4.c initialisation prevent
+ loading of sp5100_tco watchdog driver on AMD SB800 chipset
+To: Boszormenyi Zoltan <zboszor@pr.hu>
+References: <1485728348.3220.10.camel@googlemail.com>
+ <1488530782.2457.41.camel@users.sourceforge.net>
+ <20170303101702.GA1669@katana>
+ <1490944639.2653.182.camel@users.sourceforge.net>
+ <585a27fb-be15-df9f-00a9-bd4c3a654142@roeck-us.net>
+ <d1152062-77c5-f1b7-6be9-d24ee221ada9@pr.hu>
+ <20170331150524.GA31555@roeck-us.net>
+ <efce69fc-3899-43f4-c8ee-12b78a571e5a@pr.hu>
+Cc: Paul Menzel <paulepanter@users.sourceforge.net>,
+        Wolfram Sang <wsa@the-dreams.de>,
+        Christian Fetzer <fetzer.ch@gmail.com>,
+        Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org,
+        linux-watchdog@vger.kernel.org, 853122@bugs.debian.org,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Tim Small <tim@seoss.co.uk>,
+        Nehal Shah <nehal-bakulchandra.shah@amd.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Thomas Brandon <tbrandonau@gmail.com>,
+        Eddi De Pieri <eddi@depieri.net>,
+        linux-kernel@vger.kernel.org
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <0b32728a-f545-be43-2870-94688f1f9da5@roeck-us.net>
+Date: Sat, 1 Apr 2017 06:32:37 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <efce69fc-3899-43f4-c8ee-12b78a571e5a@pr.hu>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Use the new header and the common mutex in the i2c-piix4 driver.
+On 04/01/2017 03:13 AM, Boszormenyi Zoltan wrote:
+> 2017-03-31 17:05 keltezéssel, Guenter Roeck írta:
+>> On Fri, Mar 31, 2017 at 04:46:02PM +0200, Boszormenyi Zoltan wrote:
+>>> 2017-03-31 14:49 keltezéssel, Guenter Roeck írta:
+>>>> request_muxed_region() can fail, and literally every other driver
+>>>> using it checks for that failure. Please do the same.
+>>>
+>>> In what circumstances can request_muxed_region() fail? As far as
+>>> I can see, only if two drivers use the same I/O port base and the
+>>> already present region did not use IORESOURCE_MUXED which is
+>>> not the case here. When request_muxed_region() is used consistently,
+>>> subsequent requests are put on a wait queue and the first one is
+>>> woken up when the region is released. So, it's basically a mutex.
+>>> Am I missing something here?
+>>>
+>>
+>> Yes. failure to allocate the resource is one.
+>
+> So, a common mutex should be used.
+>
 
-At the same time, remove the request_region() call to reserve
-these I/O ports, so the sp5100_tco watchdog driver is fixed.
-The mutex is enough to protect the I/O port accesses. This is
-an old regression in Linux 4.4-rc4, caused by:
+Just because you don't want to check for errors ?
 
-commit 2fee61d22e606fc99ade9079fda15fdee83ec33e
-Author: Christian Fetzer <fetzer.ch@gmail.com>
-Date:   Thu Nov 19 20:13:48 2015 +0100
+I am not on favor of your new solution. I think it violates layering all over
+the place, and I dislike the idea of having a global mutex as you propose.
+I won't shut it down, but I'll let others provide feedback on your new series
+of patches.
 
-    i2c: piix4: Add support for multiplexed main adapter in SB800
+Guenter
 
-Signed-off-by: Zoltan Boszormenyi <zboszor@pr.hu>
----
- drivers/i2c/busses/i2c-piix4.c | 59 ++++++++++++++----------------------------
- 1 file changed, 19 insertions(+), 40 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
-index c21ca7b..a4549e5 100644
---- a/drivers/i2c/busses/i2c-piix4.c
-+++ b/drivers/i2c/busses/i2c-piix4.c
-@@ -40,7 +40,7 @@
- #include <linux/dmi.h>
- #include <linux/acpi.h>
- #include <linux/io.h>
--#include <linux/mutex.h>
-+#include <linux/sb800.h>
- 
- 
- /* PIIX4 SMBus address offsets */
-@@ -82,9 +82,6 @@
- /* Multi-port constants */
- #define PIIX4_MAX_ADAPTERS 4
- 
--/* SB800 constants */
--#define SB800_PIIX4_SMB_IDX		0xcd6
--
- /*
-  * SB800 port is selected by bits 2:1 of the smb_en register (0x2c)
-  * or the smb_sel register (0x2e), depending on bit 0 of register 0x2f.
-@@ -144,10 +141,9 @@ static const struct dmi_system_id piix4_dmi_ibm[] = {
- 
- /*
-  * SB800 globals
-- * piix4_mutex_sb800 protects piix4_port_sel_sb800 and the pair
-- * of I/O ports at SB800_PIIX4_SMB_IDX.
-+ * sb800_mutex in drivers/usb/host/pci-quirks.c protects
-+ * piix4_port_sel_sb800 and the pair of I/O ports at SB800_PIIX4_SMB_IDX.
-  */
--static DEFINE_MUTEX(piix4_mutex_sb800);
- static u8 piix4_port_sel_sb800;
- static const char *piix4_main_port_names_sb800[PIIX4_MAX_ADAPTERS] = {
- 	" port 0", " port 2", " port 3", " port 4"
-@@ -157,8 +153,6 @@ static const char *piix4_aux_port_name_sb800 = " port 1";
- struct i2c_piix4_adapdata {
- 	unsigned short smba;
- 
--	/* SB800 */
--	bool sb800_main;
- 	u8 port;		/* Port number, shifted */
- };
- 
-@@ -286,12 +280,12 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
- 	else
- 		smb_en = (aux) ? 0x28 : 0x2c;
- 
--	mutex_lock(&piix4_mutex_sb800);
-+	enter_sb800();
- 	outb_p(smb_en, SB800_PIIX4_SMB_IDX);
--	smba_en_lo = inb_p(SB800_PIIX4_SMB_IDX + 1);
-+	smba_en_lo = inb_p(SB800_PIIX4_SMB_DATA);
- 	outb_p(smb_en + 1, SB800_PIIX4_SMB_IDX);
--	smba_en_hi = inb_p(SB800_PIIX4_SMB_IDX + 1);
--	mutex_unlock(&piix4_mutex_sb800);
-+	smba_en_hi = inb_p(SB800_PIIX4_SMB_DATA);
-+	leave_sb800();
- 
- 	if (!smb_en) {
- 		smb_en_status = smba_en_lo & 0x10;
-@@ -349,13 +343,13 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
- 	if (PIIX4_dev->vendor == PCI_VENDOR_ID_AMD) {
- 		piix4_port_sel_sb800 = SB800_PIIX4_PORT_IDX_ALT;
- 	} else {
--		mutex_lock(&piix4_mutex_sb800);
-+		enter_sb800();
- 		outb_p(SB800_PIIX4_PORT_IDX_SEL, SB800_PIIX4_SMB_IDX);
--		port_sel = inb_p(SB800_PIIX4_SMB_IDX + 1);
-+		port_sel = inb_p(SB800_PIIX4_SMB_DATA);
- 		piix4_port_sel_sb800 = (port_sel & 0x01) ?
- 				       SB800_PIIX4_PORT_IDX_ALT :
- 				       SB800_PIIX4_PORT_IDX;
--		mutex_unlock(&piix4_mutex_sb800);
-+		leave_sb800();
- 	}
- 
- 	dev_info(&PIIX4_dev->dev,
-@@ -592,7 +586,7 @@ static s32 piix4_access_sb800(struct i2c_adapter *adap, u16 addr,
- 	u8 port;
- 	int retval;
- 
--	mutex_lock(&piix4_mutex_sb800);
-+	enter_sb800();
- 
- 	/* Request the SMBUS semaphore, avoid conflicts with the IMC */
- 	smbslvcnt  = inb_p(SMBSLVCNT);
-@@ -608,27 +602,27 @@ static s32 piix4_access_sb800(struct i2c_adapter *adap, u16 addr,
- 	} while (--retries);
- 	/* SMBus is still owned by the IMC, we give up */
- 	if (!retries) {
--		mutex_unlock(&piix4_mutex_sb800);
-+		leave_sb800();
- 		return -EBUSY;
- 	}
- 
- 	outb_p(piix4_port_sel_sb800, SB800_PIIX4_SMB_IDX);
--	smba_en_lo = inb_p(SB800_PIIX4_SMB_IDX + 1);
-+	smba_en_lo = inb_p(SB800_PIIX4_SMB_DATA);
- 
- 	port = adapdata->port;
- 	if ((smba_en_lo & SB800_PIIX4_PORT_IDX_MASK) != port)
- 		outb_p((smba_en_lo & ~SB800_PIIX4_PORT_IDX_MASK) | port,
--		       SB800_PIIX4_SMB_IDX + 1);
-+		       SB800_PIIX4_SMB_DATA);
- 
- 	retval = piix4_access(adap, addr, flags, read_write,
- 			      command, size, data);
- 
--	outb_p(smba_en_lo, SB800_PIIX4_SMB_IDX + 1);
-+	outb_p(smba_en_lo, SB800_PIIX4_SMB_DATA);
- 
- 	/* Release the semaphore */
- 	outb_p(smbslvcnt | 0x20, SMBSLVCNT);
- 
--	mutex_unlock(&piix4_mutex_sb800);
-+	leave_sb800();
- 
- 	return retval;
- }
-@@ -705,7 +699,6 @@ static int piix4_add_adapter(struct pci_dev *dev, unsigned short smba,
- 	}
- 
- 	adapdata->smba = smba;
--	adapdata->sb800_main = sb800_main;
- 	adapdata->port = port << 1;
- 
- 	/* set up the sysfs linkage to our parent device */
-@@ -771,29 +764,18 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
- 	    dev->vendor == PCI_VENDOR_ID_AMD) {
- 		is_sb800 = true;
- 
--		if (!request_region(SB800_PIIX4_SMB_IDX, 2, "smba_idx")) {
--			dev_err(&dev->dev,
--			"SMBus base address index region 0x%x already in use!\n",
--			SB800_PIIX4_SMB_IDX);
--			return -EBUSY;
--		}
--
- 		/* base address location etc changed in SB800 */
- 		retval = piix4_setup_sb800(dev, id, 0);
--		if (retval < 0) {
--			release_region(SB800_PIIX4_SMB_IDX, 2);
-+		if (retval < 0)
- 			return retval;
--		}
- 
- 		/*
- 		 * Try to register multiplexed main SMBus adapter,
- 		 * give up if we can't
- 		 */
- 		retval = piix4_add_adapters_sb800(dev, retval);
--		if (retval < 0) {
--			release_region(SB800_PIIX4_SMB_IDX, 2);
-+		if (retval < 0)
- 			return retval;
--		}
- 	} else {
- 		retval = piix4_setup(dev, id);
- 		if (retval < 0)
-@@ -841,11 +823,8 @@ static void piix4_adap_remove(struct i2c_adapter *adap)
- 
- 	if (adapdata->smba) {
- 		i2c_del_adapter(adap);
--		if (adapdata->port == (0 << 1)) {
-+		if (adapdata->port == (0 << 1))
- 			release_region(adapdata->smba, SMBIOSIZE);
--			if (adapdata->sb800_main)
--				release_region(SB800_PIIX4_SMB_IDX, 2);
--		}
- 		kfree(adapdata);
- 		kfree(adap);
- 	}
--- 
-2.9.3
+> I have also added synchronization to the USB PCI quirks code and
+> have split the patch into three pieces now (USB quirks, i2c-piix4 and
+> sp5100_tco) and they were sent to the relevant mailing lists.
+>
+> I don't know which subsystem wants to take it, all 3 patches are
+> needed at once.
+>
+> Best regards,
+> Zoltán Böszörményi
+>
 
