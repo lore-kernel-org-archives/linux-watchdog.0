@@ -1,108 +1,58 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-io0-f173.google.com ([209.85.223.173]:34201 "EHLO
-        mail-io0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933419AbdCaRzb (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 31 Mar 2017 13:55:31 -0400
-Received: by mail-io0-f173.google.com with SMTP id b140so44450735iof.1
-        for <linux-watchdog@vger.kernel.org>; Fri, 31 Mar 2017 10:55:30 -0700 (PDT)
+Return-path: <zboszor@pr.hu>
+From: Boszormenyi Zoltan <zboszor@pr.hu>
+Subject: Re: [Regression] Changes to i2c-piix4.c initialisation prevent
+ loading of sp5100_tco watchdog driver on AMD SB800 chipset
+To: Guenter Roeck <linux@roeck-us.net>
+References: <1485728348.3220.10.camel@googlemail.com>
+ <1488530782.2457.41.camel@users.sourceforge.net>
+ <20170303101702.GA1669@katana>
+ <1490944639.2653.182.camel@users.sourceforge.net>
+ <585a27fb-be15-df9f-00a9-bd4c3a654142@roeck-us.net>
+ <d1152062-77c5-f1b7-6be9-d24ee221ada9@pr.hu>
+ <20170331150524.GA31555@roeck-us.net>
+Cc: Paul Menzel <paulepanter@users.sourceforge.net>,
+ Wolfram Sang <wsa@the-dreams.de>, Christian Fetzer <fetzer.ch@gmail.com>,
+ Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org,
+ linux-watchdog@vger.kernel.org, 853122@bugs.debian.org,
+ Wim Van Sebroeck <wim@iguana.be>, Tim Small <tim@seoss.co.uk>,
+ Nehal Shah <nehal-bakulchandra.shah@amd.com>,
+ Mika Westerberg <mika.westerberg@linux.intel.com>,
+ Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+ Thomas Brandon <tbrandonau@gmail.com>, Eddi De Pieri <eddi@depieri.net>,
+ linux-kernel@vger.kernel.org
+Message-ID: <efce69fc-3899-43f4-c8ee-12b78a571e5a@pr.hu>
+Date: Sat, 1 Apr 2017 12:13:08 +0200
 MIME-Version: 1.0
-In-Reply-To: <20170328145325.GD8643@leverpostej>
-References: <20170321163122.9183-1-fu.wei@linaro.org> <1cc5a994-0af6-79ea-930d-44b3fc789427@jonmasters.org>
- <CADyBb7ujZKDF0aUJZRUN81jor04mZ-V5ESWScAjaxoHQUeVFSA@mail.gmail.com>
- <20170328130552.GA8643@leverpostej> <CADyBb7vddnQ4TZXaem3q=+v=vC41J7O4cVsokn04S2jGGU8veA@mail.gmail.com>
- <20170328145325.GD8643@leverpostej>
-From: Fu Wei <fu.wei@linaro.org>
-Date: Sat, 1 Apr 2017 01:55:29 +0800
-Message-ID: <CADyBb7uP031z6UoB75yEW10xsgZmY2j6-TmZuF8YaRxi1bmSfg@mail.gmail.com>
-Subject: Re: [PATCH v22 00/11] acpi, clocksource: add GTDT driver and GTDT
- support in arm_arch_timer
-To: Mark Rutland <mark.rutland@arm.com>
-Cc: Jon Masters <jcm@jonmasters.org>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Len Brown <lenb@kernel.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Marc Zyngier <marc.zyngier@arm.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Hanjun Guo <hanjun.guo@linaro.org>,
-        linux-arm-kernel@lists.infradead.org,
-        Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
-        rruigrok@codeaurora.org, "Abdulhamid, Harb" <harba@codeaurora.org>,
-        Christopher Covington <cov@codeaurora.org>,
-        Timur Tabi <timur@codeaurora.org>,
-        G Gregory <graeme.gregory@linaro.org>,
-        Al Stone <al.stone@linaro.org>, Jon Masters <jcm@redhat.com>,
-        Wei Huang <wei@redhat.com>, Arnd Bergmann <arnd@arndb.de>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
-        Leo Duran <leo.duran@amd.com>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        Guenter Roeck <linux@roeck-us.net>,
-        linux-watchdog@vger.kernel.org, Tomasz Nowicki <tn@semihalf.com>,
-        Christoffer Dall <christoffer.dall@linaro.org>,
-        Julien Grall <julien.grall@arm.com>
-Content-Type: text/plain; charset=UTF-8
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+In-Reply-To: <20170331150524.GA31555@roeck-us.net>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi Mark,
-
-On 28 March 2017 at 22:53, Mark Rutland <mark.rutland@arm.com> wrote:
-> Hi,
->
-> On Tue, Mar 28, 2017 at 10:29:10PM +0800, Fu Wei wrote:
->> On 28 March 2017 at 21:05, Mark Rutland <mark.rutland@arm.com> wrote:
->> > Sorry for the delay; I have not had the time to focus on this as I would
->> > like to. I'm happy with patches 1-4, but from patch 5 onwards, there's
->> > one change I'd like to see.
->> >
->> > I'd prefer that mmio timer frame rame N was always stored at
->> > arch_timer_mem::frame[N], rather than arch_timer_mem::frame[] being in
->> > an arbitrary order. That will make arch_timer_mem_frame::frame_nr
->> > redundant.
->> >
->> > To allow arch_timer_mem::frame[] this to be sparse, I'm happy to have a
->> > bool arch_timer_mem_frame::valid field that we set when probing each
->> > frame. Then we don't need arch_timer_mem::num_frames.
->> >
->> > This will make iterating over the frames far less confusing, and makes
->> > it simple to detect when a frame number is erroneously reused.
->> >
->> > Otherwise, I'm largely happy to pick the rest and apply any fixups
->> > myself.
+2017-03-31 17:05 keltezéssel, Guenter Roeck írta:
+> On Fri, Mar 31, 2017 at 04:46:02PM +0200, Boszormenyi Zoltan wrote:
+>> 2017-03-31 14:49 keltezéssel, Guenter Roeck írta:
+>>> request_muxed_region() can fail, and literally every other driver
+>>> using it checks for that failure. Please do the same.
 >>
->> Great thanks for your feedback!
->> I will follow your suggestion to improve my patches, then post it in a day.
+>> In what circumstances can request_muxed_region() fail? As far as
+>> I can see, only if two drivers use the same I/O port base and the
+>> already present region did not use IORESOURCE_MUXED which is
+>> not the case here. When request_muxed_region() is used consistently,
+>> subsequent requests are put on a wait queue and the first one is
+>> woken up when the region is released. So, it's basically a mutex.
+>> Am I missing something here?
+>>
 >
-> Thanks, that is much appreciated.
->
->> So I will rebase my patchset on arch-timer/gtdt branch of your REPO
->> https://git.kernel.org/pub/scm/linux/kernel/git/mark/linux.git/log/?h=arch-timer/gtdt
->
-> Yes please! The current HEAD should be:
->
-> ebbfe8889cffa12f ("clocksource: arm_arch_timer: move arch_timer_needs_of_probing into DT init call").
+> Yes. failure to allocate the resource is one.
 
-Because there are some improvements on the first 4 patches, so I
-fetched your gtdt branch, then rebase my v23  to the
-arch-timer/cleanup
+So, a common mutex should be used.
 
-Thanks for your help! :-)
+I have also added synchronization to the USB PCI quirks code and
+have split the patch into three pieces now (USB quirks, i2c-piix4 and
+sp5100_tco) and they were sent to the relevant mailing lists.
 
->
-> Thanks,
-> Mark.
+I don't know which subsystem wants to take it, all 3 patches are
+needed at once.
 
-
-
--- 
 Best regards,
-
-Fu Wei
-Software Engineer
-Red Hat
+Zoltán Böszörményi
