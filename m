@@ -1,18 +1,18 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-qt0-f193.google.com ([209.85.216.193]:35891 "EHLO
-        mail-qt0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751415AbdDBN6q (ORCPT
+Received: from mail-qt0-f181.google.com ([209.85.216.181]:33290 "EHLO
+        mail-qt0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751420AbdDBOE7 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 2 Apr 2017 09:58:46 -0400
+        Sun, 2 Apr 2017 10:04:59 -0400
 MIME-Version: 1.0
-In-Reply-To: <1ca7187132bd2b98ca87d0829a3c76022f041924.1491002056.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+In-Reply-To: <e36dcfd637dd0fff2c3133cea0a541bdd3712418.1491002056.git.sathyanarayanan.kuppuswamy@linux.intel.com>
 References: <e537ff68732d86418982349624fd6de741bccc9b.1491002056.git.sathyanarayanan.kuppuswamy@linux.intel.com>
- <20170331133728.GA23725@rajaneesh-OptiPlex-9010> <1ca7187132bd2b98ca87d0829a3c76022f041924.1491002056.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+ <20170331133728.GA23725@rajaneesh-OptiPlex-9010> <e36dcfd637dd0fff2c3133cea0a541bdd3712418.1491002056.git.sathyanarayanan.kuppuswamy@linux.intel.com>
 From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Date: Sun, 2 Apr 2017 16:58:44 +0300
-Message-ID: <CAHp75Vc0Mjk81TLDVwr9jkeeHqCvJ729aQLqg09zov7--AjKyw@mail.gmail.com>
-Subject: Re: [PATCH v4 2/5] platform/x86: intel_pmc_ipc: Add pmc gcr
- read/write/update api's
+Date: Sun, 2 Apr 2017 17:04:57 +0300
+Message-ID: <CAHp75VcDQoVrGkBvwb7wXwUwG_ew+XDGnBmvvraDBJ4Oy0SkOQ@mail.gmail.com>
+Subject: Re: [PATCH v4 3/5] watchdog: iTCO_wdt: Add PMC specific noreboot
+ update api
 To: Kuppuswamy Sathyanarayanan
         <sathyanarayanan.kuppuswamy@linux.intel.com>
 Cc: Andy Shevchenko <andy@infradead.org>,
@@ -31,48 +31,84 @@ List-Id: linux-watchdog@vger.kernel.org
 
 On Sat, Apr 1, 2017 at 2:27 AM, Kuppuswamy Sathyanarayanan
 <sathyanarayanan.kuppuswamy@linux.intel.com> wrote:
-> This patch adds API's to read/write/update PMC GC registers.
-> PMC dependent devices like iTCO_WDT, Telemetry has requirement
+> In some SOCs, setting noreboot bit needs modification to
 
-iTCO_wdt
+SoCs.
 
-> to acces GCR registers. These API's can be used for this
-> purpose.
+Perhaps you can create a wikipage to share with your team what style
+issues usually needs to be addressed.
+One of them is a proper capitalization in abbreviations / code names.
 
-> --- a/drivers/platform/x86/intel_pmc_ipc.c
-> +++ b/drivers/platform/x86/intel_pmc_ipc.c
+> PMC GC registers. But not all PMC drivers allow other drivers
+> to memory map their GC region. This could create mem request
+> conflict in watchdog driver. So this patch adds facility to allow
+> PMC drivers to pass noreboot update function to watchdog
+> drivers via platform data.
 
-> +static inline int is_gcr_valid(u32 offset)
+> --- a/drivers/watchdog/iTCO_wdt.c
+> +++ b/drivers/watchdog/iTCO_wdt.c
+> @@ -100,6 +100,8 @@ struct iTCO_wdt_private {
+>          */
+>         struct resource *gcs_pmc_res;
+>         unsigned long __iomem *gcs_pmc;
 
-Pointer to ipcdev should be a parameter to this function.
+> +       /* pmc specific api to update noreboot flag */
 
-> +{
-> +       if (!ipcdev.has_gcr_regs)
-> +               return -EACCES;
-> +
-> +       if (offset > PLAT_RESOURCE_GCR_SIZE)
-> +               return -EINVAL;
-> +
-> +       return 0;
-> +}
+PMC
+API
 
-> +/**
-> + * intel_pmc_gcr_update() - Update PMC GCR register bits
-> + * @offset:    offset of GCR register from GCR address base
-> + * @mask:      bit mask for update operation
-> + * @val:       update value
-> + *
+> +       int (*update_noreboot_flag)(bool status);
+>         /* the lock for io operations */
+>         spinlock_t io_lock;
+>         /* the PCI-device */
+> @@ -176,9 +178,13 @@ static void iTCO_wdt_set_NO_REBOOT_bit(struct iTCO_wdt_private *p)
+>
+>         /* Set the NO_REBOOT bit: this disables reboots */
+>         if (p->iTCO_version >= 2) {
+> -               val32 = readl(p->gcs_pmc);
+> -               val32 |= no_reboot_bit(p);
+> -               writel(val32, p->gcs_pmc);
+> +               if (p->update_noreboot_flag)
 
-> + * Updates the bits of given GCR register as specified by
-> + * mask and val
+> +                       p->update_noreboot_flag(1);
 
--> * @mask and @val.
+1 -> true for sake of consistency.
 
-You would need to refresh how to use kernel doc.
+> +               else {
+> +                       val32 = readl(p->gcs_pmc);
+> +                       val32 |= no_reboot_bit(p);
+> +                       writel(val32, p->gcs_pmc);
+> +               }
+>         } else if (p->iTCO_version == 1) {
+>                 pci_read_config_dword(p->pci_dev, 0xd4, &val32);
+>                 val32 |= no_reboot_bit(p);
+> @@ -193,11 +199,14 @@ static int iTCO_wdt_unset_NO_REBOOT_bit(struct iTCO_wdt_private *p)
+>
+>         /* Unset the NO_REBOOT bit: this enables reboots */
+>         if (p->iTCO_version >= 2) {
+> -               val32 = readl(p->gcs_pmc);
+> -               val32 &= ~enable_bit;
+> -               writel(val32, p->gcs_pmc);
+> -
+> -               val32 = readl(p->gcs_pmc);
+> +               if (p->update_noreboot_flag)
 
-> + *
-> + * Return:     negative value on error or 0 on success.
-> + */
+> +                       return p->update_noreboot_flag(0);
 
+0 -> false.
+
+> +               else {
+
+> +                       val32 = readl(p->gcs_pmc);
+> +                       val32 &= ~enable_bit;
+> +                       writel(val32, p->gcs_pmc);
+> +                       val32 = readl(p->gcs_pmc);
+
+This and similar above code might be split to a helper and you may
+assign it once. In such case you will not need a special flag anymore.
+
+Helpers split might be done as a preparatory separate patch.
+
+-- 
 With Best Regards,
 Andy Shevchenko
