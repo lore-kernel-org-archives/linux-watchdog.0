@@ -1,248 +1,133 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from foss.arm.com ([217.140.101.70]:57258 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751920AbdDCKpf (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 3 Apr 2017 06:45:35 -0400
-Date: Mon, 3 Apr 2017 11:45:58 +0100
-From: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-To: fu.wei@linaro.org
-Cc: rjw@rjwysocki.net, lenb@kernel.org, daniel.lezcano@linaro.org,
-        tglx@linutronix.de, marc.zyngier@arm.com, mark.rutland@arm.com,
-        sudeep.holla@arm.com, hanjun.guo@linaro.org,
-        linux-arm-kernel@lists.infradead.org, linaro-acpi@lists.linaro.org,
-        linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
-        rruigrok@codeaurora.org, harba@codeaurora.org, cov@codeaurora.org,
-        timur@codeaurora.org, graeme.gregory@linaro.org,
-        al.stone@linaro.org, jcm@redhat.com, wei@redhat.com, arnd@arndb.de,
-        catalin.marinas@arm.com, will.deacon@arm.com,
-        Suravee.Suthikulpanit@amd.com, leo.duran@amd.com, wim@iguana.be,
-        linux@roeck-us.net, linux-watchdog@vger.kernel.org,
-        tn@semihalf.com, christoffer.dall@linaro.org, julien.grall@arm.com
-Subject: Re: [PATCH v23 09/11] acpi/arm64: Add memory-mapped timer support in
- GTDT driver
-Message-ID: <20170403104558.GA32414@red-moon>
-References: <20170331175105.8370-1-fu.wei@linaro.org>
- <20170331175105.8370-10-fu.wei@linaro.org>
+Received: from mail1.bemta3.messagelabs.com ([195.245.230.164]:46888 "EHLO
+        mail1.bemta3.messagelabs.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1751732AbdDCNVt (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 3 Apr 2017 09:21:49 -0400
+From: Steve Twiss <stwiss.opensource@diasemi.com>
+To: Eduardo Valentin <edubezval@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>
+CC: LINUX-KERNEL <linux-kernel@vger.kernel.org>,
+        LINUX-PM <linux-pm@vger.kernel.org>,
+        Zhang Rui <rui.zhang@intel.com>,
+        DEVICETREE <devicetree@vger.kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        LINUX-INPUT <linux-input@vger.kernel.org>,
+        LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        "Lukasz Luba" <lukasz.luba@arm.com>,
+        Mark Brown <broonie@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Support Opensource <Support.Opensource@diasemi.com>,
+        Wim Van Sebroeck <wim@iguana.be>
+Subject: RE: [PATCH V7 6/7] thermal: da9062/61: Thermal junction temperature
+ monitoring driver
+Date: Mon, 3 Apr 2017 13:21:19 +0000
+Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7018CD6B0A2@SW-EX-MBX02.diasemi.com>
+References: <cover.1490712213.git.stwiss.opensource@diasemi.com>
+ <2c1ee249b6746ae3914041a4fc106c89a561f7de.1490712213.git.stwiss.opensource@diasemi.com>
+ <20170401195916.GF28514@localhost.localdomain>
+In-Reply-To: <20170401195916.GF28514@localhost.localdomain>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20170331175105.8370-10-fu.wei@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
 
-On Sat, Apr 01, 2017 at 01:51:03AM +0800, fu.wei@linaro.org wrote:
-> From: Fu Wei <fu.wei@linaro.org>
-> 
-> On platforms booting with ACPI, architected memory-mapped timers'
-> configuration data is provided by firmware through the ACPI GTDT
-> static table.
-> 
-> The clocksource architected timer kernel driver requires a firmware
-> interface to collect timer configuration and configure its driver.
-> this infrastructure is present for device tree systems, but it is
-> missing on systems booting with ACPI.
-> 
-> Implement the kernel infrastructure required to parse the static
-> ACPI GTDT table so that the architected timer clocksource driver can
-> make use of it on systems booting with ACPI, therefore enabling
-> the corresponding timers configuration.
-> 
-> Signed-off-by: Fu Wei <fu.wei@linaro.org>
-> Signed-off-by: Hanjun Guo <hanjun.guo@linaro.org>
-> ---
->  drivers/acpi/arm64/gtdt.c | 146 ++++++++++++++++++++++++++++++++++++++++++++++
->  include/linux/acpi.h      |   1 +
->  2 files changed, 147 insertions(+)
-> 
-> diff --git a/drivers/acpi/arm64/gtdt.c b/drivers/acpi/arm64/gtdt.c
-> index 3d95af8..3dd33f3 100644
-> --- a/drivers/acpi/arm64/gtdt.c
-> +++ b/drivers/acpi/arm64/gtdt.c
-> @@ -13,6 +13,7 @@
->  
->  #include <linux/acpi.h>
->  #include <linux/init.h>
-> +#include <linux/irqdomain.h>
->  #include <linux/kernel.h>
->  
->  #include <clocksource/arm_arch_timer.h>
-> @@ -37,6 +38,28 @@ struct acpi_gtdt_descriptor {
->  
->  static struct acpi_gtdt_descriptor acpi_gtdt_desc __initdata;
->  
-> +static inline void *next_platform_timer(void *platform_timer)
-> +{
-> +	struct acpi_gtdt_header *gh = platform_timer;
-> +
-> +	platform_timer += gh->length;
-> +	if (platform_timer < acpi_gtdt_desc.gtdt_end)
-> +		return platform_timer;
-> +
-> +	return NULL;
-> +}
-> +
-> +#define for_each_platform_timer(_g)				\
-> +	for (_g = acpi_gtdt_desc.platform_timer; _g;	\
-> +	     _g = next_platform_timer(_g))
-> +
-> +static inline bool is_timer_block(void *platform_timer)
-> +{
-> +	struct acpi_gtdt_header *gh = platform_timer;
-> +
-> +	return gh->type == ACPI_GTDT_TYPE_TIMER_BLOCK;
-> +}
-> +
->  static int __init map_gt_gsi(u32 interrupt, u32 flags)
->  {
->  	int trigger, polarity;
-> @@ -155,3 +178,126 @@ int __init acpi_gtdt_init(struct acpi_table_header *table,
->  
->  	return 0;
->  }
-> +
-> +static int __init gtdt_parse_timer_block(struct acpi_gtdt_timer_block *block,
-> +					 struct arch_timer_mem *timer_mem)
-> +{
-> +	int i;
-> +	struct arch_timer_mem_frame *frame;
-> +	struct acpi_gtdt_timer_entry *gtdt_frame;
-> +
-> +	if (!block->timer_count) {
-> +		pr_err(FW_BUG "GT block present, but frame count is zero.");
-> +		return -ENODEV;
-> +	}
-> +
-> +	if (block->timer_count > ARCH_TIMER_MEM_MAX_FRAMES) {
-> +		pr_err(FW_BUG "GT block lists %d frames, ACPI spec only allows 8\n",
-> +		       block->timer_count);
-> +		return -EINVAL;
-> +	}
-> +
-> +	timer_mem->cntctlbase = (phys_addr_t)block->block_address;
-> +	/*
-> +	 * The CNTCTLBase frame is 4KB (register offsets 0x000 - 0xFFC).
-> +	 * See ARM DDI 0487A.k_iss10775, page I1-5129, Table I1-3
-> +	 * "CNTCTLBase memory map".
-> +	 */
-> +	timer_mem->size = SZ_4K;
-> +
-> +	gtdt_frame = (void *)block + block->timer_offset;
-> +	if (gtdt_frame + block->timer_count != (void *)block + block->header.length)
-> +		return -EINVAL;
-> +
-> +	/*
-> +	 * Get the GT timer Frame data for every GT Block Timer
-> +	 */
-> +	for (i = 0; i < block->timer_count; i++, gtdt_frame++) {
-> +		if (gtdt_frame->common_flags & ACPI_GTDT_GT_IS_SECURE_TIMER)
-> +			continue;
-> +
-> +		if (!gtdt_frame->base_address || !gtdt_frame->timer_interrupt)
-> +			goto error;
-> +
-> +		frame = &timer_mem->frame[gtdt_frame->frame_number];
-> +		frame->phys_irq = map_gt_gsi(gtdt_frame->timer_interrupt,
-> +					     gtdt_frame->timer_flags);
-> +		if (frame->phys_irq <= 0) {
-> +			pr_warn("failed to map physical timer irq in frame %d.\n",
-> +				gtdt_frame->frame_number);
-> +			goto error;
-> +		}
-> +
-> +		if (gtdt_frame->virtual_timer_interrupt) {
-> +			frame->virt_irq =
-> +				map_gt_gsi(gtdt_frame->virtual_timer_interrupt,
-> +					   gtdt_frame->virtual_timer_flags);
-> +			if (frame->virt_irq <= 0) {
-> +				pr_warn("failed to map virtual timer irq in frame %d.\n",
-> +					gtdt_frame->frame_number);
-> +				acpi_unregister_gsi(gtdt_frame->timer_interrupt);
-> +				goto error;
-> +			}
-> +		} else {
-> +			frame->virt_irq = 0;
-> +			pr_debug("virtual timer in frame %d not implemented.\n",
-> +				 gtdt_frame->frame_number);
-> +		}
-> +
-> +		frame->cntbase = gtdt_frame->base_address;
-> +		/*
-> +		 * The CNTBaseN frame is 4KB (register offsets 0x000 - 0xFFC).
-> +		 * See ARM DDI 0487A.k_iss10775, page I1-5130, Table I1-4
-> +		 * "CNTBaseN memory map".
-> +		 */
-> +		frame->size = SZ_4K;
-> +		frame->valid = true;
-> +	}
-> +
-> +	return 0;
-> +
-> +error:
-> +	for (i = 0; i < ARCH_TIMER_MEM_MAX_FRAMES; i++) {
-> +		frame = &timer_mem->frame[i];
-> +		if (!frame->valid)
-> +			continue;
-> +		irq_dispose_mapping(frame->phys_irq);
-> +		if (frame->virt_irq)
-> +			irq_dispose_mapping(frame->virt_irq);
-> +	}
+On 01 April 2017 @20:59, Eduardo Valentin wrote:
 
-You should unregister GSIs with the same API you use to register GSIs,
-I do not like code that assumes acpi_unregister_gsi() internal
-implementation, it is wrong to do that.
+> Subject: Re: [PATCH V7 6/7] thermal: da9062/61: Thermal junction temper=
+ature monitoring driver
+>=20
+> On Tue, Mar 28, 2017 at 03:43:33PM +0100, Steve Twiss wrote:
+> > From: Steve Twiss <stwiss.opensource@diasemi.com>
+> >
+> > Add junction temperature monitoring supervisor device driver, compati=
+ble
+> > with the DA9062 and DA9061 PMICs. A MODULE_DEVICE_TABLE() macro is ad=
+ded.
+> >
+> > If the PMIC's internal junction temperature rises above T_WARN (125 d=
+egC)
+> > an interrupt is issued. This T_WARN level is defined as the
+> > THERMAL_TRIP_HOT trip-wire inside the device driver.
+> >
+> > The thermal triggering mechanism is interrupt based and happens when =
+the
+> > temperature rises above a given threshold level. The component cannot
+> > return an exact temperature, it only has knowledge if the temperature=
+ is
+> > above or below a given threshold value. A status bit must be polled t=
+o
+> > detect when the temperature falls below that threshold level again. A
+> > kernel work queue is configured to repeatedly poll and detect when th=
+e
+> > temperature falls below this trip-wire, between 1 and 10 second inter=
+vals
+> > (defaulting at 3 seconds).
+> >
+> > This scheme is provided as an example. It would be expected that any
+> > final implementation will also include a notify() function and any of=
+ these
+> > settings could be altered to match the application where appropriate.
+> >
+> > When over-temperature is reached, the interrupt from the DA9061/2 wil=
+l be
+> > repeatedly triggered. The IRQ is therefore disabled when the first
+> > over-temperature event happens and the status bit is polled using a
+> > work-queue until it becomes false.
+> >
+> > This strategy is designed to allow the periodic transmission of ueven=
+ts
+> > (HOT trip point) as the first level of temperature supervision method=
+. It
+> > is intended for non-invasive temperature control, where the necessary
+> > measures for cooling the system down are left to the host software. O=
+nce
+> > the temperature falls again, the IRQ is re-enabled so a new critical
+> > over-temperature event can be detected.
+> >
+> > Reviewed-by: Lukasz Luba <lukasz.luba@arm.com>
+> > Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+>=20
+> I have had a look on the history of this driver on its previous
+> versions, and I do not think I have any other point to request on it.
 
-Other than that patch is ok:
+Thank you.
 
-Acked-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+> Obviously, I still need to state that I do not like its oddness as it i=
+s
+> not really benefiting much of the thermal control implemented on the
+> thermal subsystem.
 
-> +	return -EINVAL;
-> +}
-> +
-> +/**
-> + * acpi_arch_timer_mem_init() - Get the info of all GT blocks in GTDT table.
-> + * @timer_mem:	The pointer to the array of struct arch_timer_mem for returning
-> + *		the result of parsing. The element number of this array should
-> + *		be platform_timer_count(the total number of platform timers).
-> + * @timer_count: It points to a integer variable which is used for storing the
-> + *		number of GT blocks we have parsed.
-> + *
-> + * Return: 0 if success, -EINVAL/-ENODEV if error.
-> + */
-> +int __init acpi_arch_timer_mem_init(struct arch_timer_mem *timer_mem,
-> +				    int *timer_count)
-> +{
-> +	int ret;
-> +	void *platform_timer;
-> +
-> +	*timer_count = 0;
-> +	for_each_platform_timer(platform_timer) {
-> +		if (is_timer_block(platform_timer)) {
-> +			ret = gtdt_parse_timer_block(platform_timer, timer_mem);
-> +			if (ret)
-> +				return ret;
-> +			timer_mem++;
-> +			(*timer_count)++;
-> +		}
-> +	}
-> +
-> +	if (*timer_count)
-> +		pr_info("found %d memory-mapped timer block(s).\n",
-> +			*timer_count);
-> +
-> +	return 0;
-> +}
-> diff --git a/include/linux/acpi.h b/include/linux/acpi.h
-> index 4b5c146..3193724 100644
-> --- a/include/linux/acpi.h
-> +++ b/include/linux/acpi.h
-> @@ -599,6 +599,7 @@ int acpi_reconfig_notifier_unregister(struct notifier_block *nb);
->  int acpi_gtdt_init(struct acpi_table_header *table, int *platform_timer_count);
->  int acpi_gtdt_map_ppi(int type);
->  bool acpi_gtdt_c3stop(int type);
-> +int acpi_arch_timer_mem_init(struct arch_timer_mem *timer_mem, int *timer_count);
->  #endif
->  
->  #else	/* !CONFIG_ACPI */
-> -- 
-> 2.9.3
-> 
+Agreed.
+But, it should be useful in the case of an over-temperature in the system=
+ PMIC=20
+when the OS needs to be notified to bring core temperature under control.
+
+> What is the plan for this series? Am I expected to get this driver
+> through thermal tree ? Or is this series going into a one shot?
+>=20
+> If option 1 is the expected, would the driver need to get its
+> mfd parent merged first?
+
+Other components such as the ONKEY and Watchdog have not required the MFD
+to be merged first. I don't see any strong dependency for the MFD to exis=
+t with this
+thermal component.
+
+I'm not sure how much Lee is waiting for Acks to exist before proceeding =
+with the MFD.
+I have TO:'d Lee Jones, for this case.
+
+Regards,
+Steve
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
