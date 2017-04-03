@@ -1,131 +1,243 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail1.bemta3.messagelabs.com ([195.245.230.164]:46888 "EHLO
-        mail1.bemta3.messagelabs.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1751732AbdDCNVt (ORCPT
+Received: from mail-wm0-f49.google.com ([74.125.82.49]:34892 "EHLO
+        mail-wm0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753275AbdDCNj1 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 3 Apr 2017 09:21:49 -0400
-From: Steve Twiss <stwiss.opensource@diasemi.com>
-To: Eduardo Valentin <edubezval@gmail.com>,
-        Lee Jones <lee.jones@linaro.org>
-CC: LINUX-KERNEL <linux-kernel@vger.kernel.org>,
-        LINUX-PM <linux-pm@vger.kernel.org>,
-        Zhang Rui <rui.zhang@intel.com>,
-        DEVICETREE <devicetree@vger.kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Guenter Roeck <linux@roeck-us.net>,
+        Mon, 3 Apr 2017 09:39:27 -0400
+Received: by mail-wm0-f49.google.com with SMTP id y22so25972839wmh.0
+        for <linux-watchdog@vger.kernel.org>; Mon, 03 Apr 2017 06:39:26 -0700 (PDT)
+Date: Mon, 3 Apr 2017 14:39:22 +0100
+From: Lee Jones <lee.jones@linaro.org>
+To: Steve Twiss <stwiss.opensource@diasemi.com>
+Cc: DEVICETREE <devicetree@vger.kernel.org>,
         LINUX-INPUT <linux-input@vger.kernel.org>,
-        LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        "Lukasz Luba" <lukasz.luba@arm.com>,
-        Mark Brown <broonie@kernel.org>,
+        LINUX-KERNEL <linux-kernel@vger.kernel.org>,
         Mark Rutland <mark.rutland@arm.com>,
         Rob Herring <robh+dt@kernel.org>,
-        Support Opensource <Support.Opensource@diasemi.com>,
-        Wim Van Sebroeck <wim@iguana.be>
-Subject: RE: [PATCH V7 6/7] thermal: da9062/61: Thermal junction temperature
- monitoring driver
-Date: Mon, 3 Apr 2017 13:21:19 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7018CD6B0A2@SW-EX-MBX02.diasemi.com>
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Eduardo Valentin <edubezval@gmail.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        LINUX-PM <linux-pm@vger.kernel.org>,
+        LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Support Opensource <support.opensource@diasemi.com>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Zhang Rui <rui.zhang@intel.com>
+Subject: Re: [PATCH V7 3/7] Documentation: devicetree: mfd: da9062/61 MFD
+ binding
+Message-ID: <20170403133922.iikcgoboisn7qg2e@dell>
 References: <cover.1490712213.git.stwiss.opensource@diasemi.com>
- <2c1ee249b6746ae3914041a4fc106c89a561f7de.1490712213.git.stwiss.opensource@diasemi.com>
- <20170401195916.GF28514@localhost.localdomain>
-In-Reply-To: <20170401195916.GF28514@localhost.localdomain>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
+ <1c12168d005cec5be6cab78f99c4dce95caa128b.1490712213.git.stwiss.opensource@diasemi.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <1c12168d005cec5be6cab78f99c4dce95caa128b.1490712213.git.stwiss.opensource@diasemi.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 Content-Transfer-Encoding: quoted-printable
 
-On 01 April 2017 @20:59, Eduardo Valentin wrote:
+On Tue, 28 Mar 2017, Steve Twiss wrote:
 
-> Subject: Re: [PATCH V7 6/7] thermal: da9062/61: Thermal junction temper=
-ature monitoring driver
+> From: Steve Twiss <stwiss.opensource@diasemi.com>
 >=20
-> On Tue, Mar 28, 2017 at 03:43:33PM +0100, Steve Twiss wrote:
-> > From: Steve Twiss <stwiss.opensource@diasemi.com>
-> >
-> > Add junction temperature monitoring supervisor device driver, compati=
-ble
-> > with the DA9062 and DA9061 PMICs. A MODULE_DEVICE_TABLE() macro is ad=
-ded.
-> >
-> > If the PMIC's internal junction temperature rises above T_WARN (125 d=
-egC)
-> > an interrupt is issued. This T_WARN level is defined as the
-> > THERMAL_TRIP_HOT trip-wire inside the device driver.
-> >
-> > The thermal triggering mechanism is interrupt based and happens when =
-the
-> > temperature rises above a given threshold level. The component cannot
-> > return an exact temperature, it only has knowledge if the temperature=
- is
-> > above or below a given threshold value. A status bit must be polled t=
-o
-> > detect when the temperature falls below that threshold level again. A
-> > kernel work queue is configured to repeatedly poll and detect when th=
-e
-> > temperature falls below this trip-wire, between 1 and 10 second inter=
-vals
-> > (defaulting at 3 seconds).
-> >
-> > This scheme is provided as an example. It would be expected that any
-> > final implementation will also include a notify() function and any of=
- these
-> > settings could be altered to match the application where appropriate.
-> >
-> > When over-temperature is reached, the interrupt from the DA9061/2 wil=
-l be
-> > repeatedly triggered. The IRQ is therefore disabled when the first
-> > over-temperature event happens and the status bit is polled using a
-> > work-queue until it becomes false.
-> >
-> > This strategy is designed to allow the periodic transmission of ueven=
-ts
-> > (HOT trip point) as the first level of temperature supervision method=
-. It
-> > is intended for non-invasive temperature control, where the necessary
-> > measures for cooling the system down are left to the host software. O=
-nce
-> > the temperature falls again, the IRQ is re-enabled so a new critical
-> > over-temperature event can be detected.
-> >
-> > Reviewed-by: Lukasz Luba <lukasz.luba@arm.com>
-> > Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+> Extend existing DA9062 binding information to include the DA9061 PMIC f=
+or
+> MFD core and regulators.
 >=20
-> I have had a look on the history of this driver on its previous
-> versions, and I do not think I have any other point to request on it.
-
-Thank you.
-
-> Obviously, I still need to state that I do not like its oddness as it i=
-s
-> not really benefiting much of the thermal control implemented on the
-> thermal subsystem.
-
-Agreed.
-But, it should be useful in the case of an over-temperature in the system=
- PMIC=20
-when the OS needs to be notified to bring core temperature under control.
-
-> What is the plan for this series? Am I expected to get this driver
-> through thermal tree ? Or is this series going into a one shot?
+> Add a da9062-onkey link to the existing onkey binding file.
 >=20
-> If option 1 is the expected, would the driver need to get its
-> mfd parent merged first?
+> Add a da9062-thermal link to the new temperature monitoring binding fil=
+e.
+>=20
+> Delete the da9062-watchdog section and replace it with a link to the ne=
+w
+> DA9061/62 binding information file.
+>=20
+> Acked-by: Rob Herring <robh@kernel.org>
+> Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+>=20
+> ---
+> This patch applies against linux-next and v4.11-rc3
+>=20
+> v6 -> v7
+>  - NO CODE CHANGE
+>=20
+> v5 -> v6
+>  - NO CODE CHANGE
+>  - Rebased from v4.9 to v4.11-rc3
+>=20
+> v4 -> v5
+>  - NO CODE CHANGE
+>  - Rebased from v4.8 to v4.9
+>=20
+> v3 -> v4
+>  - Patch renamed from [PATCH V3 4/9] to [PATCH V4 3/8]
+>  - Remove double newline spacing in text file
+>  - Added Acked-by Rob Herring
+>=20
+> v2 -> v3
+>  - Patch renamed from [PATCH V2 04/10] to [PATCH V3 4/9]
+>  - Ensure binding description concentrates on the device not the
+>    device driver
+>  - Separate the DA9061 and DA9062 sub-device tables to distinguish
+>    the difference between the two devices
+>  - Update the commit message to describe this change
+>  - Add e-mail information about associated patches from this set
+>    without describing them as being explicitly dependent on this
+>    binding
+>=20
+> v1 -> v2
+>  - Patch renamed from [PATCH V1 09/10] to [PATCH V2 04/10] -- these
+>    changes were made to fix checkpatch warnings caused by the patch
+>    set dependency order
+>=20
+> Hi,
+>=20
+> Added an Ack from Rob Herring for the PATCH V3 version.
+>=20
+> As previously:
+> Other information:
+> The device driver from this patch set (associated with this binding) is
+>=20
+> - [PATCH V5 4/8] mfd: da9061: MFD core support
+>=20
+> and also the following binding file changes:
+>=20
+> - Binding for onkey (already applied by Dmitry Torokhov)
+> - [PATCH V5 1/8] Binding for watchdog
+> - [PATCH V5 2/8] Binding for thermal
+>=20
+> Regards,
+> Steve Twiss, Dialog Semiconductor
+>=20
+>=20
+>  Documentation/devicetree/bindings/mfd/da9062.txt | 49 ++++++++++++++++=
++-------
+>  1 file changed, 36 insertions(+), 13 deletions(-)
 
-Other components such as the ONKEY and Watchdog have not required the MFD
-to be merged first. I don't see any strong dependency for the MFD to exis=
-t with this
-thermal component.
+Applied, thanks.
 
-I'm not sure how much Lee is waiting for Acks to exist before proceeding =
-with the MFD.
-I have TO:'d Lee Jones, for this case.
+> diff --git a/Documentation/devicetree/bindings/mfd/da9062.txt b/Documen=
+tation/devicetree/bindings/mfd/da9062.txt
+> index 38802b5..c0a418c 100644
+> --- a/Documentation/devicetree/bindings/mfd/da9062.txt
+> +++ b/Documentation/devicetree/bindings/mfd/da9062.txt
+> @@ -1,22 +1,39 @@
+>  * Dialog DA9062 Power Management Integrated Circuit (PMIC)
+> =20
+> -DA9062 consists of a large and varied group of sub-devices:
+> +Product information for the DA9062 and DA9061 devices can be found her=
+e:
+> +- http://www.dialog-semiconductor.com/products/da9062
+> +- http://www.dialog-semiconductor.com/products/da9061
+> +
+> +The DA9062 PMIC consists of:
+> =20
+>  Device                   Supply Names    Description
+>  ------                   ------------    -----------
+>  da9062-regulator        :               : LDOs & BUCKs
+>  da9062-rtc              :               : Real-Time Clock
+> +da9062-onkey            :               : On Key
+> +da9062-watchdog         :               : Watchdog Timer
+> +da9062-thermal          :               : Thermal
+> +
+> +The DA9061 PMIC consists of:
+> +
+> +Device                   Supply Names    Description
+> +------                   ------------    -----------
+> +da9062-regulator        :               : LDOs & BUCKs
+> +da9062-onkey            :               : On Key
+>  da9062-watchdog         :               : Watchdog Timer
+> +da9062-thermal          :               : Thermal
+> =20
+>  =3D=3D=3D=3D=3D=3D
+> =20
+>  Required properties:
+> =20
+> -- compatible : Should be "dlg,da9062".
+> +- compatible : Should be
+> +    "dlg,da9062" for DA9062
+> +    "dlg,da9061" for DA9061
+>  - reg : Specifies the I2C slave address (this defaults to 0x58 but it =
+can be
+>    modified to match the chip's OTP settings).
+>  - interrupt-parent : Specifies the reference to the interrupt controll=
+er for
+> -  the DA9062.
+> +  the DA9062 or DA9061.
+>  - interrupts : IRQ line information.
+>  - interrupt-controller
+> =20
+> @@ -25,8 +42,8 @@ further information on IRQ bindings.
+> =20
+>  Sub-nodes:
+> =20
+> -- regulators : This node defines the settings for the LDOs and BUCKs. =
+The
+> -  DA9062 regulators are bound using their names listed below:
+> +- regulators : This node defines the settings for the LDOs and BUCKs.
+> +  The DA9062 regulators are bound using their names listed below:
+> =20
+>      buck1    : BUCK_1
+>      buck2    : BUCK_2
+> @@ -37,19 +54,29 @@ Sub-nodes:
+>      ldo3     : LDO_3
+>      ldo4     : LDO_4
+> =20
+> +  The DA9061 regulators are bound using their names listed below:
+> +
+> +    buck1    : BUCK_1
+> +    buck2    : BUCK_2
+> +    buck3    : BUCK_3
+> +    ldo1     : LDO_1
+> +    ldo2     : LDO_2
+> +    ldo3     : LDO_3
+> +    ldo4     : LDO_4
+> +
+>    The component follows the standard regulator framework and the bindi=
+ngs
+>    details of individual regulator device can be found in:
+>    Documentation/devicetree/bindings/regulator/regulator.txt
+> =20
+> -
+>  - rtc : This node defines settings required for the Real-Time Clock as=
+sociated
+>    with the DA9062. There are currently no entries in this binding, how=
+ever
+>    compatible =3D "dlg,da9062-rtc" should be added if a node is created=
+.
+> =20
+> -- watchdog: This node defines the settings for the watchdog driver ass=
+ociated
+> -  with the DA9062 PMIC. The compatible =3D "dlg,da9062-watchdog" shoul=
+d be added
+> -  if a node is created.
+> +- onkey : See ../input/da9062-onkey.txt
+> +
+> +- watchdog: See ../watchdog/da9062-watchdog.txt
+> =20
+> +- thermal : See ../thermal/da9062-thermal.txt
+> =20
+>  Example:
+> =20
+> @@ -64,10 +91,6 @@ Example:
+>  			compatible =3D "dlg,da9062-rtc";
+>  		};
+> =20
+> -		watchdog {
+> -			compatible =3D "dlg,da9062-watchdog";
+> -		};
+> -
+>  		regulators {
+>  			DA9062_BUCK1: buck1 {
+>  				regulator-name =3D "BUCK1";
 
-Regards,
-Steve
-
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
 --
 To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
  in
