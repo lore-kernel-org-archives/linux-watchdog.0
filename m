@@ -1,19 +1,19 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-yb0-f170.google.com ([209.85.213.170]:35033 "EHLO
-        mail-yb0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750992AbdDCByB (ORCPT
+Received: from mail-yw0-f196.google.com ([209.85.161.196]:33168 "EHLO
+        mail-yw0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751280AbdDCBzX (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 2 Apr 2017 21:54:01 -0400
+        Sun, 2 Apr 2017 21:55:23 -0400
 MIME-Version: 1.0
-In-Reply-To: <CAHp75VePsgzLq46GvndfQimzA=yRs0u_1Kz1mGXKS91jcqNzRw@mail.gmail.com>
+In-Reply-To: <CAHp75VcDQoVrGkBvwb7wXwUwG_ew+XDGnBmvvraDBJ4Oy0SkOQ@mail.gmail.com>
 References: <e537ff68732d86418982349624fd6de741bccc9b.1491002056.git.sathyanarayanan.kuppuswamy@linux.intel.com>
- <20170331133728.GA23725@rajaneesh-OptiPlex-9010> <4e66c12e4576c56c675d049af8b063d3ccd65d17.1491002056.git.sathyanarayanan.kuppuswamy@linux.intel.com>
- <CAHp75VePsgzLq46GvndfQimzA=yRs0u_1Kz1mGXKS91jcqNzRw@mail.gmail.com>
+ <20170331133728.GA23725@rajaneesh-OptiPlex-9010> <e36dcfd637dd0fff2c3133cea0a541bdd3712418.1491002056.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+ <CAHp75VcDQoVrGkBvwb7wXwUwG_ew+XDGnBmvvraDBJ4Oy0SkOQ@mail.gmail.com>
 From: Sathyanarayanan Kuppuswamy Natarajan <sathyaosid@gmail.com>
-Date: Sun, 2 Apr 2017 18:53:59 -0700
-Message-ID: <CAENHMvObROparM_DoLOhcf=QQtq4_4Tqw5FkuuVUN3mJCiiweQ@mail.gmail.com>
-Subject: Re: [PATCH v4 4/5] platform/x86: intel_pmc_ipc: Fix iTCO GCS memory
- mapping failure
+Date: Sun, 2 Apr 2017 18:55:22 -0700
+Message-ID: <CAENHMvNE_-uh9vWyiWmA5euc+nP5yCbZrYbmYfTqKUwqsSay6A@mail.gmail.com>
+Subject: Re: [PATCH v4 3/5] watchdog: iTCO_wdt: Add PMC specific noreboot
+ update api
 To: Andy Shevchenko <andy.shevchenko@gmail.com>
 Cc: Kuppuswamy Sathyanarayanan
         <sathyanarayanan.kuppuswamy@linux.intel.com>,
@@ -31,53 +31,93 @@ Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Andy,
+Hi,
 
-
-
-On Sun, Apr 2, 2017 at 7:10 AM, Andy Shevchenko
+On Sun, Apr 2, 2017 at 7:04 AM, Andy Shevchenko
 <andy.shevchenko@gmail.com> wrote:
 > On Sat, Apr 1, 2017 at 2:27 AM, Kuppuswamy Sathyanarayanan
 > <sathyanarayanan.kuppuswamy@linux.intel.com> wrote:
->> iTCO watchdog driver need access to PMC_CFG GCR register to modify
+>> In some SOCs, setting noreboot bit needs modification to
 >
-> iTCO_wdt or use above in the rest of the series.
+> SoCs.
 >
-> So, choose one and use it everywhere in your patch series.
-
-will go with iTCO_wdt.
-
+> Perhaps you can create a wikipage to share with your team what style
+> issues usually needs to be addressed.
+> One of them is a proper capitalization in abbreviations / code names.
 >
->> the no reboot setting. Currently, this is done by passing PMC_CFG reg
->> address as memory resource to watchdog driver and allowing it directly
->> modify the PMC_CFG register. But currently PMC driver also has
->> requirement to memory map the entire GCR register space in this driver.
->> This causes mem request failure in watchdog driver. So this patch fixes
->> this issue by adding api to update noreboot flag and passes them
->> to watchdog driver via platform data.
+>> PMC GC registers. But not all PMC drivers allow other drivers
+>> to memory map their GC region. This could create mem request
+>> conflict in watchdog driver. So this patch adds facility to allow
+>> PMC drivers to pass noreboot update function to watchdog
+>> drivers via platform data.
 >
+>> --- a/drivers/watchdog/iTCO_wdt.c
+>> +++ b/drivers/watchdog/iTCO_wdt.c
+>> @@ -100,6 +100,8 @@ struct iTCO_wdt_private {
+>>          */
+>>         struct resource *gcs_pmc_res;
+>>         unsigned long __iomem *gcs_pmc;
 >
->> +static int update_noreboot_bit(bool status)
->> +{
->> +       if (status)
+>> +       /* pmc specific api to update noreboot flag */
 >
->> +               return intel_pmc_gcr_update(PMC_GCR_PMC_CFG_REG, BIT(4),
->> +                                           BIT(4));
+> PMC
+> API
+will fix in next version.
 >
-> BIT(4) is a magic. Moreover, it's used as mask and value here, you
-> might introduce temporary variables for better understanding what is
-> what.
-> As an example you may look at drivers/acpi/acpi_lpss.c (code related
-> to IOSF MBI interaction).
-
-I will create macros with some meaningful name to explain what BIT(4)
-represents.
-
+>> +       int (*update_noreboot_flag)(bool status);
+>>         /* the lock for io operations */
+>>         spinlock_t io_lock;
+>>         /* the PCI-device */
+>> @@ -176,9 +178,13 @@ static void iTCO_wdt_set_NO_REBOOT_bit(struct iTCO_wdt_private *p)
+>>
+>>         /* Set the NO_REBOOT bit: this disables reboots */
+>>         if (p->iTCO_version >= 2) {
+>> -               val32 = readl(p->gcs_pmc);
+>> -               val32 |= no_reboot_bit(p);
+>> -               writel(val32, p->gcs_pmc);
+>> +               if (p->update_noreboot_flag)
 >
->> +       else
+>> +                       p->update_noreboot_flag(1);
 >
-> Redundant.
+> 1 -> true for sake of consistency.
+ditto
 >
+>> +               else {
+>> +                       val32 = readl(p->gcs_pmc);
+>> +                       val32 |= no_reboot_bit(p);
+>> +                       writel(val32, p->gcs_pmc);
+>> +               }
+>>         } else if (p->iTCO_version == 1) {
+>>                 pci_read_config_dword(p->pci_dev, 0xd4, &val32);
+>>                 val32 |= no_reboot_bit(p);
+>> @@ -193,11 +199,14 @@ static int iTCO_wdt_unset_NO_REBOOT_bit(struct iTCO_wdt_private *p)
+>>
+>>         /* Unset the NO_REBOOT bit: this enables reboots */
+>>         if (p->iTCO_version >= 2) {
+>> -               val32 = readl(p->gcs_pmc);
+>> -               val32 &= ~enable_bit;
+>> -               writel(val32, p->gcs_pmc);
+>> -
+>> -               val32 = readl(p->gcs_pmc);
+>> +               if (p->update_noreboot_flag)
+>
+>> +                       return p->update_noreboot_flag(0);
+>
+> 0 -> false.
+ditto
+>
+>> +               else {
+>
+>> +                       val32 = readl(p->gcs_pmc);
+>> +                       val32 &= ~enable_bit;
+>> +                       writel(val32, p->gcs_pmc);
+>> +                       val32 = readl(p->gcs_pmc);
+>
+> This and similar above code might be split to a helper and you may
+> assign it once. In such case you will not need a special flag anymore.
+>
+> Helpers split might be done as a preparatory separate patch.
+Yes, will create a patch for fixing it.
 >
 > --
 > With Best Regards,
