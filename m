@@ -1,78 +1,59 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail7.pr.hu ([87.242.0.7]:42624 "EHLO mail7.pr.hu"
+Received: from foss.arm.com ([217.140.101.70]:56414 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751507AbdDCH7X (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 3 Apr 2017 03:59:23 -0400
-Subject: Re: [Regression] Changes to i2c-piix4.c initialisation prevent
- loading of sp5100_tco watchdog driver on AMD SB800 chipset
-To: Paul Menzel <paulepanter@users.sourceforge.net>,
-        Guenter Roeck <linux@roeck-us.net>
-References: <1485728348.3220.10.camel@googlemail.com>
- <1488530782.2457.41.camel@users.sourceforge.net>
- <20170303101702.GA1669@katana>
- <1490944639.2653.182.camel@users.sourceforge.net>
- <585a27fb-be15-df9f-00a9-bd4c3a654142@roeck-us.net>
- <d1152062-77c5-f1b7-6be9-d24ee221ada9@pr.hu>
- <20170331150524.GA31555@roeck-us.net>
- <efce69fc-3899-43f4-c8ee-12b78a571e5a@pr.hu>
- <1491201299.2321.42.camel@users.sourceforge.net>
-Cc: Wolfram Sang <wsa@the-dreams.de>,
-        Christian Fetzer <fetzer.ch@gmail.com>,
-        Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org,
-        linux-watchdog@vger.kernel.org, 853122@bugs.debian.org,
-        Wim Van Sebroeck <wim@iguana.be>,
-        Tim Small <tim@seoss.co.uk>,
-        Nehal Shah <nehal-bakulchandra.shah@amd.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Thomas Brandon <tbrandonau@gmail.com>,
-        Eddi De Pieri <eddi@depieri.net>,
-        linux-kernel@vger.kernel.org
-From: Boszormenyi Zoltan <zboszor@pr.hu>
-Message-ID: <b42d979b-9172-48ba-dba9-a67d9a143bca@pr.hu>
-Date: Mon, 3 Apr 2017 09:59:06 +0200
+        id S1751845AbdDCJt2 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 3 Apr 2017 05:49:28 -0400
+Date: Mon, 3 Apr 2017 10:49:45 +0100
+From: Will Deacon <will.deacon@arm.com>
+To: fu.wei@linaro.org
+Cc: rjw@rjwysocki.net, lenb@kernel.org, daniel.lezcano@linaro.org,
+        tglx@linutronix.de, marc.zyngier@arm.com, mark.rutland@arm.com,
+        lorenzo.pieralisi@arm.com, sudeep.holla@arm.com,
+        hanjun.guo@linaro.org, linux-arm-kernel@lists.infradead.org,
+        linaro-acpi@lists.linaro.org, linux-kernel@vger.kernel.org,
+        linux-acpi@vger.kernel.org, rruigrok@codeaurora.org,
+        harba@codeaurora.org, cov@codeaurora.org, timur@codeaurora.org,
+        graeme.gregory@linaro.org, al.stone@linaro.org, jcm@redhat.com,
+        wei@redhat.com, arnd@arndb.de, catalin.marinas@arm.com,
+        Suravee.Suthikulpanit@amd.com, leo.duran@amd.com, wim@iguana.be,
+        linux@roeck-us.net, linux-watchdog@vger.kernel.org,
+        tn@semihalf.com, christoffer.dall@linaro.org, julien.grall@arm.com
+Subject: Re: [PATCH v23 09/11] acpi/arm64: Add memory-mapped timer support in
+ GTDT driver
+Message-ID: <20170403094944.GC5706@arm.com>
+References: <20170331175105.8370-1-fu.wei@linaro.org>
+ <20170331175105.8370-10-fu.wei@linaro.org>
 MIME-Version: 1.0
-In-Reply-To: <1491201299.2321.42.camel@users.sourceforge.net>
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20170331175105.8370-10-fu.wei@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
 
-Hi,
+On Sat, Apr 01, 2017 at 01:51:03AM +0800, fu.wei@linaro.org wrote:
+> From: Fu Wei <fu.wei@linaro.org>
+> 
+> On platforms booting with ACPI, architected memory-mapped timers'
+> configuration data is provided by firmware through the ACPI GTDT
+> static table.
+> 
+> The clocksource architected timer kernel driver requires a firmware
+> interface to collect timer configuration and configure its driver.
+> this infrastructure is present for device tree systems, but it is
+> missing on systems booting with ACPI.
+> 
+> Implement the kernel infrastructure required to parse the static
+> ACPI GTDT table so that the architected timer clocksource driver can
+> make use of it on systems booting with ACPI, therefore enabling
+> the corresponding timers configuration.
+> 
+> Signed-off-by: Fu Wei <fu.wei@linaro.org>
+> Signed-off-by: Hanjun Guo <hanjun.guo@linaro.org>
+> ---
+>  drivers/acpi/arm64/gtdt.c | 146 ++++++++++++++++++++++++++++++++++++++++++++++
+>  include/linux/acpi.h      |   1 +
+>  2 files changed, 147 insertions(+)
 
-2017-04-03 08:34 keltez=C3=A9ssel, Paul Menzel =C3=ADrta:
-> Dear Zolt=C3=A1n,
->
->
-> Am Samstag, den 01.04.2017, 12:13 +0200 schrieb Boszormenyi Zoltan:
->
-> [=E2=80=A6]
->
->> and have split the patch into three pieces now (USB quirks, i2c-piix4
->> and sp5100_tco) and they were sent to the relevant mailing lists.
->
-> Could you please add me to the receiver list of these patches, so that
-> I can test them? Maybe also Christian (the commit author introducing
-> the regression), Tim (bug reporter), and Nehal from AMD?
->
-> If you uploaded them to the Kernel.org Bugtracker, that=E2=80=99d also =
-work for
-> me.
+We need Lorenzo's ack on this.
 
-did both.
-
-Best regards,
-Zolt=C3=A1n B=C3=B6sz=C3=B6rm=C3=A9nyi
-
->
->
-> Thanks,
->
-> Paul
->
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Will
