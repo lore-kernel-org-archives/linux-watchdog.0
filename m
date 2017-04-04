@@ -1,59 +1,154 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail1.bemta3.messagelabs.com ([195.245.230.171]:55350 "EHLO
-        mail1.bemta3.messagelabs.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1753936AbdDCP4j (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:42404 "EHLO
+        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751564AbdDDDXF (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 3 Apr 2017 11:56:39 -0400
-From: Steve Twiss <stwiss.opensource@diasemi.com>
-To: Lee Jones <lee.jones@linaro.org>
-CC: LINUX-KERNEL <linux-kernel@vger.kernel.org>,
-        DEVICETREE <devicetree@vger.kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Eduardo Valentin <edubezval@gmail.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        LINUX-INPUT <linux-input@vger.kernel.org>,
-        LINUX-PM <linux-pm@vger.kernel.org>,
-        LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        "Mark Rutland" <mark.rutland@arm.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        "Support Opensource" <Support.Opensource@diasemi.com>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        Zhang Rui <rui.zhang@intel.com>
-Subject: RE: [PATCH V7 4/7] mfd: da9061: MFD core support
-Date: Mon, 3 Apr 2017 15:56:22 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7018CD6B207@SW-EX-MBX02.diasemi.com>
-References: <cover.1490712213.git.stwiss.opensource@diasemi.com>
- <8987877cc54940358c5b7a65ca003cedc5586f0d.1490712213.git.stwiss.opensource@diasemi.com>
- <20170403141214.q6ndii6c47pqfqx6@dell>
- <6ED8E3B22081A4459DAC7699F3695FB7018CD6B183@SW-EX-MBX02.diasemi.com>
- <20170403143049.qyi4dagwi4cdenok@dell>
-In-Reply-To: <20170403143049.qyi4dagwi4cdenok@dell>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+        Mon, 3 Apr 2017 23:23:05 -0400
+Subject: Re: [PATCH v5 4/6] watchdog: iTCO_wdt: cleanup set/unset no_reboot
+ calls
+To: Kuppuswamy Sathyanarayanan
+        <sathyanarayanan.kuppuswamy@linux.intel.com>, andy@infradead.org,
+        qipeng.zha@intel.com, dvhart@infradead.org
+References: <CAENHMvOyzbhDQzvpYFcxC9mvsfDGrco9RMy+rU=faT6RN_uW3A@mail.gmail.com>
+ <26b8a87af5084168576cba4feaca689a84abd867.1491264643.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+Cc: wim@iguana.be, sathyaosid@gmail.com, david.e.box@linux.intel.com,
+        rajneesh.bhardwaj@intel.com, platform-driver-x86@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <d50aed46-40e1-cfba-e3c2-a637f38f32b6@roeck-us.net>
+Date: Mon, 3 Apr 2017 20:22:59 -0700
 MIME-Version: 1.0
+In-Reply-To: <26b8a87af5084168576cba4feaca689a84abd867.1491264643.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-T24gMDMgQXByaWwgMjAxNyAxNTozMSwgTGVlIEpvbmVzIHdyb3RlOg0KDQo+IFN1YmplY3Q6IFJl
-OiBbUEFUQ0ggVjcgNC83XSBtZmQ6IGRhOTA2MTogTUZEIGNvcmUgc3VwcG9ydA0KPiANCj4gT24g
-TW9uLCAwMyBBcHIgMjAxNywgU3RldmUgVHdpc3Mgd3JvdGU6DQo+ID4gT24gMDMgQXByaWwgMjAx
-NyAxNToxMiwgTGVlIEpvbmVzIHdyb3RlOg0KPiA+DQo+ID4gPiA+IEBAIC00NzUsNyArODU1LDI1
-IEBAIHN0YXRpYyBpbnQgZGE5MDYyX2kyY19wcm9iZShzdHJ1Y3QgaTJjX2NsaWVudCAqaTJjLA0K
-PiA+ID4gPiAgCQlyZXR1cm4gLUVJTlZBTDsNCj4gPiA+ID4gIAl9DQo+ID4gPiA+DQo+ID4gPiA+
-IC0JY2hpcC0+cmVnbWFwID0gZGV2bV9yZWdtYXBfaW5pdF9pMmMoaTJjLCAmZGE5MDYyX3JlZ21h
-cF9jb25maWcpOw0KPiA+ID4gPiArCXN3aXRjaCAoY2hpcC0+Y2hpcF90eXBlKSB7DQo+ID4gPiA+
-ICsJY2FzZShDT01QQVRfVFlQRV9EQTkwNjEpOg0KPiA+ID4NCj4gPiA+IEJyYWNrZXRzIGFyb3Vu
-ZCB0aGUgY2FzZSB2YWx1ZT8NCj4gPiA+DQo+ID4gPiBUaGF0J3MgYSBuZXcgb25lIG9uIG1lLg0K
-PiA+DQo+ID4gSG0uIERvIHlvdSB3YW50IG1lIHRvIHJlc2VuZCBpdCB3aXRob3V0IGJyYWNlcz8N
-Cj4gDQo+IFllcyBwbGVhc2UuICBBbmQgYSBzcGFjZSBhZnRlciB0aGUgJ2Nhc2UnLg0KDQpIaSBM
-ZWUsDQoNCkkgaGF2ZSByZXNlbnQgUEFUQ0ggVjcgdG8gY2hhbmdlICJjYXNlKFgpOiIgdG8gYmUg
-ImNhc2UgWDoiLg0KLSBSZW1vdmVkIGJyYWNrZXRzIHN1cnJvdW5kaW5nIGNhc2Ugc3RhdGVtZW50
-cyBmb3INCiAgICBjYXNlIENPTVBBVF9UWVBFX0RBOTA2MToNCiAgICBjYXNlIENPTVBBVF9UWVBF
-X0RBOTA2MjoNCg0KTmV3IHBhdGNoIGlzIGhlcmU6DQpodHRwczovL2xrbWwub3JnL2xrbWwvMjAx
-Ny80LzMvNDYyDQoNClRoZSBwYXRjaCBpdCBpcyBjYWxsZWQgYnkgdGhlIHNhbWUgdGl0bGUgIltQ
-QVRDSCBWNyA0LzddIG1mZDogZGE5MDYxOiBNRkQgY29yZSBzdXBwb3J0Ii4NCkkndmUgbm90IHVw
-ZGF0ZWQgdGhlIHdob2xlIHBhdGNoLXNldCBvciBjaGFuZ2VkIHRoZSBwYXRjaCB2ZXJzaW9uIG51
-bWJlciBmcm9tIFY3Lg0KDQpSZWdhcmRzLA0KU3RldmUNCg==
+On 04/03/2017 05:24 PM, Kuppuswamy Sathyanarayanan wrote:
+> Both iTCO_wdt_unset_NO_REBOOT_bit() and iTCO_wdt_unset_NO_REBOOT_bit()
+
+I think you mean s/set/unset/ once.
+
+> functions has lot of common code between them. So merging these two
+> functions would remove these unnecessary code duplications. This patch
+> fixes this issue by creating single update function to handle both
+> set/unset functionalities.
+>
+> Signed-off-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
+> ---
+>  drivers/watchdog/iTCO_wdt.c | 53 ++++++++++++++++-----------------------------
+>  1 file changed, 19 insertions(+), 34 deletions(-)
+>
+> diff --git a/drivers/watchdog/iTCO_wdt.c b/drivers/watchdog/iTCO_wdt.c
+> index 521ae95..cddfa00 100644
+> --- a/drivers/watchdog/iTCO_wdt.c
+> +++ b/drivers/watchdog/iTCO_wdt.c
+> @@ -172,50 +172,35 @@ static inline u32 no_reboot_bit(struct iTCO_wdt_private *p)
+>  	return enable_bit;
+>  }
+>
+> -static void iTCO_wdt_set_NO_REBOOT_bit(struct iTCO_wdt_private *p)
+> +static int iTCO_wdt_update_no_reboot_flag(struct iTCO_wdt_private *p,
+
+Why not stick with bit ?
+
+> +					  bool status)
+
+I think 'set' would be better than 'status'.
+
+>  {
+> -	u32 val32;
+> +	u32 val32 = 0, newval32 = 0;
+>
+> -	/* Set the NO_REBOOT bit: this disables reboots */
+>  	if (p->iTCO_version >= 2) {
+>  		if (p->update_noreboot_flag)
+> -			p->update_noreboot_flag(true);
+> +			return p->update_noreboot_flag(status);
+>  		else {
+>  			val32 = readl(p->gcs_pmc);
+> -			val32 |= no_reboot_bit(p);
+> -			writel(val32, p->gcs_pmc);
+> -		}
+> -	} else if (p->iTCO_version == 1) {
+> -		pci_read_config_dword(p->pci_dev, 0xd4, &val32);
+> -		val32 |= no_reboot_bit(p);
+> -		pci_write_config_dword(p->pci_dev, 0xd4, val32);
+> -	}
+> -}
+> -
+> -static int iTCO_wdt_unset_NO_REBOOT_bit(struct iTCO_wdt_private *p)
+> -{
+> -	u32 enable_bit = no_reboot_bit(p);
+> -	u32 val32 = 0;
+> +			if (status)
+> +				val32 |= no_reboot_bit(p);
+> +			else
+> +				val32 &= ~no_reboot_bit(p);
+>
+> -	/* Unset the NO_REBOOT bit: this enables reboots */
+> -	if (p->iTCO_version >= 2) {
+> -		if (p->update_noreboot_flag)
+> -			return p->update_noreboot_flag(false);
+> -		else {
+> -			val32 = readl(p->gcs_pmc);
+> -			val32 &= ~enable_bit;
+>  			writel(val32, p->gcs_pmc);
+> -			val32 = readl(p->gcs_pmc);
+> +			newval32 = readl(p->gcs_pmc);
+>  		}
+>  	} else if (p->iTCO_version == 1) {
+>  		pci_read_config_dword(p->pci_dev, 0xd4, &val32);
+> -		val32 &= ~enable_bit;
+> +		if (status)
+> +			val32 |= no_reboot_bit(p);
+> +		else
+> +			val32 &= ~no_reboot_bit(p);
+>  		pci_write_config_dword(p->pci_dev, 0xd4, val32);
+> -
+> -		pci_read_config_dword(p->pci_dev, 0xd4, &val32);
+> +		pci_read_config_dword(p->pci_dev, 0xd4, &newval32);
+>  	}
+>
+> -	if (val32 & enable_bit)
+> +	if (val32 != newval32)
+>  		return -EIO;
+>
+>  	return 0;
+> @@ -231,7 +216,7 @@ static int iTCO_wdt_start(struct watchdog_device *wd_dev)
+>  	iTCO_vendor_pre_start(p->smi_res, wd_dev->timeout);
+>
+>  	/* disable chipset's NO_REBOOT bit */
+> -	if (iTCO_wdt_unset_NO_REBOOT_bit(p)) {
+> +	if (iTCO_wdt_update_no_reboot_flag(p, false)) {
+>  		spin_unlock(&p->io_lock);
+>  		pr_err("failed to reset NO_REBOOT flag, reboot disabled by hardware/BIOS\n");
+>  		return -EIO;
+> @@ -272,7 +257,7 @@ static int iTCO_wdt_stop(struct watchdog_device *wd_dev)
+>  	val = inw(TCO1_CNT(p));
+>
+>  	/* Set the NO_REBOOT bit to prevent later reboots, just for sure */
+> -	iTCO_wdt_set_NO_REBOOT_bit(p);
+> +	iTCO_wdt_update_no_reboot_flag(p, true);
+>
+>  	spin_unlock(&p->io_lock);
+>
+> @@ -452,14 +437,14 @@ static int iTCO_wdt_probe(struct platform_device *pdev)
+>  	}
+>
+>  	/* Check chipset's NO_REBOOT bit */
+> -	if (iTCO_wdt_unset_NO_REBOOT_bit(p) &&
+> +	if (iTCO_wdt_update_no_reboot_flag(p, false) &&
+>  	    iTCO_vendor_check_noreboot_on()) {
+>  		pr_info("unable to reset NO_REBOOT flag, device disabled by hardware/BIOS\n");
+>  		return -ENODEV;	/* Cannot reset NO_REBOOT bit */
+>  	}
+>
+>  	/* Set the NO_REBOOT bit to prevent later reboots, just for sure */
+> -	iTCO_wdt_set_NO_REBOOT_bit(p);
+> +	iTCO_wdt_update_no_reboot_flag(p, true);
+>
+>  	/* The TCO logic uses the TCO_EN bit in the SMI_EN register */
+>  	if (!devm_request_region(dev, p->smi_res->start,
+>
+
