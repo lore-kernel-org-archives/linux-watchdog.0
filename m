@@ -1,26 +1,26 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-qk0-f196.google.com ([209.85.220.196]:33452 "EHLO
-        mail-qk0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751094AbdDDNZ0 (ORCPT
+Received: from mail-qk0-f181.google.com ([209.85.220.181]:35698 "EHLO
+        mail-qk0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753943AbdDDNtA (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 4 Apr 2017 09:25:26 -0400
+        Tue, 4 Apr 2017 09:49:00 -0400
 MIME-Version: 1.0
-In-Reply-To: <CAENHMvOyzbhDQzvpYFcxC9mvsfDGrco9RMy+rU=faT6RN_uW3A@mail.gmail.com>
-References: <20170331133728.GA23725@rajaneesh-OptiPlex-9010>
- <e537ff68732d86418982349624fd6de741bccc9b.1491002056.git.sathyanarayanan.kuppuswamy@linux.intel.com>
- <CAHp75Vf3bq7cGUmi2Oi_TkvkCTzJ1QDmKUoTXmJgkgbxUE+UfA@mail.gmail.com> <CAENHMvOyzbhDQzvpYFcxC9mvsfDGrco9RMy+rU=faT6RN_uW3A@mail.gmail.com>
+In-Reply-To: <4d324041eea35fc04aca56b60c36035724cff2ba.1491264643.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+References: <bf5a86829e9403d93e85270b2898b3c548417a05.1491264643.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+ <CAENHMvOyzbhDQzvpYFcxC9mvsfDGrco9RMy+rU=faT6RN_uW3A@mail.gmail.com> <4d324041eea35fc04aca56b60c36035724cff2ba.1491264643.git.sathyanarayanan.kuppuswamy@linux.intel.com>
 From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Date: Tue, 4 Apr 2017 16:25:25 +0300
-Message-ID: <CAHp75VdeZW6zAfoXsv6ZwQ9woyumj4s5n1ZSaPWoJQBdP5BNfw@mail.gmail.com>
-Subject: Re: [PATCH v4 1/5] platform/x86: intel_pmc_ipc: fix gcr offset
-To: Sathyanarayanan Kuppuswamy Natarajan <sathyaosid@gmail.com>
-Cc: Kuppuswamy Sathyanarayanan
-        <sathyanarayanan.kuppuswamy@linux.intel.com>,
-        Andy Shevchenko <andy@infradead.org>,
+Date: Tue, 4 Apr 2017 16:48:59 +0300
+Message-ID: <CAHp75VdvQ4k+NDmtdw_67Hds2JMPDzPBf-ioZ-VDBzFNB5wOqg@mail.gmail.com>
+Subject: Re: [PATCH v5 3/6] watchdog: iTCO_wdt: Add PMC specific noreboot
+ update api
+To: Kuppuswamy Sathyanarayanan
+        <sathyanarayanan.kuppuswamy@linux.intel.com>
+Cc: Andy Shevchenko <andy@infradead.org>,
         Zha Qipeng <qipeng.zha@intel.com>,
         "dvhart@infradead.org" <dvhart@infradead.org>,
         Guenter Roeck <linux@roeck-us.net>,
         Wim Van Sebroeck <wim@iguana.be>,
+        Sathyanarayanan Kuppuswamy Natarajan <sathyaosid@gmail.com>,
         David Box <david.e.box@linux.intel.com>,
         Rajneesh Bhardwaj <rajneesh.bhardwaj@intel.com>,
         Platform Driver <platform-driver-x86@vger.kernel.org>,
@@ -30,69 +30,31 @@ Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Please, STOP top-posting.
+On Tue, Apr 4, 2017 at 3:24 AM, Kuppuswamy Sathyanarayanan
+<sathyanarayanan.kuppuswamy@linux.intel.com> wrote:
+> In some SoCs, setting noreboot bit needs modification to
+> PMC GC registers. But not all PMC drivers allow other drivers
+> to memory map their GC region. This could create mem request
+> conflict in watchdog driver. So this patch adds facility to allow
+> PMC drivers to pass noreboot update function to watchdog
+> drivers via platform data.
 
-On Mon, Apr 3, 2017 at 4:51 AM, Sathyanarayanan Kuppuswamy Natarajan
-<sathyaosid@gmail.com> wrote:
-> Yes, just applying this patch will fix the existing offset issue.
+>         /* Set the NO_REBOOT bit: this disables reboots */
+>         if (p->iTCO_version >= 2) {
+> -               val32 = readl(p->gcs_pmc);
+> -               val32 |= no_reboot_bit(p);
+> -               writel(val32, p->gcs_pmc);
+> +               if (p->update_noreboot_flag)
+> +                       p->update_noreboot_flag(true);
+> +               else {
+> +                       val32 = readl(p->gcs_pmc);
+> +                       val32 |= no_reboot_bit(p);
+> +                       writel(val32, p->gcs_pmc);
+> +               }
 
-Then the question how it was tested in both cases (before this change and now) ?
-
->
-> On Sun, Apr 2, 2017 at 7:11 AM, Andy Shevchenko
-> <andy.shevchenko@gmail.com> wrote:
->> On Sat, Apr 1, 2017 at 2:27 AM, Kuppuswamy Sathyanarayanan
->> <sathyanarayanan.kuppuswamy@linux.intel.com> wrote:
->>> According to Broxton APL PMC spec, gcr mem region starts
->>> at offset 0x1000 from ipc mem base address. In this driver,
->>> PLAT_RESOURCE_GCR_OFFSET macro defines the offset of GCR
->>> memory region from IPC mem region. So we should use 0x1000(4K)
->>> as GCR offset. But currently this driver uses 0x1008 as GCT
->>> offset.This patch fixes this issue.
->>
->>
->> So, if I apply this one independently, would it fix an existin issue?
->>
->>>
->>> Signed-off-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
->>> ---
->>>  drivers/platform/x86/intel_pmc_ipc.c | 2 +-
->>>  1 file changed, 1 insertion(+), 1 deletion(-)
->>>
->>> Changes since v3:
->>>  * Updated the commit history
->>>
->>> diff --git a/drivers/platform/x86/intel_pmc_ipc.c b/drivers/platform/x86/intel_pmc_ipc.c
->>> index 0651d47..0a33592 100644
->>> --- a/drivers/platform/x86/intel_pmc_ipc.c
->>> +++ b/drivers/platform/x86/intel_pmc_ipc.c
->>> @@ -82,7 +82,7 @@
->>>  /* exported resources from IFWI */
->>>  #define PLAT_RESOURCE_IPC_INDEX                0
->>>  #define PLAT_RESOURCE_IPC_SIZE         0x1000
->>> -#define PLAT_RESOURCE_GCR_OFFSET       0x1008
->>> +#define PLAT_RESOURCE_GCR_OFFSET       0x1000
->>>  #define PLAT_RESOURCE_GCR_SIZE         0x1000
->>>  #define PLAT_RESOURCE_BIOS_DATA_INDEX  1
->>>  #define PLAT_RESOURCE_BIOS_IFACE_INDEX 2
->>> --
->>> 2.7.4
->>>
->>
->>
->>
->> --
->> With Best Regards,
->> Andy Shevchenko
->
->
->
-> --
-> --
->
-> Sathya
-
-
+What I meant is to introduce helper(s) first and then fix this. Yes, I
+understand it might increase work for backporting (if even needed),
+but I still think it worth doing.
 
 -- 
 With Best Regards,
