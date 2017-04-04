@@ -1,18 +1,17 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-qk0-f181.google.com ([209.85.220.181]:35698 "EHLO
-        mail-qk0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753943AbdDDNtA (ORCPT
+Received: from mail-qk0-f182.google.com ([209.85.220.182]:36747 "EHLO
+        mail-qk0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752432AbdDDNt7 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 4 Apr 2017 09:49:00 -0400
+        Tue, 4 Apr 2017 09:49:59 -0400
 MIME-Version: 1.0
-In-Reply-To: <4d324041eea35fc04aca56b60c36035724cff2ba.1491264643.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+In-Reply-To: <26b8a87af5084168576cba4feaca689a84abd867.1491264643.git.sathyanarayanan.kuppuswamy@linux.intel.com>
 References: <bf5a86829e9403d93e85270b2898b3c548417a05.1491264643.git.sathyanarayanan.kuppuswamy@linux.intel.com>
- <CAENHMvOyzbhDQzvpYFcxC9mvsfDGrco9RMy+rU=faT6RN_uW3A@mail.gmail.com> <4d324041eea35fc04aca56b60c36035724cff2ba.1491264643.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+ <CAENHMvOyzbhDQzvpYFcxC9mvsfDGrco9RMy+rU=faT6RN_uW3A@mail.gmail.com> <26b8a87af5084168576cba4feaca689a84abd867.1491264643.git.sathyanarayanan.kuppuswamy@linux.intel.com>
 From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Date: Tue, 4 Apr 2017 16:48:59 +0300
-Message-ID: <CAHp75VdvQ4k+NDmtdw_67Hds2JMPDzPBf-ioZ-VDBzFNB5wOqg@mail.gmail.com>
-Subject: Re: [PATCH v5 3/6] watchdog: iTCO_wdt: Add PMC specific noreboot
- update api
+Date: Tue, 4 Apr 2017 16:49:57 +0300
+Message-ID: <CAHp75VfyrdVVQ3s4VT_Bfr_ziw4+g16gVMHZtehC7vH1TQQxOQ@mail.gmail.com>
+Subject: Re: [PATCH v5 4/6] watchdog: iTCO_wdt: cleanup set/unset no_reboot calls
 To: Kuppuswamy Sathyanarayanan
         <sathyanarayanan.kuppuswamy@linux.intel.com>
 Cc: Andy Shevchenko <andy@infradead.org>,
@@ -32,29 +31,15 @@ List-Id: linux-watchdog@vger.kernel.org
 
 On Tue, Apr 4, 2017 at 3:24 AM, Kuppuswamy Sathyanarayanan
 <sathyanarayanan.kuppuswamy@linux.intel.com> wrote:
-> In some SoCs, setting noreboot bit needs modification to
-> PMC GC registers. But not all PMC drivers allow other drivers
-> to memory map their GC region. This could create mem request
-> conflict in watchdog driver. So this patch adds facility to allow
-> PMC drivers to pass noreboot update function to watchdog
-> drivers via platform data.
+> Both iTCO_wdt_unset_NO_REBOOT_bit() and iTCO_wdt_unset_NO_REBOOT_bit()
+> functions has lot of common code between them. So merging these two
+> functions would remove these unnecessary code duplications. This patch
+> fixes this issue by creating single update function to handle both
+> set/unset functionalities.
+>
+> Signed-off-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
 
->         /* Set the NO_REBOOT bit: this disables reboots */
->         if (p->iTCO_version >= 2) {
-> -               val32 = readl(p->gcs_pmc);
-> -               val32 |= no_reboot_bit(p);
-> -               writel(val32, p->gcs_pmc);
-> +               if (p->update_noreboot_flag)
-> +                       p->update_noreboot_flag(true);
-> +               else {
-> +                       val32 = readl(p->gcs_pmc);
-> +                       val32 |= no_reboot_bit(p);
-> +                       writel(val32, p->gcs_pmc);
-> +               }
-
-What I meant is to introduce helper(s) first and then fix this. Yes, I
-understand it might increase work for backporting (if even needed),
-but I still think it worth doing.
+Something similar should go before patch 3/6.
 
 -- 
 With Best Regards,
