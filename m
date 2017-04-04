@@ -1,17 +1,18 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-qk0-f182.google.com ([209.85.220.182]:36747 "EHLO
-        mail-qk0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752432AbdDDNt7 (ORCPT
+Received: from mail-qk0-f195.google.com ([209.85.220.195]:35639 "EHLO
+        mail-qk0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752202AbdDDNvx (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 4 Apr 2017 09:49:59 -0400
+        Tue, 4 Apr 2017 09:51:53 -0400
 MIME-Version: 1.0
-In-Reply-To: <26b8a87af5084168576cba4feaca689a84abd867.1491264643.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+In-Reply-To: <8aad93502f17d05367588ea0c17b01b450a1385a.1491264643.git.sathyanarayanan.kuppuswamy@linux.intel.com>
 References: <bf5a86829e9403d93e85270b2898b3c548417a05.1491264643.git.sathyanarayanan.kuppuswamy@linux.intel.com>
- <CAENHMvOyzbhDQzvpYFcxC9mvsfDGrco9RMy+rU=faT6RN_uW3A@mail.gmail.com> <26b8a87af5084168576cba4feaca689a84abd867.1491264643.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+ <CAENHMvOyzbhDQzvpYFcxC9mvsfDGrco9RMy+rU=faT6RN_uW3A@mail.gmail.com> <8aad93502f17d05367588ea0c17b01b450a1385a.1491264643.git.sathyanarayanan.kuppuswamy@linux.intel.com>
 From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Date: Tue, 4 Apr 2017 16:49:57 +0300
-Message-ID: <CAHp75VfyrdVVQ3s4VT_Bfr_ziw4+g16gVMHZtehC7vH1TQQxOQ@mail.gmail.com>
-Subject: Re: [PATCH v5 4/6] watchdog: iTCO_wdt: cleanup set/unset no_reboot calls
+Date: Tue, 4 Apr 2017 16:51:51 +0300
+Message-ID: <CAHp75Vf7QTc3ZG285=P2PeA2QxGUPXt0Tu-Mr+7+81XVye_63A@mail.gmail.com>
+Subject: Re: [PATCH v5 6/6] platform/x86: intel_pmc_ipc: use gcr mem base for
+ S0ix counter read
 To: Kuppuswamy Sathyanarayanan
         <sathyanarayanan.kuppuswamy@linux.intel.com>
 Cc: Andy Shevchenko <andy@infradead.org>,
@@ -31,15 +32,100 @@ List-Id: linux-watchdog@vger.kernel.org
 
 On Tue, Apr 4, 2017 at 3:24 AM, Kuppuswamy Sathyanarayanan
 <sathyanarayanan.kuppuswamy@linux.intel.com> wrote:
-> Both iTCO_wdt_unset_NO_REBOOT_bit() and iTCO_wdt_unset_NO_REBOOT_bit()
-> functions has lot of common code between them. So merging these two
-> functions would remove these unnecessary code duplications. This patch
-> fixes this issue by creating single update function to handle both
-> set/unset functionalities.
+> To maintain the uniformity in accessing GCR registers, this patch
+> modifies the S0ix counter read function to use GCR address base
+> instead of ipc address base.
 >
-> Signed-off-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
 
-Something similar should go before patch 3/6.
+This one looks good.
+
+--- 8< --- 8< ---
+
+Overall, I do not like this spreading interface where we have more and
+more functions which use some global variable without clear
+understanding of device / initialization dependencies.
+
+Better approach would be something using opaque pointers and API which
+takes it as an input.
+I didn't investigate yet about something similar to UCLASS_SYSCON
+(this is nice model of dependency used in U-Boot) in Linux kernel, it
+would be cool to use it.
+
+So, the priority number #2 (number #1 is to fix interrupt handling for
+Whiskey Cove) is to refactor this all mess.
+
+Like we agreed it would be last series I'm going to apply without
+refactoring done.
+
+--- 8< --- 8< ---
+
+> Signed-off-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
+> Reviewed-by: Rajneesh Bhardwaj <rajneesh.bhardwaj@intel.com>
+> Tested-by: Shanth Murthy <shanth.murthy@intel.com>
+> ---
+>  arch/x86/include/asm/intel_pmc_ipc.h |  2 ++
+>  drivers/platform/x86/intel_pmc_ipc.c | 10 +++-------
+>  2 files changed, 5 insertions(+), 7 deletions(-)
+>
+> Changes since v4:
+>  * Rebased on top of latest changes.
+>
+> Changes since v3:
+>  * Rebased on top of latest changes.
+>
+> diff --git a/arch/x86/include/asm/intel_pmc_ipc.h b/arch/x86/include/asm/intel_pmc_ipc.h
+> index 8402efe..fac89eb 100644
+> --- a/arch/x86/include/asm/intel_pmc_ipc.h
+> +++ b/arch/x86/include/asm/intel_pmc_ipc.h
+> @@ -25,6 +25,8 @@
+>
+>  /* GCR reg offsets from gcr base*/
+>  #define PMC_GCR_PMC_CFG_REG            0x08
+> +#define PMC_GCR_TELEM_DEEP_S0IX_REG    0x78
+> +#define PMC_GCR_TELEM_SHLW_S0IX_REG    0x80
+>
+>  #if IS_ENABLED(CONFIG_INTEL_PMC_IPC)
+>
+> diff --git a/drivers/platform/x86/intel_pmc_ipc.c b/drivers/platform/x86/intel_pmc_ipc.c
+> index 3d0d6f17..b61f569 100644
+> --- a/drivers/platform/x86/intel_pmc_ipc.c
+> +++ b/drivers/platform/x86/intel_pmc_ipc.c
+> @@ -57,10 +57,6 @@
+>  #define IPC_WRITE_BUFFER       0x80
+>  #define IPC_READ_BUFFER                0x90
+>
+> -/* PMC Global Control Registers */
+> -#define GCR_TELEM_DEEP_S0IX_OFFSET     0x1078
+> -#define GCR_TELEM_SHLW_S0IX_OFFSET     0x1080
+> -
+>  /* Residency with clock rate at 19.2MHz to usecs */
+>  #define S0IX_RESIDENCY_IN_USECS(d, s)          \
+>  ({                                             \
+> @@ -203,7 +199,7 @@ static inline u32 ipc_data_readl(u32 offset)
+>
+>  static inline u64 gcr_data_readq(u32 offset)
+>  {
+> -       return readq(ipcdev.ipc_base + offset);
+> +       return readq(ipcdev.gcr_mem_base + offset);
+>  }
+>
+>  static inline int is_gcr_valid(u32 offset)
+> @@ -906,8 +902,8 @@ int intel_pmc_s0ix_counter_read(u64 *data)
+>         if (!ipcdev.has_gcr_regs)
+>                 return -EACCES;
+>
+> -       deep = gcr_data_readq(GCR_TELEM_DEEP_S0IX_OFFSET);
+> -       shlw = gcr_data_readq(GCR_TELEM_SHLW_S0IX_OFFSET);
+> +       deep = gcr_data_readq(PMC_GCR_TELEM_DEEP_S0IX_REG);
+> +       shlw = gcr_data_readq(PMC_GCR_TELEM_SHLW_S0IX_REG);
+>
+>         *data = S0IX_RESIDENCY_IN_USECS(deep, shlw);
+>
+> --
+> 2.7.4
+>
+
+
 
 -- 
 With Best Regards,
