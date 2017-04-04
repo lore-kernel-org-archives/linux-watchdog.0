@@ -1,59 +1,67 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:50658 "EHLO mga09.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753288AbdDDUSs (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 4 Apr 2017 16:18:48 -0400
-Reply-To: sathyanarayanan.kuppuswamy@linux.intel.com
-Subject: Re: [PATCH v4 2/5] platform/x86: intel_pmc_ipc: Add pmc gcr
- read/write/update api's
-References: <e537ff68732d86418982349624fd6de741bccc9b.1491002056.git.sathyanarayanan.kuppuswamy@linux.intel.com>
- <20170331133728.GA23725@rajaneesh-OptiPlex-9010>
- <1ca7187132bd2b98ca87d0829a3c76022f041924.1491002056.git.sathyanarayanan.kuppuswamy@linux.intel.com>
- <CAHp75Vc0Mjk81TLDVwr9jkeeHqCvJ729aQLqg09zov7--AjKyw@mail.gmail.com>
- <CAENHMvPLE5KZMZ+NoU5fmNzDEoONz=SeAaSC=q8GfhFEHFOJ6g@mail.gmail.com>
- <CAHp75VdZmQyo8ZwLgbybzUvEzYj+upxR74Ah0ViVBB=Ykk+Dsw@mail.gmail.com>
-To: Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Sathyanarayanan Kuppuswamy Natarajan <sathyaosid@gmail.com>
-Cc: Andy Shevchenko <andy@infradead.org>,
-        Zha Qipeng <qipeng.zha@intel.com>,
-        "dvhart@infradead.org" <dvhart@infradead.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        David Box <david.e.box@linux.intel.com>,
-        Rajneesh Bhardwaj <rajneesh.bhardwaj@intel.com>,
-        Platform Driver <platform-driver-x86@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        linux-watchdog@vger.kernel.org
-From: sathyanarayanan kuppuswamy
-        <sathyanarayanan.kuppuswamy@linux.intel.com>
-Message-ID: <c158bcb3-c6c2-3f81-c38b-6a63e6c1af5e@linux.intel.com>
-Date: Tue, 4 Apr 2017 13:14:37 -0700
+Received: from smtp.codeaurora.org ([198.145.29.96]:47334 "EHLO
+        smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752792AbdDDUjJ (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 4 Apr 2017 16:39:09 -0400
+Subject: Re: [PATCH v23 00/11] acpi, clocksource: add GTDT driver and GTDT
+ support in arm_arch_timer
+To: fu.wei@linaro.org, rjw@rjwysocki.net, lenb@kernel.org,
+        daniel.lezcano@linaro.org, tglx@linutronix.de,
+        marc.zyngier@arm.com, mark.rutland@arm.com,
+        lorenzo.pieralisi@arm.com, sudeep.holla@arm.com,
+        hanjun.guo@linaro.org
+Cc: linux-arm-kernel@lists.infradead.org, linaro-acpi@lists.linaro.org,
+        linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
+        rruigrok@codeaurora.org, harba@codeaurora.org, cov@codeaurora.org,
+        graeme.gregory@linaro.org, al.stone@linaro.org, jcm@redhat.com,
+        wei@redhat.com, arnd@arndb.de, catalin.marinas@arm.com,
+        will.deacon@arm.com, Suravee.Suthikulpanit@amd.com,
+        leo.duran@amd.com, wim@iguana.be, linux@roeck-us.net,
+        linux-watchdog@vger.kernel.org, tn@semihalf.com,
+        christoffer.dall@linaro.org, julien.grall@arm.com
+References: <20170331175105.8370-1-fu.wei@linaro.org>
+From: Timur Tabi <timur@codeaurora.org>
+Message-ID: <58003cb9-e190-925d-f5af-947159cbd040@codeaurora.org>
+Date: Tue, 4 Apr 2017 15:39:04 -0500
 MIME-Version: 1.0
-In-Reply-To: <CAHp75VdZmQyo8ZwLgbybzUvEzYj+upxR74Ah0ViVBB=Ykk+Dsw@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+In-Reply-To: <20170331175105.8370-1-fu.wei@linaro.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Andy,
+On 03/31/2017 12:50 PM, fu.wei@linaro.org wrote:
+> This patchset:
+>     (1)Preparation for adding GTDT support in arm_arch_timer:
+>         1. Introduce a MMIO CNTFRQ helper.
+>         2. separate out device-tree code from arch_timer_detect_rate
+>         3. remove arch_timer_detect_rate use arch_timer_*get_cntfrq directly
+>         4. Refactor arch_timer_needs_probing, and move it into DT init call
+>         5. Introduce some new structs and refactor the MMIO timer init code
+>         for reusing some common code.
+> 
+>     (2)Introduce ACPI GTDT parser: drivers/acpi/arm64/acpi_gtdt.c
+>     Parse all kinds of timer in GTDT table of ACPI:arch timer,
+>     memory-mapped timer and SBSA Generic Watchdog timer.
+>     This driver can help to simplify all the relevant timer drivers,
+>     and separate all the ACPI GTDT knowledge from them.
+> 
+>     (3)Simplify ACPI code for arm_arch_timer
+> 
+>     (4)Add GTDT support for ARM memory-mapped timer.
+> 
+> This patchset has been tested on the following platforms with ACPI enabled:
+>     (1)ARM Foundation v8 model
+> 
+> Changelog:
+> v23: https://lkml.org/lkml/2017/3/31/
 
+v23:
 
-On 04/04/2017 06:23 AM, Andy Shevchenko wrote:
-> On Mon, Apr 3, 2017 at 4:51 AM, Sathyanarayanan Kuppuswamy Natarajan
-> <sathyaosid@gmail.com> wrote:
->
->>>> +static inline int is_gcr_valid(u32 offset)
->>> Pointer to ipcdev should be a parameter to this function.
->> But ipcdev is a static variable, visible across this file. So there is
->> no point in passing it as parameter.
-> That's one of refactoring needed for this library. You need to pass a
-> pointer to all internal functions and where it's possible to avoid
-> reference to a global variable.
-Yes, I have included this into the list of issues that needs to fixed 
-during the refactoring effort.
->
+Tested-by: Timur Tabi <timur@codeaurora.org>
 
 -- 
-Sathyanarayanan Kuppuswamy
-Android kernel developer
-
+Qualcomm Datacenter Technologies, Inc. as an affiliate of Qualcomm
+Technologies, Inc.  Qualcomm Technologies, Inc. is a member of the
+Code Aurora Forum, a Linux Foundation Collaborative Project.
