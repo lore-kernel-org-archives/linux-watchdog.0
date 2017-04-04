@@ -1,7 +1,7 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mga05.intel.com ([192.55.52.43]:2529 "EHLO mga05.intel.com"
+Received: from mga05.intel.com ([192.55.52.43]:38946 "EHLO mga05.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751668AbdDDA2t (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        id S1751649AbdDDA2t (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
         Mon, 3 Apr 2017 20:28:49 -0400
 From: Kuppuswamy Sathyanarayanan
         <sathyanarayanan.kuppuswamy@linux.intel.com>
@@ -12,9 +12,9 @@ Cc: wim@iguana.be, sathyaosid@gmail.com, david.e.box@linux.intel.com,
         sathyanarayanan.kuppuswamy@linux.intel.com,
         platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-watchdog@vger.kernel.org
-Subject: [PATCH v5 3/6] watchdog: iTCO_wdt: Add PMC specific noreboot update api
-Date: Mon,  3 Apr 2017 17:24:31 -0700
-Message-Id: <4d324041eea35fc04aca56b60c36035724cff2ba.1491264643.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+Subject: [PATCH v5 2/6] platform/x86: intel_pmc_ipc: Add pmc gcr read/write/update api's
+Date: Mon,  3 Apr 2017 17:24:30 -0700
+Message-Id: <83d48f6907b3392e38ee251cf9fa6d518f139288.1491264643.git.sathyanarayanan.kuppuswamy@linux.intel.com>
 In-Reply-To: <CAENHMvOyzbhDQzvpYFcxC9mvsfDGrco9RMy+rU=faT6RN_uW3A@mail.gmail.com>
 References: <CAENHMvOyzbhDQzvpYFcxC9mvsfDGrco9RMy+rU=faT6RN_uW3A@mail.gmail.com>
 In-Reply-To: <bf5a86829e9403d93e85270b2898b3c548417a05.1491264643.git.sathyanarayanan.kuppuswamy@linux.intel.com>
@@ -22,110 +22,215 @@ References: <bf5a86829e9403d93e85270b2898b3c548417a05.1491264643.git.sathyanaray
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-In some SoCs, setting noreboot bit needs modification to
-PMC GC registers. But not all PMC drivers allow other drivers
-to memory map their GC region. This could create mem request
-conflict in watchdog driver. So this patch adds facility to allow
-PMC drivers to pass noreboot update function to watchdog
-drivers via platform data.
+This patch adds API's to read/write/update PMC GC registers.
+PMC dependent devices like iTCO_wdt, Telemetry has requirement
+to acces GCR registers. These API's can be used for this
+purpose.
 
 Signed-off-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
-Acked-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/watchdog/iTCO_wdt.c            | 28 +++++++++++++++++++---------
- include/linux/platform_data/itco_wdt.h |  1 +
- 2 files changed, 20 insertions(+), 9 deletions(-)
+ arch/x86/include/asm/intel_pmc_ipc.h |  21 +++++++
+ drivers/platform/x86/intel_pmc_ipc.c | 114 +++++++++++++++++++++++++++++++++++
+ 2 files changed, 135 insertions(+)
 
 Changes since v4:
- * Fixed some style issues.
- * used false for 0 and true for 1 in update_noreboot_flag function.
+ * Fixed style issue in commit history
+ * Added mutex locks in read/write/update API's.
 
 Changes since v3:
- * Rebased on top of latest.
+ * Added usage comments for read/write/update api
+ * Created a helper function to handle GCR related range checks.
 
-Changes since v2: 
- * Removed use of PMC API's directly in watchdog driver.
- * Added update_noreboot_flag to handle no IPC PMC compatibility
-   issue mentioned by Guenter.
+Changes since v2:
+ * Removed unused reg offset from header file.
+ * Modified read/write api's signatures for better error handling
+ * Added function for bit level update of gcr register.
 
-diff --git a/drivers/watchdog/iTCO_wdt.c b/drivers/watchdog/iTCO_wdt.c
-index 3d0abc0..521ae95 100644
---- a/drivers/watchdog/iTCO_wdt.c
-+++ b/drivers/watchdog/iTCO_wdt.c
-@@ -100,6 +100,8 @@ struct iTCO_wdt_private {
- 	 */
- 	struct resource *gcs_pmc_res;
- 	unsigned long __iomem *gcs_pmc;
-+	/* PMC specific API to update noreboot flag */
-+	int (*update_noreboot_flag)(bool status);
- 	/* the lock for io operations */
- 	spinlock_t io_lock;
- 	/* the PCI-device */
-@@ -176,9 +178,13 @@ static void iTCO_wdt_set_NO_REBOOT_bit(struct iTCO_wdt_private *p)
+diff --git a/arch/x86/include/asm/intel_pmc_ipc.h b/arch/x86/include/asm/intel_pmc_ipc.h
+index 4291b6a..8402efe 100644
+--- a/arch/x86/include/asm/intel_pmc_ipc.h
++++ b/arch/x86/include/asm/intel_pmc_ipc.h
+@@ -23,6 +23,9 @@
+ #define IPC_ERR_EMSECURITY		6
+ #define IPC_ERR_UNSIGNEDKERNEL		7
  
- 	/* Set the NO_REBOOT bit: this disables reboots */
- 	if (p->iTCO_version >= 2) {
--		val32 = readl(p->gcs_pmc);
--		val32 |= no_reboot_bit(p);
--		writel(val32, p->gcs_pmc);
-+		if (p->update_noreboot_flag)
-+			p->update_noreboot_flag(true);
-+		else {
-+			val32 = readl(p->gcs_pmc);
-+			val32 |= no_reboot_bit(p);
-+			writel(val32, p->gcs_pmc);
-+		}
- 	} else if (p->iTCO_version == 1) {
- 		pci_read_config_dword(p->pci_dev, 0xd4, &val32);
- 		val32 |= no_reboot_bit(p);
-@@ -193,11 +199,14 @@ static int iTCO_wdt_unset_NO_REBOOT_bit(struct iTCO_wdt_private *p)
++/* GCR reg offsets from gcr base*/
++#define PMC_GCR_PMC_CFG_REG		0x08
++
+ #if IS_ENABLED(CONFIG_INTEL_PMC_IPC)
  
- 	/* Unset the NO_REBOOT bit: this enables reboots */
- 	if (p->iTCO_version >= 2) {
--		val32 = readl(p->gcs_pmc);
--		val32 &= ~enable_bit;
--		writel(val32, p->gcs_pmc);
--
--		val32 = readl(p->gcs_pmc);
-+		if (p->update_noreboot_flag)
-+			return p->update_noreboot_flag(false);
-+		else {
-+			val32 = readl(p->gcs_pmc);
-+			val32 &= ~enable_bit;
-+			writel(val32, p->gcs_pmc);
-+			val32 = readl(p->gcs_pmc);
-+		}
- 	} else if (p->iTCO_version == 1) {
- 		pci_read_config_dword(p->pci_dev, 0xd4, &val32);
- 		val32 &= ~enable_bit;
-@@ -426,13 +435,14 @@ static int iTCO_wdt_probe(struct platform_device *pdev)
- 		return -ENODEV;
+ int intel_pmc_ipc_simple_command(int cmd, int sub);
+@@ -31,6 +34,9 @@ int intel_pmc_ipc_raw_cmd(u32 cmd, u32 sub, u8 *in, u32 inlen,
+ int intel_pmc_ipc_command(u32 cmd, u32 sub, u8 *in, u32 inlen,
+ 		u32 *out, u32 outlen);
+ int intel_pmc_s0ix_counter_read(u64 *data);
++int intel_pmc_gcr_read(u32 offset, u32 *data);
++int intel_pmc_gcr_write(u32 offset, u32 data);
++int intel_pmc_gcr_update(u32 offset, u32 mask, u32 val);
  
- 	p->iTCO_version = pdata->version;
-+	p->update_noreboot_flag = pdata->update_noreboot_flag;
- 	p->pci_dev = to_pci_dev(dev->parent);
+ #else
  
- 	/*
- 	 * Get the Memory-Mapped GCS or PMC register, we need it for the
- 	 * NO_REBOOT flag (TCO v2 and v3).
- 	 */
--	if (p->iTCO_version >= 2) {
-+	if (p->iTCO_version >= 2 && !p->update_noreboot_flag) {
- 		p->gcs_pmc_res = platform_get_resource(pdev,
- 						       IORESOURCE_MEM,
- 						       ICH_RES_MEM_GCS_PMC);
-diff --git a/include/linux/platform_data/itco_wdt.h b/include/linux/platform_data/itco_wdt.h
-index f16542c..ea1efb7 100644
---- a/include/linux/platform_data/itco_wdt.h
-+++ b/include/linux/platform_data/itco_wdt.h
-@@ -14,6 +14,7 @@
- struct itco_wdt_platform_data {
- 	char name[32];
- 	unsigned int version;
-+	int (*update_noreboot_flag)(bool status);
- };
+@@ -56,6 +62,21 @@ static inline int intel_pmc_s0ix_counter_read(u64 *data)
+ 	return -EINVAL;
+ }
  
- #endif /* _ITCO_WDT_H_ */
++static inline int intel_pmc_gcr_read(u32 offset, u32 *data)
++{
++	return -EINVAL;
++}
++
++static inline int intel_pmc_gcr_write(u32 offset, u32 data)
++{
++	return -EINVAL;
++}
++
++static inline int intel_pmc_gcr_update(u32 offset, u32 mask, u32 val)
++{
++	return -EINVAL;
++}
++
+ #endif /*CONFIG_INTEL_PMC_IPC*/
+ 
+ #endif
+diff --git a/drivers/platform/x86/intel_pmc_ipc.c b/drivers/platform/x86/intel_pmc_ipc.c
+index 0a33592..8b7fef0 100644
+--- a/drivers/platform/x86/intel_pmc_ipc.c
++++ b/drivers/platform/x86/intel_pmc_ipc.c
+@@ -127,6 +127,7 @@ static struct intel_pmc_ipc_dev {
+ 
+ 	/* gcr */
+ 	resource_size_t gcr_base;
++	void __iomem *gcr_mem_base;
+ 	int gcr_size;
+ 	bool has_gcr_regs;
+ 
+@@ -199,6 +200,118 @@ static inline u64 gcr_data_readq(u32 offset)
+ 	return readq(ipcdev.ipc_base + offset);
+ }
+ 
++static inline int is_gcr_valid(u32 offset)
++{
++	if (!ipcdev.has_gcr_regs)
++		return -EACCES;
++
++	if (offset > PLAT_RESOURCE_GCR_SIZE)
++		return -EINVAL;
++
++	return 0;
++}
++
++/**
++ * intel_pmc_gcr_read() - Read PMC GCR register
++ * @offset:	offset of GCR register from GCR address base
++ * @data:	data pointer for storing the register output
++ *
++ * Reads the PMC GCR register of given offset.
++ *
++ * Return:	negative value on error or 0 on success.
++ */
++int intel_pmc_gcr_read(u32 offset, u32 *data)
++{
++	int ret;
++
++	mutex_lock(&ipclock);
++
++	ret = is_gcr_valid(offset);
++	if (ret < 0) {
++		mutex_unlock(&ipclock);
++		return ret;
++	}
++
++	*data = readl(ipcdev.gcr_mem_base + offset);
++
++	mutex_unlock(&ipclock);
++
++	return 0;
++}
++EXPORT_SYMBOL_GPL(intel_pmc_gcr_read);
++
++/**
++ * intel_pmc_gcr_write() - Write PMC GCR register
++ * @offset:	offset of GCR register from GCR address base
++ * @data:	register update value
++ *
++ * Writes the PMC GCR register of given offset with given
++ * value
++ *
++ * Return:	negative value on error or 0 on success.
++ */
++int intel_pmc_gcr_write(u32 offset, u32 data)
++{
++	int ret;
++
++	mutex_lock(&ipclock);
++
++	ret = is_gcr_valid(offset);
++	if (ret < 0) {
++		mutex_unlock(&ipclock);
++		return ret;
++	}
++
++	writel(data, ipcdev.gcr_mem_base + offset);
++
++	mutex_unlock(&ipclock);
++
++	return 0;
++}
++EXPORT_SYMBOL_GPL(intel_pmc_gcr_write);
++
++/**
++ * intel_pmc_gcr_update() - Update PMC GCR register bits
++ * @offset:	offset of GCR register from GCR address base
++ * @mask:	bit mask for update operation
++ * @val:	update value
++ *
++ * Updates the bits of given GCR register as specified by
++ * @mask and @val
++ *
++ * Return:	negative value on error or 0 on success.
++ */
++int intel_pmc_gcr_update(u32 offset, u32 mask, u32 val)
++{
++	u32 orig, tmp;
++	int ret = 0;
++
++	mutex_lock(&ipclock);
++
++	ret = is_gcr_valid(offset);
++	if (ret < 0)
++		goto gcr_update_err;
++
++	orig = readl(ipcdev.gcr_mem_base + offset);
++
++	tmp = orig & ~mask;
++	tmp |= val & mask;
++
++	writel(tmp, ipcdev.gcr_mem_base + offset);
++
++	tmp = readl(ipcdev.gcr_mem_base + offset);
++
++	if ((tmp & mask) != (val & mask)) {
++		ret = -EIO;
++		goto gcr_update_err;
++	}
++
++gcr_update_err:
++	mutex_unlock(&ipclock);
++	return ret;
++}
++EXPORT_SYMBOL_GPL(intel_pmc_gcr_update);
++
+ static int intel_pmc_ipc_check_status(void)
+ {
+ 	int status;
+@@ -747,6 +860,7 @@ static int ipc_plat_get_res(struct platform_device *pdev)
+ 	ipcdev.ipc_base = addr;
+ 
+ 	ipcdev.gcr_base = res->start + PLAT_RESOURCE_GCR_OFFSET;
++	ipcdev.gcr_mem_base = addr + PLAT_RESOURCE_GCR_OFFSET;
+ 	ipcdev.gcr_size = PLAT_RESOURCE_GCR_SIZE;
+ 	dev_info(&pdev->dev, "ipc res: %pR\n", res);
+ 
 -- 
 2.7.4
 
