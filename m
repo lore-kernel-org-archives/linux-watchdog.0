@@ -1,82 +1,65 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:38198 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:58185 "EHLO
         bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932082AbdDDQjQ (ORCPT
+        with ESMTP id S1752603AbdDDQwA (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 4 Apr 2017 12:39:16 -0400
+        Tue, 4 Apr 2017 12:52:00 -0400
 Subject: Re: [PATCH] watchdog: core: Make use of
  devm_register_reboot_notifier()
-To: Andrey Smirnov <andrew.smirnov@gmail.com>,
-        linux-watchdog@vger.kernel.org
+To: Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Andrey Smirnov <andrew.smirnov@gmail.com>
 References: <20170404141048.16828-1-andrew.smirnov@gmail.com>
-Cc: cphealy@gmail.com, linux-kernel@vger.kernel.org,
+ <CAHp75VfeNMQNwdW0VYmAYic6RgV3nUXO8r7URPxiqWW16HzS4w@mail.gmail.com>
+Cc: linux-watchdog@vger.kernel.org, Chris Healy <cphealy@gmail.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
         Wim Van Sebroeck <wim@iguana.be>,
         Andrew Morton <akpm@linux-foundation.org>
 From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <34972d36-74bc-7c9a-4ae1-67d484dab41a@roeck-us.net>
-Date: Tue, 4 Apr 2017 09:39:06 -0700
+Message-ID: <d42ffbf3-d06f-a36a-f220-eba7b88a56a3@roeck-us.net>
+Date: Tue, 4 Apr 2017 09:51:57 -0700
 MIME-Version: 1.0
-In-Reply-To: <20170404141048.16828-1-andrew.smirnov@gmail.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+In-Reply-To: <CAHp75VfeNMQNwdW0VYmAYic6RgV3nUXO8r7URPxiqWW16HzS4w@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 04/04/2017 07:10 AM, Andrey Smirnov wrote:
-> Save a bit of cleanup code by leveraging newly added
-> devm_register_reboot_notifier().
+On 04/04/2017 08:47 AM, Andy Shevchenko wrote:
+> On Tue, Apr 4, 2017 at 5:10 PM, Andrey Smirnov <andrew.smirnov@gmail.com> wrote:
+>> Save a bit of cleanup code by leveraging newly added
+>> devm_register_reboot_notifier().
 >
-> Cc: cphealy@gmail.com
-> Cc: linux-kernel@vger.kernel.org
-> Cc: Wim Van Sebroeck <wim@iguana.be>
-> Cc: Guenter Roeck <linux@roeck-us.net>
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
-> ---
+>> @@ -247,7 +247,8 @@ static int __watchdog_register_device(struct watchdog_device *wdd)
+>>         if (test_bit(WDOG_STOP_ON_REBOOT, &wdd->status)) {
+>>                 wdd->reboot_nb.notifier_call = watchdog_reboot_notifier;
+>>
+>> -               ret = register_reboot_notifier(&wdd->reboot_nb);
 >
-> All:
+>> +               ret = devm_register_reboot_notifier(wdd->parent,
+>> +                                                   &wdd->reboot_nb);
 >
-> This patch is a follow up to this thread
-> https://lkml.org/lkml/2017/3/20/671. I am not sure what's the best way
-> to manager cross-tree dependency here, so, if there's something to be
-> done, please let me know.
+> I'm not sure it's logically correct. Perhaps binding to the actual
+> watchdog device would be better.
+> Though, Guenter can correct me.
 >
-> Thanks,
-> Andrey Smirnov
->
->  drivers/watchdog/watchdog_core.c | 6 ++----
->  1 file changed, 2 insertions(+), 4 deletions(-)
->
-> diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
-> index 74265b2..9d868f1 100644
-> --- a/drivers/watchdog/watchdog_core.c
-> +++ b/drivers/watchdog/watchdog_core.c
-> @@ -247,7 +247,8 @@ static int __watchdog_register_device(struct watchdog_device *wdd)
->  	if (test_bit(WDOG_STOP_ON_REBOOT, &wdd->status)) {
->  		wdd->reboot_nb.notifier_call = watchdog_reboot_notifier;
->
-> -		ret = register_reboot_notifier(&wdd->reboot_nb);
-> +		ret = devm_register_reboot_notifier(wdd->parent,
-> +						    &wdd->reboot_nb);
 
-I like the idea, but unfortunately wdd->parent can be NULL. Also, this would result
-in the notifier being removed _after_ the watchdog device has been removed, which
-would be bad as well.
+As mentioned in my other reply, it doesn't work since wdd->parent can be NULL.
+It might be possible to move the code into watchdog_dev_register() and tie it
+to the watchdog device, but I have not explored what that would require.
 
 Guenter
 
->  		if (ret) {
->  			pr_err("watchdog%d: Cannot register reboot notifier (%d)\n",
->  			       wdd->id, ret);
-> @@ -302,9 +303,6 @@ static void __watchdog_unregister_device(struct watchdog_device *wdd)
->  	if (wdd->ops->restart)
->  		unregister_restart_handler(&wdd->restart_nb);
+> Could it be one line after all?
 >
-> -	if (test_bit(WDOG_STOP_ON_REBOOT, &wdd->status))
-> -		unregister_reboot_notifier(&wdd->reboot_nb);
-> -
->  	watchdog_dev_unregister(wdd);
->  	ida_simple_remove(&watchdog_ida, wdd->id);
->  }
+>>                 if (ret) {
+>>                         pr_err("watchdog%d: Cannot register reboot notifier (%d)\n",
+>>                                wdd->id, ret);
+>> @@ -302,9 +303,6 @@ static void __watchdog_unregister_device(struct watchdog_device *wdd)
+>>         if (wdd->ops->restart)
+>>                 unregister_restart_handler(&wdd->restart_nb);
+>>
+>> -       if (test_bit(WDOG_STOP_ON_REBOOT, &wdd->status))
+>> -               unregister_reboot_notifier(&wdd->reboot_nb);
+>> -
 >
 
