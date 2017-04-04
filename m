@@ -1,41 +1,54 @@
-Return-path: <robherring2@gmail.com>
-Date: Mon, 3 Apr 2017 11:10:09 -0500
-From: Rob Herring <robh@kernel.org>
-To: Yannick Fertre <yannick.fertre@st.com>
-Cc: Wim Van Sebroeck <wim@iguana.be>, Guenter Roeck <linux@roeck-us.net>,
-	Alexandre TORGUE <alexandre.torgue@st.com>,
-	Benjamin Gaignard <benjamin.gaignard@st.com>,
-	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Philippe Cornu <philippe.cornu@st.com>,
-	Gabriel FERNANDEZ <gabriel.fernandez@st.com>,
-	devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH v4 1/5] dt-bindings: watchdog: Document STM32 IWDG
- bindings
-Message-ID: <20170403161009.zkddbn4elfakbqnq@rob-hp-laptop>
-References: <1490886926-20585-1-git-send-email-yannick.fertre@st.com>
- <1490886926-20585-2-git-send-email-yannick.fertre@st.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1490886926-20585-2-git-send-email-yannick.fertre@st.com>
+Return-path: <sathyanarayanan.kuppuswamy@linux.intel.com>
+From: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
+To: andy@infradead.org,
+	qipeng.zha@intel.com,
+	dvhart@infradead.org,
+	linux@roeck-us.net
+Cc: wim@iguana.be,
+	sathyaosid@gmail.com,
+	david.e.box@linux.intel.com,
+	rajneesh.bhardwaj@intel.com,
+	sathyanarayanan.kuppuswamy@linux.intel.com,
+	platform-driver-x86@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-watchdog@vger.kernel.org
+Subject: [PATCH v5 1/6] platform/x86: intel_pmc_ipc: fix gcr offset
+Date: Mon,  3 Apr 2017 17:24:29 -0700
+Message-Id: <bf5a86829e9403d93e85270b2898b3c548417a05.1491264643.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+In-Reply-To: <CAENHMvOyzbhDQzvpYFcxC9mvsfDGrco9RMy+rU=faT6RN_uW3A@mail.gmail.com>
+References: <CAENHMvOyzbhDQzvpYFcxC9mvsfDGrco9RMy+rU=faT6RN_uW3A@mail.gmail.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On Thu, Mar 30, 2017 at 05:15:22PM +0200, Yannick Fertre wrote:
-> This adds documentation of device tree bindings for the STM32 IWDG
-> (Independent WatchDoG).
-> 
-> Signed-off-by: Yannick Fertre <yannick.fertre@st.com>
-> 
-> Author:    Yannick Fertre <yannick.fertre@st.com>
+According to Broxton APL PMC spec, gcr mem region starts
+at offset 0x1000 from ipc mem base address. In this driver,
+PLAT_RESOURCE_GCR_OFFSET macro defines the offset of GCR
+memory region from IPC mem region. So we should use 0x1000(4K)
+as GCR offset. But currently this driver uses 0x1008 as GCT
+offset.This patch fixes this issue.
 
-This shouldn't be here.
+Signed-off-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
+---
+ drivers/platform/x86/intel_pmc_ipc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> ---
->  .../devicetree/bindings/watchdog/st,stm32-iwdg.txt        | 15 +++++++++++++++
->  1 file changed, 15 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/watchdog/st,stm32-iwdg.txt
+Changes since v4:
+ *  None
 
-Otherwise,
+Changes since v3:
+ * Updated the commit history
 
-Acked-by: Rob Herring <robh@kernel.org> 
+diff --git a/drivers/platform/x86/intel_pmc_ipc.c b/drivers/platform/x86/intel_pmc_ipc.c
+index 0651d47..0a33592 100644
+--- a/drivers/platform/x86/intel_pmc_ipc.c
++++ b/drivers/platform/x86/intel_pmc_ipc.c
+@@ -82,7 +82,7 @@
+ /* exported resources from IFWI */
+ #define PLAT_RESOURCE_IPC_INDEX		0
+ #define PLAT_RESOURCE_IPC_SIZE		0x1000
+-#define PLAT_RESOURCE_GCR_OFFSET	0x1008
++#define PLAT_RESOURCE_GCR_OFFSET	0x1000
+ #define PLAT_RESOURCE_GCR_SIZE		0x1000
+ #define PLAT_RESOURCE_BIOS_DATA_INDEX	1
+ #define PLAT_RESOURCE_BIOS_IFACE_INDEX	2
+-- 
+2.7.4
