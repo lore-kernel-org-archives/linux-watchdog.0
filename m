@@ -1,120 +1,59 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-qk0-f195.google.com ([209.85.220.195]:35431 "EHLO
-        mail-qk0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753540AbdDDNx6 (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 4 Apr 2017 09:53:58 -0400
-MIME-Version: 1.0
-In-Reply-To: <83d48f6907b3392e38ee251cf9fa6d518f139288.1491264643.git.sathyanarayanan.kuppuswamy@linux.intel.com>
-References: <bf5a86829e9403d93e85270b2898b3c548417a05.1491264643.git.sathyanarayanan.kuppuswamy@linux.intel.com>
- <CAENHMvOyzbhDQzvpYFcxC9mvsfDGrco9RMy+rU=faT6RN_uW3A@mail.gmail.com> <83d48f6907b3392e38ee251cf9fa6d518f139288.1491264643.git.sathyanarayanan.kuppuswamy@linux.intel.com>
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Date: Tue, 4 Apr 2017 16:53:57 +0300
-Message-ID: <CAHp75VcNucpd17Z8gsoxW7qDsyR7UkJG4n-82J6CpM3j_3V_Ew@mail.gmail.com>
-Subject: Re: [PATCH v5 2/6] platform/x86: intel_pmc_ipc: Add pmc gcr
+Received: from mga09.intel.com ([134.134.136.24]:50658 "EHLO mga09.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753288AbdDDUSs (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 4 Apr 2017 16:18:48 -0400
+Reply-To: sathyanarayanan.kuppuswamy@linux.intel.com
+Subject: Re: [PATCH v4 2/5] platform/x86: intel_pmc_ipc: Add pmc gcr
  read/write/update api's
-To: Kuppuswamy Sathyanarayanan
-        <sathyanarayanan.kuppuswamy@linux.intel.com>
+References: <e537ff68732d86418982349624fd6de741bccc9b.1491002056.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+ <20170331133728.GA23725@rajaneesh-OptiPlex-9010>
+ <1ca7187132bd2b98ca87d0829a3c76022f041924.1491002056.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+ <CAHp75Vc0Mjk81TLDVwr9jkeeHqCvJ729aQLqg09zov7--AjKyw@mail.gmail.com>
+ <CAENHMvPLE5KZMZ+NoU5fmNzDEoONz=SeAaSC=q8GfhFEHFOJ6g@mail.gmail.com>
+ <CAHp75VdZmQyo8ZwLgbybzUvEzYj+upxR74Ah0ViVBB=Ykk+Dsw@mail.gmail.com>
+To: Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Sathyanarayanan Kuppuswamy Natarajan <sathyaosid@gmail.com>
 Cc: Andy Shevchenko <andy@infradead.org>,
         Zha Qipeng <qipeng.zha@intel.com>,
         "dvhart@infradead.org" <dvhart@infradead.org>,
         Guenter Roeck <linux@roeck-us.net>,
         Wim Van Sebroeck <wim@iguana.be>,
-        Sathyanarayanan Kuppuswamy Natarajan <sathyaosid@gmail.com>,
         David Box <david.e.box@linux.intel.com>,
         Rajneesh Bhardwaj <rajneesh.bhardwaj@intel.com>,
         Platform Driver <platform-driver-x86@vger.kernel.org>,
         "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
         linux-watchdog@vger.kernel.org
-Content-Type: text/plain; charset=UTF-8
+From: sathyanarayanan kuppuswamy
+        <sathyanarayanan.kuppuswamy@linux.intel.com>
+Message-ID: <c158bcb3-c6c2-3f81-c38b-6a63e6c1af5e@linux.intel.com>
+Date: Tue, 4 Apr 2017 13:14:37 -0700
+MIME-Version: 1.0
+In-Reply-To: <CAHp75VdZmQyo8ZwLgbybzUvEzYj+upxR74Ah0ViVBB=Ykk+Dsw@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, Apr 4, 2017 at 3:24 AM, Kuppuswamy Sathyanarayanan
-<sathyanarayanan.kuppuswamy@linux.intel.com> wrote:
-> This patch adds API's to read/write/update PMC GC registers.
-> PMC dependent devices like iTCO_wdt, Telemetry has requirement
-> to acces GCR registers. These API's can be used for this
-> purpose.
+Hi Andy,
 
-> +/* GCR reg offsets from gcr base*/
-> +#define PMC_GCR_PMC_CFG_REG            0x08
-> +
 
-> --- a/drivers/platform/x86/intel_pmc_ipc.c
-> +++ b/drivers/platform/x86/intel_pmc_ipc.c
-> @@ -127,6 +127,7 @@ static struct intel_pmc_ipc_dev {
+On 04/04/2017 06:23 AM, Andy Shevchenko wrote:
+> On Mon, Apr 3, 2017 at 4:51 AM, Sathyanarayanan Kuppuswamy Natarajan
+> <sathyaosid@gmail.com> wrote:
 >
->         /* gcr */
->         resource_size_t gcr_base;
-
-> +       void __iomem *gcr_mem_base;
->         int gcr_size;
-
-Rearrange those lines to make __iomem pointer latter.
-
-> +static inline int is_gcr_valid(u32 offset)
-
-Same comment as previously. It should take a pointer to struct
-intel_pmc_ipc_dev as a parameter.
-
-> +/**
-> + * intel_pmc_gcr_write() - Write PMC GCR register
-> + * @offset:    offset of GCR register from GCR address base
-> + * @data:      register update value
-> + *
-> + * Writes the PMC GCR register of given offset with given
-> + * value
-
-You have to use proper punctuation in the sentences in full Description section.
-
-> +/**
-> + * intel_pmc_gcr_update() - Update PMC GCR register bits
-> + * @offset:    offset of GCR register from GCR address base
-> + * @mask:      bit mask for update operation
-> + * @val:       update value
-> + *
-> + * Updates the bits of given GCR register as specified by
-> + * @mask and @val
-
-Ditto.
-
-> +int intel_pmc_gcr_update(u32 offset, u32 mask, u32 val)
-> +{
-
-> +       u32 orig, tmp;
-
-One of them is redundant.
-
-I would go just with
-u32 value;
-
-> +       writel(tmp, ipcdev.gcr_mem_base + offset);
-> +
-> +       tmp = readl(ipcdev.gcr_mem_base + offset);
-
-> +
-
-Redundant.
-
-> +       if ((tmp & mask) != (val & mask)) {
-
-Why?! It the a case when writel() will fail? Needs to be commented.
-
-> +               ret = -EIO;
-> +               goto gcr_update_err;
-> +       }
-> +
-
-> +gcr_update_err:
-
-The keyword  'unlock' is missed in the label name.
-
-> +       mutex_unlock(&ipclock);
-> +       return ret;
-> +}
-> +EXPORT_SYMBOL_GPL(intel_pmc_gcr_update);
+>>>> +static inline int is_gcr_valid(u32 offset)
+>>> Pointer to ipcdev should be a parameter to this function.
+>> But ipcdev is a static variable, visible across this file. So there is
+>> no point in passing it as parameter.
+> That's one of refactoring needed for this library. You need to pass a
+> pointer to all internal functions and where it's possible to avoid
+> reference to a global variable.
+Yes, I have included this into the list of issues that needs to fixed 
+during the refactoring effort.
+>
 
 -- 
-With Best Regards,
-Andy Shevchenko
+Sathyanarayanan Kuppuswamy
+Android kernel developer
+
