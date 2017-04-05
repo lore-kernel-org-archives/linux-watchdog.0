@@ -1,87 +1,148 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:36269 "EHLO mga02.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1756075AbdDEW6e (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 5 Apr 2017 18:58:34 -0400
-From: Kuppuswamy Sathyanarayanan
-        <sathyanarayanan.kuppuswamy@linux.intel.com>
-To: andy@infradead.org, qipeng.zha@intel.com, dvhart@infradead.org,
-        linux@roeck-us.net
-Cc: wim@iguana.be, sathyaosid@gmail.com, david.e.box@linux.intel.com,
-        rajneesh.bhardwaj@intel.com,
-        sathyanarayanan.kuppuswamy@linux.intel.com,
-        platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-watchdog@vger.kernel.org
-Subject: [PATCH v6 6/6] platform/x86: intel_pmc_ipc: use gcr mem base for S0ix counter read
-Date: Wed,  5 Apr 2017 15:54:24 -0700
-Message-Id: <deea42c812bb7b5a61ba76070f3bfbede9d31cd4.1491428146.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+Return-path: <sathyanarayanan.kuppuswamy@linux.intel.com>
+From: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
+To: andy@infradead.org,
+	qipeng.zha@intel.com,
+	dvhart@infradead.org,
+	linux@roeck-us.net
+Cc: wim@iguana.be,
+	sathyaosid@gmail.com,
+	david.e.box@linux.intel.com,
+	rajneesh.bhardwaj@intel.com,
+	sathyanarayanan.kuppuswamy@linux.intel.com,
+	platform-driver-x86@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-watchdog@vger.kernel.org
+Subject: [PATCH v6 4/6] watchdog: iTCO_wdt: Add PMC specific noreboot update api
+Date: Wed,  5 Apr 2017 15:54:22 -0700
+Message-Id: <686dfb634cc072d66080f6983900eefde8d85b5e.1491428146.git.sathyanarayanan.kuppuswamy@linux.intel.com>
 In-Reply-To: <3e7ca77c-2be5-5f89-f51f-faaca9f2d9ac@linux.intel.com>
 References: <3e7ca77c-2be5-5f89-f51f-faaca9f2d9ac@linux.intel.com>
 In-Reply-To: <463a23bb1f44098dd0fe506346bae71282009e05.1491428146.git.sathyanarayanan.kuppuswamy@linux.intel.com>
 References: <463a23bb1f44098dd0fe506346bae71282009e05.1491428146.git.sathyanarayanan.kuppuswamy@linux.intel.com>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+List-ID: <linux-watchdog@vger.kernel.org>
 
-To maintain the uniformity in accessing GCR registers, this patch
-modifies the S0ix counter read function to use GCR address base
-instead of ipc address base.
+In some SoCs, setting noreboot bit needs modification to
+PMC GC registers. But not all PMC drivers allow other drivers
+to memory map their GC region. This could create mem request
+conflict in watchdog driver. So this patch adds facility to allow
+PMC drivers to pass noreboot update function to watchdog
+drivers via platform data.
 
 Signed-off-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
-Reviewed-by: Rajneesh Bhardwaj <rajneesh.bhardwaj@intel.com>
-Tested-by: Shanth Murthy <shanth.murthy@intel.com>
+Acked-by: Guenter Roeck <linux@roeck-us.net>
 ---
- arch/x86/include/asm/intel_pmc_ipc.h |  2 ++
- drivers/platform/x86/intel_pmc_ipc.c | 10 +++-------
- 2 files changed, 5 insertions(+), 7 deletions(-)
+ drivers/watchdog/iTCO_wdt.c            | 20 ++++++++++++++------
+ include/linux/platform_data/itco_wdt.h |  4 ++++
+ 2 files changed, 18 insertions(+), 6 deletions(-)
 
-diff --git a/arch/x86/include/asm/intel_pmc_ipc.h b/arch/x86/include/asm/intel_pmc_ipc.h
-index 8402efe..fac89eb 100644
---- a/arch/x86/include/asm/intel_pmc_ipc.h
-+++ b/arch/x86/include/asm/intel_pmc_ipc.h
-@@ -25,6 +25,8 @@
- 
- /* GCR reg offsets from gcr base*/
- #define PMC_GCR_PMC_CFG_REG		0x08
-+#define PMC_GCR_TELEM_DEEP_S0IX_REG	0x78
-+#define PMC_GCR_TELEM_SHLW_S0IX_REG	0x80
- 
- #if IS_ENABLED(CONFIG_INTEL_PMC_IPC)
- 
-diff --git a/drivers/platform/x86/intel_pmc_ipc.c b/drivers/platform/x86/intel_pmc_ipc.c
-index 173940f..3c9de18 100644
---- a/drivers/platform/x86/intel_pmc_ipc.c
-+++ b/drivers/platform/x86/intel_pmc_ipc.c
-@@ -57,10 +57,6 @@
- #define IPC_WRITE_BUFFER	0x80
- #define IPC_READ_BUFFER		0x90
- 
--/* PMC Global Control Registers */
--#define GCR_TELEM_DEEP_S0IX_OFFSET	0x1078
--#define GCR_TELEM_SHLW_S0IX_OFFSET	0x1080
--
- /* Residency with clock rate at 19.2MHz to usecs */
- #define S0IX_RESIDENCY_IN_USECS(d, s)		\
- ({						\
-@@ -202,7 +198,7 @@ static inline u32 ipc_data_readl(u32 offset)
- 
- static inline u64 gcr_data_readq(u32 offset)
- {
--	return readq(ipcdev.ipc_base + offset);
-+	return readq(ipcdev.gcr_mem_base + offset);
+Changes since v5:
+ * Added priv_data to pass private data to no_reboot_bit update function.
+ * Changed update_noreboot_flag() to update_no_reboot_bit
+
+Changes since v4:
+ * Fixed some style issues.
+ * used false for 0 and true for 1 in update_noreboot_flag function.
+
+Changes since v3:
+ * Rebased on top of latest.
+
+Changes since v2: 
+ * Removed use of PMC API's directly in watchdog driver.
+ * Added update_noreboot_flag to handle no IPC PMC compatibility
+   issue mentioned by Guenter.
+
+diff --git a/drivers/watchdog/iTCO_wdt.c b/drivers/watchdog/iTCO_wdt.c
+index d8768a2..3f00029 100644
+--- a/drivers/watchdog/iTCO_wdt.c
++++ b/drivers/watchdog/iTCO_wdt.c
+@@ -106,6 +106,8 @@ struct iTCO_wdt_private {
+ 	struct pci_dev *pci_dev;
+ 	/* whether or not the watchdog has been suspended */
+ 	bool suspended;
++	/* no reboot API private data */
++	void *no_reboot_priv;
+ 	/* no reboot update function pointer */
+ 	int (*update_no_reboot_bit)(void *p, bool set);
+ };
+@@ -225,6 +227,8 @@ void iTCO_wdt_no_reboot_bit_setup(struct iTCO_wdt_private *p)
+ 		p->update_no_reboot_bit = update_no_reboot_bit_pci;
+ 	else
+ 		p->update_no_reboot_bit = update_no_reboot_bit_def;
++
++	p->no_reboot_priv = p;
  }
  
- static inline int is_gcr_valid(u32 offset)
-@@ -906,8 +902,8 @@ int intel_pmc_s0ix_counter_read(u64 *data)
- 	if (!ipcdev.has_gcr_regs)
- 		return -EACCES;
+ static int iTCO_wdt_start(struct watchdog_device *wd_dev)
+@@ -237,7 +241,7 @@ static int iTCO_wdt_start(struct watchdog_device *wd_dev)
+ 	iTCO_vendor_pre_start(p->smi_res, wd_dev->timeout);
  
--	deep = gcr_data_readq(GCR_TELEM_DEEP_S0IX_OFFSET);
--	shlw = gcr_data_readq(GCR_TELEM_SHLW_S0IX_OFFSET);
-+	deep = gcr_data_readq(PMC_GCR_TELEM_DEEP_S0IX_REG);
-+	shlw = gcr_data_readq(PMC_GCR_TELEM_SHLW_S0IX_REG);
+ 	/* disable chipset's NO_REBOOT bit */
+-	if (p->update_no_reboot_bit(p, false)) {
++	if (p->update_no_reboot_bit(p->no_reboot_priv, false)) {
+ 		spin_unlock(&p->io_lock);
+ 		pr_err("failed to reset NO_REBOOT flag, reboot disabled by hardware/BIOS\n");
+ 		return -EIO;
+@@ -278,7 +282,7 @@ static int iTCO_wdt_stop(struct watchdog_device *wd_dev)
+ 	val = inw(TCO1_CNT(p));
  
- 	*data = S0IX_RESIDENCY_IN_USECS(deep, shlw);
+ 	/* Set the NO_REBOOT bit to prevent later reboots, just for sure */
+-	p->update_no_reboot_bit(p, true);
++	p->update_no_reboot_bit(p->no_reboot_priv, true);
  
+ 	spin_unlock(&p->io_lock);
+ 
+@@ -442,14 +446,18 @@ static int iTCO_wdt_probe(struct platform_device *pdev)
+ 
+ 	p->iTCO_version = pdata->version;
+ 	p->pci_dev = to_pci_dev(dev->parent);
++	p->no_reboot_priv = pdata->no_reboot_priv;
+ 
+-	iTCO_wdt_no_reboot_bit_setup(p);
++	if (pdata->update_no_reboot_bit)
++		p->update_no_reboot_bit = pdata->update_no_reboot_bit;
++	else
++		iTCO_wdt_no_reboot_bit_setup(p);
+ 
+ 	/*
+ 	 * Get the Memory-Mapped GCS or PMC register, we need it for the
+ 	 * NO_REBOOT flag (TCO v2 and v3).
+ 	 */
+-	if (p->iTCO_version >= 2) {
++	if (p->iTCO_version >= 2 && !pdata->update_no_reboot_bit) {
+ 		p->gcs_pmc_res = platform_get_resource(pdev,
+ 						       IORESOURCE_MEM,
+ 						       ICH_RES_MEM_GCS_PMC);
+@@ -459,14 +467,14 @@ static int iTCO_wdt_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	/* Check chipset's NO_REBOOT bit */
+-	if (p->update_no_reboot_bit(p, false) &&
++	if (p->update_no_reboot_bit(p->no_reboot_priv, false) &&
+ 	    iTCO_vendor_check_noreboot_on()) {
+ 		pr_info("unable to reset NO_REBOOT flag, device disabled by hardware/BIOS\n");
+ 		return -ENODEV;	/* Cannot reset NO_REBOOT bit */
+ 	}
+ 
+ 	/* Set the NO_REBOOT bit to prevent later reboots, just for sure */
+-	p->update_no_reboot_bit(p, true);
++	p->update_no_reboot_bit(p->no_reboot_priv, true);
+ 
+ 	/* The TCO logic uses the TCO_EN bit in the SMI_EN register */
+ 	if (!devm_request_region(dev, p->smi_res->start,
+diff --git a/include/linux/platform_data/itco_wdt.h b/include/linux/platform_data/itco_wdt.h
+index f16542c..0e95527 100644
+--- a/include/linux/platform_data/itco_wdt.h
++++ b/include/linux/platform_data/itco_wdt.h
+@@ -14,6 +14,10 @@
+ struct itco_wdt_platform_data {
+ 	char name[32];
+ 	unsigned int version;
++	/* private data to be passed to update_no_reboot_bit API */
++	void *no_reboot_priv;
++	/* pointer for platform specific no reboot update function */
++	int (*update_no_reboot_bit)(void *priv, bool set);
+ };
+ 
+ #endif /* _ITCO_WDT_H_ */
 -- 
 2.7.4
-
