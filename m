@@ -1,188 +1,131 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail7.pr.hu ([87.242.0.7]:50955 "EHLO mail7.pr.hu"
+Received: from mx1.redhat.com ([209.132.183.28]:58904 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751716AbdDCHwU (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 3 Apr 2017 03:52:20 -0400
-From: Zoltan Boszormenyi <zboszor@pr.hu>
-To: linux-usb@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        linux-i2c@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        Paul Menzel <paulepanter@users.sourceforge.net>,
-        Christian Fetzer <fetzer.ch@gmail.com>,
-        Jean Delvare <jdelvare@suse.com>,
-        Nehal Shah <nehal-bakulchandra.shah@amd.com>,
-        Tim Small <tim@seoss.co.uk>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Zoltan Boszormenyi <zboszor@pr.hu>
-Subject: [PATCH 2/3 v2] i2c: i2c-piix4: Use the common mutex
-Date: Mon,  3 Apr 2017 09:51:32 +0200
-Message-Id: <20170403075133.12343-3-zboszor@pr.hu>
-In-Reply-To: <20170403075133.12343-1-zboszor@pr.hu>
-References: <<20170401110223.12056-1-zboszor@pr.hu>>
- <20170403075133.12343-1-zboszor@pr.hu>
+        id S1756102AbdDERBr (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Wed, 5 Apr 2017 13:01:47 -0400
+Subject: [PATCH 33/38] Annotate hardware config module parameters in
+ drivers/watchdog/
+From: David Howells <dhowells@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: gnomes@lxorguk.ukuu.org.uk, linux-watchdog@vger.kernel.org,
+        Zwane Mwaikambo <zwanem@gmail.com>,
+        linux-security-module@vger.kernel.org, dhowells@redhat.com,
+        Wim Van Sebroeck <wim@iguana.be>, keyrings@vger.kernel.org,
+        gregkh@linuxfoundation.org, Guenter Roeck <linux@roeck-us.net>
+Date: Wed, 05 Apr 2017 18:01:44 +0100
+Message-ID: <149141170399.29162.13331435039842686737.stgit@warthog.procyon.org.uk>
+In-Reply-To: <149141141298.29162.5612793122429261720.stgit@warthog.procyon.org.uk>
+References: <149141141298.29162.5612793122429261720.stgit@warthog.procyon.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Use the common mutex from driver/usb/host/pci-quirks.c in the
-i2c-piix4 driver to synchronize access to the I/O port pair
-0xcd6 / 0xcd7.
+When the kernel is running in secure boot mode, we lock down the kernel to
+prevent userspace from modifying the running kernel image.  Whilst this
+includes prohibiting access to things like /dev/mem, it must also prevent
+access by means of configuring driver modules in such a way as to cause a
+device to access or modify the kernel image.
 
-At the same time, remove the request_region() call to reserve
-these I/O ports, so the sp5100_tco watchdog driver can also
-load. The mutex is enough to protect the I/O port accesses.
-This is an old regression in Linux 4.4-rc4, caused by:
+To this end, annotate module_param* statements that refer to hardware
+configuration and indicate for future reference what type of parameter they
+specify.  The parameter parser in the core sees this information and can
+skip such parameters with an error message if the kernel is locked down.
+The module initialisation then runs as normal, but just sees whatever the
+default values for those parameters is.
 
-v2: Explicit extern reference for sb800_mutex
+Note that we do still need to do the module initialisation because some
+drivers have viable defaults set in case parameters aren't specified and
+some drivers support automatic configuration (e.g. PNP or PCI) in addition
+to manually coded parameters.
 
-commit 2fee61d22e606fc99ade9079fda15fdee83ec33e
-Author: Christian Fetzer <fetzer.ch@gmail.com>
-Date:   Thu Nov 19 20:13:48 2015 +0100
+This patch annotates drivers in drivers/watchdog/.
 
-    i2c: piix4: Add support for multiplexed main adapter in SB800
-
-Signed-off-by: Zoltan Boszormenyi <zboszor@pr.hu>
+Suggested-by: Alan Cox <gnomes@lxorguk.ukuu.org.uk>
+Signed-off-by: David Howells <dhowells@redhat.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+cc: Wim Van Sebroeck <wim@iguana.be>
+cc: Zwane Mwaikambo <zwanem@gmail.com>
+cc: linux-watchdog@vger.kernel.org
 ---
- drivers/i2c/busses/i2c-piix4.c | 43 +++++++++++++-----------------------------
- 1 file changed, 13 insertions(+), 30 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
-index c21ca7b..6c56e96 100644
---- a/drivers/i2c/busses/i2c-piix4.c
-+++ b/drivers/i2c/busses/i2c-piix4.c
-@@ -144,10 +144,10 @@ static const struct dmi_system_id piix4_dmi_ibm[] = {
+ drivers/watchdog/cpu5wdt.c     |    2 +-
+ drivers/watchdog/eurotechwdt.c |    4 ++--
+ drivers/watchdog/pc87413_wdt.c |    2 +-
+ drivers/watchdog/sc1200wdt.c   |    2 +-
+ drivers/watchdog/wdt.c         |    4 ++--
+ 5 files changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/watchdog/cpu5wdt.c b/drivers/watchdog/cpu5wdt.c
+index 6d03e8e30f8b..6c3f78e45c26 100644
+--- a/drivers/watchdog/cpu5wdt.c
++++ b/drivers/watchdog/cpu5wdt.c
+@@ -289,7 +289,7 @@ MODULE_DESCRIPTION("sma cpu5 watchdog driver");
+ MODULE_SUPPORTED_DEVICE("sma cpu5 watchdog");
+ MODULE_LICENSE("GPL");
  
- /*
-  * SB800 globals
-- * piix4_mutex_sb800 protects piix4_port_sel_sb800 and the pair
-- * of I/O ports at SB800_PIIX4_SMB_IDX.
-+ * sb800_mutex in drivers/usb/host/pci-quirks.c protects
-+ * piix4_port_sel_sb800 and the pair of I/O ports at SB800_PIIX4_SMB_IDX.
-  */
--static DEFINE_MUTEX(piix4_mutex_sb800);
-+extern struct mutex sb800_mutex;
- static u8 piix4_port_sel_sb800;
- static const char *piix4_main_port_names_sb800[PIIX4_MAX_ADAPTERS] = {
- 	" port 0", " port 2", " port 3", " port 4"
-@@ -157,8 +157,6 @@ static const char *piix4_aux_port_name_sb800 = " port 1";
- struct i2c_piix4_adapdata {
- 	unsigned short smba;
+-module_param(port, int, 0);
++module_param_hw(port, int, ioport, 0);
+ MODULE_PARM_DESC(port, "base address of watchdog card, default is 0x91");
  
--	/* SB800 */
--	bool sb800_main;
- 	u8 port;		/* Port number, shifted */
- };
+ module_param(verbose, int, 0);
+diff --git a/drivers/watchdog/eurotechwdt.c b/drivers/watchdog/eurotechwdt.c
+index 23ee53240c4c..38e96712264f 100644
+--- a/drivers/watchdog/eurotechwdt.c
++++ b/drivers/watchdog/eurotechwdt.c
+@@ -97,9 +97,9 @@ MODULE_PARM_DESC(nowayout,
+ #define WDT_TIMER_CFG		0xf3
  
-@@ -286,12 +284,12 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
- 	else
- 		smb_en = (aux) ? 0x28 : 0x2c;
  
--	mutex_lock(&piix4_mutex_sb800);
-+	mutex_lock(&sb800_mutex);
- 	outb_p(smb_en, SB800_PIIX4_SMB_IDX);
- 	smba_en_lo = inb_p(SB800_PIIX4_SMB_IDX + 1);
- 	outb_p(smb_en + 1, SB800_PIIX4_SMB_IDX);
- 	smba_en_hi = inb_p(SB800_PIIX4_SMB_IDX + 1);
--	mutex_unlock(&piix4_mutex_sb800);
-+	mutex_unlock(&sb800_mutex);
+-module_param(io, int, 0);
++module_param_hw(io, int, ioport, 0);
+ MODULE_PARM_DESC(io, "Eurotech WDT io port (default=0x3f0)");
+-module_param(irq, int, 0);
++module_param_hw(irq, int, irq, 0);
+ MODULE_PARM_DESC(irq, "Eurotech WDT irq (default=10)");
+ module_param(ev, charp, 0);
+ MODULE_PARM_DESC(ev, "Eurotech WDT event type (default is `int')");
+diff --git a/drivers/watchdog/pc87413_wdt.c b/drivers/watchdog/pc87413_wdt.c
+index 9f15dd9435d1..06a892e36a8d 100644
+--- a/drivers/watchdog/pc87413_wdt.c
++++ b/drivers/watchdog/pc87413_wdt.c
+@@ -579,7 +579,7 @@ MODULE_AUTHOR("Marcus Junker <junker@anduras.de>");
+ MODULE_DESCRIPTION("PC87413 WDT driver");
+ MODULE_LICENSE("GPL");
  
- 	if (!smb_en) {
- 		smb_en_status = smba_en_lo & 0x10;
-@@ -349,13 +347,13 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
- 	if (PIIX4_dev->vendor == PCI_VENDOR_ID_AMD) {
- 		piix4_port_sel_sb800 = SB800_PIIX4_PORT_IDX_ALT;
- 	} else {
--		mutex_lock(&piix4_mutex_sb800);
-+		mutex_lock(&sb800_mutex);
- 		outb_p(SB800_PIIX4_PORT_IDX_SEL, SB800_PIIX4_SMB_IDX);
- 		port_sel = inb_p(SB800_PIIX4_SMB_IDX + 1);
- 		piix4_port_sel_sb800 = (port_sel & 0x01) ?
- 				       SB800_PIIX4_PORT_IDX_ALT :
- 				       SB800_PIIX4_PORT_IDX;
--		mutex_unlock(&piix4_mutex_sb800);
-+		mutex_unlock(&sb800_mutex);
- 	}
+-module_param(io, int, 0);
++module_param_hw(io, int, ioport, 0);
+ MODULE_PARM_DESC(io, MODNAME " I/O port (default: "
+ 					__MODULE_STRING(IO_DEFAULT) ").");
  
- 	dev_info(&PIIX4_dev->dev,
-@@ -592,7 +590,7 @@ static s32 piix4_access_sb800(struct i2c_adapter *adap, u16 addr,
- 	u8 port;
- 	int retval;
+diff --git a/drivers/watchdog/sc1200wdt.c b/drivers/watchdog/sc1200wdt.c
+index 131193a7acdf..b34d3d5ba632 100644
+--- a/drivers/watchdog/sc1200wdt.c
++++ b/drivers/watchdog/sc1200wdt.c
+@@ -88,7 +88,7 @@ MODULE_PARM_DESC(isapnp,
+ 	"When set to 0 driver ISA PnP support will be disabled");
+ #endif
  
--	mutex_lock(&piix4_mutex_sb800);
-+	mutex_lock(&sb800_mutex);
+-module_param(io, int, 0);
++module_param_hw(io, int, ioport, 0);
+ MODULE_PARM_DESC(io, "io port");
+ module_param(timeout, int, 0);
+ MODULE_PARM_DESC(timeout, "range is 0-255 minutes, default is 1");
+diff --git a/drivers/watchdog/wdt.c b/drivers/watchdog/wdt.c
+index e0206b5b7d89..e481fbbc4ae7 100644
+--- a/drivers/watchdog/wdt.c
++++ b/drivers/watchdog/wdt.c
+@@ -78,9 +78,9 @@ static int irq = 11;
  
- 	/* Request the SMBUS semaphore, avoid conflicts with the IMC */
- 	smbslvcnt  = inb_p(SMBSLVCNT);
-@@ -608,7 +606,7 @@ static s32 piix4_access_sb800(struct i2c_adapter *adap, u16 addr,
- 	} while (--retries);
- 	/* SMBus is still owned by the IMC, we give up */
- 	if (!retries) {
--		mutex_unlock(&piix4_mutex_sb800);
-+		mutex_unlock(&sb800_mutex);
- 		return -EBUSY;
- 	}
+ static DEFINE_SPINLOCK(wdt_lock);
  
-@@ -628,7 +626,7 @@ static s32 piix4_access_sb800(struct i2c_adapter *adap, u16 addr,
- 	/* Release the semaphore */
- 	outb_p(smbslvcnt | 0x20, SMBSLVCNT);
+-module_param(io, int, 0);
++module_param_hw(io, int, ioport, 0);
+ MODULE_PARM_DESC(io, "WDT io port (default=0x240)");
+-module_param(irq, int, 0);
++module_param_hw(irq, int, irq, 0);
+ MODULE_PARM_DESC(irq, "WDT irq (default=11)");
  
--	mutex_unlock(&piix4_mutex_sb800);
-+	mutex_unlock(&sb800_mutex);
- 
- 	return retval;
- }
-@@ -705,7 +703,6 @@ static int piix4_add_adapter(struct pci_dev *dev, unsigned short smba,
- 	}
- 
- 	adapdata->smba = smba;
--	adapdata->sb800_main = sb800_main;
- 	adapdata->port = port << 1;
- 
- 	/* set up the sysfs linkage to our parent device */
-@@ -771,29 +768,18 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
- 	    dev->vendor == PCI_VENDOR_ID_AMD) {
- 		is_sb800 = true;
- 
--		if (!request_region(SB800_PIIX4_SMB_IDX, 2, "smba_idx")) {
--			dev_err(&dev->dev,
--			"SMBus base address index region 0x%x already in use!\n",
--			SB800_PIIX4_SMB_IDX);
--			return -EBUSY;
--		}
--
- 		/* base address location etc changed in SB800 */
- 		retval = piix4_setup_sb800(dev, id, 0);
--		if (retval < 0) {
--			release_region(SB800_PIIX4_SMB_IDX, 2);
-+		if (retval < 0)
- 			return retval;
--		}
- 
- 		/*
- 		 * Try to register multiplexed main SMBus adapter,
- 		 * give up if we can't
- 		 */
- 		retval = piix4_add_adapters_sb800(dev, retval);
--		if (retval < 0) {
--			release_region(SB800_PIIX4_SMB_IDX, 2);
-+		if (retval < 0)
- 			return retval;
--		}
- 	} else {
- 		retval = piix4_setup(dev, id);
- 		if (retval < 0)
-@@ -841,11 +827,8 @@ static void piix4_adap_remove(struct i2c_adapter *adap)
- 
- 	if (adapdata->smba) {
- 		i2c_del_adapter(adap);
--		if (adapdata->port == (0 << 1)) {
-+		if (adapdata->port == (0 << 1))
- 			release_region(adapdata->smba, SMBIOSIZE);
--			if (adapdata->sb800_main)
--				release_region(SB800_PIIX4_SMB_IDX, 2);
--		}
- 		kfree(adapdata);
- 		kfree(adap);
- 	}
--- 
-2.9.3
+ /* Support for the Fan Tachometer on the WDT501-P */
 
