@@ -1,148 +1,146 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:44748 "EHLO mga02.intel.com"
+Received: from foss.arm.com ([217.140.101.70]:34758 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1755066AbdDDWTA (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 4 Apr 2017 18:19:00 -0400
-Reply-To: sathyanarayanan.kuppuswamy@linux.intel.com
-Subject: Re: [PATCH v5 6/6] platform/x86: intel_pmc_ipc: use gcr mem base for
- S0ix counter read
-References: <bf5a86829e9403d93e85270b2898b3c548417a05.1491264643.git.sathyanarayanan.kuppuswamy@linux.intel.com>
- <CAENHMvOyzbhDQzvpYFcxC9mvsfDGrco9RMy+rU=faT6RN_uW3A@mail.gmail.com>
- <8aad93502f17d05367588ea0c17b01b450a1385a.1491264643.git.sathyanarayanan.kuppuswamy@linux.intel.com>
- <CAHp75Vf7QTc3ZG285=P2PeA2QxGUPXt0Tu-Mr+7+81XVye_63A@mail.gmail.com>
-To: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Andy Shevchenko <andy@infradead.org>,
-        Zha Qipeng <qipeng.zha@intel.com>,
-        "dvhart@infradead.org" <dvhart@infradead.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        Sathyanarayanan Kuppuswamy Natarajan <sathyaosid@gmail.com>,
-        David Box <david.e.box@linux.intel.com>,
-        Rajneesh Bhardwaj <rajneesh.bhardwaj@intel.com>,
-        Platform Driver <platform-driver-x86@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        linux-watchdog@vger.kernel.org
-From: sathyanarayanan kuppuswamy
-        <sathyanarayanan.kuppuswamy@linux.intel.com>
-Message-ID: <d13071a1-a7ab-0c93-1427-858e79a0b9e0@linux.intel.com>
-Date: Tue, 4 Apr 2017 15:15:00 -0700
+        id S1754095AbdDESie (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Wed, 5 Apr 2017 14:38:34 -0400
+Date: Wed, 5 Apr 2017 19:38:09 +0100
+From: Mark Rutland <mark.rutland@arm.com>
+To: fu.wei@linaro.org
+Cc: rjw@rjwysocki.net, lenb@kernel.org, daniel.lezcano@linaro.org,
+        tglx@linutronix.de, marc.zyngier@arm.com,
+        lorenzo.pieralisi@arm.com, sudeep.holla@arm.com,
+        hanjun.guo@linaro.org, linux-arm-kernel@lists.infradead.org,
+        linaro-acpi@lists.linaro.org, linux-kernel@vger.kernel.org,
+        linux-acpi@vger.kernel.org, rruigrok@codeaurora.org,
+        harba@codeaurora.org, cov@codeaurora.org, timur@codeaurora.org,
+        graeme.gregory@linaro.org, al.stone@linaro.org, jcm@redhat.com,
+        wei@redhat.com, arnd@arndb.de, catalin.marinas@arm.com,
+        will.deacon@arm.com, Suravee.Suthikulpanit@amd.com,
+        leo.duran@amd.com, wim@iguana.be, linux@roeck-us.net,
+        linux-watchdog@vger.kernel.org, tn@semihalf.com,
+        christoffer.dall@linaro.org, julien.grall@arm.com
+Subject: Re: [PATCH v23 09/11] acpi/arm64: Add memory-mapped timer support in
+ GTDT driver
+Message-ID: <20170405183808.GB27550@leverpostej>
+References: <20170331175105.8370-1-fu.wei@linaro.org>
+ <20170331175105.8370-10-fu.wei@linaro.org>
 MIME-Version: 1.0
-In-Reply-To: <CAHp75Vf7QTc3ZG285=P2PeA2QxGUPXt0Tu-Mr+7+81XVye_63A@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20170331175105.8370-10-fu.wei@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Andy,
+Hi,
 
+I tried to fix the issue that Lornzo raised, such that I could queue
+these patches. From looking at this patch in more detail however, I
+think there are further issues that need to be addressed.
 
-On 04/04/2017 06:51 AM, Andy Shevchenko wrote:
-> On Tue, Apr 4, 2017 at 3:24 AM, Kuppuswamy Sathyanarayanan
-> <sathyanarayanan.kuppuswamy@linux.intel.com> wrote:
->> To maintain the uniformity in accessing GCR registers, this patch
->> modifies the S0ix counter read function to use GCR address base
->> instead of ipc address base.
->>
-> This one looks good.
->
-> --- 8< --- 8< ---
->
-> Overall, I do not like this spreading interface where we have more and
-> more functions which use some global variable without clear
-> understanding of device / initialization dependencies.
-Agreed. This is added to list of issues that need to be fixed during the 
-refactoring effort.
->
-> Better approach would be something using opaque pointers and API which
-> takes it as an input.
-> I didn't investigate yet about something similar to UCLASS_SYSCON
-> (this is nice model of dependency used in U-Boot) in Linux kernel, it
-> would be cool to use it.
-Will look into this and see whether we can use this design in our code..
->
-> So, the priority number #2 (number #1 is to fix interrupt handling for
-> Whiskey Cove) is to refactor this all mess.
-I have created patches to fix #1, I am in process of testing them. Once 
-I am satisfied , I will send it for review.
+On Sat, Apr 01, 2017 at 01:51:03AM +0800, fu.wei@linaro.org wrote:
+> +	/*
+> +	 * Get the GT timer Frame data for every GT Block Timer
+> +	 */
+> +	for (i = 0; i < block->timer_count; i++, gtdt_frame++) {
+> +		if (gtdt_frame->common_flags & ACPI_GTDT_GT_IS_SECURE_TIMER)
+> +			continue;
+> +
+> +		if (!gtdt_frame->base_address || !gtdt_frame->timer_interrupt)
+> +			goto error;
+> +
+> +		frame = &timer_mem->frame[gtdt_frame->frame_number];
+> +		frame->phys_irq = map_gt_gsi(gtdt_frame->timer_interrupt,
+> +					     gtdt_frame->timer_flags);
+> +		if (frame->phys_irq <= 0) {
+> +			pr_warn("failed to map physical timer irq in frame %d.\n",
+> +				gtdt_frame->frame_number);
+> +			goto error;
+> +		}
+> +
+> +		if (gtdt_frame->virtual_timer_interrupt) {
+> +			frame->virt_irq =
+> +				map_gt_gsi(gtdt_frame->virtual_timer_interrupt,
+> +					   gtdt_frame->virtual_timer_flags);
+> +			if (frame->virt_irq <= 0) {
+> +				pr_warn("failed to map virtual timer irq in frame %d.\n",
+> +					gtdt_frame->frame_number);
+> +				acpi_unregister_gsi(gtdt_frame->timer_interrupt);
+> +				goto error;
+> +			}
+> +		} else {
+> +			frame->virt_irq = 0;
+> +			pr_debug("virtual timer in frame %d not implemented.\n",
+> +				 gtdt_frame->frame_number);
+> +		}
+> +
+> +		frame->cntbase = gtdt_frame->base_address;
+> +		/*
+> +		 * The CNTBaseN frame is 4KB (register offsets 0x000 - 0xFFC).
+> +		 * See ARM DDI 0487A.k_iss10775, page I1-5130, Table I1-4
+> +		 * "CNTBaseN memory map".
+> +		 */
+> +		frame->size = SZ_4K;
+> +		frame->valid = true;
+> +	}
+> +
+> +	return 0;
+> +
+> +error:
+> +	for (i = 0; i < ARCH_TIMER_MEM_MAX_FRAMES; i++) {
+> +		frame = &timer_mem->frame[i];
+> +		if (!frame->valid)
+> +			continue;
+> +		irq_dispose_mapping(frame->phys_irq);
+> +		if (frame->virt_irq)
+> +			irq_dispose_mapping(frame->virt_irq);
+> +	}
 
-For #2, myself and Rajnessh created a initial proposal for refactoring 
-task and we will share it with you in few days.
->
-> Like we agreed it would be last series I'm going to apply without
-> refactoring done.
-:) Its our deal. Thanks.
->
-> --- 8< --- 8< ---
->
->> Signed-off-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
->> Reviewed-by: Rajneesh Bhardwaj <rajneesh.bhardwaj@intel.com>
->> Tested-by: Shanth Murthy <shanth.murthy@intel.com>
->> ---
->>   arch/x86/include/asm/intel_pmc_ipc.h |  2 ++
->>   drivers/platform/x86/intel_pmc_ipc.c | 10 +++-------
->>   2 files changed, 5 insertions(+), 7 deletions(-)
->>
->> Changes since v4:
->>   * Rebased on top of latest changes.
->>
->> Changes since v3:
->>   * Rebased on top of latest changes.
->>
->> diff --git a/arch/x86/include/asm/intel_pmc_ipc.h b/arch/x86/include/asm/intel_pmc_ipc.h
->> index 8402efe..fac89eb 100644
->> --- a/arch/x86/include/asm/intel_pmc_ipc.h
->> +++ b/arch/x86/include/asm/intel_pmc_ipc.h
->> @@ -25,6 +25,8 @@
->>
->>   /* GCR reg offsets from gcr base*/
->>   #define PMC_GCR_PMC_CFG_REG            0x08
->> +#define PMC_GCR_TELEM_DEEP_S0IX_REG    0x78
->> +#define PMC_GCR_TELEM_SHLW_S0IX_REG    0x80
->>
->>   #if IS_ENABLED(CONFIG_INTEL_PMC_IPC)
->>
->> diff --git a/drivers/platform/x86/intel_pmc_ipc.c b/drivers/platform/x86/intel_pmc_ipc.c
->> index 3d0d6f17..b61f569 100644
->> --- a/drivers/platform/x86/intel_pmc_ipc.c
->> +++ b/drivers/platform/x86/intel_pmc_ipc.c
->> @@ -57,10 +57,6 @@
->>   #define IPC_WRITE_BUFFER       0x80
->>   #define IPC_READ_BUFFER                0x90
->>
->> -/* PMC Global Control Registers */
->> -#define GCR_TELEM_DEEP_S0IX_OFFSET     0x1078
->> -#define GCR_TELEM_SHLW_S0IX_OFFSET     0x1080
->> -
->>   /* Residency with clock rate at 19.2MHz to usecs */
->>   #define S0IX_RESIDENCY_IN_USECS(d, s)          \
->>   ({                                             \
->> @@ -203,7 +199,7 @@ static inline u32 ipc_data_readl(u32 offset)
->>
->>   static inline u64 gcr_data_readq(u32 offset)
->>   {
->> -       return readq(ipcdev.ipc_base + offset);
->> +       return readq(ipcdev.gcr_mem_base + offset);
->>   }
->>
->>   static inline int is_gcr_valid(u32 offset)
->> @@ -906,8 +902,8 @@ int intel_pmc_s0ix_counter_read(u64 *data)
->>          if (!ipcdev.has_gcr_regs)
->>                  return -EACCES;
->>
->> -       deep = gcr_data_readq(GCR_TELEM_DEEP_S0IX_OFFSET);
->> -       shlw = gcr_data_readq(GCR_TELEM_SHLW_S0IX_OFFSET);
->> +       deep = gcr_data_readq(PMC_GCR_TELEM_DEEP_S0IX_REG);
->> +       shlw = gcr_data_readq(PMC_GCR_TELEM_SHLW_S0IX_REG);
->>
->>          *data = S0IX_RESIDENCY_IN_USECS(deep, shlw);
->>
->> --
->> 2.7.4
->>
->
->
+We assign interrupts and may goto error before setting valid, so here we
+won't free the interrupts of the last frame we parsed.
 
--- 
-Sathyanarayanan Kuppuswamy
-Android kernel developer
+> +	return -EINVAL;
+> +}
+> +
+> +/**
+> + * acpi_arch_timer_mem_init() - Get the info of all GT blocks in GTDT table.
+> + * @timer_mem:	The pointer to the array of struct arch_timer_mem for returning
+> + *		the result of parsing. The element number of this array should
+> + *		be platform_timer_count(the total number of platform timers).
+> + * @timer_count: It points to a integer variable which is used for storing the
+> + *		number of GT blocks we have parsed.
+> + *
+> + * Return: 0 if success, -EINVAL/-ENODEV if error.
+> + */
+> +int __init acpi_arch_timer_mem_init(struct arch_timer_mem *timer_mem,
+> +				    int *timer_count)
+> +{
+> +	int ret;
+> +	void *platform_timer;
+> +
+> +	*timer_count = 0;
+> +	for_each_platform_timer(platform_timer) {
+> +		if (is_timer_block(platform_timer)) {
+> +			ret = gtdt_parse_timer_block(platform_timer, timer_mem);
+> +			if (ret)
+> +				return ret;
+> +			timer_mem++;
+> +			(*timer_count)++;
+> +		}
+> +	}
 
+If we were to have multiple GT blocks, this would leave timer_mem in an
+inconsistent state. In gtdt_parse_timer_block we'll blat any existing
+timer_mem->cntctlbase, and blat some arbitrary set of frames. however,
+*some* frames may have been held over from a previous iteration.
+
+My understanding was that the system level timer had a single CNTCTLBase
+frame, and hence we should only have a single GT block.
+
+Judging by ARM DDI 0487A.k_iss10775, I1.3 "Memory-mapped timer
+components" and I3.4 "Generic Timer memory-mapped registers overview",
+it does appear that the system should only have one CNTCTLBase frame.
+
+What's going on here?
+
+Thanks,
+Mark.
