@@ -13,33 +13,48 @@ CC: <linux-watchdog@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
  Cornu <philippe.cornu@st.com>,
         Gabriel FERNANDEZ <gabriel.fernandez@st.com>,
         <devicetree@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>
-Subject: [PATCH v5 5/5] ARM: configs: stm32: Add watchdog support in STM32 defconfig
-Date: Thu, 6 Apr 2017 14:19:28 +0200
-Message-ID: <1491481168-22213-6-git-send-email-yannick.fertre@st.com>
+Subject: [PATCH v5 1/5] dt-bindings: watchdog: Document STM32 IWDG bindings
+Date: Thu, 6 Apr 2017 14:19:24 +0200
+Message-ID: <1491481168-22213-2-git-send-email-yannick.fertre@st.com>
 In-Reply-To: <1491481168-22213-1-git-send-email-yannick.fertre@st.com>
 References: <1491481168-22213-1-git-send-email-yannick.fertre@st.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 List-ID: <linux-watchdog@vger.kernel.org>
 
-This patch adds STM32 watchdog support in stm32_defconfig file
+This adds documentation of device tree bindings for the STM32 IWDG
+(Independent WatchDoG).
 
 Signed-off-by: Yannick Fertre <yannick.fertre@st.com>
 ---
- arch/arm/configs/stm32_defconfig | 1 +
- 1 file changed, 1 insertion(+)
+ .../devicetree/bindings/watchdog/st,stm32-iwdg.txt    | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/st,stm32-iwdg.txt
 
-diff --git a/arch/arm/configs/stm32_defconfig b/arch/arm/configs/stm32_defconfig
-index 29ac5a4..1fb901c 100644
---- a/arch/arm/configs/stm32_defconfig
-+++ b/arch/arm/configs/stm32_defconfig
-@@ -51,6 +51,7 @@ CONFIG_I2C=y
- CONFIG_I2C_CHARDEV=y
- CONFIG_I2C_STM32F4=y
- # CONFIG_HWMON is not set
-+CONFIG_WATCHDOG=y
- CONFIG_REGULATOR=y
- CONFIG_REGULATOR_FIXED_VOLTAGE=y
- # CONFIG_USB_SUPPORT is not set
+diff --git a/Documentation/devicetree/bindings/watchdog/st,stm32-iwdg.txt b/Documentation/devicetree/bindings/watchdog/st,stm32-iwdg.txt
+new file mode 100644
+index 0000000..cc13b10a
+--- /dev/null
++++ b/Documentation/devicetree/bindings/watchdog/st,stm32-iwdg.txt
+@@ -0,0 +1,19 @@
++STM32 Independent WatchDoG (IWDG)
++---------------------------------
++
++Required properties:
++- compatible: "st,stm32-iwdg"
++- reg: physical base address and length of the registers set for the device
++- clocks: must contain a single entry describing the clock input
++
++Optional Properties:
++- timeout-sec: Watchdog timeout value in seconds.
++
++Example:
++
++iwdg: watchdog@40003000 {
++	compatible = "st,stm32-iwdg";
++	reg = <0x40003000 0x400>;
++	clocks = <&clk_lsi>;
++	timeout-sec = <32>;
++};
 -- 
 1.9.1
