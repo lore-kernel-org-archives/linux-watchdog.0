@@ -1,140 +1,69 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:48130 "EHLO mga02.intel.com"
+Received: from foss.arm.com ([217.140.101.70]:40536 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1756058AbdDEW6d (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 5 Apr 2017 18:58:33 -0400
-From: Kuppuswamy Sathyanarayanan
-        <sathyanarayanan.kuppuswamy@linux.intel.com>
-To: andy@infradead.org, qipeng.zha@intel.com, dvhart@infradead.org,
-        linux@roeck-us.net
-Cc: wim@iguana.be, sathyaosid@gmail.com, david.e.box@linux.intel.com,
-        rajneesh.bhardwaj@intel.com,
-        sathyanarayanan.kuppuswamy@linux.intel.com,
-        platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-watchdog@vger.kernel.org
-Subject: [PATCH v6 5/6] platform/x86: intel_pmc_ipc: Fix iTCO_wdt GCS memory mapping failure
-Date: Wed,  5 Apr 2017 15:54:23 -0700
-Message-Id: <f5fbaf426ad657e1f8cb8a15619602afd4e12efe.1491428146.git.sathyanarayanan.kuppuswamy@linux.intel.com>
-In-Reply-To: <3e7ca77c-2be5-5f89-f51f-faaca9f2d9ac@linux.intel.com>
-References: <3e7ca77c-2be5-5f89-f51f-faaca9f2d9ac@linux.intel.com>
-In-Reply-To: <463a23bb1f44098dd0fe506346bae71282009e05.1491428146.git.sathyanarayanan.kuppuswamy@linux.intel.com>
-References: <463a23bb1f44098dd0fe506346bae71282009e05.1491428146.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+        id S1753735AbdDFKH2 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Thu, 6 Apr 2017 06:07:28 -0400
+Date: Thu, 6 Apr 2017 11:07:02 +0100
+From: Mark Rutland <mark.rutland@arm.com>
+To: fu.wei@linaro.org
+Cc: linaro-acpi@lists.linaro.org, catalin.marinas@arm.com,
+        will.deacon@arm.com, rruigrok@codeaurora.org, wim@iguana.be,
+        wei@redhat.com, lorenzo.pieralisi@arm.com, al.stone@linaro.org,
+        tn@semihalf.com, timur@codeaurora.org, daniel.lezcano@linaro.org,
+        linux-acpi@vger.kernel.org, linux@roeck-us.net, lenb@kernel.org,
+        harba@codeaurora.org, julien.grall@arm.com,
+        linux-watchdog@vger.kernel.org, arnd@arndb.de,
+        marc.zyngier@arm.com, jcm@redhat.com, cov@codeaurora.org,
+        tglx@linutronix.de, linux-arm-kernel@lists.infradead.org,
+        graeme.gregory@linaro.org, rjw@rjwysocki.net,
+        linux-kernel@vger.kernel.org, leo.duran@amd.com,
+        hanjun.guo@linaro.org, Suravee.Suthikulpanit@amd.com,
+        sudeep.holla@arm.com, christoffer.dall@linaro.org
+Subject: Re: [PATCH v23 09/11] acpi/arm64: Add memory-mapped timer support in
+ GTDT driver
+Message-ID: <20170406100702.GC29947@leverpostej>
+References: <20170331175105.8370-1-fu.wei@linaro.org>
+ <20170331175105.8370-10-fu.wei@linaro.org>
+ <20170405183808.GB27550@leverpostej>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20170405183808.GB27550@leverpostej>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-iTCO_wdt driver need access to PMC_CFG GCR register to modify the
-noreboot setting. Currently, this is done by passing PMC_CFG reg
-address as memory resource to watchdog driver and allowing it directly
-modify the PMC_CFG register. But currently PMC driver also has
-requirement to memory map the entire GCR register space in this driver.
-This causes mem request failure in watchdog driver. So this patch fixes
-this issue by adding API to update noreboot flag and passes them
-to watchdog driver via platform data.
+On Wed, Apr 05, 2017 at 07:38:09PM +0100, Mark Rutland wrote:
+> I tried to fix the issue that Lornzo raised, such that I could queue
+> these patches. From looking at this patch in more detail however, I
+> think there are further issues that need to be addressed.
 
-Signed-off-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
----
- drivers/platform/x86/intel_pmc_ipc.c | 33 +++++++++++++++++++++------------
- 1 file changed, 21 insertions(+), 12 deletions(-)
+Looking again, I see that I was mistaken w.r.t. the multi GT block case.
 
-Changes since v5:
- * Fixed some style issues in commit history.
- * removed unused variable gcr_size from intel_pmc_ipc_dev
+> > +int __init acpi_arch_timer_mem_init(struct arch_timer_mem *timer_mem,
+> > +				    int *timer_count)
+> > +{
+> > +	int ret;
+> > +	void *platform_timer;
+> > +
+> > +	*timer_count = 0;
+> > +	for_each_platform_timer(platform_timer) {
+> > +		if (is_timer_block(platform_timer)) {
+> > +			ret = gtdt_parse_timer_block(platform_timer, timer_mem);
+> > +			if (ret)
+> > +				return ret;
+> > +			timer_mem++;
+> > +			(*timer_count)++;
+> > +		}
+> > +	}
+> 
+> If we were to have multiple GT blocks, this would leave timer_mem in an
+> inconsistent state. In gtdt_parse_timer_block we'll blat any existing
+> timer_mem->cntctlbase, and blat some arbitrary set of frames. however,
+> *some* frames may have been held over from a previous iteration.
 
-Changes since v4:
- * Fixed some style issues in commit history.
- * Used macros instead of BIT() calls.
+This is not the case; I had somehow missed the timer_mem++.
 
-Changes since v3:
- * Rebased on top of latest changes.
+Sorry for the noise.
 
-Changes since v2: 
- * Added support for update_noreboot_bit api.
-
-diff --git a/drivers/platform/x86/intel_pmc_ipc.c b/drivers/platform/x86/intel_pmc_ipc.c
-index a0c773b..173940f 100644
---- a/drivers/platform/x86/intel_pmc_ipc.c
-+++ b/drivers/platform/x86/intel_pmc_ipc.c
-@@ -112,6 +112,13 @@
- #define TCO_PMC_OFFSET			0x8
- #define TCO_PMC_SIZE			0x4
- 
-+/* PMC register bit definitions */
-+
-+/* PMC_CFG_REG bit masks */
-+#define PMC_CFG_NO_REBOOT_MASK		BIT(4)
-+#define PMC_CFG_NO_REBOOT_ENABLE	BIT(4)
-+#define PMC_CFG_NO_REBOOT_DISABLE	0
-+
- static struct intel_pmc_ipc_dev {
- 	struct device *dev;
- 	void __iomem *ipc_base;
-@@ -126,8 +133,6 @@ static struct intel_pmc_ipc_dev {
- 	struct platform_device *tco_dev;
- 
- 	/* gcr */
--	resource_size_t gcr_base;
--	int gcr_size;
- 	void __iomem *gcr_mem_base;
- 	bool has_gcr_regs;
- 
-@@ -313,6 +318,18 @@ int intel_pmc_gcr_update(u32 offset, u32 mask, u32 val)
- }
- EXPORT_SYMBOL_GPL(intel_pmc_gcr_update);
- 
-+static int update_no_reboot_bit(void *priv, bool set)
-+{
-+	if (set)
-+		return intel_pmc_gcr_update(PMC_GCR_PMC_CFG_REG,
-+					    PMC_CFG_NO_REBOOT_MASK,
-+					    PMC_CFG_NO_REBOOT_ENABLE);
-+
-+	return intel_pmc_gcr_update(PMC_GCR_PMC_CFG_REG,
-+				    PMC_CFG_NO_REBOOT_MASK,
-+				    PMC_CFG_NO_REBOOT_DISABLE);
-+}
-+
- static int intel_pmc_ipc_check_status(void)
- {
- 	int status;
-@@ -630,15 +647,13 @@ static struct resource tco_res[] = {
- 	{
- 		.flags = IORESOURCE_IO,
- 	},
--	/* GCS */
--	{
--		.flags = IORESOURCE_MEM,
--	},
- };
- 
- static struct itco_wdt_platform_data tco_info = {
- 	.name = "Apollo Lake SoC",
- 	.version = 5,
-+	.no_reboot_priv = &ipcdev,
-+	.update_no_reboot_bit = update_no_reboot_bit,
- };
- 
- #define TELEMETRY_RESOURCE_PUNIT_SSRAM	0
-@@ -695,10 +710,6 @@ static int ipc_create_tco_device(void)
- 	res->start = ipcdev.acpi_io_base + SMI_EN_OFFSET;
- 	res->end = res->start + SMI_EN_SIZE - 1;
- 
--	res = tco_res + TCO_RESOURCE_GCR_MEM;
--	res->start = ipcdev.gcr_base + TCO_PMC_OFFSET;
--	res->end = res->start + TCO_PMC_SIZE - 1;
--
- 	pdev = platform_device_register_full(&pdevinfo);
- 	if (IS_ERR(pdev))
- 		return PTR_ERR(pdev);
-@@ -860,9 +871,7 @@ static int ipc_plat_get_res(struct platform_device *pdev)
- 	}
- 	ipcdev.ipc_base = addr;
- 
--	ipcdev.gcr_base = res->start + PLAT_RESOURCE_GCR_OFFSET;
- 	ipcdev.gcr_mem_base = addr + PLAT_RESOURCE_GCR_OFFSET;
--	ipcdev.gcr_size = PLAT_RESOURCE_GCR_SIZE;
- 	dev_info(&pdev->dev, "ipc res: %pR\n", res);
- 
- 	ipcdev.telem_res_inval = 0;
--- 
-2.7.4
-
+Thanks,
+Mark.
