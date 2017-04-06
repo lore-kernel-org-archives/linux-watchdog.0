@@ -1,105 +1,162 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-it0-f52.google.com ([209.85.214.52]:35102 "EHLO
-        mail-it0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754780AbdDFKpH (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:59887 "EHLO
+        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754720AbdDFLc1 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 6 Apr 2017 06:45:07 -0400
-Received: by mail-it0-f52.google.com with SMTP id y18so98490087itc.0
-        for <linux-watchdog@vger.kernel.org>; Thu, 06 Apr 2017 03:45:07 -0700 (PDT)
+        Thu, 6 Apr 2017 07:32:27 -0400
+Subject: Re: [RESEND PATCH V7 1/5] Documentation: devicetree: watchdog:
+ da9062/61 watchdog timer binding
+To: Steve Twiss <stwiss.opensource@diasemi.com>,
+        DEVICETREE <devicetree@vger.kernel.org>,
+        LINUX-KERNEL <linux-kernel@vger.kernel.org>,
+        LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Wim Van Sebroeck <wim@iguana.be>
+References: <cover.1491467308.git.stwiss.opensource@diasemi.com>
+ <1d280a35fc522f7b271c730988ab0f186fef25ba.1491467308.git.stwiss.opensource@diasemi.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Eduardo Valentin <edubezval@gmail.com>,
+        LINUX-INPUT <linux-input@vger.kernel.org>,
+        LINUX-PM <linux-pm@vger.kernel.org>,
+        Lee Jones <lee.jones@linaro.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Support Opensource <support.opensource@diasemi.com>,
+        Zhang Rui <rui.zhang@intel.com>
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <d258bf91-06cd-dd96-c1e1-ef310c89565e@roeck-us.net>
+Date: Thu, 6 Apr 2017 04:32:18 -0700
 MIME-Version: 1.0
-In-Reply-To: <20170405184229.GA29338@leverpostej>
-References: <20170331175105.8370-1-fu.wei@linaro.org> <20170331175105.8370-7-fu.wei@linaro.org>
- <20170405184229.GA29338@leverpostej>
-From: Fu Wei <fu.wei@linaro.org>
-Date: Thu, 6 Apr 2017 18:45:06 +0800
-Message-ID: <CADyBb7tjLRYHsrB3V579RGxGS0jM51x628AqKomV_VFm+0b0ZQ@mail.gmail.com>
-Subject: Re: [PATCH v23 06/11] clocksource: arm_arch_timer: refactor MMIO
- timer probing.
-To: Mark Rutland <mark.rutland@arm.com>
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Len Brown <lenb@kernel.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Marc Zyngier <marc.zyngier@arm.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Hanjun Guo <hanjun.guo@linaro.org>,
-        linux-arm-kernel@lists.infradead.org,
-        Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
-        rruigrok@codeaurora.org, "Abdulhamid, Harb" <harba@codeaurora.org>,
-        Christopher Covington <cov@codeaurora.org>,
-        Timur Tabi <timur@codeaurora.org>,
-        G Gregory <graeme.gregory@linaro.org>,
-        Al Stone <al.stone@linaro.org>, Jon Masters <jcm@redhat.com>,
-        Wei Huang <wei@redhat.com>, Arnd Bergmann <arnd@arndb.de>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
-        Leo Duran <leo.duran@amd.com>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        Guenter Roeck <linux@roeck-us.net>,
-        linux-watchdog@vger.kernel.org, Tomasz Nowicki <tn@semihalf.com>,
-        Christoffer Dall <christoffer.dall@linaro.org>,
-        Julien Grall <julien.grall@arm.com>
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1d280a35fc522f7b271c730988ab0f186fef25ba.1491467308.git.stwiss.opensource@diasemi.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Mark,
-
-On 6 April 2017 at 02:42, Mark Rutland <mark.rutland@arm.com> wrote:
-> On Sat, Apr 01, 2017 at 01:51:00AM +0800, fu.wei@linaro.org wrote:
->> +     arch_timer_mem_freq = arch_timer_mem_get_cntfrq(base);
->> +     if (!arch_timer_rate && arch_timer_mem_freq) {
->> +             arch_timer_rate = arch_timer_mem_freq;
->> +     } else if (!arch_timer_rate || arch_timer_rate != arch_timer_mem_freq) {
->> +             pr_err(FW_BUG "invalid MMIO frequency.\n");
->> +             iounmap(base);
->> +             return -EINVAL;
->> +     }
+On 04/06/2017 01:28 AM, Steve Twiss wrote:
+> From: Steve Twiss <stwiss.opensource@diasemi.com>
 >
-> I thought I had previously mentioned that this last check has the
-> potential to break DT systems, which may be inadvertently relying on the
-> probe order.
+> Add binding information for DA9062 and DA9061 watchdog.
 >
-> I agree we must do this check for ACPI, but I think that for DT it needs
-> to be relaxed.
+> Example bindings for both DA9062 and DA9061 devices are added. For
+> the DA9061 device, a fallback compatible line is added as a valid
+> combination of compatible strings.
 >
-> I'm happy to rework that locally, if you can address my comments on
-> patch 9.
+> The original binding for DA9062 (only) used to reside inside the
+> Documentation/devicetree/bindings/mfd/da9062.txt MFD document.
+> The da9062-watchdog section was deleted in that file and replaced
+> with a link to the new DA9061/62 binding information stored in this
+> patch.
+>
+> Acked-by: Rob Herring <robh@kernel.org>
+> Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
 
-yes, you suggested that we keep the current frequency probing approach for DT,
-and use the new approach for ACPI.
-
-Because we try to merge the common code for MMIO timer. this become a little
-problem, sorry for that.
-
-I thinks for this code, maybe we can do :
-
-arch_timer_mem_freq = arch_timer_mem_get_cntfrq(base);
-if (!arch_timer_rate && arch_timer_mem_freq) {
-arch_timer_rate = arch_timer_mem_freq;
-} else if (!acpi_disabled && arch_timer_rate != arch_timer_mem_freq) {
-pr_err(FW_BUG "invalid MMIO frequency.\n");
-iounmap(base);
-return -EINVAL;
-}
-
-Please correct me, if I miss something.
-
-Thanks :-)
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
 >
-> Thanks,
-> Mark.
+> ---
+>
+> Hi,
+>
+> I have just noticed.
+>
+> The driver code changes for the da9062/61 watchdog have been applied to
+> the linux kernel. The da9062/61 alterations for
+> drivers/watchdog/da9062_wdt.c appear in linux-stable/v4.10-rc1. Those
+> changes are linked to this binding patch, but this patch seems to have
+> been missed out.
+>
+> The source code dependency for this patch is given in the commit:
+> 72106c1 v4.10-rc1 watchdog: da9062/61: watchdog driver
+>
+> I don't see anything blocking for merge of this patch now.
+>
+> Regards,
+> Steve
+>
+> This patch applies against linux-next and v4.11-rc3
+>
+> v6 -> v7
+>  - NO CODE CHANGE
+>
+> v5 -> v6
+>  - NO CODE CHANGE
+>  - Rebased from v4.9 to v4.11-rc3
+>
+> v4 -> v5
+>  - NO CODE CHANGE
+>  - Rebased from v4.8 to v4.9
+>
+> v3 -> v4
+>  - NO CODE CHANGE
+>  - Patch renamed from [PATCH V3 2/9] to [PATCH V4 1/8]
+>  - Added Acked-by Rob Herring
+>
+> v2 -> v3
+>  - Patch renamed from [PATCH V1 02/10] to [PATCH V3 2/9]
+>  - Each compatible line should be a valid combination of compatible
+>    strings, alter DA9061 line to include the fall back compatible string
+>  - Update the commit message to describe this change
+>  - Add information about associated patches from this set without
+>    describing them as being explicitly dependent on this binding
+>
+> v1 -> v2
+>  - Patch renamed from [PATCH V1 07/10] to [PATCH V2 02/10] -- these
+>    changes were made to fix checkpatch warnings caused by the patch
+>    set dependency order
+>  - Updated the patch description to be explicit about where parts of
+>    this binding had originally been stored
+>  - A second example for DA9061 is provided to highlight the use of a
+>    fall-back compatible option for the DA9062 watchdog driver
+>
+> As previously:
+>
+> For the watchdog case: the DA9062 device driver is compatible with the
+> DA9061 and for this reason there is minimal change required to the DA9062
+> watchdog device driver. The example for the DA9061 watchdog shows the
+> use of a fall-back compatible string.
+>
+> Other information:
+> The device driver from this patch set (associated with this binding) is
+>   [PATCH V5 6/8] watchdog: da9061: watchdog driver
+>
+> Regards,
+> Steve Twiss, Dialog Semiconductor
+>
+>
+>  .../devicetree/bindings/watchdog/da9062-wdt.txt    | 23 ++++++++++++++++++++++
+>  1 file changed, 23 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/watchdog/da9062-wdt.txt
+>
+> diff --git a/Documentation/devicetree/bindings/watchdog/da9062-wdt.txt b/Documentation/devicetree/bindings/watchdog/da9062-wdt.txt
+> new file mode 100644
+> index 0000000..b935b52
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/watchdog/da9062-wdt.txt
+> @@ -0,0 +1,23 @@
+> +* Dialog Semiconductor DA9062/61 Watchdog Timer
+> +
+> +Required properties:
+> +
+> +- compatible: should be one of the following valid compatible string lines:
+> +	"dlg,da9061-watchdog", "dlg,da9062-watchdog"
+> +	"dlg,da9062-watchdog"
+> +
+> +Example: DA9062
+> +
+> +	pmic0: da9062@58 {
+> +		watchdog {
+> +			compatible = "dlg,da9062-watchdog";
+> +		};
+> +	};
+> +
+> +Example: DA9061 using a fall-back compatible for the DA9062 watchdog driver
+> +
+> +	pmic0: da9061@58 {
+> +		watchdog {
+> +			compatible = "dlg,da9061-watchdog", "dlg,da9062-watchdog";
+> +		};
+> +	};
+>
 
-
-
--- 
-Best regards,
-
-Fu Wei
-Software Engineer
-Red Hat
