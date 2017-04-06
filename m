@@ -1,79 +1,193 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mga14.intel.com ([192.55.52.115]:4209 "EHLO mga14.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753045AbdDFPSu (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 6 Apr 2017 11:18:50 -0400
-Date: Thu, 6 Apr 2017 20:46:44 +0530
-From: Rajneesh Bhardwaj <rajneesh.bhardwaj@intel.com>
-To: Kuppuswamy Sathyanarayanan
-        <sathyanarayanan.kuppuswamy@linux.intel.com>
-Cc: andy@infradead.org, qipeng.zha@intel.com, dvhart@infradead.org,
-        linux@roeck-us.net, wim@iguana.be, sathyaosid@gmail.com,
-        david.e.box@linux.intel.com, platform-driver-x86@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH v6 1/6] platform/x86: intel_pmc_ipc: fix gcr offset
-Message-ID: <20170406151644.GA21709@rajaneesh-OptiPlex-9010>
-References: <3e7ca77c-2be5-5f89-f51f-faaca9f2d9ac@linux.intel.com>
- <463a23bb1f44098dd0fe506346bae71282009e05.1491428146.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+Received: from mail-it0-f48.google.com ([209.85.214.48]:33930 "EHLO
+        mail-it0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752383AbdDFQrs (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Thu, 6 Apr 2017 12:47:48 -0400
+Received: by mail-it0-f48.google.com with SMTP id y18so41914itc.1
+        for <linux-watchdog@vger.kernel.org>; Thu, 06 Apr 2017 09:47:48 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <463a23bb1f44098dd0fe506346bae71282009e05.1491428146.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+In-Reply-To: <20170405183808.GB27550@leverpostej>
+References: <20170331175105.8370-1-fu.wei@linaro.org> <20170331175105.8370-10-fu.wei@linaro.org>
+ <20170405183808.GB27550@leverpostej>
+From: Fu Wei <fu.wei@linaro.org>
+Date: Fri, 7 Apr 2017 00:47:47 +0800
+Message-ID: <CADyBb7sz6ongbyqR0FzBZybJBYwnLvqV+NsX1+W=6tv0_vLt1g@mail.gmail.com>
+Subject: Re: [PATCH v23 09/11] acpi/arm64: Add memory-mapped timer support in
+ GTDT driver
+To: Mark Rutland <mark.rutland@arm.com>
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Len Brown <lenb@kernel.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Hanjun Guo <hanjun.guo@linaro.org>,
+        linux-arm-kernel@lists.infradead.org,
+        Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
+        rruigrok@codeaurora.org, "Abdulhamid, Harb" <harba@codeaurora.org>,
+        Christopher Covington <cov@codeaurora.org>,
+        Timur Tabi <timur@codeaurora.org>,
+        G Gregory <graeme.gregory@linaro.org>,
+        Al Stone <al.stone@linaro.org>, Jon Masters <jcm@redhat.com>,
+        Wei Huang <wei@redhat.com>, Arnd Bergmann <arnd@arndb.de>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
+        Leo Duran <leo.duran@amd.com>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Guenter Roeck <linux@roeck-us.net>,
+        linux-watchdog@vger.kernel.org, Tomasz Nowicki <tn@semihalf.com>,
+        Christoffer Dall <christoffer.dall@linaro.org>,
+        Julien Grall <julien.grall@arm.com>
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Apr 05, 2017 at 03:54:19PM -0700, Kuppuswamy Sathyanarayanan wrote:
-> According to Broxton APL PMC spec, gcr mem region starts
-> at offset 0x1000 from ipc mem base address. In this driver,
-> PLAT_RESOURCE_GCR_OFFSET macro defines the offset of GCR
-> memory region from IPC mem region. So we should use 0x1000(4K)
-> as GCR offset. But currently this driver uses 0x1008 as GCT
+Hi Mark,
 
-Typo, GCT -> GCR. I think we still need to maintain consistency in the
-commit message. Consider the below message and update if you'd like to.
+On 6 April 2017 at 02:38, Mark Rutland <mark.rutland@arm.com> wrote:
+> Hi,
+>
+> I tried to fix the issue that Lornzo raised, such that I could queue
+> these patches. From looking at this patch in more detail however, I
+> think there are further issues that need to be addressed.
+>
+> On Sat, Apr 01, 2017 at 01:51:03AM +0800, fu.wei@linaro.org wrote:
+>> +     /*
+>> +      * Get the GT timer Frame data for every GT Block Timer
+>> +      */
+>> +     for (i = 0; i < block->timer_count; i++, gtdt_frame++) {
+>> +             if (gtdt_frame->common_flags & ACPI_GTDT_GT_IS_SECURE_TIMER)
+>> +                     continue;
+>> +
+>> +             if (!gtdt_frame->base_address || !gtdt_frame->timer_interrupt)
+>> +                     goto error;
+>> +
+>> +             frame = &timer_mem->frame[gtdt_frame->frame_number];
+>> +             frame->phys_irq = map_gt_gsi(gtdt_frame->timer_interrupt,
+>> +                                          gtdt_frame->timer_flags);
+>> +             if (frame->phys_irq <= 0) {
+>> +                     pr_warn("failed to map physical timer irq in frame %d.\n",
+>> +                             gtdt_frame->frame_number);
+>> +                     goto error;
+>> +             }
+>> +
+>> +             if (gtdt_frame->virtual_timer_interrupt) {
+>> +                     frame->virt_irq =
+>> +                             map_gt_gsi(gtdt_frame->virtual_timer_interrupt,
+>> +                                        gtdt_frame->virtual_timer_flags);
+>> +                     if (frame->virt_irq <= 0) {
+>> +                             pr_warn("failed to map virtual timer irq in frame %d.\n",
+>> +                                     gtdt_frame->frame_number);
+>> +                             acpi_unregister_gsi(gtdt_frame->timer_interrupt);
+>> +                             goto error;
+>> +                     }
+>> +             } else {
+>> +                     frame->virt_irq = 0;
+>> +                     pr_debug("virtual timer in frame %d not implemented.\n",
+>> +                              gtdt_frame->frame_number);
+>> +             }
+>> +
+>> +             frame->cntbase = gtdt_frame->base_address;
+>> +             /*
+>> +              * The CNTBaseN frame is 4KB (register offsets 0x000 - 0xFFC).
+>> +              * See ARM DDI 0487A.k_iss10775, page I1-5130, Table I1-4
+>> +              * "CNTBaseN memory map".
+>> +              */
+>> +             frame->size = SZ_4K;
+>> +             frame->valid = true;
+>> +     }
+>> +
+>> +     return 0;
+>> +
+>> +error:
+>> +     for (i = 0; i < ARCH_TIMER_MEM_MAX_FRAMES; i++) {
+>> +             frame = &timer_mem->frame[i];
+>> +             if (!frame->valid)
+>> +                     continue;
+>> +             irq_dispose_mapping(frame->phys_irq);
+>> +             if (frame->virt_irq)
+>> +                     irq_dispose_mapping(frame->virt_irq);
+>> +     }
+>
+> We assign interrupts and may goto error before setting valid, so here we
 
-On BXT SoC the PMC MMIO resources for the Global Control Registers (GCR) are
-located at 4k offset from the IPC1 base. The PLAT_RESOURCE_GCR_OFFSET macro
-used in this driver is misleading as 0x1008 is the location for PMC_CFG
-register and not the GCR Base itself. 
+yes, I mean to do it.(setting valid at the end of loop)
 
-GCR Base = IPC1 Base + 0x1000.
+> won't free the interrupts of the last frame we parsed.
 
-This patch updates the GCR Base address correctly.
+that won't  be a problem, we may assign two interrupts in a round:
+First of all, if  the assignment goes  wrong, that means the current
+interrupt haven't been successfully assigned.
+(1)if the first goes wrong, the we goto error to unwind  the irqs
+assigned in previous rounds.
+(2)if the second one goes wrong , we acpi_unregister_gsi the first one
+and then  goto error to unwind  the irqs assigned in previous rounds.
+(3)If the two assignments are successful, set up valid flag
 
-> offset.This patch fixes this issue.
-> 
-> Signed-off-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
-> ---
->  drivers/platform/x86/intel_pmc_ipc.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> Changes since v5:
->  *  None
-> 
-> Changes since v4:
->  *  None
-> 
-> Changes since v3:
->  * Updated the commit history
-> 
-> diff --git a/drivers/platform/x86/intel_pmc_ipc.c b/drivers/platform/x86/intel_pmc_ipc.c
-> index 0651d47..0a33592 100644
-> --- a/drivers/platform/x86/intel_pmc_ipc.c
-> +++ b/drivers/platform/x86/intel_pmc_ipc.c
-> @@ -82,7 +82,7 @@
->  /* exported resources from IFWI */
->  #define PLAT_RESOURCE_IPC_INDEX		0
->  #define PLAT_RESOURCE_IPC_SIZE		0x1000
-> -#define PLAT_RESOURCE_GCR_OFFSET	0x1008
-> +#define PLAT_RESOURCE_GCR_OFFSET	0x1000
->  #define PLAT_RESOURCE_GCR_SIZE		0x1000
->  #define PLAT_RESOURCE_BIOS_DATA_INDEX	1
->  #define PLAT_RESOURCE_BIOS_IFACE_INDEX	2
-> -- 
-> 2.7.4
-> 
+So we won't miss freeing the interrupts of the last frame we parsed.
+
+Did I miss something?
+
+Thanks!
+
+>
+>> +     return -EINVAL;
+>> +}
+>> +
+>> +/**
+>> + * acpi_arch_timer_mem_init() - Get the info of all GT blocks in GTDT table.
+>> + * @timer_mem:       The pointer to the array of struct arch_timer_mem for returning
+>> + *           the result of parsing. The element number of this array should
+>> + *           be platform_timer_count(the total number of platform timers).
+>> + * @timer_count: It points to a integer variable which is used for storing the
+>> + *           number of GT blocks we have parsed.
+>> + *
+>> + * Return: 0 if success, -EINVAL/-ENODEV if error.
+>> + */
+>> +int __init acpi_arch_timer_mem_init(struct arch_timer_mem *timer_mem,
+>> +                                 int *timer_count)
+>> +{
+>> +     int ret;
+>> +     void *platform_timer;
+>> +
+>> +     *timer_count = 0;
+>> +     for_each_platform_timer(platform_timer) {
+>> +             if (is_timer_block(platform_timer)) {
+>> +                     ret = gtdt_parse_timer_block(platform_timer, timer_mem);
+>> +                     if (ret)
+>> +                             return ret;
+>> +                     timer_mem++;
+>> +                     (*timer_count)++;
+>> +             }
+>> +     }
+>
+> If we were to have multiple GT blocks, this would leave timer_mem in an
+> inconsistent state. In gtdt_parse_timer_block we'll blat any existing
+> timer_mem->cntctlbase, and blat some arbitrary set of frames. however,
+> *some* frames may have been held over from a previous iteration.
+>
+> My understanding was that the system level timer had a single CNTCTLBase
+> frame, and hence we should only have a single GT block.
+>
+> Judging by ARM DDI 0487A.k_iss10775, I1.3 "Memory-mapped timer
+> components" and I3.4 "Generic Timer memory-mapped registers overview",
+> it does appear that the system should only have one CNTCTLBase frame.
+>
+> What's going on here?
+>
+> Thanks,
+> Mark.
+
+
 
 -- 
-Best Regards,
-Rajneesh
+Best regards,
+
+Fu Wei
+Software Engineer
+Red Hat
