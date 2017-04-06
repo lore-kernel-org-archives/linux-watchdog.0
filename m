@@ -1,131 +1,144 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:58904 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1756102AbdDERBr (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 5 Apr 2017 13:01:47 -0400
-Subject: [PATCH 33/38] Annotate hardware config module parameters in
- drivers/watchdog/
-From: David Howells <dhowells@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: gnomes@lxorguk.ukuu.org.uk, linux-watchdog@vger.kernel.org,
-        Zwane Mwaikambo <zwanem@gmail.com>,
-        linux-security-module@vger.kernel.org, dhowells@redhat.com,
-        Wim Van Sebroeck <wim@iguana.be>, keyrings@vger.kernel.org,
-        gregkh@linuxfoundation.org, Guenter Roeck <linux@roeck-us.net>
-Date: Wed, 05 Apr 2017 18:01:44 +0100
-Message-ID: <149141170399.29162.13331435039842686737.stgit@warthog.procyon.org.uk>
-In-Reply-To: <149141141298.29162.5612793122429261720.stgit@warthog.procyon.org.uk>
-References: <149141141298.29162.5612793122429261720.stgit@warthog.procyon.org.uk>
+Return-path: <stwiss.opensource@diasemi.com>
+Message-ID: <1d280a35fc522f7b271c730988ab0f186fef25ba.1491467308.git.stwiss.opensource@diasemi.com>
+In-Reply-To: <cover.1491467308.git.stwiss.opensource@diasemi.com>
+References: <cover.1491467308.git.stwiss.opensource@diasemi.com>
+From: Steve Twiss <stwiss.opensource@diasemi.com>
+Date: Thu, 6 Apr 2017 09:28:27 +0100
+Subject: [RESEND PATCH V7 1/5] Documentation: devicetree: watchdog: da9062/61
+ watchdog timer binding
+To: DEVICETREE <devicetree@vger.kernel.org>, Guenter Roeck
+	<linux@roeck-us.net>, LINUX-KERNEL <linux-kernel@vger.kernel.org>,
+	LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>, Mark Rutland
+	<mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Wim Van Sebroeck
+	<wim@iguana.be>
+CC: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Eduardo Valentin
+	<edubezval@gmail.com>, LINUX-INPUT <linux-input@vger.kernel.org>, LINUX-PM
+	<linux-pm@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Liam Girdwood
+	<lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Support Opensource
+	<support.opensource@diasemi.com>, Zhang Rui <rui.zhang@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Content-Type: text/plain
+List-ID: <linux-watchdog@vger.kernel.org>
 
-When the kernel is running in secure boot mode, we lock down the kernel to
-prevent userspace from modifying the running kernel image.  Whilst this
-includes prohibiting access to things like /dev/mem, it must also prevent
-access by means of configuring driver modules in such a way as to cause a
-device to access or modify the kernel image.
+From: Steve Twiss <stwiss.opensource@diasemi.com>
 
-To this end, annotate module_param* statements that refer to hardware
-configuration and indicate for future reference what type of parameter they
-specify.  The parameter parser in the core sees this information and can
-skip such parameters with an error message if the kernel is locked down.
-The module initialisation then runs as normal, but just sees whatever the
-default values for those parameters is.
+Add binding information for DA9062 and DA9061 watchdog.
 
-Note that we do still need to do the module initialisation because some
-drivers have viable defaults set in case parameters aren't specified and
-some drivers support automatic configuration (e.g. PNP or PCI) in addition
-to manually coded parameters.
+Example bindings for both DA9062 and DA9061 devices are added. For
+the DA9061 device, a fallback compatible line is added as a valid
+combination of compatible strings.
 
-This patch annotates drivers in drivers/watchdog/.
+The original binding for DA9062 (only) used to reside inside the
+Documentation/devicetree/bindings/mfd/da9062.txt MFD document.
+The da9062-watchdog section was deleted in that file and replaced
+with a link to the new DA9061/62 binding information stored in this
+patch.
 
-Suggested-by: Alan Cox <gnomes@lxorguk.ukuu.org.uk>
-Signed-off-by: David Howells <dhowells@redhat.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-cc: Wim Van Sebroeck <wim@iguana.be>
-cc: Zwane Mwaikambo <zwanem@gmail.com>
-cc: linux-watchdog@vger.kernel.org
+Acked-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+
 ---
 
- drivers/watchdog/cpu5wdt.c     |    2 +-
- drivers/watchdog/eurotechwdt.c |    4 ++--
- drivers/watchdog/pc87413_wdt.c |    2 +-
- drivers/watchdog/sc1200wdt.c   |    2 +-
- drivers/watchdog/wdt.c         |    4 ++--
- 5 files changed, 7 insertions(+), 7 deletions(-)
+Hi,
 
-diff --git a/drivers/watchdog/cpu5wdt.c b/drivers/watchdog/cpu5wdt.c
-index 6d03e8e30f8b..6c3f78e45c26 100644
---- a/drivers/watchdog/cpu5wdt.c
-+++ b/drivers/watchdog/cpu5wdt.c
-@@ -289,7 +289,7 @@ MODULE_DESCRIPTION("sma cpu5 watchdog driver");
- MODULE_SUPPORTED_DEVICE("sma cpu5 watchdog");
- MODULE_LICENSE("GPL");
- 
--module_param(port, int, 0);
-+module_param_hw(port, int, ioport, 0);
- MODULE_PARM_DESC(port, "base address of watchdog card, default is 0x91");
- 
- module_param(verbose, int, 0);
-diff --git a/drivers/watchdog/eurotechwdt.c b/drivers/watchdog/eurotechwdt.c
-index 23ee53240c4c..38e96712264f 100644
---- a/drivers/watchdog/eurotechwdt.c
-+++ b/drivers/watchdog/eurotechwdt.c
-@@ -97,9 +97,9 @@ MODULE_PARM_DESC(nowayout,
- #define WDT_TIMER_CFG		0xf3
- 
- 
--module_param(io, int, 0);
-+module_param_hw(io, int, ioport, 0);
- MODULE_PARM_DESC(io, "Eurotech WDT io port (default=0x3f0)");
--module_param(irq, int, 0);
-+module_param_hw(irq, int, irq, 0);
- MODULE_PARM_DESC(irq, "Eurotech WDT irq (default=10)");
- module_param(ev, charp, 0);
- MODULE_PARM_DESC(ev, "Eurotech WDT event type (default is `int')");
-diff --git a/drivers/watchdog/pc87413_wdt.c b/drivers/watchdog/pc87413_wdt.c
-index 9f15dd9435d1..06a892e36a8d 100644
---- a/drivers/watchdog/pc87413_wdt.c
-+++ b/drivers/watchdog/pc87413_wdt.c
-@@ -579,7 +579,7 @@ MODULE_AUTHOR("Marcus Junker <junker@anduras.de>");
- MODULE_DESCRIPTION("PC87413 WDT driver");
- MODULE_LICENSE("GPL");
- 
--module_param(io, int, 0);
-+module_param_hw(io, int, ioport, 0);
- MODULE_PARM_DESC(io, MODNAME " I/O port (default: "
- 					__MODULE_STRING(IO_DEFAULT) ").");
- 
-diff --git a/drivers/watchdog/sc1200wdt.c b/drivers/watchdog/sc1200wdt.c
-index 131193a7acdf..b34d3d5ba632 100644
---- a/drivers/watchdog/sc1200wdt.c
-+++ b/drivers/watchdog/sc1200wdt.c
-@@ -88,7 +88,7 @@ MODULE_PARM_DESC(isapnp,
- 	"When set to 0 driver ISA PnP support will be disabled");
- #endif
- 
--module_param(io, int, 0);
-+module_param_hw(io, int, ioport, 0);
- MODULE_PARM_DESC(io, "io port");
- module_param(timeout, int, 0);
- MODULE_PARM_DESC(timeout, "range is 0-255 minutes, default is 1");
-diff --git a/drivers/watchdog/wdt.c b/drivers/watchdog/wdt.c
-index e0206b5b7d89..e481fbbc4ae7 100644
---- a/drivers/watchdog/wdt.c
-+++ b/drivers/watchdog/wdt.c
-@@ -78,9 +78,9 @@ static int irq = 11;
- 
- static DEFINE_SPINLOCK(wdt_lock);
- 
--module_param(io, int, 0);
-+module_param_hw(io, int, ioport, 0);
- MODULE_PARM_DESC(io, "WDT io port (default=0x240)");
--module_param(irq, int, 0);
-+module_param_hw(irq, int, irq, 0);
- MODULE_PARM_DESC(irq, "WDT irq (default=11)");
- 
- /* Support for the Fan Tachometer on the WDT501-P */
+I have just noticed.
 
+The driver code changes for the da9062/61 watchdog have been applied to
+the linux kernel. The da9062/61 alterations for
+drivers/watchdog/da9062_wdt.c appear in linux-stable/v4.10-rc1. Those
+changes are linked to this binding patch, but this patch seems to have
+been missed out.
+
+The source code dependency for this patch is given in the commit:
+72106c1 v4.10-rc1 watchdog: da9062/61: watchdog driver
+
+I don't see anything blocking for merge of this patch now.
+
+Regards,
+Steve
+
+This patch applies against linux-next and v4.11-rc3
+
+v6 -> v7
+ - NO CODE CHANGE
+
+v5 -> v6
+ - NO CODE CHANGE
+ - Rebased from v4.9 to v4.11-rc3
+
+v4 -> v5
+ - NO CODE CHANGE
+ - Rebased from v4.8 to v4.9
+
+v3 -> v4
+ - NO CODE CHANGE
+ - Patch renamed from [PATCH V3 2/9] to [PATCH V4 1/8]
+ - Added Acked-by Rob Herring
+
+v2 -> v3
+ - Patch renamed from [PATCH V1 02/10] to [PATCH V3 2/9]
+ - Each compatible line should be a valid combination of compatible
+   strings, alter DA9061 line to include the fall back compatible string
+ - Update the commit message to describe this change
+ - Add information about associated patches from this set without
+   describing them as being explicitly dependent on this binding
+
+v1 -> v2
+ - Patch renamed from [PATCH V1 07/10] to [PATCH V2 02/10] -- these
+   changes were made to fix checkpatch warnings caused by the patch
+   set dependency order
+ - Updated the patch description to be explicit about where parts of
+   this binding had originally been stored
+ - A second example for DA9061 is provided to highlight the use of a
+   fall-back compatible option for the DA9062 watchdog driver
+
+As previously:
+
+For the watchdog case: the DA9062 device driver is compatible with the
+DA9061 and for this reason there is minimal change required to the DA9062
+watchdog device driver. The example for the DA9061 watchdog shows the
+use of a fall-back compatible string.
+
+Other information:
+The device driver from this patch set (associated with this binding) is
+  [PATCH V5 6/8] watchdog: da9061: watchdog driver
+ 
+Regards,
+Steve Twiss, Dialog Semiconductor
+
+
+ .../devicetree/bindings/watchdog/da9062-wdt.txt    | 23 ++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/da9062-wdt.txt
+
+diff --git a/Documentation/devicetree/bindings/watchdog/da9062-wdt.txt b/Documentation/devicetree/bindings/watchdog/da9062-wdt.txt
+new file mode 100644
+index 0000000..b935b52
+--- /dev/null
++++ b/Documentation/devicetree/bindings/watchdog/da9062-wdt.txt
+@@ -0,0 +1,23 @@
++* Dialog Semiconductor DA9062/61 Watchdog Timer
++
++Required properties:
++
++- compatible: should be one of the following valid compatible string lines:
++	"dlg,da9061-watchdog", "dlg,da9062-watchdog"
++	"dlg,da9062-watchdog"
++
++Example: DA9062
++
++	pmic0: da9062@58 {
++		watchdog {
++			compatible = "dlg,da9062-watchdog";
++		};
++	};
++
++Example: DA9061 using a fall-back compatible for the DA9062 watchdog driver
++
++	pmic0: da9061@58 {
++		watchdog {
++			compatible = "dlg,da9061-watchdog", "dlg,da9062-watchdog";
++		};
++	};
+-- 
+end-of-patch for RESEND PATCH V7
