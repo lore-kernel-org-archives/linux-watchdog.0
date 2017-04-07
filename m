@@ -1,78 +1,82 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-qk0-f182.google.com ([209.85.220.182]:36110 "EHLO
-        mail-qk0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752194AbdDFVhz (ORCPT
+Received: from mail-pg0-f67.google.com ([74.125.83.67]:35160 "EHLO
+        mail-pg0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751903AbdDGEv0 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 6 Apr 2017 17:37:55 -0400
-MIME-Version: 1.0
-In-Reply-To: <f5fbaf426ad657e1f8cb8a15619602afd4e12efe.1491428146.git.sathyanarayanan.kuppuswamy@linux.intel.com>
-References: <463a23bb1f44098dd0fe506346bae71282009e05.1491428146.git.sathyanarayanan.kuppuswamy@linux.intel.com>
- <3e7ca77c-2be5-5f89-f51f-faaca9f2d9ac@linux.intel.com> <f5fbaf426ad657e1f8cb8a15619602afd4e12efe.1491428146.git.sathyanarayanan.kuppuswamy@linux.intel.com>
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Date: Fri, 7 Apr 2017 00:37:54 +0300
-Message-ID: <CAHp75VcMS3V63eFVhWiM+ynoV7wOjbHb56brSSJ71CDcxS1fLg@mail.gmail.com>
-Subject: Re: [PATCH v6 5/6] platform/x86: intel_pmc_ipc: Fix iTCO_wdt GCS
- memory mapping failure
-To: Kuppuswamy Sathyanarayanan
-        <sathyanarayanan.kuppuswamy@linux.intel.com>
-Cc: Andy Shevchenko <andy@infradead.org>,
-        Zha Qipeng <qipeng.zha@intel.com>,
-        "dvhart@infradead.org" <dvhart@infradead.org>,
+        Fri, 7 Apr 2017 00:51:26 -0400
+Date: Thu, 6 Apr 2017 21:51:21 -0700
+From: Eduardo Valentin <edubezval@gmail.com>
+To: Steve Twiss <stwiss.opensource@diasemi.com>
+Cc: DEVICETREE <devicetree@vger.kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Guenter Roeck <linux@roeck-us.net>,
+        LINUX-INPUT <linux-input@vger.kernel.org>,
+        LINUX-KERNEL <linux-kernel@vger.kernel.org>,
+        LINUX-PM <linux-pm@vger.kernel.org>,
+        LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
+        Lee Jones <lee.jones@linaro.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Lukasz Luba <lukasz.luba@arm.com>,
+        Mark Brown <broonie@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Rob Herring <robh+dt@kernel.org>,
         Wim Van Sebroeck <wim@iguana.be>,
-        Sathyanarayanan Kuppuswamy Natarajan <sathyaosid@gmail.com>,
-        David Box <david.e.box@linux.intel.com>,
-        Rajneesh Bhardwaj <rajneesh.bhardwaj@intel.com>,
-        Platform Driver <platform-driver-x86@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        linux-watchdog@vger.kernel.org
-Content-Type: text/plain; charset=UTF-8
+        Zhang Rui <rui.zhang@intel.com>,
+        Support Opensource <support.opensource@diasemi.com>
+Subject: Re: [PATCH V7 0/7]  da9061: DA9061 driver submission
+Message-ID: <20170407045120.GA23772@localhost.localdomain>
+References: <cover.1490712213.git.stwiss.opensource@diasemi.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="4Ckj6UjgE2iN1+kY"
+Content-Disposition: inline
+In-Reply-To: <cover.1490712213.git.stwiss.opensource@diasemi.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Thu, Apr 6, 2017 at 1:54 AM, Kuppuswamy Sathyanarayanan
-<sathyanarayanan.kuppuswamy@linux.intel.com> wrote:
-> iTCO_wdt driver need access to PMC_CFG GCR register to modify the
-> noreboot setting. Currently, this is done by passing PMC_CFG reg
-> address as memory resource to watchdog driver and allowing it directly
-> modify the PMC_CFG register. But currently PMC driver also has
-> requirement to memory map the entire GCR register space in this driver.
-> This causes mem request failure in watchdog driver. So this patch fixes
-> this issue by adding API to update noreboot flag and passes them
-> to watchdog driver via platform data.
 
-> +/* PMC_CFG_REG bit masks */
-> +#define PMC_CFG_NO_REBOOT_MASK         BIT(4)
+--4Ckj6UjgE2iN1+kY
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> +#define PMC_CFG_NO_REBOOT_ENABLE       BIT(4)
-> +#define PMC_CFG_NO_REBOOT_DISABLE      0
+Hey,
 
-I would go for those like
-(1 << 4)
-and
-(0 << 4)
-which for my opinion is better to get a picture.
+On Tue, Mar 28, 2017 at 03:43:33PM +0100, Steve Twiss wrote:
+> From: Steve Twiss <stwiss.opensource@diasemi.com>
+>=20
+> This patch set adds support for the Dialog DA9061 Power Management IC.
+> Support is made by altering the existing DA9062 device driver, where
+> appropriate.
+>=20
+> Hello,
+>=20
+> Previously, there were only minor changes for v6.
+> The patch v7 introduces a compile test for x86 64-bit.
+>=20
 
-> +static int update_no_reboot_bit(void *priv, bool set)
-> +{
-> +       if (set)
-> +               return intel_pmc_gcr_update(PMC_GCR_PMC_CFG_REG,
-> +                                           PMC_CFG_NO_REBOOT_MASK,
-> +                                           PMC_CFG_NO_REBOOT_ENABLE);
-> +
-> +       return intel_pmc_gcr_update(PMC_GCR_PMC_CFG_REG,
-> +                                   PMC_CFG_NO_REBOOT_MASK,
-> +                                   PMC_CFG_NO_REBOOT_DISABLE);
+Applied patches 2 and 7 on my tree.
 
-u32 value = set ? PMC_CFG_NO_REBOOT_ENABLE : PMC_CFG_NO_REBOOT_DISABLE;
+--4Ckj6UjgE2iN1+kY
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-(also you may consider to use just *_EN and *_DIS)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
 
-return intel_pmc_gcr_update(PMC_GCR_PMC_CFG_REG,
-                                   PMC_CFG_NO_REBOOT_MASK,
-                                   value);
-> +}
+iQIcBAEBCAAGBQJY5xq7AAoJEA6VkvSQfF5TcF8P/1w+me4ny0XScQdGXdgRogRs
+tlw5BiBH4lHvFEm/RM5f4KxhwW+AFHN17CcOhhVFn7RPkJQaVEoV05zWU2LDxM4L
+sGTGNdyxS11LIZHrg8fB/5tH27N+Hg/U1texkn+EXkq3dZMY4mitYMrbKV+dk0rF
+lMRadqhnKHPpo+1joYRLAQrkG4awWx5QGazpt4a9MLyQ1Shya+IvhcBpKrj6m+DS
+YlePeNgW39FimP+6vyo8QD1HwvRUsOOKd38VV6Kaah6YM4khn3HMeK/yajE/i0DL
+FBbO7u6YvxvWyNlgcI33lR5THcVSLCY55PGciY88ONmbMlIbX1PGAc4Eap3rYVfk
+puef9ktlKoIjtKgk0NGl6K/Z8XGmgY9ixFFrcFKr9YTFuKY/ybLgzPdw7luEyerm
+npVLEo61rlN3mi/dqmNUwsgTO8L5rWrv4DsB6PlTbicp9Rz9EkmvoSG+5+/bDnTp
+PxQhm79rNPZybWODdUmruBScxGljOikO7GWz9Kk7aEm3iJhfFprNXOmCx3R5Yi5W
+U2g8yA65oSyawbpwON57b7xV1f21QASSyZ6A6kSes5wKQI50JfIjmUu0eM/fxdf1
++klGDfrq+8WIBgIJ7OKnOag3xjTpwBDnrol6x1H3myZHtBC/6VwoQH5G0mUGbrTS
+gC7v4YrKNaae3ZGb9weV
+=rbMU
+-----END PGP SIGNATURE-----
 
--- 
-With Best Regards,
-Andy Shevchenko
+--4Ckj6UjgE2iN1+kY--
