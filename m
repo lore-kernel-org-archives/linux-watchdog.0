@@ -1,9 +1,9 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:49879 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:39207 "EHLO
         bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753248AbdDJMvH (ORCPT
+        with ESMTP id S1752750AbdDJMv3 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 10 Apr 2017 08:51:07 -0400
+        Mon, 10 Apr 2017 08:51:29 -0400
 Subject: Re: [PATCH v7 3/6] watchdog: iTCO_wdt: cleanup set/unset
  no_reboot_bit functions
 To: Kuppuswamy Sathyanarayanan
@@ -15,8 +15,8 @@ Cc: wim@iguana.be, sathyaosid@gmail.com, david.e.box@linux.intel.com,
         rajneesh.bhardwaj@intel.com, platform-driver-x86@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org
 From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <497de102-74b6-e3f7-54ff-28c87c28bfa5@roeck-us.net>
-Date: Mon, 10 Apr 2017 05:51:02 -0700
+Message-ID: <aa8ebb72-20b5-f8d7-18cc-e27f3bf85d6f@roeck-us.net>
+Date: Mon, 10 Apr 2017 05:51:26 -0700
 MIME-Version: 1.0
 In-Reply-To: <ce8f66b252cbf7a3eef43c7ff3be1c21fb1f2393.1491773609.git.sathyanarayanan.kuppuswamy@linux.intel.com>
 Content-Type: text/plain; charset=windows-1252; format=flowed
