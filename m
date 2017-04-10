@@ -1,66 +1,41 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx07-00178001.pphosted.com ([62.209.51.94]:64458 "EHLO
-        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S933563AbdDFMUu (ORCPT
+Received: from mail-oi0-f66.google.com ([209.85.218.66]:35298 "EHLO
+        mail-oi0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752395AbdDJSZv (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 6 Apr 2017 08:20:50 -0400
-From: Yannick Fertre <yannick.fertre@st.com>
-To: Wim Van Sebroeck <wim@iguana.be>,
+        Mon, 10 Apr 2017 14:25:51 -0400
+Date: Mon, 10 Apr 2017 13:25:49 -0500
+From: Rob Herring <robh@kernel.org>
+To: Yannick Fertre <yannick.fertre@st.com>
+Cc: Wim Van Sebroeck <wim@iguana.be>,
         Guenter Roeck <linux@roeck-us.net>,
-        Rob Herring <robh+dt@kernel.org>,
         Alexandre TORGUE <alexandre.torgue@st.com>,
         Benjamin Gaignard <benjamin.gaignard@st.com>,
-        Yannick Fertre <yannick.fertre@st.com>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>
-CC: <linux-watchdog@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
         Philippe Cornu <philippe.cornu@st.com>,
         Gabriel FERNANDEZ <gabriel.fernandez@st.com>,
-        <devicetree@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>
-Subject: [PATCH v5 3/5] ARM: dts: stm32: Add watchdog support for STM32F429 SoC
-Date: Thu, 6 Apr 2017 14:19:26 +0200
-Message-ID: <1491481168-22213-4-git-send-email-yannick.fertre@st.com>
-In-Reply-To: <1491481168-22213-1-git-send-email-yannick.fertre@st.com>
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH v5 1/5] dt-bindings: watchdog: Document STM32 IWDG
+ bindings
+Message-ID: <20170410182549.yqkmolezpjj6eubg@rob-hp-laptop>
 References: <1491481168-22213-1-git-send-email-yannick.fertre@st.com>
+ <1491481168-22213-2-git-send-email-yannick.fertre@st.com>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1491481168-22213-2-git-send-email-yannick.fertre@st.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Add watchdog into DT for stm32f429 family.
+On Thu, Apr 06, 2017 at 02:19:24PM +0200, Yannick Fertre wrote:
+> This adds documentation of device tree bindings for the STM32 IWDG
+> (Independent WatchDoG).
+> 
+> Signed-off-by: Yannick Fertre <yannick.fertre@st.com>
+> ---
+>  .../devicetree/bindings/watchdog/st,stm32-iwdg.txt    | 19 +++++++++++++++++++
+>  1 file changed, 19 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/watchdog/st,stm32-iwdg.txt
 
-Signed-off-by: Yannick FERTRE <yannick.fertre@st.com>
----
- arch/arm/boot/dts/stm32f429.dtsi | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
-
-diff --git a/arch/arm/boot/dts/stm32f429.dtsi b/arch/arm/boot/dts/stm32f429.dtsi
-index 89327d6..d84dd44 100644
---- a/arch/arm/boot/dts/stm32f429.dtsi
-+++ b/arch/arm/boot/dts/stm32f429.dtsi
-@@ -64,7 +64,7 @@
- 			clock-frequency = <32768>;
- 		};
- 
--		clk-lsi {
-+		clk_lsi: clk-lsi {
- 			#clock-cells = <0>;
- 			compatible = "fixed-clock";
- 			clock-frequency = <32000>;
-@@ -306,6 +306,13 @@
- 			status = "disabled";
- 		};
- 
-+		iwdg: watchdog@40003000 {
-+			compatible = "st,stm32-iwdg";
-+			reg = <0x40003000 0x400>;
-+			clocks = <&clk_lsi>;
-+			status = "disabled";
-+		};
-+
- 		usart2: serial@40004400 {
- 			compatible = "st,stm32-usart", "st,stm32-uart";
- 			reg = <0x40004400 0x400>;
--- 
-1.9.1
-
+Acked-by: Rob Herring <robh@kernel.org>
