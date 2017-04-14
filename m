@@ -1,8 +1,8 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:52824 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:41540 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751687AbdDNSk7 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 14 Apr 2017 14:40:59 -0400
+        id S1754557AbdDNSlR (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 14 Apr 2017 14:41:17 -0400
 From: fu.wei@linaro.org
 To: rjw@rjwysocki.net, lenb@kernel.org, daniel.lezcano@linaro.org,
         tglx@linutronix.de, marc.zyngier@arm.com, mark.rutland@arm.com,
@@ -18,9 +18,9 @@ Cc: linux-arm-kernel@lists.infradead.org, linaro-acpi@lists.linaro.org,
         linux@roeck-us.net, linux-watchdog@vger.kernel.org,
         tn@semihalf.com, christoffer.dall@linaro.org, julien.grall@arm.com,
         Fu Wei <fu.wei@linaro.org>
-Subject: [PATCH v24 01/11] clocksource: arm_arch_timer: split dt-only rate handling
-Date: Sat, 15 Apr 2017 02:40:04 +0800
-Message-Id: <20170414184014.8524-2-fu.wei@linaro.org>
+Subject: [PATCH v24 02/11] clocksource: arm_arch_timer: refactor arch_timer_needs_probing
+Date: Sat, 15 Apr 2017 02:40:05 +0800
+Message-Id: <20170414184014.8524-3-fu.wei@linaro.org>
 In-Reply-To: <20170414184014.8524-1-fu.wei@linaro.org>
 References: <20170414184014.8524-1-fu.wei@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -28,118 +28,84 @@ List-Id: linux-watchdog@vger.kernel.org
 
 From: Fu Wei <fu.wei@linaro.org>
 
-For historical reasons, rate detection when probing via DT is somewhat
-convoluted. We tried to package this up in arch_timer_detect_rate(), but
-with the addition of ACPI worse, and gets in the way of stringent rate
-checking when ACPI is used.
+When booting with DT, it's possible for timer nodes to be probed in any
+order. Some common initialisation needs to occur after all nodes have
+been probed, and arch_timer_common_init() has code to detect when this
+has happened.
 
-This patch makes arch_timer_detect_rate() specific to DT, ripping out
-ACPI logic. In preparation for rework of the MMIO timer probing, the
-reading of the relevant CNTFRQ register is factored out to callers. The
-function is then renamed to arch_timer_of_configure_rate(), which better
-represents its new place in the world.
+This logic is DT-specific, and it would be best to factor it out of the
+common code that will be shared with ACPI.
 
-Comments are added in the DT and ACPI probe paths to explain this.
+This patch folds this into the existing arch_timer_needs_probing(),
+which is renamed to arch_timer_needs_of_probing(), and no longer takes
+any arguments. This is only called when using DT, and not when using
+ACPI, which will have a deterministic probe order.
 
 Signed-off-by: Fu Wei <fu.wei@linaro.org>
-[Mark: reword commit message, TODO: rework comments]
+Reviewed-by: Hanjun Guo <hanjun.guo@linaro.org>
+[Mark: reword commit message]
 Signed-off-by: Mark Rutland <mark.rutland@arm.com>
 ---
- drivers/clocksource/arm_arch_timer.c | 41 ++++++++++++++++++++----------------
- 1 file changed, 23 insertions(+), 18 deletions(-)
+ drivers/clocksource/arm_arch_timer.c | 34 +++++++++++++++++++---------------
+ 1 file changed, 19 insertions(+), 15 deletions(-)
 
 diff --git a/drivers/clocksource/arm_arch_timer.c b/drivers/clocksource/arm_arch_timer.c
-index 94de018..0138b0c 100644
+index 0138b0c..03d71d6 100644
 --- a/drivers/clocksource/arm_arch_timer.c
 +++ b/drivers/clocksource/arm_arch_timer.c
-@@ -818,24 +818,19 @@ static int arch_timer_starting_cpu(unsigned int cpu)
- 	return 0;
- }
+@@ -1076,15 +1076,28 @@ static const struct of_device_id arch_timer_mem_of_match[] __initconst = {
+ 	{},
+ };
  
--static void
--arch_timer_detect_rate(void __iomem *cntbase, struct device_node *np)
-+/*
-+ * For historical reasons, when probing with DT we use whichever (non-zero)
-+ * rate was probed first, and don't verify that others match. If the first node
-+ * probed has a clock-frequency property, this overrides the HW register.
-+ */
-+static void arch_timer_of_configure_rate(u32 rate, struct device_node *np)
+-static bool __init
+-arch_timer_needs_probing(int type, const struct of_device_id *matches)
++static bool __init arch_timer_needs_of_probing(void)
  {
- 	/* Who has more than one independent system counter? */
- 	if (arch_timer_rate)
- 		return;
+ 	struct device_node *dn;
+ 	bool needs_probing = false;
++	unsigned int mask = ARCH_TIMER_TYPE_CP15 | ARCH_TIMER_TYPE_MEM;
  
--	/*
--	 * Try to determine the frequency from the device tree or CNTFRQ,
--	 * if ACPI is enabled, get the frequency from CNTFRQ ONLY.
--	 */
--	if (!acpi_disabled ||
--	    of_property_read_u32(np, "clock-frequency", &arch_timer_rate)) {
--		if (cntbase)
--			arch_timer_rate = readl_relaxed(cntbase + CNTFRQ);
--		else
--			arch_timer_rate = arch_timer_get_cntfrq();
--	}
-+	if (of_property_read_u32(np, "clock-frequency", &arch_timer_rate))
-+		arch_timer_rate = rate;
- 
- 	/* Check the timer frequency. */
- 	if (arch_timer_rate == 0)
-@@ -1166,6 +1161,7 @@ static int __init arch_timer_init(void)
- static int __init arch_timer_of_init(struct device_node *np)
- {
- 	int i;
-+	u32 rate;
- 
- 	if (arch_timers_present & ARCH_TIMER_TYPE_CP15) {
- 		pr_warn("multiple nodes in dt, skipping\n");
-@@ -1176,7 +1172,8 @@ static int __init arch_timer_of_init(struct device_node *np)
- 	for (i = ARCH_TIMER_PHYS_SECURE_PPI; i < ARCH_TIMER_MAX_TIMER_PPI; i++)
- 		arch_timer_ppi[i] = irq_of_parse_and_map(np, i);
- 
--	arch_timer_detect_rate(NULL, np);
-+	rate = arch_timer_get_cntfrq();
-+	arch_timer_of_configure_rate(rate, np);
- 
- 	arch_timer_c3stop = !of_property_read_bool(np, "always-on");
- 
-@@ -1212,7 +1209,7 @@ static int __init arch_timer_mem_init(struct device_node *np)
- 	struct device_node *frame, *best_frame = NULL;
- 	void __iomem *cntctlbase, *base;
- 	unsigned int irq, ret = -EINVAL;
--	u32 cnttidr;
-+	u32 cnttidr, rate;
- 
- 	arch_timers_present |= ARCH_TIMER_TYPE_MEM;
- 	cntctlbase = of_iomap(np, 0);
-@@ -1278,7 +1275,8 @@ static int __init arch_timer_mem_init(struct device_node *np)
- 		goto out;
- 	}
- 
--	arch_timer_detect_rate(base, np);
-+	rate = readl(base + CNTFRQ);
-+	arch_timer_of_configure_rate(rate, np);
- 	ret = arch_timer_mem_register(base, irq);
- 	if (ret)
- 		goto out;
-@@ -1339,8 +1337,15 @@ static int __init arch_timer_acpi_init(struct acpi_table_header *table)
- 		map_generic_timer_interrupt(gtdt->non_secure_el2_interrupt,
- 		gtdt->non_secure_el2_flags);
- 
--	/* Get the frequency from CNTFRQ */
--	arch_timer_detect_rate(NULL, NULL);
+-	dn = of_find_matching_node(NULL, matches);
+-	if (dn && of_device_is_available(dn) && !(arch_timers_present & type))
++	/* We have two timers, and both device-tree nodes are probed. */
++	if ((arch_timers_present & mask) == mask)
++		return false;
++
 +	/*
-+	 * When probing via ACPI, we have no mechanism to override the sysreg
-+	 * CNTFRQ value. This *must* be correct.
++	 * Only one type of timer is probed,
++	 * check if we have another type of timer node in device-tree.
 +	 */
-+	arch_timer_rate = arch_timer_get_cntfrq();
-+	if (!arch_timer_rate) {
-+		pr_err(FW_BUG "frequency not available.\n");
-+		return -EINVAL;
-+	}
++	if (arch_timers_present & ARCH_TIMER_TYPE_CP15)
++		dn = of_find_matching_node(NULL, arch_timer_mem_of_match);
++	else
++		dn = of_find_matching_node(NULL, arch_timer_of_match);
++
++	if (dn && of_device_is_available(dn))
+ 		needs_probing = true;
++
+ 	of_node_put(dn);
  
- 	arch_timer_uses_ppi = arch_timer_select_ppi();
- 	if (!arch_timer_ppi[arch_timer_uses_ppi]) {
+ 	return needs_probing;
+@@ -1092,17 +1105,8 @@ arch_timer_needs_probing(int type, const struct of_device_id *matches)
+ 
+ static int __init arch_timer_common_init(void)
+ {
+-	unsigned mask = ARCH_TIMER_TYPE_CP15 | ARCH_TIMER_TYPE_MEM;
+-
+-	/* Wait until both nodes are probed if we have two timers */
+-	if ((arch_timers_present & mask) != mask) {
+-		if (arch_timer_needs_probing(ARCH_TIMER_TYPE_MEM,
+-					     arch_timer_mem_of_match))
+-			return 0;
+-		if (arch_timer_needs_probing(ARCH_TIMER_TYPE_CP15,
+-					     arch_timer_of_match))
+-			return 0;
+-	}
++	if (acpi_disabled && arch_timer_needs_of_probing())
++		return 0;
+ 
+ 	arch_timer_banner(arch_timers_present);
+ 	arch_counter_register(arch_timers_present);
 -- 
 2.9.3
 
