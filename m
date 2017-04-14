@@ -1,8 +1,8 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:59756 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:52824 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751687AbdDNSkq (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 14 Apr 2017 14:40:46 -0400
+        id S1751687AbdDNSk7 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 14 Apr 2017 14:40:59 -0400
 From: fu.wei@linaro.org
 To: rjw@rjwysocki.net, lenb@kernel.org, daniel.lezcano@linaro.org,
         tglx@linutronix.de, marc.zyngier@arm.com, mark.rutland@arm.com,
@@ -18,220 +18,128 @@ Cc: linux-arm-kernel@lists.infradead.org, linaro-acpi@lists.linaro.org,
         linux@roeck-us.net, linux-watchdog@vger.kernel.org,
         tn@semihalf.com, christoffer.dall@linaro.org, julien.grall@arm.com,
         Fu Wei <fu.wei@linaro.org>
-Subject: [PATCH v24 00/11] acpi, clocksource: add GTDT driver and GTDT support in arm_arch_timer
-Date: Sat, 15 Apr 2017 02:40:03 +0800
-Message-Id: <20170414184014.8524-1-fu.wei@linaro.org>
+Subject: [PATCH v24 01/11] clocksource: arm_arch_timer: split dt-only rate handling
+Date: Sat, 15 Apr 2017 02:40:04 +0800
+Message-Id: <20170414184014.8524-2-fu.wei@linaro.org>
+In-Reply-To: <20170414184014.8524-1-fu.wei@linaro.org>
+References: <20170414184014.8524-1-fu.wei@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
 From: Fu Wei <fu.wei@linaro.org>
 
-This patchset:
-    (1)Preparation for adding GTDT support in arm_arch_timer:
-        1. Introduce a MMIO CNTFRQ helper.
-        2. separate out device-tree code from arch_timer_detect_rate
-        3. replace arch_timer_detect_rate with arch_timer_of_configure_rate
-        4. Refactor arch_timer_needs_probing, and move it into DT init call
-        5. Introduce some new structs and refactor the MMIO timer init code
-        for reusing some common code.
+For historical reasons, rate detection when probing via DT is somewhat
+convoluted. We tried to package this up in arch_timer_detect_rate(), but
+with the addition of ACPI worse, and gets in the way of stringent rate
+checking when ACPI is used.
 
-    (2)Introduce ACPI GTDT parser: drivers/acpi/arm64/gtdt.c
-    Parse all kinds of timer in GTDT table of ACPI:arch timer,
-    memory-mapped timer and SBSA Generic Watchdog timer.
-    This driver can help to simplify all the relevant timer drivers,
-    and separate all the ACPI GTDT knowledge from them.
+This patch makes arch_timer_detect_rate() specific to DT, ripping out
+ACPI logic. In preparation for rework of the MMIO timer probing, the
+reading of the relevant CNTFRQ register is factored out to callers. The
+function is then renamed to arch_timer_of_configure_rate(), which better
+represents its new place in the world.
 
-    (3)Simplify ACPI code for arm_arch_timer
+Comments are added in the DT and ACPI probe paths to explain this.
 
-    (4)Add GTDT support for ARM memory-mapped timer.
+Signed-off-by: Fu Wei <fu.wei@linaro.org>
+[Mark: reword commit message, TODO: rework comments]
+Signed-off-by: Mark Rutland <mark.rutland@arm.com>
+---
+ drivers/clocksource/arm_arch_timer.c | 41 ++++++++++++++++++++----------------
+ 1 file changed, 23 insertions(+), 18 deletions(-)
 
-This patchset has been tested on the following platforms with ACPI enabled:
-    (1)ARM Foundation v8 model
-
-Changelog:
-v24: https://lkml.org/lkml/2017/4/14/
-     Mark Rutland:
-         Rework comments
-         Refactor the probing split
-         Verify CNTFRQ:arch_timer_mem_verify_cntfrq
-         Only register the first frame:arch_timer_mem_find_best_frame
-     Fu Wei:
-         Fetches from git://git.kernel.org/pub/scm/linux/kernel/git/mark/linux.git arch-timer/gtdt
-         Introduces acpi_unregister_irq function, and use it in drivers/acpi/arm64/gtdt.c
-
-v23: https://lkml.org/lkml/2017/3/31/629
-     Rebase to git://git.kernel.org/pub/scm/linux/kernel/git/mark/linux.git arch-timer/cleanup
-     Improve the data struct of arch_timer_mem and arch_timer_mem_frame to
-     improve the parser of GT blocks and arch_timer_mem initualization.
-     Improve arch_timer_rate detection: sysreg frequency is primary in DT boot
-     Improve some comments in GTDT parser driver.
-     Improve acpi_gtdt_init function, and make a comment for the multiple calls.
-     Improve the unwinding for the irq of timers, when an error occurs.
-     Handle the case of virtual timer GSIV is 0.
-
-v22: https://lkml.org/lkml/2017/3/21/523
-     Rebase to git://git.kernel.org/pub/scm/linux/kernel/git/mark/linux.git arch-timer/cleanup
-     Only Introduce arch_timer_mem_get_cntfrq to get the frequency from mmio.
-     Merged patch 2,3(about arch_timer_detect_rate).
-     Keep arch_timer_rate, do NOT split it for different types of timer.
-     Improve  memory-mapped timer support by comments and variable name:
-         data-->timer_mem
-         frame-->gtdt_frame
-     Delete zero check for SBSA watchdog irq.
-     Skip secure SBSA watchdog in GTDT driver.
-     Delete Kconfig modification for SBSA watchdog driver.
-     Delete no_irq, using nr_res instead.
-
-v21: https://lkml.org/lkml/2017/2/6/734
-     Introduce two functions to get the frequency from mmio and sysreg.
-     Remove arch_timer_detect_rate use arch_timer_get_*_freq directly
-     Split arch_timer_rate for different types of timer.
-     Skip secure timer frame in GTDT driver.
-     Rebase to git://git.kernel.org/pub/scm/linux/kernel/git/mark/linux.git arch-timer/cleanup
-     (The first 6 patches in v20 have been merged into arch-timer/cleanup branch)
-
-v20: https://lkml.org/lkml/2017/1/18/534
-     Reorder the first 4 patches and split the 4th patches.
-     Leave CNTHCTL_* as they originally were.
-     Fix the bug in arch_timer_select_ppi.
-     Split "Rework counter frequency detection" patch.
-     Rework the arch_timer_detect_rate function.
-     Improve the commit message of "Refactor MMIO timer probing".
-     Rebase to 4.10.0-rc4
-
-v19: https://lkml.org/lkml/2016/12/21/25
-     Fix a '\n' missing in a error message in arch_timer_mem_init.
-     Add "request_mem_region" for ioremapping cntbase, according to
-     f947ee1 clocksource/drivers/arm_arch_timer: Map frame with of_io_request_and_map()
-     Rebase to 4.9.0-gfb779ff
-
-v18: https://lkml.org/lkml/2016/12/8/446
-     Fix 8/15 patch problem of "int ret;" in arch_timer_acpi_init.
-     Rebase to 4.9.0-rc8-g9269898
-
-v17: https://lkml.org/lkml/2016/11/25/140
-     Take out some cleanups from 4/15.
-     Merge 5/15 and 6/15, improve PPI determination code,
-     improve commit message.
-     Rework counter frequency detection.
-     Move arch_timer_needs_of_probing into DT init call.
-     Move Platform Timer scan loop back to timer init call to avoid allocating
-     and free memory.
-     Improve all the exported functions' comment.
-
-v16: https://lkml.org/lkml/2016/11/16/268
-     Fix patchset problem about static enum ppi_nr of 01/13 in v15.
-     Refactor arch_timer_detect_rate.
-     Refactor arch_timer_needs_probing.
-
-v15: https://lkml.org/lkml/2016/11/15/366
-     Re-order patches
-     Add arm_arch_timer refactoring patches to prepare for GTDT:
-         1. rename some  enums and defines, and some cleanups
-         2. separate out arch_timer_uses_ppi init code and fix a potential bug
-         3. Improve some new structs, refactor the timer init code.
-     Since the some structs have been changed, GTDT parser for memory-mapped
-     timer and SBSA Generic Watchdog timer have been update.
-
-v14: https://lkml.org/lkml/2016/9/28/573
-     Separate memory-mapped timer GTDT support into two patches
-         1. Refactor the timer init code to prepare for GTDT
-         2. Add GTDT support for memory-mapped timer
-
-v13: http://www.mail-archive.com/linux-kernel@vger.kernel.org/msg1231717.html
-     Improve arm_arch_timer code for memory-mapped
-     timer GTDT support, refactor original memory-mapped timer
-     dt support for reusing some common code.
-
-v12: https://lkml.org/lkml/2016/9/13/250
-     Rebase to latest Linux 4.8-rc6
-     Delete the confusing "skipping" in the error message.
-
-V11: https://lkml.org/lkml/2016/9/6/354
-     Rebase to latest Linux 4.8-rc5
-     Delete typedef (suggested by checkpatch.pl)
-
-V10: https://lkml.org/lkml/2016/7/26/215
-     Drop the "readq" patch.
-     Rebase to latest Linux 4.7.
-
-V9: https://lkml.org/lkml/2016/7/25/345
-    Improve pr_err message in acpi gtdt driver.
-    Update Commit message for 7/9
-    shorten the irq mapping function name
-    Improve GTDT driver for memory-mapped timer
-
-v8: https://lkml.org/lkml/2016/7/19/660
-    Improve "pr_fmt(fmt)" definition: add "ACPI" in front of "GTDT",
-    and also improve printk message.
-    Simplify is_timer_block and is_watchdog.
-    Merge acpi_gtdt_desc_init and gtdt_arch_timer_init into acpi_gtdt_init();
-    Delete __init in include/linux/acpi.h for GTDT API
-    Make ARM64 select GTDT.
-    Delete "#include <linux/module.h>" from acpi_gtdt.c
-    Simplify GT block parse code.
-
-v7: https://lkml.org/lkml/2016/7/13/769
-    Move the GTDT driver to drivers/acpi/arm64
-    Add add the ARM64-specific ACPI Support maintainers in MAINTAINERS
-    Merge 3 patches of GTDT parser driver.
-    Fix the for_each_platform_timer bug.
-
-v6: https://lkml.org/lkml/2016/6/29/580
-    split the GTDT driver to 4 parts: basic, arch_timer, memory-mapped timer,
-    and SBSA Generic Watchdog timer
-    Improve driver by suggestions and example code from Daniel Lezcano
-
-v5: https://lkml.org/lkml/2016/5/24/356
-    Sorting out all patches, simplify the API of GTDT driver:
-    GTDT driver just fills the data struct for arm_arch_timer driver.
-
-v4: https://lists.linaro.org/pipermail/linaro-acpi/2016-March/006667.html
-    Delete the kvm relevant patches
-    Separate two patches for sorting out the code for arm_arch_timer.
-    Improve irq info export code to allow missing irq info in GTDT table.
-
-v3: https://lkml.org/lkml/2016/2/1/658
-    Improve GTDT driver code:
-      (1)improve pr_* by defining pr_fmt(fmt)
-      (2)simplify gtdt_sbsa_gwdt_init
-      (3)improve gtdt_arch_timer_data_init, if table is NULL, it will try
-      to get GTDT table.
-    Move enum ppi_nr to arm_arch_timer.h, and add enum spi_nr.
-    Add arm_arch_timer get ppi from DT and GTDT support for kvm.
-
-v2: https://lkml.org/lkml/2015/12/2/10
-    Rebase to latest kernel version(4.4-rc3).
-    Fix the bug about the config problem,
-    use CONFIG_ACPI_GTDT instead of CONFIG_ACPI in arm_arch_timer.c
-
-v1: The first upstreaming version: https://lkml.org/lkml/2015/10/28/553
-
-Fu Wei (11):
-  clocksource: arm_arch_timer: split dt-only rate handling
-  clocksource: arm_arch_timer: refactor arch_timer_needs_probing
-  clocksource: arm_arch_timer: move arch_timer_needs_of_probing into DT
-    init call
-  clocksource: arm_arch_timer: add structs to describe MMIO timer
-  clocksource: arm_arch_timer: split MMIO timer probing.
-  acpi/arm64: Add GTDT table parse driver
-  clocksource: arm_arch_timer: simplify ACPI support code.
-  acpi: Add acpi_unregister_irq function
-  acpi/arm64: Add memory-mapped timer support in GTDT driver
-  clocksource: arm_arch_timer: add GTDT support for memory-mapped timer
-  acpi/arm64: Add SBSA Generic Watchdog support in GTDT driver
-
- arch/arm64/Kconfig                   |   1 +
- drivers/acpi/arm64/Kconfig           |   3 +
- drivers/acpi/arm64/Makefile          |   1 +
- drivers/acpi/arm64/gtdt.c            | 404 +++++++++++++++++++++++++++++++++++
- drivers/acpi/irq.c                   |  10 +
- drivers/clocksource/arm_arch_timer.c | 393 ++++++++++++++++++++++++----------
- include/clocksource/arm_arch_timer.h |  16 ++
- include/linux/acpi.h                 |  14 ++
- 8 files changed, 724 insertions(+), 118 deletions(-)
- create mode 100644 drivers/acpi/arm64/gtdt.c
-
+diff --git a/drivers/clocksource/arm_arch_timer.c b/drivers/clocksource/arm_arch_timer.c
+index 94de018..0138b0c 100644
+--- a/drivers/clocksource/arm_arch_timer.c
++++ b/drivers/clocksource/arm_arch_timer.c
+@@ -818,24 +818,19 @@ static int arch_timer_starting_cpu(unsigned int cpu)
+ 	return 0;
+ }
+ 
+-static void
+-arch_timer_detect_rate(void __iomem *cntbase, struct device_node *np)
++/*
++ * For historical reasons, when probing with DT we use whichever (non-zero)
++ * rate was probed first, and don't verify that others match. If the first node
++ * probed has a clock-frequency property, this overrides the HW register.
++ */
++static void arch_timer_of_configure_rate(u32 rate, struct device_node *np)
+ {
+ 	/* Who has more than one independent system counter? */
+ 	if (arch_timer_rate)
+ 		return;
+ 
+-	/*
+-	 * Try to determine the frequency from the device tree or CNTFRQ,
+-	 * if ACPI is enabled, get the frequency from CNTFRQ ONLY.
+-	 */
+-	if (!acpi_disabled ||
+-	    of_property_read_u32(np, "clock-frequency", &arch_timer_rate)) {
+-		if (cntbase)
+-			arch_timer_rate = readl_relaxed(cntbase + CNTFRQ);
+-		else
+-			arch_timer_rate = arch_timer_get_cntfrq();
+-	}
++	if (of_property_read_u32(np, "clock-frequency", &arch_timer_rate))
++		arch_timer_rate = rate;
+ 
+ 	/* Check the timer frequency. */
+ 	if (arch_timer_rate == 0)
+@@ -1166,6 +1161,7 @@ static int __init arch_timer_init(void)
+ static int __init arch_timer_of_init(struct device_node *np)
+ {
+ 	int i;
++	u32 rate;
+ 
+ 	if (arch_timers_present & ARCH_TIMER_TYPE_CP15) {
+ 		pr_warn("multiple nodes in dt, skipping\n");
+@@ -1176,7 +1172,8 @@ static int __init arch_timer_of_init(struct device_node *np)
+ 	for (i = ARCH_TIMER_PHYS_SECURE_PPI; i < ARCH_TIMER_MAX_TIMER_PPI; i++)
+ 		arch_timer_ppi[i] = irq_of_parse_and_map(np, i);
+ 
+-	arch_timer_detect_rate(NULL, np);
++	rate = arch_timer_get_cntfrq();
++	arch_timer_of_configure_rate(rate, np);
+ 
+ 	arch_timer_c3stop = !of_property_read_bool(np, "always-on");
+ 
+@@ -1212,7 +1209,7 @@ static int __init arch_timer_mem_init(struct device_node *np)
+ 	struct device_node *frame, *best_frame = NULL;
+ 	void __iomem *cntctlbase, *base;
+ 	unsigned int irq, ret = -EINVAL;
+-	u32 cnttidr;
++	u32 cnttidr, rate;
+ 
+ 	arch_timers_present |= ARCH_TIMER_TYPE_MEM;
+ 	cntctlbase = of_iomap(np, 0);
+@@ -1278,7 +1275,8 @@ static int __init arch_timer_mem_init(struct device_node *np)
+ 		goto out;
+ 	}
+ 
+-	arch_timer_detect_rate(base, np);
++	rate = readl(base + CNTFRQ);
++	arch_timer_of_configure_rate(rate, np);
+ 	ret = arch_timer_mem_register(base, irq);
+ 	if (ret)
+ 		goto out;
+@@ -1339,8 +1337,15 @@ static int __init arch_timer_acpi_init(struct acpi_table_header *table)
+ 		map_generic_timer_interrupt(gtdt->non_secure_el2_interrupt,
+ 		gtdt->non_secure_el2_flags);
+ 
+-	/* Get the frequency from CNTFRQ */
+-	arch_timer_detect_rate(NULL, NULL);
++	/*
++	 * When probing via ACPI, we have no mechanism to override the sysreg
++	 * CNTFRQ value. This *must* be correct.
++	 */
++	arch_timer_rate = arch_timer_get_cntfrq();
++	if (!arch_timer_rate) {
++		pr_err(FW_BUG "frequency not available.\n");
++		return -EINVAL;
++	}
+ 
+ 	arch_timer_uses_ppi = arch_timer_select_ppi();
+ 	if (!arch_timer_ppi[arch_timer_uses_ppi]) {
 -- 
 2.9.3
 
