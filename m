@@ -1,17 +1,17 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wm0-f68.google.com ([74.125.82.68]:33861 "EHLO
-        mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755163AbdDQVSs (ORCPT
+Received: from mail-wr0-f193.google.com ([209.85.128.193]:36444 "EHLO
+        mail-wr0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753726AbdDQVYH (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 17 Apr 2017 17:18:48 -0400
+        Mon, 17 Apr 2017 17:24:07 -0400
 MIME-Version: 1.0
-In-Reply-To: <20170417192942.32219-9-hauke@hauke-m.de>
-References: <20170417192942.32219-1-hauke@hauke-m.de> <20170417192942.32219-9-hauke@hauke-m.de>
+In-Reply-To: <20170417192942.32219-12-hauke@hauke-m.de>
+References: <20170417192942.32219-1-hauke@hauke-m.de> <20170417192942.32219-12-hauke@hauke-m.de>
 From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Date: Mon, 17 Apr 2017 23:18:26 +0200
-Message-ID: <CAFBinCB5F93SNg=mL9uZP6wEz4mt6+VLd0Z1KQ6-g2JdUT3LBg@mail.gmail.com>
-Subject: Re: [PATCH 08/13] reset: Add a reset controller driver for the Lantiq
- XWAY based SoCs
+Date: Mon, 17 Apr 2017 23:23:45 +0200
+Message-ID: <CAFBinCAB=vaDpzCoMFX8w9j0R04i6Zr4mbjDtteKsQ_LkKAaLg@mail.gmail.com>
+Subject: Re: [PATCH 11/13] phy: Add an USB PHY driver for the Lantiq SoCs
+ using the RCU module
 To: Hauke Mehrtens <hauke@hauke-m.de>
 Cc: ralf@linux-mips.org, linux-mips@linux-mips.org,
         linux-mtd@lists.infradead.org, linux-watchdog@vger.kernel.org,
@@ -24,426 +24,587 @@ List-Id: linux-watchdog@vger.kernel.org
 On Mon, Apr 17, 2017 at 9:29 PM, Hauke Mehrtens <hauke@hauke-m.de> wrote:
 > From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 >
-> The reset controllers (on xRX200 and newer SoCs have two of them) are
-> provided by the RCU module. This was initially implemented as a simple
-> reset controller. However, the RCU module provides more functionality
-> (ethernet GPHYs, USB PHY, etc.), which makes it a MFD device.
-> The old reset controller driver implementation from
-> arch/mips/lantiq/xway/reset.c did not honor this fact.
->
-> For some devices the request and the status bits are different.
+> This driver starts the DWC2 core(s) built into the XWAY SoCs and provides
+> the PHY interfaces for each core. The phy instances can be passed to the
+> dwc2 driver, which already supports the generic phy interface.
 >
 > Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
-I think you should CC the reset controller framework maintainer
-(Philipp Zabel <p.zabel@pengutronix.de>) as well
+you should probably send this patch to the PHY maintainer as well
+(Kishon Vijay Abraham I <kishon@ti.com>)
 
 > ---
->  .../devicetree/bindings/reset/lantiq,rcu-reset.txt |  43 ++++
->  arch/mips/lantiq/xway/reset.c                      |  68 ------
->  drivers/reset/Kconfig                              |   6 +
->  drivers/reset/Makefile                             |   1 +
->  drivers/reset/reset-lantiq-rcu.c                   | 231 +++++++++++++++++++++
->  5 files changed, 281 insertions(+), 68 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/reset/lantiq,rcu-reset.txt
->  create mode 100644 drivers/reset/reset-lantiq-rcu.c
+>  .../bindings/phy/phy-lantiq-rcu-usb2.txt           |  59 ++++
+>  arch/mips/lantiq/xway/reset.c                      |  43 ---
+>  arch/mips/lantiq/xway/sysctrl.c                    |  24 +-
+>  drivers/phy/Kconfig                                |   8 +
+>  drivers/phy/Makefile                               |   1 +
+>  drivers/phy/phy-lantiq-rcu-usb2.c                  | 325 +++++++++++++++++++++
+>  6 files changed, 405 insertions(+), 55 deletions(-)
+>  create mode 100644 Documentation/devicetree/bindings/phy/phy-lantiq-rcu-usb2.txt
+>  create mode 100644 drivers/phy/phy-lantiq-rcu-usb2.c
 >
-> diff --git a/Documentation/devicetree/bindings/reset/lantiq,rcu-reset.txt b/Documentation/devicetree/bindings/reset/lantiq,rcu-reset.txt
+> diff --git a/Documentation/devicetree/bindings/phy/phy-lantiq-rcu-usb2.txt b/Documentation/devicetree/bindings/phy/phy-lantiq-rcu-usb2.txt
 > new file mode 100644
-> index 000000000000..7f097d16bbb7
+> index 000000000000..0ec9f790b6e0
 > --- /dev/null
-> +++ b/Documentation/devicetree/bindings/reset/lantiq,rcu-reset.txt
-> @@ -0,0 +1,43 @@
-> +Lantiq XWAY SoC RCU reset controller binding
-> +============================================
+> +++ b/Documentation/devicetree/bindings/phy/phy-lantiq-rcu-usb2.txt
+> @@ -0,0 +1,59 @@
+> +Lantiq XWAY SoC RCU USB 1.1/2.0 PHY binding
+> +===========================================
 > +
-> +This binding describes a reset-controller found on the RCU module on Lantiq
-> +XWAY SoCs.
+> +This binding describes the USB PHY hardware provided by the RCU module on the
+> +Lantiq XWAY SoCs.
 > +
 > +
 > +-------------------------------------------------------------------------------
 > +Required properties (controller (parent) node):
-> +- compatible           : Should be "lantiq,rcu-reset"
-> +- lantiq,rcu-syscon    : A phandle to the RCU syscon, the reset register
-> +                         offset and the status register offset.
-> +- #reset-cells         : Specifies the number of cells needed to encode the
-> +                         reset line, should be 1.
+> +- compatible           : Should be one of
+> +                               "lantiq,ase-rcu-usb2-phy"
+> +                               "lantiq,danube-rcu-usb2-phy"
+> +                               "lantiq,xrx100-rcu-usb2-phy"
+> +                               "lantiq,xrx200-rcu-usb2-phy"
+> +                               "lantiq,xrx300-rcu-usb2-phy"
+> +- lantiq,rcu-syscon    : A phandle to the RCU module and the offsets to the
+> +                         USB PHY configuration and USB MAC registers.
+> +- address-cells                : should be 1
+> +- size-cells           : should be 0
+> +- phy-cells            : from the generic PHY bindings, must be 1
 > +
-> +Optional properties:
-> +- reset-status         : The request status bit. For some bits the request bit
-> +                         and the status bit are different. This is depending
-> +                         on the SoC. If the reset-status bit does not match
-> +                         the reset-request bit, put the reset number into the
-> +                         reset-request property and the status bit at the same
-> +                         index into the reset-status property. If no
-> +                         reset-request bit is given here, the driver assume
-> +                         status and request bit are the same.
-> +- reset-request                : The reset request bit, to map it to the reset-status
-> +                         bit.
+> +Optional properties (controller (parent) node):
+> +- vbus-gpio            : References a GPIO which enables VBUS all given USB
+> +                         ports.
+the PHY framework already handles this if you wrap the GPIO in a
+"regulator-fixed" node, see [0] how to define a fixed regulator with a
+GPIO (the regulator in this example has two states: off = 0V and on =
+5V, probably exactly what you need) and [1] how to pass it to the PHY
+(phy-core.c handles this already, no driver specific code needed)
+
+> +
+> +Required nodes         :  A sub-node is required for each USB PHY port.
 > +
 > +
 > +-------------------------------------------------------------------------------
-> +Example for the reset-controllers on the xRX200 SoCs:
-> +       rcu_reset0: rcu_reset {
-> +               compatible = "lantiq,rcu-reset";
-> +               lantiq,rcu-syscon = <&rcu0 0x10 0x14>;
-> +               #reset-cells = <1>;
-> +               reset-request = <31>, <29>, <21>, <19>, <16>, <12>;
-> +               reset-status  = <30>, <28>, <16>, <25>, <5>,  <24>;
-> +       };
+> +Required properties (port (child) node):
+> +- reg          : The ID of the USB port, usually 0 or 1.
+> +- clocks       : References to the (PMU) "ctrl" and "phy" clk gates.
+> +- clock-names  : Must be one of the following:
+> +                       "ctrl"
+> +                       "phy"
+> +- resets       : References to the RCU USB configuration reset bits.
+> +- reset-names  : Must be one of the following:
+> +                       "analog-config" (optional)
+> +                       "statemachine-soft" (optional)
 > +
-> +       rcu_reset1: rcu_reset {
-> +               compatible = "lantiq,rcu-reset";
-> +               lantiq,rcu-syscon = <&rcu0 0x48 0x24>;
-> +               #reset-cells = <1>;
+> +Optional properties (port (child) node):
+> +- vbus-gpio    : References a GPIO which enables VBUS for the USB port.
+> +
+> +
+> +-------------------------------------------------------------------------------
+> +Example for the USB PHYs on an xRX200 SoC:
+> +       usb_phys0: rcu-usb2-phy@0 {
+> +               compatible      = "lantiq,xrx200-rcu-usb2-phy";
+> +               reg = <0>;
+> +
+> +               lantiq,rcu-syscon = <&rcu0 0x18 0x38>;
+> +               clocks = <&pmu PMU_GATE_USB0_CTRL>,
+> +                        <&pmu PMU_GATE_USB0_PHY>;
+> +               clock-names = "ctrl", "phy";
+> +               vbus-gpios = <&gpio 32 GPIO_ACTIVE_HIGH>;
+> +               resets = <&rcu_reset1 4>, <&rcu_reset0 4>;
+> +               reset-names = "phy", "ctrl";
+> +               #phy-cells = <0>;
 > +       };
 > diff --git a/arch/mips/lantiq/xway/reset.c b/arch/mips/lantiq/xway/reset.c
-> index 2dedcf939901..5cb9309b0047 100644
+> index 3f30fb81a50f..5aec1f54275b 100644
 > --- a/arch/mips/lantiq/xway/reset.c
 > +++ b/arch/mips/lantiq/xway/reset.c
-probably a left-over of my patch: can't this
-arch/mips/lantiq/xway/reset.c change go into PATCH #13 as well?
+could these arch/mips/lantiq/xway/reset.c changes to into PATCH #3 as well?
 
-> @@ -194,74 +194,6 @@ int xrx200_gphy_boot(struct device *dev, unsigned int id, dma_addr_t dev_addr)
->         return 0;
+> @@ -124,45 +124,6 @@ static void ltq_machine_power_off(void)
+>         unreachable();
 >  }
 >
-> -/* reset a io domain for u micro seconds */
-> -void ltq_reset_once(unsigned int module, ulong u)
+> -static void ltq_usb_init(void)
 > -{
-> -       ltq_rcu_w32(ltq_rcu_r32(RCU_RST_REQ) | module, RCU_RST_REQ);
-> -       udelay(u);
-> -       ltq_rcu_w32(ltq_rcu_r32(RCU_RST_REQ) & ~module, RCU_RST_REQ);
+> -       /* Power for USB cores 1 & 2 */
+> -       ltq_pmu_enable(PMU_AHBM);
+> -       ltq_pmu_enable(PMU_USB0);
+> -       ltq_pmu_enable(PMU_USB1);
+> -
+> -       ltq_rcu_w32(ltq_rcu_r32(RCU_CFG1A) | BIT(0), RCU_CFG1A);
+> -       ltq_rcu_w32(ltq_rcu_r32(RCU_CFG1B) | BIT(0), RCU_CFG1B);
+> -
+> -       /* Enable USB PHY power for cores 1 & 2 */
+> -       ltq_pmu_enable(PMU_USB0_P);
+> -       ltq_pmu_enable(PMU_USB1_P);
+> -
+> -       /* Configure cores to host mode */
+> -       ltq_rcu_w32(ltq_rcu_r32(RCU_USB1CFG) & ~RCU_USBCFG_HDSEL_BIT,
+> -               RCU_USB1CFG);
+> -       ltq_rcu_w32(ltq_rcu_r32(RCU_USB2CFG) & ~RCU_USBCFG_HDSEL_BIT,
+> -               RCU_USB2CFG);
+> -
+> -       /* Select DMA endianness (Host-endian: big-endian) */
+> -       ltq_rcu_w32((ltq_rcu_r32(RCU_USB1CFG) & ~RCU_USBCFG_SLV_END_BIT)
+> -               | RCU_USBCFG_HOST_END_BIT, RCU_USB1CFG);
+> -       ltq_rcu_w32(ltq_rcu_r32((RCU_USB2CFG) & ~RCU_USBCFG_SLV_END_BIT)
+> -               | RCU_USBCFG_HOST_END_BIT, RCU_USB2CFG);
+> -
+> -       /* Hard reset USB state machines */
+> -       ltq_rcu_w32(ltq_rcu_r32(RCU_USBRESET) | USBRESET_BIT, RCU_USBRESET);
+> -       udelay(50 * 1000);
+> -       ltq_rcu_w32(ltq_rcu_r32(RCU_USBRESET) & ~USBRESET_BIT, RCU_USBRESET);
+> -
+> -       /* Soft reset USB state machines */
+> -       ltq_rcu_w32(ltq_rcu_r32(RCU_USBRESET2)
+> -               | USB1RESET_BIT | USB2RESET_BIT, RCU_USBRESET2);
+> -       udelay(50 * 1000);
+> -       ltq_rcu_w32(ltq_rcu_r32(RCU_USBRESET2)
+> -               & ~(USB1RESET_BIT | USB2RESET_BIT), RCU_USBRESET2);
 > -}
 > -
-> -static int ltq_assert_device(struct reset_controller_dev *rcdev,
-> -                               unsigned long id)
-> -{
-> -       u32 val;
-> -
-> -       if (id < 8)
-> -               return -1;
-> -
-> -       val = ltq_rcu_r32(RCU_RST_REQ);
-> -       val |= BIT(id);
-> -       ltq_rcu_w32(val, RCU_RST_REQ);
-> -
-> -       return 0;
-> -}
-> -
-> -static int ltq_deassert_device(struct reset_controller_dev *rcdev,
-> -                                 unsigned long id)
-> -{
-> -       u32 val;
-> -
-> -       if (id < 8)
-> -               return -1;
-> -
-> -       val = ltq_rcu_r32(RCU_RST_REQ);
-> -       val &= ~BIT(id);
-> -       ltq_rcu_w32(val, RCU_RST_REQ);
-> -
-> -       return 0;
-> -}
-> -
-> -static int ltq_reset_device(struct reset_controller_dev *rcdev,
-> -                              unsigned long id)
-> -{
-> -       ltq_assert_device(rcdev, id);
-> -       return ltq_deassert_device(rcdev, id);
-> -}
-> -
-> -static const struct reset_control_ops reset_ops = {
-> -       .reset = ltq_reset_device,
-> -       .assert = ltq_assert_device,
-> -       .deassert = ltq_deassert_device,
-> -};
-> -
-> -static struct reset_controller_dev reset_dev = {
-> -       .ops                    = &reset_ops,
-> -       .owner                  = THIS_MODULE,
-> -       .nr_resets              = 32,
-> -       .of_reset_n_cells       = 1,
-> -};
-> -
-> -void ltq_rst_init(void)
-> -{
-> -       reset_dev.of_node = of_find_compatible_node(NULL, NULL,
-> -                                               "lantiq,xway-reset");
-> -       if (!reset_dev.of_node)
-> -               pr_err("Failed to find reset controller node");
-> -       else
-> -               reset_controller_register(&reset_dev);
-> -}
-> -
->  static void ltq_machine_restart(char *command)
+>  static int __init mips_reboot_setup(void)
 >  {
->         u32 val = ltq_rcu_r32(RCU_RST_REQ);
-> diff --git a/drivers/reset/Kconfig b/drivers/reset/Kconfig
-> index f4cdfe94b9ec..8962ba44248c 100644
-> --- a/drivers/reset/Kconfig
-> +++ b/drivers/reset/Kconfig
-> @@ -27,6 +27,12 @@ config RESET_BERLIN
->         help
->           This enables the reset controller driver for Marvell Berlin SoCs.
+>         struct resource res;
+> @@ -186,10 +147,6 @@ static int __init mips_reboot_setup(void)
+>         if (!ltq_rcu_membase)
+>                 panic("Failed to remap core memory");
 >
-> +config RESET_LANTIQ_RCU
-> +       bool "Lantiq XWAY Reset Driver" if COMPILE_TEST
-> +       default SOC_TYPE_XWAY
+> -       if (of_machine_is_compatible("lantiq,ar9") ||
+> -           of_machine_is_compatible("lantiq,vr9"))
+> -               ltq_usb_init();
+> -
+>         _machine_restart = ltq_machine_restart;
+>         _machine_halt = ltq_machine_halt;
+>         pm_power_off = ltq_machine_power_off;
+> diff --git a/arch/mips/lantiq/xway/sysctrl.c b/arch/mips/lantiq/xway/sysctrl.c
+> index 5764d3ddce69..18725f2d5b67 100644
+> --- a/arch/mips/lantiq/xway/sysctrl.c
+> +++ b/arch/mips/lantiq/xway/sysctrl.c
+> @@ -469,8 +469,8 @@ void __init ltq_soc_init(void)
+>
+>         if (of_machine_is_compatible("lantiq,grx390") ||
+>             of_machine_is_compatible("lantiq,ar10")) {
+> -               clkdev_add_pmu("1e101000.usb", "phy", 1, 2, PMU_ANALOG_USB0_P);
+> -               clkdev_add_pmu("1e106000.usb", "phy", 1, 2, PMU_ANALOG_USB1_P);
+> +               clkdev_add_pmu("1f203000.rcu:rcu-usb2-phy@0", "phy", 1, 2, PMU_ANALOG_USB0_P);
+> +               clkdev_add_pmu("1f203000.rcu:rcu-usb2-phy@1", "phy", 1, 2, PMU_ANALOG_USB1_P);
+>                 /* rc 0 */
+>                 clkdev_add_pmu("1d900000.pcie", "phy", 1, 2, PMU_ANALOG_PCIE0_P);
+>                 clkdev_add_pmu("1d900000.pcie", "msi", 1, 1, PMU1_PCIE_MSI);
+> @@ -490,8 +490,8 @@ void __init ltq_soc_init(void)
+>                 else
+>                         clkdev_add_static(CLOCK_133M, CLOCK_133M,
+>                                                 CLOCK_133M, CLOCK_133M);
+> -               clkdev_add_pmu("1e101000.usb", "ctl", 1, 0, PMU_USB0);
+> -               clkdev_add_pmu("1e101000.usb", "phy", 1, 0, PMU_USB0_P);
+> +               clkdev_add_pmu("1f203000.rcu:rcu-usb2-phy@0", "ctrl", 1, 0, PMU_USB0);
+> +               clkdev_add_pmu("1f203000.rcu:rcu-usb2-phy@0", "phy", 1, 0, PMU_USB0_P);
+>                 clkdev_add_pmu("1e180000.etop", "ppe", 1, 0, PMU_PPE);
+>                 clkdev_add_cgu("1e180000.etop", "ephycgu", CGU_EPHY);
+>                 clkdev_add_pmu("1e180000.etop", "ephy", 1, 0, PMU_EPHY);
+> @@ -525,10 +525,10 @@ void __init ltq_soc_init(void)
+>         } else if (of_machine_is_compatible("lantiq,vr9")) {
+>                 clkdev_add_static(ltq_vr9_cpu_hz(), ltq_vr9_fpi_hz(),
+>                                 ltq_vr9_fpi_hz(), ltq_vr9_pp32_hz());
+> -               clkdev_add_pmu("1e101000.usb", "phy", 1, 0, PMU_USB0_P);
+> -               clkdev_add_pmu("1e101000.usb", "ctl", 1, 0, PMU_USB0 | PMU_AHBM);
+> -               clkdev_add_pmu("1e106000.usb", "phy", 1, 0, PMU_USB1_P);
+> -               clkdev_add_pmu("1e106000.usb", "ctl", 1, 0, PMU_USB1 | PMU_AHBM);
+> +               clkdev_add_pmu("1f203000.rcu:rcu-usb2-phy@0", "phy", 1, 0, PMU_USB0_P);
+> +               clkdev_add_pmu("1f203000.rcu:rcu-usb2-phy@0", "ctrl", 1, 0, PMU_USB0 | PMU_AHBM);
+> +               clkdev_add_pmu("1f203000.rcu:rcu-usb2-phy@1", "phy", 1, 0, PMU_USB1_P);
+> +               clkdev_add_pmu("1f203000.rcu:rcu-usb2-phy@1", "ctrl", 1, 0, PMU_USB1 | PMU_AHBM);
+>                 clkdev_add_pmu("1d900000.pcie", "phy", 1, 1, PMU1_PCIE_PHY);
+>                 clkdev_add_pmu("1d900000.pcie", "bus", 1, 0, PMU_PCIE_CLK);
+>                 clkdev_add_pmu("1d900000.pcie", "msi", 1, 1, PMU1_PCIE_MSI);
+> @@ -548,8 +548,8 @@ void __init ltq_soc_init(void)
+>         } else if (of_machine_is_compatible("lantiq,ar9")) {
+>                 clkdev_add_static(ltq_ar9_cpu_hz(), ltq_ar9_fpi_hz(),
+>                                 ltq_ar9_fpi_hz(), CLOCK_250M);
+> -               clkdev_add_pmu("1e101000.usb", "ctl", 1, 0, PMU_USB0);
+> -               clkdev_add_pmu("1e101000.usb", "phy", 1, 0, PMU_USB0_P);
+> +               clkdev_add_pmu("1f203000.rcu:rcu-usb2-phy@0", "ctrl", 1, 0, PMU_USB0);
+> +               clkdev_add_pmu("1f203000.rcu:rcu-usb2-phy@0", "phy", 1, 0, PMU_USB0_P);
+>                 clkdev_add_pmu("1e106000.usb", "ctl", 1, 0, PMU_USB1);
+>                 clkdev_add_pmu("1e106000.usb", "phy", 1, 0, PMU_USB1_P);
+>                 clkdev_add_pmu("1e180000.etop", "switch", 1, 0, PMU_SWITCH);
+> @@ -560,8 +560,8 @@ void __init ltq_soc_init(void)
+>         } else {
+>                 clkdev_add_static(ltq_danube_cpu_hz(), ltq_danube_fpi_hz(),
+>                                 ltq_danube_fpi_hz(), ltq_danube_pp32_hz());
+> -               clkdev_add_pmu("1e101000.usb", "ctl", 1, 0, PMU_USB0);
+> -               clkdev_add_pmu("1e101000.usb", "phy", 1, 0, PMU_USB0_P);
+> +               clkdev_add_pmu("1f203000.rcu:rcu-usb2-phy@0", "ctrl", 1, 0, PMU_USB0);
+> +               clkdev_add_pmu("1f203000.rcu:rcu-usb2-phy@0", "phy", 1, 0, PMU_USB0_P);
+>                 clkdev_add_pmu("1e103000.sdio", NULL, 1, 0, PMU_SDIO);
+>                 clkdev_add_pmu("1e103100.deu", NULL, 1, 0, PMU_DEU);
+>                 clkdev_add_pmu("1e116000.mei", "dfe", 1, 0, PMU_DFE);
+> diff --git a/drivers/phy/Kconfig b/drivers/phy/Kconfig
+> index 005cadb7a3f8..dbb450e3ba04 100644
+> --- a/drivers/phy/Kconfig
+> +++ b/drivers/phy/Kconfig
+> @@ -488,6 +488,14 @@ config PHY_CYGNUS_PCIE
+>           Enable this to support the Broadcom Cygnus PCIe PHY.
+>           If unsure, say N.
+>
+> +config PHY_LANTIQ_RCU_USB2
+> +       tristate "Lantiq XWAY SoC RCU based USB PHY"
+> +       depends on SOC_TYPE_XWAY
+> +       depends on OF
+> +       select GENERIC_PHY
 > +       help
-> +         This enables the reset controller driver for Lantiq / Intel XWAY SoCs.
+> +         Support for the USB PHY(s) on the Lantiq XWAY family SoCs.
 > +
->  config RESET_LPC18XX
->         bool "LPC18xx/43xx Reset Driver" if COMPILE_TEST
->         default ARCH_LPC18XX
-> diff --git a/drivers/reset/Makefile b/drivers/reset/Makefile
-> index 2cd3f6c45165..97b0a844b849 100644
-> --- a/drivers/reset/Makefile
-> +++ b/drivers/reset/Makefile
-> @@ -4,6 +4,7 @@ obj-$(CONFIG_ARCH_STI) += sti/
+>  source "drivers/phy/tegra/Kconfig"
+>
+>  config PHY_NS2_PCIE
+> diff --git a/drivers/phy/Makefile b/drivers/phy/Makefile
+> index dd8f3b5d2918..52631f5ac470 100644
+> --- a/drivers/phy/Makefile
+> +++ b/drivers/phy/Makefile
+> @@ -59,6 +59,7 @@ obj-$(CONFIG_PHY_TUSB1210)            += phy-tusb1210.o
+>  obj-$(CONFIG_PHY_BRCM_SATA)            += phy-brcm-sata.o
+>  obj-$(CONFIG_PHY_PISTACHIO_USB)                += phy-pistachio-usb.o
+>  obj-$(CONFIG_PHY_CYGNUS_PCIE)          += phy-bcm-cygnus-pcie.o
+> +obj-$(CONFIG_PHY_LANTIQ_RCU_USB2)      += phy-lantiq-rcu-usb2.o
 >  obj-$(CONFIG_ARCH_TEGRA) += tegra/
->  obj-$(CONFIG_RESET_ATH79) += reset-ath79.o
->  obj-$(CONFIG_RESET_BERLIN) += reset-berlin.o
-> +obj-$(CONFIG_RESET_LANTIQ_RCU) += reset-lantiq-rcu.o
->  obj-$(CONFIG_RESET_LPC18XX) += reset-lpc18xx.o
->  obj-$(CONFIG_RESET_MESON) += reset-meson.o
->  obj-$(CONFIG_RESET_OXNAS) += reset-oxnas.o
-> diff --git a/drivers/reset/reset-lantiq-rcu.c b/drivers/reset/reset-lantiq-rcu.c
+>  obj-$(CONFIG_PHY_NS2_PCIE)             += phy-bcm-ns2-pcie.o
+>  obj-$(CONFIG_PHY_MESON8B_USB2)         += phy-meson8b-usb2.o
+> diff --git a/drivers/phy/phy-lantiq-rcu-usb2.c b/drivers/phy/phy-lantiq-rcu-usb2.c
 > new file mode 100644
-> index 000000000000..6178112ca5b4
+> index 000000000000..9bff42afd256
 > --- /dev/null
-> +++ b/drivers/reset/reset-lantiq-rcu.c
-> @@ -0,0 +1,231 @@
+> +++ b/drivers/phy/phy-lantiq-rcu-usb2.c
+> @@ -0,0 +1,325 @@
 > +/*
-> + *  This program is free software; you can redistribute it and/or modify it
-> + *  under the terms of the GNU General Public License version 2 as published
-> + *  by the Free Software Foundation.
+> + * Lantiq XWAY SoC RCU module based USB 1.1/2.0 PHY driver
 > + *
-> + *  Copyright (C) 2010 John Crispin <blogic@openwrt.org>
-> + *  Copyright (C) 2013-2015 Lantiq Beteiligungs-GmbH & Co.KG
-> + *  Copyright (C) 2016 Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-> + *  Copyright (C) 2017 Hauke Mehrtens <hauke@hauke-m.de>
+> + * Copyright (C) 2016 Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+> + * Copyright (C) 2017 Hauke Mehrtens <hauke@hauke-m.de>
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License version 2 as
+> + * published by the Free Software Foundation.
 > + */
 > +
+> +#include <linux/clk.h>
+> +#include <linux/delay.h>
+> +#include <linux/gpio.h>
+> +#include <linux/gpio/consumer.h>
 > +#include <linux/mfd/syscon.h>
 > +#include <linux/module.h>
+> +#include <linux/of.h>
+> +#include <linux/of_address.h>
+> +#include <linux/of_gpio.h>
+> +#include <linux/phy/phy.h>
+> +#include <linux/platform_device.h>
 > +#include <linux/regmap.h>
-> +#include <linux/reset-controller.h>
-> +#include <linux/of_platform.h>
+> +#include <linux/reset.h>
 > +
-> +#define LANTIQ_RCU_RESET_TIMEOUT       1000000
+> +#define MAX_VBUS_GPIO          2
 > +
-> +struct lantiq_rcu_reset_translation {
-> +       int request;
-> +       int status;
+> +/* Transmitter HS Pre-Emphasis Enable */
+> +#define RCU_CFG1_TX_PEE                BIT(0)
+> +/* Disconnect Threshold */
+> +#define RCU_CFG1_DIS_THR_MASK  0x00038000
+> +#define RCU_CFG1_DIS_THR_SHIFT 15
+> +
+> +struct ltq_rcu_usb2_bits {
+> +       u8 hostmode;
+> +       u8 slave_endianness;
+> +       u8 host_endianness;
+> +       bool have_ana_cfg;
 > +};
 > +
-> +struct lantiq_rcu_reset_priv {
-> +       struct reset_controller_dev rcdev;
-> +       struct device *dev;
-> +       struct regmap *regmap;
-> +       u32 reset_offset;
-> +       u32 status_offset;
-> +       int trans_number;
-> +       struct lantiq_rcu_reset_translation *trans;
+> +struct ltq_rcu_usb2_priv {
+> +       struct regmap                   *regmap;
+> +       u32                             phy_reg_offset;
+> +       u32                             ana_cfg1_reg_offset;
+> +       const struct ltq_rcu_usb2_bits  *reg_bits;
+> +       struct device                   *dev;
+> +       struct gpio_desc                *gpiod_vbus[MAX_VBUS_GPIO];
+> +       struct phy                      *phy;
+> +       struct clk                      *ctrl_gate_clk;
+> +       struct clk                      *phy_gate_clk;
+> +       struct reset_control            *ctrl_reset;
+> +       struct reset_control            *phy_reset;
 > +};
 > +
-> +static struct lantiq_rcu_reset_priv *to_lantiq_rcu_reset_priv(
-> +       struct reset_controller_dev *rcdev)
+> +static const struct ltq_rcu_usb2_bits xway_rcu_usb2_reg_bits = {
+> +       .hostmode = 11,
+> +       .slave_endianness = 9,
+> +       .host_endianness = 10,
+> +       .have_ana_cfg = false,
+> +};
+> +
+> +static const struct ltq_rcu_usb2_bits xrx100_rcu_usb2_reg_bits = {
+> +       .hostmode = 11,
+> +       .slave_endianness = 17,
+> +       .host_endianness = 10,
+> +       .have_ana_cfg = false,
+> +};
+> +
+> +static const struct ltq_rcu_usb2_bits xrx200_rcu_usb2_reg_bits = {
+> +       .hostmode = 11,
+> +       .slave_endianness = 9,
+> +       .host_endianness = 10,
+> +       .have_ana_cfg = true,
+> +};
+> +
+> +static const struct of_device_id ltq_rcu_usb2_phy_of_match[] = {
+> +       {
+> +               .compatible = "lantiq,ase-rcu-usb2-phy",
+> +               .data = &xway_rcu_usb2_reg_bits,
+> +       },
+> +       {
+> +               .compatible = "lantiq,danube-rcu-usb2-phy",
+> +               .data = &xway_rcu_usb2_reg_bits,
+> +       },
+> +       {
+> +               .compatible = "lantiq,xrx100-rcu-usb2-phy",
+> +               .data = &xrx100_rcu_usb2_reg_bits,
+> +       },
+> +       {
+> +               .compatible = "lantiq,xrx200-rcu-usb2-phy",
+> +               .data = &xrx200_rcu_usb2_reg_bits,
+> +       },
+> +       {
+> +               .compatible = "lantiq,xrx300-rcu-usb2-phy",
+> +               .data = &xrx200_rcu_usb2_reg_bits,
+> +       },
+> +       { },
+> +};
+> +MODULE_DEVICE_TABLE(of, ltq_rcu_usb2_phy_of_match);
+> +
+> +static void ltq_rcu_usb2_set_vbus_gpio_value(struct gpio_desc **gpiods,
+> +                                               int value)
 > +{
-> +       return container_of(rcdev, struct lantiq_rcu_reset_priv, rcdev);
+> +       int i;
+> +
+> +       for (i = 0; i < MAX_VBUS_GPIO; i++)
+> +               if (!IS_ERR_OR_NULL(gpiods[i]))
+> +                       gpiod_set_value(gpiods[i], value);
 > +}
 > +
-> +static int lantiq_rcu_reset_status(struct reset_controller_dev *rcdev,
-> +                            unsigned long id)
+> +static int ltq_rcu_usb2_phy_power_on(struct phy *phy)
 > +{
-> +       struct lantiq_rcu_reset_priv *priv = to_lantiq_rcu_reset_priv(rcdev);
-> +       u32 val;
-> +       int ret, i;
+> +       struct ltq_rcu_usb2_priv *priv = phy_get_drvdata(phy);
 > +
-> +       if (id >= rcdev->nr_resets)
-> +               return -EINVAL;
+> +       if (priv->phy_reset)
+> +               reset_control_deassert(priv->phy_reset);
 > +
-> +       for (i = 0; i < priv->trans_number; i++) {
-> +               if (id == priv->trans[i].request) {
-> +                       id = priv->trans[i].status;
-> +                       break;
-> +               }
-> +       }
+> +       /* enable the port-specific VBUS GPIOs if available */
+> +       ltq_rcu_usb2_set_vbus_gpio_value(priv->gpiod_vbus, 1);
 > +
-> +       ret = regmap_read(priv->regmap, priv->status_offset, &val);
-> +       if (ret)
-> +               return ret;
-> +
-> +       return !!(val & BIT(id));
+> +       return 0;
 > +}
 > +
-> +static int lantiq_rcu_reset_update(struct reset_controller_dev *rcdev,
-> +                                  unsigned long id, bool assert)
+> +static int ltq_rcu_usb2_phy_power_off(struct phy *phy)
 > +{
-> +       struct lantiq_rcu_reset_priv *priv = to_lantiq_rcu_reset_priv(rcdev);
-> +       u32 val;
-> +       int ret, retry = LANTIQ_RCU_RESET_TIMEOUT;
+> +       struct ltq_rcu_usb2_priv *priv = phy_get_drvdata(phy);
 > +
-> +       if (id >= rcdev->nr_resets)
-> +               return -EINVAL;
+> +       /*
+> +        * only disable the port-specific VBUS GPIO here (if available), the
+> +        * shared VBUS GPIO might still be used by another port
+> +        */
+> +       ltq_rcu_usb2_set_vbus_gpio_value(priv->gpiod_vbus, 0);
 > +
-> +       if (assert)
-> +               val = BIT(id);
-> +       else
-> +               val = 0;
+> +       if (priv->phy_reset)
+> +               reset_control_assert(priv->phy_reset);
 > +
-> +       ret = regmap_update_bits(priv->regmap, priv->reset_offset, BIT(id),
-> +                                val);
-> +       if (ret) {
-> +               dev_err(priv->dev, "Failed to set reset bit %lu\n", id);
-> +               return ret;
+> +       return 0;
+> +}
+> +
+> +static struct phy_ops ltq_rcu_usb2_phy_ops = {
+> +       .power_on       = ltq_rcu_usb2_phy_power_on,
+> +       .power_off      = ltq_rcu_usb2_phy_power_off,
+> +       .owner          = THIS_MODULE,
+> +};
+> +
+> +static void ltq_rcu_usb2_start_cores(struct platform_device *pdev)
+> +{
+> +       struct device *dev = &pdev->dev;
+> +       struct ltq_rcu_usb2_priv *priv = dev_get_drvdata(dev);
+> +
+> +       /* Power on the USB core. */
+> +       if (clk_prepare_enable(priv->ctrl_gate_clk)) {
+> +               dev_err(dev, "failed to enable CTRL gate\n");
+> +               return;
 > +       }
 > +
-> +       do {} while (--retry && lantiq_rcu_reset_status(rcdev, id) != assert);
-> +       if (!retry) {
-> +               dev_err(priv->dev, "Failed to %s bit %lu\n",
-> +                       assert ? "assert" : "deassert", id);
-> +               return -EIO;
+> +       /*
+> +        * Power on the USB PHY. We have to do it early because
+> +        * otherwise the second core won't turn on properly.
+> +        */
+> +       if (clk_prepare_enable(priv->phy_gate_clk)) {
+> +               dev_err(dev, "failed to enable PHY gate\n");
+> +               return;
+> +       }
+> +
+> +       if (priv->reg_bits->have_ana_cfg) {
+> +               regmap_update_bits(priv->regmap, priv->ana_cfg1_reg_offset,
+> +                       RCU_CFG1_TX_PEE, RCU_CFG1_TX_PEE);
+> +               regmap_update_bits(priv->regmap, priv->ana_cfg1_reg_offset,
+> +                       RCU_CFG1_DIS_THR_MASK, 7 << RCU_CFG1_DIS_THR_SHIFT);
+> +       }
+> +
+> +       /* Configure core to host mode */
+> +       regmap_update_bits(priv->regmap, priv->phy_reg_offset,
+> +                          BIT(priv->reg_bits->hostmode), 0);
+> +
+> +       /* Select DMA endianness (Host-endian: big-endian) */
+> +       regmap_update_bits(priv->regmap, priv->phy_reg_offset,
+> +               BIT(priv->reg_bits->slave_endianness), 0);
+> +       regmap_update_bits(priv->regmap, priv->phy_reg_offset,
+> +               BIT(priv->reg_bits->host_endianness),
+> +               BIT(priv->reg_bits->host_endianness));
+> +
+> +       /* Reset USB core throgh reset controller */
+> +       reset_control_deassert(priv->ctrl_reset);
+> +
+> +       if (priv->phy_reset)
+> +               reset_control_assert(priv->phy_reset);
+> +}
+> +
+> +static int ltq_rcu_usb2_get_vbus_gpios(struct device *dev,
+> +                                         struct gpio_desc **gpios)
+> +{
+> +       int i;
+> +
+> +       for (i = 0; i < MAX_VBUS_GPIO; i++) {
+> +               gpios[i] = devm_gpiod_get_index_optional(dev, "vbus", i,
+> +                                                        GPIOD_OUT_LOW);
+> +               if (IS_ERR(gpios[i]))
+> +                       return PTR_ERR(gpios[i]);
 > +       }
 > +
 > +       return 0;
 > +}
 > +
-> +static int lantiq_rcu_reset_assert(struct reset_controller_dev *rcdev,
-> +                            unsigned long id)
+> +static int ltq_rcu_usb2_of_probe(struct device_node *phynode,
+> +                                   struct ltq_rcu_usb2_priv *priv)
 > +{
-> +       return lantiq_rcu_reset_update(rcdev, id, true);
-> +}
-> +
-> +static int lantiq_rcu_reset_deassert(struct reset_controller_dev *rcdev,
-> +                              unsigned long id)
-> +{
-> +       return lantiq_rcu_reset_update(rcdev, id, false);
-> +}
-> +
-> +static int lantiq_rcu_reset_reset(struct reset_controller_dev *rcdev,
-> +                           unsigned long id)
-> +{
+> +       struct device *dev = priv->dev;
+> +       const struct of_device_id *match =
+> +               of_match_node(ltq_rcu_usb2_phy_of_match, phynode);
 > +       int ret;
 > +
-> +       ret = lantiq_rcu_reset_assert(rcdev, id);
-> +       if (ret)
-> +               return ret;
+> +       if (!match) {
+> +               dev_err(dev, "Not a compatible Lantiq RCU USB PHY\n");
+> +               return -EINVAL;
+> +       }
 > +
-> +       return lantiq_rcu_reset_deassert(rcdev, id);
-> +}
+> +       priv->reg_bits = match->data;
 > +
-> +static struct reset_control_ops lantiq_rcu_reset_ops = {
-> +       .assert = lantiq_rcu_reset_assert,
-> +       .deassert = lantiq_rcu_reset_deassert,
-> +       .status = lantiq_rcu_reset_status,
-> +       .reset  = lantiq_rcu_reset_reset,
-> +};
-> +
-> +static int lantiq_rcu_reset_of_probe(struct platform_device *pdev,
-> +                              struct lantiq_rcu_reset_priv *priv)
-> +{
-> +       struct device_node *np = pdev->dev.of_node;
-> +       int cnt, i, ret;
-> +
-> +       priv->regmap = syscon_regmap_lookup_by_phandle(np,
-> +                                                       "lantiq,rcu-syscon");
+> +       priv->regmap = syscon_regmap_lookup_by_phandle(phynode,
+> +                                                      "lantiq,rcu-syscon");
 > +       if (IS_ERR(priv->regmap)) {
-> +               dev_err(&pdev->dev, "Failed to lookup RCU regmap\n");
+> +               dev_err(dev, "Failed to lookup RCU regmap\n");
 > +               return PTR_ERR(priv->regmap);
 > +       }
 > +
-> +       if (of_property_read_u32_index(np, "lantiq,rcu-syscon", 1,
-> +               &priv->reset_offset)) {
-> +               dev_err(&pdev->dev, "Failed to get RCU reset offset\n");
-> +               return -EINVAL;
+> +       ret = ltq_rcu_usb2_get_vbus_gpios(dev, priv->gpiod_vbus);
+> +       if (ret) {
+> +               dev_err(dev, "failed to request shared USB VBUS GPIO\n");
+> +               return ret;
 > +       }
 > +
-> +       if (of_property_read_u32_index(np, "lantiq,rcu-syscon", 2,
-> +               &priv->status_offset)) {
-> +               dev_err(&pdev->dev, "Failed to get RCU status offset\n");
-> +               return -EINVAL;
+> +       priv->ctrl_gate_clk = devm_clk_get(dev, "ctrl");
+> +       if (IS_ERR(priv->ctrl_gate_clk)) {
+> +               dev_err(dev, "Unable to get USB ctrl gate clk\n");
+> +               return PTR_ERR(priv->ctrl_gate_clk);
 > +       }
 > +
-> +       cnt = of_property_count_elems_of_size(np, "reset-request", sizeof(u32));
-> +       if (cnt <= 0)
-> +               return 0;
+> +       priv->phy_gate_clk = devm_clk_get(dev, "phy");
+> +       if (IS_ERR(priv->phy_gate_clk)) {
+> +               dev_err(dev, "Unable to get USB phy gate clk\n");
+> +               return PTR_ERR(priv->phy_gate_clk);
+> +       }
 > +
-> +       priv->trans = devm_kmalloc_array(&pdev->dev, cnt, sizeof(*priv->trans),
-> +                                        GFP_KERNEL);
-> +       if (!priv->trans)
-> +               return -ENOMEM;
+> +       priv->ctrl_reset = devm_reset_control_get_shared(dev, "ctrl");
+> +       if (IS_ERR(priv->ctrl_reset)) {
+> +               dev_err(dev, "failed to get 'ctrl' reset\n");
+> +               return PTR_ERR(priv->ctrl_reset);
+> +       }
 > +
-> +       for (i = 0; i < cnt; i++) {
-> +               ret = of_property_read_u32_index(np, "reset-request", i,
-> +                                                &priv->trans[i].request);
+> +       priv->phy_reset = devm_reset_control_get_optional(dev, "phy");
+> +       if (IS_ERR(priv->phy_reset)) {
+> +               if (PTR_ERR(priv->phy_reset) == -EPROBE_DEFER)
+> +                       return PTR_ERR(priv->phy_reset);
+> +               priv->phy_reset = NULL;
+> +       }
+> +
+> +       ret = of_property_read_u32_index(phynode, "lantiq,rcu-syscon", 1,
+> +                                        &priv->phy_reg_offset);
+> +       if (ret) {
+> +               dev_err(dev, "Failed to get RCU PHY reg offset\n");
+> +               return ret;
+> +       }
+> +
+> +       if (priv->reg_bits->have_ana_cfg) {
+> +               ret = of_property_read_u32_index(phynode, "lantiq,rcu-syscon",
+> +                                                2, &priv->ana_cfg1_reg_offset);
 > +               if (ret) {
-> +                       dev_err(&pdev->dev,
-> +                               "Failed to get reset-request at index %i\n",
-> +                               i);
+> +                       dev_dbg(dev, "Failed to get RCU ANA CFG1 reg offset\n");
 > +                       return ret;
 > +               }
-> +               ret = of_property_read_u32_index(np, "reset-status", i,
-> +                                                &priv->trans[i].status);
-> +               if (ret) {
-> +                       dev_err(&pdev->dev,
-> +                               "Failed to get reset-status at index %i\n",
-> +                               i);
-> +                       return ret;
-> +               }
 > +       }
-> +       priv->trans_number = cnt;
 > +
 > +       return 0;
 > +}
 > +
-> +static int lantiq_rcu_reset_probe(struct platform_device *pdev)
+> +static int ltq_rcu_usb2_phy_probe(struct platform_device *pdev)
 > +{
-> +       struct lantiq_rcu_reset_priv *priv;
-> +       int err;
+> +       struct device_node *child, *np = pdev->dev.of_node;
+> +       struct ltq_rcu_usb2_priv *priv;
+> +       struct phy_provider *provider;
+> +       int ret;
 > +
-> +       priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
+> +       priv = devm_kzalloc(&pdev->dev, sizeof(*priv),
+> +                                      GFP_KERNEL);
 > +       if (!priv)
 > +               return -ENOMEM;
 > +
 > +       priv->dev = &pdev->dev;
-> +       platform_set_drvdata(pdev, priv);
+> +       dev_set_drvdata(priv->dev, priv);
 > +
-> +       err = lantiq_rcu_reset_of_probe(pdev, priv);
-> +       if (err)
-> +               return err;
+> +       ret = ltq_rcu_usb2_of_probe(np, priv);
+> +       if (ret)
+> +               return ret;
 > +
-> +       priv->rcdev.ops = &lantiq_rcu_reset_ops;
-> +       priv->rcdev.owner = THIS_MODULE;
-> +       priv->rcdev.of_node = pdev->dev.of_node;
-> +       priv->rcdev.of_reset_n_cells = 1;
-> +       priv->rcdev.nr_resets = 32;
+> +       priv->phy = devm_phy_create(&pdev->dev, child,
+> +                                        &ltq_rcu_usb2_phy_ops);
+> +       if (IS_ERR(priv->phy)) {
+> +               dev_err(&pdev->dev, "failed to create PHY\n");
+> +               return PTR_ERR(priv->phy);
+> +       }
 > +
-> +       err = reset_controller_register(&priv->rcdev);
-> +       if (err)
-> +               return err;
+> +       phy_set_drvdata(priv->phy, priv);
 > +
-> +       return 0;
+> +       ltq_rcu_usb2_start_cores(pdev);
+> +
+> +       provider = devm_of_phy_provider_register(&pdev->dev,
+> +                                                of_phy_simple_xlate);
+> +
+> +       return PTR_ERR_OR_ZERO(provider);
 > +}
 > +
-> +static const struct of_device_id lantiq_rcu_reset_dt_ids[] = {
-> +       { .compatible = "lantiq,rcu-reset", },
-> +       { },
-> +};
-> +MODULE_DEVICE_TABLE(of, lantiq_rcu_reset_dt_ids);
-> +
-> +static struct platform_driver lantiq_rcu_reset_driver = {
-> +       .probe  = lantiq_rcu_reset_probe,
+> +static struct platform_driver ltq_rcu_usb2_phy_driver = {
+> +       .probe  = ltq_rcu_usb2_phy_probe,
 > +       .driver = {
-> +               .name           = "lantiq-rcu-reset",
-> +               .of_match_table = lantiq_rcu_reset_dt_ids,
-> +       },
+> +               .name   = "lantiq-rcu-usb2-phy",
+> +               .of_match_table = ltq_rcu_usb2_phy_of_match,
+> +       }
 > +};
-> +module_platform_driver(lantiq_rcu_reset_driver);
+> +module_platform_driver(ltq_rcu_usb2_phy_driver);
 > +
 > +MODULE_AUTHOR("Martin Blumenstingl <martin.blumenstingl@googlemail.com>");
-> +MODULE_DESCRIPTION("Lantiq XWAY RCU Reset Controller Driver");
-> +MODULE_LICENSE("GPL");
+> +MODULE_DESCRIPTION("Lantiq XWAY USB2 PHY driver");
+> +MODULE_LICENSE("GPL v2");
 > --
 > 2.11.0
 >
+
+[0] https://github.com/torvalds/linux/blob/2fbbc4bf69f293df317559a267f4120f290b8fc4/arch/arm64/boot/dts/amlogic/meson-gxbb-vega-s95.dtsi#L67
+[1] https://github.com/torvalds/linux/blob/2fbbc4bf69f293df317559a267f4120f290b8fc4/arch/arm64/boot/dts/amlogic/meson-gxbb-vega-s95.dtsi#L133
