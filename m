@@ -1,135 +1,130 @@
-Return-path: <paolo.bonzini@gmail.com>
-Sender: Paolo Bonzini <paolo.bonzini@gmail.com>
-Subject: Re: [PATCH v2] iTCO_wdt: all versions count down twice
-References: <20170405114115.17475-1-pbonzini@redhat.com>
- <3a2a4b95-ef9c-25d8-db48-ebf2b55e89b8@roeck-us.net>
-Cc: Guenter Roeck <linux@roeck-us.net>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- andriy.shevchenko@linux.intel.com
-To: linux-watchdog@vger.kernel.org, wim@iguana.be
-From: Paolo Bonzini <pbonzini@redhat.com>
-Message-ID: <d95f872d-31b4-e5c8-41f6-0c8f1f94ad68@redhat.com>
-Date: Tue, 18 Apr 2017 15:17:00 +0200
+Return-path: <mail@maciej.szmigiero.name>
+To: Wim Van Sebroeck <wim@iguana.be>, Guenter Roeck <linux@roeck-us.net>
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+From: "Maciej S. Szmigiero" <mail@maciej.szmigiero.name>
+Subject: [PATCH] watchdog: f71808e_wdt: Add F71868 support
+Message-ID: <4931c8df-3068-ca2c-fb6b-4d5eed3faf06@maciej.szmigiero.name>
+Date: Mon, 17 Apr 2017 22:37:05 +0200
 MIME-Version: 1.0
-In-Reply-To: <3a2a4b95-ef9c-25d8-db48-ebf2b55e89b8@roeck-us.net>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 List-ID: <linux-watchdog@vger.kernel.org>
 
+This adds support for watchdog part of Fintek F71868 Super I/O chip to
+f71808e_wdt driver.
 
+The F71868 chip is, in general, very similar to a F71869, however it has
+slightly different set of available reset pulse widths.
 
-On 06/04/2017 13:46, Guenter Roeck wrote:
-> On 04/05/2017 04:41 AM, Paolo Bonzini wrote:
->> The ICH9 is listed as having TCO v2, and indeed the behavior in the
->> datasheet corresponds to v2 (for example the NO_REBOOT flag is
->> accessible via the 16KiB-aligned Root Complex Base Address).
->>
->> However, the TCO counts twice just like in v1; the documentation
->> of the SECOND_TO_STS bit says: "ICH9 sets this bit to 1 to indicate
->> that the TIMEOUT bit had been (or is currently) set and a second
->> timeout occurred before the TCO_RLD register was written. If this
->> bit is set and the NO_REBOOT config bit is 0, then the ICH9 will
->> reboot the system after the second timeout.  The same can be found
->> in the BayTrail (Atom E3800) datasheet, and even HOWTOs around
->> the Internet say that it will reboot after _twice_ the specified
->> heartbeat.
->>
->> I did not find the Apollo Lake datasheet, but because v4/v5 has
->> a SECOND_TO_STS bit just like the previous version I'm enabling
->> this for Apollo Lake as well.
->>
->> Cc: Wim Van Sebroeck <wim@iguana.be>
->> Cc: Guenter Roeck <linux@roeck-us.net>
->> Cc: linux-watchdog@vger.kernel.org
->> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
->> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-> 
-> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Tested on MSI A55M-P33 motherboard.
 
-Wim, has this been included in a tree for 4.12?  The trees at
-linux-watchdog.git still seem empty.
+Signed-off-by: Maciej S. Szmigiero <mail@maciej.szmigiero.name>
+---
+ drivers/watchdog/Kconfig       |  7 ++++---
+ drivers/watchdog/f71808e_wdt.c | 27 ++++++++++++++++++++-------
+ 2 files changed, 24 insertions(+), 10 deletions(-)
 
-Thanks,
-
-Paolo
-
->> ---
->>  Documentation/watchdog/watchdog-parameters.txt |  2 +-
->>  drivers/watchdog/iTCO_wdt.c                    | 22 ++++++++++------------
->>  2 files changed, 11 insertions(+), 13 deletions(-)
->>
->> diff --git a/Documentation/watchdog/watchdog-parameters.txt
->> b/Documentation/watchdog/watchdog-parameters.txt
->> index 4f7d86dd0a5d..914518aeb972 100644
->> --- a/Documentation/watchdog/watchdog-parameters.txt
->> +++ b/Documentation/watchdog/watchdog-parameters.txt
->> @@ -117,7 +117,7 @@ nowayout: Watchdog cannot be stopped once started
->>  -------------------------------------------------
->>  iTCO_wdt:
->>  heartbeat: Watchdog heartbeat in seconds.
->> -    (2<heartbeat<39 (TCO v1) or 613 (TCO v2), default=30)
->> +    (5<=heartbeat<=74 (TCO v1) or 1226 (TCO v2), default=30)
->>  nowayout: Watchdog cannot be stopped once started
->>      (default=kernel config parameter)
->>  -------------------------------------------------
->> diff --git a/drivers/watchdog/iTCO_wdt.c b/drivers/watchdog/iTCO_wdt.c
->> index 3d0abc0d59b4..d1d0446011c4 100644
->> --- a/drivers/watchdog/iTCO_wdt.c
->> +++ b/drivers/watchdog/iTCO_wdt.c
->> @@ -280,16 +280,15 @@ static int iTCO_wdt_ping(struct watchdog_device
->> *wd_dev)
->>
->>      iTCO_vendor_pre_keepalive(p->smi_res, wd_dev->timeout);
->>
->> +    /* Reset the timeout status bit so that the timer
->> +     * needs to count down twice again before rebooting */
->> +    outw(0x0008, TCO1_STS(p));    /* write 1 to clear bit */
->> +
->>      /* Reload the timer by writing to the TCO Timer Counter register */
->> -    if (p->iTCO_version >= 2) {
->> +    if (p->iTCO_version >= 2)
->>          outw(0x01, TCO_RLD(p));
->> -    } else if (p->iTCO_version == 1) {
->> -        /* Reset the timeout status bit so that the timer
->> -         * needs to count down twice again before rebooting */
->> -        outw(0x0008, TCO1_STS(p));    /* write 1 to clear bit */
->> -
->> +    else if (p->iTCO_version == 1)
->>          outb(0x01, TCO_RLD(p));
->> -    }
->>
->>      spin_unlock(&p->io_lock);
->>      return 0;
->> @@ -302,11 +301,8 @@ static int iTCO_wdt_set_timeout(struct
->> watchdog_device *wd_dev, unsigned int t)
->>      unsigned char val8;
->>      unsigned int tmrval;
->>
->> -    tmrval = seconds_to_ticks(p, t);
->> -
->> -    /* For TCO v1 the timer counts down twice before rebooting */
->> -    if (p->iTCO_version == 1)
->> -        tmrval /= 2;
->> +    /* The timer counts down twice before rebooting */
->> +    tmrval = seconds_to_ticks(p, t) / 2;
->>
->>      /* from the specs: */
->>      /* "Values of 0h-3h are ignored and should not be attempted" */
->> @@ -359,6 +355,8 @@ static unsigned int iTCO_wdt_get_timeleft(struct
->> watchdog_device *wd_dev)
->>          spin_lock(&p->io_lock);
->>          val16 = inw(TCO_RLD(p));
->>          val16 &= 0x3ff;
->> +        if (!(inw(TCO1_STS(p)) & 0x0008))
->> +            val16 += (inw(TCOv2_TMR(p)) & 0x3ff);
->>          spin_unlock(&p->io_lock);
->>
->>          time_left = ticks_to_seconds(p, val16);
->>
-> 
-> -- 
-> To unsubscribe from this list: send the line "unsubscribe
-> linux-watchdog" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 8b9049dac094..1f23079537ad 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -829,11 +829,12 @@ config EBC_C384_WDT
+ 	  the timeout module parameter.
+ 
+ config F71808E_WDT
+-	tristate "Fintek F71808E, F71862FG, F71869, F71882FG and F71889FG Watchdog"
++	tristate "Fintek F718xx, F818xx Super I/O Watchdog"
+ 	depends on X86
+ 	help
+-	  This is the driver for the hardware watchdog on the Fintek
+-	  F71808E, F71862FG, F71869, F71882FG and F71889FG Super I/O controllers.
++	  This is the driver for the hardware watchdog on the Fintek F71808E,
++	  F71862FG, F71868, F71869, F71882FG, F71889FG, F81865 and F81866
++	  Super I/O controllers.
+ 
+ 	  You can compile this driver directly into the kernel, or use
+ 	  it as a module.  The module will be called f71808e_wdt.
+diff --git a/drivers/watchdog/f71808e_wdt.c b/drivers/watchdog/f71808e_wdt.c
+index 1b7e9169072f..8658dba21768 100644
+--- a/drivers/watchdog/f71808e_wdt.c
++++ b/drivers/watchdog/f71808e_wdt.c
+@@ -57,6 +57,7 @@
+ #define SIO_F71808_ID		0x0901	/* Chipset ID */
+ #define SIO_F71858_ID		0x0507	/* Chipset ID */
+ #define SIO_F71862_ID		0x0601	/* Chipset ID */
++#define SIO_F71868_ID		0x1106	/* Chipset ID */
+ #define SIO_F71869_ID		0x0814	/* Chipset ID */
+ #define SIO_F71869A_ID		0x1007	/* Chipset ID */
+ #define SIO_F71882_ID		0x0541	/* Chipset ID */
+@@ -101,7 +102,7 @@ MODULE_PARM_DESC(timeout,
+ static unsigned int pulse_width = WATCHDOG_PULSE_WIDTH;
+ module_param(pulse_width, uint, 0);
+ MODULE_PARM_DESC(pulse_width,
+-	"Watchdog signal pulse width. 0(=level), 1 ms, 25 ms, 125 ms or 5000 ms"
++	"Watchdog signal pulse width. 0(=level), 1, 25, 30, 125, 150, 5000 or 6000 ms"
+ 			" (default=" __MODULE_STRING(WATCHDOG_PULSE_WIDTH) ")");
+ 
+ static unsigned int f71862fg_pin = WATCHDOG_F71862FG_PIN;
+@@ -119,13 +120,14 @@ module_param(start_withtimeout, uint, 0);
+ MODULE_PARM_DESC(start_withtimeout, "Start watchdog timer on module load with"
+ 	" given initial timeout. Zero (default) disables this feature.");
+ 
+-enum chips { f71808fg, f71858fg, f71862fg, f71869, f71882fg, f71889fg, f81865,
+-	     f81866};
++enum chips { f71808fg, f71858fg, f71862fg, f71868, f71869, f71882fg, f71889fg,
++	     f81865, f81866};
+ 
+ static const char *f71808e_names[] = {
+ 	"f71808fg",
+ 	"f71858fg",
+ 	"f71862fg",
++	"f71868",
+ 	"f71869",
+ 	"f71882fg",
+ 	"f71889fg",
+@@ -252,16 +254,23 @@ static int watchdog_set_timeout(int timeout)
+ static int watchdog_set_pulse_width(unsigned int pw)
+ {
+ 	int err = 0;
++	unsigned int t1 = 25, t2 = 125, t3 = 5000;
++
++	if (watchdog.type == f71868) {
++		t1 = 30;
++		t2 = 150;
++		t3 = 6000;
++	}
+ 
+ 	mutex_lock(&watchdog.lock);
+ 
+-	if        (pw <=    1) {
++	if        (pw <=  1) {
+ 		watchdog.pulse_val = 0;
+-	} else if (pw <=   25) {
++	} else if (pw <= t1) {
+ 		watchdog.pulse_val = 1;
+-	} else if (pw <=  125) {
++	} else if (pw <= t2) {
+ 		watchdog.pulse_val = 2;
+-	} else if (pw <= 5000) {
++	} else if (pw <= t3) {
+ 		watchdog.pulse_val = 3;
+ 	} else {
+ 		pr_err("pulse width out of range\n");
+@@ -354,6 +363,7 @@ static int watchdog_start(void)
+ 			goto exit_superio;
+ 		break;
+ 
++	case f71868:
+ 	case f71869:
+ 		/* GPIO14 --> WDTRST# */
+ 		superio_clear_bit(watchdog.sioaddr, SIO_REG_MFUNCT1, 4);
+@@ -792,6 +802,9 @@ static int __init f71808e_find(int sioaddr)
+ 		watchdog.type = f71862fg;
+ 		err = f71862fg_pin_configure(0); /* validate module parameter */
+ 		break;
++	case SIO_F71868_ID:
++		watchdog.type = f71868;
++		break;
+ 	case SIO_F71869_ID:
+ 	case SIO_F71869A_ID:
+ 		watchdog.type = f71869;
