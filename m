@@ -1,220 +1,115 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from hauke-m.de ([5.39.93.123]:49282 "EHLO mail.hauke-m.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1756402AbdDQTaN (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 17 Apr 2017 15:30:13 -0400
-From: Hauke Mehrtens <hauke@hauke-m.de>
-To: ralf@linux-mips.org
-Cc: linux-mips@linux-mips.org, linux-mtd@lists.infradead.org,
-        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-        martin.blumenstingl@googlemail.com, john@phrozen.org,
-        linux-spi@vger.kernel.org, hauke.mehrtens@intel.com,
-        Hauke Mehrtens <hauke@hauke-m.de>
-Subject: [PATCH 13/13] MIPS: lantiq: Remove the arch/mips/lantiq/xway/reset.c implementation
-Date: Mon, 17 Apr 2017 21:29:42 +0200
-Message-Id: <20170417192942.32219-14-hauke@hauke-m.de>
+Received: from mail-wm0-f65.google.com ([74.125.82.65]:34626 "EHLO
+        mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755511AbdDQVOa (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 17 Apr 2017 17:14:30 -0400
+MIME-Version: 1.0
 In-Reply-To: <20170417192942.32219-1-hauke@hauke-m.de>
 References: <20170417192942.32219-1-hauke@hauke-m.de>
+From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Date: Mon, 17 Apr 2017 23:14:08 +0200
+Message-ID: <CAFBinCCTmOh17bAc-4LbiZJrAy+mKjtC5giS3rB5asw-T8PR2g@mail.gmail.com>
+Subject: Re: [PATCH 00/13] MIPS: lantiq: handle RCU register by separate drivers
+To: Hauke Mehrtens <hauke@hauke-m.de>
+Cc: ralf@linux-mips.org, linux-mips@linux-mips.org,
+        linux-mtd@lists.infradead.org, linux-watchdog@vger.kernel.org,
+        devicetree@vger.kernel.org, john@phrozen.org,
+        linux-spi@vger.kernel.org, hauke.mehrtens@intel.com
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Hi Hauke,
 
-The RCU register are now access through separates drivers. remove the
-last peaces of the old implementation.
+On Mon, Apr 17, 2017 at 9:29 PM, Hauke Mehrtens <hauke@hauke-m.de> wrote:
+> The RCU (Reset controller Unit) register block provides many different
+> functionalities. Before they were handed by the code in arch/mips/lantiq
+> /xway/reset.c, now there are separate drivers for the functionality.
+> This block provides support for reset controller, GPHY firmware
+> loading, USB PHY initialization and cross bar configuration.
+>
+> These changes are making the old device tree incompatible with the
+> current kernel. The upstream Linux kernel supports loading the device
+> tree blob from the boot loader since about one year, the latest
+> released vendor kernel does not support loading the device tree from a
+> bot loader.
+great to see that you could use my work :-)
 
-Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
----
- arch/mips/lantiq/Kconfig       |   1 +
- arch/mips/lantiq/xway/Makefile |   2 +-
- arch/mips/lantiq/xway/reset.c  | 157 -----------------------------------------
- 3 files changed, 2 insertions(+), 158 deletions(-)
- delete mode 100644 arch/mips/lantiq/xway/reset.c
+> I would prefer if this would go through the mips tree.
+> There are more patches planed which would convert the Lantiq code
+> to the common clock framework.
+>
+> Hauke Mehrtens (4):
+>   mtd: lantiq-flash: drop check of boot select
+>   mtd: spi-falcon: drop check of boot select
+>   watchdog: lantiq: access boot cause register through regmap
+>   MIPS: lantiq: remove old GPHY loader code
+>
+> Martin Blumenstingl (9):
+>   MIPS: lantiq: Use of_platform_populate instead of __dt_register_buses
+>   MIPS: lantiq: Enable MFD_SYSCON to be able to use it for the RCU MFD
+>   MIPS: lantiq: Convert the xbar driver to a platform_driver
+>   MIPS: lantiq: remove ltq_reset_cause() and ltq_boot_select()
+>   reset: Add a reset controller driver for the Lantiq XWAY based SoCs
+>   MIPS: lantiq: Add a GPHY driver which uses the RCU syscon-mfd
+>   phy: Add an USB PHY driver for the Lantiq SoCs using the RCU module
+>   Documentation: DT: MIPS: lantiq: Add docs for the RCU bindings
+>   MIPS: lantiq: Remove the arch/mips/lantiq/xway/reset.c implementation
+if anyone is wondering:
+I started porting the lantiq target to the common clock framework
+"some" time ago. unfortunately it turned out that some of the
+"drivers" are tightly coupled and one cannot simply port the clock
+handling to the common clock framework. so I started tackling more
+drivers in arch/mips/lantiq/ until I had a huge pile of patches in my
+tree but no time to improve them so they were ready to submit. so the
+patches from Hauke are roughly based on the ideas of my patches (and
+probably a few lines of code here and there).
 
-diff --git a/arch/mips/lantiq/Kconfig b/arch/mips/lantiq/Kconfig
-index f5db4a426568..35bc69b78268 100644
---- a/arch/mips/lantiq/Kconfig
-+++ b/arch/mips/lantiq/Kconfig
-@@ -18,6 +18,7 @@ config SOC_XWAY
- 	select SOC_TYPE_XWAY
- 	select HW_HAS_PCI
- 	select MFD_SYSCON
-+	select MFD_CORE
- 
- config SOC_FALCON
- 	bool "FALCON"
-diff --git a/arch/mips/lantiq/xway/Makefile b/arch/mips/lantiq/xway/Makefile
-index 6daf3149e7ca..fbb0747c70b7 100644
---- a/arch/mips/lantiq/xway/Makefile
-+++ b/arch/mips/lantiq/xway/Makefile
-@@ -1,3 +1,3 @@
--obj-y := prom.o sysctrl.o clk.o reset.o dma.o gptu.o dcdc.o
-+obj-y := prom.o sysctrl.o clk.o dma.o gptu.o dcdc.o
- 
- obj-y += vmmc.o
-diff --git a/arch/mips/lantiq/xway/reset.c b/arch/mips/lantiq/xway/reset.c
-deleted file mode 100644
-index 5aec1f54275b..000000000000
---- a/arch/mips/lantiq/xway/reset.c
-+++ /dev/null
-@@ -1,157 +0,0 @@
--/*
-- *  This program is free software; you can redistribute it and/or modify it
-- *  under the terms of the GNU General Public License version 2 as published
-- *  by the Free Software Foundation.
-- *
-- *  Copyright (C) 2010 John Crispin <john@phrozen.org>
-- *  Copyright (C) 2013-2015 Lantiq Beteiligungs-GmbH & Co.KG
-- */
--
--#include <linux/init.h>
--#include <linux/io.h>
--#include <linux/ioport.h>
--#include <linux/pm.h>
--#include <linux/export.h>
--#include <linux/delay.h>
--#include <linux/of_address.h>
--#include <linux/of_platform.h>
--#include <linux/reset-controller.h>
--
--#include <asm/reboot.h>
--
--#include <lantiq_soc.h>
--
--#include "../prom.h"
--
--/* reset request register */
--#define RCU_RST_REQ		0x0010
--/* reset status register */
--#define RCU_RST_STAT		0x0014
--
--/* xbar BE flag */
--#define RCU_AHB_ENDIAN          0x004C
--#define RCU_VR9_BE_AHB1S        0x00000008
--
--/* reboot bit */
--#define RCU_RD_GPHY0_XRX200	BIT(31)
--#define RCU_RD_SRST		BIT(30)
--#define RCU_RD_GPHY1_XRX200	BIT(29)
--
--/* reset cause */
--#define RCU_STAT_SHIFT		26
--/* boot selection */
--#define RCU_BOOT_SEL(x)		((x >> 18) & 0x7)
--#define RCU_BOOT_SEL_XRX200(x)	(((x >> 17) & 0xf) | ((x >> 8) & 0x10))
--
--/* dwc2 USB configuration registers */
--#define RCU_USB1CFG		0x0018
--#define RCU_USB2CFG		0x0034
--
--/* USB DMA endianness bits */
--#define RCU_USBCFG_HDSEL_BIT	BIT(11)
--#define RCU_USBCFG_HOST_END_BIT	BIT(10)
--#define RCU_USBCFG_SLV_END_BIT	BIT(9)
--
--/* USB reset bits */
--#define RCU_USBRESET		0x0010
--
--#define USBRESET_BIT		BIT(4)
--
--#define RCU_USBRESET2		0x0048
--
--#define USB1RESET_BIT		BIT(4)
--#define USB2RESET_BIT		BIT(5)
--
--#define RCU_CFG1A		0x0038
--#define RCU_CFG1B		0x003C
--
--/* USB PMU devices */
--#define PMU_AHBM		BIT(15)
--#define PMU_USB0		BIT(6)
--#define PMU_USB1		BIT(27)
--
--/* USB PHY PMU devices */
--#define PMU_USB0_P		BIT(0)
--#define PMU_USB1_P		BIT(26)
--
--/* remapped base addr of the reset control unit */
--static void __iomem *ltq_rcu_membase;
--static struct device_node *ltq_rcu_np;
--static DEFINE_SPINLOCK(ltq_rcu_lock);
--
--static void ltq_rcu_w32(uint32_t val, uint32_t reg_off)
--{
--	ltq_w32(val, ltq_rcu_membase + reg_off);
--}
--
--static uint32_t ltq_rcu_r32(uint32_t reg_off)
--{
--	return ltq_r32(ltq_rcu_membase + reg_off);
--}
--
--static void ltq_rcu_w32_mask(uint32_t clr, uint32_t set, uint32_t reg_off)
--{
--	unsigned long flags;
--
--	spin_lock_irqsave(&ltq_rcu_lock, flags);
--	ltq_rcu_w32((ltq_rcu_r32(reg_off) & ~(clr)) | (set), reg_off);
--	spin_unlock_irqrestore(&ltq_rcu_lock, flags);
--}
--
--static void ltq_machine_restart(char *command)
--{
--	u32 val = ltq_rcu_r32(RCU_RST_REQ);
--
--	if (of_device_is_compatible(ltq_rcu_np, "lantiq,rcu-xrx200"))
--		val |= RCU_RD_GPHY1_XRX200 | RCU_RD_GPHY0_XRX200;
--
--	val |= RCU_RD_SRST;
--
--	local_irq_disable();
--	ltq_rcu_w32(val, RCU_RST_REQ);
--	unreachable();
--}
--
--static void ltq_machine_halt(void)
--{
--	local_irq_disable();
--	unreachable();
--}
--
--static void ltq_machine_power_off(void)
--{
--	local_irq_disable();
--	unreachable();
--}
--
--static int __init mips_reboot_setup(void)
--{
--	struct resource res;
--
--	ltq_rcu_np = of_find_compatible_node(NULL, NULL, "lantiq,rcu-xway");
--	if (!ltq_rcu_np)
--		ltq_rcu_np = of_find_compatible_node(NULL, NULL,
--							"lantiq,rcu-xrx200");
--
--	/* check if all the reset register range is available */
--	if (!ltq_rcu_np)
--		panic("Failed to load reset resources from devicetree");
--
--	if (of_address_to_resource(ltq_rcu_np, 0, &res))
--		panic("Failed to get rcu memory range");
--
--	if (!request_mem_region(res.start, resource_size(&res), res.name))
--		pr_err("Failed to request rcu memory");
--
--	ltq_rcu_membase = ioremap_nocache(res.start, resource_size(&res));
--	if (!ltq_rcu_membase)
--		panic("Failed to remap core memory");
--
--	_machine_restart = ltq_machine_restart;
--	_machine_halt = ltq_machine_halt;
--	pm_power_off = ltq_machine_power_off;
--
--	return 0;
--}
--
--arch_initcall(mips_reboot_setup);
--- 
-2.11.0
 
+>  .../devicetree/bindings/mips/lantiq/rcu-gphy.txt   |  54 +++
+>  .../devicetree/bindings/mips/lantiq/rcu.txt        |  82 +++++
+>  .../devicetree/bindings/mips/lantiq/xbar.txt       |  22 ++
+>  .../bindings/phy/phy-lantiq-rcu-usb2.txt           |  59 ++++
+>  .../devicetree/bindings/reset/lantiq,rcu-reset.txt |  43 +++
+>  MAINTAINERS                                        |   1 +
+>  arch/mips/include/asm/mach-lantiq/lantiq.h         |   4 -
+>  arch/mips/lantiq/Kconfig                           |   2 +
+>  arch/mips/lantiq/falcon/reset.c                    |  22 --
+>  arch/mips/lantiq/prom.c                            |   3 +-
+>  arch/mips/lantiq/xway/Makefile                     |   4 +-
+>  arch/mips/lantiq/xway/reset.c                      | 387 ---------------------
+>  arch/mips/lantiq/xway/sysctrl.c                    |  69 +---
+>  arch/mips/lantiq/xway/xrx200_phy_fw.c              | 113 ------
+>  drivers/mtd/maps/lantiq-flash.c                    |   6 -
+>  drivers/phy/Kconfig                                |   8 +
+>  drivers/phy/Makefile                               |   1 +
+>  drivers/phy/phy-lantiq-rcu-usb2.c                  | 325 +++++++++++++++++
+>  drivers/reset/Kconfig                              |   6 +
+>  drivers/reset/Makefile                             |   1 +
+>  drivers/reset/reset-lantiq-rcu.c                   | 231 ++++++++++++
+>  drivers/soc/Makefile                               |   1 +
+>  drivers/soc/lantiq/Makefile                        |   2 +
+>  drivers/soc/lantiq/gphy.c                          | 242 +++++++++++++
+>  drivers/soc/lantiq/xbar.c                          | 100 ++++++
+>  drivers/spi/spi-falcon.c                           |   5 -
+>  drivers/watchdog/lantiq_wdt.c                      |  47 ++-
+>  include/dt-bindings/mips/lantiq_rcu_gphy.h         |  15 +
+>  28 files changed, 1255 insertions(+), 600 deletions(-)
+>  create mode 100644 Documentation/devicetree/bindings/mips/lantiq/rcu-gphy.txt
+>  create mode 100644 Documentation/devicetree/bindings/mips/lantiq/rcu.txt
+>  create mode 100644 Documentation/devicetree/bindings/mips/lantiq/xbar.txt
+>  create mode 100644 Documentation/devicetree/bindings/phy/phy-lantiq-rcu-usb2.txt
+>  create mode 100644 Documentation/devicetree/bindings/reset/lantiq,rcu-reset.txt
+>  delete mode 100644 arch/mips/lantiq/xway/reset.c
+>  delete mode 100644 arch/mips/lantiq/xway/xrx200_phy_fw.c
+>  create mode 100644 drivers/phy/phy-lantiq-rcu-usb2.c
+>  create mode 100644 drivers/reset/reset-lantiq-rcu.c
+>  create mode 100644 drivers/soc/lantiq/Makefile
+>  create mode 100644 drivers/soc/lantiq/gphy.c
+>  create mode 100644 drivers/soc/lantiq/xbar.c
+>  create mode 100644 include/dt-bindings/mips/lantiq_rcu_gphy.h
+>
+> --
+> 2.11.0
+>
