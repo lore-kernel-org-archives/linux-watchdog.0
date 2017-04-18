@@ -1,232 +1,100 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wr0-f195.google.com ([209.85.128.195]:34266 "EHLO
-        mail-wr0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753250AbdDQV3M (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 17 Apr 2017 17:29:12 -0400
+Received: from foss.arm.com ([217.140.101.70]:58526 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753372AbdDRP7L (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 18 Apr 2017 11:59:11 -0400
+Date: Tue, 18 Apr 2017 16:58:41 +0100
+From: Mark Rutland <mark.rutland@arm.com>
+To: fu.wei@linaro.org, rjw@rjwysocki.net, lenb@kernel.org,
+        lorenzo.pieralisi@arm.com, hanjun.guo@linaro.org
+Cc: daniel.lezcano@linaro.org, tglx@linutronix.de,
+        marc.zyngier@arm.com, sudeep.holla@arm.com,
+        linux-arm-kernel@lists.infradead.org, linaro-acpi@lists.linaro.org,
+        linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
+        rruigrok@codeaurora.org, harba@codeaurora.org, cov@codeaurora.org,
+        timur@codeaurora.org, graeme.gregory@linaro.org,
+        al.stone@linaro.org, jcm@redhat.com, wei@redhat.com, arnd@arndb.de,
+        catalin.marinas@arm.com, will.deacon@arm.com,
+        Suravee.Suthikulpanit@amd.com, leo.duran@amd.com, wim@iguana.be,
+        linux@roeck-us.net, linux-watchdog@vger.kernel.org,
+        tn@semihalf.com, christoffer.dall@linaro.org, julien.grall@arm.com
+Subject: Re: [PATCH v24 08/11] acpi: Introduce acpi_unregister_irq function
+Message-ID: <20170418155841.GK17866@leverpostej>
+References: <20170414184014.8524-1-fu.wei@linaro.org>
+ <20170414184014.8524-9-fu.wei@linaro.org>
 MIME-Version: 1.0
-In-Reply-To: <20170417192942.32219-14-hauke@hauke-m.de>
-References: <20170417192942.32219-1-hauke@hauke-m.de> <20170417192942.32219-14-hauke@hauke-m.de>
-From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Date: Mon, 17 Apr 2017 23:28:50 +0200
-Message-ID: <CAFBinCDwbrBBov6UV00O2tBwMTimTW=LY+n1AD92Yz-ugthavA@mail.gmail.com>
-Subject: Re: [PATCH 13/13] MIPS: lantiq: Remove the arch/mips/lantiq/xway/reset.c
- implementation
-To: Hauke Mehrtens <hauke@hauke-m.de>
-Cc: ralf@linux-mips.org, linux-mips@linux-mips.org,
-        linux-mtd@lists.infradead.org, linux-watchdog@vger.kernel.org,
-        devicetree@vger.kernel.org, john@phrozen.org,
-        linux-spi@vger.kernel.org, hauke.mehrtens@intel.com
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20170414184014.8524-9-fu.wei@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Apr 17, 2017 at 9:29 PM, Hauke Mehrtens <hauke@hauke-m.de> wrote:
-> From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
->
-> The RCU register are now access through separates drivers. remove the
-> last peaces of the old implementation.
-s/peaces/pieces/
-
-you should probably mention that arch/mips/kernel/reset.c handles the
-ltq_machine_halt and ltq_machine_power_off code, while
-ltq_machine_restart (setting some reset bits) can be replaced with
-"syscon-reboot"
-
-apart from that: great to see that this gets some love! :)
-
-> Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
+On Sat, Apr 15, 2017 at 02:40:11AM +0800, fu.wei@linaro.org wrote:
+> From: Fu Wei <fu.wei@linaro.org>
+> 
+> This patch introduces acpi_unregister_irq function to free a
+> linux IRQ number<->GSI mapping by a given linux IRQ number.
+> 
+> Even we have successfully registered the GSI, when some error occurs, we
+> may need to unmap it for freeing the IRQ resource. But in some cases, we
+> only have IRQ, but not GSI.
+> 
+> This patch is the preparation for memory-mapped timer support in GTDT
+> driver.
+> 
+> Signed-off-by: Fu Wei <fu.wei@linaro.org>
 > ---
->  arch/mips/lantiq/Kconfig       |   1 +
->  arch/mips/lantiq/xway/Makefile |   2 +-
->  arch/mips/lantiq/xway/reset.c  | 157 -----------------------------------------
->  3 files changed, 2 insertions(+), 158 deletions(-)
->  delete mode 100644 arch/mips/lantiq/xway/reset.c
->
-> diff --git a/arch/mips/lantiq/Kconfig b/arch/mips/lantiq/Kconfig
-> index f5db4a426568..35bc69b78268 100644
-> --- a/arch/mips/lantiq/Kconfig
-> +++ b/arch/mips/lantiq/Kconfig
-> @@ -18,6 +18,7 @@ config SOC_XWAY
->         select SOC_TYPE_XWAY
->         select HW_HAS_PCI
->         select MFD_SYSCON
-> +       select MFD_CORE
->
->  config SOC_FALCON
->         bool "FALCON"
-> diff --git a/arch/mips/lantiq/xway/Makefile b/arch/mips/lantiq/xway/Makefile
-> index 6daf3149e7ca..fbb0747c70b7 100644
-> --- a/arch/mips/lantiq/xway/Makefile
-> +++ b/arch/mips/lantiq/xway/Makefile
-> @@ -1,3 +1,3 @@
-> -obj-y := prom.o sysctrl.o clk.o reset.o dma.o gptu.o dcdc.o
-> +obj-y := prom.o sysctrl.o clk.o dma.o gptu.o dcdc.o
->
->  obj-y += vmmc.o
-> diff --git a/arch/mips/lantiq/xway/reset.c b/arch/mips/lantiq/xway/reset.c
-> deleted file mode 100644
-> index 5aec1f54275b..000000000000
-> --- a/arch/mips/lantiq/xway/reset.c
-> +++ /dev/null
-> @@ -1,157 +0,0 @@
-> -/*
-> - *  This program is free software; you can redistribute it and/or modify it
-> - *  under the terms of the GNU General Public License version 2 as published
-> - *  by the Free Software Foundation.
-> - *
-> - *  Copyright (C) 2010 John Crispin <john@phrozen.org>
-> - *  Copyright (C) 2013-2015 Lantiq Beteiligungs-GmbH & Co.KG
-> - */
-> -
-> -#include <linux/init.h>
-> -#include <linux/io.h>
-> -#include <linux/ioport.h>
-> -#include <linux/pm.h>
-> -#include <linux/export.h>
-> -#include <linux/delay.h>
-> -#include <linux/of_address.h>
-> -#include <linux/of_platform.h>
-> -#include <linux/reset-controller.h>
-> -
-> -#include <asm/reboot.h>
-> -
-> -#include <lantiq_soc.h>
-> -
-> -#include "../prom.h"
-> -
-> -/* reset request register */
-> -#define RCU_RST_REQ            0x0010
-> -/* reset status register */
-> -#define RCU_RST_STAT           0x0014
-> -
-> -/* xbar BE flag */
-> -#define RCU_AHB_ENDIAN          0x004C
-> -#define RCU_VR9_BE_AHB1S        0x00000008
-> -
-> -/* reboot bit */
-> -#define RCU_RD_GPHY0_XRX200    BIT(31)
-> -#define RCU_RD_SRST            BIT(30)
-> -#define RCU_RD_GPHY1_XRX200    BIT(29)
-> -
-> -/* reset cause */
-> -#define RCU_STAT_SHIFT         26
-> -/* boot selection */
-> -#define RCU_BOOT_SEL(x)                ((x >> 18) & 0x7)
-> -#define RCU_BOOT_SEL_XRX200(x) (((x >> 17) & 0xf) | ((x >> 8) & 0x10))
-> -
-> -/* dwc2 USB configuration registers */
-> -#define RCU_USB1CFG            0x0018
-> -#define RCU_USB2CFG            0x0034
-> -
-> -/* USB DMA endianness bits */
-> -#define RCU_USBCFG_HDSEL_BIT   BIT(11)
-> -#define RCU_USBCFG_HOST_END_BIT        BIT(10)
-> -#define RCU_USBCFG_SLV_END_BIT BIT(9)
-> -
-> -/* USB reset bits */
-> -#define RCU_USBRESET           0x0010
-> -
-> -#define USBRESET_BIT           BIT(4)
-> -
-> -#define RCU_USBRESET2          0x0048
-> -
-> -#define USB1RESET_BIT          BIT(4)
-> -#define USB2RESET_BIT          BIT(5)
-> -
-> -#define RCU_CFG1A              0x0038
-> -#define RCU_CFG1B              0x003C
-> -
-> -/* USB PMU devices */
-> -#define PMU_AHBM               BIT(15)
-> -#define PMU_USB0               BIT(6)
-> -#define PMU_USB1               BIT(27)
-> -
-> -/* USB PHY PMU devices */
-> -#define PMU_USB0_P             BIT(0)
-> -#define PMU_USB1_P             BIT(26)
-> -
-> -/* remapped base addr of the reset control unit */
-> -static void __iomem *ltq_rcu_membase;
-> -static struct device_node *ltq_rcu_np;
-> -static DEFINE_SPINLOCK(ltq_rcu_lock);
-> -
-> -static void ltq_rcu_w32(uint32_t val, uint32_t reg_off)
-> -{
-> -       ltq_w32(val, ltq_rcu_membase + reg_off);
-> -}
-> -
-> -static uint32_t ltq_rcu_r32(uint32_t reg_off)
-> -{
-> -       return ltq_r32(ltq_rcu_membase + reg_off);
-> -}
-> -
-> -static void ltq_rcu_w32_mask(uint32_t clr, uint32_t set, uint32_t reg_off)
-> -{
-> -       unsigned long flags;
-> -
-> -       spin_lock_irqsave(&ltq_rcu_lock, flags);
-> -       ltq_rcu_w32((ltq_rcu_r32(reg_off) & ~(clr)) | (set), reg_off);
-> -       spin_unlock_irqrestore(&ltq_rcu_lock, flags);
-> -}
-> -
-> -static void ltq_machine_restart(char *command)
-> -{
-> -       u32 val = ltq_rcu_r32(RCU_RST_REQ);
-> -
-> -       if (of_device_is_compatible(ltq_rcu_np, "lantiq,rcu-xrx200"))
-> -               val |= RCU_RD_GPHY1_XRX200 | RCU_RD_GPHY0_XRX200;
-> -
-> -       val |= RCU_RD_SRST;
-> -
-> -       local_irq_disable();
-> -       ltq_rcu_w32(val, RCU_RST_REQ);
-> -       unreachable();
-> -}
-> -
-> -static void ltq_machine_halt(void)
-> -{
-> -       local_irq_disable();
-> -       unreachable();
-> -}
-> -
-> -static void ltq_machine_power_off(void)
-> -{
-> -       local_irq_disable();
-> -       unreachable();
-> -}
-> -
-> -static int __init mips_reboot_setup(void)
-> -{
-> -       struct resource res;
-> -
-> -       ltq_rcu_np = of_find_compatible_node(NULL, NULL, "lantiq,rcu-xway");
-> -       if (!ltq_rcu_np)
-> -               ltq_rcu_np = of_find_compatible_node(NULL, NULL,
-> -                                                       "lantiq,rcu-xrx200");
-> -
-> -       /* check if all the reset register range is available */
-> -       if (!ltq_rcu_np)
-> -               panic("Failed to load reset resources from devicetree");
-> -
-> -       if (of_address_to_resource(ltq_rcu_np, 0, &res))
-> -               panic("Failed to get rcu memory range");
-> -
-> -       if (!request_mem_region(res.start, resource_size(&res), res.name))
-> -               pr_err("Failed to request rcu memory");
-> -
-> -       ltq_rcu_membase = ioremap_nocache(res.start, resource_size(&res));
-> -       if (!ltq_rcu_membase)
-> -               panic("Failed to remap core memory");
-> -
-> -       _machine_restart = ltq_machine_restart;
-> -       _machine_halt = ltq_machine_halt;
-> -       pm_power_off = ltq_machine_power_off;
-> -
-> -       return 0;
-> -}
-> -
-> -arch_initcall(mips_reboot_setup);
-> --
-> 2.11.0
->
+>  drivers/acpi/irq.c   | 10 ++++++++++
+>  include/linux/acpi.h |  7 +++++++
+>  2 files changed, 17 insertions(+)
+
+This will need comments/acks from the ACPI folk.
+
+Lorenzo, do you prefer this to direct use of irq_dispose_mapping() in
+the GTDT parsing code?
+
+Thanks,
+Mark.
+
+> diff --git a/drivers/acpi/irq.c b/drivers/acpi/irq.c
+> index 830299a..59de777 100644
+> --- a/drivers/acpi/irq.c
+> +++ b/drivers/acpi/irq.c
+> @@ -85,6 +85,16 @@ void acpi_unregister_gsi(u32 gsi)
+>  EXPORT_SYMBOL_GPL(acpi_unregister_gsi);
+>  
+>  /**
+> + * acpi_unregister_irq() - Free a linux IRQ number<->GSI mapping
+> + * @irq: linux IRQ number
+> + */
+> +void acpi_unregister_irq(int irq)
+> +{
+> +	irq_dispose_mapping(irq);
+> +}
+> +EXPORT_SYMBOL_GPL(acpi_unregister_irq);
+> +
+> +/**
+>   * acpi_get_irq_source_fwhandle() - Retrieve fwhandle from IRQ resource source.
+>   * @source: acpi_resource_source to use for the lookup.
+>   *
+> diff --git a/include/linux/acpi.h b/include/linux/acpi.h
+> index 4b5c146..728d1ed 100644
+> --- a/include/linux/acpi.h
+> +++ b/include/linux/acpi.h
+> @@ -336,6 +336,13 @@ extern int acpi_get_override_irq(u32 gsi, int *trigger, int *polarity);
+>   */
+>  void acpi_unregister_gsi (u32 gsi);
+>  
+> +/*
+> + * This function undoes the effect of one call to acpi_register_gsi().
+> + * The irq should be the return value of acpi_register_gsi().
+> + * If the irq is valid, free a linux IRQ number<->GSI mapping.
+> + */
+> +void acpi_unregister_irq(int irq);
+> +
+>  struct pci_dev;
+>  
+>  int acpi_pci_irq_enable (struct pci_dev *dev);
+> -- 
+> 2.9.3
+> 
