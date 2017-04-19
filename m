@@ -1,60 +1,91 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from foss.arm.com ([217.140.101.70]:42342 "EHLO foss.arm.com"
+Received: from foss.arm.com ([217.140.101.70]:42820 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1765545AbdDSPJv (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 19 Apr 2017 11:09:51 -0400
-Date: Wed, 19 Apr 2017 16:09:16 +0100
+        id S937619AbdDSPqZ (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Wed, 19 Apr 2017 11:46:25 -0400
+Date: Wed, 19 Apr 2017 16:45:54 +0100
 From: Mark Rutland <mark.rutland@arm.com>
-To: fu.wei@linaro.org, rjw@rjwysocki.net, lenb@kernel.org,
-        lorenzo.pieralisi@arm.com, hanjun.guo@linaro.org
+To: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 Cc: linaro-acpi@lists.linaro.org, catalin.marinas@arm.com,
         will.deacon@arm.com, rruigrok@codeaurora.org, wim@iguana.be,
-        wei@redhat.com, al.stone@linaro.org, tn@semihalf.com,
-        timur@codeaurora.org, daniel.lezcano@linaro.org,
-        linux-acpi@vger.kernel.org, linux@roeck-us.net,
+        fu.wei@linaro.org, wei@redhat.com, al.stone@linaro.org,
+        tn@semihalf.com, timur@codeaurora.org, daniel.lezcano@linaro.org,
+        linux-acpi@vger.kernel.org, linux@roeck-us.net, lenb@kernel.org,
         harba@codeaurora.org, julien.grall@arm.com,
         linux-watchdog@vger.kernel.org, arnd@arndb.de,
         marc.zyngier@arm.com, jcm@redhat.com, cov@codeaurora.org,
         tglx@linutronix.de, linux-arm-kernel@lists.infradead.org,
-        graeme.gregory@linaro.org, linux-kernel@vger.kernel.org,
-        leo.duran@amd.com, Suravee.Suthikulpanit@amd.com,
+        graeme.gregory@linaro.org, rjw@rjwysocki.net,
+        linux-kernel@vger.kernel.org, leo.duran@amd.com,
+        hanjun.guo@linaro.org, Suravee.Suthikulpanit@amd.com,
         sudeep.holla@arm.com, christoffer.dall@linaro.org
-Subject: Re: [PATCH v24 08/11] acpi: Introduce acpi_unregister_irq function
-Message-ID: <20170419150916.GI27829@leverpostej>
+Subject: Re: [PATCH v24 09/11] acpi/arm64: Add memory-mapped timer support in
+ GTDT driver
+Message-ID: <20170419154554.GJ27829@leverpostej>
 References: <20170414184014.8524-1-fu.wei@linaro.org>
- <20170414184014.8524-9-fu.wei@linaro.org>
- <20170418155841.GK17866@leverpostej>
+ <20170414184014.8524-10-fu.wei@linaro.org>
+ <20170418172107.GA1401@red-moon>
+ <20170419150725.GH27829@leverpostej>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20170418155841.GK17866@leverpostej>
+In-Reply-To: <20170419150725.GH27829@leverpostej>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, Apr 18, 2017 at 04:58:41PM +0100, Mark Rutland wrote:
-> On Sat, Apr 15, 2017 at 02:40:11AM +0800, fu.wei@linaro.org wrote:
-> > From: Fu Wei <fu.wei@linaro.org>
+On Wed, Apr 19, 2017 at 04:07:25PM +0100, Mark Rutland wrote:
+> On Tue, Apr 18, 2017 at 06:21:07PM +0100, Lorenzo Pieralisi wrote:
+> > On Sat, Apr 15, 2017 at 02:40:12AM +0800, fu.wei@linaro.org wrote:
+ 
+> > If yes, why can't it simply be written like this ?
 > > 
-> > This patch introduces acpi_unregister_irq function to free a
-> > linux IRQ number<->GSI mapping by a given linux IRQ number.
+> > for (; i >= 0; i--, gtdt_frame--) {
+> > 	frame = &timer_mem->frame[gtdt_frame->frame_number];
 > > 
-> > Even we have successfully registered the GSI, when some error occurs, we
-> > may need to unmap it for freeing the IRQ resource. But in some cases, we
-> > only have IRQ, but not GSI.
+> > 	/* not sure this check is actually needed */
+> > 	if (gtdt_frame->common_flags & ACPI_GTDT_GT_IS_SECURE_TIMER)
+> > 		continue;
 > > 
-> > This patch is the preparation for memory-mapped timer support in GTDT
-> > driver.
-> > 
-> > Signed-off-by: Fu Wei <fu.wei@linaro.org>
-> > ---
-> >  drivers/acpi/irq.c   | 10 ++++++++++
-> >  include/linux/acpi.h |  7 +++++++
-> >  2 files changed, 17 insertions(+)
+> > 	if (frame->phys_irq > 0)
+> > 		acpi_unregister_gsi(gtdt_frame->timer_interrupt);
+> > 	if (frame->virt_irq > 0)
+> > 		acpi_unregister_gsi(gtdt_frame->virtual_timer_interrupt);
+> > }
 > 
-> This will need comments/acks from the ACPI folk.
+> A reverse loop of this form will work.
+> 
+> That requires some restructuring, and care to avoid going out of bounds
+> instantaneously with the gtdt_frame--, so as to not invoke nasal demons.
+> 
+> I've attacked this locally, and will send this out after testing. I'll
+> drop the new ACPI API patch.
 
-I've now reworked the cleanup to not require this API, and will drop
-this patch.
+FWIW, I've set this up so the cleanup path is:
+
+do {
+        if (gtdt_frame->common_flags & ACPI_GTDT_GT_IS_SECURE_TIMER ||
+            gtdt_frame->frame_number >= ARCH_TIMER_MEM_MAX_FRAMES)
+                continue;
+
+        frame = &timer_mem->frame[gtdt_frame->frame_number];
+
+        if (frame->phys_irq > 0)
+                acpi_unregister_gsi(gtdt_frame->timer_interrupt);
+        frame->phys_irq = 0;
+
+        if (frame->virt_irq > 0)
+                acpi_unregister_gsi(gtdt_frame->virtual_timer_interrupt);
+        frame->virt_irq = 0;
+} while (i-- >= 0 && gtdt_frame--);
+
+... the zeroing is to account for duplicate frames, which I now check for in
+the probe path (as we do for DT).
+
+Can I take it per your comment on the prior version that with this change I can
+take your ack?
+
+I also assume that you're happy for all of the drivers/acpi/arm64/ patches in the
+series to go via the clocksource tree?
 
 Thanks,
 Mark.
