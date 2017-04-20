@@ -1,10 +1,10 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-oi0-f67.google.com ([209.85.218.67]:34542 "EHLO
-        mail-oi0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S970756AbdDTPgT (ORCPT
+Received: from mail-oi0-f66.google.com ([209.85.218.66]:36637 "EHLO
+        mail-oi0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S970756AbdDTPm0 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 20 Apr 2017 11:36:19 -0400
-Date: Thu, 20 Apr 2017 10:36:06 -0500
+        Thu, 20 Apr 2017 11:42:26 -0400
+Date: Thu, 20 Apr 2017 10:42:22 -0500
 From: Rob Herring <robh@kernel.org>
 To: Hauke Mehrtens <hauke@hauke-m.de>
 Cc: ralf@linux-mips.org, linux-mips@linux-mips.org,
@@ -12,121 +12,132 @@ Cc: ralf@linux-mips.org, linux-mips@linux-mips.org,
         devicetree@vger.kernel.org, martin.blumenstingl@googlemail.com,
         john@phrozen.org, linux-spi@vger.kernel.org,
         hauke.mehrtens@intel.com
-Subject: Re: [PATCH 11/13] phy: Add an USB PHY driver for the Lantiq SoCs
- using the RCU module
-Message-ID: <20170420153606.fdhedc7ovvhc66qd@rob-hp-laptop>
+Subject: Re: [PATCH 12/13] Documentation: DT: MIPS: lantiq: Add docs for the
+ RCU bindings
+Message-ID: <20170420154222.wr6njt4kpfmkibh6@rob-hp-laptop>
 References: <20170417192942.32219-1-hauke@hauke-m.de>
- <20170417192942.32219-12-hauke@hauke-m.de>
+ <20170417192942.32219-13-hauke@hauke-m.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20170417192942.32219-12-hauke@hauke-m.de>
+In-Reply-To: <20170417192942.32219-13-hauke@hauke-m.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Apr 17, 2017 at 09:29:40PM +0200, Hauke Mehrtens wrote:
+On Mon, Apr 17, 2017 at 09:29:41PM +0200, Hauke Mehrtens wrote:
 > From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 > 
-> This driver starts the DWC2 core(s) built into the XWAY SoCs and provides
-> the PHY interfaces for each core. The phy instances can be passed to the
-> dwc2 driver, which already supports the generic phy interface.
+> This adds the initial documentation for the RCU module (a MFD device
+> which provides USB PHYs, reset controllers and more).
+
+This should come before the other patches.
+
 > 
 > Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
 > ---
->  .../bindings/phy/phy-lantiq-rcu-usb2.txt           |  59 ++++
->  arch/mips/lantiq/xway/reset.c                      |  43 ---
->  arch/mips/lantiq/xway/sysctrl.c                    |  24 +-
->  drivers/phy/Kconfig                                |   8 +
->  drivers/phy/Makefile                               |   1 +
->  drivers/phy/phy-lantiq-rcu-usb2.c                  | 325 +++++++++++++++++++++
->  6 files changed, 405 insertions(+), 55 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/phy/phy-lantiq-rcu-usb2.txt
->  create mode 100644 drivers/phy/phy-lantiq-rcu-usb2.c
+>  .../devicetree/bindings/mips/lantiq/rcu.txt        | 82 ++++++++++++++++++++++
+>  1 file changed, 82 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/mips/lantiq/rcu.txt
 > 
-> diff --git a/Documentation/devicetree/bindings/phy/phy-lantiq-rcu-usb2.txt b/Documentation/devicetree/bindings/phy/phy-lantiq-rcu-usb2.txt
+> diff --git a/Documentation/devicetree/bindings/mips/lantiq/rcu.txt b/Documentation/devicetree/bindings/mips/lantiq/rcu.txt
 > new file mode 100644
-> index 000000000000..0ec9f790b6e0
+> index 000000000000..9e5b1e7493e4
 > --- /dev/null
-> +++ b/Documentation/devicetree/bindings/phy/phy-lantiq-rcu-usb2.txt
-> @@ -0,0 +1,59 @@
-> +Lantiq XWAY SoC RCU USB 1.1/2.0 PHY binding
-> +===========================================
+> +++ b/Documentation/devicetree/bindings/mips/lantiq/rcu.txt
+> @@ -0,0 +1,82 @@
+> +Lantiq XWAY SoC RCU binding
+> +===========================
 > +
-> +This binding describes the USB PHY hardware provided by the RCU module on the
-> +Lantiq XWAY SoCs.
-> +
-> +
-> +-------------------------------------------------------------------------------
-> +Required properties (controller (parent) node):
-> +- compatible		: Should be one of
-> +				"lantiq,ase-rcu-usb2-phy"
-> +				"lantiq,danube-rcu-usb2-phy"
-> +				"lantiq,xrx100-rcu-usb2-phy"
-> +				"lantiq,xrx200-rcu-usb2-phy"
-> +				"lantiq,xrx300-rcu-usb2-phy"
-
-The first x in xrx seems to be a wildcard. Don't use wildcards in 
-compatible strings.
-
-> +- lantiq,rcu-syscon	: A phandle to the RCU module and the offsets to the
-> +			  USB PHY configuration and USB MAC registers.
-
-Same comment as gphy.
-
-> +- address-cells		: should be 1
-> +- size-cells		: should be 0
-> +- phy-cells		: from the generic PHY bindings, must be 1
-
-Missing the '#'
-
-> +
-> +Optional properties (controller (parent) node):
-> +- vbus-gpio		: References a GPIO which enables VBUS all given USB
-> +			  ports.
-
--gpios is preferred form.
-
-> +
-> +Required nodes		:  A sub-node is required for each USB PHY port.
+> +This binding describes the RCU (reset controller unit) multifunction device,
+> +where each sub-device has it's own set of registers.
 > +
 > +
 > +-------------------------------------------------------------------------------
-> +Required properties (port (child) node):
-
-Where's the sub nodes in the example?
-
-> +- reg        	: The ID of the USB port, usually 0 or 1.
-> +- clocks	: References to the (PMU) "ctrl" and "phy" clk gates.
-> +- clock-names	: Must be one of the following:
-> +			"ctrl"
-> +			"phy"
-> +- resets	: References to the RCU USB configuration reset bits.
-> +- reset-names	: Must be one of the following:
-> +			"analog-config" (optional)
-> +			"statemachine-soft" (optional)
-> +
-> +Optional properties (port (child) node):
-> +- vbus-gpio	: References a GPIO which enables VBUS for the USB port.
+> +Required properties:
+> +- compatible	: The first and second values must be: "simple-mfd", "syscon"
+> +- reg		: The address and length of the system control registers
 > +
 > +
 > +-------------------------------------------------------------------------------
-> +Example for the USB PHYs on an xRX200 SoC:
-> +	usb_phys0: rcu-usb2-phy@0 {
+> +Example of the RCU bindings on a xRX200 SoC:
+> +	rcu0: rcu@203000 {
+> +		compatible = "simple-mfd", "syscon";
 
-usb-phy@...
+Needs an SoC specific compatible string here.
 
-> +		compatible      = "lantiq,xrx200-rcu-usb2-phy";
-
-Extra spaces.
-
-> +		reg = <0>;
+> +		reg = <0x203000 0x100>;
+> +		big-endian;
 > +
-> +		lantiq,rcu-syscon = <&rcu0 0x18 0x38>;
-> +		clocks = <&pmu PMU_GATE_USB0_CTRL>,
-> +			 <&pmu PMU_GATE_USB0_PHY>;
-> +		clock-names = "ctrl", "phy";
-> +		vbus-gpios = <&gpio 32 GPIO_ACTIVE_HIGH>;
-> +		resets = <&rcu_reset1 4>, <&rcu_reset0 4>;
-> +		reset-names = "phy", "ctrl";
-> +		#phy-cells = <0>;
+> +		gphy0: rcu_gphy@0 {
+> +			compatible = "lantiq,xrx200a2x-rcu-gphy";
+> +			lantiq,rcu-syscon = <&rcu0 0x20>;
+
+So these are already child nodes. You can get rid of this and use 
+reg/ranges instead.
+
+> +			resets = <&rcu_reset0 31>;
+> +			reset-names = "gphy";
+> +			lantiq,gphy-mode = <GPHY_MODE_GE>;
+> +			clocks = <&pmu0 XRX200_PMU_GATE_GPHY>;
+> +			clock-names = "gphy";
+> +		};
+> +
+> +		gphy1: rcu_gphy@1 {
+> +			compatible = "lantiq,xrx200a2x-rcu-gphy";
+> +			lantiq,rcu-syscon = <&rcu0 0x68>;
+> +			resets = <&rcu_reset0 29>;
+> +			reset-names = "gphy";
+> +			lantiq,gphy-mode = <GPHY_MODE_FE>;
+> +			clocks = <&pmu0 XRX200_PMU_GATE_GPHY>;
+> +			clock-names = "gphy";
+> +		};
+> +
+> +		rcu_reset0: rcu_reset@0 {
+> +			compatible = "lantiq,rcu-reset";
+> +			lantiq,rcu-syscon = <&rcu0 0x10 0x14>;
+> +			#reset-cells = <1>;
+> +			reset-request = <31>, <29>, <21>, <19>, <16>, <12>;
+> +			reset-status  = <30>, <28>, <16>, <25>, <5>,  <24>;
+> +		};
+> +
+> +		rcu_reset1: rcu_reset@1 {
+> +			compatible = "lantiq,rcu-reset";
+> +			lantiq,rcu-syscon = <&rcu0 0x48 0x24>;
+> +			#reset-cells = <1>;
+> +		};
+> +
+> +		usb_phys0: rcu-usb2-phy@0 {
+> +			compatible = "lantiq,xrx200-rcu-usb2-phy";
+> +
+> +			lantiq,rcu-syscon = <&rcu0 0x18 0x38>;
+> +			resets = <&rcu_reset1 4>, <&rcu_reset0 4>;
+> +			reset-names = "phy", "ctrl";
+> +			#phy-cells = <0>;
+> +		};
+> +
+> +		usb_phys1: rcu-usb2-phy@1 {
+> +			compatible = "lantiq,xrx200-rcu-usb2-phy";
+> +
+> +			lantiq,rcu-syscon = <&rcu0 0x34 0x3C>;
+> +			resets = <&rcu_reset1 5>, <&rcu_reset0 4>;
+> +			reset-names = "phy", "ctrl";
+> +			#phy-cells = <0>;
+> +		};
+> +
+> +		reboot {
+> +			compatible = "syscon-reboot";
+> +			regmap = <&rcu0>;
+> +			offset = <0x10>;
+> +			mask = <0x40000000>;
+> +		};
+> +
+> +		/* more sub-device nodes (USB PHY, etc.) */
 > +	};
+> +
+> -- 
+> 2.11.0
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe devicetree" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
