@@ -1,10 +1,10 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-oi0-f65.google.com ([209.85.218.65]:36780 "EHLO
-        mail-oi0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S965717AbdDTOsv (ORCPT
+Received: from mail-oi0-f68.google.com ([209.85.218.68]:35403 "EHLO
+        mail-oi0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S942158AbdDTOyH (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 20 Apr 2017 10:48:51 -0400
-Date: Thu, 20 Apr 2017 09:48:48 -0500
+        Thu, 20 Apr 2017 10:54:07 -0400
+Date: Thu, 20 Apr 2017 09:54:05 -0500
 From: Rob Herring <robh@kernel.org>
 To: Hauke Mehrtens <hauke@hauke-m.de>
 Cc: ralf@linux-mips.org, linux-mips@linux-mips.org,
@@ -12,72 +12,94 @@ Cc: ralf@linux-mips.org, linux-mips@linux-mips.org,
         devicetree@vger.kernel.org, martin.blumenstingl@googlemail.com,
         john@phrozen.org, linux-spi@vger.kernel.org,
         hauke.mehrtens@intel.com
-Subject: Re: [PATCH 06/13] MIPS: lantiq: Convert the xbar driver to a
- platform_driver
-Message-ID: <20170420144848.hwvtrhnwxcsxyv7x@rob-hp-laptop>
+Subject: Re: [PATCH 08/13] reset: Add a reset controller driver for the
+ Lantiq XWAY based SoCs
+Message-ID: <20170420145405.7s3iapxggr5575d2@rob-hp-laptop>
 References: <20170417192942.32219-1-hauke@hauke-m.de>
- <20170417192942.32219-7-hauke@hauke-m.de>
+ <20170417192942.32219-9-hauke@hauke-m.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20170417192942.32219-7-hauke@hauke-m.de>
+In-Reply-To: <20170417192942.32219-9-hauke@hauke-m.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Apr 17, 2017 at 09:29:35PM +0200, Hauke Mehrtens wrote:
+On Mon, Apr 17, 2017 at 09:29:37PM +0200, Hauke Mehrtens wrote:
 > From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 > 
-> This allows using the xbar driver on ARX300 based SoCs which require the
-> same xbar setup as the xRX200 chipsets because the xbar driver
-> initialization is not guarded by an xRX200 specific
-> of_machine_is_compatible condition anymore. Additionally the new driver
-> takes a syscon phandle to configure the XBAR endianness bits in RCU
-> (before this was done in arch/mips/lantiq/xway/reset.c and also
-> guarded by an xRX200 specific if-statement).
+> The reset controllers (on xRX200 and newer SoCs have two of them) are
+> provided by the RCU module. This was initially implemented as a simple
+> reset controller. However, the RCU module provides more functionality
+> (ethernet GPHYs, USB PHY, etc.), which makes it a MFD device.
+> The old reset controller driver implementation from
+> arch/mips/lantiq/xway/reset.c did not honor this fact.
+> 
+> For some devices the request and the status bits are different.
 > 
 > Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
 > ---
->  .../devicetree/bindings/mips/lantiq/xbar.txt       |  22 +++++
->  MAINTAINERS                                        |   1 +
->  arch/mips/lantiq/xway/reset.c                      |   4 -
->  arch/mips/lantiq/xway/sysctrl.c                    |  41 ---------
->  drivers/soc/Makefile                               |   1 +
->  drivers/soc/lantiq/Makefile                        |   1 +
->  drivers/soc/lantiq/xbar.c                          | 100 +++++++++++++++++++++
->  7 files changed, 125 insertions(+), 45 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/mips/lantiq/xbar.txt
->  create mode 100644 drivers/soc/lantiq/Makefile
->  create mode 100644 drivers/soc/lantiq/xbar.c
+>  .../devicetree/bindings/reset/lantiq,rcu-reset.txt |  43 ++++
+>  arch/mips/lantiq/xway/reset.c                      |  68 ------
+>  drivers/reset/Kconfig                              |   6 +
+>  drivers/reset/Makefile                             |   1 +
+>  drivers/reset/reset-lantiq-rcu.c                   | 231 +++++++++++++++++++++
+>  5 files changed, 281 insertions(+), 68 deletions(-)
+>  create mode 100644 Documentation/devicetree/bindings/reset/lantiq,rcu-reset.txt
+>  create mode 100644 drivers/reset/reset-lantiq-rcu.c
 > 
-> diff --git a/Documentation/devicetree/bindings/mips/lantiq/xbar.txt b/Documentation/devicetree/bindings/mips/lantiq/xbar.txt
+> diff --git a/Documentation/devicetree/bindings/reset/lantiq,rcu-reset.txt b/Documentation/devicetree/bindings/reset/lantiq,rcu-reset.txt
 > new file mode 100644
-> index 000000000000..86e53ff3b0d5
+> index 000000000000..7f097d16bbb7
 > --- /dev/null
-> +++ b/Documentation/devicetree/bindings/mips/lantiq/xbar.txt
-> @@ -0,0 +1,22 @@
-> +Lantiq XWAY SoC XBAR binding
-> +============================
+> +++ b/Documentation/devicetree/bindings/reset/lantiq,rcu-reset.txt
+> @@ -0,0 +1,43 @@
+> +Lantiq XWAY SoC RCU reset controller binding
+> +============================================
+> +
+> +This binding describes a reset-controller found on the RCU module on Lantiq
+> +XWAY SoCs.
 > +
 > +
 > +-------------------------------------------------------------------------------
-> +Required properties:
-> +- compatible	: Should be "lantiq,xbar-xway"
-
-This compatible is already in use so it is fine, but you should also 
-have per SoC compatible strings.
-
-> +- reg		: The address and length of the XBAR registers
+> +Required properties (controller (parent) node):
+> +- compatible		: Should be "lantiq,rcu-reset"
+> +- lantiq,rcu-syscon	: A phandle to the RCU syscon, the reset register
+> +			  offset and the status register offset.
+> +- #reset-cells		: Specifies the number of cells needed to encode the
+> +			  reset line, should be 1.
 > +
 > +Optional properties:
-> +- lantiq,rcu-syscon	: A phandle and offset to the endianness configuration
-> +			  registers in the RCU module
-> +
-> +
+> +- reset-status		: The request status bit. For some bits the request bit
+> +			  and the status bit are different. This is depending
+> +			  on the SoC. If the reset-status bit does not match
+> +			  the reset-request bit, put the reset number into the
+> +			  reset-request property and the status bit at the same
+> +			  index into the reset-status property. If no
+> +			  reset-request bit is given here, the driver assume
+> +			  status and request bit are the same.
+> +- reset-request		: The reset request bit, to map it to the reset-status
+> +			  bit.
+
+These should either be implied by SoC specific compatible or be made 
+part of the reset cells. In the latter case, you still need the SoC 
+specific compatible.
+
 > +-------------------------------------------------------------------------------
-> +Example for the XBAR on the xRX200 SoCs:
-> +	xbar0: xbar@400000 {
-> +		compatible = "lantiq,xbar-xway";
-> +		reg = <0x400000 0x1000>;
-> +		big-endian;
-> +		lantiq,rcu-syscon = <&rcu0 0x4c>;
+> +Example for the reset-controllers on the xRX200 SoCs:
+> +	rcu_reset0: rcu_reset {
+> +		compatible = "lantiq,rcu-reset";
+> +		lantiq,rcu-syscon = <&rcu0 0x10 0x14>;
+> +		#reset-cells = <1>;
+> +		reset-request = <31>, <29>, <21>, <19>, <16>, <12>;
+> +		reset-status  = <30>, <28>, <16>, <25>, <5>,  <24>;
+> +	};
+> +
+> +	rcu_reset1: rcu_reset {
+> +		compatible = "lantiq,rcu-reset";
+
+These 2 blocks are identical? Given different registers sizes, I'd say 
+not. So they should have different compatible strings.
+
+> +		lantiq,rcu-syscon = <&rcu0 0x48 0x24>;
+> +		#reset-cells = <1>;
 > +	};
