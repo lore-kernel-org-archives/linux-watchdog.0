@@ -1,130 +1,148 @@
-Return-path: <mail@maciej.szmigiero.name>
-To: Wim Van Sebroeck <wim@iguana.be>, Guenter Roeck <linux@roeck-us.net>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-From: "Maciej S. Szmigiero" <mail@maciej.szmigiero.name>
-Subject: [PATCH] watchdog: f71808e_wdt: Add F71868 support
-Message-ID: <4931c8df-3068-ca2c-fb6b-4d5eed3faf06@maciej.szmigiero.name>
-Date: Mon, 17 Apr 2017 22:37:05 +0200
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:34706 "EHLO
+        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1045765AbdDWP5R (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Sun, 23 Apr 2017 11:57:17 -0400
+Date: Sun, 23 Apr 2017 08:57:13 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: "Maciej S. Szmigiero" <mail@maciej.szmigiero.name>
+Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: watchdog: f71808e_wdt: Add F71868 support
+Message-ID: <20170423155713.GA19338@roeck-us.net>
+References: <4931c8df-3068-ca2c-fb6b-4d5eed3faf06@maciej.szmigiero.name>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-List-ID: <linux-watchdog@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4931c8df-3068-ca2c-fb6b-4d5eed3faf06@maciej.szmigiero.name>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-This adds support for watchdog part of Fintek F71868 Super I/O chip to
-f71808e_wdt driver.
+On Mon, Apr 17, 2017 at 10:37:05PM +0200, Maciej S. Szmigiero wrote:
+> This adds support for watchdog part of Fintek F71868 Super I/O chip to
+> f71808e_wdt driver.
+> 
+> The F71868 chip is, in general, very similar to a F71869, however it has
+> slightly different set of available reset pulse widths.
+> 
+> Tested on MSI A55M-P33 motherboard.
+> 
+> Signed-off-by: Maciej S. Szmigiero <mail@maciej.szmigiero.name>
 
-The F71868 chip is, in general, very similar to a F71869, however it has
-slightly different set of available reset pulse widths.
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-Tested on MSI A55M-P33 motherboard.
-
-Signed-off-by: Maciej S. Szmigiero <mail@maciej.szmigiero.name>
----
- drivers/watchdog/Kconfig       |  7 ++++---
- drivers/watchdog/f71808e_wdt.c | 27 ++++++++++++++++++++-------
- 2 files changed, 24 insertions(+), 10 deletions(-)
-
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 8b9049dac094..1f23079537ad 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -829,11 +829,12 @@ config EBC_C384_WDT
- 	  the timeout module parameter.
- 
- config F71808E_WDT
--	tristate "Fintek F71808E, F71862FG, F71869, F71882FG and F71889FG Watchdog"
-+	tristate "Fintek F718xx, F818xx Super I/O Watchdog"
- 	depends on X86
- 	help
--	  This is the driver for the hardware watchdog on the Fintek
--	  F71808E, F71862FG, F71869, F71882FG and F71889FG Super I/O controllers.
-+	  This is the driver for the hardware watchdog on the Fintek F71808E,
-+	  F71862FG, F71868, F71869, F71882FG, F71889FG, F81865 and F81866
-+	  Super I/O controllers.
- 
- 	  You can compile this driver directly into the kernel, or use
- 	  it as a module.  The module will be called f71808e_wdt.
-diff --git a/drivers/watchdog/f71808e_wdt.c b/drivers/watchdog/f71808e_wdt.c
-index 1b7e9169072f..8658dba21768 100644
---- a/drivers/watchdog/f71808e_wdt.c
-+++ b/drivers/watchdog/f71808e_wdt.c
-@@ -57,6 +57,7 @@
- #define SIO_F71808_ID		0x0901	/* Chipset ID */
- #define SIO_F71858_ID		0x0507	/* Chipset ID */
- #define SIO_F71862_ID		0x0601	/* Chipset ID */
-+#define SIO_F71868_ID		0x1106	/* Chipset ID */
- #define SIO_F71869_ID		0x0814	/* Chipset ID */
- #define SIO_F71869A_ID		0x1007	/* Chipset ID */
- #define SIO_F71882_ID		0x0541	/* Chipset ID */
-@@ -101,7 +102,7 @@ MODULE_PARM_DESC(timeout,
- static unsigned int pulse_width = WATCHDOG_PULSE_WIDTH;
- module_param(pulse_width, uint, 0);
- MODULE_PARM_DESC(pulse_width,
--	"Watchdog signal pulse width. 0(=level), 1 ms, 25 ms, 125 ms or 5000 ms"
-+	"Watchdog signal pulse width. 0(=level), 1, 25, 30, 125, 150, 5000 or 6000 ms"
- 			" (default=" __MODULE_STRING(WATCHDOG_PULSE_WIDTH) ")");
- 
- static unsigned int f71862fg_pin = WATCHDOG_F71862FG_PIN;
-@@ -119,13 +120,14 @@ module_param(start_withtimeout, uint, 0);
- MODULE_PARM_DESC(start_withtimeout, "Start watchdog timer on module load with"
- 	" given initial timeout. Zero (default) disables this feature.");
- 
--enum chips { f71808fg, f71858fg, f71862fg, f71869, f71882fg, f71889fg, f81865,
--	     f81866};
-+enum chips { f71808fg, f71858fg, f71862fg, f71868, f71869, f71882fg, f71889fg,
-+	     f81865, f81866};
- 
- static const char *f71808e_names[] = {
- 	"f71808fg",
- 	"f71858fg",
- 	"f71862fg",
-+	"f71868",
- 	"f71869",
- 	"f71882fg",
- 	"f71889fg",
-@@ -252,16 +254,23 @@ static int watchdog_set_timeout(int timeout)
- static int watchdog_set_pulse_width(unsigned int pw)
- {
- 	int err = 0;
-+	unsigned int t1 = 25, t2 = 125, t3 = 5000;
-+
-+	if (watchdog.type == f71868) {
-+		t1 = 30;
-+		t2 = 150;
-+		t3 = 6000;
-+	}
- 
- 	mutex_lock(&watchdog.lock);
- 
--	if        (pw <=    1) {
-+	if        (pw <=  1) {
- 		watchdog.pulse_val = 0;
--	} else if (pw <=   25) {
-+	} else if (pw <= t1) {
- 		watchdog.pulse_val = 1;
--	} else if (pw <=  125) {
-+	} else if (pw <= t2) {
- 		watchdog.pulse_val = 2;
--	} else if (pw <= 5000) {
-+	} else if (pw <= t3) {
- 		watchdog.pulse_val = 3;
- 	} else {
- 		pr_err("pulse width out of range\n");
-@@ -354,6 +363,7 @@ static int watchdog_start(void)
- 			goto exit_superio;
- 		break;
- 
-+	case f71868:
- 	case f71869:
- 		/* GPIO14 --> WDTRST# */
- 		superio_clear_bit(watchdog.sioaddr, SIO_REG_MFUNCT1, 4);
-@@ -792,6 +802,9 @@ static int __init f71808e_find(int sioaddr)
- 		watchdog.type = f71862fg;
- 		err = f71862fg_pin_configure(0); /* validate module parameter */
- 		break;
-+	case SIO_F71868_ID:
-+		watchdog.type = f71868;
-+		break;
- 	case SIO_F71869_ID:
- 	case SIO_F71869A_ID:
- 		watchdog.type = f71869;
+> ---
+>  drivers/watchdog/Kconfig       |  7 ++++---
+>  drivers/watchdog/f71808e_wdt.c | 27 ++++++++++++++++++++-------
+>  2 files changed, 24 insertions(+), 10 deletions(-)
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
+> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> index 8b9049dac094..1f23079537ad 100644
+> --- a/drivers/watchdog/Kconfig
+> +++ b/drivers/watchdog/Kconfig
+> @@ -829,11 +829,12 @@ config EBC_C384_WDT
+>  	  the timeout module parameter.
+>  
+>  config F71808E_WDT
+> -	tristate "Fintek F71808E, F71862FG, F71869, F71882FG and F71889FG Watchdog"
+> +	tristate "Fintek F718xx, F818xx Super I/O Watchdog"
+>  	depends on X86
+>  	help
+> -	  This is the driver for the hardware watchdog on the Fintek
+> -	  F71808E, F71862FG, F71869, F71882FG and F71889FG Super I/O controllers.
+> +	  This is the driver for the hardware watchdog on the Fintek F71808E,
+> +	  F71862FG, F71868, F71869, F71882FG, F71889FG, F81865 and F81866
+> +	  Super I/O controllers.
+>  
+>  	  You can compile this driver directly into the kernel, or use
+>  	  it as a module.  The module will be called f71808e_wdt.
+> diff --git a/drivers/watchdog/f71808e_wdt.c b/drivers/watchdog/f71808e_wdt.c
+> index 1b7e9169072f..8658dba21768 100644
+> --- a/drivers/watchdog/f71808e_wdt.c
+> +++ b/drivers/watchdog/f71808e_wdt.c
+> @@ -57,6 +57,7 @@
+>  #define SIO_F71808_ID		0x0901	/* Chipset ID */
+>  #define SIO_F71858_ID		0x0507	/* Chipset ID */
+>  #define SIO_F71862_ID		0x0601	/* Chipset ID */
+> +#define SIO_F71868_ID		0x1106	/* Chipset ID */
+>  #define SIO_F71869_ID		0x0814	/* Chipset ID */
+>  #define SIO_F71869A_ID		0x1007	/* Chipset ID */
+>  #define SIO_F71882_ID		0x0541	/* Chipset ID */
+> @@ -101,7 +102,7 @@ MODULE_PARM_DESC(timeout,
+>  static unsigned int pulse_width = WATCHDOG_PULSE_WIDTH;
+>  module_param(pulse_width, uint, 0);
+>  MODULE_PARM_DESC(pulse_width,
+> -	"Watchdog signal pulse width. 0(=level), 1 ms, 25 ms, 125 ms or 5000 ms"
+> +	"Watchdog signal pulse width. 0(=level), 1, 25, 30, 125, 150, 5000 or 6000 ms"
+>  			" (default=" __MODULE_STRING(WATCHDOG_PULSE_WIDTH) ")");
+>  
+>  static unsigned int f71862fg_pin = WATCHDOG_F71862FG_PIN;
+> @@ -119,13 +120,14 @@ module_param(start_withtimeout, uint, 0);
+>  MODULE_PARM_DESC(start_withtimeout, "Start watchdog timer on module load with"
+>  	" given initial timeout. Zero (default) disables this feature.");
+>  
+> -enum chips { f71808fg, f71858fg, f71862fg, f71869, f71882fg, f71889fg, f81865,
+> -	     f81866};
+> +enum chips { f71808fg, f71858fg, f71862fg, f71868, f71869, f71882fg, f71889fg,
+> +	     f81865, f81866};
+>  
+>  static const char *f71808e_names[] = {
+>  	"f71808fg",
+>  	"f71858fg",
+>  	"f71862fg",
+> +	"f71868",
+>  	"f71869",
+>  	"f71882fg",
+>  	"f71889fg",
+> @@ -252,16 +254,23 @@ static int watchdog_set_timeout(int timeout)
+>  static int watchdog_set_pulse_width(unsigned int pw)
+>  {
+>  	int err = 0;
+> +	unsigned int t1 = 25, t2 = 125, t3 = 5000;
+> +
+> +	if (watchdog.type == f71868) {
+> +		t1 = 30;
+> +		t2 = 150;
+> +		t3 = 6000;
+> +	}
+>  
+>  	mutex_lock(&watchdog.lock);
+>  
+> -	if        (pw <=    1) {
+> +	if        (pw <=  1) {
+>  		watchdog.pulse_val = 0;
+> -	} else if (pw <=   25) {
+> +	} else if (pw <= t1) {
+>  		watchdog.pulse_val = 1;
+> -	} else if (pw <=  125) {
+> +	} else if (pw <= t2) {
+>  		watchdog.pulse_val = 2;
+> -	} else if (pw <= 5000) {
+> +	} else if (pw <= t3) {
+>  		watchdog.pulse_val = 3;
+>  	} else {
+>  		pr_err("pulse width out of range\n");
+> @@ -354,6 +363,7 @@ static int watchdog_start(void)
+>  			goto exit_superio;
+>  		break;
+>  
+> +	case f71868:
+>  	case f71869:
+>  		/* GPIO14 --> WDTRST# */
+>  		superio_clear_bit(watchdog.sioaddr, SIO_REG_MFUNCT1, 4);
+> @@ -792,6 +802,9 @@ static int __init f71808e_find(int sioaddr)
+>  		watchdog.type = f71862fg;
+>  		err = f71862fg_pin_configure(0); /* validate module parameter */
+>  		break;
+> +	case SIO_F71868_ID:
+> +		watchdog.type = f71868;
+> +		break;
+>  	case SIO_F71869_ID:
+>  	case SIO_F71869A_ID:
+>  		watchdog.type = f71869;
