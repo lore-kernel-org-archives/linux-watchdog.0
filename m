@@ -10,40 +10,44 @@ Cc: moritz.fischer@ettus.com,
 	rtc-linux@googlegroups.com,
 	alex.williams@ni.com,
 	Moritz Fischer <mdf@kernel.org>
-Subject: [PATCH 0/2] DS1374 Watchdog fixes
-Date: Mon, 24 Apr 2017 15:05:10 -0700
-Message-Id: <1493071512-5718-1-git-send-email-mdf@kernel.org>
+Subject: [PATCH 2/2] rtc: ds1374: wdt: Fix stop/start ioctl always returning -EINVAL
+Date: Mon, 24 Apr 2017 15:05:12 -0700
+Message-Id: <1493071512-5718-3-git-send-email-mdf@kernel.org>
+In-Reply-To: <1493071512-5718-1-git-send-email-mdf@kernel.org>
+References: <1493071512-5718-1-git-send-email-mdf@kernel.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi all,
+Fix commit 920f91e50c5b ("drivers/rtc/rtc-ds1374.c: add watchdog support")
 
-this series fixes two issues that I ran into when trying to use the
-watchdog part of the DS1374 on of our products.
+The WDIOC_SETOPTIONS case in the watchdog ioctl would alwayss falls
+through to the -EINVAL case. This is wrong since thew watchdog does
+actually get stopped or started correctly.
 
-This series is basically a precursor to some further cleanup work,
-that turns the DS1374 into a MFD device with an RTC and WDT in
-separate drivers [1] each integrated in either the watchdog and
-the rtc frameworks.
+Signed-off-by: Moritz Fischer <mdf@kernel.org>
+---
+ drivers/rtc/rtc-ds1374.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-I'm very unhappy with the CONFIG_DRV_RTC_DS1374_WDT way of enabling
-the watchdog behavior and currently I'm investigating how to make
-that work via DT.
-
-Watchdog maintainers, do you have an idea on how to do that in a
-non breaking fashion?
-
-Thanks,
-Moritz
-
-[1] https://git.kernel.org/pub/scm/linux/kernel/git/mdf/linux.git/log/?h=wip/mfd-ds1374-rfc
-
-Moritz Fischer (2):
-  rtc: ds1374: wdt: Fix issue with timeout scaling from secs to wdt
-    ticks
-  rtc: ds1374: wdt: Fix stop/start ioctl always returning -EINVAL
-
- drivers/rtc/rtc-ds1374.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
-
+diff --git a/drivers/rtc/rtc-ds1374.c b/drivers/rtc/rtc-ds1374.c
+index 2a8b5b3..38a2e9e 100644
+--- a/drivers/rtc/rtc-ds1374.c
++++ b/drivers/rtc/rtc-ds1374.c
+@@ -546,14 +546,15 @@ static long ds1374_wdt_ioctl(struct file *file, unsigned int cmd,
+ 		if (options & WDIOS_DISABLECARD) {
+ 			pr_info("disable watchdog\n");
+ 			ds1374_wdt_disable();
++			return 0;
+ 		}
+ 
+ 		if (options & WDIOS_ENABLECARD) {
+ 			pr_info("enable watchdog\n");
+ 			ds1374_wdt_settimeout(wdt_margin);
+ 			ds1374_wdt_ping();
++			return 0;
+ 		}
+-
+ 		return -EINVAL;
+ 	}
+ 	return -ENOTTY;
 -- 
 2.7.4
