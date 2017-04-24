@@ -1,121 +1,121 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:50416 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1045793AbdDWPsS (ORCPT
+Received: from mail-wr0-f172.google.com ([209.85.128.172]:35119 "EHLO
+        mail-wr0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1169943AbdDXMip (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 23 Apr 2017 11:48:18 -0400
-Date: Sun, 23 Apr 2017 08:48:12 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Hauke Mehrtens <hauke@hauke-m.de>
-Cc: ralf@linux-mips.org, linux-mips@linux-mips.org,
-        linux-mtd@lists.infradead.org, linux-watchdog@vger.kernel.org,
-        devicetree@vger.kernel.org, martin.blumenstingl@googlemail.com,
-        john@phrozen.org, linux-spi@vger.kernel.org,
-        hauke.mehrtens@intel.com
-Subject: Re: [04/13] watchdog: lantiq: access boot cause register through
- regmap
-Message-ID: <20170423154812.GA20428@roeck-us.net>
-References: <20170417192942.32219-5-hauke@hauke-m.de>
+        Mon, 24 Apr 2017 08:38:45 -0400
+Received: by mail-wr0-f172.google.com with SMTP id z52so49408964wrc.2
+        for <linux-watchdog@vger.kernel.org>; Mon, 24 Apr 2017 05:38:44 -0700 (PDT)
+Date: Mon, 24 Apr 2017 13:38:39 +0100
+From: Lee Jones <lee.jones@linaro.org>
+To: Steve Twiss <stwiss.opensource@diasemi.com>
+Cc: LINUX-KERNEL <linux-kernel@vger.kernel.org>,
+        DEVICETREE <devicetree@vger.kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Eduardo Valentin <edubezval@gmail.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        LINUX-INPUT <linux-input@vger.kernel.org>,
+        LINUX-PM <linux-pm@vger.kernel.org>,
+        LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Support Opensource <Support.Opensource@diasemi.com>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Zhang Rui <rui.zhang@intel.com>
+Subject: Re: [PATCH V7 4/7] mfd: da9061: MFD core support
+Message-ID: <20170424123839.pjgbmz36nwcgfvn4@dell>
+References: <cover.1491230802.git.stwiss.opensource@diasemi.com>
+ <b39c8c3f42a01a00f93292c569e8d30ce69ff3ab.1491230802.git.stwiss.opensource@diasemi.com>
+ <20170404083902.ywo3pdxptgfcqvga@dell>
+ <6ED8E3B22081A4459DAC7699F3695FB7018CD71434@SW-EX-MBX02.diasemi.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20170417192942.32219-5-hauke@hauke-m.de>
+In-Reply-To: <6ED8E3B22081A4459DAC7699F3695FB7018CD71434@SW-EX-MBX02.diasemi.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, Apr 17, 2017 at 09:29:33PM +0200, Hauke Mehrtens wrote:
-> This patch avoids accessing the function ltq_reset_cause() and directly
-> accesses the register given over the syscon interface. The syscon
-> interface will be implemented for the xway SoCs for the falcon SoCs the
-> ltq_reset_cause() function never worked, because a wrong offset was used.
-> 
-> Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
+On Mon, 24 Apr 2017, Steve Twiss wrote:
 
-Acked-by: Guenter Roeck <linux@reck-us.net>
+> On 04 April 2017 09:39, Lee Jones wrote:
+> > Subject: Re: [PATCH V7 4/7] mfd: da9061: MFD core support
+> >=20
+> > On Mon, 03 Apr 2017, Steve Twiss wrote:
+> > > From: Steve Twiss <stwiss.opensource@diasemi.com>
+> > > MFD support for DA9061 is provided as part of the DA9062 device dri=
+ver.
+> > >
+> > > The registers header file adds two new chip variant IDs defined in =
+DA9061
+> > > and DA9062 hardware. The core header file adds new software enumera=
+tions
+> > > for listing the valid DA9061 IRQs and a da9062_compatible_types enu=
+meration
+> > > for distinguishing between DA9061/62 devices in software.
+> > >
+> > > The core source code adds a new .compatible of_device_id entry. Thi=
+s is
+> > > extended from DA9062 to support both "dlg,da9061" and "dlg,da9062".=
+ The
+> > > .data entry now holds a reference to the enumerated device type.
+> > >
+> > > A new regmap_irq_chip model is added for DA9061 and this supports t=
+he new
+> > > list of regmap_irq entries. A new mfd_cell da9061_devs[] array list=
+s the
+> > > new sub system components for DA9061. Support is added for a new DA=
+9061
+> > > regmap_config which lists the correct readable, writable and volati=
+le
+> > > ranges for this chip.
+> > >
+> > > The probe function uses the device tree compatible string to switch=
+ on the
+> > > da9062_compatible_types and configure the correct mfd cells, irq ch=
+ip and
+> > > regmap config.
+> > >
+> > > Kconfig is updated to reflect support for DA9061 and DA9062 PMICs.
+> > >
+> > > Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+> >=20
+> > Ah, here it is.
+> >=20
+> > Applied, thanks.
+>=20
+> Hi Lee,
+>=20
+> I noticed the DA9061 core support has been added into linux-next, howev=
+er
+> the commit message was changed from the original title:
+>=20
+> "mfd: da9061: MFD core support"
+>=20
+> to add the mistake:
+>=20
+> "mfd: Add suppfor for DA9061"
+>=20
+> https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/com=
+mit/?id=3Dd3fe0806025cacdab1462d5704e1c98ab9db4564
+>=20
+> Can this be fixed please?
+> This patch has not been upstreamed into linux-mainline and is still in =
+linux-next.
 
-> ---
->  drivers/watchdog/lantiq_wdt.c | 47 +++++++++++++++++++++++++++++++++++++++----
->  1 file changed, 43 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/watchdog/lantiq_wdt.c b/drivers/watchdog/lantiq_wdt.c
-> index e0823677d8c1..0e349ad03fdf 100644
-> --- a/drivers/watchdog/lantiq_wdt.c
-> +++ b/drivers/watchdog/lantiq_wdt.c
-> @@ -17,9 +17,14 @@
->  #include <linux/uaccess.h>
->  #include <linux/clk.h>
->  #include <linux/io.h>
-> +#include <linux/regmap.h>
-> +#include <linux/mfd/syscon.h>
->  
->  #include <lantiq_soc.h>
->  
-> +#define LTQ_RST_CAUSE_WDT_XRX		BIT(31)
-> +#define LTQ_RST_CAUSE_WDT_FALCON	0x02
-> +
->  /*
->   * Section 3.4 of the datasheet
->   * The password sequence protects the WDT control register from unintended
-> @@ -186,6 +191,40 @@ static struct miscdevice ltq_wdt_miscdev = {
->  	.fops	= &ltq_wdt_fops,
->  };
->  
-> +static void ltq_set_wdt_bootstatus(struct platform_device *pdev)
-> +{
-> +	struct device_node *np = pdev->dev.of_node;
-> +	struct regmap *rcu_regmap;
-> +	u32 status_reg_offset;
-> +	u32 val;
-> +	int err;
-> +
-> +	rcu_regmap = syscon_regmap_lookup_by_phandle(np,
-> +						     "lantiq,rcu-syscon");
-> +	if (IS_ERR_OR_NULL(rcu_regmap))
-> +		return;
-> +
-> +	err = of_property_read_u32_index(np, "lantiq,rcu-syscon", 1,
-> +					 &status_reg_offset);
-> +	if (err) {
-> +		dev_err(&pdev->dev, "Failed to get RCU reg offset\n");
-> +		return;
-> +	}
-> +
-> +	err = regmap_read(rcu_regmap, status_reg_offset, &val);
-> +	if (err)
-> +		return;
-> +
-> +	/* find out if the watchdog caused the last reboot */
-> +	if (of_device_is_compatible(np, "lantiq,wdt-xrx100")) {
-> +		if (val & LTQ_RST_CAUSE_WDT_XRX)
-> +			ltq_wdt_bootstatus = WDIOF_CARDRESET;
-> +	} else if  (of_device_is_compatible(np, "lantiq,wdt-falcon")) {
-> +		if ((val & 0x7) == LTQ_RST_CAUSE_WDT_FALCON)
-> +			ltq_wdt_bootstatus = WDIOF_CARDRESET;
-> +	}
-> +}
-> +
->  static int
->  ltq_wdt_probe(struct platform_device *pdev)
->  {
-> @@ -205,9 +244,7 @@ ltq_wdt_probe(struct platform_device *pdev)
->  	ltq_io_region_clk_rate = clk_get_rate(clk);
->  	clk_put(clk);
->  
-> -	/* find out if the watchdog caused the last reboot */
-> -	if (ltq_reset_cause() == LTQ_RST_CAUSE_WDTRST)
-> -		ltq_wdt_bootstatus = WDIOF_CARDRESET;
-> +	ltq_set_wdt_bootstatus(pdev);
->  
->  	dev_info(&pdev->dev, "Init done\n");
->  	return misc_register(&ltq_wdt_miscdev);
-> @@ -222,7 +259,9 @@ ltq_wdt_remove(struct platform_device *pdev)
->  }
->  
->  static const struct of_device_id ltq_wdt_match[] = {
-> -	{ .compatible = "lantiq,wdt" },
-> +	{ .compatible = "lantiq,wdt"},
-> +	{ .compatible = "lantiq,wdt-xrx100"},
-> +	{ .compatible = "lantiq,wdt-falcon"},
->  	{},
->  };
->  MODULE_DEVICE_TABLE(of, ltq_wdt_match);
+You're right, thanks for pointing that out.
+
+Now fixed.
+
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
