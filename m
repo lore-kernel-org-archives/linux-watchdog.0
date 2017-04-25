@@ -1,142 +1,85 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from hauke-m.de ([5.39.93.123]:35656 "EHLO mail.hauke-m.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1171332AbdDYHHE (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 25 Apr 2017 03:07:04 -0400
-Subject: Re: [PATCH 11/13] phy: Add an USB PHY driver for the Lantiq SoCs
- using the RCU module
-To: Rob Herring <robh@kernel.org>
-References: <20170417192942.32219-1-hauke@hauke-m.de>
- <20170417192942.32219-12-hauke@hauke-m.de>
- <20170420153606.fdhedc7ovvhc66qd@rob-hp-laptop>
-Cc: ralf@linux-mips.org, linux-mips@linux-mips.org,
-        linux-mtd@lists.infradead.org, linux-watchdog@vger.kernel.org,
-        devicetree@vger.kernel.org, martin.blumenstingl@googlemail.com,
-        john@phrozen.org, linux-spi@vger.kernel.org,
-        hauke.mehrtens@intel.com
-From: Hauke Mehrtens <hauke@hauke-m.de>
-Message-ID: <f15b576e-36bf-657d-97ff-99ea174c1d00@hauke-m.de>
-Date: Tue, 25 Apr 2017 09:06:56 +0200
+Received: from mail-qk0-f194.google.com ([209.85.220.194]:35266 "EHLO
+        mail-qk0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1430559AbdDYN3H (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 25 Apr 2017 09:29:07 -0400
 MIME-Version: 1.0
-In-Reply-To: <20170420153606.fdhedc7ovvhc66qd@rob-hp-laptop>
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <aefdf4f6a7b0cf4af92d51ce2b9b73284cc03ffe.1491773609.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+References: <aefdf4f6a7b0cf4af92d51ce2b9b73284cc03ffe.1491773609.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Date: Tue, 25 Apr 2017 16:29:05 +0300
+Message-ID: <CAHp75VcZAtpVDW2BbHZ5-3NZX4tgmz24U4=-oYTq-_h+eUTdFw@mail.gmail.com>
+Subject: Re: [PATCH v7 1/6] platform/x86: intel_pmc_ipc: fix gcr offset
+To: Kuppuswamy Sathyanarayanan
+        <sathyanarayanan.kuppuswamy@linux.intel.com>
+Cc: Andy Shevchenko <andy@infradead.org>,
+        Zha Qipeng <qipeng.zha@intel.com>,
+        "dvhart@infradead.org" <dvhart@infradead.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Sathyanarayanan Kuppuswamy Natarajan <sathyaosid@gmail.com>,
+        David Box <david.e.box@linux.intel.com>,
+        Rajneesh Bhardwaj <rajneesh.bhardwaj@intel.com>,
+        Platform Driver <platform-driver-x86@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+On Mon, Apr 10, 2017 at 1:00 AM, Kuppuswamy Sathyanarayanan
+<sathyanarayanan.kuppuswamy@linux.intel.com> wrote:
+> According to Broxton APL spec, PMC MIMO resources for Global Control
+> Registers(GCR) are located at 4K(0x1000) offset from IPC base address.
+> In this driver, PLAT_RESOURCE_GCR_OFFSET macro defines the offset of GCR
+> region base address from IPC base address and its current value of
+> 0x1008 is incorrect because it points to location for PMC_CFG register
+> and not the GCR base address itself.
+>
+> GCR Base = IPC1 Base + 0x1000.
+>
+> This patch fixes this offset issue.
+
+The whole series has been pushed to testing, thanks.
+
+>
+> Signed-off-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
+> ---
+>  drivers/platform/x86/intel_pmc_ipc.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> Changes since v6:
+>  *  Updated commit message
+>
+> Changes since v5:
+>  *  None
+>
+> Changes since v4:
+>  *  None
+>
+> Changes since v3:
+>  * Updated the commit history
+>
+> diff --git a/drivers/platform/x86/intel_pmc_ipc.c b/drivers/platform/x86/intel_pmc_ipc.c
+> index 0651d47..0a33592 100644
+> --- a/drivers/platform/x86/intel_pmc_ipc.c
+> +++ b/drivers/platform/x86/intel_pmc_ipc.c
+> @@ -82,7 +82,7 @@
+>  /* exported resources from IFWI */
+>  #define PLAT_RESOURCE_IPC_INDEX                0
+>  #define PLAT_RESOURCE_IPC_SIZE         0x1000
+> -#define PLAT_RESOURCE_GCR_OFFSET       0x1008
+> +#define PLAT_RESOURCE_GCR_OFFSET       0x1000
+>  #define PLAT_RESOURCE_GCR_SIZE         0x1000
+>  #define PLAT_RESOURCE_BIOS_DATA_INDEX  1
+>  #define PLAT_RESOURCE_BIOS_IFACE_INDEX 2
+> --
+> 2.7.4
+>
 
 
-On 04/20/2017 05:36 PM, Rob Herring wrote:
-> On Mon, Apr 17, 2017 at 09:29:40PM +0200, Hauke Mehrtens wrote:
->> From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
->>
->> This driver starts the DWC2 core(s) built into the XWAY SoCs and provides
->> the PHY interfaces for each core. The phy instances can be passed to the
->> dwc2 driver, which already supports the generic phy interface.
->>
->> Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
->> ---
->>  .../bindings/phy/phy-lantiq-rcu-usb2.txt           |  59 ++++
->>  arch/mips/lantiq/xway/reset.c                      |  43 ---
->>  arch/mips/lantiq/xway/sysctrl.c                    |  24 +-
->>  drivers/phy/Kconfig                                |   8 +
->>  drivers/phy/Makefile                               |   1 +
->>  drivers/phy/phy-lantiq-rcu-usb2.c                  | 325 +++++++++++++++++++++
->>  6 files changed, 405 insertions(+), 55 deletions(-)
->>  create mode 100644 Documentation/devicetree/bindings/phy/phy-lantiq-rcu-usb2.txt
->>  create mode 100644 drivers/phy/phy-lantiq-rcu-usb2.c
->>
->> diff --git a/Documentation/devicetree/bindings/phy/phy-lantiq-rcu-usb2.txt b/Documentation/devicetree/bindings/phy/phy-lantiq-rcu-usb2.txt
->> new file mode 100644
->> index 000000000000..0ec9f790b6e0
->> --- /dev/null
->> +++ b/Documentation/devicetree/bindings/phy/phy-lantiq-rcu-usb2.txt
->> @@ -0,0 +1,59 @@
->> +Lantiq XWAY SoC RCU USB 1.1/2.0 PHY binding
->> +===========================================
->> +
->> +This binding describes the USB PHY hardware provided by the RCU module on the
->> +Lantiq XWAY SoCs.
->> +
->> +
->> +-------------------------------------------------------------------------------
->> +Required properties (controller (parent) node):
->> +- compatible		: Should be one of
->> +				"lantiq,ase-rcu-usb2-phy"
->> +				"lantiq,danube-rcu-usb2-phy"
->> +				"lantiq,xrx100-rcu-usb2-phy"
->> +				"lantiq,xrx200-rcu-usb2-phy"
->> +				"lantiq,xrx300-rcu-usb2-phy"
-> 
-> The first x in xrx seems to be a wildcard. Don't use wildcards in 
-> compatible strings.
 
-Yes that is correct, I will replace it in the newly introduced
-compatible strings with the full names without wild cards.
-
-> 
->> +- lantiq,rcu-syscon	: A phandle to the RCU module and the offsets to the
->> +			  USB PHY configuration and USB MAC registers.
-> 
-> Same comment as gphy.
-> 
->> +- address-cells		: should be 1
->> +- size-cells		: should be 0
->> +- phy-cells		: from the generic PHY bindings, must be 1
-> 
-> Missing the '#'
-> 
->> +
->> +Optional properties (controller (parent) node):
->> +- vbus-gpio		: References a GPIO which enables VBUS all given USB
->> +			  ports.
-> 
-> -gpios is preferred form.
-> 
->> +
->> +Required nodes		:  A sub-node is required for each USB PHY port.
->> +
->> +
->> +-------------------------------------------------------------------------------
->> +Required properties (port (child) node):
-> 
-> Where's the sub nodes in the example?
-
-Sorry, this was from an older version, I will update this.
-
-> 
->> +- reg        	: The ID of the USB port, usually 0 or 1.
->> +- clocks	: References to the (PMU) "ctrl" and "phy" clk gates.
->> +- clock-names	: Must be one of the following:
->> +			"ctrl"
->> +			"phy"
->> +- resets	: References to the RCU USB configuration reset bits.
->> +- reset-names	: Must be one of the following:
->> +			"analog-config" (optional)
->> +			"statemachine-soft" (optional)
->> +
->> +Optional properties (port (child) node):
->> +- vbus-gpio	: References a GPIO which enables VBUS for the USB port.
->> +
->> +
->> +-------------------------------------------------------------------------------
->> +Example for the USB PHYs on an xRX200 SoC:
->> +	usb_phys0: rcu-usb2-phy@0 {
-> 
-> usb-phy@...
-> 
->> +		compatible      = "lantiq,xrx200-rcu-usb2-phy";
-> 
-> Extra spaces.
-> 
->> +		reg = <0>;
->> +
->> +		lantiq,rcu-syscon = <&rcu0 0x18 0x38>;
->> +		clocks = <&pmu PMU_GATE_USB0_CTRL>,
->> +			 <&pmu PMU_GATE_USB0_PHY>;
->> +		clock-names = "ctrl", "phy";
->> +		vbus-gpios = <&gpio 32 GPIO_ACTIVE_HIGH>;
->> +		resets = <&rcu_reset1 4>, <&rcu_reset0 4>;
->> +		reset-names = "phy", "ctrl";
->> +		#phy-cells = <0>;
->> +	};
+-- 
+With Best Regards,
+Andy Shevchenko
