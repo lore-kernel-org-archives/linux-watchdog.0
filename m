@@ -1,82 +1,52 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:39322 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1947587AbdDYVFa (ORCPT
+Received: from mail-pg0-f67.google.com ([74.125.83.67]:36362 "EHLO
+        mail-pg0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1950463AbdDYQRi (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 25 Apr 2017 17:05:30 -0400
-Date: Tue, 25 Apr 2017 14:05:27 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Moritz Fischer <mdf@kernel.org>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Moritz Fischer <moritz.fischer@ettus.com>,
-        linux-watchdog@vger.kernel.org, wim@iguana.be,
-        a.zummo@towertech.it, rtc-linux@googlegroups.com,
-        alex.williams@ni.com
-Subject: Re: [PATCH 0/2] DS1374 Watchdog fixes
-Message-ID: <20170425210526.GA1629@roeck-us.net>
-References: <1493071512-5718-1-git-send-email-mdf@kernel.org>
- <5f8fac22-4037-9983-436a-da8ff87d4b17@roeck-us.net>
- <CAJYdmeP+XEBPpUECO1rWpRDs-RVihc_va970jtv6iau3OuWMWA@mail.gmail.com>
- <20170425161743.GA8443@roeck-us.net>
- <20170425163204.rj6on6phtbfuvcd7@piout.net>
- <20170425165824.GA10024@roeck-us.net>
- <CAJYdmePpHcYgjiCf=eWCkBBNBTTw4jW59_VNR6w44Yj_QDQqng@mail.gmail.com>
- <20170425202210.GA20929@roeck-us.net>
- <20170425203418.GA5198@tyrael.amer.corp.natinst.com>
+        Tue, 25 Apr 2017 12:17:38 -0400
+Received: by mail-pg0-f67.google.com with SMTP id v1so4998209pgv.3
+        for <linux-watchdog@vger.kernel.org>; Tue, 25 Apr 2017 09:17:38 -0700 (PDT)
+From: Wei Yongjun <weiyj.lk@gmail.com>
+To: Wim Van Sebroeck <wim@iguana.be>,
+        Guenter Roeck <linux@roeck-us.net>
+Cc: Wei Yongjun <weiyongjun1@huawei.com>,
+        linux-watchdog@vger.kernel.org
+Subject: [PATCH] watchdog: zx2967: remove redundant dev_err call in zx2967_wdt_probe()
+Date: Tue, 25 Apr 2017 16:17:33 +0000
+Message-Id: <20170425161733.14931-1-weiyj.lk@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20170425203418.GA5198@tyrael.amer.corp.natinst.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, Apr 25, 2017 at 01:34:18PM -0700, Moritz Fischer wrote:
-> On Tue, Apr 25, 2017 at 01:22:10PM -0700, Guenter Roeck wrote:
-> > On Tue, Apr 25, 2017 at 12:58:36PM -0700, Moritz Fischer wrote:
-> > > On Tue, Apr 25, 2017 at 09:58:24AM -0700, Guenter Roeck wrote:
-> > > 
-> > > > Ah, I missed the "n" in various #ifndef statements.
-> > > >
-> > > > I can't really comment on how to solve that; I simply don't know.
-> > > > Also, even with a dt property, it still would be necessary to have
-> > > > a non-DT means to configure one or the other. Making whatever solution
-> > > > backward compatible also seems tricky; I don't have a solution for that
-> > > > problem either.
-> > > 
-> > > How does one do these things in a non-dt context? Platform data? I'd let
-> > 
-> > Platform data is out of favor. You'd probably want to use device properties
-> > (see drivers/base/property.c). Question though is if this is considered
-> > configuration, hardware description, or both. Presumably the watchdog
-> > only makes sense if the reset signal is wired, and the alarm only makes
-> > sense if the interrupt is wired, but what if both are wired ?
-> 
-> To make things worse you can even remap the reset output to the INT pin
-> (which my platform does).
-> 
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-So that is what the weird 250ms "interrupt signal" is for. I had wondered
-what that is supposed to be used for.
+There is a error message within devm_ioremap_resource
+already, so remove the dev_err call to avoid redundant
+error message.
 
-> I'll look at device properties. Thanks for the pointer.
-> 
-> > 
-> > > the MFD select the 'mode'. Maybe being backwards compatible isn't
-> > > possible in any case. Is there a rule somewhere that we guarantee you'll
-> > > never have to change your CONFIG_FOO options?
-> > > 
-> > 
-> > That would be nice, but no, there is no such rule. You can probably argue
-> > that no published kernel configuration enables the watchdog flag,
-> > so there is nothing to be concerned about.
-> 
-> Alright, cool. Thanks
-> 
-> Moritz
-> 
-> PS: Haven't forgotten about the cros-ec-hwmon patch that I sent out ...
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+---
+ drivers/watchdog/zx2967_wdt.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-No, still trying to get internal feedback. I'll have to ask again.
+diff --git a/drivers/watchdog/zx2967_wdt.c b/drivers/watchdog/zx2967_wdt.c
+index e290d5a..c982527 100644
+--- a/drivers/watchdog/zx2967_wdt.c
++++ b/drivers/watchdog/zx2967_wdt.c
+@@ -211,10 +211,8 @@ static int zx2967_wdt_probe(struct platform_device *pdev)
+ 
+ 	base = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	wdt->reg_base = devm_ioremap_resource(dev, base);
+-	if (IS_ERR(wdt->reg_base)) {
+-		dev_err(dev, "ioremap failed\n");
++	if (IS_ERR(wdt->reg_base))
+ 		return PTR_ERR(wdt->reg_base);
+-	}
+ 
+ 	zx2967_wdt_reset_sysctrl(dev);
+ 
 
-Guenter
+
+
