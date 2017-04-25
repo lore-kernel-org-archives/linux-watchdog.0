@@ -1,106 +1,90 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.136]:33382 "EHLO mail.kernel.org"
+Received: from mga03.intel.com ([134.134.136.65]:36869 "EHLO mga03.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1432374AbdDYRBe (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 25 Apr 2017 13:01:34 -0400
+        id S1432456AbdDYRiU (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 25 Apr 2017 13:38:20 -0400
+Reply-To: sathyanarayanan.kuppuswamy@linux.intel.com
+Subject: Re: [PATCH v7 1/6] platform/x86: intel_pmc_ipc: fix gcr offset
+References: <aefdf4f6a7b0cf4af92d51ce2b9b73284cc03ffe.1491773609.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+ <CAHp75VcZAtpVDW2BbHZ5-3NZX4tgmz24U4=-oYTq-_h+eUTdFw@mail.gmail.com>
+To: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Andy Shevchenko <andy@infradead.org>,
+        Zha Qipeng <qipeng.zha@intel.com>,
+        "dvhart@infradead.org" <dvhart@infradead.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Sathyanarayanan Kuppuswamy Natarajan <sathyaosid@gmail.com>,
+        David Box <david.e.box@linux.intel.com>,
+        Rajneesh Bhardwaj <rajneesh.bhardwaj@intel.com>,
+        Platform Driver <platform-driver-x86@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        linux-watchdog@vger.kernel.org
+From: sathyanarayanan kuppuswamy
+        <sathyanarayanan.kuppuswamy@linux.intel.com>
+Message-ID: <c1a6ee3d-ded0-fc6d-3f3e-d7f8b4c2e323@linux.intel.com>
+Date: Tue, 25 Apr 2017 10:34:43 -0700
 MIME-Version: 1.0
-In-Reply-To: <a9519140-a804-9888-3223-9a1446e25c52@hauke-m.de>
-References: <20170417192942.32219-1-hauke@hauke-m.de> <20170417192942.32219-9-hauke@hauke-m.de>
- <20170420145405.7s3iapxggr5575d2@rob-hp-laptop> <a9519140-a804-9888-3223-9a1446e25c52@hauke-m.de>
-From: Rob Herring <robh@kernel.org>
-Date: Tue, 25 Apr 2017 12:01:05 -0500
-Message-ID: <CAL_JsqJmeu6JNVK3aSCCE-q2Y9CAWHRFJF8SZo6QSBWV1+DO9A@mail.gmail.com>
-Subject: Re: [PATCH 08/13] reset: Add a reset controller driver for the Lantiq
- XWAY based SoCs
-To: Hauke Mehrtens <hauke@hauke-m.de>
-Cc: Ralf Baechle <ralf@linux-mips.org>,
-        Linux-MIPS <linux-mips@linux-mips.org>,
-        "linux-mtd@lists.infradead.org" <linux-mtd@lists.infradead.org>,
-        LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        John Crispin <john@phrozen.org>,
-        "linux-spi@vger.kernel.org" <linux-spi@vger.kernel.org>,
-        hauke.mehrtens@intel.com
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <CAHp75VcZAtpVDW2BbHZ5-3NZX4tgmz24U4=-oYTq-_h+eUTdFw@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, Apr 25, 2017 at 2:00 AM, Hauke Mehrtens <hauke@hauke-m.de> wrote:
->
->
-> On 04/20/2017 04:54 PM, Rob Herring wrote:
->> On Mon, Apr 17, 2017 at 09:29:37PM +0200, Hauke Mehrtens wrote:
->>> From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
->>>
->>> The reset controllers (on xRX200 and newer SoCs have two of them) are
->>> provided by the RCU module. This was initially implemented as a simple
->>> reset controller. However, the RCU module provides more functionality
->>> (ethernet GPHYs, USB PHY, etc.), which makes it a MFD device.
->>> The old reset controller driver implementation from
->>> arch/mips/lantiq/xway/reset.c did not honor this fact.
->>>
->>> For some devices the request and the status bits are different.
->>>
->>> Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
->>> ---
->>>  .../devicetree/bindings/reset/lantiq,rcu-reset.txt |  43 ++++
->>>  arch/mips/lantiq/xway/reset.c                      |  68 ------
->>>  drivers/reset/Kconfig                              |   6 +
->>>  drivers/reset/Makefile                             |   1 +
->>>  drivers/reset/reset-lantiq-rcu.c                   | 231 +++++++++++++++++++++
->>>  5 files changed, 281 insertions(+), 68 deletions(-)
->>>  create mode 100644 Documentation/devicetree/bindings/reset/lantiq,rcu-reset.txt
->>>  create mode 100644 drivers/reset/reset-lantiq-rcu.c
->>>
->>> diff --git a/Documentation/devicetree/bindings/reset/lantiq,rcu-reset.txt b/Documentation/devicetree/bindings/reset/lantiq,rcu-reset.txt
->>> new file mode 100644
->>> index 000000000000..7f097d16bbb7
->>> --- /dev/null
->>> +++ b/Documentation/devicetree/bindings/reset/lantiq,rcu-reset.txt
->>> @@ -0,0 +1,43 @@
->>> +Lantiq XWAY SoC RCU reset controller binding
->>> +============================================
->>> +
->>> +This binding describes a reset-controller found on the RCU module on Lantiq
->>> +XWAY SoCs.
->>> +
->>> +
->>> +-------------------------------------------------------------------------------
->>> +Required properties (controller (parent) node):
->>> +- compatible                : Should be "lantiq,rcu-reset"
->>> +- lantiq,rcu-syscon : A phandle to the RCU syscon, the reset register
->>> +                      offset and the status register offset.
->>> +- #reset-cells              : Specifies the number of cells needed to encode the
->>> +                      reset line, should be 1.
->>> +
->>> +Optional properties:
->>> +- reset-status              : The request status bit. For some bits the request bit
->>> +                      and the status bit are different. This is depending
->>> +                      on the SoC. If the reset-status bit does not match
->>> +                      the reset-request bit, put the reset number into the
->>> +                      reset-request property and the status bit at the same
->>> +                      index into the reset-status property. If no
->>> +                      reset-request bit is given here, the driver assume
->>> +                      status and request bit are the same.
->>> +- reset-request             : The reset request bit, to map it to the reset-status
->>> +                      bit.
+
+
+On 04/25/2017 06:29 AM, Andy Shevchenko wrote:
+> On Mon, Apr 10, 2017 at 1:00 AM, Kuppuswamy Sathyanarayanan
+> <sathyanarayanan.kuppuswamy@linux.intel.com> wrote:
+>> According to Broxton APL spec, PMC MIMO resources for Global Control
+>> Registers(GCR) are located at 4K(0x1000) offset from IPC base address.
+>> In this driver, PLAT_RESOURCE_GCR_OFFSET macro defines the offset of GCR
+>> region base address from IPC base address and its current value of
+>> 0x1008 is incorrect because it points to location for PMC_CFG register
+>> and not the GCR base address itself.
 >>
->> These should either be implied by SoC specific compatible or be made
->> part of the reset cells. In the latter case, you still need the SoC
->> specific compatible.
+>> GCR Base = IPC1 Base + 0x1000.
+>>
+>> This patch fixes this offset issue.
+> The whole series has been pushed to testing, thanks.
+Thanks Andy.
 >
-> Currently the reset framework only supports a single reset cell to my
-> knowledge, but I haven't looked into the details, I could extend it to
-> make it support two.
+>> Signed-off-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
+>> ---
+>>   drivers/platform/x86/intel_pmc_ipc.c | 2 +-
+>>   1 file changed, 1 insertion(+), 1 deletion(-)
+>>
+>> Changes since v6:
+>>   *  Updated commit message
+>>
+>> Changes since v5:
+>>   *  None
+>>
+>> Changes since v4:
+>>   *  None
+>>
+>> Changes since v3:
+>>   * Updated the commit history
+>>
+>> diff --git a/drivers/platform/x86/intel_pmc_ipc.c b/drivers/platform/x86/intel_pmc_ipc.c
+>> index 0651d47..0a33592 100644
+>> --- a/drivers/platform/x86/intel_pmc_ipc.c
+>> +++ b/drivers/platform/x86/intel_pmc_ipc.c
+>> @@ -82,7 +82,7 @@
+>>   /* exported resources from IFWI */
+>>   #define PLAT_RESOURCE_IPC_INDEX                0
+>>   #define PLAT_RESOURCE_IPC_SIZE         0x1000
+>> -#define PLAT_RESOURCE_GCR_OFFSET       0x1008
+>> +#define PLAT_RESOURCE_GCR_OFFSET       0x1000
+>>   #define PLAT_RESOURCE_GCR_SIZE         0x1000
+>>   #define PLAT_RESOURCE_BIOS_DATA_INDEX  1
+>>   #define PLAT_RESOURCE_BIOS_IFACE_INDEX 2
+>> --
+>> 2.7.4
+>>
+>
+>
 
-I thought we had cases already, but maybe I'm thinking of something
-else. In any case, driver limitations shouldn't define binding design.
+-- 
+Sathyanarayanan Kuppuswamy
+Android kernel developer
 
-> The SoC which needs this has two reset control register sets and the
-> bits are specific for each register set. Would a specific compatible
-> string for each register set ok?
-
-Yes. You should have that.
-
-Rob
