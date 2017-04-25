@@ -1,85 +1,94 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-qk0-f194.google.com ([209.85.220.194]:35266 "EHLO
-        mail-qk0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1430559AbdDYN3H (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 25 Apr 2017 09:29:07 -0400
+Received: from mail.kernel.org ([198.145.29.136]:32820 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1432352AbdDYQ6Y (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 25 Apr 2017 12:58:24 -0400
 MIME-Version: 1.0
-In-Reply-To: <aefdf4f6a7b0cf4af92d51ce2b9b73284cc03ffe.1491773609.git.sathyanarayanan.kuppuswamy@linux.intel.com>
-References: <aefdf4f6a7b0cf4af92d51ce2b9b73284cc03ffe.1491773609.git.sathyanarayanan.kuppuswamy@linux.intel.com>
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Date: Tue, 25 Apr 2017 16:29:05 +0300
-Message-ID: <CAHp75VcZAtpVDW2BbHZ5-3NZX4tgmz24U4=-oYTq-_h+eUTdFw@mail.gmail.com>
-Subject: Re: [PATCH v7 1/6] platform/x86: intel_pmc_ipc: fix gcr offset
-To: Kuppuswamy Sathyanarayanan
-        <sathyanarayanan.kuppuswamy@linux.intel.com>
-Cc: Andy Shevchenko <andy@infradead.org>,
-        Zha Qipeng <qipeng.zha@intel.com>,
-        "dvhart@infradead.org" <dvhart@infradead.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        Sathyanarayanan Kuppuswamy Natarajan <sathyaosid@gmail.com>,
-        David Box <david.e.box@linux.intel.com>,
-        Rajneesh Bhardwaj <rajneesh.bhardwaj@intel.com>,
-        Platform Driver <platform-driver-x86@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        linux-watchdog@vger.kernel.org
+In-Reply-To: <8742e3b3-4dc2-bc74-f607-00d96f74512c@hauke-m.de>
+References: <20170417192942.32219-1-hauke@hauke-m.de> <20170417192942.32219-7-hauke@hauke-m.de>
+ <20170420144848.hwvtrhnwxcsxyv7x@rob-hp-laptop> <8742e3b3-4dc2-bc74-f607-00d96f74512c@hauke-m.de>
+From: Rob Herring <robh@kernel.org>
+Date: Tue, 25 Apr 2017 11:57:58 -0500
+Message-ID: <CAL_JsqLdtyc_w5CWW9YTN6+xnYVQemSbVEmjJbhH8kP_8a-wkA@mail.gmail.com>
+Subject: Re: [PATCH 06/13] MIPS: lantiq: Convert the xbar driver to a platform_driver
+To: Hauke Mehrtens <hauke@hauke-m.de>
+Cc: Ralf Baechle <ralf@linux-mips.org>,
+        Linux-MIPS <linux-mips@linux-mips.org>,
+        "linux-mtd@lists.infradead.org" <linux-mtd@lists.infradead.org>,
+        LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        John Crispin <john@phrozen.org>,
+        "linux-spi@vger.kernel.org" <linux-spi@vger.kernel.org>,
+        hauke.mehrtens@intel.com
 Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Apr 10, 2017 at 1:00 AM, Kuppuswamy Sathyanarayanan
-<sathyanarayanan.kuppuswamy@linux.intel.com> wrote:
-> According to Broxton APL spec, PMC MIMO resources for Global Control
-> Registers(GCR) are located at 4K(0x1000) offset from IPC base address.
-> In this driver, PLAT_RESOURCE_GCR_OFFSET macro defines the offset of GCR
-> region base address from IPC base address and its current value of
-> 0x1008 is incorrect because it points to location for PMC_CFG register
-> and not the GCR base address itself.
+On Tue, Apr 25, 2017 at 1:56 AM, Hauke Mehrtens <hauke@hauke-m.de> wrote:
 >
-> GCR Base = IPC1 Base + 0x1000.
 >
-> This patch fixes this offset issue.
+> On 04/20/2017 04:48 PM, Rob Herring wrote:
+>> On Mon, Apr 17, 2017 at 09:29:35PM +0200, Hauke Mehrtens wrote:
+>>> From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+>>>
+>>> This allows using the xbar driver on ARX300 based SoCs which require the
+>>> same xbar setup as the xRX200 chipsets because the xbar driver
+>>> initialization is not guarded by an xRX200 specific
+>>> of_machine_is_compatible condition anymore. Additionally the new driver
+>>> takes a syscon phandle to configure the XBAR endianness bits in RCU
+>>> (before this was done in arch/mips/lantiq/xway/reset.c and also
+>>> guarded by an xRX200 specific if-statement).
+>>>
+>>> Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
+>>> ---
+>>>  .../devicetree/bindings/mips/lantiq/xbar.txt       |  22 +++++
+>>>  MAINTAINERS                                        |   1 +
+>>>  arch/mips/lantiq/xway/reset.c                      |   4 -
+>>>  arch/mips/lantiq/xway/sysctrl.c                    |  41 ---------
+>>>  drivers/soc/Makefile                               |   1 +
+>>>  drivers/soc/lantiq/Makefile                        |   1 +
+>>>  drivers/soc/lantiq/xbar.c                          | 100 +++++++++++++++++++++
+>>>  7 files changed, 125 insertions(+), 45 deletions(-)
+>>>  create mode 100644 Documentation/devicetree/bindings/mips/lantiq/xbar.txt
+>>>  create mode 100644 drivers/soc/lantiq/Makefile
+>>>  create mode 100644 drivers/soc/lantiq/xbar.c
+>>>
+>>> diff --git a/Documentation/devicetree/bindings/mips/lantiq/xbar.txt b/Documentation/devicetree/bindings/mips/lantiq/xbar.txt
+>>> new file mode 100644
+>>> index 000000000000..86e53ff3b0d5
+>>> --- /dev/null
+>>> +++ b/Documentation/devicetree/bindings/mips/lantiq/xbar.txt
+>>> @@ -0,0 +1,22 @@
+>>> +Lantiq XWAY SoC XBAR binding
+>>> +============================
+>>> +
+>>> +
+>>> +-------------------------------------------------------------------------------
+>>> +Required properties:
+>>> +- compatible        : Should be "lantiq,xbar-xway"
+>>
+>> This compatible is already in use so it is fine, but you should also
+>> have per SoC compatible strings.
+>
+> I will add a new SoC specific one.
+> What does per SoC device tree mean? Does it mean for the same silicon,
+> for the same silicon revision, for the same fusing of a silicon or for
+> the same marketing name?
 
-The whole series has been pushed to testing, thanks.
+Depends how specific you need to some extent. For fusing, packaging,
+metal fixes, speed grading, etc. probably use the same compatible.
+Different design and dies from the start, then they should have
+different compatibles.
 
->
-> Signed-off-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
-> ---
->  drivers/platform/x86/intel_pmc_ipc.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> Changes since v6:
->  *  Updated commit message
->
-> Changes since v5:
->  *  None
->
-> Changes since v4:
->  *  None
->
-> Changes since v3:
->  * Updated the commit history
->
-> diff --git a/drivers/platform/x86/intel_pmc_ipc.c b/drivers/platform/x86/intel_pmc_ipc.c
-> index 0651d47..0a33592 100644
-> --- a/drivers/platform/x86/intel_pmc_ipc.c
-> +++ b/drivers/platform/x86/intel_pmc_ipc.c
-> @@ -82,7 +82,7 @@
->  /* exported resources from IFWI */
->  #define PLAT_RESOURCE_IPC_INDEX                0
->  #define PLAT_RESOURCE_IPC_SIZE         0x1000
-> -#define PLAT_RESOURCE_GCR_OFFSET       0x1008
-> +#define PLAT_RESOURCE_GCR_OFFSET       0x1000
->  #define PLAT_RESOURCE_GCR_SIZE         0x1000
->  #define PLAT_RESOURCE_BIOS_DATA_INDEX  1
->  #define PLAT_RESOURCE_BIOS_IFACE_INDEX 2
-> --
-> 2.7.4
->
+> I would like to make it per silicon or per silicon revision for the IP
+> cores which I know are different.
 
+Being "the same IP" doesn't really matter. The errata can be different
+and often there is no visibility into what h/w designers may have
+changed. On some IP you can rely on revision/feature registers though
+forgetting to rev revision registers is not uncommon. You need to have
+sufficient information that you can work-around a problem in the
+future without requiring a new dtb.
 
-
--- 
-With Best Regards,
-Andy Shevchenko
+Rob
