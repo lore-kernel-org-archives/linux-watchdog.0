@@ -1,9 +1,9 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.savoirfairelinux.com ([208.88.110.44]:44788 "EHLO
+Received: from mail.savoirfairelinux.com ([208.88.110.44]:44726 "EHLO
         mail.savoirfairelinux.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751967AbdEETdP (ORCPT
+        with ESMTP id S1751529AbdEETdN (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 5 May 2017 15:33:15 -0400
+        Fri, 5 May 2017 15:33:13 -0400
 From: Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>
 To: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
@@ -11,493 +11,189 @@ To: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
         linus.walleij@linaro.org, shawnguo@kernel.org
 Cc: fabio.estevam@nxp.com, mark@embeddedarm.com, kris@embeddedarm.com,
         Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>
-Subject: [PATCH v3 4/6] bus: add driver for the Technologic Systems NBUS
-Date: Fri,  5 May 2017 15:32:57 -0400
-Message-Id: <20170505193259.16517-5-sebastien.bourdelin@savoirfairelinux.com>
+Subject: [PATCH v3 2/6] ARM: dts: TS-4600: add basic device tree
+Date: Fri,  5 May 2017 15:32:55 -0400
+Message-Id: <20170505193259.16517-3-sebastien.bourdelin@savoirfairelinux.com>
 In-Reply-To: <20170505193259.16517-1-sebastien.bourdelin@savoirfairelinux.com>
 References: <20170505193259.16517-1-sebastien.bourdelin@savoirfairelinux.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This driver implements a GPIOs bit-banged bus, called the NBUS by
-Technologic Systems. It is used to communicate with the peripherals in
-the FPGA on the TS-4600 SoM.
+These device trees add support for the TS-4600 by Technologic Systems.
+
+More details here:
+  http://wiki.embeddedarm.com/wiki/TS-4600
 
 Signed-off-by: Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>
 ---
 Changes v2 -> v3:
   - rebase on master
-  - remove all call to the "inline" keyword in functions to let the
-  compiler decide when required (suggested by Linus Walleij)
-  - move the struct ts_nbus to the driver code instead of its header
-  file (suggested by Linus Walleij)
-  - use the bitops header and the BIT macro (suggested by Linus Walleij)
-  - move the mutex to the struct ts_nbus instead to have it statically
-  declared in the driver code (suggested by Linus Walleij)
-  - remove the ts_nbus_set_mode function to simplify the logic
-  (suggested by Linus Walleij)
-  - the nbus will always need 8 data lines, remove the use of the
-  ndescs when dealing with the data gpios and hardcode the value for
-  simplicity instead (suggested by Linus Walleij)
-  - add more comments (suggested by Linus Walleij)
-  - rework all the ts_nbus_read_... functions to propagate the
-  gpiod_get_value_... errno code (suggested by Linus Walleij)
-  - few typos and code reformating for lisibility
 
 Changes v1 -> v2:
   - rebase on master
-  - the driver now populate its child nodes
-  - remove the 'default y' option from the Kconfig
-  - rework the driver to not use singleton anymore (suggested by Linus
-  Walleij)
-  - replace the use of the legacy GPIO API with gpiod (suggested by
-  Linus Walleij)
-  - use the ts vendor prefix for gpios (suggested by Rob Herring)
 ---
- drivers/bus/Kconfig     |   8 ++
- drivers/bus/Makefile    |   1 +
- drivers/bus/ts-nbus.c   | 375 ++++++++++++++++++++++++++++++++++++++++++++++++
- include/linux/ts-nbus.h |  18 +++
- 4 files changed, 402 insertions(+)
- create mode 100644 drivers/bus/ts-nbus.c
- create mode 100644 include/linux/ts-nbus.h
+ arch/arm/boot/dts/Makefile                 |  2 +
+ arch/arm/boot/dts/imx28-ts4600-common.dtsi | 78 ++++++++++++++++++++++++++++++
+ arch/arm/boot/dts/imx28-ts4600-rev-a.dts   | 22 +++++++++
+ arch/arm/boot/dts/imx28-ts4600-rev-b.dts   | 22 +++++++++
+ 4 files changed, 124 insertions(+)
+ create mode 100644 arch/arm/boot/dts/imx28-ts4600-common.dtsi
+ create mode 100644 arch/arm/boot/dts/imx28-ts4600-rev-a.dts
+ create mode 100644 arch/arm/boot/dts/imx28-ts4600-rev-b.dts
 
-diff --git a/drivers/bus/Kconfig b/drivers/bus/Kconfig
-index 0a52da439abf..a9998081b01e 100644
---- a/drivers/bus/Kconfig
-+++ b/drivers/bus/Kconfig
-@@ -158,6 +158,14 @@ config TEGRA_GMI
- 	  Driver for the Tegra Generic Memory Interface bus which can be used
- 	  to attach devices such as NOR, UART, FPGA and more.
- 
-+config TS_NBUS
-+	tristate "Technologic Systems NBUS Driver"
-+	depends on SOC_IMX28
-+	depends on OF_GPIO && PWM
-+	help
-+	  Driver for the Technologic Systems NBUS which is used to interface
-+	  with the peripherals in the FPGA of the TS-4600 SoM.
-+
- config UNIPHIER_SYSTEM_BUS
- 	tristate "UniPhier System Bus driver"
- 	depends on ARCH_UNIPHIER && OF
-diff --git a/drivers/bus/Makefile b/drivers/bus/Makefile
-index cc6364bec054..72377f77651c 100644
---- a/drivers/bus/Makefile
-+++ b/drivers/bus/Makefile
-@@ -20,6 +20,7 @@ obj-$(CONFIG_SUNXI_RSB)		+= sunxi-rsb.o
- obj-$(CONFIG_SIMPLE_PM_BUS)	+= simple-pm-bus.o
- obj-$(CONFIG_TEGRA_ACONNECT)	+= tegra-aconnect.o
- obj-$(CONFIG_TEGRA_GMI)		+= tegra-gmi.o
-+obj-$(CONFIG_TS_NBUS)		+= ts-nbus.o
- obj-$(CONFIG_UNIPHIER_SYSTEM_BUS)	+= uniphier-system-bus.o
- obj-$(CONFIG_VEXPRESS_CONFIG)	+= vexpress-config.o
- 
-diff --git a/drivers/bus/ts-nbus.c b/drivers/bus/ts-nbus.c
+diff --git a/arch/arm/boot/dts/Makefile b/arch/arm/boot/dts/Makefile
+index 011808490fed..acf54eeacb57 100644
+--- a/arch/arm/boot/dts/Makefile
++++ b/arch/arm/boot/dts/Makefile
+@@ -495,6 +495,8 @@ dtb-$(CONFIG_ARCH_MXS) += \
+ 	imx28-m28cu3.dtb \
+ 	imx28-m28evk.dtb \
+ 	imx28-sps1.dtb \
++	imx28-ts4600-rev-a.dtb \
++	imx28-ts4600-rev-b.dtb \
+ 	imx28-tx28.dtb
+ dtb-$(CONFIG_ARCH_NOMADIK) += \
+ 	ste-nomadik-s8815.dtb \
+diff --git a/arch/arm/boot/dts/imx28-ts4600-common.dtsi b/arch/arm/boot/dts/imx28-ts4600-common.dtsi
 new file mode 100644
-index 000000000000..25714421f911
+index 000000000000..04bd5a5c0cb4
 --- /dev/null
-+++ b/drivers/bus/ts-nbus.c
-@@ -0,0 +1,375 @@
++++ b/arch/arm/boot/dts/imx28-ts4600-common.dtsi
+@@ -0,0 +1,78 @@
 +/*
-+ * NBUS driver for TS-4600 based boards
-+ *
-+ * Copyright (c) 2016 - Savoir-faire Linux
++ * Copyright (C) 2016 Savoir-Faire Linux
 + * Author: Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>
 + *
-+ * This file is licensed under the terms of the GNU General Public
-+ * License version 2. This program is licensed "as is" without any
-+ * warranty of any kind, whether express or implied.
++ * The code contained herein is licensed under the GNU General Public
++ * License. You may obtain a copy of the GNU General Public License
++ * Version 2 or later at the following locations:
 + *
-+ * This driver implements a GPIOs bit-banged bus, called the NBUS by Technologic
-+ * Systems. It is used to communicate with the peripherals in the FPGA on the
-+ * TS-4600 SoM.
++ * http://www.opensource.org/licenses/gpl-license.html
++ * http://www.gnu.org/copyleft/gpl.html
 + */
 +
-+#include <linux/bitops.h>
-+#include <linux/gpio/consumer.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/mutex.h>
-+#include <linux/of_platform.h>
-+#include <linux/platform_device.h>
-+#include <linux/pwm.h>
-+#include <linux/ts-nbus.h>
++/dts-v1/;
++#include "imx28.dtsi"
++#include "dt-bindings/gpio/gpio.h"
 +
-+#define TS_NBUS_DIRECTION_IN  0
-+#define TS_NBUS_DIRECTION_OUT 1
-+#define TS_NBUS_WRITE_ADR 0
-+#define TS_NBUS_WRITE_VAL 1
++/ {
 +
-+struct ts_nbus {
-+	struct pwm_device *pwm;
-+	struct gpio_descs *data;
-+	struct gpio_desc *csn;
-+	struct gpio_desc *txrx;
-+	struct gpio_desc *strobe;
-+	struct gpio_desc *ale;
-+	struct gpio_desc *rdy;
-+	struct mutex lock;
++	compatible = "technologic,imx28-ts4600", "fsl,imx28";
++
++	apb@80000000 {
++		apbh@80000000 {
++			ssp0: ssp@80010000 {
++				compatible = "fsl,imx28-mmc";
++				pinctrl-names = "default";
++				pinctrl-0 = <&mmc0_4bit_pins_a
++					     &mmc0_sck_cfg
++					     &en_sd_pwr>;
++				broken-cd = <1>;
++				bus-width = <4>;
++				vmmc-supply = <&reg_vddio_sd0>;
++				status = "okay";
++			};
++
++			pinctrl@80018000 {
++				pinctrl-names = "default";
++
++				en_sd_pwr: en_sd_pwr {
++					fsl,pinmux-ids = <
++						MX28_PAD_PWM3__GPIO_3_28
++					>;
++					fsl,drive-strength = <MXS_DRIVE_4mA>;
++					fsl,voltage = <MXS_VOLTAGE_HIGH>;
++					fsl,pull-up = <MXS_PULL_DISABLE>;
++				};
++
++			};
++		};
++
++		apbx@80040000 {
++			pwm: pwm@80064000 {
++				pinctrl-names = "default";
++				pinctrl-0 = <&pwm2_pins_a>;
++				status = "okay";
++			};
++
++			duart: serial@80074000 {
++				pinctrl-names = "default";
++				pinctrl-0 = <&duart_pins_a>;
++				status = "okay";
++			};
++		};
++	};
++
++	regulators {
++		compatible = "simple-bus";
++
++		reg_vddio_sd0: vddio-sd0 {
++			compatible = "regulator-fixed";
++			regulator-name = "vddio-sd0";
++			regulator-min-microvolt = <3300000>;
++			regulator-max-microvolt = <3300000>;
++			regulator-boot-on;
++			gpio = <&gpio3 28 0>;
++		};
++	};
++
 +};
-+
-+/*
-+ * request all gpios required by the bus.
-+ */
-+static int ts_nbus_init_pdata(struct platform_device *pdev, struct ts_nbus
-+		*ts_nbus)
-+{
-+	ts_nbus->data = devm_gpiod_get_array(&pdev->dev, "ts-data",
-+			GPIOD_OUT_HIGH);
-+	if (IS_ERR(ts_nbus->data)) {
-+		dev_err(&pdev->dev, "failed to retrieve ts-data-gpio from dts\n");
-+		return PTR_ERR(ts_nbus->data);
-+	}
-+
-+	ts_nbus->csn = devm_gpiod_get(&pdev->dev, "ts-csn", GPIOD_OUT_HIGH);
-+	if (IS_ERR(ts_nbus->csn)) {
-+		dev_err(&pdev->dev, "failed to retrieve ts-csn-gpio from dts\n");
-+		return PTR_ERR(ts_nbus->csn);
-+	}
-+
-+	ts_nbus->txrx = devm_gpiod_get(&pdev->dev, "ts-txrx", GPIOD_OUT_HIGH);
-+	if (IS_ERR(ts_nbus->txrx)) {
-+		dev_err(&pdev->dev, "failed to retrieve ts-txrx-gpio from dts\n");
-+		return PTR_ERR(ts_nbus->txrx);
-+	}
-+
-+	ts_nbus->strobe = devm_gpiod_get(&pdev->dev, "ts-strobe", GPIOD_OUT_HIGH);
-+	if (IS_ERR(ts_nbus->strobe)) {
-+		dev_err(&pdev->dev, "failed to retrieve ts-strobe-gpio from dts\n");
-+		return PTR_ERR(ts_nbus->strobe);
-+	}
-+
-+	ts_nbus->ale = devm_gpiod_get(&pdev->dev, "ts-ale", GPIOD_OUT_HIGH);
-+	if (IS_ERR(ts_nbus->ale)) {
-+		dev_err(&pdev->dev, "failed to retrieve ts-ale-gpio from dts\n");
-+		return PTR_ERR(ts_nbus->ale);
-+	}
-+
-+	ts_nbus->rdy = devm_gpiod_get(&pdev->dev, "ts-rdy", GPIOD_IN);
-+	if (IS_ERR(ts_nbus->rdy)) {
-+		dev_err(&pdev->dev, "failed to retrieve ts-rdy-gpio from dts\n");
-+		return PTR_ERR(ts_nbus->rdy);
-+	}
-+
-+	return 0;
-+}
-+
-+/*
-+ * the data gpios are used for reading and writing values, their directions
-+ * should be adjusted accordingly.
-+ */
-+static void ts_nbus_set_direction(struct ts_nbus *ts_nbus, int direction)
-+{
-+	int i;
-+
-+	for (i = 0; i < 8; i++) {
-+		if (direction == TS_NBUS_DIRECTION_IN)
-+			gpiod_direction_input(ts_nbus->data->desc[i]);
-+		else
-+			/* when used as output the default state of the data
-+			 * lines are set to high */
-+			gpiod_direction_output(ts_nbus->data->desc[i], 1);
-+	}
-+}
-+
-+/*
-+ * reset the bus in its initial state.
-+ * The data, csn, strobe and ale lines must be zero'ed to let the FPGA knows a
-+ * new transaction can be process.
-+ */
-+static void ts_nbus_reset_bus(struct ts_nbus *ts_nbus)
-+{
-+	int i;
-+	int values[8];
-+
-+	for (i = 0; i < 8; i++)
-+		values[i] = 0;
-+
-+	gpiod_set_array_value_cansleep(8, ts_nbus->data->desc, values);
-+	gpiod_set_value_cansleep(ts_nbus->csn, 0);
-+	gpiod_set_value_cansleep(ts_nbus->strobe, 0);
-+	gpiod_set_value_cansleep(ts_nbus->ale, 0);
-+}
-+
-+/*
-+ * let the FPGA knows it can process.
-+ */
-+static void ts_nbus_start_transaction(struct ts_nbus *ts_nbus)
-+{
-+	gpiod_set_value_cansleep(ts_nbus->strobe, 1);
-+}
-+
-+/*
-+ * read a byte value from the data gpios.
-+ * return 0 on success or negative errno on failure.
-+ */
-+static int ts_nbus_read_byte(struct ts_nbus *ts_nbus, u8 *val)
-+{
-+	struct gpio_descs *gpios = ts_nbus->data;
-+	int ret, i;
-+
-+	*val = 0;
-+	for (i = 0; i < 8; i++) {
-+		ret = gpiod_get_value_cansleep(gpios->desc[i]);
-+		if (ret < 0)
-+			return ret;
-+		if (ret)
-+			*val |= BIT(i);
-+	}
-+
-+	return 0;
-+}
-+
-+/*
-+ * set the data gpios accordingly to the byte value.
-+ */
-+static void ts_nbus_write_byte(struct ts_nbus *ts_nbus, u8 byte)
-+{
-+	struct gpio_descs *gpios = ts_nbus->data;
-+	int i;
-+	int values[8];
-+
-+	for (i = 0; i < 8; i++)
-+		if (byte & BIT(i))
-+			values[i] = 1;
-+		else
-+			values[i] = 0;
-+
-+	gpiod_set_array_value_cansleep(8, gpios->desc, values);
-+}
-+
-+/*
-+ * reading the bus consists of resetting the bus, then notifying the FPGA to
-+ * send the data in the data gpios and return the read value.
-+ * return 0 on success or negative errno on failure.
-+ */
-+static int ts_nbus_read_bus(struct ts_nbus *ts_nbus, u8 *val)
-+{
-+	ts_nbus_reset_bus(ts_nbus);
-+	ts_nbus_start_transaction(ts_nbus);
-+
-+	return ts_nbus_read_byte(ts_nbus, val);
-+}
-+
-+/*
-+ * writing to the bus consists of resetting the bus, then define the type of
-+ * command (address/value), write the data and notify the FPGA to retrieve the
-+ * value in the data gpios.
-+ */
-+static void ts_nbus_write_bus(struct ts_nbus *ts_nbus, int cmd, u8 val)
-+{
-+	ts_nbus_reset_bus(ts_nbus);
-+
-+	if (cmd == TS_NBUS_WRITE_ADR)
-+		gpiod_set_value_cansleep(ts_nbus->ale, 1);
-+
-+	ts_nbus_write_byte(ts_nbus, val);
-+	ts_nbus_start_transaction(ts_nbus);
-+}
-+
-+/*
-+ * read the value in the FPGA register at the given address.
-+ * return 0 on success or negative errno on failure.
-+ */
-+int ts_nbus_read(struct ts_nbus *ts_nbus, u8 adr, u16 *val)
-+{
-+	int ret, i;
-+	u8 byte;
-+
-+	/* bus access must be atomic */
-+	mutex_lock(&ts_nbus->lock);
-+
-+	/* set the bus in read mode */
-+	gpiod_set_value_cansleep(ts_nbus->txrx, 0);
-+
-+	/* write address */
-+	ts_nbus_write_bus(ts_nbus, TS_NBUS_WRITE_ADR, adr);
-+
-+	/* set the data gpios direction as input before reading */
-+	ts_nbus_set_direction(ts_nbus, TS_NBUS_DIRECTION_IN);
-+
-+	/* reading value MSB first */
-+	do {
-+		*val = 0;
-+		byte = 0;
-+		for (i = 1; i >= 0; i--) {
-+			/* read a byte from the bus, leave on error */
-+			ret = ts_nbus_read_bus(ts_nbus, &byte);
-+			if (ret < 0)
-+				goto err;
-+
-+			/* append the byte read to the final value */
-+			*val |= byte << (i * 8);
-+		}
-+		gpiod_set_value_cansleep(ts_nbus->csn, 1);
-+		ret = gpiod_get_value_cansleep(ts_nbus->rdy);
-+	} while (ret);
-+
-+err:
-+	/* restore the data gpios direction as output after reading */
-+	ts_nbus_set_direction(ts_nbus, TS_NBUS_DIRECTION_OUT);
-+
-+	mutex_unlock(&ts_nbus->lock);
-+
-+	return ret;
-+}
-+EXPORT_SYMBOL_GPL(ts_nbus_read);
-+
-+/*
-+ * write the desired value in the FPGA register at the given address.
-+ */
-+int ts_nbus_write(struct ts_nbus *ts_nbus, u8 adr, u16 val)
-+{
-+	int i;
-+
-+	/* bus access must be atomic */
-+	mutex_lock(&ts_nbus->lock);
-+
-+	/* set the bus in write mode */
-+	gpiod_set_value_cansleep(ts_nbus->txrx, 1);
-+
-+	/* write address */
-+	ts_nbus_write_bus(ts_nbus, TS_NBUS_WRITE_ADR, adr);
-+
-+	/* writing value MSB first */
-+	for (i = 1; i >= 0; i--)
-+		ts_nbus_write_bus(ts_nbus, TS_NBUS_WRITE_VAL, (u8)(val >> (i * 8)));
-+
-+	/* wait for completion */
-+	gpiod_set_value_cansleep(ts_nbus->csn, 1);
-+	while (gpiod_get_value_cansleep(ts_nbus->rdy) != 0) {
-+		gpiod_set_value_cansleep(ts_nbus->csn, 0);
-+		gpiod_set_value_cansleep(ts_nbus->csn, 1);
-+	}
-+
-+	mutex_unlock(&ts_nbus->lock);
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(ts_nbus_write);
-+
-+static int ts_nbus_probe(struct platform_device *pdev)
-+{
-+	struct pwm_device *pwm;
-+	struct pwm_args pargs;
-+	struct device *dev = &pdev->dev;
-+	struct ts_nbus *ts_nbus;
-+	int ret;
-+
-+	ts_nbus = devm_kzalloc(dev, sizeof(*ts_nbus), GFP_KERNEL);
-+	if (!ts_nbus)
-+		return -ENOMEM;
-+
-+	mutex_init(&ts_nbus->lock);
-+
-+	ret = ts_nbus_init_pdata(pdev, ts_nbus);
-+	if (ret < 0)
-+		return ret;
-+
-+	pwm = devm_pwm_get(dev, NULL);
-+	if (IS_ERR(pwm)) {
-+		ret = PTR_ERR(pwm);
-+		if (ret != -EPROBE_DEFER)
-+			dev_err(dev, "unable to request PWM\n");
-+		return ret;
-+	}
-+
-+	pwm_get_args(pwm, &pargs);
-+	if (!pargs.period) {
-+		dev_err(&pdev->dev, "invalid PWM period\n");
-+		return -EINVAL;
-+	}
-+
-+	/*
-+	 * FIXME: pwm_apply_args() should be removed when switching to
-+	 * the atomic PWM API.
-+	 */
-+	pwm_apply_args(pwm);
-+	ret = pwm_config(pwm, pargs.period, pargs.period);
-+	if (ret < 0)
-+		return ret;
-+
-+	/*
-+	 * we can now start the FPGA and populate the peripherals.
-+	 */
-+	pwm_enable(pwm);
-+	ts_nbus->pwm = pwm;
-+
-+	/*
-+	 * let the child nodes retrieve this instance of the ts-nbus.
-+	 */
-+	dev_set_drvdata(dev, ts_nbus);
-+
-+	ret = of_platform_populate(dev->of_node, NULL, NULL, dev);
-+	if (ret < 0)
-+		return ret;
-+
-+	dev_info(dev, "initialized\n");
-+
-+	return 0;
-+}
-+
-+static int ts_nbus_remove(struct platform_device *pdev)
-+{
-+	struct ts_nbus *ts_nbus = dev_get_drvdata(&pdev->dev);
-+
-+	/* shutdown the FPGA */
-+	mutex_lock(&ts_nbus->lock);
-+	pwm_disable(ts_nbus->pwm);
-+	mutex_unlock(&ts_nbus->lock);
-+
-+	return 0;
-+}
-+
-+static const struct of_device_id ts_nbus_of_match[] = {
-+	{ .compatible = "technologic,ts-nbus", },
-+	{ },
-+};
-+MODULE_DEVICE_TABLE(of, ts_nbus_of_match);
-+
-+static struct platform_driver ts_nbus_driver = {
-+	.probe		= ts_nbus_probe,
-+	.remove		= ts_nbus_remove,
-+	.driver		= {
-+		.name	= "ts_nbus",
-+		.of_match_table = ts_nbus_of_match,
-+	},
-+};
-+
-+module_platform_driver(ts_nbus_driver);
-+
-+MODULE_ALIAS("platform:ts_nbus");
-+MODULE_AUTHOR("Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>");
-+MODULE_DESCRIPTION("Technologic Systems NBUS");
-+MODULE_LICENSE("GPL v2");
-diff --git a/include/linux/ts-nbus.h b/include/linux/ts-nbus.h
+diff --git a/arch/arm/boot/dts/imx28-ts4600-rev-a.dts b/arch/arm/boot/dts/imx28-ts4600-rev-a.dts
 new file mode 100644
-index 000000000000..5bd4c822f7cf
+index 000000000000..e8cb72988fcf
 --- /dev/null
-+++ b/include/linux/ts-nbus.h
-@@ -0,0 +1,18 @@
++++ b/arch/arm/boot/dts/imx28-ts4600-rev-a.dts
+@@ -0,0 +1,22 @@
 +/*
-+ * Copyright (c) 2016 - Savoir-faire Linux
++ * Copyright (C) 2016 Savoir-Faire Linux
 + * Author: Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>
 + *
-+ * This file is licensed under the terms of the GNU General Public
-+ * License version 2. This program is licensed "as is" without any
-+ * warranty of any kind, whether express or implied.
++ * The code contained herein is licensed under the GNU General Public
++ * License. You may obtain a copy of the GNU General Public License
++ * Version 2 or later at the following locations:
++ *
++ * http://www.opensource.org/licenses/gpl-license.html
++ * http://www.gnu.org/copyleft/gpl.html
 + */
 +
-+#ifndef _TS_NBUS_H
-+#define _TS_NBUS_H
++#include "imx28-ts4600-common.dtsi"
 +
-+struct ts_nbus;
++/ {
++	model = "Technologic Systems i.MX28 TS-4600 Rev A";
 +
-+extern int ts_nbus_read(struct ts_nbus *ts_nbus, u8 adr, u16 *val);
-+extern int ts_nbus_write(struct ts_nbus *ts_nbus, u8 adr, u16 val);
++	memory {
++		reg = <0x40000000 0x08000000>;   /* 128MB */
++	};
 +
-+#endif /* _TS_NBUS_H */
++};
+diff --git a/arch/arm/boot/dts/imx28-ts4600-rev-b.dts b/arch/arm/boot/dts/imx28-ts4600-rev-b.dts
+new file mode 100644
+index 000000000000..a115f831fe2b
+--- /dev/null
++++ b/arch/arm/boot/dts/imx28-ts4600-rev-b.dts
+@@ -0,0 +1,22 @@
++/*
++ * Copyright (C) 2016 Savoir-Faire Linux
++ * Author: Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>
++ *
++ * The code contained herein is licensed under the GNU General Public
++ * License. You may obtain a copy of the GNU General Public License
++ * Version 2 or later at the following locations:
++ *
++ * http://www.opensource.org/licenses/gpl-license.html
++ * http://www.gnu.org/copyleft/gpl.html
++ */
++
++#include "imx28-ts4600-common.dtsi"
++
++/ {
++	model = "Technologic Systems i.MX28 TS-4600 Rev B";
++
++	memory {
++		reg = <0x40000000 0x10000000>;   /* 256MB */
++	};
++
++};
 -- 
 2.12.0
 
