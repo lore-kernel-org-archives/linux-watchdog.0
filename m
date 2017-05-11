@@ -1,36 +1,93 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from smtp.codeaurora.org ([198.145.29.96]:39000 "EHLO
-        smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751480AbdEATY7 (ORCPT
+Received: from bhuna.collabora.co.uk ([46.235.227.227]:52290 "EHLO
+        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932708AbdEKMwq (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 1 May 2017 15:24:59 -0400
-Subject: Re: [PATCH] selftests: watchdog: accept multiple params on command
- line
-To: Shuah Khan <shuahkh@osg.samsung.com>,
-        linux-kselftest@vger.kernel.org
-Cc: Arnd Bergmann <arnd@arndb.de>, linux-watchdog@vger.kernel.org,
+        Thu, 11 May 2017 08:52:46 -0400
+From: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
+To: Sebastian Reichel <sre@kernel.org>,
+        Wim Van Sebroeck <wim@iguana.be>,
         Guenter Roeck <linux@roeck-us.net>
-References: <1490730277-30200-1-git-send-email-timur@codeaurora.org>
- <40133281-90e2-1b9e-2f86-35c2d02eb168@roeck-us.net>
- <CAOZdJXXVmx3nqO8=8Cmxv2aZKyPEy7AC7Cpkn6UeTZ5O8N90gg@mail.gmail.com>
- <ae86bc00-1226-9c3b-9be3-6b163ac08ff5@osg.samsung.com>
-From: Timur Tabi <timur@codeaurora.org>
-Message-ID: <a4f34c1e-345d-7fd1-dc03-59c88ee4a04f@codeaurora.org>
-Date: Mon, 1 May 2017 14:24:56 -0500
-MIME-Version: 1.0
-In-Reply-To: <ae86bc00-1226-9c3b-9be3-6b163ac08ff5@osg.samsung.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Sebastian Reichel <sebastian.reichel@collabora.co.uk>
+Subject: [PATCH] watchdog: core: add option to avoid early handling of watchdog
+Date: Thu, 11 May 2017 14:52:37 +0200
+Message-Id: <20170511125237.21110-1-sebastian.reichel@collabora.co.uk>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 05/01/2017 02:15 PM, Shuah Khan wrote:
-> I can't find the patch in my Inbox. Could you please send it to me.
-> I can get this into 4.12-rc1
+On some systems its desirable to have watchdog reboot the system
+when it does not come up fast enough. This adds a kernel parameter
+to disable the auto-update of watchdog before userspace takes over
+and a kernel option to set the default. The info messages were
+added to shorten error searching on misconfigured systems.
 
-Done. get_maintainers told me to use shuah@kernel.org, so I hope that's correct.
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
+---
+ drivers/watchdog/Kconfig        | 11 +++++++++++
+ drivers/watchdog/watchdog_dev.c | 16 ++++++++++++++++
+ 2 files changed, 27 insertions(+)
 
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 52a70ee6014f..4e08b2b97941 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -46,6 +46,17 @@ config WATCHDOG_NOWAYOUT
+ 	  get killed. If you say Y here, the watchdog cannot be stopped once
+ 	  it has been started.
+ 
++config WATCHDOG_HANDLE_BOOT_ENABLED
++	bool "Disable watchdog shutdown on close"
++	default y
++	help
++	  The default watchdog behaviour (which you get if you say Y here) is
++	  to ping watchdog devices, that were enabled before the driver has
++	  been loaded until control is taken over from userspace using the
++	  /dev/watchdog file. If you say N here, the kernel will not update
++	  the watchdog on its own. Thus if your userspace does not start fast
++	  enough your device will reboot.
++
+ config WATCHDOG_SYSFS
+ 	bool "Read different watchdog information through sysfs"
+ 	help
+diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
+index d5d2bbd8f428..5e6d6d4db82f 100644
+--- a/drivers/watchdog/watchdog_dev.c
++++ b/drivers/watchdog/watchdog_dev.c
+@@ -80,6 +80,9 @@ static struct watchdog_core_data *old_wd_data;
+ 
+ static struct workqueue_struct *watchdog_wq;
+ 
++static bool handle_boot_enabled =
++	IS_ENABLED(CONFIG_WATCHDOG_HANDLE_BOOT_ENABLED);
++
+ static inline bool watchdog_need_worker(struct watchdog_device *wdd)
+ {
+ 	/* All variables in milli-seconds */
+@@ -956,6 +959,14 @@ static int watchdog_cdev_register(struct watchdog_device *wdd, dev_t devno)
+ 	 * and schedule an immediate ping.
+ 	 */
+ 	if (watchdog_hw_running(wdd)) {
++		if (!handle_boot_enabled) {
++			pr_info("watchdog%d running and kernel based pre-userspace handler disabled\n",
++					wdd->id);
++			return 0;
++		}
++
++		pr_info("auto-update boot-enabled watchdog%d until userspace takes over\n",
++					wdd->id);
+ 		__module_get(wdd->ops->owner);
+ 		kref_get(&wd_data->kref);
+ 		queue_delayed_work(watchdog_wq, &wd_data->work, 0);
+@@ -1106,3 +1117,8 @@ void __exit watchdog_dev_exit(void)
+ 	class_unregister(&watchdog_class);
+ 	destroy_workqueue(watchdog_wq);
+ }
++
++module_param(handle_boot_enabled, bool, 0444);
++MODULE_PARM_DESC(handle_boot_enabled,
++	"Watchdog core auto-updates boot enabled watchdogs before userspace takes over (default="
++	__MODULE_STRING(IS_ENABLED(CONFIG_WATCHDOG_HANDLE_BOOT_ENABLED)) ")");
 -- 
-Qualcomm Datacenter Technologies, Inc. as an affiliate of Qualcomm
-Technologies, Inc.  Qualcomm Technologies, Inc. is a member of the
-Code Aurora Forum, a Linux Foundation Collaborative Project.
+2.11.0
+
