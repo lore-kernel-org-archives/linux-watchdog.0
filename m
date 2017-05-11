@@ -1,21 +1,26 @@
-Return-path: <robherring2@gmail.com>
-Date: Mon, 8 May 2017 08:27:25 -0500
-From: Rob Herring <robh@kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail.kernel.org ([198.145.29.136]:50342 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750917AbdEKHW4 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Thu, 11 May 2017 03:22:56 -0400
+Date: Thu, 11 May 2017 15:22:32 +0800
+From: Shawn Guo <shawnguo@kernel.org>
 To: Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>
 Cc: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
-	kernel@savoirfairelinux.com, linux@roeck-us.net,
-	linus.walleij@linaro.org, shawnguo@kernel.org,
-	fabio.estevam@nxp.com, mark@embeddedarm.com, kris@embeddedarm.com
+        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
+        kernel@savoirfairelinux.com, robh@kernel.org, linux@roeck-us.net,
+        linus.walleij@linaro.org, fabio.estevam@nxp.com,
+        mark@embeddedarm.com, kris@embeddedarm.com
 Subject: Re: [PATCH v3 6/6] watchdog: ts4600: add driver for TS-4600 watchdog
-Message-ID: <20170508132725.c3fnbz2lwz3khs7u@rob-hp-laptop>
+Message-ID: <20170511072231.GD5833@dragon>
 References: <20170505193259.16517-1-sebastien.bourdelin@savoirfairelinux.com>
  <20170505193259.16517-7-sebastien.bourdelin@savoirfairelinux.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <20170505193259.16517-7-sebastien.bourdelin@savoirfairelinux.com>
-List-ID: <linux-watchdog@vger.kernel.org>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
 On Fri, May 05, 2017 at 03:32:59PM -0400, Sebastien Bourdelin wrote:
 > This watchdog is instantiated in a FPGA and can only be access using a
@@ -54,7 +59,9 @@ On Fri, May 05, 2017 at 03:32:59PM -0400, Sebastien Bourdelin wrote:
 >  .../devicetree/bindings/watchdog/ts4600-wdt.txt    |  16 ++
 >  arch/arm/boot/dts/imx28-ts4600-common.dtsi         |   5 +
 
-Please add acks when posting new versions. I acked v2.
+The dts change shouldn't be mixed within driver patch.
+
+Shawn
 
 >  drivers/watchdog/Kconfig                           |  11 ++
 >  drivers/watchdog/Makefile                          |   1 +
