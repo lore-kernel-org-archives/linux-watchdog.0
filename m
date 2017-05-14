@@ -1,322 +1,121 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from hauke-m.de ([5.39.93.123]:50827 "EHLO mail.hauke-m.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750930AbdE1Skg (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 28 May 2017 14:40:36 -0400
-From: Hauke Mehrtens <hauke@hauke-m.de>
-To: ralf@linux-mips.org
-Cc: linux-mips@linux-mips.org, linux-mtd@lists.infradead.org,
-        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-        martin.blumenstingl@googlemail.com, john@phrozen.org,
-        linux-spi@vger.kernel.org, hauke.mehrtens@intel.com,
-        robh@kernel.org, andy.shevchenko@gmail.com, p.zabel@pengutronix.de,
-        Hauke Mehrtens <hauke@hauke-m.de>
-Subject: [PATCH v3 10/16] reset: Add a reset controller driver for the Lantiq XWAY based SoCs
-Date: Sun, 28 May 2017 20:40:00 +0200
-Message-Id: <20170528184006.31668-11-hauke@hauke-m.de>
-In-Reply-To: <20170528184006.31668-1-hauke@hauke-m.de>
-References: <20170528184006.31668-1-hauke@hauke-m.de>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:47587 "EHLO
+        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752197AbdENOrQ (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Sun, 14 May 2017 10:47:16 -0400
+Subject: Re: [PATCHv2] watchdog: core: add option to avoid early handling of
+ watchdog
+To: Sebastian Reichel <sebastian.reichel@collabora.co.uk>,
+        Sebastian Reichel <sre@kernel.org>,
+        Wim Van Sebroeck <wim@iguana.be>
+References: <f38c7967-ac56-c188-2232-42544088edd8@roeck-us.net>
+ <20170512120532.12986-1-sebastian.reichel@collabora.co.uk>
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <4a4c4de8-31e4-8e15-8c63-ebd4165a63bf@roeck-us.net>
+Date: Sun, 14 May 2017 07:47:13 -0700
+MIME-Version: 1.0
+In-Reply-To: <20170512120532.12986-1-sebastian.reichel@collabora.co.uk>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+On 05/12/2017 05:05 AM, Sebastian Reichel wrote:
+> On some systems its desirable to have watchdog reboot the system
+> when it does not come up fast enough. This adds a kernel parameter
+> to disable the auto-update of watchdog before userspace takes over
+> and a kernel option to set the default. The info messages were
+> added to shorten error searching on misconfigured systems.
+>
+> Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
 
-The reset controllers (on xRX200 and newer SoCs have two of them) are
-provided by the RCU module. This was initially implemented as a simple
-reset controller. However, the RCU module provides more functionality
-(ethernet GPHYs, USB PHY, etc.), which makes it a MFD device.
-The old reset controller driver implementation from
-arch/mips/lantiq/xway/reset.c did not honor this fact.
+Minor nitpicks below (which I fixed up in my watchdog-next branch).
+Otherwise
 
-For some devices the request and the status bits are different.
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
-Cc: Philipp Zabel <p.zabel@pengutronix.de>
----
- .../devicetree/bindings/reset/lantiq,reset.txt     |  30 +++
- drivers/reset/Kconfig                              |   6 +
- drivers/reset/Makefile                             |   1 +
- drivers/reset/reset-lantiq.c                       | 205 +++++++++++++++++++++
- 4 files changed, 242 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/reset/lantiq,reset.txt
- create mode 100644 drivers/reset/reset-lantiq.c
+> ---
+> Changes since PATCHv1:
+>  * fix Kconfig short description (previously copied from
+>    WATCHDOG_NOWAYOUT)
+>  * drop pr_info for auto-update case
+>  * restructure code to avoid return
+> ---
+>  drivers/watchdog/Kconfig        | 11 +++++++++++
+>  drivers/watchdog/watchdog_dev.c | 19 ++++++++++++++++---
+>  2 files changed, 27 insertions(+), 3 deletions(-)
+>
+> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> index 52a70ee6014f..9a1bd1e39a75 100644
+> --- a/drivers/watchdog/Kconfig
+> +++ b/drivers/watchdog/Kconfig
+> @@ -46,6 +46,17 @@ config WATCHDOG_NOWAYOUT
+>  	  get killed. If you say Y here, the watchdog cannot be stopped once
+>  	  it has been started.
+>
+> +config WATCHDOG_HANDLE_BOOT_ENABLED
+> +	bool "Update boot-enabled watchdog until userspace takes over"
+> +	default y
+> +	help
+> +	  The default watchdog behaviour (which you get if you say Y here) is
+> +	  to ping watchdog devices, that were enabled before the driver has
 
-diff --git a/Documentation/devicetree/bindings/reset/lantiq,reset.txt b/Documentation/devicetree/bindings/reset/lantiq,reset.txt
-new file mode 100644
-index 000000000000..00cc3d4c68c4
---- /dev/null
-+++ b/Documentation/devicetree/bindings/reset/lantiq,reset.txt
-@@ -0,0 +1,30 @@
-+Lantiq XWAY SoC RCU reset controller binding
-+============================================
-+
-+This binding describes a reset-controller found on the RCU module on Lantiq
-+XWAY SoCs.
-+
-+
-+-------------------------------------------------------------------------------
-+Required properties:
-+- compatible		: Should be one of
-+				"lantiq,reset-danube"
-+				"lantiq,reset-xrx200"
-+- regmap		: A phandle to the RCU syscon
-+- offset-set		: Offset of the reset set register
-+- offset-status		: Offset of the reset status register
-+- #reset-cells		: Specifies the number of cells needed to encode the
-+			  reset line, should be 2.
-+			  The first cell takes the reset set bit and the
-+			  second cell takes the status bit.
-+
-+-------------------------------------------------------------------------------
-+Example for the reset-controllers on the xRX200 SoCs:
-+	reset0: reset-controller@0 {
-+		compatible = "lantiq,reset-xrx200";
-+
-+		regmap = <&rcu0>;
-+		offset-set = <0x10>;
-+		offset-status = <0x14>;
-+		#reset-cells = <2>;
-+	};
-diff --git a/drivers/reset/Kconfig b/drivers/reset/Kconfig
-index d21c07ccc94e..1742c2293bc3 100644
---- a/drivers/reset/Kconfig
-+++ b/drivers/reset/Kconfig
-@@ -41,6 +41,12 @@ config RESET_IMX7
- 	help
- 	  This enables the reset controller driver for i.MX7 SoCs.
- 
-+config RESET_LANTIQ
-+	bool "Lantiq XWAY Reset Driver" if COMPILE_TEST
-+	default SOC_TYPE_XWAY
-+	help
-+	  This enables the reset controller driver for Lantiq / Intel XWAY SoCs.
-+
- config RESET_LPC18XX
- 	bool "LPC18xx/43xx Reset Driver" if COMPILE_TEST
- 	default ARCH_LPC18XX
-diff --git a/drivers/reset/Makefile b/drivers/reset/Makefile
-index 02a74db94339..112dba1db6b9 100644
---- a/drivers/reset/Makefile
-+++ b/drivers/reset/Makefile
-@@ -6,6 +6,7 @@ obj-$(CONFIG_RESET_A10SR) += reset-a10sr.o
- obj-$(CONFIG_RESET_ATH79) += reset-ath79.o
- obj-$(CONFIG_RESET_BERLIN) += reset-berlin.o
- obj-$(CONFIG_RESET_IMX7) += reset-imx7.o
-+obj-$(CONFIG_RESET_LANTIQ) += reset-lantiq.o
- obj-$(CONFIG_RESET_LPC18XX) += reset-lpc18xx.o
- obj-$(CONFIG_RESET_MESON) += reset-meson.o
- obj-$(CONFIG_RESET_OXNAS) += reset-oxnas.o
-diff --git a/drivers/reset/reset-lantiq.c b/drivers/reset/reset-lantiq.c
-new file mode 100644
-index 000000000000..798bf648f36d
---- /dev/null
-+++ b/drivers/reset/reset-lantiq.c
-@@ -0,0 +1,205 @@
-+/*
-+ *  This program is free software; you can redistribute it and/or modify it
-+ *  under the terms of the GNU General Public License version 2 as published
-+ *  by the Free Software Foundation.
-+ *
-+ *  Copyright (C) 2010 John Crispin <blogic@phrozen.org>
-+ *  Copyright (C) 2013-2015 Lantiq Beteiligungs-GmbH & Co.KG
-+ *  Copyright (C) 2016 Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-+ *  Copyright (C) 2017 Hauke Mehrtens <hauke@hauke-m.de>
-+ */
-+
-+#include <linux/mfd/syscon.h>
-+#include <linux/module.h>
-+#include <linux/regmap.h>
-+#include <linux/reset-controller.h>
-+#include <linux/of_platform.h>
-+#include <linux/platform_device.h>
-+#include <linux/property.h>
-+
-+#define LANTIQ_RCU_RESET_TIMEOUT	10000
-+
-+struct lantiq_rcu_reset_priv {
-+	struct reset_controller_dev rcdev;
-+	struct device *dev;
-+	struct regmap *regmap;
-+	u32 reset_offset;
-+	u32 status_offset;
-+};
-+
-+static struct lantiq_rcu_reset_priv *to_lantiq_rcu_reset_priv(
-+	struct reset_controller_dev *rcdev)
-+{
-+	return container_of(rcdev, struct lantiq_rcu_reset_priv, rcdev);
-+}
-+
-+static int lantiq_rcu_reset_status(struct reset_controller_dev *rcdev,
-+				   unsigned long id)
-+{
-+	struct lantiq_rcu_reset_priv *priv = to_lantiq_rcu_reset_priv(rcdev);
-+	unsigned int status = (id >> 8) & 0x1f;
-+	u32 val;
-+	int ret;
-+
-+	ret = regmap_read(priv->regmap, priv->status_offset, &val);
-+	if (ret)
-+		return ret;
-+
-+	return !!(val & BIT(status));
-+}
-+
-+static int lantiq_rcu_reset_update(struct reset_controller_dev *rcdev,
-+				   unsigned long id, bool assert)
-+{
-+	struct lantiq_rcu_reset_priv *priv = to_lantiq_rcu_reset_priv(rcdev);
-+	int ret, retry = LANTIQ_RCU_RESET_TIMEOUT;
-+	unsigned int set = id & 0x1f;
-+	u32 val;
-+
-+	if (assert)
-+		val = BIT(set);
-+	else
-+		val = 0;
-+
-+	ret = regmap_update_bits(priv->regmap, priv->reset_offset, BIT(set),
-+				 val);
-+	if (ret) {
-+		dev_err(priv->dev, "Failed to set reset bit %u\n", set);
-+		return ret;
-+	}
-+
-+	do {
-+		ret = lantiq_rcu_reset_status(rcdev, id);
-+		if (ret < 0)
-+			return ret;
-+		if (ret == assert)
-+			break;
-+		usleep_range(20, 40);
-+	} while (--retry);
-+	if (!retry) {
-+		dev_err(priv->dev, "Failed to %s bit %u\n",
-+			assert ? "assert" : "deassert", set);
-+		return -EIO;
-+	}
-+
-+	return 0;
-+}
-+
-+static int lantiq_rcu_reset_assert(struct reset_controller_dev *rcdev,
-+			     unsigned long id)
-+{
-+	return lantiq_rcu_reset_update(rcdev, id, true);
-+}
-+
-+static int lantiq_rcu_reset_deassert(struct reset_controller_dev *rcdev,
-+			       unsigned long id)
-+{
-+	return lantiq_rcu_reset_update(rcdev, id, false);
-+}
-+
-+static int lantiq_rcu_reset_reset(struct reset_controller_dev *rcdev,
-+			    unsigned long id)
-+{
-+	int ret;
-+
-+	ret = lantiq_rcu_reset_assert(rcdev, id);
-+	if (ret)
-+		return ret;
-+
-+	return lantiq_rcu_reset_deassert(rcdev, id);
-+}
-+
-+static const struct reset_control_ops lantiq_rcu_reset_ops = {
-+	.assert = lantiq_rcu_reset_assert,
-+	.deassert = lantiq_rcu_reset_deassert,
-+	.status = lantiq_rcu_reset_status,
-+	.reset	= lantiq_rcu_reset_reset,
-+};
-+
-+static int lantiq_rcu_reset_of_probe(struct platform_device *pdev,
-+			       struct lantiq_rcu_reset_priv *priv)
-+{
-+	struct device *dev = &pdev->dev;
-+	int ret;
-+
-+	priv->regmap = syscon_regmap_lookup_by_phandle(dev->of_node, "regmap");
-+	if (IS_ERR(priv->regmap)) {
-+		dev_err(&pdev->dev, "Failed to lookup RCU regmap\n");
-+		return PTR_ERR(priv->regmap);
-+	}
-+
-+	ret = device_property_read_u32(dev, "offset-set", &priv->reset_offset);
-+	if (ret) {
-+		dev_err(&pdev->dev, "Failed to get RCU reset offset\n");
-+		return -EINVAL;
-+	}
-+
-+	ret = device_property_read_u32(dev, "offset-status",
-+				       &priv->status_offset);
-+	if (ret) {
-+		dev_err(&pdev->dev, "Failed to get RCU status offset\n");
-+		return -EINVAL;
-+	}
-+
-+	return 0;
-+}
-+
-+static int lantiq_rcu_reset_xlate(struct reset_controller_dev *rcdev,
-+				  const struct of_phandle_args *reset_spec)
-+{
-+	unsigned int status, set;
-+
-+	set = reset_spec->args[0];
-+	status = reset_spec->args[1];
-+
-+	if (set >= rcdev->nr_resets || status >= rcdev->nr_resets)
-+		return -EINVAL;
-+
-+	return (status << 8) | set;
-+}
-+
-+static int lantiq_rcu_reset_probe(struct platform_device *pdev)
-+{
-+	struct lantiq_rcu_reset_priv *priv;
-+	int err;
-+
-+	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
-+	if (!priv)
-+		return -ENOMEM;
-+
-+	priv->dev = &pdev->dev;
-+	platform_set_drvdata(pdev, priv);
-+
-+	err = lantiq_rcu_reset_of_probe(pdev, priv);
-+	if (err)
-+		return err;
-+
-+	priv->rcdev.ops = &lantiq_rcu_reset_ops;
-+	priv->rcdev.owner = THIS_MODULE;
-+	priv->rcdev.of_node = pdev->dev.of_node;
-+	priv->rcdev.nr_resets = 32;
-+	priv->rcdev.of_xlate = lantiq_rcu_reset_xlate;
-+	priv->rcdev.of_reset_n_cells = 2;
-+
-+	return reset_controller_register(&priv->rcdev);
-+}
-+
-+static const struct of_device_id lantiq_rcu_reset_dt_ids[] = {
-+	{ .compatible = "lantiq,reset-danube", },
-+	{ .compatible = "lantiq,reset-xrx200", },
-+	{ },
-+};
-+MODULE_DEVICE_TABLE(of, lantiq_rcu_reset_dt_ids);
-+
-+static struct platform_driver lantiq_rcu_reset_driver = {
-+	.probe	= lantiq_rcu_reset_probe,
-+	.driver = {
-+		.name		= "lantiq-reset",
-+		.of_match_table	= lantiq_rcu_reset_dt_ids,
-+	},
-+};
-+module_platform_driver(lantiq_rcu_reset_driver);
-+
-+MODULE_AUTHOR("Martin Blumenstingl <martin.blumenstingl@googlemail.com>");
-+MODULE_DESCRIPTION("Lantiq XWAY RCU Reset Controller Driver");
-+MODULE_LICENSE("GPL");
--- 
-2.11.0
+My sense of English grammar isn't perfect, but I think the ',' isn't asked
+for here.
+
+> +	  been loaded until control is taken over from userspace using the
+> +	  /dev/watchdog file. If you say N here, the kernel will not update
+> +	  the watchdog on its own. Thus if your userspace does not start fast
+> +	  enough your device will reboot.
+> +
+>  config WATCHDOG_SYSFS
+>  	bool "Read different watchdog information through sysfs"
+>  	help
+> diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
+> index d5d2bbd8f428..4bc7ab60b12c 100644
+> --- a/drivers/watchdog/watchdog_dev.c
+> +++ b/drivers/watchdog/watchdog_dev.c
+> @@ -80,6 +80,9 @@ static struct watchdog_core_data *old_wd_data;
+>
+>  static struct workqueue_struct *watchdog_wq;
+>
+> +static bool handle_boot_enabled =
+> +	IS_ENABLED(CONFIG_WATCHDOG_HANDLE_BOOT_ENABLED);
+> +
+>  static inline bool watchdog_need_worker(struct watchdog_device *wdd)
+>  {
+>  	/* All variables in milli-seconds */
+> @@ -956,9 +959,14 @@ static int watchdog_cdev_register(struct watchdog_device *wdd, dev_t devno)
+>  	 * and schedule an immediate ping.
+>  	 */
+>  	if (watchdog_hw_running(wdd)) {
+> -		__module_get(wdd->ops->owner);
+> -		kref_get(&wd_data->kref);
+> -		queue_delayed_work(watchdog_wq, &wd_data->work, 0);
+> +		if (handle_boot_enabled) {
+> +			__module_get(wdd->ops->owner);
+> +			kref_get(&wd_data->kref);
+> +			queue_delayed_work(watchdog_wq, &wd_data->work, 0);
+> +		} else {
+> +			pr_info("watchdog%d running and kernel based pre-userspace handler disabled\n",
+> +					wdd->id);
+
+Continuation line alignment is off.
+
+> +		}
+>  	}
+>
+>  	return 0;
+> @@ -1106,3 +1114,8 @@ void __exit watchdog_dev_exit(void)
+>  	class_unregister(&watchdog_class);
+>  	destroy_workqueue(watchdog_wq);
+>  }
+> +
+> +module_param(handle_boot_enabled, bool, 0444);
+> +MODULE_PARM_DESC(handle_boot_enabled,
+> +	"Watchdog core auto-updates boot enabled watchdogs before userspace takes over (default="
+> +	__MODULE_STRING(IS_ENABLED(CONFIG_WATCHDOG_HANDLE_BOOT_ENABLED)) ")");
+>
 
