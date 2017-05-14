@@ -1,152 +1,63 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-oi0-f67.google.com ([209.85.218.67]:34537 "EHLO
-        mail-oi0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755801AbdEMAAb (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 12 May 2017 20:00:31 -0400
-Date: Fri, 12 May 2017 19:00:29 -0500
-From: Rob Herring <robh@kernel.org>
-To: Moritz Fischer <mdf@kernel.org>
-Cc: linux-watchdog@vger.kernel.org, rtc-linux@googlegroups.com,
-        linux-kernel@vger.kernel.org, lee.jones@linaro.org,
-        devicetree@vger.kernel.org, linux@roeck-us.net, wim@iguana.be,
-        alexandre.belloni@free-electrons.com, a.zummo@towertech.it,
-        mark.rutland@arm.com, moritz.fischer@ettus.com
-Subject: Re: [RFC/PATCH 1/2] dt-binding: mfd: Add Maxim/Dallas DS1374 MFD
- device binding
-Message-ID: <20170513000029.tgzt5p67tcl7uhbx@rob-hp-laptop>
-References: <1494354021-370-1-git-send-email-mdf@kernel.org>
-MIME-Version: 1.0
+Received: from ns1.pc-advies.be ([85.17.2.162]:54981 "EHLO spo001.leaseweb.nl"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1754346AbdENNUu (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Sun, 14 May 2017 09:20:50 -0400
+Date: Sun, 14 May 2017 15:20:45 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Johan Hovold <johan@kernel.org>, linux-watchdog@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] watchdog: pcwd_usb: fix NULL-deref at probe
+Message-ID: <20170514132045.GA7079@spo001.leaseweb.nl>
+References: <20170313124945.28923-1-johan@kernel.org> <20170313171633.GB16813@roeck-us.net> <20170403083635.GD25742@localhost> <b48feef4-dac7-13a4-a70b-33d7c4614cba@roeck-us.net> <20170512103627.GP30445@localhost> <20170512165907.GB12960@roeck-us.net> <20170514130513.GA6902@spo001.leaseweb.nl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1494354021-370-1-git-send-email-mdf@kernel.org>
+In-Reply-To: <20170514130513.GA6902@spo001.leaseweb.nl>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, May 09, 2017 at 11:20:20AM -0700, Moritz Fischer wrote:
-> This adds a binding for the Maxim/Dallas DS1374 MFD.
-> 
-> Signed-off-by: Moritz Fischer <mdf@kernel.org>
-> ---
-> 
-> Hi all,
-> 
-> I'm not entirely sure aobut the binding, does anyone
-> have a better suggestion for the remap-wdt-reset property?
-> 
-> Thanks,
-> 
-> Moritz
-> 
-> ---
->  Documentation/devicetree/bindings/mfd/ds1374.txt   | 63 ++++++++++++++++++++++
->  .../devicetree/bindings/trivial-devices.txt        |  1 -
->  drivers/rtc/Kconfig                                |  2 +
->  3 files changed, 65 insertions(+), 1 deletion(-)
->  create mode 100644 Documentation/devicetree/bindings/mfd/ds1374.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/mfd/ds1374.txt b/Documentation/devicetree/bindings/mfd/ds1374.txt
-> new file mode 100644
-> index 0000000..b22396f
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/mfd/ds1374.txt
-> @@ -0,0 +1,63 @@
-> +* Device tree bindings for Maxim/Dallas DS1374 Multi Function Device (MFD)
-> +
-> +The Maxim/Dallas DS1374 is a multi function device that combines rtc,
-> +watchdog or alarm, as well as trickle charger.
-> +
-> +The DS1374 is connected via I2C.
-> +
-> +Required properties:
-> +- compatible: "dallas,ds1374"
-> +- reg: I2C slave address
-> +- dallas,ds1374-mode: Should be one of the following values:
+All,
 
-Just "dallas,mode" is sufficient.
-
-> +			<0> for RTC
-> +			<1> for RTC + Alarm (Interrupt)
-> +			<2> for RTC + Watchdog
-> +
-> +Required child:
-> +A single available child device of type matching the "dallas,ds1374-mode"
-> +property.
-> +
-> +Optional properties (watchdog):
-> +- dallas,ds1374-remap-wdt-reset: Boolean describing whether the INT pin
-> +				 on the device is used as interrupt for
-> +				 the alarm
-
-Isn't presence of the interrupt property or not enough? It would be 
-kind of useless to have no interrupt and also not do anything on 
-timeout.
-
-> +
-> +See ../watchdog/* for generic watchdog bindings.
-> +
-> +Optional properties (real time clock):
-> +- interrupt: phandle to interrupt cell for the rtc's alarm feature
-> +
-> +See ../rtc/* for generic rtc bindings.
-> +
-> +Optional properties (trickle-charger):
-> +- dallas,trickle-resistor-ohms : Selected resistor for trickle charger
-> +	Values usable for ds1374 are 250, 2000, 4000
-> +	Should be given if trickle charger should be enabled
-> +- dallas,trickle-diode-disable : Do not use internal trickle charger diode
-> +	Should be given if internal trickle charger diode should be disabled
-> +
-> +Example for rtc with alarm mode and interrupt:
-> +
-> +i2c@12ca0000 {
-> +	rtc@68 {
-> +		compatible = "ds1374";
-> +		reg = <0x68>;
-> +		interrupts = <&gpio0 62>;
-> +		dallas,ds1374-mode = <2>
-> +
-> +		dallas,trickle-resistor-ohms = <250>;
-> +		dallas,trickle-diode-disable;
-> +	};
-> +};
-> +
-> +Example for rtc with watchdog and reset on timeout, with reset remapped
-> +to the INT pin:
-> +
-> +i2c@12ca0000 {
-> +	rtc@68 {
-> +		compatible = "ds1374";
-> +		reg = <0x68>;
-> +		dallas,ds1374-mode = <2>
-> +		dallas,ds1374-remap-wdt-reset;
-> +	};
-> +};
-> diff --git a/Documentation/devicetree/bindings/trivial-devices.txt b/Documentation/devicetree/bindings/trivial-devices.txt
-> index 3e0a34c..f7a50e5 100644
-> --- a/Documentation/devicetree/bindings/trivial-devices.txt
-> +++ b/Documentation/devicetree/bindings/trivial-devices.txt
-> @@ -29,7 +29,6 @@ cirrus,cs42l51		Cirrus Logic CS42L51 audio codec
->  dallas,ds1307		64 x 8, Serial, I2C Real-Time Clock
->  dallas,ds1338		I2C RTC with 56-Byte NV RAM
->  dallas,ds1340		I2C RTC with Trickle Charger
-> -dallas,ds1374		I2C, 32-Bit Binary Counter Watchdog RTC with Trickle Charger and Reset Input/Output
->  dallas,ds1631		High-Precision Digital Thermometer
->  dallas,ds1682		Total-Elapsed-Time Recorder with Alarm
->  dallas,ds1775		Tiny Digital Thermometer and Thermostat
-> diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-> index 8d3b957..e6763fe 100644
-> --- a/drivers/rtc/Kconfig
-> +++ b/drivers/rtc/Kconfig
-> @@ -250,6 +250,8 @@ config RTC_DRV_DS1307_CENTURY
->  
->  config RTC_DRV_DS1374
->  	tristate "Dallas/Maxim DS1374"
-> +	depends on MFD_DS1374
-> +	depends on REGMAP_I2C
->  	help
->  	  If you say yes here you get support for Dallas Semiconductor
->  	  DS1374 real-time clock chips. If an interrupt is associated
-> -- 
-> 2.7.4
+> > On Fri, May 12, 2017 at 12:36:27PM +0200, Johan Hovold wrote:
+> > > Hi Guenter and Wim,
+> > > 
+> > > On Mon, Apr 03, 2017 at 07:05:46AM -0700, Guenter Roeck wrote:
+> > > > On 04/03/2017 01:36 AM, Johan Hovold wrote:
+> > > > > On Mon, Mar 13, 2017 at 10:16:33AM -0700, Guenter Roeck wrote:
+> > > > >> On Mon, Mar 13, 2017 at 01:49:45PM +0100, Johan Hovold wrote:
+> > > > >>> Make sure to check the number of endpoints to avoid dereferencing a
+> > > > >>> NULL-pointer should a malicious device lack endpoints.
+> > > > >>>
+> > > > >>> Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+> > > > >>> Cc: stable <stable@vger.kernel.org>
+> > > > >>> Signed-off-by: Johan Hovold <johan@kernel.org>
+> > > > >>
+> > > > >> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+> > > > >
+> > > > > Any progress on this one? I noticed you merged it to both the fixes and
+> > > > > next branches in your staging tree, Guenter (but it does not show up in
+> > > > > linux-next). Will you be sending it on to Linus?
+> > > 
+> > > > my watchdog staging trees are inofficial and not in linux-next.
+> > > > Wim is working on setting up a new server which will provide the
+> > > > official staging tree.
+> > > > 
+> > > > I asked Wim to push the pending patches. I'll do it if he asks me.
+> > > 
+> > > I noticed Guenter's watchdog branch is now in next, but the patches for
+> > > 4.12 are still not in mainline. Have you guys decided who will be
+> > > sending them on to Linus this cycle?
+> > > 
+> > Good question. I had expected Wim to do it, since it is actually his
+> > repository which is in linux-next. But you are correct, it isn't upstream.
 > 
+> Due to some issues, we (Linus, Guenter and myself) decided that Guenter will sent the pull request this time (which he allready did).
+
+OK, we were to late. We will line up the fixes for rc2. Feature changes and new drivers will be for next merge window.
+My apologies to the people that have sent in these changes and drivers.
+
+Kind regards,
+Wim.
+
