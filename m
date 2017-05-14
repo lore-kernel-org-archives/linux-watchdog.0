@@ -1,98 +1,87 @@
-Return-path: <sebastian.reichel@collabora.co.uk>
-From: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
-To: Sebastian Reichel <sre@kernel.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Guenter Roeck <linux@roeck-us.net>
-Cc: linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Sebastian Reichel <sebastian.reichel@collabora.co.uk>
-Subject: [PATCHv2] watchdog: core: add option to avoid early handling of watchdog
-Date: Fri, 12 May 2017 14:05:32 +0200
-Message-Id: <20170512120532.12986-1-sebastian.reichel@collabora.co.uk>
-In-Reply-To: <f38c7967-ac56-c188-2232-42544088edd8@roeck-us.net>
-References: <f38c7967-ac56-c188-2232-42544088edd8@roeck-us.net>
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:36610 "EHLO
+        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751477AbdENOji (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Sun, 14 May 2017 10:39:38 -0400
+Subject: Re: [PATCH v3 6/6] watchdog: ts4600: add driver for TS-4600 watchdog
+To: Shawn Guo <shawnguo@kernel.org>,
+        Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>
+References: <20170505193259.16517-1-sebastien.bourdelin@savoirfairelinux.com>
+ <20170505193259.16517-7-sebastien.bourdelin@savoirfairelinux.com>
+ <20170511072231.GD5833@dragon>
+Cc: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
+        kernel@savoirfairelinux.com, robh@kernel.org,
+        linus.walleij@linaro.org, fabio.estevam@nxp.com,
+        mark@embeddedarm.com, kris@embeddedarm.com
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <ef75bcab-e179-1891-83f6-d26d057f8758@roeck-us.net>
+Date: Sun, 14 May 2017 07:39:33 -0700
+MIME-Version: 1.0
+In-Reply-To: <20170511072231.GD5833@dragon>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-On some systems its desirable to have watchdog reboot the system
-when it does not come up fast enough. This adds a kernel parameter
-to disable the auto-update of watchdog before userspace takes over
-and a kernel option to set the default. The info messages were
-added to shorten error searching on misconfigured systems.
+On 05/11/2017 12:22 AM, Shawn Guo wrote:
+> On Fri, May 05, 2017 at 03:32:59PM -0400, Sebastien Bourdelin wrote:
+>> This watchdog is instantiated in a FPGA and can only be access using a
+>> GPIOs bit-banged bus, called the NBUS by Technologic Systems.
+>> The watchdog is made of only one register, called the feed register.
+>> Writing to this register will re-arm the watchdog for a given time (and
+>> enable it if it was disable). It can be disabled by writing a special
+>> value into it.
+>>
+>> Signed-off-by: Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>
+>> ---
+>> Changes v2 -> v3:
+>>   - rebase on master
+>>   - remove the timeout table to simplify the logic (suggested by
+>>   Guenter Roeck)
+>>   - fix the set_timeout function (suggested by Guenter Roeck)
+>>   - hardcode the max_hw_heartbeat_ms value based on the ts4600 max
+>>   timeout value supported (suggested by Guenter Roeck)
+>>   - remove the max_timeout usage and set a default timeout value
+>> (suggested by Guenter Roeck)
+>>   - use the devm_watchdog_register_device function instead of
+>>   watchdog_register_device (suggested by Guenter Roeck)
+>>
+>> Changes v1 -> v2:
+>>   - rebase on master
+>>   - retrieve the ts_nbus instantiated by the parent node (suggested by
+>>   Linus Walleij)
+>>   - rename the wdt by watchdog in the device tree and in the
+>>   documentation (suggested by Rob Herring)
+>>   - add a dependency to the TS_NBUS driver in the Kconfig (suggested by
+>>   Guenter Roeck)
+>>   - simplify the set_timeout function (suggested by Guenter Roeck)
+>>   - use the max_hw_heartbeat_ms callback instead of the max_timeout
+>>   callback (suggested by Guenter Roeck)
+>> ---
+>>  .../devicetree/bindings/watchdog/ts4600-wdt.txt    |  16 ++
+>>  arch/arm/boot/dts/imx28-ts4600-common.dtsi         |   5 +
+>
+> The dts change shouldn't be mixed within driver patch.
+>
 
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
----
-Changes since PATCHv1:
- * fix Kconfig short description (previously copied from
-   WATCHDOG_NOWAYOUT)
- * drop pr_info for auto-update case
- * restructure code to avoid return
----
- drivers/watchdog/Kconfig        | 11 +++++++++++
- drivers/watchdog/watchdog_dev.c | 19 ++++++++++++++++---
- 2 files changed, 27 insertions(+), 3 deletions(-)
+Maybe, but Rob Acked the devicetree changes, so I don't see a reason
+for splitting it up now.
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 52a70ee6014f..9a1bd1e39a75 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -46,6 +46,17 @@ config WATCHDOG_NOWAYOUT
- 	  get killed. If you say Y here, the watchdog cannot be stopped once
- 	  it has been started.
- 
-+config WATCHDOG_HANDLE_BOOT_ENABLED
-+	bool "Update boot-enabled watchdog until userspace takes over"
-+	default y
-+	help
-+	  The default watchdog behaviour (which you get if you say Y here) is
-+	  to ping watchdog devices, that were enabled before the driver has
-+	  been loaded until control is taken over from userspace using the
-+	  /dev/watchdog file. If you say N here, the kernel will not update
-+	  the watchdog on its own. Thus if your userspace does not start fast
-+	  enough your device will reboot.
-+
- config WATCHDOG_SYSFS
- 	bool "Read different watchdog information through sysfs"
- 	help
-diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-index d5d2bbd8f428..4bc7ab60b12c 100644
---- a/drivers/watchdog/watchdog_dev.c
-+++ b/drivers/watchdog/watchdog_dev.c
-@@ -80,6 +80,9 @@ static struct watchdog_core_data *old_wd_data;
- 
- static struct workqueue_struct *watchdog_wq;
- 
-+static bool handle_boot_enabled =
-+	IS_ENABLED(CONFIG_WATCHDOG_HANDLE_BOOT_ENABLED);
-+
- static inline bool watchdog_need_worker(struct watchdog_device *wdd)
- {
- 	/* All variables in milli-seconds */
-@@ -956,9 +959,14 @@ static int watchdog_cdev_register(struct watchdog_device *wdd, dev_t devno)
- 	 * and schedule an immediate ping.
- 	 */
- 	if (watchdog_hw_running(wdd)) {
--		__module_get(wdd->ops->owner);
--		kref_get(&wd_data->kref);
--		queue_delayed_work(watchdog_wq, &wd_data->work, 0);
-+		if (handle_boot_enabled) {
-+			__module_get(wdd->ops->owner);
-+			kref_get(&wd_data->kref);
-+			queue_delayed_work(watchdog_wq, &wd_data->work, 0);
-+		} else {
-+			pr_info("watchdog%d running and kernel based pre-userspace handler disabled\n",
-+					wdd->id);
-+		}
- 	}
- 
- 	return 0;
-@@ -1106,3 +1114,8 @@ void __exit watchdog_dev_exit(void)
- 	class_unregister(&watchdog_class);
- 	destroy_workqueue(watchdog_wq);
- }
-+
-+module_param(handle_boot_enabled, bool, 0444);
-+MODULE_PARM_DESC(handle_boot_enabled,
-+	"Watchdog core auto-updates boot enabled watchdogs before userspace takes over (default="
-+	__MODULE_STRING(IS_ENABLED(CONFIG_WATCHDOG_HANDLE_BOOT_ENABLED)) ")");
--- 
-2.11.0
+Guenter
+
+> Shawn
+>
+>>  drivers/watchdog/Kconfig                           |  11 ++
+>>  drivers/watchdog/Makefile                          |   1 +
+>>  drivers/watchdog/ts4600_wdt.c                      | 185 +++++++++++++++++++++
+>>  5 files changed, 218 insertions(+)
+>>  create mode 100644 Documentation/devicetree/bindings/watchdog/ts4600-wdt.txt
+>>  create mode 100644 drivers/watchdog/ts4600_wdt.c
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
+
