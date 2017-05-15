@@ -1,64 +1,39 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:59881 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755638AbdEOQRI (ORCPT
+Received: from mail-oi0-f68.google.com ([209.85.218.68]:33018 "EHLO
+        mail-oi0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750710AbdEOVo5 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 15 May 2017 12:17:08 -0400
-Date: Mon, 15 May 2017 09:17:05 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] watchdog: orion: don't build for ARCH_EBSA110
-Message-ID: <20170515161705.GA22188@roeck-us.net>
-References: <20170515155040.1521131-1-arnd@arndb.de>
+        Mon, 15 May 2017 17:44:57 -0400
+Date: Mon, 15 May 2017 16:44:55 -0500
+From: Rob Herring <robh@kernel.org>
+To: Steffen Trumtrar <s.trumtrar@pengutronix.de>
+Cc: linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
+        Mark Rutland <mark.rutland@arm.com>,
+        devicetree@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        Dinh Nguyen <dinguyen@opensource.altera.com>,
+        linux-arm-kernel@lists.infradead.org, kernel@pengutronix.de
+Subject: Re: [PATCH v2 1/3] watchdog: bindings: dw_wdt: add reset lines
+Message-ID: <20170515214455.f7jorcqou4oyvnkq@rob-hp-laptop>
+References: <cover.e174fd0fa926fadf54e0f76e07f238bed3e162fc.1494595189.git-series.s.trumtrar@pengutronix.de>
+ <44e4e733055cfa2ed79091542c7bb17aa24afca9.1494595189.git-series.s.trumtrar@pengutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20170515155040.1521131-1-arnd@arndb.de>
+In-Reply-To: <44e4e733055cfa2ed79091542c7bb17aa24afca9.1494595189.git-series.s.trumtrar@pengutronix.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, May 15, 2017 at 05:50:19PM +0200, Arnd Bergmann wrote:
-> The randconfig builder caught another corner case with this driver that
-> fails to build for EBSA110 since that has its own MMIO handlers and
-> lacks atomic_io_modify:
+On Fri, May 12, 2017 at 03:34:35PM +0200, Steffen Trumtrar wrote:
+> Document the reset lines holding the watchdog core in reset.
 > 
-> drivers/watchdog/orion_wdt.o: In function `orion_stop':
-> orion_wdt.c:(.text.orion_stop+0x28): undefined reference to `atomic_io_modify'
-> orion_wdt.c:(.text.orion_stop+0x3c): undefined reference to `atomic_io_modify'
-> drivers/watchdog/orion_wdt.o: In function `armada370_wdt_clock_init':
-> orion_wdt.c:(.text.armada370_wdt_clock_init+0x2c): undefined reference to `atomic_io_modify'
-> drivers/watchdog/orion_wdt.o: In function `armada375_stop':
-> orion_wdt.c:(.text.armada375_stop+0x28): undefined reference to `atomic_io_modify'
-> orion_wdt.c:(.text.armada375_stop+0x58): undefined reference to `atomic_io_modify'
-> 
-> The best workaround I can think of is to add another Kconfig dependency.
-> We could add atomic_io_modify() for ebsa110 in theory, but it seemed
-> wrong because that platform would never actually use it.
-> 
-> Fixes: da2a68b3eb47 ("watchdog: Enable COMPILE_TEST where possible")
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-
+> Signed-off-by: Steffen Trumtrar <s.trumtrar@pengutronix.de>
+> Cc: Wim Van Sebroeck <wim@iguana.be>
+> Cc: Rob Herring <robh+dt@kernel.org>
+> Cc: Mark Rutland <mark.rutland@arm.com>
+> Cc: linux-watchdog@vger.kernel.org
+> Cc: devicetree@vger.kernel.org
 > ---
->  drivers/watchdog/Kconfig | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index 52a70ee6014f..feead0dbfc55 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -453,7 +453,7 @@ config DAVINCI_WATCHDOG
->  config ORION_WATCHDOG
->  	tristate "Orion watchdog"
->  	depends on ARCH_ORION5X || ARCH_DOVE || MACH_DOVE || ARCH_MVEBU || COMPILE_TEST
-> -	depends on ARM
-> +	depends on ARM && !ARCH_EBSA110
->  	select WATCHDOG_CORE
->  	help
->  	  Say Y here if to include support for the watchdog timer
-> -- 
-> 2.9.0
-> 
+>  Documentation/devicetree/bindings/watchdog/dw_wdt.txt | 3 +++
+>  1 file changed, 3 insertions(+)
+
+Acked-by: Rob Herring <robh@kernel.org>
