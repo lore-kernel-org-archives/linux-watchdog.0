@@ -1,93 +1,140 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bhuna.collabora.co.uk ([46.235.227.227]:48850 "EHLO
-        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751049AbdETQbF (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 20 May 2017 12:31:05 -0400
-Date: Sat, 20 May 2017 18:31:00 +0200
-From: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
-To: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@iguana.be>
-Subject: Re: [PATCHv2] watchdog: core: add option to avoid early handling of
- watchdog
-Message-ID: <20170520163100.b36l56k45jlylufu@earth>
-References: <f38c7967-ac56-c188-2232-42544088edd8@roeck-us.net>
- <20170512120532.12986-1-sebastian.reichel@collabora.co.uk>
- <4a4c4de8-31e4-8e15-8c63-ebd4165a63bf@roeck-us.net>
- <878tlxpycf.fsf@rasmusvillemoes.dk>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="jpvywhe44e3ehluw"
-Content-Disposition: inline
-In-Reply-To: <878tlxpycf.fsf@rasmusvillemoes.dk>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-path: <slemieux.tyco@gmail.com>
+Message-ID: <1495112471.12459.4.camel@gmail.com>
+Subject: Re: [PATCH v2] watchdog: gpio: Add "keep-armed-on-close" feature
+From: Sylvain Lemieux <slemieux.tyco@gmail.com>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: wim@iguana.be, linux-watchdog@vger.kernel.org
+Date: Thu, 18 May 2017 09:01:11 -0400
+In-Reply-To: <1490885209.26136.14.camel@gmail.com>
+References: <20170314141111.24888-1-slemieux.tyco@gmail.com>
+	 <db6e6689-68e5-753e-c501-bb3e74407b69@roeck-us.net>
+	 <1490885209.26136.14.camel@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+List-ID: <linux-watchdog@vger.kernel.org>
 
+On Thu, 2017-03-30 at 10:46 -0400, Sylvain Lemieux wrote:
+> Hi,
+> 
+> On Thu, 2017-03-30 at 06:11 -0700, Guenter Roeck wrote:
+> > On 03/14/2017 07:11 AM, Sylvain Lemieux wrote:
+> > > From: Sylvain Lemieux <slemieux@tycoint.com>
+> > >
+> > > There is a need to allow a grace period after the watchdog software
+> > > client has closed. It could be used for syncing the filesystem or
+> > > allow graceful termination while still providing a hardware reset
+> > > in case the system has hung.
+> > >
+> > > The "always-running" configuration from device-tree does not provide
+> > > this since it will automatically keep the hardware watchdog alive as
+> > > soon as the software client closes (i.e. keep toggling the GPIO line
+> > > regardless of the state of the soft part of the watchdog).
+> > >
+> > > The "keep-armed-on-close" member in the GPIO watchdog implementation
+> > > indicates if an expired timeout should cause a reset.
+> > >
+> > > This patch add a new "keep-armed-on-close" device-tree configuration
+> > > that will keep the watchdog "armed" until the next timeout period after
+> > > a close. During this period, the hardware watchdog is kept alive.
+> > > A software watchdog client that wants to provide a grace period before
+> > > a hard reset can set the timeout before properly closing.
+> > >
+> > 
+> > The description doesn't match what the code actually does, at least from
+> > an infrastructure perspective. The infrastructure would just keep it running.
+> > 
+> I will need to send a new version with an updated description;
+> 
+I will submit v3 later today or tomorrow.
 
---jpvywhe44e3ehluw
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> I did not update the description after this patch was rebased on-top
+> of the "watchdog: gpio: keepalives" patch.
+> 
+> > What you are really asking for is something the infrastructure should possibly
+> > do by itself automatically: To keep pinging a HW watchdog after close until
+> > the configured (software) timeout period expires. This would be in line with
+> > expectations.
+> > 
+Do you want me to work on a generic version for this option?
 
-Hi,
+Sylvain
 
-On Tue, May 16, 2017 at 12:08:32AM +0200, Rasmus Villemoes wrote:
-> On Sun, May 14 2017, Guenter Roeck wrote:
->=20
-> > On 05/12/2017 05:05 AM, Sebastian Reichel wrote:
-> >> On some systems its desirable to have watchdog reboot the system
-> >> when it does not come up fast enough. This adds a kernel parameter
-> >> to disable the auto-update of watchdog before userspace takes over
-> >> and a kernel option to set the default. The info messages were
-> >> added to shorten error searching on misconfigured systems.
-> >>
-> >> Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
-> >
-> > Minor nitpicks below (which I fixed up in my watchdog-next branch).
-> > Otherwise
->=20
-> Guenter, Sebastian, can I pursuade you to take a (second) look at the
-> patches [1] I sent 4 months ago that implement the same thing, except
-> that they also give a .config and a boot-cmdline way to define what
-> "fast enough" means - which is necessary in many cases where it's simply
-> not realistic to have userspace up-and-running before the dog is hungry.
->=20
-> [1] https://lkml.org/lkml/2017/1/9/408
->=20
-> I'm of course happy to rebase and retest those on top of current master,
-> but the implementation and semantics should be reviewable as-is.
-
-I wasn't aware of your work. For the hardware I work with at
-Collabora my patch is enough, since "fast enough" is defined by
-correct watchdog configuration (done by the bootloader).
-
-I guess something like your patch is required for systems, which do
-not reach userspace in < 60 seconds (minus some safety margin). This
-is not needed by us. OTOH your patches should also work for our use case.=
-=20
-
--- Sebastian
-
---jpvywhe44e3ehluw
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAlkgb0EACgkQ2O7X88g7
-+prvkw//VaUbWCO/IHb2iL+yCZnHPb3aMCS98Z6SfcNiNBytPaVF2C3eikFQMi5R
-LO2QHIP8+rMF4lkOhFpxnzuroSfP/l+gyQ5Wj56SDjdGGt/2zP3jBYqmW5TykBwD
-C3Q6cfY3u6E9ntA15Gni5Deycm627OtCf/NbWL4arvjCftq0BplJAgS5m3/8lPmZ
-exn/IcLzx5CrDaWVPPWKgj4pp8sRDnmtWCYTPlW7LuzhR08LUoqru1xMZSUlCEfr
-DgzD1p5vr8wSOM9NyLB7i4gZnyjakQnI7ADYKGT6jP16T6SpMgogzNDNA9PecEUj
-II0g+S6/fF5xIwn7oLH9ggPFzw9BA96MBEy6+NracQHhQXYreYFukKmb7bdRav4b
-JtSoTu9PME+qiuMvEvBIrQJqi/f7dRekxU4qrc1gPgNycQNwPGbcDdBCQpmpUSIH
-5JyuGPSLLzsG+SZVEv7v4OHLG2vPLcDTJ8J/iuuiyhJ4Jd27NqPjIrYiJcusEs4j
-0194owkyDILMVeIxhhpuDZ1rYccTh12vSLpF+7JIjk90lJETLxegjAIWauKxwxE1
-oo3tuoBFUaNSOZlK3sGwvA7KD7bAhN9XKXq/s+A64AMPD6hXjSL9cFq9ZRj+8kkm
-7KJc1RS8vOwR09X8+2KgaOlsqPHi/CtwkjtIh8yek/PBhqxSI/k=
-=X3wZ
------END PGP SIGNATURE-----
-
---jpvywhe44e3ehluw--
+> > Also, I seem to recall that the gpio_wdt patch this relies on has a problem
+> > if the watchdog is opened and closed repeatedly. It is still on my task list
+> > to track this down.
+> 
+[...]
+> 
+> Sylvain
+> > 
+> > Guenter
+> > 
+> > > Signed-off-by: Sylvain Lemieux <slemieux@tycoint.com>
+> > > ---
+> > > * This patch depend on the:
+> > >   "watchdog: gpio: Convert to use infrastructure triggered keepalives";
+> > >   ref. https://lkml.org/lkml/2016/2/28/239 (version 8)
+> > >
+> > > Changes from v1 to v2:
+> > > * Rebased on-top of the "watchdog: gpio: keepalives" patch.
+> > >   - Updated the management of the "WDOG_HW_RUNNING" flag.
+> > > * Tested with v4.11-rc1.
+> > >
+> > >  Documentation/devicetree/bindings/watchdog/gpio-wdt.txt |  3 +++
+> > >  drivers/watchdog/gpio_wdt.c                             | 10 ++++++++++
+> > >  2 files changed, 13 insertions(+)
+> > >
+> > > diff --git a/Documentation/devicetree/bindings/watchdog/gpio-wdt.txt b/Documentation/devicetree/bindings/watchdog/gpio-wdt.txt
+> > > index 83d28146e39b..48db076771b2 100644
+> > > --- a/Documentation/devicetree/bindings/watchdog/gpio-wdt.txt
+> > > +++ b/Documentation/devicetree/bindings/watchdog/gpio-wdt.txt
+> > > @@ -17,6 +17,9 @@ Optional Properties:
+> > >  - always-running: If the watchdog timer cannot be disabled, add this flag to
+> > >    have the driver keep toggling the signal without a client. It will only cease
+> > >    to toggle the signal when the device is open and the timeout elapsed.
+> > > +- keep-armed-on-close: if the watchdog timer need to keep toggling the signal
+> > > +  when close, until the timeout elapsed, add this flag to have the driver
+> > > +  keep toggling the signal, until the timeout elapsed.
+> > >  - timeout-sec: Contains the watchdog timeout in seconds.
+> > >  - start-at-init: Start kicking watchdog as soon as driver is loaded.
+> > >
+> > > diff --git a/drivers/watchdog/gpio_wdt.c b/drivers/watchdog/gpio_wdt.c
+> > > index 7b46d224cb56..2f4799bee9bd 100644
+> > > --- a/drivers/watchdog/gpio_wdt.c
+> > > +++ b/drivers/watchdog/gpio_wdt.c
+> > > @@ -29,6 +29,7 @@ struct gpio_wdt_priv {
+> > >  	bool			active_low;
+> > >  	bool			state;
+> > >  	bool			always_running;
+> > > +	bool			keep_armed_on_close;
+> > >  	unsigned int		hw_algo;
+> > >  	struct watchdog_device	wdd;
+> > >  };
+> > > @@ -78,6 +79,13 @@ static int gpio_wdt_stop(struct watchdog_device *wdd)
+> > >  {
+> > >  	struct gpio_wdt_priv *priv = watchdog_get_drvdata(wdd);
+> > >
+> > > +	if(priv->keep_armed_on_close) {
+> > > +		/* Keep the driver running on close. */
+> > > +		set_bit(WDOG_HW_RUNNING, &wdd->status);
+> > > +
+> > > +		return 0;
+> > > +	}
+> > > +
+> > >  	if (!priv->always_running) {
+> > >  		gpio_wdt_disable(priv);
+> > >  		clear_bit(WDOG_HW_RUNNING, &wdd->status);
+> > > @@ -148,6 +156,8 @@ static int gpio_wdt_probe(struct platform_device *pdev)
+> > >
+> > >  	priv->always_running = of_property_read_bool(pdev->dev.of_node,
+> > >  						     "always-running");
+> > > +	priv->keep_armed_on_close = of_property_read_bool(pdev->dev.of_node,
+> > > +						 "keep-armed-on-close");
+> > >
+> > >  	watchdog_set_drvdata(&priv->wdd, priv);
+> > >
+> > >
+> > 
+> 
+> 
