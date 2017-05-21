@@ -1,8 +1,8 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from hauke-m.de ([5.39.93.123]:36606 "EHLO mail.hauke-m.de"
+Received: from hauke-m.de ([5.39.93.123]:36624 "EHLO mail.hauke-m.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751474AbdEUNJo (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 21 May 2017 09:09:44 -0400
+        id S1751857AbdEUNJp (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Sun, 21 May 2017 09:09:45 -0400
 From: Hauke Mehrtens <hauke@hauke-m.de>
 To: ralf@linux-mips.org
 Cc: linux-mips@linux-mips.org, linux-mtd@lists.infradead.org,
@@ -10,39 +10,40 @@ Cc: linux-mips@linux-mips.org, linux-mtd@lists.infradead.org,
         martin.blumenstingl@googlemail.com, john@phrozen.org,
         linux-spi@vger.kernel.org, hauke.mehrtens@intel.com,
         robh@kernel.org, Hauke Mehrtens <hauke@hauke-m.de>
-Subject: [PATCH v2 01/15] MIPS: lantiq: Use of_platform_populate instead of __dt_register_buses
-Date: Sun, 21 May 2017 15:09:04 +0200
-Message-Id: <20170521130918.27446-2-hauke@hauke-m.de>
+Subject: [PATCH v2 03/15] mtd: spi-falcon: drop check of boot select
+Date: Sun, 21 May 2017 15:09:06 +0200
+Message-Id: <20170521130918.27446-4-hauke@hauke-m.de>
 In-Reply-To: <20170521130918.27446-1-hauke@hauke-m.de>
 References: <20170521130918.27446-1-hauke@hauke-m.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-
-This allows populating syscon devices which are using "simple-mfd"
-instead of "simple-bus".
+Do not check which flash type the SoC was booted from before
+using this driver. Assume that the device tree is correct and use this
+driver when it was added to device tree. This also removes a build
+dependency to the SoC code.
 
 Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
-Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 ---
- arch/mips/lantiq/prom.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/spi/spi-falcon.c | 5 -----
+ 1 file changed, 5 deletions(-)
 
-diff --git a/arch/mips/lantiq/prom.c b/arch/mips/lantiq/prom.c
-index 96773bed8a8a..72cc12f1b6a5 100644
---- a/arch/mips/lantiq/prom.c
-+++ b/arch/mips/lantiq/prom.c
-@@ -117,7 +117,8 @@ void __init prom_init(void)
+diff --git a/drivers/spi/spi-falcon.c b/drivers/spi/spi-falcon.c
+index 286b2c81fc6b..f8638e82e5db 100644
+--- a/drivers/spi/spi-falcon.c
++++ b/drivers/spi/spi-falcon.c
+@@ -395,11 +395,6 @@ static int falcon_sflash_probe(struct platform_device *pdev)
+ 	struct spi_master *master;
+ 	int ret;
  
- int __init plat_of_setup(void)
- {
--	return __dt_register_buses(soc_info.compatible, "simple-bus");
-+	return of_platform_populate(NULL, of_default_bus_match_table, NULL,
-+				    NULL);
- }
- 
- arch_initcall(plat_of_setup);
+-	if (ltq_boot_select() != BS_SPI) {
+-		dev_err(&pdev->dev, "invalid bootstrap options\n");
+-		return -ENODEV;
+-	}
+-
+ 	master = spi_alloc_master(&pdev->dev, sizeof(*priv));
+ 	if (!master)
+ 		return -ENOMEM;
 -- 
 2.11.0
 
