@@ -1,136 +1,52 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail02.prevas.se ([62.95.78.10]:8651 "EHLO mail02.prevas.se"
+Received: from www.llwyncelyn.cymru ([82.70.14.225]:50060 "EHLO fuzix.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S934617AbdEVOUG (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 22 May 2017 10:20:06 -0400
-From: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
-To: Wim Van Sebroeck <wim@iguana.be>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Jonathan Corbet <corbet@lwn.net>
-CC: Sebastian Reichel <sebastian.reichel@collabora.co.uk>,
-        <esben.haabendal@gmail.com>,
-        Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
-        <linux-watchdog@vger.kernel.org>, <linux-doc@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: [PATCH v5 2/3] watchdog: introduce watchdog.open_timeout commandline parameter
-Date: Mon, 22 May 2017 16:06:38 +0200
-Message-ID: <1495462000-28979-3-git-send-email-rasmus.villemoes@prevas.dk>
+        id S1760140AbdEVS5b (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 22 May 2017 14:57:31 -0400
+Date: Mon, 22 May 2017 19:07:51 +0100
+From: Alan Cox <gnomes@lxorguk.ukuu.org.uk>
+To: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+Cc: <linux-watchdog@vger.kernel.org>, <linux-doc@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>,
+        Sebastian Reichel <sebastian.reichel@collabora.co.uk>,
+        <esben.haabendal@gmail.com>, Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [PATCH v5 0/3] watchdog: allow setting deadline for opening
+ /dev/watchdogN
+Message-ID: <20170522190751.5bf5e813@alans-desktop>
 In-Reply-To: <1495462000-28979-1-git-send-email-rasmus.villemoes@prevas.dk>
 References: <1495462000-28979-1-git-send-email-rasmus.villemoes@prevas.dk>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The watchdog framework takes care of feeding a hardware watchdog until
-userspace opens /dev/watchdogN. If that never happens for some reason
-(buggy init script, corrupt root filesystem or whatnot) but the kernel
-itself is fine, the machine stays up indefinitely. This patch allows
-setting an upper limit for how long the kernel will take care of the
-watchdog, thus ensuring that the watchdog will eventually reset the
-machine.
+On Mon, 22 May 2017 16:06:36 +0200
+Rasmus Villemoes <rasmus.villemoes@prevas.dk> wrote:
 
-This is particularly useful for embedded devices where some fallback
-logic is implemented in the bootloader (e.g., use a different root
-partition, boot from network, ...).
+> If a watchdog driver tells the framework that the device is running,
+> the framework takes care of feeding the watchdog until userspace opens
+> the device. If the userspace application which is supposed to do that
+> never comes up properly, the watchdog is fed indefinitely by the
+> kernel. This can be especially problematic for embedded devices.
+> 
+> These patches allow one to set a maximum time for which the kernel
+> will feed the watchdog, thus ensuring that either userspace has come
+> up, or the board gets reset. This allows fallback logic in the
+> bootloader to attempt some recovery (for example, if an automatic
+> update is in progress, it could roll back to the previous version).
 
-The open timeout is also used as a maximum time for an application to
-re-open /dev/watchdogN after closing it.
 
-A value of 0 (the default) means infinite timeout, preserving the
-current behaviour.
+This makes sense except for being a CONFIG_ option not a boot parameter.
+If it's a boot parameter then the same kernel works for multiple systems
+and is general. If it's compile time then you have to build a custom
+kernel.
 
-Signed-off-by: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
----
- Documentation/watchdog/watchdog-parameters.txt |  9 +++++++++
- drivers/watchdog/watchdog_dev.c                | 26 +++++++++++++++++++++++++-
- 2 files changed, 34 insertions(+), 1 deletion(-)
+For some embedded stuff that might not matter (although I bet they'd
+prefer it command line/device tree too) but for something like an x86
+platform where you are deploying a standard vendor supplied kernel it's
+bad to do it that way IMHO.
 
-diff --git a/Documentation/watchdog/watchdog-parameters.txt b/Documentation/watchdog/watchdog-parameters.txt
-index 914518a..4801ec6 100644
---- a/Documentation/watchdog/watchdog-parameters.txt
-+++ b/Documentation/watchdog/watchdog-parameters.txt
-@@ -8,6 +8,15 @@ See Documentation/admin-guide/kernel-parameters.rst for information on
- providing kernel parameters for builtin drivers versus loadable
- modules.
- 
-+The watchdog core currently understands one parameter,
-+watchdog.open_timeout. This is the maximum time, in milliseconds, for
-+which the watchdog framework will take care of pinging a hardware
-+watchdog until userspace opens the corresponding /dev/watchdogN
-+device. A value of 0 (the default) means an infinite timeout. Setting
-+this to a non-zero value can be useful to ensure that either userspace
-+comes up properly, or the board gets reset and allows fallback logic
-+in the bootloader to try something else.
-+
- 
- -------------------------------------------------
- acquirewdt:
-diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-index caa4b90..c807067 100644
---- a/drivers/watchdog/watchdog_dev.c
-+++ b/drivers/watchdog/watchdog_dev.c
-@@ -66,6 +66,7 @@ struct watchdog_core_data {
- 	struct mutex lock;
- 	unsigned long last_keepalive;
- 	unsigned long last_hw_keepalive;
-+	unsigned long open_deadline;
- 	struct delayed_work work;
- 	unsigned long status;		/* Internal status bits */
- #define _WDOG_DEV_OPEN		0	/* Opened ? */
-@@ -80,6 +81,21 @@ static struct watchdog_core_data *old_wd_data;
- 
- static struct workqueue_struct *watchdog_wq;
- 
-+static unsigned open_timeout;
-+module_param(open_timeout, uint, 0644);
-+
-+static bool watchdog_past_open_deadline(struct watchdog_core_data *data)
-+{
-+	if (!open_timeout)
-+		return false;
-+	return time_is_before_jiffies(data->open_deadline);
-+}
-+
-+static void watchdog_set_open_deadline(struct watchdog_core_data *data)
-+{
-+	data->open_deadline = jiffies + msecs_to_jiffies(open_timeout);
-+}
-+
- static inline bool watchdog_need_worker(struct watchdog_device *wdd)
- {
- 	/* All variables in milli-seconds */
-@@ -196,7 +212,13 @@ static bool watchdog_worker_should_ping(struct watchdog_core_data *wd_data)
- {
- 	struct watchdog_device *wdd = wd_data->wdd;
- 
--	return wdd && (watchdog_active(wdd) || watchdog_hw_running(wdd));
-+	if (!wdd)
-+		return false;
-+
-+	if (watchdog_active(wdd))
-+		return true;
-+
-+	return watchdog_hw_running(wdd) && !watchdog_past_open_deadline(wd_data);
- }
- 
- static void watchdog_ping_work(struct work_struct *work)
-@@ -857,6 +879,7 @@ static int watchdog_release(struct inode *inode, struct file *file)
- 		watchdog_ping(wdd);
- 	}
- 
-+	watchdog_set_open_deadline(wd_data);
- 	watchdog_update_worker(wdd);
- 
- 	/* make sure that /dev/watchdog can be re-opened */
-@@ -955,6 +978,7 @@ static int watchdog_cdev_register(struct watchdog_device *wdd, dev_t devno)
- 
- 	/* Record time of most recent heartbeat as 'just before now'. */
- 	wd_data->last_hw_keepalive = jiffies - 1;
-+	watchdog_set_open_deadline(wd_data);
- 
- 	/*
- 	 * If the watchdog is running, prevent its driver from being unloaded,
--- 
-2.7.4
+In other words I think you should drop patch 3 but the rest is good.
 
+Alan
