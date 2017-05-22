@@ -1,142 +1,87 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-qt0-f195.google.com ([209.85.216.195]:35339 "EHLO
-        mail-qt0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751902AbdEVGFz (ORCPT
+Received: from mail.linuxfoundation.org ([140.211.169.12]:42250 "EHLO
+        mail.linuxfoundation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752237AbdEVHZa (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 22 May 2017 02:05:55 -0400
+        Mon, 22 May 2017 03:25:30 -0400
+Date: Mon, 22 May 2017 09:25:04 +0200
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Alexandre Courbot <gnurou@gmail.com>,
+        Jonathan Cameron <jic23@kernel.org>,
+        Hartmut Knaack <knaack.h@gmx.de>,
+        Lars-Peter Clausen <lars@metafoo.de>,
+        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Kishon Vijay Abraham I <kishon@ti.com>,
+        Sebastian Reichel <sre@kernel.org>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Felipe Balbi <balbi@kernel.org>,
+        Daniel Thompson <daniel.thompson@linaro.org>,
+        Jingoo Han <jingoohan1@gmail.com>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Peter Ujfalusi <peter.ujfalusi@ti.com>,
+        Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.com>, linux-omap@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-gpio@vger.kernel.org, linux-iio@vger.kernel.org,
+        linux-input@vger.kernel.org, linux-pm@vger.kernel.org,
+        linux-pwm@vger.kernel.org, rtc-linux@googlegroups.com,
+        linux-usb@vger.kernel.org, linux-fbdev@vger.kernel.org,
+        linux-watchdog@vger.kernel.org, alsa-devel@alsa-project.org
+Subject: Re: [PATCH 3/3] mfd: twl: move header file out of I2C realm
+Message-ID: <20170522072504.GB21253@kroah.com>
+References: <20170521220212.1404-1-wsa@the-dreams.de>
+ <20170521220212.1404-4-wsa@the-dreams.de>
 MIME-Version: 1.0
-In-Reply-To: <20170521130918.27446-8-hauke@hauke-m.de>
-References: <20170521130918.27446-1-hauke@hauke-m.de> <20170521130918.27446-8-hauke@hauke-m.de>
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Date: Mon, 22 May 2017 09:05:53 +0300
-Message-ID: <CAHp75VeQgekiWc+YxP5sDFBB4fvmRs1=heFcdYS6mAgqPACW7g@mail.gmail.com>
-Subject: Re: [PATCH v2 07/15] MIPS: lantiq: Convert the xbar driver to a platform_driver
-To: Hauke Mehrtens <hauke@hauke-m.de>
-Cc: Ralf Baechle <ralf@linux-mips.org>,
-        Linux MIPS Mailing List <linux-mips@linux-mips.org>,
-        "open list:MEMORY TECHNOLOGY..." <linux-mtd@lists.infradead.org>,
-        linux-watchdog@vger.kernel.org,
-        devicetree <devicetree@vger.kernel.org>,
-        martin.blumenstingl@googlemail.com, john@phrozen.org,
-        linux-spi <linux-spi@vger.kernel.org>, hauke.mehrtens@intel.com,
-        Rob Herring <robh@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20170521220212.1404-4-wsa@the-dreams.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Sun, May 21, 2017 at 4:09 PM, Hauke Mehrtens <hauke@hauke-m.de> wrote:
-> From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
->
-> This allows using the xbar driver on ARX300 based SoCs which require the
-> same xbar setup as the xRX200 chipsets because the xbar driver
-> initialization is not guarded by an xRX200 specific
-> of_machine_is_compatible condition anymore. Additionally the new driver
-> takes a syscon phandle to configure the XBAR endianness bits in RCU
-> (before this was done in arch/mips/lantiq/xway/reset.c and also
-> guarded by an VRX200 specific if-statement).
+On Mon, May 22, 2017 at 12:02:10AM +0200, Wolfram Sang wrote:
+> include/linux/i2c is not for client devices. Move the header file to a
+> more appropriate location.
+> 
+> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+> ---
+>  arch/arm/mach-omap2/common.h            | 2 +-
+>  arch/arm/mach-omap2/omap_twl.c          | 2 +-
+>  drivers/gpio/gpio-twl4030.c             | 2 +-
+>  drivers/iio/adc/twl4030-madc.c          | 2 +-
+>  drivers/iio/adc/twl6030-gpadc.c         | 2 +-
+>  drivers/input/keyboard/twl4030_keypad.c | 2 +-
+>  drivers/input/misc/twl4030-pwrbutton.c  | 2 +-
+>  drivers/input/misc/twl4030-vibra.c      | 2 +-
+>  drivers/mfd/twl-core.c                  | 6 +++---
+>  drivers/mfd/twl4030-audio.c             | 2 +-
+>  drivers/mfd/twl4030-irq.c               | 2 +-
+>  drivers/mfd/twl4030-power.c             | 2 +-
+>  drivers/mfd/twl6030-irq.c               | 2 +-
+>  drivers/phy/phy-twl4030-usb.c           | 2 +-
+>  drivers/power/supply/twl4030_charger.c  | 2 +-
+>  drivers/pwm/pwm-twl-led.c               | 2 +-
+>  drivers/pwm/pwm-twl.c                   | 2 +-
+>  drivers/regulator/twl-regulator.c       | 2 +-
+>  drivers/regulator/twl6030-regulator.c   | 2 +-
+>  drivers/rtc/rtc-twl.c                   | 2 +-
+>  drivers/usb/phy/phy-twl6030-usb.c       | 2 +-
+>  drivers/video/backlight/pandora_bl.c    | 2 +-
+>  drivers/watchdog/twl4030_wdt.c          | 2 +-
+>  include/linux/{i2c => mfd}/twl.h        | 0
+>  sound/soc/codecs/twl4030.c              | 2 +-
+>  25 files changed, 26 insertions(+), 26 deletions(-)
+>  rename include/linux/{i2c => mfd}/twl.h (100%)
 
-> +#include <linux/ioport.h>
-
-I'm not sure you need this.
-
-> +#include <linux/mfd/syscon.h>
-> +#include <linux/module.h>
-
-> +#include <linux/of.h>
-> +#include <linux/of_platform.h>
-> +#include <linux/of_address.h>
-
-And these lines are under question, see below.
-
-> +#include <linux/regmap.h>
-> +
-
-> +#include <lantiq_soc.h>
-
-This rather should be "lantiq_soc.h"
-
-> +static int ltq_xbar_probe(struct platform_device *pdev)
-> +{
-> +       struct device *dev = &pdev->dev;
-> +       struct device_node *np = dev->of_node;
-> +       struct resource res_xbar;
-> +       struct regmap *rcu_regmap;
-> +       void __iomem *xbar_membase;
-> +       u32 rcu_ahb_endianness_reg_offset;
-> +       u32 rcu_ahb_endianness_val;
-> +       int ret;
-> +
-
-> +       ret = of_address_to_resource(np, 0, &res_xbar);
-> +       if (ret) {
-> +               dev_err(dev, "Failed to get xbar resources");
-> +               return ret;
-> +       }
-> +
-> +       if (!devm_request_mem_region(dev, res_xbar.start,
-> +                                    resource_size(&res_xbar),
-> +               res_xbar.name)) {
-> +               dev_err(dev, "Failed to get xbar resources");
-> +               return -ENODEV;
-> +       }
-> +
-> +       xbar_membase = devm_ioremap_nocache(dev, res_xbar.start,
-> +                                               resource_size(&res_xbar));
-> +       if (!xbar_membase) {
-> +               dev_err(dev, "Failed to remap xbar resources");
-> +               return -ENODEV;
-> +       }
-
-And what's wrong with traditional pattern
-
-y = platform_get_resource(IOMEM);
-x = devm_ioremap_resource(y);
-if (IS_ERR(x))
- return PTR_ERR(x);
-
-?
-
-> +
-> +       /* RCU configuration is optional */
-> +       rcu_regmap = syscon_regmap_lookup_by_phandle(np, "lantiq,rcu-syscon");
-> +       if (!IS_ERR_OR_NULL(rcu_regmap)) {
-
-> +               if (of_property_read_u32_index(np, "lantiq,rcu-syscon", 1,
-> +                       &rcu_ahb_endianness_reg_offset)) {
-
-device_property_*() ?
-
-> +                       dev_err(&pdev->dev, "Failed to get RCU reg offset\n");
-> +                       return -EINVAL;
-> +               }
-> +
-> +               if (of_device_is_big_endian(np))
-
-Do we have common helper for this (I mean resource provider agnostic one)?
-
-> +                       rcu_ahb_endianness_val = RCU_VR9_BE_AHB1S;
-> +               else
-> +                       rcu_ahb_endianness_val = 0;
-> +
-> +               if (regmap_update_bits(rcu_regmap,
-> +                                       rcu_ahb_endianness_reg_offset,
-> +                                       RCU_VR9_BE_AHB1S,
-> +                                       rcu_ahb_endianness_val))
-> +                       dev_warn(&pdev->dev,
-> +                               "Failed to configure RCU AHB endianness\n");
-> +       }
-> +
-> +       /* disable fpi burst */
-> +       ltq_w32_mask(XBAR_FPI_BURST_EN, 0,
-> +                    xbar_membase + XBAR_ALWAYS_LAST);
-> +
-> +       return 0;
-> +}
-
-> +builtin_platform_driver(xbar_driver);
-
-Why it can't be module?
-
--- 
-With Best Regards,
-Andy Shevchenko
+Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
