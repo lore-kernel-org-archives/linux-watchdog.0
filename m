@@ -1,94 +1,100 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bhuna.collabora.co.uk ([46.235.227.227]:52715 "EHLO
-        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750928AbdEVK13 (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 22 May 2017 06:27:29 -0400
-Date: Mon, 22 May 2017 12:27:19 +0200
-From: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-fbdev@vger.kernel.org,
-        linux-usb@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        alsa-devel@alsa-project.org, Wim Van Sebroeck <wim@iguana.be>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
-        Lee Jones <lee.jones@linaro.org>,
-        Alexandre Courbot <gnurou@gmail.com>,
-        Daniel Thompson <daniel.thompson@linaro.org>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+Received: from www.zeus03.de ([194.117.254.33]:37364 "EHLO mail.zeus03.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1758607AbdEVK2T (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 22 May 2017 06:28:19 -0400
+Date: Mon, 22 May 2017 12:28:12 +0200
+From: Wolfram Sang <wsa@the-dreams.de>
+To: Mark Brown <broonie@kernel.org>
+Cc: linux-i2c@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
         Russell King <linux@armlinux.org.uk>,
-        Kishon Vijay Abraham I <kishon@ti.com>,
-        linux-iio@vger.kernel.org, linux-omap@vger.kernel.org,
-        linux-input@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
-        linux-pwm@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        rtc-linux@googlegroups.com, Felipe Balbi <balbi@kernel.org>,
-        linux-gpio@vger.kernel.org, Mark Brown <broonie@kernel.org>,
-        Takashi Iwai <tiwai@suse.com>,
-        Jaroslav Kysela <perex@perex.cz>,
-        linux-arm-kernel@lists.infradead.org,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Jingoo Han <jingoohan1@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-pm@vger.kernel.org,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Alexandre Courbot <gnurou@gmail.com>,
+        Jonathan Cameron <jic23@kernel.org>,
+        Hartmut Knaack <knaack.h@gmx.de>,
+        Lars-Peter Clausen <lars@metafoo.de>,
+        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Kishon Vijay Abraham I <kishon@ti.com>,
+        Sebastian Reichel <sre@kernel.org>,
+        Thierry Reding <thierry.reding@gmail.com>,
         Liam Girdwood <lgirdwood@gmail.com>,
-        linux-kernel@vger.kernel.org, Hartmut Knaack <knaack.h@gmx.de>,
-        Jonathan Cameron <jic23@kernel.org>
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Felipe Balbi <balbi@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Daniel Thompson <daniel.thompson@linaro.org>,
+        Jingoo Han <jingoohan1@gmail.com>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Peter Ujfalusi <peter.ujfalusi@ti.com>,
+        Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.com>, linux-omap@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-gpio@vger.kernel.org, linux-iio@vger.kernel.org,
+        linux-input@vger.kernel.org, linux-pm@vger.kernel.org,
+        linux-pwm@vger.kernel.org, rtc-linux@googlegroups.com,
+        linux-usb@vger.kernel.org, linux-fbdev@vger.kernel.org,
+        linux-watchdog@vger.kernel.org, alsa-devel@alsa-project.org
 Subject: Re: [PATCH 3/3] mfd: twl: move header file out of I2C realm
-Message-ID: <20170522102719.yzqujz327hv5zu7r@earth>
+Message-ID: <20170522102812.GA1459@katana>
 References: <20170521220212.1404-1-wsa@the-dreams.de>
  <20170521220212.1404-4-wsa@the-dreams.de>
+ <20170522095243.ff5uygzzrvo57jkd@sirena.org.uk>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="tjpa2ifnbroetnta"
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="cWoXeonUoKmBZSoM"
 Content-Disposition: inline
-In-Reply-To: <20170521220212.1404-4-wsa@the-dreams.de>
+In-Reply-To: <20170522095243.ff5uygzzrvo57jkd@sirena.org.uk>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
 
---tjpa2ifnbroetnta
+--cWoXeonUoKmBZSoM
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Hi,
-
-On Mon, May 22, 2017 at 12:02:10AM +0200, Wolfram Sang wrote:
-> include/linux/i2c is not for client devices. Move the header file to a
-> more appropriate location.
+On Mon, May 22, 2017 at 10:52:43AM +0100, Mark Brown wrote:
+> On Mon, May 22, 2017 at 12:02:10AM +0200, Wolfram Sang wrote:
+> > include/linux/i2c is not for client devices. Move the header file to a
+> > more appropriate location.
 >=20
-> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-> ---
-> [...]
->  drivers/power/supply/twl4030_charger.c  | 2 +-
-> [...]
+> Acked-by: Mark Brown <broonie@kernel.org>
 
-Acked-by: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
+Thanks!
 
--- Sebastian
+> I'm missing the rest of the series and/or the cover letter...
 
---tjpa2ifnbroetnta
+I meanwhile send cover letters only to all mailing lists involved. I
+used to CC the individuals, too, until those messages were rejected
+because the CC list grew too large :( And I really only CCed maintainers
+then, no git history used.
+
+If you were not CCed on the other patches, then you are likely not
+listed as a maintainer for them?
+
+
+--cWoXeonUoKmBZSoM
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAlkivQQACgkQ2O7X88g7
-+pr+JBAAgfqciZwOxlKdgg1Ffp+cnY74bMb+kL52A5+T4mkbwSyRNm944UI4PbYg
-y4k137b5tcH/YyF66lqI+C3pXQzbrMBvO0rLfqHCB0HKRd7akG8AKSwhe7TA52MH
-zt58f9un02aqyyNceNOzr/jg2DAFCQP3q/w3ZscyoehFC2rezpCbX8Vb2PTu81hR
-9STMybSMS0K/B1D9X5gmBIhZ8ofTPDZDirPUNgdn4zD26iNsEnWbPc/5qCL2ecFU
-H9RWUUmUdkYxtyjmWVa2fktT66VYhq4Ku6BiD8E6f7qwtQ+WqjVglTLx6s+PdxWI
-tbgbf/6BVLw+ogSIvEuDdXlZeZVM7e4qUjcRw6FnzsqgyBDMbB+SqIpnbRYHUwsH
-Y4Jh6yD9M6X0YA71B7i2nkUIRoYFmEzRI+Evk5vchFTZIyW5V4nu95BcsgTH/ZVZ
-le93GTruiQSSZkLS471xqZ+XCgSMIE052sJLhLRjzT+PjLqs3F0b8fpg53/wITcJ
-Rr06jGF/k0YdgpBGHexUiA+3frXdkdY5bx9wKh9C7y1JnjR6ZME4FN2rhkecZHX2
-VxwW9ra2g9wdJn0SL/eZNtb79FKNCigQik5grIG7kw55bdybGXgGZMHRvYbN91eU
-wccj0CYykJ9wKuRfttth4jVCwoMV1vt2TvYcrUfMv9eTEd7VeTU=
-=JcW1
+iQIzBAEBCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlkivTgACgkQFA3kzBSg
+KbaTdQ//X6Cza46bguYF00U+Vf7lEyTuUUuhl7rujtuXRrZTTNNJmQryjeAWa4ws
+3tM5vJrZjpsdz8K1dAtyZC+Og/SsnkieakqAEPCyym0aE1Wyr3ynjL4DAgQB0nHG
+AbBfLsgI2dTwBwkOJ8JwEFM9a6C7knsPdW/XyM9VfQNuC84stCSPqmzYJzxjkUjF
+LtN1Wo9IRigyV9WpJXZeLUKanm5lsPvtHArK0cwWLfA3sdVo/xKYiznOJ91CkUxf
+WUXe2jOihnra1lOm+HiMKtu1KlOPJ65Te5bACMtArVKIhP7bFqk8COcgh8YFzAeM
+kei6j3pX8+jqoy/EELwdCGp0l9FiQSR7aeQmP2Vuc1l4l0iuafDQkjCwGqekdMjS
+SUCE6GpmLTPL8x8H2PBX/YzUouHBpp5VlftFGe0t+T/KfIy6o+6KIc41qvrgfp4S
+yyNF+Q85aMGI0NMlVmh6JENL4+XI17EgYfREWfL2IoeVl5URQbbN0XHxVnCZF5wY
+IHMsbhUSnWb4OOakZnf9dEAKpuX9fHVhjY9dSWX1A3xrNY7SliAUPjei3sKXEiPw
+20zSkk4F7qqyQd/Y5WzIOVlmmteoVlEQaCF0sqAxFILeHFX8yyl8BvDq+HPVu2Wo
+7IX601Djf7wwU4+Ix1So9alvmVrM0mfW7O4eZHIEeblp18rs22Y=
+=A/8Y
 -----END PGP SIGNATURE-----
 
---tjpa2ifnbroetnta--
+--cWoXeonUoKmBZSoM--
