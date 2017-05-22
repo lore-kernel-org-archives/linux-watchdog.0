@@ -1,62 +1,52 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx.socionext.com ([202.248.49.38]:58383 "EHLO mx.socionext.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S938474AbdEXGpV (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 24 May 2017 02:45:21 -0400
-From: Keiji Hayashibara <hayashibara.keiji@socionext.com>
-To: wim@iguana.be, linux@roeck-us.net
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        masami.hiramatsu@linaro.org, jaswinder.singh@linaro.org,
-        yamada.masahiro@socionext.com, hayashi.kunihiko@socionext.com,
-        owada.kiyoshi@socionext.com,
-        Keiji Hayashibara <hayashibara.keiji@socionext.com>
-Subject: [PATCH 2/2] arm64: dts: uniphier: add watchdog node for LD11 and LD20
-Date: Wed, 24 May 2017 15:34:52 +0900
-Message-Id: <1495607692-657-3-git-send-email-hayashibara.keiji@socionext.com>
-In-Reply-To: <1495607692-657-1-git-send-email-hayashibara.keiji@socionext.com>
-References: <1495607692-657-1-git-send-email-hayashibara.keiji@socionext.com>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-path: <prvs=308efd9ee=Rasmus.Villemoes@prevas.dk>
+From: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+To: <linux-watchdog@vger.kernel.org>, <linux-doc@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>
+CC: Sebastian Reichel <sebastian.reichel@collabora.co.uk>,
+	<esben.haabendal@gmail.com>, Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
+	Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH v5 0/3] watchdog: allow setting deadline for opening /dev/watchdogN
+Date: Mon, 22 May 2017 16:06:36 +0200
+Message-ID: <1495462000-28979-1-git-send-email-rasmus.villemoes@prevas.dk>
+MIME-Version: 1.0
+Content-Type: text/plain
+List-ID: <linux-watchdog@vger.kernel.org>
 
-Add nodes of watchdog timer for UniPhier LD11 and LD20 SoC.
-The watchdog timer is included in sysctrl.
+If a watchdog driver tells the framework that the device is running,
+the framework takes care of feeding the watchdog until userspace opens
+the device. If the userspace application which is supposed to do that
+never comes up properly, the watchdog is fed indefinitely by the
+kernel. This can be especially problematic for embedded devices.
 
-Signed-off-by: Keiji Hayashibara <hayashibara.keiji@socionext.com>
----
- arch/arm64/boot/dts/socionext/uniphier-ld11.dtsi | 4 ++++
- arch/arm64/boot/dts/socionext/uniphier-ld20.dtsi | 4 ++++
- 2 files changed, 8 insertions(+)
+These patches allow one to set a maximum time for which the kernel
+will feed the watchdog, thus ensuring that either userspace has come
+up, or the board gets reset. This allows fallback logic in the
+bootloader to attempt some recovery (for example, if an automatic
+update is in progress, it could roll back to the previous version).
 
-diff --git a/arch/arm64/boot/dts/socionext/uniphier-ld11.dtsi b/arch/arm64/boot/dts/socionext/uniphier-ld11.dtsi
-index da881f5..a3205dc 100644
---- a/arch/arm64/boot/dts/socionext/uniphier-ld11.dtsi
-+++ b/arch/arm64/boot/dts/socionext/uniphier-ld11.dtsi
-@@ -393,6 +393,10 @@
- 				compatible = "socionext,uniphier-ld11-reset";
- 				#reset-cells = <1>;
- 			};
-+
-+			sys_wdt: watchdog {
-+				compatible = "socionext,uniphier-wdt";
-+			};
- 		};
- 	};
- };
-diff --git a/arch/arm64/boot/dts/socionext/uniphier-ld20.dtsi b/arch/arm64/boot/dts/socionext/uniphier-ld20.dtsi
-index a6b3a70..cd08a61 100644
---- a/arch/arm64/boot/dts/socionext/uniphier-ld20.dtsi
-+++ b/arch/arm64/boot/dts/socionext/uniphier-ld20.dtsi
-@@ -417,6 +417,10 @@
- 				compatible = "socionext,uniphier-ld20-reset";
- 				#reset-cells = <1>;
- 			};
-+
-+			sys_wdt: watchdog {
-+				compatible = "socionext,uniphier-wdt";
-+			};
- 		};
- 	};
- };
+The patches have been tested on a Raspberry Pi 2 and a Wandboard.
+
+v5 is identical to v4 posted in January, just rebased to current
+master (v4.12-rc2).
+
+v4 is mostly identical to v1. The differences are that the ability to
+compile out this feature is removed, and the ability to set the
+default value for the watchdog.open_timeout command line parameter via
+Kconfig is split into a separate patch.
+
+Compared to v2/v3, this drops the ability to set the open_timeout via
+a device property; I'll leave implementing that to those who actually
+need it.
+
+Rasmus Villemoes (3):
+  watchdog: introduce watchdog_worker_should_ping helper
+  watchdog: introduce watchdog.open_timeout commandline parameter
+  watchdog: introduce CONFIG_WATCHDOG_OPEN_TIMEOUT
+
+ Documentation/watchdog/watchdog-parameters.txt | 10 +++++++
+ drivers/watchdog/Kconfig                       |  9 +++++++
+ drivers/watchdog/watchdog_dev.c                | 37 +++++++++++++++++++++++---
+ 3 files changed, 52 insertions(+), 4 deletions(-)
+
 -- 
 2.7.4
-
