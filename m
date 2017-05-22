@@ -1,418 +1,314 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:55482 "EHLO pokefinder.org"
+Received: from nbd.name ([46.4.11.11]:35662 "EHLO nbd.name"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1757023AbdEUWCZ (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 21 May 2017 18:02:25 -0400
-From: Wolfram Sang <wsa@the-dreams.de>
-To: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa@the-dreams.de>, Tony Lindgren <tony@atomide.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Alexandre Courbot <gnurou@gmail.com>,
-        Jonathan Cameron <jic23@kernel.org>,
-        Hartmut Knaack <knaack.h@gmx.de>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Kishon Vijay Abraham I <kishon@ti.com>,
-        Sebastian Reichel <sre@kernel.org>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Felipe Balbi <balbi@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Daniel Thompson <daniel.thompson@linaro.org>,
-        Jingoo Han <jingoohan1@gmail.com>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Peter Ujfalusi <peter.ujfalusi@ti.com>,
-        Jaroslav Kysela <perex@perex.cz>,
-        Takashi Iwai <tiwai@suse.com>, linux-omap@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-gpio@vger.kernel.org, linux-iio@vger.kernel.org,
-        linux-input@vger.kernel.org, linux-pm@vger.kernel.org,
-        linux-pwm@vger.kernel.org, rtc-linux@googlegroups.com,
-        linux-usb@vger.kernel.org, linux-fbdev@vger.kernel.org,
-        linux-watchdog@vger.kernel.org, alsa-devel@alsa-project.org
-Subject: [PATCH 3/3] mfd: twl: move header file out of I2C realm
-Date: Mon, 22 May 2017 00:02:10 +0200
-Message-Id: <20170521220212.1404-4-wsa@the-dreams.de>
-In-Reply-To: <20170521220212.1404-1-wsa@the-dreams.de>
-References: <20170521220212.1404-1-wsa@the-dreams.de>
+        id S1751048AbdEVFaZ (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 22 May 2017 01:30:25 -0400
+Subject: Re: [PATCH v2 07/15] MIPS: lantiq: Convert the xbar driver to a
+ platform_driver
+To: Hauke Mehrtens <hauke@hauke-m.de>, ralf@linux-mips.org
+References: <20170521130918.27446-1-hauke@hauke-m.de>
+ <20170521130918.27446-8-hauke@hauke-m.de>
+Cc: linux-mips@linux-mips.org, linux-mtd@lists.infradead.org,
+        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+        martin.blumenstingl@googlemail.com, linux-spi@vger.kernel.org,
+        hauke.mehrtens@intel.com, robh@kernel.org
+From: John Crispin <john@phrozen.org>
+Message-ID: <71c88b1c-3ed1-8f30-1dbd-dbd4c7bb5cdc@phrozen.org>
+Date: Mon, 22 May 2017 07:30:12 +0200
+MIME-Version: 1.0
+In-Reply-To: <20170521130918.27446-8-hauke@hauke-m.de>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-include/linux/i2c is not for client devices. Move the header file to a
-more appropriate location.
 
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
----
- arch/arm/mach-omap2/common.h            | 2 +-
- arch/arm/mach-omap2/omap_twl.c          | 2 +-
- drivers/gpio/gpio-twl4030.c             | 2 +-
- drivers/iio/adc/twl4030-madc.c          | 2 +-
- drivers/iio/adc/twl6030-gpadc.c         | 2 +-
- drivers/input/keyboard/twl4030_keypad.c | 2 +-
- drivers/input/misc/twl4030-pwrbutton.c  | 2 +-
- drivers/input/misc/twl4030-vibra.c      | 2 +-
- drivers/mfd/twl-core.c                  | 6 +++---
- drivers/mfd/twl4030-audio.c             | 2 +-
- drivers/mfd/twl4030-irq.c               | 2 +-
- drivers/mfd/twl4030-power.c             | 2 +-
- drivers/mfd/twl6030-irq.c               | 2 +-
- drivers/phy/phy-twl4030-usb.c           | 2 +-
- drivers/power/supply/twl4030_charger.c  | 2 +-
- drivers/pwm/pwm-twl-led.c               | 2 +-
- drivers/pwm/pwm-twl.c                   | 2 +-
- drivers/regulator/twl-regulator.c       | 2 +-
- drivers/regulator/twl6030-regulator.c   | 2 +-
- drivers/rtc/rtc-twl.c                   | 2 +-
- drivers/usb/phy/phy-twl6030-usb.c       | 2 +-
- drivers/video/backlight/pandora_bl.c    | 2 +-
- drivers/watchdog/twl4030_wdt.c          | 2 +-
- include/linux/{i2c => mfd}/twl.h        | 0
- sound/soc/codecs/twl4030.c              | 2 +-
- 25 files changed, 26 insertions(+), 26 deletions(-)
- rename include/linux/{i2c => mfd}/twl.h (100%)
 
-diff --git a/arch/arm/mach-omap2/common.h b/arch/arm/mach-omap2/common.h
-index 8cc6338fcb1288..b5ad7fcb80ed24 100644
---- a/arch/arm/mach-omap2/common.h
-+++ b/arch/arm/mach-omap2/common.h
-@@ -29,7 +29,7 @@
- #include <linux/irq.h>
- #include <linux/delay.h>
- #include <linux/i2c.h>
--#include <linux/i2c/twl.h>
-+#include <linux/mfd/twl.h>
- #include <linux/i2c-omap.h>
- #include <linux/reboot.h>
- #include <linux/irqchip/irq-omap-intc.h>
-diff --git a/arch/arm/mach-omap2/omap_twl.c b/arch/arm/mach-omap2/omap_twl.c
-index 1346b3ab34a5e3..295124b248ae3f 100644
---- a/arch/arm/mach-omap2/omap_twl.c
-+++ b/arch/arm/mach-omap2/omap_twl.c
-@@ -16,7 +16,7 @@
- #include <linux/err.h>
- #include <linux/io.h>
- #include <linux/kernel.h>
--#include <linux/i2c/twl.h>
-+#include <linux/mfd/twl.h>
- 
- #include "soc.h"
- #include "voltage.h"
-diff --git a/drivers/gpio/gpio-twl4030.c b/drivers/gpio/gpio-twl4030.c
-index 24f388ed46d4c4..9b511df5450eb6 100644
---- a/drivers/gpio/gpio-twl4030.c
-+++ b/drivers/gpio/gpio-twl4030.c
-@@ -35,7 +35,7 @@
- #include <linux/of.h>
- #include <linux/irqdomain.h>
- 
--#include <linux/i2c/twl.h>
-+#include <linux/mfd/twl.h>
- 
- /*
-  * The GPIO "subchip" supports 18 GPIOs which can be configured as
-diff --git a/drivers/iio/adc/twl4030-madc.c b/drivers/iio/adc/twl4030-madc.c
-index 0c74869a540ad3..5a64eda1652061 100644
---- a/drivers/iio/adc/twl4030-madc.c
-+++ b/drivers/iio/adc/twl4030-madc.c
-@@ -35,7 +35,7 @@
- #include <linux/delay.h>
- #include <linux/platform_device.h>
- #include <linux/slab.h>
--#include <linux/i2c/twl.h>
-+#include <linux/mfd/twl.h>
- #include <linux/i2c/twl4030-madc.h>
- #include <linux/module.h>
- #include <linux/stddef.h>
-diff --git a/drivers/iio/adc/twl6030-gpadc.c b/drivers/iio/adc/twl6030-gpadc.c
-index becbb0aef232b9..bc0e60b9da452e 100644
---- a/drivers/iio/adc/twl6030-gpadc.c
-+++ b/drivers/iio/adc/twl6030-gpadc.c
-@@ -33,7 +33,7 @@
- #include <linux/module.h>
- #include <linux/platform_device.h>
- #include <linux/of_platform.h>
--#include <linux/i2c/twl.h>
-+#include <linux/mfd/twl.h>
- #include <linux/iio/iio.h>
- #include <linux/iio/sysfs.h>
- 
-diff --git a/drivers/input/keyboard/twl4030_keypad.c b/drivers/input/keyboard/twl4030_keypad.c
-index 39e72b3219d8a4..f9f98ef1d98e3f 100644
---- a/drivers/input/keyboard/twl4030_keypad.c
-+++ b/drivers/input/keyboard/twl4030_keypad.c
-@@ -30,7 +30,7 @@
- #include <linux/interrupt.h>
- #include <linux/input.h>
- #include <linux/platform_device.h>
--#include <linux/i2c/twl.h>
-+#include <linux/mfd/twl.h>
- #include <linux/slab.h>
- #include <linux/of.h>
- 
-diff --git a/drivers/input/misc/twl4030-pwrbutton.c b/drivers/input/misc/twl4030-pwrbutton.c
-index 1c13005b228fa7..b307cca1702226 100644
---- a/drivers/input/misc/twl4030-pwrbutton.c
-+++ b/drivers/input/misc/twl4030-pwrbutton.c
-@@ -27,7 +27,7 @@
- #include <linux/input.h>
- #include <linux/interrupt.h>
- #include <linux/platform_device.h>
--#include <linux/i2c/twl.h>
-+#include <linux/mfd/twl.h>
- 
- #define PWR_PWRON_IRQ (1 << 0)
- 
-diff --git a/drivers/input/misc/twl4030-vibra.c b/drivers/input/misc/twl4030-vibra.c
-index caa5a62c42fbe0..6c51d404874bbd 100644
---- a/drivers/input/misc/twl4030-vibra.c
-+++ b/drivers/input/misc/twl4030-vibra.c
-@@ -28,7 +28,7 @@
- #include <linux/platform_device.h>
- #include <linux/of.h>
- #include <linux/workqueue.h>
--#include <linux/i2c/twl.h>
-+#include <linux/mfd/twl.h>
- #include <linux/mfd/twl4030-audio.h>
- #include <linux/input.h>
- #include <linux/slab.h>
-diff --git a/drivers/mfd/twl-core.c b/drivers/mfd/twl-core.c
-index c64615dca2bd33..2a09dde4ca6efc 100644
---- a/drivers/mfd/twl-core.c
-+++ b/drivers/mfd/twl-core.c
-@@ -44,7 +44,7 @@
- #include <linux/regulator/machine.h>
- 
- #include <linux/i2c.h>
--#include <linux/i2c/twl.h>
-+#include <linux/mfd/twl.h>
- 
- /* Register descriptions for audio */
- #include <linux/mfd/twl4030-audio.h>
-@@ -173,7 +173,7 @@ static struct twl_private *twl_priv;
- static struct twl_mapping twl4030_map[] = {
- 	/*
- 	 * NOTE:  don't change this table without updating the
--	 * <linux/i2c/twl.h> defines for TWL4030_MODULE_*
-+	 * <linux/mfd/twl.h> defines for TWL4030_MODULE_*
- 	 * so they continue to match the order in this table.
- 	 */
- 
-@@ -344,7 +344,7 @@ static const struct regmap_config twl4030_regmap_config[4] = {
- static struct twl_mapping twl6030_map[] = {
- 	/*
- 	 * NOTE:  don't change this table without updating the
--	 * <linux/i2c/twl.h> defines for TWL4030_MODULE_*
-+	 * <linux/mfd/twl.h> defines for TWL4030_MODULE_*
- 	 * so they continue to match the order in this table.
- 	 */
- 
-diff --git a/drivers/mfd/twl4030-audio.c b/drivers/mfd/twl4030-audio.c
-index 0a1606480023f9..da16bf45fab43e 100644
---- a/drivers/mfd/twl4030-audio.c
-+++ b/drivers/mfd/twl4030-audio.c
-@@ -30,7 +30,7 @@
- #include <linux/platform_device.h>
- #include <linux/of.h>
- #include <linux/of_platform.h>
--#include <linux/i2c/twl.h>
-+#include <linux/mfd/twl.h>
- #include <linux/mfd/core.h>
- #include <linux/mfd/twl4030-audio.h>
- 
-diff --git a/drivers/mfd/twl4030-irq.c b/drivers/mfd/twl4030-irq.c
-index b46c0cfc27d958..86f8fd8e81e4b5 100644
---- a/drivers/mfd/twl4030-irq.c
-+++ b/drivers/mfd/twl4030-irq.c
-@@ -33,7 +33,7 @@
- #include <linux/slab.h>
- #include <linux/of.h>
- #include <linux/irqdomain.h>
--#include <linux/i2c/twl.h>
-+#include <linux/mfd/twl.h>
- 
- #include "twl-core.h"
- 
-diff --git a/drivers/mfd/twl4030-power.c b/drivers/mfd/twl4030-power.c
-index f4b2c29d77e330..6b36932263ba78 100644
---- a/drivers/mfd/twl4030-power.c
-+++ b/drivers/mfd/twl4030-power.c
-@@ -25,7 +25,7 @@
- 
- #include <linux/module.h>
- #include <linux/pm.h>
--#include <linux/i2c/twl.h>
-+#include <linux/mfd/twl.h>
- #include <linux/platform_device.h>
- #include <linux/of.h>
- #include <linux/of_device.h>
-diff --git a/drivers/mfd/twl6030-irq.c b/drivers/mfd/twl6030-irq.c
-index 53574508a613f2..e3ec8dfa9f1ec0 100644
---- a/drivers/mfd/twl6030-irq.c
-+++ b/drivers/mfd/twl6030-irq.c
-@@ -35,7 +35,7 @@
- #include <linux/interrupt.h>
- #include <linux/irq.h>
- #include <linux/kthread.h>
--#include <linux/i2c/twl.h>
-+#include <linux/mfd/twl.h>
- #include <linux/platform_device.h>
- #include <linux/suspend.h>
- #include <linux/of.h>
-diff --git a/drivers/phy/phy-twl4030-usb.c b/drivers/phy/phy-twl4030-usb.c
-index 2990b3965460e8..28f49902760d82 100644
---- a/drivers/phy/phy-twl4030-usb.c
-+++ b/drivers/phy/phy-twl4030-usb.c
-@@ -36,7 +36,7 @@
- #include <linux/pm_runtime.h>
- #include <linux/usb/musb.h>
- #include <linux/usb/ulpi.h>
--#include <linux/i2c/twl.h>
-+#include <linux/mfd/twl.h>
- #include <linux/regulator/consumer.h>
- #include <linux/err.h>
- #include <linux/slab.h>
-diff --git a/drivers/power/supply/twl4030_charger.c b/drivers/power/supply/twl4030_charger.c
-index 2f82d0e9ec1bf7..390bfde86ae39b 100644
---- a/drivers/power/supply/twl4030_charger.c
-+++ b/drivers/power/supply/twl4030_charger.c
-@@ -18,7 +18,7 @@
- #include <linux/err.h>
- #include <linux/platform_device.h>
- #include <linux/interrupt.h>
--#include <linux/i2c/twl.h>
-+#include <linux/mfd/twl.h>
- #include <linux/power_supply.h>
- #include <linux/notifier.h>
- #include <linux/usb/otg.h>
-diff --git a/drivers/pwm/pwm-twl-led.c b/drivers/pwm/pwm-twl-led.c
-index 21eff991d0e355..01153622778bad 100644
---- a/drivers/pwm/pwm-twl-led.c
-+++ b/drivers/pwm/pwm-twl-led.c
-@@ -24,7 +24,7 @@
- #include <linux/of.h>
- #include <linux/platform_device.h>
- #include <linux/pwm.h>
--#include <linux/i2c/twl.h>
-+#include <linux/mfd/twl.h>
- #include <linux/slab.h>
- 
- /*
-diff --git a/drivers/pwm/pwm-twl.c b/drivers/pwm/pwm-twl.c
-index 9de617b766801b..b7a45be998153b 100644
---- a/drivers/pwm/pwm-twl.c
-+++ b/drivers/pwm/pwm-twl.c
-@@ -21,7 +21,7 @@
- #include <linux/of.h>
- #include <linux/platform_device.h>
- #include <linux/pwm.h>
--#include <linux/i2c/twl.h>
-+#include <linux/mfd/twl.h>
- #include <linux/slab.h>
- 
- /*
-diff --git a/drivers/regulator/twl-regulator.c b/drivers/regulator/twl-regulator.c
-index 6c9ec84121bde4..a4456db5849d06 100644
---- a/drivers/regulator/twl-regulator.c
-+++ b/drivers/regulator/twl-regulator.c
-@@ -20,7 +20,7 @@
- #include <linux/regulator/driver.h>
- #include <linux/regulator/machine.h>
- #include <linux/regulator/of_regulator.h>
--#include <linux/i2c/twl.h>
-+#include <linux/mfd/twl.h>
- #include <linux/delay.h>
- 
- /*
-diff --git a/drivers/regulator/twl6030-regulator.c b/drivers/regulator/twl6030-regulator.c
-index 56aada38788776..219cbd910dbf52 100644
---- a/drivers/regulator/twl6030-regulator.c
-+++ b/drivers/regulator/twl6030-regulator.c
-@@ -21,7 +21,7 @@
- #include <linux/regulator/driver.h>
- #include <linux/regulator/machine.h>
- #include <linux/regulator/of_regulator.h>
--#include <linux/i2c/twl.h>
-+#include <linux/mfd/twl.h>
- #include <linux/delay.h>
- 
- struct twlreg_info {
-diff --git a/drivers/rtc/rtc-twl.c b/drivers/rtc/rtc-twl.c
-index c18c39212ce680..3472e79f2b1782 100644
---- a/drivers/rtc/rtc-twl.c
-+++ b/drivers/rtc/rtc-twl.c
-@@ -31,7 +31,7 @@
- #include <linux/interrupt.h>
- #include <linux/of.h>
- 
--#include <linux/i2c/twl.h>
-+#include <linux/mfd/twl.h>
- 
- enum twl_class {
- 	TWL_4030 = 0,
-diff --git a/drivers/usb/phy/phy-twl6030-usb.c b/drivers/usb/phy/phy-twl6030-usb.c
-index 628b600b02b174..b5dc077ed7d3c6 100644
---- a/drivers/usb/phy/phy-twl6030-usb.c
-+++ b/drivers/usb/phy/phy-twl6030-usb.c
-@@ -28,7 +28,7 @@
- #include <linux/usb/musb.h>
- #include <linux/usb/phy_companion.h>
- #include <linux/phy/omap_usb.h>
--#include <linux/i2c/twl.h>
-+#include <linux/mfd/twl.h>
- #include <linux/regulator/consumer.h>
- #include <linux/err.h>
- #include <linux/slab.h>
-diff --git a/drivers/video/backlight/pandora_bl.c b/drivers/video/backlight/pandora_bl.c
-index 5d8bb8b201835d..a186bc677c7d80 100644
---- a/drivers/video/backlight/pandora_bl.c
-+++ b/drivers/video/backlight/pandora_bl.c
-@@ -16,7 +16,7 @@
- #include <linux/delay.h>
- #include <linux/fb.h>
- #include <linux/backlight.h>
--#include <linux/i2c/twl.h>
-+#include <linux/mfd/twl.h>
- #include <linux/err.h>
- 
- #define TWL_PWM0_ON		0x00
-diff --git a/drivers/watchdog/twl4030_wdt.c b/drivers/watchdog/twl4030_wdt.c
-index 9bf3cc0f396106..569fe85e52da75 100644
---- a/drivers/watchdog/twl4030_wdt.c
-+++ b/drivers/watchdog/twl4030_wdt.c
-@@ -24,7 +24,7 @@
- #include <linux/kernel.h>
- #include <linux/watchdog.h>
- #include <linux/platform_device.h>
--#include <linux/i2c/twl.h>
-+#include <linux/mfd/twl.h>
- 
- #define TWL4030_WATCHDOG_CFG_REG_OFFS	0x3
- 
-diff --git a/include/linux/i2c/twl.h b/include/linux/mfd/twl.h
-similarity index 100%
-rename from include/linux/i2c/twl.h
-rename to include/linux/mfd/twl.h
-diff --git a/sound/soc/codecs/twl4030.c b/sound/soc/codecs/twl4030.c
-index a2104d68169d9e..bd86a2d78c5ff2 100644
---- a/sound/soc/codecs/twl4030.c
-+++ b/sound/soc/codecs/twl4030.c
-@@ -28,7 +28,7 @@
- #include <linux/platform_device.h>
- #include <linux/of.h>
- #include <linux/of_gpio.h>
--#include <linux/i2c/twl.h>
-+#include <linux/mfd/twl.h>
- #include <linux/slab.h>
- #include <linux/gpio.h>
- #include <sound/core.h>
--- 
-2.11.0
+On 21/05/17 15:09, Hauke Mehrtens wrote:
+> From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+>
+> This allows using the xbar driver on ARX300 based SoCs which require the
+> same xbar setup as the xRX200 chipsets because the xbar driver
+> initialization is not guarded by an xRX200 specific
+> of_machine_is_compatible condition anymore. Additionally the new driver
+> takes a syscon phandle to configure the XBAR endianness bits in RCU
+> (before this was done in arch/mips/lantiq/xway/reset.c and also
+> guarded by an VRX200 specific if-statement).
+>
+> Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
+> Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+> ---
+>   .../devicetree/bindings/mips/lantiq/xbar.txt       |  24 +++++
+>   MAINTAINERS                                        |   1 +
+>   arch/mips/lantiq/xway/reset.c                      |   4 -
+>   arch/mips/lantiq/xway/sysctrl.c                    |  41 ---------
+>   drivers/soc/Makefile                               |   1 +
+>   drivers/soc/lantiq/Makefile                        |   1 +
+>   drivers/soc/lantiq/xbar.c                          | 101 +++++++++++++++++++++
+>   7 files changed, 128 insertions(+), 45 deletions(-)
+>   create mode 100644 Documentation/devicetree/bindings/mips/lantiq/xbar.txt
+>   create mode 100644 drivers/soc/lantiq/Makefile
+>   create mode 100644 drivers/soc/lantiq/xbar.c
+>
+> diff --git a/Documentation/devicetree/bindings/mips/lantiq/xbar.txt b/Documentation/devicetree/bindings/mips/lantiq/xbar.txt
+> new file mode 100644
+> index 000000000000..7e1ea5299744
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/mips/lantiq/xbar.txt
+> @@ -0,0 +1,24 @@
+> +Lantiq XWAY SoC XBAR binding
+> +============================
+> +
+> +
+> +-------------------------------------------------------------------------------
+> +Required properties:
+> +- compatible	: Should be one of
+> +				"lantiq,xbar-xway"
+> +				"lantiq,xbar-xrx200"
+> +- reg		: The address and length of the XBAR registers
+> +
+> +Optional properties:
+> +- lantiq,rcu-syscon	: A phandle and offset to the endianness configuration
+> +			  registers in the RCU module
+> +
+> +
+> +-------------------------------------------------------------------------------
+> +Example for the XBAR on the xRX200 SoCs:
+> +	xbar0: xbar@400000 {
+> +		compatible = "lantiq,xbar-xway";
+> +		reg = <0x400000 0x1000>;
+> +		big-endian;
+> +		lantiq,rcu-syscon = <&rcu0 0x4c>;
+> +	};
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index f7d568b8f133..11c33f7d63ba 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -7434,6 +7434,7 @@ M:	John Crispin <john@phrozen.org>
+>   L:	linux-mips@linux-mips.org
+>   S:	Maintained
+>   F:	arch/mips/lantiq
+> +F:	drivers/soc/lantiq
+>   
+>   LAPB module
+>   L:	linux-x25@vger.kernel.org
+> diff --git a/arch/mips/lantiq/xway/reset.c b/arch/mips/lantiq/xway/reset.c
+> index 83fd65d76e81..b6752c95a600 100644
+> --- a/arch/mips/lantiq/xway/reset.c
+> +++ b/arch/mips/lantiq/xway/reset.c
+> @@ -373,10 +373,6 @@ static int __init mips_reboot_setup(void)
+>   	    of_machine_is_compatible("lantiq,vr9"))
+>   		ltq_usb_init();
+>   
+> -	if (of_machine_is_compatible("lantiq,vr9"))
+> -		ltq_rcu_w32(ltq_rcu_r32(RCU_AHB_ENDIAN) | RCU_VR9_BE_AHB1S,
+> -			    RCU_AHB_ENDIAN);
+> -
+>   	_machine_restart = ltq_machine_restart;
+>   	_machine_halt = ltq_machine_halt;
+>   	pm_power_off = ltq_machine_power_off;
+> diff --git a/arch/mips/lantiq/xway/sysctrl.c b/arch/mips/lantiq/xway/sysctrl.c
+> index 95bec460b651..706639a343bc 100644
+> --- a/arch/mips/lantiq/xway/sysctrl.c
+> +++ b/arch/mips/lantiq/xway/sysctrl.c
+> @@ -145,15 +145,7 @@ static u32 pmu_clk_cr_b[] = {
+>   #define pmu_w32(x, y)	ltq_w32((x), pmu_membase + (y))
+>   #define pmu_r32(x)	ltq_r32(pmu_membase + (x))
+>   
+> -#define XBAR_ALWAYS_LAST	0x430
+> -#define XBAR_FPI_BURST_EN	BIT(1)
+> -#define XBAR_AHB_BURST_EN	BIT(2)
+> -
+> -#define xbar_w32(x, y)	ltq_w32((x), ltq_xbar_membase + (y))
+> -#define xbar_r32(x)	ltq_r32(ltq_xbar_membase + (x))
+> -
+>   static void __iomem *pmu_membase;
+> -static void __iomem *ltq_xbar_membase;
+>   void __iomem *ltq_cgu_membase;
+>   void __iomem *ltq_ebu_membase;
+>   
+> @@ -293,16 +285,6 @@ static void pci_ext_disable(struct clk *clk)
+>   	ltq_cgu_w32((1 << 31) | (1 << 30), pcicr);
+>   }
+>   
+> -static void xbar_fpi_burst_disable(void)
+> -{
+> -	u32 reg;
+> -
+> -	/* bit 1 as 1 --burst; bit 1 as 0 -- single */
+> -	reg = xbar_r32(XBAR_ALWAYS_LAST);
+> -	reg &= ~XBAR_FPI_BURST_EN;
+> -	xbar_w32(reg, XBAR_ALWAYS_LAST);
+> -}
+> -
+>   /* enable a clockout source */
+>   static int clkout_enable(struct clk *clk)
+>   {
+> @@ -459,26 +441,6 @@ void __init ltq_soc_init(void)
+>   	if (!pmu_membase || !ltq_cgu_membase || !ltq_ebu_membase)
+>   		panic("Failed to remap core resources");
+>   
+> -	if (of_machine_is_compatible("lantiq,vr9")) {
+> -		struct resource res_xbar;
+> -		struct device_node *np_xbar =
+> -				of_find_compatible_node(NULL, NULL,
+> -							"lantiq,xbar-xway");
+> -
+> -		if (!np_xbar)
+> -			panic("Failed to load xbar nodes from devicetree");
+> -		if (of_address_to_resource(np_xbar, 0, &res_xbar))
+> -			panic("Failed to get xbar resources");
+> -		if (!request_mem_region(res_xbar.start, resource_size(&res_xbar),
+> -			res_xbar.name))
+> -			panic("Failed to get xbar resources");
+> -
+> -		ltq_xbar_membase = ioremap_nocache(res_xbar.start,
+> -						   resource_size(&res_xbar));
+> -		if (!ltq_xbar_membase)
+> -			panic("Failed to remap xbar resources");
+> -	}
+> -
+>   	/* make sure to unprotect the memory region where flash is located */
+>   	ltq_ebu_w32(ltq_ebu_r32(LTQ_EBU_BUSCON0) & ~EBU_WRDIS, LTQ_EBU_BUSCON0);
+>   
+> @@ -605,7 +567,4 @@ void __init ltq_soc_init(void)
+>   		clkdev_add_pmu("1e116000.mei", "dfe", 1, 0, PMU_DFE);
+>   		clkdev_add_pmu("1e100400.serial", NULL, 1, 0, PMU_ASC0);
+>   	}
+> -
+> -	if (of_machine_is_compatible("lantiq,vr9"))
+> -		xbar_fpi_burst_disable();
+>   }
+> diff --git a/drivers/soc/Makefile b/drivers/soc/Makefile
+> index 824b44281efa..009b5de74a24 100644
+> --- a/drivers/soc/Makefile
+> +++ b/drivers/soc/Makefile
+> @@ -8,6 +8,7 @@ obj-$(CONFIG_ARCH_DOVE)		+= dove/
+>   obj-$(CONFIG_MACH_DOVE)		+= dove/
+>   obj-y				+= fsl/
+>   obj-$(CONFIG_ARCH_MXC)		+= imx/
+> +obj-$(CONFIG_SOC_XWAY)		+= lantiq/
+>   obj-$(CONFIG_ARCH_MEDIATEK)	+= mediatek/
+>   obj-$(CONFIG_ARCH_QCOM)		+= qcom/
+>   obj-$(CONFIG_ARCH_RENESAS)	+= renesas/
+> diff --git a/drivers/soc/lantiq/Makefile b/drivers/soc/lantiq/Makefile
+> new file mode 100644
+> index 000000000000..7411bd23d58e
+> --- /dev/null
+> +++ b/drivers/soc/lantiq/Makefile
+> @@ -0,0 +1 @@
+> +obj-y				+= xbar.o
+> diff --git a/drivers/soc/lantiq/xbar.c b/drivers/soc/lantiq/xbar.c
+> new file mode 100644
+> index 000000000000..89590e189efc
+> --- /dev/null
+> +++ b/drivers/soc/lantiq/xbar.c
+> @@ -0,0 +1,101 @@
+> +/*
+> + *  This program is free software; you can redistribute it and/or modify it
+> + *  under the terms of the GNU General Public License version 2 as published
+> + *  by the Free Software Foundation.
+> + *
+> + *  Copyright (C) 2011-2015 John Crispin <blogic@openwrt.org>
+
+Hi Hauke,
+
+my openwrt email addr is no longer valid. please use my phrozen.org one.
+
+     John
+> + *  Copyright (C) 2015 Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+> + */
+> +
+> +#include <linux/ioport.h>
+> +#include <linux/mfd/syscon.h>
+> +#include <linux/module.h>
+> +#include <linux/of.h>
+> +#include <linux/of_platform.h>
+> +#include <linux/of_address.h>
+> +#include <linux/regmap.h>
+> +
+> +#include <lantiq_soc.h>
+> +
+> +#define XBAR_ALWAYS_LAST	0x430
+> +#define XBAR_FPI_BURST_EN	BIT(1)
+> +#define XBAR_AHB_BURST_EN	BIT(2)
+> +
+> +#define RCU_VR9_BE_AHB1S	0x00000008
+> +
+> +static int ltq_xbar_probe(struct platform_device *pdev)
+> +{
+> +	struct device *dev = &pdev->dev;
+> +	struct device_node *np = dev->of_node;
+> +	struct resource res_xbar;
+> +	struct regmap *rcu_regmap;
+> +	void __iomem *xbar_membase;
+> +	u32 rcu_ahb_endianness_reg_offset;
+> +	u32 rcu_ahb_endianness_val;
+> +	int ret;
+> +
+> +	ret = of_address_to_resource(np, 0, &res_xbar);
+> +	if (ret) {
+> +		dev_err(dev, "Failed to get xbar resources");
+> +		return ret;
+> +	}
+> +
+> +	if (!devm_request_mem_region(dev, res_xbar.start,
+> +				     resource_size(&res_xbar),
+> +		res_xbar.name)) {
+> +		dev_err(dev, "Failed to get xbar resources");
+> +		return -ENODEV;
+> +	}
+> +
+> +	xbar_membase = devm_ioremap_nocache(dev, res_xbar.start,
+> +						resource_size(&res_xbar));
+> +	if (!xbar_membase) {
+> +		dev_err(dev, "Failed to remap xbar resources");
+> +		return -ENODEV;
+> +	}
+> +
+> +	/* RCU configuration is optional */
+> +	rcu_regmap = syscon_regmap_lookup_by_phandle(np, "lantiq,rcu-syscon");
+> +	if (!IS_ERR_OR_NULL(rcu_regmap)) {
+> +		if (of_property_read_u32_index(np, "lantiq,rcu-syscon", 1,
+> +			&rcu_ahb_endianness_reg_offset)) {
+> +			dev_err(&pdev->dev, "Failed to get RCU reg offset\n");
+> +			return -EINVAL;
+> +		}
+> +
+> +		if (of_device_is_big_endian(np))
+> +			rcu_ahb_endianness_val = RCU_VR9_BE_AHB1S;
+> +		else
+> +			rcu_ahb_endianness_val = 0;
+> +
+> +		if (regmap_update_bits(rcu_regmap,
+> +					rcu_ahb_endianness_reg_offset,
+> +					RCU_VR9_BE_AHB1S,
+> +					rcu_ahb_endianness_val))
+> +			dev_warn(&pdev->dev,
+> +				"Failed to configure RCU AHB endianness\n");
+> +	}
+> +
+> +	/* disable fpi burst */
+> +	ltq_w32_mask(XBAR_FPI_BURST_EN, 0,
+> +		     xbar_membase + XBAR_ALWAYS_LAST);
+> +
+> +	return 0;
+> +}
+> +
+> +static const struct of_device_id xbar_match[] = {
+> +	{ .compatible = "lantiq,xbar-xway" },
+> +	{ .compatible = "lantiq,xbar-xrx200" },
+> +	{},
+> +};
+> +MODULE_DEVICE_TABLE(of, xbar_match);
+> +
+> +static struct platform_driver xbar_driver = {
+> +	.probe = ltq_xbar_probe,
+> +	.driver = {
+> +		.name = "xbar-xway",
+> +		.of_match_table = xbar_match,
+> +	},
+> +};
+> +
+> +builtin_platform_driver(xbar_driver);
 
