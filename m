@@ -1,138 +1,77 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:40501 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1759051AbdEWOE6 (ORCPT
+Received: from mezzanine.sirena.org.uk ([106.187.55.193]:44200 "EHLO
+        mezzanine.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1761906AbdEWRRh (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 23 May 2017 10:04:58 -0400
-Subject: Re: [RESEND PATCH V7 7/7] MAINTAINERS: da9062/61 updates to the
- Dialog Semiconductor search terms
-To: Steve Twiss <stwiss.opensource@diasemi.com>,
+        Tue, 23 May 2017 13:17:37 -0400
+Date: Tue, 23 May 2017 18:17:21 +0100
+From: Mark Brown <broonie@kernel.org>
+To: Steve Twiss <stwiss.opensource@diasemi.com>
+Cc: LINUX-KERNEL <linux-kernel@vger.kernel.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
         DEVICETREE <devicetree@vger.kernel.org>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Eduardo Valentin <edubezval@gmail.com>,
+        Guenter Roeck <linux@roeck-us.net>,
         LINUX-INPUT <linux-input@vger.kernel.org>,
-        LINUX-KERNEL <linux-kernel@vger.kernel.org>,
         LINUX-PM <linux-pm@vger.kernel.org>,
         LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
         Lee Jones <lee.jones@linaro.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
         Mark Rutland <mark.rutland@arm.com>,
         Rob Herring <robh+dt@kernel.org>,
+        Support Opensource <support.opensource@diasemi.com>,
         Wim Van Sebroeck <wim@iguana.be>,
         Zhang Rui <rui.zhang@intel.com>
-Cc: Support Opensource <support.opensource@diasemi.com>
+Message-ID: <20170523171721.lpqjhakaawnz4prz@sirena.org.uk>
 References: <cover.1495546845.git.stwiss.opensource@diasemi.com>
- <d1c3ceda19be1363cd37bb52fd7fae5b1b9a164e.1495546845.git.stwiss.opensource@diasemi.com>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <3b1ef68b-fc5d-8bbb-dba4-e4941bc33baf@roeck-us.net>
-Date: Tue, 23 May 2017 07:04:50 -0700
+ <ac0c9c0edf9a3a48d8de7a5c07b16b771871796e.1495546845.git.stwiss.opensource@diasemi.com>
 MIME-Version: 1.0
-In-Reply-To: <d1c3ceda19be1363cd37bb52fd7fae5b1b9a164e.1495546845.git.stwiss.opensource@diasemi.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="w5ixrwk7fifrgbqj"
+Content-Disposition: inline
+In-Reply-To: <ac0c9c0edf9a3a48d8de7a5c07b16b771871796e.1495546845.git.stwiss.opensource@diasemi.com>
+Subject: Re: [RESEND PATCH V7 5/7] regulator: da9061: BUCK and LDO regulator
+ driver
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 05/23/2017 06:40 AM, Steve Twiss wrote:
-> From: Steve Twiss <stwiss.opensource@diasemi.com>
-> 
-> Additions to search terms for files supported by Dialog Semiconductor.
-> This update will allow Dialog support to follow files for device tree
-> bindings (onkey, thermal and watchdog) and source code for chip thermal
-> monitoring drivers.
-> 
-> Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
 
-FWIW: For watchdog:
+--w5ixrwk7fifrgbqj
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Acked-by: Guenter Roeck <linux@roeck-us.net>
+On Tue, May 23, 2017 at 02:40:45PM +0100, Steve Twiss wrote:
 
-If no one else picks it up, I can ask Wim to queue it up in watchdog for
-the next release. If necessary please send me a note around rc5 or rc6.
+> This patch was Acked by Mark Brown, a long time ago, way back in Oct 2016
+> (https://patchwork.kernel.org/patch/9397787/).
+> I have kept Mark Brown's Ack attached because there have been no real
+> code changes since then, but I have recently updated the copyright header
+> slightly, rebased the code (no changes necessary) and compile tested it
+> against x86_64.
 
-Guenter
+> The MFD files which this patch depended on were accepted into linux-next
+> by Lee Jones last week. If there is anything in the way of this patch
+> acceptance, could you please let me know?
 
-> 
-> ---
-> Hi all,
-> 
-> Is there anybody willing to take this patch through their tree please?
-> 
-> Dialog Semiconductor support would like to add to the MAINTAINERS search
-> terms. This update will allow us to follow all of our files for device
-> tree bindings and the source code relating to chip thermal monitoring
-> described in this patch set.
-> 
-> All dependencies for this patch have been accepted into linux-next:
-> 
-> bindings/input/da90??-onkey.txt     -> linux-next.git/commit/?id=406d5a2de0718622241eff35831f6fed0316a7d4
-> bindings/thermal/da90??-thermal.txt -> linux-next.git/commit/?id=28c1b08d2a156ef16e912a4c618a529e586e5dbc
-> bindings/watchdog/da92??-wdt.txt    -> linux-next.git/commit/?id=be62f363a8d5b1703c08d2cb462786a68215bcca
-> drivers/thermal/da90??-thermal.c    -> linux-next.git/commit/?id=608567aac3206ae886c79688fbb8a62c473b55ef
-> 
-> Regards,
-> Steve Twiss, Dialog Semiconductor
-> 
-> 
-> This patch applies against linux-next and v4.12-rc2
-> 
-> v6 -> v7
->   - NO CODE CHANGE
->   - Rebased from v4.11-rc3 to v4.11-rc11
->   - Updated the commit message
->   - Moved the following names from CC: to TO: e-mail fields
->     - Lee Jones
->     - Liam Girdwood
->     - Mark Brown
-> 
-> v5 -> v6
->   - NO CODE CHANGE
->   - Rebased from v4.8 to v4.11-rc3
->   - Patch renamed from [PATCH V5 8/8] to [PATCH V5 7/7]
-> 
-> v4 -> v5
->   - NO CODE CHANGE
->   - Rebased from v4.8 to v4.9
-> 
-> v3 -> v4
->   - NO CODE CHANGE
->   - Patch renamed from [PATCH V3 9/9] to [PATCH V4 8/8]
-> 
-> v2 -> v3
->   - NO CODE CHANGE
->   - Patch renamed from [PATCH V2 10/10] to [PATCH V3 9/9]
-> 
-> v1 -> v2
->   - NO CODE CHANGE
-> 
-> 
->   MAINTAINERS | 4 ++++
->   1 file changed, 4 insertions(+)
-> 
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index 9e98464..a580bed 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -3988,7 +3988,10 @@ W:	http://www.dialog-semiconductor.com/products
->   S:	Supported
->   F:	Documentation/hwmon/da90??
->   F:	Documentation/devicetree/bindings/mfd/da90*.txt
-> +F:	Documentation/devicetree/bindings/input/da90??-onkey.txt
-> +F:	Documentation/devicetree/bindings/thermal/da90??-thermal.txt
->   F:	Documentation/devicetree/bindings/regulator/da92*.txt
-> +F:	Documentation/devicetree/bindings/watchdog/da92??-wdt.txt
->   F:	Documentation/devicetree/bindings/sound/da[79]*.txt
->   F:	drivers/gpio/gpio-da90??.c
->   F:	drivers/hwmon/da90??-hwmon.c
-> @@ -4003,6 +4006,7 @@ F:	drivers/power/supply/da9052-battery.c
->   F:	drivers/power/supply/da91??-*.c
->   F:	drivers/regulator/da903x.c
->   F:	drivers/regulator/da9???-regulator.[ch]
-> +F:	drivers/thermal/da90??-thermal.c
->   F:	drivers/rtc/rtc-da90??.c
->   F:	drivers/video/backlight/da90??_bl.c
->   F:	drivers/watchdog/da90??_wdt.c
-> 
+Given that I've acked this and it depends on the MFD changes I'd have
+expected Lee to apply it.  If nothing else happens I can apply it after
+the next merge window, otherwise either Lee needs to send me a pull
+request for the MFD change so I've got the dependency or he needs to
+apply this.
 
+--w5ixrwk7fifrgbqj
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCAAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAlkkbqAACgkQJNaLcl1U
+h9CBowgAgzyAaejHDzDDrmYGX5ZusFRiVhSCk9YjtEl7zyX7RZC5AK5RqWrO7N9C
+VYmQVj+hK3T/JV/I/wHfABIhmq2dfOSRjKAFvJmGyetIwvDyOjSnmXpnNw3feyrc
+URrCDUjtqCPGYPcex5vSjC9ahSsvoot9qit3sU1dU6SbpvhBefEwGpTW5EeS+Cub
+6FdGgQcNr1kaAZAWrc+Q9Z0nCtk4+Y3DQT2bwveUYxI3Fj+u9oCVrTeDpnZJfG1o
+jaYNOQQfWS6DDutsT+p1bwncj8NCDDGsHNk7hsxSEXYXpFqQWY7sda/pMjjR86T1
+fLuqTh+F5bphR70n8mfwtq7c1Hcwyw==
+=wnhk
+-----END PGP SIGNATURE-----
+
+--w5ixrwk7fifrgbqj--
