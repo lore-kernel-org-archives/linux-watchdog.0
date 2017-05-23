@@ -1,77 +1,231 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mezzanine.sirena.org.uk ([106.187.55.193]:44200 "EHLO
-        mezzanine.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1761906AbdEWRRh (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 23 May 2017 13:17:37 -0400
-Date: Tue, 23 May 2017 18:17:21 +0100
-From: Mark Brown <broonie@kernel.org>
-To: Steve Twiss <stwiss.opensource@diasemi.com>
-Cc: LINUX-KERNEL <linux-kernel@vger.kernel.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        DEVICETREE <devicetree@vger.kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Eduardo Valentin <edubezval@gmail.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        LINUX-INPUT <linux-input@vger.kernel.org>,
-        LINUX-PM <linux-pm@vger.kernel.org>,
-        LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
-        Lee Jones <lee.jones@linaro.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Support Opensource <support.opensource@diasemi.com>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        Zhang Rui <rui.zhang@intel.com>
-Message-ID: <20170523171721.lpqjhakaawnz4prz@sirena.org.uk>
-References: <cover.1495546845.git.stwiss.opensource@diasemi.com>
- <ac0c9c0edf9a3a48d8de7a5c07b16b771871796e.1495546845.git.stwiss.opensource@diasemi.com>
+Received: from hauke-m.de ([5.39.93.123]:42722 "EHLO mail.hauke-m.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1032799AbdEWU4w (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 23 May 2017 16:56:52 -0400
+Subject: Re: [PATCH v2 07/15] MIPS: lantiq: Convert the xbar driver to a
+ platform_driver
+To: John Crispin <john@phrozen.org>, ralf@linux-mips.org
+References: <20170521130918.27446-1-hauke@hauke-m.de>
+ <20170521130918.27446-8-hauke@hauke-m.de>
+ <71c88b1c-3ed1-8f30-1dbd-dbd4c7bb5cdc@phrozen.org>
+Cc: linux-mips@linux-mips.org, linux-mtd@lists.infradead.org,
+        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+        martin.blumenstingl@googlemail.com, linux-spi@vger.kernel.org,
+        hauke.mehrtens@intel.com, robh@kernel.org
+From: Hauke Mehrtens <hauke@hauke-m.de>
+Message-ID: <181f21fa-14ac-5d3c-d9b1-543c43869fb5@hauke-m.de>
+Date: Tue, 23 May 2017 22:56:42 +0200
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="w5ixrwk7fifrgbqj"
-Content-Disposition: inline
-In-Reply-To: <ac0c9c0edf9a3a48d8de7a5c07b16b771871796e.1495546845.git.stwiss.opensource@diasemi.com>
-Subject: Re: [RESEND PATCH V7 5/7] regulator: da9061: BUCK and LDO regulator
- driver
+In-Reply-To: <71c88b1c-3ed1-8f30-1dbd-dbd4c7bb5cdc@phrozen.org>
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+On 05/22/2017 07:30 AM, John Crispin wrote:
+> 
+> 
+> On 21/05/17 15:09, Hauke Mehrtens wrote:
+>> From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+>>
+>> This allows using the xbar driver on ARX300 based SoCs which require the
+>> same xbar setup as the xRX200 chipsets because the xbar driver
+>> initialization is not guarded by an xRX200 specific
+>> of_machine_is_compatible condition anymore. Additionally the new driver
+>> takes a syscon phandle to configure the XBAR endianness bits in RCU
+>> (before this was done in arch/mips/lantiq/xway/reset.c and also
+>> guarded by an VRX200 specific if-statement).
+>>
+>> Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
+>> Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+>> ---
+>>   .../devicetree/bindings/mips/lantiq/xbar.txt       |  24 +++++
+>>   MAINTAINERS                                        |   1 +
+>>   arch/mips/lantiq/xway/reset.c                      |   4 -
+>>   arch/mips/lantiq/xway/sysctrl.c                    |  41 ---------
+>>   drivers/soc/Makefile                               |   1 +
+>>   drivers/soc/lantiq/Makefile                        |   1 +
+>>   drivers/soc/lantiq/xbar.c                          | 101
+>> +++++++++++++++++++++
+>>   7 files changed, 128 insertions(+), 45 deletions(-)
+>>   create mode 100644
+>> Documentation/devicetree/bindings/mips/lantiq/xbar.txt
+>>   create mode 100644 drivers/soc/lantiq/Makefile
+>>   create mode 100644 drivers/soc/lantiq/xbar.c
+>>
+>> diff --git a/Documentation/devicetree/bindings/mips/lantiq/xbar.txt
+>> b/Documentation/devicetree/bindings/mips/lantiq/xbar.txt
+>> new file mode 100644
+>> index 000000000000..7e1ea5299744
+>> --- /dev/null
+>> +++ b/Documentation/devicetree/bindings/mips/lantiq/xbar.txt
+>> @@ -0,0 +1,24 @@
+>> +Lantiq XWAY SoC XBAR binding
+>> +============================
+>> +
+>> +
+>> +-------------------------------------------------------------------------------
+>>
+>> +Required properties:
+>> +- compatible    : Should be one of
+>> +                "lantiq,xbar-xway"
+>> +                "lantiq,xbar-xrx200"
+>> +- reg        : The address and length of the XBAR registers
+>> +
+>> +Optional properties:
+>> +- lantiq,rcu-syscon    : A phandle and offset to the endianness
+>> configuration
+>> +              registers in the RCU module
+>> +
+>> +
+>> +-------------------------------------------------------------------------------
+>>
+>> +Example for the XBAR on the xRX200 SoCs:
+>> +    xbar0: xbar@400000 {
+>> +        compatible = "lantiq,xbar-xway";
+>> +        reg = <0x400000 0x1000>;
+>> +        big-endian;
+>> +        lantiq,rcu-syscon = <&rcu0 0x4c>;
+>> +    };
+>> diff --git a/MAINTAINERS b/MAINTAINERS
+>> index f7d568b8f133..11c33f7d63ba 100644
+>> --- a/MAINTAINERS
+>> +++ b/MAINTAINERS
+>> @@ -7434,6 +7434,7 @@ M:    John Crispin <john@phrozen.org>
+>>   L:    linux-mips@linux-mips.org
+>>   S:    Maintained
+>>   F:    arch/mips/lantiq
+>> +F:    drivers/soc/lantiq
+>>     LAPB module
+>>   L:    linux-x25@vger.kernel.org
+>> diff --git a/arch/mips/lantiq/xway/reset.c
+>> b/arch/mips/lantiq/xway/reset.c
+>> index 83fd65d76e81..b6752c95a600 100644
+>> --- a/arch/mips/lantiq/xway/reset.c
+>> +++ b/arch/mips/lantiq/xway/reset.c
+>> @@ -373,10 +373,6 @@ static int __init mips_reboot_setup(void)
+>>           of_machine_is_compatible("lantiq,vr9"))
+>>           ltq_usb_init();
+>>   -    if (of_machine_is_compatible("lantiq,vr9"))
+>> -        ltq_rcu_w32(ltq_rcu_r32(RCU_AHB_ENDIAN) | RCU_VR9_BE_AHB1S,
+>> -                RCU_AHB_ENDIAN);
+>> -
+>>       _machine_restart = ltq_machine_restart;
+>>       _machine_halt = ltq_machine_halt;
+>>       pm_power_off = ltq_machine_power_off;
+>> diff --git a/arch/mips/lantiq/xway/sysctrl.c
+>> b/arch/mips/lantiq/xway/sysctrl.c
+>> index 95bec460b651..706639a343bc 100644
+>> --- a/arch/mips/lantiq/xway/sysctrl.c
+>> +++ b/arch/mips/lantiq/xway/sysctrl.c
+>> @@ -145,15 +145,7 @@ static u32 pmu_clk_cr_b[] = {
+>>   #define pmu_w32(x, y)    ltq_w32((x), pmu_membase + (y))
+>>   #define pmu_r32(x)    ltq_r32(pmu_membase + (x))
+>>   -#define XBAR_ALWAYS_LAST    0x430
+>> -#define XBAR_FPI_BURST_EN    BIT(1)
+>> -#define XBAR_AHB_BURST_EN    BIT(2)
+>> -
+>> -#define xbar_w32(x, y)    ltq_w32((x), ltq_xbar_membase + (y))
+>> -#define xbar_r32(x)    ltq_r32(ltq_xbar_membase + (x))
+>> -
+>>   static void __iomem *pmu_membase;
+>> -static void __iomem *ltq_xbar_membase;
+>>   void __iomem *ltq_cgu_membase;
+>>   void __iomem *ltq_ebu_membase;
+>>   @@ -293,16 +285,6 @@ static void pci_ext_disable(struct clk *clk)
+>>       ltq_cgu_w32((1 << 31) | (1 << 30), pcicr);
+>>   }
+>>   -static void xbar_fpi_burst_disable(void)
+>> -{
+>> -    u32 reg;
+>> -
+>> -    /* bit 1 as 1 --burst; bit 1 as 0 -- single */
+>> -    reg = xbar_r32(XBAR_ALWAYS_LAST);
+>> -    reg &= ~XBAR_FPI_BURST_EN;
+>> -    xbar_w32(reg, XBAR_ALWAYS_LAST);
+>> -}
+>> -
+>>   /* enable a clockout source */
+>>   static int clkout_enable(struct clk *clk)
+>>   {
+>> @@ -459,26 +441,6 @@ void __init ltq_soc_init(void)
+>>       if (!pmu_membase || !ltq_cgu_membase || !ltq_ebu_membase)
+>>           panic("Failed to remap core resources");
+>>   -    if (of_machine_is_compatible("lantiq,vr9")) {
+>> -        struct resource res_xbar;
+>> -        struct device_node *np_xbar =
+>> -                of_find_compatible_node(NULL, NULL,
+>> -                            "lantiq,xbar-xway");
+>> -
+>> -        if (!np_xbar)
+>> -            panic("Failed to load xbar nodes from devicetree");
+>> -        if (of_address_to_resource(np_xbar, 0, &res_xbar))
+>> -            panic("Failed to get xbar resources");
+>> -        if (!request_mem_region(res_xbar.start,
+>> resource_size(&res_xbar),
+>> -            res_xbar.name))
+>> -            panic("Failed to get xbar resources");
+>> -
+>> -        ltq_xbar_membase = ioremap_nocache(res_xbar.start,
+>> -                           resource_size(&res_xbar));
+>> -        if (!ltq_xbar_membase)
+>> -            panic("Failed to remap xbar resources");
+>> -    }
+>> -
+>>       /* make sure to unprotect the memory region where flash is
+>> located */
+>>       ltq_ebu_w32(ltq_ebu_r32(LTQ_EBU_BUSCON0) & ~EBU_WRDIS,
+>> LTQ_EBU_BUSCON0);
+>>   @@ -605,7 +567,4 @@ void __init ltq_soc_init(void)
+>>           clkdev_add_pmu("1e116000.mei", "dfe", 1, 0, PMU_DFE);
+>>           clkdev_add_pmu("1e100400.serial", NULL, 1, 0, PMU_ASC0);
+>>       }
+>> -
+>> -    if (of_machine_is_compatible("lantiq,vr9"))
+>> -        xbar_fpi_burst_disable();
+>>   }
+>> diff --git a/drivers/soc/Makefile b/drivers/soc/Makefile
+>> index 824b44281efa..009b5de74a24 100644
+>> --- a/drivers/soc/Makefile
+>> +++ b/drivers/soc/Makefile
+>> @@ -8,6 +8,7 @@ obj-$(CONFIG_ARCH_DOVE)        += dove/
+>>   obj-$(CONFIG_MACH_DOVE)        += dove/
+>>   obj-y                += fsl/
+>>   obj-$(CONFIG_ARCH_MXC)        += imx/
+>> +obj-$(CONFIG_SOC_XWAY)        += lantiq/
+>>   obj-$(CONFIG_ARCH_MEDIATEK)    += mediatek/
+>>   obj-$(CONFIG_ARCH_QCOM)        += qcom/
+>>   obj-$(CONFIG_ARCH_RENESAS)    += renesas/
+>> diff --git a/drivers/soc/lantiq/Makefile b/drivers/soc/lantiq/Makefile
+>> new file mode 100644
+>> index 000000000000..7411bd23d58e
+>> --- /dev/null
+>> +++ b/drivers/soc/lantiq/Makefile
+>> @@ -0,0 +1 @@
+>> +obj-y                += xbar.o
+>> diff --git a/drivers/soc/lantiq/xbar.c b/drivers/soc/lantiq/xbar.c
+>> new file mode 100644
+>> index 000000000000..89590e189efc
+>> --- /dev/null
+>> +++ b/drivers/soc/lantiq/xbar.c
+>> @@ -0,0 +1,101 @@
+>> +/*
+>> + *  This program is free software; you can redistribute it and/or
+>> modify it
+>> + *  under the terms of the GNU General Public License version 2 as
+>> published
+>> + *  by the Free Software Foundation.
+>> + *
+>> + *  Copyright (C) 2011-2015 John Crispin <blogic@openwrt.org>
+> 
+> Hi Hauke,
+> 
+> my openwrt email addr is no longer valid. please use my phrozen.org one.
+> 
+>     John
 
---w5ixrwk7fifrgbqj
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Sorry, I fixed that in all patches.
 
-On Tue, May 23, 2017 at 02:40:45PM +0100, Steve Twiss wrote:
+Hauke
 
-> This patch was Acked by Mark Brown, a long time ago, way back in Oct 2016
-> (https://patchwork.kernel.org/patch/9397787/).
-> I have kept Mark Brown's Ack attached because there have been no real
-> code changes since then, but I have recently updated the copyright header
-> slightly, rebased the code (no changes necessary) and compile tested it
-> against x86_64.
-
-> The MFD files which this patch depended on were accepted into linux-next
-> by Lee Jones last week. If there is anything in the way of this patch
-> acceptance, could you please let me know?
-
-Given that I've acked this and it depends on the MFD changes I'd have
-expected Lee to apply it.  If nothing else happens I can apply it after
-the next merge window, otherwise either Lee needs to send me a pull
-request for the MFD change so I've got the dependency or he needs to
-apply this.
-
---w5ixrwk7fifrgbqj
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCAAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAlkkbqAACgkQJNaLcl1U
-h9CBowgAgzyAaejHDzDDrmYGX5ZusFRiVhSCk9YjtEl7zyX7RZC5AK5RqWrO7N9C
-VYmQVj+hK3T/JV/I/wHfABIhmq2dfOSRjKAFvJmGyetIwvDyOjSnmXpnNw3feyrc
-URrCDUjtqCPGYPcex5vSjC9ahSsvoot9qit3sU1dU6SbpvhBefEwGpTW5EeS+Cub
-6FdGgQcNr1kaAZAWrc+Q9Z0nCtk4+Y3DQT2bwveUYxI3Fj+u9oCVrTeDpnZJfG1o
-jaYNOQQfWS6DDutsT+p1bwncj8NCDDGsHNk7hsxSEXYXpFqQWY7sda/pMjjR86T1
-fLuqTh+F5bphR70n8mfwtq7c1Hcwyw==
-=wnhk
------END PGP SIGNATURE-----
-
---w5ixrwk7fifrgbqj--
