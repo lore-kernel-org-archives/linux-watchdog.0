@@ -1,73 +1,106 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mezzanine.sirena.org.uk ([106.187.55.193]:49166 "EHLO
-        mezzanine.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1757409AbdEXKLN (ORCPT
+Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:42029 "EHLO
+        metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S933143AbdEXNLB (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 24 May 2017 06:11:13 -0400
-Date: Wed, 24 May 2017 11:10:57 +0100
-From: Mark Brown <broonie@kernel.org>
-To: Lee Jones <lee.jones@linaro.org>
-Cc: Steve Twiss <stwiss.opensource@diasemi.com>,
-        LINUX-KERNEL <linux-kernel@vger.kernel.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        DEVICETREE <devicetree@vger.kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Eduardo Valentin <edubezval@gmail.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        LINUX-INPUT <linux-input@vger.kernel.org>,
-        LINUX-PM <linux-pm@vger.kernel.org>,
-        LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Support Opensource <support.opensource@diasemi.com>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        Zhang Rui <rui.zhang@intel.com>
-Message-ID: <20170524101057.v2fqwki4fopx5k7y@sirena.org.uk>
-References: <cover.1495546845.git.stwiss.opensource@diasemi.com>
- <ac0c9c0edf9a3a48d8de7a5c07b16b771871796e.1495546845.git.stwiss.opensource@diasemi.com>
- <20170523171721.lpqjhakaawnz4prz@sirena.org.uk>
- <20170524083243.5rhritb2tvmycfc6@dell>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="ccfyw43wkxzoixsv"
-Content-Disposition: inline
-In-Reply-To: <20170524083243.5rhritb2tvmycfc6@dell>
-Subject: Re: [RESEND PATCH V7 5/7] regulator: da9061: BUCK and LDO regulator
- driver
+        Wed, 24 May 2017 09:11:01 -0400
+Message-ID: <1495631452.3840.27.camel@pengutronix.de>
+Subject: Re: [PATCH v2 09/15] reset: Add a reset controller driver for the
+ Lantiq XWAY based SoCs
+From: Philipp Zabel <p.zabel@pengutronix.de>
+To: Hauke Mehrtens <hauke@hauke-m.de>
+Cc: ralf@linux-mips.org, linux-mips@linux-mips.org,
+        linux-mtd@lists.infradead.org, linux-watchdog@vger.kernel.org,
+        devicetree@vger.kernel.org, martin.blumenstingl@googlemail.com,
+        john@phrozen.org, linux-spi@vger.kernel.org,
+        hauke.mehrtens@intel.com, robh@kernel.org
+Date: Wed, 24 May 2017 15:10:52 +0200
+In-Reply-To: <2f809dc7-53c6-ebf9-53c1-466bf34e39db@hauke-m.de>
+References: <20170521130918.27446-1-hauke@hauke-m.de>
+         <20170521130918.27446-10-hauke@hauke-m.de>
+         <1495445613.3558.67.camel@pengutronix.de>
+         <2f809dc7-53c6-ebf9-53c1-466bf34e39db@hauke-m.de>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+On Tue, 2017-05-23 at 23:25 +0200, Hauke Mehrtens wrote:
+> On 05/22/2017 11:33 AM, Philipp Zabel wrote:
+> > Hi Hauke,
+> > 
+> > thank you for the patch. I have a few questions and comments below:
+> > 
+> > On Sun, 2017-05-21 at 15:09 +0200, Hauke Mehrtens wrote:
+> >> From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+> >>
+> >> The reset controllers (on xRX200 and newer SoCs have two of them) are
+> >> provided by the RCU module. This was initially implemented as a simple
+> >> reset controller. However, the RCU module provides more functionality
+> >> (ethernet GPHYs, USB PHY, etc.), which makes it a MFD device.
+> >> The old reset controller driver implementation from
+> >> arch/mips/lantiq/xway/reset.c did not honor this fact.
+> > 
+> > Does this driver replace arch/mips/lantiq/xway/reset.c?
+> 
+> This serial consists of multiple patches which are all together
+> replacing this code. The RCU register block does controls multiple
+> blocks in the SoC. One is the reset controller, but also the GPHY FW
+> loading and some other unrelated stuff.
 
---ccfyw43wkxzoixsv
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Thank you for clarifying.
 
-On Wed, May 24, 2017 at 09:32:43AM +0100, Lee Jones wrote:
+> >> +		compatible = "lantiq,rcu-reset";
+> >> +		lantiq,rcu-syscon = <&rcu0 0x10 0x14>;
+> >> +		#reset-cells = <2>;
+> >> +	};
+> >> +
+> >> +	rcu_reset1: rcu_reset {
+> >> +		compatible = "lantiq,rcu-reset";
+> >> +		lantiq,rcu-syscon = <&rcu0 0x48 0x24>;
+> >> +		#reset-cells = <2>;
+> >> +	};
+> > 
+> > I think these should be children of the &rcu0 node. Then you could use
+> > the reg property to specify the registers.
+> 
+> The problem is that the RCU registers at offset 0x10 and 0x14 also have
+> bits to indicate what caused the last hardware reset and which boot mode
+> was selected by putting some pins to low or high level. I want to access
+> the same register from the watchdog driver and probably form more
+> positions which do not have anything to do with a reset controller.
 
-> Plan is to push this through the MFD tree.
+That is ok, I just suggest to get the syscon regmap not from a phandle
+property, but from the node parent. The reset controller is a part of
+the RCU.
 
-Great, thanks.
+> > Also, have you considered using a binding like the ti-syscon-reset? 
+> > That could remove the need for a rcu_reset node per register pair
+> > altogether, but might not make sense if the reset registers are densely
+> > populated.
+> 
+> Would your suggestion be something like this?
+> 
+> rcu_reset0: reset-controller {
+> 	compatible = "lantiq,rcu-reset";
+> 	lantiq,rcu-syscon = <&rcu0>;
+> 	#reset-cells = <2>;
+> 	ti,reset-bits = <
+> 		0x48 0x24
+> 		0x10 0x14
+> 	>;
+> };
 
-> Do you want a PR for this one?
+Yes, for example. I'd put the reset-controller node inside the &rcu0
+node and drop the lantiq,rcu-syscon property, though.
 
-Ideally but it's not super urgent if (I've started handling these by
-keeping a note of the pull information and only merging if there's an
-actual problem, that way there's less cross tree merges show up when I
-send stuff to Linus).
+> I prefer to have two device tree nodes entries for these two register
+> blocks.
 
---ccfyw43wkxzoixsv
-Content-Type: application/pgp-signature; name="signature.asc"
+If Rob is fine with this, I won't object. I'd just be interested to know
+why.
 
------BEGIN PGP SIGNATURE-----
+regards
+Philipp
 
-iQEzBAABCAAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAlklXDAACgkQJNaLcl1U
-h9CgIgf/WVhTbByTuJZ+Gq5KUxGuFjPlhcNiSZ0WAAcZiSyzHNBz8qxmTUJZvF8t
-Ha2TjvxigMiIhDCqeLiid96I9BY+EMl3KAV8gia5zjnwlT4pNoSIoQFXLDPLieVy
-G23jNVBhST9hLtqNxJBbQs+12QugkOuxpvO2uFlvG9J6Zu0oQXjPSxs43F2frPuJ
-iem0f0clQ93jKKliPQf2F8UKHzBfXWNgA1K6sqDAWQUs1dGAqWcRem38fiGv+qv+
-Y6zvy0YWp/VOUkAfwaxXRHy5hOqIyRLzLu9USNgqF+G0tnTbSf61u5Ea2dzN9EYg
-78aXlwmk1QTnIOM9jVzWo3/lTUT/rQ==
-=wM4o
------END PGP SIGNATURE-----
-
---ccfyw43wkxzoixsv--
