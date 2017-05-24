@@ -1,88 +1,76 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail01.prevas.se ([62.95.78.3]:12483 "EHLO mail01.prevas.se"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1762092AbdEWH0q (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 23 May 2017 03:26:46 -0400
-Subject: Re: [PATCH v5 0/3] watchdog: allow setting deadline for opening
- /dev/watchdogN
-To: Alan Cox <gnomes@lxorguk.ukuu.org.uk>
-References: <1495462000-28979-1-git-send-email-rasmus.villemoes@prevas.dk>
- <20170522190751.5bf5e813@alans-desktop>
-CC: <linux-watchdog@vger.kernel.org>, <linux-doc@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>,
-        Sebastian Reichel <sebastian.reichel@collabora.co.uk>,
-        <esben.haabendal@gmail.com>, Guenter Roeck <linux@roeck-us.net>
-From: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
-Message-ID: <d83c4cd1-966a-a7df-c116-7b503208b74b@prevas.dk>
-Date: Tue, 23 May 2017 09:15:32 +0200
+Return-path: <esbenhaabendal@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20170522190751.5bf5e813@alans-desktop>
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Sender: esbenhaabendal@gmail.com
+In-Reply-To: <1495462000-28979-1-git-send-email-rasmus.villemoes@prevas.dk>
+References: <1495462000-28979-1-git-send-email-rasmus.villemoes@prevas.dk>
+From: Esben Haabendal <esben.haabendal@gmail.com>
+Date: Wed, 24 May 2017 16:14:30 +0200
+Message-ID: <CAOR3GqXU+DO2hw5g+pd+Ax572ccZm18po-eXaZXiGqmE9MaYPg@mail.gmail.com>
+Subject: Re: [PATCH v5 0/3] watchdog: allow setting deadline for opening /dev/watchdogN
+To: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+Cc: linux-watchdog@vger.kernel.org, linux-doc@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Sebastian Reichel <sebastian.reichel@collabora.co.uk>, Guenter Roeck <linux@roeck-us.net>
+Content-Type: multipart/alternative; boundary="001a114e25a2380bb2055045bae8"
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 2017-05-22 20:07, Alan Cox wrote:
-> On Mon, 22 May 2017 16:06:36 +0200
-> Rasmus Villemoes <rasmus.villemoes@prevas.dk> wrote:
-> 
->> If a watchdog driver tells the framework that the device is running,
->> the framework takes care of feeding the watchdog until userspace opens
->> the device. If the userspace application which is supposed to do that
->> never comes up properly, the watchdog is fed indefinitely by the
->> kernel. This can be especially problematic for embedded devices.
->>
->> These patches allow one to set a maximum time for which the kernel
->> will feed the watchdog, thus ensuring that either userspace has come
->> up, or the board gets reset. This allows fallback logic in the
->> bootloader to attempt some recovery (for example, if an automatic
->> update is in progress, it could roll back to the previous version).
-> 
-> 
-> This makes sense except for being a CONFIG_ option not a boot parameter.
-> If it's a boot parameter then the same kernel works for multiple systems
-> and is general. If it's compile time then you have to build a custom
-> kernel.
+--001a114e25a2380bb2055045bae8
+Content-Type: text/plain; charset="UTF-8"
 
-I don't understand. Patch 3 simply allows the default to be set in the
-config, but it is very much still possible to set it via the boot
-command line, overriding the default (whether that was a CONFIG or a
-hardcoded 0).
+On 22 May 2017 at 16:06, Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+wrote:
 
-> For some embedded stuff that might not matter (although I bet they'd
-> prefer it command line/device tree too)
+>
+> Rasmus Villemoes (3):
+>   watchdog: introduce watchdog_worker_should_ping helper
+>   watchdog: introduce watchdog.open_timeout commandline parameter
+>   watchdog: introduce CONFIG_WATCHDOG_OPEN_TIMEOUT
+>
+>  Documentation/watchdog/watchdog-parameters.txt | 10 +++++++
+>  drivers/watchdog/Kconfig                       |  9 +++++++
+>  drivers/watchdog/watchdog_dev.c                | 37
+> +++++++++++++++++++++++---
+>  3 files changed, 52 insertions(+), 4 deletions(-)
+>
 
-When building a full BSP, yes, one can cook it into the boot command
-line in u-boot, but that means that to update it one has to edit one's
-u-boot recipe. It also often makes testing-turnaround times longer,
-since updating the kernel can often be done by just scp'ing a new image
-to the board, while updating the bootloader is sometimes a much more
-involved procedure (not to mention that that's sometimes not even
-possible to do remotely). There's also the issue of the command line
-getting rather crowded if every aspect of the kernel has to be
-configured at boot time.
+Thanks. This is definitely useful for embedded applications.
 
-As an embedded developer, I'm all for being able to override this
-timeout as well lots of other kernel behavior via the command line, but
-at the same time, I also prefer being able to set the default values in
-the kernel's .config.
+If this get merged, it should be able to replace several out-of-tree hacks
+to accomplish the same thing.
 
- but for something like an x86
-> platform where you are deploying a standard vendor supplied kernel it's
-> bad to do it that way IMHO.
+For all 3 patches:
+Reviewed-by: Esben Haabendal <esben@haabendal.dk>
 
-A "standard vendor supplied kernel" will never set that CONFIG to
-anything but its default - how could it possibly decide how long
-userspace should have to open /dev/watchdog0, or even if userspace will
-ever do that? Again, patch 3 doesn't in any way remove the possiblity of
-setting this on the command line, and the end user is no worse off just
-because the vendor had to keep a default setting.
+/Esben
 
-> In other words I think you should drop patch 3 but the rest is good.
+--001a114e25a2380bb2055045bae8
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-For the life of me, I cannot see the downside of patch 3, or how it's
-any different from CONSOLE_LOGLEVEL_DEFAULT, BLK_DEV_RAM_SIZE, or any
-number of other parameters-with-defaults-from-Kconfig.
+<div dir=3D"ltr"><div class=3D"gmail_extra"><div class=3D"gmail_quote">On 2=
+2 May 2017 at 16:06, Rasmus Villemoes <span dir=3D"ltr">&lt;<a href=3D"mail=
+to:rasmus.villemoes@prevas.dk" target=3D"_blank">rasmus.villemoes@prevas.dk=
+</a>&gt;</span> wrote:<br><blockquote class=3D"gmail_quote" style=3D"margin=
+:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex"><br>
+Rasmus Villemoes (3):<br>
+=C2=A0 watchdog: introduce watchdog_worker_should_ping helper<br>
+=C2=A0 watchdog: introduce watchdog.open_timeout commandline parameter<br>
+=C2=A0 watchdog: introduce CONFIG_WATCHDOG_OPEN_TIMEOUT<br>
+<br>
+=C2=A0Documentation/watchdog/<wbr>watchdog-parameters.txt | 10 +++++++<br>
+=C2=A0drivers/watchdog/Kconfig=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0|=C2=A0 9 +++++++<br>
+=C2=A0drivers/watchdog/watchdog_dev.<wbr>c=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0 | 37 +++++++++++++++++++++++---<br>
+=C2=A03 files changed, 52 insertions(+), 4 deletions(-)<br></blockquote></d=
+iv><div class=3D"gmail_extra"><br></div>Thanks. This is definitely useful f=
+or embedded applications.</div><div class=3D"gmail_extra"><br></div><div cl=
+ass=3D"gmail_extra">If this get merged, it should be able to replace severa=
+l out-of-tree hacks to accomplish the same thing.</div><div class=3D"gmail_=
+extra"><br></div><div class=3D"gmail_extra">For all 3 patches:</div><div cl=
+ass=3D"gmail_extra">Reviewed-by: Esben Haabendal &lt;<a href=3D"mailto:esbe=
+n@haabendal.dk">esben@haabendal.dk</a>&gt;</div><div class=3D"gmail_extra">=
+<br></div><div class=3D"gmail_extra"><div>/Esben</div>
+</div></div>
 
-Rasmus
-
+--001a114e25a2380bb2055045bae8--
