@@ -1,15 +1,13 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wm0-f47.google.com ([74.125.82.47]:37833 "EHLO
-        mail-wm0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1763780AbdEXIk7 (ORCPT
+Received: from mezzanine.sirena.org.uk ([106.187.55.193]:49166 "EHLO
+        mezzanine.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1757409AbdEXKLN (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 24 May 2017 04:40:59 -0400
-Received: by mail-wm0-f47.google.com with SMTP id d127so58826306wmf.0
-        for <linux-watchdog@vger.kernel.org>; Wed, 24 May 2017 01:40:53 -0700 (PDT)
-Date: Wed, 24 May 2017 09:40:49 +0100
-From: Lee Jones <lee.jones@linaro.org>
-To: Steve Twiss <stwiss.opensource@diasemi.com>
-Cc: Mark Brown <broonie@kernel.org>,
+        Wed, 24 May 2017 06:11:13 -0400
+Date: Wed, 24 May 2017 11:10:57 +0100
+From: Mark Brown <broonie@kernel.org>
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Steve Twiss <stwiss.opensource@diasemi.com>,
         LINUX-KERNEL <linux-kernel@vger.kernel.org>,
         Liam Girdwood <lgirdwood@gmail.com>,
         DEVICETREE <devicetree@vger.kernel.org>,
@@ -21,78 +19,55 @@ Cc: Mark Brown <broonie@kernel.org>,
         LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
         Mark Rutland <mark.rutland@arm.com>,
         Rob Herring <robh+dt@kernel.org>,
-        Support Opensource <Support.Opensource@diasemi.com>,
+        Support Opensource <support.opensource@diasemi.com>,
         Wim Van Sebroeck <wim@iguana.be>,
         Zhang Rui <rui.zhang@intel.com>
-Subject: Re: [RESEND PATCH V7 5/7] regulator: da9061: BUCK and LDO regulator
- driver
-Message-ID: <20170524084049.iy4dlrbmkzsqjvav@dell>
+Message-ID: <20170524101057.v2fqwki4fopx5k7y@sirena.org.uk>
 References: <cover.1495546845.git.stwiss.opensource@diasemi.com>
  <ac0c9c0edf9a3a48d8de7a5c07b16b771871796e.1495546845.git.stwiss.opensource@diasemi.com>
  <20170523171721.lpqjhakaawnz4prz@sirena.org.uk>
- <6ED8E3B22081A4459DAC7699F3695FB7018CD8D651@SW-EX-MBX02.diasemi.com>
+ <20170524083243.5rhritb2tvmycfc6@dell>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="ccfyw43wkxzoixsv"
 Content-Disposition: inline
-In-Reply-To: <6ED8E3B22081A4459DAC7699F3695FB7018CD8D651@SW-EX-MBX02.diasemi.com>
+In-Reply-To: <20170524083243.5rhritb2tvmycfc6@dell>
+Subject: Re: [RESEND PATCH V7 5/7] regulator: da9061: BUCK and LDO regulator
+ driver
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
 
-On Wed, 24 May 2017, Steve Twiss wrote:
 
-> On 23 May 2017 18:17 Mark Brown
-> > To: Steve Twiss
-> > Subject: Re: [RESEND PATCH V7 5/7] regulator: da9061: BUCK and LDO re=
-gulator driver
-> >=20
-> > On Tue, May 23, 2017 at 02:40:45PM +0100, Steve Twiss wrote:
-> >=20
-> > > This patch was Acked by Mark Brown, a long time ago, way back in Oc=
-t 2016
-> > > (https://patchwork.kernel.org/patch/9397787/).
-> > > I have kept Mark Brown's Ack attached because there have been no re=
-al
-> > > code changes since then, but I have recently updated the copyright =
-header
-> > > slightly, rebased the code (no changes necessary) and compile teste=
-d it
-> > > against x86_64.
-> >=20
-> > > The MFD files which this patch depended on were accepted into linux=
--next
-> > > by Lee Jones last week. If there is anything in the way of this pat=
-ch
-> > > acceptance, could you please let me know?
-> >=20
-> > Given that I've acked this and it depends on the MFD changes I'd have
-> > expected Lee to apply it.  If nothing else happens I can apply it aft=
-er
-> > the next merge window, otherwise either Lee needs to send me a pull
-> > request for the MFD change so I've got the dependency or he needs to
-> > apply this.
->=20
-> Hi Mark,
->=20
-> Thanks,
-> No problem, just some minor administration.
->=20
-> @Lee
-> Could you please send Mark a pull request for the regulator component t=
-o the
-> DA9062/61 changes [PATCH V7 5/7] regulator: da9061: BUCK and LDO regula=
-tor
-> driver.
+--ccfyw43wkxzoixsv
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-That wasn't one of the options. ;)
+On Wed, May 24, 2017 at 09:32:43AM +0100, Lee Jones wrote:
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Plan is to push this through the MFD tree.
+
+Great, thanks.
+
+> Do you want a PR for this one?
+
+Ideally but it's not super urgent if (I've started handling these by
+keeping a note of the pull information and only merging if there's an
+actual problem, that way there's less cross tree merges show up when I
+send stuff to Linus).
+
+--ccfyw43wkxzoixsv
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCAAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAlklXDAACgkQJNaLcl1U
+h9CgIgf/WVhTbByTuJZ+Gq5KUxGuFjPlhcNiSZ0WAAcZiSyzHNBz8qxmTUJZvF8t
+Ha2TjvxigMiIhDCqeLiid96I9BY+EMl3KAV8gia5zjnwlT4pNoSIoQFXLDPLieVy
+G23jNVBhST9hLtqNxJBbQs+12QugkOuxpvO2uFlvG9J6Zu0oQXjPSxs43F2frPuJ
+iem0f0clQ93jKKliPQf2F8UKHzBfXWNgA1K6sqDAWQUs1dGAqWcRem38fiGv+qv+
+Y6zvy0YWp/VOUkAfwaxXRHy5hOqIyRLzLu9USNgqF+G0tnTbSf61u5Ea2dzN9EYg
+78aXlwmk1QTnIOM9jVzWo3/lTUT/rQ==
+=wM4o
+-----END PGP SIGNATURE-----
+
+--ccfyw43wkxzoixsv--
