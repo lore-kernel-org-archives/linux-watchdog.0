@@ -1,10 +1,10 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:36146 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:41205 "EHLO
         bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754836AbdEYA6g (ORCPT
+        with ESMTP id S1754836AbdEYA7I (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 24 May 2017 20:58:36 -0400
-Subject: Re: [PATCH v4 2/3] watchdog: dw_wdt: get reset lines from dt
+        Wed, 24 May 2017 20:59:08 -0400
+Subject: Re: [PATCH v4 3/3] ARM: socfpga: dtsi: add dw-wdt reset lines
 To: Steffen Trumtrar <s.trumtrar@pengutronix.de>,
         linux-watchdog@vger.kernel.org
 Cc: Wim Van Sebroeck <wim@iguana.be>, Rob Herring <robh+dt@kernel.org>,
@@ -14,12 +14,12 @@ Cc: Wim Van Sebroeck <wim@iguana.be>, Rob Herring <robh+dt@kernel.org>,
         linux-arm-kernel@lists.infradead.org,
         Philipp Zabel <p.zabel@pengutronix.de>, kernel@pengutronix.de
 References: <cover.50aaf23e8fbe9028f711a67e39b96910c986e8b0.1495443015.git-series.s.trumtrar@pengutronix.de>
- <17fdba7aa0c8f356cfdc28792d228817030b152e.1495443015.git-series.s.trumtrar@pengutronix.de>
+ <1606b1da6758142628496ae85b15b3f89f0f928d.1495443015.git-series.s.trumtrar@pengutronix.de>
 From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <7f9bbdf3-46a5-0fa8-d13b-fb24d502d709@roeck-us.net>
-Date: Wed, 24 May 2017 17:58:33 -0700
+Message-ID: <b373e06d-ecd9-0c22-5c6c-043bb0e395fa@roeck-us.net>
+Date: Wed, 24 May 2017 17:59:04 -0700
 MIME-Version: 1.0
-In-Reply-To: <17fdba7aa0c8f356cfdc28792d228817030b152e.1495443015.git-series.s.trumtrar@pengutronix.de>
+In-Reply-To: <1606b1da6758142628496ae85b15b3f89f0f928d.1495443015.git-series.s.trumtrar@pengutronix.de>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -27,71 +27,37 @@ Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
 On 05/22/2017 01:51 AM, Steffen Trumtrar wrote:
-> The dw_wdt has an external reset line, that can keep the device in reset
-> and therefore rendering it useless and also is the only way of stopping
-> the watchdog once it was started.
-> 
-> Get the reset lines for this core from the devicetree. As these lines are
-> optional, use devm_reset_control_get_optional_shared. If the reset line
-> is not specified in the devicetree, the reset framework will just skip
-> deasserting and continue.
-> This way all users of the driver will continue to function without
-> any harm, even if the reset line is not specified in the devicetree.
+> Add the reset lines to both watchdogs.
 > 
 > Signed-off-by: Steffen Trumtrar <s.trumtrar@pengutronix.de>
-> Cc: Wim Van Sebroeck <wim@iguana.be>
-> Cc: Guenter Roeck <linux@roeck-us.net>
-> Cc: linux-watchdog@vger.kernel.org
-> Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
+> Cc: Dinh Nguyen <dinguyen@opensource.altera.com>
+> Cc: linux-arm-kernel@lists.infradead.org
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Acked-by: Guenter Roeck <linux@roeck-us.net>
 
 > ---
->   drivers/watchdog/dw_wdt.c | 11 +++++++++++
->   1 file changed, 11 insertions(+)
+>   arch/arm/boot/dts/socfpga.dtsi | 2 ++
+>   1 file changed, 2 insertions(+)
 > 
-> diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
-> index 914da3a4d334..36be987ff9ef 100644
-> --- a/drivers/watchdog/dw_wdt.c
-> +++ b/drivers/watchdog/dw_wdt.c
-> @@ -29,6 +29,7 @@
->   #include <linux/of.h>
->   #include <linux/pm.h>
->   #include <linux/platform_device.h>
-> +#include <linux/reset.h>
->   #include <linux/watchdog.h>
+> diff --git a/arch/arm/boot/dts/socfpga.dtsi b/arch/arm/boot/dts/socfpga.dtsi
+> index b2674bdb8e6a..547b2720abf5 100644
+> --- a/arch/arm/boot/dts/socfpga.dtsi
+> +++ b/arch/arm/boot/dts/socfpga.dtsi
+> @@ -924,6 +924,7 @@
+>   			reg = <0xffd02000 0x1000>;
+>   			interrupts = <0 171 4>;
+>   			clocks = <&osc1>;
+> +			resets = <&rst L4WD0_RESET>;
+>   			status = "disabled";
+>   		};
 >   
->   #define WDOG_CONTROL_REG_OFFSET		    0x00
-> @@ -54,6 +55,7 @@ struct dw_wdt {
->   	struct clk		*clk;
->   	unsigned long		rate;
->   	struct watchdog_device	wdd;
-> +	struct reset_control	*rst;
->   };
->   
->   #define to_dw_wdt(wdd)	container_of(wdd, struct dw_wdt, wdd)
-> @@ -234,6 +236,14 @@ static int dw_wdt_drv_probe(struct platform_device *pdev)
->   		goto out_disable_clk;
->   	}
->   
-> +	dw_wdt->rst = devm_reset_control_get_optional_shared(&pdev->dev, NULL);
-> +	if (IS_ERR(dw_wdt->rst)) {
-> +		ret = PTR_ERR(dw_wdt->rst);
-> +		goto out_disable_clk;
-> +	}
-> +
-> +	reset_control_deassert(dw_wdt->rst);
-> +
->   	wdd = &dw_wdt->wdd;
->   	wdd->info = &dw_wdt_ident;
->   	wdd->ops = &dw_wdt_ops;
-> @@ -279,6 +289,7 @@ static int dw_wdt_drv_remove(struct platform_device *pdev)
->   	struct dw_wdt *dw_wdt = platform_get_drvdata(pdev);
->   
->   	watchdog_unregister_device(&dw_wdt->wdd);
-> +	reset_control_assert(dw_wdt->rst);
->   	clk_disable_unprepare(dw_wdt->clk);
->   
->   	return 0;
+> @@ -932,6 +933,7 @@
+>   			reg = <0xffd03000 0x1000>;
+>   			interrupts = <0 172 4>;
+>   			clocks = <&osc1>;
+> +			resets = <&rst L4WD1_RESET>;
+>   			status = "disabled";
+>   		};
+>   	};
 > 
 
