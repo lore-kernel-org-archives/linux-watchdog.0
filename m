@@ -1,143 +1,66 @@
-Return-path: <slemieux.tyco@gmail.com>
-Message-ID: <1495134494.21866.2.camel@gmail.com>
-Subject: Re: [PATCH v2] watchdog: gpio: Add "keep-armed-on-close" feature
-From: Sylvain Lemieux <slemieux.tyco@gmail.com>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: wim@iguana.be, linux-watchdog@vger.kernel.org
-Date: Thu, 18 May 2017 15:08:14 -0400
-In-Reply-To: <20170518173918.GA15919@roeck-us.net>
-References: <20170314141111.24888-1-slemieux.tyco@gmail.com>
-	 <db6e6689-68e5-753e-c501-bb3e74407b69@roeck-us.net>
-	 <1490885209.26136.14.camel@gmail.com> <1495112471.12459.4.camel@gmail.com>
-	 <9edc91e9-2878-eab5-157f-8b74bd6ed267@roeck-us.net>
-	 <1495125563.14469.5.camel@gmail.com> <20170518165840.GB30223@roeck-us.net>
-	 <1495128415.14469.11.camel@gmail.com> <20170518173918.GA15919@roeck-us.net>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:36053 "EHLO
+        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751294AbdEYA6D (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Wed, 24 May 2017 20:58:03 -0400
+Subject: Re: [PATCH v4 1/3] watchdog: bindings: dw_wdt: add reset lines
+To: Steffen Trumtrar <s.trumtrar@pengutronix.de>,
+        linux-watchdog@vger.kernel.org
+Cc: Wim Van Sebroeck <wim@iguana.be>, Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        devicetree@vger.kernel.org,
+        Dinh Nguyen <dinguyen@opensource.altera.com>,
+        linux-arm-kernel@lists.infradead.org,
+        Philipp Zabel <p.zabel@pengutronix.de>, kernel@pengutronix.de
+References: <cover.50aaf23e8fbe9028f711a67e39b96910c986e8b0.1495443015.git-series.s.trumtrar@pengutronix.de>
+ <77954d7b338db9956e15298064f21c028c2070f3.1495443015.git-series.s.trumtrar@pengutronix.de>
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <92c574e1-f435-6186-283a-304a54144085@roeck-us.net>
+Date: Wed, 24 May 2017 17:57:58 -0700
+MIME-Version: 1.0
+In-Reply-To: <77954d7b338db9956e15298064f21c028c2070f3.1495443015.git-series.s.trumtrar@pengutronix.de>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-List-ID: <linux-watchdog@vger.kernel.org>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-On Thu, 2017-05-18 at 10:39 -0700, Guenter Roeck wrote:
-> On Thu, May 18, 2017 at 01:26:55PM -0400, Sylvain Lemieux wrote:
-> > On Thu, 2017-05-18 at 09:58 -0700, Guenter Roeck wrote:
-> > > On Thu, May 18, 2017 at 12:39:23PM -0400, Sylvain Lemieux wrote:
-> > > > On Thu, 2017-05-18 at 06:50 -0700, Guenter Roeck wrote:
-> > > > > On 05/18/2017 06:01 AM, Sylvain Lemieux wrote:
-> > > > > > On Thu, 2017-03-30 at 10:46 -0400, Sylvain Lemieux wrote:
-> > > > > >> Hi,
-> > > > > >>
-> > > > > >> On Thu, 2017-03-30 at 06:11 -0700, Guenter Roeck wrote:
-> > > > > >>> On 03/14/2017 07:11 AM, Sylvain Lemieux wrote:
-> > > > > >>>> From: Sylvain Lemieux <slemieux@tycoint.com>
-> > > > > >>>>
-> > > > > >>>> There is a need to allow a grace period after the watchdog software
-> > > > > >>>> client has closed. It could be used for syncing the filesystem or
-> > > > > >>>> allow graceful termination while still providing a hardware reset
-> > > > > >>>> in case the system has hung.
-> > > > > >>>>
-> > > > > >>>> The "always-running" configuration from device-tree does not provide
-> > > > > >>>> this since it will automatically keep the hardware watchdog alive as
-> > > > > >>>> soon as the software client closes (i.e. keep toggling the GPIO line
-> > > > > >>>> regardless of the state of the soft part of the watchdog).
-> > > > > >>>>
-> > > > > >>>> The "keep-armed-on-close" member in the GPIO watchdog implementation
-> > > > > >>>> indicates if an expired timeout should cause a reset.
-> > > > > >>>>
-> > > > > >>>> This patch add a new "keep-armed-on-close" device-tree configuration
-> > > > > >>>> that will keep the watchdog "armed" until the next timeout period after
-> > > > > >>>> a close. During this period, the hardware watchdog is kept alive.
-> > > > > >>>> A software watchdog client that wants to provide a grace period before
-> > > > > >>>> a hard reset can set the timeout before properly closing.
-> > > > > >>>>
-> > > > > >>>
-> > > > > >>> The description doesn't match what the code actually does, at least from
-> > > > > >>> an infrastructure perspective. The infrastructure would just keep it running.
-> > > > > >>>
-> > > > > >> I will need to send a new version with an updated description;
-> > > > > >>
-> > > > > > I will submit v3 later today or tomorrow.
-> > > > > > 
-> > > > > >> I did not update the description after this patch was rebased on-top
-> > > > > >> of the "watchdog: gpio: keepalives" patch.
-> > > > > >>
-> > > > > >>> What you are really asking for is something the infrastructure should possibly
-> > > > > >>> do by itself automatically: To keep pinging a HW watchdog after close until
-> > > > > >>> the configured (software) timeout period expires. This would be in line with
-> > > > > >>> expectations.
-> > > > > >>>
-> > > > > > Do you want me to work on a generic version for this option?
-> > > > > > 
-> > > > > 
-> > > > > I am not sure I understand the value of the current version (as implemented)
-> > > > > in the first place. It seems to be similar to "always-running", with the exception
-> > > > > that it doesn't start the watchdog immediately when loading the module. That means
-> > > > > it protects the system against hard lockups, but only if the watchdog was opened
-> > > > > at least once. That just seems odd, and you'll have to explain the benefit over
-> > > > > "always-running", and why it would make sense to have such a selective protection.
-> > > > > 
-> > > > The only difference between this implementation and the "always-running"
-> > > > is the way the close operation is handle; when "keep_armed_on_close"
-> > > > option is selected, the watchdog will generate a timeout at the end
-> > > > of the grace period.
-> > > > 
-> > > 
-> > > Not as currently implemented, though.
-> > > 
-> > I will retest; this was the case before this patch was apply to
-> > the GPIO watchdog (https://lkml.org/lkml/2016/2/28/239).
-> > 
-> > > > Regarding the loading of the module, we have a separate patch, that
-> > > > is apply to the GPIO watchdog to perform an early start (same way as
-> > > > "always-running"); this is not part of this change, as this change
-> > > > only modify the behavior of the driver on close.
-> > > > 
-> > > > > Note that devicetree property changes need to be Acked by DT maintainers.
-> > > > > 
-> > > > I will cc them on the new patch.
-> > > > 
-> > > 
-> > > There is no need for a devicetree property; this is a bug fix, not a feature
-> > > (user space can expect a watchdog to expire only after the configured grace
-> > > period expired).
-> > > 
-> > As stated earlier, I will retest and get back to you.
-> > 
-> > > > > Having said that, if what you want is what the description says, not what is
-> > > > > implemented, I'll be happy to accept a patch to change the infrastructure
-> > > > > accordingly.
-> > > > > 
-> > > > I will look into modifying the infrastructure to add the support
-> > > > for "keep_running_on_close"; this will replace this patch.
-> > > > 
-> > > > I will need to submit my other patch for this driver to allow
-> > > > an "early start" of the watchdog
-> > > > (same as what the "always-running" is doing).
-> > > > 
-> > > Confused. If the functionality is already there, what would this patch do ?
-> > > 
-> > This functionality is there with the "always-running"; I need this
-> > behavior on loading, but not the "always-running" behavior on close;
-> > 
-> > This patch is adding an option to start the watchdog at init
-> > (i.e. loading).
-> > 
+On 05/22/2017 01:51 AM, Steffen Trumtrar wrote:
+> Document the reset lines holding the watchdog core in reset.
 > 
-> I may be misssing something, but
-> 
-> static int gpio_wdt_probe(struct platform_device *pdev)
-> {
-> 	...
-> 	if (priv->always_running)
-> 		gpio_wdt_start_impl(priv);
-> }
-> 
-> combined with CONFIG_GPIO_WATCHDOG_ARCH_INITCALL is as early as you can get.
-> 
-I cannot use the "always-running" feature, as this will keep
-the watchdog always running on close (no timeout).
+> Signed-off-by: Steffen Trumtrar <s.trumtrar@pengutronix.de>
+> Cc: Wim Van Sebroeck <wim@iguana.be>
+> Cc: Rob Herring <robh+dt@kernel.org>
+> Cc: Mark Rutland <mark.rutland@arm.com>
+> Cc: linux-watchdog@vger.kernel.org
+> Cc: devicetree@vger.kernel.org
+> Acked-by: Rob Herring <robh@kernel.org>
 
-I need another way to execute the "gpio_wdt_start" during the loading.
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-Sylvain
+> ---
+>   Documentation/devicetree/bindings/watchdog/dw_wdt.txt | 3 +++
+>   1 file changed, 3 insertions(+)
+> 
+> diff --git a/Documentation/devicetree/bindings/watchdog/dw_wdt.txt b/Documentation/devicetree/bindings/watchdog/dw_wdt.txt
+> index 08e16f684f2d..eb0914420c7c 100644
+> --- a/Documentation/devicetree/bindings/watchdog/dw_wdt.txt
+> +++ b/Documentation/devicetree/bindings/watchdog/dw_wdt.txt
+> @@ -10,6 +10,8 @@ Required Properties:
+>   Optional Properties:
+>   
+>   - interrupts	: The interrupt used for the watchdog timeout warning.
+> +- resets	: phandle pointing to the system reset controller with
+> +		line index for the watchdog.
+>   
+>   Example:
+>   
+> @@ -18,4 +20,5 @@ Example:
+>   		reg = <0xffd02000 0x1000>;
+>   		interrupts = <0 171 4>;
+>   		clocks = <&per_base_clk>;
+> +		resets = <&rst WDT0_RESET>;
+>   	};
+> 
 
-> Guenter
