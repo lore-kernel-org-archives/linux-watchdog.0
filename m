@@ -1,63 +1,67 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from hauke-m.de ([5.39.93.123]:46610 "EHLO mail.hauke-m.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S938825AbdEYSyg (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 25 May 2017 14:54:36 -0400
-Subject: Re: [PATCH v2 07/15] MIPS: lantiq: Convert the xbar driver to a
- platform_driver
-To: Andy Shevchenko <andy.shevchenko@gmail.com>
-References: <20170521130918.27446-1-hauke@hauke-m.de>
- <20170521130918.27446-8-hauke@hauke-m.de>
- <CAHp75VeQgekiWc+YxP5sDFBB4fvmRs1=heFcdYS6mAgqPACW7g@mail.gmail.com>
- <aa0f9259-b96f-f072-93d4-a42e05fadc82@hauke-m.de>
-Cc: Ralf Baechle <ralf@linux-mips.org>,
-        Linux MIPS Mailing List <linux-mips@linux-mips.org>,
-        "open list:MEMORY TECHNOLOGY..." <linux-mtd@lists.infradead.org>,
-        linux-watchdog@vger.kernel.org,
-        devicetree <devicetree@vger.kernel.org>,
-        martin.blumenstingl@googlemail.com, john@phrozen.org,
-        linux-spi <linux-spi@vger.kernel.org>, hauke.mehrtens@intel.com,
-        Rob Herring <robh@kernel.org>
-From: Hauke Mehrtens <hauke@hauke-m.de>
-Message-ID: <5a7ebea5-d98b-f84b-64a0-86127ed31feb@hauke-m.de>
-Date: Thu, 25 May 2017 20:54:34 +0200
+Received: from mail-qt0-f194.google.com ([209.85.216.194]:33453 "EHLO
+        mail-qt0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754703AbdE0BXQ (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 26 May 2017 21:23:16 -0400
+From: Murilo Opsfelder Araujo <mopsfelder@gmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: linux-watchdog@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Murilo Opsfelder Araujo <mopsfelder@gmail.com>
+Subject: [PATCH] drivers/watchdog/Kconfig: Update CONFIG_WATCHDOG_RTAS dependencies
+Date: Fri, 26 May 2017 22:22:56 -0300
+Message-Id: <20170527012256.6005-1-mopsfelder@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <aa0f9259-b96f-f072-93d4-a42e05fadc82@hauke-m.de>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
 
-On 05/25/2017 08:22 PM, Hauke Mehrtens wrote:
-> On 05/22/2017 08:05 AM, Andy Shevchenko wrote:
->> On Sun, May 21, 2017 at 4:09 PM, Hauke Mehrtens <hauke@hauke-m.de> wrote:
->>> From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
->>>
->>> This allows using the xbar driver on ARX300 based SoCs which require the
->>> same xbar setup as the xRX200 chipsets because the xbar driver
->>> initialization is not guarded by an xRX200 specific
->>> of_machine_is_compatible condition anymore. Additionally the new driver
->>> takes a syscon phandle to configure the XBAR endianness bits in RCU
->>> (before this was done in arch/mips/lantiq/xway/reset.c and also
->>> guarded by an VRX200 specific if-statement).
->>
->>
->>> +builtin_platform_driver(xbar_driver);
->>
->> Why it can't be module?
-> 
-> Currently this is used to load it early. This sets the AHB bus system
-> which connects the USB and the PCIe controllers to the system to big
-> Endian mode, this is needed for at least some accesses to these
-> components. It would be better to have a dependency in device tree to
-> reflect this.
-> Should I use a phandle to connect them?
-> 
-> Hauke
-> 
+drivers/watchdog/wdrtas.c uses symbols defined in arch/powerpc/kernel/rta=
+s.c,
+which are exported iff CONFIG_PPC_RTAS is selected. Building wdrtas.c wit=
+hout
+setting CONFIG_PPC_RTAS throws the following errors:
 
-I will try to make this a bus driver which should be used instead of the
-smiple-bus.
+    ERROR: ".rtas_token" [drivers/watchdog/wdrtas.ko] undefined!
+    ERROR: "rtas_data_buf" [drivers/watchdog/wdrtas.ko] undefined!
+    ERROR: "rtas_data_buf_lock" [drivers/watchdog/wdrtas.ko] undefined!
+    ERROR: ".rtas_get_sensor" [drivers/watchdog/wdrtas.ko] undefined!
+    ERROR: ".rtas_call" [drivers/watchdog/wdrtas.ko] undefined!
 
-Hauke
+This was identified during a randconfig build where CONFIG_WATCHDOG_RTAS=3D=
+m and
+CONFIG_PPC_RTAS was not set. Logs are here:
 
+    http://kisskb.ellerman.id.au/kisskb/buildresult/12982152/
+
+This patch fixes the issue by selecting CONFIG_PPC_RTAS when
+CONFIG_WATCHDOG_RTAS is set.
+
+Signed-off-by: Murilo Opsfelder Araujo <mopsfelder@gmail.com>
+---
+ drivers/watchdog/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 8b9049d..5d872145 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -1689,6 +1689,7 @@ config MEN_A21_WDT
+ config WATCHDOG_RTAS
+ 	tristate "RTAS watchdog"
+ 	depends on PPC_RTAS || (PPC64 && COMPILE_TEST)
++	select PPC_RTAS
+ 	help
+ 	  This driver adds watchdog support for the RTAS watchdog.
+=20
+--=20
+2.9.4
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
