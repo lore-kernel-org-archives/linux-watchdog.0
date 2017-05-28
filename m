@@ -1,146 +1,140 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail01.prevas.se ([62.95.78.3]:63705 "EHLO mail01.prevas.se"
+Received: from hauke-m.de ([5.39.93.123]:50739 "EHLO mail.hauke-m.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751370AbdE3I44 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 30 May 2017 04:56:56 -0400
-From: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
-To: Wim Van Sebroeck <wim@iguana.be>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Jonathan Corbet <corbet@lwn.net>
-CC: Sebastian Reichel <sebastian.reichel@collabora.co.uk>,
-        <esben.haabendal@gmail.com>, Alan Cox <gnomes@lxorguk.ukuu.org.uk>,
-        Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
-        <linux-watchdog@vger.kernel.org>, <linux-doc@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: [PATCH v6 2/3] watchdog: introduce watchdog.open_timeout commandline parameter
-Date: Tue, 30 May 2017 10:56:46 +0200
-Message-ID: <1496134608-7375-3-git-send-email-rasmus.villemoes@prevas.dk>
-In-Reply-To: <1496134608-7375-1-git-send-email-rasmus.villemoes@prevas.dk>
-References: <1495462000-28979-1-git-send-email-rasmus.villemoes@prevas.dk>
- <1496134608-7375-1-git-send-email-rasmus.villemoes@prevas.dk>
-MIME-Version: 1.0
-Content-Type: text/plain
+        id S1750797AbdE1Sk0 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Sun, 28 May 2017 14:40:26 -0400
+From: Hauke Mehrtens <hauke@hauke-m.de>
+To: ralf@linux-mips.org
+Cc: linux-mips@linux-mips.org, linux-mtd@lists.infradead.org,
+        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+        martin.blumenstingl@googlemail.com, john@phrozen.org,
+        linux-spi@vger.kernel.org, hauke.mehrtens@intel.com,
+        robh@kernel.org, andy.shevchenko@gmail.com, p.zabel@pengutronix.de,
+        Hauke Mehrtens <hauke@hauke-m.de>
+Subject: [PATCH v3 00/16] MIPS: lantiq: handle RCU register by separate drivers
+Date: Sun, 28 May 2017 20:39:50 +0200
+Message-Id: <20170528184006.31668-1-hauke@hauke-m.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The watchdog framework takes care of feeding a hardware watchdog until
-userspace opens /dev/watchdogN. If that never happens for some reason
-(buggy init script, corrupt root filesystem or whatnot) but the kernel
-itself is fine, the machine stays up indefinitely. This patch allows
-setting an upper limit for how long the kernel will take care of the
-watchdog, thus ensuring that the watchdog will eventually reset the
-machine.
+The RCU (Reset controller Unit) register block provides many different 
+functionalities. Before they were handed by the code in arch/mips/lantiq
+/xway/reset.c, now there are separate drivers for the functionality.
+This block provides support for reset controller, GPHY firmware 
+loading, USB PHY initialization and cross bar configuration. 
 
-This is particularly useful for embedded devices where some fallback
-logic is implemented in the bootloader (e.g., use a different root
-partition, boot from network, ...).
+These changes are making the old device tree incompatible with the 
+current kernel. The upstream Linux kernel supports loading the device 
+tree blob from the boot loader since about one year, the latest 
+released vendor kernel does not support loading the device tree from a 
+bot loader.
 
-The open timeout is also used as a maximum time for an application to
-re-open /dev/watchdogN after closing it.
+I would prefer if this would go through the mips tree.
+There are more patches planed which would convert the Lantiq code 
+to the common clock framework.
 
-A value of 0 (the default) means infinite timeout, preserving the
-current behaviour.
+This is based on patches from Martin Blumenstingl and is a preparation 
+to convert the Lantiq target to the common clock framework which was 
+also started by Martin Blumenstingl.
 
-The unit is milliseconds rather than seconds because that covers more
-use cases. For example, one can effectively disable the kernel handling
-by setting the open_timeout to 1 ms. There are also customers with very
-strict requirements that may want to set the open_timeout to something
-like 4500 ms, which combined with a hardware watchdog that must be
-pinged every 250 ms ensures userspace is up no more than 5 seconds after
-the bootloader hands control to the kernel (250 ms until the driver gets
-registered and kernel handling starts, 4500 ms of kernel handling, and
-then up to 250 ms from the last ping until userspace takes over).
+Changelog:
+v3:
+ * renamed xbar driver into fpi-bus driver and make it manage the bus,
+   this way we make sure it is initialized before the child drivers.
+ * converted the lantiq,rcu-syscon into a "regmap" and an "offset"
+   property, this way we have a offset property for each register we
+   want to access on the regmap.
+ * make the gphy PUM clock mandatory.
+ * renamed the lantiq,rcu-reset to lantiq,reset-xrx200
+ * add binding description for watchdog driver
+ * make watchdog driver use offset and mask to find the correct
+   register to get the watchdog reset cause bit.
+ * use of_platform_default_populate() instead of of_platform_populate()
+ * use device_property_read_u32() instead of
+   of_property_read_u32_index()
+ * changed John's email address to blogic@phrozen.org
+ * check the reset bit numbers in the xlate function
+ * use platform_get_resource() in FPI bus driver
+ * make it possible to unload the GPHY driver
 
-Signed-off-by: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
----
- Documentation/watchdog/watchdog-parameters.txt |  8 ++++++++
- drivers/watchdog/watchdog_dev.c                | 26 +++++++++++++++++++++++++-
- 2 files changed, 33 insertions(+), 1 deletion(-)
+v2:
+ * remove the rcu_ prefix for device names in device tree
+ * add both clocks to the gphy driver documentation
+ * use 2 cells for the reset controller, one for the status bit and one
+   for the set bit, they are different for some reset bits.
+   reset-status and reset-request attribute were removed then.
+ * remove the documentation of the not existing sub nodes of the usb phy
+ * remove manual gpio vbus handling in the usb phy driver and use the
+   generic phy regulator now.
+ * do not check if the usb phy reset is not null, the reset framework does this.
+ * do not print an error message when -EPROBE_DEFER was returned
 
-diff --git a/Documentation/watchdog/watchdog-parameters.txt b/Documentation/watchdog/watchdog-parameters.txt
-index 914518a..8577c27 100644
---- a/Documentation/watchdog/watchdog-parameters.txt
-+++ b/Documentation/watchdog/watchdog-parameters.txt
-@@ -8,6 +8,14 @@ See Documentation/admin-guide/kernel-parameters.rst for information on
- providing kernel parameters for builtin drivers versus loadable
- modules.
- 
-+The watchdog core parameter watchdog.open_timeout is the maximum time,
-+in milliseconds, for which the watchdog framework will take care of
-+pinging a hardware watchdog until userspace opens the corresponding
-+/dev/watchdogN device. A value of 0 (the default) means an infinite
-+timeout. Setting this to a non-zero value can be useful to ensure that
-+either userspace comes up properly, or the board gets reset and allows
-+fallback logic in the bootloader to try something else.
-+
- 
- -------------------------------------------------
- acquirewdt:
-diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-index caa4b90..c807067 100644
---- a/drivers/watchdog/watchdog_dev.c
-+++ b/drivers/watchdog/watchdog_dev.c
-@@ -66,6 +66,7 @@ struct watchdog_core_data {
- 	struct mutex lock;
- 	unsigned long last_keepalive;
- 	unsigned long last_hw_keepalive;
-+	unsigned long open_deadline;
- 	struct delayed_work work;
- 	unsigned long status;		/* Internal status bits */
- #define _WDOG_DEV_OPEN		0	/* Opened ? */
-@@ -80,6 +81,21 @@ static struct watchdog_core_data *old_wd_data;
- 
- static struct workqueue_struct *watchdog_wq;
- 
-+static unsigned open_timeout;
-+module_param(open_timeout, uint, 0644);
-+
-+static bool watchdog_past_open_deadline(struct watchdog_core_data *data)
-+{
-+	if (!open_timeout)
-+		return false;
-+	return time_is_before_jiffies(data->open_deadline);
-+}
-+
-+static void watchdog_set_open_deadline(struct watchdog_core_data *data)
-+{
-+	data->open_deadline = jiffies + msecs_to_jiffies(open_timeout);
-+}
-+
- static inline bool watchdog_need_worker(struct watchdog_device *wdd)
- {
- 	/* All variables in milli-seconds */
-@@ -196,7 +212,13 @@ static bool watchdog_worker_should_ping(struct watchdog_core_data *wd_data)
- {
- 	struct watchdog_device *wdd = wd_data->wdd;
- 
--	return wdd && (watchdog_active(wdd) || watchdog_hw_running(wdd));
-+	if (!wdd)
-+		return false;
-+
-+	if (watchdog_active(wdd))
-+		return true;
-+
-+	return watchdog_hw_running(wdd) && !watchdog_past_open_deadline(wd_data);
- }
- 
- static void watchdog_ping_work(struct work_struct *work)
-@@ -857,6 +879,7 @@ static int watchdog_release(struct inode *inode, struct file *file)
- 		watchdog_ping(wdd);
- 	}
- 
-+	watchdog_set_open_deadline(wd_data);
- 	watchdog_update_worker(wdd);
- 
- 	/* make sure that /dev/watchdog can be re-opened */
-@@ -955,6 +978,7 @@ static int watchdog_cdev_register(struct watchdog_device *wdd, dev_t devno)
- 
- 	/* Record time of most recent heartbeat as 'just before now'. */
- 	wd_data->last_hw_keepalive = jiffies - 1;
-+	watchdog_set_open_deadline(wd_data);
- 
- 	/*
- 	 * If the watchdog is running, prevent its driver from being unloaded,
+Hauke Mehrtens (8):
+  mtd: lantiq-flash: drop check of boot select
+  mtd: spi-falcon: drop check of boot select
+  watchdog: lantiq: access boot cause register through regmap
+  watchdog: lantiq: add device tree binding documentation
+  MIPS: lantiq: remove ltq_reset_cause() and ltq_boot_select()
+  MIPS: lantiq: remove old reset controller implementation
+  MIPS: lantiq: remove old GPHY loader code
+  MIPS: lantiq: remove old USB PHY initialisation
+
+Martin Blumenstingl (8):
+  MIPS: lantiq: Use of_platform_default_populate instead of
+    __dt_register_buses
+  MIPS: lantiq: Enable MFD_SYSCON to be able to use it for the RCU MFD
+  Documentation: DT: MIPS: lantiq: Add docs for the RCU bindings
+  MIPS: lantiq: Convert the fpi bus driver to a platform_driver
+  reset: Add a reset controller driver for the Lantiq XWAY based SoCs
+  MIPS: lantiq: Add a GPHY driver which uses the RCU syscon-mfd
+  phy: Add an USB PHY driver for the Lantiq SoCs using the RCU module
+  MIPS: lantiq: Remove the arch/mips/lantiq/xway/reset.c implementation
+
+ .../devicetree/bindings/mips/lantiq/fpi-bus.txt    |  33 ++
+ .../devicetree/bindings/mips/lantiq/rcu-gphy.txt   |  38 ++
+ .../devicetree/bindings/mips/lantiq/rcu.txt        |  97 ++++++
+ .../bindings/phy/phy-lantiq-rcu-usb2.txt           |  42 +++
+ .../devicetree/bindings/reset/lantiq,reset.txt     |  30 ++
+ .../devicetree/bindings/watchdog/lantiq-wdt.txt    |  28 ++
+ MAINTAINERS                                        |   1 +
+ arch/mips/include/asm/mach-lantiq/lantiq.h         |   4 -
+ arch/mips/lantiq/Kconfig                           |   2 +
+ arch/mips/lantiq/falcon/reset.c                    |  22 --
+ arch/mips/lantiq/prom.c                            |   2 +-
+ arch/mips/lantiq/xway/Makefile                     |   4 +-
+ arch/mips/lantiq/xway/reset.c                      | 387 ---------------------
+ arch/mips/lantiq/xway/sysctrl.c                    |  71 +---
+ arch/mips/lantiq/xway/xrx200_phy_fw.c              | 113 ------
+ drivers/mtd/maps/lantiq-flash.c                    |   6 -
+ drivers/phy/Kconfig                                |   8 +
+ drivers/phy/Makefile                               |   1 +
+ drivers/phy/phy-lantiq-rcu-usb2.c                  | 275 +++++++++++++++
+ drivers/reset/Kconfig                              |   6 +
+ drivers/reset/Makefile                             |   1 +
+ drivers/reset/reset-lantiq.c                       | 205 +++++++++++
+ drivers/soc/Makefile                               |   1 +
+ drivers/soc/lantiq/Makefile                        |   2 +
+ drivers/soc/lantiq/fpi-bus.c                       |  91 +++++
+ drivers/soc/lantiq/gphy.c                          | 277 +++++++++++++++
+ drivers/spi/spi-falcon.c                           |   5 -
+ drivers/watchdog/lantiq_wdt.c                      |  45 ++-
+ include/dt-bindings/mips/lantiq_rcu_gphy.h         |  15 +
+ 29 files changed, 1212 insertions(+), 600 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/mips/lantiq/fpi-bus.txt
+ create mode 100644 Documentation/devicetree/bindings/mips/lantiq/rcu-gphy.txt
+ create mode 100644 Documentation/devicetree/bindings/mips/lantiq/rcu.txt
+ create mode 100644 Documentation/devicetree/bindings/phy/phy-lantiq-rcu-usb2.txt
+ create mode 100644 Documentation/devicetree/bindings/reset/lantiq,reset.txt
+ create mode 100644 Documentation/devicetree/bindings/watchdog/lantiq-wdt.txt
+ delete mode 100644 arch/mips/lantiq/xway/reset.c
+ delete mode 100644 arch/mips/lantiq/xway/xrx200_phy_fw.c
+ create mode 100644 drivers/phy/phy-lantiq-rcu-usb2.c
+ create mode 100644 drivers/reset/reset-lantiq.c
+ create mode 100644 drivers/soc/lantiq/Makefile
+ create mode 100644 drivers/soc/lantiq/fpi-bus.c
+ create mode 100644 drivers/soc/lantiq/gphy.c
+ create mode 100644 include/dt-bindings/mips/lantiq_rcu_gphy.h
+
 -- 
-2.7.4
+2.11.0
 
