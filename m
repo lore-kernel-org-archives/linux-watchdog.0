@@ -1,8 +1,8 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from hauke-m.de ([5.39.93.123]:50783 "EHLO mail.hauke-m.de"
+Received: from hauke-m.de ([5.39.93.123]:50827 "EHLO mail.hauke-m.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750798AbdE1Sk3 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 28 May 2017 14:40:29 -0400
+        id S1750988AbdE1Skk (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Sun, 28 May 2017 14:40:40 -0400
 From: Hauke Mehrtens <hauke@hauke-m.de>
 To: ralf@linux-mips.org
 Cc: linux-mips@linux-mips.org, linux-mtd@lists.infradead.org,
@@ -11,109 +11,82 @@ Cc: linux-mips@linux-mips.org, linux-mtd@lists.infradead.org,
         linux-spi@vger.kernel.org, hauke.mehrtens@intel.com,
         robh@kernel.org, andy.shevchenko@gmail.com, p.zabel@pengutronix.de,
         Hauke Mehrtens <hauke@hauke-m.de>
-Subject: [PATCH v3 04/16] watchdog: lantiq: access boot cause register through regmap
-Date: Sun, 28 May 2017 20:39:54 +0200
-Message-Id: <20170528184006.31668-5-hauke@hauke-m.de>
+Subject: [PATCH v3 15/16] MIPS: lantiq: remove old USB PHY initialisation
+Date: Sun, 28 May 2017 20:40:05 +0200
+Message-Id: <20170528184006.31668-16-hauke@hauke-m.de>
 In-Reply-To: <20170528184006.31668-1-hauke@hauke-m.de>
 References: <20170528184006.31668-1-hauke@hauke-m.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This patch avoids accessing the function ltq_reset_cause() and directly
-accesses the register given over the syscon interface. The syscon
-interface will be implemented for the xway SoCs for the falcon SoCs the
-ltq_reset_cause() function never worked, because a wrong offset was used.
+This is now done in a PHY driver.
 
 Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
-Acked-by: Guenter Roeck <linux@reck-us.net>
 ---
- drivers/watchdog/lantiq_wdt.c | 45 +++++++++++++++++++++++++++++++++++++++----
- 1 file changed, 41 insertions(+), 4 deletions(-)
+ arch/mips/lantiq/xway/reset.c | 43 -------------------------------------------
+ 1 file changed, 43 deletions(-)
 
-diff --git a/drivers/watchdog/lantiq_wdt.c b/drivers/watchdog/lantiq_wdt.c
-index e0823677d8c1..c9ad8100ec3c 100644
---- a/drivers/watchdog/lantiq_wdt.c
-+++ b/drivers/watchdog/lantiq_wdt.c
-@@ -4,6 +4,7 @@
-  *  by the Free Software Foundation.
-  *
-  *  Copyright (C) 2010 John Crispin <john@phrozen.org>
-+ *  Copyright (C) 2017 Hauke Mehrtens <hauke@hauke-m.de>
-  *  Based on EP93xx wdt driver
-  */
- 
-@@ -17,6 +18,8 @@
- #include <linux/uaccess.h>
- #include <linux/clk.h>
- #include <linux/io.h>
-+#include <linux/regmap.h>
-+#include <linux/mfd/syscon.h>
- 
- #include <lantiq_soc.h>
- 
-@@ -186,6 +189,40 @@ static struct miscdevice ltq_wdt_miscdev = {
- 	.fops	= &ltq_wdt_fops,
- };
- 
-+static void ltq_set_wdt_bootstatus(struct platform_device *pdev)
-+{
-+	struct device *dev = &pdev->dev;
-+	struct regmap *rcu_regmap;
-+	u32 status_reg_offset;
-+	u32 status_reg_mask;
-+	u32 val;
-+	int err;
-+
-+	rcu_regmap = syscon_regmap_lookup_by_phandle(dev->of_node, "regmap");
-+	if (IS_ERR_OR_NULL(rcu_regmap))
-+		return;
-+
-+	err = device_property_read_u32(dev, "offset-status",
-+				       &status_reg_offset);
-+	if (err) {
-+		dev_err(&pdev->dev, "Failed to get RCU reg offset\n");
-+		return;
-+	}
-+
-+	err = device_property_read_u32(dev, "mask-status", &status_reg_mask);
-+	if (err) {
-+		dev_err(&pdev->dev, "Failed to get RCU reg offset\n");
-+		return;
-+	}
-+
-+	err = regmap_read(rcu_regmap, status_reg_offset, &val);
-+	if (err)
-+		return;
-+
-+	if (val & status_reg_mask)
-+		ltq_wdt_bootstatus = WDIOF_CARDRESET;
-+}
-+
- static int
- ltq_wdt_probe(struct platform_device *pdev)
- {
-@@ -205,9 +242,7 @@ ltq_wdt_probe(struct platform_device *pdev)
- 	ltq_io_region_clk_rate = clk_get_rate(clk);
- 	clk_put(clk);
- 
--	/* find out if the watchdog caused the last reboot */
--	if (ltq_reset_cause() == LTQ_RST_CAUSE_WDTRST)
--		ltq_wdt_bootstatus = WDIOF_CARDRESET;
-+	ltq_set_wdt_bootstatus(pdev);
- 
- 	dev_info(&pdev->dev, "Init done\n");
- 	return misc_register(&ltq_wdt_miscdev);
-@@ -222,7 +257,9 @@ ltq_wdt_remove(struct platform_device *pdev)
+diff --git a/arch/mips/lantiq/xway/reset.c b/arch/mips/lantiq/xway/reset.c
+index be5fd29de523..04cd9a7c04a3 100644
+--- a/arch/mips/lantiq/xway/reset.c
++++ b/arch/mips/lantiq/xway/reset.c
+@@ -114,45 +114,6 @@ static void ltq_machine_power_off(void)
+ 	unreachable();
  }
  
- static const struct of_device_id ltq_wdt_match[] = {
--	{ .compatible = "lantiq,wdt" },
-+	{ .compatible = "lantiq,wdt"},
-+	{ .compatible = "lantiq,wdt-xrx100"},
-+	{ .compatible = "lantiq,wdt-falcon"},
- 	{},
- };
- MODULE_DEVICE_TABLE(of, ltq_wdt_match);
+-static void ltq_usb_init(void)
+-{
+-	/* Power for USB cores 1 & 2 */
+-	ltq_pmu_enable(PMU_AHBM);
+-	ltq_pmu_enable(PMU_USB0);
+-	ltq_pmu_enable(PMU_USB1);
+-
+-	ltq_rcu_w32(ltq_rcu_r32(RCU_CFG1A) | BIT(0), RCU_CFG1A);
+-	ltq_rcu_w32(ltq_rcu_r32(RCU_CFG1B) | BIT(0), RCU_CFG1B);
+-
+-	/* Enable USB PHY power for cores 1 & 2 */
+-	ltq_pmu_enable(PMU_USB0_P);
+-	ltq_pmu_enable(PMU_USB1_P);
+-
+-	/* Configure cores to host mode */
+-	ltq_rcu_w32(ltq_rcu_r32(RCU_USB1CFG) & ~RCU_USBCFG_HDSEL_BIT,
+-		RCU_USB1CFG);
+-	ltq_rcu_w32(ltq_rcu_r32(RCU_USB2CFG) & ~RCU_USBCFG_HDSEL_BIT,
+-		RCU_USB2CFG);
+-
+-	/* Select DMA endianness (Host-endian: big-endian) */
+-	ltq_rcu_w32((ltq_rcu_r32(RCU_USB1CFG) & ~RCU_USBCFG_SLV_END_BIT)
+-		| RCU_USBCFG_HOST_END_BIT, RCU_USB1CFG);
+-	ltq_rcu_w32(ltq_rcu_r32((RCU_USB2CFG) & ~RCU_USBCFG_SLV_END_BIT)
+-		| RCU_USBCFG_HOST_END_BIT, RCU_USB2CFG);
+-
+-	/* Hard reset USB state machines */
+-	ltq_rcu_w32(ltq_rcu_r32(RCU_USBRESET) | USBRESET_BIT, RCU_USBRESET);
+-	udelay(50 * 1000);
+-	ltq_rcu_w32(ltq_rcu_r32(RCU_USBRESET) & ~USBRESET_BIT, RCU_USBRESET);
+-
+-	/* Soft reset USB state machines */
+-	ltq_rcu_w32(ltq_rcu_r32(RCU_USBRESET2)
+-		| USB1RESET_BIT | USB2RESET_BIT, RCU_USBRESET2);
+-	udelay(50 * 1000);
+-	ltq_rcu_w32(ltq_rcu_r32(RCU_USBRESET2)
+-		& ~(USB1RESET_BIT | USB2RESET_BIT), RCU_USBRESET2);
+-}
+-
+ static int __init mips_reboot_setup(void)
+ {
+ 	struct resource res;
+@@ -176,10 +137,6 @@ static int __init mips_reboot_setup(void)
+ 	if (!ltq_rcu_membase)
+ 		panic("Failed to remap core memory");
+ 
+-	if (of_machine_is_compatible("lantiq,ar9") ||
+-	    of_machine_is_compatible("lantiq,vr9"))
+-		ltq_usb_init();
+-
+ 	_machine_restart = ltq_machine_restart;
+ 	_machine_halt = ltq_machine_halt;
+ 	pm_power_off = ltq_machine_power_off;
 -- 
 2.11.0
 
