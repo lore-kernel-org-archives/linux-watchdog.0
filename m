@@ -1,8 +1,8 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from hauke-m.de ([5.39.93.123]:50803 "EHLO mail.hauke-m.de"
+Received: from hauke-m.de ([5.39.93.123]:50883 "EHLO mail.hauke-m.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750896AbdE1Skc (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 28 May 2017 14:40:32 -0400
+        id S1750964AbdE1Skl (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Sun, 28 May 2017 14:40:41 -0400
 From: Hauke Mehrtens <hauke@hauke-m.de>
 To: ralf@linux-mips.org
 Cc: linux-mips@linux-mips.org, linux-mtd@lists.infradead.org,
@@ -11,9 +11,9 @@ Cc: linux-mips@linux-mips.org, linux-mtd@lists.infradead.org,
         linux-spi@vger.kernel.org, hauke.mehrtens@intel.com,
         robh@kernel.org, andy.shevchenko@gmail.com, p.zabel@pengutronix.de,
         Hauke Mehrtens <hauke@hauke-m.de>
-Subject: [PATCH v3 07/16] Documentation: DT: MIPS: lantiq: Add docs for the RCU bindings
-Date: Sun, 28 May 2017 20:39:57 +0200
-Message-Id: <20170528184006.31668-8-hauke@hauke-m.de>
+Subject: [PATCH v3 16/16] MIPS: lantiq: Remove the arch/mips/lantiq/xway/reset.c implementation
+Date: Sun, 28 May 2017 20:40:06 +0200
+Message-Id: <20170528184006.31668-17-hauke@hauke-m.de>
 In-Reply-To: <20170528184006.31668-1-hauke@hauke-m.de>
 References: <20170528184006.31668-1-hauke@hauke-m.de>
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -21,124 +21,196 @@ List-Id: linux-watchdog@vger.kernel.org
 
 From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 
-This adds the initial documentation for the RCU module (a MFD device
-which provides USB PHYs, reset controllers and more).
+The RCU register are now access through separates drivers. remove the
+last pieces of the old implementation.
 
-The RCU register range is used for multiple purposes. Mostly one device
-uses one or multiple register exclusively, but for some registers some
-bits are for one driver and some other bits are for a different driver.
-With this patch all accesses to the RCU registers will go through
-syscon.
+The GPHY reset bits are now set by the GPHY driver which registers a
+reboot notifier. The reboot is triggered by a syscon-reboot driver and
+the MIPS specific parts are done by the generic MIPS implementation in
+arch/mips/kernel/reset.c.
 
 Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
 ---
- .../devicetree/bindings/mips/lantiq/rcu.txt        | 97 ++++++++++++++++++++++
- 1 file changed, 97 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/mips/lantiq/rcu.txt
+ arch/mips/lantiq/Kconfig       |   1 +
+ arch/mips/lantiq/xway/Makefile |   2 +-
+ arch/mips/lantiq/xway/reset.c  | 147 -----------------------------------------
+ 3 files changed, 2 insertions(+), 148 deletions(-)
+ delete mode 100644 arch/mips/lantiq/xway/reset.c
 
-diff --git a/Documentation/devicetree/bindings/mips/lantiq/rcu.txt b/Documentation/devicetree/bindings/mips/lantiq/rcu.txt
-new file mode 100644
-index 000000000000..3e2461262218
---- /dev/null
-+++ b/Documentation/devicetree/bindings/mips/lantiq/rcu.txt
-@@ -0,0 +1,97 @@
-+Lantiq XWAY SoC RCU binding
-+===========================
-+
-+This binding describes the RCU (reset controller unit) multifunction device,
-+where each sub-device has it's own set of registers.
-+
-+The RCU register range is used for multiple purposes. Mostly one device
-+uses one or multiple register exclusively, but for some registers some
-+bits are for one driver and some other bits are for a different driver.
-+With this patch all accesses to the RCU registers will go through
-+syscon.
-+
-+
-+-------------------------------------------------------------------------------
-+Required properties:
-+- compatible	: The first and second values must be: "simple-mfd", "syscon"
-+- reg		: The address and length of the system control registers
-+
-+
-+-------------------------------------------------------------------------------
-+Example of the RCU bindings on a xRX200 SoC:
-+	rcu0: rcu@203000 {
-+		compatible = "lantiq,rcu-xrx200", "simple-mfd", "syscon";
-+		reg = <0x203000 0x100>;
-+		big-endian;
-+
-+		gphy0: gphy@0 {
-+			compatible = "lantiq,xrx200a2x-rcu-gphy";
-+
-+			regmap = <&rcu0>;
-+			offset = <0x20>;
-+			resets = <&reset0 31 30>, <&reset1 7 7>;
-+			reset-names = "gphy", "gphy2";
-+			lantiq,gphy-mode = <GPHY_MODE_GE>;
-+		};
-+
-+		gphy1: gphy@1 {
-+			compatible = "lantiq,xrx200a2x-rcu-gphy";
-+
-+			regmap = <&rcu0>;
-+			offset = <0x68>;
-+			resets = <&reset0 29 28>, <&reset1 6 6>;
-+			reset-names = "gphy", "gphy2";
-+			lantiq,gphy-mode = <GPHY_MODE_GE>;
-+		};
-+
-+		reset0: reset-controller@0 {
-+			compatible = "lantiq,rcu-reset";
-+
-+			regmap = <&rcu0>;
-+			offset-set = <0x10>;
-+			offset-status = <0x14>;
-+			#reset-cells = <2>;
-+		};
-+
-+		reset1: reset-controller@1 {
-+			compatible = "lantiq,rcu-reset";
-+
-+			regmap = <&rcu0>;
-+			offset-set = <0x48>;
-+			offset-status = <0x24>;
-+			#reset-cells = <2>;
-+		};
-+
-+		usb_phy0: usb2-phy@0 {
-+			compatible = "lantiq,xrx200-rcu-usb2-phy";
-+			status = "disabled";
-+
-+			regmap = <&rcu0>;
-+			offset-phy = <0x18>;
-+			offset-ana = <0x38>;
-+			resets = <&reset1 4 4>, <&reset0 4 4>;
-+			reset-names = "phy", "ctrl";
-+			#phy-cells = <0>;
-+		};
-+
-+		usb_phy1: usb2-phy@1 {
-+			compatible = "lantiq,xrx200-rcu-usb2-phy";
-+			status = "disabled";
-+
-+			regmap = <&rcu0>;
-+			offset-phy = <0x34>;
-+			offset-ana = <0x3C>;
-+			resets = <&reset1 5 4>, <&reset0 4 4>;
-+			reset-names = "phy", "ctrl";
-+			#phy-cells = <0>;
-+		};
-+
-+		reboot {
-+			compatible = "syscon-reboot";
-+
-+			regmap = <&rcu0>;
-+			offset = <0x10>;
-+			mask = <0x40000000>;
-+		};
-+	};
-+
+diff --git a/arch/mips/lantiq/Kconfig b/arch/mips/lantiq/Kconfig
+index f5db4a426568..35bc69b78268 100644
+--- a/arch/mips/lantiq/Kconfig
++++ b/arch/mips/lantiq/Kconfig
+@@ -18,6 +18,7 @@ config SOC_XWAY
+ 	select SOC_TYPE_XWAY
+ 	select HW_HAS_PCI
+ 	select MFD_SYSCON
++	select MFD_CORE
+ 
+ config SOC_FALCON
+ 	bool "FALCON"
+diff --git a/arch/mips/lantiq/xway/Makefile b/arch/mips/lantiq/xway/Makefile
+index 6daf3149e7ca..fbb0747c70b7 100644
+--- a/arch/mips/lantiq/xway/Makefile
++++ b/arch/mips/lantiq/xway/Makefile
+@@ -1,3 +1,3 @@
+-obj-y := prom.o sysctrl.o clk.o reset.o dma.o gptu.o dcdc.o
++obj-y := prom.o sysctrl.o clk.o dma.o gptu.o dcdc.o
+ 
+ obj-y += vmmc.o
+diff --git a/arch/mips/lantiq/xway/reset.c b/arch/mips/lantiq/xway/reset.c
+deleted file mode 100644
+index 04cd9a7c04a3..000000000000
+--- a/arch/mips/lantiq/xway/reset.c
++++ /dev/null
+@@ -1,147 +0,0 @@
+-/*
+- *  This program is free software; you can redistribute it and/or modify it
+- *  under the terms of the GNU General Public License version 2 as published
+- *  by the Free Software Foundation.
+- *
+- *  Copyright (C) 2010 John Crispin <john@phrozen.org>
+- *  Copyright (C) 2013-2015 Lantiq Beteiligungs-GmbH & Co.KG
+- */
+-
+-#include <linux/init.h>
+-#include <linux/io.h>
+-#include <linux/ioport.h>
+-#include <linux/pm.h>
+-#include <linux/export.h>
+-#include <linux/delay.h>
+-#include <linux/of_address.h>
+-#include <linux/of_platform.h>
+-#include <linux/reset-controller.h>
+-
+-#include <asm/reboot.h>
+-
+-#include <lantiq_soc.h>
+-
+-#include "../prom.h"
+-
+-/* reset request register */
+-#define RCU_RST_REQ		0x0010
+-/* reset status register */
+-#define RCU_RST_STAT		0x0014
+-
+-/* xbar BE flag */
+-#define RCU_AHB_ENDIAN          0x004C
+-#define RCU_VR9_BE_AHB1S        0x00000008
+-
+-/* reboot bit */
+-#define RCU_RD_GPHY0_XRX200	BIT(31)
+-#define RCU_RD_SRST		BIT(30)
+-#define RCU_RD_GPHY1_XRX200	BIT(29)
+-
+-/* reset cause */
+-#define RCU_STAT_SHIFT		26
+-/* boot selection */
+-#define RCU_BOOT_SEL(x)		((x >> 18) & 0x7)
+-#define RCU_BOOT_SEL_XRX200(x)	(((x >> 17) & 0xf) | ((x >> 8) & 0x10))
+-
+-/* dwc2 USB configuration registers */
+-#define RCU_USB1CFG		0x0018
+-#define RCU_USB2CFG		0x0034
+-
+-/* USB DMA endianness bits */
+-#define RCU_USBCFG_HDSEL_BIT	BIT(11)
+-#define RCU_USBCFG_HOST_END_BIT	BIT(10)
+-#define RCU_USBCFG_SLV_END_BIT	BIT(9)
+-
+-/* USB reset bits */
+-#define RCU_USBRESET		0x0010
+-
+-#define USBRESET_BIT		BIT(4)
+-
+-#define RCU_USBRESET2		0x0048
+-
+-#define USB1RESET_BIT		BIT(4)
+-#define USB2RESET_BIT		BIT(5)
+-
+-#define RCU_CFG1A		0x0038
+-#define RCU_CFG1B		0x003C
+-
+-/* USB PMU devices */
+-#define PMU_AHBM		BIT(15)
+-#define PMU_USB0		BIT(6)
+-#define PMU_USB1		BIT(27)
+-
+-/* USB PHY PMU devices */
+-#define PMU_USB0_P		BIT(0)
+-#define PMU_USB1_P		BIT(26)
+-
+-/* remapped base addr of the reset control unit */
+-static void __iomem *ltq_rcu_membase;
+-static struct device_node *ltq_rcu_np;
+-
+-static void ltq_rcu_w32(uint32_t val, uint32_t reg_off)
+-{
+-	ltq_w32(val, ltq_rcu_membase + reg_off);
+-}
+-
+-static uint32_t ltq_rcu_r32(uint32_t reg_off)
+-{
+-	return ltq_r32(ltq_rcu_membase + reg_off);
+-}
+-
+-static void ltq_machine_restart(char *command)
+-{
+-	u32 val = ltq_rcu_r32(RCU_RST_REQ);
+-
+-	if (of_device_is_compatible(ltq_rcu_np, "lantiq,rcu-xrx200"))
+-		val |= RCU_RD_GPHY1_XRX200 | RCU_RD_GPHY0_XRX200;
+-
+-	val |= RCU_RD_SRST;
+-
+-	local_irq_disable();
+-	ltq_rcu_w32(val, RCU_RST_REQ);
+-	unreachable();
+-}
+-
+-static void ltq_machine_halt(void)
+-{
+-	local_irq_disable();
+-	unreachable();
+-}
+-
+-static void ltq_machine_power_off(void)
+-{
+-	local_irq_disable();
+-	unreachable();
+-}
+-
+-static int __init mips_reboot_setup(void)
+-{
+-	struct resource res;
+-
+-	ltq_rcu_np = of_find_compatible_node(NULL, NULL, "lantiq,rcu-xway");
+-	if (!ltq_rcu_np)
+-		ltq_rcu_np = of_find_compatible_node(NULL, NULL,
+-							"lantiq,rcu-xrx200");
+-
+-	/* check if all the reset register range is available */
+-	if (!ltq_rcu_np)
+-		panic("Failed to load reset resources from devicetree");
+-
+-	if (of_address_to_resource(ltq_rcu_np, 0, &res))
+-		panic("Failed to get rcu memory range");
+-
+-	if (!request_mem_region(res.start, resource_size(&res), res.name))
+-		pr_err("Failed to request rcu memory");
+-
+-	ltq_rcu_membase = ioremap_nocache(res.start, resource_size(&res));
+-	if (!ltq_rcu_membase)
+-		panic("Failed to remap core memory");
+-
+-	_machine_restart = ltq_machine_restart;
+-	_machine_halt = ltq_machine_halt;
+-	pm_power_off = ltq_machine_power_off;
+-
+-	return 0;
+-}
+-
+-arch_initcall(mips_reboot_setup);
 -- 
 2.11.0
 
