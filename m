@@ -1,8 +1,8 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from hauke-m.de ([5.39.93.123]:50795 "EHLO mail.hauke-m.de"
+Received: from hauke-m.de ([5.39.93.123]:50783 "EHLO mail.hauke-m.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750878AbdE1Skc (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 28 May 2017 14:40:32 -0400
+        id S1750798AbdE1Sk3 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Sun, 28 May 2017 14:40:29 -0400
 From: Hauke Mehrtens <hauke@hauke-m.de>
 To: ralf@linux-mips.org
 Cc: linux-mips@linux-mips.org, linux-mtd@lists.infradead.org,
@@ -11,33 +11,109 @@ Cc: linux-mips@linux-mips.org, linux-mtd@lists.infradead.org,
         linux-spi@vger.kernel.org, hauke.mehrtens@intel.com,
         robh@kernel.org, andy.shevchenko@gmail.com, p.zabel@pengutronix.de,
         Hauke Mehrtens <hauke@hauke-m.de>
-Subject: [PATCH v3 06/16] MIPS: lantiq: Enable MFD_SYSCON to be able to use it for the RCU MFD
-Date: Sun, 28 May 2017 20:39:56 +0200
-Message-Id: <20170528184006.31668-7-hauke@hauke-m.de>
+Subject: [PATCH v3 04/16] watchdog: lantiq: access boot cause register through regmap
+Date: Sun, 28 May 2017 20:39:54 +0200
+Message-Id: <20170528184006.31668-5-hauke@hauke-m.de>
 In-Reply-To: <20170528184006.31668-1-hauke@hauke-m.de>
 References: <20170528184006.31668-1-hauke@hauke-m.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+This patch avoids accessing the function ltq_reset_cause() and directly
+accesses the register given over the syscon interface. The syscon
+interface will be implemented for the xway SoCs for the falcon SoCs the
+ltq_reset_cause() function never worked, because a wrong offset was used.
 
 Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
+Acked-by: Guenter Roeck <linux@reck-us.net>
 ---
- arch/mips/lantiq/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/watchdog/lantiq_wdt.c | 45 +++++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 41 insertions(+), 4 deletions(-)
 
-diff --git a/arch/mips/lantiq/Kconfig b/arch/mips/lantiq/Kconfig
-index 177769dbb0e8..f5db4a426568 100644
---- a/arch/mips/lantiq/Kconfig
-+++ b/arch/mips/lantiq/Kconfig
-@@ -17,6 +17,7 @@ config SOC_XWAY
- 	bool "XWAY"
- 	select SOC_TYPE_XWAY
- 	select HW_HAS_PCI
-+	select MFD_SYSCON
+diff --git a/drivers/watchdog/lantiq_wdt.c b/drivers/watchdog/lantiq_wdt.c
+index e0823677d8c1..c9ad8100ec3c 100644
+--- a/drivers/watchdog/lantiq_wdt.c
++++ b/drivers/watchdog/lantiq_wdt.c
+@@ -4,6 +4,7 @@
+  *  by the Free Software Foundation.
+  *
+  *  Copyright (C) 2010 John Crispin <john@phrozen.org>
++ *  Copyright (C) 2017 Hauke Mehrtens <hauke@hauke-m.de>
+  *  Based on EP93xx wdt driver
+  */
  
- config SOC_FALCON
- 	bool "FALCON"
+@@ -17,6 +18,8 @@
+ #include <linux/uaccess.h>
+ #include <linux/clk.h>
+ #include <linux/io.h>
++#include <linux/regmap.h>
++#include <linux/mfd/syscon.h>
+ 
+ #include <lantiq_soc.h>
+ 
+@@ -186,6 +189,40 @@ static struct miscdevice ltq_wdt_miscdev = {
+ 	.fops	= &ltq_wdt_fops,
+ };
+ 
++static void ltq_set_wdt_bootstatus(struct platform_device *pdev)
++{
++	struct device *dev = &pdev->dev;
++	struct regmap *rcu_regmap;
++	u32 status_reg_offset;
++	u32 status_reg_mask;
++	u32 val;
++	int err;
++
++	rcu_regmap = syscon_regmap_lookup_by_phandle(dev->of_node, "regmap");
++	if (IS_ERR_OR_NULL(rcu_regmap))
++		return;
++
++	err = device_property_read_u32(dev, "offset-status",
++				       &status_reg_offset);
++	if (err) {
++		dev_err(&pdev->dev, "Failed to get RCU reg offset\n");
++		return;
++	}
++
++	err = device_property_read_u32(dev, "mask-status", &status_reg_mask);
++	if (err) {
++		dev_err(&pdev->dev, "Failed to get RCU reg offset\n");
++		return;
++	}
++
++	err = regmap_read(rcu_regmap, status_reg_offset, &val);
++	if (err)
++		return;
++
++	if (val & status_reg_mask)
++		ltq_wdt_bootstatus = WDIOF_CARDRESET;
++}
++
+ static int
+ ltq_wdt_probe(struct platform_device *pdev)
+ {
+@@ -205,9 +242,7 @@ ltq_wdt_probe(struct platform_device *pdev)
+ 	ltq_io_region_clk_rate = clk_get_rate(clk);
+ 	clk_put(clk);
+ 
+-	/* find out if the watchdog caused the last reboot */
+-	if (ltq_reset_cause() == LTQ_RST_CAUSE_WDTRST)
+-		ltq_wdt_bootstatus = WDIOF_CARDRESET;
++	ltq_set_wdt_bootstatus(pdev);
+ 
+ 	dev_info(&pdev->dev, "Init done\n");
+ 	return misc_register(&ltq_wdt_miscdev);
+@@ -222,7 +257,9 @@ ltq_wdt_remove(struct platform_device *pdev)
+ }
+ 
+ static const struct of_device_id ltq_wdt_match[] = {
+-	{ .compatible = "lantiq,wdt" },
++	{ .compatible = "lantiq,wdt"},
++	{ .compatible = "lantiq,wdt-xrx100"},
++	{ .compatible = "lantiq,wdt-falcon"},
+ 	{},
+ };
+ MODULE_DEVICE_TABLE(of, ltq_wdt_match);
 -- 
 2.11.0
 
