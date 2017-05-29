@@ -1,96 +1,120 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailout1.samsung.com ([203.254.224.24]:20665 "EHLO
-        mailout1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750954AbdE2JUm (ORCPT
+Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:42813 "EHLO
+        metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1750880AbdE2KUq (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 29 May 2017 05:20:42 -0400
-From: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Alexandre Courbot <gnurou@gmail.com>,
-        Jonathan Cameron <jic23@kernel.org>,
-        Hartmut Knaack <knaack.h@gmx.de>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Kishon Vijay Abraham I <kishon@ti.com>,
-        Sebastian Reichel <sre@kernel.org>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Felipe Balbi <balbi@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Daniel Thompson <daniel.thompson@linaro.org>,
-        Jingoo Han <jingoohan1@gmail.com>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Peter Ujfalusi <peter.ujfalusi@ti.com>,
-        Jaroslav Kysela <perex@perex.cz>,
-        Takashi Iwai <tiwai@suse.com>, linux-omap@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-gpio@vger.kernel.org, linux-iio@vger.kernel.org,
-        linux-input@vger.kernel.org, linux-pm@vger.kernel.org,
-        linux-pwm@vger.kernel.org, rtc-linux@googlegroups.com,
-        linux-usb@vger.kernel.org, linux-fbdev@vger.kernel.org,
-        linux-watchdog@vger.kernel.org, alsa-devel@alsa-project.org
-Subject: Re: [PATCH 3/3] mfd: twl: move header file out of I2C realm
-Date: Mon, 29 May 2017 11:20:33 +0200
-Message-id: <7306372.PblijfWnMI@amdc3058>
-In-reply-to: <20170521220212.1404-4-wsa@the-dreams.de>
-MIME-version: 1.0
-Content-transfer-encoding: 7Bit
-Content-type: text/plain; charset="us-ascii"
-References: <20170521220212.1404-1-wsa@the-dreams.de>
-        <CGME20170521220224epcas2p4fbcfe69660d457b8af95ddc196c04a9b@epcas2p4.samsung.com>
-        <20170521220212.1404-4-wsa@the-dreams.de>
+        Mon, 29 May 2017 06:20:46 -0400
+Message-ID: <1496053214.17695.49.camel@pengutronix.de>
+Subject: Re: [PATCH v3 10/16] reset: Add a reset controller driver for the
+ Lantiq XWAY based SoCs
+From: Philipp Zabel <p.zabel@pengutronix.de>
+To: Hauke Mehrtens <hauke@hauke-m.de>
+Cc: ralf@linux-mips.org, linux-mips@linux-mips.org,
+        linux-mtd@lists.infradead.org, linux-watchdog@vger.kernel.org,
+        devicetree@vger.kernel.org, martin.blumenstingl@googlemail.com,
+        john@phrozen.org, linux-spi@vger.kernel.org,
+        hauke.mehrtens@intel.com, robh@kernel.org,
+        andy.shevchenko@gmail.com
+Date: Mon, 29 May 2017 12:20:14 +0200
+In-Reply-To: <20170528184006.31668-11-hauke@hauke-m.de>
+References: <20170528184006.31668-1-hauke@hauke-m.de>
+         <20170528184006.31668-11-hauke@hauke-m.de>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Monday, May 22, 2017 12:02:10 AM Wolfram Sang wrote:
-> include/linux/i2c is not for client devices. Move the header file to a
-> more appropriate location.
-> 
-> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Hi Hauke,
 
-Acked-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+On Sun, 2017-05-28 at 20:40 +0200, Hauke Mehrtens wrote:
+[...]
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/reset/lantiq,reset.txt
+> @@ -0,0 +1,30 @@
+> +Lantiq XWAY SoC RCU reset controller binding
+> +============================================
+> +
+> +This binding describes a reset-controller found on the RCU module on Lantiq
+> +XWAY SoCs.
+> +
+> +
+> +-------------------------------------------------------------------------------
+> +Required properties:
+> +- compatible		: Should be one of
+> +				"lantiq,reset-danube"
+> +				"lantiq,reset-xrx200"
+> +- regmap		: A phandle to the RCU syscon
+> +- offset-set		: Offset of the reset set register
+> +- offset-status		: Offset of the reset status register
+> +- #reset-cells		: Specifies the number of cells needed to encode the
+> +			  reset line, should be 2.
+> +			  The first cell takes the reset set bit and the
+> +			  second cell takes the status bit.
+> +
+> +-------------------------------------------------------------------------------
+> +Example for the reset-controllers on the xRX200 SoCs:
+> +	reset0: reset-controller@0 {
+> +		compatible = "lantiq,reset-xrx200";
+> +
+> +		regmap = <&rcu0>;
 
-> ---
->  arch/arm/mach-omap2/common.h            | 2 +-
->  arch/arm/mach-omap2/omap_twl.c          | 2 +-
->  drivers/gpio/gpio-twl4030.c             | 2 +-
->  drivers/iio/adc/twl4030-madc.c          | 2 +-
->  drivers/iio/adc/twl6030-gpadc.c         | 2 +-
->  drivers/input/keyboard/twl4030_keypad.c | 2 +-
->  drivers/input/misc/twl4030-pwrbutton.c  | 2 +-
->  drivers/input/misc/twl4030-vibra.c      | 2 +-
->  drivers/mfd/twl-core.c                  | 6 +++---
->  drivers/mfd/twl4030-audio.c             | 2 +-
->  drivers/mfd/twl4030-irq.c               | 2 +-
->  drivers/mfd/twl4030-power.c             | 2 +-
->  drivers/mfd/twl6030-irq.c               | 2 +-
->  drivers/phy/phy-twl4030-usb.c           | 2 +-
->  drivers/power/supply/twl4030_charger.c  | 2 +-
->  drivers/pwm/pwm-twl-led.c               | 2 +-
->  drivers/pwm/pwm-twl.c                   | 2 +-
->  drivers/regulator/twl-regulator.c       | 2 +-
->  drivers/regulator/twl6030-regulator.c   | 2 +-
->  drivers/rtc/rtc-twl.c                   | 2 +-
->  drivers/usb/phy/phy-twl6030-usb.c       | 2 +-
->  drivers/video/backlight/pandora_bl.c    | 2 +-
->  drivers/watchdog/twl4030_wdt.c          | 2 +-
->  include/linux/{i2c => mfd}/twl.h        | 0
->  sound/soc/codecs/twl4030.c              | 2 +-
->  25 files changed, 26 insertions(+), 26 deletions(-)
->  rename include/linux/{i2c => mfd}/twl.h (100%)
+Why not place these nodes as children of &rcu0 ? This property would be
+superfluous then.
 
-Best regards,
---
-Bartlomiej Zolnierkiewicz
-Samsung R&D Institute Poland
-Samsung Electronics
+> +		offset-set = <0x10>;
+> +		offset-status = <0x14>;
+> +		#reset-cells = <2>;
+> +	};
+[...]
+> --- /dev/null
+> +++ b/drivers/reset/reset-lantiq.c
+> @@ -0,0 +1,205 @@
+[...]
+> +static int lantiq_rcu_reset_update(struct reset_controller_dev *rcdev,
+> +				   unsigned long id, bool assert)
+> +{
+> +	struct lantiq_rcu_reset_priv *priv = to_lantiq_rcu_reset_priv(rcdev);
+> +	int ret, retry = LANTIQ_RCU_RESET_TIMEOUT;
+> +	unsigned int set = id & 0x1f;
+> +	u32 val;
+> +
+> +	if (assert)
+> +		val = BIT(set);
+> +	else
+> +		val = 0;
+> +
+> +	ret = regmap_update_bits(priv->regmap, priv->reset_offset, BIT(set),
+> +				 val);
+> +	if (ret) {
+> +		dev_err(priv->dev, "Failed to set reset bit %u\n", set);
+> +		return ret;
+> +	}
+> +
+> +	do {
+> +		ret = lantiq_rcu_reset_status(rcdev, id);
+> +		if (ret < 0)
+> +			return ret;
+> +		if (ret == assert)
+> +			break;
+> +		usleep_range(20, 40);
+> +	} while (--retry);
+
+How about wrapping this in a lantiq_rcu_poll_status(_timeout) function?
+I still think this is a case where regmap_read_poll_timeout could be
+used.
+
+[...]
+> +static int lantiq_rcu_reset_of_probe(struct platform_device *pdev,
+> +			       struct lantiq_rcu_reset_priv *priv)
+> +{
+> +	struct device *dev = &pdev->dev;
+> +	int ret;
+> +
+> +	priv->regmap = syscon_regmap_lookup_by_phandle(dev->of_node, "regmap");
+
+Why not use syscon_node_to_regmap(dev->of_node->parent) ?
+
+regards
+Philipp
 
