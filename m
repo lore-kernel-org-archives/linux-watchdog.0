@@ -1,67 +1,96 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-qt0-f194.google.com ([209.85.216.194]:33453 "EHLO
-        mail-qt0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754703AbdE0BXQ (ORCPT
+Received: from mailout1.samsung.com ([203.254.224.24]:20665 "EHLO
+        mailout1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750954AbdE2JUm (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 26 May 2017 21:23:16 -0400
-From: Murilo Opsfelder Araujo <mopsfelder@gmail.com>
-To: linux-kernel@vger.kernel.org
-Cc: linux-watchdog@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        Mon, 29 May 2017 05:20:42 -0400
+From: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Alexandre Courbot <gnurou@gmail.com>,
+        Jonathan Cameron <jic23@kernel.org>,
+        Hartmut Knaack <knaack.h@gmx.de>,
+        Lars-Peter Clausen <lars@metafoo.de>,
+        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Kishon Vijay Abraham I <kishon@ti.com>,
+        Sebastian Reichel <sre@kernel.org>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Felipe Balbi <balbi@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Daniel Thompson <daniel.thompson@linaro.org>,
+        Jingoo Han <jingoohan1@gmail.com>,
         Wim Van Sebroeck <wim@iguana.be>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Murilo Opsfelder Araujo <mopsfelder@gmail.com>
-Subject: [PATCH] drivers/watchdog/Kconfig: Update CONFIG_WATCHDOG_RTAS dependencies
-Date: Fri, 26 May 2017 22:22:56 -0300
-Message-Id: <20170527012256.6005-1-mopsfelder@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+        Guenter Roeck <linux@roeck-us.net>,
+        Peter Ujfalusi <peter.ujfalusi@ti.com>,
+        Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.com>, linux-omap@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-gpio@vger.kernel.org, linux-iio@vger.kernel.org,
+        linux-input@vger.kernel.org, linux-pm@vger.kernel.org,
+        linux-pwm@vger.kernel.org, rtc-linux@googlegroups.com,
+        linux-usb@vger.kernel.org, linux-fbdev@vger.kernel.org,
+        linux-watchdog@vger.kernel.org, alsa-devel@alsa-project.org
+Subject: Re: [PATCH 3/3] mfd: twl: move header file out of I2C realm
+Date: Mon, 29 May 2017 11:20:33 +0200
+Message-id: <7306372.PblijfWnMI@amdc3058>
+In-reply-to: <20170521220212.1404-4-wsa@the-dreams.de>
+MIME-version: 1.0
+Content-transfer-encoding: 7Bit
+Content-type: text/plain; charset="us-ascii"
+References: <20170521220212.1404-1-wsa@the-dreams.de>
+        <CGME20170521220224epcas2p4fbcfe69660d457b8af95ddc196c04a9b@epcas2p4.samsung.com>
+        <20170521220212.1404-4-wsa@the-dreams.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
 
-drivers/watchdog/wdrtas.c uses symbols defined in arch/powerpc/kernel/rta=
-s.c,
-which are exported iff CONFIG_PPC_RTAS is selected. Building wdrtas.c wit=
-hout
-setting CONFIG_PPC_RTAS throws the following errors:
+On Monday, May 22, 2017 12:02:10 AM Wolfram Sang wrote:
+> include/linux/i2c is not for client devices. Move the header file to a
+> more appropriate location.
+> 
+> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 
-    ERROR: ".rtas_token" [drivers/watchdog/wdrtas.ko] undefined!
-    ERROR: "rtas_data_buf" [drivers/watchdog/wdrtas.ko] undefined!
-    ERROR: "rtas_data_buf_lock" [drivers/watchdog/wdrtas.ko] undefined!
-    ERROR: ".rtas_get_sensor" [drivers/watchdog/wdrtas.ko] undefined!
-    ERROR: ".rtas_call" [drivers/watchdog/wdrtas.ko] undefined!
+Acked-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
 
-This was identified during a randconfig build where CONFIG_WATCHDOG_RTAS=3D=
-m and
-CONFIG_PPC_RTAS was not set. Logs are here:
+> ---
+>  arch/arm/mach-omap2/common.h            | 2 +-
+>  arch/arm/mach-omap2/omap_twl.c          | 2 +-
+>  drivers/gpio/gpio-twl4030.c             | 2 +-
+>  drivers/iio/adc/twl4030-madc.c          | 2 +-
+>  drivers/iio/adc/twl6030-gpadc.c         | 2 +-
+>  drivers/input/keyboard/twl4030_keypad.c | 2 +-
+>  drivers/input/misc/twl4030-pwrbutton.c  | 2 +-
+>  drivers/input/misc/twl4030-vibra.c      | 2 +-
+>  drivers/mfd/twl-core.c                  | 6 +++---
+>  drivers/mfd/twl4030-audio.c             | 2 +-
+>  drivers/mfd/twl4030-irq.c               | 2 +-
+>  drivers/mfd/twl4030-power.c             | 2 +-
+>  drivers/mfd/twl6030-irq.c               | 2 +-
+>  drivers/phy/phy-twl4030-usb.c           | 2 +-
+>  drivers/power/supply/twl4030_charger.c  | 2 +-
+>  drivers/pwm/pwm-twl-led.c               | 2 +-
+>  drivers/pwm/pwm-twl.c                   | 2 +-
+>  drivers/regulator/twl-regulator.c       | 2 +-
+>  drivers/regulator/twl6030-regulator.c   | 2 +-
+>  drivers/rtc/rtc-twl.c                   | 2 +-
+>  drivers/usb/phy/phy-twl6030-usb.c       | 2 +-
+>  drivers/video/backlight/pandora_bl.c    | 2 +-
+>  drivers/watchdog/twl4030_wdt.c          | 2 +-
+>  include/linux/{i2c => mfd}/twl.h        | 0
+>  sound/soc/codecs/twl4030.c              | 2 +-
+>  25 files changed, 26 insertions(+), 26 deletions(-)
+>  rename include/linux/{i2c => mfd}/twl.h (100%)
 
-    http://kisskb.ellerman.id.au/kisskb/buildresult/12982152/
-
-This patch fixes the issue by selecting CONFIG_PPC_RTAS when
-CONFIG_WATCHDOG_RTAS is set.
-
-Signed-off-by: Murilo Opsfelder Araujo <mopsfelder@gmail.com>
----
- drivers/watchdog/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 8b9049d..5d872145 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -1689,6 +1689,7 @@ config MEN_A21_WDT
- config WATCHDOG_RTAS
- 	tristate "RTAS watchdog"
- 	depends on PPC_RTAS || (PPC64 && COMPILE_TEST)
-+	select PPC_RTAS
- 	help
- 	  This driver adds watchdog support for the RTAS watchdog.
-=20
---=20
-2.9.4
-
+Best regards,
 --
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Bartlomiej Zolnierkiewicz
+Samsung R&D Institute Poland
+Samsung Electronics
+
