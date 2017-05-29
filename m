@@ -1,67 +1,80 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:41830 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:42854 "EHLO
         bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751012AbdE2THQ (ORCPT
+        with ESMTP id S1750864AbdE2XVe (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 29 May 2017 15:07:16 -0400
-Subject: Re: [PATCH v2] drivers/watchdog/Kconfig: Update CONFIG_WATCHDOG_RTAS
- dependencies
-To: Murilo Opsfelder Araujo <mopsfelder@gmail.com>,
-        linux-kernel@vger.kernel.org
-Cc: linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
-        linuxppc-dev@lists.ozlabs.org,
-        Michael Ellerman <mpe@ellerman.id.au>
-References: <20170529132628.10803-1-mopsfelder@gmail.com>
+        Mon, 29 May 2017 19:21:34 -0400
 From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <ea2c9fc6-068e-f9f6-f8eb-1399c9a6cf7a@roeck-us.net>
-Date: Mon, 29 May 2017 12:07:12 -0700
-MIME-Version: 1.0
-In-Reply-To: <20170529132628.10803-1-mopsfelder@gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH] watchdog: w83627hf: Add support for NCT6793D and NCT6795D
+Date: Mon, 29 May 2017 16:21:31 -0700
+Message-Id: <1496100091-26006-1-git-send-email-linux@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 05/29/2017 06:26 AM, Murilo Opsfelder Araujo wrote:
-> drivers/watchdog/wdrtas.c uses symbols defined in arch/powerpc/kernel/rtas.c,
-> which are exported iff CONFIG_PPC_RTAS is selected. Building wdrtas.c without
-> setting CONFIG_PPC_RTAS throws the following errors:
-> 
->      ERROR: ".rtas_token" [drivers/watchdog/wdrtas.ko] undefined!
->      ERROR: "rtas_data_buf" [drivers/watchdog/wdrtas.ko] undefined!
->      ERROR: "rtas_data_buf_lock" [drivers/watchdog/wdrtas.ko] undefined!
->      ERROR: ".rtas_get_sensor" [drivers/watchdog/wdrtas.ko] undefined!
->      ERROR: ".rtas_call" [drivers/watchdog/wdrtas.ko] undefined!
-> 
-> This was identified during a randconfig build where CONFIG_WATCHDOG_RTAS=m and
-> CONFIG_PPC_RTAS was not set. Logs are here:
-> 
->      http://kisskb.ellerman.id.au/kisskb/buildresult/12982152/
-> 
-> This patch fixes the issue by updating CONFIG_WATCHDOG_RTAS to depend on just
-> CONFIG_PPC_RTAS, removing COMPILE_TEST entirely.
-> 
-> Signed-off-by: Murilo Opsfelder Araujo <mopsfelder@gmail.com>
+Both NCT6793D and NCT6795D are compatible to NCT6792D.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+---
+ drivers/watchdog/w83627hf_wdt.c | 15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
 
-> ---
->   drivers/watchdog/Kconfig | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index 8b9049d..e6e31a1 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -1688,7 +1688,7 @@ config MEN_A21_WDT
->   
->   config WATCHDOG_RTAS
->   	tristate "RTAS watchdog"
-> -	depends on PPC_RTAS || (PPC64 && COMPILE_TEST)
-> +	depends on PPC_RTAS
->   	help
->   	  This driver adds watchdog support for the RTAS watchdog.
->   
-> 
+diff --git a/drivers/watchdog/w83627hf_wdt.c b/drivers/watchdog/w83627hf_wdt.c
+index 98fd186c6878..d9ba0496713c 100644
+--- a/drivers/watchdog/w83627hf_wdt.c
++++ b/drivers/watchdog/w83627hf_wdt.c
+@@ -49,7 +49,8 @@ static int cr_wdt_csr;		/* WDT control & status register */
+ 
+ enum chips { w83627hf, w83627s, w83697hf, w83697ug, w83637hf, w83627thf,
+ 	     w83687thf, w83627ehf, w83627dhg, w83627uhg, w83667hg, w83627dhg_p,
+-	     w83667hg_b, nct6775, nct6776, nct6779, nct6791, nct6792, nct6102 };
++	     w83667hg_b, nct6775, nct6776, nct6779, nct6791, nct6792, nct6793,
++	     nct6795, nct6102 };
+ 
+ static int timeout;			/* in seconds */
+ module_param(timeout, int, 0);
+@@ -97,6 +98,8 @@ MODULE_PARM_DESC(early_disable, "Disable watchdog at boot time (default=0)");
+ #define NCT6779_ID		0xc5
+ #define NCT6791_ID		0xc8
+ #define NCT6792_ID		0xc9
++#define NCT6793_ID		0xd1
++#define NCT6795_ID		0xd3
+ 
+ #define W83627HF_WDT_TIMEOUT	0xf6
+ #define W83697HF_WDT_TIMEOUT	0xf4
+@@ -204,6 +207,8 @@ static int w83627hf_init(struct watchdog_device *wdog, enum chips chip)
+ 	case nct6779:
+ 	case nct6791:
+ 	case nct6792:
++	case nct6793:
++	case nct6795:
+ 	case nct6102:
+ 		/*
+ 		 * These chips have a fixed WDTO# output pin (W83627UHG),
+@@ -396,6 +401,12 @@ static int wdt_find(int addr)
+ 	case NCT6792_ID:
+ 		ret = nct6792;
+ 		break;
++	case NCT6793_ID:
++		ret = nct6793;
++		break;
++	case NCT6795_ID:
++		ret = nct6795;
++		break;
+ 	case NCT6102_ID:
+ 		ret = nct6102;
+ 		cr_wdt_timeout = NCT6102D_WDT_TIMEOUT;
+@@ -437,6 +448,8 @@ static int __init wdt_init(void)
+ 		"NCT6779",
+ 		"NCT6791",
+ 		"NCT6792",
++		"NCT6793",
++		"NCT6795",
+ 		"NCT6102",
+ 	};
+ 
+-- 
+2.7.4
 
