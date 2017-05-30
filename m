@@ -1,56 +1,41 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([85.17.2.162]:36457 "EHLO spo001.leaseweb.nl"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751024AbdE3LUG (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 30 May 2017 07:20:06 -0400
-Date: Tue, 30 May 2017 13:20:00 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Guenter Roeck <linux@roeck-us.net>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [GIT PULL] watchdog updates for v4.12
-Message-ID: <20170530112000.GA32657@spo001.leaseweb.nl>
-References: <1494734105-15506-1-git-send-email-linux@roeck-us.net> <CAMuHMdV+6PWBj1W1Rt=mxg3BZSAWWarU1Gf_mYyX9TZCJam-QA@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAMuHMdV+6PWBj1W1Rt=mxg3BZSAWWarU1Gf_mYyX9TZCJam-QA@mail.gmail.com>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-path: <mpe@ellerman.id.au>
+From: Michael Ellerman <mpe@ellerman.id.au>
+To: Murilo Opsfelder Araujo <mopsfelder@gmail.com>, linux-kernel@vger.kernel.org
+Cc: linux-watchdog@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>, Wim Van Sebroeck <wim@iguana.be>, linuxppc-dev@lists.ozlabs.org, Murilo Opsfelder Araujo <mopsfelder@gmail.com>
+Subject: Re: [PATCH v2] drivers/watchdog/Kconfig: Update CONFIG_WATCHDOG_RTAS dependencies
+In-Reply-To: <20170529132628.10803-1-mopsfelder@gmail.com>
+References: <20170529132628.10803-1-mopsfelder@gmail.com>
+Date: Tue, 30 May 2017 20:55:35 +1000
+Message-ID: <8737bm62c8.fsf@concordia.ellerman.id.au>
+MIME-Version: 1.0
+Content-Type: text/plain
+List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi Geert,
+Murilo Opsfelder Araujo <mopsfelder@gmail.com> writes:
 
-> Hi Günter, Linus, Wim,
-> 
-> On Sun, May 14, 2017 at 5:55 AM, Guenter Roeck <linux@roeck-us.net> wrote:
-> > As requested by Wim:
-> >
-> > Please pull watchdog updates for Linux v4.12 from signed tag:
-> >
-> >     git://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git watchdog-for-linus-v4.12
-> >
-> > Note: I had to drop one of the patches affecting drivers/watchdog/iTCO_wdt.c
-> > because it and some other patches affecting the same file came in from
-> > another tree, causing severe and unnecessary conflicts. Other than that,
-> > the tree is about two weeks old, even though it looks like some of the
-> > patches are brand new.
-> 
-> What happened to this pull request?
-> 
-> It seems to have been superseded by "[GIT PULL REQUEST] watchdog - v4.12-rc1
-> Fixes", which did get pulled, but the latter included less commits.
-> 
-> E.g. the rza_wdt driver was not included.
-> In addition, it has also disappeared from linux-next?
+> drivers/watchdog/wdrtas.c uses symbols defined in arch/powerpc/kernel/rtas.c,
+> which are exported iff CONFIG_PPC_RTAS is selected. Building wdrtas.c without
+> setting CONFIG_PPC_RTAS throws the following errors:
+>
+>     ERROR: ".rtas_token" [drivers/watchdog/wdrtas.ko] undefined!
+>     ERROR: "rtas_data_buf" [drivers/watchdog/wdrtas.ko] undefined!
+>     ERROR: "rtas_data_buf_lock" [drivers/watchdog/wdrtas.ko] undefined!
+>     ERROR: ".rtas_get_sensor" [drivers/watchdog/wdrtas.ko] undefined!
+>     ERROR: ".rtas_call" [drivers/watchdog/wdrtas.ko] undefined!
+>
+> This was identified during a randconfig build where CONFIG_WATCHDOG_RTAS=m and
+> CONFIG_PPC_RTAS was not set. Logs are here:
+>
+>     http://kisskb.ellerman.id.au/kisskb/buildresult/12982152/
+>
+> This patch fixes the issue by updating CONFIG_WATCHDOG_RTAS to depend on just
+> CONFIG_PPC_RTAS, removing COMPILE_TEST entirely.
+>
+> Signed-off-by: Murilo Opsfelder Araujo <mopsfelder@gmail.com>
+> ---
+>  drivers/watchdog/Kconfig | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
-The pull request was to late to include it in the merge window.
-So we have to wait for the next merge window.
-So that's why we sent in the fixes in before rc2 came out.
-The other patches will be in the linux-next tree again in a couple of days.
+Acked-by: Michael Ellerman <mpe@ellerman.id.au>
 
-Kind regards,
-wim.
-
+cheers
