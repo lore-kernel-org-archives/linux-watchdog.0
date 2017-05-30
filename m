@@ -1,14 +1,14 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from hauke-m.de ([5.39.93.123]:52488 "EHLO mail.hauke-m.de"
+Received: from hauke-m.de ([5.39.93.123]:52574 "EHLO mail.hauke-m.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750815AbdE3UVY (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 30 May 2017 16:21:24 -0400
-Subject: Re: [PATCH v3 14/16] phy: Add an USB PHY driver for the Lantiq SoCs
- using the RCU module
+        id S1751395AbdE3WCt (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 30 May 2017 18:02:49 -0400
+Subject: Re: [PATCH v3 08/16] MIPS: lantiq: Convert the fpi bus driver to a
+ platform_driver
 To: Andy Shevchenko <andy.shevchenko@gmail.com>
 References: <20170528184006.31668-1-hauke@hauke-m.de>
- <20170528184006.31668-15-hauke@hauke-m.de>
- <CAHp75Ve9bV99=WCzmXU-Rth-gar5gqvy4taZ7NMQQHGKcVbHHw@mail.gmail.com>
+ <20170528184006.31668-9-hauke@hauke-m.de>
+ <CAHp75VcU3cF07GQG5vPV9uhmpOzO2aGD8Fj9-Do4yN3BXNN1Rg@mail.gmail.com>
 Cc: Ralf Baechle <ralf@linux-mips.org>,
         Linux MIPS Mailing List <linux-mips@linux-mips.org>,
         "open list:MEMORY TECHNOLOGY..." <linux-mtd@lists.infradead.org>,
@@ -18,125 +18,64 @@ Cc: Ralf Baechle <ralf@linux-mips.org>,
         john <john@phrozen.org>, linux-spi <linux-spi@vger.kernel.org>,
         "hauke.mehrtens" <hauke.mehrtens@intel.com>,
         Rob Herring <robh@kernel.org>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Kishon Vijay Abraham I <kishon@ti.com>
+        Philipp Zabel <p.zabel@pengutronix.de>
 From: Hauke Mehrtens <hauke@hauke-m.de>
-Message-ID: <6180daf0-2eaf-cd68-3eb5-e119dfd4aa2a@hauke-m.de>
-Date: Tue, 30 May 2017 22:21:19 +0200
+Message-ID: <6d18d1d4-b69c-70dd-f64e-2209685fe360@hauke-m.de>
+Date: Wed, 31 May 2017 00:02:36 +0200
 MIME-Version: 1.0
-In-Reply-To: <CAHp75Ve9bV99=WCzmXU-Rth-gar5gqvy4taZ7NMQQHGKcVbHHw@mail.gmail.com>
+In-Reply-To: <CAHp75VcU3cF07GQG5vPV9uhmpOzO2aGD8Fj9-Do4yN3BXNN1Rg@mail.gmail.com>
 Content-Type: text/plain; charset=utf-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 Content-Transfer-Encoding: quoted-printable
 
-On 05/30/2017 08:31 PM, Andy Shevchenko wrote:
-> On Sun, May 28, 2017 at 9:40 PM, Hauke Mehrtens <hauke@hauke-m.de> wrot=
+On 05/30/2017 08:23 PM, Andy Shevchenko wrote:
+> On Sun, May 28, 2017 at 9:39 PM, Hauke Mehrtens <hauke@hauke-m.de> wrot=
 e:
->> This driver starts the DWC2 core(s) built into the XWAY SoCs and provi=
-des
->> the PHY interfaces for each core. The phy instances can be passed to t=
-he
->> dwc2 driver, which already supports the generic phy interface.
+>> From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+>>
+>> Instead of hacking the configuration of the FPI bus into the arch code
+>> add an own bus driver for this internal bus. The FPI bus is the main
+>> bus of the SoC. This bus driver makes sure the bus is configured
+>> correctly before the child drivers are getting initialized. This drive=
+r
+>> will probably also be used on different SoC later.
 >=20
->> +static void ltq_rcu_usb2_start_cores(struct platform_device *pdev)
+>> +Optional properties:
+>> +- regmap               : A phandle to the RCU syscon
 >=20
-> It should return int. See below.
+>> +- offset-endianness    : Offset of the endianness configuration regis=
+ter
 >=20
->> +{
+> Shouldn't be one of
 >=20
->> +       /* Power on the USB core. */
->> +       if (clk_prepare_enable(priv->ctrl_gate_clk)) {
->=20
-> You basically shadow the error, why?
-
-Thanks for the hint I changed it.
-
->> +               dev_err(dev, "failed to enable CTRL gate\n");
->> +               return;
->> +       }
->=20
->> +       if (clk_prepare_enable(priv->phy_gate_clk)) {
->> +               dev_err(dev, "failed to enable PHY gate\n");
->> +               return;
->> +       }
->=20
-> Ditto.
-
-same here.
-
->> +static int ltq_rcu_usb2_of_probe(struct device_node *phynode,
->> +                                   struct ltq_rcu_usb2_priv *priv)
->> +{
->> +       struct device *dev =3D priv->dev;
->> +       const struct of_device_id *match =3D
->> +               of_match_node(ltq_rcu_usb2_phy_of_match, phynode);
->> +       int ret;
->> +
->=20
->> +       if (!match) {
->> +               dev_err(dev, "Not a compatible Lantiq RCU USB PHY\n");
->> +               return -EINVAL;
->> +       }
->=20
-> Can it ever happen?
-
-As long as this device gets probed by device tree this can not happen,
-so I will remove it.
-
->> +
->> +       priv->reg_bits =3D match->data;
->=20
-> I think there is a helper to get driver data directly from node.
-
-Thanks for the hint, there is of_device_get_match_data() which does this.
-
->> +       if (priv->reg_bits->have_ana_cfg) {
->> +               ret =3D device_property_read_u32(dev, "offset-ana",
->> +                                              &priv->ana_cfg1_reg_off=
-set);
->> +               if (ret) {
->> +                       dev_dbg(dev, "Failed to get RCU ANA CFG1 reg o=
-ffset\n");
->> +                       return ret;
->> +               }
->> +       }
->=20
-> ret =3D device_property_...(...);
-> if (ret && priv->reg_bits->have_ana_cfg) {
->  ...
->  return ret;
-> }
+> big-endian;
+> little-endian;
+> native-endian;
 >=20
 > ?
 
-Yes, that should look better, I will change it.
+The offset-endianness is the offset of the endianes register in the RCU
+register range which is accessed through the syscon. For the SoCs where
+I checked it is the same value. I should add a documentation of big-endia=
+n.
 
+> For what purpose that register is used?
+> Is it configurable in RTL? IOW why you need to have it in DT?
 >=20
+>> +               offset-endianness =3D <0x4c>;
+>> +               big-endian;
 >=20
->> +       priv->dev =3D &pdev->dev;
+>> +       /* RCU configuration is optional */
+>> +       rcu_regmap =3D syscon_regmap_lookup_by_phandle(np, "regmap");
 >=20
->> +       dev_set_drvdata(priv->dev, priv);
+>> +       if (!IS_ERR_OR_NULL(rcu_regmap)) {
 >=20
-> Move this to the end of function. Ideally it should be run if and only
-> if the function returns 0.
+> _OR_NULL is suspicious. You are doing something wrong.
+>=20
 
-Done
-
->> +       provider =3D devm_of_phy_provider_register(&pdev->dev,
->> +                                                of_phy_simple_xlate);
->> +
->> +       return PTR_ERR_OR_ZERO(provider);
->=20
-> I would do explicitly, though it's up to you and maintainer.
->=20
-> if (IS_ERR(provider))
->  return PTR_ERR();
->=20
-> return 0;
-
-I do not care, but this was I can call dev_set_drvdata() when this is
-really returning 0.
+This is only needed for some SoCs, some chips do not have this register.
+Should I do this based on the compatibility string?
 
 Hauke
 --
