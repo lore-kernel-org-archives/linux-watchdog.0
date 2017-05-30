@@ -1,80 +1,178 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:42854 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750864AbdE2XVe (ORCPT
+Received: from mail-it0-f67.google.com ([209.85.214.67]:34341 "EHLO
+        mail-it0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751406AbdE3LLP (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 29 May 2017 19:21:34 -0400
-From: Guenter Roeck <linux@roeck-us.net>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH] watchdog: w83627hf: Add support for NCT6793D and NCT6795D
-Date: Mon, 29 May 2017 16:21:31 -0700
-Message-Id: <1496100091-26006-1-git-send-email-linux@roeck-us.net>
+        Tue, 30 May 2017 07:11:15 -0400
+MIME-Version: 1.0
+In-Reply-To: <1494734105-15506-1-git-send-email-linux@roeck-us.net>
+References: <1494734105-15506-1-git-send-email-linux@roeck-us.net>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Tue, 30 May 2017 13:11:08 +0200
+Message-ID: <CAMuHMdV+6PWBj1W1Rt=mxg3BZSAWWarU1Gf_mYyX9TZCJam-QA@mail.gmail.com>
+Subject: Re: [GIT PULL] watchdog updates for v4.12
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Both NCT6793D and NCT6795D are compatible to NCT6792D.
+Hi G=C3=BCnter, Linus, Wim,
 
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
----
- drivers/watchdog/w83627hf_wdt.c | 15 ++++++++++++++-
- 1 file changed, 14 insertions(+), 1 deletion(-)
+On Sun, May 14, 2017 at 5:55 AM, Guenter Roeck <linux@roeck-us.net> wrote:
+> As requested by Wim:
+>
+> Please pull watchdog updates for Linux v4.12 from signed tag:
+>
+>     git://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.gi=
+t watchdog-for-linus-v4.12
+>
+> Note: I had to drop one of the patches affecting drivers/watchdog/iTCO_wd=
+t.c
+> because it and some other patches affecting the same file came in from
+> another tree, causing severe and unnecessary conflicts. Other than that,
+> the tree is about two weeks old, even though it looks like some of the
+> patches are brand new.
 
-diff --git a/drivers/watchdog/w83627hf_wdt.c b/drivers/watchdog/w83627hf_wdt.c
-index 98fd186c6878..d9ba0496713c 100644
---- a/drivers/watchdog/w83627hf_wdt.c
-+++ b/drivers/watchdog/w83627hf_wdt.c
-@@ -49,7 +49,8 @@ static int cr_wdt_csr;		/* WDT control & status register */
- 
- enum chips { w83627hf, w83627s, w83697hf, w83697ug, w83637hf, w83627thf,
- 	     w83687thf, w83627ehf, w83627dhg, w83627uhg, w83667hg, w83627dhg_p,
--	     w83667hg_b, nct6775, nct6776, nct6779, nct6791, nct6792, nct6102 };
-+	     w83667hg_b, nct6775, nct6776, nct6779, nct6791, nct6792, nct6793,
-+	     nct6795, nct6102 };
- 
- static int timeout;			/* in seconds */
- module_param(timeout, int, 0);
-@@ -97,6 +98,8 @@ MODULE_PARM_DESC(early_disable, "Disable watchdog at boot time (default=0)");
- #define NCT6779_ID		0xc5
- #define NCT6791_ID		0xc8
- #define NCT6792_ID		0xc9
-+#define NCT6793_ID		0xd1
-+#define NCT6795_ID		0xd3
- 
- #define W83627HF_WDT_TIMEOUT	0xf6
- #define W83697HF_WDT_TIMEOUT	0xf4
-@@ -204,6 +207,8 @@ static int w83627hf_init(struct watchdog_device *wdog, enum chips chip)
- 	case nct6779:
- 	case nct6791:
- 	case nct6792:
-+	case nct6793:
-+	case nct6795:
- 	case nct6102:
- 		/*
- 		 * These chips have a fixed WDTO# output pin (W83627UHG),
-@@ -396,6 +401,12 @@ static int wdt_find(int addr)
- 	case NCT6792_ID:
- 		ret = nct6792;
- 		break;
-+	case NCT6793_ID:
-+		ret = nct6793;
-+		break;
-+	case NCT6795_ID:
-+		ret = nct6795;
-+		break;
- 	case NCT6102_ID:
- 		ret = nct6102;
- 		cr_wdt_timeout = NCT6102D_WDT_TIMEOUT;
-@@ -437,6 +448,8 @@ static int __init wdt_init(void)
- 		"NCT6779",
- 		"NCT6791",
- 		"NCT6792",
-+		"NCT6793",
-+		"NCT6795",
- 		"NCT6102",
- 	};
- 
--- 
-2.7.4
+What happened to this pull request?
 
+It seems to have been superseded by "[GIT PULL REQUEST] watchdog - v4.12-rc=
+1
+Fixes", which did get pulled, but the latter included less commits.
+
+E.g. the rza_wdt driver was not included.
+In addition, it has also disappeared from linux-next?
+
+Thanks!
+
+> Thanks,
+> Guenter
+> ------
+>
+> The following changes since commit 39da7c509acff13fc8cb12ec1bb20337c988ed=
+36:
+>
+>   Linux 4.11-rc6 (2017-04-09 09:49:44 -0700)
+>
+> are available in the git repository at:
+>
+>   git://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git =
+tags/watchdog-for-linus-v4.12
+>
+> for you to fetch changes up to edf44420d704503d349025f22ab1973350427cca:
+>
+>   watchdog: bcm281xx: Fix use of uninitialized spinlock. (2017-05-13 20:2=
+6:30 -0700)
+>
+> ----------------------------------------------------------------
+> Watchdog patches for v4.12
+>
+> New drivers for STM32 and Renesas RZA watchdogs
+> Added support for F71868 to f71808e_wdt
+> Bug fixes and minor improvements in several drivers
+>
+> ----------------------------------------------------------------
+> Alexandre Belloni (4):
+>       watchdog: sama5d4: fix WDDIS handling
+>       watchdog: sama5d4: fix race condition
+>       watchdog: sama5d4: simplify probe
+>       watchdog: sama5d4: Add comment explaining what happens on resume
+>
+> Andy Shevchenko (1):
+>       watchdog: intel-mid_wdt: Keep watchdog running
+>
+> Arnd Bergmann (1):
+>       watchdog: orion: fix compile-test dependencies
+>
+> Chris Brandt (2):
+>       watchdog: add rza_wdt driver
+>       watchdog: renesas-wdt: add support for rza
+>
+> Eric Anholt (1):
+>       watchdog: bcm281xx: Fix use of uninitialized spinlock.
+>
+> Guenter Roeck (1):
+>       watchdog: gpio: Convert to use infrastructure triggered keepalives
+>
+> Johan Hovold (1):
+>       watchdog: pcwd_usb: fix NULL-deref at probe
+>
+> Krzysztof Kozlowski (3):
+>       watchdog: s3c2410: Constify local structures
+>       watchdog: s3c2410: Simplify getting driver data
+>       watchdog: s3c2410: Minor code cleanup
+>
+> Maciej S. Szmigiero (1):
+>       watchdog: f71808e_wdt: Add F71868 support
+>
+> Paolo Bonzini (1):
+>       iTCO_wdt: all versions count down twice
+>
+> Shile Zhang (1):
+>       watchdog: wdt_pci: fix build error if SOFTWARE_REBOOT is defined
+>
+> Steve Twiss (1):
+>       Documentation: devicetree: watchdog: da9062/61 watchdog timer bindi=
+ng
+>
+> Tomas Melin (1):
+>       watchdog: cadence_wdt: fix timeout setting
+>
+> Uwe Kleine-K=C3=B6nig (1):
+>       watchdog: orion: make license info match the file header
+>
+> Wei Yongjun (1):
+>       watchdog: zx2967: remove redundant dev_err call in zx2967_wdt_probe=
+()
+>
+> Yannick Fertre (2):
+>       dt-bindings: watchdog: Document STM32 IWDG bindings
+>       drivers: watchdog: Add STM32 IWDG driver
+>
+>  .../devicetree/bindings/watchdog/da9062-wdt.txt    |  23 ++
+>  .../devicetree/bindings/watchdog/renesas-wdt.txt   |   4 +-
+>  .../devicetree/bindings/watchdog/st,stm32-iwdg.txt |  19 ++
+>  Documentation/watchdog/watchdog-parameters.txt     |   2 +-
+>  drivers/watchdog/Kconfig                           |  29 ++-
+>  drivers/watchdog/Makefile                          |   2 +
+>  drivers/watchdog/bcm_kona_wdt.c                    |   3 +-
+>  drivers/watchdog/cadence_wdt.c                     |   2 +-
+>  drivers/watchdog/f71808e_wdt.c                     |  27 ++-
+>  drivers/watchdog/gpio_wdt.c                        |  73 ++----
+>  drivers/watchdog/iTCO_wdt.c                        |  22 +-
+>  drivers/watchdog/intel-mid_wdt.c                   |  17 +-
+>  drivers/watchdog/orion_wdt.c                       |   2 +-
+>  drivers/watchdog/pcwd_usb.c                        |   3 +
+>  drivers/watchdog/rza_wdt.c                         | 199 +++++++++++++++=
++
+>  drivers/watchdog/s3c2410_wdt.c                     |  58 +++--
+>  drivers/watchdog/sama5d4_wdt.c                     |  96 +++++---
+>  drivers/watchdog/stm32_iwdg.c                      | 253 +++++++++++++++=
+++++++
+>  drivers/watchdog/wdt_pci.c                         |   2 +-
+>  drivers/watchdog/zx2967_wdt.c                      |   4 +-
+>  20 files changed, 686 insertions(+), 154 deletions(-)
+>  create mode 100644 Documentation/devicetree/bindings/watchdog/da9062-wdt=
+.txt
+>  create mode 100644 Documentation/devicetree/bindings/watchdog/st,stm32-i=
+wdg.txt
+>  create mode 100644 drivers/watchdog/rza_wdt.c
+>  create mode 100644 drivers/watchdog/stm32_iwdg.c
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k=
+.org
+
+In personal conversations with technical people, I call myself a hacker. Bu=
+t
+when I'm talking to journalists I just say "programmer" or something like t=
+hat.
+                                -- Linus Torvalds
