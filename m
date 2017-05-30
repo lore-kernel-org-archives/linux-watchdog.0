@@ -1,67 +1,66 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wm0-f42.google.com ([74.125.82.42]:35134 "EHLO
-        mail-wm0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751186AbdE3JSJ (ORCPT
+Received: from mail-qt0-f172.google.com ([209.85.216.172]:34532 "EHLO
+        mail-qt0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750761AbdE3SX2 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 30 May 2017 05:18:09 -0400
-Received: by mail-wm0-f42.google.com with SMTP id b84so83828889wmh.0
-        for <linux-watchdog@vger.kernel.org>; Tue, 30 May 2017 02:18:03 -0700 (PDT)
-Date: Tue, 30 May 2017 10:17:59 +0100
-From: Lee Jones <lee.jones@linaro.org>
-To: Mark Brown <broonie@kernel.org>
-Cc: Steve Twiss <stwiss.opensource@diasemi.com>,
-        LINUX-KERNEL <linux-kernel@vger.kernel.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        DEVICETREE <devicetree@vger.kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Eduardo Valentin <edubezval@gmail.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        LINUX-INPUT <linux-input@vger.kernel.org>,
-        LINUX-PM <linux-pm@vger.kernel.org>,
-        LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Support Opensource <support.opensource@diasemi.com>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        Zhang Rui <rui.zhang@intel.com>
-Subject: Re: [RESEND PATCH V7 5/7] regulator: da9061: BUCK and LDO regulator
- driver
-Message-ID: <20170530091759.tkajnmlyel6h3djw@dell>
-References: <cover.1495546845.git.stwiss.opensource@diasemi.com>
- <ac0c9c0edf9a3a48d8de7a5c07b16b771871796e.1495546845.git.stwiss.opensource@diasemi.com>
- <20170523171721.lpqjhakaawnz4prz@sirena.org.uk>
- <20170524083243.5rhritb2tvmycfc6@dell>
- <20170524101057.v2fqwki4fopx5k7y@sirena.org.uk>
+        Tue, 30 May 2017 14:23:28 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20170524101057.v2fqwki4fopx5k7y@sirena.org.uk>
+In-Reply-To: <20170528184006.31668-9-hauke@hauke-m.de>
+References: <20170528184006.31668-1-hauke@hauke-m.de> <20170528184006.31668-9-hauke@hauke-m.de>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Date: Tue, 30 May 2017 21:23:26 +0300
+Message-ID: <CAHp75VcU3cF07GQG5vPV9uhmpOzO2aGD8Fj9-Do4yN3BXNN1Rg@mail.gmail.com>
+Subject: Re: [PATCH v3 08/16] MIPS: lantiq: Convert the fpi bus driver to a platform_driver
+To: Hauke Mehrtens <hauke@hauke-m.de>
+Cc: Ralf Baechle <ralf@linux-mips.org>,
+        Linux MIPS Mailing List <linux-mips@linux-mips.org>,
+        "open list:MEMORY TECHNOLOGY..." <linux-mtd@lists.infradead.org>,
+        linux-watchdog@vger.kernel.org,
+        devicetree <devicetree@vger.kernel.org>,
+        "martin.blumenstingl" <martin.blumenstingl@googlemail.com>,
+        john <john@phrozen.org>, linux-spi <linux-spi@vger.kernel.org>,
+        "hauke.mehrtens" <hauke.mehrtens@intel.com>,
+        Rob Herring <robh@kernel.org>,
+        Philipp Zabel <p.zabel@pengutronix.de>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
 
-On Wed, 24 May 2017, Mark Brown wrote:
+On Sun, May 28, 2017 at 9:39 PM, Hauke Mehrtens <hauke@hauke-m.de> wrote:
+> From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+>
+> Instead of hacking the configuration of the FPI bus into the arch code
+> add an own bus driver for this internal bus. The FPI bus is the main
+> bus of the SoC. This bus driver makes sure the bus is configured
+> correctly before the child drivers are getting initialized. This driver
+> will probably also be used on different SoC later.
 
-> On Wed, May 24, 2017 at 09:32:43AM +0100, Lee Jones wrote:
->=20
-> > Plan is to push this through the MFD tree.
->=20
-> Great, thanks.
+> +Optional properties:
+> +- regmap               : A phandle to the RCU syscon
 
-Just taking a look at this now.  It looks like the dependency:
+> +- offset-endianness    : Offset of the endianness configuration register
 
-  656211b1dfb9 mfd: Add support for DA9061
+Shouldn't be one of
 
-... is now in Mainline.  Therefore it should be okay to take this
-directly through the Regulator repo.
+big-endian;
+little-endian;
+native-endian;
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+?
+
+For what purpose that register is used?
+Is it configurable in RTL? IOW why you need to have it in DT?
+
+> +               offset-endianness = <0x4c>;
+> +               big-endian;
+
+> +       /* RCU configuration is optional */
+> +       rcu_regmap = syscon_regmap_lookup_by_phandle(np, "regmap");
+
+> +       if (!IS_ERR_OR_NULL(rcu_regmap)) {
+
+_OR_NULL is suspicious. You are doing something wrong.
+
+-- 
+With Best Regards,
+Andy Shevchenko
