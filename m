@@ -1,85 +1,86 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-oi0-f68.google.com ([209.85.218.68]:34289 "EHLO
+Received: from mail-oi0-f68.google.com ([209.85.218.68]:33312 "EHLO
         mail-oi0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750964AbdE3XLs (ORCPT
+        with ESMTP id S1751097AbdEaUAY (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 30 May 2017 19:11:48 -0400
-Date: Tue, 30 May 2017 18:11:46 -0500
+        Wed, 31 May 2017 16:00:24 -0400
+Date: Wed, 31 May 2017 15:00:21 -0500
 From: Rob Herring <robh@kernel.org>
 To: Hauke Mehrtens <hauke@hauke-m.de>
 Cc: ralf@linux-mips.org, linux-mips@linux-mips.org,
         linux-mtd@lists.infradead.org, linux-watchdog@vger.kernel.org,
         devicetree@vger.kernel.org, martin.blumenstingl@googlemail.com,
         john@phrozen.org, linux-spi@vger.kernel.org,
-        hauke.mehrtens@intel.com
-Subject: Re: [PATCH v2 07/15] MIPS: lantiq: Convert the xbar driver to a
- platform_driver
-Message-ID: <20170530231146.sk2zdq24a2oul6v4@rob-hp-laptop>
-References: <20170521130918.27446-1-hauke@hauke-m.de>
- <20170521130918.27446-8-hauke@hauke-m.de>
+        hauke.mehrtens@intel.com, andy.shevchenko@gmail.com,
+        p.zabel@pengutronix.de
+Subject: Re: [PATCH v3 05/16] watchdog: lantiq: add device tree binding
+ documentation
+Message-ID: <20170531200021.ld54cecme4ekak4i@rob-hp-laptop>
+References: <20170528184006.31668-1-hauke@hauke-m.de>
+ <20170528184006.31668-6-hauke@hauke-m.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20170521130918.27446-8-hauke@hauke-m.de>
+In-Reply-To: <20170528184006.31668-6-hauke@hauke-m.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Sun, May 21, 2017 at 03:09:10PM +0200, Hauke Mehrtens wrote:
-> From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-> 
-> This allows using the xbar driver on ARX300 based SoCs which require the
-> same xbar setup as the xRX200 chipsets because the xbar driver
-> initialization is not guarded by an xRX200 specific
-> of_machine_is_compatible condition anymore. Additionally the new driver
-> takes a syscon phandle to configure the XBAR endianness bits in RCU
-> (before this was done in arch/mips/lantiq/xway/reset.c and also
-> guarded by an VRX200 specific if-statement).
+On Sun, May 28, 2017 at 08:39:55PM +0200, Hauke Mehrtens wrote:
+> The binding was not documented before, add the documentation now.
 > 
 > Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
-> Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 > ---
->  .../devicetree/bindings/mips/lantiq/xbar.txt       |  24 +++++
->  MAINTAINERS                                        |   1 +
->  arch/mips/lantiq/xway/reset.c                      |   4 -
->  arch/mips/lantiq/xway/sysctrl.c                    |  41 ---------
->  drivers/soc/Makefile                               |   1 +
->  drivers/soc/lantiq/Makefile                        |   1 +
->  drivers/soc/lantiq/xbar.c                          | 101 +++++++++++++++++++++
->  7 files changed, 128 insertions(+), 45 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/mips/lantiq/xbar.txt
->  create mode 100644 drivers/soc/lantiq/Makefile
->  create mode 100644 drivers/soc/lantiq/xbar.c
+>  .../devicetree/bindings/watchdog/lantiq-wdt.txt    | 28 ++++++++++++++++++++++
+>  1 file changed, 28 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/watchdog/lantiq-wdt.txt
 > 
-> diff --git a/Documentation/devicetree/bindings/mips/lantiq/xbar.txt b/Documentation/devicetree/bindings/mips/lantiq/xbar.txt
+> diff --git a/Documentation/devicetree/bindings/watchdog/lantiq-wdt.txt b/Documentation/devicetree/bindings/watchdog/lantiq-wdt.txt
 > new file mode 100644
-> index 000000000000..7e1ea5299744
+> index 000000000000..675c30e23b65
 > --- /dev/null
-> +++ b/Documentation/devicetree/bindings/mips/lantiq/xbar.txt
-> @@ -0,0 +1,24 @@
-> +Lantiq XWAY SoC XBAR binding
+> +++ b/Documentation/devicetree/bindings/watchdog/lantiq-wdt.txt
+> @@ -0,0 +1,28 @@
+> +Lantiq WTD watchdog binding
 > +============================
 > +
+> +This describes the binding of the Lantiq watchdog driver.
 > +
 > +-------------------------------------------------------------------------------
 > +Required properties:
-> +- compatible	: Should be one of
-> +				"lantiq,xbar-xway"
-> +				"lantiq,xbar-xrx200"
-
-The normal form is <vendor>,<soc>-<block>.
-
-> +- reg		: The address and length of the XBAR registers
+> +- compatible		: Should be one of
+> +				"lantiq,wdt"
+> +				"lantiq,wdt-xrx100"
+> +				"lantiq,wdt-falcon"
 > +
 > +Optional properties:
-> +- lantiq,rcu-syscon	: A phandle and offset to the endianness configuration
-> +			  registers in the RCU module
+> +- regmap		: A phandle to the RCU syscon
+> +- offset-status		: Offset of the reset cause register
+> +- mask-status		: Mask of the reset cause register value
+
+These 2 should be implied by the compatible. But if already used in 
+upstream dts files, then it's okay.
+
 > +
 > +
 > +-------------------------------------------------------------------------------
-> +Example for the XBAR on the xRX200 SoCs:
-> +	xbar0: xbar@400000 {
-> +		compatible = "lantiq,xbar-xway";
-> +		reg = <0x400000 0x1000>;
-> +		big-endian;
-> +		lantiq,rcu-syscon = <&rcu0 0x4c>;
-> +	};
+> +Example for the watchdog on the xRX200 SoCs:
+> +		watchdog@803F0 {
+
+Lowercase hex please.
+
+> +			compatible = "lantiq,wdt-xrx200", "lantiq,wdt-xrx100";
+
+Doesn't match the documentation.
+
+> +			reg = <0x803F0 0x10>;
+
+Lowercase hex please.
+
+> +
+> +			regmap = <&rcu0>;
+> +			offset-status = <0x14>;
+> +			mask-status = <0x80000000>;
+> +		};
+> -- 
+> 2.11.0
+> 
