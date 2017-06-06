@@ -1,77 +1,80 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:56369 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751492AbdF1Lbc (ORCPT
+Received: from mezzanine.sirena.org.uk ([106.187.55.193]:58542 "EHLO
+        mezzanine.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751247AbdFFTCw (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 28 Jun 2017 07:31:32 -0400
-Subject: Re: [PATCH v2 2/2] drivers/watchdog: ASPEED reference dev tree
- properties for config
-To: Christopher Bostic <cbostic@linux.vnet.ibm.com>, wim@iguana.be,
-        robh+dt@kernel.org, mark.rutland@arm.com, joel@jms.id.au,
-        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-References: <20170627211734.60477-1-cbostic@linux.vnet.ibm.com>
- <20170627211734.60477-3-cbostic@linux.vnet.ibm.com>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <606a2e11-2d43-5204-0bb6-9c4415ee03df@roeck-us.net>
-Date: Wed, 28 Jun 2017 04:31:29 -0700
+        Tue, 6 Jun 2017 15:02:52 -0400
+Date: Tue, 6 Jun 2017 20:02:31 +0100
+From: Mark Brown <broonie@kernel.org>
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Steve Twiss <stwiss.opensource@diasemi.com>,
+        LINUX-KERNEL <linux-kernel@vger.kernel.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        DEVICETREE <devicetree@vger.kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Eduardo Valentin <edubezval@gmail.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        LINUX-INPUT <linux-input@vger.kernel.org>,
+        LINUX-PM <linux-pm@vger.kernel.org>,
+        LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Support Opensource <support.opensource@diasemi.com>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Zhang Rui <rui.zhang@intel.com>
+Message-ID: <20170606190231.abhgfavfg6cvmkfy@sirena.org.uk>
+References: <cover.1495546845.git.stwiss.opensource@diasemi.com>
+ <ac0c9c0edf9a3a48d8de7a5c07b16b771871796e.1495546845.git.stwiss.opensource@diasemi.com>
+ <20170523171721.lpqjhakaawnz4prz@sirena.org.uk>
+ <20170524083243.5rhritb2tvmycfc6@dell>
+ <20170524101057.v2fqwki4fopx5k7y@sirena.org.uk>
+ <20170530091759.tkajnmlyel6h3djw@dell>
 MIME-Version: 1.0
-In-Reply-To: <20170627211734.60477-3-cbostic@linux.vnet.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="qdheveixqstjem2l"
+Content-Disposition: inline
+In-Reply-To: <20170530091759.tkajnmlyel6h3djw@dell>
+Subject: Re: [RESEND PATCH V7 5/7] regulator: da9061: BUCK and LDO regulator
+ driver
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 06/27/2017 02:17 PM, Christopher Bostic wrote:
-> Reference the system device tree when configuring the watchdog
-> engines.  Set external signal mode on timeout if specified.
-> Set system reset on timeout if specified.
-> 
-> Signed-off-by: Christopher Bostic <cbostic@linux.vnet.ibm.com>
-> ---
-> v2 - Change of_get_property() to of_property_read_bool()
->     - Remove redundant check for NULL struct device_node pointer
->     - Optional property names now start with prefix 'aspeed,'
-> ---
->   drivers/watchdog/aspeed_wdt.c | 13 +++++++++++--
->   1 file changed, 11 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/watchdog/aspeed_wdt.c b/drivers/watchdog/aspeed_wdt.c
-> index 1c65258..71ce5f5 100644
-> --- a/drivers/watchdog/aspeed_wdt.c
-> +++ b/drivers/watchdog/aspeed_wdt.c
-> @@ -140,6 +140,7 @@ static int aspeed_wdt_probe(struct platform_device *pdev)
->   {
->   	struct aspeed_wdt *wdt;
->   	struct resource *res;
-> +	struct device_node *np;
->   	int ret;
->   
->   	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
-> @@ -170,8 +171,16 @@ static int aspeed_wdt_probe(struct platform_device *pdev)
->   	 * the SOC and not the full chip
->   	 */
->   	wdt->ctrl = WDT_CTRL_RESET_MODE_SOC |
-> -		WDT_CTRL_1MHZ_CLK |
-> -		WDT_CTRL_RESET_SYSTEM;
-> +		WDT_CTRL_1MHZ_CLK;
-> +
-> +	np = pdev->dev.of_node;
-> +	if (of_property_read_bool(np, "aspeed,sys-reset"))
-> +		wdt->ctrl |= WDT_CTRL_RESET_SYSTEM;
-> +
 
-For backward compatibility, this should default to WDT_CTRL_RESET_SYSTEM
-if no optional property is provided.
+--qdheveixqstjem2l
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> +	if (of_property_read_bool(np, "aspeed,external-signal"))
-> +		wdt->ctrl |= WDT_CTRL_WDT_EXT;
-> +
-> +	writel(wdt->ctrl, wdt->base + WDT_CTRL);
->   
->   	if (readl(wdt->base + WDT_CTRL) & WDT_CTRL_ENABLE)  {
->   		aspeed_wdt_start(&wdt->wdd);
-> 
+On Tue, May 30, 2017 at 10:17:59AM +0100, Lee Jones wrote:
+> On Wed, 24 May 2017, Mark Brown wrote:
 
+> > On Wed, May 24, 2017 at 09:32:43AM +0100, Lee Jones wrote:
+
+> > > Plan is to push this through the MFD tree.
+
+> > Great, thanks.
+
+> Just taking a look at this now.  It looks like the dependency:
+
+>   656211b1dfb9 mfd: Add support for DA9061
+
+> ... is now in Mainline.  Therefore it should be okay to take this
+> directly through the Regulator repo.
+
+OK, can you resend please Steve?
+
+--qdheveixqstjem2l
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCAAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAlk2/EYACgkQJNaLcl1U
+h9A03Af/Roh0PLgP0x8PVW2nb/wQPKt46BrQkVeMMZpI1ZkTynNtL2cnXC6+tUi2
+hkGqWxM6inmjOlIlCjTJSsNBt7qORcJfZHy8x381n2nGowpirNJ7W6EaIJpXAkCI
+rXMnYbRo4Wqi+UDbKKS/d6QBMZTLBCKyMKXcEaOznNNLFDTHY6hq7AuVwJn7zAMt
+6DMWCi23nwY1NVl6Z6kym5eEn6x4Ye4OT7zHjjm0xRfMKW4HBVgIDbCK2RYephYj
+tKcmEmWQ7FEmw+jAEzyg+4B2nG3/vokmBgsNDuX6HLmfq3kvn/UL2KossPCti8Sv
+iuUFsKSCjCmGSbu3qBt6fk7ZzA+3JQ==
+=09LB
+-----END PGP SIGNATURE-----
+
+--qdheveixqstjem2l--
