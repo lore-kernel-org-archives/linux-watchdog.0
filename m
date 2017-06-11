@@ -1,59 +1,66 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:40580 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750820AbdFOR0b (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 15 Jun 2017 13:26:31 -0400
-Date: Thu, 15 Jun 2017 10:26:30 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Arvind Yadav <arvind.yadav.cs@gmail.com>
-Cc: wim@iguana.be, baoyou.xie@linaro.org,
-        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] watchdog: zx2967: constify zx2967_wdt_ops.
-Message-ID: <20170615172630.GC7549@roeck-us.net>
-References: <42bf28fa31b27477cc97cfca4b0a8bcdc83309f4.1497249031.git.arvind.yadav.cs@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42bf28fa31b27477cc97cfca4b0a8bcdc83309f4.1497249031.git.arvind.yadav.cs@gmail.com>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-Path: <martin.blumenstingl@googlemail.com>
+Return-path: <martin.blumenstingl@googlemail.com>
+From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+To: wim@iguana.be,
+	linux@roeck-us.net,
+	robh+dt@kernel.org,
+	carlo@caione.org,
+	khilman@baylibre.com,
+	linux-watchdog@vger.kernel.org,
+	linux-amlogic@lists.infradead.org
+Cc: mark.rutland@arm.com,
+	devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Subject: [PATCH] watchdog: meson-wdt: add support for the watchdog on Meson8 and Meson8m2
+Date: Sun, 11 Jun 2017 11:52:19 +0200
+Message-Id: <20170611095219.22095-1-martin.blumenstingl@googlemail.com>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On Mon, Jun 12, 2017 at 12:02:39PM +0530, Arvind Yadav wrote:
-> File size before:
->    text	   data	    bss	    dec	    hex	filename
->     988	    288	      0	   1276	    4fc	drivers/watchdog/zx2967_wdt.o
-> 
-> File size After adding 'const':
->    text	   data	    bss	    dec	    hex	filename
->    1084	    192	      0	   1276	    4fc	drivers/watchdog/zx2967_wdt.o
-> 
-> Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
+The watchdog IP block on Meson8 and Meson8m2 is already supported by the
+existing meson-wdt driver. Meson8 uses the same register bits as Meson6,
+while the newer Meson8m2 SoC uses the same register bits as Meson8b.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Currently watchdog support on Meson8 SoC already works because
+meson8.dtsi simply uses the "amlogic,meson6-wdt" compatible. Adding a
+separate compatible for Meson8 makes this more explicit though.
 
-> ---
->  drivers/watchdog/zx2967_wdt.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/watchdog/zx2967_wdt.c b/drivers/watchdog/zx2967_wdt.c
-> index e290d5a..17774de 100644
-> --- a/drivers/watchdog/zx2967_wdt.c
-> +++ b/drivers/watchdog/zx2967_wdt.c
-> @@ -154,7 +154,7 @@ static int zx2967_wdt_keepalive(struct watchdog_device *wdd)
->  	.identity         =	"zx2967 watchdog",
->  };
->  
-> -static struct watchdog_ops zx2967_wdt_ops = {
-> +static const struct watchdog_ops zx2967_wdt_ops = {
->  	.owner = THIS_MODULE,
->  	.start = zx2967_wdt_start,
->  	.stop = zx2967_wdt_stop,
-> -- 
-> 1.9.1
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+---
+ Documentation/devicetree/bindings/watchdog/meson-wdt.txt | 6 +++++-
+ drivers/watchdog/meson_wdt.c                             | 2 ++
+ 2 files changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/Documentation/devicetree/bindings/watchdog/meson-wdt.txt b/Documentation/devicetree/bindings/watchdog/meson-wdt.txt
+index ae70185d96e6..f2fbe1a39d31 100644
+--- a/Documentation/devicetree/bindings/watchdog/meson-wdt.txt
++++ b/Documentation/devicetree/bindings/watchdog/meson-wdt.txt
+@@ -2,7 +2,11 @@ Meson SoCs Watchdog timer
+ 
+ Required properties:
+ 
+-- compatible : should be "amlogic,meson6-wdt" or "amlogic,meson8b-wdt"
++- compatible : depending on the SoC this should be one of:
++	"amlogic,meson6-wdt"
++	"amlogic,meson8-wdt"
++	"amlogic,meson8b-wdt"
++	"amlogic,meson8m2-wdt"
+ - reg : Specifies base physical address and size of the registers.
+ 
+ Example:
+diff --git a/drivers/watchdog/meson_wdt.c b/drivers/watchdog/meson_wdt.c
+index 491b9bf13d84..304274c67735 100644
+--- a/drivers/watchdog/meson_wdt.c
++++ b/drivers/watchdog/meson_wdt.c
+@@ -155,7 +155,9 @@ static const struct watchdog_ops meson_wdt_ops = {
+ 
+ static const struct of_device_id meson_wdt_dt_ids[] = {
+ 	{ .compatible = "amlogic,meson6-wdt", .data = &meson6_wdt_data },
++	{ .compatible = "amlogic,meson8-wdt", .data = &meson6_wdt_data },
+ 	{ .compatible = "amlogic,meson8b-wdt", .data = &meson8b_wdt_data },
++	{ .compatible = "amlogic,meson8m2-wdt", .data = &meson8b_wdt_data },
+ 	{ /* sentinel */ }
+ };
+ MODULE_DEVICE_TABLE(of, meson_wdt_dt_ids);
+-- 
+2.13.1
