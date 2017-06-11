@@ -5,99 +5,85 @@ To: Wim Van Sebroeck <wim@iguana.be>
 Cc: linux-watchdog@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 4/5] watchdog: it87: Use infrastructure to stop watchdog on reboot
-Date: Sat, 10 Jun 2017 21:04:35 -0700
-Message-Id: <1497153876-22921-4-git-send-email-linux@roeck-us.net>
+Subject: [PATCH 5/5] watchdog: it87: Add support for various Super-IO chips
+Date: Sat, 10 Jun 2017 21:04:36 -0700
+Message-Id: <1497153876-22921-5-git-send-email-linux@roeck-us.net>
 In-Reply-To: <1497153876-22921-1-git-send-email-linux@roeck-us.net>
 References: <1497153876-22921-1-git-send-email-linux@roeck-us.net>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Use watchdog_stop_on_reboot() to stop the watchdog on reboot instead
-of registering a driver-specific notifier.
-
-While at it, reorder remaining include files alphabetically.
+Add support for IT8607, IT8622, IT8625, IT8628, IT8655, IT8665,
+and IT8686.
 
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/watchdog/it87_wdt.c | 34 +++++-----------------------------
- 1 file changed, 5 insertions(+), 29 deletions(-)
+ drivers/watchdog/Kconfig    |  7 ++++---
+ drivers/watchdog/it87_wdt.c | 19 +++++++++++++++++--
+ 2 files changed, 21 insertions(+), 5 deletions(-)
 
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 793146be38e0..3b3a8f0e9b7b 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -1039,9 +1039,10 @@ config IT87_WDT
+ 	depends on X86
+ 	select WATCHDOG_CORE
+ 	---help---
+-	  This is the driver for the hardware watchdog on the ITE IT8620,
+-	  IT8702, IT8712, IT8716, IT8718, IT8720, IT8721, IT8726 and IT8728
+-	  Super I/O chips.
++	  This is the driver for the hardware watchdog on the ITE IT8607,
++	  IT8620, IT8622, IT8625, IT8628, IT8655, IT8665, IT8686, IT8702,
++	  IT8712, IT8716, IT8718, IT8720, IT8721, IT8726, IT8728, and
++	  IT8783 Super I/O chips.
+ 
+ 	  This watchdog simply watches your kernel to make sure it doesn't
+ 	  freeze, and if it does, it reboots your computer after a certain
 diff --git a/drivers/watchdog/it87_wdt.c b/drivers/watchdog/it87_wdt.c
-index 29aea28628c8..07f4727eb7f4 100644
+index 07f4727eb7f4..dd1e7eaef50f 100644
 --- a/drivers/watchdog/it87_wdt.c
 +++ b/drivers/watchdog/it87_wdt.c
-@@ -28,15 +28,13 @@
+@@ -12,8 +12,9 @@
+  *		    http://www.ite.com.tw/
+  *
+  *	Support of the watchdog timers, which are available on
+- *	IT8620, IT8702, IT8712, IT8716, IT8718, IT8720, IT8721, IT8726,
+- *	IT8728 and IT8783.
++ *	IT8607, IT8620, IT8622, IT8625, IT8628, IT8655, IT8665, IT8686,
++ *	IT8702, IT8712, IT8716, IT8718, IT8720, IT8721, IT8726, IT8728,
++ *	and IT8783.
+  *
+  *	This program is free software; you can redistribute it and/or
+  *	modify it under the terms of the GNU General Public License
+@@ -57,7 +58,14 @@
  
- #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
- 
-+#include <linux/init.h>
-+#include <linux/io.h>
-+#include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/moduleparam.h>
- #include <linux/types.h>
--#include <linux/kernel.h>
--#include <linux/init.h>
- #include <linux/watchdog.h>
--#include <linux/notifier.h>
--#include <linux/reboot.h>
--#include <linux/io.h>
- 
- #define WATCHDOG_NAME		"IT87 WDT"
- 
-@@ -260,18 +258,6 @@ static struct watchdog_device wdt_dev = {
- 	.min_timeout = 1,
- };
- 
--static int wdt_notify_sys(struct notifier_block *this, unsigned long code,
--			  void *unused)
--{
--	if (code == SYS_DOWN || code == SYS_HALT)
--		wdt_stop(&wdt_dev);
--	return NOTIFY_DONE;
--}
--
--static struct notifier_block wdt_notifier = {
--	.notifier_call = wdt_notify_sys,
--};
--
- static int __init it87_wdt_init(void)
- {
- 	u8  chip_rev;
-@@ -338,32 +324,22 @@ static int __init it87_wdt_init(void)
- 	wdt_dev.timeout = timeout;
- 	wdt_dev.max_timeout = max_units * 60;
- 
--	rc = register_reboot_notifier(&wdt_notifier);
--	if (rc) {
--		pr_err("Cannot register reboot notifier (err=%d)\n", rc);
--		return rc;
--	}
--
-+	watchdog_stop_on_reboot(&wdt_dev);
- 	rc = watchdog_register_device(&wdt_dev);
- 	if (rc) {
- 		pr_err("Cannot register watchdog device (err=%d)\n", rc);
--		goto err_out_reboot;
-+		return rc;
- 	}
- 
- 	pr_info("Chip IT%04x revision %d initialized. timeout=%d sec (nowayout=%d testmode=%d)\n",
- 		chip_type, chip_rev, timeout, nowayout, testmode);
- 
- 	return 0;
--
--err_out_reboot:
--	unregister_reboot_notifier(&wdt_notifier);
--	return rc;
- }
- 
- static void __exit it87_wdt_exit(void)
- {
- 	watchdog_unregister_device(&wdt_dev);
--	unregister_reboot_notifier(&wdt_notifier);
- }
- 
- module_init(it87_wdt_init);
+ /* Chip Id numbers */
+ #define NO_DEV_ID	0xffff
++#define IT8607_ID	0x8607
+ #define IT8620_ID	0x8620
++#define IT8622_ID	0x8622
++#define IT8625_ID	0x8625
++#define IT8628_ID	0x8628
++#define IT8655_ID	0x8655
++#define IT8665_ID	0x8665
++#define IT8686_ID	0x8686
+ #define IT8702_ID	0x8702
+ #define IT8705_ID	0x8705
+ #define IT8712_ID	0x8712
+@@ -282,7 +290,14 @@ static int __init it87_wdt_init(void)
+ 	case IT8726_ID:
+ 		max_units = 65535;
+ 		break;
++	case IT8607_ID:
+ 	case IT8620_ID:
++	case IT8622_ID:
++	case IT8625_ID:
++	case IT8628_ID:
++	case IT8655_ID:
++	case IT8665_ID:
++	case IT8686_ID:
+ 	case IT8718_ID:
+ 	case IT8720_ID:
+ 	case IT8721_ID:
 -- 
 2.7.4
