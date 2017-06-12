@@ -1,89 +1,204 @@
-Return-Path: <linux@roeck-us.net>
-Return-path: <linux@roeck-us.net>
-From: Guenter Roeck <linux@roeck-us.net>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 5/5] watchdog: it87: Add support for various Super-IO chips
-Date: Sat, 10 Jun 2017 21:04:36 -0700
-Message-Id: <1497153876-22921-5-git-send-email-linux@roeck-us.net>
-In-Reply-To: <1497153876-22921-1-git-send-email-linux@roeck-us.net>
-References: <1497153876-22921-1-git-send-email-linux@roeck-us.net>
+Return-Path: <cbostic@linux.vnet.ibm.com>
+Return-path: <cbostic@linux.vnet.ibm.com>
+Subject: Re: [PATCH] drivers/watchdog: Add sys files to modify watchdog
+ behavior
+To: Guenter Roeck <linux@roeck-us.net>
+References: <20170601213521.58141-1-cbostic@linux.vnet.ibm.com>
+ <20170601220358.GC8803@roeck-us.net>
+Cc: wim@iguana.be, joel@jms.id.au, linux-kernel@vger.kernel.org,
+        linux-watchdog@vger.kernel.org, andrew@aj.id.au
+From: Christopher Bostic <cbostic@linux.vnet.ibm.com>
+Date: Mon, 12 Jun 2017 15:30:19 -0500
+MIME-Version: 1.0
+In-Reply-To: <20170601220358.GC8803@roeck-us.net>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Message-Id: <aa5b4d11-9c8e-50bf-677e-95bed56cdddf@linux.vnet.ibm.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Add support for IT8607, IT8622, IT8625, IT8628, IT8655, IT8665,
-and IT8686.
 
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
----
- drivers/watchdog/Kconfig    |  7 ++++---
- drivers/watchdog/it87_wdt.c | 19 +++++++++++++++++--
- 2 files changed, 21 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 793146be38e0..3b3a8f0e9b7b 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -1039,9 +1039,10 @@ config IT87_WDT
- 	depends on X86
- 	select WATCHDOG_CORE
- 	---help---
--	  This is the driver for the hardware watchdog on the ITE IT8620,
--	  IT8702, IT8712, IT8716, IT8718, IT8720, IT8721, IT8726 and IT8728
--	  Super I/O chips.
-+	  This is the driver for the hardware watchdog on the ITE IT8607,
-+	  IT8620, IT8622, IT8625, IT8628, IT8655, IT8665, IT8686, IT8702,
-+	  IT8712, IT8716, IT8718, IT8720, IT8721, IT8726, IT8728, and
-+	  IT8783 Super I/O chips.
- 
- 	  This watchdog simply watches your kernel to make sure it doesn't
- 	  freeze, and if it does, it reboots your computer after a certain
-diff --git a/drivers/watchdog/it87_wdt.c b/drivers/watchdog/it87_wdt.c
-index 07f4727eb7f4..dd1e7eaef50f 100644
---- a/drivers/watchdog/it87_wdt.c
-+++ b/drivers/watchdog/it87_wdt.c
-@@ -12,8 +12,9 @@
-  *		    http://www.ite.com.tw/
-  *
-  *	Support of the watchdog timers, which are available on
-- *	IT8620, IT8702, IT8712, IT8716, IT8718, IT8720, IT8721, IT8726,
-- *	IT8728 and IT8783.
-+ *	IT8607, IT8620, IT8622, IT8625, IT8628, IT8655, IT8665, IT8686,
-+ *	IT8702, IT8712, IT8716, IT8718, IT8720, IT8721, IT8726, IT8728,
-+ *	and IT8783.
-  *
-  *	This program is free software; you can redistribute it and/or
-  *	modify it under the terms of the GNU General Public License
-@@ -57,7 +58,14 @@
- 
- /* Chip Id numbers */
- #define NO_DEV_ID	0xffff
-+#define IT8607_ID	0x8607
- #define IT8620_ID	0x8620
-+#define IT8622_ID	0x8622
-+#define IT8625_ID	0x8625
-+#define IT8628_ID	0x8628
-+#define IT8655_ID	0x8655
-+#define IT8665_ID	0x8665
-+#define IT8686_ID	0x8686
- #define IT8702_ID	0x8702
- #define IT8705_ID	0x8705
- #define IT8712_ID	0x8712
-@@ -282,7 +290,14 @@ static int __init it87_wdt_init(void)
- 	case IT8726_ID:
- 		max_units = 65535;
- 		break;
-+	case IT8607_ID:
- 	case IT8620_ID:
-+	case IT8622_ID:
-+	case IT8625_ID:
-+	case IT8628_ID:
-+	case IT8655_ID:
-+	case IT8665_ID:
-+	case IT8686_ID:
- 	case IT8718_ID:
- 	case IT8720_ID:
- 	case IT8721_ID:
--- 
-2.7.4
+On 6/1/17 5:03 PM, Guenter Roeck wrote:
+> On Thu, Jun 01, 2017 at 04:35:21PM -0500, Christopher Bostic wrote:
+>> Add files to enable/disable Aspeed watchdog:
+>> * External signal after timeout
+>> * Reset system after timeout
+>>
+> The subject line is heavily misleading.
+>
+>> Signed-off-by: Christopher Bostic <cbostic@linux.vnet.ibm.com>
+>> ---
+>>   .../ABI/testing/sysfs-platform-aspeed-wdt          | 40 +++++++++++
+>>   drivers/watchdog/aspeed_wdt.c                      | 79 +++++++++++++++++++++-
+>>   2 files changed, 118 insertions(+), 1 deletion(-)
+>>   create mode 100644 Documentation/ABI/testing/sysfs-platform-aspeed-wdt
+>>
+>> diff --git a/Documentation/ABI/testing/sysfs-platform-aspeed-wdt b/Documentation/ABI/testing/sysfs-platform-aspeed-wdt
+>> new file mode 100644
+>> index 0000000..a582176
+>> --- /dev/null
+>> +++ b/Documentation/ABI/testing/sysfs-platform-aspeed-wdt
+>> @@ -0,0 +1,40 @@
+>> +What:           /sys/bus/platform/devices/1e785000.wdt/watchdog/watchdog0/
+>> +		reset_system
+>> +Date:           May 2017
+>> +KernelVersion:  4.12
+>> +Contact:        Christopher Bostic <cbostic@linux.vnet.ibm.com>
+>> +Description:
+>> +                Value indicates if a watchdog time out results in a reset of
+>> +		system.  'off': no system reset on timeout.  'on' there will
+>> +		be a system reset on timeout.
+>> +
+>> +                Default: off
+>> +
+>> +                - Enable 'reset system' on watchdog timeout:
+>> +                echo on > /sys/bus/platform/devices/1e785000.wdt/watchdog/
+>> +			watchdog0/reset_system;
+>> +
+>> +                - Disable 'reset system' on watchdog timeout:
+>> +                echo off > /sys/bus/platform/devices/1e785000.wdt/watchdog/
+>> +			watchdog0/reset_system;
+>> +
+>> +What:           /sys/bus/platform/devices/1e785000.wdt/watchdog/watchdog0/
+>> +		ext_signal
+>> +Date:           May 2017
+>> +KernelVersion:  4.12
+>> +Contact:        Christopher Bostic <cbostic@linux.vnet.ibm.com>
+>> +Description:
+>> +                Value indicates if a watchdog time out results in an active
+>> +		high pulse sent out an output pin.  'off': No output pulse
+>> +		generated on watchdog time out.  'on': output pulse
+>> +		generated on watchdog time out.
+>> +
+>> +                Default: off
+>> +
+>> +                - Enable 'external signal' on watchdog timeout:
+>> +                echo on > /sys/bus/platform/devices/1e785000.wdt/watchdog/
+>> +			watchdog0/ext_signal;
+>> +
+>> +                - Disable 'external signal' on watchdog timeout:
+>> +                echo off > /sys/bus/platform/devices/1e785000.wdt/watchdog/
+>> +			watchdog0/ext_signal;
+> I'll want to see some discussion on those, both for the values written (on/off
+> vs. 0/1) and the action to be taken. Both seem to be system parameters rather
+> than something to set from user space. Also, there is no explanation what else
+> the watchdog should do on timeout if not to reset the system. If it doesn't do
+> anything, why run it in the first place ?
+Hi Guenter,
+
+I'll be resubmitting with a change to remove the sysfs files and instead 
+add a device tree attribute
+that will be specific to the system affected.
+
+Thanks
+Chris
+
+
+> Also, specifying absolute path names seems wrong. There is no real guarantee
+> that the device is always watchdog0, that the path always includes
+> "1e785000.wdt", or that the path name will always start with
+> /sys/bus/platform/devices.
+>
+> Thanks,
+> Guenter
+>
+>> diff --git a/drivers/watchdog/aspeed_wdt.c b/drivers/watchdog/aspeed_wdt.c
+>> index 1c65258..66b27e8 100644
+>> --- a/drivers/watchdog/aspeed_wdt.c
+>> +++ b/drivers/watchdog/aspeed_wdt.c
+>> @@ -136,6 +136,83 @@ static int aspeed_wdt_restart(struct watchdog_device *wdd,
+>>   	.identity	= KBUILD_MODNAME,
+>>   };
+>>   
+>> +static ssize_t aspeed_wdt_cntl_get_state(struct device *dev, char *buf,
+>> +					uint32_t mask)
+>> +{
+>> +	struct platform_device *pdev = to_platform_device(dev);
+>> +	struct aspeed_wdt *wdt = platform_get_drvdata(pdev);
+>> +	int ret;
+>> +
+>> +	if (readl(wdt->base + WDT_CTRL) & mask)
+>> +		ret = sprintf(buf, "on\n");
+>> +	else
+>> +		ret = sprintf(buf, "off\n");
+>> +
+>> +	return ret;
+>> +}
+>> +
+>> +static ssize_t aspeed_wdt_cntl_set_state(struct device *dev, const char *buf,
+>> +					size_t count, uint32_t mask)
+>> +{
+>> +	struct platform_device *pdev = to_platform_device(dev);
+>> +	struct aspeed_wdt *wdt = platform_get_drvdata(pdev);
+>> +
+>> +	if (!strncmp(buf, "on", strlen("on"))) {
+>> +		wdt->ctrl |= mask;
+>> +		writel(wdt->ctrl, wdt->base + WDT_CTRL);
+>> +	} else if (!strncmp(buf, "off", strlen("off"))) {
+>> +		wdt->ctrl &= ~mask;
+>> +		writel(wdt->ctrl, wdt->base + WDT_CTRL);
+>> +	} else {
+>> +		dev_warn(dev, "Unknown reset system mode command: [%s]\n", buf);
+>> +		return -EINVAL;
+>> +	}
+>> +
+>> +	return count;
+>> +}
+>> +
+>> +static ssize_t aspeed_wdt_reset_system_store(struct device *dev,
+>> +					struct device_attribute *attr,
+>> +					const char *buf, size_t count)
+>> +{
+>> +	return aspeed_wdt_cntl_set_state(dev, buf, count,
+>> +					WDT_CTRL_RESET_SYSTEM);
+>> +}
+>> +
+>> +static ssize_t aspeed_wdt_reset_system_show(struct device *dev,
+>> +					struct device_attribute *attr,
+>> +					char *buf)
+>> +{
+>> +	return aspeed_wdt_cntl_get_state(dev, buf, WDT_CTRL_RESET_SYSTEM);
+>> +}
+>> +
+>> +static DEVICE_ATTR(reset_system, 0644,
+>> +		aspeed_wdt_reset_system_show, aspeed_wdt_reset_system_store);
+>> +
+>> +static ssize_t aspeed_wdt_ext_signal_store(struct device *dev,
+>> +					struct device_attribute *attr,
+>> +					const char *buf, size_t count)
+>> +{
+>> +	return aspeed_wdt_cntl_set_state(dev, buf, count, WDT_CTRL_WDT_EXT);
+>> +}
+>> +
+>> +static ssize_t aspeed_wdt_ext_signal_show(struct device *dev,
+>> +					struct device_attribute *attr,
+>> +					char *buf)
+>> +{
+>> +	return aspeed_wdt_cntl_get_state(dev, buf, WDT_CTRL_WDT_EXT);
+>> +}
+>> +
+>> +static DEVICE_ATTR(ext_signal, 0644,
+>> +		aspeed_wdt_ext_signal_show, aspeed_wdt_ext_signal_store);
+>> +
+>> +static struct attribute *aspeed_wdt_attrs[] = {
+>> +	&dev_attr_reset_system.attr,
+>> +	&dev_attr_ext_signal.attr,
+>> +	NULL
+>> +};
+>> +ATTRIBUTE_GROUPS(aspeed_wdt);
+>> +
+>>   static int aspeed_wdt_probe(struct platform_device *pdev)
+>>   {
+>>   	struct aspeed_wdt *wdt;
+>> @@ -160,7 +237,7 @@ static int aspeed_wdt_probe(struct platform_device *pdev)
+>>   	wdt->wdd.ops = &aspeed_wdt_ops;
+>>   	wdt->wdd.max_hw_heartbeat_ms = WDT_MAX_TIMEOUT_MS;
+>>   	wdt->wdd.parent = &pdev->dev;
+>> -
+>> +	wdt->wdd.groups = aspeed_wdt_groups;
+>>   	wdt->wdd.timeout = WDT_DEFAULT_TIMEOUT;
+>>   	watchdog_init_timeout(&wdt->wdd, 0, &pdev->dev);
+>>   
+>> -- 
+>> 1.8.2.2
+>>
