@@ -1,58 +1,54 @@
-Return-Path: <yamada.masahiro@socionext.com>
-Return-path: <yamada.masahiro@socionext.com>
-MIME-Version: 1.0
-In-Reply-To: <1497316499-22254-3-git-send-email-hayashibara.keiji@socionext.com>
-References: <1497316499-22254-1-git-send-email-hayashibara.keiji@socionext.com>
- <1497316499-22254-3-git-send-email-hayashibara.keiji@socionext.com>
-From: Masahiro Yamada <yamada.masahiro@socionext.com>
-Date: Wed, 14 Jun 2017 12:07:31 +0900
-Message-ID: <CAK7LNASq9MxUwDrNeRrg_eNkJbXR2J-9hHKGZe6-DtioO3p4cQ@mail.gmail.com>
-Subject: Re: [PATCH V3 2/3] watchdog: uniphier: add UniPhier watchdog driver
-To: Keiji Hayashibara <hayashibara.keiji@socionext.com>
-Cc: wim@iguana.be, Guenter Roeck <linux@roeck-us.net>,
-        linux-watchdog@vger.kernel.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org,
-        Masami Hiramatsu <masami.hiramatsu@linaro.org>,
-        Jassi Brar <jaswinder.singh@linaro.org>,
-        Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
-        Kiyoshi Owada <owada.kiyoshi@socionext.com>
-Content-Type: text/plain; charset="UTF-8"
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-pg0-f65.google.com ([74.125.83.65]:34216 "EHLO
+        mail-pg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752034AbdFLGUy (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 12 Jun 2017 02:20:54 -0400
+From: Arvind Yadav <arvind.yadav.cs@gmail.com>
+To: linux@roeck-us.net, wim@iguana.be
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] watchdog: bcm47xx_wdt: constify bcm47xx_wdt_hard_ops and bcm47xx_wdt_soft_ops
+Date: Mon, 12 Jun 2017 11:50:26 +0530
+Message-Id: <09f03198797fa7041adfab96811c059e50f44171.1497248301.git.arvind.yadav.cs@gmail.com>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-Hayashibara-san
+File size before:
+   text	   data	    bss	    dec	    hex	filename
+   1282	    388	      1	   1671	    687	drivers/watchdog/bcm47xx_wdt.o
 
+File size After adding 'const':
+   text	   data	    bss	    dec	    hex	filename
+   1474	    196	      1	   1671	    687	drivers/watchdog/bcm47xx_wdt.o
 
-2017-06-13 10:14 GMT+09:00 Keiji Hayashibara
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index 52a70ee..2a9d9a6 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -744,6 +744,17 @@ config ZX2967_WATCHDOG
->           To compile this driver as a module, choose M here: the
->           module will be called zx2967_wdt.
->
-> +config UNIPHIER_WATCHDOG
-> +       tristate "UniPhier watchdog support"
-> +       depends on ARCH_UNIPHIER || COMPILE_TEST
+Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
+---
+ drivers/watchdog/bcm47xx_wdt.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-This driver relies on syscon_node_to_regmap().
-Could you also add "depends on OF && MFD_SYSCON" ?
-
-
-
-
-> +       select WATCHDOG_CORE
-> +       help
-> +         Say Y here to include support watchdog timer embedded
-> +         into the UniPhier system.
-> +
-> +         To compile this driver as a module, choose M here: the
-> +         module will be called uniphier_wdt.
-> +
-
-
-
+diff --git a/drivers/watchdog/bcm47xx_wdt.c b/drivers/watchdog/bcm47xx_wdt.c
+index 35725e2..2365828 100644
+--- a/drivers/watchdog/bcm47xx_wdt.c
++++ b/drivers/watchdog/bcm47xx_wdt.c
+@@ -97,7 +97,7 @@ static int bcm47xx_wdt_restart(struct watchdog_device *wdd,
+ 	return 0;
+ }
+ 
+-static struct watchdog_ops bcm47xx_wdt_hard_ops = {
++static const struct watchdog_ops bcm47xx_wdt_hard_ops = {
+ 	.owner		= THIS_MODULE,
+ 	.start		= bcm47xx_wdt_hard_start,
+ 	.stop		= bcm47xx_wdt_hard_stop,
+@@ -168,7 +168,7 @@ static int bcm47xx_wdt_soft_set_timeout(struct watchdog_device *wdd,
+ 				WDIOF_MAGICCLOSE,
+ };
+ 
+-static struct watchdog_ops bcm47xx_wdt_soft_ops = {
++static const struct watchdog_ops bcm47xx_wdt_soft_ops = {
+ 	.owner		= THIS_MODULE,
+ 	.start		= bcm47xx_wdt_soft_start,
+ 	.stop		= bcm47xx_wdt_soft_stop,
 -- 
-Best Regards
-Masahiro Yamada
+1.9.1
+
