@@ -1,71 +1,72 @@
-Return-Path: <robh@kernel.org>
-Return-path: <robh@kernel.org>
-MIME-Version: 1.0
-In-Reply-To: <CAFBinCAZZMT-YDHg4SYF3da+00KLYE-dZaEDPaEMRz_2paXNQw@mail.gmail.com>
-References: <20170611095219.22095-1-martin.blumenstingl@googlemail.com>
- <20170615172510.GA7549@roeck-us.net> <CAFBinCCyqX=TGwTyhxXZPP2noUvJ1v=xNs+Vs17Gg4z2uDgjEA@mail.gmail.com>
- <20170616180009.h66dwnnhfwrjpui6@rob-hp-laptop> <CAFBinCAZZMT-YDHg4SYF3da+00KLYE-dZaEDPaEMRz_2paXNQw@mail.gmail.com>
-From: Rob Herring <robh@kernel.org>
-Date: Wed, 21 Jun 2017 22:22:56 -0500
-Message-ID: <CAL_JsqJutEYt0eG96RG+jMosCEkqK=145Kquj2qJdQCV=wh2zg@mail.gmail.com>
-Subject: Re: [PATCH] watchdog: meson-wdt: add support for the watchdog on
- Meson8 and Meson8m2
-To: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Cc: Guenter Roeck <linux@roeck-us.net>, Wim Van Sebroeck <wim@iguana.be>, Carlo Caione <carlo@caione.org>,
-	Kevin Hilman <khilman@baylibre.com>, LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
-	linux-amlogic@lists.infradead.org, Mark Rutland <mark.rutland@arm.com>,
-	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
-Content-Type: text/plain; charset="UTF-8"
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:51683 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1753490AbdFMUii (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 13 Jun 2017 16:38:38 -0400
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.20/8.16.0.20) with SMTP id v5DKcWeW135594
+        for <linux-watchdog@vger.kernel.org>; Tue, 13 Jun 2017 16:38:37 -0400
+Received: from e34.co.us.ibm.com (e34.co.us.ibm.com [32.97.110.152])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2b2kym13tx-1
+        (version=TLSv1.2 cipher=AES256-SHA bits=256 verify=NOT)
+        for <linux-watchdog@vger.kernel.org>; Tue, 13 Jun 2017 16:38:37 -0400
+Received: from localhost
+        by e34.co.us.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-watchdog@vger.kernel.org> from <cbostic@linux.vnet.ibm.com>;
+        Tue, 13 Jun 2017 14:38:36 -0600
+From: Christopher Bostic <cbostic@linux.vnet.ibm.com>
+To: wim@iguana.be, linux@roeck-us.net
+Cc: Christopher Bostic <cbostic@linux.vnet.ibm.com>, joel@jms.id.au,
+        linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        andrew@aj.id.au
+Subject: [PATCH 1/2] drivers/watchdog: Document new aspeed optional dev tree properties.
+Date: Tue, 13 Jun 2017 15:38:17 -0500
+In-Reply-To: <20170613203818.17399-1-cbostic@linux.vnet.ibm.com>
+References: <20170613203818.17399-1-cbostic@linux.vnet.ibm.com>
+Message-Id: <20170613203818.17399-2-cbostic@linux.vnet.ibm.com>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Jun 19, 2017 at 1:50 PM, Martin Blumenstingl
-<martin.blumenstingl@googlemail.com> wrote:
-> Hi Rob,
->
-> On Sun, Jun 18, 2017 at 4:04 PM, Rob Herring <robh@kernel.org> wrote:
->> On Thu, Jun 15, 2017 at 11:13:07PM +0200, Martin Blumenstingl wrote:
->>> On Thu, Jun 15, 2017 at 7:25 PM, Guenter Roeck <linux@roeck-us.net> wrote:
->>> > On Sun, Jun 11, 2017 at 11:52:19AM +0200, Martin Blumenstingl wrote:
->>> >> The watchdog IP block on Meson8 and Meson8m2 is already supported by the
->>> >> existing meson-wdt driver. Meson8 uses the same register bits as Meson6,
->>> >> while the newer Meson8m2 SoC uses the same register bits as Meson8b.
->>> >>
->>> >> Currently watchdog support on Meson8 SoC already works because
->>> >> meson8.dtsi simply uses the "amlogic,meson6-wdt" compatible. Adding a
->>> >> separate compatible for Meson8 makes this more explicit though.
->>> >>
->>> >> Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
->>> >
->>> > Reviewed-by: Guenter Roeck <linux@roeck-us.net>
->>> thank you!
->>> is there anything holding you up from taking this patch (for example:
->>> are you still missing any specific Signed-off-by / Acked-by)?
->>>
->>> > In general, changes like this are not necessary, though. The dts file
->>> > is supposed to reference both generic and specific compatible strings.
->>> I thought about skipping this patch, but I find that it looks strange without.
->>>
->>> the hierarchy and the corresponding compatible strings would be:
->>> meson.dtsi / compatible = "amlogic,meson6-wdt";
->>> |- meson8.dtsi / compatible = "amlogic,meson8-wdt", "amlogic,meson6-wdt";
->>>    |- meson8m2.dtsi (upcoming) / compatible = "amlogic,meson8m2-wdt",
->>> "amlogic,meson8b-wdt";
->>> |- meson8b.dtsi / compatible = "amlogic,meson8b-wdt";
->>>
->>> instead of this seemingly random mixup of compatible strings I decided
->>> to introduce separate ones for each SoC.
->>
->> But if the block is backwards compatible, you should also provide a
->> fallback compatible string.
-> OK, fine with me - do you want me to update the documentation to
-> reflect this (or is it enough if I take care of it in the .dts files)?
-> the resulting documentation could look like this:
->        "amlogic,meson6-wdt" on Meson6 SoCs
->        "amlogic,meson8-wdt" along with "amlogic,meson6-wdt" on Meson8 SoCs
->        "amlogic,meson8b-wdt" on Meson8b SoCs
->        "amlogic,meson8m2-wdt" along with "amlogic,meson8b-wdt" on Meson8m2 SoCs
+Describe new optional property 'external-signal'.  When present in the
+system device tree an exernal signal is generated on watchdog timeout.
 
-Yes, like this.
+Describe new optional property 'no-system-reset'.  When present in the
+system device tree no system reset is to occur on watchdog timeout.
+System reset in this case is managed by one of the other watchogs
+available.
 
-Rob
+Signed-off-by: Christopher Bostic <cbostic@linux.vnet.ibm.com>
+---
+ Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt b/Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt
+index c5e74d7..4099ea5 100644
+--- a/Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt
++++ b/Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt
+@@ -8,9 +8,20 @@ Required properties:
+  - reg: physical base address of the controller and length of memory mapped
+    region
+ 
++Optional properties:
++ - external-signal: If the property is present then an external signal is to
++   be generated on watchdog timeout.  If absent, external signal is not
++   generated.
++
++ - no-system-reset: If the property is present then system will not be reset
++   on watchdog timeout. In this case one of the other watchdogs will handle
++   reset.  If absent then the watchdog resets the system on timeout.
++
+ Example:
+ 
+ 	wdt1: watchdog@1e785000 {
+ 		compatible = "aspeed,ast2400-wdt";
+ 		reg = <0x1e785000 0x1c>;
++		external-signal;
++		no-system-reset;
+ 	};
+-- 
+1.8.2.2
+
