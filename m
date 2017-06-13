@@ -1,63 +1,64 @@
-Return-Path: <hayashibara.keiji@socionext.com>
-Return-path: <hayashibara.keiji@socionext.com>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mx.socionext.com ([202.248.49.38]:7093 "EHLO mx.socionext.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753231AbdFMBPS (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 12 Jun 2017 21:15:18 -0400
 From: Keiji Hayashibara <hayashibara.keiji@socionext.com>
-To: wim@iguana.be,
-	linux@roeck-us.net
-Cc: linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	robh+dt@kernel.org,
-	devicetree@vger.kernel.org,
-	masami.hiramatsu@linaro.org,
-	jaswinder.singh@linaro.org,
-	yamada.masahiro@socionext.com,
-	hayashi.kunihiko@socionext.com,
-	owada.kiyoshi@socionext.com,
-	Keiji Hayashibara <hayashibara.keiji@socionext.com>
-Subject: [PATCH V3 0/3] add UniPhier watchdog support
-Date: Tue, 13 Jun 2017 10:14:56 +0900
-Message-Id: <1497316499-22254-1-git-send-email-hayashibara.keiji@socionext.com>
-List-ID: <linux-watchdog@vger.kernel.org>
+To: wim@iguana.be, linux@roeck-us.net
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+        robh+dt@kernel.org, devicetree@vger.kernel.org,
+        masami.hiramatsu@linaro.org, jaswinder.singh@linaro.org,
+        yamada.masahiro@socionext.com, hayashi.kunihiko@socionext.com,
+        owada.kiyoshi@socionext.com,
+        Keiji Hayashibara <hayashibara.keiji@socionext.com>
+Subject: [PATCH V3 3/3] arm64: dts: uniphier: add watchdog node for LD11 and LD20
+Date: Tue, 13 Jun 2017 10:14:59 +0900
+Message-Id: <1497316499-22254-4-git-send-email-hayashibara.keiji@socionext.com>
+In-Reply-To: <1497316499-22254-1-git-send-email-hayashibara.keiji@socionext.com>
+References: <1497316499-22254-1-git-send-email-hayashibara.keiji@socionext.com>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-This series adds support for watchdog timer implemented on UniPhier LD11 and
-LD20 SoCs. This driver supports watchdog and system reset for SoCs.
+Add nodes of watchdog timer for UniPhier LD11 and LD20 SoC.
+The watchdog timer is included in sysctrl.
 
-patch V2
-http://www.spinics.net/lists/linux-watchdog/msg11852.html
+Signed-off-by: Keiji Hayashibara <hayashibara.keiji@socionext.com>
+---
+ arch/arm64/boot/dts/socionext/uniphier-ld11.dtsi | 4 ++++
+ arch/arm64/boot/dts/socionext/uniphier-ld20.dtsi | 4 ++++
+ 2 files changed, 8 insertions(+)
 
-patch V1
-http://www.spinics.net/lists/linux-watchdog/msg11782.html
-
-Changes between V3 and V2
-=========================
-1. Fix issues according to review comments.
-
- * Make it possible to take a timeout from devicetree.
- * Sort #include headlers alphabetically.
- * Correct the description of dt-bindings document and this patch comment.
- * Correct the description of license as GPLv2.
- * Correct MODULE_AUTHOR()
- * Remove unnecessary code.
-
-Changes between V2 and V1
-=========================
-1. Add barrier code in uniphier_watchdog_ping() and __uniphier_watchdog_start().
-2. Fix issues according to review comments.
-
-Keiji Hayashibara (3):
-  dt-bindings: watchdog: add description for UniPhier WDT controller
-  watchdog: uniphier: add UniPhier watchdog driver
-  arm64: dts: uniphier: add watchdog node for LD11 and LD20
-
- .../devicetree/bindings/watchdog/uniphier-wdt.txt  |  20 ++
- Documentation/watchdog/watchdog-parameters.txt     |   6 +
- arch/arm64/boot/dts/socionext/uniphier-ld11.dtsi   |   4 +
- arch/arm64/boot/dts/socionext/uniphier-ld20.dtsi   |   4 +
- drivers/watchdog/Kconfig                           |  11 +
- drivers/watchdog/Makefile                          |   1 +
- drivers/watchdog/uniphier_wdt.c                    | 268 +++++++++++++++++++++
- 7 files changed, 314 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/watchdog/uniphier-wdt.txt
- create mode 100644 drivers/watchdog/uniphier_wdt.c
-
+diff --git a/arch/arm64/boot/dts/socionext/uniphier-ld11.dtsi b/arch/arm64/boot/dts/socionext/uniphier-ld11.dtsi
+index da881f5..5fee3e3 100644
+--- a/arch/arm64/boot/dts/socionext/uniphier-ld11.dtsi
++++ b/arch/arm64/boot/dts/socionext/uniphier-ld11.dtsi
+@@ -393,6 +393,10 @@
+ 				compatible = "socionext,uniphier-ld11-reset";
+ 				#reset-cells = <1>;
+ 			};
++
++			watchdog {
++				compatible = "socionext,uniphier-wdt";
++			};
+ 		};
+ 	};
+ };
+diff --git a/arch/arm64/boot/dts/socionext/uniphier-ld20.dtsi b/arch/arm64/boot/dts/socionext/uniphier-ld20.dtsi
+index a6b3a70..d4d82c8 100644
+--- a/arch/arm64/boot/dts/socionext/uniphier-ld20.dtsi
++++ b/arch/arm64/boot/dts/socionext/uniphier-ld20.dtsi
+@@ -417,6 +417,10 @@
+ 				compatible = "socionext,uniphier-ld20-reset";
+ 				#reset-cells = <1>;
+ 			};
++
++			watchdog {
++				compatible = "socionext,uniphier-wdt";
++			};
+ 		};
+ 	};
+ };
 -- 
 2.7.4
+
