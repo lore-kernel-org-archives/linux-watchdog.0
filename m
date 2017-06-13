@@ -1,204 +1,63 @@
-Return-Path: <cbostic@linux.vnet.ibm.com>
-Return-path: <cbostic@linux.vnet.ibm.com>
-Subject: Re: [PATCH] drivers/watchdog: Add sys files to modify watchdog
- behavior
-To: Guenter Roeck <linux@roeck-us.net>
-References: <20170601213521.58141-1-cbostic@linux.vnet.ibm.com>
- <20170601220358.GC8803@roeck-us.net>
-Cc: wim@iguana.be, joel@jms.id.au, linux-kernel@vger.kernel.org,
-        linux-watchdog@vger.kernel.org, andrew@aj.id.au
-From: Christopher Bostic <cbostic@linux.vnet.ibm.com>
-Date: Mon, 12 Jun 2017 15:30:19 -0500
-MIME-Version: 1.0
-In-Reply-To: <20170601220358.GC8803@roeck-us.net>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Message-Id: <aa5b4d11-9c8e-50bf-677e-95bed56cdddf@linux.vnet.ibm.com>
+Return-Path: <hayashibara.keiji@socionext.com>
+Return-path: <hayashibara.keiji@socionext.com>
+From: Keiji Hayashibara <hayashibara.keiji@socionext.com>
+To: wim@iguana.be,
+	linux@roeck-us.net
+Cc: linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	robh+dt@kernel.org,
+	devicetree@vger.kernel.org,
+	masami.hiramatsu@linaro.org,
+	jaswinder.singh@linaro.org,
+	yamada.masahiro@socionext.com,
+	hayashi.kunihiko@socionext.com,
+	owada.kiyoshi@socionext.com,
+	Keiji Hayashibara <hayashibara.keiji@socionext.com>
+Subject: [PATCH V3 0/3] add UniPhier watchdog support
+Date: Tue, 13 Jun 2017 10:14:56 +0900
+Message-Id: <1497316499-22254-1-git-send-email-hayashibara.keiji@socionext.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
+This series adds support for watchdog timer implemented on UniPhier LD11 and
+LD20 SoCs. This driver supports watchdog and system reset for SoCs.
 
+patch V2
+http://www.spinics.net/lists/linux-watchdog/msg11852.html
 
-On 6/1/17 5:03 PM, Guenter Roeck wrote:
-> On Thu, Jun 01, 2017 at 04:35:21PM -0500, Christopher Bostic wrote:
->> Add files to enable/disable Aspeed watchdog:
->> * External signal after timeout
->> * Reset system after timeout
->>
-> The subject line is heavily misleading.
->
->> Signed-off-by: Christopher Bostic <cbostic@linux.vnet.ibm.com>
->> ---
->>   .../ABI/testing/sysfs-platform-aspeed-wdt          | 40 +++++++++++
->>   drivers/watchdog/aspeed_wdt.c                      | 79 +++++++++++++++++++++-
->>   2 files changed, 118 insertions(+), 1 deletion(-)
->>   create mode 100644 Documentation/ABI/testing/sysfs-platform-aspeed-wdt
->>
->> diff --git a/Documentation/ABI/testing/sysfs-platform-aspeed-wdt b/Documentation/ABI/testing/sysfs-platform-aspeed-wdt
->> new file mode 100644
->> index 0000000..a582176
->> --- /dev/null
->> +++ b/Documentation/ABI/testing/sysfs-platform-aspeed-wdt
->> @@ -0,0 +1,40 @@
->> +What:           /sys/bus/platform/devices/1e785000.wdt/watchdog/watchdog0/
->> +		reset_system
->> +Date:           May 2017
->> +KernelVersion:  4.12
->> +Contact:        Christopher Bostic <cbostic@linux.vnet.ibm.com>
->> +Description:
->> +                Value indicates if a watchdog time out results in a reset of
->> +		system.  'off': no system reset on timeout.  'on' there will
->> +		be a system reset on timeout.
->> +
->> +                Default: off
->> +
->> +                - Enable 'reset system' on watchdog timeout:
->> +                echo on > /sys/bus/platform/devices/1e785000.wdt/watchdog/
->> +			watchdog0/reset_system;
->> +
->> +                - Disable 'reset system' on watchdog timeout:
->> +                echo off > /sys/bus/platform/devices/1e785000.wdt/watchdog/
->> +			watchdog0/reset_system;
->> +
->> +What:           /sys/bus/platform/devices/1e785000.wdt/watchdog/watchdog0/
->> +		ext_signal
->> +Date:           May 2017
->> +KernelVersion:  4.12
->> +Contact:        Christopher Bostic <cbostic@linux.vnet.ibm.com>
->> +Description:
->> +                Value indicates if a watchdog time out results in an active
->> +		high pulse sent out an output pin.  'off': No output pulse
->> +		generated on watchdog time out.  'on': output pulse
->> +		generated on watchdog time out.
->> +
->> +                Default: off
->> +
->> +                - Enable 'external signal' on watchdog timeout:
->> +                echo on > /sys/bus/platform/devices/1e785000.wdt/watchdog/
->> +			watchdog0/ext_signal;
->> +
->> +                - Disable 'external signal' on watchdog timeout:
->> +                echo off > /sys/bus/platform/devices/1e785000.wdt/watchdog/
->> +			watchdog0/ext_signal;
-> I'll want to see some discussion on those, both for the values written (on/off
-> vs. 0/1) and the action to be taken. Both seem to be system parameters rather
-> than something to set from user space. Also, there is no explanation what else
-> the watchdog should do on timeout if not to reset the system. If it doesn't do
-> anything, why run it in the first place ?
-Hi Guenter,
+patch V1
+http://www.spinics.net/lists/linux-watchdog/msg11782.html
 
-I'll be resubmitting with a change to remove the sysfs files and instead 
-add a device tree attribute
-that will be specific to the system affected.
+Changes between V3 and V2
+=========================
+1. Fix issues according to review comments.
 
-Thanks
-Chris
+ * Make it possible to take a timeout from devicetree.
+ * Sort #include headlers alphabetically.
+ * Correct the description of dt-bindings document and this patch comment.
+ * Correct the description of license as GPLv2.
+ * Correct MODULE_AUTHOR()
+ * Remove unnecessary code.
 
+Changes between V2 and V1
+=========================
+1. Add barrier code in uniphier_watchdog_ping() and __uniphier_watchdog_start().
+2. Fix issues according to review comments.
 
-> Also, specifying absolute path names seems wrong. There is no real guarantee
-> that the device is always watchdog0, that the path always includes
-> "1e785000.wdt", or that the path name will always start with
-> /sys/bus/platform/devices.
->
-> Thanks,
-> Guenter
->
->> diff --git a/drivers/watchdog/aspeed_wdt.c b/drivers/watchdog/aspeed_wdt.c
->> index 1c65258..66b27e8 100644
->> --- a/drivers/watchdog/aspeed_wdt.c
->> +++ b/drivers/watchdog/aspeed_wdt.c
->> @@ -136,6 +136,83 @@ static int aspeed_wdt_restart(struct watchdog_device *wdd,
->>   	.identity	= KBUILD_MODNAME,
->>   };
->>   
->> +static ssize_t aspeed_wdt_cntl_get_state(struct device *dev, char *buf,
->> +					uint32_t mask)
->> +{
->> +	struct platform_device *pdev = to_platform_device(dev);
->> +	struct aspeed_wdt *wdt = platform_get_drvdata(pdev);
->> +	int ret;
->> +
->> +	if (readl(wdt->base + WDT_CTRL) & mask)
->> +		ret = sprintf(buf, "on\n");
->> +	else
->> +		ret = sprintf(buf, "off\n");
->> +
->> +	return ret;
->> +}
->> +
->> +static ssize_t aspeed_wdt_cntl_set_state(struct device *dev, const char *buf,
->> +					size_t count, uint32_t mask)
->> +{
->> +	struct platform_device *pdev = to_platform_device(dev);
->> +	struct aspeed_wdt *wdt = platform_get_drvdata(pdev);
->> +
->> +	if (!strncmp(buf, "on", strlen("on"))) {
->> +		wdt->ctrl |= mask;
->> +		writel(wdt->ctrl, wdt->base + WDT_CTRL);
->> +	} else if (!strncmp(buf, "off", strlen("off"))) {
->> +		wdt->ctrl &= ~mask;
->> +		writel(wdt->ctrl, wdt->base + WDT_CTRL);
->> +	} else {
->> +		dev_warn(dev, "Unknown reset system mode command: [%s]\n", buf);
->> +		return -EINVAL;
->> +	}
->> +
->> +	return count;
->> +}
->> +
->> +static ssize_t aspeed_wdt_reset_system_store(struct device *dev,
->> +					struct device_attribute *attr,
->> +					const char *buf, size_t count)
->> +{
->> +	return aspeed_wdt_cntl_set_state(dev, buf, count,
->> +					WDT_CTRL_RESET_SYSTEM);
->> +}
->> +
->> +static ssize_t aspeed_wdt_reset_system_show(struct device *dev,
->> +					struct device_attribute *attr,
->> +					char *buf)
->> +{
->> +	return aspeed_wdt_cntl_get_state(dev, buf, WDT_CTRL_RESET_SYSTEM);
->> +}
->> +
->> +static DEVICE_ATTR(reset_system, 0644,
->> +		aspeed_wdt_reset_system_show, aspeed_wdt_reset_system_store);
->> +
->> +static ssize_t aspeed_wdt_ext_signal_store(struct device *dev,
->> +					struct device_attribute *attr,
->> +					const char *buf, size_t count)
->> +{
->> +	return aspeed_wdt_cntl_set_state(dev, buf, count, WDT_CTRL_WDT_EXT);
->> +}
->> +
->> +static ssize_t aspeed_wdt_ext_signal_show(struct device *dev,
->> +					struct device_attribute *attr,
->> +					char *buf)
->> +{
->> +	return aspeed_wdt_cntl_get_state(dev, buf, WDT_CTRL_WDT_EXT);
->> +}
->> +
->> +static DEVICE_ATTR(ext_signal, 0644,
->> +		aspeed_wdt_ext_signal_show, aspeed_wdt_ext_signal_store);
->> +
->> +static struct attribute *aspeed_wdt_attrs[] = {
->> +	&dev_attr_reset_system.attr,
->> +	&dev_attr_ext_signal.attr,
->> +	NULL
->> +};
->> +ATTRIBUTE_GROUPS(aspeed_wdt);
->> +
->>   static int aspeed_wdt_probe(struct platform_device *pdev)
->>   {
->>   	struct aspeed_wdt *wdt;
->> @@ -160,7 +237,7 @@ static int aspeed_wdt_probe(struct platform_device *pdev)
->>   	wdt->wdd.ops = &aspeed_wdt_ops;
->>   	wdt->wdd.max_hw_heartbeat_ms = WDT_MAX_TIMEOUT_MS;
->>   	wdt->wdd.parent = &pdev->dev;
->> -
->> +	wdt->wdd.groups = aspeed_wdt_groups;
->>   	wdt->wdd.timeout = WDT_DEFAULT_TIMEOUT;
->>   	watchdog_init_timeout(&wdt->wdd, 0, &pdev->dev);
->>   
->> -- 
->> 1.8.2.2
->>
+Keiji Hayashibara (3):
+  dt-bindings: watchdog: add description for UniPhier WDT controller
+  watchdog: uniphier: add UniPhier watchdog driver
+  arm64: dts: uniphier: add watchdog node for LD11 and LD20
+
+ .../devicetree/bindings/watchdog/uniphier-wdt.txt  |  20 ++
+ Documentation/watchdog/watchdog-parameters.txt     |   6 +
+ arch/arm64/boot/dts/socionext/uniphier-ld11.dtsi   |   4 +
+ arch/arm64/boot/dts/socionext/uniphier-ld20.dtsi   |   4 +
+ drivers/watchdog/Kconfig                           |  11 +
+ drivers/watchdog/Makefile                          |   1 +
+ drivers/watchdog/uniphier_wdt.c                    | 268 +++++++++++++++++++++
+ 7 files changed, 314 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/uniphier-wdt.txt
+ create mode 100644 drivers/watchdog/uniphier_wdt.c
+
+-- 
+2.7.4
