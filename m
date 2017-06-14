@@ -1,83 +1,69 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx08-00178001.pphosted.com ([91.207.212.93]:36076 "EHLO
-        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1751992AbdFLKIt (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 12 Jun 2017 06:08:49 -0400
-Subject: Re: [PATCH v5 0/5] STM32 Independent watchdog
-To: Yannick Fertre <yannick.fertre@st.com>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Rob Herring <robh+dt@kernel.org>,
-        Benjamin Gaignard <benjamin.gaignard@st.com>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>
-CC: <linux-watchdog@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        Philippe Cornu <philippe.cornu@st.com>,
-        Gabriel FERNANDEZ <gabriel.fernandez@st.com>,
-        <devicetree@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>
-References: <1491481168-22213-1-git-send-email-yannick.fertre@st.com>
-From: Alexandre Torgue <alexandre.torgue@st.com>
-Message-ID: <3b9b5da7-28e4-f349-41a3-1854c374def5@st.com>
-Date: Mon, 12 Jun 2017 12:07:35 +0200
+Received: from mx.socionext.com ([202.248.49.38]:30557 "EHLO mx.socionext.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750745AbdFNGuo (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Wed, 14 Jun 2017 02:50:44 -0400
+From: "Keiji Hayashibara" <hayashibara.keiji@socionext.com>
+To: =?utf-8?B?WWFtYWRhLCBNYXNhaGlyby/lsbHnlLAg55yf5byY?=
+        <yamada.masahiro@socionext.com>
+Cc: <wim@iguana.be>, "Guenter Roeck" <linux@roeck-us.net>,
+        <linux-watchdog@vger.kernel.org>,
+        "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+        "Rob Herring" <robh+dt@kernel.org>, <devicetree@vger.kernel.org>,
+        "Masami Hiramatsu" <masami.hiramatsu@linaro.org>,
+        "Jassi Brar" <jaswinder.singh@linaro.org>,
+        =?utf-8?Q?Hayashi=2C_Kunihiko/=E6=9E=97_=E9=82=A6=E5=BD=A6?=
+        <hayashi.kunihiko@socionext.com>,
+        =?utf-8?B?T3dhZGEsIEtpeW9zaGkv5aSn5ZKM55SwIOa4heW/lw==?=
+        <owada.kiyoshi@socionext.com>
+References: <1497316499-22254-1-git-send-email-hayashibara.keiji@socionext.com> <1497316499-22254-3-git-send-email-hayashibara.keiji@socionext.com> <CAK7LNASq9MxUwDrNeRrg_eNkJbXR2J-9hHKGZe6-DtioO3p4cQ@mail.gmail.com>
+In-Reply-To: <CAK7LNASq9MxUwDrNeRrg_eNkJbXR2J-9hHKGZe6-DtioO3p4cQ@mail.gmail.com>
+Subject: RE: [PATCH V3 2/3] watchdog: uniphier: add UniPhier watchdog driver
+Date: Wed, 14 Jun 2017 15:50:37 +0900
+Message-ID: <000101d2e4da$87e7e210$97b7a630$@socionext.com>
 MIME-Version: 1.0
-In-Reply-To: <1491481168-22213-1-git-send-email-yannick.fertre@st.com>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
+Content-Type: text/plain;
+        charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Language: ja
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Yannick
+Hello Yamada-san,
 
-On 04/06/2017 02:19 PM, Yannick Fertre wrote:
-> Version 5:
-> - Update bindings (add field timeout-sec)
-> - Update driver (rework start, rework settings & remove max_timeout)
+From: Masahiro Yamada [mailto:yamada.masahiro@socionext.com]
+Sent: Wednesday, June 14, 2017 12:08 PM
+>
+> 2017-06-13 10:14 GMT+09:00 Keiji Hayashibara
+> > diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> > index 52a70ee..2a9d9a6 100644
+> > --- a/drivers/watchdog/Kconfig
+> > +++ b/drivers/watchdog/Kconfig
+> > @@ -744,6 +744,17 @@ config ZX2967_WATCHDOG
+> >           To compile this driver as a module, choose M here: the
+> >           module will be called zx2967_wdt.
+> >
+> > +config UNIPHIER_WATCHDOG
+> > +       tristate "UniPhier watchdog support"
+> > +       depends on ARCH_UNIPHIER || COMPILE_TEST
 > 
-> Version 4:
-> - Update bindings (iwdg > watchdog)
-> - Update typo
-> - Update commit header
-> - remove gerrit tags
-> - Update driver (remove unnecessary tests) a add watchdog_init_timeout
-> 
-> Version 3:
-> - Update typo into  bindings file
-> - Reorder node in devicetree (ordering by address)
-> - Remove unnecessary lines in commits
-> 
-> Version 2:
-> - Add commit messages
-> 
-> Version 1:
-> - Initial commit
-> 
-> The purpose of this set of patches is to add a new watchdog driver for
-> stm32f429.
-> This driver was developed and tested on evaluation board stm32429i.
-> 
-> Yannick Fertre (5):
->    dt-bindings: watchdog: Document STM32 IWDG bindings
->    drivers: watchdog: Add STM32 IWDG driver
->    ARM: dts: stm32: Add watchdog support for STM32F429 SoC
->    ARM: dts: stm32: Add watchdog support for STM32F429 eval board
->    ARM: configs: stm32: Add watchdog support in STM32 defconfig
-> 
->   .../devicetree/bindings/watchdog/st,stm32-iwdg.txt |  19 ++
->   arch/arm/boot/dts/stm32429i-eval.dts               |   5 +
->   arch/arm/boot/dts/stm32f429.dtsi                   |   9 +-
->   arch/arm/configs/stm32_defconfig                   |   1 +
->   drivers/watchdog/Kconfig                           |  12 +
->   drivers/watchdog/Makefile                          |   1 +
->   drivers/watchdog/stm32_iwdg.c                      | 253 +++++++++++++++++++++
->   7 files changed, 299 insertions(+), 1 deletion(-)
->   create mode 100644 Documentation/devicetree/bindings/watchdog/st,stm32-iwdg.txt
->   create mode 100644 drivers/watchdog/stm32_iwdg.c
-> 
+> This driver relies on syscon_node_to_regmap().
+> Could you also add "depends on OF && MFD_SYSCON" ?
 
-Patches 3&4 applied on stm32-dt-for-v4.13
-Patch 5 applied on stm32-defconfig-for-v4.13
+OK. I will fix this.
+> 
+> 
+> > +       select WATCHDOG_CORE
+> > +       help
+> > +         Say Y here to include support watchdog timer embedded
+> > +         into the UniPhier system.
+> > +
+> > +         To compile this driver as a module, choose M here: the
+> > +         module will be called uniphier_wdt.
+> > +
 
-regards
-Alex
+----------
+Best Regards,
+Keiji Hayashibara
+
+
