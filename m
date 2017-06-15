@@ -1,24 +1,29 @@
-Return-Path: <narmstrong@baylibre.com>
-Return-path: <narmstrong@baylibre.com>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:37449 "EHLO
+        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751578AbdFORZN (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Thu, 15 Jun 2017 13:25:13 -0400
+Date: Thu, 15 Jun 2017 10:25:10 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Cc: wim@iguana.be, robh+dt@kernel.org, carlo@caione.org,
+        khilman@baylibre.com, linux-watchdog@vger.kernel.org,
+        linux-amlogic@lists.infradead.org, mark.rutland@arm.com,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 Subject: Re: [PATCH] watchdog: meson-wdt: add support for the watchdog on
  Meson8 and Meson8m2
-To: Martin Blumenstingl <martin.blumenstingl@googlemail.com>, wim@iguana.be,
- linux@roeck-us.net, robh+dt@kernel.org, carlo@caione.org,
- khilman@baylibre.com, linux-watchdog@vger.kernel.org,
- linux-amlogic@lists.infradead.org
+Message-ID: <20170615172510.GA7549@roeck-us.net>
 References: <20170611095219.22095-1-martin.blumenstingl@googlemail.com>
-Cc: mark.rutland@arm.com, devicetree@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org
-From: Neil Armstrong <narmstrong@baylibre.com>
-Message-ID: <af787a82-e798-411a-3402-b9332deda672@baylibre.com>
-Date: Mon, 12 Jun 2017 09:38:42 +0200
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 In-Reply-To: <20170611095219.22095-1-martin.blumenstingl@googlemail.com>
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-List-ID: <linux-watchdog@vger.kernel.org>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-On 06/11/2017 11:52 AM, Martin Blumenstingl wrote:
+On Sun, Jun 11, 2017 at 11:52:19AM +0200, Martin Blumenstingl wrote:
 > The watchdog IP block on Meson8 and Meson8m2 is already supported by the
 > existing meson-wdt driver. Meson8 uses the same register bits as Meson6,
 > while the newer Meson8m2 SoC uses the same register bits as Meson8b.
@@ -28,6 +33,15 @@ On 06/11/2017 11:52 AM, Martin Blumenstingl wrote:
 > separate compatible for Meson8 makes this more explicit though.
 > 
 > Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+
+In general, changes like this are not necessary, though. The dts file
+is supposed to reference both generic and specific compatible strings.
+
+Thanks,
+Guenter
+
 > ---
 >  Documentation/devicetree/bindings/watchdog/meson-wdt.txt | 6 +++++-
 >  drivers/watchdog/meson_wdt.c                             | 2 ++
@@ -64,6 +78,6 @@ On 06/11/2017 11:52 AM, Martin Blumenstingl wrote:
 >  	{ /* sentinel */ }
 >  };
 >  MODULE_DEVICE_TABLE(of, meson_wdt_dt_ids);
+> -- 
+> 2.13.1
 > 
-
-Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
