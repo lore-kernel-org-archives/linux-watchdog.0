@@ -1,8 +1,8 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from hauke-m.de ([5.39.93.123]:34894 "EHLO mail.hauke-m.de"
+Received: from hauke-m.de ([5.39.93.123]:34871 "EHLO mail.hauke-m.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752545AbdFSW0b (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 19 Jun 2017 18:26:31 -0400
+        id S1752419AbdFSW02 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 19 Jun 2017 18:26:28 -0400
 From: Hauke Mehrtens <hauke@hauke-m.de>
 To: ralf@linux-mips.org
 Cc: linux-mips@linux-mips.org, linux-mtd@lists.infradead.org,
@@ -11,33 +11,40 @@ Cc: linux-mips@linux-mips.org, linux-mtd@lists.infradead.org,
         linux-spi@vger.kernel.org, hauke.mehrtens@intel.com,
         robh@kernel.org, andy.shevchenko@gmail.com, p.zabel@pengutronix.de,
         Hauke Mehrtens <hauke@hauke-m.de>
-Subject: [PATCH v4 06/16] MIPS: lantiq: Enable MFD_SYSCON to be able to use it for the RCU MFD
-Date: Tue, 20 Jun 2017 00:25:58 +0200
-Message-Id: <20170619222608.13344-7-hauke@hauke-m.de>
+Subject: [PATCH v4 03/16] mtd: spi-falcon: drop check of boot select
+Date: Tue, 20 Jun 2017 00:25:55 +0200
+Message-Id: <20170619222608.13344-4-hauke@hauke-m.de>
 In-Reply-To: <20170619222608.13344-1-hauke@hauke-m.de>
 References: <20170619222608.13344-1-hauke@hauke-m.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Do not check which flash type the SoC was booted from before
+using this driver. Assume that the device tree is correct and use this
+driver when it was added to device tree. This also removes a build
+dependency to the SoC code.
 
 Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
 ---
- arch/mips/lantiq/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/spi/spi-falcon.c | 5 -----
+ 1 file changed, 5 deletions(-)
 
-diff --git a/arch/mips/lantiq/Kconfig b/arch/mips/lantiq/Kconfig
-index 177769dbb0e8..f5db4a426568 100644
---- a/arch/mips/lantiq/Kconfig
-+++ b/arch/mips/lantiq/Kconfig
-@@ -17,6 +17,7 @@ config SOC_XWAY
- 	bool "XWAY"
- 	select SOC_TYPE_XWAY
- 	select HW_HAS_PCI
-+	select MFD_SYSCON
+diff --git a/drivers/spi/spi-falcon.c b/drivers/spi/spi-falcon.c
+index 286b2c81fc6b..f8638e82e5db 100644
+--- a/drivers/spi/spi-falcon.c
++++ b/drivers/spi/spi-falcon.c
+@@ -395,11 +395,6 @@ static int falcon_sflash_probe(struct platform_device *pdev)
+ 	struct spi_master *master;
+ 	int ret;
  
- config SOC_FALCON
- 	bool "FALCON"
+-	if (ltq_boot_select() != BS_SPI) {
+-		dev_err(&pdev->dev, "invalid bootstrap options\n");
+-		return -ENODEV;
+-	}
+-
+ 	master = spi_alloc_master(&pdev->dev, sizeof(*priv));
+ 	if (!master)
+ 		return -ENOMEM;
 -- 
 2.11.0
 
