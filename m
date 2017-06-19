@@ -1,69 +1,47 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx.socionext.com ([202.248.49.38]:30557 "EHLO mx.socionext.com"
+Received: from ozlabs.org ([103.22.144.67]:46393 "EHLO ozlabs.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750745AbdFNGuo (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 14 Jun 2017 02:50:44 -0400
-From: "Keiji Hayashibara" <hayashibara.keiji@socionext.com>
-To: =?utf-8?B?WWFtYWRhLCBNYXNhaGlyby/lsbHnlLAg55yf5byY?=
-        <yamada.masahiro@socionext.com>
-Cc: <wim@iguana.be>, "Guenter Roeck" <linux@roeck-us.net>,
-        <linux-watchdog@vger.kernel.org>,
-        "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-        "Rob Herring" <robh+dt@kernel.org>, <devicetree@vger.kernel.org>,
-        "Masami Hiramatsu" <masami.hiramatsu@linaro.org>,
-        "Jassi Brar" <jaswinder.singh@linaro.org>,
-        =?utf-8?Q?Hayashi=2C_Kunihiko/=E6=9E=97_=E9=82=A6=E5=BD=A6?=
-        <hayashi.kunihiko@socionext.com>,
-        =?utf-8?B?T3dhZGEsIEtpeW9zaGkv5aSn5ZKM55SwIOa4heW/lw==?=
-        <owada.kiyoshi@socionext.com>
-References: <1497316499-22254-1-git-send-email-hayashibara.keiji@socionext.com> <1497316499-22254-3-git-send-email-hayashibara.keiji@socionext.com> <CAK7LNASq9MxUwDrNeRrg_eNkJbXR2J-9hHKGZe6-DtioO3p4cQ@mail.gmail.com>
-In-Reply-To: <CAK7LNASq9MxUwDrNeRrg_eNkJbXR2J-9hHKGZe6-DtioO3p4cQ@mail.gmail.com>
-Subject: RE: [PATCH V3 2/3] watchdog: uniphier: add UniPhier watchdog driver
-Date: Wed, 14 Jun 2017 15:50:37 +0900
-Message-ID: <000101d2e4da$87e7e210$97b7a630$@socionext.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-        charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Language: ja
+        id S1753699AbdFSMZh (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 19 Jun 2017 08:25:37 -0400
+In-Reply-To: <20170529132628.10803-1-mopsfelder@gmail.com>
+To: Murilo Opsfelder Araujo <mopsfelder@gmail.com>,
+        linux-kernel@vger.kernel.org
+From: Michael Ellerman <patch-notifications@ellerman.id.au>
+Cc: linux-watchdog@vger.kernel.org,
+        Murilo Opsfelder Araujo <mopsfelder@gmail.com>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        linuxppc-dev@lists.ozlabs.org, Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [v2] drivers/watchdog/Kconfig: Update CONFIG_WATCHDOG_RTAS dependencies
+Message-Id: <3wrqv32nQZz9s7v@ozlabs.org>
+Date: Mon, 19 Jun 2017 22:25:35 +1000 (AEST)
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hello Yamada-san,
-
-From: Masahiro Yamada [mailto:yamada.masahiro@socionext.com]
-Sent: Wednesday, June 14, 2017 12:08 PM
->
-> 2017-06-13 10:14 GMT+09:00 Keiji Hayashibara
-> > diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> > index 52a70ee..2a9d9a6 100644
-> > --- a/drivers/watchdog/Kconfig
-> > +++ b/drivers/watchdog/Kconfig
-> > @@ -744,6 +744,17 @@ config ZX2967_WATCHDOG
-> >           To compile this driver as a module, choose M here: the
-> >           module will be called zx2967_wdt.
-> >
-> > +config UNIPHIER_WATCHDOG
-> > +       tristate "UniPhier watchdog support"
-> > +       depends on ARCH_UNIPHIER || COMPILE_TEST
+On Mon, 2017-05-29 at 13:26:28 UTC, Murilo Opsfelder Araujo wrote:
+> drivers/watchdog/wdrtas.c uses symbols defined in arch/powerpc/kernel/rtas.c,
+> which are exported iff CONFIG_PPC_RTAS is selected. Building wdrtas.c without
+> setting CONFIG_PPC_RTAS throws the following errors:
 > 
-> This driver relies on syscon_node_to_regmap().
-> Could you also add "depends on OF && MFD_SYSCON" ?
-
-OK. I will fix this.
+>     ERROR: ".rtas_token" [drivers/watchdog/wdrtas.ko] undefined!
+>     ERROR: "rtas_data_buf" [drivers/watchdog/wdrtas.ko] undefined!
+>     ERROR: "rtas_data_buf_lock" [drivers/watchdog/wdrtas.ko] undefined!
+>     ERROR: ".rtas_get_sensor" [drivers/watchdog/wdrtas.ko] undefined!
+>     ERROR: ".rtas_call" [drivers/watchdog/wdrtas.ko] undefined!
 > 
+> This was identified during a randconfig build where CONFIG_WATCHDOG_RTAS=m and
+> CONFIG_PPC_RTAS was not set. Logs are here:
 > 
-> > +       select WATCHDOG_CORE
-> > +       help
-> > +         Say Y here to include support watchdog timer embedded
-> > +         into the UniPhier system.
-> > +
-> > +         To compile this driver as a module, choose M here: the
-> > +         module will be called uniphier_wdt.
-> > +
+>     http://kisskb.ellerman.id.au/kisskb/buildresult/12982152/
+> 
+> This patch fixes the issue by updating CONFIG_WATCHDOG_RTAS to depend on just
+> CONFIG_PPC_RTAS, removing COMPILE_TEST entirely.
+> 
+> Signed-off-by: Murilo Opsfelder Araujo <mopsfelder@gmail.com>
+> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+> Acked-by: Michael Ellerman <mpe@ellerman.id.au>
 
-----------
-Best Regards,
-Keiji Hayashibara
+Applied to powerpc next, thanks.
 
+https://git.kernel.org/powerpc/c/42bed042556261b56aa92e05f4f388
 
+cheers
