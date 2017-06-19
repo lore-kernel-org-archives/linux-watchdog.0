@@ -1,8 +1,8 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from hauke-m.de ([5.39.93.123]:34885 "EHLO mail.hauke-m.de"
+Received: from hauke-m.de ([5.39.93.123]:34840 "EHLO mail.hauke-m.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752364AbdFSW0d (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 19 Jun 2017 18:26:33 -0400
+        id S1752283AbdFSW00 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 19 Jun 2017 18:26:26 -0400
 From: Hauke Mehrtens <hauke@hauke-m.de>
 To: ralf@linux-mips.org
 Cc: linux-mips@linux-mips.org, linux-mtd@lists.infradead.org,
@@ -11,109 +11,147 @@ Cc: linux-mips@linux-mips.org, linux-mtd@lists.infradead.org,
         linux-spi@vger.kernel.org, hauke.mehrtens@intel.com,
         robh@kernel.org, andy.shevchenko@gmail.com, p.zabel@pengutronix.de,
         Hauke Mehrtens <hauke@hauke-m.de>
-Subject: [PATCH v4 09/16] MIPS: lantiq: remove ltq_reset_cause() and ltq_boot_select()
-Date: Tue, 20 Jun 2017 00:26:01 +0200
-Message-Id: <20170619222608.13344-10-hauke@hauke-m.de>
-In-Reply-To: <20170619222608.13344-1-hauke@hauke-m.de>
-References: <20170619222608.13344-1-hauke@hauke-m.de>
+Subject: [PATCH v4 00/16] MIPS: lantiq: handle RCU register by separate drivers
+Date: Tue, 20 Jun 2017 00:25:52 +0200
+Message-Id: <20170619222608.13344-1-hauke@hauke-m.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Do not export the ltq_reset_cause() and ltq_boot_select() function any
-more. ltq_reset_cause() was accessed by the watchdog driver before to
-see why the last reset happened, this is now done through direct access
-of the register over regmap. The bits in this register are anyway
-different between the xrx200 and the falcon SoC.
-ltq_boot_select() is not used any more and was used by the flash
-drivers to check if the system was booted from this flash type, now the
-drivers should depend on the device tree only.
+The RCU (Reset controller Unit) register block provides many different 
+functionalities. Before they were handed by the code in arch/mips/lantiq
+/xway/reset.c, now there are separate drivers for the functionality.
+This block provides support for reset controller, GPHY firmware 
+loading, USB PHY initialization and cross bar configuration. 
 
-Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
-Acked-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
----
- arch/mips/include/asm/mach-lantiq/lantiq.h |  4 ----
- arch/mips/lantiq/falcon/reset.c            | 22 ----------------------
- arch/mips/lantiq/xway/reset.c              | 19 -------------------
- 3 files changed, 45 deletions(-)
+These changes are making the old device tree incompatible with the 
+current kernel. The upstream Linux kernel supports loading the device 
+tree blob from the boot loader since about one year, the latest 
+released vendor kernel does not support loading the device tree from a 
+bot loader.
 
-diff --git a/arch/mips/include/asm/mach-lantiq/lantiq.h b/arch/mips/include/asm/mach-lantiq/lantiq.h
-index 8064d7a4b33d..fa045b4c0cdd 100644
---- a/arch/mips/include/asm/mach-lantiq/lantiq.h
-+++ b/arch/mips/include/asm/mach-lantiq/lantiq.h
-@@ -44,10 +44,6 @@ extern struct clk *clk_get_fpi(void);
- extern struct clk *clk_get_io(void);
- extern struct clk *clk_get_ppe(void);
- 
--/* find out what bootsource we have */
--extern unsigned char ltq_boot_select(void);
--/* find out what caused the last cpu reset */
--extern int ltq_reset_cause(void);
- /* find out the soc type */
- extern int ltq_soc_type(void);
- 
-diff --git a/arch/mips/lantiq/falcon/reset.c b/arch/mips/lantiq/falcon/reset.c
-index 7a535d72f541..722114d7409d 100644
---- a/arch/mips/lantiq/falcon/reset.c
-+++ b/arch/mips/lantiq/falcon/reset.c
-@@ -15,28 +15,6 @@
- 
- #include <lantiq_soc.h>
- 
--/* CPU0 Reset Source Register */
--#define SYS1_CPU0RS		0x0040
--/* reset cause mask */
--#define CPU0RS_MASK		0x0003
--/* CPU0 Boot Mode Register */
--#define SYS1_BM			0x00a0
--/* boot mode mask */
--#define BM_MASK			0x0005
--
--/* allow platform code to find out what surce we booted from */
--unsigned char ltq_boot_select(void)
--{
--	return ltq_sys1_r32(SYS1_BM) & BM_MASK;
--}
--
--/* allow the watchdog driver to find out what the boot reason was */
--int ltq_reset_cause(void)
--{
--	return ltq_sys1_r32(SYS1_CPU0RS) & CPU0RS_MASK;
--}
--EXPORT_SYMBOL_GPL(ltq_reset_cause);
--
- #define BOOT_REG_BASE	(KSEG1 | 0x1F200000)
- #define BOOT_PW1_REG	(BOOT_REG_BASE | 0x20)
- #define BOOT_PW2_REG	(BOOT_REG_BASE | 0x24)
-diff --git a/arch/mips/lantiq/xway/reset.c b/arch/mips/lantiq/xway/reset.c
-index b6752c95a600..2dedcf939901 100644
---- a/arch/mips/lantiq/xway/reset.c
-+++ b/arch/mips/lantiq/xway/reset.c
-@@ -119,25 +119,6 @@ static void ltq_rcu_w32_mask(uint32_t clr, uint32_t set, uint32_t reg_off)
- 	spin_unlock_irqrestore(&ltq_rcu_lock, flags);
- }
- 
--/* This function is used by the watchdog driver */
--int ltq_reset_cause(void)
--{
--	u32 val = ltq_rcu_r32(RCU_RST_STAT);
--	return val >> RCU_STAT_SHIFT;
--}
--EXPORT_SYMBOL_GPL(ltq_reset_cause);
--
--/* allow platform code to find out what source we booted from */
--unsigned char ltq_boot_select(void)
--{
--	u32 val = ltq_rcu_r32(RCU_RST_STAT);
--
--	if (of_device_is_compatible(ltq_rcu_np, "lantiq,rcu-xrx200"))
--		return RCU_BOOT_SEL_XRX200(val);
--
--	return RCU_BOOT_SEL(val);
--}
--
- struct ltq_gphy_reset {
- 	u32 rd;
- 	u32 addr;
+I would prefer if this would go through the mips tree.
+There are more patches planed which would convert the Lantiq code 
+to the common clock framework.
+
+This is based on patches from Martin Blumenstingl and is a preparation 
+to convert the Lantiq target to the common clock framework which was 
+also started by Martin Blumenstingl.
+
+Changelog:
+v4:
+ * rename compatible strings to lantiq,<soc>-<core>
+ * removed rcu from most compatible string names, these components are 
+   only on the RCU register range in these SoCs
+ * removed big-endian attribute from fpi-bus.txt and hard code it to 
+   that value
+ * make gphy driver use reg directly, this register is used exclusively 
+   by the gphy firmware loader driver
+ * make drivers fetch the regmap from the parent node
+ * hard code offset and mask of the boot status registers in the 
+   watchdog driver depending on the compatible string probed
+ * handle errors in the usb phy device tree parsing
+ * use of_device_get_match_data() in multiple drivers
+ * extract lantiq_rcu_reset_status_timeout() from the reset driver set 
+   function
+
+v3:
+ * renamed xbar driver into fpi-bus driver and make it manage the bus,
+   this way we make sure it is initialized before the child drivers.
+ * converted the lantiq,rcu-syscon into a "regmap" and an "offset"
+   property, this way we have a offset property for each register we
+   want to access on the regmap.
+ * make the gphy PUM clock mandatory.
+ * renamed the lantiq,rcu-reset to lantiq,reset-xrx200
+ * add binding description for watchdog driver
+ * make watchdog driver use offset and mask to find the correct
+   register to get the watchdog reset cause bit.
+ * use of_platform_default_populate() instead of of_platform_populate()
+ * use device_property_read_u32() instead of
+   of_property_read_u32_index()
+ * changed John's email address to blogic@phrozen.org
+ * check the reset bit numbers in the xlate function
+ * use platform_get_resource() in FPI bus driver
+ * make it possible to unload the GPHY driver
+
+v2:
+ * remove the rcu_ prefix for device names in device tree
+ * add both clocks to the gphy driver documentation
+ * use 2 cells for the reset controller, one for the status bit and one
+   for the set bit, they are different for some reset bits.
+   reset-status and reset-request attribute were removed then.
+ * remove the documentation of the not existing sub nodes of the usb phy
+ * remove manual gpio vbus handling in the usb phy driver and use the
+   generic phy regulator now.
+ * do not check if the usb phy reset is not null, the reset framework does this.
+ * do not print an error message when -EPROBE_DEFER was returned
+
+
+Hauke Mehrtens (10):
+  mtd: lantiq-flash: drop check of boot select
+  mtd: spi-falcon: drop check of boot select
+  watchdog: lantiq: access boot cause register through regmap
+  watchdog: lantiq: add device tree binding documentation
+  MIPS: lantiq: Convert the fpi bus driver to a platform_driver
+  MIPS: lantiq: remove ltq_reset_cause() and ltq_boot_select()
+  MIPS: lantiq: remove old reset controller implementation
+  MIPS: lantiq: remove old GPHY loader code
+  phy: Add an USB PHY driver for the Lantiq SoCs using the RCU module
+  MIPS: lantiq: remove old USB PHY initialisation
+
+Martin Blumenstingl (6):
+  MIPS: lantiq: Use of_platform_default_populate instead of
+    __dt_register_buses
+  MIPS: lantiq: Enable MFD_SYSCON to be able to use it for the RCU MFD
+  Documentation: DT: MIPS: lantiq: Add docs for the RCU bindings
+  reset: Add a reset controller driver for the Lantiq XWAY based SoCs
+  MIPS: lantiq: Add a GPHY driver which uses the RCU syscon-mfd
+  MIPS: lantiq: Remove the arch/mips/lantiq/xway/reset.c implementation
+
+ .../devicetree/bindings/mips/lantiq/fpi-bus.txt    |  31 ++
+ .../devicetree/bindings/mips/lantiq/rcu-gphy.txt   |  36 ++
+ .../devicetree/bindings/mips/lantiq/rcu.txt        |  95 +++++
+ .../bindings/phy/phy-lantiq-rcu-usb2.txt           |  41 +++
+ .../devicetree/bindings/reset/lantiq,reset.txt     |  29 ++
+ .../devicetree/bindings/watchdog/lantiq-wdt.txt    |  22 ++
+ MAINTAINERS                                        |   1 +
+ arch/mips/include/asm/mach-lantiq/lantiq.h         |   4 -
+ arch/mips/lantiq/Kconfig                           |   2 +
+ arch/mips/lantiq/falcon/reset.c                    |  22 --
+ arch/mips/lantiq/prom.c                            |   2 +-
+ arch/mips/lantiq/xway/Makefile                     |   4 +-
+ arch/mips/lantiq/xway/reset.c                      | 387 ---------------------
+ arch/mips/lantiq/xway/sysctrl.c                    |  71 +---
+ arch/mips/lantiq/xway/xrx200_phy_fw.c              | 113 ------
+ drivers/mtd/maps/lantiq-flash.c                    |   6 -
+ drivers/phy/Kconfig                                |   8 +
+ drivers/phy/Makefile                               |   1 +
+ drivers/phy/phy-lantiq-rcu-usb2.c                  | 272 +++++++++++++++
+ drivers/reset/Kconfig                              |   6 +
+ drivers/reset/Makefile                             |   1 +
+ drivers/reset/reset-lantiq.c                       | 215 ++++++++++++
+ drivers/soc/Makefile                               |   1 +
+ drivers/soc/lantiq/Makefile                        |   2 +
+ drivers/soc/lantiq/fpi-bus.c                       |  85 +++++
+ drivers/soc/lantiq/gphy.c                          | 261 ++++++++++++++
+ drivers/spi/spi-falcon.c                           |   5 -
+ drivers/watchdog/lantiq_wdt.c                      |  73 +++-
+ include/dt-bindings/mips/lantiq_rcu_gphy.h         |  15 +
+ 29 files changed, 1210 insertions(+), 601 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/mips/lantiq/fpi-bus.txt
+ create mode 100644 Documentation/devicetree/bindings/mips/lantiq/rcu-gphy.txt
+ create mode 100644 Documentation/devicetree/bindings/mips/lantiq/rcu.txt
+ create mode 100644 Documentation/devicetree/bindings/phy/phy-lantiq-rcu-usb2.txt
+ create mode 100644 Documentation/devicetree/bindings/reset/lantiq,reset.txt
+ create mode 100644 Documentation/devicetree/bindings/watchdog/lantiq-wdt.txt
+ delete mode 100644 arch/mips/lantiq/xway/reset.c
+ delete mode 100644 arch/mips/lantiq/xway/xrx200_phy_fw.c
+ create mode 100644 drivers/phy/phy-lantiq-rcu-usb2.c
+ create mode 100644 drivers/reset/reset-lantiq.c
+ create mode 100644 drivers/soc/lantiq/Makefile
+ create mode 100644 drivers/soc/lantiq/fpi-bus.c
+ create mode 100644 drivers/soc/lantiq/gphy.c
+ create mode 100644 include/dt-bindings/mips/lantiq_rcu_gphy.h
+
 -- 
 2.11.0
 
