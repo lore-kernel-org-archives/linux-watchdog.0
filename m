@@ -1,8 +1,8 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from hauke-m.de ([5.39.93.123]:34849 "EHLO mail.hauke-m.de"
+Received: from hauke-m.de ([5.39.93.123]:34885 "EHLO mail.hauke-m.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752298AbdFSW00 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 19 Jun 2017 18:26:26 -0400
+        id S1752364AbdFSW0a (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 19 Jun 2017 18:26:30 -0400
 From: Hauke Mehrtens <hauke@hauke-m.de>
 To: ralf@linux-mips.org
 Cc: linux-mips@linux-mips.org, linux-mtd@lists.infradead.org,
@@ -11,38 +11,50 @@ Cc: linux-mips@linux-mips.org, linux-mtd@lists.infradead.org,
         linux-spi@vger.kernel.org, hauke.mehrtens@intel.com,
         robh@kernel.org, andy.shevchenko@gmail.com, p.zabel@pengutronix.de,
         Hauke Mehrtens <hauke@hauke-m.de>
-Subject: [PATCH v4 01/16] MIPS: lantiq: Use of_platform_default_populate instead of __dt_register_buses
-Date: Tue, 20 Jun 2017 00:25:53 +0200
-Message-Id: <20170619222608.13344-2-hauke@hauke-m.de>
+Subject: [PATCH v4 05/16] watchdog: lantiq: add device tree binding documentation
+Date: Tue, 20 Jun 2017 00:25:57 +0200
+Message-Id: <20170619222608.13344-6-hauke@hauke-m.de>
 In-Reply-To: <20170619222608.13344-1-hauke@hauke-m.de>
 References: <20170619222608.13344-1-hauke@hauke-m.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-
-This allows populating syscon devices which are using "simple-mfd"
-instead of "simple-bus".
+The binding was not documented before, add the documentation now.
 
 Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
-Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 ---
- arch/mips/lantiq/prom.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../devicetree/bindings/watchdog/lantiq-wdt.txt    | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/lantiq-wdt.txt
 
-diff --git a/arch/mips/lantiq/prom.c b/arch/mips/lantiq/prom.c
-index 96773bed8a8a..9ff7ccde9de0 100644
---- a/arch/mips/lantiq/prom.c
-+++ b/arch/mips/lantiq/prom.c
-@@ -117,7 +117,7 @@ void __init prom_init(void)
- 
- int __init plat_of_setup(void)
- {
--	return __dt_register_buses(soc_info.compatible, "simple-bus");
-+	return of_platform_default_populate(NULL, NULL, NULL);
- }
- 
- arch_initcall(plat_of_setup);
+diff --git a/Documentation/devicetree/bindings/watchdog/lantiq-wdt.txt b/Documentation/devicetree/bindings/watchdog/lantiq-wdt.txt
+new file mode 100644
+index 000000000000..1d41142ca55f
+--- /dev/null
++++ b/Documentation/devicetree/bindings/watchdog/lantiq-wdt.txt
+@@ -0,0 +1,22 @@
++Lantiq WTD watchdog binding
++============================
++
++This describes the binding of the Lantiq watchdog driver.
++
++-------------------------------------------------------------------------------
++Required properties:
++- compatible		: Should be one of
++				"lantiq,wdt"
++				"lantiq,xrx100-wdt"
++				"lantiq,falcon-wdt"
++- regmap		: A phandle to the RCU syscon (required for
++			  "lantiq,falcon-wdt" and "lantiq,xrx100-wdt")
++
++-------------------------------------------------------------------------------
++Example for the watchdog on the xRX200 SoCs:
++		watchdog@803f0 {
++			compatible = "lantiq,xrx100-wdt";
++			reg = <0x803f0 0x10>;
++
++			regmap = <&rcu0>;
++		};
 -- 
 2.11.0
 
