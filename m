@@ -1,86 +1,44 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:35952 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752963AbdFUBnG (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 20 Jun 2017 21:43:06 -0400
-Subject: Re: [PATCH v4 0/3] watchdog: dw_wdt: add reset lines
-To: Steffen Trumtrar <s.trumtrar@pengutronix.de>,
-        linux-watchdog@vger.kernel.org
-Cc: Wim Van Sebroeck <wim@iguana.be>, Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        devicetree@vger.kernel.org,
-        Dinh Nguyen <dinguyen@opensource.altera.com>,
-        linux-arm-kernel@lists.infradead.org,
-        Philipp Zabel <p.zabel@pengutronix.de>, kernel@pengutronix.de
-References: <cover.50aaf23e8fbe9028f711a67e39b96910c986e8b0.1495443015.git-series.s.trumtrar@pengutronix.de>
- <738tknf5zp.fsf@pengutronix.de>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <a6d32d71-6f66-18af-5283-036bf1ef93ce@roeck-us.net>
-Date: Tue, 20 Jun 2017 18:43:03 -0700
-MIME-Version: 1.0
-In-Reply-To: <738tknf5zp.fsf@pengutronix.de>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-Path: <arvind.yadav.cs@gmail.com>
+Return-path: <arvind.yadav.cs@gmail.com>
+From: Arvind Yadav <arvind.yadav.cs@gmail.com>
+To: wim@iguana.be,
+	linux@roeck-us.net
+Cc: linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] watchdog: cadence_wdt: make of_device_ids const.
+Date: Tue, 20 Jun 2017 11:04:26 +0530
+Message-Id: <368e831c5ca264a6314361ca5b8a31cac00ea8ea.1497935866.git.arvind.yadav.cs@gmail.com>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 06/20/2017 12:55 AM, Steffen Trumtrar wrote:
-> 
-> Steffen Trumtrar <s.trumtrar@pengutronix.de> writes:
-> 
->> Hi!
->>
->> This series adds support for the reset line that is (potentially) holding
->> the watchdog in reset.
->>
->> As the watchdog is useless if this happens, it needs to be deasserted in
->> the probe function.
->>
->> Tested on a Socrates board.
->>
->> Regards,
->> Steffen
->>
->>
->> Changes since v3:
->>
->>    - goto out_disable_clk
->>    - add Reviewed-by
->>
->> Changes since v2:
->>
->>    - use optional reset functions
->>    - add Acked-by to devictree bindings
->>
->> Changes since v1:
->>
->>    - remove reset-names property
->>    - remove warning if reset property is missing
->>
->> Steffen Trumtrar (3):
->>    watchdog: bindings: dw_wdt: add reset lines
->>    watchdog: dw_wdt: get reset lines from dt
->>    ARM: socfpga: dtsi: add dw-wdt reset lines
->>
->>   Documentation/devicetree/bindings/watchdog/dw_wdt.txt |  3 +++
->>   arch/arm/boot/dts/socfpga.dtsi                        |  2 ++
->>   drivers/watchdog/dw_wdt.c                             | 11 +++++++++++
->>   3 files changed, 16 insertions(+)
->>
->> base-commit: 2ea659a9ef488125eb46da6eb571de5eae5c43f6
-> 
-> Gentle Ping!
-> 
-> Is this series already applied somewhere I didn't look?
-> 
+of_device_ids are not supposed to change at runtime. All functions
+working with of_device_ids provided by <linux/of.h> work with const
+of_device_ids. So mark the non-const structs as const.
 
-https://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git/log/?h=watchdog-next
+File size before:
+   text	   data	    bss	    dec	    hex	filename
+   1962	    612	      4	   2578	    a12	drivers/watchdog/cadence_wdt.o
 
- From there, we can only hope that Wim will find the time to pick it up for the next release.
+File size after constify cdns_wdt_of_match:
+   text	   data	    bss	    dec	    hex	filename
+   2378	    196	      4	   2578	    a12	drivers/watchdog/cadence_wdt.o
 
-The arm dts change will have to go through the arm tree(s) as usual.
+Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
+---
+ drivers/watchdog/cadence_wdt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Guenter
+diff --git a/drivers/watchdog/cadence_wdt.c b/drivers/watchdog/cadence_wdt.c
+index 8d61e8b..4824b0a 100644
+--- a/drivers/watchdog/cadence_wdt.c
++++ b/drivers/watchdog/cadence_wdt.c
+@@ -458,7 +458,7 @@ static int __maybe_unused cdns_wdt_resume(struct device *dev)
+ 
+ static SIMPLE_DEV_PM_OPS(cdns_wdt_pm_ops, cdns_wdt_suspend, cdns_wdt_resume);
+ 
+-static struct of_device_id cdns_wdt_of_match[] = {
++static const struct of_device_id cdns_wdt_of_match[] = {
+ 	{ .compatible = "cdns,wdt-r1p2", },
+ 	{ /* end of table */ }
+ };
+-- 
+1.9.1
