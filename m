@@ -1,72 +1,71 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:52355 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752520AbdFTUzd (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 20 Jun 2017 16:55:33 -0400
-Date: Tue, 20 Jun 2017 13:55:26 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Keiji Hayashibara <hayashibara.keiji@socionext.com>
-Cc: wim@iguana.be, linux-watchdog@vger.kernel.org,
-        linux-kernel@vger.kernel.org, robh+dt@kernel.org,
-        devicetree@vger.kernel.org, masami.hiramatsu@linaro.org,
-        jaswinder.singh@linaro.org, yamada.masahiro@socionext.com,
-        hayashi.kunihiko@socionext.com, owada.kiyoshi@socionext.com
-Subject: Re: [PATCH V4 1/3] dt-bindings: watchdog: add description for
- UniPhier WDT controller
-Message-ID: <20170620205526.GD28761@roeck-us.net>
-References: <1497426825-25450-1-git-send-email-hayashibara.keiji@socionext.com>
- <1497426825-25450-2-git-send-email-hayashibara.keiji@socionext.com>
+Return-Path: <s.trumtrar@pengutronix.de>
+Return-path: <s.trumtrar@pengutronix.de>
+References: <cover.50aaf23e8fbe9028f711a67e39b96910c986e8b0.1495443015.git-series.s.trumtrar@pengutronix.de>
+From: Steffen Trumtrar <s.trumtrar@pengutronix.de>
+To: linux-watchdog@vger.kernel.org
+Cc: Wim Van Sebroeck <wim@iguana.be>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>, Dinh Nguyen <dinguyen@opensource.altera.com>, linux-arm-kernel@lists.infradead.org, Philipp Zabel <p.zabel@pengutronix.de>, kernel@pengutronix.de
+Subject: Re: [PATCH v4 0/3] watchdog: dw_wdt: add reset lines
+In-reply-to: <cover.50aaf23e8fbe9028f711a67e39b96910c986e8b0.1495443015.git-series.s.trumtrar@pengutronix.de>
+Date: Tue, 20 Jun 2017 09:55:22 +0200
+Message-ID: <738tknf5zp.fsf@pengutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1497426825-25450-2-git-send-email-hayashibara.keiji@socionext.com>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Content-Type: text/plain
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On Wed, Jun 14, 2017 at 04:53:43PM +0900, Keiji Hayashibara wrote:
-> Add uniphier-wdt dt-bindings documentation.
-> 
-> Signed-off-by: Keiji Hayashibara <hayashibara.keiji@socionext.com>
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Steffen Trumtrar <s.trumtrar@pengutronix.de> writes:
 
-> ---
->  .../devicetree/bindings/watchdog/uniphier-wdt.txt    | 20 ++++++++++++++++++++
->  1 file changed, 20 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/watchdog/uniphier-wdt.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/watchdog/uniphier-wdt.txt b/Documentation/devicetree/bindings/watchdog/uniphier-wdt.txt
-> new file mode 100644
-> index 0000000..bf63375
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/watchdog/uniphier-wdt.txt
-> @@ -0,0 +1,20 @@
-> +UniPhier watchdog timer controller
-> +
-> +This UniPhier watchdog timer controller must be under sysctrl node.
-> +
-> +Required properties:
-> +- compatible: should be "socionext,uniphier-wdt"
-> +
-> +Example:
-> +
-> +	sysctrl@61840000 {
-> +		compatible = "socionext,uniphier-ld11-sysctrl",
-> +			     "simple-mfd", "syscon";
-> +		reg = <0x61840000 0x4000>;
-> +
-> +		watchdog {
-> +			compatible = "socionext,uniphier-wdt";
-> +		}
-> +
-> +		other nodes ...
-> +	};
-> -- 
-> 2.7.4
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Hi!
+>
+> This series adds support for the reset line that is (potentially) holding
+> the watchdog in reset.
+>
+> As the watchdog is useless if this happens, it needs to be deasserted in
+> the probe function.
+>
+> Tested on a Socrates board.
+>
+> Regards,
+> Steffen
+>
+>
+> Changes since v3:
+>
+>   - goto out_disable_clk
+>   - add Reviewed-by
+>
+> Changes since v2:
+>
+>   - use optional reset functions
+>   - add Acked-by to devictree bindings
+>
+> Changes since v1:
+>
+>   - remove reset-names property
+>   - remove warning if reset property is missing
+>
+> Steffen Trumtrar (3):
+>   watchdog: bindings: dw_wdt: add reset lines
+>   watchdog: dw_wdt: get reset lines from dt
+>   ARM: socfpga: dtsi: add dw-wdt reset lines
+>
+>  Documentation/devicetree/bindings/watchdog/dw_wdt.txt |  3 +++
+>  arch/arm/boot/dts/socfpga.dtsi                        |  2 ++
+>  drivers/watchdog/dw_wdt.c                             | 11 +++++++++++
+>  3 files changed, 16 insertions(+)
+>
+> base-commit: 2ea659a9ef488125eb46da6eb571de5eae5c43f6
+
+Gentle Ping!
+
+Is this series already applied somewhere I didn't look?
+
+
+Best regards,
+Steffen
+
+-- 
+Pengutronix e.K.                           | Steffen Trumtrar            |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
