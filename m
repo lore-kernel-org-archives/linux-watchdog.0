@@ -1,181 +1,65 @@
-Return-Path: <zboszor@pr.hu>
-Return-path: <zboszor@pr.hu>
-From: =?UTF-8?q?Zolt=C3=A1n=20B=C3=B6sz=C3=B6rm=C3=A9nyi?= <zboszor@pr.hu>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail7.pr.hu ([87.242.0.7]:37830 "EHLO mail7.pr.hu"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750707AbdFUEED (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Wed, 21 Jun 2017 00:04:03 -0400
+From: =?UTF-8?q?Zolt=C3=A1n=20B=C3=B6sz=C3=B6rm=C3=A9nyi?=
+        <zboszor@pr.hu>
 To: linux-kernel@vger.kernel.org
-Cc: linux-usb@vger.kernel.org,
-	linux-watchdog@vger.kernel.org,
-	linux-i2c@vger.kernel.org,
-	Paul Menzel <paulepanter@users.sourceforge.net>,
-	Christian Fetzer <fetzer.ch@gmail.com>,
-	Jean Delvare <jdelvare@suse.com>,
-	Nehal Shah <nehal-bakulchandra.shah@amd.com>,
-	Tim Small <tim@seoss.co.uk>,
-	Guenter Roeck <linux@roeck-us.net>,
-	kernel@ekass.net,
-	wim@iguana.be,
-	jlayton@poochiereds.net,
-	marc.2377@gmail.com,
-	cshorler@googlemail.com,
-	wsa@the-dreams.de,
-	regressions@leemhuis.info,
-	=?UTF-8?q?Zolt=C3=A1n=20B=C3=B6sz=C3=B6rm=C3=A9nyi?= <zboszor@pr.hu>
-Subject: [PATCH 5/5] watchdog: sp5100_tco: Use request_declared_muxed_region()
-Date: Wed, 21 Jun 2017 05:53:49 +0200
-Message-Id: <20170621035349.4125-6-zboszor@pr.hu>
+Cc: linux-usb@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-i2c@vger.kernel.org,
+        Paul Menzel <paulepanter@users.sourceforge.net>,
+        Christian Fetzer <fetzer.ch@gmail.com>,
+        Jean Delvare <jdelvare@suse.com>,
+        Nehal Shah <nehal-bakulchandra.shah@amd.com>,
+        Tim Small <tim@seoss.co.uk>,
+        Guenter Roeck <linux@roeck-us.net>, kernel@ekass.net,
+        wim@iguana.be, jlayton@poochiereds.net, marc.2377@gmail.com,
+        cshorler@googlemail.com, wsa@the-dreams.de,
+        regressions@leemhuis.info,
+        =?UTF-8?q?Zolt=C3=A1n=20B=C3=B6sz=C3=B6rm=C3=A9nyi?=
+        <zboszor@pr.hu>
+Subject: [PATCH 2/5] Modify behaviour of request_*muxed_region()
+Date: Wed, 21 Jun 2017 05:53:46 +0200
+Message-Id: <20170621035349.4125-3-zboszor@pr.hu>
 In-Reply-To: <20170621035349.4125-1-zboszor@pr.hu>
 References: <20170403075133.12343-1-zboszor@pr.hu>
  <20170621035349.4125-1-zboszor@pr.hu>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-List-ID: <linux-watchdog@vger.kernel.org>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-Use the new request_declared_muxed_region() macro to synchronize
-accesses to the SB800 I/O port pair (0xcd6 / 0xcd7) with the
-PCI quirk for isochronous USB transfers and with the i2c-piix4
-driver.
-
-At the same time, remove the long lifetime request_region() call
-to reserve these I/O ports, similarly to i2c-piix4 so the code is
-now uniform across the three drivers.
+In order to make request_*muxed_region() behave more like mutex_lock(),
+a possible failure case needs to be eliminated. When drivers do not
+properly share the same I/O region, e.g. one is using request_region()
+and the other is using request_muxed_region(), the kernel didn't
+warn the user about it. This change modifies IORESOURCE_MUXED behaviour
+so it always goes to sleep waiting for the resuorce to be freed
+and the inconsistent resource flag usage is logged with KERN_ERR.
 
 Signed-off-by: Zoltán Böszörményi <zboszor@pr.hu>
 ---
- drivers/watchdog/sp5100_tco.c | 25 ++++++++++++-------------
- 1 file changed, 12 insertions(+), 13 deletions(-)
+ kernel/resource.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/watchdog/sp5100_tco.c b/drivers/watchdog/sp5100_tco.c
-index 028618c..9bb3bcb 100644
---- a/drivers/watchdog/sp5100_tco.c
-+++ b/drivers/watchdog/sp5100_tco.c
-@@ -48,7 +48,6 @@
- static u32 tcobase_phys;
- static u32 tco_wdt_fired;
- static void __iomem *tcobase;
--static unsigned int pm_iobase;
- static DEFINE_SPINLOCK(tco_lock);	/* Guards the hardware */
- static unsigned long timer_alive;
- static char tco_expect_close;
-@@ -134,11 +133,13 @@ static int tco_timer_set_heartbeat(int t)
- 
- static void tco_timer_enable(void)
- {
-+	struct resource res = DEFINE_RES_IO_NAMED(SB800_IO_PM_INDEX_REG, SP5100_PM_IOPORTS_SIZE, TCO_MODULE_NAME);
- 	int val;
- 
- 	if (!tco_has_sp5100_reg_layout(sp5100_tco_pci)) {
- 		/* For SB800 or later */
- 		/* Set the Watchdog timer resolution to 1 sec */
-+		request_declared_muxed_region(&res);
- 		outb(SB800_PM_WATCHDOG_CONFIG, SB800_IO_PM_INDEX_REG);
- 		val = inb(SB800_IO_PM_DATA_REG);
- 		val |= SB800_PM_WATCHDOG_SECOND_RES;
-@@ -150,6 +151,7 @@ static void tco_timer_enable(void)
- 		val |= SB800_PCI_WATCHDOG_DECODE_EN;
- 		val &= ~SB800_PM_WATCHDOG_DISABLE;
- 		outb(val, SB800_IO_PM_DATA_REG);
-+		release_region(SB800_IO_PM_INDEX_REG, SP5100_PM_IOPORTS_SIZE);
- 	} else {
- 		/* For SP5100 or SB7x0 */
- 		/* Enable watchdog decode bit */
-@@ -164,11 +166,13 @@ static void tco_timer_enable(void)
- 				       val);
- 
- 		/* Enable Watchdog timer and set the resolution to 1 sec */
-+		request_declared_muxed_region(&res);
- 		outb(SP5100_PM_WATCHDOG_CONTROL, SP5100_IO_PM_INDEX_REG);
- 		val = inb(SP5100_IO_PM_DATA_REG);
- 		val |= SP5100_PM_WATCHDOG_SECOND_RES;
- 		val &= ~SP5100_PM_WATCHDOG_DISABLE;
- 		outb(val, SP5100_IO_PM_DATA_REG);
-+		release_region(SB800_IO_PM_INDEX_REG, 2);
- 	}
- }
- 
-@@ -326,6 +330,7 @@ MODULE_DEVICE_TABLE(pci, sp5100_tco_pci_tbl);
-  */
- static unsigned char sp5100_tco_setupdevice(void)
- {
-+	struct resource res = DEFINE_RES_IO_NAMED(SP5100_IO_PM_INDEX_REG, SP5100_PM_IOPORTS_SIZE, TCO_MODULE_NAME);
- 	struct pci_dev *dev = NULL;
- 	const char *dev_name = NULL;
- 	u32 val;
-@@ -361,16 +366,10 @@ static unsigned char sp5100_tco_setupdevice(void)
- 		base_addr = SB800_PM_WATCHDOG_BASE;
- 	}
- 
--	/* Request the IO ports used by this driver */
--	pm_iobase = SP5100_IO_PM_INDEX_REG;
--	if (!request_region(pm_iobase, SP5100_PM_IOPORTS_SIZE, dev_name)) {
--		pr_err("I/O address 0x%04x already in use\n", pm_iobase);
--		goto exit;
--	}
--
- 	/*
- 	 * First, Find the watchdog timer MMIO address from indirect I/O.
- 	 */
-+	request_declared_muxed_region(&res);
- 	outb(base_addr+3, index_reg);
- 	val = inb(data_reg);
- 	outb(base_addr+2, index_reg);
-@@ -380,6 +379,7 @@ static unsigned char sp5100_tco_setupdevice(void)
- 	outb(base_addr+0, index_reg);
- 	/* Low three bits of BASE are reserved */
- 	val = val << 8 | (inb(data_reg) & 0xf8);
-+	release_region(SP5100_IO_PM_INDEX_REG, SP5100_PM_IOPORTS_SIZE);
- 
- 	pr_debug("Got 0x%04x from indirect I/O\n", val);
- 
-@@ -400,6 +400,7 @@ static unsigned char sp5100_tco_setupdevice(void)
- 				      SP5100_SB_RESOURCE_MMIO_BASE, &val);
- 	} else {
- 		/* Read SBResource_MMIO from AcpiMmioEn(PM_Reg: 24h) */
-+		request_declared_muxed_region(&res);
- 		outb(SB800_PM_ACPI_MMIO_EN+3, SB800_IO_PM_INDEX_REG);
- 		val = inb(SB800_IO_PM_DATA_REG);
- 		outb(SB800_PM_ACPI_MMIO_EN+2, SB800_IO_PM_INDEX_REG);
-@@ -408,6 +409,7 @@ static unsigned char sp5100_tco_setupdevice(void)
- 		val = val << 8 | inb(SB800_IO_PM_DATA_REG);
- 		outb(SB800_PM_ACPI_MMIO_EN+0, SB800_IO_PM_INDEX_REG);
- 		val = val << 8 | inb(SB800_IO_PM_DATA_REG);
-+		release_region(SP5100_IO_PM_INDEX_REG, SP5100_PM_IOPORTS_SIZE);
- 	}
- 
- 	/* The SBResource_MMIO is enabled and mapped memory space? */
-@@ -429,7 +431,7 @@ static unsigned char sp5100_tco_setupdevice(void)
- 		pr_debug("SBResource_MMIO is disabled(0x%04x)\n", val);
- 
- 	pr_notice("failed to find MMIO address, giving up.\n");
--	goto  unreg_region;
-+	goto  exit;
- 
- setup_wdt:
- 	tcobase_phys = val;
-@@ -469,8 +471,6 @@ static unsigned char sp5100_tco_setupdevice(void)
- 
- unreg_mem_region:
- 	release_mem_region(tcobase_phys, SP5100_WDT_MEM_MAP_SIZE);
--unreg_region:
--	release_region(pm_iobase, SP5100_PM_IOPORTS_SIZE);
- exit:
- 	return 0;
- }
-@@ -517,7 +517,7 @@ static int sp5100_tco_init(struct platform_device *dev)
- exit:
- 	iounmap(tcobase);
- 	release_mem_region(tcobase_phys, SP5100_WDT_MEM_MAP_SIZE);
--	release_region(pm_iobase, SP5100_PM_IOPORTS_SIZE);
-+	release_region(SB800_IO_PM_INDEX_REG, SP5100_PM_IOPORTS_SIZE);
- 	return ret;
- }
- 
-@@ -531,7 +531,6 @@ static void sp5100_tco_cleanup(void)
- 	misc_deregister(&sp5100_tco_miscdev);
- 	iounmap(tcobase);
- 	release_mem_region(tcobase_phys, SP5100_WDT_MEM_MAP_SIZE);
--	release_region(pm_iobase, SP5100_PM_IOPORTS_SIZE);
- }
- 
- static int sp5100_tco_remove(struct platform_device *dev)
+diff --git a/kernel/resource.c b/kernel/resource.c
+index 220f695..59fa426 100644
+--- a/kernel/resource.c
++++ b/kernel/resource.c
+@@ -1150,7 +1150,9 @@ struct resource * __request_declared_region(struct resource *parent,
+ 				continue;
+ 			}
+ 		}
+-		if (conflict->flags & flags & IORESOURCE_MUXED) {
++		if (flags & IORESOURCE_MUXED) {
++			if (!(conflict->flags & IORESOURCE_MUXED))
++				printk(KERN_ERR "Resource conflict between muxed \"%s\" and non-muxed \"%s\" I/O regions!\n", res->name, conflict->name);
+ 			add_wait_queue(&muxed_resource_wait, &wait);
+ 			write_unlock(&resource_lock);
+ 			set_current_state(TASK_UNINTERRUPTIBLE);
 -- 
 2.9.4
+
