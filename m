@@ -19,92 +19,163 @@ Cc: linux-usb@vger.kernel.org,
 	wsa@the-dreams.de,
 	regressions@leemhuis.info,
 	=?UTF-8?q?Zolt=C3=A1n=20B=C3=B6sz=C3=B6rm=C3=A9nyi?= <zboszor@pr.hu>
-Subject: [PATCH 0/5 v3] Fix sp5100_tco watchdog driver regression
-Date: Wed, 21 Jun 2017 05:53:44 +0200
-Message-Id: <20170621035349.4125-1-zboszor@pr.hu>
-In-Reply-To: <20170403075133.12343-1-zboszor@pr.hu>
+Subject: [PATCH 5/5] watchdog: sp5100_tco: Use request_declared_muxed_region()
+Date: Wed, 21 Jun 2017 05:53:49 +0200
+Message-Id: <20170621035349.4125-6-zboszor@pr.hu>
+In-Reply-To: <20170621035349.4125-1-zboszor@pr.hu>
 References: <20170403075133.12343-1-zboszor@pr.hu>
+ <20170621035349.4125-1-zboszor@pr.hu>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 List-ID: <linux-watchdog@vger.kernel.org>
 
-This patch series fixes a regression introduced by:
+Use the new request_declared_muxed_region() macro to synchronize
+accesses to the SB800 I/O port pair (0xcd6 / 0xcd7) with the
+PCI quirk for isochronous USB transfers and with the i2c-piix4
+driver.
 
-commit 2fee61d22e606fc99ade9079fda15fdee83ec33e
-Author: Christian Fetzer <fetzer.ch@gmail.com>
-Date:   Thu Nov 19 20:13:48 2015 +0100
-
-    i2c: piix4: Add support for multiplexed main adapter in SB800
-
-The regression caused sp5100_tco fail to load:
-
-piix4_smbus 0000:00:14.0: SMBus Host Controller at 0xb00, revision 0
-piix4_smbus 0000:00:14.0: Using register 0x2c for SMBus port selection
-piix4_smbus 0000:00:14.0: Auxiliary SMBus Host Controller at 0xb20
-sp5100_tco: SP5100/SB800 TCO WatchDog Timer Driver v0.05
-sp5100_tco: PCI Vendor ID: 0x1002, Device ID: 0x4385, Revision ID: 0x42
-sp5100_tco: I/O address 0x0cd6 already in use
-
-Notable bugzilla links about this issue:
-https://bugzilla.kernel.org/show_bug.cgi?id=170741
-https://bugzilla.redhat.com/show_bug.cgi?id=1369269
-https://bugzilla.redhat.com/show_bug.cgi?id=1406844
-
-The previous two versions of this patch series introduced
-a common mutex to synchronize access to the I/O port pair
-0xcd6 / 0xcd7 used by the AMD SB800 USB PCI quirk code and
-the i2c-piix and sp5100_tco drivers. The common mutex was
-criticized because it introduces an inter-dependency between
-drivers.
-
-This approach modifies the request_muxed_region() semantics and
-modifies the possible use cases.
-
-The first patch in the series adds a new IORESOURCE_ALLOCATED
-flag that alloc_resource() sets and free_resource() considers.
-The core of __request_region() is factored out into a new function
-that doesn't allocate. With this change, drivers can use the
-pre-existing DEFINE_RES_IO_NAMED() static initialized macro
-to declare struct resource statically (e.g. on the stack)
-and pass the address of it to the new __request_declared_region()
-function. A new macro called request_declared_muxed_region()
-was added to exploit this functionality. Because of the new
-IORESOURCE_ALLOCATED resource flag, release_region() can still
-be called with the old interface (the port region start and
-end values) and it won't attempt to free a non-allocated resource.
-This eliminated one failure case that can come from allocation
-errors.
-
-The second patch modifies the behaviour of IORESOURCE_MUXED,
-a.k.a. the request_*muxed_region() macros. When these macros
-are called, the caller goes to sleep when there is any conflicting
-regions, even if the conflicting region did not use the
-IORESOURCE_MUXED flag. The kernel logs this inconsistent
-flag usage with KERN_ERR. This change eliminates the second
-failure case for IORESOURCE_MUXED and request_muxed_region()
-can be used like mutex_lock(), i.e. it returns only in case it
-could successfully request the region.
-
-The last three patches adds proper synchronization to
-the USB PCI quirks code and the i2c-piix and sp5100_tco drivers.
-
-The result is that the sp5100_tco driver can load and works again:
-
-piix4_smbus 0000:00:14.0: SMBus Host Controller at 0xb00, revision 0
-piix4_smbus 0000:00:14.0: Using register 0x2c for SMBus port selection
-piix4_smbus 0000:00:14.0: Auxiliary SMBus Host Controller at 0xb20
-sp5100_tco: SP5100/SB800 TCO WatchDog Timer Driver v0.05
-sp5100_tco: PCI Vendor ID: 0x1002, Device ID: 0x4385, Revision ID: 0x42
-sp5100_tco: Using 0xfed80b00 for watchdog MMIO address
-sp5100_tco: Last reboot was not triggered by watchdog.
-sp5100_tco: initialized (0xffffba2f4192db00). heartbeat=60 sec (nowayout=0)
+At the same time, remove the long lifetime request_region() call
+to reserve these I/O ports, similarly to i2c-piix4 so the code is
+now uniform across the three drivers.
 
 Signed-off-by: Zoltán Böszörményi <zboszor@pr.hu>
 ---
- drivers/i2c/busses/i2c-piix4.c | 42 ++++++++++--------------------
- drivers/usb/host/pci-quirks.c  |  3 +++
- drivers/watchdog/sp5100_tco.c  | 25 +++++++++---------
- include/linux/ioport.h         |  5 ++++
- kernel/resource.c              | 59 ++++++++++++++++++++++++++++++------------
- 5 files changed, 75 insertions(+), 59 deletions(-)
+ drivers/watchdog/sp5100_tco.c | 25 ++++++++++++-------------
+ 1 file changed, 12 insertions(+), 13 deletions(-)
+
+diff --git a/drivers/watchdog/sp5100_tco.c b/drivers/watchdog/sp5100_tco.c
+index 028618c..9bb3bcb 100644
+--- a/drivers/watchdog/sp5100_tco.c
++++ b/drivers/watchdog/sp5100_tco.c
+@@ -48,7 +48,6 @@
+ static u32 tcobase_phys;
+ static u32 tco_wdt_fired;
+ static void __iomem *tcobase;
+-static unsigned int pm_iobase;
+ static DEFINE_SPINLOCK(tco_lock);	/* Guards the hardware */
+ static unsigned long timer_alive;
+ static char tco_expect_close;
+@@ -134,11 +133,13 @@ static int tco_timer_set_heartbeat(int t)
+ 
+ static void tco_timer_enable(void)
+ {
++	struct resource res = DEFINE_RES_IO_NAMED(SB800_IO_PM_INDEX_REG, SP5100_PM_IOPORTS_SIZE, TCO_MODULE_NAME);
+ 	int val;
+ 
+ 	if (!tco_has_sp5100_reg_layout(sp5100_tco_pci)) {
+ 		/* For SB800 or later */
+ 		/* Set the Watchdog timer resolution to 1 sec */
++		request_declared_muxed_region(&res);
+ 		outb(SB800_PM_WATCHDOG_CONFIG, SB800_IO_PM_INDEX_REG);
+ 		val = inb(SB800_IO_PM_DATA_REG);
+ 		val |= SB800_PM_WATCHDOG_SECOND_RES;
+@@ -150,6 +151,7 @@ static void tco_timer_enable(void)
+ 		val |= SB800_PCI_WATCHDOG_DECODE_EN;
+ 		val &= ~SB800_PM_WATCHDOG_DISABLE;
+ 		outb(val, SB800_IO_PM_DATA_REG);
++		release_region(SB800_IO_PM_INDEX_REG, SP5100_PM_IOPORTS_SIZE);
+ 	} else {
+ 		/* For SP5100 or SB7x0 */
+ 		/* Enable watchdog decode bit */
+@@ -164,11 +166,13 @@ static void tco_timer_enable(void)
+ 				       val);
+ 
+ 		/* Enable Watchdog timer and set the resolution to 1 sec */
++		request_declared_muxed_region(&res);
+ 		outb(SP5100_PM_WATCHDOG_CONTROL, SP5100_IO_PM_INDEX_REG);
+ 		val = inb(SP5100_IO_PM_DATA_REG);
+ 		val |= SP5100_PM_WATCHDOG_SECOND_RES;
+ 		val &= ~SP5100_PM_WATCHDOG_DISABLE;
+ 		outb(val, SP5100_IO_PM_DATA_REG);
++		release_region(SB800_IO_PM_INDEX_REG, 2);
+ 	}
+ }
+ 
+@@ -326,6 +330,7 @@ MODULE_DEVICE_TABLE(pci, sp5100_tco_pci_tbl);
+  */
+ static unsigned char sp5100_tco_setupdevice(void)
+ {
++	struct resource res = DEFINE_RES_IO_NAMED(SP5100_IO_PM_INDEX_REG, SP5100_PM_IOPORTS_SIZE, TCO_MODULE_NAME);
+ 	struct pci_dev *dev = NULL;
+ 	const char *dev_name = NULL;
+ 	u32 val;
+@@ -361,16 +366,10 @@ static unsigned char sp5100_tco_setupdevice(void)
+ 		base_addr = SB800_PM_WATCHDOG_BASE;
+ 	}
+ 
+-	/* Request the IO ports used by this driver */
+-	pm_iobase = SP5100_IO_PM_INDEX_REG;
+-	if (!request_region(pm_iobase, SP5100_PM_IOPORTS_SIZE, dev_name)) {
+-		pr_err("I/O address 0x%04x already in use\n", pm_iobase);
+-		goto exit;
+-	}
+-
+ 	/*
+ 	 * First, Find the watchdog timer MMIO address from indirect I/O.
+ 	 */
++	request_declared_muxed_region(&res);
+ 	outb(base_addr+3, index_reg);
+ 	val = inb(data_reg);
+ 	outb(base_addr+2, index_reg);
+@@ -380,6 +379,7 @@ static unsigned char sp5100_tco_setupdevice(void)
+ 	outb(base_addr+0, index_reg);
+ 	/* Low three bits of BASE are reserved */
+ 	val = val << 8 | (inb(data_reg) & 0xf8);
++	release_region(SP5100_IO_PM_INDEX_REG, SP5100_PM_IOPORTS_SIZE);
+ 
+ 	pr_debug("Got 0x%04x from indirect I/O\n", val);
+ 
+@@ -400,6 +400,7 @@ static unsigned char sp5100_tco_setupdevice(void)
+ 				      SP5100_SB_RESOURCE_MMIO_BASE, &val);
+ 	} else {
+ 		/* Read SBResource_MMIO from AcpiMmioEn(PM_Reg: 24h) */
++		request_declared_muxed_region(&res);
+ 		outb(SB800_PM_ACPI_MMIO_EN+3, SB800_IO_PM_INDEX_REG);
+ 		val = inb(SB800_IO_PM_DATA_REG);
+ 		outb(SB800_PM_ACPI_MMIO_EN+2, SB800_IO_PM_INDEX_REG);
+@@ -408,6 +409,7 @@ static unsigned char sp5100_tco_setupdevice(void)
+ 		val = val << 8 | inb(SB800_IO_PM_DATA_REG);
+ 		outb(SB800_PM_ACPI_MMIO_EN+0, SB800_IO_PM_INDEX_REG);
+ 		val = val << 8 | inb(SB800_IO_PM_DATA_REG);
++		release_region(SP5100_IO_PM_INDEX_REG, SP5100_PM_IOPORTS_SIZE);
+ 	}
+ 
+ 	/* The SBResource_MMIO is enabled and mapped memory space? */
+@@ -429,7 +431,7 @@ static unsigned char sp5100_tco_setupdevice(void)
+ 		pr_debug("SBResource_MMIO is disabled(0x%04x)\n", val);
+ 
+ 	pr_notice("failed to find MMIO address, giving up.\n");
+-	goto  unreg_region;
++	goto  exit;
+ 
+ setup_wdt:
+ 	tcobase_phys = val;
+@@ -469,8 +471,6 @@ static unsigned char sp5100_tco_setupdevice(void)
+ 
+ unreg_mem_region:
+ 	release_mem_region(tcobase_phys, SP5100_WDT_MEM_MAP_SIZE);
+-unreg_region:
+-	release_region(pm_iobase, SP5100_PM_IOPORTS_SIZE);
+ exit:
+ 	return 0;
+ }
+@@ -517,7 +517,7 @@ static int sp5100_tco_init(struct platform_device *dev)
+ exit:
+ 	iounmap(tcobase);
+ 	release_mem_region(tcobase_phys, SP5100_WDT_MEM_MAP_SIZE);
+-	release_region(pm_iobase, SP5100_PM_IOPORTS_SIZE);
++	release_region(SB800_IO_PM_INDEX_REG, SP5100_PM_IOPORTS_SIZE);
+ 	return ret;
+ }
+ 
+@@ -531,7 +531,6 @@ static void sp5100_tco_cleanup(void)
+ 	misc_deregister(&sp5100_tco_miscdev);
+ 	iounmap(tcobase);
+ 	release_mem_region(tcobase_phys, SP5100_WDT_MEM_MAP_SIZE);
+-	release_region(pm_iobase, SP5100_PM_IOPORTS_SIZE);
+ }
+ 
+ static int sp5100_tco_remove(struct platform_device *dev)
+-- 
+2.9.4
