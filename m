@@ -1,183 +1,192 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail7.pr.hu ([87.242.0.7]:50693 "EHLO mail7.pr.hu"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751154AbdFUEHX (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 21 Jun 2017 00:07:23 -0400
-From: =?UTF-8?q?Zolt=C3=A1n=20B=C3=B6sz=C3=B6rm=C3=A9nyi?=
-        <zboszor@pr.hu>
-To: linux-kernel@vger.kernel.org
-Cc: linux-usb@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        linux-i2c@vger.kernel.org,
+Received: from bh-25.webhostbox.net ([208.91.199.152]:60717 "EHLO
+        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752506AbdFUPJp (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Wed, 21 Jun 2017 11:09:45 -0400
+Date: Wed, 21 Jun 2017 08:09:40 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: =?iso-8859-1?B?Wm9sdOFuIEL2c3r2cm3pbnlp?= <zboszor@pr.hu>
+Cc: linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org,
+        linux-watchdog@vger.kernel.org, linux-i2c@vger.kernel.org,
         Paul Menzel <paulepanter@users.sourceforge.net>,
         Christian Fetzer <fetzer.ch@gmail.com>,
         Jean Delvare <jdelvare@suse.com>,
         Nehal Shah <nehal-bakulchandra.shah@amd.com>,
-        Tim Small <tim@seoss.co.uk>,
-        Guenter Roeck <linux@roeck-us.net>, kernel@ekass.net,
-        wim@iguana.be, jlayton@poochiereds.net, marc.2377@gmail.com,
+        Tim Small <tim@seoss.co.uk>, kernel@ekass.net, wim@iguana.be,
+        jlayton@poochiereds.net, marc.2377@gmail.com,
         cshorler@googlemail.com, wsa@the-dreams.de,
-        regressions@leemhuis.info,
-        =?UTF-8?q?Zolt=C3=A1n=20B=C3=B6sz=C3=B6rm=C3=A9nyi?=
-        <zboszor@pr.hu>
-Subject: [PATCH 1/5] Extend the request_region() infrastructure
-Date: Wed, 21 Jun 2017 05:53:45 +0200
-Message-Id: <20170621035349.4125-2-zboszor@pr.hu>
-In-Reply-To: <20170621035349.4125-1-zboszor@pr.hu>
+        regressions@leemhuis.info
+Subject: Re: [PATCH 5/5] watchdog: sp5100_tco: Use
+ request_declared_muxed_region()
+Message-ID: <20170621150940.GA21312@roeck-us.net>
 References: <20170403075133.12343-1-zboszor@pr.hu>
  <20170621035349.4125-1-zboszor@pr.hu>
+ <20170621035349.4125-6-zboszor@pr.hu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <20170621035349.4125-6-zboszor@pr.hu>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Add a new IORESOURCE_ALLOCATED flag that is automatically used
-when alloc_resource() is used internally in kernel/resource.c
-and free_resource() now takes this flag into account.
+On Wed, Jun 21, 2017 at 05:53:49AM +0200, Zoltán Böszörményi wrote:
+> Use the new request_declared_muxed_region() macro to synchronize
+> accesses to the SB800 I/O port pair (0xcd6 / 0xcd7) with the
+> PCI quirk for isochronous USB transfers and with the i2c-piix4
+> driver.
+> 
+> At the same time, remove the long lifetime request_region() call
+> to reserve these I/O ports, similarly to i2c-piix4 so the code is
+> now uniform across the three drivers.
+> 
+> Signed-off-by: Zoltán Böszörményi <zboszor@pr.hu>
+> ---
+>  drivers/watchdog/sp5100_tco.c | 25 ++++++++++++-------------
+>  1 file changed, 12 insertions(+), 13 deletions(-)
+> 
+> diff --git a/drivers/watchdog/sp5100_tco.c b/drivers/watchdog/sp5100_tco.c
+> index 028618c..9bb3bcb 100644
+> --- a/drivers/watchdog/sp5100_tco.c
+> +++ b/drivers/watchdog/sp5100_tco.c
+> @@ -48,7 +48,6 @@
+>  static u32 tcobase_phys;
+>  static u32 tco_wdt_fired;
+>  static void __iomem *tcobase;
+> -static unsigned int pm_iobase;
+>  static DEFINE_SPINLOCK(tco_lock);	/* Guards the hardware */
+>  static unsigned long timer_alive;
+>  static char tco_expect_close;
+> @@ -134,11 +133,13 @@ static int tco_timer_set_heartbeat(int t)
+>  
+>  static void tco_timer_enable(void)
+>  {
+> +	struct resource res = DEFINE_RES_IO_NAMED(SB800_IO_PM_INDEX_REG, SP5100_PM_IOPORTS_SIZE, TCO_MODULE_NAME);
 
-The core of __request_region() was factored out into a new function
-called __request_declared_region() that needs struct resource *
-instead of the (start, n, name) triplet.
+Is it necessary to have this as a local variable ?
+If not, please declare as static variable.
 
-These changes allow using statically declared struct resource
-data coupled with the pre-existing DEFINE_RES_IO_NAMED() static
-initializer macro. The new macro exploiting
-__request_declared_region() is request_declared_muxed_region()
+Either case, please run our patches through checkpatch and address 
+any problems it reports.
 
-Signed-off-by: ZoltÃ¡n BÃ¶szÃ¶rmÃ©nyi <zboszor@pr.hu>
----
- include/linux/ioport.h |  5 +++++
- kernel/resource.c      | 55 +++++++++++++++++++++++++++++++++++---------------
- 2 files changed, 44 insertions(+), 16 deletions(-)
-
-diff --git a/include/linux/ioport.h b/include/linux/ioport.h
-index 6230064..a3c4e08 100644
---- a/include/linux/ioport.h
-+++ b/include/linux/ioport.h
-@@ -52,6 +52,7 @@ struct resource {
- #define IORESOURCE_MEM_64	0x00100000
- #define IORESOURCE_WINDOW	0x00200000	/* forwarded by bridge */
- #define IORESOURCE_MUXED	0x00400000	/* Resource is software muxed */
-+#define IORESOURCE_ALLOCATED	0x00800000	/* Resource was allocated */
- 
- #define IORESOURCE_EXT_TYPE_BITS 0x01000000	/* Resource extended types */
- #define IORESOURCE_SYSRAM	0x01000000	/* System RAM (modifier) */
-@@ -216,12 +217,16 @@ static inline bool resource_contains(struct resource *r1, struct resource *r2)
- /* Convenience shorthand with allocation */
- #define request_region(start,n,name)		__request_region(&ioport_resource, (start), (n), (name), 0)
- #define request_muxed_region(start,n,name)	__request_region(&ioport_resource, (start), (n), (name), IORESOURCE_MUXED)
-+#define request_declared_muxed_region(res)	__request_declared_region(&ioport_resource, (res), IORESOURCE_MUXED)
- #define __request_mem_region(start,n,name, excl) __request_region(&iomem_resource, (start), (n), (name), excl)
- #define request_mem_region(start,n,name) __request_region(&iomem_resource, (start), (n), (name), 0)
- #define request_mem_region_exclusive(start,n,name) \
- 	__request_region(&iomem_resource, (start), (n), (name), IORESOURCE_EXCLUSIVE)
- #define rename_region(region, newname) do { (region)->name = (newname); } while (0)
- 
-+extern struct resource * __request_declared_region(struct resource *,
-+					struct resource *res, int flags);
-+
- extern struct resource * __request_region(struct resource *,
- 					resource_size_t start,
- 					resource_size_t n,
-diff --git a/kernel/resource.c b/kernel/resource.c
-index 9b5f044..220f695 100644
---- a/kernel/resource.c
-+++ b/kernel/resource.c
-@@ -184,6 +184,9 @@ static void free_resource(struct resource *res)
- 	if (!res)
- 		return;
- 
-+	if (!(res->flags & IORESOURCE_ALLOCATED))
-+		return;
-+
- 	if (!PageSlab(virt_to_head_page(res))) {
- 		spin_lock(&bootmem_resource_lock);
- 		res->sibling = bootmem_resource_free;
-@@ -210,6 +213,8 @@ static struct resource *alloc_resource(gfp_t flags)
- 	else
- 		res = kzalloc(sizeof(struct resource), flags);
- 
-+	res->flags = IORESOURCE_ALLOCATED;
-+
- 	return res;
- }
- 
-@@ -1117,26 +1122,15 @@ resource_size_t resource_alignment(struct resource *res)
- static DECLARE_WAIT_QUEUE_HEAD(muxed_resource_wait);
- 
- /**
-- * __request_region - create a new busy resource region
-+ * __request_declared_region - create a new busy resource region
-  * @parent: parent resource descriptor
-- * @start: resource start address
-- * @n: resource region size
-- * @name: reserving caller's ID string
-+ * @res: child resource descriptor
-  * @flags: IO resource flags
-  */
--struct resource * __request_region(struct resource *parent,
--				   resource_size_t start, resource_size_t n,
--				   const char *name, int flags)
-+struct resource * __request_declared_region(struct resource *parent,
-+				   struct resource *res, int flags)
- {
- 	DECLARE_WAITQUEUE(wait, current);
--	struct resource *res = alloc_resource(GFP_KERNEL);
--
--	if (!res)
--		return NULL;
--
--	res->name = name;
--	res->start = start;
--	res->end = start + n - 1;
- 
- 	write_lock(&resource_lock);
- 
-@@ -1166,13 +1160,42 @@ struct resource * __request_region(struct resource *parent,
- 			continue;
- 		}
- 		/* Uhhuh, that didn't work out.. */
--		free_resource(res);
- 		res = NULL;
- 		break;
- 	}
- 	write_unlock(&resource_lock);
- 	return res;
- }
-+EXPORT_SYMBOL(__request_declared_region);
-+
-+/**
-+ * __request_region - create a new busy resource region
-+ * @parent: parent resource descriptor
-+ * @start: resource start address
-+ * @n: resource region size
-+ * @name: reserving caller's ID string
-+ * @flags: IO resource flags
-+ */
-+struct resource * __request_region(struct resource *parent,
-+				   resource_size_t start, resource_size_t n,
-+				   const char *name, int flags)
-+{
-+	struct resource *res = alloc_resource(GFP_KERNEL);
-+
-+	if (!res)
-+		return NULL;
-+
-+	res->name = name;
-+	res->start = start;
-+	res->end = start + n - 1;
-+
-+	if (!__request_declared_region(parent, res, flags)) {
-+		free_resource(res);
-+		res = NULL;
-+	}
-+
-+	return res;
-+}
- EXPORT_SYMBOL(__request_region);
- 
- /**
--- 
-2.9.4
-
+>  	int val;
+>  
+>  	if (!tco_has_sp5100_reg_layout(sp5100_tco_pci)) {
+>  		/* For SB800 or later */
+>  		/* Set the Watchdog timer resolution to 1 sec */
+> +		request_declared_muxed_region(&res);
+>  		outb(SB800_PM_WATCHDOG_CONFIG, SB800_IO_PM_INDEX_REG);
+>  		val = inb(SB800_IO_PM_DATA_REG);
+>  		val |= SB800_PM_WATCHDOG_SECOND_RES;
+> @@ -150,6 +151,7 @@ static void tco_timer_enable(void)
+>  		val |= SB800_PCI_WATCHDOG_DECODE_EN;
+>  		val &= ~SB800_PM_WATCHDOG_DISABLE;
+>  		outb(val, SB800_IO_PM_DATA_REG);
+> +		release_region(SB800_IO_PM_INDEX_REG, SP5100_PM_IOPORTS_SIZE);
+>  	} else {
+>  		/* For SP5100 or SB7x0 */
+>  		/* Enable watchdog decode bit */
+> @@ -164,11 +166,13 @@ static void tco_timer_enable(void)
+>  				       val);
+>  
+>  		/* Enable Watchdog timer and set the resolution to 1 sec */
+> +		request_declared_muxed_region(&res);
+>  		outb(SP5100_PM_WATCHDOG_CONTROL, SP5100_IO_PM_INDEX_REG);
+>  		val = inb(SP5100_IO_PM_DATA_REG);
+>  		val |= SP5100_PM_WATCHDOG_SECOND_RES;
+>  		val &= ~SP5100_PM_WATCHDOG_DISABLE;
+>  		outb(val, SP5100_IO_PM_DATA_REG);
+> +		release_region(SB800_IO_PM_INDEX_REG, 2);
+>  	}
+>  }
+>  
+> @@ -326,6 +330,7 @@ MODULE_DEVICE_TABLE(pci, sp5100_tco_pci_tbl);
+>   */
+>  static unsigned char sp5100_tco_setupdevice(void)
+>  {
+> +	struct resource res = DEFINE_RES_IO_NAMED(SP5100_IO_PM_INDEX_REG, SP5100_PM_IOPORTS_SIZE, TCO_MODULE_NAME);
+>  	struct pci_dev *dev = NULL;
+>  	const char *dev_name = NULL;
+>  	u32 val;
+> @@ -361,16 +366,10 @@ static unsigned char sp5100_tco_setupdevice(void)
+>  		base_addr = SB800_PM_WATCHDOG_BASE;
+>  	}
+>  
+> -	/* Request the IO ports used by this driver */
+> -	pm_iobase = SP5100_IO_PM_INDEX_REG;
+> -	if (!request_region(pm_iobase, SP5100_PM_IOPORTS_SIZE, dev_name)) {
+> -		pr_err("I/O address 0x%04x already in use\n", pm_iobase);
+> -		goto exit;
+> -	}
+> -
+>  	/*
+>  	 * First, Find the watchdog timer MMIO address from indirect I/O.
+>  	 */
+> +	request_declared_muxed_region(&res);
+>  	outb(base_addr+3, index_reg);
+>  	val = inb(data_reg);
+>  	outb(base_addr+2, index_reg);
+> @@ -380,6 +379,7 @@ static unsigned char sp5100_tco_setupdevice(void)
+>  	outb(base_addr+0, index_reg);
+>  	/* Low three bits of BASE are reserved */
+>  	val = val << 8 | (inb(data_reg) & 0xf8);
+> +	release_region(SP5100_IO_PM_INDEX_REG, SP5100_PM_IOPORTS_SIZE);
+>  
+>  	pr_debug("Got 0x%04x from indirect I/O\n", val);
+>  
+> @@ -400,6 +400,7 @@ static unsigned char sp5100_tco_setupdevice(void)
+>  				      SP5100_SB_RESOURCE_MMIO_BASE, &val);
+>  	} else {
+>  		/* Read SBResource_MMIO from AcpiMmioEn(PM_Reg: 24h) */
+> +		request_declared_muxed_region(&res);
+>  		outb(SB800_PM_ACPI_MMIO_EN+3, SB800_IO_PM_INDEX_REG);
+>  		val = inb(SB800_IO_PM_DATA_REG);
+>  		outb(SB800_PM_ACPI_MMIO_EN+2, SB800_IO_PM_INDEX_REG);
+> @@ -408,6 +409,7 @@ static unsigned char sp5100_tco_setupdevice(void)
+>  		val = val << 8 | inb(SB800_IO_PM_DATA_REG);
+>  		outb(SB800_PM_ACPI_MMIO_EN+0, SB800_IO_PM_INDEX_REG);
+>  		val = val << 8 | inb(SB800_IO_PM_DATA_REG);
+> +		release_region(SP5100_IO_PM_INDEX_REG, SP5100_PM_IOPORTS_SIZE);
+>  	}
+>  
+>  	/* The SBResource_MMIO is enabled and mapped memory space? */
+> @@ -429,7 +431,7 @@ static unsigned char sp5100_tco_setupdevice(void)
+>  		pr_debug("SBResource_MMIO is disabled(0x%04x)\n", val);
+>  
+>  	pr_notice("failed to find MMIO address, giving up.\n");
+> -	goto  unreg_region;
+> +	goto  exit;
+>  
+>  setup_wdt:
+>  	tcobase_phys = val;
+> @@ -469,8 +471,6 @@ static unsigned char sp5100_tco_setupdevice(void)
+>  
+>  unreg_mem_region:
+>  	release_mem_region(tcobase_phys, SP5100_WDT_MEM_MAP_SIZE);
+> -unreg_region:
+> -	release_region(pm_iobase, SP5100_PM_IOPORTS_SIZE);
+>  exit:
+>  	return 0;
+>  }
+> @@ -517,7 +517,7 @@ static int sp5100_tco_init(struct platform_device *dev)
+>  exit:
+>  	iounmap(tcobase);
+>  	release_mem_region(tcobase_phys, SP5100_WDT_MEM_MAP_SIZE);
+> -	release_region(pm_iobase, SP5100_PM_IOPORTS_SIZE);
+> +	release_region(SB800_IO_PM_INDEX_REG, SP5100_PM_IOPORTS_SIZE);
+>  	return ret;
+>  }
+>  
+> @@ -531,7 +531,6 @@ static void sp5100_tco_cleanup(void)
+>  	misc_deregister(&sp5100_tco_miscdev);
+>  	iounmap(tcobase);
+>  	release_mem_region(tcobase_phys, SP5100_WDT_MEM_MAP_SIZE);
+> -	release_region(pm_iobase, SP5100_PM_IOPORTS_SIZE);
+>  }
+>  
+>  static int sp5100_tco_remove(struct platform_device *dev)
+> -- 
+> 2.9.4
+> 
