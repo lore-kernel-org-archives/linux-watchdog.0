@@ -1,107 +1,71 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail7.pr.hu ([87.242.0.7]:36394 "EHLO mail7.pr.hu"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751546AbdFVNVx (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 22 Jun 2017 09:21:53 -0400
-From: =?UTF-8?q?Zolt=C3=A1n=20B=C3=B6sz=C3=B6rm=C3=A9nyi?=
-        <zboszor@pr.hu>
-To: linux-kernel@vger.kernel.org
-Cc: linux-usb@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        linux-i2c@vger.kernel.org,
-        Paul Menzel <paulepanter@users.sourceforge.net>,
-        Christian Fetzer <fetzer.ch@gmail.com>,
-        Jean Delvare <jdelvare@suse.com>,
-        Nehal Shah <nehal-bakulchandra.shah@amd.com>,
-        Tim Small <tim@seoss.co.uk>,
-        Guenter Roeck <linux@roeck-us.net>, kernel@ekass.net,
-        wim@iguana.be, jlayton@poochiereds.net, marc.2377@gmail.com,
-        cshorler@googlemail.com, wsa@the-dreams.de,
-        regressions@leemhuis.info,
-        =?UTF-8?q?Zolt=C3=A1n=20B=C3=B6sz=C3=B6rm=C3=A9nyi?=
-        <zboszor@pr.hu>
-Subject: [PATCH 0/5 v4] Fix sp5100_tco watchdog driver regression
-Date: Thu, 22 Jun 2017 15:21:29 +0200
-Message-Id: <20170622132134.7200-1-zboszor@pr.hu>
-In-Reply-To: <20170621035349.4125-1-zboszor@pr.hu>
-References: <20170621035349.4125-1-zboszor@pr.hu>
+Return-Path: <robh@kernel.org>
+Return-path: <robh@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+In-Reply-To: <CAFBinCAZZMT-YDHg4SYF3da+00KLYE-dZaEDPaEMRz_2paXNQw@mail.gmail.com>
+References: <20170611095219.22095-1-martin.blumenstingl@googlemail.com>
+ <20170615172510.GA7549@roeck-us.net> <CAFBinCCyqX=TGwTyhxXZPP2noUvJ1v=xNs+Vs17Gg4z2uDgjEA@mail.gmail.com>
+ <20170616180009.h66dwnnhfwrjpui6@rob-hp-laptop> <CAFBinCAZZMT-YDHg4SYF3da+00KLYE-dZaEDPaEMRz_2paXNQw@mail.gmail.com>
+From: Rob Herring <robh@kernel.org>
+Date: Wed, 21 Jun 2017 22:22:56 -0500
+Message-ID: <CAL_JsqJutEYt0eG96RG+jMosCEkqK=145Kquj2qJdQCV=wh2zg@mail.gmail.com>
+Subject: Re: [PATCH] watchdog: meson-wdt: add support for the watchdog on
+ Meson8 and Meson8m2
+To: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Cc: Guenter Roeck <linux@roeck-us.net>, Wim Van Sebroeck <wim@iguana.be>, Carlo Caione <carlo@caione.org>,
+	Kevin Hilman <khilman@baylibre.com>, LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
+	linux-amlogic@lists.infradead.org, Mark Rutland <mark.rutland@arm.com>,
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+Content-Type: text/plain; charset="UTF-8"
+List-ID: <linux-watchdog@vger.kernel.org>
 
-This patch series fixes a regression introduced by:
+On Mon, Jun 19, 2017 at 1:50 PM, Martin Blumenstingl
+<martin.blumenstingl@googlemail.com> wrote:
+> Hi Rob,
+>
+> On Sun, Jun 18, 2017 at 4:04 PM, Rob Herring <robh@kernel.org> wrote:
+>> On Thu, Jun 15, 2017 at 11:13:07PM +0200, Martin Blumenstingl wrote:
+>>> On Thu, Jun 15, 2017 at 7:25 PM, Guenter Roeck <linux@roeck-us.net> wrote:
+>>> > On Sun, Jun 11, 2017 at 11:52:19AM +0200, Martin Blumenstingl wrote:
+>>> >> The watchdog IP block on Meson8 and Meson8m2 is already supported by the
+>>> >> existing meson-wdt driver. Meson8 uses the same register bits as Meson6,
+>>> >> while the newer Meson8m2 SoC uses the same register bits as Meson8b.
+>>> >>
+>>> >> Currently watchdog support on Meson8 SoC already works because
+>>> >> meson8.dtsi simply uses the "amlogic,meson6-wdt" compatible. Adding a
+>>> >> separate compatible for Meson8 makes this more explicit though.
+>>> >>
+>>> >> Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+>>> >
+>>> > Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+>>> thank you!
+>>> is there anything holding you up from taking this patch (for example:
+>>> are you still missing any specific Signed-off-by / Acked-by)?
+>>>
+>>> > In general, changes like this are not necessary, though. The dts file
+>>> > is supposed to reference both generic and specific compatible strings.
+>>> I thought about skipping this patch, but I find that it looks strange without.
+>>>
+>>> the hierarchy and the corresponding compatible strings would be:
+>>> meson.dtsi / compatible = "amlogic,meson6-wdt";
+>>> |- meson8.dtsi / compatible = "amlogic,meson8-wdt", "amlogic,meson6-wdt";
+>>>    |- meson8m2.dtsi (upcoming) / compatible = "amlogic,meson8m2-wdt",
+>>> "amlogic,meson8b-wdt";
+>>> |- meson8b.dtsi / compatible = "amlogic,meson8b-wdt";
+>>>
+>>> instead of this seemingly random mixup of compatible strings I decided
+>>> to introduce separate ones for each SoC.
+>>
+>> But if the block is backwards compatible, you should also provide a
+>> fallback compatible string.
+> OK, fine with me - do you want me to update the documentation to
+> reflect this (or is it enough if I take care of it in the .dts files)?
+> the resulting documentation could look like this:
+>        "amlogic,meson6-wdt" on Meson6 SoCs
+>        "amlogic,meson8-wdt" along with "amlogic,meson6-wdt" on Meson8 SoCs
+>        "amlogic,meson8b-wdt" on Meson8b SoCs
+>        "amlogic,meson8m2-wdt" along with "amlogic,meson8b-wdt" on Meson8m2 SoCs
 
-commit 2fee61d22e606fc99ade9079fda15fdee83ec33e
-Author: Christian Fetzer <fetzer.ch@gmail.com>
-Date:   Thu Nov 19 20:13:48 2015 +0100
+Yes, like this.
 
-    i2c: piix4: Add support for multiplexed main adapter in SB800
-
-The regression caused sp5100_tco fail to load:
-
-sp5100_tco: SP5100/SB800 TCO WatchDog Timer Driver v0.05
-sp5100_tco: PCI Vendor ID: 0x1002, Device ID: 0x4385, Revision ID: 0x42
-sp5100_tco: I/O address 0x0cd6 already in use
-
-Notable bugzilla links about this issue:
-https://bugzilla.kernel.org/show_bug.cgi?id=170741
-https://bugzilla.redhat.com/show_bug.cgi?id=1369269
-https://bugzilla.redhat.com/show_bug.cgi?id=1406844
-
-The previous two versions of this patch series introduced
-a common mutex to synchronize access to the I/O port pair
-0xcd6 / 0xcd7 used by the AMD SB800 USB PCI quirk code and
-the i2c-piix and sp5100_tco drivers. The common mutex was
-criticized because it introduces an inter-dependency between
-drivers.
-
-This approach modifies the request_muxed_region() semantics and
-modifies the possible use cases.
-
-The first patch in the series adds a new IORESOURCE_ALLOCATED
-flag that alloc_resource() sets and free_resource() considers.
-The core of __request_region() is factored out into a new function
-that doesn't allocate. With this change, drivers can use the
-pre-existing DEFINE_RES_IO_NAMED() static initialized macro
-to declare struct resource statically (e.g. on the stack)
-and pass the address of it to the new __request_declared_region()
-function. A new macro called request_declared_muxed_region()
-was added to exploit this functionality. Because of the new
-IORESOURCE_ALLOCATED resource flag, release_region() can still
-be called with the old interface (the port region start and
-end values) and it won't attempt to free a non-allocated resource.
-This eliminated one failure case that can come from allocation
-errors.
-
-The second patch modifies the behaviour of IORESOURCE_MUXED,
-a.k.a. the request_*muxed_region() macros. When these macros
-are called, the caller goes to sleep when there is any conflicting
-regions, even if the conflicting region did not use the
-IORESOURCE_MUXED flag. The kernel logs this inconsistent
-flag usage with KERN_ERR. This change eliminates the second
-failure case for IORESOURCE_MUXED and request_muxed_region()
-can be used like mutex_lock(), i.e. it returns only in case it
-could successfully request the region.
-
-The last three patches adds proper synchronization between the
-USB PCI quirks code and the i2c-piix and sp5100_tco drivers.
-
-The result is that the sp5100_tco driver can load and works again:
-
-sp5100_tco: SP5100/SB800 TCO WatchDog Timer Driver v0.05
-sp5100_tco: PCI Vendor ID: 0x1002, Device ID: 0x4385, Revision ID: 0x42
-sp5100_tco: Using 0xfed80b00 for watchdog MMIO address
-sp5100_tco: Last reboot was not triggered by watchdog.
-sp5100_tco: initialized (0xffffba2f4192db00). heartbeat=60 sec (nowayout=0)
-
-Signed-off-by: Zoltán Böszörményi <zboszor@pr.hu>
----
- drivers/i2c/busses/i2c-piix4.c | 41 ++++++++++++-------------------------
- drivers/usb/host/pci-quirks.c  |  4 ++++
- drivers/watchdog/sp5100_tco.c  | 28 +++++++++++++------------
- include/linux/ioport.h         | 14 +++++++++++++
- kernel/resource.c              | 46 ++++++++++++++++++++++++++++++++++++++----
- 5 files changed, 88 insertions(+), 45 deletions(-)
-
+Rob
