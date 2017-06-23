@@ -1,92 +1,74 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:46079 "EHLO
-        metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1751108AbdFUGfx (ORCPT
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:35372 "EHLO
+        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753900AbdFWWFK (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 21 Jun 2017 02:35:53 -0400
-References: <cover.50aaf23e8fbe9028f711a67e39b96910c986e8b0.1495443015.git-series.s.trumtrar@pengutronix.de> <738tknf5zp.fsf@pengutronix.de> <a6d32d71-6f66-18af-5283-036bf1ef93ce@roeck-us.net>
-From: Steffen Trumtrar <s.trumtrar@pengutronix.de>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        devicetree@vger.kernel.org,
-        Dinh Nguyen <dinguyen@opensource.altera.com>,
-        linux-arm-kernel@lists.infradead.org,
-        Philipp Zabel <p.zabel@pengutronix.de>, kernel@pengutronix.de
-Subject: Re: [PATCH v4 0/3] watchdog: dw_wdt: add reset lines
-In-reply-to: <a6d32d71-6f66-18af-5283-036bf1ef93ce@roeck-us.net>
-Date: Wed, 21 Jun 2017 08:35:39 +0200
-Message-ID: <737f05g85g.fsf@pengutronix.de>
+        Fri, 23 Jun 2017 18:05:10 -0400
+Date: Fri, 23 Jun 2017 17:05:08 -0500
+From: Rob Herring <robh@kernel.org>
+To: Hauke Mehrtens <hauke@hauke-m.de>
+Cc: ralf@linux-mips.org, linux-mips@linux-mips.org,
+        linux-mtd@lists.infradead.org, linux-watchdog@vger.kernel.org,
+        devicetree@vger.kernel.org, martin.blumenstingl@googlemail.com,
+        john@phrozen.org, linux-spi@vger.kernel.org,
+        hauke.mehrtens@intel.com, andy.shevchenko@gmail.com,
+        p.zabel@pengutronix.de
+Subject: Re: [PATCH v5 05/16] watchdog: lantiq: add device tree binding
+ documentation
+Message-ID: <20170623220508.2kgxfadjeee76eqt@rob-hp-laptop>
+References: <20170620223743.13735-1-hauke@hauke-m.de>
+ <20170620223743.13735-6-hauke@hauke-m.de>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20170620223743.13735-6-hauke@hauke-m.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+On Wed, Jun 21, 2017 at 12:37:32AM +0200, Hauke Mehrtens wrote:
+> The binding was not documented before, add the documentation now.
+> 
+> Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
+> ---
+>  .../devicetree/bindings/watchdog/lantiq-wdt.txt    | 22 ++++++++++++++++++++++
+>  1 file changed, 22 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/watchdog/lantiq-wdt.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/watchdog/lantiq-wdt.txt b/Documentation/devicetree/bindings/watchdog/lantiq-wdt.txt
+> new file mode 100644
+> index 000000000000..1d41142ca55f
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/watchdog/lantiq-wdt.txt
+> @@ -0,0 +1,22 @@
+> +Lantiq WTD watchdog binding
+> +============================
+> +
+> +This describes the binding of the Lantiq watchdog driver.
+> +
+> +-------------------------------------------------------------------------------
+> +Required properties:
+> +- compatible		: Should be one of
+> +				"lantiq,wdt"
+> +				"lantiq,xrx100-wdt"
+> +				"lantiq,falcon-wdt"
+> +- regmap		: A phandle to the RCU syscon (required for
+> +			  "lantiq,falcon-wdt" and "lantiq,xrx100-wdt")
 
-Guenter Roeck <linux@roeck-us.net> writes:
+regmap is a Linuxism. I'd suggest "lantiq,rcu" instead.
 
-> On 06/20/2017 12:55 AM, Steffen Trumtrar wrote:
->> 
->> Steffen Trumtrar <s.trumtrar@pengutronix.de> writes:
->> 
->>> Hi!
->>>
->>> This series adds support for the reset line that is (potentially) holding
->>> the watchdog in reset.
->>>
->>> As the watchdog is useless if this happens, it needs to be deasserted in
->>> the probe function.
->>>
->>> Tested on a Socrates board.
->>>
->>> Regards,
->>> Steffen
->>>
->>>
->>> Changes since v3:
->>>
->>>    - goto out_disable_clk
->>>    - add Reviewed-by
->>>
->>> Changes since v2:
->>>
->>>    - use optional reset functions
->>>    - add Acked-by to devictree bindings
->>>
->>> Changes since v1:
->>>
->>>    - remove reset-names property
->>>    - remove warning if reset property is missing
->>>
->>> Steffen Trumtrar (3):
->>>    watchdog: bindings: dw_wdt: add reset lines
->>>    watchdog: dw_wdt: get reset lines from dt
->>>    ARM: socfpga: dtsi: add dw-wdt reset lines
->>>
->>>   Documentation/devicetree/bindings/watchdog/dw_wdt.txt |  3 +++
->>>   arch/arm/boot/dts/socfpga.dtsi                        |  2 ++
->>>   drivers/watchdog/dw_wdt.c                             | 11 +++++++++++
->>>   3 files changed, 16 insertions(+)
->>>
->>> base-commit: 2ea659a9ef488125eb46da6eb571de5eae5c43f6
->> 
->> Gentle Ping!
->> 
->> Is this series already applied somewhere I didn't look?
->> 
->
-> https://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git/log/?h=watchdog-next
->
->  From there, we can only hope that Wim will find the time to pick it up for the next release.
+> +
+> +-------------------------------------------------------------------------------
+> +Example for the watchdog on the xRX200 SoCs:
+> +		watchdog@803f0 {
+> +			compatible = "lantiq,xrx100-wdt";
 
-Ah, somewhere I didn't look :) Thanks.
+Why did you remove the xrx200 compatible? You should add it to the 
+compatible list (with the fallback).
 
-Best regards,
-Steffen
-
--- 
-Pengutronix e.K.                           | Steffen Trumtrar            |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+> +			reg = <0x803f0 0x10>;
+> +
+> +			regmap = <&rcu0>;
+> +		};
+> -- 
+> 2.11.0
+> 
