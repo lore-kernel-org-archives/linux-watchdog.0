@@ -1,100 +1,90 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pf0-f193.google.com ([209.85.192.193]:33578 "EHLO
-        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752606AbdFWWRh (ORCPT
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:50907 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1751493AbdF0CQc (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 23 Jun 2017 18:17:37 -0400
-Date: Fri, 23 Jun 2017 17:17:35 -0500
-From: Rob Herring <robh@kernel.org>
-To: Hauke Mehrtens <hauke@hauke-m.de>
-Cc: ralf@linux-mips.org, linux-mips@linux-mips.org,
-        linux-mtd@lists.infradead.org, linux-watchdog@vger.kernel.org,
-        devicetree@vger.kernel.org, martin.blumenstingl@googlemail.com,
-        john@phrozen.org, linux-spi@vger.kernel.org,
-        hauke.mehrtens@intel.com, andy.shevchenko@gmail.com,
-        p.zabel@pengutronix.de
-Subject: Re: [PATCH v5 12/16] MIPS: lantiq: Add a GPHY driver which uses the
- RCU syscon-mfd
-Message-ID: <20170623221735.yxeqnn4javhboegx@rob-hp-laptop>
-References: <20170620223743.13735-1-hauke@hauke-m.de>
- <20170620223743.13735-13-hauke@hauke-m.de>
+        Mon, 26 Jun 2017 22:16:32 -0400
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.20/8.16.0.20) with SMTP id v5R2ERVl026782
+        for <linux-watchdog@vger.kernel.org>; Mon, 26 Jun 2017 22:16:31 -0400
+Received: from e16.ny.us.ibm.com (e16.ny.us.ibm.com [129.33.205.206])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2bb563v25q-1
+        (version=TLSv1.2 cipher=AES256-SHA bits=256 verify=NOT)
+        for <linux-watchdog@vger.kernel.org>; Mon, 26 Jun 2017 22:16:31 -0400
+Received: from localhost
+        by e16.ny.us.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-watchdog@vger.kernel.org> from <cbostic@linux.vnet.ibm.com>;
+        Mon, 26 Jun 2017 22:16:30 -0400
+Subject: Re: [1/2] drivers/watchdog: Document new aspeed optional dev tree
+ properties.
+To: Guenter Roeck <linux@roeck-us.net>
+References: <20170613203818.17399-2-cbostic@linux.vnet.ibm.com>
+ <20170624220722.GA3621@roeck-us.net>
+Cc: wim@iguana.be, joel@jms.id.au, linux-kernel@vger.kernel.org,
+        linux-watchdog@vger.kernel.org, andrew@aj.id.au
+From: Christopher Bostic <cbostic@linux.vnet.ibm.com>
+Date: Mon, 26 Jun 2017 21:16:22 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20170620223743.13735-13-hauke@hauke-m.de>
+In-Reply-To: <20170624220722.GA3621@roeck-us.net>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Message-Id: <962762c7-6baf-4116-d9d3-32b5ebe6b3c9@linux.vnet.ibm.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Jun 21, 2017 at 12:37:39AM +0200, Hauke Mehrtens wrote:
-> From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-> 
-> Compared to the old xrx200_phy_fw driver the new version has multiple
-> enhancements. The name of the firmware files does not have to be added
-> to all .dts files anymore - one now configures the GPHY mode (FE or GE)
-> instead. Each GPHY can now also boot separate firmware (thus mixing of
-> GE and FE GPHYs is now possible).
-> The new implementation is based on the RCU syscon-mfd and uses the
-> reeset_controller framework instead of raw RCU register reads/writes.
-> 
-> Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
-> Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-> ---
->  .../devicetree/bindings/mips/lantiq/rcu-gphy.txt   |  36 +++
->  arch/mips/lantiq/xway/sysctrl.c                    |   6 +-
->  drivers/soc/lantiq/Makefile                        |   1 +
->  drivers/soc/lantiq/gphy.c                          | 260 +++++++++++++++++++++
->  include/dt-bindings/mips/lantiq_rcu_gphy.h         |  15 ++
->  5 files changed, 316 insertions(+), 2 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/mips/lantiq/rcu-gphy.txt
->  create mode 100644 drivers/soc/lantiq/gphy.c
->  create mode 100644 include/dt-bindings/mips/lantiq_rcu_gphy.h
-> 
-> diff --git a/Documentation/devicetree/bindings/mips/lantiq/rcu-gphy.txt b/Documentation/devicetree/bindings/mips/lantiq/rcu-gphy.txt
-> new file mode 100644
-> index 000000000000..ec09783da9b2
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/mips/lantiq/rcu-gphy.txt
-> @@ -0,0 +1,36 @@
-> +Lantiq XWAY SoC GPHY binding
-> +============================
-> +
-> +This binding describes a software-defined ethernet PHY, provided by the RCU
-> +module on newer Lantiq XWAY SoCs (xRX200 and newer).
-> +
-> +-------------------------------------------------------------------------------
-> +Required properties:
-> +- compatible		: Should be one of
-> +				"lantiq,xrx200a1x-gphy"
-> +				"lantiq,xrx200a2x-gphy"
-> +				"lantiq,xrx300-gphy"
-> +				"lantiq,xrx330-gphy"
-> +- reg			: Addrress of the GPHY FW load address register
-> +- resets		: Must reference the RCU GPHY reset bit
-> +- reset-names		: One entry, value must be "gphy" or optional "gphy2"
-> +- clocks		: A reference to the (PMU) GPHY clock gate
-> +
-> +Optional properties:
-> +- lantiq,gphy-mode	: GPHY_MODE_GE (default) or GPHY_MODE_FE as defined in
-> +			  <dt-bindings/mips/lantiq_xway_gphy.h>
-> +
-> +
-> +-------------------------------------------------------------------------------
-> +Example for the GPHys on the xRX200 SoCs:
-> +
-> +#include <dt-bindings/mips/lantiq_rcu_gphy.h>
-> +	gphy0: gphy@0 {
 
-phy@20
 
-With that,
+On 6/24/17 5:07 PM, Guenter Roeck wrote:
+> On Tue, Jun 13, 2017 at 03:38:17PM -0500, Christopher Bostic wrote:
+>> Describe new optional property 'external-signal'.  When present in the
+>> system device tree an exernal signal is generated on watchdog timeout.
+>>
+>> Describe new optional property 'no-system-reset'.  When present in the
+>> system device tree no system reset is to occur on watchdog timeout.
+>> System reset in this case is managed by one of the other watchogs
+>> available.
+>>
+>> Signed-off-by: Christopher Bostic <cbostic@linux.vnet.ibm.com>
+> This requires DT maintainer approval, but DT maintainers were not copied.
+> Please resend and use scripts/get_maintainer.pl to determine who to send
+> it to.
+>
+> Guenter
 
-Acked-by: Rob Herring <robh@kernel.org>
+Hi Guenter,
 
-> +		compatible = "lantiq,xrx200a2x-gphy";
-> +		reg = <0x20 0x4>
-> +
-> +		resets = <&reset0 31 30>, <&reset1 7 7>;
-> +		reset-names = "gphy", "gphy2";
-> +		clocks = <&pmu0 XRX200_PMU_GATE_GPHY>;
-> +		lantiq,gphy-mode = <GPHY_MODE_GE>
-> +	};
+Will resend with maintainers copied.
+
+Thanks
+-Chris
+
+>> ---
+>>   Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt | 11 +++++++++++
+>>   1 file changed, 11 insertions(+)
+>>
+>> diff --git a/Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt b/Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt
+>> index c5e74d7..4099ea5 100644
+>> --- a/Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt
+>> +++ b/Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt
+>> @@ -8,9 +8,20 @@ Required properties:
+>>    - reg: physical base address of the controller and length of memory mapped
+>>      region
+>>   
+>> +Optional properties:
+>> + - external-signal: If the property is present then an external signal is to
+>> +   be generated on watchdog timeout.  If absent, external signal is not
+>> +   generated.
+>> +
+>> + - no-system-reset: If the property is present then system will not be reset
+>> +   on watchdog timeout. In this case one of the other watchdogs will handle
+>> +   reset.  If absent then the watchdog resets the system on timeout.
+>> +
+>>   Example:
+>>   
+>>   	wdt1: watchdog@1e785000 {
+>>   		compatible = "aspeed,ast2400-wdt";
+>>   		reg = <0x1e785000 0x1c>;
+>> +		external-signal;
+>> +		no-system-reset;
+>>   	};
+
