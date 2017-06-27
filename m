@@ -1,75 +1,86 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:40547 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754667AbdFXWRu (ORCPT
+Received: from mail-yb0-f196.google.com ([209.85.213.196]:35480 "EHLO
+        mail-yb0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751493AbdF0DAC (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 24 Jun 2017 18:17:50 -0400
-Date: Sat, 24 Jun 2017 15:17:47 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Christopher Bostic <cbostic@linux.vnet.ibm.com>
-Cc: wim@iguana.be, joel@jms.id.au, linux-kernel@vger.kernel.org,
-        linux-watchdog@vger.kernel.org, andrew@aj.id.au
-Subject: Re: [2/2] drivers/watchdog: ASPEED reference dev tree properties for
- config
-Message-ID: <20170624221747.GA10038@roeck-us.net>
-References: <20170613203818.17399-3-cbostic@linux.vnet.ibm.com>
+        Mon, 26 Jun 2017 23:00:02 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20170613203818.17399-3-cbostic@linux.vnet.ibm.com>
+In-Reply-To: <20170613203818.17399-2-cbostic@linux.vnet.ibm.com>
+References: <20170613203818.17399-1-cbostic@linux.vnet.ibm.com> <20170613203818.17399-2-cbostic@linux.vnet.ibm.com>
+From: Joel Stanley <joel@jms.id.au>
+Date: Tue, 27 Jun 2017 12:29:41 +0930
+Message-ID: <CACPK8Xe4kWoZKhwRWD+p-zFz-EQDn_3Q5=U4tUX-n6paKMYy1A@mail.gmail.com>
+Subject: Re: [PATCH 1/2] drivers/watchdog: Document new aspeed optional dev
+ tree properties.
+To: Christopher Bostic <cbostic@linux.vnet.ibm.com>
+Cc: Wim Van Sebroeck <wim@iguana.be>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-watchdog@vger.kernel.org, Andrew Jeffery <andrew@aj.id.au>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, Jun 13, 2017 at 03:38:18PM -0500, Christopher Bostic wrote:
-> Reference the system device tree when configuring the watchdog.
-> Configure for external signal generation if optional attribute
-> 'external-signal' is present in device tree.  Configure for
-> reset system after timeout if the optional attribute
-> 'no-system-reset' is not present.  Disabling system reset may be
-> required in situations where one of the other watchdogs in the
-> systems is responsible for this.
-> 
+On Wed, Jun 14, 2017 at 6:08 AM, Christopher Bostic
+<cbostic@linux.vnet.ibm.com> wrote:
+> Describe new optional property 'external-signal'.  When present in the
+> system device tree an exernal signal is generated on watchdog timeout.
+>
+> Describe new optional property 'no-system-reset'.  When present in the
+> system device tree no system reset is to occur on watchdog timeout.
+> System reset in this case is managed by one of the other watchogs
+> available.
+>
 > Signed-off-by: Christopher Bostic <cbostic@linux.vnet.ibm.com>
 > ---
->  drivers/watchdog/aspeed_wdt.c | 13 +++++++++++--
->  1 file changed, 11 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/watchdog/aspeed_wdt.c b/drivers/watchdog/aspeed_wdt.c
-> index 1c65258..9deb4be 100644
-> --- a/drivers/watchdog/aspeed_wdt.c
-> +++ b/drivers/watchdog/aspeed_wdt.c
-> @@ -140,6 +140,7 @@ static int aspeed_wdt_probe(struct platform_device *pdev)
->  {
->  	struct aspeed_wdt *wdt;
->  	struct resource *res;
-> +	struct device_node *np;
->  	int ret;
->  
->  	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
-> @@ -170,8 +171,16 @@ static int aspeed_wdt_probe(struct platform_device *pdev)
->  	 * the SOC and not the full chip
->  	 */
->  	wdt->ctrl = WDT_CTRL_RESET_MODE_SOC |
-> -		WDT_CTRL_1MHZ_CLK |
-> -		WDT_CTRL_RESET_SYSTEM;
-> +		WDT_CTRL_1MHZ_CLK;
+>  Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt | 11 +++++++++++
+>  1 file changed, 11 insertions(+)
+>
+> diff --git a/Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt b/Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt
+> index c5e74d7..4099ea5 100644
+> --- a/Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt
+> +++ b/Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt
+> @@ -8,9 +8,20 @@ Required properties:
+>   - reg: physical base address of the controller and length of memory mapped
+>     region
+>
+> +Optional properties:
+> + - external-signal: If the property is present then an external signal is to
+> +   be generated on watchdog timeout.  If absent, external signal is not
+> +   generated.
 > +
-> +	np = pdev->dev.of_node;
-> +	if (np && !of_get_property(np, "no-system-reset", NULL))
-> +		wdt->ctrl |= WDT_CTRL_RESET_SYSTEM;
-> +
-Please use of_property_read_bool(). Also, checking np for NULL is unnecessary
-since the called function does that. Note that the above code as written is
-wrong - if np is NULL, WDT_CTRL_RESET_SYSTEM will no longer be set.
+> + - no-system-reset: If the property is present then system will not be reset
+> +   on watchdog timeout. In this case one of the other watchdogs will handle
+> +   reset.  If absent then the watchdog resets the system on timeout.
 
-The new properties should probably start with "aspeed," but I'll leave that
-up to DT maintainers to decide.
+I'm not sure that this describes the hardware. The datasheet says:
 
-> +	if (np && of_get_property(np, "external-signal", NULL))
-> +		wdt->ctrl |= WDT_CTRL_WDT_EXT;
+Whenever timeout ocurs, WDT can program to generate 6 types of signals:
+
+ * ARM reset signal: to reset ARM CPU only
+ * SOC reset signal: to reset SOC part function
+ * System reset signal: to reset full chip
+ * Interrupt signal: to interrupt CPU
+ * Eternal signal: to external reset counter (only WDT1 and WDT2)
+ * Alternate boot signal: to boot from alternate block
+
+I think your bindings should describe these modes where possible.
+
+Cheers,
+
+Joel
+
+
 > +
-> +	writel(wdt->ctrl, wdt->base + WDT_CTRL);
->  
->  	if (readl(wdt->base + WDT_CTRL) & WDT_CTRL_ENABLE)  {
->  		aspeed_wdt_start(&wdt->wdd);
+>  Example:
+>
+>         wdt1: watchdog@1e785000 {
+>                 compatible = "aspeed,ast2400-wdt";
+>                 reg = <0x1e785000 0x1c>;
+> +               external-signal;
+> +               no-system-reset;
+>         };
+> --
+> 1.8.2.2
+>
