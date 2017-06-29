@@ -1,95 +1,170 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:53334 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1751471AbdF0CRh (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:43237 "EHLO
+        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751974AbdF2PEU (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 26 Jun 2017 22:17:37 -0400
-Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.20/8.16.0.20) with SMTP id v5R2EQoY026753
-        for <linux-watchdog@vger.kernel.org>; Mon, 26 Jun 2017 22:17:37 -0400
-Received: from e11.ny.us.ibm.com (e11.ny.us.ibm.com [129.33.205.201])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2bb563v35g-1
-        (version=TLSv1.2 cipher=AES256-SHA bits=256 verify=NOT)
-        for <linux-watchdog@vger.kernel.org>; Mon, 26 Jun 2017 22:17:36 -0400
-Received: from localhost
-        by e11.ny.us.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-watchdog@vger.kernel.org> from <cbostic@linux.vnet.ibm.com>;
-        Mon, 26 Jun 2017 22:17:35 -0400
-Subject: Re: [2/2] drivers/watchdog: ASPEED reference dev tree properties for
- config
-To: Guenter Roeck <linux@roeck-us.net>
-References: <20170613203818.17399-3-cbostic@linux.vnet.ibm.com>
- <20170624221747.GA10038@roeck-us.net>
-Cc: wim@iguana.be, joel@jms.id.au, linux-kernel@vger.kernel.org,
-        linux-watchdog@vger.kernel.org, andrew@aj.id.au
-From: Christopher Bostic <cbostic@linux.vnet.ibm.com>
-Date: Mon, 26 Jun 2017 21:17:25 -0500
+        Thu, 29 Jun 2017 11:04:20 -0400
+Date: Thu, 29 Jun 2017 08:04:17 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Christopher Bostic <cbostic@linux.vnet.ibm.com>
+Cc: wim@iguana.be, robh+dt@kernel.org, mark.rutland@arm.com,
+        joel@jms.id.au, linux-watchdog@vger.kernel.org,
+        devicetree@vger.kernel.org, openbmc@lists.ozlabs.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3 1/2] drivers/watchdog: Add optional ASPEED device tree
+ properties
+Message-ID: <20170629150417.GA10226@roeck-us.net>
+References: <20170629002811.87199-1-cbostic@linux.vnet.ibm.com>
+ <20170629002811.87199-2-cbostic@linux.vnet.ibm.com>
+ <b51fedbb-837f-49ea-d050-4c3be82724c5@roeck-us.net>
+ <21f28ed9-b73a-5c21-5557-bec1fef0d874@linux.vnet.ibm.com>
 MIME-Version: 1.0
-In-Reply-To: <20170624221747.GA10038@roeck-us.net>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Message-Id: <222152c4-a014-703c-29a0-a2a9ffdec5e9@linux.vnet.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <21f28ed9-b73a-5c21-5557-bec1fef0d874@linux.vnet.ibm.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+On Thu, Jun 29, 2017 at 08:39:59AM -0500, Christopher Bostic wrote:
+> 
+> 
+> On 6/28/17 10:33 PM, Guenter Roeck wrote:
+> >On 06/28/2017 05:28 PM, Christopher Bostic wrote:
+> >>Describe device tree optional properties:
+> >>
+> >>   * aspeed,arm-reet - ARM CPU reset on signal
+> >>   * aspeed,no-soc-reset - SOC reset on signal
+> >>   * aspeed,no-sys-reset - System reset on signal
+> >>   * aspeed,interrupt - Interrupt CPU on signal
+> >>   * aspeed,external-signal - Generate external signal (WDT1 and WDT2
+> >>only)
+> >>   * aspeed,alt-boot - Boot from alternate block on signal
+> >>
+> >>Signed-off-by: Christopher Bostic <cbostic@linux.vnet.ibm.com>
+> >>---
+> >>v3 - Invert soc and sys reset to 'no' to preserve backwards
+> >>      compatibility.  SOC and SYS reset will be set by default
+> >>      without any optional parameters set
+> >>v2 - Add 'aspeed,' prefix to all optional properties
+> >>    - Add arm-reset, soc-reset, interrupt, alt-boot properties
+> >>---
+> >>  .../devicetree/bindings/watchdog/aspeed-wdt.txt    | 24
+> >>++++++++++++++++++++++
+> >>  1 file changed, 24 insertions(+)
+> >>
+> >>diff --git a/Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt
+> >>b/Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt
+> >>index c5e74d7..6f18005 100644
+> >>--- a/Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt
+> >>+++ b/Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt
+> >>@@ -8,9 +8,33 @@ Required properties:
+> >>   - reg: physical base address of the controller and length of memory
+> >>mapped
+> >>     region
+> >>  +Optional properties:
+> >>+   Signal behavior - Whenever a timeout occurs the watchdog can be
+> >>programmed
+> >>+   to generate/not generate 6 types of signals:
+> >>+
+> >>+ - aspeed,arm-reset:    If property is present then reset ARM CPU only.
+> >>+            If not specified no ARM CPU reset is done.
+> >>+
+> >>+ - aspeed,no-soc-reset: If property is present then do not reset SOC.
+> >>+            If not specified then SOC reset is done.
+> >>+
+> >>+ - aspeed,no-sys-reset: If property is present then do not reset
+> >>system.
+> >>+            Typcally used in tandem with 'aspeed-external-signal'
+> >
+> >Is this correct ? As I understand the datasheet, it could also used in
+> >tandem with
+> >aspeed,interrupt.
+> True, that should be documented.  Will add that.
+> >
+> >>+            If not specified then system reset is done.
+> >>+
+> >
+> >I'll leave it up to Rob to decide, but for my part I don't understand
+> >no-soc-reset.
+> As the aspeed watchdog driver exists prior to this change an SOC reset is
+> done by
+> default.   In order to preserve backwards compatibility a missing optional
+> property
+> should result in default behavior.  I however need to be able to specify
+> that SOC
+> reset be disabled in some way.  This goes back to our discussion about why
+> we'd
+> ever want to disable SYSTEM reset in the first place.  Same reasoning
+> applies for
+> SOC reset.
+> 
+> >I would instead use four properties.
+> >
+> >    aspeed,arm-reset
+> >    aspeed,soc-reset
+> Per my response above I think it should remain as aspeed,no-soc-reset due to
+> backwards compatibility requirements.
 
+The same can be accomplished with "aspeed,no-reset", which would avoid the, in
+my opinion, awkward "no-{sys,soc}-reset" poperties.
 
-On 6/24/17 5:17 PM, Guenter Roeck wrote:
-> On Tue, Jun 13, 2017 at 03:38:18PM -0500, Christopher Bostic wrote:
->> Reference the system device tree when configuring the watchdog.
->> Configure for external signal generation if optional attribute
->> 'external-signal' is present in device tree.  Configure for
->> reset system after timeout if the optional attribute
->> 'no-system-reset' is not present.  Disabling system reset may be
->> required in situations where one of the other watchdogs in the
->> systems is responsible for this.
->>
->> Signed-off-by: Christopher Bostic <cbostic@linux.vnet.ibm.com>
->> ---
->>   drivers/watchdog/aspeed_wdt.c | 13 +++++++++++--
->>   1 file changed, 11 insertions(+), 2 deletions(-)
->>
->> diff --git a/drivers/watchdog/aspeed_wdt.c b/drivers/watchdog/aspeed_wdt.c
->> index 1c65258..9deb4be 100644
->> --- a/drivers/watchdog/aspeed_wdt.c
->> +++ b/drivers/watchdog/aspeed_wdt.c
->> @@ -140,6 +140,7 @@ static int aspeed_wdt_probe(struct platform_device *pdev)
->>   {
->>   	struct aspeed_wdt *wdt;
->>   	struct resource *res;
->> +	struct device_node *np;
->>   	int ret;
->>   
->>   	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
->> @@ -170,8 +171,16 @@ static int aspeed_wdt_probe(struct platform_device *pdev)
->>   	 * the SOC and not the full chip
->>   	 */
->>   	wdt->ctrl = WDT_CTRL_RESET_MODE_SOC |
->> -		WDT_CTRL_1MHZ_CLK |
->> -		WDT_CTRL_RESET_SYSTEM;
->> +		WDT_CTRL_1MHZ_CLK;
->> +
->> +	np = pdev->dev.of_node;
->> +	if (np && !of_get_property(np, "no-system-reset", NULL))
->> +		wdt->ctrl |= WDT_CTRL_RESET_SYSTEM;
->> +
-> Please use of_property_read_bool(). Also, checking np for NULL is unnecessary
-> since the called function does that. Note that the above code as written is
-> wrong - if np is NULL, WDT_CTRL_RESET_SYSTEM will no longer be set.
+> >    aspeed,sys-reset (which is the default)
+> Again as per our discussion yesterday I need some way to specify how system
+> reset is to  be done.  For backwards compatibility, a lack of parameter here
+> would
+> result in a system reset being configured.  Only way to indicate to the
+> driver
+> that no system reset is to be done is to indicate 'no' system reset in the
+> optional
+> parameter.
 
-Will make the suggested changes.
+Or "aspeed,no-reset".
 
-Thanks
--Chris
+> >    aspeed,no-reset
+> This parameter seems ambiguous as we could be doing a 'no system reset'
+> or a 'no SOC reset' in theory.
 
-> The new properties should probably start with "aspeed," but I'll leave that
-> up to DT maintainers to decide.
->
->> +	if (np && of_get_property(np, "external-signal", NULL))
->> +		wdt->ctrl |= WDT_CTRL_WDT_EXT;
->> +
->> +	writel(wdt->ctrl, wdt->base + WDT_CTRL);
->>   
->>   	if (readl(wdt->base + WDT_CTRL) & WDT_CTRL_ENABLE)  {
->>   		aspeed_wdt_start(&wdt->wdd);
+{arm,soc,sys}-reset are mutually exclusive per datasheet, and there is a
+separate configuration bit which enables the reset in the first place.
+I don't see how that is ambiguous.
 
+Anyway, I don't think we are making any progress here. Let's wait for
+guidance from Rob.
+
+Guenter
+
+> >
+> >There should also be a note explaining that the above are mutually
+> >exclusive.
+> >
+> OK, will add that.
+> 
+> >>+ - aspeed,interrupt:    If property is present then interrupt CPU.
+> >>+            If not specified then don't interrupt CPU.
+> >>+
+> >>+ - aspeed,external-signal: If property is present then signal is sent
+> >>to
+> >>+            external reset counter (only WDT1 and WDT2). If not
+> >>+            specified no external signal is sent.
+> >
+> >For consistency, either add an empty line here or remove the empty lines
+> >above
+> 
+> Will fix.
+> 
+> Thanks,
+> Chris
+> >
+> >>+ - aspeed,alt-boot:    If property is present then boot from alternate
+> >>block.
+> >>+
+> >>  Example:
+> >>        wdt1: watchdog@1e785000 {
+> >>          compatible = "aspeed,ast2400-wdt";
+> >>          reg = <0x1e785000 0x1c>;
+> >>+        aspeed,no-sys-reset;
+> >>+        aspeed,external-signal;
+> >>      };
+> >>
+> >
+> 
