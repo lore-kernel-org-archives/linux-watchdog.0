@@ -1,7 +1,7 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from hauke-m.de ([5.39.93.123]:43846 "EHLO mail.hauke-m.de"
+Received: from hauke-m.de ([5.39.93.123]:43907 "EHLO mail.hauke-m.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753598AbdF2VkZ (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        id S1753635AbdF2VkZ (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
         Thu, 29 Jun 2017 17:40:25 -0400
 From: Hauke Mehrtens <hauke@hauke-m.de>
 To: ralf@linux-mips.org
@@ -11,282 +11,292 @@ Cc: linux-mips@linux-mips.org, linux-mtd@lists.infradead.org,
         linux-spi@vger.kernel.org, hauke.mehrtens@intel.com,
         robh@kernel.org, andy.shevchenko@gmail.com, p.zabel@pengutronix.de,
         Hauke Mehrtens <hauke@hauke-m.de>
-Subject: [PATCH v6 08/16] MIPS: lantiq: Convert the fpi bus driver to a platform_driver
-Date: Thu, 29 Jun 2017 23:39:43 +0200
-Message-Id: <20170629213951.31176-9-hauke@hauke-m.de>
+Subject: [PATCH v6 13/16] MIPS: lantiq: remove old GPHY loader code
+Date: Thu, 29 Jun 2017 23:39:48 +0200
+Message-Id: <20170629213951.31176-14-hauke@hauke-m.de>
 In-Reply-To: <20170629213951.31176-1-hauke@hauke-m.de>
 References: <20170629213951.31176-1-hauke@hauke-m.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Instead of hacking the configuration of the FPI bus into the arch code
-add an own bus driver for this internal bus. The FPI bus is the main
-bus of the SoC. This bus driver makes sure the bus is configured
-correctly before the child drivers are getting initialized. This driver
-will probably also be used on different SoC later.
+The GPHY loader was replaced by a new more flexible driver. Remove the
+old driver.
 
 Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
-Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 ---
- .../devicetree/bindings/mips/lantiq/fpi-bus.txt    | 32 ++++++++
- MAINTAINERS                                        |  1 +
- arch/mips/lantiq/xway/reset.c                      |  4 -
- arch/mips/lantiq/xway/sysctrl.c                    | 41 -----------
- drivers/soc/Makefile                               |  1 +
- drivers/soc/lantiq/Makefile                        |  1 +
- drivers/soc/lantiq/fpi-bus.c                       | 85 ++++++++++++++++++++++
- 7 files changed, 120 insertions(+), 45 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/mips/lantiq/fpi-bus.txt
- create mode 100644 drivers/soc/lantiq/Makefile
- create mode 100644 drivers/soc/lantiq/fpi-bus.c
+ arch/mips/lantiq/xway/Makefile        |   2 -
+ arch/mips/lantiq/xway/reset.c         | 106 -------------------------------
+ arch/mips/lantiq/xway/xrx200_phy_fw.c | 113 ----------------------------------
+ 3 files changed, 221 deletions(-)
+ delete mode 100644 arch/mips/lantiq/xway/xrx200_phy_fw.c
 
-diff --git a/Documentation/devicetree/bindings/mips/lantiq/fpi-bus.txt b/Documentation/devicetree/bindings/mips/lantiq/fpi-bus.txt
-new file mode 100644
-index 000000000000..1324cc9fa23e
---- /dev/null
-+++ b/Documentation/devicetree/bindings/mips/lantiq/fpi-bus.txt
-@@ -0,0 +1,32 @@
-+Lantiq XWAY SoC FPI BUS binding
-+============================
-+
-+
-+-------------------------------------------------------------------------------
-+Required properties:
-+- compatible	: Should be one of
-+				"lantiq,xrx200-fpi"
-+- reg		: The address and length of the XBAR configuration register.
-+		  Address and length of the FPI bus itself
-+
-+Optional properties:
-+- lantiq,rcu			: A phandle to the RCU syscon
-+- lantiq,offset-endianness	: Offset of the endianness configuration
-+				  register
-+
-+-------------------------------------------------------------------------------
-+Example for the FPI on the xrx200 SoCs:
-+	fpi@10000000 {
-+		compatible = "lantiq,xrx200-fpi";
-+		ranges = <0x0 0x10000000 0xf000000>;
-+		reg =	<0x1f400000 0x1000>,
-+			<0x10000000 0xf000000>;
-+		lantiq,rcu = <&rcu0>;
-+		lantiq,offset-endianness = <0x4c>;
-+		#address-cells = <1>;
-+		#size-cells = <1>;
-+
-+		gptu@e100a00 {
-+			......
-+		};
-+	};
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 09b5ab6a8a5c..5a85d67d8d8a 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -7440,6 +7440,7 @@ M:	John Crispin <john@phrozen.org>
- L:	linux-mips@linux-mips.org
- S:	Maintained
- F:	arch/mips/lantiq
-+F:	drivers/soc/lantiq
+diff --git a/arch/mips/lantiq/xway/Makefile b/arch/mips/lantiq/xway/Makefile
+index a2edc538f477..6daf3149e7ca 100644
+--- a/arch/mips/lantiq/xway/Makefile
++++ b/arch/mips/lantiq/xway/Makefile
+@@ -1,5 +1,3 @@
+ obj-y := prom.o sysctrl.o clk.o reset.o dma.o gptu.o dcdc.o
  
- LAPB module
- L:	linux-x25@vger.kernel.org
+ obj-y += vmmc.o
+-
+-obj-$(CONFIG_XRX200_PHY_FW) += xrx200_phy_fw.o
 diff --git a/arch/mips/lantiq/xway/reset.c b/arch/mips/lantiq/xway/reset.c
-index 83fd65d76e81..b6752c95a600 100644
+index 5cb9309b0047..be5fd29de523 100644
 --- a/arch/mips/lantiq/xway/reset.c
 +++ b/arch/mips/lantiq/xway/reset.c
-@@ -373,10 +373,6 @@ static int __init mips_reboot_setup(void)
- 	    of_machine_is_compatible("lantiq,vr9"))
- 		ltq_usb_init();
+@@ -27,18 +27,6 @@
+ #define RCU_RST_REQ		0x0010
+ /* reset status register */
+ #define RCU_RST_STAT		0x0014
+-/* vr9 gphy registers */
+-#define RCU_GFS_ADD0_XRX200	0x0020
+-#define RCU_GFS_ADD1_XRX200	0x0068
+-/* xRX300 gphy registers */
+-#define RCU_GFS_ADD0_XRX300	0x0020
+-#define RCU_GFS_ADD1_XRX300	0x0058
+-#define RCU_GFS_ADD2_XRX300	0x00AC
+-/* xRX330 gphy registers */
+-#define RCU_GFS_ADD0_XRX330	0x0020
+-#define RCU_GFS_ADD1_XRX330	0x0058
+-#define RCU_GFS_ADD2_XRX330	0x00AC
+-#define RCU_GFS_ADD3_XRX330	0x0264
  
--	if (of_machine_is_compatible("lantiq,vr9"))
--		ltq_rcu_w32(ltq_rcu_r32(RCU_AHB_ENDIAN) | RCU_VR9_BE_AHB1S,
--			    RCU_AHB_ENDIAN);
--
- 	_machine_restart = ltq_machine_restart;
- 	_machine_halt = ltq_machine_halt;
- 	pm_power_off = ltq_machine_power_off;
-diff --git a/arch/mips/lantiq/xway/sysctrl.c b/arch/mips/lantiq/xway/sysctrl.c
-index 95bec460b651..706639a343bc 100644
---- a/arch/mips/lantiq/xway/sysctrl.c
-+++ b/arch/mips/lantiq/xway/sysctrl.c
-@@ -145,15 +145,7 @@ static u32 pmu_clk_cr_b[] = {
- #define pmu_w32(x, y)	ltq_w32((x), pmu_membase + (y))
- #define pmu_r32(x)	ltq_r32(pmu_membase + (x))
+ /* xbar BE flag */
+ #define RCU_AHB_ENDIAN          0x004C
+@@ -48,15 +36,6 @@
+ #define RCU_RD_GPHY0_XRX200	BIT(31)
+ #define RCU_RD_SRST		BIT(30)
+ #define RCU_RD_GPHY1_XRX200	BIT(29)
+-/* xRX300 bits */
+-#define RCU_RD_GPHY0_XRX300	BIT(31)
+-#define RCU_RD_GPHY1_XRX300	BIT(29)
+-#define RCU_RD_GPHY2_XRX300	BIT(28)
+-/* xRX330 bits */
+-#define RCU_RD_GPHY0_XRX330	BIT(31)
+-#define RCU_RD_GPHY1_XRX330	BIT(29)
+-#define RCU_RD_GPHY2_XRX330	BIT(28)
+-#define RCU_RD_GPHY3_XRX330	BIT(10)
  
--#define XBAR_ALWAYS_LAST	0x430
--#define XBAR_FPI_BURST_EN	BIT(1)
--#define XBAR_AHB_BURST_EN	BIT(2)
--
--#define xbar_w32(x, y)	ltq_w32((x), ltq_xbar_membase + (y))
--#define xbar_r32(x)	ltq_r32(ltq_xbar_membase + (x))
--
- static void __iomem *pmu_membase;
--static void __iomem *ltq_xbar_membase;
- void __iomem *ltq_cgu_membase;
- void __iomem *ltq_ebu_membase;
+ /* reset cause */
+ #define RCU_STAT_SHIFT		26
+@@ -98,7 +77,6 @@
+ /* remapped base addr of the reset control unit */
+ static void __iomem *ltq_rcu_membase;
+ static struct device_node *ltq_rcu_np;
+-static DEFINE_SPINLOCK(ltq_rcu_lock);
  
-@@ -293,16 +285,6 @@ static void pci_ext_disable(struct clk *clk)
- 	ltq_cgu_w32((1 << 31) | (1 << 30), pcicr);
+ static void ltq_rcu_w32(uint32_t val, uint32_t reg_off)
+ {
+@@ -110,90 +88,6 @@ static uint32_t ltq_rcu_r32(uint32_t reg_off)
+ 	return ltq_r32(ltq_rcu_membase + reg_off);
  }
  
--static void xbar_fpi_burst_disable(void)
+-static void ltq_rcu_w32_mask(uint32_t clr, uint32_t set, uint32_t reg_off)
 -{
--	u32 reg;
+-	unsigned long flags;
 -
--	/* bit 1 as 1 --burst; bit 1 as 0 -- single */
--	reg = xbar_r32(XBAR_ALWAYS_LAST);
--	reg &= ~XBAR_FPI_BURST_EN;
--	xbar_w32(reg, XBAR_ALWAYS_LAST);
+-	spin_lock_irqsave(&ltq_rcu_lock, flags);
+-	ltq_rcu_w32((ltq_rcu_r32(reg_off) & ~(clr)) | (set), reg_off);
+-	spin_unlock_irqrestore(&ltq_rcu_lock, flags);
 -}
 -
- /* enable a clockout source */
- static int clkout_enable(struct clk *clk)
- {
-@@ -459,26 +441,6 @@ void __init ltq_soc_init(void)
- 	if (!pmu_membase || !ltq_cgu_membase || !ltq_ebu_membase)
- 		panic("Failed to remap core resources");
- 
--	if (of_machine_is_compatible("lantiq,vr9")) {
--		struct resource res_xbar;
--		struct device_node *np_xbar =
--				of_find_compatible_node(NULL, NULL,
--							"lantiq,xbar-xway");
+-struct ltq_gphy_reset {
+-	u32 rd;
+-	u32 addr;
+-};
 -
--		if (!np_xbar)
--			panic("Failed to load xbar nodes from devicetree");
--		if (of_address_to_resource(np_xbar, 0, &res_xbar))
--			panic("Failed to get xbar resources");
--		if (!request_mem_region(res_xbar.start, resource_size(&res_xbar),
--			res_xbar.name))
--			panic("Failed to get xbar resources");
+-/* reset / boot a gphy */
+-static struct ltq_gphy_reset xrx200_gphy[] = {
+-	{RCU_RD_GPHY0_XRX200, RCU_GFS_ADD0_XRX200},
+-	{RCU_RD_GPHY1_XRX200, RCU_GFS_ADD1_XRX200},
+-};
 -
--		ltq_xbar_membase = ioremap_nocache(res_xbar.start,
--						   resource_size(&res_xbar));
--		if (!ltq_xbar_membase)
--			panic("Failed to remap xbar resources");
+-/* reset / boot a gphy */
+-static struct ltq_gphy_reset xrx300_gphy[] = {
+-	{RCU_RD_GPHY0_XRX300, RCU_GFS_ADD0_XRX300},
+-	{RCU_RD_GPHY1_XRX300, RCU_GFS_ADD1_XRX300},
+-	{RCU_RD_GPHY2_XRX300, RCU_GFS_ADD2_XRX300},
+-};
+-
+-/* reset / boot a gphy */
+-static struct ltq_gphy_reset xrx330_gphy[] = {
+-	{RCU_RD_GPHY0_XRX330, RCU_GFS_ADD0_XRX330},
+-	{RCU_RD_GPHY1_XRX330, RCU_GFS_ADD1_XRX330},
+-	{RCU_RD_GPHY2_XRX330, RCU_GFS_ADD2_XRX330},
+-	{RCU_RD_GPHY3_XRX330, RCU_GFS_ADD3_XRX330},
+-};
+-
+-static void xrx200_gphy_boot_addr(struct ltq_gphy_reset *phy_regs,
+-				  dma_addr_t dev_addr)
+-{
+-	ltq_rcu_w32_mask(0, phy_regs->rd, RCU_RST_REQ);
+-	ltq_rcu_w32(dev_addr, phy_regs->addr);
+-	ltq_rcu_w32_mask(phy_regs->rd, 0,  RCU_RST_REQ);
+-}
+-
+-/* reset and boot a gphy. these phys only exist on xrx200 SoC */
+-int xrx200_gphy_boot(struct device *dev, unsigned int id, dma_addr_t dev_addr)
+-{
+-	struct clk *clk;
+-
+-	if (!of_device_is_compatible(ltq_rcu_np, "lantiq,rcu-xrx200")) {
+-		dev_err(dev, "this SoC has no GPHY\n");
+-		return -EINVAL;
 -	}
 -
- 	/* make sure to unprotect the memory region where flash is located */
- 	ltq_ebu_w32(ltq_ebu_r32(LTQ_EBU_BUSCON0) & ~EBU_WRDIS, LTQ_EBU_BUSCON0);
- 
-@@ -605,7 +567,4 @@ void __init ltq_soc_init(void)
- 		clkdev_add_pmu("1e116000.mei", "dfe", 1, 0, PMU_DFE);
- 		clkdev_add_pmu("1e100400.serial", NULL, 1, 0, PMU_ASC0);
- 	}
+-	if (of_machine_is_compatible("lantiq,vr9")) {
+-		clk = clk_get_sys("1f203000.rcu", "gphy");
+-		if (IS_ERR(clk))
+-			return PTR_ERR(clk);
+-		clk_enable(clk);
+-	}
 -
--	if (of_machine_is_compatible("lantiq,vr9"))
--		xbar_fpi_burst_disable();
- }
-diff --git a/drivers/soc/Makefile b/drivers/soc/Makefile
-index 824b44281efa..009b5de74a24 100644
---- a/drivers/soc/Makefile
-+++ b/drivers/soc/Makefile
-@@ -8,6 +8,7 @@ obj-$(CONFIG_ARCH_DOVE)		+= dove/
- obj-$(CONFIG_MACH_DOVE)		+= dove/
- obj-y				+= fsl/
- obj-$(CONFIG_ARCH_MXC)		+= imx/
-+obj-$(CONFIG_SOC_XWAY)		+= lantiq/
- obj-$(CONFIG_ARCH_MEDIATEK)	+= mediatek/
- obj-$(CONFIG_ARCH_QCOM)		+= qcom/
- obj-$(CONFIG_ARCH_RENESAS)	+= renesas/
-diff --git a/drivers/soc/lantiq/Makefile b/drivers/soc/lantiq/Makefile
-new file mode 100644
-index 000000000000..35aa86bd1023
---- /dev/null
-+++ b/drivers/soc/lantiq/Makefile
-@@ -0,0 +1 @@
-+obj-y				+= fpi-bus.o
-diff --git a/drivers/soc/lantiq/fpi-bus.c b/drivers/soc/lantiq/fpi-bus.c
-new file mode 100644
-index 000000000000..b36af1b9cc38
---- /dev/null
-+++ b/drivers/soc/lantiq/fpi-bus.c
-@@ -0,0 +1,85 @@
-+/*
-+ *  This program is free software; you can redistribute it and/or modify it
-+ *  under the terms of the GNU General Public License version 2 as published
-+ *  by the Free Software Foundation.
-+ *
-+ *  Copyright (C) 2011-2015 John Crispin <blogic@phrozen.org>
-+ *  Copyright (C) 2015 Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-+ *  Copyright (C) 2017 Hauke Mehrtens <hauke@hauke-m.de>
-+ */
-+
-+#include <linux/device.h>
-+#include <linux/err.h>
-+#include <linux/mfd/syscon.h>
-+#include <linux/module.h>
-+#include <linux/of.h>
-+#include <linux/of_platform.h>
-+#include <linux/platform_device.h>
-+#include <linux/property.h>
-+#include <linux/regmap.h>
-+
-+#include <lantiq_soc.h>
-+
-+#define XBAR_ALWAYS_LAST	0x430
-+#define XBAR_FPI_BURST_EN	BIT(1)
-+#define XBAR_AHB_BURST_EN	BIT(2)
-+
-+#define RCU_VR9_BE_AHB1S	0x00000008
-+
-+static int ltq_fpi_probe(struct platform_device *pdev)
-+{
-+	struct device *dev = &pdev->dev;
-+	struct device_node *np = dev->of_node;
-+	struct resource *res_xbar;
-+	struct regmap *rcu_regmap;
-+	void __iomem *xbar_membase;
-+	u32 rcu_ahb_endianness_reg_offset;
-+	int ret;
-+
-+	res_xbar = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	xbar_membase = devm_ioremap_resource(dev, res_xbar);
-+	if (IS_ERR(xbar_membase))
-+		return PTR_ERR(xbar_membase);
-+
-+	/* RCU configuration is optional */
-+	rcu_regmap = syscon_regmap_lookup_by_phandle(np, "lantiq,rcu");
-+	if (!IS_ERR_OR_NULL(rcu_regmap)) {
-+		ret = device_property_read_u32(dev, "lantiq,offset-endianness",
-+					   &rcu_ahb_endianness_reg_offset);
-+		if (ret) {
-+			dev_err(&pdev->dev, "Failed to get RCU reg offset\n");
-+			return -EINVAL;
-+		}
-+
-+		if (regmap_update_bits(rcu_regmap,
-+					rcu_ahb_endianness_reg_offset,
-+					RCU_VR9_BE_AHB1S,
-+					RCU_VR9_BE_AHB1S))
-+			dev_warn(&pdev->dev,
-+				"Failed to configure RCU AHB endianness\n");
-+	}
-+
-+	/* disable fpi burst */
-+	ltq_w32_mask(XBAR_FPI_BURST_EN, 0, xbar_membase + XBAR_ALWAYS_LAST);
-+
-+	return of_platform_populate(dev->of_node, NULL, NULL, dev);
-+}
-+
-+static const struct of_device_id ltq_fpi_match[] = {
-+	{ .compatible = "lantiq,xrx200-fpi" },
-+	{},
-+};
-+MODULE_DEVICE_TABLE(of, ltq_fpi_match);
-+
-+static struct platform_driver ltq_fpi_driver = {
-+	.probe = ltq_fpi_probe,
-+	.driver = {
-+		.name = "fpi-xway",
-+		.of_match_table = ltq_fpi_match,
-+	},
-+};
-+
-+module_platform_driver(ltq_fpi_driver);
-+
-+MODULE_DESCRIPTION("Lantiq FPI bus driver");
-+MODULE_LICENSE("GPL");
+-	dev_info(dev, "booting GPHY%u firmware at %X\n", id, dev_addr);
+-
+-	if (of_machine_is_compatible("lantiq,vr9")) {
+-		if (id >= ARRAY_SIZE(xrx200_gphy)) {
+-			dev_err(dev, "%u is an invalid gphy id\n", id);
+-			return -EINVAL;
+-		}
+-		xrx200_gphy_boot_addr(&xrx200_gphy[id], dev_addr);
+-	} else if (of_machine_is_compatible("lantiq,ar10")) {
+-		if (id >= ARRAY_SIZE(xrx300_gphy)) {
+-			dev_err(dev, "%u is an invalid gphy id\n", id);
+-			return -EINVAL;
+-		}
+-		xrx200_gphy_boot_addr(&xrx300_gphy[id], dev_addr);
+-	} else if (of_machine_is_compatible("lantiq,grx390")) {
+-		if (id >= ARRAY_SIZE(xrx330_gphy)) {
+-			dev_err(dev, "%u is an invalid gphy id\n", id);
+-			return -EINVAL;
+-		}
+-		xrx200_gphy_boot_addr(&xrx330_gphy[id], dev_addr);
+-	}
+-	return 0;
+-}
+-
+ static void ltq_machine_restart(char *command)
+ {
+ 	u32 val = ltq_rcu_r32(RCU_RST_REQ);
+diff --git a/arch/mips/lantiq/xway/xrx200_phy_fw.c b/arch/mips/lantiq/xway/xrx200_phy_fw.c
+deleted file mode 100644
+index f0a0f2d431b2..000000000000
+--- a/arch/mips/lantiq/xway/xrx200_phy_fw.c
++++ /dev/null
+@@ -1,113 +0,0 @@
+-/*
+- * Lantiq XRX200 PHY Firmware Loader
+- * Author: John Crispin
+- *
+- *  This program is free software; you can redistribute it and/or modify it
+- *  under the terms of the GNU General Public License version 2 as published
+- *  by the Free Software Foundation.
+- *
+- *  Copyright (C) 2012 John Crispin <john@phrozen.org>
+- */
+-
+-#include <linux/delay.h>
+-#include <linux/dma-mapping.h>
+-#include <linux/firmware.h>
+-#include <linux/of_platform.h>
+-
+-#include <lantiq_soc.h>
+-
+-#define XRX200_GPHY_FW_ALIGN	(16 * 1024)
+-
+-static dma_addr_t xway_gphy_load(struct platform_device *pdev)
+-{
+-	const struct firmware *fw;
+-	dma_addr_t dev_addr = 0;
+-	const char *fw_name;
+-	void *fw_addr;
+-	size_t size;
+-
+-	if (of_get_property(pdev->dev.of_node, "firmware1", NULL) ||
+-		of_get_property(pdev->dev.of_node, "firmware2", NULL)) {
+-		switch (ltq_soc_type()) {
+-		case SOC_TYPE_VR9:
+-			if (of_property_read_string(pdev->dev.of_node,
+-						    "firmware1", &fw_name)) {
+-				dev_err(&pdev->dev,
+-					"failed to load firmware filename\n");
+-				return 0;
+-			}
+-			break;
+-		case SOC_TYPE_VR9_2:
+-			if (of_property_read_string(pdev->dev.of_node,
+-						    "firmware2", &fw_name)) {
+-				dev_err(&pdev->dev,
+-					"failed to load firmware filename\n");
+-				return 0;
+-			}
+-			break;
+-		}
+-	} else if (of_property_read_string(pdev->dev.of_node,
+-					 "firmware", &fw_name)) {
+-		dev_err(&pdev->dev, "failed to load firmware filename\n");
+-		return 0;
+-	}
+-
+-	dev_info(&pdev->dev, "requesting %s\n", fw_name);
+-	if (request_firmware(&fw, fw_name, &pdev->dev)) {
+-		dev_err(&pdev->dev, "failed to load firmware: %s\n", fw_name);
+-		return 0;
+-	}
+-
+-	/*
+-	 * GPHY cores need the firmware code in a persistent and contiguous
+-	 * memory area with a 16 kB boundary aligned start address
+-	 */
+-	size = fw->size + XRX200_GPHY_FW_ALIGN;
+-
+-	fw_addr = dma_alloc_coherent(&pdev->dev, size, &dev_addr, GFP_KERNEL);
+-	if (fw_addr) {
+-		fw_addr = PTR_ALIGN(fw_addr, XRX200_GPHY_FW_ALIGN);
+-		dev_addr = ALIGN(dev_addr, XRX200_GPHY_FW_ALIGN);
+-		memcpy(fw_addr, fw->data, fw->size);
+-	} else {
+-		dev_err(&pdev->dev, "failed to alloc firmware memory\n");
+-	}
+-
+-	release_firmware(fw);
+-	return dev_addr;
+-}
+-
+-static int xway_phy_fw_probe(struct platform_device *pdev)
+-{
+-	dma_addr_t fw_addr;
+-	struct property *pp;
+-	unsigned char *phyids;
+-	int i, ret = 0;
+-
+-	fw_addr = xway_gphy_load(pdev);
+-	if (!fw_addr)
+-		return -EINVAL;
+-	pp = of_find_property(pdev->dev.of_node, "phys", NULL);
+-	if (!pp)
+-		return -ENOENT;
+-	phyids = pp->value;
+-	for (i = 0; i < pp->length && !ret; i++)
+-		ret = xrx200_gphy_boot(&pdev->dev, phyids[i], fw_addr);
+-	if (!ret)
+-		mdelay(100);
+-	return ret;
+-}
+-
+-static const struct of_device_id xway_phy_match[] = {
+-	{ .compatible = "lantiq,phy-xrx200" },
+-	{},
+-};
+-
+-static struct platform_driver xway_phy_driver = {
+-	.probe = xway_phy_fw_probe,
+-	.driver = {
+-		.name = "phy-xrx200",
+-		.of_match_table = xway_phy_match,
+-	},
+-};
+-builtin_platform_driver(xway_phy_driver);
 -- 
 2.11.0
 
