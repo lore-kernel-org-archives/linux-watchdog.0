@@ -1,170 +1,224 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:43237 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751974AbdF2PEU (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 29 Jun 2017 11:04:20 -0400
-Date: Thu, 29 Jun 2017 08:04:17 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Christopher Bostic <cbostic@linux.vnet.ibm.com>
-Cc: wim@iguana.be, robh+dt@kernel.org, mark.rutland@arm.com,
-        joel@jms.id.au, linux-watchdog@vger.kernel.org,
-        devicetree@vger.kernel.org, openbmc@lists.ozlabs.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 1/2] drivers/watchdog: Add optional ASPEED device tree
- properties
-Message-ID: <20170629150417.GA10226@roeck-us.net>
-References: <20170629002811.87199-1-cbostic@linux.vnet.ibm.com>
- <20170629002811.87199-2-cbostic@linux.vnet.ibm.com>
- <b51fedbb-837f-49ea-d050-4c3be82724c5@roeck-us.net>
- <21f28ed9-b73a-5c21-5557-bec1fef0d874@linux.vnet.ibm.com>
+Received: from hauke-m.de ([5.39.93.123]:43744 "EHLO mail.hauke-m.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751615AbdF2U1X (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Thu, 29 Jun 2017 16:27:23 -0400
+Subject: Re: [PATCH v5 07/16] Documentation: DT: MIPS: lantiq: Add docs for
+ the RCU bindings
+To: Rob Herring <robh@kernel.org>
+References: <20170620223743.13735-1-hauke@hauke-m.de>
+ <20170620223743.13735-8-hauke@hauke-m.de>
+ <20170623221224.fhfc6ezydd3uglfr@rob-hp-laptop>
+Cc: ralf@linux-mips.org, linux-mips@linux-mips.org,
+        linux-mtd@lists.infradead.org, linux-watchdog@vger.kernel.org,
+        devicetree@vger.kernel.org, martin.blumenstingl@googlemail.com,
+        john@phrozen.org, linux-spi@vger.kernel.org,
+        hauke.mehrtens@intel.com, andy.shevchenko@gmail.com,
+        p.zabel@pengutronix.de
+From: Hauke Mehrtens <hauke@hauke-m.de>
+Message-ID: <1171930b-769b-f0ea-778e-ddcd11b20775@hauke-m.de>
+Date: Thu, 29 Jun 2017 22:27:19 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <21f28ed9-b73a-5c21-5557-bec1fef0d874@linux.vnet.ibm.com>
+In-Reply-To: <20170623221224.fhfc6ezydd3uglfr@rob-hp-laptop>
+Content-Type: text/plain; charset=windows-1252
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jun 29, 2017 at 08:39:59AM -0500, Christopher Bostic wrote:
-> 
-> 
-> On 6/28/17 10:33 PM, Guenter Roeck wrote:
-> >On 06/28/2017 05:28 PM, Christopher Bostic wrote:
-> >>Describe device tree optional properties:
-> >>
-> >>   * aspeed,arm-reet - ARM CPU reset on signal
-> >>   * aspeed,no-soc-reset - SOC reset on signal
-> >>   * aspeed,no-sys-reset - System reset on signal
-> >>   * aspeed,interrupt - Interrupt CPU on signal
-> >>   * aspeed,external-signal - Generate external signal (WDT1 and WDT2
-> >>only)
-> >>   * aspeed,alt-boot - Boot from alternate block on signal
-> >>
-> >>Signed-off-by: Christopher Bostic <cbostic@linux.vnet.ibm.com>
-> >>---
-> >>v3 - Invert soc and sys reset to 'no' to preserve backwards
-> >>      compatibility.  SOC and SYS reset will be set by default
-> >>      without any optional parameters set
-> >>v2 - Add 'aspeed,' prefix to all optional properties
-> >>    - Add arm-reset, soc-reset, interrupt, alt-boot properties
-> >>---
-> >>  .../devicetree/bindings/watchdog/aspeed-wdt.txt    | 24
-> >>++++++++++++++++++++++
-> >>  1 file changed, 24 insertions(+)
-> >>
-> >>diff --git a/Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt
-> >>b/Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt
-> >>index c5e74d7..6f18005 100644
-> >>--- a/Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt
-> >>+++ b/Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt
-> >>@@ -8,9 +8,33 @@ Required properties:
-> >>   - reg: physical base address of the controller and length of memory
-> >>mapped
-> >>     region
-> >>  +Optional properties:
-> >>+   Signal behavior - Whenever a timeout occurs the watchdog can be
-> >>programmed
-> >>+   to generate/not generate 6 types of signals:
-> >>+
-> >>+ - aspeed,arm-reset:    If property is present then reset ARM CPU only.
-> >>+            If not specified no ARM CPU reset is done.
-> >>+
-> >>+ - aspeed,no-soc-reset: If property is present then do not reset SOC.
-> >>+            If not specified then SOC reset is done.
-> >>+
-> >>+ - aspeed,no-sys-reset: If property is present then do not reset
-> >>system.
-> >>+            Typcally used in tandem with 'aspeed-external-signal'
-> >
-> >Is this correct ? As I understand the datasheet, it could also used in
-> >tandem with
-> >aspeed,interrupt.
-> True, that should be documented.  Will add that.
-> >
-> >>+            If not specified then system reset is done.
-> >>+
-> >
-> >I'll leave it up to Rob to decide, but for my part I don't understand
-> >no-soc-reset.
-> As the aspeed watchdog driver exists prior to this change an SOC reset is
-> done by
-> default.   In order to preserve backwards compatibility a missing optional
-> property
-> should result in default behavior.  I however need to be able to specify
-> that SOC
-> reset be disabled in some way.  This goes back to our discussion about why
-> we'd
-> ever want to disable SYSTEM reset in the first place.  Same reasoning
-> applies for
-> SOC reset.
-> 
-> >I would instead use four properties.
-> >
-> >    aspeed,arm-reset
-> >    aspeed,soc-reset
-> Per my response above I think it should remain as aspeed,no-soc-reset due to
-> backwards compatibility requirements.
+On 06/24/2017 12:12 AM, Rob Herring wrote:
+> On Wed, Jun 21, 2017 at 12:37:34AM +0200, Hauke Mehrtens wrote:
+>> From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+>>
+>> This adds the initial documentation for the RCU module (a MFD device
+>> which provides USB PHYs, reset controllers and more).
+>>
+>> The RCU register range is used for multiple purposes. Mostly one devic=
+e
+>> uses one or multiple register exclusively, but for some registers some
+>> bits are for one driver and some other bits are for a different driver=
+.
+>> With this patch all accesses to the RCU registers will go through
+>> syscon.
+>>
+>> Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
+>> ---
+>>  .../devicetree/bindings/mips/lantiq/rcu.txt        | 95 +++++++++++++=
++++++++++
+>>  1 file changed, 95 insertions(+)
+>>  create mode 100644 Documentation/devicetree/bindings/mips/lantiq/rcu.=
+txt
+>>
+>> diff --git a/Documentation/devicetree/bindings/mips/lantiq/rcu.txt b/D=
+ocumentation/devicetree/bindings/mips/lantiq/rcu.txt
+>> new file mode 100644
+>> index 000000000000..9c875f4f3c90
+>> --- /dev/null
+>> +++ b/Documentation/devicetree/bindings/mips/lantiq/rcu.txt
+>> @@ -0,0 +1,95 @@
+>> +Lantiq XWAY SoC RCU binding
+>> +=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D
+>> +
+>> +This binding describes the RCU (reset controller unit) multifunction =
+device,
+>> +where each sub-device has it's own set of registers.
+>> +
+>> +The RCU register range is used for multiple purposes. Mostly one devi=
+ce
+>> +uses one or multiple register exclusively, but for some registers som=
+e
+>> +bits are for one driver and some other bits are for a different drive=
+r.
+>> +With this patch all accesses to the RCU registers will go through
+>> +syscon.
+>> +
+>> +
+>> +---------------------------------------------------------------------=
+----------
+>> +Required properties:
+>> +- compatible	: The first and second values must be:
+>> +		  "lantiq,xrx200-rcu", "simple-mfd", "syscon"
+>> +- reg		: The address and length of the system control registers
+>> +
+>> +
+>> +---------------------------------------------------------------------=
+----------
+>> +Example of the RCU bindings on a xRX200 SoC:
+>> +	rcu0: rcu@203000 {
+>> +		compatible =3D "lantiq,xrx200-rcu", "simple-mfd", "syscon";
+>> +		reg =3D <0x203000 0x100>;
+>> +		ranges =3D <0x0 0x203000 0x100>;
+>> +		big-endian;
+>> +
+>> +		gphy0: gphy@0 {
+>=20
+> unit address should match reg, so "phy@20"
 
-The same can be accomplished with "aspeed,no-reset", which would avoid the, in
-my opinion, awkward "no-{sys,soc}-reset" poperties.
+done
 
-> >    aspeed,sys-reset (which is the default)
-> Again as per our discussion yesterday I need some way to specify how system
-> reset is to  be done.  For backwards compatibility, a lack of parameter here
-> would
-> result in a system reset being configured.  Only way to indicate to the
-> driver
-> that no system reset is to be done is to indicate 'no' system reset in the
-> optional
-> parameter.
+>> +			compatible =3D "lantiq,xrx200a2x-gphy";
+>> +			reg =3D <0x20 0x4>;
+>> +
+>> +			resets =3D <&reset0 31 30>, <&reset1 7 7>;
+>> +			reset-names =3D "gphy", "gphy2";
+>> +			lantiq,gphy-mode =3D <GPHY_MODE_GE>;
+>> +		};
+>> +
+>> +		gphy1: gphy@1 {
+>=20
+> phy@68
 
-Or "aspeed,no-reset".
+done
 
-> >    aspeed,no-reset
-> This parameter seems ambiguous as we could be doing a 'no system reset'
-> or a 'no SOC reset' in theory.
+>> +			compatible =3D "lantiq,xrx200a2x-gphy";
+>> +			reg =3D <0x68 0x4>;
+>> +
+>> +			resets =3D <&reset0 29 28>, <&reset1 6 6>;
+>> +			reset-names =3D "gphy", "gphy2";
+>> +			lantiq,gphy-mode =3D <GPHY_MODE_GE>;
+>> +		};
+>> +
+>> +		reset0: reset-controller@0 {
+>=20
+> ...@10
 
-{arm,soc,sys}-reset are mutually exclusive per datasheet, and there is a
-separate configuration bit which enables the reset in the first place.
-I don't see how that is ambiguous.
+done
 
-Anyway, I don't think we are making any progress here. Let's wait for
-guidance from Rob.
 
-Guenter
+>> +			compatible =3D "lantiq,xrx200-reset";
+>> +
+>> +			offset-set =3D <0x10>;
+>> +			offset-status =3D <0x14>;
+>=20
+> reg =3D <0x10 8>;
 
-> >
-> >There should also be a note explaining that the above are mutually
-> >exclusive.
-> >
-> OK, will add that.
-> 
-> >>+ - aspeed,interrupt:    If property is present then interrupt CPU.
-> >>+            If not specified then don't interrupt CPU.
-> >>+
-> >>+ - aspeed,external-signal: If property is present then signal is sent
-> >>to
-> >>+            external reset counter (only WDT1 and WDT2). If not
-> >>+            specified no external signal is sent.
-> >
-> >For consistency, either add an empty line here or remove the empty lines
-> >above
-> 
-> Will fix.
-> 
-> Thanks,
-> Chris
-> >
-> >>+ - aspeed,alt-boot:    If property is present then boot from alternate
-> >>block.
-> >>+
-> >>  Example:
-> >>        wdt1: watchdog@1e785000 {
-> >>          compatible = "aspeed,ast2400-wdt";
-> >>          reg = <0x1e785000 0x1c>;
-> >>+        aspeed,no-sys-reset;
-> >>+        aspeed,external-signal;
-> >>      };
-> >>
-> >
-> 
+done
+
+>> +			#reset-cells =3D <2>;
+>> +		};
+>> +
+>> +		reset1: reset-controller@1 {
+>> +			compatible =3D "lantiq,xrx200-reset";
+>> +
+>> +			offset-set =3D <0x48>;
+>> +			offset-status =3D <0x24>;
+>=20
+> reg =3D <0x48 4>, <0x24 4>;
+
+done
+
+>> +			#reset-cells =3D <2>;
+>> +		};
+>> +
+>> +		usb_phy0: usb2-phy@0 {
+>> +			compatible =3D "lantiq,xrx200-usb2-phy";
+>> +			status =3D "disabled";
+>> +
+>> +			regmap =3D <&rcu0>;
+>=20
+> This should be dropped.
+
+I will get this from the parent device now.
+
+>> +			offset-phy =3D <0x18>;
+>> +			offset-ana =3D <0x38>;
+>=20
+> Use reg.
+
+There is also one bit used to reset the DSL digital frontend at offset
+0x38. This has nothing to do with USB.
+
+>> +			resets =3D <&reset1 4 4>, <&reset0 4 4>;
+>> +			reset-names =3D "phy", "ctrl";
+>> +			#phy-cells =3D <0>;
+>> +		};
+>> +
+>> +		usb_phy1: usb2-phy@1 {
+>> +			compatible =3D "lantiq,xrx200-usb2-phy";
+>> +			status =3D "disabled";
+>> +
+>> +			regmap =3D <&rcu0>;
+>=20
+> Drop.
+
+done
+
+>> +			offset-phy =3D <0x34>;
+>> +			offset-ana =3D <0x3C>;
+>=20
+> Use reg.
+
+There is also a bits to configure something with the DSL dying gasp at
+offset 0x34. This has nothing to do with USB.
+
+>=20
+>> +			resets =3D <&reset1 5 4>, <&reset0 4 4>;
+>> +			reset-names =3D "phy", "ctrl";
+>> +			#phy-cells =3D <0>;
+>> +		};
+>> +
+>> +		reboot {
+>> +			compatible =3D "syscon-reboot";
+>> +
+>> +			regmap =3D <&rcu0>;
+>=20
+> Drop.
+
+The syscon-reboot driver uses this code to get the regmap:
+ctx->map =3D syscon_regmap_lookup_by_phandle(dev->of_node, "regmap");
+This driver was not added by me.
+
+>> +			offset =3D <0x10>;
+>> +			mask =3D <0x40000000>;
+>> +		};
+>> +	};
+>> +
+>> --=20
+>> 2.11.0
+>>
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
