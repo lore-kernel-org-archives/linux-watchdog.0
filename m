@@ -1,16 +1,17 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-qt0-f182.google.com ([209.85.216.182]:36614 "EHLO
-        mail-qt0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751581AbdF3MTR (ORCPT
+Received: from mail-qk0-f174.google.com ([209.85.220.174]:36221 "EHLO
+        mail-qk0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751625AbdF3MW5 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 30 Jun 2017 08:19:17 -0400
+        Fri, 30 Jun 2017 08:22:57 -0400
 MIME-Version: 1.0
-In-Reply-To: <20170629213951.31176-9-hauke@hauke-m.de>
-References: <20170629213951.31176-1-hauke@hauke-m.de> <20170629213951.31176-9-hauke@hauke-m.de>
+In-Reply-To: <20170629213951.31176-11-hauke@hauke-m.de>
+References: <20170629213951.31176-1-hauke@hauke-m.de> <20170629213951.31176-11-hauke@hauke-m.de>
 From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Date: Fri, 30 Jun 2017 15:19:16 +0300
-Message-ID: <CAHp75VeQ=i6LgTaMZeDWdiK-60C9=crBXoGWqQDfP4bsRWd-zA@mail.gmail.com>
-Subject: Re: [PATCH v6 08/16] MIPS: lantiq: Convert the fpi bus driver to a platform_driver
+Date: Fri, 30 Jun 2017 15:22:56 +0300
+Message-ID: <CAHp75Ve+oO7Zzk4jN3BOVCWWsEVki0yNQfpkfuw4Q5K85CMQHg@mail.gmail.com>
+Subject: Re: [PATCH v6 10/16] reset: Add a reset controller driver for the
+ Lantiq XWAY based SoCs
 To: Hauke Mehrtens <hauke@hauke-m.de>
 Cc: Ralf Baechle <ralf@linux-mips.org>,
         Linux MIPS Mailing List <linux-mips@linux-mips.org>,
@@ -27,46 +28,46 @@ Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
 On Fri, Jun 30, 2017 at 12:39 AM, Hauke Mehrtens <hauke@hauke-m.de> wrote:
-> Instead of hacking the configuration of the FPI bus into the arch code
-> add an own bus driver for this internal bus. The FPI bus is the main
-> bus of the SoC. This bus driver makes sure the bus is configured
-> correctly before the child drivers are getting initialized. This driver
-> will probably also be used on different SoC later.
 
-> +       /* RCU configuration is optional */
-> +       rcu_regmap = syscon_regmap_lookup_by_phandle(np, "lantiq,rcu");
-> +       if (!IS_ERR_OR_NULL(rcu_regmap)) {
+> +static int lantiq_rcu_reset_update(struct reset_controller_dev *rcdev,
+> +                                  unsigned long id, bool assert)
+> +{
+> +       struct lantiq_rcu_reset_priv *priv = to_lantiq_rcu_reset_priv(rcdev);
+> +       unsigned int set = id & 0x1f;
 
-It's still concerning me.
 
-If the API is correctly designed then it should look something like
-
-if (IS_ERR(...))
- return PTR_ERR(...);
-
-if (!...) {
- ...stuff for optional case...
-}
-
-> +               ret = device_property_read_u32(dev, "lantiq,offset-endianness",
-> +                                          &rcu_ahb_endianness_reg_offset);
-> +               if (ret) {
-> +                       dev_err(&pdev->dev, "Failed to get RCU reg offset\n");
-> +                       return -EINVAL;
-> +               }
+> +       int ret;
+> +       u32 val;
 > +
-> +               if (regmap_update_bits(rcu_regmap,
-> +                                       rcu_ahb_endianness_reg_offset,
-> +                                       RCU_VR9_BE_AHB1S,
-> +                                       RCU_VR9_BE_AHB1S))
-> +                       dev_warn(&pdev->dev,
-> +                               "Failed to configure RCU AHB endianness\n");
+> +       if (assert)
+> +               val = BIT(set);
+> +       else
+> +               val = 0;
+
+I would put this as
+
+u32 val = assert ? BIT(set) : 0;
+int ret;
+
+...but it's up to you.
+
+The rest looks fine.
+
+> +
+> +       ret = regmap_update_bits(priv->regmap, priv->reset_offset, BIT(set),
+> +                                val);
+> +       if (ret) {
+> +               dev_err(priv->dev, "Failed to set reset bit %u\n", set);
+> +               return ret;
 > +       }
 > +
-> +       /* disable fpi burst */
-> +       ltq_w32_mask(XBAR_FPI_BURST_EN, 0, xbar_membase + XBAR_ALWAYS_LAST);
 > +
-> +       return of_platform_populate(dev->of_node, NULL, NULL, dev);
+> +       ret = lantiq_rcu_reset_status_timeout(rcdev, id, assert);
+> +       if (ret)
+> +               dev_err(priv->dev, "Failed to %s bit %u\n",
+> +                       assert ? "assert" : "deassert", set);
+> +
+> +       return ret;
 > +}
 
 -- 
