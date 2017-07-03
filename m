@@ -1,16 +1,17 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-qk0-f194.google.com ([209.85.220.194]:33645 "EHLO
-        mail-qk0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752198AbdGCHp6 (ORCPT
+Received: from mail-qt0-f193.google.com ([209.85.216.193]:33750 "EHLO
+        mail-qt0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752219AbdGCHvw (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 3 Jul 2017 03:45:58 -0400
+        Mon, 3 Jul 2017 03:51:52 -0400
 MIME-Version: 1.0
-In-Reply-To: <20170702224051.15109-9-hauke@hauke-m.de>
-References: <20170702224051.15109-1-hauke@hauke-m.de> <20170702224051.15109-9-hauke@hauke-m.de>
+In-Reply-To: <20170702224051.15109-11-hauke@hauke-m.de>
+References: <20170702224051.15109-1-hauke@hauke-m.de> <20170702224051.15109-11-hauke@hauke-m.de>
 From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Date: Mon, 3 Jul 2017 10:45:56 +0300
-Message-ID: <CAHp75Veq+JLJWNbUTK8iC_BXCDB4=yh-Zfi4UMJpLhBF85JthA@mail.gmail.com>
-Subject: Re: [PATCH v7 08/16] MIPS: lantiq: Convert the fpi bus driver to a platform_driver
+Date: Mon, 3 Jul 2017 10:51:51 +0300
+Message-ID: <CAHp75VexwnVsb-ojXaZDN7QPVRKUeP-R=5C+j5ZSkE37Dtyp1Q@mail.gmail.com>
+Subject: Re: [PATCH v7 10/16] reset: Add a reset controller driver for the
+ Lantiq XWAY based SoCs
 To: Hauke Mehrtens <hauke@hauke-m.de>
 Cc: Ralf Baechle <ralf@linux-mips.org>,
         Linux MIPS Mailing List <linux-mips@linux-mips.org>,
@@ -27,283 +28,31 @@ Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
 On Mon, Jul 3, 2017 at 1:40 AM, Hauke Mehrtens <hauke@hauke-m.de> wrote:
-> Instead of hacking the configuration of the FPI bus into the arch code
-> add an own bus driver for this internal bus. The FPI bus is the main
-> bus of the SoC. This bus driver makes sure the bus is configured
-> correctly before the child drivers are getting initialized. This driver
-> will probably also be used on different SoC later.
+> From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 >
-
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-
-> Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
-> Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-> ---
->  .../devicetree/bindings/mips/lantiq/fpi-bus.txt    | 31 ++++++++
->  MAINTAINERS                                        |  1 +
->  arch/mips/lantiq/xway/reset.c                      |  4 -
->  arch/mips/lantiq/xway/sysctrl.c                    | 41 ----------
->  drivers/soc/Makefile                               |  1 +
->  drivers/soc/lantiq/Makefile                        |  1 +
->  drivers/soc/lantiq/fpi-bus.c                       | 87 ++++++++++++++++++++++
->  7 files changed, 121 insertions(+), 45 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/mips/lantiq/fpi-bus.txt
->  create mode 100644 drivers/soc/lantiq/Makefile
->  create mode 100644 drivers/soc/lantiq/fpi-bus.c
+> The reset controllers (on xRX200 and newer SoCs have two of them) are
+> provided by the RCU module. This was initially implemented as a simple
+> reset controller. However, the RCU module provides more functionality
+> (ethernet GPHYs, USB PHY, etc.), which makes it a MFD device.
+> The old reset controller driver implementation from
+> arch/mips/lantiq/xway/reset.c did not honor this fact.
 >
-> diff --git a/Documentation/devicetree/bindings/mips/lantiq/fpi-bus.txt b/Documentation/devicetree/bindings/mips/lantiq/fpi-bus.txt
-> new file mode 100644
-> index 000000000000..0a2df4338332
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/mips/lantiq/fpi-bus.txt
-> @@ -0,0 +1,31 @@
-> +Lantiq XWAY SoC FPI BUS binding
-> +============================
-> +
-> +
-> +-------------------------------------------------------------------------------
+> For some devices the request and the status bits are different.
+
 > +Required properties:
-> +- compatible                   : Should be one of
-> +                                       "lantiq,xrx200-fpi"
-> +- reg                          : The address and length of the XBAR
-> +                                 configuration register.
-> +                                 Address and length of the FPI bus itself.
-> +- lantiq,rcu                   : A phandle to the RCU syscon
-> +- lantiq,offset-endianness     : Offset of the endianness configuration
-> +                                 register
-> +
-> +-------------------------------------------------------------------------------
-> +Example for the FPI on the xrx200 SoCs:
-> +       fpi@10000000 {
-> +               compatible = "lantiq,xrx200-fpi";
-> +               ranges = <0x0 0x10000000 0xf000000>;
-> +               reg =   <0x1f400000 0x1000>,
-> +                       <0x10000000 0xf000000>;
-> +               lantiq,rcu = <&rcu0>;
-> +               lantiq,offset-endianness = <0x4c>;
-> +               #address-cells = <1>;
-> +               #size-cells = <1>;
-> +
-> +               gptu@e100a00 {
-> +                       ......
-> +               };
-> +       };
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index 09b5ab6a8a5c..5a85d67d8d8a 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -7440,6 +7440,7 @@ M:        John Crispin <john@phrozen.org>
->  L:     linux-mips@linux-mips.org
->  S:     Maintained
->  F:     arch/mips/lantiq
-> +F:     drivers/soc/lantiq
->
->  LAPB module
->  L:     linux-x25@vger.kernel.org
-> diff --git a/arch/mips/lantiq/xway/reset.c b/arch/mips/lantiq/xway/reset.c
-> index 83fd65d76e81..b6752c95a600 100644
-> --- a/arch/mips/lantiq/xway/reset.c
-> +++ b/arch/mips/lantiq/xway/reset.c
-> @@ -373,10 +373,6 @@ static int __init mips_reboot_setup(void)
->             of_machine_is_compatible("lantiq,vr9"))
->                 ltq_usb_init();
->
-> -       if (of_machine_is_compatible("lantiq,vr9"))
-> -               ltq_rcu_w32(ltq_rcu_r32(RCU_AHB_ENDIAN) | RCU_VR9_BE_AHB1S,
-> -                           RCU_AHB_ENDIAN);
-> -
->         _machine_restart = ltq_machine_restart;
->         _machine_halt = ltq_machine_halt;
->         pm_power_off = ltq_machine_power_off;
-> diff --git a/arch/mips/lantiq/xway/sysctrl.c b/arch/mips/lantiq/xway/sysctrl.c
-> index 95bec460b651..706639a343bc 100644
-> --- a/arch/mips/lantiq/xway/sysctrl.c
-> +++ b/arch/mips/lantiq/xway/sysctrl.c
-> @@ -145,15 +145,7 @@ static u32 pmu_clk_cr_b[] = {
->  #define pmu_w32(x, y)  ltq_w32((x), pmu_membase + (y))
->  #define pmu_r32(x)     ltq_r32(pmu_membase + (x))
->
-> -#define XBAR_ALWAYS_LAST       0x430
-> -#define XBAR_FPI_BURST_EN      BIT(1)
-> -#define XBAR_AHB_BURST_EN      BIT(2)
-> -
-> -#define xbar_w32(x, y) ltq_w32((x), ltq_xbar_membase + (y))
-> -#define xbar_r32(x)    ltq_r32(ltq_xbar_membase + (x))
-> -
->  static void __iomem *pmu_membase;
-> -static void __iomem *ltq_xbar_membase;
->  void __iomem *ltq_cgu_membase;
->  void __iomem *ltq_ebu_membase;
->
-> @@ -293,16 +285,6 @@ static void pci_ext_disable(struct clk *clk)
->         ltq_cgu_w32((1 << 31) | (1 << 30), pcicr);
->  }
->
-> -static void xbar_fpi_burst_disable(void)
-> -{
-> -       u32 reg;
-> -
-> -       /* bit 1 as 1 --burst; bit 1 as 0 -- single */
-> -       reg = xbar_r32(XBAR_ALWAYS_LAST);
-> -       reg &= ~XBAR_FPI_BURST_EN;
-> -       xbar_w32(reg, XBAR_ALWAYS_LAST);
-> -}
-> -
->  /* enable a clockout source */
->  static int clkout_enable(struct clk *clk)
->  {
-> @@ -459,26 +441,6 @@ void __init ltq_soc_init(void)
->         if (!pmu_membase || !ltq_cgu_membase || !ltq_ebu_membase)
->                 panic("Failed to remap core resources");
->
-> -       if (of_machine_is_compatible("lantiq,vr9")) {
-> -               struct resource res_xbar;
-> -               struct device_node *np_xbar =
-> -                               of_find_compatible_node(NULL, NULL,
-> -                                                       "lantiq,xbar-xway");
-> -
-> -               if (!np_xbar)
-> -                       panic("Failed to load xbar nodes from devicetree");
-> -               if (of_address_to_resource(np_xbar, 0, &res_xbar))
-> -                       panic("Failed to get xbar resources");
-> -               if (!request_mem_region(res_xbar.start, resource_size(&res_xbar),
-> -                       res_xbar.name))
-> -                       panic("Failed to get xbar resources");
-> -
-> -               ltq_xbar_membase = ioremap_nocache(res_xbar.start,
-> -                                                  resource_size(&res_xbar));
-> -               if (!ltq_xbar_membase)
-> -                       panic("Failed to remap xbar resources");
-> -       }
-> -
->         /* make sure to unprotect the memory region where flash is located */
->         ltq_ebu_w32(ltq_ebu_r32(LTQ_EBU_BUSCON0) & ~EBU_WRDIS, LTQ_EBU_BUSCON0);
->
-> @@ -605,7 +567,4 @@ void __init ltq_soc_init(void)
->                 clkdev_add_pmu("1e116000.mei", "dfe", 1, 0, PMU_DFE);
->                 clkdev_add_pmu("1e100400.serial", NULL, 1, 0, PMU_ASC0);
->         }
-> -
-> -       if (of_machine_is_compatible("lantiq,vr9"))
-> -               xbar_fpi_burst_disable();
->  }
-> diff --git a/drivers/soc/Makefile b/drivers/soc/Makefile
-> index 824b44281efa..009b5de74a24 100644
-> --- a/drivers/soc/Makefile
-> +++ b/drivers/soc/Makefile
-> @@ -8,6 +8,7 @@ obj-$(CONFIG_ARCH_DOVE)         += dove/
->  obj-$(CONFIG_MACH_DOVE)                += dove/
->  obj-y                          += fsl/
->  obj-$(CONFIG_ARCH_MXC)         += imx/
-> +obj-$(CONFIG_SOC_XWAY)         += lantiq/
->  obj-$(CONFIG_ARCH_MEDIATEK)    += mediatek/
->  obj-$(CONFIG_ARCH_QCOM)                += qcom/
->  obj-$(CONFIG_ARCH_RENESAS)     += renesas/
-> diff --git a/drivers/soc/lantiq/Makefile b/drivers/soc/lantiq/Makefile
-> new file mode 100644
-> index 000000000000..35aa86bd1023
-> --- /dev/null
-> +++ b/drivers/soc/lantiq/Makefile
-> @@ -0,0 +1 @@
-> +obj-y                          += fpi-bus.o
-> diff --git a/drivers/soc/lantiq/fpi-bus.c b/drivers/soc/lantiq/fpi-bus.c
-> new file mode 100644
-> index 000000000000..a671c9984c4c
-> --- /dev/null
-> +++ b/drivers/soc/lantiq/fpi-bus.c
-> @@ -0,0 +1,87 @@
-> +/*
-> + *  This program is free software; you can redistribute it and/or modify it
-> + *  under the terms of the GNU General Public License version 2 as published
-> + *  by the Free Software Foundation.
-> + *
-> + *  Copyright (C) 2011-2015 John Crispin <blogic@phrozen.org>
-> + *  Copyright (C) 2015 Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-> + *  Copyright (C) 2017 Hauke Mehrtens <hauke@hauke-m.de>
-> + */
-> +
-> +#include <linux/device.h>
-> +#include <linux/err.h>
-> +#include <linux/mfd/syscon.h>
-> +#include <linux/module.h>
-> +#include <linux/of.h>
-> +#include <linux/of_platform.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/property.h>
-> +#include <linux/regmap.h>
-> +
-> +#include <lantiq_soc.h>
-> +
-> +#define XBAR_ALWAYS_LAST       0x430
-> +#define XBAR_FPI_BURST_EN      BIT(1)
-> +#define XBAR_AHB_BURST_EN      BIT(2)
-> +
-> +#define RCU_VR9_BE_AHB1S       0x00000008
-> +
-> +static int ltq_fpi_probe(struct platform_device *pdev)
-> +{
-> +       struct device *dev = &pdev->dev;
-> +       struct device_node *np = dev->of_node;
-> +       struct resource *res_xbar;
-> +       struct regmap *rcu_regmap;
-> +       void __iomem *xbar_membase;
-> +       u32 rcu_ahb_endianness_reg_offset;
-> +       int ret;
-> +
-> +       res_xbar = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> +       xbar_membase = devm_ioremap_resource(dev, res_xbar);
-> +       if (IS_ERR(xbar_membase))
-> +               return PTR_ERR(xbar_membase);
-> +
-> +       /* RCU configuration is optional */
-> +       rcu_regmap = syscon_regmap_lookup_by_phandle(np, "lantiq,rcu");
-> +       if (IS_ERR(rcu_regmap))
-> +               return PTR_ERR(rcu_regmap);
-> +
-> +       ret = device_property_read_u32(dev, "lantiq,offset-endianness",
-> +                                      &rcu_ahb_endianness_reg_offset);
-> +       if (ret) {
-> +               dev_err(&pdev->dev, "Failed to get RCU reg offset\n");
-> +               return ret;
-> +       }
-> +
-> +       ret = regmap_update_bits(rcu_regmap, rcu_ahb_endianness_reg_offset,
-> +                                RCU_VR9_BE_AHB1S, RCU_VR9_BE_AHB1S);
-> +       if (ret) {
-> +               dev_warn(&pdev->dev,
-> +                        "Failed to configure RCU AHB endianness\n");
-> +               return ret;
-> +       }
-> +
-> +       /* disable fpi burst */
-> +       ltq_w32_mask(XBAR_FPI_BURST_EN, 0, xbar_membase + XBAR_ALWAYS_LAST);
-> +
-> +       return of_platform_populate(dev->of_node, NULL, NULL, dev);
-> +}
-> +
-> +static const struct of_device_id ltq_fpi_match[] = {
-> +       { .compatible = "lantiq,xrx200-fpi" },
-> +       {},
-> +};
-> +MODULE_DEVICE_TABLE(of, ltq_fpi_match);
-> +
-> +static struct platform_driver ltq_fpi_driver = {
-> +       .probe = ltq_fpi_probe,
-> +       .driver = {
-> +               .name = "fpi-xway",
-> +               .of_match_table = ltq_fpi_match,
-> +       },
-> +};
-> +
-> +module_platform_driver(ltq_fpi_driver);
-> +
-> +MODULE_DESCRIPTION("Lantiq FPI bus driver");
-> +MODULE_LICENSE("GPL");
-> --
-> 2.11.0
->
+> +- compatible           : Should be one of
+> +                               "lantiq,danube-reset"
+> +                               "lantiq,xrx200-reset"
+> +- offset-set           : Offset of the reset set register
+> +- offset-status                : Offset of the reset status register
 
-
+Just one side comment (I'm fine with either choice, just for your
+information). Recently I have reviewed at24 patch which adds a
+property for getting MAC offset and my reseach ends up with the naming
+pattern mac-offset (as many others are doing this way). So, perhaps in
+your case it might make sense to do that way? Anyway, it's a matter of
+a (bit of a) chaos in DT bindings, whatever you decide users will live
+with.
 
 -- 
 With Best Regards,
