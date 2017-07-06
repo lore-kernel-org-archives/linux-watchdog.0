@@ -1,146 +1,115 @@
-Return-Path: <cbostic@linux.vnet.ibm.com>
-Return-path: <cbostic@linux.vnet.ibm.com>
-Subject: Re: [PATCH v3 1/2] drivers/watchdog: Add optional ASPEED device tree
- properties
-To: Guenter Roeck <linux@roeck-us.net>
-References: <20170629002811.87199-1-cbostic@linux.vnet.ibm.com>
- <20170629002811.87199-2-cbostic@linux.vnet.ibm.com>
- <b51fedbb-837f-49ea-d050-4c3be82724c5@roeck-us.net>
- <21f28ed9-b73a-5c21-5557-bec1fef0d874@linux.vnet.ibm.com>
- <20170629150417.GA10226@roeck-us.net>
- <20170706143512.bmjv2gnoqp5ew4py@rob-hp-laptop>
- <e36ab090-865c-f4d4-6173-1485f77c5d31@linux.vnet.ibm.com>
- <20170706204850.GA20079@roeck-us.net>
-Cc: mark.rutland@arm.com, Rob Herring <robh@kernel.org>,
-        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-        openbmc@lists.ozlabs.org, linux-kernel@vger.kernel.org, wim@iguana.be
-From: Christopher Bostic <cbostic@linux.vnet.ibm.com>
-Date: Thu, 6 Jul 2017 18:32:26 -0500
+Return-Path: <zboszor@pr.hu>
+Return-path: <zboszor@pr.hu>
+Subject: Re: [PATCH 0/5 v4] Fix sp5100_tco watchdog driver regression
+To: linux-kernel@vger.kernel.org
+Cc: linux-usb@vger.kernel.org, linux-watchdog@vger.kernel.org,
+ linux-i2c@vger.kernel.org, Paul Menzel <paulepanter@users.sourceforge.net>,
+ Christian Fetzer <fetzer.ch@gmail.com>, Jean Delvare <jdelvare@suse.com>,
+ Nehal Shah <nehal-bakulchandra.shah@amd.com>, Tim Small <tim@seoss.co.uk>,
+ Guenter Roeck <linux@roeck-us.net>, kernel@ekass.net, wim@iguana.be,
+ jlayton@poochiereds.net, marc.2377@gmail.com, cshorler@googlemail.com,
+ wsa@the-dreams.de, regressions@leemhuis.info,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+References: <20170621035349.4125-1-zboszor@pr.hu>
+ <20170622132134.7200-1-zboszor@pr.hu>
+From: Boszormenyi Zoltan <zboszor@pr.hu>
+Message-ID: <21338590-400b-e1b3-1787-bd275a30c17c@pr.hu>
+Date: Thu, 6 Jul 2017 09:50:33 +0200
 MIME-Version: 1.0
-In-Reply-To: <20170706204850.GA20079@roeck-us.net>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Message-Id: <e90bdd25-4213-70f6-b72f-b3f75d46a4df@linux.vnet.ibm.com>
+In-Reply-To: <20170622132134.7200-1-zboszor@pr.hu>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-watchdog@vger.kernel.org>
 
+Hi,
 
+ping for the series.
 
-On 7/6/17 3:48 PM, Guenter Roeck wrote:
-> On Thu, Jul 06, 2017 at 02:27:18PM -0500, Christopher Bostic wrote:
->>
->> On 7/6/17 9:35 AM, Rob Herring wrote:
->>> On Thu, Jun 29, 2017 at 08:04:17AM -0700, Guenter Roeck wrote:
->>>> On Thu, Jun 29, 2017 at 08:39:59AM -0500, Christopher Bostic wrote:
->>>>> On 6/28/17 10:33 PM, Guenter Roeck wrote:
->>>>>> On 06/28/2017 05:28 PM, Christopher Bostic wrote:
->>>>>>> Describe device tree optional properties:
->>>>>>>
->>>>>>>    * aspeed,arm-reet - ARM CPU reset on signal
->>>>>>>    * aspeed,no-soc-reset - SOC reset on signal
->>>>>>>    * aspeed,no-sys-reset - System reset on signal
->>>>>>>    * aspeed,interrupt - Interrupt CPU on signal
->>>>>>>    * aspeed,external-signal - Generate external signal (WDT1 and WDT2
->>>>>>> only)
->>>>>>>    * aspeed,alt-boot - Boot from alternate block on signal
->>>>>>>
->>>>>>> Signed-off-by: Christopher Bostic <cbostic@linux.vnet.ibm.com>
->>>>>>> ---
->>>>>>> v3 - Invert soc and sys reset to 'no' to preserve backwards
->>>>>>>       compatibility.  SOC and SYS reset will be set by default
->>>>>>>       without any optional parameters set
->>>>>>> v2 - Add 'aspeed,' prefix to all optional properties
->>>>>>>     - Add arm-reset, soc-reset, interrupt, alt-boot properties
->>>>>>> ---
->>>>>>>   .../devicetree/bindings/watchdog/aspeed-wdt.txt    | 24
->>>>>>> ++++++++++++++++++++++
->>>>>>>   1 file changed, 24 insertions(+)
->>>>>>>
->>>>>>> diff --git a/Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt
->>>>>>> b/Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt
->>>>>>> index c5e74d7..6f18005 100644
->>>>>>> --- a/Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt
->>>>>>> +++ b/Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt
->>>>>>> @@ -8,9 +8,33 @@ Required properties:
->>>>>>>    - reg: physical base address of the controller and length of memory
->>>>>>> mapped
->>>>>>>      region
->>>>>>>   +Optional properties:
->>>>>>> +   Signal behavior - Whenever a timeout occurs the watchdog can be
->>>>>>> programmed
->>>>>>> +   to generate/not generate 6 types of signals:
->>>>>>> +
->>>>>>> + - aspeed,arm-reset:    If property is present then reset ARM CPU only.
->>>>>>> +            If not specified no ARM CPU reset is done.
->>>>>>> +
->>>>>>> + - aspeed,no-soc-reset: If property is present then do not reset SOC.
->>>>>>> +            If not specified then SOC reset is done.
->>>>>>> +
->>>>>>> + - aspeed,no-sys-reset: If property is present then do not reset
->>>>>>> system.
->>>>>>> +            Typcally used in tandem with 'aspeed-external-signal'
->>>>>> Is this correct ? As I understand the datasheet, it could also used in
->>>>>> tandem with
->>>>>> aspeed,interrupt.
->>>>> True, that should be documented.  Will add that.
->>>>>>> +            If not specified then system reset is done.
->>>>>>> +
->>>>>> I'll leave it up to Rob to decide, but for my part I don't understand
->>>>>> no-soc-reset.
->>>>> As the aspeed watchdog driver exists prior to this change an SOC reset is
->>>>> done by
->>>>> default.   In order to preserve backwards compatibility a missing optional
->>>>> property
->>>>> should result in default behavior.  I however need to be able to specify
->>>>> that SOC
->>>>> reset be disabled in some way.  This goes back to our discussion about why
->>>>> we'd
->>>>> ever want to disable SYSTEM reset in the first place.  Same reasoning
->>>>> applies for
->>>>> SOC reset.
->>>>>
->>>>>> I would instead use four properties.
->>>>>>
->>>>>>     aspeed,arm-reset
->>>>>>     aspeed,soc-reset
->>>>> Per my response above I think it should remain as aspeed,no-soc-reset due to
->>>>> backwards compatibility requirements.
->>>> The same can be accomplished with "aspeed,no-reset", which would avoid the, in
->>>> my opinion, awkward "no-{sys,soc}-reset" poperties.
->>>>
->>>>>>     aspeed,sys-reset (which is the default)
->>>>> Again as per our discussion yesterday I need some way to specify how system
->>>>> reset is to  be done.  For backwards compatibility, a lack of parameter here
->>>>> would
->>>>> result in a system reset being configured.  Only way to indicate to the
->>>>> driver
->>>>> that no system reset is to be done is to indicate 'no' system reset in the
->>>>> optional
->>>>> parameter.
->>>> Or "aspeed,no-reset".
->>>>
->>>>>>     aspeed,no-reset
->>>>> This parameter seems ambiguous as we could be doing a 'no system reset'
->>>>> or a 'no SOC reset' in theory.
->>>> {arm,soc,sys}-reset are mutually exclusive per datasheet, and there is a
->>>> separate configuration bit which enables the reset in the first place.
->>>> I don't see how that is ambiguous.
->>>>
->>>> Anyway, I don't think we are making any progress here. Let's wait for
->>>> guidance from Rob.
->>> I tend to agree with Guenter.
->>>
->>> Maybe using the form 'aspeed,reset-type = "cpu|soc|system"' would be
->>> more aligned to the type of reset being mutually exclusive.
->> OK I'll update to this method.
->>
-> Maybe add 'aspeed,reset-type = "none"' ? The default (no property) would
-> then be "system".
+Adding Greg Kroah-Hartman to the cc: list, both for the USB core
+and stable series maintainership.
 
-That's what I was thinking -will do that.
+2017-06-22 15:21 keltezéssel, Zoltán Böszörményi írta:
+> This patch series fixes a regression introduced by:
+> 
+> commit 2fee61d22e606fc99ade9079fda15fdee83ec33e
+> Author: Christian Fetzer <fetzer.ch@gmail.com>
+> Date:   Thu Nov 19 20:13:48 2015 +0100
+> 
+>      i2c: piix4: Add support for multiplexed main adapter in SB800
+> 
+> The regression caused sp5100_tco fail to load:
+> 
+> sp5100_tco: SP5100/SB800 TCO WatchDog Timer Driver v0.05
+> sp5100_tco: PCI Vendor ID: 0x1002, Device ID: 0x4385, Revision ID: 0x42
+> sp5100_tco: I/O address 0x0cd6 already in use
+> 
+> Notable bugzilla links about this issue:
+> https://bugzilla.kernel.org/show_bug.cgi?id=170741
+> https://bugzilla.redhat.com/show_bug.cgi?id=1369269
+> https://bugzilla.redhat.com/show_bug.cgi?id=1406844
+> 
+> The previous two versions of this patch series introduced
+> a common mutex to synchronize access to the I/O port pair
+> 0xcd6 / 0xcd7 used by the AMD SB800 USB PCI quirk code and
+> the i2c-piix and sp5100_tco drivers. The common mutex was
+> criticized because it introduces an inter-dependency between
+> drivers.
+> 
+> This approach modifies the request_muxed_region() semantics and
+> modifies the possible use cases.
+> 
+> The first patch in the series adds a new IORESOURCE_ALLOCATED
+> flag that alloc_resource() sets and free_resource() considers.
+> The core of __request_region() is factored out into a new function
+> that doesn't allocate. With this change, drivers can use the
+> pre-existing DEFINE_RES_IO_NAMED() static initialized macro
+> to declare struct resource statically (e.g. on the stack)
+> and pass the address of it to the new __request_declared_region()
+> function. A new macro called request_declared_muxed_region()
+> was added to exploit this functionality. Because of the new
+> IORESOURCE_ALLOCATED resource flag, release_region() can still
+> be called with the old interface (the port region start and
+> end values) and it won't attempt to free a non-allocated resource.
+> This eliminated one failure case that can come from allocation
+> errors.
+> 
+> The second patch modifies the behaviour of IORESOURCE_MUXED,
+> a.k.a. the request_*muxed_region() macros. When these macros
+> are called, the caller goes to sleep when there is any conflicting
+> regions, even if the conflicting region did not use the
+> IORESOURCE_MUXED flag. The kernel logs this inconsistent
+> flag usage with KERN_ERR. This change eliminates the second
+> failure case for IORESOURCE_MUXED and request_muxed_region()
+> can be used like mutex_lock(), i.e. it returns only in case it
+> could successfully request the region.
+> 
+> The last three patches adds proper synchronization between the
+> USB PCI quirks code and the i2c-piix and sp5100_tco drivers.
+> 
+> The result is that the sp5100_tco driver can load and works again:
+> 
+> sp5100_tco: SP5100/SB800 TCO WatchDog Timer Driver v0.05
+> sp5100_tco: PCI Vendor ID: 0x1002, Device ID: 0x4385, Revision ID: 0x42
+> sp5100_tco: Using 0xfed80b00 for watchdog MMIO address
+> sp5100_tco: Last reboot was not triggered by watchdog.
+> sp5100_tco: initialized (0xffffba2f4192db00). heartbeat=60 sec (nowayout=0)
+> 
+> Signed-off-by: Zoltán Böszörményi <zboszor@pr.hu>
+> ---
+>   drivers/i2c/busses/i2c-piix4.c | 41 ++++++++++++-------------------------
+>   drivers/usb/host/pci-quirks.c  |  4 ++++
+>   drivers/watchdog/sp5100_tco.c  | 28 +++++++++++++------------
+>   include/linux/ioport.h         | 14 +++++++++++++
+>   kernel/resource.c              | 46 ++++++++++++++++++++++++++++++++++++++----
+>   5 files changed, 88 insertions(+), 45 deletions(-)
+> 
+> 
 
-Thanks,
-Chris
->
-> Thanks,
-> Guenter
->
+The synchronized access to the SB800 I/O ports seems to also have made a rare
+"disabled by hub (EMI?), re-enabling..." report from the kernel disappear.
+
+Can someone review the series?
+
+Thanks in advance,
+Zoltán Böszörményi
