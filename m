@@ -1,57 +1,75 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([85.17.2.162]:32906 "EHLO spo001.leaseweb.nl"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1752316AbdGFN15 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 6 Jul 2017 09:27:57 -0400
-Date: Thu, 6 Jul 2017 15:01:36 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Keiji Hayashibara <hayashibara.keiji@socionext.com>,
-        linux-watchdog@vger.kernel.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org,
-        Masami Hiramatsu <masami.hiramatsu@linaro.org>,
-        Jassi Brar <jaswinder.singh@linaro.org>,
-        =?utf-8?B?SGF5YXNoaSwgS3VuaWhpa28v5p6XIOmCpuW9pg==?=
-        <hayashi.kunihiko@socionext.com>,
-        =?utf-8?B?T3dhZGEsIEtpeW9zaGkv5aSn5ZKM55SwIOa4heW/lw==?=
-        <owada.kiyoshi@socionext.com>
-Subject: Re: [PATCH V4 0/3] add UniPhier watchdog support
-Message-ID: <20170706130136.GA24345@spo001.leaseweb.nl>
-References: <1497426825-25450-1-git-send-email-hayashibara.keiji@socionext.com> <000001d2f576$5f011c20$1d035460$@socionext.com> <CAK7LNAR7kbXPFGywpnWRCFibwp350kmZ7CpSUO6GTFG3pxG=zw@mail.gmail.com> <8ceaf917-c4fc-23c7-a7f4-5694bd8b4e88@roeck-us.net>
-Mime-Version: 1.0
+Received: from mail-yw0-f194.google.com ([209.85.161.194]:36156 "EHLO
+        mail-yw0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752726AbdGGOIh (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 7 Jul 2017 10:08:37 -0400
+Date: Fri, 7 Jul 2017 09:08:34 -0500
+From: Rob Herring <robh@kernel.org>
+To: Hauke Mehrtens <hauke@hauke-m.de>
+Cc: ralf@linux-mips.org, linux-mips@linux-mips.org,
+        linux-mtd@lists.infradead.org, linux-watchdog@vger.kernel.org,
+        devicetree@vger.kernel.org, martin.blumenstingl@googlemail.com,
+        john@phrozen.org, linux-spi@vger.kernel.org,
+        hauke.mehrtens@intel.com, andy.shevchenko@gmail.com,
+        p.zabel@pengutronix.de
+Subject: Re: [PATCH v7 05/16] watchdog: lantiq: add device tree binding
+ documentation
+Message-ID: <20170707140834.nugjw5jxkyzwrmzq@rob-hp-laptop>
+References: <20170702224051.15109-1-hauke@hauke-m.de>
+ <20170702224051.15109-6-hauke@hauke-m.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <8ceaf917-c4fc-23c7-a7f4-5694bd8b4e88@roeck-us.net>
+In-Reply-To: <20170702224051.15109-6-hauke@hauke-m.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi All,
-
-> On 07/05/2017 03:26 AM, Masahiro Yamada wrote:
-> >2017-07-05 19:06 GMT+09:00 Keiji Hayashibara 
-> ><hayashibara.keiji@socionext.com>:
-> >>Hi Guenter,
-> >>
-> >>Let me confirm if I got it.
-> >>
-> >>I guess that this series finished the review.
-> >>Could you tell me the current state of this series?
-> >
-> >
-> >I will pick up 3/3.  (It should have been sent to ARM-SoC ML, though.)
-> >
-> >I had sent my PRs for v4.13 before Rob acked the DT binding.
-> >Please look forward to v4.14.
-> >
+On Mon, Jul 03, 2017 at 12:40:40AM +0200, Hauke Mehrtens wrote:
+> The binding was not documented before, add the documentation now.
 > 
-> 1/3 and 2/3 are in -next, so they should be be included in Wim's pull 
-> request
-> for 4.13.
+> Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
+> ---
+>  .../devicetree/bindings/watchdog/lantiq-wdt.txt    | 24 ++++++++++++++++++++++
+>  1 file changed, 24 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/watchdog/lantiq-wdt.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/watchdog/lantiq-wdt.txt b/Documentation/devicetree/bindings/watchdog/lantiq-wdt.txt
+> new file mode 100644
+> index 000000000000..c3967feebb6c
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/watchdog/lantiq-wdt.txt
+> @@ -0,0 +1,24 @@
+> +Lantiq WTD watchdog binding
+> +============================
+> +
+> +This describes the binding of the Lantiq watchdog driver.
+> +
+> +-------------------------------------------------------------------------------
+> +Required properties:
+> +- compatible		: Should be one of
+> +				"lantiq,wdt"
+> +				"lantiq,xrx100-wdt"
+> +				"lantiq,xrx200-wdt"
+> +				"lantiq,falcon-wdt"
+> +- lantiq,rcu		: A phandle to the RCU syscon (required for
+> +			  "lantiq,falcon-wdt", "lantiq,xrx200-wdt" and
+> +			  "lantiq,xrx100-wdt")
+> +
+> +-------------------------------------------------------------------------------
+> +Example for the watchdog on the xRX200 SoCs:
+> +		watchdog@803f0 {
+> +			compatible = "lantiq,xrx200-wdt", "lantiq,xrx100-wdt";
 
-That's correct.
+This is still mismatched. If the example is correct, then the compatible 
+list should be:
 
-Kind regards,
-Wim.
+"lantiq,wdt"
+"lantiq,xrx100-wdt"
+"lantiq,xrx200-wdt", "lantiq,xrx100-wdt"
+"lantiq,falcon-wdt"
 
+You can also remove "lantiq,xrx200-wdt" from the driver if you want as 
+"lantiq,xrx100-wdt" is good enough to match on.
+
+Rob
