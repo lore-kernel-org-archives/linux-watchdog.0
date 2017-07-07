@@ -1,64 +1,72 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-yw0-f193.google.com ([209.85.161.193]:36629 "EHLO
-        mail-yw0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751864AbdGGORq (ORCPT
+Received: from mail-yw0-f196.google.com ([209.85.161.196]:32770 "EHLO
+        mail-yw0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750938AbdGGOXO (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 7 Jul 2017 10:17:46 -0400
-Date: Fri, 7 Jul 2017 09:17:44 -0500
+        Fri, 7 Jul 2017 10:23:14 -0400
+Date: Fri, 7 Jul 2017 09:23:12 -0500
 From: Rob Herring <robh@kernel.org>
-To: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Hauke Mehrtens <hauke@hauke-m.de>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Linux MIPS Mailing List <linux-mips@linux-mips.org>,
-        "open list:MEMORY TECHNOLOGY..." <linux-mtd@lists.infradead.org>,
-        linux-watchdog@vger.kernel.org,
-        devicetree <devicetree@vger.kernel.org>,
-        "martin.blumenstingl" <martin.blumenstingl@googlemail.com>,
-        john <john@phrozen.org>, linux-spi <linux-spi@vger.kernel.org>,
-        "hauke.mehrtens" <hauke.mehrtens@intel.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>
-Subject: Re: [PATCH v7 10/16] reset: Add a reset controller driver for the
- Lantiq XWAY based SoCs
-Message-ID: <20170707141744.atno6j3f7hcidxze@rob-hp-laptop>
+To: Hauke Mehrtens <hauke@hauke-m.de>
+Cc: ralf@linux-mips.org, linux-mips@linux-mips.org,
+        linux-mtd@lists.infradead.org, linux-watchdog@vger.kernel.org,
+        devicetree@vger.kernel.org, martin.blumenstingl@googlemail.com,
+        john@phrozen.org, linux-spi@vger.kernel.org,
+        hauke.mehrtens@intel.com, andy.shevchenko@gmail.com,
+        p.zabel@pengutronix.de, Kishon Vijay Abraham I <kishon@ti.com>
+Subject: Re: [PATCH v7 14/16] phy: Add an USB PHY driver for the Lantiq SoCs
+ using the RCU module
+Message-ID: <20170707142312.5pwily3gbntvesbm@rob-hp-laptop>
 References: <20170702224051.15109-1-hauke@hauke-m.de>
- <20170702224051.15109-11-hauke@hauke-m.de>
- <CAHp75VexwnVsb-ojXaZDN7QPVRKUeP-R=5C+j5ZSkE37Dtyp1Q@mail.gmail.com>
+ <20170702224051.15109-15-hauke@hauke-m.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAHp75VexwnVsb-ojXaZDN7QPVRKUeP-R=5C+j5ZSkE37Dtyp1Q@mail.gmail.com>
+In-Reply-To: <20170702224051.15109-15-hauke@hauke-m.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Jul 03, 2017 at 10:51:51AM +0300, Andy Shevchenko wrote:
-> On Mon, Jul 3, 2017 at 1:40 AM, Hauke Mehrtens <hauke@hauke-m.de> wrote:
-> > From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-> >
-> > The reset controllers (on xRX200 and newer SoCs have two of them) are
-> > provided by the RCU module. This was initially implemented as a simple
-> > reset controller. However, the RCU module provides more functionality
-> > (ethernet GPHYs, USB PHY, etc.), which makes it a MFD device.
-> > The old reset controller driver implementation from
-> > arch/mips/lantiq/xway/reset.c did not honor this fact.
-> >
-> > For some devices the request and the status bits are different.
+On Mon, Jul 03, 2017 at 12:40:49AM +0200, Hauke Mehrtens wrote:
+> This driver starts the DWC2 core(s) built into the XWAY SoCs and provides
+> the PHY interfaces for each core. The phy instances can be passed to the
+> dwc2 driver, which already supports the generic phy interface.
 > 
-> > +Required properties:
-> > +- compatible           : Should be one of
-> > +                               "lantiq,danube-reset"
-> > +                               "lantiq,xrx200-reset"
-> > +- offset-set           : Offset of the reset set register
-> > +- offset-status                : Offset of the reset status register
+> Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
+> Cc: Kishon Vijay Abraham I <kishon@ti.com>
+> ---
+>  .../bindings/phy/phy-lantiq-rcu-usb2.txt           |  42 ++++
+>  arch/mips/lantiq/xway/sysctrl.c                    |  24 +-
+>  drivers/phy/Kconfig                                |   8 +
+>  drivers/phy/Makefile                               |   1 +
+>  drivers/phy/phy-lantiq-rcu-usb2.c                  | 275 +++++++++++++++++++++
+>  5 files changed, 338 insertions(+), 12 deletions(-)
+>  create mode 100644 Documentation/devicetree/bindings/phy/phy-lantiq-rcu-usb2.txt
+>  create mode 100644 drivers/phy/phy-lantiq-rcu-usb2.c
 > 
-> Just one side comment (I'm fine with either choice, just for your
-> information). Recently I have reviewed at24 patch which adds a
-> property for getting MAC offset and my reseach ends up with the naming
-> pattern mac-offset (as many others are doing this way). So, perhaps in
-> your case it might make sense to do that way? Anyway, it's a matter of
-> a (bit of a) chaos in DT bindings, whatever you decide users will live
-> with.
+> diff --git a/Documentation/devicetree/bindings/phy/phy-lantiq-rcu-usb2.txt b/Documentation/devicetree/bindings/phy/phy-lantiq-rcu-usb2.txt
+> new file mode 100644
+> index 000000000000..c538baa2ba54
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/phy/phy-lantiq-rcu-usb2.txt
+> @@ -0,0 +1,42 @@
+> +Lantiq XWAY SoC RCU USB 1.1/2.0 PHY binding
+> +===========================================
+> +
+> +This binding describes the USB PHY hardware provided by the RCU module on the
+> +Lantiq XWAY SoCs.
+> +
+> +This driver has to be a sub node of the Lantiq RCU block.
+> +
+> +-------------------------------------------------------------------------------
+> +Required properties (controller (parent) node):
+> +- compatible	: Should be one of
+> +			"lantiq,ase-usb2-phy"
+> +			"lantiq,danube-usb2-phy"
+> +			"lantiq,xrx100-usb2-phy"
+> +			"lantiq,xrx200-usb2-phy"
+> +			"lantiq,xrx300-usb2-phy"
+> +- offset-phy	: Offset of the USB PHY configuration register
+> +- offset-ana	: Offset of the USB Analog configuration register
 
-Not a pattern I want to standardize. Describing offsets is generally an 
-indication of the compatible not being specific enough.
+These are not needed with the reg property used instead.
 
 Rob
