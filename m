@@ -1,9 +1,9 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:47189 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:47331 "EHLO
         bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752684AbdGHBpP (ORCPT
+        with ESMTP id S1752684AbdGHBpe (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 7 Jul 2017 21:45:15 -0400
+        Fri, 7 Jul 2017 21:45:34 -0400
 Subject: Re: [PATCH] watchdog: stm32_iwdg: constify watchdog_ops structure
 To: "Gustavo A. R. Silva" <garsilva@embeddedor.com>,
         Wim Van Sebroeck <wim@iguana.be>,
@@ -13,8 +13,8 @@ Cc: linux-watchdog@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 References: <20170708002857.GA12556@embeddedgus>
 From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <0082d827-3e07-ed28-a122-3dee8e438748@roeck-us.net>
-Date: Fri, 7 Jul 2017 18:45:06 -0700
+Message-ID: <1a211e3b-6edb-ed0c-1d8a-20ac9c62f763@roeck-us.net>
+Date: Fri, 7 Jul 2017 18:45:21 -0700
 MIME-Version: 1.0
 In-Reply-To: <20170708002857.GA12556@embeddedgus>
 Content-Type: text/plain; charset=utf-8; format=flowed
