@@ -1,21 +1,21 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from gateway20.websitewelcome.com ([192.185.54.2]:28213 "EHLO
-        gateway20.websitewelcome.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1752616AbdGHAll (ORCPT
+Received: from gateway34.websitewelcome.com ([192.185.148.104]:36643 "EHLO
+        gateway34.websitewelcome.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1751210AbdGHAqG (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 7 Jul 2017 20:41:41 -0400
-Received: from cm14.websitewelcome.com (cm14.websitewelcome.com [100.42.49.7])
-        by gateway20.websitewelcome.com (Postfix) with ESMTP id 5D877400CCD4C
-        for <linux-watchdog@vger.kernel.org>; Fri,  7 Jul 2017 19:18:41 -0500 (CDT)
-Date: Fri, 7 Jul 2017 19:18:40 -0500
+        Fri, 7 Jul 2017 20:46:06 -0400
+Received: from cm12.websitewelcome.com (cm12.websitewelcome.com [100.42.49.8])
+        by gateway34.websitewelcome.com (Postfix) with ESMTP id B2C3DF28B9
+        for <linux-watchdog@vger.kernel.org>; Fri,  7 Jul 2017 19:23:22 -0500 (CDT)
+Date: Fri, 7 Jul 2017 19:23:21 -0500
 From: "Gustavo A. R. Silva" <garsilva@embeddedor.com>
 To: Wim Van Sebroeck <wim@iguana.be>,
         Guenter Roeck <linux@roeck-us.net>
 Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
         "Gustavo A. R. Silva" <garsilva@embeddedor.com>
-Subject: [PATCH] watchdog: ts72xx_wdt: constify watchdog_ops structure
-Message-ID: <20170708001840.GA8758@embeddedgus>
+Subject: [PATCH] watchdog: it87_wdt: constify watchdog_ops structure
+Message-ID: <20170708002321.GA10649@embeddedgus>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -58,22 +58,22 @@ static
 
 Signed-off-by: Gustavo A. R. Silva <garsilva@embeddedor.com>
 ---
- drivers/watchdog/ts72xx_wdt.c | 2 +-
+ drivers/watchdog/it87_wdt.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/watchdog/ts72xx_wdt.c b/drivers/watchdog/ts72xx_wdt.c
-index 17c25da..811e43c 100644
---- a/drivers/watchdog/ts72xx_wdt.c
-+++ b/drivers/watchdog/ts72xx_wdt.c
-@@ -112,7 +112,7 @@ static const struct watchdog_info ts72xx_wdt_ident = {
- 	.identity		= "TS-72XX WDT",
+diff --git a/drivers/watchdog/it87_wdt.c b/drivers/watchdog/it87_wdt.c
+index dd1e7ea..e96faea 100644
+--- a/drivers/watchdog/it87_wdt.c
++++ b/drivers/watchdog/it87_wdt.c
+@@ -253,7 +253,7 @@ static const struct watchdog_info ident = {
+ 	.identity = WATCHDOG_NAME,
  };
  
--static struct watchdog_ops ts72xx_wdt_ops = {
-+static const struct watchdog_ops ts72xx_wdt_ops = {
- 	.owner		= THIS_MODULE,
- 	.start		= ts72xx_wdt_start,
- 	.stop		= ts72xx_wdt_stop,
+-static struct watchdog_ops wdt_ops = {
++static const struct watchdog_ops wdt_ops = {
+ 	.owner = THIS_MODULE,
+ 	.start = wdt_start,
+ 	.stop = wdt_stop,
 -- 
 2.5.0
 
