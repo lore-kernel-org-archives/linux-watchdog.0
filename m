@@ -1,19 +1,28 @@
-Return-Path: <garsilva@embeddedor.com>
-Return-path: <garsilva@embeddedor.com>
-Date: Fri, 7 Jul 2017 19:28:57 -0500
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from gateway34.websitewelcome.com ([192.185.148.104]:42414 "EHLO
+        gateway34.websitewelcome.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1751659AbdGHAde (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 7 Jul 2017 20:33:34 -0400
+Received: from cm17.websitewelcome.com (cm17.websitewelcome.com [100.42.49.20])
+        by gateway34.websitewelcome.com (Postfix) with ESMTP id 98CAE112E2A
+        for <linux-watchdog@vger.kernel.org>; Fri,  7 Jul 2017 19:33:31 -0500 (CDT)
+Date: Fri, 7 Jul 2017 19:33:30 -0500
 From: "Gustavo A. R. Silva" <garsilva@embeddedor.com>
-To: Wim Van Sebroeck <wim@iguana.be>, Guenter Roeck <linux@roeck-us.net>,
-	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-	Alexandre Torgue <alexandre.torgue@st.com>
-Cc: linux-watchdog@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	"Gustavo A. R. Silva" <garsilva@embeddedor.com>
-Subject: [PATCH] watchdog: stm32_iwdg: constify watchdog_ops structure
-Message-ID: <20170708002857.GA12556@embeddedgus>
+To: Linus Walleij <linus.walleij@linaro.org>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Guenter Roeck <linux@roeck-us.net>
+Cc: linux-arm-kernel@lists.infradead.org,
+        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+        "Gustavo A. R. Silva" <garsilva@embeddedor.com>
+Subject: [PATCH] watchdog: coh901327_wdt: constify watchdog_ops structure
+Message-ID: <20170708003330.GA15374@embeddedgus>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-List-ID: <linux-watchdog@vger.kernel.org>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
 Check for watchdog_ops structures that are only stored in the ops field of
 a watchdog_device structure. This field is declared const, so watchdog_ops
@@ -51,21 +60,22 @@ static
 
 Signed-off-by: Gustavo A. R. Silva <garsilva@embeddedor.com>
 ---
- drivers/watchdog/stm32_iwdg.c | 2 +-
+ drivers/watchdog/coh901327_wdt.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/watchdog/stm32_iwdg.c b/drivers/watchdog/stm32_iwdg.c
-index 6c501b7..be64a86 100644
---- a/drivers/watchdog/stm32_iwdg.c
-+++ b/drivers/watchdog/stm32_iwdg.c
-@@ -140,7 +140,7 @@ static const struct watchdog_info stm32_iwdg_info = {
- 	.identity	= "STM32 Independent Watchdog",
+diff --git a/drivers/watchdog/coh901327_wdt.c b/drivers/watchdog/coh901327_wdt.c
+index 38dd60f0..4410337 100644
+--- a/drivers/watchdog/coh901327_wdt.c
++++ b/drivers/watchdog/coh901327_wdt.c
+@@ -218,7 +218,7 @@ static const struct watchdog_info coh901327_ident = {
+ 	.identity = DRV_NAME,
  };
  
--static struct watchdog_ops stm32_iwdg_ops = {
-+static const struct watchdog_ops stm32_iwdg_ops = {
- 	.owner		= THIS_MODULE,
- 	.start		= stm32_iwdg_start,
- 	.ping		= stm32_iwdg_ping,
+-static struct watchdog_ops coh901327_ops = {
++static const struct watchdog_ops coh901327_ops = {
+ 	.owner = THIS_MODULE,
+ 	.start = coh901327_start,
+ 	.stop = coh901327_stop,
 -- 
 2.5.0
+
