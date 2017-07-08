@@ -1,113 +1,110 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:35076 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:43387 "EHLO
         bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752769AbdGHO7L (ORCPT
+        with ESMTP id S1752715AbdGHPMw (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 8 Jul 2017 10:59:11 -0400
-Date: Sat, 8 Jul 2017 07:59:07 -0700
+        Sat, 8 Jul 2017 11:12:52 -0400
+Date: Sat, 8 Jul 2017 08:12:47 -0700
 From: Guenter Roeck <linux@roeck-us.net>
-To: Christopher Bostic <cbostic@linux.vnet.ibm.com>
-Cc: wim@iguana.be, robh+dt@kernel.org, mark.rutland@arm.com,
-        joel@jms.id.au, linux-watchdog@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        openbmc@lists.ozlabs.org
-Subject: Re: [v4, 1/2] drivers/watchdog: Add optional ASPEED device tree
- properties
-Message-ID: <20170708145907.GA19078@roeck-us.net>
-References: <20170707004901.26780-2-cbostic@linux.vnet.ibm.com>
+To: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+Cc: Wim Van Sebroeck <wim@iguana.be>, Jonathan Corbet <corbet@lwn.net>,
+        Sebastian Reichel <sebastian.reichel@collabora.co.uk>,
+        esben.haabendal@gmail.com, Alan Cox <gnomes@lxorguk.ukuu.org.uk>,
+        linux-watchdog@vger.kernel.org, linux-doc@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [v6, 2/3] watchdog: introduce watchdog.open_timeout commandline
+ parameter
+Message-ID: <20170708151247.GA15051@roeck-us.net>
+References: <1496134608-7375-3-git-send-email-rasmus.villemoes@prevas.dk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20170707004901.26780-2-cbostic@linux.vnet.ibm.com>
+In-Reply-To: <1496134608-7375-3-git-send-email-rasmus.villemoes@prevas.dk>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Thu, Jul 06, 2017 at 07:48:59PM -0500, Christopher Bostic wrote:
-> Describe device tree optional properties:
+On Tue, May 30, 2017 at 10:56:46AM +0200, Rasmus Villemoes wrote:
+> The watchdog framework takes care of feeding a hardware watchdog until
+> userspace opens /dev/watchdogN. If that never happens for some reason
+> (buggy init script, corrupt root filesystem or whatnot) but the kernel
+> itself is fine, the machine stays up indefinitely. This patch allows
+> setting an upper limit for how long the kernel will take care of the
+> watchdog, thus ensuring that the watchdog will eventually reset the
+> machine.
 > 
->   * aspeed,reset-type = "cpu|soc|system|none"
->      One of three different, mutually exclusive, values
+> This is particularly useful for embedded devices where some fallback
+> logic is implemented in the bootloader (e.g., use a different root
+> partition, boot from network, ...).
 > 
-> 	"cpu" : ARM CPU reset on signal
-> 	"soc" : 'System on chip' reset
-> 	"system" : Full system reset
+> The open timeout is also used as a maximum time for an application to
+> re-open /dev/watchdogN after closing it.
 > 
->      The value can also be set to "none" which indicates that no
->      reset of any kind is to be done via this watchdog.  This assumes
->      another watchdog on the chip is to take care of resets.
+> A value of 0 (the default) means infinite timeout, preserving the
+> current behaviour.
 > 
->   * aspeed,interrupt - Interrupt CPU on signal
+> The unit is milliseconds rather than seconds because that covers more
+> use cases. For example, one can effectively disable the kernel handling
+> by setting the open_timeout to 1 ms. There are also customers with very
+> strict requirements that may want to set the open_timeout to something
+> like 4500 ms, which combined with a hardware watchdog that must be
+> pinged every 250 ms ensures userspace is up no more than 5 seconds after
+> the bootloader hands control to the kernel (250 ms until the driver gets
+> registered and kernel handling starts, 4500 ms of kernel handling, and
+> then up to 250 ms from the last ping until userspace takes over).
+> 
+> Signed-off-by: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
 
-After thinking about that, I wonder if this is necessary. It could be
-implied by providing an interrupt to the driver. The driver could then
-set the interrupt configuration bit automatically.
+I finally found the time to look into this. It is sufficiently different
+to handle_boot_enabled to keep it separate. I am mostly ok with the patch.
+One comment below.
 
-[ And the bit by itself doesn't really make sense if the driver doesn't
-  also register an interrupt handler ]
-
->   * aspeed,external-signal - Generate external signal (WDT1 and WDT2 only)
->   * aspeed,alt-boot - Boot from alternate block on signal
-> 
-> Signed-off-by: Christopher Bostic <cbostic@linux.vnet.ibm.com>
 > ---
-> v4 - Add aspeed-reset-type and assign one of four values,
->      cpu, soc, system, none.
-> v3 - Invert soc and sys reset to 'no' to preserve backwards
->      compatibility.  SOC and SYS reset will be set by default
->      without any optional parameters set
-> v2 - Add 'aspeed,' prefix to all optional properties
->    - Add arm-reset, soc-reset, interrupt, alt-boot properties
-> ---
->  .../devicetree/bindings/watchdog/aspeed-wdt.txt    | 35 ++++++++++++++++++++++
->  1 file changed, 35 insertions(+)
+>  Documentation/watchdog/watchdog-parameters.txt |  8 ++++++++
+>  drivers/watchdog/watchdog_dev.c                | 26 +++++++++++++++++++++++++-
+>  2 files changed, 33 insertions(+), 1 deletion(-)
 > 
-> diff --git a/Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt b/Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt
-> index c5e74d7..f526b00 100644
-> --- a/Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt
-> +++ b/Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt
-> @@ -8,9 +8,44 @@ Required properties:
->   - reg: physical base address of the controller and length of memory mapped
->     region
+> diff --git a/Documentation/watchdog/watchdog-parameters.txt b/Documentation/watchdog/watchdog-parameters.txt
+> index 914518a..8577c27 100644
+> --- a/Documentation/watchdog/watchdog-parameters.txt
+> +++ b/Documentation/watchdog/watchdog-parameters.txt
+> @@ -8,6 +8,14 @@ See Documentation/admin-guide/kernel-parameters.rst for information on
+>  providing kernel parameters for builtin drivers versus loadable
+>  modules.
 >  
-> +Optional properties:
+> +The watchdog core parameter watchdog.open_timeout is the maximum time,
+> +in milliseconds, for which the watchdog framework will take care of
+> +pinging a hardware watchdog until userspace opens the corresponding
+> +/dev/watchdogN device. A value of 0 (the default) means an infinite
+> +timeout. Setting this to a non-zero value can be useful to ensure that
+> +either userspace comes up properly, or the board gets reset and allows
+> +fallback logic in the bootloader to try something else.
 > +
-> + - aspeed,reset-type = "cpu|soc|system|none"
-> +
-> +   Reset behavior - Whenever a timeout occurs the watchdog can be programmed
-> +   to generate one of three different, mutually exclusive, types of resets.
-> +
-> +   Type "none" can be specified to indicate that no resets are to be done.
-> +   This is useful in situations where another watchdog engine on chip is
-> +   to perform the reset.
-> +
-> +   If 'aspeed,reset-type=' is not specfied the default is to enable system
-> +   reset.
-> +
-> +   Reset types:
-> +
-> +        - cpu: Reset CPU on watchdog timeout
-> +
-> +        - soc: Reset 'System on Chip' on watchdog timeout
-> +
-> +        - system: Reset system on watchdog timeout
-> +
-> +        - none: No reset is performed on timeout. Assumes another watchdog
-> +                engine is responsible for this.
-> +
-> + - aspeed,interrupt:	If property is present then interrupt CPU.
-> +			If not specified then don't interrupt CPU.
-> +
-> + - aspeed,external-signal: If property is present then signal is sent to
-> +			external reset counter (only WDT1 and WDT2). If not
-> +			specified no external signal is sent.
-> + - aspeed,alt-boot:    If property is present then boot from alternate block.
-> +
->  Example:
 >  
->  	wdt1: watchdog@1e785000 {
->  		compatible = "aspeed,ast2400-wdt";
->  		reg = <0x1e785000 0x1c>;
-> +		aspeed,reset-type = "system";
-> +		aspeed,external-signal;
->  	};
+>  -------------------------------------------------
+>  acquirewdt:
+> diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
+> index caa4b90..c807067 100644
+> --- a/drivers/watchdog/watchdog_dev.c
+> +++ b/drivers/watchdog/watchdog_dev.c
+> @@ -66,6 +66,7 @@ struct watchdog_core_data {
+>  	struct mutex lock;
+>  	unsigned long last_keepalive;
+>  	unsigned long last_hw_keepalive;
+> +	unsigned long open_deadline;
+>  	struct delayed_work work;
+>  	unsigned long status;		/* Internal status bits */
+>  #define _WDOG_DEV_OPEN		0	/* Opened ? */
+> @@ -80,6 +81,21 @@ static struct watchdog_core_data *old_wd_data;
+>  
+>  static struct workqueue_struct *watchdog_wq;
+>  
+> +static unsigned open_timeout;
+> +module_param(open_timeout, uint, 0644);
+
+MODULE_PARM_DESC is missing. I would also prefer to keep module_param()
+and MODULE_PARM_DESC() together with the existing module parameter, ie at
+the end of the file.
+
+Thanks,
+Guenter
