@@ -1,48 +1,71 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-lf0-f53.google.com ([209.85.215.53]:33685 "EHLO
-        mail-lf0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753232AbdGGC0H (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 6 Jul 2017 22:26:07 -0400
+Return-Path: <garsilva@embeddedor.com>
+Return-path: <garsilva@embeddedor.com>
+Date: Fri, 7 Jul 2017 19:28:57 -0500
+From: "Gustavo A. R. Silva" <garsilva@embeddedor.com>
+To: Wim Van Sebroeck <wim@iguana.be>, Guenter Roeck <linux@roeck-us.net>,
+	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+	Alexandre Torgue <alexandre.torgue@st.com>
+Cc: linux-watchdog@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	"Gustavo A. R. Silva" <garsilva@embeddedor.com>
+Subject: [PATCH] watchdog: stm32_iwdg: constify watchdog_ops structure
+Message-ID: <20170708002857.GA12556@embeddedgus>
 MIME-Version: 1.0
-In-Reply-To: <CAETC-g_YF7TWv+LNrNQrX9AY_-iepCeE0EmCKWYF4VyQzRY+UQ@mail.gmail.com>
-References: <20170621035349.4125-1-zboszor@pr.hu> <20170622132134.7200-1-zboszor@pr.hu>
- <21338590-400b-e1b3-1787-bd275a30c17c@pr.hu> <CAETC-g-0ZYiD=j_sAtYpfr0t-rciiTx3ruvpGuwEud+nbbpiBg@mail.gmail.com>
- <CAETC-g_YF7TWv+LNrNQrX9AY_-iepCeE0EmCKWYF4VyQzRY+UQ@mail.gmail.com>
-From: "Marcelo \"Marc\" Ranolfi" <marc.2377@gmail.com>
-Date: Thu, 6 Jul 2017 23:26:04 -0300
-Message-ID: <CAETC-g-s23nPXYJYRPM4ZRoiP35wjzbzgPMVHPyYwrGYCBPdBg@mail.gmail.com>
-Subject: Re: [PATCH 0/5 v4] Fix sp5100_tco watchdog driver regression
-To: linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org,
-        linux-watchdog@vger.kernel.org, linux-i2c@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+List-ID: <linux-watchdog@vger.kernel.org>
 
-(Reposting without html subpart, second attempt)
+Check for watchdog_ops structures that are only stored in the ops field of
+a watchdog_device structure. This field is declared const, so watchdog_ops
+structures that have this property can be declared as const also.
 
-On Thu, Jul 6, 2017 at 11:09 PM, Marcelo "Marc" Ranolfi
-<marc.2377@gmail.com> wrote:
-Hi Zolt=C3=A1n and all,
+This issue was detected using Coccinelle and the following semantic patch:
 
-I _was_ testing the patch series (the latest version), system worked
-OK for two days, but then I got a system crash (probably hardware
-related) and lost my files in the main partition. Posted about it in
-the F2FS mailing list
-(https://sourceforge.net/p/linux-f2fs/mailman/message/35928135/).
+@r
+disable optional_qualifier@
+identifier i;
+position p;
+@@
+static struct watchdog_ops i@p = { ... };
 
-While I don't believe that the freeze/crash was caused by the watchdog
-driver (many other things to blame: amdgpu driver on Southern Islands,
-CPU voltage lower than recommended...), it's worth mentioning that the
-computer was completely frozen for a little over 4 minutes, and did
-not reset as I'd expect the watchdog to. Just mentioning because I'm
-not sure of the implications.
+@ok@
+identifier r.i;
+struct watchdog_device e;
+position p;
+@@
+e.ops = &i@p;
 
-Once I get my system back online this weekend I'll have a good look at
-the code. Anyway, thanks again for the patches and I'm also expecting
-someone more qualified (than me, at least) to review them.
+@bad@
+position p != {r.p,ok.p};
+identifier r.i;
+struct watchdog_ops e;
+@@
+e@i@p
 
-Regards
-Marcelo "Marc" Ranolfi
+@depends on !bad disable optional_qualifier@
+identifier r.i;
+@@
+static
++const
+ struct watchdog_ops i = { ... };
+
+Signed-off-by: Gustavo A. R. Silva <garsilva@embeddedor.com>
+---
+ drivers/watchdog/stm32_iwdg.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/watchdog/stm32_iwdg.c b/drivers/watchdog/stm32_iwdg.c
+index 6c501b7..be64a86 100644
+--- a/drivers/watchdog/stm32_iwdg.c
++++ b/drivers/watchdog/stm32_iwdg.c
+@@ -140,7 +140,7 @@ static const struct watchdog_info stm32_iwdg_info = {
+ 	.identity	= "STM32 Independent Watchdog",
+ };
+ 
+-static struct watchdog_ops stm32_iwdg_ops = {
++static const struct watchdog_ops stm32_iwdg_ops = {
+ 	.owner		= THIS_MODULE,
+ 	.start		= stm32_iwdg_start,
+ 	.ping		= stm32_iwdg_ping,
+-- 
+2.5.0
