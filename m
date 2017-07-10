@@ -1,103 +1,118 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:47122 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752769AbdGHPP5 (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 8 Jul 2017 11:15:57 -0400
-Date: Sat, 8 Jul 2017 08:15:55 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
-Cc: Wim Van Sebroeck <wim@iguana.be>, Jonathan Corbet <corbet@lwn.net>,
-        Sebastian Reichel <sebastian.reichel@collabora.co.uk>,
-        esben.haabendal@gmail.com, Alan Cox <gnomes@lxorguk.ukuu.org.uk>,
-        linux-watchdog@vger.kernel.org, linux-doc@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [v6,3/3] watchdog: introduce CONFIG_WATCHDOG_OPEN_TIMEOUT
-Message-ID: <20170708151554.GA3816@roeck-us.net>
-References: <1496134608-7375-4-git-send-email-rasmus.villemoes@prevas.dk>
+Return-Path: <cbostic@linux.vnet.ibm.com>
+Return-path: <cbostic@linux.vnet.ibm.com>
+Subject: Re: [v4, 1/2] drivers/watchdog: Add optional ASPEED device tree
+ properties
+To: Guenter Roeck <linux@roeck-us.net>
+References: <20170707004901.26780-2-cbostic@linux.vnet.ibm.com>
+ <20170708145907.GA19078@roeck-us.net>
+Cc: mark.rutland@arm.com, devicetree@vger.kernel.org,
+        linux-watchdog@vger.kernel.org, openbmc@lists.ozlabs.org,
+        linux-kernel@vger.kernel.org, wim@iguana.be, robh+dt@kernel.org
+From: Christopher Bostic <cbostic@linux.vnet.ibm.com>
+Date: Mon, 10 Jul 2017 10:07:40 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1496134608-7375-4-git-send-email-rasmus.villemoes@prevas.dk>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+In-Reply-To: <20170708145907.GA19078@roeck-us.net>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Message-Id: <61225254-6b6c-672f-23f8-b7c9f24aa46e@linux.vnet.ibm.com>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On Tue, May 30, 2017 at 10:56:47AM +0200, Rasmus Villemoes wrote:
-> This allows setting a default value for the watchdog.open_timeout
-> commandline parameter via Kconfig.
-> 
-> Some BSPs allow remote updating of the kernel image and root file
-> system, but updating the bootloader requires physical access. Hence, if
-> one has a firmware update that requires relaxing the
-> watchdog.open_timeout a little, the value used must be baked into the
-> kernel image itself and cannot come from the u-boot environment via the
-> kernel command line.
-> 
-> Being able to set the initial value in .config doesn't change the fact
-> that the value on the command line, if present, takes precedence, and is
-> of course immensely useful for development purposes while one has
-> console acccess, as well as usable in the cases where one can make a
-> permanent update of the kernel command line.
-> 
-> Signed-off-by: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
 
-Wim, any thoughts on making this configurable ? I used to be opposed to it,
-but it does seem to make some sense to me now after thinking about it.
+
+On 7/8/17 9:59 AM, Guenter Roeck wrote:
+> On Thu, Jul 06, 2017 at 07:48:59PM -0500, Christopher Bostic wrote:
+>> Describe device tree optional properties:
+>>
+>>    * aspeed,reset-type = "cpu|soc|system|none"
+>>       One of three different, mutually exclusive, values
+>>
+>> 	"cpu" : ARM CPU reset on signal
+>> 	"soc" : 'System on chip' reset
+>> 	"system" : Full system reset
+>>
+>>       The value can also be set to "none" which indicates that no
+>>       reset of any kind is to be done via this watchdog.  This assumes
+>>       another watchdog on the chip is to take care of resets.
+>>
+>>    * aspeed,interrupt - Interrupt CPU on signal
+> After thinking about that, I wonder if this is necessary. It could be
+> implied by providing an interrupt to the driver. The driver could then
+> set the interrupt configuration bit automatically.
+>
+> [ And the bit by itself doesn't really make sense if the driver doesn't
+>    also register an interrupt handler ]
+
+The 'aspeed,interrupt' property was added for the sake of documenting 
+all potential hardware configurations.  There is no plan as of now to 
+enable this so I'm inclined to just remove this part from the 
+documentation.  When and if this function is ever used the optional 
+property can be documented at that time.
 
 Thanks,
-Guenter
+Chris
 
-> ---
->  Documentation/watchdog/watchdog-parameters.txt | 3 ++-
->  drivers/watchdog/Kconfig                       | 9 +++++++++
->  drivers/watchdog/watchdog_dev.c                | 2 +-
->  3 files changed, 12 insertions(+), 2 deletions(-)
-> 
-> diff --git a/Documentation/watchdog/watchdog-parameters.txt b/Documentation/watchdog/watchdog-parameters.txt
-> index 8577c27..fa34625 100644
-> --- a/Documentation/watchdog/watchdog-parameters.txt
-> +++ b/Documentation/watchdog/watchdog-parameters.txt
-> @@ -11,7 +11,8 @@ modules.
->  The watchdog core parameter watchdog.open_timeout is the maximum time,
->  in milliseconds, for which the watchdog framework will take care of
->  pinging a hardware watchdog until userspace opens the corresponding
-> -/dev/watchdogN device. A value of 0 (the default) means an infinite
-> +/dev/watchdogN device. The defalt value is
-> +CONFIG_WATCHDOG_OPEN_TIMEOUT. A value of 0 means an infinite
->  timeout. Setting this to a non-zero value can be useful to ensure that
->  either userspace comes up properly, or the board gets reset and allows
->  fallback logic in the bootloader to try something else.
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index 8b9049d..11946fb 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -52,6 +52,15 @@ config WATCHDOG_SYSFS
->  	  Say Y here if you want to enable watchdog device status read through
->  	  sysfs attributes.
->  
-> +config WATCHDOG_OPEN_TIMEOUT
-> +	int "Timeout value for opening watchdog device"
-> +	default 0
-> +	help
-> +	  The maximum time, in milliseconds, for which the watchdog
-> +	  framework takes care of pinging a hardware watchdog. A value
-> +	  of 0 means infinite. The value set here can be overridden by
-> +	  the commandline parameter "watchdog.open_timeout".
-> +
->  #
->  # General Watchdog drivers
->  #
-> diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-> index c807067..098b9cb 100644
-> --- a/drivers/watchdog/watchdog_dev.c
-> +++ b/drivers/watchdog/watchdog_dev.c
-> @@ -81,7 +81,7 @@ static struct watchdog_core_data *old_wd_data;
->  
->  static struct workqueue_struct *watchdog_wq;
->  
-> -static unsigned open_timeout;
-> +static unsigned open_timeout = CONFIG_WATCHDOG_OPEN_TIMEOUT;
->  module_param(open_timeout, uint, 0644);
->  
->  static bool watchdog_past_open_deadline(struct watchdog_core_data *data)
+>>    * aspeed,external-signal - Generate external signal (WDT1 and WDT2 only)
+>>    * aspeed,alt-boot - Boot from alternate block on signal
+>>
+>> Signed-off-by: Christopher Bostic <cbostic@linux.vnet.ibm.com>
+>> ---
+>> v4 - Add aspeed-reset-type and assign one of four values,
+>>       cpu, soc, system, none.
+>> v3 - Invert soc and sys reset to 'no' to preserve backwards
+>>       compatibility.  SOC and SYS reset will be set by default
+>>       without any optional parameters set
+>> v2 - Add 'aspeed,' prefix to all optional properties
+>>     - Add arm-reset, soc-reset, interrupt, alt-boot properties
+>> ---
+>>   .../devicetree/bindings/watchdog/aspeed-wdt.txt    | 35 ++++++++++++++++++++++
+>>   1 file changed, 35 insertions(+)
+>>
+>> diff --git a/Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt b/Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt
+>> index c5e74d7..f526b00 100644
+>> --- a/Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt
+>> +++ b/Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt
+>> @@ -8,9 +8,44 @@ Required properties:
+>>    - reg: physical base address of the controller and length of memory mapped
+>>      region
+>>   
+>> +Optional properties:
+>> +
+>> + - aspeed,reset-type = "cpu|soc|system|none"
+>> +
+>> +   Reset behavior - Whenever a timeout occurs the watchdog can be programmed
+>> +   to generate one of three different, mutually exclusive, types of resets.
+>> +
+>> +   Type "none" can be specified to indicate that no resets are to be done.
+>> +   This is useful in situations where another watchdog engine on chip is
+>> +   to perform the reset.
+>> +
+>> +   If 'aspeed,reset-type=' is not specfied the default is to enable system
+>> +   reset.
+>> +
+>> +   Reset types:
+>> +
+>> +        - cpu: Reset CPU on watchdog timeout
+>> +
+>> +        - soc: Reset 'System on Chip' on watchdog timeout
+>> +
+>> +        - system: Reset system on watchdog timeout
+>> +
+>> +        - none: No reset is performed on timeout. Assumes another watchdog
+>> +                engine is responsible for this.
+>> +
+>> + - aspeed,interrupt:	If property is present then interrupt CPU.
+>> +			If not specified then don't interrupt CPU.
+>> +
+>> + - aspeed,external-signal: If property is present then signal is sent to
+>> +			external reset counter (only WDT1 and WDT2). If not
+>> +			specified no external signal is sent.
+>> + - aspeed,alt-boot:    If property is present then boot from alternate block.
+>> +
+>>   Example:
+>>   
+>>   	wdt1: watchdog@1e785000 {
+>>   		compatible = "aspeed,ast2400-wdt";
+>>   		reg = <0x1e785000 0x1c>;
+>> +		aspeed,reset-type = "system";
+>> +		aspeed,external-signal;
+>>   	};
