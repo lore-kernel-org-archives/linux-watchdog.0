@@ -1,62 +1,77 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from hauke-m.de ([5.39.93.123]:57965 "EHLO mail.hauke-m.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932748AbdGKVQm (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 11 Jul 2017 17:16:42 -0400
-Subject: Re: [PATCH v7 14/16] phy: Add an USB PHY driver for the Lantiq SoCs
- using the RCU module
-To: Kishon Vijay Abraham I <kishon@ti.com>,
-        Rob Herring <robh@kernel.org>
-References: <20170702224051.15109-1-hauke@hauke-m.de>
- <20170702224051.15109-15-hauke@hauke-m.de>
- <20170707142312.5pwily3gbntvesbm@rob-hp-laptop>
- <30adb3f5-50b5-35e3-685f-9fe0fa8c31f8@ti.com>
-Cc: ralf@linux-mips.org, linux-mips@linux-mips.org,
-        linux-mtd@lists.infradead.org, linux-watchdog@vger.kernel.org,
-        devicetree@vger.kernel.org, martin.blumenstingl@googlemail.com,
-        john@phrozen.org, linux-spi@vger.kernel.org,
-        hauke.mehrtens@intel.com, andy.shevchenko@gmail.com,
-        p.zabel@pengutronix.de
-From: Hauke Mehrtens <hauke@hauke-m.de>
-Message-ID: <231fc92f-5e3e-bff0-9a59-081e291f83e8@hauke-m.de>
-Date: Tue, 11 Jul 2017 23:16:31 +0200
-MIME-Version: 1.0
-In-Reply-To: <30adb3f5-50b5-35e3-685f-9fe0fa8c31f8@ti.com>
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Received: from mail-wr0-f194.google.com ([209.85.128.194]:35620 "EHLO
+        mail-wr0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932797AbdGKWO6 (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 11 Jul 2017 18:14:58 -0400
+From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+To: wim@iguana.be, linux@roeck-us.net, robh+dt@kernel.org,
+        carlo@caione.org, khilman@baylibre.com,
+        linux-watchdog@vger.kernel.org, linux-amlogic@lists.infradead.org
+Cc: mark.rutland@arm.com, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, narmstrong@baylibre.com,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Subject: [PATCH v2] watchdog: meson-wdt: add support for the watchdog on Meson8 and Meson8m2
+Date: Wed, 12 Jul 2017 00:14:38 +0200
+Message-Id: <20170711221438.8958-1-martin.blumenstingl@googlemail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 07/11/2017 08:38 AM, Kishon Vijay Abraham I wrote:
-> Hi,
-> 
-> On Friday 07 July 2017 07:53 PM, Rob Herring wrote:
->> On Mon, Jul 03, 2017 at 12:40:49AM +0200, Hauke Mehrtens wrote:
->>> This driver starts the DWC2 core(s) built into the XWAY SoCs and provides
->>> the PHY interfaces for each core. The phy instances can be passed to the
->>> dwc2 driver, which already supports the generic phy interface.
->>>
->>> Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
->>> Cc: Kishon Vijay Abraham I <kishon@ti.com>
-> 
-> I see you have added my name in cc but for some reason I don't have the patch
-> in my mailbox. Can you resend it please?
+The watchdog IP block on Meson8 and Meson8m2 is already supported by the
+existing meson-wdt driver. Meson8 uses the same register bits as Meson6,
+while the newer Meson8m2 SoC uses the same register bits as Meson8b.
 
-I send it to you and I did not receive any error message from the mail
-servers involved, I will check my mail server log files the next time.
+Currently watchdog support on Meson8 SoC already works because
+meson8.dtsi simply uses the "amlogic,meson6-wdt" compatible. Adding a
+separate compatible for Meson8 makes this more explicit though.
 
-I assume that your mail server just silently drops my mails.
+Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+---
+Changes since v1 at [0]:
+- updated the documentation to indicate that Meson8 should also specify
+  the Meson6 compatible and that Meson8m2 should also specify the
+  Meson8b compatible
 
->>> ---
->>>  .../bindings/phy/phy-lantiq-rcu-usb2.txt           |  42 ++++
->>>  arch/mips/lantiq/xway/sysctrl.c                    |  24 +-
->>>  drivers/phy/Kconfig                                |   8 +
->>>  drivers/phy/Makefile                               |   1 +
->>>  drivers/phy/phy-lantiq-rcu-usb2.c                  | 275 +++++++++++++++++++++
-> 
-> Please create a new directory withing phy for adding a phy driver.
+[0] https://patchwork.kernel.org/patch/9780093/
 
-Should I use lantiq or intel as folder name? Lantiq was bought by Intel
-and the Lantiq brand will be replaced by the Intel brand in the future.
 
-Hauke
+ Documentation/devicetree/bindings/watchdog/meson-wdt.txt | 6 +++++-
+ drivers/watchdog/meson_wdt.c                             | 2 ++
+ 2 files changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/Documentation/devicetree/bindings/watchdog/meson-wdt.txt b/Documentation/devicetree/bindings/watchdog/meson-wdt.txt
+index ae70185d96e6..8a6d84cb36c9 100644
+--- a/Documentation/devicetree/bindings/watchdog/meson-wdt.txt
++++ b/Documentation/devicetree/bindings/watchdog/meson-wdt.txt
+@@ -2,7 +2,11 @@ Meson SoCs Watchdog timer
+ 
+ Required properties:
+ 
+-- compatible : should be "amlogic,meson6-wdt" or "amlogic,meson8b-wdt"
++- compatible : depending on the SoC this should be one of:
++	"amlogic,meson6-wdt" on Meson6 SoCs
++	"amlogic,meson8-wdt" and "amlogic,meson6-wdt" on Meson8 SoCs
++	"amlogic,meson8b-wdt" on Meson8b SoCs
++	"amlogic,meson8m2-wdt" and "amlogic,meson8b-wdt" on Meson8m2 SoCs
+ - reg : Specifies base physical address and size of the registers.
+ 
+ Example:
+diff --git a/drivers/watchdog/meson_wdt.c b/drivers/watchdog/meson_wdt.c
+index 491b9bf13d84..304274c67735 100644
+--- a/drivers/watchdog/meson_wdt.c
++++ b/drivers/watchdog/meson_wdt.c
+@@ -155,7 +155,9 @@ static const struct watchdog_ops meson_wdt_ops = {
+ 
+ static const struct of_device_id meson_wdt_dt_ids[] = {
+ 	{ .compatible = "amlogic,meson6-wdt", .data = &meson6_wdt_data },
++	{ .compatible = "amlogic,meson8-wdt", .data = &meson6_wdt_data },
+ 	{ .compatible = "amlogic,meson8b-wdt", .data = &meson8b_wdt_data },
++	{ .compatible = "amlogic,meson8m2-wdt", .data = &meson8b_wdt_data },
+ 	{ /* sentinel */ }
+ };
+ MODULE_DEVICE_TABLE(of, meson_wdt_dt_ids);
+-- 
+2.13.2
+
