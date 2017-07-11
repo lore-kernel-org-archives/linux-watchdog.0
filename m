@@ -1,82 +1,53 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:47459 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752722AbdGHBpf (ORCPT
+Received: from lelnx194.ext.ti.com ([198.47.27.80]:22874 "EHLO
+        lelnx194.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755236AbdGKGl0 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 7 Jul 2017 21:45:35 -0400
-Subject: Re: [PATCH] watchdog: coh901327_wdt: constify watchdog_ops structure
-To: "Gustavo A. R. Silva" <garsilva@embeddedor.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-arm-kernel@lists.infradead.org,
-        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20170708003330.GA15374@embeddedgus>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <031cf1ab-7f1b-4e4d-adaf-efa6c3af8040@roeck-us.net>
-Date: Fri, 7 Jul 2017 18:45:32 -0700
+        Tue, 11 Jul 2017 02:41:26 -0400
+Subject: Re: [PATCH v7 14/16] phy: Add an USB PHY driver for the Lantiq SoCs
+ using the RCU module
+To: Rob Herring <robh@kernel.org>, Hauke Mehrtens <hauke@hauke-m.de>
+References: <20170702224051.15109-1-hauke@hauke-m.de>
+ <20170702224051.15109-15-hauke@hauke-m.de>
+ <20170707142312.5pwily3gbntvesbm@rob-hp-laptop>
+CC: <ralf@linux-mips.org>, <linux-mips@linux-mips.org>,
+        <linux-mtd@lists.infradead.org>, <linux-watchdog@vger.kernel.org>,
+        <devicetree@vger.kernel.org>, <martin.blumenstingl@googlemail.com>,
+        <john@phrozen.org>, <linux-spi@vger.kernel.org>,
+        <hauke.mehrtens@intel.com>, <andy.shevchenko@gmail.com>,
+        <p.zabel@pengutronix.de>
+From: Kishon Vijay Abraham I <kishon@ti.com>
+Message-ID: <30adb3f5-50b5-35e3-685f-9fe0fa8c31f8@ti.com>
+Date: Tue, 11 Jul 2017 12:08:01 +0530
 MIME-Version: 1.0
-In-Reply-To: <20170708003330.GA15374@embeddedgus>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
+In-Reply-To: <20170707142312.5pwily3gbntvesbm@rob-hp-laptop>
+Content-Type: text/plain; charset="windows-1252"
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 07/07/2017 05:33 PM, Gustavo A. R. Silva wrote:
-> Check for watchdog_ops structures that are only stored in the ops field of
-> a watchdog_device structure. This field is declared const, so watchdog_ops
-> structures that have this property can be declared as const also.
-> 
-> This issue was detected using Coccinelle and the following semantic patch:
-> 
-> @r
-> disable optional_qualifier@
-> identifier i;
-> position p;
-> @@
-> static struct watchdog_ops i@p = { ... };
-> 
-> @ok@
-> identifier r.i;
-> struct watchdog_device e;
-> position p;
-> @@
-> e.ops = &i@p;
-> 
-> @bad@
-> position p != {r.p,ok.p};
-> identifier r.i;
-> struct watchdog_ops e;
-> @@
-> e@i@p
-> 
-> @depends on !bad disable optional_qualifier@
-> identifier r.i;
-> @@
-> static
-> +const
->   struct watchdog_ops i = { ... };
-> 
-> Signed-off-by: Gustavo A. R. Silva <garsilva@embeddedor.com>
+Hi,
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+On Friday 07 July 2017 07:53 PM, Rob Herring wrote:
+> On Mon, Jul 03, 2017 at 12:40:49AM +0200, Hauke Mehrtens wrote:
+>> This driver starts the DWC2 core(s) built into the XWAY SoCs and provides
+>> the PHY interfaces for each core. The phy instances can be passed to the
+>> dwc2 driver, which already supports the generic phy interface.
+>>
+>> Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
+>> Cc: Kishon Vijay Abraham I <kishon@ti.com>
 
-> ---
->   drivers/watchdog/coh901327_wdt.c | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/watchdog/coh901327_wdt.c b/drivers/watchdog/coh901327_wdt.c
-> index 38dd60f0..4410337 100644
-> --- a/drivers/watchdog/coh901327_wdt.c
-> +++ b/drivers/watchdog/coh901327_wdt.c
-> @@ -218,7 +218,7 @@ static const struct watchdog_info coh901327_ident = {
->   	.identity = DRV_NAME,
->   };
->   
-> -static struct watchdog_ops coh901327_ops = {
-> +static const struct watchdog_ops coh901327_ops = {
->   	.owner = THIS_MODULE,
->   	.start = coh901327_start,
->   	.stop = coh901327_stop,
-> 
+I see you have added my name in cc but for some reason I don't have the patch
+in my mailbox. Can you resend it please?
 
+>> ---
+>>  .../bindings/phy/phy-lantiq-rcu-usb2.txt           |  42 ++++
+>>  arch/mips/lantiq/xway/sysctrl.c                    |  24 +-
+>>  drivers/phy/Kconfig                                |   8 +
+>>  drivers/phy/Makefile                               |   1 +
+>>  drivers/phy/phy-lantiq-rcu-usb2.c                  | 275 +++++++++++++++++++++
+
+Please create a new directory withing phy for adding a phy driver.
+
+Thanks
+Kishon
