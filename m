@@ -1,9 +1,10 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail7.pr.hu ([87.242.0.7]:44229 "EHLO mail7.pr.hu"
+Received: from mail7.pr.hu ([87.242.0.7]:58988 "EHLO mail7.pr.hu"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750799AbdGNIfB (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 14 Jul 2017 04:35:01 -0400
-Subject: Re: [PATCH 1/5 v2] Extend the request_region() infrastructure
+        id S1751190AbdGNIfX (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 14 Jul 2017 04:35:23 -0400
+Subject: Re: [PATCH 3/5 v4] usb: pci-quirks: Protect the I/O port pair of
+ SB800
 To: linux-kernel@vger.kernel.org
 Cc: linux-usb@vger.kernel.org, linux-watchdog@vger.kernel.org,
         linux-i2c@vger.kernel.org,
@@ -43,12 +44,12 @@ Cc: linux-usb@vger.kernel.org, linux-watchdog@vger.kernel.org,
         Lucas Stach <dev@lynxeye.de>,
         Denis Turischev <denis.turischev@compulab.co.il>
 References: <20170621035349.4125-1-zboszor@pr.hu>
- <20170622132134.7200-1-zboszor@pr.hu> <20170622132134.7200-2-zboszor@pr.hu>
+ <20170622132134.7200-1-zboszor@pr.hu> <20170622132134.7200-4-zboszor@pr.hu>
 From: Boszormenyi Zoltan <zboszor@pr.hu>
-Message-ID: <f8e2e529-c07b-baa8-27bd-de1b5b553b8f@pr.hu>
-Date: Fri, 14 Jul 2017 10:33:47 +0200
+Message-ID: <d599eeac-d159-cff6-7140-7b6cce026c7a@pr.hu>
+Date: Fri, 14 Jul 2017 10:34:20 +0200
 MIME-Version: 1.0
-In-Reply-To: <20170622132134.7200-2-zboszor@pr.hu>
+In-Reply-To: <20170622132134.7200-4-zboszor@pr.hu>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -57,187 +58,60 @@ Content-Transfer-Encoding: quoted-printable
 
 2017-06-22 15:21 keltez=C3=A9ssel, Zolt=C3=A1n B=C3=B6sz=C3=B6rm=C3=A9nyi=
  =C3=ADrta:
-> Add a new IORESOURCE_ALLOCATED flag that is automatically used
-> when alloc_resource() is used internally in kernel/resource.c
-> and free_resource() now takes this flag into account.
+> This patch uses the previously introduced macro called
+> request_declared_muxed_region() to synchronize access to
+> the I/O port pair 0xcd6 / 0xcd7 on SB800.
 >=20
-> The core of __request_region() was factored out into a new function
-> called __request_declared_region() that needs struct resource *
-> instead of the (start, n, name) triplet.
+> These I/O ports are also used by i2c-piix4 and sp5100_tco,
+> so synchronization is necessary. The other drivers will also
+> be modified to use the new macro in subsequest patched.
 >=20
-> These changes allow using statically declared struct resource
-> data coupled with the pre-existing DEFINE_RES_IO_NAMED() static
-> initializer macro. The new macro exploiting
-> __request_declared_region() is request_declared_muxed_region()
+> v1: Started with a common mutex in a C source file.
 >=20
-> v2:
+> v2: Declared the common mutex in drivers/usb/host/pci-quirks.c
+>      instead of in a common C file.
 >=20
-> Fixed checkpatch.pl warnings and errors and extended the macro
-> API with request_declared_region() and release_declared_region()
+> v3: Switched to using the new request_declared_muxed_region
+>      macro.
 >=20
-> Reversed the order of __request_declared_region and __request_region
->=20
-> Added high level description of the muxed and declared variants
-> of the macros.
+> v4: Fixed checkpatch.pl warnings and use the new
+>      release_declared_region() macro.
 >=20
 > Signed-off-by: Zolt=C3=A1n B=C3=B6sz=C3=B6rm=C3=A9nyi <zboszor@pr.hu>
 > ---
->   include/linux/ioport.h | 14 ++++++++++++++
->   kernel/resource.c      | 40 +++++++++++++++++++++++++++++++++++++---
->   2 files changed, 51 insertions(+), 3 deletions(-)
+>   drivers/usb/host/pci-quirks.c | 4 ++++
+>   1 file changed, 4 insertions(+)
 >=20
-> diff --git a/include/linux/ioport.h b/include/linux/ioport.h
-> index 6230064..6ebcd39 100644
-> --- a/include/linux/ioport.h
-> +++ b/include/linux/ioport.h
-> @@ -52,6 +52,7 @@ struct resource {
->   #define IORESOURCE_MEM_64	0x00100000
->   #define IORESOURCE_WINDOW	0x00200000	/* forwarded by bridge */
->   #define IORESOURCE_MUXED	0x00400000	/* Resource is software muxed */
-> +#define IORESOURCE_ALLOCATED	0x00800000	/* Resource was allocated */
->  =20
->   #define IORESOURCE_EXT_TYPE_BITS 0x01000000	/* Resource extended type=
-s */
->   #define IORESOURCE_SYSRAM	0x01000000	/* System RAM (modifier) */
-> @@ -215,7 +216,14 @@ static inline bool resource_contains(struct resour=
-ce *r1, struct resource *r2)
->  =20
->   /* Convenience shorthand with allocation */
->   #define request_region(start,n,name)		__request_region(&ioport_resour=
-ce, (start), (n), (name), 0)
-> +#define request_declared_region(res)		__request_region( \
-> +							&ioport_resource, \
-> +							(res), 0)
->   #define request_muxed_region(start,n,name)	__request_region(&ioport_r=
-esource, (start), (n), (name), IORESOURCE_MUXED)
-> +#define request_declared_muxed_region(res)	__request_declared_region( =
-\
-> +							&ioport_resource, \
-> +							(res), \
-> +							IORESOURCE_MUXED)
->   #define __request_mem_region(start,n,name, excl) __request_region(&io=
-mem_resource, (start), (n), (name), excl)
->   #define request_mem_region(start,n,name) __request_region(&iomem_reso=
-urce, (start), (n), (name), 0)
->   #define request_mem_region_exclusive(start,n,name) \
-> @@ -227,8 +235,14 @@ extern struct resource * __request_region(struct r=
-esource *,
->   					resource_size_t n,
->   					const char *name, int flags);
->  =20
-> +extern struct resource *__request_declared_region(struct resource *par=
-ent,
-> +					struct resource *res, int flags);
-> +
->   /* Compatibility cruft */
->   #define release_region(start,n)	__release_region(&ioport_resource, (s=
-tart), (n))
-> +#define release_declared_region(res)	__release_region(&ioport_resource=
-, \
-> +						(res)->start, \
-> +						(res)->end - (res)->start + 1)
->   #define release_mem_region(start,n)	__release_region(&iomem_resource,=
- (start), (n))
->  =20
->   extern void __release_region(struct resource *, resource_size_t,
-> diff --git a/kernel/resource.c b/kernel/resource.c
-> index 9b5f044..2be7029 100644
-> --- a/kernel/resource.c
-> +++ b/kernel/resource.c
-> @@ -184,6 +184,9 @@ static void free_resource(struct resource *res)
->   	if (!res)
->   		return;
->  =20
-> +	if (!(res->flags & IORESOURCE_ALLOCATED))
-> +		return;
-> +
->   	if (!PageSlab(virt_to_head_page(res))) {
->   		spin_lock(&bootmem_resource_lock);
->   		res->sibling =3D bootmem_resource_free;
-> @@ -210,6 +213,8 @@ static struct resource *alloc_resource(gfp_t flags)
->   	else
->   		res =3D kzalloc(sizeof(struct resource), flags);
->  =20
-> +	res->flags =3D IORESOURCE_ALLOCATED;
-> +
->   	return res;
+> diff --git a/drivers/usb/host/pci-quirks.c b/drivers/usb/host/pci-quirk=
+s.c
+> index a9a1e4c..593942a 100644
+> --- a/drivers/usb/host/pci-quirks.c
+> +++ b/drivers/usb/host/pci-quirks.c
+> @@ -279,6 +279,8 @@ bool usb_amd_prefetch_quirk(void)
 >   }
+>   EXPORT_SYMBOL_GPL(usb_amd_prefetch_quirk);
 >  =20
-> @@ -1110,8 +1115,19 @@ resource_size_t resource_alignment(struct resour=
-ce *res)
->    * the IO flag meanings (busy etc).
->    *
->    * request_region creates a new busy region.
-> + * The resource descriptor is allocated by this function.
-> + *
-> + * request_declared_region creates a new busy region
-> + * described in an existing resource descriptor.
-> + *
-> + * request_muxed_region creates a new shared busy region.
-> + * The resource descriptor is allocated by this function.
-> + *
-> + * request_declared_muxed_region creates a new shared busy region
-> + * described in an existing resource descriptor.
->    *
->    * release_region releases a matching busy region.
-> + * The region is only freed if it was allocated.
->    */
->  =20
->   static DECLARE_WAIT_QUEUE_HEAD(muxed_resource_wait);
-> @@ -1128,7 +1144,6 @@ struct resource * __request_region(struct resourc=
-e *parent,
->   				   resource_size_t start, resource_size_t n,
->   				   const char *name, int flags)
->   {
-> -	DECLARE_WAITQUEUE(wait, current);
->   	struct resource *res =3D alloc_resource(GFP_KERNEL);
->  =20
->   	if (!res)
-> @@ -1138,6 +1153,26 @@ struct resource * __request_region(struct resour=
-ce *parent,
->   	res->start =3D start;
->   	res->end =3D start + n - 1;
->  =20
-> +	if (!__request_declared_region(parent, res, flags)) {
-> +		free_resource(res);
-> +		res =3D NULL;
-> +	}
+> +static struct resource sb800_res =3D DEFINE_RES_IO_NAMED(0xcd6, 2, "SB=
+800 USB");
 > +
-> +	return res;
-> +}
-> +EXPORT_SYMBOL(__request_region);
-> +
-> +/**
-> + * __request_declared_region - create a new busy resource region
-> + * @parent: parent resource descriptor
-> + * @res: child resource descriptor
-> + * @flags: IO resource flags
-> + */
-> +struct resource *__request_declared_region(struct resource *parent,
-> +				   struct resource *res, int flags)
-> +{
-> +	DECLARE_WAITQUEUE(wait, current);
-> +
->   	write_lock(&resource_lock);
+>   /*
+>    * The hardware normally enables the A-link power management feature,=
+ which
+>    * lets the system lower the power consumption in idle states.
+> @@ -314,11 +316,13 @@ static void usb_amd_quirk_pll(int disable)
+>   	if (amd_chipset.sb_type.gen =3D=3D AMD_CHIPSET_SB800 ||
+>   			amd_chipset.sb_type.gen =3D=3D AMD_CHIPSET_HUDSON2 ||
+>   			amd_chipset.sb_type.gen =3D=3D AMD_CHIPSET_BOLTON) {
+> +		request_declared_muxed_region(&sb800_res);
+>   		outb_p(AB_REG_BAR_LOW, 0xcd6);
+>   		addr_low =3D inb_p(0xcd7);
+>   		outb_p(AB_REG_BAR_HIGH, 0xcd6);
+>   		addr_high =3D inb_p(0xcd7);
+>   		addr =3D addr_high << 8 | addr_low;
+> +		release_declared_region(&sb800_res);
 >  =20
->   	for (;;) {
-> @@ -1166,14 +1201,13 @@ struct resource * __request_region(struct resou=
-rce *parent,
->   			continue;
->   		}
->   		/* Uhhuh, that didn't work out.. */
-> -		free_resource(res);
->   		res =3D NULL;
->   		break;
->   	}
->   	write_unlock(&resource_lock);
->   	return res;
->   }
-> -EXPORT_SYMBOL(__request_region);
-> +EXPORT_SYMBOL(__request_declared_region);
->  =20
->   /**
->    * __release_region - release a previously reserved resource region
+>   		outl_p(0x30, AB_INDX(addr));
+>   		outl_p(0x40, AB_DATA(addr));
 >=20
 
 --
