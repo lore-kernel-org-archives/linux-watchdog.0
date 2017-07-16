@@ -1,107 +1,41 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.savoirfairelinux.com ([208.88.110.44]:54766 "EHLO
-        mail.savoirfairelinux.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751088AbdGNUc0 (ORCPT
+Received: from condef-08.nifty.com ([202.248.20.73]:37559 "EHLO
+        condef-08.nifty.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751213AbdGPD24 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 14 Jul 2017 16:32:26 -0400
-From: Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>
-To: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
-        kernel@savoirfairelinux.com, robh@kernel.org, linux@roeck-us.net,
-        linus.walleij@linaro.org, shawnguo@kernel.org
-Cc: fabio.estevam@nxp.com, mark@embeddedarm.com, kris@embeddedarm.com,
-        Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>
-Subject: [PATCH v5 5/8] ARM: dts: TS-4600: add NBUS support
-Date: Fri, 14 Jul 2017 16:32:15 -0400
-Message-Id: <20170714203218.14409-6-sebastien.bourdelin@savoirfairelinux.com>
-In-Reply-To: <20170714203218.14409-1-sebastien.bourdelin@savoirfairelinux.com>
-References: <20170714203218.14409-1-sebastien.bourdelin@savoirfairelinux.com>
+        Sat, 15 Jul 2017 23:28:56 -0400
+Received: from conssluserg-05.nifty.com ([10.126.8.84])by condef-08.nifty.com with ESMTP id v6G3QtR3012624
+        for <linux-watchdog@vger.kernel.org>; Sun, 16 Jul 2017 12:26:55 +0900
+MIME-Version: 1.0
+In-Reply-To: <1497426825-25450-4-git-send-email-hayashibara.keiji@socionext.com>
+References: <1497426825-25450-1-git-send-email-hayashibara.keiji@socionext.com>
+ <1497426825-25450-4-git-send-email-hayashibara.keiji@socionext.com>
+From: Masahiro Yamada <yamada.masahiro@socionext.com>
+Date: Sun, 16 Jul 2017 12:26:47 +0900
+Message-ID: <CAK7LNATdoA6kUzwepoVz3yV_8nZVGd4156uatCSzsL+426s2Ug@mail.gmail.com>
+Subject: Re: [PATCH V4 3/3] arm64: dts: uniphier: add watchdog node for LD11
+ and LD20
+To: Keiji Hayashibara <hayashibara.keiji@socionext.com>
+Cc: wim@iguana.be, Guenter Roeck <linux@roeck-us.net>,
+        linux-watchdog@vger.kernel.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org,
+        Masami Hiramatsu <masami.hiramatsu@linaro.org>,
+        Jassi Brar <jaswinder.singh@linaro.org>,
+        Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
+        Kiyoshi Owada <owada.kiyoshi@socionext.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This commit enables the NBUS on the TS-4600, using the ts-nbus driver.
+2017-06-14 16:53 GMT+09:00 Keiji Hayashibara <hayashibara.keiji@socionext.com>:
+> Add nodes of watchdog timer for UniPhier LD11 and LD20 SoC.
+> The watchdog timer is included in sysctrl.
+>
+> Signed-off-by: Keiji Hayashibara <hayashibara.keiji@socionext.com>
 
-Signed-off-by: Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>
----
-Changes v4 -> v5:
-  - fix missing signed off
+Applied to linux-uniphier. Thanks!
 
-Changes v3 -> v4:
-  - rebase on master
-  - fix vendor prefixes for dts properties (suggested by Rob Herring)
-  - v3 was acked by Linus Walleij
-
-Changes v2 -> v3:
-  - rebase on master
-
-Changes v1 -> v2:
-  - rebase on master
-  - remove the simple-bus compatibility as the root node will now
-  populate the child nodes (suggested by Rob Herring)
-  - add the vendor prefix to all gpio (suggested by Rob Herring)
----
- arch/arm/boot/dts/imx28-ts4600-common.dtsi | 43 ++++++++++++++++++++++++++++++
- 1 file changed, 43 insertions(+)
-
-diff --git a/arch/arm/boot/dts/imx28-ts4600-common.dtsi b/arch/arm/boot/dts/imx28-ts4600-common.dtsi
-index 04bd5a5c0cb4..a90bd934e4a3 100644
---- a/arch/arm/boot/dts/imx28-ts4600-common.dtsi
-+++ b/arch/arm/boot/dts/imx28-ts4600-common.dtsi
-@@ -44,6 +44,28 @@
- 					fsl,pull-up = <MXS_PULL_DISABLE>;
- 				};
- 
-+				nbus_pins: nbus_pins {
-+					fsl,pinmux-ids = <
-+						MX28_PAD_GPMI_D00__GPIO_0_0
-+						MX28_PAD_GPMI_D01__GPIO_0_1
-+						MX28_PAD_GPMI_D02__GPIO_0_2
-+						MX28_PAD_GPMI_D03__GPIO_0_3
-+						MX28_PAD_GPMI_D04__GPIO_0_4
-+						MX28_PAD_GPMI_D05__GPIO_0_5
-+						MX28_PAD_GPMI_D06__GPIO_0_6
-+						MX28_PAD_GPMI_D07__GPIO_0_7
-+						MX28_PAD_GPMI_CE0N__GPIO_0_16
-+						MX28_PAD_GPMI_RDY1__GPIO_0_21
-+						MX28_PAD_GPMI_RDN__GPIO_0_24
-+						MX28_PAD_GPMI_WRN__GPIO_0_25
-+						MX28_PAD_GPMI_ALE__GPIO_0_26
-+					>;
-+					fsl,drive-strength = <MXS_DRIVE_4mA>;
-+					fsl,voltage = <MXS_VOLTAGE_HIGH>;
-+					fsl,pull-up = <MXS_PULL_DISABLE>;
-+
-+				};
-+
- 			};
- 		};
- 
-@@ -75,4 +97,25 @@
- 		};
- 	};
- 
-+	nbus {
-+		compatible = "technologic,ts-nbus";
-+		pinctrl-0 = <&nbus_pins>;
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		pwms = <&pwm 2 83>;
-+		ts,data-gpios   = <&gpio0 0 GPIO_ACTIVE_HIGH
-+				   &gpio0 1 GPIO_ACTIVE_HIGH
-+				   &gpio0 2 GPIO_ACTIVE_HIGH
-+				   &gpio0 3 GPIO_ACTIVE_HIGH
-+				   &gpio0 4 GPIO_ACTIVE_HIGH
-+				   &gpio0 5 GPIO_ACTIVE_HIGH
-+				   &gpio0 6 GPIO_ACTIVE_HIGH
-+				   &gpio0 7 GPIO_ACTIVE_HIGH>;
-+		ts,csn-gpios    = <&gpio0 16 GPIO_ACTIVE_HIGH>;
-+		ts,txrx-gpios   = <&gpio0 24 GPIO_ACTIVE_HIGH>;
-+		ts,strobe-gpios = <&gpio0 25 GPIO_ACTIVE_HIGH>;
-+		ts,ale-gpios    = <&gpio0 26 GPIO_ACTIVE_HIGH>;
-+		ts,rdy-gpios    = <&gpio0 21 GPIO_ACTIVE_HIGH>;
-+	};
-+
- };
 -- 
-2.13.0
-
+Best Regards
+Masahiro Yamada
