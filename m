@@ -1,41 +1,56 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from condef-08.nifty.com ([202.248.20.73]:37559 "EHLO
-        condef-08.nifty.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751213AbdGPD24 (ORCPT
+Received: from mail-pf0-f195.google.com ([209.85.192.195]:35959 "EHLO
+        mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751320AbdGQTAC (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 15 Jul 2017 23:28:56 -0400
-Received: from conssluserg-05.nifty.com ([10.126.8.84])by condef-08.nifty.com with ESMTP id v6G3QtR3012624
-        for <linux-watchdog@vger.kernel.org>; Sun, 16 Jul 2017 12:26:55 +0900
+        Mon, 17 Jul 2017 15:00:02 -0400
+Date: Mon, 17 Jul 2017 14:00:00 -0500
+From: Rob Herring <robh@kernel.org>
+To: Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>
+Cc: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
+        kernel@savoirfairelinux.com, linux@roeck-us.net,
+        linus.walleij@linaro.org, shawnguo@kernel.org,
+        fabio.estevam@nxp.com, mark@embeddedarm.com, kris@embeddedarm.com
+Subject: Re: [PATCH v5 3/8] dt-bindings: bus: Add documentation for the
+ Technologic Systems NBUS
+Message-ID: <20170717190000.n2lifnduqzgp4b6g@rob-hp-laptop>
+References: <20170714203218.14409-1-sebastien.bourdelin@savoirfairelinux.com>
+ <20170714203218.14409-4-sebastien.bourdelin@savoirfairelinux.com>
 MIME-Version: 1.0
-In-Reply-To: <1497426825-25450-4-git-send-email-hayashibara.keiji@socionext.com>
-References: <1497426825-25450-1-git-send-email-hayashibara.keiji@socionext.com>
- <1497426825-25450-4-git-send-email-hayashibara.keiji@socionext.com>
-From: Masahiro Yamada <yamada.masahiro@socionext.com>
-Date: Sun, 16 Jul 2017 12:26:47 +0900
-Message-ID: <CAK7LNATdoA6kUzwepoVz3yV_8nZVGd4156uatCSzsL+426s2Ug@mail.gmail.com>
-Subject: Re: [PATCH V4 3/3] arm64: dts: uniphier: add watchdog node for LD11
- and LD20
-To: Keiji Hayashibara <hayashibara.keiji@socionext.com>
-Cc: wim@iguana.be, Guenter Roeck <linux@roeck-us.net>,
-        linux-watchdog@vger.kernel.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org,
-        Masami Hiramatsu <masami.hiramatsu@linaro.org>,
-        Jassi Brar <jaswinder.singh@linaro.org>,
-        Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
-        Kiyoshi Owada <owada.kiyoshi@socionext.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20170714203218.14409-4-sebastien.bourdelin@savoirfairelinux.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-2017-06-14 16:53 GMT+09:00 Keiji Hayashibara <hayashibara.keiji@socionext.com>:
-> Add nodes of watchdog timer for UniPhier LD11 and LD20 SoC.
-> The watchdog timer is included in sysctrl.
->
-> Signed-off-by: Keiji Hayashibara <hayashibara.keiji@socionext.com>
+On Fri, Jul 14, 2017 at 04:32:13PM -0400, Sebastien Bourdelin wrote:
+> Add binding documentation for the Technologic Systems NBUS that is used
+> to interface with peripherals in the FPGA of the TS-4600 SoM.
+> 
+> Signed-off-by: Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>
+> ---
+> Changes v4 -> v5:
+>   - fix missing signed off
+> 
+> Changes v3 -> v4:
+>   - rebase on master
+>   - fix vendor prefixes for dts properties (suggested by Rob Herring)
+>   - v3 was acked by Linus Walleij
+> 
+> Changes v2 -> v3:
+>   - rebase on master
+>   - fix typo (suggested by Rob Herring)
+> 
+> Changes v1 -> v2:
+>   - rebase on master
+>   - remove the simple-bus compatibility as the root node will now
+>   populate child nodes (suggested by Rob Herring)
+>   - use the ts vendor prefix for gpios (suggested by Rob Herring)
+> ---
+>  Documentation/devicetree/bindings/bus/ts-nbus.txt | 50 +++++++++++++++++++++++
+>  1 file changed, 50 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/bus/ts-nbus.txt
 
-Applied to linux-uniphier. Thanks!
+Acked-by: Rob Herring <robh@kernel.org>
 
--- 
-Best Regards
-Masahiro Yamada
