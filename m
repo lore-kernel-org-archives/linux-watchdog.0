@@ -1,93 +1,87 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:56607 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751058AbdGNT1L (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 14 Jul 2017 15:27:11 -0400
-Date: Fri, 14 Jul 2017 12:27:08 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Moritz Fischer <mdf@kernel.org>
-Cc: lee.jones@linaro.org, robh+dt@kernel.org, mark.rutland@arm.com,
-        a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
-        wim@iguana.be, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        linux-rtc@vger.kernel.org,
-        Moritz Fischer <moritz.fischer@ettus.com>
-Subject: Re: [PATCH 2/2] mfd: ds1374: Add Dallas/Maxim DS1374 Multi Function
- Device
-Message-ID: <20170714192708.GB16125@roeck-us.net>
-References: <1499975665-14581-1-git-send-email-mdf@kernel.org>
- <1499975665-14581-2-git-send-email-mdf@kernel.org>
- <c37eaed9-10aa-190e-fa0e-bdce9277664b@roeck-us.net>
- <20170714165423.GA9283@tyrael.ni.corp.natinst.com>
+Return-Path: <garsilva@embeddedor.com>
+Return-path: <garsilva@embeddedor.com>
+Subject: Re: [PATCH] watchdog: ts72xx_wdt: constify watchdog_ops structure
+To: Guenter Roeck <linux@roeck-us.net>, Wim Van Sebroeck <wim@iguana.be>
+References: <20170708001840.GA8758@embeddedgus>
+ <ef62d519-2b18-816a-5253-89f5fc276332@roeck-us.net>
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+From: "Gustavo A. R. Silva" <garsilva@embeddedor.com>
+Message-ID: <d8b083d8-baf1-e67c-8f12-ea07baed7079@embeddedor.com>
+Date: Sun, 16 Jul 2017 23:02:37 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20170714165423.GA9283@tyrael.ni.corp.natinst.com>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+In-Reply-To: <ef62d519-2b18-816a-5253-89f5fc276332@roeck-us.net>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On Fri, Jul 14, 2017 at 09:54:23AM -0700, Moritz Fischer wrote:
-> Hi Guenter,
-> 
-> On Thu, Jul 13, 2017 at 08:57:52PM -0700, Guenter Roeck wrote:
-> > On 07/13/2017 12:54 PM, Moritz Fischer wrote:
-> > > From: Moritz Fischer <moritz.fischer@ettus.com>
-> > > 
-> > > Add support for the Maxim/Dallas DS1374 RTC/WDT with trickle charger.
-> > > The device can either be configured as simple RTC, as simple RTC with
-> > > Alarm (IRQ) as well as simple RTC with watchdog timer.
-> > > 
-> > > Break up the old monolithic driver in drivers/rtc/rtc-ds1374.c into:
-> > > - rtc part in drivers/rtc/rtc-ds1374.c
-> > > - watchdog part under drivers/watchdog/ds1374-wdt.c
-> > > - mfd part drivers/mfd/ds1374.c
-> > > 
-> > > The MFD part takes care of trickle charging and mode selection,
-> > > since the usage modes of a) RTC + Alarm or b) RTC + WDT
-> > > are mutually exclusive.
-> > > 
-> > > Signed-off-by: Moritz Fischer <mdf@kernel.org>
-> > 
-> > [ Only reviewing watchdog part ]
-> > 
-[ ... ]
 
-> > > +}
-> > > +
-> > > +static int ds1374_wdt_start(struct watchdog_device *wdog)
-> > > +{
-> > > +	int err;
-> > > +	struct ds1374_wdt *ds1374_wdt = watchdog_get_drvdata(wdog);
-> > > +
-> > > +	err = ds1374_wdt_set_timeout(wdog, wdog->timeout);
-> > > +	if (err) {
-> > > +		dev_err(ds1374_wdt->dev, "%s: failed to set timeout (%d) %u\n",
-> > > +			__func__, err, wdog->timeout);
-> > > +		return err;
-> > > +	}
-> > > +
-> > > +	err = ds1374_wdt_ping(wdog);
-> > > +	if (err) {
-> > > +		dev_err(ds1374_wdt->dev, "%s: failed to ping (%d)\n", __func__,
-> > > +			err);
-> 
-> I assume you'd want to get rid of that one too?
 
-Yes.
+On 07/07/2017 08:44 PM, Guenter Roeck wrote:
+> On 07/07/2017 05:18 PM, Gustavo A. R. Silva wrote:
+>> Check for watchdog_ops structures that are only stored in the ops 
+>> field of
+>> a watchdog_device structure. This field is declared const, so 
+>> watchdog_ops
+>> structures that have this property can be declared as const also.
+>>
+>> This issue was detected using Coccinelle and the following semantic 
+>> patch:
+>>
+>> @r
+>> disable optional_qualifier@
+>> identifier i;
+>> position p;
+>> @@
+>> static struct watchdog_ops i@p = { ... };
+>>
+>> @ok@
+>> identifier r.i;
+>> struct watchdog_device e;
+>> position p;
+>> @@
+>> e.ops = &i@p;
+>>
+>> @bad@
+>> position p != {r.p,ok.p};
+>> identifier r.i;
+>> struct watchdog_ops e;
+>> @@
+>> e@i@p
+>>
+>> @depends on !bad disable optional_qualifier@
+>> identifier r.i;
+>> @@
+>> static
+>> +const
+>>   struct watchdog_ops i = { ... };
+>>
+>> Signed-off-by: Gustavo A. R. Silva <garsilva@embeddedor.com>
+>
+> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+>
 
-> > 
-> > This may bypass MAGICCLOSE: If the watchdog daemon is killed and the module removed,
-> > the watchdog will be stopped. Is this really what you want ? If so, why set MAGICCLOSE
-> > in the first place ?
-> 
-> So your suggestion would be:
-> 
-> - if (!nowayout)
-> -	ds1374_wdt_stop(&priv->wdd)
-> 
-Correct. Just drop the remove function.
+Thank you, Guenter.
 
-Thanks,
-Guenter
+>> ---
+>>   drivers/watchdog/ts72xx_wdt.c | 2 +-
+>>   1 file changed, 1 insertion(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/watchdog/ts72xx_wdt.c 
+>> b/drivers/watchdog/ts72xx_wdt.c
+>> index 17c25da..811e43c 100644
+>> --- a/drivers/watchdog/ts72xx_wdt.c
+>> +++ b/drivers/watchdog/ts72xx_wdt.c
+>> @@ -112,7 +112,7 @@ static const struct watchdog_info 
+>> ts72xx_wdt_ident = {
+>>       .identity        = "TS-72XX WDT",
+>>   };
+>>   -static struct watchdog_ops ts72xx_wdt_ops = {
+>> +static const struct watchdog_ops ts72xx_wdt_ops = {
+>>       .owner        = THIS_MODULE,
+>>       .start        = ts72xx_wdt_start,
+>>       .stop        = ts72xx_wdt_stop,
+>>
+>
+
+-- 
+Gustavo A. R. Silva
