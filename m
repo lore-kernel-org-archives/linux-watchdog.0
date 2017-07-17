@@ -1,51 +1,68 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:33833 "EHLO pokefinder.org"
+Received: from sauhun.de ([88.99.104.3]:33842 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751304AbdGQPNr (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 17 Jul 2017 11:13:47 -0400
+        id S1751278AbdGQPNs (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 17 Jul 2017 11:13:48 -0400
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 To: linux-watchdog@vger.kernel.org
 Cc: linux-renesas-soc@vger.kernel.org,
         Takeshi Kihara <takeshi.kihara.df@renesas.com>,
         Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 2/5] watchdog: renesas_wdt: check rate also for upper limit
-Date: Mon, 17 Jul 2017 17:12:27 +0200
-Message-Id: <20170717151230.12680-3-wsa+renesas@sang-engineering.com>
+Subject: [PATCH 5/5] watchdog: renesas_wdt: add another divider option
+Date: Mon, 17 Jul 2017 17:12:30 +0200
+Message-Id: <20170717151230.12680-6-wsa+renesas@sang-engineering.com>
 In-Reply-To: <20170717151230.12680-1-wsa+renesas@sang-engineering.com>
 References: <20170717151230.12680-1-wsa+renesas@sang-engineering.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-When checking the clock rate, ensure also that counting all 16 bits
-takes at least one second to match the granularity of the framework.
+If we set RWTCSRB to 0, we can gain 4096 as another divider value. This
+is supported by all R-Car Gen2 and Gen3 devices which we aim to support.
 
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- drivers/watchdog/renesas_wdt.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/watchdog/renesas_wdt.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/watchdog/renesas_wdt.c b/drivers/watchdog/renesas_wdt.c
-index 4f8a3563b6aa53..0b9e8a9b1dd14c 100644
+index 599ba5aaa0536f..e3f204bb8802aa 100644
 --- a/drivers/watchdog/renesas_wdt.c
 +++ b/drivers/watchdog/renesas_wdt.c
-@@ -134,14 +134,14 @@ static int rwdt_probe(struct platform_device *pdev)
+@@ -23,21 +23,22 @@
+ #define RWTCSRA_WOVF	BIT(4)
+ #define RWTCSRA_WRFLG	BIT(5)
+ #define RWTCSRA_TME	BIT(7)
++#define RWTCSRB		8
  
- 	for (i = ARRAY_SIZE(clk_divs) - 1; i >= 0; i--) {
- 		clks_per_sec = DIV_ROUND_UP(rate, clk_divs[i]);
--		if (clks_per_sec) {
-+		if (clks_per_sec && clks_per_sec < 65536) {
- 			priv->clks_per_sec = clks_per_sec;
- 			priv->cks = i;
- 			break;
- 		}
- 	}
+ #define RWDT_DEFAULT_TIMEOUT 60U
  
--	if (!clks_per_sec) {
-+	if (i < 0) {
- 		dev_err(&pdev->dev, "Can't find suitable clock divider\n");
- 		return -ERANGE;
- 	}
+ /*
+  * In probe, clk_rate is checked to be not more than 16 bit * biggest clock
+- * divider (10 bits). d is only a factor to fully utilize the WDT counter and
++ * divider (12 bits). d is only a factor to fully utilize the WDT counter and
+  * will not exceed its 16 bits. Thus, no overflow, we stay below 32 bits.
+  */
+ #define MUL_BY_CLKS_PER_SEC(p, d) \
+ 	DIV_ROUND_UP((d) * (p)->clk_rate, clk_divs[(p)->cks])
+ 
+-/* d is 16 bit, clk_divs 10 bit -> no 32 bit overflow */
++/* d is 16 bit, clk_divs 12 bit -> no 32 bit overflow */
+ #define DIV_BY_CLKS_PER_SEC(p, d) ((d) * clk_divs[(p)->cks] / (p)->clk_rate)
+ 
+-static const unsigned int clk_divs[] = { 1, 4, 16, 32, 64, 128, 1024 };
++static const unsigned int clk_divs[] = { 1, 4, 16, 32, 64, 128, 1024, 4096 };
+ 
+ static bool nowayout = WATCHDOG_NOWAYOUT;
+ module_param(nowayout, bool, 0);
+@@ -77,6 +78,7 @@ static int rwdt_start(struct watchdog_device *wdev)
+ 
+ 	clk_prepare_enable(priv->clk);
+ 
++	rwdt_write(priv, 0, RWTCSRB);
+ 	rwdt_write(priv, priv->cks, RWTCSRA);
+ 	rwdt_init_timeout(wdev);
+ 
 -- 
 2.11.0
 
