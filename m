@@ -1,37 +1,26 @@
-Return-Path: <lin.sunze@gmail.com>
-Return-path: <lin.sunze@gmail.com>
-From: SZ Lin <sz.lin@moxa.com>
-To: wim@iguana.be
-Cc: linux@roeck-us.net,
-	linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	SZ Lin <sz.lin@moxa.com>
-Subject: [PATCH] watchdog: moxart_wdt: Replace decimal permissions with 4 digit octal
-Date: Sat, 29 Jul 2017 17:15:43 +0800
-Message-Id: <20170729091543.11777-1-sz.lin@moxa.com>
+Return-Path: <cbostic@linux.vnet.ibm.com>
+Return-path: <cbostic@linux.vnet.ibm.com>
+From: Christopher Bostic <cbostic@linux.vnet.ibm.com>
+To: wim@iguana.be, linux@roeck-us.net, robh+dt@kernel.org,
+        mark.rutland@arm.com, joel@jms.id.au, linux-watchdog@vger.kernel.org,
+        devicetree@vger.kernel.org
+Cc: Christopher Bostic <cbostic@linux.vnet.ibm.com>,
+        linux-kernel@vger.kernel.org, openbmc@lists.ozlabs.org
+Subject: [PATCH v5 0/2] Add ASPEED watchdog device tree properties
+Date: Mon, 17 Jul 2017 14:25:37 -0500
+Message-Id: <20170717192539.7950-1-cbostic@linux.vnet.ibm.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-ERROR: Use 4 digit octal (0777) not decimal permissions
+Document device tree optional properties for ASPEED watchdog.
+Reference properties in ASPEED watchdog driver and configure accordingly.
 
-This error was detected by checkpatch.pl
+Christopher Bostic (2):
+  drivers/watchdog: Add optional ASPEED device tree properties
+  drivers/watchdog: ASPEED reference dev tree properties for config
 
-Signed-off-by: SZ Lin <sz.lin@moxa.com>
----
- drivers/watchdog/moxart_wdt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../devicetree/bindings/watchdog/aspeed-wdt.txt    | 32 ++++++++++++++++++++++
+ drivers/watchdog/aspeed_wdt.c                      | 29 ++++++++++++++++----
+ 2 files changed, 56 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/watchdog/moxart_wdt.c b/drivers/watchdog/moxart_wdt.c
-index 2c4a73d1e214..05684aa89b88 100644
---- a/drivers/watchdog/moxart_wdt.c
-+++ b/drivers/watchdog/moxart_wdt.c
-@@ -170,7 +170,7 @@ static struct platform_driver moxart_wdt_driver = {
- };
- module_platform_driver(moxart_wdt_driver);
- 
--module_param(heartbeat, int, 0);
-+module_param(heartbeat, int, 0000);
- MODULE_PARM_DESC(heartbeat, "Watchdog heartbeat in seconds");
- 
- MODULE_DESCRIPTION("MOXART watchdog driver");
 -- 
-2.13.3
+1.8.2.2
