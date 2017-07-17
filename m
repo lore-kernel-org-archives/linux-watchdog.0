@@ -1,65 +1,191 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail5.windriver.com ([192.103.53.11]:53764 "EHLO mail5.wrs.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932172AbdGTDWk (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 19 Jul 2017 23:22:40 -0400
-Subject: Re: [PATCH] watchdog: imx2_wdt: use new_timeout value to override the
- old
-To: Guenter Roeck <linux@roeck-us.net>, <wim@iguana.be>
-CC: <jinyanjiang@gmail.com>, <linux-watchdog@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>
-References: <20170720024533.70081-1-yanjiang.jin@windriver.com>
- <b433d1ff-0d89-fbd9-3e2d-04bd278371fb@roeck-us.net>
-From: yjin <yanjiang.jin@windriver.com>
-Message-ID: <72fd5906-49f3-9e87-f6a9-2757103e7535@windriver.com>
-Date: Thu, 20 Jul 2017 11:22:16 +0800
-MIME-Version: 1.0
-In-Reply-To: <b433d1ff-0d89-fbd9-3e2d-04bd278371fb@roeck-us.net>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
+Received: from mail-wr0-f194.google.com ([209.85.128.194]:35907 "EHLO
+        mail-wr0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751280AbdGQK4n (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 17 Jul 2017 06:56:43 -0400
+Received: by mail-wr0-f194.google.com with SMTP id 23so852473wry.3
+        for <linux-watchdog@vger.kernel.org>; Mon, 17 Jul 2017 03:56:42 -0700 (PDT)
+From: fzuuzf@googlemail.com
+To: linux-watchdog@vger.kernel.org
+Cc: support.opensource@diasemi.com,
+        Karsten Wiese <karsten.wiese@protechna.com>,
+        Karsten Wiese <fzuuzf@googlemail.com>
+Subject: [PATCH] watchdog: da9063_wdt: Simplify by removing unneeded struct...
+Date: Mon, 17 Jul 2017 12:55:40 +0200
+Message-Id: <1500288940-25036-1-git-send-email-fzuuzf@googlemail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+From: Karsten Wiese <karsten.wiese@protechna.com>
 
+...da9063_watchdog, which contained nothing but struct watchdog_device and a
+struct da9063 pointer.
+Assign the struct da9063 pointer directly to the struct watchdog_device's
+driver_data field instead of creating struct da9063_watchdog and assigning
+it's address there.
+Spares a pointer's size data memory and an indirection level in the callbacks.
 
-On 2017年07月20日 11:18, Guenter Roeck wrote:
-> On 07/19/2017 07:45 PM, yanjiang.jin@windriver.com wrote:
->> From: Yanjiang Jin <yanjiang.jin@windriver.com>
->>
->> Without this patch we couldn't change the timeout value of imx2_wdt.
->>
->> Signed-off-by: Yanjiang Jin <yanjiang.jin@windriver.com>
->> ---
->>   drivers/watchdog/imx2_wdt.c | 3 +++
->>   1 file changed, 3 insertions(+)
->>
->> diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
->> index 4874b0f..6cfeee6 100644
->> --- a/drivers/watchdog/imx2_wdt.c
->> +++ b/drivers/watchdog/imx2_wdt.c
->> @@ -178,6 +178,9 @@ static int imx2_wdt_set_timeout(struct 
->> watchdog_device *wdog,
->>         regmap_update_bits(wdev->regmap, IMX2_WDT_WCR, IMX2_WDT_WCR_WT,
->>                  WDOG_SEC_TO_COUNT(new_timeout));
->> +
->> +    wdog->timeout = new_timeout;
->> +
->
-> I must be missing something. That very same code is already in line 177,
-> added with commit 30dd4a8f08b57 ("watchdog: imx2_wdt: also set 
-> wdog->timeout
-> to new_timeout") back in 2015.
->
-> Did you see this in an older kernel, maybe ?
+Signed-off-by: Karsten Wiese <fzuuzf@googlemail.com>
+---
+ drivers/watchdog/da9063_wdt.c | 67 +++++++++++++++++++------------------------
+ 1 file changed, 30 insertions(+), 37 deletions(-)
 
-Oh, I missed this. I did use the older kernel to validate it. Thanks for 
-your reminder, please ignore my patch.
-Thanks again!
-
-Regards!
-Yanjiang
->
-> Guenter
+diff --git a/drivers/watchdog/da9063_wdt.c b/drivers/watchdog/da9063_wdt.c
+index 4691c55..2a20fc1 100644
+--- a/drivers/watchdog/da9063_wdt.c
++++ b/drivers/watchdog/da9063_wdt.c
+@@ -36,11 +36,6 @@ static const unsigned int wdt_timeout[] = { 0, 2, 4, 8, 16, 32, 65, 131 };
+ #define DA9063_WDG_TIMEOUT		wdt_timeout[3]
+ #define DA9063_RESET_PROTECTION_MS	256
+ 
+-struct da9063_watchdog {
+-	struct da9063 *da9063;
+-	struct watchdog_device wdtdev;
+-};
+-
+ static unsigned int da9063_wdt_timeout_to_sel(unsigned int secs)
+ {
+ 	unsigned int i;
+@@ -61,14 +56,14 @@ static int _da9063_wdt_set_timeout(struct da9063 *da9063, unsigned int regval)
+ 
+ static int da9063_wdt_start(struct watchdog_device *wdd)
+ {
+-	struct da9063_watchdog *wdt = watchdog_get_drvdata(wdd);
++	struct da9063 *da9063 = watchdog_get_drvdata(wdd);
+ 	unsigned int selector;
+ 	int ret;
+ 
+-	selector = da9063_wdt_timeout_to_sel(wdt->wdtdev.timeout);
+-	ret = _da9063_wdt_set_timeout(wdt->da9063, selector);
++	selector = da9063_wdt_timeout_to_sel(wdd->timeout);
++	ret = _da9063_wdt_set_timeout(da9063, selector);
+ 	if (ret)
+-		dev_err(wdt->da9063->dev, "Watchdog failed to start (err = %d)\n",
++		dev_err(da9063->dev, "Watchdog failed to start (err = %d)\n",
+ 			ret);
+ 
+ 	return ret;
+@@ -76,13 +71,13 @@ static int da9063_wdt_start(struct watchdog_device *wdd)
+ 
+ static int da9063_wdt_stop(struct watchdog_device *wdd)
+ {
+-	struct da9063_watchdog *wdt = watchdog_get_drvdata(wdd);
++	struct da9063 *da9063 = watchdog_get_drvdata(wdd);
+ 	int ret;
+ 
+-	ret = regmap_update_bits(wdt->da9063->regmap, DA9063_REG_CONTROL_D,
++	ret = regmap_update_bits(da9063->regmap, DA9063_REG_CONTROL_D,
+ 				 DA9063_TWDSCALE_MASK, DA9063_TWDSCALE_DISABLE);
+ 	if (ret)
+-		dev_alert(wdt->da9063->dev, "Watchdog failed to stop (err = %d)\n",
++		dev_alert(da9063->dev, "Watchdog failed to stop (err = %d)\n",
+ 			  ret);
+ 
+ 	return ret;
+@@ -90,13 +85,13 @@ static int da9063_wdt_stop(struct watchdog_device *wdd)
+ 
+ static int da9063_wdt_ping(struct watchdog_device *wdd)
+ {
+-	struct da9063_watchdog *wdt = watchdog_get_drvdata(wdd);
++	struct da9063 *da9063 = watchdog_get_drvdata(wdd);
+ 	int ret;
+ 
+-	ret = regmap_write(wdt->da9063->regmap, DA9063_REG_CONTROL_F,
++	ret = regmap_write(da9063->regmap, DA9063_REG_CONTROL_F,
+ 			   DA9063_WATCHDOG);
+ 	if (ret)
+-		dev_alert(wdt->da9063->dev, "Failed to ping the watchdog (err = %d)\n",
++		dev_alert(da9063->dev, "Failed to ping the watchdog (err = %d)\n",
+ 			  ret);
+ 
+ 	return ret;
+@@ -105,14 +100,14 @@ static int da9063_wdt_ping(struct watchdog_device *wdd)
+ static int da9063_wdt_set_timeout(struct watchdog_device *wdd,
+ 				  unsigned int timeout)
+ {
+-	struct da9063_watchdog *wdt = watchdog_get_drvdata(wdd);
++	struct da9063 *da9063 = watchdog_get_drvdata(wdd);
+ 	unsigned int selector;
+ 	int ret;
+ 
+ 	selector = da9063_wdt_timeout_to_sel(timeout);
+-	ret = _da9063_wdt_set_timeout(wdt->da9063, selector);
++	ret = _da9063_wdt_set_timeout(da9063, selector);
+ 	if (ret)
+-		dev_err(wdt->da9063->dev, "Failed to set watchdog timeout (err = %d)\n",
++		dev_err(da9063->dev, "Failed to set watchdog timeout (err = %d)\n",
+ 			ret);
+ 	else
+ 		wdd->timeout = wdt_timeout[selector];
+@@ -123,13 +118,13 @@ static int da9063_wdt_set_timeout(struct watchdog_device *wdd,
+ static int da9063_wdt_restart(struct watchdog_device *wdd, unsigned long action,
+ 			      void *data)
+ {
+-	struct da9063_watchdog *wdt = watchdog_get_drvdata(wdd);
++	struct da9063 *da9063 = watchdog_get_drvdata(wdd);
+ 	int ret;
+ 
+-	ret = regmap_write(wdt->da9063->regmap, DA9063_REG_CONTROL_F,
++	ret = regmap_write(da9063->regmap, DA9063_REG_CONTROL_F,
+ 			   DA9063_SHUTDOWN);
+ 	if (ret)
+-		dev_alert(wdt->da9063->dev, "Failed to shutdown (err = %d)\n",
++		dev_alert(da9063->dev, "Failed to shutdown (err = %d)\n",
+ 			  ret);
+ 
+ 	return ret;
+@@ -152,7 +147,7 @@ static const struct watchdog_ops da9063_watchdog_ops = {
+ static int da9063_wdt_probe(struct platform_device *pdev)
+ {
+ 	struct da9063 *da9063;
+-	struct da9063_watchdog *wdt;
++	struct watchdog_device *wdd;
+ 
+ 	if (!pdev->dev.parent)
+ 		return -EINVAL;
+@@ -161,27 +156,25 @@ static int da9063_wdt_probe(struct platform_device *pdev)
+ 	if (!da9063)
+ 		return -EINVAL;
+ 
+-	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
+-	if (!wdt)
++	wdd = devm_kzalloc(&pdev->dev, sizeof(*wdd), GFP_KERNEL);
++	if (!wdd)
+ 		return -ENOMEM;
+ 
+-	wdt->da9063 = da9063;
+-
+-	wdt->wdtdev.info = &da9063_watchdog_info;
+-	wdt->wdtdev.ops = &da9063_watchdog_ops;
+-	wdt->wdtdev.min_timeout = DA9063_WDT_MIN_TIMEOUT;
+-	wdt->wdtdev.max_timeout = DA9063_WDT_MAX_TIMEOUT;
+-	wdt->wdtdev.min_hw_heartbeat_ms = DA9063_RESET_PROTECTION_MS;
+-	wdt->wdtdev.timeout = DA9063_WDG_TIMEOUT;
+-	wdt->wdtdev.parent = &pdev->dev;
++	wdd->info = &da9063_watchdog_info;
++	wdd->ops = &da9063_watchdog_ops;
++	wdd->min_timeout = DA9063_WDT_MIN_TIMEOUT;
++	wdd->max_timeout = DA9063_WDT_MAX_TIMEOUT;
++	wdd->min_hw_heartbeat_ms = DA9063_RESET_PROTECTION_MS;
++	wdd->timeout = DA9063_WDG_TIMEOUT;
++	wdd->parent = &pdev->dev;
+ 
+-	wdt->wdtdev.status = WATCHDOG_NOWAYOUT_INIT_STATUS;
++	wdd->status = WATCHDOG_NOWAYOUT_INIT_STATUS;
+ 
+-	watchdog_set_restart_priority(&wdt->wdtdev, 128);
++	watchdog_set_restart_priority(wdd, 128);
+ 
+-	watchdog_set_drvdata(&wdt->wdtdev, wdt);
++	watchdog_set_drvdata(wdd, da9063);
+ 
+-	return devm_watchdog_register_device(&pdev->dev, &wdt->wdtdev);
++	return devm_watchdog_register_device(&pdev->dev, wdd);
+ }
+ 
+ static struct platform_driver da9063_wdt_driver = {
+-- 
+2.7.4
 
