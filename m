@@ -1,53 +1,44 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:33825 "EHLO pokefinder.org"
+Received: from sauhun.de ([88.99.104.3]:33830 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751278AbdGQPNq (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        id S1751280AbdGQPNq (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
         Mon, 17 Jul 2017 11:13:46 -0400
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 To: linux-watchdog@vger.kernel.org
 Cc: linux-renesas-soc@vger.kernel.org,
         Takeshi Kihara <takeshi.kihara.df@renesas.com>,
         Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 0/5] watchdog: renesas_wdt: improve precision
-Date: Mon, 17 Jul 2017 17:12:25 +0200
-Message-Id: <20170717151230.12680-1-wsa+renesas@sang-engineering.com>
+Subject: [PATCH 1/5] watchdog: renesas_wdt: avoid (theoretical) type overflow
+Date: Mon, 17 Jul 2017 17:12:26 +0200
+Message-Id: <20170717151230.12680-2-wsa+renesas@sang-engineering.com>
+In-Reply-To: <20170717151230.12680-1-wsa+renesas@sang-engineering.com>
+References: <20170717151230.12680-1-wsa+renesas@sang-engineering.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Currently, the renesas-rwdt driver is not precise with input clocks which have
-a remainder after the clock divisors are applied. This series should fix the
-situation and also pays attention to ensure variables have proper types and are
-divided properly. As a cherry on top, we also get a new divider value to allow
-for higher max_timeout :)
+Because the smallest clock divider we can select is 1, 'clks_per_sec'
+must be the same type as 'rate'.
 
-Originally brought to attention by this BSP patch:
-https://git.kernel.org/pub/scm/linux/kernel/git/horms/renesas-bsp.git/commit/?id=7d56256a4d189a83e278ec2013eb1f3648bc7411
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
+ drivers/watchdog/renesas_wdt.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-Tested with a Salvator-X (R-Car M3-W) and the clock driver hacked to supply the
-internal clock of 32552 Hz instead of the externally supplied 32768 Hz.
-
-A branch can be found here:
-
-git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git renesas/watchdog-fixes
-
-Please comment or apply...
-
-Thanks,
-
-   Wolfram
-
-
-Wolfram Sang (5):
-  watchdog: renesas_wdt: avoid (theoretical) type overflow
-  watchdog: renesas_wdt: check rate also for upper limit
-  watchdog: renesas_wdt: don't round closest with get_timeleft
-  watchdog: renesas_wdt: apply better precision
-  watchdog: renesas_wdt: add another divider option
-
- drivers/watchdog/renesas_wdt.c | 37 ++++++++++++++++++++++++-------------
- 1 file changed, 24 insertions(+), 13 deletions(-)
-
+diff --git a/drivers/watchdog/renesas_wdt.c b/drivers/watchdog/renesas_wdt.c
+index cf61c92f7ecd63..4f8a3563b6aa53 100644
+--- a/drivers/watchdog/renesas_wdt.c
++++ b/drivers/watchdog/renesas_wdt.c
+@@ -112,8 +112,7 @@ static int rwdt_probe(struct platform_device *pdev)
+ {
+ 	struct rwdt_priv *priv;
+ 	struct resource *res;
+-	unsigned long rate;
+-	unsigned int clks_per_sec;
++	unsigned long rate, clks_per_sec;
+ 	int ret, i;
+ 
+ 	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
 -- 
 2.11.0
 
