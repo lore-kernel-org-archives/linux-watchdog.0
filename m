@@ -1,23 +1,25 @@
 Return-Path: <garsilva@embeddedor.com>
 Return-path: <garsilva@embeddedor.com>
-Subject: Re: [PATCH] watchdog: ts72xx_wdt: constify watchdog_ops structure
-To: Guenter Roeck <linux@roeck-us.net>, Wim Van Sebroeck <wim@iguana.be>
-References: <20170708001840.GA8758@embeddedgus>
- <ef62d519-2b18-816a-5253-89f5fc276332@roeck-us.net>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] watchdog: coh901327_wdt: constify watchdog_ops structure
+To: Guenter Roeck <linux@roeck-us.net>,
+ Linus Walleij <linus.walleij@linaro.org>, Wim Van Sebroeck <wim@iguana.be>
+References: <20170708003330.GA15374@embeddedgus>
+ <031cf1ab-7f1b-4e4d-adaf-efa6c3af8040@roeck-us.net>
+Cc: linux-arm-kernel@lists.infradead.org, linux-watchdog@vger.kernel.org,
+ linux-kernel@vger.kernel.org
 From: "Gustavo A. R. Silva" <garsilva@embeddedor.com>
-Message-ID: <d8b083d8-baf1-e67c-8f12-ea07baed7079@embeddedor.com>
-Date: Sun, 16 Jul 2017 23:02:37 -0500
+Message-ID: <72fb7a2e-f075-57b0-72e2-6c16205eaf4e@embeddedor.com>
+Date: Sun, 16 Jul 2017 23:03:50 -0500
 MIME-Version: 1.0
-In-Reply-To: <ef62d519-2b18-816a-5253-89f5fc276332@roeck-us.net>
+In-Reply-To: <031cf1ab-7f1b-4e4d-adaf-efa6c3af8040@roeck-us.net>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 List-ID: <linux-watchdog@vger.kernel.org>
 
 
 
-On 07/07/2017 08:44 PM, Guenter Roeck wrote:
-> On 07/07/2017 05:18 PM, Gustavo A. R. Silva wrote:
+On 07/07/2017 08:45 PM, Guenter Roeck wrote:
+> On 07/07/2017 05:33 PM, Gustavo A. R. Silva wrote:
 >> Check for watchdog_ops structures that are only stored in the ops 
 >> field of
 >> a watchdog_device structure. This field is declared const, so 
@@ -63,23 +65,23 @@ On 07/07/2017 08:44 PM, Guenter Roeck wrote:
 Thank you, Guenter.
 
 >> ---
->>   drivers/watchdog/ts72xx_wdt.c | 2 +-
+>>   drivers/watchdog/coh901327_wdt.c | 2 +-
 >>   1 file changed, 1 insertion(+), 1 deletion(-)
 >>
->> diff --git a/drivers/watchdog/ts72xx_wdt.c 
->> b/drivers/watchdog/ts72xx_wdt.c
->> index 17c25da..811e43c 100644
->> --- a/drivers/watchdog/ts72xx_wdt.c
->> +++ b/drivers/watchdog/ts72xx_wdt.c
->> @@ -112,7 +112,7 @@ static const struct watchdog_info 
->> ts72xx_wdt_ident = {
->>       .identity        = "TS-72XX WDT",
+>> diff --git a/drivers/watchdog/coh901327_wdt.c 
+>> b/drivers/watchdog/coh901327_wdt.c
+>> index 38dd60f0..4410337 100644
+>> --- a/drivers/watchdog/coh901327_wdt.c
+>> +++ b/drivers/watchdog/coh901327_wdt.c
+>> @@ -218,7 +218,7 @@ static const struct watchdog_info coh901327_ident 
+>> = {
+>>       .identity = DRV_NAME,
 >>   };
->>   -static struct watchdog_ops ts72xx_wdt_ops = {
->> +static const struct watchdog_ops ts72xx_wdt_ops = {
->>       .owner        = THIS_MODULE,
->>       .start        = ts72xx_wdt_start,
->>       .stop        = ts72xx_wdt_stop,
+>>   -static struct watchdog_ops coh901327_ops = {
+>> +static const struct watchdog_ops coh901327_ops = {
+>>       .owner = THIS_MODULE,
+>>       .start = coh901327_start,
+>>       .stop = coh901327_stop,
 >>
 >
 
