@@ -1,68 +1,60 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:33842 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751278AbdGQPNs (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 17 Jul 2017 11:13:48 -0400
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: linux-watchdog@vger.kernel.org
-Cc: linux-renesas-soc@vger.kernel.org,
-        Takeshi Kihara <takeshi.kihara.df@renesas.com>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 5/5] watchdog: renesas_wdt: add another divider option
-Date: Mon, 17 Jul 2017 17:12:30 +0200
-Message-Id: <20170717151230.12680-6-wsa+renesas@sang-engineering.com>
-In-Reply-To: <20170717151230.12680-1-wsa+renesas@sang-engineering.com>
-References: <20170717151230.12680-1-wsa+renesas@sang-engineering.com>
+Received: from mail-io0-f196.google.com ([209.85.223.196]:35491 "EHLO
+        mail-io0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751026AbdGRHAE (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 18 Jul 2017 03:00:04 -0400
+MIME-Version: 1.0
+In-Reply-To: <20170717151230.12680-2-wsa+renesas@sang-engineering.com>
+References: <20170717151230.12680-1-wsa+renesas@sang-engineering.com> <20170717151230.12680-2-wsa+renesas@sang-engineering.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Tue, 18 Jul 2017 09:00:02 +0200
+Message-ID: <CAMuHMdV+yAy+QmDWFn8a7U8F1F5NcoV5C-1e8LeCV-jKcQHnMA@mail.gmail.com>
+Subject: Re: [PATCH 1/5] watchdog: renesas_wdt: avoid (theoretical) type overflow
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
+        Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
+        Takeshi Kihara <takeshi.kihara.df@renesas.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-If we set RWTCSRB to 0, we can gain 4096 as another divider value. This
-is supported by all R-Car Gen2 and Gen3 devices which we aim to support.
+Hi Wolfram,
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
- drivers/watchdog/renesas_wdt.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+On Mon, Jul 17, 2017 at 5:12 PM, Wolfram Sang
+<wsa+renesas@sang-engineering.com> wrote:
+> Because the smallest clock divider we can select is 1, 'clks_per_sec'
+> must be the same type as 'rate'.
+>
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-diff --git a/drivers/watchdog/renesas_wdt.c b/drivers/watchdog/renesas_wdt.c
-index 599ba5aaa0536f..e3f204bb8802aa 100644
---- a/drivers/watchdog/renesas_wdt.c
-+++ b/drivers/watchdog/renesas_wdt.c
-@@ -23,21 +23,22 @@
- #define RWTCSRA_WOVF	BIT(4)
- #define RWTCSRA_WRFLG	BIT(5)
- #define RWTCSRA_TME	BIT(7)
-+#define RWTCSRB		8
- 
- #define RWDT_DEFAULT_TIMEOUT 60U
- 
- /*
-  * In probe, clk_rate is checked to be not more than 16 bit * biggest clock
-- * divider (10 bits). d is only a factor to fully utilize the WDT counter and
-+ * divider (12 bits). d is only a factor to fully utilize the WDT counter and
-  * will not exceed its 16 bits. Thus, no overflow, we stay below 32 bits.
-  */
- #define MUL_BY_CLKS_PER_SEC(p, d) \
- 	DIV_ROUND_UP((d) * (p)->clk_rate, clk_divs[(p)->cks])
- 
--/* d is 16 bit, clk_divs 10 bit -> no 32 bit overflow */
-+/* d is 16 bit, clk_divs 12 bit -> no 32 bit overflow */
- #define DIV_BY_CLKS_PER_SEC(p, d) ((d) * clk_divs[(p)->cks] / (p)->clk_rate)
- 
--static const unsigned int clk_divs[] = { 1, 4, 16, 32, 64, 128, 1024 };
-+static const unsigned int clk_divs[] = { 1, 4, 16, 32, 64, 128, 1024, 4096 };
- 
- static bool nowayout = WATCHDOG_NOWAYOUT;
- module_param(nowayout, bool, 0);
-@@ -77,6 +78,7 @@ static int rwdt_start(struct watchdog_device *wdev)
- 
- 	clk_prepare_enable(priv->clk);
- 
-+	rwdt_write(priv, 0, RWTCSRB);
- 	rwdt_write(priv, priv->cks, RWTCSRA);
- 	rwdt_init_timeout(wdev);
- 
--- 
-2.11.0
+Thanks for your patch!
 
+> --- a/drivers/watchdog/renesas_wdt.c
+> +++ b/drivers/watchdog/renesas_wdt.c
+> @@ -112,8 +112,7 @@ static int rwdt_probe(struct platform_device *pdev)
+>  {
+>         struct rwdt_priv *priv;
+>         struct resource *res;
+> -       unsigned long rate;
+> -       unsigned int clks_per_sec;
+> +       unsigned long rate, clks_per_sec;
+
+If you make this change, you should also update rwdt_priv.clks_per_sec
+(yes I know it's removed in a later patch in this series).
+
+>         int ret, i;
+>
+>         priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
