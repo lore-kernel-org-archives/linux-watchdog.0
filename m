@@ -1,56 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Wed, 19 Jul 2017 10:36:16 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Philipp Zabel <p.zabel@pengutronix.de>
-Cc: linux-kernel@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
-        linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 096/102] watchdog: zx2967: explicitly request exclusive
- reset control
-Message-ID: <20170719173616.GD11439@roeck-us.net>
-References: <20170719152646.25903-1-p.zabel@pengutronix.de>
- <20170719152646.25903-97-p.zabel@pengutronix.de>
+From: Haiyang Zhang <haiyangz@microsoft.com>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>,
+        "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>,
+        "sparmaintainer@unisys.com" <sparmaintainer@unisys.com>,
+        "devel@driverdev.osuosl.org" <devel@driverdev.osuosl.org>,
+        "linux-wireless@vger.kernel.org" <linux-wireless@vger.kernel.org>,
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+        "linux-efi@vger.kernel.org" <linux-efi@vger.kernel.org>,
+        Christoph Hellwig <hch@lst.de>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Lukas Wunner <lukas@wunner.de>
+CC: KY Srinivasan <kys@microsoft.com>,
+        Stephen Hemminger <sthemmin@microsoft.com>
+Subject: RE: [PATCH v1 4/6] vmbus: Switch to use new generic UUID API
+Date: Wed, 19 Jul 2017 20:18:24 +0000
+Message-ID: <MWHPR21MB04791ED8A0F0F935176AE9B3CAA60@MWHPR21MB0479.namprd21.prod.outlook.com>
+References: <20170719182857.73693-1-andriy.shevchenko@linux.intel.com>
+ <20170719182857.73693-5-andriy.shevchenko@linux.intel.com>
+In-Reply-To: <20170719182857.73693-5-andriy.shevchenko@linux.intel.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20170719152646.25903-97-p.zabel@pengutronix.de>
 Sender: linux-kernel-owner@vger.kernel.org
+Content-Transfer-Encoding: 8bit
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On Wed, Jul 19, 2017 at 05:26:40PM +0200, Philipp Zabel wrote:
-> Commit a53e35db70d1 ("reset: Ensure drivers are explicit when requesting
-> reset lines") started to transition the reset control request API calls
-> to explicitly state whether the driver needs exclusive or shared reset
-> control behavior. Convert all drivers requesting exclusive resets to the
-> explicit API call so the temporary transition helpers can be removed.
-> 
-> No functional changes.
-> 
-> Cc: Wim Van Sebroeck <wim@iguana.be>
-> Cc: Guenter Roeck <linux@roeck-us.net>
-> Cc: linux-watchdog@vger.kernel.org
-> Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-> ---
->  drivers/watchdog/zx2967_wdt.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> -----Original Message-----
+> From: Andy Shevchenko [mailto:andriy.shevchenko@linux.intel.com]
+> Sent: Wednesday, July 19, 2017 2:29 PM
+> To: linux-acpi@vger.kernel.org; devel@linuxdriverproject.org;
+> sparmaintainer@unisys.com; devel@driverdev.osuosl.org; linux-
+> wireless@vger.kernel.org; linux-watchdog@vger.kernel.org; linux-
+> efi@vger.kernel.org; Christoph Hellwig <hch@lst.de>; linux-
+> kernel@vger.kernel.org; Lukas Wunner <lukas@wunner.de>
+> Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>; KY Srinivasan
+> <kys@microsoft.com>; Haiyang Zhang <haiyangz@microsoft.com>; Stephen
+> Hemminger <sthemmin@microsoft.com>
+> Subject: [PATCH v1 4/6] vmbus: Switch to use new generic UUID API
 > 
-> diff --git a/drivers/watchdog/zx2967_wdt.c b/drivers/watchdog/zx2967_wdt.c
-> index 69ec5855584b1..9261f7c77f6de 100644
-> --- a/drivers/watchdog/zx2967_wdt.c
-> +++ b/drivers/watchdog/zx2967_wdt.c
-> @@ -229,7 +229,7 @@ static int zx2967_wdt_probe(struct platform_device *pdev)
->  	}
->  	clk_set_rate(wdt->clock, ZX2967_WDT_CLK_FREQ);
->  
-> -	rstc = devm_reset_control_get(dev, NULL);
-> +	rstc = devm_reset_control_get_exclusive(dev, NULL);
->  	if (IS_ERR(rstc)) {
->  		dev_err(dev, "failed to get rstc");
->  		ret = PTR_ERR(rstc);
-> -- 
-> 2.11.0
+
+
+> @@ -118,8 +116,8 @@ enum hv_fcopy_op {
 > 
+>  struct hv_fcopy_hdr {
+>  	__u32 operation;
+> -	uuid_le service_id0; /* currently unused */
+> -	uuid_le service_id1; /* currently unused */
+> +	__u8 service_id0[16]; /* currently unused */
+> +	__u8 service_id1[16]; /* currently unused */
+>  } __attribute__((packed));
+
+Even user space may not have all guid_t operations, could you still
+put guid_t here for consistency? This file is also used by our kernel
+mode code.
+
+Thanks,
+- Haiyang
