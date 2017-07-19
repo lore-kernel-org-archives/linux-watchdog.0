@@ -1,52 +1,57 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:34180 "EHLO pokefinder.org"
+Received: from sauhun.de ([88.99.104.3]:39765 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751291AbdGQRMe (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 17 Jul 2017 13:12:34 -0400
+        id S1752760AbdGSI2F (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Wed, 19 Jul 2017 04:28:05 -0400
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 To: linux-watchdog@vger.kernel.org
 Cc: linux-renesas-soc@vger.kernel.org,
-        Oleksij Rempel <linux@rempel-privat.de>,
+        Takeshi Kihara <takeshi.kihara.df@renesas.com>,
         Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH] watchdog: asm9260_wdt: don't round closest with get_timeleft
-Date: Mon, 17 Jul 2017 19:12:24 +0200
-Message-Id: <20170717171224.13444-1-wsa+renesas@sang-engineering.com>
+Subject: [PATCH v2 0/5] watchdog: renesas_wdt: improve precision
+Date: Wed, 19 Jul 2017 10:27:50 +0200
+Message-Id: <20170719082755.21733-1-wsa+renesas@sang-engineering.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-We should never return more time left than there actually is. So, switch
-to a plain divider instead of DIV_ROUND_CLOSEST.
+Currently, the renesas-rwdt driver is not precise with input clocks which have
+a remainder after the clock divisors are applied. This series should fix the
+situation and also pays attention to ensure variables have proper types and are
+divided properly. As a cherry on top, we also get a new divider value to allow
+for higher max_timeout :)
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
+Originally brought to attention by this BSP patch:
+https://git.kernel.org/pub/scm/linux/kernel/git/horms/renesas-bsp.git/commit/?id=7d56256a4d189a83e278ec2013eb1f3648bc7411
 
-This is similar to a patch for the renesas-rwdt[1]. I think it makes sense to
-remove this pattern from the whole subsystem, if we can agree on the behaviour
-stated in the patch description. So, this is the other driver using
-DIV_ROUND_CLOSEST.
+Tested with a Salvator-X (R-Car M3-W) and the clock driver hacked to supply the
+internal clock of 32552 Hz instead of the externally supplied 32768 Hz.
 
-Note: This driver and the lpc18xx_wdt.c extremly likely drive the same IP core.
-They would ideally be merged.
+A branch can be found here:
 
-[1] https://patchwork.kernel.org/patch/9845459/
+git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git renesas/watchdog-fixes
 
- drivers/watchdog/asm9260_wdt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Please comment or apply...
 
-diff --git a/drivers/watchdog/asm9260_wdt.c b/drivers/watchdog/asm9260_wdt.c
-index 53da001f0838ee..f40dd71c904bef 100644
---- a/drivers/watchdog/asm9260_wdt.c
-+++ b/drivers/watchdog/asm9260_wdt.c
-@@ -82,7 +82,7 @@ static unsigned int asm9260_wdt_gettimeleft(struct watchdog_device *wdd)
- 
- 	counter = ioread32(priv->iobase + HW_WDTV);
- 
--	return DIV_ROUND_CLOSEST(counter, priv->wdt_freq);
-+	return counter / priv->wdt_freq;
- }
- 
- static int asm9260_wdt_updatetimeout(struct watchdog_device *wdd)
+Thanks,
+
+   Wolfram
+
+Changes since V1:
+
+* add Guenter's Reviewed-by
+* in patch 1, use proper type also in the private struct
+
+Wolfram Sang (5):
+  watchdog: renesas_wdt: avoid (theoretical) type overflow
+  watchdog: renesas_wdt: check rate also for upper limit
+  watchdog: renesas_wdt: don't round closest with get_timeleft
+  watchdog: renesas_wdt: apply better precision
+  watchdog: renesas_wdt: add another divider option
+
+ drivers/watchdog/renesas_wdt.c | 37 ++++++++++++++++++++++++-------------
+ 1 file changed, 24 insertions(+), 13 deletions(-)
+
 -- 
 2.11.0
 
