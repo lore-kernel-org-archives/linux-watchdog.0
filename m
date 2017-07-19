@@ -1,24 +1,24 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Wed, 19 Jul 2017 10:36:06 -0700
+Date: Wed, 19 Jul 2017 10:36:16 -0700
 From: Guenter Roeck <linux@roeck-us.net>
 To: Philipp Zabel <p.zabel@pengutronix.de>
 Cc: linux-kernel@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
         linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 095/102] watchdog: rt2880: explicitly request exclusive
+Subject: Re: [PATCH 096/102] watchdog: zx2967: explicitly request exclusive
  reset control
-Message-ID: <20170719173606.GC11439@roeck-us.net>
+Message-ID: <20170719173616.GD11439@roeck-us.net>
 References: <20170719152646.25903-1-p.zabel@pengutronix.de>
- <20170719152646.25903-96-p.zabel@pengutronix.de>
+ <20170719152646.25903-97-p.zabel@pengutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20170719152646.25903-96-p.zabel@pengutronix.de>
+In-Reply-To: <20170719152646.25903-97-p.zabel@pengutronix.de>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On Wed, Jul 19, 2017 at 05:26:39PM +0200, Philipp Zabel wrote:
+On Wed, Jul 19, 2017 at 05:26:40PM +0200, Philipp Zabel wrote:
 > Commit a53e35db70d1 ("reset: Ensure drivers are explicit when requesting
 > reset lines") started to transition the reset control request API calls
 > to explicitly state whether the driver needs exclusive or shared reset
@@ -35,22 +35,22 @@ On Wed, Jul 19, 2017 at 05:26:39PM +0200, Philipp Zabel wrote:
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
 > ---
->  drivers/watchdog/rt2880_wdt.c | 2 +-
+>  drivers/watchdog/zx2967_wdt.c | 2 +-
 >  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> diff --git a/drivers/watchdog/rt2880_wdt.c b/drivers/watchdog/rt2880_wdt.c
-> index 05524baf7dccb..0d481a63cab14 100644
-> --- a/drivers/watchdog/rt2880_wdt.c
-> +++ b/drivers/watchdog/rt2880_wdt.c
-> @@ -152,7 +152,7 @@ static int rt288x_wdt_probe(struct platform_device *pdev)
->  	if (IS_ERR(rt288x_wdt_clk))
->  		return PTR_ERR(rt288x_wdt_clk);
+> diff --git a/drivers/watchdog/zx2967_wdt.c b/drivers/watchdog/zx2967_wdt.c
+> index 69ec5855584b1..9261f7c77f6de 100644
+> --- a/drivers/watchdog/zx2967_wdt.c
+> +++ b/drivers/watchdog/zx2967_wdt.c
+> @@ -229,7 +229,7 @@ static int zx2967_wdt_probe(struct platform_device *pdev)
+>  	}
+>  	clk_set_rate(wdt->clock, ZX2967_WDT_CLK_FREQ);
 >  
-> -	rt288x_wdt_reset = devm_reset_control_get(&pdev->dev, NULL);
-> +	rt288x_wdt_reset = devm_reset_control_get_exclusive(&pdev->dev, NULL);
->  	if (!IS_ERR(rt288x_wdt_reset))
->  		reset_control_deassert(rt288x_wdt_reset);
->  
+> -	rstc = devm_reset_control_get(dev, NULL);
+> +	rstc = devm_reset_control_get_exclusive(dev, NULL);
+>  	if (IS_ERR(rstc)) {
+>  		dev_err(dev, "failed to get rstc");
+>  		ret = PTR_ERR(rstc);
 > -- 
 > 2.11.0
 > 
