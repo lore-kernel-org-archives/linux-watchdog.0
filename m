@@ -1,54 +1,48 @@
-Return-Path: <martin.blumenstingl@googlemail.com>
-Return-path: <martin.blumenstingl@googlemail.com>
-MIME-Version: 1.0
-In-Reply-To: <20170717165152.xv2kq2lqgi3jtobm@rob-hp-laptop>
-References: <20170711221438.8958-1-martin.blumenstingl@googlemail.com> <20170717165152.xv2kq2lqgi3jtobm@rob-hp-laptop>
-From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Date: Sat, 22 Jul 2017 20:42:42 +0200
-Message-ID: <CAFBinCB_q-qNs_RwyEVf7Tyz3X+omUmhe19-1Tg5C_czip0HdA@mail.gmail.com>
-Subject: Re: [PATCH v2] watchdog: meson-wdt: add support for the watchdog on
- Meson8 and Meson8m2
-To: linux-amlogic@lists.infradead.org
-Cc: Rob Herring <robh@kernel.org>, wim@iguana.be, linux@roeck-us.net, carlo@caione.org,
-	khilman@baylibre.com, linux-watchdog@vger.kernel.org, mark.rutland@arm.com,
-	devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	narmstrong@baylibre.com
-Content-Type: text/plain; charset="UTF-8"
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-qt0-f195.google.com ([209.85.216.195]:38004 "EHLO
+        mail-qt0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750787AbdGVQEs (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Sat, 22 Jul 2017 12:04:48 -0400
+Received: by mail-qt0-f195.google.com with SMTP id 14so1929854qtn.5
+        for <linux-watchdog@vger.kernel.org>; Sat, 22 Jul 2017 09:04:47 -0700 (PDT)
+From: Fabio Estevam <festevam@gmail.com>
+To: wim@iguana.be
+Cc: linux@roeck-us.net, joshc@codeaurora.org,
+        linux-watchdog@vger.kernel.org,
+        Fabio Estevam <fabio.estevam@nxp.com>
+Subject: [PATCH] watchdog: qcom: Check for platform_get_resource() failure
+Date: Sat, 22 Jul 2017 13:04:33 -0300
+Message-Id: <1500739473-9982-1-git-send-email-festevam@gmail.com>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Jul 17, 2017 at 6:51 PM, Rob Herring <robh@kernel.org> wrote:
-> On Wed, Jul 12, 2017 at 12:14:38AM +0200, Martin Blumenstingl wrote:
->> The watchdog IP block on Meson8 and Meson8m2 is already supported by the
->> existing meson-wdt driver. Meson8 uses the same register bits as Meson6,
->> while the newer Meson8m2 SoC uses the same register bits as Meson8b.
->>
->> Currently watchdog support on Meson8 SoC already works because
->> meson8.dtsi simply uses the "amlogic,meson6-wdt" compatible. Adding a
->> separate compatible for Meson8 makes this more explicit though.
->>
->> Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
->> Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
->> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
->> ---
->> Changes since v1 at [0]:
->> - updated the documentation to indicate that Meson8 should also specify
->>   the Meson6 compatible and that Meson8m2 should also specify the
->>   Meson8b compatible
->>
->> [0] https://patchwork.kernel.org/patch/9780093/
->>
->>
->>  Documentation/devicetree/bindings/watchdog/meson-wdt.txt | 6 +++++-
->>  drivers/watchdog/meson_wdt.c                             | 2 ++
->>  2 files changed, 7 insertions(+), 1 deletion(-)
->
-> Acked-by: Rob Herring <robh@kernel.org>
-Thank you Rob and Guenter
-in the meantime this was added to Guenter's watchdog-next tree: [1]
+From: Fabio Estevam <fabio.estevam@nxp.com>
 
+platform_get_resource() may fail, so we should better check its
+return value and propagate an error in case it fails.
 
-Regards,
-Martin
+This avoids a NULL pointer dereference a bit later in the code.
 
+Signed-off-by: Fabio Estevam <fabio.estevam@nxp.com>
+---
+ drivers/watchdog/qcom-wdt.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-[1] https://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git/commit/?h=watchdog-next&id=6fb84b4c68fbfe1df61fb59fb2f46a8ec044e337
+diff --git a/drivers/watchdog/qcom-wdt.c b/drivers/watchdog/qcom-wdt.c
+index 4f47b5e..7809713 100644
+--- a/drivers/watchdog/qcom-wdt.c
++++ b/drivers/watchdog/qcom-wdt.c
+@@ -162,6 +162,8 @@ static int qcom_wdt_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
+ 
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	if (!res)
++		return -ENOMEM;
+ 
+ 	/* We use CPU0's DGT for the watchdog */
+ 	if (of_property_read_u32(np, "cpu-offset", &percpu_offset))
+-- 
+2.7.4
+
