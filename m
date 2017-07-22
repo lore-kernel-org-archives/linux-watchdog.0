@@ -1,50 +1,66 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-qk0-f196.google.com ([209.85.220.196]:34702 "EHLO
-        mail-qk0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750921AbdGVUXS (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 22 Jul 2017 16:23:18 -0400
-Received: by mail-qk0-f196.google.com with SMTP id q66so6919038qki.1
-        for <linux-watchdog@vger.kernel.org>; Sat, 22 Jul 2017 13:23:18 -0700 (PDT)
-From: Fabio Estevam <festevam@gmail.com>
-To: wim@iguana.be
-Cc: linux@roeck-us.net, linux-watchdog@vger.kernel.org,
+Received: from sauhun.de ([88.99.104.3]:50367 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750921AbdGVUcF (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Sat, 22 Jul 2017 16:32:05 -0400
+Date: Sat, 22 Jul 2017 22:31:59 +0200
+From: Wolfram Sang <wsa@the-dreams.de>
+To: Fabio Estevam <festevam@gmail.com>
+Cc: wim@iguana.be, linux@roeck-us.net, linux-watchdog@vger.kernel.org,
         wsa+renesas@sang-engineering.com, justinpopo6@gmail.com,
         Fabio Estevam <fabio.estevam@nxp.com>
-Subject: [PATCH 2/2] watchdog: bcm7038: Check the return value from clk_prepare_enable()
-Date: Sat, 22 Jul 2017 17:22:59 -0300
-Message-Id: <1500754979-19836-2-git-send-email-festevam@gmail.com>
-In-Reply-To: <1500754979-19836-1-git-send-email-festevam@gmail.com>
+Subject: Re: [PATCH 1/2] watchdog: renesas-wdt: Check the return value from
+ clk_prepare_enable()
+Message-ID: <20170722203159.GA6399@tetsubishi>
 References: <1500754979-19836-1-git-send-email-festevam@gmail.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="AhhlLboLdkugWU4S"
+Content-Disposition: inline
+In-Reply-To: <1500754979-19836-1-git-send-email-festevam@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-From: Fabio Estevam <fabio.estevam@nxp.com>
 
-clk_prepare_enable() may fail, so we should better check its return value
-and propagate it in the case of error.
+--AhhlLboLdkugWU4S
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Fabio Estevam <fabio.estevam@nxp.com>
----
- drivers/watchdog/bcm7038_wdt.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+On Sat, Jul 22, 2017 at 05:22:58PM -0300, Fabio Estevam wrote:
+> From: Fabio Estevam <fabio.estevam@nxp.com>
+>=20
+> clk_prepare_enable() may fail, so we should better check its return value
+> and propagate it in the case of error.
+>=20
+> Signed-off-by: Fabio Estevam <fabio.estevam@nxp.com>
 
-diff --git a/drivers/watchdog/bcm7038_wdt.c b/drivers/watchdog/bcm7038_wdt.c
-index c1b8e534..f88f546 100644
---- a/drivers/watchdog/bcm7038_wdt.c
-+++ b/drivers/watchdog/bcm7038_wdt.c
-@@ -136,7 +136,9 @@ static int bcm7038_wdt_probe(struct platform_device *pdev)
- 	wdt->clk = devm_clk_get(dev, NULL);
- 	/* If unable to get clock, use default frequency */
- 	if (!IS_ERR(wdt->clk)) {
--		clk_prepare_enable(wdt->clk);
-+		err = clk_prepare_enable(wdt->clk);
-+		if (err)
-+			return err;
- 		wdt->rate = clk_get_rate(wdt->clk);
- 		/* Prevent divide-by-zero exception */
- 		if (!wdt->rate)
--- 
-2.7.4
+True. Yet, I have a patch in preparation which fully switches to
+RuntimePM which will make manual clk handling superfluous.
 
+I'd prefer to drop this patch because I'd need to revert it anyhow.
+
+
+--AhhlLboLdkugWU4S
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJZc7Y/AAoJEBQN5MwUoCm2W3IP/i0A3flVIXZbccaRXGmp/bR7
+8Hsg5ZhdBNDfWNqhtsVYh/Y767650LsNgQTXKK0A+GBgtcaHmMh2K15LRjYMEdEx
+sGeMKrvASs3qdtnAw3fcXoIVTahEZCDQ7fKJWKQIu/5WIVdEws/lZUj2NJIEL0Vx
+mt6ObxH8TSAhrXHfXPfjjYw/YH9UolTID2uW+oWuJb5EVV41U/iGAxSVn3WkaGVX
+N+i6FRZgmM0mBYi+BWvY5DW3pkQ+8FdYKQGGAwgZMUQEsm8n+ggmx04M5rejt+cj
+xJgeBei8czQdZnZuaRarvEbau6wYr3vIX7GI0c7VwS/zReXcf6KC/4zmbkYFkMUQ
+3uQGq/m2TboqH0KKEuojKGv+pySmNjgLva3qfEFojq77Bh5OnN//T63OjVMnzjHx
+ZGI0D2U2JqUQM+61zRf+YIhtL08Ft1GWvHpmKc7BYJTFQLeRJ+rZJAzBEA+f1OLq
+0zOkDyw5wfh20qa10pstt3kBRziLiUcbDekNg43OX6vccI6K1IgG60n6P2VFNPZI
+GQQtwiLJA8Jf9tgz0o6zQhMIb7IAFsleJoQ5zCmFtrx3mlCDngyoBaXj6eOlNgtm
+PtrGELuVHKQi9a6DvL43z0sNwOoIhR4eBxpIOsW9rx33vNQGRjzZS7w0EkdzcBFC
+0qfQ1WHiacnxiioMK+wA
+=BHQG
+-----END PGP SIGNATURE-----
+
+--AhhlLboLdkugWU4S--
