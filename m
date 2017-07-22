@@ -1,59 +1,67 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:50497 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751314AbdGVV2W (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 22 Jul 2017 17:28:22 -0400
-Date: Sat, 22 Jul 2017 23:28:19 +0200
-From: Wolfram Sang <wsa@the-dreams.de>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Fabio Estevam <festevam@gmail.com>, wim@iguana.be,
-        linux-watchdog@vger.kernel.org, wsa+renesas@sang-engineering.com,
-        justinpopo6@gmail.com, Fabio Estevam <fabio.estevam@nxp.com>
-Subject: Re: [PATCH 1/2] watchdog: renesas-wdt: Check the return value from
+Received: from bh-25.webhostbox.net ([208.91.199.152]:34005 "EHLO
+        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750921AbdGVV3H (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Sat, 22 Jul 2017 17:29:07 -0400
+Date: Sat, 22 Jul 2017 14:29:06 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Fabio Estevam <festevam@gmail.com>
+Cc: wim@iguana.be, linux-watchdog@vger.kernel.org,
+        wsa+renesas@sang-engineering.com, justinpopo6@gmail.com,
+        Fabio Estevam <fabio.estevam@nxp.com>
+Subject: Re: [PATCH 2/2] watchdog: bcm7038: Check the return value from
  clk_prepare_enable()
-Message-ID: <20170722212818.GA6979@tetsubishi>
+Message-ID: <20170722212906.GC2969@roeck-us.net>
 References: <1500754979-19836-1-git-send-email-festevam@gmail.com>
- <20170722203159.GA6399@tetsubishi>
- <20170722212422.GB2969@roeck-us.net>
+ <1500754979-19836-2-git-send-email-festevam@gmail.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="TB36FDmn/VVEgNH/"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20170722212422.GB2969@roeck-us.net>
+In-Reply-To: <1500754979-19836-2-git-send-email-festevam@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+On Sat, Jul 22, 2017 at 05:22:59PM -0300, Fabio Estevam wrote:
+> From: Fabio Estevam <fabio.estevam@nxp.com>
+> 
+> clk_prepare_enable() may fail, so we should better check its return value
+> and propagate it in the case of error.
+> 
+> Signed-off-by: Fabio Estevam <fabio.estevam@nxp.com>
 
---TB36FDmn/VVEgNH/
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
+> ---
+>  drivers/watchdog/bcm7038_wdt.c | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/watchdog/bcm7038_wdt.c b/drivers/watchdog/bcm7038_wdt.c
+> index c1b8e534..f88f546 100644
+> --- a/drivers/watchdog/bcm7038_wdt.c
+> +++ b/drivers/watchdog/bcm7038_wdt.c
+> @@ -136,7 +136,9 @@ static int bcm7038_wdt_probe(struct platform_device *pdev)
+>  	wdt->clk = devm_clk_get(dev, NULL);
+>  	/* If unable to get clock, use default frequency */
+>  	if (!IS_ERR(wdt->clk)) {
+> -		clk_prepare_enable(wdt->clk);
+> +		err = clk_prepare_enable(wdt->clk);
 
-> It won't need clk_prepare_enable() anymore ?
+One of those situations where devm_clk_prepare_enable() would be really
+useful.
 
-Nope, RuntimePM does all the clock handling.
+Wonder if it would make sense introduce subsystem specific functions, such
+as devm_watchdog_clk_prepare_enable(). That would at least be better than
+devm_add_action() in each driver.
 
+Guenter
 
---TB36FDmn/VVEgNH/
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJZc8NyAAoJEBQN5MwUoCm210oP/AuC07iFqcYC8AVJBx07dIt/
-AuBdC+1kPZZePIwnntD0cN6wRfzo5CWAFKOehXxXdTCKV0JqfiDsDkK5PliSJeJG
-/zPsbHXLSiN4eDYRZ6fYVqgB/jWlKBgfQ7C6Wzpr4OMIxYx+Fy9z6Rkt0dPYAk9T
-c0Z1uWRuspkbo5PJOrVZTr1rgnrzs5XbuPyGt/yxP6im0CZ9GyO3/JooPD/xJyqw
-C8lBHnfFDH7YmapwfxGBwjE6FA4LpEFBrBTn08RnrREB4w1DDjhnJDofuCwY8MNB
-yoBxUlmC3gqlxODM7EpcEGyMvivKbMzQugu29oMuvORGu/ulA3E2WhiLk0WjUR/Z
-CAUjpHZIlLGL37NscQkuztNrfnBScuoXRywHrwx4NkbmlJtyN0AXoB2Y/JOV5+9p
-liNJkQFR2R5JhMSGTn5oGXTbibQCp04DKsnoSHvy6wVqjZm+1IE24QMYo6irUemG
-zdLx1Nmt27Rn2KWjK4sRc94vd3TL5DGjN6SRX0IlkxlX8wfoYU0fILarQWQymkPg
-Xatqlxr6pD1msbo3ODTFGUocpjGfx+RJWPjm6b6YsDxW5QFHeqM4WyTnSXWaSMYc
-OCP46z4z/JejUyUBUTEQsEP+6YXShlHZu3TawuXGItax/WmoNfRJVKIRpkQujVSk
-IWxIF3wI+Gm4mhxMANws
-=rO0P
------END PGP SIGNATURE-----
-
---TB36FDmn/VVEgNH/--
+> +		if (err)
+> +			return err;
+>  		wdt->rate = clk_get_rate(wdt->clk);
+>  		/* Prevent divide-by-zero exception */
+>  		if (!wdt->rate)
+> -- 
+> 2.7.4
+> 
