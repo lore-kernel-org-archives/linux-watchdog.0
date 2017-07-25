@@ -1,68 +1,190 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:52506 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751666AbdGWO6v (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 23 Jul 2017 10:58:51 -0400
-Date: Sun, 23 Jul 2017 16:58:48 +0200
-From: Wolfram Sang <wsa@the-dreams.de>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Fabio Estevam <festevam@gmail.com>, wim@iguana.be,
-        linux-watchdog@vger.kernel.org, wsa+renesas@sang-engineering.com,
-        justinpopo6@gmail.com, Fabio Estevam <fabio.estevam@nxp.com>
-Subject: Re: [PATCH 1/2] watchdog: renesas-wdt: Check the return value from
- clk_prepare_enable()
-Message-ID: <20170723145848.GA4074@tetsubishi>
-References: <1500754979-19836-1-git-send-email-festevam@gmail.com>
- <20170722203159.GA6399@tetsubishi>
- <20170722212422.GB2969@roeck-us.net>
- <20170722212818.GA6979@tetsubishi>
- <20170722213011.GD2969@roeck-us.net>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="mP3DRpeJDSE+ciuQ"
-Content-Disposition: inline
-In-Reply-To: <20170722213011.GD2969@roeck-us.net>
+Received: from mail-wr0-f193.google.com ([209.85.128.193]:33592 "EHLO
+        mail-wr0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750839AbdGYL1F (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 25 Jul 2017 07:27:05 -0400
+Received: by mail-wr0-f193.google.com with SMTP id y43so19584047wrd.0
+        for <linux-watchdog@vger.kernel.org>; Tue, 25 Jul 2017 04:27:04 -0700 (PDT)
+From: fzuuzf@googlemail.com
+To: linux@roeck-us.net, linux-watchdog@vger.kernel.org
+Cc: fzuuzf@googlemail.com, support.opensource@diasemi.com
+Subject: [PATCH v2] watchdog: da9063_wdt: Simplify by removing unneeded struct...
+Date: Tue, 25 Jul 2017 13:25:58 +0200
+Message-Id: <1500981958-5134-1-git-send-email-fzuuzf@googlemail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+...da9063_watchdog, which contained nothing but struct watchdog_device and a
+struct da9063 pointer.
+Assign the struct da9063 pointer directly to the struct watchdog_device's
+driver_data field instead of creating struct da9063_watchdog and assigning
+it's address there.
+Spares a pointer's size data memory and an indirection level in the callbacks.
 
---mP3DRpeJDSE+ciuQ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Karsten Wiese <fzuuzf@googlemail.com>
+---
+Changes in v2:
+  - Make the From: and Signed-off-by: email adresses equal.
 
-On Sat, Jul 22, 2017 at 02:30:11PM -0700, Guenter Roeck wrote:
-> On Sat, Jul 22, 2017 at 11:28:19PM +0200, Wolfram Sang wrote:
-> >=20
-> > > It won't need clk_prepare_enable() anymore ?
-> >=20
-> > Nope, RuntimePM does all the clock handling.
-> >=20
-> What if runtime PM is disabled ?
+ drivers/watchdog/da9063_wdt.c | 67 +++++++++++++++++++------------------------
+ 1 file changed, 30 insertions(+), 37 deletions(-)
 
-PM is selected by RENESAS_ARCH.
+diff --git a/drivers/watchdog/da9063_wdt.c b/drivers/watchdog/da9063_wdt.c
+index 4691c55..2a20fc1 100644
+--- a/drivers/watchdog/da9063_wdt.c
++++ b/drivers/watchdog/da9063_wdt.c
+@@ -36,11 +36,6 @@ static const unsigned int wdt_timeout[] = { 0, 2, 4, 8, 16, 32, 65, 131 };
+ #define DA9063_WDG_TIMEOUT		wdt_timeout[3]
+ #define DA9063_RESET_PROTECTION_MS	256
+ 
+-struct da9063_watchdog {
+-	struct da9063 *da9063;
+-	struct watchdog_device wdtdev;
+-};
+-
+ static unsigned int da9063_wdt_timeout_to_sel(unsigned int secs)
+ {
+ 	unsigned int i;
+@@ -61,14 +56,14 @@ static int _da9063_wdt_set_timeout(struct da9063 *da9063, unsigned int regval)
+ 
+ static int da9063_wdt_start(struct watchdog_device *wdd)
+ {
+-	struct da9063_watchdog *wdt = watchdog_get_drvdata(wdd);
++	struct da9063 *da9063 = watchdog_get_drvdata(wdd);
+ 	unsigned int selector;
+ 	int ret;
+ 
+-	selector = da9063_wdt_timeout_to_sel(wdt->wdtdev.timeout);
+-	ret = _da9063_wdt_set_timeout(wdt->da9063, selector);
++	selector = da9063_wdt_timeout_to_sel(wdd->timeout);
++	ret = _da9063_wdt_set_timeout(da9063, selector);
+ 	if (ret)
+-		dev_err(wdt->da9063->dev, "Watchdog failed to start (err = %d)\n",
++		dev_err(da9063->dev, "Watchdog failed to start (err = %d)\n",
+ 			ret);
+ 
+ 	return ret;
+@@ -76,13 +71,13 @@ static int da9063_wdt_start(struct watchdog_device *wdd)
+ 
+ static int da9063_wdt_stop(struct watchdog_device *wdd)
+ {
+-	struct da9063_watchdog *wdt = watchdog_get_drvdata(wdd);
++	struct da9063 *da9063 = watchdog_get_drvdata(wdd);
+ 	int ret;
+ 
+-	ret = regmap_update_bits(wdt->da9063->regmap, DA9063_REG_CONTROL_D,
++	ret = regmap_update_bits(da9063->regmap, DA9063_REG_CONTROL_D,
+ 				 DA9063_TWDSCALE_MASK, DA9063_TWDSCALE_DISABLE);
+ 	if (ret)
+-		dev_alert(wdt->da9063->dev, "Watchdog failed to stop (err = %d)\n",
++		dev_alert(da9063->dev, "Watchdog failed to stop (err = %d)\n",
+ 			  ret);
+ 
+ 	return ret;
+@@ -90,13 +85,13 @@ static int da9063_wdt_stop(struct watchdog_device *wdd)
+ 
+ static int da9063_wdt_ping(struct watchdog_device *wdd)
+ {
+-	struct da9063_watchdog *wdt = watchdog_get_drvdata(wdd);
++	struct da9063 *da9063 = watchdog_get_drvdata(wdd);
+ 	int ret;
+ 
+-	ret = regmap_write(wdt->da9063->regmap, DA9063_REG_CONTROL_F,
++	ret = regmap_write(da9063->regmap, DA9063_REG_CONTROL_F,
+ 			   DA9063_WATCHDOG);
+ 	if (ret)
+-		dev_alert(wdt->da9063->dev, "Failed to ping the watchdog (err = %d)\n",
++		dev_alert(da9063->dev, "Failed to ping the watchdog (err = %d)\n",
+ 			  ret);
+ 
+ 	return ret;
+@@ -105,14 +100,14 @@ static int da9063_wdt_ping(struct watchdog_device *wdd)
+ static int da9063_wdt_set_timeout(struct watchdog_device *wdd,
+ 				  unsigned int timeout)
+ {
+-	struct da9063_watchdog *wdt = watchdog_get_drvdata(wdd);
++	struct da9063 *da9063 = watchdog_get_drvdata(wdd);
+ 	unsigned int selector;
+ 	int ret;
+ 
+ 	selector = da9063_wdt_timeout_to_sel(timeout);
+-	ret = _da9063_wdt_set_timeout(wdt->da9063, selector);
++	ret = _da9063_wdt_set_timeout(da9063, selector);
+ 	if (ret)
+-		dev_err(wdt->da9063->dev, "Failed to set watchdog timeout (err = %d)\n",
++		dev_err(da9063->dev, "Failed to set watchdog timeout (err = %d)\n",
+ 			ret);
+ 	else
+ 		wdd->timeout = wdt_timeout[selector];
+@@ -123,13 +118,13 @@ static int da9063_wdt_set_timeout(struct watchdog_device *wdd,
+ static int da9063_wdt_restart(struct watchdog_device *wdd, unsigned long action,
+ 			      void *data)
+ {
+-	struct da9063_watchdog *wdt = watchdog_get_drvdata(wdd);
++	struct da9063 *da9063 = watchdog_get_drvdata(wdd);
+ 	int ret;
+ 
+-	ret = regmap_write(wdt->da9063->regmap, DA9063_REG_CONTROL_F,
++	ret = regmap_write(da9063->regmap, DA9063_REG_CONTROL_F,
+ 			   DA9063_SHUTDOWN);
+ 	if (ret)
+-		dev_alert(wdt->da9063->dev, "Failed to shutdown (err = %d)\n",
++		dev_alert(da9063->dev, "Failed to shutdown (err = %d)\n",
+ 			  ret);
+ 
+ 	return ret;
+@@ -152,7 +147,7 @@ static const struct watchdog_ops da9063_watchdog_ops = {
+ static int da9063_wdt_probe(struct platform_device *pdev)
+ {
+ 	struct da9063 *da9063;
+-	struct da9063_watchdog *wdt;
++	struct watchdog_device *wdd;
+ 
+ 	if (!pdev->dev.parent)
+ 		return -EINVAL;
+@@ -161,27 +156,25 @@ static int da9063_wdt_probe(struct platform_device *pdev)
+ 	if (!da9063)
+ 		return -EINVAL;
+ 
+-	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
+-	if (!wdt)
++	wdd = devm_kzalloc(&pdev->dev, sizeof(*wdd), GFP_KERNEL);
++	if (!wdd)
+ 		return -ENOMEM;
+ 
+-	wdt->da9063 = da9063;
+-
+-	wdt->wdtdev.info = &da9063_watchdog_info;
+-	wdt->wdtdev.ops = &da9063_watchdog_ops;
+-	wdt->wdtdev.min_timeout = DA9063_WDT_MIN_TIMEOUT;
+-	wdt->wdtdev.max_timeout = DA9063_WDT_MAX_TIMEOUT;
+-	wdt->wdtdev.min_hw_heartbeat_ms = DA9063_RESET_PROTECTION_MS;
+-	wdt->wdtdev.timeout = DA9063_WDG_TIMEOUT;
+-	wdt->wdtdev.parent = &pdev->dev;
++	wdd->info = &da9063_watchdog_info;
++	wdd->ops = &da9063_watchdog_ops;
++	wdd->min_timeout = DA9063_WDT_MIN_TIMEOUT;
++	wdd->max_timeout = DA9063_WDT_MAX_TIMEOUT;
++	wdd->min_hw_heartbeat_ms = DA9063_RESET_PROTECTION_MS;
++	wdd->timeout = DA9063_WDG_TIMEOUT;
++	wdd->parent = &pdev->dev;
+ 
+-	wdt->wdtdev.status = WATCHDOG_NOWAYOUT_INIT_STATUS;
++	wdd->status = WATCHDOG_NOWAYOUT_INIT_STATUS;
+ 
+-	watchdog_set_restart_priority(&wdt->wdtdev, 128);
++	watchdog_set_restart_priority(wdd, 128);
+ 
+-	watchdog_set_drvdata(&wdt->wdtdev, wdt);
++	watchdog_set_drvdata(wdd, da9063);
+ 
+-	return devm_watchdog_register_device(&pdev->dev, &wdt->wdtdev);
++	return devm_watchdog_register_device(&pdev->dev, wdd);
+ }
+ 
+ static struct platform_driver da9063_wdt_driver = {
+-- 
+2.7.4
 
-
---mP3DRpeJDSE+ciuQ
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJZdLmoAAoJEBQN5MwUoCm2NpgQAJs47pTndsLqMQfszAc+My1+
-/HbfKWeNCabsuxJsknmbpdcQOshZuylFHHLbC9C3hYkNkmpGJv5YcbcmVYAUinxs
-yMtKYp+6a7xn6MGQTRVC1FoIxHWVg25jNi5NLnPa98inEvnlsBtNxmLVZuoYAoXg
-N+ufjAMCW6nkGWoEfg64ln+xfKj2+RMQUp5MzUPeys1l/WuDGU2mE0WDH6iYUwxQ
-68zVPHonlPYh012s9x26GjdNVtyjZhLa95fA3UBL0gUZ2n7b5u7lELm4NwTJ3b66
-xjFL+ekqzwhygecLT7bJZqDPAa1dXC2pr5wV/A801TQA2nd9E1XKFUUioDIxDs2O
-cgmgP5MIqHEnbHE5uzO7B3JZvWAXLm7QGYCJoYkgRHS1E8ZqyArQasP1hIWfESS1
-4i/xSgP/TNEtD/DGDjhE+PbGdrZ+mutnMipcByzDPSjDEzincmEoVrFW+8uDNoN9
-rlglX5xAwOKlGYO45/nk/PUESFjusgu7L7Wwg/4Fojs8EY2OeHaFit7bHGM/byAA
-1cakOUo3uOsr0j30QNJyYe4nsfeo1lftsBW3s98CJEZKkR3q53CHKd1Y5RP0cpeZ
-+Xc0PAxi/48Y+gq5605UWFXB9P8FpAza/TW7rIJ5e6PsD8LR6QU5G0cSnvKOO648
-h468au8frgPWqyL3V/2R
-=BCVJ
------END PGP SIGNATURE-----
-
---mP3DRpeJDSE+ciuQ--
