@@ -1,41 +1,52 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-it0-f42.google.com ([209.85.214.42]:37692 "EHLO
-        mail-it0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751441AbdGZIgd (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 26 Jul 2017 04:36:33 -0400
-Received: by mail-it0-f42.google.com with SMTP id v127so64214867itd.0
-        for <linux-watchdog@vger.kernel.org>; Wed, 26 Jul 2017 01:36:33 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <20170726075212.GB10959@lst.de>
-References: <20170719182857.73693-1-andriy.shevchenko@linux.intel.com>
- <20170719182857.73693-2-andriy.shevchenko@linux.intel.com>
- <CAKv+Gu8Et3smOv9Of47q6VGa9yn9u+vuhS_1B5yg_QULsS4Obg@mail.gmail.com>
- <1500979206.29303.228.camel@linux.intel.com> <20170726075212.GB10959@lst.de>
-From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Date: Wed, 26 Jul 2017 09:36:32 +0100
-Message-ID: <CAKv+Gu8Ua5A0N6vj_J65ss6eHdest1_+_Jwp7enoeqAsccugYQ@mail.gmail.com>
-Subject: Re: [PATCH v1 1/6] efi: Switch to use new generic UUID API
-To: Christoph Hellwig <hch@lst.de>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+Received: from mga07.intel.com ([134.134.136.100]:13949 "EHLO mga07.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750989AbdGZKDb (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Wed, 26 Jul 2017 06:03:31 -0400
+Message-ID: <1501063383.29303.248.camel@linux.intel.com>
+Subject: Re: [PATCH v1 6/6] device property: Switch to use new generic UUID
+ API
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>,
         "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>,
         devel@linuxdriverproject.org, sparmaintainer@unisys.com,
         devel@driverdev.osuosl.org,
-        "<linux-wireless@vger.kernel.org>" <linux-wireless@vger.kernel.org>,
+        "open list:TI WILINK WIRELES..." <linux-wireless@vger.kernel.org>,
         linux-watchdog@vger.kernel.org,
-        "linux-efi@vger.kernel.org" <linux-efi@vger.kernel.org>,
+        linux-efi <linux-efi@vger.kernel.org>,
+        Christoph Hellwig <hch@lst.de>,
         "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Lukas Wunner <lukas@wunner.de>,
-        Matt Fleming <matt@codeblueprint.co.uk>
+        Lukas Wunner <lukas@wunner.de>
+Date: Wed, 26 Jul 2017 13:03:03 +0300
+In-Reply-To: <6349641.0fe8FCM51k@aspire.rjw.lan>
+References: <20170719182857.73693-1-andriy.shevchenko@linux.intel.com>
+         <2908341.aERReitNcd@aspire.rjw.lan>
+         <CAHp75Vd6KenS3vQBgTJL=iE790Rrtzj11gvPK=KLE98bjcPm6w@mail.gmail.com>
+         <6349641.0fe8FCM51k@aspire.rjw.lan>
 Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 26 July 2017 at 08:52, Christoph Hellwig <hch@lst.de> wrote:
-> On Tue, Jul 25, 2017 at 01:40:06PM +0300, Andy Shevchenko wrote:
->> Christoph, can we apply this one at least to move things forward?
->
-> Id be happy to pick this up for 4.14.  Does everyone involved agree
-> that the uuid tree is the right one?
+On Wed, 2017-07-26 at 02:27 +0200, Rafael J. Wysocki wrote:
+> On Wednesday, July 26, 2017 03:35:01 AM Andy Shevchenko wrote:
+> > On Wed, Jul 26, 2017 at 3:21 AM, Rafael J. Wysocki <rjw@rjwysocki.ne
+> > t> wrote:
 
-Fine by me for EFI
+> > > Andy, do you want me to apply this?
+> > 
+> > If you would like to.
+> > 
+> > The patch is now pretty independent since necessary stuff made
+> > v4.13-rc1.
+> 
+> OK
+
+Thanks!
+
+-- 
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy
