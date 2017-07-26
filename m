@@ -1,55 +1,34 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-oi0-f54.google.com ([209.85.218.54]:35486 "EHLO
-        mail-oi0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751210AbdGZAfD (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 25 Jul 2017 20:35:03 -0400
-MIME-Version: 1.0
-In-Reply-To: <2908341.aERReitNcd@aspire.rjw.lan>
-References: <20170719182857.73693-1-andriy.shevchenko@linux.intel.com>
- <20170719182857.73693-7-andriy.shevchenko@linux.intel.com>
- <20170725141235.GY2369@lahna.fi.intel.com> <2908341.aERReitNcd@aspire.rjw.lan>
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Date: Wed, 26 Jul 2017 03:35:01 +0300
-Message-ID: <CAHp75Vd6KenS3vQBgTJL=iE790Rrtzj11gvPK=KLE98bjcPm6w@mail.gmail.com>
-Subject: Re: [PATCH v1 6/6] device property: Switch to use new generic UUID API
-To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+Received: from verein.lst.de ([213.95.11.211]:34341 "EHLO newverein.lst.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750813AbdGZHwO (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Wed, 26 Jul 2017 03:52:14 -0400
+Date: Wed, 26 Jul 2017 09:52:12 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>,
         "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>,
         devel@linuxdriverproject.org, sparmaintainer@unisys.com,
         devel@driverdev.osuosl.org,
-        "open list:TI WILINK WIRELES..." <linux-wireless@vger.kernel.org>,
+        "<linux-wireless@vger.kernel.org>" <linux-wireless@vger.kernel.org>,
         linux-watchdog@vger.kernel.org,
-        linux-efi <linux-efi@vger.kernel.org>,
+        "linux-efi@vger.kernel.org" <linux-efi@vger.kernel.org>,
         Christoph Hellwig <hch@lst.de>,
         "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Lukas Wunner <lukas@wunner.de>
-Content-Type: text/plain; charset="UTF-8"
+        Lukas Wunner <lukas@wunner.de>,
+        Matt Fleming <matt@codeblueprint.co.uk>
+Subject: Re: [PATCH v1 1/6] efi: Switch to use new generic UUID API
+Message-ID: <20170726075212.GB10959@lst.de>
+References: <20170719182857.73693-1-andriy.shevchenko@linux.intel.com> <20170719182857.73693-2-andriy.shevchenko@linux.intel.com> <CAKv+Gu8Et3smOv9Of47q6VGa9yn9u+vuhS_1B5yg_QULsS4Obg@mail.gmail.com> <1500979206.29303.228.camel@linux.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1500979206.29303.228.camel@linux.intel.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Jul 26, 2017 at 3:21 AM, Rafael J. Wysocki <rjw@rjwysocki.net> wrote:
-> On Tuesday, July 25, 2017 05:12:35 PM Mika Westerberg wrote:
->> On Wed, Jul 19, 2017 at 09:28:57PM +0300, Andy Shevchenko wrote:
->> > There are new types and helpers that are supposed to be used in new code.
->> >
->> > As a preparation to get rid of legacy types and API functions do
->> > the conversion here.
->> >
->> > Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
->> > Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
->>
->> Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
->
-> OK
->
-> Andy, do you want me to apply this?
+On Tue, Jul 25, 2017 at 01:40:06PM +0300, Andy Shevchenko wrote:
+> Christoph, can we apply this one at least to move things forward?
 
-If you would like to.
-
-The patch is now pretty independent since necessary stuff made v4.13-rc1.
-
--- 
-With Best Regards,
-Andy Shevchenko
+Id be happy to pick this up for 4.14.  Does everyone involved agree
+that the uuid tree is the right one?
