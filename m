@@ -1,36 +1,44 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:7846 "EHLO mga02.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751651AbdGYOOe (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 25 Jul 2017 10:14:34 -0400
-Date: Tue, 25 Jul 2017 17:12:35 +0300
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Received: from cloudserver094114.home.net.pl ([79.96.170.134]:62463 "EHLO
+        cloudserver094114.home.net.pl" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1751047AbdGZA3N (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 25 Jul 2017 20:29:13 -0400
+From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+To: Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Cc: linux-acpi@vger.kernel.org, devel@linuxdriverproject.org,
         sparmaintainer@unisys.com, devel@driverdev.osuosl.org,
         linux-wireless@vger.kernel.org, linux-watchdog@vger.kernel.org,
         linux-efi@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        linux-kernel@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Subject: Re: [PATCH v1 6/6] device property: Switch to use new generic UUID
- API
-Message-ID: <20170725141235.GY2369@lahna.fi.intel.com>
-References: <20170719182857.73693-1-andriy.shevchenko@linux.intel.com>
- <20170719182857.73693-7-andriy.shevchenko@linux.intel.com>
+        linux-kernel@vger.kernel.org, Lukas Wunner <lukas@wunner.de>
+Subject: Re: [PATCH v1 6/6] device property: Switch to use new generic UUID API
+Date: Wed, 26 Jul 2017 02:21:12 +0200
+Message-ID: <2908341.aERReitNcd@aspire.rjw.lan>
+In-Reply-To: <20170725141235.GY2369@lahna.fi.intel.com>
+References: <20170719182857.73693-1-andriy.shevchenko@linux.intel.com> <20170719182857.73693-7-andriy.shevchenko@linux.intel.com> <20170725141235.GY2369@lahna.fi.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20170719182857.73693-7-andriy.shevchenko@linux.intel.com>
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Jul 19, 2017 at 09:28:57PM +0300, Andy Shevchenko wrote:
-> There are new types and helpers that are supposed to be used in new code.
+On Tuesday, July 25, 2017 05:12:35 PM Mika Westerberg wrote:
+> On Wed, Jul 19, 2017 at 09:28:57PM +0300, Andy Shevchenko wrote:
+> > There are new types and helpers that are supposed to be used in new code.
+> > 
+> > As a preparation to get rid of legacy types and API functions do
+> > the conversion here.
+> > 
+> > Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+> > Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
 > 
-> As a preparation to get rid of legacy types and API functions do
-> the conversion here.
-> 
-> Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-> Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
+> Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+OK
+
+Andy, do you want me to apply this?
+
+Thanks,
+Rafael
+
