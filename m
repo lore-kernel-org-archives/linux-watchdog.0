@@ -1,80 +1,85 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mga01.intel.com ([192.55.52.88]:23326 "EHLO mga01.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750981AbdG0SI7 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 27 Jul 2017 14:08:59 -0400
-From: sathyanarayanan.kuppuswamy@linux.intel.com
-To: wim@iguana.be
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        sathyaosid@gmail.com,
-        Kuppuswamy Sathyanarayanan
-        <sathyanarayanan.kuppuswamy@linux.intel.com>
-Subject: [PATCH v1 1/1] watchdog: iTCO_wdt: Move update_no_reboot_bit() out of atomic context
-Date: Thu, 27 Jul 2017 11:08:44 -0700
-Message-Id: <92432e9cc40ba7f37f677386e7f3c5eb815dc26a.1501178882.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+Received: from mail.free-electrons.com ([62.4.15.54]:41617 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753562AbdG2LHj (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Sat, 29 Jul 2017 07:07:39 -0400
+Date: Sat, 29 Jul 2017 13:07:37 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Moritz Fischer <mdf@kernel.org>, robh+dt@kernel.org,
+        mark.rutland@arm.com, a.zummo@towertech.it, wim@iguana.be,
+        linux@roeck-us.net, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-rtc@vger.kernel.org,
+        Moritz Fischer <moritz.fischer@ettus.com>
+Subject: Re: [PATCH 2/2] mfd: ds1374: Add Dallas/Maxim DS1374 Multi Function
+ Device
+Message-ID: <20170729110737.dl2nly5xvurmb7eo@piout.net>
+References: <1499975665-14581-1-git-send-email-mdf@kernel.org>
+ <1499975665-14581-2-git-send-email-mdf@kernel.org>
+ <20170717075117.btnhbmgpofwn7zdk@dell>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20170717075117.btnhbmgpofwn7zdk@dell>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-From: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
+On 17/07/2017 at 08:51:17 +0100, Lee Jones wrote:
+> > +static int ds1374_probe(struct i2c_client *client,
+> > +			const struct i2c_device_id *id)
+> > +{
+> > +	struct ds1374 *ds1374;
+> > +	u32 mode;
+> > +	int err;
+> > +
+> > +	ds1374 = devm_kzalloc(&client->dev, sizeof(struct ds1374), GFP_KERNEL);
+> > +	if (!ds1374)
+> > +		return -ENOMEM;
+> > +
+> > +	ds1374->regmap = devm_regmap_init_i2c(client, &ds1374_regmap_config);
+> > +	if (IS_ERR(ds1374->regmap))
+> > +		return PTR_ERR(ds1374->regmap);
+> > +
+> > +	if (IS_ENABLED(CONFIG_OF) && client->dev.of_node) {
+> > +		err = of_property_read_u32(client->dev.of_node,
+> > +					   "dallas,mode", &mode);
+> > +		if (err < 0) {
+> > +			dev_err(&client->dev, "missing dallas,mode property\n");
+> > +			return -EINVAL;
+> > +		}
+> > +
+> > +		ds1374->remapped_reset
+> > +			= of_property_read_bool(client->dev.of_node,
+> > +						"dallas,remap-reset");
+> > +
+> > +		ds1374->mode = (enum ds1374_mode)mode;
+> > +	} else if (IS_ENABLED(CONFIG_RTC_DRV_DS1374_WDT)) {
+> > +		ds1374->mode = DS1374_MODE_RTC_WDT;
+> > +	} else {
+> > +		ds1374->mode = DS1374_MODE_RTC_ALM;
+> > +	}
+> 
+> This is non-standard.  So if OF is enabled, you're taking the 'mode'
+> from platform data (DT) and if it's not, you're relying on Kconfig.
+> May I suggest that you pick platform data OR Kconfig, but not mix the
+> two.
+> 
 
-In iTCO_wdt_start() and iTCO_wdt_stop() functions, update_no_reboot_bit()
-call has been made within io_lock spin lock context. But if the
-update_no_reboot_bit() function is implemented by chipset/PMC driver
-then we can't be sure whether their implementation does not include any
-sleeping calls. Also, iTCO_wdt io_lock is mainly intended for protecting the
-watchdog IO operations and has nothing to with no_reboot_bit update.
+I've explicitly asked for that. CONFIG_RTC_DRV_DS1374_WDT has been in
+the kernel since 2014. Requiring the use of dallas,mode now would break
+the functionality for people not updating their DT.
 
-Currently, update_no_reboot_bit() function implemented by intel_pmc_ipc
-driver uses mutex_lock() which in turn causes "sleeping into atomic
-context" issue in iTCO_wdt_start()/iTCO_wdt_stop() functions.
+However, my suggestion was that if OF is enabled and dallas,mode is not
+present, then rely on CONFIG_RTC_DRV_DS1374_WDT to set the mode.
 
-So moving the update_no_reboot_bit() function out of atomic context.
+I personally don't care too much about breaking the DT ABI but this one
+can be a bit tricky to discover and I still think it can be avoided.
+At least, we should silently ignore CONFIG_RTC_DRV_DS1374_WDT.
 
-Signed-off-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
----
- drivers/watchdog/iTCO_wdt.c | 13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/watchdog/iTCO_wdt.c b/drivers/watchdog/iTCO_wdt.c
-index c4f6587..5a018b2 100644
---- a/drivers/watchdog/iTCO_wdt.c
-+++ b/drivers/watchdog/iTCO_wdt.c
-@@ -243,17 +243,16 @@ static int iTCO_wdt_start(struct watchdog_device *wd_dev)
- 	struct iTCO_wdt_private *p = watchdog_get_drvdata(wd_dev);
- 	unsigned int val;
- 
--	spin_lock(&p->io_lock);
--
--	iTCO_vendor_pre_start(p->smi_res, wd_dev->timeout);
--
- 	/* disable chipset's NO_REBOOT bit */
- 	if (p->update_no_reboot_bit(p->no_reboot_priv, false)) {
--		spin_unlock(&p->io_lock);
- 		pr_err("failed to reset NO_REBOOT flag, reboot disabled by hardware/BIOS\n");
- 		return -EIO;
- 	}
- 
-+	spin_lock(&p->io_lock);
-+
-+	iTCO_vendor_pre_start(p->smi_res, wd_dev->timeout);
-+
- 	/* Force the timer to its reload value by writing to the TCO_RLD
- 	   register */
- 	if (p->iTCO_version >= 2)
-@@ -288,11 +287,11 @@ static int iTCO_wdt_stop(struct watchdog_device *wd_dev)
- 	outw(val, TCO1_CNT(p));
- 	val = inw(TCO1_CNT(p));
- 
-+	spin_unlock(&p->io_lock);
-+
- 	/* Set the NO_REBOOT bit to prevent later reboots, just for sure */
- 	p->update_no_reboot_bit(p->no_reboot_priv, true);
- 
--	spin_unlock(&p->io_lock);
--
- 	if ((val & 0x0800) == 0)
- 		return -1;
- 	return 0;
 -- 
-2.7.4
-
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
