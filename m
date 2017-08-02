@@ -1,45 +1,57 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wr0-f193.google.com ([209.85.128.193]:38365 "EHLO
-        mail-wr0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751784AbdHANoM (ORCPT
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:51139 "EHLO
+        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1751135AbdHBEqK (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 1 Aug 2017 09:44:12 -0400
-Subject: Re: [PATCH 1/4] ARM: mediatek: dts: Cleanup bindings documentation
-To: Rob Herring <robh@kernel.org>
-Cc: wim@iguana.be, linux@roeck-us.net, mark.rutland@arm.com,
-        catalin.marinas@arm.com, will.deacon@arm.com,
-        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org,
-        Matthias Brugger <mbrugger@suse.com>
-References: <20170720102247.12342-1-matthias.bgg@gmail.com>
- <20170724195644.oztdexqhicir5xn3@rob-hp-laptop>
-From: Matthias Brugger <matthias.bgg@gmail.com>
-Message-ID: <5451bdfa-e2c1-30cb-a5a9-252662b2d190@gmail.com>
-Date: Tue, 1 Aug 2017 15:44:06 +0200
-MIME-Version: 1.0
-In-Reply-To: <20170724195644.oztdexqhicir5xn3@rob-hp-laptop>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+        Wed, 2 Aug 2017 00:46:10 -0400
+From: Andrew Jeffery <andrew@aj.id.au>
+To: linux-watchdog@vger.kernel.org
+Cc: Andrew Jeffery <andrew@aj.id.au>, wim@iguana.be,
+        linux@roeck-us.net, robh+dt@kernel.org, mark.rutland@arm.com,
+        joel@jms.id.au, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-aspeed@lists.ozlabs.org,
+        openbmc@lists.ozlabs.org
+Subject: [PATCH 1/2] dt-bindings: watchdog: aspeed: External reset signal properties
+Date: Wed,  2 Aug 2017 14:15:28 +0930
+Message-Id: <20170802044529.30032-2-andrew@aj.id.au>
+In-Reply-To: <20170802044529.30032-1-andrew@aj.id.au>
+References: <20170802044529.30032-1-andrew@aj.id.au>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+For the AST2500 and compatible watchdog controllers the external reset
+signal can be configured for push-pull or open-drain drive types, and in
+the case of push-pull driving, active low or high.
 
+Signed-off-by: Andrew Jeffery <andrew@aj.id.au>
+---
+ Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-On 07/24/2017 09:56 PM, Rob Herring wrote:
-> On Thu, Jul 20, 2017 at 12:22:44PM +0200, Matthias Brugger wrote:
->> From: Matthias Brugger <mbrugger@suse.com>
->>
->> This patch cleans up the binding documentation stating explicitly
->> the binding and it's fallback for every SoC.
->>
->> Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
->> ---
->>   Documentation/devicetree/bindings/watchdog/mtk-wdt.txt | 5 ++---
->>   1 file changed, 2 insertions(+), 3 deletions(-)
-> 
-> Acked-by: Rob Herring <robh@kernel.org>
-> 
+diff --git a/Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt b/Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt
+index 2b34ce9b60b9..c5077a1f5cb3 100644
+--- a/Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt
++++ b/Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt
+@@ -33,10 +33,18 @@ Optional properties:
+         - none: No reset is performed on timeout. Assumes another watchdog
+                 engine is responsible for this.
+ 
++ - aspeed,alt-boot:    If property is present then boot from alternate block.
+  - aspeed,external-signal: If property is present then signal is sent to
+ 			external reset counter (only WDT1 and WDT2). If not
+ 			specified no external signal is sent.
+- - aspeed,alt-boot:    If property is present then boot from alternate block.
++ - aspeed,ext-pulse-duration: External signal pulse duration in microseconds
++
++Optional properties for AST2500-compatible watchdogs:
++ - aspeed,ext-push-pull: If aspeed,external-signal is present, set the pin's
++			 drive type to push-pull. The default is open-drain.
++ - aspeed,ext-active-high: If aspeed,external-signal is present and and the pin
++			   is configured as push-pull, then set the pulse
++			   polarity to active-high. The default is active-low.
+ 
+ Example:
+ 
+-- 
+2.11.0
 
-Thanks. Whole series pushed now to v4.13-next/dts64
