@@ -1,8 +1,8 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx1.mailbox.org ([80.241.60.212]:42504 "EHLO mx1.mailbox.org"
+Received: from mx1.mailbox.org ([80.241.60.212]:42546 "EHLO mx1.mailbox.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751815AbdHBW66 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 2 Aug 2017 18:58:58 -0400
+        id S1751737AbdHBW7A (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Wed, 2 Aug 2017 18:59:00 -0400
 From: Hauke Mehrtens <hauke@hauke-m.de>
 To: ralf@linux-mips.org
 Cc: linux-mips@linux-mips.org, linux-mtd@lists.infradead.org,
@@ -11,9 +11,9 @@ Cc: linux-mips@linux-mips.org, linux-mtd@lists.infradead.org,
         linux-spi@vger.kernel.org, hauke.mehrtens@intel.com,
         robh@kernel.org, andy.shevchenko@gmail.com, p.zabel@pengutronix.de,
         Hauke Mehrtens <hauke@hauke-m.de>
-Subject: [PATCH v8 06/16] MIPS: lantiq: Enable MFD_SYSCON to be able to use it for the RCU MFD
-Date: Thu,  3 Aug 2017 00:57:07 +0200
-Message-Id: <20170802225717.24408-7-hauke@hauke-m.de>
+Subject: [PATCH v8 07/16] Documentation: DT: MIPS: lantiq: Add docs for the RCU bindings
+Date: Thu,  3 Aug 2017 00:57:08 +0200
+Message-Id: <20170802225717.24408-8-hauke@hauke-m.de>
 In-Reply-To: <20170802225717.24408-1-hauke@hauke-m.de>
 References: <20170802225717.24408-1-hauke@hauke-m.de>
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -21,23 +21,118 @@ List-Id: linux-watchdog@vger.kernel.org
 
 From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 
-Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
----
- arch/mips/lantiq/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+This adds the initial documentation for the RCU module (a MFD device
+which provides USB PHYs, reset controllers and more).
 
-diff --git a/arch/mips/lantiq/Kconfig b/arch/mips/lantiq/Kconfig
-index 177769dbb0e8..f5db4a426568 100644
---- a/arch/mips/lantiq/Kconfig
-+++ b/arch/mips/lantiq/Kconfig
-@@ -17,6 +17,7 @@ config SOC_XWAY
- 	bool "XWAY"
- 	select SOC_TYPE_XWAY
- 	select HW_HAS_PCI
-+	select MFD_SYSCON
- 
- config SOC_FALCON
- 	bool "FALCON"
+The RCU register range is used for multiple purposes. Mostly one device
+uses one or multiple register exclusively, but for some registers some
+bits are for one driver and some other bits are for a different driver.
+With this patch all accesses to the RCU registers will go through
+syscon.
+
+Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
+Acked-by: Rob Herring <robh@kernel.org>
+---
+ .../devicetree/bindings/mips/lantiq/rcu.txt        | 90 ++++++++++++++++++++++
+ 1 file changed, 90 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/mips/lantiq/rcu.txt
+
+diff --git a/Documentation/devicetree/bindings/mips/lantiq/rcu.txt b/Documentation/devicetree/bindings/mips/lantiq/rcu.txt
+new file mode 100644
+index 000000000000..7b9be2d13c53
+--- /dev/null
++++ b/Documentation/devicetree/bindings/mips/lantiq/rcu.txt
+@@ -0,0 +1,90 @@
++Lantiq XWAY SoC RCU binding
++===========================
++
++This binding describes the RCU (reset controller unit) multifunction device,
++where each sub-device has it's own set of registers.
++
++The RCU register range is used for multiple purposes. Mostly one device
++uses one or multiple register exclusively, but for some registers some
++bits are for one driver and some other bits are for a different driver.
++With this patch all accesses to the RCU registers will go through
++syscon.
++
++
++-------------------------------------------------------------------------------
++Required properties:
++- compatible	: The first and second values must be:
++		  "lantiq,xrx200-rcu", "simple-mfd", "syscon"
++- reg		: The address and length of the system control registers
++
++
++-------------------------------------------------------------------------------
++Example of the RCU bindings on a xRX200 SoC:
++	rcu0: rcu@203000 {
++		compatible = "lantiq,xrx200-rcu", "simple-mfd", "syscon";
++		reg = <0x203000 0x100>;
++		ranges = <0x0 0x203000 0x100>;
++		big-endian;
++
++		gphy0: gphy@20 {
++			compatible = "lantiq,xrx200a2x-gphy";
++			reg = <0x20 0x4>;
++
++			resets = <&reset0 31 30>, <&reset1 7 7>;
++			reset-names = "gphy", "gphy2";
++			lantiq,gphy-mode = <GPHY_MODE_GE>;
++		};
++
++		gphy1: gphy@68 {
++			compatible = "lantiq,xrx200a2x-gphy";
++			reg = <0x68 0x4>;
++
++			resets = <&reset0 29 28>, <&reset1 6 6>;
++			reset-names = "gphy", "gphy2";
++			lantiq,gphy-mode = <GPHY_MODE_GE>;
++		};
++
++		reset0: reset-controller@10 {
++			compatible = "lantiq,xrx200-reset";
++			reg = <0x10 4>, <0x14 4>;
++
++			#reset-cells = <2>;
++		};
++
++		reset1: reset-controller@48 {
++			compatible = "lantiq,xrx200-reset";
++			reg = <0x48 4>, <0x24 4>;
++
++			#reset-cells = <2>;
++		};
++
++		usb_phy0: usb2-phy@18 {
++			compatible = "lantiq,xrx200-usb2-phy";
++			reg = <0x18 4>, <0x38 4>;
++			status = "disabled";
++
++			resets = <&reset1 4 4>, <&reset0 4 4>;
++			reset-names = "phy", "ctrl";
++			#phy-cells = <0>;
++		};
++
++		usb_phy1: usb2-phy@34 {
++			compatible = "lantiq,xrx200-usb2-phy";
++			reg = <0x34 4>, <0x3C 4>;
++			status = "disabled";
++
++			resets = <&reset1 5 4>, <&reset0 4 4>;
++			reset-names = "phy", "ctrl";
++			#phy-cells = <0>;
++		};
++
++		reboot@10 {
++			compatible = "syscon-reboot";
++			reg = <0x10 4>;
++
++			regmap = <&rcu0>;
++			offset = <0x10>;
++			mask = <0x40000000>;
++		};
++	};
++
 -- 
 2.11.0
 
