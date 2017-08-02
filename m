@@ -1,47 +1,52 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-it0-f47.google.com ([209.85.214.47]:34245 "EHLO
-        mail-it0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752001AbdHBId5 (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 2 Aug 2017 04:33:57 -0400
-Received: by mail-it0-f47.google.com with SMTP id m34so10067490iti.1
-        for <linux-watchdog@vger.kernel.org>; Wed, 02 Aug 2017 01:33:57 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <20170714203218.14409-4-sebastien.bourdelin@savoirfairelinux.com>
-References: <20170714203218.14409-1-sebastien.bourdelin@savoirfairelinux.com> <20170714203218.14409-4-sebastien.bourdelin@savoirfairelinux.com>
-From: Linus Walleij <linus.walleij@linaro.org>
-Date: Wed, 2 Aug 2017 10:33:55 +0200
-Message-ID: <CACRpkdbhQoDY6aKxLjEfU0ydUocCd_qXBSvJqz96MKU9cSQXVA@mail.gmail.com>
-Subject: Re: [PATCH v5 3/8] dt-bindings: bus: Add documentation for the
- Technologic Systems NBUS
-To: Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
-        "linux-arm-kernel@lists.infradead.org"
-        <linux-arm-kernel@lists.infradead.org>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        kernel <kernel@savoirfairelinux.com>,
-        Rob Herring <robh@kernel.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Fabio Estevam <fabio.estevam@nxp.com>,
-        Mark Featherston <mark@embeddedarm.com>, kris@embeddedarm.com
-Content-Type: text/plain; charset="UTF-8"
+Received: from mx1.mailbox.org ([80.241.60.212]:42467 "EHLO mx1.mailbox.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751161AbdHBW6w (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Wed, 2 Aug 2017 18:58:52 -0400
+From: Hauke Mehrtens <hauke@hauke-m.de>
+To: ralf@linux-mips.org
+Cc: linux-mips@linux-mips.org, linux-mtd@lists.infradead.org,
+        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+        martin.blumenstingl@googlemail.com, john@phrozen.org,
+        linux-spi@vger.kernel.org, hauke.mehrtens@intel.com,
+        robh@kernel.org, andy.shevchenko@gmail.com, p.zabel@pengutronix.de,
+        Hauke Mehrtens <hauke@hauke-m.de>
+Subject: [PATCH v8 02/16] mtd: lantiq-flash: drop check of boot select
+Date: Thu,  3 Aug 2017 00:57:03 +0200
+Message-Id: <20170802225717.24408-3-hauke@hauke-m.de>
+In-Reply-To: <20170802225717.24408-1-hauke@hauke-m.de>
+References: <20170802225717.24408-1-hauke@hauke-m.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, Jul 14, 2017 at 10:32 PM, Sebastien Bourdelin
-<sebastien.bourdelin@savoirfairelinux.com> wrote:
+Do not check which flash type the SoC was booted from before
+using this driver. Assume that the device tree is correct and use this
+driver when it was added to device tree. This also removes a build
+dependency to the SoC code.
 
-> Add binding documentation for the Technologic Systems NBUS that is used
-> to interface with peripherals in the FPGA of the TS-4600 SoM.
->
-> Signed-off-by: Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>
-> ---
-> Changes v4 -> v5:
->   - fix missing signed off
+Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
+Acked-by: Brian Norris <computersforpeace@gmail.com>
+---
+ drivers/mtd/maps/lantiq-flash.c | 6 ------
+ 1 file changed, 6 deletions(-)
 
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
+diff --git a/drivers/mtd/maps/lantiq-flash.c b/drivers/mtd/maps/lantiq-flash.c
+index 3e33ab66eb24..77b1d8013295 100644
+--- a/drivers/mtd/maps/lantiq-flash.c
++++ b/drivers/mtd/maps/lantiq-flash.c
+@@ -114,12 +114,6 @@ ltq_mtd_probe(struct platform_device *pdev)
+ 	struct cfi_private *cfi;
+ 	int err;
+ 
+-	if (of_machine_is_compatible("lantiq,falcon") &&
+-			(ltq_boot_select() != BS_FLASH)) {
+-		dev_err(&pdev->dev, "invalid bootstrap options\n");
+-		return -ENODEV;
+-	}
+-
+ 	ltq_mtd = devm_kzalloc(&pdev->dev, sizeof(struct ltq_mtd), GFP_KERNEL);
+ 	if (!ltq_mtd)
+ 		return -ENOMEM;
+-- 
+2.11.0
 
-Yours,
-Linus Walleij
