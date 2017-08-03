@@ -1,54 +1,54 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:36485 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:49655 "EHLO
         bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750727AbdHHEKd (ORCPT
+        with ESMTP id S1750850AbdHCFPW (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 8 Aug 2017 00:10:33 -0400
-Subject: Re: Possible race in pc87413_wdt.ko
-To: Anton Volkov <avolkov@ispras.ru>, wim@iguana.be
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        ldv-project@linuxtesting.org,
-        Alexey Khoroshilov <khoroshilov@ispras.ru>
-References: <da42be1b-f442-6294-a163-84e1b971a651@ispras.ru>
+        Thu, 3 Aug 2017 01:15:22 -0400
+Subject: Re: [PATCH] watchdog: moxart_wdt: Replace decimal permissions with 4
+ digit octal
+To: SZ Lin <sz.lin@moxa.com>, wim@iguana.be
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20170729091543.11777-1-sz.lin@moxa.com>
 From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <41535b54-6d50-fad8-139c-c6f569ffc89e@roeck-us.net>
-Date: Mon, 7 Aug 2017 21:10:29 -0700
+Message-ID: <9775443d-5b4e-4022-51a4-af678489d1a2@roeck-us.net>
+Date: Wed, 2 Aug 2017 22:15:19 -0700
 MIME-Version: 1.0
-In-Reply-To: <da42be1b-f442-6294-a163-84e1b971a651@ispras.ru>
+In-Reply-To: <20170729091543.11777-1-sz.lin@moxa.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 08/07/2017 06:22 AM, Anton Volkov wrote:
-> Hello.
+On 07/29/2017 02:15 AM, SZ Lin wrote:
+> ERROR: Use 4 digit octal (0777) not decimal permissions
 > 
-> While searching for races in the Linux kernel I've come across "drivers/watchdog/pc87413_wdt.ko" module. Here is a question that I came up with while analyzing results. Lines are given using the info from Linux v4.12.
+> This error was detected by checkpatch.pl
 > 
-> Consider the following case:
-> 
-> Thread 1:                          Thread 2:
-> pc87413_init
->     misc_register(&pc87413_miscdev)
-> -> pc87413_get_swc_base_addr       pc87413_open
->                                     -> pc87413_refresh
->                                        -> pc87413_swc_bank3
->       swc_base_addr = ...                  <read access to swc_base_addr>
->       (pc87413_wdt.c: line 133)            (pc87413_wdt.c: line 146)
-> 
-> So in this case preemptive registration of the device leads to a possibility of race between the initialization process and a callback to the registered device.
-> 
-> Is this race feasible from your point of view? And if it is, is it possible to move the device registration a bit further down in the pc87413_init function?
-> 
+> Signed-off-by: SZ Lin <sz.lin@moxa.com>
 
-Yes, the race is feasible, and it is possible to move the device registration function
-(though the preferred solution would be to convert the driver to use the watchdog
-subsystem). The code looks pretty bad as written.
-
-Just not sure if it is worth bothering about it. I suspect no on is using that driver
-anymore (the datasheet is from 2001). Might as well just declare it obsolete and
-wait for someone to scream.
+I think checkpatch is overdoing it a bit here. There are more than 2,000 of those.
+Plus, I really don't see the value in this change.
 
 Guenter
+
+> ---
+>   drivers/watchdog/moxart_wdt.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/watchdog/moxart_wdt.c b/drivers/watchdog/moxart_wdt.c
+> index 2c4a73d1e214..05684aa89b88 100644
+> --- a/drivers/watchdog/moxart_wdt.c
+> +++ b/drivers/watchdog/moxart_wdt.c
+> @@ -170,7 +170,7 @@ static struct platform_driver moxart_wdt_driver = {
+>   };
+>   module_platform_driver(moxart_wdt_driver);
+>   
+> -module_param(heartbeat, int, 0);
+> +module_param(heartbeat, int, 0000);
+>   MODULE_PARM_DESC(heartbeat, "Watchdog heartbeat in seconds");
+>   
+>   MODULE_DESCRIPTION("MOXART watchdog driver");
+> 
+
