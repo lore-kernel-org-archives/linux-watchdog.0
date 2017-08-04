@@ -1,63 +1,48 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:33189 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751428AbdHNPhy (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 14 Aug 2017 11:37:54 -0400
-Date: Mon, 14 Aug 2017 08:37:52 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Huibin Hong <huibin.hong@rock-chips.com>
-Cc: wim@iguana.be, linux-watchdog@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-rockchip@lists.infradead.org
-Subject: Re: [PATCH] watchdog: dw_wdt: fix overflow issue in
- dw_wdt_top_in_seconds
-Message-ID: <20170814153752.GB7025@roeck-us.net>
-References: <1501159843-6623-1-git-send-email-huibin.hong@rock-chips.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1501159843-6623-1-git-send-email-huibin.hong@rock-chips.com>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-Path: <monstr@monstr.eu>
+Return-path: <monstr@monstr.eu>
+Sender: Michal Simek <monstr@monstr.eu>
+From: Michal Simek <michal.simek@xilinx.com>
+To: linux-kernel@vger.kernel.org,
+	monstr@monstr.eu
+Cc: Guenter Roeck <linux@roeck-us.net>,
+	linux-watchdog@vger.kernel.org,
+	Wim Van Sebroeck <wim@iguana.be>
+Subject: [PATCH 1/2] watchdog: cadence_wdt: Enable access to module parameters
+Date: Fri,  4 Aug 2017 09:39:16 +0200
+Message-Id: <6c3cef5b847f315f5fc1eb891b040e33719e88c7.1501832354.git.michal.simek@xilinx.com>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On Thu, Jul 27, 2017 at 08:50:43PM +0800, Huibin Hong wrote:
-> If top is 15, (1 << (16 + top)) may be negative.
-> 
-> Change-Id: I76e4a603a54f093e64a4b266008570e3afcdb35a
+Give read access to module parameters to all and write access to root.
+This change also improves driver error path testing.
 
-No Change-Id in upstream patches, please.
+Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+---
 
-> Signed-off-by: Huibin Hong <huibin.hong@rock-chips.com>
+Please let me know what you think - I can use macros from stat.h if
+required
 
-I am having trouble applying this patch. What is its baseline version ?
+---
+ drivers/watchdog/cadence_wdt.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Guenter
-
-> ---
->  drivers/watchdog/dw_wdt.c | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
-> index 6ea0634..059c974 100644
-> --- a/drivers/watchdog/dw_wdt.c
-> +++ b/drivers/watchdog/dw_wdt.c
-> @@ -81,7 +81,9 @@ static inline int dw_wdt_top_in_seconds(unsigned top)
->  	 * There are 16 possible timeout values in 0..15 where the number of
->  	 * cycles is 2 ^ (16 + i) and the watchdog counts down.
->  	 */
-> -	return (1 << (16 + top)) / clk_get_rate(dw_wdt.clk);
-> +	unsigned int cycles = 1 << (16 + top);
-> +
-> +	return cycles / clk_get_rate(dw_wdt.clk);
->  }
->  
->  static int dw_wdt_get_top(void)
-> -- 
-> 1.9.1
-> 
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/watchdog/cadence_wdt.c b/drivers/watchdog/cadence_wdt.c
+index 05c000081e9d..dadd3b0c2d49 100644
+--- a/drivers/watchdog/cadence_wdt.c
++++ b/drivers/watchdog/cadence_wdt.c
+@@ -52,12 +52,12 @@
+ static int wdt_timeout;
+ static int nowayout = WATCHDOG_NOWAYOUT;
+ 
+-module_param(wdt_timeout, int, 0);
++module_param(wdt_timeout, int, 0644);
+ MODULE_PARM_DESC(wdt_timeout,
+ 		 "Watchdog time in seconds. (default="
+ 		 __MODULE_STRING(CDNS_WDT_DEFAULT_TIMEOUT) ")");
+ 
+-module_param(nowayout, int, 0);
++module_param(nowayout, int, 0644);
+ MODULE_PARM_DESC(nowayout,
+ 		 "Watchdog cannot be stopped once started (default="
+ 		 __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+-- 
+1.9.1
