@@ -7,42 +7,37 @@ To: linux-kernel@vger.kernel.org,
 Cc: Guenter Roeck <linux@roeck-us.net>,
 	linux-watchdog@vger.kernel.org,
 	Wim Van Sebroeck <wim@iguana.be>
-Subject: [PATCH 1/2] watchdog: cadence_wdt: Enable access to module parameters
-Date: Fri,  4 Aug 2017 09:39:16 +0200
-Message-Id: <6c3cef5b847f315f5fc1eb891b040e33719e88c7.1501832354.git.michal.simek@xilinx.com>
+Subject: [PATCH 2/2] watchdog: cadence_wdt: Show information when driver is probed
+Date: Fri,  4 Aug 2017 09:39:17 +0200
+Message-Id: <32d58c86a3afbdfc25fe26a9e51df917ce5da4ac.1501832354.git.michal.simek@xilinx.com>
+In-Reply-To: <6c3cef5b847f315f5fc1eb891b040e33719e88c7.1501832354.git.michal.simek@xilinx.com>
+References: <6c3cef5b847f315f5fc1eb891b040e33719e88c7.1501832354.git.michal.simek@xilinx.com>
+In-Reply-To: <6c3cef5b847f315f5fc1eb891b040e33719e88c7.1501832354.git.michal.simek@xilinx.com>
+References: <6c3cef5b847f315f5fc1eb891b040e33719e88c7.1501832354.git.michal.simek@xilinx.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Give read access to module parameters to all and write access to root.
-This change also improves driver error path testing.
+Showing message that driver is loaded is common across drivers.
+This change also fixes checkpatch (--strict) warning
+"Alignment should match open parenthesis".
 
 Signed-off-by: Michal Simek <michal.simek@xilinx.com>
 ---
 
-Please let me know what you think - I can use macros from stat.h if
-required
-
----
- drivers/watchdog/cadence_wdt.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/watchdog/cadence_wdt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/watchdog/cadence_wdt.c b/drivers/watchdog/cadence_wdt.c
-index 05c000081e9d..dadd3b0c2d49 100644
+index dadd3b0c2d49..064cf7b6c1c5 100644
 --- a/drivers/watchdog/cadence_wdt.c
 +++ b/drivers/watchdog/cadence_wdt.c
-@@ -52,12 +52,12 @@
- static int wdt_timeout;
- static int nowayout = WATCHDOG_NOWAYOUT;
+@@ -368,7 +368,7 @@ static int cdns_wdt_probe(struct platform_device *pdev)
+ 	}
+ 	platform_set_drvdata(pdev, wdt);
  
--module_param(wdt_timeout, int, 0);
-+module_param(wdt_timeout, int, 0644);
- MODULE_PARM_DESC(wdt_timeout,
- 		 "Watchdog time in seconds. (default="
- 		 __MODULE_STRING(CDNS_WDT_DEFAULT_TIMEOUT) ")");
+-	dev_dbg(&pdev->dev, "Xilinx Watchdog Timer at %p with timeout %ds%s\n",
++	dev_info(&pdev->dev, "Xilinx Watchdog Timer at %p with timeout %ds%s\n",
+ 		 wdt->regs, cdns_wdt_device->timeout,
+ 		 nowayout ? ", nowayout" : "");
  
--module_param(nowayout, int, 0);
-+module_param(nowayout, int, 0644);
- MODULE_PARM_DESC(nowayout,
- 		 "Watchdog cannot be stopped once started (default="
- 		 __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
 -- 
 1.9.1
