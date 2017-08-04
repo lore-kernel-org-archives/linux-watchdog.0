@@ -1,81 +1,66 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wr0-f193.google.com ([209.85.128.193]:35339 "EHLO
-        mail-wr0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752621AbdHDNwt (ORCPT
+Received: from mail-wr0-f195.google.com ([209.85.128.195]:38745 "EHLO
+        mail-wr0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751382AbdHDN4L (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 4 Aug 2017 09:52:49 -0400
-Received: by mail-wr0-f193.google.com with SMTP id c24so3048165wra.2
-        for <linux-watchdog@vger.kernel.org>; Fri, 04 Aug 2017 06:52:48 -0700 (PDT)
+        Fri, 4 Aug 2017 09:56:11 -0400
+Received: by mail-wr0-f195.google.com with SMTP id g32so3056685wrd.5
+        for <linux-watchdog@vger.kernel.org>; Fri, 04 Aug 2017 06:56:11 -0700 (PDT)
 Reply-To: monstr@monstr.eu
-Subject: Re: [PATCH 1/2] watchdog: cadence_wdt: Enable access to module
- parameters
+Subject: Re: [PATCH 2/2] watchdog: cadence_wdt: Show information when driver
+ is probed
 To: Guenter Roeck <linux@roeck-us.net>,
         Michal Simek <michal.simek@xilinx.com>,
         linux-kernel@vger.kernel.org
 Cc: linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>
 References: <6c3cef5b847f315f5fc1eb891b040e33719e88c7.1501832354.git.michal.simek@xilinx.com>
- <c25ea869-55fe-dde9-4004-cb49bb5553c2@roeck-us.net>
+ <32d58c86a3afbdfc25fe26a9e51df917ce5da4ac.1501832354.git.michal.simek@xilinx.com>
+ <6ad8cad8-e1a4-57ec-d25f-dc6b0935a6fb@roeck-us.net>
 From: Michal Simek <monstr@monstr.eu>
-Message-ID: <54da75b5-aff9-84e8-1e3e-f311b358f77a@monstr.eu>
-Date: Fri, 4 Aug 2017 15:52:46 +0200
+Message-ID: <e83dcbe3-a65f-d4d0-2922-5929eca45ea9@monstr.eu>
+Date: Fri, 4 Aug 2017 15:56:09 +0200
 MIME-Version: 1.0
-In-Reply-To: <c25ea869-55fe-dde9-4004-cb49bb5553c2@roeck-us.net>
+In-Reply-To: <6ad8cad8-e1a4-57ec-d25f-dc6b0935a6fb@roeck-us.net>
 Content-Type: multipart/signed; micalg=pgp-sha1;
  protocol="application/pgp-signature";
- boundary="54ejLHervruK8DqiLj8HvATkLN9Lpx3om"
+ boundary="2rAATc5OPTTmSg8vXd517HaoqUCXaNoWe"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
 This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---54ejLHervruK8DqiLj8HvATkLN9Lpx3om
-Content-Type: multipart/mixed; boundary="bR6s38jc9LO6GXnvhrVod1cpwkukBAR57";
+--2rAATc5OPTTmSg8vXd517HaoqUCXaNoWe
+Content-Type: multipart/mixed; boundary="922Vo4XBeJOOEqgu6p0d5PJW8VXqhf80T";
  protected-headers="v1"
 From: Michal Simek <monstr@monstr.eu>
 Reply-To: monstr@monstr.eu
 To: Guenter Roeck <linux@roeck-us.net>, Michal Simek
  <michal.simek@xilinx.com>, linux-kernel@vger.kernel.org
 Cc: linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>
-Message-ID: <54da75b5-aff9-84e8-1e3e-f311b358f77a@monstr.eu>
-Subject: Re: [PATCH 1/2] watchdog: cadence_wdt: Enable access to module
- parameters
+Message-ID: <e83dcbe3-a65f-d4d0-2922-5929eca45ea9@monstr.eu>
+Subject: Re: [PATCH 2/2] watchdog: cadence_wdt: Show information when driver
+ is probed
 References: <6c3cef5b847f315f5fc1eb891b040e33719e88c7.1501832354.git.michal.simek@xilinx.com>
- <c25ea869-55fe-dde9-4004-cb49bb5553c2@roeck-us.net>
-In-Reply-To: <c25ea869-55fe-dde9-4004-cb49bb5553c2@roeck-us.net>
+ <32d58c86a3afbdfc25fe26a9e51df917ce5da4ac.1501832354.git.michal.simek@xilinx.com>
+ <6ad8cad8-e1a4-57ec-d25f-dc6b0935a6fb@roeck-us.net>
+In-Reply-To: <6ad8cad8-e1a4-57ec-d25f-dc6b0935a6fb@roeck-us.net>
 
---bR6s38jc9LO6GXnvhrVod1cpwkukBAR57
+--922Vo4XBeJOOEqgu6p0d5PJW8VXqhf80T
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: quoted-printable
 
-On 4.8.2017 15:45, Guenter Roeck wrote:
+On 4.8.2017 15:47, Guenter Roeck wrote:
 > On 08/04/2017 12:39 AM, Michal Simek wrote:
->> Give read access to module parameters to all and write access to root.=
-
->> This change also improves driver error path testing.
->>
->> Signed-off-by: Michal Simek <michal.simek@xilinx.com>
->> ---
->>
->> Please let me know what you think - I can use macros from stat.h if
->> required
->>
+>> Showing message that driver is loaded is common across drivers.
 >=20
-> Seems to be quite pointless and misleading, since the values are only r=
-ead
-> at probe time. Am I missing something ?
+> Across watchdog drivers, which I am always half-annoyed about.
+> Is this really valuable ?
 
-You can unbind device and bind that device again. If you want to use it
-or test with different parameters you need to have an access to these
-module parameters.
-For testing purpose if you setup for example timeout to 1000s which is
-more than CDNS_WDT_MAX_TIMEOUT probe will fail and you have better
-driver coverage.
-
-I see that a lot of watchdog drivers are using 0 there - means no sysfs
-access to these modules parameters. Some of them are using 0644 or 0444
-that's why I want to know if there is any for example security reason to
-disable access to these parameters.
+I don't think that this is debug message. We don't have hundreds of
+drivers that log explodes and for systems, which I don't know, I do
+normally check dmesg logs and I would expect this message to be there to
+know that watchdog is enabled.
 
 Thanks,
 Michal
@@ -89,9 +74,9 @@ U-Boot custodian - Xilinx Microblaze/Zynq/ZynqMP SoCs
 
 
 
---bR6s38jc9LO6GXnvhrVod1cpwkukBAR57--
+--922Vo4XBeJOOEqgu6p0d5PJW8VXqhf80T--
 
---54ejLHervruK8DqiLj8HvATkLN9Lpx3om
+--2rAATc5OPTTmSg8vXd517HaoqUCXaNoWe
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: OpenPGP digital signature
 Content-Disposition: attachment; filename="signature.asc"
@@ -99,9 +84,9 @@ Content-Disposition: attachment; filename="signature.asc"
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.22 (GNU/Linux)
 
-iEYEARECAAYFAlmEfC4ACgkQykllyylKDCHasgCffdKwBYs+UEblkwvocSLeyVUO
-6aQAn0X0qltdKNvwijyAN8YEAxjaE3ne
-=GFLi
+iEYEARECAAYFAlmEfPkACgkQykllyylKDCHzqACePmggna032yTniz7ZwNjfRYm0
+H3kAnjM6vfyaKKeMNMxErnIJrM3wdFJA
+=c2cd
 -----END PGP SIGNATURE-----
 
---54ejLHervruK8DqiLj8HvATkLN9Lpx3om--
+--2rAATc5OPTTmSg8vXd517HaoqUCXaNoWe--
