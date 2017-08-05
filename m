@@ -1,114 +1,234 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx2.mailbox.org ([80.241.60.215]:39191 "EHLO mx2.mailbox.org"
+Received: from mail.kernel.org ([198.145.29.99]:43746 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751736AbdHCVlb (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 3 Aug 2017 17:41:31 -0400
-Subject: Re: [PATCH v8 10/16] reset: Add a reset controller driver for the
- Lantiq XWAY based SoCs
-To: Philipp Zabel <p.zabel@pengutronix.de>
-Cc: ralf@linux-mips.org, linux-mips@linux-mips.org,
-        linux-mtd@lists.infradead.org, linux-watchdog@vger.kernel.org,
-        devicetree@vger.kernel.org, martin.blumenstingl@googlemail.com,
-        john@phrozen.org, linux-spi@vger.kernel.org,
-        hauke.mehrtens@intel.com, robh@kernel.org,
-        andy.shevchenko@gmail.com
-References: <20170802225717.24408-1-hauke@hauke-m.de>
- <20170802225717.24408-11-hauke@hauke-m.de>
- <1501749222.23911.4.camel@pengutronix.de>
-From: Hauke Mehrtens <hauke@hauke-m.de>
-Message-ID: <4f7f41ad-b6fe-082e-085f-119ad959b817@hauke-m.de>
-Date: Thu, 3 Aug 2017 23:41:15 +0200
+        id S1751087AbdHEBtH (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 4 Aug 2017 21:49:07 -0400
+Date: Sat, 5 Aug 2017 09:47:55 +0800
+From: Shawn Guo <shawnguo@kernel.org>
+To: Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>
+Cc: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
+        kernel@savoirfairelinux.com, robh@kernel.org, linux@roeck-us.net,
+        linus.walleij@linaro.org, fabio.estevam@nxp.com,
+        mark@embeddedarm.com, kris@embeddedarm.com
+Subject: Re: [PATCH v5 2/8] ARM: dts: TS-4600: add basic device tree
+Message-ID: <20170805014749.GL31819@dragon>
+References: <20170714203218.14409-1-sebastien.bourdelin@savoirfairelinux.com>
+ <20170714203218.14409-3-sebastien.bourdelin@savoirfairelinux.com>
 MIME-Version: 1.0
-In-Reply-To: <1501749222.23911.4.camel@pengutronix.de>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20170714203218.14409-3-sebastien.bourdelin@savoirfairelinux.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 08/03/2017 10:33 AM, Philipp Zabel wrote:
-> Hi Hauke,
+On Fri, Jul 14, 2017 at 04:32:12PM -0400, Sebastien Bourdelin wrote:
+> These device trees add support for the TS-4600 by Technologic Systems.
 > 
-> On Thu, 2017-08-03 at 00:57 +0200, Hauke Mehrtens wrote:
->> From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
->>
->> The reset controllers (on xRX200 and newer SoCs have two of them) are
->> provided by the RCU module. This was initially implemented as a simple
->> reset controller. However, the RCU module provides more functionality
->> (ethernet GPHYs, USB PHY, etc.), which makes it a MFD device.
->> The old reset controller driver implementation from
->> arch/mips/lantiq/xway/reset.c did not honor this fact.
->>
->> For some devices the request and the status bits are different.
->>
->> Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
->> Cc: Philipp Zabel <p.zabel@pengutronix.de>
->> Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
->> ---
->>  .../devicetree/bindings/reset/lantiq,reset.txt     |  30 +++
->>  drivers/reset/Kconfig                              |   6 +
->>  drivers/reset/Makefile                             |   1 +
->>  drivers/reset/reset-lantiq.c                       | 224 +++++++++++++++++++++
->>  4 files changed, 261 insertions(+)
->>  create mode 100644 Documentation/devicetree/bindings/reset/lantiq,reset.txt
->>  create mode 100644 drivers/reset/reset-lantiq.c
->>
-> [...]
->> diff --git a/drivers/reset/reset-lantiq.c b/drivers/reset/reset-lantiq.c
->> new file mode 100644
->> index 000000000000..b84c45e7e6b8
->> --- /dev/null
->> +++ b/drivers/reset/reset-lantiq.c
->> @@ -0,0 +1,224 @@
-> [...]
->> +static int lantiq_rcu_reset_of_probe(struct platform_device *pdev,
->> +			       struct lantiq_rcu_reset_priv *priv)
->> +{
->> +	struct device *dev = &pdev->dev;
->> +	struct resource *res;
->> +	struct resource res_parent;
->> +	int ret;
->> +
->> +	priv->regmap = syscon_node_to_regmap(dev->of_node->parent);
->> +	if (IS_ERR(priv->regmap)) {
->> +		dev_err(&pdev->dev, "Failed to lookup RCU regmap\n");
->> +		return PTR_ERR(priv->regmap);
->> +	}
->> +
->> +	ret = of_address_to_resource(dev->of_node->parent, 0, &res_parent);
->> +	if (ret)
->> +		return ret;
->> +
->> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
->> +	if (!res) {
->> +		dev_err(&pdev->dev, "Failed to get RCU reset offset\n");
->> +		return ret;
+> More details here:
+>   http://wiki.embeddedarm.com/wiki/TS-4600
 > 
-> This should return -EINVAL instead of 0.
+> Signed-off-by: Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>
+> ---
+> Changes v4 -> v5:
+>   - fix missing signed off
+> 
+> Changes v3 -> v4:
+>   - rebase on master
+> 
+> Changes v2 -> v3:
+>   - rebase on master
+> 
+> Changes v1 -> v2:
+>   - rebase on master
+> ---
+>  arch/arm/boot/dts/Makefile                 |  2 +
+>  arch/arm/boot/dts/imx28-ts4600-common.dtsi | 78 ++++++++++++++++++++++++++++++
+>  arch/arm/boot/dts/imx28-ts4600-rev-a.dts   | 22 +++++++++
+>  arch/arm/boot/dts/imx28-ts4600-rev-b.dts   | 22 +++++++++
+>  4 files changed, 124 insertions(+)
+>  create mode 100644 arch/arm/boot/dts/imx28-ts4600-common.dtsi
+>  create mode 100644 arch/arm/boot/dts/imx28-ts4600-rev-a.dts
+>  create mode 100644 arch/arm/boot/dts/imx28-ts4600-rev-b.dts
+> 
+> diff --git a/arch/arm/boot/dts/Makefile b/arch/arm/boot/dts/Makefile
+> index 4b17f35dc9a7..a3c8b7af192b 100644
+> --- a/arch/arm/boot/dts/Makefile
+> +++ b/arch/arm/boot/dts/Makefile
+> @@ -525,6 +525,8 @@ dtb-$(CONFIG_ARCH_MXS) += \
+>  	imx28-m28cu3.dtb \
+>  	imx28-m28evk.dtb \
+>  	imx28-sps1.dtb \
+> +	imx28-ts4600-rev-a.dtb \
+> +	imx28-ts4600-rev-b.dtb \
+>  	imx28-tx28.dtb
+>  dtb-$(CONFIG_ARCH_NOMADIK) += \
+>  	ste-nomadik-s8815.dtb \
+> diff --git a/arch/arm/boot/dts/imx28-ts4600-common.dtsi b/arch/arm/boot/dts/imx28-ts4600-common.dtsi
+> new file mode 100644
+> index 000000000000..04bd5a5c0cb4
+> --- /dev/null
+> +++ b/arch/arm/boot/dts/imx28-ts4600-common.dtsi
+> @@ -0,0 +1,78 @@
+> +/*
+> + * Copyright (C) 2016 Savoir-Faire Linux
+> + * Author: Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>
+> + *
+> + * The code contained herein is licensed under the GNU General Public
+> + * License. You may obtain a copy of the GNU General Public License
+> + * Version 2 or later at the following locations:
+> + *
+> + * http://www.opensource.org/licenses/gpl-license.html
+> + * http://www.gnu.org/copyleft/gpl.html
+> + */
+> +
+> +/dts-v1/;
+> +#include "imx28.dtsi"
+> +#include "dt-bindings/gpio/gpio.h"
+> +
+> +/ {
+> +
+> +	compatible = "technologic,imx28-ts4600", "fsl,imx28";
+> +
+> +	apb@80000000 {
+> +		apbh@80000000 {
+> +			ssp0: ssp@80010000 {
+> +				compatible = "fsl,imx28-mmc";
+> +				pinctrl-names = "default";
+> +				pinctrl-0 = <&mmc0_4bit_pins_a
+> +					     &mmc0_sck_cfg
+> +					     &en_sd_pwr>;
+> +				broken-cd = <1>;
+> +				bus-width = <4>;
+> +				vmmc-supply = <&reg_vddio_sd0>;
+> +				status = "okay";
+> +			};
+> +
+> +			pinctrl@80018000 {
+> +				pinctrl-names = "default";
 
-I will fix this in the next round, I am still waiting for Rob's feedback.
+This line shouldn't be needed here.
 
-The same problem exists in the USB PHY driver, I will also fix it there.
+> +
+> +				en_sd_pwr: en_sd_pwr {
 
-> 
->> +	}
->> +
->> +	if (res->start < res_parent.start)
->> +		return -ENOENT;
->> +	priv->reset_offset = res->start - res_parent.start;
->> +
->> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
->> +	if (!res) {
->> +		dev_err(&pdev->dev, "Failed to get RCU status offset\n");
->> +		return ret;
-> 
-> Same here.
-> 
-> With this fixed,
-> Acked-by: Philipp Zabel <p.zabel@pengutronix.de>
-> 
-> regards
-> Philipp
-> 
+Please have a look at bindings/pinctrl/fsl,mxs-pinctrl.txt.  The node
+without 'reg' property will be treated as a pure configuration rather
+than pinmux node.  You should really have a 'reg' property for it.
 
-Hauke
+Also, we prefer to use hyphen than underscore in node name.
+
+> +					fsl,pinmux-ids = <
+> +						MX28_PAD_PWM3__GPIO_3_28
+> +					>;
+> +					fsl,drive-strength = <MXS_DRIVE_4mA>;
+> +					fsl,voltage = <MXS_VOLTAGE_HIGH>;
+> +					fsl,pull-up = <MXS_PULL_DISABLE>;
+> +				};
+> +
+> +			};
+> +		};
+> +
+> +		apbx@80040000 {
+> +			pwm: pwm@80064000 {
+> +				pinctrl-names = "default";
+> +				pinctrl-0 = <&pwm2_pins_a>;
+> +				status = "okay";
+> +			};
+> +
+> +			duart: serial@80074000 {
+> +				pinctrl-names = "default";
+> +				pinctrl-0 = <&duart_pins_a>;
+> +				status = "okay";
+> +			};
+> +		};
+> +	};
+> +
+> +	regulators {
+> +		compatible = "simple-bus";
+> +
+> +		reg_vddio_sd0: vddio-sd0 {
+> +			compatible = "regulator-fixed";
+> +			regulator-name = "vddio-sd0";
+> +			regulator-min-microvolt = <3300000>;
+> +			regulator-max-microvolt = <3300000>;
+> +			regulator-boot-on;
+> +			gpio = <&gpio3 28 0>;
+
+Please use the defines in include/dt-bindings/gpio/gpio.h for polarity
+here?
+
+> +		};
+> +	};
+
+We are asked by DT maintainers to put fixed regulator directly under
+root instead of having a fake bus container node.  We prefer to use the
+following naming schema:
+
+	reg_xxx: regulator-xxx {
+		...
+	};
+
+Shawn
+
+> +
+> +};
+> diff --git a/arch/arm/boot/dts/imx28-ts4600-rev-a.dts b/arch/arm/boot/dts/imx28-ts4600-rev-a.dts
+> new file mode 100644
+> index 000000000000..e8cb72988fcf
+> --- /dev/null
+> +++ b/arch/arm/boot/dts/imx28-ts4600-rev-a.dts
+> @@ -0,0 +1,22 @@
+> +/*
+> + * Copyright (C) 2016 Savoir-Faire Linux
+> + * Author: Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>
+> + *
+> + * The code contained herein is licensed under the GNU General Public
+> + * License. You may obtain a copy of the GNU General Public License
+> + * Version 2 or later at the following locations:
+> + *
+> + * http://www.opensource.org/licenses/gpl-license.html
+> + * http://www.gnu.org/copyleft/gpl.html
+> + */
+> +
+> +#include "imx28-ts4600-common.dtsi"
+> +
+> +/ {
+> +	model = "Technologic Systems i.MX28 TS-4600 Rev A";
+> +
+> +	memory {
+> +		reg = <0x40000000 0x08000000>;   /* 128MB */
+> +	};
+> +
+> +};
+> diff --git a/arch/arm/boot/dts/imx28-ts4600-rev-b.dts b/arch/arm/boot/dts/imx28-ts4600-rev-b.dts
+> new file mode 100644
+> index 000000000000..a115f831fe2b
+> --- /dev/null
+> +++ b/arch/arm/boot/dts/imx28-ts4600-rev-b.dts
+> @@ -0,0 +1,22 @@
+> +/*
+> + * Copyright (C) 2016 Savoir-Faire Linux
+> + * Author: Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>
+> + *
+> + * The code contained herein is licensed under the GNU General Public
+> + * License. You may obtain a copy of the GNU General Public License
+> + * Version 2 or later at the following locations:
+> + *
+> + * http://www.opensource.org/licenses/gpl-license.html
+> + * http://www.gnu.org/copyleft/gpl.html
+> + */
+> +
+> +#include "imx28-ts4600-common.dtsi"
+> +
+> +/ {
+> +	model = "Technologic Systems i.MX28 TS-4600 Rev B";
+> +
+> +	memory {
+> +		reg = <0x40000000 0x10000000>;   /* 256MB */
+> +	};
+> +
+> +};
+> -- 
+> 2.13.0
+> 
