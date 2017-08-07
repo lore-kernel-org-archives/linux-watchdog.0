@@ -1,172 +1,125 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:60309 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751601AbdHNOo7 (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 14 Aug 2017 10:44:59 -0400
-Date: Mon, 14 Aug 2017 07:44:54 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Julia Lawall <Julia.Lawall@lip6.fr>
-Cc: Wim Van Sebroeck <wim@iguana.be>, kernel-janitors@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        Alexandre Torgue <alexandre.torgue@st.com>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH] watchdog: constify watchdog_ops and watchdog_info
- structures
-Message-ID: <20170814144454.GA14491@roeck-us.net>
-References: <1501795291-21372-1-git-send-email-Julia.Lawall@lip6.fr>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1501795291-21372-1-git-send-email-Julia.Lawall@lip6.fr>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-Path: <monstr@monstr.eu>
+Return-path: <monstr@monstr.eu>
+Sender: Michal Simek <monstr@monstr.eu>
+From: Michal Simek <michal.simek@xilinx.com>
+To: linux-kernel@vger.kernel.org,
+	monstr@monstr.eu
+Cc: Maulik Jodhani <maulik.jodhani@xilinx.com>,
+	=?UTF-8?q?S=C3=B6ren=20Brinkmann?= <soren.brinkmann@xilinx.com>,
+	Guenter Roeck <linux@roeck-us.net>,
+	linux-watchdog@vger.kernel.org,
+	Wim Van Sebroeck <wim@iguana.be>,
+	linux-arm-kernel@lists.infradead.org
+Subject: [PATCH 1/2] watchdog: of_xilinx_wdt: Add support for reading freq via CCF
+Date: Mon,  7 Aug 2017 13:24:22 +0200
+Message-Id: <d081ea43fc2b3b75cae2e19716920e1bb6c81328.1502105061.git.michal.simek@xilinx.com>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On Thu, Aug 03, 2017 at 11:21:31PM +0200, Julia Lawall wrote:
-> These watchdog_ops and watchdog_info structures are only stored
-> in the ops and info fields of a watchdog_device structure,
-> respectively, which are const.  Thus make the watchdog_ops and
-> watchdog_info structures const as well.
-> 
-> Done with the help of Coccinelle.  The rules for the watchdog_ops case are
-> as follows:
-> 
-> // <smpl>
-> @r disable optional_qualifier@
-> identifier i;
-> position p;
-> @@
-> static struct watchdog_ops i@p = { ... };
-> 
-> @ok@
-> identifier r.i;
-> struct watchdog_device e;
-> position p;
-> @@
-> e.ops = &i@p;
-> 
-> @bad@
-> position p != {r.p,ok.p};
-> identifier r.i;
-> struct watchdog_ops e;
-> @@
-> e@i@p
-> 
-> @depends on !bad disable optional_qualifier@
-> identifier r.i;
-> @@
-> static
-> +const
->  struct watchdog_ops i = { ... };
-> // </smpl>
-> 
-> Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
+From: Maulik Jodhani <maulik.jodhani@xilinx.com>
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Improve CLK handling in the code to read freq via CCF.
+Also disable CLK asap and add clk handling code to start and stop.
 
-> 
-> ---
->  drivers/watchdog/coh901327_wdt.c |    2 +-
->  drivers/watchdog/diag288_wdt.c   |    2 +-
->  drivers/watchdog/it87_wdt.c      |    2 +-
->  drivers/watchdog/mt7621_wdt.c    |    2 +-
->  drivers/watchdog/rt2880_wdt.c    |    2 +-
->  drivers/watchdog/stm32_iwdg.c    |    2 +-
->  drivers/watchdog/ts72xx_wdt.c    |    2 +-
->  7 files changed, 7 insertions(+), 7 deletions(-)
-> 
-> diff --git a/drivers/watchdog/diag288_wdt.c b/drivers/watchdog/diag288_wdt.c
-> index 6f59108..806a04a 100644
-> --- a/drivers/watchdog/diag288_wdt.c
-> +++ b/drivers/watchdog/diag288_wdt.c
-> @@ -213,7 +213,7 @@ static int wdt_set_timeout(struct watchdog_device * dev, unsigned int new_to)
->  	.set_timeout = wdt_set_timeout,
->  };
->  
-> -static struct watchdog_info wdt_info = {
-> +static const struct watchdog_info wdt_info = {
->  	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
->  	.firmware_version = 0,
->  	.identity = "z Watchdog",
-> diff --git a/drivers/watchdog/it87_wdt.c b/drivers/watchdog/it87_wdt.c
-> index dd1e7ea..e96faea 100644
-> --- a/drivers/watchdog/it87_wdt.c
-> +++ b/drivers/watchdog/it87_wdt.c
-> @@ -253,7 +253,7 @@ static int wdt_set_timeout(struct watchdog_device *wdd, unsigned int t)
->  	.identity = WATCHDOG_NAME,
->  };
->  
-> -static struct watchdog_ops wdt_ops = {
-> +static const struct watchdog_ops wdt_ops = {
->  	.owner = THIS_MODULE,
->  	.start = wdt_start,
->  	.stop = wdt_stop,
-> diff --git a/drivers/watchdog/mt7621_wdt.c b/drivers/watchdog/mt7621_wdt.c
-> index 48a0606..878835c 100644
-> --- a/drivers/watchdog/mt7621_wdt.c
-> +++ b/drivers/watchdog/mt7621_wdt.c
-> @@ -105,7 +105,7 @@ static int mt7621_wdt_bootcause(void)
->  	return 0;
->  }
->  
-> -static struct watchdog_info mt7621_wdt_info = {
-> +static const struct watchdog_info mt7621_wdt_info = {
->  	.identity = "Mediatek Watchdog",
->  	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
->  };
-> diff --git a/drivers/watchdog/rt2880_wdt.c b/drivers/watchdog/rt2880_wdt.c
-> index 05524ba..1727aa3 100644
-> --- a/drivers/watchdog/rt2880_wdt.c
-> +++ b/drivers/watchdog/rt2880_wdt.c
-> @@ -119,7 +119,7 @@ static int rt288x_wdt_bootcause(void)
->  	return 0;
->  }
->  
-> -static struct watchdog_info rt288x_wdt_info = {
-> +static const struct watchdog_info rt288x_wdt_info = {
->  	.identity = "Ralink Watchdog",
->  	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
->  };
-> diff --git a/drivers/watchdog/ts72xx_wdt.c b/drivers/watchdog/ts72xx_wdt.c
-> index 17c25da..811e43c 100644
-> --- a/drivers/watchdog/ts72xx_wdt.c
-> +++ b/drivers/watchdog/ts72xx_wdt.c
-> @@ -112,7 +112,7 @@ static int ts72xx_wdt_settimeout(struct watchdog_device *wdd, unsigned int to)
->  	.identity		= "TS-72XX WDT",
->  };
->  
-> -static struct watchdog_ops ts72xx_wdt_ops = {
-> +static const struct watchdog_ops ts72xx_wdt_ops = {
->  	.owner		= THIS_MODULE,
->  	.start		= ts72xx_wdt_start,
->  	.stop		= ts72xx_wdt_stop,
-> diff --git a/drivers/watchdog/stm32_iwdg.c b/drivers/watchdog/stm32_iwdg.c
-> index 6c501b7..be64a86 100644
-> --- a/drivers/watchdog/stm32_iwdg.c
-> +++ b/drivers/watchdog/stm32_iwdg.c
-> @@ -140,7 +140,7 @@ static int stm32_iwdg_set_timeout(struct watchdog_device *wdd,
->  	.identity	= "STM32 Independent Watchdog",
->  };
->  
-> -static struct watchdog_ops stm32_iwdg_ops = {
-> +static const struct watchdog_ops stm32_iwdg_ops = {
->  	.owner		= THIS_MODULE,
->  	.start		= stm32_iwdg_start,
->  	.ping		= stm32_iwdg_ping,
-> diff --git a/drivers/watchdog/coh901327_wdt.c b/drivers/watchdog/coh901327_wdt.c
-> index 38dd60f0..4410337 100644
-> --- a/drivers/watchdog/coh901327_wdt.c
-> +++ b/drivers/watchdog/coh901327_wdt.c
-> @@ -218,7 +218,7 @@ static irqreturn_t coh901327_interrupt(int irq, void *data)
->  	.identity = DRV_NAME,
->  };
->  
-> -static struct watchdog_ops coh901327_ops = {
-> +static const struct watchdog_ops coh901327_ops = {
->  	.owner = THIS_MODULE,
->  	.start = coh901327_start,
->  	.stop = coh901327_stop,
-> 
+Signed-off-by: Maulik Jodhani <maulik.jodhani@xilinx.com>
+Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+---
+
+ drivers/watchdog/of_xilinx_wdt.c | 45 ++++++++++++++++++++++++++++------------
+ 1 file changed, 32 insertions(+), 13 deletions(-)
+
+diff --git a/drivers/watchdog/of_xilinx_wdt.c b/drivers/watchdog/of_xilinx_wdt.c
+index fae7fe929ea3..41edeb93a327 100644
+--- a/drivers/watchdog/of_xilinx_wdt.c
++++ b/drivers/watchdog/of_xilinx_wdt.c
+@@ -51,9 +51,16 @@ struct xwdt_device {
+ 
+ static int xilinx_wdt_start(struct watchdog_device *wdd)
+ {
++	int ret;
+ 	u32 control_status_reg;
+ 	struct xwdt_device *xdev = watchdog_get_drvdata(wdd);
+ 
++	ret = clk_enable(xdev->clk);
++	if (ret) {
++		dev_err(wdd->parent, "Failed to enable clock\n");
++		return ret;
++	}
++
+ 	spin_lock(&xdev->spinlock);
+ 
+ 	/* Clean previous status and enable the watchdog timer */
+@@ -85,6 +92,9 @@ static int xilinx_wdt_stop(struct watchdog_device *wdd)
+ 	iowrite32(0, xdev->base + XWT_TWCSR1_OFFSET);
+ 
+ 	spin_unlock(&xdev->spinlock);
++
++	clk_disable(xdev->clk);
++
+ 	pr_info("Stopped!\n");
+ 
+ 	return 0;
+@@ -167,11 +177,6 @@ static int xwdt_probe(struct platform_device *pdev)
+ 	if (IS_ERR(xdev->base))
+ 		return PTR_ERR(xdev->base);
+ 
+-	rc = of_property_read_u32(pdev->dev.of_node, "clock-frequency", &pfreq);
+-	if (rc)
+-		dev_warn(&pdev->dev,
+-			 "The watchdog clock frequency cannot be obtained\n");
+-
+ 	rc = of_property_read_u32(pdev->dev.of_node, "xlnx,wdt-interval",
+ 				  &xdev->wdt_interval);
+ 	if (rc)
+@@ -186,6 +191,26 @@ static int xwdt_probe(struct platform_device *pdev)
+ 
+ 	watchdog_set_nowayout(xilinx_wdt_wdd, enable_once);
+ 
++	xdev->clk = devm_clk_get(&pdev->dev, NULL);
++	if (IS_ERR(xdev->clk)) {
++		if (PTR_ERR(xdev->clk) != -ENOENT)
++			return PTR_ERR(xdev->clk);
++
++		/*
++		 * Clock framework support is optional, continue on
++		 * anyways if we don't find a matching clock.
++		 */
++		xdev->clk = NULL;
++
++		rc = of_property_read_u32(pdev->dev.of_node, "clock-frequency",
++					  &pfreq);
++		if (rc)
++			dev_warn(&pdev->dev,
++				 "The watchdog clock freq cannot be obtained\n");
++	} else {
++		pfreq = clk_get_rate(xdev->clk);
++	}
++
+ 	/*
+ 	 * Twice of the 2^wdt_interval / freq  because the first wdt overflow is
+ 	 * ignored (interrupt), reset is only generated at second wdt overflow
+@@ -197,14 +222,6 @@ static int xwdt_probe(struct platform_device *pdev)
+ 	spin_lock_init(&xdev->spinlock);
+ 	watchdog_set_drvdata(xilinx_wdt_wdd, xdev);
+ 
+-	xdev->clk = devm_clk_get(&pdev->dev, NULL);
+-	if (IS_ERR(xdev->clk)) {
+-		if (PTR_ERR(xdev->clk) == -ENOENT)
+-			xdev->clk = NULL;
+-		else
+-			return PTR_ERR(xdev->clk);
+-	}
+-
+ 	rc = clk_prepare_enable(xdev->clk);
+ 	if (rc) {
+ 		dev_err(&pdev->dev, "unable to enable clock\n");
+@@ -223,6 +240,8 @@ static int xwdt_probe(struct platform_device *pdev)
+ 		goto err_clk_disable;
+ 	}
+ 
++	clk_disable(xdev->clk);
++
+ 	dev_info(&pdev->dev, "Xilinx Watchdog Timer at %p with timeout %ds\n",
+ 		 xdev->base, xilinx_wdt_wdd->timeout);
+ 
+-- 
+1.9.1
