@@ -1,37 +1,52 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:44218 "EHLO mail.kernel.org"
+Received: from mail.ispras.ru ([83.149.199.45]:51196 "EHLO mail.ispras.ru"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751230AbdHEBwG (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 4 Aug 2017 21:52:06 -0400
-Date: Sat, 5 Aug 2017 09:50:55 +0800
-From: Shawn Guo <shawnguo@kernel.org>
-To: Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>
-Cc: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
-        kernel@savoirfairelinux.com, robh@kernel.org, linux@roeck-us.net,
-        linus.walleij@linaro.org, fabio.estevam@nxp.com,
-        mark@embeddedarm.com, kris@embeddedarm.com
-Subject: Re: [PATCH v5 0/8] Add board support for TS-4600
-Message-ID: <20170805015053.GM31819@dragon>
-References: <20170714203218.14409-1-sebastien.bourdelin@savoirfairelinux.com>
- <20170803012652.GB31819@dragon>
- <d40e5ff1-2741-af5c-9dee-b24cd5780aae@savoirfairelinux.com>
+        id S1751399AbdHGNWT (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 7 Aug 2017 09:22:19 -0400
+From: Anton Volkov <avolkov@ispras.ru>
+Subject: Possible race in pc87413_wdt.ko
+To: wim@iguana.be
+Cc: linux@roeck-us.net, linux-watchdog@vger.kernel.org,
+        linux-kernel@vger.kernel.org, ldv-project@linuxtesting.org,
+        Alexey Khoroshilov <khoroshilov@ispras.ru>
+Message-ID: <da42be1b-f442-6294-a163-84e1b971a651@ispras.ru>
+Date: Mon, 7 Aug 2017 16:22:17 +0300
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d40e5ff1-2741-af5c-9dee-b24cd5780aae@savoirfairelinux.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Thu, Aug 03, 2017 at 03:32:36PM -0400, Sebastien Bourdelin wrote:
-> Hi Shawn,
-> 
-> Thanks i understand, however if it's ok, i would like to process in the
-> same time with the TS4600 board bindings and initial dts without the
-> part related to the nbus and watchdog.
-> There is no dependencies here and we can accellerate the process.
+Hello.
 
-Okay.  I just put a few comments on the initial dts patch.  I can pick
-it up after the comments get addressed.
+While searching for races in the Linux kernel I've come across 
+"drivers/watchdog/pc87413_wdt.ko" module. Here is a question that I came 
+up with while analyzing results. Lines are given using the info from 
+Linux v4.12.
 
-Shawn
+Consider the following case:
+
+Thread 1:                          Thread 2:
+pc87413_init
+    misc_register(&pc87413_miscdev)
+-> pc87413_get_swc_base_addr       pc87413_open
+                                    -> pc87413_refresh
+                                       -> pc87413_swc_bank3
+      swc_base_addr = ...                  <read access to swc_base_addr>
+      (pc87413_wdt.c: line 133)            (pc87413_wdt.c: line 146)
+
+So in this case preemptive registration of the device leads to a 
+possibility of race between the initialization process and a callback to 
+the registered device.
+
+Is this race feasible from your point of view? And if it is, is it 
+possible to move the device registration a bit further down in the 
+pc87413_init function?
+
+Thank you for your time.
+
+-- Anton Volkov
+Linux Verification Center, ISPRAS
+web: http://linuxtesting.org
+e-mail: avolkov@ispras.ru
