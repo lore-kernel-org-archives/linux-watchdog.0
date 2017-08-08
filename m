@@ -1,42 +1,39 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx1.mailbox.org ([80.241.60.212]:40007 "EHLO mx1.mailbox.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751375AbdHGNmO (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 7 Aug 2017 09:42:14 -0400
+Received: from fllnx209.ext.ti.com ([198.47.19.16]:15833 "EHLO
+        fllnx209.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752047AbdHHMCH (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 8 Aug 2017 08:02:07 -0400
 Subject: Re: [PATCH v8 14/16] phy: Add an USB PHY driver for the Lantiq SoCs
  using the RCU module
-To: ralf@linux-mips.org, Kishon Vijay Abraham I <kishon@ti.com>
-Cc: linux-mips@linux-mips.org, linux-mtd@lists.infradead.org,
-        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-        martin.blumenstingl@googlemail.com, john@phrozen.org,
-        linux-spi@vger.kernel.org, hauke.mehrtens@intel.com,
-        robh@kernel.org, andy.shevchenko@gmail.com, p.zabel@pengutronix.de
+To: Hauke Mehrtens <hauke@hauke-m.de>, <ralf@linux-mips.org>
 References: <20170802225717.24408-1-hauke@hauke-m.de>
  <20170802225717.24408-15-hauke@hauke-m.de>
-From: Hauke Mehrtens <hauke@hauke-m.de>
-Message-ID: <c5f6e6d6-c374-5066-7dc1-1632c8af1286@hauke-m.de>
-Date: Mon, 7 Aug 2017 15:41:59 +0200
+CC: <linux-mips@linux-mips.org>, <linux-mtd@lists.infradead.org>,
+        <linux-watchdog@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <martin.blumenstingl@googlemail.com>, <john@phrozen.org>,
+        <linux-spi@vger.kernel.org>, <hauke.mehrtens@intel.com>,
+        <robh@kernel.org>, <andy.shevchenko@gmail.com>,
+        <p.zabel@pengutronix.de>
+From: Kishon Vijay Abraham I <kishon@ti.com>
+Message-ID: <85db1866-9d8d-e7af-b193-bc329db9129b@ti.com>
+Date: Tue, 8 Aug 2017 17:28:53 +0530
 MIME-Version: 1.0
 In-Reply-To: <20170802225717.24408-15-hauke@hauke-m.de>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
+Content-Type: text/plain; charset="windows-1252"
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Kishon,
+Hi,
 
-On 08/03/2017 12:57 AM, Hauke Mehrtens wrote:
+On Thursday 03 August 2017 04:27 AM, Hauke Mehrtens wrote:
 > This driver starts the DWC2 core(s) built into the XWAY SoCs and provides
 > the PHY interfaces for each core. The phy instances can be passed to the
 > dwc2 driver, which already supports the generic phy interface.
 > 
 > Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
 > Cc: Kishon Vijay Abraham I <kishon@ti.com>
-
-Kishon could you please review this patch and give an Ack or Nack, I
-would like to merge this thorough Ralf's mips tree.
-
 > ---
 >  .../bindings/phy/phy-lantiq-rcu-usb2.txt           |  43 +++
 >  arch/mips/lantiq/xway/sysctrl.c                    |  24 +-
@@ -100,11 +97,73 @@ would like to merge this thorough Ralf's mips tree.
 > +		reset-names = "phy", "ctrl";
 > +		#phy-cells = <0>;
 > +	};
+
+Please CC device tree list and get Ack from devicetree maintainers for this
+binding. Preferable send this as a separate patch.
 > diff --git a/arch/mips/lantiq/xway/sysctrl.c b/arch/mips/lantiq/xway/sysctrl.c
 > index 87eab4d288e5..f76978e4da32 100644
 > --- a/arch/mips/lantiq/xway/sysctrl.c
 > +++ b/arch/mips/lantiq/xway/sysctrl.c
-....
+> @@ -469,8 +469,8 @@ void __init ltq_soc_init(void)
+>  
+>  	if (of_machine_is_compatible("lantiq,grx390") ||
+>  	    of_machine_is_compatible("lantiq,ar10")) {
+> -		clkdev_add_pmu("1e101000.usb", "phy", 1, 2, PMU_ANALOG_USB0_P);
+> -		clkdev_add_pmu("1e106000.usb", "phy", 1, 2, PMU_ANALOG_USB1_P);
+> +		clkdev_add_pmu("1f203018.usb2-phy", "phy", 1, 2, PMU_ANALOG_USB0_P);
+> +		clkdev_add_pmu("1f203034.usb2-phy", "phy", 1, 2, PMU_ANALOG_USB1_P);
+>  		/* rc 0 */
+>  		clkdev_add_pmu("1d900000.pcie", "phy", 1, 2, PMU_ANALOG_PCIE0_P);
+>  		clkdev_add_pmu("1d900000.pcie", "msi", 1, 1, PMU1_PCIE_MSI);
+> @@ -490,8 +490,8 @@ void __init ltq_soc_init(void)
+>  		else
+>  			clkdev_add_static(CLOCK_133M, CLOCK_133M,
+>  						CLOCK_133M, CLOCK_133M);
+> -		clkdev_add_pmu("1e101000.usb", "ctl", 1, 0, PMU_USB0);
+> -		clkdev_add_pmu("1e101000.usb", "phy", 1, 0, PMU_USB0_P);
+> +		clkdev_add_pmu("1f203018.usb2-phy", "ctrl", 1, 0, PMU_USB0);
+> +		clkdev_add_pmu("1f203018.usb2-phy", "phy", 1, 0, PMU_USB0_P);
+>  		clkdev_add_pmu("1e180000.etop", "ppe", 1, 0, PMU_PPE);
+>  		clkdev_add_cgu("1e180000.etop", "ephycgu", CGU_EPHY);
+>  		clkdev_add_pmu("1e180000.etop", "ephy", 1, 0, PMU_EPHY);
+> @@ -526,10 +526,10 @@ void __init ltq_soc_init(void)
+>  	} else if (of_machine_is_compatible("lantiq,vr9")) {
+>  		clkdev_add_static(ltq_vr9_cpu_hz(), ltq_vr9_fpi_hz(),
+>  				ltq_vr9_fpi_hz(), ltq_vr9_pp32_hz());
+> -		clkdev_add_pmu("1e101000.usb", "phy", 1, 0, PMU_USB0_P);
+> -		clkdev_add_pmu("1e101000.usb", "ctl", 1, 0, PMU_USB0 | PMU_AHBM);
+> -		clkdev_add_pmu("1e106000.usb", "phy", 1, 0, PMU_USB1_P);
+> -		clkdev_add_pmu("1e106000.usb", "ctl", 1, 0, PMU_USB1 | PMU_AHBM);
+> +		clkdev_add_pmu("1f203018.usb2-phy", "phy", 1, 0, PMU_USB0_P);
+> +		clkdev_add_pmu("1f203018.usb2-phy", "ctrl", 1, 0, PMU_USB0 | PMU_AHBM);
+> +		clkdev_add_pmu("1f203034.usb2-phy", "phy", 1, 0, PMU_USB1_P);
+> +		clkdev_add_pmu("1f203034.usb2-phy", "ctrl", 1, 0, PMU_USB1 | PMU_AHBM);
+>  		clkdev_add_pmu("1d900000.pcie", "phy", 1, 1, PMU1_PCIE_PHY);
+>  		clkdev_add_pmu("1d900000.pcie", "bus", 1, 0, PMU_PCIE_CLK);
+>  		clkdev_add_pmu("1d900000.pcie", "msi", 1, 1, PMU1_PCIE_MSI);
+> @@ -550,8 +550,8 @@ void __init ltq_soc_init(void)
+>  	} else if (of_machine_is_compatible("lantiq,ar9")) {
+>  		clkdev_add_static(ltq_ar9_cpu_hz(), ltq_ar9_fpi_hz(),
+>  				ltq_ar9_fpi_hz(), CLOCK_250M);
+> -		clkdev_add_pmu("1e101000.usb", "ctl", 1, 0, PMU_USB0);
+> -		clkdev_add_pmu("1e101000.usb", "phy", 1, 0, PMU_USB0_P);
+> +		clkdev_add_pmu("1f203018.usb2-phy", "ctrl", 1, 0, PMU_USB0);
+> +		clkdev_add_pmu("1f203018.usb2-phy", "phy", 1, 0, PMU_USB0_P);
+>  		clkdev_add_pmu("1e106000.usb", "ctl", 1, 0, PMU_USB1);
+>  		clkdev_add_pmu("1e106000.usb", "phy", 1, 0, PMU_USB1_P);
+>  		clkdev_add_pmu("1e180000.etop", "switch", 1, 0, PMU_SWITCH);
+> @@ -562,8 +562,8 @@ void __init ltq_soc_init(void)
+>  	} else {
+>  		clkdev_add_static(ltq_danube_cpu_hz(), ltq_danube_fpi_hz(),
+>  				ltq_danube_fpi_hz(), ltq_danube_pp32_hz());
+> -		clkdev_add_pmu("1e101000.usb", "ctl", 1, 0, PMU_USB0);
+> -		clkdev_add_pmu("1e101000.usb", "phy", 1, 0, PMU_USB0_P);
+> +		clkdev_add_pmu("1f203018.usb2-phy", "ctrl", 1, 0, PMU_USB0);
+> +		clkdev_add_pmu("1f203018.usb2-phy", "phy", 1, 0, PMU_USB0_P);
+>  		clkdev_add_pmu("1e103000.sdio", NULL, 1, 0, PMU_SDIO);
+>  		clkdev_add_pmu("1e103100.deu", NULL, 1, 0, PMU_DEU);
+>  		clkdev_add_pmu("1e116000.mei", "dfe", 1, 0, PMU_DFE);
+> diff --git a/drivers/phy/Kconfig b/drivers/phy/Kconfig
 > index c1807d4a0079..968088ceaeb3 100644
 > --- a/drivers/phy/Kconfig
 > +++ b/drivers/phy/Kconfig
@@ -143,6 +202,8 @@ would like to merge this thorough Ralf's mips tree.
 > +config PHY_LANTIQ_RCU_USB2
 > +	tristate "Lantiq XWAY SoC RCU based USB PHY"
 > +	depends on SOC_TYPE_XWAY
+
+depends on COMPILE_TEST..
 > +	depends on OF
 > +	select GENERIC_PHY
 > +	help
@@ -160,9 +221,198 @@ would like to merge this thorough Ralf's mips tree.
 > --- /dev/null
 > +++ b/drivers/phy/lantiq/phy-lantiq-rcu-usb2.c
 > @@ -0,0 +1,290 @@
+> +/*
+> + * Lantiq XWAY SoC RCU module based USB 1.1/2.0 PHY driver
+> + *
+> + * Copyright (C) 2016 Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+> + * Copyright (C) 2017 Hauke Mehrtens <hauke@hauke-m.de>
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License version 2 as
+> + * published by the Free Software Foundation.
+> + */
+> +
+> +#include <linux/clk.h>
+> +#include <linux/delay.h>
+> +#include <linux/mfd/syscon.h>
+> +#include <linux/module.h>
+> +#include <linux/of.h>
+> +#include <linux/of_address.h>
+> +#include <linux/of_device.h>
+> +#include <linux/phy/phy.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/property.h>
+> +#include <linux/regmap.h>
+> +#include <linux/reset.h>
+> +
+> +/* Transmitter HS Pre-Emphasis Enable */
+> +#define RCU_CFG1_TX_PEE		BIT(0)
+> +/* Disconnect Threshold */
+> +#define RCU_CFG1_DIS_THR_MASK	0x00038000
+> +#define RCU_CFG1_DIS_THR_SHIFT	15
+> +
+> +struct ltq_rcu_usb2_bits {
+> +	u8 hostmode;
+> +	u8 slave_endianness;
+> +	u8 host_endianness;
+> +	bool have_ana_cfg;
+> +};
+> +
+> +struct ltq_rcu_usb2_priv {
+> +	struct regmap			*regmap;
+> +	unsigned int			phy_reg_offset;
+> +	unsigned int			ana_cfg1_reg_offset;
+> +	const struct ltq_rcu_usb2_bits	*reg_bits;
+> +	struct device			*dev;
+> +	struct phy			*phy;
+> +	struct clk			*ctrl_gate_clk;
+> +	struct clk			*phy_gate_clk;
+> +	struct reset_control		*ctrl_reset;
+> +	struct reset_control		*phy_reset;
+> +};
+> +
+> +static const struct ltq_rcu_usb2_bits xway_rcu_usb2_reg_bits = {
+> +	.hostmode = 11,
+> +	.slave_endianness = 9,
+> +	.host_endianness = 10,
+> +	.have_ana_cfg = false,
+> +};
+> +
+> +static const struct ltq_rcu_usb2_bits xrx100_rcu_usb2_reg_bits = {
+> +	.hostmode = 11,
+> +	.slave_endianness = 17,
+> +	.host_endianness = 10,
+> +	.have_ana_cfg = false,
+> +};
+> +
+> +static const struct ltq_rcu_usb2_bits xrx200_rcu_usb2_reg_bits = {
+> +	.hostmode = 11,
+> +	.slave_endianness = 9,
+> +	.host_endianness = 10,
+> +	.have_ana_cfg = true,
+> +};
+> +
+> +static const struct of_device_id ltq_rcu_usb2_phy_of_match[] = {
+> +	{
+> +		.compatible = "lantiq,ase-usb2-phy",
+> +		.data = &xway_rcu_usb2_reg_bits,
+> +	},
+> +	{
+> +		.compatible = "lantiq,danube-usb2-phy",
+> +		.data = &xway_rcu_usb2_reg_bits,
+> +	},
+> +	{
+> +		.compatible = "lantiq,xrx100-usb2-phy",
+> +		.data = &xrx100_rcu_usb2_reg_bits,
+> +	},
+> +	{
+> +		.compatible = "lantiq,xrx200-usb2-phy",
+> +		.data = &xrx200_rcu_usb2_reg_bits,
+> +	},
+> +	{
+> +		.compatible = "lantiq,xrx300-usb2-phy",
+> +		.data = &xrx200_rcu_usb2_reg_bits,
+> +	},
+> +	{ },
+> +};
+> +MODULE_DEVICE_TABLE(of, ltq_rcu_usb2_phy_of_match);
+> +
+> +
+spurious blank line..
+> +static int ltq_rcu_usb2_phy_power_on(struct phy *phy)
+> +{
+> +	struct ltq_rcu_usb2_priv *priv = phy_get_drvdata(phy);
+> +
+> +	reset_control_deassert(priv->phy_reset);
+> +
+> +	return 0;
+> +}
+> +
+> +static int ltq_rcu_usb2_phy_power_off(struct phy *phy)
+> +{
+> +	struct ltq_rcu_usb2_priv *priv = phy_get_drvdata(phy);
+> +
+> +	reset_control_assert(priv->phy_reset);
+> +
+> +	return 0;
+> +}
+> +
+> +static struct phy_ops ltq_rcu_usb2_phy_ops = {
+> +	.power_on	= ltq_rcu_usb2_phy_power_on,
+> +	.power_off	= ltq_rcu_usb2_phy_power_off,
+> +	.owner		= THIS_MODULE,
+> +};
+> +
+> +static int ltq_rcu_usb2_start_cores(struct ltq_rcu_usb2_priv *priv)
+> +{
+> +	struct device *dev = priv->dev;
+> +	int ret;
+> +
+> +	/* Power on the USB core. */
+> +	ret = clk_prepare_enable(priv->ctrl_gate_clk);
+> +	if (ret) {
+> +		dev_err(dev, "failed to enable CTRL gate\n");
+> +		return ret;
+> +	}
+> +
+> +	/*
+> +	 * Power on the USB PHY. We have to do it early because
+> +	 * otherwise the second core won't turn on properly.
+> +	 */
+> +	ret = clk_prepare_enable(priv->phy_gate_clk);
+> +	if (ret) {
+> +		clk_disable_unprepare(priv->ctrl_gate_clk);
+> +		dev_err(dev, "failed to enable PHY gate\n");
+> +		return ret;
+> +	}
 
-.....
+why are these not part of power_on callback?
+> +
+> +	if (priv->reg_bits->have_ana_cfg) {
+> +		regmap_update_bits(priv->regmap, priv->ana_cfg1_reg_offset,
+> +			RCU_CFG1_TX_PEE, RCU_CFG1_TX_PEE);
+> +		regmap_update_bits(priv->regmap, priv->ana_cfg1_reg_offset,
+> +			RCU_CFG1_DIS_THR_MASK, 7 << RCU_CFG1_DIS_THR_SHIFT);
+> +	}
+> +
+> +	/* Configure core to host mode */
+> +	regmap_update_bits(priv->regmap, priv->phy_reg_offset,
+> +			   BIT(priv->reg_bits->hostmode), 0);
+> +
+> +	/* Select DMA endianness (Host-endian: big-endian) */
+> +	regmap_update_bits(priv->regmap, priv->phy_reg_offset,
+> +		BIT(priv->reg_bits->slave_endianness), 0);
+> +	regmap_update_bits(priv->regmap, priv->phy_reg_offset,
+> +		BIT(priv->reg_bits->host_endianness),
+> +		BIT(priv->reg_bits->host_endianness));
 
+All this can be phy_init?
+> +
+> +	/* Reset USB core throgh reset controller */
+> +	reset_control_deassert(priv->ctrl_reset);
+> +
+> +	reset_control_assert(priv->phy_reset);
+> +
+> +	return 0;
+> +}
+> +
+> +static int ltq_rcu_usb2_of_probe(struct ltq_rcu_usb2_priv *priv,
+> +				 struct platform_device *pdev)
+
+%s/ltq_rcu_usb2_of_probe/ltq_rcu_usb2_of_parse
+> +{
+> +	struct device *dev = priv->dev;
+> +	struct resource *res;
+> +	struct resource res_parent;
+> +	int ret;
+> +
+> +	priv->reg_bits = of_device_get_match_data(dev);
+> +
+> +	priv->regmap = syscon_node_to_regmap(dev->of_node->parent);
+> +	if (IS_ERR(priv->regmap)) {
+> +		dev_err(dev, "Failed to lookup RCU regmap\n");
+> +		return PTR_ERR(priv->regmap);
+> +	}
 > +
 > +	ret = of_address_to_resource(dev->of_node->parent, 0, &res_parent);
 > +	if (ret)
@@ -172,27 +422,13 @@ would like to merge this thorough Ralf's mips tree.
 > +	if (!res) {
 > +		dev_err(dev, "Failed to get RCU PHY reg offset\n");
 > +		return ret;
-
-I will return -ENOENT here.
-
 > +	}
 > +
 > +	if (res->start < res_parent.start)
 > +		return -ENOENT;
 > +	priv->phy_reg_offset = res->start - res_parent.start;
-> +
-> +	if (priv->reg_bits->have_ana_cfg) {
-> +		res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
-> +		if (!res) {
-> +			dev_err(dev, "Failed to get RCU ANA CFG1 reg offset\n");
-> +			return ret;
 
-I will return -ENOENT here.
+I think you can simple use of_get_address() to get the offset.
 
-> +		}
-> +
-> +		if (res->start < res_parent.start)
-> +			return -ENOENT;
-> +		priv->ana_cfg1_reg_offset = res->start - res_parent.start;
-> +	}
-> +
+Thanks
+Kishon
