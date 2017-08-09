@@ -1,77 +1,68 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:56830 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751272AbdH0Qos (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 27 Aug 2017 12:44:48 -0400
-Date: Sun, 27 Aug 2017 09:44:44 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>,
-        "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>,
-        LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
-        Lee Jones <lee.jones@linaro.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sebastian Reichel <sebastian.reichel@collabora.co.uk>,
-        Jonathan Cameron <jic23@kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Kishon Vijay Abraham I <kishon@ti.com>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Daniel Thompson <daniel.thompson@linaro.org>
-Subject: Re: [PATCH v2 3/3] mfd: twl: move header file out of I2C realm
-Message-ID: <20170827164444.GB22819@roeck-us.net>
-References: <20170814163424.2197-1-wsa@the-dreams.de>
- <20170814163424.2197-4-wsa@the-dreams.de>
- <CACRpkdZd1TecLVQA2uPiPM_fWDw1mS2-kpmN06xp=dP4Wh-vYQ@mail.gmail.com>
+From: "Langer, Thomas" <thomas.langer@intel.com>
+To: Mark Brown <broonie@kernel.org>, Hauke Mehrtens <hauke@hauke-m.de>
+CC: "ralf@linux-mips.org" <ralf@linux-mips.org>,
+        "linux-mips@linux-mips.org" <linux-mips@linux-mips.org>,
+        "linux-mtd@lists.infradead.org" <linux-mtd@lists.infradead.org>,
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "martin.blumenstingl@googlemail.com"
+        <martin.blumenstingl@googlemail.com>,
+        "john@phrozen.org" <john@phrozen.org>,
+        "linux-spi@vger.kernel.org" <linux-spi@vger.kernel.org>,
+        "Mehrtens, Hauke" <hauke.mehrtens@intel.com>,
+        "robh@kernel.org" <robh@kernel.org>,
+        "andy.shevchenko@gmail.com" <andy.shevchenko@gmail.com>,
+        "p.zabel@pengutronix.de" <p.zabel@pengutronix.de>,
+        "kishon@ti.com" <kishon@ti.com>,
+        "mark.rutland@arm.com" <mark.rutland@arm.com>
+Subject: RE: [PATCH v9 03/16] mtd: spi-falcon: drop check of boot select
+Date: Wed, 9 Aug 2017 14:02:16 +0000
+Message-ID: <0DAF21CFE1B20740AE23D6AF6E54843F1EA0A385@IRSMSX101.ger.corp.intel.com>
+References: <20170808225247.32266-1-hauke@hauke-m.de>
+ <20170808225247.32266-4-hauke@hauke-m.de>
+ <20170809114421.oo2bunardgw3p4tk@sirena.org.uk>
+In-Reply-To: <20170809114421.oo2bunardgw3p4tk@sirena.org.uk>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CACRpkdZd1TecLVQA2uPiPM_fWDw1mS2-kpmN06xp=dP4Wh-vYQ@mail.gmail.com>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-Path: <thomas.langer@intel.com>
+Sender: linux-mips-bounce@linux-mips.org
+Errors-to: linux-mips-bounce@linux-mips.org
+List-help: <mailto:ecartis@linux-mips.org?Subject=help>
+List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
+List-software: Ecartis version 1.0.0
+List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
+List-owner: <mailto:ralf@linux-mips.org>
+List-post: <mailto:linux-mips@linux-mips.org>
+List-archive: <http://www.linux-mips.org/archives/linux-mips/>
+List-Archive: <https://lore.kernel.org/linux-mips/>
+List-Post: <mailto:linux-mips@vger.kernel.org>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On Tue, Aug 22, 2017 at 03:06:31PM +0200, Linus Walleij wrote:
-> On Mon, Aug 14, 2017 at 6:34 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
+
+
+> -----Original Message-----
+> From: linux-spi-owner@vger.kernel.org [mailto:linux-spi-
+> owner@vger.kernel.org] On Behalf Of Mark Brown
+> Sent: Wednesday, August 9, 2017 1:44 PM
+> To: Hauke Mehrtens <hauke@hauke-m.de>
+> Cc: ralf@linux-mips.org; linux-mips@linux-mips.org; linux-
+> mtd@lists.infradead.org; linux-watchdog@vger.kernel.org;
+> devicetree@vger.kernel.org; martin.blumenstingl@googlemail.com;
+> john@phrozen.org; linux-spi@vger.kernel.org; Mehrtens, Hauke
+> <hauke.mehrtens@intel.com>; robh@kernel.org; andy.shevchenko@gmail.com;
+> p.zabel@pengutronix.de; kishon@ti.com; mark.rutland@arm.com
+> Subject: Re: [PATCH v9 03/16] mtd: spi-falcon: drop check of boot select
 > 
-> > include/linux/i2c is not for client devices. Move the header file to a
-> > more appropriate location.
-> >
-> > Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-> > Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> > Acked-by: Mark Brown <broonie@kernel.org>
-> > Acked-by: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
-> > Acked-by: Jonathan Cameron <jic23@kernel.org>
-> > Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > Acked-by: Kishon Vijay Abraham I <kishon@ti.com>
-> > Acked-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-> > Acked-by: Thierry Reding <thierry.reding@gmail.com>
-> > Acked-by: Tony Lindgren <tony@atomide.com>
-> > Acked-by: Daniel Thompson <daniel.thompson@linaro.org>
-> > Cc: Linus Walleij <linus.walleij@linaro.org>
-> > Cc: Guenter Roeck <linux@roeck-us.net>
-> > ---
-> >
-> > Change since V1:
-> >
-> > * rebased to v4.13-rc5, one change needed (twl4030-adc.h gone, too)
-> > * acks added. I think gpio and hwmon acks are missing.
-> >   Linus, Guenter, pretty please? :)
+> On Wed, Aug 09, 2017 at 12:52:34AM +0200, Hauke Mehrtens wrote:
 > 
-> Acked-by: Linus Walleij <linus.walleij@linaro.org>
-> For anything hitting GPIO.
+> > Do not check which flash type the SoC was booted from before
+> > using this driver. Assume that the device tree is correct and use this
+> > driver when it was added to device tree. This also removes a build
+> > dependency to the SoC code.
 > 
-For hwmon:
+> Why?  Is this assumption reliably true?
 
-Acked-by: Guenter Roeck <linux@roeck-us.net>
-
-Sorry, I am a bit behind ...
-
-Guenter
+Yes. We only have one type of flash interface in the device tree, as they 
+are connected to the shared EBU (External Bus Unit).
