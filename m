@@ -1,78 +1,37 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mezzanine.sirena.org.uk ([106.187.55.193]:60258 "EHLO
-        mezzanine.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751492AbdHJPFu (ORCPT
+Received: from mail-pg0-f67.google.com ([74.125.83.67]:38445 "EHLO
+        mail-pg0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751492AbdHJPpZ (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 10 Aug 2017 11:05:50 -0400
-Date: Thu, 10 Aug 2017 16:05:15 +0100
-From: Mark Brown <broonie@kernel.org>
-To: "Langer, Thomas" <thomas.langer@intel.com>
-Cc: Hauke Mehrtens <hauke@hauke-m.de>,
-        "ralf@linux-mips.org" <ralf@linux-mips.org>,
-        "linux-mips@linux-mips.org" <linux-mips@linux-mips.org>,
-        "linux-mtd@lists.infradead.org" <linux-mtd@lists.infradead.org>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "martin.blumenstingl@googlemail.com"
-        <martin.blumenstingl@googlemail.com>,
-        "john@phrozen.org" <john@phrozen.org>,
-        "linux-spi@vger.kernel.org" <linux-spi@vger.kernel.org>,
-        "Mehrtens, Hauke" <hauke.mehrtens@intel.com>,
-        "robh@kernel.org" <robh@kernel.org>,
-        "andy.shevchenko@gmail.com" <andy.shevchenko@gmail.com>,
-        "p.zabel@pengutronix.de" <p.zabel@pengutronix.de>,
-        "kishon@ti.com" <kishon@ti.com>,
-        "mark.rutland@arm.com" <mark.rutland@arm.com>
-Message-ID: <20170810150515.w66ksbfexbcegy6z@sirena.org.uk>
-References: <20170808225247.32266-1-hauke@hauke-m.de>
- <20170808225247.32266-4-hauke@hauke-m.de>
- <20170809114421.oo2bunardgw3p4tk@sirena.org.uk>
- <0DAF21CFE1B20740AE23D6AF6E54843F1EA0A385@IRSMSX101.ger.corp.intel.com>
+        Thu, 10 Aug 2017 11:45:25 -0400
+Date: Thu, 10 Aug 2017 10:45:22 -0500
+From: Rob Herring <robh@kernel.org>
+To: Andrew Jeffery <andrew@aj.id.au>
+Cc: linux-watchdog@vger.kernel.org, wim@iguana.be, linux@roeck-us.net,
+        mark.rutland@arm.com, joel@jms.id.au, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-aspeed@lists.ozlabs.org,
+        openbmc@lists.ozlabs.org
+Subject: Re: [PATCH 1/2] dt-bindings: watchdog: aspeed: External reset signal
+ properties
+Message-ID: <20170810154522.7br6ta3f6plf7ytm@rob-hp-laptop>
+References: <20170802044529.30032-1-andrew@aj.id.au>
+ <20170802044529.30032-2-andrew@aj.id.au>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="s6uae5i4hoypg7dc"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <0DAF21CFE1B20740AE23D6AF6E54843F1EA0A385@IRSMSX101.ger.corp.intel.com>
-Subject: Re: [PATCH v9 03/16] mtd: spi-falcon: drop check of boot select
+In-Reply-To: <20170802044529.30032-2-andrew@aj.id.au>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+On Wed, Aug 02, 2017 at 02:15:28PM +0930, Andrew Jeffery wrote:
+> For the AST2500 and compatible watchdog controllers the external reset
+> signal can be configured for push-pull or open-drain drive types, and in
+> the case of push-pull driving, active low or high.
+> 
+> Signed-off-by: Andrew Jeffery <andrew@aj.id.au>
+> ---
+>  Documentation/devicetree/bindings/watchdog/aspeed-wdt.txt | 10 +++++++++-
+>  1 file changed, 9 insertions(+), 1 deletion(-)
 
---s6uae5i4hoypg7dc
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Acked-by: Rob Herring <robh@kernel.org>
 
-On Wed, Aug 09, 2017 at 02:02:16PM +0000, Langer, Thomas wrote:
-> > On Wed, Aug 09, 2017 at 12:52:34AM +0200, Hauke Mehrtens wrote:
-
-> > > Do not check which flash type the SoC was booted from before
-> > > using this driver. Assume that the device tree is correct and use this
-> > > driver when it was added to device tree. This also removes a build
-> > > dependency to the SoC code.
-
-> > Why?  Is this assumption reliably true?
-
-> Yes. We only have one type of flash interface in the device tree, as they=
-=20
-> are connected to the shared EBU (External Bus Unit).
-
-That sounds board specific but this is a driver for a SoC?  In any case
-this needs to end up in the commit log.
-
---s6uae5i4hoypg7dc
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCAAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAlmMdioACgkQJNaLcl1U
-h9BYlAgAgCDu3huZzBs6oYvZZ+POaY/GV5Cs55enzpxuT8F87rnOrYbTGQw66HzP
-+4Foc1xogiJOKDNSs+BpPiuFTo/zvwu+ApKkEE8OeaDOQh4gVhCag/OUKz9z5hAZ
-ZvSHQud2xiO1FjFZeLFB1KGEA9jb9ltOjWdJxqdiv1S9mV4ITiVho//mhTNf6HcL
-RMiKTeDmSz37Q3X1vgrnQehpTYgqUHYCzr/NjUjsJ3nATLZpr8bLbLhh4YKalxqj
-Elnt3lXSauR4/LfcfwpSqRYfeMP/LhWAHMRRJpSMLqFVAyWgndZP9IXm9mP4fXia
-R3yhSmQxzNY7qhWMoY1vQAfNsr4hwA==
-=HdUK
------END PGP SIGNATURE-----
-
---s6uae5i4hoypg7dc--
