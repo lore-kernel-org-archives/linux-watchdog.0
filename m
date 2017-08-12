@@ -1,12 +1,12 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-lf0-f49.google.com ([209.85.215.49]:34605 "EHLO
-        mail-lf0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750995AbdHLSns (ORCPT
+Received: from mail-lf0-f52.google.com ([209.85.215.52]:33641 "EHLO
+        mail-lf0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751086AbdHLSnv (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 12 Aug 2017 14:43:48 -0400
-Received: by mail-lf0-f49.google.com with SMTP id g25so26978782lfh.1
-        for <linux-watchdog@vger.kernel.org>; Sat, 12 Aug 2017 11:43:47 -0700 (PDT)
+        Sat, 12 Aug 2017 14:43:51 -0400
+Received: by mail-lf0-f52.google.com with SMTP id d17so27046954lfe.0
+        for <linux-watchdog@vger.kernel.org>; Sat, 12 Aug 2017 11:43:50 -0700 (PDT)
 From: Linus Walleij <linus.walleij@linaro.org>
 To: Wim Van Sebroeck <wim@iguana.be>,
         Guenter Roeck <linux@roeck-us.net>,
@@ -15,270 +15,391 @@ To: Wim Van Sebroeck <wim@iguana.be>,
 Cc: linux-arm-kernel@lists.infradead.org,
         linux-watchdog@vger.kernel.org,
         Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 08/11] watchdog: ftwdt010/moxart: Merge MOXA ART into FTWDT010
-Date: Sat, 12 Aug 2017 20:43:15 +0200
-Message-Id: <20170812184318.10144-9-linus.walleij@linaro.org>
+Subject: [PATCH 09/11] watchdog: ftwdt010/aspeed: Merge Aspeed into FTWDT010
+Date: Sat, 12 Aug 2017 20:43:16 +0200
+Message-Id: <20170812184318.10144-10-linus.walleij@linaro.org>
 In-Reply-To: <20170812184318.10144-1-linus.walleij@linaro.org>
 References: <20170812184318.10144-1-linus.walleij@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-These two drivers is for the same hardware, the only difference
-is that Gemini uses the EXTCLK @5MHz by default (it also works
-fine using PCLK) while the MOXA ART is using the PCLK to clock
-the watchdog.
+These two drivers is for the almost the same hardware,
+the only differences are:
+- The Aspeed IP block has been hacked to use a different
+  magic value.
+- The Aspeed has hard-wired 1MHz to the EXTCLK and
+  apparently even disabled the use of PCLK for clocking
+  the block on AST2500.
 
-Delete the old MOXA ART driver and augment the FTWDT010 to
-probe on this platform too, fetching the operating frequency
-from the PCLK. Select the driver by default for ARCH_MOXART
-to make a smooth transition of the platform.
+Delete the old Aspeed driver and augment the FTWDT010 to
+probe on this platform too. Select the driver by default
+for ARCH_ASPEED to make a smooth transition of the platform.
 
 Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 ---
- drivers/watchdog/Kconfig        |  11 +--
+ drivers/watchdog/Kconfig        |  18 +---
  drivers/watchdog/Makefile       |   1 -
- drivers/watchdog/ftwdt010_wdt.c |   1 +
- drivers/watchdog/moxart_wdt.c   | 178 ----------------------------------------
- 4 files changed, 2 insertions(+), 189 deletions(-)
- delete mode 100644 drivers/watchdog/moxart_wdt.c
+ drivers/watchdog/aspeed_wdt.c   | 200 ----------------------------------------
+ drivers/watchdog/ftwdt010_wdt.c |  25 ++++-
+ 4 files changed, 25 insertions(+), 219 deletions(-)
+ delete mode 100644 drivers/watchdog/aspeed_wdt.c
 
 diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index fd44a542036a..beef6bb5c6d9 100644
+index beef6bb5c6d9..0296fab14c35 100644
 --- a/drivers/watchdog/Kconfig
 +++ b/drivers/watchdog/Kconfig
-@@ -326,6 +326,7 @@ config FTWDT010_WATCHDOG
- 	depends on ARM || COMPILE_TEST
+@@ -327,10 +327,11 @@ config FTWDT010_WATCHDOG
  	select WATCHDOG_CORE
  	default ARCH_GEMINI
-+	default ARCH_MOXART
+ 	default ARCH_MOXART
++	default ARCH_ASPEED
  	help
  	  Say Y here if to include support for the Faraday Technology
- 	  FTWDT010 watchdog timer embedded in the Cortina Systems Gemini
-@@ -609,16 +610,6 @@ config RETU_WATCHDOG
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called retu_wdt.
+-	  FTWDT010 watchdog timer embedded in the Cortina Systems Gemini
+-	  family of devices.
++	  FTWDT010 watchdog timer embedded in the Cortina Systems Gemini,
++	  MOXA ART and Aspeed families of devices.
  
--config MOXART_WDT
--	tristate "MOXART watchdog"
--	depends on ARCH_MOXART || COMPILE_TEST
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called ftwdt010_wdt.
+@@ -733,19 +734,6 @@ config RENESAS_RZAWDT
+ 	  This driver adds watchdog support for the integrated watchdogs in the
+ 	  Renesas RZ/A SoCs. These watchdogs can be used to reset a system.
+ 
+-config ASPEED_WATCHDOG
+-	tristate "Aspeed 2400 watchdog support"
+-	depends on ARCH_ASPEED || COMPILE_TEST
+-	select WATCHDOG_CORE
 -	help
--	  Say Y here to include Watchdog timer support for the watchdog
--	  existing on the MOXA ART SoC series platforms.
+-	  Say Y here to include support for the watchdog timer
+-	  in Apseed BMC SoCs.
+-
+-	  This driver is required to reboot the SoC.
 -
 -	  To compile this driver as a module, choose M here: the
--	  module will be called moxart_wdt.
+-	  module will be called aspeed_wdt.
 -
- config SIRFSOC_WATCHDOG
- 	tristate "SiRFSOC watchdog"
- 	depends on ARCH_SIRF || COMPILE_TEST
+ config ZX2967_WATCHDOG
+ 	tristate "ZTE zx2967 SoCs watchdog support"
+ 	depends on ARCH_ZX
 diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index df91d7db821c..fcab71f0a1c7 100644
+index fcab71f0a1c7..a9701d39928d 100644
 --- a/drivers/watchdog/Makefile
 +++ b/drivers/watchdog/Makefile
-@@ -68,7 +68,6 @@ obj-$(CONFIG_IMX2_WDT) += imx2_wdt.o
- obj-$(CONFIG_UX500_WATCHDOG) += ux500_wdt.o
- obj-$(CONFIG_RETU_WATCHDOG) += retu_wdt.o
- obj-$(CONFIG_BCM2835_WDT) += bcm2835_wdt.o
--obj-$(CONFIG_MOXART_WDT) += moxart_wdt.o
- obj-$(CONFIG_SIRFSOC_WATCHDOG) += sirfsoc_wdt.o
- obj-$(CONFIG_ST_LPC_WATCHDOG) += st_lpc_wdt.o
- obj-$(CONFIG_QCOM_WDT) += qcom-wdt.o
-diff --git a/drivers/watchdog/ftwdt010_wdt.c b/drivers/watchdog/ftwdt010_wdt.c
-index 7fc865eea28d..912b55e67110 100644
---- a/drivers/watchdog/ftwdt010_wdt.c
-+++ b/drivers/watchdog/ftwdt010_wdt.c
-@@ -298,6 +298,7 @@ static const struct dev_pm_ops ftwdt010_wdt_dev_pm_ops = {
- static const struct of_device_id ftwdt010_wdt_match[] = {
- 	{ .compatible = "faraday,ftwdt010" },
- 	{ .compatible = "cortina,gemini-watchdog" },
-+	{ .compatible = "moxa,moxart-watchdog" },
- 	{},
- };
- MODULE_DEVICE_TABLE(of, ftwdt010_wdt_match);
-diff --git a/drivers/watchdog/moxart_wdt.c b/drivers/watchdog/moxart_wdt.c
+@@ -82,7 +82,6 @@ obj-$(CONFIG_BCM7038_WDT) += bcm7038_wdt.o
+ obj-$(CONFIG_ATLAS7_WATCHDOG) += atlas7_wdt.o
+ obj-$(CONFIG_RENESAS_WDT) += renesas_wdt.o
+ obj-$(CONFIG_RENESAS_RZAWDT) += rza_wdt.o
+-obj-$(CONFIG_ASPEED_WATCHDOG) += aspeed_wdt.o
+ obj-$(CONFIG_ZX2967_WATCHDOG) += zx2967_wdt.o
+ obj-$(CONFIG_STM32_WATCHDOG) += stm32_iwdg.o
+ obj-$(CONFIG_UNIPHIER_WATCHDOG) += uniphier_wdt.o
+diff --git a/drivers/watchdog/aspeed_wdt.c b/drivers/watchdog/aspeed_wdt.c
 deleted file mode 100644
-index 2c4a73d1e214..000000000000
---- a/drivers/watchdog/moxart_wdt.c
+index 1c652582de40..000000000000
+--- a/drivers/watchdog/aspeed_wdt.c
 +++ /dev/null
-@@ -1,178 +0,0 @@
+@@ -1,200 +0,0 @@
 -/*
-- * MOXA ART SoCs watchdog driver.
+- * Copyright 2016 IBM Corporation
 - *
-- * Copyright (C) 2013 Jonas Jensen
+- * Joel Stanley <joel@jms.id.au>
 - *
-- * Jonas Jensen <jonas.jensen@gmail.com>
-- *
-- * This file is licensed under the terms of the GNU General Public
-- * License version 2.  This program is licensed "as is" without any
-- * warranty of any kind, whether express or implied.
+- * This program is free software; you can redistribute it and/or
+- * modify it under the terms of the GNU General Public License
+- * as published by the Free Software Foundation; either version
+- * 2 of the License, or (at your option) any later version.
 - */
 -
--#include <linux/clk.h>
+-#include <linux/delay.h>
 -#include <linux/io.h>
--#include <linux/module.h>
--#include <linux/err.h>
 -#include <linux/kernel.h>
+-#include <linux/module.h>
+-#include <linux/of.h>
 -#include <linux/platform_device.h>
 -#include <linux/watchdog.h>
--#include <linux/moduleparam.h>
 -
--#define REG_COUNT			0x4
--#define REG_MODE			0x8
--#define REG_ENABLE			0xC
--
--struct moxart_wdt_dev {
--	struct watchdog_device dev;
--	void __iomem *base;
--	unsigned int clock_frequency;
+-struct aspeed_wdt {
+-	struct watchdog_device	wdd;
+-	void __iomem		*base;
+-	u32			ctrl;
 -};
 -
--static int heartbeat;
--
--static int moxart_wdt_restart(struct watchdog_device *wdt_dev,
--			      unsigned long action, void *data)
--{
--	struct moxart_wdt_dev *moxart_wdt = watchdog_get_drvdata(wdt_dev);
--
--	writel(1, moxart_wdt->base + REG_COUNT);
--	writel(0x5ab9, moxart_wdt->base + REG_MODE);
--	writel(0x03, moxart_wdt->base + REG_ENABLE);
--
--	return 0;
--}
--
--static int moxart_wdt_stop(struct watchdog_device *wdt_dev)
--{
--	struct moxart_wdt_dev *moxart_wdt = watchdog_get_drvdata(wdt_dev);
--
--	writel(0, moxart_wdt->base + REG_ENABLE);
--
--	return 0;
--}
--
--static int moxart_wdt_start(struct watchdog_device *wdt_dev)
--{
--	struct moxart_wdt_dev *moxart_wdt = watchdog_get_drvdata(wdt_dev);
--
--	writel(moxart_wdt->clock_frequency * wdt_dev->timeout,
--	       moxart_wdt->base + REG_COUNT);
--	writel(0x5ab9, moxart_wdt->base + REG_MODE);
--	writel(0x03, moxart_wdt->base + REG_ENABLE);
--
--	return 0;
--}
--
--static int moxart_wdt_set_timeout(struct watchdog_device *wdt_dev,
--				  unsigned int timeout)
--{
--	wdt_dev->timeout = timeout;
--
--	return 0;
--}
--
--static const struct watchdog_info moxart_wdt_info = {
--	.identity       = "moxart-wdt",
--	.options        = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING |
--			  WDIOF_MAGICCLOSE,
--};
--
--static const struct watchdog_ops moxart_wdt_ops = {
--	.owner          = THIS_MODULE,
--	.start          = moxart_wdt_start,
--	.stop           = moxart_wdt_stop,
--	.set_timeout    = moxart_wdt_set_timeout,
--	.restart        = moxart_wdt_restart,
--};
--
--static int moxart_wdt_probe(struct platform_device *pdev)
--{
--	struct moxart_wdt_dev *moxart_wdt;
--	struct device *dev = &pdev->dev;
--	struct device_node *node = dev->of_node;
--	struct resource *res;
--	struct clk *clk;
--	int err;
--	unsigned int max_timeout;
--	bool nowayout = WATCHDOG_NOWAYOUT;
--
--	moxart_wdt = devm_kzalloc(dev, sizeof(*moxart_wdt), GFP_KERNEL);
--	if (!moxart_wdt)
--		return -ENOMEM;
--
--	platform_set_drvdata(pdev, moxart_wdt);
--
--	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	moxart_wdt->base = devm_ioremap_resource(dev, res);
--	if (IS_ERR(moxart_wdt->base))
--		return PTR_ERR(moxart_wdt->base);
--
--	clk = of_clk_get(node, 0);
--	if (IS_ERR(clk)) {
--		pr_err("%s: of_clk_get failed\n", __func__);
--		return PTR_ERR(clk);
--	}
--
--	moxart_wdt->clock_frequency = clk_get_rate(clk);
--	if (moxart_wdt->clock_frequency == 0) {
--		pr_err("%s: incorrect clock frequency\n", __func__);
--		return -EINVAL;
--	}
--
--	max_timeout = UINT_MAX / moxart_wdt->clock_frequency;
--
--	moxart_wdt->dev.info = &moxart_wdt_info;
--	moxart_wdt->dev.ops = &moxart_wdt_ops;
--	moxart_wdt->dev.timeout = max_timeout;
--	moxart_wdt->dev.min_timeout = 1;
--	moxart_wdt->dev.max_timeout = max_timeout;
--	moxart_wdt->dev.parent = dev;
--
--	watchdog_init_timeout(&moxart_wdt->dev, heartbeat, dev);
--	watchdog_set_nowayout(&moxart_wdt->dev, nowayout);
--	watchdog_set_restart_priority(&moxart_wdt->dev, 128);
--
--	watchdog_set_drvdata(&moxart_wdt->dev, moxart_wdt);
--
--	err = watchdog_register_device(&moxart_wdt->dev);
--	if (err)
--		return err;
--
--	dev_dbg(dev, "Watchdog enabled (heartbeat=%d sec, nowayout=%d)\n",
--		moxart_wdt->dev.timeout, nowayout);
--
--	return 0;
--}
--
--static int moxart_wdt_remove(struct platform_device *pdev)
--{
--	struct moxart_wdt_dev *moxart_wdt = platform_get_drvdata(pdev);
--
--	moxart_wdt_stop(&moxart_wdt->dev);
--
--	return 0;
--}
--
--static const struct of_device_id moxart_watchdog_match[] = {
--	{ .compatible = "moxa,moxart-watchdog" },
+-static const struct of_device_id aspeed_wdt_of_table[] = {
+-	{ .compatible = "aspeed,ast2400-wdt" },
+-	{ .compatible = "aspeed,ast2500-wdt" },
 -	{ },
 -};
--MODULE_DEVICE_TABLE(of, moxart_watchdog_match);
+-MODULE_DEVICE_TABLE(of, aspeed_wdt_of_table);
 -
--static struct platform_driver moxart_wdt_driver = {
--	.probe      = moxart_wdt_probe,
--	.remove     = moxart_wdt_remove,
--	.driver     = {
--		.name		= "moxart-watchdog",
--		.of_match_table	= moxart_watchdog_match,
+-#define WDT_STATUS		0x00
+-#define WDT_RELOAD_VALUE	0x04
+-#define WDT_RESTART		0x08
+-#define WDT_CTRL		0x0C
+-#define   WDT_CTRL_RESET_MODE_SOC	(0x00 << 5)
+-#define   WDT_CTRL_RESET_MODE_FULL_CHIP	(0x01 << 5)
+-#define   WDT_CTRL_1MHZ_CLK		BIT(4)
+-#define   WDT_CTRL_WDT_EXT		BIT(3)
+-#define   WDT_CTRL_WDT_INTR		BIT(2)
+-#define   WDT_CTRL_RESET_SYSTEM		BIT(1)
+-#define   WDT_CTRL_ENABLE		BIT(0)
+-
+-#define WDT_RESTART_MAGIC	0x4755
+-
+-/* 32 bits at 1MHz, in milliseconds */
+-#define WDT_MAX_TIMEOUT_MS	4294967
+-#define WDT_DEFAULT_TIMEOUT	30
+-#define WDT_RATE_1MHZ		1000000
+-
+-static struct aspeed_wdt *to_aspeed_wdt(struct watchdog_device *wdd)
+-{
+-	return container_of(wdd, struct aspeed_wdt, wdd);
+-}
+-
+-static void aspeed_wdt_enable(struct aspeed_wdt *wdt, int count)
+-{
+-	wdt->ctrl |= WDT_CTRL_ENABLE;
+-
+-	writel(0, wdt->base + WDT_CTRL);
+-	writel(count, wdt->base + WDT_RELOAD_VALUE);
+-	writel(WDT_RESTART_MAGIC, wdt->base + WDT_RESTART);
+-	writel(wdt->ctrl, wdt->base + WDT_CTRL);
+-}
+-
+-static int aspeed_wdt_start(struct watchdog_device *wdd)
+-{
+-	struct aspeed_wdt *wdt = to_aspeed_wdt(wdd);
+-
+-	aspeed_wdt_enable(wdt, wdd->timeout * WDT_RATE_1MHZ);
+-
+-	return 0;
+-}
+-
+-static int aspeed_wdt_stop(struct watchdog_device *wdd)
+-{
+-	struct aspeed_wdt *wdt = to_aspeed_wdt(wdd);
+-
+-	wdt->ctrl &= ~WDT_CTRL_ENABLE;
+-	writel(wdt->ctrl, wdt->base + WDT_CTRL);
+-
+-	return 0;
+-}
+-
+-static int aspeed_wdt_ping(struct watchdog_device *wdd)
+-{
+-	struct aspeed_wdt *wdt = to_aspeed_wdt(wdd);
+-
+-	writel(WDT_RESTART_MAGIC, wdt->base + WDT_RESTART);
+-
+-	return 0;
+-}
+-
+-static int aspeed_wdt_set_timeout(struct watchdog_device *wdd,
+-				  unsigned int timeout)
+-{
+-	struct aspeed_wdt *wdt = to_aspeed_wdt(wdd);
+-	u32 actual;
+-
+-	wdd->timeout = timeout;
+-
+-	actual = min(timeout, wdd->max_hw_heartbeat_ms * 1000);
+-
+-	writel(actual * WDT_RATE_1MHZ, wdt->base + WDT_RELOAD_VALUE);
+-	writel(WDT_RESTART_MAGIC, wdt->base + WDT_RESTART);
+-
+-	return 0;
+-}
+-
+-static int aspeed_wdt_restart(struct watchdog_device *wdd,
+-			      unsigned long action, void *data)
+-{
+-	struct aspeed_wdt *wdt = to_aspeed_wdt(wdd);
+-
+-	aspeed_wdt_enable(wdt, 128 * WDT_RATE_1MHZ / 1000);
+-
+-	mdelay(1000);
+-
+-	return 0;
+-}
+-
+-static const struct watchdog_ops aspeed_wdt_ops = {
+-	.start		= aspeed_wdt_start,
+-	.stop		= aspeed_wdt_stop,
+-	.ping		= aspeed_wdt_ping,
+-	.set_timeout	= aspeed_wdt_set_timeout,
+-	.restart	= aspeed_wdt_restart,
+-	.owner		= THIS_MODULE,
+-};
+-
+-static const struct watchdog_info aspeed_wdt_info = {
+-	.options	= WDIOF_KEEPALIVEPING
+-			| WDIOF_MAGICCLOSE
+-			| WDIOF_SETTIMEOUT,
+-	.identity	= KBUILD_MODNAME,
+-};
+-
+-static int aspeed_wdt_probe(struct platform_device *pdev)
+-{
+-	struct aspeed_wdt *wdt;
+-	struct resource *res;
+-	int ret;
+-
+-	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
+-	if (!wdt)
+-		return -ENOMEM;
+-
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	wdt->base = devm_ioremap_resource(&pdev->dev, res);
+-	if (IS_ERR(wdt->base))
+-		return PTR_ERR(wdt->base);
+-
+-	/*
+-	 * The ast2400 wdt can run at PCLK, or 1MHz. The ast2500 only
+-	 * runs at 1MHz. We chose to always run at 1MHz, as there's no
+-	 * good reason to have a faster watchdog counter.
+-	 */
+-	wdt->wdd.info = &aspeed_wdt_info;
+-	wdt->wdd.ops = &aspeed_wdt_ops;
+-	wdt->wdd.max_hw_heartbeat_ms = WDT_MAX_TIMEOUT_MS;
+-	wdt->wdd.parent = &pdev->dev;
+-
+-	wdt->wdd.timeout = WDT_DEFAULT_TIMEOUT;
+-	watchdog_init_timeout(&wdt->wdd, 0, &pdev->dev);
+-
+-	/*
+-	 * Control reset on a per-device basis to ensure the
+-	 * host is not affected by a BMC reboot, so only reset
+-	 * the SOC and not the full chip
+-	 */
+-	wdt->ctrl = WDT_CTRL_RESET_MODE_SOC |
+-		WDT_CTRL_1MHZ_CLK |
+-		WDT_CTRL_RESET_SYSTEM;
+-
+-	if (readl(wdt->base + WDT_CTRL) & WDT_CTRL_ENABLE)  {
+-		aspeed_wdt_start(&wdt->wdd);
+-		set_bit(WDOG_HW_RUNNING, &wdt->wdd.status);
+-	}
+-
+-	ret = devm_watchdog_register_device(&pdev->dev, &wdt->wdd);
+-	if (ret) {
+-		dev_err(&pdev->dev, "failed to register\n");
+-		return ret;
+-	}
+-
+-	return 0;
+-}
+-
+-static struct platform_driver aspeed_watchdog_driver = {
+-	.probe = aspeed_wdt_probe,
+-	.driver = {
+-		.name = KBUILD_MODNAME,
+-		.of_match_table = of_match_ptr(aspeed_wdt_of_table),
 -	},
 -};
--module_platform_driver(moxart_wdt_driver);
+-module_platform_driver(aspeed_watchdog_driver);
 -
--module_param(heartbeat, int, 0);
--MODULE_PARM_DESC(heartbeat, "Watchdog heartbeat in seconds");
--
--MODULE_DESCRIPTION("MOXART watchdog driver");
+-MODULE_DESCRIPTION("Aspeed Watchdog Driver");
 -MODULE_LICENSE("GPL");
--MODULE_AUTHOR("Jonas Jensen <jonas.jensen@gmail.com>");
+diff --git a/drivers/watchdog/ftwdt010_wdt.c b/drivers/watchdog/ftwdt010_wdt.c
+index 912b55e67110..072da594bcbd 100644
+--- a/drivers/watchdog/ftwdt010_wdt.c
++++ b/drivers/watchdog/ftwdt010_wdt.c
+@@ -7,6 +7,8 @@
+  * Copyright (C) 2009 Paulius Zaleckas <paulius.zaleckas@teltonika.lt>
+  * Inspired by the MOXA ART driver from Jonas Jensen:
+  * Copyright (C) 2013 Jonas Jensen <jonas.jensen@gmail.com>
++ * Inspired by the Aspeed driver from Joel Stanley <joel@jms.id.au>:
++ * Copyright 2016 IBM Corporation
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License version 2 as
+@@ -32,7 +34,9 @@
+ #define FTWDT010_WDCR		0xC
+ 
+ #define WDRESTART_MAGIC		0x5AB9
++#define ASPEED_MAGIC		0x4755
+ 
++#define ASPEED_RESET_FULL_CHIP	BIT(5)
+ #define WDCR_EXTCLK		BIT(4)
+ #define WDCR_WDEXT		BIT(3)
+ #define WDCR_WDINTR		BIT(2)
+@@ -48,6 +52,7 @@ struct ftwdt010_wdt {
+ 	struct clk		*extclk;
+ 	unsigned int		clk_freq;
+ 	bool			use_extclk;
++	u32			magic;
+ };
+ 
+ static inline
+@@ -63,7 +68,7 @@ static int ftwdt010_wdt_restart(struct watchdog_device *wdd,
+ 	u32 enable;
+ 
+ 	writel(1, gwdt->base + FTWDT010_WDLOAD);
+-	writel(WDRESTART_MAGIC, gwdt->base + FTWDT010_WDRESTART);
++	writel(gwdt->magic, gwdt->base + FTWDT010_WDRESTART);
+ 	enable = WDCR_SYS_RST | WDCR_ENABLE;
+ 	if (gwdt->use_extclk)
+ 		enable |= WDCR_EXTCLK;
+@@ -78,7 +83,7 @@ static int ftwdt010_wdt_start(struct watchdog_device *wdd)
+ 	u32 enable;
+ 
+ 	writel(wdd->timeout * gwdt->clk_freq, gwdt->base + FTWDT010_WDLOAD);
+-	writel(WDRESTART_MAGIC, gwdt->base + FTWDT010_WDRESTART);
++	writel(gwdt->magic, gwdt->base + FTWDT010_WDRESTART);
+ 	/* set clock before enabling */
+ 	enable = WDCR_SYS_RST;
+ 	if (gwdt->use_extclk)
+@@ -105,7 +110,7 @@ static int ftwdt010_wdt_ping(struct watchdog_device *wdd)
+ {
+ 	struct ftwdt010_wdt *gwdt = to_ftwdt010_wdt(wdd);
+ 
+-	writel(WDRESTART_MAGIC, gwdt->base + FTWDT010_WDRESTART);
++	writel(gwdt->magic, gwdt->base + FTWDT010_WDRESTART);
+ 
+ 	return 0;
+ }
+@@ -153,6 +158,7 @@ static int ftwdt010_wdt_probe(struct platform_device *pdev)
+ 	struct resource *res;
+ 	struct ftwdt010_wdt *gwdt;
+ 	unsigned int reg;
++	bool is_aspeed;
+ 	int irq;
+ 	int ret;
+ 
+@@ -167,6 +173,10 @@ static int ftwdt010_wdt_probe(struct platform_device *pdev)
+ 
+ 	gwdt->use_extclk = of_property_read_bool(np, "faraday,use-extclk");
+ 
++	/* We want to know if we are aspeed */
++	is_aspeed = of_device_is_compatible(np, "aspeed,ast2400-wdt") ||
++		of_device_is_compatible(np, "aspeed,ast2500-wdt");
++
+ 	gwdt->pclk = devm_clk_get(dev, "PCLK");
+ 	if (!IS_ERR(gwdt->pclk)) {
+ 		ret = clk_prepare_enable(gwdt->pclk);
+@@ -198,6 +208,11 @@ static int ftwdt010_wdt_probe(struct platform_device *pdev)
+ 			gwdt->use_extclk = true;
+ 			dev_info(dev, "assume 5MHz EXTCLK on Gemini\n");
+ 		}
++		if (is_aspeed) {
++			gwdt->clk_freq = 1000000;
++			gwdt->use_extclk = true;
++			dev_info(dev, "assume 1MHz EXTCLK on Aspeed\n");
++		}
+ 	}
+ 
+ 	if (gwdt->clk_freq == 0) {
+@@ -211,6 +226,10 @@ static int ftwdt010_wdt_probe(struct platform_device *pdev)
+ 	gwdt->wdd.min_timeout = 1;
+ 	gwdt->wdd.max_timeout = UINT_MAX / gwdt->clk_freq;
+ 	gwdt->wdd.parent = dev;
++	if (is_aspeed)
++		gwdt->magic = ASPEED_MAGIC;
++	else
++		gwdt->magic = WDRESTART_MAGIC;
+ 
+ 	/*
+ 	 * If 'timeout-sec' unspecified in devicetree, assume a 13 second
 -- 
 2.13.4
 
