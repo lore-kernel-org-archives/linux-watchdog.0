@@ -1,39 +1,38 @@
-Return-Path: <michal.simek@xilinx.com>
-Return-path: <michal.simek@xilinx.com>
-Subject: Re: [PATCH 1/2] watchdog: cadence_wdt: Enable access to module
- parameters
-To: Guenter Roeck <linux@roeck-us.net>, Michal Simek <michal.simek@xilinx.com>
-CC: <linux-kernel@vger.kernel.org>, <monstr@monstr.eu>,
-	<linux-watchdog@vger.kernel.org>, Wim Van Sebroeck <wim@iguana.be>
-References: <6c3cef5b847f315f5fc1eb891b040e33719e88c7.1501832354.git.michal.simek@xilinx.com>
- <20170814144727.GB14491@roeck-us.net>
-From: Michal Simek <michal.simek@xilinx.com>
-Message-ID: <37041da3-51f2-95c4-1d98-c0732b6a5082@xilinx.com>
-Date: Mon, 14 Aug 2017 16:51:28 +0200
-MIME-Version: 1.0
-In-Reply-To: <20170814144727.GB14491@roeck-us.net>
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Return-Path: <arvind.yadav.cs@gmail.com>
+Return-path: <arvind.yadav.cs@gmail.com>
+From: Arvind Yadav <arvind.yadav.cs@gmail.com>
+To: wim@iguana.be,
+	linux@roeck-us.net
+Cc: linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] watchdog: pcwd_usb: constify usb_device_id
+Date: Sat, 12 Aug 2017 14:09:45 +0530
+Message-Id: <137fce0c4bacbbd395cb56ee9360ae677e74e401.1502526524.git.arvind.yadav.cs@gmail.com>
+In-Reply-To: <22fa8ca67a6d4a59997f463bf241ed56596fbcfa.1502526524.git.arvind.yadav.cs@gmail.com>
+References: <22fa8ca67a6d4a59997f463bf241ed56596fbcfa.1502526524.git.arvind.yadav.cs@gmail.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On 14.8.2017 16:47, Guenter Roeck wrote:
-> On Fri, Aug 04, 2017 at 09:39:16AM +0200, Michal Simek wrote:
->> Give read access to module parameters to all and write access to root.
->> This change also improves driver error path testing.
->>
->> Signed-off-by: Michal Simek <michal.simek@xilinx.com>
-> 
-> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-> 
->> ---
->>
->> Please let me know what you think - I can use macros from stat.h if
->> required
->>
-> You mean instead of 0644 ? That is discouraged nowadays.
+usb_device_id are not supposed to change at runtime. All functions
+working with usb_device_id provided by <linux/usb.h> work with
+const usb_device_id. So mark the non-const structs as const.
 
-yep and good.
+Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
+---
+ drivers/watchdog/pcwd_usb.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Thanks,
-Michal
+diff --git a/drivers/watchdog/pcwd_usb.c b/drivers/watchdog/pcwd_usb.c
+index 5615f40..b9e376c 100644
+--- a/drivers/watchdog/pcwd_usb.c
++++ b/drivers/watchdog/pcwd_usb.c
+@@ -74,7 +74,7 @@ MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
+ #define USB_PCWD_PRODUCT_ID	0x1140
+ 
+ /* table of devices that work with this driver */
+-static struct usb_device_id usb_pcwd_table[] = {
++static const struct usb_device_id usb_pcwd_table[] = {
+ 	{ USB_DEVICE(USB_PCWD_VENDOR_ID, USB_PCWD_PRODUCT_ID) },
+ 	{ }					/* Terminating entry */
+ };
+-- 
+2.7.4
