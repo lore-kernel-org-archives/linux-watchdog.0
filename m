@@ -1,12 +1,12 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-lf0-f54.google.com ([209.85.215.54]:35181 "EHLO
-        mail-lf0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750995AbdHLSnl (ORCPT
+Received: from mail-lf0-f53.google.com ([209.85.215.53]:36904 "EHLO
+        mail-lf0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750995AbdHLSnn (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 12 Aug 2017 14:43:41 -0400
-Received: by mail-lf0-f54.google.com with SMTP id t128so27038907lff.2
-        for <linux-watchdog@vger.kernel.org>; Sat, 12 Aug 2017 11:43:40 -0700 (PDT)
+        Sat, 12 Aug 2017 14:43:43 -0400
+Received: by mail-lf0-f53.google.com with SMTP id m86so26897191lfi.4
+        for <linux-watchdog@vger.kernel.org>; Sat, 12 Aug 2017 11:43:42 -0700 (PDT)
 From: Linus Walleij <linus.walleij@linaro.org>
 To: Wim Van Sebroeck <wim@iguana.be>,
         Guenter Roeck <linux@roeck-us.net>,
@@ -14,67 +14,71 @@ To: Wim Van Sebroeck <wim@iguana.be>,
         Andrew Jeffery <andrew@aj.id.au>, Joel Stanley <joel@jms.id.au>
 Cc: linux-arm-kernel@lists.infradead.org,
         linux-watchdog@vger.kernel.org,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 05/11] watchdog: ftwdt010: Add restart support
-Date: Sat, 12 Aug 2017 20:43:12 +0200
-Message-Id: <20170812184318.10144-6-linus.walleij@linaro.org>
+        Linus Walleij <linus.walleij@linaro.org>,
+        devicetree@vger.kernel.org
+Subject: [PATCH 06/11] watchdog: ftwdt010: Extend DT bindings to derivatives
+Date: Sat, 12 Aug 2017 20:43:13 +0200
+Message-Id: <20170812184318.10144-7-linus.walleij@linaro.org>
 In-Reply-To: <20170812184318.10144-1-linus.walleij@linaro.org>
 References: <20170812184318.10144-1-linus.walleij@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This enables the Faraday FTWDT010 to restart the system,
-if need be. Set the restart priority for the watchdog to
-128.
+This extends the device tree bindings for the Faraday FTWDT010
+block to cover:
+- The "moxa,moxart-watchdog" compatible version
+- The "aspeed,ast2400-wdt" and "aspeed,ast2500-wdt" versions
+- clocks (PCLK non-optional, the Gemini also have this now)
+- reset line (optional, exist on the Gemini)
+- configuration to use the external clock (faraday,use-extclk)
 
+Cc: devicetree@vger.kernel.org
 Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 ---
- drivers/watchdog/ftwdt010_wdt.c | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ .../devicetree/bindings/watchdog/faraday,ftwdt010.txt    | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/watchdog/ftwdt010_wdt.c b/drivers/watchdog/ftwdt010_wdt.c
-index 680279f5c679..7fc865eea28d 100644
---- a/drivers/watchdog/ftwdt010_wdt.c
-+++ b/drivers/watchdog/ftwdt010_wdt.c
-@@ -56,6 +56,22 @@ struct ftwdt010_wdt *to_ftwdt010_wdt(struct watchdog_device *wdd)
- 	return container_of(wdd, struct ftwdt010_wdt, wdd);
- }
+diff --git a/Documentation/devicetree/bindings/watchdog/faraday,ftwdt010.txt b/Documentation/devicetree/bindings/watchdog/faraday,ftwdt010.txt
+index 9ecdb502e605..016e353bb069 100644
+--- a/Documentation/devicetree/bindings/watchdog/faraday,ftwdt010.txt
++++ b/Documentation/devicetree/bindings/watchdog/faraday,ftwdt010.txt
+@@ -1,17 +1,27 @@
+ Faraday Technology FTWDT010 watchdog
  
-+static int ftwdt010_wdt_restart(struct watchdog_device *wdd,
-+				unsigned long action, void *data)
-+{
-+	struct ftwdt010_wdt *gwdt = to_ftwdt010_wdt(wdd);
-+	u32 enable;
-+
-+	writel(1, gwdt->base + FTWDT010_WDLOAD);
-+	writel(WDRESTART_MAGIC, gwdt->base + FTWDT010_WDRESTART);
-+	enable = WDCR_SYS_RST | WDCR_ENABLE;
-+	if (gwdt->use_extclk)
-+		enable |= WDCR_EXTCLK;
-+	writel(enable, gwdt->base + FTWDT010_WDCR);
-+
-+	return 0;
-+}
-+
- static int ftwdt010_wdt_start(struct watchdog_device *wdd)
- {
- 	struct ftwdt010_wdt *gwdt = to_ftwdt010_wdt(wdd);
-@@ -118,6 +134,7 @@ static const struct watchdog_ops ftwdt010_wdt_ops = {
- 	.stop		= ftwdt010_wdt_stop,
- 	.ping		= ftwdt010_wdt_ping,
- 	.set_timeout	= ftwdt010_wdt_set_timeout,
-+	.restart	= ftwdt010_wdt_restart,
- 	.owner		= THIS_MODULE,
+ This is an IP part from Faraday Technology found in the Gemini
+-SoCs and others.
++and MOXA ART SoCs and others.
+ 
+ Required properties:
+ - compatible : must be one of
+   "faraday,ftwdt010"
+   "cortina,gemini-watchdog", "faraday,ftwdt010"
++  "moxa,moxart-watchdog", "faraday,ftwdt010"
++  "aspeed,ast2400-wdt", "faraday,ftwdt010"
++  "aspeed,ast2500-wdt", "faraday,ftwdt010"
+ - reg : shall contain base register location and length
+-- interrupts : shall contain the interrupt for the watchdog
++- clocks : the clock driving the IP block (PCLK) and optionally
++  an external clock (EXTCLK)
++- clock-names : should be "PCLK" for the IP block clock and
++  "EXTCLK" for the external clock if present
+ 
+ Optional properties:
++- interrupts : the bark interrupt for the watchdog
++- resets : reset line for the IP block
+ - timeout-sec : the default watchdog timeout in seconds.
++- faraday,use-extclk : if set, the "EXTCLK" provided in the clocks
++  property will be used to clock the watchdog
+ 
+ Example:
+ 
+@@ -19,4 +29,6 @@ watchdog@41000000 {
+ 	compatible = "faraday,ftwdt010";
+ 	reg = <0x41000000 0x1000>;
+ 	interrupts = <3 IRQ_TYPE_LEVEL_HIGH>;
++	clocks = <&pclk>;
++	clock-names = "PCLK";
  };
- 
-@@ -201,6 +218,7 @@ static int ftwdt010_wdt_probe(struct platform_device *pdev)
- 	 */
- 	gwdt->wdd.timeout = 13U;
- 	watchdog_init_timeout(&gwdt->wdd, 0, dev);
-+	watchdog_set_restart_priority(&gwdt->wdd, 128);
- 
- 	reg = readw(gwdt->base + FTWDT010_WDCR);
- 	if (reg & WDCR_ENABLE) {
 -- 
 2.13.4
 
