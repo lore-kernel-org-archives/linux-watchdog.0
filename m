@@ -1,61 +1,42 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:42425 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751348AbdH1Lfh (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 28 Aug 2017 07:35:37 -0400
-From: =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>
-To: Wim Van Sebroeck <wim@iguana.be>,
-        Guenter Roeck <linux@roeck-us.net>,
-        linux-watchdog@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Cc: linux-kernel@vger.kernel.org, Roc He <hepeng@zidoo.tv>,
-        =?UTF-8?q?=E8=92=8B=E4=B8=BD=E7=90=B4?= <jiang.liqin@geniatech.com>,
-        =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org
-Subject: [PATCH 1/3] dt-bindings: watchdog: Add Realtek RTD1295
-Date: Mon, 28 Aug 2017 13:35:29 +0200
-Message-Id: <20170828113532.32627-2-afaerber@suse.de>
-In-Reply-To: <20170828113532.32627-1-afaerber@suse.de>
-References: <20170828113532.32627-1-afaerber@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:33706 "EHLO
+        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751611AbdHML2j (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Sun, 13 Aug 2017 07:28:39 -0400
+From: Arvind Yadav <arvind.yadav.cs@gmail.com>
+To: wim@iguana.be, linux@roeck-us.net
+Cc: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org
+Subject: [PATCH] watchdog: max77620_wdt: constify platform_device_id
+Date: Sun, 13 Aug 2017 16:58:28 +0530
+Message-Id: <af372e3b17be9892810e4fc5ed5b1381a4ad2b97.1502623612.git.arvind.yadav.cs@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Add a binding for the Realtek RTD1295 watchdog.
+platform_device_id are not supposed to change at runtime. All functions
+working with platform_device_id provided by <linux/platform_device.h>
+work with const platform_device_id. So mark the non-const structs as
+const.
 
-Signed-off-by: Andreas Färber <afaerber@suse.de>
+Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
 ---
- .../devicetree/bindings/watchdog/realtek,rtd119x.txt    | 17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/watchdog/realtek,rtd119x.txt
+ drivers/watchdog/max77620_wdt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/watchdog/realtek,rtd119x.txt b/Documentation/devicetree/bindings/watchdog/realtek,rtd119x.txt
-new file mode 100644
-index 000000000000..05653054bd5b
---- /dev/null
-+++ b/Documentation/devicetree/bindings/watchdog/realtek,rtd119x.txt
-@@ -0,0 +1,17 @@
-+Realtek RTD1295 Watchdog
-+========================
-+
-+Required properties:
-+
-+- compatible :  Should be "realtek,rtd1295-watchdog"
-+- reg        :  Specifies the physical base address and size of registers
-+- clocks     :  Specifies one clock input
-+
-+
-+Example:
-+
-+	watchdog@98007680 {
-+		compatible = "realtek,rtd1295-watchdog";
-+		reg = <0x98007680 0x100>;
-+		clocks = <&osc27M>;
-+	};
+diff --git a/drivers/watchdog/max77620_wdt.c b/drivers/watchdog/max77620_wdt.c
+index 68c41fa..2c9f53e 100644
+--- a/drivers/watchdog/max77620_wdt.c
++++ b/drivers/watchdog/max77620_wdt.c
+@@ -201,7 +201,7 @@ static int max77620_wdt_remove(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
+-static struct platform_device_id max77620_wdt_devtype[] = {
++static const struct platform_device_id max77620_wdt_devtype[] = {
+ 	{ .name = "max77620-watchdog", },
+ 	{ },
+ };
 -- 
-2.12.3
+2.7.4
 
