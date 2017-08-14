@@ -1,84 +1,89 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wr0-f173.google.com ([209.85.128.173]:36571 "EHLO
-        mail-wr0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752124AbdHNQ2C (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 14 Aug 2017 12:28:02 -0400
-Received: by mail-wr0-f173.google.com with SMTP id y41so11555778wrd.3
-        for <linux-watchdog@vger.kernel.org>; Mon, 14 Aug 2017 09:28:01 -0700 (PDT)
-Subject: Re: [PATCH 3/3] mfd: twl: move header file out of I2C realm
-To: Tony Lindgren <tony@atomide.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: Lee Jones <lee.jones@linaro.org>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        linux-i2c@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
+Received: from sauhun.de ([88.99.104.3]:50021 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751851AbdHNQez (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 14 Aug 2017 12:34:55 -0400
+From: Wolfram Sang <wsa@the-dreams.de>
+To: linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org,
+        linux-watchdog@vger.kernel.org,
         Linus Walleij <linus.walleij@linaro.org>,
-        Alexandre Courbot <gnurou@gmail.com>,
-        Jonathan Cameron <jic23@kernel.org>,
-        Hartmut Knaack <knaack.h@gmx.de>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Kishon Vijay Abraham I <kishon@ti.com>,
-        Sebastian Reichel <sre@kernel.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Felipe Balbi <balbi@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jingoo Han <jingoohan1@gmail.com>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        Wim Van Sebroeck <wim@iguana.be>,
         Guenter Roeck <linux@roeck-us.net>,
-        Peter Ujfalusi <peter.ujfalusi@ti.com>,
-        Jaroslav Kysela <perex@perex.cz>,
-        Takashi Iwai <tiwai@suse.com>, linux-omap@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-gpio@vger.kernel.org, linux-iio@vger.kernel.org,
-        linux-input@vger.kernel.org, linux-pm@vger.kernel.org,
-        linux-pwm@vger.kernel.org, rtc-linux@googlegroups.com,
-        linux-usb@vger.kernel.org, linux-fbdev@vger.kernel.org,
-        linux-watchdog@vger.kernel.org, alsa-devel@alsa-project.org
-References: <20170521220212.1404-1-wsa@the-dreams.de>
- <20170521220212.1404-4-wsa@the-dreams.de>
- <20170706064453.GH16144@ulmo.fritz.box>
- <20170706070352.xdecvsnremwqed72@dell>
- <20170813133700.tv4ka7anvbzcplr7@ninjato>
- <20170814064247.qvggx4ito4vgjqvs@dell>
- <20170814084340.65morabelapfegph@ninjato> <20170814162219.GX8569@atomide.com>
-From: Daniel Thompson <daniel.thompson@linaro.org>
-Message-ID: <c5e65e34-f308-f601-ba0b-d96792591727@linaro.org>
-Date: Mon, 14 Aug 2017 17:27:57 +0100
-MIME-Version: 1.0
-In-Reply-To: <20170814162219.GX8569@atomide.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+        Lee Jones <lee.jones@linaro.org>,
+        Wolfram Sang <wsa@the-dreams.de>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH v2 1/3] mfd: dm355evm_msp: move header file out of I2C realm
+Date: Mon, 14 Aug 2017 18:34:22 +0200
+Message-Id: <20170814163424.2197-2-wsa@the-dreams.de>
+In-Reply-To: <20170814163424.2197-1-wsa@the-dreams.de>
+References: <20170814163424.2197-1-wsa@the-dreams.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 14/08/17 17:22, Tony Lindgren wrote:
-> * Wolfram Sang <wsa@the-dreams.de> [170814 01:43]:
->>
->>>> Given the triviality of the change for non-MFD subsystems, can we apply
->>>> this for 4.14?
->>>
->>> I can't apply anything without Acks for *all* of the subsystems above.
->>
->> Well, there are cases when you can. Those should be exceptions and well
->> justified, of course.
->>
->>> My suggestion would be to collect the Acks you've received up until
->>> this point and identify which SS's are still lacking in change log
->>> section of a RESEND.
->>
->> I agree, though, that I can try a second round to get the acks.
-> 
-> As long as it's been compile tested with omap2plus_defconfig:
-> 
-> Acked-by: Tony Lindgren <tony@atomide.com>
+include/linux/i2c is not for client devices. Move the header file to a
+more appropriate location.
 
-Don't recall if I sent an ack before but I do remember the patch... so 
-from a backlight PoV:
-Acked-by: Daniel Thompson <daniel.thompson@linaro.org>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+
+Change since V1:
+
+* rebased to v4.13-rc5, no changes needed
+* acks added. I think none are missing.
+
+ drivers/input/misc/dm355evm_keys.c        | 2 +-
+ drivers/mfd/dm355evm_msp.c                | 2 +-
+ drivers/rtc/rtc-dm355evm.c                | 2 +-
+ include/linux/{i2c => mfd}/dm355evm_msp.h | 0
+ 4 files changed, 3 insertions(+), 3 deletions(-)
+ rename include/linux/{i2c => mfd}/dm355evm_msp.h (100%)
+
+diff --git a/drivers/input/misc/dm355evm_keys.c b/drivers/input/misc/dm355evm_keys.c
+index bab256ef32b9b3..c803db64a3760d 100644
+--- a/drivers/input/misc/dm355evm_keys.c
++++ b/drivers/input/misc/dm355evm_keys.c
+@@ -15,7 +15,7 @@
+ #include <linux/platform_device.h>
+ #include <linux/interrupt.h>
+ 
+-#include <linux/i2c/dm355evm_msp.h>
++#include <linux/mfd/dm355evm_msp.h>
+ #include <linux/module.h>
+ 
+ 
+diff --git a/drivers/mfd/dm355evm_msp.c b/drivers/mfd/dm355evm_msp.c
+index 86eca614507bd8..2a2756709f22f0 100644
+--- a/drivers/mfd/dm355evm_msp.c
++++ b/drivers/mfd/dm355evm_msp.c
+@@ -18,7 +18,7 @@
+ #include <linux/gpio.h>
+ #include <linux/leds.h>
+ #include <linux/i2c.h>
+-#include <linux/i2c/dm355evm_msp.h>
++#include <linux/mfd/dm355evm_msp.h>
+ 
+ 
+ /*
+diff --git a/drivers/rtc/rtc-dm355evm.c b/drivers/rtc/rtc-dm355evm.c
+index f225cd873ff6c2..97d8259b94940f 100644
+--- a/drivers/rtc/rtc-dm355evm.c
++++ b/drivers/rtc/rtc-dm355evm.c
+@@ -13,7 +13,7 @@
+ #include <linux/rtc.h>
+ #include <linux/platform_device.h>
+ 
+-#include <linux/i2c/dm355evm_msp.h>
++#include <linux/mfd/dm355evm_msp.h>
+ #include <linux/module.h>
+ 
+ 
+diff --git a/include/linux/i2c/dm355evm_msp.h b/include/linux/mfd/dm355evm_msp.h
+similarity index 100%
+rename from include/linux/i2c/dm355evm_msp.h
+rename to include/linux/mfd/dm355evm_msp.h
+-- 
+2.11.0
 
