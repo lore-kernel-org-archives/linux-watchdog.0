@@ -1,92 +1,66 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wr0-f195.google.com ([209.85.128.195]:38745 "EHLO
-        mail-wr0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751382AbdHDN4L (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:48743 "EHLO
+        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752021AbdHNOr3 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 4 Aug 2017 09:56:11 -0400
-Received: by mail-wr0-f195.google.com with SMTP id g32so3056685wrd.5
-        for <linux-watchdog@vger.kernel.org>; Fri, 04 Aug 2017 06:56:11 -0700 (PDT)
-Reply-To: monstr@monstr.eu
-Subject: Re: [PATCH 2/2] watchdog: cadence_wdt: Show information when driver
- is probed
-To: Guenter Roeck <linux@roeck-us.net>,
-        Michal Simek <michal.simek@xilinx.com>,
-        linux-kernel@vger.kernel.org
-Cc: linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>
+        Mon, 14 Aug 2017 10:47:29 -0400
+Date: Mon, 14 Aug 2017 07:47:27 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Michal Simek <michal.simek@xilinx.com>
+Cc: linux-kernel@vger.kernel.org, monstr@monstr.eu,
+        linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>
+Subject: Re: [PATCH 1/2] watchdog: cadence_wdt: Enable access to module
+ parameters
+Message-ID: <20170814144727.GB14491@roeck-us.net>
 References: <6c3cef5b847f315f5fc1eb891b040e33719e88c7.1501832354.git.michal.simek@xilinx.com>
- <32d58c86a3afbdfc25fe26a9e51df917ce5da4ac.1501832354.git.michal.simek@xilinx.com>
- <6ad8cad8-e1a4-57ec-d25f-dc6b0935a6fb@roeck-us.net>
-From: Michal Simek <monstr@monstr.eu>
-Message-ID: <e83dcbe3-a65f-d4d0-2922-5929eca45ea9@monstr.eu>
-Date: Fri, 4 Aug 2017 15:56:09 +0200
 MIME-Version: 1.0
-In-Reply-To: <6ad8cad8-e1a4-57ec-d25f-dc6b0935a6fb@roeck-us.net>
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="2rAATc5OPTTmSg8vXd517HaoqUCXaNoWe"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <6c3cef5b847f315f5fc1eb891b040e33719e88c7.1501832354.git.michal.simek@xilinx.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---2rAATc5OPTTmSg8vXd517HaoqUCXaNoWe
-Content-Type: multipart/mixed; boundary="922Vo4XBeJOOEqgu6p0d5PJW8VXqhf80T";
- protected-headers="v1"
-From: Michal Simek <monstr@monstr.eu>
-Reply-To: monstr@monstr.eu
-To: Guenter Roeck <linux@roeck-us.net>, Michal Simek
- <michal.simek@xilinx.com>, linux-kernel@vger.kernel.org
-Cc: linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>
-Message-ID: <e83dcbe3-a65f-d4d0-2922-5929eca45ea9@monstr.eu>
-Subject: Re: [PATCH 2/2] watchdog: cadence_wdt: Show information when driver
- is probed
-References: <6c3cef5b847f315f5fc1eb891b040e33719e88c7.1501832354.git.michal.simek@xilinx.com>
- <32d58c86a3afbdfc25fe26a9e51df917ce5da4ac.1501832354.git.michal.simek@xilinx.com>
- <6ad8cad8-e1a4-57ec-d25f-dc6b0935a6fb@roeck-us.net>
-In-Reply-To: <6ad8cad8-e1a4-57ec-d25f-dc6b0935a6fb@roeck-us.net>
+On Fri, Aug 04, 2017 at 09:39:16AM +0200, Michal Simek wrote:
+> Give read access to module parameters to all and write access to root.
+> This change also improves driver error path testing.
+> 
+> Signed-off-by: Michal Simek <michal.simek@xilinx.com>
 
---922Vo4XBeJOOEqgu6p0d5PJW8VXqhf80T
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-On 4.8.2017 15:47, Guenter Roeck wrote:
-> On 08/04/2017 12:39 AM, Michal Simek wrote:
->> Showing message that driver is loaded is common across drivers.
->=20
-> Across watchdog drivers, which I am always half-annoyed about.
-> Is this really valuable ?
+> ---
+> 
+> Please let me know what you think - I can use macros from stat.h if
+> required
+> 
+You mean instead of 0644 ? That is discouraged nowadays.
 
-I don't think that this is debug message. We don't have hundreds of
-drivers that log explodes and for systems, which I don't know, I do
-normally check dmesg logs and I would expect this message to be there to
-know that watchdog is enabled.
+Guenter
 
-Thanks,
-Michal
-
---=20
-Michal Simek, Ing. (M.Eng), OpenPGP -> KeyID: FE3D1F91
-w: www.monstr.eu p: +42-0-721842854
-Maintainer of Linux kernel - Xilinx Microblaze
-Maintainer of Linux kernel - Xilinx Zynq ARM and ZynqMP ARM64 SoCs
-U-Boot custodian - Xilinx Microblaze/Zynq/ZynqMP SoCs
-
-
-
---922Vo4XBeJOOEqgu6p0d5PJW8VXqhf80T--
-
---2rAATc5OPTTmSg8vXd517HaoqUCXaNoWe
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.22 (GNU/Linux)
-
-iEYEARECAAYFAlmEfPkACgkQykllyylKDCHzqACePmggna032yTniz7ZwNjfRYm0
-H3kAnjM6vfyaKKeMNMxErnIJrM3wdFJA
-=c2cd
------END PGP SIGNATURE-----
-
---2rAATc5OPTTmSg8vXd517HaoqUCXaNoWe--
+> ---
+>  drivers/watchdog/cadence_wdt.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/watchdog/cadence_wdt.c b/drivers/watchdog/cadence_wdt.c
+> index 05c000081e9d..dadd3b0c2d49 100644
+> --- a/drivers/watchdog/cadence_wdt.c
+> +++ b/drivers/watchdog/cadence_wdt.c
+> @@ -52,12 +52,12 @@
+>  static int wdt_timeout;
+>  static int nowayout = WATCHDOG_NOWAYOUT;
+>  
+> -module_param(wdt_timeout, int, 0);
+> +module_param(wdt_timeout, int, 0644);
+>  MODULE_PARM_DESC(wdt_timeout,
+>  		 "Watchdog time in seconds. (default="
+>  		 __MODULE_STRING(CDNS_WDT_DEFAULT_TIMEOUT) ")");
+>  
+> -module_param(nowayout, int, 0);
+> +module_param(nowayout, int, 0644);
+>  MODULE_PARM_DESC(nowayout,
+>  		 "Watchdog cannot be stopped once started (default="
+>  		 __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+> -- 
+> 1.9.1
+> 
