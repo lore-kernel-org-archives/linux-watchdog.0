@@ -1,11 +1,11 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:49319 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:32825 "EHLO
         bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752150AbdHNQFj (ORCPT
+        with ESMTP id S1752199AbdHNQJf (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 14 Aug 2017 12:05:39 -0400
-Date: Mon, 14 Aug 2017 09:05:36 -0700
+        Mon, 14 Aug 2017 12:09:35 -0400
+Date: Mon, 14 Aug 2017 09:09:32 -0700
 From: Guenter Roeck <linux@roeck-us.net>
 To: Linus Walleij <linus.walleij@linaro.org>
 Cc: Wim Van Sebroeck <wim@iguana.be>,
@@ -14,243 +14,279 @@ Cc: Wim Van Sebroeck <wim@iguana.be>,
         Joel Stanley <joel@jms.id.au>,
         linux-arm-kernel@lists.infradead.org,
         linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 04/11] watchdog: ftwdt010: Add clock support
-Message-ID: <20170814160536.GC7025@roeck-us.net>
+Subject: Re: [PATCH 08/11] watchdog: ftwdt010/moxart: Merge MOXA ART into
+ FTWDT010
+Message-ID: <20170814160932.GD7025@roeck-us.net>
 References: <20170812184318.10144-1-linus.walleij@linaro.org>
- <20170812184318.10144-5-linus.walleij@linaro.org>
+ <20170812184318.10144-9-linus.walleij@linaro.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20170812184318.10144-5-linus.walleij@linaro.org>
+In-Reply-To: <20170812184318.10144-9-linus.walleij@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Sat, Aug 12, 2017 at 08:43:11PM +0200, Linus Walleij wrote:
-> The Gemini platform now provides a proper clock look-up for this
-> and other IPs, so add clock support to the driver. This also aids
-> in using the same driver with other platforms such as MOXA ART.
+On Sat, Aug 12, 2017 at 08:43:15PM +0200, Linus Walleij wrote:
+> These two drivers is for the same hardware, the only difference
+> is that Gemini uses the EXTCLK @5MHz by default (it also works
+> fine using PCLK) while the MOXA ART is using the PCLK to clock
+> the watchdog.
 > 
-> The IP has two clock inputs: PCLK (the IP peripheral clock) and
-> EXTCLK (an external clock). We are a bit elaborate around this:
-> on Gemini the EXTCLK is used by default today and it's 5MHz, and
-> on MOXA ART the PCLK is used. On Aspeed the EXTCLK is used and
-> it's 1MHz. So add some clever code to fall back to platform
-> defaults if PCLK or EXTCLK is not provided by the device tree.
-> 
-> Take this opportnity to implement .remove() for the driver that
-
-opportunity
-
-> stops the watchdog and disables the clocks.
-> 
-> Add credits that this code is inspired by MOXA ART.
+> Delete the old MOXA ART driver and augment the FTWDT010 to
+> probe on this platform too, fetching the operating frequency
+> from the PCLK. Select the driver by default for ARCH_MOXART
+> to make a smooth transition of the platform.
 > 
 > Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 > ---
->  drivers/watchdog/ftwdt010_wdt.c | 79 ++++++++++++++++++++++++++++++++++++-----
->  1 file changed, 71 insertions(+), 8 deletions(-)
+>  drivers/watchdog/Kconfig        |  11 +--
+>  drivers/watchdog/Makefile       |   1 -
+>  drivers/watchdog/ftwdt010_wdt.c |   1 +
+>  drivers/watchdog/moxart_wdt.c   | 178 ----------------------------------------
+>  4 files changed, 2 insertions(+), 189 deletions(-)
+>  delete mode 100644 drivers/watchdog/moxart_wdt.c
 > 
+> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> index fd44a542036a..beef6bb5c6d9 100644
+> --- a/drivers/watchdog/Kconfig
+> +++ b/drivers/watchdog/Kconfig
+> @@ -326,6 +326,7 @@ config FTWDT010_WATCHDOG
+>  	depends on ARM || COMPILE_TEST
+>  	select WATCHDOG_CORE
+>  	default ARCH_GEMINI
+> +	default ARCH_MOXART
+
+Can one have more than one default statement ? What is the semantics ?
+Just making sure that it isn't "last one wins".
+
+>  	help
+>  	  Say Y here if to include support for the Faraday Technology
+>  	  FTWDT010 watchdog timer embedded in the Cortina Systems Gemini
+> @@ -609,16 +610,6 @@ config RETU_WATCHDOG
+>  	  To compile this driver as a module, choose M here: the
+>  	  module will be called retu_wdt.
+>  
+> -config MOXART_WDT
+> -	tristate "MOXART watchdog"
+> -	depends on ARCH_MOXART || COMPILE_TEST
+> -	help
+> -	  Say Y here to include Watchdog timer support for the watchdog
+> -	  existing on the MOXA ART SoC series platforms.
+> -
+> -	  To compile this driver as a module, choose M here: the
+> -	  module will be called moxart_wdt.
+> -
+>  config SIRFSOC_WATCHDOG
+>  	tristate "SiRFSOC watchdog"
+>  	depends on ARCH_SIRF || COMPILE_TEST
+> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+> index df91d7db821c..fcab71f0a1c7 100644
+> --- a/drivers/watchdog/Makefile
+> +++ b/drivers/watchdog/Makefile
+> @@ -68,7 +68,6 @@ obj-$(CONFIG_IMX2_WDT) += imx2_wdt.o
+>  obj-$(CONFIG_UX500_WATCHDOG) += ux500_wdt.o
+>  obj-$(CONFIG_RETU_WATCHDOG) += retu_wdt.o
+>  obj-$(CONFIG_BCM2835_WDT) += bcm2835_wdt.o
+> -obj-$(CONFIG_MOXART_WDT) += moxart_wdt.o
+>  obj-$(CONFIG_SIRFSOC_WATCHDOG) += sirfsoc_wdt.o
+>  obj-$(CONFIG_ST_LPC_WATCHDOG) += st_lpc_wdt.o
+>  obj-$(CONFIG_QCOM_WDT) += qcom-wdt.o
 > diff --git a/drivers/watchdog/ftwdt010_wdt.c b/drivers/watchdog/ftwdt010_wdt.c
-> index ab38a3a89300..680279f5c679 100644
+> index 7fc865eea28d..912b55e67110 100644
 > --- a/drivers/watchdog/ftwdt010_wdt.c
 > +++ b/drivers/watchdog/ftwdt010_wdt.c
-> @@ -5,6 +5,8 @@
->   *
->   * Inspired by the out-of-tree drivers from OpenWRT:
->   * Copyright (C) 2009 Paulius Zaleckas <paulius.zaleckas@teltonika.lt>
-> + * Inspired by the MOXA ART driver from Jonas Jensen:
-> + * Copyright (C) 2013 Jonas Jensen <jonas.jensen@gmail.com>
->   *
->   * This program is free software; you can redistribute it and/or modify
->   * it under the terms of the GNU General Public License version 2 as
-> @@ -18,9 +20,11 @@
->  #include <linux/kernel.h>
->  #include <linux/module.h>
->  #include <linux/of_device.h>
-> +#include <linux/of.h>
->  #include <linux/platform_device.h>
->  #include <linux/slab.h>
->  #include <linux/watchdog.h>
-> +#include <linux/clk.h>
-
-Any chance to maintain alphabetic order with include files ?
-
->  
->  #define FTWDT010_WDCOUNTER	0x0
->  #define FTWDT010_WDLOAD		0x4
-> @@ -29,19 +33,21 @@
->  
->  #define WDRESTART_MAGIC		0x5AB9
->  
-> -#define WDCR_CLOCK_5MHZ		BIT(4)
-> +#define WDCR_EXTCLK		BIT(4)
->  #define WDCR_WDEXT		BIT(3)
->  #define WDCR_WDINTR		BIT(2)
->  #define WDCR_SYS_RST		BIT(1)
->  #define WDCR_ENABLE		BIT(0)
->  
-> -#define WDT_CLOCK		5000000		/* 5 MHz */
-> -
->  struct ftwdt010_wdt {
->  	struct watchdog_device	wdd;
->  	struct device		*dev;
->  	void __iomem		*base;
->  	bool			has_irq;
-> +	struct clk		*pclk;
-> +	struct clk		*extclk;
-> +	unsigned int		clk_freq;
-> +	bool			use_extclk;
+> @@ -298,6 +298,7 @@ static const struct dev_pm_ops ftwdt010_wdt_dev_pm_ops = {
+>  static const struct of_device_id ftwdt010_wdt_match[] = {
+>  	{ .compatible = "faraday,ftwdt010" },
+>  	{ .compatible = "cortina,gemini-watchdog" },
+> +	{ .compatible = "moxa,moxart-watchdog" },
+>  	{},
 >  };
->  
->  static inline
-> @@ -55,12 +61,13 @@ static int ftwdt010_wdt_start(struct watchdog_device *wdd)
->  	struct ftwdt010_wdt *gwdt = to_ftwdt010_wdt(wdd);
->  	u32 enable;
->  
-> -	writel(wdd->timeout * WDT_CLOCK, gwdt->base + FTWDT010_WDLOAD);
-> +	writel(wdd->timeout * gwdt->clk_freq, gwdt->base + FTWDT010_WDLOAD);
->  	writel(WDRESTART_MAGIC, gwdt->base + FTWDT010_WDRESTART);
->  	/* set clock before enabling */
-> -	enable = WDCR_CLOCK_5MHZ | WDCR_SYS_RST;
-> +	enable = WDCR_SYS_RST;
-> +	if (gwdt->use_extclk)
-> +		enable |= WDCR_EXTCLK;
->  	writel(enable, gwdt->base + FTWDT010_WDCR);
-> -	enable |= WDCR_CLOCK_5MHZ;
->  	if (gwdt->has_irq)
->  		enable |= WDCR_WDINTR;
->  	enable |= WDCR_ENABLE;
-> @@ -125,6 +132,7 @@ static const struct watchdog_info ftwdt010_wdt_info = {
->  static int ftwdt010_wdt_probe(struct platform_device *pdev)
->  {
->  	struct device *dev = &pdev->dev;
-> +	struct device_node *np = dev->of_node;
->  	struct resource *res;
->  	struct ftwdt010_wdt *gwdt;
->  	unsigned int reg;
-> @@ -140,11 +148,51 @@ static int ftwdt010_wdt_probe(struct platform_device *pdev)
->  	if (IS_ERR(gwdt->base))
->  		return PTR_ERR(gwdt->base);
->  
-> +	gwdt->use_extclk = of_property_read_bool(np, "faraday,use-extclk");
-> +
-> +	gwdt->pclk = devm_clk_get(dev, "PCLK");
-> +	if (!IS_ERR(gwdt->pclk)) {
-
-devm_clk_get() can return NULL (if the clock subsystem is not enabled).
-
-> +		ret = clk_prepare_enable(gwdt->pclk);
-
-Why enable pclk if extclk is used ?
-
-> +		if (ret) {
-> +			dev_err(&pdev->dev, "unable to enable PCLK\n");
-> +			return ret;
-> +		}
-> +		if (!gwdt->use_extclk)
-> +			gwdt->clk_freq = clk_get_rate(gwdt->pclk);
-> +	} else {
-> +		dev_info(dev, "PCLK clock not found assume always-on\n");
-
-Those info messages seem more like debug messages to me. Is this and the message
-below about 5MHz clock on Gemini really necessary ?
-
-> +	}
-> +
-> +	gwdt->extclk = devm_clk_get(dev, "EXTCLK");
-> +	if (!IS_ERR(gwdt->extclk)) {
-
-devm_clk_get() can return NULL.
-
-> +		/* Only enable and get frequency from EXTCLK if it's in use */
-> +		if (gwdt->use_extclk) {
-> +			ret = clk_prepare_enable(gwdt->extclk);
-> +			if (ret) {
-> +				dev_err(&pdev->dev,
-> +					"unable to enable EXTCLK\n");
-> +				return ret;
-> +			}
-> +			gwdt->clk_freq = clk_get_rate(gwdt->extclk);
-> +		}
-> +	} else {
-> +		if (of_device_is_compatible(np, "cortina,gemini-watchdog")) {
-> +			gwdt->clk_freq = 5000000;
-> +			gwdt->use_extclk = true;
-> +			dev_info(dev, "assume 5MHz EXTCLK on Gemini\n");
-> +		}
-> +	}
-> +
-> +	if (gwdt->clk_freq == 0) {
-> +		dev_err(dev, "no clocking available\n");
-> +		return -EINVAL;
-
-So far this situation defaulted to 5 MHz (as there was nothing else).
-Is this a new restriction or did it just not happen ?
-
-Also, this can at least in theory happen if clk_get_rate() returns 0,
-which would leave the clock enabled (although that would be an odd
-situation).
-
-> +	}
-> +
->  	gwdt->dev = dev;
->  	gwdt->wdd.info = &ftwdt010_wdt_info;
->  	gwdt->wdd.ops = &ftwdt010_wdt_ops;
->  	gwdt->wdd.min_timeout = 1;
-> -	gwdt->wdd.max_timeout = 0xFFFFFFFF / WDT_CLOCK;
-> +	gwdt->wdd.max_timeout = UINT_MAX / gwdt->clk_freq;
->  	gwdt->wdd.parent = dev;
->  
-
-devm_watchdog_register_device() can fail, which would leave the clocks
-enabled. Also see below.
-
->  	/*
-> @@ -178,7 +226,21 @@ static int ftwdt010_wdt_probe(struct platform_device *pdev)
->  
->  	/* Set up platform driver data */
->  	platform_set_drvdata(pdev, gwdt);
-> -	dev_info(dev, "FTWDT010 watchdog driver enabled\n");
-> +	dev_info(dev, "FTWDT010 watchdog driver @%uHz\n",
-> +		 gwdt->clk_freq);
-> +
-> +	return 0;
-> +}
-> +
-> +static int ftwdt010_wdt_remove(struct platform_device *pdev)
-> +{
-> +	struct ftwdt010_wdt *gwdt = platform_get_drvdata(pdev);
-> +
-> +	writel(0, gwdt->base + FTWDT010_WDCR);
-> +	if (!IS_ERR(gwdt->pclk))
-> +		clk_disable_unprepare(gwdt->pclk);
-> +	if (!IS_ERR(gwdt->extclk) && gwdt->use_extclk)
-> +		clk_disable_unprepare(gwdt->extclk);
-
-One of those many situations where devm_clk_prepare_enable() would have
-been very useful :-(. This disables the clocks while the watchdog itself
-as well as its interrupt handler is still registered. I don't know if this
-will have adverse affects, but it makes me quite concerned. Please consider
-adding devm_add_action() calls to clean up the clocks. Note that I would
-resist replacing all the devm_ functions with non-devm equivalents just
-because the clock subsystem doesn't provide the necessary API functions.
-
-Side note: Maybe we _should_ introduce devm_watchdog_clk_prepare_enable()
-since this problem affects several watchdog drivers.
-
-Guenter
-
->  
->  	return 0;
->  }
-> @@ -225,6 +287,7 @@ MODULE_DEVICE_TABLE(of, ftwdt010_wdt_match);
->  
->  static struct platform_driver ftwdt010_wdt_driver = {
->  	.probe		= ftwdt010_wdt_probe,
-> +	.remove		= ftwdt010_wdt_remove,
->  	.driver		= {
->  		.name	= "ftwdt010-wdt",
->  		.of_match_table = of_match_ptr(ftwdt010_wdt_match),
+>  MODULE_DEVICE_TABLE(of, ftwdt010_wdt_match);
+> diff --git a/drivers/watchdog/moxart_wdt.c b/drivers/watchdog/moxart_wdt.c
+> deleted file mode 100644
+> index 2c4a73d1e214..000000000000
+> --- a/drivers/watchdog/moxart_wdt.c
+> +++ /dev/null
+> @@ -1,178 +0,0 @@
+> -/*
+> - * MOXA ART SoCs watchdog driver.
+> - *
+> - * Copyright (C) 2013 Jonas Jensen
+> - *
+> - * Jonas Jensen <jonas.jensen@gmail.com>
+> - *
+> - * This file is licensed under the terms of the GNU General Public
+> - * License version 2.  This program is licensed "as is" without any
+> - * warranty of any kind, whether express or implied.
+> - */
+> -
+> -#include <linux/clk.h>
+> -#include <linux/io.h>
+> -#include <linux/module.h>
+> -#include <linux/err.h>
+> -#include <linux/kernel.h>
+> -#include <linux/platform_device.h>
+> -#include <linux/watchdog.h>
+> -#include <linux/moduleparam.h>
+> -
+> -#define REG_COUNT			0x4
+> -#define REG_MODE			0x8
+> -#define REG_ENABLE			0xC
+> -
+> -struct moxart_wdt_dev {
+> -	struct watchdog_device dev;
+> -	void __iomem *base;
+> -	unsigned int clock_frequency;
+> -};
+> -
+> -static int heartbeat;
+> -
+> -static int moxart_wdt_restart(struct watchdog_device *wdt_dev,
+> -			      unsigned long action, void *data)
+> -{
+> -	struct moxart_wdt_dev *moxart_wdt = watchdog_get_drvdata(wdt_dev);
+> -
+> -	writel(1, moxart_wdt->base + REG_COUNT);
+> -	writel(0x5ab9, moxart_wdt->base + REG_MODE);
+> -	writel(0x03, moxart_wdt->base + REG_ENABLE);
+> -
+> -	return 0;
+> -}
+> -
+> -static int moxart_wdt_stop(struct watchdog_device *wdt_dev)
+> -{
+> -	struct moxart_wdt_dev *moxart_wdt = watchdog_get_drvdata(wdt_dev);
+> -
+> -	writel(0, moxart_wdt->base + REG_ENABLE);
+> -
+> -	return 0;
+> -}
+> -
+> -static int moxart_wdt_start(struct watchdog_device *wdt_dev)
+> -{
+> -	struct moxart_wdt_dev *moxart_wdt = watchdog_get_drvdata(wdt_dev);
+> -
+> -	writel(moxart_wdt->clock_frequency * wdt_dev->timeout,
+> -	       moxart_wdt->base + REG_COUNT);
+> -	writel(0x5ab9, moxart_wdt->base + REG_MODE);
+> -	writel(0x03, moxart_wdt->base + REG_ENABLE);
+> -
+> -	return 0;
+> -}
+> -
+> -static int moxart_wdt_set_timeout(struct watchdog_device *wdt_dev,
+> -				  unsigned int timeout)
+> -{
+> -	wdt_dev->timeout = timeout;
+> -
+> -	return 0;
+> -}
+> -
+> -static const struct watchdog_info moxart_wdt_info = {
+> -	.identity       = "moxart-wdt",
+> -	.options        = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING |
+> -			  WDIOF_MAGICCLOSE,
+> -};
+> -
+> -static const struct watchdog_ops moxart_wdt_ops = {
+> -	.owner          = THIS_MODULE,
+> -	.start          = moxart_wdt_start,
+> -	.stop           = moxart_wdt_stop,
+> -	.set_timeout    = moxart_wdt_set_timeout,
+> -	.restart        = moxart_wdt_restart,
+> -};
+> -
+> -static int moxart_wdt_probe(struct platform_device *pdev)
+> -{
+> -	struct moxart_wdt_dev *moxart_wdt;
+> -	struct device *dev = &pdev->dev;
+> -	struct device_node *node = dev->of_node;
+> -	struct resource *res;
+> -	struct clk *clk;
+> -	int err;
+> -	unsigned int max_timeout;
+> -	bool nowayout = WATCHDOG_NOWAYOUT;
+> -
+> -	moxart_wdt = devm_kzalloc(dev, sizeof(*moxart_wdt), GFP_KERNEL);
+> -	if (!moxart_wdt)
+> -		return -ENOMEM;
+> -
+> -	platform_set_drvdata(pdev, moxart_wdt);
+> -
+> -	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> -	moxart_wdt->base = devm_ioremap_resource(dev, res);
+> -	if (IS_ERR(moxart_wdt->base))
+> -		return PTR_ERR(moxart_wdt->base);
+> -
+> -	clk = of_clk_get(node, 0);
+> -	if (IS_ERR(clk)) {
+> -		pr_err("%s: of_clk_get failed\n", __func__);
+> -		return PTR_ERR(clk);
+> -	}
+> -
+> -	moxart_wdt->clock_frequency = clk_get_rate(clk);
+> -	if (moxart_wdt->clock_frequency == 0) {
+> -		pr_err("%s: incorrect clock frequency\n", __func__);
+> -		return -EINVAL;
+> -	}
+> -
+> -	max_timeout = UINT_MAX / moxart_wdt->clock_frequency;
+> -
+> -	moxart_wdt->dev.info = &moxart_wdt_info;
+> -	moxart_wdt->dev.ops = &moxart_wdt_ops;
+> -	moxart_wdt->dev.timeout = max_timeout;
+> -	moxart_wdt->dev.min_timeout = 1;
+> -	moxart_wdt->dev.max_timeout = max_timeout;
+> -	moxart_wdt->dev.parent = dev;
+> -
+> -	watchdog_init_timeout(&moxart_wdt->dev, heartbeat, dev);
+> -	watchdog_set_nowayout(&moxart_wdt->dev, nowayout);
+> -	watchdog_set_restart_priority(&moxart_wdt->dev, 128);
+> -
+> -	watchdog_set_drvdata(&moxart_wdt->dev, moxart_wdt);
+> -
+> -	err = watchdog_register_device(&moxart_wdt->dev);
+> -	if (err)
+> -		return err;
+> -
+> -	dev_dbg(dev, "Watchdog enabled (heartbeat=%d sec, nowayout=%d)\n",
+> -		moxart_wdt->dev.timeout, nowayout);
+> -
+> -	return 0;
+> -}
+> -
+> -static int moxart_wdt_remove(struct platform_device *pdev)
+> -{
+> -	struct moxart_wdt_dev *moxart_wdt = platform_get_drvdata(pdev);
+> -
+> -	moxart_wdt_stop(&moxart_wdt->dev);
+> -
+> -	return 0;
+> -}
+> -
+> -static const struct of_device_id moxart_watchdog_match[] = {
+> -	{ .compatible = "moxa,moxart-watchdog" },
+> -	{ },
+> -};
+> -MODULE_DEVICE_TABLE(of, moxart_watchdog_match);
+> -
+> -static struct platform_driver moxart_wdt_driver = {
+> -	.probe      = moxart_wdt_probe,
+> -	.remove     = moxart_wdt_remove,
+> -	.driver     = {
+> -		.name		= "moxart-watchdog",
+> -		.of_match_table	= moxart_watchdog_match,
+> -	},
+> -};
+> -module_platform_driver(moxart_wdt_driver);
+> -
+> -module_param(heartbeat, int, 0);
+> -MODULE_PARM_DESC(heartbeat, "Watchdog heartbeat in seconds");
+> -
+> -MODULE_DESCRIPTION("MOXART watchdog driver");
+> -MODULE_LICENSE("GPL");
+> -MODULE_AUTHOR("Jonas Jensen <jonas.jensen@gmail.com>");
 > -- 
 > 2.13.4
 > 
