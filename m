@@ -1,42 +1,56 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pf0-f196.google.com ([209.85.192.196]:33706 "EHLO
-        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751611AbdHML2j (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:60027 "EHLO
+        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750859AbdHNOxH (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 13 Aug 2017 07:28:39 -0400
-From: Arvind Yadav <arvind.yadav.cs@gmail.com>
-To: wim@iguana.be, linux@roeck-us.net
-Cc: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org
-Subject: [PATCH] watchdog: max77620_wdt: constify platform_device_id
-Date: Sun, 13 Aug 2017 16:58:28 +0530
-Message-Id: <af372e3b17be9892810e4fc5ed5b1381a4ad2b97.1502623612.git.arvind.yadav.cs@gmail.com>
+        Mon, 14 Aug 2017 10:53:07 -0400
+Date: Mon, 14 Aug 2017 07:53:05 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Arvind Yadav <arvind.yadav.cs@gmail.com>
+Cc: wim@iguana.be, linux-kernel@vger.kernel.org,
+        linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH] watchdog: max77620_wdt: constify platform_device_id
+Message-ID: <20170814145305.GE14491@roeck-us.net>
+References: <af372e3b17be9892810e4fc5ed5b1381a4ad2b97.1502623612.git.arvind.yadav.cs@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <af372e3b17be9892810e4fc5ed5b1381a4ad2b97.1502623612.git.arvind.yadav.cs@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-platform_device_id are not supposed to change at runtime. All functions
-working with platform_device_id provided by <linux/platform_device.h>
-work with const platform_device_id. So mark the non-const structs as
-const.
+On Sun, Aug 13, 2017 at 04:58:28PM +0530, Arvind Yadav wrote:
+> platform_device_id are not supposed to change at runtime. All functions
+> working with platform_device_id provided by <linux/platform_device.h>
+> work with const platform_device_id. So mark the non-const structs as
+> const.
+> 
+> Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
 
-Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
----
- drivers/watchdog/max77620_wdt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-diff --git a/drivers/watchdog/max77620_wdt.c b/drivers/watchdog/max77620_wdt.c
-index 68c41fa..2c9f53e 100644
---- a/drivers/watchdog/max77620_wdt.c
-+++ b/drivers/watchdog/max77620_wdt.c
-@@ -201,7 +201,7 @@ static int max77620_wdt_remove(struct platform_device *pdev)
- 	return 0;
- }
- 
--static struct platform_device_id max77620_wdt_devtype[] = {
-+static const struct platform_device_id max77620_wdt_devtype[] = {
- 	{ .name = "max77620-watchdog", },
- 	{ },
- };
--- 
-2.7.4
-
+> ---
+>  drivers/watchdog/max77620_wdt.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/watchdog/max77620_wdt.c b/drivers/watchdog/max77620_wdt.c
+> index 68c41fa..2c9f53e 100644
+> --- a/drivers/watchdog/max77620_wdt.c
+> +++ b/drivers/watchdog/max77620_wdt.c
+> @@ -201,7 +201,7 @@ static int max77620_wdt_remove(struct platform_device *pdev)
+>  	return 0;
+>  }
+>  
+> -static struct platform_device_id max77620_wdt_devtype[] = {
+> +static const struct platform_device_id max77620_wdt_devtype[] = {
+>  	{ .name = "max77620-watchdog", },
+>  	{ },
+>  };
+> -- 
+> 2.7.4
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
