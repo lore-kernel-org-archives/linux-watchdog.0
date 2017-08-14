@@ -1,12 +1,14 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:49987 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751538AbdHNQcZ (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 14 Aug 2017 12:32:25 -0400
-Date: Mon, 14 Aug 2017 18:32:21 +0200
-From: Wolfram Sang <wsa@the-dreams.de>
-To: Daniel Thompson <daniel.thompson@linaro.org>
-Cc: Tony Lindgren <tony@atomide.com>, Lee Jones <lee.jones@linaro.org>,
+Received: from mail-wr0-f173.google.com ([209.85.128.173]:36571 "EHLO
+        mail-wr0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752124AbdHNQ2C (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 14 Aug 2017 12:28:02 -0400
+Received: by mail-wr0-f173.google.com with SMTP id y41so11555778wrd.3
+        for <linux-watchdog@vger.kernel.org>; Mon, 14 Aug 2017 09:28:01 -0700 (PDT)
+Subject: Re: [PATCH 3/3] mfd: twl: move header file out of I2C realm
+To: Tony Lindgren <tony@atomide.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: Lee Jones <lee.jones@linaro.org>,
         Thierry Reding <thierry.reding@gmail.com>,
         linux-i2c@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
         Linus Walleij <linus.walleij@linaro.org>,
@@ -37,53 +39,46 @@ Cc: Tony Lindgren <tony@atomide.com>, Lee Jones <lee.jones@linaro.org>,
         linux-pwm@vger.kernel.org, rtc-linux@googlegroups.com,
         linux-usb@vger.kernel.org, linux-fbdev@vger.kernel.org,
         linux-watchdog@vger.kernel.org, alsa-devel@alsa-project.org
-Subject: Re: [PATCH 3/3] mfd: twl: move header file out of I2C realm
-Message-ID: <20170814163221.ef6rxfvtehmpq7qf@ninjato>
 References: <20170521220212.1404-1-wsa@the-dreams.de>
  <20170521220212.1404-4-wsa@the-dreams.de>
  <20170706064453.GH16144@ulmo.fritz.box>
  <20170706070352.xdecvsnremwqed72@dell>
  <20170813133700.tv4ka7anvbzcplr7@ninjato>
  <20170814064247.qvggx4ito4vgjqvs@dell>
- <20170814084340.65morabelapfegph@ninjato>
- <20170814162219.GX8569@atomide.com>
- <c5e65e34-f308-f601-ba0b-d96792591727@linaro.org>
+ <20170814084340.65morabelapfegph@ninjato> <20170814162219.GX8569@atomide.com>
+From: Daniel Thompson <daniel.thompson@linaro.org>
+Message-ID: <c5e65e34-f308-f601-ba0b-d96792591727@linaro.org>
+Date: Mon, 14 Aug 2017 17:27:57 +0100
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="r5bnhd66xto22335"
-Content-Disposition: inline
-In-Reply-To: <c5e65e34-f308-f601-ba0b-d96792591727@linaro.org>
+In-Reply-To: <20170814162219.GX8569@atomide.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+On 14/08/17 17:22, Tony Lindgren wrote:
+> * Wolfram Sang <wsa@the-dreams.de> [170814 01:43]:
+>>
+>>>> Given the triviality of the change for non-MFD subsystems, can we apply
+>>>> this for 4.14?
+>>>
+>>> I can't apply anything without Acks for *all* of the subsystems above.
+>>
+>> Well, there are cases when you can. Those should be exceptions and well
+>> justified, of course.
+>>
+>>> My suggestion would be to collect the Acks you've received up until
+>>> this point and identify which SS's are still lacking in change log
+>>> section of a RESEND.
+>>
+>> I agree, though, that I can try a second round to get the acks.
+> 
+> As long as it's been compile tested with omap2plus_defconfig:
+> 
+> Acked-by: Tony Lindgren <tony@atomide.com>
 
---r5bnhd66xto22335
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Don't recall if I sent an ack before but I do remember the patch... so 
+from a backlight PoV:
+Acked-by: Daniel Thompson <daniel.thompson@linaro.org>
 
-> Acked-by: Daniel Thompson <daniel.thompson@linaro.org>
-
-Added, thanks!
-
-
---r5bnhd66xto22335
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmR0JUACgkQFA3kzBSg
-Kbb3UBAAgndBbA09/crNsM5iaqnA/DYgD6njMNag0No8CkC8WzDc8c1dZ3mD3+/b
-85cDD+WHMumbLsRhoqoiCMIk9izQTouKfop/DZZAA2pN0gEAcDJNyjL+4NuH/k2G
-suO6XQnuKEuNzUOcXQIrY6W3GEvO8W9WVBD2thjcu8Uf3UYFELAtAMgexqlB7JPa
-bvTGlLeCEhx8XcDz7utEjeiqJ/Ip1LjBXovQto0j/vioZ5BRaJWlfPJHDJquB9Uz
-fxJm0G4VfmT1OszuWMSZv5gTlazDKNOAadsw7swrp5jmuf3qNjCKkmztcq6rVnkm
-W5A8qOJcxjzPk9V/OmuLk/hlQAMrTHv9xmH4AuW/xnwP0OOrDb3lt9DnSGzW+pCi
-NAZfPEe5DzVlqvQ+RYWG1aM4f2lgJdGrX3EzwcPymVpN9qi+PtB+3oYgqky6CSew
-+X5sULm/xrwoh2zdgiVWTRKrdfthPtk/XfNSTpXOGtGf0ZZsUTMYrSuckTd6zmxW
-TxuuZn4fPEx18Zfpy6uxof6nnrZbEZ6jGAF+s/nWHHAPCfn+aPPFOoIF6XsTkwyE
-q6iUSzT7QIaKQ3G5p9zYzCdaWDWq5ks3mhsa9nivBKKM15V9OMBgrKAMJtl2HmYY
-YQv+A1FOXchHAzSyKL/vhyCeu0gOValLeFdtzTIJZRjyYTvhtTk=
-=ltAb
------END PGP SIGNATURE-----
-
---r5bnhd66xto22335--
