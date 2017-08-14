@@ -1,45 +1,63 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:45672 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:33189 "EHLO
         bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751451AbdHNRZQ (ORCPT
+        with ESMTP id S1751428AbdHNPhy (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 14 Aug 2017 13:25:16 -0400
-Date: Mon, 14 Aug 2017 10:25:13 -0700
+        Mon, 14 Aug 2017 11:37:54 -0400
+Date: Mon, 14 Aug 2017 08:37:52 -0700
 From: Guenter Roeck <linux@roeck-us.net>
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        linux-watchdog@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
-        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [RFC PATCH 0/3] watchdog: renesas_wdt: use standard clock
- handling
-Message-ID: <20170814172513.GA7764@roeck-us.net>
-References: <20170726215439.9623-1-wsa+renesas@sang-engineering.com>
- <20170814153230.GA7025@roeck-us.net>
- <20170814154728.j5h3u4vs43six4z7@ninjato>
+To: Huibin Hong <huibin.hong@rock-chips.com>
+Cc: wim@iguana.be, linux-watchdog@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-rockchip@lists.infradead.org
+Subject: Re: [PATCH] watchdog: dw_wdt: fix overflow issue in
+ dw_wdt_top_in_seconds
+Message-ID: <20170814153752.GB7025@roeck-us.net>
+References: <1501159843-6623-1-git-send-email-huibin.hong@rock-chips.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20170814154728.j5h3u4vs43six4z7@ninjato>
+In-Reply-To: <1501159843-6623-1-git-send-email-huibin.hong@rock-chips.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Aug 14, 2017 at 05:47:28PM +0200, Wolfram Sang wrote:
-> On Mon, Aug 14, 2017 at 08:32:30AM -0700, Guenter Roeck wrote:
-> > On Wed, Jul 26, 2017 at 11:54:36PM +0200, Wolfram Sang wrote:
-> > > As mentioned in a response to a previous patch, clock handling for Renesas
-> > > R-Car is done via RuntimePM. Patch 1 implements that consequently. Patch 2
-> > > is a cleanup then possible and patch 3 is a trivial copyright update.
-> > > 
-> > > This is RFC because I'd like Geert's comments on these patches first which
-> > > might take a few days...
-> > > 
-> > Was there any feedback from Geert ? I don't recall seeing any.
+On Thu, Jul 27, 2017 at 08:50:43PM +0800, Huibin Hong wrote:
+> If top is 15, (1 << (16 + top)) may be negative.
 > 
-> He just got back from holidays and is bravely working through his mail
-> queue :)
-> 
+> Change-Id: I76e4a603a54f093e64a4b266008570e3afcdb35a
 
-Good to hear that I am not the only one with that problem :-).
+No Change-Id in upstream patches, please.
+
+> Signed-off-by: Huibin Hong <huibin.hong@rock-chips.com>
+
+I am having trouble applying this patch. What is its baseline version ?
 
 Guenter
+
+> ---
+>  drivers/watchdog/dw_wdt.c | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
+> index 6ea0634..059c974 100644
+> --- a/drivers/watchdog/dw_wdt.c
+> +++ b/drivers/watchdog/dw_wdt.c
+> @@ -81,7 +81,9 @@ static inline int dw_wdt_top_in_seconds(unsigned top)
+>  	 * There are 16 possible timeout values in 0..15 where the number of
+>  	 * cycles is 2 ^ (16 + i) and the watchdog counts down.
+>  	 */
+> -	return (1 << (16 + top)) / clk_get_rate(dw_wdt.clk);
+> +	unsigned int cycles = 1 << (16 + top);
+> +
+> +	return cycles / clk_get_rate(dw_wdt.clk);
+>  }
+>  
+>  static int dw_wdt_get_top(void)
+> -- 
+> 1.9.1
+> 
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
