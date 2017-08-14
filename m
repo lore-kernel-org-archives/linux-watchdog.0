@@ -1,54 +1,39 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:59176 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752181AbdHNOrx (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 14 Aug 2017 10:47:53 -0400
-Date: Mon, 14 Aug 2017 07:47:50 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Michal Simek <michal.simek@xilinx.com>
-Cc: linux-kernel@vger.kernel.org, monstr@monstr.eu,
-        linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>
-Subject: Re: [PATCH 2/2] watchdog: cadence_wdt: Show information when driver
- is probed
-Message-ID: <20170814144750.GC14491@roeck-us.net>
+Return-Path: <michal.simek@xilinx.com>
+Return-path: <michal.simek@xilinx.com>
+Subject: Re: [PATCH 1/2] watchdog: cadence_wdt: Enable access to module
+ parameters
+To: Guenter Roeck <linux@roeck-us.net>, Michal Simek <michal.simek@xilinx.com>
+CC: <linux-kernel@vger.kernel.org>, <monstr@monstr.eu>,
+	<linux-watchdog@vger.kernel.org>, Wim Van Sebroeck <wim@iguana.be>
 References: <6c3cef5b847f315f5fc1eb891b040e33719e88c7.1501832354.git.michal.simek@xilinx.com>
- <32d58c86a3afbdfc25fe26a9e51df917ce5da4ac.1501832354.git.michal.simek@xilinx.com>
+ <20170814144727.GB14491@roeck-us.net>
+From: Michal Simek <michal.simek@xilinx.com>
+Message-ID: <37041da3-51f2-95c4-1d98-c0732b6a5082@xilinx.com>
+Date: Mon, 14 Aug 2017 16:51:28 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <32d58c86a3afbdfc25fe26a9e51df917ce5da4ac.1501832354.git.michal.simek@xilinx.com>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+In-Reply-To: <20170814144727.GB14491@roeck-us.net>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On Fri, Aug 04, 2017 at 09:39:17AM +0200, Michal Simek wrote:
-> Showing message that driver is loaded is common across drivers.
-> This change also fixes checkpatch (--strict) warning
-> "Alignment should match open parenthesis".
+On 14.8.2017 16:47, Guenter Roeck wrote:
+> On Fri, Aug 04, 2017 at 09:39:16AM +0200, Michal Simek wrote:
+>> Give read access to module parameters to all and write access to root.
+>> This change also improves driver error path testing.
+>>
+>> Signed-off-by: Michal Simek <michal.simek@xilinx.com>
 > 
-> Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+> 
+>> ---
+>>
+>> Please let me know what you think - I can use macros from stat.h if
+>> required
+>>
+> You mean instead of 0644 ? That is discouraged nowadays.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+yep and good.
 
-> ---
-> 
->  drivers/watchdog/cadence_wdt.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/watchdog/cadence_wdt.c b/drivers/watchdog/cadence_wdt.c
-> index dadd3b0c2d49..064cf7b6c1c5 100644
-> --- a/drivers/watchdog/cadence_wdt.c
-> +++ b/drivers/watchdog/cadence_wdt.c
-> @@ -368,7 +368,7 @@ static int cdns_wdt_probe(struct platform_device *pdev)
->  	}
->  	platform_set_drvdata(pdev, wdt);
->  
-> -	dev_dbg(&pdev->dev, "Xilinx Watchdog Timer at %p with timeout %ds%s\n",
-> +	dev_info(&pdev->dev, "Xilinx Watchdog Timer at %p with timeout %ds%s\n",
->  		 wdt->regs, cdns_wdt_device->timeout,
->  		 nowayout ? ", nowayout" : "");
->  
-> -- 
-> 1.9.1
-> 
+Thanks,
+Michal
