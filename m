@@ -1,92 +1,123 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:38856 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:41190 "EHLO
         bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753262AbdHOBv6 (ORCPT
+        with ESMTP id S1753128AbdHOCRk (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 14 Aug 2017 21:51:58 -0400
-Date: Mon, 14 Aug 2017 18:51:55 -0700
+        Mon, 14 Aug 2017 22:17:40 -0400
+Date: Mon, 14 Aug 2017 19:17:38 -0700
 From: Guenter Roeck <linux@roeck-us.net>
-To: Michal Simek <michal.simek@xilinx.com>
-Cc: linux-kernel@vger.kernel.org, monstr@monstr.eu,
-        =?iso-8859-1?Q?S=F6ren?= Brinkmann <soren.brinkmann@xilinx.com>,
-        linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
-        linux-arm-kernel@lists.infradead.org
-Subject: Re: [2/2] watchdog: of_xilinx_wdt: Add suspend/resume support
-Message-ID: <20170815015155.GA32016@roeck-us.net>
-References: <1e1307808bd32591ea4f03ec3d70d0eadb38b91e.1502105061.git.michal.simek@xilinx.com>
+To: Christopher Bostic <cbostic@linux.vnet.ibm.com>
+Cc: wim@iguana.be, robh+dt@kernel.org, mark.rutland@arm.com,
+        joel@jms.id.au, linux-watchdog@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        openbmc@lists.ozlabs.org
+Subject: Re: [v5, 2/2] drivers/watchdog: ASPEED reference dev tree properties
+ for config
+Message-ID: <20170815021738.GA1787@roeck-us.net>
+References: <20170717192539.7950-3-cbostic@linux.vnet.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1e1307808bd32591ea4f03ec3d70d0eadb38b91e.1502105061.git.michal.simek@xilinx.com>
+In-Reply-To: <20170717192539.7950-3-cbostic@linux.vnet.ibm.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Aug 07, 2017 at 01:24:23PM +0200, Michal Simek wrote:
-> Add suspend/resume support to driver.
+On Mon, Jul 17, 2017 at 02:25:39PM -0500, Christopher Bostic wrote:
+> Reference the system device tree when configuring the watchdog
+> engines. If property 'aspeed,reset_type' is present then set
+> reset behavior based on the specified value.  This can be one of
+> three different mutually exclusive values
+>   * cpu - Reset CPU only on watchdog timeout
+>   * soc - Reset System on Chip
+>   * system - Full system reset
 > 
-> Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+> No reset can also be specified by indicating:
+>   * none - No reset, assumes another watchdog is responsible for
+>            this.
+> 
+> Add optional property 'aspeed,external-signal'. If present then
+> configure to generate external signal on watchdog timeout.
+> 
+> Signed-off-by: Christopher Bostic <cbostic@linux.vnet.ibm.com>
 
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
 > ---
+> v5 - Add explicit check for property type "none". Return error
+>      if property type is not a known value.
+>    - Default reset type when no property present changed to
+>      match original code: SOC + SYSTEM reset
+> v4 - Change the three reset type parameters to a new property
+>      'aspeed,reset_type' and check assignment for one of four
+>      different values, cpu, soc, system, none
+> v3 - Invert the logic for system reset dev tree property to
+>      preserve backwards compatibility. If not specified the
+>      default is to configure for system reset
+>    - Add check for 'aspeed,no-soc-reset' property and only if
+>      not present is SOC reset to be configured.  This preserves
+>      backwards compatibility.
+> v2 - Change of_get_property() to of_property_read_bool()
+>    - Remove redundant check for NULL struct device_node pointer
+>    - Optional property names now start with prefix 'aspeed,'
+> ---
+>  drivers/watchdog/aspeed_wdt.c | 29 ++++++++++++++++++++++++-----
+>  1 file changed, 24 insertions(+), 5 deletions(-)
 > 
->  drivers/watchdog/of_xilinx_wdt.c | 38 ++++++++++++++++++++++++++++++++++++++
->  1 file changed, 38 insertions(+)
-> 
-> diff --git a/drivers/watchdog/of_xilinx_wdt.c b/drivers/watchdog/of_xilinx_wdt.c
-> index 41edeb93a327..1cf286945b7a 100644
-> --- a/drivers/watchdog/of_xilinx_wdt.c
-> +++ b/drivers/watchdog/of_xilinx_wdt.c
-> @@ -264,6 +264,43 @@ static int xwdt_remove(struct platform_device *pdev)
->  	return 0;
->  }
+> diff --git a/drivers/watchdog/aspeed_wdt.c b/drivers/watchdog/aspeed_wdt.c
+> index 1c65258..c707ab6 100644
+> --- a/drivers/watchdog/aspeed_wdt.c
+> +++ b/drivers/watchdog/aspeed_wdt.c
+> @@ -36,6 +36,7 @@ struct aspeed_wdt {
+>  #define WDT_CTRL		0x0C
+>  #define   WDT_CTRL_RESET_MODE_SOC	(0x00 << 5)
+>  #define   WDT_CTRL_RESET_MODE_FULL_CHIP	(0x01 << 5)
+> +#define   WDT_CTRL_RESET_MODE_ARM_CPU	(0x10 << 5)
+>  #define   WDT_CTRL_1MHZ_CLK		BIT(4)
+>  #define   WDT_CTRL_WDT_EXT		BIT(3)
+>  #define   WDT_CTRL_WDT_INTR		BIT(2)
+> @@ -140,6 +141,8 @@ static int aspeed_wdt_probe(struct platform_device *pdev)
+>  {
+>  	struct aspeed_wdt *wdt;
+>  	struct resource *res;
+> +	struct device_node *np;
+> +	const char *reset_type;
+>  	int ret;
 >  
-> +/**
-> + * xwdt_suspend - Suspend the device.
-> + *
-> + * @dev: handle to the device structure.
-> + * Return: 0 always.
-> + */
-> +static int __maybe_unused xwdt_suspend(struct device *dev)
-> +{
-> +	struct platform_device *pdev = to_platform_device(dev);
-> +	struct xwdt_device *xdev = platform_get_drvdata(pdev);
-> +
-> +	if (watchdog_active(&xdev->xilinx_wdt_wdd))
-> +		xilinx_wdt_stop(&xdev->xilinx_wdt_wdd);
-> +
-> +	return 0;
-> +}
-> +
-> +/**
-> + * xwdt_resume - Resume the device.
-> + *
-> + * @dev: handle to the device structure.
-> + * Return: 0 on success, errno otherwise.
-> + */
-> +static int __maybe_unused xwdt_resume(struct device *dev)
-> +{
-> +	struct platform_device *pdev = to_platform_device(dev);
-> +	struct xwdt_device *xdev = platform_get_drvdata(pdev);
-> +	int ret = 0;
-> +
-> +	if (watchdog_active(&xdev->xilinx_wdt_wdd))
-> +		ret = xilinx_wdt_start(&xdev->xilinx_wdt_wdd);
-> +
-> +	return ret;
-> +}
-> +
-> +static SIMPLE_DEV_PM_OPS(xwdt_pm_ops, xwdt_suspend, xwdt_resume);
-> +
->  /* Match table for of_platform binding */
->  static const struct of_device_id xwdt_of_match[] = {
->  	{ .compatible = "xlnx,xps-timebase-wdt-1.00.a", },
-> @@ -278,6 +315,7 @@ static int xwdt_remove(struct platform_device *pdev)
->  	.driver = {
->  		.name  = WATCHDOG_NAME,
->  		.of_match_table = xwdt_of_match,
-> +		.pm = &xwdt_pm_ops,
->  	},
->  };
+>  	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
+> @@ -164,14 +167,30 @@ static int aspeed_wdt_probe(struct platform_device *pdev)
+>  	wdt->wdd.timeout = WDT_DEFAULT_TIMEOUT;
+>  	watchdog_init_timeout(&wdt->wdd, 0, &pdev->dev);
 >  
+> +	wdt->ctrl = WDT_CTRL_1MHZ_CLK;
+> +
+>  	/*
+>  	 * Control reset on a per-device basis to ensure the
+> -	 * host is not affected by a BMC reboot, so only reset
+> -	 * the SOC and not the full chip
+> +	 * host is not affected by a BMC reboot
+>  	 */
+> -	wdt->ctrl = WDT_CTRL_RESET_MODE_SOC |
+> -		WDT_CTRL_1MHZ_CLK |
+> -		WDT_CTRL_RESET_SYSTEM;
+> +	np = pdev->dev.of_node;
+> +	ret = of_property_read_string(np, "aspeed,reset-type", &reset_type);
+> +	if (ret) {
+> +		wdt->ctrl |= WDT_CTRL_RESET_MODE_SOC | WDT_CTRL_RESET_SYSTEM;
+> +	} else {
+> +		if (!strcmp(reset_type, "cpu"))
+> +			wdt->ctrl |= WDT_CTRL_RESET_MODE_ARM_CPU;
+> +		else if (!strcmp(reset_type, "soc"))
+> +			wdt->ctrl |= WDT_CTRL_RESET_MODE_SOC;
+> +		else if (!strcmp(reset_type, "system"))
+> +			wdt->ctrl |= WDT_CTRL_RESET_SYSTEM;
+> +		else if (strcmp(reset_type, "none"))
+> +			return -EINVAL;
+> +	}
+> +	if (of_property_read_bool(np, "aspeed,external-signal"))
+> +		wdt->ctrl |= WDT_CTRL_WDT_EXT;
+> +
+> +	writel(wdt->ctrl, wdt->base + WDT_CTRL);
+>  
+>  	if (readl(wdt->base + WDT_CTRL) & WDT_CTRL_ENABLE)  {
+>  		aspeed_wdt_start(&wdt->wdd);
