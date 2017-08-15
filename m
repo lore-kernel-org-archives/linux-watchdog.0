@@ -1,11 +1,11 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:33655 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:33266 "EHLO
         bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753128AbdHOCSE (ORCPT
+        with ESMTP id S1752906AbdHOCSt (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 14 Aug 2017 22:18:04 -0400
-Date: Mon, 14 Aug 2017 19:18:01 -0700
+        Mon, 14 Aug 2017 22:18:49 -0400
+Date: Mon, 14 Aug 2017 19:18:47 -0700
 From: Guenter Roeck <linux@roeck-us.net>
 To: Christopher Bostic <cbostic@linux.vnet.ibm.com>
 Cc: wim@iguana.be, robh+dt@kernel.org, mark.rutland@arm.com,
@@ -14,7 +14,7 @@ Cc: wim@iguana.be, robh+dt@kernel.org, mark.rutland@arm.com,
         openbmc@lists.ozlabs.org
 Subject: Re: [v5, 1/2] drivers/watchdog: Add optional ASPEED device tree
  properties
-Message-ID: <20170815021801.GA1819@roeck-us.net>
+Message-ID: <20170815021847.GB1819@roeck-us.net>
 References: <20170717192539.7950-2-cbostic@linux.vnet.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
