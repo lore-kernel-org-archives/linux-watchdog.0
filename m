@@ -1,63 +1,52 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from kirsty.vergenet.net ([202.4.237.240]:60687 "EHLO
-        kirsty.vergenet.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751485AbdH3P5Q (ORCPT
+Received: from mail-pg0-f65.google.com ([74.125.83.65]:37035 "EHLO
+        mail-pg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750957AbdHQMvJ (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 30 Aug 2017 11:57:16 -0400
-Date: Wed, 30 Aug 2017 17:57:10 +0200
-From: Simon Horman <horms@verge.net.au>
-To: Chris Brandt <Chris.Brandt@renesas.com>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sebastian Reichel <sre@kernel.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
-        Linux PM list <linux-pm@vger.kernel.org>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>
-Subject: Re: [PATCH v2 3/3] ARM: dts: r7s72100: Add reset handler
-Message-ID: <20170830155700.GA28162@verge.net.au>
-References: <20170216172320.10897-1-chris.brandt@renesas.com>
- <20170216172320.10897-4-chris.brandt@renesas.com>
- <CAMuHMdVMBo9fNMTqz_XdU27FF5TX98r-OE5pJ5atJ1s4XLxcTw@mail.gmail.com>
- <20170830082940.GR10398@verge.net.au>
- <SG2PR06MB1165B8B815327A6768AE681A8A9C0@SG2PR06MB1165.apcprd06.prod.outlook.com>
+        Thu, 17 Aug 2017 08:51:09 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <SG2PR06MB1165B8B815327A6768AE681A8A9C0@SG2PR06MB1165.apcprd06.prod.outlook.com>
+In-Reply-To: <20170726215439.9623-2-wsa+renesas@sang-engineering.com>
+References: <20170726215439.9623-1-wsa+renesas@sang-engineering.com> <20170726215439.9623-2-wsa+renesas@sang-engineering.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Thu, 17 Aug 2017 14:51:08 +0200
+Message-ID: <CAMuHMdVyBYoUifQy+fVE3pdfNdLNBJ6uhhX-VCtXAXN1h+R_LQ@mail.gmail.com>
+Subject: Re: [RFC PATCH 1/3] watchdog: renesas_wdt: consistently use RuntimePM
+ for clock management
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
+        Linux-Renesas <linux-renesas-soc@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Aug 30, 2017 at 01:22:32PM +0000, Chris Brandt wrote:
-> Hi Simon,
-> 
-> On Wednesday, August 30, 2017, Simon Horman wrote:
-> > On Fri, Feb 17, 2017 at 11:29:25AM +0100, Geert Uytterhoeven wrote:
-> > > On Thu, Feb 16, 2017 at 6:23 PM, Chris Brandt <chris.brandt@renesas.com>
-> > wrote:
-> > > > For the RZ/A1, the only way to do a reset is to overflow the WDT.
-> > > >
-> > > > Signed-off-by: Chris Brandt <chris.brandt@renesas.com>
-> > >
-> > > Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-> > 
-> > Hi Chris,
-> > 
-> > while going through old patches I noticed that I seem to have missed this
-> > one. It looks like it needs a rebase. If it is still applicable could you
-> > please consider doing so and reposting.
-> 
-> 
-> It's in -next already:
-> 
-> https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/arch/arm/boot/dts/r7s72100.dtsi?h=next-20170829&id=69ed50de582eff6307fd3fa050fdc505731f0a2d
-> 
-> Doesn't that mean it's queued up for 4.14?
-> 
-> Or, somehow it didn't make it into the pull request for Arnd's tree?
+On Wed, Jul 26, 2017 at 11:54 PM, Wolfram Sang
+<wsa+renesas@sang-engineering.com> wrote:
+> On Renesas R-Car archs, RuntimePM does all the clock handling. So, use
+> it consistently to enable/disable the clocks. Also make sure that clocks
+> are really enabled around clk_get_rate(). clk_summary looks proper now:
+>
+>                 clock   enable_cnt      prepare_cnt     rate ...
+> Before this commit:
+>
+> At boot:        rwdt    1               1               32768 0 0
+> WDT running:    rwdt    2               2               32768 0 0
+>
+> After this commit:
+>
+> At boot:        rwdt    0               1               32768 0 0
+> WDT running     rwdt    1               1               32768 0 0
+>
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Thanks, I now see that it is included in v4.12.
-Sorry for the noise.
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
