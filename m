@@ -1,8 +1,8 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx1.mailbox.org ([80.241.60.212]:42257 "EHLO mx1.mailbox.org"
+Received: from mx2.mailbox.org ([80.241.60.215]:54165 "EHLO mx2.mailbox.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752441AbdHSWUE (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 19 Aug 2017 18:20:04 -0400
+        id S1752421AbdHSWUG (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Sat, 19 Aug 2017 18:20:06 -0400
 From: Hauke Mehrtens <hauke@hauke-m.de>
 To: ralf@linux-mips.org
 Cc: linux-mips@linux-mips.org, linux-mtd@lists.infradead.org,
@@ -12,285 +12,151 @@ Cc: linux-mips@linux-mips.org, linux-mtd@lists.infradead.org,
         robh@kernel.org, andy.shevchenko@gmail.com, p.zabel@pengutronix.de,
         kishon@ti.com, mark.rutland@arm.com,
         Hauke Mehrtens <hauke@hauke-m.de>
-Subject: [PATCH v10 08/16] MIPS: lantiq: Convert the fpi bus driver to a platform_driver
-Date: Sun, 20 Aug 2017 00:18:15 +0200
-Message-Id: <20170819221823.13850-9-hauke@hauke-m.de>
+Subject: [PATCH v10 04/16] watchdog: lantiq: access boot cause register through regmap
+Date: Sun, 20 Aug 2017 00:18:11 +0200
+Message-Id: <20170819221823.13850-5-hauke@hauke-m.de>
 In-Reply-To: <20170819221823.13850-1-hauke@hauke-m.de>
 References: <20170819221823.13850-1-hauke@hauke-m.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Instead of hacking the configuration of the FPI bus into the arch code
-add an own bus driver for this internal bus. The FPI bus is the main
-bus of the SoC. This bus driver makes sure the bus is configured
-correctly before the child drivers are getting initialized. This driver
-will probably also be used on different SoCs later.
+This patch avoids accessing the function ltq_reset_cause() and directly
+accesses the register given over the syscon interface. The syscon
+interface will be implemented for the xway SoCs for the falcon SoCs the
+ltq_reset_cause() function never worked, because a wrong offset was used.
 
 Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
-Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Acked-by: Rob Herring <robh@kernel.org>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Acked-by: Guenter Roeck <linux@reck-us.net>
 ---
- .../devicetree/bindings/mips/lantiq/fpi-bus.txt    | 31 ++++++++
- MAINTAINERS                                        |  1 +
- arch/mips/lantiq/xway/reset.c                      |  4 -
- arch/mips/lantiq/xway/sysctrl.c                    | 41 ----------
- drivers/soc/Makefile                               |  1 +
- drivers/soc/lantiq/Makefile                        |  1 +
- drivers/soc/lantiq/fpi-bus.c                       | 87 ++++++++++++++++++++++
- 7 files changed, 121 insertions(+), 45 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/mips/lantiq/fpi-bus.txt
- create mode 100644 drivers/soc/lantiq/Makefile
- create mode 100644 drivers/soc/lantiq/fpi-bus.c
+ drivers/watchdog/lantiq_wdt.c | 74 ++++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 69 insertions(+), 5 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/mips/lantiq/fpi-bus.txt b/Documentation/devicetree/bindings/mips/lantiq/fpi-bus.txt
-new file mode 100644
-index 000000000000..0a2df4338332
---- /dev/null
-+++ b/Documentation/devicetree/bindings/mips/lantiq/fpi-bus.txt
-@@ -0,0 +1,31 @@
-+Lantiq XWAY SoC FPI BUS binding
-+============================
-+
-+
-+-------------------------------------------------------------------------------
-+Required properties:
-+- compatible			: Should be one of
-+					"lantiq,xrx200-fpi"
-+- reg				: The address and length of the XBAR
-+				  configuration register.
-+				  Address and length of the FPI bus itself.
-+- lantiq,rcu			: A phandle to the RCU syscon
-+- lantiq,offset-endianness	: Offset of the endianness configuration
-+				  register
-+
-+-------------------------------------------------------------------------------
-+Example for the FPI on the xrx200 SoCs:
-+	fpi@10000000 {
-+		compatible = "lantiq,xrx200-fpi";
-+		ranges = <0x0 0x10000000 0xf000000>;
-+		reg =	<0x1f400000 0x1000>,
-+			<0x10000000 0xf000000>;
-+		lantiq,rcu = <&rcu0>;
-+		lantiq,offset-endianness = <0x4c>;
-+		#address-cells = <1>;
-+		#size-cells = <1>;
-+
-+		gptu@e100a00 {
-+			......
-+		};
-+	};
-diff --git a/MAINTAINERS b/MAINTAINERS
-index f66488dfdbc9..bcb845baa3db 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -7573,6 +7573,7 @@ M:	John Crispin <john@phrozen.org>
- L:	linux-mips@linux-mips.org
- S:	Maintained
- F:	arch/mips/lantiq
-+F:	drivers/soc/lantiq
- 
- LAPB module
- L:	linux-x25@vger.kernel.org
-diff --git a/arch/mips/lantiq/xway/reset.c b/arch/mips/lantiq/xway/reset.c
-index 83fd65d76e81..b6752c95a600 100644
---- a/arch/mips/lantiq/xway/reset.c
-+++ b/arch/mips/lantiq/xway/reset.c
-@@ -373,10 +373,6 @@ static int __init mips_reboot_setup(void)
- 	    of_machine_is_compatible("lantiq,vr9"))
- 		ltq_usb_init();
- 
--	if (of_machine_is_compatible("lantiq,vr9"))
--		ltq_rcu_w32(ltq_rcu_r32(RCU_AHB_ENDIAN) | RCU_VR9_BE_AHB1S,
--			    RCU_AHB_ENDIAN);
--
- 	_machine_restart = ltq_machine_restart;
- 	_machine_halt = ltq_machine_halt;
- 	pm_power_off = ltq_machine_power_off;
-diff --git a/arch/mips/lantiq/xway/sysctrl.c b/arch/mips/lantiq/xway/sysctrl.c
-index 95bec460b651..706639a343bc 100644
---- a/arch/mips/lantiq/xway/sysctrl.c
-+++ b/arch/mips/lantiq/xway/sysctrl.c
-@@ -145,15 +145,7 @@ static u32 pmu_clk_cr_b[] = {
- #define pmu_w32(x, y)	ltq_w32((x), pmu_membase + (y))
- #define pmu_r32(x)	ltq_r32(pmu_membase + (x))
- 
--#define XBAR_ALWAYS_LAST	0x430
--#define XBAR_FPI_BURST_EN	BIT(1)
--#define XBAR_AHB_BURST_EN	BIT(2)
--
--#define xbar_w32(x, y)	ltq_w32((x), ltq_xbar_membase + (y))
--#define xbar_r32(x)	ltq_r32(ltq_xbar_membase + (x))
--
- static void __iomem *pmu_membase;
--static void __iomem *ltq_xbar_membase;
- void __iomem *ltq_cgu_membase;
- void __iomem *ltq_ebu_membase;
- 
-@@ -293,16 +285,6 @@ static void pci_ext_disable(struct clk *clk)
- 	ltq_cgu_w32((1 << 31) | (1 << 30), pcicr);
- }
- 
--static void xbar_fpi_burst_disable(void)
--{
--	u32 reg;
--
--	/* bit 1 as 1 --burst; bit 1 as 0 -- single */
--	reg = xbar_r32(XBAR_ALWAYS_LAST);
--	reg &= ~XBAR_FPI_BURST_EN;
--	xbar_w32(reg, XBAR_ALWAYS_LAST);
--}
--
- /* enable a clockout source */
- static int clkout_enable(struct clk *clk)
- {
-@@ -459,26 +441,6 @@ void __init ltq_soc_init(void)
- 	if (!pmu_membase || !ltq_cgu_membase || !ltq_ebu_membase)
- 		panic("Failed to remap core resources");
- 
--	if (of_machine_is_compatible("lantiq,vr9")) {
--		struct resource res_xbar;
--		struct device_node *np_xbar =
--				of_find_compatible_node(NULL, NULL,
--							"lantiq,xbar-xway");
--
--		if (!np_xbar)
--			panic("Failed to load xbar nodes from devicetree");
--		if (of_address_to_resource(np_xbar, 0, &res_xbar))
--			panic("Failed to get xbar resources");
--		if (!request_mem_region(res_xbar.start, resource_size(&res_xbar),
--			res_xbar.name))
--			panic("Failed to get xbar resources");
--
--		ltq_xbar_membase = ioremap_nocache(res_xbar.start,
--						   resource_size(&res_xbar));
--		if (!ltq_xbar_membase)
--			panic("Failed to remap xbar resources");
--	}
--
- 	/* make sure to unprotect the memory region where flash is located */
- 	ltq_ebu_w32(ltq_ebu_r32(LTQ_EBU_BUSCON0) & ~EBU_WRDIS, LTQ_EBU_BUSCON0);
- 
-@@ -605,7 +567,4 @@ void __init ltq_soc_init(void)
- 		clkdev_add_pmu("1e116000.mei", "dfe", 1, 0, PMU_DFE);
- 		clkdev_add_pmu("1e100400.serial", NULL, 1, 0, PMU_ASC0);
- 	}
--
--	if (of_machine_is_compatible("lantiq,vr9"))
--		xbar_fpi_burst_disable();
- }
-diff --git a/drivers/soc/Makefile b/drivers/soc/Makefile
-index 9241125416ba..f24d95194ced 100644
---- a/drivers/soc/Makefile
-+++ b/drivers/soc/Makefile
-@@ -9,6 +9,7 @@ obj-$(CONFIG_ARCH_DOVE)		+= dove/
- obj-$(CONFIG_MACH_DOVE)		+= dove/
- obj-y				+= fsl/
- obj-$(CONFIG_ARCH_MXC)		+= imx/
-+obj-$(CONFIG_SOC_XWAY)		+= lantiq/
- obj-$(CONFIG_ARCH_MEDIATEK)	+= mediatek/
- obj-$(CONFIG_ARCH_QCOM)		+= qcom/
- obj-y				+= renesas/
-diff --git a/drivers/soc/lantiq/Makefile b/drivers/soc/lantiq/Makefile
-new file mode 100644
-index 000000000000..35aa86bd1023
---- /dev/null
-+++ b/drivers/soc/lantiq/Makefile
-@@ -0,0 +1 @@
-+obj-y				+= fpi-bus.o
-diff --git a/drivers/soc/lantiq/fpi-bus.c b/drivers/soc/lantiq/fpi-bus.c
-new file mode 100644
-index 000000000000..a671c9984c4c
---- /dev/null
-+++ b/drivers/soc/lantiq/fpi-bus.c
-@@ -0,0 +1,87 @@
-+/*
-+ *  This program is free software; you can redistribute it and/or modify it
-+ *  under the terms of the GNU General Public License version 2 as published
-+ *  by the Free Software Foundation.
-+ *
-+ *  Copyright (C) 2011-2015 John Crispin <blogic@phrozen.org>
-+ *  Copyright (C) 2015 Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+diff --git a/drivers/watchdog/lantiq_wdt.c b/drivers/watchdog/lantiq_wdt.c
+index e0823677d8c1..7f43cefa0eae 100644
+--- a/drivers/watchdog/lantiq_wdt.c
++++ b/drivers/watchdog/lantiq_wdt.c
+@@ -4,6 +4,7 @@
+  *  by the Free Software Foundation.
+  *
+  *  Copyright (C) 2010 John Crispin <john@phrozen.org>
 + *  Copyright (C) 2017 Hauke Mehrtens <hauke@hauke-m.de>
-+ */
-+
-+#include <linux/device.h>
-+#include <linux/err.h>
-+#include <linux/mfd/syscon.h>
-+#include <linux/module.h>
-+#include <linux/of.h>
-+#include <linux/of_platform.h>
-+#include <linux/platform_device.h>
-+#include <linux/property.h>
+  *  Based on EP93xx wdt driver
+  */
+ 
+@@ -17,9 +18,20 @@
+ #include <linux/uaccess.h>
+ #include <linux/clk.h>
+ #include <linux/io.h>
 +#include <linux/regmap.h>
++#include <linux/mfd/syscon.h>
+ 
+ #include <lantiq_soc.h>
+ 
++#define LTQ_XRX_RCU_RST_STAT		0x0014
++#define LTQ_XRX_RCU_RST_STAT_WDT	BIT(31)
 +
-+#include <lantiq_soc.h>
++/* CPU0 Reset Source Register */
++#define LTQ_FALCON_SYS1_CPU0RS		0x0060
++/* reset cause mask */
++#define LTQ_FALCON_SYS1_CPU0RS_MASK	0x0007
++#define LTQ_FALCON_SYS1_CPU0RS_WDT	0x02
 +
-+#define XBAR_ALWAYS_LAST	0x430
-+#define XBAR_FPI_BURST_EN	BIT(1)
-+#define XBAR_AHB_BURST_EN	BIT(2)
+ /*
+  * Section 3.4 of the datasheet
+  * The password sequence protects the WDT control register from unintended
+@@ -186,16 +198,70 @@ static struct miscdevice ltq_wdt_miscdev = {
+ 	.fops	= &ltq_wdt_fops,
+ };
+ 
++typedef int (*ltq_wdt_bootstatus_set)(struct platform_device *pdev);
 +
-+#define RCU_VR9_BE_AHB1S	0x00000008
-+
-+static int ltq_fpi_probe(struct platform_device *pdev)
++static int ltq_wdt_bootstatus_xrx(struct platform_device *pdev)
 +{
 +	struct device *dev = &pdev->dev;
-+	struct device_node *np = dev->of_node;
-+	struct resource *res_xbar;
 +	struct regmap *rcu_regmap;
-+	void __iomem *xbar_membase;
-+	u32 rcu_ahb_endianness_reg_offset;
-+	int ret;
++	u32 val;
++	int err;
 +
-+	res_xbar = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	xbar_membase = devm_ioremap_resource(dev, res_xbar);
-+	if (IS_ERR(xbar_membase))
-+		return PTR_ERR(xbar_membase);
-+
-+	/* RCU configuration is optional */
-+	rcu_regmap = syscon_regmap_lookup_by_phandle(np, "lantiq,rcu");
++	rcu_regmap = syscon_regmap_lookup_by_phandle(dev->of_node, "regmap");
 +	if (IS_ERR(rcu_regmap))
 +		return PTR_ERR(rcu_regmap);
 +
-+	ret = device_property_read_u32(dev, "lantiq,offset-endianness",
-+				       &rcu_ahb_endianness_reg_offset);
-+	if (ret) {
-+		dev_err(&pdev->dev, "Failed to get RCU reg offset\n");
-+		return ret;
-+	}
++	err = regmap_read(rcu_regmap, LTQ_XRX_RCU_RST_STAT, &val);
++	if (err)
++		return err;
 +
-+	ret = regmap_update_bits(rcu_regmap, rcu_ahb_endianness_reg_offset,
-+				 RCU_VR9_BE_AHB1S, RCU_VR9_BE_AHB1S);
-+	if (ret) {
-+		dev_warn(&pdev->dev,
-+			 "Failed to configure RCU AHB endianness\n");
-+		return ret;
-+	}
++	if (val & LTQ_XRX_RCU_RST_STAT_WDT)
++		ltq_wdt_bootstatus = WDIOF_CARDRESET;
 +
-+	/* disable fpi burst */
-+	ltq_w32_mask(XBAR_FPI_BURST_EN, 0, xbar_membase + XBAR_ALWAYS_LAST);
-+
-+	return of_platform_populate(dev->of_node, NULL, NULL, dev);
++	return 0;
 +}
 +
-+static const struct of_device_id ltq_fpi_match[] = {
-+	{ .compatible = "lantiq,xrx200-fpi" },
-+	{},
-+};
-+MODULE_DEVICE_TABLE(of, ltq_fpi_match);
++static int ltq_wdt_bootstatus_falcon(struct platform_device *pdev)
++{
++	struct device *dev = &pdev->dev;
++	struct regmap *rcu_regmap;
++	u32 val;
++	int err;
 +
-+static struct platform_driver ltq_fpi_driver = {
-+	.probe = ltq_fpi_probe,
-+	.driver = {
-+		.name = "fpi-xway",
-+		.of_match_table = ltq_fpi_match,
-+	},
-+};
++	rcu_regmap = syscon_regmap_lookup_by_phandle(dev->of_node,
++						     "lantiq,rcu");
++	if (IS_ERR(rcu_regmap))
++		return PTR_ERR(rcu_regmap);
 +
-+module_platform_driver(ltq_fpi_driver);
++	err = regmap_read(rcu_regmap, LTQ_FALCON_SYS1_CPU0RS, &val);
++	if (err)
++		return err;
 +
-+MODULE_DESCRIPTION("Lantiq FPI bus driver");
-+MODULE_LICENSE("GPL");
++	if ((val & LTQ_FALCON_SYS1_CPU0RS_MASK) == LTQ_FALCON_SYS1_CPU0RS_WDT)
++		ltq_wdt_bootstatus = WDIOF_CARDRESET;
++
++	return 0;
++}
++
+ static int
+ ltq_wdt_probe(struct platform_device *pdev)
+ {
+ 	struct resource *res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	struct clk *clk;
++	ltq_wdt_bootstatus_set ltq_wdt_bootstatus_set;
++	int ret;
+ 
+ 	ltq_wdt_membase = devm_ioremap_resource(&pdev->dev, res);
+ 	if (IS_ERR(ltq_wdt_membase))
+ 		return PTR_ERR(ltq_wdt_membase);
+ 
++	ltq_wdt_bootstatus_set = of_device_get_match_data(&pdev->dev);
++	if (ltq_wdt_bootstatus_set) {
++		ret = ltq_wdt_bootstatus_set(pdev);
++		if (ret)
++			return ret;
++	}
++
+ 	/* we do not need to enable the clock as it is always running */
+ 	clk = clk_get_io();
+ 	if (IS_ERR(clk)) {
+@@ -205,10 +271,6 @@ ltq_wdt_probe(struct platform_device *pdev)
+ 	ltq_io_region_clk_rate = clk_get_rate(clk);
+ 	clk_put(clk);
+ 
+-	/* find out if the watchdog caused the last reboot */
+-	if (ltq_reset_cause() == LTQ_RST_CAUSE_WDTRST)
+-		ltq_wdt_bootstatus = WDIOF_CARDRESET;
+-
+ 	dev_info(&pdev->dev, "Init done\n");
+ 	return misc_register(&ltq_wdt_miscdev);
+ }
+@@ -222,7 +284,9 @@ ltq_wdt_remove(struct platform_device *pdev)
+ }
+ 
+ static const struct of_device_id ltq_wdt_match[] = {
+-	{ .compatible = "lantiq,wdt" },
++	{ .compatible = "lantiq,wdt", .data = NULL},
++	{ .compatible = "lantiq,xrx100-wdt", .data = ltq_wdt_bootstatus_xrx },
++	{ .compatible = "lantiq,falcon-wdt", .data = ltq_wdt_bootstatus_falcon },
+ 	{},
+ };
+ MODULE_DEVICE_TABLE(of, ltq_wdt_match);
 -- 
 2.11.0
 
