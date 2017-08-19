@@ -1,8 +1,8 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx2.mailbox.org ([80.241.60.215]:54084 "EHLO mx2.mailbox.org"
+Received: from mx2.mailbox.org ([80.241.60.215]:54119 "EHLO mx2.mailbox.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752021AbdHSWTw (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 19 Aug 2017 18:19:52 -0400
+        id S1752359AbdHSWT5 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Sat, 19 Aug 2017 18:19:57 -0400
 From: Hauke Mehrtens <hauke@hauke-m.de>
 To: ralf@linux-mips.org
 Cc: linux-mips@linux-mips.org, linux-mtd@lists.infradead.org,
@@ -12,42 +12,53 @@ Cc: linux-mips@linux-mips.org, linux-mtd@lists.infradead.org,
         robh@kernel.org, andy.shevchenko@gmail.com, p.zabel@pengutronix.de,
         kishon@ti.com, mark.rutland@arm.com,
         Hauke Mehrtens <hauke@hauke-m.de>
-Subject: [PATCH v10 02/16] mtd: lantiq-flash: drop check of boot select
-Date: Sun, 20 Aug 2017 00:18:09 +0200
-Message-Id: <20170819221823.13850-3-hauke@hauke-m.de>
+Subject: [PATCH v10 05/16] watchdog: lantiq: add device tree binding documentation
+Date: Sun, 20 Aug 2017 00:18:12 +0200
+Message-Id: <20170819221823.13850-6-hauke@hauke-m.de>
 In-Reply-To: <20170819221823.13850-1-hauke@hauke-m.de>
 References: <20170819221823.13850-1-hauke@hauke-m.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Do not check which flash type the SoC was booted from before
-using this driver. Assume that the device tree is correct and use this
-driver when it was added to device tree. This also removes a build
-dependency to the SoC code.
+The binding was not documented before, add the documentation now.
 
 Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
-Acked-by: Brian Norris <computersforpeace@gmail.com>
+Acked-by: Rob Herring <robh@kernel.org>
 ---
- drivers/mtd/maps/lantiq-flash.c | 6 ------
- 1 file changed, 6 deletions(-)
+ .../devicetree/bindings/watchdog/lantiq-wdt.txt    | 24 ++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/lantiq-wdt.txt
 
-diff --git a/drivers/mtd/maps/lantiq-flash.c b/drivers/mtd/maps/lantiq-flash.c
-index 3e33ab66eb24..77b1d8013295 100644
---- a/drivers/mtd/maps/lantiq-flash.c
-+++ b/drivers/mtd/maps/lantiq-flash.c
-@@ -114,12 +114,6 @@ ltq_mtd_probe(struct platform_device *pdev)
- 	struct cfi_private *cfi;
- 	int err;
- 
--	if (of_machine_is_compatible("lantiq,falcon") &&
--			(ltq_boot_select() != BS_FLASH)) {
--		dev_err(&pdev->dev, "invalid bootstrap options\n");
--		return -ENODEV;
--	}
--
- 	ltq_mtd = devm_kzalloc(&pdev->dev, sizeof(struct ltq_mtd), GFP_KERNEL);
- 	if (!ltq_mtd)
- 		return -ENOMEM;
+diff --git a/Documentation/devicetree/bindings/watchdog/lantiq-wdt.txt b/Documentation/devicetree/bindings/watchdog/lantiq-wdt.txt
+new file mode 100644
+index 000000000000..18d4d8302702
+--- /dev/null
++++ b/Documentation/devicetree/bindings/watchdog/lantiq-wdt.txt
+@@ -0,0 +1,24 @@
++Lantiq WTD watchdog binding
++============================
++
++This describes the binding of the Lantiq watchdog driver.
++
++-------------------------------------------------------------------------------
++Required properties:
++- compatible		: Should be one of
++				"lantiq,wdt"
++				"lantiq,xrx100-wdt"
++				"lantiq,xrx200-wdt", "lantiq,xrx100-wdt"
++				"lantiq,falcon-wdt"
++- reg			: Address of the watchdog block
++- lantiq,rcu		: A phandle to the RCU syscon (required for
++			  "lantiq,falcon-wdt" and "lantiq,xrx100-wdt")
++
++-------------------------------------------------------------------------------
++Example for the watchdog on the xRX200 SoCs:
++		watchdog@803f0 {
++			compatible = "lantiq,xrx200-wdt", "lantiq,xrx100-wdt";
++			reg = <0x803f0 0x10>;
++
++			lantiq,rcu = <&rcu0>;
++		};
 -- 
 2.11.0
 
