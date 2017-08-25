@@ -1,46 +1,57 @@
-Return-Path: <linus.walleij@linaro.org>
-Return-path: <linus.walleij@linaro.org>
-MIME-Version: 1.0
-In-Reply-To: <20170814150105.GG14491@roeck-us.net>
-References: <20170812184318.10144-1-linus.walleij@linaro.org>
- <20170812184318.10144-3-linus.walleij@linaro.org> <20170814150105.GG14491@roeck-us.net>
-From: Linus Walleij <linus.walleij@linaro.org>
-Date: Thu, 24 Aug 2017 22:45:27 +0200
-Message-ID: <CACRpkdb_UkQdg0H-WA+9tbW5_9UX2-3Ezoyww=HXuUGi=8aH8A@mail.gmail.com>
-Subject: Re: [PATCH 02/11] watchdog: gemini/ftwdt010: rename driver and symbols
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Wim Van Sebroeck <wim@iguana.be>, Jonas Jensen <jonas.jensen@gmail.com>,
+Return-Path: <sboyd@codeaurora.org>
+Return-path: <sboyd@codeaurora.org>
+Date: Fri, 25 Aug 2017 16:28:46 -0700
+From: Stephen Boyd <sboyd@codeaurora.org>
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Guenter Roeck <linux@roeck-us.net>,
+	Michael Turquette <mturquette@baylibre.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Jonas Jensen <jonas.jensen@gmail.com>,
 	Andrew Jeffery <andrew@aj.id.au>, Joel Stanley <joel@jms.id.au>,
 	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
 	LINUXWATCHDOG <linux-watchdog@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH 04/11] watchdog: ftwdt010: Add clock support
+Message-ID: <20170825232846.GR21656@codeaurora.org>
+References: <20170812184318.10144-1-linus.walleij@linaro.org>
+ <20170812184318.10144-5-linus.walleij@linaro.org>
+ <20170814160536.GC7025@roeck-us.net>
+ <CACRpkdYcEbWkHdgxA-3=6JiZTxecQcTYgqx4xDH23=NxF8zg_Q@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CACRpkdYcEbWkHdgxA-3=6JiZTxecQcTYgqx4xDH23=NxF8zg_Q@mail.gmail.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On Mon, Aug 14, 2017 at 5:01 PM, Guenter Roeck <linux@roeck-us.net> wrote:
-> On Sat, Aug 12, 2017 at 08:43:09PM +0200, Linus Walleij wrote:
+On 08/24, Linus Walleij wrote:
+> On Mon, Aug 14, 2017 at 6:05 PM, Guenter Roeck <linux@roeck-us.net> wrote:
+> 
+> > Side note: Maybe we _should_ introduce devm_watchdog_clk_prepare_enable()
+> > since this problem affects several watchdog drivers.
+> 
+> Hmmmmmmmmm a special watchdog primitive may be apropriate.
+> Dunno what the clk maintainers think?
+> 
+> Stephen/Mike: do you like that or would you rather see a primitive
+> inside the clock subsystem for this?
+> 
 
->> -config GEMINI_WATCHDOG
->> -     tristate "Gemini watchdog"
->> -     depends on ARCH_GEMINI
->> +config FTWDT010_WATCHDOG
->> +     tristate "Faraday Technology FTWDT010 watchdog"
->> +     depends on ARM || COMPILE_TEST
->
-> Did you test this ? I am kind of wary about COMPILE_TEST in watchdog drivers.
-> I tried to enable that a while ago, and we had to spend a couple of releases
-> fixing the fallout (even though I had tried to make sure that everything
-> builds).
+devm_clk_prepare_enable() was already proposed and then the
+thread went quiet. Re-kickstart it?
 
-Incidentally, yes!
+I'd still prefer we just disable clks on clk_put(), but Russell
+said we needed to fix all non-common clk implementations of the
+clk API to do that and then I forgot about the topic (so
+anti-climatic). I'm pretty much OK with us merging the temporary
+solution. We can churn again later and remove it all once we
+convert everything into one CCF.
 
-I push my tree to kernelorg where the zeroday autobuilders pick it up
-and compile all kind of archs.
+I'd prefer we also change common clk framework to actually do the
+disable on put though so we flush out any issues early. If the
+two things are packaged together I would be ultra happy. It's not
+like people are going to convert to CCF just so they can get clk
+disable on clk_put() as a feature, but at least we can have it as
+a feature.
 
-I'm pushing the updated patches too.
-
-The big culprit used to be um linux, since it doesn't do MMIO.
-But I think that has been solved recently because I don't see
-complaints about it anymore.
-
-Yours,
-Linus Walleij
+-- 
+Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
+a Linux Foundation Collaborative Project
