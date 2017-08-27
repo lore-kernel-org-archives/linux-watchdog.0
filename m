@@ -1,56 +1,77 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:60027 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:56830 "EHLO
         bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750859AbdHNOxH (ORCPT
+        with ESMTP id S1751272AbdH0Qos (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 14 Aug 2017 10:53:07 -0400
-Date: Mon, 14 Aug 2017 07:53:05 -0700
+        Sun, 27 Aug 2017 12:44:48 -0400
+Date: Sun, 27 Aug 2017 09:44:44 -0700
 From: Guenter Roeck <linux@roeck-us.net>
-To: Arvind Yadav <arvind.yadav.cs@gmail.com>
-Cc: wim@iguana.be, linux-kernel@vger.kernel.org,
-        linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH] watchdog: max77620_wdt: constify platform_device_id
-Message-ID: <20170814145305.GE14491@roeck-us.net>
-References: <af372e3b17be9892810e4fc5ed5b1381a4ad2b97.1502623612.git.arvind.yadav.cs@gmail.com>
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>,
+        "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>,
+        LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
+        Lee Jones <lee.jones@linaro.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sebastian Reichel <sebastian.reichel@collabora.co.uk>,
+        Jonathan Cameron <jic23@kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Kishon Vijay Abraham I <kishon@ti.com>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Daniel Thompson <daniel.thompson@linaro.org>
+Subject: Re: [PATCH v2 3/3] mfd: twl: move header file out of I2C realm
+Message-ID: <20170827164444.GB22819@roeck-us.net>
+References: <20170814163424.2197-1-wsa@the-dreams.de>
+ <20170814163424.2197-4-wsa@the-dreams.de>
+ <CACRpkdZd1TecLVQA2uPiPM_fWDw1mS2-kpmN06xp=dP4Wh-vYQ@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <af372e3b17be9892810e4fc5ed5b1381a4ad2b97.1502623612.git.arvind.yadav.cs@gmail.com>
+In-Reply-To: <CACRpkdZd1TecLVQA2uPiPM_fWDw1mS2-kpmN06xp=dP4Wh-vYQ@mail.gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Sun, Aug 13, 2017 at 04:58:28PM +0530, Arvind Yadav wrote:
-> platform_device_id are not supposed to change at runtime. All functions
-> working with platform_device_id provided by <linux/platform_device.h>
-> work with const platform_device_id. So mark the non-const structs as
-> const.
+On Tue, Aug 22, 2017 at 03:06:31PM +0200, Linus Walleij wrote:
+> On Mon, Aug 14, 2017 at 6:34 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
 > 
-> Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
+> > include/linux/i2c is not for client devices. Move the header file to a
+> > more appropriate location.
+> >
+> > Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+> > Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> > Acked-by: Mark Brown <broonie@kernel.org>
+> > Acked-by: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
+> > Acked-by: Jonathan Cameron <jic23@kernel.org>
+> > Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> > Acked-by: Kishon Vijay Abraham I <kishon@ti.com>
+> > Acked-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+> > Acked-by: Thierry Reding <thierry.reding@gmail.com>
+> > Acked-by: Tony Lindgren <tony@atomide.com>
+> > Acked-by: Daniel Thompson <daniel.thompson@linaro.org>
+> > Cc: Linus Walleij <linus.walleij@linaro.org>
+> > Cc: Guenter Roeck <linux@roeck-us.net>
+> > ---
+> >
+> > Change since V1:
+> >
+> > * rebased to v4.13-rc5, one change needed (twl4030-adc.h gone, too)
+> > * acks added. I think gpio and hwmon acks are missing.
+> >   Linus, Guenter, pretty please? :)
+> 
+> Acked-by: Linus Walleij <linus.walleij@linaro.org>
+> For anything hitting GPIO.
+> 
+For hwmon:
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Acked-by: Guenter Roeck <linux@roeck-us.net>
 
-> ---
->  drivers/watchdog/max77620_wdt.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/watchdog/max77620_wdt.c b/drivers/watchdog/max77620_wdt.c
-> index 68c41fa..2c9f53e 100644
-> --- a/drivers/watchdog/max77620_wdt.c
-> +++ b/drivers/watchdog/max77620_wdt.c
-> @@ -201,7 +201,7 @@ static int max77620_wdt_remove(struct platform_device *pdev)
->  	return 0;
->  }
->  
-> -static struct platform_device_id max77620_wdt_devtype[] = {
-> +static const struct platform_device_id max77620_wdt_devtype[] = {
->  	{ .name = "max77620-watchdog", },
->  	{ },
->  };
-> -- 
-> 2.7.4
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Sorry, I am a bit behind ...
+
+Guenter
