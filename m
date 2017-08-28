@@ -1,69 +1,47 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-oi0-f42.google.com ([209.85.218.42]:36684 "EHLO
-        mail-oi0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932791AbdHVNGc (ORCPT
+Received: from eddie.linux-mips.org ([148.251.95.138]:50876 "EHLO
+        cvs.linux-mips.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751172AbdH1LXv (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 22 Aug 2017 09:06:32 -0400
-Received: by mail-oi0-f42.google.com with SMTP id g131so184807862oic.3
-        for <linux-watchdog@vger.kernel.org>; Tue, 22 Aug 2017 06:06:32 -0700 (PDT)
+        Mon, 28 Aug 2017 07:23:51 -0400
+Date: Mon, 28 Aug 2017 13:23:27 +0200
+From: Ralf Baechle <ralf@linux-mips.org>
+To: Hauke Mehrtens <hauke@hauke-m.de>
+Cc: linux-mips@linux-mips.org, linux-mtd@lists.infradead.org,
+        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+        martin.blumenstingl@googlemail.com, john@phrozen.org,
+        linux-spi@vger.kernel.org, hauke.mehrtens@intel.com,
+        robh@kernel.org, andy.shevchenko@gmail.com, p.zabel@pengutronix.de,
+        kishon@ti.com, mark.rutland@arm.com,
+        Mark Brown <broonie@kernel.org>
+Subject: Re: [PATCH v10 03/16] spi: spi-falcon: drop check of boot select
+Message-ID: <20170828112327.GA15640@linux-mips.org>
+References: <20170819221823.13850-1-hauke@hauke-m.de>
+ <20170819221823.13850-4-hauke@hauke-m.de>
 MIME-Version: 1.0
-In-Reply-To: <20170814163424.2197-4-wsa@the-dreams.de>
-References: <20170814163424.2197-1-wsa@the-dreams.de> <20170814163424.2197-4-wsa@the-dreams.de>
-From: Linus Walleij <linus.walleij@linaro.org>
-Date: Tue, 22 Aug 2017 15:06:31 +0200
-Message-ID: <CACRpkdZd1TecLVQA2uPiPM_fWDw1mS2-kpmN06xp=dP4Wh-vYQ@mail.gmail.com>
-Subject: Re: [PATCH v2 3/3] mfd: twl: move header file out of I2C realm
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>,
-        LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Lee Jones <lee.jones@linaro.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sebastian Reichel <sebastian.reichel@collabora.co.uk>,
-        Jonathan Cameron <jic23@kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Kishon Vijay Abraham I <kishon@ti.com>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Daniel Thompson <daniel.thompson@linaro.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20170819221823.13850-4-hauke@hauke-m.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Aug 14, 2017 at 6:34 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
+On Sun, Aug 20, 2017 at 12:18:10AM +0200, Hauke Mehrtens wrote:
 
-> include/linux/i2c is not for client devices. Move the header file to a
-> more appropriate location.
->
-> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-> Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> Acked-by: Mark Brown <broonie@kernel.org>
-> Acked-by: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
-> Acked-by: Jonathan Cameron <jic23@kernel.org>
-> Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Acked-by: Kishon Vijay Abraham I <kishon@ti.com>
-> Acked-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-> Acked-by: Thierry Reding <thierry.reding@gmail.com>
-> Acked-by: Tony Lindgren <tony@atomide.com>
-> Acked-by: Daniel Thompson <daniel.thompson@linaro.org>
-> Cc: Linus Walleij <linus.walleij@linaro.org>
-> Cc: Guenter Roeck <linux@roeck-us.net>
-> ---
->
-> Change since V1:
->
-> * rebased to v4.13-rc5, one change needed (twl4030-adc.h gone, too)
-> * acks added. I think gpio and hwmon acks are missing.
->   Linus, Guenter, pretty please? :)
+> Do not check which flash type the SoC was booted from before
+> using this driver. Assume that the device tree is correct and use this
+> driver when it was added to device tree. This also removes a build
+> dependency to the SoC code.
+> 
+> All device trees I am aware of only have one correct flash device entry
+> in it. The device tree is anyway bundled with the kernel in all systems
+> using device tree I know of.
+> 
+> The boot mode can be specified with some pin straps and will select the
+> flash type the rom code will boot from. One SPI, NOR or NAND flash chip
+> can be connect to the EBU and used to load the first stage boot loader
+> from.
 
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
-For anything hitting GPIO.
+I think other than this patch we finally have all the acks necessary so
+I merged the series except this patch which shouldn't be strictly necessary.
 
-Yours,
-Linus Walleij
+  Ralf
