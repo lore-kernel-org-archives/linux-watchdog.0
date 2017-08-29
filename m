@@ -1,59 +1,67 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx2.mailbox.org ([80.241.60.215]:34268 "EHLO mx2.mailbox.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750873AbdH1L3l (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 28 Aug 2017 07:29:41 -0400
-Subject: Re: [PATCH v10 03/16] spi: spi-falcon: drop check of boot select
-To: Ralf Baechle <ralf@linux-mips.org>, Mark Brown <broonie@kernel.org>
-Cc: linux-mips@linux-mips.org, linux-mtd@lists.infradead.org,
-        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-        martin.blumenstingl@googlemail.com, john@phrozen.org,
-        linux-spi@vger.kernel.org, hauke.mehrtens@intel.com,
-        robh@kernel.org, andy.shevchenko@gmail.com, p.zabel@pengutronix.de,
-        kishon@ti.com, mark.rutland@arm.com
-References: <20170819221823.13850-1-hauke@hauke-m.de>
- <20170819221823.13850-4-hauke@hauke-m.de>
- <20170828112327.GA15640@linux-mips.org>
-From: Hauke Mehrtens <hauke@hauke-m.de>
-Message-ID: <40428f8d-f781-7952-30c6-41f65ec1096b@hauke-m.de>
-Date: Mon, 28 Aug 2017 13:29:33 +0200
+Received: from mail-cys01nam02on0044.outbound.protection.outlook.com ([104.47.37.44]:19314
+        "EHLO NAM02-CY1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1752836AbdH2Pm6 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 29 Aug 2017 11:42:58 -0400
+From: "Steven J. Hill" <steven.hill@cavium.com>
+To: linux-mips@linux-mips.org, linux-watchdog@vger.kernel.org,
+        ralf@linux-mips.org
+Subject: [PATCH 0/8] Update Octeon watchdog driver.
+Date: Tue, 29 Aug 2017 10:40:30 -0500
+Message-Id: <1504021238-3184-1-git-send-email-steven.hill@cavium.com>
 MIME-Version: 1.0
-In-Reply-To: <20170828112327.GA15640@linux-mips.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 08/28/2017 01:23 PM, Ralf Baechle wrote:
-> On Sun, Aug 20, 2017 at 12:18:10AM +0200, Hauke Mehrtens wrote:
-> 
->> Do not check which flash type the SoC was booted from before
->> using this driver. Assume that the device tree is correct and use this
->> driver when it was added to device tree. This also removes a build
->> dependency to the SoC code.
->>
->> All device trees I am aware of only have one correct flash device entry
->> in it. The device tree is anyway bundled with the kernel in all systems
->> using device tree I know of.
->>
->> The boot mode can be specified with some pin straps and will select the
->> flash type the rom code will boot from. One SPI, NOR or NAND flash chip
->> can be connect to the EBU and used to load the first stage boot loader
->> from.
-> 
-> I think other than this patch we finally have all the acks necessary so
-> I merged the series except this patch which shouldn't be strictly necessary.
-> 
->   Ralf
-> 
+This patchset updates the Octeon watchdog with bug fixes and new
+platforms. This code has been tested on our 70xx and 78xx development
+boards as well as an EdgeRouter PRO.
 
-Hi Ralf and Mark,
+* The time it takes for the watchdog to trigger is now 1 second
+  for all tested platforms. The various cores have different
+  divisor values. Some of these were just plain wrong. Example:
+  On our 78xx platform, it took 1m20s for the watchdog to trigger
+  and reset the board.
+* Support has been added for newer 7xxx SOCs.
+* The boot vector code has been simplified and updated.
 
-this driver will not build any more without this patch, because
-ltq_boot_select() gets removed in "[PATCH v10 09/16] MIPS: lantiq:
-remove ltq_reset_cause() and ltq_boot_select()"
+These watchdog driver changes are dependant on MIPS architecture
+code changes. Would the watchdog driver maintainers be willing to
+allow Ralf to include the driver code along with the next MIPS
+architecture update? Thanks for considering. -Steve
 
-Mark could you please have a look at the commit message if it is better now.
 
-Hauke
+Carlos Munoz (1):
+  watchdog: octeon-wdt: Add support for 78XX SOCs.
+
+David Daney (1):
+  watchdog: octeon-wdt: Add support for cn68XX SOCs.
+
+Steven J. Hill (6):
+  MIPS: Octeon: Add support for accessing the boot vector.
+  watchdog: octeon-wdt: Remove old boot vector code.
+  MIPS: Octeon: Watchdog registers for 70xx, 73xx, 78xx, F75xx.
+  MIPS: Octeon: Make CSR functions node aware.
+  MIPS: Octeon: Allow access to CIU3 IRQ domains.
+  watchdog: octeon-wdt: File cleaning.
+
+ arch/mips/cavium-octeon/executive/Makefile         |   2 +-
+ .../cavium-octeon/executive/cvmx-boot-vector.c     | 167 ++++++++++
+ arch/mips/cavium-octeon/executive/cvmx-bootmem.c   |  85 +++++
+ arch/mips/cavium-octeon/octeon-irq.c               |   9 +
+ arch/mips/include/asm/octeon/cvmx-boot-vector.h    |  53 +++
+ arch/mips/include/asm/octeon/cvmx-bootmem.h        |  28 ++
+ arch/mips/include/asm/octeon/cvmx-ciu-defs.h       |  10 +
+ arch/mips/include/asm/octeon/cvmx.h                |  28 ++
+ arch/mips/include/asm/octeon/octeon.h              |   2 +
+ drivers/watchdog/octeon-wdt-main.c                 | 354 ++++++++++-----------
+ drivers/watchdog/octeon-wdt-nmi.S                  |  42 ++-
+ 11 files changed, 592 insertions(+), 188 deletions(-)
+ create mode 100644 arch/mips/cavium-octeon/executive/cvmx-boot-vector.c
+ create mode 100644 arch/mips/include/asm/octeon/cvmx-boot-vector.h
+
+-- 
+2.1.4
+
