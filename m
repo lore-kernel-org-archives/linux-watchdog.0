@@ -2,14 +2,14 @@ Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Received: from mail-cys01nam02on0044.outbound.protection.outlook.com ([104.47.37.44]:19314
         "EHLO NAM02-CY1-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1753165AbdH2PnF (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 29 Aug 2017 11:43:05 -0400
+        id S1752992AbdH2PnG (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 29 Aug 2017 11:43:06 -0400
 From: "Steven J. Hill" <steven.hill@cavium.com>
 To: linux-mips@linux-mips.org, linux-watchdog@vger.kernel.org,
         ralf@linux-mips.org
-Subject: [PATCH 6/8] watchdog: octeon-wdt: File cleaning.
-Date: Tue, 29 Aug 2017 10:40:36 -0500
-Message-Id: <1504021238-3184-7-git-send-email-steven.hill@cavium.com>
+Subject: [PATCH 7/8] watchdog: octeon-wdt: Add support for cn68XX SOCs.
+Date: Tue, 29 Aug 2017 10:40:37 -0500
+Message-Id: <1504021238-3184-8-git-send-email-steven.hill@cavium.com>
 In-Reply-To: <1504021238-3184-1-git-send-email-steven.hill@cavium.com>
 References: <1504021238-3184-1-git-send-email-steven.hill@cavium.com>
 MIME-Version: 1.0
@@ -17,165 +17,122 @@ Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-From: "Steven J. Hill" <Steven.Hill@cavium.com>
+From: David Daney <david.daney@cavium.com>
 
-* Update copyright and company name.
-* Remove unused headers.
-* Fix variable spelling and data type.
-* Use octal values for module parameters.
-
-Signed-off-by: Steven J. Hill <steven.hill@cavium.com>
-Acked-by: David Daney <david.daney@cavium.com>
+Signed-off-by: David Daney <david.daney@cavium.com>
+Signed-off-by: Carlos Munoz <cmunoz@caviumnetworks.com>
+Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
 ---
- drivers/watchdog/octeon-wdt-main.c | 45 +++++++++++++++++++++++++-------------
- 1 file changed, 30 insertions(+), 15 deletions(-)
+ drivers/watchdog/octeon-wdt-main.c | 48 +++++++++++++++++++++++++++-----------
+ 1 file changed, 35 insertions(+), 13 deletions(-)
 
 diff --git a/drivers/watchdog/octeon-wdt-main.c b/drivers/watchdog/octeon-wdt-main.c
-index fbdd484..73b5102 100644
+index 73b5102..410800f 100644
 --- a/drivers/watchdog/octeon-wdt-main.c
 +++ b/drivers/watchdog/octeon-wdt-main.c
-@@ -1,7 +1,7 @@
- /*
-  * Octeon Watchdog driver
-  *
-- * Copyright (C) 2007, 2008, 2009, 2010 Cavium Networks
-+ * Copyright (C) 2007-2017 Cavium, Inc.
-  *
-  * Converted to use WATCHDOG_CORE by Aaro Koskinen <aaro.koskinen@iki.fi>.
-  *
-@@ -59,14 +59,9 @@
- #include <linux/interrupt.h>
- #include <linux/watchdog.h>
- #include <linux/cpumask.h>
--#include <linux/bitops.h>
--#include <linux/kernel.h>
- #include <linux/module.h>
--#include <linux/string.h>
- #include <linux/delay.h>
- #include <linux/cpu.h>
--#include <linux/smp.h>
--#include <linux/fs.h>
- #include <linux/irq.h>
+@@ -69,6 +69,9 @@
  
- #include <asm/mipsregs.h>
-@@ -85,7 +80,7 @@ static unsigned int max_timeout_sec;
- static unsigned int timeout_sec;
- 
- /* Set to non-zero when userspace countdown mode active */
--static int do_coundown;
-+static bool do_countdown;
- static unsigned int countdown_reset;
- static unsigned int per_cpu_countdown[NR_CPUS];
- 
-@@ -94,17 +89,22 @@ static cpumask_t irq_enabled_cpus;
- #define WD_TIMO 60			/* Default heartbeat = 60 seconds */
- 
- static int heartbeat = WD_TIMO;
--module_param(heartbeat, int, S_IRUGO);
-+module_param(heartbeat, int, 0444);
- MODULE_PARM_DESC(heartbeat,
- 	"Watchdog heartbeat in seconds. (0 < heartbeat, default="
- 				__MODULE_STRING(WD_TIMO) ")");
- 
- static bool nowayout = WATCHDOG_NOWAYOUT;
--module_param(nowayout, bool, S_IRUGO);
-+module_param(nowayout, bool, 0444);
- MODULE_PARM_DESC(nowayout,
- 	"Watchdog cannot be stopped once started (default="
- 				__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
- 
-+static int disable;
-+module_param(disable, int, 0444);
-+MODULE_PARM_DESC(disable,
-+	"Disable the watchdog entirely (default=0)");
+ #include <asm/octeon/octeon.h>
+ #include <asm/octeon/cvmx-boot-vector.h>
++#include <asm/octeon/cvmx-ciu2-defs.h>
 +
- static struct cvmx_boot_vector_element *octeon_wdt_bootvector;
++static int divisor;
  
- void octeon_wdt_nmi_stage2(void);
-@@ -140,7 +140,7 @@ static irqreturn_t octeon_wdt_poke_irq(int cpl, void *dev_id)
- 	unsigned int core = cvmx_get_core_num();
- 	int cpu = core2cpu(core);
+ /* The count needed to achieve timeout_sec. */
+ static unsigned int timeout_cnt;
+@@ -227,10 +230,10 @@ void octeon_wdt_nmi_stage3(u64 reg[32])
+ 	u64 cp0_epc = read_c0_epc();
  
--	if (do_coundown) {
-+	if (do_countdown) {
- 		if (per_cpu_countdown[cpu] > 0) {
- 			/* We're alive, poke the watchdog */
- 			cvmx_write_csr(CVMX_CIU_PP_POKEX(core), 1);
-@@ -324,11 +324,14 @@ static int octeon_wdt_ping(struct watchdog_device __always_unused *wdog)
- 	int cpu;
- 	int coreid;
+ 	/* Delay so output from all cores output is not jumbled together. */
+-	__delay(100000000ull * coreid);
++	udelay(85000 * coreid);
  
-+	if (disable)
-+		return 0;
-+
- 	for_each_online_cpu(cpu) {
- 		coreid = cpu2core(cpu);
- 		cvmx_write_csr(CVMX_CIU_PP_POKEX(coreid), 1);
- 		per_cpu_countdown[cpu] = countdown_reset;
--		if ((countdown_reset || !do_coundown) &&
-+		if ((countdown_reset || !do_countdown) &&
- 		    !cpumask_test_cpu(cpu, &irq_enabled_cpus)) {
- 			/* We have to enable the irq */
- 			int irq = OCTEON_IRQ_WDOG0 + coreid;
-@@ -378,6 +381,9 @@ static int octeon_wdt_set_timeout(struct watchdog_device *wdog,
+ 	octeon_wdt_write_string("\r\n*** NMI Watchdog interrupt on Core 0x");
+-	octeon_wdt_write_hex(coreid, 1);
++	octeon_wdt_write_hex(coreid, 2);
+ 	octeon_wdt_write_string(" ***\r\n");
+ 	for (i = 0; i < 32; i++) {
+ 		octeon_wdt_write_string("\t");
+@@ -253,11 +256,28 @@ void octeon_wdt_nmi_stage3(u64 reg[32])
+ 	octeon_wdt_write_hex(cp0_cause, 16);
+ 	octeon_wdt_write_string("\r\n");
  
- 	octeon_wdt_calc_parameters(t);
+-	octeon_wdt_write_string("\tsum0\t0x");
+-	octeon_wdt_write_hex(cvmx_read_csr(CVMX_CIU_INTX_SUM0(coreid * 2)), 16);
+-	octeon_wdt_write_string("\ten0\t0x");
+-	octeon_wdt_write_hex(cvmx_read_csr(CVMX_CIU_INTX_EN0(coreid * 2)), 16);
+-	octeon_wdt_write_string("\r\n");
++	/* The CIU register is different for each Octeon model. */
++	if (OCTEON_IS_MODEL(OCTEON_CN68XX)) {
++		octeon_wdt_write_string("\tsrc_wd\t0x");
++		octeon_wdt_write_hex(cvmx_read_csr(CVMX_CIU2_SRC_PPX_IP2_WDOG(coreid)), 16);
++		octeon_wdt_write_string("\ten_wd\t0x");
++		octeon_wdt_write_hex(cvmx_read_csr(CVMX_CIU2_EN_PPX_IP2_WDOG(coreid)), 16);
++		octeon_wdt_write_string("\r\n");
++		octeon_wdt_write_string("\tsrc_rml\t0x");
++		octeon_wdt_write_hex(cvmx_read_csr(CVMX_CIU2_SRC_PPX_IP2_RML(coreid)), 16);
++		octeon_wdt_write_string("\ten_rml\t0x");
++		octeon_wdt_write_hex(cvmx_read_csr(CVMX_CIU2_EN_PPX_IP2_RML(coreid)), 16);
++		octeon_wdt_write_string("\r\n");
++		octeon_wdt_write_string("\tsum\t0x");
++		octeon_wdt_write_hex(cvmx_read_csr(CVMX_CIU2_SUM_PPX_IP2(coreid)), 16);
++		octeon_wdt_write_string("\r\n");
++	} else if (!octeon_has_feature(OCTEON_FEATURE_CIU3)) {
++		octeon_wdt_write_string("\tsum0\t0x");
++		octeon_wdt_write_hex(cvmx_read_csr(CVMX_CIU_INTX_SUM0(coreid * 2)), 16);
++		octeon_wdt_write_string("\ten0\t0x");
++		octeon_wdt_write_hex(cvmx_read_csr(CVMX_CIU_INTX_EN0(coreid * 2)), 16);
++		octeon_wdt_write_string("\r\n");
++	}
  
-+	if (disable)
-+		return 0;
-+
- 	for_each_online_cpu(cpu) {
- 		coreid = cpu2core(cpu);
- 		cvmx_write_csr(CVMX_CIU_PP_POKEX(coreid), 1);
-@@ -394,13 +400,13 @@ static int octeon_wdt_set_timeout(struct watchdog_device *wdog,
- static int octeon_wdt_start(struct watchdog_device *wdog)
- {
- 	octeon_wdt_ping(wdog);
--	do_coundown = 1;
-+	do_countdown = 1;
- 	return 0;
+ 	octeon_wdt_write_string("*** Chip soft reset soon ***\r\n");
+ }
+@@ -366,7 +386,7 @@ static void octeon_wdt_calc_parameters(int t)
+ 
+ 	countdown_reset = periods > 2 ? periods - 2 : 0;
+ 	heartbeat = t;
+-	timeout_cnt = ((octeon_get_io_clock_rate() >> 8) * timeout_sec) >> 8;
++	timeout_cnt = ((octeon_get_io_clock_rate() / divisor) * timeout_sec) >> 8;
  }
  
- static int octeon_wdt_stop(struct watchdog_device *wdog)
+ static int octeon_wdt_set_timeout(struct watchdog_device *wdog,
+@@ -437,9 +457,7 @@ static enum cpuhp_state octeon_wdt_online;
+  */
+ static int __init octeon_wdt_init(void)
  {
--	do_coundown = 0;
-+	do_countdown = 0;
- 	octeon_wdt_ping(wdog);
- 	return 0;
- }
-@@ -473,6 +479,11 @@ static int __init octeon_wdt_init(void)
- 		return ret;
+-	int i;
+ 	int ret;
+-	u64 *ptr;
+ 
+ 	octeon_wdt_bootvector = cvmx_boot_vector_get();
+ 	if (!octeon_wdt_bootvector) {
+@@ -447,10 +465,15 @@ static int __init octeon_wdt_init(void)
+ 		return -ENOMEM;
  	}
  
-+	if (disable) {
-+		pr_notice("disabled\n");
-+		return 0;
-+	}
++	if (OCTEON_IS_MODEL(OCTEON_CN68XX))
++		divisor = 0x200;
++	else
++		divisor = 0x100;
 +
- 	cpumask_clear(&irq_enabled_cpus);
- 
- 	ret = cpuhp_setup_state(CPUHP_AP_ONLINE_DYN, "watchdog/octeon:online",
-@@ -493,6 +504,10 @@ static int __init octeon_wdt_init(void)
- static void __exit octeon_wdt_cleanup(void)
- {
- 	watchdog_unregister_device(&octeon_wdt);
-+
-+	if (disable)
-+		return;
-+
- 	cpuhp_remove_state(octeon_wdt_online);
- 
  	/*
-@@ -503,7 +518,7 @@ static void __exit octeon_wdt_cleanup(void)
- }
+ 	 * Watchdog time expiration length = The 16 bits of LEN
+ 	 * represent the most significant bits of a 24 bit decrementer
+-	 * that decrements every 256 cycles.
++	 * that decrements every divisor cycle.
+ 	 *
+ 	 * Try for a timeout of 5 sec, if that fails a smaller number
+ 	 * of even seconds,
+@@ -458,8 +481,7 @@ static int __init octeon_wdt_init(void)
+ 	max_timeout_sec = 6;
+ 	do {
+ 		max_timeout_sec--;
+-		timeout_cnt = ((octeon_get_io_clock_rate() >> 8) *
+-			      max_timeout_sec) >> 8;
++		timeout_cnt = ((octeon_get_io_clock_rate() / divisor) * max_timeout_sec) >> 8;
+ 	} while (timeout_cnt > 65535);
  
- MODULE_LICENSE("GPL");
--MODULE_AUTHOR("Cavium Networks <support@caviumnetworks.com>");
--MODULE_DESCRIPTION("Cavium Networks Octeon Watchdog driver.");
-+MODULE_AUTHOR("Cavium Inc. <support@cavium.com>");
-+MODULE_DESCRIPTION("Cavium Inc. OCTEON Watchdog driver.");
- module_init(octeon_wdt_init);
- module_exit(octeon_wdt_cleanup);
+ 	BUG_ON(timeout_cnt == 0);
 -- 
 2.1.4
 
