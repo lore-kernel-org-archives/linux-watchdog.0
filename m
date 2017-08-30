@@ -1,53 +1,48 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:56382 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:56613 "EHLO
         bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752020AbdH3DZH (ORCPT
+        with ESMTP id S1751746AbdH3D0i (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 29 Aug 2017 23:25:07 -0400
-Date: Tue, 29 Aug 2017 20:24:29 -0700
+        Tue, 29 Aug 2017 23:26:38 -0400
+Date: Tue, 29 Aug 2017 20:26:25 -0700
 From: Guenter Roeck <linux@roeck-us.net>
-To: Geert Uytterhoeven <geert+renesas@glider.be>
-Cc: Wim Van Sebroeck <wim@iguana.be>, Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-renesas-soc@vger.kernel.org
-Subject: Re: dt-bindings: watchdog: renesas-wdt: Add support for the r8a77995
- wdt
-Message-ID: <20170830032429.GA12010@roeck-us.net>
-References: <1502968465-7809-1-git-send-email-geert+renesas@glider.be>
+To: Arvind Yadav <arvind.yadav.cs@gmail.com>
+Cc: wim@iguana.be, linux-kernel@vger.kernel.org,
+        linux-watchdog@vger.kernel.org
+Subject: Re: watchdog: ziirave: constify i2c_device_id
+Message-ID: <20170830032625.GA18560@roeck-us.net>
+References: <41ddca0e60e2e4cd9773eccb39481e3da44878e4.1503334039.git.arvind.yadav.cs@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1502968465-7809-1-git-send-email-geert+renesas@glider.be>
+In-Reply-To: <41ddca0e60e2e4cd9773eccb39481e3da44878e4.1503334039.git.arvind.yadav.cs@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Thu, Aug 17, 2017 at 01:14:25PM +0200, Geert Uytterhoeven wrote:
-> Document support for the Watchdog Timer (WDT) Controller in the Renesas
-> R-Car D3 (r8a77995) SoC.
+On Mon, Aug 21, 2017 at 10:18:38PM +0530, Arvind Yadav wrote:
+> i2c_device_id are not supposed to change at runtime. All functions
+> working with i2c_device_id provided by <linux/i2c.h> work with
+> const i2c_device_id. So mark the non-const structs as const.
 > 
-> No driver update is needed.
-> 
-> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-> Acked-by: Simon Horman <horms+renesas@verge.net.au>
-> Acked-by: Rob Herring <robh@kernel.org>
+> Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
 
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
 > ---
->  Documentation/devicetree/bindings/watchdog/renesas-wdt.txt | 1 +
->  1 file changed, 1 insertion(+)
+>  drivers/watchdog/ziirave_wdt.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> diff --git a/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt b/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
-> index 9e306afbbd49e91b..bf6d1ca58af7d198 100644
-> --- a/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
-> +++ b/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
-> @@ -6,6 +6,7 @@ Required properties:
->  	       Examples with soctypes are:
->  	         - "renesas,r8a7795-wdt" (R-Car H3)
->  	         - "renesas,r8a7796-wdt" (R-Car M3-W)
-> +	         - "renesas,r8a77995-wdt" (R-Car D3)
->  	         - "renesas,r7s72100-wdt" (RZ/A1)
+> diff --git a/drivers/watchdog/ziirave_wdt.c b/drivers/watchdog/ziirave_wdt.c
+> index b4e0cea..d3594aa 100644
+> --- a/drivers/watchdog/ziirave_wdt.c
+> +++ b/drivers/watchdog/ziirave_wdt.c
+> @@ -737,7 +737,7 @@ static int ziirave_wdt_remove(struct i2c_client *client)
+>  	return 0;
+>  }
 >  
->    When compatible with the generic version, nodes must list the SoC-specific
+> -static struct i2c_device_id ziirave_wdt_id[] = {
+> +static const struct i2c_device_id ziirave_wdt_id[] = {
+>  	{ "rave-wdt", 0 },
+>  	{ }
+>  };
