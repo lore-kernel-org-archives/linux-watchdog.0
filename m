@@ -1,46 +1,42 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from kirsty.vergenet.net ([202.4.237.240]:54816 "EHLO
-        kirsty.vergenet.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751300AbdH3I3q (ORCPT
+Received: from bombadil.infradead.org ([65.50.211.133]:49553 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751302AbdH3Miw (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 30 Aug 2017 04:29:46 -0400
-Date: Wed, 30 Aug 2017 10:29:41 +0200
-From: Simon Horman <horms@verge.net.au>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Chris Brandt <chris.brandt@renesas.com>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sebastian Reichel <sre@kernel.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
-        Linux PM list <linux-pm@vger.kernel.org>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>
-Subject: Re: [PATCH v2 3/3] ARM: dts: r7s72100: Add reset handler
-Message-ID: <20170830082940.GR10398@verge.net.au>
-References: <20170216172320.10897-1-chris.brandt@renesas.com>
- <20170216172320.10897-4-chris.brandt@renesas.com>
- <CAMuHMdVMBo9fNMTqz_XdU27FF5TX98r-OE5pJ5atJ1s4XLxcTw@mail.gmail.com>
+        Wed, 30 Aug 2017 08:38:52 -0400
+Date: Wed, 30 Aug 2017 14:38:45 +0200
+From: Christoph Hellwig <hch@infradead.org>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        devel@driverdev.osuosl.org, linux-efi <linux-efi@vger.kernel.org>,
+        linux-watchdog@vger.kernel.org, sparmaintainer@unisys.com,
+        "open list:TI WILINK WIRELES..." <linux-wireless@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>,
+        Lukas Wunner <lukas@wunner.de>, devel@linuxdriverproject.org,
+        Christoph Hellwig <hch@lst.de>
+Subject: Re: [PATCH v1 3/6] staging: unisys: Switch to use new generic UUID
+ API
+Message-ID: <20170830123845.lw4vkjbcvivi5hpi@infradead.org>
+References: <20170719182857.73693-1-andriy.shevchenko@linux.intel.com>
+ <20170719182857.73693-4-andriy.shevchenko@linux.intel.com>
+ <1501063301.29303.247.camel@linux.intel.com>
+ <20170730153224.GA31755@kroah.com>
+ <CAHp75Vf+Us5n2_u94sVGs7xuvfF-qoaG4tvmixvqRARo68TT7w@mail.gmail.com>
+ <20170730173725.GA20606@kroah.com>
+ <1501521625.29303.308.camel@linux.intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAMuHMdVMBo9fNMTqz_XdU27FF5TX98r-OE5pJ5atJ1s4XLxcTw@mail.gmail.com>
+In-Reply-To: <1501521625.29303.308.camel@linux.intel.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, Feb 17, 2017 at 11:29:25AM +0100, Geert Uytterhoeven wrote:
-> On Thu, Feb 16, 2017 at 6:23 PM, Chris Brandt <chris.brandt@renesas.com> wrote:
-> > For the RZ/A1, the only way to do a reset is to overflow the WDT.
-> >
-> > Signed-off-by: Chris Brandt <chris.brandt@renesas.com>
+On Mon, Jul 31, 2017 at 08:20:25PM +0300, Andy Shevchenko wrote:
+> Yep! There are so many conflicts that would be better just to push
+> through your tree.
 > 
-> Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+> I have just sent a v2 of this patch separately.
 
-Hi Chris,
-
-while going through old patches I noticed that I seem to have missed this
-one. It looks like it needs a rebase. If it is still applicable could you
-please consider doing so and reposting.
-
-Thanks
+Greg, did you pick that patch up?
