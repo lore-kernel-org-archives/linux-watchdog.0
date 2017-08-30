@@ -1,39 +1,63 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-dm3nam03on0067.outbound.protection.outlook.com ([104.47.41.67]:26308
-        "EHLO NAM03-DM3-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751317AbdH3OQf (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 30 Aug 2017 10:16:35 -0400
-Subject: Re: [PATCH 2/8] watchdog: octeon-wdt: Remove old boot vector code.
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-mips@linux-mips.org, linux-watchdog@vger.kernel.org,
-        ralf@linux-mips.org
-References: <1504021238-3184-1-git-send-email-steven.hill@cavium.com>
- <1504021238-3184-3-git-send-email-steven.hill@cavium.com>
- <20170830043309.GA14791@roeck-us.net>
-From: "Steven J. Hill" <Steven.Hill@cavium.com>
-Message-ID: <804f51c2-55b1-49df-125b-ec47ec5e27ee@cavium.com>
-Date: Wed, 30 Aug 2017 09:16:25 -0500
+Received: from kirsty.vergenet.net ([202.4.237.240]:60687 "EHLO
+        kirsty.vergenet.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751485AbdH3P5Q (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Wed, 30 Aug 2017 11:57:16 -0400
+Date: Wed, 30 Aug 2017 17:57:10 +0200
+From: Simon Horman <horms@verge.net.au>
+To: Chris Brandt <Chris.Brandt@renesas.com>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sebastian Reichel <sre@kernel.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
+        Linux PM list <linux-pm@vger.kernel.org>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>
+Subject: Re: [PATCH v2 3/3] ARM: dts: r7s72100: Add reset handler
+Message-ID: <20170830155700.GA28162@verge.net.au>
+References: <20170216172320.10897-1-chris.brandt@renesas.com>
+ <20170216172320.10897-4-chris.brandt@renesas.com>
+ <CAMuHMdVMBo9fNMTqz_XdU27FF5TX98r-OE5pJ5atJ1s4XLxcTw@mail.gmail.com>
+ <20170830082940.GR10398@verge.net.au>
+ <SG2PR06MB1165B8B815327A6768AE681A8A9C0@SG2PR06MB1165.apcprd06.prod.outlook.com>
 MIME-Version: 1.0
-In-Reply-To: <20170830043309.GA14791@roeck-us.net>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <SG2PR06MB1165B8B815327A6768AE681A8A9C0@SG2PR06MB1165.apcprd06.prod.outlook.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 08/29/2017 11:33 PM, Guenter Roeck wrote:
-> On Tue, Aug 29, 2017 at 10:40:32AM -0500, Steven J. Hill wrote:
->> Signed-off-by: Steven J. Hill <steven.hill@cavium.com>
->> Acked-by: David Daney <david.daney@cavium.com>
+On Wed, Aug 30, 2017 at 01:22:32PM +0000, Chris Brandt wrote:
+> Hi Simon,
 > 
-> Acked-by: Guenter Roeck <linux@roeck-us.net>
+> On Wednesday, August 30, 2017, Simon Horman wrote:
+> > On Fri, Feb 17, 2017 at 11:29:25AM +0100, Geert Uytterhoeven wrote:
+> > > On Thu, Feb 16, 2017 at 6:23 PM, Chris Brandt <chris.brandt@renesas.com>
+> > wrote:
+> > > > For the RZ/A1, the only way to do a reset is to overflow the WDT.
+> > > >
+> > > > Signed-off-by: Chris Brandt <chris.brandt@renesas.com>
+> > >
+> > > Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+> > 
+> > Hi Chris,
+> > 
+> > while going through old patches I noticed that I seem to have missed this
+> > one. It looks like it needs a rebase. If it is still applicable could you
+> > please consider doing so and reposting.
 > 
-> I assume this series will go through the mips tree.
 > 
-Hello Guenter.
+> It's in -next already:
+> 
+> https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/arch/arm/boot/dts/r7s72100.dtsi?h=next-20170829&id=69ed50de582eff6307fd3fa050fdc505731f0a2d
+> 
+> Doesn't that mean it's queued up for 4.14?
+> 
+> Or, somehow it didn't make it into the pull request for Arnd's tree?
 
-Yes, we will have Ralf or James take this driver with the next MIPS
-push upstream. Thanks for your Ack.
-
-Steve
+Thanks, I now see that it is included in v4.12.
+Sorry for the noise.
