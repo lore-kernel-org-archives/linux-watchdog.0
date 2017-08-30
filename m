@@ -1,14 +1,13 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mga03.intel.com ([134.134.136.65]:31259 "EHLO mga03.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751330AbdH3NJJ (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 30 Aug 2017 09:09:09 -0400
-Message-ID: <1504098543.25945.165.camel@linux.intel.com>
-Subject: Re: [PATCH v1 3/6] staging: unisys: Switch to use new generic UUID
- API
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Received: from mail.linuxfoundation.org ([140.211.169.12]:38078 "EHLO
+        mail.linuxfoundation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751318AbdH3NLk (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Wed, 30 Aug 2017 09:11:40 -0400
+Date: Wed, 30 Aug 2017 15:11:43 +0200
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To: Christoph Hellwig <hch@infradead.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Andy Shevchenko <andy.shevchenko@gmail.com>,
         devel@driverdev.osuosl.org, linux-efi <linux-efi@vger.kernel.org>,
         linux-watchdog@vger.kernel.org, sparmaintainer@unisys.com,
@@ -17,23 +16,25 @@ Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>,
         Lukas Wunner <lukas@wunner.de>, devel@linuxdriverproject.org,
         Christoph Hellwig <hch@lst.de>
-Date: Wed, 30 Aug 2017 16:09:03 +0300
-In-Reply-To: <20170830123845.lw4vkjbcvivi5hpi@infradead.org>
+Subject: Re: [PATCH v1 3/6] staging: unisys: Switch to use new generic UUID
+ API
+Message-ID: <20170830131143.GB12924@kroah.com>
 References: <20170719182857.73693-1-andriy.shevchenko@linux.intel.com>
-         <20170719182857.73693-4-andriy.shevchenko@linux.intel.com>
-         <1501063301.29303.247.camel@linux.intel.com>
-         <20170730153224.GA31755@kroah.com>
-         <CAHp75Vf+Us5n2_u94sVGs7xuvfF-qoaG4tvmixvqRARo68TT7w@mail.gmail.com>
-         <20170730173725.GA20606@kroah.com>
-         <1501521625.29303.308.camel@linux.intel.com>
-         <20170830123845.lw4vkjbcvivi5hpi@infradead.org>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+ <20170719182857.73693-4-andriy.shevchenko@linux.intel.com>
+ <1501063301.29303.247.camel@linux.intel.com>
+ <20170730153224.GA31755@kroah.com>
+ <CAHp75Vf+Us5n2_u94sVGs7xuvfF-qoaG4tvmixvqRARo68TT7w@mail.gmail.com>
+ <20170730173725.GA20606@kroah.com>
+ <1501521625.29303.308.camel@linux.intel.com>
+ <20170830123845.lw4vkjbcvivi5hpi@infradead.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20170830123845.lw4vkjbcvivi5hpi@infradead.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, 2017-08-30 at 14:38 +0200, Christoph Hellwig wrote:
+On Wed, Aug 30, 2017 at 02:38:45PM +0200, Christoph Hellwig wrote:
 > On Mon, Jul 31, 2017 at 08:20:25PM +0300, Andy Shevchenko wrote:
 > > Yep! There are so many conflicts that would be better just to push
 > > through your tree.
@@ -42,8 +43,8 @@ On Wed, 2017-08-30 at 14:38 +0200, Christoph Hellwig wrote:
 > 
 > Greg, did you pick that patch up?
 
-That patch in his tree.
+Yes, it's already in my tree and in linux-next.
 
--- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+thanks,
+
+greg k-h
