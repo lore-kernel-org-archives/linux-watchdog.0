@@ -1,52 +1,30 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([65.50.211.133]:60946 "EHLO
+Received: from bombadil.infradead.org ([65.50.211.133]:50004 "EHLO
         bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751302AbdH3Mlp (ORCPT
+        with ESMTP id S1751302AbdH3MmB (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 30 Aug 2017 08:41:45 -0400
-Date: Wed, 30 Aug 2017 14:41:41 +0200
+        Wed, 30 Aug 2017 08:42:01 -0400
+Date: Wed, 30 Aug 2017 14:41:57 +0200
 From: Christoph Hellwig <hch@infradead.org>
-To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>,
-        devel@linuxdriverproject.org, sparmaintainer@unisys.com,
-        devel@driverdev.osuosl.org,
-        "open list:TI WILINK WIRELES..." <linux-wireless@vger.kernel.org>,
-        linux-watchdog@vger.kernel.org,
-        linux-efi <linux-efi@vger.kernel.org>,
-        Christoph Hellwig <hch@lst.de>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Lukas Wunner <lukas@wunner.de>
-Subject: Re: [PATCH v1 6/6] device property: Switch to use new generic UUID
- API
-Message-ID: <20170830124141.oa32gzbgnafarkrh@infradead.org>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: linux-acpi@vger.kernel.org, devel@linuxdriverproject.org,
+        sparmaintainer@unisys.com, devel@driverdev.osuosl.org,
+        linux-wireless@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-efi@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        linux-kernel@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+        Matt Fleming <matt@codeblueprint.co.uk>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Subject: Re: [PATCH v1 1/6] efi: Switch to use new generic UUID API
+Message-ID: <20170830124157.uza7hy3dllimowpv@infradead.org>
 References: <20170719182857.73693-1-andriy.shevchenko@linux.intel.com>
- <2908341.aERReitNcd@aspire.rjw.lan>
- <CAHp75Vd6KenS3vQBgTJL=iE790Rrtzj11gvPK=KLE98bjcPm6w@mail.gmail.com>
- <6349641.0fe8FCM51k@aspire.rjw.lan>
+ <20170719182857.73693-2-andriy.shevchenko@linux.intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <6349641.0fe8FCM51k@aspire.rjw.lan>
+In-Reply-To: <20170719182857.73693-2-andriy.shevchenko@linux.intel.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Jul 26, 2017 at 02:27:44AM +0200, Rafael J. Wysocki wrote:
-> > >> > Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-> > >> > Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
-> > >>
-> > >> Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-> > >
-> > > OK
-> > >
-> > > Andy, do you want me to apply this?
-> > 
-> > If you would like to.
-> > 
-> > The patch is now pretty independent since necessary stuff made v4.13-rc1.
-> 
-> OK
+Thanks,
 
-This didn't seem to make it into linux-next so far, though.
+applied to the uuid for-next tree.
