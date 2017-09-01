@@ -1,35 +1,32 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from kirsty.vergenet.net ([202.4.237.240]:33278 "EHLO
-        kirsty.vergenet.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750812AbdHRH7l (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 18 Aug 2017 03:59:41 -0400
-Date: Fri, 18 Aug 2017 09:59:37 +0200
-From: Simon Horman <horms@verge.net.au>
-To: Geert Uytterhoeven <geert+renesas@glider.be>
-Cc: Wim Van Sebroeck <wim@iguana.be>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-renesas-soc@vger.kernel.org
-Subject: Re: [PATCH] dt-bindings: watchdog: renesas-wdt: Add support for the
- r8a77995 wdt
-Message-ID: <20170818075936.GE9175@verge.net.au>
-References: <1502968465-7809-1-git-send-email-geert+renesas@glider.be>
+Return-Path: <robherring2@gmail.com>
+Return-path: <robherring2@gmail.com>
+Date: Fri, 1 Sep 2017 09:30:52 -0500
+From: Rob Herring <robh@kernel.org>
+To: Andreas =?iso-8859-1?Q?F=E4rber?= <afaerber@suse.de>
+Cc: Wim Van Sebroeck <wim@iguana.be>, Guenter Roeck <linux@roeck-us.net>,
+	linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	Roc He <hepeng@zidoo.tv>,
+	=?utf-8?B?6JKL5Li955C0?= <jiang.liqin@geniatech.com>,
+	Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org
+Subject: Re: [PATCH 1/3] dt-bindings: watchdog: Add Realtek RTD1295
+Message-ID: <20170901143052.e7ch4nxcx33cmiye@rob-hp-laptop>
+References: <20170828113532.32627-1-afaerber@suse.de>
+ <20170828113532.32627-2-afaerber@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <1502968465-7809-1-git-send-email-geert+renesas@glider.be>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20170828113532.32627-2-afaerber@suse.de>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On Thu, Aug 17, 2017 at 01:14:25PM +0200, Geert Uytterhoeven wrote:
-> Document support for the Watchdog Timer (WDT) Controller in the Renesas
-> R-Car D3 (r8a77995) SoC.
+On Mon, Aug 28, 2017 at 01:35:29PM +0200, Andreas Färber wrote:
+> Add a binding for the Realtek RTD1295 watchdog.
 > 
-> No driver update is needed.
-> 
-> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+> Signed-off-by: Andreas Färber <afaerber@suse.de>
+> ---
+>  .../devicetree/bindings/watchdog/realtek,rtd119x.txt    | 17 +++++++++++++++++
+>  1 file changed, 17 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/watchdog/realtek,rtd119x.txt
 
-Acked-by: Simon Horman <horms+renesas@verge.net.au>
+Acked-by: Rob Herring <robh@kernel.org>
