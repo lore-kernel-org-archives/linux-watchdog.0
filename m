@@ -1,8 +1,8 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:39406 "EHLO mx1.suse.de"
+Received: from mx2.suse.de ([195.135.220.15]:39389 "EHLO mx1.suse.de"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1754007AbdIDXQI (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        id S1754006AbdIDXQI (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
         Mon, 4 Sep 2017 19:16:08 -0400
 From: =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>
 To: Wim Van Sebroeck <wim@iguana.be>,
@@ -11,10 +11,12 @@ To: Wim Van Sebroeck <wim@iguana.be>,
         linux-arm-kernel@lists.infradead.org
 Cc: linux-kernel@vger.kernel.org, Roc He <hepeng@zidoo.tv>,
         =?UTF-8?q?=E8=92=8B=E4=B8=BD=E7=90=B4?= <jiang.liqin@geniatech.com>,
-        =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>
-Subject: [PATCH v2 2/3] watchdog: Add Realtek RTD1295
-Date: Tue,  5 Sep 2017 01:16:01 +0200
-Message-Id: <20170904231602.29787-3-afaerber@suse.de>
+        =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org
+Subject: [PATCH v2 1/3] dt-bindings: watchdog: Add Realtek RTD1295
+Date: Tue,  5 Sep 2017 01:16:00 +0200
+Message-Id: <20170904231602.29787-2-afaerber@suse.de>
 In-Reply-To: <20170904231602.29787-1-afaerber@suse.de>
 References: <20170904231602.29787-1-afaerber@suse.de>
 MIME-Version: 1.0
@@ -23,232 +25,40 @@ Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Add a watchdog driver for the Realtek RTD1295 SoC.
+Add a binding for the Realtek RTD1295 watchdog.
 
-Based on QNAP's arch/arm/mach-rtk119x/driver/rtk_watchdog.c code and
-mach-rtk119x/driver/dc2vo/fpga/include/iso_reg.h register defines.
-
+Acked-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Andreas Färber <afaerber@suse.de>
 ---
- v1 -> v2:
- * Added explicit include of bitops.h (Guenther)
- * Set timeout field in set_timeout (Guenther)
- * Implemented remove (Guenther)
- * Replaced remaining hardcoded frequency with clk_get_rate()
+ v1 -> v2: Unchanged
  
- drivers/watchdog/Kconfig       |  10 +++
- drivers/watchdog/Makefile      |   1 +
- drivers/watchdog/rtd119x_wdt.c | 168 +++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 179 insertions(+)
- create mode 100644 drivers/watchdog/rtd119x_wdt.c
+ .../devicetree/bindings/watchdog/realtek,rtd119x.txt    | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/realtek,rtd119x.txt
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index c722cbfdc7e6..8fa81518c3fa 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -787,6 +787,16 @@ config UNIPHIER_WATCHDOG
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called uniphier_wdt.
- 
-+config RTD119X_WATCHDOG
-+	bool "Realtek RTD119x/RTD129x watchdog support"
-+	depends on ARCH_REALTEK || COMPILE_TEST
-+	depends on OF
-+	select WATCHDOG_CORE
-+	default ARCH_REALTEK
-+	help
-+	  Say Y here to include support for the watchdog timer in
-+	  Realtek RTD1295 SoCs.
-+
- # AVR32 Architecture
- 
- config AT32AP700X_WDT
-diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index 56adf9fa67d0..63cb3ed8117d 100644
---- a/drivers/watchdog/Makefile
-+++ b/drivers/watchdog/Makefile
-@@ -87,6 +87,7 @@ obj-$(CONFIG_ASPEED_WATCHDOG) += aspeed_wdt.o
- obj-$(CONFIG_ZX2967_WATCHDOG) += zx2967_wdt.o
- obj-$(CONFIG_STM32_WATCHDOG) += stm32_iwdg.o
- obj-$(CONFIG_UNIPHIER_WATCHDOG) += uniphier_wdt.o
-+obj-$(CONFIG_RTD119X_WATCHDOG) += rtd119x_wdt.o
- 
- # AVR32 Architecture
- obj-$(CONFIG_AT32AP700X_WDT) += at32ap700x_wdt.o
-diff --git a/drivers/watchdog/rtd119x_wdt.c b/drivers/watchdog/rtd119x_wdt.c
+diff --git a/Documentation/devicetree/bindings/watchdog/realtek,rtd119x.txt b/Documentation/devicetree/bindings/watchdog/realtek,rtd119x.txt
 new file mode 100644
-index 000000000000..d001c17ddfde
+index 000000000000..05653054bd5b
 --- /dev/null
-+++ b/drivers/watchdog/rtd119x_wdt.c
-@@ -0,0 +1,168 @@
-+/*
-+ * Realtek RTD129x watchdog
-+ *
-+ * Copyright (c) 2017 Andreas Färber
-+ *
-+ * SPDX-License-Identifier: GPL-2.0+
-+ */
++++ b/Documentation/devicetree/bindings/watchdog/realtek,rtd119x.txt
+@@ -0,0 +1,17 @@
++Realtek RTD1295 Watchdog
++========================
 +
-+#include <linux/bitops.h>
-+#include <linux/clk.h>
-+#include <linux/io.h>
-+#include <linux/module.h>
-+#include <linux/of.h>
-+#include <linux/of_address.h>
-+#include <linux/platform_device.h>
-+#include <linux/watchdog.h>
++Required properties:
 +
-+#define RTD119X_TCWCR		0x0
-+#define RTD119X_TCWTR		0x4
-+#define RTD119X_TCWOV		0xc
++- compatible :  Should be "realtek,rtd1295-watchdog"
++- reg        :  Specifies the physical base address and size of registers
++- clocks     :  Specifies one clock input
 +
-+#define RTD119X_TCWCR_WDEN_DISABLED		0xa5
-+#define RTD119X_TCWCR_WDEN_ENABLED		0xff
-+#define RTD119X_TCWCR_WDEN_MASK			0xff
 +
-+#define RTD119X_TCWTR_WDCLR			BIT(0)
++Example:
 +
-+struct rtd119x_watchdog_device {
-+	struct watchdog_device wdt_dev;
-+	void __iomem *base;
-+	struct clk *clk;
-+};
-+
-+static int rtd119x_wdt_start(struct watchdog_device *wdev)
-+{
-+	struct rtd119x_watchdog_device *data = watchdog_get_drvdata(wdev);
-+	u32 val;
-+
-+	val = readl_relaxed(data->base + RTD119X_TCWCR);
-+	val &= ~RTD119X_TCWCR_WDEN_MASK;
-+	val |= RTD119X_TCWCR_WDEN_ENABLED;
-+	writel(val, data->base + RTD119X_TCWCR);
-+
-+	return 0;
-+}
-+
-+static int rtd119x_wdt_stop(struct watchdog_device *wdev)
-+{
-+	struct rtd119x_watchdog_device *data = watchdog_get_drvdata(wdev);
-+	u32 val;
-+
-+	val = readl_relaxed(data->base + RTD119X_TCWCR);
-+	val &= ~RTD119X_TCWCR_WDEN_MASK;
-+	val |= RTD119X_TCWCR_WDEN_DISABLED;
-+	writel(val, data->base + RTD119X_TCWCR);
-+
-+	return 0;
-+}
-+
-+static int rtd119x_wdt_ping(struct watchdog_device *wdev)
-+{
-+	struct rtd119x_watchdog_device *data = watchdog_get_drvdata(wdev);
-+
-+	writel_relaxed(RTD119X_TCWTR_WDCLR, data->base + RTD119X_TCWTR);
-+
-+	return rtd119x_wdt_start(wdev);
-+}
-+
-+static int rtd119x_wdt_set_timeout(struct watchdog_device *wdev, unsigned int val)
-+{
-+	struct rtd119x_watchdog_device *data = watchdog_get_drvdata(wdev);
-+
-+	writel(val * clk_get_rate(data->clk), data->base + RTD119X_TCWOV);
-+
-+	data->wdt_dev.timeout = val;
-+
-+	return 0;
-+}
-+
-+static const struct watchdog_ops rtd119x_wdt_ops = {
-+	.owner = THIS_MODULE,
-+	.start		= rtd119x_wdt_start,
-+	.stop		= rtd119x_wdt_stop,
-+	.ping		= rtd119x_wdt_ping,
-+	.set_timeout	= rtd119x_wdt_set_timeout,
-+};
-+
-+static const struct watchdog_info rtd119x_wdt_info = {
-+	.identity = "rtd119x-wdt",
-+	.options = 0,
-+};
-+
-+static const struct of_device_id rtd119x_wdt_dt_ids[] = {
-+	 { .compatible = "realtek,rtd1295-watchdog" },
-+	 { }
-+};
-+
-+static int rtd119x_wdt_probe(struct platform_device *pdev)
-+{
-+	struct rtd119x_watchdog_device *data;
-+	struct resource *res;
-+	int ret;
-+
-+	data = devm_kzalloc(&pdev->dev, sizeof(*data), GFP_KERNEL);
-+	if (!data)
-+		return -ENOMEM;
-+
-+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	data->base = devm_ioremap_resource(&pdev->dev, res);
-+	if (IS_ERR(data->base))
-+		return PTR_ERR(data->base);
-+
-+	data->clk = of_clk_get(pdev->dev.of_node, 0);
-+	if (IS_ERR(data->clk))
-+		return PTR_ERR(data->clk);
-+
-+	ret = clk_prepare_enable(data->clk);
-+	if (ret) {
-+		clk_put(data->clk);
-+		return ret;
-+	}
-+
-+	data->wdt_dev.info = &rtd119x_wdt_info;
-+	data->wdt_dev.ops = &rtd119x_wdt_ops;
-+	data->wdt_dev.timeout = 120;
-+	data->wdt_dev.max_timeout = 0xffffffff / clk_get_rate(data->clk);
-+	data->wdt_dev.min_timeout = 1;
-+	data->wdt_dev.parent = &pdev->dev;
-+
-+	watchdog_stop_on_reboot(&data->wdt_dev);
-+	watchdog_set_drvdata(&data->wdt_dev, data);
-+	platform_set_drvdata(pdev, data);
-+
-+	writel_relaxed(RTD119X_TCWTR_WDCLR, data->base + RTD119X_TCWTR);
-+	rtd119x_wdt_set_timeout(&data->wdt_dev, data->wdt_dev.timeout);
-+	rtd119x_wdt_stop(&data->wdt_dev);
-+
-+	ret = devm_watchdog_register_device(&pdev->dev, &data->wdt_dev);
-+	if (ret) {
-+		clk_disable_unprepare(data->clk);
-+		clk_put(data->clk);
-+		return ret;
-+	}
-+
-+	return 0;
-+}
-+
-+static int rtd119x_wdt_remove(struct platform_device *pdev)
-+{
-+	struct rtd119x_watchdog_device *data = platform_get_drvdata(pdev);
-+
-+	watchdog_unregister_device(&data->wdt_dev);
-+
-+	clk_disable_unprepare(data->clk);
-+	clk_put(data->clk);
-+
-+	return 0;
-+}
-+
-+static struct platform_driver rtd119x_wdt_driver = {
-+	.probe = rtd119x_wdt_probe,
-+	.remove = rtd119x_wdt_remove,
-+	.driver = {
-+		.name = "rtd1295-watchdog",
-+		.of_match_table	= rtd119x_wdt_dt_ids,
-+	},
-+};
-+builtin_platform_driver(rtd119x_wdt_driver);
++	watchdog@98007680 {
++		compatible = "realtek,rtd1295-watchdog";
++		reg = <0x98007680 0x100>;
++		clocks = <&osc27M>;
++	};
 -- 
 2.13.5
 
