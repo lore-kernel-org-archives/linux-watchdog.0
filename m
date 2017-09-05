@@ -1,147 +1,102 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-io0-f195.google.com ([209.85.223.195]:35352 "EHLO
-        mail-io0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753885AbdIDRlO (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 4 Sep 2017 13:41:14 -0400
-MIME-Version: 1.0
-In-Reply-To: <20170819221823.13850-8-hauke@hauke-m.de>
-References: <20170819221823.13850-1-hauke@hauke-m.de> <20170819221823.13850-8-hauke@hauke-m.de>
-From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Date: Mon, 4 Sep 2017 19:40:52 +0200
-Message-ID: <CAFBinCD_q4=x-HB1rnLkGt_x+2dgUqhUe6t1a+PVt41hZGPhAQ@mail.gmail.com>
-Subject: Re: [PATCH v10 07/16] Documentation: DT: MIPS: lantiq: Add docs for
- the RCU bindings
-To: Hauke Mehrtens <hauke@hauke-m.de>
-Cc: ralf@linux-mips.org, linux-mips@linux-mips.org,
-        linux-mtd@lists.infradead.org, linux-watchdog@vger.kernel.org,
-        devicetree@vger.kernel.org, john@phrozen.org,
-        linux-spi@vger.kernel.org, hauke.mehrtens@intel.com,
-        robh@kernel.org, andy.shevchenko@gmail.com, p.zabel@pengutronix.de,
-        kishon@ti.com, mark.rutland@arm.com
-Content-Type: text/plain; charset="UTF-8"
+Received: from mga01.intel.com ([192.55.52.88]:3891 "EHLO mga01.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751091AbdIEFiN (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 5 Sep 2017 01:38:13 -0400
+From: sathyanarayanan.kuppuswamy@linux.intel.com
+To: a.zummo@towertech.it, x86@kernel.org, wim@iguana.be,
+        mingo@redhat.com, alexandre.belloni@free-electrons.com,
+        qipeng.zha@intel.com, hpa@zytor.com, dvhart@infradead.org,
+        tglx@linutronix.de, lee.jones@linaro.org, andy@infradead.org,
+        souvik.k.chakravarty@intel.com
+Cc: linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-kernel@vger.kernel.org, platform-driver-x86@vger.kernel.org,
+        sathyaosid@gmail.com,
+        Kuppuswamy Sathyanarayanan
+        <sathyanarayanan.kuppuswamy@linux.intel.com>
+Subject: [RFC v3 0/7] PMC/PUNIT IPC driver cleanup
+Date: Mon,  4 Sep 2017 22:37:20 -0700
+Message-Id: <cover.1504588701.git.sathyanarayanan.kuppuswamy@linux.intel.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Sun, Aug 20, 2017 at 12:18 AM, Hauke Mehrtens <hauke@hauke-m.de> wrote:
-> From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
->
-> This adds the initial documentation for the RCU module (a MFD device
-> which provides USB PHYs, reset controllers and more).
->
-> The RCU register range is used for multiple purposes. Mostly one device
-> uses one or multiple register exclusively, but for some registers some
-> bits are for one driver and some other bits are for a different driver.
-> With this patch all accesses to the RCU registers will go through
-> syscon.
->
-> Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
-> Acked-by: Rob Herring <robh@kernel.org>
-Acked-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+From: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
 
-thank you Hauke for pushing this!
+Hi All,
 
-> ---
->  .../devicetree/bindings/mips/lantiq/rcu.txt        | 90 ++++++++++++++++++++++
->  1 file changed, 90 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/mips/lantiq/rcu.txt
->
-> diff --git a/Documentation/devicetree/bindings/mips/lantiq/rcu.txt b/Documentation/devicetree/bindings/mips/lantiq/rcu.txt
-> new file mode 100644
-> index 000000000000..7b9be2d13c53
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/mips/lantiq/rcu.txt
-> @@ -0,0 +1,90 @@
-> +Lantiq XWAY SoC RCU binding
-> +===========================
-> +
-> +This binding describes the RCU (reset controller unit) multifunction device,
-> +where each sub-device has it's own set of registers.
-> +
-> +The RCU register range is used for multiple purposes. Mostly one device
-> +uses one or multiple register exclusively, but for some registers some
-> +bits are for one driver and some other bits are for a different driver.
-> +With this patch all accesses to the RCU registers will go through
-> +syscon.
-> +
-> +
-> +-------------------------------------------------------------------------------
-> +Required properties:
-> +- compatible   : The first and second values must be:
-> +                 "lantiq,xrx200-rcu", "simple-mfd", "syscon"
-> +- reg          : The address and length of the system control registers
-> +
-> +
-> +-------------------------------------------------------------------------------
-> +Example of the RCU bindings on a xRX200 SoC:
-> +       rcu0: rcu@203000 {
-> +               compatible = "lantiq,xrx200-rcu", "simple-mfd", "syscon";
-> +               reg = <0x203000 0x100>;
-> +               ranges = <0x0 0x203000 0x100>;
-> +               big-endian;
-> +
-> +               gphy0: gphy@20 {
-> +                       compatible = "lantiq,xrx200a2x-gphy";
-> +                       reg = <0x20 0x4>;
-> +
-> +                       resets = <&reset0 31 30>, <&reset1 7 7>;
-> +                       reset-names = "gphy", "gphy2";
-> +                       lantiq,gphy-mode = <GPHY_MODE_GE>;
-> +               };
-> +
-> +               gphy1: gphy@68 {
-> +                       compatible = "lantiq,xrx200a2x-gphy";
-> +                       reg = <0x68 0x4>;
-> +
-> +                       resets = <&reset0 29 28>, <&reset1 6 6>;
-> +                       reset-names = "gphy", "gphy2";
-> +                       lantiq,gphy-mode = <GPHY_MODE_GE>;
-> +               };
-> +
-> +               reset0: reset-controller@10 {
-> +                       compatible = "lantiq,xrx200-reset";
-> +                       reg = <0x10 4>, <0x14 4>;
-> +
-> +                       #reset-cells = <2>;
-> +               };
-> +
-> +               reset1: reset-controller@48 {
-> +                       compatible = "lantiq,xrx200-reset";
-> +                       reg = <0x48 4>, <0x24 4>;
-> +
-> +                       #reset-cells = <2>;
-> +               };
-> +
-> +               usb_phy0: usb2-phy@18 {
-> +                       compatible = "lantiq,xrx200-usb2-phy";
-> +                       reg = <0x18 4>, <0x38 4>;
-> +                       status = "disabled";
-> +
-> +                       resets = <&reset1 4 4>, <&reset0 4 4>;
-> +                       reset-names = "phy", "ctrl";
-> +                       #phy-cells = <0>;
-> +               };
-> +
-> +               usb_phy1: usb2-phy@34 {
-> +                       compatible = "lantiq,xrx200-usb2-phy";
-> +                       reg = <0x34 4>, <0x3C 4>;
-> +                       status = "disabled";
-> +
-> +                       resets = <&reset1 5 4>, <&reset0 4 4>;
-> +                       reset-names = "phy", "ctrl";
-> +                       #phy-cells = <0>;
-> +               };
-> +
-> +               reboot@10 {
-> +                       compatible = "syscon-reboot";
-> +                       reg = <0x10 4>;
-> +
-> +                       regmap = <&rcu0>;
-> +                       offset = <0x10>;
-> +                       mask = <0x40000000>;
-> +               };
-> +       };
-> +
-> --
-> 2.11.0
->
+Currently intel_pmc_ipc.c, intel_punit_ipc.c, intel_scu_ipc.c drivers implements the same IPC features.
+This code duplication could be avoided if we implement the IPC driver as a generic library and let custom
+device drivers use API provided by generic driver. This patchset mainly addresses this issue.
+
+Along with above code duplication issue, This patchset also addresses following issues in intel_pmc_ipc and
+intel_punit_ipc drivers. 
+
+1. Intel_pmc_ipc.c driver does not use any resource managed (devm_*) calls.
+2. In Intel_pmc_ipc.c driver, dependent devices like PUNIT, Telemetry and iTCO are created manually and uses lot of redundant buffer code.
+3. Global variable is used to store the IPC device structure and it is used across all functions in intel_pmc_ipc.c and intel_punit_ipc.c.
+
+More info on Intel IPC device library:
+-------------------------------------
+
+A generic Intel IPC class driver has been implemented and all common IPC helper functions has been moved to this driver. It exposes APIs to create IPC device channel, send raw IPC command and simple IPC commands. It also creates device attribute to send IPC command from user space.
+
+API for creating a new IPC channel device is,
+
+struct intel_ipc_dev *devm_intel_ipc_dev_create(struct device *dev, const char *devname, struct intel_ipc_dev_cfg *cfg, struct intel_ipc_dev_ops *ops)
+
+The IPC channel drivers (PUNIT/PMC/SCU) when creating a new device can configure their device params like register mapping, irq, irq-mode, channel type,etc  using intel_ipc_dev_cfg and intel_ipc_dev_ops arguments. After a new IPC channel device is created, IPC users can use the generic APIs to make IPC calls.
+
+For example, after using this new model, IPC call to PMC device will look like,
+
+pmc_ipc_dev = intel_ipc_dev_get(INTEL_PMC_IPC_DEV);
+ipc_dev_raw_cmd(pmc_ipc_dev, cmd, PMC_PARAM_LEN, (u32 *)ipc_in, 1, NULL, 0, 0, 0);
+
+I am still testing the driver in different products. But posted it to get some early comments. I also welcome any PMC/PUNIT driver users to check these patches in their product.
+
+Changes since v2:
+ * Refactored intel_scu_ipc.c to use generic IPC device APIs.
+ * Fixed intel_pmc_ipc.c to use pcim_* device managed functions.
+
+Changes since v1:
+ * Merged devm_* changes in pmc_plat_probe and pmc_pci_probe functions into a
+   single patch.
+ * Addressed Andy's comment about keeping the library generic by not implementing
+   the low level reg access calls in intel_ipc_dev.c. This version will start using
+   the regmap pointer provided by channel drivers instead of fixed memory map.
+ * Removed custom IPC APIs in intel_pmc_ipc.c and intel_punit_ipc.c.
+ * Cleaned up IPC driver users to use APIs provided by generic library (intel_ipc_dev.c).
+
+Kuppuswamy Sathyanarayanan (7):
+  platform/x86: intel_pmc_ipc: Use devm_* calls in driver probe function
+  platform/x86: intel_pmc_ipc: Use MFD framework to create dependent
+    devices
+  platform/x86: intel_pmc_ipc: Use regmap calls for GCR updates
+  platform: x86: Add generic Intel IPC driver
+  platform/x86: intel_punit_ipc: Use generic intel ipc device calls
+  platform/x86: intel_pmc_ipc: Use generic Intel IPC device calls
+  platform/x86: intel_scu_ipc: Use generic Intel IPC device calls
+
+ arch/x86/include/asm/intel_pmc_ipc.h            |  37 +-
+ arch/x86/include/asm/intel_punit_ipc.h          | 125 ++--
+ arch/x86/include/asm/intel_scu_ipc.h            |  23 +-
+ arch/x86/platform/intel-mid/intel-mid.c         |  12 +-
+ drivers/mfd/intel_soc_pmic_bxtwc.c              |  18 +-
+ drivers/platform/x86/Kconfig                    |  11 +
+ drivers/platform/x86/Makefile                   |   1 +
+ drivers/platform/x86/intel_ipc_dev.c            | 539 ++++++++++++++
+ drivers/platform/x86/intel_pmc_ipc.c            | 948 +++++++++---------------
+ drivers/platform/x86/intel_punit_ipc.c          | 297 +++-----
+ drivers/platform/x86/intel_scu_ipc.c            | 483 +++++-------
+ drivers/platform/x86/intel_telemetry_pltdrv.c   | 210 +++---
+ drivers/rtc/rtc-mrst.c                          |  15 +-
+ drivers/watchdog/intel-mid_wdt.c                |  12 +-
+ drivers/watchdog/intel_scu_watchdog.c           |  17 +-
+ include/linux/mfd/intel_soc_pmic.h              |   2 +
+ include/linux/platform_data/x86/intel_ipc_dev.h | 187 +++++
+ 17 files changed, 1617 insertions(+), 1320 deletions(-)
+ create mode 100644 drivers/platform/x86/intel_ipc_dev.c
+ create mode 100644 include/linux/platform_data/x86/intel_ipc_dev.h
+
+-- 
+2.7.4
+
