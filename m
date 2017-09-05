@@ -1,8 +1,8 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Received: from mga01.intel.com ([192.55.52.88]:42427 "EHLO mga01.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754111AbdIEFiP (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 5 Sep 2017 01:38:15 -0400
+        id S1751246AbdIEFiO (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 5 Sep 2017 01:38:14 -0400
 From: sathyanarayanan.kuppuswamy@linux.intel.com
 To: a.zummo@towertech.it, x86@kernel.org, wim@iguana.be,
         mingo@redhat.com, alexandre.belloni@free-electrons.com,
@@ -14,9 +14,9 @@ Cc: linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
         sathyaosid@gmail.com,
         Kuppuswamy Sathyanarayanan
         <sathyanarayanan.kuppuswamy@linux.intel.com>
-Subject: [RFC v3 5/7] platform/x86: intel_punit_ipc: Use generic intel ipc device calls
-Date: Mon,  4 Sep 2017 22:37:25 -0700
-Message-Id: <df7cab1d394816edcf06a803fa586afb94c5a2c6.1504588701.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+Subject: [RFC v3 3/7] platform/x86: intel_pmc_ipc: Use regmap calls for GCR updates
+Date: Mon,  4 Sep 2017 22:37:23 -0700
+Message-Id: <5286489131571f149c6b75a8367ceb93cfe6e6be.1504588701.git.sathyanarayanan.kuppuswamy@linux.intel.com>
 In-Reply-To: <cover.1504588701.git.sathyanarayanan.kuppuswamy@linux.intel.com>
 References: <cover.1504588701.git.sathyanarayanan.kuppuswamy@linux.intel.com>
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -24,809 +24,232 @@ List-Id: linux-watchdog@vger.kernel.org
 
 From: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
 
-Removed redundant IPC helper functions and refactored the driver to use
-APIs provided by generic IPC driver. This patch also cleans-up PUNIT IPC
-user drivers to use APIs provided by generic IPC driver.
+Currently, update_no_reboot_bit() function implemented in this driver
+uses mutex_lock to protect its register updates. But this function is
+called with in atomic context in iTCO_wdt_start() and iTCO_wdt_stop()
+functions in iTCO_wdt.c driver, which in turn causes "sleeping into
+atomic context" issue. This patch fixes this issue by refactoring the
+current GCR read/write/update functions with regmap APIs.
 
 Signed-off-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
 ---
- arch/x86/include/asm/intel_punit_ipc.h        | 125 +++++------
- drivers/platform/x86/Kconfig                  |   1 +
- drivers/platform/x86/intel_punit_ipc.c        | 297 +++++++++-----------------
- drivers/platform/x86/intel_telemetry_pltdrv.c |  96 +++++----
- 4 files changed, 216 insertions(+), 303 deletions(-)
+ drivers/platform/x86/Kconfig         |   1 +
+ drivers/platform/x86/intel_pmc_ipc.c | 115 ++++++++++++-----------------------
+ 2 files changed, 40 insertions(+), 76 deletions(-)
 
-Changes since v1:
- * Removed custom APIs.
- * Cleaned up PUNIT IPC user drivers to use APIs provided by generic
-   IPC driver.
-
-diff --git a/arch/x86/include/asm/intel_punit_ipc.h b/arch/x86/include/asm/intel_punit_ipc.h
-index 201eb9d..cf1630c 100644
---- a/arch/x86/include/asm/intel_punit_ipc.h
-+++ b/arch/x86/include/asm/intel_punit_ipc.h
-@@ -1,10 +1,8 @@
- #ifndef _ASM_X86_INTEL_PUNIT_IPC_H_
- #define  _ASM_X86_INTEL_PUNIT_IPC_H_
- 
--/*
-- * Three types of 8bit P-Unit IPC commands are supported,
-- * bit[7:6]: [00]: BIOS; [01]: GTD; [10]: ISPD.
-- */
-+#include <linux/platform_data/x86/intel_ipc_dev.h>
-+
- typedef enum {
- 	BIOS_IPC = 0,
- 	GTDRIVER_IPC,
-@@ -12,61 +10,60 @@ typedef enum {
- 	RESERVED_IPC,
- } IPC_TYPE;
- 
--#define IPC_TYPE_OFFSET			6
--#define IPC_PUNIT_BIOS_CMD_BASE		(BIOS_IPC << IPC_TYPE_OFFSET)
--#define IPC_PUNIT_GTD_CMD_BASE		(GTDDRIVER_IPC << IPC_TYPE_OFFSET)
--#define IPC_PUNIT_ISPD_CMD_BASE		(ISPDRIVER_IPC << IPC_TYPE_OFFSET)
--#define IPC_PUNIT_CMD_TYPE_MASK		(RESERVED_IPC << IPC_TYPE_OFFSET)
-+#define PUNIT_BIOS_IPC_DEV			"punit_bios_ipc"
-+#define PUNIT_GTD_IPC_DEV			"punit_gtd_ipc"
-+#define PUNIT_ISP_IPC_DEV			"punit_isp_ipc"
-+#define PUNIT_PARAM_LEN				3
- 
- /* BIOS => Pcode commands */
--#define IPC_PUNIT_BIOS_ZERO			(IPC_PUNIT_BIOS_CMD_BASE | 0x00)
--#define IPC_PUNIT_BIOS_VR_INTERFACE		(IPC_PUNIT_BIOS_CMD_BASE | 0x01)
--#define IPC_PUNIT_BIOS_READ_PCS			(IPC_PUNIT_BIOS_CMD_BASE | 0x02)
--#define IPC_PUNIT_BIOS_WRITE_PCS		(IPC_PUNIT_BIOS_CMD_BASE | 0x03)
--#define IPC_PUNIT_BIOS_READ_PCU_CONFIG		(IPC_PUNIT_BIOS_CMD_BASE | 0x04)
--#define IPC_PUNIT_BIOS_WRITE_PCU_CONFIG		(IPC_PUNIT_BIOS_CMD_BASE | 0x05)
--#define IPC_PUNIT_BIOS_READ_PL1_SETTING		(IPC_PUNIT_BIOS_CMD_BASE | 0x06)
--#define IPC_PUNIT_BIOS_WRITE_PL1_SETTING	(IPC_PUNIT_BIOS_CMD_BASE | 0x07)
--#define IPC_PUNIT_BIOS_TRIGGER_VDD_RAM		(IPC_PUNIT_BIOS_CMD_BASE | 0x08)
--#define IPC_PUNIT_BIOS_READ_TELE_INFO		(IPC_PUNIT_BIOS_CMD_BASE | 0x09)
--#define IPC_PUNIT_BIOS_READ_TELE_TRACE_CTRL	(IPC_PUNIT_BIOS_CMD_BASE | 0x0a)
--#define IPC_PUNIT_BIOS_WRITE_TELE_TRACE_CTRL	(IPC_PUNIT_BIOS_CMD_BASE | 0x0b)
--#define IPC_PUNIT_BIOS_READ_TELE_EVENT_CTRL	(IPC_PUNIT_BIOS_CMD_BASE | 0x0c)
--#define IPC_PUNIT_BIOS_WRITE_TELE_EVENT_CTRL	(IPC_PUNIT_BIOS_CMD_BASE | 0x0d)
--#define IPC_PUNIT_BIOS_READ_TELE_TRACE		(IPC_PUNIT_BIOS_CMD_BASE | 0x0e)
--#define IPC_PUNIT_BIOS_WRITE_TELE_TRACE		(IPC_PUNIT_BIOS_CMD_BASE | 0x0f)
--#define IPC_PUNIT_BIOS_READ_TELE_EVENT		(IPC_PUNIT_BIOS_CMD_BASE | 0x10)
--#define IPC_PUNIT_BIOS_WRITE_TELE_EVENT		(IPC_PUNIT_BIOS_CMD_BASE | 0x11)
--#define IPC_PUNIT_BIOS_READ_MODULE_TEMP		(IPC_PUNIT_BIOS_CMD_BASE | 0x12)
--#define IPC_PUNIT_BIOS_RESERVED			(IPC_PUNIT_BIOS_CMD_BASE | 0x13)
--#define IPC_PUNIT_BIOS_READ_VOLTAGE_OVER	(IPC_PUNIT_BIOS_CMD_BASE | 0x14)
--#define IPC_PUNIT_BIOS_WRITE_VOLTAGE_OVER	(IPC_PUNIT_BIOS_CMD_BASE | 0x15)
--#define IPC_PUNIT_BIOS_READ_RATIO_OVER		(IPC_PUNIT_BIOS_CMD_BASE | 0x16)
--#define IPC_PUNIT_BIOS_WRITE_RATIO_OVER		(IPC_PUNIT_BIOS_CMD_BASE | 0x17)
--#define IPC_PUNIT_BIOS_READ_VF_GL_CTRL		(IPC_PUNIT_BIOS_CMD_BASE | 0x18)
--#define IPC_PUNIT_BIOS_WRITE_VF_GL_CTRL		(IPC_PUNIT_BIOS_CMD_BASE | 0x19)
--#define IPC_PUNIT_BIOS_READ_FM_SOC_TEMP_THRESH	(IPC_PUNIT_BIOS_CMD_BASE | 0x1a)
--#define IPC_PUNIT_BIOS_WRITE_FM_SOC_TEMP_THRESH	(IPC_PUNIT_BIOS_CMD_BASE | 0x1b)
-+#define IPC_PUNIT_BIOS_ZERO			(0x00)
-+#define IPC_PUNIT_BIOS_VR_INTERFACE		(0x01)
-+#define IPC_PUNIT_BIOS_READ_PCS			(0x02)
-+#define IPC_PUNIT_BIOS_WRITE_PCS		(0x03)
-+#define IPC_PUNIT_BIOS_READ_PCU_CONFIG		(0x04)
-+#define IPC_PUNIT_BIOS_WRITE_PCU_CONFIG		(0x05)
-+#define IPC_PUNIT_BIOS_READ_PL1_SETTING		(0x06)
-+#define IPC_PUNIT_BIOS_WRITE_PL1_SETTING	(0x07)
-+#define IPC_PUNIT_BIOS_TRIGGER_VDD_RAM		(0x08)
-+#define IPC_PUNIT_BIOS_READ_TELE_INFO		(0x09)
-+#define IPC_PUNIT_BIOS_READ_TELE_TRACE_CTRL	(0x0a)
-+#define IPC_PUNIT_BIOS_WRITE_TELE_TRACE_CTRL	(0x0b)
-+#define IPC_PUNIT_BIOS_READ_TELE_EVENT_CTRL	(0x0c)
-+#define IPC_PUNIT_BIOS_WRITE_TELE_EVENT_CTRL	(0x0d)
-+#define IPC_PUNIT_BIOS_READ_TELE_TRACE		(0x0e)
-+#define IPC_PUNIT_BIOS_WRITE_TELE_TRACE		(0x0f)
-+#define IPC_PUNIT_BIOS_READ_TELE_EVENT		(0x10)
-+#define IPC_PUNIT_BIOS_WRITE_TELE_EVENT		(0x11)
-+#define IPC_PUNIT_BIOS_READ_MODULE_TEMP		(0x12)
-+#define IPC_PUNIT_BIOS_RESERVED			(0x13)
-+#define IPC_PUNIT_BIOS_READ_VOLTAGE_OVER	(0x14)
-+#define IPC_PUNIT_BIOS_WRITE_VOLTAGE_OVER	(0x15)
-+#define IPC_PUNIT_BIOS_READ_RATIO_OVER		(0x16)
-+#define IPC_PUNIT_BIOS_WRITE_RATIO_OVER		(0x17)
-+#define IPC_PUNIT_BIOS_READ_VF_GL_CTRL		(0x18)
-+#define IPC_PUNIT_BIOS_WRITE_VF_GL_CTRL		(0x19)
-+#define IPC_PUNIT_BIOS_READ_FM_SOC_TEMP_THRESH	(0x1a)
-+#define IPC_PUNIT_BIOS_WRITE_FM_SOC_TEMP_THRESH	(0x1b)
- 
- /* GT Driver => Pcode commands */
--#define IPC_PUNIT_GTD_ZERO			(IPC_PUNIT_GTD_CMD_BASE | 0x00)
--#define IPC_PUNIT_GTD_CONFIG			(IPC_PUNIT_GTD_CMD_BASE | 0x01)
--#define IPC_PUNIT_GTD_READ_ICCP_LIC_CDYN_SCAL	(IPC_PUNIT_GTD_CMD_BASE | 0x02)
--#define IPC_PUNIT_GTD_WRITE_ICCP_LIC_CDYN_SCAL	(IPC_PUNIT_GTD_CMD_BASE | 0x03)
--#define IPC_PUNIT_GTD_GET_WM_VAL		(IPC_PUNIT_GTD_CMD_BASE | 0x06)
--#define IPC_PUNIT_GTD_WRITE_CONFIG_WISHREQ	(IPC_PUNIT_GTD_CMD_BASE | 0x07)
--#define IPC_PUNIT_GTD_READ_REQ_DUTY_CYCLE	(IPC_PUNIT_GTD_CMD_BASE | 0x16)
--#define IPC_PUNIT_GTD_DIS_VOL_FREQ_CHG_REQUEST	(IPC_PUNIT_GTD_CMD_BASE | 0x17)
--#define IPC_PUNIT_GTD_DYNA_DUTY_CYCLE_CTRL	(IPC_PUNIT_GTD_CMD_BASE | 0x1a)
--#define IPC_PUNIT_GTD_DYNA_DUTY_CYCLE_TUNING	(IPC_PUNIT_GTD_CMD_BASE | 0x1c)
-+#define IPC_PUNIT_GTD_ZERO			(0x00)
-+#define IPC_PUNIT_GTD_CONFIG			(0x01)
-+#define IPC_PUNIT_GTD_READ_ICCP_LIC_CDYN_SCAL	(0x02)
-+#define IPC_PUNIT_GTD_WRITE_ICCP_LIC_CDYN_SCAL	(0x03)
-+#define IPC_PUNIT_GTD_GET_WM_VAL		(0x06)
-+#define IPC_PUNIT_GTD_WRITE_CONFIG_WISHREQ	(0x07)
-+#define IPC_PUNIT_GTD_READ_REQ_DUTY_CYCLE	(0x16)
-+#define IPC_PUNIT_GTD_DIS_VOL_FREQ_CHG_REQUEST	(0x17)
-+#define IPC_PUNIT_GTD_DYNA_DUTY_CYCLE_CTRL	(0x1a)
-+#define IPC_PUNIT_GTD_DYNA_DUTY_CYCLE_TUNING	(0x1c)
- 
- /* ISP Driver => Pcode commands */
--#define IPC_PUNIT_ISPD_ZERO			(IPC_PUNIT_ISPD_CMD_BASE | 0x00)
--#define IPC_PUNIT_ISPD_CONFIG			(IPC_PUNIT_ISPD_CMD_BASE | 0x01)
--#define IPC_PUNIT_ISPD_GET_ISP_LTR_VAL		(IPC_PUNIT_ISPD_CMD_BASE | 0x02)
--#define IPC_PUNIT_ISPD_ACCESS_IU_FREQ_BOUNDS	(IPC_PUNIT_ISPD_CMD_BASE | 0x03)
--#define IPC_PUNIT_ISPD_READ_CDYN_LEVEL		(IPC_PUNIT_ISPD_CMD_BASE | 0x04)
--#define IPC_PUNIT_ISPD_WRITE_CDYN_LEVEL		(IPC_PUNIT_ISPD_CMD_BASE | 0x05)
-+#define IPC_PUNIT_ISPD_ZERO			(0x00)
-+#define IPC_PUNIT_ISPD_CONFIG			(0x01)
-+#define IPC_PUNIT_ISPD_GET_ISP_LTR_VAL		(0x02)
-+#define IPC_PUNIT_ISPD_ACCESS_IU_FREQ_BOUNDS	(0x03)
-+#define IPC_PUNIT_ISPD_READ_CDYN_LEVEL		(0x04)
-+#define IPC_PUNIT_ISPD_WRITE_CDYN_LEVEL		(0x05)
- 
- /* Error codes */
- #define IPC_PUNIT_ERR_SUCCESS			0
-@@ -77,25 +74,11 @@ typedef enum {
- #define IPC_PUNIT_ERR_INVALID_VR_ID		5
- #define IPC_PUNIT_ERR_VR_ERR			6
- 
--#if IS_ENABLED(CONFIG_INTEL_PUNIT_IPC)
--
--int intel_punit_ipc_simple_command(int cmd, int para1, int para2);
--int intel_punit_ipc_command(u32 cmd, u32 para1, u32 para2, u32 *in, u32 *out);
--
--#else
--
--static inline int intel_punit_ipc_simple_command(int cmd,
--						  int para1, int para2)
-+static inline void punit_cmd_init(u32 *cmd, u32 param1, u32 param2, u32 param3)
- {
--	return -ENODEV;
-+	cmd[0] = param1;
-+	cmd[1] = param2;
-+	cmd[2] = param3;
- }
- 
--static inline int intel_punit_ipc_command(u32 cmd, u32 para1, u32 para2,
--					  u32 *in, u32 *out)
--{
--	return -ENODEV;
--}
--
--#endif /* CONFIG_INTEL_PUNIT_IPC */
--
- #endif
 diff --git a/drivers/platform/x86/Kconfig b/drivers/platform/x86/Kconfig
-index 9df7cda..82479ca 100644
+index 80b8795..45f4e79 100644
 --- a/drivers/platform/x86/Kconfig
 +++ b/drivers/platform/x86/Kconfig
-@@ -1083,6 +1083,7 @@ config SURFACE_3_BUTTON
- 
- config INTEL_PUNIT_IPC
- 	tristate "Intel P-Unit IPC Driver"
+@@ -1054,6 +1054,7 @@ config PVPANIC
+ config INTEL_PMC_IPC
+ 	tristate "Intel PMC IPC Driver"
+ 	depends on ACPI
 +	select REGMAP_MMIO
  	---help---
- 	  This driver provides support for Intel P-Unit Mailbox IPC mechanism,
- 	  which is used to bridge the communications between kernel and P-Unit.
-diff --git a/drivers/platform/x86/intel_punit_ipc.c b/drivers/platform/x86/intel_punit_ipc.c
-index a47a41f..611ccfe 100644
---- a/drivers/platform/x86/intel_punit_ipc.c
-+++ b/drivers/platform/x86/intel_punit_ipc.c
-@@ -18,18 +18,18 @@
- #include <linux/device.h>
- #include <linux/interrupt.h>
- #include <linux/platform_device.h>
-+#include <linux/platform_data/x86/intel_ipc_dev.h>
+ 	This driver provides support for PMC control on some Intel platforms.
+ 	The PMC is an ARC processor which defines IPC commands for communication
+diff --git a/drivers/platform/x86/intel_pmc_ipc.c b/drivers/platform/x86/intel_pmc_ipc.c
+index 021dcf6..40a25f8 100644
+--- a/drivers/platform/x86/intel_pmc_ipc.c
++++ b/drivers/platform/x86/intel_pmc_ipc.c
+@@ -31,9 +31,11 @@
+ #include <linux/atomic.h>
+ #include <linux/notifier.h>
+ #include <linux/suspend.h>
++#include <linux/spinlock.h>
+ #include <linux/acpi.h>
+ #include <linux/io-64-nonatomic-lo-hi.h>
+ #include <linux/mfd/core.h>
 +#include <linux/regmap.h>
- #include <asm/intel_punit_ipc.h>
  
--/* IPC Mailbox registers */
--#define OFFSET_DATA_LOW		0x0
--#define OFFSET_DATA_HIGH	0x4
- /* bit field of interface register */
- #define	CMD_RUN			BIT(31)
--#define	CMD_ERRCODE_MASK	GENMASK(7, 0)
-+#define CMD_ERRCODE_MASK	GENMASK(7, 0)
- #define	CMD_PARA1_SHIFT		8
- #define	CMD_PARA2_SHIFT		16
+ #include <asm/intel_pmc_ipc.h>
  
--#define CMD_TIMEOUT_SECONDS	1
-+/* IPC PUNIT commands */
-+#define	IPC_DEV_PUNIT_CMD_STATUS_ERR_MASK	GENMASK(7, 0)
+@@ -125,7 +127,7 @@ static struct intel_pmc_ipc_dev {
  
- enum {
- 	BASE_DATA = 0,
-@@ -39,187 +39,42 @@ enum {
+ 	/* gcr */
+ 	void __iomem *gcr_mem_base;
+-	bool has_gcr_regs;
++	struct regmap *gcr_regs;
  
- typedef struct {
- 	struct device *dev;
--	struct mutex lock;
--	int irq;
--	struct completion cmd_complete;
- 	/* base of interface and data registers */
- 	void __iomem *base[RESERVED_IPC][BASE_MAX];
-+	struct intel_ipc_dev *ipc_dev[RESERVED_IPC];
- 	IPC_TYPE type;
- } IPC_DEV;
+ 	/* Telemetry */
+ 	u8 telem_res_inval;
+@@ -150,6 +152,14 @@ static char *ipc_err_sources[] = {
+ 		"Unsigned kernel",
+ };
  
- static IPC_DEV *punit_ipcdev;
- 
--static inline u32 ipc_read_status(IPC_DEV *ipcdev, IPC_TYPE type)
--{
--	return readl(ipcdev->base[type][BASE_IFACE]);
--}
--
--static inline void ipc_write_cmd(IPC_DEV *ipcdev, IPC_TYPE type, u32 cmd)
--{
--	writel(cmd, ipcdev->base[type][BASE_IFACE]);
--}
--
--static inline u32 ipc_read_data_low(IPC_DEV *ipcdev, IPC_TYPE type)
--{
--	return readl(ipcdev->base[type][BASE_DATA] + OFFSET_DATA_LOW);
--}
--
--static inline u32 ipc_read_data_high(IPC_DEV *ipcdev, IPC_TYPE type)
--{
--	return readl(ipcdev->base[type][BASE_DATA] + OFFSET_DATA_HIGH);
--}
--
--static inline void ipc_write_data_low(IPC_DEV *ipcdev, IPC_TYPE type, u32 data)
--{
--	writel(data, ipcdev->base[type][BASE_DATA] + OFFSET_DATA_LOW);
--}
--
--static inline void ipc_write_data_high(IPC_DEV *ipcdev, IPC_TYPE type, u32 data)
--{
--	writel(data, ipcdev->base[type][BASE_DATA] + OFFSET_DATA_HIGH);
--}
-+const char *ipc_dev_name[RESERVED_IPC] = {
-+	PUNIT_BIOS_IPC_DEV,
-+	PUNIT_GTD_IPC_DEV,
-+	PUNIT_ISP_IPC_DEV
-+};
- 
--static const char *ipc_err_string(int error)
--{
--	if (error == IPC_PUNIT_ERR_SUCCESS)
--		return "no error";
--	else if (error == IPC_PUNIT_ERR_INVALID_CMD)
--		return "invalid command";
--	else if (error == IPC_PUNIT_ERR_INVALID_PARAMETER)
--		return "invalid parameter";
--	else if (error == IPC_PUNIT_ERR_CMD_TIMEOUT)
--		return "command timeout";
--	else if (error == IPC_PUNIT_ERR_CMD_LOCKED)
--		return "command locked";
--	else if (error == IPC_PUNIT_ERR_INVALID_VR_ID)
--		return "invalid vr id";
--	else if (error == IPC_PUNIT_ERR_VR_ERR)
--		return "vr error";
--	else
--		return "unknown error";
--}
-+static struct regmap_config punit_regmap_config = {
++static struct regmap_config gcr_regmap_config = {
 +        .reg_bits = 32,
 +        .reg_stride = 4,
 +        .val_bits = 32,
++	.fast_io = true,
++	.max_register = PLAT_RESOURCE_GCR_SIZE,
 +};
++
+ /* Prevent concurrent calls to the PMC */
+ static DEFINE_MUTEX(ipclock);
  
--static int intel_punit_ipc_check_status(IPC_DEV *ipcdev, IPC_TYPE type)
-+int pre_simple_cmd_fn(u32 *cmd_list, u32 cmdlen)
- {
--	int loops = CMD_TIMEOUT_SECONDS * USEC_PER_SEC;
--	int errcode;
--	int status;
--
--	if (ipcdev->irq) {
--		if (!wait_for_completion_timeout(&ipcdev->cmd_complete,
--						 CMD_TIMEOUT_SECONDS * HZ)) {
--			dev_err(ipcdev->dev, "IPC timed out\n");
--			return -ETIMEDOUT;
--		}
--	} else {
--		while ((ipc_read_status(ipcdev, type) & CMD_RUN) && --loops)
--			udelay(1);
--		if (!loops) {
--			dev_err(ipcdev->dev, "IPC timed out\n");
--			return -ETIMEDOUT;
--		}
--	}
-+	if (!cmd_list || cmdlen != PUNIT_PARAM_LEN)
-+		return -EINVAL;
- 
--	status = ipc_read_status(ipcdev, type);
--	errcode = status & CMD_ERRCODE_MASK;
--	if (errcode) {
--		dev_err(ipcdev->dev, "IPC failed: %s, IPC_STS=0x%x\n",
--			ipc_err_string(errcode), status);
--		return -EIO;
--	}
-+	cmd_list[0] |= CMD_RUN | cmd_list[1] << CMD_PARA1_SHIFT |
-+		cmd_list[2] << CMD_PARA1_SHIFT;
- 
- 	return 0;
+@@ -183,21 +193,6 @@ static inline u32 ipc_data_readl(u32 offset)
+ 	return readl(ipcdev.ipc_base + IPC_READ_BUFFER + offset);
  }
  
--/**
-- * intel_punit_ipc_simple_command() - Simple IPC command
-- * @cmd:	IPC command code.
-- * @para1:	First 8bit parameter, set 0 if not used.
-- * @para2:	Second 8bit parameter, set 0 if not used.
-- *
-- * Send a IPC command to P-Unit when there is no data transaction
-- *
-- * Return:	IPC error code or 0 on success.
-- */
--int intel_punit_ipc_simple_command(int cmd, int para1, int para2)
+-static inline u64 gcr_data_readq(u32 offset)
 -{
--	IPC_DEV *ipcdev = punit_ipcdev;
--	IPC_TYPE type;
--	u32 val;
+-	return readq(ipcdev.gcr_mem_base + offset);
+-}
+-
+-static inline int is_gcr_valid(u32 offset)
+-{
+-	if (!ipcdev.has_gcr_regs)
+-		return -EACCES;
+-
+-	if (offset > PLAT_RESOURCE_GCR_SIZE)
+-		return -EINVAL;
+-
+-	return 0;
+-}
+ 
+ /**
+  * intel_pmc_gcr_read() - Read PMC GCR register
+@@ -210,21 +205,10 @@ static inline int is_gcr_valid(u32 offset)
+  */
+ int intel_pmc_gcr_read(u32 offset, u32 *data)
+ {
 -	int ret;
 -
--	mutex_lock(&ipcdev->lock);
+-	mutex_lock(&ipclock);
 -
--	reinit_completion(&ipcdev->cmd_complete);
--	type = (cmd & IPC_PUNIT_CMD_TYPE_MASK) >> IPC_TYPE_OFFSET;
+-	ret = is_gcr_valid(offset);
+-	if (ret < 0) {
+-		mutex_unlock(&ipclock);
+-		return ret;
+-	}
 -
--	val = cmd & ~IPC_PUNIT_CMD_TYPE_MASK;
--	val |= CMD_RUN | para2 << CMD_PARA2_SHIFT | para1 << CMD_PARA1_SHIFT;
--	ipc_write_cmd(ipcdev, type, val);
--	ret = intel_punit_ipc_check_status(ipcdev, type);
+-	*data = readl(ipcdev.gcr_mem_base + offset);
 -
--	mutex_unlock(&ipcdev->lock);
--
--	return ret;
--}
--EXPORT_SYMBOL(intel_punit_ipc_simple_command);
--
--/**
-- * intel_punit_ipc_command() - IPC command with data and pointers
-- * @cmd:	IPC command code.
-- * @para1:	First 8bit parameter, set 0 if not used.
-- * @para2:	Second 8bit parameter, set 0 if not used.
-- * @in:		Input data, 32bit for BIOS cmd, two 32bit for GTD and ISPD.
-- * @out:	Output data.
-- *
-- * Send a IPC command to P-Unit with data transaction
-- *
-- * Return:	IPC error code or 0 on success.
-- */
--int intel_punit_ipc_command(u32 cmd, u32 para1, u32 para2, u32 *in, u32 *out)
--{
--	IPC_DEV *ipcdev = punit_ipcdev;
--	IPC_TYPE type;
--	u32 val;
+-	mutex_unlock(&ipclock);
++	if (!ipcdev.gcr_regs)
++		return -EACCES;
+ 
+-	return 0;
++	return regmap_read(ipcdev.gcr_regs, offset, data);
+ }
+ EXPORT_SYMBOL_GPL(intel_pmc_gcr_read);
+ 
+@@ -240,21 +224,10 @@ EXPORT_SYMBOL_GPL(intel_pmc_gcr_read);
+  */
+ int intel_pmc_gcr_write(u32 offset, u32 data)
+ {
 -	int ret;
 -
--	mutex_lock(&ipcdev->lock);
+-	mutex_lock(&ipclock);
 -
--	reinit_completion(&ipcdev->cmd_complete);
--	type = (cmd & IPC_PUNIT_CMD_TYPE_MASK) >> IPC_TYPE_OFFSET;
--
--	if (in) {
--		ipc_write_data_low(ipcdev, type, *in);
--		if (type == GTDRIVER_IPC || type == ISPDRIVER_IPC)
--			ipc_write_data_high(ipcdev, type, *++in);
+-	ret = is_gcr_valid(offset);
+-	if (ret < 0) {
+-		mutex_unlock(&ipclock);
+-		return ret;
 -	}
 -
--	val = cmd & ~IPC_PUNIT_CMD_TYPE_MASK;
--	val |= CMD_RUN | para2 << CMD_PARA2_SHIFT | para1 << CMD_PARA1_SHIFT;
--	ipc_write_cmd(ipcdev, type, val);
+-	writel(data, ipcdev.gcr_mem_base + offset);
 -
--	ret = intel_punit_ipc_check_status(ipcdev, type);
--	if (ret)
--		goto out;
+-	mutex_unlock(&ipclock);
++	if (!ipcdev.gcr_regs)
++		return -EACCES;
+ 
+-	return 0;
++	return regmap_write(ipcdev.gcr_regs, offset, data);
+ }
+ EXPORT_SYMBOL_GPL(intel_pmc_gcr_write);
+ 
+@@ -271,33 +244,10 @@ EXPORT_SYMBOL_GPL(intel_pmc_gcr_write);
+  */
+ int intel_pmc_gcr_update(u32 offset, u32 mask, u32 val)
+ {
+-	u32 new_val;
+-	int ret = 0;
 -
--	if (out) {
--		*out = ipc_read_data_low(ipcdev, type);
--		if (type == GTDRIVER_IPC || type == ISPDRIVER_IPC)
--			*++out = ipc_read_data_high(ipcdev, type);
+-	mutex_lock(&ipclock);
+-
+-	ret = is_gcr_valid(offset);
+-	if (ret < 0)
+-		goto gcr_ipc_unlock;
+-
+-	new_val = readl(ipcdev.gcr_mem_base + offset);
+-
+-	new_val &= ~mask;
+-	new_val |= val & mask;
+-
+-	writel(new_val, ipcdev.gcr_mem_base + offset);
+-
+-	new_val = readl(ipcdev.gcr_mem_base + offset);
+-
+-	/* check whether the bit update is successful */
+-	if ((new_val & mask) != (val & mask)) {
+-		ret = -EIO;
+-		goto gcr_ipc_unlock;
 -	}
--
--out:
--	mutex_unlock(&ipcdev->lock);
++	if (!ipcdev.gcr_regs)
++		return -EACCES;
+ 
+-gcr_ipc_unlock:
+-	mutex_unlock(&ipclock);
 -	return ret;
--}
--EXPORT_SYMBOL_GPL(intel_punit_ipc_command);
--
--static irqreturn_t intel_punit_ioc(int irq, void *dev_id)
-+/* Input data, 32bit for BIOS cmd, two 32bit for GTD and ISPD. */
-+int pre_raw_cmd_fn(u32 *cmd_list, u32 cmdlen, u8 *in, u32 inlen, u32 *out,
-+		u32 outlen, u32 dptr, u32 sptr)
- {
--	IPC_DEV *ipcdev = dev_id;
--
--	complete(&ipcdev->cmd_complete);
--	return IRQ_HANDLED;
-+	return pre_simple_cmd_fn(cmd_list, cmdlen);
++	return regmap_update_bits(ipcdev.gcr_regs, offset, mask, val);
  }
+ EXPORT_SYMBOL_GPL(intel_pmc_gcr_update);
  
- static int intel_punit_get_bars(struct platform_device *pdev)
-@@ -282,9 +137,71 @@ static int intel_punit_get_bars(struct platform_device *pdev)
- 	return 0;
- }
- 
-+static int punit_ipc_err_code(int status)
-+{
-+	return (status & CMD_ERRCODE_MASK);
-+}
-+
-+static int punit_ipc_busy_check(int status)
-+{
-+	return status | CMD_RUN;
-+}
-+
-+static struct intel_ipc_dev *intel_punit_ipc_dev_create(struct device *dev,
-+		const char *devname,
-+		int irq,
-+		void __iomem *base,
-+		void __iomem *data)
-+{
-+	struct intel_ipc_dev_ops *ops;
-+	struct intel_ipc_dev_cfg *cfg;
-+	struct regmap *cmd_regs, *data_regs;
-+
-+        cfg = devm_kzalloc(dev, sizeof(*cfg), GFP_KERNEL);
-+        if (!cfg)
-+                return ERR_PTR(-ENOMEM);
-+
-+	ops = devm_kzalloc(dev, sizeof(*ops), GFP_KERNEL);
-+	if (!ops)
-+		return ERR_PTR(-ENOMEM);
-+
-+        cmd_regs = devm_regmap_init_mmio_clk(dev, NULL, base,
-+			&punit_regmap_config);
-+        if (IS_ERR(cmd_regs)) {
-+                dev_err(dev, "cmd_regs regmap init failed\n");
-+                return ERR_CAST(cmd_regs);;
-+        }
-+
-+        data_regs = devm_regmap_init_mmio_clk(dev, NULL, data,
-+			&punit_regmap_config);
-+        if (IS_ERR(data_regs)) {
-+                dev_err(dev, "data_regs regmap init failed\n");
-+                return ERR_CAST(data_regs);;
-+        }
-+
-+	/* set IPC dev ops */
-+	ops->to_err_code = punit_ipc_err_code;
-+	ops->busy_check = punit_ipc_busy_check;
-+	ops->pre_simple_cmd_fn = pre_simple_cmd_fn;
-+	ops->pre_raw_cmd_fn = pre_raw_cmd_fn;
-+
-+	if (irq > 0)
-+	        cfg->mode = IPC_DEV_MODE_IRQ;
-+	else
-+	        cfg->mode = IPC_DEV_MODE_POLLING;
-+
-+	cfg->chan_type = IPC_CHANNEL_IA_PUNIT;
-+	cfg->irq = irq;
-+	cfg->irqflags = IRQF_NO_SUSPEND | IRQF_SHARED;
-+	cfg->cmd_regs = cmd_regs;
-+	cfg->data_regs = data_regs;
-+
-+	return devm_intel_ipc_dev_create(dev, devname, cfg, ops);
-+}
-+
- static int intel_punit_ipc_probe(struct platform_device *pdev)
+@@ -776,16 +726,24 @@ static int ipc_plat_get_res(struct platform_device *pdev)
+ int intel_pmc_s0ix_counter_read(u64 *data)
  {
--	int irq, ret;
-+	int irq, ret, i;
+ 	u64 deep, shlw;
++	int ret;
  
- 	punit_ipcdev = devm_kzalloc(&pdev->dev,
- 				    sizeof(*punit_ipcdev), GFP_KERNEL);
-@@ -294,35 +211,30 @@ static int intel_punit_ipc_probe(struct platform_device *pdev)
- 	platform_set_drvdata(pdev, punit_ipcdev);
+-	if (!ipcdev.has_gcr_regs)
++	if (!ipcdev.gcr_regs)
+ 		return -EACCES;
  
- 	irq = platform_get_irq(pdev, 0);
--	if (irq < 0) {
--		punit_ipcdev->irq = 0;
--		dev_warn(&pdev->dev, "Invalid IRQ, using polling mode\n");
--	} else {
--		ret = devm_request_irq(&pdev->dev, irq, intel_punit_ioc,
--				       IRQF_NO_SUSPEND, "intel_punit_ipc",
--				       &punit_ipcdev);
--		if (ret) {
--			dev_err(&pdev->dev, "Failed to request irq: %d\n", irq);
--			return ret;
--		}
--		punit_ipcdev->irq = irq;
--	}
- 
- 	ret = intel_punit_get_bars(pdev);
- 	if (ret)
--		goto out;
+-	deep = gcr_data_readq(PMC_GCR_TELEM_DEEP_S0IX_REG);
+-	shlw = gcr_data_readq(PMC_GCR_TELEM_SHLW_S0IX_REG);
++	ret = regmap_bulk_read(ipcdev.gcr_regs, PMC_GCR_TELEM_DEEP_S0IX_REG,
++			&deep, 2);
++	if (ret)
 +		return ret;
 +
-+	for (i = 0; i < RESERVED_IPC; i++) {
-+		punit_ipcdev->ipc_dev[i] = intel_punit_ipc_dev_create(
-+				&pdev->dev,
-+				ipc_dev_name[i],
-+				irq,
-+				punit_ipcdev->base[i][BASE_IFACE],
-+				punit_ipcdev->base[i][BASE_DATA]);
-+
-+		if (IS_ERR(punit_ipcdev->ipc_dev[i])) {
-+			dev_err(&pdev->dev, "%s create failed\n",
-+					ipc_dev_name[i]);
-+			return PTR_ERR(punit_ipcdev->ipc_dev[i]);
-+		}
-+	}
++	ret = regmap_bulk_read(ipcdev.gcr_regs, PMC_GCR_TELEM_SHLW_S0IX_REG,
++			&shlw, 2);
++	if (ret)
++		return ret;
  
- 	punit_ipcdev->dev = &pdev->dev;
--	mutex_init(&punit_ipcdev->lock);
--	init_completion(&punit_ipcdev->cmd_complete);
+ 	*data = S0IX_RESIDENCY_IN_USECS(deep, shlw);
  
--out:
- 	return ret;
--}
- 
--static int intel_punit_ipc_remove(struct platform_device *pdev)
--{
 -	return 0;
++	return ret;
  }
+ EXPORT_SYMBOL_GPL(intel_pmc_s0ix_counter_read);
  
- static const struct acpi_device_id punit_ipc_acpi_ids[] = {
-@@ -332,7 +244,6 @@ static const struct acpi_device_id punit_ipc_acpi_ids[] = {
- 
- static struct platform_driver intel_punit_ipc_driver = {
- 	.probe = intel_punit_ipc_probe,
--	.remove = intel_punit_ipc_remove,
- 	.driver = {
- 		.name = "intel_punit_ipc",
- 		.acpi_match_table = ACPI_PTR(punit_ipc_acpi_ids),
-diff --git a/drivers/platform/x86/intel_telemetry_pltdrv.c b/drivers/platform/x86/intel_telemetry_pltdrv.c
-index 6ebdbd2..22c4ba9 100644
---- a/drivers/platform/x86/intel_telemetry_pltdrv.c
-+++ b/drivers/platform/x86/intel_telemetry_pltdrv.c
-@@ -99,6 +99,7 @@ struct telem_ssram_region {
- };
- 
- static struct telemetry_plt_config *telm_conf;
-+static struct intel_ipc_dev *punit_bios_ipc_dev;
- 
- /*
-  * The following counters are programmed by default during setup.
-@@ -128,7 +129,6 @@ static struct telemetry_evtmap
- 	{"PMC_S0IX_BLOCK_IPS_CLOCKS",           0x600B},
- };
- 
--
- static struct telemetry_evtmap
- 	telemetry_apl_pss_default_events[TELEM_MAX_OS_ALLOCATED_EVENTS] = {
- 	{"IA_CORE0_C6_RES",			0x0400},
-@@ -249,13 +249,12 @@ static inline int telemetry_plt_config_ioss_event(u32 evt_id, int index)
- static inline int telemetry_plt_config_pss_event(u32 evt_id, int index)
- {
- 	u32 write_buf;
--	int ret;
-+	u32 cmd[PUNIT_PARAM_LEN] = {0};
- 
- 	write_buf = evt_id | TELEM_EVENT_ENABLE;
--	ret = intel_punit_ipc_command(IPC_PUNIT_BIOS_WRITE_TELE_EVENT,
--				      index, 0, &write_buf, NULL);
--
--	return ret;
-+	punit_cmd_init(cmd, IPC_PUNIT_BIOS_WRITE_TELE_EVENT, index, 0);
-+	return ipc_dev_raw_cmd(punit_bios_ipc_dev, cmd, PUNIT_PARAM_LEN,
-+			(u8 *)&write_buf, sizeof(write_buf), NULL, 0, 0, 0);
- }
- 
- static int telemetry_setup_iossevtconfig(struct telemetry_evtconfig evtconfig,
-@@ -401,6 +400,7 @@ static int telemetry_setup_pssevtconfig(struct telemetry_evtconfig evtconfig,
- 	int ret, index, idx;
- 	u32 *pss_evtmap;
- 	u32 telem_ctrl;
-+	u32 cmd[PUNIT_PARAM_LEN] = {0};
- 
- 	num_pss_evts = evtconfig.num_evts;
- 	pss_period = evtconfig.period;
-@@ -408,8 +408,9 @@ static int telemetry_setup_pssevtconfig(struct telemetry_evtconfig evtconfig,
- 
- 	/* PSS Config */
- 	/* Get telemetry EVENT CTL */
--	ret = intel_punit_ipc_command(IPC_PUNIT_BIOS_READ_TELE_EVENT_CTRL,
--				      0, 0, NULL, &telem_ctrl);
-+	punit_cmd_init(cmd, IPC_PUNIT_BIOS_READ_TELE_EVENT_CTRL, 0, 0);
-+	ret = ipc_dev_raw_cmd(punit_bios_ipc_dev, cmd, PUNIT_PARAM_LEN, NULL,
-+			0, &telem_ctrl, 1, 0, 0);
- 	if (ret) {
- 		pr_err("PSS TELEM_CTRL Read Failed\n");
+@@ -817,6 +775,13 @@ static int ipc_plat_probe(struct platform_device *pdev)
  		return ret;
-@@ -417,8 +418,9 @@ static int telemetry_setup_pssevtconfig(struct telemetry_evtconfig evtconfig,
+ 	}
  
- 	/* Disable Telemetry */
- 	TELEM_DISABLE(telem_ctrl);
--	ret = intel_punit_ipc_command(IPC_PUNIT_BIOS_WRITE_TELE_EVENT_CTRL,
--				      0, 0, &telem_ctrl, NULL);
-+	punit_cmd_init(cmd, IPC_PUNIT_BIOS_WRITE_TELE_EVENT_CTRL, 0, 0);
-+	ret = ipc_dev_raw_cmd(punit_bios_ipc_dev, cmd, PUNIT_PARAM_LEN,
-+			(u8 *)&telem_ctrl, sizeof(telem_ctrl), NULL, 0, 0, 0);
- 	if (ret) {
- 		pr_err("PSS TELEM_CTRL Event Disable Write Failed\n");
- 		return ret;
-@@ -429,9 +431,10 @@ static int telemetry_setup_pssevtconfig(struct telemetry_evtconfig evtconfig,
- 		/* Clear All Events */
- 		TELEM_CLEAR_EVENTS(telem_ctrl);
- 
--		ret = intel_punit_ipc_command(
--				IPC_PUNIT_BIOS_WRITE_TELE_EVENT_CTRL,
--				0, 0, &telem_ctrl, NULL);
-+		punit_cmd_init(cmd, IPC_PUNIT_BIOS_WRITE_TELE_EVENT_CTRL, 0, 0);
-+		ret = ipc_dev_raw_cmd(punit_bios_ipc_dev, cmd, PUNIT_PARAM_LEN,
-+				(u8 *)&telem_ctrl, sizeof(telem_ctrl), NULL,
-+				0, 0, 0);
- 		if (ret) {
- 			pr_err("PSS TELEM_CTRL Event Disable Write Failed\n");
- 			return ret;
-@@ -455,9 +458,10 @@ static int telemetry_setup_pssevtconfig(struct telemetry_evtconfig evtconfig,
- 		/* Clear All Events */
- 		TELEM_CLEAR_EVENTS(telem_ctrl);
- 
--		ret = intel_punit_ipc_command(
--				IPC_PUNIT_BIOS_WRITE_TELE_EVENT_CTRL,
--				0, 0, &telem_ctrl, NULL);
-+		punit_cmd_init(cmd, IPC_PUNIT_BIOS_WRITE_TELE_EVENT_CTRL, 0, 0);
-+		ret = ipc_dev_raw_cmd(punit_bios_ipc_dev, cmd, PUNIT_PARAM_LEN,
-+				(u8 *)&telem_ctrl, sizeof(telem_ctrl), NULL,
-+				0, 0, 0);
- 		if (ret) {
- 			pr_err("PSS TELEM_CTRL Event Disable Write Failed\n");
- 			return ret;
-@@ -506,8 +510,9 @@ static int telemetry_setup_pssevtconfig(struct telemetry_evtconfig evtconfig,
- 	TELEM_ENABLE_PERIODIC(telem_ctrl);
- 	telem_ctrl |= pss_period;
- 
--	ret = intel_punit_ipc_command(IPC_PUNIT_BIOS_WRITE_TELE_EVENT_CTRL,
--				      0, 0, &telem_ctrl, NULL);
-+	punit_cmd_init(cmd, IPC_PUNIT_BIOS_WRITE_TELE_EVENT_CTRL, 0, 0);
-+	ret = ipc_dev_raw_cmd(punit_bios_ipc_dev, cmd, PUNIT_PARAM_LEN,
-+			(u8 *)&telem_ctrl, sizeof(telem_ctrl), NULL, 0, 0, 0);
- 	if (ret) {
- 		pr_err("PSS TELEM_CTRL Event Enable Write Failed\n");
- 		return ret;
-@@ -567,6 +572,7 @@ static int telemetry_setup(struct platform_device *pdev)
- {
- 	struct telemetry_evtconfig pss_evtconfig, ioss_evtconfig;
- 	u32 read_buf, events, event_regs;
-+	u32 cmd[PUNIT_PARAM_LEN] = {0};
- 	int ret;
- 
- 	ret = intel_pmc_ipc_command(PMC_IPC_PMC_TELEMTRY, IOSS_TELEM_INFO_READ,
-@@ -592,8 +598,9 @@ static int telemetry_setup(struct platform_device *pdev)
- 	telm_conf->ioss_config.max_period = TELEM_MAX_PERIOD(read_buf);
- 
- 	/* PUNIT Mailbox Setup */
--	ret = intel_punit_ipc_command(IPC_PUNIT_BIOS_READ_TELE_INFO, 0, 0,
--				      NULL, &read_buf);
-+	punit_cmd_init(cmd, IPC_PUNIT_BIOS_READ_TELE_INFO, 0, 0);
-+	ret = ipc_dev_raw_cmd(punit_bios_ipc_dev, cmd, PUNIT_PARAM_LEN,
-+			NULL, 0, &read_buf, 1, 0, 0);
- 	if (ret) {
- 		dev_err(&pdev->dev, "PSS TELEM_INFO Read Failed\n");
- 		return ret;
-@@ -661,6 +668,7 @@ static int telemetry_plt_set_sampling_period(u8 pss_period, u8 ioss_period)
- {
- 	u32 telem_ctrl = 0;
- 	int ret = 0;
-+	u32 cmd[PUNIT_PARAM_LEN] = {0};
- 
- 	mutex_lock(&(telm_conf->telem_lock));
- 	if (ioss_period) {
-@@ -718,9 +726,9 @@ static int telemetry_plt_set_sampling_period(u8 pss_period, u8 ioss_period)
- 		}
- 
- 		/* Get telemetry EVENT CTL */
--		ret = intel_punit_ipc_command(
--				IPC_PUNIT_BIOS_READ_TELE_EVENT_CTRL,
--				0, 0, NULL, &telem_ctrl);
-+		punit_cmd_init(cmd, IPC_PUNIT_BIOS_READ_TELE_EVENT_CTRL, 0, 0);
-+		ret = ipc_dev_raw_cmd(punit_bios_ipc_dev, cmd, PUNIT_PARAM_LEN,
-+				NULL, 0, &telem_ctrl, 1, 0, 0);
- 		if (ret) {
- 			pr_err("PSS TELEM_CTRL Read Failed\n");
- 			goto out;
-@@ -728,9 +736,11 @@ static int telemetry_plt_set_sampling_period(u8 pss_period, u8 ioss_period)
- 
- 		/* Disable Telemetry */
- 		TELEM_DISABLE(telem_ctrl);
--		ret = intel_punit_ipc_command(
--				IPC_PUNIT_BIOS_WRITE_TELE_EVENT_CTRL,
--				0, 0, &telem_ctrl, NULL);
-+		punit_cmd_init(cmd, IPC_PUNIT_BIOS_WRITE_TELE_EVENT_CTRL, 0,
-+				0);
-+		ret = ipc_dev_raw_cmd(punit_bios_ipc_dev, cmd, PUNIT_PARAM_LEN,
-+				(u8 *)&telem_ctrl, sizeof(telem_ctrl), NULL,
-+				0, 0, 0);
- 		if (ret) {
- 			pr_err("PSS TELEM_CTRL Event Disable Write Failed\n");
- 			goto out;
-@@ -742,9 +752,11 @@ static int telemetry_plt_set_sampling_period(u8 pss_period, u8 ioss_period)
- 		TELEM_ENABLE_PERIODIC(telem_ctrl);
- 		telem_ctrl |= pss_period;
- 
--		ret = intel_punit_ipc_command(
--				IPC_PUNIT_BIOS_WRITE_TELE_EVENT_CTRL,
--				0, 0, &telem_ctrl, NULL);
-+		punit_cmd_init(cmd, IPC_PUNIT_BIOS_WRITE_TELE_EVENT_CTRL, 0,
-+				0);
-+		ret = ipc_dev_raw_cmd(punit_bios_ipc_dev, cmd, PUNIT_PARAM_LEN,
-+				(u8 *)&telem_ctrl, sizeof(telem_ctrl), NULL,
-+				0, 0, 0);
- 		if (ret) {
- 			pr_err("PSS TELEM_CTRL Event Enable Write Failed\n");
- 			goto out;
-@@ -979,6 +991,7 @@ static int telemetry_plt_get_trace_verbosity(enum telemetry_unit telem_unit,
- {
- 	u32 temp = 0;
- 	int ret;
-+	u32 cmd[PUNIT_PARAM_LEN] = {0};
- 
- 	if (verbosity == NULL)
- 		return -EINVAL;
-@@ -986,9 +999,9 @@ static int telemetry_plt_get_trace_verbosity(enum telemetry_unit telem_unit,
- 	mutex_lock(&(telm_conf->telem_trace_lock));
- 	switch (telem_unit) {
- 	case TELEM_PSS:
--		ret = intel_punit_ipc_command(
--				IPC_PUNIT_BIOS_READ_TELE_TRACE_CTRL,
--				0, 0, NULL, &temp);
-+		punit_cmd_init(cmd, IPC_PUNIT_BIOS_READ_TELE_TRACE_CTRL, 0, 0);
-+		ret = ipc_dev_raw_cmd(punit_bios_ipc_dev, cmd, PUNIT_PARAM_LEN,
-+				NULL, 0, &temp, 1, 0, 0);
- 		if (ret) {
- 			pr_err("PSS TRACE_CTRL Read Failed\n");
- 			goto out;
-@@ -1024,15 +1037,16 @@ static int telemetry_plt_set_trace_verbosity(enum telemetry_unit telem_unit,
- {
- 	u32 temp = 0;
- 	int ret;
-+	u32 cmd[PUNIT_PARAM_LEN] = {0};
- 
- 	verbosity &= TELEM_TRC_VERBOSITY_MASK;
- 
- 	mutex_lock(&(telm_conf->telem_trace_lock));
- 	switch (telem_unit) {
- 	case TELEM_PSS:
--		ret = intel_punit_ipc_command(
--				IPC_PUNIT_BIOS_READ_TELE_TRACE_CTRL,
--				0, 0, NULL, &temp);
-+		punit_cmd_init(cmd, IPC_PUNIT_BIOS_READ_TELE_TRACE_CTRL, 0, 0);
-+		ret = ipc_dev_raw_cmd(punit_bios_ipc_dev, cmd, PUNIT_PARAM_LEN,
-+				NULL, 0, &temp, 1, 0, 0);
- 		if (ret) {
- 			pr_err("PSS TRACE_CTRL Read Failed\n");
- 			goto out;
-@@ -1040,10 +1054,10 @@ static int telemetry_plt_set_trace_verbosity(enum telemetry_unit telem_unit,
- 
- 		TELEM_CLEAR_VERBOSITY_BITS(temp);
- 		TELEM_SET_VERBOSITY_BITS(temp, verbosity);
--
--		ret = intel_punit_ipc_command(
--				IPC_PUNIT_BIOS_WRITE_TELE_TRACE_CTRL,
--				0, 0, &temp, NULL);
-+		punit_cmd_init(cmd, IPC_PUNIT_BIOS_WRITE_TELE_EVENT_CTRL,
-+				0, 0);
-+		ret = ipc_dev_raw_cmd(punit_bios_ipc_dev, cmd, PUNIT_PARAM_LEN,
-+				(u8 *)&temp, sizeof(temp), NULL, 0, 0, 0);
- 		if (ret) {
- 			pr_err("PSS TRACE_CTRL Verbosity Set Failed\n");
- 			goto out;
-@@ -1105,6 +1119,10 @@ static int telemetry_pltdrv_probe(struct platform_device *pdev)
- 	if (!id)
- 		return -ENODEV;
- 
-+	punit_bios_ipc_dev = intel_ipc_dev_get(PUNIT_BIOS_IPC_DEV);
-+	if (IS_ERR_OR_NULL(punit_bios_ipc_dev))
-+		return PTR_ERR(punit_bios_ipc_dev);
++        ipcdev.gcr_regs = devm_regmap_init_mmio_clk(ipcdev.dev, NULL,
++			ipcdev.gcr_mem_base, &gcr_regmap_config);
++        if (IS_ERR(ipcdev.gcr_regs)) {
++                dev_err(ipcdev.dev, "gcr_regs regmap init failed\n");
++                return PTR_ERR(ipcdev.gcr_regs);;
++        }
 +
- 	telm_conf = (struct telemetry_plt_config *)id->driver_data;
+ 	ret = ipc_create_pmc_devices(pdev);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "Failed to create pmc devices\n");
+@@ -836,8 +801,6 @@ static int ipc_plat_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
  
- 	res0 = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	ipcdev.has_gcr_regs = true;
+-
+ 	return 0;
+ }
+ 
 -- 
 2.7.4
 
