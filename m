@@ -1,5 +1,5 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Thu, 14 Sep 2017 07:43:45 -0700
+Date: Thu, 14 Sep 2017 07:52:08 -0700
 From: Guenter Roeck <linux@roeck-us.net>
 To: Oleksij Rempel <o.rempel@pengutronix.de>
 Cc: Wim Van Sebroeck <wim@iguana.be>, Dinh Nguyen <dinguyen@kernel.org>,
@@ -8,19 +8,19 @@ Cc: Wim Van Sebroeck <wim@iguana.be>, Dinh Nguyen <dinguyen@kernel.org>,
         linux-watchdog@vger.kernel.org, kernel@pengutronix.de,
         Russell King <linux@armlinux.org.uk>, devicetree@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v1 1/2] watchdog: dw_wdt: add stop watchdog operation
-Message-ID: <20170914144345.GA7337@roeck-us.net>
-References: <20170914081402.7893-1-o.rempel@pengutronix.de>
+Subject: Re: [PATCH v2 1/2] watchdog: dw_wdt: add stop watchdog operation
+Message-ID: <20170914145208.GC7337@roeck-us.net>
+References: <20170914113013.19157-1-o.rempel@pengutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20170914081402.7893-1-o.rempel@pengutronix.de>
+In-Reply-To: <20170914113013.19157-1-o.rempel@pengutronix.de>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On Thu, Sep 14, 2017 at 10:14:01AM +0200, Oleksij Rempel wrote:
+On Thu, Sep 14, 2017 at 01:30:12PM +0200, Oleksij Rempel wrote:
 > From: Steffen Trumtrar <s.trumtrar@pengutronix.de>
 > 
 > The only way of stopping the watchdog is by resetting it.
@@ -33,11 +33,15 @@ On Thu, Sep 14, 2017 at 10:14:01AM +0200, Oleksij Rempel wrote:
 > Cc: Guenter Roeck <linux@roeck-us.net>
 > Cc: linux-watchdog@vger.kernel.org
 > ---
+> 
+> changes v2:
+>  - test if dw_wdt->rst is NULL instead of IS_ERR
+> 
 >  drivers/watchdog/dw_wdt.c | 16 ++++++++++++++++
 >  1 file changed, 16 insertions(+)
 > 
 > diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
-> index 36be987ff9ef..50d8a6a5b5ac 100644
+> index 36be987ff9ef..a507f36302e1 100644
 > --- a/drivers/watchdog/dw_wdt.c
 > +++ b/drivers/watchdog/dw_wdt.c
 > @@ -135,6 +135,21 @@ static int dw_wdt_start(struct watchdog_device *wdd)
@@ -48,15 +52,21 @@ On Thu, Sep 14, 2017 at 10:14:01AM +0200, Oleksij Rempel wrote:
 > +{
 > +	struct dw_wdt *dw_wdt = to_dw_wdt(wdd);
 > +
-> +	if (IS_ERR(dw_wdt->rst)) {
+> +	if (!dw_wdt->rst) {
 > +		dev_warn(wdd->parent, "No reset line. Will not stop.\n");
-> +		return PTR_ERR(dw_wdt->rst);
+> +		return -EOPNOTSUPP;
+
+Sorry, not the way to go. It now reports an error to user space when
+there was none previously, and it still reboots the system. Plus, this
+was a perfectly fine condition previously, and the reset line is optional.
+It is not appropriate to generate a warning for a perfectly valid
+condition.
+
+You can not change behavior for existing users.
+
+Guenter
+
 > +	}
-
-This is a change in behavior. Previously, with no stop function,
-the watchdog core would keep pinging the watchdog in this situation.
-Now it would end up spitting a warning and resetting the system.
-
 > +
 > +	reset_control_assert(dw_wdt->rst);
 > +	reset_control_deassert(dw_wdt->rst);
