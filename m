@@ -1,9 +1,9 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:48105 "EHLO
+Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:49591 "EHLO
         metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1751433AbdINIOp (ORCPT
+        by vger.kernel.org with ESMTP id S1751928AbdINLa6 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 14 Sep 2017 04:14:45 -0400
+        Thu, 14 Sep 2017 07:30:58 -0400
 From: Oleksij Rempel <o.rempel@pengutronix.de>
 To: Wim Van Sebroeck <wim@iguana.be>,
         Guenter Roeck <linux@roeck-us.net>,
@@ -17,11 +17,11 @@ Cc: Steffen Trumtrar <s.trumtrar@pengutronix.de>,
         Russell King <linux@armlinux.org.uk>,
         devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-watchdog@vger.kernel.org
-Subject: [PATCH v1 2/2] ARM: socfpga: dtsi: add dw-wdt reset lines
-Date: Thu, 14 Sep 2017 10:14:02 +0200
-Message-Id: <20170914081402.7893-2-o.rempel@pengutronix.de>
-In-Reply-To: <20170914081402.7893-1-o.rempel@pengutronix.de>
-References: <20170914081402.7893-1-o.rempel@pengutronix.de>
+Subject: [PATCH v2 2/2] ARM: socfpga: dtsi: add dw-wdt reset lines
+Date: Thu, 14 Sep 2017 13:30:13 +0200
+Message-Id: <20170914113013.19157-2-o.rempel@pengutronix.de>
+In-Reply-To: <20170914113013.19157-1-o.rempel@pengutronix.de>
+References: <20170914113013.19157-1-o.rempel@pengutronix.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
