@@ -1,72 +1,39 @@
-Return-Path: <mathieu.malaterre@gmail.com>
-Return-path: <mathieu.malaterre@gmail.com>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-io0-f196.google.com ([209.85.223.196]:37686 "EHLO
+        mail-io0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750783AbdIRWbN (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 18 Sep 2017 18:31:13 -0400
+Date: Mon, 18 Sep 2017 17:31:11 -0500
+From: Rob Herring <robh@kernel.org>
+To: Eric Long <eric.long@spreadtrum.com>
+Cc: Wim Van Sebroeck <wim@iguana.be>,
+        Mark Rutland <mark.rutland@arm.com>, baolin.wang@linaro.org,
+        Guenter Roeck <linux@roeck-us.net>,
+        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 1/2] dt-bindings: watchdog: Add Spreadtrum watchdog
+ documentation
+Message-ID: <20170918223111.ywopvesfqodxh2ah@rob-hp-laptop>
+References: <f3daa0f85dda0672c4b057e7f37c690365652e39.1505216059.git.eric.long@spreadtrum.com>
 MIME-Version: 1.0
-Sender: mathieu.malaterre@gmail.com
-In-Reply-To: <20170915224220.GB3420@roeck-us.net>
-References: <20170915192020.27717-1-malat@debian.org> <20170915224220.GB3420@roeck-us.net>
-From: Mathieu Malaterre <malat@debian.org>
-Date: Mon, 18 Sep 2017 12:00:00 +0200
-Message-ID: <CA+7wUsx91=ZkBTuqwshrx8Mt2rG0EZc3K58hePv+7R=Mgc9LyA@mail.gmail.com>
-Subject: Re: [PATCH v2 4/5] watchdog: jz4740: Add support for the watchdog in
- jz4780 SoC
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Zubair Lutfullah Kakakhel <Zubair.Kakakhel@imgtec.com>, Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Paul Cercueil <paul@crapouillou.net>
-Content-Type: text/plain; charset="UTF-8"
-List-ID: <linux-watchdog@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <f3daa0f85dda0672c4b057e7f37c690365652e39.1505216059.git.eric.long@spreadtrum.com>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-On Sat, Sep 16, 2017 at 12:42 AM, Guenter Roeck <linux@roeck-us.net> wrote:
-> On Fri, Sep 15, 2017 at 09:20:19PM +0200, Mathieu Malaterre wrote:
->> The watchdog unit present in the JZ4780 works the same as the one in the
->> JZ4740.
->>
->> Signed-off-by: Mathieu Malaterre <malat@debian.org>
->> ---
->> Changes in v2:
->> * do not re-use the compatible string for different SoC (Paul Cercueil)
->
-> I thought that was one of the specific features of compatible statements,
-> to avoid having to change the driver each time a new chip comes along.
-> Did that change recently ?
+On Tue, Sep 12, 2017 at 07:40:08PM +0800, Eric Long wrote:
+> This patch adds the documentation for Spreadtrum watchdog driver.
+> 
+> Signed-off-by: Eric Long <eric.long@spreadtrum.com>
+> ---
+> changes since v1:
+>  - No updates.
+> ---
+>  .../devicetree/bindings/watchdog/sprd-wdt.txt         | 19 +++++++++++++++++++
+>  1 file changed, 19 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/watchdog/sprd-wdt.txt
 
-Well, this was suggested-by Paul Cercueil. This seems to make sense to
-have two different compatible strings for two different SoC (JZ4740 &
-JZ4780, technically there is also JZ4770). This also seems to be used
-in other drivers:
-
-% grep -lroPz  '(?s)ingenic,jz4740.*?ingenic,jz4780' *
-Documentation/devicetree/bindings/gpio/ingenic,gpio.txt
-Documentation/devicetree/bindings/pinctrl/ingenic,pinctrl.txt
-Documentation/devicetree/bindings/clock/ingenic,cgu.txt
-Documentation/devicetree/bindings/interrupt-controller/ingenic,intc.txt
-Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt
-Documentation/devicetree/bindings/serial/ingenic,uart.txt
-Documentation/devicetree/bindings/sound/ingenic,jz4740-i2s.txt
-drivers/gpio/gpio-ingenic.c
-drivers/pinctrl/pinctrl-ingenic.c
-drivers/tty/serial/8250/8250_ingenic.c
-drivers/rtc/rtc-jz4740.c
-drivers/irqchip/irq-ingenic.c
-sound/soc/jz4740/jz4740-i2s.c
-
-
->>
->>  drivers/watchdog/jz4740_wdt.c | 1 +
->>  1 file changed, 1 insertion(+)
->>
->> diff --git a/drivers/watchdog/jz4740_wdt.c b/drivers/watchdog/jz4740_wdt.c
->> index 20627f22baf6..aafbeb96561b 100644
->> --- a/drivers/watchdog/jz4740_wdt.c
->> +++ b/drivers/watchdog/jz4740_wdt.c
->> @@ -146,6 +146,7 @@ static const struct watchdog_ops jz4740_wdt_ops = {
->>  #ifdef CONFIG_OF
->>  static const struct of_device_id jz4740_wdt_of_matches[] = {
->>       { .compatible = "ingenic,jz4740-watchdog", },
->> +     { .compatible = "ingenic,jz4780-watchdog", },
->>       { /* sentinel */ }
->>  };
->>  MODULE_DEVICE_TABLE(of, jz4740_wdt_of_matches);
->> --
->> 2.11.0
->>
+Acked-by: Rob Herring <robh@kernel.org>
