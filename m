@@ -1,57 +1,60 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pf0-f195.google.com ([209.85.192.195]:35977 "EHLO
-        mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751197AbdIOWmW (ORCPT
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:49943 "EHLO
+        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1750781AbdIRFyD (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 15 Sep 2017 18:42:22 -0400
-Date: Fri, 15 Sep 2017 15:42:20 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Mathieu Malaterre <malat@debian.org>
-Cc: Zubair Lutfullah Kakakhel <Zubair.Kakakhel@imgtec.com>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 4/5] watchdog: jz4740: Add support for the watchdog in
- jz4780 SoC
-Message-ID: <20170915224220.GB3420@roeck-us.net>
-References: <20170915192020.27717-1-malat@debian.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20170915192020.27717-1-malat@debian.org>
+        Mon, 18 Sep 2017 01:54:03 -0400
+Message-ID: <1505714034.4080.16.camel@aj.id.au>
+Subject: Re: [PATCH 0/4] watchdog: aspeed: Retain enabled state and move to
+From: Andrew Jeffery <andrew@aj.id.au>
+To: linux-watchdog@vger.kernel.org
+Cc: wim@iguana.be, linux@roeck-us.net, joel@jms.id.au,
+        linux-kernel@vger.kernel.org, openbmc@lists.ozlabs.org,
+        linux-aspeed@lists.ozlabs.org, ryan_chen@aspeedtech.com
+Date: Mon, 18 Sep 2017 15:23:54 +0930
+In-Reply-To: <20170918054905.16470-1-andrew@aj.id.au>
+References: <20170918054905.16470-1-andrew@aj.id.au>
+Content-Type: multipart/signed; micalg="pgp-sha512";
+        protocol="application/pgp-signature"; boundary="=-uD2mYu7Q2COBPhEVL4W+"
+Mime-Version: 1.0
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, Sep 15, 2017 at 09:20:19PM +0200, Mathieu Malaterre wrote:
-> The watchdog unit present in the JZ4780 works the same as the one in the
-> JZ4740.
-> 
-> Signed-off-by: Mathieu Malaterre <malat@debian.org>
-> ---
-> Changes in v2:
-> * do not re-use the compatible string for different SoC (Paul Cercueil)
 
-I thought that was one of the specific features of compatible statements,
-to avoid having to change the driver each time a new chip comes along.
-Did that change recently ?
+--=-uD2mYu7Q2COBPhEVL4W+
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Guenter
+On Mon, 2017-09-18 at 15:19 +0930, Andrew Jeffery wrote:
+> Hello,
+>=20
 
-> 
->  drivers/watchdog/jz4740_wdt.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/watchdog/jz4740_wdt.c b/drivers/watchdog/jz4740_wdt.c
-> index 20627f22baf6..aafbeb96561b 100644
-> --- a/drivers/watchdog/jz4740_wdt.c
-> +++ b/drivers/watchdog/jz4740_wdt.c
-> @@ -146,6 +146,7 @@ static const struct watchdog_ops jz4740_wdt_ops = {
->  #ifdef CONFIG_OF
->  static const struct of_device_id jz4740_wdt_of_matches[] = {
->  	{ .compatible = "ingenic,jz4740-watchdog", },
-> +	{ .compatible = "ingenic,jz4780-watchdog", },
->  	{ /* sentinel */ }
->  };
->  MODULE_DEVICE_TABLE(of, jz4740_wdt_of_matches);
-> -- 
-> 2.11.0
-> 
+*snip*
+
+Ah, my subject got truncated. It should read:
+
+    watchdog: aspeed: Retain enabled state and move to arch_initcall
+--=-uD2mYu7Q2COBPhEVL4W+
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+Content-Transfer-Encoding: 7bit
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIcBAABCgAGBQJZv19yAAoJEJ0dnzgO5LT5giAQAI8k0YudAOlkIKMzMzPzbphW
+PxM2fwlZFul0wfDwXxvagoXfhqCu009h+HVotUilxAZarxvCxjXGmx9Dfc+mlw61
+QXMdsNAHP2UkK8IEPbvSlk6hAqDaG05qjMLRQ31whj70oHw8POu0z349rIAErlvU
+KHesli4MEGG5H1zzg5zHpcF8gRlCeYxIE4UnTG6kY5csBqaEXtahi+vbNgzj+3CI
+fu6QCrZrNoDK+wDKng3gLhnQKyFOgnpr97ZkxZgdbNS67bq0zpSVDyzx08KLgOQy
+shpDpRkwAGzAkNQD0673/4bVfs4uqBgkravR3g97Av7t4V6qhX9sNuP58G6oUdV4
+vklvlLn1IHuYxEkYF+2Vq8upexnC4sJul5DjRhLP/wp+0B71Xpr5Q0I2ds9iR31A
+dZdjTSRzJzuKJketartbPUoFYS9XSQn1XtSZ9HsRx2fcjYiiqdW9kD0JL65f0HPz
+DDLMJ/mONA1UFzFm0E0CJ1BbKXiLkJfpqoU0/5Y48XX3IWfGu56MvdwNfxk0q6lF
+RKrom1pAxCTP5rQb+xtqtJ8FPpbsJx+2t4Kgx7UvoHjF0MS81NJU6WdVO3ulrHVh
+4KwMHoxi+d1qp2e9JZRh9xYjkmSU8aR3fQYO3u3Xn/9o1aa8ClrW46/no3qy2Syh
+yCe25riFyk93e0lG+56H
+=RZK0
+-----END PGP SIGNATURE-----
+
+--=-uD2mYu7Q2COBPhEVL4W+--
+
