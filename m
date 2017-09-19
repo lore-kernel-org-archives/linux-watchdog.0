@@ -1,219 +1,135 @@
-Return-Path: <philipp_subx@redfish-solutions.com>
-Return-path: <philipp_subx@redfish-solutions.com>
-Content-Type: text/plain; charset=utf-8
-Mime-Version: 1.0 (Mac OS X Mail 10.3 \(3273\))
-Subject: Re: [RFC] watchdog: iTCO_wdt: Introduce panic_on_timeout module param
-From: Philip Prindeville <philipp_subx@redfish-solutions.com>
-In-Reply-To: <20161205224815.23335-1-jpitti@cisco.com>
-Date: Mon, 18 Sep 2017 20:52:26 -0600
-Cc: Wim Van Sebroeck <wim@iguana.be>, Guenter Roeck <linux@roeck-us.net>,
-        xe-kernel@external.cisco.com, jpitti@mvista.com,
-        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
-Message-Id: <FAF7C8B1-7A8B-4EBB-9FD7-39A72F669C76@redfish-solutions.com>
+Return-Path: <jpitti@cisco.com>
+Return-path: <jpitti@cisco.com>
+From: "Julius Hemanth Pitti -X (jpitti - MONTA VISTA SOFTWARE INC at Cisco)"
+	<jpitti@cisco.com>
+To: Philip Prindeville <philipp_subx@redfish-solutions.com>
+CC: Wim Van Sebroeck <wim@iguana.be>, Guenter Roeck <linux@roeck-us.net>,
+        "xe-kernel@external.cisco.com" <xe-kernel@external.cisco.com>,
+        "jpitti@mvista.com" <jpitti@mvista.com>,
+        "linux-watchdog@vger.kernel.org"
+	<linux-watchdog@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org"
+	<linux-kernel@vger.kernel.org>
+Subject: RE: [RFC] watchdog: iTCO_wdt: Introduce panic_on_timeout module param
+Date: Tue, 19 Sep 2017 23:44:21 +0000
+Message-ID: <ff3cfc90c6e1420593202d4207d6b4e1@XCH-ALN-019.cisco.com>
 References: <20161205224815.23335-1-jpitti@cisco.com>
-To: Julius Hemanth Pitti <jpitti@cisco.com>
+ <FAF7C8B1-7A8B-4EBB-9FD7-39A72F669C76@redfish-solutions.com>
+In-Reply-To: <FAF7C8B1-7A8B-4EBB-9FD7-39A72F669C76@redfish-solutions.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Sorry for being late to the party=E2=80=A6
-
-I tried to use this patch backported to 4.9.49 but could only get the =
-system to reset (presumably the SMI but not certain since I=E2=80=99m =
-not that current on BMC/SMI architecture) when it hung.
-
-It=E2=80=99s a Lanner FW-8771 with AMI BIOS 4.6.5 on a Xeon E3-1225 v3.
-
-Also, it seems to me that the TCO stuff has several versions (that =
-affect bit placement and semantics) but I=E2=80=99m assuming that this =
-code hasn=E2=80=99t been tested on all versions?
-
-Thus special handling might be required based on the generation of TCO =
-that=E2=80=99s on-chip which I=E2=80=99m not seeing here.  What =
-processor was this code developed/tested on?
-
-Comments on the particulars of the code itself inline.
-
-
-> On Dec 5, 2016, at 3:48 PM, Julius Hemanth Pitti <jpitti@cisco.com> =
-wrote:
->=20
-> Currently iTCO_wdt silently resets the board when timeout
-> occurs.
->=20
-> This patch introduces new "panic_on_timeout" module param,
-> which when set allows the iTCO_wdt to call panic when
-> watchdog timeout occurs, this help to boot to crash
-> kernel and collect core dump for further analysis.
->=20
-> Cc: xe-kernel@external.cisco.com
-> Cc: jpitti@mvista.com
-> Signed-off-by: Julius Hemanth Pitti <jpitti@cisco.com>
-> ---
-> drivers/watchdog/iTCO_wdt.c | 61 =
-+++++++++++++++++++++++++++++++++++++++++++++
-> 1 file changed, 61 insertions(+)
->=20
-> diff --git a/drivers/watchdog/iTCO_wdt.c b/drivers/watchdog/iTCO_wdt.c
-> index 06fcb6c..23ddcf4 100644
-> --- a/drivers/watchdog/iTCO_wdt.c
-> +++ b/drivers/watchdog/iTCO_wdt.c
-> @@ -66,6 +66,7 @@
-> #include <linux/spinlock.h>		/* For spin_lock/spin_unlock/... =
-*/
-> #include <linux/uaccess.h>		/* For copy_to_user/put_user/... =
-*/
-> #include <linux/io.h>			/* For inb/outb/... */
-> +#include <linux/nmi.h>
-> #include <linux/platform_data/itco_wdt.h>
->=20
-> #include "iTCO_vendor.h"
-> @@ -76,6 +77,24 @@
-> /* SMI Control and Enable Register */
-> #define SMI_EN		(iTCO_wdt_private.smi_res->start)
->=20
-> +static int panic_on_timeout;
-
-
-Don=E2=80=99t seem the point of making this =E2=80=98int=E2=80=99 rather =
-than =E2=80=98bool=E2=80=99.
-
-
-> +module_param(panic_on_timeout, int, 0);
-
-
-Ditto
-
-
-> +MODULE_PARM_DESC(panic_on_timeout,
-> +		 "Panic on NMI instead of Reset (1 =3D panic), =
-default=3D0.");
-> +
-> +/* NMI2SMI_EN is bit 9 of TCO1_CNT register
-> + * Read/Write
-> + * 0 =3D Normal NMI functionality.
-> + * 1 =3D Forces all NMIs to instead cause SMIs
-> + *     This depends on NMI_EN and GBL_SMI_EN bits.
-> + */
-> +#define NMI2SMI_EN	(1 << 9)
-> +
-> +/* NMI_NOW is bit 8 of TCO1_CNT register.
-> + * Read/'Write to Clear'
-> + */
-> +#define NMI_NOW		(1 << 8)
-> +
-> #define TCO_RLD		(TCOBASE + 0x00) /* TCO Timer Reload and =
-Curr. Value */
-> #define TCOv1_TMR	(TCOBASE + 0x01) /* TCOv1 Timer Initial Value	=
-*/
-> #define TCO_DAT_IN	(TCOBASE + 0x02) /* TCO Data In Register	=
-*/
-> @@ -236,6 +255,15 @@ static int iTCO_wdt_start(struct watchdog_device =
-*wd_dev)
-> 	val &=3D 0xf7ff;
-> 	outw(val, TCO1_CNT);
-> 	val =3D inw(TCO1_CNT);
-> +
-> +	if (panic_on_timeout) {
-> +		/* Make sure NMIs are allowed to fire */
-> +		if (NMI2SMI_EN & val) {
-
-
-The Yoda notation was already called out=E2=80=A6
-
-
-> +			val &=3D ~(NMI2SMI_EN);
-
-
-=E2=80=A6 as were the extraneous parens.
-
-
-> +			outw(val, TCO1_CNT);
-> +			pr_info("NMIs are no longer routed to SMIs\n");
-> +		}
-> +	}
-> 	spin_unlock(&iTCO_wdt_private.io_lock);
->=20
-> 	if (val & 0x0800)
-
-
-Do we need:
-
-+@@ -372,6 +373,7 @@ static unsigned int iTCO_wdt_get_timelef
-+=20
-+ static const struct watchdog_info ident =3D {
-+       .options =3D              WDIOF_SETTIMEOUT |
-++                              WDIOF_PRETIMEOUT |
-+                               WDIOF_KEEPALIVEPING |
-+                               WDIOF_MAGICCLOSE,
-+       .firmware_version =3D     0,
-
-also?  Because without WDIOF_PRETIMEOUT, it seems that =
-watchdog_set_pretimeout() would return
--EOPNOTSUPP when you try to do the ioctl(WDIOC_SETPRETIMEOUT)=E2=80=A6
-
-
-> @@ -422,6 +450,26 @@ static void iTCO_wdt_cleanup(void)
-> 	iTCO_wdt_private.gcs_pmc =3D NULL;
-> }
->=20
-> +/*
-> + * iTCO_wdt_timeout_handler: Handler for watchdog timeout NMI event.
-> + */
-> +int iTCO_wdt_timeout_handler(unsigned int ulReason, struct pt_regs =
-*regs)
-> +{
-> +	unsigned long val32 =3D inw(TCO1_CNT);
-> +
-> +	if (val32 & NMI_NOW) {
-> +		/* Clear NMI - Bit 8 within TCO1_CNT is write to clear =
-*/
-> +		outw(val32, TCO1_CNT);
-> +
-> +		/* Crash the system */
-> +		nmi_panic(regs, "iTCO_wdt: Watchdog timeout");
-> +
-> +		/* Never returns */
-> +		return NMI_HANDLED;
-> +	}
-> +	return NMI_DONE;
-> +}
-> +
-> static int iTCO_wdt_probe(struct platform_device *dev)
-> {
-> 	int ret =3D -ENODEV;
-> @@ -552,11 +600,21 @@ static int iTCO_wdt_probe(struct platform_device =
-*dev)
-> 		goto unreg_tco;
-> 	}
->=20
-> +	if (panic_on_timeout) {
-> +		ret =3D register_nmi_handler(NMI_UNKNOWN, =
-iTCO_wdt_timeout_handler, 0, "iTCO_wdt");
-> +		if (ret !=3D 0) {
-> +			pr_err("cannot register NMI Handler for iTCO_wdt =
-watchdog (err=3D%d)\n", ret);
-> +			goto unreg_wd;
-> +		}
-> +	}
-> +
-> 	pr_info("initialized. heartbeat=3D%d sec (nowayout=3D%d)\n",
-> 		heartbeat, nowayout);
->=20
-> 	return 0;
->=20
-> +unreg_wd:
-> +	watchdog_unregister_device(&iTCO_wdt_watchdog_dev);
-> unreg_tco:
-> 	release_region(iTCO_wdt_private.tco_res->start,
-> 			resource_size(iTCO_wdt_private.tco_res));
-> @@ -581,6 +639,9 @@ static int iTCO_wdt_probe(struct platform_device =
-*dev)
->=20
-> static int iTCO_wdt_remove(struct platform_device *dev)
-> {
-> +	if (panic_on_timeout)
-> +		unregister_nmi_handler(NMI_UNKNOWN, "iTCO_wdt");
-> +
-> 	if (iTCO_wdt_private.tco_res || iTCO_wdt_private.smi_res)
-> 		iTCO_wdt_cleanup();
->=20
+SGkgUGhpbGlwLA0KDQpJIGxlYXJuZWQgYWJvdXQgInVua25vd25fbm1pX3BhbmljIiwgIHdoaWNo
+IHNlcnZlcnMgdGhlIHNhbWUgcHVycG9zZSwgaGVuY2UgSSBzdG9wcGVkIHdvcmtpbmcgb24gdGhp
+cyBwYXRjaC4NCkJUVywgSSB0ZXN0ZWQgaXQgb24gWGVvbiBDMzUzOSBhbmQgWGVvbiBMNTIzOC4N
+Cg0KDQotLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KRnJvbTogUGhpbGlwIFByaW5kZXZpbGxl
+IFttYWlsdG86cGhpbGlwcF9zdWJ4QHJlZGZpc2gtc29sdXRpb25zLmNvbV0gDQpTZW50OiBNb25k
+YXksIFNlcHRlbWJlciAxOCwgMjAxNyA3OjUyIFBNDQpUbzogSnVsaXVzIEhlbWFudGggUGl0dGkg
+LVggKGpwaXR0aSAtIE1PTlRBIFZJU1RBIFNPRlRXQVJFIElOQyBhdCBDaXNjbykgPGpwaXR0aUBj
+aXNjby5jb20+DQpDYzogV2ltIFZhbiBTZWJyb2VjayA8d2ltQGlndWFuYS5iZT47IEd1ZW50ZXIg
+Um9lY2sgPGxpbnV4QHJvZWNrLXVzLm5ldD47IHhlLWtlcm5lbEBleHRlcm5hbC5jaXNjby5jb207
+IGpwaXR0aUBtdmlzdGEuY29tOyBsaW51eC13YXRjaGRvZ0B2Z2VyLmtlcm5lbC5vcmc7IGxpbnV4
+LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmcNClN1YmplY3Q6IFJlOiBbUkZDXSB3YXRjaGRvZzogaVRD
+T193ZHQ6IEludHJvZHVjZSBwYW5pY19vbl90aW1lb3V0IG1vZHVsZSBwYXJhbQ0KDQpTb3JyeSBm
+b3IgYmVpbmcgbGF0ZSB0byB0aGUgcGFydHnigKYNCg0KSSB0cmllZCB0byB1c2UgdGhpcyBwYXRj
+aCBiYWNrcG9ydGVkIHRvIDQuOS40OSBidXQgY291bGQgb25seSBnZXQgdGhlIHN5c3RlbSB0byBy
+ZXNldCAocHJlc3VtYWJseSB0aGUgU01JIGJ1dCBub3QgY2VydGFpbiBzaW5jZSBJ4oCZbSBub3Qg
+dGhhdCBjdXJyZW50IG9uIEJNQy9TTUkgYXJjaGl0ZWN0dXJlKSB3aGVuIGl0IGh1bmcuDQoNCkl0
+4oCZcyBhIExhbm5lciBGVy04NzcxIHdpdGggQU1JIEJJT1MgNC42LjUgb24gYSBYZW9uIEUzLTEy
+MjUgdjMuDQoNCkFsc28sIGl0IHNlZW1zIHRvIG1lIHRoYXQgdGhlIFRDTyBzdHVmZiBoYXMgc2V2
+ZXJhbCB2ZXJzaW9ucyAodGhhdCBhZmZlY3QgYml0IHBsYWNlbWVudCBhbmQgc2VtYW50aWNzKSBi
+dXQgSeKAmW0gYXNzdW1pbmcgdGhhdCB0aGlzIGNvZGUgaGFzbuKAmXQgYmVlbiB0ZXN0ZWQgb24g
+YWxsIHZlcnNpb25zPw0KDQpUaHVzIHNwZWNpYWwgaGFuZGxpbmcgbWlnaHQgYmUgcmVxdWlyZWQg
+YmFzZWQgb24gdGhlIGdlbmVyYXRpb24gb2YgVENPIHRoYXTigJlzIG9uLWNoaXAgd2hpY2ggSeKA
+mW0gbm90IHNlZWluZyBoZXJlLiAgV2hhdCBwcm9jZXNzb3Igd2FzIHRoaXMgY29kZSBkZXZlbG9w
+ZWQvdGVzdGVkIG9uPw0KDQpDb21tZW50cyBvbiB0aGUgcGFydGljdWxhcnMgb2YgdGhlIGNvZGUg
+aXRzZWxmIGlubGluZS4NCg0KDQo+IE9uIERlYyA1LCAyMDE2LCBhdCAzOjQ4IFBNLCBKdWxpdXMg
+SGVtYW50aCBQaXR0aSA8anBpdHRpQGNpc2NvLmNvbT4gd3JvdGU6DQo+IA0KPiBDdXJyZW50bHkg
+aVRDT193ZHQgc2lsZW50bHkgcmVzZXRzIHRoZSBib2FyZCB3aGVuIHRpbWVvdXQgb2NjdXJzLg0K
+PiANCj4gVGhpcyBwYXRjaCBpbnRyb2R1Y2VzIG5ldyAicGFuaWNfb25fdGltZW91dCIgbW9kdWxl
+IHBhcmFtLCB3aGljaCB3aGVuIA0KPiBzZXQgYWxsb3dzIHRoZSBpVENPX3dkdCB0byBjYWxsIHBh
+bmljIHdoZW4gd2F0Y2hkb2cgdGltZW91dCBvY2N1cnMsIA0KPiB0aGlzIGhlbHAgdG8gYm9vdCB0
+byBjcmFzaCBrZXJuZWwgYW5kIGNvbGxlY3QgY29yZSBkdW1wIGZvciBmdXJ0aGVyIA0KPiBhbmFs
+eXNpcy4NCj4gDQo+IENjOiB4ZS1rZXJuZWxAZXh0ZXJuYWwuY2lzY28uY29tDQo+IENjOiBqcGl0
+dGlAbXZpc3RhLmNvbQ0KPiBTaWduZWQtb2ZmLWJ5OiBKdWxpdXMgSGVtYW50aCBQaXR0aSA8anBp
+dHRpQGNpc2NvLmNvbT4NCj4gLS0tDQo+IGRyaXZlcnMvd2F0Y2hkb2cvaVRDT193ZHQuYyB8IDYx
+IA0KPiArKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysNCj4gMSBm
+aWxlIGNoYW5nZWQsIDYxIGluc2VydGlvbnMoKykNCj4gDQo+IGRpZmYgLS1naXQgYS9kcml2ZXJz
+L3dhdGNoZG9nL2lUQ09fd2R0LmMgYi9kcml2ZXJzL3dhdGNoZG9nL2lUQ09fd2R0LmMgDQo+IGlu
+ZGV4IDA2ZmNiNmMuLjIzZGRjZjQgMTAwNjQ0DQo+IC0tLSBhL2RyaXZlcnMvd2F0Y2hkb2cvaVRD
+T193ZHQuYw0KPiArKysgYi9kcml2ZXJzL3dhdGNoZG9nL2lUQ09fd2R0LmMNCj4gQEAgLTY2LDYg
+KzY2LDcgQEANCj4gI2luY2x1ZGUgPGxpbnV4L3NwaW5sb2NrLmg+CQkvKiBGb3Igc3Bpbl9sb2Nr
+L3NwaW5fdW5sb2NrLy4uLiAqLw0KPiAjaW5jbHVkZSA8bGludXgvdWFjY2Vzcy5oPgkJLyogRm9y
+IGNvcHlfdG9fdXNlci9wdXRfdXNlci8uLi4gKi8NCj4gI2luY2x1ZGUgPGxpbnV4L2lvLmg+CQkJ
+LyogRm9yIGluYi9vdXRiLy4uLiAqLw0KPiArI2luY2x1ZGUgPGxpbnV4L25taS5oPg0KPiAjaW5j
+bHVkZSA8bGludXgvcGxhdGZvcm1fZGF0YS9pdGNvX3dkdC5oPg0KPiANCj4gI2luY2x1ZGUgImlU
+Q09fdmVuZG9yLmgiDQo+IEBAIC03Niw2ICs3NywyNCBAQA0KPiAvKiBTTUkgQ29udHJvbCBhbmQg
+RW5hYmxlIFJlZ2lzdGVyICovDQo+ICNkZWZpbmUgU01JX0VOCQkoaVRDT193ZHRfcHJpdmF0ZS5z
+bWlfcmVzLT5zdGFydCkNCj4gDQo+ICtzdGF0aWMgaW50IHBhbmljX29uX3RpbWVvdXQ7DQoNCg0K
+RG9u4oCZdCBzZWVtIHRoZSBwb2ludCBvZiBtYWtpbmcgdGhpcyDigJhpbnTigJkgcmF0aGVyIHRo
+YW4g4oCYYm9vbOKAmS4NCg0KDQo+ICttb2R1bGVfcGFyYW0ocGFuaWNfb25fdGltZW91dCwgaW50
+LCAwKTsNCg0KDQpEaXR0bw0KDQoNCj4gK01PRFVMRV9QQVJNX0RFU0MocGFuaWNfb25fdGltZW91
+dCwNCj4gKwkJICJQYW5pYyBvbiBOTUkgaW5zdGVhZCBvZiBSZXNldCAoMSA9IHBhbmljKSwgZGVm
+YXVsdD0wLiIpOw0KPiArDQo+ICsvKiBOTUkyU01JX0VOIGlzIGJpdCA5IG9mIFRDTzFfQ05UIHJl
+Z2lzdGVyDQo+ICsgKiBSZWFkL1dyaXRlDQo+ICsgKiAwID0gTm9ybWFsIE5NSSBmdW5jdGlvbmFs
+aXR5Lg0KPiArICogMSA9IEZvcmNlcyBhbGwgTk1JcyB0byBpbnN0ZWFkIGNhdXNlIFNNSXMNCj4g
+KyAqICAgICBUaGlzIGRlcGVuZHMgb24gTk1JX0VOIGFuZCBHQkxfU01JX0VOIGJpdHMuDQo+ICsg
+Ki8NCj4gKyNkZWZpbmUgTk1JMlNNSV9FTgkoMSA8PCA5KQ0KPiArDQo+ICsvKiBOTUlfTk9XIGlz
+IGJpdCA4IG9mIFRDTzFfQ05UIHJlZ2lzdGVyLg0KPiArICogUmVhZC8nV3JpdGUgdG8gQ2xlYXIn
+DQo+ICsgKi8NCj4gKyNkZWZpbmUgTk1JX05PVwkJKDEgPDwgOCkNCj4gKw0KPiAjZGVmaW5lIFRD
+T19STEQJCShUQ09CQVNFICsgMHgwMCkgLyogVENPIFRpbWVyIFJlbG9hZCBhbmQgQ3Vyci4gVmFs
+dWUgKi8NCj4gI2RlZmluZSBUQ092MV9UTVIJKFRDT0JBU0UgKyAweDAxKSAvKiBUQ092MSBUaW1l
+ciBJbml0aWFsIFZhbHVlCSovDQo+ICNkZWZpbmUgVENPX0RBVF9JTgkoVENPQkFTRSArIDB4MDIp
+IC8qIFRDTyBEYXRhIEluIFJlZ2lzdGVyCSovDQo+IEBAIC0yMzYsNiArMjU1LDE1IEBAIHN0YXRp
+YyBpbnQgaVRDT193ZHRfc3RhcnQoc3RydWN0IHdhdGNoZG9nX2RldmljZSAqd2RfZGV2KQ0KPiAJ
+dmFsICY9IDB4ZjdmZjsNCj4gCW91dHcodmFsLCBUQ08xX0NOVCk7DQo+IAl2YWwgPSBpbncoVENP
+MV9DTlQpOw0KPiArDQo+ICsJaWYgKHBhbmljX29uX3RpbWVvdXQpIHsNCj4gKwkJLyogTWFrZSBz
+dXJlIE5NSXMgYXJlIGFsbG93ZWQgdG8gZmlyZSAqLw0KPiArCQlpZiAoTk1JMlNNSV9FTiAmIHZh
+bCkgew0KDQoNClRoZSBZb2RhIG5vdGF0aW9uIHdhcyBhbHJlYWR5IGNhbGxlZCBvdXTigKYNCg0K
+DQo+ICsJCQl2YWwgJj0gfihOTUkyU01JX0VOKTsNCg0KDQrigKYgYXMgd2VyZSB0aGUgZXh0cmFu
+ZW91cyBwYXJlbnMuDQoNCg0KPiArCQkJb3V0dyh2YWwsIFRDTzFfQ05UKTsNCj4gKwkJCXByX2lu
+Zm8oIk5NSXMgYXJlIG5vIGxvbmdlciByb3V0ZWQgdG8gU01Jc1xuIik7DQo+ICsJCX0NCj4gKwl9
+DQo+IAlzcGluX3VubG9jaygmaVRDT193ZHRfcHJpdmF0ZS5pb19sb2NrKTsNCj4gDQo+IAlpZiAo
+dmFsICYgMHgwODAwKQ0KDQoNCkRvIHdlIG5lZWQ6DQoNCitAQCAtMzcyLDYgKzM3Myw3IEBAIHN0
+YXRpYyB1bnNpZ25lZCBpbnQgaVRDT193ZHRfZ2V0X3RpbWVsZWYNCisgDQorIHN0YXRpYyBjb25z
+dCBzdHJ1Y3Qgd2F0Y2hkb2dfaW5mbyBpZGVudCA9IHsNCisgICAgICAgLm9wdGlvbnMgPSAgICAg
+ICAgICAgICAgV0RJT0ZfU0VUVElNRU9VVCB8DQorKyAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgIFdESU9GX1BSRVRJTUVPVVQgfA0KKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBX
+RElPRl9LRUVQQUxJVkVQSU5HIHwNCisgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgV0RJ
+T0ZfTUFHSUNDTE9TRSwNCisgICAgICAgLmZpcm13YXJlX3ZlcnNpb24gPSAgICAgMCwNCg0KYWxz
+bz8gIEJlY2F1c2Ugd2l0aG91dCBXRElPRl9QUkVUSU1FT1VULCBpdCBzZWVtcyB0aGF0IHdhdGNo
+ZG9nX3NldF9wcmV0aW1lb3V0KCkgd291bGQgcmV0dXJuIC1FT1BOT1RTVVBQIHdoZW4geW91IHRy
+eSB0byBkbyB0aGUgaW9jdGwoV0RJT0NfU0VUUFJFVElNRU9VVCnigKYNCg0KDQo+IEBAIC00MjIs
+NiArNDUwLDI2IEBAIHN0YXRpYyB2b2lkIGlUQ09fd2R0X2NsZWFudXAodm9pZCkNCj4gCWlUQ09f
+d2R0X3ByaXZhdGUuZ2NzX3BtYyA9IE5VTEw7DQo+IH0NCj4gDQo+ICsvKg0KPiArICogaVRDT193
+ZHRfdGltZW91dF9oYW5kbGVyOiBIYW5kbGVyIGZvciB3YXRjaGRvZyB0aW1lb3V0IE5NSSBldmVu
+dC4NCj4gKyAqLw0KPiAraW50IGlUQ09fd2R0X3RpbWVvdXRfaGFuZGxlcih1bnNpZ25lZCBpbnQg
+dWxSZWFzb24sIHN0cnVjdCBwdF9yZWdzIA0KPiArKnJlZ3MpIHsNCj4gKwl1bnNpZ25lZCBsb25n
+IHZhbDMyID0gaW53KFRDTzFfQ05UKTsNCj4gKw0KPiArCWlmICh2YWwzMiAmIE5NSV9OT1cpIHsN
+Cj4gKwkJLyogQ2xlYXIgTk1JIC0gQml0IDggd2l0aGluIFRDTzFfQ05UIGlzIHdyaXRlIHRvIGNs
+ZWFyICovDQo+ICsJCW91dHcodmFsMzIsIFRDTzFfQ05UKTsNCj4gKw0KPiArCQkvKiBDcmFzaCB0
+aGUgc3lzdGVtICovDQo+ICsJCW5taV9wYW5pYyhyZWdzLCAiaVRDT193ZHQ6IFdhdGNoZG9nIHRp
+bWVvdXQiKTsNCj4gKw0KPiArCQkvKiBOZXZlciByZXR1cm5zICovDQo+ICsJCXJldHVybiBOTUlf
+SEFORExFRDsNCj4gKwl9DQo+ICsJcmV0dXJuIE5NSV9ET05FOw0KPiArfQ0KPiArDQo+IHN0YXRp
+YyBpbnQgaVRDT193ZHRfcHJvYmUoc3RydWN0IHBsYXRmb3JtX2RldmljZSAqZGV2KSB7DQo+IAlp
+bnQgcmV0ID0gLUVOT0RFVjsNCj4gQEAgLTU1MiwxMSArNjAwLDIxIEBAIHN0YXRpYyBpbnQgaVRD
+T193ZHRfcHJvYmUoc3RydWN0IHBsYXRmb3JtX2RldmljZSAqZGV2KQ0KPiAJCWdvdG8gdW5yZWdf
+dGNvOw0KPiAJfQ0KPiANCj4gKwlpZiAocGFuaWNfb25fdGltZW91dCkgew0KPiArCQlyZXQgPSBy
+ZWdpc3Rlcl9ubWlfaGFuZGxlcihOTUlfVU5LTk9XTiwgaVRDT193ZHRfdGltZW91dF9oYW5kbGVy
+LCAwLCAiaVRDT193ZHQiKTsNCj4gKwkJaWYgKHJldCAhPSAwKSB7DQo+ICsJCQlwcl9lcnIoImNh
+bm5vdCByZWdpc3RlciBOTUkgSGFuZGxlciBmb3IgaVRDT193ZHQgd2F0Y2hkb2cgKGVycj0lZClc
+biIsIHJldCk7DQo+ICsJCQlnb3RvIHVucmVnX3dkOw0KPiArCQl9DQo+ICsJfQ0KPiArDQo+IAlw
+cl9pbmZvKCJpbml0aWFsaXplZC4gaGVhcnRiZWF0PSVkIHNlYyAobm93YXlvdXQ9JWQpXG4iLA0K
+PiAJCWhlYXJ0YmVhdCwgbm93YXlvdXQpOw0KPiANCj4gCXJldHVybiAwOw0KPiANCj4gK3VucmVn
+X3dkOg0KPiArCXdhdGNoZG9nX3VucmVnaXN0ZXJfZGV2aWNlKCZpVENPX3dkdF93YXRjaGRvZ19k
+ZXYpOw0KPiB1bnJlZ190Y286DQo+IAlyZWxlYXNlX3JlZ2lvbihpVENPX3dkdF9wcml2YXRlLnRj
+b19yZXMtPnN0YXJ0LA0KPiAJCQlyZXNvdXJjZV9zaXplKGlUQ09fd2R0X3ByaXZhdGUudGNvX3Jl
+cykpOw0KPiBAQCAtNTgxLDYgKzYzOSw5IEBAIHN0YXRpYyBpbnQgaVRDT193ZHRfcHJvYmUoc3Ry
+dWN0IHBsYXRmb3JtX2RldmljZSANCj4gKmRldikNCj4gDQo+IHN0YXRpYyBpbnQgaVRDT193ZHRf
+cmVtb3ZlKHN0cnVjdCBwbGF0Zm9ybV9kZXZpY2UgKmRldikgew0KPiArCWlmIChwYW5pY19vbl90
+aW1lb3V0KQ0KPiArCQl1bnJlZ2lzdGVyX25taV9oYW5kbGVyKE5NSV9VTktOT1dOLCAiaVRDT193
+ZHQiKTsNCj4gKw0KPiAJaWYgKGlUQ09fd2R0X3ByaXZhdGUudGNvX3JlcyB8fCBpVENPX3dkdF9w
+cml2YXRlLnNtaV9yZXMpDQo+IAkJaVRDT193ZHRfY2xlYW51cCgpOw0KPiANCg0K
