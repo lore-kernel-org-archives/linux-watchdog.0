@@ -2,13 +2,12 @@ Return-Path: <joel.stan@gmail.com>
 Return-path: <joel.stan@gmail.com>
 MIME-Version: 1.0
 Sender: joel.stan@gmail.com
-In-Reply-To: <20170920053020.6860-4-andrew@aj.id.au>
-References: <20170920053020.6860-1-andrew@aj.id.au> <20170920053020.6860-4-andrew@aj.id.au>
+In-Reply-To: <20170920053020.6860-5-andrew@aj.id.au>
+References: <20170920053020.6860-1-andrew@aj.id.au> <20170920053020.6860-5-andrew@aj.id.au>
 From: Joel Stanley <joel@jms.id.au>
-Date: Wed, 20 Sep 2017 15:38:36 +0930
-Message-ID: <CACPK8Xcm4b=GzPykwNYiuEgbHsnOwt4ZepJ7WYLTDqE=e5JNfw@mail.gmail.com>
-Subject: Re: [PATCH v2 3/4] watchdog: aspeed: Remove specific reference to
- AST2400 in Kconfig
+Date: Wed, 20 Sep 2017 15:43:41 +0930
+Message-ID: <CACPK8Xdz1iK-4bqZfmfTUYw3zDLxCniwt6LupJq5mo-CCca3XQ@mail.gmail.com>
+Subject: Re: [PATCH v2 4/4] watchdog: aspeed: Move init to arch_initcall
 To: Andrew Jeffery <andrew@aj.id.au>
 Cc: linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
 	Guenter Roeck <linux@roeck-us.net>,
@@ -18,10 +17,20 @@ Content-Type: text/plain; charset="UTF-8"
 List-ID: <linux-watchdog@vger.kernel.org>
 
 On Wed, Sep 20, 2017 at 3:00 PM, Andrew Jeffery <andrew@aj.id.au> wrote:
-> The driver also supports the watchdog in the AST25xx series, and
-> may work on earlier SoCs as well.
+> Probing at device_initcall time lead to perverse cases where the
+> watchdog was probed after, say, I2C devices, which then leaves a
+> potentially running watchdog at the mercy of I2C device behaviour and
+> bus conditions.
+>
+> Load the watchdog driver early to ensure that the kernel is patting it
+> well before initialising peripherals.
 >
 > Signed-off-by: Andrew Jeffery <andrew@aj.id.au>
-> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-Reviewed-by: Joel Stanley <joel@jms.id.au>
+I agree that we need to make sure the watchdog driver is loaded
+earlier. I think this is the correct method, but I'll defer to Guenter
+on this one.
+
+Cheers,
+
+Joel
