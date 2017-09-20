@@ -10,48 +10,34 @@ Cc: Andrew Jeffery <andrew@aj.id.au>,
 	openbmc@lists.ozlabs.org,
 	linux-aspeed@lists.ozlabs.org,
 	ryan_chen@aspeedtech.com
-Subject: [PATCH v2 1/4] watchdog: aspeed: Retain watchdog enabled state
-Date: Wed, 20 Sep 2017 15:00:17 +0930
-Message-Id: <20170920053020.6860-2-andrew@aj.id.au>
+Subject: [PATCH v2 2/4] watchdog: aspeed: Fix 'Apseed' typo in Kconfig
+Date: Wed, 20 Sep 2017 15:00:18 +0930
+Message-Id: <20170920053020.6860-3-andrew@aj.id.au>
 In-Reply-To: <20170920053020.6860-1-andrew@aj.id.au>
 References: <20170920053020.6860-1-andrew@aj.id.au>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-An unintended post-condition of probe() is that the watchdog is
-disabled. This behaviour was introduced by an unnecessary write to the
-control register to configure the hardware based on the devicetree. The
-write is unnecessary because the cached control value that is
-manipulated by the code parsing the devicetree is eventually written by
-aspeed_wdt_enable(), which is when we care how the control register
-should be configured.
+Apseed sounds like a good name for a web/mobile start-up incubator, but
+isn't a reflection of Aspeed themselves.
 
-Remove the write to restore expected behaviour.
-
-Fixes: b7f0b8ad25f3 ("drivers/watchdog: ASPEED reference dev tree properties for config")
 Signed-off-by: Andrew Jeffery <andrew@aj.id.au>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/watchdog/aspeed_wdt.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/watchdog/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/watchdog/aspeed_wdt.c b/drivers/watchdog/aspeed_wdt.c
-index 79cc766cd30f..6c6dd3f4c48d 100644
---- a/drivers/watchdog/aspeed_wdt.c
-+++ b/drivers/watchdog/aspeed_wdt.c
-@@ -243,9 +243,13 @@ static int aspeed_wdt_probe(struct platform_device *pdev)
- 	if (of_property_read_bool(np, "aspeed,external-signal"))
- 		wdt->ctrl |= WDT_CTRL_WDT_EXT;
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index c722cbfdc7e6..b562d2e03eb9 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -746,7 +746,7 @@ config ASPEED_WATCHDOG
+ 	select WATCHDOG_CORE
+ 	help
+ 	  Say Y here to include support for the watchdog timer
+-	  in Apseed BMC SoCs.
++	  in Aspeed BMC SoCs.
  
--	writel(wdt->ctrl, wdt->base + WDT_CTRL);
--
- 	if (readl(wdt->base + WDT_CTRL) & WDT_CTRL_ENABLE)  {
-+		/*
-+		 * The watchdog is running, but invoke aspeed_wdt_start() to
-+		 * write wdt->ctrl to WDT_CTRL to ensure the watchdog's
-+		 * configuration conforms to the driver's expectations.
-+		 * Primarily, ensure we're using the 1MHz clock source.
-+		 */
- 		aspeed_wdt_start(&wdt->wdd);
- 		set_bit(WDOG_HW_RUNNING, &wdt->wdd.status);
- 	}
+ 	  This driver is required to reboot the SoC.
+ 
 -- 
 2.11.0
