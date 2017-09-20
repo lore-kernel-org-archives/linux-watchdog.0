@@ -1,36 +1,52 @@
-Return-Path: <Eric.Long@spreadtrum.com>
-Return-path: <Eric.Long@spreadtrum.com>
-Date: Tue, 19 Sep 2017 10:32:45 +0800
-From: Eric Long <eric.long@spreadtrum.com>
-To: Rob Herring <robh@kernel.org>
-CC: Wim Van Sebroeck <wim@iguana.be>, Mark Rutland <mark.rutland@arm.com>,
-        <baolin.wang@linaro.org>, Guenter Roeck <linux@roeck-us.net>,
-        <linux-watchdog@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v2 1/2] dt-bindings: watchdog: Add Spreadtrum watchdog
- documentation
-Message-ID: <20170919023245.GA24732@spreadtrum.com>
-References: <f3daa0f85dda0672c4b057e7f37c690365652e39.1505216059.git.eric.long@spreadtrum.com>
- <201709190143.v8J1husi078600@TPSPAM01.spreadtrum.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <201709190143.v8J1husi078600@TPSPAM01.spreadtrum.com>
+Return-Path: <andrew@aj.id.au>
+Return-path: <andrew@aj.id.au>
+From: Andrew Jeffery <andrew@aj.id.au>
+To: linux-watchdog@vger.kernel.org
+Cc: Andrew Jeffery <andrew@aj.id.au>,
+	wim@iguana.be,
+	linux@roeck-us.net,
+	joel@jms.id.au,
+	linux-kernel@vger.kernel.org,
+	openbmc@lists.ozlabs.org,
+	linux-aspeed@lists.ozlabs.org,
+	ryan_chen@aspeedtech.com
+Subject: [PATCH v2 0/4] watchdog: aspeed: Retain enabled state and move to arch_initcall
+Date: Wed, 20 Sep 2017 15:00:16 +0930
+Message-Id: <20170920053020.6860-1-andrew@aj.id.au>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On Mon, Sep 18, 2017 at 05:31:11PM -0500, Rob Herring wrote:
-> On Tue, Sep 12, 2017 at 07:40:08PM +0800, Eric Long wrote:
-> > This patch adds the documentation for Spreadtrum watchdog driver.
-> > 
-> > Signed-off-by: Eric Long <eric.long@spreadtrum.com>
-> > ---
-> > changes since v1:
-> >  - No updates.
-> > ---
-> >  .../devicetree/bindings/watchdog/sprd-wdt.txt         | 19 +++++++++++++++++++
-> >  1 file changed, 19 insertions(+)
-> >  create mode 100644 Documentation/devicetree/bindings/watchdog/sprd-wdt.txt
-> 
-> Acked-by: Rob Herring <robh@kernel.org>
+Hello,
 
-Thanks Rob!
+This series fixes some issues with the Aspeed watchdog, as outlined in the
+v1[1] cover letter.
+
+I've added a bit of an explanation as to why we call aspeed_wdt_start() in
+probe() if the watchdog is already enabled, but the essence of it is to ensure
+the watchdog is configured to the expectations of the kernel driver (rather
+than however the bootloader configured it).
+
+Please review!
+
+Andrew
+
+Since v1:
+
+* Rework patch 1/4 to simply remove the writel() call to restore the original
+  behaviour.
+* Rework patch 4/4 to remove the Kconfig changes to retain the ability to build
+  the watchdog as a module, and add the exit handler.
+
+[1] https://lkml.org/lkml/2017/9/18/14
+
+Andrew Jeffery (4):
+  watchdog: aspeed: Retain watchdog enabled state
+  watchdog: aspeed: Fix 'Apseed' typo in Kconfig
+  watchdog: aspeed: Remove specific reference to AST2400 in Kconfig
+  watchdog: aspeed: Move init to arch_initcall
+
+ drivers/watchdog/Kconfig      |  4 ++--
+ drivers/watchdog/aspeed_wdt.c | 21 ++++++++++++++++++---
+ 2 files changed, 20 insertions(+), 5 deletions(-)
+
+-- 
+2.11.0
