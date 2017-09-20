@@ -10,43 +10,48 @@ Cc: Andrew Jeffery <andrew@aj.id.au>,
 	openbmc@lists.ozlabs.org,
 	linux-aspeed@lists.ozlabs.org,
 	ryan_chen@aspeedtech.com
-Subject: [PATCH v2 0/4] watchdog: aspeed: Retain enabled state and move to arch_initcall
-Date: Wed, 20 Sep 2017 15:00:16 +0930
-Message-Id: <20170920053020.6860-1-andrew@aj.id.au>
+Subject: [PATCH v2 1/4] watchdog: aspeed: Retain watchdog enabled state
+Date: Wed, 20 Sep 2017 15:00:17 +0930
+Message-Id: <20170920053020.6860-2-andrew@aj.id.au>
+In-Reply-To: <20170920053020.6860-1-andrew@aj.id.au>
+References: <20170920053020.6860-1-andrew@aj.id.au>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Hello,
+An unintended post-condition of probe() is that the watchdog is
+disabled. This behaviour was introduced by an unnecessary write to the
+control register to configure the hardware based on the devicetree. The
+write is unnecessary because the cached control value that is
+manipulated by the code parsing the devicetree is eventually written by
+aspeed_wdt_enable(), which is when we care how the control register
+should be configured.
 
-This series fixes some issues with the Aspeed watchdog, as outlined in the
-v1[1] cover letter.
+Remove the write to restore expected behaviour.
 
-I've added a bit of an explanation as to why we call aspeed_wdt_start() in
-probe() if the watchdog is already enabled, but the essence of it is to ensure
-the watchdog is configured to the expectations of the kernel driver (rather
-than however the bootloader configured it).
+Fixes: b7f0b8ad25f3 ("drivers/watchdog: ASPEED reference dev tree properties for config")
+Signed-off-by: Andrew Jeffery <andrew@aj.id.au>
+---
+ drivers/watchdog/aspeed_wdt.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-Please review!
-
-Andrew
-
-Since v1:
-
-* Rework patch 1/4 to simply remove the writel() call to restore the original
-  behaviour.
-* Rework patch 4/4 to remove the Kconfig changes to retain the ability to build
-  the watchdog as a module, and add the exit handler.
-
-[1] https://lkml.org/lkml/2017/9/18/14
-
-Andrew Jeffery (4):
-  watchdog: aspeed: Retain watchdog enabled state
-  watchdog: aspeed: Fix 'Apseed' typo in Kconfig
-  watchdog: aspeed: Remove specific reference to AST2400 in Kconfig
-  watchdog: aspeed: Move init to arch_initcall
-
- drivers/watchdog/Kconfig      |  4 ++--
- drivers/watchdog/aspeed_wdt.c | 21 ++++++++++++++++++---
- 2 files changed, 20 insertions(+), 5 deletions(-)
-
+diff --git a/drivers/watchdog/aspeed_wdt.c b/drivers/watchdog/aspeed_wdt.c
+index 79cc766cd30f..6c6dd3f4c48d 100644
+--- a/drivers/watchdog/aspeed_wdt.c
++++ b/drivers/watchdog/aspeed_wdt.c
+@@ -243,9 +243,13 @@ static int aspeed_wdt_probe(struct platform_device *pdev)
+ 	if (of_property_read_bool(np, "aspeed,external-signal"))
+ 		wdt->ctrl |= WDT_CTRL_WDT_EXT;
+ 
+-	writel(wdt->ctrl, wdt->base + WDT_CTRL);
+-
+ 	if (readl(wdt->base + WDT_CTRL) & WDT_CTRL_ENABLE)  {
++		/*
++		 * The watchdog is running, but invoke aspeed_wdt_start() to
++		 * write wdt->ctrl to WDT_CTRL to ensure the watchdog's
++		 * configuration conforms to the driver's expectations.
++		 * Primarily, ensure we're using the 1MHz clock source.
++		 */
+ 		aspeed_wdt_start(&wdt->wdd);
+ 		set_bit(WDOG_HW_RUNNING, &wdt->wdd.status);
+ 	}
 -- 
 2.11.0
