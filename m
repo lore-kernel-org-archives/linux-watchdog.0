@@ -1,95 +1,67 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pg0-f68.google.com ([74.125.83.68]:36523 "EHLO
-        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933946AbdIYQQq (ORCPT
+Received: from mail-pg0-f65.google.com ([74.125.83.65]:37831 "EHLO
+        mail-pg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S936276AbdIYQRG (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 25 Sep 2017 12:16:46 -0400
-Date: Mon, 25 Sep 2017 09:16:43 -0700
+        Mon, 25 Sep 2017 12:17:06 -0400
 From: Guenter Roeck <linux@roeck-us.net>
-To: Oleksij Rempel <o.rempel@pengutronix.de>
-Cc: Wim Van Sebroeck <wim@iguana.be>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: Oleksij Rempel <o.rempel@pengutronix.de>,
         Steffen Trumtrar <s.trumtrar@pengutronix.de>,
-        linux-watchdog@vger.kernel.org, kernel@pengutronix.de,
-        Russell King <linux@armlinux.org.uk>,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 1/2] watchdog: dw_wdt: add stop watchdog operation
-Message-ID: <20170925161643.GA32601@roeck-us.net>
-References: <20170925052531.1692-1-o.rempel@pengutronix.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20170925052531.1692-1-o.rempel@pengutronix.de>
+        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sebastian Reichel <sebastian.reichel@collabora.co.uk>
+Subject: [PATCH 2/2] watchdog: Fix kref imbalance seen if handle_boot_enabled=0
+Date: Mon, 25 Sep 2017 09:17:02 -0700
+Message-Id: <1506356222-528-2-git-send-email-linux@roeck-us.net>
+In-Reply-To: <1506356222-528-1-git-send-email-linux@roeck-us.net>
+References: <1506356222-528-1-git-send-email-linux@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Sep 25, 2017 at 07:25:30AM +0200, Oleksij Rempel wrote:
-> From: Steffen Trumtrar <s.trumtrar@pengutronix.de>
-> 
-> The only way of stopping the watchdog is by resetting it.
-> Add the watchdog op for stopping the device and reset if
-> a reset line is provided.
-> 
-> Signed-off-by: Steffen Trumtrar <s.trumtrar@pengutronix.de>
-> Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
-> Cc: Wim Van Sebroeck <wim@iguana.be>
-> Cc: Guenter Roeck <linux@roeck-us.net>
-> Cc: linux-watchdog@vger.kernel.org
-> ---
-> 
-> changes v3:
->  - don't return error if rst is not present and set WDOG_HW_RUNNING bit
->    to notify watchdog core.
-> 
-> changes v2:
->  - test if dw_wdt->rst is NULL instead of IS_ERR
-> 
->  drivers/watchdog/dw_wdt.c | 16 ++++++++++++++++
->  1 file changed, 16 insertions(+)
-> 
-> diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
-> index 36be987ff9ef..6cc56b18ee52 100644
-> --- a/drivers/watchdog/dw_wdt.c
-> +++ b/drivers/watchdog/dw_wdt.c
-> @@ -135,6 +135,21 @@ static int dw_wdt_start(struct watchdog_device *wdd)
->  	return 0;
->  }
->  
-> +static int dw_wdt_stop(struct watchdog_device *wdd)
-> +{
-> +	struct dw_wdt *dw_wdt = to_dw_wdt(wdd);
-> +
-> +	if (!dw_wdt->rst) {
-> +		set_bit(WDOG_HW_RUNNING, &wdd->status);
+If handle_boot_enabled is set to 0, the watchdog driver module use
+counter will not be increased and kref_get() will not be called when
+registering the watchdog. Subsequently, on open, this does not happen
+either because the code believes that it was already done because the
+hardware watchdog is marked as running.
 
-Setting WDOG_HW_RUNNING should be dropped from dw_wdt_start().
+We could introduce a state variable to indicate this state, but let's
+just increase the module use counter and call kref_get() unconditionally
+if the hardware watchdog is running when a driver is registering itself
+to keep the code simple.
 
-Guenter
+Fixes: 2501b015313fe ("watchdog: core: add option to avoid early ...")
+Cc: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+---
+ drivers/watchdog/watchdog_dev.c | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
-> +		return 0;
-> +	}
-> +
-> +	reset_control_assert(dw_wdt->rst);
-> +	reset_control_deassert(dw_wdt->rst);
-> +
-> +	return 0;
-> +}
-> +
->  static int dw_wdt_restart(struct watchdog_device *wdd,
->  			  unsigned long action, void *data)
->  {
-> @@ -173,6 +188,7 @@ static const struct watchdog_info dw_wdt_ident = {
->  static const struct watchdog_ops dw_wdt_ops = {
->  	.owner		= THIS_MODULE,
->  	.start		= dw_wdt_start,
-> +	.stop		= dw_wdt_stop,
->  	.ping		= dw_wdt_ping,
->  	.set_timeout	= dw_wdt_set_timeout,
->  	.get_timeleft	= dw_wdt_get_timeleft,
-> -- 
-> 2.11.0
-> 
+diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
+index e6edf3737ea7..b30fb637ae94 100644
+--- a/drivers/watchdog/watchdog_dev.c
++++ b/drivers/watchdog/watchdog_dev.c
+@@ -966,14 +966,13 @@ static int watchdog_cdev_register(struct watchdog_device *wdd, dev_t devno)
+ 	 * and schedule an immediate ping.
+ 	 */
+ 	if (watchdog_hw_running(wdd)) {
+-		if (handle_boot_enabled) {
+-			__module_get(wdd->ops->owner);
+-			kref_get(&wd_data->kref);
++		__module_get(wdd->ops->owner);
++		kref_get(&wd_data->kref);
++		if (handle_boot_enabled)
+ 			queue_delayed_work(watchdog_wq, &wd_data->work, 0);
+-		} else {
++		else
+ 			pr_info("watchdog%d running and kernel based pre-userspace handler disabled\n",
+-					wdd->id);
+-		}
++				wdd->id);
+ 	}
+ 
+ 	return 0;
+-- 
+2.7.4
+
