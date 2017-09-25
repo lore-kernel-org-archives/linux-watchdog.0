@@ -1,64 +1,62 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:46841 "EHLO
-        metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1753224AbdIYF0X (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 25 Sep 2017 01:26:23 -0400
-From: Oleksij Rempel <o.rempel@pengutronix.de>
-To: Wim Van Sebroeck <wim@iguana.be>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>
-Cc: Steffen Trumtrar <s.trumtrar@pengutronix.de>,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
-        Dinh Nguyen <dinguyen@opensource.altera.com>,
-        linux-arm-kernel@lists.infradead.org, kernel@pengutronix.de,
-        Russell King <linux@armlinux.org.uk>,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-watchdog@vger.kernel.org
-Subject: [PATCH v3 2/2] ARM: socfpga: dtsi: add dw-wdt reset lines
-Date: Mon, 25 Sep 2017 07:25:31 +0200
-Message-Id: <20170925052531.1692-2-o.rempel@pengutronix.de>
-In-Reply-To: <20170925052531.1692-1-o.rempel@pengutronix.de>
-References: <20170925052531.1692-1-o.rempel@pengutronix.de>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-Path: <groeck7@gmail.com>
+Return-path: <groeck7@gmail.com>
+Sender: Guenter Roeck <groeck7@gmail.com>
+From: Guenter Roeck <linux@roeck-us.net>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: Oleksij Rempel <o.rempel@pengutronix.de>,
+	Steffen Trumtrar <s.trumtrar@pengutronix.de>,
+	linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 1/2] watchdog: Fix potential kref imbalance when opening watchdog
+Date: Mon, 25 Sep 2017 09:17:01 -0700
+Message-Id: <1506356222-528-1-git-send-email-linux@roeck-us.net>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-From: Steffen Trumtrar <s.trumtrar@pengutronix.de>
+If a watchdog driver's open function sets WDOG_HW_RUNNING with the
+expectation that the watchdog can not be stopped, but then stops the
+watchdog anyway in its stop function, kref_get() wil not be called in
+watchdog_open(). If the watchdog then stops on close, WDOG_HW_RUNNING
+will be cleared and kref_put() will be called, causing a kref imbalance.
+As result the character device data structure will be released, which in
+turn will cause the system to crash on the next call to watchdog_open().
 
-Signed-off-by: Steffen Trumtrar <s.trumtrar@pengutronix.de>
-Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Cc: Dinh Nguyen <dinguyen@opensource.altera.com>
-Cc: linux-arm-kernel@lists.infradead.org
+Fixes: ee142889e32f5 ("watchdog: Introduce WDOG_HW_RUNNING flag")
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
+ drivers/watchdog/watchdog_dev.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-no changes since version v1
-
- arch/arm/boot/dts/socfpga.dtsi | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/arch/arm/boot/dts/socfpga.dtsi b/arch/arm/boot/dts/socfpga.dtsi
-index 7e24dc8e82d4..6e49cee084b8 100644
---- a/arch/arm/boot/dts/socfpga.dtsi
-+++ b/arch/arm/boot/dts/socfpga.dtsi
-@@ -924,6 +924,7 @@
- 			reg = <0xffd02000 0x1000>;
- 			interrupts = <0 171 4>;
- 			clocks = <&osc1>;
-+			resets = <&rst L4WD0_RESET>;
- 			status = "disabled";
- 		};
+diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
+index 0826e663bd5a..e6edf3737ea7 100644
+--- a/drivers/watchdog/watchdog_dev.c
++++ b/drivers/watchdog/watchdog_dev.c
+@@ -768,6 +768,7 @@ static int watchdog_open(struct inode *inode, struct file *file)
+ {
+ 	struct watchdog_core_data *wd_data;
+ 	struct watchdog_device *wdd;
++	bool hw_running;
+ 	int err;
  
-@@ -932,6 +933,7 @@
- 			reg = <0xffd03000 0x1000>;
- 			interrupts = <0 172 4>;
- 			clocks = <&osc1>;
-+			resets = <&rst L4WD1_RESET>;
- 			status = "disabled";
- 		};
- 	};
+ 	/* Get the corresponding watchdog device */
+@@ -787,7 +788,8 @@ static int watchdog_open(struct inode *inode, struct file *file)
+ 	 * If the /dev/watchdog device is open, we don't want the module
+ 	 * to be unloaded.
+ 	 */
+-	if (!watchdog_hw_running(wdd) && !try_module_get(wdd->ops->owner)) {
++	hw_running = watchdog_hw_running(wdd);
++	if (!hw_running && !try_module_get(wdd->ops->owner)) {
+ 		err = -EBUSY;
+ 		goto out_clear;
+ 	}
+@@ -798,7 +800,7 @@ static int watchdog_open(struct inode *inode, struct file *file)
+ 
+ 	file->private_data = wd_data;
+ 
+-	if (!watchdog_hw_running(wdd))
++	if (!hw_running)
+ 		kref_get(&wd_data->kref);
+ 
+ 	/* dev/watchdog is a virtual (and thus non-seekable) filesystem */
 -- 
-2.11.0
-
+2.7.4
