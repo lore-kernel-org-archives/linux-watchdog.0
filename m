@@ -1,107 +1,95 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pg0-f68.google.com ([74.125.83.68]:33444 "EHLO
-        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751528AbdIZPNM (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 26 Sep 2017 11:13:12 -0400
-Date: Tue, 26 Sep 2017 08:13:09 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Oleksij Rempel <o.rempel@pengutronix.de>
-Cc: Wim Van Sebroeck <wim@iguana.be>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        linux-watchdog@vger.kernel.org, kernel@pengutronix.de,
-        Russell King <linux@armlinux.org.uk>,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v4 1/2] watchdog: dw_wdt: add stop watchdog operation
-Message-ID: <20170926151309.GA14894@roeck-us.net>
-References: <20170926061123.29614-1-o.rempel@pengutronix.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20170926061123.29614-1-o.rempel@pengutronix.de>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-Path: <linus.walleij@linaro.org>
+Return-path: <linus.walleij@linaro.org>
+From: Linus Walleij <linus.walleij@linaro.org>
+To: Wim Van Sebroeck <wim@iguana.be>,
+	Guenter Roeck <linux@roeck-us.net>
+Cc: linux-watchdog@vger.kernel.org,
+	Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 1/2] watchdog: gpio: Add some local helper variables
+Date: Tue, 26 Sep 2017 22:07:11 +0200
+Message-Id: <20170926200712.10069-1-linus.walleij@linaro.org>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On Tue, Sep 26, 2017 at 08:11:22AM +0200, Oleksij Rempel wrote:
-> The only way of stopping the watchdog is by resetting it.
-> Add the watchdog op for stopping the device and reset if
-> a reset line is provided.
-> 
-> At same time WDOG_HW_RUNNING should be remove from dw_wdt_start.
-> As commented by Guenter Roeck:
-> dw_wdt sets WDOG_HW_RUNNING in its open function. Result is
-> that the kref_get() in watchdog_open() won't be executed. But then
-> kref_put() in close will be called since the watchdog now does stop.
-> This causes the imbalance.
-> 
-> Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
-> Cc: Wim Van Sebroeck <wim@iguana.be>
-> Cc: Guenter Roeck <linux@roeck-us.net>
-> Cc: linux-watchdog@vger.kernel.org
+This add "dev" and "np" variables to make the probe() function
+a bit easier to read.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+---
+ drivers/watchdog/gpio_wdt.c | 20 +++++++++++---------
+ 1 file changed, 11 insertions(+), 9 deletions(-)
 
-> ---
-> 
-> changes v4:
->  - remove WDOG_HW_RUNNING from dw_wdt_start.
-> 
-> changes v3:
->  - don't return error if rst is not present and set WDOG_HW_RUNNING bit
->    to notify watchdog core.
-> 
-> changes v2:
->  - test if dw_wdt->rst is NULL instead of IS_ERR
-> 
->  drivers/watchdog/dw_wdt.c | 18 ++++++++++++++++--
->  1 file changed, 16 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
-> index 36be987ff9ef..c2f4ff516230 100644
-> --- a/drivers/watchdog/dw_wdt.c
-> +++ b/drivers/watchdog/dw_wdt.c
-> @@ -127,14 +127,27 @@ static int dw_wdt_start(struct watchdog_device *wdd)
->  
->  	dw_wdt_set_timeout(wdd, wdd->timeout);
->  
-> -	set_bit(WDOG_HW_RUNNING, &wdd->status);
-> -
->  	writel(WDOG_CONTROL_REG_WDT_EN_MASK,
->  	       dw_wdt->regs + WDOG_CONTROL_REG_OFFSET);
->  
->  	return 0;
->  }
->  
-> +static int dw_wdt_stop(struct watchdog_device *wdd)
-> +{
-> +	struct dw_wdt *dw_wdt = to_dw_wdt(wdd);
-> +
-> +	if (!dw_wdt->rst) {
-> +		set_bit(WDOG_HW_RUNNING, &wdd->status);
-> +		return 0;
-> +	}
-> +
-> +	reset_control_assert(dw_wdt->rst);
-> +	reset_control_deassert(dw_wdt->rst);
-> +
-> +	return 0;
-> +}
-> +
->  static int dw_wdt_restart(struct watchdog_device *wdd,
->  			  unsigned long action, void *data)
->  {
-> @@ -173,6 +186,7 @@ static const struct watchdog_info dw_wdt_ident = {
->  static const struct watchdog_ops dw_wdt_ops = {
->  	.owner		= THIS_MODULE,
->  	.start		= dw_wdt_start,
-> +	.stop		= dw_wdt_stop,
->  	.ping		= dw_wdt_ping,
->  	.set_timeout	= dw_wdt_set_timeout,
->  	.get_timeleft	= dw_wdt_get_timeleft,
-> -- 
-> 2.11.0
-> 
+diff --git a/drivers/watchdog/gpio_wdt.c b/drivers/watchdog/gpio_wdt.c
+index cb66c2f99ff1..448e6c3ba73c 100644
+--- a/drivers/watchdog/gpio_wdt.c
++++ b/drivers/watchdog/gpio_wdt.c
+@@ -101,6 +101,8 @@ static const struct watchdog_ops gpio_wdt_ops = {
+ 
+ static int gpio_wdt_probe(struct platform_device *pdev)
+ {
++	struct device *dev = &pdev->dev;
++	struct device_node *np = dev->of_node;
+ 	struct gpio_wdt_priv *priv;
+ 	enum of_gpio_flags flags;
+ 	unsigned int hw_margin;
+@@ -108,19 +110,19 @@ static int gpio_wdt_probe(struct platform_device *pdev)
+ 	const char *algo;
+ 	int ret;
+ 
+-	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
++	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
+ 	if (!priv)
+ 		return -ENOMEM;
+ 
+ 	platform_set_drvdata(pdev, priv);
+ 
+-	priv->gpio = of_get_gpio_flags(pdev->dev.of_node, 0, &flags);
++	priv->gpio = of_get_gpio_flags(np, 0, &flags);
+ 	if (!gpio_is_valid(priv->gpio))
+ 		return priv->gpio;
+ 
+ 	priv->active_low = flags & OF_GPIO_ACTIVE_LOW;
+ 
+-	ret = of_property_read_string(pdev->dev.of_node, "hw_algo", &algo);
++	ret = of_property_read_string(np, "hw_algo", &algo);
+ 	if (ret)
+ 		return ret;
+ 	if (!strcmp(algo, "toggle")) {
+@@ -133,12 +135,12 @@ static int gpio_wdt_probe(struct platform_device *pdev)
+ 		return -EINVAL;
+ 	}
+ 
+-	ret = devm_gpio_request_one(&pdev->dev, priv->gpio, f,
+-				    dev_name(&pdev->dev));
++	ret = devm_gpio_request_one(dev, priv->gpio, f,
++				    dev_name(dev));
+ 	if (ret)
+ 		return ret;
+ 
+-	ret = of_property_read_u32(pdev->dev.of_node,
++	ret = of_property_read_u32(np,
+ 				   "hw_margin_ms", &hw_margin);
+ 	if (ret)
+ 		return ret;
+@@ -146,7 +148,7 @@ static int gpio_wdt_probe(struct platform_device *pdev)
+ 	if (hw_margin < 2 || hw_margin > 65535)
+ 		return -EINVAL;
+ 
+-	priv->always_running = of_property_read_bool(pdev->dev.of_node,
++	priv->always_running = of_property_read_bool(np,
+ 						     "always-running");
+ 
+ 	watchdog_set_drvdata(&priv->wdd, priv);
+@@ -155,9 +157,9 @@ static int gpio_wdt_probe(struct platform_device *pdev)
+ 	priv->wdd.ops		= &gpio_wdt_ops;
+ 	priv->wdd.min_timeout	= SOFT_TIMEOUT_MIN;
+ 	priv->wdd.max_hw_heartbeat_ms = hw_margin;
+-	priv->wdd.parent	= &pdev->dev;
++	priv->wdd.parent	= dev;
+ 
+-	if (watchdog_init_timeout(&priv->wdd, 0, &pdev->dev) < 0)
++	if (watchdog_init_timeout(&priv->wdd, 0, dev) < 0)
+ 		priv->wdd.timeout = SOFT_TIMEOUT_DEF;
+ 
+ 	watchdog_stop_on_reboot(&priv->wdd);
+-- 
+2.13.5
