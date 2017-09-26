@@ -1,60 +1,35 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:49943 "EHLO
-        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1750781AbdIRFyD (ORCPT
+Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:52819 "EHLO
+        metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1753964AbdIZFYL (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 18 Sep 2017 01:54:03 -0400
-Message-ID: <1505714034.4080.16.camel@aj.id.au>
-Subject: Re: [PATCH 0/4] watchdog: aspeed: Retain enabled state and move to
-From: Andrew Jeffery <andrew@aj.id.au>
-To: linux-watchdog@vger.kernel.org
-Cc: wim@iguana.be, linux@roeck-us.net, joel@jms.id.au,
-        linux-kernel@vger.kernel.org, openbmc@lists.ozlabs.org,
-        linux-aspeed@lists.ozlabs.org, ryan_chen@aspeedtech.com
-Date: Mon, 18 Sep 2017 15:23:54 +0930
-In-Reply-To: <20170918054905.16470-1-andrew@aj.id.au>
-References: <20170918054905.16470-1-andrew@aj.id.au>
-Content-Type: multipart/signed; micalg="pgp-sha512";
-        protocol="application/pgp-signature"; boundary="=-uD2mYu7Q2COBPhEVL4W+"
-Mime-Version: 1.0
+        Tue, 26 Sep 2017 01:24:11 -0400
+Subject: Re: [PATCH 1/2] watchdog: Fix potential kref imbalance when opening
+ watchdog
+To: Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@iguana.be>
+Cc: Oleksij Rempel <o.rempel@pengutronix.de>,
+        Steffen Trumtrar <s.trumtrar@pengutronix.de>,
+        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <1506356222-528-1-git-send-email-linux@roeck-us.net>
+From: Oleksij Rempel <ore@pengutronix.de>
+Message-ID: <7f1bad2d-0f82-ee66-e9d2-c67fbe38950a@pengutronix.de>
+Date: Tue, 26 Sep 2017 07:24:10 +0200
+MIME-Version: 1.0
+In-Reply-To: <1506356222-528-1-git-send-email-linux@roeck-us.net>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+On 25.09.2017 18:17, Guenter Roeck wrote:
+> If a watchdog driver's open function sets WDOG_HW_RUNNING with the
+> expectation that the watchdog can not be stopped, but then stops the
+> watchdog anyway in its stop function, kref_get() wil not be called in
+> watchdog_open(). If the watchdog then stops on close, WDOG_HW_RUNNING
+> will be cleared and kref_put() will be called, causing a kref imbalance.
+> As result the character device data structure will be released, which in
+> turn will cause the system to crash on the next call to watchdog_open().
 
---=-uD2mYu7Q2COBPhEVL4W+
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, 2017-09-18 at 15:19 +0930, Andrew Jeffery wrote:
-> Hello,
->=20
-
-*snip*
-
-Ah, my subject got truncated. It should read:
-
-    watchdog: aspeed: Retain enabled state and move to arch_initcall
---=-uD2mYu7Q2COBPhEVL4W+
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-Content-Transfer-Encoding: 7bit
-
------BEGIN PGP SIGNATURE-----
-
-iQIcBAABCgAGBQJZv19yAAoJEJ0dnzgO5LT5giAQAI8k0YudAOlkIKMzMzPzbphW
-PxM2fwlZFul0wfDwXxvagoXfhqCu009h+HVotUilxAZarxvCxjXGmx9Dfc+mlw61
-QXMdsNAHP2UkK8IEPbvSlk6hAqDaG05qjMLRQ31whj70oHw8POu0z349rIAErlvU
-KHesli4MEGG5H1zzg5zHpcF8gRlCeYxIE4UnTG6kY5csBqaEXtahi+vbNgzj+3CI
-fu6QCrZrNoDK+wDKng3gLhnQKyFOgnpr97ZkxZgdbNS67bq0zpSVDyzx08KLgOQy
-shpDpRkwAGzAkNQD0673/4bVfs4uqBgkravR3g97Av7t4V6qhX9sNuP58G6oUdV4
-vklvlLn1IHuYxEkYF+2Vq8upexnC4sJul5DjRhLP/wp+0B71Xpr5Q0I2ds9iR31A
-dZdjTSRzJzuKJketartbPUoFYS9XSQn1XtSZ9HsRx2fcjYiiqdW9kD0JL65f0HPz
-DDLMJ/mONA1UFzFm0E0CJ1BbKXiLkJfpqoU0/5Y48XX3IWfGu56MvdwNfxk0q6lF
-RKrom1pAxCTP5rQb+xtqtJ8FPpbsJx+2t4Kgx7UvoHjF0MS81NJU6WdVO3ulrHVh
-4KwMHoxi+d1qp2e9JZRh9xYjkmSU8aR3fQYO3u3Xn/9o1aa8ClrW46/no3qy2Syh
-yCe25riFyk93e0lG+56H
-=RZK0
------END PGP SIGNATURE-----
-
---=-uD2mYu7Q2COBPhEVL4W+--
-
+Ach, ok. I see. So the stop patch should remove it from the start.
