@@ -1,123 +1,83 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pf0-f195.google.com ([209.85.192.195]:38845 "EHLO
-        mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S968208AbdIZNw0 (ORCPT
+Received: from mail-pg0-f66.google.com ([74.125.83.66]:35179 "EHLO
+        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S965786AbdIZHGt (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 26 Sep 2017 09:52:26 -0400
-Subject: Re: [PATCH] rtc: ds1374: wdt:support suspend/resume for watchdog
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        18502523564 <18502523564@163.com>
-Cc: "a.zummo" <a.zummo@towertech.it>,
-        linux-rtc <linux-rtc@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        linux-watchdog@vger.kernel.org
-References: <1506340724-18108-1-git-send-email-18502523564@163.com>
- <20170925120742.ja54wu2orgai6fsr@piout.net>
- <tencent_BD3706918C1500105699D4E6@qq.com>
- <20170926102239.qjmhfry4vtaow4gk@piout.net>
+        Tue, 26 Sep 2017 03:06:49 -0400
+Subject: Re: [PATCH v3 1/2] watchdog: dw_wdt: add stop watchdog operation
+To: Oleksij Rempel <ore@pengutronix.de>,
+        Oleksij Rempel <o.rempel@pengutronix.de>
+Cc: Wim Van Sebroeck <wim@iguana.be>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Steffen Trumtrar <s.trumtrar@pengutronix.de>,
+        linux-watchdog@vger.kernel.org, kernel@pengutronix.de,
+        Russell King <linux@armlinux.org.uk>,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-kernel@vger.kernel.org
+References: <20170925052531.1692-1-o.rempel@pengutronix.de>
+ <20170925161643.GA32601@roeck-us.net>
+ <2203f151-99c8-6c58-8766-70813fafe64d@pengutronix.de>
 From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <2b8f974f-6151-ea72-55e1-58df07279a06@roeck-us.net>
-Date: Tue, 26 Sep 2017 06:52:24 -0700
+Message-ID: <1bd8aa83-97bc-550b-3a2b-46ae857e21c1@roeck-us.net>
+Date: Tue, 26 Sep 2017 00:06:45 -0700
 MIME-Version: 1.0
-In-Reply-To: <20170926102239.qjmhfry4vtaow4gk@piout.net>
+In-Reply-To: <2203f151-99c8-6c58-8766-70813fafe64d@pengutronix.de>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 09/26/2017 03:22 AM, Alexandre Belloni wrote:
-> (+Cc wdt maintainers)
+On 09/25/2017 10:17 PM, Oleksij Rempel wrote:
+> Hi,
 > 
-> On 26/09/2017 at 09:56:32 +0800, 18502523564 wrote:
->> Hi Alexandre,
+> On 25.09.2017 18:16, Guenter Roeck wrote:
+>> On Mon, Sep 25, 2017 at 07:25:30AM +0200, Oleksij Rempel wrote:
+>>> From: Steffen Trumtrar <s.trumtrar@pengutronix.de>
+>>>
+>>> The only way of stopping the watchdog is by resetting it.
+>>> Add the watchdog op for stopping the device and reset if
+>>> a reset line is provided.
+>>>
+>>> Signed-off-by: Steffen Trumtrar <s.trumtrar@pengutronix.de>
+>>> Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
+>>> Cc: Wim Van Sebroeck <wim@iguana.be>
+>>> Cc: Guenter Roeck <linux@roeck-us.net>
+>>> Cc: linux-watchdog@vger.kernel.org
+>>> ---
+>>>
+>>> changes v3:
+>>>   - don't return error if rst is not present and set WDOG_HW_RUNNING bit
+>>>     to notify watchdog core.
+>>>
+>>> changes v2:
+>>>   - test if dw_wdt->rst is NULL instead of IS_ERR
+>>>
+>>>   drivers/watchdog/dw_wdt.c | 16 ++++++++++++++++
+>>>   1 file changed, 16 insertions(+)
+>>>
+>>> diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
+>>> index 36be987ff9ef..6cc56b18ee52 100644
+>>> --- a/drivers/watchdog/dw_wdt.c
+>>> +++ b/drivers/watchdog/dw_wdt.c
+>>> @@ -135,6 +135,21 @@ static int dw_wdt_start(struct watchdog_device *wdd)
+>>>       return 0;
+>>>   }
+>>> +static int dw_wdt_stop(struct watchdog_device *wdd)
+>>> +{
+>>> +    struct dw_wdt *dw_wdt = to_dw_wdt(wdd);
+>>> +
+>>> +    if (!dw_wdt->rst) {
+>>> +        set_bit(WDOG_HW_RUNNING, &wdd->status);
 >>
->> Thanks for your reply.
->> Do you think is this a issue when using as a watchdog in suspend?
->> I takes the drivers/watchdog/ subsystem for reference, some drivers in suspend
->> also call disable_watchdog.Or do you have any  better suggestion?
+>> Setting WDOG_HW_RUNNING should be dropped from dw_wdt_start().
 > 
-> I guess this is a question for the watchdog subsystem maintainers.
-> However, I think that everything can be handled properly from userspace
-> as I know some atmel based devices have their watchdog enabled while
-> the platform is suspended.
+> you mean, this patch is OK, and i need to provide one more which is removing WDOG_HW_RUNNING from dw_wdt_start(). Correct?
 > 
 
-Depends on the driver, really. There is one thing wrong below, though:
-It appears that on resume, the watchdog is unconditionally enabled.
+No. You are providing a stop function, thus the start function should not set the flag.
 
 Guenter
-
->> Thank you.
->>
->>
->>
->>
->> ------------------ Original ------------------
->> From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
->> Date: 周一,9月 25,2017 20:07
->> To: winton.liu <18502523564@163.com>
->> Cc: a.zummo <a.zummo@towertech.it>, linux-rtc <linux-rtc@vger.kernel.org>,
->> linux-kernel <linux-kernel@vger.kernel.org>
->> Subject: Re: [PATCH] rtc: ds1374: wdt:support suspend/resume for watchdog
->>
->>
->> Hi,
->>
->> On 25/09/2017 at 19:58:44 +0800, winton.liu wrote:
->>> When enable CONFIG_RTC_DRV_DS1374_WDT use as watchdog,
->>> in suspend mode, watchdog is still working but no daemon
->>> patting the watchdog. The system will reboot if timeout.
->>> So disable watchdog in suspend  and recover it in resume.
->>>
->>
->> That is definitively not what we want. Many people will want to still
->> have the watchdog running when the platform is suspended. Your options
->> are to either disable the watchdog before going to suspend or wake up
->> the platform just in time to ping the watchdog.
->>
->>> Signed-off-by: winton.liu <18502523564@163.com>
->>> ---
->>>   drivers/rtc/rtc-ds1374.c | 8 ++++++++
->>>   1 file changed, 8 insertions(+)
->>>
->>> diff --git a/drivers/rtc/rtc-ds1374.c b/drivers/rtc/rtc-ds1374.c
->>> index 38a2e9e..e990773 100644
->>> --- a/drivers/rtc/rtc-ds1374.c
->>> +++ b/drivers/rtc/rtc-ds1374.c
->>> @@ -690,6 +690,10 @@ static int ds1374_suspend(struct device *dev)
->>>   {
->>>        struct i2c_client *client = to_i2c_client(dev);
->>>
->>> +#ifdef CONFIG_RTC_DRV_DS1374_WDT
->>> +     ds1374_wdt_disable();
->>> +#endif
->>> +
->>>        if (client->irq > 0 && device_may_wakeup(&client->dev))
->>>                enable_irq_wake(client->irq);
->>>        return 0;
->>> @@ -699,6 +703,10 @@ static int ds1374_resume(struct device *dev)
->>>   {
->>>        struct i2c_client *client = to_i2c_client(dev);
->>>
->>> +#ifdef CONFIG_RTC_DRV_DS1374_WDT
->>> +     ds1374_wdt_settimeout(131072);
->>> +#endif
->>> +
->>>        if (client->irq > 0 && device_may_wakeup(&client->dev))
->>>                disable_irq_wake(client->irq);
->>>        return 0;
->>> --
->>> 1.9.1
->>>
->>>
->>
->> --
->> Alexandre Belloni, Free Electrons
->> Embedded Linux and Kernel engineering
->> http://free-electrons.com
->>
-> 
-
