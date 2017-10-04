@@ -1,19 +1,14 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pf0-f173.google.com ([209.85.192.173]:48900 "EHLO
-        mail-pf0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751409AbdJDX2C (ORCPT
+Received: from mail-pf0-f179.google.com ([209.85.192.179]:50146 "EHLO
+        mail-pf0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751536AbdJDX2G (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 4 Oct 2017 19:28:02 -0400
-Received: by mail-pf0-f173.google.com with SMTP id n24so7034762pfk.5
-        for <linux-watchdog@vger.kernel.org>; Wed, 04 Oct 2017 16:28:01 -0700 (PDT)
+        Wed, 4 Oct 2017 19:28:06 -0400
+Received: by mail-pf0-f179.google.com with SMTP id l188so7035967pfc.6
+        for <linux-watchdog@vger.kernel.org>; Wed, 04 Oct 2017 16:28:06 -0700 (PDT)
 From: Kees Cook <keescook@chromium.org>
 To: Thomas Gleixner <tglx@linutronix.de>
 Cc: Kees Cook <keescook@chromium.org>,
-        Martin Schwidefsky <schwidefsky@de.ibm.com>,
-        Heiko Carstens <heiko.carstens@de.ibm.com>,
-        Tejun Heo <tj@kernel.org>,
-        Lai Jiangshan <jiangshanlai@gmail.com>,
-        linux-s390@vger.kernel.org,
         Andrew Morton <akpm@linux-foundation.org>,
         Arnd Bergmann <arnd@arndb.de>,
         Benjamin Herrenschmidt <benh@kernel.crashing.org>,
@@ -22,14 +17,17 @@ Cc: Kees Cook <keescook@chromium.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Guenter Roeck <linux@roeck-us.net>,
         Harish Patil <harish.patil@cavium.com>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
         "James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
         John Stultz <john.stultz@linaro.org>,
         Julian Wiedmann <jwi@linux.vnet.ibm.com>,
         Kalle Valo <kvalo@qca.qualcomm.com>,
+        Lai Jiangshan <jiangshanlai@gmail.com>,
         Len Brown <len.brown@intel.com>,
         Manish Chopra <manish.chopra@cavium.com>,
         Mark Gross <mark.gross@intel.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Martin Schwidefsky <schwidefsky@de.ibm.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Michael Reed <mdr@sgi.com>, netdev@vger.kernel.org,
         Oleg Nesterov <oleg@redhat.com>,
@@ -41,129 +39,83 @@ Cc: Kees Cook <keescook@chromium.org>,
         Stefan Richter <stefanr@s5r6.in-berlin.de>,
         Stephen Boyd <sboyd@codeaurora.org>,
         Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
+        Tejun Heo <tj@kernel.org>,
         Ursula Braun <ubraun@linux.vnet.ibm.com>,
         Viresh Kumar <viresh.kumar@linaro.org>,
         Wim Van Sebroeck <wim@iguana.be>,
         linux1394-devel@lists.sourceforge.net, linux-mips@linux-mips.org,
         linux-pm@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-scsi@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 06/13] timer: Remove users of TIMER_DEFERRED_INITIALIZER
-Date: Wed,  4 Oct 2017 16:27:00 -0700
-Message-Id: <1507159627-127660-7-git-send-email-keescook@chromium.org>
+        linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org,
+        linux-watchdog@vger.kernel.org, linux-wireless@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH 11/13] timer: Remove expires argument from __TIMER_INITIALIZER()
+Date: Wed,  4 Oct 2017 16:27:05 -0700
+Message-Id: <1507159627-127660-12-git-send-email-keescook@chromium.org>
 In-Reply-To: <1507159627-127660-1-git-send-email-keescook@chromium.org>
 References: <1507159627-127660-1-git-send-email-keescook@chromium.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This removes uses of TIMER_DEFERRED_INITIALIZER and chooses a location
-to call timer_setup() from before add_timer() or mod_timer() is called.
-Adjusts callbacks to use from_timer() as needed.
+The expires field is normally initialized during the first mod_timer()
+call. It was unused by all callers, so remove it from the macro.
 
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Tejun Heo <tj@kernel.org>
-Cc: Lai Jiangshan <jiangshanlai@gmail.com>
-Cc: linux-s390@vger.kernel.org
 Signed-off-by: Kees Cook <keescook@chromium.org>
 ---
- arch/s390/kernel/lgr.c      | 6 +++---
- arch/s390/kernel/topology.c | 6 +++---
- kernel/workqueue.c          | 8 +++-----
- 3 files changed, 9 insertions(+), 11 deletions(-)
+ include/linux/kthread.h   | 2 +-
+ include/linux/timer.h     | 5 ++---
+ include/linux/workqueue.h | 2 +-
+ 3 files changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/arch/s390/kernel/lgr.c b/arch/s390/kernel/lgr.c
-index ae7dff110054..bf9622f0e6b1 100644
---- a/arch/s390/kernel/lgr.c
-+++ b/arch/s390/kernel/lgr.c
-@@ -153,14 +153,13 @@ static void lgr_timer_set(void);
- /*
-  * LGR timer callback
-  */
--static void lgr_timer_fn(unsigned long ignored)
-+static void lgr_timer_fn(struct timer_list *unused)
- {
- 	lgr_info_log();
- 	lgr_timer_set();
- }
+diff --git a/include/linux/kthread.h b/include/linux/kthread.h
+index 82e197eeac91..0d622b350d3f 100644
+--- a/include/linux/kthread.h
++++ b/include/linux/kthread.h
+@@ -117,7 +117,7 @@ struct kthread_delayed_work {
+ #define KTHREAD_DELAYED_WORK_INIT(dwork, fn) {				\
+ 	.work = KTHREAD_WORK_INIT((dwork).work, (fn)),			\
+ 	.timer = __TIMER_INITIALIZER(kthread_delayed_work_timer_fn,	\
+-				     0, (unsigned long)&(dwork),	\
++				     (unsigned long)&(dwork),		\
+ 				     TIMER_IRQSAFE),			\
+ 	}
  
--static struct timer_list lgr_timer =
--	TIMER_DEFERRED_INITIALIZER(lgr_timer_fn, 0, 0);
-+static struct timer_list lgr_timer;
+diff --git a/include/linux/timer.h b/include/linux/timer.h
+index 91e5a2cc81b5..10685c33e679 100644
+--- a/include/linux/timer.h
++++ b/include/linux/timer.h
+@@ -63,10 +63,9 @@ struct timer_list {
  
- /*
-  * Setup next LGR timer
-@@ -181,6 +180,7 @@ static int __init lgr_init(void)
- 	debug_register_view(lgr_dbf, &debug_hex_ascii_view);
- 	lgr_info_get(&lgr_info_last);
- 	debug_event(lgr_dbf, 1, &lgr_info_last, sizeof(lgr_info_last));
-+	timer_setup(&lgr_timer, lgr_timer_fn, TIMER_DEFERRABLE);
- 	lgr_timer_set();
- 	return 0;
- }
-diff --git a/arch/s390/kernel/topology.c b/arch/s390/kernel/topology.c
-index ed0bdd220e1a..d7ece9888c29 100644
---- a/arch/s390/kernel/topology.c
-+++ b/arch/s390/kernel/topology.c
-@@ -320,15 +320,14 @@ static void topology_flush_work(void)
- 	flush_work(&topology_work);
- }
+ #define TIMER_TRACE_FLAGMASK	(TIMER_MIGRATING | TIMER_DEFERRABLE | TIMER_PINNED | TIMER_IRQSAFE)
  
--static void topology_timer_fn(unsigned long ignored)
-+static void topology_timer_fn(struct timer_list *unused)
- {
- 	if (ptf(PTF_CHECK))
- 		topology_schedule_update();
- 	set_topology_timer();
- }
+-#define __TIMER_INITIALIZER(_function, _expires, _data, _flags) { \
++#define __TIMER_INITIALIZER(_function, _data, _flags) {		\
+ 		.entry = { .next = TIMER_ENTRY_STATIC },	\
+ 		.function = (_function),			\
+-		.expires = (_expires),				\
+ 		.data = (_data),				\
+ 		.flags = (_flags),				\
+ 		__TIMER_LOCKDEP_MAP_INITIALIZER(		\
+@@ -75,7 +74,7 @@ struct timer_list {
  
--static struct timer_list topology_timer =
--	TIMER_DEFERRED_INITIALIZER(topology_timer_fn, 0, 0);
-+static struct timer_list topology_timer;
+ #define DEFINE_TIMER(_name, _function)				\
+ 	struct timer_list _name =				\
+-		__TIMER_INITIALIZER(_function, 0, 0, 0)
++		__TIMER_INITIALIZER(_function, 0, 0)
  
- static atomic_t topology_poll = ATOMIC_INIT(0);
- 
-@@ -597,6 +596,7 @@ static struct ctl_table topology_dir_table[] = {
- 
- static int __init topology_init(void)
- {
-+	timer_setup(&topology_timer, topology_timer_fn, TIMER_DEFERRABLE);
- 	if (MACHINE_HAS_TOPOLOGY)
- 		set_topology_timer();
- 	else
-diff --git a/kernel/workqueue.c b/kernel/workqueue.c
-index 64d0edf428f8..a5361fc6215d 100644
---- a/kernel/workqueue.c
-+++ b/kernel/workqueue.c
-@@ -5390,11 +5390,8 @@ static void workqueue_sysfs_unregister(struct workqueue_struct *wq)	{ }
-  */
- #ifdef CONFIG_WQ_WATCHDOG
- 
--static void wq_watchdog_timer_fn(unsigned long data);
--
- static unsigned long wq_watchdog_thresh = 30;
--static struct timer_list wq_watchdog_timer =
--	TIMER_DEFERRED_INITIALIZER(wq_watchdog_timer_fn, 0, 0);
-+static struct timer_list wq_watchdog_timer;
- 
- static unsigned long wq_watchdog_touched = INITIAL_JIFFIES;
- static DEFINE_PER_CPU(unsigned long, wq_watchdog_touched_cpu) = INITIAL_JIFFIES;
-@@ -5408,7 +5405,7 @@ static void wq_watchdog_reset_touched(void)
- 		per_cpu(wq_watchdog_touched_cpu, cpu) = jiffies;
- }
- 
--static void wq_watchdog_timer_fn(unsigned long data)
-+static void wq_watchdog_timer_fn(struct timer_list *unused)
- {
- 	unsigned long thresh = READ_ONCE(wq_watchdog_thresh) * HZ;
- 	bool lockup_detected = false;
-@@ -5510,6 +5507,7 @@ module_param_cb(watchdog_thresh, &wq_watchdog_thresh_ops, &wq_watchdog_thresh,
- 
- static void wq_watchdog_init(void)
- {
-+	timer_setup(&wq_watchdog_timer, wq_watchdog_timer_fn, TIMER_DEFERRABLE);
- 	wq_watchdog_set_thresh(wq_watchdog_thresh);
- }
+ void init_timer_key(struct timer_list *timer, unsigned int flags,
+ 		    const char *name, struct lock_class_key *key);
+diff --git a/include/linux/workqueue.h b/include/linux/workqueue.h
+index 1c49431f3121..f4960260feaf 100644
+--- a/include/linux/workqueue.h
++++ b/include/linux/workqueue.h
+@@ -176,7 +176,7 @@ struct execute_work {
+ #define __DELAYED_WORK_INITIALIZER(n, f, tflags) {			\
+ 	.work = __WORK_INITIALIZER((n).work, (f)),			\
+ 	.timer = __TIMER_INITIALIZER(delayed_work_timer_fn,		\
+-				     0, (unsigned long)&(n),		\
++				     (unsigned long)&(n),		\
+ 				     (tflags) | TIMER_IRQSAFE),		\
+ 	}
  
 -- 
 2.7.4
