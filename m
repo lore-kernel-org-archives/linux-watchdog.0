@@ -1,14 +1,15 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pf0-f179.google.com ([209.85.192.179]:50146 "EHLO
-        mail-pf0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751536AbdJDX2G (ORCPT
+Received: from mail-pf0-f177.google.com ([209.85.192.177]:45992 "EHLO
+        mail-pf0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751567AbdJDX2H (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 4 Oct 2017 19:28:06 -0400
-Received: by mail-pf0-f179.google.com with SMTP id l188so7035967pfc.6
-        for <linux-watchdog@vger.kernel.org>; Wed, 04 Oct 2017 16:28:06 -0700 (PDT)
+        Wed, 4 Oct 2017 19:28:07 -0400
+Received: by mail-pf0-f177.google.com with SMTP id z84so7040892pfi.2
+        for <linux-watchdog@vger.kernel.org>; Wed, 04 Oct 2017 16:28:07 -0700 (PDT)
 From: Kees Cook <keescook@chromium.org>
 To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Kees Cook <keescook@chromium.org>,
+Cc: Kees Cook <keescook@chromium.org>, Tejun Heo <tj@kernel.org>,
+        Lai Jiangshan <jiangshanlai@gmail.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Arnd Bergmann <arnd@arndb.de>,
         Benjamin Herrenschmidt <benh@kernel.crashing.org>,
@@ -22,7 +23,6 @@ Cc: Kees Cook <keescook@chromium.org>,
         John Stultz <john.stultz@linaro.org>,
         Julian Wiedmann <jwi@linux.vnet.ibm.com>,
         Kalle Valo <kvalo@qca.qualcomm.com>,
-        Lai Jiangshan <jiangshanlai@gmail.com>,
         Len Brown <len.brown@intel.com>,
         Manish Chopra <manish.chopra@cavium.com>,
         Mark Gross <mark.gross@intel.com>,
@@ -39,7 +39,6 @@ Cc: Kees Cook <keescook@chromium.org>,
         Stefan Richter <stefanr@s5r6.in-berlin.de>,
         Stephen Boyd <sboyd@codeaurora.org>,
         Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-        Tejun Heo <tj@kernel.org>,
         Ursula Braun <ubraun@linux.vnet.ibm.com>,
         Viresh Kumar <viresh.kumar@linaro.org>,
         Wim Van Sebroeck <wim@iguana.be>,
@@ -48,74 +47,98 @@ Cc: Kees Cook <keescook@chromium.org>,
         linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org,
         linux-watchdog@vger.kernel.org, linux-wireless@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 11/13] timer: Remove expires argument from __TIMER_INITIALIZER()
-Date: Wed,  4 Oct 2017 16:27:05 -0700
-Message-Id: <1507159627-127660-12-git-send-email-keescook@chromium.org>
+Subject: [PATCH 13/13] workqueue: Convert callback to use from_timer()
+Date: Wed,  4 Oct 2017 16:27:07 -0700
+Message-Id: <1507159627-127660-14-git-send-email-keescook@chromium.org>
 In-Reply-To: <1507159627-127660-1-git-send-email-keescook@chromium.org>
 References: <1507159627-127660-1-git-send-email-keescook@chromium.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The expires field is normally initialized during the first mod_timer()
-call. It was unused by all callers, so remove it from the macro.
+In preparation for unconditionally passing the struct timer_list pointer
+to all timer callbacks, switch workqueue to use from_timer() and pass the
+timer pointer explicitly.
 
+Cc: Tejun Heo <tj@kernel.org>
+Cc: Lai Jiangshan <jiangshanlai@gmail.com>
 Signed-off-by: Kees Cook <keescook@chromium.org>
 ---
- include/linux/kthread.h   | 2 +-
- include/linux/timer.h     | 5 ++---
- include/linux/workqueue.h | 2 +-
- 3 files changed, 4 insertions(+), 5 deletions(-)
+ include/linux/workqueue.h | 15 ++++++++-------
+ kernel/workqueue.c        |  7 +++----
+ 2 files changed, 11 insertions(+), 11 deletions(-)
 
-diff --git a/include/linux/kthread.h b/include/linux/kthread.h
-index 82e197eeac91..0d622b350d3f 100644
---- a/include/linux/kthread.h
-+++ b/include/linux/kthread.h
-@@ -117,7 +117,7 @@ struct kthread_delayed_work {
- #define KTHREAD_DELAYED_WORK_INIT(dwork, fn) {				\
- 	.work = KTHREAD_WORK_INIT((dwork).work, (fn)),			\
- 	.timer = __TIMER_INITIALIZER(kthread_delayed_work_timer_fn,	\
--				     0, (unsigned long)&(dwork),	\
-+				     (unsigned long)&(dwork),		\
- 				     TIMER_IRQSAFE),			\
- 	}
- 
-diff --git a/include/linux/timer.h b/include/linux/timer.h
-index 91e5a2cc81b5..10685c33e679 100644
---- a/include/linux/timer.h
-+++ b/include/linux/timer.h
-@@ -63,10 +63,9 @@ struct timer_list {
- 
- #define TIMER_TRACE_FLAGMASK	(TIMER_MIGRATING | TIMER_DEFERRABLE | TIMER_PINNED | TIMER_IRQSAFE)
- 
--#define __TIMER_INITIALIZER(_function, _expires, _data, _flags) { \
-+#define __TIMER_INITIALIZER(_function, _data, _flags) {		\
- 		.entry = { .next = TIMER_ENTRY_STATIC },	\
- 		.function = (_function),			\
--		.expires = (_expires),				\
- 		.data = (_data),				\
- 		.flags = (_flags),				\
- 		__TIMER_LOCKDEP_MAP_INITIALIZER(		\
-@@ -75,7 +74,7 @@ struct timer_list {
- 
- #define DEFINE_TIMER(_name, _function)				\
- 	struct timer_list _name =				\
--		__TIMER_INITIALIZER(_function, 0, 0, 0)
-+		__TIMER_INITIALIZER(_function, 0, 0)
- 
- void init_timer_key(struct timer_list *timer, unsigned int flags,
- 		    const char *name, struct lock_class_key *key);
 diff --git a/include/linux/workqueue.h b/include/linux/workqueue.h
-index 1c49431f3121..f4960260feaf 100644
+index f4960260feaf..f3c47a05fd06 100644
 --- a/include/linux/workqueue.h
 +++ b/include/linux/workqueue.h
-@@ -176,7 +176,7 @@ struct execute_work {
+@@ -17,7 +17,7 @@ struct workqueue_struct;
+ 
+ struct work_struct;
+ typedef void (*work_func_t)(struct work_struct *work);
+-void delayed_work_timer_fn(unsigned long __data);
++void delayed_work_timer_fn(struct timer_list *t);
+ 
+ /*
+  * The first word is the work queue pointer and the flags rolled into
+@@ -175,8 +175,8 @@ struct execute_work {
+ 
  #define __DELAYED_WORK_INITIALIZER(n, f, tflags) {			\
  	.work = __WORK_INITIALIZER((n).work, (f)),			\
- 	.timer = __TIMER_INITIALIZER(delayed_work_timer_fn,		\
--				     0, (unsigned long)&(n),		\
-+				     (unsigned long)&(n),		\
+-	.timer = __TIMER_INITIALIZER(delayed_work_timer_fn,		\
+-				     (unsigned long)&(n),		\
++	.timer = __TIMER_INITIALIZER((TIMER_FUNC_TYPE)delayed_work_timer_fn,\
++				     (TIMER_DATA_TYPE)&(n.timer),	\
  				     (tflags) | TIMER_IRQSAFE),		\
  	}
+ 
+@@ -241,8 +241,9 @@ static inline unsigned int work_static(struct work_struct *work) { return 0; }
+ #define __INIT_DELAYED_WORK(_work, _func, _tflags)			\
+ 	do {								\
+ 		INIT_WORK(&(_work)->work, (_func));			\
+-		__setup_timer(&(_work)->timer, delayed_work_timer_fn,	\
+-			      (unsigned long)(_work),			\
++		__setup_timer(&(_work)->timer,				\
++			      (TIMER_FUNC_TYPE)delayed_work_timer_fn,	\
++			      (TIMER_DATA_TYPE)&(_work)->timer,		\
+ 			      (_tflags) | TIMER_IRQSAFE);		\
+ 	} while (0)
+ 
+@@ -250,8 +251,8 @@ static inline unsigned int work_static(struct work_struct *work) { return 0; }
+ 	do {								\
+ 		INIT_WORK_ONSTACK(&(_work)->work, (_func));		\
+ 		__setup_timer_on_stack(&(_work)->timer,			\
+-				       delayed_work_timer_fn,		\
+-				       (unsigned long)(_work),		\
++				       (TIMER_FUNC_TYPE)delayed_work_timer_fn,\
++				       (TIMER_DATA_TYPE)&(_work)->timer,\
+ 				       (_tflags) | TIMER_IRQSAFE);	\
+ 	} while (0)
+ 
+diff --git a/kernel/workqueue.c b/kernel/workqueue.c
+index a5361fc6215d..c77fdf6bf24f 100644
+--- a/kernel/workqueue.c
++++ b/kernel/workqueue.c
+@@ -1492,9 +1492,9 @@ bool queue_work_on(int cpu, struct workqueue_struct *wq,
+ }
+ EXPORT_SYMBOL(queue_work_on);
+ 
+-void delayed_work_timer_fn(unsigned long __data)
++void delayed_work_timer_fn(struct timer_list *t)
+ {
+-	struct delayed_work *dwork = (struct delayed_work *)__data;
++	struct delayed_work *dwork = from_timer(dwork, t, timer);
+ 
+ 	/* should have been called from irqsafe timer with irq already off */
+ 	__queue_work(dwork->cpu, dwork->wq, &dwork->work);
+@@ -1508,8 +1508,7 @@ static void __queue_delayed_work(int cpu, struct workqueue_struct *wq,
+ 	struct work_struct *work = &dwork->work;
+ 
+ 	WARN_ON_ONCE(!wq);
+-	WARN_ON_ONCE(timer->function != delayed_work_timer_fn ||
+-		     timer->data != (unsigned long)dwork);
++	WARN_ON_ONCE(timer->function != (TIMER_FUNC_TYPE)delayed_work_timer_fn);
+ 	WARN_ON_ONCE(timer_pending(timer));
+ 	WARN_ON_ONCE(!list_empty(&work->entry));
  
 -- 
 2.7.4
