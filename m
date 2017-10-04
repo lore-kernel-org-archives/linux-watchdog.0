@@ -1,18 +1,23 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pg0-f50.google.com ([74.125.83.50]:56548 "EHLO
-        mail-pg0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751247AbdJDX1z (ORCPT
+Received: from mail-pf0-f179.google.com ([209.85.192.179]:48894 "EHLO
+        mail-pf0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751220AbdJDX1y (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 4 Oct 2017 19:27:55 -0400
-Received: by mail-pg0-f50.google.com with SMTP id m18so1223108pgd.13
-        for <linux-watchdog@vger.kernel.org>; Wed, 04 Oct 2017 16:27:55 -0700 (PDT)
+        Wed, 4 Oct 2017 19:27:54 -0400
+Received: by mail-pf0-f179.google.com with SMTP id n24so7034649pfk.5
+        for <linux-watchdog@vger.kernel.org>; Wed, 04 Oct 2017 16:27:54 -0700 (PDT)
 From: Kees Cook <keescook@chromium.org>
 To: Thomas Gleixner <tglx@linutronix.de>
 Cc: Kees Cook <keescook@chromium.org>,
-        Chris Metcalf <cmetcalf@mellanox.com>, netdev@vger.kernel.org,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        linux-pm@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
         Andrew Morton <akpm@linux-foundation.org>,
         Arnd Bergmann <arnd@arndb.de>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Chris Metcalf <cmetcalf@mellanox.com>,
         Geert Uytterhoeven <geert@linux-m68k.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Guenter Roeck <linux@roeck-us.net>,
@@ -28,11 +33,9 @@ Cc: Kees Cook <keescook@chromium.org>,
         Mark Gross <mark.gross@intel.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Martin Schwidefsky <schwidefsky@de.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Michael Reed <mdr@sgi.com>, Oleg Nesterov <oleg@redhat.com>,
-        Paul Mackerras <paulus@samba.org>, Pavel Machek <pavel@ucw.cz>,
+        Michael Reed <mdr@sgi.com>, netdev@vger.kernel.org,
+        Oleg Nesterov <oleg@redhat.com>, Pavel Machek <pavel@ucw.cz>,
         Petr Mladek <pmladek@suse.com>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
         Ralf Baechle <ralf@linux-mips.org>,
         Sebastian Reichel <sre@kernel.org>,
         Stefan Richter <stefanr@s5r6.in-berlin.de>,
@@ -40,74 +43,88 @@ Cc: Kees Cook <keescook@chromium.org>,
         Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
         Tejun Heo <tj@kernel.org>,
         Ursula Braun <ubraun@linux.vnet.ibm.com>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
         Wim Van Sebroeck <wim@iguana.be>,
         linux1394-devel@lists.sourceforge.net, linux-mips@linux-mips.org,
-        linux-pm@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
         linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org,
         linux-watchdog@vger.kernel.org, linux-wireless@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 04/13] timer: Remove init_timer_pinned() in favor of timer_setup()
-Date: Wed,  4 Oct 2017 16:26:58 -0700
-Message-Id: <1507159627-127660-5-git-send-email-keescook@chromium.org>
+Subject: [PATCH 02/13] timer: Remove init_timer_pinned_deferrable() in favor of timer_setup()
+Date: Wed,  4 Oct 2017 16:26:56 -0700
+Message-Id: <1507159627-127660-3-git-send-email-keescook@chromium.org>
 In-Reply-To: <1507159627-127660-1-git-send-email-keescook@chromium.org>
 References: <1507159627-127660-1-git-send-email-keescook@chromium.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This refactors the only users of init_timer_pinned() to use
-the new timer_setup() and from_timer(). Drops the definition of
-init_timer_pinned().
+This refactors the only user of init_timer_pinned_deferrable() to use the
+new timer_setup() and from_timer(). Adds a pointer back to the policy,
+and drops the definition of init_timer_pinned_deferrable().
 
-Cc: Chris Metcalf <cmetcalf@mellanox.com>
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Viresh Kumar <viresh.kumar@linaro.org>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
 Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: netdev@vger.kernel.org
+Cc: linux-pm@vger.kernel.org
+Cc: linuxppc-dev@lists.ozlabs.org
 Signed-off-by: Kees Cook <keescook@chromium.org>
 ---
- drivers/net/ethernet/tile/tilepro.c | 9 ++++-----
- include/linux/timer.h               | 2 --
- 2 files changed, 4 insertions(+), 7 deletions(-)
+ drivers/cpufreq/powernv-cpufreq.c | 13 +++++++------
+ include/linux/timer.h             |  2 --
+ 2 files changed, 7 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/ethernet/tile/tilepro.c b/drivers/net/ethernet/tile/tilepro.c
-index 49ccee4b9aec..56d06282fbde 100644
---- a/drivers/net/ethernet/tile/tilepro.c
-+++ b/drivers/net/ethernet/tile/tilepro.c
-@@ -608,9 +608,9 @@ static void tile_net_schedule_egress_timer(struct tile_net_cpu *info)
-  * ISSUE: Maybe instead track number of expected completions, and free
-  * only that many, resetting to zero if "pending" is ever false.
+diff --git a/drivers/cpufreq/powernv-cpufreq.c b/drivers/cpufreq/powernv-cpufreq.c
+index 3ff5160451b4..b6d7c4c98d0a 100644
+--- a/drivers/cpufreq/powernv-cpufreq.c
++++ b/drivers/cpufreq/powernv-cpufreq.c
+@@ -90,6 +90,7 @@ struct global_pstate_info {
+ 	int last_gpstate_idx;
+ 	spinlock_t gpstate_lock;
+ 	struct timer_list timer;
++	struct cpufreq_policy *policy;
+ };
+ 
+ static struct cpufreq_frequency_table powernv_freqs[POWERNV_MAX_PSTATES+1];
+@@ -625,10 +626,10 @@ static inline void  queue_gpstate_timer(struct global_pstate_info *gpstates)
+  * according quadratic equation. Queues a new timer if it is still not equal
+  * to local pstate
   */
--static void tile_net_handle_egress_timer(unsigned long arg)
-+static void tile_net_handle_egress_timer(struct timer_list *t)
+-void gpstate_timer_handler(unsigned long data)
++void gpstate_timer_handler(struct timer_list *t)
  {
--	struct tile_net_cpu *info = (struct tile_net_cpu *)arg;
-+	struct tile_net_cpu *info = from_timer(info, t, egress_timer);
- 	struct net_device *dev = info->napi.dev;
+-	struct cpufreq_policy *policy = (struct cpufreq_policy *)data;
+-	struct global_pstate_info *gpstates = policy->driver_data;
++	struct global_pstate_info *gpstates = from_timer(gpstates, t, timer);
++	struct cpufreq_policy *policy = gpstates->policy;
+ 	int gpstate_idx, lpstate_idx;
+ 	unsigned long val;
+ 	unsigned int time_diff = jiffies_to_msecs(jiffies)
+@@ -800,9 +801,9 @@ static int powernv_cpufreq_cpu_init(struct cpufreq_policy *policy)
+ 	policy->driver_data = gpstates;
  
- 	/* The timer is no longer scheduled. */
-@@ -1004,9 +1004,8 @@ static void tile_net_register(void *dev_ptr)
- 		BUG();
- 
- 	/* Initialize the egress timer. */
--	init_timer_pinned(&info->egress_timer);
--	info->egress_timer.data = (long)info;
--	info->egress_timer.function = tile_net_handle_egress_timer;
-+	timer_setup(&info->egress_timer, tile_net_handle_egress_timer,
-+		    TIMER_PINNED);
- 
- 	u64_stats_init(&info->stats.syncp);
- 
+ 	/* initialize timer */
+-	init_timer_pinned_deferrable(&gpstates->timer);
+-	gpstates->timer.data = (unsigned long)policy;
+-	gpstates->timer.function = gpstate_timer_handler;
++	gpstates->policy = policy;
++	timer_setup(&gpstates->timer, gpstate_timer_handler,
++		    TIMER_PINNED | TIMER_DEFERRABLE);
+ 	gpstates->timer.expires = jiffies +
+ 				msecs_to_jiffies(GPSTATE_TIMER_INTERVAL);
+ 	spin_lock_init(&gpstates->gpstate_lock);
 diff --git a/include/linux/timer.h b/include/linux/timer.h
-index b10c4bdc6fbd..9da903562ed4 100644
+index 5ef5c9e41a09..d11e819a86e2 100644
 --- a/include/linux/timer.h
 +++ b/include/linux/timer.h
-@@ -128,8 +128,6 @@ static inline void init_timer_on_stack_key(struct timer_list *timer,
- 
- #define init_timer(timer)						\
- 	__init_timer((timer), 0)
--#define init_timer_pinned(timer)					\
--	__init_timer((timer), TIMER_PINNED)
+@@ -132,8 +132,6 @@ static inline void init_timer_on_stack_key(struct timer_list *timer,
+ 	__init_timer((timer), TIMER_PINNED)
  #define init_timer_deferrable(timer)					\
  	__init_timer((timer), TIMER_DEFERRABLE)
+-#define init_timer_pinned_deferrable(timer)				\
+-	__init_timer((timer), TIMER_DEFERRABLE | TIMER_PINNED)
+ #define init_timer_on_stack(timer)					\
+ 	__init_timer_on_stack((timer), 0)
  
 -- 
 2.7.4
