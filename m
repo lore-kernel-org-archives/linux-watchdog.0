@@ -1,19 +1,19 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-qt0-f195.google.com ([209.85.216.195]:49322 "EHLO
-        mail-qt0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751699AbdJDMea (ORCPT
+Received: from mail-qk0-f194.google.com ([209.85.220.194]:38379 "EHLO
+        mail-qk0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751962AbdJDMhV (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 4 Oct 2017 08:34:30 -0400
+        Wed, 4 Oct 2017 08:37:21 -0400
 MIME-Version: 1.0
-In-Reply-To: <6b854d35-6430-c790-3608-15cefac03a52@linux.intel.com>
+In-Reply-To: <5ba5b3d9-b55a-5834-04e5-b4b9a356dca7@linux.intel.com>
 References: <cover.1504588701.git.sathyanarayanan.kuppuswamy@linux.intel.com>
- <3e7a05561840a7dd4fa945e4969edb834d9870b6.1504588701.git.sathyanarayanan.kuppuswamy@linux.intel.com>
- <CAHp75Vd4wNg9tpRUHpkk8-Y75xXtPe4F7_27dPQHZT9uN9DJ5g@mail.gmail.com> <6b854d35-6430-c790-3608-15cefac03a52@linux.intel.com>
+ <5286489131571f149c6b75a8367ceb93cfe6e6be.1504588701.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+ <CAHp75VdGEf_e6mopQmFG5+Dv3X1f5TwV8cHn2CjA39USqN1JBw@mail.gmail.com> <5ba5b3d9-b55a-5834-04e5-b4b9a356dca7@linux.intel.com>
 From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Date: Wed, 4 Oct 2017 15:34:29 +0300
-Message-ID: <CAHp75VfC-d5p7_G65uh=w0tfRok1_TZAh3Re9088re=gsz1rOw@mail.gmail.com>
-Subject: Re: [RFC v3 2/7] platform/x86: intel_pmc_ipc: Use MFD framework to
- create dependent devices
+Date: Wed, 4 Oct 2017 15:37:20 +0300
+Message-ID: <CAHp75VeUUbc2AMcuy2X-EduTWMqJSqTkU6nLW=FF8Qu-+OPy2A@mail.gmail.com>
+Subject: Re: [RFC v3 3/7] platform/x86: intel_pmc_ipc: Use regmap calls for
+ GCR updates
 To: Kuppuswamy Sathyanarayanan
         <sathyanarayanan.kuppuswamy@linux.intel.com>
 Cc: Alessandro Zummo <a.zummo@towertech.it>,
@@ -36,25 +36,44 @@ Content-Type: text/plain; charset="UTF-8"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Oct 4, 2017 at 4:00 AM, sathyanarayanan kuppuswamy
+On Wed, Oct 4, 2017 at 4:16 AM, sathyanarayanan kuppuswamy
 <sathyanarayanan.kuppuswamy@linux.intel.com> wrote:
-> On 10/01/2017 07:44 AM, Andy Shevchenko wrote:
+> On 10/01/2017 07:48 AM, Andy Shevchenko wrote:
 >> On Tue, Sep 5, 2017 at 8:37 AM,
+>> <sathyanarayanan.kuppuswamy@linux.intel.com> wrote:
 
->>> +       punit_cell.id = -1;
+>> Since it sounds as candidate for stable,
 >
-> I will remove this line in next version.
->>>
->>> +       return devm_mfd_add_devices(&pdev->dev, PLATFORM_DEVID_AUTO,
->>> +                       &punit_cell, 1, NULL, 0, NULL);
+> Yes.
 >>
->> IIRC you don't need to file cell ID in case of DEVID_AUTO.
+>> can we have split it to just
+>> as less as possible intrusive fix + moving to regmap as a separate
+>> change?
 >
-> I am planning to use DEVID_NONE here to match the current behavior. Unless
-> you have some concerns?
+> If we have to split it into two patches then,
+>
+> Patch #1 will fix the "sleep in atomic context issue" by replacing
+> mutex_lock() with spin_lock()
+> in GCR read/write APIs to protect the GCR memory updates.
+> Patch #2 will remove GCR read/write/update APIs and replace it with regmap
+> APIs. But along with this
+> change we will also remove the spin_lock() added in previous patch because
+> regmap calls are already
+> protected by its own locking mechanism.
+>
+> Since Patch #2 will clean up what we do in Patch #1, Do we need to split it
+> into two patches?
 
-Preventing behaviour is a good thing to do.
-In either way cell.id can be leaved 0.
+Yes, please do...
+
+>> It should include Fixes: tag as well I suppose.
+>
+> Agree. I will add Fixes tag in next version.
+
+...because this one will go alone to stable releases.
+
+Be also sure patch #1 will be applied on current vanilla (w/o PDx86
+queue involvement).
 
 -- 
 With Best Regards,
