@@ -1,32 +1,30 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pf0-f179.google.com ([209.85.192.179]:52363 "EHLO
-        mail-pf0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751120AbdJDX1y (ORCPT
+Received: from mail-pg0-f48.google.com ([74.125.83.48]:53663 "EHLO
+        mail-pg0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751432AbdJDX2D (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 4 Oct 2017 19:27:54 -0400
-Received: by mail-pf0-f179.google.com with SMTP id a1so3809287pfj.9
-        for <linux-watchdog@vger.kernel.org>; Wed, 04 Oct 2017 16:27:53 -0700 (PDT)
+        Wed, 4 Oct 2017 19:28:03 -0400
+Received: by mail-pg0-f48.google.com with SMTP id j70so7314278pgc.10
+        for <linux-watchdog@vger.kernel.org>; Wed, 04 Oct 2017 16:28:02 -0700 (PDT)
 From: Kees Cook <keescook@chromium.org>
 To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Kees Cook <keescook@chromium.org>,
-        John Stultz <john.stultz@linaro.org>,
-        Stephen Boyd <sboyd@codeaurora.org>,
+Cc: Kees Cook <keescook@chromium.org>, Arnd Bergmann <arnd@arndb.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Mark Gross <mark.gross@intel.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Arnd Bergmann <arnd@arndb.de>,
         Benjamin Herrenschmidt <benh@kernel.crashing.org>,
         Chris Metcalf <cmetcalf@mellanox.com>,
         Geert Uytterhoeven <geert@linux-m68k.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Guenter Roeck <linux@roeck-us.net>,
         Harish Patil <harish.patil@cavium.com>,
         Heiko Carstens <heiko.carstens@de.ibm.com>,
         "James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
+        John Stultz <john.stultz@linaro.org>,
         Julian Wiedmann <jwi@linux.vnet.ibm.com>,
         Kalle Valo <kvalo@qca.qualcomm.com>,
         Lai Jiangshan <jiangshanlai@gmail.com>,
         Len Brown <len.brown@intel.com>,
         Manish Chopra <manish.chopra@cavium.com>,
-        Mark Gross <mark.gross@intel.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Martin Schwidefsky <schwidefsky@de.ibm.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
@@ -38,6 +36,7 @@ Cc: Kees Cook <keescook@chromium.org>,
         Ralf Baechle <ralf@linux-mips.org>,
         Sebastian Reichel <sre@kernel.org>,
         Stefan Richter <stefanr@s5r6.in-berlin.de>,
+        Stephen Boyd <sboyd@codeaurora.org>,
         Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
         Tejun Heo <tj@kernel.org>,
         Ursula Braun <ubraun@linux.vnet.ibm.com>,
@@ -48,102 +47,85 @@ Cc: Kees Cook <keescook@chromium.org>,
         linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org,
         linux-watchdog@vger.kernel.org, linux-wireless@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 01/13] timer: Convert schedule_timeout() to use from_timer()
-Date: Wed,  4 Oct 2017 16:26:55 -0700
-Message-Id: <1507159627-127660-2-git-send-email-keescook@chromium.org>
+Subject: [PATCH 07/13] timer: Remove last user of TIMER_INITIALIZER
+Date: Wed,  4 Oct 2017 16:27:01 -0700
+Message-Id: <1507159627-127660-8-git-send-email-keescook@chromium.org>
 In-Reply-To: <1507159627-127660-1-git-send-email-keescook@chromium.org>
 References: <1507159627-127660-1-git-send-email-keescook@chromium.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-In preparation for unconditionally passing the struct timer_list pointer to
-all timer callbacks, switch to using the new from_timer() helper and passing
-the timer pointer explicitly. Since this special timer is on the stack, it
-needs to have a wrapper structure to carry state once .data is eliminated.
+Drops the last user of TIMER_INITIALIZER and adapts timer.h to use the
+internal version.
 
-Cc: John Stultz <john.stultz@linaro.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Mark Gross <mark.gross@intel.com>
 Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Stephen Boyd <sboyd@codeaurora.org>
 Signed-off-by: Kees Cook <keescook@chromium.org>
 ---
- include/linux/timer.h |  8 ++++++++
- kernel/time/timer.c   | 26 +++++++++++++++++++-------
- 2 files changed, 27 insertions(+), 7 deletions(-)
+ drivers/char/tlclk.c  | 12 +++++-------
+ include/linux/timer.h |  2 +-
+ 2 files changed, 6 insertions(+), 8 deletions(-)
 
+diff --git a/drivers/char/tlclk.c b/drivers/char/tlclk.c
+index 6210bff46341..8eeb4190207d 100644
+--- a/drivers/char/tlclk.c
++++ b/drivers/char/tlclk.c
+@@ -184,9 +184,8 @@ static unsigned int telclk_interrupt;
+ static int int_events;		/* Event that generate a interrupt */
+ static int got_event;		/* if events processing have been done */
+ 
+-static void switchover_timeout(unsigned long data);
+-static struct timer_list switchover_timer =
+-	TIMER_INITIALIZER(switchover_timeout , 0, 0);
++static void switchover_timeout(struct timer_list *t);
++static struct timer_list switchover_timer;
+ static unsigned long tlclk_timer_data;
+ 
+ static struct tlclk_alarms *alarm_events;
+@@ -805,7 +804,7 @@ static int __init tlclk_init(void)
+ 		goto out3;
+ 	}
+ 
+-	init_timer(&switchover_timer);
++	timer_setup(&switchover_timer, switchover_timeout, 0);
+ 
+ 	ret = misc_register(&tlclk_miscdev);
+ 	if (ret < 0) {
+@@ -855,9 +854,9 @@ static void __exit tlclk_cleanup(void)
+ 
+ }
+ 
+-static void switchover_timeout(unsigned long data)
++static void switchover_timeout(struct timer_list *unused)
+ {
+-	unsigned long flags = *(unsigned long *) data;
++	unsigned long flags = tlclk_timer_data;
+ 
+ 	if ((flags & 1)) {
+ 		if ((inb(TLCLK_REG1) & 0x08) != (flags & 0x08))
+@@ -922,7 +921,6 @@ static irqreturn_t tlclk_interrupt(int irq, void *dev_id)
+ 		/* TIMEOUT in ~10ms */
+ 		switchover_timer.expires = jiffies + msecs_to_jiffies(10);
+ 		tlclk_timer_data = inb(TLCLK_REG1);
+-		switchover_timer.data = (unsigned long) &tlclk_timer_data;
+ 		mod_timer(&switchover_timer, switchover_timer.expires);
+ 	} else {
+ 		got_event = 1;
 diff --git a/include/linux/timer.h b/include/linux/timer.h
-index 6383c528b148..5ef5c9e41a09 100644
+index 10cc45ca5803..4f7476e4a727 100644
 --- a/include/linux/timer.h
 +++ b/include/linux/timer.h
-@@ -179,6 +179,14 @@ static inline void timer_setup(struct timer_list *timer,
- 		      (TIMER_DATA_TYPE)timer, flags);
- }
+@@ -87,7 +87,7 @@ struct timer_list {
  
-+static inline void timer_setup_on_stack(struct timer_list *timer,
-+			       void (*callback)(struct timer_list *),
-+			       unsigned int flags)
-+{
-+	__setup_timer_on_stack(timer, (TIMER_FUNC_TYPE)callback,
-+			       (TIMER_DATA_TYPE)timer, flags);
-+}
-+
- #define from_timer(var, callback_timer, timer_fieldname) \
- 	container_of(callback_timer, typeof(*var), timer_fieldname)
+ #define DEFINE_TIMER(_name, _function, _expires, _data)		\
+ 	struct timer_list _name =				\
+-		TIMER_INITIALIZER(_function, _expires, _data)
++		__TIMER_INITIALIZER(_function, _expires, _data, 0)
  
-diff --git a/kernel/time/timer.c b/kernel/time/timer.c
-index f2674a056c26..38613ced2324 100644
---- a/kernel/time/timer.c
-+++ b/kernel/time/timer.c
-@@ -1668,9 +1668,20 @@ void run_local_timers(void)
- 	raise_softirq(TIMER_SOFTIRQ);
- }
- 
--static void process_timeout(unsigned long __data)
-+/*
-+ * Since schedule_timeout()'s timer is defined on the stack, it must store
-+ * the target task on the stack as well.
-+ */
-+struct process_timer {
-+	struct timer_list timer;
-+	struct task_struct *task;
-+};
-+
-+static void process_timeout(struct timer_list *t)
- {
--	wake_up_process((struct task_struct *)__data);
-+	struct process_timer *timeout = from_timer(timeout, t, timer);
-+
-+	wake_up_process(timeout->task);
- }
- 
- /**
-@@ -1704,7 +1715,7 @@ static void process_timeout(unsigned long __data)
-  */
- signed long __sched schedule_timeout(signed long timeout)
- {
--	struct timer_list timer;
-+	struct process_timer timer;
- 	unsigned long expire;
- 
- 	switch (timeout)
-@@ -1738,13 +1749,14 @@ signed long __sched schedule_timeout(signed long timeout)
- 
- 	expire = timeout + jiffies;
- 
--	setup_timer_on_stack(&timer, process_timeout, (unsigned long)current);
--	__mod_timer(&timer, expire, false);
-+	timer.task = current;
-+	timer_setup_on_stack(&timer.timer, process_timeout, 0);
-+	__mod_timer(&timer.timer, expire, false);
- 	schedule();
--	del_singleshot_timer_sync(&timer);
-+	del_singleshot_timer_sync(&timer.timer);
- 
- 	/* Remove the timer from the object tracker */
--	destroy_timer_on_stack(&timer);
-+	destroy_timer_on_stack(&timer.timer);
- 
- 	timeout = expire - jiffies;
- 
+ void init_timer_key(struct timer_list *timer, unsigned int flags,
+ 		    const char *name, struct lock_class_key *key);
 -- 
 2.7.4
 
