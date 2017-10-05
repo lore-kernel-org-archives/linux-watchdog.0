@@ -1,71 +1,179 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Subject: Re: [PATCH] watchdog: cpwd: Convert timers to use timer_setup()
-To: Kees Cook <keescook@chromium.org>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20171025103210.GA146019@beast>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <55609d72-62c0-b76f-7117-055ae1db594f@roeck-us.net>
-Date: Wed, 25 Oct 2017 03:38:45 -0700
-MIME-Version: 1.0
-In-Reply-To: <20171025103210.GA146019@beast>
-Content-Type: text/plain; charset=utf-8; format=flowed
+From: "Gross, Mark" <mark.gross@intel.com>
+To: Kees Cook <keescook@chromium.org>,
+        Thomas Gleixner <tglx@linutronix.de>
+CC: Arnd Bergmann <arnd@arndb.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Chris Metcalf <cmetcalf@mellanox.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        "Guenter Roeck" <linux@roeck-us.net>,
+        Harish Patil <harish.patil@cavium.com>,
+        "Heiko Carstens" <heiko.carstens@de.ibm.com>,
+        "James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
+        John Stultz <john.stultz@linaro.org>,
+        "Julian Wiedmann" <jwi@linux.vnet.ibm.com>,
+        Kalle Valo <kvalo@qca.qualcomm.com>,
+        Lai Jiangshan <jiangshanlai@gmail.com>,
+        "Brown, Len" <len.brown@intel.com>,
+        Manish Chopra <manish.chopra@cavium.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Martin Schwidefsky <schwidefsky@de.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Michael Reed <mdr@sgi.com>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Paul Mackerras <paulus@samba.org>, Pavel Machek <pavel@ucw.cz>,
+        Petr Mladek <pmladek@suse.com>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        Sebastian Reichel <sre@kernel.org>,
+        Stefan Richter <stefanr@s5r6.in-berlin.de>,
+        Stephen Boyd <sboyd@codeaurora.org>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
+        "Tejun Heo" <tj@kernel.org>,
+        Ursula Braun <ubraun@linux.vnet.ibm.com>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        "linux1394-devel@lists.sourceforge.net"
+        <linux1394-devel@lists.sourceforge.net>,
+        "linux-mips@linux-mips.org" <linux-mips@linux-mips.org>,
+        "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
+        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>,
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+        "linux-wireless@vger.kernel.org" <linux-wireless@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH 07/13] timer: Remove last user of TIMER_INITIALIZER
+Date: Thu, 5 Oct 2017 22:39:51 +0000
+Message-ID: <BD75D217E5BAC84080F8EFB2582976379E85363A@ORSMSX112.amr.corp.intel.com>
+References: <1507159627-127660-1-git-send-email-keescook@chromium.org>
+ <1507159627-127660-8-git-send-email-keescook@chromium.org>
+In-Reply-To: <1507159627-127660-8-git-send-email-keescook@chromium.org>
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+MIME-Version: 1.0
+Return-Path: <mark.gross@intel.com>
+Sender: linux-mips-bounce@linux-mips.org
+Errors-to: linux-mips-bounce@linux-mips.org
+List-help: <mailto:ecartis@linux-mips.org?Subject=help>
+List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
+List-software: Ecartis version 1.0.0
+List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
+List-owner: <mailto:ralf@linux-mips.org>
+List-post: <mailto:linux-mips@linux-mips.org>
+List-archive: <http://www.linux-mips.org/archives/linux-mips/>
+List-Archive: <https://lore.kernel.org/linux-mips/>
+List-Post: <mailto:linux-mips@vger.kernel.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On 10/25/2017 03:32 AM, Kees Cook wrote:
-> In preparation for unconditionally passing the struct timer_list pointer to
-> all timer callbacks, switch to using the new timer_setup() and from_timer()
-> to pass the timer pointer explicitly. Switches to using the global that is
-> used everywhere else.
+Acked-by: mark gross <mark.gross@intel.com>
+
+--mark
+
+> -----Original Message-----
+> From: Kees Cook [mailto:keescook@chromium.org]
+> Sent: Wednesday, October 4, 2017 4:27 PM
+> To: Thomas Gleixner <tglx@linutronix.de>
+> Cc: Kees Cook <keescook@chromium.org>; Arnd Bergmann <arnd@arndb.de>;
+> Greg Kroah-Hartman <gregkh@linuxfoundation.org>; Gross, Mark
+> <mark.gross@intel.com>; Andrew Morton <akpm@linux-foundation.org>;
+> Benjamin Herrenschmidt <benh@kernel.crashing.org>; Chris Metcalf
+> <cmetcalf@mellanox.com>; Geert Uytterhoeven <geert@linux-m68k.org>;
+> Guenter Roeck <linux@roeck-us.net>; Harish Patil <harish.patil@cavium.com>;
+> Heiko Carstens <heiko.carstens@de.ibm.com>; James E.J. Bottomley
+> <jejb@linux.vnet.ibm.com>; John Stultz <john.stultz@linaro.org>; Julian
+> Wiedmann <jwi@linux.vnet.ibm.com>; Kalle Valo <kvalo@qca.qualcomm.com>;
+> Lai Jiangshan <jiangshanlai@gmail.com>; Brown, Len <len.brown@intel.com>;
+> Manish Chopra <manish.chopra@cavium.com>; Martin K. Petersen
+> <martin.petersen@oracle.com>; Martin Schwidefsky
+> <schwidefsky@de.ibm.com>; Michael Ellerman <mpe@ellerman.id.au>; Michael
+> Reed <mdr@sgi.com>; netdev@vger.kernel.org; Oleg Nesterov
+> <oleg@redhat.com>; Paul Mackerras <paulus@samba.org>; Pavel Machek
+> <pavel@ucw.cz>; Petr Mladek <pmladek@suse.com>; Rafael J. Wysocki
+> <rjw@rjwysocki.net>; Ralf Baechle <ralf@linux-mips.org>; Sebastian Reichel
+> <sre@kernel.org>; Stefan Richter <stefanr@s5r6.in-berlin.de>; Stephen Boyd
+> <sboyd@codeaurora.org>; Sudip Mukherjee <sudipm.mukherjee@gmail.com>;
+> Tejun Heo <tj@kernel.org>; Ursula Braun <ubraun@linux.vnet.ibm.com>; Viresh
+> Kumar <viresh.kumar@linaro.org>; Wim Van Sebroeck <wim@iguana.be>;
+> linux1394-devel@lists.sourceforge.net; linux-mips@linux-mips.org; linux-
+> pm@vger.kernel.org; linuxppc-dev@lists.ozlabs.org; linux-
+> s390@vger.kernel.org; linux-scsi@vger.kernel.org; linux-
+> watchdog@vger.kernel.org; linux-wireless@vger.kernel.org; linux-
+> kernel@vger.kernel.org
+> Subject: [PATCH 07/13] timer: Remove last user of TIMER_INITIALIZER
 > 
-> Cc: Wim Van Sebroeck <wim@iguana.be>
-> Cc: Guenter Roeck <linux@roeck-us.net>
-> Cc: linux-watchdog@vger.kernel.org
+> Drops the last user of TIMER_INITIALIZER and adapts timer.h to use the internal
+> version.
+> 
+> Cc: Arnd Bergmann <arnd@arndb.de>
+> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Cc: Mark Gross <mark.gross@intel.com>
+> Cc: Thomas Gleixner <tglx@linutronix.de>
 > Signed-off-by: Kees Cook <keescook@chromium.org>
-
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-
 > ---
->   drivers/watchdog/cpwd.c | 8 ++++----
->   1 file changed, 4 insertions(+), 4 deletions(-)
+>  drivers/char/tlclk.c  | 12 +++++-------  include/linux/timer.h |  2 +-
+>  2 files changed, 6 insertions(+), 8 deletions(-)
 > 
-> diff --git a/drivers/watchdog/cpwd.c b/drivers/watchdog/cpwd.c
-> index 3d43775548e5..aee0b25cf10d 100644
-> --- a/drivers/watchdog/cpwd.c
-> +++ b/drivers/watchdog/cpwd.c
-> @@ -230,9 +230,9 @@ static void cpwd_resetbrokentimer(struct cpwd *p, int index)
->    * interrupts within the PLD so me must continually
->    * reset the timers ad infinitum.
->    */
-> -static void cpwd_brokentimer(unsigned long data)
-> +static void cpwd_brokentimer(struct timer_list *unused)
->   {
-> -	struct cpwd *p = (struct cpwd *) data;
-> +	struct cpwd *p = cpwd_device;
->   	int id, tripped = 0;
->   
->   	/* kill a running timer instance, in case we
-> @@ -275,7 +275,7 @@ static void cpwd_stoptimer(struct cpwd *p, int index)
->   
->   		if (p->broken) {
->   			p->devs[index].runstatus |= WD_STAT_BSTOP;
-> -			cpwd_brokentimer((unsigned long) p);
-> +			cpwd_brokentimer(NULL);
->   		}
->   	}
->   }
-> @@ -608,7 +608,7 @@ static int cpwd_probe(struct platform_device *op)
->   	}
->   
->   	if (p->broken) {
-> -		setup_timer(&cpwd_timer, cpwd_brokentimer, (unsigned long)p);
-> +		timer_setup(&cpwd_timer, cpwd_brokentimer, 0);
->   		cpwd_timer.expires	= WD_BTIMEOUT;
->   
->   		pr_info("PLD defect workaround enabled for model %s\n",
+> diff --git a/drivers/char/tlclk.c b/drivers/char/tlclk.c index
+> 6210bff46341..8eeb4190207d 100644
+> --- a/drivers/char/tlclk.c
+> +++ b/drivers/char/tlclk.c
+> @@ -184,9 +184,8 @@ static unsigned int telclk_interrupt;
+>  static int int_events;		/* Event that generate a interrupt */
+>  static int got_event;		/* if events processing have been done */
 > 
+> -static void switchover_timeout(unsigned long data); -static struct timer_list
+> switchover_timer =
+> -	TIMER_INITIALIZER(switchover_timeout , 0, 0);
+> +static void switchover_timeout(struct timer_list *t); static struct
+> +timer_list switchover_timer;
+>  static unsigned long tlclk_timer_data;
+> 
+>  static struct tlclk_alarms *alarm_events; @@ -805,7 +804,7 @@ static int
+> __init tlclk_init(void)
+>  		goto out3;
+>  	}
+> 
+> -	init_timer(&switchover_timer);
+> +	timer_setup(&switchover_timer, switchover_timeout, 0);
+> 
+>  	ret = misc_register(&tlclk_miscdev);
+>  	if (ret < 0) {
+> @@ -855,9 +854,9 @@ static void __exit tlclk_cleanup(void)
+> 
+>  }
+> 
+> -static void switchover_timeout(unsigned long data)
+> +static void switchover_timeout(struct timer_list *unused)
+>  {
+> -	unsigned long flags = *(unsigned long *) data;
+> +	unsigned long flags = tlclk_timer_data;
+> 
+>  	if ((flags & 1)) {
+>  		if ((inb(TLCLK_REG1) & 0x08) != (flags & 0x08)) @@ -922,7
+> +921,6 @@ static irqreturn_t tlclk_interrupt(int irq, void *dev_id)
+>  		/* TIMEOUT in ~10ms */
+>  		switchover_timer.expires = jiffies + msecs_to_jiffies(10);
+>  		tlclk_timer_data = inb(TLCLK_REG1);
+> -		switchover_timer.data = (unsigned long) &tlclk_timer_data;
+>  		mod_timer(&switchover_timer, switchover_timer.expires);
+>  	} else {
+>  		got_event = 1;
+> diff --git a/include/linux/timer.h b/include/linux/timer.h index
+> 10cc45ca5803..4f7476e4a727 100644
+> --- a/include/linux/timer.h
+> +++ b/include/linux/timer.h
+> @@ -87,7 +87,7 @@ struct timer_list {
+> 
+>  #define DEFINE_TIMER(_name, _function, _expires, _data)		\
+>  	struct timer_list _name =				\
+> -		TIMER_INITIALIZER(_function, _expires, _data)
+> +		__TIMER_INITIALIZER(_function, _expires, _data, 0)
+> 
+>  void init_timer_key(struct timer_list *timer, unsigned int flags,
+>  		    const char *name, struct lock_class_key *key);
+> --
+> 2.7.4
