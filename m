@@ -1,90 +1,60 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:35038 "EHLO mga09.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753037AbdJGCeV (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 6 Oct 2017 22:34:21 -0400
-From: sathyanarayanan.kuppuswamy@linux.intel.com
-To: a.zummo@towertech.it, x86@kernel.org, wim@iguana.be,
-        mingo@redhat.com, alexandre.belloni@free-electrons.com,
-        qipeng.zha@intel.com, hpa@zytor.com, dvhart@infradead.org,
-        tglx@linutronix.de, lee.jones@linaro.org, andy@infradead.org,
-        souvik.k.chakravarty@intel.com
-Cc: linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        linux-kernel@vger.kernel.org, platform-driver-x86@vger.kernel.org,
-        sathyaosid@gmail.com,
-        Kuppuswamy Sathyanarayanan
+Received: from mail-qk0-f193.google.com ([209.85.220.193]:33509 "EHLO
+        mail-qk0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751081AbdJGQNS (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Sat, 7 Oct 2017 12:13:18 -0400
+MIME-Version: 1.0
+In-Reply-To: <c2932168ae25c83f2b2ee6a570274cd0670ba543.1507340643.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+References: <cover.1507340643.git.sathyanarayanan.kuppuswamy@linux.intel.com> <c2932168ae25c83f2b2ee6a570274cd0670ba543.1507340643.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Date: Sat, 7 Oct 2017 19:13:16 +0300
+Message-ID: <CAHp75VdFybPNxXU5URVHBBWROV6h1eX+u_R-r5Kue08kBUmGHQ@mail.gmail.com>
+Subject: Re: [RFC v4 2/8] platform/x86: intel_pmc_ipc: Use spin_lock to
+ protect GCR updates
+To: Kuppuswamy Sathyanarayanan
         <sathyanarayanan.kuppuswamy@linux.intel.com>
-Subject: [RFC v4 5/8] platform/x86: intel_punit_ipc: Fix resource ioremap warning
-Date: Fri,  6 Oct 2017 19:33:59 -0700
-Message-Id: <e677dbe8c35639f64cb2beb753b0550998176f74.1507340643.git.sathyanarayanan.kuppuswamy@linux.intel.com>
-In-Reply-To: <cover.1507340643.git.sathyanarayanan.kuppuswamy@linux.intel.com>
-References: <cover.1507340643.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+        "x86@kernel.org" <x86@kernel.org>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Ingo Molnar <mingo@redhat.com>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        Zha Qipeng <qipeng.zha@intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        "dvhart@infradead.org" <dvhart@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Lee Jones <lee.jones@linaro.org>,
+        Andy Shevchenko <andy@infradead.org>,
+        Souvik Kumar Chakravarty <souvik.k.chakravarty@intel.com>,
+        linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Platform Driver <platform-driver-x86@vger.kernel.org>,
+        Sathyanarayanan Kuppuswamy Natarajan <sathyaosid@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-From: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
+On Sat, Oct 7, 2017 at 5:33 AM,
+<sathyanarayanan.kuppuswamy@linux.intel.com> wrote:
+> From: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
+>
+> Currently, update_no_reboot_bit() function implemented in this driver
+> uses mutex_lock() to protect its register updates. But this function is
+> called with in atomic context in iTCO_wdt_start() and iTCO_wdt_stop()
+> functions in iTCO_wdt.c driver, which in turn causes "sleeping into
+> atomic context" issue. This patch fixes this issue by replacing the
+> mutex_lock() with spin_lock() to protect the GCR read/write/update APIs.
+>
 
-For PUNIT device, ISPDRIVER_IPC and GTDDRIVER_IPC resources are
-not mandatory. So when PMC IPC driver creates a PUNIT device, if
-these resources are not available then it creates dummy resource
-entries for these missing resources. But during PUNIT device probe
-, doing ioremap on these dummy resources generates following warning
-messages.
+> Fixes: 9d855d4 ("platform/x86: intel_pmc_ipc: Fix iTCO_wdt GCS memory
+> mapping failure")
 
-intel_punit_ipc intel_punit_ipc: can't request region for resource [mem
-0x00000000]
-intel_punit_ipc intel_punit_ipc: can't request region for resource [mem
-0x00000000]
-intel_punit_ipc intel_punit_ipc: can't request region for resource [mem
-0x00000000]
-intel_punit_ipc intel_punit_ipc: can't request region for resource [mem
-0x00000000]
+I think it need to be a one line.
 
-This patch fixes this issue by adding extra check for resource size
-before performing ioremap operation.
+Does it apply on top of v4.14-rc3 ?
+Btw, this patch should be first in the series.
 
-Signed-off-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
----
- drivers/platform/x86/intel_punit_ipc.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/platform/x86/intel_punit_ipc.c b/drivers/platform/x86/intel_punit_ipc.c
-index a47a41f..b5b8901 100644
---- a/drivers/platform/x86/intel_punit_ipc.c
-+++ b/drivers/platform/x86/intel_punit_ipc.c
-@@ -252,28 +252,28 @@ static int intel_punit_get_bars(struct platform_device *pdev)
- 	 * - GTDRIVER_IPC BASE_IFACE
- 	 */
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 2);
--	if (res) {
-+	if (res && resource_size(res) > 1) {
- 		addr = devm_ioremap_resource(&pdev->dev, res);
- 		if (!IS_ERR(addr))
- 			punit_ipcdev->base[ISPDRIVER_IPC][BASE_DATA] = addr;
- 	}
- 
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 3);
--	if (res) {
-+	if (res && resource_size(res) > 1) {
- 		addr = devm_ioremap_resource(&pdev->dev, res);
- 		if (!IS_ERR(addr))
- 			punit_ipcdev->base[ISPDRIVER_IPC][BASE_IFACE] = addr;
- 	}
- 
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 4);
--	if (res) {
-+	if (res && resource_size(res) > 1) {
- 		addr = devm_ioremap_resource(&pdev->dev, res);
- 		if (!IS_ERR(addr))
- 			punit_ipcdev->base[GTDRIVER_IPC][BASE_DATA] = addr;
- 	}
- 
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 5);
--	if (res) {
-+	if (res && resource_size(res) > 1) {
- 		addr = devm_ioremap_resource(&pdev->dev, res);
- 		if (!IS_ERR(addr))
- 			punit_ipcdev->base[GTDRIVER_IPC][BASE_IFACE] = addr;
 -- 
-2.7.4
-
+With Best Regards,
+Andy Shevchenko
