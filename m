@@ -1,7 +1,7 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mga11.intel.com ([192.55.52.93]:14950 "EHLO mga11.intel.com"
+Received: from mga09.intel.com ([134.134.136.24]:35038 "EHLO mga09.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752191AbdJGCeV (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        id S1753037AbdJGCeV (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
         Fri, 6 Oct 2017 22:34:21 -0400
 From: sathyanarayanan.kuppuswamy@linux.intel.com
 To: a.zummo@towertech.it, x86@kernel.org, wim@iguana.be,
@@ -14,106 +14,77 @@ Cc: linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
         sathyaosid@gmail.com,
         Kuppuswamy Sathyanarayanan
         <sathyanarayanan.kuppuswamy@linux.intel.com>
-Subject: [RFC v4 0/8] PMC/PUNIT IPC driver cleanup
-Date: Fri,  6 Oct 2017 19:33:54 -0700
-Message-Id: <cover.1507340643.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+Subject: [RFC v4 5/8] platform/x86: intel_punit_ipc: Fix resource ioremap warning
+Date: Fri,  6 Oct 2017 19:33:59 -0700
+Message-Id: <e677dbe8c35639f64cb2beb753b0550998176f74.1507340643.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+In-Reply-To: <cover.1507340643.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+References: <cover.1507340643.git.sathyanarayanan.kuppuswamy@linux.intel.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
 From: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
 
-Hi All,
+For PUNIT device, ISPDRIVER_IPC and GTDDRIVER_IPC resources are
+not mandatory. So when PMC IPC driver creates a PUNIT device, if
+these resources are not available then it creates dummy resource
+entries for these missing resources. But during PUNIT device probe
+, doing ioremap on these dummy resources generates following warning
+messages.
 
-Currently intel_pmc_ipc.c, intel_punit_ipc.c, intel_scu_ipc.c drivers implements the same IPC features.
-This code duplication could be avoided if we implement the IPC driver as a generic library and let custom
-device drivers use API provided by generic driver. This patchset mainly addresses this issue.
+intel_punit_ipc intel_punit_ipc: can't request region for resource [mem
+0x00000000]
+intel_punit_ipc intel_punit_ipc: can't request region for resource [mem
+0x00000000]
+intel_punit_ipc intel_punit_ipc: can't request region for resource [mem
+0x00000000]
+intel_punit_ipc intel_punit_ipc: can't request region for resource [mem
+0x00000000]
 
-Along with above code duplication issue, This patchset also addresses following issues in intel_pmc_ipc and
-intel_punit_ipc drivers. 
+This patch fixes this issue by adding extra check for resource size
+before performing ioremap operation.
 
-1. Intel_pmc_ipc.c driver does not use any resource managed (devm_*) calls.
-2. In Intel_pmc_ipc.c driver, dependent devices like PUNIT, Telemetry and iTCO are created manually and uses lot of redundant buffer code.
-3. Global variable is used to store the IPC device structure and it is used across all functions in intel_pmc_ipc.c and intel_punit_ipc.c.
+Signed-off-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
+---
+ drivers/platform/x86/intel_punit_ipc.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-More info on Intel IPC device library:
--------------------------------------
-
-A generic Intel IPC class driver has been implemented and all common IPC helper functions has been moved to this driver. It exposes APIs to create IPC device channel, send raw IPC command and simple IPC commands. It also creates device attribute to send IPC command from user space.
-
-API for creating a new IPC channel device is,
-
-struct intel_ipc_dev *devm_intel_ipc_dev_create(struct device *dev, const char *devname, struct intel_ipc_dev_cfg *cfg, struct intel_ipc_dev_ops *ops)
-
-The IPC channel drivers (PUNIT/PMC/SCU) when creating a new device can configure their device params like register mapping, irq, irq-mode, channel type,etc  using intel_ipc_dev_cfg and intel_ipc_dev_ops arguments. After a new IPC channel device is created, IPC users can use the generic APIs to make IPC calls.
-
-For example, after using this new model, IPC call to PMC device will look like,
-
-pmc_ipc_dev = intel_ipc_dev_get(INTEL_PMC_IPC_DEV);
-ipc_dev_raw_cmd(pmc_ipc_dev, cmd, PMC_PARAM_LEN, (u32 *)ipc_in, 1, NULL, 0, 0, 0);
-intel_ipc_dev_put(pmc_ipc_dev);
-
-I am still testing the driver in different products. But posted it to get some early comments. I also welcome any PMC/PUNIT driver users to check these patches in their product.
-
-Changes since v3:
- * Rebased on top of Andy's review branch.
- * Fixed resource ioremap warning in intel_punit_ipc.c.
- * Divided "platform/x86: intel_pmc_ipc: Use regmap calls for GCR updates" patch
-   into two patches. One fixing the existing issue and another to add regmap support.
- * Fixed error in resource initalization logic in ipc_create_punit_device.
- * Changed PLATFORM_DEVID_AUTO to PLATFORM_DEVID_NONE in mfd device creation.
- * Added unique name to PUNIT BIOS, GTD, & ISP regmaps.
- * Fixed NULL pointer exception in intel_ipc_dev_get().
- * In intel_ipc_dev.c,
-    * Fixed error in check for duplicate intel_ipc_dev.
-    * Added custom interrupt handler support.
-    * Used char array for error string conversion.
-    * Added put dev support.
-
-Changes since v2:
- * Refactored intel_scu_ipc.c to use generic IPC device APIs.
- * Fixed intel_pmc_ipc.c to use pcim_* device managed functions.
-
-Changes since v1:
- * Merged devm_* changes in pmc_plat_probe and pmc_pci_probe functions into a
-   single patch.
- * Addressed Andy's comment about keeping the library generic by not implementing
-   the low level reg access calls in intel_ipc_dev.c. This version will start using
-   the regmap pointer provided by channel drivers instead of fixed memory map.
- * Removed custom IPC APIs in intel_pmc_ipc.c and intel_punit_ipc.c.
- * Cleaned up IPC driver users to use APIs provided by generic library (intel_ipc_dev.c).
-
-Kuppuswamy Sathyanarayanan (8):
-  platform/x86: intel_pmc_ipc: Use MFD framework to create dependent
-    devices
-  platform/x86: intel_pmc_ipc: Use spin_lock to protect GCR updates
-  platform/x86: intel_pmc_ipc: Use regmap calls for GCR updates
-  platform: x86: Add generic Intel IPC driver
-  platform/x86: intel_punit_ipc: Fix resource ioremap warning
-  platform/x86: intel_punit_ipc: Use generic intel ipc device calls
-  platform/x86: intel_pmc_ipc: Use generic Intel IPC device calls
-  platform/x86: intel_scu_ipc: Use generic Intel IPC device calls
-
- arch/x86/include/asm/intel_pmc_ipc.h            |  37 +-
- arch/x86/include/asm/intel_punit_ipc.h          | 125 ++--
- arch/x86/include/asm/intel_scu_ipc.h            |  23 +-
- arch/x86/platform/intel-mid/intel-mid.c         |  15 +-
- drivers/mfd/intel_soc_pmic_bxtwc.c              |  21 +-
- drivers/platform/x86/Kconfig                    |  11 +
- drivers/platform/x86/Makefile                   |   1 +
- drivers/platform/x86/intel_ipc_dev.c            | 576 +++++++++++++++
- drivers/platform/x86/intel_pmc_ipc.c            | 886 +++++++++---------------
- drivers/platform/x86/intel_punit_ipc.c          | 311 +++------
- drivers/platform/x86/intel_scu_ipc.c            | 483 ++++++-------
- drivers/platform/x86/intel_telemetry_pltdrv.c   | 212 +++---
- drivers/rtc/rtc-mrst.c                          |  16 +-
- drivers/watchdog/intel-mid_wdt.c                |  12 +-
- drivers/watchdog/intel_scu_watchdog.c           |  18 +-
- include/linux/mfd/intel_soc_pmic.h              |   2 +
- include/linux/platform_data/x86/intel_ipc_dev.h | 206 ++++++
- 17 files changed, 1683 insertions(+), 1272 deletions(-)
- create mode 100644 drivers/platform/x86/intel_ipc_dev.c
- create mode 100644 include/linux/platform_data/x86/intel_ipc_dev.h
-
+diff --git a/drivers/platform/x86/intel_punit_ipc.c b/drivers/platform/x86/intel_punit_ipc.c
+index a47a41f..b5b8901 100644
+--- a/drivers/platform/x86/intel_punit_ipc.c
++++ b/drivers/platform/x86/intel_punit_ipc.c
+@@ -252,28 +252,28 @@ static int intel_punit_get_bars(struct platform_device *pdev)
+ 	 * - GTDRIVER_IPC BASE_IFACE
+ 	 */
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 2);
+-	if (res) {
++	if (res && resource_size(res) > 1) {
+ 		addr = devm_ioremap_resource(&pdev->dev, res);
+ 		if (!IS_ERR(addr))
+ 			punit_ipcdev->base[ISPDRIVER_IPC][BASE_DATA] = addr;
+ 	}
+ 
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 3);
+-	if (res) {
++	if (res && resource_size(res) > 1) {
+ 		addr = devm_ioremap_resource(&pdev->dev, res);
+ 		if (!IS_ERR(addr))
+ 			punit_ipcdev->base[ISPDRIVER_IPC][BASE_IFACE] = addr;
+ 	}
+ 
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 4);
+-	if (res) {
++	if (res && resource_size(res) > 1) {
+ 		addr = devm_ioremap_resource(&pdev->dev, res);
+ 		if (!IS_ERR(addr))
+ 			punit_ipcdev->base[GTDRIVER_IPC][BASE_DATA] = addr;
+ 	}
+ 
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 5);
+-	if (res) {
++	if (res && resource_size(res) > 1) {
+ 		addr = devm_ioremap_resource(&pdev->dev, res);
+ 		if (!IS_ERR(addr))
+ 			punit_ipcdev->base[GTDRIVER_IPC][BASE_IFACE] = addr;
 -- 
 2.7.4
 
