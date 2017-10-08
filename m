@@ -1,16 +1,16 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-qk0-f193.google.com ([209.85.220.193]:33509 "EHLO
-        mail-qk0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751081AbdJGQNS (ORCPT
+Received: from mail-qk0-f196.google.com ([209.85.220.196]:38797 "EHLO
+        mail-qk0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753172AbdJHSie (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 7 Oct 2017 12:13:18 -0400
+        Sun, 8 Oct 2017 14:38:34 -0400
 MIME-Version: 1.0
-In-Reply-To: <c2932168ae25c83f2b2ee6a570274cd0670ba543.1507340643.git.sathyanarayanan.kuppuswamy@linux.intel.com>
-References: <cover.1507340643.git.sathyanarayanan.kuppuswamy@linux.intel.com> <c2932168ae25c83f2b2ee6a570274cd0670ba543.1507340643.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+In-Reply-To: <e70046c8d49173840f8ee7218e8b2288301f8e67.1507414288.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+References: <cover.1507414288.git.sathyanarayanan.kuppuswamy@linux.intel.com> <e70046c8d49173840f8ee7218e8b2288301f8e67.1507414288.git.sathyanarayanan.kuppuswamy@linux.intel.com>
 From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Date: Sat, 7 Oct 2017 19:13:16 +0300
-Message-ID: <CAHp75VdFybPNxXU5URVHBBWROV6h1eX+u_R-r5Kue08kBUmGHQ@mail.gmail.com>
-Subject: Re: [RFC v4 2/8] platform/x86: intel_pmc_ipc: Use spin_lock to
+Date: Sun, 8 Oct 2017 21:38:33 +0300
+Message-ID: <CAHp75VdaTvaOgNJE1vHHDfT2V8MYyQFnpr0qdUmBVJ2743eQKA@mail.gmail.com>
+Subject: Re: [RFC v5 1/8] platform/x86: intel_pmc_ipc: Use spin_lock to
  protect GCR updates
 To: Kuppuswamy Sathyanarayanan
         <sathyanarayanan.kuppuswamy@linux.intel.com>
@@ -29,12 +29,14 @@ Cc: Alessandro Zummo <a.zummo@towertech.it>,
         linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
         "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
         Platform Driver <platform-driver-x86@vger.kernel.org>,
-        Sathyanarayanan Kuppuswamy Natarajan <sathyaosid@gmail.com>
+        Sathyanarayanan Kuppuswamy Natarajan <sathyaosid@gmail.com>,
+        Kuppuswamy Sathyanarayanan
+        <sathyanarayanan.kupuswamy@linux.intel.com>
 Content-Type: text/plain; charset="UTF-8"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Sat, Oct 7, 2017 at 5:33 AM,
+On Sun, Oct 8, 2017 at 1:19 AM,
 <sathyanarayanan.kuppuswamy@linux.intel.com> wrote:
 > From: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
 >
@@ -45,15 +47,17 @@ On Sat, Oct 7, 2017 at 5:33 AM,
 > atomic context" issue. This patch fixes this issue by replacing the
 > mutex_lock() with spin_lock() to protect the GCR read/write/update APIs.
 >
+> Fixes: 9d855d4 ("platform/x86: intel_pmc_ipc: Fix iTCO_wdt GCS memory mapping failure")
+> Signed-off-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kupuswamy@linux.intel.com>
 
-> Fixes: 9d855d4 ("platform/x86: intel_pmc_ipc: Fix iTCO_wdt GCS memory
-> mapping failure")
+>  * Rebased this patch on top of Andy's review branch.
 
-I think it need to be a one line.
+Oh, what I asked you is to use vanilla kernel as a base.
+Please, be sure (you assured me, though it's not true) that it's
+applied against vanilla (or our fixes branch) and send just this one
+patch separately.
 
-Does it apply on top of v4.14-rc3 ?
-Btw, this patch should be first in the series.
-
+No need to resend v5 right now.
 
 -- 
 With Best Regards,
