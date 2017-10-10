@@ -1,141 +1,114 @@
-Return-Path: <andrew@aj.id.au>
-Return-path: <andrew@aj.id.au>
-Message-ID: <1507693686.5452.174.camel@aj.id.au>
-Subject: Re: [PATCH 11/11] ARM: dts: Add PCLK to the Aspeed watchdogs
-From: Andrew Jeffery <andrew@aj.id.au>
-To: Linus Walleij <linus.walleij@linaro.org>, Wim Van Sebroeck
- <wim@iguana.be>,  Guenter Roeck <linux@roeck-us.net>, Jonas Jensen
- <jonas.jensen@gmail.com>, Joel Stanley <joel@jms.id.au>
-Cc: linux-arm-kernel@lists.infradead.org, linux-watchdog@vger.kernel.org
-Date: Wed, 11 Oct 2017 14:18:06 +1030
-In-Reply-To: <20170812184318.10144-12-linus.walleij@linaro.org>
-References: <20170812184318.10144-1-linus.walleij@linaro.org>
-	 <20170812184318.10144-12-linus.walleij@linaro.org>
-Content-Type: multipart/signed; micalg="pgp-sha512";
-	protocol="application/pgp-signature"; boundary="=-mnz8tb/RuYobThjvM9DZ"
-Mime-Version: 1.0
-List-ID: <linux-watchdog@vger.kernel.org>
-
-
---=-mnz8tb/RuYobThjvM9DZ
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-
-On Sat, 2017-08-12 at 20:43 +0200, Linus Walleij wrote:
-> This adds the PCLK clock to the Aspeed watchdog blocks.
-> I am not directly familiar with the Aspeed clocking, but
-> since the IP is derived from Faraday FTWDT010 it probably
-> has the ability to run the watchdog on the PCLK if
-> desired
-
-This is true for the AST2400, but not the AST2500 where the only option
-is EXTCLK (1MHz).
-
->  so to obtain the frequency from it, it needs to
-> be present in the device tree, and for completeness the
-> PCLK should also be referenced and enabled anyways.
->=20
-> Take this opportunity to add the "faraday,ftwdt010"
-> compatible as fallback to the watchdog IP blocks.
->=20
-> > Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-> ---
-> =C2=A0arch/arm/boot/dts/aspeed-g4.dtsi |=C2=A0=C2=A07 +++++--
-> =C2=A0arch/arm/boot/dts/aspeed-g5.dtsi | 12 +++++++++---
-> =C2=A02 files changed, 14 insertions(+), 5 deletions(-)
->=20
-> diff --git a/arch/arm/boot/dts/aspeed-g4.dtsi b/arch/arm/boot/dts/aspeed-=
-g4.dtsi
-> index 8a04c7e2d818..23b100383c15 100644
-> --- a/arch/arm/boot/dts/aspeed-g4.dtsi
-> +++ b/arch/arm/boot/dts/aspeed-g4.dtsi
-> @@ -895,16 +895,19 @@
-> > =C2=A0			};
-> =C2=A0
-> > > =C2=A0			wdt1: wdt@1e785000 {
-> > -				compatible =3D "aspeed,ast2400-wdt";
-> > +				compatible =3D "aspeed,ast2400-wdt", "faraday,ftwdt010";
-> > =C2=A0				reg =3D <0x1e785000 0x1c>;
-> > =C2=A0				interrupts =3D <27>;
-> > +				clocks =3D <&clk_apb>;
-> > +				clock-names =3D "PCLK";
-> > =C2=A0			};
-> =C2=A0
-> > > =C2=A0			wdt2: wdt@1e785020 {
-> > -				compatible =3D "aspeed,ast2400-wdt";
-> > +				compatible =3D "aspeed,ast2400-wdt", "faraday,ftwdt010";
-> > =C2=A0				reg =3D <0x1e785020 0x1c>;
-> > =C2=A0				interrupts =3D <27>;
-> > =C2=A0				clocks =3D <&clk_apb>;
-> > +				clock-names =3D "PCLK";
-> > =C2=A0				status =3D "disabled";
-> > =C2=A0			};
-> =C2=A0
-> diff --git a/arch/arm/boot/dts/aspeed-g5.dtsi b/arch/arm/boot/dts/aspeed-=
-g5.dtsi
-> index 9cffe347b828..2322d72cd8a9 100644
-> --- a/arch/arm/boot/dts/aspeed-g5.dtsi
-> +++ b/arch/arm/boot/dts/aspeed-g5.dtsi
-> @@ -1003,21 +1003,27 @@
-> =C2=A0
-> =C2=A0
-> > > =C2=A0			wdt1: wdt@1e785000 {
-> > -				compatible =3D "aspeed,ast2500-wdt";
-> > +				compatible =3D "aspeed,ast2500-wdt", "faraday,ftwdt010";
-> > =C2=A0				reg =3D <0x1e785000 0x20>;
-> > =C2=A0				interrupts =3D <27>;
-> > +				clocks =3D <&clk_apb>;
-> +				clock-names =3D "PCLK";
-
-Given the comment above, shouldn't we be doing something like the
-following instead for each of the watchdogs?
-
-+				faraday,use-extclk;
-+				clock-names =3D "EXTCLK";
-
-Andrew
-
-> =C2=A0			};
-> =C2=A0
-> > > =C2=A0			wdt2: wdt@1e785020 {
-> > -				compatible =3D "aspeed,ast2500-wdt";
-> > +				compatible =3D "aspeed,ast2500-wdt", "faraday,ftwdt010";
-> > =C2=A0				reg =3D <0x1e785020 0x20>;
-> > =C2=A0				interrupts =3D <27>;
-> > +				clocks =3D <&clk_apb>;
-> > +				clock-names =3D "PCLK";
-> > =C2=A0				status =3D "disabled";
-> > =C2=A0			};
-> =C2=A0
-> > > =C2=A0			wdt3: wdt@1e785040 {
-> > -				compatible =3D "aspeed,ast2500-wdt";
-> > +				compatible =3D "aspeed,ast2500-wdt", "faraday,ftwdt010";
-> > =C2=A0				reg =3D <0x1e785040 0x20>;
-> > +				clocks =3D <&clk_apb>;
-> > +				clock-names =3D "PCLK";
-> > =C2=A0				status =3D "disabled";
-> > =C2=A0			};
-> =C2=A0
---=-mnz8tb/RuYobThjvM9DZ
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-pf0-f194.google.com ([209.85.192.194]:34203 "EHLO
+        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1756138AbdJJNlS (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 10 Oct 2017 09:41:18 -0400
+Subject: Re: [PATCH] rtc: ds1374: wdt:support suspend/resume for watchdog
+To: "winton.liu" <18502523564@163.com>, a.zummo@towertech.it,
+        alexandre.belloni@free-electrons.com
+Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-watchdog@vger.kernel.org
+References: <1507641172-6099-1-git-send-email-18502523564@163.com>
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <8b80788f-5906-38a5-4b40-0a78f0ab55d9@roeck-us.net>
+Date: Tue, 10 Oct 2017 06:41:15 -0700
+MIME-Version: 1.0
+In-Reply-To: <1507641172-6099-1-git-send-email-18502523564@163.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
------BEGIN PGP SIGNATURE-----
+On 10/10/2017 06:12 AM, winton.liu wrote:
+> When enable CONFIG_RTC_DRV_DS1374_WDT use as watchdog,
+> in suspend mode, watchdog is still working but no daemon
+> patting the watchdog. The system will reboot if timeout.
+> 
+> Add support suspend/resume for watchdog.
+> suspend: disable the watchdog
+> resume: disable existing watchdog, reload watchdog timer, enable watchdog
+> 
+> Signed-off-by: winton.liu <18502523564@163.com>
+> ---
+>   drivers/rtc/rtc-ds1374.c | 31 +++++++++++++++++++++++++++++++
+>   1 file changed, 31 insertions(+)
+> 
+> diff --git a/drivers/rtc/rtc-ds1374.c b/drivers/rtc/rtc-ds1374.c
+> index 38a2e9e..642e31d 100644
+> --- a/drivers/rtc/rtc-ds1374.c
+> +++ b/drivers/rtc/rtc-ds1374.c
+> @@ -437,6 +437,29 @@ static void ds1374_wdt_ping(void)
+>   		pr_info("WD TICK FAIL!!!!!!!!!! %i\n", ret);
+>   }
+>   
+> +static void ds1374_wdt_resume(void)
+> +{
+> +	int ret = -ENOIOCTLCMD;
 
-iQIcBAABCgAGBQJZ3ZR2AAoJEJ0dnzgO5LT5OhoQAJ36gu4L+smUO9k3EYgjxn00
-SST//z/723r0OuiP9j8uci16bBYN1ESnGeRG4GsL73/HQtuQOuyoWgE7RJYQ0h/M
-QlHgdJBotV9qo9mYWKZeZRDPrb7knyST2Ko+MuMGz5s3YkfhPuZ4NL1VD8fTBk+I
-/V1NRHTN+F54f2Ej//TM8GVNkfW5wy3Xp9DUWNznn3GSdBAptuEfv7iC6YzTQ4FQ
-b6oxoPNVIEiLUDBwBrQ/kDdfvc6XQViGl9duH7vfXKWwbm+boCEUzjzPAAUg7Ptc
-00Vq8/oh4376FFoirGPXeE7S/mg2Uf84CRH5Ify2zs+M9laUnM2O8vPo28yrpcXV
-+VKxtxhgYP6DW+HkPCh3lg39Kprpka/o3o5Cub3TVb7nylKR7p8UqbrjH5oTNiQs
-Bh9ktGK12weI+sj2oKeZ/XUU8hAXzFcLTzuYjku+FrGCJeuZZ59g7AefLt4EHxTm
-iAiDTINQe4YZn0s4BXQ3PpuMJg6XMriOUsK5J8eKOS3QPy8HvblDg/zlvmmEwqdb
-xSO3ki4E7vdBTiszp/L1sPFH3RINverKZSqCXiRaxjnEKq4Dn2J/EZH2WOIMmqgH
-torY8cmNtAm7KsbokTcWJQKL0pvIOteGOcDyrxaxroOBxPCSWE5eSfhURzYCzOwG
-vqUZcOiNnI7PKWnQDAnP
-=H35X
------END PGP SIGNATURE-----
+Useless initialization (yes, I can see that this is widely done in the driver,
+but that doesn't make it better).
 
---=-mnz8tb/RuYobThjvM9DZ--
+> +	int cr;
+> +
+> +	cr = i2c_smbus_read_byte_data(save_client, DS1374_REG_CR);
+> +
+> +	/* Disable any existing watchdog/alarm before setting the new one */
+> +	cr &= ~DS1374_REG_CR_WACE;
+> +
+> +	i2c_smbus_write_byte_data(save_client, DS1374_REG_CR, cr);
+> +
+> +	/* Reload watchdog timer */
+> +	ds1374_wdt_ping();
+> +
+> +	/* Enable watchdog timer */
+> +	cr |= DS1374_REG_CR_WACE | DS1374_REG_CR_WDALM;
+> +	cr &= ~DS1374_REG_CR_AIE;
+> +
+> +	ret = i2c_smbus_write_byte_data(save_client, DS1374_REG_CR, cr);
+> +
+Extra empty line. Also, returns void, so what is the point of assigning
+the result to ret ?
+
+> +}
+
+Unless I am missing something, this unconditionally starts the watchdog
+at resume time. So if it was not running before, it will be started anyway,
+and the system will reboot since there will be no ping.
+
+I assume it is guaranteed that the chip doesn't forget the previously
+configured timeout on resume.
+
+Overall the driver would really benefit from a conversion to the watchdog
+subsystem.
+
+> +
+>   static void ds1374_wdt_disable(void)
+>   {
+>   	int ret = -ENOIOCTLCMD;
+> @@ -690,6 +713,10 @@ static int ds1374_suspend(struct device *dev)
+>   {
+>   	struct i2c_client *client = to_i2c_client(dev);
+>   
+> +#ifdef CONFIG_RTC_DRV_DS1374_WDT
+> +	ds1374_wdt_disable();
+> +#endif
+> +
+>   	if (client->irq > 0 && device_may_wakeup(&client->dev))
+>   		enable_irq_wake(client->irq);
+>   	return 0;
+> @@ -699,6 +726,10 @@ static int ds1374_resume(struct device *dev)
+>   {
+>   	struct i2c_client *client = to_i2c_client(dev);
+>   
+> +#ifdef CONFIG_RTC_DRV_DS1374_WDT
+> +	ds1374_wdt_resume();
+> +#endif
+> +
+>   	if (client->irq > 0 && device_may_wakeup(&client->dev))
+>   		disable_irq_wake(client->irq);
+>   	return 0;
+> 
+
