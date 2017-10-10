@@ -1,116 +1,99 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pf0-f196.google.com ([209.85.192.196]:38849 "EHLO
-        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751701AbdJKDl6 (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 10 Oct 2017 23:41:58 -0400
-Subject: Re: [PATCH 2/3] watchdog: orion: don't enable rstout if an interrupt
- is configured
-To: Chris Packham <chris.packham@alliedtelesis.co.nz>, wim@iguana.be,
-        gregory.clement@free-electrons.com, devicetree@vger.kernel.org,
-        linux-watchdog@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-References: <20171011022958.31268-1-chris.packham@alliedtelesis.co.nz>
- <20171011022958.31268-3-chris.packham@alliedtelesis.co.nz>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <227eed69-c4c8-01a1-3c6b-6cf95e84a9cd@roeck-us.net>
-Date: Tue, 10 Oct 2017 20:41:53 -0700
+Return-Path: <linus.walleij@linaro.org>
+Return-path: <linus.walleij@linaro.org>
 MIME-Version: 1.0
-In-Reply-To: <20171011022958.31268-3-chris.packham@alliedtelesis.co.nz>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+In-Reply-To: <20170827170641.GF22819@roeck-us.net>
+References: <20170812184318.10144-1-linus.walleij@linaro.org>
+ <20170812184318.10144-5-linus.walleij@linaro.org> <20170814160536.GC7025@roeck-us.net>
+ <CACRpkdYcEbWkHdgxA-3=6JiZTxecQcTYgqx4xDH23=NxF8zg_Q@mail.gmail.com> <20170827170641.GF22819@roeck-us.net>
+From: Linus Walleij <linus.walleij@linaro.org>
+Date: Tue, 10 Oct 2017 21:51:26 +0200
+Message-ID: <CACRpkdbg3KdVvSMvzTv-rr4mAg_TPs6JLo3N_==G9BBS17B3Rg@mail.gmail.com>
+Subject: Re: [PATCH 04/11] watchdog: ftwdt010: Add clock support
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Stephen Boyd <sboyd@codeaurora.org>, Michael Turquette <mturquette@baylibre.com>,
+	Wim Van Sebroeck <wim@iguana.be>, Jonas Jensen <jonas.jensen@gmail.com>, Andrew Jeffery <andrew@aj.id.au>,
+	Joel Stanley <joel@jms.id.au>,
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
+	LINUXWATCHDOG <linux-watchdog@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 10/10/2017 07:29 PM, Chris Packham wrote:
-> The orion_wdt_irq invokes panic() so we are going to reset the CPU
-> regardless.  By not setting this bit we get a chance to gather debug
-> from the panic output before the system is reset.
-> 
-> Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
+On Sun, Aug 27, 2017 at 7:06 PM, Guenter Roeck <linux@roeck-us.net> wrote:
+> On Thu, Aug 24, 2017 at 10:32:22PM +0200, Linus Walleij wrote:
+>> On Mon, Aug 14, 2017 at 6:05 PM, Guenter Roeck <linux@roeck-us.net> wrote:
+>>
+>> >> +     gwdt->pclk = devm_clk_get(dev, "PCLK");
+>> >> +     if (!IS_ERR(gwdt->pclk)) {
+>> >
+>> > devm_clk_get() can return NULL (if the clock subsystem is not enabled).
+>>
+>> That is fine I think? Because if the clock subsysten is not enabled
+>> all the clk_prepare() etc becomes stubs as well and the driver
+>> is happy. I think this is intended.
+>
+> If I understand your comment below correctly, the driver won't work
+> without clock subsystem because the clock frequency would in that case
+> be 0. Why not catch that situation here, or even better make the driver
+> depends on the clock subsystem ?
 
-Unless I am missing something, this assumes that the interrupt is
-handled, ie that the system is not stuck with interrupts disabled.
-This makes the watchdog less reliable. This added verbosity comes
-at a significant cost. I'd like to get input from others if this
-is acceptable.
+OK fair enough I can do that.
 
-That would be different if there was a means to configure a pretimeout,
-ie a means to tell the system to generate an irq first, followed by a
-hard reset if the interrupt is not served. that does not seem to be
-the case here, though.
+I think Aspeed is merging its clock driver this kernel cycle
+so all variant SoCs actually have clocks.
 
-Guenter
+>> The driver strictly needs this frequency
+>> so we cannot really work without it and it needs to fail
+>> over here.
+>>
+> Repeating from above, doesn't that mean that the driver depends
+> on the clock subsystem ? Or am I missong some context ?
 
-> ---
->   drivers/watchdog/orion_wdt.c | 25 +++++++++++++++++--------
->   1 file changed, 17 insertions(+), 8 deletions(-)
-> 
-> diff --git a/drivers/watchdog/orion_wdt.c b/drivers/watchdog/orion_wdt.c
-> index ea676d233e1e..ce88f339ef7f 100644
-> --- a/drivers/watchdog/orion_wdt.c
-> +++ b/drivers/watchdog/orion_wdt.c
-> @@ -71,6 +71,7 @@ struct orion_watchdog {
->   	unsigned long clk_rate;
->   	struct clk *clk;
->   	const struct orion_watchdog_data *data;
-> +	int irq;
->   };
->   
->   static int orion_wdt_clock_init(struct platform_device *pdev,
-> @@ -203,9 +204,11 @@ static int armada375_start(struct watchdog_device *wdt_dev)
->   						dev->data->wdt_enable_bit);
->   
->   	/* Enable reset on watchdog */
-> -	reg = readl(dev->rstout);
-> -	reg |= dev->data->rstout_enable_bit;
-> -	writel(reg, dev->rstout);
-> +	if (!dev->irq) {
-> +		reg = readl(dev->rstout);
-> +		reg |= dev->data->rstout_enable_bit;
-> +		writel(reg, dev->rstout);
-> +	}
->   
->   	atomic_io_modify(dev->rstout_mask, dev->data->rstout_mask_bit, 0);
->   	return 0;
-> @@ -228,9 +231,12 @@ static int armada370_start(struct watchdog_device *wdt_dev)
->   						dev->data->wdt_enable_bit);
->   
->   	/* Enable reset on watchdog */
-> -	reg = readl(dev->rstout);
-> -	reg |= dev->data->rstout_enable_bit;
-> -	writel(reg, dev->rstout);
-> +	if (!dev->irq) {
-> +		reg = readl(dev->rstout);
-> +		reg |= dev->data->rstout_enable_bit;
-> +		writel(reg, dev->rstout);
-> +	}
-> +
->   	return 0;
->   }
->   
-> @@ -247,8 +253,9 @@ static int orion_start(struct watchdog_device *wdt_dev)
->   						dev->data->wdt_enable_bit);
->   
->   	/* Enable reset on watchdog */
-> -	atomic_io_modify(dev->rstout, dev->data->rstout_enable_bit,
-> -				      dev->data->rstout_enable_bit);
-> +	if (!dev->irq)
-> +		atomic_io_modify(dev->rstout, dev->data->rstout_enable_bit,
-> +					      dev->data->rstout_enable_bit);
->   
->   	return 0;
->   }
-> @@ -595,6 +602,8 @@ static int orion_wdt_probe(struct platform_device *pdev)
->   			dev_err(&pdev->dev, "failed to request IRQ\n");
->   			goto disable_clk;
->   		}
-> +
-> +		dev->irq = irq;
->   	}
->   
->   	watchdog_set_nowayout(&dev->wdt, nowayout);
-> 
+Usually in the kernel, it is acceptable to let stub clocks
+kick in when compiling out the clock subsystem.
 
+I think people assume that in this state, all clocks are simply
+turned on and at nominal speed, all over the place. So it
+usually doesn't matter that it gets compiled out.
+
+But in a sense that is simplistic and as this driver shows
+we really do depend on the clocks to run some business
+like timers, so in practice it is a bad idea. Clocksources
+definately cannot live without their clocks for example.
+So I think strictly requireing it is OK.
+
+>> > Note that I would
+>> > resist replacing all the devm_ functions with non-devm equivalents just
+>> > because the clock subsystem doesn't provide the necessary API functions.
+>>
+>> I've seen people do this for this reason though :/
+>>
+> Yes, but that doesn't make it better.
+
+Stephen Boyd <sboyd@codeaurora.org> wrote:
+
+> I'd still prefer we just disable clks on clk_put(),
+
+Which means that devm_clk_get() will do the job
+implicitly already.
+
+> but Russell
+> said we needed to fix all non-common clk implementations of the
+> clk API to do that and then I forgot about the topic (so
+> anti-climatic). I'm pretty much OK with us merging the temporary
+> solution.
+
+I guess that means the watchdog-local hack that
+Guenther suggested.
+
+But I'm not in any hurry. Instead of solving the simple problem,
+why not solve the supercomplicated problem.
+
+So the task is to look over all non generic clock implementations
+and make them conform to disabling the clocks on clk_put().
+No big deal. (Famous last words.)
+
+How many local clock implementations can there be?
+I will look into it.
+
+Yours,
+Linus Walleij
