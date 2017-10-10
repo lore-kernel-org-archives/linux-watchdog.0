@@ -1,81 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Mon, 9 Oct 2017 15:23:05 +0200
-From: Ralf Baechle <ralf@linux-mips.org>
-To: Kees Cook <keescook@chromium.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>, Wim Van Sebroeck <wim@iguana.be>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Geert Uytterhoeven <geert@linux-m68k.org>, linux-mips@linux-mips.org,
-        linux-watchdog@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Chris Metcalf <cmetcalf@mellanox.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Harish Patil <harish.patil@cavium.com>,
-        Heiko Carstens <heiko.carstens@de.ibm.com>,
-        "James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
-        John Stultz <john.stultz@linaro.org>,
-        Julian Wiedmann <jwi@linux.vnet.ibm.com>,
-        Kalle Valo <kvalo@qca.qualcomm.com>,
-        Lai Jiangshan <jiangshanlai@gmail.com>,
-        Len Brown <len.brown@intel.com>,
-        Manish Chopra <manish.chopra@cavium.com>,
-        Mark Gross <mark.gross@intel.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Martin Schwidefsky <schwidefsky@de.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>, Michael Reed <mdr@sgi.com>,
-        netdev@vger.kernel.org, Oleg Nesterov <oleg@redhat.com>,
-        Paul Mackerras <paulus@samba.org>, Pavel Machek <pavel@ucw.cz>,
-        Petr Mladek <pmladek@suse.com>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Sebastian Reichel <sre@kernel.org>,
-        Stefan Richter <stefanr@s5r6.in-berlin.de>,
-        Stephen Boyd <sboyd@codeaurora.org>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-        Tejun Heo <tj@kernel.org>, Ursula Braun <ubraun@linux.vnet.ibm.com>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        linux1394-devel@lists.sourceforge.net, linux-pm@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        linux-scsi@vger.kernel.org, linux-wireless@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 09/13] timer: Remove users of expire and data arguments
- to DEFINE_TIMER
-Message-ID: <20171009132305.GH20977@linux-mips.org>
-References: <1507159627-127660-1-git-send-email-keescook@chromium.org>
- <1507159627-127660-10-git-send-email-keescook@chromium.org>
+Subject: Re: [PATCH] watchdog: hpwdt: change maintainer.
+To: "Vance, Jimmy" <jimmy.vance@hpe.com>,
+        "Hoemann, Jerry" <jerry.hoemann@hpe.com>,
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+References: <1507575416-80477-1-git-send-email-jerry.hoemann@hpe.com>
+ <627459ff-9fc8-f57d-4df3-2f4cf98aeec9@roeck-us.net>
+ <CS1PR84MB0168E7A0F1991DDA177385DFE3750@CS1PR84MB0168.NAMPRD84.PROD.OUTLOOK.COM>
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <acb7c574-0526-c605-8a26-63227280fb6c@roeck-us.net>
+Date: Mon, 9 Oct 2017 20:18:49 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1507159627-127660-10-git-send-email-keescook@chromium.org>
+In-Reply-To: <CS1PR84MB0168E7A0F1991DDA177385DFE3750@CS1PR84MB0168.NAMPRD84.PROD.OUTLOOK.COM>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On Wed, Oct 04, 2017 at 04:27:03PM -0700, Kees Cook wrote:
-
-> Subject: [PATCH 09/13] timer: Remove users of expire and data arguments to
->  DEFINE_TIMER
+On 10/09/2017 08:05 PM, Vance, Jimmy wrote:
+> Yes, Jerry is taking over as maintainer of hpwdt
 > 
-> The expire and data arguments of DEFINE_TIMER are only used in two places
-> and are ignored by the code (malta-display.c only uses mod_timer(),
-> never add_timer(), so the preset expires value is ignored). Set both
-> sets of arguments to zero.
+
+Just a note ... if you send such a note as official Acked-by: tag,
+patchwork picks it up automatically, and you save the maintainer
+a couple of minutes of work.
+
+Guenter
+
+> -----Original Message-----
+> From: Guenter Roeck [mailto:groeck7@gmail.com] On Behalf Of Guenter Roeck
+> Sent: Monday, October 9, 2017 7:27 PM
+> To: Hoemann, Jerry <jerry.hoemann@hpe.com>; linux-watchdog@vger.kernel.org
+> Cc: linux-kernel@vger.kernel.org; Vance, Jimmy <jimmy.vance@hpe.com>
+> Subject: Re: [PATCH] watchdog: hpwdt: change maintainer.
 > 
-> Cc: Ralf Baechle <ralf@linux-mips.org>
-> Cc: Wim Van Sebroeck <wim@iguana.be>
-> Cc: Guenter Roeck <linux@roeck-us.net>
-> Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-> Cc: linux-mips@linux-mips.org
-> Cc: linux-watchdog@vger.kernel.org
-> Signed-off-by: Kees Cook <keescook@chromium.org>
-> ---
->  arch/mips/mti-malta/malta-display.c | 6 +++---
->  drivers/watchdog/alim7101_wdt.c     | 4 ++--
->  2 files changed, 5 insertions(+), 5 deletions(-)
-
-For malta-display:
-
-Acked-by: Ralf Baechle <ralf@linux-mips.org>
-
-  Ralf
+> On 10/09/2017 11:56 AM, Jerry Hoemann wrote:
+>> Signed-off-by: Jerry Hoemann <jerry.hoemann@hpe.com>
+> 
+> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+> 
+> We should get an Ack from Jimmy, though.
+> 
+> Guenter
+> 
+>> ---
+>>    MAINTAINERS | 2 +-
+>>    1 file changed, 1 insertion(+), 1 deletion(-)
+>>
+>> diff --git a/MAINTAINERS b/MAINTAINERS index 2d3d750..e7dc993 100644
+>> --- a/MAINTAINERS
+>> +++ b/MAINTAINERS
+>> @@ -6114,7 +6114,7 @@ S:	Odd Fixes
+>>    F:	drivers/media/usb/hdpvr/
+>>    
+>>    HEWLETT PACKARD ENTERPRISE ILO NMI WATCHDOG DRIVER
+>> -M:	Jimmy Vance <jimmy.vance@hpe.com>
+>> +M:	Jerry Hoemann <jerry.hoemann@hpe.com>
+>>    S:	Supported
+>>    F:	Documentation/watchdog/hpwdt.txt
+>>    F:	drivers/watchdog/hpwdt.c
+>>
+> 
+> N�����r��y���b�X��ǧv�^�)޺{.n�+����{���\�� �{ay�
+ʇڙ�,j��f���h���z�
+�w���
+���j:+v���w�j�m��������zZ+�����ݢj"��!tml=
+> 
