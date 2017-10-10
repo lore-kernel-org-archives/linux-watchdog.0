@@ -1,89 +1,139 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from m12-12.163.com ([220.181.12.12]:50121 "EHLO m12-12.163.com"
+Received: from m13-128.163.com ([220.181.13.128]:19018 "EHLO m13-128.163.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1755919AbdJJN3d (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 10 Oct 2017 09:29:33 -0400
-From: "winton.liu" <18502523564@163.com>
-To: a.zummo@towertech.it, alexandre.belloni@free-electrons.com,
-        linux@roeck-us.net
-Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-watchdog@vger.kernel.org, "winton.liu" <18502523564@163.com>
-Subject: [PATCH] rtc: ds1374: wdt:support suspend/resume for watchdog
-Date: Tue, 10 Oct 2017 21:12:52 +0800
-Message-Id: <1507641172-6099-1-git-send-email-18502523564@163.com>
+        id S1755866AbdJJNwx (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 10 Oct 2017 09:52:53 -0400
+Date: Tue, 10 Oct 2017 21:36:18 +0800 (CST)
+From: =?UTF-8?B?5YiY56iz?= <18502523564@163.com>
+To: "Guenter Roeck" <linux@roeck-us.net>
+Cc: "Alexandre Belloni" <alexandre.belloni@free-electrons.com>,
+        "a.zummo" <a.zummo@towertech.it>,
+        linux-rtc <linux-rtc@vger.kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        "Wim Van Sebroeck" <wim@iguana.be>, linux-watchdog@vger.kernel.org
+Subject: Re:Re: [PATCH] rtc: ds1374: wdt:support suspend/resume for watchdog
+In-Reply-To: <2b8f974f-6151-ea72-55e1-58df07279a06@roeck-us.net>
+References: <1506340724-18108-1-git-send-email-18502523564@163.com>
+ <20170925120742.ja54wu2orgai6fsr@piout.net>
+ <tencent_BD3706918C1500105699D4E6@qq.com>
+ <20170926102239.qjmhfry4vtaow4gk@piout.net>
+ <2b8f974f-6151-ea72-55e1-58df07279a06@roeck-us.net>
+Content-Type: multipart/mixed;
+        boundary="----=_Part_214175_1385406429.1507642578417"
+MIME-Version: 1.0
+Message-ID: <7f483ac.e4ea.15f068015f1.Coremail.18502523564@163.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-When enable CONFIG_RTC_DRV_DS1374_WDT use as watchdog,
-in suspend mode, watchdog is still working but no daemon
-patting the watchdog. The system will reboot if timeout.
+------=_Part_214175_1385406429.1507642578417
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
 
-Add support suspend/resume for watchdog.
-suspend: disable the watchdog
-resume: disable existing watchdog, reload watchdog timer, enable watchdog
+SGkgR3VlbnRlciAmwqBBbGV4YW5kZXIsCgpTb3JyeSBmb3IgbGF0ZSB1cGRhdGUuIEkgaGF2ZSBt
+b2RpZmllZCB0aGUgcmVzdW1lIGZ1bmN0aW9uLgogICAgcmVzdW1lOiBkaXNhYmxlIGV4aXN0aW5n
+IHdhdGNoZG9nLCByZWxvYWQgd2F0Y2hkb2cgdGltZXIsIGVuYWJsZSB3YXRjaGRvZwpDb3VsZCB5
+b3UgaGVscCB0byByZXZpZXcgYXR0YWNoZWQgcGF0Y2ggPwpUaGFua3MgYSBsb3QuCgpXaW50b24u
+TGl1CgoKCgoKCgoKCkF0IDIwMTctMDktMjYgMjE6NTI6MjQsICJHdWVudGVyIFJvZWNrIiA8bGlu
+dXhAcm9lY2stdXMubmV0PiB3cm90ZToKPk9uIDA5LzI2LzIwMTcgMDM6MjIgQU0sIEFsZXhhbmRy
+ZSBCZWxsb25pIHdyb3RlOgo+PiAoK0NjIHdkdCBtYWludGFpbmVycykKPj4gCj4+IE9uIDI2LzA5
+LzIwMTcgYXQgMDk6NTY6MzIgKzA4MDAsIDE4NTAyNTIzNTY0IHdyb3RlOgo+Pj4gSGkgQWxleGFu
+ZHJlLAo+Pj4KPj4+IFRoYW5rcyBmb3IgeW91ciByZXBseS4KPj4+IERvIHlvdSB0aGluayBpcyB0
+aGlzIGEgaXNzdWUgd2hlbiB1c2luZyBhcyBhIHdhdGNoZG9nIGluIHN1c3BlbmQ/Cj4+PiBJIHRh
+a2VzIHRoZSBkcml2ZXJzL3dhdGNoZG9nLyBzdWJzeXN0ZW0gZm9yIHJlZmVyZW5jZSwgc29tZSBk
+cml2ZXJzIGluIHN1c3BlbmQKPj4+IGFsc28gY2FsbCBkaXNhYmxlX3dhdGNoZG9nLk9yIGRvIHlv
+dSBoYXZlIGFueSAgYmV0dGVyIHN1Z2dlc3Rpb24/Cj4+IAo+PiBJIGd1ZXNzIHRoaXMgaXMgYSBx
+dWVzdGlvbiBmb3IgdGhlIHdhdGNoZG9nIHN1YnN5c3RlbSBtYWludGFpbmVycy4KPj4gSG93ZXZl
+ciwgSSB0aGluayB0aGF0IGV2ZXJ5dGhpbmcgY2FuIGJlIGhhbmRsZWQgcHJvcGVybHkgZnJvbSB1
+c2Vyc3BhY2UKPj4gYXMgSSBrbm93IHNvbWUgYXRtZWwgYmFzZWQgZGV2aWNlcyBoYXZlIHRoZWly
+IHdhdGNoZG9nIGVuYWJsZWQgd2hpbGUKPj4gdGhlIHBsYXRmb3JtIGlzIHN1c3BlbmRlZC4KPj4g
+Cj4KPkRlcGVuZHMgb24gdGhlIGRyaXZlciwgcmVhbGx5LiBUaGVyZSBpcyBvbmUgdGhpbmcgd3Jv
+bmcgYmVsb3csIHRob3VnaDoKPkl0IGFwcGVhcnMgdGhhdCBvbiByZXN1bWUsIHRoZSB3YXRjaGRv
+ZyBpcyB1bmNvbmRpdGlvbmFsbHkgZW5hYmxlZC4KPgo+R3VlbnRlcgo+Cj4+PiBUaGFuayB5b3Uu
+Cj4+Pgo+Pj4KPj4+Cj4+Pgo+Pj4gLS0tLS0tLS0tLS0tLS0tLS0tIE9yaWdpbmFsIC0tLS0tLS0t
+LS0tLS0tLS0tLQo+Pj4gRnJvbTogQWxleGFuZHJlIEJlbGxvbmkgPGFsZXhhbmRyZS5iZWxsb25p
+QGZyZWUtZWxlY3Ryb25zLmNvbT4KPj4+IERhdGU6IOWRqOS4gCw55pyIIDI1LDIwMTcgMjA6MDcK
+Pj4+IFRvOiB3aW50b24ubGl1IDwxODUwMjUyMzU2NEAxNjMuY29tPgo+Pj4gQ2M6IGEuenVtbW8g
+PGEuenVtbW9AdG93ZXJ0ZWNoLml0PiwgbGludXgtcnRjIDxsaW51eC1ydGNAdmdlci5rZXJuZWwu
+b3JnPiwKPj4+IGxpbnV4LWtlcm5lbCA8bGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZz4KPj4+
+IFN1YmplY3Q6IFJlOiBbUEFUQ0hdIHJ0YzogZHMxMzc0OiB3ZHQ6c3VwcG9ydCBzdXNwZW5kL3Jl
+c3VtZSBmb3Igd2F0Y2hkb2cKPj4+Cj4+Pgo+Pj4gSGksCj4+Pgo+Pj4gT24gMjUvMDkvMjAxNyBh
+dCAxOTo1ODo0NCArMDgwMCwgd2ludG9uLmxpdSB3cm90ZToKPj4+PiBXaGVuIGVuYWJsZSBDT05G
+SUdfUlRDX0RSVl9EUzEzNzRfV0RUIHVzZSBhcyB3YXRjaGRvZywKPj4+PiBpbiBzdXNwZW5kIG1v
+ZGUsIHdhdGNoZG9nIGlzIHN0aWxsIHdvcmtpbmcgYnV0IG5vIGRhZW1vbgo+Pj4+IHBhdHRpbmcg
+dGhlIHdhdGNoZG9nLiBUaGUgc3lzdGVtIHdpbGwgcmVib290IGlmIHRpbWVvdXQuCj4+Pj4gU28g
+ZGlzYWJsZSB3YXRjaGRvZyBpbiBzdXNwZW5kICBhbmQgcmVjb3ZlciBpdCBpbiByZXN1bWUuCj4+
+Pj4KPj4+Cj4+PiBUaGF0IGlzIGRlZmluaXRpdmVseSBub3Qgd2hhdCB3ZSB3YW50LiBNYW55IHBl
+b3BsZSB3aWxsIHdhbnQgdG8gc3RpbGwKPj4+IGhhdmUgdGhlIHdhdGNoZG9nIHJ1bm5pbmcgd2hl
+biB0aGUgcGxhdGZvcm0gaXMgc3VzcGVuZGVkLiBZb3VyIG9wdGlvbnMKPj4+IGFyZSB0byBlaXRo
+ZXIgZGlzYWJsZSB0aGUgd2F0Y2hkb2cgYmVmb3JlIGdvaW5nIHRvIHN1c3BlbmQgb3Igd2FrZSB1
+cAo+Pj4gdGhlIHBsYXRmb3JtIGp1c3QgaW4gdGltZSB0byBwaW5nIHRoZSB3YXRjaGRvZy4KPj4+
+Cj4+Pj4gU2lnbmVkLW9mZi1ieTogd2ludG9uLmxpdSA8MTg1MDI1MjM1NjRAMTYzLmNvbT4KPj4+
+PiAtLS0KPj4+PiAgIGRyaXZlcnMvcnRjL3J0Yy1kczEzNzQuYyB8IDggKysrKysrKysKPj4+PiAg
+IDEgZmlsZSBjaGFuZ2VkLCA4IGluc2VydGlvbnMoKykKPj4+Pgo+Pj4+IGRpZmYgLS1naXQgYS9k
+cml2ZXJzL3J0Yy9ydGMtZHMxMzc0LmMgYi9kcml2ZXJzL3J0Yy9ydGMtZHMxMzc0LmMKPj4+PiBp
+bmRleCAzOGEyZTllLi5lOTkwNzczIDEwMDY0NAo+Pj4+IC0tLSBhL2RyaXZlcnMvcnRjL3J0Yy1k
+czEzNzQuYwo+Pj4+ICsrKyBiL2RyaXZlcnMvcnRjL3J0Yy1kczEzNzQuYwo+Pj4+IEBAIC02OTAs
+NiArNjkwLDEwIEBAIHN0YXRpYyBpbnQgZHMxMzc0X3N1c3BlbmQoc3RydWN0IGRldmljZSAqZGV2
+KQo+Pj4+ICAgewo+Pj4+ICAgICAgICBzdHJ1Y3QgaTJjX2NsaWVudCAqY2xpZW50ID0gdG9faTJj
+X2NsaWVudChkZXYpOwo+Pj4+Cj4+Pj4gKyNpZmRlZiBDT05GSUdfUlRDX0RSVl9EUzEzNzRfV0RU
+Cj4+Pj4gKyAgICAgZHMxMzc0X3dkdF9kaXNhYmxlKCk7Cj4+Pj4gKyNlbmRpZgo+Pj4+ICsKPj4+
+PiAgICAgICAgaWYgKGNsaWVudC0+aXJxID4gMCAmJiBkZXZpY2VfbWF5X3dha2V1cCgmY2xpZW50
+LT5kZXYpKQo+Pj4+ICAgICAgICAgICAgICAgIGVuYWJsZV9pcnFfd2FrZShjbGllbnQtPmlycSk7
+Cj4+Pj4gICAgICAgIHJldHVybiAwOwo+Pj4+IEBAIC02OTksNiArNzAzLDEwIEBAIHN0YXRpYyBp
+bnQgZHMxMzc0X3Jlc3VtZShzdHJ1Y3QgZGV2aWNlICpkZXYpCj4+Pj4gICB7Cj4+Pj4gICAgICAg
+IHN0cnVjdCBpMmNfY2xpZW50ICpjbGllbnQgPSB0b19pMmNfY2xpZW50KGRldik7Cj4+Pj4KPj4+
+PiArI2lmZGVmIENPTkZJR19SVENfRFJWX0RTMTM3NF9XRFQKPj4+PiArICAgICBkczEzNzRfd2R0
+X3NldHRpbWVvdXQoMTMxMDcyKTsKPj4+PiArI2VuZGlmCj4+Pj4gKwo+Pj4+ICAgICAgICBpZiAo
+Y2xpZW50LT5pcnEgPiAwICYmIGRldmljZV9tYXlfd2FrZXVwKCZjbGllbnQtPmRldikpCj4+Pj4g
+ICAgICAgICAgICAgICAgZGlzYWJsZV9pcnFfd2FrZShjbGllbnQtPmlycSk7Cj4+Pj4gICAgICAg
+IHJldHVybiAwOwo+Pj4+IC0tCj4+Pj4gMS45LjEKPj4+Pgo+Pj4+Cj4+Pgo+Pj4gLS0KPj4+IEFs
+ZXhhbmRyZSBCZWxsb25pLCBGcmVlIEVsZWN0cm9ucwo+Pj4gRW1iZWRkZWQgTGludXggYW5kIEtl
+cm5lbCBlbmdpbmVlcmluZwo+Pj4gaHR0cDovL2ZyZWUtZWxlY3Ryb25zLmNvbQo+Pj4KPj4gCj4K
 
-Signed-off-by: winton.liu <18502523564@163.com>
----
- drivers/rtc/rtc-ds1374.c | 31 +++++++++++++++++++++++++++++++
- 1 file changed, 31 insertions(+)
+------=_Part_214175_1385406429.1507642578417
+Content-Type: application/octet-stream;
+ name="0001-rtc-ds1374-wdt-support-suspend-resume-for-watchdog.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="0001-rtc-ds1374-wdt-support-suspend-resume-for-watchdog.patch"
 
-diff --git a/drivers/rtc/rtc-ds1374.c b/drivers/rtc/rtc-ds1374.c
-index 38a2e9e..642e31d 100644
---- a/drivers/rtc/rtc-ds1374.c
-+++ b/drivers/rtc/rtc-ds1374.c
-@@ -437,6 +437,29 @@ static void ds1374_wdt_ping(void)
- 		pr_info("WD TICK FAIL!!!!!!!!!! %i\n", ret);
- }
- 
-+static void ds1374_wdt_resume(void)
-+{
-+	int ret = -ENOIOCTLCMD;
-+	int cr;
-+
-+	cr = i2c_smbus_read_byte_data(save_client, DS1374_REG_CR);
-+
-+	/* Disable any existing watchdog/alarm before setting the new one */
-+	cr &= ~DS1374_REG_CR_WACE;
-+
-+	i2c_smbus_write_byte_data(save_client, DS1374_REG_CR, cr);
-+
-+	/* Reload watchdog timer */
-+	ds1374_wdt_ping();
-+
-+	/* Enable watchdog timer */
-+	cr |= DS1374_REG_CR_WACE | DS1374_REG_CR_WDALM;
-+	cr &= ~DS1374_REG_CR_AIE;
-+
-+	ret = i2c_smbus_write_byte_data(save_client, DS1374_REG_CR, cr);
-+
-+}
-+
- static void ds1374_wdt_disable(void)
- {
- 	int ret = -ENOIOCTLCMD;
-@@ -690,6 +713,10 @@ static int ds1374_suspend(struct device *dev)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
- 
-+#ifdef CONFIG_RTC_DRV_DS1374_WDT
-+	ds1374_wdt_disable();
-+#endif
-+
- 	if (client->irq > 0 && device_may_wakeup(&client->dev))
- 		enable_irq_wake(client->irq);
- 	return 0;
-@@ -699,6 +726,10 @@ static int ds1374_resume(struct device *dev)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
- 
-+#ifdef CONFIG_RTC_DRV_DS1374_WDT
-+	ds1374_wdt_resume();
-+#endif
-+
- 	if (client->irq > 0 && device_may_wakeup(&client->dev))
- 		disable_irq_wake(client->irq);
- 	return 0;
--- 
-1.9.1
-
+RnJvbSAwZmNlZTcyZmJlOTUzZjJjZDI4N2UxODgyMWI4NzQ1ZTEyNjBmYmFkIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiAid2ludG9uLmxpdSIgPDE4NTAyNTIzNTY0QDE2My5jb20+CkRh
+dGU6IE1vbiwgMjUgU2VwIDIwMTcgMTk6NDU6NDIgKzA4MDAKU3ViamVjdDogW1BBVENIXSBydGM6
+IGRzMTM3NDogd2R0OnN1cHBvcnQgc3VzcGVuZC9yZXN1bWUgZm9yIHdhdGNoZG9nCgpXaGVuIGVu
+YWJsZSBDT05GSUdfUlRDX0RSVl9EUzEzNzRfV0RUIHVzZSBhcyB3YXRjaGRvZywKaW4gc3VzcGVu
+ZCBtb2RlLCB3YXRjaGRvZyBpcyBzdGlsbCB3b3JraW5nIGJ1dCBubyBkYWVtb24KcGF0dGluZyB0
+aGUgd2F0Y2hkb2cuIFRoZSBzeXN0ZW0gd2lsbCByZWJvb3QgaWYgdGltZW91dC4KCkFkZCBzdXBw
+b3J0IHN1c3BlbmQvcmVzdW1lIGZvciB3YXRjaGRvZy4Kc3VzcGVuZDogZGlzYWJsZSB0aGUgd2F0
+Y2hkb2cKcmVzdW1lOiBkaXNhYmxlIGV4aXN0aW5nIHdhdGNoZG9nLCByZWxvYWQgd2F0Y2hkb2cg
+dGltZXIsIGVuYWJsZSB3YXRjaGRvZwoKU2lnbmVkLW9mZi1ieTogd2ludG9uLmxpdSA8MTg1MDI1
+MjM1NjRAMTYzLmNvbT4KLS0tCiBkcml2ZXJzL3J0Yy9ydGMtZHMxMzc0LmMgfCAzMSArKysrKysr
+KysrKysrKysrKysrKysrKysrKysrKysrCiAxIGZpbGUgY2hhbmdlZCwgMzEgaW5zZXJ0aW9ucygr
+KQoKZGlmZiAtLWdpdCBhL2RyaXZlcnMvcnRjL3J0Yy1kczEzNzQuYyBiL2RyaXZlcnMvcnRjL3J0
+Yy1kczEzNzQuYwppbmRleCAzOGEyZTllLi42NDJlMzFkIDEwMDY0NAotLS0gYS9kcml2ZXJzL3J0
+Yy9ydGMtZHMxMzc0LmMKKysrIGIvZHJpdmVycy9ydGMvcnRjLWRzMTM3NC5jCkBAIC00MzcsNiAr
+NDM3LDI5IEBAIHN0YXRpYyB2b2lkIGRzMTM3NF93ZHRfcGluZyh2b2lkKQogCQlwcl9pbmZvKCJX
+RCBUSUNLIEZBSUwhISEhISEhISEhICVpXG4iLCByZXQpOwogfQogCitzdGF0aWMgdm9pZCBkczEz
+NzRfd2R0X3Jlc3VtZSh2b2lkKQoreworCWludCByZXQgPSAtRU5PSU9DVExDTUQ7CisJaW50IGNy
+OworCisJY3IgPSBpMmNfc21idXNfcmVhZF9ieXRlX2RhdGEoc2F2ZV9jbGllbnQsIERTMTM3NF9S
+RUdfQ1IpOworCisJLyogRGlzYWJsZSBhbnkgZXhpc3Rpbmcgd2F0Y2hkb2cvYWxhcm0gYmVmb3Jl
+IHNldHRpbmcgdGhlIG5ldyBvbmUgKi8KKwljciAmPSB+RFMxMzc0X1JFR19DUl9XQUNFOworCisJ
+aTJjX3NtYnVzX3dyaXRlX2J5dGVfZGF0YShzYXZlX2NsaWVudCwgRFMxMzc0X1JFR19DUiwgY3Ip
+OworCisJLyogUmVsb2FkIHdhdGNoZG9nIHRpbWVyICovCisJZHMxMzc0X3dkdF9waW5nKCk7CisK
+KwkvKiBFbmFibGUgd2F0Y2hkb2cgdGltZXIgKi8KKwljciB8PSBEUzEzNzRfUkVHX0NSX1dBQ0Ug
+fCBEUzEzNzRfUkVHX0NSX1dEQUxNOworCWNyICY9IH5EUzEzNzRfUkVHX0NSX0FJRTsKKworCXJl
+dCA9IGkyY19zbWJ1c193cml0ZV9ieXRlX2RhdGEoc2F2ZV9jbGllbnQsIERTMTM3NF9SRUdfQ1Is
+IGNyKTsKKworfQorCiBzdGF0aWMgdm9pZCBkczEzNzRfd2R0X2Rpc2FibGUodm9pZCkKIHsKIAlp
+bnQgcmV0ID0gLUVOT0lPQ1RMQ01EOwpAQCAtNjkwLDYgKzcxMywxMCBAQCBzdGF0aWMgaW50IGRz
+MTM3NF9zdXNwZW5kKHN0cnVjdCBkZXZpY2UgKmRldikKIHsKIAlzdHJ1Y3QgaTJjX2NsaWVudCAq
+Y2xpZW50ID0gdG9faTJjX2NsaWVudChkZXYpOwogCisjaWZkZWYgQ09ORklHX1JUQ19EUlZfRFMx
+Mzc0X1dEVAorCWRzMTM3NF93ZHRfZGlzYWJsZSgpOworI2VuZGlmCisKIAlpZiAoY2xpZW50LT5p
+cnEgPiAwICYmIGRldmljZV9tYXlfd2FrZXVwKCZjbGllbnQtPmRldikpCiAJCWVuYWJsZV9pcnFf
+d2FrZShjbGllbnQtPmlycSk7CiAJcmV0dXJuIDA7CkBAIC02OTksNiArNzI2LDEwIEBAIHN0YXRp
+YyBpbnQgZHMxMzc0X3Jlc3VtZShzdHJ1Y3QgZGV2aWNlICpkZXYpCiB7CiAJc3RydWN0IGkyY19j
+bGllbnQgKmNsaWVudCA9IHRvX2kyY19jbGllbnQoZGV2KTsKIAorI2lmZGVmIENPTkZJR19SVENf
+RFJWX0RTMTM3NF9XRFQKKwlkczEzNzRfd2R0X3Jlc3VtZSgpOworI2VuZGlmCisKIAlpZiAoY2xp
+ZW50LT5pcnEgPiAwICYmIGRldmljZV9tYXlfd2FrZXVwKCZjbGllbnQtPmRldikpCiAJCWRpc2Fi
+bGVfaXJxX3dha2UoY2xpZW50LT5pcnEpOwogCXJldHVybiAwOwotLSAKMS45LjEKCg==
+------=_Part_214175_1385406429.1507642578417--
 
