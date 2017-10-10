@@ -1,51 +1,39 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pf0-f194.google.com ([209.85.192.194]:34747 "EHLO
-        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755767AbdJJA1J (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 9 Oct 2017 20:27:09 -0400
-Subject: Re: [PATCH] watchdog: hpwdt: change maintainer.
-To: Jerry Hoemann <jerry.hoemann@hpe.com>,
-        linux-watchdog@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, jimmy.vance@hpe.com
+Return-Path: <jimmy.vance@hpe.com>
+Return-path: <jimmy.vance@hpe.com>
+From: "Vance, Jimmy" <jimmy.vance@hpe.com>
+To: Guenter Roeck <linux@roeck-us.net>, "Hoemann, Jerry"
+	<jerry.hoemann@hpe.com>, "linux-watchdog@vger.kernel.org"
+	<linux-watchdog@vger.kernel.org>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH] watchdog: hpwdt: change maintainer.
+Date: Tue, 10 Oct 2017 03:05:39 +0000
+Message-ID: <CS1PR84MB0168E7A0F1991DDA177385DFE3750@CS1PR84MB0168.NAMPRD84.PROD.OUTLOOK.COM>
 References: <1507575416-80477-1-git-send-email-jerry.hoemann@hpe.com>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <627459ff-9fc8-f57d-4df3-2f4cf98aeec9@roeck-us.net>
-Date: Mon, 9 Oct 2017 17:27:04 -0700
-MIME-Version: 1.0
-In-Reply-To: <1507575416-80477-1-git-send-email-jerry.hoemann@hpe.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+ <627459ff-9fc8-f57d-4df3-2f4cf98aeec9@roeck-us.net>
+In-Reply-To: <627459ff-9fc8-f57d-4df3-2f4cf98aeec9@roeck-us.net>
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 10/09/2017 11:56 AM, Jerry Hoemann wrote:
-> Signed-off-by: Jerry Hoemann <jerry.hoemann@hpe.com>
-
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-
-We should get an Ack from Jimmy, though.
-
-Guenter
-
-> ---
->   MAINTAINERS | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index 2d3d750..e7dc993 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -6114,7 +6114,7 @@ S:	Odd Fixes
->   F:	drivers/media/usb/hdpvr/
->   
->   HEWLETT PACKARD ENTERPRISE ILO NMI WATCHDOG DRIVER
-> -M:	Jimmy Vance <jimmy.vance@hpe.com>
-> +M:	Jerry Hoemann <jerry.hoemann@hpe.com>
->   S:	Supported
->   F:	Documentation/watchdog/hpwdt.txt
->   F:	drivers/watchdog/hpwdt.c
-> 
-
+WWVzLCBKZXJyeSBpcyB0YWtpbmcgb3ZlciBhcyBtYWludGFpbmVyIG9mIGhwd2R0DQoNCi0tLS0t
+T3JpZ2luYWwgTWVzc2FnZS0tLS0tDQpGcm9tOiBHdWVudGVyIFJvZWNrIFttYWlsdG86Z3JvZWNr
+N0BnbWFpbC5jb21dIE9uIEJlaGFsZiBPZiBHdWVudGVyIFJvZWNrDQpTZW50OiBNb25kYXksIE9j
+dG9iZXIgOSwgMjAxNyA3OjI3IFBNDQpUbzogSG9lbWFubiwgSmVycnkgPGplcnJ5LmhvZW1hbm5A
+aHBlLmNvbT47IGxpbnV4LXdhdGNoZG9nQHZnZXIua2VybmVsLm9yZw0KQ2M6IGxpbnV4LWtlcm5l
+bEB2Z2VyLmtlcm5lbC5vcmc7IFZhbmNlLCBKaW1teSA8amltbXkudmFuY2VAaHBlLmNvbT4NClN1
+YmplY3Q6IFJlOiBbUEFUQ0hdIHdhdGNoZG9nOiBocHdkdDogY2hhbmdlIG1haW50YWluZXIuDQoN
+Ck9uIDEwLzA5LzIwMTcgMTE6NTYgQU0sIEplcnJ5IEhvZW1hbm4gd3JvdGU6DQo+IFNpZ25lZC1v
+ZmYtYnk6IEplcnJ5IEhvZW1hbm4gPGplcnJ5LmhvZW1hbm5AaHBlLmNvbT4NCg0KUmV2aWV3ZWQt
+Ynk6IEd1ZW50ZXIgUm9lY2sgPGxpbnV4QHJvZWNrLXVzLm5ldD4NCg0KV2Ugc2hvdWxkIGdldCBh
+biBBY2sgZnJvbSBKaW1teSwgdGhvdWdoLg0KDQpHdWVudGVyDQoNCj4gLS0tDQo+ICAgTUFJTlRB
+SU5FUlMgfCAyICstDQo+ICAgMSBmaWxlIGNoYW5nZWQsIDEgaW5zZXJ0aW9uKCspLCAxIGRlbGV0
+aW9uKC0pDQo+IA0KPiBkaWZmIC0tZ2l0IGEvTUFJTlRBSU5FUlMgYi9NQUlOVEFJTkVSUyBpbmRl
+eCAyZDNkNzUwLi5lN2RjOTkzIDEwMDY0NA0KPiAtLS0gYS9NQUlOVEFJTkVSUw0KPiArKysgYi9N
+QUlOVEFJTkVSUw0KPiBAQCAtNjExNCw3ICs2MTE0LDcgQEAgUzoJT2RkIEZpeGVzDQo+ICAgRjoJ
+ZHJpdmVycy9tZWRpYS91c2IvaGRwdnIvDQo+ICAgDQo+ICAgSEVXTEVUVCBQQUNLQVJEIEVOVEVS
+UFJJU0UgSUxPIE5NSSBXQVRDSERPRyBEUklWRVINCj4gLU06CUppbW15IFZhbmNlIDxqaW1teS52
+YW5jZUBocGUuY29tPg0KPiArTToJSmVycnkgSG9lbWFubiA8amVycnkuaG9lbWFubkBocGUuY29t
+Pg0KPiAgIFM6CVN1cHBvcnRlZA0KPiAgIEY6CURvY3VtZW50YXRpb24vd2F0Y2hkb2cvaHB3ZHQu
+dHh0DQo+ICAgRjoJZHJpdmVycy93YXRjaGRvZy9ocHdkdC5jDQo+IA0KDQo=
