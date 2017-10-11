@@ -1,73 +1,64 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:56258 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753007AbdJKKUh (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 11 Oct 2017 06:20:37 -0400
-Date: Wed, 11 Oct 2017 12:20:33 +0200
-From: Petr Mladek <pmladek@suse.com>
-To: Kees Cook <keescook@chromium.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Tejun Heo <tj@kernel.org>, Oleg Nesterov <oleg@redhat.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Chris Metcalf <cmetcalf@mellanox.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Harish Patil <harish.patil@cavium.com>,
-        Heiko Carstens <heiko.carstens@de.ibm.com>,
-        "James E.J. Bottomley" <jejb@linux.vnet.ibm.com>,
-        John Stultz <john.stultz@linaro.org>,
-        Julian Wiedmann <jwi@linux.vnet.ibm.com>,
-        Kalle Valo <kvalo@qca.qualcomm.com>,
-        Lai Jiangshan <jiangshanlai@gmail.com>,
-        Len Brown <len.brown@intel.com>,
-        Manish Chopra <manish.chopra@cavium.com>,
-        Mark Gross <mark.gross@intel.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Martin Schwidefsky <schwidefsky@de.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Michael Reed <mdr@sgi.com>, netdev@vger.kernel.org,
-        Paul Mackerras <paulus@samba.org>, Pavel Machek <pavel@ucw.cz>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Sebastian Reichel <sre@kernel.org>,
-        Stefan Richter <stefanr@s5r6.in-berlin.de>,
-        Stephen Boyd <sboyd@codeaurora.org>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-        Ursula Braun <ubraun@linux.vnet.ibm.com>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        linux1394-devel@lists.sourceforge.net, linux-mips@linux-mips.org,
-        linux-pm@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org,
-        linux-watchdog@vger.kernel.org, linux-wireless@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 12/13] kthread: Convert callback to use from_timer()
-Message-ID: <20171011102033.GB2882@pathway.suse.cz>
-References: <1507159627-127660-1-git-send-email-keescook@chromium.org>
- <1507159627-127660-13-git-send-email-keescook@chromium.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1507159627-127660-13-git-send-email-keescook@chromium.org>
+Received: from mail-wm0-f43.google.com ([74.125.82.43]:49106 "EHLO
+        mail-wm0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752593AbdJKRqe (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Wed, 11 Oct 2017 13:46:34 -0400
+Received: by mail-wm0-f43.google.com with SMTP id i124so6805860wmf.3
+        for <linux-watchdog@vger.kernel.org>; Wed, 11 Oct 2017 10:46:33 -0700 (PDT)
+Message-ID: <1507743991.3486.5.camel@arista.com>
+Subject: Lowering the log level in watchdog_dev_register when err==-EBUSY
+From: Radu Rendec <rrendec@arista.com>
+To: Wim Van Sebroeck <wim@iguana.be>,
+        Guenter Roeck <linux@roeck-us.net>
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Date: Wed, 11 Oct 2017 18:46:31 +0100
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed 2017-10-04 16:27:06, Kees Cook wrote:
-> In preparation for unconditionally passing the struct timer_list pointer
-> to all timer callbacks, switch kthread to use from_timer() and pass the
-> timer pointer explicitly.
-> 
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: Petr Mladek <pmladek@suse.com>
-> Cc: Tejun Heo <tj@kernel.org>
-> Cc: Thomas Gleixner <tglx@linutronix.de>
-> Cc: Oleg Nesterov <oleg@redhat.com>
-> Signed-off-by: Kees Cook <keescook@chromium.org>
+Hello,
 
-Reviewed-by: Petr Mladek <pmladek@suse.com>
+In a project I'm working on we have a valid use case where we activate
+both the i6300esb and softdog watchdogs. We always activate i6300esb
+first (which uses the "legacy" watchdog API) and then softdog. This
+gets us two "error" level messages (coming from watchdog_cdev_register)
+although softdog falls back to the "new" API and registers its char
+device just fine.
 
-Best Regards,
-Petr
+Since watchdog_cdev_register/watchdog_dev_register seem to be used only
+by watchdog_register_device and the latter always falls back to the
+"new" API, I'm thinking about lowering the log level of these messages
+when err is -EBUSY. Something along the lines of:
+
+--- a/drivers/watchdog/watchdog_dev.c
++++ b/drivers/watchdog/watchdog_dev.c
+@@ -928,11 +928,14 @@ static int watchdog_cdev_register(struct watchdog_device *wdd, dev_t devno)
+                watchdog_miscdev.parent = wdd->parent;
+                err = misc_register(&watchdog_miscdev);
+                if (err != 0) {
+-                       pr_err("%s: cannot register miscdev on minor=%d (err=%d).\n",
+-                               wdd->info->identity, WATCHDOG_MINOR, err);
+-                       if (err == -EBUSY)
+-                               pr_err("%s: a legacy watchdog module is probably present.\n",
+-                                       wdd->info->identity);
++                       if (err == -EBUSY) {
++                               pr_info("%s: cannot register miscdev on minor=%d (err=%d).\n",
++                                               wdd->info->identity, WATCHDOG_MINOR, err);
++                               pr_info("%s: a legacy watchdog module is probably present.\n",
++                                               wdd->info->identity);
++                       } else
++                               pr_err("%s: cannot register miscdev on minor=%d (err=%d).\n",
++                                       wdd->info->identity, WATCHDOG_MINOR, err);
+                        old_wd_data = NULL;
+                        kfree(wd_data);
+                        return err;
+
+Does this look like a good approach? If not, what would you recommend?
+In any case, I want to upstream the change, so better ask first :)
+
+Thanks,
+Radu Rendec
+
