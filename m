@@ -1,39 +1,36 @@
-Return-Path: <jimmy.vance@hpe.com>
-Return-path: <jimmy.vance@hpe.com>
-From: "Vance, Jimmy" <jimmy.vance@hpe.com>
-To: Guenter Roeck <linux@roeck-us.net>, "Hoemann, Jerry"
-	<jerry.hoemann@hpe.com>, "linux-watchdog@vger.kernel.org"
-	<linux-watchdog@vger.kernel.org>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH] watchdog: hpwdt: change maintainer.
-Date: Tue, 10 Oct 2017 03:05:39 +0000
-Message-ID: <CS1PR84MB0168E7A0F1991DDA177385DFE3750@CS1PR84MB0168.NAMPRD84.PROD.OUTLOOK.COM>
-References: <1507575416-80477-1-git-send-email-jerry.hoemann@hpe.com>
- <627459ff-9fc8-f57d-4df3-2f4cf98aeec9@roeck-us.net>
-In-Reply-To: <627459ff-9fc8-f57d-4df3-2f4cf98aeec9@roeck-us.net>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-MIME-Version: 1.0
+Return-Path: <chrisp@alliedtelesis.co.nz>
+Return-path: <chrisp@alliedtelesis.co.nz>
+From: Chris Packham <chris.packham@alliedtelesis.co.nz>
+To: linux@roeck-us.net,
+	wim@iguana.be,
+	gregory.clement@free-electrons.com,
+	devicetree@vger.kernel.org,
+	linux-watchdog@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+	Chris Packham <chris.packham@alliedtelesis.co.nz>
+Subject: [PATCH 0/3] getting more output from orion_wdt
+Date: Wed, 11 Oct 2017 15:29:55 +1300
+Message-Id: <20171011022958.31268-1-chris.packham@alliedtelesis.co.nz>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-WWVzLCBKZXJyeSBpcyB0YWtpbmcgb3ZlciBhcyBtYWludGFpbmVyIG9mIGhwd2R0DQoNCi0tLS0t
-T3JpZ2luYWwgTWVzc2FnZS0tLS0tDQpGcm9tOiBHdWVudGVyIFJvZWNrIFttYWlsdG86Z3JvZWNr
-N0BnbWFpbC5jb21dIE9uIEJlaGFsZiBPZiBHdWVudGVyIFJvZWNrDQpTZW50OiBNb25kYXksIE9j
-dG9iZXIgOSwgMjAxNyA3OjI3IFBNDQpUbzogSG9lbWFubiwgSmVycnkgPGplcnJ5LmhvZW1hbm5A
-aHBlLmNvbT47IGxpbnV4LXdhdGNoZG9nQHZnZXIua2VybmVsLm9yZw0KQ2M6IGxpbnV4LWtlcm5l
-bEB2Z2VyLmtlcm5lbC5vcmc7IFZhbmNlLCBKaW1teSA8amltbXkudmFuY2VAaHBlLmNvbT4NClN1
-YmplY3Q6IFJlOiBbUEFUQ0hdIHdhdGNoZG9nOiBocHdkdDogY2hhbmdlIG1haW50YWluZXIuDQoN
-Ck9uIDEwLzA5LzIwMTcgMTE6NTYgQU0sIEplcnJ5IEhvZW1hbm4gd3JvdGU6DQo+IFNpZ25lZC1v
-ZmYtYnk6IEplcnJ5IEhvZW1hbm4gPGplcnJ5LmhvZW1hbm5AaHBlLmNvbT4NCg0KUmV2aWV3ZWQt
-Ynk6IEd1ZW50ZXIgUm9lY2sgPGxpbnV4QHJvZWNrLXVzLm5ldD4NCg0KV2Ugc2hvdWxkIGdldCBh
-biBBY2sgZnJvbSBKaW1teSwgdGhvdWdoLg0KDQpHdWVudGVyDQoNCj4gLS0tDQo+ICAgTUFJTlRB
-SU5FUlMgfCAyICstDQo+ICAgMSBmaWxlIGNoYW5nZWQsIDEgaW5zZXJ0aW9uKCspLCAxIGRlbGV0
-aW9uKC0pDQo+IA0KPiBkaWZmIC0tZ2l0IGEvTUFJTlRBSU5FUlMgYi9NQUlOVEFJTkVSUyBpbmRl
-eCAyZDNkNzUwLi5lN2RjOTkzIDEwMDY0NA0KPiAtLS0gYS9NQUlOVEFJTkVSUw0KPiArKysgYi9N
-QUlOVEFJTkVSUw0KPiBAQCAtNjExNCw3ICs2MTE0LDcgQEAgUzoJT2RkIEZpeGVzDQo+ICAgRjoJ
-ZHJpdmVycy9tZWRpYS91c2IvaGRwdnIvDQo+ICAgDQo+ICAgSEVXTEVUVCBQQUNLQVJEIEVOVEVS
-UFJJU0UgSUxPIE5NSSBXQVRDSERPRyBEUklWRVINCj4gLU06CUppbW15IFZhbmNlIDxqaW1teS52
-YW5jZUBocGUuY29tPg0KPiArTToJSmVycnkgSG9lbWFubiA8amVycnkuaG9lbWFubkBocGUuY29t
-Pg0KPiAgIFM6CVN1cHBvcnRlZA0KPiAgIEY6CURvY3VtZW50YXRpb24vd2F0Y2hkb2cvaHB3ZHQu
-dHh0DQo+ICAgRjoJZHJpdmVycy93YXRjaGRvZy9ocHdkdC5jDQo+IA0KDQo=
+On the Armada-38x platforms (and probably 37x/XP) the current behaviour of on
+exipry of the watchdog is a silent reboot of the CPU. The Armada-38x does have
+an interrupt which if we don't enable the Global WD bit in the RSTOUTn register
+gives us a chance to generate some panic messages that may help track down the
+cause of the watchdog timeout.
+
+I've been a bit bold and enabled this in the generic armada-38x.dtsi file. I'd
+be happy to leave that part out and have the interrupt enabled on a
+board-by-board basis if there are objections.
+
+Chris Packham (3):
+  watchdog: orion: fix typo
+  watchdog: orion: don't enable rstout if an interrupt is configured
+  ARM: mvebu: dts: connect interrupt for WD on armada-38x
+
+ arch/arm/boot/dts/armada-38x.dtsi |  1 +
+ drivers/watchdog/orion_wdt.c      | 27 ++++++++++++++++++---------
+ 2 files changed, 19 insertions(+), 9 deletions(-)
+
+-- 
+2.14.2
