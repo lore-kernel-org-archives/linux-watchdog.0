@@ -1,102 +1,468 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pf0-f193.google.com ([209.85.192.193]:56487 "EHLO
-        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751637AbdJVO4I (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 22 Oct 2017 10:56:08 -0400
-Subject: Re: [PATCH 2/3] watchdog: hpwdt: SMBIOS check
-To: Jerry.Hoemann@hpe.com
-Cc: wim@iguana.be, linux-watchdog@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <cover.1508539271.git.jerry.hoemann@hpe.com>
- <edf5fbe55bc25680926f1526145584bd33b05ff3.1508539271.git.jerry.hoemann@hpe.com>
- <c27c64af-6006-7bb1-deff-eb0ef65b87f2@roeck-us.net>
- <20171022015621.GB28641@anatevka.americas.hpqcorp.net>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <b3bfecf2-2ac6-4c1d-a03e-5f70aa03f7e0@roeck-us.net>
-Date: Sun, 22 Oct 2017 07:56:05 -0700
+Return-Path: <Eric.Long@spreadtrum.com>
+Return-path: <Eric.Long@spreadtrum.com>
+Date: Wed, 11 Oct 2017 16:00:39 +0800
+From: Eric Long <eric.long@spreadtrum.com>
+To: Wim Van Sebroeck <wim@iguana.be>, Rob Herring <robh+dt@kernel.org>,
+        Mark
+ Rutland <mark.rutland@arm.com>
+CC: <baolin.wang@linaro.org>, Guenter Roeck <linux@roeck-us.net>,
+        <linux-watchdog@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v2 2/2] watchdog: Add Spreadtrum watchdog driver
+Message-ID: <20171011080039.GA30820@spreadtrum.com>
+References: <f3daa0f85dda0672c4b057e7f37c690365652e39.1505216059.git.eric.long@spreadtrum.com>
+ <48f1e10c508b4c174f2c41a6cef84011b65ff9b5.1505216059.git.eric.long@spreadtrum.com>
 MIME-Version: 1.0
-In-Reply-To: <20171022015621.GB28641@anatevka.americas.hpqcorp.net>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <48f1e10c508b4c174f2c41a6cef84011b65ff9b5.1505216059.git.eric.long@spreadtrum.com>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 10/21/2017 06:56 PM, Jerry Hoemann wrote:
-> On Fri, Oct 20, 2017 at 07:37:21PM -0700, Guenter Roeck wrote:
->> On 10/20/2017 03:54 PM, Jerry Hoemann wrote:
->>> Correct test on SMBIOS table 219 Misc Features bits for UEFI supported.
->>>
->> Please explain in more detail. There is no table 219 in the SMBIOS specification.
-> 
-> Sorry, my patch documentation was imprecise, I should have stated Type 219 record.
-> 
-> Type 219 is an HPE OEM SMBIOS extension whose contents are considered
-> confidential, so I'm not at liberty to go into details.  I will say
-> that Type 219 describes features of the iLO which hpwdt is implemented
-> against.
-> 
-> 
->> There is table 9, BIOS Characteristics Extension Byte 2, which specifies bit 3
->> as "UEFI Specification is supported.", but nothing that really maps to the
->> other byte, and no "misc features". Maybe this is HP specific, but then we'll
->> need to have much better explanation.
-> 
-> This patch is to correct commit cce78da766.
-> 
-> Our current servers do not support the CRU BIOS interfaces and we
-> need to avoid calling it.  Tom initially only checked that iCRU which
-> replaced CRU was supported.  But, later added code to extend to also
-> test whether UEFI was supported to anticipate a time when iCRU wasn't
-> supported either but where we still don't want to call back into CRU.
-> 
-> Tom's original change was implemented to an older definition of Type 219.
-> Unfortunately, the specification (and firmware) were modified to use a
-> different pair of bits to represent UEFI.  However, a corresponding change
-> to update Linux was missed.
-> 
-> The code is currently working today as the iCRU bit is correctly being
-> checked.  But as the purpose of cce78da766 is to protect the
-> code for a time when iCRU isn't true, we want to correct the
-> checking of the UEFI bit.
-> 
-Please add at least some of that explanation to the description and reorder
-the patches such that the fixes come first.
+Hi,
 
-Thanks,
-Guenter
+On Tue, Sep 12, 2017 at 07:40:09PM +0800, Eric Long wrote:
+> This patch adds the watchdog driver for Spreadtrum SC9860 platform.
+> 
+> Signed-off-by: Eric Long <eric.long@spreadtrum.com>
+> ---
+> Changes since v1:
+>  - Use pretimeout instead of own implementation.
+>  - Fix timeout loop when loading timeout values.
+>  - use the infrastructure to read and set "timeout-sec" property.
+>  - Add conditions when start or stop watchdog.
+>  - Change the position of enabling watchdog.
+>  - Other optimization.
+> ---
 
-> 
->>
->>> Signed-off-by: Jerry Hoemann <jerry.hoemann@hpe.com>
->>> ---
->>>    drivers/watchdog/hpwdt.c | 2 +-
->>>    1 file changed, 1 insertion(+), 1 deletion(-)
->>>
->>> diff --git a/drivers/watchdog/hpwdt.c b/drivers/watchdog/hpwdt.c
->>> index ef54b03..4c011e8 100644
->>> --- a/drivers/watchdog/hpwdt.c
->>> +++ b/drivers/watchdog/hpwdt.c
->>> @@ -707,7 +707,7 @@ static void dmi_find_icru(const struct dmi_header *dm, void *dummy)
->>>    		smbios_proliant_ptr = (struct smbios_proliant_info *) dm;
->>>    		if (smbios_proliant_ptr->misc_features & 0x01)
->>>    			is_icru = 1;
->>> -		if (smbios_proliant_ptr->misc_features & 0x408)
->>> +		if (smbios_proliant_ptr->misc_features & 0x1400)
->>>    			is_uefi = 1;
->>>    	}
->>>    }
->>>
->> Presumably patch 2/3 and 3/3 are bug fixs and should come first
->> so they can be applied to stable releases.
->>
-> 
-> I can re-order the patches or delay the first patch if necessary.
-> 
-> 
-> Thanks
-> Jerry
-> 
+Do you have any comments for this version patch? Thanks.
 
+>  drivers/watchdog/Kconfig    |   8 +
+>  drivers/watchdog/Makefile   |   1 +
+>  drivers/watchdog/sprd_wdt.c | 384 ++++++++++++++++++++++++++++++++++++++++++++
+>  3 files changed, 393 insertions(+)
+>  create mode 100644 drivers/watchdog/sprd_wdt.c
+> 
+> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> index c722cbf..ea07718 100644
+> --- a/drivers/watchdog/Kconfig
+> +++ b/drivers/watchdog/Kconfig
+> @@ -787,6 +787,14 @@ config UNIPHIER_WATCHDOG
+>  	  To compile this driver as a module, choose M here: the
+>  	  module will be called uniphier_wdt.
+>  
+> +config SPRD_WATCHDOG
+> +	tristate "Spreadtrum watchdog support"
+> +	depends on ARCH_SPRD
+> +	select WATCHDOG_CORE
+> +	help
+> +	  Say Y here to include support watchdog timer embedded
+> +	  into the Spreadtrum system.
+> +
+>  # AVR32 Architecture
+>  
+>  config AT32AP700X_WDT
+> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+> index 56adf9f..187cca2 100644
+> --- a/drivers/watchdog/Makefile
+> +++ b/drivers/watchdog/Makefile
+> @@ -87,6 +87,7 @@ obj-$(CONFIG_ASPEED_WATCHDOG) += aspeed_wdt.o
+>  obj-$(CONFIG_ZX2967_WATCHDOG) += zx2967_wdt.o
+>  obj-$(CONFIG_STM32_WATCHDOG) += stm32_iwdg.o
+>  obj-$(CONFIG_UNIPHIER_WATCHDOG) += uniphier_wdt.o
+> +obj-$(CONFIG_SPRD_WATCHDOG) += sprd_wdt.o
+>  
+>  # AVR32 Architecture
+>  obj-$(CONFIG_AT32AP700X_WDT) += at32ap700x_wdt.o
+> diff --git a/drivers/watchdog/sprd_wdt.c b/drivers/watchdog/sprd_wdt.c
+> new file mode 100644
+> index 0000000..dedbca6fd
+> --- /dev/null
+> +++ b/drivers/watchdog/sprd_wdt.c
+> @@ -0,0 +1,384 @@
+> +/*
+> + * Spreadtrum watchdog driver
+> + * Copyright (C) 2017 Spreadtrum - http://www.spreadtrum.com
+> + *
+> + * This program is free software; you can redistribute it and/or
+> + * modify it under the terms of the GNU General Public License
+> + * version 2 as published by the Free Software Foundation.
+> + *
+> + * This program is distributed in the hope that it will be useful, but
+> + * WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+> + * General Public License for more details.
+> + */
+> +
+> +#include <linux/clk.h>
+> +#include <linux/err.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/io.h>
+> +#include <linux/kernel.h>
+> +#include <linux/module.h>
+> +#include <linux/of.h>
+> +#include <linux/of_address.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/watchdog.h>
+> +
+> +#define WDT_LOAD_LOW		0x0
+> +#define WDT_LOAD_HIGH		0x4
+> +#define WDT_CTRL		0x8
+> +#define WDT_INT_CLR		0xc
+> +#define WDT_INT_RAW		0x10
+> +#define WDT_INT_MSK		0x14
+> +#define WDT_CNT_LOW		0x18
+> +#define WDT_CNT_HIGH		0x1c
+> +#define WDT_LOCK		0x20
+> +#define WDT_IRQ_LOAD_LOW	0x2c
+> +#define WDT_IRQ_LOAD_HIGH	0x30
+> +
+> +/* WDT_CTRL */
+> +#define WDT_INT_EN_BIT		BIT(0)
+> +#define WDT_CNT_EN_BIT		BIT(1)
+> +#define WDT_NEW_VER_EN		BIT(2)
+> +#define WDT_RST_EN_BIT		BIT(3)
+> +
+> +/* WDT_INT_CLR */
+> +#define WDT_INT_CLEAR_BIT	BIT(0)
+> +#define WDT_RST_CLEAR_BIT	BIT(3)
+> +
+> +/* WDT_INT_RAW */
+> +#define WDT_INT_RAW_BIT		BIT(0)
+> +#define WDT_RST_RAW_BIT		BIT(3)
+> +#define WDT_LD_BUSY_BIT		BIT(4)
+> +
+> +#define WDT_CLK			32768
+> +#define WDT_UNLOCK_KEY		0xe551
+> +#define WDT_DEFAULT_PRETMROUT	3
+> +
+> +#define WDT_CNT_VALUE_SIZE	16
+> +#define WDT_CNT_VALUE_MASK	GENMASK(15, 0)
+> +#define WDT_LOAD_TIMEOUT_NUM	10000
+> +
+> +struct sprd_wdt {
+> +	void __iomem *base;
+> +	struct watchdog_device wdd;
+> +	struct clk *enable;
+> +	struct clk *rtc_enable;
+> +	unsigned int irq;
+> +};
+> +
+> +static inline struct sprd_wdt *to_sprd_wdt(struct watchdog_device *wdd)
+> +{
+> +	return container_of(wdd, struct sprd_wdt, wdd);
+> +}
+> +
+> +static inline void sprd_wdt_lock(void __iomem *addr)
+> +{
+> +	writel_relaxed(0x0, addr + WDT_LOCK);
+> +}
+> +
+> +static inline void sprd_wdt_unlock(void __iomem *addr)
+> +{
+> +	writel_relaxed(WDT_UNLOCK_KEY, addr + WDT_LOCK);
+> +}
+> +
+> +static inline bool sprd_wdt_is_running(struct sprd_wdt *wdt)
+> +{
+> +	u32 val;
+> +
+> +	val = readl_relaxed(wdt->base + WDT_CTRL);
+> +	return val & WDT_NEW_VER_EN;
+> +}
+> +
+> +static irqreturn_t sprd_wdt_isr(int irq, void *dev_id)
+> +{
+> +	struct sprd_wdt *wdt = (struct sprd_wdt *)dev_id;
+> +
+> +	sprd_wdt_unlock(wdt->base);
+> +	writel_relaxed(WDT_INT_CLEAR_BIT, wdt->base + WDT_INT_CLR);
+> +	sprd_wdt_lock(wdt->base);
+> +	watchdog_notify_pretimeout(&wdt->wdd);
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +static u32 sprd_wdt_get_cnt_value(struct sprd_wdt *wdt)
+> +{
+> +	u32 val;
+> +
+> +	val = readl_relaxed(wdt->base + WDT_CNT_HIGH) << WDT_CNT_VALUE_SIZE;
+> +	val |= readl_relaxed(wdt->base + WDT_CNT_LOW) & WDT_CNT_VALUE_MASK;
+> +
+> +	return val;
+> +}
+> +
+> +static int sprd_wdt_load_value(struct sprd_wdt *wdt, u32 timeout,
+> +			       u32 pretimeout)
+> +{
+> +	u32 val, cnt = 0;
+> +
+> +	if (timeout < pretimeout)
+> +		return -EINVAL;
+> +
+> +	if (!pretimeout)
+> +		pretimeout = WDT_DEFAULT_PRETMROUT;
+> +
+> +	sprd_wdt_unlock(wdt->base);
+> +	writel_relaxed(((timeout * WDT_CLK) >> WDT_CNT_VALUE_SIZE) &
+> +		       WDT_CNT_VALUE_MASK, wdt->base + WDT_LOAD_HIGH);
+> +	writel_relaxed(((timeout * WDT_CLK) & WDT_CNT_VALUE_MASK),
+> +		       wdt->base + WDT_LOAD_LOW);
+> +	writel_relaxed(((pretimeout * WDT_CLK) >> WDT_CNT_VALUE_SIZE) &
+> +			WDT_CNT_VALUE_MASK, wdt->base + WDT_IRQ_LOAD_HIGH);
+> +	writel_relaxed((pretimeout * WDT_CLK) & WDT_CNT_VALUE_MASK,
+> +		       wdt->base + WDT_IRQ_LOAD_LOW);
+> +	sprd_wdt_lock(wdt->base);
+> +
+> +	/*
+> +	 * Waiting the load value operation done,
+> +	 * it needs two or three RTC clock cycles.
+> +	 */
+> +	do {
+> +		val = readl_relaxed(wdt->base + WDT_INT_RAW);
+> +		if (!(val & WDT_LD_BUSY_BIT))
+> +			break;
+> +
+> +		cpu_relax();
+> +	} while (cnt++ < WDT_LOAD_TIMEOUT_NUM);
+> +
+> +	if (cnt >= WDT_LOAD_TIMEOUT_NUM)
+> +		return -EBUSY;
+> +	return 0;
+> +}
+> +
+> +static void sprd_wdt_enable(struct sprd_wdt *wdt)
+> +{
+> +	u32 val;
+> +
+> +	clk_prepare_enable(wdt->enable);
+> +	clk_prepare_enable(wdt->rtc_enable);
+> +
+> +	sprd_wdt_unlock(wdt->base);
+> +	val = readl_relaxed(wdt->base + WDT_CTRL);
+> +	val |= WDT_NEW_VER_EN;
+> +	writel_relaxed(val, wdt->base + WDT_CTRL);
+> +	sprd_wdt_lock(wdt->base);
+> +	set_bit(WDOG_HW_RUNNING, &wdt->wdd.status);
+> +}
+> +
+> +static void sprd_wdt_disable(struct sprd_wdt *wdt)
+> +{
+> +	sprd_wdt_unlock(wdt->base);
+> +	writel_relaxed(0x0, wdt->base + WDT_CTRL);
+> +	sprd_wdt_lock(wdt->base);
+> +
+> +	clk_disable(wdt->enable);
+> +	clk_disable(wdt->rtc_enable);
+> +}
+> +
+> +static int sprd_wdt_start(struct watchdog_device *wdd)
+> +{
+> +	struct sprd_wdt *wdt = to_sprd_wdt(wdd);
+> +	u32 val;
+> +	int ret;
+> +
+> +	ret = sprd_wdt_load_value(wdt, wdd->timeout, wdd->pretimeout);
+> +	if (ret)
+> +		return ret;
+> +
+> +	sprd_wdt_unlock(wdt->base);
+> +	val = readl_relaxed(wdt->base + WDT_CTRL);
+> +	val |= WDT_CNT_EN_BIT | WDT_INT_EN_BIT | WDT_RST_EN_BIT;
+> +	writel_relaxed(val, wdt->base + WDT_CTRL);
+> +	sprd_wdt_lock(wdt->base);
+> +	set_bit(WDOG_HW_RUNNING, &wdd->status);
+> +
+> +	return 0;
+> +}
+> +
+> +static int sprd_wdt_stop(struct watchdog_device *wdd)
+> +{
+> +	struct sprd_wdt *wdt = to_sprd_wdt(wdd);
+> +	u32 val;
+> +
+> +	sprd_wdt_unlock(wdt->base);
+> +	val = readl_relaxed(wdt->base + WDT_CTRL);
+> +	val &= ~(WDT_CNT_EN_BIT | WDT_RST_EN_BIT | WDT_INT_EN_BIT);
+> +	writel_relaxed(val, wdt->base + WDT_CTRL);
+> +	sprd_wdt_lock(wdt->base);
+> +	return 0;
+> +}
+> +
+> +static int sprd_wdt_set_timeout(struct watchdog_device *wdd,
+> +				u32 timeout)
+> +{
+> +	struct sprd_wdt *wdt = to_sprd_wdt(wdd);
+> +
+> +	wdd->timeout = timeout;
+> +
+> +	return sprd_wdt_load_value(wdt, timeout, wdd->pretimeout);
+> +}
+> +
+> +static int sprd_wdt_set_pretimeout(struct watchdog_device *wdd,
+> +				   u32 new_pretimeout)
+> +{
+> +	struct sprd_wdt *wdt = to_sprd_wdt(wdd);
+> +
+> +	wdd->pretimeout = new_pretimeout;
+> +
+> +	return sprd_wdt_load_value(wdt, wdd->timeout, new_pretimeout);
+> +}
+> +
+> +static u32 sprd_wdt_get_timeleft(struct watchdog_device *wdd)
+> +{
+> +	struct sprd_wdt *wdt = to_sprd_wdt(wdd);
+> +	u32 val;
+> +
+> +	val = sprd_wdt_get_cnt_value(wdt);
+> +	val = val / WDT_CLK;
+> +
+> +	return val;
+> +}
+> +
+> +static const struct watchdog_ops sprd_wdt_ops = {
+> +	.owner = THIS_MODULE,
+> +	.start = sprd_wdt_start,
+> +	.stop = sprd_wdt_stop,
+> +	.set_timeout = sprd_wdt_set_timeout,
+> +	.set_pretimeout = sprd_wdt_set_pretimeout,
+> +	.get_timeleft = sprd_wdt_get_timeleft,
+> +};
+> +
+> +static const struct watchdog_info sprd_wdt_info = {
+> +	.options = WDIOF_SETTIMEOUT |
+> +		   WDIOF_PRETIMEOUT |
+> +		   WDIOF_MAGICCLOSE |
+> +		   WDIOF_KEEPALIVEPING,
+> +	.identity = "Spreadtrum Watchdog Timer",
+> +};
+> +
+> +static int sprd_wdt_probe(struct platform_device *pdev)
+> +{
+> +	struct resource *wdt_res;
+> +	struct sprd_wdt *wdt;
+> +	int ret;
+> +
+> +	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
+> +	if (!wdt)
+> +		return -ENOMEM;
+> +
+> +	wdt_res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +	if (!wdt_res) {
+> +		dev_err(&pdev->dev, "failed to memory resource\n");
+> +		return -ENOMEM;
+> +	}
+> +
+> +	wdt->base = devm_ioremap_nocache(&pdev->dev, wdt_res->start,
+> +					 resource_size(wdt_res));
+> +	if (!wdt->base)
+> +		return -ENOMEM;
+> +
+> +	wdt->enable = devm_clk_get(&pdev->dev, "enable");
+> +	if (IS_ERR(wdt->enable)) {
+> +		dev_err(&pdev->dev, "can't get the enable clock\n");
+> +		return PTR_ERR(wdt->enable);
+> +	}
+> +
+> +	wdt->rtc_enable = devm_clk_get(&pdev->dev, "rtc_enable");
+> +	if (IS_ERR(wdt->rtc_enable)) {
+> +		dev_err(&pdev->dev, "can't get the rtc enable clock\n");
+> +		return PTR_ERR(wdt->rtc_enable);
+> +	}
+> +
+> +	wdt->irq = platform_get_irq(pdev, 0);
+> +	if (wdt->irq < 0) {
+> +		dev_err(&pdev->dev, "failed to get IRQ resource\n");
+> +		return wdt->irq;
+> +	}
+> +
+> +	ret = devm_request_irq(&pdev->dev, wdt->irq, sprd_wdt_isr,
+> +			       IRQF_NO_SUSPEND, "sprd-wdt", (void *)wdt);
+> +	if (ret) {
+> +		dev_err(&pdev->dev, "failed to register irq\n");
+> +		return ret;
+> +	}
+> +
+> +	wdt->wdd.info = &sprd_wdt_info;
+> +	wdt->wdd.ops = &sprd_wdt_ops;
+> +	wdt->wdd.parent = &pdev->dev;
+> +
+> +	sprd_wdt_enable(wdt);
+> +
+> +	watchdog_init_timeout(&wdt->wdd, 0, &pdev->dev);
+> +
+> +	ret = watchdog_register_device(&wdt->wdd);
+> +	if (ret) {
+> +		dev_err(&pdev->dev, "failed to register watchdog\n");
+> +		return ret;
+> +	}
+> +	platform_set_drvdata(pdev, wdt);
+> +
+> +	return 0;
+> +}
+> +
+> +static int sprd_wdt_remove(struct platform_device *pdev)
+> +{
+> +	struct sprd_wdt *wdt = platform_get_drvdata(pdev);
+> +
+> +	if (sprd_wdt_is_running(wdt)) {
+> +		sprd_wdt_stop(&wdt->wdd);
+> +		sprd_wdt_disable(wdt);
+> +	}
+> +	watchdog_unregister_device(&wdt->wdd);
+> +
+> +	return 0;
+> +}
+> +
+> +static int __maybe_unused sprd_wdt_pm_suspend(struct device *dev)
+> +{
+> +	struct sprd_wdt *wdt = dev_get_drvdata(dev);
+> +
+> +	if (sprd_wdt_is_running(wdt)) {
+> +		sprd_wdt_stop(&wdt->wdd);
+> +		sprd_wdt_disable(wdt);
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static int __maybe_unused sprd_wdt_pm_resume(struct device *dev)
+> +{
+> +	struct watchdog_device *wdd = dev_get_drvdata(dev);
+> +	struct sprd_wdt *wdt = dev_get_drvdata(dev);
+> +
+> +	if (watchdog_active(wdd) && !sprd_wdt_is_running(wdt)) {
+> +		sprd_wdt_enable(wdt);
+> +		sprd_wdt_start(&wdt->wdd);
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static const struct dev_pm_ops sprd_wdt_pm_ops = {
+> +	SET_SYSTEM_SLEEP_PM_OPS(sprd_wdt_pm_suspend,
+> +				sprd_wdt_pm_resume)
+> +};
+> +
+> +static const struct of_device_id sprd_wdt_match_table[] = {
+> +	{ .compatible = "sprd,sp9860-wdt", },
+> +	{},
+> +};
+> +MODULE_DEVICE_TABLE(of, sprd_wdt_match_table);
+> +
+> +static struct platform_driver sprd_watchdog_driver = {
+> +	.probe	= sprd_wdt_probe,
+> +	.remove	= sprd_wdt_remove,
+> +	.driver	= {
+> +		.name = "sprd-wdt",
+> +		.of_match_table = sprd_wdt_match_table,
+> +		.pm = &sprd_wdt_pm_ops,
+> +	},
+> +};
+> +module_platform_driver(sprd_watchdog_driver);
+> +
+> +MODULE_AUTHOR("Eric Long <eric.long@spreadtrum.com>");
+> +MODULE_DESCRIPTION("Spreadtrum Watchdog Timer Controller Driver");
+> +MODULE_LICENSE("GPL v2");
+> -- 
+> 1.9.1
+> 
