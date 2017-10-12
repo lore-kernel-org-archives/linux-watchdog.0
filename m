@@ -1,97 +1,157 @@
-Return-Path: <18502523564@163.com>
-Return-path: <18502523564@163.com>
-Date: Thu, 12 Oct 2017 21:40:33 +0800 (CST)
-From: =?GBK?B?wfXOyA==?= <18502523564@163.com>
-To: "Guenter Roeck" <linux@roeck-us.net>
-Cc: "Alexandre Belloni" <alexandre.belloni@free-electrons.com>,
-	a.zummo@towertech.it, linux-rtc@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org
-Subject: Re:Re: [PATCH] rtc: ds1374: wdt:support suspend/resume for watchdog
-In-Reply-To: <20171010150514.GB1879@roeck-us.net>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:55692 "EHLO
+        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751348AbdJLOM1 (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Thu, 12 Oct 2017 10:12:27 -0400
+Subject: Re: [PATCH] rtc: ds1374: wdt:support suspend/resume for watchdog
+To: =?UTF-8?B?5YiY56iz?= <18502523564@163.com>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        a.zummo@towertech.it, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org
 References: <1507641172-6099-1-git-send-email-18502523564@163.com>
  <8b80788f-5906-38a5-4b40-0a78f0ab55d9@roeck-us.net>
  <20171010135134.2zepquujhfwbhxoq@piout.net>
  <20171010150514.GB1879@roeck-us.net>
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset=GBK
+ <33912070.da58.15f10d0b307.Coremail.18502523564@163.com>
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <0c909661-c97d-dfcd-01f8-4afa727c96ae@roeck-us.net>
+Date: Thu, 12 Oct 2017 07:12:24 -0700
 MIME-Version: 1.0
-Message-ID: <33912070.da58.15f10d0b307.Coremail.18502523564@163.com>
-List-ID: <linux-watchdog@vger.kernel.org>
+In-Reply-To: <33912070.da58.15f10d0b307.Coremail.18502523564@163.com>
+Content-Type: text/plain; charset=gbk; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-CgoKCgoKCgoKCkF0IDIwMTctMTAtMTAgMjM6MDU6MTQsICJHdWVudGVyIFJvZWNrIiA8bGludXhA
-cm9lY2stdXMubmV0PiB3cm90ZToKPk9uIFR1ZSwgT2N0IDEwLCAyMDE3IGF0IDAzOjUxOjM0UE0g
-KzAyMDAsIEFsZXhhbmRyZSBCZWxsb25pIHdyb3RlOgo+PiBPbiAxMC8xMC8yMDE3IGF0IDA2OjQx
-OjE1IC0wNzAwLCBHdWVudGVyIFJvZWNrIHdyb3RlOgo+PiA+IE9uIDEwLzEwLzIwMTcgMDY6MTIg
-QU0sIHdpbnRvbi5saXUgd3JvdGU6Cj4+ID4gPiBXaGVuIGVuYWJsZSBDT05GSUdfUlRDX0RSVl9E
-UzEzNzRfV0RUIHVzZSBhcyB3YXRjaGRvZywKPj4gPiA+IGluIHN1c3BlbmQgbW9kZSwgd2F0Y2hk
-b2cgaXMgc3RpbGwgd29ya2luZyBidXQgbm8gZGFlbW9uCj4+ID4gPiBwYXR0aW5nIHRoZSB3YXRj
-aGRvZy4gVGhlIHN5c3RlbSB3aWxsIHJlYm9vdCBpZiB0aW1lb3V0Lgo+PiA+ID4gCj4+ID4gPiBB
-ZGQgc3VwcG9ydCBzdXNwZW5kL3Jlc3VtZSBmb3Igd2F0Y2hkb2cuCj4+ID4gPiBzdXNwZW5kOiBk
-aXNhYmxlIHRoZSB3YXRjaGRvZwo+PiA+ID4gcmVzdW1lOiBkaXNhYmxlIGV4aXN0aW5nIHdhdGNo
-ZG9nLCByZWxvYWQgd2F0Y2hkb2cgdGltZXIsIGVuYWJsZSB3YXRjaGRvZwo+PiA+ID4gCj4+ID4g
-PiBTaWduZWQtb2ZmLWJ5OiB3aW50b24ubGl1IDwxODUwMjUyMzU2NEAxNjMuY29tPgo+PiA+ID4g
-LS0tCj4+ID4gPiAgIGRyaXZlcnMvcnRjL3J0Yy1kczEzNzQuYyB8IDMxICsrKysrKysrKysrKysr
-KysrKysrKysrKysrKysrKysKPj4gPiA+ICAgMSBmaWxlIGNoYW5nZWQsIDMxIGluc2VydGlvbnMo
-KykKPj4gPiA+IAo+PiA+ID4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvcnRjL3J0Yy1kczEzNzQuYyBi
-L2RyaXZlcnMvcnRjL3J0Yy1kczEzNzQuYwo+PiA+ID4gaW5kZXggMzhhMmU5ZS4uNjQyZTMxZCAx
-MDA2NDQKPj4gPiA+IC0tLSBhL2RyaXZlcnMvcnRjL3J0Yy1kczEzNzQuYwo+PiA+ID4gKysrIGIv
-ZHJpdmVycy9ydGMvcnRjLWRzMTM3NC5jCj4+ID4gPiBAQCAtNDM3LDYgKzQzNywyOSBAQCBzdGF0
-aWMgdm9pZCBkczEzNzRfd2R0X3Bpbmcodm9pZCkKPj4gPiA+ICAgCQlwcl9pbmZvKCJXRCBUSUNL
-IEZBSUwhISEhISEhISEhICVpXG4iLCByZXQpOwo+PiA+ID4gICB9Cj4+ID4gPiArc3RhdGljIHZv
-aWQgZHMxMzc0X3dkdF9yZXN1bWUodm9pZCkKPj4gPiA+ICt7Cj4+ID4gPiArCWludCByZXQgPSAt
-RU5PSU9DVExDTUQ7Cj4+ID4gCj4+ID4gVXNlbGVzcyBpbml0aWFsaXphdGlvbiAoeWVzLCBJIGNh
-biBzZWUgdGhhdCB0aGlzIGlzIHdpZGVseSBkb25lIGluIHRoZSBkcml2ZXIsCj4+ID4gYnV0IHRo
-YXQgZG9lc24ndCBtYWtlIGl0IGJldHRlcikuCj4+ID4gCiAgICAgICAgWWVzLCBJIHRoaW5rIHRo
-aXMgaXMgdXNlbGVzcy4gVGhlIG9yaWdpbmFsIGRzMTM3NF93ZHRfZGlzYWJsZSBoYXMgdGhlIHNh
-bWUgaXNzdWUuCj4+ID4gPiArCWludCBjcjsKPj4gPiA+ICsKPj4gPiA+ICsJY3IgPSBpMmNfc21i
-dXNfcmVhZF9ieXRlX2RhdGEoc2F2ZV9jbGllbnQsIERTMTM3NF9SRUdfQ1IpOwo+PiA+ID4gKwo+
-PiA+ID4gKwkvKiBEaXNhYmxlIGFueSBleGlzdGluZyB3YXRjaGRvZy9hbGFybSBiZWZvcmUgc2V0
-dGluZyB0aGUgbmV3IG9uZSAqLwo+PiA+ID4gKwljciAmPSB+RFMxMzc0X1JFR19DUl9XQUNFOwo+
-PiA+ID4gKwo+PiA+ID4gKwlpMmNfc21idXNfd3JpdGVfYnl0ZV9kYXRhKHNhdmVfY2xpZW50LCBE
-UzEzNzRfUkVHX0NSLCBjcik7Cj4+ID4gPiArCj4+ID4gPiArCS8qIFJlbG9hZCB3YXRjaGRvZyB0
-aW1lciAqLwo+PiA+ID4gKwlkczEzNzRfd2R0X3BpbmcoKTsKPj4gPiA+ICsKPj4gPiA+ICsJLyog
-RW5hYmxlIHdhdGNoZG9nIHRpbWVyICovCj4+ID4gPiArCWNyIHw9IERTMTM3NF9SRUdfQ1JfV0FD
-RSB8IERTMTM3NF9SRUdfQ1JfV0RBTE07Cj4+ID4gPiArCWNyICY9IH5EUzEzNzRfUkVHX0NSX0FJ
-RTsKPj4gPiA+ICsKPj4gPiA+ICsJcmV0ID0gaTJjX3NtYnVzX3dyaXRlX2J5dGVfZGF0YShzYXZl
-X2NsaWVudCwgRFMxMzc0X1JFR19DUiwgY3IpOwo+PiA+ID4gKwo+PiA+IEV4dHJhIGVtcHR5IGxp
-bmUuIEFsc28sIHJldHVybnMgdm9pZCwgc28gd2hhdCBpcyB0aGUgcG9pbnQgb2YgYXNzaWduaW5n
-Cj4+ID4gdGhlIHJlc3VsdCB0byByZXQgPwo+PiA+IAo+PiA+ID4gK30KPj4gPiAKPj4gPiBVbmxl
-c3MgSSBhbSBtaXNzaW5nIHNvbWV0aGluZywgdGhpcyB1bmNvbmRpdGlvbmFsbHkgc3RhcnRzIHRo
-ZSB3YXRjaGRvZwo+PiA+IGF0IHJlc3VtZSB0aW1lLiBTbyBpZiBpdCB3YXMgbm90IHJ1bm5pbmcg
-YmVmb3JlLCBpdCB3aWxsIGJlIHN0YXJ0ZWQgYW55d2F5LAo+PiA+IGFuZCB0aGUgc3lzdGVtIHdp
-bGwgcmVib290IHNpbmNlIHRoZXJlIHdpbGwgYmUgbm8gcGluZy4KPj4gPiAKICAgIFRoaXMgZHJp
-dmVyIHN0YXJ0cyB3YXRjaGRvZyBieSBkZWZhdWx0LiBJbiBwcm9iZSB3YXRjaGRvZyBzdGFydHM6
-IAogICAjaWZkZWYgQ09ORklHX1JUQ19EUlZfRFMxMzc0X1dEVAogICAgc2F2ZV9jbGllbnQgPSBj
-bGllbnQ7CiAgICByZXQgPSBtaXNjX3JlZ2lzdGVyKCZkczEzNzRfbWlzY2Rldik7CiAgICBpZiAo
-cmV0KQogICAgICAgIHJldHVybiByZXQ7CiAgICByZXQgPSByZWdpc3Rlcl9yZWJvb3Rfbm90aWZp
-ZXIoJmRzMTM3NF93ZHRfbm90aWZpZXIpOwogICAgaWYgKHJldCkgewogICAgICAgIG1pc2NfZGVy
-ZWdpc3RlcigmZHMxMzc0X21pc2NkZXYpOwogICAgICAgIHJldHVybiByZXQ7CiAgICB9CiAgICBk
-czEzNzRfd2R0X3NldHRpbWVvdXQoMTMxMDcyKTsgICAvL0hlcmUgc3RhcnRzIHdhdGNoZG9nCiNl
-bmRpZgogICBBbmQgdXNlcnNwYWNlIHdhdGNoZG9nZCB3aWxsIHBpbmcuCj4+IAo+PiBBbHNvLCBJ
-J20gc3RpbGwgbm90IGNvbnZpbmNlZCB0aGlzIGlzIHRoZSByaWdodCB0aGluZyB0byBkby4gSSBo
-YXZlIHNlZW4KPj4gbWFueSBzeXN0ZW1zIHdlcmUgaXQgd2FzIGRlc2lyYWJsZSB0byBsZXQgdGhl
-IHdhdGNoZG9nIHJ1biB3aGlsZSB0aGUKPj4gc3lzdGVtIGlzIHN1c3BlbmRlZC4gSXQgZW5zdXJl
-cyBpdCB3aWxsIGVpdGhlciB3YWtlIHVwIG9yIHJlYm9vdC4gSWYgeW91Cj4+IGRvbid0IHdhbnQg
-dGhhdCwgd2h5IG5vdCBkaXNhYmxpbmcgdGhlIHdhdGNoZG9nIGZyb20gdXNlcnNwYWNlIGJlZm9y
-ZQo+PiBnb2luZyB0byBzdXNwZW5kPwo+PiAKPgo+VXN1YWxseSB3YXRjaGRvZyBkcml2ZXJzIHN1
-cHBvcnRpbmcgc3VzcGVuZC9yZXN1bWUgZG8gaGFuZGxlIGl0IHRoaXMgd2F5Lgo+TWF5YmUgdGhh
-dCBkZXBlbmRzIG9uIHRoZSBIVy4gRXhwZWN0aW5nIHVzZXIgc3BhY2UgdG8gZG8gaXQgbWFrZXMg
-aXQKPmV2ZW4gbW9yZSByYWN5IHRoYW4gaXQgYWxyZWFkeSBpcywgc2luY2UgdGhlcmUgaXMgbm8g
-d2F0Y2hkb2cgcHJvdGVjdGlvbgo+YWZ0ZXIgaXQgaGFzIGJlZW4gZGlzYWJsZWQsIHNvIEkgYW0g
-bm90IHN1cmUgaWYgdGhhdCBpcyByZWFsbHkgYmV0dGVyLgo+RG9lcyBhbnlvbmUgaGFwcGVuIHRv
-IGtub3cgaWYvaG93IHN5c3RlbWQgYW5kIHdhdGNoZG9nZCBhcmUgaGFuZGxpbmcKPnRoaXMgc2l0
-dWF0aW9uID8KPgo+PiA+IEkgYXNzdW1lIGl0IGlzIGd1YXJhbnRlZWQgdGhhdCB0aGUgY2hpcCBk
-b2Vzbid0IGZvcmdldCB0aGUgcHJldmlvdXNseQo+PiA+IGNvbmZpZ3VyZWQgdGltZW91dCBvbiBy
-ZXN1bWUuCj4+ID4gCj4+ID4gT3ZlcmFsbCB0aGUgZHJpdmVyIHdvdWxkIHJlYWxseSBiZW5lZml0
-IGZyb20gYSBjb252ZXJzaW9uIHRvIHRoZSB3YXRjaGRvZwo+PiA+IHN1YnN5c3RlbS4KPj4gPiAK
-Pj4gCj4+IFRoYXQgaXMgdGhlIHBvaW50IG9mIGh0dHBzOi8vd3d3LnNwaW5pY3MubmV0L2xpc3Rz
-L2xpbnV4LXdhdGNoZG9nL21zZzEyMDk1Lmh0bWwKPgo+QWgsIHllcywgYW5kIEkgZXZlbiBwcm92
-aWRlZCBmZWVkYmFjay4gSG9wZSBJIGRpZG4ndCBtaXNzIGFuIHVwZGF0ZWQKPnZlcnNpb24gb2Yg
-dGhhdCBwYXRjaC4gRWl0aGVyIGNhc2UsIHNlZW1zIHRvIG1lIHdlIHNob3VsZCB3YWl0IGZvciB0
-aGF0Cj5wYXRjaCB0byBtYWtlIGl0IGluIGJlZm9yZSBhY2NlcHRpbmcgYW55IGZ1cnRoZXIgY2hh
-bmdlcyB0byB0aGUgZHJpdmVyLgo+CiAgIElzIHRoaXMgbXVsdGkgZnVuY3Rpb24gcGF0Y2ggaGFz
-IGFueSB1cGRhdGUgPyBJZiBub3QsIGNvdWxkIG15IHBhdGNoIGJlIGFjY2VwdGFibGUgYmVmb3Jl
-IG1vdmluZyB0byB3YXRjaGRvZyBzdWJzeXN0ZW0uKEkgY291bGQgdXBkYXRlIGEgbmV3IHBhdGNo
-IGZvciB5b3VyIHN1Z2dlc3Rpb24pPwogICBCZWNhdXNlIGN1cnJlbnQga2VybmVsIHVzaW5nIGRz
-MTM3NCBmb3Igd2F0Y2hkb2cuIElmIHRoZSBkZXZpY2UgbmVlZCBzdXNwZW5kLCB0aGVyZSB3aWxs
-IGJlIGEgcmVib290IGlzc3VlLgoKPkd1ZW50ZXIK
+On 10/12/2017 06:40 AM, ÁõÎÈ wrote:
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> At 2017-10-10 23:05:14, "Guenter Roeck" <linux@roeck-us.net> wrote:
+>> On Tue, Oct 10, 2017 at 03:51:34PM +0200, Alexandre Belloni wrote:
+>>> On 10/10/2017 at 06:41:15 -0700, Guenter Roeck wrote:
+>>>> On 10/10/2017 06:12 AM, winton.liu wrote:
+>>>>> When enable CONFIG_RTC_DRV_DS1374_WDT use as watchdog,
+>>>>> in suspend mode, watchdog is still working but no daemon
+>>>>> patting the watchdog. The system will reboot if timeout.
+>>>>>
+>>>>> Add support suspend/resume for watchdog.
+>>>>> suspend: disable the watchdog
+>>>>> resume: disable existing watchdog, reload watchdog timer, enable watchdog
+>>>>>
+>>>>> Signed-off-by: winton.liu <18502523564@163.com>
+>>>>> ---
+>>>>>    drivers/rtc/rtc-ds1374.c | 31 +++++++++++++++++++++++++++++++
+>>>>>    1 file changed, 31 insertions(+)
+>>>>>
+>>>>> diff --git a/drivers/rtc/rtc-ds1374.c b/drivers/rtc/rtc-ds1374.c
+>>>>> index 38a2e9e..642e31d 100644
+>>>>> --- a/drivers/rtc/rtc-ds1374.c
+>>>>> +++ b/drivers/rtc/rtc-ds1374.c
+>>>>> @@ -437,6 +437,29 @@ static void ds1374_wdt_ping(void)
+>>>>>    		pr_info("WD TICK FAIL!!!!!!!!!! %i\n", ret);
+>>>>>    }
+>>>>> +static void ds1374_wdt_resume(void)
+>>>>> +{
+>>>>> +	int ret = -ENOIOCTLCMD;
+>>>>
+>>>> Useless initialization (yes, I can see that this is widely done in the driver,
+>>>> but that doesn't make it better).
+>>>>
+>          Yes, I think this is useless. The original ds1374_wdt_disable has the same issue.
+
+That doesn't make it better and is not an argument.
+
+>>>>> +	int cr;
+>>>>> +
+>>>>> +	cr = i2c_smbus_read_byte_data(save_client, DS1374_REG_CR);
+>>>>> +
+>>>>> +	/* Disable any existing watchdog/alarm before setting the new one */
+>>>>> +	cr &= ~DS1374_REG_CR_WACE;
+>>>>> +
+>>>>> +	i2c_smbus_write_byte_data(save_client, DS1374_REG_CR, cr);
+>>>>> +
+>>>>> +	/* Reload watchdog timer */
+>>>>> +	ds1374_wdt_ping();
+>>>>> +
+>>>>> +	/* Enable watchdog timer */
+>>>>> +	cr |= DS1374_REG_CR_WACE | DS1374_REG_CR_WDALM;
+>>>>> +	cr &= ~DS1374_REG_CR_AIE;
+>>>>> +
+>>>>> +	ret = i2c_smbus_write_byte_data(save_client, DS1374_REG_CR, cr);
+>>>>> +
+>>>> Extra empty line. Also, returns void, so what is the point of assigning
+>>>> the result to ret ?
+>>>>
+>>>>> +}
+>>>>
+>>>> Unless I am missing something, this unconditionally starts the watchdog
+>>>> at resume time. So if it was not running before, it will be started anyway,
+>>>> and the system will reboot since there will be no ping.
+>>>>
+>      This driver starts watchdog by default. In probe watchdog starts:
+>     #ifdef CONFIG_RTC_DRV_DS1374_WDT
+>      save_client = client;
+>      ret = misc_register(&ds1374_miscdev);
+>      if (ret)
+>          return ret;
+>      ret = register_reboot_notifier(&ds1374_wdt_notifier);
+>      if (ret) {
+>          misc_deregister(&ds1374_miscdev);
+>          return ret;
+>      }
+>      ds1374_wdt_settimeout(131072);   //Here starts watchdog
+
+Meaning the system will reboot unless the watchdog device is opened ?
+Weird, and conceptually wrong.
+
+What if the watchdog device is stopped explicitly by the watchdog demon ?
+
+> #endif
+>     And userspace watchdogd will ping.
+>>>
+>>> Also, I'm still not convinced this is the right thing to do. I have seen
+>>> many systems were it was desirable to let the watchdog run while the
+>>> system is suspended. It ensures it will either wake up or reboot. If you
+>>> don't want that, why not disabling the watchdog from userspace before
+>>> going to suspend?
+>>>
+>>
+>> Usually watchdog drivers supporting suspend/resume do handle it this way.
+>> Maybe that depends on the HW. Expecting user space to do it makes it
+>> even more racy than it already is, since there is no watchdog protection
+>> after it has been disabled, so I am not sure if that is really better.
+>> Does anyone happen to know if/how systemd and watchdogd are handling
+>> this situation ?
+>>
+>>>> I assume it is guaranteed that the chip doesn't forget the previously
+>>>> configured timeout on resume.
+>>>>
+>>>> Overall the driver would really benefit from a conversion to the watchdog
+>>>> subsystem.
+>>>>
+>>>
+>>> That is the point of https://www.spinics.net/lists/linux-watchdog/msg12095.html
+>>
+>> Ah, yes, and I even provided feedback. Hope I didn't miss an updated
+>> version of that patch. Either case, seems to me we should wait for that
+>> patch to make it in before accepting any further changes to the driver.
+>>
+>     Is this multi function patch has any update ? If not, could my patch be acceptable before moving to watchdog subsystem.(I could update a new patch for your suggestion)?
+>     Because current kernel using ds1374 for watchdog. If the device need suspend, there will be a reboot issue.
+> 
+Only if CONFIG_RTC_DRV_DS1374_WDT is enabled, and then it appears the driver
+has other problems such as unconditionally enabling the watchdog.
+Given that, I am not in favor of temporary changes.
+
+Guenter
