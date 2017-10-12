@@ -1,97 +1,80 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-oi0-f65.google.com ([209.85.218.65]:48614 "EHLO
-        mail-oi0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751406AbdJVRJt (ORCPT
+Received: from userp1040.oracle.com ([156.151.31.81]:32748 "EHLO
+        userp1040.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1756122AbdJLU0B (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 22 Oct 2017 13:09:49 -0400
-Received: by mail-oi0-f65.google.com with SMTP id m198so27051023oig.5
-        for <linux-watchdog@vger.kernel.org>; Sun, 22 Oct 2017 10:09:49 -0700 (PDT)
-Date: Sun, 22 Oct 2017 10:09:47 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Radu Rendec <rrendec@arista.com>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org
-Subject: Re: [3/3] watchdog: i6300esb: do not hardcode heartbeat limits
-Message-ID: <20171022170947.GA6997@roeck-us.net>
-References: <20171016182528.3244-3-rrendec@arista.com>
+        Thu, 12 Oct 2017 16:26:01 -0400
+Date: Thu, 12 Oct 2017 15:24:10 -0500
+From: Tom Saeger <tom.saeger@oracle.com>
+To: Jonathan Corbet <corbet@lwn.net>, Jan Kara <jack@suse.cz>,
+        Amir Goldstein <amir73il@gmail.com>,
+        Jimmy Vance <jimmy.vance@hpe.com>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Guenter Roeck <linux@roeck-us.net>
+Cc: Tom Saeger <tom.saeger@oracle.com>, linux-doc@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH 7/8] Documentation: fix selftests related file refs
+Message-ID: <d4ae0439fc28ad274822f62f46b6230114e3e2da.1507838726.git.tom.saeger@oracle.com>
+References: <cover.1507838726.git.tom.saeger@oracle.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20171016182528.3244-3-rrendec@arista.com>
+In-Reply-To: <cover.1507838726.git.tom.saeger@oracle.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Oct 16, 2017 at 07:25:28PM +0100, Radu Rendec wrote:
-> The minimum, maximum and default values for the watchdog heartbeat
-> (timeout) were hardcoded in several places (including module parameter
-> description and warning message for invalid module parameter value).
-> 
-> This patch adds macros for the aforementioned values and replaces all
-> occurences of hardcoded values by these macros.
-> 
-> Signed-off-by: Radu Rendec <rrendec@arista.com>
-> ---
->  drivers/watchdog/i6300esb.c | 24 +++++++++++++++---------
->  1 file changed, 15 insertions(+), 9 deletions(-)
-> 
-> diff --git a/drivers/watchdog/i6300esb.c b/drivers/watchdog/i6300esb.c
-> index 855b4f80ad09..68d76512b08f 100644
-> --- a/drivers/watchdog/i6300esb.c
-> +++ b/drivers/watchdog/i6300esb.c
-> @@ -82,12 +82,16 @@ static int cards_found;
->  
->  /* module parameters */
->  /* 30 sec default heartbeat (1 < heartbeat < 2*1023) */
-> -#define WATCHDOG_HEARTBEAT 30
-> -static int heartbeat = WATCHDOG_HEARTBEAT;  /* in seconds */
-> +#define ESB_HEARTBEAT_MIN 1
-> +#define ESB_HEARTBEAT_MAX 2046
-> +#define ESB_HEARTBEAT_DEFAULT 30
-> +static int heartbeat = ESB_HEARTBEAT_DEFAULT;  /* in seconds */
+Make refs to selftests files valid including:
+  - watchdog-test.c
+  - dnotify_test.c
 
-Ah, I just noticed. This defeats watchdog_init_timeout().
+Signed-off-by: Tom Saeger <tom.saeger@oracle.com>
+---
+ Documentation/filesystems/dnotify.txt    | 2 +-
+ Documentation/watchdog/hpwdt.txt         | 2 +-
+ Documentation/watchdog/pcwd-watchdog.txt | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
 
-In patch 1, the timeout in struct watchdog_device to the default,
-and set this variable to 0. watchdog_init_timeout() will then overwrite
-the default (which is set in struct watchdog_device) with the module
-parameter if the module parameter is set to a value != 0.
+diff --git a/Documentation/filesystems/dnotify.txt b/Documentation/filesystems/dnotify.txt
+index 6baf88f46859..15156883d321 100644
+--- a/Documentation/filesystems/dnotify.txt
++++ b/Documentation/filesystems/dnotify.txt
+@@ -62,7 +62,7 @@ disabled, fcntl(fd, F_NOTIFY, ...) will return -EINVAL.
+ 
+ Example
+ -------
+-See Documentation/filesystems/dnotify_test.c for an example.
++See tools/testing/selftests/filesystems/dnotify_test.c for an example.
+ 
+ NOTE
+ ----
+diff --git a/Documentation/watchdog/hpwdt.txt b/Documentation/watchdog/hpwdt.txt
+index 7a9f635d0258..6d866c537127 100644
+--- a/Documentation/watchdog/hpwdt.txt
++++ b/Documentation/watchdog/hpwdt.txt
+@@ -15,7 +15,7 @@ Last reviewed: 05/20/2016
+ 
+  Watchdog functionality is enabled like any other common watchdog driver. That
+  is, an application needs to be started that kicks off the watchdog timer. A
+- basic application exists in the Documentation/watchdog/src directory called
++ basic application exists in tools/testing/selftests/watchdog/ named
+  watchdog-test.c. Simply compile the C file and kick it off. If the system
+  gets into a bad state and hangs, the HPE ProLiant iLO timer register will
+  not be updated in a timely fashion and a hardware system reset (also known as
+diff --git a/Documentation/watchdog/pcwd-watchdog.txt b/Documentation/watchdog/pcwd-watchdog.txt
+index 4f68052395c0..b8e60a441a43 100644
+--- a/Documentation/watchdog/pcwd-watchdog.txt
++++ b/Documentation/watchdog/pcwd-watchdog.txt
+@@ -25,7 +25,7 @@ Last reviewed: 10/05/2007
+ 
+  If you want to write a program to be compatible with the PC Watchdog
+  driver, simply use of modify the watchdog test program:
+- Documentation/watchdog/src/watchdog-test.c
++ tools/testing/selftests/watchdog/watchdog-test.c
+ 
+ 
+  Other IOCTL functions include:
+-- 
+2.14.2
 
-Thanks,
-Guenter
-
->  module_param(heartbeat, int, 0);
->  MODULE_PARM_DESC(heartbeat,
-> -		"Watchdog heartbeat in seconds. (1<heartbeat<2046, default="
-> -				__MODULE_STRING(WATCHDOG_HEARTBEAT) ")");
-> +	"Watchdog heartbeat in seconds. ("
-> +	__MODULE_STRING(ESB_HEARTBEAT_MIN) "<heartbeat<"
-> +	__MODULE_STRING(ESB_HEARTBEAT_MAX) ", default="
-> +	__MODULE_STRING(ESB_HEARTBEAT_DEFAULT) ")");
->  
->  static bool nowayout = WATCHDOG_NOWAYOUT;
->  module_param(nowayout, bool, 0);
-> @@ -325,17 +329,19 @@ static int esb_probe(struct pci_dev *pdev,
->  
->  	/* Check that the heartbeat value is within it's range;
->  	   if not reset to the default */
-> -	if (heartbeat < 0x1 || heartbeat > 2 * 0x03ff) {
-> -		heartbeat = WATCHDOG_HEARTBEAT;
-> -		pr_info("heartbeat value must be 1<heartbeat<2046, using %d\n",
-> +	if (heartbeat < ESB_HEARTBEAT_MIN || heartbeat > ESB_HEARTBEAT_MAX) {
-> +		heartbeat = ESB_HEARTBEAT_DEFAULT;
-> +		pr_info("heartbeat value must be "
-> +			__MODULE_STRING(ESB_HEARTBEAT_MIN) "<heartbeat<"
-> +			__MODULE_STRING(ESB_HEARTBEAT_MAX) ", using %d\n",
->  			heartbeat);
->  	}
->  
->  	/* Initialize the watchdog and make sure it does not run */
->  	edev->wdd.info = &esb_info;
->  	edev->wdd.ops = &esb_ops;
-> -	edev->wdd.min_timeout = 1;
-> -	edev->wdd.max_timeout = 2 * 0x03ff;
-> +	edev->wdd.min_timeout = ESB_HEARTBEAT_MIN;
-> +	edev->wdd.max_timeout = ESB_HEARTBEAT_MAX;
->  	watchdog_init_timeout(&edev->wdd, heartbeat, NULL);
->  	watchdog_set_nowayout(&edev->wdd, nowayout);
->  	esb_initdevice(edev);
