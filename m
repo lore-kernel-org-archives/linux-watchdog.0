@@ -1,79 +1,51 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:41241 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751206AbdJLORK (ORCPT
+Received: from mail-wm0-f45.google.com ([74.125.82.45]:43717 "EHLO
+        mail-wm0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752879AbdJLSQC (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 12 Oct 2017 10:17:10 -0400
-From: Gregory CLEMENT <gregory.clement@free-electrons.com>
-To: Chris Packham <chris.packham@alliedtelesis.co.nz>
-Cc: linux@roeck-us.net, wim@iguana.be, devicetree@vger.kernel.org,
-        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Jason Cooper <jason@lakedaemon.net>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Russell King <linux@armlinux.org.uk>,
-        linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH 3/3] ARM: mvebu: dts: connect interrupt for WD on armada-38x
-References: <20171011022958.31268-1-chris.packham@alliedtelesis.co.nz>
-        <20171011022958.31268-4-chris.packham@alliedtelesis.co.nz>
-Date: Thu, 12 Oct 2017 16:16:58 +0200
-In-Reply-To: <20171011022958.31268-4-chris.packham@alliedtelesis.co.nz> (Chris
-        Packham's message of "Wed, 11 Oct 2017 15:29:58 +1300")
-Message-ID: <874lr4bgdh.fsf@free-electrons.com>
-MIME-Version: 1.0
-Content-Type: text/plain
+        Thu, 12 Oct 2017 14:16:02 -0400
+Received: by mail-wm0-f45.google.com with SMTP id m72so25074492wmc.0
+        for <linux-watchdog@vger.kernel.org>; Thu, 12 Oct 2017 11:16:01 -0700 (PDT)
+Message-ID: <1507832159.4735.47.camel@arista.com>
+Subject: Re: Lowering the log level in watchdog_dev_register when err==-EBUSY
+From: Radu Rendec <rrendec@arista.com>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Date: Thu, 12 Oct 2017 19:15:59 +0100
+In-Reply-To: <20171011184603.GB8756@roeck-us.net>
+References: <1507743991.3486.5.camel@arista.com>
+         <20171011184603.GB8756@roeck-us.net>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Chris,
- 
- On mer., oct. 11 2017, Chris Packham <chris.packham@alliedtelesis.co.nz> wrote:
-
-> The watchdog timer interrupt is available internally on the Armada-38x
-> SoCs. Connect it so that we can have the orion_wdt_irq generate debug
-> information when a watchdog timeout occurs.
-
-Given the patch 2, when an interrupt is provided by the dt, then the
-behavior of the watchdog changes. So we can't do it for all the
-platform.
-
-As you propose on your cover letter it is better to set it at board
-level.
-
-So instead of this patch you should update the binding documentation
-with this new resources. Thanks to this each board developer will be
-able to decide to use this feature or not.
-
-Thanks,
-
-Gregory
-
+On Wed, 2017-10-11 at 11:46 -0700, Guenter Roeck wrote:
+> On Wed, Oct 11, 2017 at 06:46:31PM +0100, Radu Rendec wrote:
+> > In a project I'm working on we have a valid use case where we activate
+> > both the i6300esb and softdog watchdogs. We always activate i6300esb
+> > first (which uses the "legacy" watchdog API) and then softdog. This
+> > gets us two "error" level messages (coming from watchdog_cdev_register)
+> > although softdog falls back to the "new" API and registers its char
+> > device just fine.
+> > 
+> > Since watchdog_cdev_register/watchdog_dev_register seem to be used only
+> > by watchdog_register_device and the latter always falls back to the
+> > "new" API, I'm thinking about lowering the log level of these messages
+> > when err is -EBUSY.
 >
-> Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
-> ---
->  arch/arm/boot/dts/armada-38x.dtsi | 1 +
->  1 file changed, 1 insertion(+)
->
-> diff --git a/arch/arm/boot/dts/armada-38x.dtsi b/arch/arm/boot/dts/armada-38x.dtsi
-> index 7ff0811e61db..9ac76c54c9e5 100644
-> --- a/arch/arm/boot/dts/armada-38x.dtsi
-> +++ b/arch/arm/boot/dts/armada-38x.dtsi
-> @@ -408,6 +408,7 @@
->  				reg = <0x20300 0x34>, <0x20704 0x4>, <0x18260 0x4>;
->  				clocks = <&coreclk 2>, <&refclk>;
->  				clock-names = "nbclk", "fixed";
-> +				interrupts = <GIC_SPI 64 IRQ_TYPE_LEVEL_HIGH>;
->  			};
->  
->  			cpurst: cpurst@20800 {
-> -- 
-> 2.14.2
->
+> I would suggest to convert the offending driver to use the watchdog subsystem
+> (and along the line remove the restriction of only supporting a single
+> instance). You have the hardware, so that should be a straightforward change.
 
--- 
-Gregory Clement, Free Electrons
-Kernel, drivers, real-time and embedded Linux
-development, consulting, training and support.
-http://free-electrons.com
+Thanks for the suggestion! That makes sense. I will start working on
+converting i6300esb and submit a patch in a few days.
+
+By the way, I don't have the hardware. I'm using it with KVM (Qemu),
+but I guess that's good enough since I'm not going to touch any of the
+code parts that deal with the hardware.
+
+Radu
+
