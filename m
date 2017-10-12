@@ -1,97 +1,97 @@
-Return-Path: <andrew@aj.id.au>
-Return-path: <andrew@aj.id.au>
-Message-ID: <1507706094.5452.181.camel@aj.id.au>
-Subject: Re: [PATCH 11/11] ARM: dts: Add PCLK to the Aspeed watchdogs
-From: Andrew Jeffery <andrew@aj.id.au>
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Wim Van Sebroeck <wim@iguana.be>, Guenter Roeck <linux@roeck-us.net>,
-	Jonas Jensen <jonas.jensen@gmail.com>, Joel Stanley <joel@jms.id.au>,
-	"linux-arm-kernel@lists.infradead.org"
-	 <linux-arm-kernel@lists.infradead.org>, LINUXWATCHDOG
-	 <linux-watchdog@vger.kernel.org>
-Date: Wed, 11 Oct 2017 17:44:54 +1030
-In-Reply-To: <CACRpkdYQ8WE_-nVza=GnNBvfXV=WpcEipoJhVVn=atcqyQZbpw@mail.gmail.com>
-References: <20170812184318.10144-1-linus.walleij@linaro.org>
-	 <20170812184318.10144-12-linus.walleij@linaro.org>
-	 <1507693686.5452.174.camel@aj.id.au>
-	 <CACRpkdYQ8WE_-nVza=GnNBvfXV=WpcEipoJhVVn=atcqyQZbpw@mail.gmail.com>
-Content-Type: multipart/signed; micalg="pgp-sha512";
-	protocol="application/pgp-signature"; boundary="=-8mcd8WxSR7DvxoqkWPah"
-Mime-Version: 1.0
+Return-Path: <18502523564@163.com>
+Return-path: <18502523564@163.com>
+Date: Thu, 12 Oct 2017 21:40:33 +0800 (CST)
+From: =?GBK?B?wfXOyA==?= <18502523564@163.com>
+To: "Guenter Roeck" <linux@roeck-us.net>
+Cc: "Alexandre Belloni" <alexandre.belloni@free-electrons.com>,
+	a.zummo@towertech.it, linux-rtc@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org
+Subject: Re:Re: [PATCH] rtc: ds1374: wdt:support suspend/resume for watchdog
+In-Reply-To: <20171010150514.GB1879@roeck-us.net>
+References: <1507641172-6099-1-git-send-email-18502523564@163.com>
+ <8b80788f-5906-38a5-4b40-0a78f0ab55d9@roeck-us.net>
+ <20171010135134.2zepquujhfwbhxoq@piout.net>
+ <20171010150514.GB1879@roeck-us.net>
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=GBK
+MIME-Version: 1.0
+Message-ID: <33912070.da58.15f10d0b307.Coremail.18502523564@163.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-
---=-8mcd8WxSR7DvxoqkWPah
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-
-On Wed, 2017-10-11 at 08:32 +0200, Linus Walleij wrote:
-> > On Wed, Oct 11, 2017 at 5:48 AM, Andrew Jeffery <andrew@aj.id.au> wrote=
-:
-> > On Sat, 2017-08-12 at 20:43 +0200, Linus Walleij wrote:
-> > > This adds the PCLK clock to the Aspeed watchdog blocks.
-> > > I am not directly familiar with the Aspeed clocking, but
-> > > since the IP is derived from Faraday FTWDT010 it probably
-> > > has the ability to run the watchdog on the PCLK if
-> > > desired
-> >=20
-> > This is true for the AST2400, but not the AST2500 where the only option
-> > is EXTCLK (1MHz).
->=20
-> The IP block/cell certainly has a PCLK even if it cannot be used
-> to drive the watchdog timer. It is necessary to interface the
-> SoC interconnect.
-
-Hah, yep, brain-fade.
-
-Cheers,
-
-Andrew
-
->=20
-> > > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0clocks =3D <&clk_apb>;
-> > >=20
-> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0clock-names =3D "PCLK";
-> >=20
-> > Given the comment above, shouldn't we be doing something like the
-> > following instead for each of the watchdogs?
-> >=20
-> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0faraday,use-extclk;
-> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0clock-names =3D "EXTCLK";
->=20
-> So that will be added too, later, when there is a 1MHz clock
-> to reference in the device tree. I guess after Joel's patches.
->=20
-> Yours,
-> Linus Walleij
---=-8mcd8WxSR7DvxoqkWPah
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-Content-Transfer-Encoding: 7bit
-
------BEGIN PGP SIGNATURE-----
-
-iQIcBAABCgAGBQJZ3cTvAAoJEJ0dnzgO5LT5LDsQAIWKCuhsYgo86z0VjqziwNHB
-JVtco/le+/Yjbantgyf9FeObJWma+S2eIFX7SU6N9DSOaOMzFRNdIOSY7OgQEc76
-Gi/9GW2Aiua3hUg0JnPfPUpfjhQ5sB9wSg5J4HPVmPb8PeYOFP4CcEWS9lxu2T6E
-YQctc4+MzomiUWU8EkVdiUHHAVIAYF+RgTHbO6dB89/rayAqmASdlGnoS7U6tM+5
-NK4ZTH5VNnQgc+njiYEOd1NXHI1kxBFjaP5NMFiwql8HViT5dJH6vgfI0wE1AlsJ
-HoWmSDXBGMWjPYr+ChjeozFuYiR58LRHOQjt8FRfM8Nu80/LvbPrvSQu9h6LpmPF
-JvebjTYQY5fxHhxlGOmZAkTikSwqWlU7xZKqhEeJ/M1mCqrVP1EOe8YYjEPIAxMR
-7Yt2iebvQjSukcLMl2851txkHIsoMW6Z5t3aDmOIAfjVrBVv4ZHcLMQkH8hGbhnc
-nxZnmh5c3VvUBnKkcf9iqBpyjMQk9bIkeqxWKi3vlQCMjGLDTPPyxeRcqfKCNqzT
-HT3fPhlgoJXAIR20IYpHqFgFoBqj6RGN9gaigdAnqug1mcezr6wVIOd0T14nKZ43
-ftqqOYm5U3OPLLg0PIR1NREMs+a5P2eXIY2VFTIw3AUPz2PYmAFqfYEC6hY/Atbe
-6yxtE7qYLze75vo4tjTq
-=0h8Q
------END PGP SIGNATURE-----
-
---=-8mcd8WxSR7DvxoqkWPah--
+CgoKCgoKCgoKCkF0IDIwMTctMTAtMTAgMjM6MDU6MTQsICJHdWVudGVyIFJvZWNrIiA8bGludXhA
+cm9lY2stdXMubmV0PiB3cm90ZToKPk9uIFR1ZSwgT2N0IDEwLCAyMDE3IGF0IDAzOjUxOjM0UE0g
+KzAyMDAsIEFsZXhhbmRyZSBCZWxsb25pIHdyb3RlOgo+PiBPbiAxMC8xMC8yMDE3IGF0IDA2OjQx
+OjE1IC0wNzAwLCBHdWVudGVyIFJvZWNrIHdyb3RlOgo+PiA+IE9uIDEwLzEwLzIwMTcgMDY6MTIg
+QU0sIHdpbnRvbi5saXUgd3JvdGU6Cj4+ID4gPiBXaGVuIGVuYWJsZSBDT05GSUdfUlRDX0RSVl9E
+UzEzNzRfV0RUIHVzZSBhcyB3YXRjaGRvZywKPj4gPiA+IGluIHN1c3BlbmQgbW9kZSwgd2F0Y2hk
+b2cgaXMgc3RpbGwgd29ya2luZyBidXQgbm8gZGFlbW9uCj4+ID4gPiBwYXR0aW5nIHRoZSB3YXRj
+aGRvZy4gVGhlIHN5c3RlbSB3aWxsIHJlYm9vdCBpZiB0aW1lb3V0Lgo+PiA+ID4gCj4+ID4gPiBB
+ZGQgc3VwcG9ydCBzdXNwZW5kL3Jlc3VtZSBmb3Igd2F0Y2hkb2cuCj4+ID4gPiBzdXNwZW5kOiBk
+aXNhYmxlIHRoZSB3YXRjaGRvZwo+PiA+ID4gcmVzdW1lOiBkaXNhYmxlIGV4aXN0aW5nIHdhdGNo
+ZG9nLCByZWxvYWQgd2F0Y2hkb2cgdGltZXIsIGVuYWJsZSB3YXRjaGRvZwo+PiA+ID4gCj4+ID4g
+PiBTaWduZWQtb2ZmLWJ5OiB3aW50b24ubGl1IDwxODUwMjUyMzU2NEAxNjMuY29tPgo+PiA+ID4g
+LS0tCj4+ID4gPiAgIGRyaXZlcnMvcnRjL3J0Yy1kczEzNzQuYyB8IDMxICsrKysrKysrKysrKysr
+KysrKysrKysrKysrKysrKysKPj4gPiA+ICAgMSBmaWxlIGNoYW5nZWQsIDMxIGluc2VydGlvbnMo
+KykKPj4gPiA+IAo+PiA+ID4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvcnRjL3J0Yy1kczEzNzQuYyBi
+L2RyaXZlcnMvcnRjL3J0Yy1kczEzNzQuYwo+PiA+ID4gaW5kZXggMzhhMmU5ZS4uNjQyZTMxZCAx
+MDA2NDQKPj4gPiA+IC0tLSBhL2RyaXZlcnMvcnRjL3J0Yy1kczEzNzQuYwo+PiA+ID4gKysrIGIv
+ZHJpdmVycy9ydGMvcnRjLWRzMTM3NC5jCj4+ID4gPiBAQCAtNDM3LDYgKzQzNywyOSBAQCBzdGF0
+aWMgdm9pZCBkczEzNzRfd2R0X3Bpbmcodm9pZCkKPj4gPiA+ICAgCQlwcl9pbmZvKCJXRCBUSUNL
+IEZBSUwhISEhISEhISEhICVpXG4iLCByZXQpOwo+PiA+ID4gICB9Cj4+ID4gPiArc3RhdGljIHZv
+aWQgZHMxMzc0X3dkdF9yZXN1bWUodm9pZCkKPj4gPiA+ICt7Cj4+ID4gPiArCWludCByZXQgPSAt
+RU5PSU9DVExDTUQ7Cj4+ID4gCj4+ID4gVXNlbGVzcyBpbml0aWFsaXphdGlvbiAoeWVzLCBJIGNh
+biBzZWUgdGhhdCB0aGlzIGlzIHdpZGVseSBkb25lIGluIHRoZSBkcml2ZXIsCj4+ID4gYnV0IHRo
+YXQgZG9lc24ndCBtYWtlIGl0IGJldHRlcikuCj4+ID4gCiAgICAgICAgWWVzLCBJIHRoaW5rIHRo
+aXMgaXMgdXNlbGVzcy4gVGhlIG9yaWdpbmFsIGRzMTM3NF93ZHRfZGlzYWJsZSBoYXMgdGhlIHNh
+bWUgaXNzdWUuCj4+ID4gPiArCWludCBjcjsKPj4gPiA+ICsKPj4gPiA+ICsJY3IgPSBpMmNfc21i
+dXNfcmVhZF9ieXRlX2RhdGEoc2F2ZV9jbGllbnQsIERTMTM3NF9SRUdfQ1IpOwo+PiA+ID4gKwo+
+PiA+ID4gKwkvKiBEaXNhYmxlIGFueSBleGlzdGluZyB3YXRjaGRvZy9hbGFybSBiZWZvcmUgc2V0
+dGluZyB0aGUgbmV3IG9uZSAqLwo+PiA+ID4gKwljciAmPSB+RFMxMzc0X1JFR19DUl9XQUNFOwo+
+PiA+ID4gKwo+PiA+ID4gKwlpMmNfc21idXNfd3JpdGVfYnl0ZV9kYXRhKHNhdmVfY2xpZW50LCBE
+UzEzNzRfUkVHX0NSLCBjcik7Cj4+ID4gPiArCj4+ID4gPiArCS8qIFJlbG9hZCB3YXRjaGRvZyB0
+aW1lciAqLwo+PiA+ID4gKwlkczEzNzRfd2R0X3BpbmcoKTsKPj4gPiA+ICsKPj4gPiA+ICsJLyog
+RW5hYmxlIHdhdGNoZG9nIHRpbWVyICovCj4+ID4gPiArCWNyIHw9IERTMTM3NF9SRUdfQ1JfV0FD
+RSB8IERTMTM3NF9SRUdfQ1JfV0RBTE07Cj4+ID4gPiArCWNyICY9IH5EUzEzNzRfUkVHX0NSX0FJ
+RTsKPj4gPiA+ICsKPj4gPiA+ICsJcmV0ID0gaTJjX3NtYnVzX3dyaXRlX2J5dGVfZGF0YShzYXZl
+X2NsaWVudCwgRFMxMzc0X1JFR19DUiwgY3IpOwo+PiA+ID4gKwo+PiA+IEV4dHJhIGVtcHR5IGxp
+bmUuIEFsc28sIHJldHVybnMgdm9pZCwgc28gd2hhdCBpcyB0aGUgcG9pbnQgb2YgYXNzaWduaW5n
+Cj4+ID4gdGhlIHJlc3VsdCB0byByZXQgPwo+PiA+IAo+PiA+ID4gK30KPj4gPiAKPj4gPiBVbmxl
+c3MgSSBhbSBtaXNzaW5nIHNvbWV0aGluZywgdGhpcyB1bmNvbmRpdGlvbmFsbHkgc3RhcnRzIHRo
+ZSB3YXRjaGRvZwo+PiA+IGF0IHJlc3VtZSB0aW1lLiBTbyBpZiBpdCB3YXMgbm90IHJ1bm5pbmcg
+YmVmb3JlLCBpdCB3aWxsIGJlIHN0YXJ0ZWQgYW55d2F5LAo+PiA+IGFuZCB0aGUgc3lzdGVtIHdp
+bGwgcmVib290IHNpbmNlIHRoZXJlIHdpbGwgYmUgbm8gcGluZy4KPj4gPiAKICAgIFRoaXMgZHJp
+dmVyIHN0YXJ0cyB3YXRjaGRvZyBieSBkZWZhdWx0LiBJbiBwcm9iZSB3YXRjaGRvZyBzdGFydHM6
+IAogICAjaWZkZWYgQ09ORklHX1JUQ19EUlZfRFMxMzc0X1dEVAogICAgc2F2ZV9jbGllbnQgPSBj
+bGllbnQ7CiAgICByZXQgPSBtaXNjX3JlZ2lzdGVyKCZkczEzNzRfbWlzY2Rldik7CiAgICBpZiAo
+cmV0KQogICAgICAgIHJldHVybiByZXQ7CiAgICByZXQgPSByZWdpc3Rlcl9yZWJvb3Rfbm90aWZp
+ZXIoJmRzMTM3NF93ZHRfbm90aWZpZXIpOwogICAgaWYgKHJldCkgewogICAgICAgIG1pc2NfZGVy
+ZWdpc3RlcigmZHMxMzc0X21pc2NkZXYpOwogICAgICAgIHJldHVybiByZXQ7CiAgICB9CiAgICBk
+czEzNzRfd2R0X3NldHRpbWVvdXQoMTMxMDcyKTsgICAvL0hlcmUgc3RhcnRzIHdhdGNoZG9nCiNl
+bmRpZgogICBBbmQgdXNlcnNwYWNlIHdhdGNoZG9nZCB3aWxsIHBpbmcuCj4+IAo+PiBBbHNvLCBJ
+J20gc3RpbGwgbm90IGNvbnZpbmNlZCB0aGlzIGlzIHRoZSByaWdodCB0aGluZyB0byBkby4gSSBo
+YXZlIHNlZW4KPj4gbWFueSBzeXN0ZW1zIHdlcmUgaXQgd2FzIGRlc2lyYWJsZSB0byBsZXQgdGhl
+IHdhdGNoZG9nIHJ1biB3aGlsZSB0aGUKPj4gc3lzdGVtIGlzIHN1c3BlbmRlZC4gSXQgZW5zdXJl
+cyBpdCB3aWxsIGVpdGhlciB3YWtlIHVwIG9yIHJlYm9vdC4gSWYgeW91Cj4+IGRvbid0IHdhbnQg
+dGhhdCwgd2h5IG5vdCBkaXNhYmxpbmcgdGhlIHdhdGNoZG9nIGZyb20gdXNlcnNwYWNlIGJlZm9y
+ZQo+PiBnb2luZyB0byBzdXNwZW5kPwo+PiAKPgo+VXN1YWxseSB3YXRjaGRvZyBkcml2ZXJzIHN1
+cHBvcnRpbmcgc3VzcGVuZC9yZXN1bWUgZG8gaGFuZGxlIGl0IHRoaXMgd2F5Lgo+TWF5YmUgdGhh
+dCBkZXBlbmRzIG9uIHRoZSBIVy4gRXhwZWN0aW5nIHVzZXIgc3BhY2UgdG8gZG8gaXQgbWFrZXMg
+aXQKPmV2ZW4gbW9yZSByYWN5IHRoYW4gaXQgYWxyZWFkeSBpcywgc2luY2UgdGhlcmUgaXMgbm8g
+d2F0Y2hkb2cgcHJvdGVjdGlvbgo+YWZ0ZXIgaXQgaGFzIGJlZW4gZGlzYWJsZWQsIHNvIEkgYW0g
+bm90IHN1cmUgaWYgdGhhdCBpcyByZWFsbHkgYmV0dGVyLgo+RG9lcyBhbnlvbmUgaGFwcGVuIHRv
+IGtub3cgaWYvaG93IHN5c3RlbWQgYW5kIHdhdGNoZG9nZCBhcmUgaGFuZGxpbmcKPnRoaXMgc2l0
+dWF0aW9uID8KPgo+PiA+IEkgYXNzdW1lIGl0IGlzIGd1YXJhbnRlZWQgdGhhdCB0aGUgY2hpcCBk
+b2Vzbid0IGZvcmdldCB0aGUgcHJldmlvdXNseQo+PiA+IGNvbmZpZ3VyZWQgdGltZW91dCBvbiBy
+ZXN1bWUuCj4+ID4gCj4+ID4gT3ZlcmFsbCB0aGUgZHJpdmVyIHdvdWxkIHJlYWxseSBiZW5lZml0
+IGZyb20gYSBjb252ZXJzaW9uIHRvIHRoZSB3YXRjaGRvZwo+PiA+IHN1YnN5c3RlbS4KPj4gPiAK
+Pj4gCj4+IFRoYXQgaXMgdGhlIHBvaW50IG9mIGh0dHBzOi8vd3d3LnNwaW5pY3MubmV0L2xpc3Rz
+L2xpbnV4LXdhdGNoZG9nL21zZzEyMDk1Lmh0bWwKPgo+QWgsIHllcywgYW5kIEkgZXZlbiBwcm92
+aWRlZCBmZWVkYmFjay4gSG9wZSBJIGRpZG4ndCBtaXNzIGFuIHVwZGF0ZWQKPnZlcnNpb24gb2Yg
+dGhhdCBwYXRjaC4gRWl0aGVyIGNhc2UsIHNlZW1zIHRvIG1lIHdlIHNob3VsZCB3YWl0IGZvciB0
+aGF0Cj5wYXRjaCB0byBtYWtlIGl0IGluIGJlZm9yZSBhY2NlcHRpbmcgYW55IGZ1cnRoZXIgY2hh
+bmdlcyB0byB0aGUgZHJpdmVyLgo+CiAgIElzIHRoaXMgbXVsdGkgZnVuY3Rpb24gcGF0Y2ggaGFz
+IGFueSB1cGRhdGUgPyBJZiBub3QsIGNvdWxkIG15IHBhdGNoIGJlIGFjY2VwdGFibGUgYmVmb3Jl
+IG1vdmluZyB0byB3YXRjaGRvZyBzdWJzeXN0ZW0uKEkgY291bGQgdXBkYXRlIGEgbmV3IHBhdGNo
+IGZvciB5b3VyIHN1Z2dlc3Rpb24pPwogICBCZWNhdXNlIGN1cnJlbnQga2VybmVsIHVzaW5nIGRz
+MTM3NCBmb3Igd2F0Y2hkb2cuIElmIHRoZSBkZXZpY2UgbmVlZCBzdXNwZW5kLCB0aGVyZSB3aWxs
+IGJlIGEgcmVib290IGlzc3VlLgoKPkd1ZW50ZXIK
