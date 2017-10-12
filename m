@@ -1,69 +1,62 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:36098 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751532AbdJKSqF (ORCPT
+Received: from mail-lf0-f68.google.com ([209.85.215.68]:36490 "EHLO
+        mail-lf0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751347AbdJLDhw (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 11 Oct 2017 14:46:05 -0400
-Date: Wed, 11 Oct 2017 11:46:03 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Radu Rendec <rrendec@arista.com>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: Lowering the log level in watchdog_dev_register when err==-EBUSY
-Message-ID: <20171011184603.GB8756@roeck-us.net>
-References: <1507743991.3486.5.camel@arista.com>
+        Wed, 11 Oct 2017 23:37:52 -0400
+Received: by mail-lf0-f68.google.com with SMTP id g70so1414888lfl.3
+        for <linux-watchdog@vger.kernel.org>; Wed, 11 Oct 2017 20:37:51 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1507743991.3486.5.camel@arista.com>
+In-Reply-To: <CACRpkdbJhTmSZDudJCb_8nOfk6802Z8Op2+gjY9vdDT9Cg+6eQ@mail.gmail.com>
+References: <20170812184318.10144-1-linus.walleij@linaro.org>
+ <20170812184318.10144-12-linus.walleij@linaro.org> <CACRpkdbJhTmSZDudJCb_8nOfk6802Z8Op2+gjY9vdDT9Cg+6eQ@mail.gmail.com>
+From: Joel Stanley <joel@jms.id.au>
+Date: Thu, 12 Oct 2017 11:37:30 +0800
+Message-ID: <CACPK8XeQDdisecoHo7+_7LQNxYWh7yDj99O=NxWSoHyuk7LRxg@mail.gmail.com>
+Subject: Re: [PATCH 11/11] ARM: dts: Add PCLK to the Aspeed watchdogs
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Wim Van Sebroeck <wim@iguana.be>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Jonas Jensen <jonas.jensen@gmail.com>,
+        Andrew Jeffery <andrew@aj.id.au>,
+        "linux-arm-kernel@lists.infradead.org"
+        <linux-arm-kernel@lists.infradead.org>,
+        LINUXWATCHDOG <linux-watchdog@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Oct 11, 2017 at 06:46:31PM +0100, Radu Rendec wrote:
-> Hello,
-> 
-> In a project I'm working on we have a valid use case where we activate
-> both the i6300esb and softdog watchdogs. We always activate i6300esb
-> first (which uses the "legacy" watchdog API) and then softdog. This
-> gets us two "error" level messages (coming from watchdog_cdev_register)
-> although softdog falls back to the "new" API and registers its char
-> device just fine.
-> 
-> Since watchdog_cdev_register/watchdog_dev_register seem to be used only
-> by watchdog_register_device and the latter always falls back to the
-> "new" API, I'm thinking about lowering the log level of these messages
-> when err is -EBUSY. Something along the lines of:
-> 
-> --- a/drivers/watchdog/watchdog_dev.c
-> +++ b/drivers/watchdog/watchdog_dev.c
-> @@ -928,11 +928,14 @@ static int watchdog_cdev_register(struct watchdog_device *wdd, dev_t devno)
->                 watchdog_miscdev.parent = wdd->parent;
->                 err = misc_register(&watchdog_miscdev);
->                 if (err != 0) {
-> -                       pr_err("%s: cannot register miscdev on minor=%d (err=%d).\n",
-> -                               wdd->info->identity, WATCHDOG_MINOR, err);
-> -                       if (err == -EBUSY)
-> -                               pr_err("%s: a legacy watchdog module is probably present.\n",
-> -                                       wdd->info->identity);
-> +                       if (err == -EBUSY) {
-> +                               pr_info("%s: cannot register miscdev on minor=%d (err=%d).\n",
-> +                                               wdd->info->identity, WATCHDOG_MINOR, err);
-> +                               pr_info("%s: a legacy watchdog module is probably present.\n",
-> +                                               wdd->info->identity);
-> +                       } else
-> +                               pr_err("%s: cannot register miscdev on minor=%d (err=%d).\n",
-> +                                       wdd->info->identity, WATCHDOG_MINOR, err);
->                         old_wd_data = NULL;
->                         kfree(wd_data);
->                         return err;
-> 
-> Does this look like a good approach? If not, what would you recommend?
-> In any case, I want to upstream the change, so better ask first :)
-> 
+On Wed, Oct 11, 2017 at 4:09 AM, Linus Walleij <linus.walleij@linaro.org> wrote:
+> On Sat, Aug 12, 2017 at 8:43 PM, Linus Walleij <linus.walleij@linaro.org> wrote:
+>
+>> This adds the PCLK clock to the Aspeed watchdog blocks.
+>> I am not directly familiar with the Aspeed clocking, but
+>> since the IP is derived from Faraday FTWDT010 it probably
+>> has the ability to run the watchdog on the PCLK if
+>> desired so to obtain the frequency from it, it needs to
+>> be present in the device tree, and for completeness the
+>> PCLK should also be referenced and enabled anyways.
+>>
+>> Take this opportunity to add the "faraday,ftwdt010"
+>> compatible as fallback to the watchdog IP blocks.
+>>
+>> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+>
+> Joel could you merge this through the Aspeed tree? I think
+> the compatible string is completely uncontroversial
+> (binding ACKed) to add and all should just work fine so we
+> can slap in "EXTCLK" later as well.
 
-I would suggest to convert the offending driver to use the watchdog subsystem
-(and along the line remove the restriction of only supporting a single
-instance). You have the hardware, so that should be a straightforward change.
+How do the clock-names work? I have been writing the aspeed clk driver
+and updating the bindings without clock names, and instead using a
+identifier in phandle to reference which clock the device wants.
 
-Thanks,
-Guenter
+eg:
+
+ clocks = <&syscon 10>;
+
+(I'm travelling over the next few weeks so my replies might be delayed)
+
+Cheers,
+
+Joel
