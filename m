@@ -1,59 +1,91 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pg0-f66.google.com ([74.125.83.66]:53382 "EHLO
-        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751422AbdJVRix (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 22 Oct 2017 13:38:53 -0400
-Received: by mail-pg0-f66.google.com with SMTP id s2so10065379pge.10
-        for <linux-watchdog@vger.kernel.org>; Sun, 22 Oct 2017 10:38:53 -0700 (PDT)
-Date: Sun, 22 Oct 2017 10:38:51 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Michael Grzeschik <m.grzeschik@pengutronix.de>
-Cc: linux-watchdog@vger.kernel.org, lee.jones@linaro.org,
-        support.opensource@diasemi.com, wim@iguana.be,
-        kernel@pengutronix.de
-Subject: Re: [4/6] watchdog: da9062: Disable and wait before changing timeout
-Message-ID: <20171022173851.GA20226@roeck-us.net>
-References: <20171017153027.24665-5-m.grzeschik@pengutronix.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20171017153027.24665-5-m.grzeschik@pengutronix.de>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-Path: <linus.walleij@linaro.org>
+Return-path: <linus.walleij@linaro.org>
+From: Linus Walleij <linus.walleij@linaro.org>
+To: Wim Van Sebroeck <wim@iguana.be>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Jonas Jensen <jonas.jensen@gmail.com>,
+	Andrew Jeffery <andrew@aj.id.au>,
+	Joel Stanley <joel@jms.id.au>
+Cc: linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org,
+	Linus Walleij <linus.walleij@linaro.org>,
+	devicetree@vger.kernel.org
+Subject: [PATCH 1/5 v2] watchdog: gemini/ftwdt010: rename DT bindings
+Date: Mon, 16 Oct 2017 22:54:23 +0200
+Message-Id: <20171016205427.4297-1-linus.walleij@linaro.org>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On Tue, Oct 17, 2017 at 05:30:25PM +0200, Michael Grzeschik wrote:
-> The DA9062 watchdog occasionally enters error condition and resets the
-> system if the timeout is changed quickly after the timer was enabled.
-> 
-> The method of disabling and waiting for > 150 µs before setting the
-> new timeout is taken from the DA9052 driver.
-> 
-> Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
+The device tree bindings are in two copies and also should be
+consolidated into a single Faraday Technology FTWDT010
+binding since we uncovered that this IP part is a standard
+IP from Faraday.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Cc: devicetree@vger.kernel.org
+Acked-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+---
+ChangeLog v1->v2:
+- Collect Rob's ACK.
+---
+ .../bindings/watchdog/cortina,gemini-watchdog.txt       | 17 -----------------
+ ...{cortina,gemin-watchdog.txt => faraday,ftwdt010.txt} | 11 ++++++++---
+ 2 files changed, 8 insertions(+), 20 deletions(-)
+ delete mode 100644 Documentation/devicetree/bindings/watchdog/cortina,gemini-watchdog.txt
+ rename Documentation/devicetree/bindings/watchdog/{cortina,gemin-watchdog.txt => faraday,ftwdt010.txt} (55%)
 
-> ---
->  drivers/watchdog/da9062_wdt.c | 7 +++++++
->  1 file changed, 7 insertions(+)
-> 
-> diff --git a/drivers/watchdog/da9062_wdt.c b/drivers/watchdog/da9062_wdt.c
-> index b95719b349e5c..d43e0c46e23fb 100644
-> --- a/drivers/watchdog/da9062_wdt.c
-> +++ b/drivers/watchdog/da9062_wdt.c
-> @@ -100,6 +100,13 @@ static int da9062_wdt_update_timeout_register(struct da9062_watchdog *wdt,
->  	if (ret)
->  		return ret;
->  
-> +	regmap_update_bits(chip->regmap,
-> +				  DA9062AA_CONTROL_D,
-> +				  DA9062AA_TWDSCALE_MASK,
-> +				  DA9062_TWDSCALE_DISABLE);
-> +
-> +	usleep_range(150, 300);
-> +
->  	return regmap_update_bits(chip->regmap,
->  				  DA9062AA_CONTROL_D,
->  				  DA9062AA_TWDSCALE_MASK,
+diff --git a/Documentation/devicetree/bindings/watchdog/cortina,gemini-watchdog.txt b/Documentation/devicetree/bindings/watchdog/cortina,gemini-watchdog.txt
+deleted file mode 100644
+index bc4b865d178b..000000000000
+--- a/Documentation/devicetree/bindings/watchdog/cortina,gemini-watchdog.txt
++++ /dev/null
+@@ -1,17 +0,0 @@
+-Cortina Systems Gemini SoC Watchdog
+-
+-Required properties:
+-- compatible : must be "cortina,gemini-watchdog"
+-- reg : shall contain base register location and length
+-- interrupts : shall contain the interrupt for the watchdog
+-
+-Optional properties:
+-- timeout-sec : the default watchdog timeout in seconds.
+-
+-Example:
+-
+-watchdog@41000000 {
+-	compatible = "cortina,gemini-watchdog";
+-	reg = <0x41000000 0x1000>;
+-	interrupts = <3 IRQ_TYPE_LEVEL_HIGH>;
+-};
+diff --git a/Documentation/devicetree/bindings/watchdog/cortina,gemin-watchdog.txt b/Documentation/devicetree/bindings/watchdog/faraday,ftwdt010.txt
+similarity index 55%
+rename from Documentation/devicetree/bindings/watchdog/cortina,gemin-watchdog.txt
+rename to Documentation/devicetree/bindings/watchdog/faraday,ftwdt010.txt
+index bc4b865d178b..9ecdb502e605 100644
+--- a/Documentation/devicetree/bindings/watchdog/cortina,gemin-watchdog.txt
++++ b/Documentation/devicetree/bindings/watchdog/faraday,ftwdt010.txt
+@@ -1,7 +1,12 @@
+-Cortina Systems Gemini SoC Watchdog
++Faraday Technology FTWDT010 watchdog
++
++This is an IP part from Faraday Technology found in the Gemini
++SoCs and others.
+ 
+ Required properties:
+-- compatible : must be "cortina,gemini-watchdog"
++- compatible : must be one of
++  "faraday,ftwdt010"
++  "cortina,gemini-watchdog", "faraday,ftwdt010"
+ - reg : shall contain base register location and length
+ - interrupts : shall contain the interrupt for the watchdog
+ 
+@@ -11,7 +16,7 @@ Optional properties:
+ Example:
+ 
+ watchdog@41000000 {
+-	compatible = "cortina,gemini-watchdog";
++	compatible = "faraday,ftwdt010";
+ 	reg = <0x41000000 0x1000>;
+ 	interrupts = <3 IRQ_TYPE_LEVEL_HIGH>;
+ };
+-- 
+2.13.6
