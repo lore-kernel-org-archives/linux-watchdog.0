@@ -1,88 +1,78 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from gate2.alliedtelesis.co.nz ([202.36.163.20]:49208 "EHLO
-        gate2.alliedtelesis.co.nz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753147AbdJLUMj (ORCPT
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:35279 "EHLO
+        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S933863AbdJQLgG (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 12 Oct 2017 16:12:39 -0400
-From: Chris Packham <Chris.Packham@alliedtelesis.co.nz>
-To: Gregory CLEMENT <gregory.clement@free-electrons.com>
-CC: "linux@roeck-us.net" <linux@roeck-us.net>,
-        "wim@iguana.be" <wim@iguana.be>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Jason Cooper <jason@lakedaemon.net>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        "Mark Rutland" <mark.rutland@arm.com>,
-        Russell King <linux@armlinux.org.uk>,
-        "linux-arm-kernel@lists.infradead.org"
-        <linux-arm-kernel@lists.infradead.org>
-Subject: Re: [PATCH 3/3] ARM: mvebu: dts: connect interrupt for WD on
- armada-38x
-Date: Thu, 12 Oct 2017 20:12:36 +0000
-Message-ID: <69ab72d5008744df9455712c2c821730@svr-chch-ex1.atlnz.lc>
-References: <20171011022958.31268-1-chris.packham@alliedtelesis.co.nz>
- <20171011022958.31268-4-chris.packham@alliedtelesis.co.nz>
- <874lr4bgdh.fsf@free-electrons.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-MIME-Version: 1.0
+        Tue, 17 Oct 2017 07:36:06 -0400
+Message-ID: <1508240158.24322.16.camel@aj.id.au>
+Subject: Re: [PATCH v2 4/4] watchdog: aspeed: Move init to arch_initcall
+From: Andrew Jeffery <andrew@aj.id.au>
+To: Joel Stanley <joel@jms.id.au>
+Cc: linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        OpenBMC Maillist <openbmc@lists.ozlabs.org>,
+        linux-aspeed@lists.ozlabs.org, Ryan Chen <ryan_chen@aspeedtech.com>
+Date: Tue, 17 Oct 2017 22:05:58 +1030
+In-Reply-To: <CACPK8Xdz1iK-4bqZfmfTUYw3zDLxCniwt6LupJq5mo-CCca3XQ@mail.gmail.com>
+References: <20170920053020.6860-1-andrew@aj.id.au>
+         <20170920053020.6860-5-andrew@aj.id.au>
+         <CACPK8Xdz1iK-4bqZfmfTUYw3zDLxCniwt6LupJq5mo-CCca3XQ@mail.gmail.com>
+Content-Type: multipart/signed; micalg="pgp-sha512";
+        protocol="application/pgp-signature"; boundary="=-jY4S5v9IgRxn0LWWmsEZ"
+Mime-Version: 1.0
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 13/10/17 03:17, Gregory CLEMENT wrote:=0A=
-> Hi Chris,=0A=
->   =0A=
->   On mer., oct. 11 2017, Chris Packham <chris.packham@alliedtelesis.co.nz=
-> wrote:=0A=
-> =0A=
->> The watchdog timer interrupt is available internally on the Armada-38x=
-=0A=
->> SoCs. Connect it so that we can have the orion_wdt_irq generate debug=0A=
->> information when a watchdog timeout occurs.=0A=
-> =0A=
-> Given the patch 2, when an interrupt is provided by the dt, then the=0A=
-> behavior of the watchdog changes. So we can't do it for all the=0A=
-> platform.=0A=
-> =0A=
-> As you propose on your cover letter it is better to set it at board=0A=
-> level.=0A=
-> =0A=
-> So instead of this patch you should update the binding documentation=0A=
-> with this new resources. Thanks to this each board developer will be=0A=
-> able to decide to use this feature or not.=0A=
-=0A=
-Agreed. I'll drop this patch in favor of a documentation update in v2.=0A=
-=0A=
-> =0A=
-> Thanks,=0A=
-> =0A=
-> Gregory=0A=
-> =0A=
->>=0A=
->> Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>=0A=
->> ---=0A=
->>   arch/arm/boot/dts/armada-38x.dtsi | 1 +=0A=
->>   1 file changed, 1 insertion(+)=0A=
->>=0A=
->> diff --git a/arch/arm/boot/dts/armada-38x.dtsi b/arch/arm/boot/dts/armad=
-a-38x.dtsi=0A=
->> index 7ff0811e61db..9ac76c54c9e5 100644=0A=
->> --- a/arch/arm/boot/dts/armada-38x.dtsi=0A=
->> +++ b/arch/arm/boot/dts/armada-38x.dtsi=0A=
->> @@ -408,6 +408,7 @@=0A=
->>   				reg =3D <0x20300 0x34>, <0x20704 0x4>, <0x18260 0x4>;=0A=
->>   				clocks =3D <&coreclk 2>, <&refclk>;=0A=
->>   				clock-names =3D "nbclk", "fixed";=0A=
->> +				interrupts =3D <GIC_SPI 64 IRQ_TYPE_LEVEL_HIGH>;=0A=
->>   			};=0A=
->>   =0A=
->>   			cpurst: cpurst@20800 {=0A=
->> -- =0A=
->> 2.14.2=0A=
->>=0A=
-> =0A=
-=0A=
+
+--=-jY4S5v9IgRxn0LWWmsEZ
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, 2017-09-20 at 15:43 +0930, Joel Stanley wrote:
+> > On Wed, Sep 20, 2017 at 3:00 PM, Andrew Jeffery <andrew@aj.id.au> wrote=
+:
+> > Probing at device_initcall time lead to perverse cases where the
+> > watchdog was probed after, say, I2C devices, which then leaves a
+> > potentially running watchdog at the mercy of I2C device behaviour and
+> > bus conditions.
+> >=20
+> > Load the watchdog driver early to ensure that the kernel is patting it
+> > well before initialising peripherals.
+> >=20
+> > Signed-off-by: Andrew Jeffery <andrew@aj.id.au>
+>=20
+> I agree that we need to make sure the watchdog driver is loaded
+> earlier. I think this is the correct method, but I'll defer to Guenter
+> on this one.
+
+Just following up on Joel's comments: Is there anything else I need to
+address?
+
+Cheers,
+
+Andrew
+--=-jY4S5v9IgRxn0LWWmsEZ
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+Content-Transfer-Encoding: 7bit
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIcBAABCgAGBQJZ5esfAAoJEJ0dnzgO5LT5BfQP/izJPdvy7HsiMTr/51oUwhWQ
+zKfVa2ubmVOoHYeEJyerDKIAj8wMBPZNHPsYd2/MLZ5u6PwrrRQ08dQehPy3giKU
+1pPtkgdYl+GMvfjzU/IPaaA80yObzwZC4/oXpq28peLQCJZKx9zpx4q1IUVG1f6R
+c4rYxovSHDt4993ZA5TGBw1W+EPR6yZ1dGNvpfK8skpRpqs7/ZkwfIoHD6BLiih1
+RupCrKlZGwGfwoXdizDhbmGxI5cXEsysLPFzLq8oXqFLiijE08oWGECqjkLf2UvM
+yjDap9mhPK11LAy3G7OIxsRD2MRKh2VfyJ0fv6fEX6Ep5hnlWyuUzN2IlQyb61VV
+UTaucK/H1F0EK1XJ4kTXB5Biza2X3ifo2ni7HG0Fp68U5L7bSDpCz+jFsRvR5A0D
+kGLwNRtHe3NqTCqT6VjifawunceIU3yPcPfd0I5A8a4w57R5zvR+vfVpnGLyyb+H
+lZv3joZcImFmmG9Wg2c1eY7oulaleBjrL1vqXjcjhFHu7+CMquQoo47A6NuYR9nY
+dFbolNXvfsHOiz8aKGCpJDydGav6VrCTXfpEVCKrQPFsKRuDOfI3IRMf1VZQh2ak
+Uahikn8ReA/yvRQW+OwvKjiwzHjfUyreT330g/JXDUUTnBy2KV0c6y0Xls6Ssk28
+h06lPSnD2GTHgletGOpW
+=aupq
+-----END PGP SIGNATURE-----
+
+--=-jY4S5v9IgRxn0LWWmsEZ--
+
