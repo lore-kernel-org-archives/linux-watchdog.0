@@ -6,42 +6,45 @@ Cc: lee.jones@linaro.org,
 	support.opensource@diasemi.com,
 	wim@iguana.be,
 	linux@roeck-us.net,
-	kernel@pengutronix.de,
-	Stefan Christ <s.christ@phytec.de>
-Subject: [PATCH 2/6] mfd: da9062: make register CONFIG_I writable
-Date: Tue, 17 Oct 2017 17:30:23 +0200
-Message-Id: <20171017153027.24665-3-m.grzeschik@pengutronix.de>
+	kernel@pengutronix.de
+Subject: [PATCH 4/6] watchdog: da9062: Disable and wait before changing timeout
+Date: Tue, 17 Oct 2017 17:30:25 +0200
+Message-Id: <20171017153027.24665-5-m.grzeschik@pengutronix.de>
 In-Reply-To: <20171017153027.24665-1-m.grzeschik@pengutronix.de>
 References: <20171017153027.24665-1-m.grzeschik@pengutronix.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-watchdog@vger.kernel.org>
 
-From: Stefan Christ <s.christ@phytec.de>
+The DA9062 watchdog occasionally enters error condition and resets the
+system if the timeout is changed quickly after the timer was enabled.
 
-Make the config register CONFIG_I writable to change the watchdog mode.
-The datasheet does not mention exactly whether these registers should be
-read-only or writeable. But writing to those registers works at runtime.
-Only on reset they are reseted.
+The method of disabling and waiting for > 150 µs before setting the
+new timeout is taken from the DA9052 driver.
 
-Signed-off-by: Stefan Christ <s.christ@phytec.de>
-Signed-off-by: Christian Hemp <c.hemp@phytec.de>
+Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
 ---
- drivers/mfd/da9062-core.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/watchdog/da9062_wdt.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/mfd/da9062-core.c b/drivers/mfd/da9062-core.c
-index fe1811523e4a7..f5c7bd9dc32d5 100644
---- a/drivers/mfd/da9062-core.c
-+++ b/drivers/mfd/da9062-core.c
-@@ -727,6 +727,10 @@ static const struct regmap_range da9062_aa_writeable_ranges[] = {
- 		.range_min = DA9062AA_BBAT_CONT,
- 		.range_max = DA9062AA_BBAT_CONT,
- 	}, {
-+		/* CONFIG_I must be writable to set WATCHDOG_SD */
-+		.range_min = DA9062AA_CONFIG_I,
-+		.range_max = DA9062AA_CONFIG_I,
-+	}, {
- 		.range_min = DA9062AA_GP_ID_0,
- 		.range_max = DA9062AA_GP_ID_19,
- 	},
+diff --git a/drivers/watchdog/da9062_wdt.c b/drivers/watchdog/da9062_wdt.c
+index b95719b349e5c..d43e0c46e23fb 100644
+--- a/drivers/watchdog/da9062_wdt.c
++++ b/drivers/watchdog/da9062_wdt.c
+@@ -100,6 +100,13 @@ static int da9062_wdt_update_timeout_register(struct da9062_watchdog *wdt,
+ 	if (ret)
+ 		return ret;
+ 
++	regmap_update_bits(chip->regmap,
++				  DA9062AA_CONTROL_D,
++				  DA9062AA_TWDSCALE_MASK,
++				  DA9062_TWDSCALE_DISABLE);
++
++	usleep_range(150, 300);
++
+ 	return regmap_update_bits(chip->regmap,
+ 				  DA9062AA_CONTROL_D,
+ 				  DA9062AA_TWDSCALE_MASK,
 -- 
 2.11.0
