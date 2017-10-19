@@ -1,58 +1,83 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wr0-f193.google.com ([209.85.128.193]:44801 "EHLO
-        mail-wr0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932179AbdJURr0 (ORCPT
+Received: from mout.kundenserver.de ([212.227.17.10]:53928 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752356AbdJSPG4 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 21 Oct 2017 13:47:26 -0400
-From: Corentin Labbe <clabbe.montjoie@gmail.com>
-To: wim@iguana.be, linux@roeck-us.net,
-        maxime.ripard@free-electrons.com, wens@csie.org
-Cc: linux-watchdog@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        Corentin Labbe <clabbe.montjoie@gmail.com>
-Subject: [PATCH] watchdog: sunxi_wdt: use of_device_get_match_data
-Date: Sat, 21 Oct 2017 19:45:13 +0200
-Message-Id: <20171021174513.1653-1-clabbe.montjoie@gmail.com>
+        Thu, 19 Oct 2017 11:06:56 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: y2038@lists.linaro.org, xen-devel@lists.xenproject.org,
+        Jan Beulich <JBeulich@suse.com>, Arnd Bergmann <arnd@arndb.de>,
+        Guenter Roeck <linux@roeck-us.net>,
+        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] watchdog: xen: use time64_t for timeouts
+Date: Thu, 19 Oct 2017 17:05:48 +0200
+Message-Id: <20171019150558.3202408-1-arnd@arndb.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The usage of of_device_get_match_data reduce the code size a bit.
-Furthermore, it prevents an improbable dereference when
-of_match_device() return NULL.
+The Xen watchdog driver uses __kernel_time_t and ktime_to_timespec()
+internally for managing its timeouts. Both are deprecated because of
+y2038 problems. The driver itself is fine, since it only uses monotonic
+times, but converting it to use ktime_get_seconds() avoids the deprecated
+interfaces and is slightly simpler.
 
-Signed-off-by: Corentin Labbe <clabbe.montjoie@gmail.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- drivers/watchdog/sunxi_wdt.c | 7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+ drivers/watchdog/xen_wdt.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/watchdog/sunxi_wdt.c b/drivers/watchdog/sunxi_wdt.c
-index 9728fa32c357..802e31b1416d 100644
---- a/drivers/watchdog/sunxi_wdt.c
-+++ b/drivers/watchdog/sunxi_wdt.c
-@@ -234,7 +234,6 @@ MODULE_DEVICE_TABLE(of, sunxi_wdt_dt_ids);
- static int sunxi_wdt_probe(struct platform_device *pdev)
+diff --git a/drivers/watchdog/xen_wdt.c b/drivers/watchdog/xen_wdt.c
+index cf0e650c2015..5dd5c3494d55 100644
+--- a/drivers/watchdog/xen_wdt.c
++++ b/drivers/watchdog/xen_wdt.c
+@@ -35,7 +35,7 @@
+ static struct platform_device *platform_device;
+ static DEFINE_SPINLOCK(wdt_lock);
+ static struct sched_watchdog wdt;
+-static __kernel_time_t wdt_expires;
++static time64_t wdt_expires;
+ static bool is_active, expect_release;
+ 
+ #define WATCHDOG_TIMEOUT 60 /* in seconds */
+@@ -49,15 +49,15 @@ module_param(nowayout, bool, S_IRUGO);
+ MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started "
+ 	"(default=" __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+ 
+-static inline __kernel_time_t set_timeout(void)
++static inline time64_t set_timeout(void)
  {
- 	struct sunxi_wdt_dev *sunxi_wdt;
--	const struct of_device_id *device;
- 	struct resource *res;
+ 	wdt.timeout = timeout;
+-	return ktime_to_timespec(ktime_get()).tv_sec + timeout;
++	return ktime_get_seconds() + timeout;
+ }
+ 
+ static int xen_wdt_start(void)
+ {
+-	__kernel_time_t expires;
++	time64_t expires;
  	int err;
  
-@@ -242,12 +241,10 @@ static int sunxi_wdt_probe(struct platform_device *pdev)
- 	if (!sunxi_wdt)
- 		return -EINVAL;
+ 	spin_lock(&wdt_lock);
+@@ -98,7 +98,7 @@ static int xen_wdt_stop(void)
  
--	device = of_match_device(sunxi_wdt_dt_ids, &pdev->dev);
--	if (!device)
-+	sunxi_wdt->wdt_regs = of_device_get_match_data(&pdev->dev);
-+	if (!sunxi_wdt->wdt_regs)
- 		return -ENODEV;
+ static int xen_wdt_kick(void)
+ {
+-	__kernel_time_t expires;
++	time64_t expires;
+ 	int err;
  
--	sunxi_wdt->wdt_regs = device->data;
--
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	sunxi_wdt->wdt_base = devm_ioremap_resource(&pdev->dev, res);
- 	if (IS_ERR(sunxi_wdt->wdt_base))
+ 	spin_lock(&wdt_lock);
+@@ -222,7 +222,7 @@ static long xen_wdt_ioctl(struct file *file, unsigned int cmd,
+ 		return put_user(timeout, argp);
+ 
+ 	case WDIOC_GETTIMELEFT:
+-		retval = wdt_expires - ktime_to_timespec(ktime_get()).tv_sec;
++		retval = wdt_expires - ktime_get_seconds();
+ 		return put_user(retval, argp);
+ 	}
+ 
 -- 
-2.13.6
+2.9.0
 
