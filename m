@@ -1,90 +1,133 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-qk0-f193.google.com ([209.85.220.193]:53150 "EHLO
-        mail-qk0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751077AbdJRPu0 (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 18 Oct 2017 11:50:26 -0400
-MIME-Version: 1.0
-In-Reply-To: <20171017150812.187a6816af791519294897b6@linux-foundation.org>
-References: <20170411160615.9784-1-andrew.smirnov@gmail.com>
- <01843f95-c62f-7844-70ee-eed3dc7d3c23@roeck-us.net> <CAHQ1cqFqupqUyVUrHcD6AcdyMBS_2f=0AZ-Og1pvQApjWozB_A@mail.gmail.com>
- <20171017150812.187a6816af791519294897b6@linux-foundation.org>
-From: Andrey Smirnov <andrew.smirnov@gmail.com>
-Date: Wed, 18 Oct 2017 08:50:24 -0700
-Message-ID: <CAHQ1cqEVY1_1L8ijbhcTvjGPuFCkytpN25qoUEUcgWFK88y9Fw@mail.gmail.com>
-Subject: Re: [PATCH v2] watchdog: core: Make use of devm_register_reboot_notifier()
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: linux-watchdog@vger.kernel.org, Chris Healy <cphealy@gmail.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Guenter Roeck <linux@roeck-us.net>
-Content-Type: text/plain; charset="UTF-8"
+Received: from mga09.intel.com ([134.134.136.24]:55874 "EHLO mga09.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750829AbdJSAXl (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Wed, 18 Oct 2017 20:23:41 -0400
+From: sathyanarayanan.kuppuswamy@linux.intel.com
+To: a.zummo@towertech.it, x86@kernel.org, wim@iguana.be,
+        mingo@redhat.com, alexandre.belloni@free-electrons.com,
+        qipeng.zha@intel.com, hpa@zytor.com, dvhart@infradead.org,
+        tglx@linutronix.de, lee.jones@linaro.org, andy@infradead.org,
+        souvik.k.chakravarty@intel.com
+Cc: linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-kernel@vger.kernel.org, platform-driver-x86@vger.kernel.org,
+        sathyaosid@gmail.com,
+        Kuppuswamy Sathyanarayanan
+        <sathyanarayanan.kuppuswamy@linux.intel.com>
+Subject: [RFC v6 0/9] SCU/PMC/PUNIT Inter-Processor Communication(IPC) driver cleanup
+Date: Wed, 18 Oct 2017 17:23:03 -0700
+Message-Id: <cover.1508368279.git.sathyanarayanan.kuppuswamy@linux.intel.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, Oct 17, 2017 at 3:08 PM, Andrew Morton
-<akpm@linux-foundation.org> wrote:
-> On Tue, 17 Oct 2017 08:50:12 -0700 Andrey Smirnov <andrew.smirnov@gmail.com> wrote:
->
->> On Sat, Apr 15, 2017 at 11:11 PM, Guenter Roeck <linux@roeck-us.net> wrote:
->> > On 04/11/2017 09:06 AM, Andrey Smirnov wrote:
->> >>
->> >> Save a bit of cleanup code by leveraging newly added
->> >> devm_register_reboot_notifier().
->> >>
->> >> Cc: cphealy@gmail.com
->> >> Cc: linux-kernel@vger.kernel.org
->> >> Cc: Wim Van Sebroeck <wim@iguana.be>
->> >> Cc: Guenter Roeck <linux@roeck-us.net>
->> >> Cc: Andy Shevchenko <andy.shevchenko@gmail.com>
->> >> Cc: Andrew Morton <akpm@linux-foundation.org>
->> >> Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
->> >
->> >
->> > Acked-by: Guenter Roeck <linux@roeck-us.net>
->> >
->>
->> Andrew,
->>
->> This patch can't go in via watchdog tree because it depends on
->> devm_register_reboot_notifier() which is still present only in
->> linux-next, any change you can pull this into linux-next as well?
->
-> That's because I've been sitting on
-> kernel-reboot-add-devm_register_reboot_notifier.patch since March
-> because it has no users.
->
+From: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
 
-Ah! I suspected that was the case.
+Hi All,
 
-> This patch adds a user.  Have you identified other sites which
-> can/should use devm_register_reboot_notifier()?  I guess quite a lot,
-> so it's a matter of alerting developers to the new interface.  I
-> wonder how.  A checkpatch rule would do it, but that's new ground for
-> checkpatch.
->
+Currently intel_pmc_ipc.c, intel_punit_ipc.c, intel_scu_ipc.c drivers implements the same IPC features.
+This code duplication could be avoided if we implement the IPC driver as a generic library and let custom
+device drivers use API provided by generic driver. This patchset mainly addresses this issue.
 
-I can't say I looked for it in every nook and cranny, but I did look
-at ~80% of the results that grepping for "register_reboot_notifier("
-produces and it looked like lion's share of the code calling the
-function didn't have a device to tie the registration lifespan to. For
-dozen or so cases where there was a device to use, majority had the
-call being done in the middle of probe/removal sequence, so it was
-hard to tell if using devm_ version would be possible and if it would
-give any significant benefits code reduction wise. However, there were
-three places that looked like they had a pretty clear case for
-conversion:
+Along with above code duplication issue, This patchset also addresses following issues in intel_pmc_ipc and
+intel_punit_ipc drivers. 
 
-- drivers/input/misc/pm8941-pwrkey.c looked like a poster child for
-the conversion, since the only thing it does in .remov is call
-unregister_reboot_notifier()
-- drivers/soc/lantiq/gphy.c and drivers/rtc/rtc-m41t80.c both looked
-like they can be converted as well
+1. Intel_pmc_ipc.c driver does not use any resource managed (devm_*) calls.
+2. In Intel_pmc_ipc.c driver, dependent devices like PUNIT, Telemetry and iTCO are created manually and uses lot of redundant buffer code.
+3. Global variable is used to store the IPC device structure and it is used across all functions in intel_pmc_ipc.c and intel_punit_ipc.c.
 
-Hope this is helpful.
+More info on Intel IPC device library:
+-------------------------------------
 
-Please, let me know if there's more action I should take about it.
+A generic Intel IPC class driver has been implemented and all common IPC helper functions has been moved to this driver. It exposes APIs to create IPC device channel, send raw IPC command and simple IPC commands. It also creates device attribute to send IPC command from user space.
 
-Thanks,
-Andrey Smirnov
+API for creating a new IPC channel device is,
+
+struct intel_ipc_dev *devm_intel_ipc_dev_create(struct device *dev, const char *devname, struct intel_ipc_dev_cfg *cfg, struct intel_ipc_dev_ops *ops)
+
+The IPC channel drivers (PUNIT/PMC/SCU) when creating a new device can configure their device params like register mapping, irq, irq-mode, channel type,etc  using intel_ipc_dev_cfg and intel_ipc_dev_ops arguments. After a new IPC channel device is created, IPC users can use the generic APIs to make IPC calls.
+
+For example, after using this new model, IPC call to PMC device will look like,
+
+pmc_ipc_dev = intel_ipc_dev_get(INTEL_PMC_IPC_DEV);
+ipc_dev_raw_cmd(pmc_ipc_dev, ipc_raw_cmd);
+intel_ipc_dev_put(pmc_ipc_dev);
+
+I am still testing the driver in different products. But posted it to get some early comments. I also welcome any PMC/PUNIT driver users to check these patches in their product.
+
+Changes since v5:
+ * Added intel_ipc_cmd and intel_ipc_raw_cmd structures.
+ * Fixed some minor style issues.
+ * Rebased "intel_pmc_ipc: Use devm_* calls in driver probe function" patch on top of
+   4.14-rc5 kernel.
+
+Changes since v4:
+ * Pushed "platform/x86: intel_pmc_ipc: Use spin_lock to protect GCR update" patch
+   to the top of the patch list. Also its rebased on top of Andy's review branch.
+
+Changes since v3:
+ * Rebased on top of Andy's review branch.
+ * Fixed resource ioremap warning in intel_punit_ipc.c.
+ * Divided "platform/x86: intel_pmc_ipc: Use regmap calls for GCR updates" patch
+   into two patches. One fixing the existing issue and another to add regmap support.
+ * Fixed error in resource initalization logic in ipc_create_punit_device.
+ * Changed PLATFORM_DEVID_AUTO to PLATFORM_DEVID_NONE in mfd device creation.
+ * Added unique name to PUNIT BIOS, GTD, & ISP regmaps.
+ * Fixed NULL pointer exception in intel_ipc_dev_get().
+ * In intel_ipc_dev.c,
+    * Fixed error in check for duplicate intel_ipc_dev.
+    * Added custom interrupt handler support.
+    * Used char array for error string conversion.
+    * Added put dev support.
+
+Changes since v2:
+ * Refactored intel_scu_ipc.c to use generic IPC device APIs.
+ * Fixed intel_pmc_ipc.c to use pcim_* device managed functions.
+
+Changes since v1:
+ * Merged devm_* changes in pmc_plat_probe and pmc_pci_probe functions into a
+   single patch.
+ * Addressed Andy's comment about keeping the library generic by not implementing
+   the low level reg access calls in intel_ipc_dev.c. This version will start using
+   the regmap pointer provided by channel drivers instead of fixed memory map.
+ * Removed custom IPC APIs in intel_pmc_ipc.c and intel_punit_ipc.c.
+ * Cleaned up IPC driver users to use APIs provided by generic library (intel_ipc_dev.c).
+
+
+
+
+Kuppuswamy Sathyanarayanan (9):
+  platform/x86: intel_pmc_ipc: Use spin_lock to protect GCR updates
+  platform/x86: intel_pmc_ipc: Use devm_* calls in driver probe function
+  platform/x86: intel_punit_ipc: Fix resource ioremap warning
+  platform/x86: intel_pmc_ipc: Use MFD framework to create dependent
+    devices
+  platform/x86: intel_pmc_ipc: Use regmap calls for GCR updates
+  platform: x86: Add generic Intel IPC driver
+  platform/x86: intel_punit_ipc: Use generic intel ipc device calls
+  platform/x86: intel_pmc_ipc: Use generic Intel IPC device calls
+  platform/x86: intel_scu_ipc: Use generic Intel IPC device calls
+
+ arch/x86/include/asm/intel_pmc_ipc.h            |  31 +-
+ arch/x86/include/asm/intel_punit_ipc.h          | 125 ++--
+ arch/x86/include/asm/intel_scu_ipc.h            |  10 +-
+ arch/x86/platform/intel-mid/intel-mid.c         |  15 +-
+ drivers/mfd/intel_soc_pmic_bxtwc.c              |  37 +-
+ drivers/platform/x86/Kconfig                    |  11 +
+ drivers/platform/x86/Makefile                   |   1 +
+ drivers/platform/x86/intel_ipc_dev.c            | 565 ++++++++++++++
+ drivers/platform/x86/intel_pmc_ipc.c            | 952 +++++++++---------------
+ drivers/platform/x86/intel_punit_ipc.c          | 307 +++-----
+ drivers/platform/x86/intel_scu_ipc.c            | 487 +++++-------
+ drivers/platform/x86/intel_telemetry_pltdrv.c   | 229 +++---
+ drivers/rtc/rtc-mrst.c                          |  16 +-
+ drivers/watchdog/intel-mid_wdt.c                |  18 +-
+ drivers/watchdog/intel_scu_watchdog.c           |  23 +-
+ include/linux/mfd/intel_soc_pmic.h              |   2 +
+ include/linux/platform_data/x86/intel_ipc_dev.h | 246 ++++++
+ 17 files changed, 1752 insertions(+), 1323 deletions(-)
+ create mode 100644 drivers/platform/x86/intel_ipc_dev.c
+ create mode 100644 include/linux/platform_data/x86/intel_ipc_dev.h
+
+-- 
+2.7.4
+
