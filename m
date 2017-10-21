@@ -1,20 +1,20 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pg0-f66.google.com ([74.125.83.66]:45449 "EHLO
-        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751656AbdJUCZX (ORCPT
+Received: from mail-pf0-f195.google.com ([209.85.192.195]:44550 "EHLO
+        mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751885AbdJUChZ (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 20 Oct 2017 22:25:23 -0400
-Subject: Re: [PATCH 1/3] watchdog: hpwdt: add ioctl WDIOC_GETPRETIMEOUT
+        Fri, 20 Oct 2017 22:37:25 -0400
+Subject: Re: [PATCH 2/3] watchdog: hpwdt: SMBIOS check
 To: Jerry Hoemann <jerry.hoemann@hpe.com>, wim@iguana.be
 Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
 References: <cover.1508539271.git.jerry.hoemann@hpe.com>
- <fdb84d723278f8f198a59f79e31d8903870fb2a0.1508539271.git.jerry.hoemann@hpe.com>
+ <edf5fbe55bc25680926f1526145584bd33b05ff3.1508539271.git.jerry.hoemann@hpe.com>
 From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <a9e00af0-8239-d5cb-078c-06f3388810cf@roeck-us.net>
-Date: Fri, 20 Oct 2017 19:25:20 -0700
+Message-ID: <c27c64af-6006-7bb1-deff-eb0ef65b87f2@roeck-us.net>
+Date: Fri, 20 Oct 2017 19:37:21 -0700
 MIME-Version: 1.0
-In-Reply-To: <fdb84d723278f8f198a59f79e31d8903870fb2a0.1508539271.git.jerry.hoemann@hpe.com>
+In-Reply-To: <edf5fbe55bc25680926f1526145584bd33b05ff3.1508539271.git.jerry.hoemann@hpe.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -22,45 +22,36 @@ Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
 On 10/20/2017 03:54 PM, Jerry Hoemann wrote:
-> Add support for WDIOC_GETPRETIMEOUT ioctl so that user applications
-> can determine when the NMI should arrive.
+> Correct test on SMBIOS table 219 Misc Features bits for UEFI supported.
 > 
+Please explain in more detail. There is no table 219 in the SMBIOS specification.
+There is table 9, BIOS Characteristics Extension Byte 2, which specifies bit 3
+as "UEFI Specification is supported.", but nothing that really maps to the
+other byte, and no "misc features". Maybe this is HP specific, but then we'll
+need to have much better explanation.
+
 > Signed-off-by: Jerry Hoemann <jerry.hoemann@hpe.com>
 > ---
->   drivers/watchdog/hpwdt.c | 7 +++++++
->   1 file changed, 7 insertions(+)
+>   drivers/watchdog/hpwdt.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
 > 
 > diff --git a/drivers/watchdog/hpwdt.c b/drivers/watchdog/hpwdt.c
-> index 67fbe35..ef54b03 100644
+> index ef54b03..4c011e8 100644
 > --- a/drivers/watchdog/hpwdt.c
 > +++ b/drivers/watchdog/hpwdt.c
-> @@ -50,6 +50,7 @@
->   static bool nowayout = WATCHDOG_NOWAYOUT;
->   static char expect_release;
->   static unsigned long hpwdt_is_open;
-> +static const int pretimeout = 9;
->   
->   static void __iomem *pci_mem_addr;		/* the PCI-memory address */
->   static unsigned long __iomem *hpwdt_timer_reg;
-> @@ -622,6 +623,12 @@ static long hpwdt_ioctl(struct file *file, unsigned int cmd,
->   		}
->   		break;
->   
-> +	case WDIOC_GETPRETIMEOUT:
-> +		ret = copy_to_user(argp, &pretimeout, sizeof(pretimeout));
-> +		if (ret)
-> +			ret = -EFAULT;
-> +		break;
-> +
->   	case WDIOC_SETTIMEOUT:
->   		ret = get_user(new_margin, p);
->   		if (ret)
+> @@ -707,7 +707,7 @@ static void dmi_find_icru(const struct dmi_header *dm, void *dummy)
+>   		smbios_proliant_ptr = (struct smbios_proliant_info *) dm;
+>   		if (smbios_proliant_ptr->misc_features & 0x01)
+>   			is_icru = 1;
+> -		if (smbios_proliant_ptr->misc_features & 0x408)
+> +		if (smbios_proliant_ptr->misc_features & 0x1400)
+>   			is_uefi = 1;
+>   	}
+>   }
 > 
-
-Can you please convert the driver to use the watchdog subsystem instead ?
-If there are still improvements needed afterwards, they can still be
-implemented, but we really should not make improvements which are
-already supported by the watchdog core.
+Presumably patch 2/3 and 3/3 are bug fixs and should come first
+so they can be applied to stable releases.
 
 Thanks,
 Guenter
+
