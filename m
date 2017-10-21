@@ -1,90 +1,60 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pg0-f68.google.com ([74.125.83.68]:48191 "EHLO
-        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751417AbdJSPvL (ORCPT
+Received: from smtprelay0127.hostedemail.com ([216.40.44.127]:33109 "EHLO
+        smtprelay.hostedemail.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S932254AbdJUXnw (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 19 Oct 2017 11:51:11 -0400
-Date: Thu, 19 Oct 2017 08:51:10 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Wim Van Sebroeck <wim@iguana.be>, y2038@lists.linaro.org,
-        xen-devel@lists.xenproject.org, Jan Beulich <JBeulich@suse.com>,
-        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] watchdog: xen: use time64_t for timeouts
-Message-ID: <20171019155110.GB2962@roeck-us.net>
-References: <20171019150558.3202408-1-arnd@arndb.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20171019150558.3202408-1-arnd@arndb.de>
+        Sat, 21 Oct 2017 19:43:52 -0400
+Received: from smtprelay.hostedemail.com (10.5.19.251.rfc1918.com [10.5.19.251])
+        by smtpgrave07.hostedemail.com (Postfix) with ESMTP id 1CCC11801BB64
+        for <linux-watchdog@vger.kernel.org>; Sat, 21 Oct 2017 23:34:11 +0000 (UTC)
+Message-ID: <1508628846.14611.2.camel@perches.com>
+Subject: Re: [v8,4/5] watchdog: Add RAVE SP watchdog driver
+From: Joe Perches <joe@perches.com>
+To: Guenter Roeck <linux@roeck-us.net>,
+        Andrey Smirnov <andrew.smirnov@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        cphealy@gmail.com, Lucas Stach <l.stach@pengutronix.de>,
+        Nikita Yushchenko <nikita.yoush@cogentembedded.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Pavel Machek <pavel@ucw.cz>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Rob Herring <robh@kernel.org>, Johan Hovold <johan@kernel.org>
+Date: Sat, 21 Oct 2017 16:34:06 -0700
+In-Reply-To: <20171021164730.GA20402@roeck-us.net>
+References: <20171018170136.12347-5-andrew.smirnov@gmail.com>
+         <20171021164730.GA20402@roeck-us.net>
+Content-Type: text/plain; charset="ISO-8859-1"
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Thu, Oct 19, 2017 at 05:05:48PM +0200, Arnd Bergmann wrote:
-> The Xen watchdog driver uses __kernel_time_t and ktime_to_timespec()
-> internally for managing its timeouts. Both are deprecated because of
-> y2038 problems. The driver itself is fine, since it only uses monotonic
-> times, but converting it to use ktime_get_seconds() avoids the deprecated
-> interfaces and is slightly simpler.
+On Sat, 2017-10-21 at 09:47 -0700, Guenter Roeck wrote:
+> On Wed, Oct 18, 2017 at 10:01:35AM -0700, Andrey Smirnov wrote:
+> > This driver provides access to RAVE SP watchdog functionality.
+[]
+> > +static int rave_sp_wdt_legacy_configure(struct watchdog_device *wdd)
+> > +{
+> > +	const bool enable = watchdog_hw_running(wdd);
+> > +	u8 cmd[] = {
+> > +		[0] = RAVE_SP_CMD_SW_WDT,
+> > +		[1] = 0,
+> > +		[2] = 0,
+> > +		[3] = !!enable,
 > 
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> Useless !!. It converts a boolean to a boolean. Besides, isn't it always
+> true anyway ?
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+This converts a _Bool to an int which is cast to a u8
+The !! is useless though.
 
-> ---
->  drivers/watchdog/xen_wdt.c | 12 ++++++------
->  1 file changed, 6 insertions(+), 6 deletions(-)
+> > +		[4] = enable ? wdd->timeout : 0,
+> > +	};
 > 
-> diff --git a/drivers/watchdog/xen_wdt.c b/drivers/watchdog/xen_wdt.c
-> index cf0e650c2015..5dd5c3494d55 100644
-> --- a/drivers/watchdog/xen_wdt.c
-> +++ b/drivers/watchdog/xen_wdt.c
-> @@ -35,7 +35,7 @@
->  static struct platform_device *platform_device;
->  static DEFINE_SPINLOCK(wdt_lock);
->  static struct sched_watchdog wdt;
-> -static __kernel_time_t wdt_expires;
-> +static time64_t wdt_expires;
->  static bool is_active, expect_release;
->  
->  #define WATCHDOG_TIMEOUT 60 /* in seconds */
-> @@ -49,15 +49,15 @@ module_param(nowayout, bool, S_IRUGO);
->  MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started "
->  	"(default=" __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
->  
-> -static inline __kernel_time_t set_timeout(void)
-> +static inline time64_t set_timeout(void)
->  {
->  	wdt.timeout = timeout;
-> -	return ktime_to_timespec(ktime_get()).tv_sec + timeout;
-> +	return ktime_get_seconds() + timeout;
->  }
->  
->  static int xen_wdt_start(void)
->  {
-> -	__kernel_time_t expires;
-> +	time64_t expires;
->  	int err;
->  
->  	spin_lock(&wdt_lock);
-> @@ -98,7 +98,7 @@ static int xen_wdt_stop(void)
->  
->  static int xen_wdt_kick(void)
->  {
-> -	__kernel_time_t expires;
-> +	time64_t expires;
->  	int err;
->  
->  	spin_lock(&wdt_lock);
-> @@ -222,7 +222,7 @@ static long xen_wdt_ioctl(struct file *file, unsigned int cmd,
->  		return put_user(timeout, argp);
->  
->  	case WDIOC_GETTIMELEFT:
-> -		retval = wdt_expires - ktime_to_timespec(ktime_get()).tv_sec;
-> +		retval = wdt_expires - ktime_get_seconds();
->  		return put_user(retval, argp);
->  	}
->  
-> -- 
-> 2.9.0
-> 
+> Interesting; checkpatch doesn't require an empty line after variable
+> declarations anymore ? Lets keep it anyway for consistency.
+
+checkpatch is primarily a single line oriented parser.
+Multi-line declarations aren't parsed.
+
