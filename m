@@ -1,66 +1,80 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pf0-f194.google.com ([209.85.192.194]:43488 "EHLO
-        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751020AbdJVQNf (ORCPT
+Received: from mail-pg0-f65.google.com ([74.125.83.65]:53438 "EHLO
+        mail-pg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751422AbdJVRju (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 22 Oct 2017 12:13:35 -0400
-Date: Sun, 22 Oct 2017 09:13:33 -0700
+        Sun, 22 Oct 2017 13:39:50 -0400
+Received: by mail-pg0-f65.google.com with SMTP id s2so10066094pge.10
+        for <linux-watchdog@vger.kernel.org>; Sun, 22 Oct 2017 10:39:50 -0700 (PDT)
+Date: Sun, 22 Oct 2017 10:39:48 -0700
 From: Guenter Roeck <linux@roeck-us.net>
-To: Andrew Jeffery <andrew@aj.id.au>
-Cc: linux-watchdog@vger.kernel.org, wim@iguana.be, joel@jms.id.au,
-        linux-kernel@vger.kernel.org, openbmc@lists.ozlabs.org,
-        linux-aspeed@lists.ozlabs.org, ryan_chen@aspeedtech.com
-Subject: Re: [v2,4/4] watchdog: aspeed: Move init to arch_initcall
-Message-ID: <20171022161333.GA20816@roeck-us.net>
-References: <20170920053020.6860-5-andrew@aj.id.au>
+To: Michael Grzeschik <m.grzeschik@pengutronix.de>
+Cc: linux-watchdog@vger.kernel.org, lee.jones@linaro.org,
+        support.opensource@diasemi.com, wim@iguana.be,
+        kernel@pengutronix.de
+Subject: Re: [5/6] watchdog: da9062: use protection delay mechanism from core
+Message-ID: <20171022173948.GA20371@roeck-us.net>
+References: <20171017153027.24665-6-m.grzeschik@pengutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20170920053020.6860-5-andrew@aj.id.au>
+In-Reply-To: <20171017153027.24665-6-m.grzeschik@pengutronix.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Sep 20, 2017 at 03:00:20PM +0930, Andrew Jeffery wrote:
-> Probing at device_initcall time lead to perverse cases where the
-> watchdog was probed after, say, I2C devices, which then leaves a
-> potentially running watchdog at the mercy of I2C device behaviour and
-> bus conditions.
+On Tue, Oct 17, 2017 at 05:30:26PM +0200, Michael Grzeschik wrote:
+> This patch removes the windows protection routine that got
+> now covered by the wdt core.
 > 
-> Load the watchdog driver early to ensure that the kernel is patting it
-> well before initialising peripherals.
-> 
-> Signed-off-by: Andrew Jeffery <andrew@aj.id.au>
-
-At some point we'll need to come up with a generic means to handle those
-situations. Until then, I don't have a better idea.
+> Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
 
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
 > ---
->  drivers/watchdog/aspeed_wdt.c | 13 ++++++++++++-
->  1 file changed, 12 insertions(+), 1 deletion(-)
+>  drivers/watchdog/da9062_wdt.c | 19 +------------------
+>  1 file changed, 1 insertion(+), 18 deletions(-)
 > 
-> diff --git a/drivers/watchdog/aspeed_wdt.c b/drivers/watchdog/aspeed_wdt.c
-> index 6c6dd3f4c48d..ca5b91e2eb92 100644
-> --- a/drivers/watchdog/aspeed_wdt.c
-> +++ b/drivers/watchdog/aspeed_wdt.c
-> @@ -316,7 +316,18 @@ static struct platform_driver aspeed_watchdog_driver = {
->  		.of_match_table = of_match_ptr(aspeed_wdt_of_table),
->  	},
->  };
-> -module_platform_driver(aspeed_watchdog_driver);
-> +
-> +static int __init aspeed_wdt_init(void)
-> +{
-> +	return platform_driver_register(&aspeed_watchdog_driver);
-> +}
-> +arch_initcall(aspeed_wdt_init);
-> +
-> +static void __exit aspeed_wdt_exit(void)
-> +{
-> +	platform_driver_unregister(&aspeed_watchdog_driver);
-> +}
-> +module_exit(aspeed_wdt_exit);
+> diff --git a/drivers/watchdog/da9062_wdt.c b/drivers/watchdog/da9062_wdt.c
+> index d43e0c46e23fb..8297bcf0b9f75 100644
+> --- a/drivers/watchdog/da9062_wdt.c
+> +++ b/drivers/watchdog/da9062_wdt.c
+> @@ -46,22 +46,6 @@ static void da9062_set_window_start(struct da9062_watchdog *wdt)
+>  	wdt->j_time_stamp = jiffies;
+>  }
 >  
->  MODULE_DESCRIPTION("Aspeed Watchdog Driver");
->  MODULE_LICENSE("GPL");
+> -static void da9062_apply_window_protection(struct da9062_watchdog *wdt)
+> -{
+> -	unsigned long delay = msecs_to_jiffies(DA9062_RESET_PROTECTION_MS);
+> -	unsigned long timeout = wdt->j_time_stamp + delay;
+> -	unsigned long now = jiffies;
+> -	unsigned int diff_ms;
+> -
+> -	/* if time-limit has not elapsed then wait for remainder */
+> -	if (time_before(now, timeout)) {
+> -		diff_ms = jiffies_to_msecs(timeout-now);
+> -		dev_dbg(wdt->hw->dev,
+> -			"Kicked too quickly. Delaying %u msecs\n", diff_ms);
+> -		msleep(diff_ms);
+> -	}
+> -}
+> -
+>  static unsigned int da9062_wdt_timeout_to_sel(unsigned int secs)
+>  {
+>  	unsigned int i;
+> @@ -78,8 +62,6 @@ static int da9062_reset_watchdog_timer(struct da9062_watchdog *wdt)
+>  {
+>  	int ret;
+>  
+> -	da9062_apply_window_protection(wdt);
+> -
+>  	ret = regmap_update_bits(wdt->hw->regmap,
+>  			   DA9062AA_CONTROL_F,
+>  			   DA9062AA_WATCHDOG_MASK,
+> @@ -256,6 +238,7 @@ static int da9062_wdt_probe(struct platform_device *pdev)
+>  	wdt->wdtdev.ops = &da9062_watchdog_ops;
+>  	wdt->wdtdev.min_timeout = DA9062_WDT_MIN_TIMEOUT;
+>  	wdt->wdtdev.max_timeout = DA9062_WDT_MAX_TIMEOUT;
+> +	wdt->wdtdev.min_hw_heartbeat_ms = DA9062_RESET_PROTECTION_MS;
+>  	wdt->wdtdev.timeout = DA9062_WDG_DEFAULT_TIMEOUT;
+>  	wdt->wdtdev.status = WATCHDOG_NOWAYOUT_INIT_STATUS;
+>  	wdt->wdtdev.parent = &pdev->dev;
