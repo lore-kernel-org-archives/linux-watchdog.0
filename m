@@ -1,54 +1,62 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pg0-f68.google.com ([74.125.83.68]:55332 "EHLO
-        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751422AbdJVRmj (ORCPT
+Received: from mail-pf0-f194.google.com ([209.85.192.194]:52226 "EHLO
+        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751422AbdJVRoS (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 22 Oct 2017 13:42:39 -0400
-Received: by mail-pg0-f68.google.com with SMTP id 15so5399809pgc.12
-        for <linux-watchdog@vger.kernel.org>; Sun, 22 Oct 2017 10:42:38 -0700 (PDT)
-Date: Sun, 22 Oct 2017 10:42:37 -0700
+        Sun, 22 Oct 2017 13:44:18 -0400
+Date: Sun, 22 Oct 2017 10:44:16 -0700
 From: Guenter Roeck <linux@roeck-us.net>
-To: Michael Grzeschik <m.grzeschik@pengutronix.de>
-Cc: linux-watchdog@vger.kernel.org, lee.jones@linaro.org,
-        support.opensource@diasemi.com, wim@iguana.be,
-        kernel@pengutronix.de
-Subject: Re: [6/6] watchdog: da9062: add protective delay before stop
-Message-ID: <20171022174237.GA20542@roeck-us.net>
-References: <20171017153027.24665-7-m.grzeschik@pengutronix.de>
+To: Corentin Labbe <clabbe.montjoie@gmail.com>
+Cc: wim@iguana.be, maxime.ripard@free-electrons.com, wens@csie.org,
+        linux-watchdog@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: watchdog: sunxi_wdt: use of_device_get_match_data
+Message-ID: <20171022174416.GA21100@roeck-us.net>
+References: <20171021174513.1653-1-clabbe.montjoie@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20171017153027.24665-7-m.grzeschik@pengutronix.de>
+In-Reply-To: <20171021174513.1653-1-clabbe.montjoie@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, Oct 17, 2017 at 05:30:27PM +0200, Michael Grzeschik wrote:
-> In case some application was writing to the watchdog before closing we
-> have to ensure that we add enough delay before writing again to the
-> DA9062AA_CONTROL_F register. The delay otherwise can only be ensured by
-> min_hw_heartbeat_ms for pings.
+On Sat, Oct 21, 2017 at 07:45:13PM +0200, Corentin Labbe wrote:
+> The usage of of_device_get_match_data reduce the code size a bit.
+> Furthermore, it prevents an improbable dereference when
+> of_match_device() return NULL.
 > 
-> Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
+> Signed-off-by: Corentin Labbe <clabbe.montjoie@gmail.com>
+
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+
 > ---
->  drivers/watchdog/da9062_wdt.c | 2 ++
->  1 file changed, 2 insertions(+)
+>  drivers/watchdog/sunxi_wdt.c | 7 ++-----
+>  1 file changed, 2 insertions(+), 5 deletions(-)
 > 
-> diff --git a/drivers/watchdog/da9062_wdt.c b/drivers/watchdog/da9062_wdt.c
-> index 8297bcf0b9f75..1fe88826c6981 100644
-> --- a/drivers/watchdog/da9062_wdt.c
-> +++ b/drivers/watchdog/da9062_wdt.c
-> @@ -129,6 +129,8 @@ static int da9062_wdt_stop(struct watchdog_device *wdd)
->  	struct da9062_watchdog *wdt = watchdog_get_drvdata(wdd);
->  	int ret;
+> diff --git a/drivers/watchdog/sunxi_wdt.c b/drivers/watchdog/sunxi_wdt.c
+> index 9728fa32c357..802e31b1416d 100644
+> --- a/drivers/watchdog/sunxi_wdt.c
+> +++ b/drivers/watchdog/sunxi_wdt.c
+> @@ -234,7 +234,6 @@ MODULE_DEVICE_TABLE(of, sunxi_wdt_dt_ids);
+>  static int sunxi_wdt_probe(struct platform_device *pdev)
+>  {
+>  	struct sunxi_wdt_dev *sunxi_wdt;
+> -	const struct of_device_id *device;
+>  	struct resource *res;
+>  	int err;
 >  
-> +	mdelay(DA9062_RESET_PROTECTION_MS);
-> +
-
-Please use msleep() here. A 300ms hot loop is a bit excessive.
-
-Thanks,
-Guenter
-
->  	ret = da9062_reset_watchdog_timer(wdt);
->  	if (ret) {
->  		dev_err(wdt->hw->dev, "Failed to ping the watchdog (err = %d)\n",
+> @@ -242,12 +241,10 @@ static int sunxi_wdt_probe(struct platform_device *pdev)
+>  	if (!sunxi_wdt)
+>  		return -EINVAL;
+>  
+> -	device = of_match_device(sunxi_wdt_dt_ids, &pdev->dev);
+> -	if (!device)
+> +	sunxi_wdt->wdt_regs = of_device_get_match_data(&pdev->dev);
+> +	if (!sunxi_wdt->wdt_regs)
+>  		return -ENODEV;
+>  
+> -	sunxi_wdt->wdt_regs = device->data;
+> -
+>  	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+>  	sunxi_wdt->wdt_base = devm_ioremap_resource(&pdev->dev, res);
+>  	if (IS_ERR(sunxi_wdt->wdt_base))
