@@ -1,60 +1,63 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from smtprelay0127.hostedemail.com ([216.40.44.127]:33109 "EHLO
-        smtprelay.hostedemail.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S932254AbdJUXnw (ORCPT
+Received: from mail-pf0-f195.google.com ([209.85.192.195]:52267 "EHLO
+        mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751353AbdJVQJX (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 21 Oct 2017 19:43:52 -0400
-Received: from smtprelay.hostedemail.com (10.5.19.251.rfc1918.com [10.5.19.251])
-        by smtpgrave07.hostedemail.com (Postfix) with ESMTP id 1CCC11801BB64
-        for <linux-watchdog@vger.kernel.org>; Sat, 21 Oct 2017 23:34:11 +0000 (UTC)
-Message-ID: <1508628846.14611.2.camel@perches.com>
-Subject: Re: [v8,4/5] watchdog: Add RAVE SP watchdog driver
-From: Joe Perches <joe@perches.com>
-To: Guenter Roeck <linux@roeck-us.net>,
-        Andrey Smirnov <andrew.smirnov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        cphealy@gmail.com, Lucas Stach <l.stach@pengutronix.de>,
-        Nikita Yushchenko <nikita.yoush@cogentembedded.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Pavel Machek <pavel@ucw.cz>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Rob Herring <robh@kernel.org>, Johan Hovold <johan@kernel.org>
-Date: Sat, 21 Oct 2017 16:34:06 -0700
-In-Reply-To: <20171021164730.GA20402@roeck-us.net>
-References: <20171018170136.12347-5-andrew.smirnov@gmail.com>
-         <20171021164730.GA20402@roeck-us.net>
-Content-Type: text/plain; charset="ISO-8859-1"
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+        Sun, 22 Oct 2017 12:09:23 -0400
+Date: Sun, 22 Oct 2017 09:09:21 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Andrew Jeffery <andrew@aj.id.au>
+Cc: linux-watchdog@vger.kernel.org, wim@iguana.be, joel@jms.id.au,
+        linux-kernel@vger.kernel.org, openbmc@lists.ozlabs.org,
+        linux-aspeed@lists.ozlabs.org, ryan_chen@aspeedtech.com
+Subject: Re: [v2,1/4] watchdog: aspeed: Retain watchdog enabled state
+Message-ID: <20171022160921.GA12755@roeck-us.net>
+References: <20170920053020.6860-2-andrew@aj.id.au>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20170920053020.6860-2-andrew@aj.id.au>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Sat, 2017-10-21 at 09:47 -0700, Guenter Roeck wrote:
-> On Wed, Oct 18, 2017 at 10:01:35AM -0700, Andrey Smirnov wrote:
-> > This driver provides access to RAVE SP watchdog functionality.
-[]
-> > +static int rave_sp_wdt_legacy_configure(struct watchdog_device *wdd)
-> > +{
-> > +	const bool enable = watchdog_hw_running(wdd);
-> > +	u8 cmd[] = {
-> > +		[0] = RAVE_SP_CMD_SW_WDT,
-> > +		[1] = 0,
-> > +		[2] = 0,
-> > +		[3] = !!enable,
+On Wed, Sep 20, 2017 at 03:00:17PM +0930, Andrew Jeffery wrote:
+> An unintended post-condition of probe() is that the watchdog is
+> disabled. This behaviour was introduced by an unnecessary write to the
+> control register to configure the hardware based on the devicetree. The
+> write is unnecessary because the cached control value that is
+> manipulated by the code parsing the devicetree is eventually written by
+> aspeed_wdt_enable(), which is when we care how the control register
+> should be configured.
 > 
-> Useless !!. It converts a boolean to a boolean. Besides, isn't it always
-> true anyway ?
-
-This converts a _Bool to an int which is cast to a u8
-The !! is useless though.
-
-> > +		[4] = enable ? wdd->timeout : 0,
-> > +	};
+> Remove the write to restore expected behaviour.
 > 
-> Interesting; checkpatch doesn't require an empty line after variable
-> declarations anymore ? Lets keep it anyway for consistency.
+> Fixes: b7f0b8ad25f3 ("drivers/watchdog: ASPEED reference dev tree properties for config")
+> Signed-off-by: Andrew Jeffery <andrew@aj.id.au>
+> Reviewed-by: Joel Stanley <joel@jms.id.au>
 
-checkpatch is primarily a single line oriented parser.
-Multi-line declarations aren't parsed.
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
+> ---
+>  drivers/watchdog/aspeed_wdt.c | 8 ++++++--
+>  1 file changed, 6 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/watchdog/aspeed_wdt.c b/drivers/watchdog/aspeed_wdt.c
+> index 79cc766cd30f..6c6dd3f4c48d 100644
+> --- a/drivers/watchdog/aspeed_wdt.c
+> +++ b/drivers/watchdog/aspeed_wdt.c
+> @@ -243,9 +243,13 @@ static int aspeed_wdt_probe(struct platform_device *pdev)
+>  	if (of_property_read_bool(np, "aspeed,external-signal"))
+>  		wdt->ctrl |= WDT_CTRL_WDT_EXT;
+>  
+> -	writel(wdt->ctrl, wdt->base + WDT_CTRL);
+> -
+>  	if (readl(wdt->base + WDT_CTRL) & WDT_CTRL_ENABLE)  {
+> +		/*
+> +		 * The watchdog is running, but invoke aspeed_wdt_start() to
+> +		 * write wdt->ctrl to WDT_CTRL to ensure the watchdog's
+> +		 * configuration conforms to the driver's expectations.
+> +		 * Primarily, ensure we're using the 1MHz clock source.
+> +		 */
+>  		aspeed_wdt_start(&wdt->wdd);
+>  		set_bit(WDOG_HW_RUNNING, &wdt->wdd.status);
+>  	}
