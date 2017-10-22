@@ -1,13 +1,13 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pg0-f66.google.com ([74.125.83.66]:54780 "EHLO
-        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751497AbdJVRbU (ORCPT
+Received: from mail-pf0-f194.google.com ([209.85.192.194]:50667 "EHLO
+        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751721AbdJVRTz (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 22 Oct 2017 13:31:20 -0400
-Received: by mail-pg0-f66.google.com with SMTP id l24so10061972pgu.11
-        for <linux-watchdog@vger.kernel.org>; Sun, 22 Oct 2017 10:31:19 -0700 (PDT)
-Date: Sun, 22 Oct 2017 10:31:18 -0700
+        Sun, 22 Oct 2017 13:19:55 -0400
+Received: by mail-pf0-f194.google.com with SMTP id b6so15435673pfh.7
+        for <linux-watchdog@vger.kernel.org>; Sun, 22 Oct 2017 10:19:55 -0700 (PDT)
+Date: Sun, 22 Oct 2017 10:19:54 -0700
 From: Guenter Roeck <linux@roeck-us.net>
 To: Linus Walleij <linus.walleij@linaro.org>
 Cc: Wim Van Sebroeck <wim@iguana.be>,
@@ -16,20 +16,25 @@ Cc: Wim Van Sebroeck <wim@iguana.be>,
         Joel Stanley <joel@jms.id.au>,
         linux-arm-kernel@lists.infradead.org,
         linux-watchdog@vger.kernel.org
-Subject: Re: [5/5,v2] watchdog: ftwdt010: Add restart support
-Message-ID: <20171022173118.GA17800@roeck-us.net>
-References: <20171016205427.4297-5-linus.walleij@linaro.org>
+Subject: Re: [3/5,v2] watchdog: ftwdt010: Make interrupt optional
+Message-ID: <20171022171954.GA17141@roeck-us.net>
+References: <20171016205427.4297-3-linus.walleij@linaro.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20171016205427.4297-5-linus.walleij@linaro.org>
+In-Reply-To: <20171016205427.4297-3-linus.walleij@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Oct 16, 2017 at 10:54:27PM +0200, Linus Walleij wrote:
-> This enables the Faraday FTWDT010 to restart the system,
-> if need be. Set the restart priority for the watchdog to
-> 128.
+On Mon, Oct 16, 2017 at 10:54:25PM +0200, Linus Walleij wrote:
+> The Moxart does not appear to be using the interrupt from the
+> watchdog timer, maybe it's not even routed, so as to support
+> more architectures with this driver, make the interrupt
+> optional.
+> 
+> While we are at it: actually enable the use of the interrupt
+> if present by setting the right bit in the control register
+> and define the missing control register bits.
 > 
 > Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 
@@ -37,51 +42,81 @@ Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
 > ---
 > ChangeLog v1->v2:
-> - Rebased, no changes.
+> - Fix surplus flag assignment of enable |= WDCR_CLOCK_5MHZ
 > ---
->  drivers/watchdog/ftwdt010_wdt.c | 18 ++++++++++++++++++
->  1 file changed, 18 insertions(+)
+>  drivers/watchdog/ftwdt010_wdt.c | 30 ++++++++++++++++++------------
+>  1 file changed, 18 insertions(+), 12 deletions(-)
 > 
 > diff --git a/drivers/watchdog/ftwdt010_wdt.c b/drivers/watchdog/ftwdt010_wdt.c
-> index 21c3ac7f557a..0be7c2db642d 100644
+> index 637ffd812f0b..a9c2912ee280 100644
 > --- a/drivers/watchdog/ftwdt010_wdt.c
 > +++ b/drivers/watchdog/ftwdt010_wdt.c
-> @@ -56,6 +56,22 @@ struct ftwdt010_wdt *to_ftwdt010_wdt(struct watchdog_device *wdd)
->  	return container_of(wdd, struct ftwdt010_wdt, wdd);
->  }
+> @@ -30,6 +30,8 @@
+>  #define WDRESTART_MAGIC		0x5AB9
 >  
-> +static int ftwdt010_wdt_restart(struct watchdog_device *wdd,
-> +				unsigned long action, void *data)
-> +{
-> +	struct ftwdt010_wdt *gwdt = to_ftwdt010_wdt(wdd);
-> +	u32 enable;
-> +
-> +	writel(1, gwdt->base + FTWDT010_WDLOAD);
-> +	writel(WDRESTART_MAGIC, gwdt->base + FTWDT010_WDRESTART);
-> +	enable = WDCR_SYS_RST | WDCR_ENABLE;
-> +	if (gwdt->use_extclk)
-> +		enable |= WDCR_EXTCLK;
-> +	writel(enable, gwdt->base + FTWDT010_WDCR);
-> +
-> +	return 0;
-> +}
-> +
+>  #define WDCR_CLOCK_5MHZ		BIT(4)
+> +#define WDCR_WDEXT		BIT(3)
+> +#define WDCR_WDINTR		BIT(2)
+>  #define WDCR_SYS_RST		BIT(1)
+>  #define WDCR_ENABLE		BIT(0)
+>  
+> @@ -39,6 +41,7 @@ struct ftwdt010_wdt {
+>  	struct watchdog_device	wdd;
+>  	struct device		*dev;
+>  	void __iomem		*base;
+> +	bool			has_irq;
+>  };
+>  
+>  static inline
+> @@ -50,14 +53,17 @@ struct ftwdt010_wdt *to_ftwdt010_wdt(struct watchdog_device *wdd)
 >  static int ftwdt010_wdt_start(struct watchdog_device *wdd)
 >  {
 >  	struct ftwdt010_wdt *gwdt = to_ftwdt010_wdt(wdd);
-> @@ -118,6 +134,7 @@ static const struct watchdog_ops ftwdt010_wdt_ops = {
->  	.stop		= ftwdt010_wdt_stop,
->  	.ping		= ftwdt010_wdt_ping,
->  	.set_timeout	= ftwdt010_wdt_set_timeout,
-> +	.restart	= ftwdt010_wdt_restart,
->  	.owner		= THIS_MODULE,
->  };
+> +	u32 enable;
 >  
-> @@ -190,6 +207,7 @@ static int ftwdt010_wdt_probe(struct platform_device *pdev)
->  	 */
->  	gwdt->wdd.timeout = 13U;
->  	watchdog_init_timeout(&gwdt->wdd, 0, dev);
-> +	watchdog_set_restart_priority(&gwdt->wdd, 128);
+>  	writel(wdd->timeout * WDT_CLOCK, gwdt->base + FTWDT010_WDLOAD);
+>  	writel(WDRESTART_MAGIC, gwdt->base + FTWDT010_WDRESTART);
+>  	/* set clock before enabling */
+> -	writel(WDCR_CLOCK_5MHZ | WDCR_SYS_RST,
+> -			gwdt->base + FTWDT010_WDCR);
+> -	writel(WDCR_CLOCK_5MHZ | WDCR_SYS_RST | WDCR_ENABLE,
+> -			gwdt->base + FTWDT010_WDCR);
+> +	enable = WDCR_CLOCK_5MHZ | WDCR_SYS_RST;
+> +	writel(enable, gwdt->base + FTWDT010_WDCR);
+> +	if (gwdt->has_irq)
+> +		enable |= WDCR_WDINTR;
+> +	enable |= WDCR_ENABLE;
+> +	writel(enable, gwdt->base + FTWDT010_WDCR);
 >  
->  	reg = readw(gwdt->base + FTWDT010_WDCR);
->  	if (reg & WDCR_ENABLE) {
+>  	return 0;
+>  }
+> @@ -133,10 +139,6 @@ static int ftwdt010_wdt_probe(struct platform_device *pdev)
+>  	if (IS_ERR(gwdt->base))
+>  		return PTR_ERR(gwdt->base);
+>  
+> -	irq = platform_get_irq(pdev, 0);
+> -	if (!irq)
+> -		return -EINVAL;
+> -
+>  	gwdt->dev = dev;
+>  	gwdt->wdd.info = &ftwdt010_wdt_info;
+>  	gwdt->wdd.ops = &ftwdt010_wdt_ops;
+> @@ -158,10 +160,14 @@ static int ftwdt010_wdt_probe(struct platform_device *pdev)
+>  		writel(reg, gwdt->base + FTWDT010_WDCR);
+>  	}
+>  
+> -	ret = devm_request_irq(dev, irq, ftwdt010_wdt_interrupt, 0,
+> -			       "watchdog bark", gwdt);
+> -	if (ret)
+> -		return ret;
+> +	irq = platform_get_irq(pdev, 0);
+> +	if (irq) {
+> +		ret = devm_request_irq(dev, irq, ftwdt010_wdt_interrupt, 0,
+> +				       "watchdog bark", gwdt);
+> +		if (ret)
+> +			return ret;
+> +		gwdt->has_irq = true;
+> +	}
+>  
+>  	ret = devm_watchdog_register_device(dev, &gwdt->wdd);
+>  	if (ret) {
