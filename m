@@ -1,24 +1,28 @@
-Return-Path: <jerry.hoemann@hpe.com>
-Return-path: <jerry.hoemann@hpe.com>
-Date: Fri, 20 Oct 2017 10:53:46 -0600
-From: Jerry Hoemann <jerry.hoemann@hpe.com>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-pf0-f195.google.com ([209.85.192.195]:50695 "EHLO
+        mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751225AbdJVQXs (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Sun, 22 Oct 2017 12:23:48 -0400
+Date: Sun, 22 Oct 2017 09:23:46 -0700
+From: Guenter Roeck <linux@roeck-us.net>
 To: Tom Saeger <tom.saeger@oracle.com>
 Cc: Jonathan Corbet <corbet@lwn.net>, Jan Kara <jack@suse.cz>,
-	Amir Goldstein <amir73il@gmail.com>,
-	Jimmy Vance <jimmy.vance@hpe.com>, Wim Van Sebroeck <wim@iguana.be>,
-	Guenter Roeck <linux@roeck-us.net>, linux-doc@vger.kernel.org,
-	linux-fsdevel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 7/8] Documentation: fix selftests related file refs
-Message-ID: <20171020165346.GA14805@anatevka.americas.hpqcorp.net>
-Reply-To: Jerry.Hoemann@hpe.com
-References: <cover.1507838726.git.tom.saeger@oracle.com>
- <d4ae0439fc28ad274822f62f46b6230114e3e2da.1507838726.git.tom.saeger@oracle.com>
+        Amir Goldstein <amir73il@gmail.com>,
+        Jimmy Vance <jimmy.vance@hpe.com>,
+        Wim Van Sebroeck <wim@iguana.be>, linux-doc@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [7/8] Documentation: fix selftests related file refs
+Message-ID: <20171022162346.GA13195@roeck-us.net>
+References: <d4ae0439fc28ad274822f62f46b6230114e3e2da.1507838726.git.tom.saeger@oracle.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <d4ae0439fc28ad274822f62f46b6230114e3e2da.1507838726.git.tom.saeger@oracle.com>
-List-ID: <linux-watchdog@vger.kernel.org>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
 On Thu, Oct 12, 2017 at 03:24:10PM -0500, Tom Saeger wrote:
 > Make refs to selftests files valid including:
@@ -26,6 +30,14 @@ On Thu, Oct 12, 2017 at 03:24:10PM -0500, Tom Saeger wrote:
 >   - dnotify_test.c
 > 
 > Signed-off-by: Tom Saeger <tom.saeger@oracle.com>
+> Signed-off-by: Jerry Hoemann <jerry.hoemann@hpe.com>
+
+That should have been a Reviewed-by: for the hpwdt code.
+
+Otherwise
+
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+
 > ---
 >  Documentation/filesystems/dnotify.txt    | 2 +-
 >  Documentation/watchdog/hpwdt.txt         | 2 +-
@@ -58,12 +70,6 @@ On Thu, Oct 12, 2017 at 03:24:10PM -0500, Tom Saeger wrote:
 >   watchdog-test.c. Simply compile the C file and kick it off. If the system
 >   gets into a bad state and hangs, the HPE ProLiant iLO timer register will
 >   not be updated in a timely fashion and a hardware system reset (also known as
-
-Taking over hpwdt for Jimmy Vance.
-
-Signed-off-by: Jerry Hoemann <jerry.hoemann@hpe.com>
-
-
 > diff --git a/Documentation/watchdog/pcwd-watchdog.txt b/Documentation/watchdog/pcwd-watchdog.txt
 > index 4f68052395c0..b8e60a441a43 100644
 > --- a/Documentation/watchdog/pcwd-watchdog.txt
@@ -77,16 +83,3 @@ Signed-off-by: Jerry Hoemann <jerry.hoemann@hpe.com>
 >  
 >  
 >   Other IOCTL functions include:
-> -- 
-> 2.14.2
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-
--- 
-
------------------------------------------------------------------------------
-Jerry Hoemann                  Software Engineer   Hewlett Packard Enterprise
------------------------------------------------------------------------------
