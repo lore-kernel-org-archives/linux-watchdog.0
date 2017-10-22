@@ -1,24 +1,26 @@
-Return-Path: <Eric.Long@spreadtrum.com>
-Return-path: <Eric.Long@spreadtrum.com>
-Date: Wed, 11 Oct 2017 16:00:39 +0800
-From: Eric Long <eric.long@spreadtrum.com>
-To: Wim Van Sebroeck <wim@iguana.be>, Rob Herring <robh+dt@kernel.org>,
-        Mark
- Rutland <mark.rutland@arm.com>
-CC: <baolin.wang@linaro.org>, Guenter Roeck <linux@roeck-us.net>,
-        <linux-watchdog@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v2 2/2] watchdog: Add Spreadtrum watchdog driver
-Message-ID: <20171011080039.GA30820@spreadtrum.com>
-References: <f3daa0f85dda0672c4b057e7f37c690365652e39.1505216059.git.eric.long@spreadtrum.com>
- <48f1e10c508b4c174f2c41a6cef84011b65ff9b5.1505216059.git.eric.long@spreadtrum.com>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:43893 "EHLO
+        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751250AbdJVQHc (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Sun, 22 Oct 2017 12:07:32 -0400
+Date: Sun, 22 Oct 2017 09:07:29 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Eric Long <eric.long@spreadtrum.com>
+Cc: Wim Van Sebroeck <wim@iguana.be>, Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>, baolin.wang@linaro.org,
+        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [v2,2/2] watchdog: Add Spreadtrum watchdog driver
+Message-ID: <20171022160729.GA26629@roeck-us.net>
+References: <48f1e10c508b4c174f2c41a6cef84011b65ff9b5.1505216059.git.eric.long@spreadtrum.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <48f1e10c508b4c174f2c41a6cef84011b65ff9b5.1505216059.git.eric.long@spreadtrum.com>
-List-ID: <linux-watchdog@vger.kernel.org>
-
-Hi,
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
 On Tue, Sep 12, 2017 at 07:40:09PM +0800, Eric Long wrote:
 > This patch adds the watchdog driver for Spreadtrum SC9860 platform.
@@ -33,9 +35,6 @@ On Tue, Sep 12, 2017 at 07:40:09PM +0800, Eric Long wrote:
 >  - Change the position of enabling watchdog.
 >  - Other optimization.
 > ---
-
-Do you have any comments for this version patch? Thanks.
-
 >  drivers/watchdog/Kconfig    |   8 +
 >  drivers/watchdog/Makefile   |   1 +
 >  drivers/watchdog/sprd_wdt.c | 384 ++++++++++++++++++++++++++++++++++++++++++++
@@ -126,12 +125,17 @@ Do you have any comments for this version patch? Thanks.
 > +#define WDT_INT_CLEAR_BIT	BIT(0)
 > +#define WDT_RST_CLEAR_BIT	BIT(3)
 > +
+Requires include of bitops.h.
+
 > +/* WDT_INT_RAW */
 > +#define WDT_INT_RAW_BIT		BIT(0)
 > +#define WDT_RST_RAW_BIT		BIT(3)
 > +#define WDT_LD_BUSY_BIT		BIT(4)
 > +
 > +#define WDT_CLK			32768
+
+Would it make sense to use clk_get_rate() instead ?
+
 > +#define WDT_UNLOCK_KEY		0xe551
 > +#define WDT_DEFAULT_PRETMROUT	3
 > +
@@ -199,16 +203,31 @@ Do you have any comments for this version patch? Thanks.
 > +	if (timeout < pretimeout)
 > +		return -EINVAL;
 > +
+
+This is the wrong place to check if the timeout is valid.
+The core should know about limits and perform the checks.
+
 > +	if (!pretimeout)
 > +		pretimeout = WDT_DEFAULT_PRETMROUT;
 > +
+
+If pretimeout was 0 and timeout < 3, this will accept the timeout. If the
+pretimeout is mandatory, it should be enforced, and the minimum timeout
+should be larger than the miniumum pretimeout.
+
 > +	sprd_wdt_unlock(wdt->base);
 > +	writel_relaxed(((timeout * WDT_CLK) >> WDT_CNT_VALUE_SIZE) &
 > +		       WDT_CNT_VALUE_MASK, wdt->base + WDT_LOAD_HIGH);
+
+This can overflow. The maximum timeout must be <= 0xffffffff / WDT_CLK.
+
 > +	writel_relaxed(((timeout * WDT_CLK) & WDT_CNT_VALUE_MASK),
 > +		       wdt->base + WDT_LOAD_LOW);
 > +	writel_relaxed(((pretimeout * WDT_CLK) >> WDT_CNT_VALUE_SIZE) &
 > +			WDT_CNT_VALUE_MASK, wdt->base + WDT_IRQ_LOAD_HIGH);
+
+Same for pretimeout.
+
 > +	writel_relaxed((pretimeout * WDT_CLK) & WDT_CNT_VALUE_MASK,
 > +		       wdt->base + WDT_IRQ_LOAD_LOW);
 > +	sprd_wdt_lock(wdt->base);
@@ -236,6 +255,9 @@ Do you have any comments for this version patch? Thanks.
 > +
 > +	clk_prepare_enable(wdt->enable);
 > +	clk_prepare_enable(wdt->rtc_enable);
+
+Both functions can fail.
+
 > +
 > +	sprd_wdt_unlock(wdt->base);
 > +	val = readl_relaxed(wdt->base + WDT_CTRL);
@@ -243,6 +265,9 @@ Do you have any comments for this version patch? Thanks.
 > +	writel_relaxed(val, wdt->base + WDT_CTRL);
 > +	sprd_wdt_lock(wdt->base);
 > +	set_bit(WDOG_HW_RUNNING, &wdt->wdd.status);
+
+Why ? The watchdog isn't started here.
+
 > +}
 > +
 > +static void sprd_wdt_disable(struct sprd_wdt *wdt)
@@ -253,6 +278,9 @@ Do you have any comments for this version patch? Thanks.
 > +
 > +	clk_disable(wdt->enable);
 > +	clk_disable(wdt->rtc_enable);
+
+clk_prepare_enable but no matching clk_disable_unprepare ?
+
 > +}
 > +
 > +static int sprd_wdt_start(struct watchdog_device *wdd)
@@ -296,6 +324,9 @@ Do you have any comments for this version patch? Thanks.
 > +	wdd->timeout = timeout;
 > +
 > +	return sprd_wdt_load_value(wdt, timeout, wdd->pretimeout);
+
+Even on error, this accepts the new (bad) timeout.
+
 > +}
 > +
 > +static int sprd_wdt_set_pretimeout(struct watchdog_device *wdd,
@@ -306,6 +337,9 @@ Do you have any comments for this version patch? Thanks.
 > +	wdd->pretimeout = new_pretimeout;
 > +
 > +	return sprd_wdt_load_value(wdt, wdd->timeout, new_pretimeout);
+
+Even on error, this accepts the new (bad) pretimeout.
+
 > +}
 > +
 > +static u32 sprd_wdt_get_timeleft(struct watchdog_device *wdd)
@@ -354,6 +388,9 @@ Do you have any comments for this version patch? Thanks.
 > +
 > +	wdt->base = devm_ioremap_nocache(&pdev->dev, wdt_res->start,
 > +					 resource_size(wdt_res));
+
+Consider using devm_ioremap_resource().
+
 > +	if (!wdt->base)
 > +		return -ENOMEM;
 > +
@@ -386,6 +423,11 @@ Do you have any comments for this version patch? Thanks.
 > +	wdt->wdd.ops = &sprd_wdt_ops;
 > +	wdt->wdd.parent = &pdev->dev;
 > +
+
+This should also set limits for min/max to let the core validate ranges.
+If the minimum pretimeout is 3 seconds, the lower limit for timeout should
+be set accordingly.
+
 > +	sprd_wdt_enable(wdt);
 > +
 > +	watchdog_init_timeout(&wdt->wdd, 0, &pdev->dev);
@@ -393,6 +435,9 @@ Do you have any comments for this version patch? Thanks.
 > +	ret = watchdog_register_device(&wdt->wdd);
 > +	if (ret) {
 > +		dev_err(&pdev->dev, "failed to register watchdog\n");
+
+No wdt disable on error ?
+
 > +		return ret;
 > +	}
 > +	platform_set_drvdata(pdev, wdt);
@@ -408,6 +453,9 @@ Do you have any comments for this version patch? Thanks.
 > +		sprd_wdt_stop(&wdt->wdd);
 > +		sprd_wdt_disable(wdt);
 > +	}
+
+I assume you understand that this defeats NOWAYOUT.
+
 > +	watchdog_unregister_device(&wdt->wdd);
 > +
 > +	return 0;
@@ -418,6 +466,9 @@ Do you have any comments for this version patch? Thanks.
 > +	struct sprd_wdt *wdt = dev_get_drvdata(dev);
 > +
 > +	if (sprd_wdt_is_running(wdt)) {
+
+if (watchdog_active()) should work here.
+
 > +		sprd_wdt_stop(&wdt->wdd);
 > +		sprd_wdt_disable(wdt);
 > +	}
@@ -431,6 +482,9 @@ Do you have any comments for this version patch? Thanks.
 > +	struct sprd_wdt *wdt = dev_get_drvdata(dev);
 > +
 > +	if (watchdog_active(wdd) && !sprd_wdt_is_running(wdt)) {
+
+sprd_wdt_is_running() should not be needed.
+
 > +		sprd_wdt_enable(wdt);
 > +		sprd_wdt_start(&wdt->wdd);
 > +	}
@@ -463,6 +517,3 @@ Do you have any comments for this version patch? Thanks.
 > +MODULE_AUTHOR("Eric Long <eric.long@spreadtrum.com>");
 > +MODULE_DESCRIPTION("Spreadtrum Watchdog Timer Controller Driver");
 > +MODULE_LICENSE("GPL v2");
-> -- 
-> 1.9.1
-> 
