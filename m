@@ -1,85 +1,53 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pf0-f195.google.com ([209.85.192.195]:50695 "EHLO
-        mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751225AbdJVQXs (ORCPT
+Received: from mail-pg0-f65.google.com ([74.125.83.65]:54832 "EHLO
+        mail-pg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751061AbdJVQWI (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 22 Oct 2017 12:23:48 -0400
-Date: Sun, 22 Oct 2017 09:23:46 -0700
+        Sun, 22 Oct 2017 12:22:08 -0400
+Subject: Re: [PATCH v2 4/4] watchdog: aspeed: Move init to arch_initcall
+To: Andrew Jeffery <andrew@aj.id.au>, Joel Stanley <joel@jms.id.au>
+Cc: linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        OpenBMC Maillist <openbmc@lists.ozlabs.org>,
+        linux-aspeed@lists.ozlabs.org, Ryan Chen <ryan_chen@aspeedtech.com>
+References: <20170920053020.6860-1-andrew@aj.id.au>
+ <20170920053020.6860-5-andrew@aj.id.au>
+ <CACPK8Xdz1iK-4bqZfmfTUYw3zDLxCniwt6LupJq5mo-CCca3XQ@mail.gmail.com>
+ <1508240158.24322.16.camel@aj.id.au>
 From: Guenter Roeck <linux@roeck-us.net>
-To: Tom Saeger <tom.saeger@oracle.com>
-Cc: Jonathan Corbet <corbet@lwn.net>, Jan Kara <jack@suse.cz>,
-        Amir Goldstein <amir73il@gmail.com>,
-        Jimmy Vance <jimmy.vance@hpe.com>,
-        Wim Van Sebroeck <wim@iguana.be>, linux-doc@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [7/8] Documentation: fix selftests related file refs
-Message-ID: <20171022162346.GA13195@roeck-us.net>
-References: <d4ae0439fc28ad274822f62f46b6230114e3e2da.1507838726.git.tom.saeger@oracle.com>
+Message-ID: <c3f1b8d1-fe4d-c68f-5f05-c4cb75912e2c@roeck-us.net>
+Date: Sun, 22 Oct 2017 09:22:05 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d4ae0439fc28ad274822f62f46b6230114e3e2da.1507838726.git.tom.saeger@oracle.com>
+In-Reply-To: <1508240158.24322.16.camel@aj.id.au>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Thu, Oct 12, 2017 at 03:24:10PM -0500, Tom Saeger wrote:
-> Make refs to selftests files valid including:
->   - watchdog-test.c
->   - dnotify_test.c
+On 10/17/2017 04:35 AM, Andrew Jeffery wrote:
+> On Wed, 2017-09-20 at 15:43 +0930, Joel Stanley wrote:
+>>> On Wed, Sep 20, 2017 at 3:00 PM, Andrew Jeffery <andrew@aj.id.au> wrote:
+>>> Probing at device_initcall time lead to perverse cases where the
+>>> watchdog was probed after, say, I2C devices, which then leaves a
+>>> potentially running watchdog at the mercy of I2C device behaviour and
+>>> bus conditions.
+>>>
+>>> Load the watchdog driver early to ensure that the kernel is patting it
+>>> well before initialising peripherals.
+>>>
+>>> Signed-off-by: Andrew Jeffery <andrew@aj.id.au>
+>>
+>> I agree that we need to make sure the watchdog driver is loaded
+>> earlier. I think this is the correct method, but I'll defer to Guenter
+>> on this one.
 > 
-> Signed-off-by: Tom Saeger <tom.saeger@oracle.com>
-> Signed-off-by: Jerry Hoemann <jerry.hoemann@hpe.com>
-
-That should have been a Reviewed-by: for the hpwdt code.
-
-Otherwise
-
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-
-> ---
->  Documentation/filesystems/dnotify.txt    | 2 +-
->  Documentation/watchdog/hpwdt.txt         | 2 +-
->  Documentation/watchdog/pcwd-watchdog.txt | 2 +-
->  3 files changed, 3 insertions(+), 3 deletions(-)
+> Just following up on Joel's comments: Is there anything else I need to
+> address?
 > 
-> diff --git a/Documentation/filesystems/dnotify.txt b/Documentation/filesystems/dnotify.txt
-> index 6baf88f46859..15156883d321 100644
-> --- a/Documentation/filesystems/dnotify.txt
-> +++ b/Documentation/filesystems/dnotify.txt
-> @@ -62,7 +62,7 @@ disabled, fcntl(fd, F_NOTIFY, ...) will return -EINVAL.
->  
->  Example
->  -------
-> -See Documentation/filesystems/dnotify_test.c for an example.
-> +See tools/testing/selftests/filesystems/dnotify_test.c for an example.
->  
->  NOTE
->  ----
-> diff --git a/Documentation/watchdog/hpwdt.txt b/Documentation/watchdog/hpwdt.txt
-> index 7a9f635d0258..6d866c537127 100644
-> --- a/Documentation/watchdog/hpwdt.txt
-> +++ b/Documentation/watchdog/hpwdt.txt
-> @@ -15,7 +15,7 @@ Last reviewed: 05/20/2016
->  
->   Watchdog functionality is enabled like any other common watchdog driver. That
->   is, an application needs to be started that kicks off the watchdog timer. A
-> - basic application exists in the Documentation/watchdog/src directory called
-> + basic application exists in tools/testing/selftests/watchdog/ named
->   watchdog-test.c. Simply compile the C file and kick it off. If the system
->   gets into a bad state and hangs, the HPE ProLiant iLO timer register will
->   not be updated in a timely fashion and a hardware system reset (also known as
-> diff --git a/Documentation/watchdog/pcwd-watchdog.txt b/Documentation/watchdog/pcwd-watchdog.txt
-> index 4f68052395c0..b8e60a441a43 100644
-> --- a/Documentation/watchdog/pcwd-watchdog.txt
-> +++ b/Documentation/watchdog/pcwd-watchdog.txt
-> @@ -25,7 +25,7 @@ Last reviewed: 10/05/2007
->  
->   If you want to write a program to be compatible with the PC Watchdog
->   driver, simply use of modify the watchdog test program:
-> - Documentation/watchdog/src/watchdog-test.c
-> + tools/testing/selftests/watchdog/watchdog-test.c
->  
->  
->   Other IOCTL functions include:
+
+No. Sorry, I have been terribly busy. Digging through patch backlog today.
+
+Guenter
+
