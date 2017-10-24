@@ -1,122 +1,122 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pg0-f68.google.com ([74.125.83.68]:44339 "EHLO
-        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933055AbdJXN3i (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 24 Oct 2017 09:29:38 -0400
-Received: by mail-pg0-f68.google.com with SMTP id j3so14537180pga.1
-        for <linux-watchdog@vger.kernel.org>; Tue, 24 Oct 2017 06:29:38 -0700 (PDT)
-Subject: Re: [PATCH 3/6] watchdog: da9062: reset board on watchdog timeout
-To: Michael Grzeschik <mgr@pengutronix.de>,
-        Steve Twiss <stwiss.opensource@diasemi.com>
-Cc: "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        "lee.jones@linaro.org" <lee.jones@linaro.org>,
-        Support Opensource <Support.Opensource@diasemi.com>,
-        "wim@iguana.be" <wim@iguana.be>,
-        "kernel@pengutronix.de" <kernel@pengutronix.de>,
-        Stefan Christ <s.christ@phytec.de>
-References: <20171017153027.24665-1-m.grzeschik@pengutronix.de>
- <20171017153027.24665-4-m.grzeschik@pengutronix.de>
- <6ED8E3B22081A4459DAC7699F3695FB70194131FC4@SW-EX-MBX02.diasemi.com>
- <20171020074351.65vum7hitlvi6ftf@pengutronix.de>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <33009041-ea58-e0b3-6a54-b699ef116264@roeck-us.net>
-Date: Tue, 24 Oct 2017 06:29:36 -0700
+Return-Path: <jerry.hoemann@hpe.com>
+Return-path: <jerry.hoemann@hpe.com>
+Date: Tue, 24 Oct 2017 10:13:22 -0600
+From: Jerry Hoemann <jerry.hoemann@hpe.com>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: wim@iguana.be, linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/3] watchdog: hpwdt: add ioctl WDIOC_GETPRETIMEOUT
+Message-ID: <20171024161322.GA17325@anatevka.americas.hpqcorp.net>
+Reply-To: Jerry.Hoemann@hpe.com
+References: <cover.1508539271.git.jerry.hoemann@hpe.com>
+ <fdb84d723278f8f198a59f79e31d8903870fb2a0.1508539271.git.jerry.hoemann@hpe.com>
+ <a9e00af0-8239-d5cb-078c-06f3388810cf@roeck-us.net>
+ <20171022014102.GA28641@anatevka.americas.hpqcorp.net>
+ <9a67578e-5bb1-621e-4000-d25444228783@roeck-us.net>
 MIME-Version: 1.0
-In-Reply-To: <20171020074351.65vum7hitlvi6ftf@pengutronix.de>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9a67578e-5bb1-621e-4000-d25444228783@roeck-us.net>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 10/20/2017 12:43 AM, Michael Grzeschik wrote:
-> On Wed, Oct 18, 2017 at 02:28:10PM +0000, Steve Twiss wrote:
->> Hi Michael,
->>
->> On 17 October 2017 16:30 Michael Grzeschik wrote:
->>
->>> To: linux-watchdog@vger.kernel.org
->>> Subject: [PATCH 3/6] watchdog: da9062: reset board on watchdog timeout
->>>
->>> From: Stefan Christ <s.christ@phytec.de>
->>>
->>> In the default fuse configuration the watchdog poweroffs the system
->>> instead of resetting it on a watchdog timeout. This patch changes the
->>> behavior. Now the board is reseted and reboots.
->>
->> We call the chip's fuze configuration the "OTP" (one-time programming).
->>
->>>
->>> Note: This patch requires that the config register CONFIG_I is
->>> configured as writable in the da9062 multi function device.
->>>
->>> Signed-off-by: Stefan Christ <s.christ@phytec.de>
->>> Signed-off-by: Christian Hemp <c.hemp@phytec.de>
->>> ---
->>>   drivers/watchdog/da9062_wdt.c | 14 ++++++++++++++
->>>   1 file changed, 14 insertions(+)
->>>
->>> diff --git a/drivers/watchdog/da9062_wdt.c
->>> b/drivers/watchdog/da9062_wdt.c
->>> index 4349a02215489..b95719b349e5c 100644
->>> --- a/drivers/watchdog/da9062_wdt.c
->>> +++ b/drivers/watchdog/da9062_wdt.c
->>> @@ -112,6 +112,20 @@ static int da9062_wdt_start(struct watchdog_device
->>> *wdd)
->>>   	unsigned int selector;
->>>   	int ret;
->>>
->>> +	/*
->>> +	 * Use da9062's SHUTDOWN mode instead of POWERDOWN for watchdog reset.
->>> +	 * On timeout the PMIC should reset the system, not powering it
->>> +	 * off.
->>> +	 */
->>> +	ret = regmap_update_bits(wdt->hw->regmap,
->>> +				 DA9062AA_CONFIG_I,
->>> +				 DA9062AA_WATCHDOG_SD_MASK,
->>> +				 DA9062AA_WATCHDOG_SD_MASK);
->>> +	if (ret)
->>> +		dev_err(wdt->hw->dev,
->>> +			"failed to set wdt reset mode. Expect poweroff on watchdog reset: %d\n",
->>> +			ret);
->>> +
->>
->> I am not quite understanding what you are trying to achieve.
->> It seems there could be be few different options here.
->>
->> If the watchdog is running from power on and if the platform hangs early in the start-up
->> sequence, then waiting to set WATCHDOG_SD in the DA9062 watchdog driver could be
->> too late to modify the chip's behaviour. If the watchdog tripped early, the system might
->> already be in POWERDOWN instead of SHUTDOWN before this point.
+On Sun, Oct 22, 2017 at 07:55:19AM -0700, Guenter Roeck wrote:
+> On 10/21/2017 06:41 PM, Jerry Hoemann wrote:
+> > On Fri, Oct 20, 2017 at 07:25:20PM -0700, Guenter Roeck wrote:
+> > > On 10/20/2017 03:54 PM, Jerry Hoemann wrote:
+> > > > Add support for WDIOC_GETPRETIMEOUT ioctl so that user applications
+> > > > can determine when the NMI should arrive.
+> > > > 
+> > > > Signed-off-by: Jerry Hoemann <jerry.hoemann@hpe.com>
+> > > > ---
+> > > >    drivers/watchdog/hpwdt.c | 7 +++++++
+> > > >    1 file changed, 7 insertions(+)
+> > > > 
+> > > > diff --git a/drivers/watchdog/hpwdt.c b/drivers/watchdog/hpwdt.c
+> > > > index 67fbe35..ef54b03 100644
+> > > > --- a/drivers/watchdog/hpwdt.c
+> > > > +++ b/drivers/watchdog/hpwdt.c
+> > > > @@ -50,6 +50,7 @@
+> > > >    static bool nowayout = WATCHDOG_NOWAYOUT;
+> > > >    static char expect_release;
+> > > >    static unsigned long hpwdt_is_open;
+> > > > +static const int pretimeout = 9;
+> > > >    static void __iomem *pci_mem_addr;		/* the PCI-memory address */
+> > > >    static unsigned long __iomem *hpwdt_timer_reg;
+> > > > @@ -622,6 +623,12 @@ static long hpwdt_ioctl(struct file *file, unsigned int cmd,
+> > > >    		}
+> > > >    		break;
+> > > > +	case WDIOC_GETPRETIMEOUT:
+> > > > +		ret = copy_to_user(argp, &pretimeout, sizeof(pretimeout));
+> > > > +		if (ret)
+> > > > +			ret = -EFAULT;
+> > > > +		break;
+> > > > +
+> > > >    	case WDIOC_SETTIMEOUT:
+> > > >    		ret = get_user(new_margin, p);
+> > > >    		if (ret)
+> > > > 
+> > > 
+> > > Can you please convert the driver to use the watchdog subsystem instead ?
+> > > If there are still improvements needed afterwards, they can still be
+> > > implemented, but we really should not make improvements which are
+> > > already supported by the watchdog core.
+> > 
+> > I will look into converting the driver, but would like to get this
+> > fix in independently.
+> > 
 > 
-> Agreed.
+> I don't see this patch as a fix. It adds functionality. the other two patches
+> are fixes and should come first.
 > 
->> If a software change to CONFIG_I is to be done, then this register could be modified very
->> early in the bootloader. If necessary, the Linux kernel driver can read the CONFIG_I register
->> and decide if it needs to modify its behaviour accordingly. In this case, write changes to
->> CONFIG_I would not be needed.
+> > SuSE brought https://bugzilla.novell.com/show_bug.cgi?id=1042933
+> > to my attention earlier this summer.  The submitter was trying to
+> > develop a watchdog test where the ping rate was set to be the
+> > Timeout/2.
+> > 
+> > The test worked fine until (Timeout/2) < PreTimeout.  At this point
+> > an NMI would be delivered to the system before the test could refresh
+> > the timer.
+> > 
+> Yes, but I don't think that is fixed with this patch. That would be patch 3/3, no ?
 > 
-> I will add that condition around it.
-> 
->> The trivial option (for software at least) could be a different OTP: to enforce
->> WATCHDOG_SD in the hardware.
-> 
-> That is one god point. I will have a look into that.
-> 
->> DA9062 Datasheet revision 3.4, 27-Jun-2017, page 59, Section 10.
->> A hyperlink to the latest datasheet can be found in the DA9062 binding file:
->> Documentation/devicetree/bindings/mfd/da9062.txt
-> 
-> On Page 59 of this document are only ordering informations.
-> 
->> It doesn't seem correct to make this a permanent change in the general Linux kernel driver.
->> At the very least, something like this sould be protected by a device tree boolean.
-> 
-> Agreed. I will think adopt your ideas.
-> 
-Based on this exchange and since the CONFIG_I change is rejected, I'll drop this patch
-from my queue for now.
+> Guenter
 
-Guenter
+Oh, the test program had problems too.
+
+While a pretimeout doesn't have to crash the system they can. hpwdt most
+certainly does.
+
+So, my read of how to safely handle a wdt is this:
+Let Pretimeout == 0 for wdt that don't support a pre timeout.
+A user space applications needs to ensure that:
+
+   1. Timeout > Pretimeout
+   2. Ping < Timeout - Pretimeout
+
+The test application did neither.  But since hpwdt wasn't supplying
+the pretimeout, even the corrected test application would have still
+failed.
+
+Am I missing something?  How should user space daemons take into
+account pretimeouts?
+
+thanks
+
+Jerry
+
+> 
+> > I came to the view that a watchdog that implements a pre-timeout NMI
+> > where the value of the pre-timeout is not known programmatically as having
+> > a defect.
+> > 
+> > This problem has been around a long time and we could live with it, but
+> > figured while I was in fixing other problems, I'd fix this one as well.
+> > 
+> > Thanks
+> > 
+
+-- 
+
+-----------------------------------------------------------------------------
+Jerry Hoemann                  Software Engineer   Hewlett Packard Enterprise
+-----------------------------------------------------------------------------
