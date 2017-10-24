@@ -1,42 +1,56 @@
-Return-Path: <lee.jones@linaro.org>
-Return-path: <lee.jones@linaro.org>
-Date: Tue, 24 Oct 2017 11:24:31 +0100
-From: Lee Jones <lee.jones@linaro.org>
-To: Michael Grzeschik <m.grzeschik@pengutronix.de>
-Cc: linux-watchdog@vger.kernel.org, support.opensource@diasemi.com,
-	wim@iguana.be, linux@roeck-us.net, kernel@pengutronix.de,
-	Stefan Christ <s.christ@phytec.de>
-Subject: Re: [PATCH 2/6] mfd: da9062: make register CONFIG_I writable
-Message-ID: <20171024102431.n5isgkgi4ltcynqz@dell>
+Return-Path: <stwiss.opensource@diasemi.com>
+Return-path: <stwiss.opensource@diasemi.com>
+From: Steve Twiss <stwiss.opensource@diasemi.com>
+To: Lee Jones <lee.jones@linaro.org>, Michael Grzeschik
+	<m.grzeschik@pengutronix.de>
+CC: "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	"Support Opensource" <Support.Opensource@diasemi.com>, "wim@iguana.be"
+	<wim@iguana.be>, "linux@roeck-us.net" <linux@roeck-us.net>,
+	"kernel@pengutronix.de" <kernel@pengutronix.de>, Stefan Christ
+	<s.christ@phytec.de>
+Subject: RE: [PATCH 2/6] mfd: da9062: make register CONFIG_I writable
+Date: Tue, 24 Oct 2017 12:03:40 +0000
+Message-ID: <6ED8E3B22081A4459DAC7699F3695FB70194133B76@SW-EX-MBX02.diasemi.com>
 References: <20171017153027.24665-1-m.grzeschik@pengutronix.de>
  <20171017153027.24665-3-m.grzeschik@pengutronix.de>
+ <20171024102431.n5isgkgi4ltcynqz@dell>
+In-Reply-To: <20171024102431.n5isgkgi4ltcynqz@dell>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20171017153027.24665-3-m.grzeschik@pengutronix.de>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On Tue, 17 Oct 2017, Michael Grzeschik wrote:
-
-> From: Stefan Christ <s.christ@phytec.de>
-> 
-> Make the config register CONFIG_I writable to change the watchdog mode.
-> The datasheet does not mention exactly whether these registers should be
-> read-only or writeable. But writing to those registers works at runtime.
-> Only on reset they are reseted.
-> 
-> Signed-off-by: Stefan Christ <s.christ@phytec.de>
-> Signed-off-by: Christian Hemp <c.hemp@phytec.de>
-> ---
->  drivers/mfd/da9062-core.c | 4 ++++
->  1 file changed, 4 insertions(+)
-
-For my own reference:
-  Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
-
--- 
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+SGkgTGVlLA0KDQpPbiAyNCBPY3RvYmVyIDIwMTcgMTE6MjUsIExlZSBKb25lcyB3cm90ZToNCg0K
+PiBTdWJqZWN0OiBSZTogW1BBVENIIDIvNl0gbWZkOiBkYTkwNjI6IG1ha2UgcmVnaXN0ZXIgQ09O
+RklHX0kgd3JpdGFibGUNCj4gDQo+IE9uIFR1ZSwgMTcgT2N0IDIwMTcsIE1pY2hhZWwgR3J6ZXNj
+aGlrIHdyb3RlOg0KPiA+IEZyb206IFN0ZWZhbiBDaHJpc3QgPHMuY2hyaXN0QHBoeXRlYy5kZT4N
+Cj4gPg0KPiA+IE1ha2UgdGhlIGNvbmZpZyByZWdpc3RlciBDT05GSUdfSSB3cml0YWJsZSB0byBj
+aGFuZ2UgdGhlIHdhdGNoZG9nIG1vZGUuDQo+ID4gVGhlIGRhdGFzaGVldCBkb2VzIG5vdCBtZW50
+aW9uIGV4YWN0bHkgd2hldGhlciB0aGVzZSByZWdpc3RlcnMgc2hvdWxkIGJlDQo+ID4gcmVhZC1v
+bmx5IG9yIHdyaXRlYWJsZS4gQnV0IHdyaXRpbmcgdG8gdGhvc2UgcmVnaXN0ZXJzIHdvcmtzIGF0
+IHJ1bnRpbWUuDQo+ID4gT25seSBvbiByZXNldCB0aGV5IGFyZSByZXNldGVkLg0KPiA+DQo+ID4g
+U2lnbmVkLW9mZi1ieTogU3RlZmFuIENocmlzdCA8cy5jaHJpc3RAcGh5dGVjLmRlPg0KPiA+IFNp
+Z25lZC1vZmYtYnk6IENocmlzdGlhbiBIZW1wIDxjLmhlbXBAcGh5dGVjLmRlPg0KPiA+IC0tLQ0K
+PiA+ICBkcml2ZXJzL21mZC9kYTkwNjItY29yZS5jIHwgNCArKysrDQo+ID4gIDEgZmlsZSBjaGFu
+Z2VkLCA0IGluc2VydGlvbnMoKykNCj4gDQo+IEZvciBteSBvd24gcmVmZXJlbmNlOg0KPiAgIEFj
+a2VkLWZvci1NRkQtYnk6IExlZSBKb25lcyA8bGVlLmpvbmVzQGxpbmFyby5vcmc+DQoNClNldHRp
+bmcgQ09ORklHX0kgdG8gYmUgd3JpdGFibGUgKGFuZCBhbGxvd2luZyBXQVRDSERPR19TRCBiaXQg
+Y2hhbmdlcyB0byB0aGF0IHJlZ2lzdGVyKQ0KaXMgcHJvYmFibHkgbm90IGEgZ3JlYXQgaWRlYS4g
+T24gdGhlIGZhY2Ugb2YgaXQsIHRoZSBjaGFuZ2UgaXMgZmFpcmx5IGlubm9jdW91cyBidXQgaXQg
+d2lsbA0KYWxsb3cgdGhlIFBNSUMncyBiZWhhdmlvdXIgdG8gYmUgbW9kaWZpZWQgZHVyaW5nIGtl
+cm5lbCBydW4tdGltZS4NCg0KVGhhdCBjaGFuZ2UgY2FuIGJlIGRvbmUsIGJ1dCBtYWtpbmcgaXQg
+YSBwZXJtYW5lbnQgY2hhbmdlIGluIHRoZSBnZW5lcmFsIExpbnV4IGtlcm5lbCBkcml2ZXINCndv
+dWxkIGluZGljYXRlIGl0IGlzIG9rYXkgdG8gY2hhbmdlIHRoZSBDT05GSUdfSSByZWdpc3RlcnMg
+ZHVyaW5nIG5vcm1hbCBydW4tdGltZSBvcGVyYXRpb24sDQphbmQgZ2VuZXJhbGx5IEkgZG8gbm90
+IHRoaW5rIHRoaXMgaXMgb2theS4NCg0KLSBbUEFUQ0ggMy82XSB3YXRjaGRvZzogZGE5MDYyOiBy
+ZXNldCBib2FyZCBvbiB3YXRjaGRvZyB0aW1lb3V0DQogIGh0dHBzOi8vd3d3LnNwaW5pY3MubmV0
+L2xpc3RzL2xpbnV4LXdhdGNoZG9nL21zZzEyNjgwLmh0bWwNCg0KSSBzdWdnZXN0ZWQgaWYgQ09O
+RklHX0kgaXMgdG8gYmUgYWx0ZXJlZCwgdGhlbiB0aGlzIHJlZ2lzdGVyIGNvdWxkIGJlIG1vZGlm
+aWVkIGJlZm9yZSB0aGUNCkxpbnV4IGtlcm5lbCBkcml2ZXIgaGFzIHN0YXJ0ZWQsIGUuZy4gZWFy
+bHkgaW4gdGhlIGJvb3Rsb2FkZXI7IG9yIHRoZSBjaGFuZ2UgY2hvdWxkIGJlIGRvbmUNCmluIGhh
+cmR3YXJlIGJ5IHdyaXRpbmcgdGhlIHBlcnNpc3RlbnQgT1RQIGluIHRoZSBkZXZpY2UuIElmIG5l
+Y2Vzc2FyeSwgdGhlIExpbnV4IGtlcm5lbCBkcml2ZXINCmNhbiByZWFkIHRoZSBDT05GSUdfSSBy
+ZWdpc3RlciBhbmQgbW9kaWZ5IGl0cyBiZWhhdmlvdXIgYWNjb3JkaW5nbHkuIEluIGJvdGggY2Fz
+ZXMsIGEgd3JpdGUNCmFjY2VzcyBjaGFuZ2UgdG8gQ09ORklHX0kgd291bGQgbm90IGJlIG5lZWRl
+ZC4NCg0KUmVnYXJkcywNClN0ZXZlDQo=
