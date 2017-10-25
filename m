@@ -1,122 +1,556 @@
-Return-Path: <jerry.hoemann@hpe.com>
-Return-path: <jerry.hoemann@hpe.com>
-Date: Tue, 24 Oct 2017 10:13:22 -0600
-From: Jerry Hoemann <jerry.hoemann@hpe.com>
+Return-Path: <Eric.Long@spreadtrum.com>
+Return-path: <Eric.Long@spreadtrum.com>
+Date: Wed, 25 Oct 2017 18:29:33 +0800
+From: Eric Long <eric.long@spreadtrum.com>
 To: Guenter Roeck <linux@roeck-us.net>
-Cc: wim@iguana.be, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/3] watchdog: hpwdt: add ioctl WDIOC_GETPRETIMEOUT
-Message-ID: <20171024161322.GA17325@anatevka.americas.hpqcorp.net>
-Reply-To: Jerry.Hoemann@hpe.com
-References: <cover.1508539271.git.jerry.hoemann@hpe.com>
- <fdb84d723278f8f198a59f79e31d8903870fb2a0.1508539271.git.jerry.hoemann@hpe.com>
- <a9e00af0-8239-d5cb-078c-06f3388810cf@roeck-us.net>
- <20171022014102.GA28641@anatevka.americas.hpqcorp.net>
- <9a67578e-5bb1-621e-4000-d25444228783@roeck-us.net>
+CC: Wim Van Sebroeck <wim@iguana.be>, Rob Herring <robh+dt@kernel.org>,
+        Mark
+ Rutland <mark.rutland@arm.com>, <baolin.wang@linaro.org>,
+        <linux-watchdog@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [v2,2/2] watchdog: Add Spreadtrum watchdog driver
+Message-ID: <20171025102933.GA30611@spreadtrum.com>
+References: <48f1e10c508b4c174f2c41a6cef84011b65ff9b5.1505216059.git.eric.long@spreadtrum.com>
+ <20171022160729.GA26629@roeck-us.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
 Content-Disposition: inline
-In-Reply-To: <9a67578e-5bb1-621e-4000-d25444228783@roeck-us.net>
+In-Reply-To: <20171022160729.GA26629@roeck-us.net>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On Sun, Oct 22, 2017 at 07:55:19AM -0700, Guenter Roeck wrote:
-> On 10/21/2017 06:41 PM, Jerry Hoemann wrote:
-> > On Fri, Oct 20, 2017 at 07:25:20PM -0700, Guenter Roeck wrote:
-> > > On 10/20/2017 03:54 PM, Jerry Hoemann wrote:
-> > > > Add support for WDIOC_GETPRETIMEOUT ioctl so that user applications
-> > > > can determine when the NMI should arrive.
-> > > > 
-> > > > Signed-off-by: Jerry Hoemann <jerry.hoemann@hpe.com>
-> > > > ---
-> > > >    drivers/watchdog/hpwdt.c | 7 +++++++
-> > > >    1 file changed, 7 insertions(+)
-> > > > 
-> > > > diff --git a/drivers/watchdog/hpwdt.c b/drivers/watchdog/hpwdt.c
-> > > > index 67fbe35..ef54b03 100644
-> > > > --- a/drivers/watchdog/hpwdt.c
-> > > > +++ b/drivers/watchdog/hpwdt.c
-> > > > @@ -50,6 +50,7 @@
-> > > >    static bool nowayout = WATCHDOG_NOWAYOUT;
-> > > >    static char expect_release;
-> > > >    static unsigned long hpwdt_is_open;
-> > > > +static const int pretimeout = 9;
-> > > >    static void __iomem *pci_mem_addr;		/* the PCI-memory address */
-> > > >    static unsigned long __iomem *hpwdt_timer_reg;
-> > > > @@ -622,6 +623,12 @@ static long hpwdt_ioctl(struct file *file, unsigned int cmd,
-> > > >    		}
-> > > >    		break;
-> > > > +	case WDIOC_GETPRETIMEOUT:
-> > > > +		ret = copy_to_user(argp, &pretimeout, sizeof(pretimeout));
-> > > > +		if (ret)
-> > > > +			ret = -EFAULT;
-> > > > +		break;
-> > > > +
-> > > >    	case WDIOC_SETTIMEOUT:
-> > > >    		ret = get_user(new_margin, p);
-> > > >    		if (ret)
-> > > > 
-> > > 
-> > > Can you please convert the driver to use the watchdog subsystem instead ?
-> > > If there are still improvements needed afterwards, they can still be
-> > > implemented, but we really should not make improvements which are
-> > > already supported by the watchdog core.
+Hi Guenter,
+
+Sorry for late reply, and thanks for your detail comments.
+
+On Sun, Oct 22, 2017 at 09:07:29AM -0700, Guenter Roeck wrote:
+> On Tue, Sep 12, 2017 at 07:40:09PM +0800, Eric Long wrote:
+> > This patch adds the watchdog driver for Spreadtrum SC9860 platform.
 > > 
-> > I will look into converting the driver, but would like to get this
-> > fix in independently.
+> > Signed-off-by: Eric Long <eric.long@spreadtrum.com>
+> > ---
+> > Changes since v1:
+> >  - Use pretimeout instead of own implementation.
+> >  - Fix timeout loop when loading timeout values.
+> >  - use the infrastructure to read and set "timeout-sec" property.
+> >  - Add conditions when start or stop watchdog.
+> >  - Change the position of enabling watchdog.
+> >  - Other optimization.
+> > ---
+> >  drivers/watchdog/Kconfig    |   8 +
+> >  drivers/watchdog/Makefile   |   1 +
+> >  drivers/watchdog/sprd_wdt.c | 384 ++++++++++++++++++++++++++++++++++++++++++++
+> >  3 files changed, 393 insertions(+)
+> >  create mode 100644 drivers/watchdog/sprd_wdt.c
 > > 
+> > diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> > index c722cbf..ea07718 100644
+> > --- a/drivers/watchdog/Kconfig
+> > +++ b/drivers/watchdog/Kconfig
+> > @@ -787,6 +787,14 @@ config UNIPHIER_WATCHDOG
+> >  	  To compile this driver as a module, choose M here: the
+> >  	  module will be called uniphier_wdt.
+> >  
+> > +config SPRD_WATCHDOG
+> > +	tristate "Spreadtrum watchdog support"
+> > +	depends on ARCH_SPRD
+> > +	select WATCHDOG_CORE
+> > +	help
+> > +	  Say Y here to include support watchdog timer embedded
+> > +	  into the Spreadtrum system.
+> > +
+> >  # AVR32 Architecture
+> >  
+> >  config AT32AP700X_WDT
+> > diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+> > index 56adf9f..187cca2 100644
+> > --- a/drivers/watchdog/Makefile
+> > +++ b/drivers/watchdog/Makefile
+> > @@ -87,6 +87,7 @@ obj-$(CONFIG_ASPEED_WATCHDOG) += aspeed_wdt.o
+> >  obj-$(CONFIG_ZX2967_WATCHDOG) += zx2967_wdt.o
+> >  obj-$(CONFIG_STM32_WATCHDOG) += stm32_iwdg.o
+> >  obj-$(CONFIG_UNIPHIER_WATCHDOG) += uniphier_wdt.o
+> > +obj-$(CONFIG_SPRD_WATCHDOG) += sprd_wdt.o
+> >  
+> >  # AVR32 Architecture
+> >  obj-$(CONFIG_AT32AP700X_WDT) += at32ap700x_wdt.o
+> > diff --git a/drivers/watchdog/sprd_wdt.c b/drivers/watchdog/sprd_wdt.c
+> > new file mode 100644
+> > index 0000000..dedbca6fd
+> > --- /dev/null
+> > +++ b/drivers/watchdog/sprd_wdt.c
+> > @@ -0,0 +1,384 @@
+> > +/*
+> > + * Spreadtrum watchdog driver
+> > + * Copyright (C) 2017 Spreadtrum - http://www.spreadtrum.com
+> > + *
+> > + * This program is free software; you can redistribute it and/or
+> > + * modify it under the terms of the GNU General Public License
+> > + * version 2 as published by the Free Software Foundation.
+> > + *
+> > + * This program is distributed in the hope that it will be useful, but
+> > + * WITHOUT ANY WARRANTY; without even the implied warranty of
+> > + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+> > + * General Public License for more details.
+> > + */
+> > +
+> > +#include <linux/clk.h>
+> > +#include <linux/err.h>
+> > +#include <linux/interrupt.h>
+> > +#include <linux/io.h>
+> > +#include <linux/kernel.h>
+> > +#include <linux/module.h>
+> > +#include <linux/of.h>
+> > +#include <linux/of_address.h>
+> > +#include <linux/platform_device.h>
+> > +#include <linux/watchdog.h>
+> > +
+> > +#define WDT_LOAD_LOW		0x0
+> > +#define WDT_LOAD_HIGH		0x4
+> > +#define WDT_CTRL		0x8
+> > +#define WDT_INT_CLR		0xc
+> > +#define WDT_INT_RAW		0x10
+> > +#define WDT_INT_MSK		0x14
+> > +#define WDT_CNT_LOW		0x18
+> > +#define WDT_CNT_HIGH		0x1c
+> > +#define WDT_LOCK		0x20
+> > +#define WDT_IRQ_LOAD_LOW	0x2c
+> > +#define WDT_IRQ_LOAD_HIGH	0x30
+> > +
+> > +/* WDT_CTRL */
+> > +#define WDT_INT_EN_BIT		BIT(0)
+> > +#define WDT_CNT_EN_BIT		BIT(1)
+> > +#define WDT_NEW_VER_EN		BIT(2)
+> > +#define WDT_RST_EN_BIT		BIT(3)
+> > +
+> > +/* WDT_INT_CLR */
+> > +#define WDT_INT_CLEAR_BIT	BIT(0)
+> > +#define WDT_RST_CLEAR_BIT	BIT(3)
+> > +
+> Requires include of bitops.h.
+
+OK, I will fix it.
+
+> > +/* WDT_INT_RAW */
+> > +#define WDT_INT_RAW_BIT		BIT(0)
+> > +#define WDT_RST_RAW_BIT		BIT(3)
+> > +#define WDT_LD_BUSY_BIT		BIT(4)
+> > +
+> > +#define WDT_CLK			32768
 > 
-> I don't see this patch as a fix. It adds functionality. the other two patches
-> are fixes and should come first.
+> Would it make sense to use clk_get_rate() instead ?
+
+This wdt works at 153.6MHz, but its count step is 32768,
+so it cannot get the count step value by clk_get_rate().
+ 
+> > +#define WDT_UNLOCK_KEY		0xe551
+> > +#define WDT_DEFAULT_PRETMROUT	3
+> > +
+> > +#define WDT_CNT_VALUE_SIZE	16
+> > +#define WDT_CNT_VALUE_MASK	GENMASK(15, 0)
+> > +#define WDT_LOAD_TIMEOUT_NUM	10000
+> > +
+> > +struct sprd_wdt {
+> > +	void __iomem *base;
+> > +	struct watchdog_device wdd;
+> > +	struct clk *enable;
+> > +	struct clk *rtc_enable;
+> > +	unsigned int irq;
+> > +};
+> > +
+> > +static inline struct sprd_wdt *to_sprd_wdt(struct watchdog_device *wdd)
+> > +{
+> > +	return container_of(wdd, struct sprd_wdt, wdd);
+> > +}
+> > +
+> > +static inline void sprd_wdt_lock(void __iomem *addr)
+> > +{
+> > +	writel_relaxed(0x0, addr + WDT_LOCK);
+> > +}
+> > +
+> > +static inline void sprd_wdt_unlock(void __iomem *addr)
+> > +{
+> > +	writel_relaxed(WDT_UNLOCK_KEY, addr + WDT_LOCK);
+> > +}
+> > +
+> > +static inline bool sprd_wdt_is_running(struct sprd_wdt *wdt)
+> > +{
+> > +	u32 val;
+> > +
+> > +	val = readl_relaxed(wdt->base + WDT_CTRL);
+> > +	return val & WDT_NEW_VER_EN;
+> > +}
+> > +
+> > +static irqreturn_t sprd_wdt_isr(int irq, void *dev_id)
+> > +{
+> > +	struct sprd_wdt *wdt = (struct sprd_wdt *)dev_id;
+> > +
+> > +	sprd_wdt_unlock(wdt->base);
+> > +	writel_relaxed(WDT_INT_CLEAR_BIT, wdt->base + WDT_INT_CLR);
+> > +	sprd_wdt_lock(wdt->base);
+> > +	watchdog_notify_pretimeout(&wdt->wdd);
+> > +	return IRQ_HANDLED;
+> > +}
+> > +
+> > +static u32 sprd_wdt_get_cnt_value(struct sprd_wdt *wdt)
+> > +{
+> > +	u32 val;
+> > +
+> > +	val = readl_relaxed(wdt->base + WDT_CNT_HIGH) << WDT_CNT_VALUE_SIZE;
+> > +	val |= readl_relaxed(wdt->base + WDT_CNT_LOW) & WDT_CNT_VALUE_MASK;
+> > +
+> > +	return val;
+> > +}
+> > +
+> > +static int sprd_wdt_load_value(struct sprd_wdt *wdt, u32 timeout,
+> > +			       u32 pretimeout)
+> > +{
+> > +	u32 val, cnt = 0;
+> > +
+> > +	if (timeout < pretimeout)
+> > +		return -EINVAL;
+> > +
 > 
-> > SuSE brought https://bugzilla.novell.com/show_bug.cgi?id=1042933
-> > to my attention earlier this summer.  The submitter was trying to
-> > develop a watchdog test where the ping rate was set to be the
-> > Timeout/2.
-> > 
-> > The test worked fine until (Timeout/2) < PreTimeout.  At this point
-> > an NMI would be delivered to the system before the test could refresh
-> > the timer.
-> > 
-> Yes, but I don't think that is fixed with this patch. That would be patch 3/3, no ?
+> This is the wrong place to check if the timeout is valid.
+> The core should know about limits and perform the checks.
+
+OK, I will fix it.
+ 
+> > +	if (!pretimeout)
+> > +		pretimeout = WDT_DEFAULT_PRETMROUT;
+> > +
 > 
-> Guenter
+> If pretimeout was 0 and timeout < 3, this will accept the timeout. If the
+> pretimeout is mandatory, it should be enforced, and the minimum timeout
+> should be larger than the miniumum pretimeout.
 
-Oh, the test program had problems too.
+OK, I will add min/max timeout at probe function.
 
-While a pretimeout doesn't have to crash the system they can. hpwdt most
-certainly does.
-
-So, my read of how to safely handle a wdt is this:
-Let Pretimeout == 0 for wdt that don't support a pre timeout.
-A user space applications needs to ensure that:
-
-   1. Timeout > Pretimeout
-   2. Ping < Timeout - Pretimeout
-
-The test application did neither.  But since hpwdt wasn't supplying
-the pretimeout, even the corrected test application would have still
-failed.
-
-Am I missing something?  How should user space daemons take into
-account pretimeouts?
-
-thanks
-
-Jerry
-
+> > +	sprd_wdt_unlock(wdt->base);
+> > +	writel_relaxed(((timeout * WDT_CLK) >> WDT_CNT_VALUE_SIZE) &
+> > +		       WDT_CNT_VALUE_MASK, wdt->base + WDT_LOAD_HIGH);
 > 
-> > I came to the view that a watchdog that implements a pre-timeout NMI
-> > where the value of the pre-timeout is not known programmatically as having
-> > a defect.
-> > 
-> > This problem has been around a long time and we could live with it, but
-> > figured while I was in fixing other problems, I'd fix this one as well.
-> > 
-> > Thanks
-> > 
+> This can overflow. The maximum timeout must be <= 0xffffffff / WDT_CLK.
 
--- 
+Yes, you are right, I will fix it, and the timeout value will be limited 
+by min/max timeout, so there is no need to judge this timeout value after 
+I add min/max timeout at probe function.
+ 
+> > +	writel_relaxed(((timeout * WDT_CLK) & WDT_CNT_VALUE_MASK),
+> > +		       wdt->base + WDT_LOAD_LOW);
+> > +	writel_relaxed(((pretimeout * WDT_CLK) >> WDT_CNT_VALUE_SIZE) &
+> > +			WDT_CNT_VALUE_MASK, wdt->base + WDT_IRQ_LOAD_HIGH);
+> 
+> Same for pretimeout.
+> 
+> > +	writel_relaxed((pretimeout * WDT_CLK) & WDT_CNT_VALUE_MASK,
+> > +		       wdt->base + WDT_IRQ_LOAD_LOW);
+> > +	sprd_wdt_lock(wdt->base);
+> > +
+> > +	/*
+> > +	 * Waiting the load value operation done,
+> > +	 * it needs two or three RTC clock cycles.
+> > +	 */
+> > +	do {
+> > +		val = readl_relaxed(wdt->base + WDT_INT_RAW);
+> > +		if (!(val & WDT_LD_BUSY_BIT))
+> > +			break;
+> > +
+> > +		cpu_relax();
+> > +	} while (cnt++ < WDT_LOAD_TIMEOUT_NUM);
+> > +
+> > +	if (cnt >= WDT_LOAD_TIMEOUT_NUM)
+> > +		return -EBUSY;
+> > +	return 0;
+> > +}
+> > +
+> > +static void sprd_wdt_enable(struct sprd_wdt *wdt)
+> > +{
+> > +	u32 val;
+> > +
+> > +	clk_prepare_enable(wdt->enable);
+> > +	clk_prepare_enable(wdt->rtc_enable);
+> 
+> Both functions can fail.
 
------------------------------------------------------------------------------
-Jerry Hoemann                  Software Engineer   Hewlett Packard Enterprise
------------------------------------------------------------------------------
+OK, I will fix it.
+ 
+> > +
+> > +	sprd_wdt_unlock(wdt->base);
+> > +	val = readl_relaxed(wdt->base + WDT_CTRL);
+> > +	val |= WDT_NEW_VER_EN;
+> > +	writel_relaxed(val, wdt->base + WDT_CTRL);
+> > +	sprd_wdt_lock(wdt->base);
+> > +	set_bit(WDOG_HW_RUNNING, &wdt->wdd.status);
+> 
+> Why ? The watchdog isn't started here.
+
+OK, I will delete it.
+
+> > +}
+> > +
+> > +static void sprd_wdt_disable(struct sprd_wdt *wdt)
+> > +{
+> > +	sprd_wdt_unlock(wdt->base);
+> > +	writel_relaxed(0x0, wdt->base + WDT_CTRL);
+> > +	sprd_wdt_lock(wdt->base);
+> > +
+> > +	clk_disable(wdt->enable);
+> > +	clk_disable(wdt->rtc_enable);
+> 
+> clk_prepare_enable but no matching clk_disable_unprepare ?
+
+Yes, thanks, you are right, it should use clk_disable_unprepare to instead.
+
+> > +}
+> > +
+> > +static int sprd_wdt_start(struct watchdog_device *wdd)
+> > +{
+> > +	struct sprd_wdt *wdt = to_sprd_wdt(wdd);
+> > +	u32 val;
+> > +	int ret;
+> > +
+> > +	ret = sprd_wdt_load_value(wdt, wdd->timeout, wdd->pretimeout);
+> > +	if (ret)
+> > +		return ret;
+> > +
+> > +	sprd_wdt_unlock(wdt->base);
+> > +	val = readl_relaxed(wdt->base + WDT_CTRL);
+> > +	val |= WDT_CNT_EN_BIT | WDT_INT_EN_BIT | WDT_RST_EN_BIT;
+> > +	writel_relaxed(val, wdt->base + WDT_CTRL);
+> > +	sprd_wdt_lock(wdt->base);
+> > +	set_bit(WDOG_HW_RUNNING, &wdd->status);
+> > +
+> > +	return 0;
+> > +}
+> > +
+> > +static int sprd_wdt_stop(struct watchdog_device *wdd)
+> > +{
+> > +	struct sprd_wdt *wdt = to_sprd_wdt(wdd);
+> > +	u32 val;
+> > +
+> > +	sprd_wdt_unlock(wdt->base);
+> > +	val = readl_relaxed(wdt->base + WDT_CTRL);
+> > +	val &= ~(WDT_CNT_EN_BIT | WDT_RST_EN_BIT | WDT_INT_EN_BIT);
+> > +	writel_relaxed(val, wdt->base + WDT_CTRL);
+> > +	sprd_wdt_lock(wdt->base);
+> > +	return 0;
+> > +}
+> > +
+> > +static int sprd_wdt_set_timeout(struct watchdog_device *wdd,
+> > +				u32 timeout)
+> > +{
+> > +	struct sprd_wdt *wdt = to_sprd_wdt(wdd);
+> > +
+> > +	wdd->timeout = timeout;
+> > +
+> > +	return sprd_wdt_load_value(wdt, timeout, wdd->pretimeout);
+> 
+> Even on error, this accepts the new (bad) timeout.
+
+OK, I should add judgment api here.
+ 
+> > +}
+> > +
+> > +static int sprd_wdt_set_pretimeout(struct watchdog_device *wdd,
+> > +				   u32 new_pretimeout)
+> > +{
+> > +	struct sprd_wdt *wdt = to_sprd_wdt(wdd);
+> > +
+> > +	wdd->pretimeout = new_pretimeout;
+> > +
+> > +	return sprd_wdt_load_value(wdt, wdd->timeout, new_pretimeout);
+> 
+> Even on error, this accepts the new (bad) pretimeout.
+
+OK, I should add judgment api here.
+ 
+> > +}
+> > +
+> > +static u32 sprd_wdt_get_timeleft(struct watchdog_device *wdd)
+> > +{
+> > +	struct sprd_wdt *wdt = to_sprd_wdt(wdd);
+> > +	u32 val;
+> > +
+> > +	val = sprd_wdt_get_cnt_value(wdt);
+> > +	val = val / WDT_CLK;
+> > +
+> > +	return val;
+> > +}
+> > +
+> > +static const struct watchdog_ops sprd_wdt_ops = {
+> > +	.owner = THIS_MODULE,
+> > +	.start = sprd_wdt_start,
+> > +	.stop = sprd_wdt_stop,
+> > +	.set_timeout = sprd_wdt_set_timeout,
+> > +	.set_pretimeout = sprd_wdt_set_pretimeout,
+> > +	.get_timeleft = sprd_wdt_get_timeleft,
+> > +};
+> > +
+> > +static const struct watchdog_info sprd_wdt_info = {
+> > +	.options = WDIOF_SETTIMEOUT |
+> > +		   WDIOF_PRETIMEOUT |
+> > +		   WDIOF_MAGICCLOSE |
+> > +		   WDIOF_KEEPALIVEPING,
+> > +	.identity = "Spreadtrum Watchdog Timer",
+> > +};
+> > +
+> > +static int sprd_wdt_probe(struct platform_device *pdev)
+> > +{
+> > +	struct resource *wdt_res;
+> > +	struct sprd_wdt *wdt;
+> > +	int ret;
+> > +
+> > +	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
+> > +	if (!wdt)
+> > +		return -ENOMEM;
+> > +
+> > +	wdt_res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> > +	if (!wdt_res) {
+> > +		dev_err(&pdev->dev, "failed to memory resource\n");
+> > +		return -ENOMEM;
+> > +	}
+> > +
+> > +	wdt->base = devm_ioremap_nocache(&pdev->dev, wdt_res->start,
+> > +					 resource_size(wdt_res));
+> 
+> Consider using devm_ioremap_resource().
+
+Yes, thanks, devm_ioremap_resource() will be better.
+ 
+> > +	if (!wdt->base)
+> > +		return -ENOMEM;
+> > +
+> > +	wdt->enable = devm_clk_get(&pdev->dev, "enable");
+> > +	if (IS_ERR(wdt->enable)) {
+> > +		dev_err(&pdev->dev, "can't get the enable clock\n");
+> > +		return PTR_ERR(wdt->enable);
+> > +	}
+> > +
+> > +	wdt->rtc_enable = devm_clk_get(&pdev->dev, "rtc_enable");
+> > +	if (IS_ERR(wdt->rtc_enable)) {
+> > +		dev_err(&pdev->dev, "can't get the rtc enable clock\n");
+> > +		return PTR_ERR(wdt->rtc_enable);
+> > +	}
+> > +
+> > +	wdt->irq = platform_get_irq(pdev, 0);
+> > +	if (wdt->irq < 0) {
+> > +		dev_err(&pdev->dev, "failed to get IRQ resource\n");
+> > +		return wdt->irq;
+> > +	}
+> > +
+> > +	ret = devm_request_irq(&pdev->dev, wdt->irq, sprd_wdt_isr,
+> > +			       IRQF_NO_SUSPEND, "sprd-wdt", (void *)wdt);
+> > +	if (ret) {
+> > +		dev_err(&pdev->dev, "failed to register irq\n");
+> > +		return ret;
+> > +	}
+> > +
+> > +	wdt->wdd.info = &sprd_wdt_info;
+> > +	wdt->wdd.ops = &sprd_wdt_ops;
+> > +	wdt->wdd.parent = &pdev->dev;
+> > +
+> 
+> This should also set limits for min/max to let the core validate ranges.
+> If the minimum pretimeout is 3 seconds, the lower limit for timeout should
+> be set accordingly.
+
+Yes, you are right, I should add min/max timeout to limit the validate ranges, thanks.
+ 
+> > +	sprd_wdt_enable(wdt);
+> > +
+> > +	watchdog_init_timeout(&wdt->wdd, 0, &pdev->dev);
+> > +
+> > +	ret = watchdog_register_device(&wdt->wdd);
+> > +	if (ret) {
+> > +		dev_err(&pdev->dev, "failed to register watchdog\n");
+> 
+> No wdt disable on error ?
+
+Yes, it should call sprd_wdt_disable().
+
+> > +		return ret;
+> > +	}
+> > +	platform_set_drvdata(pdev, wdt);
+> > +
+> > +	return 0;
+> > +}
+> > +
+> > +static int sprd_wdt_remove(struct platform_device *pdev)
+> > +{
+> > +	struct sprd_wdt *wdt = platform_get_drvdata(pdev);
+> > +
+> > +	if (sprd_wdt_is_running(wdt)) {
+> > +		sprd_wdt_stop(&wdt->wdd);
+> > +		sprd_wdt_disable(wdt);
+> > +	}
+> 
+> I assume you understand that this defeats NOWAYOUT.
+
+In my understand, if NOWAYOUT is set, this watchdog cannot be stopped,
+but we hope the watchdog can be stopped when someone want to debug the kernel.
+
+> > +	watchdog_unregister_device(&wdt->wdd);
+> > +
+> > +	return 0;
+> > +}
+> > +
+> > +static int __maybe_unused sprd_wdt_pm_suspend(struct device *dev)
+> > +{
+> > +	struct sprd_wdt *wdt = dev_get_drvdata(dev);
+> > +
+> > +	if (sprd_wdt_is_running(wdt)) {
+> 
+> if (watchdog_active()) should work here.
+
+Yes, you are right, I will fix it, thanks.
+ 
+> > +		sprd_wdt_stop(&wdt->wdd);
+> > +		sprd_wdt_disable(wdt);
+> > +	}
+> > +
+> > +	return 0;
+> > +}
+> > +
+> > +static int __maybe_unused sprd_wdt_pm_resume(struct device *dev)
+> > +{
+> > +	struct watchdog_device *wdd = dev_get_drvdata(dev);
+> > +	struct sprd_wdt *wdt = dev_get_drvdata(dev);
+> > +
+> > +	if (watchdog_active(wdd) && !sprd_wdt_is_running(wdt)) {
+> 
+> sprd_wdt_is_running() should not be needed.
+
+OK, I will fix it, thanks.
+
+> > +		sprd_wdt_enable(wdt);
+> > +		sprd_wdt_start(&wdt->wdd);
+> > +	}
+> > +
+> > +	return 0;
+> > +}
+> > +
+> > +static const struct dev_pm_ops sprd_wdt_pm_ops = {
+> > +	SET_SYSTEM_SLEEP_PM_OPS(sprd_wdt_pm_suspend,
+> > +				sprd_wdt_pm_resume)
+> > +};
+> > +
+> > +static const struct of_device_id sprd_wdt_match_table[] = {
+> > +	{ .compatible = "sprd,sp9860-wdt", },
+> > +	{},
+> > +};
+> > +MODULE_DEVICE_TABLE(of, sprd_wdt_match_table);
+> > +
+> > +static struct platform_driver sprd_watchdog_driver = {
+> > +	.probe	= sprd_wdt_probe,
+> > +	.remove	= sprd_wdt_remove,
+> > +	.driver	= {
+> > +		.name = "sprd-wdt",
+> > +		.of_match_table = sprd_wdt_match_table,
+> > +		.pm = &sprd_wdt_pm_ops,
+> > +	},
+> > +};
+> > +module_platform_driver(sprd_watchdog_driver);
+> > +
+> > +MODULE_AUTHOR("Eric Long <eric.long@spreadtrum.com>");
+> > +MODULE_DESCRIPTION("Spreadtrum Watchdog Timer Controller Driver");
+> > +MODULE_LICENSE("GPL v2");
