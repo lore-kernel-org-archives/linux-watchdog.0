@@ -1,78 +1,58 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wm0-f66.google.com ([74.125.82.66]:46782 "EHLO
-        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932456AbdJZQK2 (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 26 Oct 2017 12:10:28 -0400
-Received: by mail-wm0-f66.google.com with SMTP id m72so9010190wmc.1
-        for <linux-watchdog@vger.kernel.org>; Thu, 26 Oct 2017 09:10:27 -0700 (PDT)
-From: Radu Rendec <rrendec@arista.com>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org
-Subject: [PATCH v3 3/4] watchdog: i6300esb: do not hardcode heartbeat limits
-Date: Thu, 26 Oct 2017 17:10:15 +0100
-Message-Id: <20171026161016.3198-3-rrendec@arista.com>
-In-Reply-To: <2edc54c2-f3d9-6b54-7ff9-79365b03946c@roeck-us.net>
-References: <2edc54c2-f3d9-6b54-7ff9-79365b03946c@roeck-us.net>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-Path: <Orson.Zhai@spreadtrum.com>
+Return-path: <Orson.Zhai@spreadtrum.com>
+From: Eric Long <eric.long@spreadtrum.com>
+To: Wim Van Sebroeck <wim@iguana.be>, Rob Herring <robh+dt@kernel.org>,
+        Mark
+ Rutland <mark.rutland@arm.com>
+CC: <baolin.wang@linaro.org>, Guenter Roeck <linux@roeck-us.net>,
+        <linux-watchdog@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <eric.long@spreadtrum.com>
+Subject: [PATCH v3 1/2] dt-bindings: watchdog: Add Spreadtrum watchdog documentation
+Date: Fri, 27 Oct 2017 10:28:24 +0800
+Message-ID: <d1efd94bfbc92b89e246b0b745d976d547b145b6.1509070855.git.eric.long@spreadtrum.com>
+MIME-Version: 1.0
+Content-Type: text/plain
+List-ID: <linux-watchdog@vger.kernel.org>
 
-The minimum, maximum and default values for the watchdog heartbeat
-(timeout) were hardcoded in several places (including module parameter
-description and warning message for invalid module parameter value).
+This patch adds the documentation for Spreadtrum watchdog driver.
 
-This patch adds macros for the aforementioned values and replaces all
-occurences of hardcoded values by these macros.
-
-Signed-off-by: Radu Rendec <rrendec@arista.com>
+Signed-off-by: Eric Long <eric.long@spreadtrum.com>
+Acked-by: Rob Herring <robh@kernel.org>
 ---
- drivers/watchdog/i6300esb.c | 20 ++++++++++++--------
- 1 file changed, 12 insertions(+), 8 deletions(-)
+Changes since v2:
+- Add acked tag from Rob.
 
-diff --git a/drivers/watchdog/i6300esb.c b/drivers/watchdog/i6300esb.c
-index 147462f431de..4d92925cdc1e 100644
---- a/drivers/watchdog/i6300esb.c
-+++ b/drivers/watchdog/i6300esb.c
-@@ -81,12 +81,16 @@ static int cards_found;
- 
- /* module parameters */
- /* 30 sec default heartbeat (1 < heartbeat < 2*1023) */
--#define WATCHDOG_HEARTBEAT 30
-+#define ESB_HEARTBEAT_MIN	1
-+#define ESB_HEARTBEAT_MAX	2046
-+#define ESB_HEARTBEAT_DEFAULT	30
-+#define ESB_HEARTBEAT_RANGE __MODULE_STRING(ESB_HEARTBEAT_MIN) \
-+	"<heartbeat<" __MODULE_STRING(ESB_HEARTBEAT_MAX)
- static int heartbeat; /* in seconds */
- module_param(heartbeat, int, 0);
- MODULE_PARM_DESC(heartbeat,
--		"Watchdog heartbeat in seconds. (1<heartbeat<2046, default="
--				__MODULE_STRING(WATCHDOG_HEARTBEAT) ")");
-+	"Watchdog heartbeat in seconds. (" ESB_HEARTBEAT_RANGE
-+	", default=" __MODULE_STRING(ESB_HEARTBEAT_DEFAULT) ")");
- 
- static bool nowayout = WATCHDOG_NOWAYOUT;
- module_param(nowayout, bool, 0);
-@@ -315,13 +319,13 @@ static int esb_probe(struct pci_dev *pdev,
- 	/* Initialize the watchdog and make sure it does not run */
- 	edev->wdd.info = &esb_info;
- 	edev->wdd.ops = &esb_ops;
--	edev->wdd.min_timeout = 1;
--	edev->wdd.max_timeout = 2 * 0x03ff;
--	edev->wdd.timeout = WATCHDOG_HEARTBEAT;
-+	edev->wdd.min_timeout = ESB_HEARTBEAT_MIN;
-+	edev->wdd.max_timeout = ESB_HEARTBEAT_MAX;
-+	edev->wdd.timeout = ESB_HEARTBEAT_DEFAULT;
- 	if (watchdog_init_timeout(&edev->wdd, heartbeat, NULL))
- 		dev_info(&pdev->dev,
--			"heartbeat value must be 1<heartbeat<2046, using %u\n",
--			edev->wdd.timeout);
-+			"heartbeat value must be " ESB_HEARTBEAT_RANGE
-+			", using %u\n", edev->wdd.timeout);
- 	watchdog_set_nowayout(&edev->wdd, nowayout);
- 	watchdog_stop_on_reboot(&edev->wdd);
- 	watchdog_stop_on_unregister(&edev->wdd);
+Changes since v1:
+- No updates.
+---
+ .../devicetree/bindings/watchdog/sprd-wdt.txt         | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/sprd-wdt.txt
+
+diff --git a/Documentation/devicetree/bindings/watchdog/sprd-wdt.txt b/Documentation/devicetree/bindings/watchdog/sprd-wdt.txt
+new file mode 100644
+index 0000000..aeaf3e0
+--- /dev/null
++++ b/Documentation/devicetree/bindings/watchdog/sprd-wdt.txt
+@@ -0,0 +1,19 @@
++Spreadtrum SoCs Watchdog timer
++
++Required properties:
++- compatible : Should be "sprd,sp9860-wdt".
++- reg : Specifies base physical address and size of the registers.
++- interrupts : Exactly one interrupt specifier.
++- timeout-sec : Contain the default watchdog timeout in seconds.
++- clock-names : Contain the input clock names.
++- clocks : Phandles to input clocks.
++
++Example:
++	watchdog: watchdog@40310000 {
++		compatible = "sprd,sp9860-wdt";
++		reg = <0 0x40310000 0 0x1000>;
++		interrupts = <GIC_SPI 61 IRQ_TYPE_LEVEL_HIGH>;
++		timeout-sec = <12>;
++		clock-names = "enable", "rtc_enable";
++		clocks = <&clk_aon_apb_gates1 8>, <&clk_aon_apb_rtc_gates 9>;
++	};
 -- 
-2.13.6
-
+1.9.1
