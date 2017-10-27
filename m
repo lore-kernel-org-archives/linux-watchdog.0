@@ -1,617 +1,387 @@
-Return-Path: <Eric.Long@spreadtrum.com>
-Return-path: <Eric.Long@spreadtrum.com>
-Date: Fri, 27 Oct 2017 15:54:34 +0800
-From: Eric Long <eric.long@spreadtrum.com>
-To: Guenter Roeck <linux@roeck-us.net>
-CC: Wim Van Sebroeck <wim@iguana.be>, Rob Herring <robh+dt@kernel.org>,
-        Mark
- Rutland <mark.rutland@arm.com>, <baolin.wang@linaro.org>,
-        <linux-watchdog@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v3 2/2] watchdog: Add Spreadtrum watchdog driver
-Message-ID: <20171027075433.GA13942@spreadtrum.com>
-References: <d1efd94bfbc92b89e246b0b745d976d547b145b6.1509070855.git.eric.long@spreadtrum.com>
- <b7c53cbdc36c3a4434ad2488a6646f6365cdfe77.1509070855.git.eric.long@spreadtrum.com>
- <88fc46de-dabf-b702-0c86-a51c26d263e0@roeck-us.net>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-pg0-f66.google.com ([74.125.83.66]:44797 "EHLO
+        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932428AbdJ0BCR (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Thu, 26 Oct 2017 21:02:17 -0400
+Received: by mail-pg0-f66.google.com with SMTP id j3so4035545pga.1
+        for <linux-watchdog@vger.kernel.org>; Thu, 26 Oct 2017 18:02:17 -0700 (PDT)
+Subject: Re: [PATCH v3 2/4] watchdog: i6300esb: support multiple devices
+To: Radu Rendec <rrendec@arista.com>
+Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org
+References: <2edc54c2-f3d9-6b54-7ff9-79365b03946c@roeck-us.net>
+ <20171026161016.3198-2-rrendec@arista.com>
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <7dc9ee42-1a80-ba08-e591-2552bc8c9c1c@roeck-us.net>
+Date: Thu, 26 Oct 2017 18:02:15 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <88fc46de-dabf-b702-0c86-a51c26d263e0@roeck-us.net>
-List-ID: <linux-watchdog@vger.kernel.org>
+In-Reply-To: <20171026161016.3198-2-rrendec@arista.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-Hi Guenter,
-
-Thanks for you commonts.
-
-On Thu, Oct 26, 2017 at 10:23:40PM -0700, Guenter Roeck wrote:
-> On 10/26/2017 07:28 PM, Eric Long wrote:
-> >This patch adds the watchdog driver for Spreadtrum SC9860 platform.
-> >
-> >Signed-off-by: Eric Long <eric.long@spreadtrum.com>
-> >---
-> >Change since v2:
-> >  - Rename all the macors, add SPRD tag at the head of the macro names.
-> >  - Rename SPRD_WDT_CLK as SPRD_WTC_CNT_STEP.
-> >  - Remove the code which check timeout value at the wrong place.
-> >  - Add min/max timeout value limit.
-> >  - Remove set WDOG_HW_RUNNING status at sprd_wdt_enable().
-> >  - Add timeout/pretimeout judgment when set them.
-> >  - Support WATCHDOG_NOWAYOUT status.
-> >
-> >Changes since v1:
-> >  - Use pretimeout instead of own implementation.
-> >  - Fix timeout loop when loading timeout values.
-> >  - use the infrastructure to read and set "timeout-sec" property.
-> >  - Add conditions when start or stop watchdog.
-> >  - Change the position of enabling watchdog.
-> >  - Other optimization.
-> >---
-> >  drivers/watchdog/Kconfig    |   8 +
-> >  drivers/watchdog/Makefile   |   1 +
-> >  drivers/watchdog/sprd_wdt.c | 415 ++++++++++++++++++++++++++++++++++++++++++++
-> >  3 files changed, 424 insertions(+)
-> >  create mode 100644 drivers/watchdog/sprd_wdt.c
-> >
-> >diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> >index c722cbf..4a77e17 100644
-> >--- a/drivers/watchdog/Kconfig
-> >+++ b/drivers/watchdog/Kconfig
-> >@@ -787,6 +787,14 @@ config UNIPHIER_WATCHDOG
-> >  	  To compile this driver as a module, choose M here: the
-> >  	  module will be called uniphier_wdt.
-> >+config SPRD_WATCHDOG
-> >+	tristate "Spreadtrum watchdog support"
-> >+	depends on ARCH_SPRD || COMPILE_TEST
-> >+	select WATCHDOG_CORE
-> >+	help
-> >+	  Say Y here to include support watchdog timer embedded
-> >+	  into the Spreadtrum system.
+On 10/26/2017 09:10 AM, Radu Rendec wrote:
+> Support multiple i6300esb devices simultaneously, by removing the single
+> device restriction in the original design and leveraging the multiple
+> device support of the watchdog subsystem.
 > 
-> Maybe better "supported by" instead of "embedded into". Or at least
-> "embedded in".
-
-OK, I will fix it.
- 
-> >+
-> >  # AVR32 Architecture
-> >  config AT32AP700X_WDT
-> >diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-> >index 56adf9f..187cca2 100644
-> >--- a/drivers/watchdog/Makefile
-> >+++ b/drivers/watchdog/Makefile
-> >@@ -87,6 +87,7 @@ obj-$(CONFIG_ASPEED_WATCHDOG) += aspeed_wdt.o
-> >  obj-$(CONFIG_ZX2967_WATCHDOG) += zx2967_wdt.o
-> >  obj-$(CONFIG_STM32_WATCHDOG) += stm32_iwdg.o
-> >  obj-$(CONFIG_UNIPHIER_WATCHDOG) += uniphier_wdt.o
-> >+obj-$(CONFIG_SPRD_WATCHDOG) += sprd_wdt.o
-> >  # AVR32 Architecture
-> >  obj-$(CONFIG_AT32AP700X_WDT) += at32ap700x_wdt.o
-> >diff --git a/drivers/watchdog/sprd_wdt.c b/drivers/watchdog/sprd_wdt.c
-> >new file mode 100644
-> >index 0000000..5fc3dde
-> >--- /dev/null
-> >+++ b/drivers/watchdog/sprd_wdt.c
-> >@@ -0,0 +1,415 @@
-> >+/*
-> >+ * Spreadtrum watchdog driver
-> >+ * Copyright (C) 2017 Spreadtrum - http://www.spreadtrum.com
-> >+ *
-> >+ * This program is free software; you can redistribute it and/or
-> >+ * modify it under the terms of the GNU General Public License
-> >+ * version 2 as published by the Free Software Foundation.
-> >+ *
-> >+ * This program is distributed in the hope that it will be useful, but
-> >+ * WITHOUT ANY WARRANTY; without even the implied warranty of
-> >+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-> >+ * General Public License for more details.
-> >+ */
-> >+
-> >+#include <linux/bitops.h>
-> >+#include <linux/clk.h>
-> >+#include <linux/err.h>
-> >+#include <linux/interrupt.h>
-> >+#include <linux/io.h>
-> >+#include <linux/kernel.h>
-> >+#include <linux/module.h>
-> >+#include <linux/of.h>
-> >+#include <linux/of_address.h>
-> >+#include <linux/platform_device.h>
-> >+#include <linux/watchdog.h>
-> >+
-> >+#define SPRD_WDT_LOAD_LOW		0x0
-> >+#define SPRD_WDT_LOAD_HIGH		0x4
-> >+#define SPRD_WDT_CTRL			0x8
-> >+#define SPRD_WDT_INT_CLR		0xc
-> >+#define SPRD_WDT_INT_RAW		0x10
-> >+#define SPRD_WDT_INT_MSK		0x14
-> >+#define SPRD_WDT_CNT_LOW		0x18
-> >+#define SPRD_WDT_CNT_HIGH		0x1c
-> >+#define SPRD_WDT_LOCK			0x20
-> >+#define SPRD_WDT_IRQ_LOAD_LOW		0x2c
-> >+#define SPRD_WDT_IRQ_LOAD_HIGH		0x30
-> >+
-> >+/* WDT_CTRL */
-> >+#define SPRD_WDT_INT_EN_BIT		BIT(0)
-> >+#define SPRD_WDT_CNT_EN_BIT		BIT(1)
-> >+#define SPRD_WDT_NEW_VER_EN		BIT(2)
-> >+#define SPRD_WDT_RST_EN_BIT		BIT(3)
-> >+
-> >+/* WDT_INT_CLR */
-> >+#define SPRD_WDT_INT_CLEAR_BIT		BIT(0)
-> >+#define SPRD_WDT_RST_CLEAR_BIT		BIT(3)
-> >+
-> >+/* WDT_INT_RAW */
-> >+#define SPRD_WDT_INT_RAW_BIT		BIT(0)
-> >+#define SPRD_WDT_RST_RAW_BIT		BIT(3)
-> >+#define SPRD_WDT_LD_BUSY_BIT		BIT(4)
-> >+
-> >+/* 1s equale to 32768 counter steps */
+> This patch replaces the global definitions of watchdog device data with
+> a dynamically allocated structure. This structure is allocated during
+> device probe, so multiple independent structures can be allocated if
+> multiple devices are probed.
 > 
-> equal ?
->
-
-OK, I will fix it.
-
-> >+#define SPRD_WDT_CNT_STEP		32768
-> >+
-> >+#define SPRD_WDT_UNLOCK_KEY		0xe551
-> >+#define SPRD_WDT_MIN_TIMROUT		3
+> Signed-off-by: Radu Rendec <rrendec@arista.com>
+> ---
+>   drivers/watchdog/i6300esb.c | 170 +++++++++++++++++++++++---------------------
+>   1 file changed, 90 insertions(+), 80 deletions(-)
 > 
-> TIMROUT ot TIMEOUT ?
-> 
+> diff --git a/drivers/watchdog/i6300esb.c b/drivers/watchdog/i6300esb.c
+> index 4f4287d83c21..147462f431de 100644
+> --- a/drivers/watchdog/i6300esb.c
+> +++ b/drivers/watchdog/i6300esb.c
+> @@ -23,6 +23,7 @@
+>    *	Ported driver to kernel 2.6
+>    *  20171016 Radu Rendec <rrendec@arista.com>
+>    *	Change driver to use the watchdog subsystem
+> + *	Add support for multiple 6300ESB devices
+>    */
+>   
+>   /*
+> @@ -52,10 +53,10 @@
+>   #define ESB_LOCK_REG    0x68            /* WDT lock register                 */
+>   
+>   /* Memory mapped registers */
+> -#define ESB_TIMER1_REG (BASEADDR + 0x00)/* Timer1 value after each reset     */
+> -#define ESB_TIMER2_REG (BASEADDR + 0x04)/* Timer2 value after each reset     */
+> -#define ESB_GINTSR_REG (BASEADDR + 0x08)/* General Interrupt Status Register */
+> -#define ESB_RELOAD_REG (BASEADDR + 0x0c)/* Reload register                   */
+> +#define ESB_TIMER1_REG(w) ((w)->base + 0x00)/* Timer1 value after each reset */
+> +#define ESB_TIMER2_REG(w) ((w)->base + 0x04)/* Timer2 value after each reset */
+> +#define ESB_GINTSR_REG(w) ((w)->base + 0x08)/* General Interrupt Status Reg  */
+> +#define ESB_RELOAD_REG(w) ((w)->base + 0x0c)/* Reload register               */
+>   
+>   /* Lock register bits */
+>   #define ESB_WDT_FUNC    (0x01 << 2)   /* Watchdog functionality            */
+> @@ -75,11 +76,7 @@
+>   #define ESB_UNLOCK1     0x80            /* Step 1 to unlock reset registers  */
+>   #define ESB_UNLOCK2     0x86            /* Step 2 to unlock reset registers  */
+>   
+> -/* internal variables */
+> -static void __iomem *BASEADDR;
+> -static struct pci_dev *esb_pci;
+> -
+> -/* We can only use 1 card due to the /dev/watchdog restriction */
+> +/* Probed devices counter; used only for printing the initial info message */
+>   static int cards_found;
+>   
+Leftover ?
 
-OK, I will fix it.
+>   /* module parameters */
+> @@ -97,6 +94,15 @@ MODULE_PARM_DESC(nowayout,
+>   		"Watchdog cannot be stopped once started (default="
+>   				__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+>   
+> +/* internal variables */
+> +struct esb_dev {
+> +	struct watchdog_device wdd;
+> +	void __iomem *base;
+> +	struct pci_dev *pdev;
+> +};
+> +
+> +#define to_esb_dev(wptr) container_of(wptr, struct esb_dev, wdd)
+> +
+>   /*
+>    * Some i6300ESB specific functions
+>    */
+> @@ -107,35 +113,37 @@ MODULE_PARM_DESC(nowayout,
+>    * reload register. After this the appropriate registers can be written
+>    * to once before they need to be unlocked again.
+>    */
+> -static inline void esb_unlock_registers(void)
+> +static inline void esb_unlock_registers(struct esb_dev *edev)
+>   {
+> -	writew(ESB_UNLOCK1, ESB_RELOAD_REG);
+> -	writew(ESB_UNLOCK2, ESB_RELOAD_REG);
+> +	writew(ESB_UNLOCK1, ESB_RELOAD_REG(edev));
+> +	writew(ESB_UNLOCK2, ESB_RELOAD_REG(edev));
+>   }
+>   
+>   static int esb_timer_start(struct watchdog_device *wdd)
+>   {
+> +	struct esb_dev *edev = to_esb_dev(wdd);
+>   	int _wdd_nowayout = test_bit(WDOG_NO_WAY_OUT, &wdd->status);
+>   	u8 val;
+>   
+> -	esb_unlock_registers();
+> -	writew(ESB_WDT_RELOAD, ESB_RELOAD_REG);
+> +	esb_unlock_registers(edev);
+> +	writew(ESB_WDT_RELOAD, ESB_RELOAD_REG(edev));
+>   	/* Enable or Enable + Lock? */
+>   	val = ESB_WDT_ENABLE | (_wdd_nowayout ? ESB_WDT_LOCK : 0x00);
+> -	pci_write_config_byte(esb_pci, ESB_LOCK_REG, val);
+> +	pci_write_config_byte(edev->pdev, ESB_LOCK_REG, val);
+>   	return 0;
+>   }
+>   
+>   static int esb_timer_stop(struct watchdog_device *wdd)
+>   {
+> +	struct esb_dev *edev = to_esb_dev(wdd);
+>   	u8 val;
+>   
+>   	/* First, reset timers as suggested by the docs */
+> -	esb_unlock_registers();
+> -	writew(ESB_WDT_RELOAD, ESB_RELOAD_REG);
+> +	esb_unlock_registers(edev);
+> +	writew(ESB_WDT_RELOAD, ESB_RELOAD_REG(edev));
+>   	/* Then disable the WDT */
+> -	pci_write_config_byte(esb_pci, ESB_LOCK_REG, 0x0);
+> -	pci_read_config_byte(esb_pci, ESB_LOCK_REG, &val);
+> +	pci_write_config_byte(edev->pdev, ESB_LOCK_REG, 0x0);
+> +	pci_read_config_byte(edev->pdev, ESB_LOCK_REG, &val);
+>   
+>   	/* Returns 0 if the timer was disabled, non-zero otherwise */
+>   	return val & ESB_WDT_ENABLE;
+> @@ -143,8 +151,10 @@ static int esb_timer_stop(struct watchdog_device *wdd)
+>   
+>   static int esb_timer_keepalive(struct watchdog_device *wdd)
+>   {
+> -	esb_unlock_registers();
+> -	writew(ESB_WDT_RELOAD, ESB_RELOAD_REG);
+> +	struct esb_dev *edev = to_esb_dev(wdd);
+> +
+> +	esb_unlock_registers(edev);
+> +	writew(ESB_WDT_RELOAD, ESB_RELOAD_REG(edev));
+>   	/* FIXME: Do we need to flush anything here? */
+>   	return 0;
+>   }
+> @@ -152,6 +162,7 @@ static int esb_timer_keepalive(struct watchdog_device *wdd)
+>   static int esb_timer_set_heartbeat(struct watchdog_device *wdd,
+>   		unsigned int time)
+>   {
+> +	struct esb_dev *edev = to_esb_dev(wdd);
+>   	u32 val;
+>   
+>   	/* We shift by 9, so if we are passed a value of 1 sec,
+> @@ -161,16 +172,16 @@ static int esb_timer_set_heartbeat(struct watchdog_device *wdd,
+>   	val = time << 9;
+>   
+>   	/* Write timer 1 */
+> -	esb_unlock_registers();
+> -	writel(val, ESB_TIMER1_REG);
+> +	esb_unlock_registers(edev);
+> +	writel(val, ESB_TIMER1_REG(edev));
+>   
+>   	/* Write timer 2 */
+> -	esb_unlock_registers();
+> -	writel(val, ESB_TIMER2_REG);
+> +	esb_unlock_registers(edev);
+> +	writel(val, ESB_TIMER2_REG(edev));
+>   
+>   	/* Reload */
+> -	esb_unlock_registers();
+> -	writew(ESB_WDT_RELOAD, ESB_RELOAD_REG);
+> +	esb_unlock_registers(edev);
+> +	writew(ESB_WDT_RELOAD, ESB_RELOAD_REG(edev));
+>   
+>   	/* FIXME: Do we need to flush everything out? */
+>   
+> @@ -196,14 +207,6 @@ static const struct watchdog_ops esb_ops = {
+>   	.ping = esb_timer_keepalive,
+>   };
+>   
+> -static struct watchdog_device esb_dev = {
+> -	.info = &esb_info,
+> -	.ops = &esb_ops,
+> -	.min_timeout = 1,
+> -	.max_timeout = 2 * 0x03ff,
+> -	.timeout = WATCHDOG_HEARTBEAT,
+> -};
+> -
+>   /*
+>    * Data for PCI driver interface
+>    */
+> @@ -217,38 +220,38 @@ MODULE_DEVICE_TABLE(pci, esb_pci_tbl);
+>    *      Init & exit routines
+>    */
+>   
+> -static unsigned char esb_getdevice(struct pci_dev *pdev)
+> +static unsigned char esb_getdevice(struct esb_dev *edev)
+>   {
+> -	if (pci_enable_device(pdev)) {
+> -		dev_err(&pdev->dev, "failed to enable device\n");
+> +	if (pci_enable_device(edev->pdev)) {
+> +		dev_err(&edev->pdev->dev, "failed to enable device\n");
+>   		goto err_devput;
+>   	}
+>   
+> -	if (pci_request_region(pdev, 0, ESB_MODULE_NAME)) {
+> -		dev_err(&pdev->dev, "failed to request region\n");
+> +	if (pci_request_region(edev->pdev, 0, ESB_MODULE_NAME)) {
+> +		dev_err(&edev->pdev->dev, "failed to request region\n");
+>   		goto err_disable;
+>   	}
+>   
+> -	BASEADDR = pci_ioremap_bar(pdev, 0);
+> -	if (BASEADDR == NULL) {
+> +	edev->base = pci_ioremap_bar(edev->pdev, 0);
+> +	if (edev->base == NULL) {
+>   		/* Something's wrong here, BASEADDR has to be set */
+> -		dev_err(&pdev->dev, "failed to get BASEADDR\n");
+> +		dev_err(&edev->pdev->dev, "failed to get BASEADDR\n");
+>   		goto err_release;
+>   	}
+>   
+>   	/* Done */
+> -	esb_pci = pdev;
+> +	dev_set_drvdata(&edev->pdev->dev, edev);
+>   	return 1;
+>   
+>   err_release:
+> -	pci_release_region(pdev, 0);
+> +	pci_release_region(edev->pdev, 0);
+>   err_disable:
+> -	pci_disable_device(pdev);
+> +	pci_disable_device(edev->pdev);
+>   err_devput:
+>   	return 0;
+>   }
+>   
+> -static void esb_initdevice(void)
+> +static void esb_initdevice(struct esb_dev *edev)
+>   {
+>   	u8 val1;
+>   	u16 val2;
+> @@ -265,33 +268,34 @@ static void esb_initdevice(void)
+>   	 * any interrupts as there is not much we can do with it
+>   	 * right now.
+>   	 */
+> -	pci_write_config_word(esb_pci, ESB_CONFIG_REG, 0x0003);
+> +	pci_write_config_word(edev->pdev, ESB_CONFIG_REG, 0x0003);
+>   
+>   	/* Check that the WDT isn't already locked */
+> -	pci_read_config_byte(esb_pci, ESB_LOCK_REG, &val1);
+> +	pci_read_config_byte(edev->pdev, ESB_LOCK_REG, &val1);
+>   	if (val1 & ESB_WDT_LOCK)
+> -		dev_warn(&esb_pci->dev, "nowayout already set\n");
+> +		dev_warn(&edev->pdev->dev, "nowayout already set\n");
+>   
+>   	/* Set the timer to watchdog mode and disable it for now */
+> -	pci_write_config_byte(esb_pci, ESB_LOCK_REG, 0x00);
+> +	pci_write_config_byte(edev->pdev, ESB_LOCK_REG, 0x00);
+>   
+>   	/* Check if the watchdog was previously triggered */
+> -	esb_unlock_registers();
+> -	val2 = readw(ESB_RELOAD_REG);
+> +	esb_unlock_registers(edev);
+> +	val2 = readw(ESB_RELOAD_REG(edev));
+>   	if (val2 & ESB_WDT_TIMEOUT)
+> -		esb_dev.bootstatus = WDIOF_CARDRESET;
+> +		edev->wdd.bootstatus = WDIOF_CARDRESET;
+>   
+>   	/* Reset WDT_TIMEOUT flag and timers */
+> -	esb_unlock_registers();
+> -	writew((ESB_WDT_TIMEOUT | ESB_WDT_RELOAD), ESB_RELOAD_REG);
+> +	esb_unlock_registers(edev);
+> +	writew((ESB_WDT_TIMEOUT | ESB_WDT_RELOAD), ESB_RELOAD_REG(edev));
+>   
+>   	/* And set the correct timeout value */
+> -	esb_timer_set_heartbeat(&esb_dev, esb_dev.timeout);
+> +	esb_timer_set_heartbeat(&edev->wdd, edev->wdd.timeout);
+>   }
+>   
+>   static int esb_probe(struct pci_dev *pdev,
+>   		const struct pci_device_id *ent)
+>   {
+> +	struct esb_dev *edev;
+>   	int ret;
+>   
+>   	cards_found++;
 
-> >+#define SPRD_WDT_MAX_TIMEOUT		60
-> 
-> Is that really the maximum supported timeout ? Seems a bit low.
-> Shouldn't it be something like (U32_MAX / SPRD_WDT_CNT_STEP) ?
-> 
+Leftover ?
 
-It supports the max value like as U32_MAX/SPRD_WDT_CNT_STEP,
-but it doesn't unnecessary to support so big value, if the system can not
-response it in 60s, the watchdog could trigger timeout.
-
-> >+
-> >+#define SPRD_WDT_CNT_HIGH_VALUE		16
-> 
-> Maybe name it "SPRD_WDT_CNT_HIGH_SHIFT". It is not really a value,
-> it is a shift.
->
-
-Yes, you are right, _SHIFT will be better.
- 
-> >+#define SPRD_WDT_LOW_VALUE_MASK		GENMASK(15, 0)
-> >+#define SPRD_WDT_CNT_VALUE_MAX		GENMASK(31, 0)
-> 
-> Does this mask serve a useful purpose ?
-> 
-
-OK, I will remove it, thanks!
-
-> >+#define SPRD_WDT_LOAD_TIMEOUT		1000
-> >+
-> >+struct sprd_wdt {
-> >+	void __iomem *base;
-> >+	struct watchdog_device wdd;
-> >+	struct clk *enable;
-> >+	struct clk *rtc_enable;
-> >+	unsigned int irq;
-> >+};
-> >+
-> >+static inline struct sprd_wdt *to_sprd_wdt(struct watchdog_device *wdd)
-> >+{
-> >+	return container_of(wdd, struct sprd_wdt, wdd);
-> >+}
-> >+
-> >+static inline void sprd_wdt_lock(void __iomem *addr)
-> >+{
-> >+	writel_relaxed(0x0, addr + SPRD_WDT_LOCK);
-> >+}
-> >+
-> >+static inline void sprd_wdt_unlock(void __iomem *addr)
-> >+{
-> >+	writel_relaxed(SPRD_WDT_UNLOCK_KEY, addr + SPRD_WDT_LOCK);
-> >+}
-> >+
-> >+static inline bool sprd_wdt_is_running(struct sprd_wdt *wdt)
-> >+{
-> >+	u32 val;
-> >+
-> >+	val = readl_relaxed(wdt->base + SPRD_WDT_CTRL);
-> >+	return val & SPRD_WDT_NEW_VER_EN;
-> >+}
-> >+
-> >+static irqreturn_t sprd_wdt_isr(int irq, void *dev_id)
-> >+{
-> >+	struct sprd_wdt *wdt = (struct sprd_wdt *)dev_id;
-> >+
-> >+	sprd_wdt_unlock(wdt->base);
-> >+	writel_relaxed(SPRD_WDT_INT_CLEAR_BIT, wdt->base + SPRD_WDT_INT_CLR);
-> >+	sprd_wdt_lock(wdt->base);
-> >+	watchdog_notify_pretimeout(&wdt->wdd);
-> >+	return IRQ_HANDLED;
-> >+}
-> >+
-> >+static u32 sprd_wdt_get_cnt_value(struct sprd_wdt *wdt)
-> >+{
-> >+	u32 val;
-> >+
-> >+	val = readl_relaxed(wdt->base + SPRD_WDT_CNT_HIGH) <<
-> >+		SPRD_WDT_CNT_HIGH_VALUE;
-> >+	val |= readl_relaxed(wdt->base + SPRD_WDT_CNT_LOW) &
-> >+		SPRD_WDT_LOW_VALUE_MASK;
-> >+
-> >+	return val;
-> >+}
-> >+
-> >+static int sprd_wdt_load_value(struct sprd_wdt *wdt, u32 timeout,
-> >+			       u32 pretimeout)
-> >+{
-> >+	u32 val, delay_cnt = 0;
-> >+	u32 tmr_step = timeout * SPRD_WDT_CNT_STEP;
-> >+	u32 prtmr_step = pretimeout * SPRD_WDT_CNT_STEP;
-> >+
-> >+	sprd_wdt_unlock(wdt->base);
-> >+	writel_relaxed((tmr_step >> SPRD_WDT_CNT_HIGH_VALUE) &
-> >+		      SPRD_WDT_LOW_VALUE_MASK, wdt->base + SPRD_WDT_LOAD_HIGH);
-> >+	writel_relaxed((tmr_step & SPRD_WDT_LOW_VALUE_MASK),
-> >+		       wdt->base + SPRD_WDT_LOAD_LOW);
-> >+	writel_relaxed((prtmr_step >> SPRD_WDT_CNT_HIGH_VALUE) &
-> >+			SPRD_WDT_LOW_VALUE_MASK,
-> >+		       wdt->base + SPRD_WDT_IRQ_LOAD_HIGH);
-> >+	writel_relaxed(prtmr_step & SPRD_WDT_LOW_VALUE_MASK,
-> >+		       wdt->base + SPRD_WDT_IRQ_LOAD_LOW);
-> >+	sprd_wdt_lock(wdt->base);
-> >+
-> >+	/*
-> >+	 * Waiting the load value operation done,
-> >+	 * it needs two or three RTC clock cycles.
-> >+	 */
-> >+	do {
-> >+		val = readl_relaxed(wdt->base + SPRD_WDT_INT_RAW);
-> >+		if (!(val & SPRD_WDT_LD_BUSY_BIT))
-> >+			break;
-> >+
-> >+		cpu_relax();
-> >+	} while (delay_cnt++ < SPRD_WDT_LOAD_TIMEOUT);
-> >+
-> >+	if (delay_cnt >= SPRD_WDT_LOAD_TIMEOUT)
-> >+		return -EBUSY;
-> >+	return 0;
-> >+}
-> >+
-> >+static int sprd_wdt_enable(struct sprd_wdt *wdt)
-> >+{
-> >+	u32 val;
-> >+	int ret;
-> >+
-> >+	ret = clk_prepare_enable(wdt->enable);
-> >+	if (ret)
-> >+		return ret;
-> >+	ret = clk_prepare_enable(wdt->rtc_enable);
-> >+	if (ret)
-> >+		return ret;
-> >+
-> >+	sprd_wdt_unlock(wdt->base);
-> >+	val = readl_relaxed(wdt->base + SPRD_WDT_CTRL);
-> >+	val |= SPRD_WDT_NEW_VER_EN;
-> >+	writel_relaxed(val, wdt->base + SPRD_WDT_CTRL);
-> >+	sprd_wdt_lock(wdt->base);
-> >+	return 0;
-> >+}
-> >+
-> >+static void sprd_wdt_disable(struct sprd_wdt *wdt)
-> >+{
-> >+	sprd_wdt_unlock(wdt->base);
-> >+	writel_relaxed(0x0, wdt->base + SPRD_WDT_CTRL);
-> >+	sprd_wdt_lock(wdt->base);
-> >+
-> >+	clk_disable_unprepare(wdt->rtc_enable);
-> >+	clk_disable_unprepare(wdt->enable);
-> >+}
-> >+
-> >+static int sprd_wdt_start(struct watchdog_device *wdd)
-> >+{
-> >+	struct sprd_wdt *wdt = to_sprd_wdt(wdd);
-> >+	u32 val;
-> >+	int ret;
-> >+
-> >+	ret = sprd_wdt_load_value(wdt, wdd->timeout, wdd->pretimeout);
-> >+	if (ret)
-> >+		return ret;
-> >+
-> >+	sprd_wdt_unlock(wdt->base);
-> >+	val = readl_relaxed(wdt->base + SPRD_WDT_CTRL);
-> >+	val |= SPRD_WDT_CNT_EN_BIT | SPRD_WDT_INT_EN_BIT | SPRD_WDT_RST_EN_BIT;
-> >+	writel_relaxed(val, wdt->base + SPRD_WDT_CTRL);
-> >+	sprd_wdt_lock(wdt->base);
-> >+	set_bit(WDOG_HW_RUNNING, &wdd->status);
-> >+
-> >+	return 0;
-> >+}
-> >+
-> >+static int sprd_wdt_stop(struct watchdog_device *wdd)
-> >+{
-> >+	struct sprd_wdt *wdt = to_sprd_wdt(wdd);
-> >+	u32 val;
-> >+
-> >+	sprd_wdt_unlock(wdt->base);
-> >+	val = readl_relaxed(wdt->base + SPRD_WDT_CTRL);
-> >+	val &= ~(SPRD_WDT_CNT_EN_BIT | SPRD_WDT_RST_EN_BIT |
-> >+		SPRD_WDT_INT_EN_BIT);
-> >+	writel_relaxed(val, wdt->base + SPRD_WDT_CTRL);
-> >+	sprd_wdt_lock(wdt->base);
-> >+	return 0;
-> >+}
-> >+
-> >+static int sprd_wdt_set_timeout(struct watchdog_device *wdd,
-> >+				u32 timeout)
-> >+{
-> >+	struct sprd_wdt *wdt = to_sprd_wdt(wdd);
-> >+
-> >+	if (timeout == wdd->timeout)
-> >+		return 0;
-> >+
-> >+	wdd->timeout = timeout;
-> >+
-> >+	return sprd_wdt_load_value(wdt, timeout, wdd->pretimeout);
-> >+}
-> >+
-> >+static int sprd_wdt_set_pretimeout(struct watchdog_device *wdd,
-> >+				   u32 new_pretimeout)
-> >+{
-> >+	struct sprd_wdt *wdt = to_sprd_wdt(wdd);
-> >+
-> >+	if (new_pretimeout == wdd->pretimeout)
-> >+		return 0;
-> 
-> This is inconsistent. pretimeout == 0 is accepted until it is set
-> to a non-zero value once, then 0 is no longer accepted. pretimeout==0
-> should reflect "pretimeout disabled". If that is not possible you
-> need to set some non-0 default value in the probe function.
->
-
-I understand your opinion, I will fix it.
-
-> >+	if (new_pretimeout <= wdd->min_timeout)
-> >+		return -EINVAL;
-> 
-> Why is pretimeout == wdd->min_timeout invalid ?
-> 
-
-OK, you are right, it should be pretimeout < min_timeout.
-
-> >+
-> >+	wdd->pretimeout = new_pretimeout;
-> >+
-> >+	return sprd_wdt_load_value(wdt, wdd->timeout, new_pretimeout);
-> >+}
-> >+
-> >+static u32 sprd_wdt_get_timeleft(struct watchdog_device *wdd)
-> >+{
-> >+	struct sprd_wdt *wdt = to_sprd_wdt(wdd);
-> >+	u32 val;
-> >+
-> >+	val = sprd_wdt_get_cnt_value(wdt);
-> >+	val = val / SPRD_WDT_CNT_STEP;
-> >+
-> >+	return val;
-> >+}
-> >+
-> >+static const struct watchdog_ops sprd_wdt_ops = {
-> >+	.owner = THIS_MODULE,
-> >+	.start = sprd_wdt_start,
-> >+	.stop = sprd_wdt_stop,
-> >+	.set_timeout = sprd_wdt_set_timeout,
-> >+	.set_pretimeout = sprd_wdt_set_pretimeout,
-> >+	.get_timeleft = sprd_wdt_get_timeleft,
-> 
-> Just wondering - no heartbeat function ? Having to load the timer
-> values for each heartbeat is expensive.
->
-
-Unfortunately, this watchdog has not RELOAD register.
- 
-> >+};
-> >+
-> >+static const struct watchdog_info sprd_wdt_info = {
-> >+	.options = WDIOF_SETTIMEOUT |
-> >+		   WDIOF_PRETIMEOUT |
-> >+		   WDIOF_MAGICCLOSE |
-> >+		   WDIOF_KEEPALIVEPING,
-> >+	.identity = "Spreadtrum Watchdog Timer",
-> >+};
-> >+
-> >+static int sprd_wdt_probe(struct platform_device *pdev)
-> >+{
-> >+	struct resource *wdt_res;
-> >+	struct sprd_wdt *wdt;
-> >+	int ret;
-> >+
-> >+	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
-> >+	if (!wdt)
-> >+		return -ENOMEM;
-> >+
-> >+	wdt_res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> >+	if (!wdt_res) {
-> >+		dev_err(&pdev->dev, "failed to memory resource\n");
-> >+		return -ENOMEM;
-> >+	}
-> 
-> Unnecessary error check and message. devm_ioremap_resource()
-> returns an error if res is NULL.
->
-
-OK, I will fix it.
- 
-> >+
-> >+	wdt->base = devm_ioremap_resource(&pdev->dev, wdt_res);
-> >+	if (IS_ERR(wdt->base))
-> 
-> Move the error message to here.
-> 
-> >+		return PTR_ERR(wdt->base);
-> >+
-> >+	wdt->enable = devm_clk_get(&pdev->dev, "enable");
-> >+	if (IS_ERR(wdt->enable)) {
-> >+		dev_err(&pdev->dev, "can't get the enable clock\n");
-> >+		return PTR_ERR(wdt->enable);
-> >+	}
-> >+
-> >+	wdt->rtc_enable = devm_clk_get(&pdev->dev, "rtc_enable");
-> >+	if (IS_ERR(wdt->rtc_enable)) {
-> >+		dev_err(&pdev->dev, "can't get the rtc enable clock\n");
-> >+		return PTR_ERR(wdt->rtc_enable);
-> >+	}
-> >+
-> >+	wdt->irq = platform_get_irq(pdev, 0);
-> >+	if (wdt->irq < 0) {
-> >+		dev_err(&pdev->dev, "failed to get IRQ resource\n");
-> >+		return wdt->irq;
-> >+	}
-> >+
-> >+	ret = devm_request_irq(&pdev->dev, wdt->irq, sprd_wdt_isr,
-> >+			       IRQF_NO_SUSPEND, "sprd-wdt", (void *)wdt);
-> >+	if (ret) {
-> >+		dev_err(&pdev->dev, "failed to register irq\n");
-> >+		return ret;
-> >+	}
-> >+
-> >+	wdt->wdd.info = &sprd_wdt_info;
-> >+	wdt->wdd.ops = &sprd_wdt_ops;
-> >+	wdt->wdd.parent = &pdev->dev;
-> >+	wdt->wdd.min_timeout = SPRD_WDT_MIN_TIMROUT;
-> >+	wdt->wdd.max_timeout = SPRD_WDT_MAX_TIMEOUT;
-> >+
-> You might want to set wdt->wdd.timeout to a default value.
->
-
-OK, I will set a default timeout value in case of no timeout-sec in device-tree.
- 
-> >+	ret = sprd_wdt_enable(wdt);
-> >+	if (ret) {
-> >+		dev_err(&pdev->dev, "failed to enable wdt\n");
-> >+		return ret;
-> >+	}
-> >+
-> 
-> This needs a matching sprd_wdt_disable() call in the remove function.
-> Best way to handle this would be to add devm_add_action() here.
+> @@ -299,26 +303,32 @@ static int esb_probe(struct pci_dev *pdev,
+>   		pr_info("Intel 6300ESB WatchDog Timer Driver v%s\n",
+>   			ESB_VERSION);
+>   
+> -	if (cards_found > 1) {
+> -		pr_err("This driver only supports 1 device\n");
+> -		return -ENODEV;
+> -	}
+> +	edev = devm_kzalloc(&pdev->dev, sizeof(*edev), GFP_KERNEL);
+> +	if (!edev)
+> +		return -ENOMEM;
+>   
+>   	/* Check whether or not the hardware watchdog is there */
+> -	if (!esb_getdevice(pdev) || esb_pci == NULL)
+> +	edev->pdev = pdev;
+> +	if (!esb_getdevice(edev))
+>   		return -ENODEV;
+>   
+>   	/* Initialize the watchdog and make sure it does not run */
+> -	if (watchdog_init_timeout(&esb_dev, heartbeat, NULL))
+> -		pr_info("heartbeat value must be 1<heartbeat<2046, using %u\n",
+> -			esb_dev.timeout);
+> -	watchdog_set_nowayout(&esb_dev, nowayout);
+> -	watchdog_stop_on_reboot(&esb_dev);
+> -	watchdog_stop_on_unregister(&esb_dev);
+> -	esb_initdevice();
+> +	edev->wdd.info = &esb_info;
+> +	edev->wdd.ops = &esb_ops;
+> +	edev->wdd.min_timeout = 1;
+> +	edev->wdd.max_timeout = 2 * 0x03ff;
+> +	edev->wdd.timeout = WATCHDOG_HEARTBEAT;
+> +	if (watchdog_init_timeout(&edev->wdd, heartbeat, NULL))
+> +		dev_info(&pdev->dev,
+> +			"heartbeat value must be 1<heartbeat<2046, using %u\n",
+> +			edev->wdd.timeout);
+> +	watchdog_set_nowayout(&edev->wdd, nowayout);
+> +	watchdog_stop_on_reboot(&edev->wdd);
+> +	watchdog_stop_on_unregister(&edev->wdd);
+> +	esb_initdevice(edev);
+>   
+>   	/* Register the watchdog so that userspace has access to it */
+> -	ret = watchdog_register_device(&esb_dev);
+> +	ret = watchdog_register_device(&edev->wdd);
+>   	if (ret != 0) {
+>   		dev_err(&pdev->dev,
+>   			"cannot register watchdog device (err=%d)\n", ret);
+> @@ -326,24 +336,24 @@ static int esb_probe(struct pci_dev *pdev,
+>   	}
+>   	dev_info(&pdev->dev,
+>   		"initialized (0x%p). heartbeat=%d sec (nowayout=%d)\n",
+> -		BASEADDR, esb_dev.timeout, nowayout);
+> +		edev->base, edev->wdd.timeout, nowayout);
+>   	return 0;
+>   
+>   err_unmap:
+> -	iounmap(BASEADDR);
+> -	pci_release_region(esb_pci, 0);
+> -	pci_disable_device(esb_pci);
+> -	esb_pci = NULL;
+> +	iounmap(edev->base);
+> +	pci_release_region(edev->pdev, 0);
+> +	pci_disable_device(edev->pdev);
+>   	return ret;
+>   }
+>   
+>   static void esb_remove(struct pci_dev *pdev)
+>   {
+> -	watchdog_unregister_device(&esb_dev);
+> -	iounmap(BASEADDR);
+> -	pci_release_region(esb_pci, 0);
+> -	pci_disable_device(esb_pci);
+> -	esb_pci = NULL;
+> +	struct esb_dev *edev = dev_get_drvdata(&pdev->dev);
+> +
+> +	watchdog_unregister_device(&edev->wdd);
+> +	iounmap(edev->base);
+> +	pci_release_region(edev->pdev, 0);
+> +	pci_disable_device(edev->pdev);
+>   }
+>   
+>   static struct pci_driver esb_driver = {
 > 
 
-If add devm_add_action(), it will be called in the remove function,
-but this is not our expect, if someone remove this module, we want it just timeout.
-
-> >+	watchdog_set_nowayout(&wdt->wdd, WATCHDOG_NOWAYOUT);
-> >+	watchdog_init_timeout(&wdt->wdd, 0, &pdev->dev);
-> >+
-> >+	ret = watchdog_register_device(&wdt->wdd);
-> 
-> Unfortunately this doesn't work. It leaves interrupts enabled
-> after the watchdog device is removed in sprd_wdt_remove(),
-> but the driver will be gone. I would suggest to use
-> devm_watchdog_register_device() and reorder calls to request
-> the interrupt after registering the watchdog device. Then you
-> can drop the remove function entirely.
-> 
-
-Yes, you are right, I understand your opinion, and it is very important,
-devm_watchdog_register_device() is better. Thanks.
-
-> >+	if (ret) {
-> >+		sprd_wdt_disable(wdt);
-> >+		dev_err(&pdev->dev, "failed to register watchdog\n");
-> >+		return ret;
-> >+	}
-> >+	platform_set_drvdata(pdev, wdt);
-> >+
-> >+	return 0;
-> >+}
-> >+
-> >+static int sprd_wdt_remove(struct platform_device *pdev)
-> >+{
-> >+	struct sprd_wdt *wdt = platform_get_drvdata(pdev);
-> >+
-> >+	watchdog_unregister_device(&wdt->wdd);
-> >+
-> >+	if (sprd_wdt_is_running(wdt))
-> >+		dev_crit(&pdev->dev, "Device removed: Expect reboot!\n");
-> >+	return 0;
-> >+}
-> >+
-> >+static int __maybe_unused sprd_wdt_pm_suspend(struct device *dev)
-> >+{
-> >+	struct watchdog_device *wdd = dev_get_drvdata(dev);
-> >+	struct sprd_wdt *wdt = dev_get_drvdata(dev);
-> >+
-> >+	if (watchdog_active(wdd)) {
-> >+		sprd_wdt_stop(&wdt->wdd);
-> >+		sprd_wdt_disable(wdt);
-> 
-> Are you sure you only want to disable the clocks if the watchdog was active ?
-> That seems to be a bit inconsistent.
-> 
-
-This watchdog is in always on power domain, if system suspend, it needs to
-disable it, or it will timeout.
-
-> >+	}
-> >+
-> >+	return 0;
-> >+}
-> >+
-> >+static int __maybe_unused sprd_wdt_pm_resume(struct device *dev)
-> >+{
-> >+	struct watchdog_device *wdd = dev_get_drvdata(dev);
-> >+	struct sprd_wdt *wdt = dev_get_drvdata(dev);
-> >+	int ret;
-> >+
-> >+	if (watchdog_active(wdd)) {
-> >+		ret = sprd_wdt_enable(wdt);
-> >+		if (ret)
-> >+			return ret;
-> >+		ret = sprd_wdt_start(&wdt->wdd);
-> >+		if (ret) {
-> >+			sprd_wdt_disable(wdt);
-> >+			return ret;
-> >+		}
-> 
-> This can leave the system in an inconsistent state. Sometimes the wdt may be
-> disabled, sometimes not.
->
-
-If watchdog enable failed, it means there is something wrong in this system.
- 
-> >+	}
-> >+
-> >+	return 0;
-> >+}
-> >+
-> >+static const struct dev_pm_ops sprd_wdt_pm_ops = {
-> >+	SET_SYSTEM_SLEEP_PM_OPS(sprd_wdt_pm_suspend,
-> >+				sprd_wdt_pm_resume)
-> >+};
-> >+
-> >+static const struct of_device_id sprd_wdt_match_table[] = {
-> >+	{ .compatible = "sprd,sp9860-wdt", },
-> >+	{},
-> >+};
-> >+MODULE_DEVICE_TABLE(of, sprd_wdt_match_table);
-> >+
-> >+static struct platform_driver sprd_watchdog_driver = {
-> >+	.probe	= sprd_wdt_probe,
-> >+	.remove	= sprd_wdt_remove,
-> >+	.driver	= {
-> >+		.name = "sprd-wdt",
-> >+		.of_match_table = sprd_wdt_match_table,
-> >+		.pm = &sprd_wdt_pm_ops,
-> >+	},
-> >+};
-> >+module_platform_driver(sprd_watchdog_driver);
-> >+
-> >+MODULE_AUTHOR("Eric Long <eric.long@spreadtrum.com>");
-> >+MODULE_DESCRIPTION("Spreadtrum Watchdog Timer Controller Driver");
-> >+MODULE_LICENSE("GPL v2");
-> >
-> 
