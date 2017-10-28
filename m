@@ -1,43 +1,87 @@
-Return-Path: <rrendec@arista.com>
-Return-path: <rrendec@arista.com>
-Message-ID: <1509101921.5684.3.camel@arista.com>
-Subject: Re: [PATCH v3 4/4] watchdog: i6300esb: remove info message and
- version number
-From: Radu Rendec <rrendec@arista.com>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org
-Date: Fri, 27 Oct 2017 11:58:41 +0100
-In-Reply-To: <bf7f6cc8-73da-19a1-d54c-438b5ede1b57@roeck-us.net>
-References: <2edc54c2-f3d9-6b54-7ff9-79365b03946c@roeck-us.net>
-	 <20171026161016.3198-4-rrendec@arista.com>
-	 <bf7f6cc8-73da-19a1-d54c-438b5ede1b57@roeck-us.net>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-pg0-f65.google.com ([74.125.83.65]:57246 "EHLO
+        mail-pg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751189AbdJ1QOY (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Sat, 28 Oct 2017 12:14:24 -0400
+Date: Sat, 28 Oct 2017 09:14:22 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Andrey Smirnov <andrew.smirnov@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        cphealy@gmail.com, Lucas Stach <l.stach@pengutronix.de>,
+        Nikita Yushchenko <nikita.yoush@cogentembedded.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Pavel Machek <pavel@ucw.cz>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Rob Herring <robh@kernel.org>, Johan Hovold <johan@kernel.org>
+Subject: Re: [v9,4/5] watchdog: Add RAVE SP watchdog driver
+Message-ID: <20171028161422.GA6263@roeck-us.net>
+References: <20171025190421.18415-5-andrew.smirnov@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20171025190421.18415-5-andrew.smirnov@gmail.com>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-On Thu, 2017-10-26 at 18:05 -0700, Guenter Roeck wrote:
-> On 10/26/2017 09:10 AM, Radu Rendec wrote:
-> > The initial info message (early in the esb_probe() function) is not very
-> > useful and we already have a message on successful probe, which includes
-> > device identification. If the probe fails (e.g. PCI related errors),
-> > additional messages are printed anyway.
-> > 
-> > The version number was only used in the initial info message. Other than
-> > that, it serves no useful purpose and it ran out of favor upstream
-> > anyway.
-> > 
-> > Signed-off-by: Radu Rendec <rrendec@arista.com>
+On Wed, Oct 25, 2017 at 12:04:20PM -0700, Andrey Smirnov wrote:
+> This driver provides access to RAVE SP watchdog functionality.
 > 
-> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+> Cc: linux-kernel@vger.kernel.org
+> Cc: linux-watchdog@vger.kernel.org
+> Cc: cphealy@gmail.com
+> Cc: Lucas Stach <l.stach@pengutronix.de>
+> Cc: Nikita Yushchenko <nikita.yoush@cogentembedded.com>
+> Cc: Lee Jones <lee.jones@linaro.org>
+> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Cc: Pavel Machek <pavel@ucw.cz>
+> Cc: Andy Shevchenko <andy.shevchenko@gmail.com>
+> Cc: Guenter Roeck <linux@roeck-us.net>
+> Cc: Rob Herring <robh@kernel.org>
+> Cc: Johan Hovold <johan@kernel.org>
+> Signed-off-by: Nikita Yushchenko <nikita.yoush@cogentembedded.com>
+> Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
+> ---
 > 
-> ... and thanks a lot for doing this!
+> Guenter:
+> 
+> In our previous discussion you noted that relying on the state of
+> WDOG_HW_RUNNING was not correct (that should be fixed now), please let
+> me know if using watchdog_hw_running() the way I do in
+> rave_sp_wdt_set_timeout() is incorrect as well.
+> 
 
-You're welcome. Thanks for reviewing this and for all the input!
+You could as well have used watchdog_active(), but it is ok.
 
-We also benefit from this work - on the long run, it's always easier to
-work with upstream and get changes accepted than maintain custom
-patches.
+> Thanks,
+> Andrey Smirnov
+> 
+>  drivers/watchdog/Kconfig       |   7 +
+>  drivers/watchdog/Makefile      |   1 +
+>  drivers/watchdog/rave-sp-wdt.c | 343 +++++++++++++++++++++++++++++++++++++++++
+>  3 files changed, 351 insertions(+)
+>  create mode 100644 drivers/watchdog/rave-sp-wdt.c
+> 
+[ ... ]
 
-Best,
-Radu
+> +
+> +static int rave_sp_wdt_probe(struct platform_device *pdev)
+> +{
+> +	struct device *dev = &pdev->dev;
+> +	const struct of_device_id *id;
+> +	struct watchdog_device *wdd;
+> +	struct rave_sp_wdt *sp_wd;
+> +	struct nvmem_cell *cell;
+> +	__le16 timeout = 0;
+> +	int ret;
+> +
+> +	id = of_match_device(rave_sp_wdt_variants, dev->parent);
+> +	if (WARN_ON(!id))
+> +		return -ENODEV;
+> +
+
+I could understand an error message here, but why a traceback ?
+
+Guenter
