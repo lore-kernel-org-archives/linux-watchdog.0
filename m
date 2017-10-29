@@ -1,8 +1,8 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mga07.intel.com ([134.134.136.100]:52944 "EHLO mga07.intel.com"
+Received: from mga01.intel.com ([192.55.52.88]:57011 "EHLO mga01.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751147AbdJ2IHF (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 29 Oct 2017 04:07:05 -0400
+        id S1751080AbdJ2IHD (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Sun, 29 Oct 2017 04:07:03 -0400
 From: sathyanarayanan.kuppuswamy@linux.intel.com
 To: a.zummo@towertech.it, x86@kernel.org, wim@iguana.be,
         mingo@redhat.com, alexandre.belloni@free-electrons.com,
@@ -13,10 +13,11 @@ Cc: linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
         linux-kernel@vger.kernel.org, platform-driver-x86@vger.kernel.org,
         sathyaosid@gmail.com,
         Kuppuswamy Sathyanarayanan
-        <sathyanarayanan.kuppuswamy@linux.intel.com>
-Subject: [RFC v7 7/7] platform/x86: intel_scu_ipc: Use generic Intel IPC device calls
-Date: Sun, 29 Oct 2017 01:03:23 -0700
-Message-Id: <5c4ae981871a8fff9c9303ece780eabb22228e43.1509262355.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+        <sathyanarayanan.kuppuswamy@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [RFC v7 2/7] platform/x86: intel_pmc_ipc: Use MFD framework to create dependent devices
+Date: Sun, 29 Oct 2017 01:03:18 -0700
+Message-Id: <5fdd01787eb3e6e8d9e01df42178c4ea795adfb9.1509262355.git.sathyanarayanan.kuppuswamy@linux.intel.com>
 In-Reply-To: <cover.1509262355.git.sathyanarayanan.kuppuswamy@linux.intel.com>
 References: <cover.1509262355.git.sathyanarayanan.kuppuswamy@linux.intel.com>
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -24,929 +25,579 @@ List-Id: linux-watchdog@vger.kernel.org
 
 From: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
 
-Removed redundant IPC helper functions and refactored the driver to use
-generic IPC device driver APIs.
-
-This patch also cleans-up SCU IPC user drivers(rtc-mrst.c, intel-mid_wdt.c,
-intel-mid_wdt.c, intel-mid.c) to use APIs provided by generic IPC driver.
+Currently, we have lot of repetitive code in dependent device resource
+allocation and device creation handling code. This logic can be improved if
+we use MFD framework for dependent device creation. This patch adds this
+support.
 
 Signed-off-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
-Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- arch/x86/include/asm/intel_scu_ipc.h    |  10 +-
- arch/x86/platform/intel-mid/intel-mid.c |  15 +-
- drivers/platform/x86/Kconfig            |   1 +
- drivers/platform/x86/intel_scu_ipc.c    | 488 ++++++++++++++------------------
- drivers/rtc/rtc-mrst.c                  |  16 +-
- drivers/watchdog/intel-mid_wdt.c        |  18 +-
- drivers/watchdog/intel_scu_watchdog.c   |  23 +-
- 7 files changed, 267 insertions(+), 304 deletions(-)
+ drivers/platform/x86/intel_pmc_ipc.c | 395 ++++++++++++-----------------------
+ 1 file changed, 136 insertions(+), 259 deletions(-)
 
 Changes since v6:
- * Fixed some style issues.
+ * Fixed style issues.
+ * Used Andy's modified version.
 
 Changes since v5:
- * Adapted to change in arguments of ipc_dev_cmd() and ipc_dev_raw_cmd() APIs.
+ * Changed the order of patches in this patchlist.
 
 Changes since v4:
- * None
+ * Changed the order of patches in this patchlist.
 
 Changes since v3:
- * Added intel_ipc_dev_put() support.
+ * Changed PLATFORM_DEVID_AUTO to PLATFORM_DEVID_NONE in mfd device creation.
+ * Fixed error in resource initalization logic in ipc_create_punit_device.
+ * Removed mfd cell id initialization.
 
-diff --git a/arch/x86/include/asm/intel_scu_ipc.h b/arch/x86/include/asm/intel_scu_ipc.h
-index 81d3d87..68b5c77 100644
---- a/arch/x86/include/asm/intel_scu_ipc.h
-+++ b/arch/x86/include/asm/intel_scu_ipc.h
-@@ -18,6 +18,9 @@
- 	#define IPC_CMD_VRTC_SETTIME      1 /* Set time */
- 	#define IPC_CMD_VRTC_SETALARM     2 /* Set alarm */
- 
-+#define INTEL_SCU_IPC_DEV	"intel_scu_ipc"
-+#define SCU_PARAM_LEN		2
-+
- /* Read single register */
- int intel_scu_ipc_ioread8(u16 addr, u8 *data);
- 
-@@ -45,13 +48,6 @@ int intel_scu_ipc_writev(u16 *addr, u8 *data, int len);
- /* Update single register based on the mask */
- int intel_scu_ipc_update_register(u16 addr, u8 data, u8 mask);
- 
--/* Issue commands to the SCU with or without data */
--int intel_scu_ipc_simple_command(int cmd, int sub);
--int intel_scu_ipc_command(int cmd, int sub, u32 *in, int inlen,
--			  u32 *out, int outlen);
--int intel_scu_ipc_raw_command(int cmd, int sub, u8 *in, int inlen,
--			      u32 *out, int outlen, u32 dptr, u32 sptr);
--
- /* I2C control api */
- int intel_scu_ipc_i2c_cntrl(u32 addr, u32 *data);
- 
-diff --git a/arch/x86/platform/intel-mid/intel-mid.c b/arch/x86/platform/intel-mid/intel-mid.c
-index 86676ce..23b3ab3 100644
---- a/arch/x86/platform/intel-mid/intel-mid.c
-+++ b/arch/x86/platform/intel-mid/intel-mid.c
-@@ -22,6 +22,7 @@
- #include <linux/irq.h>
- #include <linux/export.h>
- #include <linux/notifier.h>
-+#include <linux/platform_data/x86/intel_ipc_dev.h>
- 
- #include <asm/setup.h>
- #include <asm/mpspec_def.h>
-@@ -70,16 +71,26 @@ EXPORT_SYMBOL_GPL(__intel_mid_cpu_chip);
- 
- static void intel_mid_power_off(void)
- {
-+	struct intel_ipc_dev *ipc_dev;
-+	u32 cmds[SCU_PARAM_LEN] = {IPCMSG_COLD_OFF, 1};
-+
- 	/* Shut down South Complex via PWRMU */
- 	intel_mid_pwr_power_off();
- 
-+	ipc_dev = intel_ipc_dev_get(INTEL_SCU_IPC_DEV);
- 	/* Only for Tangier, the rest will ignore this command */
--	intel_scu_ipc_simple_command(IPCMSG_COLD_OFF, 1);
-+	ipc_dev_simple_cmd(ipc_dev, cmds, SCU_PARAM_LEN);
-+	intel_ipc_dev_put(ipc_dev);
- };
- 
- static void intel_mid_reboot(void)
- {
--	intel_scu_ipc_simple_command(IPCMSG_COLD_BOOT, 0);
-+	struct intel_ipc_dev *ipc_dev;
-+	u32 cmds[SCU_PARAM_LEN] = {IPCMSG_COLD_BOOT, 0};
-+
-+	ipc_dev = intel_ipc_dev_get(INTEL_SCU_IPC_DEV);
-+	ipc_dev_simple_cmd(ipc_dev, cmds, SCU_PARAM_LEN);
-+	intel_ipc_dev_put(ipc_dev);
- }
- 
- static unsigned long __init intel_mid_calibrate_tsc(void)
-diff --git a/drivers/platform/x86/Kconfig b/drivers/platform/x86/Kconfig
-index 82479ca..e4e5822 100644
---- a/drivers/platform/x86/Kconfig
-+++ b/drivers/platform/x86/Kconfig
-@@ -850,6 +850,7 @@ config INTEL_VBTN
- config INTEL_SCU_IPC
- 	bool "Intel SCU IPC Support"
- 	depends on X86_INTEL_MID
-+	select REGMAP_MMIO
- 	default y
- 	---help---
- 	  IPC is used to bridge the communications between kernel and SCU on
-diff --git a/drivers/platform/x86/intel_scu_ipc.c b/drivers/platform/x86/intel_scu_ipc.c
-index 2c85f75..7681a82 100644
---- a/drivers/platform/x86/intel_scu_ipc.c
-+++ b/drivers/platform/x86/intel_scu_ipc.c
-@@ -24,6 +24,8 @@
+diff --git a/drivers/platform/x86/intel_pmc_ipc.c b/drivers/platform/x86/intel_pmc_ipc.c
+index e03fa314..8a079ff 100644
+--- a/drivers/platform/x86/intel_pmc_ipc.c
++++ b/drivers/platform/x86/intel_pmc_ipc.c
+@@ -20,6 +20,7 @@
+ #include <linux/errno.h>
+ #include <linux/init.h>
+ #include <linux/device.h>
++#include <linux/mfd/core.h>
+ #include <linux/pm.h>
  #include <linux/pci.h>
- #include <linux/interrupt.h>
- #include <linux/sfi.h>
-+#include <linux/regmap.h>
-+#include <linux/platform_data/x86/intel_ipc_dev.h>
- #include <asm/intel-mid.h>
- #include <asm/intel_scu_ipc.h>
+ #include <linux/platform_device.h>
+@@ -88,6 +89,7 @@
+ #define PLAT_RESOURCE_ISP_IFACE_INDEX	5
+ #define PLAT_RESOURCE_GTD_DATA_INDEX	6
+ #define PLAT_RESOURCE_GTD_IFACE_INDEX	7
++#define PLAT_RESOURCE_MEM_MAX_INDEX	8
+ #define PLAT_RESOURCE_ACPI_IO_INDEX	0
  
-@@ -39,6 +41,25 @@
- #define IPC_CMD_PCNTRL_R      1 /* Register read */
- #define IPC_CMD_PCNTRL_M      2 /* Register read-modify-write */
- 
-+/* IPC dev register offsets */
-+/*
-+ * IPC Read Buffer (Read Only):
-+ * 16 byte buffer for receiving data from SCU, if IPC command
-+ * processing results in response data
-+ */
-+#define IPC_DEV_SCU_RBUF_OFFSET			0x90
-+#define IPC_DEV_SCU_WRBUF_OFFSET		0x80
-+#define IPC_DEV_SCU_SPTR_OFFSET			0x08
-+#define IPC_DEV_SCU_DPTR_OFFSET			0x0C
-+#define IPC_DEV_SCU_STATUS_OFFSET		0x04
-+
-+/* IPC dev commands */
-+/* IPC command register IOC bit */
-+#define	IPC_DEV_SCU_CMD_MSI			BIT(8)
-+#define	IPC_DEV_SCU_CMD_STATUS_ERR		BIT(1)
-+#define	IPC_DEV_SCU_CMD_STATUS_ERR_MASK		GENMASK(7, 0)
-+#define	IPC_DEV_SCU_CMD_STATUS_BUSY		BIT(0)
-+
  /*
-  * IPC register summary
-  *
-@@ -59,6 +80,11 @@
- #define IPC_WWBUF_SIZE    20		/* IPC Write buffer Size */
- #define IPC_RWBUF_SIZE    20		/* IPC Read buffer Size */
- #define IPC_IOC	          0x100		/* IPC command register IOC bit */
-+#define	IPC_CMD_SIZE            16
-+#define	IPC_CMD_SUBCMD          12
-+#define	IPC_RWBUF_SIZE_DWORD    5
-+#define	IPC_WWBUF_SIZE_DWORD    5
-+
+@@ -106,8 +108,6 @@
+ #define TELEM_SSRAM_SIZE		240
+ #define TELEM_PMC_SSRAM_OFFSET		0x1B00
+ #define TELEM_PUNIT_SSRAM_OFFSET	0x1A00
+-#define TCO_PMC_OFFSET			0x8
+-#define TCO_PMC_SIZE			0x4
  
- #define PCI_DEVICE_ID_LINCROFT		0x082a
- #define PCI_DEVICE_ID_PENWELL		0x080e
-@@ -93,120 +119,50 @@ static const struct intel_scu_ipc_pdata_t intel_scu_ipc_tangier_pdata = {
+ /* PMC register bit definitions */
  
- struct intel_scu_ipc_dev {
- 	struct device *dev;
-+	struct intel_ipc_dev *ipc_dev;
- 	void __iomem *ipc_base;
- 	void __iomem *i2c_base;
--	struct completion cmd_complete;
-+	struct regmap *ipc_regs;
-+	struct regmap *i2c_regs;
- 	u8 irq_mode;
+@@ -124,26 +124,10 @@ static struct intel_pmc_ipc_dev {
+ 	int cmd;
+ 	struct completion cmd_complete;
+ 
+-	/* The following PMC BARs share the same ACPI device with the IPC */
+-	resource_size_t acpi_io_base;
+-	int acpi_io_size;
+-	struct platform_device *tco_dev;
+-
+ 	/* gcr */
+ 	void __iomem *gcr_mem_base;
+ 	bool has_gcr_regs;
+ 	spinlock_t gcr_lock;
+-
+-	/* punit */
+-	struct platform_device *punit_dev;
+-
+-	/* Telemetry */
+-	resource_size_t telem_pmc_ssram_base;
+-	resource_size_t telem_punit_ssram_base;
+-	int telem_pmc_ssram_size;
+-	int telem_punit_ssram_size;
+-	u8 telem_res_inval;
+-	struct platform_device *telemetry_dev;
+ } ipcdev;
+ 
+ static char *ipc_err_sources[] = {
+@@ -508,7 +492,7 @@ static int ipc_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ 	ret = devm_request_irq(&pdev->dev, pdev->irq, ioc, 0, "intel_pmc_ipc",
+ 				pmc);
+ 	if (ret) {
+-		dev_err(&pdev->dev, "Failed to request irq\n");
++		dev_err(&pdev->dev, "Failed to request IRQ\n");
+ 		return ret;
+ 	}
+ 
+@@ -593,44 +577,6 @@ static const struct attribute_group intel_ipc_group = {
+ 	.attrs = intel_ipc_attrs,
  };
  
--static struct intel_scu_ipc_dev  ipcdev; /* Only one for now */
-+static struct regmap_config ipc_regmap_config = {
-+        .reg_bits = 32,
-+        .reg_stride = 4,
-+        .val_bits = 32,
-+};
+-static struct resource punit_res_array[] = {
+-	/* Punit BIOS */
+-	{
+-		.flags = IORESOURCE_MEM,
+-	},
+-	{
+-		.flags = IORESOURCE_MEM,
+-	},
+-	/* Punit ISP */
+-	{
+-		.flags = IORESOURCE_MEM,
+-	},
+-	{
+-		.flags = IORESOURCE_MEM,
+-	},
+-	/* Punit GTD */
+-	{
+-		.flags = IORESOURCE_MEM,
+-	},
+-	{
+-		.flags = IORESOURCE_MEM,
+-	},
+-};
+-
+-#define TCO_RESOURCE_ACPI_IO		0
+-#define TCO_RESOURCE_SMI_EN_IO		1
+-#define TCO_RESOURCE_GCR_MEM		2
+-static struct resource tco_res[] = {
+-	/* ACPI - TCO */
+-	{
+-		.flags = IORESOURCE_IO,
+-	},
+-	/* ACPI - SMI */
+-	{
+-		.flags = IORESOURCE_IO,
+-	},
+-};
+-
+ static struct itco_wdt_platform_data tco_info = {
+ 	.name = "Apollo Lake SoC",
+ 	.version = 5,
+@@ -638,234 +584,174 @@ static struct itco_wdt_platform_data tco_info = {
+ 	.update_no_reboot_bit = update_no_reboot_bit,
+ };
  
--/*
-- * IPC Read Buffer (Read Only):
-- * 16 byte buffer for receiving data from SCU, if IPC command
-- * processing results in response data
-- */
--#define IPC_READ_BUFFER		0x90
-+static struct regmap_config i2c_regmap_config = {
-+        .reg_bits = 32,
-+        .reg_stride = 4,
-+        .val_bits = 32,
-+	.fast_io = true,
-+};
-+
-+static struct intel_scu_ipc_dev  ipcdev; /* Only one for now */
- 
- #define IPC_I2C_CNTRL_ADDR	0
- #define I2C_DATA_ADDR		0x04
- 
--static DEFINE_MUTEX(ipclock); /* lock used to prevent multiple call to SCU */
+-#define TELEMETRY_RESOURCE_PUNIT_SSRAM	0
+-#define TELEMETRY_RESOURCE_PMC_SSRAM	1
+-static struct resource telemetry_res[] = {
+-	/*Telemetry*/
+-	{
+-		.flags = IORESOURCE_MEM,
+-	},
+-	{
+-		.flags = IORESOURCE_MEM,
+-	},
+-};
 -
--/*
-- * Send ipc command
-- * Command Register (Write Only):
-- * A write to this register results in an interrupt to the SCU core processor
-- * Format:
-- * |rfu2(8) | size(8) | command id(4) | rfu1(3) | ioc(1) | command(8)|
-- */
--static inline void ipc_command(struct intel_scu_ipc_dev *scu, u32 cmd)
--{
--	if (scu->irq_mode) {
--		reinit_completion(&scu->cmd_complete);
--		writel(cmd | IPC_IOC, scu->ipc_base);
--	}
--	writel(cmd, scu->ipc_base);
--}
--
--/*
-- * Write ipc data
-- * IPC Write Buffer (Write Only):
-- * 16-byte buffer for sending data associated with IPC command to
-- * SCU. Size of the data is specified in the IPC_COMMAND_REG register
-- */
--static inline void ipc_data_writel(struct intel_scu_ipc_dev *scu, u32 data, u32 offset)
--{
--	writel(data, scu->ipc_base + 0x80 + offset);
--}
--
--/*
-- * Status Register (Read Only):
-- * Driver will read this register to get the ready/busy status of the IPC
-- * block and error status of the IPC command that was just processed by SCU
-- * Format:
-- * |rfu3(8)|error code(8)|initiator id(8)|cmd id(4)|rfu1(2)|error(1)|busy(1)|
-- */
--static inline u8 ipc_read_status(struct intel_scu_ipc_dev *scu)
--{
--	return __raw_readl(scu->ipc_base + 0x04);
--}
--
--/* Read ipc byte data */
--static inline u8 ipc_data_readb(struct intel_scu_ipc_dev *scu, u32 offset)
--{
--	return readb(scu->ipc_base + IPC_READ_BUFFER + offset);
--}
--
--/* Read ipc u32 data */
--static inline u32 ipc_data_readl(struct intel_scu_ipc_dev *scu, u32 offset)
--{
--	return readl(scu->ipc_base + IPC_READ_BUFFER + offset);
--}
--
--/* Wait till scu status is busy */
--static inline int busy_loop(struct intel_scu_ipc_dev *scu)
--{
--	u32 status = ipc_read_status(scu);
--	u32 loop_count = 100000;
--
--	/* break if scu doesn't reset busy bit after huge retry */
--	while ((status & BIT(0)) && --loop_count) {
--		udelay(1); /* scu processing time is in few u secods */
--		status = ipc_read_status(scu);
--	}
--
--	if (status & BIT(0)) {
--		dev_err(scu->dev, "IPC timed out");
--		return -ETIMEDOUT;
--	}
--
--	if (status & BIT(1))
--		return -EIO;
--
--	return 0;
--}
--
--/* Wait till ipc ioc interrupt is received or timeout in 3 HZ */
--static inline int ipc_wait_for_interrupt(struct intel_scu_ipc_dev *scu)
-+static int scu_ipc_cmd(u32 cmd, u32 sub, u8 *in, u32 inlen, u32 *out,
-+		       u32 outlen)
+-static int ipc_create_punit_device(void)
++static int ipc_create_punit_device(struct platform_device *pdev)
  {
--	int status;
--
--	if (!wait_for_completion_timeout(&scu->cmd_complete, 3 * HZ)) {
--		dev_err(scu->dev, "IPC timed out\n");
--		return -ETIMEDOUT;
--	}
-+	struct intel_scu_ipc_dev *scu = &ipcdev;
-+	struct intel_ipc_raw_cmd ipc_raw_cmd = {0};
-+	u32 cmd_list[SCU_PARAM_LEN] = {0};
- 
--	status = ipc_read_status(scu);
--	if (status & BIT(1))
--		return -EIO;
-+	cmd_list[0] = cmd;
-+	cmd_list[1] = sub;
- 
--	return 0;
--}
-+	ipc_raw_cmd.cmd_list = cmd_list;
-+	ipc_raw_cmd.cmdlen = SCU_PARAM_LEN;
-+	ipc_raw_cmd.in = in;
-+	ipc_raw_cmd.inlen = inlen;
-+	ipc_raw_cmd.out = out;
-+	ipc_raw_cmd.outlen = outlen;
- 
--static int intel_scu_ipc_check_status(struct intel_scu_ipc_dev *scu)
--{
--	return scu->irq_mode ? ipc_wait_for_interrupt(scu) : busy_loop(scu);
-+	return ipc_dev_raw_cmd(scu->ipc_dev, &ipc_raw_cmd);
- }
- 
- /* Read/Write power control(PMIC in Langwell, MSIC in PenWell) registers */
-@@ -215,49 +171,42 @@ static int pwr_reg_rdwr(u16 *addr, u8 *data, u32 count, u32 op, u32 id)
- 	struct intel_scu_ipc_dev *scu = &ipcdev;
- 	int nc;
- 	u32 offset = 0;
--	int err;
-+	int err = -EIO;
- 	u8 cbuf[IPC_WWBUF_SIZE];
- 	u32 *wbuf = (u32 *)&cbuf;
-+	/* max rbuf size is 20 bytes */
-+	u8 rbuf[IPC_RWBUF_SIZE] = {0};
-+	u32 rbuflen = DIV_ROUND_UP(count, 4);
- 
- 	memset(cbuf, 0, sizeof(cbuf));
- 
--	mutex_lock(&ipclock);
--
--	if (scu->dev == NULL) {
--		mutex_unlock(&ipclock);
--		return -ENODEV;
--	}
--
- 	for (nc = 0; nc < count; nc++, offset += 2) {
- 		cbuf[offset] = addr[nc];
- 		cbuf[offset + 1] = addr[nc] >> 8;
- 	}
- 
- 	if (id == IPC_CMD_PCNTRL_R) {
--		for (nc = 0, offset = 0; nc < count; nc++, offset += 4)
--			ipc_data_writel(scu, wbuf[nc], offset);
--		ipc_command(scu, (count * 2) << 16 | id << 12 | 0 << 8 | op);
-+		err = scu_ipc_cmd(op, id, (u8 *)wbuf, count * 2,
-+				  (u32 *)rbuf, IPC_RWBUF_SIZE_DWORD);
- 	} else if (id == IPC_CMD_PCNTRL_W) {
- 		for (nc = 0; nc < count; nc++, offset += 1)
- 			cbuf[offset] = data[nc];
--		for (nc = 0, offset = 0; nc < count; nc++, offset += 4)
--			ipc_data_writel(scu, wbuf[nc], offset);
--		ipc_command(scu, (count * 3) << 16 | id << 12 | 0 << 8 | op);
-+		err = scu_ipc_cmd(op, id, (u8 *)wbuf, count * 3, NULL, 0);
+-	struct platform_device *pdev;
+-	const struct platform_device_info pdevinfo = {
+-		.parent = ipcdev.dev,
+-		.name = PUNIT_DEVICE_NAME,
+-		.id = -1,
+-		.res = punit_res_array,
+-		.num_res = ARRAY_SIZE(punit_res_array),
++	struct resource punit_res[PLAT_RESOURCE_MEM_MAX_INDEX];
++	struct mfd_cell punit_cell;
++	struct resource *res;
++	int mindex, pindex = 0;
 +
- 	} else if (id == IPC_CMD_PCNTRL_M) {
- 		cbuf[offset] = data[0];
- 		cbuf[offset + 1] = data[1];
--		ipc_data_writel(scu, wbuf[0], 0); /* Write wbuff */
--		ipc_command(scu, 4 << 16 | id << 12 | 0 << 8 | op);
-+		err = scu_ipc_cmd(op, id, (u8 *)wbuf, 4, NULL, 0);
- 	}
- 
--	err = intel_scu_ipc_check_status(scu);
- 	if (!err && id == IPC_CMD_PCNTRL_R) { /* Read rbuf */
- 		/* Workaround: values are read as 0 without memcpy_fromio */
- 		memcpy_fromio(cbuf, scu->ipc_base + 0x90, 16);
--		for (nc = 0; nc < count; nc++)
--			data[nc] = ipc_data_readb(scu, nc);
-+		regmap_bulk_read(scu->ipc_regs, IPC_DEV_SCU_RBUF_OFFSET, rbuf,
-+				 rbuflen);
-+		memcpy(data, rbuf, count);
- 	}
--	mutex_unlock(&ipclock);
++	for (mindex = 0; mindex <= PLAT_RESOURCE_MEM_MAX_INDEX; mindex++) {
 +
- 	return err;
- }
- 
-@@ -422,138 +371,6 @@ int intel_scu_ipc_update_register(u16 addr, u8 bits, u8 mask)
- }
- EXPORT_SYMBOL(intel_scu_ipc_update_register);
- 
--/**
-- *	intel_scu_ipc_simple_command	-	send a simple command
-- *	@cmd: command
-- *	@sub: sub type
-- *
-- *	Issue a simple command to the SCU. Do not use this interface if
-- *	you must then access data as any data values may be overwritten
-- *	by another SCU access by the time this function returns.
-- *
-- *	This function may sleep. Locking for SCU accesses is handled for
-- *	the caller.
-- */
--int intel_scu_ipc_simple_command(int cmd, int sub)
--{
--	struct intel_scu_ipc_dev *scu = &ipcdev;
--	int err;
--
--	mutex_lock(&ipclock);
--	if (scu->dev == NULL) {
--		mutex_unlock(&ipclock);
--		return -ENODEV;
--	}
--	ipc_command(scu, sub << 12 | cmd);
--	err = intel_scu_ipc_check_status(scu);
--	mutex_unlock(&ipclock);
--	return err;
--}
--EXPORT_SYMBOL(intel_scu_ipc_simple_command);
--
--/**
-- *	intel_scu_ipc_command	-	command with data
-- *	@cmd: command
-- *	@sub: sub type
-- *	@in: input data
-- *	@inlen: input length in dwords
-- *	@out: output data
-- *	@outlein: output length in dwords
-- *
-- *	Issue a command to the SCU which involves data transfers. Do the
-- *	data copies under the lock but leave it for the caller to interpret
-- */
--int intel_scu_ipc_command(int cmd, int sub, u32 *in, int inlen,
--			  u32 *out, int outlen)
--{
--	struct intel_scu_ipc_dev *scu = &ipcdev;
--	int i, err;
--
--	mutex_lock(&ipclock);
--	if (scu->dev == NULL) {
--		mutex_unlock(&ipclock);
--		return -ENODEV;
--	}
--
--	for (i = 0; i < inlen; i++)
--		ipc_data_writel(scu, *in++, 4 * i);
--
--	ipc_command(scu, (inlen << 16) | (sub << 12) | cmd);
--	err = intel_scu_ipc_check_status(scu);
--
--	if (!err) {
--		for (i = 0; i < outlen; i++)
--			*out++ = ipc_data_readl(scu, 4 * i);
--	}
--
--	mutex_unlock(&ipclock);
--	return err;
--}
--EXPORT_SYMBOL(intel_scu_ipc_command);
--
--#define IPC_SPTR		0x08
--#define IPC_DPTR		0x0C
--
--/**
-- * intel_scu_ipc_raw_command() - IPC command with data and pointers
-- * @cmd:	IPC command code.
-- * @sub:	IPC command sub type.
-- * @in:		input data of this IPC command.
-- * @inlen:	input data length in dwords.
-- * @out:	output data of this IPC command.
-- * @outlen:	output data length in dwords.
-- * @sptr:	data writing to SPTR register.
-- * @dptr:	data writing to DPTR register.
-- *
-- * Send an IPC command to SCU with input/output data and source/dest pointers.
-- *
-- * Return:	an IPC error code or 0 on success.
-- */
--int intel_scu_ipc_raw_command(int cmd, int sub, u8 *in, int inlen,
--			      u32 *out, int outlen, u32 dptr, u32 sptr)
--{
--	struct intel_scu_ipc_dev *scu = &ipcdev;
--	int inbuflen = DIV_ROUND_UP(inlen, 4);
--	u32 inbuf[4];
--	int i, err;
--
--	/* Up to 16 bytes */
--	if (inbuflen > 4)
--		return -EINVAL;
--
--	mutex_lock(&ipclock);
--	if (scu->dev == NULL) {
--		mutex_unlock(&ipclock);
--		return -ENODEV;
--	}
--
--	writel(dptr, scu->ipc_base + IPC_DPTR);
--	writel(sptr, scu->ipc_base + IPC_SPTR);
--
--	/*
--	 * SRAM controller doesn't support 8-bit writes, it only
--	 * supports 32-bit writes, so we have to copy input data into
--	 * the temporary buffer, and SCU FW will use the inlen to
--	 * determine the actual input data length in the temporary
--	 * buffer.
--	 */
--	memcpy(inbuf, in, inlen);
--
--	for (i = 0; i < inbuflen; i++)
--		ipc_data_writel(scu, inbuf[i], 4 * i);
--
--	ipc_command(scu, (inlen << 16) | (sub << 12) | cmd);
--	err = intel_scu_ipc_check_status(scu);
--	if (!err) {
--		for (i = 0; i < outlen; i++)
--			*out++ = ipc_data_readl(scu, 4 * i);
--	}
--
--	mutex_unlock(&ipclock);
--	return err;
--}
--EXPORT_SYMBOL_GPL(intel_scu_ipc_raw_command);
--
- /* I2C commands */
- #define IPC_I2C_WRITE 1 /* I2C Write command */
- #define IPC_I2C_READ  2 /* I2C Read command */
-@@ -575,48 +392,143 @@ int intel_scu_ipc_i2c_cntrl(u32 addr, u32 *data)
- 	struct intel_scu_ipc_dev *scu = &ipcdev;
- 	u32 cmd = 0;
- 
--	mutex_lock(&ipclock);
--	if (scu->dev == NULL) {
--		mutex_unlock(&ipclock);
--		return -ENODEV;
--	}
- 	cmd = (addr >> 24) & 0xFF;
- 	if (cmd == IPC_I2C_READ) {
--		writel(addr, scu->i2c_base + IPC_I2C_CNTRL_ADDR);
-+		regmap_write(scu->i2c_regs, IPC_I2C_CNTRL_ADDR, addr);
- 		/* Write not getting updated without delay */
- 		mdelay(1);
--		*data = readl(scu->i2c_base + I2C_DATA_ADDR);
-+		regmap_read(scu->i2c_regs, I2C_DATA_ADDR, data);
- 	} else if (cmd == IPC_I2C_WRITE) {
--		writel(*data, scu->i2c_base + I2C_DATA_ADDR);
-+		regmap_write(scu->i2c_regs, I2C_DATA_ADDR, *data);
- 		mdelay(1);
--		writel(addr, scu->i2c_base + IPC_I2C_CNTRL_ADDR);
-+		regmap_write(scu->i2c_regs, IPC_I2C_CNTRL_ADDR, addr);
- 	} else {
- 		dev_err(scu->dev,
- 			"intel_scu_ipc: I2C INVALID_CMD = 0x%x\n", cmd);
- 
--		mutex_unlock(&ipclock);
- 		return -EIO;
- 	}
--	mutex_unlock(&ipclock);
- 	return 0;
- }
- EXPORT_SYMBOL(intel_scu_ipc_i2c_cntrl);
- 
--/*
-- * Interrupt handler gets called when ioc bit of IPC_COMMAND_REG set to 1
-- * When ioc bit is set to 1, caller api must wait for interrupt handler called
-- * which in turn unlocks the caller api. Currently this is not used
-- *
-- * This is edge triggered so we need take no action to clear anything
-- */
--static irqreturn_t ioc(int irq, void *dev_id)
-+static int pre_simple_cmd_fn(u32 *cmd_list, u32 cmdlen)
- {
--	struct intel_scu_ipc_dev *scu = dev_id;
-+	if (!cmd_list || cmdlen != SCU_PARAM_LEN)
-+		return -EINVAL;
- 
--	if (scu->irq_mode)
--		complete(&scu->cmd_complete);
-+	cmd_list[0] |= (cmd_list[1] << IPC_CMD_SUBCMD);
- 
--	return IRQ_HANDLED;
-+	return 0;
-+}
++		res = platform_get_resource(pdev, IORESOURCE_MEM, mindex);
 +
-+static int pre_cmd_fn(struct intel_ipc_cmd *ipc_cmd)
-+{
-+	int ret;
-+
-+	if (ipc_cmd->inlen > IPC_WWBUF_SIZE_DWORD ||
-+	    ipc_cmd->outlen > IPC_RWBUF_SIZE_DWORD)
-+		return -EINVAL;
-+
-+	ret = pre_simple_cmd_fn(ipc_cmd->cmd_list, ipc_cmd->cmdlen);
-+	if (ret < 0)
-+		return ret;
-+
-+	ipc_cmd->cmd_list[0] |= (ipc_cmd->inlen << IPC_CMD_SIZE);
-+
-+	return 0;
-+}
-+
-+static int pre_raw_cmd_fn(struct intel_ipc_raw_cmd *ipc_raw_cmd)
-+{
-+	int ret;
-+
-+	if (ipc_raw_cmd->inlen > IPC_WWBUF_SIZE ||
-+	    ipc_raw_cmd->outlen > IPC_RWBUF_SIZE_DWORD)
-+		return -EINVAL;
-+
-+	ret = pre_simple_cmd_fn(ipc_raw_cmd->cmd_list, ipc_raw_cmd->cmdlen);
-+	if (ret < 0)
-+		return ret;
-+
-+	ipc_raw_cmd->cmd_list[0] |= (ipc_raw_cmd->inlen << IPC_CMD_SIZE);
-+
-+	return 0;
-+}
-+
-+static int scu_ipc_err_code(int status)
-+{
-+	if (status & IPC_DEV_SCU_CMD_STATUS_ERR)
-+		return (status & IPC_DEV_SCU_CMD_STATUS_ERR_MASK);
-+	else
-+		return 0;
-+}
-+
-+static int scu_ipc_busy_check(int status)
-+{
-+	return status | IPC_DEV_SCU_CMD_STATUS_BUSY;
-+}
-+
-+static u32 scu_ipc_enable_msi(u32 cmd)
-+{
-+	return cmd | IPC_DEV_SCU_CMD_MSI;
-+}
-+
-+static struct intel_ipc_dev *intel_scu_ipc_dev_create(
-+		struct device *dev,
-+		void __iomem *base,
-+		int irq)
-+{
-+	struct intel_ipc_dev_ops *ops;
-+	struct intel_ipc_dev_cfg *cfg;
-+	struct regmap *ipc_regs;
-+	struct intel_scu_ipc_dev *scu = dev_get_drvdata(dev);
-+
-+	cfg = devm_kzalloc(dev, sizeof(*cfg), GFP_KERNEL);
-+	if (!cfg)
-+		return ERR_PTR(-ENOMEM);
-+
-+	ops = devm_kzalloc(dev, sizeof(*ops), GFP_KERNEL);
-+	if (!ops)
-+		return ERR_PTR(-ENOMEM);
-+
-+        ipc_regs = devm_regmap_init_mmio_clk(dev, NULL, base,
-+					     &ipc_regmap_config);
-+        if (IS_ERR(ipc_regs)) {
-+                dev_err(dev, "ipc_regs regmap init failed\n");
-+                return ERR_CAST(ipc_regs);;
-+        }
-+
-+	scu->ipc_regs = ipc_regs;
-+
-+	/* set IPC dev ops */
-+	ops->to_err_code = scu_ipc_err_code;
-+	ops->busy_check = scu_ipc_busy_check;
-+	ops->enable_msi = scu_ipc_enable_msi;
-+	ops->pre_cmd_fn = pre_cmd_fn;
-+	ops->pre_raw_cmd_fn = pre_raw_cmd_fn;
-+	ops->pre_simple_cmd_fn = pre_simple_cmd_fn;
-+
-+	/* set cfg options */
-+	if (scu->irq_mode)
-+		cfg->mode = IPC_DEV_MODE_IRQ;
-+	else
-+		cfg->mode = IPC_DEV_MODE_POLLING;
-+
-+	cfg->chan_type = IPC_CHANNEL_IA_SCU;
-+	cfg->irq = irq;
-+	cfg->use_msi = true;
-+	cfg->support_sptr = true;
-+	cfg->support_dptr = true;
-+	cfg->cmd_regs = ipc_regs;
-+	cfg->data_regs = ipc_regs;
-+	cfg->wrbuf_reg = IPC_DEV_SCU_WRBUF_OFFSET;
-+	cfg->rbuf_reg = IPC_DEV_SCU_RBUF_OFFSET;
-+	cfg->sptr_reg = IPC_DEV_SCU_SPTR_OFFSET;
-+	cfg->dptr_reg = IPC_DEV_SCU_DPTR_OFFSET;
-+	cfg->status_reg = IPC_DEV_SCU_STATUS_OFFSET;
-+
-+	return devm_intel_ipc_dev_create(dev, INTEL_SCU_IPC_DEV, cfg, ops);
- }
- 
- /**
-@@ -650,25 +562,35 @@ static int ipc_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 	if (err)
- 		return err;
- 
--	init_completion(&scu->cmd_complete);
--
- 	scu->ipc_base = pcim_iomap_table(pdev)[0];
- 
--	scu->i2c_base = ioremap_nocache(pdata->i2c_base, pdata->i2c_len);
-+	scu->i2c_base = devm_ioremap_nocache(&pdev->dev, pdata->i2c_base,
-+					     pdata->i2c_len);
- 	if (!scu->i2c_base)
- 		return -ENOMEM;
- 
--	err = devm_request_irq(&pdev->dev, pdev->irq, ioc, 0, "intel_scu_ipc",
--			       scu);
--	if (err)
--		return err;
-+	pci_set_drvdata(pdev, scu);
-+
-+        scu->i2c_regs = devm_regmap_init_mmio_clk(&pdev->dev, NULL,
-+						  scu->i2c_base,
-+						  &i2c_regmap_config);
-+        if (IS_ERR(scu->i2c_regs)) {
-+                dev_err(&pdev->dev, "i2c_regs regmap init failed\n");
-+                return PTR_ERR(scu->i2c_regs);;
-+        }
-+
-+	scu->ipc_dev = intel_scu_ipc_dev_create(&pdev->dev, scu->ipc_base,
-+						pdev->irq);
-+	if (IS_ERR(scu->ipc_dev)) {
-+		dev_err(&pdev->dev, "Failed to create SCU IPC device\n");
-+		return PTR_ERR(scu->ipc_dev);
++		switch (mindex) {
++		/* Get PUNIT resources */
++		case PLAT_RESOURCE_BIOS_DATA_INDEX:
++		case PLAT_RESOURCE_BIOS_IFACE_INDEX:
++			/* BIOS resources are required, so return error if not
++			 * available */
++			if (!res) {
++				dev_err(&pdev->dev,
++					"Failed to get PUNIT MEM resource %d\n",
++					pindex);
++				return -ENXIO;
++			}
++		case PLAT_RESOURCE_ISP_DATA_INDEX:
++		case PLAT_RESOURCE_ISP_IFACE_INDEX:
++		case PLAT_RESOURCE_GTD_DATA_INDEX:
++		case PLAT_RESOURCE_GTD_IFACE_INDEX:
++			/* if valid resource found, copy the resource to PUNIT
++			 * resource */
++			if (res)
++				memcpy(&punit_res[pindex], res, sizeof(*res));
++			punit_res[pindex].flags = IORESOURCE_MEM;
++			dev_dbg(&pdev->dev, "PUNIT memory res: %pR\n",
++				&punit_res[pindex]);
++			pindex++;
++			break;
+ 		};
 +	}
  
- 	/* Assign device at last */
- 	scu->dev = &pdev->dev;
+-	pdev = platform_device_register_full(&pdevinfo);
+-	if (IS_ERR(pdev))
+-		return PTR_ERR(pdev);
+-
+-	ipcdev.punit_dev = pdev;
++	/* Create PUNIT IPC MFD cell */
++	punit_cell.name = PUNIT_DEVICE_NAME;
++	punit_cell.num_resources = ARRAY_SIZE(punit_res);
++	punit_cell.resources = punit_res;
++	punit_cell.ignore_resource_conflicts = 1;
  
- 	intel_scu_devices_create();
+-	return 0;
++	return devm_mfd_add_devices(&pdev->dev, PLATFORM_DEVID_NONE,
++				    &punit_cell, 1, NULL, 0, NULL);
+ }
  
--	pci_set_drvdata(pdev, scu);
+-static int ipc_create_tco_device(void)
++static int ipc_create_wdt_device(struct platform_device *pdev)
+ {
+-	struct platform_device *pdev;
++	static struct resource wdt_ipc_res[2];
+ 	struct resource *res;
+-	const struct platform_device_info pdevinfo = {
+-		.parent = ipcdev.dev,
+-		.name = TCO_DEVICE_NAME,
+-		.id = -1,
+-		.res = tco_res,
+-		.num_res = ARRAY_SIZE(tco_res),
+-		.data = &tco_info,
+-		.size_data = sizeof(tco_info),
+-		};
++	static struct mfd_cell wdt_cell;
+ 
+-	res = tco_res + TCO_RESOURCE_ACPI_IO;
+-	res->start = ipcdev.acpi_io_base + TCO_BASE_OFFSET;
+-	res->end = res->start + TCO_REGS_SIZE - 1;
++	/* If we have ACPI based watchdog use that instead, othewise create
++	 * a MFD cell for iTCO watchdog*/
++	if (acpi_has_watchdog())
++		return 0;
+ 
+-	res = tco_res + TCO_RESOURCE_SMI_EN_IO;
+-	res->start = ipcdev.acpi_io_base + SMI_EN_OFFSET;
+-	res->end = res->start + SMI_EN_SIZE - 1;
++	/* Get iTCO watchdog resources */
++	res = platform_get_resource(pdev, IORESOURCE_IO,
++				    PLAT_RESOURCE_ACPI_IO_INDEX);
++	if (!res) {
++		dev_err(&pdev->dev, "Failed to get WDT resource\n");
++		return -ENXIO;
++	}
+ 
+-	pdev = platform_device_register_full(&pdevinfo);
+-	if (IS_ERR(pdev))
+-		return PTR_ERR(pdev);
++	wdt_ipc_res[0].start = res->start + TCO_BASE_OFFSET;
++	wdt_ipc_res[0].end = res->start +
++		TCO_BASE_OFFSET + TCO_REGS_SIZE - 1;
++	wdt_ipc_res[0].flags = IORESOURCE_IO;
++	wdt_ipc_res[1].start = res->start + SMI_EN_OFFSET;
++	wdt_ipc_res[1].end = res->start +
++		SMI_EN_OFFSET + SMI_EN_SIZE - 1;
++	wdt_ipc_res[1].flags = IORESOURCE_IO;
+ 
+-	ipcdev.tco_dev = pdev;
++	dev_dbg(&pdev->dev, "watchdog res 0: %pR\n", &wdt_ipc_res[0]);
++	dev_dbg(&pdev->dev, "watchdog res 1: %pR\n", &wdt_ipc_res[1]);
+ 
+-	return 0;
++	wdt_cell.name = TCO_DEVICE_NAME;
++	wdt_cell.platform_data = &tco_info;
++	wdt_cell.pdata_size = sizeof(tco_info);
++	wdt_cell.num_resources = ARRAY_SIZE(wdt_ipc_res);
++	wdt_cell.resources = wdt_ipc_res;
++	wdt_cell.ignore_resource_conflicts = 1;
++
++	return devm_mfd_add_devices(&pdev->dev, PLATFORM_DEVID_NONE,
++				    &wdt_cell, 1, NULL, 0, NULL);
+ }
+ 
+-static int ipc_create_telemetry_device(void)
++static int ipc_create_telemetry_device(struct platform_device *pdev)
+ {
+-	struct platform_device *pdev;
++	struct resource telemetry_ipc_res[2];
++	struct mfd_cell telemetry_cell;
+ 	struct resource *res;
+-	const struct platform_device_info pdevinfo = {
+-		.parent = ipcdev.dev,
+-		.name = TELEMETRY_DEVICE_NAME,
+-		.id = -1,
+-		.res = telemetry_res,
+-		.num_res = ARRAY_SIZE(telemetry_res),
+-		};
+ 
+-	res = telemetry_res + TELEMETRY_RESOURCE_PUNIT_SSRAM;
+-	res->start = ipcdev.telem_punit_ssram_base;
+-	res->end = res->start + ipcdev.telem_punit_ssram_size - 1;
++	/* Get telemetry resources */
++	res = platform_get_resource(pdev, IORESOURCE_MEM,
++				    PLAT_RESOURCE_TELEM_SSRAM_INDEX);
++	if (!res) {
++		dev_err(&pdev->dev, "Failed to get telemetry resource\n");
++		return -ENXIO;
++	}
+ 
+-	res = telemetry_res + TELEMETRY_RESOURCE_PMC_SSRAM;
+-	res->start = ipcdev.telem_pmc_ssram_base;
+-	res->end = res->start + ipcdev.telem_pmc_ssram_size - 1;
++	telemetry_ipc_res[0].start = res->start + TELEM_PUNIT_SSRAM_OFFSET;
++	telemetry_ipc_res[0].end = res->start +
++		TELEM_PUNIT_SSRAM_OFFSET + TELEM_SSRAM_SIZE - 1;
++	telemetry_ipc_res[0].flags = IORESOURCE_MEM;
++	telemetry_ipc_res[1].start = res->start + TELEM_PMC_SSRAM_OFFSET;
++	telemetry_ipc_res[1].end = res->start +
++		TELEM_PMC_SSRAM_OFFSET + TELEM_SSRAM_SIZE - 1;
++	telemetry_ipc_res[1].flags = IORESOURCE_MEM;
+ 
+-	pdev = platform_device_register_full(&pdevinfo);
+-	if (IS_ERR(pdev))
+-		return PTR_ERR(pdev);
++	dev_dbg(&pdev->dev, "Telemetry res 0: %pR\n", &telemetry_ipc_res[0]);
++	dev_dbg(&pdev->dev, "Telemetry res 1: %pR\n", &telemetry_ipc_res[1]);
+ 
+-	ipcdev.telemetry_dev = pdev;
++	telemetry_cell.name = TELEMETRY_DEVICE_NAME;
++	telemetry_cell.num_resources = ARRAY_SIZE(telemetry_ipc_res);
++	telemetry_cell.resources = telemetry_ipc_res;
++	telemetry_cell.ignore_resource_conflicts = 1;
+ 
+-	return 0;
++	return devm_mfd_add_devices(&pdev->dev, PLATFORM_DEVID_NONE,
++				    &telemetry_cell, 1, NULL, 0, NULL);
+ }
+ 
+-static int ipc_create_pmc_devices(void)
++static int ipc_create_pmc_devices(struct platform_device *pdev)
+ {
+ 	int ret;
+ 
+-	/* If we have ACPI based watchdog use that instead */
+-	if (!acpi_has_watchdog()) {
+-		ret = ipc_create_tco_device();
+-		if (ret) {
+-			dev_err(ipcdev.dev, "Failed to add tco platform device\n");
+-			return ret;
+-		}
+-	}
++	ret = ipc_create_punit_device(pdev);
++	if (ret < 0)
++		return ret;
+ 
+-	ret = ipc_create_punit_device();
+-	if (ret) {
+-		dev_err(ipcdev.dev, "Failed to add punit platform device\n");
+-		platform_device_unregister(ipcdev.tco_dev);
+-	}
++	ret = ipc_create_wdt_device(pdev);
++	if (ret < 0)
++		return ret;
+ 
+-	if (!ipcdev.telem_res_inval) {
+-		ret = ipc_create_telemetry_device();
+-		if (ret)
+-			dev_warn(ipcdev.dev,
+-				"Failed to add telemetry platform device\n");
+-	}
++	ret = ipc_create_telemetry_device(pdev);
++	if (ret < 0)
++		return ret;
+ 
+-	return ret;
++	return 0;
+ }
+ 
+ static int ipc_plat_get_res(struct platform_device *pdev)
+ {
+-	struct resource *res, *punit_res;
++	struct resource *res;
+ 	void __iomem *addr;
+-	int size;
+-
+-	res = platform_get_resource(pdev, IORESOURCE_IO,
+-				    PLAT_RESOURCE_ACPI_IO_INDEX);
+-	if (!res) {
+-		dev_err(&pdev->dev, "Failed to get io resource\n");
+-		return -ENXIO;
+-	}
+-	size = resource_size(res);
+-	ipcdev.acpi_io_base = res->start;
+-	ipcdev.acpi_io_size = size;
+-	dev_info(&pdev->dev, "io res: %pR\n", res);
+-
+-	punit_res = punit_res_array;
+-	/* This is index 0 to cover BIOS data register */
+-	res = platform_get_resource(pdev, IORESOURCE_MEM,
+-				    PLAT_RESOURCE_BIOS_DATA_INDEX);
+-	if (!res) {
+-		dev_err(&pdev->dev, "Failed to get res of punit BIOS data\n");
+-		return -ENXIO;
+-	}
+-	*punit_res = *res;
+-	dev_info(&pdev->dev, "punit BIOS data res: %pR\n", res);
+-
+-	/* This is index 1 to cover BIOS interface register */
+-	res = platform_get_resource(pdev, IORESOURCE_MEM,
+-				    PLAT_RESOURCE_BIOS_IFACE_INDEX);
+-	if (!res) {
+-		dev_err(&pdev->dev, "Failed to get res of punit BIOS iface\n");
+-		return -ENXIO;
+-	}
+-	*++punit_res = *res;
+-	dev_info(&pdev->dev, "punit BIOS interface res: %pR\n", res);
+-
+-	/* This is index 2 to cover ISP data register, optional */
+-	res = platform_get_resource(pdev, IORESOURCE_MEM,
+-				    PLAT_RESOURCE_ISP_DATA_INDEX);
+-	++punit_res;
+-	if (res) {
+-		*punit_res = *res;
+-		dev_info(&pdev->dev, "punit ISP data res: %pR\n", res);
+-	}
+-
+-	/* This is index 3 to cover ISP interface register, optional */
+-	res = platform_get_resource(pdev, IORESOURCE_MEM,
+-				    PLAT_RESOURCE_ISP_IFACE_INDEX);
+-	++punit_res;
+-	if (res) {
+-		*punit_res = *res;
+-		dev_info(&pdev->dev, "punit ISP interface res: %pR\n", res);
+-	}
+-
+-	/* This is index 4 to cover GTD data register, optional */
+-	res = platform_get_resource(pdev, IORESOURCE_MEM,
+-				    PLAT_RESOURCE_GTD_DATA_INDEX);
+-	++punit_res;
+-	if (res) {
+-		*punit_res = *res;
+-		dev_info(&pdev->dev, "punit GTD data res: %pR\n", res);
+-	}
+-
+-	/* This is index 5 to cover GTD interface register, optional */
+-	res = platform_get_resource(pdev, IORESOURCE_MEM,
+-				    PLAT_RESOURCE_GTD_IFACE_INDEX);
+-	++punit_res;
+-	if (res) {
+-		*punit_res = *res;
+-		dev_info(&pdev->dev, "punit GTD interface res: %pR\n", res);
+-	}
+ 
++	/* Get IPC resources */
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM,
+ 				    PLAT_RESOURCE_IPC_INDEX);
+ 	if (!res) {
+-		dev_err(&pdev->dev, "Failed to get ipc resource\n");
++		dev_err(&pdev->dev, "Failed to get IPC resources\n");
+ 		return -ENXIO;
+ 	}
+-	size = PLAT_RESOURCE_IPC_SIZE + PLAT_RESOURCE_GCR_SIZE;
+-	res->end = res->start + size - 1;
++
++	res->end = res->start +
++		   PLAT_RESOURCE_IPC_SIZE + PLAT_RESOURCE_GCR_SIZE - 1;
+ 
+ 	addr = devm_ioremap_resource(&pdev->dev, res);
+ 	if (IS_ERR(addr))
+ 		return PTR_ERR(addr);
+ 
+ 	ipcdev.ipc_base = addr;
+-
+ 	ipcdev.gcr_mem_base = addr + PLAT_RESOURCE_GCR_OFFSET;
+-	dev_info(&pdev->dev, "ipc res: %pR\n", res);
+-
+-	ipcdev.telem_res_inval = 0;
+-	res = platform_get_resource(pdev, IORESOURCE_MEM,
+-				    PLAT_RESOURCE_TELEM_SSRAM_INDEX);
+-	if (!res) {
+-		dev_err(&pdev->dev, "Failed to get telemetry ssram resource\n");
+-		ipcdev.telem_res_inval = 1;
+-	} else {
+-		ipcdev.telem_punit_ssram_base = res->start +
+-						TELEM_PUNIT_SSRAM_OFFSET;
+-		ipcdev.telem_punit_ssram_size = TELEM_SSRAM_SIZE;
+-		ipcdev.telem_pmc_ssram_base = res->start +
+-						TELEM_PMC_SSRAM_OFFSET;
+-		ipcdev.telem_pmc_ssram_size = TELEM_SSRAM_SIZE;
+-		dev_info(&pdev->dev, "telemetry ssram res: %pR\n", res);
+-	}
++	dev_dbg(&pdev->dev, "PMC IPC resource %pR\n", res);
+ 
+ 	return 0;
+ }
+@@ -911,7 +797,7 @@ static int ipc_plat_probe(struct platform_device *pdev)
+ 
+ 	ipcdev.irq = platform_get_irq(pdev, 0);
+ 	if (ipcdev.irq < 0) {
+-		dev_err(&pdev->dev, "Failed to get irq\n");
++		dev_err(&pdev->dev, "Failed to get IRQ\n");
+ 		return -EINVAL;
+ 	}
+ 
+@@ -921,47 +807,38 @@ static int ipc_plat_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
+ 
+-	ret = ipc_create_pmc_devices();
++	ret = ipc_create_pmc_devices(pdev);
+ 	if (ret) {
+-		dev_err(&pdev->dev, "Failed to create pmc devices\n");
++		dev_err(&pdev->dev, "Failed to create PMC devices\n");
+ 		return ret;
+ 	}
+ 
+-	if (devm_request_irq(&pdev->dev, ipcdev.irq, ioc, IRQF_NO_SUSPEND,
+-			     "intel_pmc_ipc", &ipcdev)) {
+-		dev_err(&pdev->dev, "Failed to request irq\n");
+-		ret = -EBUSY;
+-		goto err_irq;
++	ret = devm_request_irq(&pdev->dev, ipcdev.irq, ioc, IRQF_NO_SUSPEND,
++			       "intel_pmc_ipc", &ipcdev);
++	if (ret) {
++		dev_err(&pdev->dev, "Failed to request IRQ\n");
++		return ret;
+ 	}
+ 
+ 	ret = sysfs_create_group(&pdev->dev.kobj, &intel_ipc_group);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "Failed to create sysfs group %d\n",
+ 			ret);
+-		goto err_sys;
++		devm_free_irq(&pdev->dev, ipcdev.irq, &ipcdev);
++		return ret;
+ 	}
+ 
+ 	ipcdev.has_gcr_regs = true;
+ 
+ 	return 0;
+-err_sys:
+-	devm_free_irq(&pdev->dev, ipcdev.irq, &ipcdev);
+-err_irq:
+-	platform_device_unregister(ipcdev.tco_dev);
+-	platform_device_unregister(ipcdev.punit_dev);
+-	platform_device_unregister(ipcdev.telemetry_dev);
+-
+-	return ret;
+ }
+ 
+ static int ipc_plat_remove(struct platform_device *pdev)
+ {
+ 	sysfs_remove_group(&pdev->dev.kobj, &intel_ipc_group);
+ 	devm_free_irq(&pdev->dev, ipcdev.irq, &ipcdev);
+-	platform_device_unregister(ipcdev.tco_dev);
+-	platform_device_unregister(ipcdev.punit_dev);
+-	platform_device_unregister(ipcdev.telemetry_dev);
+ 	ipcdev.dev = NULL;
++
  	return 0;
  }
  
-diff --git a/drivers/rtc/rtc-mrst.c b/drivers/rtc/rtc-mrst.c
-index 7334c44..37595c4 100644
---- a/drivers/rtc/rtc-mrst.c
-+++ b/drivers/rtc/rtc-mrst.c
-@@ -36,6 +36,7 @@
- #include <linux/module.h>
- #include <linux/init.h>
- #include <linux/sfi.h>
-+#include <linux/platform_data/x86/intel_ipc_dev.h>
+@@ -980,12 +857,12 @@ static int __init intel_pmc_ipc_init(void)
  
- #include <asm/intel_scu_ipc.h>
- #include <asm/intel-mid.h>
-@@ -46,6 +47,7 @@ struct mrst_rtc {
- 	struct device		*dev;
- 	int			irq;
- 	struct resource		*iomem;
-+	struct intel_ipc_dev	*ipc_dev;
- 
- 	u8			enabled_wake;
- 	u8			suspend_ctrl;
-@@ -110,10 +112,11 @@ static int mrst_read_time(struct device *dev, struct rtc_time *time)
- 
- static int mrst_set_time(struct device *dev, struct rtc_time *time)
- {
--	int ret;
- 	unsigned long flags;
- 	unsigned char mon, day, hrs, min, sec;
- 	unsigned int yrs;
-+	struct mrst_rtc	*mrst = dev_get_drvdata(dev);
-+	u32 cmds[SCU_PARAM_LEN] = {IPCMSG_VRTC, IPC_CMD_VRTC_SETTIME};
- 
- 	yrs = time->tm_year;
- 	mon = time->tm_mon + 1;   /* tm_mon starts at zero */
-@@ -137,8 +140,7 @@ static int mrst_set_time(struct device *dev, struct rtc_time *time)
- 
- 	spin_unlock_irqrestore(&rtc_lock, flags);
- 
--	ret = intel_scu_ipc_simple_command(IPCMSG_VRTC, IPC_CMD_VRTC_SETTIME);
--	return ret;
-+	return ipc_dev_simple_cmd(mrst->ipc_dev, cmds, SCU_PARAM_LEN);
- }
- 
- static int mrst_read_alarm(struct device *dev, struct rtc_wkalrm *t)
-@@ -210,6 +212,7 @@ static int mrst_set_alarm(struct device *dev, struct rtc_wkalrm *t)
- 	struct mrst_rtc	*mrst = dev_get_drvdata(dev);
- 	unsigned char hrs, min, sec;
- 	int ret = 0;
-+	u32 cmds[SCU_PARAM_LEN] = {IPCMSG_VRTC, IPC_CMD_VRTC_SETALARM};
- 
- 	if (!mrst->irq)
- 		return -EIO;
-@@ -229,7 +232,7 @@ static int mrst_set_alarm(struct device *dev, struct rtc_wkalrm *t)
- 
- 	spin_unlock_irq(&rtc_lock);
- 
--	ret = intel_scu_ipc_simple_command(IPCMSG_VRTC, IPC_CMD_VRTC_SETALARM);
-+	ret = ipc_dev_simple_cmd(mrst->ipc_dev, cmds, SCU_PARAM_LEN);
- 	if (ret)
+ 	ret = platform_driver_register(&ipc_plat_driver);
+ 	if (ret) {
+-		pr_err("Failed to register PMC ipc platform driver\n");
++		pr_err("Failed to register PMC IPC platform driver\n");
  		return ret;
- 
-@@ -329,6 +332,10 @@ static int vrtc_mrst_do_probe(struct device *dev, struct resource *iomem,
- 	if (!iomem)
- 		return -ENODEV;
- 
-+	mrst_rtc.ipc_dev = intel_ipc_dev_get(INTEL_SCU_IPC_DEV);
-+	if (IS_ERR_OR_NULL(mrst_rtc.ipc_dev))
-+		return PTR_ERR(mrst_rtc.ipc_dev);
-+
- 	iomem = request_mem_region(iomem->start, resource_size(iomem),
- 				   driver_name);
- 	if (!iomem) {
-@@ -394,6 +401,7 @@ static void rtc_mrst_do_remove(struct device *dev)
- 
- 	rtc_mrst_do_shutdown();
- 
-+	intel_ipc_dev_put(mrst->ipc_dev);
- 	if (mrst->irq)
- 		free_irq(mrst->irq, mrst->rtc);
- 
-diff --git a/drivers/watchdog/intel-mid_wdt.c b/drivers/watchdog/intel-mid_wdt.c
-index 72c108a..d6f2993 100644
---- a/drivers/watchdog/intel-mid_wdt.c
-+++ b/drivers/watchdog/intel-mid_wdt.c
-@@ -18,6 +18,7 @@
- #include <linux/platform_device.h>
- #include <linux/watchdog.h>
- #include <linux/platform_data/intel-mid_wdt.h>
-+#include <linux/platform_data/x86/intel_ipc_dev.h>
- 
- #include <asm/intel_scu_ipc.h>
- #include <asm/intel-mid.h>
-@@ -29,6 +30,8 @@
- #define MID_WDT_TIMEOUT_MAX		170
- #define MID_WDT_DEFAULT_TIMEOUT		90
- 
-+static struct intel_ipc_dev *scu_ipc_dev;
-+
- /* SCU watchdog messages */
- enum {
- 	SCU_WATCHDOG_START = 0,
-@@ -38,7 +41,16 @@ enum {
- 
- static inline int wdt_command(int sub, u32 *in, int inlen)
- {
--	return intel_scu_ipc_command(IPC_WATCHDOG, sub, in, inlen, NULL, 0);
-+	u32 cmds[SCU_PARAM_LEN] = {IPC_WATCHDOG, sub};
-+	struct intel_ipc_cmd ipc_cmd = {0};
-+
-+	ipc_cmd.cmd_list = cmds;
-+	ipc_cmd.cmdlen = SCU_PARAM_LEN;
-+	ipc_cmd.in = in;
-+	ipc_cmd.out = NULL;
-+	ipc_cmd.inlen = inlen;
-+
-+	return ipc_dev_cmd(scu_ipc_dev, &ipc_cmd);
- }
- 
- static int wdt_start(struct watchdog_device *wd)
-@@ -129,6 +141,10 @@ static int mid_wdt_probe(struct platform_device *pdev)
- 	if (!wdt_dev)
- 		return -ENOMEM;
- 
-+	scu_ipc_dev = devm_intel_ipc_dev_get(&pdev->dev, INTEL_SCU_IPC_DEV);
-+	if (IS_ERR_OR_NULL(scu_ipc_dev))
-+		return PTR_ERR(scu_ipc_dev);
-+
- 	wdt_dev->info = &mid_wdt_info;
- 	wdt_dev->ops = &mid_wdt_ops;
- 	wdt_dev->min_timeout = MID_WDT_TIMEOUT_MIN;
-diff --git a/drivers/watchdog/intel_scu_watchdog.c b/drivers/watchdog/intel_scu_watchdog.c
-index 0caab62..1210961a7 100644
---- a/drivers/watchdog/intel_scu_watchdog.c
-+++ b/drivers/watchdog/intel_scu_watchdog.c
-@@ -49,6 +49,7 @@
- #include <asm/intel_scu_ipc.h>
- #include <asm/apb_timer.h>
- #include <asm/intel-mid.h>
-+#include <linux/platform_data/x86/intel_ipc_dev.h>
- 
- #include "intel_scu_watchdog.h"
- 
-@@ -94,6 +95,8 @@ MODULE_PARM_DESC(force_boot,
- 
- static struct intel_scu_watchdog_dev watchdog_device;
- 
-+static struct intel_ipc_dev *scu_ipc_dev;
-+
- /* Forces restart, if force_reboot is set */
- static void watchdog_fire(void)
- {
-@@ -128,19 +131,20 @@ static int watchdog_set_ipc(int soft_threshold, int threshold)
- 	u32	*ipc_wbuf;
- 	u8	 cbuf[16] = { '\0' };
- 	int	 ipc_ret = 0;
-+	u32 cmds[SCU_PARAM_LEN] = {IPC_SET_WATCHDOG_TIMER, 0};
-+	struct intel_ipc_cmd ipc_cmd;
- 
- 	ipc_wbuf = (u32 *)&cbuf;
- 	ipc_wbuf[0] = soft_threshold;
- 	ipc_wbuf[1] = threshold;
- 
--	ipc_ret = intel_scu_ipc_command(
--			IPC_SET_WATCHDOG_TIMER,
--			0,
--			ipc_wbuf,
--			2,
--			NULL,
--			0);
-+	ipc_cmd.cmd_list = cmds;
-+	ipc_cmd.cmdlen = SCU_PARAM_LEN;
-+	ipc_cmd.in = ipc_wbuf;
-+	ipc_cmd.inlen = 2;
-+	ipc_cmd.out = NULL;
- 
-+	ipc_ret = ipc_dev_cmd(scu_ipc_dev, &ipc_cmd);
- 	if (ipc_ret != 0)
- 		pr_err("Error setting SCU watchdog timer: %x\n", ipc_ret);
- 
-@@ -460,6 +464,10 @@ static int __init intel_scu_watchdog_init(void)
- 	if (check_timer_margin(timer_margin))
- 		return -EINVAL;
- 
-+	scu_ipc_dev = intel_ipc_dev_get(INTEL_SCU_IPC_DEV);
-+	if (IS_ERR_OR_NULL(scu_ipc_dev))
-+		return PTR_ERR(scu_ipc_dev);
-+
- 	watchdog_device.timer_tbl_ptr = sfi_get_mtmr(sfi_mtimer_num-1);
- 
- 	if (watchdog_device.timer_tbl_ptr == NULL) {
-@@ -550,6 +558,7 @@ static void __exit intel_scu_watchdog_exit(void)
- {
- 
- 	misc_deregister(&watchdog_device.miscdev);
-+	intel_ipc_dev_put(scu_ipc_dev);
- 	unregister_reboot_notifier(&watchdog_device.intel_scu_notifier);
- 	/* disable the timer */
- 	iowrite32(0x00000002, watchdog_device.timer_control_addr);
+ 	}
+ 	ret = pci_register_driver(&ipc_pci_driver);
+ 	if (ret) {
+-		pr_err("Failed to register PMC ipc pci driver\n");
++		pr_err("Failed to register PMC IPC PCI driver\n");
+ 		platform_driver_unregister(&ipc_plat_driver);
+ 		return ret;
+ 	}
 -- 
 2.7.4
 
