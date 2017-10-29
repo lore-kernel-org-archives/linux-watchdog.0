@@ -1,87 +1,49 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pg0-f65.google.com ([74.125.83.65]:57246 "EHLO
-        mail-pg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751189AbdJ1QOY (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 28 Oct 2017 12:14:24 -0400
-Date: Sat, 28 Oct 2017 09:14:22 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Andrey Smirnov <andrew.smirnov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        cphealy@gmail.com, Lucas Stach <l.stach@pengutronix.de>,
-        Nikita Yushchenko <nikita.yoush@cogentembedded.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Pavel Machek <pavel@ucw.cz>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Rob Herring <robh@kernel.org>, Johan Hovold <johan@kernel.org>
-Subject: Re: [v9,4/5] watchdog: Add RAVE SP watchdog driver
-Message-ID: <20171028161422.GA6263@roeck-us.net>
-References: <20171025190421.18415-5-andrew.smirnov@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20171025190421.18415-5-andrew.smirnov@gmail.com>
+Received: from mga07.intel.com ([134.134.136.100]:2903 "EHLO mga07.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750928AbdJ2ICl (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Sun, 29 Oct 2017 04:02:41 -0400
+From: Tomas Winkler <tomas.winkler@intel.com>
+To: Wim Van Sebroeck <wim@iguana.be>,
+        Guenter Roeck <linux@roeck-us.net>
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Tomas Winkler <tomas.winkler@intel.com>
+Subject: [watchdog] watchdog: mei_wdt: don't use of variable length array
+Date: Sun, 29 Oct 2017 09:51:19 +0200
+Message-Id: <20171029075119.15667-1-tomas.winkler@intel.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Oct 25, 2017 at 12:04:20PM -0700, Andrey Smirnov wrote:
-> This driver provides access to RAVE SP watchdog functionality.
-> 
-> Cc: linux-kernel@vger.kernel.org
-> Cc: linux-watchdog@vger.kernel.org
-> Cc: cphealy@gmail.com
-> Cc: Lucas Stach <l.stach@pengutronix.de>
-> Cc: Nikita Yushchenko <nikita.yoush@cogentembedded.com>
-> Cc: Lee Jones <lee.jones@linaro.org>
-> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Cc: Pavel Machek <pavel@ucw.cz>
-> Cc: Andy Shevchenko <andy.shevchenko@gmail.com>
-> Cc: Guenter Roeck <linux@roeck-us.net>
-> Cc: Rob Herring <robh@kernel.org>
-> Cc: Johan Hovold <johan@kernel.org>
-> Signed-off-by: Nikita Yushchenko <nikita.yoush@cogentembedded.com>
-> Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
-> ---
-> 
-> Guenter:
-> 
-> In our previous discussion you noted that relying on the state of
-> WDOG_HW_RUNNING was not correct (that should be fixed now), please let
-> me know if using watchdog_hw_running() the way I do in
-> rave_sp_wdt_set_timeout() is incorrect as well.
-> 
+Fixes sparse warning:
+drivers/watchdog/mei_wdt.c:530:18: warning: Variable length array is used
 
-You could as well have used watchdog_active(), but it is ok.
+Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
+Reviewed-by: Alexander Usyskin <alexander.usyskin@intel.com>
+---
+ drivers/watchdog/mei_wdt.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-> Thanks,
-> Andrey Smirnov
-> 
->  drivers/watchdog/Kconfig       |   7 +
->  drivers/watchdog/Makefile      |   1 +
->  drivers/watchdog/rave-sp-wdt.c | 343 +++++++++++++++++++++++++++++++++++++++++
->  3 files changed, 351 insertions(+)
->  create mode 100644 drivers/watchdog/rave-sp-wdt.c
-> 
-[ ... ]
+diff --git a/drivers/watchdog/mei_wdt.c b/drivers/watchdog/mei_wdt.c
+index ea60b29494fb..b8194b02abe0 100644
+--- a/drivers/watchdog/mei_wdt.c
++++ b/drivers/watchdog/mei_wdt.c
+@@ -526,12 +526,11 @@ static ssize_t mei_dbgfs_read_state(struct file *file, char __user *ubuf,
+ 				    size_t cnt, loff_t *ppos)
+ {
+ 	struct mei_wdt *wdt = file->private_data;
+-	const size_t bufsz = 32;
+-	char buf[bufsz];
++	char buf[32];
+ 	ssize_t pos;
+ 
+-	pos = scnprintf(buf, bufsz, "state: %s\n",
+-			 mei_wdt_state_str(wdt->state));
++	pos = scnprintf(buf, sizeof(buf), "state: %s\n",
++			mei_wdt_state_str(wdt->state));
+ 
+ 	return simple_read_from_buffer(ubuf, cnt, ppos, buf, pos);
+ }
+-- 
+2.9.5
 
-> +
-> +static int rave_sp_wdt_probe(struct platform_device *pdev)
-> +{
-> +	struct device *dev = &pdev->dev;
-> +	const struct of_device_id *id;
-> +	struct watchdog_device *wdd;
-> +	struct rave_sp_wdt *sp_wd;
-> +	struct nvmem_cell *cell;
-> +	__le16 timeout = 0;
-> +	int ret;
-> +
-> +	id = of_match_device(rave_sp_wdt_variants, dev->parent);
-> +	if (WARN_ON(!id))
-> +		return -ENODEV;
-> +
-
-I could understand an error message here, but why a traceback ?
-
-Guenter
