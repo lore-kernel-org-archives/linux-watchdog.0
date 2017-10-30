@@ -1,58 +1,51 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pf0-f196.google.com ([209.85.192.196]:44421 "EHLO
-        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751152AbdJ2WnC (ORCPT
+Received: from baptiste.telenet-ops.be ([195.130.132.51]:47838 "EHLO
+        baptiste.telenet-ops.be" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752005AbdJ3PnX (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 29 Oct 2017 18:43:02 -0400
-Subject: Re: [watchdog] watchdog: mei_wdt: don't use of variable length array
-To: Tomas Winkler <tomas.winkler@intel.com>,
-        Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20171029075119.15667-1-tomas.winkler@intel.com>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <277055c5-6e04-6e15-d2e8-9a81bb1f62cf@roeck-us.net>
-Date: Sun, 29 Oct 2017 15:43:00 -0700
-MIME-Version: 1.0
-In-Reply-To: <20171029075119.15667-1-tomas.winkler@intel.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+        Mon, 30 Oct 2017 11:43:23 -0400
+From: Geert Uytterhoeven <geert+renesas@glider.be>
+To: Wim Van Sebroeck <wim@iguana.be>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>
+Cc: linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-renesas-soc@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>
+Subject: [PATCH] dt-bindings: watchdog: renesas-wdt: Add support for the r8a77970 wdt
+Date: Mon, 30 Oct 2017 16:43:19 +0100
+Message-Id: <1509378199-19388-1-git-send-email-geert+renesas@glider.be>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 10/29/2017 12:51 AM, Tomas Winkler wrote:
-> Fixes sparse warning:
-> drivers/watchdog/mei_wdt.c:530:18: warning: Variable length array is used
-> 
-> Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
-> Reviewed-by: Alexander Usyskin <alexander.usyskin@intel.com>
+Document support for the Watchdog Timer (WDT) Controller in the Renesas
+R-Car V3M (r8a77970) SoC.  Restore sort order while at it.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+No driver update is needed.
 
-> ---
->   drivers/watchdog/mei_wdt.c | 7 +++----
->   1 file changed, 3 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/watchdog/mei_wdt.c b/drivers/watchdog/mei_wdt.c
-> index ea60b29494fb..b8194b02abe0 100644
-> --- a/drivers/watchdog/mei_wdt.c
-> +++ b/drivers/watchdog/mei_wdt.c
-> @@ -526,12 +526,11 @@ static ssize_t mei_dbgfs_read_state(struct file *file, char __user *ubuf,
->   				    size_t cnt, loff_t *ppos)
->   {
->   	struct mei_wdt *wdt = file->private_data;
-> -	const size_t bufsz = 32;
-> -	char buf[bufsz];
-> +	char buf[32];
->   	ssize_t pos;
->   
-> -	pos = scnprintf(buf, bufsz, "state: %s\n",
-> -			 mei_wdt_state_str(wdt->state));
-> +	pos = scnprintf(buf, sizeof(buf), "state: %s\n",
-> +			mei_wdt_state_str(wdt->state));
->   
->   	return simple_read_from_buffer(ubuf, cnt, ppos, buf, pos);
->   }
-> 
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+---
+ Documentation/devicetree/bindings/watchdog/renesas-wdt.txt | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt b/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
+index bf6d1ca58af7d198..74b2f03c151553f5 100644
+--- a/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
++++ b/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
+@@ -4,10 +4,11 @@ Required properties:
+ - compatible : Should be "renesas,<soctype>-wdt", and
+ 	       "renesas,rcar-gen3-wdt" or "renesas,rza-wdt" as fallback.
+ 	       Examples with soctypes are:
++	         - "renesas,r7s72100-wdt" (RZ/A1)
+ 	         - "renesas,r8a7795-wdt" (R-Car H3)
+ 	         - "renesas,r8a7796-wdt" (R-Car M3-W)
++	         - "renesas,r8a77970-wdt" (R-Car V3M)
+ 	         - "renesas,r8a77995-wdt" (R-Car D3)
+-	         - "renesas,r7s72100-wdt" (RZ/A1)
+ 
+   When compatible with the generic version, nodes must list the SoC-specific
+   version corresponding to the platform first, followed by the generic
+-- 
+2.7.4
 
