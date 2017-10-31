@@ -1,63 +1,88 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pf0-f196.google.com ([209.85.192.196]:48198 "EHLO
-        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753474AbdJaRXB (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 31 Oct 2017 13:23:01 -0400
-Date: Tue, 31 Oct 2017 10:22:59 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Geert Uytterhoeven <geert+renesas@glider.be>
-Cc: Wim Van Sebroeck <wim@iguana.be>, Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-renesas-soc@vger.kernel.org
-Subject: Re: [PATCH] dt-bindings: watchdog: renesas-wdt: Add support for the
- r8a77970 wdt
-Message-ID: <20171031172259.GH28688@roeck-us.net>
-References: <1509378199-19388-1-git-send-email-geert+renesas@glider.be>
+Return-Path: <andrew.smirnov@gmail.com>
+Return-path: <andrew.smirnov@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1509378199-19388-1-git-send-email-geert+renesas@glider.be>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+In-Reply-To: <20171028161422.GA6263@roeck-us.net>
+References: <20171025190421.18415-5-andrew.smirnov@gmail.com> <20171028161422.GA6263@roeck-us.net>
+From: Andrey Smirnov <andrew.smirnov@gmail.com>
+Date: Tue, 31 Oct 2017 08:41:28 -0700
+Message-ID: <CAHQ1cqG=ceHLE-2DwrtL90BUDHbbH9bCma06-LO2SSuqZkX99A@mail.gmail.com>
+Subject: Re: [v9,4/5] watchdog: Add RAVE SP watchdog driver
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-watchdog@vger.kernel.org,
+	Chris Healy <cphealy@gmail.com>, Lucas Stach <l.stach@pengutronix.de>,
+	Nikita Yushchenko <nikita.yoush@cogentembedded.com>, Lee Jones <lee.jones@linaro.org>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Pavel Machek <pavel@ucw.cz>,
+	Andy Shevchenko <andy.shevchenko@gmail.com>, Rob Herring <robh@kernel.org>,
+	Johan Hovold <johan@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On Mon, Oct 30, 2017 at 04:43:19PM +0100, Geert Uytterhoeven wrote:
-> Document support for the Watchdog Timer (WDT) Controller in the Renesas
-> R-Car V3M (r8a77970) SoC.  Restore sort order while at it.
-> 
-> No driver update is needed.
-> 
-> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+On Sat, Oct 28, 2017 at 9:14 AM, Guenter Roeck <linux@roeck-us.net> wrote:
+> On Wed, Oct 25, 2017 at 12:04:20PM -0700, Andrey Smirnov wrote:
+>> This driver provides access to RAVE SP watchdog functionality.
+>>
+>> Cc: linux-kernel@vger.kernel.org
+>> Cc: linux-watchdog@vger.kernel.org
+>> Cc: cphealy@gmail.com
+>> Cc: Lucas Stach <l.stach@pengutronix.de>
+>> Cc: Nikita Yushchenko <nikita.yoush@cogentembedded.com>
+>> Cc: Lee Jones <lee.jones@linaro.org>
+>> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+>> Cc: Pavel Machek <pavel@ucw.cz>
+>> Cc: Andy Shevchenko <andy.shevchenko@gmail.com>
+>> Cc: Guenter Roeck <linux@roeck-us.net>
+>> Cc: Rob Herring <robh@kernel.org>
+>> Cc: Johan Hovold <johan@kernel.org>
+>> Signed-off-by: Nikita Yushchenko <nikita.yoush@cogentembedded.com>
+>> Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
+>> ---
+>>
+>> Guenter:
+>>
+>> In our previous discussion you noted that relying on the state of
+>> WDOG_HW_RUNNING was not correct (that should be fixed now), please let
+>> me know if using watchdog_hw_running() the way I do in
+>> rave_sp_wdt_set_timeout() is incorrect as well.
+>>
+>
+> You could as well have used watchdog_active(), but it is ok.
+>
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+That's easy to change. I'll do that in v10.
 
-> ---
->  Documentation/devicetree/bindings/watchdog/renesas-wdt.txt | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt b/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
-> index bf6d1ca58af7d198..74b2f03c151553f5 100644
-> --- a/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
-> +++ b/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
-> @@ -4,10 +4,11 @@ Required properties:
->  - compatible : Should be "renesas,<soctype>-wdt", and
->  	       "renesas,rcar-gen3-wdt" or "renesas,rza-wdt" as fallback.
->  	       Examples with soctypes are:
-> +	         - "renesas,r7s72100-wdt" (RZ/A1)
->  	         - "renesas,r8a7795-wdt" (R-Car H3)
->  	         - "renesas,r8a7796-wdt" (R-Car M3-W)
-> +	         - "renesas,r8a77970-wdt" (R-Car V3M)
->  	         - "renesas,r8a77995-wdt" (R-Car D3)
-> -	         - "renesas,r7s72100-wdt" (RZ/A1)
->  
->    When compatible with the generic version, nodes must list the SoC-specific
->    version corresponding to the platform first, followed by the generic
-> -- 
-> 2.7.4
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+>> Thanks,
+>> Andrey Smirnov
+>>
+>>  drivers/watchdog/Kconfig       |   7 +
+>>  drivers/watchdog/Makefile      |   1 +
+>>  drivers/watchdog/rave-sp-wdt.c | 343 +++++++++++++++++++++++++++++++++++++++++
+>>  3 files changed, 351 insertions(+)
+>>  create mode 100644 drivers/watchdog/rave-sp-wdt.c
+>>
+> [ ... ]
+>
+>> +
+>> +static int rave_sp_wdt_probe(struct platform_device *pdev)
+>> +{
+>> +     struct device *dev = &pdev->dev;
+>> +     const struct of_device_id *id;
+>> +     struct watchdog_device *wdd;
+>> +     struct rave_sp_wdt *sp_wd;
+>> +     struct nvmem_cell *cell;
+>> +     __le16 timeout = 0;
+>> +     int ret;
+>> +
+>> +     id = of_match_device(rave_sp_wdt_variants, dev->parent);
+>> +     if (WARN_ON(!id))
+>> +             return -ENODEV;
+>> +
+>
+> I could understand an error message here, but why a traceback ?
+>
+
+I can't think of a good reason for it. I'll change this to a regular
+error message in v10.
+
+Thanks,
+Andrey Smirnov
