@@ -4,34 +4,51 @@ From: Radu Rendec <rrendec@arista.com>
 To: Guenter Roeck <linux@roeck-us.net>
 Cc: Wim Van Sebroeck <wim@iguana.be>,
 	linux-watchdog@vger.kernel.org
-Subject: [PATCH 0/2] xen_wdt: use the watchdog subsystem
-Date: Fri,  3 Nov 2017 15:31:51 +0000
-Message-Id: <20171103153153.9992-1-rrendec@arista.com>
+Subject: [PATCH 2/2] watchdog: xen_wdt: remove info message and version number
+Date: Fri,  3 Nov 2017 15:31:53 +0000
+Message-Id: <20171103153153.9992-3-rrendec@arista.com>
+In-Reply-To: <20171103153153.9992-1-rrendec@arista.com>
+References: <20171103153153.9992-1-rrendec@arista.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi Guenter,
+The initial info message (early in the xen_wdt_init_module() function)
+is not very useful and we already have a message on successful probe. If
+the probe fails, additional messages are printed anyway.
 
-I just figured out we have a similar use case (of two watchdogs at the
-same time) that involves the xen_wdt driver. I thought "same problem,
-same fix", so I decided to port xen_wdt to use the watchdog subsystem.
+The version number serves no useful purpose and it ran out of favor
+upstream anyway.
 
-This patch series contains similar changes to what I have recently done
-for i6300esb. The changes are simpler though, because the Xen hypervisor
-cannot expose multiple watchdogs to the guest, and so the driver doesn't
-need to allocate watchdog structures dynamically.
+Signed-off-by: Radu Rendec <rrendec@arista.com>
+---
+ drivers/watchdog/xen_wdt.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-I tried to avoid all the problems I had with the i6300esb patches and
-hopefully these new patches don't have as many issues (or none at all).
-
-Thanks,
-Radu
-
-Radu Rendec (2):
-  watchdog: xen_wdt: use the watchdog subsystem
-  watchdog: xen_wdt: remove info message and version number
-
- drivers/watchdog/xen_wdt.c | 208 +++++++++------------------------------------
- 1 file changed, 38 insertions(+), 170 deletions(-)
-
+diff --git a/drivers/watchdog/xen_wdt.c b/drivers/watchdog/xen_wdt.c
+index 8bea946dfdc7..e1aeff0ea6eb 100644
+--- a/drivers/watchdog/xen_wdt.c
++++ b/drivers/watchdog/xen_wdt.c
+@@ -12,7 +12,6 @@
+ #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+ 
+ #define DRV_NAME	"wdt"
+-#define DRV_VERSION	"0.01"
+ 
+ #include <linux/bug.h>
+ #include <linux/errno.h>
+@@ -203,8 +202,6 @@ static int __init xen_wdt_init_module(void)
+ 	if (!xen_domain())
+ 		return -ENODEV;
+ 
+-	pr_info("Xen WatchDog Timer Driver v%s\n", DRV_VERSION);
+-
+ 	err = platform_driver_register(&xen_wdt_driver);
+ 	if (err)
+ 		return err;
+@@ -231,5 +228,4 @@ module_exit(xen_wdt_cleanup_module);
+ 
+ MODULE_AUTHOR("Jan Beulich <jbeulich@novell.com>");
+ MODULE_DESCRIPTION("Xen WatchDog Timer Driver");
+-MODULE_VERSION(DRV_VERSION);
+ MODULE_LICENSE("GPL");
 -- 
 2.13.6
