@@ -1,506 +1,521 @@
-Return-Path: <Orson.Zhai@spreadtrum.com>
-Return-path: <Orson.Zhai@spreadtrum.com>
-From: Eric Long <eric.long@spreadtrum.com>
-To: Wim Van Sebroeck <wim@iguana.be>, Rob Herring <robh+dt@kernel.org>,
-        Mark
- Rutland <mark.rutland@arm.com>
-CC: <baolin.wang@linaro.org>, Guenter Roeck <linux@roeck-us.net>,
-        <linux-watchdog@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <eric.long@spreadtrum.com>
-Subject: [PATCH v5 2/2] watchdog: Add Spreadtrum watchdog driver
-Date: Fri, 3 Nov 2017 19:18:28 +0800
-Message-ID: <6c70ef51228b68fabb5c7991ba4b0d53f5d367c0.1509707598.git.eric.long@spreadtrum.com>
-In-Reply-To: <e2910f77b936a2ece8fe2e0e467ade8d443e3fea.1509707598.git.eric.long@spreadtrum.com>
-References: <e2910f77b936a2ece8fe2e0e467ade8d443e3fea.1509707598.git.eric.long@spreadtrum.com>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-pg0-f65.google.com ([74.125.83.65]:54693 "EHLO
+        mail-pg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1756477AbdKCNs2 (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 3 Nov 2017 09:48:28 -0400
+Date: Fri, 3 Nov 2017 06:48:26 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Eric Long <eric.long@spreadtrum.com>
+Cc: Wim Van Sebroeck <wim@iguana.be>, Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>, baolin.wang@linaro.org,
+        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [v5,2/2] watchdog: Add Spreadtrum watchdog driver
+Message-ID: <20171103134826.GA17007@roeck-us.net>
+References: <6c70ef51228b68fabb5c7991ba4b0d53f5d367c0.1509707598.git.eric.long@spreadtrum.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-List-ID: <linux-watchdog@vger.kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <6c70ef51228b68fabb5c7991ba4b0d53f5d367c0.1509707598.git.eric.long@spreadtrum.com>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-This patch adds the watchdog driver for Spreadtrum SC9860 platform.
+On Fri, Nov 03, 2017 at 07:18:28PM +0800, Eric Long wrote:
+> This patch adds the watchdog driver for Spreadtrum SC9860 platform.
+> 
+> Signed-off-by: Eric Long <eric.long@spreadtrum.com>
+> ---
+> Changes since v4:
+>  - Remove sprd_wdt_remove().
+>  - Add devm_add_action() for sprd_wdt_disable().
+> 
+> Changes since v3:
+>  - Update Kconfig SPRD_WATCHDOG help messages.
+>  - Correct the wrong spell words.
+>  - Rename SPRD_WDT_CNT_HIGH_VALUE as SPRD_WDT_CNT_HIGH_SHIFT.
+>  - Remove unused macor.
+>  - Update sprd_wdt_set_pretimeout() api.
+>  - Add wdt->wdd.timeout default value.
+>  - Use devm_watchdog_register_device() to register wdt device.
+>  - If module does not support NOWAYOUT, disable wdt when remove this driver.
+>  - Call sprd_wdt_disable() every wdt suspend.
+> 
+> Changes since v2:
+>  - Rename all the macors, add SPRD tag at the head of the macro names.
+>  - Rename SPRD_WDT_CLK as SPRD_WTC_CNT_STEP.
+>  - Remove the code which check timeout value at the wrong place.
+>  - Add min/max timeout value limit.
+>  - Remove set WDOG_HW_RUNNING status at sprd_wdt_enable().
+>  - Add timeout/pretimeout judgment when set them.
+>  - Support WATCHDOG_NOWAYOUT status.
+> 
+> Changes since v1:
+>  - Use pretimeout instead of own implementation.
+>  - Fix timeout loop when loading timeout values.
+>  - use the infrastructure to read and set "timeout-sec" property.
+>  - Add conditions when start or stop watchdog.
+>  - Change the position of enabling watchdog.
+>  - Other optimization.
+> ---
+>  drivers/watchdog/Kconfig    |   8 +
+>  drivers/watchdog/Makefile   |   1 +
+>  drivers/watchdog/sprd_wdt.c | 407 ++++++++++++++++++++++++++++++++++++++++++++
+>  3 files changed, 416 insertions(+)
+>  create mode 100644 drivers/watchdog/sprd_wdt.c
+> 
+> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> index c722cbf..3367a8c 100644
+> --- a/drivers/watchdog/Kconfig
+> +++ b/drivers/watchdog/Kconfig
+> @@ -787,6 +787,14 @@ config UNIPHIER_WATCHDOG
+>  	  To compile this driver as a module, choose M here: the
+>  	  module will be called uniphier_wdt.
+>  
+> +config SPRD_WATCHDOG
+> +	tristate "Spreadtrum watchdog support"
+> +	depends on ARCH_SPRD || COMPILE_TEST
+> +	select WATCHDOG_CORE
+> +	help
+> +	  Say Y here to include watchdog timer supported
+> +	  by Spreadtrum system.
+> +
+>  # AVR32 Architecture
+>  
+>  config AT32AP700X_WDT
+> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+> index 56adf9f..187cca2 100644
+> --- a/drivers/watchdog/Makefile
+> +++ b/drivers/watchdog/Makefile
+> @@ -87,6 +87,7 @@ obj-$(CONFIG_ASPEED_WATCHDOG) += aspeed_wdt.o
+>  obj-$(CONFIG_ZX2967_WATCHDOG) += zx2967_wdt.o
+>  obj-$(CONFIG_STM32_WATCHDOG) += stm32_iwdg.o
+>  obj-$(CONFIG_UNIPHIER_WATCHDOG) += uniphier_wdt.o
+> +obj-$(CONFIG_SPRD_WATCHDOG) += sprd_wdt.o
+>  
+>  # AVR32 Architecture
+>  obj-$(CONFIG_AT32AP700X_WDT) += at32ap700x_wdt.o
+> diff --git a/drivers/watchdog/sprd_wdt.c b/drivers/watchdog/sprd_wdt.c
+> new file mode 100644
+> index 0000000..88f6f84
+> --- /dev/null
+> +++ b/drivers/watchdog/sprd_wdt.c
+> @@ -0,0 +1,407 @@
+> +/*
+> + * Spreadtrum watchdog driver
+> + * Copyright (C) 2017 Spreadtrum - http://www.spreadtrum.com
+> + *
+> + * This program is free software; you can redistribute it and/or
+> + * modify it under the terms of the GNU General Public License
+> + * version 2 as published by the Free Software Foundation.
+> + *
+> + * This program is distributed in the hope that it will be useful, but
+> + * WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+> + * General Public License for more details.
+> + */
+> +
+> +#include <linux/bitops.h>
+> +#include <linux/clk.h>
+> +#include <linux/device.h>
+> +#include <linux/err.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/io.h>
+> +#include <linux/kernel.h>
+> +#include <linux/module.h>
+> +#include <linux/of.h>
+> +#include <linux/of_address.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/watchdog.h>
+> +
+> +#define SPRD_WDT_LOAD_LOW		0x0
+> +#define SPRD_WDT_LOAD_HIGH		0x4
+> +#define SPRD_WDT_CTRL			0x8
+> +#define SPRD_WDT_INT_CLR		0xc
+> +#define SPRD_WDT_INT_RAW		0x10
+> +#define SPRD_WDT_INT_MSK		0x14
+> +#define SPRD_WDT_CNT_LOW		0x18
+> +#define SPRD_WDT_CNT_HIGH		0x1c
+> +#define SPRD_WDT_LOCK			0x20
+> +#define SPRD_WDT_IRQ_LOAD_LOW		0x2c
+> +#define SPRD_WDT_IRQ_LOAD_HIGH		0x30
+> +
+> +/* WDT_CTRL */
+> +#define SPRD_WDT_INT_EN_BIT		BIT(0)
+> +#define SPRD_WDT_CNT_EN_BIT		BIT(1)
+> +#define SPRD_WDT_NEW_VER_EN		BIT(2)
+> +#define SPRD_WDT_RST_EN_BIT		BIT(3)
+> +
+> +/* WDT_INT_CLR */
+> +#define SPRD_WDT_INT_CLEAR_BIT		BIT(0)
+> +#define SPRD_WDT_RST_CLEAR_BIT		BIT(3)
+> +
+> +/* WDT_INT_RAW */
+> +#define SPRD_WDT_INT_RAW_BIT		BIT(0)
+> +#define SPRD_WDT_RST_RAW_BIT		BIT(3)
+> +#define SPRD_WDT_LD_BUSY_BIT		BIT(4)
+> +
+> +/* 1s equal to 32768 counter steps */
+> +#define SPRD_WDT_CNT_STEP		32768
+> +
+> +#define SPRD_WDT_UNLOCK_KEY		0xe551
+> +#define SPRD_WDT_MIN_TIMEOUT		3
+> +#define SPRD_WDT_MAX_TIMEOUT		60
+> +
+> +#define SPRD_WDT_CNT_HIGH_SHIFT		16
+> +#define SPRD_WDT_LOW_VALUE_MASK		GENMASK(15, 0)
+> +#define SPRD_WDT_LOAD_TIMEOUT		1000
+> +
+> +struct sprd_wdt {
+> +	void __iomem *base;
+> +	struct watchdog_device wdd;
+> +	struct clk *enable;
+> +	struct clk *rtc_enable;
+> +	unsigned int irq;
+> +};
+> +
+> +static inline struct sprd_wdt *to_sprd_wdt(struct watchdog_device *wdd)
+> +{
+> +	return container_of(wdd, struct sprd_wdt, wdd);
+> +}
+> +
+> +static inline void sprd_wdt_lock(void __iomem *addr)
+> +{
+> +	writel_relaxed(0x0, addr + SPRD_WDT_LOCK);
+> +}
+> +
+> +static inline void sprd_wdt_unlock(void __iomem *addr)
+> +{
+> +	writel_relaxed(SPRD_WDT_UNLOCK_KEY, addr + SPRD_WDT_LOCK);
+> +}
+> +
+> +static inline bool sprd_wdt_is_running(struct sprd_wdt *wdt)
+> +{
+> +	u32 val;
+> +
+> +	val = readl_relaxed(wdt->base + SPRD_WDT_CTRL);
+> +	return val & SPRD_WDT_NEW_VER_EN;
+> +}
+> +
+> +static irqreturn_t sprd_wdt_isr(int irq, void *dev_id)
+> +{
+> +	struct sprd_wdt *wdt = (struct sprd_wdt *)dev_id;
+> +
+> +	sprd_wdt_unlock(wdt->base);
+> +	writel_relaxed(SPRD_WDT_INT_CLEAR_BIT, wdt->base + SPRD_WDT_INT_CLR);
+> +	sprd_wdt_lock(wdt->base);
+> +	watchdog_notify_pretimeout(&wdt->wdd);
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +static u32 sprd_wdt_get_cnt_value(struct sprd_wdt *wdt)
+> +{
+> +	u32 val;
+> +
+> +	val = readl_relaxed(wdt->base + SPRD_WDT_CNT_HIGH) <<
+> +		SPRD_WDT_CNT_HIGH_SHIFT;
+> +	val |= readl_relaxed(wdt->base + SPRD_WDT_CNT_LOW) &
+> +		SPRD_WDT_LOW_VALUE_MASK;
+> +
+> +	return val;
+> +}
+> +
+> +static int sprd_wdt_load_value(struct sprd_wdt *wdt, u32 timeout,
+> +			       u32 pretimeout)
+> +{
+> +	u32 val, delay_cnt = 0;
+> +	u32 tmr_step = timeout * SPRD_WDT_CNT_STEP;
+> +	u32 prtmr_step = pretimeout * SPRD_WDT_CNT_STEP;
+> +
+> +	sprd_wdt_unlock(wdt->base);
+> +	writel_relaxed((tmr_step >> SPRD_WDT_CNT_HIGH_SHIFT) &
+> +		      SPRD_WDT_LOW_VALUE_MASK, wdt->base + SPRD_WDT_LOAD_HIGH);
+> +	writel_relaxed((tmr_step & SPRD_WDT_LOW_VALUE_MASK),
+> +		       wdt->base + SPRD_WDT_LOAD_LOW);
+> +	writel_relaxed((prtmr_step >> SPRD_WDT_CNT_HIGH_SHIFT) &
+> +			SPRD_WDT_LOW_VALUE_MASK,
+> +		       wdt->base + SPRD_WDT_IRQ_LOAD_HIGH);
+> +	writel_relaxed(prtmr_step & SPRD_WDT_LOW_VALUE_MASK,
+> +		       wdt->base + SPRD_WDT_IRQ_LOAD_LOW);
+> +	sprd_wdt_lock(wdt->base);
+> +
+> +	/*
+> +	 * Waiting the load value operation done,
+> +	 * it needs two or three RTC clock cycles.
+> +	 */
+> +	do {
+> +		val = readl_relaxed(wdt->base + SPRD_WDT_INT_RAW);
+> +		if (!(val & SPRD_WDT_LD_BUSY_BIT))
+> +			break;
+> +
+> +		cpu_relax();
+> +	} while (delay_cnt++ < SPRD_WDT_LOAD_TIMEOUT);
+> +
+> +	if (delay_cnt >= SPRD_WDT_LOAD_TIMEOUT)
+> +		return -EBUSY;
+> +	return 0;
+> +}
+> +
+> +static int sprd_wdt_enable(struct sprd_wdt *wdt)
+> +{
+> +	u32 val;
+> +	int ret;
+> +
+> +	ret = clk_prepare_enable(wdt->enable);
+> +	if (ret)
+> +		return ret;
+> +	ret = clk_prepare_enable(wdt->rtc_enable);
+> +	if (ret)
+> +		return ret;
+> +
+> +	sprd_wdt_unlock(wdt->base);
+> +	val = readl_relaxed(wdt->base + SPRD_WDT_CTRL);
+> +	val |= SPRD_WDT_NEW_VER_EN;
+> +	writel_relaxed(val, wdt->base + SPRD_WDT_CTRL);
+> +	sprd_wdt_lock(wdt->base);
+> +	return 0;
+> +}
+> +
+> +static void sprd_wdt_disable(void *_data)
+> +{
+> +	struct sprd_wdt *wdt = _data;
+> +
+> +	sprd_wdt_unlock(wdt->base);
+> +	writel_relaxed(0x0, wdt->base + SPRD_WDT_CTRL);
+> +	sprd_wdt_lock(wdt->base);
+> +
+> +	clk_disable_unprepare(wdt->rtc_enable);
+> +	clk_disable_unprepare(wdt->enable);
+> +}
+> +
+> +static int sprd_wdt_start(struct watchdog_device *wdd)
+> +{
+> +	struct sprd_wdt *wdt = to_sprd_wdt(wdd);
+> +	u32 val;
+> +	int ret;
+> +
+> +	ret = sprd_wdt_load_value(wdt, wdd->timeout, wdd->pretimeout);
+> +	if (ret)
+> +		return ret;
+> +
+> +	sprd_wdt_unlock(wdt->base);
+> +	val = readl_relaxed(wdt->base + SPRD_WDT_CTRL);
+> +	val |= SPRD_WDT_CNT_EN_BIT | SPRD_WDT_INT_EN_BIT | SPRD_WDT_RST_EN_BIT;
+> +	writel_relaxed(val, wdt->base + SPRD_WDT_CTRL);
+> +	sprd_wdt_lock(wdt->base);
+> +	set_bit(WDOG_HW_RUNNING, &wdd->status);
+> +
+> +	return 0;
+> +}
+> +
+> +static int sprd_wdt_stop(struct watchdog_device *wdd)
+> +{
+> +	struct sprd_wdt *wdt = to_sprd_wdt(wdd);
+> +	u32 val;
+> +
+> +	sprd_wdt_unlock(wdt->base);
+> +	val = readl_relaxed(wdt->base + SPRD_WDT_CTRL);
+> +	val &= ~(SPRD_WDT_CNT_EN_BIT | SPRD_WDT_RST_EN_BIT |
+> +		SPRD_WDT_INT_EN_BIT);
+> +	writel_relaxed(val, wdt->base + SPRD_WDT_CTRL);
+> +	sprd_wdt_lock(wdt->base);
+> +	return 0;
+> +}
+> +
+> +static int sprd_wdt_set_timeout(struct watchdog_device *wdd,
+> +				u32 timeout)
+> +{
+> +	struct sprd_wdt *wdt = to_sprd_wdt(wdd);
+> +
+> +	if (timeout == wdd->timeout)
+> +		return 0;
+> +
+> +	wdd->timeout = timeout;
+> +
+> +	return sprd_wdt_load_value(wdt, timeout, wdd->pretimeout);
+> +}
+> +
+> +static int sprd_wdt_set_pretimeout(struct watchdog_device *wdd,
+> +				   u32 new_pretimeout)
+> +{
+> +	struct sprd_wdt *wdt = to_sprd_wdt(wdd);
+> +
+> +	if (new_pretimeout < wdd->min_timeout)
+> +		return -EINVAL;
+> +
+> +	wdd->pretimeout = new_pretimeout;
+> +
+> +	return sprd_wdt_load_value(wdt, wdd->timeout, new_pretimeout);
+> +}
+> +
+> +static u32 sprd_wdt_get_timeleft(struct watchdog_device *wdd)
+> +{
+> +	struct sprd_wdt *wdt = to_sprd_wdt(wdd);
+> +	u32 val;
+> +
+> +	val = sprd_wdt_get_cnt_value(wdt);
+> +	val = val / SPRD_WDT_CNT_STEP;
+> +
+> +	return val;
+> +}
+> +
+> +static const struct watchdog_ops sprd_wdt_ops = {
+> +	.owner = THIS_MODULE,
+> +	.start = sprd_wdt_start,
+> +	.stop = sprd_wdt_stop,
+> +	.set_timeout = sprd_wdt_set_timeout,
+> +	.set_pretimeout = sprd_wdt_set_pretimeout,
+> +	.get_timeleft = sprd_wdt_get_timeleft,
+> +};
+> +
+> +static const struct watchdog_info sprd_wdt_info = {
+> +	.options = WDIOF_SETTIMEOUT |
+> +		   WDIOF_PRETIMEOUT |
+> +		   WDIOF_MAGICCLOSE |
+> +		   WDIOF_KEEPALIVEPING,
+> +	.identity = "Spreadtrum Watchdog Timer",
+> +};
+> +
+> +static int sprd_wdt_probe(struct platform_device *pdev)
+> +{
+> +	struct resource *wdt_res;
+> +	struct sprd_wdt *wdt;
+> +	int ret;
+> +
+> +	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
+> +	if (!wdt)
+> +		return -ENOMEM;
+> +
+> +	wdt_res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +	wdt->base = devm_ioremap_resource(&pdev->dev, wdt_res);
+> +	if (IS_ERR(wdt->base)) {
+> +		dev_err(&pdev->dev, "failed to map memory resource\n");
+> +		return PTR_ERR(wdt->base);
+> +	}
+> +
+> +	wdt->enable = devm_clk_get(&pdev->dev, "enable");
+> +	if (IS_ERR(wdt->enable)) {
+> +		dev_err(&pdev->dev, "can't get the enable clock\n");
+> +		return PTR_ERR(wdt->enable);
+> +	}
+> +
+> +	wdt->rtc_enable = devm_clk_get(&pdev->dev, "rtc_enable");
+> +	if (IS_ERR(wdt->rtc_enable)) {
+> +		dev_err(&pdev->dev, "can't get the rtc enable clock\n");
+> +		return PTR_ERR(wdt->rtc_enable);
+> +	}
+> +
+> +	wdt->irq = platform_get_irq(pdev, 0);
+> +	if (wdt->irq < 0) {
 
-Signed-off-by: Eric Long <eric.long@spreadtrum.com>
----
-Changes since v4:
- - Remove sprd_wdt_remove().
- - Add devm_add_action() for sprd_wdt_disable().
+Please test compile your code and look out for warnings.
 
-Changes since v3:
- - Update Kconfig SPRD_WATCHDOG help messages.
- - Correct the wrong spell words.
- - Rename SPRD_WDT_CNT_HIGH_VALUE as SPRD_WDT_CNT_HIGH_SHIFT.
- - Remove unused macor.
- - Update sprd_wdt_set_pretimeout() api.
- - Add wdt->wdd.timeout default value.
- - Use devm_watchdog_register_device() to register wdt device.
- - If module does not support NOWAYOUT, disable wdt when remove this driver.
- - Call sprd_wdt_disable() every wdt suspend.
+drivers/watchdog/sprd_wdt.c: In function ‘sprd_wdt_probe’:
+drivers/watchdog/sprd_wdt.c:306:15: warning: comparison of unsigned expression <
+0 is always false 
 
-Changes since v2:
- - Rename all the macors, add SPRD tag at the head of the macro names.
- - Rename SPRD_WDT_CLK as SPRD_WTC_CNT_STEP.
- - Remove the code which check timeout value at the wrong place.
- - Add min/max timeout value limit.
- - Remove set WDOG_HW_RUNNING status at sprd_wdt_enable().
- - Add timeout/pretimeout judgment when set them.
- - Support WATCHDOG_NOWAYOUT status.
+wdt->irq is unsigned.
 
-Changes since v1:
- - Use pretimeout instead of own implementation.
- - Fix timeout loop when loading timeout values.
- - use the infrastructure to read and set "timeout-sec" property.
- - Add conditions when start or stop watchdog.
- - Change the position of enabling watchdog.
- - Other optimization.
----
- drivers/watchdog/Kconfig    |   8 +
- drivers/watchdog/Makefile   |   1 +
- drivers/watchdog/sprd_wdt.c | 407 ++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 416 insertions(+)
- create mode 100644 drivers/watchdog/sprd_wdt.c
-
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index c722cbf..3367a8c 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -787,6 +787,14 @@ config UNIPHIER_WATCHDOG
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called uniphier_wdt.
- 
-+config SPRD_WATCHDOG
-+	tristate "Spreadtrum watchdog support"
-+	depends on ARCH_SPRD || COMPILE_TEST
-+	select WATCHDOG_CORE
-+	help
-+	  Say Y here to include watchdog timer supported
-+	  by Spreadtrum system.
-+
- # AVR32 Architecture
- 
- config AT32AP700X_WDT
-diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index 56adf9f..187cca2 100644
---- a/drivers/watchdog/Makefile
-+++ b/drivers/watchdog/Makefile
-@@ -87,6 +87,7 @@ obj-$(CONFIG_ASPEED_WATCHDOG) += aspeed_wdt.o
- obj-$(CONFIG_ZX2967_WATCHDOG) += zx2967_wdt.o
- obj-$(CONFIG_STM32_WATCHDOG) += stm32_iwdg.o
- obj-$(CONFIG_UNIPHIER_WATCHDOG) += uniphier_wdt.o
-+obj-$(CONFIG_SPRD_WATCHDOG) += sprd_wdt.o
- 
- # AVR32 Architecture
- obj-$(CONFIG_AT32AP700X_WDT) += at32ap700x_wdt.o
-diff --git a/drivers/watchdog/sprd_wdt.c b/drivers/watchdog/sprd_wdt.c
-new file mode 100644
-index 0000000..88f6f84
---- /dev/null
-+++ b/drivers/watchdog/sprd_wdt.c
-@@ -0,0 +1,407 @@
-+/*
-+ * Spreadtrum watchdog driver
-+ * Copyright (C) 2017 Spreadtrum - http://www.spreadtrum.com
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License
-+ * version 2 as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful, but
-+ * WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ * General Public License for more details.
-+ */
-+
-+#include <linux/bitops.h>
-+#include <linux/clk.h>
-+#include <linux/device.h>
-+#include <linux/err.h>
-+#include <linux/interrupt.h>
-+#include <linux/io.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/of.h>
-+#include <linux/of_address.h>
-+#include <linux/platform_device.h>
-+#include <linux/watchdog.h>
-+
-+#define SPRD_WDT_LOAD_LOW		0x0
-+#define SPRD_WDT_LOAD_HIGH		0x4
-+#define SPRD_WDT_CTRL			0x8
-+#define SPRD_WDT_INT_CLR		0xc
-+#define SPRD_WDT_INT_RAW		0x10
-+#define SPRD_WDT_INT_MSK		0x14
-+#define SPRD_WDT_CNT_LOW		0x18
-+#define SPRD_WDT_CNT_HIGH		0x1c
-+#define SPRD_WDT_LOCK			0x20
-+#define SPRD_WDT_IRQ_LOAD_LOW		0x2c
-+#define SPRD_WDT_IRQ_LOAD_HIGH		0x30
-+
-+/* WDT_CTRL */
-+#define SPRD_WDT_INT_EN_BIT		BIT(0)
-+#define SPRD_WDT_CNT_EN_BIT		BIT(1)
-+#define SPRD_WDT_NEW_VER_EN		BIT(2)
-+#define SPRD_WDT_RST_EN_BIT		BIT(3)
-+
-+/* WDT_INT_CLR */
-+#define SPRD_WDT_INT_CLEAR_BIT		BIT(0)
-+#define SPRD_WDT_RST_CLEAR_BIT		BIT(3)
-+
-+/* WDT_INT_RAW */
-+#define SPRD_WDT_INT_RAW_BIT		BIT(0)
-+#define SPRD_WDT_RST_RAW_BIT		BIT(3)
-+#define SPRD_WDT_LD_BUSY_BIT		BIT(4)
-+
-+/* 1s equal to 32768 counter steps */
-+#define SPRD_WDT_CNT_STEP		32768
-+
-+#define SPRD_WDT_UNLOCK_KEY		0xe551
-+#define SPRD_WDT_MIN_TIMEOUT		3
-+#define SPRD_WDT_MAX_TIMEOUT		60
-+
-+#define SPRD_WDT_CNT_HIGH_SHIFT		16
-+#define SPRD_WDT_LOW_VALUE_MASK		GENMASK(15, 0)
-+#define SPRD_WDT_LOAD_TIMEOUT		1000
-+
-+struct sprd_wdt {
-+	void __iomem *base;
-+	struct watchdog_device wdd;
-+	struct clk *enable;
-+	struct clk *rtc_enable;
-+	unsigned int irq;
-+};
-+
-+static inline struct sprd_wdt *to_sprd_wdt(struct watchdog_device *wdd)
-+{
-+	return container_of(wdd, struct sprd_wdt, wdd);
-+}
-+
-+static inline void sprd_wdt_lock(void __iomem *addr)
-+{
-+	writel_relaxed(0x0, addr + SPRD_WDT_LOCK);
-+}
-+
-+static inline void sprd_wdt_unlock(void __iomem *addr)
-+{
-+	writel_relaxed(SPRD_WDT_UNLOCK_KEY, addr + SPRD_WDT_LOCK);
-+}
-+
-+static inline bool sprd_wdt_is_running(struct sprd_wdt *wdt)
-+{
-+	u32 val;
-+
-+	val = readl_relaxed(wdt->base + SPRD_WDT_CTRL);
-+	return val & SPRD_WDT_NEW_VER_EN;
-+}
-+
-+static irqreturn_t sprd_wdt_isr(int irq, void *dev_id)
-+{
-+	struct sprd_wdt *wdt = (struct sprd_wdt *)dev_id;
-+
-+	sprd_wdt_unlock(wdt->base);
-+	writel_relaxed(SPRD_WDT_INT_CLEAR_BIT, wdt->base + SPRD_WDT_INT_CLR);
-+	sprd_wdt_lock(wdt->base);
-+	watchdog_notify_pretimeout(&wdt->wdd);
-+	return IRQ_HANDLED;
-+}
-+
-+static u32 sprd_wdt_get_cnt_value(struct sprd_wdt *wdt)
-+{
-+	u32 val;
-+
-+	val = readl_relaxed(wdt->base + SPRD_WDT_CNT_HIGH) <<
-+		SPRD_WDT_CNT_HIGH_SHIFT;
-+	val |= readl_relaxed(wdt->base + SPRD_WDT_CNT_LOW) &
-+		SPRD_WDT_LOW_VALUE_MASK;
-+
-+	return val;
-+}
-+
-+static int sprd_wdt_load_value(struct sprd_wdt *wdt, u32 timeout,
-+			       u32 pretimeout)
-+{
-+	u32 val, delay_cnt = 0;
-+	u32 tmr_step = timeout * SPRD_WDT_CNT_STEP;
-+	u32 prtmr_step = pretimeout * SPRD_WDT_CNT_STEP;
-+
-+	sprd_wdt_unlock(wdt->base);
-+	writel_relaxed((tmr_step >> SPRD_WDT_CNT_HIGH_SHIFT) &
-+		      SPRD_WDT_LOW_VALUE_MASK, wdt->base + SPRD_WDT_LOAD_HIGH);
-+	writel_relaxed((tmr_step & SPRD_WDT_LOW_VALUE_MASK),
-+		       wdt->base + SPRD_WDT_LOAD_LOW);
-+	writel_relaxed((prtmr_step >> SPRD_WDT_CNT_HIGH_SHIFT) &
-+			SPRD_WDT_LOW_VALUE_MASK,
-+		       wdt->base + SPRD_WDT_IRQ_LOAD_HIGH);
-+	writel_relaxed(prtmr_step & SPRD_WDT_LOW_VALUE_MASK,
-+		       wdt->base + SPRD_WDT_IRQ_LOAD_LOW);
-+	sprd_wdt_lock(wdt->base);
-+
-+	/*
-+	 * Waiting the load value operation done,
-+	 * it needs two or three RTC clock cycles.
-+	 */
-+	do {
-+		val = readl_relaxed(wdt->base + SPRD_WDT_INT_RAW);
-+		if (!(val & SPRD_WDT_LD_BUSY_BIT))
-+			break;
-+
-+		cpu_relax();
-+	} while (delay_cnt++ < SPRD_WDT_LOAD_TIMEOUT);
-+
-+	if (delay_cnt >= SPRD_WDT_LOAD_TIMEOUT)
-+		return -EBUSY;
-+	return 0;
-+}
-+
-+static int sprd_wdt_enable(struct sprd_wdt *wdt)
-+{
-+	u32 val;
-+	int ret;
-+
-+	ret = clk_prepare_enable(wdt->enable);
-+	if (ret)
-+		return ret;
-+	ret = clk_prepare_enable(wdt->rtc_enable);
-+	if (ret)
-+		return ret;
-+
-+	sprd_wdt_unlock(wdt->base);
-+	val = readl_relaxed(wdt->base + SPRD_WDT_CTRL);
-+	val |= SPRD_WDT_NEW_VER_EN;
-+	writel_relaxed(val, wdt->base + SPRD_WDT_CTRL);
-+	sprd_wdt_lock(wdt->base);
-+	return 0;
-+}
-+
-+static void sprd_wdt_disable(void *_data)
-+{
-+	struct sprd_wdt *wdt = _data;
-+
-+	sprd_wdt_unlock(wdt->base);
-+	writel_relaxed(0x0, wdt->base + SPRD_WDT_CTRL);
-+	sprd_wdt_lock(wdt->base);
-+
-+	clk_disable_unprepare(wdt->rtc_enable);
-+	clk_disable_unprepare(wdt->enable);
-+}
-+
-+static int sprd_wdt_start(struct watchdog_device *wdd)
-+{
-+	struct sprd_wdt *wdt = to_sprd_wdt(wdd);
-+	u32 val;
-+	int ret;
-+
-+	ret = sprd_wdt_load_value(wdt, wdd->timeout, wdd->pretimeout);
-+	if (ret)
-+		return ret;
-+
-+	sprd_wdt_unlock(wdt->base);
-+	val = readl_relaxed(wdt->base + SPRD_WDT_CTRL);
-+	val |= SPRD_WDT_CNT_EN_BIT | SPRD_WDT_INT_EN_BIT | SPRD_WDT_RST_EN_BIT;
-+	writel_relaxed(val, wdt->base + SPRD_WDT_CTRL);
-+	sprd_wdt_lock(wdt->base);
-+	set_bit(WDOG_HW_RUNNING, &wdd->status);
-+
-+	return 0;
-+}
-+
-+static int sprd_wdt_stop(struct watchdog_device *wdd)
-+{
-+	struct sprd_wdt *wdt = to_sprd_wdt(wdd);
-+	u32 val;
-+
-+	sprd_wdt_unlock(wdt->base);
-+	val = readl_relaxed(wdt->base + SPRD_WDT_CTRL);
-+	val &= ~(SPRD_WDT_CNT_EN_BIT | SPRD_WDT_RST_EN_BIT |
-+		SPRD_WDT_INT_EN_BIT);
-+	writel_relaxed(val, wdt->base + SPRD_WDT_CTRL);
-+	sprd_wdt_lock(wdt->base);
-+	return 0;
-+}
-+
-+static int sprd_wdt_set_timeout(struct watchdog_device *wdd,
-+				u32 timeout)
-+{
-+	struct sprd_wdt *wdt = to_sprd_wdt(wdd);
-+
-+	if (timeout == wdd->timeout)
-+		return 0;
-+
-+	wdd->timeout = timeout;
-+
-+	return sprd_wdt_load_value(wdt, timeout, wdd->pretimeout);
-+}
-+
-+static int sprd_wdt_set_pretimeout(struct watchdog_device *wdd,
-+				   u32 new_pretimeout)
-+{
-+	struct sprd_wdt *wdt = to_sprd_wdt(wdd);
-+
-+	if (new_pretimeout < wdd->min_timeout)
-+		return -EINVAL;
-+
-+	wdd->pretimeout = new_pretimeout;
-+
-+	return sprd_wdt_load_value(wdt, wdd->timeout, new_pretimeout);
-+}
-+
-+static u32 sprd_wdt_get_timeleft(struct watchdog_device *wdd)
-+{
-+	struct sprd_wdt *wdt = to_sprd_wdt(wdd);
-+	u32 val;
-+
-+	val = sprd_wdt_get_cnt_value(wdt);
-+	val = val / SPRD_WDT_CNT_STEP;
-+
-+	return val;
-+}
-+
-+static const struct watchdog_ops sprd_wdt_ops = {
-+	.owner = THIS_MODULE,
-+	.start = sprd_wdt_start,
-+	.stop = sprd_wdt_stop,
-+	.set_timeout = sprd_wdt_set_timeout,
-+	.set_pretimeout = sprd_wdt_set_pretimeout,
-+	.get_timeleft = sprd_wdt_get_timeleft,
-+};
-+
-+static const struct watchdog_info sprd_wdt_info = {
-+	.options = WDIOF_SETTIMEOUT |
-+		   WDIOF_PRETIMEOUT |
-+		   WDIOF_MAGICCLOSE |
-+		   WDIOF_KEEPALIVEPING,
-+	.identity = "Spreadtrum Watchdog Timer",
-+};
-+
-+static int sprd_wdt_probe(struct platform_device *pdev)
-+{
-+	struct resource *wdt_res;
-+	struct sprd_wdt *wdt;
-+	int ret;
-+
-+	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
-+	if (!wdt)
-+		return -ENOMEM;
-+
-+	wdt_res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	wdt->base = devm_ioremap_resource(&pdev->dev, wdt_res);
-+	if (IS_ERR(wdt->base)) {
-+		dev_err(&pdev->dev, "failed to map memory resource\n");
-+		return PTR_ERR(wdt->base);
-+	}
-+
-+	wdt->enable = devm_clk_get(&pdev->dev, "enable");
-+	if (IS_ERR(wdt->enable)) {
-+		dev_err(&pdev->dev, "can't get the enable clock\n");
-+		return PTR_ERR(wdt->enable);
-+	}
-+
-+	wdt->rtc_enable = devm_clk_get(&pdev->dev, "rtc_enable");
-+	if (IS_ERR(wdt->rtc_enable)) {
-+		dev_err(&pdev->dev, "can't get the rtc enable clock\n");
-+		return PTR_ERR(wdt->rtc_enable);
-+	}
-+
-+	wdt->irq = platform_get_irq(pdev, 0);
-+	if (wdt->irq < 0) {
-+		dev_err(&pdev->dev, "failed to get IRQ resource\n");
-+		return wdt->irq;
-+	}
-+
-+	ret = devm_request_irq(&pdev->dev, wdt->irq, sprd_wdt_isr,
-+			       IRQF_NO_SUSPEND, "sprd-wdt", (void *)wdt);
-+	if (ret) {
-+		dev_err(&pdev->dev, "failed to register irq\n");
-+		return ret;
-+	}
-+
-+	wdt->wdd.info = &sprd_wdt_info;
-+	wdt->wdd.ops = &sprd_wdt_ops;
-+	wdt->wdd.parent = &pdev->dev;
-+	wdt->wdd.min_timeout = SPRD_WDT_MIN_TIMEOUT;
-+	wdt->wdd.max_timeout = SPRD_WDT_MAX_TIMEOUT;
-+	wdt->wdd.timeout = SPRD_WDT_MAX_TIMEOUT;
-+
-+	ret = sprd_wdt_enable(wdt);
-+	if (ret) {
-+		dev_err(&pdev->dev, "failed to enable wdt\n");
-+		return ret;
-+	}
-+	ret = devm_add_action(&pdev->dev, sprd_wdt_disable, wdt);
-+	if (ret) {
-+		sprd_wdt_disable(wdt);
-+		dev_err(&pdev->dev, "Failed to add wdt disable action\n");
-+		return ret;
-+	}
-+
-+	watchdog_set_nowayout(&wdt->wdd, WATCHDOG_NOWAYOUT);
-+	watchdog_init_timeout(&wdt->wdd, 0, &pdev->dev);
-+
-+	ret = devm_watchdog_register_device(&pdev->dev, &wdt->wdd);
-+	if (ret) {
-+		sprd_wdt_disable(wdt);
-+		dev_err(&pdev->dev, "failed to register watchdog\n");
-+		return ret;
-+	}
-+	platform_set_drvdata(pdev, wdt);
-+
-+	return 0;
-+}
-+
-+static int __maybe_unused sprd_wdt_pm_suspend(struct device *dev)
-+{
-+	struct watchdog_device *wdd = dev_get_drvdata(dev);
-+	struct sprd_wdt *wdt = dev_get_drvdata(dev);
-+
-+	if (watchdog_active(wdd))
-+		sprd_wdt_stop(&wdt->wdd);
-+	sprd_wdt_disable(wdt);
-+
-+	return 0;
-+}
-+
-+static int __maybe_unused sprd_wdt_pm_resume(struct device *dev)
-+{
-+	struct watchdog_device *wdd = dev_get_drvdata(dev);
-+	struct sprd_wdt *wdt = dev_get_drvdata(dev);
-+	int ret;
-+
-+	ret = sprd_wdt_enable(wdt);
-+	if (ret)
-+		return ret;
-+
-+	if (watchdog_active(wdd)) {
-+		ret = sprd_wdt_start(&wdt->wdd);
-+		if (ret) {
-+			sprd_wdt_disable(wdt);
-+			return ret;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+static const struct dev_pm_ops sprd_wdt_pm_ops = {
-+	SET_SYSTEM_SLEEP_PM_OPS(sprd_wdt_pm_suspend,
-+				sprd_wdt_pm_resume)
-+};
-+
-+static const struct of_device_id sprd_wdt_match_table[] = {
-+	{ .compatible = "sprd,sp9860-wdt", },
-+	{},
-+};
-+MODULE_DEVICE_TABLE(of, sprd_wdt_match_table);
-+
-+static struct platform_driver sprd_watchdog_driver = {
-+	.probe	= sprd_wdt_probe,
-+	.driver	= {
-+		.name = "sprd-wdt",
-+		.of_match_table = sprd_wdt_match_table,
-+		.pm = &sprd_wdt_pm_ops,
-+	},
-+};
-+module_platform_driver(sprd_watchdog_driver);
-+
-+MODULE_AUTHOR("Eric Long <eric.long@spreadtrum.com>");
-+MODULE_DESCRIPTION("Spreadtrum Watchdog Timer Controller Driver");
-+MODULE_LICENSE("GPL v2");
--- 
-1.9.1
+> +		dev_err(&pdev->dev, "failed to get IRQ resource\n");
+> +		return wdt->irq;
+> +	}
+> +
+> +	ret = devm_request_irq(&pdev->dev, wdt->irq, sprd_wdt_isr,
+> +			       IRQF_NO_SUSPEND, "sprd-wdt", (void *)wdt);
+> +	if (ret) {
+> +		dev_err(&pdev->dev, "failed to register irq\n");
+> +		return ret;
+> +	}
+> +
+> +	wdt->wdd.info = &sprd_wdt_info;
+> +	wdt->wdd.ops = &sprd_wdt_ops;
+> +	wdt->wdd.parent = &pdev->dev;
+> +	wdt->wdd.min_timeout = SPRD_WDT_MIN_TIMEOUT;
+> +	wdt->wdd.max_timeout = SPRD_WDT_MAX_TIMEOUT;
+> +	wdt->wdd.timeout = SPRD_WDT_MAX_TIMEOUT;
+> +
+> +	ret = sprd_wdt_enable(wdt);
+> +	if (ret) {
+> +		dev_err(&pdev->dev, "failed to enable wdt\n");
+> +		return ret;
+> +	}
+> +	ret = devm_add_action(&pdev->dev, sprd_wdt_disable, wdt);
+> +	if (ret) {
+> +		sprd_wdt_disable(wdt);
+> +		dev_err(&pdev->dev, "Failed to add wdt disable action\n");
+> +		return ret;
+> +	}
+> +
+> +	watchdog_set_nowayout(&wdt->wdd, WATCHDOG_NOWAYOUT);
+> +	watchdog_init_timeout(&wdt->wdd, 0, &pdev->dev);
+> +
+> +	ret = devm_watchdog_register_device(&pdev->dev, &wdt->wdd);
+> +	if (ret) {
+> +		sprd_wdt_disable(wdt);
+> +		dev_err(&pdev->dev, "failed to register watchdog\n");
+> +		return ret;
+> +	}
+> +	platform_set_drvdata(pdev, wdt);
+> +
+> +	return 0;
+> +}
+> +
+> +static int __maybe_unused sprd_wdt_pm_suspend(struct device *dev)
+> +{
+> +	struct watchdog_device *wdd = dev_get_drvdata(dev);
+> +	struct sprd_wdt *wdt = dev_get_drvdata(dev);
+> +
+> +	if (watchdog_active(wdd))
+> +		sprd_wdt_stop(&wdt->wdd);
+> +	sprd_wdt_disable(wdt);
+> +
+> +	return 0;
+> +}
+> +
+> +static int __maybe_unused sprd_wdt_pm_resume(struct device *dev)
+> +{
+> +	struct watchdog_device *wdd = dev_get_drvdata(dev);
+> +	struct sprd_wdt *wdt = dev_get_drvdata(dev);
+> +	int ret;
+> +
+> +	ret = sprd_wdt_enable(wdt);
+> +	if (ret)
+> +		return ret;
+> +
+> +	if (watchdog_active(wdd)) {
+> +		ret = sprd_wdt_start(&wdt->wdd);
+> +		if (ret) {
+> +			sprd_wdt_disable(wdt);
+> +			return ret;
+> +		}
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static const struct dev_pm_ops sprd_wdt_pm_ops = {
+> +	SET_SYSTEM_SLEEP_PM_OPS(sprd_wdt_pm_suspend,
+> +				sprd_wdt_pm_resume)
+> +};
+> +
+> +static const struct of_device_id sprd_wdt_match_table[] = {
+> +	{ .compatible = "sprd,sp9860-wdt", },
+> +	{},
+> +};
+> +MODULE_DEVICE_TABLE(of, sprd_wdt_match_table);
+> +
+> +static struct platform_driver sprd_watchdog_driver = {
+> +	.probe	= sprd_wdt_probe,
+> +	.driver	= {
+> +		.name = "sprd-wdt",
+> +		.of_match_table = sprd_wdt_match_table,
+> +		.pm = &sprd_wdt_pm_ops,
+> +	},
+> +};
+> +module_platform_driver(sprd_watchdog_driver);
+> +
+> +MODULE_AUTHOR("Eric Long <eric.long@spreadtrum.com>");
+> +MODULE_DESCRIPTION("Spreadtrum Watchdog Timer Controller Driver");
+> +MODULE_LICENSE("GPL v2");
