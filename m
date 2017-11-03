@@ -1,40 +1,37 @@
-Return-Path: <garsilva@embeddedor.com>
-Return-path: <garsilva@embeddedor.com>
-Date: Fri, 3 Nov 2017 09:49:15 -0500
-From: "Gustavo A. R. Silva" <garsilva@embeddedor.com>
-To: Wim Van Sebroeck <wim@iguana.be>, Guenter Roeck <linux@roeck-us.net>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-	"Gustavo A. R. Silva" <garsilva@embeddedor.com>
-Subject: [PATCH] watchdog: pcwd_pci: mark expected switch fall-through
-Message-ID: <20171103144915.GA6243@embeddedor.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Return-Path: <rrendec@arista.com>
+Return-path: <rrendec@arista.com>
+From: Radu Rendec <rrendec@arista.com>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Wim Van Sebroeck <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org
+Subject: [PATCH 0/2] xen_wdt: use the watchdog subsystem
+Date: Fri,  3 Nov 2017 15:31:51 +0000
+Message-Id: <20171103153153.9992-1-rrendec@arista.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-In preparation to enabling -Wimplicit-fallthrough, mark switch cases
-where we are expecting to fall through.
+Hi Guenter,
 
-Notice that in this particular case I replaced "Fall" with a proper
-"fall through" comment, which is what GCC is expecting to find.
+I just figured out we have a similar use case (of two watchdogs at the
+same time) that involves the xen_wdt driver. I thought "same problem,
+same fix", so I decided to port xen_wdt to use the watchdog subsystem.
 
-Signed-off-by: Gustavo A. R. Silva <garsilva@embeddedor.com>
----
- drivers/watchdog/pcwd_pci.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+This patch series contains similar changes to what I have recently done
+for i6300esb. The changes are simpler though, because the Xen hypervisor
+cannot expose multiple watchdogs to the guest, and so the driver doesn't
+need to allocate watchdog structures dynamically.
 
-diff --git a/drivers/watchdog/pcwd_pci.c b/drivers/watchdog/pcwd_pci.c
-index c0d07ee..c882252 100644
---- a/drivers/watchdog/pcwd_pci.c
-+++ b/drivers/watchdog/pcwd_pci.c
-@@ -545,7 +545,7 @@ static long pcipcwd_ioctl(struct file *file, unsigned int cmd,
- 			return -EINVAL;
- 
- 		pcipcwd_keepalive();
--		/* Fall */
-+		/* fall through */
- 	}
- 
- 	case WDIOC_GETTIMEOUT:
+I tried to avoid all the problems I had with the i6300esb patches and
+hopefully these new patches don't have as many issues (or none at all).
+
+Thanks,
+Radu
+
+Radu Rendec (2):
+  watchdog: xen_wdt: use the watchdog subsystem
+  watchdog: xen_wdt: remove info message and version number
+
+ drivers/watchdog/xen_wdt.c | 208 +++++++++------------------------------------
+ 1 file changed, 38 insertions(+), 170 deletions(-)
+
 -- 
-2.7.4
+2.13.6
