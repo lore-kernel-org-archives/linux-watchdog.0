@@ -1,110 +1,67 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pf0-f193.google.com ([209.85.192.193]:45943 "EHLO
-        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751722AbdKKQlC (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 11 Nov 2017 11:41:02 -0500
-Received: by mail-pf0-f193.google.com with SMTP id d28so8872115pfe.2
-        for <linux-watchdog@vger.kernel.org>; Sat, 11 Nov 2017 08:41:02 -0800 (PST)
-Date: Sat, 11 Nov 2017 08:40:58 -0800
-From: Guenter Roeck <linux@roeck-us.net>
-To: Radu Rendec <rrendec@arista.com>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org
-Subject: Re: [v2,1/2] watchdog: xen_wdt: use the watchdog subsystem
-Message-ID: <20171111164058.GA11701@roeck-us.net>
-References: <20171106190412.10023-2-rrendec@arista.com>
+Return-Path: <Orson.Zhai@spreadtrum.com>
+Return-path: <Orson.Zhai@spreadtrum.com>
+From: Eric Long <eric.long@spreadtrum.com>
+To: Wim Van Sebroeck <wim@iguana.be>, Rob Herring <robh+dt@kernel.org>,
+        Mark
+ Rutland <mark.rutland@arm.com>
+CC: <baolin.wang@linaro.org>, Guenter Roeck <linux@roeck-us.net>,
+        <linux-watchdog@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <eric.long@spreadtrum.com>
+Subject: [PATCH v6 1/2] dt-bindings: watchdog: Add Spreadtrum watchdog documentation
+Date: Mon, 6 Nov 2017 10:46:27 +0800
+Message-ID: <555b315944a01b899d4f1efe20f0cd58b910a6d0.1509936580.git.eric.long@spreadtrum.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20171106190412.10023-2-rrendec@arista.com>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Content-Type: text/plain
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On Mon, Nov 06, 2017 at 07:04:11PM +0000, Radu Rendec wrote:
-> Change the xen_wdt driver to use the watchdog subsystem instead of
-> registering and manipulating the char device directly through the misc
-> API. This is mainly getting rid of the "write" and "ioctl" methods and
-> part of the watchdog control logic (which are all implemented by the
-> watchdog subsystem).
-> 
-> Even though the watchdog subsystem supports registering and handling
-> multiple watchdog devices at the same time, the xen_wdt driver has an
-> inherent limitation of only one device due to the way the Xen hypervisor
-> exposes watchdog functionality. However, the driver can now coexist with
-> other watchdog devices (supported by different drivers).
-> 
-> Signed-off-by: Radu Rendec <rrendec@arista.com>
+This patch adds the documentation for Spreadtrum watchdog driver.
 
-I just noticed this escaped my attention, possibly because it was sent
-as reply to v1. Doesn't it say samewhere that you should not do that ?
+Signed-off-by: Eric Long <eric.long@spreadtrum.com>
+Acked-by: Rob Herring <robh@kernel.org>
+---
+Changes since v5:
+- No updates.
 
-> ---
->  drivers/watchdog/xen_wdt.c | 239 ++++++++++-----------------------------------
->  1 file changed, 49 insertions(+), 190 deletions(-)
-> 
-> diff --git a/drivers/watchdog/xen_wdt.c b/drivers/watchdog/xen_wdt.c
-> index 5dd5c3494d55..5513047b70c9 100644
-> --- a/drivers/watchdog/xen_wdt.c
-> +++ b/drivers/watchdog/xen_wdt.c
+Changes since v4:
+- No updates.
 
-[ ... ]
+Changes since v3:
+- No updates.
 
-> -static int xen_wdt_probe(struct platform_device *dev)
-> +static int xen_wdt_probe(struct platform_device *pdev)
->  {
->  	struct sched_watchdog wd = { .id = ~0 };
->  	int ret = HYPERVISOR_sched_op(SCHEDOP_watchdog, &wd);
->  
-> -	switch (ret) {
-> -	case -EINVAL:
-> -		if (!timeout) {
-> -			timeout = WATCHDOG_TIMEOUT;
-> -			pr_info("timeout value invalid, using %d\n", timeout);
-> -		}
-> -
-> -		ret = misc_register(&xen_wdt_miscdev);
-> -		if (ret) {
-> -			pr_err("cannot register miscdev on minor=%d (%d)\n",
-> -			       WATCHDOG_MINOR, ret);
-> -			break;
-> -		}
-> -
-> -		pr_info("initialized (timeout=%ds, nowayout=%d)\n",
-> -			timeout, nowayout);
-> -		break;
-> -
-> -	case -ENOSYS:
-> -		pr_info("not supported\n");
-> -		ret = -ENODEV;
-> -		break;
-> -
-> -	default:
-> -		pr_info("bogus return value %d\n", ret);
-> -		break;
-> +	if (ret == -ENOSYS) {
-> +		pr_err("watchdog not supported by hypervisor\n");
-> +		return -ENODEV;
->  	}
->  
-> -	return ret;
-> -}
-> +	if (ret != -EINVAL) {
-> +		pr_err("unexpected hypervisor error (%d)\n", ret);
-> +		return -ENODEV;
-> +	}
->  
-> -static int xen_wdt_remove(struct platform_device *dev)
-> -{
-> -	/* Stop the timer before we leave */
-> -	if (!nowayout)
-> -		xen_wdt_stop();
-> +	if (watchdog_init_timeout(&xen_wdt_dev, timeout, NULL))
-> +		pr_info("timeout value invalid, using %d\n",
-> +			xen_wdt_dev.timeout);
+Changes since v2:
+- Add acked tag from Rob.
 
-dev_info has that odd "wdt: " header because DRV_NAME is set to "wdt",
-which doesn't really make much sense. Please use something more sensible
-for DRV_NAME and use dev_info.
+Changes since v1:
+- No updates.
+---
+ .../devicetree/bindings/watchdog/sprd-wdt.txt         | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/sprd-wdt.txt
 
-Guenter
+diff --git a/Documentation/devicetree/bindings/watchdog/sprd-wdt.txt b/Documentation/devicetree/bindings/watchdog/sprd-wdt.txt
+new file mode 100644
+index 0000000..aeaf3e0
+--- /dev/null
++++ b/Documentation/devicetree/bindings/watchdog/sprd-wdt.txt
+@@ -0,0 +1,19 @@
++Spreadtrum SoCs Watchdog timer
++
++Required properties:
++- compatible : Should be "sprd,sp9860-wdt".
++- reg : Specifies base physical address and size of the registers.
++- interrupts : Exactly one interrupt specifier.
++- timeout-sec : Contain the default watchdog timeout in seconds.
++- clock-names : Contain the input clock names.
++- clocks : Phandles to input clocks.
++
++Example:
++	watchdog: watchdog@40310000 {
++		compatible = "sprd,sp9860-wdt";
++		reg = <0 0x40310000 0 0x1000>;
++		interrupts = <GIC_SPI 61 IRQ_TYPE_LEVEL_HIGH>;
++		timeout-sec = <12>;
++		clock-names = "enable", "rtc_enable";
++		clocks = <&clk_aon_apb_gates1 8>, <&clk_aon_apb_rtc_gates 9>;
++	};
+-- 
+1.9.1
