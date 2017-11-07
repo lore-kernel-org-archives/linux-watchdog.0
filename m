@@ -1,151 +1,228 @@
-Return-Path: <andrew.smirnov@gmail.com>
-Return-path: <andrew.smirnov@gmail.com>
-MIME-Version: 1.0
-In-Reply-To: <20171105154725.GA11226@localhost>
-References: <20171031163656.24552-1-andrew.smirnov@gmail.com>
- <20171031163656.24552-5-andrew.smirnov@gmail.com> <20171105154725.GA11226@localhost>
-From: Andrey Smirnov <andrew.smirnov@gmail.com>
-Date: Sun, 5 Nov 2017 13:59:13 -0800
-Message-ID: <CAHQ1cqGH_Y8i+T9BHqdttQUPwuG08jRaBcYvHoGhm98KYBgtqQ@mail.gmail.com>
-Subject: Re: [PATCH v10 4/5] watchdog: Add RAVE SP watchdog driver
-To: Johan Hovold <johan@kernel.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-watchdog@vger.kernel.org,
-	Chris Healy <cphealy@gmail.com>, Lucas Stach <l.stach@pengutronix.de>,
-	Nikita Yushchenko <nikita.yoush@cogentembedded.com>, Lee Jones <lee.jones@linaro.org>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Pavel Machek <pavel@ucw.cz>,
-	Andy Shevchenko <andy.shevchenko@gmail.com>, Guenter Roeck <linux@roeck-us.net>,
-	Rob Herring <robh@kernel.org>, Sebastian Reichel <sebastian.reichel@collabora.co.uk>
-Content-Type: text/plain; charset="UTF-8"
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from pegase1.c-s.fr ([93.17.236.30]:46032 "EHLO pegase1.c-s.fr"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751693AbdKGQX7 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 7 Nov 2017 11:23:59 -0500
+From: Christophe Leroy <christophe.leroy@c-s.fr>
+Subject: [PATCH] watchdog: mpc8xxx: use the core worker function
+To: Wim Van Sebroeck <wim@iguana.be>,
+        Guenter Roeck <linux@roeck-us.net>
+Cc: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-watchdog@vger.kernel.org
+Message-Id: <20171107162356.55E106C399@po15668-vm-win7.idsi0.si.c-s.fr>
+Date: Tue,  7 Nov 2017 17:23:56 +0100 (CET)
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-On Sun, Nov 5, 2017 at 7:47 AM, Johan Hovold <johan@kernel.org> wrote:
-> On Tue, Oct 31, 2017 at 09:36:55AM -0700, Andrey Smirnov wrote:
->> This driver provides access to RAVE SP watchdog functionality.
->>
->> Cc: linux-kernel@vger.kernel.org
->> Cc: linux-watchdog@vger.kernel.org
->> Cc: cphealy@gmail.com
->> Cc: Lucas Stach <l.stach@pengutronix.de>
->> Cc: Nikita Yushchenko <nikita.yoush@cogentembedded.com>
->> Cc: Lee Jones <lee.jones@linaro.org>
->> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->> Cc: Pavel Machek <pavel@ucw.cz>
->> Cc: Andy Shevchenko <andy.shevchenko@gmail.com>
->> Cc: Guenter Roeck <linux@roeck-us.net>
->> Cc: Rob Herring <robh@kernel.org>
->> Cc: Johan Hovold <johan@kernel.org>
->> Cc: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
->> Signed-off-by: Nikita Yushchenko <nikita.yoush@cogentembedded.com>
->> Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
->
->> +static const struct of_device_id rave_sp_wdt_of_match[] = {
->> +     { .compatible = "zii,rave-sp-watchdog" },
->> +     {}
->> +};
->
->> +static const struct of_device_id rave_sp_wdt_variants[] = {
->> +     { .compatible = COMPATIBLE_RAVE_SP_NIU,  .data = &rave_sp_wdt_legacy },
->> +     { .compatible = COMPATIBLE_RAVE_SP_MEZZ, .data = &rave_sp_wdt_legacy },
->> +     { .compatible = COMPATIBLE_RAVE_SP_ESB,  .data = &rave_sp_wdt_legacy },
->> +     { .compatible = COMPATIBLE_RAVE_SP_RDU1, .data = &rave_sp_wdt_rdu    },
->> +     { .compatible = COMPATIBLE_RAVE_SP_RDU2, .data = &rave_sp_wdt_rdu    },
->> +     { /* sentinel */ }
->> +};
->> +
->> +static int rave_sp_wdt_probe(struct platform_device *pdev)
->> +{
->> +     struct device *dev = &pdev->dev;
->> +     const struct of_device_id *id;
->> +     struct watchdog_device *wdd;
->> +     struct rave_sp_wdt *sp_wd;
->> +     struct nvmem_cell *cell;
->> +     __le16 timeout = 0;
->> +     int ret;
->> +
->> +     id = of_match_device(rave_sp_wdt_variants, dev->parent);
->
-> So as I already mentioned in a comment on an earlier version of the MFD
-> driver, I find this matching on the parent of_node to be an odd
-> pattern, which also does not seem to have any precedent in mainline.
->
-> It seems you really should be using two compatible strings for the
-> watchdog (for the legacy and rdu variants) rather than keep an entry for
-> every parent compatible-string in every child/cell driver (which all
-> need to be kept in sync).
->
+The watchdog core includes a worker function which pings the
+watchdog until user app starts pinging it and which also
+pings it if the HW require more frequent pings.
+Use that function instead of the dedicated timer.
+In the mean time, we can allow the user to change the timeout.
 
-That's doable, for sure, but the downside is that it opens the door
-for nonsensical configurations as, for example, "zii,rave-sp-niu" as a
-parent SP device and "zii,rave-watchdog-rdu" as child watchdog and it
-forces majority of child device drivers to split their compatibility
-strings into 2 or more "flavors". My preference was to avoid that and
-instead deal with having to having to keep things in sync.
+Then change the timeout module parameter to use seconds and
+use the watchdog_init_timeout() core function.
 
-> But let's see what Rob and Lee says about this.
->
->> +     if (!id) {
->> +             dev_err(dev, "Unknown parent device variant. Bailing out\n");
->> +             return -ENODEV;
->> +     }
->> +
->> +     sp_wd = devm_kzalloc(dev, sizeof(*sp_wd), GFP_KERNEL);
->> +     if (!sp_wd)
->> +             return -ENOMEM;
->> +
->> +     sp_wd->variant = id->data;
->> +     sp_wd->sp      = dev_get_drvdata(dev->parent);
->> +
->> +     wdd              = &sp_wd->wdd;
->> +     wdd->parent      = dev;
->> +     wdd->info        = &rave_sp_wdt_info;
->> +     wdd->ops         = &rave_sp_wdt_ops;
->> +     wdd->min_timeout = sp_wd->variant->min_timeout;
->> +     wdd->max_timeout = sp_wd->variant->max_timeout;
->> +     wdd->status      = WATCHDOG_NOWAYOUT_INIT_STATUS;
->> +     wdd->timeout     = 60;
->> +
->> +     cell = nvmem_cell_get(dev, "wdt-timeout");
->> +     if (!IS_ERR(cell)) {
->> +             size_t len;
->> +             void *value = nvmem_cell_read(cell, &len);
->> +
->> +             if (!IS_ERR(value)) {
->> +                     memcpy(&timeout, value, min(len, sizeof(timeout)));
->> +                     kfree(value);
->> +             }
->> +             nvmem_cell_put(cell);
->> +     }
->> +     watchdog_init_timeout(wdd, le16_to_cpu(timeout), dev);
->> +     watchdog_set_restart_priority(wdd, 255);
->> +
->> +     sp_wd->reboot_notifier.notifier_call = rave_sp_wdt_reboot_notifier;
->> +     ret = devm_register_reboot_notifier(dev, &sp_wd->reboot_notifier);
->> +     if (ret) {
->> +             dev_err(dev, "Failed to register reboot notifier\n");
->> +             return ret;
->> +     }
->> +
->> +     /*
->> +      * We don't know if watchdog is running now. To be sure, let's
->> +      * start it and depend on watchdog core to ping it
->> +      */
->> +     wdd->max_hw_heartbeat_ms = wdd->max_timeout * 1000;
->> +     ret = rave_sp_wdt_start(wdd);
->> +     if (ret) {
->> +             dev_err(dev, "Watchdog didn't start\n");
->> +             return ret;
->> +     }
->> +
->> +     return devm_watchdog_register_device(dev, wdd);
->
-> What about stopping the watchdog on errors here?
->
-> And does watchdog core take care of calling stop() on unregister (i.e.
-> at unbind)?
->
+On some HW (eg: the 8xx), SWCRR contains bits unrelated to the
+watchdog which have to be preserved upon write.
 
-I think Guenter already addressed those, so I'll update the code with
-his suggestions in v11.
+This driver has nothing preventing the use of the magic close, so
+enable it.
 
-Thanks,
-Andrey Smirnov
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+---
+ drivers/watchdog/mpc8xxx_wdt.c | 86 ++++++++++++++++++++----------------------
+ 1 file changed, 40 insertions(+), 46 deletions(-)
+
+diff --git a/drivers/watchdog/mpc8xxx_wdt.c b/drivers/watchdog/mpc8xxx_wdt.c
+index 366e5c7e650b..c2ac4b6b1253 100644
+--- a/drivers/watchdog/mpc8xxx_wdt.c
++++ b/drivers/watchdog/mpc8xxx_wdt.c
+@@ -22,7 +22,6 @@
+ #include <linux/fs.h>
+ #include <linux/init.h>
+ #include <linux/kernel.h>
+-#include <linux/timer.h>
+ #include <linux/of_address.h>
+ #include <linux/of_platform.h>
+ #include <linux/module.h>
+@@ -31,10 +30,13 @@
+ #include <linux/uaccess.h>
+ #include <sysdev/fsl_soc.h>
+ 
++#define WATCHDOG_TIMEOUT 10
++
+ struct mpc8xxx_wdt {
+ 	__be32 res0;
+ 	__be32 swcrr; /* System watchdog control register */
+ #define SWCRR_SWTC 0xFFFF0000 /* Software Watchdog Time Count. */
++#define SWCRR_SWF  0x00000008 /* Software Watchdog Freeze (mpc8xx). */
+ #define SWCRR_SWEN 0x00000004 /* Watchdog Enable bit. */
+ #define SWCRR_SWRI 0x00000002 /* Software Watchdog Reset/Interrupt Select bit.*/
+ #define SWCRR_SWPR 0x00000001 /* Software Watchdog Counter Prescale bit. */
+@@ -52,14 +54,15 @@ struct mpc8xxx_wdt_type {
+ struct mpc8xxx_wdt_ddata {
+ 	struct mpc8xxx_wdt __iomem *base;
+ 	struct watchdog_device wdd;
+-	struct timer_list timer;
+ 	spinlock_t lock;
++	int prescaler;
+ };
+ 
+-static u16 timeout = 0xffff;
++static u16 timeout;
+ module_param(timeout, ushort, 0);
+ MODULE_PARM_DESC(timeout,
+-	"Watchdog timeout in ticks. (0<timeout<65536, default=65535)");
++	"Watchdog timeout in seconds. (1<timeout<65535, default="
++	__MODULE_STRING(WATCHDOG_TIMEOUT) ")");
+ 
+ static bool reset = 1;
+ module_param(reset, bool, 0);
+@@ -80,31 +83,35 @@ static void mpc8xxx_wdt_keepalive(struct mpc8xxx_wdt_ddata *ddata)
+ 	spin_unlock(&ddata->lock);
+ }
+ 
+-static void mpc8xxx_wdt_timer_ping(unsigned long arg)
+-{
+-	struct mpc8xxx_wdt_ddata *ddata = (void *)arg;
+-
+-	mpc8xxx_wdt_keepalive(ddata);
+-	/* We're pinging it twice faster than needed, just to be sure. */
+-	mod_timer(&ddata->timer, jiffies + HZ * ddata->wdd.timeout / 2);
+-}
+-
+ static int mpc8xxx_wdt_start(struct watchdog_device *w)
+ {
+ 	struct mpc8xxx_wdt_ddata *ddata =
+ 		container_of(w, struct mpc8xxx_wdt_ddata, wdd);
+-
+-	u32 tmp = SWCRR_SWEN | SWCRR_SWPR;
++	u32 tmp;
++	u32 timeout;
+ 
+ 	/* Good, fire up the show */
++	tmp = in_be32(&ddata->base->swcrr);
++	tmp &= ~(SWCRR_SWTC | SWCRR_SWF | SWCRR_SWEN | SWCRR_SWRI | SWCRR_SWPR);
++	tmp |= SWCRR_SWEN | SWCRR_SWPR;
++
+ 	if (reset)
+ 		tmp |= SWCRR_SWRI;
+ 
+-	tmp |= timeout << 16;
++	timeout = ddata->wdd.timeout * fsl_get_sys_freq() / ddata->prescaler;
++	tmp |= min(timeout, 0xffffU) << 16;
+ 
+ 	out_be32(&ddata->base->swcrr, tmp);
+ 
+-	del_timer_sync(&ddata->timer);
++	tmp = in_be32(&ddata->base->swcrr);
++	if (!(tmp & SWCRR_SWEN))
++		return -EOPNOTSUPP;
++
++	ddata->wdd.max_hw_heartbeat_ms = ((tmp >> 16) * ddata->prescaler) /
++					 (fsl_get_sys_freq() / 1000);
++	ddata->wdd.min_timeout = ddata->wdd.max_hw_heartbeat_ms / 1000;
++	if (ddata->wdd.timeout < ddata->wdd.min_timeout)
++		ddata->wdd.timeout = ddata->wdd.min_timeout;
+ 
+ 	return 0;
+ }
+@@ -118,17 +125,8 @@ static int mpc8xxx_wdt_ping(struct watchdog_device *w)
+ 	return 0;
+ }
+ 
+-static int mpc8xxx_wdt_stop(struct watchdog_device *w)
+-{
+-	struct mpc8xxx_wdt_ddata *ddata =
+-		container_of(w, struct mpc8xxx_wdt_ddata, wdd);
+-
+-	mod_timer(&ddata->timer, jiffies);
+-	return 0;
+-}
+-
+ static struct watchdog_info mpc8xxx_wdt_info = {
+-	.options = WDIOF_KEEPALIVEPING,
++	.options = WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE | WDIOF_SETTIMEOUT,
+ 	.firmware_version = 1,
+ 	.identity = "MPC8xxx",
+ };
+@@ -137,7 +135,6 @@ static struct watchdog_ops mpc8xxx_wdt_ops = {
+ 	.owner = THIS_MODULE,
+ 	.start = mpc8xxx_wdt_start,
+ 	.ping = mpc8xxx_wdt_ping,
+-	.stop = mpc8xxx_wdt_stop,
+ };
+ 
+ static int mpc8xxx_wdt_probe(struct platform_device *ofdev)
+@@ -148,7 +145,6 @@ static int mpc8xxx_wdt_probe(struct platform_device *ofdev)
+ 	struct mpc8xxx_wdt_ddata *ddata;
+ 	u32 freq = fsl_get_sys_freq();
+ 	bool enabled;
+-	unsigned int timeout_sec;
+ 
+ 	wdt_type = of_device_get_match_data(&ofdev->dev);
+ 	if (!wdt_type)
+@@ -173,35 +169,34 @@ static int mpc8xxx_wdt_probe(struct platform_device *ofdev)
+ 	}
+ 
+ 	spin_lock_init(&ddata->lock);
+-	setup_timer(&ddata->timer, mpc8xxx_wdt_timer_ping,
+-		    (unsigned long)ddata);
+ 
+ 	ddata->wdd.info = &mpc8xxx_wdt_info,
+ 	ddata->wdd.ops = &mpc8xxx_wdt_ops,
+ 
+-	/* Calculate the timeout in seconds */
+-	timeout_sec = (timeout * wdt_type->prescaler) / freq;
+-
+-	ddata->wdd.timeout = timeout_sec;
++	ddata->wdd.timeout = WATCHDOG_TIMEOUT;
++	watchdog_init_timeout(&ddata->wdd, timeout, &ofdev->dev);
++	ddata->prescaler = wdt_type->prescaler;
+ 
+ 	watchdog_set_nowayout(&ddata->wdd, nowayout);
+ 
++	/*
++	 * If the watchdog was previously enabled or we're running on
++	 * MPC8xxx, we should ping the wdt from the kernel until the
++	 * userspace handles it.
++	 */
++	if (enabled) {
++		mpc8xxx_wdt_start(&ddata->wdd);
++		set_bit(WDOG_HW_RUNNING, &ddata->wdd.status);
++	}
++
+ 	ret = watchdog_register_device(&ddata->wdd);
+ 	if (ret) {
+ 		pr_err("cannot register watchdog device (err=%d)\n", ret);
+ 		return ret;
+ 	}
+ 
+-	pr_info("WDT driver for MPC8xxx initialized. mode:%s timeout=%d (%d seconds)\n",
+-		reset ? "reset" : "interrupt", timeout, timeout_sec);
+-
+-	/*
+-	 * If the watchdog was previously enabled or we're running on
+-	 * MPC8xxx, we should ping the wdt from the kernel until the
+-	 * userspace handles it.
+-	 */
+-	if (enabled)
+-		mod_timer(&ddata->timer, jiffies);
++	pr_info("WDT driver for MPC8xxx initialized. mode:%s timeout=%d sec\n",
++		reset ? "reset" : "interrupt", ddata->wdd.timeout);
+ 
+ 	platform_set_drvdata(ofdev, ddata);
+ 	return 0;
+@@ -213,7 +208,6 @@ static int mpc8xxx_wdt_remove(struct platform_device *ofdev)
+ 
+ 	pr_crit("Watchdog removed, expect the %s soon!\n",
+ 		reset ? "reset" : "machine check exception");
+-	del_timer_sync(&ddata->timer);
+ 	watchdog_unregister_device(&ddata->wdd);
+ 
+ 	return 0;
+-- 
+2.13.3
+
