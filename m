@@ -1,247 +1,110 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pf0-f195.google.com ([209.85.192.195]:54708 "EHLO
-        mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751752AbdKGW4G (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 7 Nov 2017 17:56:06 -0500
-Date: Tue, 7 Nov 2017 14:56:04 -0800
-From: Guenter Roeck <linux@roeck-us.net>
-To: Christophe Leroy <christophe.leroy@c-s.fr>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH] watchdog: mpc8xxx: use the core worker function
-Message-ID: <20171107225604.GA26913@roeck-us.net>
-References: <20171107162356.55E106C399@po15668-vm-win7.idsi0.si.c-s.fr>
+Return-Path: <prvs=478a87d59=Rasmus.Villemoes@prevas.dk>
+Return-path: <prvs=478a87d59=Rasmus.Villemoes@prevas.dk>
+To: <linux-kernel@vger.kernel.org>
+CC: <linux-watchdog@vger.kernel.org>, Guenter Roeck <linux@roeck-us.net>
+From: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+Subject: oops with 4.14-rc8 when opening and closing /dev/watchdog0
+Message-ID: <18b00f23-b71d-e6cb-8a51-9a48bf02d3b3@prevas.dk>
+Date: Wed, 8 Nov 2017 14:26:34 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20171107162356.55E106C399@po15668-vm-win7.idsi0.si.c-s.fr>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On Tue, Nov 07, 2017 at 05:23:56PM +0100, Christophe Leroy wrote:
-> The watchdog core includes a worker function which pings the
-> watchdog until user app starts pinging it and which also
-> pings it if the HW require more frequent pings.
-> Use that function instead of the dedicated timer.
-> In the mean time, we can allow the user to change the timeout.
-> 
-> Then change the timeout module parameter to use seconds and
-> use the watchdog_init_timeout() core function.
-> 
-> On some HW (eg: the 8xx), SWCRR contains bits unrelated to the
-> watchdog which have to be preserved upon write.
-> 
-> This driver has nothing preventing the use of the magic close, so
-> enable it.
-> 
-> Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
-> ---
->  drivers/watchdog/mpc8xxx_wdt.c | 86 ++++++++++++++++++++----------------------
->  1 file changed, 40 insertions(+), 46 deletions(-)
-> 
-> diff --git a/drivers/watchdog/mpc8xxx_wdt.c b/drivers/watchdog/mpc8xxx_wdt.c
-> index 366e5c7e650b..c2ac4b6b1253 100644
-> --- a/drivers/watchdog/mpc8xxx_wdt.c
-> +++ b/drivers/watchdog/mpc8xxx_wdt.c
-> @@ -22,7 +22,6 @@
->  #include <linux/fs.h>
->  #include <linux/init.h>
->  #include <linux/kernel.h>
-> -#include <linux/timer.h>
->  #include <linux/of_address.h>
->  #include <linux/of_platform.h>
->  #include <linux/module.h>
-> @@ -31,10 +30,13 @@
->  #include <linux/uaccess.h>
->  #include <sysdev/fsl_soc.h>
->  
-> +#define WATCHDOG_TIMEOUT 10
-> +
->  struct mpc8xxx_wdt {
->  	__be32 res0;
->  	__be32 swcrr; /* System watchdog control register */
->  #define SWCRR_SWTC 0xFFFF0000 /* Software Watchdog Time Count. */
-> +#define SWCRR_SWF  0x00000008 /* Software Watchdog Freeze (mpc8xx). */
->  #define SWCRR_SWEN 0x00000004 /* Watchdog Enable bit. */
->  #define SWCRR_SWRI 0x00000002 /* Software Watchdog Reset/Interrupt Select bit.*/
->  #define SWCRR_SWPR 0x00000001 /* Software Watchdog Counter Prescale bit. */
-> @@ -52,14 +54,15 @@ struct mpc8xxx_wdt_type {
->  struct mpc8xxx_wdt_ddata {
->  	struct mpc8xxx_wdt __iomem *base;
->  	struct watchdog_device wdd;
-> -	struct timer_list timer;
->  	spinlock_t lock;
-> +	int prescaler;
->  };
->  
-> -static u16 timeout = 0xffff;
-> +static u16 timeout;
->  module_param(timeout, ushort, 0);
->  MODULE_PARM_DESC(timeout,
-> -	"Watchdog timeout in ticks. (0<timeout<65536, default=65535)");
-> +	"Watchdog timeout in seconds. (1<timeout<65535, default="
-> +	__MODULE_STRING(WATCHDOG_TIMEOUT) ")");
->  
->  static bool reset = 1;
->  module_param(reset, bool, 0);
-> @@ -80,31 +83,35 @@ static void mpc8xxx_wdt_keepalive(struct mpc8xxx_wdt_ddata *ddata)
->  	spin_unlock(&ddata->lock);
->  }
->  
-> -static void mpc8xxx_wdt_timer_ping(unsigned long arg)
-> -{
-> -	struct mpc8xxx_wdt_ddata *ddata = (void *)arg;
-> -
-> -	mpc8xxx_wdt_keepalive(ddata);
-> -	/* We're pinging it twice faster than needed, just to be sure. */
-> -	mod_timer(&ddata->timer, jiffies + HZ * ddata->wdd.timeout / 2);
-> -}
-> -
->  static int mpc8xxx_wdt_start(struct watchdog_device *w)
->  {
->  	struct mpc8xxx_wdt_ddata *ddata =
->  		container_of(w, struct mpc8xxx_wdt_ddata, wdd);
-> -
-> -	u32 tmp = SWCRR_SWEN | SWCRR_SWPR;
-> +	u32 tmp;
-> +	u32 timeout;
->  
->  	/* Good, fire up the show */
-> +	tmp = in_be32(&ddata->base->swcrr);
-> +	tmp &= ~(SWCRR_SWTC | SWCRR_SWF | SWCRR_SWEN | SWCRR_SWRI | SWCRR_SWPR);
-> +	tmp |= SWCRR_SWEN | SWCRR_SWPR;
-> +
->  	if (reset)
->  		tmp |= SWCRR_SWRI;
->  
-> -	tmp |= timeout << 16;
-> +	timeout = ddata->wdd.timeout * fsl_get_sys_freq() / ddata->prescaler;
-> +	tmp |= min(timeout, 0xffffU) << 16;
->  
->  	out_be32(&ddata->base->swcrr, tmp);
->  
-> -	del_timer_sync(&ddata->timer);
-> +	tmp = in_be32(&ddata->base->swcrr);
-> +	if (!(tmp & SWCRR_SWEN))
-> +		return -EOPNOTSUPP;
-> +
-> +	ddata->wdd.max_hw_heartbeat_ms = ((tmp >> 16) * ddata->prescaler) /
-> +					 (fsl_get_sys_freq() / 1000);
-> +	ddata->wdd.min_timeout = ddata->wdd.max_hw_heartbeat_ms / 1000;
+Running current master (4.14.0-rc8-00009-gfbc3edf) I can reproduce the
+below quite consistently, though there are some variations in the stack
+trace. It happens when I start and stop busybox watchdog on
+/dev/watchdog0 a few times (sometimes on start, sometimes on stop,
+almost always after at most 3 starts/stops). watchdog0 is a gpio
+watchdog with the below DT entry.
 
-That is odd. Why set the minimum timeout period to the maximum hardware
-timeout, rounded down to a full second ?
+        gpio-wdt {
+                status = "okay";
+                compatible = "linux,wdt-gpio";
+                hw_margin_ms = <0xfa>;
+                hw_algo = "toggle";
+                gpios = <0x15 0x19 0x0>;
+                always-running;
+        };
 
-Note that it is wrong to set the values for min_timeout and
-max_hw_heartbeat_ms in the _start function; they should be set
-in the probe function. The start function should also not update
-ddata->wdd.timeout; that should happen in set_timeout if supported,
-or in probe.
+The 6b6b6b6b suggests some kind of use-after-free, I think.
 
-> +	if (ddata->wdd.timeout < ddata->wdd.min_timeout)
-> +		ddata->wdd.timeout = ddata->wdd.min_timeout;
->  
->  	return 0;
->  }
-> @@ -118,17 +125,8 @@ static int mpc8xxx_wdt_ping(struct watchdog_device *w)
->  	return 0;
->  }
->  
-> -static int mpc8xxx_wdt_stop(struct watchdog_device *w)
-> -{
-> -	struct mpc8xxx_wdt_ddata *ddata =
-> -		container_of(w, struct mpc8xxx_wdt_ddata, wdd);
-> -
-> -	mod_timer(&ddata->timer, jiffies);
-> -	return 0;
-> -}
-> -
->  static struct watchdog_info mpc8xxx_wdt_info = {
-> -	.options = WDIOF_KEEPALIVEPING,
-> +	.options = WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE | WDIOF_SETTIMEOUT,
->  	.firmware_version = 1,
->  	.identity = "MPC8xxx",
->  };
-> @@ -137,7 +135,6 @@ static struct watchdog_ops mpc8xxx_wdt_ops = {
->  	.owner = THIS_MODULE,
->  	.start = mpc8xxx_wdt_start,
->  	.ping = mpc8xxx_wdt_ping,
-> -	.stop = mpc8xxx_wdt_stop,
+This is a ARM board based on LS1021A. Unfortunately, I hit this in the
+process of starting to use a mainline-based kernel for the board, so I
+don't have any previous known-working kernel to start a bisection from.
+I'll try to see if I can get a 4.13 one to boot with the same .dtb and
+.config, but in the meantime perhaps someone can see something obvious.
 
-That means the watchdog can not be stopped ?
+Thanks,
+Rasmus
 
->  };
->  
->  static int mpc8xxx_wdt_probe(struct platform_device *ofdev)
-> @@ -148,7 +145,6 @@ static int mpc8xxx_wdt_probe(struct platform_device *ofdev)
->  	struct mpc8xxx_wdt_ddata *ddata;
->  	u32 freq = fsl_get_sys_freq();
->  	bool enabled;
-> -	unsigned int timeout_sec;
->  
->  	wdt_type = of_device_get_match_data(&ofdev->dev);
->  	if (!wdt_type)
-> @@ -173,35 +169,34 @@ static int mpc8xxx_wdt_probe(struct platform_device *ofdev)
->  	}
->  
->  	spin_lock_init(&ddata->lock);
-> -	setup_timer(&ddata->timer, mpc8xxx_wdt_timer_ping,
-> -		    (unsigned long)ddata);
->  
->  	ddata->wdd.info = &mpc8xxx_wdt_info,
->  	ddata->wdd.ops = &mpc8xxx_wdt_ops,
->  
-> -	/* Calculate the timeout in seconds */
-> -	timeout_sec = (timeout * wdt_type->prescaler) / freq;
-> -
-> -	ddata->wdd.timeout = timeout_sec;
-> +	ddata->wdd.timeout = WATCHDOG_TIMEOUT;
-> +	watchdog_init_timeout(&ddata->wdd, timeout, &ofdev->dev);
-> +	ddata->prescaler = wdt_type->prescaler;
->  
->  	watchdog_set_nowayout(&ddata->wdd, nowayout);
->  
-> +	/*
-> +	 * If the watchdog was previously enabled or we're running on
-> +	 * MPC8xxx, we should ping the wdt from the kernel until the
-> +	 * userspace handles it.
-> +	 */
-> +	if (enabled) {
-> +		mpc8xxx_wdt_start(&ddata->wdd);
-> +		set_bit(WDOG_HW_RUNNING, &ddata->wdd.status);
-> +	}
-> +
->  	ret = watchdog_register_device(&ddata->wdd);
->  	if (ret) {
->  		pr_err("cannot register watchdog device (err=%d)\n", ret);
->  		return ret;
->  	}
->  
-> -	pr_info("WDT driver for MPC8xxx initialized. mode:%s timeout=%d (%d seconds)\n",
-> -		reset ? "reset" : "interrupt", timeout, timeout_sec);
-> -
-> -	/*
-> -	 * If the watchdog was previously enabled or we're running on
-> -	 * MPC8xxx, we should ping the wdt from the kernel until the
-> -	 * userspace handles it.
-> -	 */
-> -	if (enabled)
-> -		mod_timer(&ddata->timer, jiffies);
-> +	pr_info("WDT driver for MPC8xxx initialized. mode:%s timeout=%d sec\n",
-> +		reset ? "reset" : "interrupt", ddata->wdd.timeout);
->  
->  	platform_set_drvdata(ofdev, ddata);
->  	return 0;
-> @@ -213,7 +208,6 @@ static int mpc8xxx_wdt_remove(struct platform_device *ofdev)
->  
->  	pr_crit("Watchdog removed, expect the %s soon!\n",
->  		reset ? "reset" : "machine check exception");
-> -	del_timer_sync(&ddata->timer);
->  	watchdog_unregister_device(&ddata->wdd);
->  
->  	return 0;
-> -- 
-> 2.13.3
-> 
+
+Unable to handle kernel paging request at virtual address 6b6b6d3b
+pgd = 80003000
+[6b6b6d3b] *pgd=80000080005003, *pmd=00000000
+Internal error: Oops: 206 [#1] SMP ARM
+Modules linked in: bridge stp llc
+CPU: 0 PID: 1931 Comm: watchdog Not tainted 4.14.0-rc8-00009-gfbc3edf #1
+Hardware name: Freescale LS1021A
+task: be4a8d40 task.stack: bd1d4000
+PC is at module_put+0x8/0x68
+LR is at __fput+0x108/0x1b0
+pc : [<8027f090>]    lr : [<802ef898>]    psr: 200d0013
+sp : bd1d5f20  ip : 00000000  fp : 00000000
+r10: bf0877c8  r9 : be805608  r8 : be04ccd0
+r7 : be3f57c8  r6 : 00000008  r5 : bf0877c8  r4 : be3f57c0
+r3 : bf2241a0  r2 : 6b6b6b6a  r1 : 00000000  r0 : 6b6b6b6b
+Flags: nzCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment user
+Control: 30c5387d  Table: bd189340  DAC: fffffffd
+Process watchdog (pid: 1931, stack limit = 0xbd1d4210)
+Stack: (0xbd1d5f20 to 0xbd1d6000)
+5f20: 00000000 00000000 0000002b be4a917c be4a8d40 be412b80 81055310
+be49897c
+5f40: 00000000 0000044c 00000000 80235014 be4a8d40 be498940 bd1d4000
+bd1d5f70
+5f60: be49897c 80220a10 00000000 be4a9068 be4a8d40 be4a9068 bd80c5c0
+000000f8
+5f80: 00000000 80220fe8 000f4240 7ed9bccc 0007a154 000000f8 80207544
+80220ffc
+5fa0: 000f4240 80207380 000f4240 7ed9bccc 00000000 000874fe 00000001
+00000000
+5fc0: 000f4240 7ed9bccc 0007a154 000000f8 00000f00 00000000 76f89000
+00000000
+5fe0: 76eb87e0 7ed9b9b4 00021c9c 76eb87f0 600d0010 00000000 00000000
+00000000
+[<8027f090>] (module_put) from [<00000000>] (  (null))
+Code: e3a00001 e12fff1e e3500000 012fff1e (e59021d0)
+---[ end trace d8b636b1833a6c9e ]---
+Kernel panic - not syncing: Fatal exception
+CPU1: stopping
+CPU: 1 PID: 64 Comm: kworker/u4:1 Tainted: G      D
+4.14.0-rc8-00009-gfbc3edf #1
+Hardware name: Freescale LS1021A
+Workqueue: events_unbound flush_to_ldisc
+[<8020c8e8>] (unwind_backtrace) from [<8020a728>] (show_stack+0x10/0x14)
+[<8020a728>] (show_stack) from [<80661704>] (dump_stack+0x7c/0x98)
+[<80661704>] (dump_stack) from [<8020bc24>] (handle_IPI+0xdc/0x184)
+[<8020bc24>] (handle_IPI) from [<802013ac>] (gic_handle_irq+0x70/0x78)
+[<802013ac>] (gic_handle_irq) from [<806776f8>] (__irq_svc+0x58/0x74)
+Exception stack(0xbe0d1e58 to 0xbe0d1ea0)
+1e40:                                                       00000000
+000000fd
+1e60: 00000000 00000ff8 be18ca40 00000000 00000000 c08a3000 bdb09c5b
+bdb09c5b
+1e80: 00000052 00000000 be18cbbc be0d1ea8 802502c0 8045cd2c 60010013
+ffffffff
+[<806776f8>] (__irq_svc) from [<8045cd2c>]
+(n_tty_receive_buf_common+0x804/0x8bc)
+[<8045cd2c>] (n_tty_receive_buf_common) from [<8045cdf4>]
+(n_tty_receive_buf2+0x10/0x18)
+[<8045cdf4>] (n_tty_receive_buf2) from [<8045f374>]
+(tty_port_default_receive_buf+0x44/0x54)
+[<8045f374>] (tty_port_default_receive_buf) from [<8045ebfc>]
+(flush_to_ldisc+0x8c/0xac)
+[<8045ebfc>] (flush_to_ldisc) from [<80231224>]
+(process_one_work+0x1b0/0x314)
+[<80231224>] (process_one_work) from [<80232118>]
+(worker_thread+0x2cc/0x424)
+[<80232118>] (worker_thread) from [<80236598>] (kthread+0x130/0x148)
+[<80236598>] (kthread) from [<80207440>] (ret_from_fork+0x14/0x34)
