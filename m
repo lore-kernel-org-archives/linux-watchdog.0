@@ -12,11 +12,11 @@ Cc: Andrey Smirnov <andrew.smirnov@gmail.com>,
         Guenter Roeck <linux@roeck-us.net>, Rob Herring <robh@kernel.org>,
         Johan Hovold <johan@kernel.org>,
         Sebastian Reichel <sebastian.reichel@collabora.co.uk>
-Subject: [PATCH v11 4/5] watchdog: Add RAVE SP watchdog driver
-Date: Mon,  6 Nov 2017 07:29:34 -0800
-Message-Id: <20171106152935.16920-5-andrew.smirnov@gmail.com>
-In-Reply-To: <20171106152935.16920-1-andrew.smirnov@gmail.com>
-References: <20171106152935.16920-1-andrew.smirnov@gmail.com>
+Subject: [PATCH v12 4/5] watchdog: Add RAVE SP watchdog driver
+Date: Thu,  9 Nov 2017 08:05:55 -0800
+Message-Id: <20171109160556.17018-5-andrew.smirnov@gmail.com>
+In-Reply-To: <20171109160556.17018-1-andrew.smirnov@gmail.com>
+References: <20171109160556.17018-1-andrew.smirnov@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -76,7 +76,7 @@ index 56adf9fa67d0..5c9556c09f6e 100644
 +obj-$(CONFIG_RAVE_SP_WATCHDOG) += rave-sp-wdt.o
 diff --git a/drivers/watchdog/rave-sp-wdt.c b/drivers/watchdog/rave-sp-wdt.c
 new file mode 100644
-index 000000000000..22dfced1752f
+index 000000000000..7421a884e371
 --- /dev/null
 +++ b/drivers/watchdog/rave-sp-wdt.c
 @@ -0,0 +1,357 @@
@@ -103,11 +103,11 @@ index 000000000000..22dfced1752f
 +
 +#include <linux/delay.h>
 +#include <linux/kernel.h>
++#include <linux/mfd/rave-sp.h>
 +#include <linux/module.h>
 +#include <linux/nvmem-consumer.h>
 +#include <linux/of_device.h>
 +#include <linux/platform_device.h>
-+#include <linux/rave-sp.h>
 +#include <linux/reboot.h>
 +#include <linux/slab.h>
 +#include <linux/watchdog.h>
