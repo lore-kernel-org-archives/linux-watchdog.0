@@ -1,79 +1,80 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pf0-f195.google.com ([209.85.192.195]:44931 "EHLO
-        mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751197AbdKIQ5D (ORCPT
+Received: from mail-pg0-f67.google.com ([74.125.83.67]:52238 "EHLO
+        mail-pg0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750877AbdKJVAZ (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 9 Nov 2017 11:57:03 -0500
-Date: Thu, 9 Nov 2017 08:57:00 -0800
+        Fri, 10 Nov 2017 16:00:25 -0500
+Date: Fri, 10 Nov 2017 13:00:23 -0800
 From: Guenter Roeck <linux@roeck-us.net>
-To: James Hogan <james.hogan@mips.com>
-Cc: Wim Van Sebroeck <wim@iguana.be>,
-        Mathieu Malaterre <malat@debian.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Paul Cercueil <paul@crapouillou.net>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        devicetree@vger.kernel.org, linux-mips@linux-mips.org,
-        linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 2/3] watchdog: jz4780: Allow selection of jz4740-wdt
- driver
-Message-ID: <20171109165700.GA23671@roeck-us.net>
-References: <20170908183558.1537-1-malat@debian.org>
- <20170908183558.1537-2-malat@debian.org>
- <20171109074718.GR15260@jhogan-linux>
- <20171109160147.GB19959@roeck-us.net>
- <20171109164342.GR15235@jhogan-linux>
+To: Eric Long <eric.long@spreadtrum.com>
+Cc: Wim Van Sebroeck <wim@iguana.be>, Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>, baolin.wang@linaro.org,
+        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v6 1/2] dt-bindings: watchdog: Add Spreadtrum watchdog
+ documentation
+Message-ID: <20171110210023.GA4591@roeck-us.net>
+References: <555b315944a01b899d4f1efe20f0cd58b910a6d0.1509936580.git.eric.long@spreadtrum.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20171109164342.GR15235@jhogan-linux>
+In-Reply-To: <555b315944a01b899d4f1efe20f0cd58b910a6d0.1509936580.git.eric.long@spreadtrum.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Thu, Nov 09, 2017 at 04:43:43PM +0000, James Hogan wrote:
-> On Thu, Nov 09, 2017 at 08:01:47AM -0800, Guenter Roeck wrote:
-> > On Thu, Nov 09, 2017 at 07:47:19AM +0000, James Hogan wrote:
-> > > Hi Wim,
-> > > 
-> > > On Fri, Sep 08, 2017 at 08:35:54PM +0200, Mathieu Malaterre wrote:
-> > > > This driver works for jz4740 & jz4780
-> > > > 
-> > > > Suggested-by: Maarten ter Huurne <maarten@treewalker.org>
-> > > > Signed-off-by: Mathieu Malaterre <malat@debian.org>
-> > > 
-> > > I just noticed that though Ralf applied the other two patches in this
-> > > series (defconfig + dt), he hadn't applied this patch.
-> > > 
-> > > Please can we have an ack from a watchdog maintainer so this can get
-> > > into 4.15 via the MIPS tree? It could alternatively go via the watchdog
-> > > tree if you prefer.
-> > > 
-> > 
-> > FWIW, according to my logs I did send out a Reviewed-by: some time ago,
-> > which normally means that I expect it to go through the watchdog tree.
-> > I wasn't aware that you wanted the patch to go through the mips tree.
-> > Sorry if I missed that earlier. For the record,
-> > 
-> > Acked-by: Guenter Roeck <linux@roeck-us.net>
-> > 
-> > since I don't care one way or another.
+On Mon, Nov 06, 2017 at 10:46:27AM +0800, Eric Long wrote:
+> This patch adds the documentation for Spreadtrum watchdog driver.
 > 
-> Okay thanks, I wasn't sure and don't much mind which way it goes.
-> 
-> > 
-> > I assume you want me to drop this and the related patches from my own
-> > watchdpog-next tree to prevent it from showing up in Wim's tree (if
-> > it isn't already there). Is that correct ?
-> 
-> I haven't seen this patch in linux-next, or I wouldn't have mentioned
-> it. If its already in some staging tree for 4.15 that I've missed then
-> it may as well stay there, otherwise I'll just take it through the MIPS
-> tree with your ack.
-> 
-Looks like none of the patches I reviewed since the last release cycle
-made it into watchdog-next, meaning they might all miss the next release.
-Guess Wim is busy. Nothing I can do there.
+> Signed-off-by: Eric Long <eric.long@spreadtrum.com>
+> Acked-by: Rob Herring <robh@kernel.org>
 
-Guenter
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+
+> ---
+> Changes since v5:
+> - No updates.
+> 
+> Changes since v4:
+> - No updates.
+> 
+> Changes since v3:
+> - No updates.
+> 
+> Changes since v2:
+> - Add acked tag from Rob.
+> 
+> Changes since v1:
+> - No updates.
+> ---
+>  .../devicetree/bindings/watchdog/sprd-wdt.txt         | 19 +++++++++++++++++++
+>  1 file changed, 19 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/watchdog/sprd-wdt.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/watchdog/sprd-wdt.txt b/Documentation/devicetree/bindings/watchdog/sprd-wdt.txt
+> new file mode 100644
+> index 0000000..aeaf3e0
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/watchdog/sprd-wdt.txt
+> @@ -0,0 +1,19 @@
+> +Spreadtrum SoCs Watchdog timer
+> +
+> +Required properties:
+> +- compatible : Should be "sprd,sp9860-wdt".
+> +- reg : Specifies base physical address and size of the registers.
+> +- interrupts : Exactly one interrupt specifier.
+> +- timeout-sec : Contain the default watchdog timeout in seconds.
+> +- clock-names : Contain the input clock names.
+> +- clocks : Phandles to input clocks.
+> +
+> +Example:
+> +	watchdog: watchdog@40310000 {
+> +		compatible = "sprd,sp9860-wdt";
+> +		reg = <0 0x40310000 0 0x1000>;
+> +		interrupts = <GIC_SPI 61 IRQ_TYPE_LEVEL_HIGH>;
+> +		timeout-sec = <12>;
+> +		clock-names = "enable", "rtc_enable";
+> +		clocks = <&clk_aon_apb_gates1 8>, <&clk_aon_apb_rtc_gates 9>;
+> +	};
+> -- 
+> 1.9.1
+> 
