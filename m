@@ -1,221 +1,110 @@
-Return-Path: <christophe.leroy@c-s.fr>
-Return-path: <christophe.leroy@c-s.fr>
-From: Christophe Leroy <christophe.leroy@c-s.fr>
-Subject: [PATCH v2] watchdog: mpc8xxx: use the core worker function
-To: Wim Van Sebroeck <wim@iguana.be>, Guenter Roeck <linux@roeck-us.net>
-Cc: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-watchdog@vger.kernel.org
-Message-Id: <20171108143944.6069F6C39D@po15668-vm-win7.idsi0.si.c-s.fr>
-Date: Wed,  8 Nov 2017 15:39:44 +0100 (CET)
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-pf0-f193.google.com ([209.85.192.193]:45943 "EHLO
+        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751722AbdKKQlC (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Sat, 11 Nov 2017 11:41:02 -0500
+Received: by mail-pf0-f193.google.com with SMTP id d28so8872115pfe.2
+        for <linux-watchdog@vger.kernel.org>; Sat, 11 Nov 2017 08:41:02 -0800 (PST)
+Date: Sat, 11 Nov 2017 08:40:58 -0800
+From: Guenter Roeck <linux@roeck-us.net>
+To: Radu Rendec <rrendec@arista.com>
+Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org
+Subject: Re: [v2,1/2] watchdog: xen_wdt: use the watchdog subsystem
+Message-ID: <20171111164058.GA11701@roeck-us.net>
+References: <20171106190412.10023-2-rrendec@arista.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20171106190412.10023-2-rrendec@arista.com>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-The watchdog core includes a worker function which pings the
-watchdog until user app starts pinging it and which also
-pings it if the HW require more frequent pings.
-Use that function instead of the dedicated timer.
-In the mean time, we can allow the user to change the timeout.
+On Mon, Nov 06, 2017 at 07:04:11PM +0000, Radu Rendec wrote:
+> Change the xen_wdt driver to use the watchdog subsystem instead of
+> registering and manipulating the char device directly through the misc
+> API. This is mainly getting rid of the "write" and "ioctl" methods and
+> part of the watchdog control logic (which are all implemented by the
+> watchdog subsystem).
+> 
+> Even though the watchdog subsystem supports registering and handling
+> multiple watchdog devices at the same time, the xen_wdt driver has an
+> inherent limitation of only one device due to the way the Xen hypervisor
+> exposes watchdog functionality. However, the driver can now coexist with
+> other watchdog devices (supported by different drivers).
+> 
+> Signed-off-by: Radu Rendec <rrendec@arista.com>
 
-Then change the timeout module parameter to use seconds and
-use the watchdog_init_timeout() core function.
+I just noticed this escaped my attention, possibly because it was sent
+as reply to v1. Doesn't it say samewhere that you should not do that ?
 
-On some HW (eg: the 8xx), SWCRR contains bits unrelated to the
-watchdog which have to be preserved upon write.
+> ---
+>  drivers/watchdog/xen_wdt.c | 239 ++++++++++-----------------------------------
+>  1 file changed, 49 insertions(+), 190 deletions(-)
+> 
+> diff --git a/drivers/watchdog/xen_wdt.c b/drivers/watchdog/xen_wdt.c
+> index 5dd5c3494d55..5513047b70c9 100644
+> --- a/drivers/watchdog/xen_wdt.c
+> +++ b/drivers/watchdog/xen_wdt.c
 
-This driver has nothing preventing the use of the magic close, so
-enable it.
+[ ... ]
 
-Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
----
- v2: set ddata->wdd.max_hw_heartbeat_ms and ddata->wdd.min_timeout
-     in probe instead of start
+> -static int xen_wdt_probe(struct platform_device *dev)
+> +static int xen_wdt_probe(struct platform_device *pdev)
+>  {
+>  	struct sched_watchdog wd = { .id = ~0 };
+>  	int ret = HYPERVISOR_sched_op(SCHEDOP_watchdog, &wd);
+>  
+> -	switch (ret) {
+> -	case -EINVAL:
+> -		if (!timeout) {
+> -			timeout = WATCHDOG_TIMEOUT;
+> -			pr_info("timeout value invalid, using %d\n", timeout);
+> -		}
+> -
+> -		ret = misc_register(&xen_wdt_miscdev);
+> -		if (ret) {
+> -			pr_err("cannot register miscdev on minor=%d (%d)\n",
+> -			       WATCHDOG_MINOR, ret);
+> -			break;
+> -		}
+> -
+> -		pr_info("initialized (timeout=%ds, nowayout=%d)\n",
+> -			timeout, nowayout);
+> -		break;
+> -
+> -	case -ENOSYS:
+> -		pr_info("not supported\n");
+> -		ret = -ENODEV;
+> -		break;
+> -
+> -	default:
+> -		pr_info("bogus return value %d\n", ret);
+> -		break;
+> +	if (ret == -ENOSYS) {
+> +		pr_err("watchdog not supported by hypervisor\n");
+> +		return -ENODEV;
+>  	}
+>  
+> -	return ret;
+> -}
+> +	if (ret != -EINVAL) {
+> +		pr_err("unexpected hypervisor error (%d)\n", ret);
+> +		return -ENODEV;
+> +	}
+>  
+> -static int xen_wdt_remove(struct platform_device *dev)
+> -{
+> -	/* Stop the timer before we leave */
+> -	if (!nowayout)
+> -		xen_wdt_stop();
+> +	if (watchdog_init_timeout(&xen_wdt_dev, timeout, NULL))
+> +		pr_info("timeout value invalid, using %d\n",
+> +			xen_wdt_dev.timeout);
 
- drivers/watchdog/mpc8xxx_wdt.c | 84 +++++++++++++++++++-----------------------
- 1 file changed, 38 insertions(+), 46 deletions(-)
+dev_info has that odd "wdt: " header because DRV_NAME is set to "wdt",
+which doesn't really make much sense. Please use something more sensible
+for DRV_NAME and use dev_info.
 
-diff --git a/drivers/watchdog/mpc8xxx_wdt.c b/drivers/watchdog/mpc8xxx_wdt.c
-index 366e5c7e650b..aca2d6323f8a 100644
---- a/drivers/watchdog/mpc8xxx_wdt.c
-+++ b/drivers/watchdog/mpc8xxx_wdt.c
-@@ -22,7 +22,6 @@
- #include <linux/fs.h>
- #include <linux/init.h>
- #include <linux/kernel.h>
--#include <linux/timer.h>
- #include <linux/of_address.h>
- #include <linux/of_platform.h>
- #include <linux/module.h>
-@@ -31,10 +30,13 @@
- #include <linux/uaccess.h>
- #include <sysdev/fsl_soc.h>
- 
-+#define WATCHDOG_TIMEOUT 10
-+
- struct mpc8xxx_wdt {
- 	__be32 res0;
- 	__be32 swcrr; /* System watchdog control register */
- #define SWCRR_SWTC 0xFFFF0000 /* Software Watchdog Time Count. */
-+#define SWCRR_SWF  0x00000008 /* Software Watchdog Freeze (mpc8xx). */
- #define SWCRR_SWEN 0x00000004 /* Watchdog Enable bit. */
- #define SWCRR_SWRI 0x00000002 /* Software Watchdog Reset/Interrupt Select bit.*/
- #define SWCRR_SWPR 0x00000001 /* Software Watchdog Counter Prescale bit. */
-@@ -52,14 +54,15 @@ struct mpc8xxx_wdt_type {
- struct mpc8xxx_wdt_ddata {
- 	struct mpc8xxx_wdt __iomem *base;
- 	struct watchdog_device wdd;
--	struct timer_list timer;
- 	spinlock_t lock;
-+	u16 swtc;
- };
- 
--static u16 timeout = 0xffff;
-+static u16 timeout;
- module_param(timeout, ushort, 0);
- MODULE_PARM_DESC(timeout,
--	"Watchdog timeout in ticks. (0<timeout<65536, default=65535)");
-+	"Watchdog timeout in seconds. (1<timeout<65535, default="
-+	__MODULE_STRING(WATCHDOG_TIMEOUT) ")");
- 
- static bool reset = 1;
- module_param(reset, bool, 0);
-@@ -80,31 +83,27 @@ static void mpc8xxx_wdt_keepalive(struct mpc8xxx_wdt_ddata *ddata)
- 	spin_unlock(&ddata->lock);
- }
- 
--static void mpc8xxx_wdt_timer_ping(unsigned long arg)
--{
--	struct mpc8xxx_wdt_ddata *ddata = (void *)arg;
--
--	mpc8xxx_wdt_keepalive(ddata);
--	/* We're pinging it twice faster than needed, just to be sure. */
--	mod_timer(&ddata->timer, jiffies + HZ * ddata->wdd.timeout / 2);
--}
--
- static int mpc8xxx_wdt_start(struct watchdog_device *w)
- {
- 	struct mpc8xxx_wdt_ddata *ddata =
- 		container_of(w, struct mpc8xxx_wdt_ddata, wdd);
--
--	u32 tmp = SWCRR_SWEN | SWCRR_SWPR;
-+	u32 tmp = in_be32(&ddata->base->swcrr);
- 
- 	/* Good, fire up the show */
-+	tmp &= ~(SWCRR_SWTC | SWCRR_SWF | SWCRR_SWEN | SWCRR_SWRI | SWCRR_SWPR);
-+	tmp |= SWCRR_SWEN | SWCRR_SWPR | (ddata->swtc << 16);
-+
- 	if (reset)
- 		tmp |= SWCRR_SWRI;
- 
--	tmp |= timeout << 16;
--
- 	out_be32(&ddata->base->swcrr, tmp);
- 
--	del_timer_sync(&ddata->timer);
-+	tmp = in_be32(&ddata->base->swcrr);
-+	if (!(tmp & SWCRR_SWEN))
-+		return -EOPNOTSUPP;
-+
-+	ddata->swtc = tmp >> 16;
-+	set_bit(WDOG_HW_RUNNING, &ddata->wdd.status);
- 
- 	return 0;
- }
-@@ -118,17 +117,8 @@ static int mpc8xxx_wdt_ping(struct watchdog_device *w)
- 	return 0;
- }
- 
--static int mpc8xxx_wdt_stop(struct watchdog_device *w)
--{
--	struct mpc8xxx_wdt_ddata *ddata =
--		container_of(w, struct mpc8xxx_wdt_ddata, wdd);
--
--	mod_timer(&ddata->timer, jiffies);
--	return 0;
--}
--
- static struct watchdog_info mpc8xxx_wdt_info = {
--	.options = WDIOF_KEEPALIVEPING,
-+	.options = WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE | WDIOF_SETTIMEOUT,
- 	.firmware_version = 1,
- 	.identity = "MPC8xxx",
- };
-@@ -137,7 +127,6 @@ static struct watchdog_ops mpc8xxx_wdt_ops = {
- 	.owner = THIS_MODULE,
- 	.start = mpc8xxx_wdt_start,
- 	.ping = mpc8xxx_wdt_ping,
--	.stop = mpc8xxx_wdt_stop,
- };
- 
- static int mpc8xxx_wdt_probe(struct platform_device *ofdev)
-@@ -148,7 +137,6 @@ static int mpc8xxx_wdt_probe(struct platform_device *ofdev)
- 	struct mpc8xxx_wdt_ddata *ddata;
- 	u32 freq = fsl_get_sys_freq();
- 	bool enabled;
--	unsigned int timeout_sec;
- 
- 	wdt_type = of_device_get_match_data(&ofdev->dev);
- 	if (!wdt_type)
-@@ -173,27 +161,17 @@ static int mpc8xxx_wdt_probe(struct platform_device *ofdev)
- 	}
- 
- 	spin_lock_init(&ddata->lock);
--	setup_timer(&ddata->timer, mpc8xxx_wdt_timer_ping,
--		    (unsigned long)ddata);
- 
- 	ddata->wdd.info = &mpc8xxx_wdt_info,
- 	ddata->wdd.ops = &mpc8xxx_wdt_ops,
- 
--	/* Calculate the timeout in seconds */
--	timeout_sec = (timeout * wdt_type->prescaler) / freq;
--
--	ddata->wdd.timeout = timeout_sec;
-+	ddata->wdd.timeout = WATCHDOG_TIMEOUT;
-+	watchdog_init_timeout(&ddata->wdd, timeout, &ofdev->dev);
- 
- 	watchdog_set_nowayout(&ddata->wdd, nowayout);
- 
--	ret = watchdog_register_device(&ddata->wdd);
--	if (ret) {
--		pr_err("cannot register watchdog device (err=%d)\n", ret);
--		return ret;
--	}
--
--	pr_info("WDT driver for MPC8xxx initialized. mode:%s timeout=%d (%d seconds)\n",
--		reset ? "reset" : "interrupt", timeout, timeout_sec);
-+	ddata->swtc = min(ddata->wdd.timeout * freq / wdt_type->prescaler,
-+			  0xffffU);
- 
- 	/*
- 	 * If the watchdog was previously enabled or we're running on
-@@ -201,7 +179,22 @@ static int mpc8xxx_wdt_probe(struct platform_device *ofdev)
- 	 * userspace handles it.
- 	 */
- 	if (enabled)
--		mod_timer(&ddata->timer, jiffies);
-+		mpc8xxx_wdt_start(&ddata->wdd);
-+
-+	ddata->wdd.max_hw_heartbeat_ms = (ddata->swtc * wdt_type->prescaler) /
-+					 (freq / 1000);
-+	ddata->wdd.min_timeout = ddata->wdd.max_hw_heartbeat_ms / 1000;
-+	if (ddata->wdd.timeout < ddata->wdd.min_timeout)
-+		ddata->wdd.timeout = ddata->wdd.min_timeout;
-+
-+	ret = watchdog_register_device(&ddata->wdd);
-+	if (ret) {
-+		pr_err("cannot register watchdog device (err=%d)\n", ret);
-+		return ret;
-+	}
-+
-+	pr_info("WDT driver for MPC8xxx initialized. mode:%s timeout=%d sec\n",
-+		reset ? "reset" : "interrupt", ddata->wdd.timeout);
- 
- 	platform_set_drvdata(ofdev, ddata);
- 	return 0;
-@@ -213,7 +206,6 @@ static int mpc8xxx_wdt_remove(struct platform_device *ofdev)
- 
- 	pr_crit("Watchdog removed, expect the %s soon!\n",
- 		reset ? "reset" : "machine check exception");
--	del_timer_sync(&ddata->timer);
- 	watchdog_unregister_device(&ddata->wdd);
- 
- 	return 0;
--- 
-2.13.3
+Guenter
