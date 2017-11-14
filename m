@@ -1,100 +1,119 @@
-Return-Path: <ralf@linux-mips.org>
-Return-path: <ralf@linux-mips.org>
-Date: Tue, 14 Nov 2017 14:48:12 +0100
-From: Ralf Baechle <ralf@linux-mips.org>
-To: James Hogan <james.hogan@mips.com>
-Cc: Matt Redfearn <matt.redfearn@mips.com>,
-        Guenter Roeck <linux@roeck-us.net>, linux-mips@linux-mips.org,
-        "# 4 . 11 +" <stable@vger.kernel.org>,
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-pg0-f67.google.com ([74.125.83.67]:43250 "EHLO
+        mail-pg0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755391AbdKNQTR (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 14 Nov 2017 11:19:17 -0500
+Date: Tue, 14 Nov 2017 08:19:15 -0800
+From: Guenter Roeck <linux@roeck-us.net>
+To: Ralf Baechle <ralf@linux-mips.org>
+Cc: James Hogan <james.hogan@mips.com>,
+        Matt Redfearn <matt.redfearn@mips.com>,
+        linux-mips@linux-mips.org, "# 4 . 11 +" <stable@vger.kernel.org>,
         linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
         Wim Van Sebroeck <wim@iguana.be>
 Subject: Re: [PATCH] watchdog: indydog: Add dependency on SGI_HAS_INDYDOG
-Message-ID: <20171114134812.GF13046@linux-mips.org>
+Message-ID: <20171114161915.GC19879@roeck-us.net>
 References: <1510656774-31464-1-git-send-email-matt.redfearn@mips.com>
  <20171114111737.GB5823@jhogan-linux.mipstec.com>
+ <20171114134812.GF13046@linux-mips.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20171114111737.GB5823@jhogan-linux.mipstec.com>
-List-ID: <linux-watchdog@vger.kernel.org>
+In-Reply-To: <20171114134812.GF13046@linux-mips.org>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, Nov 14, 2017 at 11:17:38AM +0000, James Hogan wrote:
+On Tue, Nov 14, 2017 at 02:48:12PM +0100, Ralf Baechle wrote:
+> On Tue, Nov 14, 2017 at 11:17:38AM +0000, James Hogan wrote:
+> 
+> > On Tue, Nov 14, 2017 at 10:52:54AM +0000, Matt Redfearn wrote:
+> > > Commit da2a68b3eb47 ("watchdog: Enable COMPILE_TEST where possible")
 
-> On Tue, Nov 14, 2017 at 10:52:54AM +0000, Matt Redfearn wrote:
-> > Commit da2a68b3eb47 ("watchdog: Enable COMPILE_TEST where possible")
-> > enabled building the Indy watchdog driver when COMPILE_TEST is enabled.
-> > However, the driver makes reference to symbols that are only defined for
-> > certain platforms are selected in the config. These platforms select
-> > SGI_HAS_INDYDOG. Without this, link time errors result, for example
-> > when building a MIPS allyesconfig.
+Yes, that patch was a tremenuous failure and definitely not worth the trouble
+it caused.
+
+> > > enabled building the Indy watchdog driver when COMPILE_TEST is enabled.
+> > > However, the driver makes reference to symbols that are only defined for
+> > > certain platforms are selected in the config. These platforms select
+> > > SGI_HAS_INDYDOG. Without this, link time errors result, for example
+> > > when building a MIPS allyesconfig.
+> > > 
+> > > drivers/watchdog/indydog.o: In function `indydog_write':
+> > > indydog.c:(.text+0x18): undefined reference to `sgimc'
+> > > indydog.c:(.text+0x1c): undefined reference to `sgimc'
+> > > drivers/watchdog/indydog.o: In function `indydog_start':
+> > > indydog.c:(.text+0x54): undefined reference to `sgimc'
+> > > indydog.c:(.text+0x58): undefined reference to `sgimc'
+> > > drivers/watchdog/indydog.o: In function `indydog_stop':
+> > > indydog.c:(.text+0xa4): undefined reference to `sgimc'
+> > > drivers/watchdog/indydog.o:indydog.c:(.text+0xa8): more undefined
+> > > references to `sgimc' follow
+> > > make: *** [Makefile:1005: vmlinux] Error 1
+> > > 
+> > > Fix this by ensuring that CONFIG_INDIDOG can only be selected when the
+> > > necessary dependent platform symbols are built in.
+> > > 
+> > > Fixes: da2a68b3eb47 ("watchdog: Enable COMPILE_TEST where possible")
+> > > Signed-off-by: Matt Redfearn <matt.redfearn@mips.com>
+> > > Cc: <stable@vger.kernel.org> # 4.11 +
+> > > ---
+> > > 
+> > >  drivers/watchdog/Kconfig | 2 +-
+> > >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > > 
+> > > diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> > > index ca200d1f310a..d96e2e7544fc 100644
+> > > --- a/drivers/watchdog/Kconfig
+> > > +++ b/drivers/watchdog/Kconfig
+> > > @@ -1451,7 +1451,7 @@ config RC32434_WDT
+> > >  
+> > >  config INDYDOG
+> > >  	tristate "Indy/I2 Hardware Watchdog"
+> > > -	depends on SGI_HAS_INDYDOG || (MIPS && COMPILE_TEST)
+> > > +	depends on SGI_HAS_INDYDOG || (MIPS && COMPILE_TEST && SGI_HAS_INDYDOG)
 > > 
-> > drivers/watchdog/indydog.o: In function `indydog_write':
-> > indydog.c:(.text+0x18): undefined reference to `sgimc'
-> > indydog.c:(.text+0x1c): undefined reference to `sgimc'
-> > drivers/watchdog/indydog.o: In function `indydog_start':
-> > indydog.c:(.text+0x54): undefined reference to `sgimc'
-> > indydog.c:(.text+0x58): undefined reference to `sgimc'
-> > drivers/watchdog/indydog.o: In function `indydog_stop':
-> > indydog.c:(.text+0xa4): undefined reference to `sgimc'
-> > drivers/watchdog/indydog.o:indydog.c:(.text+0xa8): more undefined
-> > references to `sgimc' follow
-> > make: *** [Makefile:1005: vmlinux] Error 1
+> > (MIPS && COMPILE_TEST && SGI_HAS_INDYDOG) implies SGI_HAS_INDYDOG
 > > 
-> > Fix this by ensuring that CONFIG_INDIDOG can only be selected when the
-> > necessary dependent platform symbols are built in.
-> > 
-> > Fixes: da2a68b3eb47 ("watchdog: Enable COMPILE_TEST where possible")
-> > Signed-off-by: Matt Redfearn <matt.redfearn@mips.com>
-> > Cc: <stable@vger.kernel.org> # 4.11 +
-> > ---
-> > 
-> >  drivers/watchdog/Kconfig | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > 
-> > diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> > index ca200d1f310a..d96e2e7544fc 100644
-> > --- a/drivers/watchdog/Kconfig
-> > +++ b/drivers/watchdog/Kconfig
-> > @@ -1451,7 +1451,7 @@ config RC32434_WDT
-> >  
-> >  config INDYDOG
-> >  	tristate "Indy/I2 Hardware Watchdog"
+> > So I think you can just do:
 > > -	depends on SGI_HAS_INDYDOG || (MIPS && COMPILE_TEST)
-> > +	depends on SGI_HAS_INDYDOG || (MIPS && COMPILE_TEST && SGI_HAS_INDYDOG)
+> > +	depends on SGI_HAS_INDYDOG
+> > 
+> > I.e. COMPILE_TEST isn't of any value in this case.
 > 
-> (MIPS && COMPILE_TEST && SGI_HAS_INDYDOG) implies SGI_HAS_INDYDOG
+> I agree, due to the references to sgimc this driver will only compile for
+> the platforms which set SGI_HAS_INDYDOG; MIPS as the dependency is too
+> generic.
 > 
-> So I think you can just do:
+> Updated patch for the watchdog maintainers' ease below.
+> 
+>   Ralf
+> 
+> Signed-off-by: Ralf Baechle <ralf@linux-mips.org>
+> Reported-by: Matt Redfearn <matt.redfearn@mips.com>
+> Suggested-by: James Hogan <james.hogan@mips.com>
+> 
+Not sure if/how that helps. Now we have two patches with different
+authors and sign-off statements, both of which need maintainer
+manipulation. I'll pick the first patch into my tree and fix it up.
+Let's see what Wim does with it.
+
+Guenter
+
+>  drivers/watchdog/Kconfig | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> index c722cbfdc7e6..3ece1335ba84 100644
+> --- a/drivers/watchdog/Kconfig
+> +++ b/drivers/watchdog/Kconfig
+> @@ -1451,7 +1451,7 @@ config RC32434_WDT
+>  
+>  config INDYDOG
+>  	tristate "Indy/I2 Hardware Watchdog"
 > -	depends on SGI_HAS_INDYDOG || (MIPS && COMPILE_TEST)
 > +	depends on SGI_HAS_INDYDOG
-> 
-> I.e. COMPILE_TEST isn't of any value in this case.
-
-I agree, due to the references to sgimc this driver will only compile for
-the platforms which set SGI_HAS_INDYDOG; MIPS as the dependency is too
-generic.
-
-Updated patch for the watchdog maintainers' ease below.
-
-  Ralf
-
-Signed-off-by: Ralf Baechle <ralf@linux-mips.org>
-Reported-by: Matt Redfearn <matt.redfearn@mips.com>
-Suggested-by: James Hogan <james.hogan@mips.com>
-
- drivers/watchdog/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index c722cbfdc7e6..3ece1335ba84 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -1451,7 +1451,7 @@ config RC32434_WDT
- 
- config INDYDOG
- 	tristate "Indy/I2 Hardware Watchdog"
--	depends on SGI_HAS_INDYDOG || (MIPS && COMPILE_TEST)
-+	depends on SGI_HAS_INDYDOG
- 	help
- 	  Hardware driver for the Indy's/I2's watchdog. This is a
- 	  watchdog timer that will reboot the machine after a 60 second
+>  	help
+>  	  Hardware driver for the Indy's/I2's watchdog. This is a
+>  	  watchdog timer that will reboot the machine after a 60 second
