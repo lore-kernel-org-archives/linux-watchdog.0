@@ -1,388 +1,68 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wm0-f65.google.com ([74.125.82.65]:50022 "EHLO
-        mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752718AbdKFTEY (ORCPT
+Received: from 19pmail.ess.barracuda.com ([64.235.150.245]:54029 "EHLO
+        19pmail.ess.barracuda.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753741AbdKNKyH (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 6 Nov 2017 14:04:24 -0500
-Received: by mail-wm0-f65.google.com with SMTP id b189so15779353wmd.4
-        for <linux-watchdog@vger.kernel.org>; Mon, 06 Nov 2017 11:04:24 -0800 (PST)
-From: Radu Rendec <rrendec@arista.com>
+        Tue, 14 Nov 2017 05:54:07 -0500
+From: Matt Redfearn <matt.redfearn@mips.com>
 To: Guenter Roeck <linux@roeck-us.net>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org
-Subject: [PATCH v2 1/2] watchdog: xen_wdt: use the watchdog subsystem
-Date: Mon,  6 Nov 2017 19:04:11 +0000
-Message-Id: <20171106190412.10023-2-rrendec@arista.com>
-In-Reply-To: <20171106190412.10023-1-rrendec@arista.com>
-References: <20171106180416.GA12199@roeck-us.net>
- <20171106190412.10023-1-rrendec@arista.com>
+CC: <linux-mips@linux-mips.org>,
+        Matt Redfearn <matt.redfearn@mips.com>,
+        "# 4 . 11 +" <stable@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <linux-watchdog@vger.kernel.org>,
+        Wim Van Sebroeck <wim@iguana.be>
+Subject: [PATCH] watchdog: indydog: Add dependency on SGI_HAS_INDYDOG
+Date: Tue, 14 Nov 2017 10:52:54 +0000
+Message-ID: <1510656774-31464-1-git-send-email-matt.redfearn@mips.com>
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Change the xen_wdt driver to use the watchdog subsystem instead of
-registering and manipulating the char device directly through the misc
-API. This is mainly getting rid of the "write" and "ioctl" methods and
-part of the watchdog control logic (which are all implemented by the
-watchdog subsystem).
+Commit da2a68b3eb47 ("watchdog: Enable COMPILE_TEST where possible")
+enabled building the Indy watchdog driver when COMPILE_TEST is enabled.
+However, the driver makes reference to symbols that are only defined for
+certain platforms are selected in the config. These platforms select
+SGI_HAS_INDYDOG. Without this, link time errors result, for example
+when building a MIPS allyesconfig.
 
-Even though the watchdog subsystem supports registering and handling
-multiple watchdog devices at the same time, the xen_wdt driver has an
-inherent limitation of only one device due to the way the Xen hypervisor
-exposes watchdog functionality. However, the driver can now coexist with
-other watchdog devices (supported by different drivers).
+drivers/watchdog/indydog.o: In function `indydog_write':
+indydog.c:(.text+0x18): undefined reference to `sgimc'
+indydog.c:(.text+0x1c): undefined reference to `sgimc'
+drivers/watchdog/indydog.o: In function `indydog_start':
+indydog.c:(.text+0x54): undefined reference to `sgimc'
+indydog.c:(.text+0x58): undefined reference to `sgimc'
+drivers/watchdog/indydog.o: In function `indydog_stop':
+indydog.c:(.text+0xa4): undefined reference to `sgimc'
+drivers/watchdog/indydog.o:indydog.c:(.text+0xa8): more undefined
+references to `sgimc' follow
+make: *** [Makefile:1005: vmlinux] Error 1
 
-Signed-off-by: Radu Rendec <rrendec@arista.com>
+Fix this by ensuring that CONFIG_INDIDOG can only be selected when the
+necessary dependent platform symbols are built in.
+
+Fixes: da2a68b3eb47 ("watchdog: Enable COMPILE_TEST where possible")
+Signed-off-by: Matt Redfearn <matt.redfearn@mips.com>
+Cc: <stable@vger.kernel.org> # 4.11 +
 ---
- drivers/watchdog/xen_wdt.c | 239 ++++++++++-----------------------------------
- 1 file changed, 49 insertions(+), 190 deletions(-)
 
-diff --git a/drivers/watchdog/xen_wdt.c b/drivers/watchdog/xen_wdt.c
-index 5dd5c3494d55..5513047b70c9 100644
---- a/drivers/watchdog/xen_wdt.c
-+++ b/drivers/watchdog/xen_wdt.c
-@@ -21,25 +21,20 @@
- #include <linux/kernel.h>
- #include <linux/ktime.h>
- #include <linux/init.h>
--#include <linux/miscdevice.h>
- #include <linux/module.h>
- #include <linux/moduleparam.h>
- #include <linux/platform_device.h>
--#include <linux/spinlock.h>
--#include <linux/uaccess.h>
- #include <linux/watchdog.h>
- #include <xen/xen.h>
- #include <asm/xen/hypercall.h>
- #include <xen/interface/sched.h>
+ drivers/watchdog/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index ca200d1f310a..d96e2e7544fc 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -1451,7 +1451,7 @@ config RC32434_WDT
  
- static struct platform_device *platform_device;
--static DEFINE_SPINLOCK(wdt_lock);
- static struct sched_watchdog wdt;
- static time64_t wdt_expires;
--static bool is_active, expect_release;
- 
- #define WATCHDOG_TIMEOUT 60 /* in seconds */
--static unsigned int timeout = WATCHDOG_TIMEOUT;
-+static unsigned int timeout;
- module_param(timeout, uint, S_IRUGO);
- MODULE_PARM_DESC(timeout, "Watchdog timeout in seconds "
- 	"(default=" __MODULE_STRING(WATCHDOG_TIMEOUT) ")");
-@@ -49,20 +44,18 @@ module_param(nowayout, bool, S_IRUGO);
- MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started "
- 	"(default=" __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
- 
--static inline time64_t set_timeout(void)
-+static inline time64_t set_timeout(struct watchdog_device *wdd)
- {
--	wdt.timeout = timeout;
--	return ktime_get_seconds() + timeout;
-+	wdt.timeout = wdd->timeout;
-+	return ktime_get_seconds() + wdd->timeout;
- }
- 
--static int xen_wdt_start(void)
-+static int xen_wdt_start(struct watchdog_device *wdd)
- {
- 	time64_t expires;
- 	int err;
- 
--	spin_lock(&wdt_lock);
--
--	expires = set_timeout();
-+	expires = set_timeout(wdd);
- 	if (!wdt.id)
- 		err = HYPERVISOR_sched_op(SCHEDOP_watchdog, &wdt);
- 	else
-@@ -74,36 +67,28 @@ static int xen_wdt_start(void)
- 	} else
- 		BUG_ON(!err);
- 
--	spin_unlock(&wdt_lock);
--
- 	return err;
- }
- 
--static int xen_wdt_stop(void)
-+static int xen_wdt_stop(struct watchdog_device *wdd)
- {
- 	int err = 0;
- 
--	spin_lock(&wdt_lock);
--
- 	wdt.timeout = 0;
- 	if (wdt.id)
- 		err = HYPERVISOR_sched_op(SCHEDOP_watchdog, &wdt);
- 	if (!err)
- 		wdt.id = 0;
- 
--	spin_unlock(&wdt_lock);
--
- 	return err;
- }
- 
--static int xen_wdt_kick(void)
-+static int xen_wdt_kick(struct watchdog_device *wdd)
- {
- 	time64_t expires;
- 	int err;
- 
--	spin_lock(&wdt_lock);
--
--	expires = set_timeout();
-+	expires = set_timeout(wdd);
- 	if (wdt.id)
- 		err = HYPERVISOR_sched_op(SCHEDOP_watchdog, &wdt);
- 	else
-@@ -111,195 +96,71 @@ static int xen_wdt_kick(void)
- 	if (!err)
- 		wdt_expires = expires;
- 
--	spin_unlock(&wdt_lock);
--
--	return err;
--}
--
--static int xen_wdt_open(struct inode *inode, struct file *file)
--{
--	int err;
--
--	/* /dev/watchdog can only be opened once */
--	if (xchg(&is_active, true))
--		return -EBUSY;
--
--	err = xen_wdt_start();
--	if (err == -EBUSY)
--		err = xen_wdt_kick();
--	return err ?: nonseekable_open(inode, file);
--}
--
--static int xen_wdt_release(struct inode *inode, struct file *file)
--{
--	int err = 0;
--
--	if (expect_release)
--		err = xen_wdt_stop();
--	else {
--		pr_crit("unexpected close, not stopping watchdog!\n");
--		xen_wdt_kick();
--	}
--	is_active = err;
--	expect_release = false;
- 	return err;
- }
- 
--static ssize_t xen_wdt_write(struct file *file, const char __user *data,
--			     size_t len, loff_t *ppos)
-+static unsigned int xen_wdt_get_timeleft(struct watchdog_device *wdd)
- {
--	/* See if we got the magic character 'V' and reload the timer */
--	if (len) {
--		if (!nowayout) {
--			size_t i;
--
--			/* in case it was set long ago */
--			expect_release = false;
--
--			/* scan to see whether or not we got the magic
--			   character */
--			for (i = 0; i != len; i++) {
--				char c;
--				if (get_user(c, data + i))
--					return -EFAULT;
--				if (c == 'V')
--					expect_release = true;
--			}
--		}
--
--		/* someone wrote to us, we should reload the timer */
--		xen_wdt_kick();
--	}
--	return len;
-+	return wdt_expires - ktime_get_seconds();
- }
- 
--static long xen_wdt_ioctl(struct file *file, unsigned int cmd,
--			  unsigned long arg)
--{
--	int new_options, retval = -EINVAL;
--	int new_timeout;
--	int __user *argp = (void __user *)arg;
--	static const struct watchdog_info ident = {
--		.options =		WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE,
--		.firmware_version =	0,
--		.identity =		DRV_NAME,
--	};
--
--	switch (cmd) {
--	case WDIOC_GETSUPPORT:
--		return copy_to_user(argp, &ident, sizeof(ident)) ? -EFAULT : 0;
--
--	case WDIOC_GETSTATUS:
--	case WDIOC_GETBOOTSTATUS:
--		return put_user(0, argp);
--
--	case WDIOC_SETOPTIONS:
--		if (get_user(new_options, argp))
--			return -EFAULT;
--
--		if (new_options & WDIOS_DISABLECARD)
--			retval = xen_wdt_stop();
--		if (new_options & WDIOS_ENABLECARD) {
--			retval = xen_wdt_start();
--			if (retval == -EBUSY)
--				retval = xen_wdt_kick();
--		}
--		return retval;
--
--	case WDIOC_KEEPALIVE:
--		xen_wdt_kick();
--		return 0;
--
--	case WDIOC_SETTIMEOUT:
--		if (get_user(new_timeout, argp))
--			return -EFAULT;
--		if (!new_timeout)
--			return -EINVAL;
--		timeout = new_timeout;
--		xen_wdt_kick();
--		/* fall through */
--	case WDIOC_GETTIMEOUT:
--		return put_user(timeout, argp);
--
--	case WDIOC_GETTIMELEFT:
--		retval = wdt_expires - ktime_get_seconds();
--		return put_user(retval, argp);
--	}
--
--	return -ENOTTY;
--}
-+static struct watchdog_info xen_wdt_info = {
-+	.identity = DRV_NAME,
-+	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
-+};
- 
--static const struct file_operations xen_wdt_fops = {
--	.owner =		THIS_MODULE,
--	.llseek =		no_llseek,
--	.write =		xen_wdt_write,
--	.unlocked_ioctl =	xen_wdt_ioctl,
--	.open =			xen_wdt_open,
--	.release =		xen_wdt_release,
-+static const struct watchdog_ops xen_wdt_ops = {
-+	.owner = THIS_MODULE,
-+	.start = xen_wdt_start,
-+	.stop = xen_wdt_stop,
-+	.ping = xen_wdt_kick,
-+	.get_timeleft = xen_wdt_get_timeleft,
- };
- 
--static struct miscdevice xen_wdt_miscdev = {
--	.minor =	WATCHDOG_MINOR,
--	.name =		"watchdog",
--	.fops =		&xen_wdt_fops,
-+static struct watchdog_device xen_wdt_dev = {
-+	.info = &xen_wdt_info,
-+	.ops = &xen_wdt_ops,
-+	.timeout = WATCHDOG_TIMEOUT,
- };
- 
--static int xen_wdt_probe(struct platform_device *dev)
-+static int xen_wdt_probe(struct platform_device *pdev)
- {
- 	struct sched_watchdog wd = { .id = ~0 };
- 	int ret = HYPERVISOR_sched_op(SCHEDOP_watchdog, &wd);
- 
--	switch (ret) {
--	case -EINVAL:
--		if (!timeout) {
--			timeout = WATCHDOG_TIMEOUT;
--			pr_info("timeout value invalid, using %d\n", timeout);
--		}
--
--		ret = misc_register(&xen_wdt_miscdev);
--		if (ret) {
--			pr_err("cannot register miscdev on minor=%d (%d)\n",
--			       WATCHDOG_MINOR, ret);
--			break;
--		}
--
--		pr_info("initialized (timeout=%ds, nowayout=%d)\n",
--			timeout, nowayout);
--		break;
--
--	case -ENOSYS:
--		pr_info("not supported\n");
--		ret = -ENODEV;
--		break;
--
--	default:
--		pr_info("bogus return value %d\n", ret);
--		break;
-+	if (ret == -ENOSYS) {
-+		pr_err("watchdog not supported by hypervisor\n");
-+		return -ENODEV;
- 	}
- 
--	return ret;
--}
-+	if (ret != -EINVAL) {
-+		pr_err("unexpected hypervisor error (%d)\n", ret);
-+		return -ENODEV;
-+	}
- 
--static int xen_wdt_remove(struct platform_device *dev)
--{
--	/* Stop the timer before we leave */
--	if (!nowayout)
--		xen_wdt_stop();
-+	if (watchdog_init_timeout(&xen_wdt_dev, timeout, NULL))
-+		pr_info("timeout value invalid, using %d\n",
-+			xen_wdt_dev.timeout);
-+	watchdog_set_nowayout(&xen_wdt_dev, nowayout);
-+	watchdog_stop_on_reboot(&xen_wdt_dev);
-+	watchdog_stop_on_unregister(&xen_wdt_dev);
-+
-+	ret = devm_watchdog_register_device(&pdev->dev, &xen_wdt_dev);
-+	if (ret) {
-+		pr_err("cannot register watchdog device (%d)\n", ret);
-+		return ret;
-+	}
- 
--	misc_deregister(&xen_wdt_miscdev);
-+	pr_info("initialized (timeout=%ds, nowayout=%d)\n",
-+		xen_wdt_dev.timeout, nowayout);
- 
- 	return 0;
- }
- 
--static void xen_wdt_shutdown(struct platform_device *dev)
--{
--	xen_wdt_stop();
--}
--
- static int xen_wdt_suspend(struct platform_device *dev, pm_message_t state)
- {
- 	typeof(wdt.id) id = wdt.id;
--	int rc = xen_wdt_stop();
-+	int rc = xen_wdt_stop(&xen_wdt_dev);
- 
- 	wdt.id = id;
- 	return rc;
-@@ -310,13 +171,11 @@ static int xen_wdt_resume(struct platform_device *dev)
- 	if (!wdt.id)
- 		return 0;
- 	wdt.id = 0;
--	return xen_wdt_start();
-+	return xen_wdt_start(&xen_wdt_dev);
- }
- 
- static struct platform_driver xen_wdt_driver = {
- 	.probe          = xen_wdt_probe,
--	.remove         = xen_wdt_remove,
--	.shutdown       = xen_wdt_shutdown,
- 	.suspend        = xen_wdt_suspend,
- 	.resume         = xen_wdt_resume,
- 	.driver         = {
+ config INDYDOG
+ 	tristate "Indy/I2 Hardware Watchdog"
+-	depends on SGI_HAS_INDYDOG || (MIPS && COMPILE_TEST)
++	depends on SGI_HAS_INDYDOG || (MIPS && COMPILE_TEST && SGI_HAS_INDYDOG)
+ 	help
+ 	  Hardware driver for the Indy's/I2's watchdog. This is a
+ 	  watchdog timer that will reboot the machine after a 60 second
 -- 
-2.13.6
+2.7.4
 
