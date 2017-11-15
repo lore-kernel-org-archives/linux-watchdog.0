@@ -1,97 +1,404 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pg0-f68.google.com ([74.125.83.68]:44218 "EHLO
-        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1757938AbdKOSV4 (ORCPT
+Received: from mail-wm0-f66.google.com ([74.125.82.66]:44381 "EHLO
+        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1758366AbdKOTfH (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 15 Nov 2017 13:21:56 -0500
-Received: by mail-pg0-f68.google.com with SMTP id 4so9693354pge.1
-        for <linux-watchdog@vger.kernel.org>; Wed, 15 Nov 2017 10:21:56 -0800 (PST)
-Date: Wed, 15 Nov 2017 10:21:53 -0800
-From: Guenter Roeck <linux@roeck-us.net>
-To: Radu Rendec <rrendec@arista.com>
+        Wed, 15 Nov 2017 14:35:07 -0500
+Received: by mail-wm0-f66.google.com with SMTP id r68so5240599wmr.3
+        for <linux-watchdog@vger.kernel.org>; Wed, 15 Nov 2017 11:35:06 -0800 (PST)
+From: Radu Rendec <rrendec@arista.com>
+To: Guenter Roeck <linux@roeck-us.net>
 Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH v3 1/2] watchdog: xen_wdt: use the watchdog subsystem
-Message-ID: <20171115182153.GA5138@roeck-us.net>
-References: <20171114162350.24283-1-rrendec@arista.com>
- <20171114162350.24283-2-rrendec@arista.com>
- <20171115145829.GA18395@roeck-us.net>
- <1510760080.27053.9.camel@arista.com>
- <20171115162612.GB29282@roeck-us.net>
- <1510764388.27053.22.camel@arista.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1510764388.27053.22.camel@arista.com>
+Subject: [PATCH v4 1/2] watchdog: xen_wdt: use the watchdog subsystem
+Date: Wed, 15 Nov 2017 19:34:41 +0000
+Message-Id: <20171115193442.8511-1-rrendec@arista.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Nov 15, 2017 at 04:46:28PM +0000, Radu Rendec wrote:
-> On Wed, 2017-11-15 at 08:26 -0800, Guenter Roeck wrote:
-> > On Wed, Nov 15, 2017 at 03:34:40PM +0000, Radu Rendec wrote:
-> > > On Wed, 2017-11-15 at 06:58 -0800, Guenter Roeck wrote:
-> > > > On Tue, Nov 14, 2017 at 04:23:49PM +0000, Radu Rendec wrote:
-> > > > > diff --git a/drivers/watchdog/xen_wdt.c b/drivers/watchdog/xen_wdt.c
-> > > > > index 5dd5c3494d55..4e00419bd47d 100644
-> > > > > --- a/drivers/watchdog/xen_wdt.c
-> > > > > +++ b/drivers/watchdog/xen_wdt.c
-> > > > > @@ -9,9 +9,8 @@
-> > > > >   *	2 of the License, or (at your option) any later version.
-> > > > >   */
-> > > > >  
-> > > > > -#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
-> > > > > -
-> > > > > -#define DRV_NAME	"wdt"
-> > > > > +#define DRV_NAME	"xen_wdt"
-> > > > > +#define DEV_NAME	"watchdog"
-> > > > 
-> > > > [ ... ]
-> > > > 
-> > > > >  
-> > > > > +static const struct platform_device_id xen_wdt_id_table[] = {
-> > > > > +	{ .name	= DEV_NAME },
-> > > > 
-> > > > I understand we are way into bikeshedding territory, and I was inclined
-> > > > to let this just go, but this is way too generic for a platform device
-> > > > ID, sorry.
-> > > 
-> > > Yes, that's the part I don't like about it either. So I think we're on
-> > > the same page here :)
-> > > 
-> > > FWIW, the old (current) version has the same problem, because in the
-> > > absence of an id_table (or a matching entry), platform_match() matches
-> > > against the driver name, which is just "wdt".
-> > > 
-> > > Anyway, how about using "xwdt0" for DEV_NAME? The driver supports only
-> > > one device by design, so adding "0" should be fine.
-> > > 
-> > 
-> > A numeric suffix to the device name suggests that there can be more than one,
-> > which would be misleading.
-> > 
-> > And all that because you don't like the output of dev_info(). Hope you don't
-> > start to mess with all the other drivers having the same "problem" of a less
-> > than perfect output from dev_ functions.
-> 
-> I was merely trying to make the output look better than just a repeated
-> string (which doesn't make much sense, IMHO).
-> 
-> At this point I see the following options:
-> 
->    1. Revert to the previous patch version, but use dev_ instead of pr_ as
->       you suggested. Messages would look like "wdt wdt: ...". Note that
->       this still has the problem of registering a platform "id" of "wdt"
->       which *is* quite generic and may collide with other drivers.
->    2. Same as above, but change DRV_NAME to "xen_wdt", which is less
->       generic. Messages would look like "xen_wdt xen_wdt: ...".
->    3. Keep the id_table and change DEV_NAME to something without a numeric
->       suffix, e.g. "xwdt".
-> 
-> At the end of the day, what I really want is to port the xen_wdt driver
-> to use the watchdog subsystem.
-> 
-> Please let me know which of the above options you prefer and I will
-> send an updated v4.
-> 
-I would suggest the second option.
+Change the xen_wdt driver to use the watchdog subsystem instead of
+registering and manipulating the char device directly through the misc
+API. This is mainly getting rid of the "write" and "ioctl" methods and
+part of the watchdog control logic (which are all implemented by the
+watchdog subsystem).
 
-Guenter
+Even though the watchdog subsystem supports registering and handling
+multiple watchdog devices at the same time, the xen_wdt driver has an
+inherent limitation of only one device due to the way the Xen hypervisor
+exposes watchdog functionality. However, the driver can now coexist with
+other watchdog devices (supported by different drivers).
+
+Signed-off-by: Radu Rendec <rrendec@arista.com>
+---
+ drivers/watchdog/xen_wdt.c | 245 ++++++++++-----------------------------------
+ 1 file changed, 51 insertions(+), 194 deletions(-)
+
+diff --git a/drivers/watchdog/xen_wdt.c b/drivers/watchdog/xen_wdt.c
+index 5dd5c3494d55..51576e15a086 100644
+--- a/drivers/watchdog/xen_wdt.c
++++ b/drivers/watchdog/xen_wdt.c
+@@ -9,9 +9,7 @@
+  *	2 of the License, or (at your option) any later version.
+  */
+ 
+-#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+-
+-#define DRV_NAME	"wdt"
++#define DRV_NAME	"xen_wdt"
+ #define DRV_VERSION	"0.01"
+ 
+ #include <linux/bug.h>
+@@ -21,25 +19,20 @@
+ #include <linux/kernel.h>
+ #include <linux/ktime.h>
+ #include <linux/init.h>
+-#include <linux/miscdevice.h>
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
+ #include <linux/platform_device.h>
+-#include <linux/spinlock.h>
+-#include <linux/uaccess.h>
+ #include <linux/watchdog.h>
+ #include <xen/xen.h>
+ #include <asm/xen/hypercall.h>
+ #include <xen/interface/sched.h>
+ 
+ static struct platform_device *platform_device;
+-static DEFINE_SPINLOCK(wdt_lock);
+ static struct sched_watchdog wdt;
+ static time64_t wdt_expires;
+-static bool is_active, expect_release;
+ 
+ #define WATCHDOG_TIMEOUT 60 /* in seconds */
+-static unsigned int timeout = WATCHDOG_TIMEOUT;
++static unsigned int timeout;
+ module_param(timeout, uint, S_IRUGO);
+ MODULE_PARM_DESC(timeout, "Watchdog timeout in seconds "
+ 	"(default=" __MODULE_STRING(WATCHDOG_TIMEOUT) ")");
+@@ -49,20 +42,18 @@ module_param(nowayout, bool, S_IRUGO);
+ MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started "
+ 	"(default=" __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+ 
+-static inline time64_t set_timeout(void)
++static inline time64_t set_timeout(struct watchdog_device *wdd)
+ {
+-	wdt.timeout = timeout;
+-	return ktime_get_seconds() + timeout;
++	wdt.timeout = wdd->timeout;
++	return ktime_get_seconds() + wdd->timeout;
+ }
+ 
+-static int xen_wdt_start(void)
++static int xen_wdt_start(struct watchdog_device *wdd)
+ {
+ 	time64_t expires;
+ 	int err;
+ 
+-	spin_lock(&wdt_lock);
+-
+-	expires = set_timeout();
++	expires = set_timeout(wdd);
+ 	if (!wdt.id)
+ 		err = HYPERVISOR_sched_op(SCHEDOP_watchdog, &wdt);
+ 	else
+@@ -74,36 +65,28 @@ static int xen_wdt_start(void)
+ 	} else
+ 		BUG_ON(!err);
+ 
+-	spin_unlock(&wdt_lock);
+-
+ 	return err;
+ }
+ 
+-static int xen_wdt_stop(void)
++static int xen_wdt_stop(struct watchdog_device *wdd)
+ {
+ 	int err = 0;
+ 
+-	spin_lock(&wdt_lock);
+-
+ 	wdt.timeout = 0;
+ 	if (wdt.id)
+ 		err = HYPERVISOR_sched_op(SCHEDOP_watchdog, &wdt);
+ 	if (!err)
+ 		wdt.id = 0;
+ 
+-	spin_unlock(&wdt_lock);
+-
+ 	return err;
+ }
+ 
+-static int xen_wdt_kick(void)
++static int xen_wdt_kick(struct watchdog_device *wdd)
+ {
+ 	time64_t expires;
+ 	int err;
+ 
+-	spin_lock(&wdt_lock);
+-
+-	expires = set_timeout();
++	expires = set_timeout(wdd);
+ 	if (wdt.id)
+ 		err = HYPERVISOR_sched_op(SCHEDOP_watchdog, &wdt);
+ 	else
+@@ -111,195 +94,72 @@ static int xen_wdt_kick(void)
+ 	if (!err)
+ 		wdt_expires = expires;
+ 
+-	spin_unlock(&wdt_lock);
+-
+ 	return err;
+ }
+ 
+-static int xen_wdt_open(struct inode *inode, struct file *file)
++static unsigned int xen_wdt_get_timeleft(struct watchdog_device *wdd)
+ {
+-	int err;
+-
+-	/* /dev/watchdog can only be opened once */
+-	if (xchg(&is_active, true))
+-		return -EBUSY;
+-
+-	err = xen_wdt_start();
+-	if (err == -EBUSY)
+-		err = xen_wdt_kick();
+-	return err ?: nonseekable_open(inode, file);
++	return wdt_expires - ktime_get_seconds();
+ }
+ 
+-static int xen_wdt_release(struct inode *inode, struct file *file)
+-{
+-	int err = 0;
+-
+-	if (expect_release)
+-		err = xen_wdt_stop();
+-	else {
+-		pr_crit("unexpected close, not stopping watchdog!\n");
+-		xen_wdt_kick();
+-	}
+-	is_active = err;
+-	expect_release = false;
+-	return err;
+-}
+-
+-static ssize_t xen_wdt_write(struct file *file, const char __user *data,
+-			     size_t len, loff_t *ppos)
+-{
+-	/* See if we got the magic character 'V' and reload the timer */
+-	if (len) {
+-		if (!nowayout) {
+-			size_t i;
+-
+-			/* in case it was set long ago */
+-			expect_release = false;
+-
+-			/* scan to see whether or not we got the magic
+-			   character */
+-			for (i = 0; i != len; i++) {
+-				char c;
+-				if (get_user(c, data + i))
+-					return -EFAULT;
+-				if (c == 'V')
+-					expect_release = true;
+-			}
+-		}
+-
+-		/* someone wrote to us, we should reload the timer */
+-		xen_wdt_kick();
+-	}
+-	return len;
+-}
+-
+-static long xen_wdt_ioctl(struct file *file, unsigned int cmd,
+-			  unsigned long arg)
+-{
+-	int new_options, retval = -EINVAL;
+-	int new_timeout;
+-	int __user *argp = (void __user *)arg;
+-	static const struct watchdog_info ident = {
+-		.options =		WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE,
+-		.firmware_version =	0,
+-		.identity =		DRV_NAME,
+-	};
+-
+-	switch (cmd) {
+-	case WDIOC_GETSUPPORT:
+-		return copy_to_user(argp, &ident, sizeof(ident)) ? -EFAULT : 0;
+-
+-	case WDIOC_GETSTATUS:
+-	case WDIOC_GETBOOTSTATUS:
+-		return put_user(0, argp);
+-
+-	case WDIOC_SETOPTIONS:
+-		if (get_user(new_options, argp))
+-			return -EFAULT;
+-
+-		if (new_options & WDIOS_DISABLECARD)
+-			retval = xen_wdt_stop();
+-		if (new_options & WDIOS_ENABLECARD) {
+-			retval = xen_wdt_start();
+-			if (retval == -EBUSY)
+-				retval = xen_wdt_kick();
+-		}
+-		return retval;
+-
+-	case WDIOC_KEEPALIVE:
+-		xen_wdt_kick();
+-		return 0;
+-
+-	case WDIOC_SETTIMEOUT:
+-		if (get_user(new_timeout, argp))
+-			return -EFAULT;
+-		if (!new_timeout)
+-			return -EINVAL;
+-		timeout = new_timeout;
+-		xen_wdt_kick();
+-		/* fall through */
+-	case WDIOC_GETTIMEOUT:
+-		return put_user(timeout, argp);
+-
+-	case WDIOC_GETTIMELEFT:
+-		retval = wdt_expires - ktime_get_seconds();
+-		return put_user(retval, argp);
+-	}
+-
+-	return -ENOTTY;
+-}
++static struct watchdog_info xen_wdt_info = {
++	.identity = DRV_NAME,
++	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
++};
+ 
+-static const struct file_operations xen_wdt_fops = {
+-	.owner =		THIS_MODULE,
+-	.llseek =		no_llseek,
+-	.write =		xen_wdt_write,
+-	.unlocked_ioctl =	xen_wdt_ioctl,
+-	.open =			xen_wdt_open,
+-	.release =		xen_wdt_release,
++static const struct watchdog_ops xen_wdt_ops = {
++	.owner = THIS_MODULE,
++	.start = xen_wdt_start,
++	.stop = xen_wdt_stop,
++	.ping = xen_wdt_kick,
++	.get_timeleft = xen_wdt_get_timeleft,
+ };
+ 
+-static struct miscdevice xen_wdt_miscdev = {
+-	.minor =	WATCHDOG_MINOR,
+-	.name =		"watchdog",
+-	.fops =		&xen_wdt_fops,
++static struct watchdog_device xen_wdt_dev = {
++	.info = &xen_wdt_info,
++	.ops = &xen_wdt_ops,
++	.timeout = WATCHDOG_TIMEOUT,
+ };
+ 
+-static int xen_wdt_probe(struct platform_device *dev)
++static int xen_wdt_probe(struct platform_device *pdev)
+ {
+ 	struct sched_watchdog wd = { .id = ~0 };
+ 	int ret = HYPERVISOR_sched_op(SCHEDOP_watchdog, &wd);
+ 
+-	switch (ret) {
+-	case -EINVAL:
+-		if (!timeout) {
+-			timeout = WATCHDOG_TIMEOUT;
+-			pr_info("timeout value invalid, using %d\n", timeout);
+-		}
+-
+-		ret = misc_register(&xen_wdt_miscdev);
+-		if (ret) {
+-			pr_err("cannot register miscdev on minor=%d (%d)\n",
+-			       WATCHDOG_MINOR, ret);
+-			break;
+-		}
+-
+-		pr_info("initialized (timeout=%ds, nowayout=%d)\n",
+-			timeout, nowayout);
+-		break;
+-
+-	case -ENOSYS:
+-		pr_info("not supported\n");
+-		ret = -ENODEV;
+-		break;
+-
+-	default:
+-		pr_info("bogus return value %d\n", ret);
+-		break;
++	if (ret == -ENOSYS) {
++		dev_err(&pdev->dev, "watchdog not supported by hypervisor\n");
++		return -ENODEV;
+ 	}
+ 
+-	return ret;
+-}
++	if (ret != -EINVAL) {
++		dev_err(&pdev->dev, "unexpected hypervisor error (%d)\n", ret);
++		return -ENODEV;
++	}
+ 
+-static int xen_wdt_remove(struct platform_device *dev)
+-{
+-	/* Stop the timer before we leave */
+-	if (!nowayout)
+-		xen_wdt_stop();
++	if (watchdog_init_timeout(&xen_wdt_dev, timeout, NULL))
++		dev_info(&pdev->dev, "timeout value invalid, using %d\n",
++			xen_wdt_dev.timeout);
++	watchdog_set_nowayout(&xen_wdt_dev, nowayout);
++	watchdog_stop_on_reboot(&xen_wdt_dev);
++	watchdog_stop_on_unregister(&xen_wdt_dev);
++
++	ret = devm_watchdog_register_device(&pdev->dev, &xen_wdt_dev);
++	if (ret) {
++		dev_err(&pdev->dev, "cannot register watchdog device (%d)\n",
++			ret);
++		return ret;
++	}
+ 
+-	misc_deregister(&xen_wdt_miscdev);
++	dev_info(&pdev->dev, "initialized (timeout=%ds, nowayout=%d)\n",
++		xen_wdt_dev.timeout, nowayout);
+ 
+ 	return 0;
+ }
+ 
+-static void xen_wdt_shutdown(struct platform_device *dev)
+-{
+-	xen_wdt_stop();
+-}
+-
+ static int xen_wdt_suspend(struct platform_device *dev, pm_message_t state)
+ {
+ 	typeof(wdt.id) id = wdt.id;
+-	int rc = xen_wdt_stop();
++	int rc = xen_wdt_stop(&xen_wdt_dev);
+ 
+ 	wdt.id = id;
+ 	return rc;
+@@ -310,13 +170,11 @@ static int xen_wdt_resume(struct platform_device *dev)
+ 	if (!wdt.id)
+ 		return 0;
+ 	wdt.id = 0;
+-	return xen_wdt_start();
++	return xen_wdt_start(&xen_wdt_dev);
+ }
+ 
+ static struct platform_driver xen_wdt_driver = {
+ 	.probe          = xen_wdt_probe,
+-	.remove         = xen_wdt_remove,
+-	.shutdown       = xen_wdt_shutdown,
+ 	.suspend        = xen_wdt_suspend,
+ 	.resume         = xen_wdt_resume,
+ 	.driver         = {
+@@ -351,7 +209,6 @@ static void __exit xen_wdt_cleanup_module(void)
+ {
+ 	platform_device_unregister(platform_device);
+ 	platform_driver_unregister(&xen_wdt_driver);
+-	pr_info("module unloaded\n");
+ }
+ 
+ module_init(xen_wdt_init_module);
+-- 
+2.13.6
+
