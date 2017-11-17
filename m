@@ -1,61 +1,58 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wm0-f65.google.com ([74.125.82.65]:37986 "EHLO
-        mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1758433AbdKOTfI (ORCPT
+Received: from mail.linuxfoundation.org ([140.211.169.12]:35796 "EHLO
+        mail.linuxfoundation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S933834AbdKQOV7 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 15 Nov 2017 14:35:08 -0500
-Received: by mail-wm0-f65.google.com with SMTP id z3so5172931wme.3
-        for <linux-watchdog@vger.kernel.org>; Wed, 15 Nov 2017 11:35:07 -0800 (PST)
-From: Radu Rendec <rrendec@arista.com>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org
-Subject: [PATCH v4 2/2] watchdog: xen_wdt: remove info message and version number
-Date: Wed, 15 Nov 2017 19:34:42 +0000
-Message-Id: <20171115193442.8511-2-rrendec@arista.com>
-In-Reply-To: <20171115193442.8511-1-rrendec@arista.com>
-References: <20171115193442.8511-1-rrendec@arista.com>
+        Fri, 17 Nov 2017 09:21:59 -0500
+Date: Fri, 17 Nov 2017 15:22:03 +0100
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: Wim Van Sebroeck <wim@iguana.be>,
+        Guenter Roeck <linux@roeck-us.net>
+Cc: linux-kernel@vger.kernel.org,
+        Philippe Ombredanne <pombredanne@nexb.com>,
+        linux-watchdog@vger.kernel.org
+Subject: [PATCH] watchdog: pcwd_usb: remove unneeded DRIVER_LICENSE #define
+Message-ID: <20171117142203.GG17880@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The initial info message (early in the xen_wdt_init_module() function)
-is not very useful and we already have a message on successful probe. If
-the probe fails, additional messages are printed anyway.
+There is no need to #define the license of the driver, just put it in
+the MODULE_LICENSE() line directly as a text string.
 
-The version number serves no useful purpose and it ran out of favor
-upstream anyway.
+This allows tools that check that the module license matches the source
+code license to work properly, as there is no need to unwind the
+unneeded dereference, especially when it is defined just a few lines
+above from where it is used.
 
-Signed-off-by: Radu Rendec <rrendec@arista.com>
+Cc: Wim Van Sebroeck <wim@iguana.be>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Reported-by: Philippe Ombredanne <pombredanne@nexb.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/watchdog/xen_wdt.c | 4 ----
- 1 file changed, 4 deletions(-)
+ drivers/watchdog/pcwd_usb.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/watchdog/xen_wdt.c b/drivers/watchdog/xen_wdt.c
-index 51576e15a086..f1c016d015b3 100644
---- a/drivers/watchdog/xen_wdt.c
-+++ b/drivers/watchdog/xen_wdt.c
-@@ -10,7 +10,6 @@
-  */
+diff --git a/drivers/watchdog/pcwd_usb.c b/drivers/watchdog/pcwd_usb.c
+index b9e376c8e2e3..07a97708cb3a 100644
+--- a/drivers/watchdog/pcwd_usb.c
++++ b/drivers/watchdog/pcwd_usb.c
+@@ -49,12 +49,11 @@
+ #define DRIVER_VERSION "1.02"
+ #define DRIVER_AUTHOR "Wim Van Sebroeck <wim@iguana.be>"
+ #define DRIVER_DESC "Berkshire USB-PC Watchdog driver"
+-#define DRIVER_LICENSE "GPL"
+ #define DRIVER_NAME "pcwd_usb"
  
- #define DRV_NAME	"xen_wdt"
--#define DRV_VERSION	"0.01"
+ MODULE_AUTHOR(DRIVER_AUTHOR);
+ MODULE_DESCRIPTION(DRIVER_DESC);
+-MODULE_LICENSE(DRIVER_LICENSE);
++MODULE_LICENSE("GPL");
  
- #include <linux/bug.h>
- #include <linux/errno.h>
-@@ -189,8 +188,6 @@ static int __init xen_wdt_init_module(void)
- 	if (!xen_domain())
- 		return -ENODEV;
- 
--	pr_info("Xen WatchDog Timer Driver v%s\n", DRV_VERSION);
--
- 	err = platform_driver_register(&xen_wdt_driver);
- 	if (err)
- 		return err;
-@@ -216,5 +213,4 @@ module_exit(xen_wdt_cleanup_module);
- 
- MODULE_AUTHOR("Jan Beulich <jbeulich@novell.com>");
- MODULE_DESCRIPTION("Xen WatchDog Timer Driver");
--MODULE_VERSION(DRV_VERSION);
- MODULE_LICENSE("GPL");
+ #define WATCHDOG_HEARTBEAT 0	/* default heartbeat =
+ 						delay-time from dip-switches */
 -- 
-2.13.6
+2.15.0
 
