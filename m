@@ -1,20 +1,20 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from gateway33.websitewelcome.com ([192.185.145.33]:45659 "EHLO
-        gateway33.websitewelcome.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1751872AbdKTRWY (ORCPT
+Received: from gateway22.websitewelcome.com ([192.185.47.100]:13722 "EHLO
+        gateway22.websitewelcome.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1751705AbdKTRbY (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 20 Nov 2017 12:22:24 -0500
-Received: from cm11.websitewelcome.com (cm11.websitewelcome.com [100.42.49.5])
-        by gateway33.websitewelcome.com (Postfix) with ESMTP id 7E37D1853D9
-        for <linux-watchdog@vger.kernel.org>; Mon, 20 Nov 2017 11:22:23 -0600 (CST)
-Date: Mon, 20 Nov 2017 11:22:21 -0600
+        Mon, 20 Nov 2017 12:31:24 -0500
+Received: from cm16.websitewelcome.com (cm16.websitewelcome.com [100.42.49.19])
+        by gateway22.websitewelcome.com (Postfix) with ESMTP id 8DF531FEC7
+        for <linux-watchdog@vger.kernel.org>; Mon, 20 Nov 2017 11:06:46 -0600 (CST)
+Date: Mon, 20 Nov 2017 11:06:45 -0600
 From: "Gustavo A. R. Silva" <garsilva@embeddedor.com>
 To: Wim Van Sebroeck <wim@iguana.be>,
         Guenter Roeck <linux@roeck-us.net>
 Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
         "Gustavo A. R. Silva" <garsilva@embeddedor.com>
-Subject: [PATCH] watchdog: ib700wdt: mark expected switch fall-through
-Message-ID: <20171120172221.GA18165@embeddedor.com>
+Subject: [PATCH] watchdog: eurotechwdt: mark expected switch fall-through
+Message-ID: <20171120170645.GA17678@embeddedor.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -29,22 +29,22 @@ Notice that in this particular case I replaced "Fall" with a proper
 
 Signed-off-by: Gustavo A. R. Silva <garsilva@embeddedor.com>
 ---
- drivers/watchdog/ib700wdt.c | 2 +-
+ drivers/watchdog/eurotechwdt.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/watchdog/ib700wdt.c b/drivers/watchdog/ib700wdt.c
-index f2e4e1e..cc26228 100644
---- a/drivers/watchdog/ib700wdt.c
-+++ b/drivers/watchdog/ib700wdt.c
-@@ -218,7 +218,7 @@ static long ibwdt_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
- 		if (ibwdt_set_heartbeat(new_margin))
- 			return -EINVAL;
- 		ibwdt_ping();
+diff --git a/drivers/watchdog/eurotechwdt.c b/drivers/watchdog/eurotechwdt.c
+index 38e9671..47f77a6 100644
+--- a/drivers/watchdog/eurotechwdt.c
++++ b/drivers/watchdog/eurotechwdt.c
+@@ -290,7 +290,7 @@ static long eurwdt_ioctl(struct file *file,
+ 		eurwdt_timeout = time;
+ 		eurwdt_set_timeout(time);
+ 		spin_unlock(&eurwdt_lock);
 -		/* Fall */
 +		/* fall through */
  
  	case WDIOC_GETTIMEOUT:
- 		return put_user(timeout, p);
+ 		return put_user(eurwdt_timeout, p);
 -- 
 2.7.4
 
