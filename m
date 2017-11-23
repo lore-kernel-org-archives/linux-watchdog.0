@@ -1,52 +1,575 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pg0-f67.google.com ([74.125.83.67]:34514 "EHLO
-        mail-pg0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751781AbdKTRok (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 20 Nov 2017 12:44:40 -0500
-Date: Mon, 20 Nov 2017 09:44:38 -0800
-From: Guenter Roeck <linux@roeck-us.net>
-To: "Gustavo A. R. Silva" <garsilva@embeddedor.com>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] watchdog: ib700wdt: mark expected switch fall-through
-Message-ID: <20171120174438.GD28658@roeck-us.net>
-References: <20171120172221.GA18165@embeddedor.com>
+Received: from mga05.intel.com ([192.55.52.43]:41245 "EHLO mga05.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751799AbdKWLte (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Thu, 23 Nov 2017 06:49:34 -0500
+Date: Thu, 23 Nov 2017 13:49:27 +0200
+From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+To: sathyanarayanan.kuppuswamy@linux.intel.com
+Cc: a.zummo@towertech.it, x86@kernel.org, wim@iguana.be,
+        mingo@redhat.com, alexandre.belloni@free-electrons.com,
+        qipeng.zha@intel.com, hpa@zytor.com, dvhart@infradead.org,
+        tglx@linutronix.de, lee.jones@linaro.org, andy@infradead.org,
+        souvik.k.chakravarty@intel.com, linux-rtc@vger.kernel.org,
+        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+        platform-driver-x86@vger.kernel.org, sathyaosid@gmail.com,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [RFC v8 2/7] platform/x86: intel_pmc_ipc: Use MFD framework to
+ create dependent devices
+Message-ID: <20171123114927.GC17418@kuha.fi.intel.com>
+References: <cover.1509268570.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+ <d7b0fadb708a50e6d9ccf92f106d6939314ccf0f.1509268570.git.sathyanarayanan.kuppuswamy@linux.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="ew6BAiZeqk4r7MaW"
 Content-Disposition: inline
-In-Reply-To: <20171120172221.GA18165@embeddedor.com>
+In-Reply-To: <d7b0fadb708a50e6d9ccf92f106d6939314ccf0f.1509268570.git.sathyanarayanan.kuppuswamy@linux.intel.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Nov 20, 2017 at 11:22:21AM -0600, Gustavo A. R. Silva wrote:
-> In preparation to enabling -Wimplicit-fallthrough, mark switch cases
-> where we are expecting to fall through.
-> 
-> Notice that in this particular case I replaced "Fall" with a proper
-> "fall through" comment, which is what GCC is expecting to find.
-> 
-> Signed-off-by: Gustavo A. R. Silva <garsilva@embeddedor.com>
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+--ew6BAiZeqk4r7MaW
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
+Hi,
+
+On Sun, Oct 29, 2017 at 02:49:55AM -0700, sathyanarayanan.kuppuswamy@linux.intel.com wrote:
+> From: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
+> 
+> Currently, we have lot of repetitive code in dependent device resource
+> allocation and device creation handling code. This logic can be improved if
+> we use MFD framework for dependent device creation. This patch adds this
+> support.
+> 
+> Signed-off-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 > ---
->  drivers/watchdog/ib700wdt.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>  drivers/platform/x86/intel_pmc_ipc.c | 398 ++++++++++++-----------------------
+>  1 file changed, 139 insertions(+), 259 deletions(-)
 > 
-> diff --git a/drivers/watchdog/ib700wdt.c b/drivers/watchdog/ib700wdt.c
-> index f2e4e1e..cc26228 100644
-> --- a/drivers/watchdog/ib700wdt.c
-> +++ b/drivers/watchdog/ib700wdt.c
-> @@ -218,7 +218,7 @@ static long ibwdt_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
->  		if (ibwdt_set_heartbeat(new_margin))
->  			return -EINVAL;
->  		ibwdt_ping();
-> -		/* Fall */
-> +		/* fall through */
+> Changes since v7:
+>  * Fixed style issues.
+> 
+> Changes since v6:
+>  * Fixed style issues.
+>  * Used Andy's modified version.
+> 
+> Changes since v5:
+>  * Changed the order of patches in this patchlist.
+> 
+> Changes since v4:
+>  * Changed the order of patches in this patchlist.
+> 
+> Changes since v3:
+>  * Changed PLATFORM_DEVID_AUTO to PLATFORM_DEVID_NONE in mfd device creation.
+>  * Fixed error in resource initalization logic in ipc_create_punit_device.
+>  * Removed mfd cell id initialization.
+> 
+> diff --git a/drivers/platform/x86/intel_pmc_ipc.c b/drivers/platform/x86/intel_pmc_ipc.c
+> index e03fa314..e36144c 100644
+> --- a/drivers/platform/x86/intel_pmc_ipc.c
+> +++ b/drivers/platform/x86/intel_pmc_ipc.c
+> @@ -20,6 +20,7 @@
+>  #include <linux/errno.h>
+>  #include <linux/init.h>
+>  #include <linux/device.h>
+> +#include <linux/mfd/core.h>
+>  #include <linux/pm.h>
+>  #include <linux/pci.h>
+>  #include <linux/platform_device.h>
+> @@ -88,6 +89,7 @@
+>  #define PLAT_RESOURCE_ISP_IFACE_INDEX	5
+>  #define PLAT_RESOURCE_GTD_DATA_INDEX	6
+>  #define PLAT_RESOURCE_GTD_IFACE_INDEX	7
+> +#define PLAT_RESOURCE_MEM_MAX_INDEX	8
+>  #define PLAT_RESOURCE_ACPI_IO_INDEX	0
 >  
->  	case WDIOC_GETTIMEOUT:
->  		return put_user(timeout, p);
-> -- 
-> 2.7.4
-> 
+>  /*
+> @@ -106,8 +108,6 @@
+>  #define TELEM_SSRAM_SIZE		240
+>  #define TELEM_PMC_SSRAM_OFFSET		0x1B00
+>  #define TELEM_PUNIT_SSRAM_OFFSET	0x1A00
+> -#define TCO_PMC_OFFSET			0x8
+> -#define TCO_PMC_SIZE			0x4
+>  
+>  /* PMC register bit definitions */
+>  
+> @@ -124,26 +124,10 @@ static struct intel_pmc_ipc_dev {
+>  	int cmd;
+>  	struct completion cmd_complete;
+>  
+> -	/* The following PMC BARs share the same ACPI device with the IPC */
+> -	resource_size_t acpi_io_base;
+> -	int acpi_io_size;
+> -	struct platform_device *tco_dev;
+> -
+>  	/* gcr */
+>  	void __iomem *gcr_mem_base;
+>  	bool has_gcr_regs;
+>  	spinlock_t gcr_lock;
+> -
+> -	/* punit */
+> -	struct platform_device *punit_dev;
+> -
+> -	/* Telemetry */
+> -	resource_size_t telem_pmc_ssram_base;
+> -	resource_size_t telem_punit_ssram_base;
+> -	int telem_pmc_ssram_size;
+> -	int telem_punit_ssram_size;
+> -	u8 telem_res_inval;
+> -	struct platform_device *telemetry_dev;
+>  } ipcdev;
+>  
+>  static char *ipc_err_sources[] = {
+> @@ -508,7 +492,7 @@ static int ipc_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+>  	ret = devm_request_irq(&pdev->dev, pdev->irq, ioc, 0, "intel_pmc_ipc",
+>  				pmc);
+>  	if (ret) {
+> -		dev_err(&pdev->dev, "Failed to request irq\n");
+> +		dev_err(&pdev->dev, "Failed to request IRQ\n");
+>  		return ret;
+>  	}
+>  
+> @@ -593,44 +577,6 @@ static const struct attribute_group intel_ipc_group = {
+>  	.attrs = intel_ipc_attrs,
+>  };
+>  
+> -static struct resource punit_res_array[] = {
+> -	/* Punit BIOS */
+> -	{
+> -		.flags = IORESOURCE_MEM,
+> -	},
+> -	{
+> -		.flags = IORESOURCE_MEM,
+> -	},
+> -	/* Punit ISP */
+> -	{
+> -		.flags = IORESOURCE_MEM,
+> -	},
+> -	{
+> -		.flags = IORESOURCE_MEM,
+> -	},
+> -	/* Punit GTD */
+> -	{
+> -		.flags = IORESOURCE_MEM,
+> -	},
+> -	{
+> -		.flags = IORESOURCE_MEM,
+> -	},
+> -};
+> -
+> -#define TCO_RESOURCE_ACPI_IO		0
+> -#define TCO_RESOURCE_SMI_EN_IO		1
+> -#define TCO_RESOURCE_GCR_MEM		2
+> -static struct resource tco_res[] = {
+> -	/* ACPI - TCO */
+> -	{
+> -		.flags = IORESOURCE_IO,
+> -	},
+> -	/* ACPI - SMI */
+> -	{
+> -		.flags = IORESOURCE_IO,
+> -	},
+> -};
+> -
+>  static struct itco_wdt_platform_data tco_info = {
+>  	.name = "Apollo Lake SoC",
+>  	.version = 5,
+> @@ -638,234 +584,177 @@ static struct itco_wdt_platform_data tco_info = {
+>  	.update_no_reboot_bit = update_no_reboot_bit,
+>  };
+>  
+> -#define TELEMETRY_RESOURCE_PUNIT_SSRAM	0
+> -#define TELEMETRY_RESOURCE_PMC_SSRAM	1
+> -static struct resource telemetry_res[] = {
+> -	/*Telemetry*/
+> -	{
+> -		.flags = IORESOURCE_MEM,
+> -	},
+> -	{
+> -		.flags = IORESOURCE_MEM,
+> -	},
+> -};
+> -
+> -static int ipc_create_punit_device(void)
+> +static int ipc_create_punit_device(struct platform_device *pdev)
+>  {
+> -	struct platform_device *pdev;
+> -	const struct platform_device_info pdevinfo = {
+> -		.parent = ipcdev.dev,
+> -		.name = PUNIT_DEVICE_NAME,
+> -		.id = -1,
+> -		.res = punit_res_array,
+> -		.num_res = ARRAY_SIZE(punit_res_array),
+> +	struct resource punit_res[PLAT_RESOURCE_MEM_MAX_INDEX];
+> +	struct mfd_cell punit_cell;
+> +	struct resource *res;
+
+That's where you have the bug I reported earlier. You would need to
+introduce those structures as static struct..
+
+But instead of fixing those, drop them and introduce the resources and
+the cells out side of these functions:
+
+static struct resource punit_resources[PLAT_RESOURCE_MEM_MAX_INDEX];
+static struct resource telemetry_resources[2];
+static struct resource wdt_resources[2];
+
+static struct mfd_cell pmc_cell[] = {
+        {
+                .name = "intel_punit_ipc",
+                .resources = punit_resources,
+                .num_resources = PLAT_RESOURCE_MEM_MAX_INDEX,
+                .ignore_resource_conflicts = true,
+        },
+        {
+                .name = "intel_telemetry",
+                .resources = telemetry_resources,
+                .num_resources = 2,
+                .ignore_resource_conflicts = true,
+        },
+        {
+                .name = "iTCO_wdt",
+                .resources = wdt_resources,
+                .num_resources = 2,
+                .ignore_resource_conflicts = true,
+                .platform_data = &tco_info,
+                .pdata_size = sizeof(tco_info),
+        },
+};
+
+Note that I'm not using the definitions for the name strings on
+purpose. Please get rid of those definitions while at it.
+
+Use these functions - ipc_create_punit/wdt/telemetry_device() - to just
+collect the resources. Then you call devm_mfd_add_devices() only ones
+in ipc_create_pmc_devices(). That should make this driver a bit more
+easier to read and understand.
+
+> +	int mindex, pindex = 0;
+> +
+> +	for (mindex = 0; mindex <= PLAT_RESOURCE_MEM_MAX_INDEX; mindex++) {
+> +
+> +		res = platform_get_resource(pdev, IORESOURCE_MEM, mindex);
+> +
+> +		switch (mindex) {
+> +		/* Get PUNIT resources */
+> +		case PLAT_RESOURCE_BIOS_DATA_INDEX:
+> +		case PLAT_RESOURCE_BIOS_IFACE_INDEX:
+> +			/* BIOS resources are required, so return error if not
+> +			 * available
+> +			 */
+> +			if (!res) {
+> +				dev_err(&pdev->dev,
+> +					"Failed to get PUNIT MEM resource %d\n",
+> +					pindex);
+> +				return -ENXIO;
+> +			}
+> +		case PLAT_RESOURCE_ISP_DATA_INDEX:
+> +		case PLAT_RESOURCE_ISP_IFACE_INDEX:
+> +		case PLAT_RESOURCE_GTD_DATA_INDEX:
+> +		case PLAT_RESOURCE_GTD_IFACE_INDEX:
+> +			/* if valid resource found, copy the resource to PUNIT
+> +			 * resource
+> +			 */
+> +			if (res)
+> +				memcpy(&punit_res[pindex], res, sizeof(*res));
+> +			punit_res[pindex].flags = IORESOURCE_MEM;
+> +			dev_dbg(&pdev->dev, "PUNIT memory res: %pR\n",
+> +				&punit_res[pindex]);
+
+I don't see how is that useful information?
+
+> +			pindex++;
+> +			break;
+>  		};
+> +	}
+>  
+> -	pdev = platform_device_register_full(&pdevinfo);
+> -	if (IS_ERR(pdev))
+> -		return PTR_ERR(pdev);
+> -
+> -	ipcdev.punit_dev = pdev;
+> +	/* Create PUNIT IPC MFD cell */
+> +	punit_cell.name = PUNIT_DEVICE_NAME;
+> +	punit_cell.num_resources = ARRAY_SIZE(punit_res);
+> +	punit_cell.resources = punit_res;
+> +	punit_cell.ignore_resource_conflicts = 1;
+>  
+> -	return 0;
+> +	return devm_mfd_add_devices(&pdev->dev, PLATFORM_DEVID_NONE,
+> +				    &punit_cell, 1, NULL, 0, NULL);
+>  }
+>  
+> -static int ipc_create_tco_device(void)
+> +static int ipc_create_wdt_device(struct platform_device *pdev)
+>  {
+> -	struct platform_device *pdev;
+> +	static struct resource wdt_ipc_res[2];
+>  	struct resource *res;
+> -	const struct platform_device_info pdevinfo = {
+> -		.parent = ipcdev.dev,
+> -		.name = TCO_DEVICE_NAME,
+> -		.id = -1,
+> -		.res = tco_res,
+> -		.num_res = ARRAY_SIZE(tco_res),
+> -		.data = &tco_info,
+> -		.size_data = sizeof(tco_info),
+> -		};
+> +	static struct mfd_cell wdt_cell;
+>  
+> -	res = tco_res + TCO_RESOURCE_ACPI_IO;
+> -	res->start = ipcdev.acpi_io_base + TCO_BASE_OFFSET;
+> -	res->end = res->start + TCO_REGS_SIZE - 1;
+> +	/* If we have ACPI based watchdog use that instead, othewise create
+> +	 * a MFD cell for iTCO watchdog
+> +	 */
+> +	if (acpi_has_watchdog())
+> +		return 0;
+>  
+> -	res = tco_res + TCO_RESOURCE_SMI_EN_IO;
+> -	res->start = ipcdev.acpi_io_base + SMI_EN_OFFSET;
+> -	res->end = res->start + SMI_EN_SIZE - 1;
+> +	/* Get iTCO watchdog resources */
+> +	res = platform_get_resource(pdev, IORESOURCE_IO,
+> +				    PLAT_RESOURCE_ACPI_IO_INDEX);
+> +	if (!res) {
+> +		dev_err(&pdev->dev, "Failed to get WDT resource\n");
+> +		return -ENXIO;
+> +	}
+>  
+> -	pdev = platform_device_register_full(&pdevinfo);
+> -	if (IS_ERR(pdev))
+> -		return PTR_ERR(pdev);
+> +	wdt_ipc_res[0].start = res->start + TCO_BASE_OFFSET;
+> +	wdt_ipc_res[0].end = res->start +
+> +		TCO_BASE_OFFSET + TCO_REGS_SIZE - 1;
+> +	wdt_ipc_res[0].flags = IORESOURCE_IO;
+> +	wdt_ipc_res[1].start = res->start + SMI_EN_OFFSET;
+> +	wdt_ipc_res[1].end = res->start +
+> +		SMI_EN_OFFSET + SMI_EN_SIZE - 1;
+> +	wdt_ipc_res[1].flags = IORESOURCE_IO;
+>  
+> -	ipcdev.tco_dev = pdev;
+> +	dev_dbg(&pdev->dev, "watchdog res 0: %pR\n", &wdt_ipc_res[0]);
+> +	dev_dbg(&pdev->dev, "watchdog res 1: %pR\n", &wdt_ipc_res[1]);
+
+That definitely is not useful information. Please drop all dev_dbg
+calls from these patches.
+
+> -	return 0;
+> +	wdt_cell.name = TCO_DEVICE_NAME;
+> +	wdt_cell.platform_data = &tco_info;
+> +	wdt_cell.pdata_size = sizeof(tco_info);
+> +	wdt_cell.num_resources = ARRAY_SIZE(wdt_ipc_res);
+> +	wdt_cell.resources = wdt_ipc_res;
+> +	wdt_cell.ignore_resource_conflicts = 1;
+> +
+> +	return devm_mfd_add_devices(&pdev->dev, PLATFORM_DEVID_NONE,
+> +				    &wdt_cell, 1, NULL, 0, NULL);
+>  }
+>  
+> -static int ipc_create_telemetry_device(void)
+> +static int ipc_create_telemetry_device(struct platform_device *pdev)
+>  {
+> -	struct platform_device *pdev;
+> +	struct resource telemetry_ipc_res[2];
+> +	struct mfd_cell telemetry_cell;
+
+This is also broken. I'm attaching a diff with the changes to this
+patch I used when I tested this on my Broxton board.
+
+
+Thanks,
+
+-- 
+heikki
+
+--ew6BAiZeqk4r7MaW
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="intel_pmc_ipc.diff"
+
+diff --git a/drivers/platform/x86/intel_pmc_ipc.c b/drivers/platform/x86/intel_pmc_ipc.c
+index e36144c337cd..a51684f4bf0b 100644
+--- a/drivers/platform/x86/intel_pmc_ipc.c
++++ b/drivers/platform/x86/intel_pmc_ipc.c
+@@ -584,10 +584,35 @@ static struct itco_wdt_platform_data tco_info = {
+ 	.update_no_reboot_bit = update_no_reboot_bit,
+ };
+ 
+-static int ipc_create_punit_device(struct platform_device *pdev)
++static struct resource punit_resources[PLAT_RESOURCE_MEM_MAX_INDEX];
++static struct resource telemetry_resources[2];
++static struct resource wdt_resources[2];
++
++static struct mfd_cell pmc_cell[] = {
++	{
++		.name = "intel_punit_ipc",
++		.resources = punit_resources,
++		.num_resources = PLAT_RESOURCE_MEM_MAX_INDEX,
++		.ignore_resource_conflicts = true,
++	},
++	{
++		.name = "intel_telemetry",
++		.resources = telemetry_resources,
++		.num_resources = 2,
++		.ignore_resource_conflicts = true,
++	},
++	{
++		.name = "iTCO_wdt",
++		.resources = wdt_resources,
++		.num_resources = 2,
++		.ignore_resource_conflicts = true,
++		.platform_data = &tco_info,
++		.pdata_size = sizeof(tco_info),
++	},
++};
++
++static int ipc_get_punit_resources(struct platform_device *pdev)
+ {
+-	struct resource punit_res[PLAT_RESOURCE_MEM_MAX_INDEX];
+-	struct mfd_cell punit_cell;
+ 	struct resource *res;
+ 	int mindex, pindex = 0;
+ 
+@@ -616,30 +641,20 @@ static int ipc_create_punit_device(struct platform_device *pdev)
+ 			 * resource
+ 			 */
+ 			if (res)
+-				memcpy(&punit_res[pindex], res, sizeof(*res));
+-			punit_res[pindex].flags = IORESOURCE_MEM;
+-			dev_dbg(&pdev->dev, "PUNIT memory res: %pR\n",
+-				&punit_res[pindex]);
++				memcpy(&punit_resources[pindex], res,
++				       sizeof(*res));
++			punit_resources[pindex].flags = IORESOURCE_MEM;
+ 			pindex++;
+ 			break;
+ 		};
+ 	}
+ 
+-	/* Create PUNIT IPC MFD cell */
+-	punit_cell.name = PUNIT_DEVICE_NAME;
+-	punit_cell.num_resources = ARRAY_SIZE(punit_res);
+-	punit_cell.resources = punit_res;
+-	punit_cell.ignore_resource_conflicts = 1;
+-
+-	return devm_mfd_add_devices(&pdev->dev, PLATFORM_DEVID_NONE,
+-				    &punit_cell, 1, NULL, 0, NULL);
++	return 0;
+ }
+ 
+-static int ipc_create_wdt_device(struct platform_device *pdev)
++static int ipc_get_wdt_resources(struct platform_device *pdev)
+ {
+-	static struct resource wdt_ipc_res[2];
+ 	struct resource *res;
+-	static struct mfd_cell wdt_cell;
+ 
+ 	/* If we have ACPI based watchdog use that instead, othewise create
+ 	 * a MFD cell for iTCO watchdog
+@@ -655,33 +670,18 @@ static int ipc_create_wdt_device(struct platform_device *pdev)
+ 		return -ENXIO;
+ 	}
+ 
+-	wdt_ipc_res[0].start = res->start + TCO_BASE_OFFSET;
+-	wdt_ipc_res[0].end = res->start +
+-		TCO_BASE_OFFSET + TCO_REGS_SIZE - 1;
+-	wdt_ipc_res[0].flags = IORESOURCE_IO;
+-	wdt_ipc_res[1].start = res->start + SMI_EN_OFFSET;
+-	wdt_ipc_res[1].end = res->start +
+-		SMI_EN_OFFSET + SMI_EN_SIZE - 1;
+-	wdt_ipc_res[1].flags = IORESOURCE_IO;
+-
+-	dev_dbg(&pdev->dev, "watchdog res 0: %pR\n", &wdt_ipc_res[0]);
+-	dev_dbg(&pdev->dev, "watchdog res 1: %pR\n", &wdt_ipc_res[1]);
+-
+-	wdt_cell.name = TCO_DEVICE_NAME;
+-	wdt_cell.platform_data = &tco_info;
+-	wdt_cell.pdata_size = sizeof(tco_info);
+-	wdt_cell.num_resources = ARRAY_SIZE(wdt_ipc_res);
+-	wdt_cell.resources = wdt_ipc_res;
+-	wdt_cell.ignore_resource_conflicts = 1;
+-
+-	return devm_mfd_add_devices(&pdev->dev, PLATFORM_DEVID_NONE,
+-				    &wdt_cell, 1, NULL, 0, NULL);
++	wdt_resources[0].start = res->start + TCO_BASE_OFFSET;
++	wdt_resources[0].end = res->start + TCO_BASE_OFFSET + TCO_REGS_SIZE - 1;
++	wdt_resources[0].flags = IORESOURCE_IO;
++	wdt_resources[1].start = res->start + SMI_EN_OFFSET;
++	wdt_resources[1].end = res->start + SMI_EN_OFFSET + SMI_EN_SIZE - 1;
++	wdt_resources[1].flags = IORESOURCE_IO;
++
++	return 0;
+ }
+ 
+-static int ipc_create_telemetry_device(struct platform_device *pdev)
++static int ipc_get_telemetry_resources(struct platform_device *pdev)
+ {
+-	struct resource telemetry_ipc_res[2];
+-	struct mfd_cell telemetry_cell;
+ 	struct resource *res;
+ 
+ 	/* Get telemetry resources */
+@@ -692,44 +692,36 @@ static int ipc_create_telemetry_device(struct platform_device *pdev)
+ 		return -ENXIO;
+ 	}
+ 
+-	telemetry_ipc_res[0].start = res->start + TELEM_PUNIT_SSRAM_OFFSET;
+-	telemetry_ipc_res[0].end = res->start +
+-		TELEM_PUNIT_SSRAM_OFFSET + TELEM_SSRAM_SIZE - 1;
+-	telemetry_ipc_res[0].flags = IORESOURCE_MEM;
+-	telemetry_ipc_res[1].start = res->start + TELEM_PMC_SSRAM_OFFSET;
+-	telemetry_ipc_res[1].end = res->start +
+-		TELEM_PMC_SSRAM_OFFSET + TELEM_SSRAM_SIZE - 1;
+-	telemetry_ipc_res[1].flags = IORESOURCE_MEM;
+-
+-	dev_dbg(&pdev->dev, "Telemetry res 0: %pR\n", &telemetry_ipc_res[0]);
+-	dev_dbg(&pdev->dev, "Telemetry res 1: %pR\n", &telemetry_ipc_res[1]);
+-
+-	telemetry_cell.name = TELEMETRY_DEVICE_NAME;
+-	telemetry_cell.num_resources = ARRAY_SIZE(telemetry_ipc_res);
+-	telemetry_cell.resources = telemetry_ipc_res;
+-	telemetry_cell.ignore_resource_conflicts = 1;
+-
+-	return devm_mfd_add_devices(&pdev->dev, PLATFORM_DEVID_NONE,
+-				    &telemetry_cell, 1, NULL, 0, NULL);
++	telemetry_resources[0].start = res->start + TELEM_PUNIT_SSRAM_OFFSET;
++	telemetry_resources[0].end = res->start + TELEM_PUNIT_SSRAM_OFFSET +
++					TELEM_SSRAM_SIZE - 1;
++	telemetry_resources[0].flags = IORESOURCE_MEM;
++	telemetry_resources[1].start = res->start + TELEM_PMC_SSRAM_OFFSET;
++	telemetry_resources[1].end = res->start + TELEM_PMC_SSRAM_OFFSET +
++					TELEM_SSRAM_SIZE - 1;
++	telemetry_resources[1].flags = IORESOURCE_MEM;
++
++	return 0;
+ }
+ 
+ static int ipc_create_pmc_devices(struct platform_device *pdev)
+ {
+ 	int ret;
+ 
+-	ret = ipc_create_punit_device(pdev);
++	ret = ipc_get_wdt_resources(pdev);
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	ret = ipc_create_wdt_device(pdev);
++	ret = ipc_get_punit_resources(pdev);
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	ret = ipc_create_telemetry_device(pdev);
++	ret = ipc_get_telemetry_resources(pdev);
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	return 0;
++	return devm_mfd_add_devices(&pdev->dev, PLATFORM_DEVID_NONE, pmc_cell,
++				    ARRAY_SIZE(pmc_cell), NULL, 0, NULL);
+ }
+ 
+ static int ipc_plat_get_res(struct platform_device *pdev)
+
+--ew6BAiZeqk4r7MaW--
