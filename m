@@ -1,41 +1,105 @@
-Return-Path: <nsekhar@ti.com>
-Return-path: <nsekhar@ti.com>
-Subject: Re: [PATCH 0/2] ARM: davinici: move watchdog restart from mach to
- drivers
-To: David Lechner <david@lechnology.com>, Wim Van Sebroeck <wim@iguana.be>
-CC: <linux-arm-kernel@lists.infradead.org>, <linux-watchdog@vger.kernel.org>,
-        Kevin Hilman <khilman@kernel.org>, Guenter Roeck <linux@roeck-us.net>,
-        <linux-kernel@vger.kernel.org>
-References: <1513012869-7647-1-git-send-email-david@lechnology.com>
-From: Sekhar Nori <nsekhar@ti.com>
-Message-ID: <64409d2d-dae3-53ef-67a9-fc4e59d6c9be@ti.com>
-Date: Tue, 19 Dec 2017 16:14:44 +0530
-MIME-Version: 1.0
-In-Reply-To: <1513012869-7647-1-git-send-email-david@lechnology.com>
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-pg0-f65.google.com ([74.125.83.65]:38698 "EHLO
+        mail-pg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754155AbdLDQL6 (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 4 Dec 2017 11:11:58 -0500
+From: Andrey Smirnov <andrew.smirnov@gmail.com>
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Andrey Smirnov <andrew.smirnov@gmail.com>,
+        linux-kernel@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-watchdog@vger.kernel.org, cphealy@gmail.com,
+        Lucas Stach <l.stach@pengutronix.de>,
+        Nikita Yushchenko <nikita.yoush@cogentembedded.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Pavel Machek <pavel@ucw.cz>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Rob Herring <robh@kernel.org>, Johan Hovold <johan@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.co.uk>
+Subject: [PATCH v13 5/5] dt-bindings: watchdog: Add bindings for RAVE SP watchdog driver
+Date: Mon,  4 Dec 2017 08:11:18 -0800
+Message-Id: <20171204161118.19558-6-andrew.smirnov@gmail.com>
+In-Reply-To: <20171204161118.19558-1-andrew.smirnov@gmail.com>
+References: <20171204161118.19558-1-andrew.smirnov@gmail.com>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-Hi David,
+Add Device Tree bindings for RAVE SP watchdog drvier - an MFD cell of
+parent RAVE SP driver (documented in
+Documentation/devicetree/bindings/mfd/zii,rave-sp.txt).
 
-On Monday 11 December 2017 10:51 PM, David Lechner wrote:
-> This series moves the watchdog restart code from arch/arm/mach-davinci
-> to drivers/watchdog.
-> 
-> Tested working on LEGO MINDSTORMS EV3 (TI AM1808 processor).
+Cc: linux-kernel@vger.kernel.org
+Cc: devicetree@vger.kernel.org
+Cc: linux-watchdog@vger.kernel.org
+Cc: cphealy@gmail.com
+Cc: Lucas Stach <l.stach@pengutronix.de>
+Cc: Nikita Yushchenko <nikita.yoush@cogentembedded.com>
+Cc: Lee Jones <lee.jones@linaro.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Pavel Machek <pavel@ucw.cz>
+Cc: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Cc: Rob Herring <robh@kernel.org>
+Cc: Johan Hovold <johan@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
+Acked-by: Rob Herring <robh@kernel.org>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Nikita Yushchenko <nikita.yoush@cogentembedded.com>
+Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
+---
+ .../bindings/watchdog/zii,rave-sp-wdt.txt          | 39 ++++++++++++++++++++++
+ 1 file changed, 39 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/zii,rave-sp-wdt.txt
 
-The patches look good to me. I also tested them on keystone-k2hk-evm and
-da850-lcdk board. Thanks for the much needed clean-up!
+diff --git a/Documentation/devicetree/bindings/watchdog/zii,rave-sp-wdt.txt b/Documentation/devicetree/bindings/watchdog/zii,rave-sp-wdt.txt
+new file mode 100644
+index 000000000000..ab16659e781d
+--- /dev/null
++++ b/Documentation/devicetree/bindings/watchdog/zii,rave-sp-wdt.txt
+@@ -0,0 +1,39 @@
++Zodiac Inflight Innovations RAVE Supervisory Processor Watchdog Bindings
++
++RAVE SP watchdog device is a "MFD cell" device corresponding to
++watchdog functionality of RAVE Supervisory Processor. It is expected
++that its Device Tree node is specified as a child of the node
++corresponding to the parent RAVE SP device (as documented in
++Documentation/devicetree/bindings/mfd/zii,rave-sp.txt)
++
++Required properties:
++- compatible:	Should be "zii,rave-sp-watchdog"
++
++Optional properties:
++
++- wdt-timeout:	Two byte nvmem cell specified as per
++		Documentation/devicetree/bindings/nvmem/nvmem.txt
++
++Example:
++
++	rave-sp {
++		compatible = "zii,rave-sp-rdu1";
++		current-speed = <38400>;
++
++		eeprom {
++			compatible = "zii,pic-main-eeprom";
++			#address-cells = <1>;
++			#size-cells = <1>;
++
++			wdt_timeout: wdt-timeout@8E {
++				reg = <0x8E 2>;
++			};
++		};
++
++		watchdog {
++			compatible = "zii,rave-sp-watchdog";
++			nvmem-cells = <&wdt_timeout>;
++			nvmem-cell-names = "wdt-timeout";
++		};
++	}
++
+-- 
+2.14.3
 
-Hi Wim,
-
-How do you want to handle this series? Patch 2/2 definitely needs to go
-through my tree as it will clash with other code I am queuing.
-
-I can either take 1/2 also through ARM-SoC with your ack (preferred) or
-if you give me an immutable commit/tag over v4.15-rc1, I can merge that
-to preserve bisect-ability.
-
-Thanks,
-Sekhar
