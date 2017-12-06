@@ -1,102 +1,52 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Andrey Smirnov <andrew.smirnov@gmail.com>
-To: Lee Jones <lee.jones@linaro.org>
-Cc: Andrey Smirnov <andrew.smirnov@gmail.com>,
-        linux-kernel@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-watchdog@vger.kernel.org, cphealy@gmail.com,
-        Lucas Stach <l.stach@pengutronix.de>,
-        Nikita Yushchenko <nikita.yoush@cogentembedded.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Pavel Machek <pavel@ucw.cz>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Guenter Roeck <linux@roeck-us.net>, Rob Herring <robh@kernel.org>,
-        Johan Hovold <johan@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.co.uk>,
-        Philippe Ombredanne <pombredanne@nexb.com>
-Subject: [PATCH v16 5/5] dt-bindings: watchdog: Add bindings for RAVE SP watchdog driver
-Date: Wed, 20 Dec 2017 12:45:17 -0800
-Message-Id: <20171220204517.28313-6-andrew.smirnov@gmail.com>
-In-Reply-To: <20171220204517.28313-1-andrew.smirnov@gmail.com>
-References: <20171220204517.28313-1-andrew.smirnov@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mout.kundenserver.de ([212.227.126.133]:63234 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751748AbdLFVDk (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Wed, 6 Dec 2017 16:03:40 -0500
+From: Arnd Bergmann <arnd@arndb.de>
+To: Jimmy Vance <jimmy.vance@hpe.com>, Wim Van Sebroeck <wim@iguana.be>
+Cc: Arnd Bergmann <arnd@arndb.de>, Guenter Roeck <linux@roeck-us.net>,
+        Jerry Hoemann <jerry.hoemann@hpe.com>,
+        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] watchdog: hpwdt: fix unused variable warning
+Date: Wed,  6 Dec 2017 22:02:37 +0100
+Message-Id: <20171206210250.1222757-1-arnd@arndb.de>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-Add Device Tree bindings for RAVE SP watchdog drvier - an MFD cell of
-parent RAVE SP driver (documented in
-Documentation/devicetree/bindings/mfd/zii,rave-sp.txt).
+The new hpwdt_my_nmi() function is used conditionally, which produces
+a harmless warning in some configurations:
 
-Cc: linux-kernel@vger.kernel.org
-Cc: devicetree@vger.kernel.org
-Cc: linux-watchdog@vger.kernel.org
-Cc: cphealy@gmail.com
-Cc: Lucas Stach <l.stach@pengutronix.de>
-Cc: Nikita Yushchenko <nikita.yoush@cogentembedded.com>
-Cc: Lee Jones <lee.jones@linaro.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Pavel Machek <pavel@ucw.cz>
-Cc: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Guenter Roeck <linux@roeck-us.net>
-Cc: Rob Herring <robh@kernel.org>
-Cc: Johan Hovold <johan@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
-Cc: Philippe Ombredanne <pombredanne@nexb.com>
-Acked-by: Pavel Machek <pavel@ucw.cz>
-Acked-by: Rob Herring <robh@kernel.org>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Nikita Yushchenko <nikita.yoush@cogentembedded.com>
-Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
+drivers/watchdog/hpwdt.c:478:12: error: 'hpwdt_my_nmi' defined but not used [-Werror=unused-function]
+
+This moves it inside of the #ifdef that protects its caller, to silence
+the warning.
+
+Fixes: 621174a92851 ("watchdog: hpwdt: Check source of NMI")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- .../bindings/watchdog/zii,rave-sp-wdt.txt          | 39 ++++++++++++++++++++++
- 1 file changed, 39 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/watchdog/zii,rave-sp-wdt.txt
+ drivers/watchdog/hpwdt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/watchdog/zii,rave-sp-wdt.txt b/Documentation/devicetree/bindings/watchdog/zii,rave-sp-wdt.txt
-new file mode 100644
-index 000000000000..3de96186e92e
---- /dev/null
-+++ b/Documentation/devicetree/bindings/watchdog/zii,rave-sp-wdt.txt
-@@ -0,0 +1,39 @@
-+Zodiac Inflight Innovations RAVE Supervisory Processor Watchdog Bindings
-+
-+RAVE SP watchdog device is a "MFD cell" device corresponding to
-+watchdog functionality of RAVE Supervisory Processor. It is expected
-+that its Device Tree node is specified as a child of the node
-+corresponding to the parent RAVE SP device (as documented in
-+Documentation/devicetree/bindings/mfd/zii,rave-sp.txt)
-+
-+Required properties:
-+
-+- compatible: Depending on wire protocol implemented by RAVE SP
-+  firmware, should be one of:
-+	- "zii,rave-sp-watchdog"
-+	- "zii,rave-sp-watchdog-legacy"
-+
-+Optional properties:
-+
-+- wdt-timeout:	Two byte nvmem cell specified as per
-+		Documentation/devicetree/bindings/nvmem/nvmem.txt
-+
-+Example:
-+
-+	rave-sp {
-+		compatible = "zii,rave-sp-rdu1";
-+		current-speed = <38400>;
-+
-+		eeprom {
-+			wdt_timeout: wdt-timeout@8E {
-+				reg = <0x8E 2>;
-+			};
-+		};
-+
-+		watchdog {
-+			compatible = "zii,rave-sp-watchdog";
-+			nvmem-cells = <&wdt_timeout>;
-+			nvmem-cell-names = "wdt-timeout";
-+		};
-+	}
-+
+diff --git a/drivers/watchdog/hpwdt.c b/drivers/watchdog/hpwdt.c
+index e61658310381..f1f00dfc0e68 100644
+--- a/drivers/watchdog/hpwdt.c
++++ b/drivers/watchdog/hpwdt.c
+@@ -475,12 +475,12 @@ static int hpwdt_time_left(void)
+ 	return TICKS_TO_SECS(ioread16(hpwdt_timer_reg));
+ }
+ 
++#ifdef CONFIG_HPWDT_NMI_DECODING
+ static int hpwdt_my_nmi(void)
+ {
+ 	return ioread8(hpwdt_nmistat) & 0x6;
+ }
+ 
+-#ifdef CONFIG_HPWDT_NMI_DECODING
+ /*
+  *	NMI Handler
+  */
 -- 
-2.14.3
+2.9.0
+
