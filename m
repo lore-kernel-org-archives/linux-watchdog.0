@@ -1,29 +1,26 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pf0-f194.google.com ([209.85.192.194]:39797 "EHLO
-        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754091AbdLDQL4 (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 4 Dec 2017 11:11:56 -0500
+Return-Path: <andrew.smirnov@gmail.com>
+Return-path: <andrew.smirnov@gmail.com>
 From: Andrey Smirnov <andrew.smirnov@gmail.com>
 To: Lee Jones <lee.jones@linaro.org>
 Cc: Andrey Smirnov <andrew.smirnov@gmail.com>,
-        linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        cphealy@gmail.com, Lucas Stach <l.stach@pengutronix.de>,
-        Nikita Yushchenko <nikita.yoush@cogentembedded.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Pavel Machek <pavel@ucw.cz>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Rob Herring <robh@kernel.org>, Johan Hovold <johan@kernel.org>,
-        Sebastian Reichel <sebastian.reichel@collabora.co.uk>
-Subject: [PATCH v13 4/5] watchdog: Add RAVE SP watchdog driver
-Date: Mon,  4 Dec 2017 08:11:17 -0800
-Message-Id: <20171204161118.19558-5-andrew.smirnov@gmail.com>
-In-Reply-To: <20171204161118.19558-1-andrew.smirnov@gmail.com>
-References: <20171204161118.19558-1-andrew.smirnov@gmail.com>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+	linux-kernel@vger.kernel.org,
+	linux-watchdog@vger.kernel.org,
+	cphealy@gmail.com,
+	Lucas Stach <l.stach@pengutronix.de>,
+	Nikita Yushchenko <nikita.yoush@cogentembedded.com>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Pavel Machek <pavel@ucw.cz>,
+	Andy Shevchenko <andy.shevchenko@gmail.com>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Rob Herring <robh@kernel.org>,
+	Johan Hovold <johan@kernel.org>,
+	Sebastian Reichel <sebastian.reichel@collabora.co.uk>
+Subject: [PATCH v14 4/5] watchdog: Add RAVE SP watchdog driver
+Date: Thu,  7 Dec 2017 08:27:34 -0800
+Message-Id: <20171207162735.25873-5-andrew.smirnov@gmail.com>
+In-Reply-To: <20171207162735.25873-1-andrew.smirnov@gmail.com>
+References: <20171207162735.25873-1-andrew.smirnov@gmail.com>
+List-ID: <linux-watchdog@vger.kernel.org>
 
 This driver provides access to RAVE SP watchdog functionality.
 
@@ -442,4 +439,3 @@ index 000000000000..7421a884e371
 +MODULE_ALIAS("platform:rave-sp-watchdog");
 -- 
 2.14.3
-
