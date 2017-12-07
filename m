@@ -1,194 +1,273 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from g9t1613g.houston.hpe.com ([15.241.32.99]:55516 "EHLO
-        g9t1613g.houston.hpe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751496AbdK1XLE (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 28 Nov 2017 18:11:04 -0500
-Received: from g2t2352.austin.hpe.com (g2t2352.austin.hpe.com [15.233.44.25])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by g9t1613g.houston.hpe.com (Postfix) with ESMTPS id 0FDB961EC1
-        for <linux-watchdog@vger.kernel.org>; Tue, 28 Nov 2017 23:11:04 +0000 (UTC)
-Date: Tue, 28 Nov 2017 16:11:02 -0700
-From: Jerry Hoemann <jerry.hoemann@hpe.com>
-To: wim@www.linux-watchdog.org
-Cc: Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Jimmy Vance <jimmy.vance@hpe.com>
-Subject: Re: [GIT PULL REQUEST] watchdog - v4.15-rc1 Merge Window
-Message-ID: <20171128231102.GA1077@anatevka.americas.hpqcorp.net>
-Reply-To: Jerry.Hoemann@hpe.com
-References: <20171123143230.GA30745@www.linux-watchdog.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20171123143230.GA30745@www.linux-watchdog.org>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-Path: <christophe.leroy@c-s.fr>
+Return-path: <christophe.leroy@c-s.fr>
+From: Christophe Leroy <christophe.leroy@c-s.fr>
+Subject: [PATCH] watchdog: core: make sure the watchdog_worker always works
+To: Wim Van Sebroeck <wim@iguana.be>, Guenter Roeck <linux@roeck-us.net>
+Cc: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-watchdog@vger.kernel.org
+Message-Id: <20171207103844.4C4BE6C6C4@po15668-vm-win7.idsi0.si.c-s.fr>
+Date: Thu,  7 Dec 2017 11:38:44 +0100 (CET)
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On Thu, Nov 23, 2017 at 03:32:30PM +0100, wim@www.linux-watchdog.org wrote:
-> The following changes since commit 4dd3c2e5a4225e3df85afc6033e62ce8b09f0ed2:
-> 
->   Merge tag 'nfsd-4.15' of git://linux-nfs.org/~bfields/linux (2017-11-18 11:22:04 -0800)
-> 
-> are available in the git repository at:
-> 
->   git://www.linux-watchdog.org/linux-watchdog.git 
-> 
-> for you to fetch changes up to 14807b07a7d86b7e43eb044f859ae78c57366927:
-> 
->   watchdog: pcwd_usb: remove unneeded DRIVER_LICENSE #define (2017-11-18 22:33:59 +0100)
-> 
+When running a command like 'chrt -f 99 dd if=/dev/zero of=/dev/null',
+the watchdog_worker fails to service the HW watchdog and the
+HW watchdog fires long before the watchdog soft timeout.
 
-Wim,
+At the moment, the watchdog_worker is invoked as a delayed work.
+Delayed works are handled by non realtime kernel threads. The
+WQ_HIGHPRI flag only increases the niceness of that threads.
 
-I don't see a patch to the MAINTAINERS file to reflect the
-change of maintainers for hpwdt from Jimmy Vance to myself.
-Please see email thread:
+This patchs replaces the delayed work logic by hrtimer, in order to
+ensure that the watchdog_worker will already have priority.
 
-	https://lkml.org/lkml/2017/10/9/930
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+---
+ drivers/watchdog/watchdog_dev.c | 87 +++++++++++++++++++----------------------
+ 1 file changed, 41 insertions(+), 46 deletions(-)
 
-
-Thanks
-
-Jerry Hoemann
-
-
-
-> ----------------------------------------------------------------
-> Andreas Färber (2):
->       dt-bindings: watchdog: Add Realtek RTD1295
->       watchdog: Add Realtek RTD1295
-> 
-> Andrew Jeffery (4):
->       watchdog: aspeed: Retain watchdog enabled state
->       watchdog: aspeed: Fix 'Apseed' typo in Kconfig
->       watchdog: aspeed: Remove specific reference to AST2400 in Kconfig
->       watchdog: aspeed: Move init to arch_initcall
-> 
-> Arnd Bergmann (1):
->       watchdog: xen: use time64_t for timeouts
-> 
-> Chris Packham (1):
->       watchdog: orion: fix typo
-> 
-> Christophe Leroy (1):
->       watchdog: mpc8xxx: use the core worker function
-> 
-> Corentin Labbe (1):
->       watchdog: sunxi_wdt: use of_device_get_match_data
-> 
-> Eric Long (2):
->       dt-bindings: watchdog: Add Spreadtrum watchdog documentation
->       watchdog: Add Spreadtrum watchdog driver
-> 
-> Geert Uytterhoeven (1):
->       dt-bindings: watchdog: renesas-wdt: Add support for the r8a77970 wdt
-> 
-> Greg Kroah-Hartman (1):
->       watchdog: pcwd_usb: remove unneeded DRIVER_LICENSE #define
-> 
-> Guenter Roeck (2):
->       watchdog: Fix potential kref imbalance when opening watchdog
->       watchdog: Fix kref imbalance seen if handle_boot_enabled=0
-> 
-> Gustavo A. R. Silva (7):
->       watchdog: advantechwdt: mark expected switch fall-through
->       watchdog: alim1535_wdt: mark expected switch fall-through
->       watchdog: f71808e_wdt: mark expected switch fall-throughs
->       watchdog: pcwd_usb: mark expected switch fall-through
->       watchdog: pcwd_pci: mark expected switch fall-through
->       watchdog: watchdog_dev: mark expected switch fall-through
->       watchdog: wdt_pci: mark expected switch fall-through
-> 
-> Jerry Hoemann (2):
->       watchdog: hpwdt: SMBIOS check
->       watchdog: hpwdt: Check source of NMI
-> 
-> Linus Walleij (5):
->       watchdog: gpio: Add some local helper variables
->       watchdog: gpio: Convert to use GPIO descriptors
->       watchdog: gemini/ftwdt010: rename DT bindings
->       watchdog: gemini/ftwdt010: rename driver and symbols
->       watchdog: ftwdt010: Make interrupt optional
-> 
-> Mathieu Malaterre (2):
->       watchdog: jz4740: Add support for the watchdog in jz4780 SoC
->       dt: watchdog: Document compatibility with JZ4780
-> 
-> Matt Redfearn (1):
->       watchdog: indydog: Add dependency on SGI_HAS_INDYDOG
-> 
-> Michael Grzeschik (3):
->       watchdog: da9062: Add restart handler support
->       watchdog: da9062: Disable and wait before changing timeout
->       watchdog: da9062: use protection delay mechanism from core
-> 
-> Oleksij Rempel (1):
->       watchdog: dw_wdt: add stop watchdog operation
-> 
-> Radu Rendec (6):
->       watchdog: i6300esb: use the watchdog subsystem
->       watchdog: i6300esb: support multiple devices
->       watchdog: i6300esb: do not hardcode heartbeat limits
->       watchdog: i6300esb: remove info message and version number
->       watchdog: xen_wdt: use the watchdog subsystem
->       watchdog: xen_wdt: remove info message and version number
-> 
-> Rasmus Villemoes (1):
->       watchdog: gpio_wdt: set WDOG_HW_RUNNING in gpio_wdt_stop
-> 
-> Tomas Winkler (1):
->       watchdog: mei_wdt: don't use of variable length array
-> 
->  .../bindings/watchdog/cortina,gemini-watchdog.txt  |  17 -
->  ...ina,gemin-watchdog.txt => faraday,ftwdt010.txt} |  11 +-
->  .../bindings/watchdog/ingenic,jz4740-wdt.txt       |   4 +-
->  .../bindings/watchdog/realtek,rtd119x.txt          |  17 +
->  .../devicetree/bindings/watchdog/renesas-wdt.txt   |   3 +-
->  .../devicetree/bindings/watchdog/sprd-wdt.txt      |  19 +
->  drivers/watchdog/Kconfig                           |  38 +-
->  drivers/watchdog/Makefile                          |   4 +-
->  drivers/watchdog/advantechwdt.c                    |   2 +-
->  drivers/watchdog/alim1535_wdt.c                    |   2 +-
->  drivers/watchdog/aspeed_wdt.c                      |  21 +-
->  drivers/watchdog/da9062_wdt.c                      |  48 ++-
->  drivers/watchdog/dw_wdt.c                          |  18 +-
->  drivers/watchdog/f71808e_wdt.c                     |   4 +-
->  drivers/watchdog/ftwdt010_wdt.c                    | 236 ++++++++++++
->  drivers/watchdog/gemini_wdt.c                      | 229 ------------
->  drivers/watchdog/gpio_wdt.c                        |  58 ++-
->  drivers/watchdog/hpwdt.c                           |  12 +-
->  drivers/watchdog/i6300esb.c                        | 377 +++++++------------
->  drivers/watchdog/jz4740_wdt.c                      |   1 +
->  drivers/watchdog/mei_wdt.c                         |   7 +-
->  drivers/watchdog/mpc8xxx_wdt.c                     |  84 ++---
->  drivers/watchdog/orion_wdt.c                       |   2 +-
->  drivers/watchdog/pcwd_pci.c                        |   2 +-
->  drivers/watchdog/pcwd_usb.c                        |   5 +-
->  drivers/watchdog/rtd119x_wdt.c                     | 168 +++++++++
->  drivers/watchdog/sprd_wdt.c                        | 399 +++++++++++++++++++++
->  drivers/watchdog/sunxi_wdt.c                       |   7 +-
->  drivers/watchdog/watchdog_dev.c                    |  19 +-
->  drivers/watchdog/wdt_pci.c                         |   2 +-
->  drivers/watchdog/xen_wdt.c                         | 255 +++----------
->  31 files changed, 1223 insertions(+), 848 deletions(-)
->  delete mode 100644 Documentation/devicetree/bindings/watchdog/cortina,gemini-watchdog.txt
->  rename Documentation/devicetree/bindings/watchdog/{cortina,gemin-watchdog.txt => faraday,ftwdt010.txt} (55%)
->  create mode 100644 Documentation/devicetree/bindings/watchdog/realtek,rtd119x.txt
->  create mode 100644 Documentation/devicetree/bindings/watchdog/sprd-wdt.txt
->  create mode 100644 drivers/watchdog/ftwdt010_wdt.c
->  delete mode 100644 drivers/watchdog/gemini_wdt.c
->  create mode 100644 drivers/watchdog/rtd119x_wdt.c
->  create mode 100644 drivers/watchdog/sprd_wdt.c
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-
+diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
+index 1e971a50d7fb..e9b234c4ff67 100644
+--- a/drivers/watchdog/watchdog_dev.c
++++ b/drivers/watchdog/watchdog_dev.c
+@@ -36,7 +36,7 @@
+ #include <linux/errno.h>	/* For the -ENODEV/... values */
+ #include <linux/fs.h>		/* For file operations */
+ #include <linux/init.h>		/* For __init/__exit/... */
+-#include <linux/jiffies.h>	/* For timeout functions */
++#include <linux/hrtimer.h>
+ #include <linux/kernel.h>	/* For printk/panic/... */
+ #include <linux/kref.h>		/* For data references */
+ #include <linux/miscdevice.h>	/* For handling misc devices */
+@@ -46,7 +46,6 @@
+ #include <linux/slab.h>		/* For memory functions */
+ #include <linux/types.h>	/* For standard types (like size_t) */
+ #include <linux/watchdog.h>	/* For watchdog specific items */
+-#include <linux/workqueue.h>	/* For workqueue */
+ #include <linux/uaccess.h>	/* For copy_to_user/put_user/... */
+ 
+ #include "watchdog_core.h"
+@@ -65,9 +64,9 @@ struct watchdog_core_data {
+ 	struct cdev cdev;
+ 	struct watchdog_device *wdd;
+ 	struct mutex lock;
+-	unsigned long last_keepalive;
+-	unsigned long last_hw_keepalive;
+-	struct delayed_work work;
++	ktime_t last_keepalive;
++	ktime_t last_hw_keepalive;
++	struct hrtimer timer;
+ 	unsigned long status;		/* Internal status bits */
+ #define _WDOG_DEV_OPEN		0	/* Opened ? */
+ #define _WDOG_ALLOW_RELEASE	1	/* Did we receive the magic char ? */
+@@ -79,8 +78,6 @@ static dev_t watchdog_devt;
+ /* Reference to watchdog device behind /dev/watchdog */
+ static struct watchdog_core_data *old_wd_data;
+ 
+-static struct workqueue_struct *watchdog_wq;
+-
+ static bool handle_boot_enabled =
+ 	IS_ENABLED(CONFIG_WATCHDOG_HANDLE_BOOT_ENABLED);
+ 
+@@ -107,18 +104,19 @@ static inline bool watchdog_need_worker(struct watchdog_device *wdd)
+ 		(t && !watchdog_active(wdd) && watchdog_hw_running(wdd));
+ }
+ 
+-static long watchdog_next_keepalive(struct watchdog_device *wdd)
++static ktime_t watchdog_next_keepalive(struct watchdog_device *wdd)
+ {
+ 	struct watchdog_core_data *wd_data = wdd->wd_data;
+ 	unsigned int timeout_ms = wdd->timeout * 1000;
+-	unsigned long keepalive_interval;
+-	unsigned long last_heartbeat;
+-	unsigned long virt_timeout;
++	ktime_t keepalive_interval;
++	ktime_t last_heartbeat, latest_heartbeat;
++	ktime_t virt_timeout;
+ 	unsigned int hw_heartbeat_ms;
+ 
+-	virt_timeout = wd_data->last_keepalive + msecs_to_jiffies(timeout_ms);
++	virt_timeout = ktime_add(wd_data->last_keepalive,
++				 ms_to_ktime(timeout_ms));
+ 	hw_heartbeat_ms = min_not_zero(timeout_ms, wdd->max_hw_heartbeat_ms);
+-	keepalive_interval = msecs_to_jiffies(hw_heartbeat_ms / 2);
++	keepalive_interval = ms_to_ktime(hw_heartbeat_ms / 2);
+ 
+ 	if (!watchdog_active(wdd))
+ 		return keepalive_interval;
+@@ -128,8 +126,11 @@ static long watchdog_next_keepalive(struct watchdog_device *wdd)
+ 	 * after the most recent ping from userspace, the last
+ 	 * worker ping has to come in hw_heartbeat_ms before this timeout.
+ 	 */
+-	last_heartbeat = virt_timeout - msecs_to_jiffies(hw_heartbeat_ms);
+-	return min_t(long, last_heartbeat - jiffies, keepalive_interval);
++	last_heartbeat = ktime_sub(virt_timeout, ms_to_ktime(hw_heartbeat_ms));
++	latest_heartbeat = ktime_sub(last_heartbeat, ktime_get());
++	if (ktime_before(latest_heartbeat, keepalive_interval))
++		return latest_heartbeat;
++	return keepalive_interval;
+ }
+ 
+ static inline void watchdog_update_worker(struct watchdog_device *wdd)
+@@ -137,29 +138,33 @@ static inline void watchdog_update_worker(struct watchdog_device *wdd)
+ 	struct watchdog_core_data *wd_data = wdd->wd_data;
+ 
+ 	if (watchdog_need_worker(wdd)) {
+-		long t = watchdog_next_keepalive(wdd);
++		ktime_t t = watchdog_next_keepalive(wdd);
+ 
+ 		if (t > 0)
+-			mod_delayed_work(watchdog_wq, &wd_data->work, t);
++			hrtimer_start(&wd_data->timer, t, HRTIMER_MODE_REL);
+ 	} else {
+-		cancel_delayed_work(&wd_data->work);
++		hrtimer_cancel(&wd_data->timer);
+ 	}
+ }
+ 
+ static int __watchdog_ping(struct watchdog_device *wdd)
+ {
+ 	struct watchdog_core_data *wd_data = wdd->wd_data;
+-	unsigned long earliest_keepalive = wd_data->last_hw_keepalive +
+-				msecs_to_jiffies(wdd->min_hw_heartbeat_ms);
++	ktime_t earliest_keepalive, now;
+ 	int err;
+ 
+-	if (time_is_after_jiffies(earliest_keepalive)) {
+-		mod_delayed_work(watchdog_wq, &wd_data->work,
+-				 earliest_keepalive - jiffies);
++	earliest_keepalive = ktime_add(wd_data->last_hw_keepalive,
++				       ms_to_ktime(wdd->min_hw_heartbeat_ms));
++	now = ktime_get();
++
++	if (ktime_after(earliest_keepalive, now)) {
++		hrtimer_start(&wd_data->timer,
++			      ktime_sub(earliest_keepalive, now),
++			      HRTIMER_MODE_REL);
+ 		return 0;
+ 	}
+ 
+-	wd_data->last_hw_keepalive = jiffies;
++	wd_data->last_hw_keepalive = now;
+ 
+ 	if (wdd->ops->ping)
+ 		err = wdd->ops->ping(wdd);  /* ping the watchdog */
+@@ -192,7 +197,7 @@ static int watchdog_ping(struct watchdog_device *wdd)
+ 
+ 	set_bit(_WDOG_KEEPALIVE, &wd_data->status);
+ 
+-	wd_data->last_keepalive = jiffies;
++	wd_data->last_keepalive = ktime_get();
+ 	return __watchdog_ping(wdd);
+ }
+ 
+@@ -203,17 +208,18 @@ static bool watchdog_worker_should_ping(struct watchdog_core_data *wd_data)
+ 	return wdd && (watchdog_active(wdd) || watchdog_hw_running(wdd));
+ }
+ 
+-static void watchdog_ping_work(struct work_struct *work)
++enum hrtimer_restart watchdog_ping_work(struct hrtimer *timer)
+ {
+ 	struct watchdog_core_data *wd_data;
+ 
+-	wd_data = container_of(to_delayed_work(work), struct watchdog_core_data,
+-			       work);
++	wd_data = container_of(timer, struct watchdog_core_data, timer);
+ 
+ 	mutex_lock(&wd_data->lock);
+ 	if (watchdog_worker_should_ping(wd_data))
+ 		__watchdog_ping(wd_data->wdd);
+ 	mutex_unlock(&wd_data->lock);
++
++	return HRTIMER_NORESTART;
+ }
+ 
+ /*
+@@ -230,7 +236,7 @@ static void watchdog_ping_work(struct work_struct *work)
+ static int watchdog_start(struct watchdog_device *wdd)
+ {
+ 	struct watchdog_core_data *wd_data = wdd->wd_data;
+-	unsigned long started_at;
++	ktime_t started_at;
+ 	int err;
+ 
+ 	if (watchdog_active(wdd))
+@@ -238,7 +244,7 @@ static int watchdog_start(struct watchdog_device *wdd)
+ 
+ 	set_bit(_WDOG_KEEPALIVE, &wd_data->status);
+ 
+-	started_at = jiffies;
++	started_at = ktime_get();
+ 	if (watchdog_hw_running(wdd) && wdd->ops->ping)
+ 		err = wdd->ops->ping(wdd);
+ 	else
+@@ -919,10 +925,8 @@ static int watchdog_cdev_register(struct watchdog_device *wdd, dev_t devno)
+ 	wd_data->wdd = wdd;
+ 	wdd->wd_data = wd_data;
+ 
+-	if (!watchdog_wq)
+-		return -ENODEV;
+-
+-	INIT_DELAYED_WORK(&wd_data->work, watchdog_ping_work);
++	hrtimer_init(&wd_data->timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
++	wd_data->timer.function = watchdog_ping_work;
+ 
+ 	if (wdd->id == 0) {
+ 		old_wd_data = wd_data;
+@@ -958,7 +962,7 @@ static int watchdog_cdev_register(struct watchdog_device *wdd, dev_t devno)
+ 	}
+ 
+ 	/* Record time of most recent heartbeat as 'just before now'. */
+-	wd_data->last_hw_keepalive = jiffies - 1;
++	wd_data->last_hw_keepalive = ktime_get();
+ 
+ 	/*
+ 	 * If the watchdog is running, prevent its driver from being unloaded,
+@@ -968,7 +972,7 @@ static int watchdog_cdev_register(struct watchdog_device *wdd, dev_t devno)
+ 		if (handle_boot_enabled) {
+ 			__module_get(wdd->ops->owner);
+ 			kref_get(&wd_data->kref);
+-			queue_delayed_work(watchdog_wq, &wd_data->work, 0);
++			hrtimer_start(&wd_data->timer, 0, HRTIMER_MODE_REL);
+ 		} else {
+ 			pr_info("watchdog%d running and kernel based pre-userspace handler disabled\n",
+ 					wdd->id);
+@@ -1006,7 +1010,7 @@ static void watchdog_cdev_unregister(struct watchdog_device *wdd)
+ 		watchdog_stop(wdd);
+ 	}
+ 
+-	cancel_delayed_work_sync(&wd_data->work);
++	hrtimer_cancel(&wd_data->timer);
+ 
+ 	kref_put(&wd_data->kref, watchdog_core_data_release);
+ }
+@@ -1111,13 +1115,6 @@ int __init watchdog_dev_init(void)
+ {
+ 	int err;
+ 
+-	watchdog_wq = alloc_workqueue("watchdogd",
+-				      WQ_HIGHPRI | WQ_MEM_RECLAIM, 0);
+-	if (!watchdog_wq) {
+-		pr_err("Failed to create watchdog workqueue\n");
+-		return -ENOMEM;
+-	}
+-
+ 	err = class_register(&watchdog_class);
+ 	if (err < 0) {
+ 		pr_err("couldn't register class\n");
+@@ -1135,7 +1132,6 @@ int __init watchdog_dev_init(void)
+ err_alloc:
+ 	class_unregister(&watchdog_class);
+ err_register:
+-	destroy_workqueue(watchdog_wq);
+ 	return err;
+ }
+ 
+@@ -1149,7 +1145,6 @@ void __exit watchdog_dev_exit(void)
+ {
+ 	unregister_chrdev_region(watchdog_devt, MAX_DOGS);
+ 	class_unregister(&watchdog_class);
+-	destroy_workqueue(watchdog_wq);
+ }
+ 
+ module_param(handle_boot_enabled, bool, 0444);
 -- 
-
------------------------------------------------------------------------------
-Jerry Hoemann                  Software Engineer   Hewlett Packard Enterprise
------------------------------------------------------------------------------
+2.13.3
