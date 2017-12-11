@@ -1,316 +1,338 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pg0-f66.google.com ([74.125.83.66]:40143 "EHLO
-        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753923AbdLGOpJ (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 7 Dec 2017 09:45:09 -0500
-Subject: Re: [PATCH] watchdog: core: make sure the watchdog_worker always
- works
-To: Christophe Leroy <christophe.leroy@c-s.fr>,
-        Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-watchdog@vger.kernel.org
-References: <20171207103844.4C4BE6C6C4@po15668-vm-win7.idsi0.si.c-s.fr>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <e0dd0c5f-f2ad-8e93-bf82-ec862d11f7cf@roeck-us.net>
-Date: Thu, 7 Dec 2017 06:45:05 -0800
-MIME-Version: 1.0
-In-Reply-To: <20171207103844.4C4BE6C6C4@po15668-vm-win7.idsi0.si.c-s.fr>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-Path: <david@lechnology.com>
+Return-path: <david@lechnology.com>
+From: David Lechner <david@lechnology.com>
+To: linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org
+Cc: David Lechner <david@lechnology.com>,
+	Sekhar Nori <nsekhar@ti.com>,
+	Kevin Hilman <khilman@kernel.org>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Guenter Roeck <linux@roeck-us.net>,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH 2/2] ARM: davinci: remove watchdog reset
+Date: Mon, 11 Dec 2017 11:21:09 -0600
+Message-Id: <1513012869-7647-3-git-send-email-david@lechnology.com>
+In-Reply-To: <1513012869-7647-1-git-send-email-david@lechnology.com>
+References: <1513012869-7647-1-git-send-email-david@lechnology.com>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 12/07/2017 02:38 AM, Christophe Leroy wrote:
-> When running a command like 'chrt -f 99 dd if=/dev/zero of=/dev/null',
-> the watchdog_worker fails to service the HW watchdog and the
-> HW watchdog fires long before the watchdog soft timeout.
-> 
-> At the moment, the watchdog_worker is invoked as a delayed work.
-> Delayed works are handled by non realtime kernel threads. The
-> WQ_HIGHPRI flag only increases the niceness of that threads.
-> 
-> This patchs replaces the delayed work logic by hrtimer, in order to
+This removes the watchdog reset code. The reset has been moved to
+drivers/watchdog/davinci_wdt.c. The watchdog driver registers the reset
+with the kernel so defining a reset for each machine is no longer needed.
 
-s/patchs/patch/
+Signed-off-by: David Lechner <david@lechnology.com>
+---
+ arch/arm/mach-davinci/board-da830-evm.c     |  1 -
+ arch/arm/mach-davinci/board-da850-evm.c     |  1 -
+ arch/arm/mach-davinci/board-dm355-evm.c     |  1 -
+ arch/arm/mach-davinci/board-dm355-leopard.c |  1 -
+ arch/arm/mach-davinci/board-dm365-evm.c     |  1 -
+ arch/arm/mach-davinci/board-dm644x-evm.c    |  1 -
+ arch/arm/mach-davinci/board-dm646x-evm.c    |  2 -
+ arch/arm/mach-davinci/board-mityomapl138.c  |  1 -
+ arch/arm/mach-davinci/board-neuros-osd2.c   |  1 -
+ arch/arm/mach-davinci/board-omapl138-hawk.c |  1 -
+ arch/arm/mach-davinci/board-sffsdr.c        |  1 -
+ arch/arm/mach-davinci/clock.h               |  3 --
+ arch/arm/mach-davinci/da8xx-dt.c            |  1 -
+ arch/arm/mach-davinci/devices-da8xx.c       | 13 -------
+ arch/arm/mach-davinci/devices.c             |  7 +---
+ arch/arm/mach-davinci/include/mach/common.h |  1 -
+ arch/arm/mach-davinci/include/mach/da8xx.h  |  1 -
+ arch/arm/mach-davinci/time.c                | 57 -----------------------------
+ 18 files changed, 1 insertion(+), 94 deletions(-)
 
-> ensure that the watchdog_worker will already have priority.
-
-always ?
-
-> 
-> Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
-> ---
->   drivers/watchdog/watchdog_dev.c | 87 +++++++++++++++++++----------------------
->   1 file changed, 41 insertions(+), 46 deletions(-)
-> 
-> diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-> index 1e971a50d7fb..e9b234c4ff67 100644
-> --- a/drivers/watchdog/watchdog_dev.c
-> +++ b/drivers/watchdog/watchdog_dev.c
-> @@ -36,7 +36,7 @@
->   #include <linux/errno.h>	/* For the -ENODEV/... values */
->   #include <linux/fs.h>		/* For file operations */
->   #include <linux/init.h>		/* For __init/__exit/... */
-> -#include <linux/jiffies.h>	/* For timeout functions */
-> +#include <linux/hrtimer.h>
->   #include <linux/kernel.h>	/* For printk/panic/... */
->   #include <linux/kref.h>		/* For data references */
->   #include <linux/miscdevice.h>	/* For handling misc devices */
-> @@ -46,7 +46,6 @@
->   #include <linux/slab.h>		/* For memory functions */
->   #include <linux/types.h>	/* For standard types (like size_t) */
->   #include <linux/watchdog.h>	/* For watchdog specific items */
-> -#include <linux/workqueue.h>	/* For workqueue */
->   #include <linux/uaccess.h>	/* For copy_to_user/put_user/... */
->   
->   #include "watchdog_core.h"
-> @@ -65,9 +64,9 @@ struct watchdog_core_data {
->   	struct cdev cdev;
->   	struct watchdog_device *wdd;
->   	struct mutex lock;
-> -	unsigned long last_keepalive;
-> -	unsigned long last_hw_keepalive;
-> -	struct delayed_work work;
-> +	ktime_t last_keepalive;
-> +	ktime_t last_hw_keepalive;
-> +	struct hrtimer timer;
->   	unsigned long status;		/* Internal status bits */
->   #define _WDOG_DEV_OPEN		0	/* Opened ? */
->   #define _WDOG_ALLOW_RELEASE	1	/* Did we receive the magic char ? */
-> @@ -79,8 +78,6 @@ static dev_t watchdog_devt;
->   /* Reference to watchdog device behind /dev/watchdog */
->   static struct watchdog_core_data *old_wd_data;
->   
-> -static struct workqueue_struct *watchdog_wq;
-> -
->   static bool handle_boot_enabled =
->   	IS_ENABLED(CONFIG_WATCHDOG_HANDLE_BOOT_ENABLED);
->   
-> @@ -107,18 +104,19 @@ static inline bool watchdog_need_worker(struct watchdog_device *wdd)
->   		(t && !watchdog_active(wdd) && watchdog_hw_running(wdd));
->   }
->   
-> -static long watchdog_next_keepalive(struct watchdog_device *wdd)
-> +static ktime_t watchdog_next_keepalive(struct watchdog_device *wdd)
->   {
->   	struct watchdog_core_data *wd_data = wdd->wd_data;
->   	unsigned int timeout_ms = wdd->timeout * 1000;
-> -	unsigned long keepalive_interval;
-> -	unsigned long last_heartbeat;
-> -	unsigned long virt_timeout;
-> +	ktime_t keepalive_interval;
-> +	ktime_t last_heartbeat, latest_heartbeat;
-> +	ktime_t virt_timeout;
->   	unsigned int hw_heartbeat_ms;
->   
-> -	virt_timeout = wd_data->last_keepalive + msecs_to_jiffies(timeout_ms);
-> +	virt_timeout = ktime_add(wd_data->last_keepalive,
-> +				 ms_to_ktime(timeout_ms));
->   	hw_heartbeat_ms = min_not_zero(timeout_ms, wdd->max_hw_heartbeat_ms);
-> -	keepalive_interval = msecs_to_jiffies(hw_heartbeat_ms / 2);
-> +	keepalive_interval = ms_to_ktime(hw_heartbeat_ms / 2);
->   
->   	if (!watchdog_active(wdd))
->   		return keepalive_interval;
-> @@ -128,8 +126,11 @@ static long watchdog_next_keepalive(struct watchdog_device *wdd)
->   	 * after the most recent ping from userspace, the last
->   	 * worker ping has to come in hw_heartbeat_ms before this timeout.
->   	 */
-> -	last_heartbeat = virt_timeout - msecs_to_jiffies(hw_heartbeat_ms);
-> -	return min_t(long, last_heartbeat - jiffies, keepalive_interval);
-> +	last_heartbeat = ktime_sub(virt_timeout, ms_to_ktime(hw_heartbeat_ms));
-> +	latest_heartbeat = ktime_sub(last_heartbeat, ktime_get());
-> +	if (ktime_before(latest_heartbeat, keepalive_interval))
-> +		return latest_heartbeat;
-> +	return keepalive_interval;
->   }
->   
->   static inline void watchdog_update_worker(struct watchdog_device *wdd)
-> @@ -137,29 +138,33 @@ static inline void watchdog_update_worker(struct watchdog_device *wdd)
->   	struct watchdog_core_data *wd_data = wdd->wd_data;
->   
->   	if (watchdog_need_worker(wdd)) {
-> -		long t = watchdog_next_keepalive(wdd);
-> +		ktime_t t = watchdog_next_keepalive(wdd);
->   
->   		if (t > 0)
-> -			mod_delayed_work(watchdog_wq, &wd_data->work, t);
-> +			hrtimer_start(&wd_data->timer, t, HRTIMER_MODE_REL);
->   	} else {
-> -		cancel_delayed_work(&wd_data->work);
-> +		hrtimer_cancel(&wd_data->timer);
->   	}
->   }
->   
->   static int __watchdog_ping(struct watchdog_device *wdd)
->   {
->   	struct watchdog_core_data *wd_data = wdd->wd_data;
-> -	unsigned long earliest_keepalive = wd_data->last_hw_keepalive +
-> -				msecs_to_jiffies(wdd->min_hw_heartbeat_ms);
-> +	ktime_t earliest_keepalive, now;
->   	int err;
->   
-> -	if (time_is_after_jiffies(earliest_keepalive)) {
-> -		mod_delayed_work(watchdog_wq, &wd_data->work,
-> -				 earliest_keepalive - jiffies);
-> +	earliest_keepalive = ktime_add(wd_data->last_hw_keepalive,
-> +				       ms_to_ktime(wdd->min_hw_heartbeat_ms));
-> +	now = ktime_get();
-> +
-> +	if (ktime_after(earliest_keepalive, now)) {
-> +		hrtimer_start(&wd_data->timer,
-> +			      ktime_sub(earliest_keepalive, now),
-> +			      HRTIMER_MODE_REL);
->   		return 0;
->   	}
->   
-> -	wd_data->last_hw_keepalive = jiffies;
-> +	wd_data->last_hw_keepalive = now;
->   
->   	if (wdd->ops->ping)
->   		err = wdd->ops->ping(wdd);  /* ping the watchdog */
-> @@ -192,7 +197,7 @@ static int watchdog_ping(struct watchdog_device *wdd)
->   
->   	set_bit(_WDOG_KEEPALIVE, &wd_data->status);
->   
-> -	wd_data->last_keepalive = jiffies;
-> +	wd_data->last_keepalive = ktime_get();
->   	return __watchdog_ping(wdd);
->   }
->   
-> @@ -203,17 +208,18 @@ static bool watchdog_worker_should_ping(struct watchdog_core_data *wd_data)
->   	return wdd && (watchdog_active(wdd) || watchdog_hw_running(wdd));
->   }
->   
-> -static void watchdog_ping_work(struct work_struct *work)
-> +enum hrtimer_restart watchdog_ping_work(struct hrtimer *timer)
-
-static
-
->   {
->   	struct watchdog_core_data *wd_data;
->   
-> -	wd_data = container_of(to_delayed_work(work), struct watchdog_core_data,
-> -			       work);
-> +	wd_data = container_of(timer, struct watchdog_core_data, timer);
->   
->   	mutex_lock(&wd_data->lock);
->   	if (watchdog_worker_should_ping(wd_data))
->   		__watchdog_ping(wd_data->wdd);
->   	mutex_unlock(&wd_data->lock);
-> +
-> +	return HRTIMER_NORESTART;
-
-I am not sure if it is a good idea to execute the ping in this context.
-After all, this code may block (eg if the ping is sent to an i2c device,
-but also due to the use of a mutex). Looking into other drivers using
-high resolution timers, it is common to have the actual work done by
-a worker.
-Of course, that might defeat the purpose of this exercise, so the
-question is if it is possible to have a realtime worker. Can you explore ?
-
-Thanks,
-Guenter
-
->   }
->   
->   /*
-> @@ -230,7 +236,7 @@ static void watchdog_ping_work(struct work_struct *work)
->   static int watchdog_start(struct watchdog_device *wdd)
->   {
->   	struct watchdog_core_data *wd_data = wdd->wd_data;
-> -	unsigned long started_at;
-> +	ktime_t started_at;
->   	int err;
->   
->   	if (watchdog_active(wdd))
-> @@ -238,7 +244,7 @@ static int watchdog_start(struct watchdog_device *wdd)
->   
->   	set_bit(_WDOG_KEEPALIVE, &wd_data->status);
->   
-> -	started_at = jiffies;
-> +	started_at = ktime_get();
->   	if (watchdog_hw_running(wdd) && wdd->ops->ping)
->   		err = wdd->ops->ping(wdd);
->   	else
-> @@ -919,10 +925,8 @@ static int watchdog_cdev_register(struct watchdog_device *wdd, dev_t devno)
->   	wd_data->wdd = wdd;
->   	wdd->wd_data = wd_data;
->   
-> -	if (!watchdog_wq)
-> -		return -ENODEV;
-> -
-> -	INIT_DELAYED_WORK(&wd_data->work, watchdog_ping_work);
-> +	hrtimer_init(&wd_data->timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
-> +	wd_data->timer.function = watchdog_ping_work;
->   
->   	if (wdd->id == 0) {
->   		old_wd_data = wd_data;
-> @@ -958,7 +962,7 @@ static int watchdog_cdev_register(struct watchdog_device *wdd, dev_t devno)
->   	}
->   
->   	/* Record time of most recent heartbeat as 'just before now'. */
-> -	wd_data->last_hw_keepalive = jiffies - 1;
-> +	wd_data->last_hw_keepalive = ktime_get();
-
-Please assign ktime_sub(ktime_get(), 1);
-
-Thanks,
-Guenter
-
->   
->   	/*
->   	 * If the watchdog is running, prevent its driver from being unloaded,
-> @@ -968,7 +972,7 @@ static int watchdog_cdev_register(struct watchdog_device *wdd, dev_t devno)
->   		if (handle_boot_enabled) {
->   			__module_get(wdd->ops->owner);
->   			kref_get(&wd_data->kref);
-> -			queue_delayed_work(watchdog_wq, &wd_data->work, 0);
-> +			hrtimer_start(&wd_data->timer, 0, HRTIMER_MODE_REL);
->   		} else {
->   			pr_info("watchdog%d running and kernel based pre-userspace handler disabled\n",
->   					wdd->id);
-> @@ -1006,7 +1010,7 @@ static void watchdog_cdev_unregister(struct watchdog_device *wdd)
->   		watchdog_stop(wdd);
->   	}
->   
-> -	cancel_delayed_work_sync(&wd_data->work);
-> +	hrtimer_cancel(&wd_data->timer);
->   
->   	kref_put(&wd_data->kref, watchdog_core_data_release);
->   }
-> @@ -1111,13 +1115,6 @@ int __init watchdog_dev_init(void)
->   {
->   	int err;
->   
-> -	watchdog_wq = alloc_workqueue("watchdogd",
-> -				      WQ_HIGHPRI | WQ_MEM_RECLAIM, 0);
-> -	if (!watchdog_wq) {
-> -		pr_err("Failed to create watchdog workqueue\n");
-> -		return -ENOMEM;
-> -	}
-> -
->   	err = class_register(&watchdog_class);
->   	if (err < 0) {
->   		pr_err("couldn't register class\n");
-> @@ -1135,7 +1132,6 @@ int __init watchdog_dev_init(void)
->   err_alloc:
->   	class_unregister(&watchdog_class);
->   err_register:
-> -	destroy_workqueue(watchdog_wq);
->   	return err;
->   }
->   
-> @@ -1149,7 +1145,6 @@ void __exit watchdog_dev_exit(void)
->   {
->   	unregister_chrdev_region(watchdog_devt, MAX_DOGS);
->   	class_unregister(&watchdog_class);
-> -	destroy_workqueue(watchdog_wq);
->   }
->   
->   module_param(handle_boot_enabled, bool, 0444);
-> 
-
+diff --git a/arch/arm/mach-davinci/board-da830-evm.c b/arch/arm/mach-davinci/board-da830-evm.c
+index 2cc5426..7adf009 100644
+--- a/arch/arm/mach-davinci/board-da830-evm.c
++++ b/arch/arm/mach-davinci/board-da830-evm.c
+@@ -642,5 +642,4 @@ MACHINE_START(DAVINCI_DA830_EVM, "DaVinci DA830/OMAP-L137/AM17x EVM")
+ 	.init_machine	= da830_evm_init,
+ 	.init_late	= davinci_init_late,
+ 	.dma_zone_size	= SZ_128M,
+-	.restart	= da8xx_restart,
+ MACHINE_END
+diff --git a/arch/arm/mach-davinci/board-da850-evm.c b/arch/arm/mach-davinci/board-da850-evm.c
+index 458f26d..8602d0d 100644
+--- a/arch/arm/mach-davinci/board-da850-evm.c
++++ b/arch/arm/mach-davinci/board-da850-evm.c
+@@ -1485,6 +1485,5 @@ MACHINE_START(DAVINCI_DA850_EVM, "DaVinci DA850/OMAP-L138/AM18x EVM")
+ 	.init_machine	= da850_evm_init,
+ 	.init_late	= davinci_init_late,
+ 	.dma_zone_size	= SZ_128M,
+-	.restart	= da8xx_restart,
+ 	.reserve	= da8xx_rproc_reserve_cma,
+ MACHINE_END
+diff --git a/arch/arm/mach-davinci/board-dm355-evm.c b/arch/arm/mach-davinci/board-dm355-evm.c
+index 2b4d553..3c15cb7 100644
+--- a/arch/arm/mach-davinci/board-dm355-evm.c
++++ b/arch/arm/mach-davinci/board-dm355-evm.c
+@@ -420,5 +420,4 @@ MACHINE_START(DAVINCI_DM355_EVM, "DaVinci DM355 EVM")
+ 	.init_machine = dm355_evm_init,
+ 	.init_late	= davinci_init_late,
+ 	.dma_zone_size	= SZ_128M,
+-	.restart	= davinci_restart,
+ MACHINE_END
+diff --git a/arch/arm/mach-davinci/board-dm355-leopard.c b/arch/arm/mach-davinci/board-dm355-leopard.c
+index 69399d7..3ebc89d 100644
+--- a/arch/arm/mach-davinci/board-dm355-leopard.c
++++ b/arch/arm/mach-davinci/board-dm355-leopard.c
+@@ -275,5 +275,4 @@ MACHINE_START(DM355_LEOPARD, "DaVinci DM355 leopard")
+ 	.init_machine = dm355_leopard_init,
+ 	.init_late	= davinci_init_late,
+ 	.dma_zone_size	= SZ_128M,
+-	.restart	= davinci_restart,
+ MACHINE_END
+diff --git a/arch/arm/mach-davinci/board-dm365-evm.c b/arch/arm/mach-davinci/board-dm365-evm.c
+index e414cb9..3daeac7 100644
+--- a/arch/arm/mach-davinci/board-dm365-evm.c
++++ b/arch/arm/mach-davinci/board-dm365-evm.c
+@@ -778,6 +778,5 @@ MACHINE_START(DAVINCI_DM365_EVM, "DaVinci DM365 EVM")
+ 	.init_machine	= dm365_evm_init,
+ 	.init_late	= davinci_init_late,
+ 	.dma_zone_size	= SZ_128M,
+-	.restart	= davinci_restart,
+ MACHINE_END
+ 
+diff --git a/arch/arm/mach-davinci/board-dm644x-evm.c b/arch/arm/mach-davinci/board-dm644x-evm.c
+index 6b26786..8d8c4ab 100644
+--- a/arch/arm/mach-davinci/board-dm644x-evm.c
++++ b/arch/arm/mach-davinci/board-dm644x-evm.c
+@@ -821,5 +821,4 @@ MACHINE_START(DAVINCI_EVM, "DaVinci DM644x EVM")
+ 	.init_machine = davinci_evm_init,
+ 	.init_late	= davinci_init_late,
+ 	.dma_zone_size	= SZ_128M,
+-	.restart	= davinci_restart,
+ MACHINE_END
+diff --git a/arch/arm/mach-davinci/board-dm646x-evm.c b/arch/arm/mach-davinci/board-dm646x-evm.c
+index b3b81a8..dafc852 100644
+--- a/arch/arm/mach-davinci/board-dm646x-evm.c
++++ b/arch/arm/mach-davinci/board-dm646x-evm.c
+@@ -804,7 +804,6 @@ MACHINE_START(DAVINCI_DM6467_EVM, "DaVinci DM646x EVM")
+ 	.init_machine = evm_init,
+ 	.init_late	= davinci_init_late,
+ 	.dma_zone_size	= SZ_128M,
+-	.restart	= davinci_restart,
+ MACHINE_END
+ 
+ MACHINE_START(DAVINCI_DM6467TEVM, "DaVinci DM6467T EVM")
+@@ -815,6 +814,5 @@ MACHINE_START(DAVINCI_DM6467TEVM, "DaVinci DM6467T EVM")
+ 	.init_machine = evm_init,
+ 	.init_late	= davinci_init_late,
+ 	.dma_zone_size	= SZ_128M,
+-	.restart	= davinci_restart,
+ MACHINE_END
+ 
+diff --git a/arch/arm/mach-davinci/board-mityomapl138.c b/arch/arm/mach-davinci/board-mityomapl138.c
+index c930c31..f9a725a 100644
+--- a/arch/arm/mach-davinci/board-mityomapl138.c
++++ b/arch/arm/mach-davinci/board-mityomapl138.c
+@@ -574,5 +574,4 @@ MACHINE_START(MITYOMAPL138, "MityDSP-L138/MityARM-1808")
+ 	.init_machine	= mityomapl138_init,
+ 	.init_late	= davinci_init_late,
+ 	.dma_zone_size	= SZ_128M,
+-	.restart	= da8xx_restart,
+ MACHINE_END
+diff --git a/arch/arm/mach-davinci/board-neuros-osd2.c b/arch/arm/mach-davinci/board-neuros-osd2.c
+index 925ada1..ff871a0 100644
+--- a/arch/arm/mach-davinci/board-neuros-osd2.c
++++ b/arch/arm/mach-davinci/board-neuros-osd2.c
+@@ -231,5 +231,4 @@ MACHINE_START(NEUROS_OSD2, "Neuros OSD2")
+ 	.init_machine = davinci_ntosd2_init,
+ 	.init_late	= davinci_init_late,
+ 	.dma_zone_size	= SZ_128M,
+-	.restart	= davinci_restart,
+ MACHINE_END
+diff --git a/arch/arm/mach-davinci/board-omapl138-hawk.c b/arch/arm/mach-davinci/board-omapl138-hawk.c
+index c1277b3..bc8a747 100644
+--- a/arch/arm/mach-davinci/board-omapl138-hawk.c
++++ b/arch/arm/mach-davinci/board-omapl138-hawk.c
+@@ -338,6 +338,5 @@ MACHINE_START(OMAPL138_HAWKBOARD, "AM18x/OMAP-L138 Hawkboard")
+ 	.init_machine	= omapl138_hawk_init,
+ 	.init_late	= davinci_init_late,
+ 	.dma_zone_size	= SZ_128M,
+-	.restart	= da8xx_restart,
+ 	.reserve	= da8xx_rproc_reserve_cma,
+ MACHINE_END
+diff --git a/arch/arm/mach-davinci/board-sffsdr.c b/arch/arm/mach-davinci/board-sffsdr.c
+index 4038de8..2922da9 100644
+--- a/arch/arm/mach-davinci/board-sffsdr.c
++++ b/arch/arm/mach-davinci/board-sffsdr.c
+@@ -154,5 +154,4 @@ MACHINE_START(SFFSDR, "Lyrtech SFFSDR")
+ 	.init_machine = davinci_sffsdr_init,
+ 	.init_late	= davinci_init_late,
+ 	.dma_zone_size	= SZ_128M,
+-	.restart	= davinci_restart,
+ MACHINE_END
+diff --git a/arch/arm/mach-davinci/clock.h b/arch/arm/mach-davinci/clock.h
+index aea4f14..a0b559e 100644
+--- a/arch/arm/mach-davinci/clock.h
++++ b/arch/arm/mach-davinci/clock.h
+@@ -131,9 +131,6 @@ void davinci_clk_enable(struct davinci_clk *clk);
+ void davinci_clk_disable(struct davinci_clk *clk);
+ int davinci_clk_register(struct davinci_clk *clk);
+ 
+-extern struct platform_device davinci_wdt_device;
+-extern void davinci_watchdog_reset(struct platform_device *);
+-
+ static inline struct davinci_clk *to_davinci_clk(struct clk_hw *hw)
+ {
+ 	if (IS_ERR_OR_NULL(hw))
+diff --git a/arch/arm/mach-davinci/da8xx-dt.c b/arch/arm/mach-davinci/da8xx-dt.c
+index 3630f0a..ab199f4 100644
+--- a/arch/arm/mach-davinci/da8xx-dt.c
++++ b/arch/arm/mach-davinci/da8xx-dt.c
+@@ -100,7 +100,6 @@ DT_MACHINE_START(DA850_DT, "Generic DA850/OMAP-L138/AM18x")
+ 	.init_machine	= da850_init_machine,
+ 	.dt_compat	= da850_boards_compat,
+ 	.init_late	= davinci_init_late,
+-	.restart	= da8xx_restart,
+ MACHINE_END
+ 
+ #endif
+diff --git a/arch/arm/mach-davinci/devices-da8xx.c b/arch/arm/mach-davinci/devices-da8xx.c
+index 6724a8d..272e12e 100644
+--- a/arch/arm/mach-davinci/devices-da8xx.c
++++ b/arch/arm/mach-davinci/devices-da8xx.c
+@@ -371,19 +371,6 @@ static struct platform_device da8xx_wdt_device = {
+ 	.resource	= da8xx_watchdog_resources,
+ };
+ 
+-void da8xx_restart(enum reboot_mode mode, const char *cmd)
+-{
+-	struct device *dev;
+-
+-	dev = bus_find_device_by_name(&platform_bus_type, NULL, "davinci-wdt");
+-	if (!dev) {
+-		pr_err("%s: failed to find watchdog device\n", __func__);
+-		return;
+-	}
+-
+-	davinci_watchdog_reset(to_platform_device(dev));
+-}
+-
+ int __init da8xx_register_watchdog(void)
+ {
+ 	return platform_device_register(&da8xx_wdt_device);
+diff --git a/arch/arm/mach-davinci/devices.c b/arch/arm/mach-davinci/devices.c
+index 3ae70f2..0edda40 100644
+--- a/arch/arm/mach-davinci/devices.c
++++ b/arch/arm/mach-davinci/devices.c
+@@ -282,18 +282,13 @@ static struct resource wdt_resources[] = {
+ 	},
+ };
+ 
+-struct platform_device davinci_wdt_device = {
++static struct platform_device davinci_wdt_device = {
+ 	.name		= "davinci-wdt",
+ 	.id		= -1,
+ 	.num_resources	= ARRAY_SIZE(wdt_resources),
+ 	.resource	= wdt_resources,
+ };
+ 
+-void davinci_restart(enum reboot_mode mode, const char *cmd)
+-{
+-	davinci_watchdog_reset(&davinci_wdt_device);
+-}
+-
+ int davinci_init_wdt(void)
+ {
+ 	return platform_device_register(&davinci_wdt_device);
+diff --git a/arch/arm/mach-davinci/include/mach/common.h b/arch/arm/mach-davinci/include/mach/common.h
+index 69a0ad9..f0d5e858 100644
+--- a/arch/arm/mach-davinci/include/mach/common.h
++++ b/arch/arm/mach-davinci/include/mach/common.h
+@@ -80,7 +80,6 @@ extern struct davinci_soc_info davinci_soc_info;
+ 
+ extern void davinci_common_init(const struct davinci_soc_info *soc_info);
+ extern void davinci_init_ide(void);
+-void davinci_restart(enum reboot_mode mode, const char *cmd);
+ void davinci_init_late(void);
+ 
+ #ifdef CONFIG_DAVINCI_RESET_CLOCKS
+diff --git a/arch/arm/mach-davinci/include/mach/da8xx.h b/arch/arm/mach-davinci/include/mach/da8xx.h
+index dd12e39..3481a0d 100644
+--- a/arch/arm/mach-davinci/include/mach/da8xx.h
++++ b/arch/arm/mach-davinci/include/mach/da8xx.h
+@@ -121,7 +121,6 @@ int da850_register_vpif_display
+ 			(struct vpif_display_config *display_config);
+ int da850_register_vpif_capture
+ 			(struct vpif_capture_config *capture_config);
+-void da8xx_restart(enum reboot_mode mode, const char *cmd);
+ void da8xx_rproc_reserve_cma(void);
+ int da8xx_register_rproc(void);
+ int da850_register_gpio(void);
+diff --git a/arch/arm/mach-davinci/time.c b/arch/arm/mach-davinci/time.c
+index 034f865..1bb991a 100644
+--- a/arch/arm/mach-davinci/time.c
++++ b/arch/arm/mach-davinci/time.c
+@@ -80,13 +80,6 @@ enum {
+ #define TGCR_UNRESET                 0x1
+ #define TGCR_RESET_MASK              0x3
+ 
+-#define WDTCR_WDEN_SHIFT             14
+-#define WDTCR_WDEN_DISABLE           0x0
+-#define WDTCR_WDEN_ENABLE            0x1
+-#define WDTCR_WDKEY_SHIFT            16
+-#define WDTCR_WDKEY_SEQ0             0xa5c6
+-#define WDTCR_WDKEY_SEQ1             0xda7e
+-
+ struct timer_s {
+ 	char *name;
+ 	unsigned int id;
+@@ -409,53 +402,3 @@ void __init davinci_timer_init(void)
+ 	for (i=0; i< ARRAY_SIZE(timers); i++)
+ 		timer32_config(&timers[i]);
+ }
+-
+-/* reset board using watchdog timer */
+-void davinci_watchdog_reset(struct platform_device *pdev)
+-{
+-	u32 tgcr, wdtcr;
+-	void __iomem *base;
+-	struct clk *wd_clk;
+-
+-	base = ioremap(pdev->resource[0].start, SZ_4K);
+-	if (WARN_ON(!base))
+-		return;
+-
+-	wd_clk = clk_get(&pdev->dev, NULL);
+-	if (WARN_ON(IS_ERR(wd_clk)))
+-		return;
+-	clk_prepare_enable(wd_clk);
+-
+-	/* disable, internal clock source */
+-	__raw_writel(0, base + TCR);
+-
+-	/* reset timer, set mode to 64-bit watchdog, and unreset */
+-	tgcr = 0;
+-	__raw_writel(tgcr, base + TGCR);
+-	tgcr = TGCR_TIMMODE_64BIT_WDOG << TGCR_TIMMODE_SHIFT;
+-	tgcr |= (TGCR_UNRESET << TGCR_TIM12RS_SHIFT) |
+-		(TGCR_UNRESET << TGCR_TIM34RS_SHIFT);
+-	__raw_writel(tgcr, base + TGCR);
+-
+-	/* clear counter and period regs */
+-	__raw_writel(0, base + TIM12);
+-	__raw_writel(0, base + TIM34);
+-	__raw_writel(0, base + PRD12);
+-	__raw_writel(0, base + PRD34);
+-
+-	/* put watchdog in pre-active state */
+-	wdtcr = __raw_readl(base + WDTCR);
+-	wdtcr = (WDTCR_WDKEY_SEQ0 << WDTCR_WDKEY_SHIFT) |
+-		(WDTCR_WDEN_ENABLE << WDTCR_WDEN_SHIFT);
+-	__raw_writel(wdtcr, base + WDTCR);
+-
+-	/* put watchdog in active state */
+-	wdtcr = (WDTCR_WDKEY_SEQ1 << WDTCR_WDKEY_SHIFT) |
+-		(WDTCR_WDEN_ENABLE << WDTCR_WDEN_SHIFT);
+-	__raw_writel(wdtcr, base + WDTCR);
+-
+-	/* write an invalid value to the WDKEY field to trigger
+-	 * a watchdog reset */
+-	wdtcr = 0x00004000;
+-	__raw_writel(wdtcr, base + WDTCR);
+-}
+-- 
+2.7.4
