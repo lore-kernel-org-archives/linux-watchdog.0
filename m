@@ -46,9 +46,11 @@ Cc: Paul Menzel <paulepanter@users.sourceforge.net>,
 	Lucas Stach <dev@lynxeye.de>,
 	Denis Turischev <denis.turischev@compulab.co.il>,
 	=?UTF-8?q?B=C3=B6sz=C3=B6rm=C3=A9nyi=20Zolt=C3=A1n?= <zboszor@pr.hu>
-Subject: [PATCH 1/5 v3] Extend the request_region() infrastructure
-Date: Mon, 18 Dec 2017 09:48:37 +0100
-Message-Id: <20171218084841.9979-1-zboszor@pr.hu>
+Subject: [PATCH 4/5 v5] i2c: i2c-piix4: Use request_declared_muxed_region()
+Date: Mon, 18 Dec 2017 09:48:40 +0100
+Message-Id: <20171218084841.9979-4-zboszor@pr.hu>
+In-Reply-To: <20171218084841.9979-1-zboszor@pr.hu>
+References: <20171218084841.9979-1-zboszor@pr.hu>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -56,174 +58,219 @@ List-ID: <linux-watchdog@vger.kernel.org>
 
 From: Böszörményi Zoltán <zboszor@pr.hu>
 
-Add a new IORESOURCE_ALLOCATED flag that is automatically used
-when alloc_resource() is used internally in kernel/resource.c
-and free_resource() now takes this flag into account.
+Use the new request_declared_muxed_region() macro to
+synchronize access to the I/O port pair 0xcd6 / 0xcd7.
 
-The core of __request_region() was factored out into a new function
-called __request_declared_region() that needs struct resource *
-instead of the (start, n, name) triplet.
+At the same time, remove the long lifetime request_region()
+call to reserve these I/O ports, so the sp5100_tco watchdog
+driver can also load.
 
-These changes allow using statically declared struct resource
-data coupled with the pre-existing DEFINE_RES_IO_NAMED() static
-initializer macro. The new macro exploiting
-__request_declared_region() is request_declared_muxed_region()
+This fixes an old regression in Linux 4.4-rc4, caused by
+commit 2fee61d22e60 ("i2c: piix4: Add support for multiplexed
+main adapter in SB800")
 
-v2:
+v1: Started with a common mutex in a C source file.
 
-Fixed checkpatch.pl warnings and errors and extended the macro
-API with request_declared_region() and release_declared_region()
+v2: Referenced to common mutex from drivers/usb/host/pci-quirks.c
 
-Reversed the order of __request_declared_region and __request_region
+v3: Switched to using the new request_declared_muxed_region
+    macro.
 
-Added high level description of the muxed and declared variants
-of the macros.
+v4: Fixed checkpatch.pl warnings and use the new
+    release_declared_region() macro.
 
-v3:
-
-Rebased for 4.15-rc4
+v5: Rebased for 4.15-rc4
+    Use struct i2c_algorithm pointer directly instead of
+    a bool to select the proper algo.
 
 Signed-off-by: Zoltán Böszörményi <zboszor@pr.hu>
 ---
- include/linux/ioport.h | 14 ++++++++++++++
- kernel/resource.c      | 40 +++++++++++++++++++++++++++++++++++++---
- 2 files changed, 51 insertions(+), 3 deletions(-)
+ drivers/i2c/busses/i2c-piix4.c | 51 +++++++++++++++---------------------------
+ 1 file changed, 18 insertions(+), 33 deletions(-)
 
-diff --git a/include/linux/ioport.h b/include/linux/ioport.h
-index 93b4183cf53d..d198d6a58574 100644
---- a/include/linux/ioport.h
-+++ b/include/linux/ioport.h
-@@ -53,6 +53,7 @@ struct resource {
- #define IORESOURCE_MEM_64	0x00100000
- #define IORESOURCE_WINDOW	0x00200000	/* forwarded by bridge */
- #define IORESOURCE_MUXED	0x00400000	/* Resource is software muxed */
-+#define IORESOURCE_ALLOCATED	0x00800000	/* Resource was allocated */
+diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
+index 462948e2c535..1846d9ea7d27 100644
+--- a/drivers/i2c/busses/i2c-piix4.c
++++ b/drivers/i2c/busses/i2c-piix4.c
+@@ -153,10 +153,11 @@ static const struct dmi_system_id piix4_dmi_ibm[] = {
  
- #define IORESOURCE_EXT_TYPE_BITS 0x01000000	/* Resource extended types */
- #define IORESOURCE_SYSRAM	0x01000000	/* System RAM (modifier) */
-@@ -218,7 +219,14 @@ static inline bool resource_contains(struct resource *r1, struct resource *r2)
- 
- /* Convenience shorthand with allocation */
- #define request_region(start,n,name)		__request_region(&ioport_resource, (start), (n), (name), 0)
-+#define request_declared_region(res)		__request_region( \
-+							&ioport_resource, \
-+							(res), 0)
- #define request_muxed_region(start,n,name)	__request_region(&ioport_resource, (start), (n), (name), IORESOURCE_MUXED)
-+#define request_declared_muxed_region(res)	__request_declared_region( \
-+							&ioport_resource, \
-+							(res), \
-+							IORESOURCE_MUXED)
- #define __request_mem_region(start,n,name, excl) __request_region(&iomem_resource, (start), (n), (name), excl)
- #define request_mem_region(start,n,name) __request_region(&iomem_resource, (start), (n), (name), 0)
- #define request_mem_region_exclusive(start,n,name) \
-@@ -230,8 +238,14 @@ extern struct resource * __request_region(struct resource *,
- 					resource_size_t n,
- 					const char *name, int flags);
- 
-+extern struct resource *__request_declared_region(struct resource *parent,
-+					struct resource *res, int flags);
-+
- /* Compatibility cruft */
- #define release_region(start,n)	__release_region(&ioport_resource, (start), (n))
-+#define release_declared_region(res)	__release_region(&ioport_resource, \
-+						(res)->start, \
-+						(res)->end - (res)->start + 1)
- #define release_mem_region(start,n)	__release_region(&iomem_resource, (start), (n))
- 
- extern void __release_region(struct resource *, resource_size_t,
-diff --git a/kernel/resource.c b/kernel/resource.c
-index 54ba6de3757c..05db9c4e3992 100644
---- a/kernel/resource.c
-+++ b/kernel/resource.c
-@@ -184,6 +184,9 @@ static void free_resource(struct resource *res)
- 	if (!res)
- 		return;
- 
-+	if (!(res->flags & IORESOURCE_ALLOCATED))
-+		return;
-+
- 	if (!PageSlab(virt_to_head_page(res))) {
- 		spin_lock(&bootmem_resource_lock);
- 		res->sibling = bootmem_resource_free;
-@@ -210,6 +213,8 @@ static struct resource *alloc_resource(gfp_t flags)
- 	else
- 		res = kzalloc(sizeof(struct resource), flags);
- 
-+	res->flags = IORESOURCE_ALLOCATED;
-+
- 	return res;
- }
- 
-@@ -1128,8 +1133,19 @@ resource_size_t resource_alignment(struct resource *res)
-  * the IO flag meanings (busy etc).
-  *
-  * request_region creates a new busy region.
-+ * The resource descriptor is allocated by this function.
-+ *
-+ * request_declared_region creates a new busy region
-+ * described in an existing resource descriptor.
-+ *
-+ * request_muxed_region creates a new shared busy region.
-+ * The resource descriptor is allocated by this function.
-+ *
-+ * request_declared_muxed_region creates a new shared busy region
-+ * described in an existing resource descriptor.
-  *
-  * release_region releases a matching busy region.
-+ * The region is only freed if it was allocated.
+ /*
+  * SB800 globals
+- * piix4_mutex_sb800 protects piix4_port_sel_sb800 and the pair
++ * request_declared_muxed_region() protects piix4_port_sel_sb800 and the pair
+  * of I/O ports at SB800_PIIX4_SMB_IDX.
   */
+-static DEFINE_MUTEX(piix4_mutex_sb800);
++static struct resource sb800_res = DEFINE_RES_IO_NAMED(SB800_PIIX4_SMB_IDX, 2,
++						 "i2c-piix4");
+ static u8 piix4_port_sel_sb800;
+ static u8 piix4_port_mask_sb800;
+ static u8 piix4_port_shift_sb800;
+@@ -169,7 +170,6 @@ struct i2c_piix4_adapdata {
+ 	unsigned short smba;
  
- static DECLARE_WAIT_QUEUE_HEAD(muxed_resource_wait);
-@@ -1146,7 +1162,6 @@ struct resource * __request_region(struct resource *parent,
- 				   resource_size_t start, resource_size_t n,
- 				   const char *name, int flags)
- {
--	DECLARE_WAITQUEUE(wait, current);
- 	struct resource *res = alloc_resource(GFP_KERNEL);
+ 	/* SB800 */
+-	bool sb800_main;
+ 	bool notify_imc;
+ 	u8 port;		/* Port number, shifted */
+ };
+@@ -298,12 +298,12 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
+ 	else
+ 		smb_en = (aux) ? 0x28 : 0x2c;
  
- 	if (!res)
-@@ -1156,6 +1171,26 @@ struct resource * __request_region(struct resource *parent,
- 	res->start = start;
- 	res->end = start + n - 1;
+-	mutex_lock(&piix4_mutex_sb800);
++	request_declared_muxed_region(&sb800_res);
+ 	outb_p(smb_en, SB800_PIIX4_SMB_IDX);
+ 	smba_en_lo = inb_p(SB800_PIIX4_SMB_IDX + 1);
+ 	outb_p(smb_en + 1, SB800_PIIX4_SMB_IDX);
+ 	smba_en_hi = inb_p(SB800_PIIX4_SMB_IDX + 1);
+-	mutex_unlock(&piix4_mutex_sb800);
++	release_declared_region(&sb800_res);
  
-+	if (!__request_declared_region(parent, res, flags)) {
-+		free_resource(res);
-+		res = NULL;
-+	}
-+
-+	return res;
-+}
-+EXPORT_SYMBOL(__request_region);
-+
-+/**
-+ * __request_declared_region - create a new busy resource region
-+ * @parent: parent resource descriptor
-+ * @res: child resource descriptor
-+ * @flags: IO resource flags
-+ */
-+struct resource *__request_declared_region(struct resource *parent,
-+				   struct resource *res, int flags)
-+{
-+	DECLARE_WAITQUEUE(wait, current);
-+
- 	write_lock(&resource_lock);
- 
- 	for (;;) {
-@@ -1184,14 +1219,13 @@ struct resource * __request_region(struct resource *parent,
- 			continue;
+ 	if (!smb_en) {
+ 		smb_en_status = smba_en_lo & 0x10;
+@@ -373,7 +373,7 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
+ 			break;
  		}
- 		/* Uhhuh, that didn't work out.. */
--		free_resource(res);
- 		res = NULL;
- 		break;
+ 	} else {
+-		mutex_lock(&piix4_mutex_sb800);
++		request_declared_muxed_region(&sb800_res);
+ 		outb_p(SB800_PIIX4_PORT_IDX_SEL, SB800_PIIX4_SMB_IDX);
+ 		port_sel = inb_p(SB800_PIIX4_SMB_IDX + 1);
+ 		piix4_port_sel_sb800 = (port_sel & 0x01) ?
+@@ -381,7 +381,7 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
+ 				       SB800_PIIX4_PORT_IDX;
+ 		piix4_port_mask_sb800 = SB800_PIIX4_PORT_IDX_MASK;
+ 		piix4_port_shift_sb800 = SB800_PIIX4_PORT_IDX_SHIFT;
+-		mutex_unlock(&piix4_mutex_sb800);
++		release_declared_region(&sb800_res);
  	}
- 	write_unlock(&resource_lock);
- 	return res;
- }
--EXPORT_SYMBOL(__request_region);
-+EXPORT_SYMBOL(__request_declared_region);
  
- /**
-  * __release_region - release a previously reserved resource region
+ 	dev_info(&PIIX4_dev->dev,
+@@ -679,7 +679,7 @@ static s32 piix4_access_sb800(struct i2c_adapter *adap, u16 addr,
+ 	u8 port;
+ 	int retval;
+ 
+-	mutex_lock(&piix4_mutex_sb800);
++	request_declared_muxed_region(&sb800_res);
+ 
+ 	/* Request the SMBUS semaphore, avoid conflicts with the IMC */
+ 	smbslvcnt  = inb_p(SMBSLVCNT);
+@@ -695,7 +695,7 @@ static s32 piix4_access_sb800(struct i2c_adapter *adap, u16 addr,
+ 	} while (--retries);
+ 	/* SMBus is still owned by the IMC, we give up */
+ 	if (!retries) {
+-		mutex_unlock(&piix4_mutex_sb800);
++		release_declared_region(&sb800_res);
+ 		return -EBUSY;
+ 	}
+ 
+@@ -753,7 +753,7 @@ static s32 piix4_access_sb800(struct i2c_adapter *adap, u16 addr,
+ 	if ((size == I2C_SMBUS_BLOCK_DATA) && adapdata->notify_imc)
+ 		piix4_imc_wakeup();
+ 
+-	mutex_unlock(&piix4_mutex_sb800);
++	release_declared_region(&sb800_res);
+ 
+ 	return retval;
+ }
+@@ -804,7 +804,8 @@ static struct i2c_adapter *piix4_main_adapters[PIIX4_MAX_ADAPTERS];
+ static struct i2c_adapter *piix4_aux_adapter;
+ 
+ static int piix4_add_adapter(struct pci_dev *dev, unsigned short smba,
+-			     bool sb800_main, u8 port, bool notify_imc,
++			     struct i2c_algorithm *algo,
++			     u8 port, bool notify_imc,
+ 			     const char *name, struct i2c_adapter **padap)
+ {
+ 	struct i2c_adapter *adap;
+@@ -819,8 +820,7 @@ static int piix4_add_adapter(struct pci_dev *dev, unsigned short smba,
+ 
+ 	adap->owner = THIS_MODULE;
+ 	adap->class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
+-	adap->algo = sb800_main ? &piix4_smbus_algorithm_sb800
+-				: &smbus_algorithm;
++	adap->algo = algo;
+ 
+ 	adapdata = kzalloc(sizeof(*adapdata), GFP_KERNEL);
+ 	if (adapdata == NULL) {
+@@ -830,7 +830,6 @@ static int piix4_add_adapter(struct pci_dev *dev, unsigned short smba,
+ 	}
+ 
+ 	adapdata->smba = smba;
+-	adapdata->sb800_main = sb800_main;
+ 	adapdata->port = port << piix4_port_shift_sb800;
+ 	adapdata->notify_imc = notify_imc;
+ 
+@@ -862,7 +861,9 @@ static int piix4_add_adapters_sb800(struct pci_dev *dev, unsigned short smba,
+ 	int retval;
+ 
+ 	for (port = 0; port < PIIX4_MAX_ADAPTERS; port++) {
+-		retval = piix4_add_adapter(dev, smba, true, port, notify_imc,
++		retval = piix4_add_adapter(dev, smba,
++					   &piix4_smbus_algorithm_sb800,
++					   port, notify_imc,
+ 					   piix4_main_port_names_sb800[port],
+ 					   &piix4_main_adapters[port]);
+ 		if (retval < 0)
+@@ -899,13 +900,6 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 		bool notify_imc = false;
+ 		is_sb800 = true;
+ 
+-		if (!request_region(SB800_PIIX4_SMB_IDX, 2, "smba_idx")) {
+-			dev_err(&dev->dev,
+-			"SMBus base address index region 0x%x already in use!\n",
+-			SB800_PIIX4_SMB_IDX);
+-			return -EBUSY;
+-		}
+-
+ 		if (dev->vendor == PCI_VENDOR_ID_AMD &&
+ 		    dev->device == PCI_DEVICE_ID_AMD_KERNCZ_SMBUS) {
+ 			u8 imc;
+@@ -922,27 +916,24 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 
+ 		/* base address location etc changed in SB800 */
+ 		retval = piix4_setup_sb800(dev, id, 0);
+-		if (retval < 0) {
+-			release_region(SB800_PIIX4_SMB_IDX, 2);
++		if (retval < 0)
+ 			return retval;
+-		}
+ 
+ 		/*
+ 		 * Try to register multiplexed main SMBus adapter,
+ 		 * give up if we can't
+ 		 */
+ 		retval = piix4_add_adapters_sb800(dev, retval, notify_imc);
+-		if (retval < 0) {
+-			release_region(SB800_PIIX4_SMB_IDX, 2);
++		if (retval < 0)
+ 			return retval;
+-		}
+ 	} else {
+ 		retval = piix4_setup(dev, id);
+ 		if (retval < 0)
+ 			return retval;
+ 
+ 		/* Try to register main SMBus adapter, give up if we can't */
+-		retval = piix4_add_adapter(dev, retval, false, 0, false, "",
++		retval = piix4_add_adapter(dev, retval,
++					   &smbus_algorithm, 0, false, "",
+ 					   &piix4_main_adapters[0]);
+ 		if (retval < 0)
+ 			return retval;
+@@ -983,11 +974,8 @@ static void piix4_adap_remove(struct i2c_adapter *adap)
+ 
+ 	if (adapdata->smba) {
+ 		i2c_del_adapter(adap);
+-		if (adapdata->port == (0 << piix4_port_shift_sb800)) {
++		if (adapdata->port == (0 << piix4_port_shift_sb800))
+ 			release_region(adapdata->smba, SMBIOSIZE);
+-			if (adapdata->sb800_main)
+-				release_region(SB800_PIIX4_SMB_IDX, 2);
+-		}
+ 		kfree(adapdata);
+ 		kfree(adap);
+ 	}
 -- 
 2.13.6
