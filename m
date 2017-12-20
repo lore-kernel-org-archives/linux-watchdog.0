@@ -10,12 +10,13 @@ Cc: Andrey Smirnov <andrew.smirnov@gmail.com>,
         Andy Shevchenko <andy.shevchenko@gmail.com>,
         Guenter Roeck <linux@roeck-us.net>, Rob Herring <robh@kernel.org>,
         Johan Hovold <johan@kernel.org>,
-        Sebastian Reichel <sebastian.reichel@collabora.co.uk>
-Subject: [PATCH v15 4/5] watchdog: Add RAVE SP watchdog driver
-Date: Tue, 19 Dec 2017 20:00:16 -0800
-Message-Id: <20171220040017.7605-5-andrew.smirnov@gmail.com>
-In-Reply-To: <20171220040017.7605-1-andrew.smirnov@gmail.com>
-References: <20171220040017.7605-1-andrew.smirnov@gmail.com>
+        Sebastian Reichel <sebastian.reichel@collabora.co.uk>,
+        Philippe Ombredanne <pombredanne@nexb.com>
+Subject: [PATCH v16 4/5] watchdog: Add RAVE SP watchdog driver
+Date: Wed, 20 Dec 2017 12:45:16 -0800
+Message-Id: <20171220204517.28313-5-andrew.smirnov@gmail.com>
+In-Reply-To: <20171220204517.28313-1-andrew.smirnov@gmail.com>
+References: <20171220204517.28313-1-andrew.smirnov@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -36,6 +37,7 @@ Cc: Guenter Roeck <linux@roeck-us.net>
 Cc: Rob Herring <robh@kernel.org>
 Cc: Johan Hovold <johan@kernel.org>
 Cc: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
+Cc: Philippe Ombredanne <pombredanne@nexb.com>
 Acked-by: Pavel Machek <pavel@ucw.cz>
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Nikita Yushchenko <nikita.yoush@cogentembedded.com>
@@ -43,8 +45,8 @@ Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
 ---
  drivers/watchdog/Kconfig       |   7 +
  drivers/watchdog/Makefile      |   1 +
- drivers/watchdog/rave-sp-wdt.c | 348 +++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 356 insertions(+)
+ drivers/watchdog/rave-sp-wdt.c | 337 +++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 345 insertions(+)
  create mode 100644 drivers/watchdog/rave-sp-wdt.c
 
 diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
@@ -76,29 +78,18 @@ index 715a21078e0c..135c5e81f25e 100644
 +obj-$(CONFIG_RAVE_SP_WATCHDOG) += rave-sp-wdt.o
 diff --git a/drivers/watchdog/rave-sp-wdt.c b/drivers/watchdog/rave-sp-wdt.c
 new file mode 100644
-index 000000000000..f70961eade29
+index 000000000000..caa5e37d2503
 --- /dev/null
 +++ b/drivers/watchdog/rave-sp-wdt.c
-@@ -0,0 +1,348 @@
+@@ -0,0 +1,337 @@
++/* SPDX-License-Identifier: GPL-2.0+ */
++
 +/*
-+ *  rave-sp-wdt.c - Watchdog driver present in RAVE SP
++ * Driver for watchdog aspect of for Zodiac Inflight Innovations RAVE
++ * Supervisory Processor(SP) MCU
 + *
 + * Copyright (C) 2017 Zodiac Inflight Innovation
 + *
-+ * Driver for parent device can be found in drivers/mfd/rave-sp.c
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License as
-+ * published by the Free Software Foundation; either version 2 of
-+ * the License, or (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, see <http://www.gnu.org/licenses/>.
 + */
 +
 +#include <linux/delay.h>
