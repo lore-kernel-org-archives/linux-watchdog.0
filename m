@@ -1,15 +1,15 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pg0-f68.google.com ([74.125.83.68]:44701 "EHLO
-        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751188AbdLSQ6r (ORCPT
+Received: from mail-pl0-f67.google.com ([209.85.160.67]:46755 "EHLO
+        mail-pl0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753989AbdLTCPP (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 19 Dec 2017 11:58:47 -0500
-Date: Tue, 19 Dec 2017 08:58:43 -0800
-From: Guenter Roeck <linux@roeck-us.net>
-To: Boszormenyi Zoltan <zboszor@pr.hu>
-Cc: linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org,
-        linux-watchdog@vger.kernel.org, linux-i2c@vger.kernel.org,
-        Paul Menzel <paulepanter@users.sourceforge.net>,
+        Tue, 19 Dec 2017 21:15:15 -0500
+Subject: Re: [PATCH 4/5 v5] i2c: i2c-piix4: Use
+ request_declared_muxed_region()
+To: Zoltan Boszormenyi <zboszor@pr.hu>, linux-kernel@vger.kernel.org,
+        linux-usb@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-i2c@vger.kernel.org
+Cc: Paul Menzel <paulepanter@users.sourceforge.net>,
         Christian Fetzer <fetzer.ch@gmail.com>,
         Jean Delvare <jdelvare@suse.com>,
         Nehal Shah <nehal-bakulchandra.shah@amd.com>,
@@ -42,131 +42,240 @@ Cc: linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org,
         Ulf Hansson <ulf.hansson@linaro.org>,
         Lucas Stach <dev@lynxeye.de>,
         Denis Turischev <denis.turischev@compulab.co.il>
-Subject: Re: [PATCH 2/5 v3] Modify behaviour of request_*muxed_region()
-Message-ID: <20171219165843.GA19108@roeck-us.net>
 References: <20171218084841.9979-1-zboszor@pr.hu>
- <20171218084841.9979-2-zboszor@pr.hu>
- <20171218190741.GB6424@roeck-us.net>
- <cd1710e7-d317-ab69-27bb-17f645a83f91@pr.hu>
+ <20171218084841.9979-4-zboszor@pr.hu>
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <2e224024-c0ea-457a-37ff-ba53e9c129e8@roeck-us.net>
+Date: Tue, 19 Dec 2017 18:15:10 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+In-Reply-To: <20171218084841.9979-4-zboszor@pr.hu>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <cd1710e7-d317-ab69-27bb-17f645a83f91@pr.hu>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, Dec 19, 2017 at 07:11:11AM +0100, Boszormenyi Zoltan wrote:
-> 2017-12-18 20:07 keltezéssel, Guenter Roeck írta:
-> >On Mon, Dec 18, 2017 at 09:48:38AM +0100, Zoltan Boszormenyi wrote:
-> >>From: Böszörményi Zoltán <zboszor@pr.hu>
-> >>
-> >>In order to make request_*muxed_region() behave more like
-> >>mutex_lock(), a possible failure case needs to be eliminated.
-> >>When drivers do not properly share the same I/O region, e.g.
-> >>one is using request_region() and the other is using
-> >>request_muxed_region(), the kernel didn't warn the user about it.
-> >>This change modifies IORESOURCE_MUXED behaviour so it always
-> >>goes to sleep waiting for the resuorce to be freed and the
-> >
-> >resource
-> >
-> >>inconsistent resource flag usage is logged with KERN_ERR.
-> >>
-> >>v2: Fixed checkpatch.pl warnings and extended the comment
-> >>     about request_declared_muxed_region.
-> >>
-> >>v3: Rebased for 4.15-rc4
-> >>
-> >>Signed-off-by: Zoltán Böszörményi <zboszor@pr.hu>
-> >>---
-> >>  kernel/resource.c | 6 +++++-
-> >>  1 file changed, 5 insertions(+), 1 deletion(-)
-> >>
-> >>diff --git a/kernel/resource.c b/kernel/resource.c
-> >>index 05db9c4e3992..0f26f887ac33 100644
-> >>--- a/kernel/resource.c
-> >>+++ b/kernel/resource.c
-> >>@@ -1143,6 +1143,7 @@ resource_size_t resource_alignment(struct resource *res)
-> >>   *
-> >>   * request_declared_muxed_region creates a new shared busy region
-> >>   * described in an existing resource descriptor.
-> >>+ * It only returns if it succeeded.
-> >>   *
-> >>   * release_region releases a matching busy region.
-> >>   * The region is only freed if it was allocated.
-> >>@@ -1209,7 +1210,10 @@ struct resource *__request_declared_region(struct resource *parent,
-> >>  				continue;
-> >>  			}
-> >>  		}
-> >>-		if (conflict->flags & flags & IORESOURCE_MUXED) {
-> >>+		if (flags & IORESOURCE_MUXED) {
-> >>+			if (!(conflict->flags & IORESOURCE_MUXED))
-> >>+				pr_err("Resource conflict between muxed \"%s\" and non-muxed \"%s\" I/O regions!\n",
-> >>+					res->name, conflict->name);
-> >
-> >With this, the muxed resource requestor will hang since the non-muxed
-> >requestor will not release the resource. I understand that you are trying
-> >to get rid of the error return, but is replacing it with a hang really
-> >better ?
+On 12/18/2017 12:48 AM, Zoltan Boszormenyi wrote:
+> From: BÃ¶szÃ¶rmÃ©nyi ZoltÃ¡n <zboszor@pr.hu>
 > 
-> I think it's a definite yes.
+> Use the new request_declared_muxed_region() macro to
+> synchronize access to the I/O port pair 0xcd6 / 0xcd7.
 > 
+> At the same time, remove the long lifetime request_region()
+> call to reserve these I/O ports, so the sp5100_tco watchdog
+> driver can also load.
+> 
+> This fixes an old regression in Linux 4.4-rc4, caused by
+> commit 2fee61d22e60 ("i2c: piix4: Add support for multiplexed
+> main adapter in SB800")
+> 
+> v1: Started with a common mutex in a C source file.
+> 
+> v2: Referenced to common mutex from drivers/usb/host/pci-quirks.c
+> 
+> v3: Switched to using the new request_declared_muxed_region
+>      macro.
+> 
+> v4: Fixed checkpatch.pl warnings and use the new
+>      release_declared_region() macro.
+> 
+> v5: Rebased for 4.15-rc4
+>      Use struct i2c_algorithm pointer directly instead of
+>      a bool to select the proper algo.
 
-I disagree. Some systems are configured to crash on stalls, which is
-always worse than failure to load a driver.
-
-I think the real problem is that usb_amd_quirk_pll() does not return
-an error. It should, usb_amd_quirk_pll_disable() as well as
-usb_amd_quirk_pll_enable() should pass the error to the calling code,
-which should handle it. However, there is an even simpler solution -
-see below.
-
-> Consider the case of the regression this series is trying to fix.
-> 
-> Two drivers were trying to access a shared resource, both thinking
-> that it's the only one, which was almost true[1] initially.
-> An improvement in the i2c-piix4 driver in 4.4-rc3 broke sp5100_tco.
-> sp5100_tco was loaded second and failed outright.
-> 
-> This didn't make anyone to fix the situation, despite the fact
-> that there are at least three bugtrackers (kernel, Debian and Red Hat)
-> that point out the same problem.
-> 
-> So, a failing driver initialization is not horrifying enough to get
-> something fixed. Maybe a hang is.
-> 
-> Maybe this behaviour is still too weak, instead of doing it for an
-> inconsistent muxed/non-muxed case, it (at least the logging) should
-> be done for every case, to detect drivers that try to lock the same
-> resource.
-> 
-> In the case of an inconsistent resource flags usage, the bug is
-> not the hang itself, it's the inconsistent resource flags.
-> 
-Separate problem from the one you are trying to solve. One could argue
-that the inconsistent resource use should dump a warning with traceback.
-Sure, that would also cause the systems I referred to above to crash,
-but it would do so with an actionable traceback, not with an obscure
-hang which requires detailed analysis.
-
-> [1] The USB PCI quirks were accessing the same I/O resource without
-> locking and I found that on a Kabini machine, we got rare
-> "disabled by hub (EMI?), re-enabling..." reports that doesn't occur
-> with the locking applied. It is possible that two kernel threads were
-> doing I/O at the same time without synchronization.
-> 
-
-The usb quirks code only accesses the registers in question to obtain
-another set of index registers. It _could_ do that in its initialization
-code instead and get the address through amd_chipset_info when needed.
-If done corectly, this could actually simplify the related code in
-usb_amd_quirk_pll(), since the operation on the address obtained
-is the same for all supported chipsets.
-
-Overall, I don't see a need for this API change. There are at least
-two other solutions available to handle the usb quirks issue, one of
-which is substantially less invasive. The problems in the other drivers
-can be solved by using request_muxed_region().
+This change makes sense, but it should be a separate patch.
 
 Guenter
+
+> 
+> Signed-off-by: ZoltÃ¡n BÃ¶szÃ¶rmÃ©nyi <zboszor@pr.hu>
+> ---
+>   drivers/i2c/busses/i2c-piix4.c | 51 +++++++++++++++---------------------------
+>   1 file changed, 18 insertions(+), 33 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
+> index 462948e2c535..1846d9ea7d27 100644
+> --- a/drivers/i2c/busses/i2c-piix4.c
+> +++ b/drivers/i2c/busses/i2c-piix4.c
+> @@ -153,10 +153,11 @@ static const struct dmi_system_id piix4_dmi_ibm[] = {
+>   
+>   /*
+>    * SB800 globals
+> - * piix4_mutex_sb800 protects piix4_port_sel_sb800 and the pair
+> + * request_declared_muxed_region() protects piix4_port_sel_sb800 and the pair
+>    * of I/O ports at SB800_PIIX4_SMB_IDX.
+>    */
+> -static DEFINE_MUTEX(piix4_mutex_sb800);
+> +static struct resource sb800_res = DEFINE_RES_IO_NAMED(SB800_PIIX4_SMB_IDX, 2,
+> +						 "i2c-piix4");
+>   static u8 piix4_port_sel_sb800;
+>   static u8 piix4_port_mask_sb800;
+>   static u8 piix4_port_shift_sb800;
+> @@ -169,7 +170,6 @@ struct i2c_piix4_adapdata {
+>   	unsigned short smba;
+>   
+>   	/* SB800 */
+> -	bool sb800_main;
+>   	bool notify_imc;
+>   	u8 port;		/* Port number, shifted */
+>   };
+> @@ -298,12 +298,12 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
+>   	else
+>   		smb_en = (aux) ? 0x28 : 0x2c;
+>   
+> -	mutex_lock(&piix4_mutex_sb800);
+> +	request_declared_muxed_region(&sb800_res);
+>   	outb_p(smb_en, SB800_PIIX4_SMB_IDX);
+>   	smba_en_lo = inb_p(SB800_PIIX4_SMB_IDX + 1);
+>   	outb_p(smb_en + 1, SB800_PIIX4_SMB_IDX);
+>   	smba_en_hi = inb_p(SB800_PIIX4_SMB_IDX + 1);
+> -	mutex_unlock(&piix4_mutex_sb800);
+> +	release_declared_region(&sb800_res);
+>   
+>   	if (!smb_en) {
+>   		smb_en_status = smba_en_lo & 0x10;
+> @@ -373,7 +373,7 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
+>   			break;
+>   		}
+>   	} else {
+> -		mutex_lock(&piix4_mutex_sb800);
+> +		request_declared_muxed_region(&sb800_res);
+>   		outb_p(SB800_PIIX4_PORT_IDX_SEL, SB800_PIIX4_SMB_IDX);
+>   		port_sel = inb_p(SB800_PIIX4_SMB_IDX + 1);
+>   		piix4_port_sel_sb800 = (port_sel & 0x01) ?
+> @@ -381,7 +381,7 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
+>   				       SB800_PIIX4_PORT_IDX;
+>   		piix4_port_mask_sb800 = SB800_PIIX4_PORT_IDX_MASK;
+>   		piix4_port_shift_sb800 = SB800_PIIX4_PORT_IDX_SHIFT;
+> -		mutex_unlock(&piix4_mutex_sb800);
+> +		release_declared_region(&sb800_res);
+>   	}
+>   
+>   	dev_info(&PIIX4_dev->dev,
+> @@ -679,7 +679,7 @@ static s32 piix4_access_sb800(struct i2c_adapter *adap, u16 addr,
+>   	u8 port;
+>   	int retval;
+>   
+> -	mutex_lock(&piix4_mutex_sb800);
+> +	request_declared_muxed_region(&sb800_res);
+>   
+>   	/* Request the SMBUS semaphore, avoid conflicts with the IMC */
+>   	smbslvcnt  = inb_p(SMBSLVCNT);
+> @@ -695,7 +695,7 @@ static s32 piix4_access_sb800(struct i2c_adapter *adap, u16 addr,
+>   	} while (--retries);
+>   	/* SMBus is still owned by the IMC, we give up */
+>   	if (!retries) {
+> -		mutex_unlock(&piix4_mutex_sb800);
+> +		release_declared_region(&sb800_res);
+>   		return -EBUSY;
+>   	}
+>   
+> @@ -753,7 +753,7 @@ static s32 piix4_access_sb800(struct i2c_adapter *adap, u16 addr,
+>   	if ((size == I2C_SMBUS_BLOCK_DATA) && adapdata->notify_imc)
+>   		piix4_imc_wakeup();
+>   
+> -	mutex_unlock(&piix4_mutex_sb800);
+> +	release_declared_region(&sb800_res);
+>   
+>   	return retval;
+>   }
+> @@ -804,7 +804,8 @@ static struct i2c_adapter *piix4_main_adapters[PIIX4_MAX_ADAPTERS];
+>   static struct i2c_adapter *piix4_aux_adapter;
+>   
+>   static int piix4_add_adapter(struct pci_dev *dev, unsigned short smba,
+> -			     bool sb800_main, u8 port, bool notify_imc,
+> +			     struct i2c_algorithm *algo,
+> +			     u8 port, bool notify_imc,
+>   			     const char *name, struct i2c_adapter **padap)
+>   {
+>   	struct i2c_adapter *adap;
+> @@ -819,8 +820,7 @@ static int piix4_add_adapter(struct pci_dev *dev, unsigned short smba,
+>   
+>   	adap->owner = THIS_MODULE;
+>   	adap->class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
+> -	adap->algo = sb800_main ? &piix4_smbus_algorithm_sb800
+> -				: &smbus_algorithm;
+> +	adap->algo = algo;
+>   
+>   	adapdata = kzalloc(sizeof(*adapdata), GFP_KERNEL);
+>   	if (adapdata == NULL) {
+> @@ -830,7 +830,6 @@ static int piix4_add_adapter(struct pci_dev *dev, unsigned short smba,
+>   	}
+>   
+>   	adapdata->smba = smba;
+> -	adapdata->sb800_main = sb800_main;
+>   	adapdata->port = port << piix4_port_shift_sb800;
+>   	adapdata->notify_imc = notify_imc;
+>   
+> @@ -862,7 +861,9 @@ static int piix4_add_adapters_sb800(struct pci_dev *dev, unsigned short smba,
+>   	int retval;
+>   
+>   	for (port = 0; port < PIIX4_MAX_ADAPTERS; port++) {
+> -		retval = piix4_add_adapter(dev, smba, true, port, notify_imc,
+> +		retval = piix4_add_adapter(dev, smba,
+> +					   &piix4_smbus_algorithm_sb800,
+> +					   port, notify_imc,
+>   					   piix4_main_port_names_sb800[port],
+>   					   &piix4_main_adapters[port]);
+>   		if (retval < 0)
+> @@ -899,13 +900,6 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
+>   		bool notify_imc = false;
+>   		is_sb800 = true;
+>   
+> -		if (!request_region(SB800_PIIX4_SMB_IDX, 2, "smba_idx")) {
+> -			dev_err(&dev->dev,
+> -			"SMBus base address index region 0x%x already in use!\n",
+> -			SB800_PIIX4_SMB_IDX);
+> -			return -EBUSY;
+> -		}
+> -
+>   		if (dev->vendor == PCI_VENDOR_ID_AMD &&
+>   		    dev->device == PCI_DEVICE_ID_AMD_KERNCZ_SMBUS) {
+>   			u8 imc;
+> @@ -922,27 +916,24 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
+>   
+>   		/* base address location etc changed in SB800 */
+>   		retval = piix4_setup_sb800(dev, id, 0);
+> -		if (retval < 0) {
+> -			release_region(SB800_PIIX4_SMB_IDX, 2);
+> +		if (retval < 0)
+>   			return retval;
+> -		}
+>   
+>   		/*
+>   		 * Try to register multiplexed main SMBus adapter,
+>   		 * give up if we can't
+>   		 */
+>   		retval = piix4_add_adapters_sb800(dev, retval, notify_imc);
+> -		if (retval < 0) {
+> -			release_region(SB800_PIIX4_SMB_IDX, 2);
+> +		if (retval < 0)
+>   			return retval;
+> -		}
+>   	} else {
+>   		retval = piix4_setup(dev, id);
+>   		if (retval < 0)
+>   			return retval;
+>   
+>   		/* Try to register main SMBus adapter, give up if we can't */
+> -		retval = piix4_add_adapter(dev, retval, false, 0, false, "",
+> +		retval = piix4_add_adapter(dev, retval,
+> +					   &smbus_algorithm, 0, false, "",
+>   					   &piix4_main_adapters[0]);
+>   		if (retval < 0)
+>   			return retval;
+> @@ -983,11 +974,8 @@ static void piix4_adap_remove(struct i2c_adapter *adap)
+>   
+>   	if (adapdata->smba) {
+>   		i2c_del_adapter(adap);
+> -		if (adapdata->port == (0 << piix4_port_shift_sb800)) {
+> +		if (adapdata->port == (0 << piix4_port_shift_sb800))
+>   			release_region(adapdata->smba, SMBIOSIZE);
+> -			if (adapdata->sb800_main)
+> -				release_region(SB800_PIIX4_SMB_IDX, 2);
+> -		}
+>   		kfree(adapdata);
+>   		kfree(adap);
+>   	}
+> 
+
