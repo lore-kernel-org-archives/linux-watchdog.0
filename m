@@ -1,129 +1,70 @@
-Return-Path: <christophe.leroy@c-s.fr>
-Return-path: <christophe.leroy@c-s.fr>
-Subject: Re: [PATCH v3 00/27] kill devm_ioremap_nocache
-To: Guenter Roeck <linux@roeck-us.net>, Greg KH <gregkh@linuxfoundation.org>,
- Yisheng Xie <xieyisheng1@huawei.com>
-Cc: linux-kernel@vger.kernel.org, ysxie@foxmail.com, ulf.hansson@linaro.org,
- linux-mmc@vger.kernel.org, boris.brezillon@free-electrons.com,
- richard@nod.at, marek.vasut@gmail.com, cyrille.pitchen@wedev4u.fr,
- linux-mtd@lists.infradead.org, alsa-devel@alsa-project.org, wim@iguana.be,
- linux-watchdog@vger.kernel.org, b.zolnierkie@samsung.com,
- linux-fbdev@vger.kernel.org, linus.walleij@linaro.org,
- linux-gpio@vger.kernel.org, ralf@linux-mips.org, linux-mips@linux-mips.org,
- lgirdwood@gmail.com, broonie@kernel.org, tglx@linutronix.de,
- jason@lakedaemon.net, marc.zyngier@arm.com, arnd@arndb.de,
- andriy.shevchenko@linux.intel.com, industrypack-devel@lists.sourceforge.net,
- wg@grandegger.com, mkl@pengutronix.de, linux-can@vger.kernel.org,
- mchehab@kernel.org, linux-media@vger.kernel.org, a.zummo@towertech.it,
- alexandre.belloni@free-electrons.com, linux-rtc@vger.kernel.org,
- daniel.vetter@intel.com, jani.nikula@linux.intel.com, seanpaul@chromium.org,
- airlied@linux.ie, dri-devel@lists.freedesktop.org, kvalo@codeaurora.org,
- linux-wireless@vger.kernel.org, linux-spi@vger.kernel.org, tj@kernel.org,
- linux-ide@vger.kernel.org, bhelgaas@google.com, linux-pci@vger.kernel.org,
- devel@driverdev.osuosl.org, dvhart@infradead.org, andy@infradead.org,
- platform-driver-x86@vger.kernel.org, jakub.kicinski@netronome.com,
- davem@davemloft.net, nios2-dev@lists.rocketboards.org,
- netdev@vger.kernel.org, vinod.koul@intel.com, dan.j.williams@intel.com,
- dmaengine@vger.kernel.org, jslaby@suse.com
-References: <1514026525-32538-1-git-send-email-xieyisheng1@huawei.com>
- <20171223134831.GB10103@kroah.com>
- <f7632cf5-2bcc-4d74-b912-3999937a1269@roeck-us.net>
-From: christophe leroy <christophe.leroy@c-s.fr>
-Message-ID: <c28ac0bc-8bd2-3dce-3167-8c0f80ec601e@c-s.fr>
-Date: Sun, 24 Dec 2017 09:55:18 +0100
+Return-Path: <xieyisheng1@huawei.com>
+Return-path: <xieyisheng1@huawei.com>
+From: Yisheng Xie <xieyisheng1@huawei.com>
+To: <linux-kernel@vger.kernel.org>, <gregkh@linuxfoundation.org>
+CC: <ysxie@foxmail.com>, Yisheng Xie <xieyisheng1@huawei.com>, "Wim Van
+ Sebroeck" <wim@iguana.be>, Guenter Roeck <linux@roeck-us.net>,
+	<linux-watchdog@vger.kernel.org>
+Subject: [PATCH v3 21/27] watchdog: replace devm_ioremap_nocache with devm_ioremap
+Date: Sat, 23 Dec 2017 19:01:37 +0800
+Message-ID: <1514026897-33581-1-git-send-email-xieyisheng1@huawei.com>
 MIME-Version: 1.0
-In-Reply-To: <f7632cf5-2bcc-4d74-b912-3999937a1269@roeck-us.net>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: fr
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 List-ID: <linux-watchdog@vger.kernel.org>
 
+Default ioremap is ioremap_nocache, so devm_ioremap has the same
+function with devm_ioremap_nocache, which can just be killed to
+save the size of devres.o
 
+This patch is to use use devm_ioremap instead of devm_ioremap_nocache,
+which should not have any function change but prepare for killing
+devm_ioremap_nocache.
 
-Le 23/12/2017 à 16:57, Guenter Roeck a écrit :
-> On 12/23/2017 05:48 AM, Greg KH wrote:
->> On Sat, Dec 23, 2017 at 06:55:25PM +0800, Yisheng Xie wrote:
->>> Hi all,
->>>
->>> When I tried to use devm_ioremap function and review related code, I 
->>> found
->>> devm_ioremap and devm_ioremap_nocache is almost the same with each 
->>> other,
->>> except one use ioremap while the other use ioremap_nocache.
->>
->> For all arches?  Really?  Look at MIPS, and x86, they have different
->> functions.
->>
-> 
-> Both mips and x86 end up mapping the same function, but other arches don't.
-> mn10300 is one where ioremap and ioremap_nocache are definitely different.
-
-alpha: identical
-arc: identical
-arm: identical
-arm64: identical
-cris: different        <==
-frv: identical
-hexagone: identical
-ia64: different        <==
-m32r: identical
-m68k: identical
-metag: identical
-microblaze: identical
-mips: identical
-mn10300: different     <==
-nios: identical
-openrisc: different    <==
-parisc: identical
-riscv: identical
-s390: identical
-sh: identical
-sparc: identical
-tile: identical
-um: rely on asm/generic
-unicore32: identical
-x86: identical
-asm/generic (no mmu): identical
-
-So 4 among all arches seems to have ioremap() and ioremap_nocache() 
-being different.
-
-Could we have a define set by the 4 arches on which ioremap() and 
-ioremap_nocache() are different, something like 
-HAVE_DIFFERENT_IOREMAP_NOCACHE ?
-
-Christophe
-
-> 
-> Guenter
-> 
->>> While ioremap's
->>> default function is ioremap_nocache, so devm_ioremap_nocache also 
->>> have the
->>> same function with devm_ioremap, which can just be killed to reduce 
->>> the size
->>> of devres.o(from 20304 bytes to 18992 bytes in my compile environment).
->>>
->>> I have posted two versions, which use macro instead of function for
->>> devm_ioremap_nocache[1] or devm_ioremap[2]. And Greg suggest me to kill
->>> devm_ioremap_nocache for no need to keep a macro around for the 
->>> duplicate
->>> thing. So here comes v3 and please help to review.
->>
->> I don't think this can be done, what am I missing?  These functions are
->> not identical, sorry for missing that before.
->>
->> thanks,
->>
->> greg k-h
->>
-> 
-> -- 
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-watchdog" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-
+Cc: Wim Van Sebroeck <wim@iguana.be>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Cc: linux-watchdog@vger.kernel.org
+Signed-off-by: Yisheng Xie <xieyisheng1@huawei.com>
 ---
-L'absence de virus dans ce courrier électronique a été vérifiée par le logiciel antivirus Avast.
-https://www.avast.com/antivirus
+ drivers/watchdog/bcm63xx_wdt.c | 4 ++--
+ drivers/watchdog/rc32434_wdt.c | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/watchdog/bcm63xx_wdt.c b/drivers/watchdog/bcm63xx_wdt.c
+index 8555afc..697a7e7 100644
+--- a/drivers/watchdog/bcm63xx_wdt.c
++++ b/drivers/watchdog/bcm63xx_wdt.c
+@@ -248,8 +248,8 @@ static int bcm63xx_wdt_probe(struct platform_device *pdev)
+ 		return -ENODEV;
+ 	}
+ 
+-	bcm63xx_wdt_device.regs = devm_ioremap_nocache(&pdev->dev, r->start,
+-							resource_size(r));
++	bcm63xx_wdt_device.regs = devm_ioremap(&pdev->dev, r->start,
++						resource_size(r));
+ 	if (!bcm63xx_wdt_device.regs) {
+ 		dev_err(&pdev->dev, "failed to remap I/O resources\n");
+ 		return -ENXIO;
+diff --git a/drivers/watchdog/rc32434_wdt.c b/drivers/watchdog/rc32434_wdt.c
+index 3a75f3b..7d519c5 100644
+--- a/drivers/watchdog/rc32434_wdt.c
++++ b/drivers/watchdog/rc32434_wdt.c
+@@ -31,7 +31,7 @@
+ #include <linux/platform_device.h>	/* For platform_driver framework */
+ #include <linux/spinlock.h>		/* For spin_lock/spin_unlock/... */
+ #include <linux/uaccess.h>		/* For copy_to_user/put_user/... */
+-#include <linux/io.h>			/* For devm_ioremap_nocache */
++#include <linux/io.h>			/* For devm_ioremap */
+ 
+ #include <asm/mach-rc32434/integ.h>	/* For the Watchdog registers */
+ 
+@@ -271,7 +271,7 @@ static int rc32434_wdt_probe(struct platform_device *pdev)
+ 		return -ENODEV;
+ 	}
+ 
+-	wdt_reg = devm_ioremap_nocache(&pdev->dev, r->start, resource_size(r));
++	wdt_reg = devm_ioremap(&pdev->dev, r->start, resource_size(r));
+ 	if (!wdt_reg) {
+ 		pr_err("failed to remap I/O resources\n");
+ 		return -ENXIO;
+-- 
+1.8.3.1
