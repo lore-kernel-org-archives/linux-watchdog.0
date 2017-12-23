@@ -1,132 +1,162 @@
-Return-Path: <zboszor@pr.hu>
-Return-path: <zboszor@pr.hu>
-Subject: Re: [PATCH 2/5 v3] Modify behaviour of request_*muxed_region()
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org,
- linux-watchdog@vger.kernel.org, linux-i2c@vger.kernel.org,
- Paul Menzel <paulepanter@users.sourceforge.net>,
- Christian Fetzer <fetzer.ch@gmail.com>, Jean Delvare <jdelvare@suse.com>,
- Nehal Shah <nehal-bakulchandra.shah@amd.com>, Tim Small <tim@seoss.co.uk>,
- kernel@ekass.net, wim@iguana.be, jlayton@poochiereds.net,
- marc.2377@gmail.com, cshorler@googlemail.com, wsa@the-dreams.de,
- regressions@leemhuis.info, Alex Williamson <alex.williamson@redhat.com>,
- lyude@redhat.com, Linus Torvalds <torvalds@linux-foundation.org>,
- Bjorn Helgaas <bhelgaas@google.com>, Toshi Kani <toshi.kani@hpe.com>,
- Jiang Liu <jiang.liu@linux.intel.com>, Jakub Sitnicki <jsitnicki@gmail.com>,
- Thierry Reding <treding@nvidia.com>, Vivek Goyal <vgoyal@redhat.com>,
- Ingo Molnar <mingo@kernel.org>, Simon Guinot <simon.guinot@sequanux.org>,
- Dan Williams <dan.j.williams@intel.com>, Mike Travis <travis@sgi.com>,
- Daeseok Youn <daeseok.youn@gmail.com>, Huang Rui <ray.huang@amd.com>,
- Andiry Xu <andiry.xu@amd.com>, Alan Cox <gnomes@lxorguk.ukuu.org.uk>,
- David Howells <dhowells@redhat.com>,
- Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>,
- Alexandre Desnoyers <alex@qtec.com>,
- Andy Shevchenko <andy.shevchenko@gmail.com>,
- Grygorii Strashko <grygorii.strashko@ti.com>,
- Mika Westerberg <mika.westerberg@linux.intel.com>,
- Wan ZongShun <Vincent.Wan@amd.com>, Ulf Hansson <ulf.hansson@linaro.org>,
- Lucas Stach <dev@lynxeye.de>,
- Denis Turischev <denis.turischev@compulab.co.il>
-References: <20171218084841.9979-1-zboszor@pr.hu>
- <20171218084841.9979-2-zboszor@pr.hu> <20171218190741.GB6424@roeck-us.net>
-From: Boszormenyi Zoltan <zboszor@pr.hu>
-Message-ID: <cd1710e7-d317-ab69-27bb-17f645a83f91@pr.hu>
-Date: Tue, 19 Dec 2017 07:11:11 +0100
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from szxga04-in.huawei.com ([45.249.212.190]:2718 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1750713AbdLWLEk (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Sat, 23 Dec 2017 06:04:40 -0500
+From: Yisheng Xie <xieyisheng1@huawei.com>
+To: <linux-kernel@vger.kernel.org>, <gregkh@linuxfoundation.org>
+CC: <ysxie@foxmail.com>, <ulf.hansson@linaro.org>,
+        <linux-mmc@vger.kernel.org>, <boris.brezillon@free-electrons.com>,
+        <richard@nod.at>, <marek.vasut@gmail.com>,
+        <cyrille.pitchen@wedev4u.fr>, <linux-mtd@lists.infradead.org>,
+        <alsa-devel@alsa-project.org>, <wim@iguana.be>,
+        <linux@roeck-us.net>, <linux-watchdog@vger.kernel.org>,
+        <b.zolnierkie@samsung.com>, <linux-fbdev@vger.kernel.org>,
+        <linus.walleij@linaro.org>, <linux-gpio@vger.kernel.org>,
+        <ralf@linux-mips.org>, <linux-mips@linux-mips.org>,
+        <lgirdwood@gmail.com>, <broonie@kernel.org>, <tglx@linutronix.de>,
+        <jason@lakedaemon.net>, <marc.zyngier@arm.com>, <arnd@arndb.de>,
+        <andriy.shevchenko@linux.intel.com>,
+        <industrypack-devel@lists.sourceforge.net>, <wg@grandegger.com>,
+        <mkl@pengutronix.de>, <linux-can@vger.kernel.org>,
+        <mchehab@kernel.org>, <linux-media@vger.kernel.org>,
+        <a.zummo@towertech.it>, <alexandre.belloni@free-electrons.com>,
+        <linux-rtc@vger.kernel.org>, <daniel.vetter@intel.com>,
+        <jani.nikula@linux.intel.com>, <seanpaul@chromium.org>,
+        <airlied@linux.ie>, <dri-devel@lists.freedesktop.org>,
+        <kvalo@codeaurora.org>, <linux-wireless@vger.kernel.org>,
+        <linux-spi@vger.kernel.org>, <tj@kernel.org>,
+        <linux-ide@vger.kernel.org>, <bhelgaas@google.com>,
+        <linux-pci@vger.kernel.org>, <devel@driverdev.osuosl.org>,
+        <dvhart@infradead.org>, <andy@infradead.org>,
+        <platform-driver-x86@vger.kernel.org>,
+        <jakub.kicinski@netronome.com>, <davem@davemloft.net>,
+        <nios2-dev@lists.rocketboards.org>, <netdev@vger.kernel.org>,
+        <vinod.koul@intel.com>, <dan.j.williams@intel.com>,
+        <dmaengine@vger.kernel.org>, <jslaby@suse.com>,
+        Yisheng Xie <xieyisheng1@huawei.com>
+Subject: [PATCH v3 00/27] kill devm_ioremap_nocache
+Date: Sat, 23 Dec 2017 18:55:25 +0800
+Message-ID: <1514026525-32538-1-git-send-email-xieyisheng1@huawei.com>
 MIME-Version: 1.0
-In-Reply-To: <20171218190741.GB6424@roeck-us.net>
-Content-Type: text/plain; charset=iso-8859-2; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-List-ID: <linux-watchdog@vger.kernel.org>
+Content-Type: text/plain
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-2017-12-18 20:07 keltezéssel, Guenter Roeck írta:
-> On Mon, Dec 18, 2017 at 09:48:38AM +0100, Zoltan Boszormenyi wrote:
->> From: Böszörményi Zoltán <zboszor@pr.hu>
->>
->> In order to make request_*muxed_region() behave more like
->> mutex_lock(), a possible failure case needs to be eliminated.
->> When drivers do not properly share the same I/O region, e.g.
->> one is using request_region() and the other is using
->> request_muxed_region(), the kernel didn't warn the user about it.
->> This change modifies IORESOURCE_MUXED behaviour so it always
->> goes to sleep waiting for the resuorce to be freed and the
-> 
-> resource
-> 
->> inconsistent resource flag usage is logged with KERN_ERR.
->>
->> v2: Fixed checkpatch.pl warnings and extended the comment
->>      about request_declared_muxed_region.
->>
->> v3: Rebased for 4.15-rc4
->>
->> Signed-off-by: Zoltán Böszörményi <zboszor@pr.hu>
->> ---
->>   kernel/resource.c | 6 +++++-
->>   1 file changed, 5 insertions(+), 1 deletion(-)
->>
->> diff --git a/kernel/resource.c b/kernel/resource.c
->> index 05db9c4e3992..0f26f887ac33 100644
->> --- a/kernel/resource.c
->> +++ b/kernel/resource.c
->> @@ -1143,6 +1143,7 @@ resource_size_t resource_alignment(struct resource *res)
->>    *
->>    * request_declared_muxed_region creates a new shared busy region
->>    * described in an existing resource descriptor.
->> + * It only returns if it succeeded.
->>    *
->>    * release_region releases a matching busy region.
->>    * The region is only freed if it was allocated.
->> @@ -1209,7 +1210,10 @@ struct resource *__request_declared_region(struct resource *parent,
->>   				continue;
->>   			}
->>   		}
->> -		if (conflict->flags & flags & IORESOURCE_MUXED) {
->> +		if (flags & IORESOURCE_MUXED) {
->> +			if (!(conflict->flags & IORESOURCE_MUXED))
->> +				pr_err("Resource conflict between muxed \"%s\" and non-muxed \"%s\" I/O regions!\n",
->> +					res->name, conflict->name);
-> 
-> With this, the muxed resource requestor will hang since the non-muxed
-> requestor will not release the resource. I understand that you are trying
-> to get rid of the error return, but is replacing it with a hang really
-> better ?
+Hi all,
 
-I think it's a definite yes.
+When I tried to use devm_ioremap function and review related code, I found
+devm_ioremap and devm_ioremap_nocache is almost the same with each other,
+except one use ioremap while the other use ioremap_nocache. While ioremap's
+default function is ioremap_nocache, so devm_ioremap_nocache also have the
+same function with devm_ioremap, which can just be killed to reduce the size
+of devres.o(from 20304 bytes to 18992 bytes in my compile environment).
 
-Consider the case of the regression this series is trying to fix.
+I have posted two versions, which use macro instead of function for
+devm_ioremap_nocache[1] or devm_ioremap[2]. And Greg suggest me to kill
+devm_ioremap_nocache for no need to keep a macro around for the duplicate
+thing. So here comes v3 and please help to review.
 
-Two drivers were trying to access a shared resource, both thinking
-that it's the only one, which was almost true[1] initially.
-An improvement in the i2c-piix4 driver in 4.4-rc3 broke sp5100_tco.
-sp5100_tco was loaded second and failed outright.
+Thanks so much!
+Yisheng Xie
 
-This didn't make anyone to fix the situation, despite the fact
-that there are at least three bugtrackers (kernel, Debian and Red Hat)
-that point out the same problem.
+[1] https://lkml.org/lkml/2017/11/20/135
+[2] https://lkml.org/lkml/2017/11/25/21
 
-So, a failing driver initialization is not horrifying enough to get
-something fixed. Maybe a hang is.
+Yisheng Xie (27):
+  ASOC: replace devm_ioremap_nocache with devm_ioremap
+  spi: replace devm_ioremap_nocache with devm_ioremap
+  staging: replace devm_ioremap_nocache with devm_ioremap
+  ipack: replace devm_ioremap_nocache with devm_ioremap
+  media: replace devm_ioremap_nocache with devm_ioremap
+  gpio: replace devm_ioremap_nocache with devm_ioremap
+  mmc: replace devm_ioremap_nocache with devm_ioremap
+  PCI: replace devm_ioremap_nocache with devm_ioremap
+  platform/x86: replace devm_ioremap_nocache with devm_ioremap
+  tty: replace devm_ioremap_nocache with devm_ioremap
+  video: replace devm_ioremap_nocache with devm_ioremap
+  rtc: replace devm_ioremap_nocache with devm_ioremap
+  char: replace devm_ioremap_nocache with devm_ioremap
+  mtd: nand: replace devm_ioremap_nocache with devm_ioremap
+  dmaengine: replace devm_ioremap_nocache with devm_ioremap
+  ata: replace devm_ioremap_nocache with devm_ioremap
+  irqchip: replace devm_ioremap_nocache with devm_ioremap
+  pinctrl: replace devm_ioremap_nocache with devm_ioremap
+  drm: replace devm_ioremap_nocache with devm_ioremap
+  regulator: replace devm_ioremap_nocache with devm_ioremap
+  watchdog: replace devm_ioremap_nocache with devm_ioremap
+  tools/testing/nvdimm: replace devm_ioremap_nocache with devm_ioremap
+  MIPS: pci: replace devm_ioremap_nocache with devm_ioremap
+  can: replace devm_ioremap_nocache with devm_ioremap
+  wireless: replace devm_ioremap_nocache with devm_ioremap
+  ethernet: replace devm_ioremap_nocache with devm_ioremap
+  devres: kill devm_ioremap_nocache
 
-Maybe this behaviour is still too weak, instead of doing it for an
-inconsistent muxed/non-muxed case, it (at least the logging) should
-be done for every case, to detect drivers that try to lock the same
-resource.
+ Documentation/driver-model/devres.txt           |  1 -
+ arch/mips/pci/pci-ar2315.c                      |  3 +--
+ drivers/ata/pata_arasan_cf.c                    |  3 +--
+ drivers/ata/pata_octeon_cf.c                    |  9 ++++----
+ drivers/ata/pata_rb532_cf.c                     |  2 +-
+ drivers/char/hw_random/bcm63xx-rng.c            |  3 +--
+ drivers/char/hw_random/octeon-rng.c             | 10 ++++-----
+ drivers/dma/altera-msgdma.c                     |  3 +--
+ drivers/dma/sprd-dma.c                          |  4 ++--
+ drivers/gpio/gpio-ath79.c                       |  3 +--
+ drivers/gpio/gpio-em.c                          |  6 ++---
+ drivers/gpio/gpio-htc-egpio.c                   |  4 ++--
+ drivers/gpio/gpio-xgene.c                       |  3 +--
+ drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.c |  2 +-
+ drivers/gpu/drm/msm/msm_drv.c                   |  2 +-
+ drivers/gpu/drm/sti/sti_dvo.c                   |  3 +--
+ drivers/gpu/drm/sti/sti_hda.c                   |  4 ++--
+ drivers/gpu/drm/sti/sti_hdmi.c                  |  2 +-
+ drivers/gpu/drm/sti/sti_tvout.c                 |  2 +-
+ drivers/gpu/drm/sti/sti_vtg.c                   |  2 +-
+ drivers/ipack/devices/ipoctal.c                 | 13 +++++------
+ drivers/irqchip/irq-renesas-intc-irqpin.c       |  4 ++--
+ drivers/media/platform/tegra-cec/tegra_cec.c    |  4 ++--
+ drivers/mmc/host/sdhci-acpi.c                   |  3 +--
+ drivers/mtd/nand/fsl_upm.c                      |  4 ++--
+ drivers/net/can/sja1000/sja1000_platform.c      |  4 ++--
+ drivers/net/ethernet/altera/altera_tse_main.c   |  3 +--
+ drivers/net/ethernet/ethoc.c                    |  8 +++----
+ drivers/net/ethernet/lantiq_etop.c              |  4 ++--
+ drivers/net/ethernet/ti/netcp_core.c            |  2 +-
+ drivers/net/wireless/ath/ath9k/ahb.c            |  2 +-
+ drivers/pci/dwc/pci-dra7xx.c                    |  2 +-
+ drivers/pinctrl/bcm/pinctrl-ns2-mux.c           |  2 +-
+ drivers/pinctrl/bcm/pinctrl-nsp-mux.c           |  4 ++--
+ drivers/pinctrl/freescale/pinctrl-imx1-core.c   |  2 +-
+ drivers/pinctrl/pinctrl-amd.c                   |  4 ++--
+ drivers/platform/x86/intel_pmc_core.c           |  5 ++---
+ drivers/regulator/ti-abb-regulator.c            |  6 ++---
+ drivers/rtc/rtc-sh.c                            |  4 ++--
+ drivers/spi/spi-jcore.c                         |  3 +--
+ drivers/staging/fsl-mc/bus/mc-io.c              |  8 +++----
+ drivers/tty/mips_ejtag_fdc.c                    |  4 ++--
+ drivers/tty/serial/8250/8250_omap.c             |  3 +--
+ drivers/tty/serial/lantiq.c                     |  3 +--
+ drivers/tty/serial/meson_uart.c                 |  3 +--
+ drivers/tty/serial/owl-uart.c                   |  2 +-
+ drivers/tty/serial/pic32_uart.c                 |  4 ++--
+ drivers/video/fbdev/mbx/mbxfb.c                 |  9 ++++----
+ drivers/video/fbdev/mmp/hw/mmp_ctrl.c           |  2 +-
+ drivers/video/fbdev/pxa168fb.c                  |  4 ++--
+ drivers/watchdog/bcm63xx_wdt.c                  |  4 ++--
+ drivers/watchdog/rc32434_wdt.c                  |  4 ++--
+ include/linux/io.h                              |  2 --
+ lib/devres.c                                    | 29 -------------------------
+ scripts/coccinelle/free/devm_free.cocci         |  2 --
+ sound/soc/au1x/ac97c.c                          |  4 ++--
+ sound/soc/au1x/i2sc.c                           |  4 ++--
+ sound/soc/intel/atom/sst/sst_acpi.c             | 20 ++++++++---------
+ sound/soc/intel/boards/mfld_machine.c           |  4 ++--
+ sound/soc/sh/fsi.c                              |  4 ++--
+ tools/testing/nvdimm/Kbuild                     |  2 +-
+ tools/testing/nvdimm/test/iomap.c               |  2 +-
+ 62 files changed, 109 insertions(+), 168 deletions(-)
 
-In the case of an inconsistent resource flags usage, the bug is
-not the hang itself, it's the inconsistent resource flags.
+-- 
+1.8.3.1
 
-[1] The USB PCI quirks were accessing the same I/O resource without
-locking and I found that on a Kabini machine, we got rare
-"disabled by hub (EMI?), re-enabling..." reports that doesn't occur
-with the locking applied. It is possible that two kernel threads were
-doing I/O at the same time without synchronization.
-
-> 
->>   			add_wait_queue(&muxed_resource_wait, &wait);
->>   			write_unlock(&resource_lock);
->>   			set_current_state(TASK_UNINTERRUPTIBLE);
->> -- 
->> 2.13.6
->>
-> 
