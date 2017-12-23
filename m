@@ -1,281 +1,85 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pl0-f67.google.com ([209.85.160.67]:46755 "EHLO
-        mail-pl0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753989AbdLTCPP (ORCPT
+Received: from mail-pl0-f65.google.com ([209.85.160.65]:47030 "EHLO
+        mail-pl0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751279AbdLWP5q (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 19 Dec 2017 21:15:15 -0500
-Subject: Re: [PATCH 4/5 v5] i2c: i2c-piix4: Use
- request_declared_muxed_region()
-To: Zoltan Boszormenyi <zboszor@pr.hu>, linux-kernel@vger.kernel.org,
-        linux-usb@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        linux-i2c@vger.kernel.org
-Cc: Paul Menzel <paulepanter@users.sourceforge.net>,
-        Christian Fetzer <fetzer.ch@gmail.com>,
-        Jean Delvare <jdelvare@suse.com>,
-        Nehal Shah <nehal-bakulchandra.shah@amd.com>,
-        Tim Small <tim@seoss.co.uk>, kernel@ekass.net, wim@iguana.be,
-        jlayton@poochiereds.net, marc.2377@gmail.com,
-        cshorler@googlemail.com, wsa@the-dreams.de,
-        regressions@leemhuis.info,
-        Alex Williamson <alex.williamson@redhat.com>, lyude@redhat.com,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Toshi Kani <toshi.kani@hpe.com>,
-        Jiang Liu <jiang.liu@linux.intel.com>,
-        Jakub Sitnicki <jsitnicki@gmail.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Vivek Goyal <vgoyal@redhat.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        Simon Guinot <simon.guinot@sequanux.org>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Mike Travis <travis@sgi.com>,
-        Daeseok Youn <daeseok.youn@gmail.com>,
-        Huang Rui <ray.huang@amd.com>, Andiry Xu <andiry.xu@amd.com>,
-        Alan Cox <gnomes@lxorguk.ukuu.org.uk>,
-        David Howells <dhowells@redhat.com>,
-        Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>,
-        Alexandre Desnoyers <alex@qtec.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Grygorii Strashko <grygorii.strashko@ti.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Wan ZongShun <Vincent.Wan@amd.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Lucas Stach <dev@lynxeye.de>,
-        Denis Turischev <denis.turischev@compulab.co.il>
-References: <20171218084841.9979-1-zboszor@pr.hu>
- <20171218084841.9979-4-zboszor@pr.hu>
+        Sat, 23 Dec 2017 10:57:46 -0500
+Subject: Re: [PATCH v3 00/27] kill devm_ioremap_nocache
+To: Greg KH <gregkh@linuxfoundation.org>,
+        Yisheng Xie <xieyisheng1@huawei.com>
+Cc: linux-kernel@vger.kernel.org, ysxie@foxmail.com,
+        ulf.hansson@linaro.org, linux-mmc@vger.kernel.org,
+        boris.brezillon@free-electrons.com, richard@nod.at,
+        marek.vasut@gmail.com, cyrille.pitchen@wedev4u.fr,
+        linux-mtd@lists.infradead.org, alsa-devel@alsa-project.org,
+        wim@iguana.be, linux-watchdog@vger.kernel.org,
+        b.zolnierkie@samsung.com, linux-fbdev@vger.kernel.org,
+        linus.walleij@linaro.org, linux-gpio@vger.kernel.org,
+        ralf@linux-mips.org, linux-mips@linux-mips.org,
+        lgirdwood@gmail.com, broonie@kernel.org, tglx@linutronix.de,
+        jason@lakedaemon.net, marc.zyngier@arm.com, arnd@arndb.de,
+        andriy.shevchenko@linux.intel.com,
+        industrypack-devel@lists.sourceforge.net, wg@grandegger.com,
+        mkl@pengutronix.de, linux-can@vger.kernel.org, mchehab@kernel.org,
+        linux-media@vger.kernel.org, a.zummo@towertech.it,
+        alexandre.belloni@free-electrons.com, linux-rtc@vger.kernel.org,
+        daniel.vetter@intel.com, jani.nikula@linux.intel.com,
+        seanpaul@chromium.org, airlied@linux.ie,
+        dri-devel@lists.freedesktop.org, kvalo@codeaurora.org,
+        linux-wireless@vger.kernel.org, linux-spi@vger.kernel.org,
+        tj@kernel.org, linux-ide@vger.kernel.org, bhelgaas@google.com,
+        linux-pci@vger.kernel.org, devel@driverdev.osuosl.org,
+        dvhart@infradead.org, andy@infradead.org,
+        platform-driver-x86@vger.kernel.org, jakub.kicinski@netronome.com,
+        davem@davemloft.net, nios2-dev@lists.rocketboards.org,
+        netdev@vger.kernel.org, vinod.koul@intel.com,
+        dan.j.williams@intel.com, dmaengine@vger.kernel.org,
+        jslaby@suse.com
+References: <1514026525-32538-1-git-send-email-xieyisheng1@huawei.com>
+ <20171223134831.GB10103@kroah.com>
 From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <2e224024-c0ea-457a-37ff-ba53e9c129e8@roeck-us.net>
-Date: Tue, 19 Dec 2017 18:15:10 -0800
+Message-ID: <f7632cf5-2bcc-4d74-b912-3999937a1269@roeck-us.net>
+Date: Sat, 23 Dec 2017 07:57:40 -0800
 MIME-Version: 1.0
-In-Reply-To: <20171218084841.9979-4-zboszor@pr.hu>
+In-Reply-To: <20171223134831.GB10103@kroah.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 12/18/2017 12:48 AM, Zoltan Boszormenyi wrote:
-> From: Böszörményi Zoltán <zboszor@pr.hu>
+On 12/23/2017 05:48 AM, Greg KH wrote:
+> On Sat, Dec 23, 2017 at 06:55:25PM +0800, Yisheng Xie wrote:
+>> Hi all,
+>>
+>> When I tried to use devm_ioremap function and review related code, I found
+>> devm_ioremap and devm_ioremap_nocache is almost the same with each other,
+>> except one use ioremap while the other use ioremap_nocache.
 > 
-> Use the new request_declared_muxed_region() macro to
-> synchronize access to the I/O port pair 0xcd6 / 0xcd7.
+> For all arches?  Really?  Look at MIPS, and x86, they have different
+> functions.
 > 
-> At the same time, remove the long lifetime request_region()
-> call to reserve these I/O ports, so the sp5100_tco watchdog
-> driver can also load.
-> 
-> This fixes an old regression in Linux 4.4-rc4, caused by
-> commit 2fee61d22e60 ("i2c: piix4: Add support for multiplexed
-> main adapter in SB800")
-> 
-> v1: Started with a common mutex in a C source file.
-> 
-> v2: Referenced to common mutex from drivers/usb/host/pci-quirks.c
-> 
-> v3: Switched to using the new request_declared_muxed_region
->      macro.
-> 
-> v4: Fixed checkpatch.pl warnings and use the new
->      release_declared_region() macro.
-> 
-> v5: Rebased for 4.15-rc4
->      Use struct i2c_algorithm pointer directly instead of
->      a bool to select the proper algo.
 
-This change makes sense, but it should be a separate patch.
+Both mips and x86 end up mapping the same function, but other arches don't.
+mn10300 is one where ioremap and ioremap_nocache are definitely different.
 
 Guenter
 
+>> While ioremap's
+>> default function is ioremap_nocache, so devm_ioremap_nocache also have the
+>> same function with devm_ioremap, which can just be killed to reduce the size
+>> of devres.o(from 20304 bytes to 18992 bytes in my compile environment).
+>>
+>> I have posted two versions, which use macro instead of function for
+>> devm_ioremap_nocache[1] or devm_ioremap[2]. And Greg suggest me to kill
+>> devm_ioremap_nocache for no need to keep a macro around for the duplicate
+>> thing. So here comes v3 and please help to review.
 > 
-> Signed-off-by: Zoltán Böszörményi <zboszor@pr.hu>
-> ---
->   drivers/i2c/busses/i2c-piix4.c | 51 +++++++++++++++---------------------------
->   1 file changed, 18 insertions(+), 33 deletions(-)
+> I don't think this can be done, what am I missing?  These functions are
+> not identical, sorry for missing that before.
 > 
-> diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
-> index 462948e2c535..1846d9ea7d27 100644
-> --- a/drivers/i2c/busses/i2c-piix4.c
-> +++ b/drivers/i2c/busses/i2c-piix4.c
-> @@ -153,10 +153,11 @@ static const struct dmi_system_id piix4_dmi_ibm[] = {
->   
->   /*
->    * SB800 globals
-> - * piix4_mutex_sb800 protects piix4_port_sel_sb800 and the pair
-> + * request_declared_muxed_region() protects piix4_port_sel_sb800 and the pair
->    * of I/O ports at SB800_PIIX4_SMB_IDX.
->    */
-> -static DEFINE_MUTEX(piix4_mutex_sb800);
-> +static struct resource sb800_res = DEFINE_RES_IO_NAMED(SB800_PIIX4_SMB_IDX, 2,
-> +						 "i2c-piix4");
->   static u8 piix4_port_sel_sb800;
->   static u8 piix4_port_mask_sb800;
->   static u8 piix4_port_shift_sb800;
-> @@ -169,7 +170,6 @@ struct i2c_piix4_adapdata {
->   	unsigned short smba;
->   
->   	/* SB800 */
-> -	bool sb800_main;
->   	bool notify_imc;
->   	u8 port;		/* Port number, shifted */
->   };
-> @@ -298,12 +298,12 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
->   	else
->   		smb_en = (aux) ? 0x28 : 0x2c;
->   
-> -	mutex_lock(&piix4_mutex_sb800);
-> +	request_declared_muxed_region(&sb800_res);
->   	outb_p(smb_en, SB800_PIIX4_SMB_IDX);
->   	smba_en_lo = inb_p(SB800_PIIX4_SMB_IDX + 1);
->   	outb_p(smb_en + 1, SB800_PIIX4_SMB_IDX);
->   	smba_en_hi = inb_p(SB800_PIIX4_SMB_IDX + 1);
-> -	mutex_unlock(&piix4_mutex_sb800);
-> +	release_declared_region(&sb800_res);
->   
->   	if (!smb_en) {
->   		smb_en_status = smba_en_lo & 0x10;
-> @@ -373,7 +373,7 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
->   			break;
->   		}
->   	} else {
-> -		mutex_lock(&piix4_mutex_sb800);
-> +		request_declared_muxed_region(&sb800_res);
->   		outb_p(SB800_PIIX4_PORT_IDX_SEL, SB800_PIIX4_SMB_IDX);
->   		port_sel = inb_p(SB800_PIIX4_SMB_IDX + 1);
->   		piix4_port_sel_sb800 = (port_sel & 0x01) ?
-> @@ -381,7 +381,7 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
->   				       SB800_PIIX4_PORT_IDX;
->   		piix4_port_mask_sb800 = SB800_PIIX4_PORT_IDX_MASK;
->   		piix4_port_shift_sb800 = SB800_PIIX4_PORT_IDX_SHIFT;
-> -		mutex_unlock(&piix4_mutex_sb800);
-> +		release_declared_region(&sb800_res);
->   	}
->   
->   	dev_info(&PIIX4_dev->dev,
-> @@ -679,7 +679,7 @@ static s32 piix4_access_sb800(struct i2c_adapter *adap, u16 addr,
->   	u8 port;
->   	int retval;
->   
-> -	mutex_lock(&piix4_mutex_sb800);
-> +	request_declared_muxed_region(&sb800_res);
->   
->   	/* Request the SMBUS semaphore, avoid conflicts with the IMC */
->   	smbslvcnt  = inb_p(SMBSLVCNT);
-> @@ -695,7 +695,7 @@ static s32 piix4_access_sb800(struct i2c_adapter *adap, u16 addr,
->   	} while (--retries);
->   	/* SMBus is still owned by the IMC, we give up */
->   	if (!retries) {
-> -		mutex_unlock(&piix4_mutex_sb800);
-> +		release_declared_region(&sb800_res);
->   		return -EBUSY;
->   	}
->   
-> @@ -753,7 +753,7 @@ static s32 piix4_access_sb800(struct i2c_adapter *adap, u16 addr,
->   	if ((size == I2C_SMBUS_BLOCK_DATA) && adapdata->notify_imc)
->   		piix4_imc_wakeup();
->   
-> -	mutex_unlock(&piix4_mutex_sb800);
-> +	release_declared_region(&sb800_res);
->   
->   	return retval;
->   }
-> @@ -804,7 +804,8 @@ static struct i2c_adapter *piix4_main_adapters[PIIX4_MAX_ADAPTERS];
->   static struct i2c_adapter *piix4_aux_adapter;
->   
->   static int piix4_add_adapter(struct pci_dev *dev, unsigned short smba,
-> -			     bool sb800_main, u8 port, bool notify_imc,
-> +			     struct i2c_algorithm *algo,
-> +			     u8 port, bool notify_imc,
->   			     const char *name, struct i2c_adapter **padap)
->   {
->   	struct i2c_adapter *adap;
-> @@ -819,8 +820,7 @@ static int piix4_add_adapter(struct pci_dev *dev, unsigned short smba,
->   
->   	adap->owner = THIS_MODULE;
->   	adap->class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
-> -	adap->algo = sb800_main ? &piix4_smbus_algorithm_sb800
-> -				: &smbus_algorithm;
-> +	adap->algo = algo;
->   
->   	adapdata = kzalloc(sizeof(*adapdata), GFP_KERNEL);
->   	if (adapdata == NULL) {
-> @@ -830,7 +830,6 @@ static int piix4_add_adapter(struct pci_dev *dev, unsigned short smba,
->   	}
->   
->   	adapdata->smba = smba;
-> -	adapdata->sb800_main = sb800_main;
->   	adapdata->port = port << piix4_port_shift_sb800;
->   	adapdata->notify_imc = notify_imc;
->   
-> @@ -862,7 +861,9 @@ static int piix4_add_adapters_sb800(struct pci_dev *dev, unsigned short smba,
->   	int retval;
->   
->   	for (port = 0; port < PIIX4_MAX_ADAPTERS; port++) {
-> -		retval = piix4_add_adapter(dev, smba, true, port, notify_imc,
-> +		retval = piix4_add_adapter(dev, smba,
-> +					   &piix4_smbus_algorithm_sb800,
-> +					   port, notify_imc,
->   					   piix4_main_port_names_sb800[port],
->   					   &piix4_main_adapters[port]);
->   		if (retval < 0)
-> @@ -899,13 +900,6 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
->   		bool notify_imc = false;
->   		is_sb800 = true;
->   
-> -		if (!request_region(SB800_PIIX4_SMB_IDX, 2, "smba_idx")) {
-> -			dev_err(&dev->dev,
-> -			"SMBus base address index region 0x%x already in use!\n",
-> -			SB800_PIIX4_SMB_IDX);
-> -			return -EBUSY;
-> -		}
-> -
->   		if (dev->vendor == PCI_VENDOR_ID_AMD &&
->   		    dev->device == PCI_DEVICE_ID_AMD_KERNCZ_SMBUS) {
->   			u8 imc;
-> @@ -922,27 +916,24 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
->   
->   		/* base address location etc changed in SB800 */
->   		retval = piix4_setup_sb800(dev, id, 0);
-> -		if (retval < 0) {
-> -			release_region(SB800_PIIX4_SMB_IDX, 2);
-> +		if (retval < 0)
->   			return retval;
-> -		}
->   
->   		/*
->   		 * Try to register multiplexed main SMBus adapter,
->   		 * give up if we can't
->   		 */
->   		retval = piix4_add_adapters_sb800(dev, retval, notify_imc);
-> -		if (retval < 0) {
-> -			release_region(SB800_PIIX4_SMB_IDX, 2);
-> +		if (retval < 0)
->   			return retval;
-> -		}
->   	} else {
->   		retval = piix4_setup(dev, id);
->   		if (retval < 0)
->   			return retval;
->   
->   		/* Try to register main SMBus adapter, give up if we can't */
-> -		retval = piix4_add_adapter(dev, retval, false, 0, false, "",
-> +		retval = piix4_add_adapter(dev, retval,
-> +					   &smbus_algorithm, 0, false, "",
->   					   &piix4_main_adapters[0]);
->   		if (retval < 0)
->   			return retval;
-> @@ -983,11 +974,8 @@ static void piix4_adap_remove(struct i2c_adapter *adap)
->   
->   	if (adapdata->smba) {
->   		i2c_del_adapter(adap);
-> -		if (adapdata->port == (0 << piix4_port_shift_sb800)) {
-> +		if (adapdata->port == (0 << piix4_port_shift_sb800))
->   			release_region(adapdata->smba, SMBIOSIZE);
-> -			if (adapdata->sb800_main)
-> -				release_region(SB800_PIIX4_SMB_IDX, 2);
-> -		}
->   		kfree(adapdata);
->   		kfree(adap);
->   	}
+> thanks,
+> 
+> greg k-h
 > 
 
