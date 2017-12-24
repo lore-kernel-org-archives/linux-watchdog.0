@@ -1,18 +1,18 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pg0-f66.google.com ([74.125.83.66]:36756 "EHLO
-        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751583AbdLXVE2 (ORCPT
+Received: from mail-pl0-f67.google.com ([209.85.160.67]:43769 "EHLO
+        mail-pl0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751928AbdLXVE0 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 24 Dec 2017 16:04:28 -0500
+        Sun, 24 Dec 2017 16:04:26 -0500
 From: Guenter Roeck <linux@roeck-us.net>
 To: Wim Van Sebroeck <wim@iguana.be>
 Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
         =?UTF-8?q?Zolt=C3=A1n=20B=C3=B6sz=C3=B6rm=C3=A9nyi?=
         <zboszor@pr.hu>, Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 06/12] watchdog: sp5100_tco: Match PCI device early
-Date: Sun, 24 Dec 2017 13:04:11 -0800
-Message-Id: <1514149457-20273-7-git-send-email-linux@roeck-us.net>
+Subject: [PATCH 03/12] watchdog: sp5100_tco: Use request_muxed_region where possible
+Date: Sun, 24 Dec 2017 13:04:08 -0800
+Message-Id: <1514149457-20273-4-git-send-email-linux@roeck-us.net>
 In-Reply-To: <1514149457-20273-1-git-send-email-linux@roeck-us.net>
 References: <1514149457-20273-1-git-send-email-linux@roeck-us.net>
 MIME-Version: 1.0
@@ -21,116 +21,56 @@ Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Match PCI device in module init function, not in the probe function.
-It is pointless trying to probe if we can determine early that the device
-is not supported.
+Use request_muxed_region for multiplexed IO memory regions.
+Also, SP5100_IO_PM_INDEX_REG/SP5100_IO_PM_DATA_REG are only
+used during initialization; it is unnecessary to keep the
+address range reserved.
 
 Cc: Zoltán Böszörményi <zboszor@pr.hu>
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/watchdog/sp5100_tco.c | 66 ++++++++++++++++++++-----------------------
- 1 file changed, 31 insertions(+), 35 deletions(-)
+ drivers/watchdog/sp5100_tco.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/watchdog/sp5100_tco.c b/drivers/watchdog/sp5100_tco.c
-index 5a13ab483c50..5868c6b6bf17 100644
+index 05f9d27a306a..11109ac959e2 100644
 --- a/drivers/watchdog/sp5100_tco.c
 +++ b/drivers/watchdog/sp5100_tco.c
-@@ -312,25 +312,6 @@ static struct miscdevice sp5100_tco_miscdev = {
- 	.fops =		&sp5100_tco_fops,
- };
+@@ -379,8 +379,8 @@ static unsigned char sp5100_tco_setupdevice(void)
+ 	}
  
--/*
-- * Data for PCI driver interface
-- *
-- * This data only exists for exporting the supported
-- * PCI ids via MODULE_DEVICE_TABLE.  We do not actually
-- * register a pci_driver, because someone else might
-- * want to register another driver on the same PCI id.
-- */
--static const struct pci_device_id sp5100_tco_pci_tbl[] = {
--	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_SBX00_SMBUS, PCI_ANY_ID,
--	  PCI_ANY_ID, },
--	{ PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_HUDSON2_SMBUS, PCI_ANY_ID,
--	  PCI_ANY_ID, },
--	{ PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_KERNCZ_SMBUS, PCI_ANY_ID,
--	  PCI_ANY_ID, },
--	{ 0, },			/* End of list */
--};
--MODULE_DEVICE_TABLE(pci, sp5100_tco_pci_tbl);
--
- static u8 sp5100_tco_read_pm_reg32(u8 index)
- {
- 	u32 val = 0;
-@@ -347,27 +328,11 @@ static u8 sp5100_tco_read_pm_reg32(u8 index)
-  */
- static int sp5100_tco_setupdevice(void)
- {
--	struct pci_dev *dev = NULL;
- 	const char *dev_name = NULL;
- 	u32 val;
- 	u8 base_addr;
- 	int ret;
- 
--	/* Match the PCI device */
--	for_each_pci_dev(dev) {
--		if (pci_match_id(sp5100_tco_pci_tbl, dev) != NULL) {
--			sp5100_tco_pci = dev;
--			break;
--		}
--	}
--
--	if (!sp5100_tco_pci)
--		return -ENODEV;
--
--	pr_info("PCI Vendor ID: 0x%x, Device ID: 0x%x, Revision ID: 0x%x\n",
--		sp5100_tco_pci->vendor, sp5100_tco_pci->device,
--		sp5100_tco_pci->revision);
--
- 	/*
- 	 * Determine type of southbridge chipset.
+ 	/* Request the IO ports used by this driver */
+-	if (!request_region(SP5100_IO_PM_INDEX_REG, SP5100_PM_IOPORTS_SIZE,
+-			    dev_name)) {
++	if (!request_muxed_region(SP5100_IO_PM_INDEX_REG,
++				  SP5100_PM_IOPORTS_SIZE, dev_name)) {
+ 		pr_err("I/O address 0x%04x already in use\n",
+ 		       SP5100_IO_PM_INDEX_REG);
+ 		goto exit;
+@@ -468,6 +468,7 @@ static unsigned char sp5100_tco_setupdevice(void)
  	 */
-@@ -557,10 +522,41 @@ static struct platform_driver sp5100_tco_driver = {
- 	},
- };
+ 	tco_timer_stop();
  
-+/*
-+ * Data for PCI driver interface
-+ *
-+ * This data only exists for exporting the supported
-+ * PCI ids via MODULE_DEVICE_TABLE.  We do not actually
-+ * register a pci_driver, because someone else might
-+ * want to register another driver on the same PCI id.
-+ */
-+static const struct pci_device_id sp5100_tco_pci_tbl[] = {
-+	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_SBX00_SMBUS, PCI_ANY_ID,
-+	  PCI_ANY_ID, },
-+	{ PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_HUDSON2_SMBUS, PCI_ANY_ID,
-+	  PCI_ANY_ID, },
-+	{ PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_KERNCZ_SMBUS, PCI_ANY_ID,
-+	  PCI_ANY_ID, },
-+	{ 0, },			/* End of list */
-+};
-+MODULE_DEVICE_TABLE(pci, sp5100_tco_pci_tbl);
-+
- static int __init sp5100_tco_init_module(void)
- {
-+	struct pci_dev *dev = NULL;
- 	int err;
++	release_region(SP5100_IO_PM_INDEX_REG, SP5100_PM_IOPORTS_SIZE);
+ 	/* Done */
+ 	return 1;
  
-+	/* Match the PCI device */
-+	for_each_pci_dev(dev) {
-+		if (pci_match_id(sp5100_tco_pci_tbl, dev) != NULL) {
-+			sp5100_tco_pci = dev;
-+			break;
-+		}
-+	}
-+
-+	if (!sp5100_tco_pci)
-+		return -ENODEV;
-+
- 	pr_info("SP5100/SB800 TCO WatchDog Timer Driver v%s\n", TCO_VERSION);
+@@ -521,7 +522,6 @@ static int sp5100_tco_init(struct platform_device *dev)
+ exit:
+ 	iounmap(tcobase);
+ 	release_mem_region(tcobase_phys, SP5100_WDT_MEM_MAP_SIZE);
+-	release_region(SP5100_IO_PM_INDEX_REG, SP5100_PM_IOPORTS_SIZE);
+ 	return ret;
+ }
  
- 	err = platform_driver_register(&sp5100_tco_driver);
+@@ -535,7 +535,6 @@ static void sp5100_tco_cleanup(void)
+ 	misc_deregister(&sp5100_tco_miscdev);
+ 	iounmap(tcobase);
+ 	release_mem_region(tcobase_phys, SP5100_WDT_MEM_MAP_SIZE);
+-	release_region(SP5100_IO_PM_INDEX_REG, SP5100_PM_IOPORTS_SIZE);
+ }
+ 
+ static int sp5100_tco_remove(struct platform_device *dev)
 -- 
 2.7.4
 
