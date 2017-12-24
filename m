@@ -1,37 +1,44 @@
-Return-Path: <linus971@gmail.com>
-Return-path: <linus971@gmail.com>
-MIME-Version: 1.0
-Sender: linus971@gmail.com
-In-Reply-To: <CAADWXX-_k5z=08P6sW_6xip+9SEyv+FmfCFFB2P+ux0=FDBeDw@mail.gmail.com>
-References: <20171217105558.GA6260@infomag.iguana.be> <CAADWXX-_k5z=08P6sW_6xip+9SEyv+FmfCFFB2P+ux0=FDBeDw@mail.gmail.com>
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Date: Sun, 17 Dec 2017 13:20:17 -0800
-Message-ID: <CA+55aFxdJf6uA-m8z0=eZb0dmObE2gEvcTwzcPGzY6KgfUHirw@mail.gmail.com>
-Subject: Re: [GIT PULL REQUEST] watchdog - v4.15 Fixes
+Return-Path: <groeck7@gmail.com>
+Return-path: <groeck7@gmail.com>
+Sender: Guenter Roeck <groeck7@gmail.com>
+From: Guenter Roeck <linux@roeck-us.net>
 To: Wim Van Sebroeck <wim@iguana.be>
-Cc: Andrew Morton <akpm@linux-foundation.org>, LKML <linux-kernel@vger.kernel.org>,
-	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>, Guenter Roeck <linux@roeck-us.net>
-Content-Type: text/plain; charset="UTF-8"
+Cc: linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	=?UTF-8?q?Zolt=C3=A1n=20B=C3=B6sz=C3=B6rm=C3=A9nyi?= <zboszor@pr.hu>,
+	Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 00/12] watchdog: sp5100_tco: Various improvements
+Date: Sun, 24 Dec 2017 13:04:05 -0800
+Message-Id: <1514149457-20273-1-git-send-email-linux@roeck-us.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On Sun, Dec 17, 2017 at 12:12 PM, Linus Torvalds
-<torvalds@linux-foundation.org> wrote:
->
-> Also, all of these commits were committed less than an hour before
-> sending me the pull request, so I question the kind of testing they
-> got..
+The sp5100_tco watchdog driver does not really support recent AMD CPUs,
+even though it claims to do so. On top of that, it doesn't use the
+watchdog subsystem, and various other problems have crept in. Let's
+clean it up for good.
 
-Oh, and equally importantly, it's an unsigned pull request from a
-non-secured site, so I think I'll skip this.
+The code was tested on AMD Ryzen 1700 with motherboards from MSI and
+Gigabyte. Tests on older hardware would be useful to make sure that
+nothing broke.
 
-Yes, yes, I've allowed these guys, and haven't really enforced it, but
-the rule for the last year or so has been that if it's not something
-where I have good reason to trust the repository integrity (ie
-kernel.org), I require signed tags for pull requests.
+----------------------------------------------------------------
+Guenter Roeck (12):
+      watchdog: sp5100_tco: Always use SP5100_IO_PM_{INDEX_REG,DATA_REG}
+      watchdog: sp5100_tco: Fix watchdog disable bit
+      watchdog: sp5100_tco: Use request_muxed_region where possible
+      watchdog: sp5100_tco: Use standard error codes
+      watchdog: sp5100_tco: Clean up sp5100_tco_setupdevice
+      watchdog: sp5100_tco: Match PCI device early
+      watchdog: sp5100_tco: Use dev_ print functions where possible
+      watchdog: sp5100_tco: Clean up function and variable names
+      watchdog: sp5100_tco: Convert to use watchdog subsystem
+      watchdog: sp5100_tco: Use bit operations
+      watchdog: sp5100-tco: Abort if watchdog is disabled by hardware
+      watchdog: sp5100_tco: Add support for recent FCH versions
 
-I note that the watchdog pulls I have from Guenter _are_ signed (and
-also from kernel.org). And I don't have Wim's key in my keyring at
-all, so presumably they've never been signed, but can we please start
-doing that? Git signed tags are pretty darn simple to use.
-
-                Linus
+ drivers/watchdog/sp5100_tco.c | 710 ++++++++++++++++++------------------------
+ drivers/watchdog/sp5100_tco.h |  57 ++--
+ 2 files changed, 344 insertions(+), 423 deletions(-)
