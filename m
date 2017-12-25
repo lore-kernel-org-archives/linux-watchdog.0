@@ -1,255 +1,156 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pg0-f68.google.com ([74.125.83.68]:36749 "EHLO
-        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751110AbdLXVEN (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 24 Dec 2017 16:04:13 -0500
-From: Guenter Roeck <linux@roeck-us.net>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        =?UTF-8?q?Zolt=C3=A1n=20B=C3=B6sz=C3=B6rm=C3=A9nyi?=
-        <zboszor@pr.hu>, Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 01/12] watchdog: sp5100_tco: Always use SP5100_IO_PM_{INDEX_REG,DATA_REG}
-Date: Sun, 24 Dec 2017 13:03:57 -0800
-Message-Id: <1514149448-20214-2-git-send-email-linux@roeck-us.net>
-In-Reply-To: <1514149448-20214-1-git-send-email-linux@roeck-us.net>
-References: <1514149448-20214-1-git-send-email-linux@roeck-us.net>
+Received: from szxga05-in.huawei.com ([45.249.212.191]:2776 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1750984AbdLYBJy (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Sun, 24 Dec 2017 20:09:54 -0500
+Subject: Re: [PATCH v3 00/27] kill devm_ioremap_nocache
+To: christophe leroy <christophe.leroy@c-s.fr>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Greg KH <gregkh@linuxfoundation.org>
+References: <1514026525-32538-1-git-send-email-xieyisheng1@huawei.com>
+ <20171223134831.GB10103@kroah.com>
+ <f7632cf5-2bcc-4d74-b912-3999937a1269@roeck-us.net>
+ <c28ac0bc-8bd2-3dce-3167-8c0f80ec601e@c-s.fr>
+CC: <linux-kernel@vger.kernel.org>, <ysxie@foxmail.com>,
+        <ulf.hansson@linaro.org>, <linux-mmc@vger.kernel.org>,
+        <boris.brezillon@free-electrons.com>, <richard@nod.at>,
+        <marek.vasut@gmail.com>, <cyrille.pitchen@wedev4u.fr>,
+        <linux-mtd@lists.infradead.org>, <alsa-devel@alsa-project.org>,
+        <wim@iguana.be>, <linux-watchdog@vger.kernel.org>,
+        <b.zolnierkie@samsung.com>, <linux-fbdev@vger.kernel.org>,
+        <linus.walleij@linaro.org>, <linux-gpio@vger.kernel.org>,
+        <ralf@linux-mips.org>, <linux-mips@linux-mips.org>,
+        <lgirdwood@gmail.com>, <broonie@kernel.org>, <tglx@linutronix.de>,
+        <jason@lakedaemon.net>, <marc.zyngier@arm.com>, <arnd@arndb.de>,
+        <andriy.shevchenko@linux.intel.com>,
+        <industrypack-devel@lists.sourceforge.net>, <wg@grandegger.com>,
+        <mkl@pengutronix.de>, <linux-can@vger.kernel.org>,
+        <mchehab@kernel.org>, <linux-media@vger.kernel.org>,
+        <a.zummo@towertech.it>, <alexandre.belloni@free-electrons.com>,
+        <linux-rtc@vger.kernel.org>, <daniel.vetter@intel.com>,
+        <jani.nikula@linux.intel.com>, <seanpaul@chromium.org>,
+        <airlied@linux.ie>, <dri-devel@lists.freedesktop.org>,
+        <kvalo@codeaurora.org>, <linux-wireless@vger.kernel.org>,
+        <linux-spi@vger.kernel.org>, <tj@kernel.org>,
+        <linux-ide@vger.kernel.org>, <bhelgaas@google.com>,
+        <linux-pci@vger.kernel.org>, <devel@driverdev.osuosl.org>,
+        <dvhart@infradead.org>, <andy@infradead.org>,
+        <platform-driver-x86@vger.kernel.org>,
+        <jakub.kicinski@netronome.com>, <davem@davemloft.net>,
+        <nios2-dev@lists.rocketboards.org>, <netdev@vger.kernel.org>,
+        <vinod.koul@intel.com>, <dan.j.williams@intel.com>,
+        <dmaengine@vger.kernel.org>, <jslaby@suse.com>
+From: Yisheng Xie <xieyisheng1@huawei.com>
+Message-ID: <6c0ade63-f4d3-d44d-c622-b091eb2ba902@huawei.com>
+Date: Mon, 25 Dec 2017 09:09:10 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <c28ac0bc-8bd2-3dce-3167-8c0f80ec601e@c-s.fr>
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-SP5100_IO_PM_INDEX_REG and SB800_IO_PM_INDEX_REG are used inconsistently
-and define the same value. Just use SP5100_IO_PM_INDEX_REG throughout.
-Do the same for SP5100_IO_PM_DATA_REG and SB800_IO_PM_DATA_REG.
-Use helper functions to access the indexed registers.
+hi Christophe and Greg,
 
-Cc: Zoltán Böszörményi <zboszor@pr.hu>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
----
- drivers/watchdog/sp5100_tco.c | 94 ++++++++++++++++++++++---------------------
- drivers/watchdog/sp5100_tco.h |  7 +---
- 2 files changed, 51 insertions(+), 50 deletions(-)
+On 2017/12/24 16:55, christophe leroy wrote:
+> 
+> 
+> Le 23/12/2017 à 16:57, Guenter Roeck a écrit :
+>> On 12/23/2017 05:48 AM, Greg KH wrote:
+>>> On Sat, Dec 23, 2017 at 06:55:25PM +0800, Yisheng Xie wrote:
+>>>> Hi all,
+>>>>
+>>>> When I tried to use devm_ioremap function and review related code, I found
+>>>> devm_ioremap and devm_ioremap_nocache is almost the same with each other,
+>>>> except one use ioremap while the other use ioremap_nocache.
+>>>
+>>> For all arches?  Really?  Look at MIPS, and x86, they have different
+>>> functions.
+>>>
+>>
+>> Both mips and x86 end up mapping the same function, but other arches don't.
+>> mn10300 is one where ioremap and ioremap_nocache are definitely different.
+> 
+> alpha: identical
+> arc: identical
+> arm: identical
+> arm64: identical
+> cris: different        <==
+> frv: identical
+> hexagone: identical
+> ia64: different        <==
+> m32r: identical
+> m68k: identical
+> metag: identical
+> microblaze: identical
+> mips: identical
+> mn10300: different     <==
+> nios: identical
+> openrisc: different    <==
+> parisc: identical
+> riscv: identical
+> s390: identical
+> sh: identical
+> sparc: identical
+> tile: identical
+> um: rely on asm/generic
+> unicore32: identical
+> x86: identical
+> asm/generic (no mmu): identical
 
-diff --git a/drivers/watchdog/sp5100_tco.c b/drivers/watchdog/sp5100_tco.c
-index 028618c5eeba..05f9d27a306a 100644
---- a/drivers/watchdog/sp5100_tco.c
-+++ b/drivers/watchdog/sp5100_tco.c
-@@ -48,7 +48,6 @@
- static u32 tcobase_phys;
- static u32 tco_wdt_fired;
- static void __iomem *tcobase;
--static unsigned int pm_iobase;
- static DEFINE_SPINLOCK(tco_lock);	/* Guards the hardware */
- static unsigned long timer_alive;
- static char tco_expect_close;
-@@ -132,25 +131,38 @@ static int tco_timer_set_heartbeat(int t)
- 	return 0;
- }
- 
--static void tco_timer_enable(void)
-+static u8 sp5100_tco_read_pm_reg8(u8 index)
-+{
-+	outb(index, SP5100_IO_PM_INDEX_REG);
-+	return inb(SP5100_IO_PM_DATA_REG);
-+}
-+
-+static void sp5100_tco_update_pm_reg8(u8 index, u8 reset, u8 set)
- {
--	int val;
-+	u8 val;
- 
-+	outb(index, SP5100_IO_PM_INDEX_REG);
-+	val = inb(SP5100_IO_PM_DATA_REG);
-+	val &= reset;
-+	val |= set;
-+	outb(val, SP5100_IO_PM_DATA_REG);
-+}
-+
-+static void tco_timer_enable(void)
-+{
- 	if (!tco_has_sp5100_reg_layout(sp5100_tco_pci)) {
- 		/* For SB800 or later */
- 		/* Set the Watchdog timer resolution to 1 sec */
--		outb(SB800_PM_WATCHDOG_CONFIG, SB800_IO_PM_INDEX_REG);
--		val = inb(SB800_IO_PM_DATA_REG);
--		val |= SB800_PM_WATCHDOG_SECOND_RES;
--		outb(val, SB800_IO_PM_DATA_REG);
-+		sp5100_tco_update_pm_reg8(SB800_PM_WATCHDOG_CONFIG,
-+					  0xff, SB800_PM_WATCHDOG_SECOND_RES);
- 
- 		/* Enable watchdog decode bit and watchdog timer */
--		outb(SB800_PM_WATCHDOG_CONTROL, SB800_IO_PM_INDEX_REG);
--		val = inb(SB800_IO_PM_DATA_REG);
--		val |= SB800_PCI_WATCHDOG_DECODE_EN;
--		val &= ~SB800_PM_WATCHDOG_DISABLE;
--		outb(val, SB800_IO_PM_DATA_REG);
-+		sp5100_tco_update_pm_reg8(SB800_PM_WATCHDOG_CONTROL,
-+					  ~SB800_PM_WATCHDOG_DISABLE,
-+					  SB800_PCI_WATCHDOG_DECODE_EN);
- 	} else {
-+		u32 val;
-+
- 		/* For SP5100 or SB7x0 */
- 		/* Enable watchdog decode bit */
- 		pci_read_config_dword(sp5100_tco_pci,
-@@ -164,11 +176,9 @@ static void tco_timer_enable(void)
- 				       val);
- 
- 		/* Enable Watchdog timer and set the resolution to 1 sec */
--		outb(SP5100_PM_WATCHDOG_CONTROL, SP5100_IO_PM_INDEX_REG);
--		val = inb(SP5100_IO_PM_DATA_REG);
--		val |= SP5100_PM_WATCHDOG_SECOND_RES;
--		val &= ~SP5100_PM_WATCHDOG_DISABLE;
--		outb(val, SP5100_IO_PM_DATA_REG);
-+		sp5100_tco_update_pm_reg8(SP5100_PM_WATCHDOG_CONTROL,
-+					  ~SP5100_PM_WATCHDOG_DISABLE,
-+					  SP5100_PM_WATCHDOG_SECOND_RES);
- 	}
- }
- 
-@@ -321,6 +331,17 @@ static const struct pci_device_id sp5100_tco_pci_tbl[] = {
- };
- MODULE_DEVICE_TABLE(pci, sp5100_tco_pci_tbl);
- 
-+static u8 sp5100_tco_read_pm_reg32(u8 index)
-+{
-+	u32 val = 0;
-+	int i;
-+
-+	for (i = 3; i >= 0; i--)
-+		val = (val << 8) + sp5100_tco_read_pm_reg8(index + i);
-+
-+	return val;
-+}
-+
- /*
-  * Init & exit routines
-  */
-@@ -329,7 +350,7 @@ static unsigned char sp5100_tco_setupdevice(void)
- 	struct pci_dev *dev = NULL;
- 	const char *dev_name = NULL;
- 	u32 val;
--	u32 index_reg, data_reg, base_addr;
-+	u8 base_addr;
- 
- 	/* Match the PCI device */
- 	for_each_pci_dev(dev) {
-@@ -351,35 +372,25 @@ static unsigned char sp5100_tco_setupdevice(void)
- 	 */
- 	if (tco_has_sp5100_reg_layout(sp5100_tco_pci)) {
- 		dev_name = SP5100_DEVNAME;
--		index_reg = SP5100_IO_PM_INDEX_REG;
--		data_reg = SP5100_IO_PM_DATA_REG;
- 		base_addr = SP5100_PM_WATCHDOG_BASE;
- 	} else {
- 		dev_name = SB800_DEVNAME;
--		index_reg = SB800_IO_PM_INDEX_REG;
--		data_reg = SB800_IO_PM_DATA_REG;
- 		base_addr = SB800_PM_WATCHDOG_BASE;
- 	}
- 
- 	/* Request the IO ports used by this driver */
--	pm_iobase = SP5100_IO_PM_INDEX_REG;
--	if (!request_region(pm_iobase, SP5100_PM_IOPORTS_SIZE, dev_name)) {
--		pr_err("I/O address 0x%04x already in use\n", pm_iobase);
-+	if (!request_region(SP5100_IO_PM_INDEX_REG, SP5100_PM_IOPORTS_SIZE,
-+			    dev_name)) {
-+		pr_err("I/O address 0x%04x already in use\n",
-+		       SP5100_IO_PM_INDEX_REG);
- 		goto exit;
- 	}
- 
- 	/*
- 	 * First, Find the watchdog timer MMIO address from indirect I/O.
-+	 * Low three bits of BASE are reserved.
- 	 */
--	outb(base_addr+3, index_reg);
--	val = inb(data_reg);
--	outb(base_addr+2, index_reg);
--	val = val << 8 | inb(data_reg);
--	outb(base_addr+1, index_reg);
--	val = val << 8 | inb(data_reg);
--	outb(base_addr+0, index_reg);
--	/* Low three bits of BASE are reserved */
--	val = val << 8 | (inb(data_reg) & 0xf8);
-+	val = sp5100_tco_read_pm_reg32(base_addr) & 0xfffffff8;
- 
- 	pr_debug("Got 0x%04x from indirect I/O\n", val);
- 
-@@ -400,14 +411,7 @@ static unsigned char sp5100_tco_setupdevice(void)
- 				      SP5100_SB_RESOURCE_MMIO_BASE, &val);
- 	} else {
- 		/* Read SBResource_MMIO from AcpiMmioEn(PM_Reg: 24h) */
--		outb(SB800_PM_ACPI_MMIO_EN+3, SB800_IO_PM_INDEX_REG);
--		val = inb(SB800_IO_PM_DATA_REG);
--		outb(SB800_PM_ACPI_MMIO_EN+2, SB800_IO_PM_INDEX_REG);
--		val = val << 8 | inb(SB800_IO_PM_DATA_REG);
--		outb(SB800_PM_ACPI_MMIO_EN+1, SB800_IO_PM_INDEX_REG);
--		val = val << 8 | inb(SB800_IO_PM_DATA_REG);
--		outb(SB800_PM_ACPI_MMIO_EN+0, SB800_IO_PM_INDEX_REG);
--		val = val << 8 | inb(SB800_IO_PM_DATA_REG);
-+		val = sp5100_tco_read_pm_reg32(SB800_PM_ACPI_MMIO_EN);
- 	}
- 
- 	/* The SBResource_MMIO is enabled and mapped memory space? */
-@@ -470,7 +474,7 @@ static unsigned char sp5100_tco_setupdevice(void)
- unreg_mem_region:
- 	release_mem_region(tcobase_phys, SP5100_WDT_MEM_MAP_SIZE);
- unreg_region:
--	release_region(pm_iobase, SP5100_PM_IOPORTS_SIZE);
-+	release_region(SP5100_IO_PM_INDEX_REG, SP5100_PM_IOPORTS_SIZE);
- exit:
- 	return 0;
- }
-@@ -517,7 +521,7 @@ static int sp5100_tco_init(struct platform_device *dev)
- exit:
- 	iounmap(tcobase);
- 	release_mem_region(tcobase_phys, SP5100_WDT_MEM_MAP_SIZE);
--	release_region(pm_iobase, SP5100_PM_IOPORTS_SIZE);
-+	release_region(SP5100_IO_PM_INDEX_REG, SP5100_PM_IOPORTS_SIZE);
- 	return ret;
- }
- 
-@@ -531,7 +535,7 @@ static void sp5100_tco_cleanup(void)
- 	misc_deregister(&sp5100_tco_miscdev);
- 	iounmap(tcobase);
- 	release_mem_region(tcobase_phys, SP5100_WDT_MEM_MAP_SIZE);
--	release_region(pm_iobase, SP5100_PM_IOPORTS_SIZE);
-+	release_region(SP5100_IO_PM_INDEX_REG, SP5100_PM_IOPORTS_SIZE);
- }
- 
- static int sp5100_tco_remove(struct platform_device *dev)
-diff --git a/drivers/watchdog/sp5100_tco.h b/drivers/watchdog/sp5100_tco.h
-index 1af4dee71337..f495fe03887a 100644
---- a/drivers/watchdog/sp5100_tco.h
-+++ b/drivers/watchdog/sp5100_tco.h
-@@ -24,10 +24,11 @@
-  * read them from a register.
-  */
- 
--/*  For SP5100/SB7x0 chipset */
-+/*  For SP5100/SB7x0/SB8x0 chipset */
- #define SP5100_IO_PM_INDEX_REG		0xCD6
- #define SP5100_IO_PM_DATA_REG		0xCD7
- 
-+/* For SP5100/SB7x0 chipset */
- #define SP5100_SB_RESOURCE_MMIO_BASE	0x9C
- 
- #define SP5100_PM_WATCHDOG_CONTROL	0x69
-@@ -44,11 +45,7 @@
- 
- #define SP5100_DEVNAME			"SP5100 TCO"
- 
--
- /*  For SB8x0(or later) chipset */
--#define SB800_IO_PM_INDEX_REG		0xCD6
--#define SB800_IO_PM_DATA_REG		0xCD7
--
- #define SB800_PM_ACPI_MMIO_EN		0x24
- #define SB800_PM_WATCHDOG_CONTROL	0x48
- #define SB800_PM_WATCHDOG_BASE		0x48
--- 
-2.7.4
+Wow, that's correct, sorry for I have just checked the main archs, I means
+x86,arm, arm64, mips.
+
+However, I stall have no idea about why these 4 archs want different ioremap
+function with others. Drivers seems cannot aware this? If driver call ioremap
+want he really want for there 4 archs, cache or nocache?
+
+> 
+> So 4 among all arches seems to have ioremap() and ioremap_nocache() being different.
+> 
+> Could we have a define set by the 4 arches on which ioremap() and ioremap_nocache() are different, something like HAVE_DIFFERENT_IOREMAP_NOCACHE ?
+
+Then, what the HAVE_DIFFERENT_IOREMAP_NOCACHE is uesed for ?
+
+Thanks
+Yisheng
+> 
+> Christophe
+> 
+>>
+>> Guenter
+>>
+>>>> While ioremap's
+>>>> default function is ioremap_nocache, so devm_ioremap_nocache also have the
+>>>> same function with devm_ioremap, which can just be killed to reduce the size
+>>>> of devres.o(from 20304 bytes to 18992 bytes in my compile environment).
+>>>>
+>>>> I have posted two versions, which use macro instead of function for
+>>>> devm_ioremap_nocache[1] or devm_ioremap[2]. And Greg suggest me to kill
+>>>> devm_ioremap_nocache for no need to keep a macro around for the duplicate
+>>>> thing. So here comes v3 and please help to review.
+>>>
+>>> I don't think this can be done, what am I missing?  These functions are
+>>> not identical, sorry for missing that before.
+
+Never mind, I should checked all the arches, sorry about that.
+
+>>>
+>>> thanks,
+>>>
+>>> greg k-h
+>>>
+>>
+>> -- 
+>> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
+> ---
+> L'absence de virus dans ce courrier électronique a été vérifiée par le logiciel antivirus Avast.
+> https://www.avast.com/antivirus
+> 
+> 
+> .
+> 
 
