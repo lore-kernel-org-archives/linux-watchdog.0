@@ -1,99 +1,51 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from szxga04-in.huawei.com ([45.249.212.190]:2726 "EHLO huawei.com"
+Received: from szxga05-in.huawei.com ([45.249.212.191]:3226 "EHLO huawei.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751112AbdLYBoG (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 24 Dec 2017 20:44:06 -0500
-Subject: Re: [PATCH v3 27/27] devres: kill devm_ioremap_nocache
-To: Greg KH <gregkh@linuxfoundation.org>
-References: <1514026979-33838-1-git-send-email-xieyisheng1@huawei.com>
- <20171223134532.GA10103@kroah.com>
-CC: <linux-kernel@vger.kernel.org>, <linux-mips@linux-mips.org>,
-        <ulf.hansson@linaro.org>, <jakub.kicinski@netronome.com>,
-        <airlied@linux.ie>, <linux-wireless@vger.kernel.org>,
-        <linus.walleij@linaro.org>, <alsa-devel@alsa-project.org>,
-        <dri-devel@lists.freedesktop.org>,
-        <platform-driver-x86@vger.kernel.org>, <linux-ide@vger.kernel.org>,
-        <linux-mtd@lists.infradead.org>, <daniel.vetter@intel.com>,
-        <dan.j.williams@intel.com>, <jason@lakedaemon.net>,
-        <linux-rtc@vger.kernel.org>, <boris.brezillon@free-electrons.com>,
-        <mchehab@kernel.org>, <dmaengine@vger.kernel.org>,
-        <vinod.koul@intel.com>, <richard@nod.at>, <marek.vasut@gmail.com>,
-        <industrypack-devel@lists.sourceforge.net>,
-        <linux-pci@vger.kernel.org>, <dvhart@infradead.org>,
-        <linux@roeck-us.net>, <linux-media@vger.kernel.org>,
-        <seanpaul@chromium.org>, <devel@driverdev.osuosl.org>,
-        <linux-watchdog@vger.kernel.org>, <arnd@arndb.de>,
-        <b.zolnierkie@samsung.com>, <marc.zyngier@arm.com>,
-        <jslaby@suse.com>, <jani.nikula@linux.intel.com>,
-        <linux-can@vger.kernel.org>, <linux-gpio@vger.kernel.org>,
-        <broonie@kernel.org>, <mkl@pengutronix.de>,
-        <linux-fbdev@vger.kernel.org>, <nios2-dev@lists.rocketboards.org>,
-        <bhelgaas@google.com>, <tglx@linutronix.de>,
-        <andriy.shevchenko@linux.intel.com>, <kvalo@codeaurora.org>,
-        <a.zummo@towertech.it>, <netdev@vger.kernel.org>,
-        <linux-mmc@vger.kernel.org>, <lgirdwood@gmail.com>,
-        <ralf@linux-mips.org>, <linux-spi@vger.kernel.org>,
-        <ysxie@foxmail.com>, <wg@grandegger.com>,
-        <cyrille.pitchen@wedev4u.fr>, <tj@kernel.org>,
-        <alexandre.belloni@free-electrons.com>, <davem@davemloft.net>,
-        <andy@infradead.org>
+        id S1750998AbdL0Jgl (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Wed, 27 Dec 2017 04:36:41 -0500
+Subject: Re: [v3,21/27] watchdog: replace devm_ioremap_nocache with
+ devm_ioremap
+To: Guenter Roeck <linux@roeck-us.net>
+References: <1514026897-33581-1-git-send-email-xieyisheng1@huawei.com>
+ <20171226172831.GA23118@roeck-us.net>
+CC: <linux-kernel@vger.kernel.org>, <gregkh@linuxfoundation.org>,
+        <ysxie@foxmail.com>, Wim Van Sebroeck <wim@iguana.be>,
+        <linux-watchdog@vger.kernel.org>
 From: Yisheng Xie <xieyisheng1@huawei.com>
-Message-ID: <4d0991ec-9cd4-0c33-5560-ae9c2c762765@huawei.com>
-Date: Mon, 25 Dec 2017 09:43:40 +0800
+Message-ID: <30d0f7f4-8f93-de23-83b7-72a9c8d4a47f@huawei.com>
+Date: Wed, 27 Dec 2017 17:36:01 +0800
 MIME-Version: 1.0
-In-Reply-To: <20171223134532.GA10103@kroah.com>
+In-Reply-To: <20171226172831.GA23118@roeck-us.net>
 Content-Type: text/plain; charset="windows-1252"
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+Hi Guenter,
 
-
-On 2017/12/23 21:45, Greg KH wrote:
-> On Sat, Dec 23, 2017 at 07:02:59PM +0800, Yisheng Xie wrote:
->> --- a/lib/devres.c
->> +++ b/lib/devres.c
->> @@ -44,35 +44,6 @@ void __iomem *devm_ioremap(struct device *dev, resource_size_t offset,
->>  EXPORT_SYMBOL(devm_ioremap);
->>  
->>  /**
->> - * devm_ioremap_nocache - Managed ioremap_nocache()
->> - * @dev: Generic device to remap IO address for
->> - * @offset: Resource address to map
->> - * @size: Size of map
->> - *
->> - * Managed ioremap_nocache().  Map is automatically unmapped on driver
->> - * detach.
->> - */
->> -void __iomem *devm_ioremap_nocache(struct device *dev, resource_size_t offset,
->> -				   resource_size_t size)
->> -{
->> -	void __iomem **ptr, *addr;
->> -
->> -	ptr = devres_alloc(devm_ioremap_release, sizeof(*ptr), GFP_KERNEL);
->> -	if (!ptr)
->> -		return NULL;
->> -
->> -	addr = ioremap_nocache(offset, size);
+On 2017/12/27 1:28, Guenter Roeck wrote:
+> On Sat, Dec 23, 2017 at 07:01:37PM +0800, Yisheng Xie wrote:
+>> > Default ioremap is ioremap_nocache, so devm_ioremap has the same
+>> > function with devm_ioremap_nocache, which can just be killed to
+>> > save the size of devres.o
+>> > 
+>> > This patch is to use use devm_ioremap instead of devm_ioremap_nocache,
+>> > which should not have any function change but prepare for killing
+>> > devm_ioremap_nocache.
+>> > 
+> I don't have issues with the patch itself - on mips, the definitions
+> _are_ the same - but with the description. It is not universally correct
+> that the definitions are the same. Please update and resubmit.
 > 
-> Wait, devm_ioremap() calls ioremap(), not ioremap_nocache(), are you
-> _SURE_ that these are all identical?  For all arches?  If so, then
-> ioremap_nocache() can also be removed, right?
 
-Yeah, As Christophe pointed out, that 4 archs do not have the same function.
-But I do not why they do not want do the same thing. Driver may no know about
-this? right?
+Right, there are 4 archs have different meaning of ioremap. And presently, I
+still do not know why.
 
-> 
-> In my quick glance, I don't think you can do this series at all :(
+For this patch itself, maybe I can update and resubmit.
 
-Yes, maybe should take Christophe suggestion and use a bool or enum to distinguish them?
-
-Thanks
+Thanks and Merry Christmas.
 Yisheng
-> 
-> greg k-h
-> 
-> .
+
+> Guenter
 > 
 
