@@ -1,69 +1,107 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pf0-f193.google.com ([209.85.192.193]:34044 "EHLO
-        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753976AbdL1Skz (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 28 Dec 2017 13:40:55 -0500
-Subject: Re: [PATCH 3/7] watchdog: JZ4740: Register a restart handler
-To: Paul Cercueil <paul@crapouillou.net>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Wim Van Sebroeck <wim@iguana.be>
-Cc: devicetree@vger.kernel.org, linux-mips@linux-mips.org,
-        linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org
+Return-Path: <paul@crapouillou.net>
+Return-path: <paul@crapouillou.net>
+Date: Thu, 28 Dec 2017 20:59:27 +0100
+From: Paul Cercueil <paul@crapouillou.net>
+Subject: Re: [PATCH 2/7] watchdog: jz4740: Use devm_* functions
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Ralf Baechle <ralf@linux-mips.org>, Rob Herring <robh+dt@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>, Wim Van Sebroeck <wim@iguana.be>,
+	devicetree@vger.kernel.org, linux-mips@linux-mips.org,
+	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org
+Message-Id: <1514491167.6093.0@smtp.crapouillou.net>
+In-Reply-To: <9778afd4-5841-0d48-cde3-c02872623a5f@roeck-us.net>
 References: <20171228162939.3928-1-paul@crapouillou.net>
- <20171228162939.3928-4-paul@crapouillou.net>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <e1871276-fc00-eefd-1a43-e528f6da1269@roeck-us.net>
-Date: Thu, 28 Dec 2017 10:40:53 -0800
+	<20171228162939.3928-3-paul@crapouillou.net>
+	<9778afd4-5841-0d48-cde3-c02872623a5f@roeck-us.net>
 MIME-Version: 1.0
-In-Reply-To: <20171228162939.3928-4-paul@crapouillou.net>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Transfer-Encoding: quoted-printable
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 12/28/2017 08:29 AM, Paul Cercueil wrote:
-> The watchdog driver can restart the system by simply configuring the
-> hardware for a timeout of 0 seconds.
-> 
-> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Hi Guenter,
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Le jeu. 28 d=E9c. 2017 =E0 18:48, Guenter Roeck <linux@roeck-us.net> a=20
+=E9crit :
+> On 12/28/2017 08:29 AM, Paul Cercueil wrote:
+>> - Use devm_clk_get instead of clk_get
+>> - Use devm_watchdog_register_device instead of=20
+>> watchdog_register_device
+>>=20
+>> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+>> ---
+>>   drivers/watchdog/jz4740_wdt.c | 27 ++++++++-------------------
+>>   1 file changed, 8 insertions(+), 19 deletions(-)
+>>=20
+>> diff --git a/drivers/watchdog/jz4740_wdt.c=20
+>> b/drivers/watchdog/jz4740_wdt.c
+>> index 6955deb100ef..92d6ca8ceb49 100644
+>> --- a/drivers/watchdog/jz4740_wdt.c
+>> +++ b/drivers/watchdog/jz4740_wdt.c
+>> @@ -178,40 +178,29 @@ static int jz4740_wdt_probe(struct=20
+>> platform_device *pdev)
+>>   =7F  	res =3D platform_get_resource(pdev, IORESOURCE_MEM, 0);
+>>   	drvdata->base =3D devm_ioremap_resource(&pdev->dev, res);
+>> -	if (IS_ERR(drvdata->base)) {
+>> -		ret =3D PTR_ERR(drvdata->base);
+>> -		goto err_out;
+>> -	}
+>> +	if (IS_ERR(drvdata->base))
+>> +		return PTR_ERR(drvdata->base);
+>>   =7F-	drvdata->rtc_clk =3D clk_get(&pdev->dev, "rtc");
+>> +	drvdata->rtc_clk =3D devm_clk_get(&pdev->dev, "rtc");
+>>   	if (IS_ERR(drvdata->rtc_clk)) {
+>>   		dev_err(&pdev->dev, "cannot find RTC clock\n");
+>> -		ret =3D PTR_ERR(drvdata->rtc_clk);
+>> -		goto err_out;
+>> +		return PTR_ERR(drvdata->rtc_clk);
+>>   	}
+>>   =7F-	ret =3D watchdog_register_device(&drvdata->wdt);
+>> +	ret =3D devm_watchdog_register_device(&pdev->dev, &drvdata->wdt);
+>>   	if (ret < 0)
+>> -		goto err_disable_clk;
+>> +		return ret;
+>>   =7F  	platform_set_drvdata(pdev, drvdata);
+>> -	return 0;
+>>   =7F-err_disable_clk:
+>> -	clk_put(drvdata->rtc_clk);
+>> -err_out:
+>> -	return ret;
+>> +	return 0;
+>>   }
+>>   =7F  static int jz4740_wdt_remove(struct platform_device *pdev)
+>>   {
+>>   	struct jz4740_wdt_drvdata *drvdata =3D platform_get_drvdata(pdev);
+>>   =7F-	jz4740_wdt_stop(&drvdata->wdt);
+>> -	watchdog_unregister_device(&drvdata->wdt);
+>> -	clk_put(drvdata->rtc_clk);
+>> -
+>> -	return 0;
+>> +	return jz4740_wdt_stop(&drvdata->wdt);
+>=20
+> If the watchdog is running, the module can not be unloaded. Even if=20
+> that wasn't
+> the case, this defeats both WDIOF_MAGICCLOSE and=20
+> watchdog_set_nowayout().
+> Are you sure this is what you want ? If so, please call
+> watchdog_stop_on_unregister() before registration; this clarifies=20
+> that this
+> is what you want, and you can drop the remove function.
+>=20
+> Thanks,
+> Guenter
 
-> ---
->   drivers/watchdog/jz4740_wdt.c | 9 +++++++++
->   1 file changed, 9 insertions(+)
-> 
-> diff --git a/drivers/watchdog/jz4740_wdt.c b/drivers/watchdog/jz4740_wdt.c
-> index 92d6ca8ceb49..fa7f49a3212c 100644
-> --- a/drivers/watchdog/jz4740_wdt.c
-> +++ b/drivers/watchdog/jz4740_wdt.c
-> @@ -130,6 +130,14 @@ static int jz4740_wdt_stop(struct watchdog_device *wdt_dev)
->   	return 0;
->   }
->   
-> +static int jz4740_wdt_restart(struct watchdog_device *wdt_dev,
-> +			      unsigned long action, void *data)
-> +{
-> +	wdt_dev->timeout = 0;
-> +	jz4740_wdt_start(wdt_dev);
-> +	return 0;
-> +}
-> +
->   static const struct watchdog_info jz4740_wdt_info = {
->   	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
->   	.identity = "jz4740 Watchdog",
-> @@ -141,6 +149,7 @@ static const struct watchdog_ops jz4740_wdt_ops = {
->   	.stop = jz4740_wdt_stop,
->   	.ping = jz4740_wdt_ping,
->   	.set_timeout = jz4740_wdt_set_timeout,
-> +	.restart = jz4740_wdt_restart,
->   };
->   
->   #ifdef CONFIG_OF
-> 
+This patch does not change the behaviour. We always used that driver=20
+built-in; what
+should the behaviour be when unloading the module? Keep the watchdog=20
+hardware running
+if configured for 'nowayout'?
 
+Thanks,
+-Paul
+
+>=20
+>>   }
+>>   =7F  static struct platform_driver jz4740_wdt_driver =3D {
+>>=20
+>=20
+=
