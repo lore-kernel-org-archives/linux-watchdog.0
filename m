@@ -1,10 +1,10 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from outils.crapouillou.net ([89.234.176.41]:50786 "EHLO
+Received: from outils.crapouillou.net ([89.234.176.41]:50794 "EHLO
         crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750947AbdL1QjO (ORCPT
+        with ESMTP id S1751209AbdL1QjQ (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 28 Dec 2017 11:39:14 -0500
+        Thu, 28 Dec 2017 11:39:16 -0500
 From: Paul Cercueil <paul@crapouillou.net>
 To: Ralf Baechle <ralf@linux-mips.org>,
         Rob Herring <robh+dt@kernel.org>,
@@ -14,36 +14,69 @@ To: Ralf Baechle <ralf@linux-mips.org>,
 Cc: devicetree@vger.kernel.org, linux-mips@linux-mips.org,
         linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
         Paul Cercueil <paul@crapouillou.net>
-Subject: [PATCH 1/7] watchdog: JZ4740: Disable clock after stopping counter
-Date: Thu, 28 Dec 2017 17:29:33 +0100
-Message-Id: <20171228162939.3928-2-paul@crapouillou.net>
+Subject: [PATCH 4/7] MIPS: jz4740: dts: Add bindings for the jz4740-wdt driver
+Date: Thu, 28 Dec 2017 17:29:36 +0100
+Message-Id: <20171228162939.3928-5-paul@crapouillou.net>
 In-Reply-To: <20171228162939.3928-1-paul@crapouillou.net>
 References: <20171228162939.3928-1-paul@crapouillou.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Previously, the clock was disabled first, which makes the watchdog
-component insensitive to register writes.
+Also remove the watchdog platform_device from platform.c, since it
+wasn't used anywhere anyway.
 
 Signed-off-by: Paul Cercueil <paul@crapouillou.net>
 ---
- drivers/watchdog/jz4740_wdt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/mips/boot/dts/ingenic/jz4740.dtsi |  8 ++++++++
+ arch/mips/jz4740/platform.c            | 16 ----------------
+ 2 files changed, 8 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/watchdog/jz4740_wdt.c b/drivers/watchdog/jz4740_wdt.c
-index 20627f22baf6..6955deb100ef 100644
---- a/drivers/watchdog/jz4740_wdt.c
-+++ b/drivers/watchdog/jz4740_wdt.c
-@@ -124,8 +124,8 @@ static int jz4740_wdt_stop(struct watchdog_device *wdt_dev)
- {
- 	struct jz4740_wdt_drvdata *drvdata = watchdog_get_drvdata(wdt_dev);
+diff --git a/arch/mips/boot/dts/ingenic/jz4740.dtsi b/arch/mips/boot/dts/ingenic/jz4740.dtsi
+index cd5185bb90ae..26c6b561d6f7 100644
+--- a/arch/mips/boot/dts/ingenic/jz4740.dtsi
++++ b/arch/mips/boot/dts/ingenic/jz4740.dtsi
+@@ -45,6 +45,14 @@
+ 		#clock-cells = <1>;
+ 	};
  
--	jz4740_timer_disable_watchdog();
- 	writeb(0x0, drvdata->base + JZ_REG_WDT_COUNTER_ENABLE);
-+	jz4740_timer_disable_watchdog();
++	watchdog: watchdog@10002000 {
++		compatible = "ingenic,jz4740-watchdog";
++		reg = <0x10002000 0x10>;
++
++		clocks = <&cgu JZ4740_CLK_RTC>;
++		clock-names = "rtc";
++	};
++
+ 	rtc_dev: rtc@10003000 {
+ 		compatible = "ingenic,jz4740-rtc";
+ 		reg = <0x10003000 0x40>;
+diff --git a/arch/mips/jz4740/platform.c b/arch/mips/jz4740/platform.c
+index 5b7cdd67a9d9..cbc5f8e87230 100644
+--- a/arch/mips/jz4740/platform.c
++++ b/arch/mips/jz4740/platform.c
+@@ -233,22 +233,6 @@ struct platform_device jz4740_adc_device = {
+ 	.resource	= jz4740_adc_resources,
+ };
  
- 	return 0;
- }
+-/* Watchdog */
+-static struct resource jz4740_wdt_resources[] = {
+-	{
+-		.start = JZ4740_WDT_BASE_ADDR,
+-		.end   = JZ4740_WDT_BASE_ADDR + 0x10 - 1,
+-		.flags = IORESOURCE_MEM,
+-	},
+-};
+-
+-struct platform_device jz4740_wdt_device = {
+-	.name	       = "jz4740-wdt",
+-	.id	       = -1,
+-	.num_resources = ARRAY_SIZE(jz4740_wdt_resources),
+-	.resource      = jz4740_wdt_resources,
+-};
+-
+ /* PWM */
+ struct platform_device jz4740_pwm_device = {
+ 	.name = "jz4740-pwm",
 -- 
 2.11.0
 
