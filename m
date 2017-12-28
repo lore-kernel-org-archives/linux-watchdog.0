@@ -1,10 +1,10 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from outils.crapouillou.net ([89.234.176.41]:50794 "EHLO
+Received: from outils.crapouillou.net ([89.234.176.41]:50784 "EHLO
         crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751209AbdL1QjQ (ORCPT
+        with ESMTP id S1750952AbdL1QjO (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 28 Dec 2017 11:39:16 -0500
+        Thu, 28 Dec 2017 11:39:14 -0500
 From: Paul Cercueil <paul@crapouillou.net>
 To: Ralf Baechle <ralf@linux-mips.org>,
         Rob Herring <robh+dt@kernel.org>,
@@ -14,69 +14,75 @@ To: Ralf Baechle <ralf@linux-mips.org>,
 Cc: devicetree@vger.kernel.org, linux-mips@linux-mips.org,
         linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
         Paul Cercueil <paul@crapouillou.net>
-Subject: [PATCH 4/7] MIPS: jz4740: dts: Add bindings for the jz4740-wdt driver
-Date: Thu, 28 Dec 2017 17:29:36 +0100
-Message-Id: <20171228162939.3928-5-paul@crapouillou.net>
+Subject: [PATCH 2/7] watchdog: jz4740: Use devm_* functions
+Date: Thu, 28 Dec 2017 17:29:34 +0100
+Message-Id: <20171228162939.3928-3-paul@crapouillou.net>
 In-Reply-To: <20171228162939.3928-1-paul@crapouillou.net>
 References: <20171228162939.3928-1-paul@crapouillou.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Also remove the watchdog platform_device from platform.c, since it
-wasn't used anywhere anyway.
+- Use devm_clk_get instead of clk_get
+- Use devm_watchdog_register_device instead of watchdog_register_device
 
 Signed-off-by: Paul Cercueil <paul@crapouillou.net>
 ---
- arch/mips/boot/dts/ingenic/jz4740.dtsi |  8 ++++++++
- arch/mips/jz4740/platform.c            | 16 ----------------
- 2 files changed, 8 insertions(+), 16 deletions(-)
+ drivers/watchdog/jz4740_wdt.c | 27 ++++++++-------------------
+ 1 file changed, 8 insertions(+), 19 deletions(-)
 
-diff --git a/arch/mips/boot/dts/ingenic/jz4740.dtsi b/arch/mips/boot/dts/ingenic/jz4740.dtsi
-index cd5185bb90ae..26c6b561d6f7 100644
---- a/arch/mips/boot/dts/ingenic/jz4740.dtsi
-+++ b/arch/mips/boot/dts/ingenic/jz4740.dtsi
-@@ -45,6 +45,14 @@
- 		#clock-cells = <1>;
- 	};
+diff --git a/drivers/watchdog/jz4740_wdt.c b/drivers/watchdog/jz4740_wdt.c
+index 6955deb100ef..92d6ca8ceb49 100644
+--- a/drivers/watchdog/jz4740_wdt.c
++++ b/drivers/watchdog/jz4740_wdt.c
+@@ -178,40 +178,29 @@ static int jz4740_wdt_probe(struct platform_device *pdev)
  
-+	watchdog: watchdog@10002000 {
-+		compatible = "ingenic,jz4740-watchdog";
-+		reg = <0x10002000 0x10>;
-+
-+		clocks = <&cgu JZ4740_CLK_RTC>;
-+		clock-names = "rtc";
-+	};
-+
- 	rtc_dev: rtc@10003000 {
- 		compatible = "ingenic,jz4740-rtc";
- 		reg = <0x10003000 0x40>;
-diff --git a/arch/mips/jz4740/platform.c b/arch/mips/jz4740/platform.c
-index 5b7cdd67a9d9..cbc5f8e87230 100644
---- a/arch/mips/jz4740/platform.c
-+++ b/arch/mips/jz4740/platform.c
-@@ -233,22 +233,6 @@ struct platform_device jz4740_adc_device = {
- 	.resource	= jz4740_adc_resources,
- };
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	drvdata->base = devm_ioremap_resource(&pdev->dev, res);
+-	if (IS_ERR(drvdata->base)) {
+-		ret = PTR_ERR(drvdata->base);
+-		goto err_out;
+-	}
++	if (IS_ERR(drvdata->base))
++		return PTR_ERR(drvdata->base);
  
--/* Watchdog */
--static struct resource jz4740_wdt_resources[] = {
--	{
--		.start = JZ4740_WDT_BASE_ADDR,
--		.end   = JZ4740_WDT_BASE_ADDR + 0x10 - 1,
--		.flags = IORESOURCE_MEM,
--	},
--};
+-	drvdata->rtc_clk = clk_get(&pdev->dev, "rtc");
++	drvdata->rtc_clk = devm_clk_get(&pdev->dev, "rtc");
+ 	if (IS_ERR(drvdata->rtc_clk)) {
+ 		dev_err(&pdev->dev, "cannot find RTC clock\n");
+-		ret = PTR_ERR(drvdata->rtc_clk);
+-		goto err_out;
++		return PTR_ERR(drvdata->rtc_clk);
+ 	}
+ 
+-	ret = watchdog_register_device(&drvdata->wdt);
++	ret = devm_watchdog_register_device(&pdev->dev, &drvdata->wdt);
+ 	if (ret < 0)
+-		goto err_disable_clk;
++		return ret;
+ 
+ 	platform_set_drvdata(pdev, drvdata);
+-	return 0;
+ 
+-err_disable_clk:
+-	clk_put(drvdata->rtc_clk);
+-err_out:
+-	return ret;
++	return 0;
+ }
+ 
+ static int jz4740_wdt_remove(struct platform_device *pdev)
+ {
+ 	struct jz4740_wdt_drvdata *drvdata = platform_get_drvdata(pdev);
+ 
+-	jz4740_wdt_stop(&drvdata->wdt);
+-	watchdog_unregister_device(&drvdata->wdt);
+-	clk_put(drvdata->rtc_clk);
 -
--struct platform_device jz4740_wdt_device = {
--	.name	       = "jz4740-wdt",
--	.id	       = -1,
--	.num_resources = ARRAY_SIZE(jz4740_wdt_resources),
--	.resource      = jz4740_wdt_resources,
--};
--
- /* PWM */
- struct platform_device jz4740_pwm_device = {
- 	.name = "jz4740-pwm",
+-	return 0;
++	return jz4740_wdt_stop(&drvdata->wdt);
+ }
+ 
+ static struct platform_driver jz4740_wdt_driver = {
 -- 
 2.11.0
 
