@@ -1,102 +1,65 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pl0-f66.google.com ([209.85.160.66]:34510 "EHLO
-        mail-pl0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753759AbdL1RsN (ORCPT
+Received: from mail-pl0-f65.google.com ([209.85.160.65]:37607 "EHLO
+        mail-pl0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750947AbdL1RD0 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 28 Dec 2017 12:48:13 -0500
-Subject: Re: [PATCH 2/7] watchdog: jz4740: Use devm_* functions
-To: Paul Cercueil <paul@crapouillou.net>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Wim Van Sebroeck <wim@iguana.be>
-Cc: devicetree@vger.kernel.org, linux-mips@linux-mips.org,
-        linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org
-References: <20171228162939.3928-1-paul@crapouillou.net>
- <20171228162939.3928-3-paul@crapouillou.net>
+        Thu, 28 Dec 2017 12:03:26 -0500
+Subject: Re: [PATCH 0/3] Change ISA_BUS_API dependency to selection
+To: William Breathitt Gray <vilhelm.gray@gmail.com>,
+        linus.walleij@linaro.org
+Cc: mail@maciej.szmigiero.name, linux-gpio@vger.kernel.org,
+        linux-iio@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <cover.1514475654.git.vilhelm.gray@gmail.com>
 From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <9778afd4-5841-0d48-cde3-c02872623a5f@roeck-us.net>
-Date: Thu, 28 Dec 2017 09:48:09 -0800
+Message-ID: <4339f82b-5f37-fb8d-2725-d45747608c2e@roeck-us.net>
+Date: Thu, 28 Dec 2017 09:03:22 -0800
 MIME-Version: 1.0
-In-Reply-To: <20171228162939.3928-3-paul@crapouillou.net>
+In-Reply-To: <cover.1514475654.git.vilhelm.gray@gmail.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 12/28/2017 08:29 AM, Paul Cercueil wrote:
-> - Use devm_clk_get instead of clk_get
-> - Use devm_watchdog_register_device instead of watchdog_register_device
+On 12/28/2017 08:01 AM, William Breathitt Gray wrote:
+> The ISA_BUS_API Kconfig option enables the compilation of the ISA bus
+> driver. The ISA bus driver does not perform any hardware interaction,
+> and is instead just a thin layer of software abstraction to eliminate
+> boilerplate code common to ISA-style device drivers. Since ISA_BUS_API
+> has no dependencies and does not jeopardize the integrity of the system
+> when enabled, drivers should select it when the ISA bus driver
+> functionality is needed.
 > 
-> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-> ---
->   drivers/watchdog/jz4740_wdt.c | 27 ++++++++-------------------
->   1 file changed, 8 insertions(+), 19 deletions(-)
+> Originally, when the ISA_BUS_API Kconfig option was introduced, it
+> served a dual-purpose of masking drivers ISA-style devices not commonly
+> found for desktop systems, such as the PC/104 device drivers. This
+> secondary semantic was inappropriate for the ISA_BUS_API option, and
+> proper masking of these device drivers is now accomplished via dedicated
+> Kconfig options such as CONFIG_PC104.
 > 
-> diff --git a/drivers/watchdog/jz4740_wdt.c b/drivers/watchdog/jz4740_wdt.c
-> index 6955deb100ef..92d6ca8ceb49 100644
-> --- a/drivers/watchdog/jz4740_wdt.c
-> +++ b/drivers/watchdog/jz4740_wdt.c
-> @@ -178,40 +178,29 @@ static int jz4740_wdt_probe(struct platform_device *pdev)
->   
->   	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
->   	drvdata->base = devm_ioremap_resource(&pdev->dev, res);
-> -	if (IS_ERR(drvdata->base)) {
-> -		ret = PTR_ERR(drvdata->base);
-> -		goto err_out;
-> -	}
-> +	if (IS_ERR(drvdata->base))
-> +		return PTR_ERR(drvdata->base);
->   
-> -	drvdata->rtc_clk = clk_get(&pdev->dev, "rtc");
-> +	drvdata->rtc_clk = devm_clk_get(&pdev->dev, "rtc");
->   	if (IS_ERR(drvdata->rtc_clk)) {
->   		dev_err(&pdev->dev, "cannot find RTC clock\n");
-> -		ret = PTR_ERR(drvdata->rtc_clk);
-> -		goto err_out;
-> +		return PTR_ERR(drvdata->rtc_clk);
->   	}
->   
-> -	ret = watchdog_register_device(&drvdata->wdt);
-> +	ret = devm_watchdog_register_device(&pdev->dev, &drvdata->wdt);
->   	if (ret < 0)
-> -		goto err_disable_clk;
-> +		return ret;
->   
->   	platform_set_drvdata(pdev, drvdata);
-> -	return 0;
->   
-> -err_disable_clk:
-> -	clk_put(drvdata->rtc_clk);
-> -err_out:
-> -	return ret;
-> +	return 0;
->   }
->   
->   static int jz4740_wdt_remove(struct platform_device *pdev)
->   {
->   	struct jz4740_wdt_drvdata *drvdata = platform_get_drvdata(pdev);
->   
-> -	jz4740_wdt_stop(&drvdata->wdt);
-> -	watchdog_unregister_device(&drvdata->wdt);
-> -	clk_put(drvdata->rtc_clk);
-> -
-> -	return 0;
-> +	return jz4740_wdt_stop(&drvdata->wdt);
+> Linus, please pickup this entire patchset through your GPIO subsystem
+> tree; a recursive dependency error is present if these patches are
+> cherry-picked (see https://lkml.org/lkml/2017/12/26/235), so they should
+> be merged together in the same tree.
+> 
+> Maciej, this patchset resolves the recursive dependency issue you
+> encountered, so now you should be able to submit your Winbond GPIO
+> driver with the ISA_BUS_API selection as desired.
+> 
+> William Breathitt Gray (3):
+>    iio: Change ISA_BUS_API dependency to selection
+>    watchdog: Change ISA_BUS_API dependency to selection
+>    gpio: Change ISA_BUS_API dependency to selection
+> 
+>   drivers/gpio/Kconfig        | 14 +++++++++-----
+>   drivers/iio/adc/Kconfig     |  3 ++-
+>   drivers/iio/counter/Kconfig |  3 ++-
+>   drivers/iio/dac/Kconfig     |  3 ++-
+>   drivers/watchdog/Kconfig    |  3 ++-
+>   5 files changed, 17 insertions(+), 9 deletions(-)
+> 
+But why keep "config ISA_BUS" ? Its only purpose is to select ISA_BUS_API.
 
-If the watchdog is running, the module can not be unloaded. Even if that wasn't
-the case, this defeats both WDIOF_MAGICCLOSE and watchdog_set_nowayout().
-Are you sure this is what you want ? If so, please call
-watchdog_stop_on_unregister() before registration; this clarifies that this
-is what you want, and you can drop the remove function.
-
-Thanks,
 Guenter
-
->   }
->   
->   static struct platform_driver jz4740_wdt_driver = {
-> 
-
