@@ -1,82 +1,62 @@
-Return-Path: <paul@crapouillou.net>
-Return-path: <paul@crapouillou.net>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from outils.crapouillou.net ([89.234.176.41]:50778 "EHLO
+        crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750780AbdL1QjO (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Thu, 28 Dec 2017 11:39:14 -0500
 From: Paul Cercueil <paul@crapouillou.net>
 To: Ralf Baechle <ralf@linux-mips.org>,
-	Rob Herring <robh+dt@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Guenter Roeck <linux@roeck-us.net>
-Cc: devicetree@vger.kernel.org,
-	linux-mips@linux-mips.org,
-	linux-kernel@vger.kernel.org,
-	linux-watchdog@vger.kernel.org,
-	Paul Cercueil <paul@crapouillou.net>
-Subject: [PATCH 7/7] MIPS: jz4740: Drop old platform reset code
-Date: Thu, 28 Dec 2017 17:29:39 +0100
-Message-Id: <20171228162939.3928-8-paul@crapouillou.net>
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Guenter Roeck <linux@roeck-us.net>
+Cc: devicetree@vger.kernel.org, linux-mips@linux-mips.org,
+        linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        Paul Cercueil <paul@crapouillou.net>
+Subject: [PATCH 3/7] watchdog: JZ4740: Register a restart handler
+Date: Thu, 28 Dec 2017 17:29:35 +0100
+Message-Id: <20171228162939.3928-4-paul@crapouillou.net>
 In-Reply-To: <20171228162939.3928-1-paul@crapouillou.net>
 References: <20171228162939.3928-1-paul@crapouillou.net>
-List-ID: <linux-watchdog@vger.kernel.org>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-This work is now performed by the watchdog driver directly.
+The watchdog driver can restart the system by simply configuring the
+hardware for a timeout of 0 seconds.
 
 Signed-off-by: Paul Cercueil <paul@crapouillou.net>
 ---
- arch/mips/jz4740/reset.c | 31 -------------------------------
- 1 file changed, 31 deletions(-)
+ drivers/watchdog/jz4740_wdt.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/arch/mips/jz4740/reset.c b/arch/mips/jz4740/reset.c
-index 67780c4b6573..5bf0cf44b55f 100644
---- a/arch/mips/jz4740/reset.c
-+++ b/arch/mips/jz4740/reset.c
-@@ -12,18 +12,9 @@
-  *
-  */
- 
--#include <linux/clk.h>
--#include <linux/io.h>
--#include <linux/kernel.h>
--#include <linux/pm.h>
--
- #include <asm/reboot.h>
- 
--#include <asm/mach-jz4740/base.h>
--#include <asm/mach-jz4740/timer.h>
--
- #include "reset.h"
--#include "clock.h"
- 
- static void jz4740_halt(void)
- {
-@@ -36,29 +27,7 @@ static void jz4740_halt(void)
- 	}
+diff --git a/drivers/watchdog/jz4740_wdt.c b/drivers/watchdog/jz4740_wdt.c
+index 92d6ca8ceb49..fa7f49a3212c 100644
+--- a/drivers/watchdog/jz4740_wdt.c
++++ b/drivers/watchdog/jz4740_wdt.c
+@@ -130,6 +130,14 @@ static int jz4740_wdt_stop(struct watchdog_device *wdt_dev)
+ 	return 0;
  }
  
--#define JZ_REG_WDT_DATA 0x00
--#define JZ_REG_WDT_COUNTER_ENABLE 0x04
--#define JZ_REG_WDT_COUNTER 0x08
--#define JZ_REG_WDT_CTRL 0x0c
--
--static void jz4740_restart(char *command)
--{
--	void __iomem *wdt_base = ioremap(JZ4740_WDT_BASE_ADDR, 0x0f);
--
--	jz4740_timer_enable_watchdog();
--
--	writeb(0, wdt_base + JZ_REG_WDT_COUNTER_ENABLE);
--
--	writew(0, wdt_base + JZ_REG_WDT_COUNTER);
--	writew(0, wdt_base + JZ_REG_WDT_DATA);
--	writew(BIT(2), wdt_base + JZ_REG_WDT_CTRL);
--
--	writeb(1, wdt_base + JZ_REG_WDT_COUNTER_ENABLE);
--	jz4740_halt();
--}
--
- void jz4740_reset_init(void)
- {
--	_machine_restart = jz4740_restart;
- 	_machine_halt = jz4740_halt;
- }
++static int jz4740_wdt_restart(struct watchdog_device *wdt_dev,
++			      unsigned long action, void *data)
++{
++	wdt_dev->timeout = 0;
++	jz4740_wdt_start(wdt_dev);
++	return 0;
++}
++
+ static const struct watchdog_info jz4740_wdt_info = {
+ 	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
+ 	.identity = "jz4740 Watchdog",
+@@ -141,6 +149,7 @@ static const struct watchdog_ops jz4740_wdt_ops = {
+ 	.stop = jz4740_wdt_stop,
+ 	.ping = jz4740_wdt_ping,
+ 	.set_timeout = jz4740_wdt_set_timeout,
++	.restart = jz4740_wdt_restart,
+ };
+ 
+ #ifdef CONFIG_OF
 -- 
 2.11.0
+
