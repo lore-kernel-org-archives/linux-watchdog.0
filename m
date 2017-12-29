@@ -1,83 +1,66 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pl0-f67.google.com ([209.85.160.67]:32986 "EHLO
-        mail-pl0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750869AbdL2QKW (ORCPT
+Received: from mail-yw0-f196.google.com ([209.85.161.196]:46110 "EHLO
+        mail-yw0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751842AbdL2UNR (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 29 Dec 2017 11:10:22 -0500
-Subject: Re: [PATCH] watchdog: imx2_wdt: restore previous timeout after
- suspend+resume
-To: Martin Kaiser <martin@kaiser.cx>, Wim Van Sebroeck <wim@iguana.be>,
-        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Xiubo Li <Li.Xiubo@freescale.com>, kernel@pengutronix.de,
-        Fabio Estevam <fabio.estevam@freescale.com>,
-        stable@vger.kernel.org
-References: <1514555950-28743-1-git-send-email-martin@kaiser.cx>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <080e499c-a31b-e805-f761-6564e02d1be9@roeck-us.net>
-Date: Fri, 29 Dec 2017 08:10:19 -0800
-MIME-Version: 1.0
-In-Reply-To: <1514555950-28743-1-git-send-email-martin@kaiser.cx>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+        Fri, 29 Dec 2017 15:13:17 -0500
+From: William Breathitt Gray <vilhelm.gray@gmail.com>
+To: linus.walleij@linaro.org
+Cc: mail@maciej.szmigiero.name, linux@roeck-us.net,
+        linux-gpio@vger.kernel.org, linux-iio@vger.kernel.org,
+        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+        William Breathitt Gray <vilhelm.gray@gmail.com>
+Subject: [PATCH v2 0/5] Change ISA_BUS_API dependency to selection
+Date: Fri, 29 Dec 2017 15:13:10 -0500
+Message-Id: <cover.1514578085.git.vilhelm.gray@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 12/29/2017 05:59 AM, Martin Kaiser wrote:
-> When the watchdog device is suspended, its timeout is set to the maximum
-> value. During resume, the previously set timeout should be restored.
-> This does not work at the moment.
-> 
-> The suspend function calls
-> 
-> imx2_wdt_set_timeout(wdog, IMX2_WDT_MAX_TIME);
-> 
-> and resume reverts this by calling
-> 
-> imx2_wdt_set_timeout(wdog, wdog->timeout);
-> 
-> However, imx2_wdt_set_timeout() updates wdog->timeout. Therefore,
-> wdog->timeout is set to IMX2_WDT_MAX_TIME when we enter the resume
-> function.
-> 
-> Fix this by setting wdog->timeout to the previous value at the end of
-> the suspend function. This manual update makes wdog->timeout different
-> from the actual setting in the hardware. This should be ok in our case
-> as kernel code is not running while we're suspended.
-> 
-> Signed-off-by: Martin Kaiser <martin@kaiser.cx>
-> Cc: stable@vger.kernel.org
+Changes in v2:
+  - Remove select ISA_BUS_API line from ISA_BUS Kconfig option
+  - Update ISA_BUS help text to reflect updated use
+  - Add explicit EXPERT dependency for PC104 Kconfig option
 
-That works, though it is a bit hackish. Better would be to have a function
-such as _imx2_wdt_set_timeout() which doesn't actually update wdt->timeout
-and could be called from all the other places doing the same.
-Separate patch, maybe.
+The ISA_BUS_API Kconfig option enables the compilation of the ISA bus
+driver. The ISA bus driver does not perform any hardware interaction,
+and is instead just a thin layer of software abstraction to eliminate
+boilerplate code common to ISA-style device drivers. Since ISA_BUS_API
+has no dependencies and does not jeopardize the integrity of the system
+when enabled, drivers should select it when the ISA bus driver
+functionality is needed.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Originally, when the ISA_BUS_API Kconfig option was introduced, it
+served a dual-purpose of masking drivers ISA-style devices not commonly
+found for desktop systems, such as the PC/104 device drivers. This
+secondary semantic was inappropriate for the ISA_BUS_API option, and
+proper masking of these device drivers is now accomplished via dedicated
+Kconfig options such as CONFIG_PC104.
 
-> ---
->   drivers/watchdog/imx2_wdt.c | 2 ++
->   1 file changed, 2 insertions(+)
-> 
-> diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
-> index 4874b0f..66efcc0 100644
-> --- a/drivers/watchdog/imx2_wdt.c
-> +++ b/drivers/watchdog/imx2_wdt.c
-> @@ -368,6 +368,7 @@ static int imx2_wdt_suspend(struct device *dev)
->   {
->   	struct watchdog_device *wdog = dev_get_drvdata(dev);
->   	struct imx2_wdt_device *wdev = watchdog_get_drvdata(wdog);
-> +	unsigned int resume_timeout = wdog->timeout;
->   
->   	/* The watchdog IP block is running */
->   	if (imx2_wdt_is_running(wdev)) {
-> @@ -377,6 +378,7 @@ static int imx2_wdt_suspend(struct device *dev)
->   
->   	clk_disable_unprepare(wdev->clk);
->   
-> +	wdog->timeout = resume_timeout;
->   	return 0;
->   }
->   
-> 
+Linus, please pickup this entire patchset through your GPIO subsystem
+tree; a recursive dependency error is present if these patches are
+cherry-picked (see https://lkml.org/lkml/2017/12/26/235), so they should
+be merged together in the same tree.
+
+Maciej, this patchset resolves the recursive dependency issue you
+encountered, so now you should be able to submit your Winbond GPIO
+driver with the ISA_BUS_API selection as desired.
+
+William Breathitt Gray (5):
+  iio: Change ISA_BUS_API dependency to selection
+  watchdog: Change ISA_BUS_API dependency to selection
+  gpio: Change ISA_BUS_API dependency to selection
+  isa: Remove ISA_BUS_API selection for ISA_BUS
+  pc104: Add EXPERT dependency for PC104 Kconfig option
+
+ arch/x86/Kconfig            | 10 ++++++----
+ drivers/gpio/Kconfig        | 14 +++++++++-----
+ drivers/iio/adc/Kconfig     |  3 ++-
+ drivers/iio/counter/Kconfig |  3 ++-
+ drivers/iio/dac/Kconfig     |  3 ++-
+ drivers/watchdog/Kconfig    |  3 ++-
+ init/Kconfig                |  2 +-
+ 7 files changed, 24 insertions(+), 14 deletions(-)
+
+-- 
+2.15.1
 
