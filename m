@@ -1,66 +1,90 @@
-Return-Path: <postmaster@kaiser.cx>
-Return-path: <postmaster@kaiser.cx>
-From: Martin Kaiser <martin@kaiser.cx>
-To: Wim Van Sebroeck <wim@iguana.be>,
-	Guenter Roeck <linux@roeck-us.net>,
-	linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Cc: Xiubo Li <Li.Xiubo@freescale.com>,
-	kernel@pengutronix.de,
-	Fabio Estevam <fabio.estevam@freescale.com>,
-	Martin Kaiser <martin@kaiser.cx>,
-	stable@vger.kernel.org
-Subject: [PATCH] watchdog: imx2_wdt: restore previous timeout after suspend+resume
-Date: Fri, 29 Dec 2017 14:59:10 +0100
-Message-Id: <1514555950-28743-1-git-send-email-martin@kaiser.cx>
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from outils.crapouillou.net ([89.234.176.41]:36850 "EHLO
+        crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751030AbdL3Nvj (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Sat, 30 Dec 2017 08:51:39 -0500
+From: Paul Cercueil <paul@crapouillou.net>
+To: Ralf Baechle <ralf@linux-mips.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Guenter Roeck <linux@roeck-us.net>
+Cc: devicetree@vger.kernel.org, linux-mips@linux-mips.org,
+        linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        Paul Cercueil <paul@crapouillou.net>
+Subject: [PATCH v2 8/8] MIPS: jz4740: Drop old platform reset code
+Date: Sat, 30 Dec 2017 14:51:08 +0100
+Message-Id: <20171230135108.6834-8-paul@crapouillou.net>
+In-Reply-To: <20171230135108.6834-1-paul@crapouillou.net>
+References: <20171228162939.3928-2-paul@crapouillou.net>
+ <20171230135108.6834-1-paul@crapouillou.net>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-When the watchdog device is suspended, its timeout is set to the maximum
-value. During resume, the previously set timeout should be restored.
-This does not work at the moment.
+This work is now performed by the watchdog driver directly.
 
-The suspend function calls
-
-imx2_wdt_set_timeout(wdog, IMX2_WDT_MAX_TIME);
-
-and resume reverts this by calling
-
-imx2_wdt_set_timeout(wdog, wdog->timeout);
-
-However, imx2_wdt_set_timeout() updates wdog->timeout. Therefore,
-wdog->timeout is set to IMX2_WDT_MAX_TIME when we enter the resume
-function.
-
-Fix this by setting wdog->timeout to the previous value at the end of
-the suspend function. This manual update makes wdog->timeout different
-from the actual setting in the hardware. This should be ok in our case
-as kernel code is not running while we're suspended.
-
-Signed-off-by: Martin Kaiser <martin@kaiser.cx>
-Cc: stable@vger.kernel.org
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
 ---
- drivers/watchdog/imx2_wdt.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/mips/jz4740/reset.c | 31 -------------------------------
+ 1 file changed, 31 deletions(-)
 
-diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
-index 4874b0f..66efcc0 100644
---- a/drivers/watchdog/imx2_wdt.c
-+++ b/drivers/watchdog/imx2_wdt.c
-@@ -368,6 +368,7 @@ static int imx2_wdt_suspend(struct device *dev)
+ v2: No change
+
+diff --git a/arch/mips/jz4740/reset.c b/arch/mips/jz4740/reset.c
+index 67780c4b6573..5bf0cf44b55f 100644
+--- a/arch/mips/jz4740/reset.c
++++ b/arch/mips/jz4740/reset.c
+@@ -12,18 +12,9 @@
+  *
+  */
+ 
+-#include <linux/clk.h>
+-#include <linux/io.h>
+-#include <linux/kernel.h>
+-#include <linux/pm.h>
+-
+ #include <asm/reboot.h>
+ 
+-#include <asm/mach-jz4740/base.h>
+-#include <asm/mach-jz4740/timer.h>
+-
+ #include "reset.h"
+-#include "clock.h"
+ 
+ static void jz4740_halt(void)
  {
- 	struct watchdog_device *wdog = dev_get_drvdata(dev);
- 	struct imx2_wdt_device *wdev = watchdog_get_drvdata(wdog);
-+	unsigned int resume_timeout = wdog->timeout;
- 
- 	/* The watchdog IP block is running */
- 	if (imx2_wdt_is_running(wdev)) {
-@@ -377,6 +378,7 @@ static int imx2_wdt_suspend(struct device *dev)
- 
- 	clk_disable_unprepare(wdev->clk);
- 
-+	wdog->timeout = resume_timeout;
- 	return 0;
+@@ -36,29 +27,7 @@ static void jz4740_halt(void)
+ 	}
  }
  
+-#define JZ_REG_WDT_DATA 0x00
+-#define JZ_REG_WDT_COUNTER_ENABLE 0x04
+-#define JZ_REG_WDT_COUNTER 0x08
+-#define JZ_REG_WDT_CTRL 0x0c
+-
+-static void jz4740_restart(char *command)
+-{
+-	void __iomem *wdt_base = ioremap(JZ4740_WDT_BASE_ADDR, 0x0f);
+-
+-	jz4740_timer_enable_watchdog();
+-
+-	writeb(0, wdt_base + JZ_REG_WDT_COUNTER_ENABLE);
+-
+-	writew(0, wdt_base + JZ_REG_WDT_COUNTER);
+-	writew(0, wdt_base + JZ_REG_WDT_DATA);
+-	writew(BIT(2), wdt_base + JZ_REG_WDT_CTRL);
+-
+-	writeb(1, wdt_base + JZ_REG_WDT_COUNTER_ENABLE);
+-	jz4740_halt();
+-}
+-
+ void jz4740_reset_init(void)
+ {
+-	_machine_restart = jz4740_restart;
+ 	_machine_halt = jz4740_halt;
+ }
 -- 
-2.1.4
+2.11.0
+
