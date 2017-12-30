@@ -1,10 +1,10 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from outils.crapouillou.net ([89.234.176.41]:36338 "EHLO
+Received: from outils.crapouillou.net ([89.234.176.41]:35294 "EHLO
         crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750984AbdL3Nvh (ORCPT
+        with ESMTP id S1750955AbdL3Nvd (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 30 Dec 2017 08:51:37 -0500
+        Sat, 30 Dec 2017 08:51:33 -0500
 From: Paul Cercueil <paul@crapouillou.net>
 To: Ralf Baechle <ralf@linux-mips.org>,
         Rob Herring <robh+dt@kernel.org>,
@@ -14,45 +14,78 @@ To: Ralf Baechle <ralf@linux-mips.org>,
 Cc: devicetree@vger.kernel.org, linux-mips@linux-mips.org,
         linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
         Paul Cercueil <paul@crapouillou.net>
-Subject: [PATCH v2 6/8] MIPS: jz4780: dts: Fix watchdog node
-Date: Sat, 30 Dec 2017 14:51:06 +0100
-Message-Id: <20171230135108.6834-6-paul@crapouillou.net>
+Subject: [PATCH v2 2/8] watchdog: jz4740: Use devm_* functions
+Date: Sat, 30 Dec 2017 14:51:02 +0100
+Message-Id: <20171230135108.6834-2-paul@crapouillou.net>
 In-Reply-To: <20171230135108.6834-1-paul@crapouillou.net>
 References: <20171228162939.3928-2-paul@crapouillou.net>
  <20171230135108.6834-1-paul@crapouillou.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-- The previous node requested a memory area of 0x100 bytes, while the
-  driver only manipulates four registers present in the first 0x10 bytes.
-
-- The driver requests for the "rtc" clock, but the previous node did not
-  provide any.
+- Use devm_clk_get instead of clk_get
+- Use devm_watchdog_register_device instead of watchdog_register_device
 
 Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Reviewed-by: Mathieu Malaterre <malat@debian.org>
 ---
- arch/mips/boot/dts/ingenic/jz4780.dtsi | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/watchdog/jz4740_wdt.c | 27 ++++++++-------------------
+ 1 file changed, 8 insertions(+), 19 deletions(-)
 
  v2: No change
 
-diff --git a/arch/mips/boot/dts/ingenic/jz4780.dtsi b/arch/mips/boot/dts/ingenic/jz4780.dtsi
-index 9b5794667aee..a52f59bf58c7 100644
---- a/arch/mips/boot/dts/ingenic/jz4780.dtsi
-+++ b/arch/mips/boot/dts/ingenic/jz4780.dtsi
-@@ -221,7 +221,10 @@
+diff --git a/drivers/watchdog/jz4740_wdt.c b/drivers/watchdog/jz4740_wdt.c
+index 6955deb100ef..92d6ca8ceb49 100644
+--- a/drivers/watchdog/jz4740_wdt.c
++++ b/drivers/watchdog/jz4740_wdt.c
+@@ -178,40 +178,29 @@ static int jz4740_wdt_probe(struct platform_device *pdev)
  
- 	watchdog: watchdog@10002000 {
- 		compatible = "ingenic,jz4780-watchdog";
--		reg = <0x10002000 0x100>;
-+		reg = <0x10002000 0x10>;
-+
-+		clocks = <&cgu JZ4780_CLK_RTCLK>;
-+		clock-names = "rtc";
- 	};
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	drvdata->base = devm_ioremap_resource(&pdev->dev, res);
+-	if (IS_ERR(drvdata->base)) {
+-		ret = PTR_ERR(drvdata->base);
+-		goto err_out;
+-	}
++	if (IS_ERR(drvdata->base))
++		return PTR_ERR(drvdata->base);
  
- 	nemc: nemc@13410000 {
+-	drvdata->rtc_clk = clk_get(&pdev->dev, "rtc");
++	drvdata->rtc_clk = devm_clk_get(&pdev->dev, "rtc");
+ 	if (IS_ERR(drvdata->rtc_clk)) {
+ 		dev_err(&pdev->dev, "cannot find RTC clock\n");
+-		ret = PTR_ERR(drvdata->rtc_clk);
+-		goto err_out;
++		return PTR_ERR(drvdata->rtc_clk);
+ 	}
+ 
+-	ret = watchdog_register_device(&drvdata->wdt);
++	ret = devm_watchdog_register_device(&pdev->dev, &drvdata->wdt);
+ 	if (ret < 0)
+-		goto err_disable_clk;
++		return ret;
+ 
+ 	platform_set_drvdata(pdev, drvdata);
+-	return 0;
+ 
+-err_disable_clk:
+-	clk_put(drvdata->rtc_clk);
+-err_out:
+-	return ret;
++	return 0;
+ }
+ 
+ static int jz4740_wdt_remove(struct platform_device *pdev)
+ {
+ 	struct jz4740_wdt_drvdata *drvdata = platform_get_drvdata(pdev);
+ 
+-	jz4740_wdt_stop(&drvdata->wdt);
+-	watchdog_unregister_device(&drvdata->wdt);
+-	clk_put(drvdata->rtc_clk);
+-
+-	return 0;
++	return jz4740_wdt_stop(&drvdata->wdt);
+ }
+ 
+ static struct platform_driver jz4740_wdt_driver = {
 -- 
 2.11.0
 
