@@ -1,11 +1,11 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pl0-f65.google.com ([209.85.160.65]:35430 "EHLO
-        mail-pl0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750806AbdL3QII (ORCPT
+Received: from mail-pl0-f68.google.com ([209.85.160.68]:33487 "EHLO
+        mail-pl0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750977AbdL3QIc (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 30 Dec 2017 11:08:08 -0500
-Subject: Re: [PATCH v2 2/8] watchdog: jz4740: Use devm_* functions
+        Sat, 30 Dec 2017 11:08:32 -0500
+Subject: Re: [PATCH v2 4/8] watchdog: JZ4740: Drop module remove function
 To: Paul Cercueil <paul@crapouillou.net>,
         Ralf Baechle <ralf@linux-mips.org>,
         Rob Herring <robh+dt@kernel.org>,
@@ -15,12 +15,12 @@ Cc: devicetree@vger.kernel.org, linux-mips@linux-mips.org,
         linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org
 References: <20171228162939.3928-2-paul@crapouillou.net>
  <20171230135108.6834-1-paul@crapouillou.net>
- <20171230135108.6834-2-paul@crapouillou.net>
+ <20171230135108.6834-4-paul@crapouillou.net>
 From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <b0d75a0e-a698-a06e-22ff-446a186357d0@roeck-us.net>
-Date: Sat, 30 Dec 2017 08:08:04 -0800
+Message-ID: <8454df76-df77-c57f-2f87-be03c4cda63b@roeck-us.net>
+Date: Sat, 30 Dec 2017 08:08:30 -0800
 MIME-Version: 1.0
-In-Reply-To: <20171230135108.6834-2-paul@crapouillou.net>
+In-Reply-To: <20171230135108.6834-4-paul@crapouillou.net>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -28,71 +28,49 @@ Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
 On 12/30/2017 05:51 AM, Paul Cercueil wrote:
-> - Use devm_clk_get instead of clk_get
-> - Use devm_watchdog_register_device instead of watchdog_register_device
+> When the watchdog was configured for nowayout, and after the
+> userspace watchdog daemon closed the dev node without sending the
+> magic character, unloading this module stopped the watchdog
+> hardware, which was clearly a problem.
+> 
+> Besides, unloading the module is not possible when the userspace
+> watchdog daemon is running, so it's safe to assume that we don't
+> need to stop the watchdog hardware in the jz4740_wdt_remove()
+> function.
+> 
+> For this reason, the jz4740_wdt_remove() function can then be
+> dropped alltogether.
 > 
 > Signed-off-by: Paul Cercueil <paul@crapouillou.net>
 
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
 > ---
->   drivers/watchdog/jz4740_wdt.c | 27 ++++++++-------------------
->   1 file changed, 8 insertions(+), 19 deletions(-)
+>   drivers/watchdog/jz4740_wdt.c | 8 --------
+>   1 file changed, 8 deletions(-)
 > 
->   v2: No change
+>   v2: New patch in this series
 > 
 > diff --git a/drivers/watchdog/jz4740_wdt.c b/drivers/watchdog/jz4740_wdt.c
-> index 6955deb100ef..92d6ca8ceb49 100644
+> index fa7f49a3212c..02b9b8e946a2 100644
 > --- a/drivers/watchdog/jz4740_wdt.c
 > +++ b/drivers/watchdog/jz4740_wdt.c
-> @@ -178,40 +178,29 @@ static int jz4740_wdt_probe(struct platform_device *pdev)
->   
->   	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
->   	drvdata->base = devm_ioremap_resource(&pdev->dev, res);
-> -	if (IS_ERR(drvdata->base)) {
-> -		ret = PTR_ERR(drvdata->base);
-> -		goto err_out;
-> -	}
-> +	if (IS_ERR(drvdata->base))
-> +		return PTR_ERR(drvdata->base);
->   
-> -	drvdata->rtc_clk = clk_get(&pdev->dev, "rtc");
-> +	drvdata->rtc_clk = devm_clk_get(&pdev->dev, "rtc");
->   	if (IS_ERR(drvdata->rtc_clk)) {
->   		dev_err(&pdev->dev, "cannot find RTC clock\n");
-> -		ret = PTR_ERR(drvdata->rtc_clk);
-> -		goto err_out;
-> +		return PTR_ERR(drvdata->rtc_clk);
->   	}
->   
-> -	ret = watchdog_register_device(&drvdata->wdt);
-> +	ret = devm_watchdog_register_device(&pdev->dev, &drvdata->wdt);
->   	if (ret < 0)
-> -		goto err_disable_clk;
-> +		return ret;
->   
->   	platform_set_drvdata(pdev, drvdata);
-> -	return 0;
->   
-> -err_disable_clk:
-> -	clk_put(drvdata->rtc_clk);
-> -err_out:
-> -	return ret;
-> +	return 0;
+> @@ -205,16 +205,8 @@ static int jz4740_wdt_probe(struct platform_device *pdev)
+>   	return 0;
 >   }
 >   
->   static int jz4740_wdt_remove(struct platform_device *pdev)
->   {
->   	struct jz4740_wdt_drvdata *drvdata = platform_get_drvdata(pdev);
->   
-> -	jz4740_wdt_stop(&drvdata->wdt);
-> -	watchdog_unregister_device(&drvdata->wdt);
-> -	clk_put(drvdata->rtc_clk);
+> -static int jz4740_wdt_remove(struct platform_device *pdev)
+> -{
+> -	struct jz4740_wdt_drvdata *drvdata = platform_get_drvdata(pdev);
 > -
-> -	return 0;
-> +	return jz4740_wdt_stop(&drvdata->wdt);
->   }
->   
+> -	return jz4740_wdt_stop(&drvdata->wdt);
+> -}
+> -
 >   static struct platform_driver jz4740_wdt_driver = {
+>   	.probe = jz4740_wdt_probe,
+> -	.remove = jz4740_wdt_remove,
+>   	.driver = {
+>   		.name = "jz4740-wdt",
+>   		.of_match_table = of_match_ptr(jz4740_wdt_of_matches),
 > 
 
