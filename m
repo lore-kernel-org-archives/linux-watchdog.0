@@ -1,10 +1,10 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from outils.crapouillou.net ([89.234.176.41]:36076 "EHLO
+Received: from outils.crapouillou.net ([89.234.176.41]:35552 "EHLO
         crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750971AbdL3Nvg (ORCPT
+        with ESMTP id S1750962AbdL3Nve (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 30 Dec 2017 08:51:36 -0500
+        Sat, 30 Dec 2017 08:51:34 -0500
 From: Paul Cercueil <paul@crapouillou.net>
 To: Ralf Baechle <ralf@linux-mips.org>,
         Rob Herring <robh+dt@kernel.org>,
@@ -14,72 +14,53 @@ To: Ralf Baechle <ralf@linux-mips.org>,
 Cc: devicetree@vger.kernel.org, linux-mips@linux-mips.org,
         linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
         Paul Cercueil <paul@crapouillou.net>
-Subject: [PATCH v2 5/8] MIPS: jz4740: dts: Add bindings for the jz4740-wdt driver
-Date: Sat, 30 Dec 2017 14:51:05 +0100
-Message-Id: <20171230135108.6834-5-paul@crapouillou.net>
+Subject: [PATCH v2 3/8] watchdog: JZ4740: Register a restart handler
+Date: Sat, 30 Dec 2017 14:51:03 +0100
+Message-Id: <20171230135108.6834-3-paul@crapouillou.net>
 In-Reply-To: <20171230135108.6834-1-paul@crapouillou.net>
 References: <20171228162939.3928-2-paul@crapouillou.net>
  <20171230135108.6834-1-paul@crapouillou.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Also remove the watchdog platform_device from platform.c, since it
-wasn't used anywhere anyway.
+The watchdog driver can restart the system by simply configuring the
+hardware for a timeout of 0 seconds.
 
 Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 ---
- arch/mips/boot/dts/ingenic/jz4740.dtsi |  8 ++++++++
- arch/mips/jz4740/platform.c            | 16 ----------------
- 2 files changed, 8 insertions(+), 16 deletions(-)
+ drivers/watchdog/jz4740_wdt.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
  v2: No change
 
-diff --git a/arch/mips/boot/dts/ingenic/jz4740.dtsi b/arch/mips/boot/dts/ingenic/jz4740.dtsi
-index cd5185bb90ae..26c6b561d6f7 100644
---- a/arch/mips/boot/dts/ingenic/jz4740.dtsi
-+++ b/arch/mips/boot/dts/ingenic/jz4740.dtsi
-@@ -45,6 +45,14 @@
- 		#clock-cells = <1>;
- 	};
+diff --git a/drivers/watchdog/jz4740_wdt.c b/drivers/watchdog/jz4740_wdt.c
+index 92d6ca8ceb49..fa7f49a3212c 100644
+--- a/drivers/watchdog/jz4740_wdt.c
++++ b/drivers/watchdog/jz4740_wdt.c
+@@ -130,6 +130,14 @@ static int jz4740_wdt_stop(struct watchdog_device *wdt_dev)
+ 	return 0;
+ }
  
-+	watchdog: watchdog@10002000 {
-+		compatible = "ingenic,jz4740-watchdog";
-+		reg = <0x10002000 0x10>;
++static int jz4740_wdt_restart(struct watchdog_device *wdt_dev,
++			      unsigned long action, void *data)
++{
++	wdt_dev->timeout = 0;
++	jz4740_wdt_start(wdt_dev);
++	return 0;
++}
 +
-+		clocks = <&cgu JZ4740_CLK_RTC>;
-+		clock-names = "rtc";
-+	};
-+
- 	rtc_dev: rtc@10003000 {
- 		compatible = "ingenic,jz4740-rtc";
- 		reg = <0x10003000 0x40>;
-diff --git a/arch/mips/jz4740/platform.c b/arch/mips/jz4740/platform.c
-index 5b7cdd67a9d9..cbc5f8e87230 100644
---- a/arch/mips/jz4740/platform.c
-+++ b/arch/mips/jz4740/platform.c
-@@ -233,22 +233,6 @@ struct platform_device jz4740_adc_device = {
- 	.resource	= jz4740_adc_resources,
+ static const struct watchdog_info jz4740_wdt_info = {
+ 	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
+ 	.identity = "jz4740 Watchdog",
+@@ -141,6 +149,7 @@ static const struct watchdog_ops jz4740_wdt_ops = {
+ 	.stop = jz4740_wdt_stop,
+ 	.ping = jz4740_wdt_ping,
+ 	.set_timeout = jz4740_wdt_set_timeout,
++	.restart = jz4740_wdt_restart,
  };
  
--/* Watchdog */
--static struct resource jz4740_wdt_resources[] = {
--	{
--		.start = JZ4740_WDT_BASE_ADDR,
--		.end   = JZ4740_WDT_BASE_ADDR + 0x10 - 1,
--		.flags = IORESOURCE_MEM,
--	},
--};
--
--struct platform_device jz4740_wdt_device = {
--	.name	       = "jz4740-wdt",
--	.id	       = -1,
--	.num_resources = ARRAY_SIZE(jz4740_wdt_resources),
--	.resource      = jz4740_wdt_resources,
--};
--
- /* PWM */
- struct platform_device jz4740_pwm_device = {
- 	.name = "jz4740-pwm",
+ #ifdef CONFIG_OF
 -- 
 2.11.0
 
