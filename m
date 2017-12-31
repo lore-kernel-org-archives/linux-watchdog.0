@@ -1,76 +1,107 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pl0-f68.google.com ([209.85.160.68]:33487 "EHLO
-        mail-pl0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750977AbdL3QIc (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 30 Dec 2017 11:08:32 -0500
-Subject: Re: [PATCH v2 4/8] watchdog: JZ4740: Drop module remove function
-To: Paul Cercueil <paul@crapouillou.net>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Wim Van Sebroeck <wim@iguana.be>
-Cc: devicetree@vger.kernel.org, linux-mips@linux-mips.org,
-        linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org
-References: <20171228162939.3928-2-paul@crapouillou.net>
- <20171230135108.6834-1-paul@crapouillou.net>
- <20171230135108.6834-4-paul@crapouillou.net>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <8454df76-df77-c57f-2f87-be03c4cda63b@roeck-us.net>
-Date: Sat, 30 Dec 2017 08:08:30 -0800
-MIME-Version: 1.0
-In-Reply-To: <20171230135108.6834-4-paul@crapouillou.net>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-Path: <postmaster@kaiser.cx>
+Return-path: <postmaster@kaiser.cx>
+From: Martin Kaiser <martin@kaiser.cx>
+To: Wim Van Sebroeck <wim@iguana.be>,
+	Guenter Roeck <linux@roeck-us.net>,
+	linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Cc: kernel@pengutronix.de,
+	Fabio Estevam <fabio.estevam@freescale.com>,
+	Martin Kaiser <martin@kaiser.cx>,
+	stable@vger.kernel.org
+Subject: [PATCH v2] watchdog: imx2_wdt: restore previous timeout after suspend+resume
+Date: Sun, 31 Dec 2017 12:17:03 +0100
+Message-Id: <1514719023-5916-1-git-send-email-martin@kaiser.cx>
+In-Reply-To: <1514555950-28743-1-git-send-email-martin@kaiser.cx>
+References: <1514555950-28743-1-git-send-email-martin@kaiser.cx>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 12/30/2017 05:51 AM, Paul Cercueil wrote:
-> When the watchdog was configured for nowayout, and after the
-> userspace watchdog daemon closed the dev node without sending the
-> magic character, unloading this module stopped the watchdog
-> hardware, which was clearly a problem.
-> 
-> Besides, unloading the module is not possible when the userspace
-> watchdog daemon is running, so it's safe to assume that we don't
-> need to stop the watchdog hardware in the jz4740_wdt_remove()
-> function.
-> 
-> For this reason, the jz4740_wdt_remove() function can then be
-> dropped alltogether.
-> 
-> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+When the watchdog device is suspended, its timeout is set to the maximum
+value. During resume, the previously set timeout should be restored.
+This does not work at the moment.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+The suspend function calls
 
-> ---
->   drivers/watchdog/jz4740_wdt.c | 8 --------
->   1 file changed, 8 deletions(-)
-> 
->   v2: New patch in this series
-> 
-> diff --git a/drivers/watchdog/jz4740_wdt.c b/drivers/watchdog/jz4740_wdt.c
-> index fa7f49a3212c..02b9b8e946a2 100644
-> --- a/drivers/watchdog/jz4740_wdt.c
-> +++ b/drivers/watchdog/jz4740_wdt.c
-> @@ -205,16 +205,8 @@ static int jz4740_wdt_probe(struct platform_device *pdev)
->   	return 0;
->   }
->   
-> -static int jz4740_wdt_remove(struct platform_device *pdev)
-> -{
-> -	struct jz4740_wdt_drvdata *drvdata = platform_get_drvdata(pdev);
-> -
-> -	return jz4740_wdt_stop(&drvdata->wdt);
-> -}
-> -
->   static struct platform_driver jz4740_wdt_driver = {
->   	.probe = jz4740_wdt_probe,
-> -	.remove = jz4740_wdt_remove,
->   	.driver = {
->   		.name = "jz4740-wdt",
->   		.of_match_table = of_match_ptr(jz4740_wdt_of_matches),
-> 
+imx2_wdt_set_timeout(wdog, IMX2_WDT_MAX_TIME);
 
+and resume reverts this by calling
+
+imx2_wdt_set_timeout(wdog, wdog->timeout);
+
+However, imx2_wdt_set_timeout() updates wdog->timeout. Therefore,
+wdog->timeout is set to IMX2_WDT_MAX_TIME when we enter the resume
+function.
+
+Fix this by adding a new function __imx2_wdt_set_timeout() which
+only updates the hardware settings. imx2_wdt_set_timeout() now calls
+__imx2_wdt_set_timeout() and then saves the new timeout to
+wdog->timeout.
+
+During suspend, we call __imx2_wdt_set_timeout() directly so that
+wdog->timeout won't be updated and we can restore the previous value
+during resume. This approach makes wdog->timeout different from the
+actual setting in the hardware which is usually not a good thing.
+However, the two differ only while we're suspended and no kernel code is
+running, so it should be ok in this case.
+
+Signed-off-by: Martin Kaiser <martin@kaiser.cx>
+Cc: stable@vger.kernel.org
+---
+changes in v2:
+ helper function that updates the hw settings, as per Guenter's proposal
+
+ drivers/watchdog/imx2_wdt.c | 23 +++++++++++++++++++----
+ 1 file changed, 19 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
+index 4874b0f..b0c2bca 100644
+--- a/drivers/watchdog/imx2_wdt.c
++++ b/drivers/watchdog/imx2_wdt.c
+@@ -169,18 +169,29 @@ static int imx2_wdt_ping(struct watchdog_device *wdog)
+ 	return 0;
+ }
+ 
+-static int imx2_wdt_set_timeout(struct watchdog_device *wdog,
++static int __imx2_wdt_set_timeout(struct watchdog_device *wdog,
+ 				unsigned int new_timeout)
+ {
+ 	struct imx2_wdt_device *wdev = watchdog_get_drvdata(wdog);
+ 
+-	wdog->timeout = new_timeout;
+-
+ 	regmap_update_bits(wdev->regmap, IMX2_WDT_WCR, IMX2_WDT_WCR_WT,
+ 			   WDOG_SEC_TO_COUNT(new_timeout));
+ 	return 0;
+ }
+ 
++static int imx2_wdt_set_timeout(struct watchdog_device *wdog,
++				unsigned int new_timeout)
++{
++	int ret;
++
++	ret = __imx2_wdt_set_timeout(wdog, new_timeout);
++	if (ret < 0)
++		return ret;
++
++	wdog->timeout = new_timeout;
++	return 0;
++}
++
+ static int imx2_wdt_set_pretimeout(struct watchdog_device *wdog,
+ 				   unsigned int new_pretimeout)
+ {
+@@ -371,7 +382,11 @@ static int imx2_wdt_suspend(struct device *dev)
+ 
+ 	/* The watchdog IP block is running */
+ 	if (imx2_wdt_is_running(wdev)) {
+-		imx2_wdt_set_timeout(wdog, IMX2_WDT_MAX_TIME);
++		/*
++		 * Don't update wdog->timeout, we'll restore the current value
++		 * during resume.
++		 */
++		__imx2_wdt_set_timeout(wdog, IMX2_WDT_MAX_TIME);
+ 		imx2_wdt_ping(wdog);
+ 	}
+ 
+-- 
+2.1.4
