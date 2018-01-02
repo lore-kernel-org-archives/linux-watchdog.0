@@ -1,46 +1,38 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-it0-f68.google.com ([209.85.214.68]:37146 "EHLO
-        mail-it0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752176AbeABJTh (ORCPT
+Received: from mail-io0-f171.google.com ([209.85.223.171]:43936 "EHLO
+        mail-io0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751700AbeABJ3b (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 2 Jan 2018 04:19:37 -0500
-Received: by mail-it0-f68.google.com with SMTP id d137so38807135itc.2
-        for <linux-watchdog@vger.kernel.org>; Tue, 02 Jan 2018 01:19:36 -0800 (PST)
+        Tue, 2 Jan 2018 04:29:31 -0500
+Received: by mail-io0-f171.google.com with SMTP id w188so3946325iod.10
+        for <linux-watchdog@vger.kernel.org>; Tue, 02 Jan 2018 01:29:31 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <CACRpkdbYiG7TOOvBa3kWtocae8NikXCdDQkR6LyPd6Umt=DHTA@mail.gmail.com>
-References: <cover.1514475654.git.vilhelm.gray@gmail.com> <ff1871fe837aa3a520fefe2602f8f1e13e1db244.1514475654.git.vilhelm.gray@gmail.com>
- <CACRpkdbYiG7TOOvBa3kWtocae8NikXCdDQkR6LyPd6Umt=DHTA@mail.gmail.com>
+In-Reply-To: <cover.1514578085.git.vilhelm.gray@gmail.com>
+References: <cover.1514578085.git.vilhelm.gray@gmail.com>
 From: Linus Walleij <linus.walleij@linaro.org>
-Date: Tue, 2 Jan 2018 10:19:36 +0100
-Message-ID: <CACRpkdZ=kYMg==PEK3D==625+8zK_L+bM-WRSnJQDHVDkyQzsw@mail.gmail.com>
-Subject: Re: [PATCH 3/3] gpio: Change ISA_BUS_API dependency to selection
+Date: Tue, 2 Jan 2018 10:29:30 +0100
+Message-ID: <CACRpkdbBA0DX22ZGSkQxi+euTSROPzsmLTvSPwY8peg6+7igFQ@mail.gmail.com>
+Subject: Re: [PATCH v2 0/5] Change ISA_BUS_API dependency to selection
 To: William Breathitt Gray <vilhelm.gray@gmail.com>
 Cc: "Maciej S. Szmigiero" <mail@maciej.szmigiero.name>,
-        linux-gpio@vger.kernel.org, linux-iio@vger.kernel.org,
+        Guenter Roeck <linux@roeck-us.net>, linux-gpio@vger.kernel.org,
+        linux-iio@vger.kernel.org,
         LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
         "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, Jan 2, 2018 at 10:18 AM, Linus Walleij <linus.walleij@linaro.org> wrote:
-> On Thu, Dec 28, 2017 at 5:02 PM, William Breathitt Gray
-> <vilhelm.gray@gmail.com> wrote:
->
->> The ISA_BUS_API Kconfig option enables the compilation of the ISA bus
->> driver. The ISA bus driver does not perform any hardware interaction,
->> and is instead just a thin layer of software abstraction to eliminate
->> boilerplate code common to ISA-style device drivers. Since ISA_BUS_API
->> has no dependencies and does not jeopardize the integrity of the system
->> when enabled, drivers should select it when the ISA bus driver
->> functionality is needed.
->>
->> Cc: Linus Walleij <linus.walleij@linaro.org>
->> Signed-off-by: William Breathitt Gray <vilhelm.gray@gmail.com>
->
-> Patch applied.
+On Fri, Dec 29, 2017 at 9:13 PM, William Breathitt Gray
+<vilhelm.gray@gmail.com> wrote:
 
-Ooops there are newer patches, backed it out.
+> Linus, please pickup this entire patchset through your GPIO subsystem
+> tree; a recursive dependency error is present if these patches are
+> cherry-picked (see https://lkml.org/lkml/2017/12/26/235), so they should
+> be merged together in the same tree.
+
+OK I just need a bunch of ACKs so giving subsystem maintainers some
+days to come back on this.
 
 Yours,
 Linus Walleij
