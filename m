@@ -1,125 +1,102 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pl0-f66.google.com ([209.85.160.66]:35852 "EHLO
-        mail-pl0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750923AbdLaOn7 (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 31 Dec 2017 09:43:59 -0500
-Subject: Re: [PATCH v2] watchdog: imx2_wdt: restore previous timeout after
- suspend+resume
-To: Martin Kaiser <martin@kaiser.cx>, Wim Van Sebroeck <wim@iguana.be>,
-        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: kernel@pengutronix.de, Fabio Estevam <fabio.estevam@freescale.com>,
-        stable@vger.kernel.org
-References: <1514555950-28743-1-git-send-email-martin@kaiser.cx>
- <1514719023-5916-1-git-send-email-martin@kaiser.cx>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <765527e5-a6d3-e75e-a3ad-8b800e7bcc1e@roeck-us.net>
-Date: Sun, 31 Dec 2017 06:43:55 -0800
+Return-Path: <prasannatsmkumar@gmail.com>
+Return-path: <prasannatsmkumar@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <1514719023-5916-1-git-send-email-martin@kaiser.cx>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+In-Reply-To: <20171230135108.6834-5-paul@crapouillou.net>
+References: <20171228162939.3928-2-paul@crapouillou.net> <20171230135108.6834-1-paul@crapouillou.net>
+ <20171230135108.6834-5-paul@crapouillou.net>
+From: PrasannaKumar Muralidharan <prasannatsmkumar@gmail.com>
+Date: Tue, 2 Jan 2018 22:07:46 +0530
+Message-ID: <CANc+2y5ZUM_ZzXaGgbx9b7O1GF4GrbaYsv97G+akvhP2d2VVUA@mail.gmail.com>
+Subject: Re: [PATCH v2 5/8] MIPS: jz4740: dts: Add bindings for the jz4740-wdt driver
+To: Paul Cercueil <paul@crapouillou.net>
+Cc: Ralf Baechle <ralf@linux-mips.org>, Rob Herring <robh+dt@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>, Wim Van Sebroeck <wim@iguana.be>, Guenter Roeck <linux@roeck-us.net>,
+	devicetree@vger.kernel.org, linux-mips@linux-mips.org,
+	open list <linux-kernel@vger.kernel.org>, linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi Martin,
+Hi Paul,
 
-On 12/31/2017 03:17 AM, Martin Kaiser wrote:
-> When the watchdog device is suspended, its timeout is set to the maximum
-> value. During resume, the previously set timeout should be restored.
-> This does not work at the moment.
-> 
-> The suspend function calls
-> 
-> imx2_wdt_set_timeout(wdog, IMX2_WDT_MAX_TIME);
-> 
-> and resume reverts this by calling
-> 
-> imx2_wdt_set_timeout(wdog, wdog->timeout);
-> 
-> However, imx2_wdt_set_timeout() updates wdog->timeout. Therefore,
-> wdog->timeout is set to IMX2_WDT_MAX_TIME when we enter the resume
-> function.
-> 
-> Fix this by adding a new function __imx2_wdt_set_timeout() which
-> only updates the hardware settings. imx2_wdt_set_timeout() now calls
-> __imx2_wdt_set_timeout() and then saves the new timeout to
-> wdog->timeout.
-> 
-> During suspend, we call __imx2_wdt_set_timeout() directly so that
-> wdog->timeout won't be updated and we can restore the previous value
-> during resume. This approach makes wdog->timeout different from the
-> actual setting in the hardware which is usually not a good thing.
-> However, the two differ only while we're suspended and no kernel code is
-> running, so it should be ok in this case.
-> 
-> Signed-off-by: Martin Kaiser <martin@kaiser.cx>
-> Cc: stable@vger.kernel.org
+On 30 December 2017 at 19:21, Paul Cercueil <paul@crapouillou.net> wrote:
+> Also remove the watchdog platform_device from platform.c, since it
+> wasn't used anywhere anyway.
+>
+> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
 > ---
-> changes in v2:
->   helper function that updates the hw settings, as per Guenter's proposal
-> 
->   drivers/watchdog/imx2_wdt.c | 23 +++++++++++++++++++----
->   1 file changed, 19 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
-> index 4874b0f..b0c2bca 100644
-> --- a/drivers/watchdog/imx2_wdt.c
-> +++ b/drivers/watchdog/imx2_wdt.c
-> @@ -169,18 +169,29 @@ static int imx2_wdt_ping(struct watchdog_device *wdog)
->   	return 0;
->   }
->   
-> -static int imx2_wdt_set_timeout(struct watchdog_device *wdog,
-> +static int __imx2_wdt_set_timeout(struct watchdog_device *wdog,
->   				unsigned int new_timeout)
+>  arch/mips/boot/dts/ingenic/jz4740.dtsi |  8 ++++++++
+>  arch/mips/jz4740/platform.c            | 16 ----------------
+>  2 files changed, 8 insertions(+), 16 deletions(-)
+>
+>  v2: No change
+>
+> diff --git a/arch/mips/boot/dts/ingenic/jz4740.dtsi b/arch/mips/boot/dts/ingenic/jz4740.dtsi
+> index cd5185bb90ae..26c6b561d6f7 100644
+> --- a/arch/mips/boot/dts/ingenic/jz4740.dtsi
+> +++ b/arch/mips/boot/dts/ingenic/jz4740.dtsi
+> @@ -45,6 +45,14 @@
+>                 #clock-cells = <1>;
+>         };
+>
+> +       watchdog: watchdog@10002000 {
+> +               compatible = "ingenic,jz4740-watchdog";
+> +               reg = <0x10002000 0x10>;
+> +
+> +               clocks = <&cgu JZ4740_CLK_RTC>;
+> +               clock-names = "rtc";
+> +       };
+> +
 
-Please align the continuation line with '('.
-Also, the function type should be void (always returning 0 and checking
-that return value does not add any value).
+The watchdog driver calls jz4740_timer_enable_watchdog and
+jz4740_timer_disable_watchdog which defined in
+arch/mips/jz4740/timer.c. It accesses registers iomapped by timer
+code. Declaring register size as 0x10 does not show the real picture.
+Better use register size as 0x100 and let timer, wdt, pwm drivers to
+share them.
 
-Thanks,
-Guenter
+Code from one of your branches
+(https://github.com/OpenDingux/linux/blob/for-upstream-clocksource/arch/mips/boot/dts/ingenic/jz4740.dtsi)
+does it. Can you prepare a patch series and send it?
+I have a patch set that moves timer code out of arch/mips/jz4740/ and
+does a similar thing for watchdog and pwm. As your new timer driver is
+better than the existing one I have not sent my patches yet. I would
+like to see it getting mainlined as it paves way for removing most of
+code in arch/mips/jz4740.
 
->   {
->   	struct imx2_wdt_device *wdev = watchdog_get_drvdata(wdog);
->   
-> -	wdog->timeout = new_timeout;
+>         rtc_dev: rtc@10003000 {
+>                 compatible = "ingenic,jz4740-rtc";
+>                 reg = <0x10003000 0x40>;
+> diff --git a/arch/mips/jz4740/platform.c b/arch/mips/jz4740/platform.c
+> index 5b7cdd67a9d9..cbc5f8e87230 100644
+> --- a/arch/mips/jz4740/platform.c
+> +++ b/arch/mips/jz4740/platform.c
+> @@ -233,22 +233,6 @@ struct platform_device jz4740_adc_device = {
+>         .resource       = jz4740_adc_resources,
+>  };
+>
+> -/* Watchdog */
+> -static struct resource jz4740_wdt_resources[] = {
+> -       {
+> -               .start = JZ4740_WDT_BASE_ADDR,
+> -               .end   = JZ4740_WDT_BASE_ADDR + 0x10 - 1,
+> -               .flags = IORESOURCE_MEM,
+> -       },
+> -};
 > -
->   	regmap_update_bits(wdev->regmap, IMX2_WDT_WCR, IMX2_WDT_WCR_WT,
->   			   WDOG_SEC_TO_COUNT(new_timeout));
->   	return 0;
->   }
->   
-> +static int imx2_wdt_set_timeout(struct watchdog_device *wdog,
-> +				unsigned int new_timeout)
-> +{
-> +	int ret;
-> +
-> +	ret = __imx2_wdt_set_timeout(wdog, new_timeout);
-> +	if (ret < 0)
-> +		return ret;
-> +
-> +	wdog->timeout = new_timeout;
-> +	return 0;
-> +}
-> +
->   static int imx2_wdt_set_pretimeout(struct watchdog_device *wdog,
->   				   unsigned int new_pretimeout)
->   {
-> @@ -371,7 +382,11 @@ static int imx2_wdt_suspend(struct device *dev)
->   
->   	/* The watchdog IP block is running */
->   	if (imx2_wdt_is_running(wdev)) {
-> -		imx2_wdt_set_timeout(wdog, IMX2_WDT_MAX_TIME);
-> +		/*
-> +		 * Don't update wdog->timeout, we'll restore the current value
-> +		 * during resume.
-> +		 */
-> +		__imx2_wdt_set_timeout(wdog, IMX2_WDT_MAX_TIME);
->   		imx2_wdt_ping(wdog);
->   	}
->   
-> 
+> -struct platform_device jz4740_wdt_device = {
+> -       .name          = "jz4740-wdt",
+> -       .id            = -1,
+> -       .num_resources = ARRAY_SIZE(jz4740_wdt_resources),
+> -       .resource      = jz4740_wdt_resources,
+> -};
+> -
+>  /* PWM */
+>  struct platform_device jz4740_pwm_device = {
+>         .name = "jz4740-pwm",
+> --
+> 2.11.0
+>
+>
 
+Regards,
+PrasannaKumar
