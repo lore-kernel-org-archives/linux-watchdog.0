@@ -1,88 +1,60 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pg0-f67.google.com ([74.125.83.67]:45207 "EHLO
-        mail-pg0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752305AbeAJAFf (ORCPT
+Received: from fllnx209.ext.ti.com ([198.47.19.16]:60517 "EHLO
+        fllnx209.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S933087AbeAJJ5V (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 9 Jan 2018 19:05:35 -0500
-Date: Tue, 9 Jan 2018 16:05:32 -0800
-From: Guenter Roeck <linux@roeck-us.net>
-To: Gabriel C <nix.or.die@gmail.com>
-Cc: Lyude Paul <lyude@redhat.com>, Wim Van Sebroeck <wim@iguana.be>,
-        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        =?iso-8859-1?B?Wm9sdOFuIEL2c3r2cm3pbnlp?= <zboszor@pr.hu>
-Subject: Re: [11/12] watchdog: sp5100-tco: Abort if watchdog is disabled by
- hardware
-Message-ID: <20180110000532.GA6500@roeck-us.net>
-References: <1514149457-20273-12-git-send-email-linux@roeck-us.net>
- <1515538687.4373.18.camel@redhat.com>
- <20180109233703.GD26819@roeck-us.net>
- <4b56f6ba-bf76-a500-087a-49f34cd4b5d5@gmail.com>
+        Wed, 10 Jan 2018 04:57:21 -0500
+Subject: Re: [PATCH v2 0/2] ARM: davinici: move watchdog restart from mach to
+ drivers
+To: David Lechner <david@lechnology.com>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-watchdog@vger.kernel.org>
+CC: Kevin Hilman <khilman@kernel.org>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Guenter Roeck <linux@roeck-us.net>,
+        <linux-kernel@vger.kernel.org>
+References: <1515294615-5473-1-git-send-email-david@lechnology.com>
+From: Sekhar Nori <nsekhar@ti.com>
+Message-ID: <87c020cd-2453-9ffc-8daa-5fca1c1705c2@ti.com>
+Date: Wed, 10 Jan 2018 15:25:19 +0530
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <4b56f6ba-bf76-a500-087a-49f34cd4b5d5@gmail.com>
+In-Reply-To: <1515294615-5473-1-git-send-email-david@lechnology.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi,
+On Sunday 07 January 2018 08:40 AM, David Lechner wrote:
+> This series moves the watchdog restart code from arch/arm/mach-davinci
+> to drivers/watchdog.
+> 
+> Tested working on LEGO MINDSTORMS EV3 (TI AM1808 processor).
+> 
+> v2 changes:
+> * rebased on linux-davinci/master (fixed conflict with clock.h)
+> 
+> There is also still the unresolved question from Sekhar:
+> 
+>> Hi Wim,
+>>
+>> How do you want to handle this series? Patch 2/2 definitely needs to go
+>> through my tree as it will clash with other code I am queuing.
+>>
+>> I can either take 1/2 also through ARM-SoC with your ack (preferred) or
+>> if you give me an immutable commit/tag over v4.15-rc1, I can merge that
+>> to preserve bisect-ability.
 
-On Wed, Jan 10, 2018 at 12:58:00AM +0100, Gabriel C wrote:
-> On 10.01.2018 00:37, Guenter Roeck wrote:
-> >Hi,
-> >
-> >On Tue, Jan 09, 2018 at 05:58:07PM -0500, Lyude Paul wrote:
-> >>Hi! I'm the one from the Fedora bugzilla who said they'd help review these
-> >>patches. I might end up responding to this with a real review comment after
-> >>this message, but first:
-> >>
-> >>mind cc'ing me future versions of this patchset and also, is there any way you
-> >
-> >Sure.
-> >
-> >>know of that one could figure out whether or not the sp5100_tco wdt is
-> >>actually disabled by the OEM on a board? I tried testing these patches with my
-> >
-> >That is what the code is trying to do today.
-> >
-> >>system and it appears to be convinced that it's disabled on my system, but I'm
-> >>hoping something in this patch is just broken…
-> >>
-> >
-> >I tested the driver on three different boards. MSI B350M MORTAR,
-> >MSI B350 TOMAHAWK, and Gigabyte AB350M-Gaming 3. CPU is Ryzen 1700X
-> >on all boards.
-> >
-> >On the MSI boards, the watchdog is reported as disabled. Enabling it
-> >and letting it expire does not have an effect. I am using the Super-IO
-> >watchdog instead on those boards (and it works).
-> >
-> >On the Gigabyte board, the watchdog is reported as enabled, and it works
-> >(and the watchdog on the Super-IO chips does not work).
-> >
-> >Feel free to play with the driver. Maybe there is a means to enable the
-> >watchdog if it is disabled. Unfortunately, I was unable to figure out how
-> >to do it, so I thought it is better to report the fact and not instantiate
-> >the watchdog if it doesn't work.
-> >
-> 
-> I haven an Supemricro H11DSi-NT with EPYCs CPUs..
-> I can set the watchdog ON/OFF in BIOS and also set in to reset or NMI
-> with the moatherboard jumpers.
-> 
-> If you want I can give whatever patches for this driver an try ,
-> just let me know.
-> 
+I see that 1/2 is already present in linux-next through commit 71d1f058844d.
 
-It would be great if you can test the series, even more so if you can test it
-with the watchdog enabled and disabled . If you need to pull it from a git
-repository, it is available from
-git://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git
-in branch watchdog-next.
+At this time, I think the best way forward is to send 2/2 through my
+tree. The only downside is if Linus merges ARM-SoC tree ahead of
+watchdog tree, there will be a small period during merge window where
+reset will be broken on DaVinci devices. I guess thats not such a big
+issue (and I see no way around it except postponing 2/2 to v4.17).
+
+I will be sending a pull request for 2/2 to ARM-SoC shortly and will
+copy folks from this thread too.
 
 Thanks,
-Guenter
-
-> Regards,
-> 
-> Gabriel C
+Sekhar
