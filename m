@@ -6,31 +6,21 @@ Cc: Wim Van Sebroeck <wim@iguana.be>,
 	Guenter Roeck <linux@roeck-us.net>,
 	linux-watchdog@vger.kernel.org,
 	John Crispin <john@phrozen.org>
-Subject: [PATCH v2 1/2] watchdog: mt7621: set WDOG_HW_RUNNING bit when appropriate
-Date: Fri, 12 Jan 2018 09:44:53 +0000
-Message-Id: <20180112094454.5518-1-git@andred.net>
-In-Reply-To: <20180110121323.17657-1-git@andred.net>
+Subject: [PATCH v2 2/2] watchdog: mt7621: switch to using managed devm_watchdog_register_device()
+Date: Fri, 12 Jan 2018 09:44:54 +0000
+Message-Id: <20180112094454.5518-2-git@andred.net>
+In-Reply-To: <20180112094454.5518-1-git@andred.net>
 References: <20180110121323.17657-1-git@andred.net>
+ <20180112094454.5518-1-git@andred.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 List-ID: <linux-watchdog@vger.kernel.org>
 
-If the watchdog hardware is enabled/running during boot, e.g.
-due to a boot loader configuring it, we must tell the
-watchdog framework about this fact so that it can ping the
-watchdog until userspace opens the device and takes over
-control.
-
-Do so using the WDOG_HW_RUNNING flag that exists for exactly
-that use-case.
-
-Given the watchdog driver core doesn't know what timeout was
-originally set by whoever started the watchdog (boot loader),
-we make sure to update the timeout in the hardware according
-to what the watchdog core thinks it is.
+This does the necessary cleanup on driver unload automatically.
 
 Signed-off-by: André Draszik <git@andred.net>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 Cc: Wim Van Sebroeck <wim@iguana.be>
 Cc: Guenter Roeck <linux@roeck-us.net>
 Cc: linux-watchdog@vger.kernel.org
@@ -38,48 +28,48 @@ Cc: John Crispin <john@phrozen.org>
 
 ---
 Changes in v2:
-- fix typo and proper multi-line comment
-- update commit message to be clearer
+- add reviewed-by
 ---
- drivers/watchdog/mt7621_wdt.c | 19 +++++++++++++++++++
- 1 file changed, 19 insertions(+)
+ drivers/watchdog/mt7621_wdt.c | 13 +------------
+ 1 file changed, 1 insertion(+), 12 deletions(-)
 
 diff --git a/drivers/watchdog/mt7621_wdt.c b/drivers/watchdog/mt7621_wdt.c
-index db38f8017218..eec57e5e1eae 100644
+index eec57e5e1eae..5c4a764717c4 100644
 --- a/drivers/watchdog/mt7621_wdt.c
 +++ b/drivers/watchdog/mt7621_wdt.c
-@@ -105,6 +105,11 @@ static int mt7621_wdt_bootcause(void)
- 	return 0;
+@@ -133,7 +133,6 @@ static struct watchdog_device mt7621_wdt_dev = {
+ static int mt7621_wdt_probe(struct platform_device *pdev)
+ {
+ 	struct resource *res;
+-	int ret;
+ 
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	mt7621_wdt_base = devm_ioremap_resource(&pdev->dev, res);
+@@ -164,16 +163,7 @@ static int mt7621_wdt_probe(struct platform_device *pdev)
+ 		set_bit(WDOG_HW_RUNNING, &mt7621_wdt_dev.status);
+ 	}
+ 
+-	ret = watchdog_register_device(&mt7621_wdt_dev);
+-
+-	return 0;
+-}
+-
+-static int mt7621_wdt_remove(struct platform_device *pdev)
+-{
+-	watchdog_unregister_device(&mt7621_wdt_dev);
+-
+-	return 0;
++	return devm_watchdog_register_device(&pdev->dev, &mt7621_wdt_dev);
  }
  
-+static int mt7621_wdt_is_running(struct watchdog_device *w)
-+{
-+	return !!(rt_wdt_r32(TIMER_REG_TMR1CTL) & TMR1CTL_ENABLE);
-+}
-+
- static const struct watchdog_info mt7621_wdt_info = {
- 	.identity = "Mediatek Watchdog",
- 	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
-@@ -144,6 +149,20 @@ static int mt7621_wdt_probe(struct platform_device *pdev)
- 	watchdog_init_timeout(&mt7621_wdt_dev, mt7621_wdt_dev.max_timeout,
- 			      &pdev->dev);
- 	watchdog_set_nowayout(&mt7621_wdt_dev, nowayout);
-+	if (mt7621_wdt_is_running(&mt7621_wdt_dev)) {
-+		/*
-+		 * Make sure to apply timeout from watchdog core, taking
-+		 * the prescaler of this driver here into account (the
-+		 * boot loader might be using a different prescaler).
-+		 *
-+		 * To avoid spurious resets because of different scaling,
-+		 * we first disable the watchdog, set the new prescaler
-+		 * and timeout, and then re-enable the watchdog.
-+		 */
-+		mt7621_wdt_stop(&mt7621_wdt_dev);
-+		mt7621_wdt_start(&mt7621_wdt_dev);
-+		set_bit(WDOG_HW_RUNNING, &mt7621_wdt_dev.status);
-+	}
+ static void mt7621_wdt_shutdown(struct platform_device *pdev)
+@@ -189,7 +179,6 @@ MODULE_DEVICE_TABLE(of, mt7621_wdt_match);
  
- 	ret = watchdog_register_device(&mt7621_wdt_dev);
- 
+ static struct platform_driver mt7621_wdt_driver = {
+ 	.probe		= mt7621_wdt_probe,
+-	.remove		= mt7621_wdt_remove,
+ 	.shutdown	= mt7621_wdt_shutdown,
+ 	.driver		= {
+ 		.name		= KBUILD_MODNAME,
 -- 
 2.15.1
