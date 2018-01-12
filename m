@@ -1,60 +1,163 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from fllnx209.ext.ti.com ([198.47.19.16]:60517 "EHLO
-        fllnx209.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933087AbeAJJ5V (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 10 Jan 2018 04:57:21 -0500
-Subject: Re: [PATCH v2 0/2] ARM: davinici: move watchdog restart from mach to
- drivers
-To: David Lechner <david@lechnology.com>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-watchdog@vger.kernel.org>
-CC: Kevin Hilman <khilman@kernel.org>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        Guenter Roeck <linux@roeck-us.net>,
-        <linux-kernel@vger.kernel.org>
-References: <1515294615-5473-1-git-send-email-david@lechnology.com>
-From: Sekhar Nori <nsekhar@ti.com>
-Message-ID: <87c020cd-2453-9ffc-8daa-5fca1c1705c2@ti.com>
-Date: Wed, 10 Jan 2018 15:25:19 +0530
+Received: from szxga05-in.huawei.com ([45.249.212.191]:3779 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1754345AbeALJMj (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 12 Jan 2018 04:12:39 -0500
+Subject: Re: [PATCH v3 00/27] kill devm_ioremap_nocache
+To: Christophe LEROY <christophe.leroy@c-s.fr>,
+        Greg KH <gregkh@linuxfoundation.org>
+References: <1514026525-32538-1-git-send-email-xieyisheng1@huawei.com>
+ <20171223134831.GB10103@kroah.com>
+ <b8ff7f17-7f2c-f220-9833-7ae5bd7343d5@c-s.fr>
+ <8dd19411-5b06-0aa4-fd0e-e5b112c25dcb@huawei.com>
+ <1eb206ed-95e9-5839-485d-0e549ff3f505@c-s.fr>
+CC: <linux-kernel@vger.kernel.org>, <ysxie@foxmail.com>,
+        <ulf.hansson@linaro.org>, <linux-mmc@vger.kernel.org>,
+        <boris.brezillon@free-electrons.com>, <richard@nod.at>,
+        <marek.vasut@gmail.com>, <cyrille.pitchen@wedev4u.fr>,
+        <linux-mtd@lists.infradead.org>, <alsa-devel@alsa-project.org>,
+        <wim@iguana.be>, <linux@roeck-us.net>,
+        <linux-watchdog@vger.kernel.org>, <b.zolnierkie@samsung.com>,
+        <linux-fbdev@vger.kernel.org>, <linus.walleij@linaro.org>,
+        <linux-gpio@vger.kernel.org>, <ralf@linux-mips.org>,
+        <linux-mips@linux-mips.org>, <lgirdwood@gmail.com>,
+        <broonie@kernel.org>, <tglx@linutronix.de>, <jason@lakedaemon.net>,
+        <marc.zyngier@arm.com>, <arnd@arndb.de>,
+        <andriy.shevchenko@linux.intel.com>,
+        <industrypack-devel@lists.sourceforge.net>, <wg@grandegger.com>,
+        <mkl@pengutronix.de>, <linux-can@vger.kernel.org>,
+        <mchehab@kernel.org>, <linux-media@vger.kernel.org>,
+        <a.zummo@towertech.it>, <alexandre.belloni@free-electrons.com>,
+        <linux-rtc@vger.kernel.org>, <daniel.vetter@intel.com>,
+        <jani.nikula@linux.intel.com>, <seanpaul@chromium.org>,
+        <airlied@linux.ie>, <dri-devel@lists.freedesktop.org>,
+        <kvalo@codeaurora.org>, <linux-wireless@vger.kernel.org>,
+        <linux-spi@vger.kernel.org>, <tj@kernel.org>,
+        <linux-ide@vger.kernel.org>, <bhelgaas@google.com>,
+        <linux-pci@vger.kernel.org>, <devel@driverdev.osuosl.org>,
+        <dvhart@infradead.org>, <andy@infradead.org>,
+        <platform-driver-x86@vger.kernel.org>,
+        <jakub.kicinski@netronome.com>, <davem@davemloft.net>,
+        <nios2-dev@lists.rocketboards.org>, <netdev@vger.kernel.org>,
+        <vinod.koul@intel.com>, <dan.j.williams@intel.com>,
+        <dmaengine@vger.kernel.org>, <jslaby@suse.com>
+From: Yisheng Xie <xieyisheng1@huawei.com>
+Message-ID: <ff498c83-d1ee-7553-e20c-a07369f8dad6@huawei.com>
+Date: Fri, 12 Jan 2018 17:12:12 +0800
 MIME-Version: 1.0
-In-Reply-To: <1515294615-5473-1-git-send-email-david@lechnology.com>
+In-Reply-To: <1eb206ed-95e9-5839-485d-0e549ff3f505@c-s.fr>
 Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Sunday 07 January 2018 08:40 AM, David Lechner wrote:
-> This series moves the watchdog restart code from arch/arm/mach-davinci
-> to drivers/watchdog.
+Hi Christophe ，
+
+On 2018/1/4 16:05, Christophe LEROY wrote:
 > 
-> Tested working on LEGO MINDSTORMS EV3 (TI AM1808 processor).
 > 
-> v2 changes:
-> * rebased on linux-davinci/master (fixed conflict with clock.h)
-> 
-> There is also still the unresolved question from Sekhar:
-> 
->> Hi Wim,
+> Le 25/12/2017 à 02:34, Yisheng Xie a écrit :
 >>
->> How do you want to handle this series? Patch 2/2 definitely needs to go
->> through my tree as it will clash with other code I am queuing.
 >>
->> I can either take 1/2 also through ARM-SoC with your ack (preferred) or
->> if you give me an immutable commit/tag over v4.15-rc1, I can merge that
->> to preserve bisect-ability.
+>> On 2017/12/24 17:05, christophe leroy wrote:
+>>>
+>>>
+>>> Le 23/12/2017 à 14:48, Greg KH a écrit :
+>>>> On Sat, Dec 23, 2017 at 06:55:25PM +0800, Yisheng Xie wrote:
+>>>>> Hi all,
+>>>>>
+>>>>> When I tried to use devm_ioremap function and review related code, I found
+>>>>> devm_ioremap and devm_ioremap_nocache is almost the same with each other,
+>>>>> except one use ioremap while the other use ioremap_nocache.
+>>>>
+>>>> For all arches?  Really?  Look at MIPS, and x86, they have different
+>>>> functions.
+>>>>
+>>>>> While ioremap's
+>>>>> default function is ioremap_nocache, so devm_ioremap_nocache also have the
+>>>>> same function with devm_ioremap, which can just be killed to reduce the size
+>>>>> of devres.o(from 20304 bytes to 18992 bytes in my compile environment).
+>>>>>
+>>>>> I have posted two versions, which use macro instead of function for
+>>>>> devm_ioremap_nocache[1] or devm_ioremap[2]. And Greg suggest me to kill
+>>>>> devm_ioremap_nocache for no need to keep a macro around for the duplicate
+>>>>> thing. So here comes v3 and please help to review.
+>>>>
+>>>> I don't think this can be done, what am I missing?  These functions are
+>>>> not identical, sorry for missing that before.
+>>>
+>>> devm_ioremap() and devm_ioremap_nocache() are quite similar, both use devm_ioremap_release() for the release, why not just defining:
+>>>
+>>> static void __iomem *__devm_ioremap(struct device *dev, resource_size_t offset,
+>>>                 resource_size_t size, bool nocache)
+>>> {
+>>> [...]
+>>>      if (nocache)
+>>>          addr = ioremap_nocache(offset, size);
+>>>      else
+>>>          addr = ioremap(offset, size);
+>>> [...]
+>>> }
+>>>
+>>> then in include/linux/io.h
+>>>
+>>> static inline void __iomem *devm_ioremap(struct device *dev, resource_size_t offset,
+>>>                 resource_size_t size)
+>>> {return __devm_ioremap(dev, offset, size, false);}
+>>>
+>>> static inline void __iomem *devm_ioremap_nocache(struct device *dev, resource_size_t offset,
+>>>                     resource_size_t size);
+>>> {return __devm_ioremap(dev, offset, size, true);}
+>>
+>> Yeah, this seems good to me, right now we have devm_ioremap, devm_ioremap_wc, devm_ioremap_nocache
+>> May be we can use an enum like:
+>> typedef enum {
+>>     DEVM_IOREMAP = 0,
+>>     DEVM_IOREMAP_NOCACHE,
+>>     DEVM_IOREMAP_WC,
+>> } devm_ioremap_type;
+>>
+>> static inline void __iomem *devm_ioremap(struct device *dev, resource_size_t offset,
+>>                  resource_size_t size)
+>>   {return __devm_ioremap(dev, offset, size, DEVM_IOREMAP);}
+>>
+>>   static inline void __iomem *devm_ioremap_nocache(struct device *dev, resource_size_t offset,
+>>                      resource_size_t size);
+>>   {return __devm_ioremap(dev, offset, size, DEVM_IOREMAP_NOCACHE);}
+>>
+>>   static inline void __iomem *devm_ioremap_wc(struct device *dev, resource_size_t offset,
+>>                      resource_size_t size);
+>>   {return __devm_ioremap(dev, offset, size, DEVM_IOREMAP_WC);}
+>>
+>>   static void __iomem *__devm_ioremap(struct device *dev, resource_size_t offset,
+>>                  resource_size_t size, devm_ioremap_type type)
+>>   {
+>>       void __iomem **ptr, *addr = NULL;
+>>   [...]
+>>       switch (type){
+>>       case DEVM_IOREMAP:
+>>           addr = ioremap(offset, size);
+>>           break;
+>>       case DEVM_IOREMAP_NOCACHE:
+>>           addr = ioremap_nocache(offset, size);
+>>           break;
+>>       case DEVM_IOREMAP_WC:
+>>           addr = ioremap_wc(offset, size);
+>>           break;
+>>       }
+>>   [...]
+>>   }
+> 
+> 
+> That looks good to me, will you submit a v4 ?
 
-I see that 1/2 is already present in linux-next through commit 71d1f058844d.
+Sorry for late response. And I will submit the v4 as your suggestion.
 
-At this time, I think the best way forward is to send 2/2 through my
-tree. The only downside is if Linus merges ARM-SoC tree ahead of
-watchdog tree, there will be a small period during merge window where
-reset will be broken on DaVinci devices. I guess thats not such a big
-issue (and I see no way around it except postponing 2/2 to v4.17).
+Thanks
+Yisheng
 
-I will be sending a pull request for 2/2 to ARM-SoC shortly and will
-copy folks from this thread too.
+> 
+> Christophe
+> 
+>>
 
-Thanks,
-Sekhar
