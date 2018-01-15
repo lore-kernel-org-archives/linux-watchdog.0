@@ -1,41 +1,47 @@
-Return-Path: <groeck7@gmail.com>
-Return-path: <groeck7@gmail.com>
-Sender: Guenter Roeck <groeck7@gmail.com>
-From: Guenter Roeck <linux@roeck-us.net>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	James Hogan <jhogan@kernel.org>,
-	Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH] watchdog: indydog: Drop test builds
-Date: Mon, 15 Jan 2018 19:05:50 -0800
-Message-Id: <1516071950-14207-1-git-send-email-linux@roeck-us.net>
+Return-Path: <arnd@arndb.de>
+Return-path: <arnd@arndb.de>
+From: Arnd Bergmann <arnd@arndb.de>
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Pavel Machek <pavel@ucw.cz>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Nikita Yushchenko <nikita.yoush@cogentembedded.com>,
+	Andrey Smirnov <andrew.smirnov@gmail.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Wim Van Sebroeck <wim@linux-watchdog.org>,
+	linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] watchdog: rave-sp: add NVMEM dependency
+Date: Mon, 15 Jan 2018 17:10:33 +0100
+Message-Id: <20180115161052.684821-1-arnd@arndb.de>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Due to changes in MIPS default configuration, mips:allmodconfig fails
-to build with the following error.
+We can build this driver with or without NVMEM, but not built-in
+when NVMEM is a loadable module:
 
-ERROR: "sgimc" [drivers/watchdog/indydog.ko] undefined!
-scripts/Makefile.modpost:92: recipe for target '__modpost' failed
+drivers/watchdog/rave-sp-wdt.o: In function `rave_sp_wdt_probe':
+rave-sp-wdt.c:(.text+0x27c): undefined reference to `nvmem_cell_get'
+rave-sp-wdt.c:(.text+0x290): undefined reference to `nvmem_cell_read'
+rave-sp-wdt.c:(.text+0x2c4): undefined reference to `nvmem_cell_put'
 
-Fixes: da2a68b3eb47 ("watchdog: Enable COMPILE_TEST where possible")
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+This adds a Kconfig dependency to enforce that.
+
+Fixes: c3bb33345721 ("watchdog: Add RAVE SP watchdog driver")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- drivers/watchdog/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/watchdog/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
 diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index ca200d1f310a..5a606a4aee6a 100644
+index 34d1c6851fa7..c09369f80989 100644
 --- a/drivers/watchdog/Kconfig
 +++ b/drivers/watchdog/Kconfig
-@@ -1451,7 +1451,7 @@ config RC32434_WDT
- 
- config INDYDOG
- 	tristate "Indy/I2 Hardware Watchdog"
--	depends on SGI_HAS_INDYDOG || (MIPS && COMPILE_TEST)
-+	depends on SGI_HAS_INDYDOG
+@@ -226,6 +226,7 @@ config ZIIRAVE_WATCHDOG
+ config RAVE_SP_WATCHDOG
+ 	tristate "RAVE SP Watchdog timer"
+ 	depends on RAVE_SP_CORE
++	depends on NVMEM || !NVMEM
+ 	select WATCHDOG_CORE
  	help
- 	  Hardware driver for the Indy's/I2's watchdog. This is a
- 	  watchdog timer that will reboot the machine after a 60 second
+ 	  Support for the watchdog on RAVE SP device.
 -- 
-2.7.4
+2.9.0
