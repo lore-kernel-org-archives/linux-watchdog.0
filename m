@@ -1,142 +1,136 @@
 Return-Path: <lyude@redhat.com>
 Return-path: <lyude@redhat.com>
-Message-ID: <1516132557.18904.12.camel@redhat.com>
-Subject: Re: [05/12] watchdog: sp5100_tco: Clean up sp5100_tco_setupdevice
+Message-ID: <1516132695.18904.13.camel@redhat.com>
+Subject: Re: [06/12] watchdog: sp5100_tco: Match PCI device early
 From: Lyude Paul <lyude@redhat.com>
 To: Guenter Roeck <linux@roeck-us.net>, Wim Van Sebroeck <wim@iguana.be>
 Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
 	=?ISO-8859-1?Q?Zolt=E1n_B=F6sz=F6rm=E9nyi?=
 	 <zboszor@pr.hu>
-Date: Tue, 16 Jan 2018 14:55:57 -0500
-In-Reply-To: <1514149457-20273-6-git-send-email-linux@roeck-us.net>
-References: <1514149457-20273-6-git-send-email-linux@roeck-us.net>
+Date: Tue, 16 Jan 2018 14:58:15 -0500
+In-Reply-To: <1514149457-20273-7-git-send-email-linux@roeck-us.net>
+References: <1514149457-20273-7-git-send-email-linux@roeck-us.net>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Thank you for this cleanup, the gotos that were in this code are really
-confusing to read through! I'd recommend one very small change described
-below. Assuming you add that in the next version:
-
 Reviewed-by: Lyude Paul <lyude@redhat.com>
 
 On Sun, 2017-12-24 at 13:04 -0800, Guenter Roeck wrote:
-> There are too many unnecessary goto statements in sp5100_tco_setupdevice().
-> Rearrange the code and limit goto statements to error handling.
+> Match PCI device in module init function, not in the probe function.
+> It is pointless trying to probe if we can determine early that the device
+> is not supported.
 > 
 > Cc: Zoltán Böszörményi <zboszor@pr.hu>
 > Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 > ---
->  drivers/watchdog/sp5100_tco.c | 62 ++++++++++++++++++++------------------
+>  drivers/watchdog/sp5100_tco.c | 66 ++++++++++++++++++++------------------
 > -----
->  1 file changed, 29 insertions(+), 33 deletions(-)
+>  1 file changed, 31 insertions(+), 35 deletions(-)
 > 
 > diff --git a/drivers/watchdog/sp5100_tco.c b/drivers/watchdog/sp5100_tco.c
-> index 0e816f2cdb07..5a13ab483c50 100644
+> index 5a13ab483c50..5868c6b6bf17 100644
 > --- a/drivers/watchdog/sp5100_tco.c
 > +++ b/drivers/watchdog/sp5100_tco.c
-> @@ -396,48 +396,44 @@ static int sp5100_tco_setupdevice(void)
->  	pr_debug("Got 0x%04x from indirect I/O\n", val);
+> @@ -312,25 +312,6 @@ static struct miscdevice sp5100_tco_miscdev = {
+>  	.fops =		&sp5100_tco_fops,
+>  };
 >  
->  	/* Check MMIO address conflict */
-> -	if (request_mem_region_exclusive(val, SP5100_WDT_MEM_MAP_SIZE,
-> -								dev_name))
-> -		goto setup_wdt;
-> -	else
-> +	if (!request_mem_region_exclusive(val, SP5100_WDT_MEM_MAP_SIZE,
-> +					  dev_name)) {
->  		pr_debug("MMIO address 0x%04x already in use\n", val);
-> +		/*
-> +		 * Secondly, Find the watchdog timer MMIO address
-> +		 * from SBResource_MMIO register.
-> +		 */
-> +		if (tco_has_sp5100_reg_layout(sp5100_tco_pci)) {
-> +			/* Read SBResource_MMIO from PCI config(PCI_Reg:
-> 9Ch) */
-> +			pci_read_config_dword(sp5100_tco_pci,
-> +					      SP5100_SB_RESOURCE_MMIO_BASE,
-> +					      &val);
-> +		} else {
-> +			/* Read SBResource_MMIO from AcpiMmioEn(PM_Reg:
-> 24h) */
-> +			val =
-> sp5100_tco_read_pm_reg32(SB800_PM_ACPI_MMIO_EN);
-> +		}
+> -/*
+> - * Data for PCI driver interface
+> - *
+> - * This data only exists for exporting the supported
+> - * PCI ids via MODULE_DEVICE_TABLE.  We do not actually
+> - * register a pci_driver, because someone else might
+> - * want to register another driver on the same PCI id.
+> - */
+> -static const struct pci_device_id sp5100_tco_pci_tbl[] = {
+> -	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_SBX00_SMBUS, PCI_ANY_ID,
+> -	  PCI_ANY_ID, },
+> -	{ PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_HUDSON2_SMBUS, PCI_ANY_ID,
+> -	  PCI_ANY_ID, },
+> -	{ PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_KERNCZ_SMBUS, PCI_ANY_ID,
+> -	  PCI_ANY_ID, },
+> -	{ 0, },			/* End of list */
+> -};
+> -MODULE_DEVICE_TABLE(pci, sp5100_tco_pci_tbl);
+> -
+>  static u8 sp5100_tco_read_pm_reg32(u8 index)
+>  {
+>  	u32 val = 0;
+> @@ -347,27 +328,11 @@ static u8 sp5100_tco_read_pm_reg32(u8 index)
+>   */
+>  static int sp5100_tco_setupdevice(void)
+>  {
+> -	struct pci_dev *dev = NULL;
+>  	const char *dev_name = NULL;
+>  	u32 val;
+>  	u8 base_addr;
+>  	int ret;
 >  
-> -	/*
-> -	 * Secondly, Find the watchdog timer MMIO address
-> -	 * from SBResource_MMIO register.
-> -	 */
-> -	if (tco_has_sp5100_reg_layout(sp5100_tco_pci)) {
-> -		/* Read SBResource_MMIO from PCI config(PCI_Reg: 9Ch) */
-> -		pci_read_config_dword(sp5100_tco_pci,
-> -				      SP5100_SB_RESOURCE_MMIO_BASE, &val);
-> -	} else {
-> -		/* Read SBResource_MMIO from AcpiMmioEn(PM_Reg: 24h) */
-> -		val = sp5100_tco_read_pm_reg32(SB800_PM_ACPI_MMIO_EN);
+> -	/* Match the PCI device */
+> -	for_each_pci_dev(dev) {
+> -		if (pci_match_id(sp5100_tco_pci_tbl, dev) != NULL) {
+> -			sp5100_tco_pci = dev;
+> -			break;
+> -		}
 > -	}
 > -
-> -	/* The SBResource_MMIO is enabled and mapped memory space? */
-> -	if ((val & (SB800_ACPI_MMIO_DECODE_EN | SB800_ACPI_MMIO_SEL)) ==
-> +		/* The SBResource_MMIO is enabled and mapped memory space?
-> */
-> +		if ((val & (SB800_ACPI_MMIO_DECODE_EN |
-> SB800_ACPI_MMIO_SEL)) !=
->  						  SB800_ACPI_MMIO_DECODE_EN
-Re-align this line since you're changing the code around here anyway
-
-> ) {
-> +			pr_notice("failed to find MMIO address, giving
-> up.\n");
-> +			ret = -ENODEV;
-> +			goto unreg_region;
-> +		}
->  		/* Clear unnecessary the low twelve bits */
->  		val &= ~0xFFF;
->  		/* Add the Watchdog Timer offset to base address. */
->  		val += SB800_PM_WDT_MMIO_OFFSET;
->  		/* Check MMIO address conflict */
-> -		if (request_mem_region_exclusive(val,
-> SP5100_WDT_MEM_MAP_SIZE,
-> -								   dev_name
-> )) {
-> -			pr_debug("Got 0x%04x from SBResource_MMIO
-> register\n",
-> -				val);
-> -			goto setup_wdt;
-> -		} else
-> +		if (!request_mem_region_exclusive(val,
-> SP5100_WDT_MEM_MAP_SIZE,
-> +						  dev_name)) {
->  			pr_debug("MMIO address 0x%04x already in use\n",
-> val);
-> -	} else
-> -		pr_debug("SBResource_MMIO is disabled(0x%04x)\n", val);
+> -	if (!sp5100_tco_pci)
+> -		return -ENODEV;
 > -
-> -	pr_notice("failed to find MMIO address, giving up.\n");
-> -	ret = -ENODEV;
-> -	goto  unreg_region;
-> +			ret = -EBUSY;
-> +			goto unreg_region;
-> +		}
-> +		pr_debug("Got 0x%04x from SBResource_MMIO register\n",
-> val);
-> +	}
+> -	pr_info("PCI Vendor ID: 0x%x, Device ID: 0x%x, Revision ID:
+> 0x%x\n",
+> -		sp5100_tco_pci->vendor, sp5100_tco_pci->device,
+> -		sp5100_tco_pci->revision);
+> -
+>  	/*
+>  	 * Determine type of southbridge chipset.
+>  	 */
+> @@ -557,10 +522,41 @@ static struct platform_driver sp5100_tco_driver = {
+>  	},
+>  };
 >  
-> -setup_wdt:
->  	tcobase_phys = val;
->  
->  	tcobase = ioremap(val, SP5100_WDT_MEM_MAP_SIZE);
-> @@ -472,7 +468,7 @@ static int sp5100_tco_setupdevice(void)
->  	tco_timer_stop();
->  
->  	release_region(SP5100_IO_PM_INDEX_REG, SP5100_PM_IOPORTS_SIZE);
-> -	/* Done */
+> +/*
+> + * Data for PCI driver interface
+> + *
+> + * This data only exists for exporting the supported
+> + * PCI ids via MODULE_DEVICE_TABLE.  We do not actually
+> + * register a pci_driver, because someone else might
+> + * want to register another driver on the same PCI id.
+> + */
+> +static const struct pci_device_id sp5100_tco_pci_tbl[] = {
+> +	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_SBX00_SMBUS, PCI_ANY_ID,
+> +	  PCI_ANY_ID, },
+> +	{ PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_HUDSON2_SMBUS, PCI_ANY_ID,
+> +	  PCI_ANY_ID, },
+> +	{ PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_KERNCZ_SMBUS, PCI_ANY_ID,
+> +	  PCI_ANY_ID, },
+> +	{ 0, },			/* End of list */
+> +};
+> +MODULE_DEVICE_TABLE(pci, sp5100_tco_pci_tbl);
 > +
->  	return 0;
+>  static int __init sp5100_tco_init_module(void)
+>  {
+> +	struct pci_dev *dev = NULL;
+>  	int err;
 >  
->  unreg_mem_region:
+> +	/* Match the PCI device */
+> +	for_each_pci_dev(dev) {
+> +		if (pci_match_id(sp5100_tco_pci_tbl, dev) != NULL) {
+> +			sp5100_tco_pci = dev;
+> +			break;
+> +		}
+> +	}
+> +
+> +	if (!sp5100_tco_pci)
+> +		return -ENODEV;
+> +
+>  	pr_info("SP5100/SB800 TCO WatchDog Timer Driver v%s\n",
+> TCO_VERSION);
+>  
+>  	err = platform_driver_register(&sp5100_tco_driver);
 -- 
 Cheers,
 	Lyude Paul
