@@ -1,16 +1,16 @@
 Return-Path: <lyude@redhat.com>
 Return-path: <lyude@redhat.com>
-Message-ID: <1516132807.18904.14.camel@redhat.com>
-Subject: Re: [07/12] watchdog: sp5100_tco: Use dev_ print functions where
- possible
+Message-ID: <1516133156.18904.17.camel@redhat.com>
+Subject: Re: [08/12] watchdog: sp5100_tco: Clean up function and variable
+ names
 From: Lyude Paul <lyude@redhat.com>
 To: Guenter Roeck <linux@roeck-us.net>, Wim Van Sebroeck <wim@iguana.be>
 Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
 	=?ISO-8859-1?Q?Zolt=E1n_B=F6sz=F6rm=E9nyi?=
 	 <zboszor@pr.hu>
-Date: Tue, 16 Jan 2018 15:00:07 -0500
-In-Reply-To: <1514149457-20273-8-git-send-email-linux@roeck-us.net>
-References: <1514149457-20273-8-git-send-email-linux@roeck-us.net>
+Date: Tue, 16 Jan 2018 15:05:56 -0500
+In-Reply-To: <1514149457-20273-9-git-send-email-linux@roeck-us.net>
+References: <1514149457-20273-9-git-send-email-linux@roeck-us.net>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -19,162 +19,134 @@ List-ID: <linux-watchdog@vger.kernel.org>
 Reviewed-by: Lyude Paul <lyude@redhat.com>
 
 On Sun, 2017-12-24 at 13:04 -0800, Guenter Roeck wrote:
-> Use dev_ instead of pr_ functions where possible.
+> Use more common function and variable names.
+> 
+> Use pdev instead of dev for platform device.
+> Use sp5100_tco_probe() instead of sp5100_tco_init() for the probe function.
+> Drop sp5100_tco_cleanup(); just move the code into sp5100_tco_remove().
+> Use sp5100_tco_init() instead of sp5100_tco_init_module() for the module
+> initialization function.
+> Use sp5100_tco_exit() instead of sp5100_tco_cleanup_module() for the module
+> exit function.
+> Use consistent defines for accessing the watchdog control register.
 > 
 > Cc: Zoltán Böszörményi <zboszor@pr.hu>
 > Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 > ---
->  drivers/watchdog/sp5100_tco.c | 40 +++++++++++++++++++++-------------------
->  1 file changed, 21 insertions(+), 19 deletions(-)
+>  drivers/watchdog/sp5100_tco.c | 25 ++++++++++---------------
+>  drivers/watchdog/sp5100_tco.h |  5 ++---
+>  2 files changed, 12 insertions(+), 18 deletions(-)
 > 
 > diff --git a/drivers/watchdog/sp5100_tco.c b/drivers/watchdog/sp5100_tco.c
-> index 5868c6b6bf17..ff240e5be833 100644
+> index ff240e5be833..1123fad38fdf 100644
 > --- a/drivers/watchdog/sp5100_tco.c
 > +++ b/drivers/watchdog/sp5100_tco.c
-> @@ -326,7 +326,7 @@ static u8 sp5100_tco_read_pm_reg32(u8 index)
->  /*
->   * Init & exit routines
->   */
-> -static int sp5100_tco_setupdevice(void)
-> +static int sp5100_tco_setupdevice(struct device *dev)
->  {
->  	const char *dev_name = NULL;
->  	u32 val;
-> @@ -347,8 +347,8 @@ static int sp5100_tco_setupdevice(void)
->  	/* Request the IO ports used by this driver */
->  	if (!request_muxed_region(SP5100_IO_PM_INDEX_REG,
->  				  SP5100_PM_IOPORTS_SIZE, dev_name)) {
-> -		pr_err("I/O address 0x%04x already in use\n",
-> -		       SP5100_IO_PM_INDEX_REG);
-> +		dev_err(dev, "I/O address 0x%04x already in use\n",
-> +			SP5100_IO_PM_INDEX_REG);
->  		return -EBUSY;
->  	}
->  
-> @@ -358,12 +358,12 @@ static int sp5100_tco_setupdevice(void)
+> @@ -421,8 +421,8 @@ static int sp5100_tco_setupdevice(struct device *dev)
+>  	 * Save WatchDogFired status, because WatchDogFired flag is
+>  	 * cleared here.
 >  	 */
->  	val = sp5100_tco_read_pm_reg32(base_addr) & 0xfffffff8;
+> -	tco_wdt_fired = val & SP5100_PM_WATCHDOG_FIRED;
+> -	val &= ~SP5100_PM_WATCHDOG_ACTION_RESET;
+> +	tco_wdt_fired = val & SP5100_WDT_FIRED;
+> +	val &= ~SP5100_WDT_ACTION_RESET;
+>  	writel(val, SP5100_WDT_CONTROL(tcobase));
 >  
-> -	pr_debug("Got 0x%04x from indirect I/O\n", val);
-> +	dev_dbg(dev, "Got 0x%04x from indirect I/O\n", val);
->  
->  	/* Check MMIO address conflict */
->  	if (!request_mem_region_exclusive(val, SP5100_WDT_MEM_MAP_SIZE,
->  					  dev_name)) {
-> -		pr_debug("MMIO address 0x%04x already in use\n", val);
-> +		dev_dbg(dev, "MMIO address 0x%04x already in use\n", val);
->  		/*
->  		 * Secondly, Find the watchdog timer MMIO address
->  		 * from SBResource_MMIO register.
-> @@ -381,7 +381,8 @@ static int sp5100_tco_setupdevice(void)
->  		/* The SBResource_MMIO is enabled and mapped memory space?
-> */
->  		if ((val & (SB800_ACPI_MMIO_DECODE_EN |
-> SB800_ACPI_MMIO_SEL)) !=
->  						  SB800_ACPI_MMIO_DECODE_EN
-> ) {
-> -			pr_notice("failed to find MMIO address, giving
-> up.\n");
-> +			dev_notice(dev,
-> +				   "failed to find MMIO address, giving
-> up.\n");
->  			ret = -ENODEV;
->  			goto unreg_region;
->  		}
-> @@ -392,23 +393,24 @@ static int sp5100_tco_setupdevice(void)
->  		/* Check MMIO address conflict */
->  		if (!request_mem_region_exclusive(val,
-> SP5100_WDT_MEM_MAP_SIZE,
->  						  dev_name)) {
-> -			pr_debug("MMIO address 0x%04x already in use\n",
-> val);
-> +			dev_dbg(dev, "MMIO address 0x%04x already in
-> use\n",
-> +				val);
->  			ret = -EBUSY;
->  			goto unreg_region;
->  		}
-> -		pr_debug("Got 0x%04x from SBResource_MMIO register\n",
-> val);
-> +		dev_dbg(dev, "Got 0x%04x from SBResource_MMIO register\n",
-> val);
->  	}
->  
->  	tcobase_phys = val;
->  
->  	tcobase = ioremap(val, SP5100_WDT_MEM_MAP_SIZE);
->  	if (!tcobase) {
-> -		pr_err("failed to get tcobase address\n");
-> +		dev_err(dev, "failed to get tcobase address\n");
->  		ret = -ENOMEM;
->  		goto unreg_mem_region;
->  	}
->  
-> -	pr_info("Using 0x%04x for watchdog MMIO address\n", val);
-> +	dev_info(dev, "Using 0x%04x for watchdog MMIO address\n", val);
->  
->  	/* Setup the watchdog timer */
->  	tco_timer_enable();
-> @@ -443,21 +445,22 @@ static int sp5100_tco_setupdevice(void)
+>  	/* Set a reasonable heartbeat before we stop the timer */
+> @@ -445,7 +445,7 @@ static int sp5100_tco_setupdevice(struct device *dev)
 >  	return ret;
 >  }
 >  
-> -static int sp5100_tco_init(struct platform_device *dev)
-> +static int sp5100_tco_init(struct platform_device *pdev)
+> -static int sp5100_tco_init(struct platform_device *pdev)
+> +static int sp5100_tco_probe(struct platform_device *pdev)
 >  {
-> +	struct device *dev = &pdev->dev;
+>  	struct device *dev = &pdev->dev;
 >  	int ret;
+> @@ -492,7 +492,7 @@ static int sp5100_tco_init(struct platform_device *pdev)
+>  	return ret;
+>  }
 >  
->  	/*
->  	 * Check whether or not the hardware watchdog is there. If found,
-> then
->  	 * set it up.
->  	 */
-> -	ret = sp5100_tco_setupdevice();
-> +	ret = sp5100_tco_setupdevice(dev);
->  	if (ret)
->  		return ret;
+> -static void sp5100_tco_cleanup(void)
+> +static int sp5100_tco_remove(struct platform_device *pdev)
+>  {
+>  	/* Stop the timer before we leave */
+>  	if (!nowayout)
+> @@ -502,22 +502,17 @@ static void sp5100_tco_cleanup(void)
+>  	misc_deregister(&sp5100_tco_miscdev);
+>  	iounmap(tcobase);
+>  	release_mem_region(tcobase_phys, SP5100_WDT_MEM_MAP_SIZE);
+> -}
 >  
->  	/* Check to see if last reboot was due to watchdog timeout */
-> -	pr_info("Last reboot was %striggered by watchdog.\n",
-> -		tco_wdt_fired ? "" : "not ");
-> +	dev_info(dev, "Last reboot was %striggered by watchdog.\n",
-> +		 tco_wdt_fired ? "" : "not ");
->  
->  	/*
->  	 * Check that the heartbeat value is within it's range.
-> @@ -470,16 +473,16 @@ static int sp5100_tco_init(struct platform_device
-> *dev)
->  
->  	ret = misc_register(&sp5100_tco_miscdev);
->  	if (ret != 0) {
-> -		pr_err("cannot register miscdev on minor=%d (err=%d)\n",
-> -		       WATCHDOG_MINOR, ret);
-> +		dev_err(dev, "cannot register miscdev on minor=%d
-> (err=%d)\n",
-> +			WATCHDOG_MINOR, ret);
->  		goto exit;
->  	}
->  
->  	clear_bit(0, &timer_alive);
->  
->  	/* Show module parameters */
-> -	pr_info("initialized (0x%p). heartbeat=%d sec (nowayout=%d)\n",
-> -		tcobase, heartbeat, nowayout);
-> +	dev_info(dev, "initialized (0x%p). heartbeat=%d sec
-> (nowayout=%d)\n",
-> +		 tcobase, heartbeat, nowayout);
->  
+> -static int sp5100_tco_remove(struct platform_device *dev)
+> -{
+> -	if (tcobase)
+> -		sp5100_tco_cleanup();
 >  	return 0;
+>  }
 >  
-> @@ -581,7 +584,6 @@ static void __exit sp5100_tco_cleanup_module(void)
+> -static void sp5100_tco_shutdown(struct platform_device *dev)
+> +static void sp5100_tco_shutdown(struct platform_device *pdev)
+>  {
+>  	tco_timer_stop();
+>  }
+>  
+>  static struct platform_driver sp5100_tco_driver = {
+> -	.probe		= sp5100_tco_init,
+> +	.probe		= sp5100_tco_probe,
+>  	.remove		= sp5100_tco_remove,
+>  	.shutdown	= sp5100_tco_shutdown,
+>  	.driver		= {
+> @@ -544,7 +539,7 @@ static const struct pci_device_id sp5100_tco_pci_tbl[] =
+> {
+>  };
+>  MODULE_DEVICE_TABLE(pci, sp5100_tco_pci_tbl);
+>  
+> -static int __init sp5100_tco_init_module(void)
+> +static int __init sp5100_tco_init(void)
+>  {
+>  	struct pci_dev *dev = NULL;
+>  	int err;
+> @@ -580,14 +575,14 @@ static int __init sp5100_tco_init_module(void)
+>  	return err;
+>  }
+>  
+> -static void __exit sp5100_tco_cleanup_module(void)
+> +static void __exit sp5100_tco_exit(void)
 >  {
 >  	platform_device_unregister(sp5100_tco_platform_device);
 >  	platform_driver_unregister(&sp5100_tco_driver);
-> -	pr_info("SP5100/SB800 TCO Watchdog Module Unloaded\n");
 >  }
 >  
->  module_init(sp5100_tco_init_module);
+> -module_init(sp5100_tco_init_module);
+> -module_exit(sp5100_tco_cleanup_module);
+> +module_init(sp5100_tco_init);
+> +module_exit(sp5100_tco_exit);
+>  
+>  MODULE_AUTHOR("Priyanka Gupta");
+>  MODULE_DESCRIPTION("TCO timer driver for SP5100/SB800 chipset");
+> diff --git a/drivers/watchdog/sp5100_tco.h b/drivers/watchdog/sp5100_tco.h
+> index 2622cfe23dc1..cc00f1157220 100644
+> --- a/drivers/watchdog/sp5100_tco.h
+> +++ b/drivers/watchdog/sp5100_tco.h
+> @@ -15,6 +15,8 @@
+>  #define SP5100_WDT_COUNT(base)		((base) + 0x04) /* Watchdog
+> Count */
+>  
+>  #define SP5100_WDT_START_STOP_BIT	(1 << 0)
+> +#define SP5100_WDT_FIRED		(1 << 1)
+> +#define SP5100_WDT_ACTION_RESET		(1 << 2)
+>  #define SP5100_WDT_TRIGGER_BIT		(1 << 7)
+>  
+>  #define SP5100_PM_IOPORTS_SIZE		0x02
+> @@ -34,9 +36,6 @@
+>  #define SP5100_PM_WATCHDOG_CONTROL	0x69
+>  #define SP5100_PM_WATCHDOG_BASE		0x6C
+>  
+> -#define SP5100_PM_WATCHDOG_FIRED	(1 << 1)
+> -#define SP5100_PM_WATCHDOG_ACTION_RESET	(1 << 2)
+> -
+>  #define SP5100_PCI_WATCHDOG_MISC_REG	0x41
+>  #define SP5100_PCI_WATCHDOG_DECODE_EN	(1 << 3)
+>  
 -- 
 Cheers,
 	Lyude Paul
