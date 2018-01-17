@@ -1,104 +1,288 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pl0-f67.google.com ([209.85.160.67]:39235 "EHLO
-        mail-pl0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750861AbeAPUWr (ORCPT
+Received: from mail-pl0-f68.google.com ([209.85.160.68]:46376 "EHLO
+        mail-pl0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751559AbeAQBKo (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 16 Jan 2018 15:22:47 -0500
-Date: Tue, 16 Jan 2018 12:22:46 -0800
+        Tue, 16 Jan 2018 20:10:44 -0500
+Subject: Re: [01/12] watchdog: sp5100_tco: Always use SP5100_IO_PM_{INDEX_REG,
+ DATA_REG}
+To: Lyude Paul <lyude@redhat.com>, Wim Van Sebroeck <wim@iguana.be>
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+        =?UTF-8?B?Wm9sdMOhbiBCw7ZzesO2cm3DqW55aQ==?= <zboszor@pr.hu>
+References: <1514149448-20214-2-git-send-email-linux@roeck-us.net>
+ <1516131259.18904.5.camel@redhat.com>
 From: Guenter Roeck <linux@roeck-us.net>
-To: Lyude Paul <lyude@redhat.com>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        =?iso-8859-1?B?Wm9sdOFuIEL2c3r2cm3pbnlp?= <zboszor@pr.hu>
-Subject: Re: [05/12] watchdog: sp5100_tco: Clean up sp5100_tco_setupdevice
-Message-ID: <20180116202246.GC9484@roeck-us.net>
-References: <1514149457-20273-6-git-send-email-linux@roeck-us.net>
- <1516132557.18904.12.camel@redhat.com>
+Message-ID: <b534c30e-250d-3421-7978-2c1edb33b923@roeck-us.net>
+Date: Tue, 16 Jan 2018 17:10:40 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+In-Reply-To: <1516131259.18904.5.camel@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <1516132557.18904.12.camel@redhat.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, Jan 16, 2018 at 02:55:57PM -0500, Lyude Paul wrote:
-> Thank you for this cleanup, the gotos that were in this code are really
-> confusing to read through! I'd recommend one very small change described
-> below. Assuming you add that in the next version:
+On 01/16/2018 11:34 AM, Lyude Paul wrote:
+> Sorry this review took so long! Just sent off a big patchset myself to
+> nouveau's mailing list.
 > 
-> Reviewed-by: Lyude Paul <lyude@redhat.com>
+> Anyway, unfortunately it should be noted that as I've learned from this thread
+> that I have no machines that i know of with an actual sp5100_tco. Might double
+> check though to see if I'm wrong, but for now this is all solely review.
 > 
-> On Sun, 2017-12-24 at 13:04 -0800, Guenter Roeck wrote:
-> > There are too many unnecessary goto statements in sp5100_tco_setupdevice().
-> > Rearrange the code and limit goto statements to error handling.
-> > 
-> > Cc: Zoltán Böszörményi <zboszor@pr.hu>
-> > Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-> > ---
-> >  drivers/watchdog/sp5100_tco.c | 62 ++++++++++++++++++++------------------
-> > -----
-> >  1 file changed, 29 insertions(+), 33 deletions(-)
-> > 
-> > diff --git a/drivers/watchdog/sp5100_tco.c b/drivers/watchdog/sp5100_tco.c
-> > index 0e816f2cdb07..5a13ab483c50 100644
-> > --- a/drivers/watchdog/sp5100_tco.c
-> > +++ b/drivers/watchdog/sp5100_tco.c
-> > @@ -396,48 +396,44 @@ static int sp5100_tco_setupdevice(void)
-> >  	pr_debug("Got 0x%04x from indirect I/O\n", val);
-> >  
-> >  	/* Check MMIO address conflict */
-> > -	if (request_mem_region_exclusive(val, SP5100_WDT_MEM_MAP_SIZE,
-> > -								dev_name))
-> > -		goto setup_wdt;
-> > -	else
-> > +	if (!request_mem_region_exclusive(val, SP5100_WDT_MEM_MAP_SIZE,
-> > +					  dev_name)) {
-> >  		pr_debug("MMIO address 0x%04x already in use\n", val);
-> > +		/*
-> > +		 * Secondly, Find the watchdog timer MMIO address
-> > +		 * from SBResource_MMIO register.
-> > +		 */
-> > +		if (tco_has_sp5100_reg_layout(sp5100_tco_pci)) {
-> > +			/* Read SBResource_MMIO from PCI config(PCI_Reg:
-> > 9Ch) */
-> > +			pci_read_config_dword(sp5100_tco_pci,
-> > +					      SP5100_SB_RESOURCE_MMIO_BASE,
-> > +					      &val);
-> > +		} else {
-> > +			/* Read SBResource_MMIO from AcpiMmioEn(PM_Reg:
-> > 24h) */
-> > +			val =
-> > sp5100_tco_read_pm_reg32(SB800_PM_ACPI_MMIO_EN);
-> > +		}
-> >  
-> > -	/*
-> > -	 * Secondly, Find the watchdog timer MMIO address
-> > -	 * from SBResource_MMIO register.
-> > -	 */
-> > -	if (tco_has_sp5100_reg_layout(sp5100_tco_pci)) {
-> > -		/* Read SBResource_MMIO from PCI config(PCI_Reg: 9Ch) */
-> > -		pci_read_config_dword(sp5100_tco_pci,
-> > -				      SP5100_SB_RESOURCE_MMIO_BASE, &val);
-> > -	} else {
-> > -		/* Read SBResource_MMIO from AcpiMmioEn(PM_Reg: 24h) */
-> > -		val = sp5100_tco_read_pm_reg32(SB800_PM_ACPI_MMIO_EN);
-> > -	}
-> > -
-> > -	/* The SBResource_MMIO is enabled and mapped memory space? */
-> > -	if ((val & (SB800_ACPI_MMIO_DECODE_EN | SB800_ACPI_MMIO_SEL)) ==
-> > +		/* The SBResource_MMIO is enabled and mapped memory space?
-> > */
-> > +		if ((val & (SB800_ACPI_MMIO_DECODE_EN |
-> > SB800_ACPI_MMIO_SEL)) !=
-> >  						  SB800_ACPI_MMIO_DECODE_EN
-> Re-align this line since you're changing the code around here anyway
+> Overall, nice patch! I'm glad to see ugly corners of the kernel being cleaned
+> up like this :). Some comments below
+> 
+> On Sun, 2017-12-24 at 13:03 -0800, Guenter Roeck wrote:
+>> SP5100_IO_PM_INDEX_REG and SB800_IO_PM_INDEX_REG are used inconsistently
+>> and define the same value. Just use SP5100_IO_PM_INDEX_REG throughout.
+>> Do the same for SP5100_IO_PM_DATA_REG and SB800_IO_PM_DATA_REG.
+>> Use helper functions to access the indexed registers.
+>>
+>> Cc: ZoltÃ¡n BÃ¶szÃ¶rmÃ©nyi <zboszor@pr.hu>
+>> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+>> ---
+>>   drivers/watchdog/sp5100_tco.c | 94 ++++++++++++++++++++++----------------
+>> -----
+>>   drivers/watchdog/sp5100_tco.h |  7 +---
+>>   2 files changed, 51 insertions(+), 50 deletions(-)
+>>
+>> diff --git a/drivers/watchdog/sp5100_tco.c b/drivers/watchdog/sp5100_tco.c
+>> index 028618c5eeba..05f9d27a306a 100644
+>> --- a/drivers/watchdog/sp5100_tco.c
+>> +++ b/drivers/watchdog/sp5100_tco.c
+>> @@ -48,7 +48,6 @@
+>>   static u32 tcobase_phys;
+>>   static u32 tco_wdt_fired;
+>>   static void __iomem *tcobase;
+>> -static unsigned int pm_iobase;
+>>   static DEFINE_SPINLOCK(tco_lock);	/* Guards the hardware */
+>>   static unsigned long timer_alive;
+>>   static char tco_expect_close;
+>> @@ -132,25 +131,38 @@ static int tco_timer_set_heartbeat(int t)
+>>   	return 0;
+>>   }
+>>   
+>> -static void tco_timer_enable(void)
+>> +static u8 sp5100_tco_read_pm_reg8(u8 index)
+>> +{
+>> +	outb(index, SP5100_IO_PM_INDEX_REG);
+>> +	return inb(SP5100_IO_PM_DATA_REG);
+>> +}
+>> +
+>> +static void sp5100_tco_update_pm_reg8(u8 index, u8 reset, u8 set)
+>>   {
+>> -	int val;
+>> +	u8 val;
+>>   
+>> +	outb(index, SP5100_IO_PM_INDEX_REG);
+>> +	val = inb(SP5100_IO_PM_DATA_REG);
+>> +	val &= reset;
+>> +	val |= set;
+>> +	outb(val, SP5100_IO_PM_DATA_REG);
+>> +}
+>> +
+>> +static void tco_timer_enable(void)
+>> +{
+>>   	if (!tco_has_sp5100_reg_layout(sp5100_tco_pci)) {
+>>   		/* For SB800 or later */
+>>   		/* Set the Watchdog timer resolution to 1 sec */
+>> -		outb(SB800_PM_WATCHDOG_CONFIG, SB800_IO_PM_INDEX_REG);
+>> -		val = inb(SB800_IO_PM_DATA_REG);
+>> -		val |= SB800_PM_WATCHDOG_SECOND_RES;
+>> -		outb(val, SB800_IO_PM_DATA_REG);
+>> +		sp5100_tco_update_pm_reg8(SB800_PM_WATCHDOG_CONFIG,
+>> +					  0xff,
+>> SB800_PM_WATCHDOG_SECOND_RES);
+>>   
+>>   		/* Enable watchdog decode bit and watchdog timer */
+>> -		outb(SB800_PM_WATCHDOG_CONTROL, SB800_IO_PM_INDEX_REG);
+>> -		val = inb(SB800_IO_PM_DATA_REG);
+>> -		val |= SB800_PCI_WATCHDOG_DECODE_EN;
+>> -		val &= ~SB800_PM_WATCHDOG_DISABLE;
+>> -		outb(val, SB800_IO_PM_DATA_REG);
+>> +		sp5100_tco_update_pm_reg8(SB800_PM_WATCHDOG_CONTROL,
+>> +					  ~SB800_PM_WATCHDOG_DISABLE,
+>> +					  SB800_PCI_WATCHDOG_DECODE_EN);
+>>   	} else {
+>> +		u32 val;
+>> +
+>>   		/* For SP5100 or SB7x0 */
+>>   		/* Enable watchdog decode bit */
+>>   		pci_read_config_dword(sp5100_tco_pci,
+>> @@ -164,11 +176,9 @@ static void tco_timer_enable(void)
+>>   				       val);
+>>   
+>>   		/* Enable Watchdog timer and set the resolution to 1 sec */
+>> -		outb(SP5100_PM_WATCHDOG_CONTROL, SP5100_IO_PM_INDEX_REG);
+>> -		val = inb(SP5100_IO_PM_DATA_REG);
+>> -		val |= SP5100_PM_WATCHDOG_SECOND_RES;
+>> -		val &= ~SP5100_PM_WATCHDOG_DISABLE;
+>> -		outb(val, SP5100_IO_PM_DATA_REG);
+>> +		sp5100_tco_update_pm_reg8(SP5100_PM_WATCHDOG_CONTROL,
+>> +					  ~SP5100_PM_WATCHDOG_DISABLE,
+>> +					  SP5100_PM_WATCHDOG_SECOND_RES);
+>>   	}
+>>   }
+>>   
+>> @@ -321,6 +331,17 @@ static const struct pci_device_id sp5100_tco_pci_tbl[]
+>> = {
+>>   };
+>>   MODULE_DEVICE_TABLE(pci, sp5100_tco_pci_tbl);
+>>   
+>> +static u8 sp5100_tco_read_pm_reg32(u8 index)
+>> +{
+>> +	u32 val = 0;
+>> +	int i;
+>> +
+>> +	for (i = 3; i >= 0; i--)
+>> +		val = (val << 8) + sp5100_tco_read_pm_reg8(index + i);
+>> +
+>> +	return val;
+>> +}
+>> +
+>>   /*
+>>    * Init & exit routines
+>>    */
+>> @@ -329,7 +350,7 @@ static unsigned char sp5100_tco_setupdevice(void)
+>>   	struct pci_dev *dev = NULL;
+>>   	const char *dev_name = NULL;
+>>   	u32 val;
+>> -	u32 index_reg, data_reg, base_addr;
+>> +	u8 base_addr;
+>>   
+>>   	/* Match the PCI device */
+>>   	for_each_pci_dev(dev) {
+>> @@ -351,35 +372,25 @@ static unsigned char sp5100_tco_setupdevice(void)
+>>   	 */
+>>   	if (tco_has_sp5100_reg_layout(sp5100_tco_pci)) {
+>>   		dev_name = SP5100_DEVNAME;
+>> -		index_reg = SP5100_IO_PM_INDEX_REG;
+>> -		data_reg = SP5100_IO_PM_DATA_REG;
+>>   		base_addr = SP5100_PM_WATCHDOG_BASE;
+>>   	} else {
+>>   		dev_name = SB800_DEVNAME;
+>> -		index_reg = SB800_IO_PM_INDEX_REG;
+>> -		data_reg = SB800_IO_PM_DATA_REG;
+>>   		base_addr = SB800_PM_WATCHDOG_BASE;
+>>   	}
+>>   
+>>   	/* Request the IO ports used by this driver */
+>> -	pm_iobase = SP5100_IO_PM_INDEX_REG;
+>> -	if (!request_region(pm_iobase, SP5100_PM_IOPORTS_SIZE, dev_name)) {
+>> -		pr_err("I/O address 0x%04x already in use\n", pm_iobase);
+>> +	if (!request_region(SP5100_IO_PM_INDEX_REG, SP5100_PM_IOPORTS_SIZE,
+>> +			    dev_name)) {
+>> +		pr_err("I/O address 0x%04x already in use\n",
+>> +		       SP5100_IO_PM_INDEX_REG);
+> It's good we're printing an error here, but I also don't think (since this has
+> happened a couple times already even just on this thread) we should simply
+> leave the user with the impression that the driver actually failed if the real
+> situation is that the user is supposed to use w83627hf_wdt or some other
+> watchdog driver. Maybe leave a suggestion in this message to the user to try
+> another driver, or see if we could improve this module's ability to realize
+> that it's not actually supported on the system it's being loaded on?
+>>   		goto exit;
+>>   	}
+>>   
+>>   	/*
+>>   	 * First, Find the watchdog timer MMIO address from indirect I/O.
+>> +	 * Low three bits of BASE are reserved.
+>>   	 */
+>> -	outb(base_addr+3, index_reg);
+>> -	val = inb(data_reg);
+>> -	outb(base_addr+2, index_reg);
+>> -	val = val << 8 | inb(data_reg);
+>> -	outb(base_addr+1, index_reg);
+>> -	val = val << 8 | inb(data_reg);
+>> -	outb(base_addr+0, index_reg);
+>> -	/* Low three bits of BASE are reserved */
+>> -	val = val << 8 | (inb(data_reg) & 0xf8);
+>> +	val = sp5100_tco_read_pm_reg32(base_addr) & 0xfffffff8;
+>>   
+>>   	pr_debug("Got 0x%04x from indirect I/O\n", val);
+>>   
+>> @@ -400,14 +411,7 @@ static unsigned char sp5100_tco_setupdevice(void)
+>>   				      SP5100_SB_RESOURCE_MMIO_BASE, &val);
+>>   	} else {
+>>   		/* Read SBResource_MMIO from AcpiMmioEn(PM_Reg: 24h) */
+>> -		outb(SB800_PM_ACPI_MMIO_EN+3, SB800_IO_PM_INDEX_REG);
+>> -		val = inb(SB800_IO_PM_DATA_REG);
+>> -		outb(SB800_PM_ACPI_MMIO_EN+2, SB800_IO_PM_INDEX_REG);
+>> -		val = val << 8 | inb(SB800_IO_PM_DATA_REG);
+>> -		outb(SB800_PM_ACPI_MMIO_EN+1, SB800_IO_PM_INDEX_REG);
+>> -		val = val << 8 | inb(SB800_IO_PM_DATA_REG);
+>> -		outb(SB800_PM_ACPI_MMIO_EN+0, SB800_IO_PM_INDEX_REG);
+>> -		val = val << 8 | inb(SB800_IO_PM_DATA_REG);
+>> +		val = sp5100_tco_read_pm_reg32(SB800_PM_ACPI_MMIO_EN);
+>>   	}
+>>   
+>>   	/* The SBResource_MMIO is enabled and mapped memory space? */
+>> @@ -470,7 +474,7 @@ static unsigned char sp5100_tco_setupdevice(void)
+>>   unreg_mem_region:
+>>   	release_mem_region(tcobase_phys, SP5100_WDT_MEM_MAP_SIZE);
+>>   unreg_region:
+>> -	release_region(pm_iobase, SP5100_PM_IOPORTS_SIZE);
+>> +	release_region(SP5100_IO_PM_INDEX_REG, SP5100_PM_IOPORTS_SIZE);
+>>   exit:
+>>   	return 0;
+>>   }
+>> @@ -517,7 +521,7 @@ static int sp5100_tco_init(struct platform_device *dev)
+>>   exit:
+>>   	iounmap(tcobase);
+>>   	release_mem_region(tcobase_phys, SP5100_WDT_MEM_MAP_SIZE);
+>> -	release_region(pm_iobase, SP5100_PM_IOPORTS_SIZE);
+>> +	release_region(SP5100_IO_PM_INDEX_REG, SP5100_PM_IOPORTS_SIZE);
+>>   	return ret;
+>>   }
+>>   
+>> @@ -531,7 +535,7 @@ static void sp5100_tco_cleanup(void)
+>>   	misc_deregister(&sp5100_tco_miscdev);
+>>   	iounmap(tcobase);
+>>   	release_mem_region(tcobase_phys, SP5100_WDT_MEM_MAP_SIZE);
+>> -	release_region(pm_iobase, SP5100_PM_IOPORTS_SIZE);
+>> +	release_region(SP5100_IO_PM_INDEX_REG, SP5100_PM_IOPORTS_SIZE);
+>>   }
+>>   
+>>   static int sp5100_tco_remove(struct platform_device *dev)
+>> diff --git a/drivers/watchdog/sp5100_tco.h b/drivers/watchdog/sp5100_tco.h
+>> index 1af4dee71337..f495fe03887a 100644
+>> --- a/drivers/watchdog/sp5100_tco.h
+>> +++ b/drivers/watchdog/sp5100_tco.h
+>> @@ -24,10 +24,11 @@
+>>    * read them from a register.
+>>    */
+>>   
+>> -/*  For SP5100/SB7x0 chipset */
+>> +/*  For SP5100/SB7x0/SB8x0 chipset */
+>>   #define SP5100_IO_PM_INDEX_REG		0xCD6
+>>   #define SP5100_IO_PM_DATA_REG		0xCD7
+>>   
+>> +/* For SP5100/SB7x0 chipset */
+>>   #define SP5100_SB_RESOURCE_MMIO_BASE	0x9C
+>>   
+>>   #define SP5100_PM_WATCHDOG_CONTROL	0x69
+>> @@ -44,11 +45,7 @@
+>>   
+>>   #define SP5100_DEVNAME			"SP5100 TCO"
+>>   
+>> -
+>>   /*  For SB8x0(or later) chipset */
+>> -#define SB800_IO_PM_INDEX_REG		0xCD6
+>> -#define SB800_IO_PM_DATA_REG		0xCD7
+>> -
+> IMO I would leave these macro definitions as SB800. For DRM drivers at least,
+> we usually take the route of naming commonly used registers/methods after the
+> first generation they appeared in, not the last.
 > 
 
-This code is changed again in a later patch, and I don't see anything wrong
-with the final alignment. Can you look at the final code and let me know what
-alignment you would like to have changed there ?
+Wait a minute, you are tricking me here. SP5100_IO_PM_INDEX_REG	and
+SP5100_IO_PM_DATA_REG were introduced with commit 15e28bf130081 in 2010.
+The SB800 defines were introduced with commit 740fbddf5c3f9 in 2012.
+
+The common approach is not to change defines after they were introduced,
+which is exactly what I already did. I'll leave the code as-is.
 
 Thanks,
 Guenter
