@@ -1,10 +1,10 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from relmlor4.renesas.com ([210.160.252.174]:16269 "EHLO
-        relmlie3.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1751213AbeAYSFT (ORCPT
+Received: from relmlor3.renesas.com ([210.160.252.173]:28100 "EHLO
+        relmlie2.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1751213AbeAYSF6 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 25 Jan 2018 13:05:19 -0500
+        Thu, 25 Jan 2018 13:05:58 -0500
 From: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
 To: Philipp Zabel <p.zabel@pengutronix.de>,
         Rob Herring <robh+dt@kernel.org>,
@@ -25,53 +25,43 @@ Cc: Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org,
         Biju Das <biju.das@bp.renesas.com>,
         Fabrizio Castro <fabrizio.castro@bp.renesas.com>,
         Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
-Subject: [RFC 21/37] dt-bindings: watchdog: renesas-wdt: Add R-Car Gen2 support
-Date: Thu, 25 Jan 2018 18:02:55 +0000
-Message-Id: <1516903391-30467-22-git-send-email-fabrizio.castro@bp.renesas.com>
+Subject: [RFC 28/37] clk: renesas: r8a7790: Add rwdt clock
+Date: Thu, 25 Jan 2018 18:03:02 +0000
+Message-Id: <1516903391-30467-29-git-send-email-fabrizio.castro@bp.renesas.com>
 In-Reply-To: <1516903391-30467-1-git-send-email-fabrizio.castro@bp.renesas.com>
 References: <1516903391-30467-1-git-send-email-fabrizio.castro@bp.renesas.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This commit documents the compatibility with R-Car Gen2 and RZ/G
-devices by defining the generifc compatible string "renesas,rcar-gen2-wdt".
+Add "rwdt" clock to r8a7790_mod_clks. Also, since we may need to access
+the watchdog registers at any time, declare the clock as critical.
 
 Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
 Signed-off-by: Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
 ---
- Documentation/devicetree/bindings/watchdog/renesas-wdt.txt | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ drivers/clk/renesas/r8a7790-cpg-mssr.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt b/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
-index bf6d1ca..436dca5 100644
---- a/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
-+++ b/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
-@@ -1,17 +1,20 @@
- Renesas Watchdog Timer (WDT) Controller
+diff --git a/drivers/clk/renesas/r8a7790-cpg-mssr.c b/drivers/clk/renesas/r8a7790-cpg-mssr.c
+index 46bb55b..f936cb7 100644
+--- a/drivers/clk/renesas/r8a7790-cpg-mssr.c
++++ b/drivers/clk/renesas/r8a7790-cpg-mssr.c
+@@ -140,6 +140,7 @@ static const struct mssr_mod_clk r8a7790_mod_clks[] __initconst = {
+ 	DEF_MOD("cmt1",			 329,	R8A7790_CLK_R),
+ 	DEF_MOD("usbhs-dmac0",		 330,	R8A7790_CLK_HP),
+ 	DEF_MOD("usbhs-dmac1",		 331,	R8A7790_CLK_HP),
++	DEF_MOD("rwdt",			 402,	R8A7790_CLK_R),
+ 	DEF_MOD("irqc",			 407,	R8A7790_CLK_CP),
+ 	DEF_MOD("intc-sys",		 408,	R8A7790_CLK_ZS),
+ 	DEF_MOD("audio-dmac1",		 501,	R8A7790_CLK_HP),
+@@ -211,6 +212,7 @@ static const struct mssr_mod_clk r8a7790_mod_clks[] __initconst = {
+ };
  
- Required properties:
--- compatible : Should be "renesas,<soctype>-wdt", and
--	       "renesas,rcar-gen3-wdt" or "renesas,rza-wdt" as fallback.
-+ - compatible : Must be "renesas,<soctype>-wdt", followed by a generic
-+		fallback compatible string when compatible with the generic
-+		version.
- 	       Examples with soctypes are:
-+		 - "renesas,r8a7743-wdt" (RZ/G1M)
-+		 - "renesas,r8a7745-wdt" (RZ/G1E)
- 	         - "renesas,r8a7795-wdt" (R-Car H3)
- 	         - "renesas,r8a7796-wdt" (R-Car M3-W)
- 	         - "renesas,r8a77995-wdt" (R-Car D3)
- 	         - "renesas,r7s72100-wdt" (RZ/A1)
-+		The generic compatible string must be:
-+		 - "renesas,rcar-gen2-wdt" for R-Car Gen2 and RZ/G
-+		 - "renesas,rcar-gen3-wdt" for R-Car Gen3
+ static const unsigned int r8a7790_crit_mod_clks[] __initconst = {
++	MOD_CLK_ID(402),	/* RWDT */
+ 	MOD_CLK_ID(408),	/* INTC-SYS (GIC) */
+ };
  
--  When compatible with the generic version, nodes must list the SoC-specific
--  version corresponding to the platform first, followed by the generic
--  version.
- 
- - reg : Should contain WDT registers location and length
- - clocks : the clock feeding the watchdog timer.
 -- 
 2.7.4
 
