@@ -1,10 +1,10 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from relmlor4.renesas.com ([210.160.252.174]:15523 "EHLO
+Received: from relmlor4.renesas.com ([210.160.252.174]:53807 "EHLO
         relmlie3.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1751213AbeAYSGI (ORCPT
+        by vger.kernel.org with ESMTP id S1751105AbeAYSGk (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 25 Jan 2018 13:06:08 -0500
+        Thu, 25 Jan 2018 13:06:40 -0500
 From: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
 To: Philipp Zabel <p.zabel@pengutronix.de>,
         Rob Herring <robh+dt@kernel.org>,
@@ -25,43 +25,38 @@ Cc: Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org,
         Biju Das <biju.das@bp.renesas.com>,
         Fabrizio Castro <fabrizio.castro@bp.renesas.com>,
         Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
-Subject: [RFC 30/37] clk: renesas: r8a7794: Add rwdt clock
-Date: Thu, 25 Jan 2018 18:03:04 +0000
-Message-Id: <1516903391-30467-31-git-send-email-fabrizio.castro@bp.renesas.com>
+Subject: [RFC 36/37] ARM: dts: iwg20m: Add watchdog support to SoM dtsi
+Date: Thu, 25 Jan 2018 18:03:10 +0000
+Message-Id: <1516903391-30467-37-git-send-email-fabrizio.castro@bp.renesas.com>
 In-Reply-To: <1516903391-30467-1-git-send-email-fabrizio.castro@bp.renesas.com>
 References: <1516903391-30467-1-git-send-email-fabrizio.castro@bp.renesas.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Add "rwdt" clock to r8a7794_mod_clks. Also, since we may need to access
-the watchdog registers at any time, declare the clock as critical.
+This patch enables the watchdog from within the iwg20m SoM dtsi.
 
 Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
 Signed-off-by: Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
 ---
- drivers/clk/renesas/r8a7794-cpg-mssr.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm/boot/dts/r8a7743-iwg20m.dtsi | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/clk/renesas/r8a7794-cpg-mssr.c b/drivers/clk/renesas/r8a7794-cpg-mssr.c
-index ec091a4..2a40bbe 100644
---- a/drivers/clk/renesas/r8a7794-cpg-mssr.c
-+++ b/drivers/clk/renesas/r8a7794-cpg-mssr.c
-@@ -121,6 +121,7 @@ static const struct mssr_mod_clk r8a7794_mod_clks[] __initconst = {
- 	DEF_MOD("cmt1",			 329,	R8A7794_CLK_R),
- 	DEF_MOD("usbhs-dmac0",		 330,	R8A7794_CLK_HP),
- 	DEF_MOD("usbhs-dmac1",		 331,	R8A7794_CLK_HP),
-+	DEF_MOD("rwdt",			 402,	R8A7794_CLK_R),
- 	DEF_MOD("irqc",			 407,	R8A7794_CLK_CP),
- 	DEF_MOD("intc-sys",		 408,	R8A7794_CLK_ZS),
- 	DEF_MOD("audio-dmac0",		 502,	R8A7794_CLK_HP),
-@@ -190,6 +191,7 @@ static const struct mssr_mod_clk r8a7794_mod_clks[] __initconst = {
+diff --git a/arch/arm/boot/dts/r8a7743-iwg20m.dtsi b/arch/arm/boot/dts/r8a7743-iwg20m.dtsi
+index 1d3e950..d364685 100644
+--- a/arch/arm/boot/dts/r8a7743-iwg20m.dtsi
++++ b/arch/arm/boot/dts/r8a7743-iwg20m.dtsi
+@@ -91,6 +91,11 @@
+ 	};
  };
  
- static const unsigned int r8a7794_crit_mod_clks[] __initconst = {
-+	MOD_CLK_ID(402),	/* RWDT */
- 	MOD_CLK_ID(408),	/* INTC-SYS (GIC) */
- };
- 
++&rwdt {
++	timeout-sec = <60>;
++	status = "okay";
++};
++
+ &sdhi0 {
+ 	pinctrl-0 = <&sdhi0_pins>;
+ 	pinctrl-names = "default";
 -- 
 2.7.4
 
