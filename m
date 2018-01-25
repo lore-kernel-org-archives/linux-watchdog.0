@@ -1,10 +1,10 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from relmlor3.renesas.com ([210.160.252.173]:28142 "EHLO
+Received: from relmlor3.renesas.com ([210.160.252.173]:28173 "EHLO
         relmlie2.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1751109AbeAYSGa (ORCPT
+        by vger.kernel.org with ESMTP id S1751105AbeAYSGq (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 25 Jan 2018 13:06:30 -0500
+        Thu, 25 Jan 2018 13:06:46 -0500
 From: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
 To: Philipp Zabel <p.zabel@pengutronix.de>,
         Rob Herring <robh+dt@kernel.org>,
@@ -25,43 +25,38 @@ Cc: Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org,
         Biju Das <biju.das@bp.renesas.com>,
         Fabrizio Castro <fabrizio.castro@bp.renesas.com>,
         Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
-Subject: [RFC 34/37] ARM: dts: r8a7791: Add watchdog support to SoC dtsi
-Date: Thu, 25 Jan 2018 18:03:08 +0000
-Message-Id: <1516903391-30467-35-git-send-email-fabrizio.castro@bp.renesas.com>
+Subject: [RFC 37/37] ARM: dts: iwg22m: Add watchdog support to SoM dtsi
+Date: Thu, 25 Jan 2018 18:03:11 +0000
+Message-Id: <1516903391-30467-38-git-send-email-fabrizio.castro@bp.renesas.com>
 In-Reply-To: <1516903391-30467-1-git-send-email-fabrizio.castro@bp.renesas.com>
 References: <1516903391-30467-1-git-send-email-fabrizio.castro@bp.renesas.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This commit adds watchdog support to the r8a7791 dtsi.
+This patch enables the watchdog from within the iwg20m SoM dtsi.
 
 Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
 Signed-off-by: Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
 ---
- arch/arm/boot/dts/r8a7791.dtsi | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ arch/arm/boot/dts/r8a7745-iwg22m.dtsi | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/arch/arm/boot/dts/r8a7791.dtsi b/arch/arm/boot/dts/r8a7791.dtsi
-index 09d1e4f..dacec25 100644
---- a/arch/arm/boot/dts/r8a7791.dtsi
-+++ b/arch/arm/boot/dts/r8a7791.dtsi
-@@ -289,6 +289,16 @@
- 			reg = <0 0xe6160000 0 0x0100>;
- 		};
+diff --git a/arch/arm/boot/dts/r8a7745-iwg22m.dtsi b/arch/arm/boot/dts/r8a7745-iwg22m.dtsi
+index 8d0a392b..29b6e10 100644
+--- a/arch/arm/boot/dts/r8a7745-iwg22m.dtsi
++++ b/arch/arm/boot/dts/r8a7745-iwg22m.dtsi
+@@ -91,6 +91,11 @@
+ 	};
+ };
  
-+		rwdt: watchdog@e6020000 {
-+			compatible = "renesas,r8a7791-wdt",
-+				     "renesas,rcar-gen2-wdt";
-+			reg = <0 0xe6020000 0 0x0c>;
-+			clocks = <&cpg CPG_MOD 402>;
-+			power-domains = <&sysc R8A7791_PD_ALWAYS_ON>;
-+			resets = <&cpg 402>;
-+			status = "disabled";
-+		};
++&rwdt {
++	timeout-sec = <60>;
++	status = "okay";
++};
 +
- 		sysc: system-controller@e6180000 {
- 			compatible = "renesas,r8a7791-sysc";
- 			reg = <0 0xe6180000 0 0x0200>;
+ &sdhi1 {
+ 	pinctrl-0 = <&sdhi1_pins>;
+ 	pinctrl-names = "default";
 -- 
 2.7.4
 
