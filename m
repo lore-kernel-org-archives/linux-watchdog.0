@@ -1,10 +1,10 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from relmlor4.renesas.com ([210.160.252.174]:16180 "EHLO
-        relmlie3.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1751109AbeAYSEP (ORCPT
+Received: from relmlor3.renesas.com ([210.160.252.173]:59957 "EHLO
+        relmlie2.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1751109AbeAYSEU (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 25 Jan 2018 13:04:15 -0500
+        Thu, 25 Jan 2018 13:04:20 -0500
 From: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
 To: Philipp Zabel <p.zabel@pengutronix.de>,
         Rob Herring <robh+dt@kernel.org>,
@@ -25,62 +25,70 @@ Cc: Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org,
         Biju Das <biju.das@bp.renesas.com>,
         Fabrizio Castro <fabrizio.castro@bp.renesas.com>,
         Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
-Subject: [RFC 09/37] soc: renesas: rcar-rst: Add generic compatible strings
-Date: Thu, 25 Jan 2018 18:02:43 +0000
-Message-Id: <1516903391-30467-10-git-send-email-fabrizio.castro@bp.renesas.com>
+Subject: [RFC 10/37] soc: renesas: rcar-rst: Enable watchdog as reset trigger for Gen2
+Date: Thu, 25 Jan 2018 18:02:44 +0000
+Message-Id: <1516903391-30467-11-git-send-email-fabrizio.castro@bp.renesas.com>
 In-Reply-To: <1516903391-30467-1-git-send-email-fabrizio.castro@bp.renesas.com>
 References: <1516903391-30467-1-git-send-email-fabrizio.castro@bp.renesas.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This commit introduces generic compatible strings to use as fallback,
-so that devices compatible with the generic implementation may avoid
-changing the driver.
+This patch allows for platform specific quirks as some of the SoC need
+further customization for the watchdog to work properly, like for R-Car
+Gen2 and for RZ/G.
 
 Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
 Signed-off-by: Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
 ---
- drivers/soc/renesas/rcar-rst.c | 20 ++++++++++++++------
- 1 file changed, 14 insertions(+), 6 deletions(-)
+ drivers/soc/renesas/rcar-rst.c | 21 ++++++++++++++++++++-
+ 1 file changed, 20 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/soc/renesas/rcar-rst.c b/drivers/soc/renesas/rcar-rst.c
-index 3316b02..f7a0d54 100644
+index f7a0d54..5f52aea 100644
 --- a/drivers/soc/renesas/rcar-rst.c
 +++ b/drivers/soc/renesas/rcar-rst.c
-@@ -25,8 +25,16 @@ static const struct rst_config rcar_rst_gen2 __initconst = {
- 	.modemr = 0x60,
+@@ -13,8 +13,18 @@
+ #include <linux/of_address.h>
+ #include <linux/soc/renesas/rcar-rst.h>
+ 
++#define WDTRSTCR_RESET		0xA55A0002
++#define WDTRSTCR		0x0054
++
++static int gen2_configuration(void __iomem *base)
++{
++	iowrite32(WDTRSTCR_RESET, base + WDTRSTCR);
++	return 0;
++}
++
+ struct rst_config {
+-	unsigned int modemr;	/* Mode Monitoring Register Offset */
++	unsigned int modemr;		/* Mode Monitoring Register Offset */
++	int (*configure)(void *base);	/* Platform specific configuration */
  };
  
-+static const struct rst_config rcar_rst_gen3 __initconst = {
-+	.modemr = 0x60,
-+};
-+
- static const struct of_device_id rcar_rst_matches[] __initconst = {
--	/* RZ/G is handled like R-Car Gen2 */
-+	/* generic compatible strings */
-+	{ .compatible = "renesas,rcar-gen1-rst", .data = &rcar_rst_gen1 },
-+	{ .compatible = "renesas,rcar-gen2-rst", .data = &rcar_rst_gen2 },
-+	{ .compatible = "renesas,rcar-gen3-rst", .data = &rcar_rst_gen3 },
-+	/* RZ/G */
- 	{ .compatible = "renesas,r8a7743-rst", .data = &rcar_rst_gen2 },
- 	{ .compatible = "renesas,r8a7745-rst", .data = &rcar_rst_gen2 },
- 	/* R-Car Gen1 */
-@@ -38,11 +46,11 @@ static const struct of_device_id rcar_rst_matches[] __initconst = {
- 	{ .compatible = "renesas,r8a7792-rst", .data = &rcar_rst_gen2 },
- 	{ .compatible = "renesas,r8a7793-rst", .data = &rcar_rst_gen2 },
- 	{ .compatible = "renesas,r8a7794-rst", .data = &rcar_rst_gen2 },
--	/* R-Car Gen3 is handled like R-Car Gen2 */
--	{ .compatible = "renesas,r8a7795-rst", .data = &rcar_rst_gen2 },
--	{ .compatible = "renesas,r8a7796-rst", .data = &rcar_rst_gen2 },
--	{ .compatible = "renesas,r8a77970-rst", .data = &rcar_rst_gen2 },
--	{ .compatible = "renesas,r8a77995-rst", .data = &rcar_rst_gen2 },
-+	/* R-Car Gen3 */
-+	{ .compatible = "renesas,r8a7795-rst", .data = &rcar_rst_gen3 },
-+	{ .compatible = "renesas,r8a7796-rst", .data = &rcar_rst_gen3 },
-+	{ .compatible = "renesas,r8a77970-rst", .data = &rcar_rst_gen3 },
-+	{ .compatible = "renesas,r8a77995-rst", .data = &rcar_rst_gen3 },
- 	{ /* sentinel */ }
+ static const struct rst_config rcar_rst_gen1 __initconst = {
+@@ -23,6 +33,7 @@ static const struct rst_config rcar_rst_gen1 __initconst = {
+ 
+ static const struct rst_config rcar_rst_gen2 __initconst = {
+ 	.modemr = 0x60,
++	.configure = gen2_configuration,
  };
+ 
+ static const struct rst_config rcar_rst_gen3 __initconst = {
+@@ -79,6 +90,14 @@ static int __init rcar_rst_init(void)
+ 	rcar_rst_base = base;
+ 	cfg = match->data;
+ 	saved_mode = ioread32(base + cfg->modemr);
++	if (cfg->configure) {
++		error = cfg->configure(base);
++		if (error) {
++			pr_warn("%pOF: Cannot run SoC specific configuration\n",
++				np);
++			goto out_put;
++		}
++	}
+ 
+ 	pr_debug("%pOF: MODE = 0x%08x\n", np, saved_mode);
  
 -- 
 2.7.4
