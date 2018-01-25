@@ -1,10 +1,10 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from relmlor2.renesas.com ([210.160.252.172]:33598 "EHLO
+Received: from relmlor2.renesas.com ([210.160.252.172]:33530 "EHLO
         relmlie1.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1751213AbeAYSFw (ORCPT
+        by vger.kernel.org with ESMTP id S1751213AbeAYSFI (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 25 Jan 2018 13:05:52 -0500
+        Thu, 25 Jan 2018 13:05:08 -0500
 From: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
 To: Philipp Zabel <p.zabel@pengutronix.de>,
         Rob Herring <robh+dt@kernel.org>,
@@ -25,42 +25,35 @@ Cc: Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org,
         Biju Das <biju.das@bp.renesas.com>,
         Fabrizio Castro <fabrizio.castro@bp.renesas.com>,
         Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
-Subject: [RFC 27/37] clk: renesas: r8a7745: Add rwdt clock
-Date: Thu, 25 Jan 2018 18:03:01 +0000
-Message-Id: <1516903391-30467-28-git-send-email-fabrizio.castro@bp.renesas.com>
+Subject: [RFC 19/37] arm64: dts: renesas: r8a77970: Use fallback rst compatible string
+Date: Thu, 25 Jan 2018 18:02:53 +0000
+Message-Id: <1516903391-30467-20-git-send-email-fabrizio.castro@bp.renesas.com>
 In-Reply-To: <1516903391-30467-1-git-send-email-fabrizio.castro@bp.renesas.com>
 References: <1516903391-30467-1-git-send-email-fabrizio.castro@bp.renesas.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Add "rwdt" clock to r8a7745_mod_clks. Also, since we may need to access
-the watchdog registers at any time, declare the clock as critical.
+Add the generic fallback compatible string for the rst node.
 
 Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
 Signed-off-by: Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
 ---
- drivers/clk/renesas/r8a7745-cpg-mssr.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm64/boot/dts/renesas/r8a77970.dtsi | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/clk/renesas/r8a7745-cpg-mssr.c b/drivers/clk/renesas/r8a7745-cpg-mssr.c
-index 2859504..87f5a36 100644
---- a/drivers/clk/renesas/r8a7745-cpg-mssr.c
-+++ b/drivers/clk/renesas/r8a7745-cpg-mssr.c
-@@ -114,6 +114,7 @@ static const struct mssr_mod_clk r8a7745_mod_clks[] __initconst = {
- 	DEF_MOD("cmt1",			 329,	R8A7745_CLK_R),
- 	DEF_MOD("usbhs-dmac0",		 330,	R8A7745_CLK_HP),
- 	DEF_MOD("usbhs-dmac1",		 331,	R8A7745_CLK_HP),
-+	DEF_MOD("rwdt",			 402,	R8A7745_CLK_R),
- 	DEF_MOD("irqc",			 407,	R8A7745_CLK_CP),
- 	DEF_MOD("intc-sys",		 408,	R8A7745_CLK_ZS),
- 	DEF_MOD("audio-dmac0",		 502,	R8A7745_CLK_HP),
-@@ -180,6 +181,7 @@ static const struct mssr_mod_clk r8a7745_mod_clks[] __initconst = {
- };
+diff --git a/arch/arm64/boot/dts/renesas/r8a77970.dtsi b/arch/arm64/boot/dts/renesas/r8a77970.dtsi
+index 566a7f7..0fda66f 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77970.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a77970.dtsi
+@@ -113,7 +113,8 @@
+ 		};
  
- static const unsigned int r8a7745_crit_mod_clks[] __initconst = {
-+	MOD_CLK_ID(402),	/* RWDT */
- 	MOD_CLK_ID(408),	/* INTC-SYS (GIC) */
- };
+ 		rst: reset-controller@e6160000 {
+-			compatible = "renesas,r8a77970-rst";
++			compatible = "renesas,r8a77970-rst",
++				     "renesas,rcar-gen3-rst";
+ 			reg = <0 0xe6160000 0 0x200>;
+ 		};
  
 -- 
 2.7.4
