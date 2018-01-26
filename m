@@ -2,12 +2,12 @@ Return-Path: <geert.uytterhoeven@gmail.com>
 Return-path: <geert.uytterhoeven@gmail.com>
 MIME-Version: 1.0
 Sender: geert.uytterhoeven@gmail.com
-In-Reply-To: <1516903391-30467-36-git-send-email-fabrizio.castro@bp.renesas.com>
-References: <1516903391-30467-1-git-send-email-fabrizio.castro@bp.renesas.com> <1516903391-30467-36-git-send-email-fabrizio.castro@bp.renesas.com>
+In-Reply-To: <1516903391-30467-37-git-send-email-fabrizio.castro@bp.renesas.com>
+References: <1516903391-30467-1-git-send-email-fabrizio.castro@bp.renesas.com> <1516903391-30467-37-git-send-email-fabrizio.castro@bp.renesas.com>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Fri, 26 Jan 2018 11:31:00 +0100
-Message-ID: <CAMuHMdXBKSj4+eJYLCuydB2mM2kdr2gJY=L_kU2X25XcPhzNXA@mail.gmail.com>
-Subject: Re: [RFC 35/37] ARM: dts: r8a7794: Add watchdog support to SoC dtsi
+Date: Fri, 26 Jan 2018 11:32:10 +0100
+Message-ID: <CAMuHMdWMtOV2wWVzbuk7zzPOonV0_uo5EdPDCv2KKjz90P9ZRQ@mail.gmail.com>
+Subject: Re: [RFC 36/37] ARM: dts: iwg20m: Add watchdog support to SoM dtsi
 To: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
 Cc: Philipp Zabel <p.zabel@pengutronix.de>, Rob Herring <robh+dt@kernel.org>,
 	Mark Rutland <mark.rutland@arm.com>, Wim Van Sebroeck <wim@iguana.be>,
@@ -27,12 +27,10 @@ List-ID: <linux-watchdog@vger.kernel.org>
 
 On Thu, Jan 25, 2018 at 7:03 PM, Fabrizio Castro
 <fabrizio.castro@bp.renesas.com> wrote:
-> This commit adds watchdog support to the r8a7794 dtsi.
+> This patch enables the watchdog from within the iwg20m SoM dtsi.
 >
 > Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
 > Signed-off-by: Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
-
-If inserted before gpio@e6050000:
 
 Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
 
