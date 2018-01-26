@@ -2,13 +2,12 @@ Return-Path: <geert.uytterhoeven@gmail.com>
 Return-path: <geert.uytterhoeven@gmail.com>
 MIME-Version: 1.0
 Sender: geert.uytterhoeven@gmail.com
-In-Reply-To: <CAMuHMdWVvMJR5NHMFn6zx39jw2XdP5nteU3actUcen0dmoT-LQ@mail.gmail.com>
-References: <1516903391-30467-1-git-send-email-fabrizio.castro@bp.renesas.com>
- <1516903391-30467-2-git-send-email-fabrizio.castro@bp.renesas.com> <CAMuHMdWVvMJR5NHMFn6zx39jw2XdP5nteU3actUcen0dmoT-LQ@mail.gmail.com>
+In-Reply-To: <1516903391-30467-3-git-send-email-fabrizio.castro@bp.renesas.com>
+References: <1516903391-30467-1-git-send-email-fabrizio.castro@bp.renesas.com> <1516903391-30467-3-git-send-email-fabrizio.castro@bp.renesas.com>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Fri, 26 Jan 2018 10:49:51 +0100
-Message-ID: <CAMuHMdVkCscs1TN-se43TkZaCaKNdG2GLenApc7yRUkhD=pg2Q@mail.gmail.com>
-Subject: Re: [RFC 01/37] ARM: shmobile: Add watchdog support
+Date: Fri, 26 Jan 2018 10:52:19 +0100
+Message-ID: <CAMuHMdWdpSj+_jK8eUfeHA-Dn4uK+4fXLBuFuU6X65AC8Fc=zQ@mail.gmail.com>
+Subject: Re: [RFC 02/37] ARM: dts: r8a7743: Adjust SMP routine size
 To: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
 Cc: Philipp Zabel <p.zabel@pengutronix.de>, Rob Herring <robh+dt@kernel.org>,
 	Mark Rutland <mark.rutland@arm.com>, Wim Van Sebroeck <wim@iguana.be>,
@@ -26,18 +25,30 @@ Cc: Philipp Zabel <p.zabel@pengutronix.de>, Rob Herring <robh+dt@kernel.org>,
 Content-Type: text/plain; charset="UTF-8"
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On Fri, Jan 26, 2018 at 10:46 AM, Geert Uytterhoeven
-<geert@linux-m68k.org> wrote:
-> On Thu, Jan 25, 2018 at 7:02 PM, Fabrizio Castro
-> <fabrizio.castro@bp.renesas.com> wrote:
->> SMP bringup, CPU hot plug, and suspend to RAM work as normal.
+On Thu, Jan 25, 2018 at 7:02 PM, Fabrizio Castro
+<fabrizio.castro@bp.renesas.com> wrote:
+> This patch adjusts the definition of the SMP routine size according
+> to the latest changes made by commit:
+> "ARM: shmobile: Add watchdog support"
 >
-> shmobile_boot_vector is not only used for R-Car Gen2 and RZ/G1 SoCs, but
-> also for EMMA Mobile, SH/R-Mobile, and R-Car H1.  Hence this breaks SMP
-> for the latter (and their build if ARCH_RENESAS=n, due to missing
-> shmobile_wdt_clock_status).
+> Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
+> Signed-off-by: Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
 
-Sorry, please ignore my comment about build failures.
+I would make it a bit larger, though. "0x64" is the strict minimum =>
+0x80? 0x100?
+
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+
+> --- a/arch/arm/boot/dts/r8a7743.dtsi
+> +++ b/arch/arm/boot/dts/r8a7743.dtsi
+> @@ -973,7 +973,7 @@
+>
+>                         smp-sram@0 {
+>                                 compatible = "renesas,smp-sram";
+> -                               reg = <0 0x10>;
+> +                               reg = <0 0x64>;
+>                         };
+>                 };
 
 Gr{oetje,eeting}s,
 
