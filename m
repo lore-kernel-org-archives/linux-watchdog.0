@@ -2,12 +2,12 @@ Return-Path: <geert.uytterhoeven@gmail.com>
 Return-path: <geert.uytterhoeven@gmail.com>
 MIME-Version: 1.0
 Sender: geert.uytterhoeven@gmail.com
-In-Reply-To: <1516903391-30467-33-git-send-email-fabrizio.castro@bp.renesas.com>
-References: <1516903391-30467-1-git-send-email-fabrizio.castro@bp.renesas.com> <1516903391-30467-33-git-send-email-fabrizio.castro@bp.renesas.com>
+In-Reply-To: <1516903391-30467-34-git-send-email-fabrizio.castro@bp.renesas.com>
+References: <1516903391-30467-1-git-send-email-fabrizio.castro@bp.renesas.com> <1516903391-30467-34-git-send-email-fabrizio.castro@bp.renesas.com>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Fri, 26 Jan 2018 11:28:34 +0100
-Message-ID: <CAMuHMdX592Z366ptHmd9Gv9rgXkbdbcS66XCzz4N6Q_XcY7Q-g@mail.gmail.com>
-Subject: Re: [RFC 32/37] ARM: dts: r8a7745: Add watchdog support to SoC dtsi
+Date: Fri, 26 Jan 2018 11:30:02 +0100
+Message-ID: <CAMuHMdUQfwDcx-koS4s591UzF=m0TQvnCizLmJ0Mz_hZfG6SSA@mail.gmail.com>
+Subject: Re: [RFC 33/37] ARM: dts: r8a7790: Add watchdog support to SoC dtsi
 To: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
 Cc: Philipp Zabel <p.zabel@pengutronix.de>, Rob Herring <robh+dt@kernel.org>,
 	Mark Rutland <mark.rutland@arm.com>, Wim Van Sebroeck <wim@iguana.be>,
@@ -27,10 +27,12 @@ List-ID: <linux-watchdog@vger.kernel.org>
 
 On Thu, Jan 25, 2018 at 7:03 PM, Fabrizio Castro
 <fabrizio.castro@bp.renesas.com> wrote:
-> This patch adds watchdog support to the r8a7745 SoC dtsi.
+> This commit adds watchdog support to the r8a7790 dtsi.
 >
 > Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
 > Signed-off-by: Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
+
+If inserted before gpio@e6050000:
 
 Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
 
