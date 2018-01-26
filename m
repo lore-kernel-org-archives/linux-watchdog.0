@@ -2,12 +2,12 @@ Return-Path: <geert.uytterhoeven@gmail.com>
 Return-path: <geert.uytterhoeven@gmail.com>
 MIME-Version: 1.0
 Sender: geert.uytterhoeven@gmail.com
-In-Reply-To: <1516903391-30467-31-git-send-email-fabrizio.castro@bp.renesas.com>
-References: <1516903391-30467-1-git-send-email-fabrizio.castro@bp.renesas.com> <1516903391-30467-31-git-send-email-fabrizio.castro@bp.renesas.com>
+In-Reply-To: <1516903391-30467-32-git-send-email-fabrizio.castro@bp.renesas.com>
+References: <1516903391-30467-1-git-send-email-fabrizio.castro@bp.renesas.com> <1516903391-30467-32-git-send-email-fabrizio.castro@bp.renesas.com>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Fri, 26 Jan 2018 11:25:52 +0100
-Message-ID: <CAMuHMdV0BWfDJvRsjqvmi5pYRcJwrNFf7Byd_mWU6w+fD24WbA@mail.gmail.com>
-Subject: Re: [RFC 30/37] clk: renesas: r8a7794: Add rwdt clock
+Date: Fri, 26 Jan 2018 11:27:53 +0100
+Message-ID: <CAMuHMdXM-xVhG0FiZ9vtHKy4=rVo8P+J1S0U3gst5e9s2163sw@mail.gmail.com>
+Subject: Re: [RFC 31/37] ARM: dts: r8a7743: Add watchdog support to SoC dtsi
 To: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
 Cc: Philipp Zabel <p.zabel@pengutronix.de>, Rob Herring <robh+dt@kernel.org>,
 	Mark Rutland <mark.rutland@arm.com>, Wim Van Sebroeck <wim@iguana.be>,
@@ -27,34 +27,12 @@ List-ID: <linux-watchdog@vger.kernel.org>
 
 On Thu, Jan 25, 2018 at 7:03 PM, Fabrizio Castro
 <fabrizio.castro@bp.renesas.com> wrote:
-> Add "rwdt" clock to r8a7794_mod_clks. Also, since we may need to access
-> the watchdog registers at any time, declare the clock as critical.
+> This patch adds watchdog support to the r8a7743 SoC dtsi.
 >
 > Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
 > Signed-off-by: Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
 
-With the critical clock handling removed (that can be done by the driver,
-if really needed)
-
 Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-
-> --- a/drivers/clk/renesas/r8a7794-cpg-mssr.c
-> +++ b/drivers/clk/renesas/r8a7794-cpg-mssr.c
-> @@ -121,6 +121,7 @@ static const struct mssr_mod_clk r8a7794_mod_clks[] __initconst = {
->         DEF_MOD("cmt1",                  329,   R8A7794_CLK_R),
->         DEF_MOD("usbhs-dmac0",           330,   R8A7794_CLK_HP),
->         DEF_MOD("usbhs-dmac1",           331,   R8A7794_CLK_HP),
-> +       DEF_MOD("rwdt",                  402,   R8A7794_CLK_R),
->         DEF_MOD("irqc",                  407,   R8A7794_CLK_CP),
->         DEF_MOD("intc-sys",              408,   R8A7794_CLK_ZS),
->         DEF_MOD("audio-dmac0",           502,   R8A7794_CLK_HP),
-> @@ -190,6 +191,7 @@ static const struct mssr_mod_clk r8a7794_mod_clks[] __initconst = {
->  };
->
->  static const unsigned int r8a7794_crit_mod_clks[] __initconst = {
-> +       MOD_CLK_ID(402),        /* RWDT */
->         MOD_CLK_ID(408),        /* INTC-SYS (GIC) */
->  };
 
 Gr{oetje,eeting}s,
 
