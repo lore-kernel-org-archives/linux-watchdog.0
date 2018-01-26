@@ -23,145 +23,100 @@ Cc: Fabrizio Castro <fabrizio.castro@bp.renesas.com>,
 	Chris Paterson <Chris.Paterson2@renesas.com>,
 	Biju Das <biju.das@bp.renesas.com>,
 	Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
-Subject: [RFC v2 01/37] ARM: shmobile: Add watchdog support
-Date: Fri, 26 Jan 2018 16:08:56 +0000
-Message-Id: <1516982937-29245-1-git-send-email-fabrizio.castro@bp.renesas.com>
-In-Reply-To: <TY1PR06MB08950BD28BEC28D55C6D80EDC0E00@TY1PR06MB0895.apcprd06.prod.outlook.com>
+Subject: [RFC v2 23/37] ARM: shmobile: rcar-gen2: Export shmobile_set_wdt_clock_status function
+Date: Fri, 26 Jan 2018 16:08:57 +0000
+Message-Id: <1516982937-29245-2-git-send-email-fabrizio.castro@bp.renesas.com>
+In-Reply-To: <1516982937-29245-1-git-send-email-fabrizio.castro@bp.renesas.com>
 References: <TY1PR06MB08950BD28BEC28D55C6D80EDC0E00@TY1PR06MB0895.apcprd06.prod.outlook.com>
+ <1516982937-29245-1-git-send-email-fabrizio.castro@bp.renesas.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On R-Car Gen2 and RZ/G1 platforms, we use the SBAR registers to make non
-boot CPUs run a routine designed to bring up SMP and deal with hot plug.
-The value contained in the SBAR registers is not initialized by a WDT
-triggered reset, which means that after a WDT triggered reset we jump
-to the SMP bring up routine, preventing the system from executing the
-bootrom code.
-
-The purpose of this patch is to jump to the bootrom code in case of a
-WDT triggered reset, and keep the SMP functionality untouched.
-In order to tell if the code had been called due to the WDT overflowing
-we need to inspect flag WOVF from register RWTCSRA, however for this
-to work smoothly we need to make sure that RWDT clock is ON.
-Since it's not wise to interfere with the clock configuration from
-within this routine, a flag has been put in place
-(shmobile_wdt_clock_status) so that the watchdog driver can tell
-shmobile_boot_vector_gen2 when the clock is ON, and therefore there is
-no need for shmobile_boot_vector to mess up with the clock registers.
-
-Bit WOVF survives a watchdog triggered reset, and it is usually cleared
-by the bootloader. Checking the MMU enable bit from register SCTLR
-allows us to make the code a little bit more robust (just in case the
-bit wasn't cleared up), as right after a reset the MMU is disabled,
-and when Linux is running the MMU is enabled. Also, accessing RWTCSRA
-physical address is safe when the MMU is down.
-
-New function shmobile_boot_vector_gen2 isn't replacing
-shmobile_boot_vector for backward compatibility reasons. The kernel
-will install the best option (either shmobile_boot_vector or
-shmobile_boot_vector_gen2) to ICRAM1 after parsing the device tree.
-
-SMP bringup, CPU hot plug, and suspend to RAM work as normal.
-
-Since shmobile_boot_vector has become bigger, "reg" property of nodes
-compatible with "renesas,smp-sram" now need to be set to "<0 0x64>".
+This patch exposes a function to set the value of variable
+"shmobile_wdt_clock_status" so that the watchdog driver may communicate
+critical information to the SMP bring up assembly routine.
+Also, the new code provided by this commit decides which version of the
+boot vector to install to ICRAM1, and that depends on the size of the
+memory region available for this purpose.
 
 Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
 Signed-off-by: Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
 ---
- arch/arm/mach-shmobile/headsmp.S | 74 ++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 74 insertions(+)
+ arch/arm/mach-shmobile/common.h       |  6 ++++++
+ arch/arm/mach-shmobile/platsmp-apmu.c |  1 +
+ arch/arm/mach-shmobile/pm-rcar-gen2.c | 25 +++++++++++++++++++++++--
+ 3 files changed, 30 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/mach-shmobile/headsmp.S b/arch/arm/mach-shmobile/headsmp.S
-index 32e0bf6..4b14d4c 100644
---- a/arch/arm/mach-shmobile/headsmp.S
-+++ b/arch/arm/mach-shmobile/headsmp.S
-@@ -16,6 +16,13 @@
- #include <asm/assembler.h>
- #include <asm/memory.h>
- 
-+#define RWDT_CLOCK_ON	0xdeadbeef
-+#define RWDT_CLOCK_OFF	0x00000000
-+#define SCTLR_MMU	0x01
-+#define BOOTROM_ADDRESS	0xE6340000
-+#define RWTCSRA_ADDRESS 0xE6020004
-+#define RWTCSRA_WOVF	0x10
-+
- /*
-  * Reset vector for secondary CPUs.
-  * This will be mapped at address 0 by SBAR register.
-@@ -37,6 +44,73 @@ shmobile_boot_fn:
- shmobile_boot_size:
- 	.long	. - shmobile_boot_vector
- 
+diff --git a/arch/arm/mach-shmobile/common.h b/arch/arm/mach-shmobile/common.h
+index a8fa4f7..88d3c1b 100644
+--- a/arch/arm/mach-shmobile/common.h
++++ b/arch/arm/mach-shmobile/common.h
+@@ -7,6 +7,12 @@ extern void shmobile_init_delay(void);
+ extern void shmobile_boot_vector(void);
+ extern unsigned long shmobile_boot_fn;
+ extern unsigned long shmobile_boot_size;
 +#ifdef CONFIG_ARCH_RCAR_GEN2
-+/*
-+ * Reset vector for R-Car Gen2 and RZ/G1 secondary CPUs.
-+ * This will be mapped at address 0 by SBAR register.
-+ */
-+ENTRY(shmobile_boot_vector_gen2)
-+/*
-+	if (SCTLR_MMU == 1)
-+		goto shmobile_smp_continue_gen2;
-+*/
-+	mrc	p15, 0, r1, c1, c0, 0		@ r1 = SCTLR
-+	and	r0, r1, #SCTLR_MMU
-+	cmp	r0, #SCTLR_MMU
-+	beq	shmobile_smp_continue_gen2
-+
-+/*
-+	if (shmobile_wdt_clock_status != RWDT_CLOCK_ON)
-+		goto shmobile_smp_continue_gen2;
-+*/
-+	ldr	r0, #shmobile_wdt_clock_status
-+	ldr	r1, #clock_on
-+	cmp	r0, r1
-+	bne	shmobile_smp_continue_gen2
-+
-+/*
-+	if (RWTCSRA_WOVF == 0)
-+		goto shmobile_smp_continue_gen2;
-+*/
-+	ldr	r0, rwtcsra
-+	mov	r1, #0
-+	ldrb	r1, [r0]
-+	and	r0, r1, #RWTCSRA_WOVF
-+	cmp	r0, #RWTCSRA_WOVF
-+	bne	shmobile_smp_continue_gen2
-+
-+/*
-+	goto bootrom;
-+*/
-+	ldr	r0, bootrom
-+	bx	r0
-+
-+shmobile_smp_continue_gen2:
-+	ldr     r1, shmobile_boot_fn_gen2
-+	bx	r1
-+
-+ENDPROC(shmobile_boot_vector_gen2)
-+
-+	.align	4
-+rwtcsra:
-+	.word	RWTCSRA_ADDRESS
-+bootrom:
-+	.word	BOOTROM_ADDRESS
-+clock_on:
-+	.word	RWDT_CLOCK_ON
-+	.globl	shmobile_wdt_clock_status
-+shmobile_wdt_clock_status:
-+	.word	RWDT_CLOCK_OFF
-+
-+	.align	2
-+	.globl	shmobile_boot_fn_gen2
-+shmobile_boot_fn_gen2:
-+	.space	4
-+	.globl	shmobile_boot_size_gen2
-+shmobile_boot_size_gen2:
-+	.long	. - shmobile_boot_vector_gen2
++extern void shmobile_boot_vector_gen2(void);
++extern unsigned long shmobile_boot_fn_gen2;
++extern unsigned long shmobile_boot_size_gen2;
++extern unsigned long shmobile_wdt_clock_status;
 +#endif /* CONFIG_ARCH_RCAR_GEN2 */
+ extern void shmobile_smp_boot(void);
+ extern void shmobile_smp_sleep(void);
+ extern void shmobile_smp_hook(unsigned int cpu, unsigned long fn,
+diff --git a/arch/arm/mach-shmobile/platsmp-apmu.c b/arch/arm/mach-shmobile/platsmp-apmu.c
+index 4422b61..ba732ef 100644
+--- a/arch/arm/mach-shmobile/platsmp-apmu.c
++++ b/arch/arm/mach-shmobile/platsmp-apmu.c
+@@ -191,6 +191,7 @@ static void __init shmobile_smp_apmu_setup_boot(void)
+ {
+ 	/* install boot code shared by all CPUs */
+ 	shmobile_boot_fn = __pa_symbol(shmobile_smp_boot);
++	shmobile_boot_fn_gen2 = shmobile_boot_fn;
+ }
+ 
+ void __init shmobile_smp_apmu_prepare_cpus(unsigned int max_cpus,
+diff --git a/arch/arm/mach-shmobile/pm-rcar-gen2.c b/arch/arm/mach-shmobile/pm-rcar-gen2.c
+index e5f215c..7158d05 100644
+--- a/arch/arm/mach-shmobile/pm-rcar-gen2.c
++++ b/arch/arm/mach-shmobile/pm-rcar-gen2.c
+@@ -50,6 +50,18 @@ static inline u32 phys_to_sbar(phys_addr_t addr)
+ #define SYSCIER 0x0c
+ #define SYSCIMR 0x10
+ 
++static void __iomem *shmobile_boot_vector_gen2_start = NULL;
++static unsigned long clock_status;
 +
- /*
-  * Per-CPU SMP boot function/argument selection code based on MPIDR
-  */
++void shmobile_set_wdt_clock_status(unsigned long value)
++{
++	if (!shmobile_boot_vector_gen2_start)
++		return;
++	memcpy_toio(shmobile_boot_vector_gen2_start + clock_status,
++		    &value, sizeof(value));
++}
++EXPORT_SYMBOL(shmobile_set_wdt_clock_status);
++
+ #if defined(CONFIG_SMP)
+ 
+ static void __init rcar_gen2_sysc_init(u32 syscier)
+@@ -120,8 +132,17 @@ void __init rcar_gen2_pm_init(void)
+ 	if (!p)
+ 		return;
+ 
+-	memcpy_toio(p, shmobile_boot_vector, shmobile_boot_size);
+-	iounmap(p);
++	if (resource_size(&res) >= shmobile_boot_size_gen2) {
++		memcpy_toio(p, shmobile_boot_vector_gen2,
++			    shmobile_boot_size_gen2);
++		shmobile_boot_vector_gen2_start = p;
++		clock_status = (&shmobile_wdt_clock_status -
++				(unsigned long *)shmobile_boot_vector_gen2) *
++				sizeof(shmobile_wdt_clock_status);
++	} else {
++		memcpy_toio(p, shmobile_boot_vector, shmobile_boot_size);
++	}
++
+ 
+ 	/* setup reset vectors */
+ 	p = ioremap_nocache(RST, 0x63);
 -- 
 2.7.4
