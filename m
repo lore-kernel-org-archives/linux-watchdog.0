@@ -1,74 +1,98 @@
-Return-Path: <fabrizio.castro@bp.renesas.com>
-Return-path: <fabrizio.castro@bp.renesas.com>
-From: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
-To: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-CC: Guenter Roeck <linux@roeck-us.net>, "devicetree@vger.kernel.org"
-	<devicetree@vger.kernel.org>, "linux-watchdog@vger.kernel.org"
-	<linux-watchdog@vger.kernel.org>, "linux-renesas-soc@vger.kernel.org"
-	<linux-renesas-soc@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>, "linux-clk@vger.kernel.org"
-	<linux-clk@vger.kernel.org>, Chris Paterson <Chris.Paterson2@renesas.com>,
-	Biju Das <biju.das@bp.renesas.com>, Ramesh Shanmugasundaram
-	<ramesh.shanmugasundaram@bp.renesas.com>, Philipp Zabel
-	<p.zabel@pengutronix.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland
-	<mark.rutland@arm.com>, Wim Van Sebroeck <wim@iguana.be>, Russell King
-	<linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, "Will
- Deacon" <will.deacon@arm.com>, Michael Turquette <mturquette@baylibre.com>,
-	Stephen Boyd <sboyd@codeaurora.org>, Simon Horman <horms@verge.net.au>,
-	Magnus Damm <magnus.damm@gmail.com>, Geert Uytterhoeven
-	<geert+renesas@glider.be>
-Subject: RE: [RFC 10/37] soc: renesas: rcar-rst: Enable watchdog as reset
- trigger for Gen2
-Date: Fri, 26 Jan 2018 16:59:05 +0000
-Message-ID: <TY1PR06MB0895CA9B4668F49991FD607FC0E00@TY1PR06MB0895.apcprd06.prod.outlook.com>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-pf0-f194.google.com ([209.85.192.194]:35048 "EHLO
+        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751136AbeAZROV (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 26 Jan 2018 12:14:21 -0500
+Date: Fri, 26 Jan 2018 09:14:18 -0800
+From: Guenter Roeck <linux@roeck-us.net>
+To: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
+Cc: Philipp Zabel <p.zabel@pengutronix.de>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@codeaurora.org>,
+        Simon Horman <horms@verge.net.au>,
+        Magnus Damm <magnus.damm@gmail.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        devicetree@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-renesas-soc@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-clk@vger.kernel.org,
+        Chris Paterson <Chris.Paterson2@renesas.com>,
+        Biju Das <biju.das@bp.renesas.com>,
+        Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
+Subject: Re: [RFC 22/37] watchdog: renesas_wdt: Add restart support
+Message-ID: <20180126171418.GA16194@roeck-us.net>
 References: <1516903391-30467-1-git-send-email-fabrizio.castro@bp.renesas.com>
- <1516903391-30467-11-git-send-email-fabrizio.castro@bp.renesas.com>
- <e1670c79-2fef-b45b-4688-a6ba8ebd8c24@cogentembedded.com>
-In-Reply-To: <e1670c79-2fef-b45b-4688-a6ba8ebd8c24@cogentembedded.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+ <1516903391-30467-23-git-send-email-fabrizio.castro@bp.renesas.com>
 MIME-Version: 1.0
-List-ID: <linux-watchdog@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1516903391-30467-23-git-send-email-fabrizio.castro@bp.renesas.com>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-SGVsbG8gU2VyZ2VpLA0KDQp0aGFuayB5b3UgZm9yIHlvdXIgZmVlZGJhY2suDQoNCj4gU3ViamVj
-dDogUmU6IFtSRkMgMTAvMzddIHNvYzogcmVuZXNhczogcmNhci1yc3Q6IEVuYWJsZSB3YXRjaGRv
-ZyBhcyByZXNldCB0cmlnZ2VyIGZvciBHZW4yDQo+DQo+IEhlbGxvIQ0KPg0KPiBPbiAxLzI1LzIw
-MTggOTowMiBQTSwgRmFicml6aW8gQ2FzdHJvIHdyb3RlOg0KPg0KPiA+IFRoaXMgcGF0Y2ggYWxs
-b3dzIGZvciBwbGF0Zm9ybSBzcGVjaWZpYyBxdWlya3MgYXMgc29tZSBvZiB0aGUgU29DIG5lZWQN
-Cj4gPiBmdXJ0aGVyIGN1c3RvbWl6YXRpb24gZm9yIHRoZSB3YXRjaGRvZyB0byB3b3JrIHByb3Bl
-cmx5LCBsaWtlIGZvciBSLUNhcg0KPiA+IEdlbjIgYW5kIGZvciBSWi9HLg0KPiA+DQo+ID4gU2ln
-bmVkLW9mZi1ieTogRmFicml6aW8gQ2FzdHJvIDxmYWJyaXppby5jYXN0cm9AYnAucmVuZXNhcy5j
-b20+DQo+ID4gU2lnbmVkLW9mZi1ieTogUmFtZXNoIFNoYW5tdWdhc3VuZGFyYW0gPHJhbWVzaC5z
-aGFubXVnYXN1bmRhcmFtQGJwLnJlbmVzYXMuY29tPg0KPiA+IC0tLQ0KPiA+ICAgZHJpdmVycy9z
-b2MvcmVuZXNhcy9yY2FyLXJzdC5jIHwgMjEgKysrKysrKysrKysrKysrKysrKystDQo+ID4gICAx
-IGZpbGUgY2hhbmdlZCwgMjAgaW5zZXJ0aW9ucygrKSwgMSBkZWxldGlvbigtKQ0KPiA+DQo+ID4g
-ZGlmZiAtLWdpdCBhL2RyaXZlcnMvc29jL3JlbmVzYXMvcmNhci1yc3QuYyBiL2RyaXZlcnMvc29j
-L3JlbmVzYXMvcmNhci1yc3QuYw0KPiA+IGluZGV4IGY3YTBkNTQuLjVmNTJhZWEgMTAwNjQ0DQo+
-ID4gLS0tIGEvZHJpdmVycy9zb2MvcmVuZXNhcy9yY2FyLXJzdC5jDQo+ID4gKysrIGIvZHJpdmVy
-cy9zb2MvcmVuZXNhcy9yY2FyLXJzdC5jDQo+ID4gQEAgLTEzLDggKzEzLDE4IEBADQo+ID4gICAj
-aW5jbHVkZSA8bGludXgvb2ZfYWRkcmVzcy5oPg0KPiA+ICAgI2luY2x1ZGUgPGxpbnV4L3NvYy9y
-ZW5lc2FzL3JjYXItcnN0Lmg+DQo+ID4NCj4gPiArI2RlZmluZSBXRFRSU1RDUl9SRVNFVDB4QTU1
-QTAwMDINCj4gPiArI2RlZmluZSBXRFRSU1RDUjB4MDA1NA0KPiA+ICsNCj4gPiArc3RhdGljIGlu
-dCBnZW4yX2NvbmZpZ3VyYXRpb24odm9pZCBfX2lvbWVtICpiYXNlKQ0KPiA+ICt7DQo+ID4gK2lv
-d3JpdGUzMihXRFRSU1RDUl9SRVNFVCwgYmFzZSArIFdEVFJTVENSKTsNCj4gPiArcmV0dXJuIDA7
-DQo+ID4gK30NCj4gPiArDQo+ID4gICBzdHJ1Y3QgcnN0X2NvbmZpZyB7DQo+ID4gLXVuc2lnbmVk
-IGludCBtb2RlbXI7LyogTW9kZSBNb25pdG9yaW5nIFJlZ2lzdGVyIE9mZnNldCAqLw0KPiA+ICt1
-bnNpZ25lZCBpbnQgbW9kZW1yOy8qIE1vZGUgTW9uaXRvcmluZyBSZWdpc3RlciBPZmZzZXQgKi8N
-Cj4gPiAraW50ICgqY29uZmlndXJlKSh2b2lkICpiYXNlKTsvKiBQbGF0Zm9ybSBzcGVjaWZpYyBj
-b25maWd1cmF0aW9uICovDQo+ID4gICB9Ow0KPiA+DQo+ID4gICBzdGF0aWMgY29uc3Qgc3RydWN0
-IHJzdF9jb25maWcgcmNhcl9yc3RfZ2VuMSBfX2luaXRjb25zdCA9IHsNCj4gPiBAQCAtMjMsNiAr
-MzMsNyBAQCBzdGF0aWMgY29uc3Qgc3RydWN0IHJzdF9jb25maWcgcmNhcl9yc3RfZ2VuMSBfX2lu
-aXRjb25zdCA9IHsNCj4gPg0KPiA+ICAgc3RhdGljIGNvbnN0IHN0cnVjdCByc3RfY29uZmlnIHJj
-YXJfcnN0X2dlbjIgX19pbml0Y29uc3QgPSB7DQo+ID4gICAubW9kZW1yID0gMHg2MCwNCj4gPiAr
-LmNvbmZpZ3VyZSA9IGdlbjJfY29uZmlndXJhdGlvbiwNCj4NCj4gICAgIFdoeSBub3QgY2FsbCB0
-aGUgbWV0aG9kIGdlbjJfY29uZmlndXJlKCkgdGhlbj8NCg0KWWVhaCwgdGhlIG5hbWUgZ2VuMl9j
-b25maWd1cmF0aW9uIGlzbid0IGdyZWF0IQ0KQXMgeW91IG1heSBoYXZlIG5vdGljZWQgYWxyZWFk
-eSwgR2VlcnQgc3VnZ2VzdGVkIHJjYXJfcnN0X2VuYWJsZV93ZHRfcmVzZXQuDQpJIGFtIGRlZmlu
-aXRlbHkgZ29pbmcgdG8gY2hhbmdlIGl0IChpZiBJIGFtIGtlZXBpbmcgdGhlIGZ1bmN0aW9uIHBv
-aW50ZXIgYXQgYWxsISksIGV4cGVjdCB0byBzZWUgYW5vdGhlciB2ZXJzaW9uIG9mIHRoaXMgcGF0
-Y2ggaW4gdGhlIG5leHQgZmV3IGRheXMgdG8gYWRkcmVzcyB0aGlzLg0KDQpUaGFua3MsDQpGYWIN
-Cg0KPg0KPiBbLi4uXQ0KPg0KPiBNQlIsIFNlcmdlaQ0KDQoNCg0KUmVuZXNhcyBFbGVjdHJvbmlj
-cyBFdXJvcGUgTHRkLCBEdWtlcyBNZWFkb3csIE1pbGxib2FyZCBSb2FkLCBCb3VybmUgRW5kLCBC
-dWNraW5naGFtc2hpcmUsIFNMOCA1RkgsIFVLLiBSZWdpc3RlcmVkIGluIEVuZ2xhbmQgJiBXYWxl
-cyB1bmRlciBSZWdpc3RlcmVkIE5vLiAwNDU4NjcwOS4NCg==
+On Thu, Jan 25, 2018 at 06:02:56PM +0000, Fabrizio Castro wrote:
+> This commit extends the driver to add restart support by implementing
+> the restart callback to trigger the watchdog as quickly as possible.
+> 
+> Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
+> Signed-off-by: Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
+> ---
+>  drivers/watchdog/renesas_wdt.c | 19 +++++++++++++++++++
+>  1 file changed, 19 insertions(+)
+> 
+> diff --git a/drivers/watchdog/renesas_wdt.c b/drivers/watchdog/renesas_wdt.c
+> index 831ef83..120ddac 100644
+> --- a/drivers/watchdog/renesas_wdt.c
+> +++ b/drivers/watchdog/renesas_wdt.c
+> @@ -107,6 +107,24 @@ static unsigned int rwdt_get_timeleft(struct watchdog_device *wdev)
+>  	return DIV_BY_CLKS_PER_SEC(priv, 65536 - val);
+>  }
+>  
+> +static int rwdt_restart(struct watchdog_device *wdev, unsigned long action,
+> +			void *data)
+> +{
+> +	struct rwdt_priv *priv = watchdog_get_drvdata(wdev);
+> +
+> +	pm_runtime_get_sync(wdev->parent);
+> +
+> +	rwdt_write(priv, 0x00, RWTCSRB);
+> +	rwdt_write(priv, 0x00, RWTCSRA);
+> +	rwdt_write(priv, 0xffff, RWTCNT);
+> +
+> +	while (readb_relaxed(priv->base + RWTCSRA) & RWTCSRA_WRFLG)
+> +		cpu_relax();
+
+Can this get stuck forever or should there be a timeout ?
+
+Guenter
+
+> +
+> +	rwdt_write(priv, 0x80, RWTCSRA);
+> +	return 0;
+> +}
+> +
+>  static const struct watchdog_info rwdt_ident = {
+>  	.options = WDIOF_MAGICCLOSE | WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT,
+>  	.identity = "Renesas WDT Watchdog",
+> @@ -118,6 +136,7 @@ static const struct watchdog_ops rwdt_ops = {
+>  	.stop = rwdt_stop,
+>  	.ping = rwdt_init_timeout,
+>  	.get_timeleft = rwdt_get_timeleft,
+> +	.restart = rwdt_restart,
+>  };
+>  
+>  static int rwdt_probe(struct platform_device *pdev)
+> -- 
+> 2.7.4
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
