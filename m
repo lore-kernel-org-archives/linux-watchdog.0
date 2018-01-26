@@ -2,12 +2,12 @@ Return-Path: <geert.uytterhoeven@gmail.com>
 Return-path: <geert.uytterhoeven@gmail.com>
 MIME-Version: 1.0
 Sender: geert.uytterhoeven@gmail.com
-In-Reply-To: <1516903391-30467-8-git-send-email-fabrizio.castro@bp.renesas.com>
-References: <1516903391-30467-1-git-send-email-fabrizio.castro@bp.renesas.com> <1516903391-30467-8-git-send-email-fabrizio.castro@bp.renesas.com>
+In-Reply-To: <1516903391-30467-9-git-send-email-fabrizio.castro@bp.renesas.com>
+References: <1516903391-30467-1-git-send-email-fabrizio.castro@bp.renesas.com> <1516903391-30467-9-git-send-email-fabrizio.castro@bp.renesas.com>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Fri, 26 Jan 2018 10:53:50 +0100
-Message-ID: <CAMuHMdWxCHWioKKjXUrKh_s8MT67SnDFWaeZoPJ7XJu+ibOi+Q@mail.gmail.com>
-Subject: Re: [RFC 07/37] ARM: dts: r8a7793: Adjust SMP routine size
+Date: Fri, 26 Jan 2018 10:54:14 +0100
+Message-ID: <CAMuHMdUFQKsLdw5XT6MGztH8o8FT69gxuZZyW1R_sdth7bw=tQ@mail.gmail.com>
+Subject: Re: [RFC 08/37] ARM: dts: r8a7794: Adjust SMP routine size
 To: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
 Cc: Philipp Zabel <p.zabel@pengutronix.de>, Rob Herring <robh+dt@kernel.org>,
 	Mark Rutland <mark.rutland@arm.com>, Wim Van Sebroeck <wim@iguana.be>,
