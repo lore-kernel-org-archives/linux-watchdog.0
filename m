@@ -2,12 +2,12 @@ Return-Path: <geert.uytterhoeven@gmail.com>
 Return-path: <geert.uytterhoeven@gmail.com>
 MIME-Version: 1.0
 Sender: geert.uytterhoeven@gmail.com
-In-Reply-To: <1516903391-30467-37-git-send-email-fabrizio.castro@bp.renesas.com>
-References: <1516903391-30467-1-git-send-email-fabrizio.castro@bp.renesas.com> <1516903391-30467-37-git-send-email-fabrizio.castro@bp.renesas.com>
+In-Reply-To: <1516903391-30467-38-git-send-email-fabrizio.castro@bp.renesas.com>
+References: <1516903391-30467-1-git-send-email-fabrizio.castro@bp.renesas.com> <1516903391-30467-38-git-send-email-fabrizio.castro@bp.renesas.com>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Fri, 26 Jan 2018 11:32:10 +0100
-Message-ID: <CAMuHMdWMtOV2wWVzbuk7zzPOonV0_uo5EdPDCv2KKjz90P9ZRQ@mail.gmail.com>
-Subject: Re: [RFC 36/37] ARM: dts: iwg20m: Add watchdog support to SoM dtsi
+Date: Fri, 26 Jan 2018 11:32:35 +0100
+Message-ID: <CAMuHMdU+_b6503dea70GuZsrpeQM8WQF1i+Z-RTBo6nYVmhCOQ@mail.gmail.com>
+Subject: Re: [RFC 37/37] ARM: dts: iwg22m: Add watchdog support to SoM dtsi
 To: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
 Cc: Philipp Zabel <p.zabel@pengutronix.de>, Rob Herring <robh+dt@kernel.org>,
 	Mark Rutland <mark.rutland@arm.com>, Wim Van Sebroeck <wim@iguana.be>,
