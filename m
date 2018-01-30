@@ -1,9 +1,9 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Received: from relmlor2.renesas.com ([210.160.252.172]:6241 "EHLO
         relmlie1.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1751753AbeA3UZL (ORCPT
+        by vger.kernel.org with ESMTP id S1751755AbeA3UZR (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 30 Jan 2018 15:25:11 -0500
+        Tue, 30 Jan 2018 15:25:17 -0500
 From: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
 To: Philipp Zabel <p.zabel@pengutronix.de>,
         Rob Herring <robh+dt@kernel.org>,
@@ -25,15 +25,15 @@ Cc: Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org,
         Biju Das <biju.das@bp.renesas.com>,
         Fabrizio Castro <fabrizio.castro@bp.renesas.com>,
         Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
-Subject: [RFC v3 22/25] ARM: dts: r8a7791: Add watchdog support to SoC dtsi
-Date: Tue, 30 Jan 2018 20:22:55 +0000
-Message-Id: <1517343778-27902-23-git-send-email-fabrizio.castro@bp.renesas.com>
+Subject: [RFC v3 23/25] ARM: dts: r8a7794: Add watchdog support to SoC dtsi
+Date: Tue, 30 Jan 2018 20:22:56 +0000
+Message-Id: <1517343778-27902-24-git-send-email-fabrizio.castro@bp.renesas.com>
 In-Reply-To: <1517343778-27902-1-git-send-email-fabrizio.castro@bp.renesas.com>
 References: <1517343778-27902-1-git-send-email-fabrizio.castro@bp.renesas.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This commit adds watchdog support to the r8a7791 dtsi.
+This commit adds watchdog support to the r8a7794 dtsi.
 
 Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
 Signed-off-by: Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
@@ -42,29 +42,29 @@ Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
 v1->v3:
 * rwdt moved before gpio@e6050000
 
- arch/arm/boot/dts/r8a7791.dtsi | 10 ++++++++++
+ arch/arm/boot/dts/r8a7794.dtsi | 10 ++++++++++
  1 file changed, 10 insertions(+)
 
-diff --git a/arch/arm/boot/dts/r8a7791.dtsi b/arch/arm/boot/dts/r8a7791.dtsi
-index d2a4546..80e20ecd 100644
---- a/arch/arm/boot/dts/r8a7791.dtsi
-+++ b/arch/arm/boot/dts/r8a7791.dtsi
-@@ -142,6 +142,16 @@
+diff --git a/arch/arm/boot/dts/r8a7794.dtsi b/arch/arm/boot/dts/r8a7794.dtsi
+index e47c5f4..1c9b149 100644
+--- a/arch/arm/boot/dts/r8a7794.dtsi
++++ b/arch/arm/boot/dts/r8a7794.dtsi
+@@ -119,6 +119,16 @@
  		#size-cells = <2>;
  		ranges;
  
 +		rwdt: watchdog@e6020000 {
-+			compatible = "renesas,r8a7791-wdt",
++			compatible = "renesas,r8a7794-wdt",
 +				     "renesas,rcar-gen2-wdt";
 +			reg = <0 0xe6020000 0 0x0c>;
 +			clocks = <&cpg CPG_MOD 402>;
-+			power-domains = <&sysc R8A7791_PD_ALWAYS_ON>;
++			power-domains = <&sysc R8A7794_PD_ALWAYS_ON>;
 +			resets = <&cpg 402>;
 +			status = "disabled";
 +		};
 +
  		gpio0: gpio@e6050000 {
- 			compatible = "renesas,gpio-r8a7791",
+ 			compatible = "renesas,gpio-r8a7794",
  				     "renesas,rcar-gen2-gpio";
 -- 
 2.7.4
