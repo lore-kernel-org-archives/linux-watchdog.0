@@ -1,9 +1,9 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Received: from relmlor3.renesas.com ([210.160.252.173]:54493 "EHLO
         relmlie2.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1752051AbeA3UX7 (ORCPT
+        by vger.kernel.org with ESMTP id S1752051AbeA3UYE (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 30 Jan 2018 15:23:59 -0500
+        Tue, 30 Jan 2018 15:24:04 -0500
 From: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
 To: Philipp Zabel <p.zabel@pengutronix.de>,
         Rob Herring <robh+dt@kernel.org>,
@@ -25,95 +25,63 @@ Cc: Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org,
         Biju Das <biju.das@bp.renesas.com>,
         Fabrizio Castro <fabrizio.castro@bp.renesas.com>,
         Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
-Subject: [RFC v3 09/25] soc: renesas: rcar-rst: Enable watchdog as reset trigger for Gen2
-Date: Tue, 30 Jan 2018 20:22:42 +0000
-Message-Id: <1517343778-27902-10-git-send-email-fabrizio.castro@bp.renesas.com>
+Subject: [RFC v3 10/25] dt-bindings: watchdog: renesas-wdt: Add R-Car Gen2 support
+Date: Tue, 30 Jan 2018 20:22:43 +0000
+Message-Id: <1517343778-27902-11-git-send-email-fabrizio.castro@bp.renesas.com>
 In-Reply-To: <1517343778-27902-1-git-send-email-fabrizio.castro@bp.renesas.com>
 References: <1517343778-27902-1-git-send-email-fabrizio.castro@bp.renesas.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This patch allows for platform specific quirks as some of the SoC need
-further customization for the watchdog to work properly, like for R-Car
-Gen2 and for RZ/G.
+This commit documents the compatibility with R-Car Gen2 and RZ/G
+devices by defining the generic compatible string "renesas,rcar-gen2-wdt".
+Also, this patch expands the list of SoC-specific compatible strings to
+include RZ/G and R-Car Gen2 devices.
 
 Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
 Signed-off-by: Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
 ---
 v1->v3:
-* gen2_configuration -> rcar_rst_enable_wdt_reset
+* made description less generic and added compatible strings for r8a779[0-4]
 
- drivers/soc/renesas/rcar-rst.c | 35 +++++++++++++++++++++++++++++------
- 1 file changed, 29 insertions(+), 6 deletions(-)
+ .../devicetree/bindings/watchdog/renesas-wdt.txt       | 18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/soc/renesas/rcar-rst.c b/drivers/soc/renesas/rcar-rst.c
-index 3316b02..93febe6 100644
---- a/drivers/soc/renesas/rcar-rst.c
-+++ b/drivers/soc/renesas/rcar-rst.c
-@@ -13,8 +13,18 @@
- #include <linux/of_address.h>
- #include <linux/soc/renesas/rcar-rst.h>
+diff --git a/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt b/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
+index bf6d1ca..a983a74 100644
+--- a/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
++++ b/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
+@@ -1,17 +1,25 @@
+ Renesas Watchdog Timer (WDT) Controller
  
-+#define WDTRSTCR_RESET		0xA55A0002
-+#define WDTRSTCR		0x0054
-+
-+static int rcar_rst_enable_wdt_reset(void __iomem *base)
-+{
-+	iowrite32(WDTRSTCR_RESET, base + WDTRSTCR);
-+	return 0;
-+}
-+
- struct rst_config {
--	unsigned int modemr;	/* Mode Monitoring Register Offset */
-+	unsigned int modemr;		/* Mode Monitoring Register Offset */
-+	int (*configure)(void *base);	/* Platform specific configuration */
- };
+ Required properties:
+-- compatible : Should be "renesas,<soctype>-wdt", and
+-	       "renesas,rcar-gen3-wdt" or "renesas,rza-wdt" as fallback.
++ - compatible : Must be "renesas,<soctype>-wdt", followed by a generic
++		fallback compatible string when compatible with the generic
++		version.
+ 	       Examples with soctypes are:
++		 - "renesas,r8a7743-wdt" (RZ/G1M)
++		 - "renesas,r8a7745-wdt" (RZ/G1E)
++	         - "renesas,r8a7790-wdt" (R-Car H2)
++	         - "renesas,r8a7791-wdt" (R-Car M2-W)
++	         - "renesas,r8a7792-wdt" (R-Car V2H)
++	         - "renesas,r8a7793-wdt" (R-Car M2-N)
++	         - "renesas,r8a7794-wdt" (R-Car E2)
+ 	         - "renesas,r8a7795-wdt" (R-Car H3)
+ 	         - "renesas,r8a7796-wdt" (R-Car M3-W)
+ 	         - "renesas,r8a77995-wdt" (R-Car D3)
+ 	         - "renesas,r7s72100-wdt" (RZ/A1)
++		The generic compatible string must be:
++		 - "renesas,rcar-gen2-wdt" for R-Car Gen2 and RZ/G
++		 - "renesas,rcar-gen3-wdt" for R-Car Gen3
  
- static const struct rst_config rcar_rst_gen1 __initconst = {
-@@ -23,6 +33,11 @@ static const struct rst_config rcar_rst_gen1 __initconst = {
+-  When compatible with the generic version, nodes must list the SoC-specific
+-  version corresponding to the platform first, followed by the generic
+-  version.
  
- static const struct rst_config rcar_rst_gen2 __initconst = {
- 	.modemr = 0x60,
-+	.configure = rcar_rst_enable_wdt_reset,
-+};
-+
-+static const struct rst_config rcar_rst_gen3 __initconst = {
-+	.modemr = 0x60,
- };
- 
- static const struct of_device_id rcar_rst_matches[] __initconst = {
-@@ -38,11 +53,11 @@ static const struct of_device_id rcar_rst_matches[] __initconst = {
- 	{ .compatible = "renesas,r8a7792-rst", .data = &rcar_rst_gen2 },
- 	{ .compatible = "renesas,r8a7793-rst", .data = &rcar_rst_gen2 },
- 	{ .compatible = "renesas,r8a7794-rst", .data = &rcar_rst_gen2 },
--	/* R-Car Gen3 is handled like R-Car Gen2 */
--	{ .compatible = "renesas,r8a7795-rst", .data = &rcar_rst_gen2 },
--	{ .compatible = "renesas,r8a7796-rst", .data = &rcar_rst_gen2 },
--	{ .compatible = "renesas,r8a77970-rst", .data = &rcar_rst_gen2 },
--	{ .compatible = "renesas,r8a77995-rst", .data = &rcar_rst_gen2 },
-+	/* R-Car Gen3 */
-+	{ .compatible = "renesas,r8a7795-rst", .data = &rcar_rst_gen3 },
-+	{ .compatible = "renesas,r8a7796-rst", .data = &rcar_rst_gen3 },
-+	{ .compatible = "renesas,r8a77970-rst", .data = &rcar_rst_gen3 },
-+	{ .compatible = "renesas,r8a77995-rst", .data = &rcar_rst_gen3 },
- 	{ /* sentinel */ }
- };
- 
-@@ -71,6 +86,14 @@ static int __init rcar_rst_init(void)
- 	rcar_rst_base = base;
- 	cfg = match->data;
- 	saved_mode = ioread32(base + cfg->modemr);
-+	if (cfg->configure) {
-+		error = cfg->configure(base);
-+		if (error) {
-+			pr_warn("%pOF: Cannot run SoC specific configuration\n",
-+				np);
-+			goto out_put;
-+		}
-+	}
- 
- 	pr_debug("%pOF: MODE = 0x%08x\n", np, saved_mode);
- 
+ - reg : Should contain WDT registers location and length
+ - clocks : the clock feeding the watchdog timer.
 -- 
 2.7.4
 
