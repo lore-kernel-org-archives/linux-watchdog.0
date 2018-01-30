@@ -1,179 +1,131 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pg0-f65.google.com ([74.125.83.65]:46069 "EHLO
-        mail-pg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750817AbeAUE7N (ORCPT
+Received: from relmlor2.renesas.com ([210.160.252.172]:26272 "EHLO
+        relmlie1.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1751567AbeA3UXI (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 20 Jan 2018 23:59:13 -0500
-Subject: Re: [RFC v8 4/7] platform: x86: Add generic Intel IPC driver
-To: Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        sathyanarayanan.kuppuswamy@linux.intel.com
-Cc: a.zummo@towertech.it, x86@kernel.org, wim@iguana.be,
-        mingo@redhat.com, alexandre.belloni@free-electrons.com,
-        qipeng.zha@intel.com, hpa@zytor.com, dvhart@infradead.org,
-        tglx@linutronix.de, lee.jones@linaro.org, andy@infradead.org,
-        souvik.k.chakravarty@intel.com, linux-rtc@vger.kernel.org,
-        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        platform-driver-x86@vger.kernel.org
-References: <cover.1509268570.git.sathyanarayanan.kuppuswamy@linux.intel.com>
- <5c66498c110e52343d810db9c281fe72d0d299cc.1509268570.git.sathyanarayanan.kuppuswamy@linux.intel.com>
- <20171123132916.GE17418@kuha.fi.intel.com>
-From: sathya <sathyaosid@gmail.com>
-Message-ID: <fc6ed32c-e404-3d69-f3f6-eb4e5d82d928@gmail.com>
-Date: Sat, 20 Jan 2018 20:59:10 -0800
-MIME-Version: 1.0
-In-Reply-To: <20171123132916.GE17418@kuha.fi.intel.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
+        Tue, 30 Jan 2018 15:23:08 -0500
+From: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
+To: Philipp Zabel <p.zabel@pengutronix.de>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@codeaurora.org>,
+        Simon Horman <horms@verge.net.au>,
+        Magnus Damm <magnus.damm@gmail.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org,
+        linux-watchdog@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-clk@vger.kernel.org,
+        Chris Paterson <Chris.Paterson2@renesas.com>,
+        Biju Das <biju.das@bp.renesas.com>,
+        Fabrizio Castro <fabrizio.castro@bp.renesas.com>,
+        Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
+Subject: [RFC v3 00/25] Fix watchdog on Renesas R-Car Gen2 and RZ/G1
+Date: Tue, 30 Jan 2018 20:22:33 +0000
+Message-Id: <1517343778-27902-1-git-send-email-fabrizio.castro@bp.renesas.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Heikki,
+Dear All,
 
+while trying to add watchdog support to RZ/G1M and RZ/G1E I discovered
+that it couldn't work out of the box. R-Car Gen2 and RZ/G1 are very
+similar from a design perspective, and therefore the same problem is
+observable on R-Car Gen2 too.
 
-On 11/23/2017 05:29 AM, Heikki Krogerus wrote:
-> Hi,
->
-> On Sun, Oct 29, 2017 at 02:49:57AM -0700, sathyanarayanan.kuppuswamy@linux.intel.com wrote:
->> +/**
->> + * devm_intel_ipc_dev_create() - Create IPC device
->> + * @dev		: IPC parent device.
->> + * @devname	: Name of the IPC device.
->> + * @cfg		: IPC device configuration.
->> + * @ops		: IPC device ops.
->> + *
->> + * Resource managed API to create IPC device with
->> + * given configuration.
->> + *
->> + * Return	: IPC device pointer or ERR_PTR(error code).
->> + */
->> +struct intel_ipc_dev *devm_intel_ipc_dev_create(struct device *dev,
->> +		const char *devname,
->> +		struct intel_ipc_dev_cfg *cfg,
->> +		struct intel_ipc_dev_ops *ops)
->> +{
->> +	struct intel_ipc_dev **ptr, *ipc_dev;
->> +	int ret;
->> +
->> +	if (!dev && !devname && !cfg)
->> +		return ERR_PTR(-EINVAL);
->> +
->> +	if (intel_ipc_dev_get(devname)) {
->> +		dev_err(dev, "IPC device %s already exist\n", devname);
->> +		return ERR_PTR(-EINVAL);
->> +	}
->> +
->> +	ptr = devres_alloc(devm_intel_ipc_dev_release, sizeof(*ptr),
->> +			GFP_KERNEL);
->> +	if (!ptr)
->> +		return ERR_PTR(-ENOMEM);
->> +
->> +	ipc_dev = kzalloc(sizeof(*ipc_dev), GFP_KERNEL);
->> +	if (!ipc_dev) {
->> +		ret = -ENOMEM;
->> +		goto err_dev_create;
->> +	}
->> +
->> +	ipc_dev->dev.class = &intel_ipc_class;
->> +	ipc_dev->dev.parent = dev;
->> +	ipc_dev->dev.groups = ipc_dev_groups;
->> +	ipc_dev->cfg = cfg;
->> +	ipc_dev->ops = ops;
->> +
->> +	mutex_init(&ipc_dev->lock);
->> +	init_completion(&ipc_dev->cmd_complete);
->> +	dev_set_drvdata(&ipc_dev->dev, ipc_dev);
->> +	dev_set_name(&ipc_dev->dev, devname);
->> +	device_initialize(&ipc_dev->dev);
->> +
->> +	ret = device_add(&ipc_dev->dev);
->> +	if (ret < 0) {
->> +		dev_err(&ipc_dev->dev, "%s device create failed\n",
->> +				__func__);
->> +		ret = -ENODEV;
->> +		goto err_dev_add;
->> +	}
->> +
->> +	if (ipc_dev->cfg->mode == IPC_DEV_MODE_IRQ) {
->> +		if (devm_request_irq(&ipc_dev->dev,
->> +				ipc_dev->cfg->irq,
->> +				ipc_dev_irq_handler,
->> +				ipc_dev->cfg->irqflags,
->> +				dev_name(&ipc_dev->dev),
->> +				ipc_dev)) {
->> +			dev_err(&ipc_dev->dev,
->> +					"Failed to request irq\n");
->> +			goto err_irq_request;
->> +		}
->> +	}
-> That looks really wrong to me. This is the class driver, so why are
-> you handling the interrupts of the devices in it? You are clearly
-> making assumption that the interrupt will always be used only for
-> command completion, but that may not be the case. No assumptions.
-Yes. I only considered the current usage. But I agree with your
-comment. I will fix it in next version.
->
-> Just define completion callbacks, and let the drivers handle the
-> actual interrupts.
->
->> +	*ptr = ipc_dev;
->> +
->> +	devres_add(dev, ptr);
->> +	return ipc_dev;
->> +
->> +err_irq_request:
->> +	device_del(&ipc_dev->dev);
->> +err_dev_add:
->> +	kfree(ipc_dev);
->> +err_dev_create:
->> +	devres_free(ptr);
->> +	return ERR_PTR(ret);
->> +}
->> +EXPORT_SYMBOL_GPL(devm_intel_ipc_dev_create);
->> +
->> +static int __init intel_ipc_init(void)
->> +{
->> +	ipc_channel_lock_init();
->> +	return class_register(&intel_ipc_class);
->> +}
->> +
->> +static void __exit intel_ipc_exit(void)
->> +{
->> +	class_unregister(&intel_ipc_class);
->> +}
->> +subsys_initcall(intel_ipc_init);
->> +module_exit(intel_ipc_exit);
->> +
->> +MODULE_LICENSE("GPL v2");
->> +MODULE_AUTHOR("Kuppuswamy Sathyanarayanan<sathyanarayanan.kuppuswamy@linux.intel.com>");
->> +MODULE_DESCRIPTION("Intel IPC device class driver");
-> To be honest, creating an extra logical device for the IPC hosts, and
-> the entire class, all feel unnecessarily complex to me.
+To deal with SMP on R-Car Gen2 and RZ/G1, we install a reset vector
+to ICRAM1 and we program the [S]BAR registers so that when we turn ON
+the non-boot CPUs they are redirected to the reset vector installed by
+Linux in ICRAM1, and eventually they continue the execution to RAM,
+where the SMP bring-up code will take care of the rest.
+The content of the [S]BAR registers survives a watchdog triggered reset,
+and as such after the watchdog fires the boot core will try and execute
+the SMP bring-up code instead of jumping to the bootrom code.
 
-I want to avoid client drivers using different APIs to call everyone of 
-these IPC drivers. One
-solution for this issue is to use name of the device to get the device 
-pointer and then use
-that pointer in common API to make IPC calls. This solution is similar 
-to whats used in
-extcon framework.
+This series is a proposal for a fix to the aforementioned problem.
+The main strategy for the solution is to let the reset vector decide
+if it needs to jump to shmobile_boot_fn or to the bootrom code.
+In a watchdog triggered reset scenario, since the [S]BAR registers keep
+their values, the boot CPU will jump into the newly designed reset
+vector, the assembly routine will eventually test WOVF (a bit in register
+RWTCSRA that indicates if the watchdog counter has overflown, the value
+of this bit gets retained in this scenario), and jump to the bootrom code
+which will in turn load up the bootloader, etc.
+When bringing up SMP or using CPU hotplug, the reset vector will jump
+to shmobile_boot_fn instead.
 
-To implement this model either we have to use class type to group all 
-these devices or
-implement a custom list to keep the references for all these devices.
+v3 takes into account all the feedbacks recieved, and implements a
+different logic in the reset vector in order to get rid of
+shmobile_wdt_clock_status.
 
-I preferred to go with class based grouping, so that I can use 
-class_find_device() API to
-get the device pointer.
+This work was rebased on top of tag renesas-devel-20180122-v4.15-rc9
+from the below repository:
+git://git.kernel.org/pub/scm/linux/kernel/git/horms/renesas.git
 
->
-> The goal of this patch should be possible to achieve in a much simpler
-> and flexible way. IMO this patch needs to be redesigned.
-I am open for suggestions. I will send a separate mail to you discuss 
-about the further
-details.
->
->
-> Thanks,
->
+What do you guys think about this?
+
+Any volunteer for testing this work?
+
+Comments welcome!
+
+Best Regards,
+
+Fabrizio Castro (25):
+  ARM: shmobile: Add watchdog support
+  ARM: dts: r8a7743: Adjust SMP routine size
+  ARM: dts: r8a7745: Adjust SMP routine size
+  ARM: dts: r8a7790: Adjust SMP routine size
+  ARM: dts: r8a7791: Adjust SMP routine size
+  ARM: dts: r8a7792: Adjust SMP routine size
+  ARM: dts: r8a7793: Adjust SMP routine size
+  ARM: dts: r8a7794: Adjust SMP routine size
+  soc: renesas: rcar-rst: Enable watchdog as reset trigger for Gen2
+  dt-bindings: watchdog: renesas-wdt: Add R-Car Gen2 support
+  watchdog: renesas_wdt: Add R-Car Gen2 support
+  ARM: shmobile: rcar-gen2: Add watchdog support
+  ARM: shmobile: defconfig: Enable RENESAS_WDT_GEN
+  clk: renesas: r8a7743: Add rwdt clock
+  clk: renesas: r8a7745: Add rwdt clock
+  clk: renesas: r8a7790: Add rwdt clock
+  clk: renesas: r8a7791/r8a7793: Add rwdt clock
+  clk: renesas: r8a7794: Add rwdt clock
+  ARM: dts: r8a7743: Add watchdog support to SoC dtsi
+  ARM: dts: r8a7745: Add watchdog support to SoC dtsi
+  ARM: dts: r8a7790: Add watchdog support to SoC dtsi
+  ARM: dts: r8a7791: Add watchdog support to SoC dtsi
+  ARM: dts: r8a7794: Add watchdog support to SoC dtsi
+  ARM: dts: iwg20m: Add watchdog support to SoM dtsi
+  ARM: dts: iwg22m: Add watchdog support to SoM dtsi
+
+ .../devicetree/bindings/watchdog/renesas-wdt.txt   | 18 +++++--
+ arch/arm/boot/dts/r8a7743-iwg20m.dtsi              |  5 ++
+ arch/arm/boot/dts/r8a7743.dtsi                     | 12 ++++-
+ arch/arm/boot/dts/r8a7745-iwg22m.dtsi              |  5 ++
+ arch/arm/boot/dts/r8a7745.dtsi                     | 12 ++++-
+ arch/arm/boot/dts/r8a7790.dtsi                     | 12 ++++-
+ arch/arm/boot/dts/r8a7791.dtsi                     | 12 ++++-
+ arch/arm/boot/dts/r8a7792.dtsi                     |  2 +-
+ arch/arm/boot/dts/r8a7793.dtsi                     |  2 +-
+ arch/arm/boot/dts/r8a7794.dtsi                     | 12 ++++-
+ arch/arm/configs/shmobile_defconfig                |  1 +
+ arch/arm/mach-shmobile/common.h                    |  6 +++
+ arch/arm/mach-shmobile/headsmp.S                   | 55 +++++++++++++++++++
+ arch/arm/mach-shmobile/platsmp-apmu.c              |  1 +
+ arch/arm/mach-shmobile/pm-rcar-gen2.c              | 13 +++--
+ drivers/clk/renesas/r8a7743-cpg-mssr.c             |  2 +
+ drivers/clk/renesas/r8a7745-cpg-mssr.c             |  2 +
+ drivers/clk/renesas/r8a7790-cpg-mssr.c             |  2 +
+ drivers/clk/renesas/r8a7791-cpg-mssr.c             |  2 +
+ drivers/clk/renesas/r8a7794-cpg-mssr.c             |  2 +
+ drivers/soc/renesas/rcar-rst.c                     | 35 ++++++++++---
+ drivers/watchdog/renesas_wdt.c                     | 61 ++++++++++++++++++++--
+ 22 files changed, 248 insertions(+), 26 deletions(-)
+
+-- 
+2.7.4
 
