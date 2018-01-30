@@ -1,9 +1,9 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from relmlor4.renesas.com ([210.160.252.174]:61699 "EHLO
-        relmlie3.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1752051AbeA3UYQ (ORCPT
+Received: from relmlor2.renesas.com ([210.160.252.172]:6160 "EHLO
+        relmlie1.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1752134AbeA3UYV (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 30 Jan 2018 15:24:16 -0500
+        Tue, 30 Jan 2018 15:24:21 -0500
 From: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
 To: Philipp Zabel <p.zabel@pengutronix.de>,
         Rob Herring <robh+dt@kernel.org>,
@@ -25,81 +25,38 @@ Cc: Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org,
         Biju Das <biju.das@bp.renesas.com>,
         Fabrizio Castro <fabrizio.castro@bp.renesas.com>,
         Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
-Subject: [RFC v3 12/25] ARM: shmobile: rcar-gen2: Add watchdog support
-Date: Tue, 30 Jan 2018 20:22:45 +0000
-Message-Id: <1517343778-27902-13-git-send-email-fabrizio.castro@bp.renesas.com>
+Subject: [RFC v3 13/25] ARM: shmobile: defconfig: Enable CONFIG_RENESAS_WDT
+Date: Tue, 30 Jan 2018 20:22:46 +0000
+Message-Id: <1517343778-27902-14-git-send-email-fabrizio.castro@bp.renesas.com>
 In-Reply-To: <1517343778-27902-1-git-send-email-fabrizio.castro@bp.renesas.com>
 References: <1517343778-27902-1-git-send-email-fabrizio.castro@bp.renesas.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This patch adds watchdog support by installing shmobile_boot_vector_gen2
-to ICRAM1 when enough memory is available, in which case we also keep a
-copy of MPIDR to complete the reset vector logic.
+R-Car Gen2 and RZ/G1 platforms come with a watchdog IP, therefore enable
+its driver by default.
 
 Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
 Signed-off-by: Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
 ---
-v2->v3:
-* purge shmobile_wdt_clock status and save mpidr of boot cpu
+v1->v3:
+* CONFIG_RENESAS_WDT_GEN2 -> CONFIG_RENESAS_WDT
 
-v1->v2:
-* make the reset vector backward compatible
+ arch/arm/configs/shmobile_defconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
- arch/arm/mach-shmobile/platsmp-apmu.c |  1 +
- arch/arm/mach-shmobile/pm-rcar-gen2.c | 13 ++++++++++---
- 2 files changed, 11 insertions(+), 3 deletions(-)
-
-diff --git a/arch/arm/mach-shmobile/platsmp-apmu.c b/arch/arm/mach-shmobile/platsmp-apmu.c
-index 4422b61..ba732ef 100644
---- a/arch/arm/mach-shmobile/platsmp-apmu.c
-+++ b/arch/arm/mach-shmobile/platsmp-apmu.c
-@@ -191,6 +191,7 @@ static void __init shmobile_smp_apmu_setup_boot(void)
- {
- 	/* install boot code shared by all CPUs */
- 	shmobile_boot_fn = __pa_symbol(shmobile_smp_boot);
-+	shmobile_boot_fn_gen2 = shmobile_boot_fn;
- }
- 
- void __init shmobile_smp_apmu_prepare_cpus(unsigned int max_cpus,
-diff --git a/arch/arm/mach-shmobile/pm-rcar-gen2.c b/arch/arm/mach-shmobile/pm-rcar-gen2.c
-index e5f215c..bfad202 100644
---- a/arch/arm/mach-shmobile/pm-rcar-gen2.c
-+++ b/arch/arm/mach-shmobile/pm-rcar-gen2.c
-@@ -17,6 +17,7 @@
- #include <linux/smp.h>
- #include <linux/soc/renesas/rcar-sysc.h>
- #include <asm/io.h>
-+#include <asm/cputype.h>
- #include "common.h"
- #include "rcar-gen2.h"
- 
-@@ -37,7 +38,6 @@
- #define CA7RESCNT_CODE	0x5a5a0000
- #define CA7RESCNT_CPUS	0xf		/* CPU0-3 */
- 
--
- /* On-chip RAM */
- #define ICRAM1		0xe63c0000	/* Inter Connect RAM1 (4 KiB) */
- 
-@@ -119,8 +119,15 @@ void __init rcar_gen2_pm_init(void)
- 	p = ioremap(res.start, resource_size(&res));
- 	if (!p)
- 		return;
--
--	memcpy_toio(p, shmobile_boot_vector, shmobile_boot_size);
-+	/* install the reset vector, use the largest version if we have enough
-+	 * memory available */
-+	if (resource_size(&res) >= shmobile_boot_size_gen2) {
-+		shmobile_boot_cpu_gen2 = read_cpuid_mpidr();
-+		memcpy_toio(p, shmobile_boot_vector_gen2,
-+			    shmobile_boot_size_gen2);
-+	} else {
-+		memcpy_toio(p, shmobile_boot_vector, shmobile_boot_size);
-+	}
- 	iounmap(p);
- 
- 	/* setup reset vectors */
+diff --git a/arch/arm/configs/shmobile_defconfig b/arch/arm/configs/shmobile_defconfig
+index 578434c..d5cdad8 100644
+--- a/arch/arm/configs/shmobile_defconfig
++++ b/arch/arm/configs/shmobile_defconfig
+@@ -132,6 +132,7 @@ CONFIG_CPU_THERMAL=y
+ CONFIG_RCAR_THERMAL=y
+ CONFIG_WATCHDOG=y
+ CONFIG_DA9063_WATCHDOG=y
++CONFIG_RENESAS_WDT=y
+ CONFIG_MFD_AS3711=y
+ CONFIG_MFD_DA9063=y
+ CONFIG_REGULATOR_FIXED_VOLTAGE=y
 -- 
 2.7.4
 
