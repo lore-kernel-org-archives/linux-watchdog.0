@@ -1,9 +1,9 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from relmlor2.renesas.com ([210.160.252.172]:6139 "EHLO
-        relmlie1.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1752051AbeA3UYL (ORCPT
+Received: from relmlor4.renesas.com ([210.160.252.174]:61699 "EHLO
+        relmlie3.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1752051AbeA3UYQ (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 30 Jan 2018 15:24:11 -0500
+        Tue, 30 Jan 2018 15:24:16 -0500
 From: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
 To: Philipp Zabel <p.zabel@pengutronix.de>,
         Rob Herring <robh+dt@kernel.org>,
@@ -25,127 +25,81 @@ Cc: Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org,
         Biju Das <biju.das@bp.renesas.com>,
         Fabrizio Castro <fabrizio.castro@bp.renesas.com>,
         Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
-Subject: [RFC v3 11/25] watchdog: renesas_wdt: Add R-Car Gen2 support
-Date: Tue, 30 Jan 2018 20:22:44 +0000
-Message-Id: <1517343778-27902-12-git-send-email-fabrizio.castro@bp.renesas.com>
+Subject: [RFC v3 12/25] ARM: shmobile: rcar-gen2: Add watchdog support
+Date: Tue, 30 Jan 2018 20:22:45 +0000
+Message-Id: <1517343778-27902-13-git-send-email-fabrizio.castro@bp.renesas.com>
 In-Reply-To: <1517343778-27902-1-git-send-email-fabrizio.castro@bp.renesas.com>
 References: <1517343778-27902-1-git-send-email-fabrizio.castro@bp.renesas.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On R-Car Gen2 and RZ/G1 the rwdt clock needs to be always ON, therefore
-when suspending to RAM we need to explicitly disable the counting by
-clearing TME from RWTCSRA.
-Also, on some systems RWDT is the only piece of HW that allows the SoC
-to be restarted, therefore this patch implements the restart callback.
+This patch adds watchdog support by installing shmobile_boot_vector_gen2
+to ICRAM1 when enough memory is available, in which case we also keep a
+copy of MPIDR to complete the reset vector logic.
 
 Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
 Signed-off-by: Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
 ---
-Wolfram, was the restart callback implementation missing for a reason?
-Is its implementation going to break any Gen3 platform?
+v2->v3:
+* purge shmobile_wdt_clock status and save mpidr of boot cpu
 
-v1->v3:
-* unified Gen2 and Gen3 drivers.
+v1->v2:
+* make the reset vector backward compatible
 
- drivers/watchdog/renesas_wdt.c | 61 ++++++++++++++++++++++++++++++++++++++----
- 1 file changed, 56 insertions(+), 5 deletions(-)
+ arch/arm/mach-shmobile/platsmp-apmu.c |  1 +
+ arch/arm/mach-shmobile/pm-rcar-gen2.c | 13 ++++++++++---
+ 2 files changed, 11 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/watchdog/renesas_wdt.c b/drivers/watchdog/renesas_wdt.c
-index 831ef83..eedb016 100644
---- a/drivers/watchdog/renesas_wdt.c
-+++ b/drivers/watchdog/renesas_wdt.c
-@@ -107,6 +107,24 @@ static unsigned int rwdt_get_timeleft(struct watchdog_device *wdev)
- 	return DIV_BY_CLKS_PER_SEC(priv, 65536 - val);
+diff --git a/arch/arm/mach-shmobile/platsmp-apmu.c b/arch/arm/mach-shmobile/platsmp-apmu.c
+index 4422b61..ba732ef 100644
+--- a/arch/arm/mach-shmobile/platsmp-apmu.c
++++ b/arch/arm/mach-shmobile/platsmp-apmu.c
+@@ -191,6 +191,7 @@ static void __init shmobile_smp_apmu_setup_boot(void)
+ {
+ 	/* install boot code shared by all CPUs */
+ 	shmobile_boot_fn = __pa_symbol(shmobile_smp_boot);
++	shmobile_boot_fn_gen2 = shmobile_boot_fn;
  }
  
-+static int rwdt_restart(struct watchdog_device *wdev, unsigned long action,
-+			void *data)
-+{
-+	struct rwdt_priv *priv = watchdog_get_drvdata(wdev);
-+
-+	pm_runtime_get_sync(wdev->parent);
-+
-+	rwdt_write(priv, 0x00, RWTCSRB);
-+	rwdt_write(priv, 0x00, RWTCSRA);
-+	rwdt_write(priv, 0xffff, RWTCNT);
-+
-+	while (readb_relaxed(priv->base + RWTCSRA) & RWTCSRA_WRFLG)
-+		cpu_relax();
-+
-+	rwdt_write(priv, 0x80, RWTCSRA);
-+	return 0;
-+}
-+
- static const struct watchdog_info rwdt_ident = {
- 	.options = WDIOF_MAGICCLOSE | WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT,
- 	.identity = "Renesas WDT Watchdog",
-@@ -118,6 +136,7 @@ static const struct watchdog_ops rwdt_ops = {
- 	.stop = rwdt_stop,
- 	.ping = rwdt_init_timeout,
- 	.get_timeleft = rwdt_get_timeleft,
-+	.restart = rwdt_restart,
- };
+ void __init shmobile_smp_apmu_prepare_cpus(unsigned int max_cpus,
+diff --git a/arch/arm/mach-shmobile/pm-rcar-gen2.c b/arch/arm/mach-shmobile/pm-rcar-gen2.c
+index e5f215c..bfad202 100644
+--- a/arch/arm/mach-shmobile/pm-rcar-gen2.c
++++ b/arch/arm/mach-shmobile/pm-rcar-gen2.c
+@@ -17,6 +17,7 @@
+ #include <linux/smp.h>
+ #include <linux/soc/renesas/rcar-sysc.h>
+ #include <asm/io.h>
++#include <asm/cputype.h>
+ #include "common.h"
+ #include "rcar-gen2.h"
  
- static int rwdt_probe(struct platform_device *pdev)
-@@ -203,13 +222,42 @@ static int rwdt_remove(struct platform_device *pdev)
- 	return 0;
- }
+@@ -37,7 +38,6 @@
+ #define CA7RESCNT_CODE	0x5a5a0000
+ #define CA7RESCNT_CPUS	0xf		/* CPU0-3 */
  
--/*
-- * This driver does also fit for R-Car Gen2 (r8a779[0-4]) WDT. However, for SMP
-- * to work there, one also needs a RESET (RST) driver which does not exist yet
-- * due to HW issues. This needs to be solved before adding compatibles here.
-- */
-+#ifdef CONFIG_PM
-+static int rwdt_suspend(struct device *dev)
-+{
-+	struct platform_device *pdev;
-+	struct rwdt_priv *priv;
-+
-+	pdev = to_platform_device(dev);
-+	priv = platform_get_drvdata(pdev);
-+	if (watchdog_active(&priv->wdev)) {
-+		rwdt_write(priv, priv->cks, RWTCSRA);
+-
+ /* On-chip RAM */
+ #define ICRAM1		0xe63c0000	/* Inter Connect RAM1 (4 KiB) */
+ 
+@@ -119,8 +119,15 @@ void __init rcar_gen2_pm_init(void)
+ 	p = ioremap(res.start, resource_size(&res));
+ 	if (!p)
+ 		return;
+-
+-	memcpy_toio(p, shmobile_boot_vector, shmobile_boot_size);
++	/* install the reset vector, use the largest version if we have enough
++	 * memory available */
++	if (resource_size(&res) >= shmobile_boot_size_gen2) {
++		shmobile_boot_cpu_gen2 = read_cpuid_mpidr();
++		memcpy_toio(p, shmobile_boot_vector_gen2,
++			    shmobile_boot_size_gen2);
++	} else {
++		memcpy_toio(p, shmobile_boot_vector, shmobile_boot_size);
 +	}
-+	return 0;
-+}
-+
-+static int rwdt_resume(struct device *dev)
-+{
-+	struct platform_device *pdev;
-+	struct rwdt_priv *priv;
-+
-+	pdev = to_platform_device(dev);
-+	priv = platform_get_drvdata(pdev);
-+	if (watchdog_active(&priv->wdev)) {
-+		rwdt_write(priv, priv->cks | RWTCSRA_TME, RWTCSRA);
-+	}
-+	return 0;
-+}
-+
-+static const struct dev_pm_ops rwdt_pm = {
-+	.suspend = rwdt_suspend,
-+	.resume = rwdt_resume,
-+};
-+#endif
-+
- static const struct of_device_id rwdt_ids[] = {
- 	{ .compatible = "renesas,rcar-gen3-wdt", },
-+	{ .compatible = "renesas,rcar-gen2-wdt", },
- 	{ /* sentinel */ }
- };
- MODULE_DEVICE_TABLE(of, rwdt_ids);
-@@ -218,6 +266,9 @@ static struct platform_driver rwdt_driver = {
- 	.driver = {
- 		.name = "renesas_wdt",
- 		.of_match_table = rwdt_ids,
-+#ifdef CONFIG_PM
-+		.pm = &rwdt_pm,
-+#endif
- 	},
- 	.probe = rwdt_probe,
- 	.remove = rwdt_remove,
+ 	iounmap(p);
+ 
+ 	/* setup reset vectors */
 -- 
 2.7.4
 
