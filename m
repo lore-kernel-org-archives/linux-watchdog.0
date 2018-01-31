@@ -1,9 +1,9 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from relmlor2.renesas.com ([210.160.252.172]:15993 "EHLO
-        relmlie1.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1751435AbeAaS1U (ORCPT
+Received: from relmlor4.renesas.com ([210.160.252.174]:27228 "EHLO
+        relmlie3.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1751647AbeAaS11 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 31 Jan 2018 13:27:20 -0500
+        Wed, 31 Jan 2018 13:27:27 -0500
 From: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
 To: Philipp Zabel <p.zabel@pengutronix.de>,
         Rob Herring <robh+dt@kernel.org>,
@@ -25,9 +25,9 @@ Cc: Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org,
         Biju Das <biju.das@bp.renesas.com>,
         Fabrizio Castro <fabrizio.castro@bp.renesas.com>,
         Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
-Subject: [RFC v4 25/26] ARM: dts: iwg20m: Add watchdog support to SoM dtsi
-Date: Wed, 31 Jan 2018 18:24:29 +0000
-Message-Id: <1517423070-24236-26-git-send-email-fabrizio.castro@bp.renesas.com>
+Subject: [RFC v4 26/26] ARM: dts: iwg22m: Add watchdog support to SoM dtsi
+Date: Wed, 31 Jan 2018 18:24:30 +0000
+Message-Id: <1517423070-24236-27-git-send-email-fabrizio.castro@bp.renesas.com>
 In-Reply-To: <1517423070-24236-1-git-send-email-fabrizio.castro@bp.renesas.com>
 References: <1517423070-24236-1-git-send-email-fabrizio.castro@bp.renesas.com>
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -42,13 +42,13 @@ Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
 v3->4:
 * no change
 
- arch/arm/boot/dts/r8a7743-iwg20m.dtsi | 5 +++++
+ arch/arm/boot/dts/r8a7745-iwg22m.dtsi | 5 +++++
  1 file changed, 5 insertions(+)
 
-diff --git a/arch/arm/boot/dts/r8a7743-iwg20m.dtsi b/arch/arm/boot/dts/r8a7743-iwg20m.dtsi
-index 1d3e950..d364685 100644
---- a/arch/arm/boot/dts/r8a7743-iwg20m.dtsi
-+++ b/arch/arm/boot/dts/r8a7743-iwg20m.dtsi
+diff --git a/arch/arm/boot/dts/r8a7745-iwg22m.dtsi b/arch/arm/boot/dts/r8a7745-iwg22m.dtsi
+index 8d0a392b..29b6e10 100644
+--- a/arch/arm/boot/dts/r8a7745-iwg22m.dtsi
++++ b/arch/arm/boot/dts/r8a7745-iwg22m.dtsi
 @@ -91,6 +91,11 @@
  	};
  };
@@ -58,8 +58,8 @@ index 1d3e950..d364685 100644
 +	status = "okay";
 +};
 +
- &sdhi0 {
- 	pinctrl-0 = <&sdhi0_pins>;
+ &sdhi1 {
+ 	pinctrl-0 = <&sdhi1_pins>;
  	pinctrl-names = "default";
 -- 
 2.7.4
