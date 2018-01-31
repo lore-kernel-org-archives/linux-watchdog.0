@@ -1,9 +1,9 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from relmlor3.renesas.com ([210.160.252.173]:13526 "EHLO
-        relmlie2.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1751217AbeAaSYy (ORCPT
+Received: from relmlor2.renesas.com ([210.160.252.172]:7983 "EHLO
+        relmlie1.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1751326AbeAaSYz (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 31 Jan 2018 13:24:54 -0500
+        Wed, 31 Jan 2018 13:24:55 -0500
 From: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
 To: Philipp Zabel <p.zabel@pengutronix.de>,
         Rob Herring <robh+dt@kernel.org>,
@@ -25,86 +25,41 @@ Cc: Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org,
         Biju Das <biju.das@bp.renesas.com>,
         Fabrizio Castro <fabrizio.castro@bp.renesas.com>,
         Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
-Subject: [RFC v4 00/26] Fix watchdog on Renesas R-Car Gen2 and RZ/G1
-Date: Wed, 31 Jan 2018 18:24:04 +0000
-Message-Id: <1517423070-24236-1-git-send-email-fabrizio.castro@bp.renesas.com>
+Subject: [RFC v4 02/26] ARM: dts: r8a7743: Adjust SMP routine size
+Date: Wed, 31 Jan 2018 18:24:06 +0000
+Message-Id: <1517423070-24236-3-git-send-email-fabrizio.castro@bp.renesas.com>
+In-Reply-To: <1517423070-24236-1-git-send-email-fabrizio.castro@bp.renesas.com>
+References: <1517423070-24236-1-git-send-email-fabrizio.castro@bp.renesas.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Dear All,
+This patch adjusts the definition of the SMP routine size according
+to the latest changes made by commit:
+"ARM: shmobile: Add watchdog support"
 
-the forth version of this series aims at consolidating the watchdog fix.
-There is a discussion still in progress about the changes to the
-watchdog driver, please see the following for more information:
-https://patchwork.kernel.org/patch/10192435/
+Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
+Signed-off-by: Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+---
+v3->4:
+* no change
 
-It doesn't look like leaving the restart handler in for Gen3 is going
-to do any harm (but it may be unwelcome), perhaps esplicitly setting
-its priority to a medium level (128) will help its adoption on Gen3
-as well? This is what this particular version is proposing.
+ arch/arm/boot/dts/r8a7743.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Also, although the latest implmentation of the reset vector hasn't
-raised any problem so far, it hasn't received any feedback either.
-Please do look into it to espose problems and weaknesses (if any).
-
-Finally, it would be great if someone could test this patch set on his
-Gen2/Gen3/RZ/G1 board, and it would be awesome if that board was a
-Lager with all of the cores enabled and working at the same time ;-)
-
-Best Regards,
-
-Fabrizio Castro (26):
-  ARM: shmobile: Add watchdog support
-  ARM: dts: r8a7743: Adjust SMP routine size
-  ARM: dts: r8a7745: Adjust SMP routine size
-  ARM: dts: r8a7790: Adjust SMP routine size
-  ARM: dts: r8a7791: Adjust SMP routine size
-  ARM: dts: r8a7792: Adjust SMP routine size
-  ARM: dts: r8a7793: Adjust SMP routine size
-  ARM: dts: r8a7794: Adjust SMP routine size
-  soc: renesas: rcar-rst: Enable watchdog as reset trigger for Gen2
-  ARM: shmobile: rcar-gen2: Add watchdog support
-  dt-bindings: watchdog: renesas-wdt: Add R-Car Gen2 support
-  watchdog: renesas_wdt: Add R-Car Gen2 support
-  watchdog: renesas_wdt: Add restart handler
-  ARM: shmobile: defconfig: Enable RENESAS_WDT_GEN
-  clk: renesas: r8a7743: Add rwdt clock
-  clk: renesas: r8a7745: Add rwdt clock
-  clk: renesas: r8a7790: Add rwdt clock
-  clk: renesas: r8a7791/r8a7793: Add rwdt clock
-  clk: renesas: r8a7794: Add rwdt clock
-  ARM: dts: r8a7743: Add watchdog support to SoC dtsi
-  ARM: dts: r8a7745: Add watchdog support to SoC dtsi
-  ARM: dts: r8a7790: Add watchdog support to SoC dtsi
-  ARM: dts: r8a7791: Add watchdog support to SoC dtsi
-  ARM: dts: r8a7794: Add watchdog support to SoC dtsi
-  ARM: dts: iwg20m: Add watchdog support to SoM dtsi
-  ARM: dts: iwg22m: Add watchdog support to SoM dtsi
-
- .../devicetree/bindings/watchdog/renesas-wdt.txt   | 19 +++++--
- arch/arm/boot/dts/r8a7743-iwg20m.dtsi              |  5 ++
- arch/arm/boot/dts/r8a7743.dtsi                     | 12 ++++-
- arch/arm/boot/dts/r8a7745-iwg22m.dtsi              |  5 ++
- arch/arm/boot/dts/r8a7745.dtsi                     | 12 ++++-
- arch/arm/boot/dts/r8a7790.dtsi                     | 12 ++++-
- arch/arm/boot/dts/r8a7791.dtsi                     | 12 ++++-
- arch/arm/boot/dts/r8a7792.dtsi                     |  2 +-
- arch/arm/boot/dts/r8a7793.dtsi                     |  2 +-
- arch/arm/boot/dts/r8a7794.dtsi                     | 12 ++++-
- arch/arm/configs/shmobile_defconfig                |  1 +
- arch/arm/mach-shmobile/common.h                    |  6 +++
- arch/arm/mach-shmobile/headsmp.S                   | 55 +++++++++++++++++++
- arch/arm/mach-shmobile/platsmp-apmu.c              |  1 +
- arch/arm/mach-shmobile/pm-rcar-gen2.c              | 13 +++--
- drivers/clk/renesas/r8a7743-cpg-mssr.c             |  2 +
- drivers/clk/renesas/r8a7745-cpg-mssr.c             |  2 +
- drivers/clk/renesas/r8a7790-cpg-mssr.c             |  2 +
- drivers/clk/renesas/r8a7791-cpg-mssr.c             |  2 +
- drivers/clk/renesas/r8a7794-cpg-mssr.c             |  2 +
- drivers/soc/renesas/rcar-rst.c                     | 35 +++++++++---
- drivers/watchdog/renesas_wdt.c                     | 62 ++++++++++++++++++++--
- 22 files changed, 250 insertions(+), 26 deletions(-)
-
+diff --git a/arch/arm/boot/dts/r8a7743.dtsi b/arch/arm/boot/dts/r8a7743.dtsi
+index 47b62f6..c2943d7 100644
+--- a/arch/arm/boot/dts/r8a7743.dtsi
++++ b/arch/arm/boot/dts/r8a7743.dtsi
+@@ -973,7 +973,7 @@
+ 
+ 			smp-sram@0 {
+ 				compatible = "renesas,smp-sram";
+-				reg = <0 0x10>;
++				reg = <0 0x100>;
+ 			};
+ 		};
+ 
 -- 
 2.7.4
 
