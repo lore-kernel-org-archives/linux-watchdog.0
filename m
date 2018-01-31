@@ -1,46 +1,62 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-yw0-f196.google.com ([209.85.161.196]:44370 "EHLO
-        mail-yw0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753035AbeAaCWb (ORCPT
+Received: from mail-qt0-f196.google.com ([209.85.216.196]:43839 "EHLO
+        mail-qt0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752596AbeAaImn (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 30 Jan 2018 21:22:31 -0500
-Date: Tue, 30 Jan 2018 21:22:05 -0500
-From: William Breathitt Gray <vilhelm.gray@gmail.com>
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: "Maciej S. Szmigiero" <mail@maciej.szmigiero.name>,
-        Guenter Roeck <linux@roeck-us.net>, linux-gpio@vger.kernel.org,
-        linux-iio@vger.kernel.org,
-        LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v2 0/5] Change ISA_BUS_API dependency to selection
-Message-ID: <20180131022151.GA14668@sophia>
-References: <cover.1514578085.git.vilhelm.gray@gmail.com>
- <CACRpkdbBA0DX22ZGSkQxi+euTSROPzsmLTvSPwY8peg6+7igFQ@mail.gmail.com>
+        Wed, 31 Jan 2018 03:42:43 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <CACRpkdbBA0DX22ZGSkQxi+euTSROPzsmLTvSPwY8peg6+7igFQ@mail.gmail.com>
+In-Reply-To: <1517343778-27902-3-git-send-email-fabrizio.castro@bp.renesas.com>
+References: <1517343778-27902-1-git-send-email-fabrizio.castro@bp.renesas.com> <1517343778-27902-3-git-send-email-fabrizio.castro@bp.renesas.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Wed, 31 Jan 2018 09:42:42 +0100
+Message-ID: <CAMuHMdUmmAu5QTG58D7yG+JXGFfcU+ROzOAHhb2O3+eCxD4=qQ@mail.gmail.com>
+Subject: Re: [RFC v3 02/25] ARM: dts: r8a7743: Adjust SMP routine size
+To: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
+Cc: Philipp Zabel <p.zabel@pengutronix.de>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@codeaurora.org>,
+        Simon Horman <horms@verge.net.au>,
+        Magnus Damm <magnus.damm@gmail.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS"
+        <devicetree@vger.kernel.org>,
+        Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
+        Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-clk <linux-clk@vger.kernel.org>,
+        Chris Paterson <Chris.Paterson2@renesas.com>,
+        Biju Das <biju.das@bp.renesas.com>,
+        Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, Jan 02, 2018 at 10:29:30AM +0100, Linus Walleij wrote:
->On Fri, Dec 29, 2017 at 9:13 PM, William Breathitt Gray
-><vilhelm.gray@gmail.com> wrote:
+On Tue, Jan 30, 2018 at 9:22 PM, Fabrizio Castro
+<fabrizio.castro@bp.renesas.com> wrote:
+> This patch adjusts the definition of the SMP routine size according
+> to the latest changes made by commit:
+> "ARM: shmobile: Add watchdog support"
 >
->> Linus, please pickup this entire patchset through your GPIO subsystem
->> tree; a recursive dependency error is present if these patches are
->> cherry-picked (see https://lkml.org/lkml/2017/12/26/235), so they should
->> be merged together in the same tree.
->
->OK I just need a bunch of ACKs so giving subsystem maintainers some
->days to come back on this.
->
->Yours,
->Linus Walleij
+> Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
+> Signed-off-by: Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
 
-Hi Linus,
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
 
-Do you have any objections to picking up this patchset now; or would you
-prefer to wait for some more input from the other maintainers?
+Gr{oetje,eeting}s,
 
-William Breathitt Gray
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
