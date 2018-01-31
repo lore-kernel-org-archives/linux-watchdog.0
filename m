@@ -1,16 +1,16 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-qk0-f193.google.com ([209.85.220.193]:34438 "EHLO
-        mail-qk0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752658AbeAaInv (ORCPT
+Received: from mail-qt0-f195.google.com ([209.85.216.195]:35059 "EHLO
+        mail-qt0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752658AbeAaIoD (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 31 Jan 2018 03:43:51 -0500
+        Wed, 31 Jan 2018 03:44:03 -0500
 MIME-Version: 1.0
-In-Reply-To: <1517343778-27902-8-git-send-email-fabrizio.castro@bp.renesas.com>
-References: <1517343778-27902-1-git-send-email-fabrizio.castro@bp.renesas.com> <1517343778-27902-8-git-send-email-fabrizio.castro@bp.renesas.com>
+In-Reply-To: <1517343778-27902-9-git-send-email-fabrizio.castro@bp.renesas.com>
+References: <1517343778-27902-1-git-send-email-fabrizio.castro@bp.renesas.com> <1517343778-27902-9-git-send-email-fabrizio.castro@bp.renesas.com>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Wed, 31 Jan 2018 09:43:49 +0100
-Message-ID: <CAMuHMdVY5XMN01diHN4h_yF+u9KJs8oQ8U89FMOVEg0E22ivyw@mail.gmail.com>
-Subject: Re: [RFC v3 07/25] ARM: dts: r8a7793: Adjust SMP routine size
+Date: Wed, 31 Jan 2018 09:44:02 +0100
+Message-ID: <CAMuHMdXPyOfAYPLNCCwjA8-O5Bu6Fuf0Op+Noc3O3ATGWGN8OQ@mail.gmail.com>
+Subject: Re: [RFC v3 08/25] ARM: dts: r8a7794: Adjust SMP routine size
 To: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
 Cc: Philipp Zabel <p.zabel@pengutronix.de>,
         Rob Herring <robh+dt@kernel.org>,
