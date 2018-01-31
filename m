@@ -1,9 +1,9 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from relmlor4.renesas.com ([210.160.252.174]:27056 "EHLO
+Received: from relmlor4.renesas.com ([210.160.252.174]:27082 "EHLO
         relmlie3.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1751567AbeAaSZT (ORCPT
+        by vger.kernel.org with ESMTP id S1751651AbeAaSZ0 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 31 Jan 2018 13:25:19 -0500
+        Wed, 31 Jan 2018 13:25:26 -0500
 From: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
 To: Philipp Zabel <p.zabel@pengutronix.de>,
         Rob Herring <robh+dt@kernel.org>,
@@ -25,9 +25,9 @@ Cc: Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org,
         Biju Das <biju.das@bp.renesas.com>,
         Fabrizio Castro <fabrizio.castro@bp.renesas.com>,
         Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
-Subject: [RFC v4 06/26] ARM: dts: r8a7792: Adjust SMP routine size
-Date: Wed, 31 Jan 2018 18:24:10 +0000
-Message-Id: <1517423070-24236-7-git-send-email-fabrizio.castro@bp.renesas.com>
+Subject: [RFC v4 07/26] ARM: dts: r8a7793: Adjust SMP routine size
+Date: Wed, 31 Jan 2018 18:24:11 +0000
+Message-Id: <1517423070-24236-8-git-send-email-fabrizio.castro@bp.renesas.com>
 In-Reply-To: <1517423070-24236-1-git-send-email-fabrizio.castro@bp.renesas.com>
 References: <1517423070-24236-1-git-send-email-fabrizio.castro@bp.renesas.com>
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -44,14 +44,14 @@ Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
 v3->4:
 * no change
 
- arch/arm/boot/dts/r8a7792.dtsi | 2 +-
+ arch/arm/boot/dts/r8a7793.dtsi | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/r8a7792.dtsi b/arch/arm/boot/dts/r8a7792.dtsi
-index 268987f..bea0f12 100644
---- a/arch/arm/boot/dts/r8a7792.dtsi
-+++ b/arch/arm/boot/dts/r8a7792.dtsi
-@@ -341,7 +341,7 @@
+diff --git a/arch/arm/boot/dts/r8a7793.dtsi b/arch/arm/boot/dts/r8a7793.dtsi
+index aa7d779..bde6969 100644
+--- a/arch/arm/boot/dts/r8a7793.dtsi
++++ b/arch/arm/boot/dts/r8a7793.dtsi
+@@ -392,7 +392,7 @@
  
  			smp-sram@0 {
  				compatible = "renesas,smp-sram";
