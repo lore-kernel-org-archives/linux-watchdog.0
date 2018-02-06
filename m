@@ -1,106 +1,52 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pf0-f193.google.com ([209.85.192.193]:41555 "EHLO
-        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752925AbeBKLRU (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 11 Feb 2018 06:17:20 -0500
-Subject: Re: [PATCH v2 5/7] watchdog: mtk: allow setting timeout in devicetree
-To: Sean Wang <sean.wang@mediatek.com>,
-        Marcus Folkesson <marcus.folkesson@gmail.com>
-Cc: Wim Van Sebroeck <wim@iguana.be>, Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Carlo Caione <carlo@caione.org>,
-        Kevin Hilman <khilman@baylibre.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Barry Song <baohua@kernel.org>,
-        Maxime Ripard <maxime.ripard@free-electrons.com>,
-        Chen-Yu Tsai <wens@csie.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Vladimir Zapolskiy <vz@mleia.com>,
-        Sylvain Lemieux <slemieux.tyco@gmail.com>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        devicetree@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org,
-        linux-amlogic@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org
-References: <20180210091911.3644-1-marcus.folkesson@gmail.com>
- <20180210091911.3644-5-marcus.folkesson@gmail.com>
- <1518261002.9025.36.camel@mtkswgap22> <20180210124328.GB744@gmail.com>
- <20180210201207.GC744@gmail.com>
- <5449674d-2812-c9b5-9c06-af2fbfa72737@roeck-us.net>
- <1518335184.9025.43.camel@mtkswgap22>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <80a95963-7bd9-a350-d899-3b0cf2d646fc@roeck-us.net>
-Date: Sun, 11 Feb 2018 03:17:16 -0800
-MIME-Version: 1.0
-In-Reply-To: <1518335184.9025.43.camel@mtkswgap22>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-Path: <jerry.hoemann@hpe.com>
+Return-path: <jerry.hoemann@hpe.com>
+From: Jerry Hoemann <jerry.hoemann@hpe.com>
+To: wim@linux-watchdog.org,
+	linux@roeck-us.net
+Cc: linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	rwright@hpe.com,
+	maurice.a.saldivar@hpe.com,
+	Jerry Hoemann <jerry.hoemann@hpe.com>
+Subject: [PATCH 00/10] watchdog/hpwdt: Update driver to use watchdog core.
+Date: Tue,  6 Feb 2018 15:58:45 -0700
+Message-Id: <20180206225855.30582-1-jerry.hoemann@hpe.com>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 02/10/2018 11:46 PM, Sean Wang wrote:
-> On Sat, 2018-02-10 at 17:52 -0800, Guenter Roeck wrote:
->> On 02/10/2018 12:12 PM, Marcus Folkesson wrote:
->>> Hello Sean,
->>>
->>> On Sat, Feb 10, 2018 at 01:43:28PM +0100, Marcus Folkesson wrote:
->>>> Hello Sean,
->>>>
->>>> On Sat, Feb 10, 2018 at 07:10:02PM +0800, Sean Wang wrote:
->>>>>
->>>>> Hi, Marcus
->>>>>
->>>>> The changes you made for dt-bindings and driver should be put into
->>>>> separate patches.
->>>>
->>>> I actually thought about it but chose to have it in the same patch because I
->>>> did not see any direct advantage to separating them.
->>>>
->>>> But I can do that.
->>>> I will come up with a v3 with this change if no one thinks differently.
->>>>
->>>
->>> When looking at the git log, I'm not that convinced it should be
->>> separate patches.
->>>
->>> For example, I found a4f741e3e157c3a5c8aea5f2ea62b692fbf17338 that is
->>> doing the exact same thing as this patch.
->>>
->>> There is plenty of patches that mixes the code change and dt bindings
->>> updates.
->>> Could it not be useful to overview both the implementation and
->>> dt-mapping change in one view?
->>>
->>> If you or anyone else still think it should be separated, please let me know and I will
->>> come up with a v3.
->>>
->>
->> If we were talking about something new, specifically new and unapproved DT bindings,
->> it should be separate patches. However, that is not the case here. The DT bindings
->> are well established. Sure, we could be pedantic and request a split into two
->> patches. However, the only benefit of that would be more work for the maintainers,
->> ie Wim and myself (including me having to send this e-mail). I don't really see
->> the point of that.
->>
->> I have already sent my Reviewed-by:, and I don't intend to withdraw it.
->>
-> Hi, both
-> 
-> Sorry for that if I caused any inconvenience to you. I didn't really
-> insist on if the patch is needed to split into two, which totally
-> depends on whether dt maintainers like it.
-> 
-> The change for dt-binding is usually added as a split patch with
-> dt-bindings as a prefix. This way I thought dt maintainers is not
-> easy to miss those patches and also can give some useful feedback
-> for them.
-> 
+The primary purposes of this patch set are to
 
-With all the trouble this one-line change is making, I feel inclined to drop
-the patch for this driver.
+1) Update the hpwdt driver to use the watchdog core.
+2) Reduce complexity by removing unnecessary features.
+3) Add customer requested features like optional pretimeout.
+4) Enhance readability/maintainability of the driver.
 
-Guenter
+The size of the resultant driver is reduced from over 900
+lines to 350 lines.
+
+Patch 1& 2 remove legacy NMI sourcing.
+Patch 3	adds useful indication of NMI cause to panic message
+Patch 4 & 5 are general cleanup
+Patch 6 & 7 updates the driver to user the watchdog core.
+Patch 8 makes the pretimeout NMI programmable.
+Patch 9 modifies whether the NMI handler claims the NMI.
+Patch 10 retracts the allow_kdump module parameter.
+
+
+Jerry Hoemann (10):
+  watchdog/hpwdt: Remove legacy NMI sourcing.
+  watchdog/hpwdt: remove include files no longer needed.
+  watchdog/hpwdt: Update nmi_panic message.
+  watchdog/hpwdt: white space changes
+  watchdog/hpwdt: Update Module info.
+  watchdog/hpwdt: Modify to use watchdog core.
+  watchdog/hpwdt: Select WATCHDOG_CORE
+  watchdog/hpwdt: Programable Pretimeout NMI
+  watchdog/hpwdt: condition early return of NMI handler on iLO5
+  watchdog/hpwdt: remove allow_kdump module parameter.
+
+ drivers/watchdog/Kconfig |   1 +
+ drivers/watchdog/hpwdt.c | 843 ++++++++---------------------------------------
+ 2 files changed, 135 insertions(+), 709 deletions(-)
+
+-- 
+2.13.6
