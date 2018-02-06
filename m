@@ -8,69 +8,50 @@ Cc: linux-watchdog@vger.kernel.org,
 	rwright@hpe.com,
 	maurice.a.saldivar@hpe.com,
 	Jerry Hoemann <jerry.hoemann@hpe.com>
-Subject: [PATCH 03/10] watchdog/hpwdt: Update nmi_panic message.
-Date: Tue,  6 Feb 2018 15:58:48 -0700
-Message-Id: <20180206225855.30582-4-jerry.hoemann@hpe.com>
+Subject: [PATCH 05/10] watchdog/hpwdt: Update Module info.
+Date: Tue,  6 Feb 2018 15:58:50 -0700
+Message-Id: <20180206225855.30582-6-jerry.hoemann@hpe.com>
 In-Reply-To: <20180206225855.30582-1-jerry.hoemann@hpe.com>
 References: <20180206225855.30582-1-jerry.hoemann@hpe.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Include the nmistat in the nmi_panic message to give support
-an indication why the NMI was called (e.g. a timeout or generate
-nmi button.)
+Update Module Author and permission on parameters so that the
+parameters show up in sysfs.
 
 Signed-off-by: Jerry Hoemann <jerry.hoemann@hpe.com>
 ---
- drivers/watchdog/hpwdt.c | 27 +++++++++++++++++++--------
- 1 file changed, 19 insertions(+), 8 deletions(-)
+ drivers/watchdog/hpwdt.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/watchdog/hpwdt.c b/drivers/watchdog/hpwdt.c
-index 260740051084..7f55b9bf371e 100644
+index a275f14bbcb0..3fae3119369f 100644
 --- a/drivers/watchdog/hpwdt.c
 +++ b/drivers/watchdog/hpwdt.c
-@@ -106,24 +106,35 @@ static int hpwdt_my_nmi(void)
- 	return ioread8(hpwdt_nmistat) & 0x6;
- }
+@@ -427,20 +427,20 @@ static struct pci_driver hpwdt_driver = {
+ 	.remove		= hpwdt_exit,
+ };
  
-+static inline int hexdigit(int v)
-+{
-+	return (v > 9) ? (v-9+'A') : (v+'0');
-+}
-+
- /*
-  *	NMI Handler
-  */
- static int hpwdt_pretimeout(unsigned int ulReason, struct pt_regs *regs)
- {
--	if ((ulReason == NMI_UNKNOWN) && !hpwdt_my_nmi())
-+	unsigned int mynmi = hpwdt_my_nmi();
-+	static char panic_msg[] =
-+		"00: An NMI occurred. Depending on your system the reason "
-+		"for the NMI is logged in any one of the following resources:\n"
-+		"1. Integrated Management Log (IML)\n"
-+		"2. OA Syslog\n"
-+		"3. OA Forward Progress Log\n"
-+		"4. iLO Event Log";
-+
-+	if ((ulReason == NMI_UNKNOWN) && !mynmi)
- 		return NMI_DONE;
+-MODULE_AUTHOR("Tom Mingarelli");
+-MODULE_DESCRIPTION("hp watchdog driver");
++MODULE_AUTHOR("Jerry Hoemann");
++MODULE_DESCRIPTION("hpe watchdog driver");
+ MODULE_LICENSE("GPL");
+ MODULE_VERSION(HPWDT_VERSION);
  
- 	if (allow_kdump)
- 		hpwdt_stop();
+-module_param(soft_margin, int, 0);
++module_param(soft_margin, int, 0444);
+ MODULE_PARM_DESC(soft_margin, "Watchdog timeout in seconds");
  
--	nmi_panic(regs, "An NMI occurred. Depending on your system the reason "
--		"for the NMI is logged in any one of the following "
--		"resources:\n"
--		"1. Integrated Management Log (IML)\n"
--		"2. OA Syslog\n"
--		"3. OA Forward Progress Log\n"
--		"4. iLO Event Log");
-+	panic_msg[0] = hexdigit((mynmi>>4)&0xf);
-+	panic_msg[1] = hexdigit(mynmi&0xf);
-+
-+	nmi_panic(regs, panic_msg);
+-module_param(nowayout, bool, 0);
++module_param(nowayout, bool, 0444);
+ MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
+ 		__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
  
- 	return NMI_HANDLED;
- }
+ #ifdef CONFIG_HPWDT_NMI_DECODING	/* { */
+-module_param(allow_kdump, int, 0);
++module_param(allow_kdump, int, 0444);
+ MODULE_PARM_DESC(allow_kdump, "Start a kernel dump after NMI occurs");
+ #endif					/* } */
+ 
 -- 
 2.13.6
