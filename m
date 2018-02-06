@@ -8,163 +8,63 @@ Cc: linux-watchdog@vger.kernel.org,
 	rwright@hpe.com,
 	maurice.a.saldivar@hpe.com,
 	Jerry Hoemann <jerry.hoemann@hpe.com>
-Subject: [PATCH 08/10] watchdog/hpwdt: Programable Pretimeout NMI
-Date: Tue,  6 Feb 2018 15:58:53 -0700
-Message-Id: <20180206225855.30582-9-jerry.hoemann@hpe.com>
+Subject: [PATCH 09/10] watchdog/hpwdt: condition early return of NMI handler on iLO5
+Date: Tue,  6 Feb 2018 15:58:54 -0700
+Message-Id: <20180206225855.30582-10-jerry.hoemann@hpe.com>
 In-Reply-To: <20180206225855.30582-1-jerry.hoemann@hpe.com>
 References: <20180206225855.30582-1-jerry.hoemann@hpe.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Make whether or not the hpwdt watchdog delivers a pretimeout NMI
-programable by the user.
-
-The underlying iLO hardware is programmable as to whether or not
-a pre-timeout NMI is delivered to the system before the iLO resets
-the system.  However, the iLO does not allow for programming the
-length of time that NMI is delivered before the system is reset.
-
-Hence, in hpwdt_set_pretimeout, val == 0 disables the NMI. Any
-non-zero value sets the pretimeout length to what the hardware
-supports.
+Modify prior change to not claim an NMI unless originated
+from iLO to apply only to iLO5 and later going forward.
+This restores hpwdt traditional behavior of calling panic
+if the NMI is NMI_IO_CHECK, NMI_SERR, or NMI_UNKNOWN for
+legacy hardware.
 
 Signed-off-by: Jerry Hoemann <jerry.hoemann@hpe.com>
 ---
- drivers/watchdog/hpwdt.c | 42 +++++++++++++++++++++++++++++++++++-------
- 1 file changed, 35 insertions(+), 7 deletions(-)
+ drivers/watchdog/hpwdt.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/watchdog/hpwdt.c b/drivers/watchdog/hpwdt.c
-index a8e5c6542406..1edbcb8f1537 100644
+index 1edbcb8f1537..9bfb668115f8 100644
 --- a/drivers/watchdog/hpwdt.c
 +++ b/drivers/watchdog/hpwdt.c
-@@ -23,16 +23,21 @@
- 
- #include <asm/nmi.h>
- 
--#define HPWDT_VERSION			"1.4.0"
-+#define HPWDT_VERSION			"1.5.0"
- #define SECS_TO_TICKS(secs)		((secs) * 1000 / 128)
- #define TICKS_TO_SECS(ticks)		((ticks) * 128 / 1000)
- #define HPWDT_MAX_TIMER			TICKS_TO_SECS(65535)
- #define DEFAULT_MARGIN			30
-+#define PRETIMEOUT_SEC			9
- 
+@@ -33,6 +33,7 @@
  static unsigned int soft_margin = DEFAULT_MARGIN;	/* in seconds */
--static unsigned int reload;			/* the computed soft_margin */
  static bool nowayout = WATCHDOG_NOWAYOUT;
  static unsigned int allow_kdump = 1;
-+#ifdef CONFIG_HPWDT_NMI_DECODING	/* { */
-+static bool pretimeout = 1;
-+#else
-+static bool pretimeout;
-+#endif					/* } */
- 
- static void __iomem *pci_mem_addr;		/* the PCI-memory address */
- static unsigned long __iomem *hpwdt_nmistat;
-@@ -53,10 +58,12 @@ static struct watchdog_device hpwdt_dev;
-  */
- static int hpwdt_start(struct watchdog_device *dev)
- {
--	reload = SECS_TO_TICKS(dev->timeout);
-+	int control = 0x81 | (pretimeout ? 0x4 : 0);
-+	int reload = SECS_TO_TICKS(dev->timeout);
- 
-+	pr_debug("start watchdog 0x%08x:0x%02x\n", reload, control);
- 	iowrite16(reload, hpwdt_timer_reg);
--	iowrite8(0x85, hpwdt_timer_con);
-+	iowrite8(control, hpwdt_timer_con);
- 
- 	return 0;
- }
-@@ -65,6 +72,8 @@ static int hpwdt_stop(struct watchdog_device *dev)
- {
- 	unsigned long data;
- 
-+	pr_debug("stop  watchdog\n");
-+
- 	data = ioread8(hpwdt_timer_con);
- 	data &= 0xFE;
- 	iowrite8(data, hpwdt_timer_con);
-@@ -73,8 +82,9 @@ static int hpwdt_stop(struct watchdog_device *dev)
- 
- static int hpwdt_ping(struct watchdog_device *dev)
- {
--	reload = SECS_TO_TICKS(dev->timeout);
-+	int reload = SECS_TO_TICKS(dev->timeout);
- 
-+	pr_debug("ping  watchdog 0x%08x\n", reload);
- 	iowrite16(reload, hpwdt_timer_reg);
- 
- 	return 0;
-@@ -96,6 +106,16 @@ static int hpwdt_settimeout(struct watchdog_device *dev, unsigned int val)
- }
- 
++static bool iLO5;
  #ifdef CONFIG_HPWDT_NMI_DECODING	/* { */
-+static int hpwdt_set_pretimeout(struct watchdog_device *dev, unsigned int val)
-+{
-+	if (val && (val != PRETIMEOUT_SEC)) {
-+		pr_info("Setting pretimeout to %d\n", PRETIMEOUT_SEC);
-+		val = PRETIMEOUT_SEC;
-+	}
-+	dev->pretimeout = val;
-+	pretimeout = val ? 1 : 0;
-+	return 0;
-+}
+ static bool pretimeout = 1;
+ #else
+@@ -140,14 +141,14 @@ static int hpwdt_pretimeout(unsigned int ulReason, struct pt_regs *regs)
+ 		"3. OA Forward Progress Log\n"
+ 		"4. iLO Event Log";
  
- static unsigned int hpwdt_my_nmi(void)
- {
-@@ -106,7 +126,6 @@ static inline int hexdigit(int v)
- {
- 	return (v > 9) ? (v-9+'A') : (v+'0');
- }
+-	if ((ulReason == NMI_UNKNOWN) && !mynmi)
+-		return NMI_DONE;
 -
- /*
-  *	NMI Handler
-  */
-@@ -126,6 +145,9 @@ static int hpwdt_pretimeout(unsigned int ulReason, struct pt_regs *regs)
- 
  	pr_debug("nmi: ulReason=%d, mynmi=0x%0x\n", ulReason, mynmi);
  
-+	if (!pretimeout)
+ 	if (!pretimeout)
+ 		return NMI_DONE;
+ 
++	if (iLO5 && (ulReason == NMI_UNKNOWN) && !mynmi)
 +		return NMI_DONE;
 +
  	if (allow_kdump)
  		hpwdt_stop(&hpwdt_dev);
  
-@@ -142,7 +164,8 @@ static int hpwdt_pretimeout(unsigned int ulReason, struct pt_regs *regs)
- static const struct watchdog_info hpwdt_info = {
- 	.options	= WDIOF_SETTIMEOUT    |
- 			  WDIOF_KEEPALIVEPING |
--			  WDIOF_MAGICCLOSE,
-+			  WDIOF_MAGICCLOSE    |
-+			  WDIOF_PRETIMEOUT,
- 	.identity	= "HPE iLO2+ HW Watchdog Timer",
- };
+@@ -280,6 +281,9 @@ static int hpwdt_probe(struct pci_dev *dev, const struct pci_device_id *ent)
+ 			", timer margin: %d seconds (nowayout=%d).\n",
+ 			HPWDT_VERSION, hpwdt_dev.timeout, nowayout);
  
-@@ -294,6 +317,7 @@ static const struct watchdog_ops hpwdt_ops = {
- 	.ping		= hpwdt_ping,
- 	.set_timeout	= hpwdt_settimeout,
- 	.get_timeleft	= hpwdt_gettimeleft,
-+	.set_pretimeout	= hpwdt_set_pretimeout,
- };
- 
- static struct watchdog_device hpwdt_dev = {
-@@ -302,6 +326,7 @@ static struct watchdog_device hpwdt_dev = {
- 	.min_timeout	= 1,
- 	.max_timeout	= HPWDT_MAX_TIMER,
- 	.timeout	= DEFAULT_MARGIN,
-+	.pretimeout	= PRETIMEOUT_SEC,
- };
- 
- 
-@@ -320,6 +345,9 @@ MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
- #ifdef CONFIG_HPWDT_NMI_DECODING	/* { */
- module_param(allow_kdump, int, 0444);
- MODULE_PARM_DESC(allow_kdump, "Start a kernel dump after NMI occurs");
++	if (dev->subsystem_vendor == PCI_VENDOR_ID_HP_3PAR)
++		iLO5 = 1;
 +
-+module_param(pretimeout, bool, 0444);
-+MODULE_PARM_DESC(pretimeout, "Watchdog pretimeout enabled");
- #endif					/* } */
+ 	return 0;
  
- module_pci_driver(hpwdt_driver);
+ error_wd_register:
 -- 
 2.13.6
