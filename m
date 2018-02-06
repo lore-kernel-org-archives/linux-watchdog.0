@@ -8,50 +8,147 @@ Cc: linux-watchdog@vger.kernel.org,
 	rwright@hpe.com,
 	maurice.a.saldivar@hpe.com,
 	Jerry Hoemann <jerry.hoemann@hpe.com>
-Subject: [PATCH 05/10] watchdog/hpwdt: Update Module info.
-Date: Tue,  6 Feb 2018 15:58:50 -0700
-Message-Id: <20180206225855.30582-6-jerry.hoemann@hpe.com>
+Subject: [PATCH 04/10] watchdog/hpwdt: white space changes
+Date: Tue,  6 Feb 2018 15:58:49 -0700
+Message-Id: <20180206225855.30582-5-jerry.hoemann@hpe.com>
 In-Reply-To: <20180206225855.30582-1-jerry.hoemann@hpe.com>
 References: <20180206225855.30582-1-jerry.hoemann@hpe.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Update Module Author and permission on parameters so that the
-parameters show up in sysfs.
+Minor white space changes and some name clean up.
 
 Signed-off-by: Jerry Hoemann <jerry.hoemann@hpe.com>
 ---
- drivers/watchdog/hpwdt.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/watchdog/hpwdt.c | 49 +++++++++++++++++++++++-------------------------
+ 1 file changed, 23 insertions(+), 26 deletions(-)
 
 diff --git a/drivers/watchdog/hpwdt.c b/drivers/watchdog/hpwdt.c
-index a275f14bbcb0..3fae3119369f 100644
+index 7f55b9bf371e..a275f14bbcb0 100644
 --- a/drivers/watchdog/hpwdt.c
 +++ b/drivers/watchdog/hpwdt.c
-@@ -427,20 +427,20 @@ static struct pci_driver hpwdt_driver = {
- 	.remove		= hpwdt_exit,
+@@ -1,11 +1,9 @@
+ /*
+  *	HPE WatchDog Driver
+- *	based on
+  *
+- *	SoftDog	0.05:	A Software Watchdog Device
+- *
+- *	(c) Copyright 2015 Hewlett Packard Enterprise Development LP
++ *	(c) Copyright 2018 Hewlett Packard Enterprise Development LP
+  *	Thomas Mingarelli <thomas.mingarelli@hpe.com>
++ *	Jerry Hoemann <jerry.hoemann@hpe.com>
+  *
+  *	This program is free software; you can redistribute it and/or
+  *	modify it under the terms of the GNU General Public License
+@@ -51,7 +49,7 @@ static unsigned long __iomem *hpwdt_timer_con;
+ static const struct pci_device_id hpwdt_devices[] = {
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_COMPAQ, 0xB203) },	/* iLO2 */
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_HP, 0x3306) },	/* iLO3 */
+-	{0},			/* terminate list */
++	{0},						/* terminate list */
+ };
+ MODULE_DEVICE_TABLE(pci, hpwdt_devices);
+ 
+@@ -100,7 +98,7 @@ static int hpwdt_time_left(void)
+ 	return TICKS_TO_SECS(ioread16(hpwdt_timer_reg));
+ }
+ 
+-#ifdef CONFIG_HPWDT_NMI_DECODING
++#ifdef CONFIG_HPWDT_NMI_DECODING	/* { */
+ static int hpwdt_my_nmi(void)
+ {
+ 	return ioread8(hpwdt_nmistat) & 0x6;
+@@ -138,7 +136,7 @@ static int hpwdt_pretimeout(unsigned int ulReason, struct pt_regs *regs)
+ 
+ 	return NMI_HANDLED;
+ }
+-#endif /* CONFIG_HPWDT_NMI_DECODING */
++#endif					/* } */
+ 
+ /*
+  *	/dev/watchdog handling
+@@ -203,11 +201,11 @@ static ssize_t hpwdt_write(struct file *file, const char __user *data,
+ 	return len;
+ }
+ 
+-static const struct watchdog_info ident = {
+-	.options = WDIOF_SETTIMEOUT |
+-		   WDIOF_KEEPALIVEPING |
+-		   WDIOF_MAGICCLOSE,
+-	.identity = "HPE iLO2+ HW Watchdog Timer",
++static const struct watchdog_info hpwdt_info = {
++	.options	= WDIOF_SETTIMEOUT    |
++			  WDIOF_KEEPALIVEPING |
++			  WDIOF_MAGICCLOSE,
++	.identity	= "HPE iLO2+ HW Watchdog Timer",
  };
  
--MODULE_AUTHOR("Tom Mingarelli");
--MODULE_DESCRIPTION("hp watchdog driver");
-+MODULE_AUTHOR("Jerry Hoemann");
-+MODULE_DESCRIPTION("hpe watchdog driver");
- MODULE_LICENSE("GPL");
- MODULE_VERSION(HPWDT_VERSION);
+ static long hpwdt_ioctl(struct file *file, unsigned int cmd,
+@@ -221,7 +219,7 @@ static long hpwdt_ioctl(struct file *file, unsigned int cmd,
+ 	switch (cmd) {
+ 	case WDIOC_GETSUPPORT:
+ 		ret = 0;
+-		if (copy_to_user(argp, &ident, sizeof(ident)))
++		if (copy_to_user(argp, &hpwdt_info, sizeof(hpwdt_info)))
+ 			ret = -EFAULT;
+ 		break;
  
--module_param(soft_margin, int, 0);
-+module_param(soft_margin, int, 0444);
- MODULE_PARM_DESC(soft_margin, "Watchdog timeout in seconds");
+@@ -317,7 +315,7 @@ static int hpwdt_init_nmi_decoding(struct pci_dev *dev)
+ 	return 0;
  
--module_param(nowayout, bool, 0);
-+module_param(nowayout, bool, 0444);
+ error2:
+-	unregister_nmi_handler(NMI_SERR, "hpwdt");
++	unregister_nmi_handler(NMI_SERR,    "hpwdt");
+ error1:
+ 	unregister_nmi_handler(NMI_UNKNOWN, "hpwdt");
+ error:
+@@ -329,15 +327,14 @@ static int hpwdt_init_nmi_decoding(struct pci_dev *dev)
+ 
+ static void hpwdt_exit_nmi_decoding(void)
+ {
+-#ifdef CONFIG_HPWDT_NMI_DECODING
+-	unregister_nmi_handler(NMI_UNKNOWN, "hpwdt");
+-	unregister_nmi_handler(NMI_SERR, "hpwdt");
++#ifdef CONFIG_HPWDT_NMI_DECODING	/* { */
++	unregister_nmi_handler(NMI_UNKNOWN,  "hpwdt");
++	unregister_nmi_handler(NMI_SERR,     "hpwdt");
+ 	unregister_nmi_handler(NMI_IO_CHECK, "hpwdt");
+-#endif
++#endif					/* } */
+ }
+ 
+-static int hpwdt_init_one(struct pci_dev *dev,
+-					const struct pci_device_id *ent)
++static int hpwdt_probe(struct pci_dev *dev, const struct pci_device_id *ent)
+ {
+ 	int retval;
+ 
+@@ -424,10 +421,10 @@ static void hpwdt_exit(struct pci_dev *dev)
+ }
+ 
+ static struct pci_driver hpwdt_driver = {
+-	.name = "hpwdt",
+-	.id_table = hpwdt_devices,
+-	.probe = hpwdt_init_one,
+-	.remove = hpwdt_exit,
++	.name		= "hpwdt",
++	.id_table	= hpwdt_devices,
++	.probe		= hpwdt_probe,
++	.remove		= hpwdt_exit,
+ };
+ 
+ MODULE_AUTHOR("Tom Mingarelli");
+@@ -442,9 +439,9 @@ module_param(nowayout, bool, 0);
  MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
  		__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
  
- #ifdef CONFIG_HPWDT_NMI_DECODING	/* { */
--module_param(allow_kdump, int, 0);
-+module_param(allow_kdump, int, 0444);
+-#ifdef CONFIG_HPWDT_NMI_DECODING
++#ifdef CONFIG_HPWDT_NMI_DECODING	/* { */
+ module_param(allow_kdump, int, 0);
  MODULE_PARM_DESC(allow_kdump, "Start a kernel dump after NMI occurs");
- #endif					/* } */
+-#endif /* !CONFIG_HPWDT_NMI_DECODING */
++#endif					/* } */
  
+ module_pci_driver(hpwdt_driver);
 -- 
 2.13.6
