@@ -1,6 +1,6 @@
 Return-Path: <wsa-dev@sang-engineering.com>
 Return-path: <wsa-dev@sang-engineering.com>
-Date: Wed, 7 Feb 2018 23:53:56 +0100
+Date: Thu, 8 Feb 2018 00:03:10 +0100
 From: Wolfram Sang <wsa@the-dreams.de>
 To: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
 Cc: Philipp Zabel <p.zabel@pengutronix.de>,
@@ -22,92 +22,68 @@ Cc: Philipp Zabel <p.zabel@pengutronix.de>,
 	Chris Paterson <Chris.Paterson2@renesas.com>,
 	Biju Das <biju.das@bp.renesas.com>,
 	Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
-Subject: Re: [RFC v4 12/26] watchdog: renesas_wdt: Add R-Car Gen2 support
-Message-ID: <20180207225356.pgirh2ohdsv7xdne@katana>
+Subject: Re: [RFC v4 13/26] watchdog: renesas_wdt: Add restart handler
+Message-ID: <20180207230309.goxig2irkpxrw5el@katana>
 References: <1517423070-24236-1-git-send-email-fabrizio.castro@bp.renesas.com>
- <1517423070-24236-13-git-send-email-fabrizio.castro@bp.renesas.com>
+ <1517423070-24236-14-git-send-email-fabrizio.castro@bp.renesas.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="x2emqnqh5zo5pl5i"
+	protocol="application/pgp-signature"; boundary="ii2okpc4xrkcaei4"
 Content-Disposition: inline
-In-Reply-To: <1517423070-24236-13-git-send-email-fabrizio.castro@bp.renesas.com>
+In-Reply-To: <1517423070-24236-14-git-send-email-fabrizio.castro@bp.renesas.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
 
---x2emqnqh5zo5pl5i
+--ii2okpc4xrkcaei4
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
 
-> +#ifdef CONFIG_PM
-> +static int rwdt_suspend(struct device *dev)
+> +static int rwdt_restart(struct watchdog_device *wdev, unsigned long action,
+> +			void *data)
 > +{
-> +	struct platform_device *pdev;
-> +	struct rwdt_priv *priv;
+> +	struct rwdt_priv *priv = watchdog_get_drvdata(wdev);
 > +
-> +	pdev = to_platform_device(dev);
-> +	priv = platform_get_drvdata(pdev);
-
-struct rwdt_priv *priv = dev_get_drvdata(dev);
-
-?
-
-
-> +	if (watchdog_active(&priv->wdev)) {
-> +		rwdt_write(priv, priv->cks, RWTCSRA);
-> +	}
+> +	pm_runtime_get_sync(wdev->parent);
+> +
+> +	rwdt_write(priv, 0x00, RWTCSRB);
+> +	rwdt_write(priv, 0x00, RWTCSRA);
+> +	rwdt_write(priv, 0xffff, RWTCNT);
+> +
+> +	while (readb_relaxed(priv->base + RWTCSRA) & RWTCSRA_WRFLG)
+> +		cpu_relax();
+> +
+> +	rwdt_write(priv, 0x80, RWTCSRA);
 > +	return 0;
 > +}
-> +
-> +static int rwdt_resume(struct device *dev)
-> +{
-> +	struct platform_device *pdev;
-> +	struct rwdt_priv *priv;
-> +
-> +	pdev = to_platform_device(dev);
-> +	priv = platform_get_drvdata(pdev);
 
-ditto
+I used to have this simpler version (back then for the UP case):
 
-> +	if (watchdog_active(&priv->wdev)) {
-> +		rwdt_write(priv, priv->cks | RWTCSRA_TME, RWTCSRA);
-> +	}
-> +	return 0;
-> +}
-> +
-> +static const struct dev_pm_ops rwdt_pm = {
-> +	.suspend = rwdt_suspend,
-> +	.resume = rwdt_resume,
-> +};
++	rwdt_start(wdev);
++	rwdt_write(priv, 0xffff, RWTCNT);
++	return 0;
 
-Use SIMPLE_DEV_PM_OPS macro (see stmp3xxx_rtc_wdt.c for an example) for
-more compact code and...
-
-> +#ifdef CONFIG_PM
-> +		.pm = &rwdt_pm,
-> +#endif
-
-... removing this ifdeffery?
+It should still work probably...
 
 
---x2emqnqh5zo5pl5i
+--ii2okpc4xrkcaei4
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlp7g38ACgkQFA3kzBSg
-KbYnog/7BQsY8nwc8noFCm8FP2wPZmQ9mkLXkMz+xpFBzL2RJh5V60jwNfYdgqRH
-523vlZJ7oJ3vFiOie5A29Xk3uQ6z9hybRyfoqEkdhTRV1GIl1iS4nZGzB5vuFHAb
-sEaRyH4CfMOjpjlFNMoylJXNvqZO3SyIv/9JfNG0xTDTOOL2OabCgqo2hKC3qkfw
-XFx2E/+UhGUXx24AjImWjM1u/98j5iubpXUqgML/N+M3youIrXloYSPjQ1aORSQR
-zDuhk9H5WXcVUiyyyEzV2uC+rptqkoJAybYLjWM76rrrQRgoCw1Q68f3/aOBVza0
-truSbQArJWKRMhjuW4wxdHeWlvEKlYfu2pHCB9lf3DScR4iW4DmaTtpQKiu9eUnm
-/3V9Bs7345dpGf1sbtgIhMfGzDpKpM8xjNHHzsWMqAE9+kGVxgl4TouEedDh7t4Q
-BkbgTKHcvaktebxXkCNeQIHrxqYAHGmySfZZC4BrsUtfJLX5yr72/SKT8LGpCS7O
-5kpoil1jTz1Vkgx9l7c3tfTG4eX7p943dimpvr8K9MBUodCJAbsrzd/Wx446N8bx
-1BX33C7EAJAmi9MWWWIUnTTLW2vwaqBJhiUDqKCcPI9N6jX1asgrPOITF8qxWjEW
-oRuePWinnSbLgiU7Z/hOu0vVzftkQAHKbCqLw7wv86CZJBhY9hg=
-=oLOg
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlp7ha0ACgkQFA3kzBSg
+KbacvQ/8D8XYr0uC7zXPoAzE+CXEN7xox41cu1uhV5RPnDWwkmI/jHoVq9STySZB
+ifUMM4hsbFUgeKnmZ+viMxa5tTKSj9at6WiUeyQ+K2rkhZ0Sqkmn3O7RFuyq0pf9
+o52ysxCWQuch5ep/lj4N4O7aUU1nPlPIimX7b8QgaYDxYvVqdZSBhYymwhN+0fZB
+X1uf+PXlzIxVPNKV7R0kg4yX7YdDU90S6jQ94szgGH0n+0y66K/ImeFV5eKeKBhi
+jZWbLwt4+q63D+6r6vZBViJ1xivkiwe8mcAsth0ZyxLKEsqUSCJZkTU+l3XSN6dP
+2BemCvP41GCTNDsxbrXMLd5X0YnXSV+PLJ+QZH2DggQTIu7ytFCfm6KLXVc9evx7
+AVX6DnlbAXzuKOewB8Tx356P17p92EMQ9Qc5i7KbrUmpjoNPoNYpO+/6j/9GwvcQ
+A+kYJUhK6QOcTvRWIY7JqOt3cz35Hn1TjBdqUEux09mG2f3fvdSHfALQM3iCM3G0
+yjRkmk+EUx2zzD7p3LB6fAzG21ggcLLKD1h/oy4u0INM2bu+393YzK5uHgbWY+PN
+X88AJZKY0cPvG9yT7QVRJ10MhaawGE6ohiNo6NfLtbZHrjPgYV6bM3/bfxGSXqrH
+turo0tDcQr3fllKxAP4B8WbCS9vj1iNTnWRY/8yZhPQbCYrHsZ8=
+=fuGM
 -----END PGP SIGNATURE-----
 
---x2emqnqh5zo5pl5i--
+--ii2okpc4xrkcaei4--
