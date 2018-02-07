@@ -1,6 +1,6 @@
 Return-Path: <wsa-dev@sang-engineering.com>
 Return-path: <wsa-dev@sang-engineering.com>
-Date: Thu, 8 Feb 2018 00:20:36 +0100
+Date: Thu, 8 Feb 2018 00:20:41 +0100
 From: Wolfram Sang <wsa@the-dreams.de>
 To: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
 Cc: Philipp Zabel <p.zabel@pengutronix.de>,
@@ -22,26 +22,26 @@ Cc: Philipp Zabel <p.zabel@pengutronix.de>,
 	Chris Paterson <Chris.Paterson2@renesas.com>,
 	Biju Das <biju.das@bp.renesas.com>,
 	Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
-Subject: Re: [RFC v4 22/26] ARM: dts: r8a7790: Add watchdog support to SoC
+Subject: Re: [RFC v4 23/26] ARM: dts: r8a7791: Add watchdog support to SoC
  dtsi
-Message-ID: <20180207232036.jrbaqx6wszeqto2c@katana>
+Message-ID: <20180207232041.vgo2i7cmkljwvluy@katana>
 References: <1517423070-24236-1-git-send-email-fabrizio.castro@bp.renesas.com>
- <1517423070-24236-23-git-send-email-fabrizio.castro@bp.renesas.com>
+ <1517423070-24236-24-git-send-email-fabrizio.castro@bp.renesas.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="u7l36mxx4tportae"
+	protocol="application/pgp-signature"; boundary="5lywdttzvhqp5tef"
 Content-Disposition: inline
-In-Reply-To: <1517423070-24236-23-git-send-email-fabrizio.castro@bp.renesas.com>
+In-Reply-To: <1517423070-24236-24-git-send-email-fabrizio.castro@bp.renesas.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
 
---u7l36mxx4tportae
+--5lywdttzvhqp5tef
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jan 31, 2018 at 06:24:26PM +0000, Fabrizio Castro wrote:
-> This commit adds watchdog support to the r8a7790 dtsi.
+On Wed, Jan 31, 2018 at 06:24:27PM +0000, Fabrizio Castro wrote:
+> This commit adds watchdog support to the r8a7791 dtsi.
 >=20
 > Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
 > Signed-off-by: Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesa=
@@ -51,24 +51,24 @@ s.com>
 Acked-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
 
---u7l36mxx4tportae
+--5lywdttzvhqp5tef
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlp7icQACgkQFA3kzBSg
-KbYtjRAArwnZ+Jeb6rbsuMYgWKT54EjBlN9YeQjCOLUv6NC+dFSBuuQVTjYigJMI
-ARTVYdCErYKzQ0rOwKlC0F0zP7YYNxtkOwvCDcx1elkbPw8N9Sh9oCkYEZhuhhCb
-L/lXdTJwP7H1IvEDnOCfpygkwJnPBeURF5Yc86CKywojCXzq8GOHPKcug4Z5SRMT
-DhW+h9IMnr3Cnu6WCrYiSlX2IjFDD02jNjKbIRAvNRirhEtlgvQbj6f4PlbVzPhl
-+aRVfwXA7j780EMMYXpixM8PmlZxS+nj+kKckqoeh98uhTzWVm6hgpwV2JwbrEf1
-U0JOLh2Rg0NecJeiJcgh5CR1YfEdprHYrVagxq5VGvENNVVmfRbqQc8BSmrSR47K
-ve0yWt4hASG0qi91WElEeL5aCapEfULtmkwBFxqPeEZLOsKPxydDYQoZZMLHCeuQ
-o4YD/zM2Q1hnm0gYp8LD9UpJ+VFi4WGFFOc7CKeXdRDnWVeGDG9DgJPaCroEjbxg
-Huwke+m1LGPIVSXdgA5sZhVHfk0KiRJ2L0L20F5RtqcYmKQoth+AAhZ85pviUs9W
-55GMMwU44rGAEXjzvKnd77Z0hHiVmUOnLWSnCTaIvCJtPYIPcN2DAnQ0WbvZEfQV
-osXLFrE5FFxCALc+GKLDFx+bc6RcFHOE7/Q87EUsWniigbIvJQ4=
-=2/Em
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlp7ickACgkQFA3kzBSg
+KbbmUA/9GVhdEFtaR7aTq7KbbW4Vcee6HlK7E9Bnhcxwqvc9pXckaReLWp+NcsBo
+O4KMkEfPFuylGXnAGTADDBgZnb0+mgQw03NsBN6Gclo/E3O0QwLv9DVCBimjjPs5
+ePQw2FDC1hXxrr6hE5BZ4RNycamyEj5l5N++KtmPc/IXgiuRX0iOphAUrEpCO0gD
+CKCom0bM0Uh3J3kS3CreGu0xH1JIdF80DzTqH4JJ+R1WzOM+th/TKN1aJh4ClOx1
+V74+rTG6dc1JNIhgNUiDwgMe75TzMoD+K/gYDdYNHPdBZGo67vzM5ers+EwEy3Li
+PldfJIcK8dmF/y8aj3/hEXKxghg+qEBWhlhRubk3PcXgqAmtwm30YdjYBpI07Zpf
+oruYV5nE5zlaY/SI4OzPENIyT1A4LCz93qSxFCdYzFmV1y5ESsgJIv2M14ZOb7cK
+0ZdvJvbfwsuiDPoWjNiX37KVl+2aA7AhyZLbI04SuHdqUplHLomqekeSgA8nTXwN
+oiD1fw91jmxClBKlc94lhAYJgMg7mJadqaSmy7Ee20O92nVjVy9t1UT4Ljm8C9kz
+jz1t+lDRm4SBvXWDn0TMbFpAdrnnNJsZvfckM+FiQUtvsd01vs8buv7c/3ZBl81t
+YdSfuUyA/MKPXtgk0bpDJTBQGfzcZo1cMCSczyOnGWFF3X3I0Yo=
+=OeS1
 -----END PGP SIGNATURE-----
 
---u7l36mxx4tportae--
+--5lywdttzvhqp5tef--
