@@ -1,73 +1,66 @@
-Return-Path: <wsa-dev@sang-engineering.com>
-Return-path: <wsa-dev@sang-engineering.com>
-Date: Thu, 8 Feb 2018 00:21:03 +0100
-From: Wolfram Sang <wsa@the-dreams.de>
-To: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
-Cc: Philipp Zabel <p.zabel@pengutronix.de>,
-	Rob Herring <robh+dt@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Russell King <linux@armlinux.org.uk>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will.deacon@arm.com>,
-	Michael Turquette <mturquette@baylibre.com>,
-	Stephen Boyd <sboyd@codeaurora.org>,
-	Simon Horman <horms@verge.net.au>,
-	Magnus Damm <magnus.damm@gmail.com>,
-	Geert Uytterhoeven <geert+renesas@glider.be>,
-	Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org,
-	linux-watchdog@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-clk@vger.kernel.org,
-	Chris Paterson <Chris.Paterson2@renesas.com>,
-	Biju Das <biju.das@bp.renesas.com>,
-	Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
-Subject: Re: [RFC v4 25/26] ARM: dts: iwg20m: Add watchdog support to SoM dtsi
-Message-ID: <20180207232103.p5ynehmgngoalq5x@katana>
-References: <1517423070-24236-1-git-send-email-fabrizio.castro@bp.renesas.com>
- <1517423070-24236-26-git-send-email-fabrizio.castro@bp.renesas.com>
+Return-Path: <linus971@gmail.com>
+Return-path: <linus971@gmail.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="465r3sfkhjhucg7t"
-Content-Disposition: inline
-In-Reply-To: <1517423070-24236-26-git-send-email-fabrizio.castro@bp.renesas.com>
+Sender: linus971@gmail.com
+In-Reply-To: <20180207104207.GA25825@infomag.iguana.be>
+References: <20180207104207.GA25825@infomag.iguana.be>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Date: Wed, 7 Feb 2018 12:02:33 -0800
+Message-ID: <CA+55aFzrcAgOykaLK6S34W-udn5Y0rAC6j39MEZFz9CRSSnpEw@mail.gmail.com>
+Subject: Re: [GIT PULL REQUEST] watchdog - v4.16 merge window
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: Andrew Morton <akpm@linux-foundation.org>, LKML <linux-kernel@vger.kernel.org>,
+	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>, =?UTF-8?Q?Andreas_F=C3=A4rber?= <afaerber@suse.de>,
+	=?UTF-8?Q?Andr=C3=A9_Draszik?= <git@andred.net>,
+	Andrew Jeffery <andrew@aj.id.au>, Arnd Bergmann <arnd@arndb.de>,
+	Benjamin Gaignard <benjamin.gaignard@linaro.org>,
+	Chris Packham <chris.packham@alliedtelesis.co.nz>,
+	Christophe Leroy <christophe.leroy@c-s.fr>, Corentin Labbe <clabbe@baylibre.com>,
+	Corentin Labbe <clabbe.montjoie@gmail.com>, David Lechner <david@lechnology.com>,
+	Eric Long <eric.long@spreadtrum.com>, Geert Uytterhoeven <geert+renesas@glider.be>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Guenter Roeck <linux@roeck-us.net>,
+	"Gustavo A. R. Silva" <garsilva@embeddedor.com>, Jerry Hoemann <jerry.hoemann@hpe.com>,
+	Linus Walleij <linus.walleij@linaro.org>, Martin Kaiser <martin@kaiser.cx>,
+	Mathieu Malaterre <malat@debian.org>, Matt Redfearn <matt.redfearn@mips.com>,
+	Michael Grzeschik <mgr@pengutronix.de>, Michael Grzeschik <m.grzeschik@pengutronix.de>,
+	Oleksij Rempel <o.rempel@pengutronix.de>, Radu Rendec <rrendec@arista.com>,
+	Rasmus Villemoes <rasmus.villemoes@prevas.dk>, Tomas Winkler <tomas.winkler@intel.com>,
+	Wim Van Sebroeck <wim@linux-watchdog.org>
+Content-Type: text/plain; charset="UTF-8"
 List-ID: <linux-watchdog@vger.kernel.org>
 
+On Wed, Feb 7, 2018 at 2:42 AM, Wim Van Sebroeck <wim@iguana.be> wrote:
+>
+> Please pull the watchdog updates for v4.16 from the following signed tag
+>         git://www.linux-watchdog.org/linux-watchdog.git linux-watchdog-4.16-rc1
 
---465r3sfkhjhucg7t
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Thanks, pulled, since this now had the tag name and the description.
 
-On Wed, Jan 31, 2018 at 06:24:29PM +0000, Fabrizio Castro wrote:
-> This patch enables the watchdog from within the iwg20m SoM dtsi.
->=20
-> Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
-> Signed-off-by: Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesa=
-s.com>
-> Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Two small further requests for next time:
 
-Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> The output from git request-pull:
 
+This was still broken, and didn't actually have the tag name. Notice this part:
 
---465r3sfkhjhucg7t
-Content-Type: application/pgp-signature; name="signature.asc"
+> are available in the git repository at:
+>
+>   git://www.linux-watchdog.org/linux-watchdog.git
 
------BEGIN PGP SIGNATURE-----
+just points to the bare repo. And since that's the part my eyes are
+trained to cut-and-paste (because this matches the normal pull request
+format), I got it wrong at first before correcting my pull..
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlp7id8ACgkQFA3kzBSg
-KbYzQRAAlvPTx08aRzmDIK3C1VadQr8UcUhoztAC9o7zTzLsqFCxe/8SSHEhMQSx
-IoZ/j2jCC/MP1K5Xrue71jW2urf+igpn0MiAaSDOcpFYHas/cZfM8It3G++yLigC
-0JMymDqyJm5HN/4EQDh91YlGav1gbDodMHdN+9rLc7hSHiFExIAOsoKkIBnnJ2CQ
-z8g+Gt78fPS6ocwsXmnyT41Qf08eJ7XjF4ri7xqLocjv6+U1Vao/SyfyEsph0vOq
-Ly2oE+X5PAGMrOOXskzUXuYqRh5KSa51hxg8FNQkjK+baBUczUvTr3xDrT50+apr
-xqFntQo917bj0mLoqc9E+ednuv+Vxup3LEmwKM0UvuL06Ql4ipYkeUww3QBPLZWH
-QZy6vbHAwgWUIU6fbsbURDoSnk0VjYXkERsGM/I7x5udlaZm6imYTUv8gV/gaeCf
-aLqF+PsOexFjU9Va0ta/PWPzLOKhG64w8lvxxYcndw6XuG89TpUkknhRvdTiU5ZS
-BFomSsMHFtmqKBVI19nDsYkHjY4W9r27ssTzP3OpiidhPDBbQL1x+Y4C08DKLRob
-96iFzwYKPWkcWwk0VN3zUlU3AKA9oMCrgaYaLSSS0lE6S9pux3QCSQ3DxehqtAcR
-dREbcnyz9ePpl6A2khZOuXRJcvdk5lm2Pghk0xYzxFgRiPLCtl0=
-=V973
------END PGP SIGNATURE-----
+The other request is to just make your gpg key public, and hoipefully
+get a few signatures for the future. I have your key since you sent it
+to me in email separately, but nobody else can verify it since it
+doesn't seem to be on any key servers.
 
---465r3sfkhjhucg7t--
+So just a
+
+    gpg --send-keys FA2CAD78625F46CA
+
+should fix it for you. At which point maybe you can find somebody to
+sign it because they can verify it (locally or perhaps over the phone
+or other side channel).
+
+                Linus
