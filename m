@@ -1,6 +1,6 @@
 Return-Path: <wsa-dev@sang-engineering.com>
 Return-path: <wsa-dev@sang-engineering.com>
-Date: Thu, 8 Feb 2018 00:03:10 +0100
+Date: Thu, 8 Feb 2018 00:04:01 +0100
 From: Wolfram Sang <wsa@the-dreams.de>
 To: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
 Cc: Philipp Zabel <p.zabel@pengutronix.de>,
@@ -22,68 +22,56 @@ Cc: Philipp Zabel <p.zabel@pengutronix.de>,
 	Chris Paterson <Chris.Paterson2@renesas.com>,
 	Biju Das <biju.das@bp.renesas.com>,
 	Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
-Subject: Re: [RFC v4 13/26] watchdog: renesas_wdt: Add restart handler
-Message-ID: <20180207230309.goxig2irkpxrw5el@katana>
+Subject: Re: [RFC v4 11/26] dt-bindings: watchdog: renesas-wdt: Add R-Car
+ Gen2 support
+Message-ID: <20180207230401.uvpare7cwk7tpqk7@katana>
 References: <1517423070-24236-1-git-send-email-fabrizio.castro@bp.renesas.com>
- <1517423070-24236-14-git-send-email-fabrizio.castro@bp.renesas.com>
+ <1517423070-24236-12-git-send-email-fabrizio.castro@bp.renesas.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="ii2okpc4xrkcaei4"
+	protocol="application/pgp-signature"; boundary="i7htazl5c3cbyi6c"
 Content-Disposition: inline
-In-Reply-To: <1517423070-24236-14-git-send-email-fabrizio.castro@bp.renesas.com>
+In-Reply-To: <1517423070-24236-12-git-send-email-fabrizio.castro@bp.renesas.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
 
---ii2okpc4xrkcaei4
+--i7htazl5c3cbyi6c
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, Jan 31, 2018 at 06:24:15PM +0000, Fabrizio Castro wrote:
+> This commit documents the compatibility with R-Car Gen2 and RZ/G
+> devices by defining the generic compatible string "renesas,rcar-gen2-wdt".
+> Also, this patch expands the list of SoC-specific compatible strings to
+> include RZ/G and R-Car Gen2 devices.
+>=20
+> Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
+> Signed-off-by: Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesa=
+s.com>
+> Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+
+Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
 
-> +static int rwdt_restart(struct watchdog_device *wdev, unsigned long action,
-> +			void *data)
-> +{
-> +	struct rwdt_priv *priv = watchdog_get_drvdata(wdev);
-> +
-> +	pm_runtime_get_sync(wdev->parent);
-> +
-> +	rwdt_write(priv, 0x00, RWTCSRB);
-> +	rwdt_write(priv, 0x00, RWTCSRA);
-> +	rwdt_write(priv, 0xffff, RWTCNT);
-> +
-> +	while (readb_relaxed(priv->base + RWTCSRA) & RWTCSRA_WRFLG)
-> +		cpu_relax();
-> +
-> +	rwdt_write(priv, 0x80, RWTCSRA);
-> +	return 0;
-> +}
-
-I used to have this simpler version (back then for the UP case):
-
-+	rwdt_start(wdev);
-+	rwdt_write(priv, 0xffff, RWTCNT);
-+	return 0;
-
-It should still work probably...
-
-
---ii2okpc4xrkcaei4
+--i7htazl5c3cbyi6c
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlp7ha0ACgkQFA3kzBSg
-KbacvQ/8D8XYr0uC7zXPoAzE+CXEN7xox41cu1uhV5RPnDWwkmI/jHoVq9STySZB
-ifUMM4hsbFUgeKnmZ+viMxa5tTKSj9at6WiUeyQ+K2rkhZ0Sqkmn3O7RFuyq0pf9
-o52ysxCWQuch5ep/lj4N4O7aUU1nPlPIimX7b8QgaYDxYvVqdZSBhYymwhN+0fZB
-X1uf+PXlzIxVPNKV7R0kg4yX7YdDU90S6jQ94szgGH0n+0y66K/ImeFV5eKeKBhi
-jZWbLwt4+q63D+6r6vZBViJ1xivkiwe8mcAsth0ZyxLKEsqUSCJZkTU+l3XSN6dP
-2BemCvP41GCTNDsxbrXMLd5X0YnXSV+PLJ+QZH2DggQTIu7ytFCfm6KLXVc9evx7
-AVX6DnlbAXzuKOewB8Tx356P17p92EMQ9Qc5i7KbrUmpjoNPoNYpO+/6j/9GwvcQ
-A+kYJUhK6QOcTvRWIY7JqOt3cz35Hn1TjBdqUEux09mG2f3fvdSHfALQM3iCM3G0
-yjRkmk+EUx2zzD7p3LB6fAzG21ggcLLKD1h/oy4u0INM2bu+393YzK5uHgbWY+PN
-X88AJZKY0cPvG9yT7QVRJ10MhaawGE6ohiNo6NfLtbZHrjPgYV6bM3/bfxGSXqrH
-turo0tDcQr3fllKxAP4B8WbCS9vj1iNTnWRY/8yZhPQbCYrHsZ8=
-=fuGM
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlp7heAACgkQFA3kzBSg
+KbYriw/7BT40MBbg0dFnn3nMKJv8vGFJ/C3BIVsh0gy5T+crZE+9Famm2EYPRAU5
+l5gmh/e38DCrves2Eys2ifrfVzG8kp/69Zkp89hhkkDzNddji3+JjMsMgBsjePTZ
+dPZKMWPFI05mR+SlvdLmmjLX0hAODG+3llEjCCd02YvM6P1PrWVdFB5IPA0NSOCG
+LXKuFAobA93/Q58J4oBGwKsbPvptRFxUVuNoCjyd5bmAzY3QuemXYuVTclrVjUZc
+9dTlRfstdhazi3gkHSv3bN2yR2NH6cqc7cCV0LTN6rUFZPtXU4XF6tEk9oYMp78R
+RpaGl3TFrWym2IBLGoDEZLDH0FDmp3m3qou7Bxek1UpbuytmTOHr8TSLU7Iz1b6z
+1ccDL5Q8A7ESf6rxenttuIrC/gp8VJm4mNmW0NK8rVf4xpU7lfnARXVL9FG70EUj
+lYAJ5hJCUQX7QOsZBhu8y0odB4GlkEw3Zbc2L3s14In2uvmqKwF86mTDCqKXeuFG
+RxXAxAXyX4BSwEpq1ZXbHRlvDyKzinlwf0wOXdFLJxGvdgQzOPNpKMoJw4Izo5UE
+szFfjDa0s6JpAwHps/Qzt31/FmuVA48CyOf8K5KJXZTinHdPcWv1GHMHFs3d9DSI
+RpnZ+wBczYVS+uCFRrYlFJwPCSCV7iFTTeyIqMJLVpJnuzpymhY=
+=DrUQ
 -----END PGP SIGNATURE-----
 
---ii2okpc4xrkcaei4--
+--i7htazl5c3cbyi6c--
