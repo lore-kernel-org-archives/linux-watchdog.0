@@ -1,78 +1,113 @@
-Return-Path: <fabrizio.castro@bp.renesas.com>
-Return-path: <fabrizio.castro@bp.renesas.com>
-From: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-CC: Philipp Zabel <p.zabel@pengutronix.de>, Rob Herring <robh+dt@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>, Wim Van Sebroeck <wim@iguana.be>,
-	Russell King <linux@armlinux.org.uk>, Catalin Marinas
-	<catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, "Michael
- Turquette" <mturquette@baylibre.com>, Stephen Boyd <sboyd@codeaurora.org>,
-	Simon Horman <horms@verge.net.au>, Magnus Damm <magnus.damm@gmail.com>,
-	"Geert Uytterhoeven" <geert+renesas@glider.be>, Wolfram Sang
-	<wsa+renesas@sang-engineering.com>, Guenter Roeck <linux@roeck-us.net>, "open
- list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS"
-	<devicetree@vger.kernel.org>, Linux Watchdog Mailing List
-	<linux-watchdog@vger.kernel.org>, Linux-Renesas
-	<linux-renesas-soc@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>, linux-clk
-	<linux-clk@vger.kernel.org>, Chris Paterson <Chris.Paterson2@renesas.com>,
-	Biju Das <biju.das@bp.renesas.com>, Ramesh Shanmugasundaram
-	<ramesh.shanmugasundaram@bp.renesas.com>
-Subject: RE: [RFC v4 13/26] watchdog: renesas_wdt: Add restart handler
-Date: Wed, 7 Feb 2018 15:55:24 +0000
-Message-ID: <TY1PR06MB0895BDC61E7C226E29AC6D11C0FC0@TY1PR06MB0895.apcprd06.prod.outlook.com>
+Return-Path: <wsa-dev@sang-engineering.com>
+Return-path: <wsa-dev@sang-engineering.com>
+Date: Wed, 7 Feb 2018 23:53:56 +0100
+From: Wolfram Sang <wsa@the-dreams.de>
+To: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
+Cc: Philipp Zabel <p.zabel@pengutronix.de>,
+	Rob Herring <robh+dt@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Russell King <linux@armlinux.org.uk>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will.deacon@arm.com>,
+	Michael Turquette <mturquette@baylibre.com>,
+	Stephen Boyd <sboyd@codeaurora.org>,
+	Simon Horman <horms@verge.net.au>,
+	Magnus Damm <magnus.damm@gmail.com>,
+	Geert Uytterhoeven <geert+renesas@glider.be>,
+	Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org,
+	linux-watchdog@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-clk@vger.kernel.org,
+	Chris Paterson <Chris.Paterson2@renesas.com>,
+	Biju Das <biju.das@bp.renesas.com>,
+	Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
+Subject: Re: [RFC v4 12/26] watchdog: renesas_wdt: Add R-Car Gen2 support
+Message-ID: <20180207225356.pgirh2ohdsv7xdne@katana>
 References: <1517423070-24236-1-git-send-email-fabrizio.castro@bp.renesas.com>
- <1517423070-24236-14-git-send-email-fabrizio.castro@bp.renesas.com>
- <CAMuHMdVZi0Vyz9+Z6TFeX3yh=rzRHBuNbgy1Nt4LhoLU8qK5KQ@mail.gmail.com>
-In-Reply-To: <CAMuHMdVZi0Vyz9+Z6TFeX3yh=rzRHBuNbgy1Nt4LhoLU8qK5KQ@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+ <1517423070-24236-13-git-send-email-fabrizio.castro@bp.renesas.com>
 MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="x2emqnqh5zo5pl5i"
+Content-Disposition: inline
+In-Reply-To: <1517423070-24236-13-git-send-email-fabrizio.castro@bp.renesas.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-SGVsbG8gR2VlcnQsDQoNCj4gU3ViamVjdDogUmU6IFtSRkMgdjQgMTMvMjZdIHdhdGNoZG9nOiBy
-ZW5lc2FzX3dkdDogQWRkIHJlc3RhcnQgaGFuZGxlcg0KPg0KPiBIaSBGYWJyaXppbywNCg0KVGhh
-bmsgeW91IGZvciB5b3VyIGZlZWRiYWNrIQ0KDQo+DQo+IE9uIFdlZCwgSmFuIDMxLCAyMDE4IGF0
-IDc6MjQgUE0sIEZhYnJpemlvIENhc3Rybw0KPiA8ZmFicml6aW8uY2FzdHJvQGJwLnJlbmVzYXMu
-Y29tPiB3cm90ZToNCj4gPiBPbiBpV2F2ZSdzIGJvYXJkcyBpd2cyMGQgYW5kIGl3ZzIyZCB0aGUg
-b25seSB3YXkgdG8gcmVib290IHRoZSBzeXN0ZW0gaXMNCj4gPiBieSBtZWFucyBvZiB0aGUgd2F0
-Y2hkb2cuDQo+ID4gVGhpcyBwYXRjaCBhZGRzIGEgcmVzdGFydCBoYW5kbGVyIHRvIHJ3ZHRfb3Bz
-LCBhbmQgYWxzbyBtYWtlcyBzdXJlIHdlDQo+ID4ga2VlcCBpdHMgcHJpb3JpdHkgdG8gYSBtZWRp
-dW0gbGV2ZWwsIGluIG9yZGVyIHRvIG5vdCBvdmVycmlkZSBvdGhlciBtb3JlDQo+ID4gZWZmZWN0
-aXZlIGhhbmRsZXJzLg0KPiA+DQo+ID4gU2lnbmVkLW9mZi1ieTogRmFicml6aW8gQ2FzdHJvIDxm
-YWJyaXppby5jYXN0cm9AYnAucmVuZXNhcy5jb20+DQo+ID4gU2lnbmVkLW9mZi1ieTogUmFtZXNo
-IFNoYW5tdWdhc3VuZGFyYW0gPHJhbWVzaC5zaGFubXVnYXN1bmRhcmFtQGJwLnJlbmVzYXMuY29t
-Pg0KPg0KPiA+IC0tLSBhL2RyaXZlcnMvd2F0Y2hkb2cvcmVuZXNhc193ZHQuYw0KPiA+ICsrKyBi
-L2RyaXZlcnMvd2F0Y2hkb2cvcmVuZXNhc193ZHQuYw0KPiA+IEBAIC0xMTgsNiArMTM2LDcgQEAg
-c3RhdGljIGNvbnN0IHN0cnVjdCB3YXRjaGRvZ19vcHMgcndkdF9vcHMgPSB7DQo+ID4gICAgICAg
-ICAuc3RvcCA9IHJ3ZHRfc3RvcCwNCj4gPiAgICAgICAgIC5waW5nID0gcndkdF9pbml0X3RpbWVv
-dXQsDQo+ID4gICAgICAgICAuZ2V0X3RpbWVsZWZ0ID0gcndkdF9nZXRfdGltZWxlZnQsDQo+ID4g
-KyAgICAgICAucmVzdGFydCA9IHJ3ZHRfcmVzdGFydCwNCj4gPiAgfTsNCj4gPg0KPiA+ICBzdGF0
-aWMgaW50IHJ3ZHRfcHJvYmUoc3RydWN0IHBsYXRmb3JtX2RldmljZSAqcGRldikNCj4gPiBAQCAt
-MTc2LDYgKzE5NSw3IEBAIHN0YXRpYyBpbnQgcndkdF9wcm9iZShzdHJ1Y3QgcGxhdGZvcm1fZGV2
-aWNlICpwZGV2KQ0KPiA+ICAgICAgICAgcGxhdGZvcm1fc2V0X2RydmRhdGEocGRldiwgcHJpdik7
-DQo+ID4gICAgICAgICB3YXRjaGRvZ19zZXRfZHJ2ZGF0YSgmcHJpdi0+d2RldiwgcHJpdik7DQo+
-ID4gICAgICAgICB3YXRjaGRvZ19zZXRfbm93YXlvdXQoJnByaXYtPndkZXYsIG5vd2F5b3V0KTsN
-Cj4gPiArICAgICAgIHdhdGNoZG9nX3NldF9yZXN0YXJ0X3ByaW9yaXR5KCZwcml2LT53ZGV2LCAx
-MjgpOw0KPg0KPiBHaXZlbiB3ZSB3YW50IHRvIHJlYm9vdCBSLUNhciBHZW4yIGJvYXJkcyBlcXVp
-cHBlZCB3aXRoIGEgc3VpdGFibGUgUE1JQw0KPiAoZS5nLiBEQTkwNjMpIHVzaW5nIHRoYXQgUE1J
-QywgSSB0aGluayB0aGUgcHJpb3JpdHkgc2hvdWxkIGJlIGxvd2VyICgwPyksDQo+IGNmci4NCg0K
-WWVzLCBjYW4gZG8sIEkgaGF2ZSBubyBzdHJvbmcgb3BpbmlvbiBhYm91dCB0aGlzLg0KSSdsbCB1
-c2UgcHJpb3JpdHkgMCBmb3IgdGhlIG5leHQgc3VibWlzc2lvbi4NCg0KVGhhbmtzLA0KRmFiDQoN
-Cj4NCj4gICogICAwOiAgIHVzZSB3YXRjaGRvZydzIHJlc3RhcnQgZnVuY3Rpb24gYXMgbGFzdCBy
-ZXNvcnQsIGhhcyBsaW1pdGVkIHJlc3RhcnQNCj4gICogICAgICAgIGNhcGFiaWxpZXMNCj4gICog
-ICAxMjg6IGRlZmF1bHQgcmVzdGFydCBoYW5kbGVyLCB1c2UgaWYgbm8gb3RoZXIgaGFuZGxlciBp
-cyBleHBlY3RlZCB0byBiZQ0KPiAgKiAgICAgICAgYXZhaWxhYmxlIGFuZC9vciBpZiByZXN0YXJ0
-IGlzIHN1ZmZpY2llbnQgdG8gcmVzdGFydCB0aGUgZW50aXJlIHN5c3RlbQ0KPiAgKiAgIDI1NTog
-cHJlZW1wdCBhbGwgb3RoZXIgaGFuZGxlcnMNCj4NCj4gR3J7b2V0amUsZWV0aW5nfXMsDQo+DQo+
-ICAgICAgICAgICAgICAgICAgICAgICAgIEdlZXJ0DQo+DQo+IC0tDQo+IEdlZXJ0IFV5dHRlcmhv
-ZXZlbiAtLSBUaGVyZSdzIGxvdHMgb2YgTGludXggYmV5b25kIGlhMzIgLS0gZ2VlcnRAbGludXgt
-bTY4ay5vcmcNCj4NCj4gSW4gcGVyc29uYWwgY29udmVyc2F0aW9ucyB3aXRoIHRlY2huaWNhbCBw
-ZW9wbGUsIEkgY2FsbCBteXNlbGYgYSBoYWNrZXIuIEJ1dA0KPiB3aGVuIEknbSB0YWxraW5nIHRv
-IGpvdXJuYWxpc3RzIEkganVzdCBzYXkgInByb2dyYW1tZXIiIG9yIHNvbWV0aGluZyBsaWtlIHRo
-YXQuDQo+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgLS0gTGludXMgVG9ydmFsZHMN
-Cg0KDQoNClJlbmVzYXMgRWxlY3Ryb25pY3MgRXVyb3BlIEx0ZCwgRHVrZXMgTWVhZG93LCBNaWxs
-Ym9hcmQgUm9hZCwgQm91cm5lIEVuZCwgQnVja2luZ2hhbXNoaXJlLCBTTDggNUZILCBVSy4gUmVn
-aXN0ZXJlZCBpbiBFbmdsYW5kICYgV2FsZXMgdW5kZXIgUmVnaXN0ZXJlZCBOby4gMDQ1ODY3MDku
-DQo=
+
+--x2emqnqh5zo5pl5i
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+
+> +#ifdef CONFIG_PM
+> +static int rwdt_suspend(struct device *dev)
+> +{
+> +	struct platform_device *pdev;
+> +	struct rwdt_priv *priv;
+> +
+> +	pdev = to_platform_device(dev);
+> +	priv = platform_get_drvdata(pdev);
+
+struct rwdt_priv *priv = dev_get_drvdata(dev);
+
+?
+
+
+> +	if (watchdog_active(&priv->wdev)) {
+> +		rwdt_write(priv, priv->cks, RWTCSRA);
+> +	}
+> +	return 0;
+> +}
+> +
+> +static int rwdt_resume(struct device *dev)
+> +{
+> +	struct platform_device *pdev;
+> +	struct rwdt_priv *priv;
+> +
+> +	pdev = to_platform_device(dev);
+> +	priv = platform_get_drvdata(pdev);
+
+ditto
+
+> +	if (watchdog_active(&priv->wdev)) {
+> +		rwdt_write(priv, priv->cks | RWTCSRA_TME, RWTCSRA);
+> +	}
+> +	return 0;
+> +}
+> +
+> +static const struct dev_pm_ops rwdt_pm = {
+> +	.suspend = rwdt_suspend,
+> +	.resume = rwdt_resume,
+> +};
+
+Use SIMPLE_DEV_PM_OPS macro (see stmp3xxx_rtc_wdt.c for an example) for
+more compact code and...
+
+> +#ifdef CONFIG_PM
+> +		.pm = &rwdt_pm,
+> +#endif
+
+... removing this ifdeffery?
+
+
+--x2emqnqh5zo5pl5i
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlp7g38ACgkQFA3kzBSg
+KbYnog/7BQsY8nwc8noFCm8FP2wPZmQ9mkLXkMz+xpFBzL2RJh5V60jwNfYdgqRH
+523vlZJ7oJ3vFiOie5A29Xk3uQ6z9hybRyfoqEkdhTRV1GIl1iS4nZGzB5vuFHAb
+sEaRyH4CfMOjpjlFNMoylJXNvqZO3SyIv/9JfNG0xTDTOOL2OabCgqo2hKC3qkfw
+XFx2E/+UhGUXx24AjImWjM1u/98j5iubpXUqgML/N+M3youIrXloYSPjQ1aORSQR
+zDuhk9H5WXcVUiyyyEzV2uC+rptqkoJAybYLjWM76rrrQRgoCw1Q68f3/aOBVza0
+truSbQArJWKRMhjuW4wxdHeWlvEKlYfu2pHCB9lf3DScR4iW4DmaTtpQKiu9eUnm
+/3V9Bs7345dpGf1sbtgIhMfGzDpKpM8xjNHHzsWMqAE9+kGVxgl4TouEedDh7t4Q
+BkbgTKHcvaktebxXkCNeQIHrxqYAHGmySfZZC4BrsUtfJLX5yr72/SKT8LGpCS7O
+5kpoil1jTz1Vkgx9l7c3tfTG4eX7p943dimpvr8K9MBUodCJAbsrzd/Wx446N8bx
+1BX33C7EAJAmi9MWWWIUnTTLW2vwaqBJhiUDqKCcPI9N6jX1asgrPOITF8qxWjEW
+oRuePWinnSbLgiU7Z/hOu0vVzftkQAHKbCqLw7wv86CZJBhY9hg=
+=oLOg
+-----END PGP SIGNATURE-----
+
+--x2emqnqh5zo5pl5i--
