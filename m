@@ -1,6 +1,6 @@
 Return-Path: <wsa-dev@sang-engineering.com>
 Return-path: <wsa-dev@sang-engineering.com>
-Date: Thu, 8 Feb 2018 00:17:15 +0100
+Date: Thu, 8 Feb 2018 00:20:25 +0100
 From: Wolfram Sang <wsa@the-dreams.de>
 To: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
 Cc: Philipp Zabel <p.zabel@pengutronix.de>,
@@ -22,52 +22,53 @@ Cc: Philipp Zabel <p.zabel@pengutronix.de>,
 	Chris Paterson <Chris.Paterson2@renesas.com>,
 	Biju Das <biju.das@bp.renesas.com>,
 	Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
-Subject: Re: [RFC v4 19/26] clk: renesas: r8a7794: Add rwdt clock
-Message-ID: <20180207231715.r42l7aekecwszeqd@katana>
+Subject: Re: [RFC v4 20/26] ARM: dts: r8a7743: Add watchdog support to SoC
+ dtsi
+Message-ID: <20180207232025.cm4mdr4l65lwej2j@katana>
 References: <1517423070-24236-1-git-send-email-fabrizio.castro@bp.renesas.com>
- <1517423070-24236-20-git-send-email-fabrizio.castro@bp.renesas.com>
+ <1517423070-24236-21-git-send-email-fabrizio.castro@bp.renesas.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="2ppkhvycs7w7moi3"
+	protocol="application/pgp-signature"; boundary="2bzzwp6v4ficjmmb"
 Content-Disposition: inline
-In-Reply-To: <1517423070-24236-20-git-send-email-fabrizio.castro@bp.renesas.com>
+In-Reply-To: <1517423070-24236-21-git-send-email-fabrizio.castro@bp.renesas.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
 
---2ppkhvycs7w7moi3
+--2bzzwp6v4ficjmmb
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jan 31, 2018 at 06:24:23PM +0000, Fabrizio Castro wrote:
-> Add "rwdt" clock to r8a7794_mod_clks. Also, since we may need to access
-> the watchdog registers at any time, declare the clock as critical.
+On Wed, Jan 31, 2018 at 06:24:24PM +0000, Fabrizio Castro wrote:
+> This patch adds watchdog support to the r8a7743 SoC dtsi.
 >=20
 > Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
 > Signed-off-by: Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesa=
 s.com>
+> Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
 
-Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Acked-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
 
---2ppkhvycs7w7moi3
+--2bzzwp6v4ficjmmb
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlp7iPoACgkQFA3kzBSg
-Kbabqg/+PRinXdRPLN9NnawvsTfFj6IjK5Nou7kfTGjvbEMRZMhZSf4fOwB3Df73
-O9Wsc5kG9fUC/R1qrSl+H7wQflfGazbY9WrwUjfH0DTcdbFFjnLgjiZg4S6rzK4W
-OV10rOnayOQCcb3H8UwcjLgk3EZkAfY85vC+T22LglEH9larVmP+EoTpY0zRDb2D
-Iuv0QAuj5VThbIYacFzPjVpJ/S+WnJqV76mPJw8w0i4um3sG4BlV6FSNC0Lvvk7g
-DRpOmilYt91bPzLk7OzLwnbnlR3aLlau+w2yqQur81IZbPWqXVrHhzbJ0k1hDuxM
-RRnH82zlXm/RFirnDOb1s8mut5wRAm8jOy+CT9f1utBI6/aKjIdH30VQGm1khfqP
-HovodgbD3Veh9bQmQYwGV5woh3/lmkTSKcndKII9pWDDqAcBPI1Wr9qquupQkp3I
-MQpY39rhioCi4Hkyea3ctnU4xrdzujcDw94QZNp4KcX2S3/EzlFJXmOEHSstrp5B
-iN/zuEurQyNz44voI5PsY7NYm3NaSxbIiOld45VbWZLrfAKo/ii1FFpVsvvDp3IY
-joIHI9Gqq6GJ1ITDuMk9jSeH8IC6UzfwK4VHASIxSEANSaRXKuqLI+uasFgS1mh+
-8jQwfQzbfIjV6MoEmBeOn6yFmcqUe7pqETe484HqyFAiYyQRVVY=
-=kbA+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlp7ibkACgkQFA3kzBSg
+KbbEKhAAsGL4jtMZjwlGDZZBSTLblrBqh1HCII4vwxPudWz/FM3TomJ7qjtk7Dl7
+ytCgwcJ7V9mmENc7PnC92AfYiPhuYFQP+9q/+UP9BjGW1z6gUfhJ8UbjwLWYHffj
+z/MMhzpwQScdtbznY/vCM8RU6157b5z0ZUh2ANF3DxnV18WZ3kz/VA6arqQ4et2a
+fALAhp0juJoghpZtXGhuV9x9ot0mEHRXirlHfcLKCts8+FsXTxwuxqy02qCeSNhi
+eoefthCmD0VdB20bvav8nLP5iJyn9BvXhuhjBbzFt833jtF3Wbq5TYNvHML49OG+
+A9n/Ebi++d+6aHvJyN4JDlgNeOalDGJiLLvsMPsCzYcqCeC+BReK0Ty/XIvDKkiG
+Qer+2WxROyM7uMI/pjyZ6C7nf7QsIhdbAbHcP/TpweyF2PsttuNVHAgUiD7kkxRS
+qPM4PoVfnO6cBj8FieWtBrGzjuuWJdbCkwu/oE5MAixHlRbBgslbRV7ZRL5aqZH5
+7Z9QOgtc4IQGlwPZHiqnstP4+yS7el8P5kxL6SuOkVaOgAzB7utZfgqZQ3HY5np9
+LaAGoIF+n5tXTLRFEWjxTyodoPdfCLpz6x3aJyiVPFWR9mXdZdEBUHHFxlkxjd7e
+PCQLErJH6ZnHsrO1sCsyz/1Cd+ZXMCmlZ0lQA+HkQNU26tyKSQs=
+=OPdP
 -----END PGP SIGNATURE-----
 
---2ppkhvycs7w7moi3--
+--2bzzwp6v4ficjmmb--
