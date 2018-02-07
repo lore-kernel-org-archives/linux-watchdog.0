@@ -1,6 +1,6 @@
 Return-Path: <wsa-dev@sang-engineering.com>
 Return-path: <wsa-dev@sang-engineering.com>
-Date: Thu, 8 Feb 2018 00:04:01 +0100
+Date: Thu, 8 Feb 2018 00:11:56 +0100
 From: Wolfram Sang <wsa@the-dreams.de>
 To: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
 Cc: Philipp Zabel <p.zabel@pengutronix.de>,
@@ -22,56 +22,54 @@ Cc: Philipp Zabel <p.zabel@pengutronix.de>,
 	Chris Paterson <Chris.Paterson2@renesas.com>,
 	Biju Das <biju.das@bp.renesas.com>,
 	Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
-Subject: Re: [RFC v4 11/26] dt-bindings: watchdog: renesas-wdt: Add R-Car
- Gen2 support
-Message-ID: <20180207230401.uvpare7cwk7tpqk7@katana>
+Subject: Re: [RFC v4 14/26] ARM: shmobile: defconfig: Enable RENESAS_WDT_GEN
+Message-ID: <20180207231156.3o2eeymgb7eec3e3@katana>
 References: <1517423070-24236-1-git-send-email-fabrizio.castro@bp.renesas.com>
- <1517423070-24236-12-git-send-email-fabrizio.castro@bp.renesas.com>
+ <1517423070-24236-15-git-send-email-fabrizio.castro@bp.renesas.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="i7htazl5c3cbyi6c"
+	protocol="application/pgp-signature"; boundary="ghjh2tvtbi7qarpp"
 Content-Disposition: inline
-In-Reply-To: <1517423070-24236-12-git-send-email-fabrizio.castro@bp.renesas.com>
+In-Reply-To: <1517423070-24236-15-git-send-email-fabrizio.castro@bp.renesas.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
 
---i7htazl5c3cbyi6c
+--ghjh2tvtbi7qarpp
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jan 31, 2018 at 06:24:15PM +0000, Fabrizio Castro wrote:
-> This commit documents the compatibility with R-Car Gen2 and RZ/G
-> devices by defining the generic compatible string "renesas,rcar-gen2-wdt".
-> Also, this patch expands the list of SoC-specific compatible strings to
-> include RZ/G and R-Car Gen2 devices.
+On Wed, Jan 31, 2018 at 06:24:18PM +0000, Fabrizio Castro wrote:
+> R-Car Gen2 and RZ/G1 platforms come with a watchdog IP, therefore enable
+> its driver by default.
 >=20
 > Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
 > Signed-off-by: Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesa=
 s.com>
-> Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+
+Given the rest of the series works (same for the later patches):
 
 Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
 
---i7htazl5c3cbyi6c
+--ghjh2tvtbi7qarpp
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlp7heAACgkQFA3kzBSg
-KbYriw/7BT40MBbg0dFnn3nMKJv8vGFJ/C3BIVsh0gy5T+crZE+9Famm2EYPRAU5
-l5gmh/e38DCrves2Eys2ifrfVzG8kp/69Zkp89hhkkDzNddji3+JjMsMgBsjePTZ
-dPZKMWPFI05mR+SlvdLmmjLX0hAODG+3llEjCCd02YvM6P1PrWVdFB5IPA0NSOCG
-LXKuFAobA93/Q58J4oBGwKsbPvptRFxUVuNoCjyd5bmAzY3QuemXYuVTclrVjUZc
-9dTlRfstdhazi3gkHSv3bN2yR2NH6cqc7cCV0LTN6rUFZPtXU4XF6tEk9oYMp78R
-RpaGl3TFrWym2IBLGoDEZLDH0FDmp3m3qou7Bxek1UpbuytmTOHr8TSLU7Iz1b6z
-1ccDL5Q8A7ESf6rxenttuIrC/gp8VJm4mNmW0NK8rVf4xpU7lfnARXVL9FG70EUj
-lYAJ5hJCUQX7QOsZBhu8y0odB4GlkEw3Zbc2L3s14In2uvmqKwF86mTDCqKXeuFG
-RxXAxAXyX4BSwEpq1ZXbHRlvDyKzinlwf0wOXdFLJxGvdgQzOPNpKMoJw4Izo5UE
-szFfjDa0s6JpAwHps/Qzt31/FmuVA48CyOf8K5KJXZTinHdPcWv1GHMHFs3d9DSI
-RpnZ+wBczYVS+uCFRrYlFJwPCSCV7iFTTeyIqMJLVpJnuzpymhY=
-=DrUQ
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlp7h7wACgkQFA3kzBSg
+KbbNhg/8CA58qpPJ8IG15ptynCnCyyFcFrz0ljGiJXpGcuL2MI1FBxN7gPc1BsqE
+kFOghwLAbv/meyZ4JjU1YjPMGm2Iqed0JAs1563VScCL0uoaCEjTo7RZnWTs1AFa
+x+fY4OQIpr4VqenJRhak/fGx0l8OPcgetXUoaSNyJzj3UWeLnDV2738tB0F48ggT
+RjKJdZguE/UmPMewIGUoyCgeS4U4qM7IfoQrygh1Phdg8Ia9rYlCW9oXb4ZzQdy8
+FPu5LVRlC8wHBccXiKuwmQxgDMp8Ve9NgTLVMSXAgckFv+WW0brqcUkMJrGPzGg8
+W1tlVq+8w2hNf/Kw6ZvjAAAI2a7315P4t7rn78AdfVu7oDHEYZimdJ4BobANDQ6m
+m41Jx3I85T5EtDiYqk9rWJ5ZqD9j8C3NJ3AqwZjfFsoiUV/gLjiEC7u71boy48wc
+YoDjVTyNhZCoLtljuPJTojSoZTwoNzCpd80wI+HqPzPxqph0m1ah0sufvY7Izpj5
+4/NcPErVPFL0g2VHx7fM7IHJRMS05V1yEcvA34lM78hJE83l7oYmnSGM25vy4RYI
+b65K4T9iKFpebv/EbJ82f7tWCEikdUvvjNaJEDh1FLX1S5yBOKml/409vG9aMQvF
+PoILsfiOq6tuvDySZmWnwUsshqZQjW4rrwGHYLLuadOAgoAQ0os=
+=krTo
 -----END PGP SIGNATURE-----
 
---i7htazl5c3cbyi6c--
+--ghjh2tvtbi7qarpp--
