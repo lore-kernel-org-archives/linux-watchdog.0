@@ -1,66 +1,93 @@
-Return-Path: <linus971@gmail.com>
-Return-path: <linus971@gmail.com>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-pg0-f66.google.com ([74.125.83.66]:37835 "EHLO
+        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750961AbeBHOQD (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Thu, 8 Feb 2018 09:16:03 -0500
+Subject: Re: [PATCH] watchdog: imx2_wdt: allow setting timeout in devicetree
+To: Marcus Folkesson <marcus.folkesson@gmail.com>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>
+Cc: linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20180208131108.3048-1-marcus.folkesson@gmail.com>
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <e70ce3b6-1fb6-5d18-25bd-4fe7bf15b296@roeck-us.net>
+Date: Thu, 8 Feb 2018 06:15:59 -0800
 MIME-Version: 1.0
-Sender: linus971@gmail.com
-In-Reply-To: <20180207104207.GA25825@infomag.iguana.be>
-References: <20180207104207.GA25825@infomag.iguana.be>
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Date: Wed, 7 Feb 2018 12:02:33 -0800
-Message-ID: <CA+55aFzrcAgOykaLK6S34W-udn5Y0rAC6j39MEZFz9CRSSnpEw@mail.gmail.com>
-Subject: Re: [GIT PULL REQUEST] watchdog - v4.16 merge window
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: Andrew Morton <akpm@linux-foundation.org>, LKML <linux-kernel@vger.kernel.org>,
-	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>, =?UTF-8?Q?Andreas_F=C3=A4rber?= <afaerber@suse.de>,
-	=?UTF-8?Q?Andr=C3=A9_Draszik?= <git@andred.net>,
-	Andrew Jeffery <andrew@aj.id.au>, Arnd Bergmann <arnd@arndb.de>,
-	Benjamin Gaignard <benjamin.gaignard@linaro.org>,
-	Chris Packham <chris.packham@alliedtelesis.co.nz>,
-	Christophe Leroy <christophe.leroy@c-s.fr>, Corentin Labbe <clabbe@baylibre.com>,
-	Corentin Labbe <clabbe.montjoie@gmail.com>, David Lechner <david@lechnology.com>,
-	Eric Long <eric.long@spreadtrum.com>, Geert Uytterhoeven <geert+renesas@glider.be>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Guenter Roeck <linux@roeck-us.net>,
-	"Gustavo A. R. Silva" <garsilva@embeddedor.com>, Jerry Hoemann <jerry.hoemann@hpe.com>,
-	Linus Walleij <linus.walleij@linaro.org>, Martin Kaiser <martin@kaiser.cx>,
-	Mathieu Malaterre <malat@debian.org>, Matt Redfearn <matt.redfearn@mips.com>,
-	Michael Grzeschik <mgr@pengutronix.de>, Michael Grzeschik <m.grzeschik@pengutronix.de>,
-	Oleksij Rempel <o.rempel@pengutronix.de>, Radu Rendec <rrendec@arista.com>,
-	Rasmus Villemoes <rasmus.villemoes@prevas.dk>, Tomas Winkler <tomas.winkler@intel.com>,
-	Wim Van Sebroeck <wim@linux-watchdog.org>
-Content-Type: text/plain; charset="UTF-8"
-List-ID: <linux-watchdog@vger.kernel.org>
+In-Reply-To: <20180208131108.3048-1-marcus.folkesson@gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Feb 7, 2018 at 2:42 AM, Wim Van Sebroeck <wim@iguana.be> wrote:
->
-> Please pull the watchdog updates for v4.16 from the following signed tag
->         git://www.linux-watchdog.org/linux-watchdog.git linux-watchdog-4.16-rc1
+On 02/08/2018 05:11 AM, Marcus Folkesson wrote:
+> By following best practice described in
+> Documentation/watchdog/watchdog-kernel-api.txt, it also let us to set
+> timout-sec property in devicetree.
+> 
+> Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
 
-Thanks, pulled, since this now had the tag name and the description.
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-Two small further requests for next time:
+> ---
+>   Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt | 2 ++
+>   drivers/watchdog/imx2_wdt.c                                | 8 ++------
+>   2 files changed, 4 insertions(+), 6 deletions(-)
+> 
+> diff --git a/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt b/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
+> index 107280ef0025..adc6b76fcb3a 100644
+> --- a/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
+> +++ b/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
+> @@ -11,6 +11,7 @@ Optional properties:
+>     detail please see: Documentation/devicetree/bindings/regmap/regmap.txt.
+>   - fsl,ext-reset-output: If present the watchdog device is configured to
+>     assert its external reset (WDOG_B) instead of issuing a software reset.
+> +- timeout-sec : Contains the watchdog timeout in seconds
+>   
+>   Examples:
+>   
+> @@ -19,4 +20,5 @@ wdt@73f98000 {
+>   	reg = <0x73f98000 0x4000>;
+>   	interrupts = <58>;
+>   	big-endian;
+> +	timeout-sec = <20>;
+>   };
+> diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
+> index 4874b0f18650..b8674c5c2d9f 100644
+> --- a/drivers/watchdog/imx2_wdt.c
+> +++ b/drivers/watchdog/imx2_wdt.c
+> @@ -76,7 +76,7 @@ MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
+>   				__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+>   
+>   
+> -static unsigned timeout = IMX2_WDT_DEFAULT_TIME;
+> +static unsigned timeout;
+>   module_param(timeout, uint, 0);
+>   MODULE_PARM_DESC(timeout, "Watchdog timeout in seconds (default="
+>   				__MODULE_STRING(IMX2_WDT_DEFAULT_TIME) ")");
+> @@ -275,6 +275,7 @@ static int __init imx2_wdt_probe(struct platform_device *pdev)
+>   	wdog->info		= &imx2_wdt_info;
+>   	wdog->ops		= &imx2_wdt_ops;
+>   	wdog->min_timeout	= 1;
+> +	wdog->timeout		= IMX2_WDT_DEFAULT_TIME;
+>   	wdog->max_hw_heartbeat_ms = IMX2_WDT_MAX_TIME * 1000;
+>   	wdog->parent		= &pdev->dev;
+>   
+> @@ -293,11 +294,6 @@ static int __init imx2_wdt_probe(struct platform_device *pdev)
+>   
+>   	wdev->ext_reset = of_property_read_bool(pdev->dev.of_node,
+>   						"fsl,ext-reset-output");
+> -	wdog->timeout = clamp_t(unsigned, timeout, 1, IMX2_WDT_MAX_TIME);
+> -	if (wdog->timeout != timeout)
+> -		dev_warn(&pdev->dev, "Initial timeout out of range! Clamped from %u to %u\n",
+> -			 timeout, wdog->timeout);
+> -
+>   	platform_set_drvdata(pdev, wdog);
+>   	watchdog_set_drvdata(wdog, wdev);
+>   	watchdog_set_nowayout(wdog, nowayout);
+> 
 
-> The output from git request-pull:
-
-This was still broken, and didn't actually have the tag name. Notice this part:
-
-> are available in the git repository at:
->
->   git://www.linux-watchdog.org/linux-watchdog.git
-
-just points to the bare repo. And since that's the part my eyes are
-trained to cut-and-paste (because this matches the normal pull request
-format), I got it wrong at first before correcting my pull..
-
-The other request is to just make your gpg key public, and hoipefully
-get a few signatures for the future. I have your key since you sent it
-to me in email separately, but nobody else can verify it since it
-doesn't seem to be on any key servers.
-
-So just a
-
-    gpg --send-keys FA2CAD78625F46CA
-
-should fix it for you. At which point maybe you can find somebody to
-sign it because they can verify it (locally or perhaps over the phone
-or other side channel).
-
-                Linus
