@@ -1,85 +1,53 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-lf0-f67.google.com ([209.85.215.67]:35266 "EHLO
-        mail-lf0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751079AbeBHNLh (ORCPT
+Received: from mail-io0-f179.google.com ([209.85.223.179]:43547 "EHLO
+        mail-io0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750930AbeBHI6Z (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 8 Feb 2018 08:11:37 -0500
-From: Marcus Folkesson <marcus.folkesson@gmail.com>
-To: Wim Van Sebroeck <wim@iguana.be>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>
-Cc: Marcus Folkesson <marcus.folkesson@gmail.com>,
-        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH] watchdog: imx2_wdt: allow setting timeout in devicetree
-Date: Thu,  8 Feb 2018 14:11:08 +0100
-Message-Id: <20180208131108.3048-1-marcus.folkesson@gmail.com>
+        Thu, 8 Feb 2018 03:58:25 -0500
+Received: by mail-io0-f179.google.com with SMTP id 72so5031193iom.10
+        for <linux-watchdog@vger.kernel.org>; Thu, 08 Feb 2018 00:58:25 -0800 (PST)
+MIME-Version: 1.0
+From: Linus Walleij <linus.walleij@linaro.org>
+Date: Thu, 8 Feb 2018 09:58:24 +0100
+Message-ID: <CACRpkdb9roNoC-OvJPVumffr_-NwUtrsWczM2jGj8bv_9KiJaw@mail.gmail.com>
+Subject: GPIO WDT and open drain
+To: Alexander Shiyan <shc_work@mail.ru>,
+        LINUXWATCHDOG <linux-watchdog@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-By following best practice described in
-Documentation/watchdog/watchdog-kernel-api.txt, it also let us to set
-timout-sec property in devicetree.
+Hi Alexander,
 
-Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
----
- Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt | 2 ++
- drivers/watchdog/imx2_wdt.c                                | 8 ++------
- 2 files changed, 4 insertions(+), 6 deletions(-)
+I converted your driver for GPIO watchdog to use GPIO descriptors
+in the last merge window.
 
-diff --git a/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt b/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
-index 107280ef0025..adc6b76fcb3a 100644
---- a/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
-+++ b/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
-@@ -11,6 +11,7 @@ Optional properties:
-   detail please see: Documentation/devicetree/bindings/regmap/regmap.txt.
- - fsl,ext-reset-output: If present the watchdog device is configured to
-   assert its external reset (WDOG_B) instead of issuing a software reset.
-+- timeout-sec : Contains the watchdog timeout in seconds
- 
- Examples:
- 
-@@ -19,4 +20,5 @@ wdt@73f98000 {
- 	reg = <0x73f98000 0x4000>;
- 	interrupts = <58>;
- 	big-endian;
-+	timeout-sec = <20>;
- };
-diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
-index 4874b0f18650..b8674c5c2d9f 100644
---- a/drivers/watchdog/imx2_wdt.c
-+++ b/drivers/watchdog/imx2_wdt.c
-@@ -76,7 +76,7 @@ MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
- 				__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
- 
- 
--static unsigned timeout = IMX2_WDT_DEFAULT_TIME;
-+static unsigned timeout;
- module_param(timeout, uint, 0);
- MODULE_PARM_DESC(timeout, "Watchdog timeout in seconds (default="
- 				__MODULE_STRING(IMX2_WDT_DEFAULT_TIME) ")");
-@@ -275,6 +275,7 @@ static int __init imx2_wdt_probe(struct platform_device *pdev)
- 	wdog->info		= &imx2_wdt_info;
- 	wdog->ops		= &imx2_wdt_ops;
- 	wdog->min_timeout	= 1;
-+	wdog->timeout		= IMX2_WDT_DEFAULT_TIME;
- 	wdog->max_hw_heartbeat_ms = IMX2_WDT_MAX_TIME * 1000;
- 	wdog->parent		= &pdev->dev;
- 
-@@ -293,11 +294,6 @@ static int __init imx2_wdt_probe(struct platform_device *pdev)
- 
- 	wdev->ext_reset = of_property_read_bool(pdev->dev.of_node,
- 						"fsl,ext-reset-output");
--	wdog->timeout = clamp_t(unsigned, timeout, 1, IMX2_WDT_MAX_TIME);
--	if (wdog->timeout != timeout)
--		dev_warn(&pdev->dev, "Initial timeout out of range! Clamped from %u to %u\n",
--			 timeout, wdog->timeout);
--
- 	platform_set_drvdata(pdev, wdog);
- 	watchdog_set_drvdata(wdog, wdev);
- 	watchdog_set_nowayout(wdog, nowayout);
--- 
-2.15.1
+It seems there is no upstream device tree for this driver, so I guess
+you have some system using it, and it would be nice to hear if you
+can confirm that it still works for you.
 
+I was thinking a bit about this code:
+
+        /* Put GPIO back to tristate */
+        if (priv->hw_algo == HW_ALGO_TOGGLE)
+                gpiod_direction_input(priv->gpiod);
+
+I think the right thing is to remove these lines and instead use
+this in the device tree:
+
+gpios = <&gpio0 5 (GPIO_ACTIVE_HIGH|GPIO_OPEN_DRAIN)>;
+
+Also we should update the DTS example to use open drain.
+
+This will fall back to software emulation setting the line as input
+to drive it high just like the driver does if the hardware doesn't have
+explicit open drain support.
+
+The semantic effect would be that the open drain semantic will
+be used also when pinging the watchdog, i.e the line will be set
+as input to pull the line high. AFAICT this should work, but
+obviously it needs to be tested on hardware.
+
+Yours,
+Linus Walleij
