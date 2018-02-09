@@ -1,64 +1,44 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pl0-f67.google.com ([209.85.160.67]:45332 "EHLO
-        mail-pl0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753221AbeBJAEj (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 9 Feb 2018 19:04:39 -0500
-Date: Fri, 9 Feb 2018 16:04:36 -0800
-From: Guenter Roeck <linux@roeck-us.net>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Marcus Folkesson <marcus.folkesson@gmail.com>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Carlo Caione <carlo@caione.org>,
-        Kevin Hilman <khilman@baylibre.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Barry Song <baohua@kernel.org>,
-        Maxime Ripard <maxime.ripard@free-electrons.com>,
-        Chen-Yu Tsai <wens@csie.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Vladimir Zapolskiy <vz@mleia.com>,
-        Sylvain Lemieux <slemieux.tyco@gmail.com>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-amlogic@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-mediatek@lists.infradead.org
-Subject: Re: [PATCH 6/7] watchdog: meson: allow setting timeout in devicetree
-Message-ID: <20180210000436.GA23513@roeck-us.net>
-References: <marcus.folkesson@gmail.com>
- <20180209192724.1227-1-marcus.folkesson@gmail.com>
- <20180209192724.1227-7-marcus.folkesson@gmail.com>
- <20180209224849.GH19627@roeck-us.net>
- <20180209231910.GA2251@piout.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20180209231910.GA2251@piout.net>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-Path: <khoroshilov@ispras.ru>
+Return-path: <khoroshilov@ispras.ru>
+From: Alexey Khoroshilov <khoroshilov@ispras.ru>
+To: Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>
+Cc: Alexey Khoroshilov <khoroshilov@ispras.ru>,
+	linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	ldv-project@linuxtesting.org
+Subject: [PATCH] watchdog: asm9260_wdt: fix error handling in asm9260_wdt_probe()
+Date: Sat, 10 Feb 2018 00:56:29 +0300
+Message-Id: <1518213389-19246-1-git-send-email-khoroshilov@ispras.ru>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On Sat, Feb 10, 2018 at 12:19:10AM +0100, Alexandre Belloni wrote:
-> Hi Guenter,
-> 
-> On 09/02/2018 at 14:48:49 -0800, Guenter Roeck wrote:
-> > On Fri, Feb 09, 2018 at 08:27:23PM +0100, Marcus Folkesson wrote:
-> > > watchdog_init_timeout() will allways pick timeout_param since it
-> > > defaults to a valid timeout.
-> > > 
-> > > By following best practice described in
-> > > Documentation/watchdog/watchdog-kernel-api.txt, it also
-> > > let us to set timout-sec property in devicetree.
-> > > 
-> > > Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
-> > 
-> > Reviewed-by: Guenetr Roeck <linux@roeck-us.net>
->                   ^
-> A small typo in your name
-> 
+If devm_reset_control_get_exclusive() fails, asm9260_wdt_probe()
+returns immediately. But clks has been already enabled at that point,
+so it is required to disable them.
 
-Mr. Fat Fingers At Work :-)
+Found by Linux Driver Verification project (linuxtesting.org).
 
-Guenter
+Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
+---
+ drivers/watchdog/asm9260_wdt.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/watchdog/asm9260_wdt.c b/drivers/watchdog/asm9260_wdt.c
+index 7dd0da644a7f..de9e538a5fa8 100644
+--- a/drivers/watchdog/asm9260_wdt.c
++++ b/drivers/watchdog/asm9260_wdt.c
+@@ -297,8 +297,10 @@ static int asm9260_wdt_probe(struct platform_device *pdev)
+ 		return ret;
+ 
+ 	priv->rst = devm_reset_control_get_exclusive(&pdev->dev, "wdt_rst");
+-	if (IS_ERR(priv->rst))
+-		return PTR_ERR(priv->rst);
++	if (IS_ERR(priv->rst)) {
++		ret = PTR_ERR(priv->rst);
++		goto clk_off;
++	}
+ 
+ 	wdd = &priv->wdd;
+ 	wdd->info = &asm9260_wdt_ident;
+-- 
+2.7.4
