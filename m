@@ -1,28 +1,33 @@
-Return-Path: <marcus.folkesson@gmail.com>
-Return-path: <marcus.folkesson@gmail.com>
-Date: Fri, 9 Feb 2018 20:32:25 +0100
-From: Marcus Folkesson <marcus.folkesson@gmail.com>
-To: Wim Van Sebroeck <wim@iguana.be>, Guenter Roeck <linux@roeck-us.net>,
-	Rob Herring <robh+dt@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Carlo Caione <carlo@caione.org>,
-	Kevin Hilman <khilman@baylibre.com>,
-	Matthias Brugger <matthias.bgg@gmail.com>,
-	Barry Song <baohua@kernel.org>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>,
-	Chen-Yu Tsai <wens@csie.org>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Vladimir Zapolskiy <vz@mleia.com>,
-	Sylvain Lemieux <slemieux.tyco@gmail.com>,
-	Nicolas Ferre <nicolas.ferre@microchip.com>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-amlogic@lists.infradead.org, linux-kernel@vger.kernel.org,
-	linux-mediatek@lists.infradead.org
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-pg0-f68.google.com ([74.125.83.68]:40026 "EHLO
+        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752488AbeBIWiG (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 9 Feb 2018 17:38:06 -0500
+Date: Fri, 9 Feb 2018 14:38:03 -0800
+From: Guenter Roeck <linux@roeck-us.net>
+To: Marcus Folkesson <marcus.folkesson@gmail.com>
+Cc: Wim Van Sebroeck <wim@iguana.be>, Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Carlo Caione <carlo@caione.org>,
+        Kevin Hilman <khilman@baylibre.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Barry Song <baohua@kernel.org>,
+        Maxime Ripard <maxime.ripard@free-electrons.com>,
+        Chen-Yu Tsai <wens@csie.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Vladimir Zapolskiy <vz@mleia.com>,
+        Sylvain Lemieux <slemieux.tyco@gmail.com>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-amlogic@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-mediatek@lists.infradead.org
 Subject: Re: [PATCH 1/7] watchdog: sama5d4: make use of timeout-secs provided
  in devicetree
-Message-ID: <20180209193225.GA1932@gmail.com>
+Message-ID: <20180209223803.GB19627@roeck-us.net>
 References: <marcus.folkesson@gmail.com>
  <20180209192724.1227-1-marcus.folkesson@gmail.com>
  <20180209192724.1227-2-marcus.folkesson@gmail.com>
@@ -30,32 +35,47 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <20180209192724.1227-2-marcus.folkesson@gmail.com>
-List-ID: <linux-watchdog@vger.kernel.org>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-The summary email did not make it for some reason.
+On Fri, Feb 09, 2018 at 08:27:18PM +0100, Marcus Folkesson wrote:
+> watchdog_init_timeout() will allways pick timeout_param since it
+> defaults to a valid timeout.
+> 
+> Following best practice described in
+> Documentation/watchdog/watchdog-kernel-api.txt to make use of
+> the parameter logic.
+> 
+> Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
 
-However.
-All these drivers is using watchdog_init_timeout() to set timeout.
-If the timeout-parameter is set to an valid value, it will allways pick
-that and not even consider if timeout-secs is set in devicetree.
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-Most of the patches will just remove the initial value for
-timeout-parameter.
-
-Some of the drivers allready has documented device-tree-bindings for
-timeout-secs (but will not work), add property for those which not.
-
-I wrote a similiar (tested) patch for imx2 and simply did the same to these drivers.
-These patches is *NOT* tested, so please review extra carefully.
-
-
-Taken from Documentation/watchdog/watchdog-kernel-api.txt:
-	The watchdog_init_timeout function allows you to initialize the timeout field
-	using the module timeout parameter or by retrieving the timeout-sec property from
-	the device tree (if the module timeout parameter is invalid). Best practice is
-	to set the default timeout value as timeout value in the watchdog_device and
-	then use this function to set the user "preferred" timeout value.
-
-
-Best regards
-Marcus Folkesson
+> ---
+>  drivers/watchdog/sama5d4_wdt.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/watchdog/sama5d4_wdt.c b/drivers/watchdog/sama5d4_wdt.c
+> index 0ae947c3d7bc..e6c679383734 100644
+> --- a/drivers/watchdog/sama5d4_wdt.c
+> +++ b/drivers/watchdog/sama5d4_wdt.c
+> @@ -33,7 +33,7 @@ struct sama5d4_wdt {
+>  	unsigned long		last_ping;
+>  };
+>  
+> -static int wdt_timeout = WDT_DEFAULT_TIMEOUT;
+> +static int wdt_timeout;
+>  static bool nowayout = WATCHDOG_NOWAYOUT;
+>  
+>  module_param(wdt_timeout, int, 0);
+> @@ -212,7 +212,7 @@ static int sama5d4_wdt_probe(struct platform_device *pdev)
+>  		return -ENOMEM;
+>  
+>  	wdd = &wdt->wdd;
+> -	wdd->timeout = wdt_timeout;
+> +	wdd->timeout = WDT_DEFAULT_TIMEOUT;
+>  	wdd->info = &sama5d4_wdt_info;
+>  	wdd->ops = &sama5d4_wdt_ops;
+>  	wdd->min_timeout = MIN_WDT_TIMEOUT;
+> -- 
+> 2.15.1
+> 
