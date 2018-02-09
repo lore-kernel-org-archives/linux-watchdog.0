@@ -1,11 +1,11 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pl0-f66.google.com ([209.85.160.66]:44033 "EHLO
+Received: from mail-pl0-f66.google.com ([209.85.160.66]:46436 "EHLO
         mail-pl0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753028AbeBIWjG (ORCPT
+        with ESMTP id S1753041AbeBIWk1 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 9 Feb 2018 17:39:06 -0500
-Date: Fri, 9 Feb 2018 14:39:04 -0800
+        Fri, 9 Feb 2018 17:40:27 -0500
+Date: Fri, 9 Feb 2018 14:40:25 -0800
 From: Guenter Roeck <linux@roeck-us.net>
 To: Marcus Folkesson <marcus.folkesson@gmail.com>
 Cc: Wim Van Sebroeck <wim@iguana.be>, Rob Herring <robh+dt@kernel.org>,
@@ -25,19 +25,20 @@ Cc: Wim Van Sebroeck <wim@iguana.be>, Rob Herring <robh+dt@kernel.org>,
         linux-arm-kernel@lists.infradead.org,
         linux-amlogic@lists.infradead.org, linux-kernel@vger.kernel.org,
         linux-mediatek@lists.infradead.org
-Subject: Re: [PATCH 2/7] watchdog: sunxi: allow setting timeout in devicetree
-Message-ID: <20180209223904.GC19627@roeck-us.net>
+Subject: Re: [PATCH 3/7] watchdog: sirfsoc: allow setting timeout in
+ devicetree
+Message-ID: <20180209224025.GD19627@roeck-us.net>
 References: <marcus.folkesson@gmail.com>
  <20180209192724.1227-1-marcus.folkesson@gmail.com>
- <20180209192724.1227-3-marcus.folkesson@gmail.com>
+ <20180209192724.1227-4-marcus.folkesson@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20180209192724.1227-3-marcus.folkesson@gmail.com>
+In-Reply-To: <20180209192724.1227-4-marcus.folkesson@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, Feb 09, 2018 at 08:27:19PM +0100, Marcus Folkesson wrote:
+On Fri, Feb 09, 2018 at 08:27:20PM +0100, Marcus Folkesson wrote:
 > watchdog_init_timeout() will allways pick timeout_param since it
 > defaults to a valid timeout.
 > 
@@ -50,41 +51,42 @@ On Fri, Feb 09, 2018 at 08:27:19PM +0100, Marcus Folkesson wrote:
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
 > ---
->  Documentation/devicetree/bindings/watchdog/sunxi-wdt.txt | 4 ++++
->  drivers/watchdog/sunxi_wdt.c                             | 2 +-
+>  Documentation/devicetree/bindings/watchdog/sirfsoc_wdt.txt | 4 ++++
+>  drivers/watchdog/sirfsoc_wdt.c                             | 2 +-
 >  2 files changed, 5 insertions(+), 1 deletion(-)
 > 
-> diff --git a/Documentation/devicetree/bindings/watchdog/sunxi-wdt.txt b/Documentation/devicetree/bindings/watchdog/sunxi-wdt.txt
-> index 62dd5baad70e..49900e72f6b1 100644
-> --- a/Documentation/devicetree/bindings/watchdog/sunxi-wdt.txt
-> +++ b/Documentation/devicetree/bindings/watchdog/sunxi-wdt.txt
-> @@ -6,9 +6,13 @@ Required properties:
->                 "allwinner,sun6i-a31-wdt"
->  - reg : Specifies base physical address and size of the registers.
+> diff --git a/Documentation/devicetree/bindings/watchdog/sirfsoc_wdt.txt b/Documentation/devicetree/bindings/watchdog/sirfsoc_wdt.txt
+> index 9cbc76c89b2b..0dce5e3100b4 100644
+> --- a/Documentation/devicetree/bindings/watchdog/sirfsoc_wdt.txt
+> +++ b/Documentation/devicetree/bindings/watchdog/sirfsoc_wdt.txt
+> @@ -5,10 +5,14 @@ Required properties:
+>  - reg: Address range of tick timer/WDT register set
+>  - interrupts: interrupt number to the cpu
 >  
 > +Optional properties:
 > +- timeout-sec : Contains the watchdog timeout in seconds
 > +
 >  Example:
 >  
->  wdt: watchdog@1c20c90 {
->  	compatible = "allwinner,sun4i-a10-wdt";
->  	reg = <0x01c20c90 0x10>;
-> +	timeout-sec = <10>;
+>  timer@b0020000 {
+>  	compatible = "sirf,prima2-tick";
+>  	reg = <0xb0020000 0x1000>;
+>  	interrupts = <0>;
+> +	timeout-sec = <30>;
 >  };
-> diff --git a/drivers/watchdog/sunxi_wdt.c b/drivers/watchdog/sunxi_wdt.c
-> index 9728fa32c357..55f166bec0ca 100644
-> --- a/drivers/watchdog/sunxi_wdt.c
-> +++ b/drivers/watchdog/sunxi_wdt.c
-> @@ -39,7 +39,7 @@
->  #define DRV_VERSION		"1.0"
+> diff --git a/drivers/watchdog/sirfsoc_wdt.c b/drivers/watchdog/sirfsoc_wdt.c
+> index 4eea351e09b0..ac0c9d2c4aee 100644
+> --- a/drivers/watchdog/sirfsoc_wdt.c
+> +++ b/drivers/watchdog/sirfsoc_wdt.c
+> @@ -29,7 +29,7 @@
+>  #define SIRFSOC_WDT_MAX_TIMEOUT		(10 * 60)	/* 10 mins */
+>  #define SIRFSOC_WDT_DEFAULT_TIMEOUT	30		/* 30 secs */
 >  
->  static bool nowayout = WATCHDOG_NOWAYOUT;
-> -static unsigned int timeout = WDT_MAX_TIMEOUT;
+> -static unsigned int timeout = SIRFSOC_WDT_DEFAULT_TIMEOUT;
 > +static unsigned int timeout;
+>  static bool nowayout = WATCHDOG_NOWAYOUT;
 >  
->  /*
->   * This structure stores the register offsets for different variants
+>  module_param(timeout, uint, 0);
 > -- 
 > 2.15.1
 > 
