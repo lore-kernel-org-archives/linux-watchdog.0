@@ -1,47 +1,35 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-lf0-f67.google.com ([209.85.215.67]:39468 "EHLO
-        mail-lf0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752343AbeBJUgk (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 10 Feb 2018 15:36:40 -0500
-From: Marcus Folkesson <marcus.folkesson@gmail.com>
-To: Wim Van Sebroeck <wim@iguana.be>,
-        Guenter Roeck <linux@roeck-us.net>
-Cc: Marcus Folkesson <marcus.folkesson@gmail.com>,
-        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 2/4] watchdog: omap_wdt: change order for setting default timeout
-Date: Sat, 10 Feb 2018 21:36:21 +0100
-Message-Id: <20180210203623.17832-2-marcus.folkesson@gmail.com>
-In-Reply-To: <20180210203623.17832-1-marcus.folkesson@gmail.com>
-References: <20180210203623.17832-1-marcus.folkesson@gmail.com>
+Received: from mail02.prevas.se ([62.95.78.10]:1570 "EHLO mail02.prevas.se"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751115AbeBJV5q (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Sat, 10 Feb 2018 16:57:46 -0500
+To: stable@vger.kernel.org
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-watchdog@vger.kernel.org
+From: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+Subject: Commit bc137dfdbec2 (watchdog: gpio_wdt: set WDOG_HW_RUNNING in
+ gpio_wdt_stop)
+Message-ID: <34efe5b3-954c-9c22-470f-9f9706a8a363@prevas.dk>
+Date: Sat, 10 Feb 2018 22:56:02 +0100
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-watchdog_init_timeout() will preserve wdd->timeout value if
-no parameter nor timeout-secs dt property is set.
+Hi stable maintainers
 
-Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
----
- drivers/watchdog/omap_wdt.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Can I get you to consider including
 
-diff --git a/drivers/watchdog/omap_wdt.c b/drivers/watchdog/omap_wdt.c
-index 1b02bfa81b29..ae77112ce97f 100644
---- a/drivers/watchdog/omap_wdt.c
-+++ b/drivers/watchdog/omap_wdt.c
-@@ -253,10 +253,10 @@ static int omap_wdt_probe(struct platform_device *pdev)
- 	wdev->wdog.ops = &omap_wdt_ops;
- 	wdev->wdog.min_timeout = TIMER_MARGIN_MIN;
- 	wdev->wdog.max_timeout = TIMER_MARGIN_MAX;
-+	wdev->wdog.timeout = TIMER_MARGIN_DEFAULT;
- 	wdev->wdog.parent = &pdev->dev;
- 
--	if (watchdog_init_timeout(&wdev->wdog, timer_margin, &pdev->dev) < 0)
--		wdev->wdog.timeout = TIMER_MARGIN_DEFAULT;
-+	watchdog_init_timeout(&wdev->wdog, timer_margin, &pdev->dev);
- 
- 	watchdog_set_nowayout(&wdev->wdog, nowayout);
- 
--- 
-2.15.1
+bc137dfdbec2 watchdog: gpio_wdt: set WDOG_HW_RUNNING in gpio_wdt_stop
 
+in -stable? Without that, any (always-running) gpio watchdog effectively
+fails to honour the magic close feature, causing an unexpected reset
+shortly after userspace gracefully closes the device.
+
+Anything containing 3c10bbde10 ("watchdog: core: Clear WDOG_HW_RUNNING
+before calling the stop function") probably needs it (i.e. 4.8+), but at
+the very least 4.14 and 4.15.
+
+Rasmus
