@@ -1,17 +1,17 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-lf0-f66.google.com ([209.85.215.66]:42030 "EHLO
-        mail-lf0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752406AbeBJUgm (ORCPT
+Received: from mail-lf0-f67.google.com ([209.85.215.67]:39468 "EHLO
+        mail-lf0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752343AbeBJUgk (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 10 Feb 2018 15:36:42 -0500
+        Sat, 10 Feb 2018 15:36:40 -0500
 From: Marcus Folkesson <marcus.folkesson@gmail.com>
 To: Wim Van Sebroeck <wim@iguana.be>,
         Guenter Roeck <linux@roeck-us.net>
 Cc: Marcus Folkesson <marcus.folkesson@gmail.com>,
         linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 3/4] watchdog: gpio: change order for setting default timeout
-Date: Sat, 10 Feb 2018 21:36:22 +0100
-Message-Id: <20180210203623.17832-3-marcus.folkesson@gmail.com>
+Subject: [PATCH 2/4] watchdog: omap_wdt: change order for setting default timeout
+Date: Sat, 10 Feb 2018 21:36:21 +0100
+Message-Id: <20180210203623.17832-2-marcus.folkesson@gmail.com>
 In-Reply-To: <20180210203623.17832-1-marcus.folkesson@gmail.com>
 References: <20180210203623.17832-1-marcus.folkesson@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -22,24 +22,25 @@ no parameter nor timeout-secs dt property is set.
 
 Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
 ---
- drivers/watchdog/gpio_wdt.c | 4 ++--
+ drivers/watchdog/omap_wdt.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/watchdog/gpio_wdt.c b/drivers/watchdog/gpio_wdt.c
-index cb66c2f99ff1..d0e8203f7a60 100644
---- a/drivers/watchdog/gpio_wdt.c
-+++ b/drivers/watchdog/gpio_wdt.c
-@@ -156,9 +156,9 @@ static int gpio_wdt_probe(struct platform_device *pdev)
- 	priv->wdd.min_timeout	= SOFT_TIMEOUT_MIN;
- 	priv->wdd.max_hw_heartbeat_ms = hw_margin;
- 	priv->wdd.parent	= &pdev->dev;
-+	priv->wdd.timeout = SOFT_TIMEOUT_DEF;
+diff --git a/drivers/watchdog/omap_wdt.c b/drivers/watchdog/omap_wdt.c
+index 1b02bfa81b29..ae77112ce97f 100644
+--- a/drivers/watchdog/omap_wdt.c
++++ b/drivers/watchdog/omap_wdt.c
+@@ -253,10 +253,10 @@ static int omap_wdt_probe(struct platform_device *pdev)
+ 	wdev->wdog.ops = &omap_wdt_ops;
+ 	wdev->wdog.min_timeout = TIMER_MARGIN_MIN;
+ 	wdev->wdog.max_timeout = TIMER_MARGIN_MAX;
++	wdev->wdog.timeout = TIMER_MARGIN_DEFAULT;
+ 	wdev->wdog.parent = &pdev->dev;
  
--	if (watchdog_init_timeout(&priv->wdd, 0, &pdev->dev) < 0)
--		priv->wdd.timeout = SOFT_TIMEOUT_DEF;
-+	watchdog_init_timeout(&priv->wdd, 0, &pdev->dev);
+-	if (watchdog_init_timeout(&wdev->wdog, timer_margin, &pdev->dev) < 0)
+-		wdev->wdog.timeout = TIMER_MARGIN_DEFAULT;
++	watchdog_init_timeout(&wdev->wdog, timer_margin, &pdev->dev);
  
- 	watchdog_stop_on_reboot(&priv->wdd);
+ 	watchdog_set_nowayout(&wdev->wdog, nowayout);
  
 -- 
 2.15.1
