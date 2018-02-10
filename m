@@ -1,41 +1,45 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-lf0-f65.google.com ([209.85.215.65]:36511 "EHLO
-        mail-lf0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752230AbeBJUgo (ORCPT
+Received: from mail-lf0-f66.google.com ([209.85.215.66]:42030 "EHLO
+        mail-lf0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752406AbeBJUgm (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 10 Feb 2018 15:36:44 -0500
+        Sat, 10 Feb 2018 15:36:42 -0500
 From: Marcus Folkesson <marcus.folkesson@gmail.com>
 To: Wim Van Sebroeck <wim@iguana.be>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Joachim Eastwood <manabian@gmail.com>
+        Guenter Roeck <linux@roeck-us.net>
 Cc: Marcus Folkesson <marcus.folkesson@gmail.com>,
-        linux-watchdog@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 4/4] watchdog: lpc18xx: remove assignment of unused ret-value
-Date: Sat, 10 Feb 2018 21:36:23 +0100
-Message-Id: <20180210203623.17832-4-marcus.folkesson@gmail.com>
+        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 3/4] watchdog: gpio: change order for setting default timeout
+Date: Sat, 10 Feb 2018 21:36:22 +0100
+Message-Id: <20180210203623.17832-3-marcus.folkesson@gmail.com>
 In-Reply-To: <20180210203623.17832-1-marcus.folkesson@gmail.com>
 References: <20180210203623.17832-1-marcus.folkesson@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+watchdog_init_timeout() will preserve wdd->timeout value if
+no parameter nor timeout-secs dt property is set.
+
 Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
 ---
- drivers/watchdog/lpc18xx_wdt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/watchdog/gpio_wdt.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/watchdog/lpc18xx_wdt.c b/drivers/watchdog/lpc18xx_wdt.c
-index b4221f43cd94..331cadb459ac 100644
---- a/drivers/watchdog/lpc18xx_wdt.c
-+++ b/drivers/watchdog/lpc18xx_wdt.c
-@@ -265,7 +265,7 @@ static int lpc18xx_wdt_probe(struct platform_device *pdev)
- 	lpc18xx_wdt->wdt_dev.parent = dev;
- 	watchdog_set_drvdata(&lpc18xx_wdt->wdt_dev, lpc18xx_wdt);
+diff --git a/drivers/watchdog/gpio_wdt.c b/drivers/watchdog/gpio_wdt.c
+index cb66c2f99ff1..d0e8203f7a60 100644
+--- a/drivers/watchdog/gpio_wdt.c
++++ b/drivers/watchdog/gpio_wdt.c
+@@ -156,9 +156,9 @@ static int gpio_wdt_probe(struct platform_device *pdev)
+ 	priv->wdd.min_timeout	= SOFT_TIMEOUT_MIN;
+ 	priv->wdd.max_hw_heartbeat_ms = hw_margin;
+ 	priv->wdd.parent	= &pdev->dev;
++	priv->wdd.timeout = SOFT_TIMEOUT_DEF;
  
--	ret = watchdog_init_timeout(&lpc18xx_wdt->wdt_dev, heartbeat, dev);
-+	watchdog_init_timeout(&lpc18xx_wdt->wdt_dev, heartbeat, dev);
+-	if (watchdog_init_timeout(&priv->wdd, 0, &pdev->dev) < 0)
+-		priv->wdd.timeout = SOFT_TIMEOUT_DEF;
++	watchdog_init_timeout(&priv->wdd, 0, &pdev->dev);
  
- 	__lpc18xx_wdt_set_timeout(lpc18xx_wdt);
+ 	watchdog_stop_on_reboot(&priv->wdd);
  
 -- 
 2.15.1
