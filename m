@@ -1,9 +1,9 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-lf0-f68.google.com ([209.85.215.68]:43783 "EHLO
+Received: from mail-lf0-f68.google.com ([209.85.215.68]:43788 "EHLO
         mail-lf0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751859AbeBJJTj (ORCPT
+        with ESMTP id S1752049AbeBJJTm (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 10 Feb 2018 04:19:39 -0500
+        Sat, 10 Feb 2018 04:19:42 -0500
 From: Marcus Folkesson <marcus.folkesson@gmail.com>
 To: Wim Van Sebroeck <wim@iguana.be>,
         Guenter Roeck <linux@roeck-us.net>,
@@ -25,9 +25,9 @@ Cc: linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
         linux-amlogic@lists.infradead.org, linux-kernel@vger.kernel.org,
         linux-mediatek@lists.infradead.org,
         Marcus Folkesson <marcus.folkesson@gmail.com>
-Subject: [PATCH v2 5/7] watchdog: mtk: allow setting timeout in devicetree
-Date: Sat, 10 Feb 2018 10:19:09 +0100
-Message-Id: <20180210091911.3644-5-marcus.folkesson@gmail.com>
+Subject: [PATCH v2 6/7] watchdog: meson: allow setting timeout in devicetree
+Date: Sat, 10 Feb 2018 10:19:10 +0100
+Message-Id: <20180210091911.3644-6-marcus.folkesson@gmail.com>
 In-Reply-To: <20180210091911.3644-1-marcus.folkesson@gmail.com>
 References: <20180210091911.3644-1-marcus.folkesson@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -43,16 +43,16 @@ let us to set timout-sec property in devicetree.
 Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 ---
- Documentation/devicetree/bindings/watchdog/mtk-wdt.txt | 4 ++++
- drivers/watchdog/mtk_wdt.c                             | 2 +-
+ Documentation/devicetree/bindings/watchdog/meson-wdt.txt | 4 ++++
+ drivers/watchdog/meson_wdt.c                             | 2 +-
  2 files changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/watchdog/mtk-wdt.txt b/Documentation/devicetree/bindings/watchdog/mtk-wdt.txt
-index 5b38a30e608c..859dee167b91 100644
---- a/Documentation/devicetree/bindings/watchdog/mtk-wdt.txt
-+++ b/Documentation/devicetree/bindings/watchdog/mtk-wdt.txt
-@@ -11,9 +11,13 @@ Required properties:
- 
+diff --git a/Documentation/devicetree/bindings/watchdog/meson-wdt.txt b/Documentation/devicetree/bindings/watchdog/meson-wdt.txt
+index 8a6d84cb36c9..7588cc3971bf 100644
+--- a/Documentation/devicetree/bindings/watchdog/meson-wdt.txt
++++ b/Documentation/devicetree/bindings/watchdog/meson-wdt.txt
+@@ -9,9 +9,13 @@ Required properties:
+ 	"amlogic,meson8m2-wdt" and "amlogic,meson8b-wdt" on Meson8m2 SoCs
  - reg : Specifies base physical address and size of the registers.
  
 +Optional properties:
@@ -60,24 +60,24 @@ index 5b38a30e608c..859dee167b91 100644
 +
  Example:
  
- wdt: watchdog@10000000 {
- 	compatible = "mediatek,mt6589-wdt";
- 	reg = <0x10000000 0x18>;
+ wdt: watchdog@c1109900 {
+ 	compatible = "amlogic,meson6-wdt";
+ 	reg = <0xc1109900 0x8>;
 +	timeout-sec = <10>;
  };
-diff --git a/drivers/watchdog/mtk_wdt.c b/drivers/watchdog/mtk_wdt.c
-index 7ed417a765c7..fcdc10ec28a3 100644
---- a/drivers/watchdog/mtk_wdt.c
-+++ b/drivers/watchdog/mtk_wdt.c
-@@ -57,7 +57,7 @@
- #define DRV_VERSION		"1.0"
+diff --git a/drivers/watchdog/meson_wdt.c b/drivers/watchdog/meson_wdt.c
+index 304274c67735..cd0275a6cdac 100644
+--- a/drivers/watchdog/meson_wdt.c
++++ b/drivers/watchdog/meson_wdt.c
+@@ -36,7 +36,7 @@
+ #define MESON_SEC_TO_TC(s, c)	((s) * (c))
  
  static bool nowayout = WATCHDOG_NOWAYOUT;
--static unsigned int timeout = WDT_MAX_TIMEOUT;
+-static unsigned int timeout = MESON_WDT_TIMEOUT;
 +static unsigned int timeout;
  
- struct mtk_wdt_dev {
- 	struct watchdog_device wdt_dev;
+ struct meson_wdt_data {
+ 	unsigned int enable;
 -- 
 2.15.1
 
