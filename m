@@ -1,83 +1,57 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-lf0-f68.google.com ([209.85.215.68]:42429 "EHLO
-        mail-lf0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751189AbeBJJTb (ORCPT
+Received: from mail-lf0-f66.google.com ([209.85.215.66]:44338 "EHLO
+        mail-lf0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750857AbeBJJ1R (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 10 Feb 2018 04:19:31 -0500
+        Sat, 10 Feb 2018 04:27:17 -0500
 From: Marcus Folkesson <marcus.folkesson@gmail.com>
-To: Wim Van Sebroeck <wim@iguana.be>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Carlo Caione <carlo@caione.org>,
-        Kevin Hilman <khilman@baylibre.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Barry Song <baohua@kernel.org>,
-        Maxime Ripard <maxime.ripard@free-electrons.com>,
-        Chen-Yu Tsai <wens@csie.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Vladimir Zapolskiy <vz@mleia.com>,
-        Sylvain Lemieux <slemieux.tyco@gmail.com>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+To: Linus Walleij <linus.walleij@linaro.org>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Guenter Roeck <linux@roeck-us.net>
+Cc: Marcus Folkesson <marcus.folkesson@gmail.com>,
         linux-arm-kernel@lists.infradead.org,
-        linux-amlogic@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-mediatek@lists.infradead.org,
-        Marcus Folkesson <marcus.folkesson@gmail.com>
-Subject: [PATCH v2 2/7] watchdog: sunxi: allow setting timeout in devicetree
-Date: Sat, 10 Feb 2018 10:19:06 +0100
-Message-Id: <20180210091911.3644-2-marcus.folkesson@gmail.com>
-In-Reply-To: <20180210091911.3644-1-marcus.folkesson@gmail.com>
-References: <20180210091911.3644-1-marcus.folkesson@gmail.com>
+        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] watchdog: coh901327: make license text and module licence match
+Date: Sat, 10 Feb 2018 10:27:01 +0100
+Message-Id: <20180210092702.4393-1-marcus.folkesson@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-watchdog_init_timeout() will allways pick timeout_param since it
-defaults to a valid timeout.
+Licence text is specifying "GPLv2" but the MODULE_LICENSE is set to "GPLv2
+or later".
 
-By following best practice described in
-Documentation/watchdog/watchdog-kernel-api.txt, it also
-let us to set timout-sec property in devicetree.
+See include/linux/module.h:
+"GPL"				[GNU Public License v2 or later]
+"GPL v2"			[GNU Public License v2]
+
+When on it, add SPDX identifier tag.
 
 Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 ---
- Documentation/devicetree/bindings/watchdog/sunxi-wdt.txt | 4 ++++
- drivers/watchdog/sunxi_wdt.c                             | 2 +-
- 2 files changed, 5 insertions(+), 1 deletion(-)
+ drivers/watchdog/coh901327_wdt.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/watchdog/sunxi-wdt.txt b/Documentation/devicetree/bindings/watchdog/sunxi-wdt.txt
-index 62dd5baad70e..49900e72f6b1 100644
---- a/Documentation/devicetree/bindings/watchdog/sunxi-wdt.txt
-+++ b/Documentation/devicetree/bindings/watchdog/sunxi-wdt.txt
-@@ -6,9 +6,13 @@ Required properties:
-                "allwinner,sun6i-a31-wdt"
- - reg : Specifies base physical address and size of the registers.
- 
-+Optional properties:
-+- timeout-sec : Contains the watchdog timeout in seconds
-+
- Example:
- 
- wdt: watchdog@1c20c90 {
- 	compatible = "allwinner,sun4i-a10-wdt";
- 	reg = <0x01c20c90 0x10>;
-+	timeout-sec = <10>;
- };
-diff --git a/drivers/watchdog/sunxi_wdt.c b/drivers/watchdog/sunxi_wdt.c
-index 9728fa32c357..55f166bec0ca 100644
---- a/drivers/watchdog/sunxi_wdt.c
-+++ b/drivers/watchdog/sunxi_wdt.c
-@@ -39,7 +39,7 @@
- #define DRV_VERSION		"1.0"
- 
- static bool nowayout = WATCHDOG_NOWAYOUT;
--static unsigned int timeout = WDT_MAX_TIMEOUT;
-+static unsigned int timeout;
- 
+diff --git a/drivers/watchdog/coh901327_wdt.c b/drivers/watchdog/coh901327_wdt.c
+index 5d8eb9a30879..7b71e0a3e6cc 100644
+--- a/drivers/watchdog/coh901327_wdt.c
++++ b/drivers/watchdog/coh901327_wdt.c
+@@ -1,8 +1,8 @@
++// SPDX-License-Identifier: GPL-2.0
  /*
-  * This structure stores the register offsets for different variants
+  * coh901327_wdt.c
+  *
+  * Copyright (C) 2008-2009 ST-Ericsson AB
+- * License terms: GNU General Public License (GPL) version 2
+  * Watchdog driver for the ST-Ericsson AB COH 901 327 IP core
+  * Author: Linus Walleij <linus.walleij@stericsson.com>
+  */
+@@ -420,5 +420,5 @@ MODULE_DESCRIPTION("COH 901 327 Watchdog");
+ module_param(margin, uint, 0);
+ MODULE_PARM_DESC(margin, "Watchdog margin in seconds (default 60s)");
+ 
+-MODULE_LICENSE("GPL");
++MODULE_LICENSE("GPL v2");
+ MODULE_ALIAS("platform:coh901327-watchdog");
 -- 
 2.15.1
 
