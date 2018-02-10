@@ -1,9 +1,9 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-lf0-f66.google.com ([209.85.215.66]:46453 "EHLO
-        mail-lf0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751851AbeBJJTh (ORCPT
+Received: from mail-lf0-f68.google.com ([209.85.215.68]:44650 "EHLO
+        mail-lf0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750909AbeBJJTe (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 10 Feb 2018 04:19:37 -0500
+        Sat, 10 Feb 2018 04:19:34 -0500
 From: Marcus Folkesson <marcus.folkesson@gmail.com>
 To: Wim Van Sebroeck <wim@iguana.be>,
         Guenter Roeck <linux@roeck-us.net>,
@@ -25,9 +25,9 @@ Cc: linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
         linux-amlogic@lists.infradead.org, linux-kernel@vger.kernel.org,
         linux-mediatek@lists.infradead.org,
         Marcus Folkesson <marcus.folkesson@gmail.com>
-Subject: [PATCH v2 4/7] watchdog: pnx4008: make use of timeout-secs provided in devicetree
-Date: Sat, 10 Feb 2018 10:19:08 +0100
-Message-Id: <20180210091911.3644-4-marcus.folkesson@gmail.com>
+Subject: [PATCH v2 3/7] watchdog: sirfsoc: allow setting timeout in devicetree
+Date: Sat, 10 Feb 2018 10:19:07 +0100
+Message-Id: <20180210091911.3644-3-marcus.folkesson@gmail.com>
 In-Reply-To: <20180210091911.3644-1-marcus.folkesson@gmail.com>
 References: <20180210091911.3644-1-marcus.folkesson@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -36,29 +36,49 @@ List-Id: linux-watchdog@vger.kernel.org
 watchdog_init_timeout() will allways pick timeout_param since it
 defaults to a valid timeout.
 
-Following best practice described in
-Documentation/watchdog/watchdog-kernel-api.txt to make use of
-the parameter logic.
+By following best practice described in
+Documentation/watchdog/watchdog-kernel-api.txt, it also
+let us to set timout-sec property in devicetree.
 
 Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/watchdog/pnx4008_wdt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ Documentation/devicetree/bindings/watchdog/sirfsoc_wdt.txt | 4 ++++
+ drivers/watchdog/sirfsoc_wdt.c                             | 2 +-
+ 2 files changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/watchdog/pnx4008_wdt.c b/drivers/watchdog/pnx4008_wdt.c
-index 0529aed158a4..8e261799c84e 100644
---- a/drivers/watchdog/pnx4008_wdt.c
-+++ b/drivers/watchdog/pnx4008_wdt.c
-@@ -78,7 +78,7 @@
- #define WDOG_COUNTER_RATE 13000000	/*the counter clock is 13 MHz fixed */
+diff --git a/Documentation/devicetree/bindings/watchdog/sirfsoc_wdt.txt b/Documentation/devicetree/bindings/watchdog/sirfsoc_wdt.txt
+index 9cbc76c89b2b..0dce5e3100b4 100644
+--- a/Documentation/devicetree/bindings/watchdog/sirfsoc_wdt.txt
++++ b/Documentation/devicetree/bindings/watchdog/sirfsoc_wdt.txt
+@@ -5,10 +5,14 @@ Required properties:
+ - reg: Address range of tick timer/WDT register set
+ - interrupts: interrupt number to the cpu
  
++Optional properties:
++- timeout-sec : Contains the watchdog timeout in seconds
++
+ Example:
+ 
+ timer@b0020000 {
+ 	compatible = "sirf,prima2-tick";
+ 	reg = <0xb0020000 0x1000>;
+ 	interrupts = <0>;
++	timeout-sec = <30>;
+ };
+diff --git a/drivers/watchdog/sirfsoc_wdt.c b/drivers/watchdog/sirfsoc_wdt.c
+index 4eea351e09b0..ac0c9d2c4aee 100644
+--- a/drivers/watchdog/sirfsoc_wdt.c
++++ b/drivers/watchdog/sirfsoc_wdt.c
+@@ -29,7 +29,7 @@
+ #define SIRFSOC_WDT_MAX_TIMEOUT		(10 * 60)	/* 10 mins */
+ #define SIRFSOC_WDT_DEFAULT_TIMEOUT	30		/* 30 secs */
+ 
+-static unsigned int timeout = SIRFSOC_WDT_DEFAULT_TIMEOUT;
++static unsigned int timeout;
  static bool nowayout = WATCHDOG_NOWAYOUT;
--static unsigned int heartbeat = DEFAULT_HEARTBEAT;
-+static unsigned int heartbeat;
  
- static DEFINE_SPINLOCK(io_lock);
- static void __iomem	*wdt_base;
+ module_param(timeout, uint, 0);
 -- 
 2.15.1
 
