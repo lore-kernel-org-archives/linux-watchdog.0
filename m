@@ -1,9 +1,9 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-lf0-f67.google.com ([209.85.215.67]:33444 "EHLO
-        mail-lf0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753760AbeBKUJ0 (ORCPT
+Received: from mail-lf0-f68.google.com ([209.85.215.68]:37671 "EHLO
+        mail-lf0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753698AbeBKUJT (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 11 Feb 2018 15:09:26 -0500
+        Sun, 11 Feb 2018 15:09:19 -0500
 From: Marcus Folkesson <marcus.folkesson@gmail.com>
 To: Wim Van Sebroeck <wim@iguana.be>,
         Guenter Roeck <linux@roeck-us.net>,
@@ -25,9 +25,9 @@ Cc: linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
         linux-amlogic@lists.infradead.org, linux-kernel@vger.kernel.org,
         linux-mediatek@lists.infradead.org,
         Marcus Folkesson <marcus.folkesson@gmail.com>
-Subject: [PATCH v3 4/7] watchdog: pnx4008: make use of timeout-secs provided in devicetree
-Date: Sun, 11 Feb 2018 21:08:44 +0100
-Message-Id: <20180211200847.25000-4-marcus.folkesson@gmail.com>
+Subject: [PATCH v3 2/7] watchdog: sunxi: allow setting timeout in devicetree
+Date: Sun, 11 Feb 2018 21:08:42 +0100
+Message-Id: <20180211200847.25000-2-marcus.folkesson@gmail.com>
 In-Reply-To: <20180211200847.25000-1-marcus.folkesson@gmail.com>
 References: <20180211200847.25000-1-marcus.folkesson@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -36,29 +36,48 @@ List-Id: linux-watchdog@vger.kernel.org
 watchdog_init_timeout() will allways pick timeout_param since it
 defaults to a valid timeout.
 
-Following best practice described in
-Documentation/watchdog/watchdog-kernel-api.txt to make use of
-the parameter logic.
+By following best practice described in
+Documentation/watchdog/watchdog-kernel-api.txt, it also
+let us to set timout-sec property in devicetree.
 
 Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/watchdog/pnx4008_wdt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ Documentation/devicetree/bindings/watchdog/sunxi-wdt.txt | 4 ++++
+ drivers/watchdog/sunxi_wdt.c                             | 2 +-
+ 2 files changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/watchdog/pnx4008_wdt.c b/drivers/watchdog/pnx4008_wdt.c
-index 0529aed158a4..8e261799c84e 100644
---- a/drivers/watchdog/pnx4008_wdt.c
-+++ b/drivers/watchdog/pnx4008_wdt.c
-@@ -78,7 +78,7 @@
- #define WDOG_COUNTER_RATE 13000000	/*the counter clock is 13 MHz fixed */
+diff --git a/Documentation/devicetree/bindings/watchdog/sunxi-wdt.txt b/Documentation/devicetree/bindings/watchdog/sunxi-wdt.txt
+index 62dd5baad70e..49900e72f6b1 100644
+--- a/Documentation/devicetree/bindings/watchdog/sunxi-wdt.txt
++++ b/Documentation/devicetree/bindings/watchdog/sunxi-wdt.txt
+@@ -6,9 +6,13 @@ Required properties:
+                "allwinner,sun6i-a31-wdt"
+ - reg : Specifies base physical address and size of the registers.
+ 
++Optional properties:
++- timeout-sec : Contains the watchdog timeout in seconds
++
+ Example:
+ 
+ wdt: watchdog@1c20c90 {
+ 	compatible = "allwinner,sun4i-a10-wdt";
+ 	reg = <0x01c20c90 0x10>;
++	timeout-sec = <10>;
+ };
+diff --git a/drivers/watchdog/sunxi_wdt.c b/drivers/watchdog/sunxi_wdt.c
+index 9728fa32c357..55f166bec0ca 100644
+--- a/drivers/watchdog/sunxi_wdt.c
++++ b/drivers/watchdog/sunxi_wdt.c
+@@ -39,7 +39,7 @@
+ #define DRV_VERSION		"1.0"
  
  static bool nowayout = WATCHDOG_NOWAYOUT;
--static unsigned int heartbeat = DEFAULT_HEARTBEAT;
-+static unsigned int heartbeat;
+-static unsigned int timeout = WDT_MAX_TIMEOUT;
++static unsigned int timeout;
  
- static DEFINE_SPINLOCK(io_lock);
- static void __iomem	*wdt_base;
+ /*
+  * This structure stores the register offsets for different variants
 -- 
 2.15.1
 
