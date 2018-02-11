@@ -1,74 +1,108 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from g2t1383g.austin.hpe.com ([15.233.16.89]:13050 "EHLO
-        g2t1383g.austin.hpe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753704AbeBFXAR (ORCPT
+Received: from mail-oi0-f65.google.com ([209.85.218.65]:33818 "EHLO
+        mail-oi0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752286AbeBKReA (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 6 Feb 2018 18:00:17 -0500
-From: Jerry Hoemann <jerry.hoemann@hpe.com>
-To: wim@linux-watchdog.org, linux@roeck-us.net
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        rwright@hpe.com, maurice.a.saldivar@hpe.com,
-        Jerry Hoemann <jerry.hoemann@hpe.com>
-Subject: [PATCH 10/10] watchdog/hpwdt: remove allow_kdump module parameter.
-Date: Tue,  6 Feb 2018 15:58:55 -0700
-Message-Id: <20180206225855.30582-11-jerry.hoemann@hpe.com>
-In-Reply-To: <20180206225855.30582-1-jerry.hoemann@hpe.com>
-References: <20180206225855.30582-1-jerry.hoemann@hpe.com>
+        Sun, 11 Feb 2018 12:34:00 -0500
+Date: Sun, 11 Feb 2018 09:33:56 -0800
+From: Guenter Roeck <linux@roeck-us.net>
+To: Marcus Folkesson <marcus.folkesson@gmail.com>
+Cc: Wim Van Sebroeck <wim@iguana.be>, Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Carlo Caione <carlo@caione.org>,
+        Kevin Hilman <khilman@baylibre.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Barry Song <baohua@kernel.org>,
+        Maxime Ripard <maxime.ripard@free-electrons.com>,
+        Chen-Yu Tsai <wens@csie.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Vladimir Zapolskiy <vz@mleia.com>,
+        Sylvain Lemieux <slemieux.tyco@gmail.com>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-amlogic@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-mediatek@lists.infradead.org
+Subject: Re: [v2, 7/7] watchdog: coh901327: make use of timeout-secs provided
+ in devicetree
+Message-ID: <20180211173356.GA18292@roeck-us.net>
+References: <20180210091911.3644-7-marcus.folkesson@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20180210091911.3644-7-marcus.folkesson@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The intent of this parameter is unclear and it sets up a
-race between the reset of the system by ASR and crashdump.
+On Sat, Feb 10, 2018 at 10:19:11AM +0100, Marcus Folkesson wrote:
+> watchdog_init_timeout() will allways pick timeout_param since it
+> defaults to a valid timeout.
+> 
+> Following best practice described in
+> Documentation/watchdog/watchdog-kernel-api.txt to make use of
+> the parameter logic.
+> 
+> Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
+> ---
+> 
+> v2:
+> 	- Set .timeout in coh901327_wdt structure declaration.
+> 	- Set .min_timeout to 1 instead of 0. I could not find a datasheet
+> 	  for coh901327, so I'm not sure if 0 is valid. However, 0 seems
+> 		  wrong to me and most driver has 1 as min value. If it should
+> 		  be 0, please let me know and I have to set another initial
+> 		  value for margin.
 
-The length of time between receipt of the pretimeout NMI
-and the ASR reset of the system is fixed by hardware.
+Makes sense to me.
 
-Turning the parameter off doesn't necessairly prevent a crash dump.
-Also, having the ASR reset occur while the system is crash dumping
-doesn't imply that the dump was hung given the short duration
-between the NMI and the reset.
+> 
+>  drivers/watchdog/coh901327_wdt.c | 11 ++++++-----
+>  1 file changed, 6 insertions(+), 5 deletions(-)
+> 
+> diff --git a/drivers/watchdog/coh901327_wdt.c b/drivers/watchdog/coh901327_wdt.c
+> index 4410337f4f7f..5d8eb9a30879 100644
+> --- a/drivers/watchdog/coh901327_wdt.c
+> +++ b/drivers/watchdog/coh901327_wdt.c
+> @@ -67,7 +67,9 @@
+>  #define U300_WDOG_IFR_WILL_BARK_IRQ_FORCE_ENABLE			0x0001U
+>  
+>  /* Default timeout in seconds = 1 minute */
+> -static unsigned int margin = 60;
+> +#define U300_WDOG_DEFAULT_TIMEOUT					60
+> +
+> +static unsigned int margin;
 
-This parameter is not a substitute for having a architected watchdog
-crashdump hang detection paridigm.
+I just realized that 'margin' instead of the actual timeout is used
+at the end of the probe function to display the selected timeout.
+This will have to change as well (and I'll have to go back to the
+other patches to make sure that this doesn't happen there as well).
 
-Signed-off-by: Jerry Hoemann <jerry.hoemann@hpe.com>
----
- drivers/watchdog/hpwdt.c | 7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+Guenter
 
-diff --git a/drivers/watchdog/hpwdt.c b/drivers/watchdog/hpwdt.c
-index 9bfb668115f8..f767ea4dba86 100644
---- a/drivers/watchdog/hpwdt.c
-+++ b/drivers/watchdog/hpwdt.c
-@@ -32,7 +32,6 @@
- 
- static unsigned int soft_margin = DEFAULT_MARGIN;	/* in seconds */
- static bool nowayout = WATCHDOG_NOWAYOUT;
--static unsigned int allow_kdump = 1;
- static bool iLO5;
- #ifdef CONFIG_HPWDT_NMI_DECODING	/* { */
- static bool pretimeout = 1;
-@@ -149,8 +148,7 @@ static int hpwdt_pretimeout(unsigned int ulReason, struct pt_regs *regs)
- 	if (iLO5 && (ulReason == NMI_UNKNOWN) && !mynmi)
- 		return NMI_DONE;
- 
--	if (allow_kdump)
--		hpwdt_stop(&hpwdt_dev);
-+	hpwdt_stop(&hpwdt_dev);
- 
- 	panic_msg[0] = hexdigit((mynmi>>4)&0xf);
- 	panic_msg[1] = hexdigit(mynmi&0xf);
-@@ -347,9 +345,6 @@ MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
- 		__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
- 
- #ifdef CONFIG_HPWDT_NMI_DECODING	/* { */
--module_param(allow_kdump, int, 0444);
--MODULE_PARM_DESC(allow_kdump, "Start a kernel dump after NMI occurs");
--
- module_param(pretimeout, bool, 0444);
- MODULE_PARM_DESC(pretimeout, "Watchdog pretimeout enabled");
- #endif					/* } */
--- 
-2.13.6
-
+>  static int irq;
+>  static void __iomem *virtbase;
+>  static struct device *parent;
+> @@ -235,8 +237,9 @@ static struct watchdog_device coh901327_wdt = {
+>  	 * timeout register is max
+>  	 * 0x7FFF = 327670ms ~= 327s.
+>  	 */
+> -	.min_timeout = 0,
+> +	.min_timeout = 1,
+>  	.max_timeout = 327,
+> +	.timeout = U300_WDOG_DEFAULT_TIMEOUT,
+>  };
+>  
+>  static int __exit coh901327_remove(struct platform_device *pdev)
+> @@ -315,9 +318,7 @@ static int __init coh901327_probe(struct platform_device *pdev)
+>  		goto out_no_irq;
+>  	}
+>  
+> -	ret = watchdog_init_timeout(&coh901327_wdt, margin, dev);
+> -	if (ret < 0)
+> -		coh901327_wdt.timeout = 60;
+> +	watchdog_init_timeout(&coh901327_wdt, margin, dev);
+>  
+>  	coh901327_wdt.parent = dev;
+>  	ret = watchdog_register_device(&coh901327_wdt);
