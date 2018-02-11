@@ -1,9 +1,9 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-lf0-f67.google.com ([209.85.215.67]:33455 "EHLO
+Received: from mail-lf0-f67.google.com ([209.85.215.67]:33444 "EHLO
         mail-lf0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753726AbeBKUJd (ORCPT
+        with ESMTP id S1753760AbeBKUJ0 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 11 Feb 2018 15:09:33 -0500
+        Sun, 11 Feb 2018 15:09:26 -0500
 From: Marcus Folkesson <marcus.folkesson@gmail.com>
 To: Wim Van Sebroeck <wim@iguana.be>,
         Guenter Roeck <linux@roeck-us.net>,
@@ -25,9 +25,9 @@ Cc: linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
         linux-amlogic@lists.infradead.org, linux-kernel@vger.kernel.org,
         linux-mediatek@lists.infradead.org,
         Marcus Folkesson <marcus.folkesson@gmail.com>
-Subject: [PATCH v3 6/7] watchdog: meson: allow setting timeout in devicetree
-Date: Sun, 11 Feb 2018 21:08:46 +0100
-Message-Id: <20180211200847.25000-6-marcus.folkesson@gmail.com>
+Subject: [PATCH v3 4/7] watchdog: pnx4008: make use of timeout-secs provided in devicetree
+Date: Sun, 11 Feb 2018 21:08:44 +0100
+Message-Id: <20180211200847.25000-4-marcus.folkesson@gmail.com>
 In-Reply-To: <20180211200847.25000-1-marcus.folkesson@gmail.com>
 References: <20180211200847.25000-1-marcus.folkesson@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -36,48 +36,29 @@ List-Id: linux-watchdog@vger.kernel.org
 watchdog_init_timeout() will allways pick timeout_param since it
 defaults to a valid timeout.
 
-By following best practice described in
-Documentation/watchdog/watchdog-kernel-api.txt, it also
-let us to set timout-sec property in devicetree.
+Following best practice described in
+Documentation/watchdog/watchdog-kernel-api.txt to make use of
+the parameter logic.
 
 Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 ---
- Documentation/devicetree/bindings/watchdog/meson-wdt.txt | 4 ++++
- drivers/watchdog/meson_wdt.c                             | 2 +-
- 2 files changed, 5 insertions(+), 1 deletion(-)
+ drivers/watchdog/pnx4008_wdt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/watchdog/meson-wdt.txt b/Documentation/devicetree/bindings/watchdog/meson-wdt.txt
-index 8a6d84cb36c9..7588cc3971bf 100644
---- a/Documentation/devicetree/bindings/watchdog/meson-wdt.txt
-+++ b/Documentation/devicetree/bindings/watchdog/meson-wdt.txt
-@@ -9,9 +9,13 @@ Required properties:
- 	"amlogic,meson8m2-wdt" and "amlogic,meson8b-wdt" on Meson8m2 SoCs
- - reg : Specifies base physical address and size of the registers.
- 
-+Optional properties:
-+- timeout-sec: contains the watchdog timeout in seconds.
-+
- Example:
- 
- wdt: watchdog@c1109900 {
- 	compatible = "amlogic,meson6-wdt";
- 	reg = <0xc1109900 0x8>;
-+	timeout-sec = <10>;
- };
-diff --git a/drivers/watchdog/meson_wdt.c b/drivers/watchdog/meson_wdt.c
-index 304274c67735..cd0275a6cdac 100644
---- a/drivers/watchdog/meson_wdt.c
-+++ b/drivers/watchdog/meson_wdt.c
-@@ -36,7 +36,7 @@
- #define MESON_SEC_TO_TC(s, c)	((s) * (c))
+diff --git a/drivers/watchdog/pnx4008_wdt.c b/drivers/watchdog/pnx4008_wdt.c
+index 0529aed158a4..8e261799c84e 100644
+--- a/drivers/watchdog/pnx4008_wdt.c
++++ b/drivers/watchdog/pnx4008_wdt.c
+@@ -78,7 +78,7 @@
+ #define WDOG_COUNTER_RATE 13000000	/*the counter clock is 13 MHz fixed */
  
  static bool nowayout = WATCHDOG_NOWAYOUT;
--static unsigned int timeout = MESON_WDT_TIMEOUT;
-+static unsigned int timeout;
+-static unsigned int heartbeat = DEFAULT_HEARTBEAT;
++static unsigned int heartbeat;
  
- struct meson_wdt_data {
- 	unsigned int enable;
+ static DEFINE_SPINLOCK(io_lock);
+ static void __iomem	*wdt_base;
 -- 
 2.15.1
 
