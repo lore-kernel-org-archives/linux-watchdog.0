@@ -1,50 +1,83 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pg0-f68.google.com ([74.125.83.68]:43601 "EHLO
-        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752207AbeBKD43 (ORCPT
+Received: from mail-lf0-f65.google.com ([209.85.215.65]:45151 "EHLO
+        mail-lf0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932085AbeBKUJ3 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 10 Feb 2018 22:56:29 -0500
-Subject: Re: [PATCH 4/4] watchdog: lpc18xx: remove assignment of unused
- ret-value
-To: Marcus Folkesson <marcus.folkesson@gmail.com>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        Joachim Eastwood <manabian@gmail.com>
-Cc: linux-watchdog@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-References: <20180210203623.17832-1-marcus.folkesson@gmail.com>
- <20180210203623.17832-4-marcus.folkesson@gmail.com>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <55a198d0-3d58-52e5-0304-5212d7ba5dca@roeck-us.net>
-Date: Sat, 10 Feb 2018 19:56:27 -0800
-MIME-Version: 1.0
-In-Reply-To: <20180210203623.17832-4-marcus.folkesson@gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+        Sun, 11 Feb 2018 15:09:29 -0500
+From: Marcus Folkesson <marcus.folkesson@gmail.com>
+To: Wim Van Sebroeck <wim@iguana.be>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Carlo Caione <carlo@caione.org>,
+        Kevin Hilman <khilman@baylibre.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Barry Song <baohua@kernel.org>,
+        Maxime Ripard <maxime.ripard@free-electrons.com>,
+        Chen-Yu Tsai <wens@csie.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Vladimir Zapolskiy <vz@mleia.com>,
+        Sylvain Lemieux <slemieux.tyco@gmail.com>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-amlogic@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-mediatek@lists.infradead.org,
+        Marcus Folkesson <marcus.folkesson@gmail.com>
+Subject: [PATCH v3 5/7] watchdog: mtk: allow setting timeout in devicetree
+Date: Sun, 11 Feb 2018 21:08:45 +0100
+Message-Id: <20180211200847.25000-5-marcus.folkesson@gmail.com>
+In-Reply-To: <20180211200847.25000-1-marcus.folkesson@gmail.com>
+References: <20180211200847.25000-1-marcus.folkesson@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 02/10/2018 12:36 PM, Marcus Folkesson wrote:
-> Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
+watchdog_init_timeout() will allways pick timeout_param since it
+defaults to a valid timeout.
 
+By following best practice described in
+Documentation/watchdog/watchdog-kernel-api.txt, it also
+let us to set timout-sec property in devicetree.
+
+Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+---
+ Documentation/devicetree/bindings/watchdog/mtk-wdt.txt | 4 ++++
+ drivers/watchdog/mtk_wdt.c                             | 2 +-
+ 2 files changed, 5 insertions(+), 1 deletion(-)
 
-> ---
->   drivers/watchdog/lpc18xx_wdt.c | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/watchdog/lpc18xx_wdt.c b/drivers/watchdog/lpc18xx_wdt.c
-> index b4221f43cd94..331cadb459ac 100644
-> --- a/drivers/watchdog/lpc18xx_wdt.c
-> +++ b/drivers/watchdog/lpc18xx_wdt.c
-> @@ -265,7 +265,7 @@ static int lpc18xx_wdt_probe(struct platform_device *pdev)
->   	lpc18xx_wdt->wdt_dev.parent = dev;
->   	watchdog_set_drvdata(&lpc18xx_wdt->wdt_dev, lpc18xx_wdt);
->   
-> -	ret = watchdog_init_timeout(&lpc18xx_wdt->wdt_dev, heartbeat, dev);
-> +	watchdog_init_timeout(&lpc18xx_wdt->wdt_dev, heartbeat, dev);
->   
->   	__lpc18xx_wdt_set_timeout(lpc18xx_wdt);
->   
-> 
+diff --git a/Documentation/devicetree/bindings/watchdog/mtk-wdt.txt b/Documentation/devicetree/bindings/watchdog/mtk-wdt.txt
+index 5b38a30e608c..859dee167b91 100644
+--- a/Documentation/devicetree/bindings/watchdog/mtk-wdt.txt
++++ b/Documentation/devicetree/bindings/watchdog/mtk-wdt.txt
+@@ -11,9 +11,13 @@ Required properties:
+ 
+ - reg : Specifies base physical address and size of the registers.
+ 
++Optional properties:
++- timeout-sec: contains the watchdog timeout in seconds.
++
+ Example:
+ 
+ wdt: watchdog@10000000 {
+ 	compatible = "mediatek,mt6589-wdt";
+ 	reg = <0x10000000 0x18>;
++	timeout-sec = <10>;
+ };
+diff --git a/drivers/watchdog/mtk_wdt.c b/drivers/watchdog/mtk_wdt.c
+index 7ed417a765c7..fcdc10ec28a3 100644
+--- a/drivers/watchdog/mtk_wdt.c
++++ b/drivers/watchdog/mtk_wdt.c
+@@ -57,7 +57,7 @@
+ #define DRV_VERSION		"1.0"
+ 
+ static bool nowayout = WATCHDOG_NOWAYOUT;
+-static unsigned int timeout = WDT_MAX_TIMEOUT;
++static unsigned int timeout;
+ 
+ struct mtk_wdt_dev {
+ 	struct watchdog_device wdt_dev;
+-- 
+2.15.1
 
