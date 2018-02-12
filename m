@@ -1,9 +1,9 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from relmlor2.renesas.com ([210.160.252.172]:8954 "EHLO
-        relmlie1.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S932941AbeBLKbO (ORCPT
+Received: from relmlor4.renesas.com ([210.160.252.174]:12086 "EHLO
+        relmlie3.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S932558AbeBLKdz (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 12 Feb 2018 05:31:14 -0500
+        Mon, 12 Feb 2018 05:33:55 -0500
 From: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
 To: Wolfram Sang <wsa@the-dreams.de>
 CC: Philipp Zabel <p.zabel@pengutronix.de>,
@@ -30,13 +30,13 @@ CC: Philipp Zabel <p.zabel@pengutronix.de>,
         Chris Paterson <Chris.Paterson2@renesas.com>,
         Biju Das <biju.das@bp.renesas.com>,
         Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
-Subject: RE: [RFC v4 12/26] watchdog: renesas_wdt: Add R-Car Gen2 support
-Date: Mon, 12 Feb 2018 10:31:06 +0000
-Message-ID: <TY1PR06MB0895E25D31BA11A42F24DF80C0F70@TY1PR06MB0895.apcprd06.prod.outlook.com>
+Subject: RE: [RFC v4 13/26] watchdog: renesas_wdt: Add restart handler
+Date: Mon, 12 Feb 2018 10:33:47 +0000
+Message-ID: <TY1PR06MB089578618AA33335D90D16CEC0F70@TY1PR06MB0895.apcprd06.prod.outlook.com>
 References: <1517423070-24236-1-git-send-email-fabrizio.castro@bp.renesas.com>
- <1517423070-24236-13-git-send-email-fabrizio.castro@bp.renesas.com>
- <20180207225356.pgirh2ohdsv7xdne@katana>
-In-Reply-To: <20180207225356.pgirh2ohdsv7xdne@katana>
+ <1517423070-24236-14-git-send-email-fabrizio.castro@bp.renesas.com>
+ <20180207230309.goxig2irkpxrw5el@katana>
+In-Reply-To: <20180207230309.goxig2irkpxrw5el@katana>
 Content-Language: en-US
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
@@ -48,70 +48,43 @@ Hello Wolfram,
 
 thank you for your feedback!
 
-> Subject: Re: [RFC v4 12/26] watchdog: renesas_wdt: Add R-Car Gen2 support
+> Subject: Re: [RFC v4 13/26] watchdog: renesas_wdt: Add restart handler
 >
 >
-> > +#ifdef CONFIG_PM
-> > +static int rwdt_suspend(struct device *dev)
+> > +static int rwdt_restart(struct watchdog_device *wdev, unsigned long ac=
+tion,
+> > +void *data)
 > > +{
-> > +struct platform_device *pdev;
-> > +struct rwdt_priv *priv;
+> > +struct rwdt_priv *priv =3D watchdog_get_drvdata(wdev);
 > > +
-> > +pdev =3D to_platform_device(dev);
-> > +priv =3D platform_get_drvdata(pdev);
->
-> struct rwdt_priv *priv =3D dev_get_drvdata(dev);
->
-> ?
-
-will change
-
->
->
-> > +if (watchdog_active(&priv->wdev)) {
-> > +rwdt_write(priv, priv->cks, RWTCSRA);
-> > +}
+> > +pm_runtime_get_sync(wdev->parent);
+> > +
+> > +rwdt_write(priv, 0x00, RWTCSRB);
+> > +rwdt_write(priv, 0x00, RWTCSRA);
+> > +rwdt_write(priv, 0xffff, RWTCNT);
+> > +
+> > +while (readb_relaxed(priv->base + RWTCSRA) & RWTCSRA_WRFLG)
+> > +cpu_relax();
+> > +
+> > +rwdt_write(priv, 0x80, RWTCSRA);
 > > +return 0;
 > > +}
-> > +
-> > +static int rwdt_resume(struct device *dev)
-> > +{
-> > +struct platform_device *pdev;
-> > +struct rwdt_priv *priv;
-> > +
-> > +pdev =3D to_platform_device(dev);
-> > +priv =3D platform_get_drvdata(pdev);
 >
-> ditto
+> I used to have this simpler version (back then for the UP case):
+>
+> +rwdt_start(wdev);
+> +rwdt_write(priv, 0xffff, RWTCNT);
+> +return 0;
+>
+> It should still work probably...
 
-will change
-
->
-> > +if (watchdog_active(&priv->wdev)) {
-> > +rwdt_write(priv, priv->cks | RWTCSRA_TME, RWTCSRA);
-> > +}
-> > +return 0;
-> > +}
-> > +
-> > +static const struct dev_pm_ops rwdt_pm =3D {
-> > +.suspend =3D rwdt_suspend,
-> > +.resume =3D rwdt_resume,
-> > +};
->
-> Use SIMPLE_DEV_PM_OPS macro (see stmp3xxx_rtc_wdt.c for an example) for
-> more compact code and...
->
-> > +#ifdef CONFIG_PM
-> > +.pm =3D &rwdt_pm,
-> > +#endif
->
-> ... removing this ifdeffery?
-
-will take out the ifdeffery
-
+It should still work, but it would be slower, I would stick with the versio=
+n I have submitted if you don't mind.
 
 Thanks,
 Fabrizio
+
+
 
 
 
