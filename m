@@ -1,101 +1,120 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from esa4.microchip.iphmx.com ([68.232.154.123]:64765 "EHLO
-        esa4.microchip.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933024AbeBLI6i (ORCPT
+Received: from relmlor2.renesas.com ([210.160.252.172]:8954 "EHLO
+        relmlie1.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S932941AbeBLKbO (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 12 Feb 2018 03:58:38 -0500
-Subject: Re: [PATCH v3 1/7] watchdog: sama5d4: make use of timeout-secs
- provided in devicetree
-To: Marcus Folkesson <marcus.folkesson@gmail.com>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        Guenter Roeck <linux@roeck-us.net>,
+        Mon, 12 Feb 2018 05:31:14 -0500
+From: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
+To: Wolfram Sang <wsa@the-dreams.de>
+CC: Philipp Zabel <p.zabel@pengutronix.de>,
         Rob Herring <robh+dt@kernel.org>,
         Mark Rutland <mark.rutland@arm.com>,
-        Carlo Caione <carlo@caione.org>,
-        Kevin Hilman <khilman@baylibre.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Barry Song <baohua@kernel.org>,
-        Maxime Ripard <maxime.ripard@free-electrons.com>,
-        Chen-Yu Tsai <wens@csie.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Vladimir Zapolskiy <vz@mleia.com>,
-        Sylvain Lemieux <slemieux.tyco@gmail.com>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: <linux-watchdog@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        "Michael Turquette" <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@codeaurora.org>,
+        Simon Horman <horms@verge.net.au>,
+        Magnus Damm <magnus.damm@gmail.com>,
+        "Geert Uytterhoeven" <geert+renesas@glider.be>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+        "linux-renesas-soc@vger.kernel.org"
+        <linux-renesas-soc@vger.kernel.org>,
+        "linux-arm-kernel@lists.infradead.org"
         <linux-arm-kernel@lists.infradead.org>,
-        <linux-amlogic@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>,
-        <linux-mediatek@lists.infradead.org>
-References: <20180211200847.25000-1-marcus.folkesson@gmail.com>
-From: Nicolas Ferre <nicolas.ferre@microchip.com>
-Message-ID: <c925c4cb-1367-d57e-49eb-f88a6d2a1e70@microchip.com>
-Date: Mon, 12 Feb 2018 09:59:00 +0100
-MIME-Version: 1.0
-In-Reply-To: <20180211200847.25000-1-marcus.folkesson@gmail.com>
-Content-Type: text/plain; charset="utf-8"
+        "linux-clk@vger.kernel.org" <linux-clk@vger.kernel.org>,
+        Chris Paterson <Chris.Paterson2@renesas.com>,
+        Biju Das <biju.das@bp.renesas.com>,
+        Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
+Subject: RE: [RFC v4 12/26] watchdog: renesas_wdt: Add R-Car Gen2 support
+Date: Mon, 12 Feb 2018 10:31:06 +0000
+Message-ID: <TY1PR06MB0895E25D31BA11A42F24DF80C0F70@TY1PR06MB0895.apcprd06.prod.outlook.com>
+References: <1517423070-24236-1-git-send-email-fabrizio.castro@bp.renesas.com>
+ <1517423070-24236-13-git-send-email-fabrizio.castro@bp.renesas.com>
+ <20180207225356.pgirh2ohdsv7xdne@katana>
+In-Reply-To: <20180207225356.pgirh2ohdsv7xdne@katana>
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 11/02/2018 at 21:08, Marcus Folkesson wrote:
-> watchdog_init_timeout() will allways pick timeout_param since it
-> defaults to a valid timeout.
-> 
-> Following best practice described in
-> Documentation/watchdog/watchdog-kernel-api.txt to make use of
-> the parameter logic.
-> 
-> Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
+Hello Wolfram,
 
-Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
+thank you for your feedback!
 
-Thanks, best regards,
-  Nicolas
+> Subject: Re: [RFC v4 12/26] watchdog: renesas_wdt: Add R-Car Gen2 support
+>
+>
+> > +#ifdef CONFIG_PM
+> > +static int rwdt_suspend(struct device *dev)
+> > +{
+> > +struct platform_device *pdev;
+> > +struct rwdt_priv *priv;
+> > +
+> > +pdev =3D to_platform_device(dev);
+> > +priv =3D platform_get_drvdata(pdev);
+>
+> struct rwdt_priv *priv =3D dev_get_drvdata(dev);
+>
+> ?
 
-> ---
-> 
-> Notes:
->     v3:
->     	- Use wdd->timeout instead of wdt_timeout when print out
->     	  timout in probe function.
-> 
->  drivers/watchdog/sama5d4_wdt.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/watchdog/sama5d4_wdt.c b/drivers/watchdog/sama5d4_wdt.c
-> index 0ae947c3d7bc..255169916dbb 100644
-> --- a/drivers/watchdog/sama5d4_wdt.c
-> +++ b/drivers/watchdog/sama5d4_wdt.c
-> @@ -33,7 +33,7 @@ struct sama5d4_wdt {
->  	unsigned long		last_ping;
->  };
->  
-> -static int wdt_timeout = WDT_DEFAULT_TIMEOUT;
-> +static int wdt_timeout;
->  static bool nowayout = WATCHDOG_NOWAYOUT;
->  
->  module_param(wdt_timeout, int, 0);
-> @@ -212,7 +212,7 @@ static int sama5d4_wdt_probe(struct platform_device *pdev)
->  		return -ENOMEM;
->  
->  	wdd = &wdt->wdd;
-> -	wdd->timeout = wdt_timeout;
-> +	wdd->timeout = WDT_DEFAULT_TIMEOUT;
->  	wdd->info = &sama5d4_wdt_info;
->  	wdd->ops = &sama5d4_wdt_ops;
->  	wdd->min_timeout = MIN_WDT_TIMEOUT;
-> @@ -273,7 +273,7 @@ static int sama5d4_wdt_probe(struct platform_device *pdev)
->  	platform_set_drvdata(pdev, wdt);
->  
->  	dev_info(&pdev->dev, "initialized (timeout = %d sec, nowayout = %d)\n",
-> -		 wdt_timeout, nowayout);
-> +		 wdd->timeout, nowayout);
->  
->  	return 0;
->  }
-> 
+will change
+
+>
+>
+> > +if (watchdog_active(&priv->wdev)) {
+> > +rwdt_write(priv, priv->cks, RWTCSRA);
+> > +}
+> > +return 0;
+> > +}
+> > +
+> > +static int rwdt_resume(struct device *dev)
+> > +{
+> > +struct platform_device *pdev;
+> > +struct rwdt_priv *priv;
+> > +
+> > +pdev =3D to_platform_device(dev);
+> > +priv =3D platform_get_drvdata(pdev);
+>
+> ditto
+
+will change
+
+>
+> > +if (watchdog_active(&priv->wdev)) {
+> > +rwdt_write(priv, priv->cks | RWTCSRA_TME, RWTCSRA);
+> > +}
+> > +return 0;
+> > +}
+> > +
+> > +static const struct dev_pm_ops rwdt_pm =3D {
+> > +.suspend =3D rwdt_suspend,
+> > +.resume =3D rwdt_resume,
+> > +};
+>
+> Use SIMPLE_DEV_PM_OPS macro (see stmp3xxx_rtc_wdt.c for an example) for
+> more compact code and...
+>
+> > +#ifdef CONFIG_PM
+> > +.pm =3D &rwdt_pm,
+> > +#endif
+>
+> ... removing this ifdeffery?
+
+will take out the ifdeffery
 
 
--- 
-Nicolas Ferre
+Thanks,
+Fabrizio
+
+
+
+Renesas Electronics Europe Ltd, Dukes Meadow, Millboard Road, Bourne End, B=
+uckinghamshire, SL8 5FH, UK. Registered in England & Wales under Registered=
+ No. 04586709.
