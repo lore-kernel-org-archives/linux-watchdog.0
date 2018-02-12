@@ -1,11 +1,13 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-lf0-f66.google.com ([209.85.215.66]:44286 "EHLO
-        mail-lf0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753727AbeBKUJX (ORCPT
+Received: from esa4.microchip.iphmx.com ([68.232.154.123]:64765 "EHLO
+        esa4.microchip.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S933024AbeBLI6i (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 11 Feb 2018 15:09:23 -0500
-From: Marcus Folkesson <marcus.folkesson@gmail.com>
-To: Wim Van Sebroeck <wim@iguana.be>,
+        Mon, 12 Feb 2018 03:58:38 -0500
+Subject: Re: [PATCH v3 1/7] watchdog: sama5d4: make use of timeout-secs
+ provided in devicetree
+To: Marcus Folkesson <marcus.folkesson@gmail.com>,
+        Wim Van Sebroeck <wim@iguana.be>,
         Guenter Roeck <linux@roeck-us.net>,
         Rob Herring <robh+dt@kernel.org>,
         Mark Rutland <mark.rutland@arm.com>,
@@ -18,67 +20,82 @@ To: Wim Van Sebroeck <wim@iguana.be>,
         Linus Walleij <linus.walleij@linaro.org>,
         Vladimir Zapolskiy <vz@mleia.com>,
         Sylvain Lemieux <slemieux.tyco@gmail.com>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
         Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-amlogic@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-mediatek@lists.infradead.org,
-        Marcus Folkesson <marcus.folkesson@gmail.com>
-Subject: [PATCH v3 3/7] watchdog: sirfsoc: allow setting timeout in devicetree
-Date: Sun, 11 Feb 2018 21:08:43 +0100
-Message-Id: <20180211200847.25000-3-marcus.folkesson@gmail.com>
-In-Reply-To: <20180211200847.25000-1-marcus.folkesson@gmail.com>
+CC: <linux-watchdog@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-amlogic@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>,
+        <linux-mediatek@lists.infradead.org>
 References: <20180211200847.25000-1-marcus.folkesson@gmail.com>
+From: Nicolas Ferre <nicolas.ferre@microchip.com>
+Message-ID: <c925c4cb-1367-d57e-49eb-f88a6d2a1e70@microchip.com>
+Date: Mon, 12 Feb 2018 09:59:00 +0100
+MIME-Version: 1.0
+In-Reply-To: <20180211200847.25000-1-marcus.folkesson@gmail.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-watchdog_init_timeout() will allways pick timeout_param since it
-defaults to a valid timeout.
+On 11/02/2018 at 21:08, Marcus Folkesson wrote:
+> watchdog_init_timeout() will allways pick timeout_param since it
+> defaults to a valid timeout.
+> 
+> Following best practice described in
+> Documentation/watchdog/watchdog-kernel-api.txt to make use of
+> the parameter logic.
+> 
+> Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
 
-By following best practice described in
-Documentation/watchdog/watchdog-kernel-api.txt, it also
-let us to set timout-sec property in devicetree.
+Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
 
-Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
----
- Documentation/devicetree/bindings/watchdog/sirfsoc_wdt.txt | 4 ++++
- drivers/watchdog/sirfsoc_wdt.c                             | 2 +-
- 2 files changed, 5 insertions(+), 1 deletion(-)
+Thanks, best regards,
+  Nicolas
 
-diff --git a/Documentation/devicetree/bindings/watchdog/sirfsoc_wdt.txt b/Documentation/devicetree/bindings/watchdog/sirfsoc_wdt.txt
-index 9cbc76c89b2b..0dce5e3100b4 100644
---- a/Documentation/devicetree/bindings/watchdog/sirfsoc_wdt.txt
-+++ b/Documentation/devicetree/bindings/watchdog/sirfsoc_wdt.txt
-@@ -5,10 +5,14 @@ Required properties:
- - reg: Address range of tick timer/WDT register set
- - interrupts: interrupt number to the cpu
- 
-+Optional properties:
-+- timeout-sec : Contains the watchdog timeout in seconds
-+
- Example:
- 
- timer@b0020000 {
- 	compatible = "sirf,prima2-tick";
- 	reg = <0xb0020000 0x1000>;
- 	interrupts = <0>;
-+	timeout-sec = <30>;
- };
-diff --git a/drivers/watchdog/sirfsoc_wdt.c b/drivers/watchdog/sirfsoc_wdt.c
-index 4eea351e09b0..ac0c9d2c4aee 100644
---- a/drivers/watchdog/sirfsoc_wdt.c
-+++ b/drivers/watchdog/sirfsoc_wdt.c
-@@ -29,7 +29,7 @@
- #define SIRFSOC_WDT_MAX_TIMEOUT		(10 * 60)	/* 10 mins */
- #define SIRFSOC_WDT_DEFAULT_TIMEOUT	30		/* 30 secs */
- 
--static unsigned int timeout = SIRFSOC_WDT_DEFAULT_TIMEOUT;
-+static unsigned int timeout;
- static bool nowayout = WATCHDOG_NOWAYOUT;
- 
- module_param(timeout, uint, 0);
+> ---
+> 
+> Notes:
+>     v3:
+>     	- Use wdd->timeout instead of wdt_timeout when print out
+>     	  timout in probe function.
+> 
+>  drivers/watchdog/sama5d4_wdt.c | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/watchdog/sama5d4_wdt.c b/drivers/watchdog/sama5d4_wdt.c
+> index 0ae947c3d7bc..255169916dbb 100644
+> --- a/drivers/watchdog/sama5d4_wdt.c
+> +++ b/drivers/watchdog/sama5d4_wdt.c
+> @@ -33,7 +33,7 @@ struct sama5d4_wdt {
+>  	unsigned long		last_ping;
+>  };
+>  
+> -static int wdt_timeout = WDT_DEFAULT_TIMEOUT;
+> +static int wdt_timeout;
+>  static bool nowayout = WATCHDOG_NOWAYOUT;
+>  
+>  module_param(wdt_timeout, int, 0);
+> @@ -212,7 +212,7 @@ static int sama5d4_wdt_probe(struct platform_device *pdev)
+>  		return -ENOMEM;
+>  
+>  	wdd = &wdt->wdd;
+> -	wdd->timeout = wdt_timeout;
+> +	wdd->timeout = WDT_DEFAULT_TIMEOUT;
+>  	wdd->info = &sama5d4_wdt_info;
+>  	wdd->ops = &sama5d4_wdt_ops;
+>  	wdd->min_timeout = MIN_WDT_TIMEOUT;
+> @@ -273,7 +273,7 @@ static int sama5d4_wdt_probe(struct platform_device *pdev)
+>  	platform_set_drvdata(pdev, wdt);
+>  
+>  	dev_info(&pdev->dev, "initialized (timeout = %d sec, nowayout = %d)\n",
+> -		 wdt_timeout, nowayout);
+> +		 wdd->timeout, nowayout);
+>  
+>  	return 0;
+>  }
+> 
+
+
 -- 
-2.15.1
-
+Nicolas Ferre
