@@ -1,9 +1,9 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from relmlor4.renesas.com ([210.160.252.174]:27590 "EHLO
-        relmlie3.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1751315AbeBLRph (ORCPT
+Received: from relmlor3.renesas.com ([210.160.252.173]:55109 "EHLO
+        relmlie2.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1751315AbeBLRpn (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 12 Feb 2018 12:45:37 -0500
+        Mon, 12 Feb 2018 12:45:43 -0500
 From: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
 To: Philipp Zabel <p.zabel@pengutronix.de>,
         Rob Herring <robh+dt@kernel.org>,
@@ -25,95 +25,80 @@ Cc: Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org,
         Biju Das <biju.das@bp.renesas.com>,
         Fabrizio Castro <fabrizio.castro@bp.renesas.com>,
         Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
-Subject: [PATCH v5 09/26] soc: renesas: rcar-rst: Enable watchdog as reset trigger for Gen2
-Date: Mon, 12 Feb 2018 17:44:18 +0000
-Message-Id: <1518457475-4480-10-git-send-email-fabrizio.castro@bp.renesas.com>
+Subject: [PATCH v5 10/26] ARM: shmobile: rcar-gen2: Add watchdog support
+Date: Mon, 12 Feb 2018 17:44:19 +0000
+Message-Id: <1518457475-4480-11-git-send-email-fabrizio.castro@bp.renesas.com>
 In-Reply-To: <1518457475-4480-1-git-send-email-fabrizio.castro@bp.renesas.com>
 References: <1518457475-4480-1-git-send-email-fabrizio.castro@bp.renesas.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This patch allows for platform specific quirks as some of the SoC need
-further customization for the watchdog to work properly, like for R-Car
-Gen2 and for RZ/G.
+This patch adds watchdog support by installing shmobile_boot_vector_gen2
+to ICRAM1 when enough memory is available, in which case we also keep a
+copy of MPIDR to complete the reset vector logic.
 
 Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
 Signed-off-by: Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
 ---
 v4->v5:
-* no change
+* reworked comment style
 
- drivers/soc/renesas/rcar-rst.c | 35 +++++++++++++++++++++++++++++------
- 1 file changed, 29 insertions(+), 6 deletions(-)
+ arch/arm/mach-shmobile/platsmp-apmu.c |  1 +
+ arch/arm/mach-shmobile/pm-rcar-gen2.c | 15 ++++++++++++---
+ 2 files changed, 13 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/soc/renesas/rcar-rst.c b/drivers/soc/renesas/rcar-rst.c
-index 3316b02..93febe6 100644
---- a/drivers/soc/renesas/rcar-rst.c
-+++ b/drivers/soc/renesas/rcar-rst.c
-@@ -13,8 +13,18 @@
- #include <linux/of_address.h>
- #include <linux/soc/renesas/rcar-rst.h>
+diff --git a/arch/arm/mach-shmobile/platsmp-apmu.c b/arch/arm/mach-shmobile/platsmp-apmu.c
+index 4422b61..ba732ef 100644
+--- a/arch/arm/mach-shmobile/platsmp-apmu.c
++++ b/arch/arm/mach-shmobile/platsmp-apmu.c
+@@ -191,6 +191,7 @@ static void __init shmobile_smp_apmu_setup_boot(void)
+ {
+ 	/* install boot code shared by all CPUs */
+ 	shmobile_boot_fn = __pa_symbol(shmobile_smp_boot);
++	shmobile_boot_fn_gen2 = shmobile_boot_fn;
+ }
  
-+#define WDTRSTCR_RESET		0xA55A0002
-+#define WDTRSTCR		0x0054
-+
-+static int rcar_rst_enable_wdt_reset(void __iomem *base)
-+{
-+	iowrite32(WDTRSTCR_RESET, base + WDTRSTCR);
-+	return 0;
-+}
-+
- struct rst_config {
--	unsigned int modemr;	/* Mode Monitoring Register Offset */
-+	unsigned int modemr;		/* Mode Monitoring Register Offset */
-+	int (*configure)(void *base);	/* Platform specific configuration */
- };
+ void __init shmobile_smp_apmu_prepare_cpus(unsigned int max_cpus,
+diff --git a/arch/arm/mach-shmobile/pm-rcar-gen2.c b/arch/arm/mach-shmobile/pm-rcar-gen2.c
+index e5f215c..5a798b4 100644
+--- a/arch/arm/mach-shmobile/pm-rcar-gen2.c
++++ b/arch/arm/mach-shmobile/pm-rcar-gen2.c
+@@ -17,6 +17,7 @@
+ #include <linux/smp.h>
+ #include <linux/soc/renesas/rcar-sysc.h>
+ #include <asm/io.h>
++#include <asm/cputype.h>
+ #include "common.h"
+ #include "rcar-gen2.h"
  
- static const struct rst_config rcar_rst_gen1 __initconst = {
-@@ -23,6 +33,11 @@ static const struct rst_config rcar_rst_gen1 __initconst = {
+@@ -37,7 +38,6 @@
+ #define CA7RESCNT_CODE	0x5a5a0000
+ #define CA7RESCNT_CPUS	0xf		/* CPU0-3 */
  
- static const struct rst_config rcar_rst_gen2 __initconst = {
- 	.modemr = 0x60,
-+	.configure = rcar_rst_enable_wdt_reset,
-+};
-+
-+static const struct rst_config rcar_rst_gen3 __initconst = {
-+	.modemr = 0x60,
- };
+-
+ /* On-chip RAM */
+ #define ICRAM1		0xe63c0000	/* Inter Connect RAM1 (4 KiB) */
  
- static const struct of_device_id rcar_rst_matches[] __initconst = {
-@@ -38,11 +53,11 @@ static const struct of_device_id rcar_rst_matches[] __initconst = {
- 	{ .compatible = "renesas,r8a7792-rst", .data = &rcar_rst_gen2 },
- 	{ .compatible = "renesas,r8a7793-rst", .data = &rcar_rst_gen2 },
- 	{ .compatible = "renesas,r8a7794-rst", .data = &rcar_rst_gen2 },
--	/* R-Car Gen3 is handled like R-Car Gen2 */
--	{ .compatible = "renesas,r8a7795-rst", .data = &rcar_rst_gen2 },
--	{ .compatible = "renesas,r8a7796-rst", .data = &rcar_rst_gen2 },
--	{ .compatible = "renesas,r8a77970-rst", .data = &rcar_rst_gen2 },
--	{ .compatible = "renesas,r8a77995-rst", .data = &rcar_rst_gen2 },
-+	/* R-Car Gen3 */
-+	{ .compatible = "renesas,r8a7795-rst", .data = &rcar_rst_gen3 },
-+	{ .compatible = "renesas,r8a7796-rst", .data = &rcar_rst_gen3 },
-+	{ .compatible = "renesas,r8a77970-rst", .data = &rcar_rst_gen3 },
-+	{ .compatible = "renesas,r8a77995-rst", .data = &rcar_rst_gen3 },
- 	{ /* sentinel */ }
- };
- 
-@@ -71,6 +86,14 @@ static int __init rcar_rst_init(void)
- 	rcar_rst_base = base;
- 	cfg = match->data;
- 	saved_mode = ioread32(base + cfg->modemr);
-+	if (cfg->configure) {
-+		error = cfg->configure(base);
-+		if (error) {
-+			pr_warn("%pOF: Cannot run SoC specific configuration\n",
-+				np);
-+			goto out_put;
-+		}
+@@ -119,8 +119,17 @@ void __init rcar_gen2_pm_init(void)
+ 	p = ioremap(res.start, resource_size(&res));
+ 	if (!p)
+ 		return;
+-
+-	memcpy_toio(p, shmobile_boot_vector, shmobile_boot_size);
++	/*
++	 * install the reset vector, use the largest version if we have enough
++	 * memory available
++	 */
++	if (resource_size(&res) >= shmobile_boot_size_gen2) {
++		shmobile_boot_cpu_gen2 = read_cpuid_mpidr();
++		memcpy_toio(p, shmobile_boot_vector_gen2,
++			    shmobile_boot_size_gen2);
++	} else {
++		memcpy_toio(p, shmobile_boot_vector, shmobile_boot_size);
 +	}
+ 	iounmap(p);
  
- 	pr_debug("%pOF: MODE = 0x%08x\n", np, saved_mode);
- 
+ 	/* setup reset vectors */
 -- 
 2.7.4
 
