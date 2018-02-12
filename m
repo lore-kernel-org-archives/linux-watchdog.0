@@ -1,9 +1,9 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Received: from relmlor3.renesas.com ([210.160.252.173]:55109 "EHLO
         relmlie2.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1751315AbeBLRpn (ORCPT
+        by vger.kernel.org with ESMTP id S1751315AbeBLRpt (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 12 Feb 2018 12:45:43 -0500
+        Mon, 12 Feb 2018 12:45:49 -0500
 From: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
 To: Philipp Zabel <p.zabel@pengutronix.de>,
         Rob Herring <robh+dt@kernel.org>,
@@ -25,80 +25,67 @@ Cc: Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org,
         Biju Das <biju.das@bp.renesas.com>,
         Fabrizio Castro <fabrizio.castro@bp.renesas.com>,
         Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
-Subject: [PATCH v5 10/26] ARM: shmobile: rcar-gen2: Add watchdog support
-Date: Mon, 12 Feb 2018 17:44:19 +0000
-Message-Id: <1518457475-4480-11-git-send-email-fabrizio.castro@bp.renesas.com>
+Subject: [PATCH v5 11/26] dt-bindings: watchdog: renesas-wdt: Add R-Car Gen2 support
+Date: Mon, 12 Feb 2018 17:44:20 +0000
+Message-Id: <1518457475-4480-12-git-send-email-fabrizio.castro@bp.renesas.com>
 In-Reply-To: <1518457475-4480-1-git-send-email-fabrizio.castro@bp.renesas.com>
 References: <1518457475-4480-1-git-send-email-fabrizio.castro@bp.renesas.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This patch adds watchdog support by installing shmobile_boot_vector_gen2
-to ICRAM1 when enough memory is available, in which case we also keep a
-copy of MPIDR to complete the reset vector logic.
+This commit documents the compatibility with R-Car Gen2 and RZ/G
+devices by defining the generic compatible string "renesas,rcar-gen2-wdt".
+Also, this patch expands the list of SoC-specific compatible strings to
+include RZ/G and R-Car Gen2 devices.
 
 Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
 Signed-off-by: Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Rob Herring <robh@kernel.org>
+Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
 v4->v5:
-* reworked comment style
+* no change
 
- arch/arm/mach-shmobile/platsmp-apmu.c |  1 +
- arch/arm/mach-shmobile/pm-rcar-gen2.c | 15 ++++++++++++---
- 2 files changed, 13 insertions(+), 3 deletions(-)
+ .../devicetree/bindings/watchdog/renesas-wdt.txt      | 19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm/mach-shmobile/platsmp-apmu.c b/arch/arm/mach-shmobile/platsmp-apmu.c
-index 4422b61..ba732ef 100644
---- a/arch/arm/mach-shmobile/platsmp-apmu.c
-+++ b/arch/arm/mach-shmobile/platsmp-apmu.c
-@@ -191,6 +191,7 @@ static void __init shmobile_smp_apmu_setup_boot(void)
- {
- 	/* install boot code shared by all CPUs */
- 	shmobile_boot_fn = __pa_symbol(shmobile_smp_boot);
-+	shmobile_boot_fn_gen2 = shmobile_boot_fn;
- }
+diff --git a/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt b/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
+index bf6d1ca..4815128 100644
+--- a/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
++++ b/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
+@@ -1,17 +1,26 @@
+ Renesas Watchdog Timer (WDT) Controller
  
- void __init shmobile_smp_apmu_prepare_cpus(unsigned int max_cpus,
-diff --git a/arch/arm/mach-shmobile/pm-rcar-gen2.c b/arch/arm/mach-shmobile/pm-rcar-gen2.c
-index e5f215c..5a798b4 100644
---- a/arch/arm/mach-shmobile/pm-rcar-gen2.c
-+++ b/arch/arm/mach-shmobile/pm-rcar-gen2.c
-@@ -17,6 +17,7 @@
- #include <linux/smp.h>
- #include <linux/soc/renesas/rcar-sysc.h>
- #include <asm/io.h>
-+#include <asm/cputype.h>
- #include "common.h"
- #include "rcar-gen2.h"
+ Required properties:
+-- compatible : Should be "renesas,<soctype>-wdt", and
+-	       "renesas,rcar-gen3-wdt" or "renesas,rza-wdt" as fallback.
++ - compatible : Must be "renesas,<soctype>-wdt", followed by a generic
++		fallback compatible string when compatible with the generic
++		version.
+ 	       Examples with soctypes are:
++		 - "renesas,r8a7743-wdt" (RZ/G1M)
++		 - "renesas,r8a7745-wdt" (RZ/G1E)
++	         - "renesas,r8a7790-wdt" (R-Car H2)
++	         - "renesas,r8a7791-wdt" (R-Car M2-W)
++	         - "renesas,r8a7792-wdt" (R-Car V2H)
++	         - "renesas,r8a7793-wdt" (R-Car M2-N)
++	         - "renesas,r8a7794-wdt" (R-Car E2)
+ 	         - "renesas,r8a7795-wdt" (R-Car H3)
+ 	         - "renesas,r8a7796-wdt" (R-Car M3-W)
+ 	         - "renesas,r8a77995-wdt" (R-Car D3)
+ 	         - "renesas,r7s72100-wdt" (RZ/A1)
++		The generic compatible string must be:
++		 - "renesas,rza-wdt" for RZ/A
++		 - "renesas,rcar-gen2-wdt" for R-Car Gen2 and RZ/G
++		 - "renesas,rcar-gen3-wdt" for R-Car Gen3
  
-@@ -37,7 +38,6 @@
- #define CA7RESCNT_CODE	0x5a5a0000
- #define CA7RESCNT_CPUS	0xf		/* CPU0-3 */
+-  When compatible with the generic version, nodes must list the SoC-specific
+-  version corresponding to the platform first, followed by the generic
+-  version.
  
--
- /* On-chip RAM */
- #define ICRAM1		0xe63c0000	/* Inter Connect RAM1 (4 KiB) */
- 
-@@ -119,8 +119,17 @@ void __init rcar_gen2_pm_init(void)
- 	p = ioremap(res.start, resource_size(&res));
- 	if (!p)
- 		return;
--
--	memcpy_toio(p, shmobile_boot_vector, shmobile_boot_size);
-+	/*
-+	 * install the reset vector, use the largest version if we have enough
-+	 * memory available
-+	 */
-+	if (resource_size(&res) >= shmobile_boot_size_gen2) {
-+		shmobile_boot_cpu_gen2 = read_cpuid_mpidr();
-+		memcpy_toio(p, shmobile_boot_vector_gen2,
-+			    shmobile_boot_size_gen2);
-+	} else {
-+		memcpy_toio(p, shmobile_boot_vector, shmobile_boot_size);
-+	}
- 	iounmap(p);
- 
- 	/* setup reset vectors */
+ - reg : Should contain WDT registers location and length
+ - clocks : the clock feeding the watchdog timer.
 -- 
 2.7.4
 
