@@ -1,68 +1,74 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pl0-f68.google.com ([209.85.160.68]:41643 "EHLO
+Received: from mail-pl0-f68.google.com ([209.85.160.68]:46816 "EHLO
         mail-pl0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S965057AbeBMRov (ORCPT
+        with ESMTP id S965260AbeBMRtw (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 13 Feb 2018 12:44:51 -0500
-Date: Tue, 13 Feb 2018 09:44:49 -0800
+        Tue, 13 Feb 2018 12:49:52 -0500
+Date: Tue, 13 Feb 2018 09:49:50 -0800
 From: Guenter Roeck <linux@roeck-us.net>
-To: Philippe Ombredanne <pombredanne@nexb.com>
-Cc: Jerry Hoemann <jerry.hoemann@hpe.com>, wim@linux-watchdog.org,
-        linux-watchdog@vger.kernel.org,
-        LKML <linux-kernel@vger.kernel.org>, rwright@hpe.com,
+To: Jerry Hoemann <jerry.hoemann@hpe.com>
+Cc: wim@linux-watchdog.org, linux-watchdog@vger.kernel.org,
+        linux-kernel@vger.kernel.org, rwright@hpe.com,
         maurice.a.saldivar@hpe.com
-Subject: Re: [PATCH v2 04/11] watchdog/hpwdt: white space changes
-Message-ID: <20180213174449.GB22401@roeck-us.net>
+Subject: Re: [PATCH v2 05/11] watchdog/hpwdt: Update Module info.
+Message-ID: <20180213174950.GC22401@roeck-us.net>
 References: <20180212052111.12010-1-jerry.hoemann@hpe.com>
- <20180212052111.12010-5-jerry.hoemann@hpe.com>
- <CAOFm3uH0PUXVOxJmqDf-ZCm8vTp_6ERwYSC6Bt2-8r-C2yH9gQ@mail.gmail.com>
+ <20180212052111.12010-6-jerry.hoemann@hpe.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAOFm3uH0PUXVOxJmqDf-ZCm8vTp_6ERwYSC6Bt2-8r-C2yH9gQ@mail.gmail.com>
+In-Reply-To: <20180212052111.12010-6-jerry.hoemann@hpe.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Feb 12, 2018 at 10:35:50AM +0100, Philippe Ombredanne wrote:
-> Jerry,
-> 
-> On Mon, Feb 12, 2018 at 6:21 AM, Jerry Hoemann <jerry.hoemann@hpe.com> wrote:
-> > Minor white space changes and some name clean up.
-> >
-> > Signed-off-by: Jerry Hoemann <jerry.hoemann@hpe.com>
-> > ---
-> >  drivers/watchdog/hpwdt.c | 49 +++++++++++++++++++++++-------------------------
-> >  1 file changed, 23 insertions(+), 26 deletions(-)
-> >
-> > diff --git a/drivers/watchdog/hpwdt.c b/drivers/watchdog/hpwdt.c
-> > index 6f7949ef9a23..ee9a92220ece 100644
-> > --- a/drivers/watchdog/hpwdt.c
-> > +++ b/drivers/watchdog/hpwdt.c
-> > @@ -1,11 +1,9 @@
-> >  /*
-> >   *     HPE WatchDog Driver
-> > - *     based on
-> >   *
-> > - *     SoftDog 0.05:   A Software Watchdog Device
-> > - *
-> > - *     (c) Copyright 2015 Hewlett Packard Enterprise Development LP
-> > + *     (c) Copyright 2018 Hewlett Packard Enterprise Development LP
-> >   *     Thomas Mingarelli <thomas.mingarelli@hpe.com>
-> > + *     Jerry Hoemann <jerry.hoemann@hpe.com>
-> >   *
-> >   *     This program is free software; you can redistribute it and/or
-> >   *     modify it under the terms of the GNU General Public License
-> 
-> Since you are updating the copyright, why not updating the licensing
-> to use the new concise SPDX ids instead? [1]
-> And you get a big good karma bonus if you can also do the same for all
-> HPE-copyrighted files, tree-wide ;) and/or spread the word inside your
-> team.
+On Sun, Feb 11, 2018 at 10:21:05PM -0700, Jerry Hoemann wrote:
+> Update Module Author and permission on parameters so that the
+> parameters show up in sysfs.
 > 
 
-Different logical change, separate patch, please. Which, on a side note,
-you might consider submitting yourself.
+Does it really add value to see the module parameters in sysfs ?
+You would get both in standardized form by enabling WATCHDOG_SYSFS.
 
-Thanks,
-Guenter
+> Signed-off-by: Jerry Hoemann <jerry.hoemann@hpe.com>
+> ---
+>  drivers/watchdog/hpwdt.c | 10 +++++-----
+>  1 file changed, 5 insertions(+), 5 deletions(-)
+> 
+> diff --git a/drivers/watchdog/hpwdt.c b/drivers/watchdog/hpwdt.c
+> index ee9a92220ece..dead59f9ca80 100644
+> --- a/drivers/watchdog/hpwdt.c
+> +++ b/drivers/watchdog/hpwdt.c
+> @@ -432,20 +432,20 @@ static struct pci_driver hpwdt_driver = {
+>  	.remove		= hpwdt_exit,
+>  };
+>  
+> -MODULE_AUTHOR("Tom Mingarelli");
+> -MODULE_DESCRIPTION("hp watchdog driver");
+> +MODULE_AUTHOR("Jerry Hoemann");
+> +MODULE_DESCRIPTION("hpe watchdog driver");
+>  MODULE_LICENSE("GPL");
+>  MODULE_VERSION(HPWDT_VERSION);
+>  
+> -module_param(soft_margin, int, 0);
+> +module_param(soft_margin, int, 0444);
+>  MODULE_PARM_DESC(soft_margin, "Watchdog timeout in seconds");
+>  
+> -module_param(nowayout, bool, 0);
+> +module_param(nowayout, bool, 0444);
+>  MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
+>  		__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+>  
+>  #ifdef CONFIG_HPWDT_NMI_DECODING	/* { */
+> -module_param(allow_kdump, int, 0);
+> +module_param(allow_kdump, int, 0444);
+>  MODULE_PARM_DESC(allow_kdump, "Start a kernel dump after NMI occurs");
+>  #endif					/* } */
+>  
+> -- 
+> 2.13.6
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
