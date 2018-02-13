@@ -1,92 +1,165 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from relmlor3.renesas.com ([210.160.252.173]:34407 "EHLO
-        relmlie2.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S964790AbeBMNIZ (ORCPT
+Received: from mail-pl0-f67.google.com ([209.85.160.67]:42532 "EHLO
+        mail-pl0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S965853AbeBMVzw (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 13 Feb 2018 08:08:25 -0500
-From: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
-To: Simon Horman <horms@verge.net.au>,
-        Geert Uytterhoeven <geert+renesas@glider.be>
-CC: Guenter Roeck <linux@roeck-us.net>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        "linux-renesas-soc@vger.kernel.org"
-        <linux-renesas-soc@vger.kernel.org>,
-        "linux-arm-kernel@lists.infradead.org"
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-clk@vger.kernel.org" <linux-clk@vger.kernel.org>,
-        Chris Paterson <Chris.Paterson2@renesas.com>,
-        Biju Das <biju.das@bp.renesas.com>,
-        Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>,
-        Fabrizio Castro <fabrizio.castro@bp.renesas.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        "Rob Herring" <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        "Wim Van Sebroeck" <wim@iguana.be>,
-        Russell King <linux@armlinux.org.uk>,
-        "Catalin Marinas" <catalin.marinas@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        "Michael Turquette" <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@codeaurora.org>,
-        Magnus Damm <magnus.damm@gmail.com>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: RE: [PATCH v5 14/26] ARM: shmobile: defconfig: Enable RENESAS_WDT_GEN
-Date: Tue, 13 Feb 2018 13:08:19 +0000
-Message-ID: <TY1PR06MB0895970E6725F954D1A97E4CC0F60@TY1PR06MB0895.apcprd06.prod.outlook.com>
-References: <1518457475-4480-1-git-send-email-fabrizio.castro@bp.renesas.com>
- <1518457475-4480-15-git-send-email-fabrizio.castro@bp.renesas.com>
-In-Reply-To: <1518457475-4480-15-git-send-email-fabrizio.castro@bp.renesas.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+        Tue, 13 Feb 2018 16:55:52 -0500
+Date: Tue, 13 Feb 2018 13:55:49 -0800
+From: Guenter Roeck <linux@roeck-us.net>
+To: Jerry Hoemann <jerry.hoemann@hpe.com>
+Cc: Marcus Folkesson <marcus.folkesson@gmail.com>,
+        wim@linux-watchdog.org, linux-watchdog@vger.kernel.org,
+        linux-kernel@vger.kernel.org, rwright@hpe.com,
+        maurice.a.saldivar@hpe.com
+Subject: Re: [PATCH v2 06/11] watchdog/hpwdt: Modify to use watchdog core.
+Message-ID: <20180213215549.GA5241@roeck-us.net>
+References: <20180212052111.12010-1-jerry.hoemann@hpe.com>
+ <20180212052111.12010-7-jerry.hoemann@hpe.com>
+ <20180212090621.GA4513@gmail.com>
+ <20180213213648.GB22295@anatevka.americas.hpqcorp.net>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20180213213648.GB22295@anatevka.americas.hpqcorp.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hello Simon,
+On Tue, Feb 13, 2018 at 02:36:48PM -0700, Jerry Hoemann wrote:
+> 
+> 
+> Thanks for the review. Comments inline.
+> 
+> On Mon, Feb 12, 2018 at 10:06:21AM +0100, Marcus Folkesson wrote:
+> > Hi Jerry,
+> > 
+> > On Sun, Feb 11, 2018 at 10:21:06PM -0700, Jerry Hoemann wrote:
+> > > Follow Documentation/watchdog/convert_drivers_to_kernel_api.txt to
+> > > convert hpwdt from legacy watchdog driver to use the watchdog core.
+> > > 
+> > > Removed functions: hpwdt_open, hpwdt_release, hpwdt_write, hpwdt_ioctl
+> > > Removed data structures: hpwdt_fops, hpwdt_miscdev, watchdog_device
+> > > Modified functions: hpwdt_start, hpwdt_stop, hpwdt_ping, hpwdt_gettimeleft
+> > > Added functions: hpwdt_settimeout
+> > > Added structures: watchdog_device
+> > > 
+> > > Signed-off-by: Jerry Hoemann <jerry.hoemann@hpe.com>
+> > 
+> > I think it would be better to use
+> >     dev_emerg()
+> >     dev_crit()
+> >     dev_alert()
+> >     dev_err()
+> >     dev_warn()
+> >     dev_notice()
+> > 
+> > instead of pr_* functions now when we have a device to use.
+> 
+> In general, is there something bad with using pr_debug, etc.,?
+> 
 
-what do you think about enabling the watchdog in multi_v7_defconfig as a mo=
-dule?
+No, but it is desirable to use dev_ functions where possible.
 
-Thanks,
-Fab
+> When converting the driver over, I had many more debug messages being
+> printed from locations where I didn't have a valid device handle and
+> those needed to be done w/ the pr_.* functions.  So, I just uniformally
+> used pr_.*.
+> 
+> 
+> > > -static int hpwdt_time_left(void)
+> > > +static unsigned int hpwdt_gettimeleft(struct watchdog_device *dev)
+> > >  {
+> > >  	return TICKS_TO_SECS(ioread16(hpwdt_timer_reg));
+> > >  }
+> > >  
+> > > +static int hpwdt_settimeout(struct watchdog_device *dev, unsigned int val)
+> > > +{
+> > > +	pr_debug("settimeout = %d\n", val);
+> > 
+> > dev_dbg()
+> 
+> I think you are proposing I do:
+> 
+> 	dev_dbg(dev->parent, "settimeout = %d\n", val);
+> 
+> This raises the issue that I didn't set parent and I believe I should have.
+> 
+Correct.
 
-> Subject: [PATCH v5 14/26] ARM: shmobile: defconfig: Enable RENESAS_WDT_GE=
-N
->
-> R-Car Gen2 and RZ/G1 platforms come with a watchdog IP, therefore enable
-> its driver by default.
->
-> Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
-> Signed-off-by: Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesa=
-s.com>
-> Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> ---
-> v4->v5:
-> * no change
->
->  arch/arm/configs/shmobile_defconfig | 1 +
->  1 file changed, 1 insertion(+)
->
-> diff --git a/arch/arm/configs/shmobile_defconfig b/arch/arm/configs/shmob=
-ile_defconfig
-> index 578434c..d5cdad8 100644
-> --- a/arch/arm/configs/shmobile_defconfig
-> +++ b/arch/arm/configs/shmobile_defconfig
-> @@ -132,6 +132,7 @@ CONFIG_CPU_THERMAL=3Dy
->  CONFIG_RCAR_THERMAL=3Dy
->  CONFIG_WATCHDOG=3Dy
->  CONFIG_DA9063_WATCHDOG=3Dy
-> +CONFIG_RENESAS_WDT=3Dy
->  CONFIG_MFD_AS3711=3Dy
->  CONFIG_MFD_DA9063=3Dy
->  CONFIG_REGULATOR_FIXED_VOLTAGE=3Dy
-> --
-> 2.7.4
+> 
+> > 
+> > 
+> > > +
+> > > +	soft_margin = dev->timeout = val;
+> > 
+> > No need to update soft_margin
+> 
+> I'd made the permission on the module parameters 0444 so that they
+> would show up in sysfs.  I updated this value so that I could see
+> current value of timeout in sysfs.  But, as Guenter points out in a
+> later review, these values are available in under CONFIG_WATCHDOG_SYSFS.
+> So, I'll remove.
+> 
+> 
+> > > +	pr_debug("nmi: ulReason=%d, mynmi=0x%0x\n", ulReason, mynmi);
+> > 
+> > dev_dbg()
+> 
+> See above.
+> 
+> > 
+> > >  	retval = hpwdt_init_nmi_decoding(dev);
+> > >  	if (retval != 0)
+> > >  		goto error_init_nmi_decoding;
+> > >  
+> > > -	retval = misc_register(&hpwdt_miscdev);
+> > > +	retval = watchdog_register_device(&hpwdt_dev);
+> > >  	if (retval < 0) {
+> > > -		dev_warn(&dev->dev,
+> > > -			"Unable to register miscdev on minor=%d (err=%d).\n",
+> > > -			WATCHDOG_MINOR, retval);
+> > > -		goto error_misc_register;
+> > > +		dev_warn(&dev->dev, "Unable to register hpe watchdog (err=%d).\n", retval);
+> > > +		goto error_wd_register;
+> > > +	}
+> > > +
+> > > +	watchdog_set_nowayout(&hpwdt_dev, nowayout);
+> > > +	if (watchdog_init_timeout(&hpwdt_dev, soft_margin, NULL)) {
+> > > +		dev_warn(&dev->dev, "Invalid soft_margin: %d. Using default\n", soft_margin);
+> > > +		soft_margin = DEFAULT_MARGIN;
+> > >  	}
+> > 
+> > In this case watchdog_init_timout() will:
+> > 1) Check if soft_margin is valid
+> > 2) if not, keep hpwdt_dev.timout intact (which is already set in
+> > declaration of hpwdt_dev)
+> > 
+> > So we could remove the condition and only keep
+> > watchdog_init_timeout(&hpwdt_dev, soft_margin, NULL);
+> > 
+> > 
+> > Also, we need to set an invalid initial value for soft_margin to make
+> > the logic for watchdog_init_timeout work. 
+> > 
+> > i.e
+> > - static unsigned int soft_margin = DEFAULT_MARGIN;	/* in seconds */
+> > + static unsigned int soft_margin;
+> 
+> 
+> I don't see the core printing a warning message if an invalid value
+> is specified for soft_margin when loading the module.
+> 
+> I don't mind the hpwdt module correcting an out of range parameter, but I
+> don't think it should do so siliently.
+> 
 
+The point here is that setting soft_margin to 0 and setting the
+timeout in the watchdog_device structure to DEFAULT_MARGIN
+means that it is not necessary to override it on error.
+If you want to be verbose, you can still log a warning message
+if the timeout provided by the module parameter is wrong.
 
+Anyway, this driver will presumably never support devicetree,
+so the watchdog core will never read the timeout from there,
+and this is not a showstopper.
 
-
-Renesas Electronics Europe Ltd, Dukes Meadow, Millboard Road, Bourne End, B=
-uckinghamshire, SL8 5FH, UK. Registered in England & Wales under Registered=
- No. 04586709.
+Guenter
