@@ -1,57 +1,58 @@
-Return-Path: <pombredanne@nexb.com>
-Return-path: <pombredanne@nexb.com>
-MIME-Version: 1.0
-In-Reply-To: <20180212052111.12010-5-jerry.hoemann@hpe.com>
-References: <20180212052111.12010-1-jerry.hoemann@hpe.com> <20180212052111.12010-5-jerry.hoemann@hpe.com>
-From: Philippe Ombredanne <pombredanne@nexb.com>
-Date: Mon, 12 Feb 2018 10:35:50 +0100
-Message-ID: <CAOFm3uH0PUXVOxJmqDf-ZCm8vTp_6ERwYSC6Bt2-8r-C2yH9gQ@mail.gmail.com>
-Subject: Re: [PATCH v2 04/11] watchdog/hpwdt: white space changes
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-pg0-f67.google.com ([74.125.83.67]:34536 "EHLO
+        mail-pg0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S965057AbeBMRH1 (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 13 Feb 2018 12:07:27 -0500
+Date: Tue, 13 Feb 2018 09:07:25 -0800
+From: Guenter Roeck <linux@roeck-us.net>
 To: Jerry Hoemann <jerry.hoemann@hpe.com>
-Cc: wim@linux-watchdog.org, Guenter Roeck <linux@roeck-us.net>,
-	linux-watchdog@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
-	rwright@hpe.com, maurice.a.saldivar@hpe.com
-Content-Type: text/plain; charset="UTF-8"
-List-ID: <linux-watchdog@vger.kernel.org>
+Cc: wim@linux-watchdog.org, linux-watchdog@vger.kernel.org,
+        linux-kernel@vger.kernel.org, rwright@hpe.com,
+        maurice.a.saldivar@hpe.com
+Subject: Re: [PATCH v2 11/11] watchdog/hpwdt: Update driver version.
+Message-ID: <20180213170725.GA19405@roeck-us.net>
+References: <20180212052111.12010-1-jerry.hoemann@hpe.com>
+ <20180212052111.12010-12-jerry.hoemann@hpe.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20180212052111.12010-12-jerry.hoemann@hpe.com>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-Jerry,
-
-On Mon, Feb 12, 2018 at 6:21 AM, Jerry Hoemann <jerry.hoemann@hpe.com> wrote:
-> Minor white space changes and some name clean up.
->
+On Sun, Feb 11, 2018 at 10:21:11PM -0700, Jerry Hoemann wrote:
+> Update driver version number to reflect changes.
+> 
 > Signed-off-by: Jerry Hoemann <jerry.hoemann@hpe.com>
 > ---
->  drivers/watchdog/hpwdt.c | 49 +++++++++++++++++++++++-------------------------
->  1 file changed, 23 insertions(+), 26 deletions(-)
->
+>  drivers/watchdog/hpwdt.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
 > diff --git a/drivers/watchdog/hpwdt.c b/drivers/watchdog/hpwdt.c
-> index 6f7949ef9a23..ee9a92220ece 100644
+> index bb0dcc8709b8..78168e2f9b4e 100644
 > --- a/drivers/watchdog/hpwdt.c
 > +++ b/drivers/watchdog/hpwdt.c
-> @@ -1,11 +1,9 @@
->  /*
->   *     HPE WatchDog Driver
-> - *     based on
->   *
-> - *     SoftDog 0.05:   A Software Watchdog Device
-> - *
-> - *     (c) Copyright 2015 Hewlett Packard Enterprise Development LP
-> + *     (c) Copyright 2018 Hewlett Packard Enterprise Development LP
->   *     Thomas Mingarelli <thomas.mingarelli@hpe.com>
-> + *     Jerry Hoemann <jerry.hoemann@hpe.com>
->   *
->   *     This program is free software; you can redistribute it and/or
->   *     modify it under the terms of the GNU General Public License
+> @@ -23,7 +23,7 @@
+>  
+>  #include <asm/nmi.h>
+>  
+> -#define HPWDT_VERSION			"1.4.0"
+> +#define HPWDT_VERSION			"2.0.0"
 
-Since you are updating the copyright, why not updating the licensing
-to use the new concise SPDX ids instead? [1]
-And you get a big good karma bonus if you can also do the same for all
-HPE-copyrighted files, tree-wide ;) and/or spread the word inside your
-team.
+I would suggest to drop the version entirely. History and experience shows
+that it is not really useful.
 
-Thank you for your kind consideration!
+Guenter
 
-[1] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Documentation/process/license-rules.rst
-
-Cordially
-Philippe Ombredanne
+>  #define SECS_TO_TICKS(secs)		((secs) * 1000 / 128)
+>  #define TICKS_TO_SECS(ticks)		((ticks) * 128 / 1000)
+>  #define HPWDT_MAX_TIMER			TICKS_TO_SECS(65535)
+> -- 
+> 2.13.6
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
