@@ -1,70 +1,50 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pl0-f68.google.com ([209.85.160.68]:46816 "EHLO
-        mail-pl0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S965260AbeBMRtw (ORCPT
+Received: from mail-pl0-f67.google.com ([209.85.160.67]:42111 "EHLO
+        mail-pl0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S965158AbeBMSEd (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 13 Feb 2018 12:49:52 -0500
-Date: Tue, 13 Feb 2018 09:49:50 -0800
+        Tue, 13 Feb 2018 13:04:33 -0500
+Date: Tue, 13 Feb 2018 10:04:30 -0800
 From: Guenter Roeck <linux@roeck-us.net>
 To: Jerry Hoemann <jerry.hoemann@hpe.com>
 Cc: wim@linux-watchdog.org, linux-watchdog@vger.kernel.org,
         linux-kernel@vger.kernel.org, rwright@hpe.com,
         maurice.a.saldivar@hpe.com
-Subject: Re: [PATCH v2 05/11] watchdog/hpwdt: Update Module info.
-Message-ID: <20180213174950.GC22401@roeck-us.net>
+Subject: Re: [PATCH v2 07/11] watchdog/hpwdt: Select WATCHDOG_CORE
+Message-ID: <20180213180430.GB19405@roeck-us.net>
 References: <20180212052111.12010-1-jerry.hoemann@hpe.com>
- <20180212052111.12010-6-jerry.hoemann@hpe.com>
+ <20180212052111.12010-8-jerry.hoemann@hpe.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20180212052111.12010-6-jerry.hoemann@hpe.com>
+In-Reply-To: <20180212052111.12010-8-jerry.hoemann@hpe.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Sun, Feb 11, 2018 at 10:21:05PM -0700, Jerry Hoemann wrote:
-> Update Module Author and permission on parameters so that the
-> parameters show up in sysfs.
+On Sun, Feb 11, 2018 at 10:21:07PM -0700, Jerry Hoemann wrote:
+> Update Kconfig file to show that hpwdt now selects WATCHDOG_CORE.
 > 
-
-Does it really add value to see the module parameters in sysfs ?
-You would get both in standardized form by enabling WATCHDOG_SYSFS.
-
 > Signed-off-by: Jerry Hoemann <jerry.hoemann@hpe.com>
+
+Please merge with previous patch to preserve bisectability.
+
 > ---
->  drivers/watchdog/hpwdt.c | 10 +++++-----
->  1 file changed, 5 insertions(+), 5 deletions(-)
+>  drivers/watchdog/Kconfig | 1 +
+>  1 file changed, 1 insertion(+)
 > 
-> diff --git a/drivers/watchdog/hpwdt.c b/drivers/watchdog/hpwdt.c
-> index ee9a92220ece..dead59f9ca80 100644
-> --- a/drivers/watchdog/hpwdt.c
-> +++ b/drivers/watchdog/hpwdt.c
-> @@ -432,20 +432,20 @@ static struct pci_driver hpwdt_driver = {
->  	.remove		= hpwdt_exit,
->  };
+> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> index 6a602f70aaa4..4d219c3fa8b4 100644
+> --- a/drivers/watchdog/Kconfig
+> +++ b/drivers/watchdog/Kconfig
+> @@ -1108,6 +1108,7 @@ config IT87_WDT
 >  
-> -MODULE_AUTHOR("Tom Mingarelli");
-> -MODULE_DESCRIPTION("hp watchdog driver");
-> +MODULE_AUTHOR("Jerry Hoemann");
-> +MODULE_DESCRIPTION("hpe watchdog driver");
->  MODULE_LICENSE("GPL");
->  MODULE_VERSION(HPWDT_VERSION);
->  
-> -module_param(soft_margin, int, 0);
-> +module_param(soft_margin, int, 0444);
->  MODULE_PARM_DESC(soft_margin, "Watchdog timeout in seconds");
->  
-> -module_param(nowayout, bool, 0);
-> +module_param(nowayout, bool, 0444);
->  MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
->  		__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
->  
->  #ifdef CONFIG_HPWDT_NMI_DECODING	/* { */
-> -module_param(allow_kdump, int, 0);
-> +module_param(allow_kdump, int, 0444);
->  MODULE_PARM_DESC(allow_kdump, "Start a kernel dump after NMI occurs");
->  #endif					/* } */
->  
+>  config HP_WATCHDOG
+>  	tristate "HP ProLiant iLO2+ Hardware Watchdog Timer"
+> +	select WATCHDOG_CORE
+>  	depends on X86 && PCI
+>  	help
+>  	  A software monitoring watchdog and NMI sourcing driver. This driver
 > -- 
 > 2.13.6
 > 
