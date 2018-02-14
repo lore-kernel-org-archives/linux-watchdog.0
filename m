@@ -1,74 +1,61 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from g9t5008.houston.hpe.com ([15.241.48.72]:33136 "EHLO
-        g9t5008.houston.hpe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1030206AbeBNUxZ (ORCPT
+Received: from mail-wr0-f196.google.com ([209.85.128.196]:41226 "EHLO
+        mail-wr0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1031971AbeBNXRI (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 14 Feb 2018 15:53:25 -0500
-Date: Wed, 14 Feb 2018 13:53:23 -0700
-From: Jerry Hoemann <jerry.hoemann@hpe.com>
-To: Marcus Folkesson <marcus.folkesson@gmail.com>
-Cc: wim@linux-watchdog.org, linux@roeck-us.net,
-        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        rwright@hpe.com, maurice.a.saldivar@hpe.com
-Subject: Re: [PATCH v2 06/11] watchdog/hpwdt: Modify to use watchdog core.
-Message-ID: <20180214205323.GA28235@anatevka.americas.hpqcorp.net>
-Reply-To: Jerry.Hoemann@hpe.com
-References: <20180212052111.12010-1-jerry.hoemann@hpe.com>
- <20180212052111.12010-7-jerry.hoemann@hpe.com>
- <20180212090621.GA4513@gmail.com>
+        Wed, 14 Feb 2018 18:17:08 -0500
+Date: Thu, 15 Feb 2018 00:17:04 +0100
+From: Ingo Molnar <mingo@kernel.org>
+To: Jerry Hoemann <jerry.hoemann@hpe.com>
+Cc: Borislav Petkov <bp@alien8.de>,
+        Tim Chen <tim.c.chen@linux.intel.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Dave Hansen <dave@sr71.net>, hpa@zytor.com, tglx@linutronix.de,
+        torvalds@linux-foundation.org, linux-kernel@vger.kernel.org,
+        dwmw@amazon.co.uk, linux-tip-commits@vger.kernel.org,
+        Arjan van de Ven <arjan@infradead.org>,
+        linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH] watchdog: hpwdt: Remove spinlock acquire and BIOS calls
+ from NMI context
+Message-ID: <20180214231704.xv2iwqsfvljoybul@gmail.com>
+References: <1518362359-1005-1-git-send-email-dwmw@amazon.co.uk>
+ <tip-670c3e8da87fa4046a55077b1409cf250865a203@git.kernel.org>
+ <20180212102211.cdrrqqd4hdw7xu5y@gmail.com>
+ <a85c28b8-1255-3264-bb4a-89e85e3c6009@sr71.net>
+ <20180212165835.GO25181@hirez.programming.kicks-ass.net>
+ <20180213075540.3lkikkpgjoe6ocjk@gmail.com>
+ <5c3ba123-abbe-f153-7b75-a89d31d25c72@linux.intel.com>
+ <20180214093159.mdzfupne547bi5qx@gmail.com>
+ <20180214094404.GA18349@pd.tnic>
+ <20180214181342.GA27600@anatevka.americas.hpqcorp.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20180212090621.GA4513@gmail.com>
+In-Reply-To: <20180214181342.GA27600@anatevka.americas.hpqcorp.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Feb 12, 2018 at 10:06:21AM +0100, Marcus Folkesson wrote:
-> Hi Jerry,
+
+* Jerry Hoemann <jerry.hoemann@hpe.com> wrote:
+
 > 
-> On Sun, Feb 11, 2018 at 10:21:06PM -0700, Jerry Hoemann wrote:
-> > Follow Documentation/watchdog/convert_drivers_to_kernel_api.txt to
-> > convert hpwdt from legacy watchdog driver to use the watchdog core.
-> > 
-> > Removed functions: hpwdt_open, hpwdt_release, hpwdt_write, hpwdt_ioctl
-> > Removed data structures: hpwdt_fops, hpwdt_miscdev, watchdog_device
-> > Modified functions: hpwdt_start, hpwdt_stop, hpwdt_ping, hpwdt_gettimeleft
-> > Added functions: hpwdt_settimeout
-> > Added structures: watchdog_device
-> > 
-> > Signed-off-by: Jerry Hoemann <jerry.hoemann@hpe.com>
+> Ingo,
 > 
-> I think it would be better to use
->     dev_emerg()
->     dev_crit()
->     dev_alert()
->     dev_err()
->     dev_warn()
->     dev_notice()
+> I have a patch set under review that brings hpwdt into compliance
+> with the watchdog core.
 > 
-> instead of pr_* functions now when we have a device to use.
-
-
-
-> >  }
-> > @@ -128,8 +126,10 @@ static int hpwdt_pretimeout(unsigned int ulReason, struct pt_regs *regs)
-> >  	if ((ulReason == NMI_UNKNOWN) && !mynmi)
-> >  		return NMI_DONE;
-> >  
-> > +	pr_debug("nmi: ulReason=%d, mynmi=0x%0x\n", ulReason, mynmi);
+> One of the changes removes the callback into firmware in hpwdt_pretimeout
+> and its associated spinlock.
 > 
-> dev_dbg()
-> 
+> https://lkml.org/lkml/2018/2/12/30
 
-Sorry, wasn't clear on my earlier response.  As hpwdt_pretiemout isn't
-being passed a device, this instance will still be a pr_debug.  I have
-converted the others to dev_.* in the next version of the series.
+ drivers/watchdog/hpwdt.c | 490 +----------------------------------------------
+ 1 file changed, 8 insertions(+), 482 deletions(-)
 
+Very nice, and this should solve all the NMI handling complications!
 
+> I will add you to the CC list of the next version of the set.
 
+Thanks!
 
--- 
-
------------------------------------------------------------------------------
-Jerry Hoemann                  Software Engineer   Hewlett Packard Enterprise
------------------------------------------------------------------------------
+	Ingo
