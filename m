@@ -1,61 +1,51 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wr0-f196.google.com ([209.85.128.196]:41226 "EHLO
-        mail-wr0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1031971AbeBNXRI (ORCPT
+Received: from kirsty.vergenet.net ([202.4.237.240]:51105 "EHLO
+        kirsty.vergenet.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1165279AbeBOQUd (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 14 Feb 2018 18:17:08 -0500
-Date: Thu, 15 Feb 2018 00:17:04 +0100
-From: Ingo Molnar <mingo@kernel.org>
-To: Jerry Hoemann <jerry.hoemann@hpe.com>
-Cc: Borislav Petkov <bp@alien8.de>,
-        Tim Chen <tim.c.chen@linux.intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Dave Hansen <dave@sr71.net>, hpa@zytor.com, tglx@linutronix.de,
-        torvalds@linux-foundation.org, linux-kernel@vger.kernel.org,
-        dwmw@amazon.co.uk, linux-tip-commits@vger.kernel.org,
-        Arjan van de Ven <arjan@infradead.org>,
-        linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH] watchdog: hpwdt: Remove spinlock acquire and BIOS calls
- from NMI context
-Message-ID: <20180214231704.xv2iwqsfvljoybul@gmail.com>
-References: <1518362359-1005-1-git-send-email-dwmw@amazon.co.uk>
- <tip-670c3e8da87fa4046a55077b1409cf250865a203@git.kernel.org>
- <20180212102211.cdrrqqd4hdw7xu5y@gmail.com>
- <a85c28b8-1255-3264-bb4a-89e85e3c6009@sr71.net>
- <20180212165835.GO25181@hirez.programming.kicks-ass.net>
- <20180213075540.3lkikkpgjoe6ocjk@gmail.com>
- <5c3ba123-abbe-f153-7b75-a89d31d25c72@linux.intel.com>
- <20180214093159.mdzfupne547bi5qx@gmail.com>
- <20180214094404.GA18349@pd.tnic>
- <20180214181342.GA27600@anatevka.americas.hpqcorp.net>
+        Thu, 15 Feb 2018 11:20:33 -0500
+Date: Thu, 15 Feb 2018 17:20:29 +0100
+From: Simon Horman <horms@verge.net.au>
+To: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
+Cc: Philipp Zabel <p.zabel@pengutronix.de>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@codeaurora.org>,
+        Magnus Damm <magnus.damm@gmail.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org,
+        linux-watchdog@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-clk@vger.kernel.org,
+        Chris Paterson <Chris.Paterson2@renesas.com>,
+        Biju Das <biju.das@bp.renesas.com>,
+        Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
+Subject: Re: [PATCH v6 09/26] soc: renesas: rcar-rst: Enable watchdog as
+ reset trigger for Gen2
+Message-ID: <20180215162029.s7rus3f3zaru7spz@verge.net.au>
+References: <20180213081910.x5llcsmwza44u4ow@verge.net.au>
+ <1518526964-7400-1-git-send-email-fabrizio.castro@bp.renesas.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20180214181342.GA27600@anatevka.americas.hpqcorp.net>
+In-Reply-To: <1518526964-7400-1-git-send-email-fabrizio.castro@bp.renesas.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-
-* Jerry Hoemann <jerry.hoemann@hpe.com> wrote:
-
+On Tue, Feb 13, 2018 at 01:02:44PM +0000, Fabrizio Castro wrote:
+> This patch allows for platform specific quirks as some of the SoC need
+> further customization for the watchdog to work properly, like for R-Car
+> Gen2 and for RZ/G.
 > 
-> Ingo,
-> 
-> I have a patch set under review that brings hpwdt into compliance
-> with the watchdog core.
-> 
-> One of the changes removes the callback into firmware in hpwdt_pretimeout
-> and its associated spinlock.
-> 
-> https://lkml.org/lkml/2018/2/12/30
+> Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
+> Signed-off-by: Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
+> ---
+> v5->v6:
+> * rebased on top of renesas-devel-20180213-v4.16-rc1
 
- drivers/watchdog/hpwdt.c | 490 +----------------------------------------------
- 1 file changed, 8 insertions(+), 482 deletions(-)
-
-Very nice, and this should solve all the NMI handling complications!
-
-> I will add you to the CC list of the next version of the set.
-
-Thanks!
-
-	Ingo
+Thanks, applied.
