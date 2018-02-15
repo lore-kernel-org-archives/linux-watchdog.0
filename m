@@ -1,15 +1,14 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wm0-f66.google.com ([74.125.82.66]:53446 "EHLO
-        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1161274AbeBOTCa (ORCPT
+Received: from bombadil.infradead.org ([198.137.202.133]:42222 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1033540AbeBOTsl (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 15 Feb 2018 14:02:30 -0500
-Date: Thu, 15 Feb 2018 20:02:24 +0100
-From: Ingo Molnar <mingo@kernel.org>
+        Thu, 15 Feb 2018 14:48:41 -0500
+Date: Thu, 15 Feb 2018 20:48:28 +0100
+From: Peter Zijlstra <peterz@infradead.org>
 To: Jerry Hoemann <jerry.hoemann@hpe.com>
-Cc: Borislav Petkov <bp@alien8.de>,
+Cc: Ingo Molnar <mingo@kernel.org>, Borislav Petkov <bp@alien8.de>,
         Tim Chen <tim.c.chen@linux.intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
         Dave Hansen <dave@sr71.net>, hpa@zytor.com, tglx@linutronix.de,
         torvalds@linux-foundation.org, linux-kernel@vger.kernel.org,
         dwmw@amazon.co.uk, linux-tip-commits@vger.kernel.org,
@@ -17,7 +16,7 @@ Cc: Borislav Petkov <bp@alien8.de>,
         linux-watchdog@vger.kernel.org
 Subject: Re: [PATCH] watchdog: hpwdt: Remove spinlock acquire and BIOS calls
  from NMI context
-Message-ID: <20180215190224.h2dtjpt3fa4ivspf@gmail.com>
+Message-ID: <20180215194828.GX25201@hirez.programming.kicks-ass.net>
 References: <20180212102211.cdrrqqd4hdw7xu5y@gmail.com>
  <a85c28b8-1255-3264-bb4a-89e85e3c6009@sr71.net>
  <20180212165835.GO25181@hirez.programming.kicks-ass.net>
@@ -35,56 +34,14 @@ In-Reply-To: <20180215174444.GA25970@anatevka.americas.hpqcorp.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-
-* Jerry Hoemann <jerry.hoemann@hpe.com> wrote:
-
-> On Thu, Feb 15, 2018 at 12:17:04AM +0100, Ingo Molnar wrote:
-> > 
-> > * Jerry Hoemann <jerry.hoemann@hpe.com> wrote:
-> > 
-> > > 
-> > > Ingo,
-> > > 
-> > > I have a patch set under review that brings hpwdt into compliance
-> > > with the watchdog core.
-> > > 
-> > > One of the changes removes the callback into firmware in hpwdt_pretimeout
-> > > and its associated spinlock.
-> > > 
-> > > https://lkml.org/lkml/2018/2/12/30
-> > 
-> >  drivers/watchdog/hpwdt.c | 490 +----------------------------------------------
-> >  1 file changed, 8 insertions(+), 482 deletions(-)
-> > 
-> > Very nice, and this should solve all the NMI handling complications!
-> > 
-> > > I will add you to the CC list of the next version of the set.
-> > 
-> > Thanks!
-> > 
-> > 	Ingo
-> 
-> 
-> Ingo,
-> 
+On Thu, Feb 15, 2018 at 10:44:44AM -0700, Jerry Hoemann wrote:
 > Is your desire to remove of the firmware callback/spinlock in hpwdt_pretimeout
 > related to David Woodhouse patch set:
-> 
-> 	https://lkml.org/lkml/2018/2/14/305  ?
-> 
-> Which I think are to mitigate performance issues resulting from the
-> changes to address the specter/meltdown?
 
-So the motivation was that we are trying to wrap BIOS/EFI calls into 
-Spectre-disabling sections - and while doing that we realized that hpwdt calls the 
-firmware from an NMI callback, which would have complicated the Spectre work..
+That's the work that made us find this code, but no, even without that,
+code like that is entirely dodgy. NMI code needs to be very careful and
+firmware just isn't something I trust to get things right. Worse, its
+not something we can fix.
 
-But with that call removed from NMI context it's all perfect!
-
-> Any there other changes to hpwdt needed related to this work?
-
-No other changes needed I think!
-
-Thanks,
-
-	Ingo
+And using spnilock from NMI context is just wrong, if anything it needs
+be raw_spnilock but even then, yuck.
