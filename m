@@ -1,45 +1,42 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from g2t2352.austin.hpe.com ([15.233.44.25]:52493 "EHLO
+Received: from g2t2352.austin.hpe.com ([15.233.44.25]:52513 "EHLO
         g2t2352.austin.hpe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1167465AbeBOXpC (ORCPT
+        with ESMTP id S1164340AbeBOXpD (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 15 Feb 2018 18:45:02 -0500
+        Thu, 15 Feb 2018 18:45:03 -0500
 From: Jerry Hoemann <jerry.hoemann@hpe.com>
 To: wim@linux-watchdog.org, linux@roeck-us.net
 Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
         rwright@hpe.com, maurice.a.saldivar@hpe.com, mingo@kernel.org,
         marcus.folkesson@gmail.com, Jerry Hoemann <jerry.hoemann@hpe.com>
-Subject: [PATCH v3 05/11] watchdog/hpwdt: Update Module info.
-Date: Thu, 15 Feb 2018 16:43:54 -0700
-Message-Id: <20180215234400.5022-6-jerry.hoemann@hpe.com>
+Subject: [PATCH v3 06/11] watchdog/hpwdt: Select WATCHDOG_CORE
+Date: Thu, 15 Feb 2018 16:43:55 -0700
+Message-Id: <20180215234400.5022-7-jerry.hoemann@hpe.com>
 In-Reply-To: <20180215234400.5022-1-jerry.hoemann@hpe.com>
 References: <20180215234400.5022-1-jerry.hoemann@hpe.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Update Module Author and description to reflect changes in driver.
+Update Kconfig file to show that hpwdt now selects WATCHDOG_CORE.
 
 Signed-off-by: Jerry Hoemann <jerry.hoemann@hpe.com>
 ---
- drivers/watchdog/hpwdt.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/watchdog/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/watchdog/hpwdt.c b/drivers/watchdog/hpwdt.c
-index d5989acf3e37..71e49d0ab789 100644
---- a/drivers/watchdog/hpwdt.c
-+++ b/drivers/watchdog/hpwdt.c
-@@ -425,8 +425,8 @@ static struct pci_driver hpwdt_driver = {
- 	.remove		= hpwdt_exit,
- };
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 6a602f70aaa4..4d219c3fa8b4 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -1108,6 +1108,7 @@ config IT87_WDT
  
--MODULE_AUTHOR("Tom Mingarelli");
--MODULE_DESCRIPTION("hp watchdog driver");
-+MODULE_AUTHOR("Jerry Hoemann");
-+MODULE_DESCRIPTION("hpe watchdog driver");
- MODULE_LICENSE("GPL");
- MODULE_VERSION(HPWDT_VERSION);
- 
+ config HP_WATCHDOG
+ 	tristate "HP ProLiant iLO2+ Hardware Watchdog Timer"
++	select WATCHDOG_CORE
+ 	depends on X86 && PCI
+ 	help
+ 	  A software monitoring watchdog and NMI sourcing driver. This driver
 -- 
 2.13.6
 
