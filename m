@@ -1,42 +1,35 @@
-Return-Path: <radu.rendec@gmail.com>
-Return-path: <radu.rendec@gmail.com>
-From: Radu Rendec <radu.rendec@gmail.com>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
-	linux-watchdog@vger.kernel.org
-Subject: [PATCH 1/1] watchdog: xen_wdt: fix potential build failure
-Date: Mon, 19 Feb 2018 14:38:51 +0000
-Message-Id: <20180219143851.13983-2-radu.rendec@gmail.com>
-In-Reply-To: <20180219143851.13983-1-radu.rendec@gmail.com>
-References: <20180219143851.13983-1-radu.rendec@gmail.com>
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-wm0-f51.google.com ([74.125.82.51]:34638 "EHLO
+        mail-wm0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751446AbeBSOqf (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 19 Feb 2018 09:46:35 -0500
+Received: by mail-wm0-f51.google.com with SMTP id a20so433628wmd.1
+        for <linux-watchdog@vger.kernel.org>; Mon, 19 Feb 2018 06:46:34 -0800 (PST)
+Message-ID: <1519051592.3951.2.camel@arista.com>
+Subject: Re: [PATCH] i6300esb: fix build failure
+From: Radu Rendec <rrendec@arista.com>
+To: Matteo Croce <mcroce@redhat.com>
+Cc: linux-watchdog@vger.kernel.org
+Date: Mon, 19 Feb 2018 14:46:32 +0000
+In-Reply-To: <20180219010105.25037-1-mcroce@redhat.com>
+References: <20180219010105.25037-1-mcroce@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-xen_wdt uses watchdog core functions (from watchdog_core.c) and, when
-compiled without CONFIG_WATCHDOG_CORE being set, it produces the
-following build error:
+On Mon, 2018-02-19 at 02:01 +0100, Matteo Croce wrote:
+> i6300esb uses fuctions defined in watchdog_core.c, and when
+> CONFIG_WATCHDOG_CORE is not set we have this build error:
 
-ERROR: "devm_watchdog_register_device" [drivers/watchdog/xen_wdt.ko] undefined!
-ERROR: "watchdog_init_timeout" [drivers/watchdog/xen_wdt.ko] undefined!
+Hi Matteo,
 
-Fix this by selecting CONFIG_WATCHDOG_CORE when CONFIG_XEN_WDT is set.
+Thanks for fixing this. FYI, the xen_wdt driver has a similar problem
+and I just sent a patch to linux-watchdog.
 
-Fixes: 18cffd68e0c4 ("watchdog: xen_wdt: use the watchdog subsystem")
-Signed-off-by: Radu Rendec <radu.rendec@gmail.com>
----
- drivers/watchdog/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+Best regards,
+Radu Rendec
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index a16bad78679b..2953e9fbb818 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -1838,6 +1838,7 @@ config WATCHDOG_SUN4V
- config XEN_WDT
- 	tristate "Xen Watchdog support"
- 	depends on XEN
-+	select WATCHDOG_CORE
- 	help
- 	  Say Y here to support the hypervisor watchdog capability provided
- 	  by Xen 4.0 and newer.  The watchdog timeout period is normally one
--- 
-2.13.6
