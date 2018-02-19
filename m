@@ -1,68 +1,51 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pf0-f195.google.com ([209.85.192.195]:45685 "EHLO
-        mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751884AbeBSBIf (ORCPT
+Received: from mail-wm0-f67.google.com ([74.125.82.67]:52841 "EHLO
+        mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751884AbeBSBBL (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 18 Feb 2018 20:08:35 -0500
-Subject: Re: [PATCH v3 5/7] watchdog: mtk: allow setting timeout in devicetree
-To: Rob Herring <robh@kernel.org>,
-        Marcus Folkesson <marcus.folkesson@gmail.com>
-Cc: Wim Van Sebroeck <wim@iguana.be>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Carlo Caione <carlo@caione.org>,
-        Kevin Hilman <khilman@baylibre.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Barry Song <baohua@kernel.org>,
-        Maxime Ripard <maxime.ripard@free-electrons.com>,
-        Chen-Yu Tsai <wens@csie.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Vladimir Zapolskiy <vz@mleia.com>,
-        Sylvain Lemieux <slemieux.tyco@gmail.com>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-amlogic@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-mediatek@lists.infradead.org
-References: <20180211200847.25000-1-marcus.folkesson@gmail.com>
- <20180211200847.25000-5-marcus.folkesson@gmail.com>
- <20180219000835.ualdfczfsnjzqr6d@rob-hp-laptop>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <46ff7605-5166-477b-85b1-7d2f53f7c57b@roeck-us.net>
-Date: Sun, 18 Feb 2018 17:08:32 -0800
-MIME-Version: 1.0
-In-Reply-To: <20180219000835.ualdfczfsnjzqr6d@rob-hp-laptop>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+        Sun, 18 Feb 2018 20:01:11 -0500
+Received: by mail-wm0-f67.google.com with SMTP id t3so12196758wmc.2
+        for <linux-watchdog@vger.kernel.org>; Sun, 18 Feb 2018 17:01:10 -0800 (PST)
+From: Matteo Croce <mcroce@redhat.com>
+To: linux-watchdog@vger.kernel.org
+Cc: Radu Rendec <rrendec@arista.com>
+Subject: [PATCH] i6300esb: fix build failure
+Date: Mon, 19 Feb 2018 02:01:05 +0100
+Message-Id: <20180219010105.25037-1-mcroce@redhat.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 02/18/2018 04:08 PM, Rob Herring wrote:
-> On Sun, Feb 11, 2018 at 09:08:45PM +0100, Marcus Folkesson wrote:
->> watchdog_init_timeout() will allways pick timeout_param since it
->> defaults to a valid timeout.
->>
->> By following best practice described in
->> Documentation/watchdog/watchdog-kernel-api.txt, it also
->> let us to set timout-sec property in devicetree.
-> 
-> Same problems in this one.
-> 
+i6300esb uses fuctions defined in watchdog_core.c, and when
+CONFIG_WATCHDOG_CORE is not set we have this build error:
 
-Same answer. In the existing driver;
+drivers/watchdog/i6300esb.o: In function `esb_remove':
+i6300esb.c:(.text+0xcc): undefined reference to `watchdog_unregister_device'
+drivers/watchdog/i6300esb.o: In function `esb_probe':
+i6300esb.c:(.text+0x2a1): undefined reference to `watchdog_init_timeout'
+i6300esb.c:(.text+0x388): undefined reference to `watchdog_register_device'
+make: *** [Makefile:1029: vmlinux] Error 1
 
-         mtk_wdt->wdt_dev.timeout = WDT_MAX_TIMEOUT;
+Fix this by selecting CONFIG_WATCHDOG_CORE when I6300ESB_WDT is set.
 
-Guenter
+Fixes: 7af4ac8772a8f ("watchdog: i6300esb: use the watchdog subsystem")
+Signed-off-by: Matteo Croce <mcroce@redhat.com>
+---
+ drivers/watchdog/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
->>
->> Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
->> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
->> ---
->>   Documentation/devicetree/bindings/watchdog/mtk-wdt.txt | 4 ++++
->>   drivers/watchdog/mtk_wdt.c                             | 2 +-
->>   2 files changed, 5 insertions(+), 1 deletion(-)
-> 
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index aff773bcebdb..5e2fa5abe5ff 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -1008,6 +1008,7 @@ config WAFER_WDT
+ config I6300ESB_WDT
+ 	tristate "Intel 6300ESB Timer/Watchdog"
+ 	depends on PCI
++	select WATCHDOG_CORE
+ 	---help---
+ 	  Hardware driver for the watchdog timer built into the Intel
+ 	  6300ESB controller hub.
+-- 
+2.14.3
 
