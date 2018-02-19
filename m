@@ -1,74 +1,79 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pl0-f68.google.com ([209.85.160.68]:36637 "EHLO
-        mail-pl0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753012AbeBSQqo (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 19 Feb 2018 11:46:44 -0500
-Subject: Re: [v3,04/11] watchdog/hpwdt: white space changes
-To: Jerry.Hoemann@hpe.com
-Cc: wim@linux-watchdog.org, linux-watchdog@vger.kernel.org,
-        linux-kernel@vger.kernel.org, rwright@hpe.com,
-        maurice.a.saldivar@hpe.com, mingo@kernel.org,
-        marcus.folkesson@gmail.com
-References: <20180215234400.5022-5-jerry.hoemann@hpe.com>
- <20180217161734.GA671@roeck-us.net>
- <20180217193208.GA27788@anatevka.americas.hpqcorp.net>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <a1e024b2-ab29-a10b-08b8-d9f184b1a63e@roeck-us.net>
-Date: Mon, 19 Feb 2018 08:46:41 -0800
+Return-Path: <matthias.bgg@gmail.com>
+Return-path: <matthias.bgg@gmail.com>
+Subject: Re: [PATCH v3 5/7] watchdog: mtk: allow setting timeout in devicetree
+To: Marcus Folkesson <marcus.folkesson@gmail.com>,
+ Wim Van Sebroeck <wim@iguana.be>, Guenter Roeck <linux@roeck-us.net>,
+ Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
+ Carlo Caione <carlo@caione.org>, Kevin Hilman <khilman@baylibre.com>,
+ Barry Song <baohua@kernel.org>,
+ Maxime Ripard <maxime.ripard@free-electrons.com>,
+ Chen-Yu Tsai <wens@csie.org>, Linus Walleij <linus.walleij@linaro.org>,
+ Vladimir Zapolskiy <vz@mleia.com>, Sylvain Lemieux
+ <slemieux.tyco@gmail.com>, Nicolas Ferre <nicolas.ferre@microchip.com>,
+ Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-amlogic@lists.infradead.org,
+ linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org
+References: <20180211200847.25000-1-marcus.folkesson@gmail.com>
+ <20180211200847.25000-5-marcus.folkesson@gmail.com>
+From: Matthias Brugger <matthias.bgg@gmail.com>
+Message-ID: <e179fed7-225f-2c07-2c00-41ccd28d4784@gmail.com>
+Date: Mon, 19 Feb 2018 18:02:56 +0100
 MIME-Version: 1.0
-In-Reply-To: <20180217193208.GA27788@anatevka.americas.hpqcorp.net>
-Content-Type: text/plain; charset=utf-8; format=flowed
+In-Reply-To: <20180211200847.25000-5-marcus.folkesson@gmail.com>
+Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 02/17/2018 11:32 AM, Jerry Hoemann wrote:
-> On Sat, Feb 17, 2018 at 08:17:34AM -0800, Guenter Roeck wrote:
->> On Thu, Feb 15, 2018 at 04:43:53PM -0700, Jerry Hoemann wrote:
->>> Minor white space changes and some name clean up.
->>>
->>> Signed-off-by: Jerry Hoemann <jerry.hoemann@hpe.com>
->>> ---
->>>   MODULE_DEVICE_TABLE(pci, hpwdt_devices);
->>>   
->>> @@ -102,7 +100,7 @@ static int hpwdt_time_left(void)
->>>   	return TICKS_TO_SECS(ioread16(hpwdt_timer_reg));
->>>   }
->>>   
->>> -#ifdef CONFIG_HPWDT_NMI_DECODING
->>> +#ifdef CONFIG_HPWDT_NMI_DECODING	/* { */
->>>   static int hpwdt_my_nmi(void)
->>>   {
->>>   	return ioread8(hpwdt_nmistat) & 0x6;
->>> @@ -133,7 +131,7 @@ static int hpwdt_pretimeout(unsigned int ulReason, struct pt_regs *regs)
->>>   
->>>   	return NMI_HANDLED;
->>>   }
->>> -#endif /* CONFIG_HPWDT_NMI_DECODING */
->>> +#endif					/* } */
->>
->> I disagree with those changes. While I don't object to adding the '{'
->> per se, I find it very useful to have the 'CONFIG_HPWDT_NMI_DECODING'
->> with an endif to be able to associate it with the matching #ifdef.
-> 
-> The matching /* { */ and /* } */ allow for quickly the finding of the
-> matching ifdef/endif.
-> 
-> In the "vim" editor, the command '%' will take one from one curly paren to its
-> matching curly paren...
-> 
-> There is a similar sequence for emacs.
-> 
-This isn't about you, it is about the community.
 
-Looking again into this patch, the only acceptable change is the copyright update.
-The driver is still based on softdog. The other changes are your personal preference
-only and don't fix any checkpatch issues (and even those would be arguable for
-some maintainers). This means that, long term, we might get another patch from
-someone else changing indentations and variable names again ... and again ...
-and again. This adds no value.
 
-Guenter
+On 02/11/2018 09:08 PM, Marcus Folkesson wrote:
+> watchdog_init_timeout() will allways pick timeout_param since it
+> defaults to a valid timeout.
+> 
+> By following best practice described in
+> Documentation/watchdog/watchdog-kernel-api.txt, it also
+> let us to set timout-sec property in devicetree.
+> 
+> Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
+> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+> ---
+>  Documentation/devicetree/bindings/watchdog/mtk-wdt.txt | 4 ++++
+>  drivers/watchdog/mtk_wdt.c                             | 2 +-
+>  2 files changed, 5 insertions(+), 1 deletion(-)
+> 
+> diff --git a/Documentation/devicetree/bindings/watchdog/mtk-wdt.txt b/Documentation/devicetree/bindings/watchdog/mtk-wdt.txt
+> index 5b38a30e608c..859dee167b91 100644
+> --- a/Documentation/devicetree/bindings/watchdog/mtk-wdt.txt
+> +++ b/Documentation/devicetree/bindings/watchdog/mtk-wdt.txt
+> @@ -11,9 +11,13 @@ Required properties:
+>  
+>  - reg : Specifies base physical address and size of the registers.
+>  
+> +Optional properties:
+> +- timeout-sec: contains the watchdog timeout in seconds.
+> +
+>  Example:
+>  
+>  wdt: watchdog@10000000 {
+>  	compatible = "mediatek,mt6589-wdt";
+>  	reg = <0x10000000 0x18>;
+> +	timeout-sec = <10>;
+>  };
+> diff --git a/drivers/watchdog/mtk_wdt.c b/drivers/watchdog/mtk_wdt.c
+> index 7ed417a765c7..fcdc10ec28a3 100644
+> --- a/drivers/watchdog/mtk_wdt.c
+> +++ b/drivers/watchdog/mtk_wdt.c
+> @@ -57,7 +57,7 @@
+>  #define DRV_VERSION		"1.0"
+>  
+>  static bool nowayout = WATCHDOG_NOWAYOUT;
+> -static unsigned int timeout = WDT_MAX_TIMEOUT;
+> +static unsigned int timeout;
+>  
+>  struct mtk_wdt_dev {
+>  	struct watchdog_device wdt_dev;
+> 
+
+Acked-by: Matthias Brugger <matthias.bgg@gmail.com>
