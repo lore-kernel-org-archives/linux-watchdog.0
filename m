@@ -1,46 +1,46 @@
-Return-Path: <wens213@gmail.com>
-Return-path: <wens213@gmail.com>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from www.linux-watchdog.org ([185.87.125.42]:54874 "EHLO
+        www.linux-watchdog.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752690AbeBSQVP (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 19 Feb 2018 11:21:15 -0500
+Date: Mon, 19 Feb 2018 17:04:33 +0100
+From: Wim Van Sebroeck <wim@linux-watchdog.org>
+To: Wim Van Sebroeck <wim@linux-watchdog.org>
+Cc: linux-watchdog@vger.kernel.org
+Subject: [PATCH] watchdog: sp5100_tco.c: fix potential build failure
+Message-ID: <20180219160433.GA25309@www.linux-watchdog.org>
 MIME-Version: 1.0
-In-Reply-To: <20180219000619.4pjftflhcew5zav6@rob-hp-laptop>
-References: <20180211200847.25000-1-marcus.folkesson@gmail.com>
- <20180211200847.25000-2-marcus.folkesson@gmail.com> <20180219000619.4pjftflhcew5zav6@rob-hp-laptop>
-From: Chen-Yu Tsai <wens@csie.org>
-Date: Mon, 19 Feb 2018 11:01:19 +0800
-Message-ID: <CAGb2v67ei8atFKyiFXA=EZ_wPbjBt+-2e-aSRqSzS9zaxHaTKg@mail.gmail.com>
-Subject: Re: [PATCH v3 2/7] watchdog: sunxi: allow setting timeout in devicetree
-To: Rob Herring <robh@kernel.org>
-Cc: Marcus Folkesson <marcus.folkesson@gmail.com>, Wim Van Sebroeck <wim@iguana.be>,
-	Guenter Roeck <linux@roeck-us.net>, Mark Rutland <mark.rutland@arm.com>,
-	Carlo Caione <carlo@caione.org>, Kevin Hilman <khilman@baylibre.com>,
-	Matthias Brugger <matthias.bgg@gmail.com>, Barry Song <baohua@kernel.org>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>, Linus Walleij <linus.walleij@linaro.org>,
-	Vladimir Zapolskiy <vz@mleia.com>, Sylvain Lemieux <slemieux.tyco@gmail.com>,
-	Nicolas Ferre <nicolas.ferre@microchip.com>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>, linux-watchdog@vger.kernel.org,
-	devicetree <devicetree@vger.kernel.org>,
-	linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
-	"open list:ARM/Amlogic Meson..." <linux-amlogic@lists.infradead.org>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	"moderated list:ARM/Mediatek SoC..." <linux-mediatek@lists.infradead.org>
-Content-Type: text/plain; charset="UTF-8"
-List-ID: <linux-watchdog@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Feb 19, 2018 at 8:06 AM, Rob Herring <robh@kernel.org> wrote:
-> On Sun, Feb 11, 2018 at 09:08:42PM +0100, Marcus Folkesson wrote:
->> watchdog_init_timeout() will allways pick timeout_param since it
->> defaults to a valid timeout.
->>
->> By following best practice described in
->> Documentation/watchdog/watchdog-kernel-api.txt, it also
->> let us to set timout-sec property in devicetree.
->>
->> Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
->> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
->> ---
->>  Documentation/devicetree/bindings/watchdog/sunxi-wdt.txt | 4 ++++
->>  drivers/watchdog/sunxi_wdt.c                             | 2 +-
->>  2 files changed, 5 insertions(+), 1 deletion(-)
->
-> Reviewed-by: Rob Herring <robh@kernel.org>
+isp5100_tco.c  uses watchdog core functions (from watchdog_core.c) and, when
+compiled without CONFIG_WATCHDOG_CORE being set, it produces the
+following build error:
 
-Reviewed-by: Chen-Yu Tsai <wens@csie.org>
+ERROR: "devm_watchdog_register_device" [drivers/watchdog/sp5100_tco.ko] undefined!
+ERROR: "watchdog_init_timeout" [drivers/watchdog/sp5100_tco.ko] undefined!
+
+Fix this by selecting CONFIG_WATCHDOG_CORE.
+
+Fixes: 7cd9d5fff792 ("watchdog: sp5100_tco: Convert to use watchdog subsystem")
+Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
+---
+ drivers/watchdog/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 3d984cd..37460cd 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -904,6 +904,7 @@ config F71808E_WDT
+ config SP5100_TCO
+        tristate "AMD/ATI SP5100 TCO Timer/Watchdog"
+        depends on X86 && PCI
++       select WATCHDOG_CORE
+        ---help---
+          Hardware watchdog driver for the AMD/ATI SP5100 chipset. The TCO
+          (Total Cost of Ownership) timer is a watchdog timer that will reboot
