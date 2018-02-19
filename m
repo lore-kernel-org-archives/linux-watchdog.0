@@ -1,63 +1,74 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pf0-f193.google.com ([209.85.192.193]:42641 "EHLO
-        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753130AbeBSQky (ORCPT
+Received: from mail-pl0-f68.google.com ([209.85.160.68]:36637 "EHLO
+        mail-pl0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753012AbeBSQqo (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 19 Feb 2018 11:40:54 -0500
-Received: by mail-pf0-f193.google.com with SMTP id t15so1541501pfh.9
-        for <linux-watchdog@vger.kernel.org>; Mon, 19 Feb 2018 08:40:54 -0800 (PST)
-Subject: Re: [PATCH] watchdog: sp5100_tco.c: fix potential build failure
-To: Wim Van Sebroeck <wim@linux-watchdog.org>
-Cc: linux-watchdog@vger.kernel.org
-References: <20180219160433.GA25309@www.linux-watchdog.org>
+        Mon, 19 Feb 2018 11:46:44 -0500
+Subject: Re: [v3,04/11] watchdog/hpwdt: white space changes
+To: Jerry.Hoemann@hpe.com
+Cc: wim@linux-watchdog.org, linux-watchdog@vger.kernel.org,
+        linux-kernel@vger.kernel.org, rwright@hpe.com,
+        maurice.a.saldivar@hpe.com, mingo@kernel.org,
+        marcus.folkesson@gmail.com
+References: <20180215234400.5022-5-jerry.hoemann@hpe.com>
+ <20180217161734.GA671@roeck-us.net>
+ <20180217193208.GA27788@anatevka.americas.hpqcorp.net>
 From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <2457bca8-86ea-49ce-6259-cdfa3e6a396e@roeck-us.net>
-Date: Mon, 19 Feb 2018 08:40:51 -0800
+Message-ID: <a1e024b2-ab29-a10b-08b8-d9f184b1a63e@roeck-us.net>
+Date: Mon, 19 Feb 2018 08:46:41 -0800
 MIME-Version: 1.0
-In-Reply-To: <20180219160433.GA25309@www.linux-watchdog.org>
+In-Reply-To: <20180217193208.GA27788@anatevka.americas.hpqcorp.net>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 02/19/2018 08:04 AM, Wim Van Sebroeck wrote:
-> isp5100_tco.c  uses watchdog core functions (from watchdog_core.c) and, when
-> compiled without CONFIG_WATCHDOG_CORE being set, it produces the
-> following build error:
+On 02/17/2018 11:32 AM, Jerry Hoemann wrote:
+> On Sat, Feb 17, 2018 at 08:17:34AM -0800, Guenter Roeck wrote:
+>> On Thu, Feb 15, 2018 at 04:43:53PM -0700, Jerry Hoemann wrote:
+>>> Minor white space changes and some name clean up.
+>>>
+>>> Signed-off-by: Jerry Hoemann <jerry.hoemann@hpe.com>
+>>> ---
+>>>   MODULE_DEVICE_TABLE(pci, hpwdt_devices);
+>>>   
+>>> @@ -102,7 +100,7 @@ static int hpwdt_time_left(void)
+>>>   	return TICKS_TO_SECS(ioread16(hpwdt_timer_reg));
+>>>   }
+>>>   
+>>> -#ifdef CONFIG_HPWDT_NMI_DECODING
+>>> +#ifdef CONFIG_HPWDT_NMI_DECODING	/* { */
+>>>   static int hpwdt_my_nmi(void)
+>>>   {
+>>>   	return ioread8(hpwdt_nmistat) & 0x6;
+>>> @@ -133,7 +131,7 @@ static int hpwdt_pretimeout(unsigned int ulReason, struct pt_regs *regs)
+>>>   
+>>>   	return NMI_HANDLED;
+>>>   }
+>>> -#endif /* CONFIG_HPWDT_NMI_DECODING */
+>>> +#endif					/* } */
+>>
+>> I disagree with those changes. While I don't object to adding the '{'
+>> per se, I find it very useful to have the 'CONFIG_HPWDT_NMI_DECODING'
+>> with an endif to be able to associate it with the matching #ifdef.
 > 
-> ERROR: "devm_watchdog_register_device" [drivers/watchdog/sp5100_tco.ko] undefined!
-> ERROR: "watchdog_init_timeout" [drivers/watchdog/sp5100_tco.ko] undefined!
+> The matching /* { */ and /* } */ allow for quickly the finding of the
+> matching ifdef/endif.
 > 
-> Fix this by selecting CONFIG_WATCHDOG_CORE.
+> In the "vim" editor, the command '%' will take one from one curly paren to its
+> matching curly paren...
 > 
-> Fixes: 7cd9d5fff792 ("watchdog: sp5100_tco: Convert to use watchdog subsystem")
-> Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
+> There is a similar sequence for emacs.
+> 
+This isn't about you, it is about the community.
 
-I really need to get better watching out for those dependencies :-(
+Looking again into this patch, the only acceptable change is the copyright update.
+The driver is still based on softdog. The other changes are your personal preference
+only and don't fix any checkpatch issues (and even those would be arguable for
+some maintainers). This means that, long term, we might get another patch from
+someone else changing indentations and variable names again ... and again ...
+and again. This adds no value.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-
-> ---
->   drivers/watchdog/Kconfig | 1 +
->   1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index 3d984cd..37460cd 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -904,6 +904,7 @@ config F71808E_WDT
->   config SP5100_TCO
->          tristate "AMD/ATI SP5100 TCO Timer/Watchdog"
->          depends on X86 && PCI
-> +       select WATCHDOG_CORE
->          ---help---
->            Hardware watchdog driver for the AMD/ATI SP5100 chipset. The TCO
->            (Total Cost of Ownership) timer is a watchdog timer that will reboot
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
-
+Guenter
