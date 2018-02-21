@@ -1,39 +1,64 @@
-Return-Path: <jimmy.vance@hpe.com>
-Return-path: <jimmy.vance@hpe.com>
-From: "Vance, Jimmy" <jimmy.vance@hpe.com>
-To: Guenter Roeck <linux@roeck-us.net>, "Hoemann, Jerry"
-	<jerry.hoemann@hpe.com>, "linux-watchdog@vger.kernel.org"
-	<linux-watchdog@vger.kernel.org>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH] watchdog: hpwdt: change maintainer.
-Date: Tue, 20 Feb 2018 15:33:06 +0000
-Message-ID: <DF4PR8401MB05211C3BBFACB292D5B747A5E3CF0@DF4PR8401MB0521.NAMPRD84.PROD.OUTLOOK.COM>
-References: <1507575416-80477-1-git-send-email-jerry.hoemann@hpe.com>
- <627459ff-9fc8-f57d-4df3-2f4cf98aeec9@roeck-us.net>
-In-Reply-To: <627459ff-9fc8-f57d-4df3-2f4cf98aeec9@roeck-us.net>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Return-Path: <yamada.masahiro@socionext.com>
+Return-path: <yamada.masahiro@socionext.com>
 MIME-Version: 1.0
+In-Reply-To: <20180210203623.17832-1-marcus.folkesson@gmail.com>
+References: <20180210203623.17832-1-marcus.folkesson@gmail.com>
+From: Masahiro Yamada <yamada.masahiro@socionext.com>
+Date: Wed, 21 Feb 2018 10:29:38 +0900
+Message-ID: <CAK7LNAT2T5UHgx_iyui43=GMTTYam0bk6FViD_cdpoRSkq3y+A@mail.gmail.com>
+Subject: Re: [PATCH 1/4] watchdog: uniphier: change order for setting default timeout
+To: Marcus Folkesson <marcus.folkesson@gmail.com>
+Cc: Wim Van Sebroeck <wim@iguana.be>, Guenter Roeck <linux@roeck-us.net>,
+        linux-watchdog@vger.kernel.org,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Keiji Hayashibara <hayashibara.keiji@socionext.com>,
+        Jassi Brar <jaswinder.singh@linaro.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 List-ID: <linux-watchdog@vger.kernel.org>
 
-QWNrZWQtYnk6IEpJbW15IFZhbmNlIDxqaW1teS52YW5jZUBocGUuY29tPg0KDQotLS0tLU9yaWdp
-bmFsIE1lc3NhZ2UtLS0tLQ0KRnJvbTogR3VlbnRlciBSb2VjayBbbWFpbHRvOmdyb2VjazdAZ21h
-aWwuY29tXSBPbiBCZWhhbGYgT2YgR3VlbnRlciBSb2Vjaw0KU2VudDogTW9uZGF5LCBPY3RvYmVy
-IDksIDIwMTcgNzoyNyBQTQ0KVG86IEhvZW1hbm4sIEplcnJ5IDxqZXJyeS5ob2VtYW5uQGhwZS5j
-b20+OyBsaW51eC13YXRjaGRvZ0B2Z2VyLmtlcm5lbC5vcmcNCkNjOiBsaW51eC1rZXJuZWxAdmdl
-ci5rZXJuZWwub3JnOyBWYW5jZSwgSmltbXkgPGppbW15LnZhbmNlQGhwZS5jb20+DQpTdWJqZWN0
-OiBSZTogW1BBVENIXSB3YXRjaGRvZzogaHB3ZHQ6IGNoYW5nZSBtYWludGFpbmVyLg0KDQpPbiAx
-MC8wOS8yMDE3IDExOjU2IEFNLCBKZXJyeSBIb2VtYW5uIHdyb3RlOg0KPiBTaWduZWQtb2ZmLWJ5
-OiBKZXJyeSBIb2VtYW5uIDxqZXJyeS5ob2VtYW5uQGhwZS5jb20+DQoNClJldmlld2VkLWJ5OiBH
-dWVudGVyIFJvZWNrIDxsaW51eEByb2Vjay11cy5uZXQ+DQoNCldlIHNob3VsZCBnZXQgYW4gQWNr
-IGZyb20gSmltbXksIHRob3VnaC4NCg0KR3VlbnRlcg0KDQo+IC0tLQ0KPiAgIE1BSU5UQUlORVJT
-IHwgMiArLQ0KPiAgIDEgZmlsZSBjaGFuZ2VkLCAxIGluc2VydGlvbigrKSwgMSBkZWxldGlvbigt
-KQ0KPiANCj4gZGlmZiAtLWdpdCBhL01BSU5UQUlORVJTIGIvTUFJTlRBSU5FUlMgaW5kZXggMmQz
-ZDc1MC4uZTdkYzk5MyAxMDA2NDQNCj4gLS0tIGEvTUFJTlRBSU5FUlMNCj4gKysrIGIvTUFJTlRB
-SU5FUlMNCj4gQEAgLTYxMTQsNyArNjExNCw3IEBAIFM6CU9kZCBGaXhlcw0KPiAgIEY6CWRyaXZl
-cnMvbWVkaWEvdXNiL2hkcHZyLw0KPiAgIA0KPiAgIEhFV0xFVFQgUEFDS0FSRCBFTlRFUlBSSVNF
-IElMTyBOTUkgV0FUQ0hET0cgRFJJVkVSDQo+IC1NOglKaW1teSBWYW5jZSA8amltbXkudmFuY2VA
-aHBlLmNvbT4NCj4gK006CUplcnJ5IEhvZW1hbm4gPGplcnJ5LmhvZW1hbm5AaHBlLmNvbT4NCj4g
-ICBTOglTdXBwb3J0ZWQNCj4gICBGOglEb2N1bWVudGF0aW9uL3dhdGNoZG9nL2hwd2R0LnR4dA0K
-PiAgIEY6CWRyaXZlcnMvd2F0Y2hkb2cvaHB3ZHQuYw0KPiANCg0K
+2018-02-11 5:36 GMT+09:00 Marcus Folkesson <marcus.folkesson@gmail.com>:
+> watchdog_init_timeout() will preserve wdd->timeout value if no parameter
+> nor timeout-secs dt property is set.
+>
+> Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
+> ---
+>  drivers/watchdog/uniphier_wdt.c | 5 ++---
+>  1 file changed, 2 insertions(+), 3 deletions(-)
+>
+> diff --git a/drivers/watchdog/uniphier_wdt.c b/drivers/watchdog/uniphier_wdt.c
+> index 0ea2339d9702..0e4f8d53ce3c 100644
+> --- a/drivers/watchdog/uniphier_wdt.c
+> +++ b/drivers/watchdog/uniphier_wdt.c
+> @@ -212,11 +212,10 @@ static int uniphier_wdt_probe(struct platform_device *pdev)
+>         wdev->wdt_dev.ops = &uniphier_wdt_ops;
+>         wdev->wdt_dev.max_timeout = WDT_PERIOD_MAX;
+>         wdev->wdt_dev.min_timeout = WDT_PERIOD_MIN;
+> +       wdev->wdt_dev.timeout = WDT_DEFAULT_TIMEOUT;
+>         wdev->wdt_dev.parent = dev;
+>
+> -       if (watchdog_init_timeout(&wdev->wdt_dev, timeout, dev) < 0) {
+> -               wdev->wdt_dev.timeout = WDT_DEFAULT_TIMEOUT;
+> -       }
+> +       watchdog_init_timeout(&wdev->wdt_dev, timeout, dev);
+>         watchdog_set_nowayout(&wdev->wdt_dev, nowayout);
+>         watchdog_stop_on_reboot(&wdev->wdt_dev);
+>
+> --
+> 2.15.1
+>
+
+I am pasting Acked-by from the author here just in case.
+
+Acked-by: Keiji Hayashibara <hayashibara.keiji@socionext.com>
+
+
+You can see his original tag here.
+https://www.spinics.net/lists/linux-watchdog/msg13513.html
+
+
+
+-- 
+Best Regards
+Masahiro Yamada
