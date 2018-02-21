@@ -1,99 +1,134 @@
-Return-Path: <robh@kernel.org>
-Return-path: <robh@kernel.org>
-MIME-Version: 1.0
-In-Reply-To: <e318fd7a-f855-d0c0-ae6f-86bd48f58e1f@roeck-us.net>
-References: <20180211200847.25000-1-marcus.folkesson@gmail.com>
- <20180211200847.25000-3-marcus.folkesson@gmail.com> <20180219000735.i5i3gne4idzzhxot@rob-hp-laptop>
- <e318fd7a-f855-d0c0-ae6f-86bd48f58e1f@roeck-us.net>
-From: Rob Herring <robh@kernel.org>
-Date: Wed, 21 Feb 2018 18:02:02 -0600
-Message-ID: <CAL_Jsq+kQza8ouKCreOapno42iSBiG0SwLjJqziv_23cmFxJxw@mail.gmail.com>
-Subject: Re: [PATCH v3 3/7] watchdog: sirfsoc: allow setting timeout in devicetree
-To: Guenter Roeck <linux@roeck-us.net>, Marcus Folkesson <marcus.folkesson@gmail.com>
-Cc: Wim Van Sebroeck <wim@iguana.be>, Mark Rutland <mark.rutland@arm.com>, Carlo Caione <carlo@caione.org>,
-	Kevin Hilman <khilman@baylibre.com>, Matthias Brugger <matthias.bgg@gmail.com>,
-	Barry Song <baohua@kernel.org>, Maxime Ripard <maxime.ripard@free-electrons.com>,
-	Chen-Yu Tsai <wens@csie.org>, Linus Walleij <linus.walleij@linaro.org>,
-	Vladimir Zapolskiy <vz@mleia.com>, Sylvain Lemieux <slemieux.tyco@gmail.com>,
-	Nicolas Ferre <nicolas.ferre@microchip.com>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>, devicetree@vger.kernel.org,
-	"moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE" <linux-arm-kernel@lists.infradead.org>, linux-amlogic@lists.infradead.org,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-mediatek@lists.infradead.org
-Content-Type: text/plain; charset="UTF-8"
+Return-Path: <geert@linux-m68k.org>
+Return-path: <geert@linux-m68k.org>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
+To: Fabrizio Castro <fabrizio.castro@bp.renesas.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Guenter Roeck <linux@roeck-us.net>
+Cc: Philipp Zabel <p.zabel@pengutronix.de>,
+	Chris Paterson <Chris.Paterson2@renesas.com>,
+	Biju Das <biju.das@bp.renesas.com>,
+	Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>,
+	Simon Horman <horms@verge.net.au>,
+	Magnus Damm <magnus.damm@gmail.com>,
+	Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	linux-watchdog@vger.kernel.org,
+	linux-renesas-soc@vger.kernel.org,
+	Geert Uytterhoeven <geert+renesas@glider.be>
+Subject: [PATCH] watchdog: renesas_wdt: Blacklist early R-Car Gen2 SoCs
+Date: Wed, 21 Feb 2018 16:43:04 +0100
+Message-Id: <1519227784-27117-1-git-send-email-geert+renesas@glider.be>
+In-Reply-To: <1518457475-4480-13-git-send-email-fabrizio.castro@bp.renesas.com>
+References: <1518457475-4480-13-git-send-email-fabrizio.castro@bp.renesas.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On Sun, Feb 18, 2018 at 7:07 PM, Guenter Roeck <linux@roeck-us.net> wrote:
-> On 02/18/2018 04:07 PM, Rob Herring wrote:
->>
->> On Sun, Feb 11, 2018 at 09:08:43PM +0100, Marcus Folkesson wrote:
->>>
->>> watchdog_init_timeout() will allways pick timeout_param since it
->>> defaults to a valid timeout.
->>>
->>> By following best practice described in
->>> Documentation/watchdog/watchdog-kernel-api.txt, it also
->>> let us to set timout-sec property in devicetree.
->>
->>
->> typo
->>
->>>
->>> Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
->>> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
->>> ---
->>>   Documentation/devicetree/bindings/watchdog/sirfsoc_wdt.txt | 4 ++++
->>>   drivers/watchdog/sirfsoc_wdt.c                             | 2 +-
->>>   2 files changed, 5 insertions(+), 1 deletion(-)
->>>
->>> diff --git a/Documentation/devicetree/bindings/watchdog/sirfsoc_wdt.txt
->>> b/Documentation/devicetree/bindings/watchdog/sirfsoc_wdt.txt
->>> index 9cbc76c89b2b..0dce5e3100b4 100644
->>> --- a/Documentation/devicetree/bindings/watchdog/sirfsoc_wdt.txt
->>> +++ b/Documentation/devicetree/bindings/watchdog/sirfsoc_wdt.txt
->>> @@ -5,10 +5,14 @@ Required properties:
->>>   - reg: Address range of tick timer/WDT register set
->>>   - interrupts: interrupt number to the cpu
->>>   +Optional properties:
->>> +- timeout-sec : Contains the watchdog timeout in seconds
->>> +
->>>   Example:
->>>     timer@b0020000 {
->>>         compatible = "sirf,prima2-tick";
->>>         reg = <0xb0020000 0x1000>;
->>>         interrupts = <0>;
->>> +       timeout-sec = <30>;
->>>   };
->>> diff --git a/drivers/watchdog/sirfsoc_wdt.c
->>> b/drivers/watchdog/sirfsoc_wdt.c
->>> index 4eea351e09b0..ac0c9d2c4aee 100644
->>> --- a/drivers/watchdog/sirfsoc_wdt.c
->>> +++ b/drivers/watchdog/sirfsoc_wdt.c
->>> @@ -29,7 +29,7 @@
->>>   #define SIRFSOC_WDT_MAX_TIMEOUT               (10 * 60)       /* 10
->>> mins */
->>>   #define SIRFSOC_WDT_DEFAULT_TIMEOUT   30              /* 30 secs */
->>>   -static unsigned int timeout = SIRFSOC_WDT_DEFAULT_TIMEOUT;
->>> +static unsigned int timeout;
->>
->>
->> If you have an old dtb, then you still need the default.
->>
->
-> No. It is optional to start with, and the driver already has
->
-> static struct watchdog_device sirfsoc_wdd = {
->         .info = &sirfsoc_wdt_ident,
->         .ops = &sirfsoc_wdt_ops,
->         .timeout = SIRFSOC_WDT_DEFAULT_TIMEOUT,                 <------
->         .min_timeout = SIRFSOC_WDT_MIN_TIMEOUT,
->         .max_timeout = SIRFSOC_WDT_MAX_TIMEOUT,
-> };
+On early revisions of some R-Car Gen2 SoCs, and depending on SMP
+configuration, the system may fail to restart on watchdog time-out, and
+lock up instead.
 
-Okay, then:
+Specifically:
+  - On R-Car H2 ES1.0 and M2-W ES1.0, watchdog restart fails unless
+    only the first CPU core is in use (using e.g. the "maxcpus=1" kernel
+    commandline option).
+  - On R-Car V2H ES1.1, watchdog restart fails unless SMP is disabled
+    completely (using CONFIG_SMP=n during build configuration, or using
+    the "nosmp" or "maxcpus=0" kernel commandline options).
 
-Reviewed-by: Rob Herring <robh@kernel.org>
+Prevent using the watchdog in impacted cases by blacklisting the
+affected SoCs, using the minimum known working revisions (ES2.0 on R-Car
+H2, and ES3.0 on M2-W), and taking the actual SMP software configuration
+into account.
 
-for the lot.
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+---
+To be folded into Fabrizio Castro's "watchdog: renesas_wdt: Add R-Car
+Gen2 support".
 
-Rob
+Note that I cannot use IS_ENABLED(CONFIG_SMP), as setup_max_cpus does
+not exist for CONFIG_SMP=n.
+
+Any reports on R-Car M2-W ES2.0 and V2H ES2.0+ are welcomed!
+
+As the failure is due to an integration issue, and the watchdog itself
+is working fine, an alternative solution would be to move the check to
+the code that installs the reset trigger ("soc: renesas: rcar-rst:
+Enable watchdog as reset trigger for Gen2").
+However, doing so would mean that:
+  1. The user could enable and seemingly use the watchdog, but watchdog
+     timeout would not restart the system,
+  2. The same check should be done before installing the new reset
+     vector ("ARM: shmobile: rcar-gen2: Add watchdog support"), too,
+     else onlining CPU0 would fail once the watchdog has timed out.
+---
+ drivers/watchdog/renesas_wdt.c | 43 ++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 43 insertions(+)
+
+diff --git a/drivers/watchdog/renesas_wdt.c b/drivers/watchdog/renesas_wdt.c
+index 0f88614797c36022..4c8e8d2600a922a5 100644
+--- a/drivers/watchdog/renesas_wdt.c
++++ b/drivers/watchdog/renesas_wdt.c
+@@ -16,6 +16,8 @@
+ #include <linux/of.h>
+ #include <linux/platform_device.h>
+ #include <linux/pm_runtime.h>
++#include <linux/smp.h>
++#include <linux/sys_soc.h>
+ #include <linux/watchdog.h>
+ 
+ #define RWTCNT		0
+@@ -131,6 +133,44 @@ static const struct watchdog_ops rwdt_ops = {
+ 	.restart = rwdt_restart,
+ };
+ 
++#if defined(CONFIG_ARCH_RCAR_GEN2) && defined(CONFIG_SMP)
++/*
++ * Watchdog-reset integration is broken on early revisions of R-Car Gen2 SoCs
++ */
++static const struct soc_device_attribute rwdt_quirks_match[] = {
++	{
++		.soc_id = "r8a7790",
++		.revision = "ES1.*",
++		.data = (void *)1,	/* needs single CPU */
++	}, {
++		.soc_id = "r8a7791",
++		.revision = "ES[12].*",
++		.data = (void *)1,	/* needs single CPU */
++	}, {
++		.soc_id = "r8a7792",
++		.revision = "*",
++		.data = (void *)0,	/* needs SMP disabled */
++	},
++	{ /* sentinel */ }
++};
++
++static bool rwdt_blacklisted(struct device *dev)
++{
++	const struct soc_device_attribute *attr;
++
++	attr = soc_device_match(rwdt_quirks_match);
++	if (attr && setup_max_cpus > (uintptr_t)attr->data) {
++		dev_info(dev, "Watchdog blacklisted on %s %s\n", attr->soc_id,
++			 attr->revision);
++		return true;
++	}
++
++	return false;
++}
++#else /* !CONFIG_ARCH_RCAR_GEN2 || !CONFIG_SMP */
++static inline bool rwdt_blacklisted(struct device *dev) { return false; }
++#endif /* !CONFIG_ARCH_RCAR_GEN2 || !CONFIG_SMP */
++
+ static int rwdt_probe(struct platform_device *pdev)
+ {
+ 	struct rwdt_priv *priv;
+@@ -139,6 +179,9 @@ static int rwdt_probe(struct platform_device *pdev)
+ 	unsigned long clks_per_sec;
+ 	int ret, i;
+ 
++	if (rwdt_blacklisted(&pdev->dev))
++		return -ENODEV;
++
+ 	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
+ 	if (!priv)
+ 		return -ENOMEM;
+-- 
+2.7.4
