@@ -1,18 +1,18 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-io0-f195.google.com ([209.85.223.195]:35864 "EHLO
-        mail-io0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933042AbeBVPO0 (ORCPT
+Received: from mail-it0-f67.google.com ([209.85.214.67]:37248 "EHLO
+        mail-it0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932876AbeBVPPN (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 22 Feb 2018 10:14:26 -0500
-Received: by mail-io0-f195.google.com with SMTP id t22so6356404iob.3
-        for <linux-watchdog@vger.kernel.org>; Thu, 22 Feb 2018 07:14:25 -0800 (PST)
+        Thu, 22 Feb 2018 10:15:13 -0500
+Received: by mail-it0-f67.google.com with SMTP id d10so6874354itj.2
+        for <linux-watchdog@vger.kernel.org>; Thu, 22 Feb 2018 07:15:13 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <84517171cdb142f3f04b45de6ef8daf13442a866.1514578085.git.vilhelm.gray@gmail.com>
-References: <cover.1514578085.git.vilhelm.gray@gmail.com> <84517171cdb142f3f04b45de6ef8daf13442a866.1514578085.git.vilhelm.gray@gmail.com>
+In-Reply-To: <a7ce7198b68405660a8610c302057f1507ca5e3c.1514578085.git.vilhelm.gray@gmail.com>
+References: <cover.1514578085.git.vilhelm.gray@gmail.com> <a7ce7198b68405660a8610c302057f1507ca5e3c.1514578085.git.vilhelm.gray@gmail.com>
 From: Linus Walleij <linus.walleij@linaro.org>
-Date: Thu, 22 Feb 2018 16:14:24 +0100
-Message-ID: <CACRpkdYznjnQDZ6Urti9a2DYdqzWs7w8vHnc7EKkJ+V31sBb8g@mail.gmail.com>
-Subject: Re: [PATCH v2 1/5] iio: Change ISA_BUS_API dependency to selection
+Date: Thu, 22 Feb 2018 16:15:12 +0100
+Message-ID: <CACRpkda6YCZDimX4OtH2MmOFJH5m3ycA7szZ986u9R94KyJ4_g@mail.gmail.com>
+Subject: Re: [PATCH v2 2/5] watchdog: Change ISA_BUS_API dependency to selection
 To: William Breathitt Gray <vilhelm.gray@gmail.com>
 Cc: "Maciej S. Szmigiero" <mail@maciej.szmigiero.name>,
         Guenter Roeck <linux@roeck-us.net>,
@@ -20,10 +20,7 @@ Cc: "Maciej S. Szmigiero" <mail@maciej.szmigiero.name>,
         linux-iio@vger.kernel.org,
         LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
         "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Jonathan Cameron <jic23@kernel.org>,
-        Hartmut Knaack <knaack.h@gmx.de>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        Peter Meerwald-Stadler <pmeerw@pmeerw.net>
+        Wim Van Sebroeck <wim@iguana.be>
 Content-Type: text/plain; charset="UTF-8"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
@@ -39,10 +36,8 @@ On Fri, Dec 29, 2017 at 9:13 PM, William Breathitt Gray
 > when enabled, drivers should select it when the ISA bus driver
 > functionality is needed.
 >
-> Cc: Jonathan Cameron <jic23@kernel.org>
-> Cc: Hartmut Knaack <knaack.h@gmx.de>
-> Cc: Lars-Peter Clausen <lars@metafoo.de>
-> Cc: Peter Meerwald-Stadler <pmeerw@pmeerw.net>
+> Cc: Wim Van Sebroeck <wim@iguana.be>
+> Acked-by: Guenter Roeck <linux@roeck-us.net>
 > Signed-off-by: William Breathitt Gray <vilhelm.gray@gmail.com>
 
 Patch applied to the GPIO tree for v4.17.
