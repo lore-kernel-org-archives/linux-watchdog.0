@@ -1,54 +1,72 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-io0-f194.google.com ([209.85.223.194]:43848 "EHLO
-        mail-io0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932932AbeBVPUr (ORCPT
+Received: from mail-yb0-f196.google.com ([209.85.213.196]:37189 "EHLO
+        mail-yb0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750802AbeBVUaR (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 22 Feb 2018 10:20:47 -0500
-Received: by mail-io0-f194.google.com with SMTP id l12so6352273ioc.10
-        for <linux-watchdog@vger.kernel.org>; Thu, 22 Feb 2018 07:20:47 -0800 (PST)
-MIME-Version: 1.0
-In-Reply-To: <5c573c758e07ee9539045c1b062b9bab1ad1669c.1514578085.git.vilhelm.gray@gmail.com>
-References: <cover.1514578085.git.vilhelm.gray@gmail.com> <5c573c758e07ee9539045c1b062b9bab1ad1669c.1514578085.git.vilhelm.gray@gmail.com>
-From: Linus Walleij <linus.walleij@linaro.org>
-Date: Thu, 22 Feb 2018 16:20:46 +0100
-Message-ID: <CACRpkdbRkyzb9aML1-TEENWfpSDtjayVB_eEm9V1JKrAfaOMVA@mail.gmail.com>
-Subject: Re: [PATCH v2 5/5] pc104: Add EXPERT dependency for PC104 Kconfig option
-To: William Breathitt Gray <vilhelm.gray@gmail.com>
+        Thu, 22 Feb 2018 15:30:17 -0500
+Date: Thu, 22 Feb 2018 15:30:09 -0500
+From: William Breathitt Gray <vilhelm.gray@gmail.com>
+To: Linus Walleij <linus.walleij@linaro.org>
 Cc: "Maciej S. Szmigiero" <mail@maciej.szmigiero.name>,
         Guenter Roeck <linux@roeck-us.net>,
         "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
         linux-iio@vger.kernel.org,
         LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
         "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH v2 3/5] gpio: Change ISA_BUS_API dependency to selection
+Message-ID: <20180222203009.GA10834@sophia>
+References: <cover.1514578085.git.vilhelm.gray@gmail.com>
+ <1534276cb63d1e9e6dd139b4edceedbe728f65f5.1514578085.git.vilhelm.gray@gmail.com>
+ <CACRpkdaw75RH_WR4Ta9AmqNmGnaPhFKK2HfC=m8SNabACs95vg@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <CACRpkdaw75RH_WR4Ta9AmqNmGnaPhFKK2HfC=m8SNabACs95vg@mail.gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, Dec 29, 2017 at 9:14 PM, William Breathitt Gray
-<vilhelm.gray@gmail.com> wrote:
-
-> PC/104 device driver Kconfig options previously had an implicit EXPERT
-> dependency by way of an explicit ISA_BUS_API dependency. Now that these
-> driver Kconfig options select ISA_BUS_API rather than depend on it, the
-> PC104 Kconfig option should have an explicit EXPERT dependency.
+On Thu, Feb 22, 2018 at 04:16:17PM +0100, Linus Walleij wrote:
+>On Fri, Dec 29, 2017 at 9:13 PM, William Breathitt Gray
+><vilhelm.gray@gmail.com> wrote:
 >
-> The PC/104 form factor and bus architecture are common in embedded
-> and specialized systems, but uncommon in typical desktop setups. For
-> this reason, it is best to mask these devices and configurations via the
-> EXPERT Kconfig option because the majority of users will never need to
-> concern themselves with PC/104.
+>> The ISA_BUS_API Kconfig option enables the compilation of the ISA bus
+>> driver. The ISA bus driver does not perform any hardware interaction,
+>> and is instead just a thin layer of software abstraction to eliminate
+>> boilerplate code common to ISA-style device drivers. Since ISA_BUS_API
+>> has no dependencies and does not jeopardize the integrity of the system
+>> when enabled, drivers should select it when the ISA bus driver
+>> functionality is needed.
+>>
+>> Cc: Linus Walleij <linus.walleij@linaro.org>
+>> Signed-off-by: William Breathitt Gray <vilhelm.gray@gmail.com>
 >
-> Signed-off-by: William Breathitt Gray <vilhelm.gray@gmail.com>
+>Patch applied to the GPIO tree for v4.17.
+>
+>Can you confirm that we don't have any dangling ISA
+>drivers not using this?
+>
+>Yours,
+>Linus Walleij
 
-Patch applied to the GPIO tree for v4.17.
+Hi Linus,
 
-I don't know what kind of definition of "expert" really applies here.
+This patchset should cover all current mainline drivers depending on
+ISA_BUS_API.
 
-Who in their right mind think that novices are using the kernel
-configuration interface. Isn't anyone doing kernel compiles
-entitled to be called an expert...
+However, there are existing drivers for ISA compatible devices that
+would benefit from utilizing struct isa_driver rather than struct
+platform_driver as was done for the Winbond GPIO driver; for example,
+a number of the drivers under the "Port-mapped I/O GPIO drivers" menu
+are also for Super I/O devices and may benefit from using struct
+isa_driver. I thought it best to let the respective maintainers of those
+drivers make the changes if they so desire, since the primary benefit of
+struct isa_driver over struct platform_driver is code clarity in my
+opinion.
 
-Anyways I guess this has already been discussed.
+I may submit patches myself for some of the low-hanging fruit later this
+year if I find the time. Right now implementing the counter subsystem
+has been my priority, but perhaps some downtime will be available soon
+enough for me to add ISA driver improvements to my plate -- we'll just
+have to see how it all goes. :)
 
-Yours,
-Linus Walleij
+William Breathitt Gray
