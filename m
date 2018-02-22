@@ -1,18 +1,18 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-io0-f193.google.com ([209.85.223.193]:40826 "EHLO
-        mail-io0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753870AbeBVPSC (ORCPT
+Received: from mail-io0-f194.google.com ([209.85.223.194]:43848 "EHLO
+        mail-io0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932932AbeBVPUr (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 22 Feb 2018 10:18:02 -0500
-Received: by mail-io0-f193.google.com with SMTP id v6so5234367iog.7
-        for <linux-watchdog@vger.kernel.org>; Thu, 22 Feb 2018 07:18:02 -0800 (PST)
+        Thu, 22 Feb 2018 10:20:47 -0500
+Received: by mail-io0-f194.google.com with SMTP id l12so6352273ioc.10
+        for <linux-watchdog@vger.kernel.org>; Thu, 22 Feb 2018 07:20:47 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <bc33320887f448b772004e7c5d97322abb8cae0b.1514578085.git.vilhelm.gray@gmail.com>
-References: <cover.1514578085.git.vilhelm.gray@gmail.com> <bc33320887f448b772004e7c5d97322abb8cae0b.1514578085.git.vilhelm.gray@gmail.com>
+In-Reply-To: <5c573c758e07ee9539045c1b062b9bab1ad1669c.1514578085.git.vilhelm.gray@gmail.com>
+References: <cover.1514578085.git.vilhelm.gray@gmail.com> <5c573c758e07ee9539045c1b062b9bab1ad1669c.1514578085.git.vilhelm.gray@gmail.com>
 From: Linus Walleij <linus.walleij@linaro.org>
-Date: Thu, 22 Feb 2018 16:18:01 +0100
-Message-ID: <CACRpkdZKxHRHvURL97iS__fvx_VMtg3ZohJKt4PfFQjZgnAuCA@mail.gmail.com>
-Subject: Re: [PATCH v2 4/5] isa: Remove ISA_BUS_API selection for ISA_BUS
+Date: Thu, 22 Feb 2018 16:20:46 +0100
+Message-ID: <CACRpkdbRkyzb9aML1-TEENWfpSDtjayVB_eEm9V1JKrAfaOMVA@mail.gmail.com>
+Subject: Re: [PATCH v2 5/5] pc104: Add EXPERT dependency for PC104 Kconfig option
 To: William Breathitt Gray <vilhelm.gray@gmail.com>
 Cc: "Maciej S. Szmigiero" <mail@maciej.szmigiero.name>,
         Guenter Roeck <linux@roeck-us.net>,
@@ -27,21 +27,28 @@ List-Id: linux-watchdog@vger.kernel.org
 On Fri, Dec 29, 2017 at 9:14 PM, William Breathitt Gray
 <vilhelm.gray@gmail.com> wrote:
 
-> ISA_BUS_API is selected by drivers themselves when necessary. The
-> ISA_BUS Kconfig option is now simply a mask for true ISA device drivers
-> and relevant configuration. For now, the ISA_BUS Kconfig option is only
-> available for X86, but may be added for other arch builds in the future
-> if the need arises.
+> PC/104 device driver Kconfig options previously had an implicit EXPERT
+> dependency by way of an explicit ISA_BUS_API dependency. Now that these
+> driver Kconfig options select ISA_BUS_API rather than depend on it, the
+> PC104 Kconfig option should have an explicit EXPERT dependency.
+>
+> The PC/104 form factor and bus architecture are common in embedded
+> and specialized systems, but uncommon in typical desktop setups. For
+> this reason, it is best to mask these devices and configurations via the
+> EXPERT Kconfig option because the majority of users will never need to
+> concern themselves with PC/104.
 >
 > Signed-off-by: William Breathitt Gray <vilhelm.gray@gmail.com>
 
 Patch applied to the GPIO tree for v4.17.
 
-I'd like to have some ACK from some x86 maintainer for this
-so it makes me a bit nervous.
+I don't know what kind of definition of "expert" really applies here.
 
-Yet again the patch has been sitting since december with no
-comments so...
+Who in their right mind think that novices are using the kernel
+configuration interface. Isn't anyone doing kernel compiles
+entitled to be called an expert...
+
+Anyways I guess this has already been discussed.
 
 Yours,
 Linus Walleij
