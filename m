@@ -1,87 +1,87 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-qk0-f194.google.com ([209.85.220.194]:32849 "EHLO
-        mail-qk0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750805AbeBWM0L (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 23 Feb 2018 07:26:11 -0500
-MIME-Version: 1.0
-In-Reply-To: <20180223110207.GA14446@saruman>
-References: <20180221233825.10024-1-jhogan@kernel.org> <CAK8P3a3CuNn-dSE33mhEZ9-iM7NOE3Y4AiJzpmF6ob5wrMuZpg@mail.gmail.com>
- <20180223110207.GA14446@saruman>
-From: Arnd Bergmann <arnd@arndb.de>
-Date: Fri, 23 Feb 2018 13:26:09 +0100
-Message-ID: <CAK8P3a12RKQvcmnPRHcDkDKq+uMWP79SuRdDz3_vi9YRM==GVw@mail.gmail.com>
-Subject: Re: [PATCH 00/13] Remove metag architecture
-To: James Hogan <jhogan@kernel.org>
-Cc: "open list:METAG ARCHITECTURE" <linux-metag@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+Received: from vps-vb.mhejs.net ([37.28.154.113]:33786 "EHLO vps-vb.mhejs.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751276AbeBWNup (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 23 Feb 2018 08:50:45 -0500
+Subject: Re: [PATCH v2 3/5] gpio: Change ISA_BUS_API dependency to selection
+From: "Maciej S. Szmigiero" <mail@maciej.szmigiero.name>
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: William Breathitt Gray <vilhelm.gray@gmail.com>,
         Guenter Roeck <linux@roeck-us.net>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Jason Cooper <jason@lakedaemon.net>,
-        Marc Zyngier <marc.zyngier@arm.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Mauro Carvalho Chehab <mchehab@s-opensource.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Wolfram Sang <wsa@the-dreams.de>,
-        "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>,
-        Linux-MM <linux-mm@kvack.org>, linux-gpio@vger.kernel.org,
-        linux-watchdog@vger.kernel.org,
-        Linux Media Mailing List <linux-media@vger.kernel.org>,
-        linux-i2c@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
+        linux-iio@vger.kernel.org,
+        LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+References: <cover.1514578085.git.vilhelm.gray@gmail.com>
+ <1534276cb63d1e9e6dd139b4edceedbe728f65f5.1514578085.git.vilhelm.gray@gmail.com>
+ <CACRpkdaw75RH_WR4Ta9AmqNmGnaPhFKK2HfC=m8SNabACs95vg@mail.gmail.com>
+ <20180222203009.GA10834@sophia>
+ <278aed38-1b40-e362-00e2-38d61a4b81c2@maciej.szmigiero.name>
+Message-ID: <ec0c1668-dc0d-cd44-1c87-b1d71215f477@maciej.szmigiero.name>
+Date: Fri, 23 Feb 2018 14:50:41 +0100
+MIME-Version: 1.0
+In-Reply-To: <278aed38-1b40-e362-00e2-38d61a4b81c2@maciej.szmigiero.name>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, Feb 23, 2018 at 12:02 PM, James Hogan <jhogan@kernel.org> wrote:
-> On Fri, Feb 23, 2018 at 11:26:58AM +0100, Arnd Bergmann wrote:
->> On Thu, Feb 22, 2018 at 12:38 AM, James Hogan <jhogan@kernel.org> wrote:
->> > So lets call it a day and drop the Meta architecture port from the
->> > kernel. RIP Meta.
+On 22.02.2018 21:44, Maciej S. Szmigiero wrote:
+> Hi William,
+> Hi Linus,
+> 
+> On 22.02.2018 21:30, William Breathitt Gray wrote:
+>> On Thu, Feb 22, 2018 at 04:16:17PM +0100, Linus Walleij wrote:
+>>> On Fri, Dec 29, 2017 at 9:13 PM, William Breathitt Gray
+>>> <vilhelm.gray@gmail.com> wrote:
+>>>
+>>>> The ISA_BUS_API Kconfig option enables the compilation of the ISA bus
+>>>> driver. The ISA bus driver does not perform any hardware interaction,
+>>>> and is instead just a thin layer of software abstraction to eliminate
+>>>> boilerplate code common to ISA-style device drivers. Since ISA_BUS_API
+>>>> has no dependencies and does not jeopardize the integrity of the system
+>>>> when enabled, drivers should select it when the ISA bus driver
+>>>> functionality is needed.
+>>>>
+>>>> Cc: Linus Walleij <linus.walleij@linaro.org>
+>>>> Signed-off-by: William Breathitt Gray <vilhelm.gray@gmail.com>
+>>>
+>>> Patch applied to the GPIO tree for v4.17.
+>>>
+>>> Can you confirm that we don't have any dangling ISA
+>>> drivers not using this?
+>>>
+>>> Yours,
+>>> Linus Walleij
 >>
->> Since I brought up the architecture removal independently, I could
->> pick this up into a git tree that also has the removal of some of the
->> other architectures.
+>> Hi Linus,
 >>
->> I see your tree is part of linux-next, so you could also just put it
->> in there and send a pull request at the merge window if you prefer.
+>> This patchset should cover all current mainline drivers depending on
+>> ISA_BUS_API.
 >>
->> The only real reason I see for a shared git tree would be to avoid
->> conflicts when we touch the same Kconfig files or #ifdefs in driver,
->> but Meta only appears in
->>
->> config FRAME_POINTER
->>         bool "Compile the kernel with frame pointers"
->>         depends on DEBUG_KERNEL && \
->>                 (CRIS || M68K || FRV || UML || \
->>                  SUPERH || BLACKFIN || MN10300 || METAG) || \
->>                 ARCH_WANT_FRAME_POINTERS
->>
->> and
->>
->> include/trace/events/mmflags.h:#elif defined(CONFIG_PARISC) ||
->> defined(CONFIG_METAG) || defined(CONFIG_IA64)
->>
->> so there is little risk.
->
-> I'm happy to put v2 in linux-next now (only patch 4 has changed, I just
-> sent an updated version), and send you a pull request early next week so
-> you can take it from there. The patches can't be directly applied with
-> git-am anyway thanks to the -D option to make them more concise.
->
-> Sound okay?
+> 
+> Thanks for merging this series!
+> 
+> Note that gpio-winbond (CONFIG_GPIO_WINBOND) driver was originally
+> merged using ISA_BUS_API selection as done for other ISA bus gpio drivers
+> by this patch, then temporary switched to the previous ("depends on")
+> style by commit 92a8046c9d952a to fix a circular Kconfig dependency.
+> So now this commit (92...) should be reverted to make gpio-winbond
+> driver Kconfig dependency / selection consistent with the remaining ISA
+> bus gpio drivers.
+> 
+> Unfortunately, I can't test the reversion myself because it looks like
+> Linus didn't push his trees yet to git.kernel.org after applying this
+> series (or I am not looking at the right place - linusw/linux-gpio.git?).
 
-Yes, sounds good, thanks!
+It looks like the series has been pushed to git.kernel.org now.
+I have tested the reversion of commit 92a8046c9d952a and can confirm
+that the ISA_BUS_API dependency / selection for gpio-winbond works
+then as intended (in a way that is consistent with other ISA bus gpio
+drivers).
 
-       Arnd
+@Linus:
+Will you revert that commit or should I submit a patch that does it?
+
+Maciej
