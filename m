@@ -1,12 +1,19 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:33110 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750798AbeBWLCQ (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 23 Feb 2018 06:02:16 -0500
-Date: Fri, 23 Feb 2018 11:02:08 +0000
-From: James Hogan <jhogan@kernel.org>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: linux-metag@vger.kernel.org,
+Received: from mail-qk0-f194.google.com ([209.85.220.194]:32849 "EHLO
+        mail-qk0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750805AbeBWM0L (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 23 Feb 2018 07:26:11 -0500
+MIME-Version: 1.0
+In-Reply-To: <20180223110207.GA14446@saruman>
+References: <20180221233825.10024-1-jhogan@kernel.org> <CAK8P3a3CuNn-dSE33mhEZ9-iM7NOE3Y4AiJzpmF6ob5wrMuZpg@mail.gmail.com>
+ <20180223110207.GA14446@saruman>
+From: Arnd Bergmann <arnd@arndb.de>
+Date: Fri, 23 Feb 2018 13:26:09 +0100
+Message-ID: <CAK8P3a12RKQvcmnPRHcDkDKq+uMWP79SuRdDz3_vi9YRM==GVw@mail.gmail.com>
+Subject: Re: [PATCH 00/13] Remove metag architecture
+To: James Hogan <jhogan@kernel.org>
+Cc: "open list:METAG ARCHITECTURE" <linux-metag@vger.kernel.org>,
         Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
         Guenter Roeck <linux@roeck-us.net>,
         Jonathan Corbet <corbet@lwn.net>,
@@ -33,83 +40,48 @@ Cc: linux-metag@vger.kernel.org,
         linux-watchdog@vger.kernel.org,
         Linux Media Mailing List <linux-media@vger.kernel.org>,
         linux-i2c@vger.kernel.org
-Subject: Re: [PATCH 00/13] Remove metag architecture
-Message-ID: <20180223110207.GA14446@saruman>
-References: <20180221233825.10024-1-jhogan@kernel.org>
- <CAK8P3a3CuNn-dSE33mhEZ9-iM7NOE3Y4AiJzpmF6ob5wrMuZpg@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="tThc/1wpZn/ma/RB"
-Content-Disposition: inline
-In-Reply-To: <CAK8P3a3CuNn-dSE33mhEZ9-iM7NOE3Y4AiJzpmF6ob5wrMuZpg@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+On Fri, Feb 23, 2018 at 12:02 PM, James Hogan <jhogan@kernel.org> wrote:
+> On Fri, Feb 23, 2018 at 11:26:58AM +0100, Arnd Bergmann wrote:
+>> On Thu, Feb 22, 2018 at 12:38 AM, James Hogan <jhogan@kernel.org> wrote:
+>> > So lets call it a day and drop the Meta architecture port from the
+>> > kernel. RIP Meta.
+>>
+>> Since I brought up the architecture removal independently, I could
+>> pick this up into a git tree that also has the removal of some of the
+>> other architectures.
+>>
+>> I see your tree is part of linux-next, so you could also just put it
+>> in there and send a pull request at the merge window if you prefer.
+>>
+>> The only real reason I see for a shared git tree would be to avoid
+>> conflicts when we touch the same Kconfig files or #ifdefs in driver,
+>> but Meta only appears in
+>>
+>> config FRAME_POINTER
+>>         bool "Compile the kernel with frame pointers"
+>>         depends on DEBUG_KERNEL && \
+>>                 (CRIS || M68K || FRV || UML || \
+>>                  SUPERH || BLACKFIN || MN10300 || METAG) || \
+>>                 ARCH_WANT_FRAME_POINTERS
+>>
+>> and
+>>
+>> include/trace/events/mmflags.h:#elif defined(CONFIG_PARISC) ||
+>> defined(CONFIG_METAG) || defined(CONFIG_IA64)
+>>
+>> so there is little risk.
+>
+> I'm happy to put v2 in linux-next now (only patch 4 has changed, I just
+> sent an updated version), and send you a pull request early next week so
+> you can take it from there. The patches can't be directly applied with
+> git-am anyway thanks to the -D option to make them more concise.
+>
+> Sound okay?
 
---tThc/1wpZn/ma/RB
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Yes, sounds good, thanks!
 
-On Fri, Feb 23, 2018 at 11:26:58AM +0100, Arnd Bergmann wrote:
-> On Thu, Feb 22, 2018 at 12:38 AM, James Hogan <jhogan@kernel.org> wrote:
-> > So lets call it a day and drop the Meta architecture port from the
-> > kernel. RIP Meta.
->=20
-> Since I brought up the architecture removal independently, I could
-> pick this up into a git tree that also has the removal of some of the
-> other architectures.
->=20
-> I see your tree is part of linux-next, so you could also just put it
-> in there and send a pull request at the merge window if you prefer.
->=20
-> The only real reason I see for a shared git tree would be to avoid
-> conflicts when we touch the same Kconfig files or #ifdefs in driver,
-> but Meta only appears in
->=20
-> config FRAME_POINTER
->         bool "Compile the kernel with frame pointers"
->         depends on DEBUG_KERNEL && \
->                 (CRIS || M68K || FRV || UML || \
->                  SUPERH || BLACKFIN || MN10300 || METAG) || \
->                 ARCH_WANT_FRAME_POINTERS
->=20
-> and
->=20
-> include/trace/events/mmflags.h:#elif defined(CONFIG_PARISC) ||
-> defined(CONFIG_METAG) || defined(CONFIG_IA64)
->=20
-> so there is little risk.
-
-I'm happy to put v2 in linux-next now (only patch 4 has changed, I just
-sent an updated version), and send you a pull request early next week so
-you can take it from there. The patches can't be directly applied with
-git-am anyway thanks to the -D option to make them more concise.
-
-Sound okay?
-
-Thanks
-James
-
---tThc/1wpZn/ma/RB
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCAAdFiEEd80NauSabkiESfLYbAtpk944dnoFAlqP9K8ACgkQbAtpk944
-dnqGqg//RwJWuqjtS6xKfuWgErALcEI5BIrgC7QevCr8kr37+YnzqVJM+Wmz/ROv
-xW5kdhL8v/ocuxe+YBECennMjzbbPPvHWq1WieTxXOgOB8nxGduvsNFQiUg8I99O
-ltjgj7sjnGp0R0GW4HflETXKGWjLn7NirFoCLjyTQT3Gwjpn8shDLx1trMPb8ujH
-N6DvyyrojnBJ0kACtzEyGBPphrtk/a0t+zySdIuRLXReU9Q2/5yW2Vof4irxL9Ov
-JQljE0/dTi4JgTvrieojAItgUsS3/D+XVe2HDTJw2PcwAX0AmExTtaT1ADh9Ujyr
-TOg0uFwmed74V/wUwBxW6KMOyu0d0ITmTghXnWl4jbJvpR0pNXjJG1JCtpjyYgmd
-3Lx7fzwDckUB+4ma2X2C7OAU4JaBU2tEKPo5a/b/pO0d7HqRGJIA0HApTaF8YQ4Z
-tREK4jme67OuLs3POFHgbPLVrORrk4dhiBZHarPERXIEXYYD/0kVA5S7npvSmzD0
-AmFh1T6b0VcQWak6aU9PoTmdIpPwmyhvOBsMAzOwounp2kmwObdgdgDB8yQkC5VK
-EQCcmCWImEf7hz1RyTc6bawPRFkCip1k4ucmOO7KLYhuFL6uYj/Mg5JaDZLNQRyn
-izvAzQ5AK0+VzznxZHkbKgISt54p1SuEMQuCvxYzpujBNY0Ti98=
-=BIkF
------END PGP SIGNATURE-----
-
---tThc/1wpZn/ma/RB--
+       Arnd
