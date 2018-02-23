@@ -1,66 +1,102 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx.socionext.com ([202.248.49.38]:45210 "EHLO mx.socionext.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751367AbeBWJ2O (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 23 Feb 2018 04:28:14 -0500
-From: "Keiji Hayashibara" <hayashibara.keiji@socionext.com>
-To: "'Marcus Folkesson'" <marcus.folkesson@gmail.com>
-Cc: "'Wim Van Sebroeck'" <wim@linux-watchdog.org>,
-        "'Guenter Roeck'" <linux@roeck-us.net>,
-        <linux-watchdog@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        "'Masahiro Yamada'" <yamada.masahiro@socionext.com>
-Subject: Re: [PATCH v3] watchdog: add SPDX identifiers for watchdog subsystem
-Date: Fri, 23 Feb 2018 18:28:09 +0900
-Message-ID: <001601d3ac88$9e64eb20$db2ec160$@socionext.com>
+Received: from mail-qk0-f196.google.com ([209.85.220.196]:34308 "EHLO
+        mail-qk0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751651AbeBWK1A (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 23 Feb 2018 05:27:00 -0500
 MIME-Version: 1.0
-Content-Type: text/plain;
-        charset="iso-2022-jp"
-Content-Transfer-Encoding: 7bit
-Content-Language: ja
+In-Reply-To: <20180221233825.10024-1-jhogan@kernel.org>
+References: <20180221233825.10024-1-jhogan@kernel.org>
+From: Arnd Bergmann <arnd@arndb.de>
+Date: Fri, 23 Feb 2018 11:26:58 +0100
+Message-ID: <CAK8P3a3CuNn-dSE33mhEZ9-iM7NOE3Y4AiJzpmF6ob5wrMuZpg@mail.gmail.com>
+Subject: Re: [PATCH 00/13] Remove metag architecture
+To: James Hogan <jhogan@kernel.org>
+Cc: linux-metag@vger.kernel.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Jason Cooper <jason@lakedaemon.net>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jslaby@suse.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Mauro Carvalho Chehab <mchehab@s-opensource.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Wolfram Sang <wsa@the-dreams.de>,
+        "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>,
+        Linux-MM <linux-mm@kvack.org>, linux-gpio@vger.kernel.org,
+        linux-watchdog@vger.kernel.org,
+        Linux Media Mailing List <linux-media@vger.kernel.org>,
+        linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hello Marcus,
+On Thu, Feb 22, 2018 at 12:38 AM, James Hogan <jhogan@kernel.org> wrote:
+> These patches remove the metag architecture and tightly dependent
+> drivers from the kernel. With the 4.16 kernel the ancient gcc 4.2.4
+> based metag toolchain we have been using is hitting compiler bugs, so
+> now seems a good time to drop it altogether.
+>
+> Quoting from patch 1:
+>
+> The earliest Meta architecture port of Linux I have a record of was an
+> import of a Meta port of Linux v2.4.1 in February 2004, which was worked
+> on significantly over the next few years by Graham Whaley, Will Newton,
+> Matt Fleming, myself and others.
+>
+> Eventually the port was merged into mainline in v3.9 in March 2013, not
+> long after Imagination Technologies bought MIPS Technologies and shifted
+> its CPU focus over to the MIPS architecture.
+>
+> As a result, though the port was maintained for a while, kept on life
+> support for a while longer, and useful for testing a few specific
+> drivers for which I don't have ready access to the equivalent MIPS
+> hardware, it is now essentially dead with no users.
+>
+> It is also stuck using an out-of-tree toolchain based on GCC 4.2.4 which
+> is no longer maintained, now struggles to build modern kernels due to
+> toolchain bugs, and doesn't itself build with a modern GCC. The latest
+> buildroot port is still using an old uClibc snapshot which is no longer
+> served, and the latest uClibc doesn't build with GCC 4.2.4.
+>
+> So lets call it a day and drop the Meta architecture port from the
+> kernel. RIP Meta.
 
-I'm sorry that it became a different thread.
-I'll be careful hereafter.
+Since I brought up the architecture removal independently, I could
+pick this up into a git tree that also has the removal of some of the
+other architectures.
 
-This mail is reply to here.
-  https://patchwork.kernel.org/patch/10232065/
+I see your tree is part of linux-next, so you could also just put it
+in there and send a pull request at the merge window if you prefer.
 
+The only real reason I see for a shared git tree would be to avoid
+conflicts when we touch the same Kconfig files or #ifdefs in driver,
+but Meta only appears in
 
-> diff --git a/drivers/watchdog/uniphier_wdt.c b/drivers/watchdog/uniphier_wdt.c
-> index 0ea2339d9702..769d75344050 100644
-> --- a/drivers/watchdog/uniphier_wdt.c
-> +++ b/drivers/watchdog/uniphier_wdt.c
-> @@ -1,18 +1,10 @@
-> +// SPDX-License-Identifier: GPL-2.0
->  /*
->   * Watchdog driver for the UniPhier watchdog timer
->   *
->   * (c) Copyright 2014 Panasonic Corporation
->   * (c) Copyright 2016 Socionext Inc.
->   * All rights reserved.
-> - *
-> - * This program is free software; you can redistribute it and/or modify
-> - * it under the terms of the GNU General Public License version 2 as
-> - * published by the Free Software Foundation.
-> - *
-> - * This program is distributed in the hope that it will be useful,
-> - * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> - * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-> - * GNU General Public License for more details.
->   */
-> 
->  #include <linux/bitops.h>
+config FRAME_POINTER
+        bool "Compile the kernel with frame pointers"
+        depends on DEBUG_KERNEL && \
+                (CRIS || M68K || FRV || UML || \
+                 SUPERH || BLACKFIN || MN10300 || METAG) || \
+                ARCH_WANT_FRAME_POINTERS
 
-Acked-by: Keiji Hayashibara <hayashibara.keiji@socionext.com>
+and
 
-Thank you.
+include/trace/events/mmflags.h:#elif defined(CONFIG_PARISC) ||
+defined(CONFIG_METAG) || defined(CONFIG_IA64)
 
-----
-Best Regards,
-Keiji Hayashibara
+so there is little risk.
 
-
-
+      Arnd
