@@ -1,81 +1,49 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pg0-f66.google.com ([74.125.83.66]:45284 "EHLO
-        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751770AbeBYXtC (ORCPT
+Received: from mail-pg0-f68.google.com ([74.125.83.68]:41694 "EHLO
+        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751905AbeBYX5T (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 25 Feb 2018 18:49:02 -0500
-Subject: Re: [PATCH v4 06/10] watchdog/hpwdt: condition early return of NMI
- handler on iLO5
-To: Jerry Hoemann <jerry.hoemann@hpe.com>, wim@linux-watchdog.org
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        rwright@hpe.com, maurice.a.saldivar@hpe.com, mingo@kernel.org,
-        marcus.folkesson@gmail.com
-References: <20180225213259.2861-1-jerry.hoemann@hpe.com>
- <20180225213259.2861-7-jerry.hoemann@hpe.com>
+        Sun, 25 Feb 2018 18:57:19 -0500
+Date: Sun, 25 Feb 2018 15:57:17 -0800
 From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <13cbc00b-59a2-b6bb-88c1-bd66c3bc5c21@roeck-us.net>
-Date: Sun, 25 Feb 2018 15:48:59 -0800
+To: Jerry Hoemann <jerry.hoemann@hpe.com>
+Cc: wim@linux-watchdog.org, linux-watchdog@vger.kernel.org,
+        linux-kernel@vger.kernel.org, rwright@hpe.com,
+        maurice.a.saldivar@hpe.com, mingo@kernel.org,
+        marcus.folkesson@gmail.com
+Subject: Re: [v4,01/10] watchdog/hpwdt: Update copyright.
+Message-ID: <20180225235717.GA6627@roeck-us.net>
+References: <20180225213259.2861-2-jerry.hoemann@hpe.com>
 MIME-Version: 1.0
-In-Reply-To: <20180225213259.2861-7-jerry.hoemann@hpe.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20180225213259.2861-2-jerry.hoemann@hpe.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 02/25/2018 01:32 PM, Jerry Hoemann wrote:
-> Modify prior change to not claim an NMI unless originated
-> from iLO to apply only to iLO5 and later going forward.
-> This restores hpwdt traditional behavior of calling panic
-> if the NMI is NMI_IO_CHECK, NMI_SERR, or NMI_UNKNOWN for
-> legacy hardware.
-> 
+On Sun, Feb 25, 2018 at 02:32:50PM -0700, Jerry Hoemann wrote:
 > Signed-off-by: Jerry Hoemann <jerry.hoemann@hpe.com>
 > ---
->   drivers/watchdog/hpwdt.c | 6 +++++-
->   1 file changed, 5 insertions(+), 1 deletion(-)
+>  drivers/watchdog/hpwdt.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
 > diff --git a/drivers/watchdog/hpwdt.c b/drivers/watchdog/hpwdt.c
-> index 1a18326bc99d..e60c689ebdb2 100644
+> index f1f00dfc0e68..3d435d6d3226 100644
 > --- a/drivers/watchdog/hpwdt.c
 > +++ b/drivers/watchdog/hpwdt.c
-> @@ -32,6 +32,7 @@
->   #define HPWDT_MAX_TIMER			TICKS_TO_SECS(65535)
->   #define DEFAULT_MARGIN			30
->   
-> +static bool iLO5;
->   static unsigned int soft_margin = DEFAULT_MARGIN;	/* in seconds */
->   static unsigned int reload;			/* the computed soft_margin */
->   static bool nowayout = WATCHDOG_NOWAYOUT;
-> @@ -121,7 +122,7 @@ static int hpwdt_pretimeout(unsigned int ulReason, struct pt_regs *regs)
->   		"3. OA Forward Progress Log\n"
->   		"4. iLO Event Log";
->   
-> -	if ((ulReason == NMI_UNKNOWN) && mynmi)
-> +	if (iLO5 && ulReason == NMI_UNKNOWN && mynmi)
->   		return NMI_DONE;
->   
->   	if (allow_kdump)
-> @@ -279,6 +280,9 @@ static int hpwdt_init_one(struct pci_dev *dev,
->   			", timer margin: %d seconds (nowayout=%d).\n",
->   			HPWDT_VERSION, hpwdt_dev.timeout, nowayout);
->   
-> +	if (dev->subsystem_vendor == PCI_VENDOR_ID_HP_3PAR)
-> +		iLO5 = 1;
+> @@ -4,7 +4,7 @@
+>   *
+>   *	SoftDog	0.05:	A Software Watchdog Device
+>   *
+> - *	(c) Copyright 2015 Hewlett Packard Enterprise Development LP
+> + *	(c) Copyright 2018 Hewlett Packard Enterprise Development LP
 
-Hyper-nitpick:
-		iLO5 = true;
+Not really sure if it makes sense to have this as separate patch.
+Either case, it messes up your changelog.
 
-I have seen 0day warnings because of that, so it is useful to avoid bool/int
-mixups.
-
-Thanks,
 Guenter
 
-> +
->   	return 0;
->   
->   error_wd_register:
-> 
-
+>   *	Thomas Mingarelli <thomas.mingarelli@hpe.com>
+>   *
+>   *	This program is free software; you can redistribute it and/or
