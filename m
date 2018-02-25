@@ -1,35 +1,146 @@
-Return-Path: <hayashibara.keiji@socionext.com>
-Return-path: <hayashibara.keiji@socionext.com>
-From: "Keiji Hayashibara" <hayashibara.keiji@socionext.com>
-To: "'Wim Van Sebroeck'" <wim@iguana.be>,
-	"'Guenter Roeck'" <linux@roeck-us.net>,
-	"'Marcus Folkesson'" <marcus.folkesson@gmail.com>
-Cc: <linux-watchdog@vger.kernel.org>,
-	<masami.hiramatsu@linaro.org>,
-	<jaswinder.singh@linaro.org>,
-	=?iso-2022-jp?B?WWFtYWRhLCBNYXNhaGlyby8bJEI7M0VEGyhCIBskQj8/OTAbKEI=?= <yamada.masahiro@socionext.com>,
-	=?iso-2022-jp?B?SGF5YXNoaSwgS3VuaWhpa28vGyRCTlMbKEIgGyRCSy5JJxsoQg==?= <hayashi.kunihiko@socionext.com>
-Subject: Re: [PATCH 1/4] watchdog: uniphier: change order for setting default
-Date: Tue, 20 Feb 2018 17:54:58 +0900
-Message-ID: <000101d3aa28$7c5ed5c0$751c8140$@socionext.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-2022-jp"
-Content-Transfer-Encoding: 7bit
-Content-Language: ja
+Return-Path: <jerry.hoemann@hpe.com>
+Return-path: <jerry.hoemann@hpe.com>
+From: Jerry Hoemann <jerry.hoemann@hpe.com>
+To: wim@linux-watchdog.org,
+	linux@roeck-us.net
+Cc: linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	rwright@hpe.com,
+	maurice.a.saldivar@hpe.com,
+	mingo@kernel.org,
+	marcus.folkesson@gmail.com,
+	Jerry Hoemann <jerry.hoemann@hpe.com>
+Subject: [PATCH v4 00/10] watchdog/hpwdt: Update driver to use watchdog core.
+Date: Sun, 25 Feb 2018 14:32:49 -0700
+Message-Id: <20180225213259.2861-1-jerry.hoemann@hpe.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Hello Wim, Guenter and Marcus,
+== v4 ==
 
-I'm sorry that it became a different thread.
+Modifications from prior version:
+
+Manual merging and patch reordering has caused minor white
+space and diff changes.  Such change shouldn't have effected
+the logic and are omitted below:
+
+Patch 001  Remove legacy NMI sourcing.
+1) Updated patch documentation to reflect Spectre concerns.
+2) Restored comment at #endif
+
+Patch 002 watchdog/hpwdt: remove include files no longer
+1) Squashed onto Patch001.
+
+Patch 0003: watchdog/hpwdt: Update nmi_panic message.
+1) Unchanged
 
 
-https://patchwork.kernel.org/patch/10210575/
+Patch 0004:  watchdog/hpwdt: white space changes
+1) Redacted.
 
-Acked-by: Keiji Hayashibara <hayashibara.keiji@socionext.com>
+Patch 0005: watchdog/hpwdt: Update Module info.
+1) Now Patch 0004
+2) Update only module description to reflect branding changes.
+3) Rest of patch redacted.
 
-Thanks.
+Patch 0006 Select CORE
+1) Merged with 0007
 
------
-Best Regards,
-Keiji Hayashibara
+Patch 0007 Modify to use watchdog core
+1) squashed on Patch 0006.
+2) Now Patch 0005
+3) Requested white space changes.
+4) Use "wdd" for watchdog_device like other watchdog drivers do
+
+Patch 0008 Programable-Pretimeout
+1) hpwdt_settimeout re-worked to take into account timeout <= pretimeout.
+   Patterned after watchdog_set_timeout.
+2) hpwdt_set_pretimeout re-worked to take into account requested
+   pretimeout <= timeout.
+3) Clarify patch doc to reflect above.
+
+Patch 0009 condition-early-return-of-NMI
+1) Requested syntatic surgar.
+2) Now Patch 0006
+
+Patch 0010 remove-allow_kdump
+1) Now Patch 0007
+
+Patch 0011 Add-dynamic-debug
+1) Now Patch 0009
+2) Typo fix
+3) New dev_dbg resulting from changes to set timeout and pretimeout.
+
+Patch 0012 Update driver version.
+1) Now Patch 0010
+
+ 
+New Patch
+1) Patch 0001 Update Copyright
+
+
+
+== v3 ==
+
+Incorperating code review feedback.
+
+1) Patch 0003: Use existing hex_byte_pack instead of creating new function.
+2) Patch 0005: Redacted change in module_param permission.
+3) Patch 0006: switch from pr_debug etc., to dev_dbg where possible.
+4) Patch 0006: No longer updating soft_margin post module load.
+5) Patch 0006: Initialize hpwdt_dev.parent before registering watchdog.
+6) Patch 0006: Redacted change to dev_info message w.r.t. allow_kdump
+7) Patch 0006 & 0007: Reorder patches to maintain bisectability.
+8) Patch 0008: Change pr_debug to dev_dbg
+9) Patch 0010: Change dev_info message w.r.t. allow_kdump where feature
+		is removed.
+
+Note, I am explicitly ignoring the checkpatch error on Patch 0008
+for specifying permisson of "0" instead of "0000".
+
+== v2 ==
+
+1) Fix compiler error when CONFIG_HPWDT_NMI_DECODING is not defined.
+
+2) Break out driver version change to its own patch (0011).
+
+
+== v1 ==
+
+The primary purposes of this patch set are to
+
+1) Update the hpwdt driver to use the watchdog core.
+2) Reduce complexity by removing unnecessary features.
+3) Add customer requested features like optional pretimeout.
+4) Enhance readability/maintainability of the driver.
+
+The size of the resultant driver is reduced from over 900
+lines to 350 lines.
+
+Patch 1& 2 remove legacy NMI sourcing.
+Patch 3	adds useful indication of NMI cause to panic message
+Patch 4 & 5 are general cleanup
+Patch 6 & 7 updates the driver to user the watchdog core.
+Patch 8 makes the pretimeout NMI programmable.
+Patch 9 modifies whether the NMI handler claims the NMI.
+Patch 10 retracts the allow_kdump module parameter.
+
+
+
+Jerry Hoemann (10):
+  watchdog/hpwdt: Update copyright.
+  watchdog/hpwdt: Remove legacy NMI sourcing.
+  watchdog/hpwdt: Update nmi_panic message.
+  watchdog/hpwdt: Update Module info.
+  watchdog/hpwdt: Modify to use watchdog core.
+  watchdog/hpwdt: condition early return of NMI handler on iLO5
+  watchdog/hpwdt: remove allow_kdump module parameter.
+  watchdog/hpwdt: Programable Pretimeout NMI
+  watchdog/hpwdt: Add dynamic debug
+  watchdog/hpwdt: Update driver version.
+
+ drivers/watchdog/Kconfig |   1 +
+ drivers/watchdog/hpwdt.c | 789 +++++++----------------------------------------
+ 2 files changed, 121 insertions(+), 669 deletions(-)
+
+-- 
+2.13.6
