@@ -10,77 +10,77 @@ Cc: linux-watchdog@vger.kernel.org,
 	mingo@kernel.org,
 	marcus.folkesson@gmail.com,
 	Jerry Hoemann <jerry.hoemann@hpe.com>
-Subject: [PATCH v4 07/10] watchdog/hpwdt: remove allow_kdump module parameter.
-Date: Sun, 25 Feb 2018 14:32:56 -0700
-Message-Id: <20180225213259.2861-8-jerry.hoemann@hpe.com>
+Subject: [PATCH v4 09/10] watchdog/hpwdt: Add dynamic debug
+Date: Sun, 25 Feb 2018 14:32:58 -0700
+Message-Id: <20180225213259.2861-10-jerry.hoemann@hpe.com>
 In-Reply-To: <20180225213259.2861-1-jerry.hoemann@hpe.com>
 References: <20180225213259.2861-1-jerry.hoemann@hpe.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-The intent of this parameter is unclear and it sets up a
-race between the reset of the system by ASR and crashdump.
-
-The length of time between receipt of the pretimeout NMI
-and the ASR reset of the system is fixed by hardware.
-
-Turning the parameter off doesn't necessairly prevent a crash dump.
-Also, having the ASR reset occur while the system is crash dumping
-doesn't imply that the dump was hung given the short duration
-between the NMI and the reset.
-
-This parameter is not a substitute for having a architected watchdog
-crashdump hang detection paridigm.
+Add a few dynamic debug messages to aid in module level debug.
 
 Signed-off-by: Jerry Hoemann <jerry.hoemann@hpe.com>
 ---
- drivers/watchdog/hpwdt.c | 16 +++-------------
- 1 file changed, 3 insertions(+), 13 deletions(-)
+ drivers/watchdog/hpwdt.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
 diff --git a/drivers/watchdog/hpwdt.c b/drivers/watchdog/hpwdt.c
-index e60c689ebdb2..a584ccf05202 100644
+index be7b3edac56c..b5fb2663c2a1 100644
 --- a/drivers/watchdog/hpwdt.c
 +++ b/drivers/watchdog/hpwdt.c
-@@ -36,9 +36,6 @@ static bool iLO5;
- static unsigned int soft_margin = DEFAULT_MARGIN;	/* in seconds */
- static unsigned int reload;			/* the computed soft_margin */
- static bool nowayout = WATCHDOG_NOWAYOUT;
--#ifdef CONFIG_HPWDT_NMI_DECODING
--static unsigned int allow_kdump = 1;
--#endif
+@@ -59,6 +59,7 @@ static int hpwdt_start(struct watchdog_device *wdd)
+ 	int control = 0x81 | (pretimeout ? 0x4 : 0);
+ 	int reload = SECS_TO_TICKS(wdd->timeout);
  
- static void __iomem *pci_mem_addr;		/* the PCI-memory address */
- static unsigned long __iomem *hpwdt_nmistat;
-@@ -125,8 +122,7 @@ static int hpwdt_pretimeout(unsigned int ulReason, struct pt_regs *regs)
- 	if (iLO5 && ulReason == NMI_UNKNOWN && mynmi)
- 		return NMI_DONE;
++	dev_dbg(wdd->parent, "start watchdog 0x%08x:0x%02x\n", reload, control);
+ 	iowrite16(reload, hpwdt_timer_reg);
+ 	iowrite8(control, hpwdt_timer_con);
  
--	if (allow_kdump)
--		hpwdt_stop();
-+	hpwdt_stop();
+@@ -69,6 +70,8 @@ static void hpwdt_stop(void)
+ {
+ 	unsigned long data;
  
- 	hex_byte_pack(panic_msg, mynmi);
- 	nmi_panic(regs, panic_msg);
-@@ -188,9 +184,8 @@ static int hpwdt_init_nmi_decoding(struct pci_dev *dev)
- 		goto error2;
- 
- 	dev_info(&dev->dev,
--			"HPE Watchdog Timer Driver: NMI decoding initialized"
--			", allow kernel dump: %s (default = 1/ON)\n",
--			(allow_kdump == 0) ? "OFF" : "ON");
-+		"HPE Watchdog Timer Driver: NMI decoding initialized\n");
++	pr_debug("stop  watchdog\n");
 +
+ 	data = ioread8(hpwdt_timer_con);
+ 	data &= 0xFE;
+ 	iowrite8(data, hpwdt_timer_con);
+@@ -85,6 +88,7 @@ static int hpwdt_ping(struct watchdog_device *wdd)
+ {
+ 	int reload = SECS_TO_TICKS(wdd->timeout);
+ 
++	dev_dbg(wdd->parent, "ping  watchdog 0x%08x\n", reload);
+ 	iowrite16(reload, hpwdt_timer_reg);
+ 
  	return 0;
+@@ -98,8 +102,11 @@ static unsigned int hpwdt_gettimeleft(struct watchdog_device *wdd)
  
- error2:
-@@ -324,9 +319,4 @@ module_param(nowayout, bool, 0);
- MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
- 		__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+ static int hpwdt_settimeout(struct watchdog_device *wdd, unsigned int val)
+ {
++	dev_dbg(wdd->parent, "set_timeout = %d\n", val);
++
+ 	wdd->timeout = val;
+ 	if (val <= wdd->pretimeout) {
++		dev_dbg(wdd->parent, "pretimeout < timeout. Setting to zero\n");
+ 		wdd->pretimeout = 0;
+ 		pretimeout = 0;
+ 		if (watchdog_active(wdd))
+@@ -115,12 +122,16 @@ static int hpwdt_set_pretimeout(struct watchdog_device *wdd, unsigned int req)
+ {
+ 	unsigned int val = 0;
  
--#ifdef CONFIG_HPWDT_NMI_DECODING
--module_param(allow_kdump, int, 0);
--MODULE_PARM_DESC(allow_kdump, "Start a kernel dump after NMI occurs");
--#endif /* CONFIG_HPWDT_NMI_DECODING */
--
- module_pci_driver(hpwdt_driver);
++	dev_dbg(wdd->parent, "set_pretimeout = %d\n", req);
+ 	if (req) {
+ 		val = PRETIMEOUT_SEC;
+ 		if (val >= wdd->timeout)
+ 			return -EINVAL;
+ 	}
+ 
++	if (val != req)
++		dev_dbg(wdd->parent, "Rounding pretimeout to: %d\n", val);
++
+ 	wdd->pretimeout = val;
+ 	pretimeout = !!val;
+ 
 -- 
 2.13.6
