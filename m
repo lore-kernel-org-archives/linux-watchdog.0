@@ -1,106 +1,190 @@
-Return-Path: <f.fainelli@gmail.com>
-Return-path: <f.fainelli@gmail.com>
-Subject: Re: [PATCH v4] watchdog: add SPDX identifiers for watchdog subsystem
-To: Marcus Folkesson <marcus.folkesson@gmail.com>,
- Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck
- <linux@roeck-us.net>, Joel Stanley <joel@jms.id.au>,
- Nicolas Ferre <nicolas.ferre@microchip.com>,
- Alexandre Belloni <alexandre.belloni@bootlin.com>,
- Florian Fainelli <f.fainelli@gmail.com>, Ray Jui <rjui@broadcom.com>,
- Scott Branden <sbranden@broadcom.com>,
- bcm-kernel-feedback-list@broadcom.com, Eric Anholt <eric@anholt.net>,
- Stefan Wahren <stefan.wahren@i2se.com>,
- Support Opensource <support.opensource@diasemi.com>,
- Baruch Siach <baruch@tkos.co.il>,
- William Breathitt Gray <vilhelm.gray@gmail.com>,
- Jimmy Vance <jimmy.vance@hpe.com>, Keguang Zhang <keguang.zhang@gmail.com>,
- Joachim Eastwood <manabian@gmail.com>,
- Tomas Winkler <tomas.winkler@intel.com>,
- Johannes Thumshirn <morbidrsa@gmail.com>,
- Andreas Werner <andreas.werner@men.de>, Carlo Caione <carlo@caione.org>,
- Kevin Hilman <khilman@baylibre.com>,
- Matthias Brugger <matthias.bgg@gmail.com>, Wan ZongShun
- <mcuos.com@gmail.com>, Michal Simek <michal.simek@xilinx.com>,
- Vladimir Zapolskiy <vz@mleia.com>, Sylvain Lemieux
- <slemieux.tyco@gmail.com>, Kukjin Kim <kgene@kernel.org>,
- Krzysztof Kozlowski <krzk@kernel.org>, Zwane Mwaikambo <zwanem@gmail.com>,
- Jim Cromie <jim.cromie@gmail.com>, Barry Song <baohua@kernel.org>,
- Patrice Chotard <patrice.chotard@st.com>,
- Maxime Ripard <maxime.ripard@bootlin.com>, Chen-Yu Tsai <wens@csie.org>,
- Marc Gonzalez <marc.w.gonzalez@free.fr>, Mans Rullgard <mans@mansr.com>,
- Thierry Reding <thierry.reding@gmail.com>,
- Jonathan Hunter <jonathanh@nvidia.com>,
- Masahiro Yamada <yamada.masahiro@socionext.com>,
- Benjamin Herrenschmidt <benh@kernel.crashing.org>,
- Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>,
- Jun Nie <jun.nie@linaro.org>, Baoyou Xie <baoyou.xie@linaro.org>,
- Shawn Guo <shawnguo@kernel.org>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from g4t3425.houston.hpe.com ([15.241.140.78]:3694 "EHLO
+        g4t3425.houston.hpe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751958AbeBZDWc (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Sun, 25 Feb 2018 22:22:32 -0500
+From: Jerry Hoemann <jerry.hoemann@hpe.com>
+To: wim@linux-watchdog.org, linux@roeck-us.net
 Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-rpi-kernel@lists.infradead.org,
- adi-buildroot-devel@lists.sourceforge.net, linux-mips@linux-mips.org,
- linux-amlogic@lists.infradead.org, linux-mediatek@lists.infradead.org,
- linux-samsung-soc@vger.kernel.org, linux-tegra@vger.kernel.org,
- linuxppc-dev@lists.ozlabs.org, patches@opensource.cirrus.com
-References: <20180228150209.2525-1-marcus.folkesson@gmail.com>
-From: Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <786d740d-f29c-8f09-4648-95244c06e59b@gmail.com>
-Date: Wed, 28 Feb 2018 15:45:43 -0800
-MIME-Version: 1.0
-In-Reply-To: <20180228150209.2525-1-marcus.folkesson@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-List-ID: <linux-watchdog@vger.kernel.org>
+        rwright@hpe.com, maurice.a.saldivar@hpe.com, mingo@kernel.org,
+        marcus.folkesson@gmail.com, Jerry Hoemann <jerry.hoemann@hpe.com>
+Subject: [PATCH v5 0/9] watchdog/hpwdt: Update driver to use watchdog core.
+Date: Sun, 25 Feb 2018 20:22:18 -0700
+Message-Id: <20180226032227.14615-1-jerry.hoemann@hpe.com>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-On 02/28/2018 07:01 AM, Marcus Folkesson wrote:
-> - Add SPDX identifier
-> - Remove boiler plate license text
-> - If MODULE_LICENSE and boiler plate does not match, go for boiler plate
->   license
-> 
-> Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
-> Acked-by: Adam Thomson <Adam.Thomson.Opensource@diasemi.com>
-> Acked-by: Baruch Siach <baruch@tkos.co.il>
-> Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-> Acked-by: Keiji Hayashibara <hayashibara.keiji@socionext.com>
-> Acked-by: Johannes Thumshirn <jth@kernel.org>
-> Acked-by: Mans Rullgard <mans@mansr.com>
-> Acked-by: Matthias Brugger <matthias.bgg@gmail.com>
-> Acked-by: Michal Simek <michal.simek@xilinx.com>
-> Acked-by: Neil Armstrong <narmstrong@baylibre.com>
-> Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
-> Acked-by: Thierry Reding <treding@nvidia.com>
-> Acked-by: Tomas Winkler <tomas.winkler@intel.com>
-> Acked-by: Patrice Chotard <patrice.chotard@st.com>
-> Acked-by: William Breathitt Gray <vilhelm.gray@gmail.com>
-> Reviewed-by: Eric Anholt <eric@anholt.net>
-> ---
-> 
-> Notes:
->     v4:
->     	- Drop coh901327_wdt since it allready is a pending patch
->     v3:
->     	- Keep license text for ebc-c384_wdt
->     v2:
->     	- Put back removed copyright texts for meson_gxbb_wdt and coh901327_wdt
->     	- Change to BSD-3-Clause for meson_gxbb_wdt
->     v1: Please have an extra look at meson_gxbb_wdt.c
-> 
+== v5 ==
 
->  drivers/watchdog/ar7_wdt.c             | 14 +---------
+Patch numbers changing due to squash and reorder.
+Using Prior (v4) Patch number noting *new* patch numbers as bullet item.
 
->  drivers/watchdog/bcm2835_wdt.c         |  5 +---
->  drivers/watchdog/bcm47xx_wdt.c         |  5 +---
->  drivers/watchdog/bcm63xx_wdt.c         |  5 +---
->  drivers/watchdog/bcm7038_wdt.c         | 12 ++------
->  drivers/watchdog/bcm_kona_wdt.c        |  9 +-----
 
->  drivers/watchdog/mtx-1_wdt.c           | 11 +-------
+Patch 0001 & 0004 Merged into: Update-Module-info-and-copyright
+1) New Patch 0001
 
-For these drivers above:
+Patch 0002 Remove legacy NMI sourcing
+1) Unmodified
 
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Patch 0003 Update nmi_panic message.
+1) Unmodified
 
-and it looks like you missed rdc321x_wdt.c, is there a specific reason?
+Patch 0004 Update Module info.
+1) Merged into 0001 above.
+
+Patch 0005 Modify to use watchdog core
+1) syntatic sugar.
+2) Now Patch 0004
+
+Patch 0006 condition-early-return-of-NMI-handler
+1) Now Patch 0005
+2) Casing on iLO5
+3) true for boolean
+
+Patch 0007 remove allow_kdump module param
+1) Now patch 0006
+
+Patch 0008 Programable Pretimeout NMI
+1) Now patch 00007
+
+Patch 0009 Add dynamic debug
+1) Now patch 0008
+
+Patch 0010 Update driver version.
+1) Now Patch 0009
+
+
+== v4 ==
+
+Modifications from prior version:
+
+Manual merging and patch reordering has cause minor white
+space and diff changes.  Such change shouldn't have effected
+the logic and are omitted below:
+
+Patch 001  Remove legacy NMI sourcing.
+1) Updated patch documentation to reflect Spectre concerns.
+2) Restored comment at #endif
+>>>>>>>>> 3) New Patch 0002  <<<<<<<<
+
+Patch 002 watchdog/hpwdt: remove include files no longer
+1) Squashed onto Patch001.
+>>>>>>>>> 3) Still Patch 0002  <<<<<<<<
+
+
+Patch 0003: watchdog/hpwdt: Update nmi_panic message.
+1) Unchanged
+
+
+Patch 0004:  watchdog/hpwdt: white space changes
+1) Redacted.
+
+Patch 0005: watchdog/hpwdt: Update Module info.
+1) Now Patch 0004
+2) Update only module description to reflect branding changes.
+3) Rest of patch redacted.
+
+Patch 0006 Select CORE
+1) Merged with 0007
+
+Patch 0007 Modify to use watchdog core
+1) squashed on Patch 0006.
+2) Now Patch 0005
+3) Requested white space changes.
+4) Use "wdd" for watchdog_device like other watchdog drivers do
+
+Patch 0008 Programable-Pretimeout
+1) hpwdt_settimeout re-worked to take into account timeout <= pretimeout.
+   Patterned after watchdog_set_timeout.
+2) hpwdt_set_pretimeout re-worked to take into account requested
+   pretimeout <= timeout.
+3) Clarify patch doc to reflect above.
+
+Patch 0009 condition-early-return-of-NMI
+1) Requested syntatic surgar.
+2) Now Patch 0006
+
+Patch 0010 remove-allow_kdump
+1) Now Patch 0007
+
+Patch 0011 Add-dynamic-debug
+1) Now Patch 0009
+2) Typo fix
+3) New dev_dbg resulting from changes to set timeout and pretimeout.
+
+Patch 0012 Update driver version.
+1) Now Patch 0010
+
+ 
+New Patch
+1) Patch 0001 Update Copyright
+
+
+
+== v3 ==
+
+Incorperating code review feedback.
+
+1) Patch 0003: Use existing hex_byte_pack instead of creating new function.
+2) Patch 0005: Redacted change in module_param permission.
+3) Patch 0006: switch from pr_debug etc., to dev_dbg where possible.
+4) Patch 0006: No longer updating soft_margin post module load.
+5) Patch 0006: Initialize hpwdt_dev.parent before registering watchdog.
+6) Patch 0006: Redacted change to dev_info message w.r.t. allow_kdump
+7) Patch 0006 & 0007: Reorder patches to maintain bisectability.
+8) Patch 0008: Change pr_debug to dev_dbg
+9) Patch 0010: Change dev_info message w.r.t. allow_kdump where feature
+		is removed.
+
+Note, I am explicitly ignoring the checkpatch error on Patch 0008
+for specifying permisson of "0" instead of "0000".
+
+== v2 ==
+
+1) Fix compiler error when CONFIG_HPWDT_NMI_DECODING is not defined.
+
+2) Break out driver version change to its own patch (0011).
+
+
+== v1 ==
+
+The primary purposes of this patch set are to
+
+1) Update the hpwdt driver to use the watchdog core.
+2) Reduce complexity by removing unnecessary features.
+3) Add customer requested features like optional pretimeout.
+4) Enhance readability/maintainability of the driver.
+
+The size of the resultant driver is reduced from over 900
+lines to 350 lines.
+
+Patch 1& 2 remove legacy NMI sourcing.
+Patch 3	adds useful indication of NMI cause to panic message
+Patch 4 & 5 are general cleanup
+Patch 6 & 7 updates the driver to user the watchdog core.
+Patch 8 makes the pretimeout NMI programmable.
+Patch 9 modifies whether the NMI handler claims the NMI.
+Patch 10 retracts the allow_kdump module parameter.
+
+
+
+Jerry Hoemann (9):
+  watchdog/hpwdt: Update Module info and copyright.
+  watchdog/hpwdt: Remove legacy NMI sourcing.
+  watchdog/hpwdt: Update nmi_panic message.
+  watchdog/hpwdt: Modify to use watchdog core.
+  watchdog/hpwdt: condition early return of NMI handler on iLO5
+  watchdog/hpwdt: remove allow_kdump module parameter.
+  watchdog/hpwdt: Programable Pretimeout NMI
+  watchdog/hpwdt: Add dynamic debug
+  watchdog/hpwdt: Update driver version.
+
+ drivers/watchdog/Kconfig |   1 +
+ drivers/watchdog/hpwdt.c | 791 +++++++----------------------------------------
+ 2 files changed, 121 insertions(+), 671 deletions(-)
+
 -- 
-Florian
+2.13.6
+
