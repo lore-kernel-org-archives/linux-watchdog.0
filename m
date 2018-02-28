@@ -1,161 +1,126 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from relmlor2.renesas.com ([210.160.252.172]:7133 "EHLO
-        relmlie1.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S933205AbeB1Rs3 (ORCPT
+Received: from mail-qk0-f196.google.com ([209.85.220.196]:43566 "EHLO
+        mail-qk0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932745AbeB1TY3 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 28 Feb 2018 12:48:29 -0500
-From: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
-To: Geert Uytterhoeven <geert+renesas@glider.be>,
+        Wed, 28 Feb 2018 14:24:29 -0500
+MIME-Version: 1.0
+In-Reply-To: <1518457475-4480-13-git-send-email-fabrizio.castro@bp.renesas.com>
+References: <1518457475-4480-1-git-send-email-fabrizio.castro@bp.renesas.com> <1518457475-4480-13-git-send-email-fabrizio.castro@bp.renesas.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Wed, 28 Feb 2018 20:24:27 +0100
+Message-ID: <CAMuHMdXKHzpi9evmTOt58DaZzA3dHmMJsAqPNi0+j9Bv1QBbdQ@mail.gmail.com>
+Subject: Re: [PATCH v5 12/26] watchdog: renesas_wdt: Add R-Car Gen2 support
+To: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
+Cc: Philipp Zabel <p.zabel@pengutronix.de>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
         Wim Van Sebroeck <wim@iguana.be>,
-        Guenter Roeck <linux@roeck-us.net>
-CC: Philipp Zabel <p.zabel@pengutronix.de>,
-        Chris Paterson <Chris.Paterson2@renesas.com>,
-        Biju Das <biju.das@bp.renesas.com>,
-        "Ramesh Shanmugasundaram" <ramesh.shanmugasundaram@bp.renesas.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@codeaurora.org>,
         Simon Horman <horms@verge.net.au>,
         Magnus Damm <magnus.damm@gmail.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
         Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        "linux-renesas-soc@vger.kernel.org"
-        <linux-renesas-soc@vger.kernel.org>
-Subject: RE: [PATCH] watchdog: renesas_wdt: Blacklist early R-Car Gen2 SoCs
-Date: Wed, 28 Feb 2018 17:48:21 +0000
-Message-ID: <TY1PR06MB0895E67A16076B203FDF27E9C0C70@TY1PR06MB0895.apcprd06.prod.outlook.com>
-References: <1518457475-4480-13-git-send-email-fabrizio.castro@bp.renesas.com>
- <1519227784-27117-1-git-send-email-geert+renesas@glider.be>
-In-Reply-To: <1519227784-27117-1-git-send-email-geert+renesas@glider.be>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-MIME-Version: 1.0
+        Guenter Roeck <linux@roeck-us.net>,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS"
+        <devicetree@vger.kernel.org>,
+        Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
+        Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        linux-clk <linux-clk@vger.kernel.org>,
+        Chris Paterson <Chris.Paterson2@renesas.com>,
+        Biju Das <biju.das@bp.renesas.com>,
+        Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-> Subject: [PATCH] watchdog: renesas_wdt: Blacklist early R-Car Gen2 SoCs
->
-> On early revisions of some R-Car Gen2 SoCs, and depending on SMP
-> configuration, the system may fail to restart on watchdog time-out, and
-> lock up instead.
->
-> Specifically:
->   - On R-Car H2 ES1.0 and M2-W ES1.0, watchdog restart fails unless
->     only the first CPU core is in use (using e.g. the "maxcpus=3D1" kerne=
-l
->     commandline option).
->   - On R-Car V2H ES1.1, watchdog restart fails unless SMP is disabled
->     completely (using CONFIG_SMP=3Dn during build configuration, or using
->     the "nosmp" or "maxcpus=3D0" kernel commandline options).
->
-> Prevent using the watchdog in impacted cases by blacklisting the
-> affected SoCs, using the minimum known working revisions (ES2.0 on R-Car
-> H2, and ES3.0 on M2-W), and taking the actual SMP software configuration
-> into account.
->
-> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Hi Fabrizio,
 
-Acked-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
+On Mon, Feb 12, 2018 at 6:44 PM, Fabrizio Castro
+<fabrizio.castro@bp.renesas.com> wrote:
+> Due to commits:
+> * "ARM: shmobile: Add watchdog support",
+> * "ARM: shmobile: rcar-gen2: Add watchdog support", and
+> * "soc: renesas: rcar-rst: Enable watchdog as reset trigger for Gen2",
+> we now have everything we needed for the watchdog to work on Gen2 and
+> RZ/G1.
+>
+> This commit adds "renesas,rcar-gen2-wdt" as compatible string for R-Car
+> Gen2 and RZ/G1, and since on those platforms the rwdt clock needs to be
+> always ON, when suspending to RAM we need to explicitly disable the
+> counting by clearing TME from RWTCSRA.
+>
+> Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
+> Signed-off-by: Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
 
-> ---
-> To be folded into Fabrizio Castro's "watchdog: renesas_wdt: Add R-Car
-> Gen2 support".
->
-> Note that I cannot use IS_ENABLED(CONFIG_SMP), as setup_max_cpus does
-> not exist for CONFIG_SMP=3Dn.
->
-> Any reports on R-Car M2-W ES2.0 and V2H ES2.0+ are welcomed!
->
-> As the failure is due to an integration issue, and the watchdog itself
-> is working fine, an alternative solution would be to move the check to
-> the code that installs the reset trigger ("soc: renesas: rcar-rst:
-> Enable watchdog as reset trigger for Gen2").
-> However, doing so would mean that:
->   1. The user could enable and seemingly use the watchdog, but watchdog
->      timeout would not restart the system,
->   2. The same check should be done before installing the new reset
->      vector ("ARM: shmobile: rcar-gen2: Add watchdog support"), too,
->      else onlining CPU0 would fail once the watchdog has timed out.
-> ---
->  drivers/watchdog/renesas_wdt.c | 43 ++++++++++++++++++++++++++++++++++++=
-++++++
->  1 file changed, 43 insertions(+)
->
-> diff --git a/drivers/watchdog/renesas_wdt.c b/drivers/watchdog/renesas_wd=
-t.c
-> index 0f88614797c36022..4c8e8d2600a922a5 100644
+Thanks for your patch!
+
+I verified this works on R-Car Gen2, so
+Reviewed-and-Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
+
+Still, more comments below...
+
 > --- a/drivers/watchdog/renesas_wdt.c
 > +++ b/drivers/watchdog/renesas_wdt.c
-> @@ -16,6 +16,8 @@
->  #include <linux/of.h>
->  #include <linux/platform_device.h>
->  #include <linux/pm_runtime.h>
-> +#include <linux/smp.h>
-> +#include <linux/sys_soc.h>
->  #include <linux/watchdog.h>
+> @@ -203,13 +203,29 @@ static int rwdt_remove(struct platform_device *pdev)
+>         return 0;
+>  }
 >
->  #define RWTCNT0
-> @@ -131,6 +133,44 @@ static const struct watchdog_ops rwdt_ops =3D {
->  .restart =3D rwdt_restart,
->  };
->
-> +#if defined(CONFIG_ARCH_RCAR_GEN2) && defined(CONFIG_SMP)
-> +/*
-> + * Watchdog-reset integration is broken on early revisions of R-Car Gen2=
- SoCs
-> + */
-> +static const struct soc_device_attribute rwdt_quirks_match[] =3D {
+> -/*
+> - * This driver does also fit for R-Car Gen2 (r8a779[0-4]) WDT. However, for SMP
+> - * to work there, one also needs a RESET (RST) driver which does not exist yet
+> - * due to HW issues. This needs to be solved before adding compatibles here.
+> - */
+> +static int __maybe_unused rwdt_suspend(struct device *dev)
 > +{
-> +.soc_id =3D "r8a7790",
-> +.revision =3D "ES1.*",
-> +.data =3D (void *)1,/* needs single CPU */
-> +}, {
-> +.soc_id =3D "r8a7791",
-> +.revision =3D "ES[12].*",
-> +.data =3D (void *)1,/* needs single CPU */
-> +}, {
-> +.soc_id =3D "r8a7792",
-> +.revision =3D "*",
-> +.data =3D (void *)0,/* needs SMP disabled */
-> +},
-> +{ /* sentinel */ }
-> +};
+> +       struct rwdt_priv *priv = dev_get_drvdata(dev);
 > +
-> +static bool rwdt_blacklisted(struct device *dev)
-> +{
-> +const struct soc_device_attribute *attr;
-> +
-> +attr =3D soc_device_match(rwdt_quirks_match);
-> +if (attr && setup_max_cpus > (uintptr_t)attr->data) {
-> +dev_info(dev, "Watchdog blacklisted on %s %s\n", attr->soc_id,
-> + attr->revision);
-> +return true;
+> +       if (watchdog_active(&priv->wdev))
+> +               rwdt_write(priv, priv->cks, RWTCSRA);
+> +       return 0;
 > +}
 > +
-> +return false;
-> +}
-> +#else /* !CONFIG_ARCH_RCAR_GEN2 || !CONFIG_SMP */
-> +static inline bool rwdt_blacklisted(struct device *dev) { return false; =
-}
-> +#endif /* !CONFIG_ARCH_RCAR_GEN2 || !CONFIG_SMP */
+> +static int __maybe_unused rwdt_resume(struct device *dev)
+> +{
+> +       struct rwdt_priv *priv = dev_get_drvdata(dev);
 > +
->  static int rwdt_probe(struct platform_device *pdev)
->  {
->  struct rwdt_priv *priv;
-> @@ -139,6 +179,9 @@ static int rwdt_probe(struct platform_device *pdev)
->  unsigned long clks_per_sec;
->  int ret, i;
->
-> +if (rwdt_blacklisted(&pdev->dev))
-> +return -ENODEV;
-> +
->  priv =3D devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
->  if (!priv)
->  return -ENOMEM;
-> --
-> 2.7.4
+> +       if (watchdog_active(&priv->wdev))
+> +               rwdt_write(priv, priv->cks | RWTCSRA_TME, RWTCSRA);
 
+Writing to this register is not sufficient on R-Car Gen3, where PSCI
+suspend powers down the whole SoC.  Hence all WDT register content is lost,
+causing the watchdog timeout never to trigger.
+Note that this issue is pre-existing, and not caused by your patch.
 
+This can be fixed by replacing the RWTCSRA register writes in the
+suspend/resume handlers by calls to rwdt_stop() resp. rwdt_start(), like is
+done in the BSP in commit e406980763f18f38 ("watchdog: renesas-wdt: Support
+the suspend/resume"). Note that this would cause a small change in behavior
+on R-Car Gen2, where the timeout would be reset on resume, instead of
+continuing where stopped before. I don't think that hurts, though.
 
+Since I was always a bit uncomfortable with this patch doing two things at
+once (1. suspend/resume, 2. "renesas,rcar-gen2-wdt" matching), I think it
+would be better to take the patch from the BSP first, and add support for
+"renesas,rcar-gen2-wdt" in a subsequent patch.
 
-Renesas Electronics Europe Ltd, Dukes Meadow, Millboard Road, Bourne End, B=
-uckinghamshire, SL8 5FH, UK. Registered in England & Wales under Registered=
- No. 04586709.
+Does the above make sense?
+Do you agree?
+
+Thanks!
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
