@@ -1,157 +1,161 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from relmlor3.renesas.com ([210.160.252.173]:53847 "EHLO
-        relmlie2.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S934222AbeB1Rkl (ORCPT
+Received: from relmlor2.renesas.com ([210.160.252.172]:7133 "EHLO
+        relmlie1.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S933205AbeB1Rs3 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 28 Feb 2018 12:40:41 -0500
+        Wed, 28 Feb 2018 12:48:29 -0500
 From: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
-To: Geert Uytterhoeven <geert+renesas@glider.be>
-Cc: Philipp Zabel <p.zabel@pengutronix.de>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
+To: Geert Uytterhoeven <geert+renesas@glider.be>,
         Wim Van Sebroeck <wim@iguana.be>,
-        Russell King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@codeaurora.org>,
-        Magnus Damm <magnus.damm@gmail.com>,
-        Simon Horman <horms@verge.net.au>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org,
-        linux-watchdog@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-clk@vger.kernel.org,
+        Guenter Roeck <linux@roeck-us.net>
+CC: Philipp Zabel <p.zabel@pengutronix.de>,
         Chris Paterson <Chris.Paterson2@renesas.com>,
         Biju Das <biju.das@bp.renesas.com>,
-        Fabrizio Castro <fabrizio.castro@bp.renesas.com>,
-        Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
-Subject: [PATCH v6 01/26] ARM: shmobile: Add watchdog support
-Date: Wed, 28 Feb 2018 17:40:22 +0000
-Message-Id: <1519839622-6109-1-git-send-email-fabrizio.castro@bp.renesas.com>
-In-Reply-To: <CAMuHMdUx3A_8MeZmrwiBRqUS0oGjwrg13fy1QMsA2SUw+dR0Hg@mail.gmail.com>
-References: <CAMuHMdUx3A_8MeZmrwiBRqUS0oGjwrg13fy1QMsA2SUw+dR0Hg@mail.gmail.com>
+        "Ramesh Shanmugasundaram" <ramesh.shanmugasundaram@bp.renesas.com>,
+        Simon Horman <horms@verge.net.au>,
+        Magnus Damm <magnus.damm@gmail.com>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+        "linux-renesas-soc@vger.kernel.org"
+        <linux-renesas-soc@vger.kernel.org>
+Subject: RE: [PATCH] watchdog: renesas_wdt: Blacklist early R-Car Gen2 SoCs
+Date: Wed, 28 Feb 2018 17:48:21 +0000
+Message-ID: <TY1PR06MB0895E67A16076B203FDF27E9C0C70@TY1PR06MB0895.apcprd06.prod.outlook.com>
+References: <1518457475-4480-13-git-send-email-fabrizio.castro@bp.renesas.com>
+ <1519227784-27117-1-git-send-email-geert+renesas@glider.be>
+In-Reply-To: <1519227784-27117-1-git-send-email-geert+renesas@glider.be>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On R-Car Gen2 and RZ/G1 platforms, we use the SBAR registers to make non
-boot CPUs run a routine designed to bring up SMP and deal with hot plug.
-The value contained in the SBAR registers is not initialized by a WDT
-triggered reset, which means that after a WDT triggered reset we jump
-to the SMP bring up routine, preventing the system from executing the
-bootrom code.
+> Subject: [PATCH] watchdog: renesas_wdt: Blacklist early R-Car Gen2 SoCs
+>
+> On early revisions of some R-Car Gen2 SoCs, and depending on SMP
+> configuration, the system may fail to restart on watchdog time-out, and
+> lock up instead.
+>
+> Specifically:
+>   - On R-Car H2 ES1.0 and M2-W ES1.0, watchdog restart fails unless
+>     only the first CPU core is in use (using e.g. the "maxcpus=3D1" kerne=
+l
+>     commandline option).
+>   - On R-Car V2H ES1.1, watchdog restart fails unless SMP is disabled
+>     completely (using CONFIG_SMP=3Dn during build configuration, or using
+>     the "nosmp" or "maxcpus=3D0" kernel commandline options).
+>
+> Prevent using the watchdog in impacted cases by blacklisting the
+> affected SoCs, using the minimum known working revisions (ES2.0 on R-Car
+> H2, and ES3.0 on M2-W), and taking the actual SMP software configuration
+> into account.
+>
+> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 
-The purpose of this patch is to jump to the bootrom code in case of a
-WDT triggered reset, and keep the SMP functionality untouched.
-In order to tell if the code had been called due to the WDT overflowing
-we are testing WOVF from register RWTCSRA.
+Acked-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
 
-The new function shmobile_boot_vector_gen2 isn't replacing
-shmobile_boot_vector for backward compatibility reasons. The kernel
-will install the best option (either shmobile_boot_vector or
-shmobile_boot_vector_gen2) to ICRAM1 after parsing the device tree,
-according to the amount of memory available.
+> ---
+> To be folded into Fabrizio Castro's "watchdog: renesas_wdt: Add R-Car
+> Gen2 support".
+>
+> Note that I cannot use IS_ENABLED(CONFIG_SMP), as setup_max_cpus does
+> not exist for CONFIG_SMP=3Dn.
+>
+> Any reports on R-Car M2-W ES2.0 and V2H ES2.0+ are welcomed!
+>
+> As the failure is due to an integration issue, and the watchdog itself
+> is working fine, an alternative solution would be to move the check to
+> the code that installs the reset trigger ("soc: renesas: rcar-rst:
+> Enable watchdog as reset trigger for Gen2").
+> However, doing so would mean that:
+>   1. The user could enable and seemingly use the watchdog, but watchdog
+>      timeout would not restart the system,
+>   2. The same check should be done before installing the new reset
+>      vector ("ARM: shmobile: rcar-gen2: Add watchdog support"), too,
+>      else onlining CPU0 would fail once the watchdog has timed out.
+> ---
+>  drivers/watchdog/renesas_wdt.c | 43 ++++++++++++++++++++++++++++++++++++=
+++++++
+>  1 file changed, 43 insertions(+)
+>
+> diff --git a/drivers/watchdog/renesas_wdt.c b/drivers/watchdog/renesas_wd=
+t.c
+> index 0f88614797c36022..4c8e8d2600a922a5 100644
+> --- a/drivers/watchdog/renesas_wdt.c
+> +++ b/drivers/watchdog/renesas_wdt.c
+> @@ -16,6 +16,8 @@
+>  #include <linux/of.h>
+>  #include <linux/platform_device.h>
+>  #include <linux/pm_runtime.h>
+> +#include <linux/smp.h>
+> +#include <linux/sys_soc.h>
+>  #include <linux/watchdog.h>
+>
+>  #define RWTCNT0
+> @@ -131,6 +133,44 @@ static const struct watchdog_ops rwdt_ops =3D {
+>  .restart =3D rwdt_restart,
+>  };
+>
+> +#if defined(CONFIG_ARCH_RCAR_GEN2) && defined(CONFIG_SMP)
+> +/*
+> + * Watchdog-reset integration is broken on early revisions of R-Car Gen2=
+ SoCs
+> + */
+> +static const struct soc_device_attribute rwdt_quirks_match[] =3D {
+> +{
+> +.soc_id =3D "r8a7790",
+> +.revision =3D "ES1.*",
+> +.data =3D (void *)1,/* needs single CPU */
+> +}, {
+> +.soc_id =3D "r8a7791",
+> +.revision =3D "ES[12].*",
+> +.data =3D (void *)1,/* needs single CPU */
+> +}, {
+> +.soc_id =3D "r8a7792",
+> +.revision =3D "*",
+> +.data =3D (void *)0,/* needs SMP disabled */
+> +},
+> +{ /* sentinel */ }
+> +};
+> +
+> +static bool rwdt_blacklisted(struct device *dev)
+> +{
+> +const struct soc_device_attribute *attr;
+> +
+> +attr =3D soc_device_match(rwdt_quirks_match);
+> +if (attr && setup_max_cpus > (uintptr_t)attr->data) {
+> +dev_info(dev, "Watchdog blacklisted on %s %s\n", attr->soc_id,
+> + attr->revision);
+> +return true;
+> +}
+> +
+> +return false;
+> +}
+> +#else /* !CONFIG_ARCH_RCAR_GEN2 || !CONFIG_SMP */
+> +static inline bool rwdt_blacklisted(struct device *dev) { return false; =
+}
+> +#endif /* !CONFIG_ARCH_RCAR_GEN2 || !CONFIG_SMP */
+> +
+>  static int rwdt_probe(struct platform_device *pdev)
+>  {
+>  struct rwdt_priv *priv;
+> @@ -139,6 +179,9 @@ static int rwdt_probe(struct platform_device *pdev)
+>  unsigned long clks_per_sec;
+>  int ret, i;
+>
+> +if (rwdt_blacklisted(&pdev->dev))
+> +return -ENODEV;
+> +
+>  priv =3D devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
+>  if (!priv)
+>  return -ENOMEM;
+> --
+> 2.7.4
 
-Since shmobile_boot_vector has become bigger, "reg" property of nodes
-compatible with "renesas,smp-sram" now need to be set to a value
-greater or equal to "<0 0x60>".
 
-Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
-Signed-off-by: Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
----
-v5->v6:
-* taken ifdefs out as per Geert's suggestion.
 
- arch/arm/mach-shmobile/common.h  |  4 +++
- arch/arm/mach-shmobile/headsmp.S | 53 ++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 57 insertions(+)
 
-diff --git a/arch/arm/mach-shmobile/common.h b/arch/arm/mach-shmobile/common.h
-index a8fa4f7..43c1ac69 100644
---- a/arch/arm/mach-shmobile/common.h
-+++ b/arch/arm/mach-shmobile/common.h
-@@ -7,6 +7,10 @@ extern void shmobile_init_delay(void);
- extern void shmobile_boot_vector(void);
- extern unsigned long shmobile_boot_fn;
- extern unsigned long shmobile_boot_size;
-+extern void shmobile_boot_vector_gen2(void);
-+extern unsigned long shmobile_boot_fn_gen2;
-+extern unsigned long shmobile_boot_cpu_gen2;
-+extern unsigned long shmobile_boot_size_gen2;
- extern void shmobile_smp_boot(void);
- extern void shmobile_smp_sleep(void);
- extern void shmobile_smp_hook(unsigned int cpu, unsigned long fn,
-diff --git a/arch/arm/mach-shmobile/headsmp.S b/arch/arm/mach-shmobile/headsmp.S
-index 32e0bf6..2ece67c 100644
---- a/arch/arm/mach-shmobile/headsmp.S
-+++ b/arch/arm/mach-shmobile/headsmp.S
-@@ -16,6 +16,11 @@
- #include <asm/assembler.h>
- #include <asm/memory.h>
- 
-+#define SCTLR_MMU	0x01
-+#define BOOTROM_ADDRESS	0xE6340000
-+#define RWTCSRA_ADDRESS 0xE6020004
-+#define RWTCSRA_WOVF	0x10
-+
- /*
-  * Reset vector for secondary CPUs.
-  * This will be mapped at address 0 by SBAR register.
-@@ -38,6 +43,54 @@ shmobile_boot_size:
- 	.long	. - shmobile_boot_vector
- 
- /*
-+ * Reset vector for R-Car Gen2 and RZ/G1 secondary CPUs.
-+ * This will be mapped at address 0 by SBAR register.
-+ */
-+ENTRY(shmobile_boot_vector_gen2)
-+	mrc	p15, 0, r0, c0, c0, 5		@ r0 = MPIDR
-+	ldr	r1, shmobile_boot_cpu_gen2
-+	cmp	r0, r1
-+	bne	shmobile_smp_continue_gen2
-+
-+	mrc	p15, 0, r1, c1, c0, 0		@ r1 = SCTLR
-+	and	r0, r1, #SCTLR_MMU
-+	cmp	r0, #SCTLR_MMU
-+	beq	shmobile_smp_continue_gen2
-+
-+	ldr	r0, rwtcsra
-+	mov	r1, #0
-+	ldrb	r1, [r0]
-+	and	r0, r1, #RWTCSRA_WOVF
-+	cmp	r0, #RWTCSRA_WOVF
-+	bne	shmobile_smp_continue_gen2
-+
-+	ldr	r0, bootrom
-+	bx	r0
-+
-+shmobile_smp_continue_gen2:
-+	ldr     r1, shmobile_boot_fn_gen2
-+	bx	r1
-+
-+ENDPROC(shmobile_boot_vector_gen2)
-+
-+	.align	4
-+rwtcsra:
-+	.word	RWTCSRA_ADDRESS
-+bootrom:
-+	.word	BOOTROM_ADDRESS
-+	.globl	shmobile_boot_cpu_gen2
-+shmobile_boot_cpu_gen2:
-+	.word	0x00000000
-+
-+	.align	2
-+	.globl	shmobile_boot_fn_gen2
-+shmobile_boot_fn_gen2:
-+	.space	4
-+	.globl	shmobile_boot_size_gen2
-+shmobile_boot_size_gen2:
-+	.long	. - shmobile_boot_vector_gen2
-+
-+/*
-  * Per-CPU SMP boot function/argument selection code based on MPIDR
-  */
- 
--- 
-2.7.4
-
+Renesas Electronics Europe Ltd, Dukes Meadow, Millboard Road, Bourne End, B=
+uckinghamshire, SL8 5FH, UK. Registered in England & Wales under Registered=
+ No. 04586709.
