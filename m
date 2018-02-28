@@ -1,112 +1,57 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pl0-f65.google.com ([209.85.160.65]:39144 "EHLO
-        mail-pl0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751463AbeB0B36 (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 26 Feb 2018 20:29:58 -0500
-Subject: Re: [PATCH v5 2/9] watchdog/hpwdt: Remove legacy NMI sourcing.
-To: Jerry.Hoemann@hpe.com
-Cc: Arnd Bergmann <arnd@arndb.de>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        linux-watchdog@vger.kernel.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        rwright@hpe.com, maurice.a.saldivar@hpe.com,
-        Ingo Molnar <mingo@kernel.org>, marcus.folkesson@gmail.com,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        stable <stable@vger.kernel.org>
-References: <20180226032227.14615-1-jerry.hoemann@hpe.com>
- <20180226032227.14615-3-jerry.hoemann@hpe.com>
- <CAK8P3a1A5d52g-3Wgs1xP3P=dT6K0RVjmamfqAi9vE5TT=mo3g@mail.gmail.com>
- <03b13d44-9ce3-ead8-020d-4b1b8114079d@roeck-us.net>
- <20180227010250.GC8244@anatevka.americas.hpqcorp.net>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <8766f2ee-428a-d72f-b0c3-e5fe68fd0a33@roeck-us.net>
-Date: Mon, 26 Feb 2018 17:29:55 -0800
+Return-Path: <Jayachandran.Nair@cavium.com>
+Return-path: <Jayachandran.Nair@cavium.com>
+From: Jayachandran C <jnair@caviumnetworks.com>
+To: Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>,
+	linux-watchdog@vger.kernel.org
+Cc: Fu Wei <fu.wei@linaro.org>,
+	linux-kernel@vger.kernel.org,
+	Jayachandran C <jnair@caviumnetworks.com>
+Subject: [PATCH] watchdog: sbsa: use 32-bit read for WCV
+Date: Wed, 28 Feb 2018 02:52:20 -0800
+Message-Id: <1519815140-5336-1-git-send-email-jnair@caviumnetworks.com>
 MIME-Version: 1.0
-In-Reply-To: <20180227010250.GC8244@anatevka.americas.hpqcorp.net>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Content-Type: text/plain
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 02/26/2018 05:02 PM, Jerry Hoemann wrote:
-> On Mon, Feb 26, 2018 at 06:32:30AM -0800, Guenter Roeck wrote:
->> On 02/26/2018 06:11 AM, Arnd Bergmann wrote:
->>> On Mon, Feb 26, 2018 at 4:22 AM, Jerry Hoemann <jerry.hoemann@hpe.com> wrote:
->>>> Gen8 and prior Proliant systems supported the "CRU" interface
->>>> to firmware.  This interfaces allows linux to "call back" into firmware
->>>> to source the cause of an NMI.  This feature isn't fully utilized
->>>> as the actual source of the NMI isn't printed, the driver only
->>>> indicates that the source couldn't be determined when the call
->>>> fails.
->>>>
->>>> With the advent of Gen9, iCRU replaces the CRU. The call back
->>>> feature is no longer available in firmware.  To be compatible and
->>>> not attempt to call back into firmware on system not supporting CRU,
->>>> the SMBIOS table is consulted to determine if it is safe to
->>>> make the call back or not.
->>>>
->>>> This results in about half of the driver code being devoted
->>>> to either making CRU calls or determing if it is safe to make
->>>> CRU calls.  As noted, the driver isn't really using the results of
->>>> the CRU calls.
->>>>
->>>> Furthermore, as a consequence of the Spectre security issue, the
->>>> BIOS/EFI calls are being wrapped into Spectre-disabling section.
->>>> Removing the call back in hpwdt_pretimeout assists in this effort.
->>>>
->>>> As the CRU sourcing of the NMI isn't required for handling the
->>>> NMI and there are security concerns with making the call back, remove
->>>> the legacy (pre Gen9) NMI sourcing and the DMI code to determine if
->>>> the system had the CRU interface.
->>>>
->>>> Signed-off-by: Jerry Hoemann <jerry.hoemann@hpe.com>
->>>
->>> This avoids a warning in mainline kernels, so that's great:
->>>
->>> drivers/watchdog/hpwdt.o: warning: objtool: .text+0x24: indirect call
->>> found in RETPOLINE build
->>>
->>> I wonder what we do about stable kernels. Are both this patch and the patch
->>> that added the objtool warning message candidates for backports to
->>> stable kernels?
->>>
->>
->> Makes sense to me, but it is really a bit more than a bug fix, so I'll
->> leave it up to Jerry/HPE to make the call in respect to hpwdt.
->>
-> 
-> Generally speaking, HPE customers who run linux do so through a distro
-> vendor and pick up patches from them.  But I'm sure there are some
-> customers who do things differently.
-> 
-> The distro vendor's have their own repos and we'll work with them
-> to back port patches to their code base.  So, I typically don't do a lot
-> of kernel.org stable branch work.
-> 
-> Looks like objtool has been enhanced to find Spectre vulnerable code.
-> Are the other kernel patches related to Spectre being back ported
-> to stable release lines?  If yes, it probably make sense to do
-> the hpwdt change as well.
-> 
+According to SBSA spec v3.1 section 5.3:
+  All registers are 32 bits in size and should be accessed using
+  32-bit reads and writes. If an access size other than 32 bits
+  is used then the results are IMPLEMENTATION DEFINED.
+  [...]
+  The Generic Watchdog is little-endian
 
-Spectre has been backported to v4.4 and later. I don't know about earlier kernels.
+The current code uses readq to read the watchdog compare register
+which does a 64-bit access. This fails on ThunderX2 which does not
+implement 64-bit access to this register.
 
-> Is just the patch removing the firmware call back wanted/needed? Or the
-> whole driver rewrite?  (The older baseline don't have all the watchdog
-> features that the patch set uses.)
-> 
+Fix this by using lo_hi_readq() that does two 32-bit reads.
 
-We would only want to backport this patch. The rest is really out of scope.
+Signed-off-by: Jayachandran C <jnair@caviumnetworks.com>
+---
+ drivers/watchdog/sbsa_gwdt.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-> Which stable baseline(s) would need to be patched?  Priority?
-> 
-> Who does it?  (i.e. do you want me to submit patches to the stable baseline?)
-> 
-We would tag the patch for stable (and submit it into v4.16-rc). Greg would
-take care of the rest unless there are conflicts, in which case we get a note
-telling us that a backport is needed.
-
-Guenter
+diff --git a/drivers/watchdog/sbsa_gwdt.c b/drivers/watchdog/sbsa_gwdt.c
+index 316c2eb..e8bd988 100644
+--- a/drivers/watchdog/sbsa_gwdt.c
++++ b/drivers/watchdog/sbsa_gwdt.c
+@@ -50,6 +50,7 @@
+  */
+ 
+ #include <linux/io.h>
++#include <linux/io-64-nonatomic-lo-hi.h>
+ #include <linux/interrupt.h>
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
+@@ -159,7 +160,7 @@ static unsigned int sbsa_gwdt_get_timeleft(struct watchdog_device *wdd)
+ 	    !(readl(gwdt->control_base + SBSA_GWDT_WCS) & SBSA_GWDT_WCS_WS0))
+ 		timeleft += readl(gwdt->control_base + SBSA_GWDT_WOR);
+ 
+-	timeleft += readq(gwdt->control_base + SBSA_GWDT_WCV) -
++	timeleft += lo_hi_readq(gwdt->control_base + SBSA_GWDT_WCV) -
+ 		    arch_counter_get_cntvct();
+ 
+ 	do_div(timeleft, gwdt->clk);
+-- 
+2.7.4
