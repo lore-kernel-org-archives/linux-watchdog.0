@@ -1,102 +1,68 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-qt0-f193.google.com ([209.85.216.193]:40283 "EHLO
-        mail-qt0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932098AbeB1M5X (ORCPT
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:38552 "EHLO
+        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752157AbeB1Ofo (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 28 Feb 2018 07:57:23 -0500
+        Wed, 28 Feb 2018 09:35:44 -0500
+Subject: Re: [PATCH] watchdog: sbsa: use 32-bit read for WCV
+To: Jayachandran C <jnair@caviumnetworks.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        linux-watchdog@vger.kernel.org
+Cc: Fu Wei <fu.wei@linaro.org>, linux-kernel@vger.kernel.org
+References: <1519815140-5336-1-git-send-email-jnair@caviumnetworks.com>
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <265c171f-8a08-2799-53b5-c6e3a5bf44b5@roeck-us.net>
+Date: Wed, 28 Feb 2018 06:35:42 -0800
 MIME-Version: 1.0
-In-Reply-To: <1518457475-4480-2-git-send-email-fabrizio.castro@bp.renesas.com>
-References: <1518457475-4480-1-git-send-email-fabrizio.castro@bp.renesas.com> <1518457475-4480-2-git-send-email-fabrizio.castro@bp.renesas.com>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Wed, 28 Feb 2018 13:57:21 +0100
-Message-ID: <CAMuHMdUx3A_8MeZmrwiBRqUS0oGjwrg13fy1QMsA2SUw+dR0Hg@mail.gmail.com>
-Subject: Re: [PATCH v5 01/26] ARM: shmobile: Add watchdog support
-To: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
-Cc: Philipp Zabel <p.zabel@pengutronix.de>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        Russell King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@codeaurora.org>,
-        Simon Horman <horms@verge.net.au>,
-        Magnus Damm <magnus.damm@gmail.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS"
-        <devicetree@vger.kernel.org>,
-        Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-        Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        linux-clk <linux-clk@vger.kernel.org>,
-        Chris Paterson <Chris.Paterson2@renesas.com>,
-        Biju Das <biju.das@bp.renesas.com>,
-        Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <1519815140-5336-1-git-send-email-jnair@caviumnetworks.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Fabrizio,
+On 02/28/2018 02:52 AM, Jayachandran C wrote:
+> According to SBSA spec v3.1 section 5.3:
+>    All registers are 32 bits in size and should be accessed using
+>    32-bit reads and writes. If an access size other than 32 bits
+>    is used then the results are IMPLEMENTATION DEFINED.
+>    [...]
+>    The Generic Watchdog is little-endian
+> 
+> The current code uses readq to read the watchdog compare register
+> which does a 64-bit access. This fails on ThunderX2 which does not
+> implement 64-bit access to this register.
+> 
+> Fix this by using lo_hi_readq() that does two 32-bit reads.
+> 
+> Signed-off-by: Jayachandran C <jnair@caviumnetworks.com>
 
-On Mon, Feb 12, 2018 at 6:44 PM, Fabrizio Castro
-<fabrizio.castro@bp.renesas.com> wrote:
-> On R-Car Gen2 and RZ/G1 platforms, we use the SBAR registers to make non
-> boot CPUs run a routine designed to bring up SMP and deal with hot plug.
-> The value contained in the SBAR registers is not initialized by a WDT
-> triggered reset, which means that after a WDT triggered reset we jump
-> to the SMP bring up routine, preventing the system from executing the
-> bootrom code.
->
-> The purpose of this patch is to jump to the bootrom code in case of a
-> WDT triggered reset, and keep the SMP functionality untouched.
-> In order to tell if the code had been called due to the WDT overflowing
-> we are testing WOVF from register RWTCSRA.
->
-> The new function shmobile_boot_vector_gen2 isn't replacing
-> shmobile_boot_vector for backward compatibility reasons. The kernel
-> will install the best option (either shmobile_boot_vector or
-> shmobile_boot_vector_gen2) to ICRAM1 after parsing the device tree,
-> according to the amount of memory available.
->
-> Since shmobile_boot_vector has become bigger, "reg" property of nodes
-> compatible with "renesas,smp-sram" now need to be set to a value
-> greater or equal to "<0 0x60>".
->
-> Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
-> Signed-off-by: Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-> --- a/arch/arm/mach-shmobile/common.h
-> +++ b/arch/arm/mach-shmobile/common.h
-> @@ -7,6 +7,12 @@ extern void shmobile_init_delay(void);
->  extern void shmobile_boot_vector(void);
->  extern unsigned long shmobile_boot_fn;
->  extern unsigned long shmobile_boot_size;
-> +#ifdef CONFIG_ARCH_RCAR_GEN2
+> ---
+>   drivers/watchdog/sbsa_gwdt.c | 3 ++-
+>   1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/watchdog/sbsa_gwdt.c b/drivers/watchdog/sbsa_gwdt.c
+> index 316c2eb..e8bd988 100644
+> --- a/drivers/watchdog/sbsa_gwdt.c
+> +++ b/drivers/watchdog/sbsa_gwdt.c
+> @@ -50,6 +50,7 @@
+>    */
+>   
+>   #include <linux/io.h>
+> +#include <linux/io-64-nonatomic-lo-hi.h>
+>   #include <linux/interrupt.h>
+>   #include <linux/module.h>
+>   #include <linux/moduleparam.h>
+> @@ -159,7 +160,7 @@ static unsigned int sbsa_gwdt_get_timeleft(struct watchdog_device *wdd)
+>   	    !(readl(gwdt->control_base + SBSA_GWDT_WCS) & SBSA_GWDT_WCS_WS0))
+>   		timeleft += readl(gwdt->control_base + SBSA_GWDT_WOR);
+>   
+> -	timeleft += readq(gwdt->control_base + SBSA_GWDT_WCV) -
+> +	timeleft += lo_hi_readq(gwdt->control_base + SBSA_GWDT_WCV) -
+>   		    arch_counter_get_cntvct();
+>   
+>   	do_div(timeleft, gwdt->clk);
+> 
 
-I think this #ifdef can be removed.
-
-> +extern void shmobile_boot_vector_gen2(void);
-> +extern unsigned long shmobile_boot_fn_gen2;
-> +extern unsigned long shmobile_boot_cpu_gen2;
-> +extern unsigned long shmobile_boot_size_gen2;
-> +#endif /* CONFIG_ARCH_RCAR_GEN2 */
->  extern void shmobile_smp_boot(void);
->  extern void shmobile_smp_sleep(void);
->  extern void shmobile_smp_hook(unsigned int cpu, unsigned long fn,
-
-Apart from that:
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
