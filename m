@@ -1,16 +1,16 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-qt0-f195.google.com ([209.85.216.195]:39909 "EHLO
-        mail-qt0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1161487AbeCAUTi (ORCPT
+Received: from mail-qk0-f193.google.com ([209.85.220.193]:32841 "EHLO
+        mail-qk0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1161509AbeCAUW0 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 1 Mar 2018 15:19:38 -0500
+        Thu, 1 Mar 2018 15:22:26 -0500
 MIME-Version: 1.0
-In-Reply-To: <1519928243-28596-4-git-send-email-fabrizio.castro@bp.renesas.com>
-References: <1519928243-28596-1-git-send-email-fabrizio.castro@bp.renesas.com> <1519928243-28596-4-git-send-email-fabrizio.castro@bp.renesas.com>
+In-Reply-To: <1519928243-28596-3-git-send-email-fabrizio.castro@bp.renesas.com>
+References: <1519928243-28596-1-git-send-email-fabrizio.castro@bp.renesas.com> <1519928243-28596-3-git-send-email-fabrizio.castro@bp.renesas.com>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Thu, 1 Mar 2018 21:19:36 +0100
-Message-ID: <CAMuHMdX3CDqxZNq08WpVFRG=OBSosCKLms_O57G_ge=8kpjRDg@mail.gmail.com>
-Subject: Re: [PATCH v7 3/3] watchdog: renesas_wdt: Add restart handler
+Date: Thu, 1 Mar 2018 21:22:25 +0100
+Message-ID: <CAMuHMdWmgLaOuj+_qBwf6=1RzQTCxs0To8Fu2sixRDAcuAT4qw@mail.gmail.com>
+Subject: Re: [PATCH v7 2/3] watchdog: renesas_wdt: Add R-Car Gen2 support
 To: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
 Cc: Geert Uytterhoeven <geert+renesas@glider.be>,
         Simon Horman <horms@verge.net.au>,
@@ -26,20 +26,29 @@ Content-Type: text/plain; charset="UTF-8"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+Hi Fabrizio,
+
 On Thu, Mar 1, 2018 at 7:17 PM, Fabrizio Castro
 <fabrizio.castro@bp.renesas.com> wrote:
-> On iWave's boards iwg20d and iwg22d the only way to reboot the system is
-> by means of the watchdog.
-> This patch adds a restart handler to rwdt_ops, and also makes sure we
-> keep its priority to the lowest level, in order to not override other
-> more effective handlers.
+> Due to commits:
+> * "ARM: shmobile: Add watchdog support",
+> * "ARM: shmobile: rcar-gen2: Add watchdog support", and
+> * "soc: renesas: rcar-rst: Enable watchdog as reset trigger for Gen2",
+> we now have everything we needed for the watchdog to work on Gen2 and
+> RZ/G1.
+>
+> This commit adds "renesas,rcar-gen2-wdt" as compatible string for R-Car
+> Gen2 and RZ/G1.
 >
 > Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
 > Signed-off-by: Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
-> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+> Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
 > Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+To avoid nasty surprises on early R-Car Gen2 SoCs, "[PATCH] watchdog:
+renesas_wdt: Blacklist early R-Car Gen2 SoCs"
+(https://patchwork.kernel.org/patch/10233297/) should be folded into this
+patch.
 
 Gr{oetje,eeting}s,
 
