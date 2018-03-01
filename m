@@ -1,9 +1,9 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from relmlor3.renesas.com ([210.160.252.173]:21623 "EHLO
+Received: from relmlor3.renesas.com ([210.160.252.173]:61969 "EHLO
         relmlie2.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1031910AbeCAPox (ORCPT
+        by vger.kernel.org with ESMTP id S1031911AbeCAPpC (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 1 Mar 2018 10:44:53 -0500
+        Thu, 1 Mar 2018 10:45:02 -0500
 From: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
 To: Geert Uytterhoeven <geert+renesas@glider.be>,
         Simon Horman <horms@verge.net.au>,
@@ -16,63 +16,67 @@ Cc: Fabrizio Castro <fabrizio.castro@bp.renesas.com>,
         Biju Das <biju.das@bp.renesas.com>,
         Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>,
         linux-renesas-soc@vger.kernel.org
-Subject: [PATCH v6 2/3] watchdog: renesas_wdt: Add R-Car Gen2 support
-Date: Thu,  1 Mar 2018 15:44:07 +0000
-Message-Id: <1519919048-21884-3-git-send-email-fabrizio.castro@bp.renesas.com>
+Subject: [PATCH v6 3/3] watchdog: renesas_wdt: Add restart handler
+Date: Thu,  1 Mar 2018 15:44:08 +0000
+Message-Id: <1519919048-21884-4-git-send-email-fabrizio.castro@bp.renesas.com>
 In-Reply-To: <1519919048-21884-1-git-send-email-fabrizio.castro@bp.renesas.com>
 References: <1519919048-21884-1-git-send-email-fabrizio.castro@bp.renesas.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Due to commits:
-* "ARM: shmobile: Add watchdog support",
-* "ARM: shmobile: rcar-gen2: Add watchdog support", and
-* "soc: renesas: rcar-rst: Enable watchdog as reset trigger for Gen2",
-we now have everything we needed for the watchdog to work on Gen2 and
-RZ/G1.
-
-This commit adds "renesas,rcar-gen2-wdt" as compatible string for R-Car
-Gen2 and RZ/G1.
+On iWave's boards iwg20d and iwg22d the only way to reboot the system is
+by means of the watchdog.
+This patch adds a restart handler to rwdt_ops, and also makes sure we
+keep its priority to a medium level, in order to not override other more
+effective handlers.
 
 Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
 Signed-off-by: Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 ---
 v5->v6:
-* stripped suspend/resume functionality
-* now gen2 compatible string comes before gen3
+* no change
 
-Geert,
-
-you marked v5 as:
-Reviewed-and-Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
-
-but since I have flipped the order, I am not including it as you may
-disagree with the change.
-
-Thanks,
-Fab
-
- drivers/watchdog/renesas_wdt.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ drivers/watchdog/renesas_wdt.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
 diff --git a/drivers/watchdog/renesas_wdt.c b/drivers/watchdog/renesas_wdt.c
-index cbf8e4d..609056f 100644
+index 609056f..ce36efc 100644
 --- a/drivers/watchdog/renesas_wdt.c
 +++ b/drivers/watchdog/renesas_wdt.c
-@@ -232,12 +232,8 @@ static int __maybe_unused rwdt_resume(struct device *dev)
+@@ -112,6 +112,16 @@ static unsigned int rwdt_get_timeleft(struct watchdog_device *wdev)
+ 	return DIV_BY_CLKS_PER_SEC(priv, 65536 - val);
+ }
  
- static SIMPLE_DEV_PM_OPS(rwdt_pm_ops, rwdt_suspend, rwdt_resume);
- 
--/*
-- * This driver does also fit for R-Car Gen2 (r8a779[0-4]) WDT. However, for SMP
-- * to work there, one also needs a RESET (RST) driver which does not exist yet
-- * due to HW issues. This needs to be solved before adding compatibles here.
-- */
- static const struct of_device_id rwdt_ids[] = {
-+	{ .compatible = "renesas,rcar-gen2-wdt", },
- 	{ .compatible = "renesas,rcar-gen3-wdt", },
- 	{ /* sentinel */ }
++static int rwdt_restart(struct watchdog_device *wdev, unsigned long action,
++			void *data)
++{
++	struct rwdt_priv *priv = watchdog_get_drvdata(wdev);
++
++	rwdt_start(wdev);
++	rwdt_write(priv, 0xffff, RWTCNT);
++	return 0;
++}
++
+ static const struct watchdog_info rwdt_ident = {
+ 	.options = WDIOF_MAGICCLOSE | WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT,
+ 	.identity = "Renesas WDT Watchdog",
+@@ -123,6 +133,7 @@ static const struct watchdog_ops rwdt_ops = {
+ 	.stop = rwdt_stop,
+ 	.ping = rwdt_init_timeout,
+ 	.get_timeleft = rwdt_get_timeleft,
++	.restart = rwdt_restart,
  };
+ 
+ static int rwdt_probe(struct platform_device *pdev)
+@@ -181,6 +192,7 @@ static int rwdt_probe(struct platform_device *pdev)
+ 	platform_set_drvdata(pdev, priv);
+ 	watchdog_set_drvdata(&priv->wdev, priv);
+ 	watchdog_set_nowayout(&priv->wdev, nowayout);
++	watchdog_set_restart_priority(&priv->wdev, 0);
+ 
+ 	/* This overrides the default timeout only if DT configuration was found */
+ 	ret = watchdog_init_timeout(&priv->wdev, 0, &pdev->dev);
 -- 
 2.7.4
 
