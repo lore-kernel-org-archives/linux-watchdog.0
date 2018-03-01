@@ -1,66 +1,90 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from kirsty.vergenet.net ([202.4.237.240]:56301 "EHLO
-        kirsty.vergenet.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S966920AbeCAJoj (ORCPT
+Received: from mail1.bemta5.messagelabs.com ([195.245.231.137]:25891 "EHLO
+        mail1.bemta5.messagelabs.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S967363AbeCAKK4 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 1 Mar 2018 04:44:39 -0500
-Date: Thu, 1 Mar 2018 10:44:34 +0100
-From: Simon Horman <horms@verge.net.au>
-To: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
-Cc: Geert Uytterhoeven <geert+renesas@glider.be>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        Russell King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@codeaurora.org>,
-        Magnus Damm <magnus.damm@gmail.com>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org,
-        linux-watchdog@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-clk@vger.kernel.org,
-        Chris Paterson <Chris.Paterson2@renesas.com>,
-        Biju Das <biju.das@bp.renesas.com>,
-        Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
-Subject: Re: [PATCH v6 01/26] ARM: shmobile: Add watchdog support
-Message-ID: <20180301094434.tnk5uxlbkhv6pcb7@verge.net.au>
-References: <CAMuHMdUx3A_8MeZmrwiBRqUS0oGjwrg13fy1QMsA2SUw+dR0Hg@mail.gmail.com>
- <1519839622-6109-1-git-send-email-fabrizio.castro@bp.renesas.com>
+        Thu, 1 Mar 2018 05:10:56 -0500
+From: Steve Twiss <stwiss.opensource@diasemi.com>
+To: Marcus Folkesson <marcus.folkesson@gmail.com>
+CC: Support Opensource <Support.Opensource@diasemi.com>,
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH v4] watchdog: add SPDX identifiers for watchdog subsystem
+Date: Thu, 1 Mar 2018 10:10:51 +0000
+Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7019414ED80@SW-EX-MBX02.diasemi.com>
+References: <20180228150209.2525-1-marcus.folkesson@gmail.com>
+In-Reply-To: <20180228150209.2525-1-marcus.folkesson@gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1519839622-6109-1-git-send-email-fabrizio.castro@bp.renesas.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Feb 28, 2018 at 05:40:22PM +0000, Fabrizio Castro wrote:
-> On R-Car Gen2 and RZ/G1 platforms, we use the SBAR registers to make non
-> boot CPUs run a routine designed to bring up SMP and deal with hot plug.
-> The value contained in the SBAR registers is not initialized by a WDT
-> triggered reset, which means that after a WDT triggered reset we jump
-> to the SMP bring up routine, preventing the system from executing the
-> bootrom code.
-> 
-> The purpose of this patch is to jump to the bootrom code in case of a
-> WDT triggered reset, and keep the SMP functionality untouched.
-> In order to tell if the code had been called due to the WDT overflowing
-> we are testing WOVF from register RWTCSRA.
-> 
-> The new function shmobile_boot_vector_gen2 isn't replacing
-> shmobile_boot_vector for backward compatibility reasons. The kernel
-> will install the best option (either shmobile_boot_vector or
-> shmobile_boot_vector_gen2) to ICRAM1 after parsing the device tree,
-> according to the amount of memory available.
-> 
-> Since shmobile_boot_vector has become bigger, "reg" property of nodes
-> compatible with "renesas,smp-sram" now need to be set to a value
-> greater or equal to "<0 0x60>".
-> 
-> Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
-> Signed-off-by: Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
-
-Thanks, I have marked this as deferred as I would like dependencies to
-be merged first.
+T24gMjggRmVicnVhcnkgMjAxOCAxNTowMiwgTWFyY3VzIEZvbGtlc3NvbiB3cm90ZToNCg0KPiBT
+dWJqZWN0OiBbUEFUQ0ggdjRdIHdhdGNoZG9nOiBhZGQgU1BEWCBpZGVudGlmaWVycyBmb3Igd2F0
+Y2hkb2cgc3Vic3lzdGVtDQo+IA0KPiAtIEFkZCBTUERYIGlkZW50aWZpZXINCj4gLSBSZW1vdmUg
+Ym9pbGVyIHBsYXRlIGxpY2Vuc2UgdGV4dA0KPiAtIElmIE1PRFVMRV9MSUNFTlNFIGFuZCBib2ls
+ZXIgcGxhdGUgZG9lcyBub3QgbWF0Y2gsIGdvIGZvciBib2lsZXIgcGxhdGUgbGljZW5zZQ0KDQpB
+Y2tlZC1ieTogU3RldmUgVHdpc3MgPHN0d2lzcy5vcGVuc291cmNlQGRpYXNlbWkuY29tPg0KDQpI
+aSBNYXJjdXMsDQoNCkFja2VkIGZvciB0aGUgZmlsZXMgYmVsb3cuDQoNClJlZ2FyZHMsDQpTdGV2
+ZQ0KDQpbLi4uXQ0KDQo+ICBkcml2ZXJzL3dhdGNoZG9nL2RhOTA1Ml93ZHQuYyAgICAgICAgICB8
+ICA2ICstLS0NCj4gIGRyaXZlcnMvd2F0Y2hkb2cvZGE5MDU1X3dkdC5jICAgICAgICAgIHwgIDYg
+Ky0tLQ0KPiAgZHJpdmVycy93YXRjaGRvZy9kYTkwNjJfd2R0LmMgICAgICAgICAgfCAxMCArLS0t
+LS0tDQo+ICBkcml2ZXJzL3dhdGNoZG9nL2RhOTA2M193ZHQuYyAgICAgICAgICB8ICA1ICstLS0N
+Cg0KWy4uLl0NCg0KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy93YXRjaGRvZy9kYTkwNTJfd2R0LmMN
+Cj4gYi9kcml2ZXJzL3dhdGNoZG9nL2RhOTA1Ml93ZHQuYw0KPiBpbmRleCBkNmQ1MDA2ZWZhNzEu
+LmUyNjNiYWQ5OTU3NCAxMDA2NDQNCj4gLS0tIGEvZHJpdmVycy93YXRjaGRvZy9kYTkwNTJfd2R0
+LmMNCj4gKysrIGIvZHJpdmVycy93YXRjaGRvZy9kYTkwNTJfd2R0LmMNCj4gQEAgLTEsMyArMSw0
+IEBADQo+ICsvLyBTUERYLUxpY2Vuc2UtSWRlbnRpZmllcjogR1BMLTIuMCsNCj4gIC8qDQo+ICAg
+KiBTeXN0ZW0gbW9uaXRvcmluZyBkcml2ZXIgZm9yIERBOTA1MiBQTUlDcy4NCj4gICAqDQo+IEBA
+IC01LDExICs2LDYgQEANCj4gICAqDQo+ICAgKiBBdXRob3I6IEFudGhvbnkgT2xlY2ggPEFudGhv
+bnkuT2xlY2hAZGlhc2VtaS5jb20+DQo+ICAgKg0KPiAtICogVGhpcyBwcm9ncmFtIGlzIGZyZWUg
+c29mdHdhcmU7IHlvdSBjYW4gcmVkaXN0cmlidXRlIGl0IGFuZC9vciBtb2RpZnkNCj4gLSAqIGl0
+IHVuZGVyIHRoZSB0ZXJtcyBvZiB0aGUgR05VIEdlbmVyYWwgUHVibGljIExpY2Vuc2UgYXMgcHVi
+bGlzaGVkIGJ5DQo+IC0gKiB0aGUgRnJlZSBTb2Z0d2FyZSBGb3VuZGF0aW9uOyBlaXRoZXIgdmVy
+c2lvbiAyIG9mIHRoZSBMaWNlbnNlLCBvcg0KPiAtICogKGF0IHlvdXIgb3B0aW9uKSBhbnkgbGF0
+ZXIgdmVyc2lvbi4NCj4gLSAqDQo+ICAgKi8NCj4gDQo+ICAjaW5jbHVkZSA8bGludXgvbW9kdWxl
+Lmg+DQo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3dhdGNoZG9nL2RhOTA1NV93ZHQuYw0KPiBiL2Ry
+aXZlcnMvd2F0Y2hkb2cvZGE5MDU1X3dkdC5jDQo+IGluZGV4IDUwYmRkMTAyMjE4Ni4uMjZhNWIy
+OTg0MDk0IDEwMDY0NA0KPiAtLS0gYS9kcml2ZXJzL3dhdGNoZG9nL2RhOTA1NV93ZHQuYw0KPiAr
+KysgYi9kcml2ZXJzL3dhdGNoZG9nL2RhOTA1NV93ZHQuYw0KPiBAQCAtMSwzICsxLDQgQEANCj4g
+Ky8vIFNQRFgtTGljZW5zZS1JZGVudGlmaWVyOiBHUEwtMi4wKw0KPiAgLyoNCj4gICAqIFN5c3Rl
+bSBtb25pdG9yaW5nIGRyaXZlciBmb3IgREE5MDU1IFBNSUNzLg0KPiAgICoNCj4gQEAgLTUsMTEg
+KzYsNiBAQA0KPiAgICoNCj4gICAqIEF1dGhvcjogRGF2aWQgRGFqdW4gQ2hlbiA8ZGNoZW5AZGlh
+c2VtaS5jb20+DQo+ICAgKg0KPiAtICogVGhpcyBwcm9ncmFtIGlzIGZyZWUgc29mdHdhcmU7IHlv
+dSBjYW4gcmVkaXN0cmlidXRlIGl0IGFuZC9vciBtb2RpZnkNCj4gLSAqIGl0IHVuZGVyIHRoZSB0
+ZXJtcyBvZiB0aGUgR05VIEdlbmVyYWwgUHVibGljIExpY2Vuc2UgYXMgcHVibGlzaGVkIGJ5DQo+
+IC0gKiB0aGUgRnJlZSBTb2Z0d2FyZSBGb3VuZGF0aW9uOyBlaXRoZXIgdmVyc2lvbiAyIG9mIHRo
+ZSBMaWNlbnNlLCBvcg0KPiAtICogKGF0IHlvdXIgb3B0aW9uKSBhbnkgbGF0ZXIgdmVyc2lvbi4N
+Cj4gLSAqDQo+ICAgKi8NCj4gDQo+ICAjaW5jbHVkZSA8bGludXgvbW9kdWxlLmg+DQo+IGRpZmYg
+LS1naXQgYS9kcml2ZXJzL3dhdGNoZG9nL2RhOTA2Ml93ZHQuYw0KPiBiL2RyaXZlcnMvd2F0Y2hk
+b2cvZGE5MDYyX3dkdC5jDQo+IGluZGV4IDgxNGRmZjYwNDVhNC4uYTAwMTc4MmJiZmRiIDEwMDY0
+NA0KPiAtLS0gYS9kcml2ZXJzL3dhdGNoZG9nL2RhOTA2Ml93ZHQuYw0KPiArKysgYi9kcml2ZXJz
+L3dhdGNoZG9nL2RhOTA2Ml93ZHQuYw0KPiBAQCAtMSwxNiArMSw4IEBADQo+ICsvLyBTUERYLUxp
+Y2Vuc2UtSWRlbnRpZmllcjogR1BMLTIuMCsNCj4gIC8qDQo+ICAgKiBXYXRjaGRvZyBkZXZpY2Ug
+ZHJpdmVyIGZvciBEQTkwNjIgYW5kIERBOTA2MSBQTUlDcw0KPiAgICogQ29weXJpZ2h0IChDKSAy
+MDE1ICBEaWFsb2cgU2VtaWNvbmR1Y3RvciBMdGQuDQo+ICAgKg0KPiAtICogVGhpcyBwcm9ncmFt
+IGlzIGZyZWUgc29mdHdhcmU7IHlvdSBjYW4gcmVkaXN0cmlidXRlIGl0IGFuZC9vcg0KPiAtICog
+bW9kaWZ5IGl0IHVuZGVyIHRoZSB0ZXJtcyBvZiB0aGUgR05VIEdlbmVyYWwgUHVibGljIExpY2Vu
+c2UNCj4gLSAqIGFzIHB1Ymxpc2hlZCBieSB0aGUgRnJlZSBTb2Z0d2FyZSBGb3VuZGF0aW9uOyBl
+aXRoZXIgdmVyc2lvbiAyDQo+IC0gKiBvZiB0aGUgTGljZW5zZSwgb3IgKGF0IHlvdXIgb3B0aW9u
+KSBhbnkgbGF0ZXIgdmVyc2lvbi4NCj4gLSAqDQo+IC0gKiBUaGlzIHByb2dyYW0gaXMgZGlzdHJp
+YnV0ZWQgaW4gdGhlIGhvcGUgdGhhdCBpdCB3aWxsIGJlIHVzZWZ1bCwNCj4gLSAqIGJ1dCBXSVRI
+T1VUIEFOWSBXQVJSQU5UWTsgd2l0aG91dCBldmVuIHRoZSBpbXBsaWVkIHdhcnJhbnR5IG9mDQo+
+IC0gKiBNRVJDSEFOVEFCSUxJVFkgb3IgRklUTkVTUyBGT1IgQSBQQVJUSUNVTEFSIFBVUlBPU0Uu
+ICBTZWUgdGhlDQo+IC0gKiBHTlUgR2VuZXJhbCBQdWJsaWMgTGljZW5zZSBmb3IgbW9yZSBkZXRh
+aWxzLg0KPiAgICovDQo+IA0KPiAgI2luY2x1ZGUgPGxpbnV4L2tlcm5lbC5oPg0KPiBkaWZmIC0t
+Z2l0IGEvZHJpdmVycy93YXRjaGRvZy9kYTkwNjNfd2R0LmMNCj4gYi9kcml2ZXJzL3dhdGNoZG9n
+L2RhOTA2M193ZHQuYw0KPiBpbmRleCAyYTIwZmMxNjNlZDAuLmIxN2FjMWJiMWYyOCAxMDA2NDQN
+Cj4gLS0tIGEvZHJpdmVycy93YXRjaGRvZy9kYTkwNjNfd2R0LmMNCj4gKysrIGIvZHJpdmVycy93
+YXRjaGRvZy9kYTkwNjNfd2R0LmMNCj4gQEAgLTEsMyArMSw0IEBADQo+ICsvLyBTUERYLUxpY2Vu
+c2UtSWRlbnRpZmllcjogR1BMLTIuMCsNCj4gIC8qDQo+ICAgKiBXYXRjaGRvZyBkcml2ZXIgZm9y
+IERBOTA2MyBQTUlDcy4NCj4gICAqDQo+IEBAIC01LDEwICs2LDYgQEANCj4gICAqDQo+ICAgKiBB
+dXRob3I6IE1hcml1c3ogV29qdGFzaWsgPG1hcml1c3oud29qdGFzaWtAZGlhc2VtaS5jb20+DQo+
+ICAgKg0KPiAtICogVGhpcyBwcm9ncmFtIGlzIGZyZWUgc29mdHdhcmU7IHlvdSBjYW4gcmVkaXN0
+cmlidXRlICBpdCBhbmQvb3IgbW9kaWZ5IGl0DQo+IC0gKiB1bmRlciAgdGhlIHRlcm1zIG9mICB0
+aGUgR05VIEdlbmVyYWwgIFB1YmxpYyBMaWNlbnNlIGFzIHB1Ymxpc2hlZCBieSB0aGUNCj4gLSAq
+IEZyZWUgU29mdHdhcmUgRm91bmRhdGlvbjsgIGVpdGhlciB2ZXJzaW9uIDIgb2YgdGhlICBMaWNl
+bnNlLCBvciAoYXQgeW91cg0KPiAtICogb3B0aW9uKSBhbnkgbGF0ZXIgdmVyc2lvbi4NCj4gICAq
+Lw0KPiANCj4gICNpbmNsdWRlIDxsaW51eC9rZXJuZWwuaD4NCg0K
