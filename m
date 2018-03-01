@@ -1,9 +1,9 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from relmlor3.renesas.com ([210.160.252.173]:56093 "EHLO
+Received: from relmlor3.renesas.com ([210.160.252.173]:21623 "EHLO
         relmlie2.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1031910AbeCAPoo (ORCPT
+        by vger.kernel.org with ESMTP id S1031910AbeCAPox (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 1 Mar 2018 10:44:44 -0500
+        Thu, 1 Mar 2018 10:44:53 -0500
 From: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
 To: Geert Uytterhoeven <geert+renesas@glider.be>,
         Simon Horman <horms@verge.net.au>,
@@ -16,110 +16,63 @@ Cc: Fabrizio Castro <fabrizio.castro@bp.renesas.com>,
         Biju Das <biju.das@bp.renesas.com>,
         Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>,
         linux-renesas-soc@vger.kernel.org
-Subject: [PATCH v6 1/3] watchdog: renesas_wdt: Add suspend/resume support
-Date: Thu,  1 Mar 2018 15:44:06 +0000
-Message-Id: <1519919048-21884-2-git-send-email-fabrizio.castro@bp.renesas.com>
+Subject: [PATCH v6 2/3] watchdog: renesas_wdt: Add R-Car Gen2 support
+Date: Thu,  1 Mar 2018 15:44:07 +0000
+Message-Id: <1519919048-21884-3-git-send-email-fabrizio.castro@bp.renesas.com>
 In-Reply-To: <1519919048-21884-1-git-send-email-fabrizio.castro@bp.renesas.com>
 References: <1519919048-21884-1-git-send-email-fabrizio.castro@bp.renesas.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On R-Car Gen2 and RZ/G1 the watchdog IP clock needs to be always ON,
-on R-Car Gen3 we power the IP down during suspend.
+Due to commits:
+* "ARM: shmobile: Add watchdog support",
+* "ARM: shmobile: rcar-gen2: Add watchdog support", and
+* "soc: renesas: rcar-rst: Enable watchdog as reset trigger for Gen2",
+we now have everything we needed for the watchdog to work on Gen2 and
+RZ/G1.
 
-This commit adds suspend/resume support, so that the watchdog counting
-"pauses" during suspend on all of the SoCs compatible with this driver
-and on those we are now adding support for (R-Car Gen2 and RZ/G1).
+This commit adds "renesas,rcar-gen2-wdt" as compatible string for R-Car
+Gen2 and RZ/G1.
 
 Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
 Signed-off-by: Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
 ---
 v5->v6:
-* pausing the watchdog during suspend
+* stripped suspend/resume functionality
+* now gen2 compatible string comes before gen3
 
 Geert,
 
 you marked v5 as:
 Reviewed-and-Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
 
-but I believe this patch deserves a fresh review and fresh testing.
+but since I have flipped the order, I am not including it as you may
+disagree with the change.
 
 Thanks,
 Fab
 
- drivers/watchdog/renesas_wdt.c | 34 ++++++++++++++++++++++++++++++++--
- 1 file changed, 32 insertions(+), 2 deletions(-)
+ drivers/watchdog/renesas_wdt.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
 diff --git a/drivers/watchdog/renesas_wdt.c b/drivers/watchdog/renesas_wdt.c
-index 831ef83..cbf8e4d 100644
+index cbf8e4d..609056f 100644
 --- a/drivers/watchdog/renesas_wdt.c
 +++ b/drivers/watchdog/renesas_wdt.c
-@@ -49,6 +49,7 @@ struct rwdt_priv {
- 	void __iomem *base;
- 	struct watchdog_device wdev;
- 	unsigned long clk_rate;
-+	unsigned int timeleft;
- 	u8 cks;
+@@ -232,12 +232,8 @@ static int __maybe_unused rwdt_resume(struct device *dev)
+ 
+ static SIMPLE_DEV_PM_OPS(rwdt_pm_ops, rwdt_suspend, rwdt_resume);
+ 
+-/*
+- * This driver does also fit for R-Car Gen2 (r8a779[0-4]) WDT. However, for SMP
+- * to work there, one also needs a RESET (RST) driver which does not exist yet
+- * due to HW issues. This needs to be solved before adding compatibles here.
+- */
+ static const struct of_device_id rwdt_ids[] = {
++	{ .compatible = "renesas,rcar-gen2-wdt", },
+ 	{ .compatible = "renesas,rcar-gen3-wdt", },
+ 	{ /* sentinel */ }
  };
- 
-@@ -62,12 +63,16 @@ static void rwdt_write(struct rwdt_priv *priv, u32 val, unsigned int reg)
- 	writel_relaxed(val, priv->base + reg);
- }
- 
-+static void rwdt_set_timeleft(struct rwdt_priv *priv, unsigned int timeleft)
-+{
-+	rwdt_write(priv, 65536 - MUL_BY_CLKS_PER_SEC(priv, timeleft), RWTCNT);
-+}
-+
- static int rwdt_init_timeout(struct watchdog_device *wdev)
- {
- 	struct rwdt_priv *priv = watchdog_get_drvdata(wdev);
- 
--	rwdt_write(priv, 65536 - MUL_BY_CLKS_PER_SEC(priv, wdev->timeout), RWTCNT);
--
-+	rwdt_set_timeleft(priv, wdev->timeout);
- 	return 0;
- }
- 
-@@ -203,6 +208,30 @@ static int rwdt_remove(struct platform_device *pdev)
- 	return 0;
- }
- 
-+static int __maybe_unused rwdt_suspend(struct device *dev)
-+{
-+	struct rwdt_priv *priv = dev_get_drvdata(dev);
-+
-+	if (watchdog_active(&priv->wdev)) {
-+		priv->timeleft = rwdt_get_timeleft(&priv->wdev);
-+		rwdt_stop(&priv->wdev);
-+	}
-+	return 0;
-+}
-+
-+static int __maybe_unused rwdt_resume(struct device *dev)
-+{
-+	struct rwdt_priv *priv = dev_get_drvdata(dev);
-+
-+	if (watchdog_active(&priv->wdev)) {
-+		rwdt_start(&priv->wdev);
-+		rwdt_set_timeleft(priv, priv->timeleft);
-+	}
-+	return 0;
-+}
-+
-+static SIMPLE_DEV_PM_OPS(rwdt_pm_ops, rwdt_suspend, rwdt_resume);
-+
- /*
-  * This driver does also fit for R-Car Gen2 (r8a779[0-4]) WDT. However, for SMP
-  * to work there, one also needs a RESET (RST) driver which does not exist yet
-@@ -218,6 +247,7 @@ static struct platform_driver rwdt_driver = {
- 	.driver = {
- 		.name = "renesas_wdt",
- 		.of_match_table = rwdt_ids,
-+		.pm = &rwdt_pm_ops,
- 	},
- 	.probe = rwdt_probe,
- 	.remove = rwdt_remove,
 -- 
 2.7.4
 
