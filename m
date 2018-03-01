@@ -1,90 +1,207 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail1.bemta5.messagelabs.com ([195.245.231.137]:25891 "EHLO
-        mail1.bemta5.messagelabs.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S967363AbeCAKK4 (ORCPT
+Received: from mail-qt0-f179.google.com ([209.85.216.179]:38122 "EHLO
+        mail-qt0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S966611AbeCAKUN (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 1 Mar 2018 05:10:56 -0500
-From: Steve Twiss <stwiss.opensource@diasemi.com>
-To: Marcus Folkesson <marcus.folkesson@gmail.com>
-CC: Support Opensource <Support.Opensource@diasemi.com>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH v4] watchdog: add SPDX identifiers for watchdog subsystem
-Date: Thu, 1 Mar 2018 10:10:51 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7019414ED80@SW-EX-MBX02.diasemi.com>
-References: <20180228150209.2525-1-marcus.folkesson@gmail.com>
-In-Reply-To: <20180228150209.2525-1-marcus.folkesson@gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+        Thu, 1 Mar 2018 05:20:13 -0500
 MIME-Version: 1.0
+In-Reply-To: <20180223081443.ak6kl3z72kamcxob@verge.net.au>
+References: <1518457475-4480-1-git-send-email-fabrizio.castro@bp.renesas.com>
+ <CAMuHMdX=m9ui6GczF51SJH2X7Cw1OnxoH9pfk1DybpDX-A873Q@mail.gmail.com>
+ <20180221161326.ktvf3mlzzxith5kw@verge.net.au> <CAMuHMdUTSmrWggMK4ehSL3Ux-JUzVpamTuToveuXogjuvGKkaw@mail.gmail.com>
+ <20180221183223.qacrmmuzoqlzzbpo@verge.net.au> <CAMuHMdXCt1-coXGgtgFBm4rZLGBRMvSjbgeBSweiyKrOfCF0Xg@mail.gmail.com>
+ <20180223081443.ak6kl3z72kamcxob@verge.net.au>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Thu, 1 Mar 2018 11:20:11 +0100
+Message-ID: <CAMuHMdVKPFSVTbnQy9RwAg13OC3R=H1PN9+1FyU0SDHQPa1cuQ@mail.gmail.com>
+Subject: Re: [PATCH v5 00/26] Fix watchdog on Renesas R-Car Gen2 and RZ/G1
+To: Simon Horman <horms@verge.net.au>
+Cc: Fabrizio Castro <fabrizio.castro@bp.renesas.com>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@codeaurora.org>,
+        Magnus Damm <magnus.damm@gmail.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS"
+        <devicetree@vger.kernel.org>,
+        Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
+        Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        linux-clk <linux-clk@vger.kernel.org>,
+        Chris Paterson <Chris.Paterson2@renesas.com>,
+        Biju Das <biju.das@bp.renesas.com>,
+        Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-T24gMjggRmVicnVhcnkgMjAxOCAxNTowMiwgTWFyY3VzIEZvbGtlc3NvbiB3cm90ZToNCg0KPiBT
-dWJqZWN0OiBbUEFUQ0ggdjRdIHdhdGNoZG9nOiBhZGQgU1BEWCBpZGVudGlmaWVycyBmb3Igd2F0
-Y2hkb2cgc3Vic3lzdGVtDQo+IA0KPiAtIEFkZCBTUERYIGlkZW50aWZpZXINCj4gLSBSZW1vdmUg
-Ym9pbGVyIHBsYXRlIGxpY2Vuc2UgdGV4dA0KPiAtIElmIE1PRFVMRV9MSUNFTlNFIGFuZCBib2ls
-ZXIgcGxhdGUgZG9lcyBub3QgbWF0Y2gsIGdvIGZvciBib2lsZXIgcGxhdGUgbGljZW5zZQ0KDQpB
-Y2tlZC1ieTogU3RldmUgVHdpc3MgPHN0d2lzcy5vcGVuc291cmNlQGRpYXNlbWkuY29tPg0KDQpI
-aSBNYXJjdXMsDQoNCkFja2VkIGZvciB0aGUgZmlsZXMgYmVsb3cuDQoNClJlZ2FyZHMsDQpTdGV2
-ZQ0KDQpbLi4uXQ0KDQo+ICBkcml2ZXJzL3dhdGNoZG9nL2RhOTA1Ml93ZHQuYyAgICAgICAgICB8
-ICA2ICstLS0NCj4gIGRyaXZlcnMvd2F0Y2hkb2cvZGE5MDU1X3dkdC5jICAgICAgICAgIHwgIDYg
-Ky0tLQ0KPiAgZHJpdmVycy93YXRjaGRvZy9kYTkwNjJfd2R0LmMgICAgICAgICAgfCAxMCArLS0t
-LS0tDQo+ICBkcml2ZXJzL3dhdGNoZG9nL2RhOTA2M193ZHQuYyAgICAgICAgICB8ICA1ICstLS0N
-Cg0KWy4uLl0NCg0KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy93YXRjaGRvZy9kYTkwNTJfd2R0LmMN
-Cj4gYi9kcml2ZXJzL3dhdGNoZG9nL2RhOTA1Ml93ZHQuYw0KPiBpbmRleCBkNmQ1MDA2ZWZhNzEu
-LmUyNjNiYWQ5OTU3NCAxMDA2NDQNCj4gLS0tIGEvZHJpdmVycy93YXRjaGRvZy9kYTkwNTJfd2R0
-LmMNCj4gKysrIGIvZHJpdmVycy93YXRjaGRvZy9kYTkwNTJfd2R0LmMNCj4gQEAgLTEsMyArMSw0
-IEBADQo+ICsvLyBTUERYLUxpY2Vuc2UtSWRlbnRpZmllcjogR1BMLTIuMCsNCj4gIC8qDQo+ICAg
-KiBTeXN0ZW0gbW9uaXRvcmluZyBkcml2ZXIgZm9yIERBOTA1MiBQTUlDcy4NCj4gICAqDQo+IEBA
-IC01LDExICs2LDYgQEANCj4gICAqDQo+ICAgKiBBdXRob3I6IEFudGhvbnkgT2xlY2ggPEFudGhv
-bnkuT2xlY2hAZGlhc2VtaS5jb20+DQo+ICAgKg0KPiAtICogVGhpcyBwcm9ncmFtIGlzIGZyZWUg
-c29mdHdhcmU7IHlvdSBjYW4gcmVkaXN0cmlidXRlIGl0IGFuZC9vciBtb2RpZnkNCj4gLSAqIGl0
-IHVuZGVyIHRoZSB0ZXJtcyBvZiB0aGUgR05VIEdlbmVyYWwgUHVibGljIExpY2Vuc2UgYXMgcHVi
-bGlzaGVkIGJ5DQo+IC0gKiB0aGUgRnJlZSBTb2Z0d2FyZSBGb3VuZGF0aW9uOyBlaXRoZXIgdmVy
-c2lvbiAyIG9mIHRoZSBMaWNlbnNlLCBvcg0KPiAtICogKGF0IHlvdXIgb3B0aW9uKSBhbnkgbGF0
-ZXIgdmVyc2lvbi4NCj4gLSAqDQo+ICAgKi8NCj4gDQo+ICAjaW5jbHVkZSA8bGludXgvbW9kdWxl
-Lmg+DQo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3dhdGNoZG9nL2RhOTA1NV93ZHQuYw0KPiBiL2Ry
-aXZlcnMvd2F0Y2hkb2cvZGE5MDU1X3dkdC5jDQo+IGluZGV4IDUwYmRkMTAyMjE4Ni4uMjZhNWIy
-OTg0MDk0IDEwMDY0NA0KPiAtLS0gYS9kcml2ZXJzL3dhdGNoZG9nL2RhOTA1NV93ZHQuYw0KPiAr
-KysgYi9kcml2ZXJzL3dhdGNoZG9nL2RhOTA1NV93ZHQuYw0KPiBAQCAtMSwzICsxLDQgQEANCj4g
-Ky8vIFNQRFgtTGljZW5zZS1JZGVudGlmaWVyOiBHUEwtMi4wKw0KPiAgLyoNCj4gICAqIFN5c3Rl
-bSBtb25pdG9yaW5nIGRyaXZlciBmb3IgREE5MDU1IFBNSUNzLg0KPiAgICoNCj4gQEAgLTUsMTEg
-KzYsNiBAQA0KPiAgICoNCj4gICAqIEF1dGhvcjogRGF2aWQgRGFqdW4gQ2hlbiA8ZGNoZW5AZGlh
-c2VtaS5jb20+DQo+ICAgKg0KPiAtICogVGhpcyBwcm9ncmFtIGlzIGZyZWUgc29mdHdhcmU7IHlv
-dSBjYW4gcmVkaXN0cmlidXRlIGl0IGFuZC9vciBtb2RpZnkNCj4gLSAqIGl0IHVuZGVyIHRoZSB0
-ZXJtcyBvZiB0aGUgR05VIEdlbmVyYWwgUHVibGljIExpY2Vuc2UgYXMgcHVibGlzaGVkIGJ5DQo+
-IC0gKiB0aGUgRnJlZSBTb2Z0d2FyZSBGb3VuZGF0aW9uOyBlaXRoZXIgdmVyc2lvbiAyIG9mIHRo
-ZSBMaWNlbnNlLCBvcg0KPiAtICogKGF0IHlvdXIgb3B0aW9uKSBhbnkgbGF0ZXIgdmVyc2lvbi4N
-Cj4gLSAqDQo+ICAgKi8NCj4gDQo+ICAjaW5jbHVkZSA8bGludXgvbW9kdWxlLmg+DQo+IGRpZmYg
-LS1naXQgYS9kcml2ZXJzL3dhdGNoZG9nL2RhOTA2Ml93ZHQuYw0KPiBiL2RyaXZlcnMvd2F0Y2hk
-b2cvZGE5MDYyX3dkdC5jDQo+IGluZGV4IDgxNGRmZjYwNDVhNC4uYTAwMTc4MmJiZmRiIDEwMDY0
-NA0KPiAtLS0gYS9kcml2ZXJzL3dhdGNoZG9nL2RhOTA2Ml93ZHQuYw0KPiArKysgYi9kcml2ZXJz
-L3dhdGNoZG9nL2RhOTA2Ml93ZHQuYw0KPiBAQCAtMSwxNiArMSw4IEBADQo+ICsvLyBTUERYLUxp
-Y2Vuc2UtSWRlbnRpZmllcjogR1BMLTIuMCsNCj4gIC8qDQo+ICAgKiBXYXRjaGRvZyBkZXZpY2Ug
-ZHJpdmVyIGZvciBEQTkwNjIgYW5kIERBOTA2MSBQTUlDcw0KPiAgICogQ29weXJpZ2h0IChDKSAy
-MDE1ICBEaWFsb2cgU2VtaWNvbmR1Y3RvciBMdGQuDQo+ICAgKg0KPiAtICogVGhpcyBwcm9ncmFt
-IGlzIGZyZWUgc29mdHdhcmU7IHlvdSBjYW4gcmVkaXN0cmlidXRlIGl0IGFuZC9vcg0KPiAtICog
-bW9kaWZ5IGl0IHVuZGVyIHRoZSB0ZXJtcyBvZiB0aGUgR05VIEdlbmVyYWwgUHVibGljIExpY2Vu
-c2UNCj4gLSAqIGFzIHB1Ymxpc2hlZCBieSB0aGUgRnJlZSBTb2Z0d2FyZSBGb3VuZGF0aW9uOyBl
-aXRoZXIgdmVyc2lvbiAyDQo+IC0gKiBvZiB0aGUgTGljZW5zZSwgb3IgKGF0IHlvdXIgb3B0aW9u
-KSBhbnkgbGF0ZXIgdmVyc2lvbi4NCj4gLSAqDQo+IC0gKiBUaGlzIHByb2dyYW0gaXMgZGlzdHJp
-YnV0ZWQgaW4gdGhlIGhvcGUgdGhhdCBpdCB3aWxsIGJlIHVzZWZ1bCwNCj4gLSAqIGJ1dCBXSVRI
-T1VUIEFOWSBXQVJSQU5UWTsgd2l0aG91dCBldmVuIHRoZSBpbXBsaWVkIHdhcnJhbnR5IG9mDQo+
-IC0gKiBNRVJDSEFOVEFCSUxJVFkgb3IgRklUTkVTUyBGT1IgQSBQQVJUSUNVTEFSIFBVUlBPU0Uu
-ICBTZWUgdGhlDQo+IC0gKiBHTlUgR2VuZXJhbCBQdWJsaWMgTGljZW5zZSBmb3IgbW9yZSBkZXRh
-aWxzLg0KPiAgICovDQo+IA0KPiAgI2luY2x1ZGUgPGxpbnV4L2tlcm5lbC5oPg0KPiBkaWZmIC0t
-Z2l0IGEvZHJpdmVycy93YXRjaGRvZy9kYTkwNjNfd2R0LmMNCj4gYi9kcml2ZXJzL3dhdGNoZG9n
-L2RhOTA2M193ZHQuYw0KPiBpbmRleCAyYTIwZmMxNjNlZDAuLmIxN2FjMWJiMWYyOCAxMDA2NDQN
-Cj4gLS0tIGEvZHJpdmVycy93YXRjaGRvZy9kYTkwNjNfd2R0LmMNCj4gKysrIGIvZHJpdmVycy93
-YXRjaGRvZy9kYTkwNjNfd2R0LmMNCj4gQEAgLTEsMyArMSw0IEBADQo+ICsvLyBTUERYLUxpY2Vu
-c2UtSWRlbnRpZmllcjogR1BMLTIuMCsNCj4gIC8qDQo+ICAgKiBXYXRjaGRvZyBkcml2ZXIgZm9y
-IERBOTA2MyBQTUlDcy4NCj4gICAqDQo+IEBAIC01LDEwICs2LDYgQEANCj4gICAqDQo+ICAgKiBB
-dXRob3I6IE1hcml1c3ogV29qdGFzaWsgPG1hcml1c3oud29qdGFzaWtAZGlhc2VtaS5jb20+DQo+
-ICAgKg0KPiAtICogVGhpcyBwcm9ncmFtIGlzIGZyZWUgc29mdHdhcmU7IHlvdSBjYW4gcmVkaXN0
-cmlidXRlICBpdCBhbmQvb3IgbW9kaWZ5IGl0DQo+IC0gKiB1bmRlciAgdGhlIHRlcm1zIG9mICB0
-aGUgR05VIEdlbmVyYWwgIFB1YmxpYyBMaWNlbnNlIGFzIHB1Ymxpc2hlZCBieSB0aGUNCj4gLSAq
-IEZyZWUgU29mdHdhcmUgRm91bmRhdGlvbjsgIGVpdGhlciB2ZXJzaW9uIDIgb2YgdGhlICBMaWNl
-bnNlLCBvciAoYXQgeW91cg0KPiAtICogb3B0aW9uKSBhbnkgbGF0ZXIgdmVyc2lvbi4NCj4gICAq
-Lw0KPiANCj4gICNpbmNsdWRlIDxsaW51eC9rZXJuZWwuaD4NCg0K
+Hi Simon,
+
+On Fri, Feb 23, 2018 at 9:14 AM, Simon Horman <horms@verge.net.au> wrote:
+> On Thu, Feb 22, 2018 at 09:38:39AM +0100, Geert Uytterhoeven wrote:
+>> On Wed, Feb 21, 2018 at 7:32 PM, Simon Horman <horms@verge.net.au> wrote:
+>> > On Wed, Feb 21, 2018 at 05:30:12PM +0100, Geert Uytterhoeven wrote:
+>> >> On Wed, Feb 21, 2018 at 5:13 PM, Simon Horman <horms@verge.net.au> wrote:
+>> >> > On Tue, Feb 20, 2018 at 01:51:28PM +0100, Geert Uytterhoeven wrote:
+>> >> >> On Mon, Feb 12, 2018 at 6:44 PM, Fabrizio Castro
+>> >> >> <fabrizio.castro@bp.renesas.com> wrote:
+>> >> >> > this series has been around for some time as RFC, and it has collected
+>> >> >> > useful comments from the community along the way.
+>> >> >> > The solution proposed by this patch set works for most R-Car Gen2 and
+>> >> >> > RZ/G1 devices, but not all of them. We now know that for some R-Car
+>> >> >> > Gen2 early revisions there is no proper software fix. Anyway, no
+>> >> >> > product has been built around early revisions, but development boards
+>> >> >> > mounting early revisions (basically prototypes) are still out there.
+>> >> >> > As a result, this series isn't enabling the internal watchdog on R-Car
+>> >> >> > Gen2 boards, developers may enable it in board specific device trees
+>> >> >> > if needed.
+>> >> >> > This series has been tested by me on the iwg20d, iwg22d, Lager, Alt,
+>> >> >> > and Koelsch boards.
+>> >> >> >
+>> >> >> > The problem
+>> >> >> > ===========
+>> >> >> > To deal with SMP on R-Car Gen2 and RZ/G1, we install a reset vector
+>> >> >> > to ICRAM1 and we program the [S]BAR registers so that when we turn ON
+>> >> >> > the non-boot CPUs they are redirected to the reset vector installed by
+>> >> >> > Linux in ICRAM1, and eventually they continue the execution to RAM,
+>> >> >> > where the SMP bring-up code will take care of the rest.
+>> >> >> > The content of the [S]BAR registers survives a watchdog triggered reset,
+>> >> >> > and as such after the watchdog fires the boot core will try and execute
+>> >> >> > the SMP bring-up code instead of jumping to the bootrom code.
+>> >> >> >
+>> >> >> > The fix
+>> >> >> > =======
+>> >> >> > The main strategy for the solution is to let the reset vector decide
+>> >> >> > if it needs to jump to shmobile_boot_fn or to the bootrom code.
+>> >> >> > In a watchdog triggered reset scenario, since the [S]BAR registers keep
+>> >> >> > their values, the boot CPU will jump into the newly designed reset
+>> >> >> > vector, the assembly routine will eventually test WOVF (a bit in register
+>> >> >> > RWTCSRA that indicates if the watchdog counter has overflown, the value
+>> >> >> > of this bit gets retained in this scenario), and jump to the bootrom code
+>> >> >> > which will in turn load up the bootloader, etc.
+>> >> >> > When bringing up SMP or using CPU hotplug, the reset vector will jump
+>> >> >> > to shmobile_boot_fn instead.
+>> >> >> >
+>> >> >> > Thank you All for your help.
+>> >> >> >
+>> >> >> > Best regards,
+>> >> >> >
+>> >> >> > Fabrizio Castro (26):
+>> >> >> >   ARM: shmobile: Add watchdog support
+>> >> >> >   ARM: dts: r8a7743: Adjust SMP routine size
+>> >> >> >   ARM: dts: r8a7745: Adjust SMP routine size
+>> >> >> >   ARM: dts: r8a7790: Adjust SMP routine size
+>> >> >> >   ARM: dts: r8a7791: Adjust SMP routine size
+>> >> >> >   ARM: dts: r8a7792: Adjust SMP routine size
+>> >> >> >   ARM: dts: r8a7793: Adjust SMP routine size
+>> >> >> >   ARM: dts: r8a7794: Adjust SMP routine size
+>> >> >> >   soc: renesas: rcar-rst: Enable watchdog as reset trigger for Gen2
+>> >> >> >   ARM: shmobile: rcar-gen2: Add watchdog support
+>> >> >> >   dt-bindings: watchdog: renesas-wdt: Add R-Car Gen2 support
+>> >> >> >   watchdog: renesas_wdt: Add R-Car Gen2 support
+>> >> >> >   watchdog: renesas_wdt: Add restart handler
+>> >> >> >   ARM: shmobile: defconfig: Enable RENESAS_WDT_GEN
+>> >> >> >   clk: renesas: r8a7743: Add rwdt clock
+>> >> >> >   clk: renesas: r8a7745: Add rwdt clock
+>> >> >> >   clk: renesas: r8a7790: Add rwdt clock
+>> >> >> >   clk: renesas: r8a7791/r8a7793: Add rwdt clock
+>> >> >> >   clk: renesas: r8a7794: Add rwdt clock
+>> >> >> >   ARM: dts: r8a7743: Add watchdog support to SoC dtsi
+>> >> >> >   ARM: dts: r8a7745: Add watchdog support to SoC dtsi
+>> >> >> >   ARM: dts: r8a7790: Add watchdog support to SoC dtsi
+>> >> >> >   ARM: dts: r8a7791: Add watchdog support to SoC dtsi
+>> >> >> >   ARM: dts: r8a7794: Add watchdog support to SoC dtsi
+>> >> >> >   ARM: dts: iwg20m: Add watchdog support to SoM dtsi
+>> >> >> >   ARM: dts: iwg22m: Add watchdog support to SoM dtsi
+>> >> >> >
+>> >> >> >  .../devicetree/bindings/watchdog/renesas-wdt.txt   | 19 ++++++--
+>> >> >> >  arch/arm/boot/dts/r8a7743-iwg20m.dtsi              |  5 ++
+>> >> >> >  arch/arm/boot/dts/r8a7743.dtsi                     | 12 ++++-
+>> >> >> >  arch/arm/boot/dts/r8a7745-iwg22m.dtsi              |  5 ++
+>> >> >> >  arch/arm/boot/dts/r8a7745.dtsi                     | 12 ++++-
+>> >> >> >  arch/arm/boot/dts/r8a7790.dtsi                     | 12 ++++-
+>> >> >> >  arch/arm/boot/dts/r8a7791.dtsi                     | 12 ++++-
+>> >> >> >  arch/arm/boot/dts/r8a7792.dtsi                     |  2 +-
+>> >> >> >  arch/arm/boot/dts/r8a7793.dtsi                     |  2 +-
+>> >> >> >  arch/arm/boot/dts/r8a7794.dtsi                     | 12 ++++-
+>> >> >> >  arch/arm/configs/shmobile_defconfig                |  1 +
+>> >> >> >  arch/arm/mach-shmobile/common.h                    |  6 +++
+>> >> >> >  arch/arm/mach-shmobile/headsmp.S                   | 55 ++++++++++++++++++++++
+>> >> >> >  arch/arm/mach-shmobile/platsmp-apmu.c              |  1 +
+>> >> >> >  arch/arm/mach-shmobile/pm-rcar-gen2.c              | 15 ++++--
+>> >> >> >  drivers/clk/renesas/r8a7743-cpg-mssr.c             |  2 +
+>> >> >> >  drivers/clk/renesas/r8a7745-cpg-mssr.c             |  2 +
+>> >> >> >  drivers/clk/renesas/r8a7790-cpg-mssr.c             |  2 +
+>> >> >> >  drivers/clk/renesas/r8a7791-cpg-mssr.c             |  2 +
+>> >> >> >  drivers/clk/renesas/r8a7794-cpg-mssr.c             |  2 +
+>> >> >> >  drivers/soc/renesas/rcar-rst.c                     | 35 +++++++++++---
+>> >> >> >  drivers/watchdog/renesas_wdt.c                     | 39 +++++++++++++--
+>> >> >>
+>> >> >> Thanks, I've queued the clock patches in clk-renesas-for-v4.17, as they are
+>> >> >> a hard dependency for:
+>> >> >>   (1) The new reset vector in arch/arm/mach-shmobile/
+>> >> >>   (2) The watchdog driver.
+>> >> >>
+>> >> >> Note that the watchdog driver itself (2) has a hard dependency on the
+>> >> >> new reset vector (1).
+>> >> >
+>> >> > Thanks, I have marked the watchdog driver patch as Deferred.
+>> >> > Please resubmit or otherwise ping me once they dependencies
+>> >> > are in an rc release.
+>> >>
+>> >> I gave the dependencies a bit more thought.
+>> >>
+>> >> I think we can gain once release cycle if you would postpone the DTS patches
+>> >> (both SMP routine size adjustments and RWDT device node additions) to v4.18.
+>> >> Then all other parts can be upstreamed in parallel in v4.17, as nothing
+>> >> will be activated before the DTS parts are in.
+>> >>
+>> >> Does this look sane?
+>> >
+>> > What about new DTS on old kernels of a specific vintage?
+>>
+>> New DTS would work fine on v4.16 and older, which don't have any of the
+>> other patches from this series.
+>> New DTS would work fine on v4.17, assumed all other patches from this
+>> series get into v4.17.
+>>
+>> The only issue would be a new DTS on a kernel that has some but not all
+>> other patches from this series.
+>
+> Thanks for the analysis. I think this is the key point. What is the risk of
+> that happening?
+
+I think the risk is fairly low.
+You control when the DTS changes go in, and also when they are backported
+to LTSI.
+
+>> If we want to fast-track everything into v4.17, we need a stable branch, to be
+>> pulled by all 5 actors (clk-renesas, mach-shmobile, soc-renesas, watchdog,
+>> renesas-dts).
+>
+> It seems that watchdog is the only item on that list that neither you nor I
+> sign off on. So I conclude that if the watchdog patch goes in early enough
+> in the cycle then we ought to be in good shape.
+>
+> None the less, is it worth the risk?
+
+Do we want the functionality early, or can we wait until v4.19?
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
