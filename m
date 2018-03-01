@@ -1,14 +1,14 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from relmlor4.renesas.com ([210.160.252.174]:16765 "EHLO
-        relmlie3.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1033321AbeCASR6 (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 1 Mar 2018 13:17:58 -0500
-From: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
-To: Geert Uytterhoeven <geert+renesas@glider.be>,
+Received: from www.zeus03.de ([194.117.254.33]:45896 "EHLO mail.zeus03.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1161018AbeCASv6 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Thu, 1 Mar 2018 13:51:58 -0500
+Date: Thu, 1 Mar 2018 19:51:55 +0100
+From: Wolfram Sang <wsa@the-dreams.de>
+To: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
+Cc: Geert Uytterhoeven <geert+renesas@glider.be>,
         Simon Horman <horms@verge.net.au>,
-        Wim Van Sebroeck <wim@iguana.be>
-Cc: Fabrizio Castro <fabrizio.castro@bp.renesas.com>,
+        Wim Van Sebroeck <wim@iguana.be>,
         Wolfram Sang <wsa+renesas@sang-engineering.com>,
         Guenter Roeck <linux@roeck-us.net>,
         linux-watchdog@vger.kernel.org,
@@ -16,68 +16,61 @@ Cc: Fabrizio Castro <fabrizio.castro@bp.renesas.com>,
         Biju Das <biju.das@bp.renesas.com>,
         Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>,
         linux-renesas-soc@vger.kernel.org
-Subject: [PATCH v7 3/3] watchdog: renesas_wdt: Add restart handler
-Date: Thu,  1 Mar 2018 18:17:23 +0000
-Message-Id: <1519928243-28596-4-git-send-email-fabrizio.castro@bp.renesas.com>
-In-Reply-To: <1519928243-28596-1-git-send-email-fabrizio.castro@bp.renesas.com>
+Subject: Re: [PATCH v7 1/3] watchdog: renesas_wdt: Add suspend/resume support
+Message-ID: <20180301185155.hyp3ozumigstjsoe@katana>
 References: <1519928243-28596-1-git-send-email-fabrizio.castro@bp.renesas.com>
+ <1519928243-28596-2-git-send-email-fabrizio.castro@bp.renesas.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="iq3fzocznd3sf6yp"
+Content-Disposition: inline
+In-Reply-To: <1519928243-28596-2-git-send-email-fabrizio.castro@bp.renesas.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On iWave's boards iwg20d and iwg22d the only way to reboot the system is
-by means of the watchdog.
-This patch adds a restart handler to rwdt_ops, and also makes sure we
-keep its priority to the lowest level, in order to not override other
-more effective handlers.
 
-Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
-Signed-off-by: Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+--iq3fzocznd3sf6yp
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Thu, Mar 01, 2018 at 06:17:21PM +0000, Fabrizio Castro wrote:
+> On R-Car Gen2 and RZ/G1 the watchdog IP clock needs to be always ON,
+> on R-Car Gen3 we power the IP down during suspend.
+>=20
+> This commit adds suspend/resume support, so that the watchdog counting
+> "pauses" during suspend on all of the SoCs compatible with this driver
+> and on those we are now adding support for (R-Car Gen2 and RZ/G1).
+>=20
+> Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
+> Signed-off-by: Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesa=
+s.com>
+
+I like it:
+
 Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
-v6->v7:
-* fix changelog
 
- drivers/watchdog/renesas_wdt.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+Thanks for keeping at this topic!
 
-diff --git a/drivers/watchdog/renesas_wdt.c b/drivers/watchdog/renesas_wdt.c
-index 9fc4c78..d287854 100644
---- a/drivers/watchdog/renesas_wdt.c
-+++ b/drivers/watchdog/renesas_wdt.c
-@@ -108,6 +108,16 @@ static unsigned int rwdt_get_timeleft(struct watchdog_device *wdev)
- 	return DIV_BY_CLKS_PER_SEC(priv, 65536 - val);
- }
- 
-+static int rwdt_restart(struct watchdog_device *wdev, unsigned long action,
-+			void *data)
-+{
-+	struct rwdt_priv *priv = watchdog_get_drvdata(wdev);
-+
-+	rwdt_start(wdev);
-+	rwdt_write(priv, 0xffff, RWTCNT);
-+	return 0;
-+}
-+
- static const struct watchdog_info rwdt_ident = {
- 	.options = WDIOF_MAGICCLOSE | WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT,
- 	.identity = "Renesas WDT Watchdog",
-@@ -119,6 +129,7 @@ static const struct watchdog_ops rwdt_ops = {
- 	.stop = rwdt_stop,
- 	.ping = rwdt_init_timeout,
- 	.get_timeleft = rwdt_get_timeleft,
-+	.restart = rwdt_restart,
- };
- 
- static int rwdt_probe(struct platform_device *pdev)
-@@ -177,6 +188,7 @@ static int rwdt_probe(struct platform_device *pdev)
- 	platform_set_drvdata(pdev, priv);
- 	watchdog_set_drvdata(&priv->wdev, priv);
- 	watchdog_set_nowayout(&priv->wdev, nowayout);
-+	watchdog_set_restart_priority(&priv->wdev, 0);
- 
- 	/* This overrides the default timeout only if DT configuration was found */
- 	ret = watchdog_init_timeout(&priv->wdev, 0, &pdev->dev);
--- 
-2.7.4
 
+--iq3fzocznd3sf6yp
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlqYS8YACgkQFA3kzBSg
+KbZg+Q//UHc1e22o+NTi2qkTlZz1e0Mqjuj91D7Ky321a7mPoExZM4e76C13P2g4
+ecqANqrZL8cJfIbAdjdkHlApcQCNSwtyNoZp6FZEp1zi7WI/C/gNDjyQfmJdjGjz
+6GhZmY3TJKx6Gx63o00u9uWdRTSaL6dX+el7gE5hHwlyIaXwRSUSsGhX0tjiomt6
++Wd0CLALRtWglbaLXuXGz1oP8Pi8pUyvQe66GKzgNIKPgJ9Ad9EdWYhDq0BeHl3f
+mgf/3trYnLuWnpzW/E4wYIldtoP1C55WmDpIScx5UF/e/bVLQrPf/B6SKSDY0Fq6
+28+SeeskWVOrclGeu7rkcFV6meedLlUxovBmQrUeN0nG1+aBclyfgL3fY+8FQqMD
+yJaezFnA6Zf/2wtnXzYUBFg0nWH+VHd1qSGmZWVU9SAmzFUQ3lQWD09eeJqVUbNA
+4SNRL/o+S9lLgstbJg6gT5RcDxgIJt2oUt0KaouNHYMTIcHqCZWW/dM4lwCGJTAR
+z1Qt0RpiN+qfEk1VRWDU03qkICnfisX3Nf1ju8wi6MPEs3oA+KFw5Ndl2DIhH30f
+wUxLb9Ij+TOt7z75hc96PmBUncptH9UDlDEIT1SRpezHeAqjX2+RIFN4Fzsxo2ki
+LlJeufyyJBCZVaoh+nGA/Gqg8o557yBa3ENN5P5973qnPc9ibNo=
+=+SFY
+-----END PGP SIGNATURE-----
+
+--iq3fzocznd3sf6yp--
