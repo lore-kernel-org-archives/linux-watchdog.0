@@ -1,110 +1,331 @@
-Return-Path: <marcus.folkesson@gmail.com>
-Return-path: <marcus.folkesson@gmail.com>
-Date: Fri, 2 Mar 2018 12:24:16 +0100
-From: Marcus Folkesson <marcus.folkesson@gmail.com>
-To: Joel Stanley <joel@jms.id.au>
-Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Rob Herring <robh+dt@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>, linux-watchdog@vger.kernel.org,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Tomer Maimon <tmaimon77@gmail.com>,
-	Avi Fishman <avifishman70@gmail.com>,
-	Brendan Higgins <brendanhiggins@google.com>
-Subject: Re: [PATCH 1/2] dt-bindings: watchdog: Add Nuvoton NPCM description
-Message-ID: <20180302112416.GB27322@gmail.com>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-pf0-f193.google.com ([209.85.192.193]:42335 "EHLO
+        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1424382AbeCBN7U (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 2 Mar 2018 08:59:20 -0500
+Subject: Re: [PATCH 2/2] watchdog: Add Nuvoton NPCM watchdog driver
+To: Joel Stanley <joel@jms.id.au>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>
+Cc: linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Tomer Maimon <tmaimon77@gmail.com>,
+        Avi Fishman <avifishman70@gmail.com>,
+        Brendan Higgins <brendanhiggins@google.com>
 References: <20180302063746.10993-1-joel@jms.id.au>
- <20180302063746.10993-2-joel@jms.id.au>
+ <20180302063746.10993-3-joel@jms.id.au>
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <684152b5-4992-68b5-5abf-78ea2d6b34bc@roeck-us.net>
+Date: Fri, 2 Mar 2018 05:59:16 -0800
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="XF85m9dhOBO43t/C"
-Content-Disposition: inline
-In-Reply-To: <20180302063746.10993-2-joel@jms.id.au>
-List-ID: <linux-watchdog@vger.kernel.org>
+In-Reply-To: <20180302063746.10993-3-joel@jms.id.au>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-
---XF85m9dhOBO43t/C
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Fri, Mar 02, 2018 at 05:07:45PM +1030, Joel Stanley wrote:
-> These bindings describe the watchdog IP as used by the Nuvoton NPCM750
-> (Poleg) BMC SoC.
->=20
+On 03/01/2018 10:37 PM, Joel Stanley wrote:
+> The Nuvoton NPCM750 has a watchdog implemented as a single register
+> inside the timer peripheral.
+> 
+> This driver exposes that watchdog as a standard watchdog device with
+> coarse timeout intervals, limited by the combination of prescaler and
+> counter that is provided by the hardware. The calculation is taken from
+> the Nuvoton vendor tree.
+> 
+> There is a pre-timeout IRQ that is wired up. This timeout always occurs
+> 1024 clocks before the timeout.
+> 
 > Signed-off-by: Joel Stanley <joel@jms.id.au>
 > ---
->  .../bindings/watchdog/nuvoton,npcm-wdt.txt         | 25 ++++++++++++++++=
-++++++
->  1 file changed, 25 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/watchdog/nuvoton,np=
-cm-wdt.txt
->=20
-> diff --git a/Documentation/devicetree/bindings/watchdog/nuvoton,npcm-wdt.=
-txt b/Documentation/devicetree/bindings/watchdog/nuvoton,npcm-wdt.txt
+>   drivers/watchdog/Kconfig    |  11 +++
+>   drivers/watchdog/Makefile   |   1 +
+>   drivers/watchdog/npcm_wdt.c | 223 ++++++++++++++++++++++++++++++++++++++++++++
+>   3 files changed, 235 insertions(+)
+>   create mode 100644 drivers/watchdog/npcm_wdt.c
+> 
+> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> index aff773bcebdb..0c1cc68894e6 100644
+> --- a/drivers/watchdog/Kconfig
+> +++ b/drivers/watchdog/Kconfig
+> @@ -513,6 +513,17 @@ config COH901327_WATCHDOG
+>   	  This watchdog is used to reset the system and thus cannot be
+>   	  compiled as a module.
+>   
+> +config NPCM7XX_WATCHDOG
+> +	bool "NPCM750 watchdog"
+> +	depends on ARCH_NPCM || COMPILE_TEST
+> +	default y if ARCH_NPCM750
+> +	select WATCHDOG_CORE
+> +	help
+> +	  Say Y here to include Watchdog timer support for the
+> +	  watchdog embedded into the NPCM7xx.
+> +	  This watchdog is used to reset the system and thus cannot be
+> +	  compiled as a module.
+> +
+>   config TWL4030_WATCHDOG
+>   	tristate "TWL4030 Watchdog"
+>   	depends on TWL4030_CORE
+> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+> index 0474d38aa854..97a5afb5cad2 100644
+> --- a/drivers/watchdog/Makefile
+> +++ b/drivers/watchdog/Makefile
+> @@ -61,6 +61,7 @@ obj-$(CONFIG_ORION_WATCHDOG) += orion_wdt.o
+>   obj-$(CONFIG_SUNXI_WATCHDOG) += sunxi_wdt.o
+>   obj-$(CONFIG_RN5T618_WATCHDOG) += rn5t618_wdt.o
+>   obj-$(CONFIG_COH901327_WATCHDOG) += coh901327_wdt.o
+> +obj-$(CONFIG_NPCM7XX_WATCHDOG) += npcm_wdt.o
+>   obj-$(CONFIG_STMP3XXX_RTC_WATCHDOG) += stmp3xxx_rtc_wdt.o
+>   obj-$(CONFIG_NUC900_WATCHDOG) += nuc900_wdt.o
+>   obj-$(CONFIG_TS4800_WATCHDOG) += ts4800_wdt.o
+> diff --git a/drivers/watchdog/npcm_wdt.c b/drivers/watchdog/npcm_wdt.c
 > new file mode 100644
-> index 000000000000..599db288337e
+> index 000000000000..71e3d4916514
 > --- /dev/null
-> +++ b/Documentation/devicetree/bindings/watchdog/nuvoton,npcm-wdt.txt
-> @@ -0,0 +1,25 @@
-> +Nuvoton NPCM Watchdog
+> +++ b/drivers/watchdog/npcm_wdt.c
+> @@ -0,0 +1,223 @@
+> +// SPDX-License-Identifier: GPL-2.0
+> +// Copyright (c) 2018 Nuvoton Technology corporation.
+> +// Copyright (c) 2018 IBM Corp.
 > +
-> +Nuvoton NPCM timer module provides five 24-bit timer counters, and a wat=
-chdog.
-> +The watchdog supports a pre-timeout interrupt that fires 10ms before the
-> +expiry.
-> +
-> +Required properties:
-> +- compatible      : "nuvoton,npcm750-wdt" for NPCM750 (Poleg).
-> +- reg             : Offset and length of the register set for the device.
-> +- interrupts      : Contain the timer interrupt with flags for
-> +                    falling edge.
-> +
-> +Required clocking property, have to be one of:
-> +- clocks          : phandle of timer reference clock.
-> +- clock-frequency : The frequency in Hz of the clock that drives the NPC=
-M7xx
-> +                    timer (usually 25000000).
+> +#include <linux/delay.h>
+> +#include <linux/kernel.h>
+> +#include <linux/module.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/slab.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/watchdog.h>
+> +#include <asm/fiq.h>
+> +#include <linux/of_irq.h>
 
-Optional properties:
-- timeout-sec : Contains the watchdog timeout in seconds
+Alphabetic order for the linux includes, please.
 
-watchdog_init_timeout() will fix this for you.
 > +
-> +Example:
+> +#define NPCM_WTCR	0x1C
 > +
-> +timer@f00080c1 {
-> +    compatible =3D "nuvoton,npcm750-wdt";
-> +    interrupts =3D <GIC_SPI 47 IRQ_TYPE_LEVEL_HIGH>;
-> +    reg =3D <0xf00080c1 0x4>;
-> +    clocks =3D <&clk NPCM7XX_CLK_TIMER>;
+> +#define NPCM_WTCLK	(BIT(10) | BIT(11))	/* Clock divider */
+> +#define NPCM_WTE	BIT(7)			/* Enable */
+> +#define NPCM_WTIE	BIT(6)			/* Enable irq */
+> +#define NPCM_WTIS	(BIT(4) | BIT(5))	/* Interval selection */
+> +#define NPCM_WTIF	BIT(3)			/* Interrupt flag*/
+> +#define NPCM_WTRF	BIT(2)			/* Reset flag */
+> +#define NPCM_WTRE	BIT(1)			/* Reset enable */
+> +#define NPCM_WTR	BIT(0)			/* Reset counter */
+> +
+> +/*
+> + * Watchdog timeouts
+> + *
+> + * 170     msec:    WTCLK=01 WTIS=00     VAL= 0x400
+> + * 670     msec:    WTCLK=01 WTIS=01     VAL= 0x410
+> + * 1360    msec:    WTCLK=10 WTIS=00     VAL= 0x800
+> + * 2700    msec:    WTCLK=01 WTIS=10     VAL= 0x420
+> + * 5360    msec:    WTCLK=10 WTIS=01     VAL= 0x810
+> + * 10700   msec:    WTCLK=01 WTIS=11     VAL= 0x430
+> + * 21600   msec:    WTCLK=10 WTIS=10     VAL= 0x820
+> + * 43000   msec:    WTCLK=11 WTIS=00     VAL= 0xC00
+> + * 85600   msec:    WTCLK=10 WTIS=11     VAL= 0x830
+> + * 172000  msec:    WTCLK=11 WTIS=01     VAL= 0xC10
+> + * 687000  msec:    WTCLK=11 WTIS=10     VAL= 0xC20
+> + * 2750000 msec:    WTCLK=11 WTIS=11     VAL= 0xC30
+> + */
+> +
+> +struct npcm_wdt {
+> +	struct watchdog_device  wdd;
+> +	struct device		*dev;
+
+Unused
+
+> +	void __iomem		*reg;
 > +};
-> --=20
-> 2.15.1
->=20
+> +
+> +static inline struct npcm_wdt *to_npcm_wdt(struct watchdog_device *wdd)
+> +{
+> +	return container_of(wdd, struct npcm_wdt, wdd);
+> +}
+> +
+> +static int npcm_wdt_ping(struct watchdog_device *wdd)
+> +{
+> +	struct npcm_wdt *wdt = to_npcm_wdt(wdd);
+> +	u32 val;
+> +
+> +	val = readl(wdt->reg);
+> +	writel(val | NPCM_WTR, wdt->reg);
+> +
+> +	return 0;
+> +}
+> +
+> +static int npcm_wdt_start(struct watchdog_device *wdd)
+> +{
+> +	struct npcm_wdt *wdt = to_npcm_wdt(wdd);
+> +	u32 val;
+> +
+> +	val = NPCM_WTRE | NPCM_WTE | NPCM_WTR | NPCM_WTIE;
+> +
+> +	if (wdd->timeout < 2)
+> +		val |= 0x800;
+> +	else if (wdd->timeout < 3)
+> +		val |= 0x420;
+> +	else if (wdd->timeout < 6)
+> +		val |= 0x810;
+> +	else if (wdd->timeout < 11)
+> +		val |= 0x430;
+> +	else if (wdd->timeout < 22)
+> +		val |= 0x820;
+> +	else if (wdd->timeout < 44)
+> +		val |= 0xC00;
+> +	else if (wdd->timeout < 87)
+> +		val |= 0x830;
+> +	else if (wdd->timeout < 173)
+> +		val |= 0xC10;
+> +	else if (wdd->timeout < 688)
+> +		val |= 0xC20;
+> +	else if (wdd->timeout < 2751)
+> +		val |= 0xC30;
+> +	else
+> +		val |= 0x830;
 
+I am lost here. If the requested timeout is 2751, the actual timeout
+is set to 85.6 seconds. Why ?
 
-Best regards
-Marcus Folkesson
+> +
+> +	writel(val, wdt->reg);
+> +
+> +	return 0;
+> +}
+> +
+> +static int npcm_wdt_stop(struct watchdog_device *wdd)
+> +{
+> +	struct npcm_wdt *wdt = to_npcm_wdt(wdd);
+> +
+> +	writel(0, wdt->reg);
+> +
+> +	return 0;
+> +}
+> +
+> +
+> +static int npcm_wdt_set_timeout(struct watchdog_device *wdd,
+> +				unsigned int timeout)
+> +{
+> +	wdd->timeout = timeout;     /* New timeout */
 
---XF85m9dhOBO43t/C
-Content-Type: application/pgp-signature; name="signature.asc"
+This must be set to the actual selected timeout, not to the
+requested timeout.
 
------BEGIN PGP SIGNATURE-----
+> +	if (watchdog_active(wdd))
+> +		npcm_wdt_start(wdd);
+> +
+> +	return 0;
+> +}
+> +
+> +static irqreturn_t npcm_wdt_interrupt(int irq, void *data)
+> +{
+> +	struct npcm_wdt *wdt = data;
+> +
+> +	watchdog_notify_pretimeout(&wdt->wdd);
+> +
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +static int npcm_wdt_restart(struct watchdog_device *wdd,
+> +			    unsigned long action, void *data)
+> +{
+> +	struct npcm_wdt *wdt = to_npcm_wdt(wdd);
+> +
+> +	writel(NPCM_WTR | NPCM_WTRE | NPCM_WTE, wdt->reg);
+> +	udelay(1000);
+> +
+> +	return 0;
+> +}
+> +
+> +static const struct watchdog_info npcm_wdt_info = {
+> +	.identity	= KBUILD_MODNAME,
+> +	.options	= WDIOF_SETTIMEOUT
+> +			| WDIOF_KEEPALIVEPING
+> +			| WDIOF_MAGICCLOSE,
+> +};
+> +
+> +static const struct watchdog_ops npcm_wdt_ops = {
+> +	.owner = THIS_MODULE,
+> +	.start = npcm_wdt_start,
+> +	.stop = npcm_wdt_stop,
+> +	.ping = npcm_wdt_ping,
+> +	.set_timeout = npcm_wdt_set_timeout,
+> +	.restart = npcm_wdt_restart,
+> +};
+> +
+> +static int npcm_wdt_probe(struct platform_device *pdev)
+> +{
+> +	struct device *dev = &pdev->dev;
+> +	struct npcm_wdt *wdt;
+> +	struct resource *res;
+> +	int irq;
+> +	int ret;
+> +
+> +	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
+> +	if (!wdt)
+> +		return -ENOMEM;
+> +
+> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +	wdt->reg = devm_ioremap_resource(dev, res);
+> +	if (IS_ERR(wdt->reg))
+> +		return PTR_ERR(wdt->reg);
+> +
+> +	irq = platform_get_irq(pdev, 0);
+> +	if (!irq)
+> +		return -EINVAL;
+> +
+> +	wdt->dev = dev;
+> +	wdt->wdd.info = &npcm_wdt_info;
+> +	wdt->wdd.ops = &npcm_wdt_ops;
+> +	wdt->wdd.min_timeout = 1;
+> +	wdt->wdd.max_timeout = 2751;
+> +	wdt->wdd.parent = dev;
+> +
+> +	wdt->wdd.timeout = 86;
+> +	watchdog_init_timeout(&wdt->wdd, 0, dev);
+> +
+> +	ret = devm_request_irq(dev, irq, npcm_wdt_interrupt, 0,
+> +			"watchdog", wdt);
+> +	if (ret)
+> +		return ret;
+> +
+> +	ret = devm_watchdog_register_device(dev, &wdt->wdd);
+> +	if (ret) {
+> +		dev_err(dev, "failed to register watchdog\n");
+> +		return ret;
+> +	}
+> +
+> +	platform_set_drvdata(pdev, wdt);
 
-iQIzBAEBCAAdFiEEBVGi6LZstU1kwSxliIBOb1ldUjIFAlqZNFsACgkQiIBOb1ld
-UjLUug/9FKQmbDGOcyi80kxHKqnKZmIhWtQ926N0QWoSL5MNEEOuE4UDjwaldw5z
-CO5TWEvGfbKiiQZReug0OWiPK/dYmnD5CCyMGUeumPdtdXlrUWKcZ8rVEn5g0UZf
-NMtEFDhWYNR6TyP5PWzIOJ7g2U2RFuooWbw5n5xOemn3QuoTBqjFRH6fPZnBWoSx
-vgGL1dgR2usnepu6sbDKBPSegvPmNgjk050vbycyrAGUFM/+6J+YAWvf5RJVQfGp
-MKXXeeWripDs/OBf6OrvsbntnmtI5BEBI4RNuW2yjDMFhkMEVgrvqWzZOQfBOITn
-NxH1hFKfgyWIZ/Yxk26uodWsiMowIy8mhyOInPm2HtTwXpmcqrucd9vBEXCGvWyx
-FCD7MfiUe/oi8gwPVvnadSBm49x7B1oYc6UMR7ddDhgbKioCsIhBk7IiFBD5NR0G
-HMZ4FV0Wf4zOEo892dAG8lpD179E5Qj7UEqE8H8df2bI+6mIIsfRwD0U61A5Wqwh
-u7cu2G7/9E/D8964yssAgJG7hqEmtIAvXzOT2wGlcPbpZERy/XeSM/FnY6e5CnDp
-u32c+AkN4d5fdYT6GMRKhEt3FceVuJmV/J33VOLnFDIq6wQPMyYin/8I3HYmWOJJ
-epzeVPL7C5YudzAUUWHml5yfNdgUW9/ZqUesLeo7x3bJavxGQI8=
-=yuLj
------END PGP SIGNATURE-----
+I don't see where this is used.
 
---XF85m9dhOBO43t/C--
+> +	dev_info(dev, "NPCM watchdog driver enabled\n");
+> +
+> +	return 0;
+> +}
+> +
+> +#ifdef CONFIG_OF
+> +static const struct of_device_id npcm_wdt_match[] = {
+> +	{.compatible = "nuvoton,npcm750-wdt"},
+> +	{},
+> +};
+> +MODULE_DEVICE_TABLE(of, npcm_wdt_match);
+> +#endif
+> +
+> +static struct platform_driver npcm_wdt_driver = {
+> +	.probe		= npcm_wdt_probe,
+> +	.driver		= {
+> +		.name	= "npcm-wdt",
+> +		.of_match_table = of_match_ptr(npcm_wdt_match),
+> +	},
+> +};
+> +module_platform_driver(npcm_wdt_driver);
+> +
+> +MODULE_AUTHOR("Joel Stanley");
+> +MODULE_DESCRIPTION("Watchdog driver for NPCM");
+> +MODULE_LICENSE("GPL");
+> 
+
