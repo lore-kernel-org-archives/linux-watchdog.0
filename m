@@ -1,10 +1,9 @@
-Return-Path: <vilhelm.gray@gmail.com>
-Return-path: <vilhelm.gray@gmail.com>
-Date: Sun, 4 Mar 2018 20:33:24 -0500
-From: William Breathitt Gray <vilhelm.gray@gmail.com>
+Return-Path: <aaro.koskinen@iki.fi>
+Return-path: <aaro.koskinen@iki.fi>
+Date: Mon, 5 Mar 2018 21:30:58 +0200
+From: Aaro Koskinen <aaro.koskinen@iki.fi>
 To: Guenter Roeck <linux@roeck-us.net>
-Cc: Aaro Koskinen <aaro.koskinen@iki.fi>,
-	Marcus Folkesson <marcus.folkesson@gmail.com>,
+Cc: Marcus Folkesson <marcus.folkesson@gmail.com>,
 	Wim Van Sebroeck <wim@linux-watchdog.org>,
 	Joel Stanley <joel@jms.id.au>,
 	Nicolas Ferre <nicolas.ferre@microchip.com>,
@@ -15,7 +14,9 @@ Cc: Aaro Koskinen <aaro.koskinen@iki.fi>,
 	Eric Anholt <eric@anholt.net>,
 	Stefan Wahren <stefan.wahren@i2se.com>,
 	Support Opensource <support.opensource@diasemi.com>,
-	Baruch Siach <baruch@tkos.co.il>, Jimmy Vance <jimmy.vance@hpe.com>,
+	Baruch Siach <baruch@tkos.co.il>,
+	William Breathitt Gray <vilhelm.gray@gmail.com>,
+	Jimmy Vance <jimmy.vance@hpe.com>,
 	Keguang Zhang <keguang.zhang@gmail.com>,
 	Tomas Winkler <tomas.winkler@intel.com>,
 	Johannes Thumshirn <morbidrsa@gmail.com>,
@@ -44,55 +45,34 @@ Cc: Aaro Koskinen <aaro.koskinen@iki.fi>,
 	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
 	Philippe Ombredanne <pombredanne@nexb.com>
 Subject: Re: [PATCH v5] watchdog: add SPDX identifiers for watchdog subsystem
-Message-ID: <20180305013308.GA11983@sophia>
+Message-ID: <20180305193057.3pxsfc6i5fjdi5dm@darkstar.musicnaut.iki.fi>
 References: <20180301085450.13829-1-marcus.folkesson@gmail.com>
  <20180304235319.55gulkoxk4vcaoug@darkstar.musicnaut.iki.fi>
  <9db48467-7727-87b7-5c55-9c53c46a901f@roeck-us.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <9db48467-7727-87b7-5c55-9c53c46a901f@roeck-us.net>
 List-ID: <linux-watchdog@vger.kernel.org>
 
+Hi,
+
 On Sun, Mar 04, 2018 at 05:11:00PM -0800, Guenter Roeck wrote:
->On 03/04/2018 03:53 PM, Aaro Koskinen wrote:
->> Hi,
->> 
->> On Thu, Mar 01, 2018 at 09:54:50AM +0100, Marcus Folkesson wrote:
->>> diff --git a/drivers/watchdog/retu_wdt.c b/drivers/watchdog/retu_wdt.c
->>> index 39cd51df2ffc..258dfcf9cbda 100644
->>> --- a/drivers/watchdog/retu_wdt.c
->>> +++ b/drivers/watchdog/retu_wdt.c
->>> @@ -1,3 +1,4 @@
->>> +// SPDX-License-Identifier: GPL-2.0+
->> 
->> Why "+" and not just GPL-2.0?
->> 
->
->My non-attorney feedback, which doesn't really mean anything, is that
->MODULE_LICENSE says GPL. There appears to be no indication in the file
->suggesting that the license would be limited or restricted to GPL v2.
->
->This makes me wonder if we should drop this patch entirely. I am not an
->attorney, and if we start getting into license disputes I rather revert
->to doing nothing than getting into trouble by signing off to something
->that isn't legally clean.
->
->Guenter
+> On 03/04/2018 03:53 PM, Aaro Koskinen wrote:
+> > On Thu, Mar 01, 2018 at 09:54:50AM +0100, Marcus Folkesson wrote:
+> > > diff --git a/drivers/watchdog/retu_wdt.c b/drivers/watchdog/retu_wdt.c
+> > > index 39cd51df2ffc..258dfcf9cbda 100644
+> > > --- a/drivers/watchdog/retu_wdt.c
+> > > +++ b/drivers/watchdog/retu_wdt.c
+> > > @@ -1,3 +1,4 @@
+> > > +// SPDX-License-Identifier: GPL-2.0+
+> > 
+> > Why "+" and not just GPL-2.0?
+> 
+> My non-attorney feedback, which doesn't really mean anything, is that
+> MODULE_LICENSE says GPL. There appears to be no indication in the file
+> suggesting that the license would be limited or restricted to GPL v2.
 
-Regardless of the legal aspect of these changes, I believe the ultimate
-decision to change license text should be handled by the authors of the
-code. License text is a statement of intention by the authors' for the
-use of their provided code. A change of license text thus is by its very
-nature -- even if meant to be compatible -- a change of the authors'
-intention. Therefore, it would make sense that license text changes
-should be provided directly from the authors.
+Well, it does ask to check kernel's COPYING file for details.
 
-Rather than seeking ACKs on an encompassing patch such as this, I would
-suggest that a more appropriate way to get these SPDX changes merged is
-to request the authors of these pieces of code to submit the relevant
-license text change patches themselves directly. This would remove the
-ambiquity of what the authors' intentions actually are, as well as ease
-the legal fears some have with the current attempt.
-
-William Breathitt Gray
+A.
