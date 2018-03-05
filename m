@@ -1,67 +1,54 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:40041 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751462AbeCEPfH (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 5 Mar 2018 10:35:07 -0500
-Date: Mon, 5 Mar 2018 16:35:05 +0100
-From: Wolfram Sang <wsa@the-dreams.de>
+Received: from mail-qt0-f195.google.com ([209.85.216.195]:46682 "EHLO
+        mail-qt0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751462AbeCEQmw (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 5 Mar 2018 11:42:52 -0500
+MIME-Version: 1.0
+In-Reply-To: <1520263826-1937-4-git-send-email-fabrizio.castro@bp.renesas.com>
+References: <1520263826-1937-1-git-send-email-fabrizio.castro@bp.renesas.com> <1520263826-1937-4-git-send-email-fabrizio.castro@bp.renesas.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Mon, 5 Mar 2018 17:42:50 +0100
+Message-ID: <CAMuHMdU8xd3j0sCGUF9dD3iBXmbMJfM9S2cQmBrj6p97nuiUbQ@mail.gmail.com>
+Subject: Re: [PATCH v8 3/3] watchdog: renesas_wdt: Add restart handler
 To: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
 Cc: Wim Van Sebroeck <wim@iguana.be>,
         Geert Uytterhoeven <geert+renesas@glider.be>,
         Simon Horman <horms@verge.net.au>,
         Guenter Roeck <linux@roeck-us.net>,
         Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        linux-watchdog@vger.kernel.org,
+        Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
         Chris Paterson <Chris.Paterson2@renesas.com>,
         Biju Das <biju.das@bp.renesas.com>,
-        linux-renesas-soc@vger.kernel.org,
+        Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
         Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
-Subject: Re: [PATCH v8 2/3] watchdog: renesas_wdt: Add R-Car Gen2 support
-Message-ID: <20180305153505.zemre32nauq5jqty@ninjato>
-References: <1520263826-1937-1-git-send-email-fabrizio.castro@bp.renesas.com>
- <1520263826-1937-3-git-send-email-fabrizio.castro@bp.renesas.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="aigy4jndjj3hv7j4"
-Content-Disposition: inline
-In-Reply-To: <1520263826-1937-3-git-send-email-fabrizio.castro@bp.renesas.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+On Mon, Mar 5, 2018 at 4:30 PM, Fabrizio Castro
+<fabrizio.castro@bp.renesas.com> wrote:
+> On iWave's boards iwg20d and iwg22d the only way to reboot the system is
+> by means of the watchdog.
+> This patch adds a restart handler to rwdt_ops, and also makes sure we
+> keep its priority to the lowest level, in order to not override other
+> more effective handlers.
+>
+> Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
+> Signed-off-by: Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
+> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+> Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
---aigy4jndjj3hv7j4
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
 
+Gr{oetje,eeting}s,
 
-> Since Simon only reviewed Geert's patch, and Wolfram and Guenter only reviewed
-> earlier versions of this patch, I am not including their "Reviewed-by" as they
-> may disagree with the final result.
+                        Geert
 
-I don't :)
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-Acked-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-
-
---aigy4jndjj3hv7j4
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlqdY6kACgkQFA3kzBSg
-KbamNRAAs/LzJPBha6JUMfX1oWH9OPHVgqGKl7RD7Yr0EjLzmOd+Cpxf5prNv6Fl
-W2cN7BfeUXqH2hKgqfdjFzQuT09Y8HS7hefHZg6PFDxwxqHKry2lZMm94hvNeMcK
-TUq0kKjxlRFNLuWYdX2sZci0jS4E7iazLAOKjhtyjxAQctJkFUrWIMQG85uB7Zq7
-DntjYDMZ5tcKxb/P950sqPEo7r8WFKTkqTWqhFoV58cZ/4JZnkqON67Vhzw2vaI2
-j7ZD/pyYibYvv7SxblJE5p9y7Xkzd08mQTFjWxKBbBQ93naS0/wczBPWyPHT1Et2
-wQVOhDgCFSg0/sC/OxltKPQA2riGbPrLlpT2prq5ysmExfIrnKEz0QD4v4IwnGow
-aNbFzyBbQ+UbOV41fFHqnsRPgUnJwndsI11uw6UYuQNi2L34ez2nSwQQA836B5E4
-qQKmL5YgCL9KYM5ip6Pd2077IJytN/ClHKMfRUn5/ziPxvzWg7OhAVOdBR/SoGJS
-dSKWLLvcZvUbNFEaeCAh6ArdWyd5nHnWFWaSn6jldgcWf7lN6LiDbfN2FhEITakG
-02DX5o1OSnTPoZmYjVQfQZcIw3gwaAVMe8JPeQMN3s80aWAkLX0cBqGRY5hKNZUb
-YCcRMvyigKe6NtWGIRnKtMhqiwArzNG4z0rwbmaBq1+/CHy+ppU=
-=ovGW
------END PGP SIGNATURE-----
-
---aigy4jndjj3hv7j4--
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
