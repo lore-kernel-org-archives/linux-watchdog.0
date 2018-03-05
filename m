@@ -1,165 +1,348 @@
-Return-Path: <marcus.folkesson@gmail.com>
-Return-path: <marcus.folkesson@gmail.com>
-Date: Mon, 5 Mar 2018 23:08:04 +0100
-From: Marcus Folkesson <marcus.folkesson@gmail.com>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Aaro Koskinen <aaro.koskinen@iki.fi>,
-	Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Joel Stanley <joel@jms.id.au>,
-	Nicolas Ferre <nicolas.ferre@microchip.com>,
-	Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	Florian Fainelli <f.fainelli@gmail.com>,
-	Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>,
-	bcm-kernel-feedback-list@broadcom.com,
-	Eric Anholt <eric@anholt.net>,
-	Stefan Wahren <stefan.wahren@i2se.com>,
-	Support Opensource <support.opensource@diasemi.com>,
-	Baruch Siach <baruch@tkos.co.il>,
-	William Breathitt Gray <vilhelm.gray@gmail.com>,
-	Jimmy Vance <jimmy.vance@hpe.com>,
-	Keguang Zhang <keguang.zhang@gmail.com>,
-	Tomas Winkler <tomas.winkler@intel.com>,
-	Johannes Thumshirn <morbidrsa@gmail.com>,
-	Carlo Caione <carlo@caione.org>,
-	Kevin Hilman <khilman@baylibre.com>,
-	Matthias Brugger <matthias.bgg@gmail.com>,
-	Michal Simek <michal.simek@xilinx.com>,
-	Vladimir Zapolskiy <vz@mleia.com>,
-	Sylvain Lemieux <slemieux.tyco@gmail.com>,
-	Kukjin Kim <kgene@kernel.org>,
-	Krzysztof Kozlowski <krzk@kernel.org>,
-	Zwane Mwaikambo <zwanem@gmail.com>,
-	Jim Cromie <jim.cromie@gmail.com>, Barry Song <baohua@kernel.org>,
-	Patrice Chotard <patrice.chotard@st.com>,
-	Maxime Ripard <maxime.ripard@bootlin.com>,
-	Chen-Yu Tsai <wens@csie.org>,
-	Marc Gonzalez <marc.w.gonzalez@free.fr>,
-	Mans Rullgard <mans@mansr.com>,
-	Thierry Reding <thierry.reding@gmail.com>,
-	Jonathan Hunter <jonathanh@nvidia.com>,
-	Masahiro Yamada <yamada.masahiro@socionext.com>,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	Paul Mackerras <paulus@samba.org>,
-	Michael Ellerman <mpe@ellerman.id.au>, Jun Nie <jun.nie@linaro.org>,
-	Baoyou Xie <baoyou.xie@linaro.org>, Shawn Guo <shawnguo@kernel.org>,
-	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Philippe Ombredanne <pombredanne@nexb.com>
-Subject: Re: [PATCH v5] watchdog: add SPDX identifiers for watchdog subsystem
-Message-ID: <20180305220804.GA3424@gmail.com>
-References: <20180301085450.13829-1-marcus.folkesson@gmail.com>
- <20180304235319.55gulkoxk4vcaoug@darkstar.musicnaut.iki.fi>
- <9db48467-7727-87b7-5c55-9c53c46a901f@roeck-us.net>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-ot0-f195.google.com ([74.125.82.195]:41333 "EHLO
+        mail-ot0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752264AbeCEO3z (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 5 Mar 2018 09:29:55 -0500
+Subject: Re: [PATCH v2 2/2] watchdog: Add Nuvoton NPCM watchdog driver
+To: Joel Stanley <joel@jms.id.au>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Marcus Folkesson <marcus.folkesson@gmail.com>
+Cc: linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Tomer Maimon <tmaimon77@gmail.com>,
+        Avi Fishman <avifishman70@gmail.com>,
+        Brendan Higgins <brendanhiggins@google.com>
+References: <20180305114541.9917-1-joel@jms.id.au>
+ <20180305114541.9917-3-joel@jms.id.au>
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <3b5b9ee6-10a5-adf5-6cff-2e0efde215b3@roeck-us.net>
+Date: Mon, 5 Mar 2018 06:29:50 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9db48467-7727-87b7-5c55-9c53c46a901f@roeck-us.net>
-List-ID: <linux-watchdog@vger.kernel.org>
+In-Reply-To: <20180305114541.9917-3-joel@jms.id.au>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-Guenter, Aaro,
+Hi Joel,
 
-On Sun, Mar 04, 2018 at 05:11:00PM -0800, Guenter Roeck wrote:
-> On 03/04/2018 03:53 PM, Aaro Koskinen wrote:
-> > Hi,
-> > 
-> > On Thu, Mar 01, 2018 at 09:54:50AM +0100, Marcus Folkesson wrote:
-> > > diff --git a/drivers/watchdog/retu_wdt.c b/drivers/watchdog/retu_wdt.c
-> > > index 39cd51df2ffc..258dfcf9cbda 100644
-> > > --- a/drivers/watchdog/retu_wdt.c
-> > > +++ b/drivers/watchdog/retu_wdt.c
-> > > @@ -1,3 +1,4 @@
-> > > +// SPDX-License-Identifier: GPL-2.0+
-> > 
-> > Why "+" and not just GPL-2.0?
-> > 
+On 03/05/2018 03:45 AM, Joel Stanley wrote:
+> The Nuvoton NPCM750 has a watchdog implemented as a single register
+> inside the timer peripheral.
 > 
-> My non-attorney feedback, which doesn't really mean anything, is that
-> MODULE_LICENSE says GPL. There appears to be no indication in the file
-> suggesting that the license would be limited or restricted to GPL v2.
+> This driver exposes that watchdog as a standard watchdog device with
+> coarse timeout intervals, limited by the combination of prescaler and
+> counter that is provided by the hardware. The calculation is taken from
+> the Nuvoton vendor tree.
+> 
+> There is a pre-timeout IRQ that is wired up. This timeout always occurs
+> 1024 clocks before the timeout.
+> 
+> Signed-off-by: Joel Stanley <joel@jms.id.au>
+> ---
+> v2:
+>   - Make MODULE_LICENCE gpl v2 to match SPDX
+>   - Remove unused struct device pointer
+>   - Remove unused setting of drvdata
+>   - Add linux/bitops.h
+>   - Sort includes
+>   - Remove unused fiq include
+>   - Update timeout with achieved value
+> ---
+>   drivers/watchdog/Kconfig    |  11 +++
+>   drivers/watchdog/Makefile   |   1 +
+>   drivers/watchdog/npcm_wdt.c | 230 ++++++++++++++++++++++++++++++++++++++++++++
+>   3 files changed, 242 insertions(+)
+>   create mode 100644 drivers/watchdog/npcm_wdt.c
+> 
+> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> index aff773bcebdb..0c1cc68894e6 100644
+> --- a/drivers/watchdog/Kconfig
+> +++ b/drivers/watchdog/Kconfig
+> @@ -513,6 +513,17 @@ config COH901327_WATCHDOG
+>   	  This watchdog is used to reset the system and thus cannot be
+>   	  compiled as a module.
+>   
+> +config NPCM7XX_WATCHDOG
+> +	bool "NPCM750 watchdog"
+> +	depends on ARCH_NPCM || COMPILE_TEST
+> +	default y if ARCH_NPCM750
+> +	select WATCHDOG_CORE
+> +	help
+> +	  Say Y here to include Watchdog timer support for the
+> +	  watchdog embedded into the NPCM7xx.
+> +	  This watchdog is used to reset the system and thus cannot be
+> +	  compiled as a module.
+> +
+>   config TWL4030_WATCHDOG
+>   	tristate "TWL4030 Watchdog"
+>   	depends on TWL4030_CORE
+> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+> index 0474d38aa854..97a5afb5cad2 100644
+> --- a/drivers/watchdog/Makefile
+> +++ b/drivers/watchdog/Makefile
+> @@ -61,6 +61,7 @@ obj-$(CONFIG_ORION_WATCHDOG) += orion_wdt.o
+>   obj-$(CONFIG_SUNXI_WATCHDOG) += sunxi_wdt.o
+>   obj-$(CONFIG_RN5T618_WATCHDOG) += rn5t618_wdt.o
+>   obj-$(CONFIG_COH901327_WATCHDOG) += coh901327_wdt.o
+> +obj-$(CONFIG_NPCM7XX_WATCHDOG) += npcm_wdt.o
+>   obj-$(CONFIG_STMP3XXX_RTC_WATCHDOG) += stmp3xxx_rtc_wdt.o
+>   obj-$(CONFIG_NUC900_WATCHDOG) += nuc900_wdt.o
+>   obj-$(CONFIG_TS4800_WATCHDOG) += ts4800_wdt.o
+> diff --git a/drivers/watchdog/npcm_wdt.c b/drivers/watchdog/npcm_wdt.c
+> new file mode 100644
+> index 000000000000..2cfc58714d8d
+> --- /dev/null
+> +++ b/drivers/watchdog/npcm_wdt.c
+> @@ -0,0 +1,230 @@
+> +// SPDX-License-Identifier: GPL-2.0
+> +// Copyright (c) 2018 Nuvoton Technology corporation.
+> +// Copyright (c) 2018 IBM Corp.
+> +
+> +#include <linux/bitops.h>
+> +#include <linux/delay.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/kernel.h>
+> +#include <linux/module.h>
+> +#include <linux/of_irq.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/slab.h>
+> +#include <linux/watchdog.h>
+> +
+> +#define NPCM_WTCR	0x1C
+> +
+> +#define NPCM_WTCLK	(BIT(10) | BIT(11))	/* Clock divider */
+> +#define NPCM_WTE	BIT(7)			/* Enable */
+> +#define NPCM_WTIE	BIT(6)			/* Enable irq */
+> +#define NPCM_WTIS	(BIT(4) | BIT(5))	/* Interval selection */
+> +#define NPCM_WTIF	BIT(3)			/* Interrupt flag*/
+> +#define NPCM_WTRF	BIT(2)			/* Reset flag */
+> +#define NPCM_WTRE	BIT(1)			/* Reset enable */
+> +#define NPCM_WTR	BIT(0)			/* Reset counter */
+> +
+> +/*
+> + * Watchdog timeouts
+> + *
+> + * 170     msec:    WTCLK=01 WTIS=00     VAL= 0x400
+> + * 670     msec:    WTCLK=01 WTIS=01     VAL= 0x410
+> + * 1360    msec:    WTCLK=10 WTIS=00     VAL= 0x800
+> + * 2700    msec:    WTCLK=01 WTIS=10     VAL= 0x420
+> + * 5360    msec:    WTCLK=10 WTIS=01     VAL= 0x810
+> + * 10700   msec:    WTCLK=01 WTIS=11     VAL= 0x430
+> + * 21600   msec:    WTCLK=10 WTIS=10     VAL= 0x820
+> + * 43000   msec:    WTCLK=11 WTIS=00     VAL= 0xC00
+> + * 85600   msec:    WTCLK=10 WTIS=11     VAL= 0x830
+> + * 172000  msec:    WTCLK=11 WTIS=01     VAL= 0xC10
+> + * 687000  msec:    WTCLK=11 WTIS=10     VAL= 0xC20
+> + * 2750000 msec:    WTCLK=11 WTIS=11     VAL= 0xC30
+> + */
+> +
+> +struct npcm_wdt {
+> +	struct watchdog_device  wdd;
+> +	void __iomem		*reg;
+> +};
+> +
+> +static inline struct npcm_wdt *to_npcm_wdt(struct watchdog_device *wdd)
+> +{
+> +	return container_of(wdd, struct npcm_wdt, wdd);
+> +}
+> +
+> +static int npcm_wdt_ping(struct watchdog_device *wdd)
+> +{
+> +	struct npcm_wdt *wdt = to_npcm_wdt(wdd);
+> +	u32 val;
+> +
+> +	val = readl(wdt->reg);
+> +	writel(val | NPCM_WTR, wdt->reg);
+> +
+> +	return 0;
+> +}
+> +
+> +static int npcm_wdt_start(struct watchdog_device *wdd)
+> +{
+> +	struct npcm_wdt *wdt = to_npcm_wdt(wdd);
+> +	u32 val;
+> +
+> +	val = NPCM_WTRE | NPCM_WTE | NPCM_WTR | NPCM_WTIE;
+> +
+> +	if (wdd->timeout < 2) {
+> +		val |= 0x800;
+> +		wdd->timeout = 1;
+> +	} else if (wdd->timeout < 3) {
+> +		val |= 0x420;
+> +		wdd->timeout = 2;
+> +	} else if (wdd->timeout < 6) {
+> +		val |= 0x810;
+> +		wdd->timeout = 5;
+> +	} else if (wdd->timeout < 11) {
+> +		val |= 0x430;
+> +		wdd->timeout = 10;
+> +	} else if (wdd->timeout < 22) {
+> +		val |= 0x820;
+> +		wdd->timeout = 21;
+> +	} else if (wdd->timeout < 44) {
+> +		val |= 0xC00;
+> +		wdd->timeout = 43;
+> +	} else if (wdd->timeout < 87) {
+> +		val |= 0x830;
+> +		wdd->timeout = 86;
+> +	} else if (wdd->timeout < 173) {
+> +		val |= 0xC10;
+> +		wdd->timeout = 172;
+> +	} else if (wdd->timeout < 688) {
+> +		val |= 0xC20;
+> +		wdd->timeout = 687;
+> +	} else {
+> +		val |= 0xC30;
+> +		wdd->timeout = 2750;
+> +	}
+> +
+> +	writel(val, wdt->reg);
+> +
+> +	return 0;
+> +}
+> +
+> +static int npcm_wdt_stop(struct watchdog_device *wdd)
+> +{
+> +	struct npcm_wdt *wdt = to_npcm_wdt(wdd);
+> +
+> +	writel(0, wdt->reg);
+> +
+> +	return 0;
+> +}
+> +
+> +
+> +static int npcm_wdt_set_timeout(struct watchdog_device *wdd,
+> +				unsigned int timeout)
+> +{
+> +	/* timeout is updated with the achieved value in npcm_wdt_start */
+
+Yes, but only if the watchdog is running. If it is not running, userspace
+would end up being confused. While it is extra effort, you'll have to set
+->timeout to the correct value here, not in the start function.
+
+> +	wdd->timeout = timeout;
+> +	if (watchdog_active(wdd))
+> +		npcm_wdt_start(wdd);
+> +
+> +	return 0;
+> +}
+> +
+> +static irqreturn_t npcm_wdt_interrupt(int irq, void *data)
+> +{
+> +	struct npcm_wdt *wdt = data;
+> +
+> +	watchdog_notify_pretimeout(&wdt->wdd);
+> +
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +static int npcm_wdt_restart(struct watchdog_device *wdd,
+> +			    unsigned long action, void *data)
+> +{
+> +	struct npcm_wdt *wdt = to_npcm_wdt(wdd);
+> +
+> +	writel(NPCM_WTR | NPCM_WTRE | NPCM_WTE, wdt->reg);
+> +	udelay(1000);
+> +
+> +	return 0;
+> +}
+> +
+> +static const struct watchdog_info npcm_wdt_info = {
+> +	.identity	= KBUILD_MODNAME,
+> +	.options	= WDIOF_SETTIMEOUT
+> +			| WDIOF_KEEPALIVEPING
+> +			| WDIOF_MAGICCLOSE,
+> +};
+> +
+> +static const struct watchdog_ops npcm_wdt_ops = {
+> +	.owner = THIS_MODULE,
+> +	.start = npcm_wdt_start,
+> +	.stop = npcm_wdt_stop,
+> +	.ping = npcm_wdt_ping,
+> +	.set_timeout = npcm_wdt_set_timeout,
+> +	.restart = npcm_wdt_restart,
+> +};
+> +
+> +static int npcm_wdt_probe(struct platform_device *pdev)
+> +{
+> +	struct device *dev = &pdev->dev;
+> +	struct npcm_wdt *wdt;
+> +	struct resource *res;
+> +	int irq;
+> +	int ret;
+> +
+> +	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
+> +	if (!wdt)
+> +		return -ENOMEM;
+> +
+> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +	wdt->reg = devm_ioremap_resource(dev, res);
+> +	if (IS_ERR(wdt->reg))
+> +		return PTR_ERR(wdt->reg);
+> +
+> +	irq = platform_get_irq(pdev, 0);
+> +	if (!irq)
+> +		return -EINVAL;
+> +
+> +	wdt->wdd.info = &npcm_wdt_info;
+> +	wdt->wdd.ops = &npcm_wdt_ops;
+> +	wdt->wdd.min_timeout = 1;
+> +	wdt->wdd.max_timeout = 2750;
+> +	wdt->wdd.parent = dev;
+> +
+> +	wdt->wdd.timeout = 86;
+> +	watchdog_init_timeout(&wdt->wdd, 0, dev);
+> +
+
+One thought ...
+
+The rest of the code suggests that it is possible to detect if the watchdog
+is already running, and its selected timeout. While not mandatory, it might
+make sense to detect that situation, tell the watchdog core, and keep it running.
+
+Otherwise, it might make sense to call the stop function before registering
+the watchdog to ensure that it isn't running.
+
+> +	ret = devm_request_irq(dev, irq, npcm_wdt_interrupt, 0,
+> +			"watchdog", wdt);
+> +	if (ret)
+> +		return ret;
+> +
+> +	ret = devm_watchdog_register_device(dev, &wdt->wdd);
+> +	if (ret) {
+> +		dev_err(dev, "failed to register watchdog\n");
+> +		return ret;
+> +	}
+> +
+> +	dev_info(dev, "NPCM watchdog driver enabled\n");
+> +
+> +	return 0;
+> +}
+> +
+> +#ifdef CONFIG_OF
+> +static const struct of_device_id npcm_wdt_match[] = {
+> +	{.compatible = "nuvoton,npcm750-wdt"},
+> +	{},
+> +};
+> +MODULE_DEVICE_TABLE(of, npcm_wdt_match);
+> +#endif
+> +
+> +static struct platform_driver npcm_wdt_driver = {
+> +	.probe		= npcm_wdt_probe,
+> +	.driver		= {
+> +		.name	= "npcm-wdt",
+> +		.of_match_table = of_match_ptr(npcm_wdt_match),
+> +	},
+> +};
+> +module_platform_driver(npcm_wdt_driver);
+> +
+> +MODULE_AUTHOR("Joel Stanley");
+> +MODULE_DESCRIPTION("Watchdog driver for NPCM");
+> +MODULE_LICENSE("GPL v2");
 > 
 
-Yep, that is correct.
-The license for this module is set to "GPLv2 or later" as MODULE_LICENSE says "GPL".
-
->From include/linux/module.h [1]:
-
-/*
- * The following license idents are currently accepted as indicating free
- * software modules
- *
- *	"GPL"				[GNU Public License v2 or later]
- *	"GPL v2"			[GNU Public License v2]
- *	"GPL and additional rights"	[GNU Public License v2 rights and more]
- *	"Dual BSD/GPL"			[GNU Public License v2
- *					 or BSD license choice]
- *	"Dual MIT/GPL"			[GNU Public License v2
- *					 or MIT license choice]
- *	"Dual MPL/GPL"			[GNU Public License v2
- *					 or Mozilla license choice]
- *
-
-
-But in this case the boilerplate license text was GPLv2, and I should
-have go for that instead.
-
-
-> This makes me wonder if we should drop this patch entirely. I am not an
-> attorney, and if we start getting into license disputes I rather revert
-> to doing nothing than getting into trouble by signing off to something
-> that isn't legally clean.
-> 
-
-I understand that.
-Nor am I a lawyer, but I have strong reverence for licenses and really
-want it to be right without any doubt which license is applicable.
-
-My motivation for this patch was that:
-
-1) Many modules suggests different licenses in the boilerplate
-	license text and MODULE_LICENSE which makes life hard.
-
-2) Even many new drivers for the kernel has a mismatch in
-	SPDX/Boilerplate/MODULE_LICENSE(), so there is a knowledge gap to
-	fill. I think it has been good to just raise this question.
-
-3) SPDX is uniform and really filling its purpose [2]. Better up, it is in
-	our guidelines to use SPDX identifier to express the license [3]:
-
-	"
-		The Linux kernel requires the precise SPDX identifier in all source files.
-	The valid identifiers used in the kernel are explained in the section
-	`License identifiers`_ and have been retrieved from the official SPDX
-	license list at https://spdx.org/licenses/ along with the license
-	texts.
-	"
-
-4) Make the source file match the licence that the author **really**
-	intended to use. Some reviewers has the intention to use GPLv2 but has
-	stated "GPLv2 or later" without knowing it. Just bringing it up to
-	light is good.
-
-5) I guess that not all authors will go through their files and add SPDX
-	identifiers, so this patch was intended to help.
-
-
-Also, I want to point out that this patch does not (intentionally) *change*
-any license, just express it in another way that is more uniform and more in
-line with our guidelines for the kernel.
-
-However, there has been much doubt and insecurity about this.
-
-I do not mind if we choose to drop this patch, just let me know.
-
-But still, I think it would be good to go through all licenses
-because it is not clear what license is applicable in all files.
-
-
-[1] https://elixir.bootlin.com/linux/latest/source/include/linux/module.h
-[2] https://spdx.org/sites/cpstandard/files/pages/files/using_spdx_license_list_short_identifiers.pdf
-[3] https://elixir.bootlin.com/linux/v4.16-rc4/source/Documentation/process/license-rules.rst
-
-
-Best regards,
-Marcus Folkesson
-
-
-> Guenter
