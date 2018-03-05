@@ -1,55 +1,80 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from relmlor2.renesas.com ([210.160.252.172]:63309 "EHLO
-        relmlie1.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1751779AbeCEOIS (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 5 Mar 2018 09:08:18 -0500
-From: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
-To: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Simon Horman <horms@verge.net.au>,
-        "Wim Van Sebroeck" <wim@iguana.be>
-CC: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        Chris Paterson <Chris.Paterson2@renesas.com>,
-        Biju Das <biju.das@bp.renesas.com>,
-        "Ramesh Shanmugasundaram" <ramesh.shanmugasundaram@bp.renesas.com>,
-        "linux-renesas-soc@vger.kernel.org"
-        <linux-renesas-soc@vger.kernel.org>
-Subject: RE: [PATCH v7 1/3] watchdog: renesas_wdt: Add suspend/resume support
-Date: Mon, 5 Mar 2018 14:08:12 +0000
-Message-ID: <TY1PR06MB08952CAA1011D2DA8FCC268AC0DA0@TY1PR06MB0895.apcprd06.prod.outlook.com>
-References: <1519928243-28596-1-git-send-email-fabrizio.castro@bp.renesas.com>
- <1519928243-28596-2-git-send-email-fabrizio.castro@bp.renesas.com>
- <6b8545fa-4f74-82df-76a2-8b0bbb44c67f@cogentembedded.com>
-In-Reply-To: <6b8545fa-4f74-82df-76a2-8b0bbb44c67f@cogentembedded.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Received: from mail.kernel.org ([198.145.29.99]:52314 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751311AbeCESZJ (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 5 Mar 2018 13:25:09 -0500
+Date: Mon, 5 Mar 2018 18:25:03 +0000
+From: James Hogan <jhogan@kernel.org>
+To: Paul Cercueil <paul@crapouillou.net>
+Cc: Ralf Baechle <ralf@linux-mips.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org,
+        linux-mips@linux-mips.org, linux-kernel@vger.kernel.org,
+        linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH v2 6/8] MIPS: jz4780: dts: Fix watchdog node
+Message-ID: <20180305182502.GG4197@saruman>
+References: <20171228162939.3928-2-paul@crapouillou.net>
+ <20171230135108.6834-1-paul@crapouillou.net>
+ <20171230135108.6834-6-paul@crapouillou.net>
 MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="V32M1hWVjliPHW+c"
+Content-Disposition: inline
+In-Reply-To: <20171230135108.6834-6-paul@crapouillou.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-SGVsbG8gU2VyZ2VpLA0KDQp0aGFuayB5b3UgZm9yIHlvdXIgZmVlZGJhY2shDQoNCj4gU3ViamVj
-dDogUmU6IFtQQVRDSCB2NyAxLzNdIHdhdGNoZG9nOiByZW5lc2FzX3dkdDogQWRkIHN1c3BlbmQv
-cmVzdW1lIHN1cHBvcnQNCj4NCj4gSGVsbG8hDQo+DQo+IE9uIDMvMS8yMDE4IDk6MTcgUE0sIEZh
-YnJpemlvIENhc3RybyB3cm90ZToNCj4NCj4gPiBPbiBSLUNhciBHZW4yIGFuZCBSWi9HMSB0aGUg
-d2F0Y2hkb2cgSVAgY2xvY2sgbmVlZHMgdG8gYmUgYWx3YXlzIE9OLA0KPiA+IG9uIFItQ2FyIEdl
-bjMgd2UgcG93ZXIgdGhlIElQIGRvd24gZHVyaW5nIHN1c3BlbmQuDQo+ID4NCj4gPiBUaGlzIGNv
-bW1pdCBhZGRzIHN1c3BlbmQvcmVzdW1lIHN1cHBvcnQsIHNvIHRoYXQgdGhlIHdhdGNoZG9nIGNv
-dW50aW5nDQo+ID4gInBhdXNlcyIgZHVyaW5nIHN1c3BlbmQgb24gYWxsIG9mIHRoZSBTb0NzIGNv
-bXBhdGlibGUgd2l0aCB0aGlzIGRyaXZlcg0KPiA+IGFuZCBvbiB0aG9zZSB3ZSBhcmUgbm93IGFk
-ZGluZyBzdXBwb3J0IGZvciAoUi1DYXIgR2VuMiBhbmQgUlovRzEpLg0KPg0KPiAgICAgV2h5IHRo
-ZXNlIHBhcmVucyBoZXJlPw0KDQppdCdzIGR1ZSB0byB0aGUgY29udGV4dCwgdGhpcyBwYXRjaCBi
-ZWxvbmdzIHRvIHRoZSB3YXRjaGRvZyBzdXBwb3J0IHNlcmllcw0KYnV0IGl0IGNvbWVzIGJlZm9y
-ZSB0aGUgY29tbWl0IHdoZXJlIHdlIGFkZCBkcml2ZXIgc3VwcG9ydCBmb3IgUi1DYXIgR2VuMg0K
-YW5kIFJaL0cxLiBBbnl3YXksIHdoYXQgd2UgZG8gd29ya3MgZm9yIFItQ2FyIEdlbjMgYXMgd2Vs
-bC4NCg0KV291bGQgeW91IHByZWZlciBhIGRpZmZlcmVudCBtZXNzYWdlPw0KDQpUaGFua3MsDQpG
-YWINCg0KPg0KPiA+IFNpZ25lZC1vZmYtYnk6IEZhYnJpemlvIENhc3RybyA8ZmFicml6aW8uY2Fz
-dHJvQGJwLnJlbmVzYXMuY29tPg0KPiA+IFNpZ25lZC1vZmYtYnk6IFJhbWVzaCBTaGFubXVnYXN1
-bmRhcmFtIDxyYW1lc2guc2hhbm11Z2FzdW5kYXJhbUBicC5yZW5lc2FzLmNvbT4NCj4gWy4uLl0N
-Cj4NCj4gTUJSLCBTZXJnZWkNCg0KDQoNClJlbmVzYXMgRWxlY3Ryb25pY3MgRXVyb3BlIEx0ZCwg
-RHVrZXMgTWVhZG93LCBNaWxsYm9hcmQgUm9hZCwgQm91cm5lIEVuZCwgQnVja2luZ2hhbXNoaXJl
-LCBTTDggNUZILCBVSy4gUmVnaXN0ZXJlZCBpbiBFbmdsYW5kICYgV2FsZXMgdW5kZXIgUmVnaXN0
-ZXJlZCBOby4gMDQ1ODY3MDkuDQo=
+
+--V32M1hWVjliPHW+c
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Sat, Dec 30, 2017 at 02:51:06PM +0100, Paul Cercueil wrote:
+> diff --git a/arch/mips/boot/dts/ingenic/jz4780.dtsi b/arch/mips/boot/dts/=
+ingenic/jz4780.dtsi
+> index 9b5794667aee..a52f59bf58c7 100644
+> --- a/arch/mips/boot/dts/ingenic/jz4780.dtsi
+> +++ b/arch/mips/boot/dts/ingenic/jz4780.dtsi
+> @@ -221,7 +221,10 @@
+> =20
+>  	watchdog: watchdog@10002000 {
+>  		compatible =3D "ingenic,jz4780-watchdog";
+> -		reg =3D <0x10002000 0x100>;
+> +		reg =3D <0x10002000 0x10>;
+
+Should the example in
+Documentation/devicetree/bindings/watchdog/ingenic,jz4740-wdt.txt be
+updated too?
+
+Regardless,
+Acked-by: James Hogan <jhogan@kernel.org>
+
+Cheers
+James
+
+
+--V32M1hWVjliPHW+c
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEd80NauSabkiESfLYbAtpk944dnoFAlqdi3YACgkQbAtpk944
+dnrLfxAAh8UzJNhjGjaxSpbWP/AjinkyNVwGe3Grpvql4g0kuxloc7LXlOCW6hZW
+v7n+7D792ieqlFE9xImWAtdP4ZQNwv/sUv6Bfbkb7z47auqyzsv7M8OfT1CMQ9zP
+nYPSesq2xRg6a/UXFPfLp83V0eZtEz4KUsz17s8wzM3U2Bu5gX36zKa2FxwMc4I7
+P5hoHRRRLCTXHQGEXgeOJvY+/vJFr3Vcbh2J39elNv9UXyZmp75gah6cYrrhGvb8
+ggaQKOUkkVDJ4WPw4NFbFksDC8LFxq4ykEmsOmH1W6XFmodjUFbKA3I5ihIu7Zpm
+UM9rAltpUiZawmRaucLCwpEXw5jA3FLUCqOLkC9oNyd4r/iLhbRk+I7bvazjKSbo
+kc5RsfidekdYXGl5hNPkK3lfCMNFoWON5Me8q5UWxIcYoUj+0IQx+GxS7tPiRr0R
+c+Xkmg3eQxQIQZD1bRDlRGTjqigMZjdMffPLh3RJMFcmwWXsTAQJBk6IK8wHBXqv
+c/Y3lyoOZAT6yZLSutRyBSrzrkdowaVE457NHcQgdLFL16ZtVlLA8qsIXe2PmhTK
++TkhuX8dDJYYPeWCfAznozO/rancNHhsRwzCIatMyBnCq/7xOVbLyH1QhHCCv4wd
+i5cnhVAIVPUehr0WWIec163Tdu4dUvksHv6MRJ/17LDWQ6AJdS8=
+=rurv
+-----END PGP SIGNATURE-----
+
+--V32M1hWVjliPHW+c--
