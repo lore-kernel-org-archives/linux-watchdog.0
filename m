@@ -1,99 +1,69 @@
-Return-Path: <fabrizio.castro@bp.renesas.com>
-Return-path: <fabrizio.castro@bp.renesas.com>
-From: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-CC: Geert Uytterhoeven <geert+renesas@glider.be>, Simon Horman
-	<horms@verge.net.au>, Wim Van Sebroeck <wim@iguana.be>, Wolfram Sang
-	<wsa+renesas@sang-engineering.com>, Guenter Roeck <linux@roeck-us.net>,
-	"Linux Watchdog Mailing List" <linux-watchdog@vger.kernel.org>, Chris
- Paterson <Chris.Paterson2@renesas.com>, Biju Das <biju.das@bp.renesas.com>,
-	"Ramesh Shanmugasundaram" <ramesh.shanmugasundaram@bp.renesas.com>,
-	Linux-Renesas <linux-renesas-soc@vger.kernel.org>
-Subject: RE: [PATCH v7 1/3] watchdog: renesas_wdt: Add suspend/resume support
-Date: Fri, 2 Mar 2018 10:45:46 +0000
-Message-ID: <TY1PR06MB08951A6D879D77BD5A854388C0C50@TY1PR06MB0895.apcprd06.prod.outlook.com>
-References: <1519928243-28596-1-git-send-email-fabrizio.castro@bp.renesas.com>
- <1519928243-28596-2-git-send-email-fabrizio.castro@bp.renesas.com>
- <CAMuHMdW-_MgFSh5aKGiMVyvc2-nvJXCPGCgQOCGfg9yqA708qw@mail.gmail.com>
-In-Reply-To: <CAMuHMdW-_MgFSh5aKGiMVyvc2-nvJXCPGCgQOCGfg9yqA708qw@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Return-Path: <joel.stan@gmail.com>
+Return-path: <joel.stan@gmail.com>
 MIME-Version: 1.0
+Sender: joel.stan@gmail.com
+In-Reply-To: <20180302112059.GA27322@gmail.com>
+References: <20180302063746.10993-1-joel@jms.id.au> <20180302063746.10993-3-joel@jms.id.au>
+ <20180302112059.GA27322@gmail.com>
+From: Joel Stanley <joel@jms.id.au>
+Date: Mon, 5 Mar 2018 16:12:05 +1030
+Message-ID: <CACPK8Xdcd7Dx5OvoRKH8OCJ1O1uOKi8BTwpTRz6+YAiOG5eoAw@mail.gmail.com>
+Subject: Re: [PATCH 2/2] watchdog: Add Nuvoton NPCM watchdog driver
+To: Marcus Folkesson <marcus.folkesson@gmail.com>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>,
+	Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
+	LINUXWATCHDOG <linux-watchdog@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Tomer Maimon <tmaimon77@gmail.com>,
+	Avi Fishman <avifishman70@gmail.com>, Brendan Higgins <brendanhiggins@google.com>
+Content-Type: text/plain; charset="UTF-8"
 List-ID: <linux-watchdog@vger.kernel.org>
 
-RGVhciBBbGwsDQoNCnBlcmhhcHMgc29tZW9uZSBmcm9tIHRoaXMgZW1haWwgdGhyZWFkIGNvdWxk
-IGV4cGxhaW4gdG8gbWUgd2hhdCdzIHRoZSBhY3R1YWwNCihnZW5lcmFsKSBleHBlY3RhdGlvbiBm
-cm9tIGEgc3lzdGVtIHBlcnNwZWN0aXZlIChhdCByZXN1bWUpIGZyb20gdGhlIHdhdGNoZG9nLA0K
-YmVjYXVzZSBJIGNhbiBzZWUgcGl0ZmFsbHMgd2hldGhlciAxKSB3ZSBzaW1wbHkgc3RhcnQgdGhl
-IHdhdGNoZG9nIGF0IHJlc3VtZSBvcg0KMikgd2UgcGljayB1cCBmcm9tIHdoZXJlIHdlIGxlZnQu
-DQoNCklmIHdlIGhhdmUgYSBzeXN0ZW0gdGhhdCBnb2VzIHRvIHNsZWVwIHF1aXRlIGEgYml0LCBv
-cHRpb24gMSkgbWF5IGNhdXNlIHRoZSB3YXRjaGRvZw0KdG8gbmV2ZXIgZmlyZSwgZXZlbiB0aG91
-Z2ggdXNlciBzcGFjZSBpcyBub3QgZXhwbGljaXRseSBwaW5naW5nIHRoZSB3YXRjaGRvZy4gQXMg
-R2VlcnQNCmhhcyBwb2ludGVkIG91dCwgZ29pbmcgdG8gc2xlZXAgYW5kIHdha2luZyB1cCBhZGRz
-IGEgZGVsYXksIHRoZXJlZm9yZSB3aXRoIG9wdGlvbiAyKQ0KeW91IG1heSBtaXNzIHRoZSBvcHBv
-cnR1bml0eSB0byBwaW5nIHRoZSB3YXRjaGRvZyBhbmQgdGhlcmVmb3JlIHRoZSBzeXN0ZW0gbWF5
-DQpyZXN0YXJ0IGV2ZW4gd2hlbiBpdCBzaG91bGRuJ3QuIEhvd2V2ZXIsIHdpdGggb3B0aW9uIDIp
-IHVzZXIgc3BhY2UgY2FuIG1ha2UNCmFycmFuZ2VtZW50cyB0byBjb21wZW5zYXRlIGZvciB0aGUg
-ZGVsYXksIGFuZCB3aGVuIHVzZXIgc3BhY2UgY29tcGVuc2F0ZXMgZm9yDQp0aGF0IGl0IG1lYW5z
-IHRoZSBzeXN0ZW0gaXMgcHJvYmFibHkgc2FuZS4gV2l0aCBvcHRpb24gMSkgaW5zdGVhZCB3ZSBh
-cmUgYmFzaWNhbGx5DQpwaW5naW5nIHRoZSB3YXRjaGRvZyB3aXRob3V0IGV4cGxpY2l0bHkgZG9p
-bmcgc28gZnJvbSB1c2VyIHNwYWNlLCB3aGljaCBJIGRvbid0IHRoaW5rDQppcyB3aGF0IHdlIHdh
-bnQgaGVyZSwgYnV0IEkgbWF5IGJlIHdyb25nLg0KDQpDb3VsZCBzb21lb25lIHBsZWFzZSBzaGVk
-IHNvbWUgbGlnaHQgaGVyZT8NCg0KVGhhbmtzLA0KRmFiDQoNCg0KPiBTdWJqZWN0OiBSZTogW1BB
-VENIIHY3IDEvM10gd2F0Y2hkb2c6IHJlbmVzYXNfd2R0OiBBZGQgc3VzcGVuZC9yZXN1bWUgc3Vw
-cG9ydA0KPg0KPiBIaSBGYWJyaXppbywNCj4NCj4gT24gVGh1LCBNYXIgMSwgMjAxOCBhdCA3OjE3
-IFBNLCBGYWJyaXppbyBDYXN0cm8NCj4gPGZhYnJpemlvLmNhc3Ryb0BicC5yZW5lc2FzLmNvbT4g
-d3JvdGU6DQo+ID4gT24gUi1DYXIgR2VuMiBhbmQgUlovRzEgdGhlIHdhdGNoZG9nIElQIGNsb2Nr
-IG5lZWRzIHRvIGJlIGFsd2F5cyBPTiwNCj4gPiBvbiBSLUNhciBHZW4zIHdlIHBvd2VyIHRoZSBJ
-UCBkb3duIGR1cmluZyBzdXNwZW5kLg0KPiA+DQo+ID4gVGhpcyBjb21taXQgYWRkcyBzdXNwZW5k
-L3Jlc3VtZSBzdXBwb3J0LCBzbyB0aGF0IHRoZSB3YXRjaGRvZyBjb3VudGluZw0KPiA+ICJwYXVz
-ZXMiIGR1cmluZyBzdXNwZW5kIG9uIGFsbCBvZiB0aGUgU29DcyBjb21wYXRpYmxlIHdpdGggdGhp
-cyBkcml2ZXINCj4gPiBhbmQgb24gdGhvc2Ugd2UgYXJlIG5vdyBhZGRpbmcgc3VwcG9ydCBmb3Ig
-KFItQ2FyIEdlbjIgYW5kIFJaL0cxKS4NCj4gPg0KPiA+IFNpZ25lZC1vZmYtYnk6IEZhYnJpemlv
-IENhc3RybyA8ZmFicml6aW8uY2FzdHJvQGJwLnJlbmVzYXMuY29tPg0KPiA+IFNpZ25lZC1vZmYt
-Ynk6IFJhbWVzaCBTaGFubXVnYXN1bmRhcmFtIDxyYW1lc2guc2hhbm11Z2FzdW5kYXJhbUBicC5y
-ZW5lc2FzLmNvbT4NCj4gPiAtLS0NCj4gPiB2Ni0+djc6DQo+ID4gKiBiYWNrdXAgYW5kIHJlc3Rv
-cmUgcmVnaXN0ZXIgUldUQ05UIGluc3RlYWQgb2YgdXNpbmcgcndkdF9nZXRfdGltZWxlZnQgYW5k
-DQo+ID4gICByd2R0X3NldF90aW1lbGVmdA0KPg0KPiBUaGFua3MgZm9yIHRoZSB1cGRhdGUgKHY2
-IGFuZCB2NykhDQo+DQo+ID4NCj4gPiAgZHJpdmVycy93YXRjaGRvZy9yZW5lc2FzX3dkdC5jIHwg
-MjYgKysrKysrKysrKysrKysrKysrKysrKysrKysNCj4gPiAgMSBmaWxlIGNoYW5nZWQsIDI2IGlu
-c2VydGlvbnMoKykNCj4gPg0KPiA+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3dhdGNoZG9nL3JlbmVz
-YXNfd2R0LmMgYi9kcml2ZXJzL3dhdGNoZG9nL3JlbmVzYXNfd2R0LmMNCj4gPiBpbmRleCA4MzFl
-ZjgzLi4wMjRkNTRlIDEwMDY0NA0KPiA+IC0tLSBhL2RyaXZlcnMvd2F0Y2hkb2cvcmVuZXNhc193
-ZHQuYw0KPiA+ICsrKyBiL2RyaXZlcnMvd2F0Y2hkb2cvcmVuZXNhc193ZHQuYw0KPiA+IEBAIC00
-OSw2ICs0OSw3IEBAIHN0cnVjdCByd2R0X3ByaXYgew0KPiA+ICAgICAgICAgdm9pZCBfX2lvbWVt
-ICpiYXNlOw0KPiA+ICAgICAgICAgc3RydWN0IHdhdGNoZG9nX2RldmljZSB3ZGV2Ow0KPiA+ICAg
-ICAgICAgdW5zaWduZWQgbG9uZyBjbGtfcmF0ZTsNCj4gPiArICAgICAgIHUxNiB0aW1lX2xlZnQ7
-DQo+ID4gICAgICAgICB1OCBja3M7DQo+ID4gIH07DQo+ID4NCj4gPiBAQCAtMjAzLDYgKzIwNCwz
-MCBAQCBzdGF0aWMgaW50IHJ3ZHRfcmVtb3ZlKHN0cnVjdCBwbGF0Zm9ybV9kZXZpY2UgKnBkZXYp
-DQo+ID4gICAgICAgICByZXR1cm4gMDsNCj4gPiAgfQ0KPiA+DQo+ID4gK3N0YXRpYyBpbnQgX19t
-YXliZV91bnVzZWQgcndkdF9zdXNwZW5kKHN0cnVjdCBkZXZpY2UgKmRldikNCj4gPiArew0KPiA+
-ICsgICAgICAgc3RydWN0IHJ3ZHRfcHJpdiAqcHJpdiA9IGRldl9nZXRfZHJ2ZGF0YShkZXYpOw0K
-PiA+ICsNCj4gPiArICAgICAgIGlmICh3YXRjaGRvZ19hY3RpdmUoJnByaXYtPndkZXYpKSB7DQo+
-ID4gKyAgICAgICAgICAgICAgIHByaXYtPnRpbWVfbGVmdCA9IHJlYWR3KHByaXYtPmJhc2UgKyBS
-V1RDTlQpOw0KPiA+ICsgICAgICAgICAgICAgICByd2R0X3N0b3AoJnByaXYtPndkZXYpOw0KPiA+
-ICsgICAgICAgfQ0KPiA+ICsgICAgICAgcmV0dXJuIDA7DQo+ID4gK30NCj4gPiArDQo+ID4gK3N0
-YXRpYyBpbnQgX19tYXliZV91bnVzZWQgcndkdF9yZXN1bWUoc3RydWN0IGRldmljZSAqZGV2KQ0K
-PiA+ICt7DQo+ID4gKyAgICAgICBzdHJ1Y3QgcndkdF9wcml2ICpwcml2ID0gZGV2X2dldF9kcnZk
-YXRhKGRldik7DQo+ID4gKw0KPiA+ICsgICAgICAgaWYgKHdhdGNoZG9nX2FjdGl2ZSgmcHJpdi0+
-d2RldikpIHsNCj4gPiArICAgICAgICAgICAgICAgcndkdF9zdGFydCgmcHJpdi0+d2Rldik7DQo+
-ID4gKyAgICAgICAgICAgICAgIHJ3ZHRfd3JpdGUocHJpdiwgcHJpdi0+dGltZV9sZWZ0LCBSV1RD
-TlQpOw0KPg0KPiBVcG9uIGdpdmVuIGl0IG1vcmUgdGhvdWdodCwgSSdtIGEgYml0IHdvcnJpZWQg
-YWJvdXQgcmVzdG9yaW5nIHRoZQ0KPiBvcmlnaW5hbCB0aW1lIGxlZnQuDQo+IEluIG15IGV4cGVy
-aW1lbnRzLCBpdCBtYXkgdGFrZSBhIGZldyBzZWNvbmRzIGJlZm9yZSB1c2Vyc3BhY2UgZnVsbHkg
-cmVzdW1lcy4NCj4gSWYgdGltZV9sZWZ0IHdhcyBhIHNtYWxsIHZhbHVlLCB0aGUgc3lzdGVtIG1h
-eSByZWJvb3QgYmVmb3JlIHVzZXJzcGFjZSBoYXMNCj4gYSBjaGFuY2UgdG8gc2VuZCBpdHMgbmV4
-dCBwaW5nLg0KPiBUaGlzIHdhcyB3aXRoIE5GUyByb290LCBzbyBoZWF2aWx5IGltcGFjdGVkIGJ5
-IHRoZSBkZWxheXMgaW50cm9kdWNlZCBieSB0aGUNCj4gUEhZIGxpbmsgZ2V0dGluZyB1cCBhZ2Fp
-bi4NCj4NCj4gU28ganVzdCB1c2luZyByd2R0X3N0b3AoKS9yd2R0X3N0YXJ0KCkgbWF5IGJlIHRo
-ZSBzYWZlc3Qgb3B0aW9uLg0KPg0KPiBHcntvZXRqZSxlZXRpbmd9cywNCj4NCj4gICAgICAgICAg
-ICAgICAgICAgICAgICAgR2VlcnQNCj4NCj4gLS0NCj4gR2VlcnQgVXl0dGVyaG9ldmVuIC0tIFRo
-ZXJlJ3MgbG90cyBvZiBMaW51eCBiZXlvbmQgaWEzMiAtLSBnZWVydEBsaW51eC1tNjhrLm9yZw0K
-Pg0KPiBJbiBwZXJzb25hbCBjb252ZXJzYXRpb25zIHdpdGggdGVjaG5pY2FsIHBlb3BsZSwgSSBj
-YWxsIG15c2VsZiBhIGhhY2tlci4gQnV0DQo+IHdoZW4gSSdtIHRhbGtpbmcgdG8gam91cm5hbGlz
-dHMgSSBqdXN0IHNheSAicHJvZ3JhbW1lciIgb3Igc29tZXRoaW5nIGxpa2UgdGhhdC4NCj4gICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAtLSBMaW51cyBUb3J2YWxkcw0KDQoNCg0KUmVu
-ZXNhcyBFbGVjdHJvbmljcyBFdXJvcGUgTHRkLCBEdWtlcyBNZWFkb3csIE1pbGxib2FyZCBSb2Fk
-LCBCb3VybmUgRW5kLCBCdWNraW5naGFtc2hpcmUsIFNMOCA1RkgsIFVLLiBSZWdpc3RlcmVkIGlu
-IEVuZ2xhbmQgJiBXYWxlcyB1bmRlciBSZWdpc3RlcmVkIE5vLiAwNDU4NjcwOS4NCg==
+On Fri, Mar 2, 2018 at 9:50 PM, Marcus Folkesson
+<marcus.folkesson@gmail.com> wrote:
+> Hello Joel!
+>
+> On Fri, Mar 02, 2018 at 05:07:46PM +1030, Joel Stanley wrote:
+>> The Nuvoton NPCM750 has a watchdog implemented as a single register
+>> inside the timer peripheral.
+>>
+>> This driver exposes that watchdog as a standard watchdog device with
+>> coarse timeout intervals, limited by the combination of prescaler and
+>> counter that is provided by the hardware. The calculation is taken from
+>> the Nuvoton vendor tree.
+>>
+>> There is a pre-timeout IRQ that is wired up. This timeout always occurs
+>> 1024 clocks before the timeout.
+>>
+>> Signed-off-by: Joel Stanley <joel@jms.id.au>
+>> ---
+>>  drivers/watchdog/Kconfig    |  11 +++
+>>  drivers/watchdog/Makefile   |   1 +
+>>  drivers/watchdog/npcm_wdt.c | 223 ++++++++++++++++++++++++++++++++++++++++++++
+>>  3 files changed, 235 insertions(+)
+>>  create mode 100644 drivers/watchdog/npcm_wdt.c
+>>
+>> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+>> index aff773bcebdb..0c1cc68894e6 100644
+>> --- a/drivers/watchdog/Kconfig
+>> +++ b/drivers/watchdog/Kconfig
+>> @@ -513,6 +513,17 @@ config COH901327_WATCHDOG
+>>         This watchdog is used to reset the system and thus cannot be
+>>         compiled as a module.
+>>
+>> +config NPCM7XX_WATCHDOG
+>> +     bool "NPCM750 watchdog"
+>
+> Just asking, we do not want to make it possible to build this as a module?
+
+The watchdog provides the SoC with a way to reboot itself, so I would
+expect all users of the kernel to have it built in in case the system
+cannot find it's initrd or root file system, and therefore is unable
+to load the watchdog module.
+
+I am happy to change it if you would prefer.
+
+Thanks for the review.
+
+Cheers,
+
+Joel
