@@ -1,68 +1,72 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:54324 "EHLO
-        atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751818AbeCDTx4 (ORCPT
+Received: from mail-qk0-f179.google.com ([209.85.220.179]:37922 "EHLO
+        mail-qk0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932711AbeCEFnu (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 4 Mar 2018 14:53:56 -0500
-Date: Sun, 4 Mar 2018 20:53:54 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: =?utf-8?B?0JjQu9GM0Y/RgSDQk9Cw0YHQsNC90L7Qsg==?=
-        <torso.nafi@gmail.com>
-Cc: linux-gpio@vger.kernel.org, linux-leds@vger.kernel.org,
-        linux-watchdog@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@iguana.be>
-Subject: Re: A case of watchdog+LED shared GPIO pin
-Message-ID: <20180304195354.GA14472@amd>
-References: <CAEo2pztutpwd0wvJWVmQ2XaT43nQ99StFbDMT7MQ5dkrMdkJvw@mail.gmail.com>
- <20180304191934.GA14207@amd>
- <CAEo2pztPD3BoC==+R2AiJ2D3cyBRWphErNTp-evSsFZueK1-Xg@mail.gmail.com>
+        Mon, 5 Mar 2018 00:43:50 -0500
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="ibTvN161/egqYuK8"
-Content-Disposition: inline
-In-Reply-To: <CAEo2pztPD3BoC==+R2AiJ2D3cyBRWphErNTp-evSsFZueK1-Xg@mail.gmail.com>
+In-Reply-To: <684152b5-4992-68b5-5abf-78ea2d6b34bc@roeck-us.net>
+References: <20180302063746.10993-1-joel@jms.id.au> <20180302063746.10993-3-joel@jms.id.au>
+ <684152b5-4992-68b5-5abf-78ea2d6b34bc@roeck-us.net>
+From: Joel Stanley <joel@jms.id.au>
+Date: Mon, 5 Mar 2018 16:13:28 +1030
+Message-ID: <CACPK8XfBphFYxJKbHBWLjZFOOVt6m-c7fDZvFwqbBNx+0dm+DQ@mail.gmail.com>
+Subject: Re: [PATCH 2/2] watchdog: Add Nuvoton NPCM watchdog driver
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
+        devicetree <devicetree@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Tomer Maimon <tmaimon77@gmail.com>,
+        Avi Fishman <avifishman70@gmail.com>,
+        Brendan Higgins <brendanhiggins@google.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+On Sat, Mar 3, 2018 at 12:29 AM, Guenter Roeck <linux@roeck-us.net> wrote:
+>> +static int npcm_wdt_start(struct watchdog_device *wdd)
+>> +{
+>> +       struct npcm_wdt *wdt = to_npcm_wdt(wdd);
+>> +       u32 val;
+>> +
+>> +       val = NPCM_WTRE | NPCM_WTE | NPCM_WTR | NPCM_WTIE;
+>> +
+>> +       if (wdd->timeout < 2)
+>> +               val |= 0x800;
+>> +       else if (wdd->timeout < 3)
+>> +               val |= 0x420;
+>> +       else if (wdd->timeout < 6)
+>> +               val |= 0x810;
+>> +       else if (wdd->timeout < 11)
+>> +               val |= 0x430;
+>> +       else if (wdd->timeout < 22)
+>> +               val |= 0x820;
+>> +       else if (wdd->timeout < 44)
+>> +               val |= 0xC00;
+>> +       else if (wdd->timeout < 87)
+>> +               val |= 0x830;
+>> +       else if (wdd->timeout < 173)
+>> +               val |= 0xC10;
+>> +       else if (wdd->timeout < 688)
+>> +               val |= 0xC20;
+>> +       else if (wdd->timeout < 2751)
+>> +               val |= 0xC30;
+>> +       else
+>> +               val |= 0x830;
+>
+>
+> I am lost here. If the requested timeout is 2751, the actual timeout
+> is set to 85.6 seconds. Why ?
+>
 
---ibTvN161/egqYuK8
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I suspect this was the default, so the original code decided to fall
+back to this value.
 
-On Sun 2018-03-04 22:45:35, =D0=98=D0=BB=D1=8C=D1=8F=D1=81 =D0=93=D0=B0=D1=
-=81=D0=B0=D0=BD=D0=BE=D0=B2 wrote:
-> 2018-03-04 22:19 GMT+03:00 Pavel Machek <pavel@ucw.cz>:
-> > Improving WDIOC_SETTIMEOUT is obvious solution. I'd go for that.
->=20
-> Question is, then, - how to do it in a backwards-compatible manner?
-> There is very likely to be some userspace software out there which
-> relies on the assumption of the currently used whole seconds semantics
-> being in effect.
->=20
-> Add a new millisecond argument? But how to detect its presence in the han=
-dler?
->=20
-> Introduce a new ioctl? But how to do it neatly and reasonably?
+I think it would make more sense to use 2750.
 
-New ioctl. Start from the old one. Keep it neat :-). Negotiate with wd
-maintainers if that's ok with them, first.
-									Pavel
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
+Cheers,
 
---ibTvN161/egqYuK8
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAlqcTtIACgkQMOfwapXb+vKDCQCfe0WWCHzP15JOAj09WOv2DkrN
-2mgAoKvVNg4Xr5QHHfnSxpaMJG2maIwz
-=UcyJ
------END PGP SIGNATURE-----
-
---ibTvN161/egqYuK8--
+Joel
