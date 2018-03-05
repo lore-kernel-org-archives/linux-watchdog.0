@@ -1,72 +1,63 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-qk0-f179.google.com ([209.85.220.179]:37922 "EHLO
-        mail-qk0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932711AbeCEFnu (ORCPT
+Received: from relmlor4.renesas.com ([210.160.252.174]:64828 "EHLO
+        relmlie3.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S933623AbeCEOCG (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 5 Mar 2018 00:43:50 -0500
+        Mon, 5 Mar 2018 09:02:06 -0500
+From: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+CC: Geert Uytterhoeven <geert+renesas@glider.be>,
+        Simon Horman <horms@verge.net.au>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        "Linux Watchdog Mailing List" <linux-watchdog@vger.kernel.org>,
+        Chris Paterson <Chris.Paterson2@renesas.com>,
+        Biju Das <biju.das@bp.renesas.com>,
+        "Ramesh Shanmugasundaram" <ramesh.shanmugasundaram@bp.renesas.com>,
+        Linux-Renesas <linux-renesas-soc@vger.kernel.org>
+Subject: RE: [PATCH v7 2/3] watchdog: renesas_wdt: Add R-Car Gen2 support
+Date: Mon, 5 Mar 2018 14:02:01 +0000
+Message-ID: <TY1PR06MB0895CF1661C1D2E84A3E28E4C0DA0@TY1PR06MB0895.apcprd06.prod.outlook.com>
+References: <1519928243-28596-1-git-send-email-fabrizio.castro@bp.renesas.com>
+ <1519928243-28596-3-git-send-email-fabrizio.castro@bp.renesas.com>
+ <CAMuHMdWmgLaOuj+_qBwf6=1RzQTCxs0To8Fu2sixRDAcuAT4qw@mail.gmail.com>
+In-Reply-To: <CAMuHMdWmgLaOuj+_qBwf6=1RzQTCxs0To8Fu2sixRDAcuAT4qw@mail.gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-In-Reply-To: <684152b5-4992-68b5-5abf-78ea2d6b34bc@roeck-us.net>
-References: <20180302063746.10993-1-joel@jms.id.au> <20180302063746.10993-3-joel@jms.id.au>
- <684152b5-4992-68b5-5abf-78ea2d6b34bc@roeck-us.net>
-From: Joel Stanley <joel@jms.id.au>
-Date: Mon, 5 Mar 2018 16:13:28 +1030
-Message-ID: <CACPK8XfBphFYxJKbHBWLjZFOOVt6m-c7fDZvFwqbBNx+0dm+DQ@mail.gmail.com>
-Subject: Re: [PATCH 2/2] watchdog: Add Nuvoton NPCM watchdog driver
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
-        devicetree <devicetree@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Tomer Maimon <tmaimon77@gmail.com>,
-        Avi Fishman <avifishman70@gmail.com>,
-        Brendan Higgins <brendanhiggins@google.com>
-Content-Type: text/plain; charset="UTF-8"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Sat, Mar 3, 2018 at 12:29 AM, Guenter Roeck <linux@roeck-us.net> wrote:
->> +static int npcm_wdt_start(struct watchdog_device *wdd)
->> +{
->> +       struct npcm_wdt *wdt = to_npcm_wdt(wdd);
->> +       u32 val;
->> +
->> +       val = NPCM_WTRE | NPCM_WTE | NPCM_WTR | NPCM_WTIE;
->> +
->> +       if (wdd->timeout < 2)
->> +               val |= 0x800;
->> +       else if (wdd->timeout < 3)
->> +               val |= 0x420;
->> +       else if (wdd->timeout < 6)
->> +               val |= 0x810;
->> +       else if (wdd->timeout < 11)
->> +               val |= 0x430;
->> +       else if (wdd->timeout < 22)
->> +               val |= 0x820;
->> +       else if (wdd->timeout < 44)
->> +               val |= 0xC00;
->> +       else if (wdd->timeout < 87)
->> +               val |= 0x830;
->> +       else if (wdd->timeout < 173)
->> +               val |= 0xC10;
->> +       else if (wdd->timeout < 688)
->> +               val |= 0xC20;
->> +       else if (wdd->timeout < 2751)
->> +               val |= 0xC30;
->> +       else
->> +               val |= 0x830;
->
->
-> I am lost here. If the requested timeout is 2751, the actual timeout
-> is set to 85.6 seconds. Why ?
->
-
-I suspect this was the default, so the original code decided to fall
-back to this value.
-
-I think it would make more sense to use 2750.
-
-Cheers,
-
-Joel
+SGVsbG8gR2VlcnQsDQoNCj4gU3ViamVjdDogUmU6IFtQQVRDSCB2NyAyLzNdIHdhdGNoZG9nOiBy
+ZW5lc2FzX3dkdDogQWRkIFItQ2FyIEdlbjIgc3VwcG9ydA0KPg0KPiBIaSBGYWJyaXppbywNCj4N
+Cj4gT24gVGh1LCBNYXIgMSwgMjAxOCBhdCA3OjE3IFBNLCBGYWJyaXppbyBDYXN0cm8NCj4gPGZh
+YnJpemlvLmNhc3Ryb0BicC5yZW5lc2FzLmNvbT4gd3JvdGU6DQo+ID4gRHVlIHRvIGNvbW1pdHM6
+DQo+ID4gKiAiQVJNOiBzaG1vYmlsZTogQWRkIHdhdGNoZG9nIHN1cHBvcnQiLA0KPiA+ICogIkFS
+TTogc2htb2JpbGU6IHJjYXItZ2VuMjogQWRkIHdhdGNoZG9nIHN1cHBvcnQiLCBhbmQNCj4gPiAq
+ICJzb2M6IHJlbmVzYXM6IHJjYXItcnN0OiBFbmFibGUgd2F0Y2hkb2cgYXMgcmVzZXQgdHJpZ2dl
+ciBmb3IgR2VuMiIsDQo+ID4gd2Ugbm93IGhhdmUgZXZlcnl0aGluZyB3ZSBuZWVkZWQgZm9yIHRo
+ZSB3YXRjaGRvZyB0byB3b3JrIG9uIEdlbjIgYW5kDQo+ID4gUlovRzEuDQo+ID4NCj4gPiBUaGlz
+IGNvbW1pdCBhZGRzICJyZW5lc2FzLHJjYXItZ2VuMi13ZHQiIGFzIGNvbXBhdGlibGUgc3RyaW5n
+IGZvciBSLUNhcg0KPiA+IEdlbjIgYW5kIFJaL0cxLg0KPiA+DQo+ID4gU2lnbmVkLW9mZi1ieTog
+RmFicml6aW8gQ2FzdHJvIDxmYWJyaXppby5jYXN0cm9AYnAucmVuZXNhcy5jb20+DQo+ID4gU2ln
+bmVkLW9mZi1ieTogUmFtZXNoIFNoYW5tdWdhc3VuZGFyYW0gPHJhbWVzaC5zaGFubXVnYXN1bmRh
+cmFtQGJwLnJlbmVzYXMuY29tPg0KPiA+IFJldmlld2VkLWJ5OiBHZWVydCBVeXR0ZXJob2V2ZW4g
+PGdlZXJ0K3JlbmVzYXNAZ2xpZGVyLmJlPg0KPiA+IFJldmlld2VkLWJ5OiBXb2xmcmFtIFNhbmcg
+PHdzYStyZW5lc2FzQHNhbmctZW5naW5lZXJpbmcuY29tPg0KPg0KPiBUbyBhdm9pZCBuYXN0eSBz
+dXJwcmlzZXMgb24gZWFybHkgUi1DYXIgR2VuMiBTb0NzLCAiW1BBVENIXSB3YXRjaGRvZzoNCj4g
+cmVuZXNhc193ZHQ6IEJsYWNrbGlzdCBlYXJseSBSLUNhciBHZW4yIFNvQ3MiDQo+IChodHRwczov
+L3BhdGNod29yay5rZXJuZWwub3JnL3BhdGNoLzEwMjMzMjk3Lykgc2hvdWxkIGJlIGZvbGRlZCBp
+bnRvIHRoaXMNCj4gcGF0Y2guDQoNCkkgYWdyZWUsIEknbGwgc2VuZCBhIG5ldyB2ZXJzaW9uIHdp
+dGggeW91ciBibGFja2xpc3RpbmcgcGF0Y2ggZm9sZGVkIGludG8gdGhpcyBwYXRjaC4NCg0KVGhh
+bmtzLA0KRmFiDQoNCj4NCj4gR3J7b2V0amUsZWV0aW5nfXMsDQo+DQo+ICAgICAgICAgICAgICAg
+ICAgICAgICAgIEdlZXJ0DQo+DQo+IC0tDQo+IEdlZXJ0IFV5dHRlcmhvZXZlbiAtLSBUaGVyZSdz
+IGxvdHMgb2YgTGludXggYmV5b25kIGlhMzIgLS0gZ2VlcnRAbGludXgtbTY4ay5vcmcNCj4NCj4g
+SW4gcGVyc29uYWwgY29udmVyc2F0aW9ucyB3aXRoIHRlY2huaWNhbCBwZW9wbGUsIEkgY2FsbCBt
+eXNlbGYgYSBoYWNrZXIuIEJ1dA0KPiB3aGVuIEknbSB0YWxraW5nIHRvIGpvdXJuYWxpc3RzIEkg
+anVzdCBzYXkgInByb2dyYW1tZXIiIG9yIHNvbWV0aGluZyBsaWtlIHRoYXQuDQo+ICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgLS0gTGludXMgVG9ydmFsZHMNCg0KDQoNClJlbmVzYXMg
+RWxlY3Ryb25pY3MgRXVyb3BlIEx0ZCwgRHVrZXMgTWVhZG93LCBNaWxsYm9hcmQgUm9hZCwgQm91
+cm5lIEVuZCwgQnVja2luZ2hhbXNoaXJlLCBTTDggNUZILCBVSy4gUmVnaXN0ZXJlZCBpbiBFbmds
+YW5kICYgV2FsZXMgdW5kZXIgUmVnaXN0ZXJlZCBOby4gMDQ1ODY3MDkuDQo=
