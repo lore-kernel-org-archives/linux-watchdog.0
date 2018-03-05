@@ -1,9 +1,9 @@
-Return-Path: <aaro.koskinen@iki.fi>
-Return-path: <aaro.koskinen@iki.fi>
-Date: Mon, 5 Mar 2018 21:30:58 +0200
-From: Aaro Koskinen <aaro.koskinen@iki.fi>
+Return-Path: <marcus.folkesson@gmail.com>
+Return-path: <marcus.folkesson@gmail.com>
+Date: Mon, 5 Mar 2018 23:08:04 +0100
+From: Marcus Folkesson <marcus.folkesson@gmail.com>
 To: Guenter Roeck <linux@roeck-us.net>
-Cc: Marcus Folkesson <marcus.folkesson@gmail.com>,
+Cc: Aaro Koskinen <aaro.koskinen@iki.fi>,
 	Wim Van Sebroeck <wim@linux-watchdog.org>,
 	Joel Stanley <joel@jms.id.au>,
 	Nicolas Ferre <nicolas.ferre@microchip.com>,
@@ -45,7 +45,7 @@ Cc: Marcus Folkesson <marcus.folkesson@gmail.com>,
 	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
 	Philippe Ombredanne <pombredanne@nexb.com>
 Subject: Re: [PATCH v5] watchdog: add SPDX identifiers for watchdog subsystem
-Message-ID: <20180305193057.3pxsfc6i5fjdi5dm@darkstar.musicnaut.iki.fi>
+Message-ID: <20180305220804.GA3424@gmail.com>
 References: <20180301085450.13829-1-marcus.folkesson@gmail.com>
  <20180304235319.55gulkoxk4vcaoug@darkstar.musicnaut.iki.fi>
  <9db48467-7727-87b7-5c55-9c53c46a901f@roeck-us.net>
@@ -55,10 +55,12 @@ Content-Disposition: inline
 In-Reply-To: <9db48467-7727-87b7-5c55-9c53c46a901f@roeck-us.net>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi,
+Guenter, Aaro,
 
 On Sun, Mar 04, 2018 at 05:11:00PM -0800, Guenter Roeck wrote:
 > On 03/04/2018 03:53 PM, Aaro Koskinen wrote:
+> > Hi,
+> > 
 > > On Thu, Mar 01, 2018 at 09:54:50AM +0100, Marcus Folkesson wrote:
 > > > diff --git a/drivers/watchdog/retu_wdt.c b/drivers/watchdog/retu_wdt.c
 > > > index 39cd51df2ffc..258dfcf9cbda 100644
@@ -68,11 +70,96 @@ On Sun, Mar 04, 2018 at 05:11:00PM -0800, Guenter Roeck wrote:
 > > > +// SPDX-License-Identifier: GPL-2.0+
 > > 
 > > Why "+" and not just GPL-2.0?
+> > 
 > 
 > My non-attorney feedback, which doesn't really mean anything, is that
 > MODULE_LICENSE says GPL. There appears to be no indication in the file
 > suggesting that the license would be limited or restricted to GPL v2.
+> 
 
-Well, it does ask to check kernel's COPYING file for details.
+Yep, that is correct.
+The license for this module is set to "GPLv2 or later" as MODULE_LICENSE says "GPL".
 
-A.
+>From include/linux/module.h [1]:
+
+/*
+ * The following license idents are currently accepted as indicating free
+ * software modules
+ *
+ *	"GPL"				[GNU Public License v2 or later]
+ *	"GPL v2"			[GNU Public License v2]
+ *	"GPL and additional rights"	[GNU Public License v2 rights and more]
+ *	"Dual BSD/GPL"			[GNU Public License v2
+ *					 or BSD license choice]
+ *	"Dual MIT/GPL"			[GNU Public License v2
+ *					 or MIT license choice]
+ *	"Dual MPL/GPL"			[GNU Public License v2
+ *					 or Mozilla license choice]
+ *
+
+
+But in this case the boilerplate license text was GPLv2, and I should
+have go for that instead.
+
+
+> This makes me wonder if we should drop this patch entirely. I am not an
+> attorney, and if we start getting into license disputes I rather revert
+> to doing nothing than getting into trouble by signing off to something
+> that isn't legally clean.
+> 
+
+I understand that.
+Nor am I a lawyer, but I have strong reverence for licenses and really
+want it to be right without any doubt which license is applicable.
+
+My motivation for this patch was that:
+
+1) Many modules suggests different licenses in the boilerplate
+	license text and MODULE_LICENSE which makes life hard.
+
+2) Even many new drivers for the kernel has a mismatch in
+	SPDX/Boilerplate/MODULE_LICENSE(), so there is a knowledge gap to
+	fill. I think it has been good to just raise this question.
+
+3) SPDX is uniform and really filling its purpose [2]. Better up, it is in
+	our guidelines to use SPDX identifier to express the license [3]:
+
+	"
+		The Linux kernel requires the precise SPDX identifier in all source files.
+	The valid identifiers used in the kernel are explained in the section
+	`License identifiers`_ and have been retrieved from the official SPDX
+	license list at https://spdx.org/licenses/ along with the license
+	texts.
+	"
+
+4) Make the source file match the licence that the author **really**
+	intended to use. Some reviewers has the intention to use GPLv2 but has
+	stated "GPLv2 or later" without knowing it. Just bringing it up to
+	light is good.
+
+5) I guess that not all authors will go through their files and add SPDX
+	identifiers, so this patch was intended to help.
+
+
+Also, I want to point out that this patch does not (intentionally) *change*
+any license, just express it in another way that is more uniform and more in
+line with our guidelines for the kernel.
+
+However, there has been much doubt and insecurity about this.
+
+I do not mind if we choose to drop this patch, just let me know.
+
+But still, I think it would be good to go through all licenses
+because it is not clear what license is applicable in all files.
+
+
+[1] https://elixir.bootlin.com/linux/latest/source/include/linux/module.h
+[2] https://spdx.org/sites/cpstandard/files/pages/files/using_spdx_license_list_short_identifiers.pdf
+[3] https://elixir.bootlin.com/linux/v4.16-rc4/source/Documentation/process/license-rules.rst
+
+
+Best regards,
+Marcus Folkesson
+
+
+> Guenter
