@@ -1,82 +1,42 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-qt0-f193.google.com ([209.85.216.193]:45723 "EHLO
-        mail-qt0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754389AbeCGVYY (ORCPT
+Received: from mail-oi0-f45.google.com ([209.85.218.45]:36209 "EHLO
+        mail-oi0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S933415AbeCGW3L (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 7 Mar 2018 16:24:24 -0500
-MIME-Version: 1.0
-In-Reply-To: <20180221233825.10024-1-jhogan@kernel.org>
-References: <20180221233825.10024-1-jhogan@kernel.org>
-From: Arnd Bergmann <arnd@arndb.de>
-Date: Wed, 7 Mar 2018 22:24:23 +0100
-Message-ID: <CAK8P3a2qV5n57f7=FC0nYZWfeXCVaOaK4R_7Wr74p3ZMyuwJNQ@mail.gmail.com>
-Subject: Re: [PATCH 00/13] Remove metag architecture
-To: James Hogan <jhogan@kernel.org>
-Cc: "open list:METAG ARCHITECTURE" <linux-metag@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Wed, 7 Mar 2018 17:29:11 -0500
+Date: Wed, 7 Mar 2018 16:29:09 -0600
+From: Rob Herring <robh@kernel.org>
+To: Joel Stanley <joel@jms.id.au>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Jason Cooper <jason@lakedaemon.net>,
-        Marc Zyngier <marc.zyngier@arm.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Mauro Carvalho Chehab <mchehab@s-opensource.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Wolfram Sang <wsa@the-dreams.de>,
-        "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>,
-        Linux-MM <linux-mm@kvack.org>, linux-gpio@vger.kernel.org,
-        linux-watchdog@vger.kernel.org,
-        Linux Media Mailing List <linux-media@vger.kernel.org>,
-        linux-i2c@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+        Mark Rutland <mark.rutland@arm.com>,
+        Marcus Folkesson <marcus.folkesson@gmail.com>,
+        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Tomer Maimon <tmaimon77@gmail.com>,
+        Avi Fishman <avifishman70@gmail.com>,
+        Brendan Higgins <brendanhiggins@google.com>
+Subject: Re: [PATCH v2 1/2] dt-bindings: watchdog: Add Nuvoton NPCM
+ description
+Message-ID: <20180307222909.rwfvz4xjmpf2hxwa@rob-hp-laptop>
+References: <20180305114541.9917-1-joel@jms.id.au>
+ <20180305114541.9917-2-joel@jms.id.au>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20180305114541.9917-2-joel@jms.id.au>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Thu, Feb 22, 2018 at 12:38 AM, James Hogan <jhogan@kernel.org> wrote:
-> These patches remove the metag architecture and tightly dependent
-> drivers from the kernel. With the 4.16 kernel the ancient gcc 4.2.4
-> based metag toolchain we have been using is hitting compiler bugs, so
-> now seems a good time to drop it altogether.
->
-> Quoting from patch 1:
->
-> The earliest Meta architecture port of Linux I have a record of was an
-> import of a Meta port of Linux v2.4.1 in February 2004, which was worked
-> on significantly over the next few years by Graham Whaley, Will Newton,
-> Matt Fleming, myself and others.
->
-> Eventually the port was merged into mainline in v3.9 in March 2013, not
-> long after Imagination Technologies bought MIPS Technologies and shifted
-> its CPU focus over to the MIPS architecture.
->
-> As a result, though the port was maintained for a while, kept on life
-> support for a while longer, and useful for testing a few specific
-> drivers for which I don't have ready access to the equivalent MIPS
-> hardware, it is now essentially dead with no users.
->
-> It is also stuck using an out-of-tree toolchain based on GCC 4.2.4 which
-> is no longer maintained, now struggles to build modern kernels due to
-> toolchain bugs, and doesn't itself build with a modern GCC. The latest
-> buildroot port is still using an old uClibc snapshot which is no longer
-> served, and the latest uClibc doesn't build with GCC 4.2.4.
->
-> So lets call it a day and drop the Meta architecture port from the
-> kernel. RIP Meta.
+On Mon, Mar 05, 2018 at 10:15:40PM +1030, Joel Stanley wrote:
+> These bindings describe the watchdog IP as used by the Nuvoton NPCM750
+> (Poleg) BMC SoC.
+> 
+> Signed-off-by: Joel Stanley <joel@jms.id.au>
+> ---
+> V2: Add optional timeout property
+> ---
+>  .../bindings/watchdog/nuvoton,npcm-wdt.txt         | 28 ++++++++++++++++++++++
+>  1 file changed, 28 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/watchdog/nuvoton,npcm-wdt.txt
 
-I've pulled it into my asm-generic tree now, which is also part of linux-next,
-and followed up with patches removing frv, m32r, score, unicore32
-and blackfin. I have not removed the device drivers yet, but I'm working
-on that.
-
-       Arnd
+Reviewed-by: Rob Herring <robh@kernel.org>
