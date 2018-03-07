@@ -1,46 +1,60 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-co1nam03on0056.outbound.protection.outlook.com ([104.47.40.56]:19795
-        "EHLO NAM03-CO1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751127AbeCGKEj (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 7 Mar 2018 05:04:39 -0500
-Date: Wed, 7 Mar 2018 11:04:04 +0100
-From: Robert Richter <robert.richter@cavium.com>
-To: Jayachandran C <jnair@caviumnetworks.com>
-Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        linux-watchdog@vger.kernel.org, Fu Wei <fu.wei@linaro.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] watchdog: sbsa: use 32-bit read for WCV
-Message-ID: <20180307100403.GB14432@rric.localdomain>
-References: <1519815140-5336-1-git-send-email-jnair@caviumnetworks.com>
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:39377 "EHLO
+        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S965345AbeCGUDA (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Wed, 7 Mar 2018 15:03:00 -0500
+Date: Wed, 7 Mar 2018 12:02:58 -0800
+From: Guenter Roeck <linux@roeck-us.net>
+To: =?utf-8?B?0JjQu9GM0Y/RgSDQk9Cw0YHQsNC90L7Qsg==?=
+        <torso.nafi@gmail.com>
+Cc: linux-gpio@vger.kernel.org, linux-leds@vger.kernel.org,
+        linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>
+Subject: Re: A case of watchdog+LED shared GPIO pin
+Message-ID: <20180307200258.GB10381@roeck-us.net>
+References: <CAEo2pztutpwd0wvJWVmQ2XaT43nQ99StFbDMT7MQ5dkrMdkJvw@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <1519815140-5336-1-git-send-email-jnair@caviumnetworks.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAEo2pztutpwd0wvJWVmQ2XaT43nQ99StFbDMT7MQ5dkrMdkJvw@mail.gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 28.02.18 02:52:20, Jayachandran C wrote:
-> According to SBSA spec v3.1 section 5.3:
->   All registers are 32 bits in size and should be accessed using
->   32-bit reads and writes. If an access size other than 32 bits
->   is used then the results are IMPLEMENTATION DEFINED.
->   [...]
->   The Generic Watchdog is little-endian
->
-> The current code uses readq to read the watchdog compare register
-> which does a 64-bit access. This fails on ThunderX2 which does not
-> implement 64-bit access to this register.
->
-> Fix this by using lo_hi_readq() that does two 32-bit reads.
->
-> Signed-off-by: Jayachandran C <jnair@caviumnetworks.com>
+On Sun, Mar 04, 2018 at 07:26:56PM +0300, Ильяс Гасанов wrote:
+> Hello,
+> 
+> We (the development team at my current employer company) are having a
+> specific case of hardware configuraton. Namely, the same GPIO pin is
+> used for both watchdog keepalive signaling and status LED blinking.
+> The thing is, there are multiple blinking frequency modes for this
+> LED, each with its own meaning (i.e. system/firmware states), so
+> there's a need for changing the frequency/period dynamically from
+> userspace.
+> 
+> Previously I've done the thing implementing the timer period
+> configuration by updating a special sysfs file with new values in the
+> gpio_wdt driver. However since recently (commit 03bca15 in the kernel
+> Git repo) the timer has been swapped out with the keepalive callback
+> thing, which, as far as I can tell, supports updating the timeout
+> period via the WDIOC_SETTIMEOUT ioctl. However this ioctl is
+> insufficient for our purposes, in the sense that its minimum
+> resolution is 1 whole second, while we need a 100 millisecond
+> granularity at the very most.
+> 
+> I could also simply disable the gpio_wdt altogether and just use a LED
+> trigger driven configuration, but I highly doubt this would be a wise
+> thing, since the whole point of the watchdog is monitoring
+> responsiveness of the userspace. Also I gather that controlling the
+> GPIO entirely from a userspace process is rather undesirable, too, as
+> it might lead to confusing latencies sometimes, for a start.
+> 
+> I'd like to hear your opinions on the preferred way(s) of implementing
+> this for our product hardware on the most recent kernels, which could
+> be sent to upstream to secure further backwards compatibility.
+> 
 
-Reviewed-by: Robert Richter <rrichter@cavium.com>
+Using the same GPIO pin for both watchdog and LEDs seems odd. I don't
+have a useful idea how to address your problem, sorry.
 
-I have looked into the non-atomic use of the register access and it
-looks sane as the WCV register is only incremented by hardware. There
-is no concurrent (write) access from the kernel.
-
--Robert
+Guenter
