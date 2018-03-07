@@ -1,60 +1,82 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pf0-f196.google.com ([209.85.192.196]:39377 "EHLO
-        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S965345AbeCGUDA (ORCPT
+Received: from mail-qt0-f193.google.com ([209.85.216.193]:45723 "EHLO
+        mail-qt0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754389AbeCGVYY (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 7 Mar 2018 15:03:00 -0500
-Date: Wed, 7 Mar 2018 12:02:58 -0800
-From: Guenter Roeck <linux@roeck-us.net>
-To: =?utf-8?B?0JjQu9GM0Y/RgSDQk9Cw0YHQsNC90L7Qsg==?=
-        <torso.nafi@gmail.com>
-Cc: linux-gpio@vger.kernel.org, linux-leds@vger.kernel.org,
-        linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>
-Subject: Re: A case of watchdog+LED shared GPIO pin
-Message-ID: <20180307200258.GB10381@roeck-us.net>
-References: <CAEo2pztutpwd0wvJWVmQ2XaT43nQ99StFbDMT7MQ5dkrMdkJvw@mail.gmail.com>
+        Wed, 7 Mar 2018 16:24:24 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAEo2pztutpwd0wvJWVmQ2XaT43nQ99StFbDMT7MQ5dkrMdkJvw@mail.gmail.com>
+In-Reply-To: <20180221233825.10024-1-jhogan@kernel.org>
+References: <20180221233825.10024-1-jhogan@kernel.org>
+From: Arnd Bergmann <arnd@arndb.de>
+Date: Wed, 7 Mar 2018 22:24:23 +0100
+Message-ID: <CAK8P3a2qV5n57f7=FC0nYZWfeXCVaOaK4R_7Wr74p3ZMyuwJNQ@mail.gmail.com>
+Subject: Re: [PATCH 00/13] Remove metag architecture
+To: James Hogan <jhogan@kernel.org>
+Cc: "open list:METAG ARCHITECTURE" <linux-metag@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Jason Cooper <jason@lakedaemon.net>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jslaby@suse.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Mauro Carvalho Chehab <mchehab@s-opensource.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Wolfram Sang <wsa@the-dreams.de>,
+        "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>,
+        Linux-MM <linux-mm@kvack.org>, linux-gpio@vger.kernel.org,
+        linux-watchdog@vger.kernel.org,
+        Linux Media Mailing List <linux-media@vger.kernel.org>,
+        linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Sun, Mar 04, 2018 at 07:26:56PM +0300, Ильяс Гасанов wrote:
-> Hello,
-> 
-> We (the development team at my current employer company) are having a
-> specific case of hardware configuraton. Namely, the same GPIO pin is
-> used for both watchdog keepalive signaling and status LED blinking.
-> The thing is, there are multiple blinking frequency modes for this
-> LED, each with its own meaning (i.e. system/firmware states), so
-> there's a need for changing the frequency/period dynamically from
-> userspace.
-> 
-> Previously I've done the thing implementing the timer period
-> configuration by updating a special sysfs file with new values in the
-> gpio_wdt driver. However since recently (commit 03bca15 in the kernel
-> Git repo) the timer has been swapped out with the keepalive callback
-> thing, which, as far as I can tell, supports updating the timeout
-> period via the WDIOC_SETTIMEOUT ioctl. However this ioctl is
-> insufficient for our purposes, in the sense that its minimum
-> resolution is 1 whole second, while we need a 100 millisecond
-> granularity at the very most.
-> 
-> I could also simply disable the gpio_wdt altogether and just use a LED
-> trigger driven configuration, but I highly doubt this would be a wise
-> thing, since the whole point of the watchdog is monitoring
-> responsiveness of the userspace. Also I gather that controlling the
-> GPIO entirely from a userspace process is rather undesirable, too, as
-> it might lead to confusing latencies sometimes, for a start.
-> 
-> I'd like to hear your opinions on the preferred way(s) of implementing
-> this for our product hardware on the most recent kernels, which could
-> be sent to upstream to secure further backwards compatibility.
-> 
+On Thu, Feb 22, 2018 at 12:38 AM, James Hogan <jhogan@kernel.org> wrote:
+> These patches remove the metag architecture and tightly dependent
+> drivers from the kernel. With the 4.16 kernel the ancient gcc 4.2.4
+> based metag toolchain we have been using is hitting compiler bugs, so
+> now seems a good time to drop it altogether.
+>
+> Quoting from patch 1:
+>
+> The earliest Meta architecture port of Linux I have a record of was an
+> import of a Meta port of Linux v2.4.1 in February 2004, which was worked
+> on significantly over the next few years by Graham Whaley, Will Newton,
+> Matt Fleming, myself and others.
+>
+> Eventually the port was merged into mainline in v3.9 in March 2013, not
+> long after Imagination Technologies bought MIPS Technologies and shifted
+> its CPU focus over to the MIPS architecture.
+>
+> As a result, though the port was maintained for a while, kept on life
+> support for a while longer, and useful for testing a few specific
+> drivers for which I don't have ready access to the equivalent MIPS
+> hardware, it is now essentially dead with no users.
+>
+> It is also stuck using an out-of-tree toolchain based on GCC 4.2.4 which
+> is no longer maintained, now struggles to build modern kernels due to
+> toolchain bugs, and doesn't itself build with a modern GCC. The latest
+> buildroot port is still using an old uClibc snapshot which is no longer
+> served, and the latest uClibc doesn't build with GCC 4.2.4.
+>
+> So lets call it a day and drop the Meta architecture port from the
+> kernel. RIP Meta.
 
-Using the same GPIO pin for both watchdog and LEDs seems odd. I don't
-have a useful idea how to address your problem, sorry.
+I've pulled it into my asm-generic tree now, which is also part of linux-next,
+and followed up with patches removing frv, m32r, score, unicore32
+and blackfin. I have not removed the device drivers yet, but I'm working
+on that.
 
-Guenter
+       Arnd
