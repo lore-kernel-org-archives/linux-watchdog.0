@@ -1,77 +1,43 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pl0-f68.google.com ([209.85.160.68]:35996 "EHLO
-        mail-pl0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751218AbeCIEv1 (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 8 Mar 2018 23:51:27 -0500
-From: Joel Stanley <joel@jms.id.au>
-To: Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Marcus Folkesson <marcus.folkesson@gmail.com>
-Cc: linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Tomer Maimon <tmaimon77@gmail.com>,
-        Avi Fishman <avifishman70@gmail.com>,
-        Brendan Higgins <brendanhiggins@google.com>
-Subject: [PATCH v3 1/2] dt-bindings: watchdog: Add Nuvoton NPCM description
-Date: Fri,  9 Mar 2018 15:21:06 +1030
-Message-Id: <20180309045107.8515-2-joel@jms.id.au>
-In-Reply-To: <20180309045107.8515-1-joel@jms.id.au>
-References: <20180309045107.8515-1-joel@jms.id.au>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-Path: <khoroshilov@ispras.ru>
+Return-path: <khoroshilov@ispras.ru>
+From: Alexey Khoroshilov <khoroshilov@ispras.ru>
+To: Eric Long <eric.long@spreadtrum.com>,
+	Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>
+Cc: Alexey Khoroshilov <khoroshilov@ispras.ru>,
+	linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	ldv-project@linuxtesting.org
+Subject: [PATCH] watchdog: sprd_wdt: Fix error handling in sprd_wdt_enable()
+Date: Fri,  9 Mar 2018 00:21:48 +0300
+Message-Id: <1520544108-11145-1-git-send-email-khoroshilov@ispras.ru>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-These bindings describe the watchdog IP as used by the Nuvoton NPCM750
-(Poleg) BMC SoC.
+If clk_prepare_enable(wdt->rtc_enable) fails,
+wdt->enable clock is left enabled.
 
-Reviewed-by: Rob Herring <robh@kernel.org>
-Signed-off-by: Joel Stanley <joel@jms.id.au>
+Found by Linux Driver Verification project (linuxtesting.org).
+
+Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
 ---
-V2: Add optional timeout property
-v3:
- - Fix address in example
- - Add Rob's reviewed-by
----
- .../bindings/watchdog/nuvoton,npcm-wdt.txt         | 28 ++++++++++++++++++++++
- 1 file changed, 28 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/watchdog/nuvoton,npcm-wdt.txt
+ drivers/watchdog/sprd_wdt.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/watchdog/nuvoton,npcm-wdt.txt b/Documentation/devicetree/bindings/watchdog/nuvoton,npcm-wdt.txt
-new file mode 100644
-index 000000000000..6d593003c933
---- /dev/null
-+++ b/Documentation/devicetree/bindings/watchdog/nuvoton,npcm-wdt.txt
-@@ -0,0 +1,28 @@
-+Nuvoton NPCM Watchdog
-+
-+Nuvoton NPCM timer module provides five 24-bit timer counters, and a watchdog.
-+The watchdog supports a pre-timeout interrupt that fires 10ms before the
-+expiry.
-+
-+Required properties:
-+- compatible      : "nuvoton,npcm750-wdt" for NPCM750 (Poleg).
-+- reg             : Offset and length of the register set for the device.
-+- interrupts      : Contain the timer interrupt with flags for
-+                    falling edge.
-+
-+Required clocking property, have to be one of:
-+- clocks          : phandle of timer reference clock.
-+- clock-frequency : The frequency in Hz of the clock that drives the NPCM7xx
-+                    timer (usually 25000000).
-+
-+Optional properties:
-+- timeout-sec : Contains the watchdog timeout in seconds
-+
-+Example:
-+
-+timer@f000801c {
-+    compatible = "nuvoton,npcm750-wdt";
-+    interrupts = <GIC_SPI 47 IRQ_TYPE_LEVEL_HIGH>;
-+    reg = <0xf000801c 0x4>;
-+    clocks = <&clk NPCM7XX_CLK_TIMER>;
-+};
+diff --git a/drivers/watchdog/sprd_wdt.c b/drivers/watchdog/sprd_wdt.c
+index a8b280ff33e0..b4d484a42b70 100644
+--- a/drivers/watchdog/sprd_wdt.c
++++ b/drivers/watchdog/sprd_wdt.c
+@@ -154,8 +154,10 @@ static int sprd_wdt_enable(struct sprd_wdt *wdt)
+ 	if (ret)
+ 		return ret;
+ 	ret = clk_prepare_enable(wdt->rtc_enable);
+-	if (ret)
++	if (ret) {
++		clk_disable_unprepare(wdt->enable);
+ 		return ret;
++	}
+ 
+ 	sprd_wdt_unlock(wdt->base);
+ 	val = readl_relaxed(wdt->base + SPRD_WDT_CTRL);
 -- 
-2.15.1
-
+2.7.4
