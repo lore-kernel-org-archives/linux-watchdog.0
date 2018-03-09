@@ -1,53 +1,49 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pg0-f65.google.com ([74.125.83.65]:40130 "EHLO
-        mail-pg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751029AbeCGIAS (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 7 Mar 2018 03:00:18 -0500
-Received: by mail-pg0-f65.google.com with SMTP id g8so605849pgv.7
-        for <linux-watchdog@vger.kernel.org>; Wed, 07 Mar 2018 00:00:18 -0800 (PST)
-Subject: Re: [PATCH] watchdog: f71808e_wdt: Fix WD_EN register read
-To: Igor Pylypiv <igor.pylypiv@gmail.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>
-Cc: linux-watchdog@vger.kernel.org
-References: <1520408845-16987-1-git-send-email-igor.pylypiv@gmail.com>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <d1a2c985-6256-f59b-477f-97aa240318d7@roeck-us.net>
-Date: Wed, 7 Mar 2018 00:00:15 -0800
-MIME-Version: 1.0
-In-Reply-To: <1520408845-16987-1-git-send-email-igor.pylypiv@gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-Path: <joel.stan@gmail.com>
+Return-path: <joel.stan@gmail.com>
+Sender: "joel.stan@gmail.com" <joel.stan@gmail.com>
+From: Joel Stanley <joel@jms.id.au>
+To: Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Rob Herring <robh+dt@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Marcus Folkesson <marcus.folkesson@gmail.com>
+Cc: linux-watchdog@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Tomer Maimon <tmaimon77@gmail.com>,
+	Avi Fishman <avifishman70@gmail.com>,
+	Brendan Higgins <brendanhiggins@google.com>
+Subject: [PATCH v3 0/2] watchdog: Add Nuvoton NPCM (Poleg) driver
+Date: Fri,  9 Mar 2018 15:21:05 +1030
+Message-Id: <20180309045107.8515-1-joel@jms.id.au>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 03/06/2018 11:47 PM, Igor Pylypiv wrote:
-> F71808FG_FLAG_WD_EN defines bit position, not a bitmask
-> 
-> Signed-off-by: Igor Pylypiv <igor.pylypiv@gmail.com>
+v3: Address comments from Guneter and Tomer, add Rob's review
+v2: Address comments from Guenter and Marcus
 
-Good catch. Wim - candidate for v4.16-rc and stable.
+This is a driver for the Poleg board that is in the process of being
+upstreamed. I have tested it on an evaluation board.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+The watchdog is a single register inside of the timer IP. This made me
+think about how to describe the device tree bindings for a while, but
+after some discussion I settled on describing the watchdog separately,
+and giving it's own compatible string, and it's own driver.
 
-> ---
->   drivers/watchdog/f71808e_wdt.c | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/watchdog/f71808e_wdt.c b/drivers/watchdog/f71808e_wdt.c
-> index 3a33c53..9a1c761 100644
-> --- a/drivers/watchdog/f71808e_wdt.c
-> +++ b/drivers/watchdog/f71808e_wdt.c
-> @@ -496,7 +496,7 @@ static bool watchdog_is_running(void)
->   
->   	is_running = (superio_inb(watchdog.sioaddr, SIO_REG_ENABLE) & BIT(0))
->   		&& (superio_inb(watchdog.sioaddr, F71808FG_REG_WDT_CONF)
-> -			& F71808FG_FLAG_WD_EN);
-> +			& BIT(F71808FG_FLAG_WD_EN));
->   
->   	superio_exit(watchdog.sioaddr);
->   
-> 
+The timer is being reviewed over here:
 
+ https://lkml.org/lkml/2018/2/26/492
+
+Joel Stanley (2):
+  dt-bindings: watchdog: Add Nuvoton NPCM description
+  watchdog: Add Nuvoton NPCM watchdog driver
+
+ .../bindings/watchdog/nuvoton,npcm-wdt.txt         |  28 +++
+ drivers/watchdog/Kconfig                           |  11 +
+ drivers/watchdog/Makefile                          |   1 +
+ drivers/watchdog/npcm_wdt.c                        | 254 +++++++++++++++++++++
+ 4 files changed, 294 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/nuvoton,npcm-wdt.txt
+ create mode 100644 drivers/watchdog/npcm_wdt.c
+
+-- 
+2.15.1
