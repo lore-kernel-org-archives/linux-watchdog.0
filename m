@@ -1,74 +1,71 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ot0-f193.google.com ([74.125.82.193]:33586 "EHLO
-        mail-ot0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932104AbeCIWEB (ORCPT
+Received: from mail-pg0-f68.google.com ([74.125.83.68]:34332 "EHLO
+        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932108AbeCIWGL (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 9 Mar 2018 17:04:01 -0500
-Date: Fri, 9 Mar 2018 14:03:59 -0800
+        Fri, 9 Mar 2018 17:06:11 -0500
+Date: Fri, 9 Mar 2018 14:06:10 -0800
 From: Guenter Roeck <linux@roeck-us.net>
 To: Eddie James <eajames@linux.vnet.ibm.com>
 Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
         joel@jms.id.au, wim@linux-watchdog.org,
         Milton Miller <miltonm@us.ibm.com>
-Subject: Re: [PATCH 1/2] watchdog: aspeed: Fix translation of reset mode to
- ctrl register
-Message-ID: <20180309220359.GA32606@roeck-us.net>
+Subject: Re: [PATCH 2/2] watchdog: aspeed: Allow configuring for alternate
+ boot
+Message-ID: <20180309220610.GB32606@roeck-us.net>
 References: <1520632700-25800-1-git-send-email-eajames@linux.vnet.ibm.com>
- <1520632700-25800-2-git-send-email-eajames@linux.vnet.ibm.com>
+ <1520632700-25800-3-git-send-email-eajames@linux.vnet.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1520632700-25800-2-git-send-email-eajames@linux.vnet.ibm.com>
+In-Reply-To: <1520632700-25800-3-git-send-email-eajames@linux.vnet.ibm.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, Mar 09, 2018 at 03:58:19PM -0600, Eddie James wrote:
+On Fri, Mar 09, 2018 at 03:58:20PM -0600, Eddie James wrote:
 > From: Milton Miller <miltonm@us.ibm.com>
 > 
-> Assert RESET_SYSTEM bit for any reset and set MODE field from reset
-> type.
+> Allow the device tree to specify a watchdog to fallover to
+> the alternate boot source.
 > 
-> The watchdog control register has a RESET_SYSTEM bit that is really
-> closer to activate a reset, and RESET_SYSTEM_MODE field that chooses
-> how much to reset.
+> The aspeeed watchdog can set a latch directing flash chip select 0 to
+> chip select 1, allowing boot from an alternate media if the watchdog
+> is not reset in time.  On the ast2400 bank 1 also goes to flash bank 1,
+> while on the ast2500 the chip selects are swapped.
 > 
-> Before this patch, a node without these optional property would do a
-> SOC reset, but a node with properties requesting a cpu or SOC reset
-> would do nothing and a node requesting a system reset would do a
-> SOC reset.
-> 
-> Fixes: b7f0b8ad25f3 ("drivers/watchdog: ASPEED reference dev tree properties for config")
 > Signed-off-by: Milton Miller <miltonm@us.ibm.com>
 > Signed-off-by: Eddie James <eajames@linux.vnet.ibm.com>
+
+This is already documented in the bindings document, so the property
+should be ok.
 
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
 > ---
->  drivers/watchdog/aspeed_wdt.c | 9 ++++++---
->  1 file changed, 6 insertions(+), 3 deletions(-)
+>  drivers/watchdog/aspeed_wdt.c | 3 +++
+>  1 file changed, 3 insertions(+)
 > 
 > diff --git a/drivers/watchdog/aspeed_wdt.c b/drivers/watchdog/aspeed_wdt.c
-> index ca5b91e..d1987d6 100644
+> index d1987d6..f41d246 100644
 > --- a/drivers/watchdog/aspeed_wdt.c
 > +++ b/drivers/watchdog/aspeed_wdt.c
-> @@ -232,11 +232,14 @@ static int aspeed_wdt_probe(struct platform_device *pdev)
->  		wdt->ctrl |= WDT_CTRL_RESET_MODE_SOC | WDT_CTRL_RESET_SYSTEM;
->  	} else {
->  		if (!strcmp(reset_type, "cpu"))
-> -			wdt->ctrl |= WDT_CTRL_RESET_MODE_ARM_CPU;
-> +			wdt->ctrl |= WDT_CTRL_RESET_MODE_ARM_CPU |
-> +				     WDT_CTRL_RESET_SYSTEM;
->  		else if (!strcmp(reset_type, "soc"))
-> -			wdt->ctrl |= WDT_CTRL_RESET_MODE_SOC;
-> +			wdt->ctrl |= WDT_CTRL_RESET_MODE_SOC |
-> +				     WDT_CTRL_RESET_SYSTEM;
->  		else if (!strcmp(reset_type, "system"))
-> -			wdt->ctrl |= WDT_CTRL_RESET_SYSTEM;
-> +			wdt->ctrl |= WDT_CTRL_RESET_MODE_FULL_CHIP |
-> +				     WDT_CTRL_RESET_SYSTEM;
->  		else if (strcmp(reset_type, "none"))
->  			return -EINVAL;
+> @@ -46,6 +46,7 @@ struct aspeed_wdt_config {
+>  #define WDT_RELOAD_VALUE	0x04
+>  #define WDT_RESTART		0x08
+>  #define WDT_CTRL		0x0C
+> +#define   WDT_CTRL_BOOT_SECONDARY	BIT(7)
+>  #define   WDT_CTRL_RESET_MODE_SOC	(0x00 << 5)
+>  #define   WDT_CTRL_RESET_MODE_FULL_CHIP	(0x01 << 5)
+>  #define   WDT_CTRL_RESET_MODE_ARM_CPU	(0x10 << 5)
+> @@ -245,6 +246,8 @@ static int aspeed_wdt_probe(struct platform_device *pdev)
 >  	}
+>  	if (of_property_read_bool(np, "aspeed,external-signal"))
+>  		wdt->ctrl |= WDT_CTRL_WDT_EXT;
+> +	if (of_property_read_bool(np, "aspeed,alt-boot"))
+> +		wdt->ctrl |= WDT_CTRL_BOOT_SECONDARY;
+>  
+>  	if (readl(wdt->base + WDT_CTRL) & WDT_CTRL_ENABLE)  {
+>  		/*
 > -- 
 > 1.8.3.1
 > 
