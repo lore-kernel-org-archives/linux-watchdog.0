@@ -1,114 +1,75 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pl0-f66.google.com ([209.85.160.66]:42411 "EHLO
-        mail-pl0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932299AbeCJEEO (ORCPT
+Received: from mail-wm0-f68.google.com ([74.125.82.68]:34092 "EHLO
+        mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750773AbeCJFEg (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 9 Mar 2018 23:04:14 -0500
-Subject: Re: [PATCH v2 1/2] watchdog: dw: RMW the control register
-To: Brian Norris <briannorris@chromium.org>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>
-Cc: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        Doug Anderson <dianders@chromium.org>,
-        Matthias Kaehlcke <mka@chromium.org>,
-        linux-rockchip@lists.infradead.org
-References: <20180310034607.254884-1-briannorris@chromium.org>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <4be661fc-033d-7be6-cda6-8e90510f1738@roeck-us.net>
-Date: Fri, 9 Mar 2018 20:04:12 -0800
+        Sat, 10 Mar 2018 00:04:36 -0500
+Received: by mail-wm0-f68.google.com with SMTP id a20so5924442wmd.1
+        for <linux-watchdog@vger.kernel.org>; Fri, 09 Mar 2018 21:04:35 -0800 (PST)
+Received: from mail-wm0-f53.google.com (mail-wm0-f53.google.com. [74.125.82.53])
+        by smtp.gmail.com with ESMTPSA id e12sm1499610edi.29.2018.03.09.21.04.33
+        for <linux-watchdog@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 09 Mar 2018 21:04:33 -0800 (PST)
+Received: by mail-wm0-f53.google.com with SMTP id s206so5934874wme.0
+        for <linux-watchdog@vger.kernel.org>; Fri, 09 Mar 2018 21:04:33 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20180310034607.254884-1-briannorris@chromium.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <e5e1ce47-bf53-70ef-35d3-bab0996fb66d@roeck-us.net>
+References: <20180310024431.160195-1-briannorris@chromium.org>
+ <03a9d600-af54-ee43-1141-082278ebf672@roeck-us.net> <20180310032846.GA180802@rodete-desktop-imager.corp.google.com>
+ <e5e1ce47-bf53-70ef-35d3-bab0996fb66d@roeck-us.net>
+From: Brian Norris <briannorris@chromium.org>
+Date: Fri, 9 Mar 2018 21:04:32 -0800
+Message-ID: <CA+ASDXPkwVDmArP2GGe8P0eOxohRwHUVPRxE9GNoxvrMrinbTA@mail.gmail.com>
+Subject: Re: [PATCH 1/2] watchdog: dw: RMW the control register
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Linux Kernel <linux-kernel@vger.kernel.org>,
+        linux-watchdog@vger.kernel.org,
+        Doug Anderson <dianders@chromium.org>,
+        Matthias Kaehlcke <mka@chromium.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 03/09/2018 07:46 PM, Brian Norris wrote:
-> RK3399 has rst_pulse_length in CONTROL_REG[4:2], determining the length
-> of pulse to issue for system reset. We shouldn't clobber this value,
-> because that might make the system reset ineffective. On RK3399, we're
-> seeing that a value of 000b (meaning 2 cycles) yields an unreliable
-> (partial?) reset, and so we only fully reset after the watchdog fires a
-> second time. If we retain the system default (010b, or 8 clock cycles),
-> then the watchdog reset is much more reliable.
-> 
-> Read-modify-write retains the system value and improves reset
-> reliability.
-> 
-> It seems we were intentionally clobbering the response mode previously,
-> to ensure we performed a system reset (we don't support an interrupt
-> notification), so retain that explicitly.
-> 
-> Signed-off-by: Brian Norris <briannorris@chromium.org>
+On Fri, Mar 9, 2018 at 8:02 PM, Guenter Roeck <linux@roeck-us.net> wrote:
+> On 03/09/2018 07:28 PM, Brian Norris wrote:
+>> I guess I could mention it. I was assuming that was an intended behavior
+>> of the existing driver: that we set resp_mode=0 (via clobber), so we
+>> always get a system reset (we don't try to handle any interrupt in this
+>> driver).
+>>
+> I don't think it was intended behavior. We don't even know for sure (or at
+> least
+> I don't know) if all implementations of this IP have the same configuration
+> bit
+> layout. All we can do is hope for the best.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Huh, OK. I did try to look for any sort of generic DesignWare register
+documentation, and I couldn't find one easily (even with a proper
+Synopsys account -- maybe I wasn't looking in the right place). But
+besides the Rockchip TRMs, I did find some openly accessible Altera
+SoCFPGA docs [1] which also use this, and they have a few things to
+add:
+(1) they have the same 'reset pulse length' field, except it's labeled RO
+(2) they have the same 'response mode' field
+(3) the docs for the entire register say:
 
-> ---
-> v2:
->   * factor out helper
->   * handle both start() and restart() cases
->   * note the RESP_MODE handling in commit message
-> ---
->   drivers/watchdog/dw_wdt.c | 23 +++++++++++++++--------
->   1 file changed, 15 insertions(+), 8 deletions(-)
-> 
-> diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
-> index c2f4ff516230..918357bccf5e 100644
-> --- a/drivers/watchdog/dw_wdt.c
-> +++ b/drivers/watchdog/dw_wdt.c
-> @@ -34,6 +34,7 @@
->   
->   #define WDOG_CONTROL_REG_OFFSET		    0x00
->   #define WDOG_CONTROL_REG_WDT_EN_MASK	    0x01
-> +#define WDOG_CONTROL_REG_RESP_MODE_MASK	    0x02
->   #define WDOG_TIMEOUT_RANGE_REG_OFFSET	    0x04
->   #define WDOG_TIMEOUT_RANGE_TOPINIT_SHIFT    4
->   #define WDOG_CURRENT_COUNT_REG_OFFSET	    0x08
-> @@ -121,14 +122,23 @@ static int dw_wdt_set_timeout(struct watchdog_device *wdd, unsigned int top_s)
->   	return 0;
->   }
->   
-> +static void dw_wdt_arm_system_reset(struct dw_wdt *dw_wdt)
-> +{
-> +	u32 val = readl(dw_wdt->regs + WDOG_CONTROL_REG_OFFSET);
-> +
-> +	/* Disable interrupt mode; always perform system reset. */
-> +	val &= ~WDOG_CONTROL_REG_RESP_MODE_MASK;
-> +	/* Enable watchdog. */
-> +	val |= WDOG_CONTROL_REG_WDT_EN_MASK;
-> +	writel(val, dw_wdt->regs + WDOG_CONTROL_REG_OFFSET);
-> +}
-> +
->   static int dw_wdt_start(struct watchdog_device *wdd)
->   {
->   	struct dw_wdt *dw_wdt = to_dw_wdt(wdd);
->   
->   	dw_wdt_set_timeout(wdd, wdd->timeout);
-> -
-> -	writel(WDOG_CONTROL_REG_WDT_EN_MASK,
-> -	       dw_wdt->regs + WDOG_CONTROL_REG_OFFSET);
-> +	dw_wdt_arm_system_reset(dw_wdt);
->   
->   	return 0;
->   }
-> @@ -152,16 +162,13 @@ static int dw_wdt_restart(struct watchdog_device *wdd,
->   			  unsigned long action, void *data)
->   {
->   	struct dw_wdt *dw_wdt = to_dw_wdt(wdd);
-> -	u32 val;
->   
->   	writel(0, dw_wdt->regs + WDOG_TIMEOUT_RANGE_REG_OFFSET);
-> -	val = readl(dw_wdt->regs + WDOG_CONTROL_REG_OFFSET);
-> -	if (val & WDOG_CONTROL_REG_WDT_EN_MASK)
-> +	if (dw_wdt_is_enabled(dw_wdt))
->   		writel(WDOG_COUNTER_RESTART_KICK_VALUE,
->   		       dw_wdt->regs + WDOG_COUNTER_RESTART_REG_OFFSET);
->   	else
-> -		writel(WDOG_CONTROL_REG_WDT_EN_MASK,
-> -		       dw_wdt->regs + WDOG_CONTROL_REG_OFFSET);
-> +		dw_wdt_arm_system_reset(dw_wdt);
->   
->   	/* wait for reset to assert... */
->   	mdelay(500);
-> 
+"The value of a reserved bit must be maintained in software. When you
+modify registers containing reserved bit fields, you must use a
+read-modify-write operation to preserve state and prevent
+indeterminate system behavior."
 
+So, that pretty well corroborates my patch. Nice.
+
+> Still, clobbering just 1 bit is better than clobbering 30 bit.
+
+Yeah, that's the idea. Well, as long as it's only the 1 bit I want to clobber ;)
+
+I guess if we really find that any of this becomes more problematic
+(and varies enough from IP to IP), then we'll need chip-specific
+compatible properties.
+
+Brian
+
+[1] e.g. https://www.altera.com/content/dam/altera-www/global/en_US/pdfs/literature/hb/arria-10/a10_5v4.pdf
