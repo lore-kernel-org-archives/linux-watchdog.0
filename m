@@ -1,71 +1,68 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pg0-f68.google.com ([74.125.83.68]:34332 "EHLO
-        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932108AbeCIWGL (ORCPT
+Received: from mail-pl0-f68.google.com ([209.85.160.68]:34074 "EHLO
+        mail-pl0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932781AbeCJCou (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 9 Mar 2018 17:06:11 -0500
-Date: Fri, 9 Mar 2018 14:06:10 -0800
-From: Guenter Roeck <linux@roeck-us.net>
-To: Eddie James <eajames@linux.vnet.ibm.com>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        joel@jms.id.au, wim@linux-watchdog.org,
-        Milton Miller <miltonm@us.ibm.com>
-Subject: Re: [PATCH 2/2] watchdog: aspeed: Allow configuring for alternate
- boot
-Message-ID: <20180309220610.GB32606@roeck-us.net>
-References: <1520632700-25800-1-git-send-email-eajames@linux.vnet.ibm.com>
- <1520632700-25800-3-git-send-email-eajames@linux.vnet.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1520632700-25800-3-git-send-email-eajames@linux.vnet.ibm.com>
+        Fri, 9 Mar 2018 21:44:50 -0500
+Received: by mail-pl0-f68.google.com with SMTP id u13-v6so6242723plq.1
+        for <linux-watchdog@vger.kernel.org>; Fri, 09 Mar 2018 18:44:49 -0800 (PST)
+From: Brian Norris <briannorris@chromium.org>
+To: Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Cc: <linux-kernel@vger.kernel.org>, linux-watchdog@vger.kernel.org,
+        Doug Anderson <dianders@chromium.org>,
+        Matthias Kaehlcke <mka@chromium.org>,
+        Brian Norris <briannorris@chromium.org>
+Subject: [PATCH 2/2] watchdog: dw: save/restore control and timeout across suspend/resume
+Date: Fri,  9 Mar 2018 18:44:31 -0800
+Message-Id: <20180310024431.160195-2-briannorris@chromium.org>
+In-Reply-To: <20180310024431.160195-1-briannorris@chromium.org>
+References: <20180310024431.160195-1-briannorris@chromium.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, Mar 09, 2018 at 03:58:20PM -0600, Eddie James wrote:
-> From: Milton Miller <miltonm@us.ibm.com>
-> 
-> Allow the device tree to specify a watchdog to fallover to
-> the alternate boot source.
-> 
-> The aspeeed watchdog can set a latch directing flash chip select 0 to
-> chip select 1, allowing boot from an alternate media if the watchdog
-> is not reset in time.  On the ast2400 bank 1 also goes to flash bank 1,
-> while on the ast2500 the chip selects are swapped.
-> 
-> Signed-off-by: Milton Miller <miltonm@us.ibm.com>
-> Signed-off-by: Eddie James <eajames@linux.vnet.ibm.com>
+Some platforms lose this state in suspend. It should be safe to do this
+unconditionally.
 
-This is already documented in the bindings document, so the property
-should be ok.
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+---
+ drivers/watchdog/dw_wdt.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
+index 6925d3e6c6b3..094986047194 100644
+--- a/drivers/watchdog/dw_wdt.c
++++ b/drivers/watchdog/dw_wdt.c
+@@ -57,6 +57,9 @@ struct dw_wdt {
+ 	unsigned long		rate;
+ 	struct watchdog_device	wdd;
+ 	struct reset_control	*rst;
++	/* Save/restore */
++	u32			control;
++	u32			timeout;
+ };
+ 
+ #define to_dw_wdt(wdd)	container_of(wdd, struct dw_wdt, wdd)
+@@ -204,6 +207,9 @@ static int dw_wdt_suspend(struct device *dev)
+ {
+ 	struct dw_wdt *dw_wdt = dev_get_drvdata(dev);
+ 
++	dw_wdt->control = readl(dw_wdt->regs + WDOG_CONTROL_REG_OFFSET);
++	dw_wdt->timeout = readl(dw_wdt->regs + WDOG_TIMEOUT_RANGE_REG_OFFSET);
++
+ 	clk_disable_unprepare(dw_wdt->clk);
+ 
+ 	return 0;
+@@ -217,6 +223,9 @@ static int dw_wdt_resume(struct device *dev)
+ 	if (err)
+ 		return err;
+ 
++	writel(dw_wdt->timeout, dw_wdt->regs + WDOG_TIMEOUT_RANGE_REG_OFFSET);
++	writel(dw_wdt->control, dw_wdt->regs + WDOG_CONTROL_REG_OFFSET);
++
+ 	dw_wdt_ping(&dw_wdt->wdd);
+ 
+ 	return 0;
+-- 
+2.16.2.660.g709887971b-goog
 
-> ---
->  drivers/watchdog/aspeed_wdt.c | 3 +++
->  1 file changed, 3 insertions(+)
-> 
-> diff --git a/drivers/watchdog/aspeed_wdt.c b/drivers/watchdog/aspeed_wdt.c
-> index d1987d6..f41d246 100644
-> --- a/drivers/watchdog/aspeed_wdt.c
-> +++ b/drivers/watchdog/aspeed_wdt.c
-> @@ -46,6 +46,7 @@ struct aspeed_wdt_config {
->  #define WDT_RELOAD_VALUE	0x04
->  #define WDT_RESTART		0x08
->  #define WDT_CTRL		0x0C
-> +#define   WDT_CTRL_BOOT_SECONDARY	BIT(7)
->  #define   WDT_CTRL_RESET_MODE_SOC	(0x00 << 5)
->  #define   WDT_CTRL_RESET_MODE_FULL_CHIP	(0x01 << 5)
->  #define   WDT_CTRL_RESET_MODE_ARM_CPU	(0x10 << 5)
-> @@ -245,6 +246,8 @@ static int aspeed_wdt_probe(struct platform_device *pdev)
->  	}
->  	if (of_property_read_bool(np, "aspeed,external-signal"))
->  		wdt->ctrl |= WDT_CTRL_WDT_EXT;
-> +	if (of_property_read_bool(np, "aspeed,alt-boot"))
-> +		wdt->ctrl |= WDT_CTRL_BOOT_SECONDARY;
->  
->  	if (readl(wdt->base + WDT_CTRL) & WDT_CTRL_ENABLE)  {
->  		/*
-> -- 
-> 1.8.3.1
-> 
