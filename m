@@ -1,9 +1,9 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pg0-f67.google.com ([74.125.83.67]:38357 "EHLO
-        mail-pg0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751217AbeCMGRl (ORCPT
+Received: from mail-pg0-f65.google.com ([74.125.83.65]:41064 "EHLO
+        mail-pg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751574AbeCMGRt (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 13 Mar 2018 02:17:41 -0400
+        Tue, 13 Mar 2018 02:17:49 -0400
 From: Joel Stanley <joel@jms.id.au>
 To: Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>,
@@ -14,41 +14,63 @@ Cc: linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, Tomer Maimon <tmaimon77@gmail.com>,
         Avi Fishman <avifishman70@gmail.com>,
         Brendan Higgins <brendanhiggins@google.com>
-Subject: [PATCH v4 0/2] watchdog: Add Nuvoton NPCM (Poleg) driver
-Date: Tue, 13 Mar 2018 16:47:24 +1030
-Message-Id: <20180313061726.21601-1-joel@jms.id.au>
+Subject: [PATCH v4 1/2] dt-bindings: watchdog: Add Nuvoton NPCM description
+Date: Tue, 13 Mar 2018 16:47:25 +1030
+Message-Id: <20180313061726.21601-2-joel@jms.id.au>
+In-Reply-To: <20180313061726.21601-1-joel@jms.id.au>
+References: <20180313061726.21601-1-joel@jms.id.au>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-v4: Fix comments from Guenter
-v3: Address comments from Guenter and Tomer, add Rob's review
-v2: Address comments from Guenter and Marcus
+These bindings describe the watchdog IP as used by the Nuvoton NPCM750
+(Poleg) BMC SoC.
 
-This is a driver for the Poleg board that is in the process of being
-upstreamed. I have tested it on an evaluation board.
-
-The watchdog is a single register inside of the timer IP. This made me
-think about how to describe the device tree bindings for a while, but
-after some discussion I settled on describing the watchdog separately,
-and giving it's own compatible string, and it's own driver.
-
-The timer is being reviewed over here:
-
- https://lkml.org/lkml/2018/2/26/492
-
-
-Joel Stanley (2):
-  dt-bindings: watchdog: Add Nuvoton NPCM description
-  watchdog: Add Nuvoton NPCM watchdog driver
-
- .../bindings/watchdog/nuvoton,npcm-wdt.txt         |  28 +++
- drivers/watchdog/Kconfig                           |  11 +
- drivers/watchdog/Makefile                          |   1 +
- drivers/watchdog/npcm_wdt.c                        | 254 +++++++++++++++++++++
- 4 files changed, 294 insertions(+)
+Reviewed-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Joel Stanley <joel@jms.id.au>
+---
+V2: Add optional timeout property
+v3:
+ - Fix address in example
+ - Add Rob's reviewed-by
+---
+ .../bindings/watchdog/nuvoton,npcm-wdt.txt         | 28 ++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
  create mode 100644 Documentation/devicetree/bindings/watchdog/nuvoton,npcm-wdt.txt
- create mode 100644 drivers/watchdog/npcm_wdt.c
 
+diff --git a/Documentation/devicetree/bindings/watchdog/nuvoton,npcm-wdt.txt b/Documentation/devicetree/bindings/watchdog/nuvoton,npcm-wdt.txt
+new file mode 100644
+index 000000000000..6d593003c933
+--- /dev/null
++++ b/Documentation/devicetree/bindings/watchdog/nuvoton,npcm-wdt.txt
+@@ -0,0 +1,28 @@
++Nuvoton NPCM Watchdog
++
++Nuvoton NPCM timer module provides five 24-bit timer counters, and a watchdog.
++The watchdog supports a pre-timeout interrupt that fires 10ms before the
++expiry.
++
++Required properties:
++- compatible      : "nuvoton,npcm750-wdt" for NPCM750 (Poleg).
++- reg             : Offset and length of the register set for the device.
++- interrupts      : Contain the timer interrupt with flags for
++                    falling edge.
++
++Required clocking property, have to be one of:
++- clocks          : phandle of timer reference clock.
++- clock-frequency : The frequency in Hz of the clock that drives the NPCM7xx
++                    timer (usually 25000000).
++
++Optional properties:
++- timeout-sec : Contains the watchdog timeout in seconds
++
++Example:
++
++timer@f000801c {
++    compatible = "nuvoton,npcm750-wdt";
++    interrupts = <GIC_SPI 47 IRQ_TYPE_LEVEL_HIGH>;
++    reg = <0xf000801c 0x4>;
++    clocks = <&clk NPCM7XX_CLK_TIMER>;
++};
 -- 
 2.15.1
 
