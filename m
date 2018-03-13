@@ -1,367 +1,250 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pg0-f68.google.com ([74.125.83.68]:43692 "EHLO
-        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932448AbeCMQsl (ORCPT
+Received: from kirsty.vergenet.net ([202.4.237.240]:53165 "EHLO
+        kirsty.vergenet.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751997AbeCMUFz (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 13 Mar 2018 12:48:41 -0400
-Date: Tue, 13 Mar 2018 09:48:39 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Joel Stanley <joel@jms.id.au>
-Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Tue, 13 Mar 2018 16:05:55 -0400
+Date: Tue, 13 Mar 2018 21:05:50 +0100
+From: Simon Horman <horms@verge.net.au>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Fabrizio Castro <fabrizio.castro@bp.renesas.com>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
         Rob Herring <robh+dt@kernel.org>,
         Mark Rutland <mark.rutland@arm.com>,
-        Marcus Folkesson <marcus.folkesson@gmail.com>,
-        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Tomer Maimon <tmaimon77@gmail.com>,
-        Avi Fishman <avifishman70@gmail.com>,
-        Brendan Higgins <brendanhiggins@google.com>
-Subject: Re: [PATCH v4 2/2] watchdog: Add Nuvoton NPCM watchdog driver
-Message-ID: <20180313164839.GB13835@roeck-us.net>
-References: <20180313061726.21601-1-joel@jms.id.au>
- <20180313061726.21601-3-joel@jms.id.au>
+        Wim Van Sebroeck <wim@iguana.be>,
+        Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@codeaurora.org>,
+        Magnus Damm <magnus.damm@gmail.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS"
+        <devicetree@vger.kernel.org>,
+        Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
+        Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        linux-clk <linux-clk@vger.kernel.org>,
+        Chris Paterson <Chris.Paterson2@renesas.com>,
+        Biju Das <biju.das@bp.renesas.com>,
+        Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
+Subject: Re: [PATCH v5 00/26] Fix watchdog on Renesas R-Car Gen2 and RZ/G1
+Message-ID: <20180313200548.fgexoxlha3coa7hs@verge.net.au>
+References: <1518457475-4480-1-git-send-email-fabrizio.castro@bp.renesas.com>
+ <CAMuHMdX=m9ui6GczF51SJH2X7Cw1OnxoH9pfk1DybpDX-A873Q@mail.gmail.com>
+ <20180221161326.ktvf3mlzzxith5kw@verge.net.au>
+ <CAMuHMdUTSmrWggMK4ehSL3Ux-JUzVpamTuToveuXogjuvGKkaw@mail.gmail.com>
+ <20180221183223.qacrmmuzoqlzzbpo@verge.net.au>
+ <CAMuHMdXCt1-coXGgtgFBm4rZLGBRMvSjbgeBSweiyKrOfCF0Xg@mail.gmail.com>
+ <20180223081443.ak6kl3z72kamcxob@verge.net.au>
+ <CAMuHMdVKPFSVTbnQy9RwAg13OC3R=H1PN9+1FyU0SDHQPa1cuQ@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20180313061726.21601-3-joel@jms.id.au>
+In-Reply-To: <CAMuHMdVKPFSVTbnQy9RwAg13OC3R=H1PN9+1FyU0SDHQPa1cuQ@mail.gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, Mar 13, 2018 at 04:47:26PM +1030, Joel Stanley wrote:
-> The Nuvoton NPCM750 has a watchdog implemented as a single register
-> inside the timer peripheral.
+On Thu, Mar 01, 2018 at 11:20:11AM +0100, Geert Uytterhoeven wrote:
+> Hi Simon,
 > 
-> This driver exposes that watchdog as a standard watchdog device with
-> coarse timeout intervals, limited by the combination of prescaler and
-> counter that is provided by the hardware. The calculation is taken from
-> the Nuvoton vendor tree.
+> On Fri, Feb 23, 2018 at 9:14 AM, Simon Horman <horms@verge.net.au> wrote:
+> > On Thu, Feb 22, 2018 at 09:38:39AM +0100, Geert Uytterhoeven wrote:
+> >> On Wed, Feb 21, 2018 at 7:32 PM, Simon Horman <horms@verge.net.au> wrote:
+> >> > On Wed, Feb 21, 2018 at 05:30:12PM +0100, Geert Uytterhoeven wrote:
+> >> >> On Wed, Feb 21, 2018 at 5:13 PM, Simon Horman <horms@verge.net.au> wrote:
+> >> >> > On Tue, Feb 20, 2018 at 01:51:28PM +0100, Geert Uytterhoeven wrote:
+> >> >> >> On Mon, Feb 12, 2018 at 6:44 PM, Fabrizio Castro
+> >> >> >> <fabrizio.castro@bp.renesas.com> wrote:
+> >> >> >> > this series has been around for some time as RFC, and it has collected
+> >> >> >> > useful comments from the community along the way.
+> >> >> >> > The solution proposed by this patch set works for most R-Car Gen2 and
+> >> >> >> > RZ/G1 devices, but not all of them. We now know that for some R-Car
+> >> >> >> > Gen2 early revisions there is no proper software fix. Anyway, no
+> >> >> >> > product has been built around early revisions, but development boards
+> >> >> >> > mounting early revisions (basically prototypes) are still out there.
+> >> >> >> > As a result, this series isn't enabling the internal watchdog on R-Car
+> >> >> >> > Gen2 boards, developers may enable it in board specific device trees
+> >> >> >> > if needed.
+> >> >> >> > This series has been tested by me on the iwg20d, iwg22d, Lager, Alt,
+> >> >> >> > and Koelsch boards.
+> >> >> >> >
+> >> >> >> > The problem
+> >> >> >> > ===========
+> >> >> >> > To deal with SMP on R-Car Gen2 and RZ/G1, we install a reset vector
+> >> >> >> > to ICRAM1 and we program the [S]BAR registers so that when we turn ON
+> >> >> >> > the non-boot CPUs they are redirected to the reset vector installed by
+> >> >> >> > Linux in ICRAM1, and eventually they continue the execution to RAM,
+> >> >> >> > where the SMP bring-up code will take care of the rest.
+> >> >> >> > The content of the [S]BAR registers survives a watchdog triggered reset,
+> >> >> >> > and as such after the watchdog fires the boot core will try and execute
+> >> >> >> > the SMP bring-up code instead of jumping to the bootrom code.
+> >> >> >> >
+> >> >> >> > The fix
+> >> >> >> > =======
+> >> >> >> > The main strategy for the solution is to let the reset vector decide
+> >> >> >> > if it needs to jump to shmobile_boot_fn or to the bootrom code.
+> >> >> >> > In a watchdog triggered reset scenario, since the [S]BAR registers keep
+> >> >> >> > their values, the boot CPU will jump into the newly designed reset
+> >> >> >> > vector, the assembly routine will eventually test WOVF (a bit in register
+> >> >> >> > RWTCSRA that indicates if the watchdog counter has overflown, the value
+> >> >> >> > of this bit gets retained in this scenario), and jump to the bootrom code
+> >> >> >> > which will in turn load up the bootloader, etc.
+> >> >> >> > When bringing up SMP or using CPU hotplug, the reset vector will jump
+> >> >> >> > to shmobile_boot_fn instead.
+> >> >> >> >
+> >> >> >> > Thank you All for your help.
+> >> >> >> >
+> >> >> >> > Best regards,
+> >> >> >> >
+> >> >> >> > Fabrizio Castro (26):
+> >> >> >> >   ARM: shmobile: Add watchdog support
+> >> >> >> >   ARM: dts: r8a7743: Adjust SMP routine size
+> >> >> >> >   ARM: dts: r8a7745: Adjust SMP routine size
+> >> >> >> >   ARM: dts: r8a7790: Adjust SMP routine size
+> >> >> >> >   ARM: dts: r8a7791: Adjust SMP routine size
+> >> >> >> >   ARM: dts: r8a7792: Adjust SMP routine size
+> >> >> >> >   ARM: dts: r8a7793: Adjust SMP routine size
+> >> >> >> >   ARM: dts: r8a7794: Adjust SMP routine size
+> >> >> >> >   soc: renesas: rcar-rst: Enable watchdog as reset trigger for Gen2
+> >> >> >> >   ARM: shmobile: rcar-gen2: Add watchdog support
+> >> >> >> >   dt-bindings: watchdog: renesas-wdt: Add R-Car Gen2 support
+> >> >> >> >   watchdog: renesas_wdt: Add R-Car Gen2 support
+> >> >> >> >   watchdog: renesas_wdt: Add restart handler
+> >> >> >> >   ARM: shmobile: defconfig: Enable RENESAS_WDT_GEN
+> >> >> >> >   clk: renesas: r8a7743: Add rwdt clock
+> >> >> >> >   clk: renesas: r8a7745: Add rwdt clock
+> >> >> >> >   clk: renesas: r8a7790: Add rwdt clock
+> >> >> >> >   clk: renesas: r8a7791/r8a7793: Add rwdt clock
+> >> >> >> >   clk: renesas: r8a7794: Add rwdt clock
+> >> >> >> >   ARM: dts: r8a7743: Add watchdog support to SoC dtsi
+> >> >> >> >   ARM: dts: r8a7745: Add watchdog support to SoC dtsi
+> >> >> >> >   ARM: dts: r8a7790: Add watchdog support to SoC dtsi
+> >> >> >> >   ARM: dts: r8a7791: Add watchdog support to SoC dtsi
+> >> >> >> >   ARM: dts: r8a7794: Add watchdog support to SoC dtsi
+> >> >> >> >   ARM: dts: iwg20m: Add watchdog support to SoM dtsi
+> >> >> >> >   ARM: dts: iwg22m: Add watchdog support to SoM dtsi
+> >> >> >> >
+> >> >> >> >  .../devicetree/bindings/watchdog/renesas-wdt.txt   | 19 ++++++--
+> >> >> >> >  arch/arm/boot/dts/r8a7743-iwg20m.dtsi              |  5 ++
+> >> >> >> >  arch/arm/boot/dts/r8a7743.dtsi                     | 12 ++++-
+> >> >> >> >  arch/arm/boot/dts/r8a7745-iwg22m.dtsi              |  5 ++
+> >> >> >> >  arch/arm/boot/dts/r8a7745.dtsi                     | 12 ++++-
+> >> >> >> >  arch/arm/boot/dts/r8a7790.dtsi                     | 12 ++++-
+> >> >> >> >  arch/arm/boot/dts/r8a7791.dtsi                     | 12 ++++-
+> >> >> >> >  arch/arm/boot/dts/r8a7792.dtsi                     |  2 +-
+> >> >> >> >  arch/arm/boot/dts/r8a7793.dtsi                     |  2 +-
+> >> >> >> >  arch/arm/boot/dts/r8a7794.dtsi                     | 12 ++++-
+> >> >> >> >  arch/arm/configs/shmobile_defconfig                |  1 +
+> >> >> >> >  arch/arm/mach-shmobile/common.h                    |  6 +++
+> >> >> >> >  arch/arm/mach-shmobile/headsmp.S                   | 55 ++++++++++++++++++++++
+> >> >> >> >  arch/arm/mach-shmobile/platsmp-apmu.c              |  1 +
+> >> >> >> >  arch/arm/mach-shmobile/pm-rcar-gen2.c              | 15 ++++--
+> >> >> >> >  drivers/clk/renesas/r8a7743-cpg-mssr.c             |  2 +
+> >> >> >> >  drivers/clk/renesas/r8a7745-cpg-mssr.c             |  2 +
+> >> >> >> >  drivers/clk/renesas/r8a7790-cpg-mssr.c             |  2 +
+> >> >> >> >  drivers/clk/renesas/r8a7791-cpg-mssr.c             |  2 +
+> >> >> >> >  drivers/clk/renesas/r8a7794-cpg-mssr.c             |  2 +
+> >> >> >> >  drivers/soc/renesas/rcar-rst.c                     | 35 +++++++++++---
+> >> >> >> >  drivers/watchdog/renesas_wdt.c                     | 39 +++++++++++++--
+> >> >> >>
+> >> >> >> Thanks, I've queued the clock patches in clk-renesas-for-v4.17, as they are
+> >> >> >> a hard dependency for:
+> >> >> >>   (1) The new reset vector in arch/arm/mach-shmobile/
+> >> >> >>   (2) The watchdog driver.
+> >> >> >>
+> >> >> >> Note that the watchdog driver itself (2) has a hard dependency on the
+> >> >> >> new reset vector (1).
+> >> >> >
+> >> >> > Thanks, I have marked the watchdog driver patch as Deferred.
+> >> >> > Please resubmit or otherwise ping me once they dependencies
+> >> >> > are in an rc release.
+> >> >>
+> >> >> I gave the dependencies a bit more thought.
+> >> >>
+> >> >> I think we can gain once release cycle if you would postpone the DTS patches
+> >> >> (both SMP routine size adjustments and RWDT device node additions) to v4.18.
+> >> >> Then all other parts can be upstreamed in parallel in v4.17, as nothing
+> >> >> will be activated before the DTS parts are in.
+> >> >>
+> >> >> Does this look sane?
+> >> >
+> >> > What about new DTS on old kernels of a specific vintage?
+> >>
+> >> New DTS would work fine on v4.16 and older, which don't have any of the
+> >> other patches from this series.
+> >> New DTS would work fine on v4.17, assumed all other patches from this
+> >> series get into v4.17.
+> >>
+> >> The only issue would be a new DTS on a kernel that has some but not all
+> >> other patches from this series.
+> >
+> > Thanks for the analysis. I think this is the key point. What is the risk of
+> > that happening?
 > 
-> The watchdog is left running if a bootloader had it going. The rate is
-> the one specified in the device tree, or the default value (obtained
-> from the datasheet).
+> I think the risk is fairly low.
+> You control when the DTS changes go in, and also when they are backported
+> to LTSI.
 > 
-> There is a pre-timeout IRQ that is wired up. This timeout always occurs
-> 1024 clocks before the timeout.
+> >> If we want to fast-track everything into v4.17, we need a stable branch, to be
+> >> pulled by all 5 actors (clk-renesas, mach-shmobile, soc-renesas, watchdog,
+> >> renesas-dts).
+> >
+> > It seems that watchdog is the only item on that list that neither you nor I
+> > sign off on. So I conclude that if the watchdog patch goes in early enough
+> > in the cycle then we ought to be in good shape.
+> >
+> > None the less, is it worth the risk?
 > 
-> Signed-off-by: Joel Stanley <joel@jms.id.au>
+> Do we want the functionality early, or can we wait until v4.19?
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+I understand that the watchdog driver has been accepted and that as things
+currently stand if it is enabled in the build it will be enabled in DT and
+a crash will result. From my POV that is a regression so I have decided
+to adopt the alternate plan proposed by Geert above: in short drop DT
+patches (to avoid enabling broken driver) and enqueue mach-shmobile
+patches (which don't make things any worse.
 
-> ---
-> v2:
->  - Make MODULE_LICENCE gpl v2 to match SPDX
->  - Remove unused struct device pointer
->  - Remove unused setting of drvdata
->  - Add linux/bitops.h
->  - Sort includes
->  - Remove unused fiq include
->  - Update timeout with achieved value
-> v3:
->  - Calculate the time and register value separately
->  - Pass device tree value through set_timeout to ensure it can
->    be represented by hardware
-> v4:
->  - Propagate return code from platform_get_irq
-> ---
->  drivers/watchdog/Kconfig    |  11 ++
->  drivers/watchdog/Makefile   |   1 +
->  drivers/watchdog/npcm_wdt.c | 254 ++++++++++++++++++++++++++++++++++++++++++++
->  3 files changed, 266 insertions(+)
->  create mode 100644 drivers/watchdog/npcm_wdt.c
-> 
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index aff773bcebdb..0c1cc68894e6 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -513,6 +513,17 @@ config COH901327_WATCHDOG
->  	  This watchdog is used to reset the system and thus cannot be
->  	  compiled as a module.
->  
-> +config NPCM7XX_WATCHDOG
-> +	bool "Nuvoton NPCM750 watchdog"
-> +	depends on ARCH_NPCM || COMPILE_TEST
-> +	default y if ARCH_NPCM750
-> +	select WATCHDOG_CORE
-> +	help
-> +	  Say Y here to include Watchdog timer support for the
-> +	  watchdog embedded into the NPCM7xx.
-> +	  This watchdog is used to reset the system and thus cannot be
-> +	  compiled as a module.
-> +
->  config TWL4030_WATCHDOG
->  	tristate "TWL4030 Watchdog"
->  	depends on TWL4030_CORE
-> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-> index 0474d38aa854..97a5afb5cad2 100644
-> --- a/drivers/watchdog/Makefile
-> +++ b/drivers/watchdog/Makefile
-> @@ -61,6 +61,7 @@ obj-$(CONFIG_ORION_WATCHDOG) += orion_wdt.o
->  obj-$(CONFIG_SUNXI_WATCHDOG) += sunxi_wdt.o
->  obj-$(CONFIG_RN5T618_WATCHDOG) += rn5t618_wdt.o
->  obj-$(CONFIG_COH901327_WATCHDOG) += coh901327_wdt.o
-> +obj-$(CONFIG_NPCM7XX_WATCHDOG) += npcm_wdt.o
->  obj-$(CONFIG_STMP3XXX_RTC_WATCHDOG) += stmp3xxx_rtc_wdt.o
->  obj-$(CONFIG_NUC900_WATCHDOG) += nuc900_wdt.o
->  obj-$(CONFIG_TS4800_WATCHDOG) += ts4800_wdt.o
-> diff --git a/drivers/watchdog/npcm_wdt.c b/drivers/watchdog/npcm_wdt.c
-> new file mode 100644
-> index 000000000000..0d4213652ecc
-> --- /dev/null
-> +++ b/drivers/watchdog/npcm_wdt.c
-> @@ -0,0 +1,254 @@
-> +// SPDX-License-Identifier: GPL-2.0
-> +// Copyright (c) 2018 Nuvoton Technology corporation.
-> +// Copyright (c) 2018 IBM Corp.
-> +
-> +#include <linux/bitops.h>
-> +#include <linux/delay.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/kernel.h>
-> +#include <linux/module.h>
-> +#include <linux/of_irq.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/slab.h>
-> +#include <linux/watchdog.h>
-> +
-> +#define NPCM_WTCR	0x1C
-> +
-> +#define NPCM_WTCLK	(BIT(10) | BIT(11))	/* Clock divider */
-> +#define NPCM_WTE	BIT(7)			/* Enable */
-> +#define NPCM_WTIE	BIT(6)			/* Enable irq */
-> +#define NPCM_WTIS	(BIT(4) | BIT(5))	/* Interval selection */
-> +#define NPCM_WTIF	BIT(3)			/* Interrupt flag*/
-> +#define NPCM_WTRF	BIT(2)			/* Reset flag */
-> +#define NPCM_WTRE	BIT(1)			/* Reset enable */
-> +#define NPCM_WTR	BIT(0)			/* Reset counter */
-> +
-> +/*
-> + * Watchdog timeouts
-> + *
-> + * 170     msec:    WTCLK=01 WTIS=00     VAL= 0x400
-> + * 670     msec:    WTCLK=01 WTIS=01     VAL= 0x410
-> + * 1360    msec:    WTCLK=10 WTIS=00     VAL= 0x800
-> + * 2700    msec:    WTCLK=01 WTIS=10     VAL= 0x420
-> + * 5360    msec:    WTCLK=10 WTIS=01     VAL= 0x810
-> + * 10700   msec:    WTCLK=01 WTIS=11     VAL= 0x430
-> + * 21600   msec:    WTCLK=10 WTIS=10     VAL= 0x820
-> + * 43000   msec:    WTCLK=11 WTIS=00     VAL= 0xC00
-> + * 85600   msec:    WTCLK=10 WTIS=11     VAL= 0x830
-> + * 172000  msec:    WTCLK=11 WTIS=01     VAL= 0xC10
-> + * 687000  msec:    WTCLK=11 WTIS=10     VAL= 0xC20
-> + * 2750000 msec:    WTCLK=11 WTIS=11     VAL= 0xC30
-> + */
-> +
-> +struct npcm_wdt {
-> +	struct watchdog_device  wdd;
-> +	void __iomem		*reg;
-> +};
-> +
-> +static inline struct npcm_wdt *to_npcm_wdt(struct watchdog_device *wdd)
-> +{
-> +	return container_of(wdd, struct npcm_wdt, wdd);
-> +}
-> +
-> +static int npcm_wdt_ping(struct watchdog_device *wdd)
-> +{
-> +	struct npcm_wdt *wdt = to_npcm_wdt(wdd);
-> +	u32 val;
-> +
-> +	val = readl(wdt->reg);
-> +	writel(val | NPCM_WTR, wdt->reg);
-> +
-> +	return 0;
-> +}
-> +
-> +static int npcm_wdt_start(struct watchdog_device *wdd)
-> +{
-> +	struct npcm_wdt *wdt = to_npcm_wdt(wdd);
-> +	u32 val;
-> +
-> +	if (wdd->timeout < 2)
-> +		val = 0x800;
-> +	else if (wdd->timeout < 3)
-> +		val = 0x420;
-> +	else if (wdd->timeout < 6)
-> +		val = 0x810;
-> +	else if (wdd->timeout < 11)
-> +		val = 0x430;
-> +	else if (wdd->timeout < 22)
-> +		val = 0x820;
-> +	else if (wdd->timeout < 44)
-> +		val = 0xC00;
-> +	else if (wdd->timeout < 87)
-> +		val = 0x830;
-> +	else if (wdd->timeout < 173)
-> +		val = 0xC10;
-> +	else if (wdd->timeout < 688)
-> +		val = 0xC20;
-> +	else
-> +		val = 0xC30;
-> +
-> +	val |= NPCM_WTRE | NPCM_WTE | NPCM_WTR | NPCM_WTIE;
-> +
-> +	writel(val, wdt->reg);
-> +
-> +	return 0;
-> +}
-> +
-> +static int npcm_wdt_stop(struct watchdog_device *wdd)
-> +{
-> +	struct npcm_wdt *wdt = to_npcm_wdt(wdd);
-> +
-> +	writel(0, wdt->reg);
-> +
-> +	return 0;
-> +}
-> +
-> +
-> +static int npcm_wdt_set_timeout(struct watchdog_device *wdd,
-> +				unsigned int timeout)
-> +{
-> +	if (timeout < 2)
-> +		wdd->timeout = 1;
-> +	else if (timeout < 3)
-> +	      wdd->timeout = 2;
-> +	else if (timeout < 6)
-> +	      wdd->timeout = 5;
-> +	else if (timeout < 11)
-> +	      wdd->timeout = 10;
-> +	else if (timeout < 22)
-> +	      wdd->timeout = 21;
-> +	else if (timeout < 44)
-> +	      wdd->timeout = 43;
-> +	else if (timeout < 87)
-> +	      wdd->timeout = 86;
-> +	else if (timeout < 173)
-> +	      wdd->timeout = 172;
-> +	else if (timeout < 688)
-> +	      wdd->timeout = 687;
-> +	else
-> +	      wdd->timeout = 2750;
-> +
-> +	if (watchdog_active(wdd))
-> +		npcm_wdt_start(wdd);
-> +
-> +	return 0;
-> +}
-> +
-> +static irqreturn_t npcm_wdt_interrupt(int irq, void *data)
-> +{
-> +	struct npcm_wdt *wdt = data;
-> +
-> +	watchdog_notify_pretimeout(&wdt->wdd);
-> +
-> +	return IRQ_HANDLED;
-> +}
-> +
-> +static int npcm_wdt_restart(struct watchdog_device *wdd,
-> +			    unsigned long action, void *data)
-> +{
-> +	struct npcm_wdt *wdt = to_npcm_wdt(wdd);
-> +
-> +	writel(NPCM_WTR | NPCM_WTRE | NPCM_WTE, wdt->reg);
-> +	udelay(1000);
-> +
-> +	return 0;
-> +}
-> +
-> +static bool npcm_is_running(struct watchdog_device *wdd)
-> +{
-> +	struct npcm_wdt *wdt = to_npcm_wdt(wdd);
-> +
-> +	return readl(wdt->reg) & NPCM_WTE;
-> +}
-> +
-> +static const struct watchdog_info npcm_wdt_info = {
-> +	.identity	= KBUILD_MODNAME,
-> +	.options	= WDIOF_SETTIMEOUT
-> +			| WDIOF_KEEPALIVEPING
-> +			| WDIOF_MAGICCLOSE,
-> +};
-> +
-> +static const struct watchdog_ops npcm_wdt_ops = {
-> +	.owner = THIS_MODULE,
-> +	.start = npcm_wdt_start,
-> +	.stop = npcm_wdt_stop,
-> +	.ping = npcm_wdt_ping,
-> +	.set_timeout = npcm_wdt_set_timeout,
-> +	.restart = npcm_wdt_restart,
-> +};
-> +
-> +static int npcm_wdt_probe(struct platform_device *pdev)
-> +{
-> +	struct device *dev = &pdev->dev;
-> +	struct npcm_wdt *wdt;
-> +	struct resource *res;
-> +	int irq;
-> +	int ret;
-> +
-> +	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
-> +	if (!wdt)
-> +		return -ENOMEM;
-> +
-> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> +	wdt->reg = devm_ioremap_resource(dev, res);
-> +	if (IS_ERR(wdt->reg))
-> +		return PTR_ERR(wdt->reg);
-> +
-> +	irq = platform_get_irq(pdev, 0);
-> +	if (irq < 0)
-> +		return irq;
-> +
-> +	wdt->wdd.info = &npcm_wdt_info;
-> +	wdt->wdd.ops = &npcm_wdt_ops;
-> +	wdt->wdd.min_timeout = 1;
-> +	wdt->wdd.max_timeout = 2750;
-> +	wdt->wdd.parent = dev;
-> +
-> +	wdt->wdd.timeout = 86;
-> +	watchdog_init_timeout(&wdt->wdd, 0, dev);
-> +
-> +	/* Ensure timeout is able to be represented by the hardware */
-> +	npcm_wdt_set_timeout(&wdt->wdd, wdt->wdd.timeout);
-> +
-> +	if (npcm_is_running(&wdt->wdd)) {
-> +		/* Restart with the default or device-tree specified timeout */
-> +		npcm_wdt_start(&wdt->wdd);
-> +		set_bit(WDOG_HW_RUNNING, &wdt->wdd.status);
-> +	}
-> +
-> +	ret = devm_request_irq(dev, irq, npcm_wdt_interrupt, 0,
-> +			       "watchdog", wdt);
-> +	if (ret)
-> +		return ret;
-> +
-> +	ret = devm_watchdog_register_device(dev, &wdt->wdd);
-> +	if (ret) {
-> +		dev_err(dev, "failed to register watchdog\n");
-> +		return ret;
-> +	}
-> +
-> +	dev_info(dev, "NPCM watchdog driver enabled\n");
-> +
-> +	return 0;
-> +}
-> +
-> +#ifdef CONFIG_OF
-> +static const struct of_device_id npcm_wdt_match[] = {
-> +	{.compatible = "nuvoton,npcm750-wdt"},
-> +	{},
-> +};
-> +MODULE_DEVICE_TABLE(of, npcm_wdt_match);
-> +#endif
-> +
-> +static struct platform_driver npcm_wdt_driver = {
-> +	.probe		= npcm_wdt_probe,
-> +	.driver		= {
-> +		.name	= "npcm-wdt",
-> +		.of_match_table = of_match_ptr(npcm_wdt_match),
-> +	},
-> +};
-> +module_platform_driver(npcm_wdt_driver);
-> +
-> +MODULE_AUTHOR("Joel Stanley");
-> +MODULE_DESCRIPTION("Watchdog driver for NPCM");
-> +MODULE_LICENSE("GPL v2");
-> -- 
-> 2.15.1
-> 
+Patch-by-patch things are as follows.
+
+Dropped from "[PATCH v5 00/26] Fix watchdog on Renesas R-Car Gen2 and RZ/G1":
+
+979d28f29742 ARM: dts: r8a7743: Adjust SMP routine size
+0b205f679f5d ARM: dts: r8a7745: Adjust SMP routine size
+2ad21a1d78b3 ARM: dts: r8a7790: Adjust SMP routine size
+82c978459c77 ARM: dts: r8a7791: Adjust SMP routine size
+d303698e6ff3 ARM: dts: r8a7792: Adjust SMP routine size
+d8b8b9a1e295 ARM: dts: r8a7793: Adjust SMP routine size
+70b3ab369773 ARM: dts: r8a7794: Adjust SMP routine size
+
+ebf26cf1b1de ARM: dts: r8a7743: Add watchdog support to SoC dtsi
+5a4566ab3777 ARM: dts: r8a7745: Add watchdog support to SoC dtsi
+acd58e2bb1e5 ARM: dts: r8a7790: Add watchdog support to SoC dtsi
+e3f89168e72f ARM: dts: r8a7791: Add watchdog support to SoC dtsi
+e76a6a69a1fc ARM: dts: r8a7794: Add watchdog support to SoC dtsi
+242cc1ab7f7c ARM: dts: iwg20m: Add watchdog support to SoM dtsi
+748ed07f6c7c ARM: dts: iwg22m: Add watchdog support to SoM dtsi
+
+
+Dropped from "[PATCH/RFC 00/11] ARM: dts: rcar-gen2: Enable watchdog support":
+
+c257202482e2 ARM: dts: r8a7792: Add RWDT node
+01ec04dec8eb ARM: dts: r8a7793: Add RWDT node
+8e6ebe4f2f94 ARM: dts: lager: Enable watchdog support
+f223ad0198f6 ARM: dts: koelsch: Enable watchdog support
+1d14d2bb700d ARM: dts: porter: Enable watchdog support
+bf71652fc955 ARM: dts: blanche: Enable watchdog support
+13a0b10aeea4 ARM: dts: wheat: Enable watchdog support
+4e247bf110b8 ARM: dts: gose: Enable watchdog support
+2dcbd24bbf5e ARM: dts: alt: Enable watchdog support
+7f6844c900b4 ARM: dts: silk: Enable watchdog support
+
+And applied:
+
+[v5] ARM: shmobile: rcar-gen2: Add watchdog support
+[v5] ARM: shmobile: Add watchdog support
+
+In the case of the last patch above I removed the #ifdef from the header file.
+
