@@ -1,89 +1,85 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-qk0-f195.google.com ([209.85.220.195]:40439 "EHLO
-        mail-qk0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932435AbeCMNny (ORCPT
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:43106 "EHLO
+        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752391AbeCMQsM (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 13 Mar 2018 09:43:54 -0400
-MIME-Version: 1.0
-In-Reply-To: <1519839622-6109-1-git-send-email-fabrizio.castro@bp.renesas.com>
-References: <CAMuHMdUx3A_8MeZmrwiBRqUS0oGjwrg13fy1QMsA2SUw+dR0Hg@mail.gmail.com>
- <1519839622-6109-1-git-send-email-fabrizio.castro@bp.renesas.com>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Tue, 13 Mar 2018 14:43:52 +0100
-Message-ID: <CAMuHMdVRxTCG0vCEEmhHm4XsZeJaPM1b_LOeZxqNdhRqsH0oZw@mail.gmail.com>
-Subject: Re: [PATCH v6 01/26] ARM: shmobile: Add watchdog support
-To: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
-Cc: Geert Uytterhoeven <geert+renesas@glider.be>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
+        Tue, 13 Mar 2018 12:48:12 -0400
+Date: Tue, 13 Mar 2018 09:48:09 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Joel Stanley <joel@jms.id.au>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
         Rob Herring <robh+dt@kernel.org>,
         Mark Rutland <mark.rutland@arm.com>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        Russell King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@codeaurora.org>,
-        Magnus Damm <magnus.damm@gmail.com>,
-        Simon Horman <horms@verge.net.au>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS"
-        <devicetree@vger.kernel.org>,
-        Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-        Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        linux-clk <linux-clk@vger.kernel.org>,
-        Chris Paterson <Chris.Paterson2@renesas.com>,
-        Biju Das <biju.das@bp.renesas.com>,
-        Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
-Content-Type: text/plain; charset="UTF-8"
+        Marcus Folkesson <marcus.folkesson@gmail.com>,
+        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Tomer Maimon <tmaimon77@gmail.com>,
+        Avi Fishman <avifishman70@gmail.com>,
+        Brendan Higgins <brendanhiggins@google.com>
+Subject: Re: [PATCH v4 1/2] dt-bindings: watchdog: Add Nuvoton NPCM
+ description
+Message-ID: <20180313164809.GA13835@roeck-us.net>
+References: <20180313061726.21601-1-joel@jms.id.au>
+ <20180313061726.21601-2-joel@jms.id.au>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20180313061726.21601-2-joel@jms.id.au>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Fabrizio,
+On Tue, Mar 13, 2018 at 04:47:25PM +1030, Joel Stanley wrote:
+> These bindings describe the watchdog IP as used by the Nuvoton NPCM750
+> (Poleg) BMC SoC.
+> 
+> Reviewed-by: Rob Herring <robh@kernel.org>
+> Signed-off-by: Joel Stanley <joel@jms.id.au>
 
-On Wed, Feb 28, 2018 at 6:40 PM, Fabrizio Castro
-<fabrizio.castro@bp.renesas.com> wrote:
-> On R-Car Gen2 and RZ/G1 platforms, we use the SBAR registers to make non
-> boot CPUs run a routine designed to bring up SMP and deal with hot plug.
-> The value contained in the SBAR registers is not initialized by a WDT
-> triggered reset, which means that after a WDT triggered reset we jump
-> to the SMP bring up routine, preventing the system from executing the
-> bootrom code.
->
-> The purpose of this patch is to jump to the bootrom code in case of a
-> WDT triggered reset, and keep the SMP functionality untouched.
-> In order to tell if the code had been called due to the WDT overflowing
-> we are testing WOVF from register RWTCSRA.
->
-> The new function shmobile_boot_vector_gen2 isn't replacing
-> shmobile_boot_vector for backward compatibility reasons. The kernel
-> will install the best option (either shmobile_boot_vector or
-> shmobile_boot_vector_gen2) to ICRAM1 after parsing the device tree,
-> according to the amount of memory available.
->
-> Since shmobile_boot_vector has become bigger, "reg" property of nodes
-> compatible with "renesas,smp-sram" now need to be set to a value
-> greater or equal to "<0 0x60>".
->
-> Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
-> Signed-off-by: Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
-> Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+
 > ---
-> v5->v6:
-> * taken ifdefs out as per Geert's suggestion.
-
-My intention was to remove the #ifdefs from the header file only, not
-from arch/arm/mach-shmobile/headsmp.S, as the latter is used for
-other SoC families, too.
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+> V2: Add optional timeout property
+> v3:
+>  - Fix address in example
+>  - Add Rob's reviewed-by
+> ---
+>  .../bindings/watchdog/nuvoton,npcm-wdt.txt         | 28 ++++++++++++++++++++++
+>  1 file changed, 28 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/watchdog/nuvoton,npcm-wdt.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/watchdog/nuvoton,npcm-wdt.txt b/Documentation/devicetree/bindings/watchdog/nuvoton,npcm-wdt.txt
+> new file mode 100644
+> index 000000000000..6d593003c933
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/watchdog/nuvoton,npcm-wdt.txt
+> @@ -0,0 +1,28 @@
+> +Nuvoton NPCM Watchdog
+> +
+> +Nuvoton NPCM timer module provides five 24-bit timer counters, and a watchdog.
+> +The watchdog supports a pre-timeout interrupt that fires 10ms before the
+> +expiry.
+> +
+> +Required properties:
+> +- compatible      : "nuvoton,npcm750-wdt" for NPCM750 (Poleg).
+> +- reg             : Offset and length of the register set for the device.
+> +- interrupts      : Contain the timer interrupt with flags for
+> +                    falling edge.
+> +
+> +Required clocking property, have to be one of:
+> +- clocks          : phandle of timer reference clock.
+> +- clock-frequency : The frequency in Hz of the clock that drives the NPCM7xx
+> +                    timer (usually 25000000).
+> +
+> +Optional properties:
+> +- timeout-sec : Contains the watchdog timeout in seconds
+> +
+> +Example:
+> +
+> +timer@f000801c {
+> +    compatible = "nuvoton,npcm750-wdt";
+> +    interrupts = <GIC_SPI 47 IRQ_TYPE_LEVEL_HIGH>;
+> +    reg = <0xf000801c 0x4>;
+> +    clocks = <&clk NPCM7XX_CLK_TIMER>;
+> +};
+> -- 
+> 2.15.1
+> 
