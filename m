@@ -1,359 +1,89 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pl0-f66.google.com ([209.85.160.66]:35358 "EHLO
-        mail-pl0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751857AbeCMGR5 (ORCPT
+Received: from mail-qk0-f195.google.com ([209.85.220.195]:40439 "EHLO
+        mail-qk0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932435AbeCMNny (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 13 Mar 2018 02:17:57 -0400
-From: Joel Stanley <joel@jms.id.au>
-To: Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
+        Tue, 13 Mar 2018 09:43:54 -0400
+MIME-Version: 1.0
+In-Reply-To: <1519839622-6109-1-git-send-email-fabrizio.castro@bp.renesas.com>
+References: <CAMuHMdUx3A_8MeZmrwiBRqUS0oGjwrg13fy1QMsA2SUw+dR0Hg@mail.gmail.com>
+ <1519839622-6109-1-git-send-email-fabrizio.castro@bp.renesas.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Tue, 13 Mar 2018 14:43:52 +0100
+Message-ID: <CAMuHMdVRxTCG0vCEEmhHm4XsZeJaPM1b_LOeZxqNdhRqsH0oZw@mail.gmail.com>
+Subject: Re: [PATCH v6 01/26] ARM: shmobile: Add watchdog support
+To: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
+Cc: Geert Uytterhoeven <geert+renesas@glider.be>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
         Rob Herring <robh+dt@kernel.org>,
         Mark Rutland <mark.rutland@arm.com>,
-        Marcus Folkesson <marcus.folkesson@gmail.com>
-Cc: linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Tomer Maimon <tmaimon77@gmail.com>,
-        Avi Fishman <avifishman70@gmail.com>,
-        Brendan Higgins <brendanhiggins@google.com>
-Subject: [PATCH v4 2/2] watchdog: Add Nuvoton NPCM watchdog driver
-Date: Tue, 13 Mar 2018 16:47:26 +1030
-Message-Id: <20180313061726.21601-3-joel@jms.id.au>
-In-Reply-To: <20180313061726.21601-1-joel@jms.id.au>
-References: <20180313061726.21601-1-joel@jms.id.au>
+        Wim Van Sebroeck <wim@iguana.be>,
+        Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@codeaurora.org>,
+        Magnus Damm <magnus.damm@gmail.com>,
+        Simon Horman <horms@verge.net.au>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS"
+        <devicetree@vger.kernel.org>,
+        Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
+        Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        linux-clk <linux-clk@vger.kernel.org>,
+        Chris Paterson <Chris.Paterson2@renesas.com>,
+        Biju Das <biju.das@bp.renesas.com>,
+        Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The Nuvoton NPCM750 has a watchdog implemented as a single register
-inside the timer peripheral.
+Hi Fabrizio,
 
-This driver exposes that watchdog as a standard watchdog device with
-coarse timeout intervals, limited by the combination of prescaler and
-counter that is provided by the hardware. The calculation is taken from
-the Nuvoton vendor tree.
+On Wed, Feb 28, 2018 at 6:40 PM, Fabrizio Castro
+<fabrizio.castro@bp.renesas.com> wrote:
+> On R-Car Gen2 and RZ/G1 platforms, we use the SBAR registers to make non
+> boot CPUs run a routine designed to bring up SMP and deal with hot plug.
+> The value contained in the SBAR registers is not initialized by a WDT
+> triggered reset, which means that after a WDT triggered reset we jump
+> to the SMP bring up routine, preventing the system from executing the
+> bootrom code.
+>
+> The purpose of this patch is to jump to the bootrom code in case of a
+> WDT triggered reset, and keep the SMP functionality untouched.
+> In order to tell if the code had been called due to the WDT overflowing
+> we are testing WOVF from register RWTCSRA.
+>
+> The new function shmobile_boot_vector_gen2 isn't replacing
+> shmobile_boot_vector for backward compatibility reasons. The kernel
+> will install the best option (either shmobile_boot_vector or
+> shmobile_boot_vector_gen2) to ICRAM1 after parsing the device tree,
+> according to the amount of memory available.
+>
+> Since shmobile_boot_vector has become bigger, "reg" property of nodes
+> compatible with "renesas,smp-sram" now need to be set to a value
+> greater or equal to "<0 0x60>".
+>
+> Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
+> Signed-off-by: Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
+> Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+> ---
+> v5->v6:
+> * taken ifdefs out as per Geert's suggestion.
 
-The watchdog is left running if a bootloader had it going. The rate is
-the one specified in the device tree, or the default value (obtained
-from the datasheet).
+My intention was to remove the #ifdefs from the header file only, not
+from arch/arm/mach-shmobile/headsmp.S, as the latter is used for
+other SoC families, too.
 
-There is a pre-timeout IRQ that is wired up. This timeout always occurs
-1024 clocks before the timeout.
+Gr{oetje,eeting}s,
 
-Signed-off-by: Joel Stanley <joel@jms.id.au>
----
-v2:
- - Make MODULE_LICENCE gpl v2 to match SPDX
- - Remove unused struct device pointer
- - Remove unused setting of drvdata
- - Add linux/bitops.h
- - Sort includes
- - Remove unused fiq include
- - Update timeout with achieved value
-v3:
- - Calculate the time and register value separately
- - Pass device tree value through set_timeout to ensure it can
-   be represented by hardware
-v4:
- - Propagate return code from platform_get_irq
----
- drivers/watchdog/Kconfig    |  11 ++
- drivers/watchdog/Makefile   |   1 +
- drivers/watchdog/npcm_wdt.c | 254 ++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 266 insertions(+)
- create mode 100644 drivers/watchdog/npcm_wdt.c
+                        Geert
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index aff773bcebdb..0c1cc68894e6 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -513,6 +513,17 @@ config COH901327_WATCHDOG
- 	  This watchdog is used to reset the system and thus cannot be
- 	  compiled as a module.
- 
-+config NPCM7XX_WATCHDOG
-+	bool "Nuvoton NPCM750 watchdog"
-+	depends on ARCH_NPCM || COMPILE_TEST
-+	default y if ARCH_NPCM750
-+	select WATCHDOG_CORE
-+	help
-+	  Say Y here to include Watchdog timer support for the
-+	  watchdog embedded into the NPCM7xx.
-+	  This watchdog is used to reset the system and thus cannot be
-+	  compiled as a module.
-+
- config TWL4030_WATCHDOG
- 	tristate "TWL4030 Watchdog"
- 	depends on TWL4030_CORE
-diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index 0474d38aa854..97a5afb5cad2 100644
---- a/drivers/watchdog/Makefile
-+++ b/drivers/watchdog/Makefile
-@@ -61,6 +61,7 @@ obj-$(CONFIG_ORION_WATCHDOG) += orion_wdt.o
- obj-$(CONFIG_SUNXI_WATCHDOG) += sunxi_wdt.o
- obj-$(CONFIG_RN5T618_WATCHDOG) += rn5t618_wdt.o
- obj-$(CONFIG_COH901327_WATCHDOG) += coh901327_wdt.o
-+obj-$(CONFIG_NPCM7XX_WATCHDOG) += npcm_wdt.o
- obj-$(CONFIG_STMP3XXX_RTC_WATCHDOG) += stmp3xxx_rtc_wdt.o
- obj-$(CONFIG_NUC900_WATCHDOG) += nuc900_wdt.o
- obj-$(CONFIG_TS4800_WATCHDOG) += ts4800_wdt.o
-diff --git a/drivers/watchdog/npcm_wdt.c b/drivers/watchdog/npcm_wdt.c
-new file mode 100644
-index 000000000000..0d4213652ecc
---- /dev/null
-+++ b/drivers/watchdog/npcm_wdt.c
-@@ -0,0 +1,254 @@
-+// SPDX-License-Identifier: GPL-2.0
-+// Copyright (c) 2018 Nuvoton Technology corporation.
-+// Copyright (c) 2018 IBM Corp.
-+
-+#include <linux/bitops.h>
-+#include <linux/delay.h>
-+#include <linux/interrupt.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/of_irq.h>
-+#include <linux/platform_device.h>
-+#include <linux/slab.h>
-+#include <linux/watchdog.h>
-+
-+#define NPCM_WTCR	0x1C
-+
-+#define NPCM_WTCLK	(BIT(10) | BIT(11))	/* Clock divider */
-+#define NPCM_WTE	BIT(7)			/* Enable */
-+#define NPCM_WTIE	BIT(6)			/* Enable irq */
-+#define NPCM_WTIS	(BIT(4) | BIT(5))	/* Interval selection */
-+#define NPCM_WTIF	BIT(3)			/* Interrupt flag*/
-+#define NPCM_WTRF	BIT(2)			/* Reset flag */
-+#define NPCM_WTRE	BIT(1)			/* Reset enable */
-+#define NPCM_WTR	BIT(0)			/* Reset counter */
-+
-+/*
-+ * Watchdog timeouts
-+ *
-+ * 170     msec:    WTCLK=01 WTIS=00     VAL= 0x400
-+ * 670     msec:    WTCLK=01 WTIS=01     VAL= 0x410
-+ * 1360    msec:    WTCLK=10 WTIS=00     VAL= 0x800
-+ * 2700    msec:    WTCLK=01 WTIS=10     VAL= 0x420
-+ * 5360    msec:    WTCLK=10 WTIS=01     VAL= 0x810
-+ * 10700   msec:    WTCLK=01 WTIS=11     VAL= 0x430
-+ * 21600   msec:    WTCLK=10 WTIS=10     VAL= 0x820
-+ * 43000   msec:    WTCLK=11 WTIS=00     VAL= 0xC00
-+ * 85600   msec:    WTCLK=10 WTIS=11     VAL= 0x830
-+ * 172000  msec:    WTCLK=11 WTIS=01     VAL= 0xC10
-+ * 687000  msec:    WTCLK=11 WTIS=10     VAL= 0xC20
-+ * 2750000 msec:    WTCLK=11 WTIS=11     VAL= 0xC30
-+ */
-+
-+struct npcm_wdt {
-+	struct watchdog_device  wdd;
-+	void __iomem		*reg;
-+};
-+
-+static inline struct npcm_wdt *to_npcm_wdt(struct watchdog_device *wdd)
-+{
-+	return container_of(wdd, struct npcm_wdt, wdd);
-+}
-+
-+static int npcm_wdt_ping(struct watchdog_device *wdd)
-+{
-+	struct npcm_wdt *wdt = to_npcm_wdt(wdd);
-+	u32 val;
-+
-+	val = readl(wdt->reg);
-+	writel(val | NPCM_WTR, wdt->reg);
-+
-+	return 0;
-+}
-+
-+static int npcm_wdt_start(struct watchdog_device *wdd)
-+{
-+	struct npcm_wdt *wdt = to_npcm_wdt(wdd);
-+	u32 val;
-+
-+	if (wdd->timeout < 2)
-+		val = 0x800;
-+	else if (wdd->timeout < 3)
-+		val = 0x420;
-+	else if (wdd->timeout < 6)
-+		val = 0x810;
-+	else if (wdd->timeout < 11)
-+		val = 0x430;
-+	else if (wdd->timeout < 22)
-+		val = 0x820;
-+	else if (wdd->timeout < 44)
-+		val = 0xC00;
-+	else if (wdd->timeout < 87)
-+		val = 0x830;
-+	else if (wdd->timeout < 173)
-+		val = 0xC10;
-+	else if (wdd->timeout < 688)
-+		val = 0xC20;
-+	else
-+		val = 0xC30;
-+
-+	val |= NPCM_WTRE | NPCM_WTE | NPCM_WTR | NPCM_WTIE;
-+
-+	writel(val, wdt->reg);
-+
-+	return 0;
-+}
-+
-+static int npcm_wdt_stop(struct watchdog_device *wdd)
-+{
-+	struct npcm_wdt *wdt = to_npcm_wdt(wdd);
-+
-+	writel(0, wdt->reg);
-+
-+	return 0;
-+}
-+
-+
-+static int npcm_wdt_set_timeout(struct watchdog_device *wdd,
-+				unsigned int timeout)
-+{
-+	if (timeout < 2)
-+		wdd->timeout = 1;
-+	else if (timeout < 3)
-+	      wdd->timeout = 2;
-+	else if (timeout < 6)
-+	      wdd->timeout = 5;
-+	else if (timeout < 11)
-+	      wdd->timeout = 10;
-+	else if (timeout < 22)
-+	      wdd->timeout = 21;
-+	else if (timeout < 44)
-+	      wdd->timeout = 43;
-+	else if (timeout < 87)
-+	      wdd->timeout = 86;
-+	else if (timeout < 173)
-+	      wdd->timeout = 172;
-+	else if (timeout < 688)
-+	      wdd->timeout = 687;
-+	else
-+	      wdd->timeout = 2750;
-+
-+	if (watchdog_active(wdd))
-+		npcm_wdt_start(wdd);
-+
-+	return 0;
-+}
-+
-+static irqreturn_t npcm_wdt_interrupt(int irq, void *data)
-+{
-+	struct npcm_wdt *wdt = data;
-+
-+	watchdog_notify_pretimeout(&wdt->wdd);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static int npcm_wdt_restart(struct watchdog_device *wdd,
-+			    unsigned long action, void *data)
-+{
-+	struct npcm_wdt *wdt = to_npcm_wdt(wdd);
-+
-+	writel(NPCM_WTR | NPCM_WTRE | NPCM_WTE, wdt->reg);
-+	udelay(1000);
-+
-+	return 0;
-+}
-+
-+static bool npcm_is_running(struct watchdog_device *wdd)
-+{
-+	struct npcm_wdt *wdt = to_npcm_wdt(wdd);
-+
-+	return readl(wdt->reg) & NPCM_WTE;
-+}
-+
-+static const struct watchdog_info npcm_wdt_info = {
-+	.identity	= KBUILD_MODNAME,
-+	.options	= WDIOF_SETTIMEOUT
-+			| WDIOF_KEEPALIVEPING
-+			| WDIOF_MAGICCLOSE,
-+};
-+
-+static const struct watchdog_ops npcm_wdt_ops = {
-+	.owner = THIS_MODULE,
-+	.start = npcm_wdt_start,
-+	.stop = npcm_wdt_stop,
-+	.ping = npcm_wdt_ping,
-+	.set_timeout = npcm_wdt_set_timeout,
-+	.restart = npcm_wdt_restart,
-+};
-+
-+static int npcm_wdt_probe(struct platform_device *pdev)
-+{
-+	struct device *dev = &pdev->dev;
-+	struct npcm_wdt *wdt;
-+	struct resource *res;
-+	int irq;
-+	int ret;
-+
-+	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
-+	if (!wdt)
-+		return -ENOMEM;
-+
-+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	wdt->reg = devm_ioremap_resource(dev, res);
-+	if (IS_ERR(wdt->reg))
-+		return PTR_ERR(wdt->reg);
-+
-+	irq = platform_get_irq(pdev, 0);
-+	if (irq < 0)
-+		return irq;
-+
-+	wdt->wdd.info = &npcm_wdt_info;
-+	wdt->wdd.ops = &npcm_wdt_ops;
-+	wdt->wdd.min_timeout = 1;
-+	wdt->wdd.max_timeout = 2750;
-+	wdt->wdd.parent = dev;
-+
-+	wdt->wdd.timeout = 86;
-+	watchdog_init_timeout(&wdt->wdd, 0, dev);
-+
-+	/* Ensure timeout is able to be represented by the hardware */
-+	npcm_wdt_set_timeout(&wdt->wdd, wdt->wdd.timeout);
-+
-+	if (npcm_is_running(&wdt->wdd)) {
-+		/* Restart with the default or device-tree specified timeout */
-+		npcm_wdt_start(&wdt->wdd);
-+		set_bit(WDOG_HW_RUNNING, &wdt->wdd.status);
-+	}
-+
-+	ret = devm_request_irq(dev, irq, npcm_wdt_interrupt, 0,
-+			       "watchdog", wdt);
-+	if (ret)
-+		return ret;
-+
-+	ret = devm_watchdog_register_device(dev, &wdt->wdd);
-+	if (ret) {
-+		dev_err(dev, "failed to register watchdog\n");
-+		return ret;
-+	}
-+
-+	dev_info(dev, "NPCM watchdog driver enabled\n");
-+
-+	return 0;
-+}
-+
-+#ifdef CONFIG_OF
-+static const struct of_device_id npcm_wdt_match[] = {
-+	{.compatible = "nuvoton,npcm750-wdt"},
-+	{},
-+};
-+MODULE_DEVICE_TABLE(of, npcm_wdt_match);
-+#endif
-+
-+static struct platform_driver npcm_wdt_driver = {
-+	.probe		= npcm_wdt_probe,
-+	.driver		= {
-+		.name	= "npcm-wdt",
-+		.of_match_table = of_match_ptr(npcm_wdt_match),
-+	},
-+};
-+module_platform_driver(npcm_wdt_driver);
-+
-+MODULE_AUTHOR("Joel Stanley");
-+MODULE_DESCRIPTION("Watchdog driver for NPCM");
-+MODULE_LICENSE("GPL v2");
--- 
-2.15.1
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
