@@ -1,66 +1,54 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from www.linux-watchdog.org ([185.87.125.42]:55592 "EHLO
-        www.linux-watchdog.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751974AbeCJKzB (ORCPT
+Received: from mail-pg0-f67.google.com ([74.125.83.67]:38357 "EHLO
+        mail-pg0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751217AbeCMGRl (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 10 Mar 2018 05:55:01 -0500
-Date: Sat, 10 Mar 2018 11:44:09 +0100
-From: wim@www.linux-watchdog.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
+        Tue, 13 Mar 2018 02:17:41 -0400
+From: Joel Stanley <joel@jms.id.au>
+To: Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>,
-        Igor Pylypiv <igor.pylypiv@gmail.com>,
-        Jayachandran C <jnair@caviumnetworks.com>,
-        Jerry Hoemann <jerry.hoemann@hpe.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>
-Subject: [GIT PULL REQUEST] watchdog - v4.16 Fixes 2
-Message-ID: <20180310104409.GA3963@www.linux-watchdog.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Marcus Folkesson <marcus.folkesson@gmail.com>
+Cc: linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Tomer Maimon <tmaimon77@gmail.com>,
+        Avi Fishman <avifishman70@gmail.com>,
+        Brendan Higgins <brendanhiggins@google.com>
+Subject: [PATCH v4 0/2] watchdog: Add Nuvoton NPCM (Poleg) driver
+Date: Tue, 13 Mar 2018 16:47:24 +1030
+Message-Id: <20180313061726.21601-1-joel@jms.id.au>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Linus,
+v4: Fix comments from Guenter
+v3: Address comments from Guenter and Tomer, add Rob's review
+v2: Address comments from Guenter and Marcus
 
-Please pull the watchdog fixes for the v4.16 release cycle.
+This is a driver for the Poleg board that is in the process of being
+upstreamed. I have tested it on an evaluation board.
 
-This series contains:
-* f71808e_wdt: Fix magic close handling
-* sbsa: 32-bit read fix for WCV
-* hpwdt: Remove legacy NMI sourcing
+The watchdog is a single register inside of the timer IP. This made me
+think about how to describe the device tree bindings for a while, but
+after some discussion I settled on describing the watchdog separately,
+and giving it's own compatible string, and it's own driver.
 
-The output from git request-pull:
-----------------------------------------------------------------
+The timer is being reviewed over here:
 
-The following changes since commit a17f4f032b61abd998a1f81b206a4517e2e3db2f:
+ https://lkml.org/lkml/2018/2/26/492
 
-  watchdog: sp5100_tco.c: fix potential build failure (2018-02-19 17:44:05 +0100)
 
-are available in the git repository at:
+Joel Stanley (2):
+  dt-bindings: watchdog: Add Nuvoton NPCM description
+  watchdog: Add Nuvoton NPCM watchdog driver
 
-  git://www.linux-watchdog.org/linux-watchdog.git tags/linux-watchdog-4.16-fixes-2
+ .../bindings/watchdog/nuvoton,npcm-wdt.txt         |  28 +++
+ drivers/watchdog/Kconfig                           |  11 +
+ drivers/watchdog/Makefile                          |   1 +
+ drivers/watchdog/npcm_wdt.c                        | 254 +++++++++++++++++++++
+ 4 files changed, 294 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/nuvoton,npcm-wdt.txt
+ create mode 100644 drivers/watchdog/npcm_wdt.c
 
-for you to fetch changes up to 2b3d89b402b085b08498e896c65267a145bed486:
+-- 
+2.15.1
 
-  watchdog: hpwdt: Remove legacy NMI sourcing. (2018-03-03 15:52:33 +0100)
-
-----------------------------------------------------------------
-linux-watchdog 4.16-fixes-2 merge window tag
-
-----------------------------------------------------------------
-Igor Pylypiv (1):
-      watchdog: f71808e_wdt: Fix magic close handling
-
-Jayachandran C (1):
-      watchdog: sbsa: use 32-bit read for WCV
-
-Jerry Hoemann (1):
-      watchdog: hpwdt: Remove legacy NMI sourcing.
-
- drivers/watchdog/f71808e_wdt.c |   3 +-
- drivers/watchdog/hpwdt.c       | 501 +----------------------------------------
- drivers/watchdog/sbsa_gwdt.c   |   3 +-
- 3 files changed, 13 insertions(+), 494 deletions(-)
