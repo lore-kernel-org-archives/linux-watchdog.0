@@ -1,95 +1,152 @@
-Return-Path: <stable-owner@vger.kernel.org>
-From: Sasha Levin <Alexander.Levin@microsoft.com>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-CC: Oleksij Rempel <o.rempel@pengutronix.de>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        Guenter Roeck <linux@roeck-us.net>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        Sasha Levin <Alexander.Levin@microsoft.com>
-Subject: [PATCH AUTOSEL for 4.15 022/124] watchdog: dw_wdt: add stop watchdog
- operation
-Date: Mon, 19 Mar 2018 15:47:21 +0000
-Message-ID: <20180319154645.11350-22-alexander.levin@microsoft.com>
-References: <20180319154645.11350-1-alexander.levin@microsoft.com>
-In-Reply-To: <20180319154645.11350-1-alexander.levin@microsoft.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-MIME-Version: 1.0
-Sender: stable-owner@vger.kernel.org
+Return-Path: <linux-usb-owner@vger.kernel.org>
+From: Arnd Bergmann <arnd@arndb.de>
+To: linux-arch@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        linux-doc@vger.kernel.org, linux-block@vger.kernel.org,
+        linux-ide@vger.kernel.org, linux-input@vger.kernel.org,
+        netdev@vger.kernel.org, linux-wireless@vger.kernel.org,
+        linux-pwm@vger.kernel.org, linux-rtc@vger.kernel.org,
+        linux-spi@vger.kernel.org, linux-usb@vger.kernel.org,
+        dri-devel@lists.freedesktop.org, linux-fbdev@vger.kernel.org,
+        linux-watchdog@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        linux-mm@kvack.org
+Subject: [PATCH 00/16] remove eight obsolete architectures
+Date: Wed, 14 Mar 2018 15:34:59 +0100
+Message-Id: <20180314143529.1456168-1-arnd@arndb.de>
+Sender: linux-usb-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-From: Oleksij Rempel <o.rempel@pengutronix.de>
+Here is the collection of patches I have applied to my 'asm-generic' tree
+on top of the 'metag' removal. This does not include any of the device
+drivers, I'll send those separately to a someone different list of people.
 
-[ Upstream commit 1bfe8889380890efe4943d125124f5a7b48571b0 ]
+The removal came out of a discussion that is now documented at
+https://lwn.net/Articles/748074/
 
-The only way of stopping the watchdog is by resetting it.
-Add the watchdog op for stopping the device and reset if
-a reset line is provided.
+Following up from the state described there, I ended up removing the
+mn10300, tile, blackfin and cris architectures directly, rather than
+waiting, after consulting with the respective maintainers.
 
-At same time WDOG_HW_RUNNING should be remove from dw_wdt_start.
-As commented by Guenter Roeck:
-dw_wdt sets WDOG_HW_RUNNING in its open function. Result is
-that the kref_get() in watchdog_open() won't be executed. But then
-kref_put() in close will be called since the watchdog now does stop.
-This causes the imbalance.
+However, the unicore32 architecture is no longer part of the removal,
+after its maintainer Xuetao Guan said that the port is still actively
+being used and that he intends to keep working on it, and that he will
+try to provide updated toolchain sources.
 
-Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Cc: Wim Van Sebroeck <wim@iguana.be>
-Cc: Guenter Roeck <linux@roeck-us.net>
+In the end, it seems that while the eight architectures are extremely
+different, they all suffered the same fate: There was one company in
+charge of an SoC line, a CPU microarchitecture and a software ecosystem,
+which was more costly than licensing newer off-the-shelf CPU cores from
+a third party (typically ARM, MIPS, or RISC-V). It seems that all the
+SoC product lines are still around, but have not used the custom CPU
+architectures for several years at this point.
+
+      Arnd
+
+Arnd Bergmann (14):
+  arch: remove frv port
+  arch: remove m32r port
+  arch: remove score port
+  arch: remove blackfin port
+  arch: remove tile port
+  procfs: remove CONFIG_HARDWALL dependency
+  mm: remove blackfin MPU support
+  mm: remove obsolete alloc_remap()
+  treewide: simplify Kconfig dependencies for removed archs
+  asm-generic: siginfo: remove obsolete #ifdefs
+  Documentation: arch-support: remove obsolete architectures
+  asm-generic: clean up asm/unistd.h
+  recordmcount.pl: drop blackin and tile support
+  ktest: remove obsolete architectures
+
+David Howells (1):
+  mn10300: Remove the architecture
+
+Jesper Nilsson (1):
+  CRIS: Drop support for the CRIS port
+
+Dirstat only (full diffstat is over 100KB):
+
+   6.3% arch/blackfin/mach-bf548/include/mach/
+   4.5% arch/blackfin/mach-bf609/include/mach/
+  26.3% arch/blackfin/
+   4.1% arch/cris/arch-v32/
+   5.6% arch/cris/include/arch-v32/arch/hwregs/iop/
+   4.1% arch/cris/include/arch-v32/mach-a3/mach/hwregs/
+   4.7% arch/cris/include/arch-v32/
+   7.8% arch/cris/
+   5.6% arch/frv/
+   5.5% arch/m32r/
+   7.0% arch/mn10300/
+   7.6% arch/tile/include/
+   6.4% arch/tile/kernel/
+   0.0% Documentation/admin-guide/
+   0.0% Documentation/blackfin/
+   0.0% Documentation/cris/
+   0.0% Documentation/devicetree/bindings/cris/
+   0.0% Documentation/devicetree/bindings/interrupt-controller/
+   2.8% Documentation/features/
+   0.5% Documentation/frv/
+   0.0% Documentation/ioctl/
+   0.0% Documentation/mn10300/
+   0.0% Documentation/
+   0.0% block/
+   0.0% crypto/
+   0.0% drivers/ide/
+   0.0% drivers/input/joystick/
+   0.0% drivers/isdn/hisax/
+   0.0% drivers/net/ethernet/davicom/
+   0.0% drivers/net/ethernet/smsc/
+   0.0% drivers/net/wireless/cisco/
+   0.0% drivers/pci/
+   0.0% drivers/pwm/
+   0.0% drivers/rtc/
+   0.0% drivers/spi/
+   0.0% drivers/staging/speakup/
+   0.0% drivers/usb/musb/
+   0.0% drivers/video/console/
+   0.0% drivers/watchdog/
+   0.0% fs/minix/
+   0.0% fs/proc/
+   0.0% fs/
+   0.0% include/asm-generic/
+   0.0% include/linux/
+   0.0% include/uapi/asm-generic/
+   0.0% init/
+   0.0% kernel/
+   0.0% lib/
+   0.0% mm/
+   0.0% samples/blackfin/
+   0.0% samples/kprobes/
+   0.0% samples/
+   0.0% scripts/mod/
+   0.0% scripts/
+   0.0% tools/arch/frv/include/uapi/asm/
+   0.0% tools/arch/m32r/include/uapi/asm/
+   0.0% tools/arch/mn10300/include/uapi/asm/
+   0.0% tools/arch/score/include/uapi/asm/
+   0.0% tools/arch/tile/include/asm/
+   0.0% tools/arch/tile/include/uapi/asm/
+   0.0% tools/include/asm-generic/
+   0.0% tools/scripts/
+   0.0% tools/testing/ktest/examples/
+   0.0% tools/testing/ktest/
+
+Cc: linux-doc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Cc: linux-block@vger.kernel.org
+Cc: linux-ide@vger.kernel.org
+Cc: linux-input@vger.kernel.org
+Cc: netdev@vger.kernel.org
+Cc: linux-wireless@vger.kernel.org
+Cc: linux-pwm@vger.kernel.org
+Cc: linux-rtc@vger.kernel.org
+Cc: linux-spi@vger.kernel.org
+Cc: linux-usb@vger.kernel.org
+Cc: dri-devel@lists.freedesktop.org
+Cc: linux-fbdev@vger.kernel.org
 Cc: linux-watchdog@vger.kernel.org
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
-Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
----
- drivers/watchdog/dw_wdt.c | 18 ++++++++++++++++--
- 1 file changed, 16 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
-index 36be987ff9ef..c2f4ff516230 100644
---- a/drivers/watchdog/dw_wdt.c
-+++ b/drivers/watchdog/dw_wdt.c
-@@ -127,14 +127,27 @@ static int dw_wdt_start(struct watchdog_device *wdd)
-=20
- 	dw_wdt_set_timeout(wdd, wdd->timeout);
-=20
--	set_bit(WDOG_HW_RUNNING, &wdd->status);
--
- 	writel(WDOG_CONTROL_REG_WDT_EN_MASK,
- 	       dw_wdt->regs + WDOG_CONTROL_REG_OFFSET);
-=20
- 	return 0;
- }
-=20
-+static int dw_wdt_stop(struct watchdog_device *wdd)
-+{
-+	struct dw_wdt *dw_wdt =3D to_dw_wdt(wdd);
-+
-+	if (!dw_wdt->rst) {
-+		set_bit(WDOG_HW_RUNNING, &wdd->status);
-+		return 0;
-+	}
-+
-+	reset_control_assert(dw_wdt->rst);
-+	reset_control_deassert(dw_wdt->rst);
-+
-+	return 0;
-+}
-+
- static int dw_wdt_restart(struct watchdog_device *wdd,
- 			  unsigned long action, void *data)
- {
-@@ -173,6 +186,7 @@ static const struct watchdog_info dw_wdt_ident =3D {
- static const struct watchdog_ops dw_wdt_ops =3D {
- 	.owner		=3D THIS_MODULE,
- 	.start		=3D dw_wdt_start,
-+	.stop		=3D dw_wdt_stop,
- 	.ping		=3D dw_wdt_ping,
- 	.set_timeout	=3D dw_wdt_set_timeout,
- 	.get_timeleft	=3D dw_wdt_get_timeleft,
---=20
-2.14.1
+Cc: linux-fsdevel@vger.kernel.org
+Cc: linux-arch@vger.kernel.org
+Cc: linux-mm@kvack.org
