@@ -1,46 +1,85 @@
-Return-Path: <torso.nafi@gmail.com>
-Return-path: <torso.nafi@gmail.com>
-MIME-Version: 1.0
-From: =?UTF-8?B?0JjQu9GM0Y/RgSDQk9Cw0YHQsNC90L7Qsg==?= <torso.nafi@gmail.com>
-Date: Sun, 4 Mar 2018 19:26:56 +0300
-Message-ID: <CAEo2pztutpwd0wvJWVmQ2XaT43nQ99StFbDMT7MQ5dkrMdkJvw@mail.gmail.com>
-Subject: A case of watchdog+LED shared GPIO pin
-To: linux-gpio@vger.kernel.org, linux-leds@vger.kernel.org,
-	linux-watchdog@vger.kernel.org
-Cc: Guenter Roeck <linux@roeck-us.net>, Wim Van Sebroeck <wim@iguana.be>
-Content-Type: text/plain; charset="UTF-8"
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:44102 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S932999AbeCOQCV (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Thu, 15 Mar 2018 12:02:21 -0400
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.22/8.16.0.22) with SMTP id w2FG060Y065495
+        for <linux-watchdog@vger.kernel.org>; Thu, 15 Mar 2018 12:02:21 -0400
+Received: from e32.co.us.ibm.com (e32.co.us.ibm.com [32.97.110.150])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2gqse799gv-1
+        (version=TLSv1.2 cipher=AES256-SHA256 bits=256 verify=NOT)
+        for <linux-watchdog@vger.kernel.org>; Thu, 15 Mar 2018 12:02:16 -0400
+Received: from localhost
+        by e32.co.us.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-watchdog@vger.kernel.org> from <eajames@linux.vnet.ibm.com>;
+        Thu, 15 Mar 2018 10:02:12 -0600
+From: Eddie James <eajames@linux.vnet.ibm.com>
+To: linux-watchdog@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, joel@jms.id.au,
+        wim@linux-watchdog.org, linux@roeck-us.net,
+        Milton Miller <miltonm@us.ibm.com>,
+        Eddie James <eajames@linux.vnet.ibm.com>
+Subject: [PATCH v2] watchdog: aspeed: Allow configuring for alternate boot
+Date: Thu, 15 Mar 2018 11:02:06 -0500
+Message-Id: <1521129726-15490-1-git-send-email-eajames@linux.vnet.ibm.com>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-Hello,
+From: Milton Miller <miltonm@us.ibm.com>
 
-We (the development team at my current employer company) are having a
-specific case of hardware configuraton. Namely, the same GPIO pin is
-used for both watchdog keepalive signaling and status LED blinking.
-The thing is, there are multiple blinking frequency modes for this
-LED, each with its own meaning (i.e. system/firmware states), so
-there's a need for changing the frequency/period dynamically from
-userspace.
+Allow the device tree to specify a watchdog to fallover to
+the alternate boot source.
 
-Previously I've done the thing implementing the timer period
-configuration by updating a special sysfs file with new values in the
-gpio_wdt driver. However since recently (commit 03bca15 in the kernel
-Git repo) the timer has been swapped out with the keepalive callback
-thing, which, as far as I can tell, supports updating the timeout
-period via the WDIOC_SETTIMEOUT ioctl. However this ioctl is
-insufficient for our purposes, in the sense that its minimum
-resolution is 1 whole second, while we need a 100 millisecond
-granularity at the very most.
+The aspeeed watchdog can set a latch directing flash chip select 0 to
+chip select 1, allowing boot from an alternate media if the watchdog
+is not reset in time.  On the ast2400 bank 1 also goes to flash bank 1,
+while on the ast2500 the chip selects are swapped.
 
-I could also simply disable the gpio_wdt altogether and just use a LED
-trigger driven configuration, but I highly doubt this would be a wise
-thing, since the whole point of the watchdog is monitoring
-responsiveness of the userspace. Also I gather that controlling the
-GPIO entirely from a userspace process is rather undesirable, too, as
-it might lead to confusing latencies sometimes, for a start.
+Also clear the secondary boot bit during the machine restart operation.
+Otherwise, the system will switch to the alternate boot after every
+reboot, which is not desired.
 
-I'd like to hear your opinions on the preferred way(s) of implementing
-this for our product hardware on the most recent kernels, which could
-be sent to upstream to secure further backwards compatibility.
+Signed-off-by: Milton Miller <miltonm@us.ibm.com>
+Signed-off-by: Eddie James <eajames@linux.vnet.ibm.com>
+---
+Changes since v1:
+ * Disable secondary boot before the restart operation.
 
-Sincerely,
-Ilyas
+ drivers/watchdog/aspeed_wdt.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/drivers/watchdog/aspeed_wdt.c b/drivers/watchdog/aspeed_wdt.c
+index d1987d6..a5b8eb2 100644
+--- a/drivers/watchdog/aspeed_wdt.c
++++ b/drivers/watchdog/aspeed_wdt.c
+@@ -46,6 +46,7 @@ struct aspeed_wdt_config {
+ #define WDT_RELOAD_VALUE	0x04
+ #define WDT_RESTART		0x08
+ #define WDT_CTRL		0x0C
++#define   WDT_CTRL_BOOT_SECONDARY	BIT(7)
+ #define   WDT_CTRL_RESET_MODE_SOC	(0x00 << 5)
+ #define   WDT_CTRL_RESET_MODE_FULL_CHIP	(0x01 << 5)
+ #define   WDT_CTRL_RESET_MODE_ARM_CPU	(0x10 << 5)
+@@ -158,6 +159,7 @@ static int aspeed_wdt_restart(struct watchdog_device *wdd,
+ {
+ 	struct aspeed_wdt *wdt = to_aspeed_wdt(wdd);
+ 
++	wdt->ctrl &= ~WDT_CTRL_BOOT_SECONDARY;
+ 	aspeed_wdt_enable(wdt, 128 * WDT_RATE_1MHZ / 1000);
+ 
+ 	mdelay(1000);
+@@ -245,6 +247,8 @@ static int aspeed_wdt_probe(struct platform_device *pdev)
+ 	}
+ 	if (of_property_read_bool(np, "aspeed,external-signal"))
+ 		wdt->ctrl |= WDT_CTRL_WDT_EXT;
++	if (of_property_read_bool(np, "aspeed,alt-boot"))
++		wdt->ctrl |= WDT_CTRL_BOOT_SECONDARY;
+ 
+ 	if (readl(wdt->base + WDT_CTRL) & WDT_CTRL_ENABLE)  {
+ 		/*
+-- 
+1.8.3.1
+
