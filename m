@@ -1,66 +1,131 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pf0-f193.google.com ([209.85.192.193]:37477 "EHLO
-        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750748AbeCPEu3 (ORCPT
+Received: from mail-lf0-f66.google.com ([209.85.215.66]:45872 "EHLO
+        mail-lf0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750826AbeCPNhR (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 16 Mar 2018 00:50:29 -0400
-Date: Fri, 16 Mar 2018 10:20:16 +0530
-From: afzal mohammed <afzal.mohd.ma@gmail.com>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: David Howells <dhowells@redhat.com>,
-        linux-arch <linux-arch@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>,
-        linux-block <linux-block@vger.kernel.org>,
-        IDE-ML <linux-ide@vger.kernel.org>,
-        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
-        Networking <netdev@vger.kernel.org>,
-        linux-wireless <linux-wireless@vger.kernel.org>,
-        linux-pwm@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linux-spi <linux-spi@vger.kernel.org>, linux-usb@vger.kernel.org,
-        dri-devel <dri-devel@lists.freedesktop.org>,
-        linux-fbdev@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        Linux FS-devel Mailing List <linux-fsdevel@vger.kernel.org>,
-        Linux-MM <linux-mm@kvack.org>
-Subject: Re: [PATCH 00/16] remove eight obsolete architectures
-Message-ID: <20180316045016.GA7697@afzalpc>
-References: <20180314143529.1456168-1-arnd@arndb.de>
- <2929.1521106970@warthog.procyon.org.uk>
- <CAK8P3a10hBz7QYk5v5MfhVMPOwFnWYTn95WZp1HtHrd7-GQpRg@mail.gmail.com>
+        Fri, 16 Mar 2018 09:37:17 -0400
+Date: Fri, 16 Mar 2018 14:37:04 +0100
+From: Marcus Folkesson <marcus.folkesson@gmail.com>
+To: Wim Van Sebroeck <wim@iguana.be>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Carlo Caione <carlo@caione.org>,
+        Kevin Hilman <khilman@baylibre.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Barry Song <baohua@kernel.org>,
+        Maxime Ripard <maxime.ripard@free-electrons.com>,
+        Chen-Yu Tsai <wens@csie.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Vladimir Zapolskiy <vz@mleia.com>,
+        Sylvain Lemieux <slemieux.tyco@gmail.com>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-amlogic@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-mediatek@lists.infradead.org
+Subject: Re: [PATCH v3 1/7] watchdog: sama5d4: make use of timeout-secs
+ provided in devicetree
+Message-ID: <20180316133703.GA31029@gmail.com>
+References: <20180211200847.25000-1-marcus.folkesson@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="J2SCkAp4GZ/dPZZf"
 Content-Disposition: inline
-In-Reply-To: <CAK8P3a10hBz7QYk5v5MfhVMPOwFnWYTn95WZp1HtHrd7-GQpRg@mail.gmail.com>
+In-Reply-To: <20180211200847.25000-1-marcus.folkesson@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+
+--J2SCkAp4GZ/dPZZf
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
 Hi,
 
-On Thu, Mar 15, 2018 at 10:56:48AM +0100, Arnd Bergmann wrote:
-> On Thu, Mar 15, 2018 at 10:42 AM, David Howells <dhowells@redhat.com> wrote:
+Am I supposed to do something more to make this patchset picked up?
 
-> > Do we have anything left that still implements NOMMU?
+Thanks,
+Marcus Folkesson
 
-Please don't kill !MMU.
+On Sun, Feb 11, 2018 at 09:08:41PM +0100, Marcus Folkesson wrote:
+> watchdog_init_timeout() will allways pick timeout_param since it
+> defaults to a valid timeout.
+>=20
+> Following best practice described in
+> Documentation/watchdog/watchdog-kernel-api.txt to make use of
+> the parameter logic.
+>=20
+> Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
+> ---
+>=20
+> Notes:
+>     v3:
+>     	- Use wdd->timeout instead of wdt_timeout when print out
+>     	  timout in probe function.
+>=20
+>  drivers/watchdog/sama5d4_wdt.c | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
+>=20
+> diff --git a/drivers/watchdog/sama5d4_wdt.c b/drivers/watchdog/sama5d4_wd=
+t.c
+> index 0ae947c3d7bc..255169916dbb 100644
+> --- a/drivers/watchdog/sama5d4_wdt.c
+> +++ b/drivers/watchdog/sama5d4_wdt.c
+> @@ -33,7 +33,7 @@ struct sama5d4_wdt {
+>  	unsigned long		last_ping;
+>  };
+> =20
+> -static int wdt_timeout =3D WDT_DEFAULT_TIMEOUT;
+> +static int wdt_timeout;
+>  static bool nowayout =3D WATCHDOG_NOWAYOUT;
+> =20
+>  module_param(wdt_timeout, int, 0);
+> @@ -212,7 +212,7 @@ static int sama5d4_wdt_probe(struct platform_device *=
+pdev)
+>  		return -ENOMEM;
+> =20
+>  	wdd =3D &wdt->wdd;
+> -	wdd->timeout =3D wdt_timeout;
+> +	wdd->timeout =3D WDT_DEFAULT_TIMEOUT;
+>  	wdd->info =3D &sama5d4_wdt_info;
+>  	wdd->ops =3D &sama5d4_wdt_ops;
+>  	wdd->min_timeout =3D MIN_WDT_TIMEOUT;
+> @@ -273,7 +273,7 @@ static int sama5d4_wdt_probe(struct platform_device *=
+pdev)
+>  	platform_set_drvdata(pdev, wdt);
+> =20
+>  	dev_info(&pdev->dev, "initialized (timeout =3D %d sec, nowayout =3D %d)=
+\n",
+> -		 wdt_timeout, nowayout);
+> +		 wdd->timeout, nowayout);
+> =20
+>  	return 0;
+>  }
+> --=20
+> 2.15.1
+>=20
 
-> Yes, plenty.
+--J2SCkAp4GZ/dPZZf
+Content-Type: application/pgp-signature; name="signature.asc"
 
-> I've made an overview of the remaining architectures for my own reference[1].
-> The remaining NOMMU architectures are:
-> 
-> - arch/arm has ARMv7-M (Cortex-M microcontroller), which is actually
-> gaining traction
+-----BEGIN PGP SIGNATURE-----
 
-ARMv7-R as well, also seems ARM is coming up with more !MMU's - v8-M,
-v8-R. In addition, though only of academic interest, ARM MMU capable
-platform's can run !MMU Linux.
+iQIzBAEBCAAdFiEEBVGi6LZstU1kwSxliIBOb1ldUjIFAlqryHoACgkQiIBOb1ld
+UjLhTg/+LhuQESSJAa3VADaGhjoJzBzmqIesfKCeDPa08XQ5Il+7UbjNYkuhjBHn
+L8axLYGY7jq2GPE500Q6hsf7LcvUIFugyg9KLjPXq5e/PO+CHSVaXBPiJSobva3Y
+baTrwtdVhost+9eodoFPBZnOfLgCEayGz4AZEr93uHjJne2W9TVeWaWnLYv4SqfC
+qFpn/rOOvlA1tK/YXEIKRSxBUbVmPfxsGd5uRHfpkCzqlmai17Nv/+LQKB032mw9
+MwaBl9iqXFmP2XhK4iuy3oAiHwkRBnlIh6K7naiE7B5kqRxKhCQVQNlrqnj5HPFI
+/w+isbAoonMS0YFN5cG0DGIeH6MhYNjyy1RPGSbha5QACCej04GnU0+GhLf2A3RT
+LIWJFQojyZOMIeZYp2t4GV9BzI9+u8l5+oELwNn8WMJrP4IaQQFeg2gzCMfjGnUv
+YJOzP+EVtktm+fG8RDekmD7UZ1CWX+ojosrISXkSx/RvVzqcOnJwzB1zjTMq0Dqt
+9PmOsNa0QCnI6vSvZ2z2LDY26U0sejlxO8vNTwH8BHonhdhRvtFwfdpqydqhmqVA
+w8+QBbrSrbQaauIS5ZEOXAs94nVyDg372LQMJmhT0MxVV3feCI6RlnDFBkSt/HH4
+2lOFSY61e3SBLEUSBrQDFCa2wKLLQeGyBpz1/oFbh6qzO57LmkE=
+=gLfP
+-----END PGP SIGNATURE-----
 
-afzal
-
-> - arch/sh has an open-source J2 core that was added not that long ago,
-> it seems to
->   be the only SH compatible core that anyone is working on.
-> - arch/microblaze supports both MMU/NOMMU modes (most use an MMU)
-> - arch/m68k supports several NOMMU targets, both the coldfire SoCs and the
->   classic processors
-> - c6x has no MMU
+--J2SCkAp4GZ/dPZZf--
