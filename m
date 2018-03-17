@@ -1,13 +1,13 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-lf0-f66.google.com ([209.85.215.66]:45872 "EHLO
-        mail-lf0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750826AbeCPNhR (ORCPT
+Received: from mail-pf0-f193.google.com ([209.85.192.193]:42559 "EHLO
+        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752690AbeCQB4a (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 16 Mar 2018 09:37:17 -0400
-Date: Fri, 16 Mar 2018 14:37:04 +0100
-From: Marcus Folkesson <marcus.folkesson@gmail.com>
-To: Wim Van Sebroeck <wim@iguana.be>,
-        Guenter Roeck <linux@roeck-us.net>,
+        Fri, 16 Mar 2018 21:56:30 -0400
+Subject: Re: [PATCH v3 1/7] watchdog: sama5d4: make use of timeout-secs
+ provided in devicetree
+To: Marcus Folkesson <marcus.folkesson@gmail.com>,
+        Wim Van Sebroeck <wim@iguana.be>,
         Rob Herring <robh+dt@kernel.org>,
         Mark Rutland <mark.rutland@arm.com>,
         Carlo Caione <carlo@caione.org>,
@@ -25,107 +25,83 @@ Cc: linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org,
         linux-amlogic@lists.infradead.org, linux-kernel@vger.kernel.org,
         linux-mediatek@lists.infradead.org
-Subject: Re: [PATCH v3 1/7] watchdog: sama5d4: make use of timeout-secs
- provided in devicetree
-Message-ID: <20180316133703.GA31029@gmail.com>
 References: <20180211200847.25000-1-marcus.folkesson@gmail.com>
+ <20180316133703.GA31029@gmail.com>
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <f3d913af-a396-ccdf-105f-c4e64397cbff@roeck-us.net>
+Date: Fri, 16 Mar 2018 18:56:27 -0700
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="J2SCkAp4GZ/dPZZf"
-Content-Disposition: inline
-In-Reply-To: <20180211200847.25000-1-marcus.folkesson@gmail.com>
+In-Reply-To: <20180316133703.GA31029@gmail.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+On 03/16/2018 06:37 AM, Marcus Folkesson wrote:
+> Hi,
+> 
+> Am I supposed to do something more to make this patchset picked up?
+> 
 
---J2SCkAp4GZ/dPZZf
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Did you check linux-next ?
 
-Hi,
+Guenter
 
-Am I supposed to do something more to make this patchset picked up?
+> Thanks,
+> Marcus Folkesson
+> 
+> On Sun, Feb 11, 2018 at 09:08:41PM +0100, Marcus Folkesson wrote:
+>> watchdog_init_timeout() will allways pick timeout_param since it
+>> defaults to a valid timeout.
+>>
+>> Following best practice described in
+>> Documentation/watchdog/watchdog-kernel-api.txt to make use of
+>> the parameter logic.
+>>
+>> Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
+>> ---
+>>
+>> Notes:
+>>      v3:
+>>      	- Use wdd->timeout instead of wdt_timeout when print out
+>>      	  timout in probe function.
+>>
+>>   drivers/watchdog/sama5d4_wdt.c | 6 +++---
+>>   1 file changed, 3 insertions(+), 3 deletions(-)
+>>
+>> diff --git a/drivers/watchdog/sama5d4_wdt.c b/drivers/watchdog/sama5d4_wdt.c
+>> index 0ae947c3d7bc..255169916dbb 100644
+>> --- a/drivers/watchdog/sama5d4_wdt.c
+>> +++ b/drivers/watchdog/sama5d4_wdt.c
+>> @@ -33,7 +33,7 @@ struct sama5d4_wdt {
+>>   	unsigned long		last_ping;
+>>   };
+>>   
+>> -static int wdt_timeout = WDT_DEFAULT_TIMEOUT;
+>> +static int wdt_timeout;
+>>   static bool nowayout = WATCHDOG_NOWAYOUT;
+>>   
+>>   module_param(wdt_timeout, int, 0);
+>> @@ -212,7 +212,7 @@ static int sama5d4_wdt_probe(struct platform_device *pdev)
+>>   		return -ENOMEM;
+>>   
+>>   	wdd = &wdt->wdd;
+>> -	wdd->timeout = wdt_timeout;
+>> +	wdd->timeout = WDT_DEFAULT_TIMEOUT;
+>>   	wdd->info = &sama5d4_wdt_info;
+>>   	wdd->ops = &sama5d4_wdt_ops;
+>>   	wdd->min_timeout = MIN_WDT_TIMEOUT;
+>> @@ -273,7 +273,7 @@ static int sama5d4_wdt_probe(struct platform_device *pdev)
+>>   	platform_set_drvdata(pdev, wdt);
+>>   
+>>   	dev_info(&pdev->dev, "initialized (timeout = %d sec, nowayout = %d)\n",
+>> -		 wdt_timeout, nowayout);
+>> +		 wdd->timeout, nowayout);
+>>   
+>>   	return 0;
+>>   }
+>> -- 
+>> 2.15.1
+>>
 
-Thanks,
-Marcus Folkesson
-
-On Sun, Feb 11, 2018 at 09:08:41PM +0100, Marcus Folkesson wrote:
-> watchdog_init_timeout() will allways pick timeout_param since it
-> defaults to a valid timeout.
->=20
-> Following best practice described in
-> Documentation/watchdog/watchdog-kernel-api.txt to make use of
-> the parameter logic.
->=20
-> Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
-> ---
->=20
-> Notes:
->     v3:
->     	- Use wdd->timeout instead of wdt_timeout when print out
->     	  timout in probe function.
->=20
->  drivers/watchdog/sama5d4_wdt.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
->=20
-> diff --git a/drivers/watchdog/sama5d4_wdt.c b/drivers/watchdog/sama5d4_wd=
-t.c
-> index 0ae947c3d7bc..255169916dbb 100644
-> --- a/drivers/watchdog/sama5d4_wdt.c
-> +++ b/drivers/watchdog/sama5d4_wdt.c
-> @@ -33,7 +33,7 @@ struct sama5d4_wdt {
->  	unsigned long		last_ping;
->  };
-> =20
-> -static int wdt_timeout =3D WDT_DEFAULT_TIMEOUT;
-> +static int wdt_timeout;
->  static bool nowayout =3D WATCHDOG_NOWAYOUT;
-> =20
->  module_param(wdt_timeout, int, 0);
-> @@ -212,7 +212,7 @@ static int sama5d4_wdt_probe(struct platform_device *=
-pdev)
->  		return -ENOMEM;
-> =20
->  	wdd =3D &wdt->wdd;
-> -	wdd->timeout =3D wdt_timeout;
-> +	wdd->timeout =3D WDT_DEFAULT_TIMEOUT;
->  	wdd->info =3D &sama5d4_wdt_info;
->  	wdd->ops =3D &sama5d4_wdt_ops;
->  	wdd->min_timeout =3D MIN_WDT_TIMEOUT;
-> @@ -273,7 +273,7 @@ static int sama5d4_wdt_probe(struct platform_device *=
-pdev)
->  	platform_set_drvdata(pdev, wdt);
-> =20
->  	dev_info(&pdev->dev, "initialized (timeout =3D %d sec, nowayout =3D %d)=
-\n",
-> -		 wdt_timeout, nowayout);
-> +		 wdd->timeout, nowayout);
-> =20
->  	return 0;
->  }
-> --=20
-> 2.15.1
->=20
-
---J2SCkAp4GZ/dPZZf
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCAAdFiEEBVGi6LZstU1kwSxliIBOb1ldUjIFAlqryHoACgkQiIBOb1ld
-UjLhTg/+LhuQESSJAa3VADaGhjoJzBzmqIesfKCeDPa08XQ5Il+7UbjNYkuhjBHn
-L8axLYGY7jq2GPE500Q6hsf7LcvUIFugyg9KLjPXq5e/PO+CHSVaXBPiJSobva3Y
-baTrwtdVhost+9eodoFPBZnOfLgCEayGz4AZEr93uHjJne2W9TVeWaWnLYv4SqfC
-qFpn/rOOvlA1tK/YXEIKRSxBUbVmPfxsGd5uRHfpkCzqlmai17Nv/+LQKB032mw9
-MwaBl9iqXFmP2XhK4iuy3oAiHwkRBnlIh6K7naiE7B5kqRxKhCQVQNlrqnj5HPFI
-/w+isbAoonMS0YFN5cG0DGIeH6MhYNjyy1RPGSbha5QACCej04GnU0+GhLf2A3RT
-LIWJFQojyZOMIeZYp2t4GV9BzI9+u8l5+oELwNn8WMJrP4IaQQFeg2gzCMfjGnUv
-YJOzP+EVtktm+fG8RDekmD7UZ1CWX+ojosrISXkSx/RvVzqcOnJwzB1zjTMq0Dqt
-9PmOsNa0QCnI6vSvZ2z2LDY26U0sejlxO8vNTwH8BHonhdhRvtFwfdpqydqhmqVA
-w8+QBbrSrbQaauIS5ZEOXAs94nVyDg372LQMJmhT0MxVV3feCI6RlnDFBkSt/HH4
-2lOFSY61e3SBLEUSBrQDFCa2wKLLQeGyBpz1/oFbh6qzO57LmkE=
-=gLfP
------END PGP SIGNATURE-----
-
---J2SCkAp4GZ/dPZZf--
