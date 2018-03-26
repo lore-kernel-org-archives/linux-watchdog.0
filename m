@@ -1,72 +1,73 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pl0-f67.google.com ([209.85.160.67]:33615 "EHLO
-        mail-pl0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751541AbeCXAWx (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:59080 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1751107AbeCZVRQ (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 23 Mar 2018 20:22:53 -0400
-Subject: Re: [PATCH] watchdog: davinci_wdt: fix error handling in
- davinci_wdt_probe()
-To: Alexey Khoroshilov <khoroshilov@ispras.ru>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        ldv-project@linuxtesting.org
-References: <1521841006-12153-1-git-send-email-khoroshilov@ispras.ru>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <b08164bd-eef1-dae5-ebbd-a42ca55f46d9@roeck-us.net>
-Date: Fri, 23 Mar 2018 17:22:51 -0700
-MIME-Version: 1.0
-In-Reply-To: <1521841006-12153-1-git-send-email-khoroshilov@ispras.ru>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+        Mon, 26 Mar 2018 17:17:16 -0400
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.22/8.16.0.22) with SMTP id w2QLF0ZV055933
+        for <linux-watchdog@vger.kernel.org>; Mon, 26 Mar 2018 17:17:16 -0400
+Received: from e19.ny.us.ibm.com (e19.ny.us.ibm.com [129.33.205.209])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2gy868gyu3-1
+        (version=TLSv1.2 cipher=AES256-SHA256 bits=256 verify=NOT)
+        for <linux-watchdog@vger.kernel.org>; Mon, 26 Mar 2018 17:17:15 -0400
+Received: from localhost
+        by e19.ny.us.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-watchdog@vger.kernel.org> from <eajames@linux.vnet.ibm.com>;
+        Mon, 26 Mar 2018 17:17:15 -0400
+From: Eddie James <eajames@linux.vnet.ibm.com>
+To: linux-watchdog@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, linux@roeck-us.net,
+        wim@linux-watchdog.org, joel@jms.id.au, openbmc@lists.ozlabs.org,
+        Eddie James <eajames@linux.vnet.ibm.com>
+Subject: [PATCH] aspeed: watchdog: Add status function
+Date: Mon, 26 Mar 2018 16:17:08 -0500
+Message-Id: <1522099028-20347-1-git-send-email-eajames@linux.vnet.ibm.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 03/23/2018 02:36 PM, Alexey Khoroshilov wrote:
-> clk_disable_unprepare() was added to one error path,
-> but there is another one. The patch makes sure clk is
-> disabled at the both of them.
-> 
-> Found by Linux Driver Verification project (linuxtesting.org).
-> 
-> Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
+Populate the status watchdog operation to return the "timeout status"
+register of the ASPEED watchdog.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Eddie James <eajames@linux.vnet.ibm.com>
+---
+ drivers/watchdog/aspeed_wdt.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-> ---
->   drivers/watchdog/davinci_wdt.c | 15 +++++++++++----
->   1 file changed, 11 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/watchdog/davinci_wdt.c b/drivers/watchdog/davinci_wdt.c
-> index 3e4c592c239f..6c6594261cb7 100644
-> --- a/drivers/watchdog/davinci_wdt.c
-> +++ b/drivers/watchdog/davinci_wdt.c
-> @@ -236,15 +236,22 @@ static int davinci_wdt_probe(struct platform_device *pdev)
->   
->   	wdt_mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
->   	davinci_wdt->base = devm_ioremap_resource(dev, wdt_mem);
-> -	if (IS_ERR(davinci_wdt->base))
-> -		return PTR_ERR(davinci_wdt->base);
-> +	if (IS_ERR(davinci_wdt->base)) {
-> +		ret = PTR_ERR(davinci_wdt->base);
-> +		goto err_clk_disable;
-> +	}
->   
->   	ret = watchdog_register_device(wdd);
-> -	if (ret < 0) {
-> -		clk_disable_unprepare(davinci_wdt->clk);
-> +	if (ret) {
->   		dev_err(dev, "cannot register watchdog device\n");
-> +		goto err_clk_disable;
->   	}
->   
-> +	return 0;
-> +
-> +err_clk_disable:
-> +	clk_disable_unprepare(davinci_wdt->clk);
-> +
->   	return ret;
->   }
->   
-> 
+diff --git a/drivers/watchdog/aspeed_wdt.c b/drivers/watchdog/aspeed_wdt.c
+index a5b8eb2..d6dd5c9 100644
+--- a/drivers/watchdog/aspeed_wdt.c
++++ b/drivers/watchdog/aspeed_wdt.c
+@@ -55,6 +55,7 @@ struct aspeed_wdt_config {
+ #define   WDT_CTRL_WDT_INTR		BIT(2)
+ #define   WDT_CTRL_RESET_SYSTEM		BIT(1)
+ #define   WDT_CTRL_ENABLE		BIT(0)
++#define WDT_TIMEOUT_STATUS	0x10
+ 
+ /*
+  * WDT_RESET_WIDTH controls the characteristics of the external pulse (if
+@@ -138,6 +139,13 @@ static int aspeed_wdt_ping(struct watchdog_device *wdd)
+ 	return 0;
+ }
+ 
++static unsigned int aspeed_wdt_status(struct watchdog_device *wdd)
++{
++	struct aspeed_wdt *wdt = to_aspeed_wdt(wdd);
++
++	return readl(wdt->base + WDT_TIMEOUT_STATUS);
++}
++
+ static int aspeed_wdt_set_timeout(struct watchdog_device *wdd,
+ 				  unsigned int timeout)
+ {
+@@ -171,6 +179,7 @@ static int aspeed_wdt_restart(struct watchdog_device *wdd,
+ 	.start		= aspeed_wdt_start,
+ 	.stop		= aspeed_wdt_stop,
+ 	.ping		= aspeed_wdt_ping,
++	.status		= aspeed_wdt_status,
+ 	.set_timeout	= aspeed_wdt_set_timeout,
+ 	.restart	= aspeed_wdt_restart,
+ 	.owner		= THIS_MODULE,
+-- 
+1.8.3.1
 
