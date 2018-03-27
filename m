@@ -1,65 +1,32 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pf0-f196.google.com ([209.85.192.196]:34598 "EHLO
-        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751756AbeCVQrM (ORCPT
+Received: from mail-lf0-f41.google.com ([209.85.215.41]:36951 "EHLO
+        mail-lf0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751096AbeC0IKE (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 22 Mar 2018 12:47:12 -0400
-Date: Thu, 22 Mar 2018 09:47:10 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Xiaofeng Wei <xiaofeng.wei@nxp.com>
-Cc: wim@iguana.be, linux-watchdog@vger.kernel.org,
-        linux-kernel@vger.kernel.org, hongjun.chen@nxp.com
-Subject: Re: [PATCH] watchdog: booke_wdt: Disable the watchdog prior to
- setting a new timeout value in order to avoid the following situation
-Message-ID: <20180322164710.GA31876@roeck-us.net>
-References: <20180322035146.1236-1-xiaofeng.wei@nxp.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20180322035146.1236-1-xiaofeng.wei@nxp.com>
+        Tue, 27 Mar 2018 04:10:04 -0400
+Received: by mail-lf0-f41.google.com with SMTP id m16-v6so28225487lfc.4
+        for <linux-watchdog@vger.kernel.org>; Tue, 27 Mar 2018 01:10:03 -0700 (PDT)
+From: Marcus Folkesson <marcus.folkesson@gmail.com>
+To: Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Cc: linux-watchdog@vger.kernel.org
+Subject: [PATCH 0/1] watchdog: core: add option to make timeouts read-only
+Date: Tue, 27 Mar 2018 10:09:40 +0200
+Message-Id: <20180327080941.29235-1-marcus.folkesson@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Thu, Mar 22, 2018 at 11:51:46AM +0800, Xiaofeng Wei wrote:
-> A watchdog timer exception also occurs if the selected time base bit transitions from 0 to 1 due
-> to an mtspr that writes a 1 to the bit when its previous value was 0.
-> 
-Please drop "in order to ..." from the subject line. Every patch hopefully does
-that.
+I have encountered at least two projects (automotive) where there is a
+strong demand for no-one to touch the configuration of the watchdog
+timer once started.
 
-> Signed-off-by: Xiaofeng Wei <xiaofeng.wei@nxp.com>
-> ---
->  drivers/watchdog/booke_wdt.c | 6 ++++++
->  1 file changed, 6 insertions(+)
-> 
-> diff --git a/drivers/watchdog/booke_wdt.c b/drivers/watchdog/booke_wdt.c
-> index 3ad1e44..70e742c 100644
-> --- a/drivers/watchdog/booke_wdt.c
-> +++ b/drivers/watchdog/booke_wdt.c
-> @@ -186,9 +186,15 @@ static int booke_wdt_stop(struct watchdog_device *wdog)
->  static int booke_wdt_set_timeout(struct watchdog_device *wdt_dev,
->  				 unsigned int timeout)
->  {
-> +	if (watchdog_active(wdt_dev))
-> +		on_each_cpu(__booke_wdt_disable, NULL, 0);
-> +
+File permissions and other restrictions has not been enough to satisfy
+the requirement.
 
-Thios would only be necessary if the timeout actually changes. Also, does
-the problem apply to _all_ chips supported by this driver or only to a
-subset ?
+There you have some background information for this patch.
 
-Guenter
+Cheers,
+Marcus Folkesson
 
->  	wdt_dev->timeout = timeout;
->  	booke_wdt_set(wdt_dev);
->  
-> +	if (watchdog_active(wdt_dev))
-> +		on_each_cpu(__booke_wdt_enable, wdt_dev, 0);
-> +
->  	return 0;
->  }
->  
-> -- 
-> 2.9.3
-> 
+
