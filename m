@@ -13,463 +13,507 @@ Cc: linux-kernel@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org,
 	linux-hwmon@vger.kernel.org,
 	linux-input@vger.kernel.org,
-	linux-watchdog@vger.kernel.org,
-	Randy Dunlap <rdunlap@infradead.org>
-Subject: [PATCH v3 2/4] mfd: add Gateworks System Controller core driver
-Date: Wed, 28 Mar 2018 08:14:01 -0700
-Message-Id: <1522250043-8065-3-git-send-email-tharvey@gateworks.com>
+	linux-watchdog@vger.kernel.org
+Subject: [PATCH v3 3/4] hwmon: add Gateworks System Controller support
+Date: Wed, 28 Mar 2018 08:14:02 -0700
+Message-Id: <1522250043-8065-4-git-send-email-tharvey@gateworks.com>
 In-Reply-To: <1522250043-8065-1-git-send-email-tharvey@gateworks.com>
 References: <1522250043-8065-1-git-send-email-tharvey@gateworks.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-The Gateworks System Controller (GSC) is an I2C slave controller
-implemented with an MSP430 micro-controller whose firmware embeds the
-following features:
- - I/O expander (16 GPIO's) using PCA955x protocol
- - Real Time Clock using DS1672 protocol
- - User EEPROM using AT24 protocol
- - HWMON using custom protocol
- - Interrupt controller with tamper detect, user pushbotton
- - Watchdog controller capable of full board power-cycle
- - Power Control capable of full board power-cycle
+The Gateworks System Controller has a hwmon sub-component that exposes
+up to 16 ADC's, some of which are temperature sensors, others which are
+voltage inputs. The ADC configuration (register mapping and name) is
+configured via device-tree and varies board to board.
 
-see http://trac.gateworks.com/wiki/gsc for more details
-
-Cc: Randy Dunlap <rdunlap@infradead.org>
+Cc: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Tim Harvey <tharvey@gateworks.com>
 ---
 v3:
-- rename gsc->gateworks-gsc
-- remove uncecessary include for linux/mfd/core.h
-- upercase I2C in comments
-- remove i2c debug
-- remove uncecessary comments
-- don't use KBUILD_MODNAME for name
-- remove unnecessary v1/v2/v3 tracking
-- unregister hwmon i2c adapter on remove
+- add voltage_raw input type and supporting fields
+- add channel validation to is_visible function
+- remove unnecessary channel validation from read/write functions
 
 v2:
-- change license comment block style
-- remove COMPILE_TEST (Randy)
+- change license comment style
+- remove DEBUG
+- simplify regmap_bulk_read err check
+- remove break after returns in switch statement
+- fix fan setpoint buffer address
+- remove unnecessary parens
+- consistently use struct device *dev pointer
+- change license/comment block
+- add validation for hwmon child node props
+- move parsing of of to own function
+- use strlcpy to ensure null termination
+- fix static array sizes and removed unnecessary initializers
+- dynamically allocate channels
+- fix fan input label
+- support platform data
 - fixed whitespace issues
-- replaced a printk with dev_err
 
----
- drivers/mfd/Kconfig         |  13 ++
- drivers/mfd/Makefile        |   1 +
- drivers/mfd/gateworks-gsc.c | 285 ++++++++++++++++++++++++++++++++++++++++++++
- include/linux/mfd/gsc.h     |  75 ++++++++++++
- 4 files changed, 374 insertions(+)
- create mode 100644 drivers/mfd/gateworks-gsc.c
- create mode 100644 include/linux/mfd/gsc.h
+ drivers/hwmon/Kconfig                   |   9 +
+ drivers/hwmon/Makefile                  |   1 +
+ drivers/hwmon/gsc-hwmon.c               | 368 ++++++++++++++++++++++++++++++++
+ include/linux/platform_data/gsc_hwmon.h |  43 ++++
+ 4 files changed, 421 insertions(+)
+ create mode 100644 drivers/hwmon/gsc-hwmon.c
+ create mode 100644 include/linux/platform_data/gsc_hwmon.h
 
-diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
-index 1d20a80..013df63 100644
---- a/drivers/mfd/Kconfig
-+++ b/drivers/mfd/Kconfig
-@@ -341,6 +341,19 @@ config MFD_EXYNOS_LPASS
- 	  Select this option to enable support for Samsung Exynos Low Power
- 	  Audio Subsystem.
+diff --git a/drivers/hwmon/Kconfig b/drivers/hwmon/Kconfig
+index 7ad0176..85d9aa3 100644
+--- a/drivers/hwmon/Kconfig
++++ b/drivers/hwmon/Kconfig
+@@ -475,6 +475,15 @@ config SENSORS_F75375S
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called f75375s.
  
-+config MFD_GATEWORKS_GSC
-+	tristate "Gateworks System Controller"
-+	depends on (I2C && OF)
-+	select MFD_CORE
-+	select REGMAP_I2C
-+	select REGMAP_IRQ
-+	help
-+	  Enable support for the Gateworks System Controller found
-+	  on Gateworks Single Board Computers.
++config SENSORS_GSC
++        tristate "Gateworks System Controller ADC"
++        depends on MFD_GATEWORKS_GSC
++        help
++          Support for the Gateworks System Controller A/D converters.
 +
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called gsc.
++	  To compile this driver as a module, choose M here:
++	  the module will be called gsc-hwmon.
 +
- config MFD_MC13XXX
- 	tristate
- 	depends on (SPI_MASTER || I2C)
-diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
-index d9474ad..da0868ff 100644
---- a/drivers/mfd/Makefile
-+++ b/drivers/mfd/Makefile
-@@ -18,6 +18,7 @@ obj-$(CONFIG_MFD_CROS_EC)	+= cros_ec_core.o
- obj-$(CONFIG_MFD_CROS_EC_I2C)	+= cros_ec_i2c.o
- obj-$(CONFIG_MFD_CROS_EC_SPI)	+= cros_ec_spi.o
- obj-$(CONFIG_MFD_EXYNOS_LPASS)	+= exynos-lpass.o
-+obj-$(CONFIG_MFD_GATEWORKS_GSC)	+= gateworks-gsc.o
- 
- rtsx_pci-objs			:= rtsx_pcr.o rts5209.o rts5229.o rtl8411.o rts5227.o rts5249.o
- obj-$(CONFIG_MFD_RTSX_PCI)	+= rtsx_pci.o
-diff --git a/drivers/mfd/gateworks-gsc.c b/drivers/mfd/gateworks-gsc.c
+ config SENSORS_MC13783_ADC
+         tristate "Freescale MC13783/MC13892 ADC"
+         depends on MFD_MC13XXX
+diff --git a/drivers/hwmon/Makefile b/drivers/hwmon/Makefile
+index 0fe489f..835a536 100644
+--- a/drivers/hwmon/Makefile
++++ b/drivers/hwmon/Makefile
+@@ -69,6 +69,7 @@ obj-$(CONFIG_SENSORS_G760A)	+= g760a.o
+ obj-$(CONFIG_SENSORS_G762)	+= g762.o
+ obj-$(CONFIG_SENSORS_GL518SM)	+= gl518sm.o
+ obj-$(CONFIG_SENSORS_GL520SM)	+= gl520sm.o
++obj-$(CONFIG_SENSORS_GSC)	+= gsc-hwmon.o
+ obj-$(CONFIG_SENSORS_GPIO_FAN)	+= gpio-fan.o
+ obj-$(CONFIG_SENSORS_HIH6130)	+= hih6130.o
+ obj-$(CONFIG_SENSORS_ULTRA45)	+= ultra45_env.o
+diff --git a/drivers/hwmon/gsc-hwmon.c b/drivers/hwmon/gsc-hwmon.c
 new file mode 100644
-index 0000000..e081613
+index 0000000..10da46f
 --- /dev/null
-+++ b/drivers/mfd/gateworks-gsc.c
-@@ -0,0 +1,285 @@
++++ b/drivers/hwmon/gsc-hwmon.c
+@@ -0,0 +1,368 @@
 +/* SPDX-License-Identifier: GPL-2.0
 + *
 + * Copyright (C) 2018 Gateworks Corporation
 + *
-+ * The Gateworks System Controller (GSC) is a family of a multi-function
-+ * "Power Management and System Companion Device" chips originally designed for
-+ * use in Gateworks Single Board Computers. The control interface is I2C,
-+ * at 100kbps, with an interrupt.
-+ *
++ * This driver registers Linux HWMON attributes for GSC ADC's
 + */
-+#include <linux/device.h>
-+#include <linux/i2c.h>
-+#include <linux/interrupt.h>
++#include <linux/hwmon.h>
++#include <linux/hwmon-sysfs.h>
 +#include <linux/mfd/gsc.h>
 +#include <linux/module.h>
-+#include <linux/mutex.h>
 +#include <linux/of.h>
-+#include <linux/of_platform.h>
 +#include <linux/platform_device.h>
 +#include <linux/regmap.h>
++#include <linux/slab.h>
 +
-+/*
-+ * The GSC suffers from an errata where occasionally during
-+ * ADC cycles the chip can NAK I2C transactions. To ensure we have reliable
-+ * register access we place retries around register access.
-+ */
-+#define I2C_RETRIES	3
++#include <linux/platform_data/gsc_hwmon.h>
 +
-+static int gsc_regmap_regwrite(void *context, unsigned int reg,
-+			       unsigned int val)
-+{
-+	struct i2c_client *client = context;
-+	int retry, ret;
++#define GSC_HWMON_MAX_TEMP_CH	16
++#define GSC_HWMON_MAX_IN_CH	16
++#define GSC_HWMON_MAX_FAN_CH	6
 +
-+	for (retry = 0; retry < I2C_RETRIES; retry++) {
-+		ret = i2c_smbus_write_byte_data(client, reg, val);
-+		/*
-+		 * -EAGAIN returned when the i2c host controller is busy
-+		 * -EIO returned when i2c device is busy
-+		 */
-+		if (ret != -EAGAIN && ret != -EIO)
-+			break;
-+	}
-+
-+	return 0;
-+}
-+
-+static int gsc_regmap_regread(void *context, unsigned int reg,
-+			      unsigned int *val)
-+{
-+	struct i2c_client *client = context;
-+	int retry, ret;
-+
-+	for (retry = 0; retry < I2C_RETRIES; retry++) {
-+		ret = i2c_smbus_read_byte_data(client, reg);
-+		/*
-+		 * -EAGAIN returned when the i2c host controller is busy
-+		 * -EIO returned when i2c device is busy
-+		 */
-+		if (ret != -EAGAIN && ret != -EIO)
-+			break;
-+	}
-+	*val = ret & 0xff;
-+
-+	return 0;
-+}
-+
-+static struct regmap_bus regmap_gsc = {
-+	.reg_write = gsc_regmap_regwrite,
-+	.reg_read = gsc_regmap_regread,
-+};
-+
-+/*
-+ * gsc_powerdown - API to use GSC to power down board for a specific time
-+ *
-+ * secs - number of seconds to remain powered off
-+ */
-+static int gsc_powerdown(struct gsc_dev *gsc, unsigned long secs)
-+{
-+	int ret;
-+	unsigned char regs[4];
-+
-+	dev_info(&gsc->i2c->dev, "GSC powerdown for %ld seconds\n",
-+		 secs);
-+	regs[0] = secs & 0xff;
-+	regs[1] = (secs >> 8) & 0xff;
-+	regs[2] = (secs >> 16) & 0xff;
-+	regs[3] = (secs >> 24) & 0xff;
-+	ret = regmap_bulk_write(gsc->regmap, GSC_TIME_ADD, regs, 4);
-+
-+	return ret;
-+}
-+
-+static ssize_t gsc_show(struct device *dev, struct device_attribute *attr,
-+			char *buf)
-+{
-+	struct gsc_dev *gsc = dev_get_drvdata(dev);
-+	const char *name = attr->attr.name;
-+	int rz = 0;
-+
-+	if (strcasecmp(name, "fw_version") == 0)
-+		rz = sprintf(buf, "%d\n", gsc->fwver);
-+	else if (strcasecmp(name, "fw_crc") == 0)
-+		rz = sprintf(buf, "0x%04x\n", gsc->fwcrc);
-+
-+	return rz;
-+}
-+
-+static ssize_t gsc_store(struct device *dev, struct device_attribute *attr,
-+			 const char *buf, size_t count)
-+{
-+	struct gsc_dev *gsc = dev_get_drvdata(dev);
-+	const char *name = attr->attr.name;
-+	int ret;
-+
-+	if (strcasecmp(name, "powerdown") == 0) {
-+		long value;
-+
-+		ret = kstrtol(buf, 0, &value);
-+		if (ret == 0)
-+			gsc_powerdown(gsc, value);
-+	} else
-+		dev_err(dev, "invalid name '%s\n", name);
-+
-+	return count;
-+}
-+
-+static struct device_attribute attr_fwver =
-+	__ATTR(fw_version, 0440, gsc_show, NULL);
-+static struct device_attribute attr_fwcrc =
-+	__ATTR(fw_crc, 0440, gsc_show, NULL);
-+static struct device_attribute attr_pwrdown =
-+	__ATTR(powerdown, 0220, NULL, gsc_store);
-+
-+static struct attribute *gsc_attrs[] = {
-+	&attr_fwver.attr,
-+	&attr_fwcrc.attr,
-+	&attr_pwrdown.attr,
-+	NULL,
-+};
-+
-+static struct attribute_group attr_group = {
-+	.attrs = gsc_attrs,
-+};
-+
-+static const struct of_device_id gsc_of_match[] = {
-+	{ .compatible = "gw,gsc", },
-+	{ }
-+};
-+
-+static const struct regmap_config gsc_regmap_config = {
-+	.reg_bits = 8,
-+	.val_bits = 8,
-+	.cache_type = REGCACHE_NONE,
-+	.max_register = 0xf,
-+};
-+
-+static const struct regmap_config gsc_regmap_hwmon_config = {
-+	.reg_bits = 8,
-+	.val_bits = 8,
-+	.cache_type = REGCACHE_NONE,
-+	.max_register = 0x37,
-+};
-+
-+static const struct regmap_irq gsc_irqs[] = {
-+	REGMAP_IRQ_REG(GSC_IRQ_PB, 0, BIT(GSC_IRQ_PB)),
-+	REGMAP_IRQ_REG(GSC_IRQ_KEY_ERASED, 0, BIT(GSC_IRQ_KEY_ERASED)),
-+	REGMAP_IRQ_REG(GSC_IRQ_EEPROM_WP, 0, BIT(GSC_IRQ_EEPROM_WP)),
-+	REGMAP_IRQ_REG(GSC_IRQ_RESV, 0, BIT(GSC_IRQ_RESV)),
-+	REGMAP_IRQ_REG(GSC_IRQ_GPIO, 0, BIT(GSC_IRQ_GPIO)),
-+	REGMAP_IRQ_REG(GSC_IRQ_TAMPER, 0, BIT(GSC_IRQ_TAMPER)),
-+	REGMAP_IRQ_REG(GSC_IRQ_WDT_TIMEOUT, 0, BIT(GSC_IRQ_WDT_TIMEOUT)),
-+	REGMAP_IRQ_REG(GSC_IRQ_SWITCH_HOLD, 0, BIT(GSC_IRQ_SWITCH_HOLD)),
-+};
-+
-+static const struct regmap_irq_chip gsc_irq_chip = {
-+	.name = "gateworks-gsc",
-+	.irqs = gsc_irqs,
-+	.num_irqs = ARRAY_SIZE(gsc_irqs),
-+	.num_regs = 1,
-+	.status_base = GSC_IRQ_STATUS,
-+	.mask_base = GSC_IRQ_ENABLE,
-+	.mask_invert = true,
-+	.ack_base = GSC_IRQ_STATUS,
-+	.ack_invert = true,
++struct gsc_hwmon_data {
++	struct gsc_dev *gsc;
++	struct device *dev;
++	struct gsc_hwmon_platform_data *pdata;
++	const struct gsc_hwmon_channel *temp_ch[GSC_HWMON_MAX_TEMP_CH];
++	const struct gsc_hwmon_channel *in_ch[GSC_HWMON_MAX_IN_CH];
++	const struct gsc_hwmon_channel *fan_ch[GSC_HWMON_MAX_FAN_CH];
++	u32 temp_config[GSC_HWMON_MAX_TEMP_CH + 1];
++	u32 in_config[GSC_HWMON_MAX_IN_CH + 1];
++	u32 fan_config[GSC_HWMON_MAX_FAN_CH + 1];
++	struct hwmon_channel_info temp_info;
++	struct hwmon_channel_info in_info;
++	struct hwmon_channel_info fan_info;
++	const struct hwmon_channel_info *info[4];
++	struct hwmon_chip_info chip;
++	int vreference;
++	int resolution;
 +};
 +
 +static int
-+gsc_probe(struct i2c_client *client, const struct i2c_device_id *id)
++gsc_hwmon_read(struct device *dev, enum hwmon_sensor_types type, u32 attr,
++	       int channel, long *val)
 +{
-+	struct device *dev = &client->dev;
-+	struct gsc_dev *gsc;
-+	int ret;
-+	unsigned int reg;
++	struct gsc_hwmon_data *hwmon = dev_get_drvdata(dev);
++	struct gsc_hwmon_platform_data *pdata = hwmon->pdata;
++	const struct gsc_hwmon_channel *ch;
++	int sz, ret;
++	u8 buf[3];
 +
-+	gsc = devm_kzalloc(dev, sizeof(*gsc), GFP_KERNEL);
-+	if (!gsc)
-+		return -ENOMEM;
-+
-+	gsc->dev = &client->dev;
-+	gsc->i2c = client;
-+	gsc->irq = client->irq;
-+	i2c_set_clientdata(client, gsc);
-+
-+	gsc->regmap = devm_regmap_init(dev, &regmap_gsc, client,
-+				       &gsc_regmap_config);
-+	if (IS_ERR(gsc->regmap))
-+		return PTR_ERR(gsc->regmap);
-+
-+	if (regmap_read(gsc->regmap, GSC_FW_VER, &reg))
-+		return -EIO;
-+	gsc->fwver = reg;
-+
-+	regmap_read(gsc->regmap, GSC_FW_CRC, &reg);
-+	gsc->fwcrc = reg;
-+	regmap_read(gsc->regmap, GSC_FW_CRC + 1, &reg);
-+	gsc->fwcrc |= reg << 8;
-+
-+	gsc->i2c_hwmon = i2c_new_dummy(client->adapter, GSC_HWMON);
-+	if (!gsc->i2c_hwmon) {
-+		dev_err(dev, "Failed to allocate I2C device for HWMON\n");
-+		return -ENODEV;
-+	}
-+	i2c_set_clientdata(gsc->i2c_hwmon, gsc);
-+
-+	gsc->regmap_hwmon = devm_regmap_init(dev, &regmap_gsc, gsc->i2c_hwmon,
-+					     &gsc_regmap_hwmon_config);
-+	if (IS_ERR(gsc->regmap_hwmon)) {
-+		ret = PTR_ERR(gsc->regmap_hwmon);
-+		dev_err(dev, "failed to allocate register map: %d\n", ret);
-+		goto err_regmap;
++	dev_dbg(dev, "%s type=%d attr=%d channel=%d\n", __func__, type, attr,
++		channel);
++	switch (type) {
++	case hwmon_in:
++		ch = hwmon->in_ch[channel];
++		break;
++	case hwmon_temp:
++		ch = hwmon->temp_ch[channel];
++		break;
++	case hwmon_fan:
++		ch = hwmon->fan_ch[channel];
++		break;
++	default:
++		return -EOPNOTSUPP;
 +	}
 +
-+	ret = devm_regmap_add_irq_chip(dev, gsc->regmap, gsc->irq,
-+				       IRQF_ONESHOT | IRQF_SHARED |
-+				       IRQF_TRIGGER_FALLING, 0,
-+				       &gsc_irq_chip, &gsc->irq_chip_data);
++	sz = (ch->type == type_voltage) ? 3 : 2;
++	ret = regmap_bulk_read(hwmon->gsc->regmap_hwmon, ch->reg, buf, sz);
 +	if (ret)
-+		goto err_regmap;
++		return ret;
 +
-+	dev_info(dev, "Gateworks System Controller v%d: fw 0x%04x\n",
-+		 gsc->fwver, gsc->fwcrc);
++	*val = 0;
++	while (sz-- > 0)
++		*val |= (buf[sz] << (8*sz));
 +
-+	ret = sysfs_create_group(&dev->kobj, &attr_group);
-+	if (ret)
-+		dev_err(dev, "failed to create sysfs attrs\n");
-+
-+	ret = of_platform_populate(dev->of_node, NULL, NULL, dev);
-+	if (ret)
-+		goto err_sysfs;
-+
-+	return 0;
-+
-+err_sysfs:
-+	sysfs_remove_group(&dev->kobj, &attr_group);
-+err_regmap:
-+	i2c_unregister_device(gsc->i2c_hwmon);
-+
-+	return ret;
-+}
-+
-+static int gsc_remove(struct i2c_client *client)
-+{
-+	struct gsc_dev *gsc = i2c_get_clientdata(client);
-+
-+	sysfs_remove_group(&client->dev.kobj, &attr_group);
-+	i2c_unregister_device(gsc->i2c_hwmon);
++	switch (ch->type) {
++	case type_temperature:
++		if ((type == hwmon_temp) && *val > 0x8000)
++			*val -= 0xffff;
++		break;
++	case type_voltage_raw:
++		/* scale based on ref voltage and resolution */
++		if (pdata->vreference && pdata->resolution) {
++			*val *= pdata->vreference;
++			*val /= pdata->resolution;
++		}
++		/* scale based on optional voltage divider */
++		if (ch->vdiv[0] && ch->vdiv[1]) {
++			*val *= (ch->vdiv[0] + ch->vdiv[1]);
++			*val /= ch->vdiv[1];
++		}
++		/* adjust by offset */
++		*val += ch->voffset;
++		break;
++	}
 +
 +	return 0;
 +}
 +
-+static struct i2c_driver gsc_driver = {
-+	.driver = {
-+		.name	= "gateworks-gsc",
-+		.of_match_table = of_match_ptr(gsc_of_match),
-+	},
-+	.probe		= gsc_probe,
-+	.remove		= gsc_remove,
++static int
++gsc_hwmon_read_string(struct device *dev, enum hwmon_sensor_types type,
++		      u32 attr, int channel, const char **buf)
++{
++	struct gsc_hwmon_data *hwmon = dev_get_drvdata(dev);
++
++	dev_dbg(dev, "%s type=%d attr=%d channel=%d\n", __func__, type, attr,
++		channel);
++	switch (type) {
++	case hwmon_in:
++		*buf = hwmon->in_ch[channel]->name;
++		break;
++	case hwmon_temp:
++		*buf = hwmon->temp_ch[channel]->name;
++		break;
++	case hwmon_fan:
++		*buf = hwmon->fan_ch[channel]->name;
++		break;
++	default:
++		return -ENOTSUPP;
++	}
++
++	return 0;
++}
++
++static int
++gsc_hwmon_write(struct device *dev, enum hwmon_sensor_types type, u32 attr,
++		int channel, long val)
++{
++	struct gsc_hwmon_data *hwmon = dev_get_drvdata(dev);
++	u8 buf[2];
++
++	dev_dbg(dev, "%s type=%d attr=%d channel=%d\n", __func__, type, attr,
++		channel);
++	switch (type) {
++	case hwmon_fan:
++		buf[0] = val & 0xff;
++		buf[1] = (val >> 8) & 0xff;
++		return regmap_bulk_write(hwmon->gsc->regmap_hwmon,
++					 hwmon->fan_ch[channel]->reg, buf, 2);
++	default:
++		break;
++	}
++
++	return -EOPNOTSUPP;
++}
++
++static umode_t
++gsc_hwmon_is_visible(const void *_data, enum hwmon_sensor_types type, u32 attr,
++		     int ch)
++{
++	const struct gsc_hwmon_data *hwmon = _data;
++	struct device *dev = hwmon->gsc->dev;
++	umode_t mode = 0;
++
++	switch (type) {
++	case hwmon_fan:
++		if (ch >= GSC_HWMON_MAX_FAN_CH)
++			return -EOPNOTSUPP;
++		mode = S_IRUGO;
++		if (attr == hwmon_fan_input)
++			mode |= S_IWUSR;
++		break;
++	case hwmon_temp:
++		if (ch >= GSC_HWMON_MAX_TEMP_CH)
++			return -EOPNOTSUPP;
++		mode = S_IRUGO;
++		break;
++	case hwmon_in:
++		if (ch >= GSC_HWMON_MAX_IN_CH)
++			return -EOPNOTSUPP;
++		mode = S_IRUGO;
++		break;
++	default:
++		return -EOPNOTSUPP;
++	}
++	dev_dbg(dev, "%s type=%d attr=%d ch=%d mode=0x%x\n", __func__, type,
++		attr, ch, mode);
++
++	return mode;
++}
++
++static const struct hwmon_ops gsc_hwmon_ops = {
++	.is_visible = gsc_hwmon_is_visible,
++	.read = gsc_hwmon_read,
++	.read_string = gsc_hwmon_read_string,
++	.write = gsc_hwmon_write,
 +};
 +
-+module_i2c_driver(gsc_driver);
++static struct gsc_hwmon_platform_data *
++gsc_hwmon_get_devtree_pdata(struct device *dev)
++{
++	struct gsc_hwmon_platform_data *pdata;
++	struct gsc_hwmon_channel *ch;
++	struct fwnode_handle *child;
++	const char *type;
++	int nchannels;
++
++	nchannels = device_get_child_node_count(dev);
++	dev_dbg(dev, "channels=%d\n", nchannels);
++	if (nchannels == 0)
++		return ERR_PTR(-ENODEV);
++
++	pdata = devm_kzalloc(dev,
++			     sizeof(*pdata) + nchannels * sizeof(*ch),
++			     GFP_KERNEL);
++	if (!pdata)
++		return ERR_PTR(-ENOMEM);
++	ch = (struct gsc_hwmon_channel *)(pdata + 1);
++	pdata->channels = ch;
++	pdata->nchannels = nchannels;
++
++	device_property_read_u32(dev, "gw,reference-voltage",
++				 &pdata->vreference);
++	device_property_read_u32(dev, "gw,resolution", &pdata->resolution);
++
++	/* allocate structures for channels and count instances of each type */
++	device_for_each_child_node(dev, child) {
++		if (fwnode_property_read_string(child, "label", &ch->name)) {
++			dev_err(dev, "channel without label\n");
++			fwnode_handle_put(child);
++			return ERR_PTR(-EINVAL);
++		}
++		if (fwnode_property_read_u32(child, "reg", &ch->reg)) {
++			dev_err(dev, "channel without reg\n");
++			fwnode_handle_put(child);
++			return ERR_PTR(-EINVAL);
++		}
++		if (fwnode_property_read_string(child, "type", &type)) {
++			dev_err(dev, "channel without type\n");
++			fwnode_handle_put(child);
++			return ERR_PTR(-EINVAL);
++		}
++		if (!strcasecmp(type, "gw,hwmon-temperature"))
++			ch->type = type_temperature;
++		else if (!strcasecmp(type, "gw,hwmon-voltage"))
++			ch->type = type_voltage;
++		else if (!strcasecmp(type, "gw,hwmon-voltage-raw"))
++			ch->type = type_voltage_raw;
++		else if (!strcasecmp(type, "gw,hwmon-fan"))
++			ch->type = type_fan;
++		else {
++			dev_err(dev, "channel without type\n");
++			fwnode_handle_put(child);
++			return ERR_PTR(-EINVAL);
++		}
++
++		fwnode_property_read_u32(child, "gw,voltage-offset",
++			&ch->voffset);
++		fwnode_property_read_u32_array(child, "gw,voltage-divider",
++			ch->vdiv, ARRAY_SIZE(ch->vdiv));
++		dev_dbg(dev, "of: reg=0x%02x type=%d %s\n", ch->reg, ch->type,
++			ch->name);
++		ch++;
++	}
++
++	return pdata;
++}
++
++static int gsc_hwmon_probe(struct platform_device *pdev)
++{
++	struct gsc_dev *gsc = dev_get_drvdata(pdev->dev.parent);
++	struct device *dev = &pdev->dev;
++	struct gsc_hwmon_platform_data *pdata = dev_get_platdata(dev);
++	struct gsc_hwmon_data *hwmon;
++	int i, i_in, i_temp, i_fan;
++
++	if (!pdata) {
++		pdata = gsc_hwmon_get_devtree_pdata(dev);
++		if (IS_ERR(pdata))
++			return PTR_ERR(pdata);
++	}
++
++	hwmon = devm_kzalloc(dev, sizeof(*hwmon), GFP_KERNEL);
++	if (!hwmon)
++		return -ENOMEM;
++	hwmon->gsc = gsc;
++	hwmon->pdata = pdata;
++
++	for (i = 0, i_in = 0, i_temp = 0, i_fan = 0;
++	     i < hwmon->pdata->nchannels; i++) {
++		const struct gsc_hwmon_channel *ch = &pdata->channels[i];
++
++		if (ch->reg > GSC_HWMON_MAX_REG) {
++			dev_err(dev, "invalid reg: 0x%02x\n", ch->reg);
++			return -EINVAL;
++		}
++		switch (ch->type) {
++		case type_temperature:
++			if (i_temp == GSC_HWMON_MAX_TEMP_CH) {
++				dev_err(dev, "too many temp channels\n");
++				return -EINVAL;
++			}
++			hwmon->temp_ch[i_temp] = ch;
++			hwmon->temp_config[i_temp] = HWMON_T_INPUT |
++						     HWMON_T_LABEL;
++			i_temp++;
++			break;
++		case type_voltage:
++		case type_voltage_raw:
++			if (i_in == GSC_HWMON_MAX_IN_CH) {
++				dev_err(dev, "too many voltage channels\n");
++				return -EINVAL;
++			}
++			hwmon->in_ch[i_in] = ch;
++			hwmon->in_config[i_in] =
++				HWMON_I_INPUT | HWMON_I_LABEL;
++			i_in++;
++			break;
++		case type_fan:
++			if (i_fan == GSC_HWMON_MAX_FAN_CH) {
++				dev_err(dev, "too many voltage channels\n");
++				return -EINVAL;
++			}
++			hwmon->fan_ch[i_fan] = ch;
++			hwmon->fan_config[i_fan] =
++				HWMON_F_INPUT | HWMON_F_LABEL;
++			i_fan++;
++			break;
++		default:
++			dev_err(dev, "invalid type: %d\n", ch->type);
++			return -EINVAL;
++		}
++		dev_dbg(dev, "pdata: reg=0x%02x type=%d %s\n", ch->reg,
++			ch->type, ch->name);
++	}
++
++	/* terminate channel config lists */
++	hwmon->temp_config[i_temp] = 0;
++	hwmon->in_config[i_in] = 0;
++	hwmon->fan_config[i_fan] = 0;
++
++	/* setup config structures */
++	hwmon->chip.ops = &gsc_hwmon_ops;
++	hwmon->chip.info = hwmon->info;
++	hwmon->info[0] = &hwmon->temp_info;
++	hwmon->info[1] = &hwmon->in_info;
++	hwmon->info[2] = &hwmon->fan_info;
++	hwmon->temp_info.type = hwmon_temp;
++	hwmon->temp_info.config = hwmon->temp_config;
++	hwmon->in_info.type = hwmon_in;
++	hwmon->in_info.config = hwmon->in_config;
++	hwmon->fan_info.type = hwmon_fan;
++	hwmon->fan_info.config = hwmon->fan_config;
++
++	hwmon->dev = devm_hwmon_device_register_with_info(dev,
++							  KBUILD_MODNAME, hwmon,
++							  &hwmon->chip, NULL);
++	return PTR_ERR_OR_ZERO(hwmon->dev);
++}
++
++static const struct of_device_id gsc_hwmon_of_match[] = {
++	{ .compatible = "gw,gsc-hwmon", },
++	{}
++};
++
++static struct platform_driver gsc_hwmon_driver = {
++	.driver = {
++		.name = KBUILD_MODNAME,
++		.of_match_table = gsc_hwmon_of_match,
++	},
++	.probe = gsc_hwmon_probe,
++};
++
++module_platform_driver(gsc_hwmon_driver);
 +
 +MODULE_AUTHOR("Tim Harvey <tharvey@gateworks.com>");
-+MODULE_DESCRIPTION("I2C Core interface for GSC");
++MODULE_DESCRIPTION("GSC hardware monitor driver");
 +MODULE_LICENSE("GPL v2");
-diff --git a/include/linux/mfd/gsc.h b/include/linux/mfd/gsc.h
+diff --git a/include/linux/platform_data/gsc_hwmon.h b/include/linux/platform_data/gsc_hwmon.h
 new file mode 100644
-index 0000000..dcae61b
+index 0000000..5e59846
 --- /dev/null
-+++ b/include/linux/mfd/gsc.h
-@@ -0,0 +1,75 @@
-+/* SPDX-License-Identifier: GPL-2.0
-+ *
-+ * Copyright (C) 2018 Gateworks Corporation
-+ */
-+#ifndef __LINUX_MFD_GSC_H_
-+#define __LINUX_MFD_GSC_H_
++++ b/include/linux/platform_data/gsc_hwmon.h
+@@ -0,0 +1,43 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef _GSC_HWMON_H
++#define _GSC_HWMON_H
 +
-+/* Device Addresses */
-+#define GSC_MISC	0x20
-+#define GSC_UPDATE	0x21
-+#define GSC_GPIO	0x23
-+#define GSC_HWMON	0x29
-+#define GSC_EEPROM0	0x50
-+#define GSC_EEPROM1	0x51
-+#define GSC_EEPROM2	0x52
-+#define GSC_EEPROM3	0x53
-+#define GSC_RTC		0x68
-+
-+/* Register offsets */
-+#define GSC_CTRL_0	0x00
-+#define GSC_CTRL_1	0x01
-+#define GSC_TIME	0x02
-+#define GSC_TIME_ADD	0x06
-+#define GSC_IRQ_STATUS	0x0A
-+#define GSC_IRQ_ENABLE	0x0B
-+#define GSC_FW_CRC	0x0C
-+#define GSC_FW_VER	0x0E
-+#define GSC_WP		0x0F
-+
-+/* Bit definitions */
-+#define GSC_CTRL_0_PB_HARD_RESET	0
-+#define GSC_CTRL_0_PB_CLEAR_SECURE_KEY	1
-+#define GSC_CTRL_0_PB_SOFT_POWER_DOWN	2
-+#define GSC_CTRL_0_PB_BOOT_ALTERNATE	3
-+#define GSC_CTRL_0_PERFORM_CRC		4
-+#define GSC_CTRL_0_TAMPER_DETECT	5
-+#define GSC_CTRL_0_SWITCH_HOLD		6
-+
-+#define GSC_CTRL_1_SLEEP_ENABLE		0
-+#define GSC_CTRL_1_ACTIVATE_SLEEP	1
-+#define GSC_CTRL_1_LATCH_SLEEP_ADD	2
-+#define GSC_CTRL_1_SLEEP_NOWAKEPB	3
-+#define GSC_CTRL_1_WDT_TIME		4
-+#define GSC_CTRL_1_WDT_ENABLE		5
-+#define GSC_CTRL_1_SWITCH_BOOT_ENABLE	6
-+#define GSC_CTRL_1_SWITCH_BOOT_CLEAR	7
-+
-+#define GSC_IRQ_PB			0
-+#define GSC_IRQ_KEY_ERASED		1
-+#define GSC_IRQ_EEPROM_WP		2
-+#define GSC_IRQ_RESV			3
-+#define GSC_IRQ_GPIO			4
-+#define GSC_IRQ_TAMPER			5
-+#define GSC_IRQ_WDT_TIMEOUT		6
-+#define GSC_IRQ_SWITCH_HOLD		7
-+
-+/* Max registers */
-+#define GSC_HWMON_MAX_REG	56
-+
-+struct gsc_dev {
-+	struct device *dev;
-+
-+	struct i2c_client *i2c;		/* 0x20: interrupt controller, WDT */
-+	struct i2c_client *i2c_hwmon;	/* 0x29: hwmon, fan controller */
-+
-+	struct regmap *regmap;
-+	struct regmap *regmap_hwmon;
-+	struct regmap_irq_chip_data *irq_chip_data;
-+
-+	int irq;
-+	unsigned int fwver;
-+	unsigned short fwcrc;
++enum gsc_hwmon_type {
++	type_temperature,
++	type_voltage,
++	type_voltage_raw,
++	type_fan,
 +};
 +
-+#endif /* __LINUX_MFD_GSC_H_ */
++/**
++ * struct gsc_hwmon_channel - configuration parameters
++ * @reg:  I2C register offset
++ * @type: channel type
++ * @name: channel name
++ * @voffset: voltage offset (mV)
++ * @vdiv: voltage divider array (2 resistor values in ohms)
++ */
++struct gsc_hwmon_channel {
++	unsigned int reg;
++	unsigned int type;
++	const char *name;
++	unsigned int voffset;
++	unsigned int vdiv[2];
++};
++
++/**
++ * struct gsc_hwmon_platform_data - platform data for gsc_hwmon driver
++ * @channels:	pointer to array of gsc_hwmon_channel structures
++ *		describing channels
++ * @nchannels:	number of elements in @channels array
++ * @vreference: voltage reference (mV)
++ * @resolution: ADC resolution
++ */
++struct gsc_hwmon_platform_data {
++	const struct gsc_hwmon_channel *channels;
++	int nchannels;
++	unsigned int resolution;
++	unsigned int vreference;
++};
++
++#endif
 -- 
 2.7.4
