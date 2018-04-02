@@ -1,94 +1,84 @@
-Return-Path: <gregkh@linuxfoundation.org>
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To: linux-kernel@vger.kernel.org
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	stable@vger.kernel.org,
-	Oleksij Rempel <o.rempel@pengutronix.de>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Guenter Roeck <linux@roeck-us.net>,
-	linux-watchdog@vger.kernel.org,
-	Sasha Levin <alexander.levin@microsoft.com>
-Subject: [PATCH 4.14 019/138] watchdog: dw_wdt: add stop watchdog operation
-Date: Wed, 11 Apr 2018 00:23:29 +0200
-Message-Id: <20180410212904.317032823@linuxfoundation.org>
-In-Reply-To: <20180410212902.121524696@linuxfoundation.org>
-References: <20180410212902.121524696@linuxfoundation.org>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail.hotel-vega.ru ([109.248.141.14]:49744 "EHLO
+        mail.hotel-vega.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754074AbeDBDkX (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Sun, 1 Apr 2018 23:40:23 -0400
+Received: from mail.hotel-vega.ru (localhost [127.0.0.1])
+        by mail.hotel-vega.ru (Postfix) with ESMTP id 48F9C5A9FD9
+        for <linux-watchdog@vger.kernel.org>; Mon,  2 Apr 2018 06:40:21 +0300 (MSK)
+Received: from mail.hotel-vega.ru ([127.0.0.1])
+        by mail.hotel-vega.ru (mail.hotel-vega.ru [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id hc8Kby_21NVT for <linux-watchdog@vger.kernel.org>;
+        Mon,  2 Apr 2018 06:40:20 +0300 (MSK)
+Message-ID: <dovecot-1522640420-323592-0@localhost>
+Date: Mon, 02 Apr 2018 06:40:20 +0300
+From: Mail Delivery Subsystem <root@mail.hotel-vega.ru>
+To: <linux-watchdog@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-List-ID: <linux-watchdog@vger.kernel.org>
+Content-Type: multipart/report; report-type=delivery-status;
+        boundary="8939/localhost"
+Subject: Rejected: =?utf-8?Q?5=20=20=20=20=20=E6=B0=B8=E5=88=A9331428=E3=80=82COM=E9=82=80=E6=82...
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-4.14-stable review patch.  If anyone has any objections, please let me know.
+This is a MIME-encapsulated message
 
-------------------
+--8939/localhost
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-From: Oleksij Rempel <o.rempel@pengutronix.de>
+Your message to <rs9676@hotel-vega.ru> was automatically rejected:
+Quota exceeded (mailbox for user is full)
+--8939/localhost
+Content-Type: message/delivery-status
+
+Reporting-MTA: dns; localhost
+Final-Recipient: rfc822; rs9676@hotel-vega.ru
+Action: failed
+Status: 5.2.2
+
+--8939/localhost
+Content-Type: message/rfc822
+
+Return-Path: <linux-watchdog@vger.kernel.org>
+Delivered-To: rs9676@hotel-vega.ru
+Received: from mail.hotel-vega.ru (localhost [127.0.0.1])
+	by mail.hotel-vega.ru (Postfix) with ESMTP id 349155A9FD3
+	for <rs9676@hotel-vega.ru>; Mon,  2 Apr 2018 06:40:20 +0300 (MSK)
+DKIM-Filter: OpenDKIM Filter v2.10.3 mail.hotel-vega.ru 349155A9FD3
+X-Virus-Scanned: amavisd-new at hotel-vega.ru
+X-Spam-Flag: NO
+X-Spam-Score: 4.934
+X-Spam-Level: ****
+X-Spam-Status: No, score=4.934 tagged_above=2 required=6.2
+	tests=[BAYES_50=0.8, HTML_MESSAGE=0.001, HTML_MIME_NO_HTML_TAG=0.377,
+	MIME_HTML_ONLY=0.723, MSGID_FROM_MTA_HEADER=0.001, RDNS_NONE=0.793,
+	SPF_HELO_SOFTFAIL=0.732, SUBJ_ALL_CAPS=1.506, UNPARSEABLE_RELAY=0.001]
+	autolearn=no autolearn_force=no
+Received: from mail.hotel-vega.ru ([127.0.0.1])
+	by mail.hotel-vega.ru (mail.hotel-vega.ru [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Y-A8VTy4pxyd for <rs9676@hotel-vega.ru>;
+	Mon,  2 Apr 2018 06:40:15 +0300 (MSK)
+Received: from aaa.cn (unknown [122.4.30.97])
+	by mail.hotel-vega.ru (Postfix) with ESMTP id 031D85A4E3B
+	for <reserve@hotel-vega.ru>; Mon,  2 Apr 2018 06:40:03 +0300 (MSK)
+DMARC-Filter: OpenDMARC Filter v1.3.1 mail.hotel-vega.ru 031D85A4E3B
+DKIM-Filter: OpenDKIM Filter v2.10.3 mail.hotel-vega.ru 031D85A4E3B
+MIME-Version: 1.0
+Message-ID: <970e1edafadf76f2@8c8d5aa7baba7d6d>
+Date: Mon, 02 Apr 2018 11:39:52 +0800
+Subject: =?utf-8?Q?5=20=20=20=20=20=E6=B0=B8=E5=88=A9331428=E3=80=82COM=E9=82=80=E6=82=A8=E6=B3=A8=E5=86=8C=E9=80=8158=E8=B5=A25=E2=92=8F0=E6=8F=90?=
+ =?utf-8?Q?,=E4=B8=93=E5=91=98Q319120398=E9=A2=86?=
+To: reserve@hotel-vega.ru
+Received: from aaa.cn (unknown (1.0.0.0])
+	 by aaa.cn with SMTP id 7b949d6b-4781-4661-bb9d-a0912fde1740;
+	 for <linux-watchdog@vger.kernel.org>;Mon, 02 Apr 2018 11:39:52 +08:00
+Disposition-Notification-To: linux-watchdog@vger.kernel.org
+From: linux-watchdog@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
 
 
-[ Upstream commit 1bfe8889380890efe4943d125124f5a7b48571b0 ]
 
-The only way of stopping the watchdog is by resetting it.
-Add the watchdog op for stopping the device and reset if
-a reset line is provided.
-
-At same time WDOG_HW_RUNNING should be remove from dw_wdt_start.
-As commented by Guenter Roeck:
-dw_wdt sets WDOG_HW_RUNNING in its open function. Result is
-that the kref_get() in watchdog_open() won't be executed. But then
-kref_put() in close will be called since the watchdog now does stop.
-This causes the imbalance.
-
-Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Cc: Wim Van Sebroeck <wim@iguana.be>
-Cc: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-watchdog@vger.kernel.org
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
-Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/watchdog/dw_wdt.c |   18 ++++++++++++++++--
- 1 file changed, 16 insertions(+), 2 deletions(-)
-
---- a/drivers/watchdog/dw_wdt.c
-+++ b/drivers/watchdog/dw_wdt.c
-@@ -127,14 +127,27 @@ static int dw_wdt_start(struct watchdog_
- 
- 	dw_wdt_set_timeout(wdd, wdd->timeout);
- 
--	set_bit(WDOG_HW_RUNNING, &wdd->status);
--
- 	writel(WDOG_CONTROL_REG_WDT_EN_MASK,
- 	       dw_wdt->regs + WDOG_CONTROL_REG_OFFSET);
- 
- 	return 0;
- }
- 
-+static int dw_wdt_stop(struct watchdog_device *wdd)
-+{
-+	struct dw_wdt *dw_wdt = to_dw_wdt(wdd);
-+
-+	if (!dw_wdt->rst) {
-+		set_bit(WDOG_HW_RUNNING, &wdd->status);
-+		return 0;
-+	}
-+
-+	reset_control_assert(dw_wdt->rst);
-+	reset_control_deassert(dw_wdt->rst);
-+
-+	return 0;
-+}
-+
- static int dw_wdt_restart(struct watchdog_device *wdd,
- 			  unsigned long action, void *data)
- {
-@@ -173,6 +186,7 @@ static const struct watchdog_info dw_wdt
- static const struct watchdog_ops dw_wdt_ops = {
- 	.owner		= THIS_MODULE,
- 	.start		= dw_wdt_start,
-+	.stop		= dw_wdt_stop,
- 	.ping		= dw_wdt_ping,
- 	.set_timeout	= dw_wdt_set_timeout,
- 	.get_timeleft	= dw_wdt_get_timeleft,
+--8939/localhost--
