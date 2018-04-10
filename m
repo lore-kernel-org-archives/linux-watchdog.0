@@ -8,18 +8,18 @@ Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
 	Guenter Roeck <linux@roeck-us.net>,
 	linux-watchdog@vger.kernel.org,
 	Sasha Levin <alexander.levin@microsoft.com>
-Subject: [PATCH 4.15 022/168] watchdog: dw_wdt: add stop watchdog operation
-Date: Wed, 11 Apr 2018 00:22:44 +0200
-Message-Id: <20180410212801.146104435@linuxfoundation.org>
-In-Reply-To: <20180410212800.144079021@linuxfoundation.org>
-References: <20180410212800.144079021@linuxfoundation.org>
+Subject: [PATCH 4.14 019/138] watchdog: dw_wdt: add stop watchdog operation
+Date: Wed, 11 Apr 2018 00:23:29 +0200
+Message-Id: <20180410212904.317032823@linuxfoundation.org>
+In-Reply-To: <20180410212902.121524696@linuxfoundation.org>
+References: <20180410212902.121524696@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-4.15-stable review patch.  If anyone has any objections, please let me know.
+4.14-stable review patch.  If anyone has any objections, please let me know.
 
 ------------------
 
