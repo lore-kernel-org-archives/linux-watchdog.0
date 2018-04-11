@@ -1,84 +1,172 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.hotel-vega.ru ([109.248.141.14]:49744 "EHLO
-        mail.hotel-vega.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754074AbeDBDkX (ORCPT
+Received: from www.linux-watchdog.org ([185.87.125.42]:55942 "EHLO
+        www.linux-watchdog.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1757164AbeDKTZL (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 1 Apr 2018 23:40:23 -0400
-Received: from mail.hotel-vega.ru (localhost [127.0.0.1])
-        by mail.hotel-vega.ru (Postfix) with ESMTP id 48F9C5A9FD9
-        for <linux-watchdog@vger.kernel.org>; Mon,  2 Apr 2018 06:40:21 +0300 (MSK)
-Received: from mail.hotel-vega.ru ([127.0.0.1])
-        by mail.hotel-vega.ru (mail.hotel-vega.ru [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id hc8Kby_21NVT for <linux-watchdog@vger.kernel.org>;
-        Mon,  2 Apr 2018 06:40:20 +0300 (MSK)
-Message-ID: <dovecot-1522640420-323592-0@localhost>
-Date: Mon, 02 Apr 2018 06:40:20 +0300
-From: Mail Delivery Subsystem <root@mail.hotel-vega.ru>
-To: <linux-watchdog@vger.kernel.org>
+        Wed, 11 Apr 2018 15:25:11 -0400
+Date: Wed, 11 Apr 2018 21:12:33 +0200
+From: wim@www.linux-watchdog.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>
+Subject: [GIT PULL REQUEST] watchdog - v4.17-rc merge window
+Message-ID: <20180411191233.GA6828@www.linux-watchdog.org>
 MIME-Version: 1.0
-Content-Type: multipart/report; report-type=delivery-status;
-        boundary="8939/localhost"
-Subject: Rejected: =?utf-8?Q?5=20=20=20=20=20=E6=B0=B8=E5=88=A9331428=E3=80=82COM=E9=82=80=E6=82...
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This is a MIME-encapsulated message
+Hi Linus,
 
---8939/localhost
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+Please pull the watchdog changes for the v4.17 release cycle.
 
-Your message to <rs9676@hotel-vega.ru> was automatically rejected:
-Quota exceeded (mailbox for user is full)
---8939/localhost
-Content-Type: message/delivery-status
+This series contains:
+* Add Nuvoton NPCM watchdog driver
+* renesas_wdt: Add R-Car Gen2 support
+* renesas_wdt: add suspend/resume and restart handler support
+* hpwdt: convert to watchdog core and improve NMI
+* improve timeout setting/handling in various drivers
+* coh901327: make license text and module licence match
+* fix error handling in asm9260_wdt, sprd_wdt and davinci_wdt
+* aspeed imrovements
+* dw improvements (for control register & suspend/resume)
+* add SPDX identifiers for watchdog subsystem
 
-Reporting-MTA: dns; localhost
-Final-Recipient: rfc822; rs9676@hotel-vega.ru
-Action: failed
-Status: 5.2.2
+The output from git request-pull:
+----------------------------------------------------------------
 
---8939/localhost
-Content-Type: message/rfc822
+The following changes since commit 2b3d89b402b085b08498e896c65267a145bed486:
 
-Return-Path: <linux-watchdog@vger.kernel.org>
-Delivered-To: rs9676@hotel-vega.ru
-Received: from mail.hotel-vega.ru (localhost [127.0.0.1])
-	by mail.hotel-vega.ru (Postfix) with ESMTP id 349155A9FD3
-	for <rs9676@hotel-vega.ru>; Mon,  2 Apr 2018 06:40:20 +0300 (MSK)
-DKIM-Filter: OpenDKIM Filter v2.10.3 mail.hotel-vega.ru 349155A9FD3
-X-Virus-Scanned: amavisd-new at hotel-vega.ru
-X-Spam-Flag: NO
-X-Spam-Score: 4.934
-X-Spam-Level: ****
-X-Spam-Status: No, score=4.934 tagged_above=2 required=6.2
-	tests=[BAYES_50=0.8, HTML_MESSAGE=0.001, HTML_MIME_NO_HTML_TAG=0.377,
-	MIME_HTML_ONLY=0.723, MSGID_FROM_MTA_HEADER=0.001, RDNS_NONE=0.793,
-	SPF_HELO_SOFTFAIL=0.732, SUBJ_ALL_CAPS=1.506, UNPARSEABLE_RELAY=0.001]
-	autolearn=no autolearn_force=no
-Received: from mail.hotel-vega.ru ([127.0.0.1])
-	by mail.hotel-vega.ru (mail.hotel-vega.ru [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Y-A8VTy4pxyd for <rs9676@hotel-vega.ru>;
-	Mon,  2 Apr 2018 06:40:15 +0300 (MSK)
-Received: from aaa.cn (unknown [122.4.30.97])
-	by mail.hotel-vega.ru (Postfix) with ESMTP id 031D85A4E3B
-	for <reserve@hotel-vega.ru>; Mon,  2 Apr 2018 06:40:03 +0300 (MSK)
-DMARC-Filter: OpenDMARC Filter v1.3.1 mail.hotel-vega.ru 031D85A4E3B
-DKIM-Filter: OpenDKIM Filter v2.10.3 mail.hotel-vega.ru 031D85A4E3B
-MIME-Version: 1.0
-Message-ID: <970e1edafadf76f2@8c8d5aa7baba7d6d>
-Date: Mon, 02 Apr 2018 11:39:52 +0800
-Subject: =?utf-8?Q?5=20=20=20=20=20=E6=B0=B8=E5=88=A9331428=E3=80=82COM=E9=82=80=E6=82=A8=E6=B3=A8=E5=86=8C=E9=80=8158=E8=B5=A25=E2=92=8F0=E6=8F=90?=
- =?utf-8?Q?,=E4=B8=93=E5=91=98Q319120398=E9=A2=86?=
-To: reserve@hotel-vega.ru
-Received: from aaa.cn (unknown (1.0.0.0])
-	 by aaa.cn with SMTP id 7b949d6b-4781-4661-bb9d-a0912fde1740;
-	 for <linux-watchdog@vger.kernel.org>;Mon, 02 Apr 2018 11:39:52 +08:00
-Disposition-Notification-To: linux-watchdog@vger.kernel.org
-From: linux-watchdog@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
+  watchdog: hpwdt: Remove legacy NMI sourcing. (2018-03-03 15:52:33 +0100)
 
+are available in the git repository at:
 
+  git://www.linux-watchdog.org/linux-watchdog.git tags/linux-watchdog-4.17-rc1
 
---8939/localhost--
+for you to fetch changes up to 1991a55dc87e8f2557bc90d7f0062b7110ab8437:
+
+  Merge branch 'v4.17-rc1' (2018-03-26 20:48:27 +0200)
+
+----------------------------------------------------------------
+linux-watchdog 4.17-rc1 merge window tag
+
+----------------------------------------------------------------
+Alexey Khoroshilov (3):
+      watchdog: asm9260_wdt: fix error handling in asm9260_wdt_probe()
+      watchdog: sprd_wdt: Fix error handling in sprd_wdt_enable()
+      watchdog: davinci_wdt: fix error handling in davinci_wdt_probe()
+
+Brian Norris (2):
+      watchdog: dw: RMW the control register
+      watchdog: dw: save/restore control and timeout across suspend/resume
+
+Fabrizio Castro (3):
+      watchdog: renesas_wdt: Add suspend/resume support
+      watchdog: renesas_wdt: Add R-Car Gen2 support
+      watchdog: renesas_wdt: Add restart handler
+
+Igor Pylypiv (1):
+      watchdog: f71808e_wdt: Fix WD_EN register read
+
+Jerry Hoemann (8):
+      watchdog: hpwdt: Update Module info and copyright.
+      watchdog: hpwdt: Update nmi_panic message.
+      watchdog: hpwdt: Modify to use watchdog core.
+      watchdog: hpwdt: condition early return of NMI handler on iLO5
+      watchdog: hpwdt: remove allow_kdump module parameter.
+      watchdog: hpwdt: Programable Pretimeout NMI
+      watchdog: hpwdt: Add dynamic debug
+      watchdog: hpwdt: Update driver version.
+
+Joel Stanley (2):
+      dt-bindings: watchdog: Add Nuvoton NPCM description
+      watchdog: Add Nuvoton NPCM watchdog driver
+
+Marcus Folkesson (14):
+      watchdog: imx2_wdt: allow setting timeout in devicetree
+      watchdog: sama5d4: make use of timeout-secs provided in devicetree
+      watchdog: sunxi: allow setting timeout in devicetree
+      watchdog: sirfsoc: allow setting timeout in devicetree
+      watchdog: pnx4008: make use of timeout-secs provided in devicetree
+      watchdog: mtk: allow setting timeout in devicetree
+      watchdog: meson: allow setting timeout in devicetree
+      watchdog: coh901327: make use of timeout-secs provided in devicetree
+      watchdog: uniphier: change order for setting default timeout
+      watchdog: omap_wdt: change order for setting default timeout
+      watchdog: gpio: change order for setting default timeout
+      watchdog: lpc18xx: remove assignment of unused ret-value
+      watchdog: coh901327: make license text and module licence match
+      watchdog: add SPDX identifiers for watchdog subsystem
+
+Milton Miller (2):
+      watchdog: aspeed: Fix translation of reset mode to ctrl register
+      watchdog: aspeed: Allow configuring for alternate boot
+
+Wim Van Sebroeck (4):
+      Merge branch 'v4.16-fixes'
+      Merge branch 'v4.16-fixes'
+      Merge branch 'v4.17-rc1'
+      Merge branch 'v4.17-rc1'
+
+ .../devicetree/bindings/watchdog/fsl-imx-wdt.txt   |   2 +
+ .../devicetree/bindings/watchdog/meson-wdt.txt     |   4 +
+ .../devicetree/bindings/watchdog/mtk-wdt.txt       |   4 +
+ .../bindings/watchdog/nuvoton,npcm-wdt.txt         |  28 ++
+ .../devicetree/bindings/watchdog/sirfsoc_wdt.txt   |   4 +
+ .../devicetree/bindings/watchdog/sunxi-wdt.txt     |   4 +
+ drivers/watchdog/Kconfig                           |  12 +
+ drivers/watchdog/Makefile                          |   1 +
+ drivers/watchdog/ar7_wdt.c                         |  14 +-
+ drivers/watchdog/asm9260_wdt.c                     |   8 +-
+ drivers/watchdog/aspeed_wdt.c                      |  13 +-
+ drivers/watchdog/at91rm9200_wdt.c                  |   5 +-
+ drivers/watchdog/at91sam9_wdt.c                    |   5 +-
+ drivers/watchdog/at91sam9_wdt.h                    |   5 +-
+ drivers/watchdog/bcm2835_wdt.c                     |   5 +-
+ drivers/watchdog/bcm47xx_wdt.c                     |   5 +-
+ drivers/watchdog/bcm63xx_wdt.c                     |   5 +-
+ drivers/watchdog/bcm7038_wdt.c                     |  12 +-
+ drivers/watchdog/bcm_kona_wdt.c                    |   9 +-
+ drivers/watchdog/cadence_wdt.c                     |   5 +-
+ drivers/watchdog/coh901327_wdt.c                   |  18 +-
+ drivers/watchdog/da9052_wdt.c                      |   6 +-
+ drivers/watchdog/da9055_wdt.c                      |   6 +-
+ drivers/watchdog/da9062_wdt.c                      |  10 +-
+ drivers/watchdog/da9063_wdt.c                      |   5 +-
+ drivers/watchdog/davinci_wdt.c                     |  15 +-
+ drivers/watchdog/digicolor_wdt.c                   |   5 +-
+ drivers/watchdog/dw_wdt.c                          |  32 ++-
+ drivers/watchdog/ebc-c384_wdt.c                    |   1 +
+ drivers/watchdog/f71808e_wdt.c                     |   2 +-
+ drivers/watchdog/gpio_wdt.c                        |   4 +-
+ drivers/watchdog/hpwdt.c                           | 312 ++++++++-------------
+ drivers/watchdog/imx2_wdt.c                        |   8 +-
+ drivers/watchdog/lpc18xx_wdt.c                     |   2 +-
+ drivers/watchdog/mei_wdt.c                         |  12 +-
+ drivers/watchdog/mena21_wdt.c                      |   4 +-
+ drivers/watchdog/meson_gxbb_wdt.c                  |  50 +---
+ drivers/watchdog/meson_wdt.c                       |   2 +-
+ drivers/watchdog/mtk_wdt.c                         |  13 +-
+ drivers/watchdog/mtx-1_wdt.c                       |  11 +-
+ drivers/watchdog/npcm_wdt.c                        | 254 +++++++++++++++++
+ drivers/watchdog/of_xilinx_wdt.c                   |   8 +-
+ drivers/watchdog/omap_wdt.c                        |   4 +-
+ drivers/watchdog/pnx4008_wdt.c                     |   2 +-
+ drivers/watchdog/renesas_wdt.c                     |  87 +++++-
+ drivers/watchdog/sama5d4_wdt.c                     |   6 +-
+ drivers/watchdog/sirfsoc_wdt.c                     |   2 +-
+ drivers/watchdog/sprd_wdt.c                        |   4 +-
+ drivers/watchdog/st_lpc_wdt.c                      |   6 +-
+ drivers/watchdog/sunxi_wdt.c                       |   2 +-
+ drivers/watchdog/tangox_wdt.c                      |   6 +-
+ drivers/watchdog/tegra_wdt.c                       |  10 +-
+ drivers/watchdog/uniphier_wdt.c                    |  15 +-
+ drivers/watchdog/wm831x_wdt.c                      |   5 +-
+ drivers/watchdog/wm8350_wdt.c                      |   5 +-
+ 55 files changed, 628 insertions(+), 456 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/nuvoton,npcm-wdt.txt
+ create mode 100644 drivers/watchdog/npcm_wdt.c
