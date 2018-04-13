@@ -1,47 +1,66 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-qt0-f170.google.com ([209.85.216.170]:36780 "EHLO
-        mail-qt0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750808AbeDMOyT (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 13 Apr 2018 10:54:19 -0400
-MIME-Version: 1.0
-In-Reply-To: <20180413142526.9321-1-wsa+renesas@sang-engineering.com>
-References: <20180413142526.9321-1-wsa+renesas@sang-engineering.com>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Fri, 13 Apr 2018 16:54:17 +0200
-Message-ID: <CAMuHMdXUR7=67xkU1Hv=HV++t4n+xpFV6mVbc0Kcz6iWSGh3pA@mail.gmail.com>
-Subject: Re: [PATCH] watchdog: renesas-wdt: Add support for the R8A77965 WDT
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
+Received: from sauhun.de ([88.99.104.3]:48294 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750761AbeDMPhG (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 13 Apr 2018 11:37:06 -0400
+Date: Fri, 13 Apr 2018 17:37:04 +0200
+From: Wolfram Sang <wsa@the-dreams.de>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
         Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
         Takeshi Kihara <takeshi.kihara.df@renesas.com>
-Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH] watchdog: renesas-wdt: Add support for the R8A77965 WDT
+Message-ID: <20180413153704.ku3shg4pk5fshcir@ninjato>
+References: <20180413142526.9321-1-wsa+renesas@sang-engineering.com>
+ <CAMuHMdXUR7=67xkU1Hv=HV++t4n+xpFV6mVbc0Kcz6iWSGh3pA@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="wfnqwaxedhf27non"
+Content-Disposition: inline
+In-Reply-To: <CAMuHMdXUR7=67xkU1Hv=HV++t4n+xpFV6mVbc0Kcz6iWSGh3pA@mail.gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, Apr 13, 2018 at 4:25 PM, Wolfram Sang
-<wsa+renesas@sang-engineering.com> wrote:
-> Document support for the Watchdog Timer (WDT) Controller in the Renesas
-> R-Car M3N (R8A77965) SoC. No driver update is needed.
 
-M3-N
+--wfnqwaxedhf27non
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->
-> Signed-off-by: Takeshi Kihara <takeshi.kihara.df@renesas.com>
-> [wsa: rebased to top-of-tree]
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+On Fri, Apr 13, 2018 at 04:54:17PM +0200, Geert Uytterhoeven wrote:
+> On Fri, Apr 13, 2018 at 4:25 PM, Wolfram Sang
+> <wsa+renesas@sang-engineering.com> wrote:
+> > Document support for the Watchdog Timer (WDT) Controller in the Renesas
+> > R-Car M3N (R8A77965) SoC. No driver update is needed.
+>=20
+> M3-N
 
-With the above fixed:
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Do we have a de-facto reference for those namings? Sigh, I was kinda
+sure M3N was agreed on.
 
-Gr{oetje,eeting}s,
+So, it must be fixed in the patch as well...
 
-                        Geert
 
--- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+--wfnqwaxedhf27non
+Content-Type: application/pgp-signature; name="signature.asc"
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlrQzpwACgkQFA3kzBSg
+Kbbmhw/9HGVr7n93k+m62EA47vPbcaqjTgwNumaOhM4pbCycCrmcmptTnLZ64rn7
+95g2Wb532wfyrCkFqJHo+B1Q+1TzQT+PNDC8sPj6zztL599wLw8C8XbaOfj4TXg8
+OMlw8hAJXaokthxOY2mt0JzcaxTiBbHWjW/K0NTPpWYXzn71PRGOoQ4GmXj3dP9Q
+ha7MKSFpWrz92bLwshz6feDTqaR/qX1sk6yXKEnkmHjKkxTaPMOvAkmA9uYMAQAP
+5U43aYOy7Ul2rBr2TkbUwazyfKB8MamvoSFEL0VIGpx8uf8deLuGBZxpChY+UaFl
+ocpDBZZ/g1Aass1o9qRVk+z7Kmh2okGEjHBPPMt3T0cOvEfUPtI4mjKKD9Ya3ZQm
+FJ5a6Z+aqhOnf59PJqcniko5tDjunfWF1G7e8D1RUK0xFQd4YTeRm5jVQB759/Hd
+8U3jUrhkuLqukb4STJDsMeW96ZgAgu9AVMf+mdgLuvqDJaYg/XnpihoFKtZqgmAw
+vgPzqfv0jQWiZwRI5nbxLUsB94gmQaCW6uxoTFOYSQ+ZGs3jYfZGdhf/T2CvHW4J
+Pu9wnMOBwHbxP6cuhv9Zrpe4Ec3EGrDssHcHwqeiKvqGjJ6LA6MZscMO2jLx4hTb
+Kp5Y7dAMqzniKjglDT88kP/F2BbXdlSLxcsXWgG8vAhN1AG7hVE=
+=5rwc
+-----END PGP SIGNATURE-----
+
+--wfnqwaxedhf27non--
