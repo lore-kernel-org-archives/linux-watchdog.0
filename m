@@ -1,54 +1,76 @@
-Return-Path: <wsa@the-dreams.de>
-Return-path: <wsa@the-dreams.de>
-Date: Fri, 13 Apr 2018 16:18:54 +0200
-From: Wolfram Sang <wsa@the-dreams.de>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	linux-watchdog@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
-	Fabrizio Castro <fabrizio.castro@bp.renesas.com>,
-	Veeraiyan Chidambaram <veeraiyan.chidambaram@in.bosch.com>,
-	Takeshi Kihara <takeshi.kihara.df@renesas.com>
-Subject: Re: [PATCH] watchdog: renesas-wdt: Add support for WDIOF_CARDRESET
-Message-ID: <20180413141853.hkkic2hdzjkflrq6@ninjato>
-References: <20180320213626.14208-1-wsa+renesas@sang-engineering.com>
- <20180320215943.GB29962@roeck-us.net>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="faggxpooeyofyrik"
-Content-Disposition: inline
-In-Reply-To: <20180320215943.GB29962@roeck-us.net>
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:47650 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1754339AbeDMOT2 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 13 Apr 2018 10:19:28 -0400
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: linux-watchdog@vger.kernel.org
+Cc: linux-renesas-soc@vger.kernel.org,
+        Veeraiyan Chidambaram <veeraiyan.chidambaram@in.bosch.com>,
+        Takeshi Kihara <takeshi.kihara.df@renesas.com>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Vladimir Zapolskiy <vz@mleia.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>
+Subject: [PATCH v2] watchdog: renesas-wdt: Add support for WDIOF_CARDRESET
+Date: Fri, 13 Apr 2018 16:19:24 +0200
+Message-Id: <20180413141924.8982-1-wsa+renesas@sang-engineering.com>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
+From: Veeraiyan Chidambaram <veeraiyan.chidambaram@in.bosch.com>
 
---faggxpooeyofyrik
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+This patch adds the WDIOF_CARDRESET support for the Renesas platform
+watchdog, to know if the board reboot is due to a watchdog reset.
 
+This is done via the WOVF bit (bit 4) of the RWTCSRA register, which
+indicates if RWTCNT overflowed, triggering the reset in last boot.
 
-> Reviewed-by: Guenetr Roeck <linux@roeck-us.net>
+Signed-off-by: Veeraiyan Chidambaram <veeraiyan.chidambaram@in.bosch.com>
+[takeshi.kihara.df: changed to read the RWTCSRA register while clock is
+ enabled]
+Signed-off-by: Takeshi Kihara <takeshi.kihara.df@renesas.com>
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Reviewed-by: Vladimir Zapolskiy <vz@mleia.com>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+---
 
-Guenter, how about a keyboard macro to avoid such typos? ;)
-Fixed it in v2.
+Changes since v1:
+* removed typo in commit message
+* added rev tags
+* no code changes
 
+ drivers/watchdog/renesas_wdt.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---faggxpooeyofyrik
-Content-Type: application/pgp-signature; name="signature.asc"
+diff --git a/drivers/watchdog/renesas_wdt.c b/drivers/watchdog/renesas_wdt.c
+index 6b8c6ddfe30b..514db5cc1595 100644
+--- a/drivers/watchdog/renesas_wdt.c
++++ b/drivers/watchdog/renesas_wdt.c
+@@ -121,7 +121,8 @@ static int rwdt_restart(struct watchdog_device *wdev, unsigned long action,
+ }
+ 
+ static const struct watchdog_info rwdt_ident = {
+-	.options = WDIOF_MAGICCLOSE | WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT,
++	.options = WDIOF_MAGICCLOSE | WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT |
++		WDIOF_CARDRESET,
+ 	.identity = "Renesas WDT Watchdog",
+ };
+ 
+@@ -197,9 +198,10 @@ static int rwdt_probe(struct platform_device *pdev)
+ 		return PTR_ERR(clk);
+ 
+ 	pm_runtime_enable(&pdev->dev);
+-
+ 	pm_runtime_get_sync(&pdev->dev);
+ 	priv->clk_rate = clk_get_rate(clk);
++	priv->wdev.bootstatus = (readb_relaxed(priv->base + RWTCSRA) &
++				RWTCSRA_WOVF) ? WDIOF_CARDRESET : 0;
+ 	pm_runtime_put(&pdev->dev);
+ 
+ 	if (!priv->clk_rate) {
+-- 
+2.11.0
 
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlrQvEoACgkQFA3kzBSg
-KbbOwhAArhzVMm3Qx2i5aLOe2+PVFPIvPqMbAahQ/D3esv/GXJnuX+OAEO+kcKpB
-9mXwgG+ndl1A6bLukm1shiegaudrZH4yRl7MWt+3q57ft62s85D0rKimbc2bZxgu
-R5DfhUNodkleqeEgg8qOwOXCkSt0jRFte7TbZDoaRjfPsVnbzJROI3nRXYTleCSs
-weBYiGh1XsqMGb9lJk7Gb0LE9rmRfH2zBHwoJWUqFHj404GEYs3kKt5UtdQ1Ow88
-ZZal6hVIUxw5FY0nZvaCuUvSrEabixoqgM0evn6ISwoHsUAqvSR4eeJ89s3kQd3f
-GA57IVU/JsDikNIWuNw1SPgPAxjfIjHthVcUqLe9e1vMTu6YtuD/6YkAlSHCPCM2
-Oao2QSzbEsKhNJfkjCB0gXXZI0z0Bx9Mqilk0fMPKIgyX/zz/hf+RcX2/AyuUduK
-495lo7jXIN56mkgIbF4YcCiyKOfTZn3LuqdB6Ua0/nPeB4w6B+BYrs1IZbyiJhsg
-pydAKZ/a3yRjAeopbmJ5BH7wAQUuFyrf0cPvYJKOGZbbxT044dEfPcw1stptToPn
-R6JZDMRP1OKPzlN5uPfhRHPaj4qSM3G4I519l2HxTddcXEjlOip4OHpClzx0t+RM
-aI3jIO3Fm46mkC20755U56uH7XYekvVcE0VNOzGCyrkP9xVT9o4=
-=EE1k
------END PGP SIGNATURE-----
-
---faggxpooeyofyrik--
