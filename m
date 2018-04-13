@@ -1,54 +1,54 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-qt0-f181.google.com ([209.85.216.181]:46622 "EHLO
-        mail-qt0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750859AbeDMRSu (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 13 Apr 2018 13:18:50 -0400
-MIME-Version: 1.0
-In-Reply-To: <20180413153704.ku3shg4pk5fshcir@ninjato>
-References: <20180413142526.9321-1-wsa+renesas@sang-engineering.com>
- <CAMuHMdXUR7=67xkU1Hv=HV++t4n+xpFV6mVbc0Kcz6iWSGh3pA@mail.gmail.com> <20180413153704.ku3shg4pk5fshcir@ninjato>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Fri, 13 Apr 2018 19:18:49 +0200
-Message-ID: <CAMuHMdWmbxOZ9aDaqfvh1rwWkw7jMni1mVPE5HDMpJQPaT0XCg@mail.gmail.com>
-Subject: Re: [PATCH] watchdog: renesas-wdt: Add support for the R8A77965 WDT
-To: Wolfram Sang <wsa@the-dreams.de>
+Return-Path: <wsa@the-dreams.de>
+Return-path: <wsa@the-dreams.de>
+Date: Fri, 13 Apr 2018 16:18:54 +0200
+From: Wolfram Sang <wsa@the-dreams.de>
+To: Guenter Roeck <linux@roeck-us.net>
 Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-        Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
-        Takeshi Kihara <takeshi.kihara.df@renesas.com>
-Content-Type: text/plain; charset="UTF-8"
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+	linux-watchdog@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
+	Fabrizio Castro <fabrizio.castro@bp.renesas.com>,
+	Veeraiyan Chidambaram <veeraiyan.chidambaram@in.bosch.com>,
+	Takeshi Kihara <takeshi.kihara.df@renesas.com>
+Subject: Re: [PATCH] watchdog: renesas-wdt: Add support for WDIOF_CARDRESET
+Message-ID: <20180413141853.hkkic2hdzjkflrq6@ninjato>
+References: <20180320213626.14208-1-wsa+renesas@sang-engineering.com>
+ <20180320215943.GB29962@roeck-us.net>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="faggxpooeyofyrik"
+Content-Disposition: inline
+In-Reply-To: <20180320215943.GB29962@roeck-us.net>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi Wolfram,
 
-On Fri, Apr 13, 2018 at 5:37 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
-> On Fri, Apr 13, 2018 at 04:54:17PM +0200, Geert Uytterhoeven wrote:
->> On Fri, Apr 13, 2018 at 4:25 PM, Wolfram Sang
->> <wsa+renesas@sang-engineering.com> wrote:
->> > Document support for the Watchdog Timer (WDT) Controller in the Renesas
->> > R-Car M3N (R8A77965) SoC. No driver update is needed.
->>
->> M3-N
->
-> Do we have a de-facto reference for those namings? Sigh, I was kinda
-> sure M3N was agreed on.
+--faggxpooeyofyrik
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-The User's Manual? (oops, 5 occurrences of "M3N" left)
 
-> So, it must be fixed in the patch as well...
+> Reviewed-by: Guenetr Roeck <linux@roeck-us.net>
 
-Doh, missed one. These errors are too easy to overlook ;-)
+Guenter, how about a keyboard macro to avoid such typos? ;)
+Fixed it in v2.
 
-Gr{oetje,eeting}s,
 
-                        Geert
+--faggxpooeyofyrik
+Content-Type: application/pgp-signature; name="signature.asc"
 
--- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+-----BEGIN PGP SIGNATURE-----
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlrQvEoACgkQFA3kzBSg
+KbbOwhAArhzVMm3Qx2i5aLOe2+PVFPIvPqMbAahQ/D3esv/GXJnuX+OAEO+kcKpB
+9mXwgG+ndl1A6bLukm1shiegaudrZH4yRl7MWt+3q57ft62s85D0rKimbc2bZxgu
+R5DfhUNodkleqeEgg8qOwOXCkSt0jRFte7TbZDoaRjfPsVnbzJROI3nRXYTleCSs
+weBYiGh1XsqMGb9lJk7Gb0LE9rmRfH2zBHwoJWUqFHj404GEYs3kKt5UtdQ1Ow88
+ZZal6hVIUxw5FY0nZvaCuUvSrEabixoqgM0evn6ISwoHsUAqvSR4eeJ89s3kQd3f
+GA57IVU/JsDikNIWuNw1SPgPAxjfIjHthVcUqLe9e1vMTu6YtuD/6YkAlSHCPCM2
+Oao2QSzbEsKhNJfkjCB0gXXZI0z0Bx9Mqilk0fMPKIgyX/zz/hf+RcX2/AyuUduK
+495lo7jXIN56mkgIbF4YcCiyKOfTZn3LuqdB6Ua0/nPeB4w6B+BYrs1IZbyiJhsg
+pydAKZ/a3yRjAeopbmJ5BH7wAQUuFyrf0cPvYJKOGZbbxT044dEfPcw1stptToPn
+R6JZDMRP1OKPzlN5uPfhRHPaj4qSM3G4I519l2HxTddcXEjlOip4OHpClzx0t+RM
+aI3jIO3Fm46mkC20755U56uH7XYekvVcE0VNOzGCyrkP9xVT9o4=
+=EE1k
+-----END PGP SIGNATURE-----
+
+--faggxpooeyofyrik--
