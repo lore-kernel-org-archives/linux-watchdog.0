@@ -1,60 +1,42 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wr0-f175.google.com ([209.85.128.175]:38902 "EHLO
-        mail-wr0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752238AbeDDQ5o (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 4 Apr 2018 12:57:44 -0400
-Received: by mail-wr0-f175.google.com with SMTP id m13so23848629wrj.5
-        for <linux-watchdog@vger.kernel.org>; Wed, 04 Apr 2018 09:57:44 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <20180402163242.GC14165@lunn.ch>
-References: <1522250043-8065-5-git-send-email-tharvey@gateworks.com>
- <20180330010757.GA12896@roeck-us.net> <CAJ+vNU3ARKLK5AcssEP-_P8AmwnAnS8VtAEO1ppwum2jpCqAYQ@mail.gmail.com>
- <20180330181954.GA17580@roeck-us.net> <CAJ+vNU1f+SH16hs3heMA_A2KcbzbXXmJtPxi0uiL4+4tNWgYoQ@mail.gmail.com>
- <20180402163242.GC14165@lunn.ch>
-From: Tim Harvey <tharvey@gateworks.com>
-Date: Wed, 4 Apr 2018 09:57:42 -0700
-Message-ID: <CAJ+vNU2RxHngXa00=zx84ifJ6wWh=vN84shRsT5sWYG1G74zeA@mail.gmail.com>
-Subject: Re: [v3,4/4] watchdog: add Gateworks System Controller support
-To: Andrew Lunn <andrew@lunn.ch>
-Cc: Guenter Roeck <linux@roeck-us.net>,
-        Mark Rutland <mark.rutland@arm.com>,
-        devicetree@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        Mark Brown <broonie@kernel.org>, linux-input@vger.kernel.org,
-        linux-hwmon@vger.kernel.org, Lee Jones <lee.jones@linaro.org>,
-        linux-arm-kernel@lists.infradead.org
-Content-Type: text/plain; charset="UTF-8"
+Received: from sauhun.de ([88.99.104.3]:47714 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750817AbeDMOZd (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 13 Apr 2018 10:25:33 -0400
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: linux-watchdog@vger.kernel.org
+Cc: linux-renesas-soc@vger.kernel.org,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Takeshi Kihara <takeshi.kihara.df@renesas.com>
+Subject: [PATCH] watchdog: renesas-wdt: Add support for the R8A77965 WDT
+Date: Fri, 13 Apr 2018 16:25:26 +0200
+Message-Id: <20180413142526.9321-1-wsa+renesas@sang-engineering.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Apr 2, 2018 at 9:32 AM, Andrew Lunn <andrew@lunn.ch> wrote:
->> The 'use case' we have been using this in for a couple years is that
->> users who want to use this watchdog will enable it externally (we have
->> a command in the bootloader) and if enabled the kernel driver (that
->> I'm proposing here which we've been using out-of-tree) will register
->> the watchdog device and the userspace watchdog process can open the
->> device and start tickling it. If the watchdog is never enabled (or
->> disabled via the bootloader command) the kernel driver fails to probe
->> and the SoC's watchdog can be used.
->
-> Hi Tim
->
-> Is there any reason not to give the user the choice to use both
-> watchdogs? Normally you write drivers to expose the hardware, and then
-> let the users choice if they want to use it.
->
+Document support for the Watchdog Timer (WDT) Controller in the Renesas
+R-Car M3N (R8A77965) SoC. No driver update is needed.
 
-Andrew,
+Signed-off-by: Takeshi Kihara <takeshi.kihara.df@renesas.com>
+[wsa: rebased to top-of-tree]
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
+ Documentation/devicetree/bindings/watchdog/renesas-wdt.txt | 1 +
+ 1 file changed, 1 insertion(+)
 
-I don't know what value the SoC watchdog has if you have the GSC
-watchdog available that can power cycle the board but I would agree
-normally you would expose all of them. I suppose this may be a
-different case because I'm expecting the user to go and manually
-enable the watchdog instead of using the kernel to do it which means
-if its not enabled its not really available to be used.
+diff --git a/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt b/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
+index 123bb1b2654b..291d239fcbca 100644
+--- a/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
++++ b/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
+@@ -15,6 +15,7 @@ Required properties:
+ 		 - "renesas,r8a7794-wdt" (R-Car E2)
+ 		 - "renesas,r8a7795-wdt" (R-Car H3)
+ 		 - "renesas,r8a7796-wdt" (R-Car M3-W)
++		 - "renesas,r8a77965-wdt" (R-Car M3N)
+ 		 - "renesas,r8a77970-wdt" (R-Car V3M)
+ 		 - "renesas,r8a77995-wdt" (R-Car D3)
+ 	       The generic compatible string must be:
+-- 
+2.11.0
 
-Tim
