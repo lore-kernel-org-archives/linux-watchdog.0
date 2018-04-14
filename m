@@ -1,51 +1,58 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from g9t1613g.houston.hpe.com ([15.241.32.99]:51915 "EHLO
-        g9t1613g.houston.hpe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751870AbeDLQ2Q (ORCPT
+Received: from mail-pl0-f65.google.com ([209.85.160.65]:35077 "EHLO
+        mail-pl0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751896AbeDNOOA (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 12 Apr 2018 12:28:16 -0400
-Received: from g9t5008.houston.hpe.com (g9t5008.houston.hpe.com [15.241.48.72])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by g9t1613g.houston.hpe.com (Postfix) with ESMTPS id B87E560ADB
-        for <linux-watchdog@vger.kernel.org>; Thu, 12 Apr 2018 16:28:15 +0000 (UTC)
-Date: Thu, 12 Apr 2018 10:28:13 -0600
-From: Jerry Hoemann <jerry.hoemann@hpe.com>
-To: wim@www.linux-watchdog.org
-Cc: Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>
-Subject: Re: [GIT PULL REQUEST] watchdog - v4.17-rc merge window
-Message-ID: <20180412162813.GA31778@anatevka.americas.hpqcorp.net>
-Reply-To: Jerry.Hoemann@hpe.com
-References: <20180411191233.GA6828@www.linux-watchdog.org>
- <20180411220345.GC20346@anatevka.americas.hpqcorp.net>
- <20180412071948.GA26103@www.linux-watchdog.org>
+        Sat, 14 Apr 2018 10:14:00 -0400
+Subject: Re: [PATCH v2] watchdog: renesas-wdt: Add support for the R8A77965
+ WDT
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        linux-watchdog@vger.kernel.org
+Cc: linux-renesas-soc@vger.kernel.org,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Takeshi Kihara <takeshi.kihara.df@renesas.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>
+References: <20180414101858.3208-1-wsa+renesas@sang-engineering.com>
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <f5140981-50df-e499-f7e5-f6aa2f3d0fc3@roeck-us.net>
+Date: Sat, 14 Apr 2018 07:13:57 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20180412071948.GA26103@www.linux-watchdog.org>
+In-Reply-To: <20180414101858.3208-1-wsa+renesas@sang-engineering.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Thu, Apr 12, 2018 at 09:19:49AM +0200, wim@www.linux-watchdog.org wrote:
-> Hi Jerry,
+On 04/14/2018 03:18 AM, Wolfram Sang wrote:
+> Document support for the Watchdog Timer (WDT) Controller in the Renesas
+> R-Car M3-N (R8A77965) SoC. No driver update is needed.
 > 
-> > Shouldn't there be an update to the MAINTAINERS file to reflect change
-> > in hpwdt?  See:
-> > 
-> > 	https://lkml.org/lkml/2018/2/21/145
+> Signed-off-by: Takeshi Kihara <takeshi.kihara.df@renesas.com>
+> [wsa: rebased to top-of-tree]
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+
+> ---
 > 
-> Correct. It wasn't in linux-watchdog-next neither. So it seems I forgot that one. I'll add it and sent it in with some other small changes next week.
+> Change since v1: s/M3N/M3-N/ (Thanks, Geert!)
 > 
-> Kind regards,
-> Wim.
+>   Documentation/devicetree/bindings/watchdog/renesas-wdt.txt | 1 +
+>   1 file changed, 1 insertion(+)
+> 
+> diff --git a/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt b/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
+> index 123bb1b2654b..613d860f2353 100644
+> --- a/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
+> +++ b/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
+> @@ -15,6 +15,7 @@ Required properties:
+>   		 - "renesas,r8a7794-wdt" (R-Car E2)
+>   		 - "renesas,r8a7795-wdt" (R-Car H3)
+>   		 - "renesas,r8a7796-wdt" (R-Car M3-W)
+> +		 - "renesas,r8a77965-wdt" (R-Car M3-N)
+>   		 - "renesas,r8a77970-wdt" (R-Car V3M)
+>   		 - "renesas,r8a77995-wdt" (R-Car D3)
+>   	       The generic compatible string must be:
+> 
 
-Thank you.
-
-
--- 
-
------------------------------------------------------------------------------
-Jerry Hoemann                  Software Engineer   Hewlett Packard Enterprise
------------------------------------------------------------------------------
