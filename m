@@ -1,76 +1,48 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:47650 "EHLO pokefinder.org"
+Received: from sauhun.de ([88.99.104.3]:56668 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754339AbeDMOT2 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 13 Apr 2018 10:19:28 -0400
+        id S1750880AbeDNKTF (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Sat, 14 Apr 2018 06:19:05 -0400
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 To: linux-watchdog@vger.kernel.org
 Cc: linux-renesas-soc@vger.kernel.org,
-        Veeraiyan Chidambaram <veeraiyan.chidambaram@in.bosch.com>,
-        Takeshi Kihara <takeshi.kihara.df@renesas.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
         Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Vladimir Zapolskiy <vz@mleia.com>,
+        Takeshi Kihara <takeshi.kihara.df@renesas.com>,
         Geert Uytterhoeven <geert+renesas@glider.be>
-Subject: [PATCH v2] watchdog: renesas-wdt: Add support for WDIOF_CARDRESET
-Date: Fri, 13 Apr 2018 16:19:24 +0200
-Message-Id: <20180413141924.8982-1-wsa+renesas@sang-engineering.com>
+Subject: [PATCH v2] watchdog: renesas-wdt: Add support for the R8A77965 WDT
+Date: Sat, 14 Apr 2018 12:18:58 +0200
+Message-Id: <20180414101858.3208-1-wsa+renesas@sang-engineering.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-From: Veeraiyan Chidambaram <veeraiyan.chidambaram@in.bosch.com>
+Document support for the Watchdog Timer (WDT) Controller in the Renesas
+R-Car M3-N (R8A77965) SoC. No driver update is needed.
 
-This patch adds the WDIOF_CARDRESET support for the Renesas platform
-watchdog, to know if the board reboot is due to a watchdog reset.
-
-This is done via the WOVF bit (bit 4) of the RWTCSRA register, which
-indicates if RWTCNT overflowed, triggering the reset in last boot.
-
-Signed-off-by: Veeraiyan Chidambaram <veeraiyan.chidambaram@in.bosch.com>
-[takeshi.kihara.df: changed to read the RWTCSRA register while clock is
- enabled]
 Signed-off-by: Takeshi Kihara <takeshi.kihara.df@renesas.com>
+[wsa: rebased to top-of-tree]
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Reviewed-by: Vladimir Zapolskiy <vz@mleia.com>
 Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
 ---
 
-Changes since v1:
-* removed typo in commit message
-* added rev tags
-* no code changes
+Change since v1: s/M3N/M3-N/ (Thanks, Geert!)
 
- drivers/watchdog/renesas_wdt.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ Documentation/devicetree/bindings/watchdog/renesas-wdt.txt | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/watchdog/renesas_wdt.c b/drivers/watchdog/renesas_wdt.c
-index 6b8c6ddfe30b..514db5cc1595 100644
---- a/drivers/watchdog/renesas_wdt.c
-+++ b/drivers/watchdog/renesas_wdt.c
-@@ -121,7 +121,8 @@ static int rwdt_restart(struct watchdog_device *wdev, unsigned long action,
- }
- 
- static const struct watchdog_info rwdt_ident = {
--	.options = WDIOF_MAGICCLOSE | WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT,
-+	.options = WDIOF_MAGICCLOSE | WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT |
-+		WDIOF_CARDRESET,
- 	.identity = "Renesas WDT Watchdog",
- };
- 
-@@ -197,9 +198,10 @@ static int rwdt_probe(struct platform_device *pdev)
- 		return PTR_ERR(clk);
- 
- 	pm_runtime_enable(&pdev->dev);
--
- 	pm_runtime_get_sync(&pdev->dev);
- 	priv->clk_rate = clk_get_rate(clk);
-+	priv->wdev.bootstatus = (readb_relaxed(priv->base + RWTCSRA) &
-+				RWTCSRA_WOVF) ? WDIOF_CARDRESET : 0;
- 	pm_runtime_put(&pdev->dev);
- 
- 	if (!priv->clk_rate) {
+diff --git a/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt b/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
+index 123bb1b2654b..613d860f2353 100644
+--- a/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
++++ b/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
+@@ -15,6 +15,7 @@ Required properties:
+ 		 - "renesas,r8a7794-wdt" (R-Car E2)
+ 		 - "renesas,r8a7795-wdt" (R-Car H3)
+ 		 - "renesas,r8a7796-wdt" (R-Car M3-W)
++		 - "renesas,r8a77965-wdt" (R-Car M3-N)
+ 		 - "renesas,r8a77970-wdt" (R-Car V3M)
+ 		 - "renesas,r8a77995-wdt" (R-Car D3)
+ 	       The generic compatible string must be:
 -- 
 2.11.0
 
