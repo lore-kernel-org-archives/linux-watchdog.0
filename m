@@ -1,111 +1,87 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from kirsty.vergenet.net ([202.4.237.240]:60783 "EHLO
-        kirsty.vergenet.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754044AbeDXJJc (ORCPT
+Received: from lgeamrelo12.lge.com ([156.147.23.52]:46421 "EHLO
+        lgeamrelo12.lge.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751618AbeD3GpB (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 24 Apr 2018 05:09:32 -0400
-Date: Tue, 24 Apr 2018 11:09:27 +0200
-From: Simon Horman <horms@verge.net.au>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Fabrizio Castro <fabrizio.castro@bp.renesas.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
+        Mon, 30 Apr 2018 02:45:01 -0400
+From: Jongsung Kim <neidhard.kim@lge.com>
+To: Viresh Kumar <viresh.kumar@linaro.org>,
         Wim Van Sebroeck <wim@iguana.be>,
-        Russell King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@codeaurora.org>,
-        Magnus Damm <magnus.damm@gmail.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS"
-        <devicetree@vger.kernel.org>,
-        Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-        Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        linux-clk <linux-clk@vger.kernel.org>,
-        Chris Paterson <Chris.Paterson2@renesas.com>,
-        Biju Das <biju.das@bp.renesas.com>,
-        Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
-Subject: Re: [PATCH v5 00/26] Fix watchdog on Renesas R-Car Gen2 and RZ/G1
-Message-ID: <20180424090926.z7red3dg34rfteg6@verge.net.au>
-References: <1518457475-4480-1-git-send-email-fabrizio.castro@bp.renesas.com>
- <CAMuHMdX=m9ui6GczF51SJH2X7Cw1OnxoH9pfk1DybpDX-A873Q@mail.gmail.com>
- <20180221161326.ktvf3mlzzxith5kw@verge.net.au>
- <CAMuHMdUTSmrWggMK4ehSL3Ux-JUzVpamTuToveuXogjuvGKkaw@mail.gmail.com>
- <20180221183223.qacrmmuzoqlzzbpo@verge.net.au>
- <CAMuHMdXCt1-coXGgtgFBm4rZLGBRMvSjbgeBSweiyKrOfCF0Xg@mail.gmail.com>
- <20180223081443.ak6kl3z72kamcxob@verge.net.au>
- <CAMuHMdVKPFSVTbnQy9RwAg13OC3R=H1PN9+1FyU0SDHQPa1cuQ@mail.gmail.com>
- <20180313200548.fgexoxlha3coa7hs@verge.net.au>
- <CAMuHMdVAi+rU3+TLSp7YQSHzJKFyMH8ZbS3-d8yADKmfz1KiTA@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAMuHMdVAi+rU3+TLSp7YQSHzJKFyMH8ZbS3-d8yADKmfz1KiTA@mail.gmail.com>
+        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Chanho Min <chanho.min@lge.com>,
+        Jongsung Kim <neidhard.kim@lge.com>
+Subject: [PATCH] watchdog: sp805: add restart handler
+Date: Mon, 30 Apr 2018 15:44:33 +0900
+Message-Id: <20180430064433.28715-1-neidhard.kim@lge.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Apr 18, 2018 at 03:37:29PM +0200, Geert Uytterhoeven wrote:
-> Hi Simon,
-> 
-> On Tue, Mar 13, 2018 at 9:05 PM, Simon Horman <horms@verge.net.au> wrote:
-> > I understand that the watchdog driver has been accepted and that as things
-> > currently stand if it is enabled in the build it will be enabled in DT and
-> > a crash will result. From my POV that is a regression so I have decided
-> > to adopt the alternate plan proposed by Geert above: in short drop DT
-> > patches (to avoid enabling broken driver) and enqueue mach-shmobile
-> > patches (which don't make things any worse.
-> >
-> > Patch-by-patch things are as follows.
-> >
-> > Dropped from "[PATCH v5 00/26] Fix watchdog on Renesas R-Car Gen2 and RZ/G1":
-> >
-> > 979d28f29742 ARM: dts: r8a7743: Adjust SMP routine size
-> > 0b205f679f5d ARM: dts: r8a7745: Adjust SMP routine size
-> > 2ad21a1d78b3 ARM: dts: r8a7790: Adjust SMP routine size
-> > 82c978459c77 ARM: dts: r8a7791: Adjust SMP routine size
-> > d303698e6ff3 ARM: dts: r8a7792: Adjust SMP routine size
-> > d8b8b9a1e295 ARM: dts: r8a7793: Adjust SMP routine size
-> > 70b3ab369773 ARM: dts: r8a7794: Adjust SMP routine size
-> >
-> > ebf26cf1b1de ARM: dts: r8a7743: Add watchdog support to SoC dtsi
-> > 5a4566ab3777 ARM: dts: r8a7745: Add watchdog support to SoC dtsi
-> > acd58e2bb1e5 ARM: dts: r8a7790: Add watchdog support to SoC dtsi
-> > e3f89168e72f ARM: dts: r8a7791: Add watchdog support to SoC dtsi
-> > e76a6a69a1fc ARM: dts: r8a7794: Add watchdog support to SoC dtsi
-> > 242cc1ab7f7c ARM: dts: iwg20m: Add watchdog support to SoM dtsi
-> > 748ed07f6c7c ARM: dts: iwg22m: Add watchdog support to SoM dtsi
-> >
-> >
-> > Dropped from "[PATCH/RFC 00/11] ARM: dts: rcar-gen2: Enable watchdog support":
-> >
-> > c257202482e2 ARM: dts: r8a7792: Add RWDT node
-> > 01ec04dec8eb ARM: dts: r8a7793: Add RWDT node
-> > 8e6ebe4f2f94 ARM: dts: lager: Enable watchdog support
-> > f223ad0198f6 ARM: dts: koelsch: Enable watchdog support
-> > 1d14d2bb700d ARM: dts: porter: Enable watchdog support
-> > bf71652fc955 ARM: dts: blanche: Enable watchdog support
-> > 13a0b10aeea4 ARM: dts: wheat: Enable watchdog support
-> > 4e247bf110b8 ARM: dts: gose: Enable watchdog support
-> > 2dcbd24bbf5e ARM: dts: alt: Enable watchdog support
-> > 7f6844c900b4 ARM: dts: silk: Enable watchdog support
-> >
-> > And applied:
-> >
-> > [v5] ARM: shmobile: rcar-gen2: Add watchdog support
-> > [v5] ARM: shmobile: Add watchdog support
-> >
-> > In the case of the last patch above I removed the #ifdef from the header file.
-> 
-> I guess the time is ripe to apply the DTS patches again, in the following order:
->   1. SMP routine size adjustments,
->   2. Watchdog support additions to dtsi,
->   3. Watchdog enablement for dts?
-> 
-> Thanks!
+Add restart handler for SP805 watchdog so that the driver can be
+used to reboot the system.
 
-Thanks, I have tentatively reapplied all of the above.
+Signed-off-by: Jongsung Kim <neidhard.kim@lge.com>
+---
+ drivers/watchdog/sp805_wdt.c | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
+
+diff --git a/drivers/watchdog/sp805_wdt.c b/drivers/watchdog/sp805_wdt.c
+index 01d816251302..01f7b6c29f92 100644
+--- a/drivers/watchdog/sp805_wdt.c
++++ b/drivers/watchdog/sp805_wdt.c
+@@ -23,6 +23,7 @@
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
+ #include <linux/pm.h>
++#include <linux/reboot.h>
+ #include <linux/slab.h>
+ #include <linux/spinlock.h>
+ #include <linux/types.h>
+@@ -67,6 +68,7 @@ struct sp805_wdt {
+ 	struct clk			*clk;
+ 	struct amba_device		*adev;
+ 	unsigned int			load_val;
++	struct notifier_block		restart;
+ };
+ 
+ static bool nowayout = WATCHDOG_NOWAYOUT;
+@@ -200,6 +202,18 @@ static const struct watchdog_ops wdt_ops = {
+ 	.get_timeleft	= wdt_timeleft,
+ };
+ 
++static int
++wdt_restart(struct notifier_block *this, unsigned long mode, void *cmd)
++{
++	struct sp805_wdt *wdt = container_of(this, struct sp805_wdt, restart);
++
++	writel_relaxed(0, wdt->base + WDTCONTROL);
++	writel_relaxed(0, wdt->base + WDTLOAD);
++	writel_relaxed(INT_ENABLE | RESET_ENABLE, wdt->base + WDTCONTROL);
++
++	return 0;
++}
++
+ static int
+ sp805_wdt_probe(struct amba_device *adev, const struct amba_id *id)
+ {
+@@ -241,6 +255,10 @@ sp805_wdt_probe(struct amba_device *adev, const struct amba_id *id)
+ 	}
+ 	amba_set_drvdata(adev, wdt);
+ 
++	wdt->restart.notifier_call = wdt_restart;
++	wdt->restart.priority = 128;
++	register_restart_handler(&wdt->restart);
++
+ 	dev_info(&adev->dev, "registration successful\n");
+ 	return 0;
+ 
+@@ -253,6 +271,7 @@ static int sp805_wdt_remove(struct amba_device *adev)
+ {
+ 	struct sp805_wdt *wdt = amba_get_drvdata(adev);
+ 
++	unregister_restart_handler(&wdt->restart);
+ 	watchdog_unregister_device(&wdt->wdd);
+ 	watchdog_set_drvdata(&wdt->wdd, NULL);
+ 
+-- 
+2.14.1
+
