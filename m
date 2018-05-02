@@ -1,46 +1,56 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from kirsty.vergenet.net ([202.4.237.240]:47816 "EHLO
-        kirsty.vergenet.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750898AbeEBJn7 (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 2 May 2018 05:43:59 -0400
-From: Simon Horman <horms+renesas@verge.net.au>
-To: linux-renesas-soc@vger.kernel.org
-Cc: linux-arm-kernel@lists.infradead.org,
-        Magnus Damm <magnus.damm@gmail.com>,
-        Fabrizio Castro <fabrizio.castro@bp.renesas.com>,
-        Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        linux-watchdog@vger.kernel.org,
-        Simon Horman <horms+renesas@verge.net.au>
-Subject: [PATCH] ARM: multi_v7_defconfig: Enable RENESAS_WDT
-Date: Wed,  2 May 2018 11:43:53 +0200
-Message-Id: <20180502094353.27488-1-horms+renesas@verge.net.au>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-Path: <neidhard.kim@lge.com>
+Return-path: <neidhard.kim@lge.com>
+From: Jongsung Kim <neidhard.kim@lge.com>
+To: Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>,
+	linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Cc: Chanho Min <chanho.min@lge.com>,
+	Jongsung Kim <neidhard.kim@lge.com>
+Subject: [PATCH v2] watchdog: sp805: add restart handler
+Date: Wed,  2 May 2018 16:59:39 +0900
+Message-Id: <1525247979-23156-1-git-send-email-neidhard.kim@lge.com>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-R-Car Gen2 and RZ/G1 platforms come with a watchdog IP, therefore enable
-its driver by default. It is enabled as a module to avoid increasing
-the kernel image size.
+Add restart handler for SP805 watchdog so that the driver can be
+used to reboot the system.
 
-Signed-off-by: Simon Horman <horms+renesas@verge.net.au>
+Signed-off-by: Jongsung Kim <neidhard.kim@lge.com>
+Cc: Guenter Roeck <linux@roeck-us.net>
 ---
- arch/arm/configs/multi_v7_defconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/watchdog/sp805_wdt.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/arch/arm/configs/multi_v7_defconfig b/arch/arm/configs/multi_v7_defconfig
-index c6042475bece..374a40945b0f 100644
---- a/arch/arm/configs/multi_v7_defconfig
-+++ b/arch/arm/configs/multi_v7_defconfig
-@@ -498,6 +498,7 @@ CONFIG_TEGRA_WATCHDOG=m
- CONFIG_MESON_WATCHDOG=y
- CONFIG_DW_WATCHDOG=y
- CONFIG_DIGICOLOR_WATCHDOG=y
-+CONFIG_RENESAS_WDT=m
- CONFIG_BCM2835_WDT=y
- CONFIG_BCM47XX_WDT=y
- CONFIG_BCM7038_WDT=m
+diff --git a/drivers/watchdog/sp805_wdt.c b/drivers/watchdog/sp805_wdt.c
+index 03805bc..969369e 100644
+--- a/drivers/watchdog/sp805_wdt.c
++++ b/drivers/watchdog/sp805_wdt.c
+@@ -121,6 +121,18 @@ static unsigned int wdt_timeleft(struct watchdog_device *wdd)
+ 	return div_u64(load, rate);
+ }
+ 
++static int
++wdt_restart(struct watchdog_device *wdd, unsigned long mode, void *cmd)
++{
++	struct sp805_wdt *wdt = watchdog_get_drvdata(wdd);
++
++	writel_relaxed(0, wdt->base + WDTCONTROL);
++	writel_relaxed(0, wdt->base + WDTLOAD);
++	writel_relaxed(INT_ENABLE | RESET_ENABLE, wdt->base + WDTCONTROL);
++
++	return 0;
++}
++
+ static int wdt_config(struct watchdog_device *wdd, bool ping)
+ {
+ 	struct sp805_wdt *wdt = watchdog_get_drvdata(wdd);
+@@ -197,6 +209,7 @@ static const struct watchdog_ops wdt_ops = {
+ 	.ping		= wdt_ping,
+ 	.set_timeout	= wdt_setload,
+ 	.get_timeleft	= wdt_timeleft,
++	.restart	= wdt_restart,
+ };
+ 
+ static int
 -- 
-2.11.0
-
+2.7.4
