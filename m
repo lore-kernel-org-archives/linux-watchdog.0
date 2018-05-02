@@ -1,99 +1,47 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from lgeamrelo13.lge.com ([156.147.23.53]:50748 "EHLO
-        lgeamrelo11.lge.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1751025AbeEBHzM (ORCPT
+Received: from kirsty.vergenet.net ([202.4.237.240]:47621 "EHLO
+        kirsty.vergenet.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750883AbeEBJi0 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 2 May 2018 03:55:12 -0400
-Subject: Re: [PATCH] watchdog: sp805: add restart handler
-To: Guenter Roeck <linux@roeck-us.net>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
+        Wed, 2 May 2018 05:38:26 -0400
+Date: Wed, 2 May 2018 11:38:21 +0200
+From: Simon Horman <horms@verge.net.au>
+To: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
+Cc: Philipp Zabel <p.zabel@pengutronix.de>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
         Wim Van Sebroeck <wim@iguana.be>,
-        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Chanho Min <chanho.min@lge.com>
-References: <20180430064433.28715-1-neidhard.kim@lge.com>
- <452a2320-c297-2bd2-2e98-0b71a077c065@roeck-us.net>
-From: Jongsung Kim <neidhard.kim@lge.com>
-Message-ID: <c8502372-da23-f113-6cbc-78ef5683c28b@lge.com>
-Date: Wed, 2 May 2018 16:55:06 +0900
+        Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@codeaurora.org>,
+        Magnus Damm <magnus.damm@gmail.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org,
+        linux-watchdog@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-clk@vger.kernel.org,
+        Chris Paterson <Chris.Paterson2@renesas.com>,
+        Biju Das <biju.das@bp.renesas.com>,
+        Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
+Subject: Re: [PATCH v5 14/26] ARM: shmobile: defconfig: Enable RENESAS_WDT_GEN
+Message-ID: <20180502093821.m276vxqixob47e4p@verge.net.au>
+References: <1518457475-4480-1-git-send-email-fabrizio.castro@bp.renesas.com>
+ <1518457475-4480-15-git-send-email-fabrizio.castro@bp.renesas.com>
 MIME-Version: 1.0
-In-Reply-To: <452a2320-c297-2bd2-2e98-0b71a077c065@roeck-us.net>
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1518457475-4480-15-git-send-email-fabrizio.castro@bp.renesas.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 04/30/2018 08:18 PM, Guenter Roeck wrote:
-> On 04/29/2018 11:44 PM, Jongsung Kim wrote:
->> Add restart handler for SP805 watchdog so that the driver can be
->> used to reboot the system.
->>
->> Signed-off-by: Jongsung Kim <neidhard.kim@lge.com>
->> ---
->>   drivers/watchdog/sp805_wdt.c | 19 +++++++++++++++++++
->>   1 file changed, 19 insertions(+)
->>
->> diff --git a/drivers/watchdog/sp805_wdt.c b/drivers/watchdog/sp805_wdt.c
->> index 01d816251302..01f7b6c29f92 100644
->> --- a/drivers/watchdog/sp805_wdt.c
->> +++ b/drivers/watchdog/sp805_wdt.c
->> @@ -23,6 +23,7 @@
->>   #include <linux/module.h>
->>   #include <linux/moduleparam.h>
->>   #include <linux/pm.h>
->> +#include <linux/reboot.h>
->>   #include <linux/slab.h>
->>   #include <linux/spinlock.h>
->>   #include <linux/types.h>
->> @@ -67,6 +68,7 @@ struct sp805_wdt {
->>       struct clk            *clk;
->>       struct amba_device        *adev;
->>       unsigned int            load_val;
->> +    struct notifier_block        restart;
->>   };
->>     static bool nowayout = WATCHDOG_NOWAYOUT;
->> @@ -200,6 +202,18 @@ static const struct watchdog_ops wdt_ops = {
->>       .get_timeleft    = wdt_timeleft,
->>   };
->>   +static int
->> +wdt_restart(struct notifier_block *this, unsigned long mode, void *cmd)
->> +{
->> +    struct sp805_wdt *wdt = container_of(this, struct sp805_wdt, restart);
->> +
->> +    writel_relaxed(0, wdt->base + WDTCONTROL);
->> +    writel_relaxed(0, wdt->base + WDTLOAD);
->> +    writel_relaxed(INT_ENABLE | RESET_ENABLE, wdt->base + WDTCONTROL);
->> +
->> +    return 0;
->> +}
->> +
->>   static int
->>   sp805_wdt_probe(struct amba_device *adev, const struct amba_id *id)
->>   {
->> @@ -241,6 +255,10 @@ sp805_wdt_probe(struct amba_device *adev, const struct amba_id *id)
->>       }
->>       amba_set_drvdata(adev, wdt);
->>   +    wdt->restart.notifier_call = wdt_restart;
->> +    wdt->restart.priority = 128;
->> +    register_restart_handler(&wdt->restart);
->> +
->
-> Why not use the watchdog core ?
+On Mon, Feb 12, 2018 at 05:44:23PM +0000, Fabrizio Castro wrote:
+> R-Car Gen2 and RZ/G1 platforms come with a watchdog IP, therefore enable
+> its driver by default.
+> 
+> Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
+> Signed-off-by: Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
+> Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Thank you for pointing this. I didn't noticed core changes about restart function because I'm still using old v4.4.xx..
-
->
-> Guenter
->
->>       dev_info(&adev->dev, "registration successful\n");
->>       return 0;
->>   @@ -253,6 +271,7 @@ static int sp805_wdt_remove(struct amba_device *adev)
->>   {
->>       struct sp805_wdt *wdt = amba_get_drvdata(adev);
->>   +    unregister_restart_handler(&wdt->restart);
->>       watchdog_unregister_device(&wdt->wdd);
->>       watchdog_set_drvdata(&wdt->wdd, NULL);
->>  
->
->
-
+Thanks, applied.
