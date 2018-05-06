@@ -1,73 +1,61 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pg0-f68.google.com ([74.125.83.68]:37482 "EHLO
-        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751739AbeEBNWA (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:36850 "EHLO
+        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750872AbeEFF7G (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 2 May 2018 09:22:00 -0400
-Subject: Re: [PATCH v2] watchdog: sp805: add restart handler
-To: Jongsung Kim <neidhard.kim@lge.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Chanho Min <chanho.min@lge.com>
-References: <1525247979-23156-1-git-send-email-neidhard.kim@lge.com>
+        Sun, 6 May 2018 01:59:06 -0400
+Date: Sat, 5 May 2018 22:59:02 -0700
 From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <cf2f151a-06d7-368e-7ae5-68e992dfc3ea@roeck-us.net>
-Date: Wed, 2 May 2018 06:21:57 -0700
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-watchdog@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Takeshi Kihara <takeshi.kihara.df@renesas.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>
+Subject: Re: [v2] watchdog: renesas-wdt: Add support for the R8A77965 WDT
+Message-ID: <20180506055902.GA3711@roeck-us.net>
+References: <20180414101858.3208-1-wsa+renesas@sang-engineering.com>
 MIME-Version: 1.0
-In-Reply-To: <1525247979-23156-1-git-send-email-neidhard.kim@lge.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20180414101858.3208-1-wsa+renesas@sang-engineering.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 05/02/2018 12:59 AM, Jongsung Kim wrote:
-> Add restart handler for SP805 watchdog so that the driver can be
-> used to reboot the system.
+On Sat, Apr 14, 2018 at 12:18:58PM +0200, Wolfram Sang wrote:
+> Document support for the Watchdog Timer (WDT) Controller in the Renesas
+> R-Car M3-N (R8A77965) SoC. No driver update is needed.
 > 
-> Signed-off-by: Jongsung Kim <neidhard.kim@lge.com>
-> Cc: Guenter Roeck <linux@roeck-us.net>
-> ---
->   drivers/watchdog/sp805_wdt.c | 13 +++++++++++++
->   1 file changed, 13 insertions(+)
-> 
-> diff --git a/drivers/watchdog/sp805_wdt.c b/drivers/watchdog/sp805_wdt.c
-> index 03805bc..969369e 100644
-> --- a/drivers/watchdog/sp805_wdt.c
-> +++ b/drivers/watchdog/sp805_wdt.c
-> @@ -121,6 +121,18 @@ static unsigned int wdt_timeleft(struct watchdog_device *wdd)
->   	return div_u64(load, rate);
->   }
->   
-> +static int
-> +wdt_restart(struct watchdog_device *wdd, unsigned long mode, void *cmd)
-> +{
-> +	struct sp805_wdt *wdt = watchdog_get_drvdata(wdd);
-> +
-> +	writel_relaxed(0, wdt->base + WDTCONTROL);
-> +	writel_relaxed(0, wdt->base + WDTLOAD);
-> +	writel_relaxed(INT_ENABLE | RESET_ENABLE, wdt->base + WDTCONTROL);
-> +
-> +	return 0;
-> +}
-> +
->   static int wdt_config(struct watchdog_device *wdd, bool ping)
->   {
->   	struct sp805_wdt *wdt = watchdog_get_drvdata(wdd);
-> @@ -197,6 +209,7 @@ static const struct watchdog_ops wdt_ops = {
->   	.ping		= wdt_ping,
->   	.set_timeout	= wdt_setload,
->   	.get_timeleft	= wdt_timeleft,
-> +	.restart	= wdt_restart,
->   };
->   
->   static int
-> 
-Please add the restart priority
+> Signed-off-by: Takeshi Kihara <takeshi.kihara.df@renesas.com>
+> [wsa: rebased to top-of-tree]
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+> Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
+> Reviewed-by: Vaishali Thakkar <vthakkar@vaishalithakkar.in>
 
-	watchdog_set_restart_priority(&wdt->wdd, 128);
-
-before registering the watchdog.
+Unfortunately this patch isn't based on anything recognized by git,
+and even though it is simple I can't get it to apply. Can someone please
+rebase it to mainline and resend ?
 
 Thanks,
 Guenter
+
+> ---
+> 
+> Change since v1: s/M3N/M3-N/ (Thanks, Geert!)
+> 
+>  Documentation/devicetree/bindings/watchdog/renesas-wdt.txt | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt b/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
+> index 123bb1b2654b..613d860f2353 100644
+> --- a/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
+> +++ b/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
+> @@ -15,6 +15,7 @@ Required properties:
+>  		 - "renesas,r8a7794-wdt" (R-Car E2)
+>  		 - "renesas,r8a7795-wdt" (R-Car H3)
+>  		 - "renesas,r8a7796-wdt" (R-Car M3-W)
+> +		 - "renesas,r8a77965-wdt" (R-Car M3-N)
+>  		 - "renesas,r8a77970-wdt" (R-Car V3M)
+>  		 - "renesas,r8a77995-wdt" (R-Car D3)
+>  	       The generic compatible string must be:
