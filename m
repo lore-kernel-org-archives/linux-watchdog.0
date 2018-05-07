@@ -1,85 +1,62 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pf0-f194.google.com ([209.85.192.194]:43224 "EHLO
-        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751107AbeEDNLk (ORCPT
+Received: from mail-it0-f68.google.com ([209.85.214.68]:34768 "EHLO
+        mail-it0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750732AbeEGNer (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 4 May 2018 09:11:40 -0400
-Subject: Re: [PATCH v3] watchdog: sp805: add restart handler
-To: Jongsung Kim <neidhard.kim@lge.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Chanho Min <chanho.min@lge.com>
-References: <cf2f151a-06d7-368e-7ae5-68e992dfc3ea@roeck-us.net>
- <1525413903-7066-1-git-send-email-neidhard.kim@lge.com>
+        Mon, 7 May 2018 09:34:47 -0400
+Received: by mail-it0-f68.google.com with SMTP id c5-v6so11087661itj.1
+        for <linux-watchdog@vger.kernel.org>; Mon, 07 May 2018 06:34:47 -0700 (PDT)
+Subject: Re: [PATCH] watchdog: ath79: fix maximum timeout
+To: John Crispin <john@phrozen.org>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>
+Cc: linux-watchdog@vger.kernel.org, linux-mips@linux-mips.org
+References: <20180507131642.11440-1-john@phrozen.org>
 From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <1b084bff-84fd-18fa-7bee-dd00e33405a2@roeck-us.net>
-Date: Fri, 4 May 2018 06:11:38 -0700
+Message-ID: <319719c3-eeec-c75f-68c1-b6d15cf884c5@roeck-us.net>
+Date: Mon, 7 May 2018 06:34:44 -0700
 MIME-Version: 1.0
-In-Reply-To: <1525413903-7066-1-git-send-email-neidhard.kim@lge.com>
+In-Reply-To: <20180507131642.11440-1-john@phrozen.org>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 05/03/2018 11:05 PM, Jongsung Kim wrote:
-> Add restart handler for SP805 watchdog so that the driver can be
-> used to reboot the system.
+On 05/07/2018 06:16 AM, John Crispin wrote:
+> If the userland tries to set a timeout higher than the max_timeout,
+> then we should fallback to max_timeout.
 > 
-> Signed-off-by: Jongsung Kim <neidhard.kim@lge.com>
-> Cc: Guenter Roeck <linux@roeck-us.net>
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+We don't do that for drivers using the watchdog core, so we should not
+do it here either for consistency.
 
-> ---
-
-For future patches: change log goes here, please.
-
-Thanks,
 Guenter
 
->   drivers/watchdog/sp805_wdt.c | 14 ++++++++++++++
->   1 file changed, 14 insertions(+)
+> Signed-off-by: John Crispin <john@phrozen.org> > ---
+>   drivers/watchdog/ath79_wdt.c | 8 ++++++--
+>   1 file changed, 6 insertions(+), 2 deletions(-)
 > 
-> diff --git a/drivers/watchdog/sp805_wdt.c b/drivers/watchdog/sp805_wdt.c
-> index 03805bc..9849db0 100644
-> --- a/drivers/watchdog/sp805_wdt.c
-> +++ b/drivers/watchdog/sp805_wdt.c
-> @@ -121,6 +121,18 @@ static unsigned int wdt_timeleft(struct watchdog_device *wdd)
->   	return div_u64(load, rate);
->   }
+> diff --git a/drivers/watchdog/ath79_wdt.c b/drivers/watchdog/ath79_wdt.c
+> index e2209bf5fa8a..c2fc6c3d0092 100644
+> --- a/drivers/watchdog/ath79_wdt.c
+> +++ b/drivers/watchdog/ath79_wdt.c
+> @@ -115,10 +115,14 @@ static inline void ath79_wdt_disable(void)
 >   
-> +static int
-> +wdt_restart(struct watchdog_device *wdd, unsigned long mode, void *cmd)
-> +{
-> +	struct sp805_wdt *wdt = watchdog_get_drvdata(wdd);
-> +
-> +	writel_relaxed(0, wdt->base + WDTCONTROL);
-> +	writel_relaxed(0, wdt->base + WDTLOAD);
-> +	writel_relaxed(INT_ENABLE | RESET_ENABLE, wdt->base + WDTCONTROL);
-> +
-> +	return 0;
-> +}
-> +
->   static int wdt_config(struct watchdog_device *wdd, bool ping)
+>   static int ath79_wdt_set_timeout(int val)
 >   {
->   	struct sp805_wdt *wdt = watchdog_get_drvdata(wdd);
-> @@ -197,6 +209,7 @@ static const struct watchdog_ops wdt_ops = {
->   	.ping		= wdt_ping,
->   	.set_timeout	= wdt_setload,
->   	.get_timeleft	= wdt_timeleft,
-> +	.restart	= wdt_restart,
->   };
+> -	if (val < 1 || val > max_timeout)
+> +	if (val < 1)
+>   		return -EINVAL;
 >   
->   static int
-> @@ -230,6 +243,7 @@ sp805_wdt_probe(struct amba_device *adev, const struct amba_id *id)
->   	spin_lock_init(&wdt->lock);
->   	watchdog_set_nowayout(&wdt->wdd, nowayout);
->   	watchdog_set_drvdata(&wdt->wdd, wdt);
-> +	watchdog_set_restart_priority(&wdt->wdd, 128);
->   	wdt_setload(&wdt->wdd, DEFAULT_TIMEOUT);
+> -	timeout = val;
+> +	if (val > max_timeout)
+> +		timeout = max_timeout;
+> +	else
+> +		timeout = val;
+> +
+>   	ath79_wdt_keepalive();
 >   
->   	ret = watchdog_register_device(&wdt->wdd);
+>   	return 0;
 > 
 
