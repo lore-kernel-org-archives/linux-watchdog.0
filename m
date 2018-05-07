@@ -1,60 +1,46 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:46764 "EHLO pokefinder.org"
+Received: from sauhun.de ([88.99.104.3]:46804 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751948AbeEGM0T (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 7 May 2018 08:26:19 -0400
-Date: Mon, 7 May 2018 14:26:16 +0200
-From: Wolfram Sang <wsa@the-dreams.de>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        linux-watchdog@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
+        id S1752025AbeEGM3r (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 7 May 2018 08:29:47 -0400
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: linux-watchdog@vger.kernel.org
+Cc: linux-renesas-soc@vger.kernel.org,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
         Takeshi Kihara <takeshi.kihara.df@renesas.com>,
         Geert Uytterhoeven <geert+renesas@glider.be>
-Subject: Re: [v2] watchdog: renesas-wdt: Add support for the R8A77965 WDT
-Message-ID: <20180507122616.kobh5buuvw3nedw7@ninjato>
-References: <20180414101858.3208-1-wsa+renesas@sang-engineering.com>
- <20180506055902.GA3711@roeck-us.net>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="owbllm5epiuhjoqk"
-Content-Disposition: inline
-In-Reply-To: <20180506055902.GA3711@roeck-us.net>
+Subject: [PATCH v3] watchdog: renesas-wdt: Add support for the R8A77965 WDT
+Date: Mon,  7 May 2018 14:29:42 +0200
+Message-Id: <20180507122942.7669-1-wsa+renesas@sang-engineering.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+Document support for the Watchdog Timer (WDT) Controller in the Renesas
+R-Car M3-N (R8A77965) SoC. No driver update is needed.
 
---owbllm5epiuhjoqk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Signed-off-by: Takeshi Kihara <takeshi.kihara.df@renesas.com>
+[wsa: rebased to v4.17-rc3]
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+---
 
+Change since V2: rebase to 4.17-rc3
 
-> Unfortunately this patch isn't based on anything recognized by git,
-> and even though it is simple I can't get it to apply. Can someone please
-> rebase it to mainline and resend ?
+ Documentation/devicetree/bindings/watchdog/renesas-wdt.txt | 1 +
+ 1 file changed, 1 insertion(+)
 
-Will do. Sorry, it seems like not all of the Gen2 Watchdog support
-patches did make it upstream this cycle like I assumed.
+diff --git a/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt b/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
+index 74b2f03c1515..fa56697a1ba6 100644
+--- a/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
++++ b/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
+@@ -7,6 +7,7 @@ Required properties:
+ 	         - "renesas,r7s72100-wdt" (RZ/A1)
+ 	         - "renesas,r8a7795-wdt" (R-Car H3)
+ 	         - "renesas,r8a7796-wdt" (R-Car M3-W)
++		 - "renesas,r8a77965-wdt" (R-Car M3-N)
+ 	         - "renesas,r8a77970-wdt" (R-Car V3M)
+ 	         - "renesas,r8a77995-wdt" (R-Car D3)
+ 
+-- 
+2.11.0
 
-
---owbllm5epiuhjoqk
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIyBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlrwReQACgkQFA3kzBSg
-KbY7SA/2NUnlefsMXPf7ptolF+P9dfUufvytY18qS5GrzonwTJgJnGw/ILYYoLcq
-1Usg9UOsV2B/JAoCpvAJCgLE4Fxcc7s/iYdKEei7XPjiH/ZPPk21DOzCs0nshnBd
-QL6pgJzuWI7vPaqdgT0vcBZfZDnVxY7pGNnGhbK83ta8y1i10Ghn02IyvfJ4dHDY
-EsdlUTKBQf/QaW0JdxYJ/fwU8hE2MVmHcEUan8lCeN7MKakqRynWLyU6kMe2mVz9
-AUu9y6RJdwZUdcdAXtQGE8jSH+BG6MoX7mrHhyLbTgLjz7IjCdZ2/jRUaDbTUPNP
-NO6utzKFrVzeNgjrHj/J9gHYR/kqFSMsAeS8u0YBkoI3F0mlr44b6UUIEKiZbMyc
-krtz5QIoVD5hPEBJVMqJ4y/AlUnkEkAEc/OfGt7hxOkHksIb2wE/4D5mBwFZOvtR
-z0m2qlQz0gbz3sx0NQa6gLJFxr6gUzFXb4xqUp+VUu7OjORC+V6drMCfiwU5leqJ
-nJQsORrqSNFLn/uTvnsgaS9YNVKhLhUq0uD8c69mgKn4jBYGbCKkwpFvo274SfpN
-M6ZOYHfLKehUA7d0Dvd9bGxNPYG/atNV3eFaUxLIkB8VbFcH8FzjEuocL2RkcrNv
-ZnKW7KyG6MLcn05fN6UXWjpFRQizNMPhC6rUMAA9nzOmba7bFQ==
-=Ihyy
------END PGP SIGNATURE-----
-
---owbllm5epiuhjoqk--
