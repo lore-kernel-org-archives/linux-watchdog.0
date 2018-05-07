@@ -1,46 +1,48 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:46804 "EHLO pokefinder.org"
+Received: from nbd.name ([46.4.11.11]:47834 "EHLO nbd.name"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752025AbeEGM3r (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 7 May 2018 08:29:47 -0400
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: linux-watchdog@vger.kernel.org
-Cc: linux-renesas-soc@vger.kernel.org,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Takeshi Kihara <takeshi.kihara.df@renesas.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>
-Subject: [PATCH v3] watchdog: renesas-wdt: Add support for the R8A77965 WDT
-Date: Mon,  7 May 2018 14:29:42 +0200
-Message-Id: <20180507122942.7669-1-wsa+renesas@sang-engineering.com>
+        id S1752177AbeEGNQu (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 7 May 2018 09:16:50 -0400
+From: John Crispin <john@phrozen.org>
+To: Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Cc: linux-watchdog@vger.kernel.org, linux-mips@linux-mips.org,
+        John Crispin <john@phrozen.org>
+Subject: [PATCH] watchdog: ath79: fix maximum timeout
+Date: Mon,  7 May 2018 15:16:42 +0200
+Message-Id: <20180507131642.11440-1-john@phrozen.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Document support for the Watchdog Timer (WDT) Controller in the Renesas
-R-Car M3-N (R8A77965) SoC. No driver update is needed.
+If the userland tries to set a timeout higher than the max_timeout,
+then we should fallback to max_timeout.
 
-Signed-off-by: Takeshi Kihara <takeshi.kihara.df@renesas.com>
-[wsa: rebased to v4.17-rc3]
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: John Crispin <john@phrozen.org>
 ---
+ drivers/watchdog/ath79_wdt.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-Change since V2: rebase to 4.17-rc3
-
- Documentation/devicetree/bindings/watchdog/renesas-wdt.txt | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt b/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
-index 74b2f03c1515..fa56697a1ba6 100644
---- a/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
-+++ b/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
-@@ -7,6 +7,7 @@ Required properties:
- 	         - "renesas,r7s72100-wdt" (RZ/A1)
- 	         - "renesas,r8a7795-wdt" (R-Car H3)
- 	         - "renesas,r8a7796-wdt" (R-Car M3-W)
-+		 - "renesas,r8a77965-wdt" (R-Car M3-N)
- 	         - "renesas,r8a77970-wdt" (R-Car V3M)
- 	         - "renesas,r8a77995-wdt" (R-Car D3)
+diff --git a/drivers/watchdog/ath79_wdt.c b/drivers/watchdog/ath79_wdt.c
+index e2209bf5fa8a..c2fc6c3d0092 100644
+--- a/drivers/watchdog/ath79_wdt.c
++++ b/drivers/watchdog/ath79_wdt.c
+@@ -115,10 +115,14 @@ static inline void ath79_wdt_disable(void)
  
+ static int ath79_wdt_set_timeout(int val)
+ {
+-	if (val < 1 || val > max_timeout)
++	if (val < 1)
+ 		return -EINVAL;
+ 
+-	timeout = val;
++	if (val > max_timeout)
++		timeout = max_timeout;
++	else
++		timeout = val;
++
+ 	ath79_wdt_keepalive();
+ 
+ 	return 0;
 -- 
 2.11.0
 
