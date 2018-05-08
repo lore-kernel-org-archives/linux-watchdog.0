@@ -1,54 +1,68 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pg0-f68.google.com ([74.125.83.68]:42829 "EHLO
-        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753997AbeEHDSe (ORCPT
+Received: from mail-pg0-f66.google.com ([74.125.83.66]:44756 "EHLO
+        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753896AbeEHD2i (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 7 May 2018 23:18:34 -0400
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
-To: morbidrsa@gmail.com, wim@linux-watchdog.org, linux@roeck-us.net
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Jia-Ju Bai <baijiaju1990@gmail.com>
-Subject: [PATCH] watchdog: mena21_wdt: Fix a possible data race in a21_wdt_set_timeout
-Date: Tue,  8 May 2018 11:18:25 +0800
-Message-Id: <20180508031825.12525-1-baijiaju1990@gmail.com>
+        Mon, 7 May 2018 23:28:38 -0400
+Subject: Re: [PATCH] watchdog: mena21_wdt: Fix a possible data race in
+ a21_wdt_set_timeout
+To: Jia-Ju Bai <baijiaju1990@gmail.com>, morbidrsa@gmail.com,
+        wim@linux-watchdog.org
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20180508031825.12525-1-baijiaju1990@gmail.com>
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <64e08944-0578-ac4c-8dea-e1e704685e77@roeck-us.net>
+Date: Mon, 7 May 2018 20:28:34 -0700
+MIME-Version: 1.0
+In-Reply-To: <20180508031825.12525-1-baijiaju1990@gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The write operation to "wdt->timeout" is protected by
-the lock on line 118, but the read operation to
-this data on line 105 is not protected by the lock.
-Thus, there may exist a data race for "wdt->timeout".
+On 05/07/2018 08:18 PM, Jia-Ju Bai wrote:
+> The write operation to "wdt->timeout" is protected by
+> the lock on line 118, but the read operation to
+> this data on line 105 is not protected by the lock.
+> Thus, there may exist a data race for "wdt->timeout".
+> 
+> To fix this data race, the read operation to "wdt->timeout"
+> should be also protected by the lock.
+> 
 
-To fix this data race, the read operation to "wdt->timeout" 
-should be also protected by the lock.
+There is no race. There is already a mutex in the watchdog core which serializes
+calls to the various API functions. It would make more sense to drop drv->lock
+from the driver.
 
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
----
- drivers/watchdog/mena21_wdt.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+Guenter
 
-diff --git a/drivers/watchdog/mena21_wdt.c b/drivers/watchdog/mena21_wdt.c
-index 25d5d2b8cfbe..05ca69042829 100644
---- a/drivers/watchdog/mena21_wdt.c
-+++ b/drivers/watchdog/mena21_wdt.c
-@@ -102,14 +102,15 @@ static int a21_wdt_set_timeout(struct watchdog_device *wdt,
- 		return -EINVAL;
- 	}
- 
-+	mutex_lock(&drv->lock);
-+
- 	if (timeout == 30 && wdt->timeout == 1) {
-+		mutex_unlock(&drv->lock);
- 		dev_err(wdt->parent,
- 			"Transition from fast to slow mode not allowed\n");
- 		return -EINVAL;
- 	}
- 
--	mutex_lock(&drv->lock);
--
- 	if (timeout == 1)
- 		gpio_set_value(drv->gpios[GPIO_WD_FAST], 1);
- 	else
--- 
-2.17.0
+> Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+> ---
+>   drivers/watchdog/mena21_wdt.c | 5 +++--
+>   1 file changed, 3 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/watchdog/mena21_wdt.c b/drivers/watchdog/mena21_wdt.c
+> index 25d5d2b8cfbe..05ca69042829 100644
+> --- a/drivers/watchdog/mena21_wdt.c
+> +++ b/drivers/watchdog/mena21_wdt.c
+> @@ -102,14 +102,15 @@ static int a21_wdt_set_timeout(struct watchdog_device *wdt,
+>   		return -EINVAL;
+>   	}
+>   
+> +	mutex_lock(&drv->lock);
+> +
+>   	if (timeout == 30 && wdt->timeout == 1) {
+> +		mutex_unlock(&drv->lock);
+>   		dev_err(wdt->parent,
+>   			"Transition from fast to slow mode not allowed\n");
+>   		return -EINVAL;
+>   	}
+>   
+> -	mutex_lock(&drv->lock);
+> -
+>   	if (timeout == 1)
+>   		gpio_set_value(drv->gpios[GPIO_WD_FAST], 1);
+>   	else
+> 
 
