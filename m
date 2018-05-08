@@ -1,63 +1,62 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pl0-f48.google.com ([209.85.160.48]:42052 "EHLO
-        mail-pl0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754283AbeEHDrp (ORCPT
+Received: from mail-pl0-f66.google.com ([209.85.160.66]:43659 "EHLO
+        mail-pl0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751169AbeEHEdP (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 7 May 2018 23:47:45 -0400
-Subject: Re: [PATCH] watchdog: mena21_wdt: Fix a possible data race in
- a21_wdt_set_timeout
-To: Guenter Roeck <linux@roeck-us.net>, morbidrsa@gmail.com,
-        wim@linux-watchdog.org
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20180508031825.12525-1-baijiaju1990@gmail.com>
- <64e08944-0578-ac4c-8dea-e1e704685e77@roeck-us.net>
- <26fde8a3-fb78-e12f-2f0f-c9b5bb2158e0@gmail.com>
- <e6a7af86-42e6-83b8-4b3d-4be2812912b5@roeck-us.net>
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
-Message-ID: <66ffce75-6528-11d7-311f-2b59f1c2c359@gmail.com>
-Date: Tue, 8 May 2018 11:47:37 +0800
+        Tue, 8 May 2018 00:33:15 -0400
+Subject: Re: [PATCH v3] watchdog: renesas-wdt: Add support for the R8A77965
+ WDT
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        linux-watchdog@vger.kernel.org
+Cc: linux-renesas-soc@vger.kernel.org,
+        Takeshi Kihara <takeshi.kihara.df@renesas.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>
+References: <20180507122942.7669-1-wsa+renesas@sang-engineering.com>
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <743a3d42-a89d-2f99-91bd-7e3aaacb7e00@roeck-us.net>
+Date: Mon, 7 May 2018 21:33:12 -0700
 MIME-Version: 1.0
-In-Reply-To: <e6a7af86-42e6-83b8-4b3d-4be2812912b5@roeck-us.net>
+In-Reply-To: <20180507122942.7669-1-wsa+renesas@sang-engineering.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
 Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+On 05/07/2018 05:29 AM, Wolfram Sang wrote:
+> Document support for the Watchdog Timer (WDT) Controller in the Renesas
+> R-Car M3-N (R8A77965) SoC. No driver update is needed.
+> 
+> Signed-off-by: Takeshi Kihara <takeshi.kihara.df@renesas.com>
+> [wsa: rebased to v4.17-rc3]
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
 
+This one applies.
 
-On 2018/5/8 11:42, Guenter Roeck wrote:
-> On 05/07/2018 08:32 PM, Jia-Ju Bai wrote:
->>
->>
->> On 2018/5/8 11:28, Guenter Roeck wrote:
->>> On 05/07/2018 08:18 PM, Jia-Ju Bai wrote:
->>>> The write operation to "wdt->timeout" is protected by
->>>> the lock on line 118, but the read operation to
->>>> this data on line 105 is not protected by the lock.
->>>> Thus, there may exist a data race for "wdt->timeout".
->>>>
->>>> To fix this data race, the read operation to "wdt->timeout"
->>>> should be also protected by the lock.
->>>>
->>>
->>> There is no race. There is already a mutex in the watchdog core 
->>> which serializes
->>> calls to the various API functions. It would make more sense to drop 
->>> drv->lock
->>> from the driver.
->>>
->>
->> Thanks for your reply :)
->> Need I submit a patch of dropping all calls to "drv->lock"?
->>
->
-> You don't _need_ to, but I would happily give it my Reviewed-by: tag 
-> if you do.
->
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-Okay, I will write a patch today :)
+Thanks!
+Guenter
 
+> ---
+> 
+> Change since V2: rebase to 4.17-rc3
+> 
+>   Documentation/devicetree/bindings/watchdog/renesas-wdt.txt | 1 +
+>   1 file changed, 1 insertion(+)
+> 
+> diff --git a/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt b/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
+> index 74b2f03c1515..fa56697a1ba6 100644
+> --- a/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
+> +++ b/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
+> @@ -7,6 +7,7 @@ Required properties:
+>   	         - "renesas,r7s72100-wdt" (RZ/A1)
+>   	         - "renesas,r8a7795-wdt" (R-Car H3)
+>   	         - "renesas,r8a7796-wdt" (R-Car M3-W)
+> +		 - "renesas,r8a77965-wdt" (R-Car M3-N)
+>   	         - "renesas,r8a77970-wdt" (R-Car V3M)
+>   	         - "renesas,r8a77995-wdt" (R-Car D3)
+>   
+> 
 
-Best wishes,
-Jia-Ju Bai
