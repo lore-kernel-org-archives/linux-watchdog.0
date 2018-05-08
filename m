@@ -1,68 +1,50 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pg0-f66.google.com ([74.125.83.66]:44756 "EHLO
-        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753896AbeEHD2i (ORCPT
+Received: from mail-pf0-f170.google.com ([209.85.192.170]:39431 "EHLO
+        mail-pf0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753785AbeEHDc2 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 7 May 2018 23:28:38 -0400
+        Mon, 7 May 2018 23:32:28 -0400
 Subject: Re: [PATCH] watchdog: mena21_wdt: Fix a possible data race in
  a21_wdt_set_timeout
-To: Jia-Ju Bai <baijiaju1990@gmail.com>, morbidrsa@gmail.com,
+To: Guenter Roeck <linux@roeck-us.net>, morbidrsa@gmail.com,
         wim@linux-watchdog.org
 Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
 References: <20180508031825.12525-1-baijiaju1990@gmail.com>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <64e08944-0578-ac4c-8dea-e1e704685e77@roeck-us.net>
-Date: Mon, 7 May 2018 20:28:34 -0700
+ <64e08944-0578-ac4c-8dea-e1e704685e77@roeck-us.net>
+From: Jia-Ju Bai <baijiaju1990@gmail.com>
+Message-ID: <26fde8a3-fb78-e12f-2f0f-c9b5bb2158e0@gmail.com>
+Date: Tue, 8 May 2018 11:32:20 +0800
 MIME-Version: 1.0
-In-Reply-To: <20180508031825.12525-1-baijiaju1990@gmail.com>
+In-Reply-To: <64e08944-0578-ac4c-8dea-e1e704685e77@roeck-us.net>
 Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
 Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 05/07/2018 08:18 PM, Jia-Ju Bai wrote:
-> The write operation to "wdt->timeout" is protected by
-> the lock on line 118, but the read operation to
-> this data on line 105 is not protected by the lock.
-> Thus, there may exist a data race for "wdt->timeout".
-> 
-> To fix this data race, the read operation to "wdt->timeout"
-> should be also protected by the lock.
-> 
 
-There is no race. There is already a mutex in the watchdog core which serializes
-calls to the various API functions. It would make more sense to drop drv->lock
-from the driver.
 
-Guenter
+On 2018/5/8 11:28, Guenter Roeck wrote:
+> On 05/07/2018 08:18 PM, Jia-Ju Bai wrote:
+>> The write operation to "wdt->timeout" is protected by
+>> the lock on line 118, but the read operation to
+>> this data on line 105 is not protected by the lock.
+>> Thus, there may exist a data race for "wdt->timeout".
+>>
+>> To fix this data race, the read operation to "wdt->timeout"
+>> should be also protected by the lock.
+>>
+>
+> There is no race. There is already a mutex in the watchdog core which 
+> serializes
+> calls to the various API functions. It would make more sense to drop 
+> drv->lock
+> from the driver.
+>
 
-> Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-> ---
->   drivers/watchdog/mena21_wdt.c | 5 +++--
->   1 file changed, 3 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/watchdog/mena21_wdt.c b/drivers/watchdog/mena21_wdt.c
-> index 25d5d2b8cfbe..05ca69042829 100644
-> --- a/drivers/watchdog/mena21_wdt.c
-> +++ b/drivers/watchdog/mena21_wdt.c
-> @@ -102,14 +102,15 @@ static int a21_wdt_set_timeout(struct watchdog_device *wdt,
->   		return -EINVAL;
->   	}
->   
-> +	mutex_lock(&drv->lock);
-> +
->   	if (timeout == 30 && wdt->timeout == 1) {
-> +		mutex_unlock(&drv->lock);
->   		dev_err(wdt->parent,
->   			"Transition from fast to slow mode not allowed\n");
->   		return -EINVAL;
->   	}
->   
-> -	mutex_lock(&drv->lock);
-> -
->   	if (timeout == 1)
->   		gpio_set_value(drv->gpios[GPIO_WD_FAST], 1);
->   	else
-> 
+Thanks for your reply :)
+Need I submit a patch of dropping all calls to "drv->lock"?
 
+
+Best wishes,
+Jia-Ju Bai
