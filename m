@@ -1,30 +1,120 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:37329 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753856AbeEHIIP (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 8 May 2018 04:08:15 -0400
-Date: Tue, 8 May 2018 10:08:13 +0200
-From: Johannes Thumshirn <jth@kernel.org>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:51826 "EHLO
+        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932659AbeEHOsa (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 8 May 2018 10:48:30 -0400
+Date: Tue, 8 May 2018 07:48:22 -0700
+From: Guenter Roeck <linux@roeck-us.net>
 To: Jia-Ju Bai <baijiaju1990@gmail.com>
-Cc: wim@linux-watchdog.org, linux@roeck-us.net,
+Cc: morbidrsa@gmail.com, wim@linux-watchdog.org,
         linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] watchdog: mena21_wdt: Drop unnecessary mutex lock
-Message-ID: <20180508080813.vhdkko2a4vmb4avz@linux-x5ow.site>
+Message-ID: <20180508144822.GA11268@roeck-us.net>
 References: <20180508071206.13375-1-baijiaju1990@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
 In-Reply-To: <20180508071206.13375-1-baijiaju1990@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Looks good,
-Reviewed-by: Johannes Thumshirn <jth@kernel.org>
--- 
-Johannes Thumshirn                                          Storage
-jthumshirn@suse.de                                +49 911 74053 689
-SUSE LINUX GmbH, Maxfeldstr. 5, 90409 Nürnberg
-GF: Felix Imendörffer, Jane Smithard, Graham Norton
-HRB 21284 (AG Nürnberg)
-Key fingerprint = EC38 9CAB C2C4 F25D 8600 D0D0 0393 969D 2D76 0850
+On Tue, May 08, 2018 at 03:12:06PM +0800, Jia-Ju Bai wrote:
+> There is already a mutex in the watchdog core which serializes
+> calls to the various API functions. 
+> So the mutex lock "drv->lock" is unnecessary and can be dropped.
+> 
+> Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+
+> ---
+>  drivers/watchdog/mena21_wdt.c | 18 ------------------
+>  1 file changed, 18 deletions(-)
+> 
+> diff --git a/drivers/watchdog/mena21_wdt.c b/drivers/watchdog/mena21_wdt.c
+> index 25d5d2b8cfbe..0be7f50e8ff9 100644
+> --- a/drivers/watchdog/mena21_wdt.c
+> +++ b/drivers/watchdog/mena21_wdt.c
+> @@ -31,7 +31,6 @@ enum a21_wdt_gpios {
+>  
+>  struct a21_wdt_drv {
+>  	struct watchdog_device wdt;
+> -	struct mutex lock;
+>  	unsigned gpios[NUM_GPIOS];
+>  };
+>  
+> @@ -55,12 +54,8 @@ static int a21_wdt_start(struct watchdog_device *wdt)
+>  {
+>  	struct a21_wdt_drv *drv = watchdog_get_drvdata(wdt);
+>  
+> -	mutex_lock(&drv->lock);
+> -
+>  	gpio_set_value(drv->gpios[GPIO_WD_ENAB], 1);
+>  
+> -	mutex_unlock(&drv->lock);
+> -
+>  	return 0;
+>  }
+>  
+> @@ -68,12 +63,8 @@ static int a21_wdt_stop(struct watchdog_device *wdt)
+>  {
+>  	struct a21_wdt_drv *drv = watchdog_get_drvdata(wdt);
+>  
+> -	mutex_lock(&drv->lock);
+> -
+>  	gpio_set_value(drv->gpios[GPIO_WD_ENAB], 0);
+>  
+> -	mutex_unlock(&drv->lock);
+> -
+>  	return 0;
+>  }
+>  
+> @@ -81,14 +72,10 @@ static int a21_wdt_ping(struct watchdog_device *wdt)
+>  {
+>  	struct a21_wdt_drv *drv = watchdog_get_drvdata(wdt);
+>  
+> -	mutex_lock(&drv->lock);
+> -
+>  	gpio_set_value(drv->gpios[GPIO_WD_TRIG], 0);
+>  	ndelay(10);
+>  	gpio_set_value(drv->gpios[GPIO_WD_TRIG], 1);
+>  
+> -	mutex_unlock(&drv->lock);
+> -
+>  	return 0;
+>  }
+>  
+> @@ -108,8 +95,6 @@ static int a21_wdt_set_timeout(struct watchdog_device *wdt,
+>  		return -EINVAL;
+>  	}
+>  
+> -	mutex_lock(&drv->lock);
+> -
+>  	if (timeout == 1)
+>  		gpio_set_value(drv->gpios[GPIO_WD_FAST], 1);
+>  	else
+> @@ -117,8 +102,6 @@ static int a21_wdt_set_timeout(struct watchdog_device *wdt,
+>  
+>  	wdt->timeout = timeout;
+>  
+> -	mutex_unlock(&drv->lock);
+> -
+>  	return 0;
+>  }
+>  
+> @@ -191,7 +174,6 @@ static int a21_wdt_probe(struct platform_device *pdev)
+>  			return ret;
+>  	}
+>  
+> -	mutex_init(&drv->lock);
+>  	watchdog_init_timeout(&a21_wdt, 30, &pdev->dev);
+>  	watchdog_set_nowayout(&a21_wdt, nowayout);
+>  	watchdog_set_drvdata(&a21_wdt, drv);
+> -- 
+> 2.17.0
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
