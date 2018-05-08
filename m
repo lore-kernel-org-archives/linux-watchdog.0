@@ -1,48 +1,54 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from nbd.name ([46.4.11.11]:47834 "EHLO nbd.name"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752177AbeEGNQu (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 7 May 2018 09:16:50 -0400
-From: John Crispin <john@phrozen.org>
-To: Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Cc: linux-watchdog@vger.kernel.org, linux-mips@linux-mips.org,
-        John Crispin <john@phrozen.org>
-Subject: [PATCH] watchdog: ath79: fix maximum timeout
-Date: Mon,  7 May 2018 15:16:42 +0200
-Message-Id: <20180507131642.11440-1-john@phrozen.org>
+Received: from mail-pg0-f68.google.com ([74.125.83.68]:42829 "EHLO
+        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753997AbeEHDSe (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 7 May 2018 23:18:34 -0400
+From: Jia-Ju Bai <baijiaju1990@gmail.com>
+To: morbidrsa@gmail.com, wim@linux-watchdog.org, linux@roeck-us.net
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Jia-Ju Bai <baijiaju1990@gmail.com>
+Subject: [PATCH] watchdog: mena21_wdt: Fix a possible data race in a21_wdt_set_timeout
+Date: Tue,  8 May 2018 11:18:25 +0800
+Message-Id: <20180508031825.12525-1-baijiaju1990@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-If the userland tries to set a timeout higher than the max_timeout,
-then we should fallback to max_timeout.
+The write operation to "wdt->timeout" is protected by
+the lock on line 118, but the read operation to
+this data on line 105 is not protected by the lock.
+Thus, there may exist a data race for "wdt->timeout".
 
-Signed-off-by: John Crispin <john@phrozen.org>
+To fix this data race, the read operation to "wdt->timeout" 
+should be also protected by the lock.
+
+Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
 ---
- drivers/watchdog/ath79_wdt.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/watchdog/mena21_wdt.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/watchdog/ath79_wdt.c b/drivers/watchdog/ath79_wdt.c
-index e2209bf5fa8a..c2fc6c3d0092 100644
---- a/drivers/watchdog/ath79_wdt.c
-+++ b/drivers/watchdog/ath79_wdt.c
-@@ -115,10 +115,14 @@ static inline void ath79_wdt_disable(void)
- 
- static int ath79_wdt_set_timeout(int val)
- {
--	if (val < 1 || val > max_timeout)
-+	if (val < 1)
+diff --git a/drivers/watchdog/mena21_wdt.c b/drivers/watchdog/mena21_wdt.c
+index 25d5d2b8cfbe..05ca69042829 100644
+--- a/drivers/watchdog/mena21_wdt.c
++++ b/drivers/watchdog/mena21_wdt.c
+@@ -102,14 +102,15 @@ static int a21_wdt_set_timeout(struct watchdog_device *wdt,
  		return -EINVAL;
+ 	}
  
--	timeout = val;
-+	if (val > max_timeout)
-+		timeout = max_timeout;
-+	else
-+		timeout = val;
++	mutex_lock(&drv->lock);
 +
- 	ath79_wdt_keepalive();
+ 	if (timeout == 30 && wdt->timeout == 1) {
++		mutex_unlock(&drv->lock);
+ 		dev_err(wdt->parent,
+ 			"Transition from fast to slow mode not allowed\n");
+ 		return -EINVAL;
+ 	}
  
- 	return 0;
+-	mutex_lock(&drv->lock);
+-
+ 	if (timeout == 1)
+ 		gpio_set_value(drv->gpios[GPIO_WD_FAST], 1);
+ 	else
 -- 
-2.11.0
+2.17.0
 
