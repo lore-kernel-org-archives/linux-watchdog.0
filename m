@@ -1,51 +1,101 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:57323 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751977AbeEGOyZ (ORCPT
+Received: from metis.ext.pengutronix.de ([85.220.165.71]:42003 "EHLO
+        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S933715AbeEIKbb (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 7 May 2018 10:54:25 -0400
-Date: Mon, 7 May 2018 07:54:16 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: John Crispin <john@phrozen.org>
-Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
-        linux-watchdog@vger.kernel.org, linux-mips@linux-mips.org
-Subject: Re: [PATCH] watchdog: ath79: fix maximum timeout
-Message-ID: <20180507145416.GA14523@roeck-us.net>
-References: <20180507131642.11440-1-john@phrozen.org>
- <319719c3-eeec-c75f-68c1-b6d15cf884c5@roeck-us.net>
- <3c24c84f-baa1-2eef-4b5c-85d0e5803e7b@phrozen.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3c24c84f-baa1-2eef-4b5c-85d0e5803e7b@phrozen.org>
+        Wed, 9 May 2018 06:31:31 -0400
+From: Marco Felsch <m.felsch@pengutronix.de>
+To: wim@linux-watchdog.org, linux@roeck-us.net
+Cc: krystian.garbaciak@diasemi.com, support.opensource@diasemi.com,
+        linux-watchdog@vger.kernel.org, fzuuzf@googlemail.com,
+        kernel@pengutronix.de
+Subject: [PATCH 1/1] watchdog: da9063: Fix setting/changing timeout
+Date: Wed,  9 May 2018 12:31:26 +0200
+Message-Id: <20180509103126.15285-1-m.felsch@pengutronix.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, May 07, 2018 at 03:40:57PM +0200, John Crispin wrote:
-> 
-> 
-> On 07/05/18 15:34, Guenter Roeck wrote:
-> >On 05/07/2018 06:16 AM, John Crispin wrote:
-> >>If the userland tries to set a timeout higher than the max_timeout,
-> >>then we should fallback to max_timeout.
-> >>
-> >
-> >We don't do that for drivers using the watchdog core, so we should not
-> >do it here either for consistency.
-> >
-> >Guenter
-> 
-> Hi,
-> thanks for the quick feedback. I'll mark the patch as "rejected by upstream
-> due to subsystem consistency" inside OpenWrt.
+The DA9063 watchdog always resets the system when it changes the timeout
+value after the bootloader (e.g. Barebox) has it already set.
 
-Note that I am not completely opposed to the idea, but it should go through
-the watchdog core. You could convert the driver to use it, and then make
-the case that the subsystem should report <min, max> to userspace, relax
-set_timeout to adjust the requested timeout to [min,max] instead of letting
-userspace guess it, or both. Plus, of course, submit patches to actually
-implement and document the necessary changes.
+To update the timeout value we have to disable the watchdog, clear the
+watchdog counter value and write the new timeout value to the watchdog.
+Clearing the counter value is a feature to be on the safe side, because the
+data sheet doesn't describe the behaviour of the watchdog counter value
+after a watchdog disabling-enable-sequence.
 
-Thanks,
-Guenter
+The patch is based on Philipp Zabel's <p.zabel@pengutronix.de> previous
+patch but doesn't wait 150us because the DA9063 doesn't need this delay.
+
+Fixes: 5e9c16e37608 ("watchdog: Add DA9063 PMIC watchdog driver.")
+Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
+---
+ drivers/watchdog/da9063_wdt.c | 42 +++++++++++++++++++++++++++++++----
+ 1 file changed, 38 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/watchdog/da9063_wdt.c b/drivers/watchdog/da9063_wdt.c
+index b17ac1bb1f28..c82541c39d35 100644
+--- a/drivers/watchdog/da9063_wdt.c
++++ b/drivers/watchdog/da9063_wdt.c
+@@ -45,10 +45,45 @@ static unsigned int da9063_wdt_timeout_to_sel(unsigned int secs)
+ 	return DA9063_TWDSCALE_MAX;
+ }
+ 
++/*
++ * Writing a '1' to the self-clearing WATCHDOG bit resets the watchdog counter
++ * value.
++ */
++static int _da9063_wdt_reset_timer(struct da9063 *da9063)
++{
++	return regmap_write(da9063->regmap,
++			    DA9063_REG_CONTROL_F,
++			    DA9063_WATCHDOG);
++}
++
+ static int _da9063_wdt_set_timeout(struct da9063 *da9063, unsigned int regval)
+ {
+-	return regmap_update_bits(da9063->regmap, DA9063_REG_CONTROL_D,
+-				  DA9063_TWDSCALE_MASK, regval);
++	int ret;
++
++	/*
++	 * The watchdog trigger a reboot if a timeout value is already
++	 * programmed. Because the timeout value combines two functions in
++	 * one: indicating the counter limit and starting the watchdog. To be
++	 * able to set the watchdog a second time (first time was done by the
++	 * bootloader) disable the watchdog clear the counter value manually and
++	 * set the new timeout value.
++	 */
++	ret = regmap_update_bits(da9063->regmap,
++				 DA9063_REG_CONTROL_D,
++				 DA9063_TWDSCALE_MASK,
++				 DA9063_TWDSCALE_DISABLE);
++	if (ret)
++		dev_warn(da9063->dev,
++			 "Failed to disable watchdog before setting new timeout\n");
++
++	ret = _da9063_wdt_reset_timer(da9063);
++	if (ret)
++		dev_warn(da9063->dev, "Failed to reset watchdog counter\n");
++
++	return regmap_update_bits(da9063->regmap,
++				  DA9063_REG_CONTROL_D,
++				  DA9063_TWDSCALE_MASK,
++				  regval);
+ }
+ 
+ static int da9063_wdt_start(struct watchdog_device *wdd)
+@@ -85,8 +120,7 @@ static int da9063_wdt_ping(struct watchdog_device *wdd)
+ 	struct da9063 *da9063 = watchdog_get_drvdata(wdd);
+ 	int ret;
+ 
+-	ret = regmap_write(da9063->regmap, DA9063_REG_CONTROL_F,
+-			   DA9063_WATCHDOG);
++	ret = _da9063_wdt_reset_timer(da9063);
+ 	if (ret)
+ 		dev_alert(da9063->dev, "Failed to ping the watchdog (err = %d)\n",
+ 			  ret);
+-- 
+2.17.0
+
