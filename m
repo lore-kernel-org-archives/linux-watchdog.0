@@ -1,120 +1,89 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:51826 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932659AbeEHOsa (ORCPT
+Received: from lgeamrelo13.lge.com ([156.147.23.53]:41312 "EHLO
+        lgeamrelo11.lge.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S933588AbeEICkW (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 8 May 2018 10:48:30 -0400
-Date: Tue, 8 May 2018 07:48:22 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Jia-Ju Bai <baijiaju1990@gmail.com>
-Cc: morbidrsa@gmail.com, wim@linux-watchdog.org,
+        Tue, 8 May 2018 22:40:22 -0400
+Subject: Re: [PATCH v3] watchdog: sp805: add restart handler
+To: Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
         linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] watchdog: mena21_wdt: Drop unnecessary mutex lock
-Message-ID: <20180508144822.GA11268@roeck-us.net>
-References: <20180508071206.13375-1-baijiaju1990@gmail.com>
+Cc: Chanho Min <chanho.min@lge.com>
+References: <cf2f151a-06d7-368e-7ae5-68e992dfc3ea@roeck-us.net>
+ <1525413903-7066-1-git-send-email-neidhard.kim@lge.com>
+ <1b084bff-84fd-18fa-7bee-dd00e33405a2@roeck-us.net>
+From: Jongsung Kim <neidhard.kim@lge.com>
+Message-ID: <6d09e8c6-d6b9-d0ea-2496-1b1cd1487808@lge.com>
+Date: Wed, 9 May 2018 11:40:19 +0900
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20180508071206.13375-1-baijiaju1990@gmail.com>
+In-Reply-To: <1b084bff-84fd-18fa-7bee-dd00e33405a2@roeck-us.net>
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, May 08, 2018 at 03:12:06PM +0800, Jia-Ju Bai wrote:
-> There is already a mutex in the watchdog core which serializes
-> calls to the various API functions. 
-> So the mutex lock "drv->lock" is unnecessary and can be dropped.
-> 
-> Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+On 05/04/2018 10:11 PM, Guenter Roeck wrote:
+> On 05/03/2018 11:05 PM, Jongsung Kim wrote:
+>> Add restart handler for SP805 watchdog so that the driver can be
+>> used to reboot the system.
+>>
+>> Signed-off-by: Jongsung Kim <neidhard.kim@lge.com>
+>> Cc: Guenter Roeck <linux@roeck-us.net>
+>
+> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+>
+>> ---
+>
+> For future patches: change log goes here, please.
+>
+> Thanks,
+> Guenter
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Thank you for your review and kind comments.
+JS
 
-> ---
->  drivers/watchdog/mena21_wdt.c | 18 ------------------
->  1 file changed, 18 deletions(-)
-> 
-> diff --git a/drivers/watchdog/mena21_wdt.c b/drivers/watchdog/mena21_wdt.c
-> index 25d5d2b8cfbe..0be7f50e8ff9 100644
-> --- a/drivers/watchdog/mena21_wdt.c
-> +++ b/drivers/watchdog/mena21_wdt.c
-> @@ -31,7 +31,6 @@ enum a21_wdt_gpios {
->  
->  struct a21_wdt_drv {
->  	struct watchdog_device wdt;
-> -	struct mutex lock;
->  	unsigned gpios[NUM_GPIOS];
->  };
->  
-> @@ -55,12 +54,8 @@ static int a21_wdt_start(struct watchdog_device *wdt)
->  {
->  	struct a21_wdt_drv *drv = watchdog_get_drvdata(wdt);
->  
-> -	mutex_lock(&drv->lock);
-> -
->  	gpio_set_value(drv->gpios[GPIO_WD_ENAB], 1);
->  
-> -	mutex_unlock(&drv->lock);
-> -
->  	return 0;
->  }
->  
-> @@ -68,12 +63,8 @@ static int a21_wdt_stop(struct watchdog_device *wdt)
->  {
->  	struct a21_wdt_drv *drv = watchdog_get_drvdata(wdt);
->  
-> -	mutex_lock(&drv->lock);
-> -
->  	gpio_set_value(drv->gpios[GPIO_WD_ENAB], 0);
->  
-> -	mutex_unlock(&drv->lock);
-> -
->  	return 0;
->  }
->  
-> @@ -81,14 +72,10 @@ static int a21_wdt_ping(struct watchdog_device *wdt)
->  {
->  	struct a21_wdt_drv *drv = watchdog_get_drvdata(wdt);
->  
-> -	mutex_lock(&drv->lock);
-> -
->  	gpio_set_value(drv->gpios[GPIO_WD_TRIG], 0);
->  	ndelay(10);
->  	gpio_set_value(drv->gpios[GPIO_WD_TRIG], 1);
->  
-> -	mutex_unlock(&drv->lock);
-> -
->  	return 0;
->  }
->  
-> @@ -108,8 +95,6 @@ static int a21_wdt_set_timeout(struct watchdog_device *wdt,
->  		return -EINVAL;
->  	}
->  
-> -	mutex_lock(&drv->lock);
-> -
->  	if (timeout == 1)
->  		gpio_set_value(drv->gpios[GPIO_WD_FAST], 1);
->  	else
-> @@ -117,8 +102,6 @@ static int a21_wdt_set_timeout(struct watchdog_device *wdt,
->  
->  	wdt->timeout = timeout;
->  
-> -	mutex_unlock(&drv->lock);
-> -
->  	return 0;
->  }
->  
-> @@ -191,7 +174,6 @@ static int a21_wdt_probe(struct platform_device *pdev)
->  			return ret;
->  	}
->  
-> -	mutex_init(&drv->lock);
->  	watchdog_init_timeout(&a21_wdt, 30, &pdev->dev);
->  	watchdog_set_nowayout(&a21_wdt, nowayout);
->  	watchdog_set_drvdata(&a21_wdt, drv);
-> -- 
-> 2.17.0
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
+>>   drivers/watchdog/sp805_wdt.c | 14 ++++++++++++++
+>>   1 file changed, 14 insertions(+)
+>>
+>> diff --git a/drivers/watchdog/sp805_wdt.c b/drivers/watchdog/sp805_wdt.c
+>> index 03805bc..9849db0 100644
+>> --- a/drivers/watchdog/sp805_wdt.c
+>> +++ b/drivers/watchdog/sp805_wdt.c
+>> @@ -121,6 +121,18 @@ static unsigned int wdt_timeleft(struct watchdog_device *wdd)
+>>       return div_u64(load, rate);
+>>   }
+>>   +static int
+>> +wdt_restart(struct watchdog_device *wdd, unsigned long mode, void *cmd)
+>> +{
+>> +    struct sp805_wdt *wdt = watchdog_get_drvdata(wdd);
+>> +
+>> +    writel_relaxed(0, wdt->base + WDTCONTROL);
+>> +    writel_relaxed(0, wdt->base + WDTLOAD);
+>> +    writel_relaxed(INT_ENABLE | RESET_ENABLE, wdt->base + WDTCONTROL);
+>> +
+>> +    return 0;
+>> +}
+>> +
+>>   static int wdt_config(struct watchdog_device *wdd, bool ping)
+>>   {
+>>       struct sp805_wdt *wdt = watchdog_get_drvdata(wdd);
+>> @@ -197,6 +209,7 @@ static const struct watchdog_ops wdt_ops = {
+>>       .ping        = wdt_ping,
+>>       .set_timeout    = wdt_setload,
+>>       .get_timeleft    = wdt_timeleft,
+>> +    .restart    = wdt_restart,
+>>   };
+>>     static int
+>> @@ -230,6 +243,7 @@ sp805_wdt_probe(struct amba_device *adev, const struct amba_id *id)
+>>       spin_lock_init(&wdt->lock);
+>>       watchdog_set_nowayout(&wdt->wdd, nowayout);
+>>       watchdog_set_drvdata(&wdt->wdd, wdt);
+>> +    watchdog_set_restart_priority(&wdt->wdd, 128);
+>>       wdt_setload(&wdt->wdd, DEFAULT_TIMEOUT);
+>>         ret = watchdog_register_device(&wdt->wdd);
+>>
+>
+>
+
