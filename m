@@ -1,104 +1,48 @@
-Return-Path: <baijiaju1990@gmail.com>
-Return-path: <baijiaju1990@gmail.com>
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
-To: morbidrsa@gmail.com,
-	wim@linux-watchdog.org,
-	linux@roeck-us.net
-Cc: linux-watchdog@vger.kernel.org,
+Return-Path: <paul@crapouillou.net>
+Return-path: <paul@crapouillou.net>
+From: Paul Cercueil <paul@crapouillou.net>
+To: Guenter Roeck <linux@roeck-us.net>,
+	Rob Herring <robh+dt@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ralf Baechle <ralf@linux-mips.org>,
+	James Hogan <jhogan@kernel.org>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Mathieu Malaterre <malat@debian.org>,
+	linux-watchdog@vger.kernel.org,
+	devicetree@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	Jia-Ju Bai <baijiaju1990@gmail.com>
-Subject: [PATCH] watchdog: mena21_wdt: Drop unnecessary mutex lock
-Date: Tue,  8 May 2018 15:12:06 +0800
-Message-Id: <20180508071206.13375-1-baijiaju1990@gmail.com>
+	linux-mips@linux-mips.org,
+	Paul Cercueil <paul@crapouillou.net>
+Subject: [PATCH v3 1/8] watchdog: JZ4740: Disable clock after stopping counter
+Date: Thu, 10 May 2018 20:47:44 +0200
+Message-Id: <20180510184751.13416-1-paul@crapouillou.net>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-There is already a mutex in the watchdog core which serializes
-calls to the various API functions. 
-So the mutex lock "drv->lock" is unnecessary and can be dropped.
+Previously, the clock was disabled first, which makes the watchdog
+component insensitive to register writes.
 
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/watchdog/mena21_wdt.c | 18 ------------------
- 1 file changed, 18 deletions(-)
+ drivers/watchdog/jz4740_wdt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/watchdog/mena21_wdt.c b/drivers/watchdog/mena21_wdt.c
-index 25d5d2b8cfbe..0be7f50e8ff9 100644
---- a/drivers/watchdog/mena21_wdt.c
-+++ b/drivers/watchdog/mena21_wdt.c
-@@ -31,7 +31,6 @@ enum a21_wdt_gpios {
- 
- struct a21_wdt_drv {
- 	struct watchdog_device wdt;
--	struct mutex lock;
- 	unsigned gpios[NUM_GPIOS];
- };
- 
-@@ -55,12 +54,8 @@ static int a21_wdt_start(struct watchdog_device *wdt)
+ v2: No change
+ v3: No change
+
+diff --git a/drivers/watchdog/jz4740_wdt.c b/drivers/watchdog/jz4740_wdt.c
+index aafbeb96561b..55c9a1f26498 100644
+--- a/drivers/watchdog/jz4740_wdt.c
++++ b/drivers/watchdog/jz4740_wdt.c
+@@ -124,8 +124,8 @@ static int jz4740_wdt_stop(struct watchdog_device *wdt_dev)
  {
- 	struct a21_wdt_drv *drv = watchdog_get_drvdata(wdt);
+ 	struct jz4740_wdt_drvdata *drvdata = watchdog_get_drvdata(wdt_dev);
  
--	mutex_lock(&drv->lock);
--
- 	gpio_set_value(drv->gpios[GPIO_WD_ENAB], 1);
+-	jz4740_timer_disable_watchdog();
+ 	writeb(0x0, drvdata->base + JZ_REG_WDT_COUNTER_ENABLE);
++	jz4740_timer_disable_watchdog();
  
--	mutex_unlock(&drv->lock);
--
  	return 0;
  }
- 
-@@ -68,12 +63,8 @@ static int a21_wdt_stop(struct watchdog_device *wdt)
- {
- 	struct a21_wdt_drv *drv = watchdog_get_drvdata(wdt);
- 
--	mutex_lock(&drv->lock);
--
- 	gpio_set_value(drv->gpios[GPIO_WD_ENAB], 0);
- 
--	mutex_unlock(&drv->lock);
--
- 	return 0;
- }
- 
-@@ -81,14 +72,10 @@ static int a21_wdt_ping(struct watchdog_device *wdt)
- {
- 	struct a21_wdt_drv *drv = watchdog_get_drvdata(wdt);
- 
--	mutex_lock(&drv->lock);
--
- 	gpio_set_value(drv->gpios[GPIO_WD_TRIG], 0);
- 	ndelay(10);
- 	gpio_set_value(drv->gpios[GPIO_WD_TRIG], 1);
- 
--	mutex_unlock(&drv->lock);
--
- 	return 0;
- }
- 
-@@ -108,8 +95,6 @@ static int a21_wdt_set_timeout(struct watchdog_device *wdt,
- 		return -EINVAL;
- 	}
- 
--	mutex_lock(&drv->lock);
--
- 	if (timeout == 1)
- 		gpio_set_value(drv->gpios[GPIO_WD_FAST], 1);
- 	else
-@@ -117,8 +102,6 @@ static int a21_wdt_set_timeout(struct watchdog_device *wdt,
- 
- 	wdt->timeout = timeout;
- 
--	mutex_unlock(&drv->lock);
--
- 	return 0;
- }
- 
-@@ -191,7 +174,6 @@ static int a21_wdt_probe(struct platform_device *pdev)
- 			return ret;
- 	}
- 
--	mutex_init(&drv->lock);
- 	watchdog_init_timeout(&a21_wdt, 30, &pdev->dev);
- 	watchdog_set_nowayout(&a21_wdt, nowayout);
- 	watchdog_set_drvdata(&a21_wdt, drv);
 -- 
-2.17.0
+2.11.0
