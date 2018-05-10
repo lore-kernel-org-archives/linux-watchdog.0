@@ -1,10 +1,10 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from outils.crapouillou.net ([89.234.176.41]:56608 "EHLO
+Received: from outils.crapouillou.net ([89.234.176.41]:55632 "EHLO
         crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750972AbeEJSsh (ORCPT
+        with ESMTP id S1750972AbeEJSsW (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 10 May 2018 14:48:37 -0400
+        Thu, 10 May 2018 14:48:22 -0400
 From: Paul Cercueil <paul@crapouillou.net>
 To: Guenter Roeck <linux@roeck-us.net>,
         Rob Herring <robh+dt@kernel.org>,
@@ -16,68 +16,53 @@ Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
         linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-mips@linux-mips.org,
         Paul Cercueil <paul@crapouillou.net>
-Subject: [PATCH v3 6/8] MIPS: jz4780: dts: Fix watchdog node
-Date: Thu, 10 May 2018 20:47:49 +0200
-Message-Id: <20180510184751.13416-6-paul@crapouillou.net>
+Subject: [PATCH v3 3/8] watchdog: JZ4740: Register a restart handler
+Date: Thu, 10 May 2018 20:47:46 +0200
+Message-Id: <20180510184751.13416-3-paul@crapouillou.net>
 In-Reply-To: <20180510184751.13416-1-paul@crapouillou.net>
 References: <20180510184751.13416-1-paul@crapouillou.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-- The previous node requested a memory area of 0x100 bytes, while the
-  driver only manipulates four registers present in the first 0x10 bytes.
-
-- The driver requests for the "rtc" clock, but the previous node did not
-  provide any.
+The watchdog driver can restart the system by simply configuring the
+hardware for a timeout of 0 seconds.
 
 Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Reviewed-by: Mathieu Malaterre <malat@debian.org>
-Acked-by: James Hogan <jhogan@kernel.org>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 ---
- Documentation/devicetree/bindings/watchdog/ingenic,jz4740-wdt.txt | 7 ++++++-
- arch/mips/boot/dts/ingenic/jz4780.dtsi                            | 5 ++++-
- 2 files changed, 10 insertions(+), 2 deletions(-)
+ drivers/watchdog/jz4740_wdt.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
  v2: No change
- v3: Also fix documentation
+ v3: No change
 
-diff --git a/Documentation/devicetree/bindings/watchdog/ingenic,jz4740-wdt.txt b/Documentation/devicetree/bindings/watchdog/ingenic,jz4740-wdt.txt
-index cb44918f01a8..ce1cb72d5345 100644
---- a/Documentation/devicetree/bindings/watchdog/ingenic,jz4740-wdt.txt
-+++ b/Documentation/devicetree/bindings/watchdog/ingenic,jz4740-wdt.txt
-@@ -3,10 +3,15 @@ Ingenic Watchdog Timer (WDT) Controller for JZ4740 & JZ4780
- Required properties:
- compatible: "ingenic,jz4740-watchdog" or "ingenic,jz4780-watchdog"
- reg: Register address and length for watchdog registers
-+clocks: phandle to the RTC clock
-+clock-names: should be "rtc"
+diff --git a/drivers/watchdog/jz4740_wdt.c b/drivers/watchdog/jz4740_wdt.c
+index 22136e3522b9..b8b015a7d045 100644
+--- a/drivers/watchdog/jz4740_wdt.c
++++ b/drivers/watchdog/jz4740_wdt.c
+@@ -130,6 +130,14 @@ static int jz4740_wdt_stop(struct watchdog_device *wdt_dev)
+ 	return 0;
+ }
  
- Example:
- 
- watchdog: jz4740-watchdog@10002000 {
- 	compatible = "ingenic,jz4740-watchdog";
--	reg = <0x10002000 0x100>;
-+	reg = <0x10002000 0x10>;
++static int jz4740_wdt_restart(struct watchdog_device *wdt_dev,
++			      unsigned long action, void *data)
++{
++	wdt_dev->timeout = 0;
++	jz4740_wdt_start(wdt_dev);
++	return 0;
++}
 +
-+	clocks = <&cgu JZ4740_CLK_RTC>;
-+	clock-names = "rtc";
+ static const struct watchdog_info jz4740_wdt_info = {
+ 	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
+ 	.identity = "jz4740 Watchdog",
+@@ -141,6 +149,7 @@ static const struct watchdog_ops jz4740_wdt_ops = {
+ 	.stop = jz4740_wdt_stop,
+ 	.ping = jz4740_wdt_ping,
+ 	.set_timeout = jz4740_wdt_set_timeout,
++	.restart = jz4740_wdt_restart,
  };
-diff --git a/arch/mips/boot/dts/ingenic/jz4780.dtsi b/arch/mips/boot/dts/ingenic/jz4780.dtsi
-index 9b5794667aee..a52f59bf58c7 100644
---- a/arch/mips/boot/dts/ingenic/jz4780.dtsi
-+++ b/arch/mips/boot/dts/ingenic/jz4780.dtsi
-@@ -221,7 +221,10 @@
  
- 	watchdog: watchdog@10002000 {
- 		compatible = "ingenic,jz4780-watchdog";
--		reg = <0x10002000 0x100>;
-+		reg = <0x10002000 0x10>;
-+
-+		clocks = <&cgu JZ4780_CLK_RTCLK>;
-+		clock-names = "rtc";
- 	};
- 
- 	nemc: nemc@13410000 {
+ #ifdef CONFIG_OF
 -- 
 2.11.0
 
