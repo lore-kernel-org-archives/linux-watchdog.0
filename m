@@ -1,63 +1,56 @@
 Return-Path: <jhogan@kernel.org>
 Return-path: <jhogan@kernel.org>
-Date: Fri, 11 May 2018 15:52:47 +0100
+Date: Fri, 11 May 2018 21:54:14 +0100
 From: James Hogan <jhogan@kernel.org>
 To: Paul Cercueil <paul@crapouillou.net>
-Cc: Guenter Roeck <linux@roeck-us.net>, Rob Herring <robh+dt@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ralf Baechle <ralf@linux-mips.org>,
-	Wim Van Sebroeck <wim@linux-watchdog.org>,
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
 	Mathieu Malaterre <malat@debian.org>,
-	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-mips@linux-mips.org
+	Mark Rutland <mark.rutland@arm.com>,
+	Rob Herring <robh+dt@kernel.org>, linux-kernel@vger.kernel.org,
+	Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org,
+	linux-watchdog@vger.kernel.org, Ralf Baechle <ralf@linux-mips.org>,
+	linux-mips@linux-mips.org
 Subject: Re: [PATCH v3 5/8] MIPS: jz4740: dts: Add bindings for the
  jz4740-wdt driver
-Message-ID: <20180511145246.GA12956@jamesdev>
-References: <20180510184751.13416-1-paul@crapouillou.net>
- <20180510184751.13416-5-paul@crapouillou.net>
+Message-ID: <20180511205413.GA18694@jamesdev>
+References: <5af5c20f.1c69fb81.e968b.17c0SMTPIN_ADDED_MISSING@mx.google.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="EeQfGwPcQSOJBaQU"
+	protocol="application/pgp-signature"; boundary="UugvWAfsgieZRqgk"
 Content-Disposition: inline
-In-Reply-To: <20180510184751.13416-5-paul@crapouillou.net>
+In-Reply-To: <5af5c20f.1c69fb81.e968b.17c0SMTPIN_ADDED_MISSING@mx.google.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
 
---EeQfGwPcQSOJBaQU
+--UugvWAfsgieZRqgk
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, May 10, 2018 at 08:47:48PM +0200, Paul Cercueil wrote:
-> Also remove the watchdog platform_device from platform.c, since it
-> wasn't used anywhere anyway.
+On Fri, May 11, 2018 at 01:17:04PM -0300, Paul Cercueil wrote:
+> Le 11 mai 2018 11:52, James Hogan <jhogan@kernel.org> a =C3=A9crit :
+> > Otherwise=20
+> > Acked-by: James Hogan <jhogan@kernel.org>=20
+> >
+> > I'm happy to apply for 4.18 with that change if you want it to go=20
+> > through the MIPS tree.=20
+>=20
+> Yes please!
 
-Nit: it'd be slightly nicer IMO if the patch body was a superset of the
-subject line. It's fine to repeat what the subject says since thats
-meant to summarise the body.
+Done
 
-> -struct platform_device jz4740_wdt_device = {
-
-There's an extern in arch/mips/include/asm/mach-jz4740/platform.h that
-should perhaps be removed also?
-
-Otherwise
-Acked-by: James Hogan <jhogan@kernel.org>
-
-I'm happy to apply for 4.18 with that change if you want it to go
-through the MIPS tree.
-
-Cheers
+Thanks
 James
 
---EeQfGwPcQSOJBaQU
+--UugvWAfsgieZRqgk
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iHUEARYIAB0WIQS7lRNBWUYtqfDOVL41zuSGKxAj8gUCWvWuPQAKCRA1zuSGKxAj
-8mlfAQCJf5mvfQD9ow7oPKhrS7ZEEtsAokvWC1M/Z2F3mCx3bgD9HQQl05Fya66i
-Dpd1TlEADWA+H91gd5uKii85SdfeNwo=
-=IGgX
+iHUEARYIAB0WIQS7lRNBWUYtqfDOVL41zuSGKxAj8gUCWvYC9AAKCRA1zuSGKxAj
+8phyAQDZoZqOKloD7PM+wLPxstrAw1VWIjKL+v52Gvt1yS1XngD/TnyxIuRbRmnd
+htOP4kysT09dfNSDNBH3WOqrPo2xrAY=
+=3t2e
 -----END PGP SIGNATURE-----
 
---EeQfGwPcQSOJBaQU--
+--UugvWAfsgieZRqgk--
