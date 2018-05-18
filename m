@@ -1,123 +1,113 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-qk0-f196.google.com ([209.85.220.196]:46800 "EHLO
-        mail-qk0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932606AbeE1SB4 (ORCPT
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:41855 "EHLO
+        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751695AbeERC2n (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 28 May 2018 14:01:56 -0400
-Received: by mail-qk0-f196.google.com with SMTP id k86-v6so9648322qkh.13
-        for <linux-watchdog@vger.kernel.org>; Mon, 28 May 2018 11:01:56 -0700 (PDT)
-From: Ray Jui <ray.jui@broadcom.com>
-To: Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Frank Rowand <frowand.list@gmail.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Robin Murphy <robin.murphy@arm.com>
-Cc: linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        bcm-kernel-feedback-list@broadcom.com,
-        Ray Jui <ray.jui@broadcom.com>
-Subject: [PATCH v4 1/6] Documentation: DT: Consolidate SP805 binding docs
-Date: Mon, 28 May 2018 11:01:32 -0700
-Message-Id: <1527530497-10392-2-git-send-email-ray.jui@broadcom.com>
-In-Reply-To: <1527530497-10392-1-git-send-email-ray.jui@broadcom.com>
-References: <1527530497-10392-1-git-send-email-ray.jui@broadcom.com>
+        Thu, 17 May 2018 22:28:43 -0400
+Received: by mail-pf0-f196.google.com with SMTP id v63-v6so2989477pfk.8
+        for <linux-watchdog@vger.kernel.org>; Thu, 17 May 2018 19:28:42 -0700 (PDT)
+Subject: Re: [PATCH v4] watchdog: da9063: Fix setting/changing timeout
+To: Marco Felsch <m.felsch@pengutronix.de>, wim@linux-watchdog.org
+Cc: support.opensource@diasemi.com, fzuuzf@googlemail.com,
+        linux-watchdog@vger.kernel.org, kernel@pengutronix.de
+References: <20180517093710.808-1-m.felsch@pengutronix.de>
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <7febc00f-24fb-441a-54fa-6bd7e36364c9@roeck-us.net>
+Date: Thu, 17 May 2018 19:28:39 -0700
+MIME-Version: 1.0
+In-Reply-To: <20180517093710.808-1-m.felsch@pengutronix.de>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Consolidate two SP805 binding documents "arm,sp805.txt" and
-"sp805-wdt.txt" into "arm,sp805.txt" that matches the naming of the
-desired compatible string to be used
+On 05/17/2018 02:37 AM, Marco Felsch wrote:
+> If the timeout value is set more than once the DA9063 watchdog triggers
+> a reset signal which reset the system.
+> 
+> To update the timeout value we have to disable the watchdog, clear the
+> watchdog counter value and write the new timeout value to the watchdog.
+> Clearing the counter value is a feature to be on the safe side because the
+> data sheet doesn't describe the behaviour of the watchdog counter value
+> after a watchdog disabling-enable-sequence.
+> 
+> The patch is based on Philipp Zabel's previous patch.
+> 
+> Fixes: 5e9c16e37608 ("watchdog: Add DA9063 PMIC watchdog driver.")
+> Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
+> ---
+>   drivers/watchdog/da9063_wdt.c | 35 +++++++++++++++++++++++++++++++++--
+>   1 file changed, 33 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/watchdog/da9063_wdt.c b/drivers/watchdog/da9063_wdt.c
+> index b17ac1bb1f28..06fcc662673e 100644
+> --- a/drivers/watchdog/da9063_wdt.c
+> +++ b/drivers/watchdog/da9063_wdt.c
+> @@ -45,8 +45,40 @@ static unsigned int da9063_wdt_timeout_to_sel(unsigned int secs)
+>   	return DA9063_TWDSCALE_MAX;
+>   }
+>   
+> +/*
+> + * Writing a '1' to the self-clearing WATCHDOG bit resets the watchdog counter
+> + * value.
+> + */
+> +static int _da9063_wdt_reset_timer(struct da9063 *da9063)
+> +{
+> +	return regmap_write(da9063->regmap, DA9063_REG_CONTROL_F,
+> +			    DA9063_WATCHDOG);
+> +}
+> +
+>   static int _da9063_wdt_set_timeout(struct da9063 *da9063, unsigned int regval)
+>   {
+> +	int ret;
+> +
+> +	/*
+> +	 * The watchdog triggers a reboot if a timeout value is already
+> +	 * programmed. The reason for this is that the timeout value
+> +	 * combines two functions in one: indicating the counter limit and
+> +	 * starting the watchdog. The watchdog must be disabled to be able to
+> +	 * change the timeout value if the watchdog is already running. Then
+> +	 * we can set the new timeout value which enables the watchdog again.
 
-Signed-off-by: Ray Jui <ray.jui@broadcom.com>
----
- .../devicetree/bindings/watchdog/arm,sp805.txt     | 27 ++++++++++++++-----
- .../devicetree/bindings/watchdog/sp805-wdt.txt     | 31 ----------------------
- 2 files changed, 20 insertions(+), 38 deletions(-)
- delete mode 100644 Documentation/devicetree/bindings/watchdog/sp805-wdt.txt
+This is problematic. The watchdog may be stopped when this is called. If setting
+the timeout starts it, we'll need more complex code only doing this if the
+watchdog is running.
 
-diff --git a/Documentation/devicetree/bindings/watchdog/arm,sp805.txt b/Documentation/devicetree/bindings/watchdog/arm,sp805.txt
-index ca99d64..0fa3629 100644
---- a/Documentation/devicetree/bindings/watchdog/arm,sp805.txt
-+++ b/Documentation/devicetree/bindings/watchdog/arm,sp805.txt
-@@ -1,17 +1,30 @@
- ARM AMBA Primecell SP805 Watchdog
- 
-+SP805 WDT is a ARM Primecell Peripheral and has a standard-id register that
-+can be used to identify the peripheral type, vendor, and revision.
-+This value can be used for driver matching.
-+
-+As SP805 WDT is a primecell IP, it follows the base bindings specified in
-+'arm/primecell.txt'
-+
- Required properties:
--- compatible: Should be "arm,sp805" & "arm,primecell"
--- reg: Should contain location and length for watchdog timer register.
--- interrupts: Should contain the list of watchdog timer interrupts.
--- clocks: clocks driving the watchdog timer hardware. This list should be 2
--	clocks. With 2 clocks, the order is wdogclk clock, apb_pclk.
-+- compatible:  Should be "arm,sp805" & "arm,primecell"
-+- reg:         Should contain location and length for watchdog timer register
-+- clocks:      Clocks driving the watchdog timer hardware. This list should be
-+               2 clocks. With 2 clocks, the order is wdog_clk, apb_pclk
-+               wdog_clk can be equal to or be a sub-multiple of the apb_pclk
-+               frequency
-+- clock-names: Shall be "wdog_clk" for first clock and "apb_pclk" for the
-+               second one
-+
-+Optional properties:
-+- interrupts:  Should specify WDT interrupt number
- 
- Example:
- 	watchdog@66090000 {
- 		compatible = "arm,sp805", "arm,primecell";
- 		reg = <0x66090000 0x1000>;
- 		interrupts = <GIC_SPI 406 IRQ_TYPE_LEVEL_HIGH>;
--		clocks = <&apb_pclk>,<&apb_pclk>;
--		clock-names = "wdogclk", "apb_pclk";
-+		clocks = <&wdt_clk>, <&apb_pclk>;
-+		clock-names = "wdog_clk", "apb_pclk";
- 	};
-diff --git a/Documentation/devicetree/bindings/watchdog/sp805-wdt.txt b/Documentation/devicetree/bindings/watchdog/sp805-wdt.txt
-deleted file mode 100644
-index edc4f0e..0000000
---- a/Documentation/devicetree/bindings/watchdog/sp805-wdt.txt
-+++ /dev/null
-@@ -1,31 +0,0 @@
--* ARM SP805 Watchdog Timer (WDT) Controller
--
--SP805 WDT is a ARM Primecell Peripheral and has a standard-id register that
--can be used to identify the peripheral type, vendor, and revision.
--This value can be used for driver matching.
--
--As SP805 WDT is a primecell IP, it follows the base bindings specified in
--'arm/primecell.txt'
--
--Required properties:
--- compatible : Should be "arm,sp805-wdt", "arm,primecell"
--- reg : Base address and size of the watchdog timer registers.
--- clocks : From common clock binding.
--           First clock is PCLK and the second is WDOGCLK.
--           WDOGCLK can be equal to or be a sub-multiple of the PCLK frequency.
--- clock-names : From common clock binding.
--                Shall be "apb_pclk" for first clock and "wdog_clk" for the
--                second one.
--
--Optional properties:
--- interrupts : Should specify WDT interrupt number.
--
--Examples:
--
--		cluster1_core0_watchdog: wdt@c000000 {
--			compatible = "arm,sp805-wdt", "arm,primecell";
--			reg = <0x0 0xc000000 0x0 0x1000>;
--			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
--			clock-names = "apb_pclk", "wdog_clk";
--		};
--
--- 
-2.1.4
+> +	 */
+> +	ret = regmap_update_bits(da9063->regmap, DA9063_REG_CONTROL_D,
+> +				 DA9063_TWDSCALE_MASK, DA9063_TWDSCALE_DISABLE);
+> +	if (ret)
+> +		dev_warn(da9063->dev,
+> +			 "Failed to disable watchdog before setting new timeout\n");
+> +
+
+It might be simpler to just call da9063_wdt_stop() for the above.
+
+> +	usleep_range(150, 300);
+> +
+> +	ret = _da9063_wdt_reset_timer(da9063);
+
+Is this necessary even though the watchdog is stopped at this point ?
+
+Guenter
+
+> +	if (ret)
+> +		dev_warn(da9063->dev, "Failed to reset watchdog counter\n");
+> +
+>   	return regmap_update_bits(da9063->regmap, DA9063_REG_CONTROL_D,
+>   				  DA9063_TWDSCALE_MASK, regval);
+>   }
+> @@ -85,8 +117,7 @@ static int da9063_wdt_ping(struct watchdog_device *wdd)
+>   	struct da9063 *da9063 = watchdog_get_drvdata(wdd);
+>   	int ret;
+>   
+> -	ret = regmap_write(da9063->regmap, DA9063_REG_CONTROL_F,
+> -			   DA9063_WATCHDOG);
+> +	ret = _da9063_wdt_reset_timer(da9063);
+>   	if (ret)
+>   		dev_alert(da9063->dev, "Failed to ping the watchdog (err = %d)\n",
+>   			  ret);
+> 
 
