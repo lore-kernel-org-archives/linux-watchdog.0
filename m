@@ -14,34 +14,42 @@ Cc: linux-watchdog@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	bcm-kernel-feedback-list@broadcom.com,
 	Ray Jui <ray.jui@broadcom.com>
-Subject: [PATCH 1/5] Documentation: DT: Add optional 'timeout-sec' property for sp805
-Date: Tue, 22 May 2018 11:47:16 -0700
-Message-Id: <1527014840-21236-2-git-send-email-ray.jui@broadcom.com>
+Subject: [PATCH 2/5] watchdog: sp805: add 'timeout-sec' DT property support
+Date: Tue, 22 May 2018 11:47:17 -0700
+Message-Id: <1527014840-21236-3-git-send-email-ray.jui@broadcom.com>
 In-Reply-To: <1527014840-21236-1-git-send-email-ray.jui@broadcom.com>
 References: <1527014840-21236-1-git-send-email-ray.jui@broadcom.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Update the SP805 binding document to add optional 'timeout-sec'
-devicetree property
+Add support for optional devicetree property 'timeout-sec'.
+'timeout-sec' is used in the driver if specified in devicetree.
+Otherwise, fall back to driver default, i.e., 60 seconds
 
 Signed-off-by: Ray Jui <ray.jui@broadcom.com>
 Reviewed-by: Scott Branden <scott.branden@broadcom.com>
 ---
- Documentation/devicetree/bindings/watchdog/sp805-wdt.txt | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/watchdog/sp805_wdt.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/watchdog/sp805-wdt.txt b/Documentation/devicetree/bindings/watchdog/sp805-wdt.txt
-index edc4f0e..f898a86 100644
---- a/Documentation/devicetree/bindings/watchdog/sp805-wdt.txt
-+++ b/Documentation/devicetree/bindings/watchdog/sp805-wdt.txt
-@@ -19,6 +19,8 @@ Required properties:
+diff --git a/drivers/watchdog/sp805_wdt.c b/drivers/watchdog/sp805_wdt.c
+index 03805bc..1484609 100644
+--- a/drivers/watchdog/sp805_wdt.c
++++ b/drivers/watchdog/sp805_wdt.c
+@@ -230,7 +230,14 @@ sp805_wdt_probe(struct amba_device *adev, const struct amba_id *id)
+ 	spin_lock_init(&wdt->lock);
+ 	watchdog_set_nowayout(&wdt->wdd, nowayout);
+ 	watchdog_set_drvdata(&wdt->wdd, wdt);
+-	wdt_setload(&wdt->wdd, DEFAULT_TIMEOUT);
++
++	/*
++	 * If 'timeout-sec' devicetree property is specified, use that.
++	 * Otherwise, use DEFAULT_TIMEOUT
++	 */
++	wdt->wdd.timeout = DEFAULT_TIMEOUT;
++	watchdog_init_timeout(&wdt->wdd, 0, &adev->dev);
++	wdt_setload(&wdt->wdd, wdt->wdd.timeout);
  
- Optional properties:
- - interrupts : Should specify WDT interrupt number.
-+- timeout-sec : Should specify default WDT timeout in seconds. If unset, the
-+                default timeout is 30 seconds
- 
- Examples:
- 
+ 	ret = watchdog_register_device(&wdt->wdd);
+ 	if (ret) {
 -- 
 2.1.4
