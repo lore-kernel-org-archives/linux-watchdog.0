@@ -1,11 +1,11 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:52103 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:60190 "EHLO
         bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752986AbeEVUzA (ORCPT
+        with ESMTP id S1752809AbeEVU4E (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 22 May 2018 16:55:00 -0400
-Date: Tue, 22 May 2018 13:54:57 -0700
+        Tue, 22 May 2018 16:56:04 -0400
+Date: Tue, 22 May 2018 13:56:02 -0700
 From: Guenter Roeck <linux@roeck-us.net>
 To: Ray Jui <ray.jui@broadcom.com>
 Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
@@ -17,81 +17,44 @@ Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
         linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
         bcm-kernel-feedback-list@broadcom.com
-Subject: Re: [PATCH 3/5] watchdog: sp805: set WDOG_HW_RUNNING when appropriate
-Message-ID: <20180522205457.GA16363@roeck-us.net>
+Subject: Re: [PATCH 1/5] Documentation: DT: Add optional 'timeout-sec'
+ property for sp805
+Message-ID: <20180522205602.GB16363@roeck-us.net>
 References: <1527014840-21236-1-git-send-email-ray.jui@broadcom.com>
- <1527014840-21236-4-git-send-email-ray.jui@broadcom.com>
+ <1527014840-21236-2-git-send-email-ray.jui@broadcom.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1527014840-21236-4-git-send-email-ray.jui@broadcom.com>
+In-Reply-To: <1527014840-21236-2-git-send-email-ray.jui@broadcom.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, May 22, 2018 at 11:47:18AM -0700, Ray Jui wrote:
-> If the watchdog hardware is already enabled during the boot process,
-> when the Linux watchdog driver loads, it should reset the watchdog and
-> tell the watchdog framework. As a result, ping can be generated from
-> the watchdog framework, until the userspace watchdog daemon takes over
-> control
+On Tue, May 22, 2018 at 11:47:16AM -0700, Ray Jui wrote:
+> Update the SP805 binding document to add optional 'timeout-sec'
+> devicetree property
 > 
 > Signed-off-by: Ray Jui <ray.jui@broadcom.com>
-> Reviewed-by: Vladimir Olovyannikov <vladimir.olovyannikov@broadcom.com>
 > Reviewed-by: Scott Branden <scott.branden@broadcom.com>
+
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+
 > ---
->  drivers/watchdog/sp805_wdt.c | 22 ++++++++++++++++++++++
->  1 file changed, 22 insertions(+)
+>  Documentation/devicetree/bindings/watchdog/sp805-wdt.txt | 2 ++
+>  1 file changed, 2 insertions(+)
 > 
-> diff --git a/drivers/watchdog/sp805_wdt.c b/drivers/watchdog/sp805_wdt.c
-> index 1484609..408ffbe 100644
-> --- a/drivers/watchdog/sp805_wdt.c
-> +++ b/drivers/watchdog/sp805_wdt.c
-> @@ -42,6 +42,7 @@
->  	/* control register masks */
->  	#define	INT_ENABLE	(1 << 0)
->  	#define	RESET_ENABLE	(1 << 1)
-> +	#define	ENABLE_MASK	(INT_ENABLE | RESET_ENABLE)
->  #define WDTINTCLR		0x00C
->  #define WDTRIS			0x010
->  #define WDTMIS			0x014
-> @@ -74,6 +75,18 @@ module_param(nowayout, bool, 0);
->  MODULE_PARM_DESC(nowayout,
->  		"Set to 1 to keep watchdog running after device release");
+> diff --git a/Documentation/devicetree/bindings/watchdog/sp805-wdt.txt b/Documentation/devicetree/bindings/watchdog/sp805-wdt.txt
+> index edc4f0e..f898a86 100644
+> --- a/Documentation/devicetree/bindings/watchdog/sp805-wdt.txt
+> +++ b/Documentation/devicetree/bindings/watchdog/sp805-wdt.txt
+> @@ -19,6 +19,8 @@ Required properties:
 >  
-> +/* returns true if wdt is running; otherwise returns false */
-> +static bool wdt_is_running(struct watchdog_device *wdd)
-> +{
-> +	struct sp805_wdt *wdt = watchdog_get_drvdata(wdd);
-> +
-> +	if ((readl_relaxed(wdt->base + WDTCONTROL) & ENABLE_MASK) ==
-> +	    ENABLE_MASK)
-> +		return true;
-> +	else
-> +		return false;
-
-	return !!(readl_relaxed(wdt->base + WDTCONTROL) & ENABLE_MASK));
-
-> +}
-> +
->  /* This routine finds load value that will reset system in required timout */
->  static int wdt_setload(struct watchdog_device *wdd, unsigned int timeout)
->  {
-> @@ -239,6 +252,15 @@ sp805_wdt_probe(struct amba_device *adev, const struct amba_id *id)
->  	watchdog_init_timeout(&wdt->wdd, 0, &adev->dev);
->  	wdt_setload(&wdt->wdd, wdt->wdd.timeout);
+>  Optional properties:
+>  - interrupts : Should specify WDT interrupt number.
+> +- timeout-sec : Should specify default WDT timeout in seconds. If unset, the
+> +                default timeout is 30 seconds
 >  
-> +	/*
-> +	 * If HW is already running, enable/reset the wdt and set the running
-> +	 * bit to tell the wdt subsystem
-> +	 */
-> +	if (wdt_is_running(&wdt->wdd)) {
-> +		wdt_enable(&wdt->wdd);
-> +		set_bit(WDOG_HW_RUNNING, &wdt->wdd.status);
-> +	}
-> +
->  	ret = watchdog_register_device(&wdt->wdd);
->  	if (ret) {
->  		dev_err(&adev->dev, "watchdog_register_device() failed: %d\n",
+>  Examples:
+>  
 > -- 
 > 2.1.4
 > 
