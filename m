@@ -14,37 +14,31 @@ Cc: linux-watchdog@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	bcm-kernel-feedback-list@broadcom.com,
 	Ray Jui <ray.jui@broadcom.com>
-Subject: [PATCH 4/5] arm64: dt: set initial SR watchdog timeout to 60 seconds
-Date: Tue, 22 May 2018 11:47:19 -0700
-Message-Id: <1527014840-21236-5-git-send-email-ray.jui@broadcom.com>
+Subject: [PATCH 5/5] arm64: defconfig: add CONFIG_ARM_SP805_WATCHDOG
+Date: Tue, 22 May 2018 11:47:20 -0700
+Message-Id: <1527014840-21236-6-git-send-email-ray.jui@broadcom.com>
 In-Reply-To: <1527014840-21236-1-git-send-email-ray.jui@broadcom.com>
 References: <1527014840-21236-1-git-send-email-ray.jui@broadcom.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Set initial Stingray watchdog timeout to 60 seconds
-
-By the time when the userspace watchdog daemon is ready and taking
-control over, the watchdog timeout will then be reset to what's
-configured in the daemon
+Enable the SP805 watchdog timer
 
 Signed-off-by: Ray Jui <ray.jui@broadcom.com>
-Reviewed-by: Vladimir Olovyannikov <vladimir.olovyannikov@broadcom.com>
-Reviewed-by: Scott Branden <scott.branden@broadcom.com>
 ---
- arch/arm64/boot/dts/broadcom/stingray/stingray.dtsi | 1 +
+ arch/arm64/configs/defconfig | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm64/boot/dts/broadcom/stingray/stingray.dtsi b/arch/arm64/boot/dts/broadcom/stingray/stingray.dtsi
-index 99aaff0..1e1cf49 100644
---- a/arch/arm64/boot/dts/broadcom/stingray/stingray.dtsi
-+++ b/arch/arm64/boot/dts/broadcom/stingray/stingray.dtsi
-@@ -420,6 +420,7 @@
- 			interrupts = <GIC_SPI 189 IRQ_TYPE_LEVEL_HIGH>;
- 			clocks = <&hsls_25m_div2_clk>, <&hsls_div4_clk>;
- 			clock-names = "wdogclk", "apb_pclk";
-+			timeout-sec = <60>;
- 		};
- 
- 		gpio_hsls: gpio@d0000 {
+diff --git a/arch/arm64/configs/defconfig b/arch/arm64/configs/defconfig
+index ecf6137..3fe5eb5 100644
+--- a/arch/arm64/configs/defconfig
++++ b/arch/arm64/configs/defconfig
+@@ -351,6 +351,7 @@ CONFIG_ROCKCHIP_THERMAL=m
+ CONFIG_TEGRA_BPMP_THERMAL=m
+ CONFIG_UNIPHIER_THERMAL=y
+ CONFIG_WATCHDOG=y
++CONFIG_ARM_SP805_WATCHDOG=y
+ CONFIG_S3C2410_WATCHDOG=y
+ CONFIG_MESON_GXBB_WATCHDOG=m
+ CONFIG_MESON_WATCHDOG=m
 -- 
 2.1.4
