@@ -1,78 +1,118 @@
 Return-Path: <ray.jui@broadcom.com>
 Return-path: <ray.jui@broadcom.com>
-Subject: Re: [PATCH 1/5] Documentation: DT: Add optional 'timeout-sec'
- property for sp805
+Subject: Re: [PATCH 3/5] watchdog: sp805: set WDOG_HW_RUNNING when appropriate
 To: Robin Murphy <robin.murphy@arm.com>,
- Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck
- <linux@roeck-us.net>, Rob Herring <robh+dt@kernel.org>,
- Mark Rutland <mark.rutland@arm.com>, Frank Rowand <frowand.list@gmail.com>,
- Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>
-Cc: devicetree@vger.kernel.org, linux-watchdog@vger.kernel.org,
- linux-kernel@vger.kernel.org, bcm-kernel-feedback-list@broadcom.com,
- linux-arm-kernel@lists.infradead.org
+ Scott Branden <scott.branden@broadcom.com>,
+ Guenter Roeck <linux@roeck-us.net>
+Cc: Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org,
+ linux-watchdog@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
+ Will Deacon <will.deacon@arm.com>, linux-kernel@vger.kernel.org,
+ Rob Herring <robh+dt@kernel.org>, bcm-kernel-feedback-list@broadcom.com,
+ Wim Van Sebroeck <wim@linux-watchdog.org>,
+ Frank Rowand <frowand.list@gmail.com>, linux-arm-kernel@lists.infradead.org
 References: <1527014840-21236-1-git-send-email-ray.jui@broadcom.com>
- <1527014840-21236-2-git-send-email-ray.jui@broadcom.com>
- <af81ea74-fb80-11e2-7bdc-d3607bdbd46b@arm.com>
+ <1527014840-21236-4-git-send-email-ray.jui@broadcom.com>
+ <20180522205457.GA16363@roeck-us.net>
+ <0d92b9e9-a3d1-6e91-8371-b5ed3a83e399@broadcom.com>
+ <00c121ea-d197-93b8-2f56-bcca963f70fb@broadcom.com>
+ <76d47e02-7a5f-3fc2-3905-cd4aa03ac69c@arm.com>
 From: Ray Jui <ray.jui@broadcom.com>
-Message-ID: <c542388f-e417-f624-ade1-95f9a2fc8a3b@broadcom.com>
-Date: Wed, 23 May 2018 09:25:49 -0700
+Message-ID: <5a996888-d3d3-9ae6-e438-5de4d5e3ea32@broadcom.com>
+Date: Wed, 23 May 2018 09:29:23 -0700
 MIME-Version: 1.0
-In-Reply-To: <af81ea74-fb80-11e2-7bdc-d3607bdbd46b@arm.com>
+In-Reply-To: <76d47e02-7a5f-3fc2-3905-cd4aa03ac69c@arm.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 List-ID: <linux-watchdog@vger.kernel.org>
 
+Hi Robin,
 
-
-On 5/23/2018 3:57 AM, Robin Murphy wrote:
-> On 22/05/18 19:47, Ray Jui wrote:
->> Update the SP805 binding document to add optional 'timeout-sec'
->> devicetree property
+On 5/23/2018 4:48 AM, Robin Murphy wrote:
+> On 23/05/18 08:52, Scott Branden wrote:
 >>
->> Signed-off-by: Ray Jui <ray.jui@broadcom.com>
->> Reviewed-by: Scott Branden <scott.branden@broadcom.com>
->> ---
->>   Documentation/devicetree/bindings/watchdog/sp805-wdt.txt | 2 ++
->>   1 file changed, 2 insertions(+)
 >>
->> diff --git a/Documentation/devicetree/bindings/watchdog/sp805-wdt.txt 
->> b/Documentation/devicetree/bindings/watchdog/sp805-wdt.txt
->> index edc4f0e..f898a86 100644
->> --- a/Documentation/devicetree/bindings/watchdog/sp805-wdt.txt
->> +++ b/Documentation/devicetree/bindings/watchdog/sp805-wdt.txt
->> @@ -19,6 +19,8 @@ Required properties:
->>   Optional properties:
->>   - interrupts : Should specify WDT interrupt number.
->> +- timeout-sec : Should specify default WDT timeout in seconds. If 
->> unset, the
->> +                default timeout is 30 seconds
+>> On 18-05-22 04:24 PM, Ray Jui wrote:
+>>> Hi Guenter,
+>>>
+>>> On 5/22/2018 1:54 PM, Guenter Roeck wrote:
+>>>> On Tue, May 22, 2018 at 11:47:18AM -0700, Ray Jui wrote:
+>>>>> If the watchdog hardware is already enabled during the boot process,
+>>>>> when the Linux watchdog driver loads, it should reset the watchdog and
+>>>>> tell the watchdog framework. As a result, ping can be generated from
+>>>>> the watchdog framework, until the userspace watchdog daemon takes over
+>>>>> control
+>>>>>
+>>>>> Signed-off-by: Ray Jui <ray.jui@broadcom.com>
+>>>>> Reviewed-by: Vladimir Olovyannikov 
+>>>>> <vladimir.olovyannikov@broadcom.com>
+>>>>> Reviewed-by: Scott Branden <scott.branden@broadcom.com>
+>>>>> ---
+>>>>>   drivers/watchdog/sp805_wdt.c | 22 ++++++++++++++++++++++
+>>>>>   1 file changed, 22 insertions(+)
+>>>>>
+>>>>> diff --git a/drivers/watchdog/sp805_wdt.c 
+>>>>> b/drivers/watchdog/sp805_wdt.c
+>>>>> index 1484609..408ffbe 100644
+>>>>> --- a/drivers/watchdog/sp805_wdt.c
+>>>>> +++ b/drivers/watchdog/sp805_wdt.c
+>>>>> @@ -42,6 +42,7 @@
+>>>>>       /* control register masks */
+>>>>>       #define    INT_ENABLE    (1 << 0)
+>>>>>       #define    RESET_ENABLE    (1 << 1)
+>>>>> +    #define    ENABLE_MASK    (INT_ENABLE | RESET_ENABLE)
+>>>>>   #define WDTINTCLR        0x00C
+>>>>>   #define WDTRIS            0x010
+>>>>>   #define WDTMIS            0x014
+>>>>> @@ -74,6 +75,18 @@ module_param(nowayout, bool, 0);
+>>>>>   MODULE_PARM_DESC(nowayout,
+>>>>>           "Set to 1 to keep watchdog running after device release");
+>>>>>   +/* returns true if wdt is running; otherwise returns false */
+>>>>> +static bool wdt_is_running(struct watchdog_device *wdd)
+>>>>> +{
+>>>>> +    struct sp805_wdt *wdt = watchdog_get_drvdata(wdd);
+>>>>> +
+>>>>> +    if ((readl_relaxed(wdt->base + WDTCONTROL) & ENABLE_MASK) ==
+>>>>> +        ENABLE_MASK)
+>>>>> +        return true;
+>>>>> +    else
+>>>>> +        return false;
+>>>>
+>>>>     return !!(readl_relaxed(wdt->base + WDTCONTROL) & ENABLE_MASK));
+>>>>
+>>>
+>>> Note ENABLE_MASK contains two bits (INT_ENABLE and RESET_ENABLE); 
+>>> therefore, a simple !!(expression) would not work? That is, the 
+>>> masked result needs to be compared against the mask again to ensure 
+>>> both bits are set, right?
+>> Ray - your original code looks correct to me.  Easier to read and less 
+>> prone to errors as shown in the attempted translation to a single 
+>> statement.
 > 
-> According to the SP805 TRM, the default interval is dependent on the 
-> rate of WDOGCLK, but would typically be a lot longer than that :/
+>      if (<boolean condition>)
+>          return true;
+>      else
+>          return false;
 > 
-> On a related note, anyone have any idea why we seem to have two subtly 
-> different SP805 bindings defined?
+> still looks really dumb, though, and IMO is actually harder to read than 
+> just "return <boolean condition>;" because it forces you to stop and 
+> double-check that the logic is, in fact, only doing the obvious thing.
 
-Interesting, I did not even know that until you pointed this out (and 
-it's funny that I found that I actually reviewed arm,sp805.txt 
-internally in Broadcom code review).
+If you can propose a way to modify my original code above to make it 
+more readable, I'm fine to make the change.
 
-It looks like one was done by Bhupesh Sharma (sp805-wdt.txt) and the 
-other was done by Anup Patel (arm,sp805.txt). Both were merged at the 
-same time around March 20, 2016: 915c56bc01d6. I'd assume both were sent 
-out at around the same time.
+As I mentioned, I don't think the following change proposed by Guenter 
+will work due to the reason I pointed out:
 
-It sounds like we should definitely remove one of them. Given that 
-sp805-wdt.txt appears to have more detailed descriptions on the use of 
-the clocks, should we remove arm,sp805.txt?
-
-Thanks,
-
-Ray
+return !!(readl_relaxed(wdt->base + WDTCONTROL) & ENABLE_MASK));
 
 > 
 > Robin.
 > 
->>   Examples:
->>
+> 
+> 
+> p.s. No thanks for making me remember the mind-boggling horror of 
+> briefly maintaining part of this legacy codebase... :P
+> 
+> $ grep -r '? true : false' --include=*.cpp . | wc -l
+> 951
