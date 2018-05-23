@@ -1,132 +1,120 @@
-Return-Path: <scott.branden@broadcom.com>
-Return-path: <scott.branden@broadcom.com>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:37549 "EHLO
+        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751348AbeEWSGm (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Wed, 23 May 2018 14:06:42 -0400
+Date: Wed, 23 May 2018 11:06:39 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Robin Murphy <robin.murphy@arm.com>
+Cc: Scott Branden <scott.branden@broadcom.com>,
+        Ray Jui <ray.jui@broadcom.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        devicetree@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
+        bcm-kernel-feedback-list@broadcom.com,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Frank Rowand <frowand.list@gmail.com>,
+        linux-arm-kernel@lists.infradead.org
 Subject: Re: [PATCH 3/5] watchdog: sp805: set WDOG_HW_RUNNING when appropriate
-To: Ray Jui <ray.jui@broadcom.com>, Robin Murphy <robin.murphy@arm.com>,
- Guenter Roeck <linux@roeck-us.net>
-Cc: Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org,
- linux-watchdog@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
- Will Deacon <will.deacon@arm.com>, linux-kernel@vger.kernel.org,
- Rob Herring <robh+dt@kernel.org>, bcm-kernel-feedback-list@broadcom.com,
- Wim Van Sebroeck <wim@linux-watchdog.org>,
- Frank Rowand <frowand.list@gmail.com>, linux-arm-kernel@lists.infradead.org
+Message-ID: <20180523180639.GA27570@roeck-us.net>
 References: <1527014840-21236-1-git-send-email-ray.jui@broadcom.com>
  <1527014840-21236-4-git-send-email-ray.jui@broadcom.com>
  <20180522205457.GA16363@roeck-us.net>
  <0d92b9e9-a3d1-6e91-8371-b5ed3a83e399@broadcom.com>
  <00c121ea-d197-93b8-2f56-bcca963f70fb@broadcom.com>
  <76d47e02-7a5f-3fc2-3905-cd4aa03ac69c@arm.com>
- <5a996888-d3d3-9ae6-e438-5de4d5e3ea32@broadcom.com>
-From: Scott Branden <scott.branden@broadcom.com>
-Message-ID: <eb1b8beb-4027-606b-200c-c97f128c9bf1@broadcom.com>
-Date: Wed, 23 May 2018 10:15:38 -0700
 MIME-Version: 1.0
-In-Reply-To: <5a996888-d3d3-9ae6-e438-5de4d5e3ea32@broadcom.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-Content-Language: en-US
-List-ID: <linux-watchdog@vger.kernel.org>
+In-Reply-To: <76d47e02-7a5f-3fc2-3905-cd4aa03ac69c@arm.com>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-Raym
+On Wed, May 23, 2018 at 12:48:10PM +0100, Robin Murphy wrote:
+> On 23/05/18 08:52, Scott Branden wrote:
+> >
+> >
+> >On 18-05-22 04:24 PM, Ray Jui wrote:
+> >>Hi Guenter,
+> >>
+> >>On 5/22/2018 1:54 PM, Guenter Roeck wrote:
+> >>>On Tue, May 22, 2018 at 11:47:18AM -0700, Ray Jui wrote:
+> >>>>If the watchdog hardware is already enabled during the boot process,
+> >>>>when the Linux watchdog driver loads, it should reset the watchdog and
+> >>>>tell the watchdog framework. As a result, ping can be generated from
+> >>>>the watchdog framework, until the userspace watchdog daemon takes over
+> >>>>control
+> >>>>
+> >>>>Signed-off-by: Ray Jui <ray.jui@broadcom.com>
+> >>>>Reviewed-by: Vladimir Olovyannikov <vladimir.olovyannikov@broadcom.com>
+> >>>>Reviewed-by: Scott Branden <scott.branden@broadcom.com>
+> >>>>---
+> >>>>  drivers/watchdog/sp805_wdt.c | 22 ++++++++++++++++++++++
+> >>>>  1 file changed, 22 insertions(+)
+> >>>>
+> >>>>diff --git a/drivers/watchdog/sp805_wdt.c
+> >>>>b/drivers/watchdog/sp805_wdt.c
+> >>>>index 1484609..408ffbe 100644
+> >>>>--- a/drivers/watchdog/sp805_wdt.c
+> >>>>+++ b/drivers/watchdog/sp805_wdt.c
+> >>>>@@ -42,6 +42,7 @@
+> >>>>      /* control register masks */
+> >>>>      #define    INT_ENABLE    (1 << 0)
+> >>>>      #define    RESET_ENABLE    (1 << 1)
+> >>>>+    #define    ENABLE_MASK    (INT_ENABLE | RESET_ENABLE)
+> >>>>  #define WDTINTCLR        0x00C
+> >>>>  #define WDTRIS            0x010
+> >>>>  #define WDTMIS            0x014
+> >>>>@@ -74,6 +75,18 @@ module_param(nowayout, bool, 0);
+> >>>>  MODULE_PARM_DESC(nowayout,
+> >>>>          "Set to 1 to keep watchdog running after device release");
+> >>>>  +/* returns true if wdt is running; otherwise returns false */
+> >>>>+static bool wdt_is_running(struct watchdog_device *wdd)
+> >>>>+{
+> >>>>+    struct sp805_wdt *wdt = watchdog_get_drvdata(wdd);
+> >>>>+
+> >>>>+    if ((readl_relaxed(wdt->base + WDTCONTROL) & ENABLE_MASK) ==
+> >>>>+        ENABLE_MASK)
+> >>>>+        return true;
+> >>>>+    else
+> >>>>+        return false;
+> >>>
+> >>>    return !!(readl_relaxed(wdt->base + WDTCONTROL) & ENABLE_MASK));
+> >>>
+> >>
+> >>Note ENABLE_MASK contains two bits (INT_ENABLE and RESET_ENABLE);
+> >>therefore, a simple !!(expression) would not work? That is, the masked
+> >>result needs to be compared against the mask again to ensure both bits
+> >>are set, right?
+> >Ray - your original code looks correct to me.  Easier to read and less
+> >prone to errors as shown in the attempted translation to a single
+> >statement.
+> 
+> 	if (<boolean condition>)
+> 		return true;
+> 	else
+> 		return false;
+> 
+> still looks really dumb, though, and IMO is actually harder to read than
+> just "return <boolean condition>;" because it forces you to stop and
+> double-check that the logic is, in fact, only doing the obvious thing.
+> 
 
+Yes, and I won't accept it, sorry.
 
-On 18-05-23 09:29 AM, Ray Jui wrote:
-> Hi Robin,
->
-> On 5/23/2018 4:48 AM, Robin Murphy wrote:
->> On 23/05/18 08:52, Scott Branden wrote:
->>>
->>>
->>> On 18-05-22 04:24 PM, Ray Jui wrote:
->>>> Hi Guenter,
->>>>
->>>> On 5/22/2018 1:54 PM, Guenter Roeck wrote:
->>>>> On Tue, May 22, 2018 at 11:47:18AM -0700, Ray Jui wrote:
->>>>>> If the watchdog hardware is already enabled during the boot process,
->>>>>> when the Linux watchdog driver loads, it should reset the 
->>>>>> watchdog and
->>>>>> tell the watchdog framework. As a result, ping can be generated from
->>>>>> the watchdog framework, until the userspace watchdog daemon takes 
->>>>>> over
->>>>>> control
->>>>>>
->>>>>> Signed-off-by: Ray Jui <ray.jui@broadcom.com>
->>>>>> Reviewed-by: Vladimir Olovyannikov 
->>>>>> <vladimir.olovyannikov@broadcom.com>
->>>>>> Reviewed-by: Scott Branden <scott.branden@broadcom.com>
->>>>>> ---
->>>>>> Â  drivers/watchdog/sp805_wdt.c | 22 ++++++++++++++++++++++
->>>>>> Â  1 file changed, 22 insertions(+)
->>>>>>
->>>>>> diff --git a/drivers/watchdog/sp805_wdt.c 
->>>>>> b/drivers/watchdog/sp805_wdt.c
->>>>>> index 1484609..408ffbe 100644
->>>>>> --- a/drivers/watchdog/sp805_wdt.c
->>>>>> +++ b/drivers/watchdog/sp805_wdt.c
->>>>>> @@ -42,6 +42,7 @@
->>>>>> Â Â Â Â Â  /* control register masks */
->>>>>> Â Â Â Â Â  #defineÂ Â Â  INT_ENABLEÂ Â Â  (1 << 0)
->>>>>> Â Â Â Â Â  #defineÂ Â Â  RESET_ENABLEÂ Â Â  (1 << 1)
->>>>>> +Â Â Â  #defineÂ Â Â  ENABLE_MASKÂ Â Â  (INT_ENABLE | RESET_ENABLE)
->>>>>> Â  #define WDTINTCLRÂ Â Â Â Â Â Â  0x00C
->>>>>> Â  #define WDTRISÂ Â Â Â Â Â Â Â Â Â Â  0x010
->>>>>> Â  #define WDTMISÂ Â Â Â Â Â Â Â Â Â Â  0x014
->>>>>> @@ -74,6 +75,18 @@ module_param(nowayout, bool, 0);
->>>>>> Â  MODULE_PARM_DESC(nowayout,
->>>>>> Â Â Â Â Â Â Â Â Â  "Set to 1 to keep watchdog running after device release");
->>>>>> Â  +/* returns true if wdt is running; otherwise returns false */
->>>>>> +static bool wdt_is_running(struct watchdog_device *wdd)
->>>>>> +{
->>>>>> +Â Â Â  struct sp805_wdt *wdt = watchdog_get_drvdata(wdd);
->>>>>> +
->>>>>> +Â Â Â  if ((readl_relaxed(wdt->base + WDTCONTROL) & ENABLE_MASK) ==
->>>>>> +Â Â Â Â Â Â Â  ENABLE_MASK)
->>>>>> +Â Â Â Â Â Â Â  return true;
->>>>>> +Â Â Â  else
->>>>>> +Â Â Â Â Â Â Â  return false;
->>>>>
->>>>> Â Â Â Â return !!(readl_relaxed(wdt->base + WDTCONTROL) & ENABLE_MASK));
->>>>>
->>>>
->>>> Note ENABLE_MASK contains two bits (INT_ENABLE and RESET_ENABLE); 
->>>> therefore, a simple !!(expression) would not work? That is, the 
->>>> masked result needs to be compared against the mask again to ensure 
->>>> both bits are set, right?
->>> Ray - your original code looks correct to me.Â  Easier to read and 
->>> less prone to errors as shown in the attempted translation to a 
->>> single statement.
->>
->> Â Â Â Â Â if (<boolean condition>)
->> Â Â Â Â Â Â Â Â  return true;
->> Â Â Â Â Â else
->> Â Â Â Â Â Â Â Â  return false;
->>
->> still looks really dumb, though, and IMO is actually harder to read 
->> than just "return <boolean condition>;" because it forces you to stop 
->> and double-check that the logic is, in fact, only doing the obvious 
->> thing.
->
-> If you can propose a way to modify my original code above to make it 
-> more readable, I'm fine to make the change.
->
-> As I mentioned, I don't think the following change proposed by Guenter 
-> will work due to the reason I pointed out:
->
-> return !!(readl_relaxed(wdt->base + WDTCONTROL) & ENABLE_MASK));
-What they are looking for is:
-return ((readl_relaxed(wdt->base + WDTCONTROL) & ENABLE_MASK) == 
-ENABLE_MASK);
+Guenter
 
-or maybe:
-return !!((readl_relaxed(wdt->base + WDTCONTROL) & ENABLE_MASK) == 
-ENABLE_MASK);
->
->>
->> Robin.
->>
->>
->>
->> p.s. No thanks for making me remember the mind-boggling horror of 
->> briefly maintaining part of this legacy codebase... :P
->>
->> $ grep -r '? true : false' --include=*.cpp . | wc -l
->> 951
+> Robin.
+> 
+> 
+> 
+> p.s. No thanks for making me remember the mind-boggling horror of briefly
+> maintaining part of this legacy codebase... :P
+> 
+> $ grep -r '? true : false' --include=*.cpp . | wc -l
+> 951
