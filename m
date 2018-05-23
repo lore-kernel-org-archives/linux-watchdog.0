@@ -1,11 +1,11 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-qt0-f196.google.com ([209.85.216.196]:34665 "EHLO
-        mail-qt0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S934916AbeEWUca (ORCPT
+Received: from mail-qk0-f195.google.com ([209.85.220.195]:44437 "EHLO
+        mail-qk0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S934926AbeEWUce (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 23 May 2018 16:32:30 -0400
-Received: by mail-qt0-f196.google.com with SMTP id m5-v6so29902333qti.1
-        for <linux-watchdog@vger.kernel.org>; Wed, 23 May 2018 13:32:30 -0700 (PDT)
+        Wed, 23 May 2018 16:32:34 -0400
+Received: by mail-qk0-f195.google.com with SMTP id d8-v6so9747788qke.11
+        for <linux-watchdog@vger.kernel.org>; Wed, 23 May 2018 13:32:33 -0700 (PDT)
 From: Ray Jui <ray.jui@broadcom.com>
 To: Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>,
@@ -19,37 +19,45 @@ Cc: linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
         bcm-kernel-feedback-list@broadcom.com,
         Ray Jui <ray.jui@broadcom.com>
-Subject: [PATCH v2 2/6] Documentation: DT: Add optional 'timeout-sec' property for sp805
-Date: Wed, 23 May 2018 13:32:03 -0700
-Message-Id: <1527107527-8093-3-git-send-email-ray.jui@broadcom.com>
+Subject: [PATCH v2 3/6] watchdog: sp805: add 'timeout-sec' DT property support
+Date: Wed, 23 May 2018 13:32:04 -0700
+Message-Id: <1527107527-8093-4-git-send-email-ray.jui@broadcom.com>
 In-Reply-To: <1527107527-8093-1-git-send-email-ray.jui@broadcom.com>
 References: <1527107527-8093-1-git-send-email-ray.jui@broadcom.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Update the SP805 binding document to add optional 'timeout-sec'
-devicetree property
+Add support for optional devicetree property 'timeout-sec'.
+'timeout-sec' is used in the driver if specified in devicetree.
+Otherwise, fall back to driver default, i.e., 60 seconds
 
 Signed-off-by: Ray Jui <ray.jui@broadcom.com>
 Reviewed-by: Scott Branden <scott.branden@broadcom.com>
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 ---
- Documentation/devicetree/bindings/watchdog/arm,sp805.txt | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/watchdog/sp805_wdt.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/watchdog/arm,sp805.txt b/Documentation/devicetree/bindings/watchdog/arm,sp805.txt
-index de93a4d..9cd7470 100644
---- a/Documentation/devicetree/bindings/watchdog/arm,sp805.txt
-+++ b/Documentation/devicetree/bindings/watchdog/arm,sp805.txt
-@@ -18,6 +18,8 @@ Required properties:
+diff --git a/drivers/watchdog/sp805_wdt.c b/drivers/watchdog/sp805_wdt.c
+index 03805bc..1484609 100644
+--- a/drivers/watchdog/sp805_wdt.c
++++ b/drivers/watchdog/sp805_wdt.c
+@@ -230,7 +230,14 @@ sp805_wdt_probe(struct amba_device *adev, const struct amba_id *id)
+ 	spin_lock_init(&wdt->lock);
+ 	watchdog_set_nowayout(&wdt->wdd, nowayout);
+ 	watchdog_set_drvdata(&wdt->wdd, wdt);
+-	wdt_setload(&wdt->wdd, DEFAULT_TIMEOUT);
++
++	/*
++	 * If 'timeout-sec' devicetree property is specified, use that.
++	 * Otherwise, use DEFAULT_TIMEOUT
++	 */
++	wdt->wdd.timeout = DEFAULT_TIMEOUT;
++	watchdog_init_timeout(&wdt->wdd, 0, &adev->dev);
++	wdt_setload(&wdt->wdd, wdt->wdd.timeout);
  
- Optional properties:
- - interrupts : Should specify WDT interrupt number.
-+timeout-sec : Should specify default WDT timeout in seconds. If unset, the
-+              default timeout in the driver is 30 seconds
- 
- Example:
- 	watchdog@66090000 {
+ 	ret = watchdog_register_device(&wdt->wdd);
+ 	if (ret) {
 -- 
 2.1.4
 
