@@ -1,11 +1,11 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-qt0-f196.google.com ([209.85.216.196]:32860 "EHLO
-        mail-qt0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S934978AbeEWUcr (ORCPT
+Received: from mail-qk0-f193.google.com ([209.85.220.193]:36330 "EHLO
+        mail-qk0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S934977AbeEWUci (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 23 May 2018 16:32:47 -0400
-Received: by mail-qt0-f196.google.com with SMTP id e8-v6so29898879qth.0
-        for <linux-watchdog@vger.kernel.org>; Wed, 23 May 2018 13:32:47 -0700 (PDT)
+        Wed, 23 May 2018 16:32:38 -0400
+Received: by mail-qk0-f193.google.com with SMTP id n207-v6so5946320qke.3
+        for <linux-watchdog@vger.kernel.org>; Wed, 23 May 2018 13:32:37 -0700 (PDT)
 From: Ray Jui <ray.jui@broadcom.com>
 To: Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>,
@@ -19,33 +19,71 @@ Cc: linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
         bcm-kernel-feedback-list@broadcom.com,
         Ray Jui <ray.jui@broadcom.com>
-Subject: [PATCH v2 6/6] arm64: defconfig: add CONFIG_ARM_SP805_WATCHDOG
-Date: Wed, 23 May 2018 13:32:07 -0700
-Message-Id: <1527107527-8093-7-git-send-email-ray.jui@broadcom.com>
+Subject: [PATCH v2 4/6] watchdog: sp805: set WDOG_HW_RUNNING when appropriate
+Date: Wed, 23 May 2018 13:32:05 -0700
+Message-Id: <1527107527-8093-5-git-send-email-ray.jui@broadcom.com>
 In-Reply-To: <1527107527-8093-1-git-send-email-ray.jui@broadcom.com>
 References: <1527107527-8093-1-git-send-email-ray.jui@broadcom.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Enable the SP805 watchdog timer
+If the watchdog hardware is already enabled during the boot process,
+when the Linux watchdog driver loads, it should reset the watchdog and
+tell the watchdog framework. As a result, ping can be generated from
+the watchdog framework, until the userspace watchdog daemon takes over
+control
 
 Signed-off-by: Ray Jui <ray.jui@broadcom.com>
+Reviewed-by: Vladimir Olovyannikov <vladimir.olovyannikov@broadcom.com>
+Reviewed-by: Scott Branden <scott.branden@broadcom.com>
 ---
- arch/arm64/configs/defconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/watchdog/sp805_wdt.c | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
 
-diff --git a/arch/arm64/configs/defconfig b/arch/arm64/configs/defconfig
-index ecf6137..3fe5eb5 100644
---- a/arch/arm64/configs/defconfig
-+++ b/arch/arm64/configs/defconfig
-@@ -351,6 +351,7 @@ CONFIG_ROCKCHIP_THERMAL=m
- CONFIG_TEGRA_BPMP_THERMAL=m
- CONFIG_UNIPHIER_THERMAL=y
- CONFIG_WATCHDOG=y
-+CONFIG_ARM_SP805_WATCHDOG=y
- CONFIG_S3C2410_WATCHDOG=y
- CONFIG_MESON_GXBB_WATCHDOG=m
- CONFIG_MESON_WATCHDOG=m
+diff --git a/drivers/watchdog/sp805_wdt.c b/drivers/watchdog/sp805_wdt.c
+index 1484609..d662a6f 100644
+--- a/drivers/watchdog/sp805_wdt.c
++++ b/drivers/watchdog/sp805_wdt.c
+@@ -42,6 +42,7 @@
+ 	/* control register masks */
+ 	#define	INT_ENABLE	(1 << 0)
+ 	#define	RESET_ENABLE	(1 << 1)
++	#define	ENABLE_MASK	(INT_ENABLE | RESET_ENABLE)
+ #define WDTINTCLR		0x00C
+ #define WDTRIS			0x010
+ #define WDTMIS			0x014
+@@ -74,6 +75,15 @@ module_param(nowayout, bool, 0);
+ MODULE_PARM_DESC(nowayout,
+ 		"Set to 1 to keep watchdog running after device release");
+ 
++/* returns true if wdt is running; otherwise returns false */
++static bool wdt_is_running(struct watchdog_device *wdd)
++{
++	struct sp805_wdt *wdt = watchdog_get_drvdata(wdd);
++	u32 wdtcontrol = readl_relaxed(wdt->base + WDTCONTROL);
++
++	return (wdtcontrol & ENABLE_MASK) == ENABLE_MASK;
++}
++
+ /* This routine finds load value that will reset system in required timout */
+ static int wdt_setload(struct watchdog_device *wdd, unsigned int timeout)
+ {
+@@ -239,6 +249,15 @@ sp805_wdt_probe(struct amba_device *adev, const struct amba_id *id)
+ 	watchdog_init_timeout(&wdt->wdd, 0, &adev->dev);
+ 	wdt_setload(&wdt->wdd, wdt->wdd.timeout);
+ 
++	/*
++	 * If HW is already running, enable/reset the wdt and set the running
++	 * bit to tell the wdt subsystem
++	 */
++	if (wdt_is_running(&wdt->wdd)) {
++		wdt_enable(&wdt->wdd);
++		set_bit(WDOG_HW_RUNNING, &wdt->wdd.status);
++	}
++
+ 	ret = watchdog_register_device(&wdt->wdd);
+ 	if (ret) {
+ 		dev_err(&adev->dev, "watchdog_register_device() failed: %d\n",
 -- 
 2.1.4
 
