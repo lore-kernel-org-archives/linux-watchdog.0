@@ -1,73 +1,84 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:38378 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752282AbeEWSLA (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 23 May 2018 14:11:00 -0400
-Date: Wed, 23 May 2018 11:10:58 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Robin Murphy <robin.murphy@arm.com>
-Cc: Ray Jui <ray.jui@broadcom.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Frank Rowand <frowand.list@gmail.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will.deacon@arm.com>, devicetree@vger.kernel.org,
-        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        bcm-kernel-feedback-list@broadcom.com,
-        linux-arm-kernel@lists.infradead.org
+Return-Path: <robherring2@gmail.com>
+Return-path: <robherring2@gmail.com>
+Date: Wed, 23 May 2018 13:59:44 -0500
+From: Rob Herring <robh@kernel.org>
+To: Ray Jui <ray.jui@broadcom.com>
+Cc: Robin Murphy <robin.murphy@arm.com>,
+	Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Frank Rowand <frowand.list@gmail.com>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will.deacon@arm.com>, devicetree@vger.kernel.org,
+	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+	bcm-kernel-feedback-list@broadcom.com,
+	linux-arm-kernel@lists.infradead.org
 Subject: Re: [PATCH 1/5] Documentation: DT: Add optional 'timeout-sec'
  property for sp805
-Message-ID: <20180523181058.GC27570@roeck-us.net>
+Message-ID: <20180523185944.GA9989@rob-hp-laptop>
 References: <1527014840-21236-1-git-send-email-ray.jui@broadcom.com>
  <1527014840-21236-2-git-send-email-ray.jui@broadcom.com>
  <af81ea74-fb80-11e2-7bdc-d3607bdbd46b@arm.com>
+ <c542388f-e417-f624-ade1-95f9a2fc8a3b@broadcom.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <af81ea74-fb80-11e2-7bdc-d3607bdbd46b@arm.com>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <c542388f-e417-f624-ade1-95f9a2fc8a3b@broadcom.com>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On Wed, May 23, 2018 at 11:57:25AM +0100, Robin Murphy wrote:
-> On 22/05/18 19:47, Ray Jui wrote:
-> >Update the SP805 binding document to add optional 'timeout-sec'
-> >devicetree property
-> >
-> >Signed-off-by: Ray Jui <ray.jui@broadcom.com>
-> >Reviewed-by: Scott Branden <scott.branden@broadcom.com>
-> >---
-> >  Documentation/devicetree/bindings/watchdog/sp805-wdt.txt | 2 ++
-> >  1 file changed, 2 insertions(+)
-> >
-> >diff --git a/Documentation/devicetree/bindings/watchdog/sp805-wdt.txt b/Documentation/devicetree/bindings/watchdog/sp805-wdt.txt
-> >index edc4f0e..f898a86 100644
-> >--- a/Documentation/devicetree/bindings/watchdog/sp805-wdt.txt
-> >+++ b/Documentation/devicetree/bindings/watchdog/sp805-wdt.txt
-> >@@ -19,6 +19,8 @@ Required properties:
-> >  Optional properties:
-> >  - interrupts : Should specify WDT interrupt number.
-> >+- timeout-sec : Should specify default WDT timeout in seconds. If unset, the
-> >+                default timeout is 30 seconds
+On Wed, May 23, 2018 at 09:25:49AM -0700, Ray Jui wrote:
 > 
-> According to the SP805 TRM, the default interval is dependent on the rate of
-> WDOGCLK, but would typically be a lot longer than that :/
 > 
-Depends on the definition of "default". In the context of watchdog drivers,
-it is (or should be) a driver default, not a chip default.
+> On 5/23/2018 3:57 AM, Robin Murphy wrote:
+> > On 22/05/18 19:47, Ray Jui wrote:
+> > > Update the SP805 binding document to add optional 'timeout-sec'
+> > > devicetree property
+> > > 
+> > > Signed-off-by: Ray Jui <ray.jui@broadcom.com>
+> > > Reviewed-by: Scott Branden <scott.branden@broadcom.com>
+> > > ---
+> > >   Documentation/devicetree/bindings/watchdog/sp805-wdt.txt | 2 ++
+> > >   1 file changed, 2 insertions(+)
+> > > 
+> > > diff --git
+> > > a/Documentation/devicetree/bindings/watchdog/sp805-wdt.txt
+> > > b/Documentation/devicetree/bindings/watchdog/sp805-wdt.txt
+> > > index edc4f0e..f898a86 100644
+> > > --- a/Documentation/devicetree/bindings/watchdog/sp805-wdt.txt
+> > > +++ b/Documentation/devicetree/bindings/watchdog/sp805-wdt.txt
+> > > @@ -19,6 +19,8 @@ Required properties:
+> > >   Optional properties:
+> > >   - interrupts : Should specify WDT interrupt number.
+> > > +- timeout-sec : Should specify default WDT timeout in seconds. If
+> > > unset, the
+> > > +                default timeout is 30 seconds
+> > 
+> > According to the SP805 TRM, the default interval is dependent on the
+> > rate of WDOGCLK, but would typically be a lot longer than that :/
+> > 
+> > On a related note, anyone have any idea why we seem to have two subtly
+> > different SP805 bindings defined?
 
-Guenter
+Sigh.
 
-> On a related note, anyone have any idea why we seem to have two subtly
-> different SP805 bindings defined?
+> Interesting, I did not even know that until you pointed this out (and it's
+> funny that I found that I actually reviewed arm,sp805.txt internally in
+> Broadcom code review).
 > 
-> Robin.
+> It looks like one was done by Bhupesh Sharma (sp805-wdt.txt) and the other
+> was done by Anup Patel (arm,sp805.txt). Both were merged at the same time
+> around March 20, 2016: 915c56bc01d6. I'd assume both were sent out at around
+> the same time.
 > 
-> >  Examples:
-> >
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> It sounds like we should definitely remove one of them. Given that
+> sp805-wdt.txt appears to have more detailed descriptions on the use of the
+> clocks, should we remove arm,sp805.txt?
+
+Take whichever text you like, but I prefer filenames using the 
+compatible string and the correct string is 'arm,sp805' because '-wdt' 
+is redundant. You can probably safely just update all the dts files with 
+'arm,sp805' and just remove 'arm,sp805-wdt' because it is not actually 
+used (as the ID registers are).
+
+Rob
