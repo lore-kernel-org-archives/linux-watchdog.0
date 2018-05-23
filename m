@@ -6,67 +6,39 @@ To: wim@linux-watchdog.org,
 	support.opensource@diasemi.com
 Cc: linux-watchdog@vger.kernel.org,
 	kernel@pengutronix.de
-Subject: [PATCH v6 5/5] watchdog: da9063: Fix timeout handling during probe
-Date: Wed, 23 May 2018 10:27:55 +0200
-Message-Id: <20180523082755.8205-6-m.felsch@pengutronix.de>
-In-Reply-To: <20180523082755.8205-1-m.felsch@pengutronix.de>
-References: <20180523082755.8205-1-m.felsch@pengutronix.de>
+Subject: [PATCH v6 0/5] watchdog: da9063: Fix timeout handling
+Date: Wed, 23 May 2018 10:27:50 +0200
+Message-Id: <20180523082755.8205-1-m.felsch@pengutronix.de>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-The watchdog can be enabled in previous step (e.g. the bootloader). Check
-if the watchdog is already running, retrieve the set timeout value and
-set it again to set the new timeout reference mark.
+The current set_timeout() handling can't change the timeout value if the
+watchdog is already running because the watchdog must be
+disabled before a new timeout value can be set. This sounds a bit
+strange but it is the only way to change the timeout value.
 
-Fixes: 5e9c16e37608 ("watchdog: Add DA9063 PMIC watchdog driver.")
-Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
----
- drivers/watchdog/da9063_wdt.c | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+The watchdog also has a second quirk. The timeout value combines the
+timeout and the watchdog enable signal. So a value not equal zero
+indicates that the watchdog is running. This leads into problems if the
+watchdog is disabled and a new timeout value should be set because
+during setting the timeout value the watchdog gets enabled. The driver
+must check if the watchdog is disabled. In that case the timeout value
+must be stored to be available for the later wdt_start() call. If the
+watchdog is already running the driver must write the new timeout value
+immediately to the watchdog.
 
-diff --git a/drivers/watchdog/da9063_wdt.c b/drivers/watchdog/da9063_wdt.c
-index e4aed95616f2..a2c7c8d276cc 100644
---- a/drivers/watchdog/da9063_wdt.c
-+++ b/drivers/watchdog/da9063_wdt.c
-@@ -45,6 +45,19 @@ static unsigned int da9063_wdt_timeout_to_sel(unsigned int secs)
- 	return DA9063_TWDSCALE_MAX;
- }
- 
-+/*
-+ * Return 0 if watchdog is disabled, else non zero.
-+ */
-+static int da9063_wdt_is_running(struct da9063 *da9063)
-+{
-+	unsigned int val;
-+
-+	regmap_read(da9063->regmap, DA9063_REG_CONTROL_D, &val);
-+	val &= DA9063_TWDSCALE_MASK;
-+
-+	return wdt_timeout[val];
-+}
-+
- static int da9063_wdt_disable_timer(struct da9063 *da9063)
- {
- 	return regmap_update_bits(da9063->regmap, DA9063_REG_CONTROL_D,
-@@ -182,6 +195,7 @@ static int da9063_wdt_probe(struct platform_device *pdev)
- {
- 	struct da9063 *da9063;
- 	struct watchdog_device *wdd;
-+	unsigned int cur_timeout;
- 
- 	if (!pdev->dev.parent)
- 		return -EINVAL;
-@@ -208,6 +222,12 @@ static int da9063_wdt_probe(struct platform_device *pdev)
- 
- 	watchdog_set_drvdata(wdd, da9063);
- 
-+	cur_timeout = da9063_wdt_is_running(da9063);
-+	if (cur_timeout) {
-+		set_bit(WDOG_HW_RUNNING, &wdd->status);
-+		da9063_wdt_set_timeout(wdd, cur_timeout);
-+	}
-+
- 	return devm_watchdog_register_device(&pdev->dev, wdd);
- }
- 
+There was also a issue during the driver probe sequence. The driver must
+set a new timeout reference mark if the watchdog was enabled in a earlier
+stage e.g. the bootloader.
+
+Marco Felsch (5):
+  watchdog: da9063: rename helper function to avoid misunderstandings
+  watchdog: da9063: Fix setting/changing timeout
+  watchdog: da9063: set HW_RUNNING indication during wdt_start
+  watchdog: da9063: Fix updating timeout value
+  watchdog: da9063: Fix timeout handling during probe
+
+ drivers/watchdog/da9063_wdt.c | 71 ++++++++++++++++++++++++++++++++---
+ 1 file changed, 65 insertions(+), 6 deletions(-)
+
 -- 
 2.17.0
