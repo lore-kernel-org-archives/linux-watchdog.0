@@ -1,67 +1,95 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-qt0-f195.google.com ([209.85.216.195]:46822 "EHLO
-        mail-qt0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S935016AbeEWXvR (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 23 May 2018 19:51:17 -0400
-Received: by mail-qt0-f195.google.com with SMTP id 32-v6so6471430qtr.13
-        for <linux-watchdog@vger.kernel.org>; Wed, 23 May 2018 16:51:17 -0700 (PDT)
-Subject: Re: [PATCH v2 2/6] Documentation: DT: Add optional 'timeout-sec'
+Received: from foss.arm.com ([217.140.101.70]:44788 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751407AbeEXNZi (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Thu, 24 May 2018 09:25:38 -0400
+Subject: Re: [PATCH 1/5] Documentation: DT: Add optional 'timeout-sec'
  property for sp805
 To: Guenter Roeck <linux@roeck-us.net>
-Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Frank Rowand <frowand.list@gmail.com>,
+Cc: Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org,
+        linux-watchdog@vger.kernel.org,
         Catalin Marinas <catalin.marinas@arm.com>,
         Will Deacon <will.deacon@arm.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        bcm-kernel-feedback-list@broadcom.com
-References: <1527107527-8093-1-git-send-email-ray.jui@broadcom.com>
- <1527107527-8093-3-git-send-email-ray.jui@broadcom.com>
- <20180523222915.GA16779@roeck-us.net>
-From: Ray Jui <ray.jui@broadcom.com>
-Message-ID: <48dfe138-7bf5-3f91-0108-5b0ce3811ab7@broadcom.com>
-Date: Wed, 23 May 2018 16:51:12 -0700
+        linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
+        Ray Jui <ray.jui@broadcom.com>,
+        bcm-kernel-feedback-list@broadcom.com,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Frank Rowand <frowand.list@gmail.com>,
+        linux-arm-kernel@lists.infradead.org
+References: <1527014840-21236-1-git-send-email-ray.jui@broadcom.com>
+ <1527014840-21236-2-git-send-email-ray.jui@broadcom.com>
+ <af81ea74-fb80-11e2-7bdc-d3607bdbd46b@arm.com>
+ <20180523181058.GC27570@roeck-us.net>
+From: Robin Murphy <robin.murphy@arm.com>
+Message-ID: <91d27df4-29d0-de7f-6805-c3e5f329caf3@arm.com>
+Date: Thu, 24 May 2018 14:25:34 +0100
 MIME-Version: 1.0
-In-Reply-To: <20180523222915.GA16779@roeck-us.net>
+In-Reply-To: <20180523181058.GC27570@roeck-us.net>
 Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
+Content-Language: en-GB
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-
-
-On 5/23/2018 3:29 PM, Guenter Roeck wrote:
-> On Wed, May 23, 2018 at 01:32:03PM -0700, Ray Jui wrote:
->> Update the SP805 binding document to add optional 'timeout-sec'
->> devicetree property
+On 23/05/18 19:10, Guenter Roeck wrote:
+> On Wed, May 23, 2018 at 11:57:25AM +0100, Robin Murphy wrote:
+>> On 22/05/18 19:47, Ray Jui wrote:
+>>> Update the SP805 binding document to add optional 'timeout-sec'
+>>> devicetree property
+>>>
+>>> Signed-off-by: Ray Jui <ray.jui@broadcom.com>
+>>> Reviewed-by: Scott Branden <scott.branden@broadcom.com>
+>>> ---
+>>>   Documentation/devicetree/bindings/watchdog/sp805-wdt.txt | 2 ++
+>>>   1 file changed, 2 insertions(+)
+>>>
+>>> diff --git a/Documentation/devicetree/bindings/watchdog/sp805-wdt.txt b/Documentation/devicetree/bindings/watchdog/sp805-wdt.txt
+>>> index edc4f0e..f898a86 100644
+>>> --- a/Documentation/devicetree/bindings/watchdog/sp805-wdt.txt
+>>> +++ b/Documentation/devicetree/bindings/watchdog/sp805-wdt.txt
+>>> @@ -19,6 +19,8 @@ Required properties:
+>>>   Optional properties:
+>>>   - interrupts : Should specify WDT interrupt number.
+>>> +- timeout-sec : Should specify default WDT timeout in seconds. If unset, the
+>>> +                default timeout is 30 seconds
 >>
->> Signed-off-by: Ray Jui <ray.jui@broadcom.com>
->> Reviewed-by: Scott Branden <scott.branden@broadcom.com>
->> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
->> ---
->>   Documentation/devicetree/bindings/watchdog/arm,sp805.txt | 2 ++
->>   1 file changed, 2 insertions(+)
+>> According to the SP805 TRM, the default interval is dependent on the rate of
+>> WDOGCLK, but would typically be a lot longer than that :/
 >>
->> diff --git a/Documentation/devicetree/bindings/watchdog/arm,sp805.txt b/Documentation/devicetree/bindings/watchdog/arm,sp805.txt
->> index de93a4d..9cd7470 100644
->> --- a/Documentation/devicetree/bindings/watchdog/arm,sp805.txt
->> +++ b/Documentation/devicetree/bindings/watchdog/arm,sp805.txt
->> @@ -18,6 +18,8 @@ Required properties:
->>   
->>   Optional properties:
->>   - interrupts : Should specify WDT interrupt number.
->> +timeout-sec : Should specify default WDT timeout in seconds. If unset, the
->> +              default timeout in the driver is 30 seconds
-> 
-> That looks odd, with the changed indentation and the missing '-'
-> in front of 'timeout-sec' >
+> Depends on the definition of "default". In the context of watchdog drivers,
+> it is (or should be) a driver default, not a chip default.
 
-My bad. Will fix this in v3. Thanks.
+DT describes hardware, not driver behaviour.
 
-> Guenter
-> 
+I appreciate that where a timeout *is* specified, that is effectively a 
+hardware aspect even if it's something an OS consuming the binding still 
+has to voluntarily program into the device. The notion of "this is the 
+longest period of time for which you can reasonably expect to see no 
+activity under normal operation" is indeed a property of the platform as 
+a whole - a system with user-accessible PCIe slots may need to reflect 
+the worst case of one CPU waiting for an ATS invalidation timeout with 
+interrupts disabled, whereas a much shorter period might be appropriate 
+for the same SoC in some closed-down embedded device.
+
+The absence of the property, though, doesn't convey anything other than 
+"I don't know" and/or "it doesn't really matter", and in that situation 
+the default is always going to be "whatever the OS thinks is 
+appropriate". The binding itself can't possibly know, whereas an OS 
+might be configured for some pseudo-real-time application which it knows 
+warrants a maximum of 100ms regardless of what the DT does or doesn't 
+say. In the case of SP805, if the OS doesn't reconfigure it at all, 
+there happens to be an actual hardware default of (2^32 / WDOGCLK), but 
+since that's already implicit in the compatible it doesn't really need 
+saying either.
+
+Optional properties don't need to explicitly state what their absence 
+might infer, especially when it's not directly meaningful (just imagine 
+trying to do that for bindings/regulator/regulator.txt...), so I would 
+suggest following the 93% of existing bindings which simply don't try to 
+claim some default value for this property.
+
+I also think the fact that, within the context of this patch series, the 
+Linux driver doesn't even do what the binding claims only goes to help 
+make my point ;)
+
+Robin.
