@@ -6,75 +6,39 @@ To: wim@linux-watchdog.org,
 	support.opensource@diasemi.com
 Cc: linux-watchdog@vger.kernel.org,
 	kernel@pengutronix.de
-Subject: [PATCH v7 1/5] watchdog: da9063: Fix setting/changing timeout
-Date: Thu, 24 May 2018 09:56:05 +0200
-Message-Id: <20180524075609.19951-2-m.felsch@pengutronix.de>
-In-Reply-To: <20180524075609.19951-1-m.felsch@pengutronix.de>
-References: <20180524075609.19951-1-m.felsch@pengutronix.de>
+Subject: [PATCH v7 0/5] watchdog: da9063: Fix timeout handling
+Date: Thu, 24 May 2018 09:56:04 +0200
+Message-Id: <20180524075609.19951-1-m.felsch@pengutronix.de>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-If the timeout value is set more than once the DA9063 watchdog triggers
-a reset signal which reset the system.
+The current set_timeout() handling can't change the timeout value if the
+watchdog is already running because the watchdog must be
+disabled before a new timeout value can be set. This sounds a bit
+strange but it is the only way to change the timeout value.
 
-To update the timeout value we have to disable the watchdog, clear the
-watchdog counter value and write the new timeout value to the watchdog.
-Clearing the counter value is a feature to be on the safe side because the
-data sheet doesn't describe the behaviour of the watchdog counter value
-after a watchdog disabling-enable-sequence.
+The watchdog also has a second quirk. The timeout value combines the
+timeout and the watchdog enable signal. So a value not equal zero
+indicates that the watchdog is running. This leads into problems if the
+watchdog is disabled and a new timeout value should be set because
+during setting the timeout value the watchdog gets enabled. The driver
+must check if the watchdog is disabled. In that case the timeout value
+must be stored to be available for the later wdt_start() call. If the
+watchdog is already running the driver must write the new timeout value
+immediately to the watchdog.
 
-The patch is based on Philipp Zabel's previous patch.
+There was also a issue during the driver probe sequence. The driver must
+set a new timeout reference mark if the watchdog was enabled in a earlier
+stage e.g. the bootloader.
 
-Fixes: 5e9c16e37608 ("watchdog: Add DA9063 PMIC watchdog driver.")
-Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
----
- drivers/watchdog/da9063_wdt.c | 26 ++++++++++++++++++++++++--
- 1 file changed, 24 insertions(+), 2 deletions(-)
+Marco Felsch (5):
+  watchdog: da9063: Fix setting/changing timeout
+  watchdog: da9063: Fix setting HW_RUNNING indication during wdt_start
+  watchdog: da9063: Fix updating timeout value
+  watchdog: da9063: Fix timeout handling during probe
+  watchdog: da9063: rename helper function to avoid misunderstandings
 
-diff --git a/drivers/watchdog/da9063_wdt.c b/drivers/watchdog/da9063_wdt.c
-index b17ac1bb1f28..c1216e61e64e 100644
---- a/drivers/watchdog/da9063_wdt.c
-+++ b/drivers/watchdog/da9063_wdt.c
-@@ -45,8 +45,31 @@ static unsigned int da9063_wdt_timeout_to_sel(unsigned int secs)
- 	return DA9063_TWDSCALE_MAX;
- }
- 
-+static int da9063_wdt_disable_timer(struct da9063 *da9063)
-+{
-+	return regmap_update_bits(da9063->regmap, DA9063_REG_CONTROL_D,
-+				  DA9063_TWDSCALE_MASK,
-+				  DA9063_TWDSCALE_DISABLE);
-+}
-+
- static int _da9063_wdt_set_timeout(struct da9063 *da9063, unsigned int regval)
- {
-+	int ret;
-+
-+	/*
-+	 * The watchdog triggers a reboot if a timeout value is already
-+	 * programmed because the timeout value combines two functions
-+	 * in one: indicating the counter limit and starting the watchdog.
-+	 * The watchdog must be disabled to be able to change the timeout
-+	 * value if the watchdog is already running. Then we can set the
-+	 * new timeout value which enables the watchdog again.
-+	 */
-+	ret = da9063_wdt_disable_timer(da9063);
-+	if (ret)
-+		return ret;
-+
-+	usleep_range(150, 300);
-+
- 	return regmap_update_bits(da9063->regmap, DA9063_REG_CONTROL_D,
- 				  DA9063_TWDSCALE_MASK, regval);
- }
-@@ -71,8 +94,7 @@ static int da9063_wdt_stop(struct watchdog_device *wdd)
- 	struct da9063 *da9063 = watchdog_get_drvdata(wdd);
- 	int ret;
- 
--	ret = regmap_update_bits(da9063->regmap, DA9063_REG_CONTROL_D,
--				 DA9063_TWDSCALE_MASK, DA9063_TWDSCALE_DISABLE);
-+	ret = da9063_wdt_disable_timer(da9063);
- 	if (ret)
- 		dev_alert(da9063->dev, "Watchdog failed to stop (err = %d)\n",
- 			  ret);
+ drivers/watchdog/da9063_wdt.c | 69 ++++++++++++++++++++++++++++++++---
+ 1 file changed, 63 insertions(+), 6 deletions(-)
+
 -- 
 2.17.0
