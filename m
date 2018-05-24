@@ -1,159 +1,80 @@
-Return-Path: <ray.jui@broadcom.com>
-Return-path: <ray.jui@broadcom.com>
-Subject: Re: [PATCH 3/5] watchdog: sp805: set WDOG_HW_RUNNING when appropriate
-To: Guenter Roeck <linux@roeck-us.net>, Robin Murphy <robin.murphy@arm.com>
-Cc: Scott Branden <scott.branden@broadcom.com>,
- Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org,
- linux-watchdog@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
- Will Deacon <will.deacon@arm.com>, linux-kernel@vger.kernel.org,
- Rob Herring <robh+dt@kernel.org>, bcm-kernel-feedback-list@broadcom.com,
- Wim Van Sebroeck <wim@linux-watchdog.org>,
- Frank Rowand <frowand.list@gmail.com>, linux-arm-kernel@lists.infradead.org
-References: <1527014840-21236-1-git-send-email-ray.jui@broadcom.com>
- <1527014840-21236-4-git-send-email-ray.jui@broadcom.com>
- <20180522205457.GA16363@roeck-us.net>
- <0d92b9e9-a3d1-6e91-8371-b5ed3a83e399@broadcom.com>
- <00c121ea-d197-93b8-2f56-bcca963f70fb@broadcom.com>
- <76d47e02-7a5f-3fc2-3905-cd4aa03ac69c@arm.com>
- <5a996888-d3d3-9ae6-e438-5de4d5e3ea32@broadcom.com>
- <ef3539fd-c95c-f364-93c7-680aabd1eea3@arm.com>
- <20180523180920.GB27570@roeck-us.net>
-From: Ray Jui <ray.jui@broadcom.com>
-Message-ID: <4da7f930-2698-3ab5-4fce-50af1eba8af5@broadcom.com>
-Date: Wed, 23 May 2018 12:35:20 -0700
-MIME-Version: 1.0
-In-Reply-To: <20180523180920.GB27570@roeck-us.net>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Return-Path: <mfe@pengutronix.de>
+Return-path: <mfe@pengutronix.de>
+From: Marco Felsch <m.felsch@pengutronix.de>
+To: wim@linux-watchdog.org,
+	linux@roeck-us.net,
+	support.opensource@diasemi.com
+Cc: linux-watchdog@vger.kernel.org,
+	kernel@pengutronix.de
+Subject: [PATCH v7 1/5] watchdog: da9063: Fix setting/changing timeout
+Date: Thu, 24 May 2018 09:56:05 +0200
+Message-Id: <20180524075609.19951-2-m.felsch@pengutronix.de>
+In-Reply-To: <20180524075609.19951-1-m.felsch@pengutronix.de>
+References: <20180524075609.19951-1-m.felsch@pengutronix.de>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi Guenter/Robin,
+If the timeout value is set more than once the DA9063 watchdog triggers
+a reset signal which reset the system.
 
-On 5/23/2018 11:09 AM, Guenter Roeck wrote:
-> On Wed, May 23, 2018 at 06:15:14PM +0100, Robin Murphy wrote:
->> On 23/05/18 17:29, Ray Jui wrote:
->>> Hi Robin,
->>>
->>> On 5/23/2018 4:48 AM, Robin Murphy wrote:
->>>> On 23/05/18 08:52, Scott Branden wrote:
->>>>>
->>>>>
->>>>> On 18-05-22 04:24 PM, Ray Jui wrote:
->>>>>> Hi Guenter,
->>>>>>
->>>>>> On 5/22/2018 1:54 PM, Guenter Roeck wrote:
->>>>>>> On Tue, May 22, 2018 at 11:47:18AM -0700, Ray Jui wrote:
->>>>>>>> If the watchdog hardware is already enabled during the boot process,
->>>>>>>> when the Linux watchdog driver loads, it should reset the
->>>>>>>> watchdog and
->>>>>>>> tell the watchdog framework. As a result, ping can be generated from
->>>>>>>> the watchdog framework, until the userspace watchdog daemon
->>>>>>>> takes over
->>>>>>>> control
->>>>>>>>
->>>>>>>> Signed-off-by: Ray Jui <ray.jui@broadcom.com>
->>>>>>>> Reviewed-by: Vladimir Olovyannikov
->>>>>>>> <vladimir.olovyannikov@broadcom.com>
->>>>>>>> Reviewed-by: Scott Branden <scott.branden@broadcom.com>
->>>>>>>> ---
->>>>>>>>    drivers/watchdog/sp805_wdt.c | 22 ++++++++++++++++++++++
->>>>>>>>    1 file changed, 22 insertions(+)
->>>>>>>>
->>>>>>>> diff --git a/drivers/watchdog/sp805_wdt.c
->>>>>>>> b/drivers/watchdog/sp805_wdt.c
->>>>>>>> index 1484609..408ffbe 100644
->>>>>>>> --- a/drivers/watchdog/sp805_wdt.c
->>>>>>>> +++ b/drivers/watchdog/sp805_wdt.c
->>>>>>>> @@ -42,6 +42,7 @@
->>>>>>>>        /* control register masks */
->>>>>>>>        #define    INT_ENABLE    (1 << 0)
->>>>>>>>        #define    RESET_ENABLE    (1 << 1)
->>>>>>>> +    #define    ENABLE_MASK    (INT_ENABLE | RESET_ENABLE)
->>>>>>>>    #define WDTINTCLR        0x00C
->>>>>>>>    #define WDTRIS            0x010
->>>>>>>>    #define WDTMIS            0x014
->>>>>>>> @@ -74,6 +75,18 @@ module_param(nowayout, bool, 0);
->>>>>>>>    MODULE_PARM_DESC(nowayout,
->>>>>>>>            "Set to 1 to keep watchdog running after device release");
->>>>>>>>    +/* returns true if wdt is running; otherwise returns false */
->>>>>>>> +static bool wdt_is_running(struct watchdog_device *wdd)
->>>>>>>> +{
->>>>>>>> +    struct sp805_wdt *wdt = watchdog_get_drvdata(wdd);
->>>>>>>> +
->>>>>>>> +    if ((readl_relaxed(wdt->base + WDTCONTROL) & ENABLE_MASK) ==
->>>>>>>> +        ENABLE_MASK)
->>>>>>>> +        return true;
->>>>>>>> +    else
->>>>>>>> +        return false;
->>>>>>>
->>>>>>>      return !!(readl_relaxed(wdt->base + WDTCONTROL) & ENABLE_MASK));
->>>>>>>
->>>>>>
->>>>>> Note ENABLE_MASK contains two bits (INT_ENABLE and RESET_ENABLE);
->>>>>> therefore, a simple !!(expression) would not work? That is, the
->>>>>> masked result needs to be compared against the mask again to ensure
->>>>>> both bits are set, right?
->>>>> Ray - your original code looks correct to me.  Easier to read and less
->>>>> prone to errors as shown in the attempted translation to a single
->>>>> statement.
->>>>
->>>>       if (<boolean condition>)
->>>>           return true;
->>>>       else
->>>>           return false;
->>>>
->>>> still looks really dumb, though, and IMO is actually harder to read than
->>>> just "return <boolean condition>;" because it forces you to stop and
->>>> double-check that the logic is, in fact, only doing the obvious thing.
->>>
->>> If you can propose a way to modify my original code above to make it more
->>> readable, I'm fine to make the change.
->>
->> Well,
->>
->> 	return readl_relaxed(wdt->base + WDTCONTROL) & ENABLE_MASK == ENABLE_MASK;
->>
->> would probably be reasonable to anyone other than the 80-column zealots, but
->> removing the silly boolean-to-boolean translation idiom really only
->> emphasises the fact that it's fundamentally a big complex statement; for
->> maximum clarity I'd be inclined to separate the two logical operations (read
->> and comparison), e.g.:
->>
->> 	u32 wdtcontrol = readl_relaxed(wdt->base + WDTCONTROL);
->>
->> 	return wdtcontrol & ENABLE_MASK == ENABLE_MASK;
-> 
-> == has higher precendence than bitwise &, so this will need ( ),
-> but otherwise I agree.
-> 
+To update the timeout value we have to disable the watchdog, clear the
+watchdog counter value and write the new timeout value to the watchdog.
+Clearing the counter value is a feature to be on the safe side because the
+data sheet doesn't describe the behaviour of the watchdog counter value
+after a watchdog disabling-enable-sequence.
 
-Sure. Let me change the code to the following:
+The patch is based on Philipp Zabel's previous patch.
 
-       u32 wdtcontrol = readl_relaxed(wdt->base + WDTCONTROL);
+Fixes: 5e9c16e37608 ("watchdog: Add DA9063 PMIC watchdog driver.")
+Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
+---
+ drivers/watchdog/da9063_wdt.c | 26 ++++++++++++++++++++++++--
+ 1 file changed, 24 insertions(+), 2 deletions(-)
 
-       return (wdtcontrol & ENABLE_MASK) == ENABLE_MASK;
-
-Thanks.
-
-Ray
-
->>
->> which is still -3 lines vs. the original.
->>
->>> As I mentioned, I don't think the following change proposed by Guenter
->>> will work due to the reason I pointed out:
->>>
->>> return !!(readl_relaxed(wdt->base + WDTCONTROL) & ENABLE_MASK));
->>
->> FWIW, getting the desired result should only need one logical not swapping
->> for a bitwise one there:
->>
->> 	return !(~readl_relaxed(wdt->base + WDTCONTROL) & ENABLE_MASK);
->>
->> but that's well into "too clever for its own good" territory ;)
-> 
-> Yes, that would be confusing.
-> 
->>
->> Robin.
+diff --git a/drivers/watchdog/da9063_wdt.c b/drivers/watchdog/da9063_wdt.c
+index b17ac1bb1f28..c1216e61e64e 100644
+--- a/drivers/watchdog/da9063_wdt.c
++++ b/drivers/watchdog/da9063_wdt.c
+@@ -45,8 +45,31 @@ static unsigned int da9063_wdt_timeout_to_sel(unsigned int secs)
+ 	return DA9063_TWDSCALE_MAX;
+ }
+ 
++static int da9063_wdt_disable_timer(struct da9063 *da9063)
++{
++	return regmap_update_bits(da9063->regmap, DA9063_REG_CONTROL_D,
++				  DA9063_TWDSCALE_MASK,
++				  DA9063_TWDSCALE_DISABLE);
++}
++
+ static int _da9063_wdt_set_timeout(struct da9063 *da9063, unsigned int regval)
+ {
++	int ret;
++
++	/*
++	 * The watchdog triggers a reboot if a timeout value is already
++	 * programmed because the timeout value combines two functions
++	 * in one: indicating the counter limit and starting the watchdog.
++	 * The watchdog must be disabled to be able to change the timeout
++	 * value if the watchdog is already running. Then we can set the
++	 * new timeout value which enables the watchdog again.
++	 */
++	ret = da9063_wdt_disable_timer(da9063);
++	if (ret)
++		return ret;
++
++	usleep_range(150, 300);
++
+ 	return regmap_update_bits(da9063->regmap, DA9063_REG_CONTROL_D,
+ 				  DA9063_TWDSCALE_MASK, regval);
+ }
+@@ -71,8 +94,7 @@ static int da9063_wdt_stop(struct watchdog_device *wdd)
+ 	struct da9063 *da9063 = watchdog_get_drvdata(wdd);
+ 	int ret;
+ 
+-	ret = regmap_update_bits(da9063->regmap, DA9063_REG_CONTROL_D,
+-				 DA9063_TWDSCALE_MASK, DA9063_TWDSCALE_DISABLE);
++	ret = da9063_wdt_disable_timer(da9063);
+ 	if (ret)
+ 		dev_alert(da9063->dev, "Watchdog failed to stop (err = %d)\n",
+ 			  ret);
+-- 
+2.17.0
