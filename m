@@ -1,95 +1,106 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from foss.arm.com ([217.140.101.70]:44788 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751407AbeEXNZi (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 24 May 2018 09:25:38 -0400
+Received: from usa-sjc-mx-foss1.foss.arm.com ([217.140.101.70]:45170 "EHLO
+        foss.arm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S966066AbeEXNw0 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Thu, 24 May 2018 09:52:26 -0400
 Subject: Re: [PATCH 1/5] Documentation: DT: Add optional 'timeout-sec'
  property for sp805
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org,
-        linux-watchdog@vger.kernel.org,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
-        Ray Jui <ray.jui@broadcom.com>,
-        bcm-kernel-feedback-list@broadcom.com,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
+To: Ray Jui <ray.jui@broadcom.com>, Rob Herring <robh@kernel.org>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Mark Rutland <mark.rutland@arm.com>,
         Frank Rowand <frowand.list@gmail.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will.deacon@arm.com>, devicetree@vger.kernel.org,
+        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+        bcm-kernel-feedback-list@broadcom.com,
         linux-arm-kernel@lists.infradead.org
 References: <1527014840-21236-1-git-send-email-ray.jui@broadcom.com>
  <1527014840-21236-2-git-send-email-ray.jui@broadcom.com>
  <af81ea74-fb80-11e2-7bdc-d3607bdbd46b@arm.com>
- <20180523181058.GC27570@roeck-us.net>
+ <c542388f-e417-f624-ade1-95f9a2fc8a3b@broadcom.com>
+ <20180523185944.GA9989@rob-hp-laptop>
+ <4b0ec4ab-2d9e-1e4b-e294-c175805f4013@broadcom.com>
 From: Robin Murphy <robin.murphy@arm.com>
-Message-ID: <91d27df4-29d0-de7f-6805-c3e5f329caf3@arm.com>
-Date: Thu, 24 May 2018 14:25:34 +0100
+Message-ID: <16e0b756-d455-77f3-0560-75cacf7e3afa@arm.com>
+Date: Thu, 24 May 2018 14:52:21 +0100
 MIME-Version: 1.0
-In-Reply-To: <20180523181058.GC27570@roeck-us.net>
+In-Reply-To: <4b0ec4ab-2d9e-1e4b-e294-c175805f4013@broadcom.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-GB
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 23/05/18 19:10, Guenter Roeck wrote:
-> On Wed, May 23, 2018 at 11:57:25AM +0100, Robin Murphy wrote:
->> On 22/05/18 19:47, Ray Jui wrote:
->>> Update the SP805 binding document to add optional 'timeout-sec'
->>> devicetree property
+On 23/05/18 20:29, Ray Jui wrote:
+> 
+> 
+> On 5/23/2018 11:59 AM, Rob Herring wrote:
+>> On Wed, May 23, 2018 at 09:25:49AM -0700, Ray Jui wrote:
 >>>
->>> Signed-off-by: Ray Jui <ray.jui@broadcom.com>
->>> Reviewed-by: Scott Branden <scott.branden@broadcom.com>
->>> ---
->>>   Documentation/devicetree/bindings/watchdog/sp805-wdt.txt | 2 ++
->>>   1 file changed, 2 insertions(+)
 >>>
->>> diff --git a/Documentation/devicetree/bindings/watchdog/sp805-wdt.txt b/Documentation/devicetree/bindings/watchdog/sp805-wdt.txt
->>> index edc4f0e..f898a86 100644
->>> --- a/Documentation/devicetree/bindings/watchdog/sp805-wdt.txt
->>> +++ b/Documentation/devicetree/bindings/watchdog/sp805-wdt.txt
->>> @@ -19,6 +19,8 @@ Required properties:
->>>   Optional properties:
->>>   - interrupts : Should specify WDT interrupt number.
->>> +- timeout-sec : Should specify default WDT timeout in seconds. If unset, the
->>> +                default timeout is 30 seconds
+>>> On 5/23/2018 3:57 AM, Robin Murphy wrote:
+>>>> On 22/05/18 19:47, Ray Jui wrote:
+>>>>> Update the SP805 binding document to add optional 'timeout-sec'
+>>>>> devicetree property
+>>>>>
+>>>>> Signed-off-by: Ray Jui <ray.jui@broadcom.com>
+>>>>> Reviewed-by: Scott Branden <scott.branden@broadcom.com>
+>>>>> ---
+>>>>>    Documentation/devicetree/bindings/watchdog/sp805-wdt.txt | 2 ++
+>>>>>    1 file changed, 2 insertions(+)
+>>>>>
+>>>>> diff --git
+>>>>> a/Documentation/devicetree/bindings/watchdog/sp805-wdt.txt
+>>>>> b/Documentation/devicetree/bindings/watchdog/sp805-wdt.txt
+>>>>> index edc4f0e..f898a86 100644
+>>>>> --- a/Documentation/devicetree/bindings/watchdog/sp805-wdt.txt
+>>>>> +++ b/Documentation/devicetree/bindings/watchdog/sp805-wdt.txt
+>>>>> @@ -19,6 +19,8 @@ Required properties:
+>>>>>    Optional properties:
+>>>>>    - interrupts : Should specify WDT interrupt number.
+>>>>> +- timeout-sec : Should specify default WDT timeout in seconds. If
+>>>>> unset, the
+>>>>> +                default timeout is 30 seconds
+>>>>
+>>>> According to the SP805 TRM, the default interval is dependent on the
+>>>> rate of WDOGCLK, but would typically be a lot longer than that :/
+>>>>
+>>>> On a related note, anyone have any idea why we seem to have two subtly
+>>>> different SP805 bindings defined?
 >>
->> According to the SP805 TRM, the default interval is dependent on the rate of
->> WDOGCLK, but would typically be a lot longer than that :/
+>> Sigh.
 >>
-> Depends on the definition of "default". In the context of watchdog drivers,
-> it is (or should be) a driver default, not a chip default.
+>>> Interesting, I did not even know that until you pointed this out (and 
+>>> it's
+>>> funny that I found that I actually reviewed arm,sp805.txt internally in
+>>> Broadcom code review).
+>>>
+>>> It looks like one was done by Bhupesh Sharma (sp805-wdt.txt) and the 
+>>> other
+>>> was done by Anup Patel (arm,sp805.txt). Both were merged at the same 
+>>> time
+>>> around March 20, 2016: 915c56bc01d6. I'd assume both were sent out at 
+>>> around
+>>> the same time.
+>>>
+>>> It sounds like we should definitely remove one of them. Given that
+>>> sp805-wdt.txt appears to have more detailed descriptions on the use 
+>>> of the
+>>> clocks, should we remove arm,sp805.txt?
+>>
+>> Take whichever text you like, but I prefer filenames using the
+>> compatible string and the correct string is 'arm,sp805' because '-wdt'
+>> is redundant. You can probably safely just update all the dts files with
+>> 'arm,sp805' and just remove 'arm,sp805-wdt' because it is not actually
+>> used (as the ID registers are).
+> 
+> Okay. I'll consolidate everything into arm,sp805.txt. Will also fix all 
+> DTS files to use "arm,sp805". The fix for actual DTS files will be in a 
+> different patch series.
 
-DT describes hardware, not driver behaviour.
-
-I appreciate that where a timeout *is* specified, that is effectively a 
-hardware aspect even if it's something an OS consuming the binding still 
-has to voluntarily program into the device. The notion of "this is the 
-longest period of time for which you can reasonably expect to see no 
-activity under normal operation" is indeed a property of the platform as 
-a whole - a system with user-accessible PCIe slots may need to reflect 
-the worst case of one CPU waiting for an ATS invalidation timeout with 
-interrupts disabled, whereas a much shorter period might be appropriate 
-for the same SoC in some closed-down embedded device.
-
-The absence of the property, though, doesn't convey anything other than 
-"I don't know" and/or "it doesn't really matter", and in that situation 
-the default is always going to be "whatever the OS thinks is 
-appropriate". The binding itself can't possibly know, whereas an OS 
-might be configured for some pseudo-real-time application which it knows 
-warrants a maximum of 100ms regardless of what the DT does or doesn't 
-say. In the case of SP805, if the OS doesn't reconfigure it at all, 
-there happens to be an actual hardware default of (2^32 / WDOGCLK), but 
-since that's already implicit in the compatible it doesn't really need 
-saying either.
-
-Optional properties don't need to explicitly state what their absence 
-might infer, especially when it's not directly meaningful (just imagine 
-trying to do that for bindings/regulator/regulator.txt...), so I would 
-suggest following the 93% of existing bindings which simply don't try to 
-claim some default value for this property.
-
-I also think the fact that, within the context of this patch series, the 
-Linux driver doesn't even do what the binding claims only goes to help 
-make my point ;)
+Looking at the current in-tree DTs, for extra fun try to figure out 
+which binding each instance was following for the clocks. The most 
+common answer seems to be "neither"... :(
 
 Robin.
