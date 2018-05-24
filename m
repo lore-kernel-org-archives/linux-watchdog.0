@@ -1,130 +1,59 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:36714 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1030394AbeEYWmd (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 25 May 2018 18:42:33 -0400
-Date: Fri, 25 May 2018 15:42:30 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Marco Felsch <m.felsch@pengutronix.de>
-Cc: wim@linux-watchdog.org, support.opensource@diasemi.com,
-        kernel@pengutronix.de, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH v8 3/4] watchdog: da9063: Fix timeout handling during
- probe
-Message-ID: <20180525224230.GA4632@roeck-us.net>
-References: <20180524115101.17097-1-m.felsch@pengutronix.de>
- <20180524115101.17097-4-m.felsch@pengutronix.de>
- <20180524180744.GA13327@roeck-us.net>
- <20180525064454.x3yn2eq4xuxvdtza@pengutronix.de>
- <03553172-0d10-013e-5809-55d490dff8e5@roeck-us.net>
- <20180525130934.zimcqmdtpkijlz4r@pengutronix.de>
- <62e8397e-bb92-d0b9-04e5-ebb1838d1af9@roeck-us.net>
- <20180525214157.GA12107@pengutronix.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20180525214157.GA12107@pengutronix.de>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-Path: <ray.jui@broadcom.com>
+Return-path: <ray.jui@broadcom.com>
+From: Ray Jui <ray.jui@broadcom.com>
+To: Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Rob Herring <robh+dt@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Frank Rowand <frowand.list@gmail.com>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will.deacon@arm.com>,
+	Robin Murphy <robin.murphy@arm.com>
+Cc: linux-watchdog@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	bcm-kernel-feedback-list@broadcom.com,
+	Ray Jui <ray.jui@broadcom.com>
+Subject: [PATCH v3 0/6] Enhance support for the SP805 WDT
+Date: Wed, 23 May 2018 17:15:18 -0700
+Message-Id: <1527120924-12131-1-git-send-email-ray.jui@broadcom.com>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On Fri, May 25, 2018 at 11:41:57PM +0200, Marco Felsch wrote:
-> Dear Guenter,
-> 
-> On 18-05-25 06:46, Guenter Roeck wrote:
-> > On 05/25/2018 06:09 AM, Marco Felsch wrote:
-> > > On 18-05-25 01:50, Guenter Roeck wrote:
-> > > > On 05/24/2018 11:44 PM, Marco Felsch wrote:
-> > > > > On 18-05-24 11:07, Guenter Roeck wrote:
-> > > > > > On Thu, May 24, 2018 at 01:51:00PM +0200, Marco Felsch wrote:
-> > > > > > > The watchdog can be enabled in previous steps (e.g. the bootloader). Check
-> > > > > > > if the watchdog is already running, retrieve the set timeout value and
-> > > > > > > set it again to set the new timeout reference mark.
-> > > > > > > 
-> > > > > > > Fixes: 5e9c16e37608 ("watchdog: Add DA9063 PMIC watchdog driver.")
-> > > > > > > Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
-> > > > > > > ---
-> > > > > > >    drivers/watchdog/da9063_wdt.c | 19 +++++++++++++++++++
-> > > > > > >    1 file changed, 19 insertions(+)
-> > > > > > > 
-> > > > > > > diff --git a/drivers/watchdog/da9063_wdt.c b/drivers/watchdog/da9063_wdt.c
-> > > > > > > index 6b0092b7d5a6..c5bd5ffe8ded 100644
-> > > > > > > --- a/drivers/watchdog/da9063_wdt.c
-> > > > > > > +++ b/drivers/watchdog/da9063_wdt.c
-> > > > > > > @@ -45,6 +45,18 @@ static unsigned int da9063_wdt_timeout_to_sel(unsigned int secs)
-> > > > > > >    	return DA9063_TWDSCALE_MAX;
-> > > > > > >    }
-> > > > > > > +/*
-> > > > > > > + * Return 0 if watchdog is disabled, else non zero.
-> > > > > > > + */
-> > > > > > > +static unsigned int da9063_wdt_is_running(struct da9063 *da9063)
-> > > > > > > +{
-> > > > > > > +	unsigned int val;
-> > > > > > > +
-> > > > > > > +	regmap_read(da9063->regmap, DA9063_REG_CONTROL_D, &val);
-> > > > > > > +
-> > > > > > > +	return val & DA9063_TWDSCALE_MASK;
-> > > > > > > +}
-> > > > > > > +
-> > > > > > >    static int da9063_wdt_disable_timer(struct da9063 *da9063)
-> > > > > > >    {
-> > > > > > >    	return regmap_update_bits(da9063->regmap, DA9063_REG_CONTROL_D,
-> > > > > > > @@ -180,6 +192,7 @@ static int da9063_wdt_probe(struct platform_device *pdev)
-> > > > > > >    {
-> > > > > > >    	struct da9063 *da9063;
-> > > > > > >    	struct watchdog_device *wdd;
-> > > > > > > +	unsigned int cur_timeout;
-> > > > > > >    	if (!pdev->dev.parent)
-> > > > > > >    		return -EINVAL;
-> > > > > > > @@ -206,6 +219,12 @@ static int da9063_wdt_probe(struct platform_device *pdev)
-> > > > > > >    	watchdog_set_drvdata(wdd, da9063);
-> > > > > > > +	cur_timeout = da9063_wdt_is_running(da9063);
-> > > > > > > +	if (cur_timeout) {
-> > > > > > > +		set_bit(WDOG_HW_RUNNING, &wdd->status);
-> > > > > > > +		_da9063_wdt_set_timeout(da9063, cur_timeout);
-> > > > > > 
-> > > > > > Sorry, I should have been more specific. That doesn't make sense as written
-> > > > > > since it just sets the same timeout as before. You would have to replace
-> > > > > > the second argument with the desired timeout in seconds, and call
-> > > > > > da9063_wdt_timeout_to_sel() in _da9063_wdt_set_timeout(). That would
-> > > > > > actually make sense since all callers of _da9063_wdt_set_timeout()
-> > > > > > do that anyway before the call.
-> > > > > 
-> > > > > That's the reason why I used da9063_wdt_set_timeout() in v6 because in
-> > > > > v6 da9063_wdt_is_running() has returned the mapped timeout in seconds.
-> > > > > 
-> > > > > However, I'm with you to move da9063_wdt_timeout_to_sel() to
-> > > > > _da9063_wdt_set_timeout(). Should that happen in a seperate patch?
-> > > > > 
-> > > > Yes, that would be better.
-> > > 
-> > > We can't move it to the _da9063_wdt_set_timeout() because the
-> > > da9063_wdt_set_timeout() uses the mapped timeouts later:
-> > > 
-> > > static int da9063_wdt_set_timeout(struct watchdog_device *wdd,
-> > >                                    unsigned int timeout)
-> > > {
-> > > 	[ ... ]
-> > >          else
-> > > 		wdd->timeout = wdt_timeout[selector];
-> > > 
-> > > 	return ret;
-> > > 
-> > > }
-> > > 
-> > 	...
-> > 	if (ret)
-> > 		return ret;
-> > 
-> >         wdd->timeout = wdt_timeout[da9063_wdt_timeout_to_sel(timeout)];
-> > 	return 0;
-> > 
-> > Guenter
-> 
-> Sorry, I tought da9063_wdt_timeout_to_sel() should get called only within
-> _da9063_wdt_set_timeout(). 
-> 
-Well, you _could_ have _da9063_wdt_set_timeout() return either a negative
-error code or the actually selected timeout. Just an idea.
+This patch series enhances the support for the SP805 watchdog timer.
+First of all, 'timeout-sec' devicetree property is added. In addition,
+support is also added to allow the driver to reset the watchdog if it
+has been detected that watchdot has been started in the bootloader. In
+this case, the driver will initiate the ping service from the kernel
+watchdog subsystem, before a user mode daemon takes over. This series
+also enables SP805 in the default ARM64 defconfig
 
-Guenter
+This patch series is based off v4.17-rc5 and is available on GIHUB:
+repo: https://github.com/Broadcom/arm64-linux.git
+branch: sp805-wdt-v3
+
+Changes since v2:
+ - Fix indent and format to make them consistent within arm,sp805.txt
+
+Changes since v1:
+ - Consolidate two duplicated SP805 binding documents into one
+ - Slight change of the wdt_is_running implementation per discussion
+
+Ray Jui (6):
+  Documentation: DT: Consolidate SP805 binding docs
+  Documentation: DT: Add optional 'timeout-sec' property for sp805
+  watchdog: sp805: add 'timeout-sec' DT property support
+  watchdog: sp805: set WDOG_HW_RUNNING when appropriate
+  arm64: dt: set initial SR watchdog timeout to 60 seconds
+  arm64: defconfig: add CONFIG_ARM_SP805_WATCHDOG
+
+ .../devicetree/bindings/watchdog/arm,sp805.txt     | 29 +++++++++++++++-----
+ .../devicetree/bindings/watchdog/sp805-wdt.txt     | 31 ----------------------
+ .../arm64/boot/dts/broadcom/stingray/stingray.dtsi |  1 +
+ arch/arm64/configs/defconfig                       |  1 +
+ drivers/watchdog/sp805_wdt.c                       | 28 ++++++++++++++++++-
+ 5 files changed, 51 insertions(+), 39 deletions(-)
+ delete mode 100644 Documentation/devicetree/bindings/watchdog/sp805-wdt.txt
+
+-- 
+2.1.4
