@@ -1,76 +1,68 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from metis.ext.pengutronix.de ([85.220.165.71]:35563 "EHLO
+Received: from metis.ext.pengutronix.de ([85.220.165.71]:58029 "EHLO
         metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S967086AbeEXLvP (ORCPT
+        with ESMTP id S967029AbeEXLvP (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
         Thu, 24 May 2018 07:51:15 -0400
 From: Marco Felsch <m.felsch@pengutronix.de>
 To: wim@linux-watchdog.org, linux@roeck-us.net,
         support.opensource@diasemi.com
 Cc: linux-watchdog@vger.kernel.org, kernel@pengutronix.de
-Subject: [PATCH v8 3/4] watchdog: da9063: Fix timeout handling during probe
-Date: Thu, 24 May 2018 13:51:00 +0200
-Message-Id: <20180524115101.17097-4-m.felsch@pengutronix.de>
+Subject: [PATCH v8 2/4] watchdog: da9063: Fix updating timeout value
+Date: Thu, 24 May 2018 13:50:59 +0200
+Message-Id: <20180524115101.17097-3-m.felsch@pengutronix.de>
 In-Reply-To: <20180524115101.17097-1-m.felsch@pengutronix.de>
 References: <20180524115101.17097-1-m.felsch@pengutronix.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The watchdog can be enabled in previous steps (e.g. the bootloader). Check
-if the watchdog is already running, retrieve the set timeout value and
-set it again to set the new timeout reference mark.
+The DA9063 watchdog has only one register field to store the timeout value
+and to enable the watchdog. The watchdog gets enabled if the value is
+not zero. There is no issue if the watchdog is already running but it
+leads into problems if the watchdog is disabled.
+
+If the watchdog is disabled and only the timeout value should be prepared
+the watchdog gets enabled too. Add a check to get the current watchdog
+state and update the watchdog timeout value on hw-side only if the
+watchdog is already active.
 
 Fixes: 5e9c16e37608 ("watchdog: Add DA9063 PMIC watchdog driver.")
 Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
 ---
- drivers/watchdog/da9063_wdt.c | 19 +++++++++++++++++++
- 1 file changed, 19 insertions(+)
+ drivers/watchdog/da9063_wdt.c | 17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/watchdog/da9063_wdt.c b/drivers/watchdog/da9063_wdt.c
-index 6b0092b7d5a6..c5bd5ffe8ded 100644
+index c1216e61e64e..6b0092b7d5a6 100644
 --- a/drivers/watchdog/da9063_wdt.c
 +++ b/drivers/watchdog/da9063_wdt.c
-@@ -45,6 +45,18 @@ static unsigned int da9063_wdt_timeout_to_sel(unsigned int secs)
- 	return DA9063_TWDSCALE_MAX;
- }
- 
-+/*
-+ * Return 0 if watchdog is disabled, else non zero.
-+ */
-+static unsigned int da9063_wdt_is_running(struct da9063 *da9063)
-+{
-+	unsigned int val;
-+
-+	regmap_read(da9063->regmap, DA9063_REG_CONTROL_D, &val);
-+
-+	return val & DA9063_TWDSCALE_MASK;
-+}
-+
- static int da9063_wdt_disable_timer(struct da9063 *da9063)
+@@ -121,10 +121,23 @@ static int da9063_wdt_set_timeout(struct watchdog_device *wdd,
  {
- 	return regmap_update_bits(da9063->regmap, DA9063_REG_CONTROL_D,
-@@ -180,6 +192,7 @@ static int da9063_wdt_probe(struct platform_device *pdev)
- {
- 	struct da9063 *da9063;
- 	struct watchdog_device *wdd;
-+	unsigned int cur_timeout;
+ 	struct da9063 *da9063 = watchdog_get_drvdata(wdd);
+ 	unsigned int selector;
+-	int ret;
++	int ret = 0;
  
- 	if (!pdev->dev.parent)
- 		return -EINVAL;
-@@ -206,6 +219,12 @@ static int da9063_wdt_probe(struct platform_device *pdev)
- 
- 	watchdog_set_drvdata(wdd, da9063);
- 
-+	cur_timeout = da9063_wdt_is_running(da9063);
-+	if (cur_timeout) {
-+		set_bit(WDOG_HW_RUNNING, &wdd->status);
-+		_da9063_wdt_set_timeout(da9063, cur_timeout);
-+	}
+ 	selector = da9063_wdt_timeout_to_sel(timeout);
+-	ret = _da9063_wdt_set_timeout(da9063, selector);
 +
- 	return devm_watchdog_register_device(&pdev->dev, wdd);
- }
- 
++	/*
++	 * There are two cases when a set_timeout() will be called:
++	 * 1. The watchdog is off and someone wants to set the timeout for the
++	 *    further use.
++	 * 2. The watchdog is already running and a new timeout value should be
++	 *    set.
++	 *
++	 * The watchdog can't store a timeout value not equal zero without
++	 * enabling the watchdog, so the timeout must be buffered by the driver.
++	 */
++	if (watchdog_active(wdd))
++		ret = _da9063_wdt_set_timeout(da9063, selector);
++
+ 	if (ret)
+ 		dev_err(da9063->dev, "Failed to set watchdog timeout (err = %d)\n",
+ 			ret);
 -- 
 2.17.0
 
