@@ -1,75 +1,132 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:34372 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1031084AbeEXRMb (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 24 May 2018 13:12:31 -0400
-Date: Thu, 24 May 2018 10:12:29 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Ray Jui <ray.jui@broadcom.com>
-Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Frank Rowand <frowand.list@gmail.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        bcm-kernel-feedback-list@broadcom.com
-Subject: Re: [PATCH v3 2/6] Documentation: DT: Add optional 'timeout-sec'
- property for sp805
-Message-ID: <20180524171229.GC9499@roeck-us.net>
-References: <1527120924-12131-1-git-send-email-ray.jui@broadcom.com>
- <1527120924-12131-3-git-send-email-ray.jui@broadcom.com>
- <20180524161628.GA28425@roeck-us.net>
- <621dc488-2d8d-003b-9bd1-4de59e8d178b@broadcom.com>
+Return-Path: <mfe@pengutronix.de>
+Return-path: <mfe@pengutronix.de>
+Date: Sat, 26 May 2018 19:39:34 +0200
+From: Marco Felsch <m.felsch@pengutronix.de>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: wim@linux-watchdog.org, support.opensource@diasemi.com,
+	kernel@pengutronix.de, linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH v8 3/4] watchdog: da9063: Fix timeout handling during
+ probe
+Message-ID: <20180526173934.GA12799@pengutronix.de>
+References: <20180524115101.17097-1-m.felsch@pengutronix.de>
+ <20180524115101.17097-4-m.felsch@pengutronix.de>
+ <20180524180744.GA13327@roeck-us.net>
+ <20180525064454.x3yn2eq4xuxvdtza@pengutronix.de>
+ <03553172-0d10-013e-5809-55d490dff8e5@roeck-us.net>
+ <20180525130934.zimcqmdtpkijlz4r@pengutronix.de>
+ <62e8397e-bb92-d0b9-04e5-ebb1838d1af9@roeck-us.net>
+ <20180525214157.GA12107@pengutronix.de>
+ <20180525224230.GA4632@roeck-us.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <621dc488-2d8d-003b-9bd1-4de59e8d178b@broadcom.com>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+In-Reply-To: <20180525224230.GA4632@roeck-us.net>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On Thu, May 24, 2018 at 09:42:20AM -0700, Ray Jui wrote:
-> 
-> 
-> On 5/24/2018 9:16 AM, Guenter Roeck wrote:
-> >On Wed, May 23, 2018 at 05:15:20PM -0700, Ray Jui wrote:
-> >>Update the SP805 binding document to add optional 'timeout-sec'
-> >>devicetree property
-> >>
-> >>Signed-off-by: Ray Jui <ray.jui@broadcom.com>
-> >>---
-> >>  Documentation/devicetree/bindings/watchdog/arm,sp805.txt | 2 ++
-> >>  1 file changed, 2 insertions(+)
-> >>
-> >>diff --git a/Documentation/devicetree/bindings/watchdog/arm,sp805.txt b/Documentation/devicetree/bindings/watchdog/arm,sp805.txt
-> >>index 0fa3629..1debea3 100644
-> >>--- a/Documentation/devicetree/bindings/watchdog/arm,sp805.txt
-> >>+++ b/Documentation/devicetree/bindings/watchdog/arm,sp805.txt
-> >>@@ -19,6 +19,8 @@ Required properties:
-> >>  Optional properties:
-> >>  - interrupts:  Should specify WDT interrupt number
-> >>+- timeout-sec: Should specify default WDT timeout in seconds. If unset, the
-> >>+               default timeout in the driver is 30 seconds
-> >
-> >"... the default timeout is determined by the driver" might be better.
-> >If you want to mandate a default here (not sure if that is a good idea),
-> >I would suggest to use something like "should be 30 seconds".
-> >
-> 
-> Okay. This can be changed to:
-> 
-> - timeout-sec: Should specify default WDT timeout in seconds. If unset, the
-> default timeout is determined by the driver.
-> 
-> Please advise how to proceed with this patch series. Should I make the above
-> modification and send out v4?
+On 18-05-25 15:42, Guenter Roeck wrote:
+> On Fri, May 25, 2018 at 11:41:57PM +0200, Marco Felsch wrote:
+> > Dear Guenter,
+> > 
+> > On 18-05-25 06:46, Guenter Roeck wrote:
+> > > On 05/25/2018 06:09 AM, Marco Felsch wrote:
+> > > > On 18-05-25 01:50, Guenter Roeck wrote:
+> > > > > On 05/24/2018 11:44 PM, Marco Felsch wrote:
+> > > > > > On 18-05-24 11:07, Guenter Roeck wrote:
+> > > > > > > On Thu, May 24, 2018 at 01:51:00PM +0200, Marco Felsch wrote:
+> > > > > > > > The watchdog can be enabled in previous steps (e.g. the bootloader). Check
+> > > > > > > > if the watchdog is already running, retrieve the set timeout value and
+> > > > > > > > set it again to set the new timeout reference mark.
+> > > > > > > > 
+> > > > > > > > Fixes: 5e9c16e37608 ("watchdog: Add DA9063 PMIC watchdog driver.")
+> > > > > > > > Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
+> > > > > > > > ---
+> > > > > > > >    drivers/watchdog/da9063_wdt.c | 19 +++++++++++++++++++
+> > > > > > > >    1 file changed, 19 insertions(+)
+> > > > > > > > 
+> > > > > > > > diff --git a/drivers/watchdog/da9063_wdt.c b/drivers/watchdog/da9063_wdt.c
+> > > > > > > > index 6b0092b7d5a6..c5bd5ffe8ded 100644
+> > > > > > > > --- a/drivers/watchdog/da9063_wdt.c
+> > > > > > > > +++ b/drivers/watchdog/da9063_wdt.c
+> > > > > > > > @@ -45,6 +45,18 @@ static unsigned int da9063_wdt_timeout_to_sel(unsigned int secs)
+> > > > > > > >    	return DA9063_TWDSCALE_MAX;
+> > > > > > > >    }
+> > > > > > > > +/*
+> > > > > > > > + * Return 0 if watchdog is disabled, else non zero.
+> > > > > > > > + */
+> > > > > > > > +static unsigned int da9063_wdt_is_running(struct da9063 *da9063)
+> > > > > > > > +{
+> > > > > > > > +	unsigned int val;
+> > > > > > > > +
+> > > > > > > > +	regmap_read(da9063->regmap, DA9063_REG_CONTROL_D, &val);
+> > > > > > > > +
+> > > > > > > > +	return val & DA9063_TWDSCALE_MASK;
+> > > > > > > > +}
+> > > > > > > > +
+> > > > > > > >    static int da9063_wdt_disable_timer(struct da9063 *da9063)
+> > > > > > > >    {
+> > > > > > > >    	return regmap_update_bits(da9063->regmap, DA9063_REG_CONTROL_D,
+> > > > > > > > @@ -180,6 +192,7 @@ static int da9063_wdt_probe(struct platform_device *pdev)
+> > > > > > > >    {
+> > > > > > > >    	struct da9063 *da9063;
+> > > > > > > >    	struct watchdog_device *wdd;
+> > > > > > > > +	unsigned int cur_timeout;
+> > > > > > > >    	if (!pdev->dev.parent)
+> > > > > > > >    		return -EINVAL;
+> > > > > > > > @@ -206,6 +219,12 @@ static int da9063_wdt_probe(struct platform_device *pdev)
+> > > > > > > >    	watchdog_set_drvdata(wdd, da9063);
+> > > > > > > > +	cur_timeout = da9063_wdt_is_running(da9063);
+> > > > > > > > +	if (cur_timeout) {
+> > > > > > > > +		set_bit(WDOG_HW_RUNNING, &wdd->status);
+> > > > > > > > +		_da9063_wdt_set_timeout(da9063, cur_timeout);
+> > > > > > > 
+> > > > > > > Sorry, I should have been more specific. That doesn't make sense as written
+> > > > > > > since it just sets the same timeout as before. You would have to replace
+> > > > > > > the second argument with the desired timeout in seconds, and call
+> > > > > > > da9063_wdt_timeout_to_sel() in _da9063_wdt_set_timeout(). That would
+> > > > > > > actually make sense since all callers of _da9063_wdt_set_timeout()
+> > > > > > > do that anyway before the call.
+> > > > > > 
+> > > > > > That's the reason why I used da9063_wdt_set_timeout() in v6 because in
+> > > > > > v6 da9063_wdt_is_running() has returned the mapped timeout in seconds.
+> > > > > > 
+> > > > > > However, I'm with you to move da9063_wdt_timeout_to_sel() to
+> > > > > > _da9063_wdt_set_timeout(). Should that happen in a seperate patch?
+> > > > > > 
+> > > > > Yes, that would be better.
+> > > > 
+> > > > We can't move it to the _da9063_wdt_set_timeout() because the
+> > > > da9063_wdt_set_timeout() uses the mapped timeouts later:
+> > > > 
+> > > > static int da9063_wdt_set_timeout(struct watchdog_device *wdd,
+> > > >                                    unsigned int timeout)
+> > > > {
+> > > > 	[ ... ]
+> > > >          else
+> > > > 		wdd->timeout = wdt_timeout[selector];
+> > > > 
+> > > > 	return ret;
+> > > > 
+> > > > }
+> > > > 
+> > > 	...
+> > > 	if (ret)
+> > > 		return ret;
+> > > 
+> > >         wdd->timeout = wdt_timeout[da9063_wdt_timeout_to_sel(timeout)];
+> > > 	return 0;
+> > > 
+> > > Guenter
+> > 
+> > Sorry, I tought da9063_wdt_timeout_to_sel() should get called only within
+> > _da9063_wdt_set_timeout(). 
+> > 
+> Well, you _could_ have _da9063_wdt_set_timeout() return either a negative
+> error code or the actually selected timeout. Just an idea.
 
-I would suggest to wait a day or two, then send out v4 if there are no further
-comments.
+Yes, I've tought about this approach too. Anyway, is it okay to split
+the series into a "fixes" series and a "improvment" series? I think we
+losing sight of the initial problem "Change the timeout value more than
+once." A next improvment could be to squash the da9062/1 and da9063 into
+one if this is possible.
 
-Thanks,
-Guenter
+Marco
