@@ -1,63 +1,64 @@
-Return-Path: <ray.jui@broadcom.com>
-Return-path: <ray.jui@broadcom.com>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-qt0-f194.google.com ([209.85.216.194]:33274 "EHLO
+        mail-qt0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932598AbeE1SCE (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 28 May 2018 14:02:04 -0400
+Received: by mail-qt0-f194.google.com with SMTP id e8-v6so15761022qth.0
+        for <linux-watchdog@vger.kernel.org>; Mon, 28 May 2018 11:02:04 -0700 (PDT)
 From: Ray Jui <ray.jui@broadcom.com>
 To: Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Rob Herring <robh+dt@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Frank Rowand <frowand.list@gmail.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will.deacon@arm.com>,
-	Robin Murphy <robin.murphy@arm.com>
-Cc: linux-watchdog@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	bcm-kernel-feedback-list@broadcom.com,
-	Ray Jui <ray.jui@broadcom.com>
-Subject: [PATCH v4 0/6] Enhance support for the SP805 WDT
-Date: Mon, 28 May 2018 11:01:31 -0700
-Message-Id: <1527530497-10392-1-git-send-email-ray.jui@broadcom.com>
-List-ID: <linux-watchdog@vger.kernel.org>
+        Guenter Roeck <linux@roeck-us.net>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Frank Rowand <frowand.list@gmail.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Robin Murphy <robin.murphy@arm.com>
+Cc: linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        bcm-kernel-feedback-list@broadcom.com,
+        Ray Jui <ray.jui@broadcom.com>
+Subject: [PATCH v4 3/6] watchdog: sp805: add 'timeout-sec' DT property support
+Date: Mon, 28 May 2018 11:01:34 -0700
+Message-Id: <1527530497-10392-4-git-send-email-ray.jui@broadcom.com>
+In-Reply-To: <1527530497-10392-1-git-send-email-ray.jui@broadcom.com>
+References: <1527530497-10392-1-git-send-email-ray.jui@broadcom.com>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-This patch series enhances the support for the SP805 watchdog timer.
-First of all, 'timeout-sec' devicetree property is added. In addition,
-support is also added to allow the driver to reset the watchdog if it
-has been detected that watchdot has been started in the bootloader. In
-this case, the driver will initiate the ping service from the kernel
-watchdog subsystem, before a user mode daemon takes over. This series
-also enables SP805 in the default ARM64 defconfig
+Add support for optional devicetree property 'timeout-sec'.
+'timeout-sec' is used in the driver if specified in devicetree.
+Otherwise, fall back to driver default, i.e., 60 seconds
 
-This patch series is based off v4.17-rc5 and is available on GIHUB:
-repo: https://github.com/Broadcom/arm64-linux.git
-branch: sp805-wdt-v4
+Signed-off-by: Ray Jui <ray.jui@broadcom.com>
+Reviewed-by: Scott Branden <scott.branden@broadcom.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+---
+ drivers/watchdog/sp805_wdt.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-Changes since v3:
- - Improve description of 'timeout-sec' in the binding document, per
-recommendation from Guenter Roeck
-
-Changes since v2:
- - Fix indent and format to make them consistent within arm,sp805.txt
-
-Changes since v1:
- - Consolidate two duplicated SP805 binding documents into one
- - Slight change of the wdt_is_running implementation per discussion
-
-Ray Jui (6):
-  Documentation: DT: Consolidate SP805 binding docs
-  Documentation: DT: Add optional 'timeout-sec' property for sp805
-  watchdog: sp805: add 'timeout-sec' DT property support
-  watchdog: sp805: set WDOG_HW_RUNNING when appropriate
-  arm64: dt: set initial SR watchdog timeout to 60 seconds
-  arm64: defconfig: add CONFIG_ARM_SP805_WATCHDOG
-
- .../devicetree/bindings/watchdog/arm,sp805.txt     | 29 +++++++++++++++-----
- .../devicetree/bindings/watchdog/sp805-wdt.txt     | 31 ----------------------
- .../arm64/boot/dts/broadcom/stingray/stingray.dtsi |  1 +
- arch/arm64/configs/defconfig                       |  1 +
- drivers/watchdog/sp805_wdt.c                       | 28 ++++++++++++++++++-
- 5 files changed, 51 insertions(+), 39 deletions(-)
- delete mode 100644 Documentation/devicetree/bindings/watchdog/sp805-wdt.txt
-
+diff --git a/drivers/watchdog/sp805_wdt.c b/drivers/watchdog/sp805_wdt.c
+index 03805bc..1484609 100644
+--- a/drivers/watchdog/sp805_wdt.c
++++ b/drivers/watchdog/sp805_wdt.c
+@@ -230,7 +230,14 @@ sp805_wdt_probe(struct amba_device *adev, const struct amba_id *id)
+ 	spin_lock_init(&wdt->lock);
+ 	watchdog_set_nowayout(&wdt->wdd, nowayout);
+ 	watchdog_set_drvdata(&wdt->wdd, wdt);
+-	wdt_setload(&wdt->wdd, DEFAULT_TIMEOUT);
++
++	/*
++	 * If 'timeout-sec' devicetree property is specified, use that.
++	 * Otherwise, use DEFAULT_TIMEOUT
++	 */
++	wdt->wdd.timeout = DEFAULT_TIMEOUT;
++	watchdog_init_timeout(&wdt->wdd, 0, &adev->dev);
++	wdt_setload(&wdt->wdd, wdt->wdd.timeout);
+ 
+ 	ret = watchdog_register_device(&wdt->wdd);
+ 	if (ret) {
 -- 
 2.1.4
+
