@@ -1,41 +1,63 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from smtp5.mail.ru ([94.100.176.132]:49480 "EHLO fallback.mail.ru"
-        rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751913AbeE3FVd (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 30 May 2018 01:21:33 -0400
-Received: from [10.161.45.20] (port=56342 helo=smtp20.mail.ru)
-        by fallback22.m.smailru.net with esmtp (envelope-from <fido_max@inbox.ru>)
-        id 1fNtCe-0007rt-UQ
-        for linux-watchdog@vger.kernel.org; Wed, 30 May 2018 07:59:17 +0300
-Received: by smtp20.mail.ru with esmtpa (envelope-from <fido_max@inbox.ru>)
-        id 1fNtCc-0007bK-V3
-        for linux-watchdog@vger.kernel.org; Wed, 30 May 2018 07:59:15 +0300
-To: linux-watchdog@vger.kernel.org
-From: Maxim Kochetkov <fido_max@inbox.ru>
-Subject: [PATCH] watchdog: orion_wdt: add wdt status init for
- handle_boot_enabled
-Message-ID: <0334679d-12c5-00ba-e896-abbf5b6eaa01@inbox.ru>
-Date: Wed, 30 May 2018 07:59:12 +0300
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-Path: <ray.jui@broadcom.com>
+Return-path: <ray.jui@broadcom.com>
+From: Ray Jui <ray.jui@broadcom.com>
+To: Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Rob Herring <robh+dt@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Frank Rowand <frowand.list@gmail.com>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will.deacon@arm.com>,
+	Robin Murphy <robin.murphy@arm.com>
+Cc: linux-watchdog@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	bcm-kernel-feedback-list@broadcom.com,
+	Ray Jui <ray.jui@broadcom.com>
+Subject: [PATCH v4 0/6] Enhance support for the SP805 WDT
+Date: Mon, 28 May 2018 11:01:31 -0700
+Message-Id: <1527530497-10392-1-git-send-email-ray.jui@broadcom.com>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-This patch add init of wdt.status for CONFIG_WATCHDOG_HANDLE_BOOT_ENABLED
+This patch series enhances the support for the SP805 watchdog timer.
+First of all, 'timeout-sec' devicetree property is added. In addition,
+support is also added to allow the driver to reset the watchdog if it
+has been detected that watchdot has been started in the bootloader. In
+this case, the driver will initiate the ping service from the kernel
+watchdog subsystem, before a user mode daemon takes over. This series
+also enables SP805 in the default ARM64 defconfig
 
-Signed-off-by: Maxim Kochetkov <fido_max@inbox.ru>
----
---- a/drivers/watchdog/orion_wdt.c.orig	2018-04-19 09:54:12.000000000 +0300
-+++ b/drivers/watchdog/orion_wdt.c	2018-05-29 15:00:29.560000000 +0300
-@@ -581,6 +581,8 @@ static int orion_wdt_probe(struct platfo
-  	 */
-  	if (!orion_wdt_enabled(&dev->wdt))
-  		orion_wdt_stop(&dev->wdt);
-+	else
-+		set_bit(WDOG_HW_RUNNING, &dev->wdt.status);
+This patch series is based off v4.17-rc5 and is available on GIHUB:
+repo: https://github.com/Broadcom/arm64-linux.git
+branch: sp805-wdt-v4
 
-  	/* Request the IRQ only after the watchdog is disabled */
-  	irq = platform_get_irq(pdev, 0);
+Changes since v3:
+ - Improve description of 'timeout-sec' in the binding document, per
+recommendation from Guenter Roeck
+
+Changes since v2:
+ - Fix indent and format to make them consistent within arm,sp805.txt
+
+Changes since v1:
+ - Consolidate two duplicated SP805 binding documents into one
+ - Slight change of the wdt_is_running implementation per discussion
+
+Ray Jui (6):
+  Documentation: DT: Consolidate SP805 binding docs
+  Documentation: DT: Add optional 'timeout-sec' property for sp805
+  watchdog: sp805: add 'timeout-sec' DT property support
+  watchdog: sp805: set WDOG_HW_RUNNING when appropriate
+  arm64: dt: set initial SR watchdog timeout to 60 seconds
+  arm64: defconfig: add CONFIG_ARM_SP805_WATCHDOG
+
+ .../devicetree/bindings/watchdog/arm,sp805.txt     | 29 +++++++++++++++-----
+ .../devicetree/bindings/watchdog/sp805-wdt.txt     | 31 ----------------------
+ .../arm64/boot/dts/broadcom/stingray/stingray.dtsi |  1 +
+ arch/arm64/configs/defconfig                       |  1 +
+ drivers/watchdog/sp805_wdt.c                       | 28 ++++++++++++++++++-
+ 5 files changed, 51 insertions(+), 39 deletions(-)
+ delete mode 100644 Documentation/devicetree/bindings/watchdog/sp805-wdt.txt
+
+-- 
+2.1.4
