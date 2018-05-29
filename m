@@ -1,38 +1,47 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from fallback16.m.smailru.net ([94.100.177.128]:54480 "EHLO
-        fallback.mail.ru" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S933548AbeE2Njs (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:58125 "EHLO
+        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S935324AbeE2QKO (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 29 May 2018 09:39:48 -0400
-Received: from [10.161.163.41] (port=45012 helo=f479.i.mail.ru)
-        by fallback16.i with esmtp (envelope-from <fido_max@inbox.ru>)
-        id 1fNdcb-0005Pm-1O
-        for linux-watchdog@vger.kernel.org; Tue, 29 May 2018 15:21:01 +0300
-Received: by f479.i.mail.ru with local (envelope-from <fido_max@inbox.ru>)
-        id 1fNdcY-0002Yq-Ar
-        for linux-watchdog@vger.kernel.org; Tue, 29 May 2018 15:20:58 +0300
-From: =?UTF-8?B?0JrQvtGH0LXRgtC60L7QsiDQnNCw0LrRgdC40Lw=?=
+        Tue, 29 May 2018 12:10:14 -0400
+Date: Tue, 29 May 2018 09:10:12 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: =?utf-8?B?0JrQvtGH0LXRgtC60L7QsiDQnNCw0LrRgdC40Lw=?=
         <fido_max@inbox.ru>
-To: linux-watchdog@vger.kernel.org
-Subject: =?UTF-8?B?W1BBVENIXSB3YXRjaGRvZzogb3Jpb25fd2R0OiBhZGQgd2R0IHN0YXR1cyBp?=
- =?UTF-8?B?bml0IGZvciBoYW5kbGVfYm9vdF9lbmFibGVk?=
+Cc: linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH] watchdog: orion_wdt: add wdt status init for
+ handle_boot_enabled
+Message-ID: <20180529161012.GA2162@roeck-us.net>
+References: <1527596458.557657346@f479.i.mail.ru>
 MIME-Version: 1.0
-Date: Tue, 29 May 2018 15:20:58 +0300
-Reply-To: =?UTF-8?B?0JrQvtGH0LXRgtC60L7QsiDQnNCw0LrRgdC40Lw=?=
-          <fido_max@inbox.ru>
-Message-ID: <1527596458.557657346@f479.i.mail.ru>
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: base64
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <1527596458.557657346@f479.i.mail.ru>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-VGhpcyBwYXRjaCBhZGQgaW5pdCBvZiB3ZHQuc3RhdHVzIGZvciBDT05GSUdfV0FUQ0hET0dfSEFO
-RExFX0JPT1RfRU5BQkxFRAoKU2lnbmVkLW9mZi1ieTogTWF4aW0gS29jaGV0a292IDxmaWRvX21h
-eEBpbmJveC5ydT4KLS0tCi0tLSBhL2RyaXZlcnMvd2F0Y2hkb2cvb3Jpb25fd2R0LmMub3JpZwky
-MDE4LTA0LTE5IDA5OjU0OjEyLjAwMDAwMDAwMCArMDMwMAorKysgYi9kcml2ZXJzL3dhdGNoZG9n
-L29yaW9uX3dkdC5jCTIwMTgtMDUtMjkgMTU6MDA6MjkuNTYwMDAwMDAwICswMzAwCkBAIC01ODEs
-NiArNTgxLDggQEAgc3RhdGljIGludCBvcmlvbl93ZHRfcHJvYmUoc3RydWN0IHBsYXRmbwogCSAq
-LwogCWlmICghb3Jpb25fd2R0X2VuYWJsZWQoJmRldi0+d2R0KSkKIAkJb3Jpb25fd2R0X3N0b3Ao
-JmRldi0+d2R0KTsKKwllbHNlCisJCXNldF9iaXQoV0RPR19IV19SVU5OSU5HLCAmZGV2LT53ZHQu
-c3RhdHVzKTsKIAogCS8qIFJlcXVlc3QgdGhlIElSUSBvbmx5IGFmdGVyIHRoZSB3YXRjaGRvZyBp
-cyBkaXNhYmxlZCAqLwogCWlycSA9IHBsYXRmb3JtX2dldF9pcnEocGRldiwgMCk7
+On Tue, May 29, 2018 at 03:20:58PM +0300, =D0=9A=D0=BE=D1=87=D0=B5=D1=82=D0=
+=BA=D0=BE=D0=B2 =D0=9C=D0=B0=D0=BA=D1=81=D0=B8=D0=BC wrote:
+> This patch add init of wdt.status for CONFIG_WATCHDOG_HANDLE_BOOT_ENABLED
+>=20
+> Signed-off-by: Maxim Kochetkov <fido_max@inbox.ru>
+> ---
+> --- a/drivers/watchdog/orion_wdt.c.orig	2018-04-19 09:54:12.000000000 +03=
+00
+> +++ b/drivers/watchdog/orion_wdt.c	2018-05-29 15:00:29.560000000 +0300
+> @@ -581,6 +581,8 @@ static int orion_wdt_probe(struct platfo
+>  	 */
+>  	if (!orion_wdt_enabled(&dev->wdt))
+>  		orion_wdt_stop(&dev->wdt);
+> +	else
+> +		set_bit(WDOG_HW_RUNNING, &dev->wdt.status);
+> =20
+>  	/* Request the IRQ only after the watchdog is disabled */
+>  	irq =3D platform_get_irq(pdev, 0);N?????r??y????b?X??=C7=A7v?^?)=DE=BA{=
+=2En?+????{???\?? ?{ay?=1D=CA=87=DA=99?,j=07??f???h???z?=1E?w???=0C???j:+v?=
+??w?j?m????=07????zZ+?????=DD=A2j"??!
+
+Corrupted patch.
+
+Guenter
