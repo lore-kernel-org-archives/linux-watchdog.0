@@ -1,50 +1,51 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from laurent.telenet-ops.be ([195.130.137.89]:42202 "EHLO
-        laurent.telenet-ops.be" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752656AbeFERSg (ORCPT
+Received: from mail-yb0-f194.google.com ([209.85.213.194]:34161 "EHLO
+        mail-yb0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751816AbeFETl2 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 5 Jun 2018 13:18:36 -0400
-From: Geert Uytterhoeven <geert+renesas@glider.be>
-To: Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Tue, 5 Jun 2018 15:41:28 -0400
+Date: Tue, 5 Jun 2018 13:41:24 -0600
+From: Rob Herring <robh@kernel.org>
+To: Ray Jui <ray.jui@broadcom.com>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>
-Cc: linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-renesas-soc@vger.kernel.org,
-        Masaharu Hayakawa <masaharu.hayakawa.ry@renesas.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>
-Subject: [PATCH] dt-bindings: watchdog: renesas-wdt: Add support for the R8A77990 wdt
-Date: Tue,  5 Jun 2018 19:18:33 +0200
-Message-Id: <1528219113-29014-1-git-send-email-geert+renesas@glider.be>
+        Mark Rutland <mark.rutland@arm.com>,
+        Frank Rowand <frowand.list@gmail.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        bcm-kernel-feedback-list@broadcom.com
+Subject: Re: [PATCH v4 1/6] Documentation: DT: Consolidate SP805 binding docs
+Message-ID: <20180605194124.GA26885@rob-hp-laptop>
+References: <1527530497-10392-1-git-send-email-ray.jui@broadcom.com>
+ <1527530497-10392-2-git-send-email-ray.jui@broadcom.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1527530497-10392-2-git-send-email-ray.jui@broadcom.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-From: Masaharu Hayakawa <masaharu.hayakawa.ry@renesas.com>
+On Mon, May 28, 2018 at 11:01:32AM -0700, Ray Jui wrote:
+> Consolidate two SP805 binding documents "arm,sp805.txt" and
+> "sp805-wdt.txt" into "arm,sp805.txt" that matches the naming of the
+> desired compatible string to be used
+> 
+> Signed-off-by: Ray Jui <ray.jui@broadcom.com>
+> ---
+>  .../devicetree/bindings/watchdog/arm,sp805.txt     | 27 ++++++++++++++-----
+>  .../devicetree/bindings/watchdog/sp805-wdt.txt     | 31 ----------------------
+>  2 files changed, 20 insertions(+), 38 deletions(-)
+>  delete mode 100644 Documentation/devicetree/bindings/watchdog/sp805-wdt.txt
 
-Document support for the Watchdog Timer (WDT) Controller in the Renesas
-R-Car E3 (R8A77990) SoC.
+Would be good to get a ACK from FSL/NXP person on this. It looks to me 
+like the driver fetches the wrong clock as it gets the first one and the 
+driver really wants 'wdog_clk'. In any case, their dts files should be 
+updated.
 
-No driver update is needed.
+Reviewed-by: Rob Herring <robh@kernel.org>
 
-Signed-off-by: Masaharu Hayakawa <masaharu.hayakawa.ry@renesas.com>
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
----
- Documentation/devicetree/bindings/watchdog/renesas-wdt.txt | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt b/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
-index f24d802b8056f6c6..5d47a262474cfe0e 100644
---- a/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
-+++ b/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
-@@ -16,6 +16,7 @@ Required properties:
- 	         - "renesas,r8a7796-wdt" (R-Car M3-W)
- 		 - "renesas,r8a77965-wdt" (R-Car M3-N)
- 	         - "renesas,r8a77970-wdt" (R-Car V3M)
-+	         - "renesas,r8a77990-wdt" (R-Car E3)
- 	         - "renesas,r8a77995-wdt" (R-Car D3)
- 	         - "renesas,r7s72100-wdt" (RZ/A1)
- 		The generic compatible string must be:
--- 
-2.7.4
-
+Rob
