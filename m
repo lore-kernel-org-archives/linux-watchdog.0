@@ -1,110 +1,70 @@
-Return-Path: <ludovic.barre@st.com>
-Return-path: <ludovic.barre@st.com>
-Subject: Re: [PATCH V3 1/3] watchdog: stm32: add pclk feature for stm32mp1
-To: Rob Herring <robh@kernel.org>
-CC: Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck
-	<linux@roeck-us.net>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Alexandre
- Torgue <alexandre.torgue@st.com>,
-        <linux-watchdog@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
-        <devicetree@vger.kernel.org>
-References: <1529502698-13263-1-git-send-email-ludovic.Barre@st.com>
- <1529502698-13263-2-git-send-email-ludovic.Barre@st.com>
- <20180620191409.GA29934@rob-hp-laptop>
-From: Ludovic BARRE <ludovic.barre@st.com>
-Message-ID: <618bcde6-0a41-9341-c55c-6e1d0ee8e51d@st.com>
-Date: Thu, 21 Jun 2018 09:25:18 +0200
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-pl0-f66.google.com ([209.85.160.66]:44635 "EHLO
+        mail-pl0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752854AbeFFQTX (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Wed, 6 Jun 2018 12:19:23 -0400
+Subject: Re: [PATCH v4 1/6] Documentation: DT: Consolidate SP805 binding docs
+To: Rob Herring <robh@kernel.org>, Ray Jui <ray.jui@broadcom.com>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Frank Rowand <frowand.list@gmail.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        bcm-kernel-feedback-list@broadcom.com
+References: <1527530497-10392-1-git-send-email-ray.jui@broadcom.com>
+ <1527530497-10392-2-git-send-email-ray.jui@broadcom.com>
+ <20180605194124.GA26885@rob-hp-laptop>
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <e91c75f3-f7a4-6f51-9911-7e22d5d05084@roeck-us.net>
+Date: Wed, 6 Jun 2018 09:19:19 -0700
 MIME-Version: 1.0
-In-Reply-To: <20180620191409.GA29934@rob-hp-laptop>
-Content-Type: text/plain; charset="utf-8"; format=flowed
+In-Reply-To: <20180605194124.GA26885@rob-hp-laptop>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-List-ID: <linux-watchdog@vger.kernel.org>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-
-
-On 06/20/2018 09:14 PM, Rob Herring wrote:
-> On Wed, Jun 20, 2018 at 03:51:36PM +0200, Ludovic Barre wrote:
->> From: Ludovic Barre <ludovic.barre@st.com>
+On 06/05/2018 12:41 PM, Rob Herring wrote:
+> On Mon, May 28, 2018 at 11:01:32AM -0700, Ray Jui wrote:
+>> Consolidate two SP805 binding documents "arm,sp805.txt" and
+>> "sp805-wdt.txt" into "arm,sp805.txt" that matches the naming of the
+>> desired compatible string to be used
 >>
->> This patch adds config data to manage specific properties by
->> compatible. Adds stm32mp1 config which requires pclk clock.
->>
->> Signed-off-by: Ludovic Barre <ludovic.barre@st.com>
+>> Signed-off-by: Ray Jui <ray.jui@broadcom.com>
 >> ---
->>   .../devicetree/bindings/watchdog/st,stm32-iwdg.txt |  21 +++-
+>>   .../devicetree/bindings/watchdog/arm,sp805.txt     | 27 ++++++++++++++-----
+>>   .../devicetree/bindings/watchdog/sp805-wdt.txt     | 31 ----------------------
+>>   2 files changed, 20 insertions(+), 38 deletions(-)
+>>   delete mode 100644 Documentation/devicetree/bindings/watchdog/sp805-wdt.txt
 > 
-> Please split bindings to separate patch.
+> Would be good to get a ACK from FSL/NXP person on this. It looks to me
+> like the driver fetches the wrong clock as it gets the first one and the
+> driver really wants 'wdog_clk'. In any case, their dts files should be
+> updated.
+>
 
-OK
+This is really confusing, since he deleted file lists apb_pclk first.
+Does the watchdog driver need apb_pclk or wdog_clk ? That isn't clear to me.
+arch/arm64/boot/dts/hisilicon/hi3660.dtsi only provides apb_pclk, or at least
+it says so. The fsl dts files all have apb_pclk first.
 
+Either case, why are two clocks asked for in the first place ? Are there
+situations where the second clock is actually used/useful ?
+
+Guenter
+
+> Reviewed-by: Rob Herring <robh@kernel.org>
 > 
->>   drivers/watchdog/stm32_iwdg.c                      | 116 +++++++++++++--------
->>   2 files changed, 91 insertions(+), 46 deletions(-)
->>
->> diff --git a/Documentation/devicetree/bindings/watchdog/st,stm32-iwdg.txt b/Documentation/devicetree/bindings/watchdog/st,stm32-iwdg.txt
->> index cc13b10a..f07f6d89 100644
->> --- a/Documentation/devicetree/bindings/watchdog/st,stm32-iwdg.txt
->> +++ b/Documentation/devicetree/bindings/watchdog/st,stm32-iwdg.txt
->> @@ -2,18 +2,31 @@ STM32 Independent WatchDoG (IWDG)
->>   ---------------------------------
->>   
->>   Required properties:
->> -- compatible: "st,stm32-iwdg"
->> -- reg: physical base address and length of the registers set for the device
->> -- clocks: must contain a single entry describing the clock input
->> +- compatible: Should be either "st,stm32-iwdg" or "st,stm32mp1-iwdg"
+> Rob
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > 
-> Please format one per line.
 
-OK
-
-> 
->> +- reg: Physical base address and length of the registers set for the device
->> +- clocks: Reference to the clock entry lsi. Additional pclk clock entry
->> +  is required only for st,stm32mp1-iwdg.
->> +- clock-names: Name of the clocks used.
->> +  "lsi" for st,stm32-iwdg
->> +  "pclk", "lsi" for st,stm32mp1-iwdg
-> 
-> Put lsi 1st so it is always index 0.
-
-OK
-
-> 
->>   
->>   Optional Properties:
->>   - timeout-sec: Watchdog timeout value in seconds.
->>   
->> -Example:
->> +Examples:
->>   
->>   iwdg: watchdog@40003000 {
->>   	compatible = "st,stm32-iwdg";
->>   	reg = <0x40003000 0x400>;
->>   	clocks = <&clk_lsi>;
->> +	clock-names = "lsi";
->> +	timeout-sec = <32>;
->> +};
->> +
->> +iwdg: iwdg@5a002000 {
-> 
-> watchdog@...
-
-sorry, I forget this occurrence.
-
-> 
-> Do we really need 2 example just to show 2 clocks?
-
-No, I could keep only one
-
-> 
->> +	compatible = "st,stm32mp1-iwdg";
->> +	reg = <0x5a002000 0x400>;
->> +	clocks = <&rcc IWDG2>, <&clk_lsi>;
->> +	clock-names = "pclk", "lsi";
->>   	timeout-sec = <32>;
->>   };
