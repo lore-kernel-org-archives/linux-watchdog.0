@@ -1,70 +1,81 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pl0-f66.google.com ([209.85.160.66]:44635 "EHLO
-        mail-pl0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752854AbeFFQTX (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 6 Jun 2018 12:19:23 -0400
-Subject: Re: [PATCH v4 1/6] Documentation: DT: Consolidate SP805 binding docs
-To: Rob Herring <robh@kernel.org>, Ray Jui <ray.jui@broadcom.com>
-Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Frank Rowand <frowand.list@gmail.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        bcm-kernel-feedback-list@broadcom.com
-References: <1527530497-10392-1-git-send-email-ray.jui@broadcom.com>
- <1527530497-10392-2-git-send-email-ray.jui@broadcom.com>
- <20180605194124.GA26885@rob-hp-laptop>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <e91c75f3-f7a4-6f51-9911-7e22d5d05084@roeck-us.net>
-Date: Wed, 6 Jun 2018 09:19:19 -0700
+Return-Path: <robh@kernel.org>
+Return-path: <robh@kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <20180605194124.GA26885@rob-hp-laptop>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+In-Reply-To: <e91c75f3-f7a4-6f51-9911-7e22d5d05084@roeck-us.net>
+References: <1527530497-10392-1-git-send-email-ray.jui@broadcom.com>
+ <1527530497-10392-2-git-send-email-ray.jui@broadcom.com> <20180605194124.GA26885@rob-hp-laptop>
+ <e91c75f3-f7a4-6f51-9911-7e22d5d05084@roeck-us.net>
+From: Rob Herring <robh@kernel.org>
+Date: Wed, 6 Jun 2018 11:33:04 -0500
+Message-ID: <CABGGisxEvWDy16SKE2RG-vhUHBZHSCCHyfwJsPY16B1fQS-=cA@mail.gmail.com>
+Subject: Re: [PATCH v4 1/6] Documentation: DT: Consolidate SP805 binding docs
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Rob Herring <robh@kernel.org>, Ray Jui <ray.jui@broadcom.com>,
+	Wim Van Sebroeck <wim@linux-watchdog.org>, Mark Rutland <mark.rutland@arm.com>,
+	Frank Rowand <frowand.list@gmail.com>, Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will.deacon@arm.com>, Robin Murphy <robin.murphy@arm.com>,
+	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+	linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	BCM Kernel Feedback <bcm-kernel-feedback-list@broadcom.com>
+Content-Type: text/plain; charset="UTF-8"
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 06/05/2018 12:41 PM, Rob Herring wrote:
-> On Mon, May 28, 2018 at 11:01:32AM -0700, Ray Jui wrote:
->> Consolidate two SP805 binding documents "arm,sp805.txt" and
->> "sp805-wdt.txt" into "arm,sp805.txt" that matches the naming of the
->> desired compatible string to be used
+On Wed, Jun 6, 2018 at 11:19 AM, Guenter Roeck <linux@roeck-us.net> wrote:
+> On 06/05/2018 12:41 PM, Rob Herring wrote:
 >>
->> Signed-off-by: Ray Jui <ray.jui@broadcom.com>
->> ---
->>   .../devicetree/bindings/watchdog/arm,sp805.txt     | 27 ++++++++++++++-----
->>   .../devicetree/bindings/watchdog/sp805-wdt.txt     | 31 ----------------------
->>   2 files changed, 20 insertions(+), 38 deletions(-)
->>   delete mode 100644 Documentation/devicetree/bindings/watchdog/sp805-wdt.txt
-> 
-> Would be good to get a ACK from FSL/NXP person on this. It looks to me
-> like the driver fetches the wrong clock as it gets the first one and the
-> driver really wants 'wdog_clk'. In any case, their dts files should be
-> updated.
+>> On Mon, May 28, 2018 at 11:01:32AM -0700, Ray Jui wrote:
+>>>
+>>> Consolidate two SP805 binding documents "arm,sp805.txt" and
+>>> "sp805-wdt.txt" into "arm,sp805.txt" that matches the naming of the
+>>> desired compatible string to be used
+>>>
+>>> Signed-off-by: Ray Jui <ray.jui@broadcom.com>
+>>> ---
+>>>   .../devicetree/bindings/watchdog/arm,sp805.txt     | 27
+>>> ++++++++++++++-----
+>>>   .../devicetree/bindings/watchdog/sp805-wdt.txt     | 31
+>>> ----------------------
+>>>   2 files changed, 20 insertions(+), 38 deletions(-)
+>>>   delete mode 100644
+>>> Documentation/devicetree/bindings/watchdog/sp805-wdt.txt
+>>
+>>
+>> Would be good to get a ACK from FSL/NXP person on this. It looks to me
+>> like the driver fetches the wrong clock as it gets the first one and the
+>> driver really wants 'wdog_clk'. In any case, their dts files should be
+>> updated.
+>>
 >
+> This is really confusing, since he deleted file lists apb_pclk first.
+> Does the watchdog driver need apb_pclk or wdog_clk ? That isn't clear to me.
+> arch/arm64/boot/dts/hisilicon/hi3660.dtsi only provides apb_pclk, or at
+> least
+> it says so.
 
-This is really confusing, since he deleted file lists apb_pclk first.
-Does the watchdog driver need apb_pclk or wdog_clk ? That isn't clear to me.
-arch/arm64/boot/dts/hisilicon/hi3660.dtsi only provides apb_pclk, or at least
-it says so. The fsl dts files all have apb_pclk first.
+Note that that clock source is 32KHz. That is obviously a mistake
+because no one clocks their bus/register interface at 32KHz. Someone
+just filled in something that happened to work.
 
-Either case, why are two clocks asked for in the first place ? Are there
-situations where the second clock is actually used/useful ?
+> The fsl dts files all have apb_pclk first.
 
-Guenter
+It's all kind of a mess, but fortunately one we should be able to clean-up.
 
-> Reviewed-by: Rob Herring <robh@kernel.org>
-> 
-> Rob
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+The compatible string changes too, but AMBA bus devices don't actually
+use the compatible string as they use the ID registers to match. I
+suppose some other OS could do things differently. Worth the risk to
+clean-up IMO.
 
+>
+> Either case, why are two clocks asked for in the first place ? Are there
+> situations where the second clock is actually used/useful ?
+
+For clocks, the bus needs "apb_pclk" and the driver just gets the
+first clock. The driver is obviously going to want the functional
+clock that determines the counter rate. That should
+
+Primecell peripherals are about the only ones that have clear specs
+WRT clock inputs. Yet we've still managed to screw them up. There are
+2 clocks in the spec, so the DT has (or should have) 2 clocks.
+
+Rob
