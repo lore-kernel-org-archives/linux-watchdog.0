@@ -1,57 +1,38 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:49506 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932931AbeFFQYG (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 6 Jun 2018 12:24:06 -0400
-Date: Wed, 6 Jun 2018 09:24:04 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Geert Uytterhoeven <geert+renesas@glider.be>
-Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-renesas-soc@vger.kernel.org,
-        Masaharu Hayakawa <masaharu.hayakawa.ry@renesas.com>
-Subject: Re: dt-bindings: watchdog: renesas-wdt: Add support for the R8A77990
- wdt
-Message-ID: <20180606162404.GA10066@roeck-us.net>
-References: <1528219113-29014-1-git-send-email-geert+renesas@glider.be>
+Received: from smtp52.i.mail.ru ([94.100.177.112]:39474 "EHLO smtp52.i.mail.ru"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S932673AbeFGNyl (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Thu, 7 Jun 2018 09:54:41 -0400
+Received: by smtp52.i.mail.ru with esmtpa (envelope-from <fido_max@inbox.ru>)
+        id 1fQvN9-00084Y-8z
+        for linux-watchdog@vger.kernel.org; Thu, 07 Jun 2018 16:54:39 +0300
+To: linux-watchdog@vger.kernel.org
+From: Maxim Kochetkov <fido_max@inbox.ru>
+Subject: [PATCH] watchdog: orion_wdt: add wdt status init for
+ handle_boot_enabled
+Message-ID: <8846ecc5-f431-623a-d918-96ffbd5ec2fa@inbox.ru>
+Date: Thu, 7 Jun 2018 16:54:37 +0300
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1528219113-29014-1-git-send-email-geert+renesas@glider.be>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, Jun 05, 2018 at 07:18:33PM +0200, Geert Uytterhoeven wrote:
-> From: Masaharu Hayakawa <masaharu.hayakawa.ry@renesas.com>
-> 
-> Document support for the Watchdog Timer (WDT) Controller in the Renesas
-> R-Car E3 (R8A77990) SoC.
-> 
-> No driver update is needed.
-> 
-> Signed-off-by: Masaharu Hayakawa <masaharu.hayakawa.ry@renesas.com>
-> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+This patch add init of wdt.status for CONFIG_WATCHDOG_HANDLE_BOOT_ENABLED
 
-This refuses to apply for me. What tree is it based on ?
+Signed-off-by: Maxim Kochetkov <fido_max@inbox.ru>
+---
+--- linux-4.17/drivers/watchdog/orion_wdt.c.orig    2018-06-04 
+07:54:05.176000000 +0300
++++ linux-4.17/drivers/watchdog/orion_wdt.c    2018-06-04 
+08:00:13.156000000 +0300
+@@ -581,6 +581,8 @@ static int orion_wdt_probe(struct platfo
+       */
+      if (!orion_wdt_enabled(&dev->wdt))
+          orion_wdt_stop(&dev->wdt);
++    else
++        set_bit(WDOG_HW_RUNNING, &dev->wdt.status);
 
-Guenter
-
-> ---
->  Documentation/devicetree/bindings/watchdog/renesas-wdt.txt | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt b/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
-> index f24d802b8056f6c6..5d47a262474cfe0e 100644
-> --- a/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
-> +++ b/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
-> @@ -16,6 +16,7 @@ Required properties:
->  	         - "renesas,r8a7796-wdt" (R-Car M3-W)
->  		 - "renesas,r8a77965-wdt" (R-Car M3-N)
->  	         - "renesas,r8a77970-wdt" (R-Car V3M)
-> +	         - "renesas,r8a77990-wdt" (R-Car E3)
->  	         - "renesas,r8a77995-wdt" (R-Car D3)
->  	         - "renesas,r7s72100-wdt" (RZ/A1)
->  		The generic compatible string must be:
+      /* Request the IRQ only after the watchdog is disabled */
+      irq = platform_get_irq(pdev, 0);
