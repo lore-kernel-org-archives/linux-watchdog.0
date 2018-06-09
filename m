@@ -1,38 +1,66 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from smtp52.i.mail.ru ([94.100.177.112]:39474 "EHLO smtp52.i.mail.ru"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932673AbeFGNyl (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 7 Jun 2018 09:54:41 -0400
-Received: by smtp52.i.mail.ru with esmtpa (envelope-from <fido_max@inbox.ru>)
-        id 1fQvN9-00084Y-8z
-        for linux-watchdog@vger.kernel.org; Thu, 07 Jun 2018 16:54:39 +0300
-To: linux-watchdog@vger.kernel.org
-From: Maxim Kochetkov <fido_max@inbox.ru>
-Subject: [PATCH] watchdog: orion_wdt: add wdt status init for
- handle_boot_enabled
-Message-ID: <8846ecc5-f431-623a-d918-96ffbd5ec2fa@inbox.ru>
-Date: Thu, 7 Jun 2018 16:54:37 +0300
+Received: from metis.ext.pengutronix.de ([85.220.165.71]:52063 "EHLO
+        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751528AbeFIGnq (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Sat, 9 Jun 2018 02:43:46 -0400
+From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?=
+        <u.kleine-koenig@pengutronix.de>
+To: Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: linux-watchdog@vger.kernel.org, linux-rtc@vger.kernel.org,
+        kernel@pengutronix.de, NXP Linux Team <linux-imx@nxp.com>
+Subject: [PATCH] rtc: stmp3xxx: Don't reset the rtc in .probe() when watchdog is running
+Date: Sat,  9 Jun 2018 08:43:13 +0200
+Message-Id: <20180609064313.18763-1-u.kleine-koenig@pengutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This patch add init of wdt.status for CONFIG_WATCHDOG_HANDLE_BOOT_ENABLED
+As pointed out in the added comment resetting the rtc also stops the
+included watchdog. This is bad if the bootloader started the watchdog to
+secure the boot process. So don't reset if the watchdog is running.
 
-Signed-off-by: Maxim Kochetkov <fido_max@inbox.ru>
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
---- linux-4.17/drivers/watchdog/orion_wdt.c.orig    2018-06-04 
-07:54:05.176000000 +0300
-+++ linux-4.17/drivers/watchdog/orion_wdt.c    2018-06-04 
-08:00:13.156000000 +0300
-@@ -581,6 +581,8 @@ static int orion_wdt_probe(struct platfo
-       */
-      if (!orion_wdt_enabled(&dev->wdt))
-          orion_wdt_stop(&dev->wdt);
-+    else
-+        set_bit(WDOG_HW_RUNNING, &dev->wdt.status);
+ drivers/rtc/rtc-stmp3xxx.c | 20 ++++++++++++++++----
+ 1 file changed, 16 insertions(+), 4 deletions(-)
 
-      /* Request the IRQ only after the watchdog is disabled */
-      irq = platform_get_irq(pdev, 0);
+diff --git a/drivers/rtc/rtc-stmp3xxx.c b/drivers/rtc/rtc-stmp3xxx.c
+index d578e40d5a50..b76318fd5bb0 100644
+--- a/drivers/rtc/rtc-stmp3xxx.c
++++ b/drivers/rtc/rtc-stmp3xxx.c
+@@ -288,10 +288,22 @@ static int stmp3xxx_rtc_probe(struct platform_device *pdev)
+ 
+ 	platform_set_drvdata(pdev, rtc_data);
+ 
+-	err = stmp_reset_block(rtc_data->io);
+-	if (err) {
+-		dev_err(&pdev->dev, "stmp_reset_block failed: %d\n", err);
+-		return err;
++	/*
++	 * Resetting the rtc stops the watchdog timer that is potentially
++	 * running. So (assuming it is running on purpose) don't reset if the
++	 * watchdog is enabled.
++	 */
++	if (readl(rtc_data->io + STMP3XXX_RTC_CTRL) &
++	    STMP3XXX_RTC_CTRL_WATCHDOGEN) {
++		dev_info(&pdev->dev,
++			 "Watchdog is running, skip resetting rtc\n");
++	} else {
++		err = stmp_reset_block(rtc_data->io);
++		if (err) {
++			dev_err(&pdev->dev, "stmp_reset_block failed: %d\n",
++				err);
++			return err;
++		}
+ 	}
+ 
+ 	/*
+-- 
+2.17.1
+
