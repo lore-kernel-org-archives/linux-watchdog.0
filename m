@@ -1,53 +1,52 @@
-Return-Path: <geert.uytterhoeven@gmail.com>
-Return-path: <geert.uytterhoeven@gmail.com>
-MIME-Version: 1.0
-Sender: geert.uytterhoeven@gmail.com
-In-Reply-To: <20180606162404.GA10066@roeck-us.net>
-References: <1528219113-29014-1-git-send-email-geert+renesas@glider.be> <20180606162404.GA10066@roeck-us.net>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Wed, 6 Jun 2018 18:36:25 +0200
-Message-ID: <CAMuHMdW+R0Lq_SRGjzvd_docYOP6sWG1aZexsyw9gf43YeYBjg@mail.gmail.com>
-Subject: Re: dt-bindings: watchdog: renesas-wdt: Add support for the R8A77990 wdt
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Geert Uytterhoeven <geert+renesas@glider.be>, Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
-	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-	"open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" <devicetree@vger.kernel.org>,
-	Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
+Return-Path: <robherring2@gmail.com>
+Return-path: <robherring2@gmail.com>
+Date: Tue, 12 Jun 2018 15:40:35 -0600
+From: Rob Herring <robh@kernel.org>
+To: Geert Uytterhoeven <geert+renesas@glider.be>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Mark Rutland <mark.rutland@arm.com>, linux-watchdog@vger.kernel.org,
+	devicetree@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
 	Masaharu Hayakawa <masaharu.hayakawa.ry@renesas.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH] dt-bindings: watchdog: renesas-wdt: Add support for the
+ R8A77990 wdt
+Message-ID: <20180612214035.GA24451@rob-hp-laptop>
+References: <1528219113-29014-1-git-send-email-geert+renesas@glider.be>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1528219113-29014-1-git-send-email-geert+renesas@glider.be>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi G=C3=BCnter,
+On Tue, Jun 05, 2018 at 07:18:33PM +0200, Geert Uytterhoeven wrote:
+> From: Masaharu Hayakawa <masaharu.hayakawa.ry@renesas.com>
+> 
+> Document support for the Watchdog Timer (WDT) Controller in the Renesas
+> R-Car E3 (R8A77990) SoC.
+> 
+> No driver update is needed.
+> 
+> Signed-off-by: Masaharu Hayakawa <masaharu.hayakawa.ry@renesas.com>
+> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+> ---
+>  Documentation/devicetree/bindings/watchdog/renesas-wdt.txt | 1 +
+>  1 file changed, 1 insertion(+)
 
-On Wed, Jun 6, 2018 at 6:24 PM, Guenter Roeck <linux@roeck-us.net> wrote:
-> On Tue, Jun 05, 2018 at 07:18:33PM +0200, Geert Uytterhoeven wrote:
->> From: Masaharu Hayakawa <masaharu.hayakawa.ry@renesas.com>
->>
->> Document support for the Watchdog Timer (WDT) Controller in the Renesas
->> R-Car E3 (R8A77990) SoC.
->>
->> No driver update is needed.
->>
->> Signed-off-by: Masaharu Hayakawa <masaharu.hayakawa.ry@renesas.com>
->> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
->
-> This refuses to apply for me. What tree is it based on ?
+Acked-by: Rob Herring <robh@kernel.org>
 
-Yesterday's next.
-Still applies fine against next-20180606, which includes watchdog next?
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---=20
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k=
-.org
-
-In personal conversations with technical people, I call myself a hacker. Bu=
-t
-when I'm talking to journalists I just say "programmer" or something like t=
-hat.
-                                -- Linus Torvalds
+> 
+> diff --git a/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt b/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
+> index f24d802b8056f6c6..5d47a262474cfe0e 100644
+> --- a/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
+> +++ b/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
+> @@ -16,6 +16,7 @@ Required properties:
+>  	         - "renesas,r8a7796-wdt" (R-Car M3-W)
+>  		 - "renesas,r8a77965-wdt" (R-Car M3-N)
+>  	         - "renesas,r8a77970-wdt" (R-Car V3M)
+> +	         - "renesas,r8a77990-wdt" (R-Car E3)
+>  	         - "renesas,r8a77995-wdt" (R-Car D3)
+>  	         - "renesas,r7s72100-wdt" (RZ/A1)
+>  		The generic compatible string must be:
+> -- 
+> 2.7.4
+> 
