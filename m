@@ -1,41 +1,58 @@
-Return-Path: <ludovic.barre@st.com>
-Return-path: <ludovic.barre@st.com>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mx08-00178001.pphosted.com ([91.207.212.93]:46093 "EHLO
+        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1753960AbeFTNwZ (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Wed, 20 Jun 2018 09:52:25 -0400
 From: Ludovic Barre <ludovic.Barre@st.com>
 To: Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck
-	<linux@roeck-us.net>, Rob Herring <robh+dt@kernel.org>
+        Guenter Roeck <linux@roeck-us.net>,
+        Rob Herring <robh+dt@kernel.org>
 CC: Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Alexandre Torgue
-	<alexandre.torgue@st.com>,
+        Alexandre Torgue <alexandre.torgue@st.com>,
         <linux-watchdog@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
-        <devicetree@vger.kernel.org>, Ludovic Barre <ludovic.barre@st.com>
-Subject: [PATCH V3 0/3] add iwdg2 support for stm32mp157c
-Date: Wed, 20 Jun 2018 15:51:35 +0200
-Message-ID: <1529502698-13263-1-git-send-email-ludovic.Barre@st.com>
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        Ludovic Barre <ludovic.barre@st.com>
+Subject: [PATCH V3 2/3] ARM: dts: stm32: add iwdg2 support for stm32mp157c
+Date: Wed, 20 Jun 2018 15:51:37 +0200
+Message-ID: <1529502698-13263-3-git-send-email-ludovic.Barre@st.com>
+In-Reply-To: <1529502698-13263-1-git-send-email-ludovic.Barre@st.com>
+References: <1529502698-13263-1-git-send-email-ludovic.Barre@st.com>
 MIME-Version: 1.0
 Content-Type: text/plain
-List-ID: <linux-watchdog@vger.kernel.org>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
 From: Ludovic Barre <ludovic.barre@st.com>
 
-This patch series updates stm32_iwdg driver to manage config
-by compatible. stm32mp1 config requires a pclk clock.
+This patch adds independent watchdog support for stm32mp157c.
 
-v3:
--remove stm32_iwdg_config structure, just assign the
- boolean directly to .dat
+Signed-off-by: Ludovic Barre <ludovic.barre@st.com>
+---
+ arch/arm/boot/dts/stm32mp157c.dtsi | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-Ludovic Barre (3):
-  watchdog: stm32: add pclk feature for stm32mp1
-  ARM: dts: stm32: add iwdg2 support for stm32mp157c
-  ARM: dts: stm32: add iwdg2 support for stm32mp157c-ed1
-
- .../devicetree/bindings/watchdog/st,stm32-iwdg.txt |  21 +++-
- arch/arm/boot/dts/stm32mp157c-ed1.dts              |   5 +
- arch/arm/boot/dts/stm32mp157c.dtsi                 |   8 ++
- drivers/watchdog/stm32_iwdg.c                      | 116 +++++++++++++--------
- 4 files changed, 104 insertions(+), 46 deletions(-)
-
+diff --git a/arch/arm/boot/dts/stm32mp157c.dtsi b/arch/arm/boot/dts/stm32mp157c.dtsi
+index 7d17538..95cc166 100644
+--- a/arch/arm/boot/dts/stm32mp157c.dtsi
++++ b/arch/arm/boot/dts/stm32mp157c.dtsi
+@@ -784,6 +784,14 @@
+ 			status = "disabled";
+ 		};
+ 
++		iwdg2: watchdog@5a002000 {
++			compatible = "st,stm32mp1-iwdg";
++			reg = <0x5a002000 0x400>;
++			clocks = <&rcc IWDG2>, <&rcc CK_LSI>;
++			clock-names = "pclk", "lsi";
++			status = "disabled";
++		};
++
+ 		usbphyc: usbphyc@5a006000 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
 -- 
 2.7.4
+
