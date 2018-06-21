@@ -10,36 +10,40 @@ CC: Maxime Coquelin <mcoquelin.stm32@gmail.com>,
         <linux-watchdog@vger.kernel.org>,
         <linux-arm-kernel@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
         <devicetree@vger.kernel.org>, Ludovic Barre <ludovic.barre@st.com>
-Subject: [PATCH V4 0/4] add iwdg2 support for stm32mp157c
-Date: Thu, 21 Jun 2018 11:02:13 +0200
-Message-ID: <1529571737-3552-1-git-send-email-ludovic.Barre@st.com>
+Subject: [PATCH V4 4/4] ARM: dts: stm32: add iwdg2 support for stm32mp157c-ed1
+Date: Thu, 21 Jun 2018 11:02:17 +0200
+Message-ID: <1529571737-3552-5-git-send-email-ludovic.Barre@st.com>
+In-Reply-To: <1529571737-3552-1-git-send-email-ludovic.Barre@st.com>
+References: <1529571737-3552-1-git-send-email-ludovic.Barre@st.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 List-ID: <linux-watchdog@vger.kernel.org>
 
 From: Ludovic Barre <ludovic.barre@st.com>
 
-This patch series updates stm32_iwdg driver to manage pclk
-clock by compatible. stm32mp1 requires a pclk clock.
+This patch activates independent watchdog support for
+stm32mp157c board.
 
-v4:
--dt-bindings: split and review
+Signed-off-by: Ludovic Barre <ludovic.barre@st.com>
+---
+ arch/arm/boot/dts/stm32mp157c-ed1.dts | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-v3:
--remove stm32_iwdg_config structure, just assign the
- boolean directly to .dat
-
-Ludovic Barre (4):
-  dt-bindings: watchdog: add stm32mp1 support
-  watchdog: stm32: add pclk feature for stm32mp1
-  ARM: dts: stm32: add iwdg2 support for stm32mp157c
-  ARM: dts: stm32: add iwdg2 support for stm32mp157c-ed1
-
- .../devicetree/bindings/watchdog/st,stm32-iwdg.txt |  13 ++-
- arch/arm/boot/dts/stm32mp157c-ed1.dts              |   5 +
- arch/arm/boot/dts/stm32mp157c.dtsi                 |   8 ++
- drivers/watchdog/stm32_iwdg.c                      | 116 +++++++++++++--------
- 4 files changed, 97 insertions(+), 45 deletions(-)
-
+diff --git a/arch/arm/boot/dts/stm32mp157c-ed1.dts b/arch/arm/boot/dts/stm32mp157c-ed1.dts
+index ae33653..8af263a 100644
+--- a/arch/arm/boot/dts/stm32mp157c-ed1.dts
++++ b/arch/arm/boot/dts/stm32mp157c-ed1.dts
+@@ -68,6 +68,11 @@
+ 	status = "okay";
+ };
+ 
++&iwdg2 {
++	timeout-sec = <32>;
++	status = "okay";
++};
++
+ &uart4 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&uart4_pins_a>;
 -- 
 2.7.4
