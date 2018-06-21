@@ -1,49 +1,58 @@
-Return-Path: <ludovic.barre@st.com>
-Return-path: <ludovic.barre@st.com>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mx08-00178001.pphosted.com ([91.207.212.93]:27415 "EHLO
+        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1754085AbeFUJDF (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Thu, 21 Jun 2018 05:03:05 -0400
 From: Ludovic Barre <ludovic.Barre@st.com>
 To: Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck
-	<linux@roeck-us.net>, Rob Herring <robh+dt@kernel.org>
+        Guenter Roeck <linux@roeck-us.net>,
+        Rob Herring <robh+dt@kernel.org>
 CC: Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Alexandre Torgue
-	<alexandre.torgue@st.com>,
+        Alexandre Torgue <alexandre.torgue@st.com>,
         <linux-watchdog@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
-        <devicetree@vger.kernel.org>, Ludovic Barre <ludovic.barre@st.com>
-Subject: [PATCH V4 4/4] ARM: dts: stm32: add iwdg2 support for stm32mp157c-ed1
-Date: Thu, 21 Jun 2018 11:02:17 +0200
-Message-ID: <1529571737-3552-5-git-send-email-ludovic.Barre@st.com>
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        Ludovic Barre <ludovic.barre@st.com>
+Subject: [PATCH V4 3/4] ARM: dts: stm32: add iwdg2 support for stm32mp157c
+Date: Thu, 21 Jun 2018 11:02:16 +0200
+Message-ID: <1529571737-3552-4-git-send-email-ludovic.Barre@st.com>
 In-Reply-To: <1529571737-3552-1-git-send-email-ludovic.Barre@st.com>
 References: <1529571737-3552-1-git-send-email-ludovic.Barre@st.com>
 MIME-Version: 1.0
 Content-Type: text/plain
-List-ID: <linux-watchdog@vger.kernel.org>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
 From: Ludovic Barre <ludovic.barre@st.com>
 
-This patch activates independent watchdog support for
-stm32mp157c board.
+This patch adds independent watchdog support for stm32mp157c.
 
 Signed-off-by: Ludovic Barre <ludovic.barre@st.com>
 ---
- arch/arm/boot/dts/stm32mp157c-ed1.dts | 5 +++++
- 1 file changed, 5 insertions(+)
+ arch/arm/boot/dts/stm32mp157c.dtsi | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/arch/arm/boot/dts/stm32mp157c-ed1.dts b/arch/arm/boot/dts/stm32mp157c-ed1.dts
-index ae33653..8af263a 100644
---- a/arch/arm/boot/dts/stm32mp157c-ed1.dts
-+++ b/arch/arm/boot/dts/stm32mp157c-ed1.dts
-@@ -68,6 +68,11 @@
- 	status = "okay";
- };
+diff --git a/arch/arm/boot/dts/stm32mp157c.dtsi b/arch/arm/boot/dts/stm32mp157c.dtsi
+index 7d17538..95cc166 100644
+--- a/arch/arm/boot/dts/stm32mp157c.dtsi
++++ b/arch/arm/boot/dts/stm32mp157c.dtsi
+@@ -784,6 +784,14 @@
+ 			status = "disabled";
+ 		};
  
-+&iwdg2 {
-+	timeout-sec = <32>;
-+	status = "okay";
-+};
++		iwdg2: watchdog@5a002000 {
++			compatible = "st,stm32mp1-iwdg";
++			reg = <0x5a002000 0x400>;
++			clocks = <&rcc IWDG2>, <&rcc CK_LSI>;
++			clock-names = "pclk", "lsi";
++			status = "disabled";
++		};
 +
- &uart4 {
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&uart4_pins_a>;
+ 		usbphyc: usbphyc@5a006000 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
 -- 
 2.7.4
+
