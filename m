@@ -1,40 +1,50 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-yw0-f195.google.com ([209.85.161.195]:35067 "EHLO
-        mail-yw0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754600AbeFYPvd (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 25 Jun 2018 11:51:33 -0400
-Date: Mon, 25 Jun 2018 09:51:30 -0600
-From: Rob Herring <robh@kernel.org>
-To: Ludovic Barre <ludovic.Barre@st.com>
-Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Alexandre Torgue <alexandre.torgue@st.com>,
-        linux-watchdog@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        devicetree@vger.kernel.org
-Subject: Re: [PATCH V4 1/4] dt-bindings: watchdog: add stm32mp1 support
-Message-ID: <20180625155130.GA25449@rob-hp-laptop>
-References: <1529571737-3552-1-git-send-email-ludovic.Barre@st.com>
- <1529571737-3552-2-git-send-email-ludovic.Barre@st.com>
+Return-Path: <ludovic.barre@st.com>
+Return-path: <ludovic.barre@st.com>
+From: Ludovic Barre <ludovic.Barre@st.com>
+To: Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck
+	<linux@roeck-us.net>, Rob Herring <robh+dt@kernel.org>
+CC: Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Alexandre Torgue
+	<alexandre.torgue@st.com>,
+        <linux-watchdog@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
+        <devicetree@vger.kernel.org>, Ludovic Barre <ludovic.barre@st.com>
+Subject: [PATCH V5 0/5] add iwdg2 support for stm32mp157c
+Date: Mon, 25 Jun 2018 17:42:58 +0200
+Message-ID: <1529941383-8653-1-git-send-email-ludovic.Barre@st.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1529571737-3552-2-git-send-email-ludovic.Barre@st.com>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Content-Type: text/plain
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On Thu, Jun 21, 2018 at 11:02:14AM +0200, Ludovic Barre wrote:
-> From: Ludovic Barre <ludovic.barre@st.com>
-> 
-> This patch adds support of stm32mp1.
-> stm32mp1 requires 2 clocks lsi and pclk.
-> 
-> Signed-off-by: Ludovic Barre <ludovic.barre@st.com>
-> ---
->  .../devicetree/bindings/watchdog/st,stm32-iwdg.txt          | 13 ++++++++++---
->  1 file changed, 10 insertions(+), 3 deletions(-)
+From: Ludovic Barre <ludovic.barre@st.com>
 
-Reviewed-by: Rob Herring <robh@kernel.org>
+This patch series updates stm32_iwdg driver to manage pclk
+clock by compatible. stm32mp1 requires a pclk clock.
+
+v5:
+-update stm32f429.dtsi
+
+v4:
+-dt-bindings: split and review
+
+v3:
+-remove stm32_iwdg_config structure, just assign the
+ boolean directly to .dat
+
+Ludovic Barre (5):
+  dt-bindings: watchdog: add stm32mp1 support
+  watchdog: stm32: add pclk feature for stm32mp1
+  ARM: dts: stm32: add iwdg2 support for stm32mp157c
+  ARM: dts: stm32: add iwdg2 support for stm32mp157c-ed1
+  ARM: dts: stm32: update iwdg with lsi clock name for stm32f429
+
+ .../devicetree/bindings/watchdog/st,stm32-iwdg.txt |  13 ++-
+ arch/arm/boot/dts/stm32f429.dtsi                   |   1 +
+ arch/arm/boot/dts/stm32mp157c-ed1.dts              |   5 +
+ arch/arm/boot/dts/stm32mp157c.dtsi                 |   8 ++
+ drivers/watchdog/stm32_iwdg.c                      | 116 +++++++++++++--------
+ 5 files changed, 98 insertions(+), 45 deletions(-)
+
+-- 
+2.7.4
