@@ -1,63 +1,65 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx07-00178001.pphosted.com ([62.209.51.94]:47968 "EHLO
-        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1752109AbeFYMx0 (ORCPT
+Received: from mx08-00178001.pphosted.com ([91.207.212.93]:34204 "EHLO
+        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1752106AbeF0HEb (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 25 Jun 2018 08:53:26 -0400
-Subject: Re: [PATCH V4 2/4] watchdog: stm32: add pclk feature for stm32mp1
-To: Guenter Roeck <linux@roeck-us.net>,
-        Ludovic BARRE <ludovic.barre@st.com>
-CC: Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Wed, 27 Jun 2018 03:04:31 -0400
+Subject: Re: [PATCH V5 0/5] add iwdg2 support for stm32mp157c
+To: Ludovic Barre <ludovic.Barre@st.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Rob Herring <robh+dt@kernel.org>
+CC: Maxime Coquelin <mcoquelin.stm32@gmail.com>,
         <linux-watchdog@vger.kernel.org>,
         <linux-arm-kernel@lists.infradead.org>,
         <linux-kernel@vger.kernel.org>, <devicetree@vger.kernel.org>
-References: <1529571737-3552-1-git-send-email-ludovic.Barre@st.com>
- <1529571737-3552-3-git-send-email-ludovic.Barre@st.com>
- <20180621165335.GA4563@roeck-us.net>
- <0bfe0082-2134-2d3b-322f-cd6c193a9974@st.com>
- <3f65a889-f625-9521-ea09-bcf7b5b24927@roeck-us.net>
+References: <1529941383-8653-1-git-send-email-ludovic.Barre@st.com>
 From: Alexandre Torgue <alexandre.torgue@st.com>
-Message-ID: <b5f62568-ff2f-4a04-212e-a952bf009c88@st.com>
-Date: Mon, 25 Jun 2018 14:52:17 +0200
+Message-ID: <c6996e7f-2b30-6eaf-afa3-5a98b6dcaa78@st.com>
+Date: Wed, 27 Jun 2018 09:03:31 +0200
 MIME-Version: 1.0
-In-Reply-To: <3f65a889-f625-9521-ea09-bcf7b5b24927@roeck-us.net>
+In-Reply-To: <1529941383-8653-1-git-send-email-ludovic.Barre@st.com>
 Content-Type: text/plain; charset="utf-8"; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Guenter,
+Hi Guenter
 
-
->> But you are right I forgot to change stm32f429.dtsi.
->> If I add a commit for stm32f429.dtsi, it's Ok for you ?
->>
+On 06/25/2018 05:42 PM, Ludovic Barre wrote:
+> From: Ludovic Barre <ludovic.barre@st.com>
 > 
-> Not really. You are imposing a personal preference on others,
-> and you would make stm32f429.dtsi inconsistent since it doesn't
-> use clock names for anything else.This in turn means that people
-> will have an endless source of irritation since they will need
-> a clock name for this node but not for others.
+> This patch series updates stm32_iwdg driver to manage pclk
+> clock by compatible. stm32mp1 requires a pclk clock.
+> 
+> v5:
+> -update stm32f429.dtsi
+> 
+> v4:
+> -dt-bindings: split and review
+> 
+> v3:
+> -remove stm32_iwdg_config structure, just assign the
+>   boolean directly to .dat
+> 
+> Ludovic Barre (5):
+>    dt-bindings: watchdog: add stm32mp1 support
+>    watchdog: stm32: add pclk feature for stm32mp1
+>    ARM: dts: stm32: add iwdg2 support for stm32mp157c
+>    ARM: dts: stm32: add iwdg2 support for stm32mp157c-ed1
+>    ARM: dts: stm32: update iwdg with lsi clock name for stm32f429
 
-Why? This kind of implementation depends on each driver. Isn't ?
+I will take DT patches in my tree.
 
-Or do you mean that if iwdg driver uses this implementation (clock name 
-usage) all nodes inside stm32f429.dtsi should follow the same 
-implementation ?
+Thanks
+alex
 
 > 
-> You will have to get the arm and DT maintainers to agree on this change.
-
-As this patch makes easier integration of new platform, I agree with 
-Ludovic proposition.
-
-
-regards
-Alex
-
+>   .../devicetree/bindings/watchdog/st,stm32-iwdg.txt |  13 ++-
+>   arch/arm/boot/dts/stm32f429.dtsi                   |   1 +
+>   arch/arm/boot/dts/stm32mp157c-ed1.dts              |   5 +
+>   arch/arm/boot/dts/stm32mp157c.dtsi                 |   8 ++
+>   drivers/watchdog/stm32_iwdg.c                      | 116 +++++++++++++--------
+>   5 files changed, 98 insertions(+), 45 deletions(-)
 > 
-> Thanks,
-> Guenter
