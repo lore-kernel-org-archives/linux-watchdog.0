@@ -5,83 +5,54 @@ To: "wim@linux-watchdog.org" <wim@linux-watchdog.org>, "linux@roeck-us.net"
 	<linux@roeck-us.net>, "linux-watchdog@vger.kernel.org"
 	<linux-watchdog@vger.kernel.org>, "linux-kernel@vger.kernel.org"
 	<linux-kernel@vger.kernel.org>
-CC: "Tian, Baofeng" <baofeng.tian@intel.com>
-Subject: [PATCH] watchdog: add module parameter "force_no_reboot" for iTCO
-Date: Mon, 2 Jul 2018 07:30:10 +0000
-Message-ID: <EEBA739CCF11FE49B73E1FB4690F5EE649E1BFEB@shsmsx102.ccr.corp.intel.com>
-References: <0038B620BAC72941BCBF48AEB892976C02CADE1E@shsmsx102.ccr.corp.intel.com>
-In-Reply-To: <0038B620BAC72941BCBF48AEB892976C02CADE1E@shsmsx102.ccr.corp.intel.com>
+Subject: [PATCH] watchdog: change ITCO_WDT type from tristate to bool
+Date: Mon, 2 Jul 2018 08:18:56 +0000
+Message-ID: <EEBA739CCF11FE49B73E1FB4690F5EE649E1C084@shsmsx102.ccr.corp.intel.com>
+References: <0038B620BAC72941BCBF48AEB892976C02CADE91@shsmsx102.ccr.corp.intel.com>
+In-Reply-To: <0038B620BAC72941BCBF48AEB892976C02CADE91@shsmsx102.ccr.corp.intel.com>
 Content-Language: en-US
 Content-Type: multipart/alternative;
-	boundary="_000_EEBA739CCF11FE49B73E1FB4690F5EE649E1BFEBshsmsx102ccrcor_"
+	boundary="_000_EEBA739CCF11FE49B73E1FB4690F5EE649E1C084shsmsx102ccrcor_"
 MIME-Version: 1.0
 List-ID: <linux-watchdog@vger.kernel.org>
 
---_000_EEBA739CCF11FE49B73E1FB4690F5EE649E1BFEBshsmsx102ccrcor_
+--_000_EEBA739CCF11FE49B73E1FB4690F5EE649E1C084shsmsx102ccrcor_
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
 
 From: "Tian, Baofeng" <baofeng.tian@intel.com<mailto:baofeng.tian@intel.com=
 >>
-Subject: [PATCH] watchdog: add module parameter "force_no_reboot" for iTCO
+Subject: [PATCH] watchdog: change ITCO_WDT type from tristate to bool
 
-Setting "force_no_reboot" parameter to true (y/Y/1) will have
-the effect to prevent to reset the NO_REBOOT flag thus
-preventing the iTCO to reboot the platform, if not set
-or set to false, then system will reboot after about 30s.
+tristate will allow kernel config it to M and build ko file,
+this will cause build allmodconfig errors as necessary
+symbols have not been exported.
+change it to bool, only allow config ITCO_WDT to yes/no.
 
 Signed-off-by: Tian, Baofeng <baofeng.tian@intel.com<mailto:baofeng.tian@in=
 tel.com>>
 ---
- drivers/watchdog/iTCO_wdt.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ drivers/watchdog/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/watchdog/iTCO_wdt.c b/drivers/watchdog/iTCO_wdt.c
-index 347f038..255318b 100644
---- a/drivers/watchdog/iTCO_wdt.c
-+++ b/drivers/watchdog/iTCO_wdt.c
-@@ -131,6 +131,11 @@ module_param(turn_SMI_watchdog_clear_off, int, 0);
- MODULE_PARM_DESC(turn_SMI_watchdog_clear_off,
-      "Turn off SMI clearing watchdog (depends on TCO-version)(default=3D1)=
-");
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 9af07fd..f991e93 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -1049,7 +1049,7 @@ config INTEL_MID_WATCHDOG
+        To compile this driver as a module, choose M here.
 
-+static bool force_no_reboot;
-+module_param(force_no_reboot, bool, 0);
-+MODULE_PARM_DESC(force_no_reboot,
-+           "Prevents the watchdog rebooting the platform (default=3D0)");
-+
- /*
-  * Some TCO specific functions
-  */
-@@ -243,6 +248,10 @@ static int iTCO_wdt_start(struct watchdog_device *wd_d=
-ev)
-      struct iTCO_wdt_private *p =3D watchdog_get_drvdata(wd_dev);
-      unsigned int val;
-
-+     /* force_no_reboot will prevent to unset NO_REBOOT bit */
-+     if (force_no_reboot)
-+           return -EIO;
-+
-      spin_lock(&p->io_lock);
-
-      iTCO_vendor_pre_start(p->smi_res, wd_dev->timeout);
-@@ -250,7 +259,7 @@ static int iTCO_wdt_start(struct watchdog_device *wd_de=
-v)
-      /* disable chipset's NO_REBOOT bit */
-      if (p->update_no_reboot_bit(p->no_reboot_priv, false)) {
-            spin_unlock(&p->io_lock);
--           pr_err("failed to reset NO_REBOOT flag, reboot disabled by hard=
-ware/BIOS\n");
-+           pr_err("failed to reset NO_REBOOT flag, reboot disabled by hard=
-ware/BIOS/rc_cmd\n");
-            return -EIO;
-      }
-
+ config ITCO_WDT
+-     tristate "Intel TCO Timer/Watchdog"
++     bool "Intel TCO Timer/Watchdog"
+      depends on (X86 || IA64) && PCI
+      select WATCHDOG_CORE
+      depends on I2C || I2C=3Dn
 --
 2.7.4
 
 
---_000_EEBA739CCF11FE49B73E1FB4690F5EE649E1BFEBshsmsx102ccrcor_
+--_000_EEBA739CCF11FE49B73E1FB4690F5EE649E1C084shsmsx102ccrcor_
 Content-Type: text/html; charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
 
@@ -164,73 +135,33 @@ div.WordSection1
 <p class=3D"MsoPlainText" style=3D"margin-bottom:12.0pt"><span style=3D"fon=
 t-family:&quot;Courier New&quot;">From: &quot;Tian, Baofeng&quot; &lt;<a hr=
 ef=3D"mailto:baofeng.tian@intel.com">baofeng.tian@intel.com</a>&gt;<br>
-Subject: [PATCH] watchdog: add module parameter &quot;force_no_reboot&quot;=
- for iTCO<br>
+Subject: [PATCH] watchdog: change ITCO_WDT type from tristate to bool<br>
 <br>
-Setting &quot;force_no_reboot&quot; parameter to true (y/Y/1) will have<br>
-the effect to prevent to reset the NO_REBOOT flag thus<br>
-preventing the iTCO to reboot the platform, if not set<br>
-or set to false, then system will reboot after about 30s.<br>
+tristate will allow kernel config it to M and build ko file,<br>
+this will cause build allmodconfig errors as necessary<br>
+symbols have not been exported.<br>
+change it to bool, only allow config ITCO_WDT to yes/no.<br>
 <br>
 Signed-off-by: Tian, Baofeng &lt;<a href=3D"mailto:baofeng.tian@intel.com">=
 baofeng.tian@intel.com</a>&gt;<br>
 ---<br>
-&nbsp;drivers/watchdog/iTCO_wdt.c | 11 &#43;&#43;&#43;&#43;&#43;&#43;&#43;&=
-#43;&#43;&#43;-<br>
-&nbsp;1 file changed, 10 insertions(&#43;), 1 deletion(-)<br>
+&nbsp;drivers/watchdog/Kconfig | 2 &#43;-<br>
+&nbsp;1 file changed, 1 insertion(&#43;), 1 deletion(-)<br>
 <br>
-diff --git a/drivers/watchdog/iTCO_wdt.c b/drivers/watchdog/iTCO_wdt.c<br>
-index 347f038..255318b 100644<br>
---- a/drivers/watchdog/iTCO_wdt.c<br>
-&#43;&#43;&#43; b/drivers/watchdog/iTCO_wdt.c<br>
-@@ -131,6 &#43;131,11 @@ module_param(turn_SMI_watchdog_clear_off, int, 0);=
-<br>
-&nbsp;MODULE_PARM_DESC(turn_SMI_watchdog_clear_off,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;Turn off SMI clearing watchdog (depend=
-s on TCO-version)(default=3D1)&quot;);<br>
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig<br>
+index 9af07fd..f991e93 100644<br>
+--- a/drivers/watchdog/Kconfig<br>
+&#43;&#43;&#43; b/drivers/watchdog/Kconfig<br>
+@@ -1049,7 &#43;1049,7 @@ config INTEL_MID_WATCHDOG<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; To compile this driver as a module, c=
+hoose M here.<br>
 &nbsp;<br>
-&#43;static bool force_no_reboot;<br>
-&#43;module_param(force_no_reboot, bool, 0);<br>
-&#43;MODULE_PARM_DESC(force_no_reboot,<br>
-&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;Pre=
-vents the watchdog rebooting the platform (default=3D0)&quot;);<br>
-&#43;<br>
-&nbsp;/*<br>
-&nbsp; * Some TCO specific functions<br>
-&nbsp; */<br>
-@@ -243,6 &#43;248,10 @@ static int iTCO_wdt_start(struct watchdog_device *=
-wd_dev)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; struct iTCO_wdt_private *p =3D watchdog_get_=
-drvdata(wd_dev);<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; unsigned int val;<br>
-&nbsp;<br>
-&#43;&nbsp;&nbsp;&nbsp;&nbsp; /* force_no_reboot will prevent to unset NO_R=
-EBOOT bit */<br>
-&#43;&nbsp;&nbsp;&nbsp;&nbsp; if (force_no_reboot)<br>
-&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return -E=
-IO;<br>
-&#43;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; spin_lock(&amp;p-&gt;io_lock);<br>
-&nbsp;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; iTCO_vendor_pre_start(p-&gt;smi_res, wd_dev-=
-&gt;timeout);<br>
-@@ -250,7 &#43;259,7 @@ static int iTCO_wdt_start(struct watchdog_device *w=
-d_dev)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /* disable chipset's NO_REBOOT bit */<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (p-&gt;update_no_reboot_bit(p-&gt;no_rebo=
-ot_priv, false)) {<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; spin_unl=
-ock(&amp;p-&gt;io_lock);<br>
--&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pr_err(&quot;=
-failed to reset NO_REBOOT flag, reboot disabled by hardware/BIOS\n&quot;);<=
-br>
-&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pr_err(&q=
-uot;failed to reset NO_REBOOT flag, reboot disabled by hardware/BIOS/rc_cmd=
-\n&quot;);<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return -=
-EIO;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
-&nbsp;<br>
+&nbsp;config ITCO_WDT<br>
+-&nbsp;&nbsp;&nbsp;&nbsp; tristate &quot;Intel TCO Timer/Watchdog&quot;<br>
+&#43;&nbsp;&nbsp;&nbsp;&nbsp; bool &quot;Intel TCO Timer/Watchdog&quot;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; depends on (X86 || IA64) &amp;&amp; PCI<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; select WATCHDOG_CORE<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; depends on I2C || I2C=3Dn<br>
 -- <br>
 2.7.4<o:p></o:p></span></p>
 <p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
@@ -238,4 +169,4 @@ EIO;<br>
 </body>
 </html>
 
---_000_EEBA739CCF11FE49B73E1FB4690F5EE649E1BFEBshsmsx102ccrcor_--
+--_000_EEBA739CCF11FE49B73E1FB4690F5EE649E1C084shsmsx102ccrcor_--
