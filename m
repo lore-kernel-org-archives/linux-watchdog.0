@@ -1,10 +1,10 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx07-00178001.pphosted.com ([62.209.51.94]:57377 "EHLO
-        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1754004AbeGEPOr (ORCPT
+Received: from mx08-00178001.pphosted.com ([91.207.212.93]:56782 "EHLO
+        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1754375AbeGEPO5 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 5 Jul 2018 11:14:47 -0400
+        Thu, 5 Jul 2018 11:14:57 -0400
 From: Pascal PAILLET-LME <p.paillet@st.com>
 To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
         "robh+dt@kernel.org" <robh+dt@kernel.org>,
@@ -20,9 +20,9 @@ To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
         "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
         "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>
 CC: Pascal PAILLET-LME <p.paillet@st.com>
-Subject: [PATCH 1/8] dt-bindings: mfd: document stpmu1 pmic
-Date: Thu, 5 Jul 2018 15:14:22 +0000
-Message-ID: <1530803657-17684-2-git-send-email-p.paillet@st.com>
+Subject: [PATCH 8/8] watchdog: stpmu1: add stpmu1 watchdog driver
+Date: Thu, 5 Jul 2018 15:14:25 +0000
+Message-ID: <1530803657-17684-9-git-send-email-p.paillet@st.com>
 References: <1530803657-17684-1-git-send-email-p.paillet@st.com>
 In-Reply-To: <1530803657-17684-1-git-send-email-p.paillet@st.com>
 Content-Language: en-US
@@ -34,158 +34,232 @@ List-Id: linux-watchdog@vger.kernel.org
 
 From: pascal paillet <p.paillet@st.com>
 
-stpmu1 is a pmic from STMicroelectronics. The stpmu1 integrates 10
-regulators and 3 switches with various capabilities.
+The stpmu1 PMIC embeds a watchdog which is disabled by default. As soon
+as the watchdog is started, it must be refreshed periodically otherwise
+the PMIC goes off.
 
 Signed-off-by: pascal paillet <p.paillet@st.com>
 ---
- .../devicetree/bindings/mfd/st,stpmu1.txt          | 138 +++++++++++++++++++++
- 1 file changed, 138 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/mfd/st,stpmu1.txt
+ drivers/watchdog/Kconfig      |  12 +++
+ drivers/watchdog/Makefile     |   1 +
+ drivers/watchdog/stpmu1_wdt.c | 177 ++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 190 insertions(+)
+ create mode 100644 drivers/watchdog/stpmu1_wdt.c
 
-diff --git a/Documentation/devicetree/bindings/mfd/st,stpmu1.txt b/Documentation/devicetree/bindings/mfd/st,stpmu1.txt
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 9af07fd..2155f4d 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -796,6 +796,18 @@ config STM32_WATCHDOG
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called stm32_iwdg.
+ 
++config STPMU1_WATCHDOG
++	tristate "STPMU1 PMIC watchdog support"
++	depends on MFD_STPMU1
++	select WATCHDOG_CORE
++	help
++	  Say Y here to include watchdog support embedded into STPMU1 PMIC.
++	  If the watchdog timer expires, stpmu1 shut-down all its power
++	  supplies.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called spmu1_wdt.
++
+ config UNIPHIER_WATCHDOG
+ 	tristate "UniPhier watchdog support"
+ 	depends on ARCH_UNIPHIER || COMPILE_TEST
+diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+index 1d3c6b0..c9eba94 100644
+--- a/drivers/watchdog/Makefile
++++ b/drivers/watchdog/Makefile
+@@ -216,3 +216,4 @@ obj-$(CONFIG_ZIIRAVE_WATCHDOG) += ziirave_wdt.o
+ obj-$(CONFIG_SOFT_WATCHDOG) += softdog.o
+ obj-$(CONFIG_MENF21BMC_WATCHDOG) += menf21bmc_wdt.o
+ obj-$(CONFIG_RAVE_SP_WATCHDOG) += rave-sp-wdt.o
++obj-$(CONFIG_STPMU1_WATCHDOG) += stpmu1_wdt.o
+diff --git a/drivers/watchdog/stpmu1_wdt.c b/drivers/watchdog/stpmu1_wdt.c
 new file mode 100644
-index 0000000..53bdab4
+index 0000000..57e0afa
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/mfd/st,stpmu1.txt
-@@ -0,0 +1,138 @@
-+* STMicroelectronics STPMU1 Power Management IC
++++ b/drivers/watchdog/stpmu1_wdt.c
+@@ -0,0 +1,177 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Copyright (C) STMicroelectronics 2018 - All Rights Reserved
++ * Author: Philippe Peurichard <philippe.peurichard@st.com>,
++ * Pascal Paillet <p.paillet@st.com> for STMicroelectronics.
++ */
 +
-+Required parent device properties:
-+- compatible: "st,stpmu1"
-+- reg: the I2C slave address for the stpmu1 chip
-+- interrupts-extended: interrupt lines to use: second irq is for wakeup.
-+- #interrupt-cells: should be 2.
-+- interrupt-controller: describes the STPMU1 as an interrupt
-+  controller (has its own domain). interrupt number are the following:
-+	/* Interrupt Register 1 (0x50 for latch) */
-+	IT_SWOUT_R=0
-+	IT_SWOUT_F=1
-+	IT_VBUS_OTG_R=2
-+	IT_VBUS_OTG_F=3
-+	IT_WAKEUP_R=4
-+	IT_WAKEUP_F=5
-+	IT_PONKEY_R=6
-+	IT_PONKEY_F=7
-+	/* Interrupt Register 2 (0x51 for latch) */
-+	IT_OVP_BOOST=8
-+	IT_OCP_BOOST=9
-+	IT_OCP_SWOUT=10
-+	IT_OCP_OTG=11
-+	IT_CURLIM_BUCK4=12
-+	IT_CURLIM_BUCK3=13
-+	IT_CURLIM_BUCK2=14
-+	IT_CURLIM_BUCK1=15
-+	/* Interrupt Register 3 (0x52 for latch) */
-+	IT_SHORT_SWOUT=16
-+	IT_SHORT_SWOTG=17
-+	IT_CURLIM_LDO6=18
-+	IT_CURLIM_LDO5=19
-+	IT_CURLIM_LDO4=20
-+	IT_CURLIM_LDO3=21
-+	IT_CURLIM_LDO2=22
-+	IT_CURLIM_LDO1=23
-+	/* Interrupt Register 3 (0x52 for latch) */
-+	IT_SWIN_R=24
-+	IT_SWIN_F=25
-+	IT_RESERVED_1=26
-+	IT_RESERVED_2=27
-+	IT_VINLOW_R=28
-+	IT_VINLOW_F=29
-+	IT_TWARN_R=30
-+	IT_TWARN_F=31
++#include <linux/kernel.h>
++#include <linux/mfd/stpmu1.h>
++#include <linux/module.h>
++#include <linux/platform_device.h>
++#include <linux/of.h>
++#include <linux/regmap.h>
++#include <linux/reboot.h>
++#include <linux/slab.h>
++#include <linux/watchdog.h>
 +
-+Optional parent device properties:
-+- st,main_control_register:
-+	-bit 1: Power cycling will be performed on turn OFF condition
-+	-bit 2: PWRCTRL is functional
-+	-bit 3: PWRCTRL active high
-+- st,pads_pull_register:
-+	-bit 1: WAKEUP pull down is not active
-+	-bit 2: PWRCTRL pull up is active
-+	-bit 3: PWRCTRL pull down is active
-+	-bit 4: WAKEUP detector is disabled
-+- st,vin_control_register:
-+	-bit 0: VINLOW monitoring is enabled
-+	-bit [1...3]: VINLOW rising threshold
-+		000 VINOK_f + 50mV
-+		001 VINOK_f + 100mV
-+		010 VINOK_f + 150mV
-+		011 VINOK_f + 200mV
-+		100 VINOK_f + 250mV
-+		101 VINOK_f + 300mV
-+		110 VINOK_f + 350mV
-+		111 VINOK_f + 400mV
-+	-bit [4...5]: VINLOW hyst
-+		00 100mV
-+		01 200mV
-+		10 300mV
-+		11 400mV
-+	-bit 6: SW_OUT detector is disabled
-+	-bit 7: SW_IN detector is enabled.
-+- st,usb_control_register:
-+	-bit 3: SW_OUT current limit
-+		0: 600mA
-+		1: 1.1A
-+	-bit 4: VBUS_OTG discharge is enabled
-+	-bit 5: SW_OUT discharge is enabled
-+	-bit 6: VBUS_OTG detection is enabled
-+	-bit 7: BOOST_OVP is disabled
++/* WATCHDOG CONTROL REGISTER bit */
++#define WDT_START		BIT(0)
++#define WDT_PING		BIT(1)
++#define WDT_START_MASK		BIT(0)
++#define WDT_PING_MASK		BIT(1)
 +
++#define PMIC_WDT_MIN_TIMEOUT 1
++#define PMIC_WDT_MAX_TIMEOUT 256
 +
-+stpmu1 consists is a varied group of sub-devices:
++struct stpmu1_wdt {
++	struct stpmu1_dev *pmic;
++	struct watchdog_device wdtdev;
++	struct notifier_block restart_handler;
++};
 +
-+Device			 Description
-+------			------------
-+stpmu1-onkey		: On key
-+stpmu1-regulators	: Regulators
-+stpmu1-wdt		: Watchdog
++static int pmic_wdt_start(struct watchdog_device *wdd)
++{
++	struct stpmu1_wdt *wdt = watchdog_get_drvdata(wdd);
 +
-+each sub-device bindings is be described in associated driver
-+documentation section.
++	return regmap_update_bits(wdt->pmic->regmap,
++				  WCHDG_CR, WDT_START_MASK, WDT_START);
++}
 +
-+Example:
++static int pmic_wdt_stop(struct watchdog_device *wdd)
++{
++	struct stpmu1_wdt *wdt = watchdog_get_drvdata(wdd);
 +
-+pmic: stpmu1@33 {
-+	compatible = "st,stpmu1";
-+	reg = <0x33>;
-+	interrupts = <0 2>;
-+	interrupts-extended = <&intc GIC_SPI 149 IRQ_TYPE_NONE>,
-+			      <&exti 55 1>;
-+	st,version_status = <0x10>;
-+	st,main_control_register=<0x0c>;
-+	interrupt-controller;
-+	#interrupt-cells = <2>;
-+	onkey {
-+		compatible = "st,stpmu1-onkey";
-+		interrupt-parent = <&pmic>;
-+		interrupts = <7 0>,<6 1>;
-+		st,onkey-pwroff-enabled;
-+		st,onkey-press-seconds = <10>;
-+	};
++	return regmap_update_bits(wdt->pmic->regmap,
++				  WCHDG_CR, WDT_START_MASK, ~WDT_START);
++}
 +
-+	watchdog {
-+		compatible = "st,stpmu1-wdt";
-+	};
++static int pmic_wdt_ping(struct watchdog_device *wdd)
++{
++	struct stpmu1_wdt *wdt = watchdog_get_drvdata(wdd);
++	int ret;
 +
-+	regulators {
-+		compatible = "st,stpmu1-regulators";
++	return regmap_update_bits(wdt->pmic->regmap,
++				  WCHDG_CR, WDT_PING_MASK, WDT_PING);
++	return ret;
++}
 +
-+		vdd_core: regulator@0 {
-+			regulator-compatible = "buck1";
-+			regulator-name = "vdd_core";
-+			regulator-boot-on;
-+			regulator-min-microvolt = <700000>;
-+			regulator-max-microvolt = <1200000>;
-+		};
-+		vdd: regulator@1 {
-+			regulator-compatible = "buck3";
-+			regulator-name = "vdd";
-+			regulator-min-microvolt = <3300000>;
-+			regulator-max-microvolt = <3300000>;
-+			regulator-boot-on;
-+			regulator-pull-down;
-+		};
-+	};
++static int pmic_wdt_set_timeout(struct watchdog_device *wdd,
++				unsigned int timeout)
++{
++	struct stpmu1_wdt *wdt = watchdog_get_drvdata(wdd);
++	int ret;
++
++	ret = regmap_write(wdt->pmic->regmap, WCHDG_TIMER_CR, timeout);
++	if (ret)
++		dev_err(wdt->pmic->dev,
++			"Failed to set watchdog timeout (err = %d)\n", ret);
++	else
++		wdd->timeout = PMIC_WDT_MAX_TIMEOUT;
++
++	return ret;
++}
++
++static int pmic_wdt_restart_handler(struct notifier_block *this,
++				    unsigned long mode, void *cmd)
++{
++	struct stpmu1_wdt *wdt = container_of(this,
++						   struct stpmu1_wdt,
++						   restart_handler);
++
++	dev_info(wdt->pmic->dev,
++		 "PMIC Watchdog Elapsed (timeout %d), shutdown of PMIC initiated\n",
++		 wdt->wdtdev.timeout);
++
++	return NOTIFY_DONE;
++}
++
++static const struct watchdog_info pmic_watchdog_info = {
++	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
++	.identity = "STPMU1 PMIC Watchdog",
++};
++
++static const struct watchdog_ops pmic_watchdog_ops = {
++	.owner = THIS_MODULE,
++	.start = pmic_wdt_start,
++	.stop = pmic_wdt_stop,
++	.ping = pmic_wdt_ping,
++	.set_timeout = pmic_wdt_set_timeout,
++};
++
++static int pmic_wdt_probe(struct platform_device *pdev)
++{
++	int ret;
++	struct stpmu1_dev *pmic;
++	struct stpmu1_wdt *wdt;
++
++	if (!pdev->dev.parent)
++		return -EINVAL;
++
++	pmic = dev_get_drvdata(pdev->dev.parent);
++	if (!pmic)
++		return -EINVAL;
++
++	wdt = devm_kzalloc(&pdev->dev, sizeof(struct stpmu1_wdt), GFP_KERNEL);
++	if (!wdt)
++		return -ENOMEM;
++
++	wdt->pmic = pmic;
++
++	wdt->wdtdev.info = &pmic_watchdog_info;
++	wdt->wdtdev.ops = &pmic_watchdog_ops;
++	wdt->wdtdev.min_timeout = PMIC_WDT_MIN_TIMEOUT;
++	wdt->wdtdev.max_timeout = PMIC_WDT_MAX_TIMEOUT;
++	wdt->wdtdev.timeout = PMIC_WDT_MAX_TIMEOUT;
++
++	wdt->wdtdev.status = WATCHDOG_NOWAYOUT_INIT_STATUS;
++
++	watchdog_set_drvdata(&wdt->wdtdev, wdt);
++	dev_set_drvdata(&pdev->dev, wdt);
++
++	ret = watchdog_register_device(&wdt->wdtdev);
++	if (ret)
++		return ret;
++
++	wdt->restart_handler.notifier_call = pmic_wdt_restart_handler;
++	wdt->restart_handler.priority = 128;
++	ret = register_restart_handler(&wdt->restart_handler);
++	if (ret) {
++		dev_err(wdt->pmic->dev, "failed to register restart handler\n");
++		return ret;
++	}
++
++	dev_dbg(wdt->pmic->dev, "PMIC Watchdog driver probed\n");
++	return 0;
++}
++
++static int pmic_wdt_remove(struct platform_device *pdev)
++{
++	struct stpmu1_wdt *wdt = dev_get_drvdata(&pdev->dev);
++
++	unregister_restart_handler(&wdt->restart_handler);
++	watchdog_unregister_device(&wdt->wdtdev);
++
++	return 0;
++}
++
++static const struct of_device_id of_pmic_wdt_match[] = {
++	{ .compatible = "st,stpmu1-wdt" },
++	{ },
++};
++
++MODULE_DEVICE_TABLE(of, of_pmic_wdt_match);
++
++static struct platform_driver stpmu1_wdt_driver = {
++	.probe = pmic_wdt_probe,
++	.remove = pmic_wdt_remove,
++	.driver = {
++		.name = "stpmu1-wdt",
++		.of_match_table = of_pmic_wdt_match,
++	},
++};
++module_platform_driver(stpmu1_wdt_driver);
++
++MODULE_AUTHOR("philippe.peurichard@st.com>");
++MODULE_DESCRIPTION("Watchdog driver for STPMU1 device");
++MODULE_LICENSE("GPL");
 -- 
 1.9.1
