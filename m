@@ -1,183 +1,119 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-oi0-f68.google.com ([209.85.218.68]:34752 "EHLO
-        mail-oi0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752088AbeGBNiY (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 2 Jul 2018 09:38:24 -0400
-Subject: Re: [PATCH] watchdog: add NMI handler for iTCO watchdog
-To: "Tian, Baofeng" <baofeng.tian@intel.com>,
-        "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-References: <0038B620BAC72941BCBF48AEB892976C02CADE7E@shsmsx102.ccr.corp.intel.com>
- <EEBA739CCF11FE49B73E1FB4690F5EE649E1C063@shsmsx102.ccr.corp.intel.com>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <cf1a7c57-4b65-eba1-a420-103ab40f7103@roeck-us.net>
-Date: Mon, 2 Jul 2018 06:38:18 -0700
-MIME-Version: 1.0
-In-Reply-To: <EEBA739CCF11FE49B73E1FB4690F5EE649E1C063@shsmsx102.ccr.corp.intel.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Return-Path: <baofeng.tian@intel.com>
+Return-path: <baofeng.tian@intel.com>
+From: "Tian, Baofeng" <baofeng.tian@intel.com>
+To: Guenter Roeck <linux@roeck-us.net>, "wim@linux-watchdog.org"
+	<wim@linux-watchdog.org>, "linux-watchdog@vger.kernel.org"
+	<linux-watchdog@vger.kernel.org>, "linux-kernel@vger.kernel.org"
+	<linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH] watchdog: add module parameter "force_no_reboot" for
+ iTCO
+Date: Thu, 5 Jul 2018 06:28:26 +0000
+Message-ID: <EEBA739CCF11FE49B73E1FB4690F5EE649E29D27@SHSMSX101.ccr.corp.intel.com>
+References: <0038B620BAC72941BCBF48AEB892976C02CADE1E@shsmsx102.ccr.corp.intel.com>
+ <EEBA739CCF11FE49B73E1FB4690F5EE649E1BFEB@shsmsx102.ccr.corp.intel.com>
+ <140371d6-4bbb-6377-a570-5253c5f98e0e@roeck-us.net>
+In-Reply-To: <140371d6-4bbb-6377-a570-5253c5f98e0e@roeck-us.net>
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 07/02/2018 01:15 AM, Tian, Baofeng wrote:
-> From: "Tian, Baofeng" <baofeng.tian@intel.com <mailto:baofeng.tian@intel.com>>
-> Subject: [PATCH] watchdog: add NMI handler for iTCO watchdog
-> 
-> Add a NMI handler in iTCO watchdog driver probe.
-> When iTCO watchdog timeout, it gernerate a NMI interrupt.
+Hi, Roeck
 
-generate
+Yes, this patch is for add a parameter to TCO to prevent reboot happen if y=
+ou don't want to reboot system=20
+and want to stay here to check some HW status, logs, etc for debug purpose.
 
-Does it always do that ? My understanding is that it has to be configured to do so.
+Under some android related stability test, developer want to stay at the cr=
+ash and use debug tools(LTB)
+to check more information, this is the purpose of this patch.
 
-> The NMI handler will be called when iTCO NMI interrupt triggered.
-> 
-> In the NMI handler, it will dump all cpu backtraces
-> and call panic to continue reboot.
-> 
-> Signed-off-by: Tian, Baofeng <baofeng.tian@intel.com <mailto:baofeng.tian@intel.com>>
+Thanks
+Tim
 
-As with other patches, the e-mail address is messed up.
+-----Original Message-----
+From: Guenter Roeck [mailto:groeck7@gmail.com] On Behalf Of Guenter Roeck
+Sent: Monday, July 2, 2018 9:21 PM
+To: Tian, Baofeng <baofeng.tian@intel.com>; wim@linux-watchdog.org; linux-w=
+atchdog@vger.kernel.org; linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] watchdog: add module parameter "force_no_reboot" for i=
+TCO
 
-If I recall correctly, we already had a similar patch trying to introduce MNI handling
-to the driver a long time ago. I don't recall why it did not make it in, but there
-must be some caveat. Someone will have to look that up and explain why this submission
-is different and works. It would be great if you can do that; otherwise I'll have to
-do it. Given my time constraints, that may take a while.
+On 07/02/2018 12:30 AM, Tian, Baofeng wrote:
+> From: "Tian, Baofeng" <baofeng.tian@intel.com=20
+> <mailto:baofeng.tian@intel.com>>
+> Subject: [PATCH] watchdog: add module parameter "force_no_reboot" for=20
+> iTCO
+>=20
+> Setting "force_no_reboot" parameter to true (y/Y/1) will have the=20
+> effect to prevent to reset the NO_REBOOT flag thus preventing the iTCO=20
+> to reboot the platform, if not set or set to false, then system will=20
+> reboot after about 30s.
+>=20
+> Signed-off-by: Tian, Baofeng <baofeng.tian@intel.com=20
+> <mailto:baofeng.tian@intel.com>>
+
+Your e-mail address is messed up.
 
 > ---
->   drivers/watchdog/iTCO_wdt.c | 53 +++++++++++++++++++++++++++++++++++++++++++++
->   1 file changed, 53 insertions(+)
-> 
-> diff --git a/drivers/watchdog/iTCO_wdt.c b/drivers/watchdog/iTCO_wdt.c
-> index 347f038..7a79d0f 100644
+>  =A0drivers/watchdog/iTCO_wdt.c | 11 ++++++++++-
+>  =A01 file changed, 10 insertions(+), 1 deletion(-)
+>=20
+> diff --git a/drivers/watchdog/iTCO_wdt.c b/drivers/watchdog/iTCO_wdt.c=20
+> index 347f038..255318b 100644
 > --- a/drivers/watchdog/iTCO_wdt.c
 > +++ b/drivers/watchdog/iTCO_wdt.c
-> @@ -68,6 +68,8 @@
->   #include <linux/io.h>              /* For inb/outb/... */
->   #include <linux/platform_data/itco_wdt.h>
-> 
-> +#include <linux/nmi.h>
-> +#include <asm/nmi.h>
->   #include "iTCO_vendor.h"
-> 
->   /* Address definitions for the TCO */
-> @@ -86,6 +88,11 @@
->   #define TCO2_CNT(p)    (TCOBASE(p) + 0x0a) /* TCO2 Control Register    */
->   #define TCOv2_TMR(p)   (TCOBASE(p) + 0x12) /* TCOv2 Timer Initial Value*/
-> 
-> +#define TCO_RLD_sub(base)    (base + 0x00) /* TCO Timer Reload/Curr. Value */
-> +#define TCO1_STS_sub(base)   (base + 0x04) /* TCO1 Status Register     */
-> +#define TCOv2_TMR_sub(base)  (base + 0x12) /* TCOv2 Timer Initial Value*/
+> @@ -131,6 +131,11 @@ module_param(turn_SMI_watchdog_clear_off, int,=20
+> 0);
+>  =A0MODULE_PARM_DESC(turn_SMI_watchdog_clear_off,
+>  =A0=A0=A0=A0=A0 "Turn off SMI clearing watchdog (depends on=20
+> TCO-version)(default=3D1)");
+>=20
+> +static bool force_no_reboot;
+> +module_param(force_no_reboot, bool, 0);=20
+> +MODULE_PARM_DESC(force_no_reboot,
+> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 "Prevents the watchdog rebooting the plat=
+form=20
+> +(default=3D0)");
 > +
+>  =A0/*
+>  =A0 * Some TCO specific functions
+>  =A0 */
+> @@ -243,6 +248,10 @@ static int iTCO_wdt_start(struct watchdog_device=20
+> *wd_dev)
+>  =A0=A0=A0=A0=A0 struct iTCO_wdt_private *p =3D watchdog_get_drvdata(wd_d=
+ev);
+>  =A0=A0=A0=A0=A0 unsigned int val;
+>=20
+> +=A0=A0=A0=A0 /* force_no_reboot will prevent to unset NO_REBOOT bit */
+> +=A0=A0=A0=A0 if (force_no_reboot)
+> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 return -EIO;
 > +
->   /* internal variables */
->   struct iTCO_wdt_private {
->        struct watchdog_device wddev;
-> @@ -112,6 +119,14 @@ struct iTCO_wdt_private {
->        int (*update_no_reboot_bit)(void *p, bool set);
->   };
-> 
-> +static struct {
-> +     resource_size_t tco_base_address;
-> +     unsigned int iTCO_version;
+It seems to me that this flag prevents the watchdog from being started, and=
+ on top it would return an unreasonable error (-EIO).
 
-Where is this variable used ?
+I don't see the point of this patch, sorry.
 
-> +     bool pretimeout_occurred;
-> +     unsigned int second_to_ticks;
+Guenter
 
-What is the point of this variable ? It is used as constant.
-
-> +} iTCO_wdt_sub;
-> +
-> +
-
-Checkpatch should tell you to avoid more than one empty line.
-
->   /* module parameters */
->   #define WATCHDOG_TIMEOUT 30  /* 30 sec default heartbeat */
->   static int heartbeat = WATCHDOG_TIMEOUT;  /* in seconds */
-> @@ -422,6 +437,33 @@ static const struct watchdog_ops iTCO_wdt_ops = {
->        .get_timeleft =         iTCO_wdt_get_timeleft,
->   };
-> 
-> +static int iTCO_pretimeout(unsigned int cmd, struct pt_regs *unused_regs)
-> +{
-> +     resource_size_t tco_base_address;
-
-What is the point of this variable ?
-
-> +
-> +     /* Prevent re-entrance */
-> +     if (iTCO_wdt_sub.pretimeout_occurred)
-> +           return NMI_HANDLED;
-> +
-
-This is odd and suggests that something may be wrong. There should
-not be more than one NMI.
-
-> +           tco_base_address = iTCO_wdt_sub.tco_base_address;
-
-At the very least column alignment is wrong.
-
-> +
-> +     /* Check the NMI is from the TCO first expiration */
-> +     if (inw(TCO1_STS_sub(tco_base_address)) & 0x8) {
-> +           iTCO_wdt_sub.pretimeout_occurred = true;
-> +
-> +           /* Forward next expiration */
-> +           outw(iTCO_wdt_sub.second_to_ticks, TCOv2_TMR_sub(tco_base_address));
-> +           outw(0x01, TCO_RLD_sub(tco_base_address));
-> +
-> +           trigger_all_cpu_backtrace();
-
-A wild guess is that arch_trigger_cpumask_backtrace() is not exported.
-That means you can not call that function from here, and it strongly suggests
-that the function is not supposed to be called from drivers, including
-watchdog_drivers. Besides, panic() already triggers a backtrace.
-
-> +           panic_timeout = 0;
-> +           panic("Kernel Watchdog");
-> +           return NMI_HANDLED;
-> +     }
-> +
-> +     return NMI_DONE;
-> +}
-> +
->   /*
->    *   Init & exit routines
->    */
-> @@ -555,6 +597,17 @@ static int iTCO_wdt_probe(struct platform_device *pdev)
->              return ret;
->        }
-> 
-> +    /* init vars that used for nmi handler */
-> +     iTCO_wdt_sub.iTCO_version = p->iTCO_version;
-> +     iTCO_wdt_sub.second_to_ticks = seconds_to_ticks(p, 10);
-
-Where does the 10 come from ? What is the rationale ?
-
-> +     iTCO_wdt_sub.tco_base_address = TCOBASE(p);
-> +
-> +     ret = register_nmi_handler(NMI_LOCAL, iTCO_pretimeout, 0, "iTCO_wdt");
-> +     if (ret != 0) {
-> +           pr_err("cannot register nmi handler (err=%d)\n", ret);
-> +           return ret;
-
-Return an error and leave the watchdog driver registered ? That will cause some
-nice crashes.
-
-> +     }
-> +
->        pr_info("initialized. heartbeat=%d sec (nowayout=%d)\n",
->              heartbeat, nowayout);
-> 
-> -- 
+>  =A0=A0=A0=A0=A0 spin_lock(&p->io_lock);
+>=20
+>  =A0=A0=A0=A0=A0 iTCO_vendor_pre_start(p->smi_res, wd_dev->timeout); @@ -=
+250,7=20
+> +259,7 @@ static int iTCO_wdt_start(struct watchdog_device *wd_dev)
+>  =A0=A0=A0=A0=A0 /* disable chipset's NO_REBOOT bit */
+>  =A0=A0=A0=A0=A0 if (p->update_no_reboot_bit(p->no_reboot_priv, false)) {
+>  =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 spin_unlock(&p->io_lock);
+> -=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 pr_err("failed to reset NO_REBOOT flag, r=
+eboot disabled by=20
+> hardware/BIOS\n");
+> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 pr_err("failed to reset NO_REBOOT flag, r=
+eboot disabled by=20
+> +hardware/BIOS/rc_cmd\n");
+>  =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 return -EIO;
+>  =A0=A0=A0=A0=A0 }
+>=20
+> --
 > 2.7.4
-> 
-
+>=20
