@@ -22,9 +22,11 @@ To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
         "benjamin.gaignard@linaro.org"
 	<benjamin.gaignard@linaro.org>
 CC: Pascal PAILLET-LME <p.paillet@st.com>
-Subject: [PATCH 0/8] Introduce STPMU1 PMIC Driver
-Date: Thu, 5 Jul 2018 15:14:21 +0000
-Message-ID: <1530803657-17684-1-git-send-email-p.paillet@st.com>
+Subject: [PATCH 5/8] dt-bindings: input: document stpmu1 pmic onkey
+Date: Thu, 5 Jul 2018 15:14:24 +0000
+Message-ID: <1530803657-17684-6-git-send-email-p.paillet@st.com>
+References: <1530803657-17684-1-git-send-email-p.paillet@st.com>
+In-Reply-To: <1530803657-17684-1-git-send-email-p.paillet@st.com>
 Content-Language: en-US
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
@@ -33,65 +35,55 @@ List-ID: <linux-watchdog@vger.kernel.org>
 
 From: pascal paillet <p.paillet@st.com>
 
-The goal of this patch-set is to propose a driver for the STPMU1 PMIC from=
-=20
-ST Microelectronics.=20
-The STPMU1 regulators supply power to an application processor as well as=20
-to external system peripherals such as DDR, Flash memories and system
-devices. It also features onkey button input and an hardware watchdog.
-The STPMU1 is controlled via I2C.=20
+The stpmu1 pmic is able to manage an onkey button. It can be configured
+to shut-down the power supplies on a long key-press with an adjustable
+duration.
 
-Main driver is drivers/mfd/stpmu1 that handle I2C regmap configuration and
-irqchip. stpmu1_regulator, stpmu1_onkey and stpmu1_wdt need stpmu1 mfd
-as parent.
-
-stpmu1 mfd regulator drivers maybe mandatory at boot time.
-
-*** BLURB HERE ***
-
-pascal paillet (8):
-  dt-bindings: mfd: document stpmu1 pmic
-  mfd: stpmu1: add stpmu1 pmic driver
-  dt-bindings: regulator: document stpmu1 pmic regulators
-  regulator: stpmu1: add stpmu1 regulator driver
-  dt-bindings: input: document stpmu1 pmic onkey
-  input: stpmu1: add stpmu1 onkey driver
-  dt-bindings: watchdog: document stpmu1 pmic watchdog
-  watchdog: stpmu1: add stpmu1 watchdog driver
-
- .../devicetree/bindings/input/st,stpmu1-onkey.txt  |  31 +
- .../devicetree/bindings/mfd/st,stpmu1.txt          | 138 ++++
- .../bindings/regulator/st,stpmu1-regulator.txt     |  72 ++
- .../devicetree/bindings/watchdog/st,stpmu1-wdt.txt |  11 +
- drivers/input/misc/Kconfig                         |  11 +
- drivers/input/misc/Makefile                        |   2 +
- drivers/input/misc/stpmu1_onkey.c                  | 321 +++++++
- drivers/mfd/Kconfig                                |  14 +
- drivers/mfd/Makefile                               |   1 +
- drivers/mfd/stpmu1.c                               | 490 +++++++++++
- drivers/regulator/Kconfig                          |  12 +
- drivers/regulator/Makefile                         |   2 +
- drivers/regulator/stpmu1_regulator.c               | 919 +++++++++++++++++=
+Signed-off-by: pascal paillet <p.paillet@st.com>
+---
+ .../devicetree/bindings/input/st,stpmu1-onkey.txt  | 31 ++++++++++++++++++=
 ++++
- drivers/watchdog/Kconfig                           |  12 +
- drivers/watchdog/Makefile                          |   1 +
- drivers/watchdog/stpmu1_wdt.c                      | 177 ++++
- include/dt-bindings/mfd/st,stpmu1.h                |  46 ++
- include/linux/mfd/stpmu1.h                         | 220 +++++
- 18 files changed, 2480 insertions(+)
+ 1 file changed, 31 insertions(+)
  create mode 100644 Documentation/devicetree/bindings/input/st,stpmu1-onkey=
 .txt
- create mode 100644 Documentation/devicetree/bindings/mfd/st,stpmu1.txt
- create mode 100644 Documentation/devicetree/bindings/regulator/st,stpmu1-r=
-egulator.txt
- create mode 100644 Documentation/devicetree/bindings/watchdog/st,stpmu1-wd=
-t.txt
- create mode 100644 drivers/input/misc/stpmu1_onkey.c
- create mode 100644 drivers/mfd/stpmu1.c
- create mode 100644 drivers/regulator/stpmu1_regulator.c
- create mode 100644 drivers/watchdog/stpmu1_wdt.c
- create mode 100644 include/dt-bindings/mfd/st,stpmu1.h
- create mode 100644 include/linux/mfd/stpmu1.h
 
+diff --git a/Documentation/devicetree/bindings/input/st,stpmu1-onkey.txt b/=
+Documentation/devicetree/bindings/input/st,stpmu1-onkey.txt
+new file mode 100644
+index 0000000..cc42b7f
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/st,stpmu1-onkey.txt
+@@ -0,0 +1,31 @@
++STMicroelectronics STPMU1 Onkey
++
++Required properties:
++
++- compatible =3D "st,stpmu1-onkey";
++- interrupt-parent: phandle to the parent interrupt controller
++- interrupts: interrupt line to use
++- interrupt-names =3D "onkey-falling", "onkey-rising"
++	onkey-falling: happens when onkey is pressed; IT_PONKEY_F of pmic
++	onkey-rising: happens when onkey is released; IT_PONKEY_R of pmic
++
++Optional properties:
++
++- st,onkey-pwroff-enabled: power off on long key-press
++- st,onkey-long-press-seconds: long key-press duration from 1 to 16s
++  (default 16s)
++- st,onkey-clear-cc-flag: onkey is able power on after an
++  over-current shutdown event.
++- st,onkey-pu-inactive: onkey pull up is not active
++
++Example:
++
++onkey {
++	compatible =3D "st,stpmu1-onkey";
++	interrupt-parent =3D <&pmic>;
++	interrupts =3D <7 0>,<6 1>;
++	interrupt-names =3D "onkey-falling", "onkey-rising";
++	status =3D "okay";
++	st,onkey-pwroff-enabled;
++	st,onkey-long-press-seconds =3D <10>;
++};
 --=20
 1.9.1
