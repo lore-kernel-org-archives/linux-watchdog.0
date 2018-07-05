@@ -1,62 +1,80 @@
-Return-Path: <geert.uytterhoeven@gmail.com>
-Return-path: <geert.uytterhoeven@gmail.com>
-MIME-Version: 1.0
-References: <20180706085508.30791-1-geert+renesas@glider.be> <d72596f7-e03f-26c4-742b-face854a00c9@roeck-us.net>
-In-Reply-To: <d72596f7-e03f-26c4-742b-face854a00c9@roeck-us.net>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Mon, 9 Jul 2018 08:43:33 +0200
-Message-ID: <CAMuHMdUV9kRHs9TxOEyhrWAVzDf5SBN8qiF7pysys29-_wCDbg@mail.gmail.com>
-Subject: Re: [PATCH v2] dt-bindings: watchdog: renesas-wdt: Add support for
- the R8A77990 wdt
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Geert Uytterhoeven <geert+renesas@glider.be>, Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
-	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-	"open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" <devicetree@vger.kernel.org>,
-	Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
-	Masaharu Hayakawa <masaharu.hayakawa.ry@renesas.com>
-Content-Type: text/plain; charset="UTF-8"
+Return-Path: <baofeng.tian@intel.com>
+Return-path: <baofeng.tian@intel.com>
+From: "Tian, Baofeng" <baofeng.tian@intel.com>
+To: Guenter Roeck <linux@roeck-us.net>, "wim@linux-watchdog.org"
+	<wim@linux-watchdog.org>, "linux-watchdog@vger.kernel.org"
+	<linux-watchdog@vger.kernel.org>, "linux-kernel@vger.kernel.org"
+	<linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH] watchdog: change ITCO_WDT type from tristate to bool
+Date: Thu, 5 Jul 2018 06:21:37 +0000
+Message-ID: <EEBA739CCF11FE49B73E1FB4690F5EE649E29D0E@SHSMSX101.ccr.corp.intel.com>
+References: <0038B620BAC72941BCBF48AEB892976C02CADE91@shsmsx102.ccr.corp.intel.com>
+ <EEBA739CCF11FE49B73E1FB4690F5EE649E1C084@shsmsx102.ccr.corp.intel.com>
+ <2029ee35-c1c6-86ab-8986-2d79eb5b4d8c@roeck-us.net>
+In-Reply-To: <2029ee35-c1c6-86ab-8986-2d79eb5b4d8c@roeck-us.net>
+Content-Language: en-US
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi G=C3=BCnter,
+Hi, Roeck
 
-On Mon, Jul 9, 2018 at 12:43 AM Guenter Roeck <linux@roeck-us.net> wrote:
-> On 07/06/2018 01:55 AM, Geert Uytterhoeven wrote:
-> > From: Masaharu Hayakawa <masaharu.hayakawa.ry@renesas.com>
-> >
-> > Document support for the Watchdog Timer (WDT) Controller in the Renesas
-> > R-Car E3 (R8A77990) SoC.
-> >
-> > No driver update is needed.
-> >
-> > Signed-off-by: Masaharu Hayakawa <masaharu.hayakawa.ry@renesas.com>
-> > Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-> > Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-> > Acked-by: Rob Herring <robh@kernel.org>
->
-> The patch is queued in my tree, so there should be no need to resend it a=
-nymore.
+Yes, this patch submitted more than 1 year ago in our internal tree, I just=
+ tested latest 4.18 kernel, even without this patch, there is no error.
+So I am ok to reject this patch.
 
-Thank you, I wasn't aware of that. Your last reply was "it doesn't apply",
-and the patch is not in linux-watchdog-next.git.
+Thanks
+Tim
 
-Aha, it's in your linux-staging.git#watchdog-next.
-Perhaps that should be documented in MAINTAINERS, and be included in
-linux-next, too?
+-----Original Message-----
+From: Guenter Roeck [mailto:groeck7@gmail.com] On Behalf Of Guenter Roeck
+Sent: Monday, July 2, 2018 9:17 PM
+To: Tian, Baofeng <baofeng.tian@intel.com>; wim@linux-watchdog.org; linux-w=
+atchdog@vger.kernel.org; linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] watchdog: change ITCO_WDT type from tristate to bool
 
-BTW, the git links on https://linux-watchdog.org/ give 404.
+On 07/02/2018 01:18 AM, Tian, Baofeng wrote:
+> From: "Tian, Baofeng" <baofeng.tian@intel.com=20
+> <mailto:baofeng.tian@intel.com>>
+> Subject: [PATCH] watchdog: change ITCO_WDT type from tristate to bool
+>=20
+> tristate will allow kernel config it to M and build ko file, this will=20
+> cause build allmodconfig errors as necessary symbols have not been=20
+> exported.
+> change it to bool, only allow config ITCO_WDT to yes/no.
+>=20
+> Signed-off-by: Tian, Baofeng <baofeng.tian@intel.com=20
+> <mailto:baofeng.tian@intel.com>>
 
-Gr{oetje,eeting}s,
+This works today. I don't see a point changing it, and I am wary doing so.
+There are systems where the iTCO watchdog doesn't work (I own one of those)=
+, even though it instantiates, and I am wary of force-loading it.
 
-                        Geert
+Besides, you don't explain which "necessary symbols have not been exported"=
+.
+I do not plan to spend time trying to find out what those symbols are, and =
+why this would suddenly be a problem.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k=
-.org
+Guenter
 
-In personal conversations with technical people, I call myself a hacker. Bu=
-t
-when I'm talking to journalists I just say "programmer" or something like t=
-hat.
-                                -- Linus Torvalds
+> ---
+>  =A0drivers/watchdog/Kconfig | 2 +-
+>  =A01 file changed, 1 insertion(+), 1 deletion(-)
+>=20
+> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig index=20
+> 9af07fd..f991e93 100644
+> --- a/drivers/watchdog/Kconfig
+> +++ b/drivers/watchdog/Kconfig
+> @@ -1049,7 +1049,7 @@ config INTEL_MID_WATCHDOG
+>  =A0=A0=A0=A0=A0 =A0 To compile this driver as a module, choose M here.
+>=20
+>  =A0config ITCO_WDT
+> -=A0=A0=A0=A0 tristate "Intel TCO Timer/Watchdog"
+> +=A0=A0=A0=A0 bool "Intel TCO Timer/Watchdog"
+>  =A0=A0=A0=A0=A0 depends on (X86 || IA64) && PCI
+>  =A0=A0=A0=A0=A0 select WATCHDOG_CORE
+>  =A0=A0=A0=A0=A0 depends on I2C || I2C=3Dn
+> --
+> 2.7.4
+>=20
