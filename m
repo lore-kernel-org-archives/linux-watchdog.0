@@ -1,105 +1,97 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ed1-f68.google.com ([209.85.208.68]:37106 "EHLO
-        mail-ed1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752973AbeGEDXP (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 4 Jul 2018 23:23:15 -0400
-Received: by mail-ed1-f68.google.com with SMTP id v22-v6so5265709edq.4
-        for <linux-watchdog@vger.kernel.org>; Wed, 04 Jul 2018 20:23:14 -0700 (PDT)
-From: Srinath Mannam <srinath.mannam@broadcom.com>
-To: wim@linux-watchdog.org, linux@roeck-us.net
-Cc: ray.jui@broadcom.com, vladimir.olovyannikov@broadcom.com,
-        vikram.prakash@broadcom.com, scott.branden@broadcom.com,
-        sudeep.holla@arm.com, linux-watchdog@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Srinath Mannam <srinath.mannam@broadcom.com>
-Subject: [RFC PATCH] watchdog: sp805: Add clock-frequency property
-Date: Thu,  5 Jul 2018 08:52:48 +0530
-Message-Id: <1530760968-13104-1-git-send-email-srinath.mannam@broadcom.com>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-Path: <p.paillet@st.com>
+Return-path: <p.paillet@st.com>
+From: Pascal PAILLET-LME <p.paillet@st.com>
+To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
+        "robh+dt@kernel.org" <robh+dt@kernel.org>,
+        "mark.rutland@arm.com"
+	<mark.rutland@arm.com>,
+        "lee.jones@linaro.org" <lee.jones@linaro.org>,
+        "lgirdwood@gmail.com" <lgirdwood@gmail.com>,
+        "broonie@kernel.org"
+	<broonie@kernel.org>,
+        "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
+        "linux@roeck-us.net" <linux@roeck-us.net>,
+        "linux-input@vger.kernel.org"
+	<linux-input@vger.kernel.org>,
+        "devicetree@vger.kernel.org"
+	<devicetree@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org"
+	<linux-kernel@vger.kernel.org>,
+        "linux-watchdog@vger.kernel.org"
+	<linux-watchdog@vger.kernel.org>,
+        "benjamin.gaignard@linaro.org"
+	<benjamin.gaignard@linaro.org>
+CC: Pascal PAILLET-LME <p.paillet@st.com>
+Subject: [PATCH 0/8] Introduce STPMU1 PMIC Driver
+Date: Thu, 5 Jul 2018 15:14:21 +0000
+Message-ID: <1530803657-17684-1-git-send-email-p.paillet@st.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+List-ID: <linux-watchdog@vger.kernel.org>
 
-When using ACPI node, binding clock devices are
-not available as device tree, So clock-frequency
-property given in _DSD object of ACPI device is
-used to calculate Watchdog rate.
+From: pascal paillet <p.paillet@st.com>
 
-Signed-off-by: Srinath Mannam <srinath.mannam@broadcom.com>
----
- drivers/watchdog/sp805_wdt.c | 29 ++++++++++++++++++++++++-----
- 1 file changed, 24 insertions(+), 5 deletions(-)
+The goal of this patch-set is to propose a driver for the STPMU1 PMIC from=
+=20
+ST Microelectronics.=20
+The STPMU1 regulators supply power to an application processor as well as=20
+to external system peripherals such as DDR, Flash memories and system
+devices. It also features onkey button input and an hardware watchdog.
+The STPMU1 is controlled via I2C.=20
 
-diff --git a/drivers/watchdog/sp805_wdt.c b/drivers/watchdog/sp805_wdt.c
-index 9849db0..d830dbc 100644
---- a/drivers/watchdog/sp805_wdt.c
-+++ b/drivers/watchdog/sp805_wdt.c
-@@ -22,6 +22,7 @@
- #include <linux/math64.h>
- #include <linux/module.h>
- #include <linux/moduleparam.h>
-+#include <linux/of.h>
- #include <linux/pm.h>
- #include <linux/slab.h>
- #include <linux/spinlock.h>
-@@ -65,6 +66,7 @@ struct sp805_wdt {
- 	spinlock_t			lock;
- 	void __iomem			*base;
- 	struct clk			*clk;
-+	u64				rate;
- 	struct amba_device		*adev;
- 	unsigned int			load_val;
- };
-@@ -80,7 +82,10 @@ static int wdt_setload(struct watchdog_device *wdd, unsigned int timeout)
- 	struct sp805_wdt *wdt = watchdog_get_drvdata(wdd);
- 	u64 load, rate;
- 
--	rate = clk_get_rate(wdt->clk);
-+	if (wdt->rate)
-+		rate = wdt->rate;
-+	else
-+		rate = clk_get_rate(wdt->clk);
- 
- 	/*
- 	 * sp805 runs counter with given value twice, after the end of first
-@@ -108,7 +113,10 @@ static unsigned int wdt_timeleft(struct watchdog_device *wdd)
- 	struct sp805_wdt *wdt = watchdog_get_drvdata(wdd);
- 	u64 load, rate;
- 
--	rate = clk_get_rate(wdt->clk);
-+	if (wdt->rate)
-+		rate = wdt->rate;
-+	else
-+		rate = clk_get_rate(wdt->clk);
- 
- 	spin_lock(&wdt->lock);
- 	load = readl_relaxed(wdt->base + WDTVALUE);
-@@ -230,11 +238,22 @@ sp805_wdt_probe(struct amba_device *adev, const struct amba_id *id)
- 
- 	wdt->clk = devm_clk_get(&adev->dev, NULL);
- 	if (IS_ERR(wdt->clk)) {
--		dev_warn(&adev->dev, "Clock not found\n");
--		ret = PTR_ERR(wdt->clk);
--		goto err;
-+		dev_warn(&adev->dev, "Clock device not found\n");
-+		wdt->clk = NULL;
-+		/*
-+		 * When Driver probe with ACPI device, clock devices
-+		 * are not available, so watchdog rate get from
-+		 * clock-frequency property given in _DSD object.
-+		 */
-+		device_property_read_u64(&adev->dev, "clock-frequency",
-+					 &wdt->rate);
-+		if (!wdt->rate) {
-+			ret = -ENODEV;
-+			goto err;
-+		}
- 	}
- 
-+
- 	wdt->adev = adev;
- 	wdt->wdd.info = &wdt_info;
- 	wdt->wdd.ops = &wdt_ops;
--- 
-2.7.4
+Main driver is drivers/mfd/stpmu1 that handle I2C regmap configuration and
+irqchip. stpmu1_regulator, stpmu1_onkey and stpmu1_wdt need stpmu1 mfd
+as parent.
 
+stpmu1 mfd regulator drivers maybe mandatory at boot time.
+
+*** BLURB HERE ***
+
+pascal paillet (8):
+  dt-bindings: mfd: document stpmu1 pmic
+  mfd: stpmu1: add stpmu1 pmic driver
+  dt-bindings: regulator: document stpmu1 pmic regulators
+  regulator: stpmu1: add stpmu1 regulator driver
+  dt-bindings: input: document stpmu1 pmic onkey
+  input: stpmu1: add stpmu1 onkey driver
+  dt-bindings: watchdog: document stpmu1 pmic watchdog
+  watchdog: stpmu1: add stpmu1 watchdog driver
+
+ .../devicetree/bindings/input/st,stpmu1-onkey.txt  |  31 +
+ .../devicetree/bindings/mfd/st,stpmu1.txt          | 138 ++++
+ .../bindings/regulator/st,stpmu1-regulator.txt     |  72 ++
+ .../devicetree/bindings/watchdog/st,stpmu1-wdt.txt |  11 +
+ drivers/input/misc/Kconfig                         |  11 +
+ drivers/input/misc/Makefile                        |   2 +
+ drivers/input/misc/stpmu1_onkey.c                  | 321 +++++++
+ drivers/mfd/Kconfig                                |  14 +
+ drivers/mfd/Makefile                               |   1 +
+ drivers/mfd/stpmu1.c                               | 490 +++++++++++
+ drivers/regulator/Kconfig                          |  12 +
+ drivers/regulator/Makefile                         |   2 +
+ drivers/regulator/stpmu1_regulator.c               | 919 +++++++++++++++++=
+++++
+ drivers/watchdog/Kconfig                           |  12 +
+ drivers/watchdog/Makefile                          |   1 +
+ drivers/watchdog/stpmu1_wdt.c                      | 177 ++++
+ include/dt-bindings/mfd/st,stpmu1.h                |  46 ++
+ include/linux/mfd/stpmu1.h                         | 220 +++++
+ 18 files changed, 2480 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/st,stpmu1-onkey=
+.txt
+ create mode 100644 Documentation/devicetree/bindings/mfd/st,stpmu1.txt
+ create mode 100644 Documentation/devicetree/bindings/regulator/st,stpmu1-r=
+egulator.txt
+ create mode 100644 Documentation/devicetree/bindings/watchdog/st,stpmu1-wd=
+t.txt
+ create mode 100644 drivers/input/misc/stpmu1_onkey.c
+ create mode 100644 drivers/mfd/stpmu1.c
+ create mode 100644 drivers/regulator/stpmu1_regulator.c
+ create mode 100644 drivers/watchdog/stpmu1_wdt.c
+ create mode 100644 include/dt-bindings/mfd/st,stpmu1.h
+ create mode 100644 include/linux/mfd/stpmu1.h
+
+--=20
+1.9.1
