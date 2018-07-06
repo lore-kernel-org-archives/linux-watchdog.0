@@ -1,294 +1,187 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pf0-f194.google.com ([209.85.192.194]:38627 "EHLO
-        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753831AbeGESs4 (ORCPT
+Received: from mail-oi0-f68.google.com ([209.85.218.68]:38112 "EHLO
+        mail-oi0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753643AbeGFISE (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 5 Jul 2018 14:48:56 -0400
-Subject: Re: [PATCH 8/8] watchdog: stpmu1: add stpmu1 watchdog driver
-To: Pascal PAILLET-LME <p.paillet@st.com>,
-        "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
-        "robh+dt@kernel.org" <robh+dt@kernel.org>,
-        "mark.rutland@arm.com" <mark.rutland@arm.com>,
-        "lee.jones@linaro.org" <lee.jones@linaro.org>,
-        "lgirdwood@gmail.com" <lgirdwood@gmail.com>,
-        "broonie@kernel.org" <broonie@kernel.org>,
-        "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
-        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>
-References: <1530803657-17684-1-git-send-email-p.paillet@st.com>
- <1530803657-17684-9-git-send-email-p.paillet@st.com>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <ade05366-ce30-f643-7111-f3d24378df63@roeck-us.net>
-Date: Thu, 5 Jul 2018 11:48:53 -0700
+        Fri, 6 Jul 2018 04:18:04 -0400
+Received: by mail-oi0-f68.google.com with SMTP id v8-v6so21973645oie.5
+        for <linux-watchdog@vger.kernel.org>; Fri, 06 Jul 2018 01:18:03 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <1530803657-17684-9-git-send-email-p.paillet@st.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <f29c486a-2ac8-55e7-86ed-90e3cf71bcea@roeck-us.net>
+References: <1530760968-13104-1-git-send-email-srinath.mannam@broadcom.com> <f29c486a-2ac8-55e7-86ed-90e3cf71bcea@roeck-us.net>
+From: Srinath Mannam <srinath.mannam@broadcom.com>
+Date: Fri, 6 Jul 2018 13:48:02 +0530
+Message-ID: <CABe79T7wF461QA11BNkfBdtLtX5RpTHX3-WC7z0KtEPYKfzdOQ@mail.gmail.com>
+Subject: Re: [RFC PATCH] watchdog: sp805: Add clock-frequency property
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: wim@linux-watchdog.org, Ray Jui <ray.jui@broadcom.com>,
+        Vladimir Olovyannikov <vladimir.olovyannikov@broadcom.com>,
+        Vikram Prakash <vikram.prakash@broadcom.com>,
+        Scott Branden <scott.branden@broadcom.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        linux-watchdog@vger.kernel.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 07/05/2018 08:14 AM, Pascal PAILLET-LME wrote:
-> From: pascal paillet <p.paillet@st.com>
-> 
-> The stpmu1 PMIC embeds a watchdog which is disabled by default. As soon
-> as the watchdog is started, it must be refreshed periodically otherwise
-> the PMIC goes off.
-> 
-> Signed-off-by: pascal paillet <p.paillet@st.com>
-> ---
->   drivers/watchdog/Kconfig      |  12 +++
->   drivers/watchdog/Makefile     |   1 +
->   drivers/watchdog/stpmu1_wdt.c | 177 ++++++++++++++++++++++++++++++++++++++++++
->   3 files changed, 190 insertions(+)
->   create mode 100644 drivers/watchdog/stpmu1_wdt.c
-> 
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index 9af07fd..2155f4d 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -796,6 +796,18 @@ config STM32_WATCHDOG
->   	  To compile this driver as a module, choose M here: the
->   	  module will be called stm32_iwdg.
->   
-> +config STPMU1_WATCHDOG
-> +	tristate "STPMU1 PMIC watchdog support"
-> +	depends on MFD_STPMU1
-> +	select WATCHDOG_CORE
-> +	help
-> +	  Say Y here to include watchdog support embedded into STPMU1 PMIC.
-> +	  If the watchdog timer expires, stpmu1 shut-down all its power
-> +	  supplies.
-> +
-> +	  To compile this driver as a module, choose M here: the
-> +	  module will be called spmu1_wdt.
-> +
->   config UNIPHIER_WATCHDOG
->   	tristate "UniPhier watchdog support"
->   	depends on ARCH_UNIPHIER || COMPILE_TEST
-> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-> index 1d3c6b0..c9eba94 100644
-> --- a/drivers/watchdog/Makefile
-> +++ b/drivers/watchdog/Makefile
-> @@ -216,3 +216,4 @@ obj-$(CONFIG_ZIIRAVE_WATCHDOG) += ziirave_wdt.o
->   obj-$(CONFIG_SOFT_WATCHDOG) += softdog.o
->   obj-$(CONFIG_MENF21BMC_WATCHDOG) += menf21bmc_wdt.o
->   obj-$(CONFIG_RAVE_SP_WATCHDOG) += rave-sp-wdt.o
-> +obj-$(CONFIG_STPMU1_WATCHDOG) += stpmu1_wdt.o
-> diff --git a/drivers/watchdog/stpmu1_wdt.c b/drivers/watchdog/stpmu1_wdt.c
-> new file mode 100644
-> index 0000000..57e0afa
-> --- /dev/null
-> +++ b/drivers/watchdog/stpmu1_wdt.c
-> @@ -0,0 +1,177 @@
-> +// SPDX-License-Identifier: GPL-2.0
-> +/*
-> + * Copyright (C) STMicroelectronics 2018 - All Rights Reserved
-> + * Author: Philippe Peurichard <philippe.peurichard@st.com>,
-> + * Pascal Paillet <p.paillet@st.com> for STMicroelectronics.
-> + */
-> +
-> +#include <linux/kernel.h>
-> +#include <linux/mfd/stpmu1.h>
-> +#include <linux/module.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/of.h>
-> +#include <linux/regmap.h>
-> +#include <linux/reboot.h>
-> +#include <linux/slab.h>
-> +#include <linux/watchdog.h>
-> +
-> +/* WATCHDOG CONTROL REGISTER bit */
-> +#define WDT_START		BIT(0)
-> +#define WDT_PING		BIT(1)
-> +#define WDT_START_MASK		BIT(0)
-> +#define WDT_PING_MASK		BIT(1)
-> +
-> +#define PMIC_WDT_MIN_TIMEOUT 1
-> +#define PMIC_WDT_MAX_TIMEOUT 256
-> +
-> +struct stpmu1_wdt {
-> +	struct stpmu1_dev *pmic;
-> +	struct watchdog_device wdtdev;
-> +	struct notifier_block restart_handler;
-> +};
-> +
-> +static int pmic_wdt_start(struct watchdog_device *wdd)
-> +{
-> +	struct stpmu1_wdt *wdt = watchdog_get_drvdata(wdd);
-> +
-> +	return regmap_update_bits(wdt->pmic->regmap,
-> +				  WCHDG_CR, WDT_START_MASK, WDT_START);
-> +}
-> +
-> +static int pmic_wdt_stop(struct watchdog_device *wdd)
-> +{
-> +	struct stpmu1_wdt *wdt = watchdog_get_drvdata(wdd);
-> +
-> +	return regmap_update_bits(wdt->pmic->regmap,
-> +				  WCHDG_CR, WDT_START_MASK, ~WDT_START);
-> +}
-> +
-> +static int pmic_wdt_ping(struct watchdog_device *wdd)
-> +{
-> +	struct stpmu1_wdt *wdt = watchdog_get_drvdata(wdd);
-> +	int ret;
-> +
-> +	return regmap_update_bits(wdt->pmic->regmap,
-> +				  WCHDG_CR, WDT_PING_MASK, WDT_PING);
-> +	return ret;
-> +}
-> +
-> +static int pmic_wdt_set_timeout(struct watchdog_device *wdd,
-> +				unsigned int timeout)
-> +{
-> +	struct stpmu1_wdt *wdt = watchdog_get_drvdata(wdd);
-> +	int ret;
-> +
-> +	ret = regmap_write(wdt->pmic->regmap, WCHDG_TIMER_CR, timeout);
-> +	if (ret)
-> +		dev_err(wdt->pmic->dev,
-> +			"Failed to set watchdog timeout (err = %d)\n", ret);
-> +	else
-> +		wdd->timeout = PMIC_WDT_MAX_TIMEOUT;
+Hi Guenter,
 
-First the requested timeout is set, then the caller is notified
-that the timeout was set to the maximum possible value ? That doesn't
-make sense. If that is really intentional, I would expect a detailed
-explanation, and I would expect that the value written into the chip
-register matches the value reported back to the user.
+Thank you very much for your feedback. Please find my comments.
 
-> +
-> +	return ret;
-> +}
-> +
-> +static int pmic_wdt_restart_handler(struct notifier_block *this,
-> +				    unsigned long mode, void *cmd)
-> +{
-> +	struct stpmu1_wdt *wdt = container_of(this,
-> +						   struct stpmu1_wdt,
-> +						   restart_handler);
-> +
-> +	dev_info(wdt->pmic->dev,
-> +		 "PMIC Watchdog Elapsed (timeout %d), shutdown of PMIC initiated\n",
-> +		 wdt->wdtdev.timeout);
-> +
+On Thu, Jul 5, 2018 at 8:58 PM, Guenter Roeck <linux@roeck-us.net> wrote:
+> On 07/04/2018 08:22 PM, Srinath Mannam wrote:
+>>
+>> When using ACPI node, binding clock devices are
+>> not available as device tree, So clock-frequency
+>> property given in _DSD object of ACPI device is
+>> used to calculate Watchdog rate.
+>>
+>> Signed-off-by: Srinath Mannam <srinath.mannam@broadcom.com>
+>> ---
+>>   drivers/watchdog/sp805_wdt.c | 29 ++++++++++++++++++++++++-----
+>>   1 file changed, 24 insertions(+), 5 deletions(-)
+>>
+>> diff --git a/drivers/watchdog/sp805_wdt.c b/drivers/watchdog/sp805_wdt.c
+>> index 9849db0..d830dbc 100644
+>> --- a/drivers/watchdog/sp805_wdt.c
+>> +++ b/drivers/watchdog/sp805_wdt.c
+>> @@ -22,6 +22,7 @@
+>>   #include <linux/math64.h>
+>>   #include <linux/module.h>
+>>   #include <linux/moduleparam.h>
+>> +#include <linux/of.h>
+>>   #include <linux/pm.h>
+>>   #include <linux/slab.h>
+>>   #include <linux/spinlock.h>
+>> @@ -65,6 +66,7 @@ struct sp805_wdt {
+>>         spinlock_t                      lock;
+>>         void __iomem                    *base;
+>>         struct clk                      *clk;
+>> +       u64                             rate;
+>>         struct amba_device              *adev;
+>>         unsigned int                    load_val;
+>>   };
+>> @@ -80,7 +82,10 @@ static int wdt_setload(struct watchdog_device *wdd,
+>> unsigned int timeout)
+>>         struct sp805_wdt *wdt = watchdog_get_drvdata(wdd);
+>>         u64 load, rate;
+>>   -     rate = clk_get_rate(wdt->clk);
+>> +       if (wdt->rate)
+>> +               rate = wdt->rate;
+>> +       else
+>> +               rate = clk_get_rate(wdt->clk);
+>
+>
+> No. Get the rate once during probe and store it in wdt->rate.
+clk_get_rate function was called multiple places in the driver.
+so that we thought, there may be cases where clock rate can change at run-time.
+That is the reason, I keep clk_get_rate function.
+>
+>>         /*
+>>          * sp805 runs counter with given value twice, after the end of
+>> first
+>> @@ -108,7 +113,10 @@ static unsigned int wdt_timeleft(struct
+>> watchdog_device *wdd)
+>>         struct sp805_wdt *wdt = watchdog_get_drvdata(wdd);
+>>         u64 load, rate;
+>>   -     rate = clk_get_rate(wdt->clk);
+>> +       if (wdt->rate)
+>> +               rate = wdt->rate;
+>> +       else
+>> +               rate = clk_get_rate(wdt->clk);
+>
+>
+> Same here.
+>
+>>         spin_lock(&wdt->lock);
+>>         load = readl_relaxed(wdt->base + WDTVALUE);
+>> @@ -230,11 +238,22 @@ sp805_wdt_probe(struct amba_device *adev, const
+>> struct amba_id *id)
+>>         wdt->clk = devm_clk_get(&adev->dev, NULL);
+>>         if (IS_ERR(wdt->clk)) {
+>> -               dev_warn(&adev->dev, "Clock not found\n");
+>> -               ret = PTR_ERR(wdt->clk);
+>> -               goto err;
+>> +               dev_warn(&adev->dev, "Clock device not found\n");
+>
+>
+> "Clock _device_" ? Why this change ? And why retain that warning
+> unconditionally ?
+I mean, peripheral may have clock input but clock device node is not
+available to this driver.
+So I keep the warning.
+I thought to handle this better, divide this part of code into two
+parts based on device tree and ACPI.
+But this driver implementation is independent of device tree and ACPI calls.
+To get device-tree properties watch-dog framework APIs are called ex: timeout.
+Can I add ACPI and device tree node availability check to get clock
+device and clock-frequency properties. Please advice.
+>
+>> +               wdt->clk = NULL;
+>> +               /*
+>> +                * When Driver probe with ACPI device, clock devices
+>> +                * are not available, so watchdog rate get from
+>> +                * clock-frequency property given in _DSD object.
+>> +                */
+>> +               device_property_read_u64(&adev->dev, "clock-frequency",
+>> +                                        &wdt->rate);
+>> +               if (!wdt->rate) {
+>> +                       ret = -ENODEV;
+>
+>
+> This unconditionally overrides the original error.
+I accept, I will change.
+>
+>> +                       goto err;
+>> +               }
+>>         }
+>>   +
+>
+>
+> No whitespace changes, please.
+I will remove.
+>
+> Does that mean that ACPI doesn't support the clock subsystem and that each
+> driver
+> supporting ACPI must do this ? That would be messy. Also, the above does not
+> check
+> if the device was probed through ACPI. It just tries to find an undocumented
+> "clock-frequency" property which is quite different and would apply to
+> (probably mis-configured) devicetree files as well.
+>
+> Either case, I would rather have this addressed through the clock subsystem.
+> Otherwise, someone with subject knowledge will have to confirm that this is
+> the
+> appropriate solution. If so, the new property will have to be documented as
+> an
+> alternative to clock specifiers and accepted by devicetree maintainers.
+>
+I checked with ACPI maintainers, ACPI does not support common-clock
+framework and also no plan.
+AMBA framework also request for "apb_pclk" clock node to enable pclk.
+But ACPI does not do the same.
+So in device-tree use case, both apb_pclk and wdt clock nodes are
+required properties, so passing
+clock-frequency alone can not be alternative.
+Because ACPI does not support clk node method, I came up with
+alternate fixed-clock property clock-frequency.
+clock-frequency is only specific to ACPI case, so we can't add in
+binding document.
+I will add device tree and ACPI specific check to read clock nodes and
+clock-frequency properties separately.
 
-Register a restart handler just to issue a message ? That is quite pointless.
-A restart handler is supposed to restart the system. Besides, the message
-is highly misleading; there is no reason to believe that it will be called
-after the watchdog expired.
+If you are fine with this I will send the next patch with modifications.
 
-This function should restart the system. If it doesn't, drop it.
+> Guenter
+>
+>>         wdt->adev = adev;
+>>         wdt->wdd.info = &wdt_info;
+>>         wdt->wdd.ops = &wdt_ops;
+>>
+>
+Thank you,
 
-> +	return NOTIFY_DONE;
-> +}
-> +
-> +static const struct watchdog_info pmic_watchdog_info = {
-> +	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
-> +	.identity = "STPMU1 PMIC Watchdog",
-> +};
-> +
-> +static const struct watchdog_ops pmic_watchdog_ops = {
-> +	.owner = THIS_MODULE,
-> +	.start = pmic_wdt_start,
-> +	.stop = pmic_wdt_stop,
-> +	.ping = pmic_wdt_ping,
-> +	.set_timeout = pmic_wdt_set_timeout,
-> +};
-> +
-> +static int pmic_wdt_probe(struct platform_device *pdev)
-> +{
-> +	int ret;
-> +	struct stpmu1_dev *pmic;
-> +	struct stpmu1_wdt *wdt;
-> +
-> +	if (!pdev->dev.parent)
-> +		return -EINVAL;
-> +
-> +	pmic = dev_get_drvdata(pdev->dev.parent);
-> +	if (!pmic)
-> +		return -EINVAL;
-> +
-> +	wdt = devm_kzalloc(&pdev->dev, sizeof(struct stpmu1_wdt), GFP_KERNEL);
-> +	if (!wdt)
-> +		return -ENOMEM;
-> +
-> +	wdt->pmic = pmic;
-> +
-> +	wdt->wdtdev.info = &pmic_watchdog_info;
-> +	wdt->wdtdev.ops = &pmic_watchdog_ops;
-> +	wdt->wdtdev.min_timeout = PMIC_WDT_MIN_TIMEOUT;
-> +	wdt->wdtdev.max_timeout = PMIC_WDT_MAX_TIMEOUT;
-> +	wdt->wdtdev.timeout = PMIC_WDT_MAX_TIMEOUT;
-
-256 seconds default timeout ? Unusual, just making sure that this is what you want.
-
-> +
-> +	wdt->wdtdev.status = WATCHDOG_NOWAYOUT_INIT_STATUS;
-> +
-> +	watchdog_set_drvdata(&wdt->wdtdev, wdt);
-> +	dev_set_drvdata(&pdev->dev, wdt);
-> +
-> +	ret = watchdog_register_device(&wdt->wdtdev);
-> +	if (ret)
-> +		return ret;
-> +
-> +	wdt->restart_handler.notifier_call = pmic_wdt_restart_handler;
-> +	wdt->restart_handler.priority = 128;
-> +	ret = register_restart_handler(&wdt->restart_handler);
-
-Why is the restart handler provided by the watchdog core not sufficient ?
-
-
-> +	if (ret) {
-> +		dev_err(wdt->pmic->dev, "failed to register restart handler\n");
-> +		return ret;
-> +	}
-> +
-> +	dev_dbg(wdt->pmic->dev, "PMIC Watchdog driver probed\n");
-
-The only reasons not to use the devm_ function to register the watchdog
-are the restart handler, which 1) doesn't do anything and 2) should use
-the watchdog core, and this debug message. I would suggest to use the
-devm_ function to register the watchdog instead.
-
-> +	return 0;
-> +}
-> +
-> +static int pmic_wdt_remove(struct platform_device *pdev)
-> +{
-> +	struct stpmu1_wdt *wdt = dev_get_drvdata(&pdev->dev);
-> +
-> +	unregister_restart_handler(&wdt->restart_handler);
-> +	watchdog_unregister_device(&wdt->wdtdev);
-> +
-> +	return 0;
-> +}
-> +
-> +static const struct of_device_id of_pmic_wdt_match[] = {
-> +	{ .compatible = "st,stpmu1-wdt" },
-> +	{ },
-> +};
-> +
-> +MODULE_DEVICE_TABLE(of, of_pmic_wdt_match);
-> +
-> +static struct platform_driver stpmu1_wdt_driver = {
-> +	.probe = pmic_wdt_probe,
-> +	.remove = pmic_wdt_remove,
-> +	.driver = {
-> +		.name = "stpmu1-wdt",
-> +		.of_match_table = of_pmic_wdt_match,
-> +	},
-> +};
-> +module_platform_driver(stpmu1_wdt_driver);
-> +
-> +MODULE_AUTHOR("philippe.peurichard@st.com>");
-> +MODULE_DESCRIPTION("Watchdog driver for STPMU1 device");
-> +MODULE_LICENSE("GPL");
-> 
-
+Regards,
+Srinath.
