@@ -1,105 +1,158 @@
-Return-Path: <baofeng.tian@intel.com>
-Return-path: <baofeng.tian@intel.com>
-From: "Tian, Baofeng" <baofeng.tian@intel.com>
-To: Guenter Roeck <linux@roeck-us.net>, "wim@linux-watchdog.org"
-	<wim@linux-watchdog.org>, "linux-watchdog@vger.kernel.org"
-	<linux-watchdog@vger.kernel.org>, "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH] watchdog: add module parameter "force_no_reboot" for
- iTCO
-Date: Fri, 6 Jul 2018 06:25:17 +0000
-Message-ID: <EEBA739CCF11FE49B73E1FB4690F5EE649E2A1C0@SHSMSX101.ccr.corp.intel.com>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:36219 "EHLO
+        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754328AbeGGVT6 (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Sat, 7 Jul 2018 17:19:58 -0400
+Date: Sat, 7 Jul 2018 14:19:52 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: "Tian, Baofeng" <baofeng.tian@intel.com>
+Cc: "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] watchdog: add module parameter "force_no_reboot" for iTCO
+Message-ID: <20180707211952.GA1951@roeck-us.net>
 References: <0038B620BAC72941BCBF48AEB892976C02CADE1E@shsmsx102.ccr.corp.intel.com>
  <EEBA739CCF11FE49B73E1FB4690F5EE649E1BFEB@shsmsx102.ccr.corp.intel.com>
  <140371d6-4bbb-6377-a570-5253c5f98e0e@roeck-us.net>
  <EEBA739CCF11FE49B73E1FB4690F5EE649E29D27@SHSMSX101.ccr.corp.intel.com>
  <b83a8cd9-b81e-cce3-1b34-f88d38fe414e@roeck-us.net>
-In-Reply-To: <b83a8cd9-b81e-cce3-1b34-f88d38fe414e@roeck-us.net>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+ <EEBA739CCF11FE49B73E1FB4690F5EE649E2A1C0@SHSMSX101.ccr.corp.intel.com>
 MIME-Version: 1.0
-List-ID: <linux-watchdog@vger.kernel.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <EEBA739CCF11FE49B73E1FB4690F5EE649E2A1C0@SHSMSX101.ccr.corp.intel.com>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-SGksIFJvZWNrDQoNClRoaXMgaXMgYW4gaW50ZXJmYWNlIGZyb20gYW5kcm9pZCwgd2l0aCB0aGlz
-IGludGVyZmFjZSwgYW5kcm9pZCBjYW4gYXZvaWQgcmVib290IGlmIHVzZXIgd2FudCB0byBtYWtl
-IGl0Lg0KdGhlIHdhdGNoZG9nIHVzZSBzcGFjZSBkYWVtb24geW91IG1lbnRpb25lZCBpcyBhbHdh
-eXMgdGhlcmUgaW4gYW5kcm9pZCwgYW5kIGlmIHJlbW92ZS9kaXNhYmxlIHRoaXMgZGFlbW9uIHN5
-c3RlbSB3aWxsIHJlYm9vdC4NCg0KS2VlcCB0aGlzIHNpbXBsZSBpbnRlcmZhY2UgY2FuIG1ha2Ug
-ImRpc2FibGUgcmVib290IiBlYXNpbHkuDQoNClRoYW5rcw0KVGltDQoNCg0KLS0tLS1PcmlnaW5h
-bCBNZXNzYWdlLS0tLS0NCkZyb206IEd1ZW50ZXIgUm9lY2sgW21haWx0bzpncm9lY2s3QGdtYWls
-LmNvbV0gT24gQmVoYWxmIE9mIEd1ZW50ZXIgUm9lY2sNClNlbnQ6IFRodXJzZGF5LCBKdWx5IDUs
-IDIwMTggOTowNSBQTQ0KVG86IFRpYW4sIEJhb2ZlbmcgPGJhb2ZlbmcudGlhbkBpbnRlbC5jb20+
-OyB3aW1AbGludXgtd2F0Y2hkb2cub3JnOyBsaW51eC13YXRjaGRvZ0B2Z2VyLmtlcm5lbC5vcmc7
-IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmcNClN1YmplY3Q6IFJlOiBbUEFUQ0hdIHdhdGNo
-ZG9nOiBhZGQgbW9kdWxlIHBhcmFtZXRlciAiZm9yY2Vfbm9fcmVib290IiBmb3IgaVRDTw0KDQpP
-biAwNy8wNC8yMDE4IDExOjI4IFBNLCBUaWFuLCBCYW9mZW5nIHdyb3RlOg0KPiBIaSwgUm9lY2sN
-Cj4gDQo+IFllcywgdGhpcyBwYXRjaCBpcyBmb3IgYWRkIGEgcGFyYW1ldGVyIHRvIFRDTyB0byBw
-cmV2ZW50IHJlYm9vdCBoYXBwZW4gDQo+IGlmIHlvdSBkb24ndCB3YW50IHRvIHJlYm9vdCBzeXN0
-ZW0gYW5kIHdhbnQgdG8gc3RheSBoZXJlIHRvIGNoZWNrIHNvbWUgSFcgc3RhdHVzLCBsb2dzLCBl
-dGMgZm9yIGRlYnVnIHB1cnBvc2UuDQo+IA0KPiBVbmRlciBzb21lIGFuZHJvaWQgcmVsYXRlZCBz
-dGFiaWxpdHkgdGVzdCwgZGV2ZWxvcGVyIHdhbnQgdG8gc3RheSBhdCANCj4gdGhlIGNyYXNoIGFu
-ZCB1c2UgZGVidWcgdG9vbHMoTFRCKSB0byBjaGVjayBtb3JlIGluZm9ybWF0aW9uLCB0aGlzIGlz
-IHRoZSBwdXJwb3NlIG9mIHRoaXMgcGF0Y2guDQo+IA0KVGhlIHdhdGNoZG9nIGRvZXNuJ3QgZXZl
-biBzdGFydCB3aXRoIHRoZSBtb2R1bGUgcGFyYW1ldGVyIHNldC4NCklmIHRoZSBwdXJwb3NlIGlz
-IHRvIGRpc2FibGUgdGhlIHdhdGNoZG9nLCBqdXN0IHN0b3AgaXQgYnkgY2xvc2luZyB0aGUgd2F0
-Y2hkb2cgZGFlbW9uLCBvciBkb24ndCBydW4gdGhlIHdhdGNoZG9nIGRhZW1vbiBpbiB0aGUgZmly
-c3QgcGxhY2UsIG9yIGJsYWNrbGlzdCB0aGUgbW9kdWxlLg0KDQpHdWVudGVyDQoNCj4gVGhhbmtz
-DQo+IFRpbQ0KPiANCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogR3VlbnRl
-ciBSb2VjayBbbWFpbHRvOmdyb2VjazdAZ21haWwuY29tXSBPbiBCZWhhbGYgT2YgR3VlbnRlciAN
-Cj4gUm9lY2sNCj4gU2VudDogTW9uZGF5LCBKdWx5IDIsIDIwMTggOToyMSBQTQ0KPiBUbzogVGlh
-biwgQmFvZmVuZyA8YmFvZmVuZy50aWFuQGludGVsLmNvbT47IHdpbUBsaW51eC13YXRjaGRvZy5v
-cmc7IA0KPiBsaW51eC13YXRjaGRvZ0B2Z2VyLmtlcm5lbC5vcmc7IGxpbnV4LWtlcm5lbEB2Z2Vy
-Lmtlcm5lbC5vcmcNCj4gU3ViamVjdDogUmU6IFtQQVRDSF0gd2F0Y2hkb2c6IGFkZCBtb2R1bGUg
-cGFyYW1ldGVyICJmb3JjZV9ub19yZWJvb3QiIA0KPiBmb3IgaVRDTw0KPiANCj4gT24gMDcvMDIv
-MjAxOCAxMjozMCBBTSwgVGlhbiwgQmFvZmVuZyB3cm90ZToNCj4+IEZyb206ICJUaWFuLCBCYW9m
-ZW5nIiA8YmFvZmVuZy50aWFuQGludGVsLmNvbSANCj4+IDxtYWlsdG86YmFvZmVuZy50aWFuQGlu
-dGVsLmNvbT4+DQo+PiBTdWJqZWN0OiBbUEFUQ0hdIHdhdGNoZG9nOiBhZGQgbW9kdWxlIHBhcmFt
-ZXRlciAiZm9yY2Vfbm9fcmVib290IiBmb3IgDQo+PiBpVENPDQo+Pg0KPj4gU2V0dGluZyAiZm9y
-Y2Vfbm9fcmVib290IiBwYXJhbWV0ZXIgdG8gdHJ1ZSAoeS9ZLzEpIHdpbGwgaGF2ZSB0aGUgDQo+
-PiBlZmZlY3QgdG8gcHJldmVudCB0byByZXNldCB0aGUgTk9fUkVCT09UIGZsYWcgdGh1cyBwcmV2
-ZW50aW5nIHRoZSANCj4+IGlUQ08gdG8gcmVib290IHRoZSBwbGF0Zm9ybSwgaWYgbm90IHNldCBv
-ciBzZXQgdG8gZmFsc2UsIHRoZW4gc3lzdGVtIA0KPj4gd2lsbCByZWJvb3QgYWZ0ZXIgYWJvdXQg
-MzBzLg0KPj4NCj4+IFNpZ25lZC1vZmYtYnk6IFRpYW4sIEJhb2ZlbmcgPGJhb2ZlbmcudGlhbkBp
-bnRlbC5jb20gDQo+PiA8bWFpbHRvOmJhb2ZlbmcudGlhbkBpbnRlbC5jb20+Pg0KPiANCj4gWW91
-ciBlLW1haWwgYWRkcmVzcyBpcyBtZXNzZWQgdXAuDQo+IA0KPj4gLS0tDQo+PiAgIMKgZHJpdmVy
-cy93YXRjaGRvZy9pVENPX3dkdC5jIHwgMTEgKysrKysrKysrKy0NCj4+ICAgwqAxIGZpbGUgY2hh
-bmdlZCwgMTAgaW5zZXJ0aW9ucygrKSwgMSBkZWxldGlvbigtKQ0KPj4NCj4+IGRpZmYgLS1naXQg
-YS9kcml2ZXJzL3dhdGNoZG9nL2lUQ09fd2R0LmMgDQo+PiBiL2RyaXZlcnMvd2F0Y2hkb2cvaVRD
-T193ZHQuYyBpbmRleCAzNDdmMDM4Li4yNTUzMThiIDEwMDY0NA0KPj4gLS0tIGEvZHJpdmVycy93
-YXRjaGRvZy9pVENPX3dkdC5jDQo+PiArKysgYi9kcml2ZXJzL3dhdGNoZG9nL2lUQ09fd2R0LmMN
-Cj4+IEBAIC0xMzEsNiArMTMxLDExIEBAIG1vZHVsZV9wYXJhbSh0dXJuX1NNSV93YXRjaGRvZ19j
-bGVhcl9vZmYsIGludCwgDQo+PiAwKTsNCj4+ICAgwqBNT0RVTEVfUEFSTV9ERVNDKHR1cm5fU01J
-X3dhdGNoZG9nX2NsZWFyX29mZiwNCj4+ICAgwqDCoMKgwqDCoCAiVHVybiBvZmYgU01JIGNsZWFy
-aW5nIHdhdGNoZG9nIChkZXBlbmRzIG9uIA0KPj4gVENPLXZlcnNpb24pKGRlZmF1bHQ9MSkiKTsN
-Cj4+DQo+PiArc3RhdGljIGJvb2wgZm9yY2Vfbm9fcmVib290Ow0KPj4gK21vZHVsZV9wYXJhbShm
-b3JjZV9ub19yZWJvb3QsIGJvb2wsIDApOyANCj4+ICtNT0RVTEVfUEFSTV9ERVNDKGZvcmNlX25v
-X3JlYm9vdCwNCj4+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoCAiUHJldmVudHMgdGhlIHdhdGNoZG9n
-IHJlYm9vdGluZyB0aGUgcGxhdGZvcm0gDQo+PiArKGRlZmF1bHQ9MCkiKTsNCj4+ICsNCj4+ICAg
-wqAvKg0KPj4gICDCoCAqIFNvbWUgVENPIHNwZWNpZmljIGZ1bmN0aW9ucw0KPj4gICDCoCAqLw0K
-Pj4gQEAgLTI0Myw2ICsyNDgsMTAgQEAgc3RhdGljIGludCBpVENPX3dkdF9zdGFydChzdHJ1Y3Qg
-d2F0Y2hkb2dfZGV2aWNlDQo+PiAqd2RfZGV2KQ0KPj4gICDCoMKgwqDCoMKgIHN0cnVjdCBpVENP
-X3dkdF9wcml2YXRlICpwID0gd2F0Y2hkb2dfZ2V0X2RydmRhdGEod2RfZGV2KTsNCj4+ICAgwqDC
-oMKgwqDCoCB1bnNpZ25lZCBpbnQgdmFsOw0KPj4NCj4+ICvCoMKgwqDCoCAvKiBmb3JjZV9ub19y
-ZWJvb3Qgd2lsbCBwcmV2ZW50IHRvIHVuc2V0IE5PX1JFQk9PVCBiaXQgKi8NCj4+ICvCoMKgwqDC
-oCBpZiAoZm9yY2Vfbm9fcmVib290KQ0KPj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgIHJldHVybiAt
-RUlPOw0KPj4gKw0KPiBJdCBzZWVtcyB0byBtZSB0aGF0IHRoaXMgZmxhZyBwcmV2ZW50cyB0aGUg
-d2F0Y2hkb2cgZnJvbSBiZWluZyBzdGFydGVkLCBhbmQgb24gdG9wIGl0IHdvdWxkIHJldHVybiBh
-biB1bnJlYXNvbmFibGUgZXJyb3IgKC1FSU8pLg0KPiANCj4gSSBkb24ndCBzZWUgdGhlIHBvaW50
-IG9mIHRoaXMgcGF0Y2gsIHNvcnJ5Lg0KPiANCj4gR3VlbnRlcg0KPiANCj4+ICAgwqDCoMKgwqDC
-oCBzcGluX2xvY2soJnAtPmlvX2xvY2spOw0KPj4NCj4+ICAgwqDCoMKgwqDCoCBpVENPX3ZlbmRv
-cl9wcmVfc3RhcnQocC0+c21pX3Jlcywgd2RfZGV2LT50aW1lb3V0KTsgQEAgLTI1MCw3DQo+PiAr
-MjU5LDcgQEAgc3RhdGljIGludCBpVENPX3dkdF9zdGFydChzdHJ1Y3Qgd2F0Y2hkb2dfZGV2aWNl
-ICp3ZF9kZXYpDQo+PiAgIMKgwqDCoMKgwqAgLyogZGlzYWJsZSBjaGlwc2V0J3MgTk9fUkVCT09U
-IGJpdCAqLw0KPj4gICDCoMKgwqDCoMKgIGlmIChwLT51cGRhdGVfbm9fcmVib290X2JpdChwLT5u
-b19yZWJvb3RfcHJpdiwgZmFsc2UpKSB7DQo+PiAgIMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgc3Bp
-bl91bmxvY2soJnAtPmlvX2xvY2spOw0KPj4gLcKgwqDCoMKgwqDCoMKgwqDCoMKgIHByX2Vycigi
-ZmFpbGVkIHRvIHJlc2V0IE5PX1JFQk9PVCBmbGFnLCByZWJvb3QgZGlzYWJsZWQgDQo+PiBieSBo
-YXJkd2FyZS9CSU9TXG4iKTsNCj4+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoCBwcl9lcnIoImZhaWxl
-ZCB0byByZXNldCBOT19SRUJPT1QgZmxhZywgcmVib290IGRpc2FibGVkIA0KPj4gK2J5IGhhcmR3
-YXJlL0JJT1MvcmNfY21kXG4iKTsNCj4+ICAgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCByZXR1cm4g
-LUVJTzsNCj4+ICAgwqDCoMKgwqDCoCB9DQo+Pg0KPj4gLS0NCj4+IDIuNy40DQo+Pg0KPiANCj4g
-LS0NCj4gVG8gdW5zdWJzY3JpYmUgZnJvbSB0aGlzIGxpc3Q6IHNlbmQgdGhlIGxpbmUgInVuc3Vi
-c2NyaWJlIA0KPiBsaW51eC13YXRjaGRvZyIgaW4gdGhlIGJvZHkgb2YgYSBtZXNzYWdlIHRvIG1h
-am9yZG9tb0B2Z2VyLmtlcm5lbC5vcmcgDQo+IE1vcmUgbWFqb3Jkb21vIGluZm8gYXQgIGh0dHA6
-Ly92Z2VyLmtlcm5lbC5vcmcvbWFqb3Jkb21vLWluZm8uaHRtbA0KPiANCg0K
+On Fri, Jul 06, 2018 at 06:25:17AM +0000, Tian, Baofeng wrote:
+> Hi, Roeck
+> 
+> This is an interface from android, with this interface, android can avoid reboot if user want to make it.
+> the watchdog use space daemon you mentioned is always there in android, and if remove/disable this daemon system will reboot.
+> 
+> Keep this simple interface can make "disable reboot" easily.
+> 
+
+This would be required in each watchdog driver and add messy code
+into the kernel just because Android userspace can not handle
+the situation. NACK from my side. There has to be a better solution.
+
+Guenter
+
+> Thanks
+> Tim
+> 
+> 
+> -----Original Message-----
+> From: Guenter Roeck [mailto:groeck7@gmail.com] On Behalf Of Guenter Roeck
+> Sent: Thursday, July 5, 2018 9:05 PM
+> To: Tian, Baofeng <baofeng.tian@intel.com>; wim@linux-watchdog.org; linux-watchdog@vger.kernel.org; linux-kernel@vger.kernel.org
+> Subject: Re: [PATCH] watchdog: add module parameter "force_no_reboot" for iTCO
+> 
+> On 07/04/2018 11:28 PM, Tian, Baofeng wrote:
+> > Hi, Roeck
+> > 
+> > Yes, this patch is for add a parameter to TCO to prevent reboot happen 
+> > if you don't want to reboot system and want to stay here to check some HW status, logs, etc for debug purpose.
+> > 
+> > Under some android related stability test, developer want to stay at 
+> > the crash and use debug tools(LTB) to check more information, this is the purpose of this patch.
+> > 
+> The watchdog doesn't even start with the module parameter set.
+> If the purpose is to disable the watchdog, just stop it by closing the watchdog daemon, or don't run the watchdog daemon in the first place, or blacklist the module.
+> 
+> Guenter
+> 
+> > Thanks
+> > Tim
+> > 
+> > -----Original Message-----
+> > From: Guenter Roeck [mailto:groeck7@gmail.com] On Behalf Of Guenter 
+> > Roeck
+> > Sent: Monday, July 2, 2018 9:21 PM
+> > To: Tian, Baofeng <baofeng.tian@intel.com>; wim@linux-watchdog.org; 
+> > linux-watchdog@vger.kernel.org; linux-kernel@vger.kernel.org
+> > Subject: Re: [PATCH] watchdog: add module parameter "force_no_reboot" 
+> > for iTCO
+> > 
+> > On 07/02/2018 12:30 AM, Tian, Baofeng wrote:
+> >> From: "Tian, Baofeng" <baofeng.tian@intel.com 
+> >> <mailto:baofeng.tian@intel.com>>
+> >> Subject: [PATCH] watchdog: add module parameter "force_no_reboot" for 
+> >> iTCO
+> >>
+> >> Setting "force_no_reboot" parameter to true (y/Y/1) will have the 
+> >> effect to prevent to reset the NO_REBOOT flag thus preventing the 
+> >> iTCO to reboot the platform, if not set or set to false, then system 
+> >> will reboot after about 30s.
+> >>
+> >> Signed-off-by: Tian, Baofeng <baofeng.tian@intel.com 
+> >> <mailto:baofeng.tian@intel.com>>
+> > 
+> > Your e-mail address is messed up.
+> > 
+> >> ---
+> >>    drivers/watchdog/iTCO_wdt.c | 11 ++++++++++-
+> >>    1 file changed, 10 insertions(+), 1 deletion(-)
+> >>
+> >> diff --git a/drivers/watchdog/iTCO_wdt.c 
+> >> b/drivers/watchdog/iTCO_wdt.c index 347f038..255318b 100644
+> >> --- a/drivers/watchdog/iTCO_wdt.c
+> >> +++ b/drivers/watchdog/iTCO_wdt.c
+> >> @@ -131,6 +131,11 @@ module_param(turn_SMI_watchdog_clear_off, int, 
+> >> 0);
+> >>    MODULE_PARM_DESC(turn_SMI_watchdog_clear_off,
+> >>         "Turn off SMI clearing watchdog (depends on 
+> >> TCO-version)(default=1)");
+> >>
+> >> +static bool force_no_reboot;
+> >> +module_param(force_no_reboot, bool, 0); 
+> >> +MODULE_PARM_DESC(force_no_reboot,
+> >> +           "Prevents the watchdog rebooting the platform 
+> >> +(default=0)");
+> >> +
+> >>    /*
+> >>     * Some TCO specific functions
+> >>     */
+> >> @@ -243,6 +248,10 @@ static int iTCO_wdt_start(struct watchdog_device
+> >> *wd_dev)
+> >>         struct iTCO_wdt_private *p = watchdog_get_drvdata(wd_dev);
+> >>         unsigned int val;
+> >>
+> >> +     /* force_no_reboot will prevent to unset NO_REBOOT bit */
+> >> +     if (force_no_reboot)
+> >> +           return -EIO;
+> >> +
+> > It seems to me that this flag prevents the watchdog from being started, and on top it would return an unreasonable error (-EIO).
+> > 
+> > I don't see the point of this patch, sorry.
+> > 
+> > Guenter
+> > 
+> >>         spin_lock(&p->io_lock);
+> >>
+> >>         iTCO_vendor_pre_start(p->smi_res, wd_dev->timeout); @@ -250,7
+> >> +259,7 @@ static int iTCO_wdt_start(struct watchdog_device *wd_dev)
+> >>         /* disable chipset's NO_REBOOT bit */
+> >>         if (p->update_no_reboot_bit(p->no_reboot_priv, false)) {
+> >>               spin_unlock(&p->io_lock);
+> >> -           pr_err("failed to reset NO_REBOOT flag, reboot disabled 
+> >> by hardware/BIOS\n");
+> >> +           pr_err("failed to reset NO_REBOOT flag, reboot disabled 
+> >> +by hardware/BIOS/rc_cmd\n");
+> >>               return -EIO;
+> >>         }
+> >>
+> >> --
+> >> 2.7.4
+> >>
+> > 
+> > --
+> > To unsubscribe from this list: send the line "unsubscribe 
+> > linux-watchdog" in the body of a message to majordomo@vger.kernel.org 
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > 
+> 
