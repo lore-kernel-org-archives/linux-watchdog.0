@@ -1,80 +1,173 @@
-Return-Path: <baofeng.tian@intel.com>
-Return-path: <baofeng.tian@intel.com>
+Return-Path: <SRS0=qUjc=JZ=vger.kernel.org=linux-kernel-owner@kernel.org>
 From: "Tian, Baofeng" <baofeng.tian@intel.com>
-To: Guenter Roeck <linux@roeck-us.net>, "wim@linux-watchdog.org"
-	<wim@linux-watchdog.org>, "linux-watchdog@vger.kernel.org"
-	<linux-watchdog@vger.kernel.org>, "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH] watchdog: change ITCO_WDT type from tristate to bool
-Date: Thu, 5 Jul 2018 06:21:37 +0000
-Message-ID: <EEBA739CCF11FE49B73E1FB4690F5EE649E29D0E@SHSMSX101.ccr.corp.intel.com>
-References: <0038B620BAC72941BCBF48AEB892976C02CADE91@shsmsx102.ccr.corp.intel.com>
- <EEBA739CCF11FE49B73E1FB4690F5EE649E1C084@shsmsx102.ccr.corp.intel.com>
- <2029ee35-c1c6-86ab-8986-2d79eb5b4d8c@roeck-us.net>
-In-Reply-To: <2029ee35-c1c6-86ab-8986-2d79eb5b4d8c@roeck-us.net>
+To: Guenter Roeck <linux@roeck-us.net>
+CC: "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH] watchdog: add module parameter "force_no_reboot" for
+ iTCO
+Date: Mon, 9 Jul 2018 00:49:51 +0000
+Message-ID: <EEBA739CCF11FE49B73E1FB4690F5EE649E2A6A7@SHSMSX101.ccr.corp.intel.com>
+References: <0038B620BAC72941BCBF48AEB892976C02CADE1E@shsmsx102.ccr.corp.intel.com>
+ <EEBA739CCF11FE49B73E1FB4690F5EE649E1BFEB@shsmsx102.ccr.corp.intel.com>
+ <140371d6-4bbb-6377-a570-5253c5f98e0e@roeck-us.net>
+ <EEBA739CCF11FE49B73E1FB4690F5EE649E29D27@SHSMSX101.ccr.corp.intel.com>
+ <b83a8cd9-b81e-cce3-1b34-f88d38fe414e@roeck-us.net>
+ <EEBA739CCF11FE49B73E1FB4690F5EE649E2A1C0@SHSMSX101.ccr.corp.intel.com>
+ <20180707211952.GA1951@roeck-us.net>
+In-Reply-To: <20180707211952.GA1951@roeck-us.net>
 Content-Language: en-US
 Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
 Hi, Roeck
 
-Yes, this patch submitted more than 1 year ago in our internal tree, I just=
- tested latest 4.18 kernel, even without this patch, there is no error.
-So I am ok to reject this patch.
+Thanks you spending time to review this patch, I accepted your conclusion.
 
 Thanks
 Tim
-
 -----Original Message-----
-From: Guenter Roeck [mailto:groeck7@gmail.com] On Behalf Of Guenter Roeck
-Sent: Monday, July 2, 2018 9:17 PM
-To: Tian, Baofeng <baofeng.tian@intel.com>; wim@linux-watchdog.org; linux-w=
-atchdog@vger.kernel.org; linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] watchdog: change ITCO_WDT type from tristate to bool
+From: Guenter Roeck [mailto:linux@roeck-us.net] 
+Sent: Sunday, July 8, 2018 5:20 AM
+To: Tian, Baofeng <baofeng.tian@intel.com>
+Cc: wim@linux-watchdog.org; linux-watchdog@vger.kernel.org; linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] watchdog: add module parameter "force_no_reboot" for iTCO
 
-On 07/02/2018 01:18 AM, Tian, Baofeng wrote:
-> From: "Tian, Baofeng" <baofeng.tian@intel.com=20
-> <mailto:baofeng.tian@intel.com>>
-> Subject: [PATCH] watchdog: change ITCO_WDT type from tristate to bool
->=20
-> tristate will allow kernel config it to M and build ko file, this will=20
-> cause build allmodconfig errors as necessary symbols have not been=20
-> exported.
-> change it to bool, only allow config ITCO_WDT to yes/no.
->=20
-> Signed-off-by: Tian, Baofeng <baofeng.tian@intel.com=20
-> <mailto:baofeng.tian@intel.com>>
+On Fri, Jul 06, 2018 at 06:25:17AM +0000, Tian, Baofeng wrote:
+> Hi, Roeck
+> 
+> This is an interface from android, with this interface, android can avoid reboot if user want to make it.
+> the watchdog use space daemon you mentioned is always there in android, and if remove/disable this daemon system will reboot.
+> 
+> Keep this simple interface can make "disable reboot" easily.
+> 
 
-This works today. I don't see a point changing it, and I am wary doing so.
-There are systems where the iTCO watchdog doesn't work (I own one of those)=
-, even though it instantiates, and I am wary of force-loading it.
-
-Besides, you don't explain which "necessary symbols have not been exported"=
-.
-I do not plan to spend time trying to find out what those symbols are, and =
-why this would suddenly be a problem.
+This would be required in each watchdog driver and add messy code into the kernel just because Android userspace can not handle the situation. NACK from my side. There has to be a better solution.
 
 Guenter
 
-> ---
->  =A0drivers/watchdog/Kconfig | 2 +-
->  =A01 file changed, 1 insertion(+), 1 deletion(-)
->=20
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig index=20
-> 9af07fd..f991e93 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -1049,7 +1049,7 @@ config INTEL_MID_WATCHDOG
->  =A0=A0=A0=A0=A0 =A0 To compile this driver as a module, choose M here.
->=20
->  =A0config ITCO_WDT
-> -=A0=A0=A0=A0 tristate "Intel TCO Timer/Watchdog"
-> +=A0=A0=A0=A0 bool "Intel TCO Timer/Watchdog"
->  =A0=A0=A0=A0=A0 depends on (X86 || IA64) && PCI
->  =A0=A0=A0=A0=A0 select WATCHDOG_CORE
->  =A0=A0=A0=A0=A0 depends on I2C || I2C=3Dn
-> --
-> 2.7.4
->=20
+> Thanks
+> Tim
+> 
+> 
+> -----Original Message-----
+> From: Guenter Roeck [mailto:groeck7@gmail.com] On Behalf Of Guenter 
+> Roeck
+> Sent: Thursday, July 5, 2018 9:05 PM
+> To: Tian, Baofeng <baofeng.tian@intel.com>; wim@linux-watchdog.org; 
+> linux-watchdog@vger.kernel.org; linux-kernel@vger.kernel.org
+> Subject: Re: [PATCH] watchdog: add module parameter "force_no_reboot" 
+> for iTCO
+> 
+> On 07/04/2018 11:28 PM, Tian, Baofeng wrote:
+> > Hi, Roeck
+> > 
+> > Yes, this patch is for add a parameter to TCO to prevent reboot 
+> > happen if you don't want to reboot system and want to stay here to check some HW status, logs, etc for debug purpose.
+> > 
+> > Under some android related stability test, developer want to stay at 
+> > the crash and use debug tools(LTB) to check more information, this is the purpose of this patch.
+> > 
+> The watchdog doesn't even start with the module parameter set.
+> If the purpose is to disable the watchdog, just stop it by closing the watchdog daemon, or don't run the watchdog daemon in the first place, or blacklist the module.
+> 
+> Guenter
+> 
+> > Thanks
+> > Tim
+> > 
+> > -----Original Message-----
+> > From: Guenter Roeck [mailto:groeck7@gmail.com] On Behalf Of Guenter 
+> > Roeck
+> > Sent: Monday, July 2, 2018 9:21 PM
+> > To: Tian, Baofeng <baofeng.tian@intel.com>; wim@linux-watchdog.org; 
+> > linux-watchdog@vger.kernel.org; linux-kernel@vger.kernel.org
+> > Subject: Re: [PATCH] watchdog: add module parameter "force_no_reboot" 
+> > for iTCO
+> > 
+> > On 07/02/2018 12:30 AM, Tian, Baofeng wrote:
+> >> From: "Tian, Baofeng" <baofeng.tian@intel.com 
+> >> <mailto:baofeng.tian@intel.com>>
+> >> Subject: [PATCH] watchdog: add module parameter "force_no_reboot" 
+> >> for iTCO
+> >>
+> >> Setting "force_no_reboot" parameter to true (y/Y/1) will have the 
+> >> effect to prevent to reset the NO_REBOOT flag thus preventing the 
+> >> iTCO to reboot the platform, if not set or set to false, then 
+> >> system will reboot after about 30s.
+> >>
+> >> Signed-off-by: Tian, Baofeng <baofeng.tian@intel.com 
+> >> <mailto:baofeng.tian@intel.com>>
+> > 
+> > Your e-mail address is messed up.
+> > 
+> >> ---
+> >>    drivers/watchdog/iTCO_wdt.c | 11 ++++++++++-
+> >>    1 file changed, 10 insertions(+), 1 deletion(-)
+> >>
+> >> diff --git a/drivers/watchdog/iTCO_wdt.c 
+> >> b/drivers/watchdog/iTCO_wdt.c index 347f038..255318b 100644
+> >> --- a/drivers/watchdog/iTCO_wdt.c
+> >> +++ b/drivers/watchdog/iTCO_wdt.c
+> >> @@ -131,6 +131,11 @@ module_param(turn_SMI_watchdog_clear_off, int, 
+> >> 0);
+> >>    MODULE_PARM_DESC(turn_SMI_watchdog_clear_off,
+> >>         "Turn off SMI clearing watchdog (depends on 
+> >> TCO-version)(default=1)");
+> >>
+> >> +static bool force_no_reboot;
+> >> +module_param(force_no_reboot, bool, 0); 
+> >> +MODULE_PARM_DESC(force_no_reboot,
+> >> +           "Prevents the watchdog rebooting the platform 
+> >> +(default=0)");
+> >> +
+> >>    /*
+> >>     * Some TCO specific functions
+> >>     */
+> >> @@ -243,6 +248,10 @@ static int iTCO_wdt_start(struct 
+> >> watchdog_device
+> >> *wd_dev)
+> >>         struct iTCO_wdt_private *p = watchdog_get_drvdata(wd_dev);
+> >>         unsigned int val;
+> >>
+> >> +     /* force_no_reboot will prevent to unset NO_REBOOT bit */
+> >> +     if (force_no_reboot)
+> >> +           return -EIO;
+> >> +
+> > It seems to me that this flag prevents the watchdog from being started, and on top it would return an unreasonable error (-EIO).
+> > 
+> > I don't see the point of this patch, sorry.
+> > 
+> > Guenter
+> > 
+> >>         spin_lock(&p->io_lock);
+> >>
+> >>         iTCO_vendor_pre_start(p->smi_res, wd_dev->timeout); @@ 
+> >> -250,7
+> >> +259,7 @@ static int iTCO_wdt_start(struct watchdog_device *wd_dev)
+> >>         /* disable chipset's NO_REBOOT bit */
+> >>         if (p->update_no_reboot_bit(p->no_reboot_priv, false)) {
+> >>               spin_unlock(&p->io_lock);
+> >> -           pr_err("failed to reset NO_REBOOT flag, reboot disabled 
+> >> by hardware/BIOS\n");
+> >> +           pr_err("failed to reset NO_REBOOT flag, reboot disabled 
+> >> +by hardware/BIOS/rc_cmd\n");
+> >>               return -EIO;
+> >>         }
+> >>
+> >> --
+> >> 2.7.4
+> >>
+> > 
+> > --
+> > To unsubscribe from this list: send the line "unsubscribe 
+> > linux-watchdog" in the body of a message to 
+> > majordomo@vger.kernel.org More majordomo info at  
+> > http://vger.kernel.org/majordomo-info.html
+> > 
+> 
