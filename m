@@ -1,44 +1,76 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wm0-f66.google.com ([74.125.82.66]:53996 "EHLO
-        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933105AbeGFNIN (ORCPT
+Received: from metis.ext.pengutronix.de ([85.220.165.71]:39979 "EHLO
+        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754395AbeGIIax (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 6 Jul 2018 09:08:13 -0400
-Received: by mail-wm0-f66.google.com with SMTP id b188-v6so14868111wme.3
-        for <linux-watchdog@vger.kernel.org>; Fri, 06 Jul 2018 06:08:13 -0700 (PDT)
-From: Benjamin Gaignard <benjamin.gaignard@linaro.org>
-To: wim@linux-watchdog.org, linux@roeck-us.net,
-        mcoquelin.stm32@gmail.com, alexandre.torgue@st.com
-Cc: linux-watchdog@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        Benjamin Gaignard <benjamin.gaignard@st.com>
-Subject: [PATCH] watchdog: stm32: replace "%p" with "%pK"
-Date: Fri,  6 Jul 2018 15:08:08 +0200
-Message-Id: <20180706130808.22466-1-benjamin.gaignard@st.com>
+        Mon, 9 Jul 2018 04:30:53 -0400
+Date: Mon, 9 Jul 2018 10:30:41 +0200
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+        <u.kleine-koenig@pengutronix.de>
+To: Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        kernel@pengutronix.de, NXP Linux Team <linux-imx@nxp.com>
+Subject: Re: [PATCH] rtc: stmp3xxx: Don't reset the rtc in .probe() when
+ watchdog is running
+Message-ID: <20180709083041.m3h3smfaahl4awq4@pengutronix.de>
+References: <20180609064313.18763-1-u.kleine-koenig@pengutronix.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20180609064313.18763-1-u.kleine-koenig@pengutronix.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The format specifier "%p" can leak kernel addresses.
-Use "%pK" instead.
+Hello,
 
-Signed-off-by: Benjamin Gaignard <benjamin.gaignard@st.com>
----
- drivers/watchdog/stm32_iwdg.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+On Sat, Jun 09, 2018 at 08:43:13AM +0200, Uwe Kleine-König wrote:
+> As pointed out in the added comment resetting the rtc also stops the
+> included watchdog. This is bad if the bootloader started the watchdog to
+> secure the boot process. So don't reset if the watchdog is running.
 
-diff --git a/drivers/watchdog/stm32_iwdg.c b/drivers/watchdog/stm32_iwdg.c
-index c97ad5619cb0..740f74a98644 100644
---- a/drivers/watchdog/stm32_iwdg.c
-+++ b/drivers/watchdog/stm32_iwdg.c
-@@ -172,7 +172,7 @@ static int stm32_iwdg_probe(struct platform_device *pdev)
- 
- 	ret = clk_prepare_enable(clk);
- 	if (ret) {
--		dev_err(&pdev->dev, "Unable to prepare clock %p\n", clk);
-+		dev_err(&pdev->dev, "Unable to prepare clock %pK\n", clk);
- 		return ret;
- 	}
- 
+I didn't get any feedback for this patch yet. Assuming my patch is
+considered ok, my expectation would be that the watchdog people ack it
+and that then it goes in via the rtc tree.
+
+Best regards
+Uwe
+
+> diff --git a/drivers/rtc/rtc-stmp3xxx.c b/drivers/rtc/rtc-stmp3xxx.c
+> index d578e40d5a50..b76318fd5bb0 100644
+> --- a/drivers/rtc/rtc-stmp3xxx.c
+> +++ b/drivers/rtc/rtc-stmp3xxx.c
+> @@ -288,10 +288,22 @@ static int stmp3xxx_rtc_probe(struct platform_device *pdev)
+>  
+>  	platform_set_drvdata(pdev, rtc_data);
+>  
+> -	err = stmp_reset_block(rtc_data->io);
+> -	if (err) {
+> -		dev_err(&pdev->dev, "stmp_reset_block failed: %d\n", err);
+> -		return err;
+> +	/*
+> +	 * Resetting the rtc stops the watchdog timer that is potentially
+> +	 * running. So (assuming it is running on purpose) don't reset if the
+> +	 * watchdog is enabled.
+> +	 */
+> +	if (readl(rtc_data->io + STMP3XXX_RTC_CTRL) &
+> +	    STMP3XXX_RTC_CTRL_WATCHDOGEN) {
+> +		dev_info(&pdev->dev,
+> +			 "Watchdog is running, skip resetting rtc\n");
+> +	} else {
+> +		err = stmp_reset_block(rtc_data->io);
+> +		if (err) {
+> +			dev_err(&pdev->dev, "stmp_reset_block failed: %d\n",
+> +				err);
+> +			return err;
+> +		}
+>  	}
+>  
+>  	/*
+
 -- 
-2.15.0
-
+Pengutronix e.K.                           | Uwe Kleine-König            |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
