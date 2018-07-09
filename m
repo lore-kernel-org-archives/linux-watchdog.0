@@ -1,118 +1,62 @@
-Return-Path: <srinath.mannam@broadcom.com>
-Return-path: <srinath.mannam@broadcom.com>
-From: Srinath Mannam <srinath.mannam@broadcom.com>
-To: wim@linux-watchdog.org,
-	linux@roeck-us.net
-Cc: ray.jui@broadcom.com,
-	vladimir.olovyannikov@broadcom.com,
-	vikram.prakash@broadcom.com,
-	scott.branden@broadcom.com,
-	sudeep.holla@arm.com,
-	linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Srinath Mannam <srinath.mannam@broadcom.com>
-Subject: [RFC PATCH v2] watchdog: sp805: Add clock-frequency property
-Date: Mon,  9 Jul 2018 15:49:29 +0530
-Message-Id: <1531131569-13727-1-git-send-email-srinath.mannam@broadcom.com>
+Return-Path: <geert.uytterhoeven@gmail.com>
+Return-path: <geert.uytterhoeven@gmail.com>
+MIME-Version: 1.0
+References: <20180706085508.30791-1-geert+renesas@glider.be> <d72596f7-e03f-26c4-742b-face854a00c9@roeck-us.net>
+In-Reply-To: <d72596f7-e03f-26c4-742b-face854a00c9@roeck-us.net>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Mon, 9 Jul 2018 08:43:33 +0200
+Message-ID: <CAMuHMdUV9kRHs9TxOEyhrWAVzDf5SBN8qiF7pysys29-_wCDbg@mail.gmail.com>
+Subject: Re: [PATCH v2] dt-bindings: watchdog: renesas-wdt: Add support for
+ the R8A77990 wdt
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Geert Uytterhoeven <geert+renesas@glider.be>, Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
+	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
+	"open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" <devicetree@vger.kernel.org>,
+	Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
+	Masaharu Hayakawa <masaharu.hayakawa.ry@renesas.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 List-ID: <linux-watchdog@vger.kernel.org>
 
-When using ACPI node, binding clock devices are
-not available as device tree, So clock-frequency
-property given in _DSD object of ACPI device is
-used to calculate Watchdog rate.
+Hi G=C3=BCnter,
 
-Signed-off-by: Srinath Mannam <srinath.mannam@broadcom.com>
----
- drivers/watchdog/sp805_wdt.c | 34 ++++++++++++++++++++++++++--------
- 1 file changed, 26 insertions(+), 8 deletions(-)
+On Mon, Jul 9, 2018 at 12:43 AM Guenter Roeck <linux@roeck-us.net> wrote:
+> On 07/06/2018 01:55 AM, Geert Uytterhoeven wrote:
+> > From: Masaharu Hayakawa <masaharu.hayakawa.ry@renesas.com>
+> >
+> > Document support for the Watchdog Timer (WDT) Controller in the Renesas
+> > R-Car E3 (R8A77990) SoC.
+> >
+> > No driver update is needed.
+> >
+> > Signed-off-by: Masaharu Hayakawa <masaharu.hayakawa.ry@renesas.com>
+> > Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+> > Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+> > Acked-by: Rob Herring <robh@kernel.org>
+>
+> The patch is queued in my tree, so there should be no need to resend it a=
+nymore.
 
-diff --git a/drivers/watchdog/sp805_wdt.c b/drivers/watchdog/sp805_wdt.c
-index 9849db0..ad5ed64 100644
---- a/drivers/watchdog/sp805_wdt.c
-+++ b/drivers/watchdog/sp805_wdt.c
-@@ -11,6 +11,7 @@
-  * warranty of any kind, whether express or implied.
-  */
- 
-+#include <linux/acpi.h>
- #include <linux/device.h>
- #include <linux/resource.h>
- #include <linux/amba/bus.h>
-@@ -22,6 +23,7 @@
- #include <linux/math64.h>
- #include <linux/module.h>
- #include <linux/moduleparam.h>
-+#include <linux/of.h>
- #include <linux/pm.h>
- #include <linux/slab.h>
- #include <linux/spinlock.h>
-@@ -65,6 +67,7 @@ struct sp805_wdt {
- 	spinlock_t			lock;
- 	void __iomem			*base;
- 	struct clk			*clk;
-+	u64				rate;
- 	struct amba_device		*adev;
- 	unsigned int			load_val;
- };
-@@ -80,7 +83,7 @@ static int wdt_setload(struct watchdog_device *wdd, unsigned int timeout)
- 	struct sp805_wdt *wdt = watchdog_get_drvdata(wdd);
- 	u64 load, rate;
- 
--	rate = clk_get_rate(wdt->clk);
-+	rate = wdt->rate;
- 
- 	/*
- 	 * sp805 runs counter with given value twice, after the end of first
-@@ -106,9 +109,7 @@ static int wdt_setload(struct watchdog_device *wdd, unsigned int timeout)
- static unsigned int wdt_timeleft(struct watchdog_device *wdd)
- {
- 	struct sp805_wdt *wdt = watchdog_get_drvdata(wdd);
--	u64 load, rate;
--
--	rate = clk_get_rate(wdt->clk);
-+	u64 load;
- 
- 	spin_lock(&wdt->lock);
- 	load = readl_relaxed(wdt->base + WDTVALUE);
-@@ -118,7 +119,7 @@ static unsigned int wdt_timeleft(struct watchdog_device *wdd)
- 		load += wdt->load_val + 1;
- 	spin_unlock(&wdt->lock);
- 
--	return div_u64(load, rate);
-+	return div_u64(load, wdt->rate);
- }
- 
- static int
-@@ -228,10 +229,27 @@ sp805_wdt_probe(struct amba_device *adev, const struct amba_id *id)
- 	if (IS_ERR(wdt->base))
- 		return PTR_ERR(wdt->base);
- 
--	wdt->clk = devm_clk_get(&adev->dev, NULL);
--	if (IS_ERR(wdt->clk)) {
-+	if (adev->dev.of_node) {
-+		wdt->clk = devm_clk_get(&adev->dev, NULL);
-+		if (IS_ERR(wdt->clk)) {
-+			ret = PTR_ERR(wdt->clk);
-+			wdt->clk = NULL;
-+		} else
-+			wdt->rate = clk_get_rate(wdt->clk);
-+	} else if (has_acpi_companion(&adev->dev)) {
-+		/*
-+		 * When Driver probe with ACPI device, clock devices
-+		 * are not available, so watchdog rate get from
-+		 * clock-frequency property given in _DSD object.
-+		 */
-+		device_property_read_u64(&adev->dev, "clock-frequency",
-+				&wdt->rate);
-+		if (!wdt->rate)
-+			ret = -ENODEV;
-+	}
-+
-+	if (ret) {
- 		dev_warn(&adev->dev, "Clock not found\n");
--		ret = PTR_ERR(wdt->clk);
- 		goto err;
- 	}
- 
--- 
-2.7.4
+Thank you, I wasn't aware of that. Your last reply was "it doesn't apply",
+and the patch is not in linux-watchdog-next.git.
+
+Aha, it's in your linux-staging.git#watchdog-next.
+Perhaps that should be documented in MAINTAINERS, and be included in
+linux-next, too?
+
+BTW, the git links on https://linux-watchdog.org/ give 404.
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k=
+.org
+
+In personal conversations with technical people, I call myself a hacker. Bu=
+t
+when I'm talking to journalists I just say "programmer" or something like t=
+hat.
+                                -- Linus Torvalds
