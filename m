@@ -1,56 +1,118 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:56340 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727410AbeGTMUo (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 20 Jul 2018 08:20:44 -0400
-Date: Fri, 20 Jul 2018 13:32:53 +0200
-From: Wolfram Sang <wsa@the-dreams.de>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-        Linux-Renesas <linux-renesas-soc@vger.kernel.org>
-Subject: Re: [PATCH] watchdog: renesas-wdt: Add support for the R8A77990 wdt
-Message-ID: <20180720113252.i5zkw4twpgh476jz@ninjato>
-References: <20180720111125.11551-1-wsa+renesas@sang-engineering.com>
- <CAMuHMdUbvUWLrKBT9C8t_13Ugy+2bP96h6wTSCXfENL4j3deBw@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="qd4w67ckx3n2bqfw"
-Content-Disposition: inline
-In-Reply-To: <CAMuHMdUbvUWLrKBT9C8t_13Ugy+2bP96h6wTSCXfENL4j3deBw@mail.gmail.com>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-Path: <srinath.mannam@broadcom.com>
+Return-path: <srinath.mannam@broadcom.com>
+From: Srinath Mannam <srinath.mannam@broadcom.com>
+To: wim@linux-watchdog.org,
+	linux@roeck-us.net
+Cc: ray.jui@broadcom.com,
+	vladimir.olovyannikov@broadcom.com,
+	vikram.prakash@broadcom.com,
+	scott.branden@broadcom.com,
+	sudeep.holla@arm.com,
+	linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Srinath Mannam <srinath.mannam@broadcom.com>
+Subject: [RFC PATCH v3] watchdog: sp805: Add clock-frequency property
+Date: Tue, 10 Jul 2018 14:14:39 +0530
+Message-Id: <1531212279-24953-1-git-send-email-srinath.mannam@broadcom.com>
+List-ID: <linux-watchdog@vger.kernel.org>
 
+When using ACPI node, binding clock devices are
+not available as device tree, So clock-frequency
+property given in _DSD object of ACPI device is
+used to calculate Watchdog rate.
 
---qd4w67ckx3n2bqfw
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Signed-off-by: Srinath Mannam <srinath.mannam@broadcom.com>
+---
+ drivers/watchdog/sp805_wdt.c | 35 +++++++++++++++++++++++++----------
+ 1 file changed, 25 insertions(+), 10 deletions(-)
 
-
-> linux-staging.git#watchdog-next, which is not in next.
-
-That explains. Thanks Geert for the heads up.
-
-
---qd4w67ckx3n2bqfw
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAltRyGQACgkQFA3kzBSg
-KbbFnBAAtUyxT3ma4b7vI9BZdS1496tVcVF5Dd02hBoQ7mRacjJipjdPevXBm+Mu
-bhqtUD54t62tiD3verw/sSswcAFZai5fMxXVvyNo/dPi9TtvaBZjGL9jbMrch2P0
-5rQqw9/P0wDAXrWFjSBPyw0AY7jhyOAw02CXjLxb5bG3mLFTukG9DkKkZldO/nnH
-UdSX/U1cQI0CUgHaIQwd9gFSR9EiF52mK0Z5aldZqcOb42MLnoF5WpWkEAxIAi8R
-ikoZkRR+TL61TTTdWEKvQeqKMWwAEJfGtTUCzYgoizuja0/Gpen8f3u2O1L3glWX
-FetV6Sjwz0Ix0llgHaN+KWWmZTd1vvHY5B87Ectvdqm98OkvwTq1rV4oAWpk0ujV
-dAqpq+iy84f91O9hQbWKlE8Ffqp09hOkzDKqPIbacSgax1qibVyR4J55d+TBy0CP
-6D8plEMrwlLZv5oEkXo2Leb78LEZfGq1sCkh0vdkqLF7MF99BtVQS4k4UEajSkFv
-9LXLd57Lx4QTq5LozIO0CyI7PVNAcHuJ/cpV7EvhAuWuUPC6lHOH/cPqEC+UeFmB
-d+4dL8nny/jYWUxwoize6fw22Mhx/XHViwav1Zd0hRZuVs0K7LH1GvxXB3iRWqsh
-rduhsVpqhWfbLO8ZD5ObTmfVi+moCds/vioWhxA7e3Eh8WEXDn4=
-=Ukf5
------END PGP SIGNATURE-----
-
---qd4w67ckx3n2bqfw--
+diff --git a/drivers/watchdog/sp805_wdt.c b/drivers/watchdog/sp805_wdt.c
+index 9849db0..a896b1c 100644
+--- a/drivers/watchdog/sp805_wdt.c
++++ b/drivers/watchdog/sp805_wdt.c
+@@ -11,6 +11,7 @@
+  * warranty of any kind, whether express or implied.
+  */
+ 
++#include <linux/acpi.h>
+ #include <linux/device.h>
+ #include <linux/resource.h>
+ #include <linux/amba/bus.h>
+@@ -22,6 +23,7 @@
+ #include <linux/math64.h>
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
++#include <linux/of.h>
+ #include <linux/pm.h>
+ #include <linux/slab.h>
+ #include <linux/spinlock.h>
+@@ -65,6 +67,7 @@ struct sp805_wdt {
+ 	spinlock_t			lock;
+ 	void __iomem			*base;
+ 	struct clk			*clk;
++	u64				rate;
+ 	struct amba_device		*adev;
+ 	unsigned int			load_val;
+ };
+@@ -80,7 +83,7 @@ static int wdt_setload(struct watchdog_device *wdd, unsigned int timeout)
+ 	struct sp805_wdt *wdt = watchdog_get_drvdata(wdd);
+ 	u64 load, rate;
+ 
+-	rate = clk_get_rate(wdt->clk);
++	rate = wdt->rate;
+ 
+ 	/*
+ 	 * sp805 runs counter with given value twice, after the end of first
+@@ -106,9 +109,7 @@ static int wdt_setload(struct watchdog_device *wdd, unsigned int timeout)
+ static unsigned int wdt_timeleft(struct watchdog_device *wdd)
+ {
+ 	struct sp805_wdt *wdt = watchdog_get_drvdata(wdd);
+-	u64 load, rate;
+-
+-	rate = clk_get_rate(wdt->clk);
++	u64 load;
+ 
+ 	spin_lock(&wdt->lock);
+ 	load = readl_relaxed(wdt->base + WDTVALUE);
+@@ -118,7 +119,7 @@ static unsigned int wdt_timeleft(struct watchdog_device *wdd)
+ 		load += wdt->load_val + 1;
+ 	spin_unlock(&wdt->lock);
+ 
+-	return div_u64(load, rate);
++	return div_u64(load, wdt->rate);
+ }
+ 
+ static int
+@@ -228,11 +229,25 @@ sp805_wdt_probe(struct amba_device *adev, const struct amba_id *id)
+ 	if (IS_ERR(wdt->base))
+ 		return PTR_ERR(wdt->base);
+ 
+-	wdt->clk = devm_clk_get(&adev->dev, NULL);
+-	if (IS_ERR(wdt->clk)) {
+-		dev_warn(&adev->dev, "Clock not found\n");
+-		ret = PTR_ERR(wdt->clk);
+-		goto err;
++	if (adev->dev.of_node) {
++		wdt->clk = devm_clk_get(&adev->dev, NULL);
++		if (IS_ERR(wdt->clk)) {
++			dev_err(&adev->dev, "Clock not found\n");
++			return PTR_ERR(wdt->clk);
++		}
++		wdt->rate = clk_get_rate(wdt->clk);
++	} else if (has_acpi_companion(&adev->dev)) {
++		/*
++		 * When Driver probe with ACPI device, clock devices
++		 * are not available, so watchdog rate get from
++		 * clock-frequency property given in _DSD object.
++		 */
++		device_property_read_u64(&adev->dev, "clock-frequency",
++					 &wdt->rate);
++		if (!wdt->rate) {
++			dev_err(&adev->dev, "no clock-frequency property\n");
++			return -ENODEV;
++		}
+ 	}
+ 
+ 	wdt->adev = adev;
+-- 
+2.7.4
