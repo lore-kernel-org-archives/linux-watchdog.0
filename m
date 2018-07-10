@@ -1,69 +1,182 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:40036 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751041AbeGJHnR (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 10 Jul 2018 03:43:17 -0400
-Date: Tue, 10 Jul 2018 09:43:15 +0200
-From: Wolfram Sang <wsa@the-dreams.de>
-To: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-Cc: Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        kernel@pengutronix.de, NXP Linux Team <linux-imx@nxp.com>
-Subject: Re: [PATCH] rtc: stmp3xxx: Don't reset the rtc in .probe() when
- watchdog is running
-Message-ID: <20180710074315.3h47bhxypvsulyhb@ninjato>
-References: <20180609064313.18763-1-u.kleine-koenig@pengutronix.de>
- <20180709083041.m3h3smfaahl4awq4@pengutronix.de>
- <20180709161924.GA4595@roeck-us.net>
- <20180710070643.gyxk2oc6qvo7fnk3@pengutronix.de>
+Received: from mail-oi0-f65.google.com ([209.85.218.65]:41004 "EHLO
+        mail-oi0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751061AbeGJH55 (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 10 Jul 2018 03:57:57 -0400
+Received: by mail-oi0-f65.google.com with SMTP id k12-v6so40878953oiw.8
+        for <linux-watchdog@vger.kernel.org>; Tue, 10 Jul 2018 00:57:57 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="pcbst4b22ovrdhbf"
-Content-Disposition: inline
-In-Reply-To: <20180710070643.gyxk2oc6qvo7fnk3@pengutronix.de>
+In-Reply-To: <055f7c8a-c3c9-af3a-d762-a26329270e4d@roeck-us.net>
+References: <1531131569-13727-1-git-send-email-srinath.mannam@broadcom.com> <055f7c8a-c3c9-af3a-d762-a26329270e4d@roeck-us.net>
+From: Srinath Mannam <srinath.mannam@broadcom.com>
+Date: Tue, 10 Jul 2018 13:27:55 +0530
+Message-ID: <CABe79T4qj6SaZJzTn_ZY7XfGkj_z6JJ57+WfMm3zGE7XLbT4Lg@mail.gmail.com>
+Subject: Re: [RFC PATCH v2] watchdog: sp805: Add clock-frequency property
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: wim@linux-watchdog.org, Ray Jui <ray.jui@broadcom.com>,
+        Vladimir Olovyannikov <vladimir.olovyannikov@broadcom.com>,
+        Vikram Prakash <vikram.prakash@broadcom.com>,
+        Scott Branden <scott.branden@broadcom.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        linux-watchdog@vger.kernel.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+Hi Guenter,
 
---pcbst4b22ovrdhbf
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Thank you for your feedback. Please find my answers in lined.
 
-Hi,
+On Mon, Jul 9, 2018 at 7:15 PM, Guenter Roeck <linux@roeck-us.net> wrote:
+> On 07/09/2018 03:19 AM, Srinath Mannam wrote:
+>>
+>> When using ACPI node, binding clock devices are
+>> not available as device tree, So clock-frequency
+>> property given in _DSD object of ACPI device is
+>> used to calculate Watchdog rate.
+>>
+>> Signed-off-by: Srinath Mannam <srinath.mannam@broadcom.com>
+>> ---
+>>   drivers/watchdog/sp805_wdt.c | 34 ++++++++++++++++++++++++++--------
+>>   1 file changed, 26 insertions(+), 8 deletions(-)
+>>
+>> diff --git a/drivers/watchdog/sp805_wdt.c b/drivers/watchdog/sp805_wdt.c
+>> index 9849db0..ad5ed64 100644
+>> --- a/drivers/watchdog/sp805_wdt.c
+>> +++ b/drivers/watchdog/sp805_wdt.c
+>> @@ -11,6 +11,7 @@
+>>    * warranty of any kind, whether express or implied.
+>>    */
+>>   +#include <linux/acpi.h>
+>>   #include <linux/device.h>
+>>   #include <linux/resource.h>
+>>   #include <linux/amba/bus.h>
+>> @@ -22,6 +23,7 @@
+>>   #include <linux/math64.h>
+>>   #include <linux/module.h>
+>>   #include <linux/moduleparam.h>
+>> +#include <linux/of.h>
+>>   #include <linux/pm.h>
+>>   #include <linux/slab.h>
+>>   #include <linux/spinlock.h>
+>> @@ -65,6 +67,7 @@ struct sp805_wdt {
+>>         spinlock_t                      lock;
+>>         void __iomem                    *base;
+>>         struct clk                      *clk;
+>> +       u64                             rate;
+>>         struct amba_device              *adev;
+>>         unsigned int                    load_val;
+>>   };
+>> @@ -80,7 +83,7 @@ static int wdt_setload(struct watchdog_device *wdd,
+>> unsigned int timeout)
+>>         struct sp805_wdt *wdt = watchdog_get_drvdata(wdd);
+>>         u64 load, rate;
+>>   -     rate = clk_get_rate(wdt->clk);
+>> +       rate = wdt->rate;
+>>         /*
+>>          * sp805 runs counter with given value twice, after the end of
+>> first
+>> @@ -106,9 +109,7 @@ static int wdt_setload(struct watchdog_device *wdd,
+>> unsigned int timeout)
+>>   static unsigned int wdt_timeleft(struct watchdog_device *wdd)
+>>   {
+>>         struct sp805_wdt *wdt = watchdog_get_drvdata(wdd);
+>> -       u64 load, rate;
+>> -
+>> -       rate = clk_get_rate(wdt->clk);
+>> +       u64 load;
+>>         spin_lock(&wdt->lock);
+>>         load = readl_relaxed(wdt->base + WDTVALUE);
+>> @@ -118,7 +119,7 @@ static unsigned int wdt_timeleft(struct
+>> watchdog_device *wdd)
+>>                 load += wdt->load_val + 1;
+>>         spin_unlock(&wdt->lock);
+>>   -     return div_u64(load, rate);
+>> +       return div_u64(load, wdt->rate);
+>>   }
+>>     static int
+>> @@ -228,10 +229,27 @@ sp805_wdt_probe(struct amba_device *adev, const
+>> struct amba_id *id)
+>>         if (IS_ERR(wdt->base))
+>>                 return PTR_ERR(wdt->base);
+>>   -     wdt->clk = devm_clk_get(&adev->dev, NULL);
+>> -       if (IS_ERR(wdt->clk)) {
+>> +       if (adev->dev.of_node) {
+>> +               wdt->clk = devm_clk_get(&adev->dev, NULL);
+>> +               if (IS_ERR(wdt->clk)) {
+>> +                       ret = PTR_ERR(wdt->clk);
+>> +                       wdt->clk = NULL;
+>
+>
+> Clearing wdt->clk is useless.
 
-> adding Wolfram to Cc who authored the watchdog bits in the rtc driver.
+If not, clk_prepare_enable and clk_disable_unprepare functions calls
+made in this driver will crash.
 
-Yeah, but this was really long ago. I don't recall many details. It
-could be that the only option back then was an MFD driver which seemed
-overkill to me. We have more options these days (syscon?). Maybe a merge
-makes sense as well. Do as you see fit, I don't mind.
+>
+>> +               } else
+>> +                       wdt->rate = clk_get_rate(wdt->clk);
+>
+>
+> The else branch should be in { } as well per coding style.
+I will add the change.
+>
+>> +       } else if (has_acpi_companion(&adev->dev)) {
+>> +               /*
+>> +                * When Driver probe with ACPI device, clock devices
+>> +                * are not available, so watchdog rate get from
+>> +                * clock-frequency property given in _DSD object.
+>> +                */
+>> +               device_property_read_u64(&adev->dev, "clock-frequency",
+>> +                               &wdt->rate);
+>
+>
+> Continuation line alignment is off.
+I missed it, Thank you, I will make the change.
+>
+> Still not documented. Maybe that is common for ACPI devices nowadays.
+> If so, I'll need at least a pointer to a document or something declaring
+> that ACPI devices do not use well documented properties, and a confirmation
+> that using such properties is acceptable in the Linux kernel.
+>
+patches listed below has same approach to add ACPI support.
+ex:
+1. commit 515da746983bc6382e380ba8b1ce9345a9550ffe
+Author: Naveen Kaje <nkaje@codeaurora.org>
+Date:   Tue Oct 11 10:27:56 2016 -0600
+
+    i2c: qup: add ACPI support
+
+2. commit 82a19035d000c8b4fd7d6f61b614f63dec75d389
+Author: Lendacky, Thomas <Thomas.Lendacky@amd.com>
+Date:   Fri Jan 16 12:47:16 2015 -0600
+
+    amd-xgbe: Add ACPI support
+
+>> +               if (!wdt->rate)
+>> +                       ret = -ENODEV;
+>> +       }
+>> +
+>> +       if (ret) {
+>>                 dev_warn(&adev->dev, "Clock not found\n");
+>> -               ret = PTR_ERR(wdt->clk);
+>>                 goto err;
+>>         }
+>
+>
+> Please move the error handling to where the error occurs. While doing that,
+> please change the message to dev_err() - this is an error, not a warning -
+> and change the second error message to match the error (it did not find
+> the property).
+>
+> Also, return directly - the goto just generates another error message
+> which is ridiculous.
+Thank you, I will add the changes.
+>
+> Thanks,
+> Guenter
 
 Regards,
-
-   Wolfram
-
-
---pcbst4b22ovrdhbf
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAltEY48ACgkQFA3kzBSg
-KbZ8EA//X57PXiEnZSfjG/QdsXZlIdOs7WmJPyuXha0Njdh+okyBoDFut8tlKgtS
-HVGAgHFSa/cAdycpFpj94VEzTisvVZhd8BceSixTIsdh4R2KbyOHe8DYvjeDFi92
-pDh5rHJqecsdZHTL+PB4dcKHX93dEsTMTeLgK2T+PCkXdbXg/W60Edcj5sIk8TTt
-7HtA3PaJmDFJqgscFpAfRwbihem7ojB50kvzLPyXpuF3fIgP4fYqZjPZtdZODAyX
-cq/LYURVfTtBrqRuXZ8ERWwUrt461s8AxerM3jvkMBq1X4TPhCPBhaVdHw739eLh
-AtLVDpVmkFH0nJJfJu74uvu2s7V0hg2beZnEe30NnOOJAbZbW2UXA/tUCBYkp3cK
-R1hhkZ/vYY0eFbwZ7ZKi/qjoleUKyn0+bkyGJ++ZVJuxeK7WhOeFLDcER6afYT3I
-XCOFaf4NeOv95G/RAp9B67mk68tzUBsSWlQCMRZe9m2nRxiotkHKlDM+cJYumPgE
-476roXxExRZRKd3bFwK5X97RfyWyGFB0en9CXgxfQbgN6vcS6qvPDhBCdfUDR6a8
-W/GxRIrq7QLXFxukLdZ2XFSeELaqDOad97XnJnQHZKsh7euGuUYQUeXDSkQweM0y
-OyZrqZOJx2lkvWPaim44XVBoiuRx3l4/xOFRb1GM3VeaZOUmRP4=
-=7mLt
------END PGP SIGNATURE-----
-
---pcbst4b22ovrdhbf--
+Srinath.
