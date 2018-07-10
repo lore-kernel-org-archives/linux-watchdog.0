@@ -1,96 +1,69 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from metis.ext.pengutronix.de ([85.220.165.71]:58243 "EHLO
-        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751057AbeGJHG7 (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 10 Jul 2018 03:06:59 -0400
-Date: Tue, 10 Jul 2018 09:06:43 +0200
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-        <u.kleine-koenig@pengutronix.de>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
+Received: from sauhun.de ([88.99.104.3]:40036 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751041AbeGJHnR (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 10 Jul 2018 03:43:17 -0400
+Date: Tue, 10 Jul 2018 09:43:15 +0200
+From: Wolfram Sang <wsa@the-dreams.de>
+To: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
+Cc: Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
         Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        kernel@pengutronix.de, NXP Linux Team <linux-imx@nxp.com>,
-        Wolfram Sang <wsa@the-dreams.de>
+        kernel@pengutronix.de, NXP Linux Team <linux-imx@nxp.com>
 Subject: Re: [PATCH] rtc: stmp3xxx: Don't reset the rtc in .probe() when
  watchdog is running
-Message-ID: <20180710070643.gyxk2oc6qvo7fnk3@pengutronix.de>
+Message-ID: <20180710074315.3h47bhxypvsulyhb@ninjato>
 References: <20180609064313.18763-1-u.kleine-koenig@pengutronix.de>
  <20180709083041.m3h3smfaahl4awq4@pengutronix.de>
  <20180709161924.GA4595@roeck-us.net>
+ <20180710070643.gyxk2oc6qvo7fnk3@pengutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="pcbst4b22ovrdhbf"
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20180709161924.GA4595@roeck-us.net>
+In-Reply-To: <20180710070643.gyxk2oc6qvo7fnk3@pengutronix.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hello,
 
-adding Wolfram to Cc who authored the watchdog bits in the rtc driver.
+--pcbst4b22ovrdhbf
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Mon, Jul 09, 2018 at 09:19:24AM -0700, Guenter Roeck wrote:
-> On Mon, Jul 09, 2018 at 10:30:41AM +0200, Uwe Kleine-König wrote:
-> > Hello,
-> > 
-> > On Sat, Jun 09, 2018 at 08:43:13AM +0200, Uwe Kleine-König wrote:
-> > > As pointed out in the added comment resetting the rtc also stops the
-> > > included watchdog. This is bad if the bootloader started the watchdog to
-> > > secure the boot process. So don't reset if the watchdog is running.
-> > 
-> > I didn't get any feedback for this patch yet. Assuming my patch is
-> > considered ok, my expectation would be that the watchdog people ack it
-> > and that then it goes in via the rtc tree.
-> > 
-> 
-> Guess there was a good reason for not passing an accessor via regmap ?
+Hi,
 
-I don't know the details, but maybe this concept wasn't picked because
-just passing a single function for setting the timeout was considered
-simpler. Also given that the registers for wdg and rtc are not separated
-cleanly giving the wdg driver a regmap isn't "nice" IMHO.
+> adding Wolfram to Cc who authored the watchdog bits in the rtc driver.
 
-Last time I worked on this driver I wondered if it would be cleaner to
-merge both drivers into drivers/rtc as the relevant functionality
-(stmp3xxx_wdt_set_timeout()) is in that driver anyhow and
-drivers/watchdog/stmp3xxx_rtc_wdt.c mostly contains stuff to handle the
-separation. Oh, and there is a reboot notifier that looks strange where
-I wonder if it is really needed.
+Yeah, but this was really long ago. I don't recall many details. It
+could be that the only option back then was an MFD driver which seemed
+overkill to me. We have more options these days (syscon?). Maybe a merge
+makes sense as well. Do as you see fit, I don't mind.
 
-> Either case, stmp_reset_block() is also called from resume, meaning the
-> watchdog, if running, will likely be disabled by a suspend/resume cycle.
+Regards,
 
-Yeah, that's right. The watchdog driver has the corresponding callbacks
-and restarts the timer on resume though.
+   Wolfram
 
-> I have no idea why the rtc block is reset in the first place;
-> one would assume that there was a reason for that.
 
-The usual reason is to ensure a clean hardware state. I wouldn't expect
-a deeper reason here. (And if there is one, and removing it really
-breaks something, the right way forward is to reintroduce the reset with
-an explaining comment and think about how to fix the watchdog issue I
-fixed in another way.)
+--pcbst4b22ovrdhbf
+Content-Type: application/pgp-signature; name="signature.asc"
 
-> The associated watchdog driver does not support telling the watchdog
-> core that the watchdog is running. As such, a watchdog running at boot
-> will only be handled if the watchdog daemon is started before the
-> watchdog times out. I assume this is understood and acceptable.
+-----BEGIN PGP SIGNATURE-----
 
-Yeah, that's the use case we have.
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAltEY48ACgkQFA3kzBSg
+KbZ8EA//X57PXiEnZSfjG/QdsXZlIdOs7WmJPyuXha0Njdh+okyBoDFut8tlKgtS
+HVGAgHFSa/cAdycpFpj94VEzTisvVZhd8BceSixTIsdh4R2KbyOHe8DYvjeDFi92
+pDh5rHJqecsdZHTL+PB4dcKHX93dEsTMTeLgK2T+PCkXdbXg/W60Edcj5sIk8TTt
+7HtA3PaJmDFJqgscFpAfRwbihem7ojB50kvzLPyXpuF3fIgP4fYqZjPZtdZODAyX
+cq/LYURVfTtBrqRuXZ8ERWwUrt461s8AxerM3jvkMBq1X4TPhCPBhaVdHw739eLh
+AtLVDpVmkFH0nJJfJu74uvu2s7V0hg2beZnEe30NnOOJAbZbW2UXA/tUCBYkp3cK
+R1hhkZ/vYY0eFbwZ7ZKi/qjoleUKyn0+bkyGJ++ZVJuxeK7WhOeFLDcER6afYT3I
+XCOFaf4NeOv95G/RAp9B67mk68tzUBsSWlQCMRZe9m2nRxiotkHKlDM+cJYumPgE
+476roXxExRZRKd3bFwK5X97RfyWyGFB0en9CXgxfQbgN6vcS6qvPDhBCdfUDR6a8
+W/GxRIrq7QLXFxukLdZ2XFSeELaqDOad97XnJnQHZKsh7euGuUYQUeXDSkQweM0y
+OyZrqZOJx2lkvWPaim44XVBoiuRx3l4/xOFRb1GM3VeaZOUmRP4=
+=7mLt
+-----END PGP SIGNATURE-----
 
-> Given all that, and taking no responsibility for the actual impact
-> of the changes, I can only confirm that the patch looks syntactically
-> correct.
-> 
-> Acked-by: Guenter Roeck <linux@roeck-us.net>
-
-Thanks
-Uwe
-
--- 
-Pengutronix e.K.                           | Uwe Kleine-König            |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+--pcbst4b22ovrdhbf--
