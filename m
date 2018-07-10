@@ -1,15 +1,17 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from inva021.nxp.com ([92.121.34.21]:54586 "EHLO inva021.nxp.com"
+Received: from inva021.nxp.com ([92.121.34.21]:54642 "EHLO inva021.nxp.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754260AbeGJOT2 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 10 Jul 2018 10:19:28 -0400
+        id S1754260AbeGJOT3 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 10 Jul 2018 10:19:29 -0400
 From: Fabio Estevam <fabio.estevam@nxp.com>
 To: wim@linux-watchdog.org
 Cc: linux@roeck-us.net, linux-watchdog@vger.kernel.org,
         festevam@gmail.com, Fabio Estevam <fabio.estevam@nxp.com>
-Subject: [PATCH 1/2] watchdog: imx2_wdt: Switch to SPDX identifier
-Date: Tue, 10 Jul 2018 11:20:11 -0300
-Message-Id: <1531232412-28889-1-git-send-email-fabio.estevam@nxp.com>
+Subject: [PATCH 2/2] watchdog: imx2_wdt: Switch to SPDX identifier
+Date: Tue, 10 Jul 2018 11:20:12 -0300
+Message-Id: <1531232412-28889-2-git-send-email-fabio.estevam@nxp.com>
+In-Reply-To: <1531232412-28889-1-git-send-email-fabio.estevam@nxp.com>
+References: <1531232412-28889-1-git-send-email-fabio.estevam@nxp.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
@@ -18,29 +20,28 @@ management.
 
 Signed-off-by: Fabio Estevam <fabio.estevam@nxp.com>
 ---
- drivers/watchdog/imx2_wdt.c | 5 +----
+ drivers/watchdog/stmp3xxx_rtc_wdt.c | 5 +----
  1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
-index f07850d..2b52514 100644
---- a/drivers/watchdog/imx2_wdt.c
-+++ b/drivers/watchdog/imx2_wdt.c
-@@ -1,3 +1,4 @@
+diff --git a/drivers/watchdog/stmp3xxx_rtc_wdt.c b/drivers/watchdog/stmp3xxx_rtc_wdt.c
+index d8b11eb..994c54c 100644
+--- a/drivers/watchdog/stmp3xxx_rtc_wdt.c
++++ b/drivers/watchdog/stmp3xxx_rtc_wdt.c
+@@ -1,13 +1,10 @@
 +// SPDX-License-Identifier: GPL-2.0
  /*
-  * Watchdog driver for IMX2 and later processors
+  * Watchdog driver for the RTC based watchdog in STMP3xxx and i.MX23/28
   *
-@@ -7,10 +8,6 @@
-  * some parts adapted by similar drivers from Darius Augulis and Vladimir
-  * Zapolskiy, additional improvements by Wim Van Sebroeck.
+  * Author: Wolfram Sang <kernel@pengutronix.de>
   *
+  * Copyright (C) 2011-12 Wolfram Sang, Pengutronix
+- *
 - * This program is free software; you can redistribute it and/or modify it
 - * under the terms of the GNU General Public License version 2 as published by
 - * the Free Software Foundation.
-- *
-  * NOTE: MX1 has a slightly different Watchdog than MX2 and later:
-  *
-  *			MX1:		MX2+:
+  */
+ #include <linux/kernel.h>
+ #include <linux/module.h>
 -- 
 2.7.4
 
