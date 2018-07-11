@@ -1,60 +1,52 @@
-Return-Path: <alexandre.torgue@st.com>
-Return-path: <alexandre.torgue@st.com>
-Subject: Re: [PATCH V5 0/5] add iwdg2 support for stm32mp157c
-To: Ludovic Barre <ludovic.Barre@st.com>,
-        Wim Van Sebroeck
-	<wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>, Rob Herring
-	<robh+dt@kernel.org>
-CC: Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        <linux-watchdog@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
-        <devicetree@vger.kernel.org>
-References: <1529941383-8653-1-git-send-email-ludovic.Barre@st.com>
-From: Alexandre Torgue <alexandre.torgue@st.com>
-Message-ID: <f9a5836b-f740-6fb2-85c6-f77608283cf5@st.com>
-Date: Fri, 13 Jul 2018 11:30:28 +0200
+Return-Path: <sudeep.holla@arm.com>
+Return-path: <sudeep.holla@arm.com>
+Date: Wed, 11 Jul 2018 16:30:16 +0100
+From: Sudeep Holla <sudeep.holla@arm.com>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Srinath Mannam <srinath.mannam@broadcom.com>, wim@linux-watchdog.org,
+	Ray Jui <ray.jui@broadcom.com>,
+	Vladimir Olovyannikov <vladimir.olovyannikov@broadcom.com>,
+	Vikram Prakash <vikram.prakash@broadcom.com>,
+	Scott Branden <scott.branden@broadcom.com>,
+	Sudeep Holla <sudeep.holla@arm.com>, linux-watchdog@vger.kernel.org,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC PATCH v3] watchdog: sp805: Add clock-frequency property
+Message-ID: <20180711153015.GA10578@e107155-lin>
+References: <1531212279-24953-1-git-send-email-srinath.mannam@broadcom.com>
+ <20180710213557.GC27827@roeck-us.net>
+ <CABe79T4+S2vxx8RoNkEtY7ncaKGvXVf0n_yqN81gmtHnhgqg9A@mail.gmail.com>
+ <3868f0c7-e45e-d3b4-5365-12a6a0646f6f@roeck-us.net>
 MIME-Version: 1.0
-In-Reply-To: <1529941383-8653-1-git-send-email-ludovic.Barre@st.com>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3868f0c7-e45e-d3b4-5365-12a6a0646f6f@roeck-us.net>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi Ludovic
+On Wed, Jul 11, 2018 at 06:47:49AM -0700, Guenter Roeck wrote:
+> On 07/11/2018 06:22 AM, Srinath Mannam wrote:
+> >Hi Guenter,
+> >
+> >Thank you very much for all the help with your feedback and review
+> >comments to complete the changes very fast.
+> >
+> >About the documentation..
+> >I have gone through few similar patches available in the kernel are
+> >listed in the mail of previous version.
+> >No documentation available in Linux for the properties used in those
+> >patches also.
+>
+> " No documentation available _in Linux_"
+>
+> Emphasis mine. Yes, I noticed this as well. I was asking for a reference
+> to documentation _outside_ Linux. Sorry for not being more specific.
 
-On 06/25/2018 05:42 PM, Ludovic Barre wrote:
-> From: Ludovic Barre <ludovic.barre@st.com>
-> 
-> This patch series updates stm32_iwdg driver to manage pclk
-> clock by compatible. stm32mp1 requires a pclk clock.
-> 
-> v5:
-> -update stm32f429.dtsi
-> 
-> v4:
-> -dt-bindings: split and review
-> 
-> v3:
-> -remove stm32_iwdg_config structure, just assign the
->   boolean directly to .dat
-> 
-> Ludovic Barre (5):
->    dt-bindings: watchdog: add stm32mp1 support
->    watchdog: stm32: add pclk feature for stm32mp1
->    ARM: dts: stm32: add iwdg2 support for stm32mp157c
->    ARM: dts: stm32: add iwdg2 support for stm32mp157c-ed1
->    ARM: dts: stm32: update iwdg with lsi clock name for stm32f429
-> 
->   .../devicetree/bindings/watchdog/st,stm32-iwdg.txt |  13 ++-
->   arch/arm/boot/dts/stm32f429.dtsi                   |   1 +
->   arch/arm/boot/dts/stm32mp157c-ed1.dts              |   5 +
->   arch/arm/boot/dts/stm32mp157c.dtsi                 |   8 ++
->   drivers/watchdog/stm32_iwdg.c                      | 116 +++++++++++++--------
->   5 files changed, 98 insertions(+), 45 deletions(-)
-> 
+Typically new properties needs to registered or discussed in dsd@acpica.org
+Though there's almost no activity on that list for more than a year now.
+IIRC, the thread[1] gives kind of agreement that was reached after
+elaborate discussion on _DSD properties.
 
-STM32 DT patches applied on stm32-next.
+--
+Regards,
+Sudeep
 
-Regards
-Alex
+[1] https://lists.acpica.org/pipermail/dsd/2015-December/000027.html
