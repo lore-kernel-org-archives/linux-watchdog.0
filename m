@@ -1,46 +1,48 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from szxga07-in.huawei.com ([45.249.212.35]:44378 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726575AbeGKNN3 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 11 Jul 2018 09:13:29 -0400
-From: Wei Yongjun <weiyongjun1@huawei.com>
-To: Wim Van Sebroeck <wim@iguana.be>,
+Received: from mail.bootlin.com ([62.4.15.54]:55069 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725833AbeGLJjm (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Thu, 12 Jul 2018 05:39:42 -0400
+Date: Thu, 12 Jul 2018 11:30:46 +0200
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+        <u.kleine-koenig@pengutronix.de>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>,
-        "Eric Long" <eric.long@spreadtrum.com>
-CC: Wei Yongjun <weiyongjun1@huawei.com>,
-        <linux-watchdog@vger.kernel.org>
-Subject: [PATCH -next] watchdog: sprd_wdt: Remove redundant dev_err call in sprd_wdt_probe()
-Date: Wed, 11 Jul 2018 13:17:55 +0000
-Message-ID: <1531315075-183834-1-git-send-email-weiyongjun1@huawei.com>
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
+        Alessandro Zummo <a.zummo@towertech.it>,
+        linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        kernel@pengutronix.de, NXP Linux Team <linux-imx@nxp.com>
+Subject: Re: [PATCH] rtc: stmp3xxx: Don't reset the rtc in .probe() when
+ watchdog is running
+Message-ID: <20180712093045.GB16084@piout.net>
+References: <20180609064313.18763-1-u.kleine-koenig@pengutronix.de>
+ <20180709083041.m3h3smfaahl4awq4@pengutronix.de>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20180709083041.m3h3smfaahl4awq4@pengutronix.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-There is a error message within devm_ioremap_resource
-already, so remove the dev_err call to avoid redundant
-error message.
+On 09/07/2018 10:30:41+0200, Uwe Kleine-König wrote:
+> Hello,
+> 
+> On Sat, Jun 09, 2018 at 08:43:13AM +0200, Uwe Kleine-König wrote:
+> > As pointed out in the added comment resetting the rtc also stops the
+> > included watchdog. This is bad if the bootloader started the watchdog to
+> > secure the boot process. So don't reset if the watchdog is running.
+> 
+> I didn't get any feedback for this patch yet. Assuming my patch is
+> considered ok, my expectation would be that the watchdog people ack it
+> and that then it goes in via the rtc tree.
+> 
 
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
----
- drivers/watchdog/sprd_wdt.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+I actually applied it a while ago and forgot to say so. I've included
+Guenter's ack now.
 
-diff --git a/drivers/watchdog/sprd_wdt.c b/drivers/watchdog/sprd_wdt.c
-index a8b280f..6bcfabb 100644
---- a/drivers/watchdog/sprd_wdt.c
-+++ b/drivers/watchdog/sprd_wdt.c
-@@ -277,10 +277,8 @@ static int sprd_wdt_probe(struct platform_device *pdev)
- 
- 	wdt_res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	wdt->base = devm_ioremap_resource(&pdev->dev, wdt_res);
--	if (IS_ERR(wdt->base)) {
--		dev_err(&pdev->dev, "failed to map memory resource\n");
-+	if (IS_ERR(wdt->base))
- 		return PTR_ERR(wdt->base);
--	}
- 
- 	wdt->enable = devm_clk_get(&pdev->dev, "enable");
- 	if (IS_ERR(wdt->enable)) {
 
+-- 
+Alexandre Belloni, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+https://bootlin.com
