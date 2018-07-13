@@ -1,188 +1,255 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pl0-f66.google.com ([209.85.160.66]:45820 "EHLO
-        mail-pl0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387759AbeGKNwS (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 11 Jul 2018 09:52:18 -0400
-Subject: Re: [RFC PATCH v3] watchdog: sp805: Add clock-frequency property
-To: Srinath Mannam <srinath.mannam@broadcom.com>
-Cc: wim@linux-watchdog.org, Ray Jui <ray.jui@broadcom.com>,
-        Vladimir Olovyannikov <vladimir.olovyannikov@broadcom.com>,
-        Vikram Prakash <vikram.prakash@broadcom.com>,
-        Scott Branden <scott.branden@broadcom.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        linux-watchdog@vger.kernel.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <1531212279-24953-1-git-send-email-srinath.mannam@broadcom.com>
- <20180710213557.GC27827@roeck-us.net>
- <CABe79T4+S2vxx8RoNkEtY7ncaKGvXVf0n_yqN81gmtHnhgqg9A@mail.gmail.com>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <3868f0c7-e45e-d3b4-5365-12a6a0646f6f@roeck-us.net>
-Date: Wed, 11 Jul 2018 06:47:49 -0700
-MIME-Version: 1.0
-In-Reply-To: <CABe79T4+S2vxx8RoNkEtY7ncaKGvXVf0n_yqN81gmtHnhgqg9A@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-Path: <jthumshirn@suse.de>
+Return-path: <jthumshirn@suse.de>
+From: Johannes Thumshirn <jthumshirn@suse.de>
+To: Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>
+Cc: linux-kernel@vger.kernel.org,
+	linux-watchdog@vger.kernel.org,
+	Johannes Thumshirn <jthumshirn@suse.de>
+Subject: [PATCH] watchdog: add driver for the MEN 16z069 IP-Core
+Date: Fri, 13 Jul 2018 14:58:31 +0200
+Message-Id: <20180713125831.26074-1-jthumshirn@suse.de>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 07/11/2018 06:22 AM, Srinath Mannam wrote:
-> Hi Guenter,
-> 
-> Thank you very much for all the help with your feedback and review
-> comments to complete the changes very fast.
-> 
-> About the documentation..
-> I have gone through few similar patches available in the kernel are
-> listed in the mail of previous version.
-> No documentation available in Linux for the properties used in those
-> patches also.
+Add a driver for the MEN 16z069 Watchdog and Reset Controller IP-Core.
 
-" No documentation available _in Linux_"
+Signed-off-by: Johannes Thumshirn <jthumshirn@suse.de>
+---
+ MAINTAINERS                   |   6 ++
+ drivers/watchdog/Kconfig      |  10 +++
+ drivers/watchdog/Makefile     |   1 +
+ drivers/watchdog/menz69_wdt.c | 175 ++++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 192 insertions(+)
+ create mode 100644 drivers/watchdog/menz69_wdt.c
 
-Emphasis mine. Yes, I noticed this as well. I was asking for a reference
-to documentation _outside_ Linux. Sorry for not being more specific.
-
-Guenter
-
-> For example,
-> 1: "src-clock-hz" property added in the part of ACPI support with the
-> below patch.
-> Patch details: commit 515da746983bc6382e380ba8b1ce9345a9550ffe
-> Author: Naveen Kaje <nkaje@codeaurora.org>
-> Date:   Tue Oct 11 10:27:56 2016 -0600
-> 
->      i2c: qup: add ACPI support
-> 2: "amd,dma-freq" property added in the part of ACPI support with the
-> below patch
-> commit 82a19035d000c8b4fd7d6f61b614f63dec75d389
-> Author: Lendacky, Thomas <Thomas.Lendacky@amd.com>
-> Date:   Fri Jan 16 12:47:16 2015 -0600
-> 
->      amd-xgbe: Add ACPI support
-> 
-> Regards,
-> Srinath.
-> 
-> 
-> 
-> 
-> On Wed, Jul 11, 2018 at 3:05 AM, Guenter Roeck <linux@roeck-us.net> wrote:
->> On Tue, Jul 10, 2018 at 02:14:39PM +0530, Srinath Mannam wrote:
->>> When using ACPI node, binding clock devices are
->>> not available as device tree, So clock-frequency
->>> property given in _DSD object of ACPI device is
->>> used to calculate Watchdog rate.
->>>
->>> Signed-off-by: Srinath Mannam <srinath.mannam@broadcom.com>
->>
->> I am ok with the patch itself. All that is missing now is a
->> reference to the _DSD property documentation. Is that published
->> somewhere or is it all wild-wild-west ?
->>
->> Thanks,
->> Guenter
->>
->>> ---
->>>   drivers/watchdog/sp805_wdt.c | 35 +++++++++++++++++++++++++----------
->>>   1 file changed, 25 insertions(+), 10 deletions(-)
->>>
->>> diff --git a/drivers/watchdog/sp805_wdt.c b/drivers/watchdog/sp805_wdt.c
->>> index 9849db0..a896b1c 100644
->>> --- a/drivers/watchdog/sp805_wdt.c
->>> +++ b/drivers/watchdog/sp805_wdt.c
->>> @@ -11,6 +11,7 @@
->>>    * warranty of any kind, whether express or implied.
->>>    */
->>>
->>> +#include <linux/acpi.h>
->>>   #include <linux/device.h>
->>>   #include <linux/resource.h>
->>>   #include <linux/amba/bus.h>
->>> @@ -22,6 +23,7 @@
->>>   #include <linux/math64.h>
->>>   #include <linux/module.h>
->>>   #include <linux/moduleparam.h>
->>> +#include <linux/of.h>
->>>   #include <linux/pm.h>
->>>   #include <linux/slab.h>
->>>   #include <linux/spinlock.h>
->>> @@ -65,6 +67,7 @@ struct sp805_wdt {
->>>        spinlock_t                      lock;
->>>        void __iomem                    *base;
->>>        struct clk                      *clk;
->>> +     u64                             rate;
->>>        struct amba_device              *adev;
->>>        unsigned int                    load_val;
->>>   };
->>> @@ -80,7 +83,7 @@ static int wdt_setload(struct watchdog_device *wdd, unsigned int timeout)
->>>        struct sp805_wdt *wdt = watchdog_get_drvdata(wdd);
->>>        u64 load, rate;
->>>
->>> -     rate = clk_get_rate(wdt->clk);
->>> +     rate = wdt->rate;
->>>
->>>        /*
->>>         * sp805 runs counter with given value twice, after the end of first
->>> @@ -106,9 +109,7 @@ static int wdt_setload(struct watchdog_device *wdd, unsigned int timeout)
->>>   static unsigned int wdt_timeleft(struct watchdog_device *wdd)
->>>   {
->>>        struct sp805_wdt *wdt = watchdog_get_drvdata(wdd);
->>> -     u64 load, rate;
->>> -
->>> -     rate = clk_get_rate(wdt->clk);
->>> +     u64 load;
->>>
->>>        spin_lock(&wdt->lock);
->>>        load = readl_relaxed(wdt->base + WDTVALUE);
->>> @@ -118,7 +119,7 @@ static unsigned int wdt_timeleft(struct watchdog_device *wdd)
->>>                load += wdt->load_val + 1;
->>>        spin_unlock(&wdt->lock);
->>>
->>> -     return div_u64(load, rate);
->>> +     return div_u64(load, wdt->rate);
->>>   }
->>>
->>>   static int
->>> @@ -228,11 +229,25 @@ sp805_wdt_probe(struct amba_device *adev, const struct amba_id *id)
->>>        if (IS_ERR(wdt->base))
->>>                return PTR_ERR(wdt->base);
->>>
->>> -     wdt->clk = devm_clk_get(&adev->dev, NULL);
->>> -     if (IS_ERR(wdt->clk)) {
->>> -             dev_warn(&adev->dev, "Clock not found\n");
->>> -             ret = PTR_ERR(wdt->clk);
->>> -             goto err;
->>> +     if (adev->dev.of_node) {
->>> +             wdt->clk = devm_clk_get(&adev->dev, NULL);
->>> +             if (IS_ERR(wdt->clk)) {
->>> +                     dev_err(&adev->dev, "Clock not found\n");
->>> +                     return PTR_ERR(wdt->clk);
->>> +             }
->>> +             wdt->rate = clk_get_rate(wdt->clk);
->>> +     } else if (has_acpi_companion(&adev->dev)) {
->>> +             /*
->>> +              * When Driver probe with ACPI device, clock devices
->>> +              * are not available, so watchdog rate get from
->>> +              * clock-frequency property given in _DSD object.
->>> +              */
->>> +             device_property_read_u64(&adev->dev, "clock-frequency",
->>> +                                      &wdt->rate);
->>> +             if (!wdt->rate) {
->>> +                     dev_err(&adev->dev, "no clock-frequency property\n");
->>> +                     return -ENODEV;
->>> +             }
->>>        }
->>>
->>>        wdt->adev = adev;
->>> --
->>> 2.7.4
->>>
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
-
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 07d1576fc766..67a76f740294 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -9298,6 +9298,12 @@ F:	drivers/leds/leds-menf21bmc.c
+ F:	drivers/hwmon/menf21bmc_hwmon.c
+ F:	Documentation/hwmon/menf21bmc
+ 
++MEN Z069 WATCHDOG DRIVER
++M:	Johannes Thumshirn <jth@kernel.org>
++L:	linux-watchdog@vger.kernel.org
++S:	Maintained
++F:	drivers/watchdog/menz069_wdt.c
++
+ MESON AO CEC DRIVER FOR AMLOGIC SOCS
+ M:	Neil Armstrong <narmstrong@baylibre.com>
+ L:	linux-media@lists.freedesktop.org
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 9af07fd92763..df55d65bbb1c 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -161,6 +161,16 @@ config MENF21BMC_WATCHDOG
+ 	  This driver can also be built as a module. If so the module
+ 	  will be called menf21bmc_wdt.
+ 
++config MENZ069_WATCHDOG
++	tristate "MEN 16Z069 Watchdog"
++	depends on MCB || COMPILE_TEST
++	select WATCHDOG_CORE
++	help
++	  Say Y here to include support for the MEN 16Z069 Watchdog.
++
++	  This driver can also be built as a module. If so the module
++	  will be called menz069_wdt.
++
+ config TANGOX_WATCHDOG
+ 	tristate "Sigma Designs SMP86xx/SMP87xx watchdog"
+ 	select WATCHDOG_CORE
+diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+index 1d3c6b094fe5..bf92e7bf9ce0 100644
+--- a/drivers/watchdog/Makefile
++++ b/drivers/watchdog/Makefile
+@@ -215,4 +215,5 @@ obj-$(CONFIG_MAX77620_WATCHDOG) += max77620_wdt.o
+ obj-$(CONFIG_ZIIRAVE_WATCHDOG) += ziirave_wdt.o
+ obj-$(CONFIG_SOFT_WATCHDOG) += softdog.o
+ obj-$(CONFIG_MENF21BMC_WATCHDOG) += menf21bmc_wdt.o
++obj-$(CONFIG_MENZ069_WATCHDOG) += menz69_wdt.o
+ obj-$(CONFIG_RAVE_SP_WATCHDOG) += rave-sp-wdt.o
+diff --git a/drivers/watchdog/menz69_wdt.c b/drivers/watchdog/menz69_wdt.c
+new file mode 100644
+index 000000000000..9dccd8aabdb9
+--- /dev/null
++++ b/drivers/watchdog/menz69_wdt.c
+@@ -0,0 +1,175 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Watchdog driver for the MEN z069 IP-Core
++ *
++ * Copyright (C) 2018 Johannes Thumshirn <jth@kernel.org>
++ */
++#include <linux/module.h>
++#include <linux/kernel.h>
++#include <linux/mcb.h>
++#include <linux/watchdog.h>
++#include <linux/io.h>
++
++struct men_z069_drv {
++	struct watchdog_device wdt;
++	void __iomem *base;
++	struct resource *mem;
++};
++
++#define MEN_Z069_WTR 0x10
++#define MEN_Z069_WTR_WDEN BIT(15)
++#define MEN_Z069_WTR_WDET_MASK	0x7fff
++#define MEN_Z069_WVR 0x14
++
++#define MEN_Z069_TIMER_FREQ 500 /* 500 Hz */
++#define MEN_Z069_WDT_COUNTER_MIN 1
++#define MEN_Z069_WDT_COUNTER_MAX 0x7fff
++
++static bool nowayout = WATCHDOG_NOWAYOUT;
++module_param(nowayout, bool, 0);
++MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
++			    __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
++
++static int men_z069_wdt_start(struct watchdog_device *wdt)
++{
++	struct men_z069_drv *drv = watchdog_get_drvdata(wdt);
++	u16 val;
++
++	val = readw(drv->base + MEN_Z069_WTR);
++	val |= MEN_Z069_WTR_WDEN;
++	writew(val, drv->base + MEN_Z069_WTR);
++
++	return 0;
++}
++
++static int men_z069_wdt_stop(struct watchdog_device *wdt)
++{
++	struct men_z069_drv *drv = watchdog_get_drvdata(wdt);
++	u16 val;
++
++	val = readw(drv->base + MEN_Z069_WTR);
++	val &= ~MEN_Z069_WTR_WDEN;
++	writew(val, drv->base + MEN_Z069_WTR);
++
++	return 0;
++}
++
++static int men_z069_wdt_ping(struct watchdog_device *wdt)
++{
++	struct men_z069_drv *drv = watchdog_get_drvdata(wdt);
++	u16 val;
++
++	/* The watchdog trigger value toggles between 0x5555 and 0xaaaa */
++	val = readw(drv->base + MEN_Z069_WVR);
++	val ^= 0xffff;
++	writew(val, drv->base + MEN_Z069_WVR);
++
++	return 0;
++}
++
++static int men_z069_wdt_set_timeout(struct watchdog_device *wdt,
++				    unsigned int timeout)
++{
++	struct men_z069_drv *drv = watchdog_get_drvdata(wdt);
++	u16 reg, val, ena;
++
++	wdt->timeout = timeout;
++	val = timeout * MEN_Z069_TIMER_FREQ;
++
++	if (val < MEN_Z069_WDT_COUNTER_MIN || val > MEN_Z069_WDT_COUNTER_MAX)
++		return -EINVAL;
++
++	reg = readw(drv->base + MEN_Z069_WVR);
++	ena = reg & MEN_Z069_WTR_WDEN;
++	reg = ena | (val & MEN_Z069_WTR_WDET_MASK);
++	writew(reg, drv->base + MEN_Z069_WTR);
++
++	return 0;
++}
++
++static const struct watchdog_info men_z069_info = {
++	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
++	.identity = "MEN z069 Watchdog",
++};
++
++static const struct watchdog_ops men_z069_ops = {
++	.owner = THIS_MODULE,
++	.start = men_z069_wdt_start,
++	.stop = men_z069_wdt_stop,
++	.ping = men_z069_wdt_ping,
++	.set_timeout = men_z069_wdt_set_timeout,
++};
++
++static struct watchdog_device men_z069_wdt = {
++	.info = &men_z069_info,
++	.ops = &men_z069_ops,
++	.min_timeout = 1,
++	.max_timeout = 65,
++};
++
++static int men_z069_probe(struct mcb_device *dev,
++			  const struct mcb_device_id *id)
++{
++	struct men_z069_drv *drv;
++	struct resource *mem;
++
++	drv = devm_kzalloc(&dev->dev, sizeof(struct men_z069_drv), GFP_KERNEL);
++	if (!drv)
++		return -ENOMEM;
++
++	mem = mcb_request_mem(dev, "z069-wdt");
++	if (IS_ERR(mem))
++		return PTR_ERR(mem);
++
++	drv->base = devm_ioremap(&dev->dev, mem->start, resource_size(mem));
++	if (drv->base == NULL)
++		goto release_mem;
++
++	drv->mem = mem;
++
++	watchdog_init_timeout(&men_z069_wdt, 30, &dev->dev);
++	watchdog_set_nowayout(&men_z069_wdt, nowayout);
++	watchdog_set_drvdata(&men_z069_wdt, drv);
++	men_z069_wdt.parent = &dev->dev;
++	drv->wdt = men_z069_wdt;
++	mcb_set_drvdata(dev, drv);
++
++	/* Set initial timeout to 65.5s and disable the watchdog */
++	writew(MEN_Z069_WDT_COUNTER_MAX, drv->base + MEN_Z069_WTR);
++
++	return watchdog_register_device(&men_z069_wdt);
++
++release_mem:
++	mcb_release_mem(mem);
++	return -ENXIO;
++}
++
++static void men_z069_remove(struct mcb_device *dev)
++{
++	struct men_z069_drv *drv = mcb_get_drvdata(dev);
++
++	watchdog_unregister_device(&drv->wdt);
++	mcb_release_mem(drv->mem);
++}
++
++static const struct mcb_device_id men_z069_ids[] = {
++	{ .device = 0x45 },
++	{ }
++};
++MODULE_DEVICE_TABLE(mcb, men_z069_ids);
++
++static struct mcb_driver men_z069_driver = {
++	.driver = {
++		.name = "z069-wdt",
++		.owner = THIS_MODULE,
++	},
++	.probe = men_z069_probe,
++	.remove = men_z069_remove,
++	.id_table = men_z069_ids,
++};
++module_mcb_driver(men_z069_driver);
++
++
++MODULE_AUTHOR("Johannes Thumshirn <jth@kernel.org>");
++MODULE_LICENSE("GPL v2");
++MODULE_ALIAS("mcb:16z069");
+-- 
+2.16.4
