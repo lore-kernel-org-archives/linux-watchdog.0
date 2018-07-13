@@ -1,255 +1,60 @@
-Return-Path: <jthumshirn@suse.de>
-Return-path: <jthumshirn@suse.de>
-From: Johannes Thumshirn <jthumshirn@suse.de>
-To: Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Guenter Roeck <linux@roeck-us.net>
-Cc: linux-kernel@vger.kernel.org,
-	linux-watchdog@vger.kernel.org,
-	Johannes Thumshirn <jthumshirn@suse.de>
-Subject: [PATCH] watchdog: add driver for the MEN 16z069 IP-Core
-Date: Fri, 13 Jul 2018 14:58:31 +0200
-Message-Id: <20180713125831.26074-1-jthumshirn@suse.de>
+Return-Path: <alexandre.torgue@st.com>
+Return-path: <alexandre.torgue@st.com>
+Subject: Re: [PATCH V5 0/5] add iwdg2 support for stm32mp157c
+To: Ludovic Barre <ludovic.Barre@st.com>,
+        Wim Van Sebroeck
+	<wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>, Rob Herring
+	<robh+dt@kernel.org>
+CC: Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        <linux-watchdog@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
+        <devicetree@vger.kernel.org>
+References: <1529941383-8653-1-git-send-email-ludovic.Barre@st.com>
+From: Alexandre Torgue <alexandre.torgue@st.com>
+Message-ID: <f9a5836b-f740-6fb2-85c6-f77608283cf5@st.com>
+Date: Fri, 13 Jul 2018 11:30:28 +0200
+MIME-Version: 1.0
+In-Reply-To: <1529941383-8653-1-git-send-email-ludovic.Barre@st.com>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Add a driver for the MEN 16z069 Watchdog and Reset Controller IP-Core.
+Hi Ludovic
 
-Signed-off-by: Johannes Thumshirn <jthumshirn@suse.de>
----
- MAINTAINERS                   |   6 ++
- drivers/watchdog/Kconfig      |  10 +++
- drivers/watchdog/Makefile     |   1 +
- drivers/watchdog/menz69_wdt.c | 175 ++++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 192 insertions(+)
- create mode 100644 drivers/watchdog/menz69_wdt.c
+On 06/25/2018 05:42 PM, Ludovic Barre wrote:
+> From: Ludovic Barre <ludovic.barre@st.com>
+> 
+> This patch series updates stm32_iwdg driver to manage pclk
+> clock by compatible. stm32mp1 requires a pclk clock.
+> 
+> v5:
+> -update stm32f429.dtsi
+> 
+> v4:
+> -dt-bindings: split and review
+> 
+> v3:
+> -remove stm32_iwdg_config structure, just assign the
+>   boolean directly to .dat
+> 
+> Ludovic Barre (5):
+>    dt-bindings: watchdog: add stm32mp1 support
+>    watchdog: stm32: add pclk feature for stm32mp1
+>    ARM: dts: stm32: add iwdg2 support for stm32mp157c
+>    ARM: dts: stm32: add iwdg2 support for stm32mp157c-ed1
+>    ARM: dts: stm32: update iwdg with lsi clock name for stm32f429
+> 
+>   .../devicetree/bindings/watchdog/st,stm32-iwdg.txt |  13 ++-
+>   arch/arm/boot/dts/stm32f429.dtsi                   |   1 +
+>   arch/arm/boot/dts/stm32mp157c-ed1.dts              |   5 +
+>   arch/arm/boot/dts/stm32mp157c.dtsi                 |   8 ++
+>   drivers/watchdog/stm32_iwdg.c                      | 116 +++++++++++++--------
+>   5 files changed, 98 insertions(+), 45 deletions(-)
+> 
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 07d1576fc766..67a76f740294 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -9298,6 +9298,12 @@ F:	drivers/leds/leds-menf21bmc.c
- F:	drivers/hwmon/menf21bmc_hwmon.c
- F:	Documentation/hwmon/menf21bmc
- 
-+MEN Z069 WATCHDOG DRIVER
-+M:	Johannes Thumshirn <jth@kernel.org>
-+L:	linux-watchdog@vger.kernel.org
-+S:	Maintained
-+F:	drivers/watchdog/menz069_wdt.c
-+
- MESON AO CEC DRIVER FOR AMLOGIC SOCS
- M:	Neil Armstrong <narmstrong@baylibre.com>
- L:	linux-media@lists.freedesktop.org
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 9af07fd92763..df55d65bbb1c 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -161,6 +161,16 @@ config MENF21BMC_WATCHDOG
- 	  This driver can also be built as a module. If so the module
- 	  will be called menf21bmc_wdt.
- 
-+config MENZ069_WATCHDOG
-+	tristate "MEN 16Z069 Watchdog"
-+	depends on MCB || COMPILE_TEST
-+	select WATCHDOG_CORE
-+	help
-+	  Say Y here to include support for the MEN 16Z069 Watchdog.
-+
-+	  This driver can also be built as a module. If so the module
-+	  will be called menz069_wdt.
-+
- config TANGOX_WATCHDOG
- 	tristate "Sigma Designs SMP86xx/SMP87xx watchdog"
- 	select WATCHDOG_CORE
-diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index 1d3c6b094fe5..bf92e7bf9ce0 100644
---- a/drivers/watchdog/Makefile
-+++ b/drivers/watchdog/Makefile
-@@ -215,4 +215,5 @@ obj-$(CONFIG_MAX77620_WATCHDOG) += max77620_wdt.o
- obj-$(CONFIG_ZIIRAVE_WATCHDOG) += ziirave_wdt.o
- obj-$(CONFIG_SOFT_WATCHDOG) += softdog.o
- obj-$(CONFIG_MENF21BMC_WATCHDOG) += menf21bmc_wdt.o
-+obj-$(CONFIG_MENZ069_WATCHDOG) += menz69_wdt.o
- obj-$(CONFIG_RAVE_SP_WATCHDOG) += rave-sp-wdt.o
-diff --git a/drivers/watchdog/menz69_wdt.c b/drivers/watchdog/menz69_wdt.c
-new file mode 100644
-index 000000000000..9dccd8aabdb9
---- /dev/null
-+++ b/drivers/watchdog/menz69_wdt.c
-@@ -0,0 +1,175 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * Watchdog driver for the MEN z069 IP-Core
-+ *
-+ * Copyright (C) 2018 Johannes Thumshirn <jth@kernel.org>
-+ */
-+#include <linux/module.h>
-+#include <linux/kernel.h>
-+#include <linux/mcb.h>
-+#include <linux/watchdog.h>
-+#include <linux/io.h>
-+
-+struct men_z069_drv {
-+	struct watchdog_device wdt;
-+	void __iomem *base;
-+	struct resource *mem;
-+};
-+
-+#define MEN_Z069_WTR 0x10
-+#define MEN_Z069_WTR_WDEN BIT(15)
-+#define MEN_Z069_WTR_WDET_MASK	0x7fff
-+#define MEN_Z069_WVR 0x14
-+
-+#define MEN_Z069_TIMER_FREQ 500 /* 500 Hz */
-+#define MEN_Z069_WDT_COUNTER_MIN 1
-+#define MEN_Z069_WDT_COUNTER_MAX 0x7fff
-+
-+static bool nowayout = WATCHDOG_NOWAYOUT;
-+module_param(nowayout, bool, 0);
-+MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
-+			    __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
-+
-+static int men_z069_wdt_start(struct watchdog_device *wdt)
-+{
-+	struct men_z069_drv *drv = watchdog_get_drvdata(wdt);
-+	u16 val;
-+
-+	val = readw(drv->base + MEN_Z069_WTR);
-+	val |= MEN_Z069_WTR_WDEN;
-+	writew(val, drv->base + MEN_Z069_WTR);
-+
-+	return 0;
-+}
-+
-+static int men_z069_wdt_stop(struct watchdog_device *wdt)
-+{
-+	struct men_z069_drv *drv = watchdog_get_drvdata(wdt);
-+	u16 val;
-+
-+	val = readw(drv->base + MEN_Z069_WTR);
-+	val &= ~MEN_Z069_WTR_WDEN;
-+	writew(val, drv->base + MEN_Z069_WTR);
-+
-+	return 0;
-+}
-+
-+static int men_z069_wdt_ping(struct watchdog_device *wdt)
-+{
-+	struct men_z069_drv *drv = watchdog_get_drvdata(wdt);
-+	u16 val;
-+
-+	/* The watchdog trigger value toggles between 0x5555 and 0xaaaa */
-+	val = readw(drv->base + MEN_Z069_WVR);
-+	val ^= 0xffff;
-+	writew(val, drv->base + MEN_Z069_WVR);
-+
-+	return 0;
-+}
-+
-+static int men_z069_wdt_set_timeout(struct watchdog_device *wdt,
-+				    unsigned int timeout)
-+{
-+	struct men_z069_drv *drv = watchdog_get_drvdata(wdt);
-+	u16 reg, val, ena;
-+
-+	wdt->timeout = timeout;
-+	val = timeout * MEN_Z069_TIMER_FREQ;
-+
-+	if (val < MEN_Z069_WDT_COUNTER_MIN || val > MEN_Z069_WDT_COUNTER_MAX)
-+		return -EINVAL;
-+
-+	reg = readw(drv->base + MEN_Z069_WVR);
-+	ena = reg & MEN_Z069_WTR_WDEN;
-+	reg = ena | (val & MEN_Z069_WTR_WDET_MASK);
-+	writew(reg, drv->base + MEN_Z069_WTR);
-+
-+	return 0;
-+}
-+
-+static const struct watchdog_info men_z069_info = {
-+	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
-+	.identity = "MEN z069 Watchdog",
-+};
-+
-+static const struct watchdog_ops men_z069_ops = {
-+	.owner = THIS_MODULE,
-+	.start = men_z069_wdt_start,
-+	.stop = men_z069_wdt_stop,
-+	.ping = men_z069_wdt_ping,
-+	.set_timeout = men_z069_wdt_set_timeout,
-+};
-+
-+static struct watchdog_device men_z069_wdt = {
-+	.info = &men_z069_info,
-+	.ops = &men_z069_ops,
-+	.min_timeout = 1,
-+	.max_timeout = 65,
-+};
-+
-+static int men_z069_probe(struct mcb_device *dev,
-+			  const struct mcb_device_id *id)
-+{
-+	struct men_z069_drv *drv;
-+	struct resource *mem;
-+
-+	drv = devm_kzalloc(&dev->dev, sizeof(struct men_z069_drv), GFP_KERNEL);
-+	if (!drv)
-+		return -ENOMEM;
-+
-+	mem = mcb_request_mem(dev, "z069-wdt");
-+	if (IS_ERR(mem))
-+		return PTR_ERR(mem);
-+
-+	drv->base = devm_ioremap(&dev->dev, mem->start, resource_size(mem));
-+	if (drv->base == NULL)
-+		goto release_mem;
-+
-+	drv->mem = mem;
-+
-+	watchdog_init_timeout(&men_z069_wdt, 30, &dev->dev);
-+	watchdog_set_nowayout(&men_z069_wdt, nowayout);
-+	watchdog_set_drvdata(&men_z069_wdt, drv);
-+	men_z069_wdt.parent = &dev->dev;
-+	drv->wdt = men_z069_wdt;
-+	mcb_set_drvdata(dev, drv);
-+
-+	/* Set initial timeout to 65.5s and disable the watchdog */
-+	writew(MEN_Z069_WDT_COUNTER_MAX, drv->base + MEN_Z069_WTR);
-+
-+	return watchdog_register_device(&men_z069_wdt);
-+
-+release_mem:
-+	mcb_release_mem(mem);
-+	return -ENXIO;
-+}
-+
-+static void men_z069_remove(struct mcb_device *dev)
-+{
-+	struct men_z069_drv *drv = mcb_get_drvdata(dev);
-+
-+	watchdog_unregister_device(&drv->wdt);
-+	mcb_release_mem(drv->mem);
-+}
-+
-+static const struct mcb_device_id men_z069_ids[] = {
-+	{ .device = 0x45 },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(mcb, men_z069_ids);
-+
-+static struct mcb_driver men_z069_driver = {
-+	.driver = {
-+		.name = "z069-wdt",
-+		.owner = THIS_MODULE,
-+	},
-+	.probe = men_z069_probe,
-+	.remove = men_z069_remove,
-+	.id_table = men_z069_ids,
-+};
-+module_mcb_driver(men_z069_driver);
-+
-+
-+MODULE_AUTHOR("Johannes Thumshirn <jth@kernel.org>");
-+MODULE_LICENSE("GPL v2");
-+MODULE_ALIAS("mcb:16z069");
--- 
-2.16.4
+STM32 DT patches applied on stm32-next.
+
+Regards
+Alex
