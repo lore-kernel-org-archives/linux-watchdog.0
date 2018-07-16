@@ -1,155 +1,265 @@
-Return-Path: <jthumshirn@suse.de>
-Return-path: <jthumshirn@suse.de>
-Date: Mon, 16 Jul 2018 09:25:23 +0200
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:41826 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S2389117AbeGPIJr (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 16 Jul 2018 04:09:47 -0400
 From: Johannes Thumshirn <jthumshirn@suse.de>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Wim Van Sebroeck <wim@linux-watchdog.org>, linux-kernel@vger.kernel.org,
-	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH] watchdog: add driver for the MEN 16z069 IP-Core
-Message-ID: <20180716072523.4ikug4iix3qnmqto@linux-x5ow.site>
-References: <20180713125831.26074-1-jthumshirn@suse.de>
- <3911405c-4192-2554-cfb9-0441c3d8ef9b@roeck-us.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <3911405c-4192-2554-cfb9-0441c3d8ef9b@roeck-us.net>
-List-ID: <linux-watchdog@vger.kernel.org>
+To: Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Cc: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        mmoese@suse.de, Johannes Thumshirn <jthumshirn@suse.de>
+Subject: [PATCH v2] watchdog: add driver for the MEN 16z069 IP-Core
+Date: Mon, 16 Jul 2018 09:25:10 +0200
+Message-Id: <20180716072510.6939-1-jthumshirn@suse.de>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, Jul 13, 2018 at 06:50:25AM -0700, Guenter Roeck wrote:
-[...]
-> > +#include <linux/module.h>
-> > +#include <linux/kernel.h>
-> > +#include <linux/mcb.h>
-> > +#include <linux/watchdog.h>
-> > +#include <linux/io.h>
-> > +
-> Alphabetic order, please
+Add a driver for the MEN 16z069 Watchdog and Reset Controller IP-Core.
 
-Done.
-> 
-> > +struct men_z069_drv {
-> > +	struct watchdog_device wdt;
-> > +	void __iomem *base;
-> > +	struct resource *mem;
-> > +};
-> > +
-> > +#define MEN_Z069_WTR 0x10
-> > +#define MEN_Z069_WTR_WDEN BIT(15)
-> > +#define MEN_Z069_WTR_WDET_MASK	0x7fff
-> > +#define MEN_Z069_WVR 0x14
-> > +
-> > +#define MEN_Z069_TIMER_FREQ 500 /* 500 Hz */
-> > +#define MEN_Z069_WDT_COUNTER_MIN 1
-> > +#define MEN_Z069_WDT_COUNTER_MAX 0x7fff
-> > +
-> Looks like you are sometimes using tabs and sometimes not.
-> Please align all values with tabs, or if you really dislike that don't use
-> tabs at all.
+Signed-off-by: Johannes Thumshirn <jthumshirn@suse.de>
 
-Made it all tabs.
+---
+Changes to v1:
+* Sorted includes alphabetically
+* Indented defines with tabs
+* Removed unnecessary timeout validation
+* Removed unnecessary masking of values
+* Fixed error return in .probe
+* Directly accessed drv->wdt
+* Removed leftover timeout resetting
+---
+ MAINTAINERS                   |   6 ++
+ drivers/watchdog/Kconfig      |  10 +++
+ drivers/watchdog/Makefile     |   1 +
+ drivers/watchdog/menz69_wdt.c | 170 ++++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 187 insertions(+)
+ create mode 100644 drivers/watchdog/menz69_wdt.c
 
-[...]
-> > +	if (val < MEN_Z069_WDT_COUNTER_MIN || val > MEN_Z069_WDT_COUNTER_MAX)
-> > +		return -EINVAL;
-> > +
-> 
-> This is unnecessary. As long as the limits are provided, they are validated
-> by the watchdog core.
-
-Good point removed the check.
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 07d1576fc766..67a76f740294 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -9298,6 +9298,12 @@ F:	drivers/leds/leds-menf21bmc.c
+ F:	drivers/hwmon/menf21bmc_hwmon.c
+ F:	Documentation/hwmon/menf21bmc
  
-> 
-> Note that it is wrng to set ->timeout and then return an error.
-> The watchdog core will then report a bad current timeout to user space.
-
-Yeah the return isn't needed anymore.
-
-> 
-> > +	reg = readw(drv->base + MEN_Z069_WVR);
-> > +	ena = reg & MEN_Z069_WTR_WDEN;
-> > +	reg = ena | (val & MEN_Z069_WTR_WDET_MASK);
-> 
-> Masking val is unnecessary here. val is already guaranteed to be
-> smaller than the mask.
->
-Yep, removed the mask.
-
++MEN Z069 WATCHDOG DRIVER
++M:	Johannes Thumshirn <jth@kernel.org>
++L:	linux-watchdog@vger.kernel.org
++S:	Maintained
++F:	drivers/watchdog/menz069_wdt.c
++
+ MESON AO CEC DRIVER FOR AMLOGIC SOCS
+ M:	Neil Armstrong <narmstrong@baylibre.com>
+ L:	linux-media@lists.freedesktop.org
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 9af07fd92763..df55d65bbb1c 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -161,6 +161,16 @@ config MENF21BMC_WATCHDOG
+ 	  This driver can also be built as a module. If so the module
+ 	  will be called menf21bmc_wdt.
  
-> I would suggest to use
-> 	.max_timeout = MEN_Z069_WDT_COUNTER_MAX / MEN_Z069_TIMER_FREQ;
-> or define MAX_TIMEOUT as (MEN_Z069_WDT_COUNTER_MAX / MEN_Z069_TIMER_FREQ) and use it.
-
-Went down the 1st route.
-
-[...]
-
-> > +	drv->base = devm_ioremap(&dev->dev, mem->start, resource_size(mem));
-> > +	if (drv->base == NULL)
-> > +		goto release_mem;
-> 
-> The proper errr to return here is -ENOMEM, or use devm_ioremap_resource()
-> and return whatever error it reports.
-
-Done.
-
-> 
-> > +
-> > +	drv->mem = mem;
-> > +
-> > +	watchdog_init_timeout(&men_z069_wdt, 30, &dev->dev);
-> 
-> Please make '30' a define. Unless you know for sure that this will never be used
-> in a devicetree system, I would suggest to set the default timeout in struct
-> watchdog_device and pass 0 as argument here; this way the core picks the default
-> timeout if set in devicetree.
-
-Well it sits on a self describing bus so no device-tree needed here. Anyways made it 0.
-
-> 
-> > +	watchdog_set_nowayout(&men_z069_wdt, nowayout);
-> > +	watchdog_set_drvdata(&men_z069_wdt, drv);
-> > +	men_z069_wdt.parent = &dev->dev;
-> > +	drv->wdt = men_z069_wdt;
-> 
-> This is unusual. I would suggest to drop men_z069_wdt and set the necessary fields
-> in drv->wdt directly.
-
-Well as I'm not really working on watchdogs often I just copy&pasted
-it from mena21_wdt.c which was my first driver some years ago. So this
-might be the reason for this oddity. Anyways fixed it.
-
-> 
-> > +	mcb_set_drvdata(dev, drv);
-> > +
-> > +	/* Set initial timeout to 65.5s and disable the watchdog */
-> > +	writew(MEN_Z069_WDT_COUNTER_MAX, drv->base + MEN_Z069_WTR);
-> > +
-> 
-> Hmm - above default is set to 30 seconds.
-> 
-> Another possibility would be to detect the current watchdog state
-> (and possibly timeout) and inform the watchdog core that the watchdog
-> is running. This way there is no gap in watchdog coverage if the
-> watchdog was already enabled in BIOS/ROMMON.
-
-This is a leftover from debugging the Qemu emulation of the device I
-guess, removed it now.
-
-[...]
-
-> > +};
-> > +module_mcb_driver(men_z069_driver);
-> > +
-> > +
-> Double empty line.
-
-Gone.
-
++config MENZ069_WATCHDOG
++	tristate "MEN 16Z069 Watchdog"
++	depends on MCB || COMPILE_TEST
++	select WATCHDOG_CORE
++	help
++	  Say Y here to include support for the MEN 16Z069 Watchdog.
++
++	  This driver can also be built as a module. If so the module
++	  will be called menz069_wdt.
++
+ config TANGOX_WATCHDOG
+ 	tristate "Sigma Designs SMP86xx/SMP87xx watchdog"
+ 	select WATCHDOG_CORE
+diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+index 1d3c6b094fe5..bf92e7bf9ce0 100644
+--- a/drivers/watchdog/Makefile
++++ b/drivers/watchdog/Makefile
+@@ -215,4 +215,5 @@ obj-$(CONFIG_MAX77620_WATCHDOG) += max77620_wdt.o
+ obj-$(CONFIG_ZIIRAVE_WATCHDOG) += ziirave_wdt.o
+ obj-$(CONFIG_SOFT_WATCHDOG) += softdog.o
+ obj-$(CONFIG_MENF21BMC_WATCHDOG) += menf21bmc_wdt.o
++obj-$(CONFIG_MENZ069_WATCHDOG) += menz69_wdt.o
+ obj-$(CONFIG_RAVE_SP_WATCHDOG) += rave-sp-wdt.o
+diff --git a/drivers/watchdog/menz69_wdt.c b/drivers/watchdog/menz69_wdt.c
+new file mode 100644
+index 000000000000..ed18238c5407
+--- /dev/null
++++ b/drivers/watchdog/menz69_wdt.c
+@@ -0,0 +1,170 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Watchdog driver for the MEN z069 IP-Core
++ *
++ * Copyright (C) 2018 Johannes Thumshirn <jth@kernel.org>
++ */
++#include <linux/io.h>
++#include <linux/kernel.h>
++#include <linux/mcb.h>
++#include <linux/module.h>
++#include <linux/watchdog.h>
++
++struct men_z069_drv {
++	struct watchdog_device wdt;
++	void __iomem *base;
++	struct resource *mem;
++};
++
++#define MEN_Z069_WTR			0x10
++#define MEN_Z069_WTR_WDEN		BIT(15)
++#define MEN_Z069_WTR_WDET_MASK		0x7fff
++#define MEN_Z069_WVR			0x14
++
++#define MEN_Z069_TIMER_FREQ		500 /* 500 Hz */
++#define MEN_Z069_WDT_COUNTER_MIN	1
++#define MEN_Z069_WDT_COUNTER_MAX	0x7fff
++#define MEN_Z069_DEFAULT_TIMEOUT	30
++
++static bool nowayout = WATCHDOG_NOWAYOUT;
++module_param(nowayout, bool, 0);
++MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
++			    __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
++
++static int men_z069_wdt_start(struct watchdog_device *wdt)
++{
++	struct men_z069_drv *drv = watchdog_get_drvdata(wdt);
++	u16 val;
++
++	val = readw(drv->base + MEN_Z069_WTR);
++	val |= MEN_Z069_WTR_WDEN;
++	writew(val, drv->base + MEN_Z069_WTR);
++
++	return 0;
++}
++
++static int men_z069_wdt_stop(struct watchdog_device *wdt)
++{
++	struct men_z069_drv *drv = watchdog_get_drvdata(wdt);
++	u16 val;
++
++	val = readw(drv->base + MEN_Z069_WTR);
++	val &= ~MEN_Z069_WTR_WDEN;
++	writew(val, drv->base + MEN_Z069_WTR);
++
++	return 0;
++}
++
++static int men_z069_wdt_ping(struct watchdog_device *wdt)
++{
++	struct men_z069_drv *drv = watchdog_get_drvdata(wdt);
++	u16 val;
++
++	/* The watchdog trigger value toggles between 0x5555 and 0xaaaa */
++	val = readw(drv->base + MEN_Z069_WVR);
++	val ^= 0xffff;
++	writew(val, drv->base + MEN_Z069_WVR);
++
++	return 0;
++}
++
++static int men_z069_wdt_set_timeout(struct watchdog_device *wdt,
++				    unsigned int timeout)
++{
++	struct men_z069_drv *drv = watchdog_get_drvdata(wdt);
++	u16 reg, val, ena;
++
++	wdt->timeout = timeout;
++	val = timeout * MEN_Z069_TIMER_FREQ;
++
++	reg = readw(drv->base + MEN_Z069_WVR);
++	ena = reg & MEN_Z069_WTR_WDEN;
++	reg = ena | val;
++	writew(reg, drv->base + MEN_Z069_WTR);
++
++	return 0;
++}
++
++static const struct watchdog_info men_z069_info = {
++	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
++	.identity = "MEN z069 Watchdog",
++};
++
++static const struct watchdog_ops men_z069_ops = {
++	.owner = THIS_MODULE,
++	.start = men_z069_wdt_start,
++	.stop = men_z069_wdt_stop,
++	.ping = men_z069_wdt_ping,
++	.set_timeout = men_z069_wdt_set_timeout,
++};
++
++static struct watchdog_device men_z069_wdt = {
++	.info = &men_z069_info,
++	.ops = &men_z069_ops,
++	.timeout = MEN_Z069_DEFAULT_TIMEOUT,
++	.min_timeout = 1,
++	.max_timeout = MEN_Z069_WDT_COUNTER_MAX / MEN_Z069_TIMER_FREQ,
++};
++
++static int men_z069_probe(struct mcb_device *dev,
++			  const struct mcb_device_id *id)
++{
++	struct men_z069_drv *drv;
++	struct resource *mem;
++
++	drv = devm_kzalloc(&dev->dev, sizeof(struct men_z069_drv), GFP_KERNEL);
++	if (!drv)
++		return -ENOMEM;
++
++	mem = mcb_request_mem(dev, "z069-wdt");
++	if (IS_ERR(mem))
++		return PTR_ERR(mem);
++
++	drv->base = devm_ioremap(&dev->dev, mem->start, resource_size(mem));
++	if (drv->base == NULL)
++		goto release_mem;
++
++	drv->mem = mem;
++
++	drv->wdt = men_z069_wdt;
++	watchdog_init_timeout(&drv->wdt, 0, &dev->dev);
++	watchdog_set_nowayout(&drv->wdt, nowayout);
++	watchdog_set_drvdata(&drv->wdt, drv);
++	drv->wdt.parent = &dev->dev;
++	mcb_set_drvdata(dev, drv);
++
++	return watchdog_register_device(&men_z069_wdt);
++
++release_mem:
++	mcb_release_mem(mem);
++	return -ENOMEM;
++}
++
++static void men_z069_remove(struct mcb_device *dev)
++{
++	struct men_z069_drv *drv = mcb_get_drvdata(dev);
++
++	watchdog_unregister_device(&drv->wdt);
++	mcb_release_mem(drv->mem);
++}
++
++static const struct mcb_device_id men_z069_ids[] = {
++	{ .device = 0x45 },
++	{ }
++};
++MODULE_DEVICE_TABLE(mcb, men_z069_ids);
++
++static struct mcb_driver men_z069_driver = {
++	.driver = {
++		.name = "z069-wdt",
++		.owner = THIS_MODULE,
++	},
++	.probe = men_z069_probe,
++	.remove = men_z069_remove,
++	.id_table = men_z069_ids,
++};
++module_mcb_driver(men_z069_driver);
++
++MODULE_AUTHOR("Johannes Thumshirn <jth@kernel.org>");
++MODULE_LICENSE("GPL v2");
++MODULE_ALIAS("mcb:16z069");
 -- 
-Johannes Thumshirn                                          Storage
-jthumshirn@suse.de                                +49 911 74053 689
-SUSE LINUX GmbH, Maxfeldstr. 5, 90409 Nürnberg
-GF: Felix Imendörffer, Jane Smithard, Graham Norton
-HRB 21284 (AG Nürnberg)
-Key fingerprint = EC38 9CAB C2C4 F25D 8600 D0D0 0393 969D 2D76 0850
+2.16.4
+
