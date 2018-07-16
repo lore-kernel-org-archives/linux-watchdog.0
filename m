@@ -1,72 +1,155 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from foss.arm.com ([217.140.101.70]:39444 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726586AbeGKQKs (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 11 Jul 2018 12:10:48 -0400
-Date: Wed, 11 Jul 2018 17:05:40 +0100
-From: Sudeep Holla <sudeep.holla@arm.com>
+Return-Path: <jthumshirn@suse.de>
+Return-path: <jthumshirn@suse.de>
+Date: Mon, 16 Jul 2018 09:25:23 +0200
+From: Johannes Thumshirn <jthumshirn@suse.de>
 To: Guenter Roeck <linux@roeck-us.net>
-Cc: Srinath Mannam <srinath.mannam@broadcom.com>,
-        wim@linux-watchdog.org, Ray Jui <ray.jui@broadcom.com>,
-        Vladimir Olovyannikov <vladimir.olovyannikov@broadcom.com>,
-        Vikram Prakash <vikram.prakash@broadcom.com>,
-        Scott Branden <scott.branden@broadcom.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        linux-watchdog@vger.kernel.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC PATCH v3] watchdog: sp805: Add clock-frequency property
-Message-ID: <20180711160540.GA12449@e107155-lin>
-References: <1531212279-24953-1-git-send-email-srinath.mannam@broadcom.com>
- <20180710213557.GC27827@roeck-us.net>
- <CABe79T4+S2vxx8RoNkEtY7ncaKGvXVf0n_yqN81gmtHnhgqg9A@mail.gmail.com>
- <3868f0c7-e45e-d3b4-5365-12a6a0646f6f@roeck-us.net>
- <20180711153015.GA10578@e107155-lin>
- <20180711153950.GA19932@roeck-us.net>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>, linux-kernel@vger.kernel.org,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH] watchdog: add driver for the MEN 16z069 IP-Core
+Message-ID: <20180716072523.4ikug4iix3qnmqto@linux-x5ow.site>
+References: <20180713125831.26074-1-jthumshirn@suse.de>
+ <3911405c-4192-2554-cfb9-0441c3d8ef9b@roeck-us.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20180711153950.GA19932@roeck-us.net>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <3911405c-4192-2554-cfb9-0441c3d8ef9b@roeck-us.net>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On Wed, Jul 11, 2018 at 08:39:50AM -0700, Guenter Roeck wrote:
-> On Wed, Jul 11, 2018 at 04:30:16PM +0100, Sudeep Holla wrote:
+On Fri, Jul 13, 2018 at 06:50:25AM -0700, Guenter Roeck wrote:
+[...]
+> > +#include <linux/module.h>
+> > +#include <linux/kernel.h>
+> > +#include <linux/mcb.h>
+> > +#include <linux/watchdog.h>
+> > +#include <linux/io.h>
+> > +
+> Alphabetic order, please
+
+Done.
+> 
+> > +struct men_z069_drv {
+> > +	struct watchdog_device wdt;
+> > +	void __iomem *base;
+> > +	struct resource *mem;
+> > +};
+> > +
+> > +#define MEN_Z069_WTR 0x10
+> > +#define MEN_Z069_WTR_WDEN BIT(15)
+> > +#define MEN_Z069_WTR_WDET_MASK	0x7fff
+> > +#define MEN_Z069_WVR 0x14
+> > +
+> > +#define MEN_Z069_TIMER_FREQ 500 /* 500 Hz */
+> > +#define MEN_Z069_WDT_COUNTER_MIN 1
+> > +#define MEN_Z069_WDT_COUNTER_MAX 0x7fff
+> > +
+> Looks like you are sometimes using tabs and sometimes not.
+> Please align all values with tabs, or if you really dislike that don't use
+> tabs at all.
+
+Made it all tabs.
+
+[...]
+> > +	if (val < MEN_Z069_WDT_COUNTER_MIN || val > MEN_Z069_WDT_COUNTER_MAX)
+> > +		return -EINVAL;
+> > +
+> 
+> This is unnecessary. As long as the limits are provided, they are validated
+> by the watchdog core.
+
+Good point removed the check.
+ 
+> 
+> Note that it is wrng to set ->timeout and then return an error.
+> The watchdog core will then report a bad current timeout to user space.
+
+Yeah the return isn't needed anymore.
+
+> 
+> > +	reg = readw(drv->base + MEN_Z069_WVR);
+> > +	ena = reg & MEN_Z069_WTR_WDEN;
+> > +	reg = ena | (val & MEN_Z069_WTR_WDET_MASK);
+> 
+> Masking val is unnecessary here. val is already guaranteed to be
+> smaller than the mask.
+>
+Yep, removed the mask.
+
+ 
+> I would suggest to use
+> 	.max_timeout = MEN_Z069_WDT_COUNTER_MAX / MEN_Z069_TIMER_FREQ;
+> or define MAX_TIMEOUT as (MEN_Z069_WDT_COUNTER_MAX / MEN_Z069_TIMER_FREQ) and use it.
+
+Went down the 1st route.
 
 [...]
 
-> >
-> > Typically new properties needs to registered or discussed in dsd@acpica.org
-> > Though there's almost no activity on that list for more than a year now.
-> > IIRC, the thread[1] gives kind of agreement that was reached after
-> > elaborate discussion on _DSD properties.
-> >
->
-> I think you are saying that there are no real rules or governing body
-> for _DSD properties, that _DSD properties are free for all, subject to no
-> scrutiny, that a database with assigned _DSD properties does not exist,
-> and that therefore there is no means for me to determine if this is an
-> approved property.
->
+> > +	drv->base = devm_ioremap(&dev->dev, mem->start, resource_size(mem));
+> > +	if (drv->base == NULL)
+> > +		goto release_mem;
+> 
+> The proper errr to return here is -ENOMEM, or use devm_ioremap_resource()
+> and return whatever error it reports.
 
-Yes and no. The only intent of the review on dsd@acpica.org to catch
-functional/non-compliance issues with the property. The vendor needs to
-own it and ensure the support is added in the kernel before shipping it.
+Done.
 
-> What prevents someone else to use a different property name for the same
-> driver and property next week, on a different product using the same
-> hardware ?
->
+> 
+> > +
+> > +	drv->mem = mem;
+> > +
+> > +	watchdog_init_timeout(&men_z069_wdt, 30, &dev->dev);
+> 
+> Please make '30' a define. Unless you know for sure that this will never be used
+> in a devicetree system, I would suggest to set the default timeout in struct
+> watchdog_device and pass 0 as argument here; this way the core picks the default
+> timeout if set in devicetree.
 
-Honestly nothing. But the agreement was vendor needs to proactively get
-it reviewed and add the support. The community can reject if it has
-functional/compliance issues.
+Well it sits on a self describing bus so no device-tree needed here. Anyways made it 0.
 
-There has been elaborate discussions in the past on this and I provided
-the link to the final agreement on that. It's always better to avoid
-using them as first option if possible, else get the review/agreement
-that it's good to use property.
+> 
+> > +	watchdog_set_nowayout(&men_z069_wdt, nowayout);
+> > +	watchdog_set_drvdata(&men_z069_wdt, drv);
+> > +	men_z069_wdt.parent = &dev->dev;
+> > +	drv->wdt = men_z069_wdt;
+> 
+> This is unusual. I would suggest to drop men_z069_wdt and set the necessary fields
+> in drv->wdt directly.
 
---
-Regards,
-Sudeep
+Well as I'm not really working on watchdogs often I just copy&pasted
+it from mena21_wdt.c which was my first driver some years ago. So this
+might be the reason for this oddity. Anyways fixed it.
+
+> 
+> > +	mcb_set_drvdata(dev, drv);
+> > +
+> > +	/* Set initial timeout to 65.5s and disable the watchdog */
+> > +	writew(MEN_Z069_WDT_COUNTER_MAX, drv->base + MEN_Z069_WTR);
+> > +
+> 
+> Hmm - above default is set to 30 seconds.
+> 
+> Another possibility would be to detect the current watchdog state
+> (and possibly timeout) and inform the watchdog core that the watchdog
+> is running. This way there is no gap in watchdog coverage if the
+> watchdog was already enabled in BIOS/ROMMON.
+
+This is a leftover from debugging the Qemu emulation of the device I
+guess, removed it now.
+
+[...]
+
+> > +};
+> > +module_mcb_driver(men_z069_driver);
+> > +
+> > +
+> Double empty line.
+
+Gone.
+
+-- 
+Johannes Thumshirn                                          Storage
+jthumshirn@suse.de                                +49 911 74053 689
+SUSE LINUX GmbH, Maxfeldstr. 5, 90409 Nürnberg
+GF: Felix Imendörffer, Jane Smithard, Graham Norton
+HRB 21284 (AG Nürnberg)
+Key fingerprint = EC38 9CAB C2C4 F25D 8600 D0D0 0393 969D 2D76 0850
