@@ -1,33 +1,27 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pf0-f195.google.com ([209.85.192.195]:38436 "EHLO
-        mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731324AbeGQOGp (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 17 Jul 2018 10:06:45 -0400
+Return-Path: <mmoese@suse.de>
+Return-path: <mmoese@suse.de>
+Date: Tue, 17 Jul 2018 15:45:27 +0200
+From: Michael Moese <mmoese@suse.de>
+To: Johannes Thumshirn <jthumshirn@suse.de>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>, linux-kernel@vger.kernel.org,
+	linux-watchdog@vger.kernel.org
 Subject: Re: [PATCH v2] watchdog: add driver for the MEN 16z069 IP-Core
-To: Johannes Thumshirn <jthumshirn@suse.de>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>
-Cc: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        mmoese@suse.de
+Message-ID: <20180717134527.mokciutlsuyrqhsf@linux-d8ym>
 References: <20180716072510.6939-1-jthumshirn@suse.de>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <004b89c5-05f0-73ed-b707-bc1c1cb9bfec@roeck-us.net>
-Date: Tue, 17 Jul 2018 06:33:59 -0700
 MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 In-Reply-To: <20180716072510.6939-1-jthumshirn@suse.de>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 07/16/2018 12:25 AM, Johannes Thumshirn wrote:
+On Mon, Jul 16, 2018 at 09:25:10AM +0200, Johannes Thumshirn wrote:
 > Add a driver for the MEN 16z069 Watchdog and Reset Controller IP-Core.
 > 
 > Signed-off-by: Johannes Thumshirn <jthumshirn@suse.de>
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Reviewed-by: Michael Moese <mmoese@suse.de>
 
 > 
 > ---
@@ -40,38 +34,38 @@ Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 > * Directly accessed drv->wdt
 > * Removed leftover timeout resetting
 > ---
->   MAINTAINERS                   |   6 ++
->   drivers/watchdog/Kconfig      |  10 +++
->   drivers/watchdog/Makefile     |   1 +
->   drivers/watchdog/menz69_wdt.c | 170 ++++++++++++++++++++++++++++++++++++++++++
->   4 files changed, 187 insertions(+)
->   create mode 100644 drivers/watchdog/menz69_wdt.c
+>  MAINTAINERS                   |   6 ++
+>  drivers/watchdog/Kconfig      |  10 +++
+>  drivers/watchdog/Makefile     |   1 +
+>  drivers/watchdog/menz69_wdt.c | 170 ++++++++++++++++++++++++++++++++++++++++++
+>  4 files changed, 187 insertions(+)
+>  create mode 100644 drivers/watchdog/menz69_wdt.c
 > 
 > diff --git a/MAINTAINERS b/MAINTAINERS
 > index 07d1576fc766..67a76f740294 100644
 > --- a/MAINTAINERS
 > +++ b/MAINTAINERS
 > @@ -9298,6 +9298,12 @@ F:	drivers/leds/leds-menf21bmc.c
->   F:	drivers/hwmon/menf21bmc_hwmon.c
->   F:	Documentation/hwmon/menf21bmc
->   
+>  F:	drivers/hwmon/menf21bmc_hwmon.c
+>  F:	Documentation/hwmon/menf21bmc
+>  
 > +MEN Z069 WATCHDOG DRIVER
 > +M:	Johannes Thumshirn <jth@kernel.org>
 > +L:	linux-watchdog@vger.kernel.org
 > +S:	Maintained
 > +F:	drivers/watchdog/menz069_wdt.c
 > +
->   MESON AO CEC DRIVER FOR AMLOGIC SOCS
->   M:	Neil Armstrong <narmstrong@baylibre.com>
->   L:	linux-media@lists.freedesktop.org
+>  MESON AO CEC DRIVER FOR AMLOGIC SOCS
+>  M:	Neil Armstrong <narmstrong@baylibre.com>
+>  L:	linux-media@lists.freedesktop.org
 > diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
 > index 9af07fd92763..df55d65bbb1c 100644
 > --- a/drivers/watchdog/Kconfig
 > +++ b/drivers/watchdog/Kconfig
 > @@ -161,6 +161,16 @@ config MENF21BMC_WATCHDOG
->   	  This driver can also be built as a module. If so the module
->   	  will be called menf21bmc_wdt.
->   
+>  	  This driver can also be built as a module. If so the module
+>  	  will be called menf21bmc_wdt.
+>  
 > +config MENZ069_WATCHDOG
 > +	tristate "MEN 16Z069 Watchdog"
 > +	depends on MCB || COMPILE_TEST
@@ -82,19 +76,19 @@ Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 > +	  This driver can also be built as a module. If so the module
 > +	  will be called menz069_wdt.
 > +
->   config TANGOX_WATCHDOG
->   	tristate "Sigma Designs SMP86xx/SMP87xx watchdog"
->   	select WATCHDOG_CORE
+>  config TANGOX_WATCHDOG
+>  	tristate "Sigma Designs SMP86xx/SMP87xx watchdog"
+>  	select WATCHDOG_CORE
 > diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
 > index 1d3c6b094fe5..bf92e7bf9ce0 100644
 > --- a/drivers/watchdog/Makefile
 > +++ b/drivers/watchdog/Makefile
 > @@ -215,4 +215,5 @@ obj-$(CONFIG_MAX77620_WATCHDOG) += max77620_wdt.o
->   obj-$(CONFIG_ZIIRAVE_WATCHDOG) += ziirave_wdt.o
->   obj-$(CONFIG_SOFT_WATCHDOG) += softdog.o
->   obj-$(CONFIG_MENF21BMC_WATCHDOG) += menf21bmc_wdt.o
+>  obj-$(CONFIG_ZIIRAVE_WATCHDOG) += ziirave_wdt.o
+>  obj-$(CONFIG_SOFT_WATCHDOG) += softdog.o
+>  obj-$(CONFIG_MENF21BMC_WATCHDOG) += menf21bmc_wdt.o
 > +obj-$(CONFIG_MENZ069_WATCHDOG) += menz69_wdt.o
->   obj-$(CONFIG_RAVE_SP_WATCHDOG) += rave-sp-wdt.o
+>  obj-$(CONFIG_RAVE_SP_WATCHDOG) += rave-sp-wdt.o
 > diff --git a/drivers/watchdog/menz69_wdt.c b/drivers/watchdog/menz69_wdt.c
 > new file mode 100644
 > index 000000000000..ed18238c5407
@@ -271,5 +265,9 @@ Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 > +MODULE_AUTHOR("Johannes Thumshirn <jth@kernel.org>");
 > +MODULE_LICENSE("GPL v2");
 > +MODULE_ALIAS("mcb:16z069");
+> -- 
+> 2.16.4
 > 
 
+-- 
+SUSE Linux GmbH, GF: Felix Imendörffer, Jane Smithard, Graham Norton, HRB 21284 (AG Nürnberg)
