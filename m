@@ -1,42 +1,46 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:56216 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728322AbeGTL7T (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 20 Jul 2018 07:59:19 -0400
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: linux-watchdog@vger.kernel.org
-Cc: linux-renesas-soc@vger.kernel.org,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH] watchdog: renesas-wdt: Add support for the R8A77990 wdt
-Date: Fri, 20 Jul 2018 13:11:25 +0200
-Message-Id: <20180720111125.11551-1-wsa+renesas@sang-engineering.com>
+Received: from mail-ua0-f196.google.com ([209.85.217.196]:34791 "EHLO
+        mail-ua0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727361AbeGTMEE (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 20 Jul 2018 08:04:04 -0400
+MIME-Version: 1.0
+References: <20180720111125.11551-1-wsa+renesas@sang-engineering.com>
+In-Reply-To: <20180720111125.11551-1-wsa+renesas@sang-engineering.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Fri, 20 Jul 2018 13:16:06 +0200
+Message-ID: <CAMuHMdUbvUWLrKBT9C8t_13Ugy+2bP96h6wTSCXfENL4j3deBw@mail.gmail.com>
+Subject: Re: [PATCH] watchdog: renesas-wdt: Add support for the R8A77990 wdt
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
+        Linux-Renesas <linux-renesas-soc@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-From: Masaharu Hayakawa <masaharu.hayakawa.ry@renesas.com>
+On Fri, Jul 20, 2018 at 1:11 PM Wolfram Sang
+<wsa+renesas@sang-engineering.com> wrote:
+> From: Masaharu Hayakawa <masaharu.hayakawa.ry@renesas.com>
+>
+> Document support for the Watchdog Timer (WDT) Controller in the Renesas
+> R-Car E3 (R8A77990) SoC. No driver update is needed.
+>
+> Signed-off-by: Masaharu Hayakawa <masaharu.hayakawa.ry@renesas.com>
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Document support for the Watchdog Timer (WDT) Controller in the Renesas
-R-Car E3 (R8A77990) SoC. No driver update is needed.
+Dupe of "[v2] dt-bindings: watchdog: renesas-wdt: Add support for the
+R8A77990 wdt"
+(https://patchwork.kernel.org/patch/10511091/), and queued in
+linux-staging.git#watchdog-next, which is not in next.
 
-Signed-off-by: Masaharu Hayakawa <masaharu.hayakawa.ry@renesas.com>
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
- Documentation/devicetree/bindings/watchdog/renesas-wdt.txt | 1 +
- 1 file changed, 1 insertion(+)
+Gr{oetje,eeting}s,
 
-diff --git a/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt b/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
-index f24d802b8056..5d47a262474c 100644
---- a/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
-+++ b/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
-@@ -16,6 +16,7 @@ Required properties:
- 	         - "renesas,r8a7796-wdt" (R-Car M3-W)
- 		 - "renesas,r8a77965-wdt" (R-Car M3-N)
- 	         - "renesas,r8a77970-wdt" (R-Car V3M)
-+	         - "renesas,r8a77990-wdt" (R-Car E3)
- 	         - "renesas,r8a77995-wdt" (R-Car D3)
- 	         - "renesas,r7s72100-wdt" (RZ/A1)
- 		The generic compatible string must be:
+                        Geert
+
 -- 
-2.11.0
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
