@@ -1,134 +1,83 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pg1-f194.google.com ([209.85.215.194]:34161 "EHLO
-        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727876AbeGUPbN (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 21 Jul 2018 11:31:13 -0400
-Subject: Re: [RFC PATCH v3] watchdog: sp805: Add clock-frequency property
-To: Srinath Mannam <srinath.mannam@broadcom.com>,
-        wim@linux-watchdog.org
-Cc: ray.jui@broadcom.com, vladimir.olovyannikov@broadcom.com,
-        vikram.prakash@broadcom.com, scott.branden@broadcom.com,
-        sudeep.holla@arm.com, linux-watchdog@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <1531212279-24953-1-git-send-email-srinath.mannam@broadcom.com>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <efe2211a-932d-fff8-ff82-2cda2e3a61ee@roeck-us.net>
-Date: Sat, 21 Jul 2018 07:38:11 -0700
-MIME-Version: 1.0
-In-Reply-To: <1531212279-24953-1-git-send-email-srinath.mannam@broadcom.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-Path: <hauke@hauke-m.de>
+Return-path: <hauke@hauke-m.de>
+From: Hauke Mehrtens <hauke@hauke-m.de>
+To: wim@linux-watchdog.org,
+	linux@roeck-us.net
+Cc: linux-watchdog@vger.kernel.org,
+	john@phrozen.org,
+	dev@kresin.me,
+	Hauke Mehrtens <hauke@hauke-m.de>
+Subject: [PATCH 1/3] wdt: lantiq: update register names to better match spec
+Date: Sun, 22 Jul 2018 01:26:33 +0200
+Message-Id: <20180721232635.10523-1-hauke@hauke-m.de>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 07/10/2018 01:44 AM, Srinath Mannam wrote:
-> When using ACPI node, binding clock devices are
-> not available as device tree, So clock-frequency
-> property given in _DSD object of ACPI device is
-> used to calculate Watchdog rate.
-> 
-> Signed-off-by: Srinath Mannam <srinath.mannam@broadcom.com>
+Some of the names of the bits were confusing to me.
+Now the bits share the same prefix as the register they are set on.
 
-Please resend as non-RFC and add a note in the description indicating
-that there is no formal review process for _DSD properties.
+Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
+---
+ drivers/watchdog/lantiq_wdt.c | 28 +++++++++++++++-------------
+ 1 file changed, 15 insertions(+), 13 deletions(-)
 
-Thanks,
-Guenter
-
-> ---
->   drivers/watchdog/sp805_wdt.c | 35 +++++++++++++++++++++++++----------
->   1 file changed, 25 insertions(+), 10 deletions(-)
-> 
-> diff --git a/drivers/watchdog/sp805_wdt.c b/drivers/watchdog/sp805_wdt.c
-> index 9849db0..a896b1c 100644
-> --- a/drivers/watchdog/sp805_wdt.c
-> +++ b/drivers/watchdog/sp805_wdt.c
-> @@ -11,6 +11,7 @@
->    * warranty of any kind, whether express or implied.
->    */
->   
-> +#include <linux/acpi.h>
->   #include <linux/device.h>
->   #include <linux/resource.h>
->   #include <linux/amba/bus.h>
-> @@ -22,6 +23,7 @@
->   #include <linux/math64.h>
->   #include <linux/module.h>
->   #include <linux/moduleparam.h>
-> +#include <linux/of.h>
->   #include <linux/pm.h>
->   #include <linux/slab.h>
->   #include <linux/spinlock.h>
-> @@ -65,6 +67,7 @@ struct sp805_wdt {
->   	spinlock_t			lock;
->   	void __iomem			*base;
->   	struct clk			*clk;
-> +	u64				rate;
->   	struct amba_device		*adev;
->   	unsigned int			load_val;
->   };
-> @@ -80,7 +83,7 @@ static int wdt_setload(struct watchdog_device *wdd, unsigned int timeout)
->   	struct sp805_wdt *wdt = watchdog_get_drvdata(wdd);
->   	u64 load, rate;
->   
-> -	rate = clk_get_rate(wdt->clk);
-> +	rate = wdt->rate;
->   
->   	/*
->   	 * sp805 runs counter with given value twice, after the end of first
-> @@ -106,9 +109,7 @@ static int wdt_setload(struct watchdog_device *wdd, unsigned int timeout)
->   static unsigned int wdt_timeleft(struct watchdog_device *wdd)
->   {
->   	struct sp805_wdt *wdt = watchdog_get_drvdata(wdd);
-> -	u64 load, rate;
-> -
-> -	rate = clk_get_rate(wdt->clk);
-> +	u64 load;
->   
->   	spin_lock(&wdt->lock);
->   	load = readl_relaxed(wdt->base + WDTVALUE);
-> @@ -118,7 +119,7 @@ static unsigned int wdt_timeleft(struct watchdog_device *wdd)
->   		load += wdt->load_val + 1;
->   	spin_unlock(&wdt->lock);
->   
-> -	return div_u64(load, rate);
-> +	return div_u64(load, wdt->rate);
->   }
->   
->   static int
-> @@ -228,11 +229,25 @@ sp805_wdt_probe(struct amba_device *adev, const struct amba_id *id)
->   	if (IS_ERR(wdt->base))
->   		return PTR_ERR(wdt->base);
->   
-> -	wdt->clk = devm_clk_get(&adev->dev, NULL);
-> -	if (IS_ERR(wdt->clk)) {
-> -		dev_warn(&adev->dev, "Clock not found\n");
-> -		ret = PTR_ERR(wdt->clk);
-> -		goto err;
-> +	if (adev->dev.of_node) {
-> +		wdt->clk = devm_clk_get(&adev->dev, NULL);
-> +		if (IS_ERR(wdt->clk)) {
-> +			dev_err(&adev->dev, "Clock not found\n");
-> +			return PTR_ERR(wdt->clk);
-> +		}
-> +		wdt->rate = clk_get_rate(wdt->clk);
-> +	} else if (has_acpi_companion(&adev->dev)) {
-> +		/*
-> +		 * When Driver probe with ACPI device, clock devices
-> +		 * are not available, so watchdog rate get from
-> +		 * clock-frequency property given in _DSD object.
-> +		 */
-> +		device_property_read_u64(&adev->dev, "clock-frequency",
-> +					 &wdt->rate);
-> +		if (!wdt->rate) {
-> +			dev_err(&adev->dev, "no clock-frequency property\n");
-> +			return -ENODEV;
-> +		}
->   	}
->   
->   	wdt->adev = adev;
-> 
-
+diff --git a/drivers/watchdog/lantiq_wdt.c b/drivers/watchdog/lantiq_wdt.c
+index 7f43cefa0eae..8732a7bcc7ba 100644
+--- a/drivers/watchdog/lantiq_wdt.c
++++ b/drivers/watchdog/lantiq_wdt.c
+@@ -40,16 +40,18 @@
+  * essentially the following two magic passwords need to be written to allow
+  * IO access to the WDT core
+  */
+-#define LTQ_WDT_PW1		0x00BE0000
+-#define LTQ_WDT_PW2		0x00DC0000
+-
+-#define LTQ_WDT_CR		0x0	/* watchdog control register */
++#define LTQ_WDT_CR_PW1		0x00BE0000
++#define LTQ_WDT_CR_PW2		0x00DC0000
++
++#define LTQ_WDT_CR		0x0		/* watchdog control register */
++#define  LTQ_WDT_CR_GEN		BIT(31)		/* enable bit */
++#define  LTQ_WDT_CR_PWL		(0x3 << 26)	/* Pre-warning limit set to 1/16 of max WDT period */
++#define  LTQ_WDT_CR_CLKDIV	(0x3 << 24)	/* set clock divider to 0x40000 */
++#define  LTQ_WDT_CR_PW_MASK	GENMASK(23, 16)	/* Password field */
++#define  LTQ_WDT_CR_RELOAD_MASK	GENMASK(15, 0)	/* Reload value */
+ #define LTQ_WDT_SR		0x8	/* watchdog status register */
++#define  LTQ_WDT_SR_VALUE_MASK	GENMASK(15, 0)	/* Timer value */
+ 
+-#define LTQ_WDT_SR_EN		(0x1 << 31)	/* enable bit */
+-#define LTQ_WDT_SR_PWD		(0x3 << 26)	/* turn on power */
+-#define LTQ_WDT_SR_CLKDIV	(0x3 << 24)	/* turn on clock and set */
+-						/* divider to 0x40000 */
+ #define LTQ_WDT_DIVIDER		0x40000
+ #define LTQ_MAX_TIMEOUT		((1 << 16) - 1)	/* the reload field is 16 bit */
+ 
+@@ -72,22 +74,22 @@ ltq_wdt_enable(void)
+ 		timeout = LTQ_MAX_TIMEOUT;
+ 
+ 	/* write the first password magic */
+-	ltq_w32(LTQ_WDT_PW1, ltq_wdt_membase + LTQ_WDT_CR);
++	ltq_w32(LTQ_WDT_CR_PW1, ltq_wdt_membase + LTQ_WDT_CR);
+ 	/* write the second magic plus the configuration and new timeout */
+-	ltq_w32(LTQ_WDT_SR_EN | LTQ_WDT_SR_PWD | LTQ_WDT_SR_CLKDIV |
+-		LTQ_WDT_PW2 | timeout, ltq_wdt_membase + LTQ_WDT_CR);
++	ltq_w32(LTQ_WDT_CR_GEN | LTQ_WDT_CR_PWL | LTQ_WDT_CR_CLKDIV |
++		LTQ_WDT_CR_PW2 | timeout, ltq_wdt_membase + LTQ_WDT_CR);
+ }
+ 
+ static void
+ ltq_wdt_disable(void)
+ {
+ 	/* write the first password magic */
+-	ltq_w32(LTQ_WDT_PW1, ltq_wdt_membase + LTQ_WDT_CR);
++	ltq_w32(LTQ_WDT_CR_PW1, ltq_wdt_membase + LTQ_WDT_CR);
+ 	/*
+ 	 * write the second password magic with no config
+ 	 * this turns the watchdog off
+ 	 */
+-	ltq_w32(LTQ_WDT_PW2, ltq_wdt_membase + LTQ_WDT_CR);
++	ltq_w32(LTQ_WDT_CR_PW2, ltq_wdt_membase + LTQ_WDT_CR);
+ }
+ 
+ static ssize_t
+-- 
+2.11.0
