@@ -1,129 +1,71 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-qt0-f195.google.com ([209.85.216.195]:41145 "EHLO
-        mail-qt0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388014AbeGWJiE (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 23 Jul 2018 05:38:04 -0400
-Received: by mail-qt0-f195.google.com with SMTP id e19-v6so15742991qtp.8
-        for <linux-watchdog@vger.kernel.org>; Mon, 23 Jul 2018 01:37:58 -0700 (PDT)
-From: Srinath Mannam <srinath.mannam@broadcom.com>
-To: wim@linux-watchdog.org, linux@roeck-us.net
-Cc: ray.jui@broadcom.com, vladimir.olovyannikov@broadcom.com,
-        vikram.prakash@broadcom.com, scott.branden@broadcom.com,
-        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        bcm-kernel-feedback-list@broadcom.com,
-        Srinath Mannam <srinath.mannam@broadcom.com>
-Subject: [PATCH] watchdog: sp805: Add clock-frequency property
-Date: Mon, 23 Jul 2018 14:07:40 +0530
-Message-Id: <1532335060-686-1-git-send-email-srinath.mannam@broadcom.com>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-Path: <paul@crapouillou.net>
+Return-path: <paul@crapouillou.net>
+From: Paul Cercueil <paul@crapouillou.net>
+To: Thierry Reding <thierry.reding@gmail.com>,
+	Rob Herring <robh+dt@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Daniel Lezcano <daniel.lezcano@linaro.org>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Ralf Baechle <ralf@linux-mips.org>,
+	Paul Burton <paul.burton@mips.com>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Michael Turquette <mturquette@baylibre.com>,
+	Stephen Boyd <sboyd@kernel.org>,
+	Lee Jones <lee.jones@linaro.org>
+Cc: Paul Cercueil <paul@crapouillou.net>,
+	linux-pwm@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-watchdog@vger.kernel.org,
+	linux-mips@linux-mips.org,
+	linux-doc@vger.kernel.org,
+	linux-clk@vger.kernel.org
+Subject: [PATCH v5 00/21] Ingenic JZ47xx TCU patchset v5
+Date: Wed, 25 Jul 2018 01:19:37 +0200
+Message-Id: <20180724231958.20659-1-paul@crapouillou.net>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-Use clock-frequency property given in _DSD object
-of ACPI device to calculate Watchdog rate as binding
-clock devices are not available as device tree.
+Hi,
 
-Note: There is no formal review process for _DSD
-properties
+This is the V5 of my patchset that adds support to the Timer/Counter
+Unit (TCU) present on Ingenic JZ47xx SoCs.
 
-Signed-off-by: Srinath Mannam <srinath.mannam@broadcom.com>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Reviewed-by: Ray Jui <ray.jui@broadcom.com>
-Reviewed-by: Scott Branden <scott.branden@broadcom.com>
----
- drivers/watchdog/sp805_wdt.c | 35 +++++++++++++++++++++++++----------
- 1 file changed, 25 insertions(+), 10 deletions(-)
+Way too much has changed since V4, we went from 8 patches in V4 up to
+21 patches in V5.
+I did not know if I had to submit it as V5 or start a new series.
+In doubt, I sent a V5.
 
-diff --git a/drivers/watchdog/sp805_wdt.c b/drivers/watchdog/sp805_wdt.c
-index 9849db0..a896b1c 100644
---- a/drivers/watchdog/sp805_wdt.c
-+++ b/drivers/watchdog/sp805_wdt.c
-@@ -11,6 +11,7 @@
-  * warranty of any kind, whether express or implied.
-  */
- 
-+#include <linux/acpi.h>
- #include <linux/device.h>
- #include <linux/resource.h>
- #include <linux/amba/bus.h>
-@@ -22,6 +23,7 @@
- #include <linux/math64.h>
- #include <linux/module.h>
- #include <linux/moduleparam.h>
-+#include <linux/of.h>
- #include <linux/pm.h>
- #include <linux/slab.h>
- #include <linux/spinlock.h>
-@@ -65,6 +67,7 @@ struct sp805_wdt {
- 	spinlock_t			lock;
- 	void __iomem			*base;
- 	struct clk			*clk;
-+	u64				rate;
- 	struct amba_device		*adev;
- 	unsigned int			load_val;
- };
-@@ -80,7 +83,7 @@ static int wdt_setload(struct watchdog_device *wdd, unsigned int timeout)
- 	struct sp805_wdt *wdt = watchdog_get_drvdata(wdd);
- 	u64 load, rate;
- 
--	rate = clk_get_rate(wdt->clk);
-+	rate = wdt->rate;
- 
- 	/*
- 	 * sp805 runs counter with given value twice, after the end of first
-@@ -106,9 +109,7 @@ static int wdt_setload(struct watchdog_device *wdd, unsigned int timeout)
- static unsigned int wdt_timeleft(struct watchdog_device *wdd)
- {
- 	struct sp805_wdt *wdt = watchdog_get_drvdata(wdd);
--	u64 load, rate;
--
--	rate = clk_get_rate(wdt->clk);
-+	u64 load;
- 
- 	spin_lock(&wdt->lock);
- 	load = readl_relaxed(wdt->base + WDTVALUE);
-@@ -118,7 +119,7 @@ static unsigned int wdt_timeleft(struct watchdog_device *wdd)
- 		load += wdt->load_val + 1;
- 	spin_unlock(&wdt->lock);
- 
--	return div_u64(load, rate);
-+	return div_u64(load, wdt->rate);
- }
- 
- static int
-@@ -228,11 +229,25 @@ sp805_wdt_probe(struct amba_device *adev, const struct amba_id *id)
- 	if (IS_ERR(wdt->base))
- 		return PTR_ERR(wdt->base);
- 
--	wdt->clk = devm_clk_get(&adev->dev, NULL);
--	if (IS_ERR(wdt->clk)) {
--		dev_warn(&adev->dev, "Clock not found\n");
--		ret = PTR_ERR(wdt->clk);
--		goto err;
-+	if (adev->dev.of_node) {
-+		wdt->clk = devm_clk_get(&adev->dev, NULL);
-+		if (IS_ERR(wdt->clk)) {
-+			dev_err(&adev->dev, "Clock not found\n");
-+			return PTR_ERR(wdt->clk);
-+		}
-+		wdt->rate = clk_get_rate(wdt->clk);
-+	} else if (has_acpi_companion(&adev->dev)) {
-+		/*
-+		 * When Driver probe with ACPI device, clock devices
-+		 * are not available, so watchdog rate get from
-+		 * clock-frequency property given in _DSD object.
-+		 */
-+		device_property_read_u64(&adev->dev, "clock-frequency",
-+					 &wdt->rate);
-+		if (!wdt->rate) {
-+			dev_err(&adev->dev, "no clock-frequency property\n");
-+			return -ENODEV;
-+		}
- 	}
- 
- 	wdt->adev = adev;
--- 
-2.7.4
+Very succint description of the changes:
 
+- The interrupt, clocks, clocksource drivers have been merged into one;
+  ingenic-timer now inits the TCU clocks, handles the interrupts,
+  provides a system timer and optionally also a clocksource and
+  sched_clock. The TCU channel #0 will be used as system timer, unless
+  another channel is specified from devicetree.
+
+- The simple-mfd and syscon are gone. The ingenic-timer driver will
+  probe the drivers registered as children in the devicetree.
+
+- The watchdog driver was updated to use the WDT clock and regmap
+  provided by ingenic-timer. This breaks the devicetree ABI, but as
+  explained in the corresponding commit message, right now all Ingenic
+  boards compile the devicetree into the kernel anyway - so it's better
+  to update it now before it's too late.
+
+- The PWM driver was updated to use the TCU timer clocks as well as the
+  regmap provided by ingenic-timer. Unused devicetree compatible strings
+  were removed (the driver was never probed from devicetree), and
+  support for the JZ4725B has been added.
+
+- A new ingenic-ost driver was added, which provides a clocksource and
+  a sched_clock that are more accurate than the ones provided by
+  ingenic-timer (32 or 64-bit vs. 16-bit). It is not available on every
+  SoC.
+
+- Mostly tested on the JZ4725B and JZ4770. It would be great if somebody
+  could test on the JZ4780 and JZ4740.
+
+Thanks,
+-Paul
