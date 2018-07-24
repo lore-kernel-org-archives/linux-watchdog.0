@@ -1,8 +1,8 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from outils.crapouillou.net ([89.234.176.41]:56386 "EHLO
+Received: from outils.crapouillou.net ([89.234.176.41]:56374 "EHLO
         crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388469AbeGYAgj (ORCPT
+        with ESMTP id S2388496AbeGYAgj (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
         Tue, 24 Jul 2018 20:36:39 -0400
 From: Paul Cercueil <paul@crapouillou.net>
@@ -23,37 +23,36 @@ Cc: Paul Cercueil <paul@crapouillou.net>, linux-pwm@vger.kernel.org,
         devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-watchdog@vger.kernel.org, linux-mips@linux-mips.org,
         linux-doc@vger.kernel.org, linux-clk@vger.kernel.org
-Subject: [PATCH v5 15/21] MIPS: Kconfig: Select TCU timer driver when MACH_INGENIC is set
-Date: Wed, 25 Jul 2018 01:19:52 +0200
-Message-Id: <20180724231958.20659-16-paul@crapouillou.net>
+Subject: [PATCH v5 20/21] MIPS: CI20: defconfig: enable OST driver
+Date: Wed, 25 Jul 2018 01:19:57 +0200
+Message-Id: <20180724231958.20659-21-paul@crapouillou.net>
 In-Reply-To: <20180724231958.20659-1-paul@crapouillou.net>
 References: <20180724231958.20659-1-paul@crapouillou.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-We cannot boot to userspace (not even initramfs) if the timer driver is
-not present; so it makes sense to enable it unconditionally when
-MACH_INGENIC is set.
+The OST driver provides a clocksource and sched_clock that are much more
+accurate than the default ones.
 
 Signed-off-by: Paul Cercueil <paul@crapouillou.net>
 ---
- arch/mips/Kconfig | 1 +
+ arch/mips/configs/ci20_defconfig | 1 +
  1 file changed, 1 insertion(+)
 
  v5: New patch
 
-diff --git a/arch/mips/Kconfig b/arch/mips/Kconfig
-index 08c10c518f83..254dbf69a4ad 100644
---- a/arch/mips/Kconfig
-+++ b/arch/mips/Kconfig
-@@ -384,6 +384,7 @@ config MACH_INGENIC
- 	select BUILTIN_DTB
- 	select USE_OF
- 	select LIBFDT
-+	select INGENIC_TIMER
- 
- config LANTIQ
- 	bool "Lantiq based platforms"
+diff --git a/arch/mips/configs/ci20_defconfig b/arch/mips/configs/ci20_defconfig
+index be23fd25eeaa..e56dc5c024b9 100644
+--- a/arch/mips/configs/ci20_defconfig
++++ b/arch/mips/configs/ci20_defconfig
+@@ -109,6 +109,7 @@ CONFIG_RTC_CLASS=y
+ CONFIG_RTC_DRV_JZ4740=y
+ CONFIG_DMADEVICES=y
+ CONFIG_DMA_JZ4780=y
++CONFIG_INGENIC_OST=y
+ # CONFIG_IOMMU_SUPPORT is not set
+ CONFIG_MEMORY=y
+ CONFIG_EXT4_FS=y
 -- 
 2.11.0
 
