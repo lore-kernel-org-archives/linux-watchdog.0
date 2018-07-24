@@ -1,8 +1,8 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from outils.crapouillou.net ([89.234.176.41]:56380 "EHLO
+Received: from outils.crapouillou.net ([89.234.176.41]:56406 "EHLO
         crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388485AbeGYAgj (ORCPT
+        with ESMTP id S2388498AbeGYAgj (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
         Tue, 24 Jul 2018 20:36:39 -0400
 From: Paul Cercueil <paul@crapouillou.net>
@@ -23,260 +23,97 @@ Cc: Paul Cercueil <paul@crapouillou.net>, linux-pwm@vger.kernel.org,
         devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-watchdog@vger.kernel.org, linux-mips@linux-mips.org,
         linux-doc@vger.kernel.org, linux-clk@vger.kernel.org
-Subject: [PATCH v5 08/21] watchdog: jz4740: Use regmap and WDT clock provided by TCU driver
-Date: Wed, 25 Jul 2018 01:19:45 +0200
-Message-Id: <20180724231958.20659-9-paul@crapouillou.net>
+Subject: [PATCH v5 01/21] mfd: Add ingenic-tcu.h header
+Date: Wed, 25 Jul 2018 01:19:38 +0200
+Message-Id: <20180724231958.20659-2-paul@crapouillou.net>
 In-Reply-To: <20180724231958.20659-1-paul@crapouillou.net>
 References: <20180724231958.20659-1-paul@crapouillou.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Instead of requesting the "ext" clock and handling the watchdog clock
-divider and gating in the watchdog driver, we now request and use the
-"wdt" clock that is supplied by the ingenic-timer "TCU" driver.
-
-The major benefit is that the watchdog's clock rate and parent can now
-be specified from within devicetree, instead of hardcoded in the driver.
-
-Also, this driver won't poke anymore into the TCU registers to
-enable/disable the clock, as this is now handled by the TCU driver.
-
-On the bad side, we break the ABI with devicetree - as we now request a
-different clock. In this very specific case it is still okay, as every
-Ingenic JZ47xx-based board out there compile the devicetree within the
-kernel; so it's still time to push breaking changes, in order to get a
-clean devicetree that won't break once it musn't.
-
-Since we broke the ABI by changing the clock, the driver was also
-updated to use the regmap provided by the TCU driver.
+This header contains macros for the registers that are present in the
+regmap shared by all the drivers related to the TCU (Timer Counter Unit)
+of the Ingenic JZ47xx SoCs.
 
 Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Acked-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/watchdog/Kconfig      |   2 +
- drivers/watchdog/jz4740_wdt.c | 128 +++++++++++++++++++++---------------------
- 2 files changed, 66 insertions(+), 64 deletions(-)
+ include/linux/mfd/ingenic-tcu.h | 56 +++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 56 insertions(+)
+ create mode 100644 include/linux/mfd/ingenic-tcu.h
 
- v5: New patch
+ v2: Use SPDX identifier for the license
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 9af07fd92763..834222abbbdb 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -1476,7 +1476,9 @@ config INDYDOG
- config JZ4740_WDT
- 	tristate "Ingenic jz4740 SoC hardware watchdog"
- 	depends on MACH_JZ4740 || MACH_JZ4780
-+	depends on COMMON_CLK
- 	select WATCHDOG_CORE
-+	select INGENIC_TIMER
- 	help
- 	  Hardware driver for the built-in watchdog timer on Ingenic jz4740 SoCs.
- 
-diff --git a/drivers/watchdog/jz4740_wdt.c b/drivers/watchdog/jz4740_wdt.c
-index ec4d99a830ba..aaa6fc87136c 100644
---- a/drivers/watchdog/jz4740_wdt.c
-+++ b/drivers/watchdog/jz4740_wdt.c
-@@ -13,6 +13,7 @@
-  *
-  */
- 
-+#include <linux/mfd/ingenic-tcu.h>
- #include <linux/module.h>
- #include <linux/moduleparam.h>
- #include <linux/types.h>
-@@ -25,26 +26,7 @@
- #include <linux/slab.h>
- #include <linux/err.h>
- #include <linux/of.h>
--
--#include <asm/mach-jz4740/timer.h>
--
--#define JZ_REG_WDT_TIMER_DATA     0x0
--#define JZ_REG_WDT_COUNTER_ENABLE 0x4
--#define JZ_REG_WDT_TIMER_COUNTER  0x8
--#define JZ_REG_WDT_TIMER_CONTROL  0xC
--
--#define JZ_WDT_CLOCK_PCLK 0x1
--#define JZ_WDT_CLOCK_RTC  0x2
--#define JZ_WDT_CLOCK_EXT  0x4
--
--#define JZ_WDT_CLOCK_DIV_SHIFT   3
--
--#define JZ_WDT_CLOCK_DIV_1    (0 << JZ_WDT_CLOCK_DIV_SHIFT)
--#define JZ_WDT_CLOCK_DIV_4    (1 << JZ_WDT_CLOCK_DIV_SHIFT)
--#define JZ_WDT_CLOCK_DIV_16   (2 << JZ_WDT_CLOCK_DIV_SHIFT)
--#define JZ_WDT_CLOCK_DIV_64   (3 << JZ_WDT_CLOCK_DIV_SHIFT)
--#define JZ_WDT_CLOCK_DIV_256  (4 << JZ_WDT_CLOCK_DIV_SHIFT)
--#define JZ_WDT_CLOCK_DIV_1024 (5 << JZ_WDT_CLOCK_DIV_SHIFT)
-+#include <linux/regmap.h>
- 
- #define DEFAULT_HEARTBEAT 5
- #define MAX_HEARTBEAT     2048
-@@ -64,15 +46,15 @@ MODULE_PARM_DESC(heartbeat,
- 
- struct jz4740_wdt_drvdata {
- 	struct watchdog_device wdt;
--	void __iomem *base;
--	struct clk *rtc_clk;
-+	struct regmap *map;
-+	struct clk *clk;
- };
- 
- static int jz4740_wdt_ping(struct watchdog_device *wdt_dev)
- {
- 	struct jz4740_wdt_drvdata *drvdata = watchdog_get_drvdata(wdt_dev);
- 
--	writew(0x0, drvdata->base + JZ_REG_WDT_TIMER_COUNTER);
-+	regmap_write(drvdata->map, TCU_REG_WDT_TCNT, 0);
- 	return 0;
- }
- 
-@@ -80,52 +62,65 @@ static int jz4740_wdt_set_timeout(struct watchdog_device *wdt_dev,
- 				    unsigned int new_timeout)
- {
- 	struct jz4740_wdt_drvdata *drvdata = watchdog_get_drvdata(wdt_dev);
--	unsigned int rtc_clk_rate;
--	unsigned int timeout_value;
--	unsigned short clock_div = JZ_WDT_CLOCK_DIV_1;
--
--	rtc_clk_rate = clk_get_rate(drvdata->rtc_clk);
--
--	timeout_value = rtc_clk_rate * new_timeout;
--	while (timeout_value > 0xffff) {
--		if (clock_div == JZ_WDT_CLOCK_DIV_1024) {
--			/* Requested timeout too high;
--			* use highest possible value. */
--			timeout_value = 0xffff;
--			break;
--		}
--		timeout_value >>= 2;
--		clock_div += (1 << JZ_WDT_CLOCK_DIV_SHIFT);
-+	struct clk *clk = drvdata->clk;
-+	unsigned long clk_rate, timeout_value;
-+	bool change_rate = false;
-+	u32 tcer;
-+	int ret = 0;
+ v3: - Use macros instead of enum
+     - Add 'TCU_' at the beginning of each macro
+	 - Remove useless include <linux/regmap.h>
+
+ v4: No change
+
+ v5: No change
+
+diff --git a/include/linux/mfd/ingenic-tcu.h b/include/linux/mfd/ingenic-tcu.h
+new file mode 100644
+index 000000000000..3d85f075d2db
+--- /dev/null
++++ b/include/linux/mfd/ingenic-tcu.h
+@@ -0,0 +1,56 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * Header file for the Ingenic JZ47xx TCU driver
++ */
++#ifndef __LINUX_CLK_INGENIC_TCU_H_
++#define __LINUX_CLK_INGENIC_TCU_H_
 +
-+	clk_rate = clk_get_rate(clk);
-+	timeout_value = clk_rate * new_timeout;
++#include <linux/bitops.h>
 +
-+	if (timeout_value > 0xffff) {
-+		clk_rate = clk_round_rate(clk, 0xffff / new_timeout);
-+		timeout_value = clk_rate * new_timeout;
-+		if (timeout_value > 0xffff)
-+			return -EINVAL;
-+		change_rate = true;
- 	}
- 
--	writeb(0x0, drvdata->base + JZ_REG_WDT_COUNTER_ENABLE);
--	writew(clock_div, drvdata->base + JZ_REG_WDT_TIMER_CONTROL);
-+	regmap_read(drvdata->map, TCU_REG_WDT_TCER, &tcer);
-+	regmap_write(drvdata->map, TCU_REG_WDT_TCER, 0);
- 
--	writew((u16)timeout_value, drvdata->base + JZ_REG_WDT_TIMER_DATA);
--	writew(0x0, drvdata->base + JZ_REG_WDT_TIMER_COUNTER);
--	writew(clock_div | JZ_WDT_CLOCK_RTC,
--		drvdata->base + JZ_REG_WDT_TIMER_CONTROL);
-+	if (change_rate) {
-+		clk_disable_unprepare(clk);
-+		ret = clk_set_rate(clk, clk_rate);
-+		clk_prepare_enable(clk);
-+		if (ret)
-+			goto done;
-+	}
- 
--	writeb(0x1, drvdata->base + JZ_REG_WDT_COUNTER_ENABLE);
-+	regmap_write(drvdata->map, TCU_REG_WDT_TDR, (u16)timeout_value);
-+	regmap_write(drvdata->map, TCU_REG_WDT_TCNT, 0);
- 
- 	wdt_dev->timeout = new_timeout;
--	return 0;
++#define TCU_REG_WDT_TDR		0x00
++#define TCU_REG_WDT_TCER	0x04
++#define TCU_REG_WDT_TCNT	0x08
++#define TCU_REG_WDT_TCSR	0x0c
++#define TCU_REG_TER		0x10
++#define TCU_REG_TESR		0x14
++#define TCU_REG_TECR		0x18
++#define TCU_REG_TSR		0x1c
++#define TCU_REG_TFR		0x20
++#define TCU_REG_TFSR		0x24
++#define TCU_REG_TFCR		0x28
++#define TCU_REG_TSSR		0x2c
++#define TCU_REG_TMR		0x30
++#define TCU_REG_TMSR		0x34
++#define TCU_REG_TMCR		0x38
++#define TCU_REG_TSCR		0x3c
++#define TCU_REG_TDFR0		0x40
++#define TCU_REG_TDHR0		0x44
++#define TCU_REG_TCNT0		0x48
++#define TCU_REG_TCSR0		0x4c
++#define TCU_REG_OST_DR		0xe0
++#define TCU_REG_OST_CNTL	0xe4
++#define TCU_REG_OST_CNTH	0xe8
++#define TCU_REG_OST_TCSR	0xec
++#define TCU_REG_TSTR		0xf0
++#define TCU_REG_TSTSR		0xf4
++#define TCU_REG_TSTCR		0xf8
++#define TCU_REG_OST_CNTHBUF	0xfc
 +
-+done:
-+	regmap_write(drvdata->map, TCU_REG_WDT_TCER, tcer & TCU_WDT_TCER_TCEN);
-+	return ret;
- }
- 
- static int jz4740_wdt_start(struct watchdog_device *wdt_dev)
- {
--	jz4740_timer_enable_watchdog();
--	jz4740_wdt_set_timeout(wdt_dev, wdt_dev->timeout);
-+	struct jz4740_wdt_drvdata *drvdata = watchdog_get_drvdata(wdt_dev);
-+	int ret;
- 
--	return 0;
-+	clk_prepare_enable(drvdata->clk);
-+	ret = jz4740_wdt_set_timeout(wdt_dev, wdt_dev->timeout);
-+	if (ret)
-+		clk_disable_unprepare(drvdata->clk);
-+	else
-+		regmap_write(drvdata->map, TCU_REG_WDT_TCER, TCU_WDT_TCER_TCEN);
++#define TCU_TCSR_RESERVED_BITS		0x3f
++#define TCU_TCSR_PARENT_CLOCK_MASK	0x07
++#define TCU_TCSR_PRESCALE_LSB		3
++#define TCU_TCSR_PRESCALE_MASK		0x38
 +
-+	return ret;
- }
- 
- static int jz4740_wdt_stop(struct watchdog_device *wdt_dev)
- {
- 	struct jz4740_wdt_drvdata *drvdata = watchdog_get_drvdata(wdt_dev);
- 
--	writeb(0x0, drvdata->base + JZ_REG_WDT_COUNTER_ENABLE);
--	jz4740_timer_disable_watchdog();
-+	regmap_write(drvdata->map, TCU_REG_WDT_TCER, 0);
-+	clk_disable_unprepare(drvdata->clk);
- 
- 	return 0;
- }
-@@ -163,13 +158,17 @@ MODULE_DEVICE_TABLE(of, jz4740_wdt_of_matches);
- 
- static int jz4740_wdt_probe(struct platform_device *pdev)
- {
-+	struct device *dev = &pdev->dev;
- 	struct jz4740_wdt_drvdata *drvdata;
- 	struct watchdog_device *jz4740_wdt;
--	struct resource	*res;
- 	int ret;
- 
--	drvdata = devm_kzalloc(&pdev->dev, sizeof(struct jz4740_wdt_drvdata),
--			       GFP_KERNEL);
-+	if (!dev->of_node) {
-+		dev_err(dev, "jz4740-wdt must be probed via devicetree\n");
-+		return -ENODEV;
-+	}
++#define TCU_TCSR_PWM_SD		BIT(9)	/* 0: Shutdown abruptly 1: gracefully */
++#define TCU_TCSR_PWM_INITL_HIGH	BIT(8)	/* Sets the initial output level */
++#define TCU_TCSR_PWM_EN		BIT(7)	/* PWM pin output enable */
 +
-+	drvdata = devm_kzalloc(dev, sizeof(*drvdata), GFP_KERNEL);
- 	if (!drvdata)
- 		return -ENOMEM;
- 
-@@ -182,19 +181,20 @@ static int jz4740_wdt_probe(struct platform_device *pdev)
- 	jz4740_wdt->timeout = heartbeat;
- 	jz4740_wdt->min_timeout = 1;
- 	jz4740_wdt->max_timeout = MAX_HEARTBEAT;
--	jz4740_wdt->parent = &pdev->dev;
-+	jz4740_wdt->parent = dev;
- 	watchdog_set_nowayout(jz4740_wdt, nowayout);
- 	watchdog_set_drvdata(jz4740_wdt, drvdata);
- 
--	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	drvdata->base = devm_ioremap_resource(&pdev->dev, res);
--	if (IS_ERR(drvdata->base))
--		return PTR_ERR(drvdata->base);
-+	drvdata->map = dev_get_regmap(dev->parent, NULL);
-+	if (IS_ERR(drvdata->map)) {
-+		dev_warn(dev, "regmap not found\n");
-+		return PTR_ERR(drvdata->map);
-+	}
- 
--	drvdata->rtc_clk = devm_clk_get(&pdev->dev, "rtc");
--	if (IS_ERR(drvdata->rtc_clk)) {
--		dev_err(&pdev->dev, "cannot find RTC clock\n");
--		return PTR_ERR(drvdata->rtc_clk);
-+	drvdata->clk = devm_clk_get(&pdev->dev, "wdt");
-+	if (IS_ERR(drvdata->clk)) {
-+		dev_err(&pdev->dev, "cannot find WDT clock\n");
-+		return PTR_ERR(drvdata->clk);
- 	}
- 
- 	ret = devm_watchdog_register_device(&pdev->dev, &drvdata->wdt);
++#define TCU_WDT_TCER_TCEN	BIT(0)	/* Watchdog timer enable */
++
++#define TCU_CHANNEL_STRIDE	0x10
++#define TCU_REG_TDFRc(c)	(TCU_REG_TDFR0 + ((c) * TCU_CHANNEL_STRIDE))
++#define TCU_REG_TDHRc(c)	(TCU_REG_TDHR0 + ((c) * TCU_CHANNEL_STRIDE))
++#define TCU_REG_TCNTc(c)	(TCU_REG_TCNT0 + ((c) * TCU_CHANNEL_STRIDE))
++#define TCU_REG_TCSRc(c)	(TCU_REG_TCSR0 + ((c) * TCU_CHANNEL_STRIDE))
++
++#endif /* __LINUX_CLK_INGENIC_TCU_H_ */
 -- 
 2.11.0
 
