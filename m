@@ -1,10 +1,10 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from outils.crapouillou.net ([89.234.176.41]:56378 "EHLO
+Received: from outils.crapouillou.net ([89.234.176.41]:56370 "EHLO
         crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388441AbeGYAgj (ORCPT
+        with ESMTP id S2388511AbeGYAgk (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 24 Jul 2018 20:36:39 -0400
+        Tue, 24 Jul 2018 20:36:40 -0400
 From: Paul Cercueil <paul@crapouillou.net>
 To: Thierry Reding <thierry.reding@gmail.com>,
         Rob Herring <robh+dt@kernel.org>,
@@ -22,116 +22,271 @@ To: Thierry Reding <thierry.reding@gmail.com>,
 Cc: Paul Cercueil <paul@crapouillou.net>, linux-pwm@vger.kernel.org,
         devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-watchdog@vger.kernel.org, linux-mips@linux-mips.org,
-        linux-doc@vger.kernel.org, linux-clk@vger.kernel.org
-Subject: [PATCH v5 17/21] MIPS: qi_lb60: Move PWM devices to devicetree
-Date: Wed, 25 Jul 2018 01:19:54 +0200
-Message-Id: <20180724231958.20659-18-paul@crapouillou.net>
+        linux-doc@vger.kernel.org, linux-clk@vger.kernel.org,
+        Maarten ter Huurne <maarten@treewalker.org>
+Subject: [PATCH v5 06/21] clocksource: Add driver for the Ingenic JZ47xx OST
+Date: Wed, 25 Jul 2018 01:19:43 +0200
+Message-Id: <20180724231958.20659-7-paul@crapouillou.net>
 In-Reply-To: <20180724231958.20659-1-paul@crapouillou.net>
 References: <20180724231958.20659-1-paul@crapouillou.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Probe the few drivers using PWMs from devicetree, now that we have a
-devicetree node for the PWM driver.
+From: Maarten ter Huurne <maarten@treewalker.org>
 
+OST is the OS Timer, a 64-bit timer/counter with buffered reading.
+
+SoCs before the JZ4770 had (if any) a 32-bit OST; the JZ4770 and
+JZ4780 have a 64-bit OST.
+
+This driver will register both a clocksource and a sched_clock to the
+system.
+
+Signed-off-by: Maarten ter Huurne <maarten@treewalker.org>
 Signed-off-by: Paul Cercueil <paul@crapouillou.net>
 ---
- arch/mips/boot/dts/ingenic/qi_lb60.dts | 14 ++++++++++++++
- arch/mips/jz4740/board-qi_lb60.c       | 19 -------------------
- 2 files changed, 14 insertions(+), 19 deletions(-)
+ drivers/clocksource/Kconfig       |   8 ++
+ drivers/clocksource/Makefile      |   1 +
+ drivers/clocksource/ingenic-ost.c | 199 ++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 208 insertions(+)
+ create mode 100644 drivers/clocksource/ingenic-ost.c
 
  v5: New patch
 
-diff --git a/arch/mips/boot/dts/ingenic/qi_lb60.dts b/arch/mips/boot/dts/ingenic/qi_lb60.dts
-index 76aaf8982554..85529a142409 100644
---- a/arch/mips/boot/dts/ingenic/qi_lb60.dts
-+++ b/arch/mips/boot/dts/ingenic/qi_lb60.dts
-@@ -9,6 +9,14 @@
- 	chosen {
- 		stdout-path = &uart0;
- 	};
+diff --git a/drivers/clocksource/Kconfig b/drivers/clocksource/Kconfig
+index 98f708208a8d..e855938c69f1 100644
+--- a/drivers/clocksource/Kconfig
++++ b/drivers/clocksource/Kconfig
+@@ -619,4 +619,12 @@ config INGENIC_TIMER
+ 	help
+ 	  Support for the timer/counter unit of the Ingenic JZ SoCs.
+ 
++config INGENIC_OST
++	bool "Ingenic JZ47xx Operating System Timer"
++	depends on MIPS || COMPILE_TEST
++	depends on COMMON_CLK
++	select INGENIC_TIMER
++	help
++	  Support for the OS Timer of the Ingenic JZ4770 or similar SoC.
 +
-+	beeper {
-+		compatible = "pwm-beeper";
-+		pwms = <&pwm 4 0 0>;
+ endmenu
+diff --git a/drivers/clocksource/Makefile b/drivers/clocksource/Makefile
+index 26877505d400..56ce37252944 100644
+--- a/drivers/clocksource/Makefile
++++ b/drivers/clocksource/Makefile
+@@ -75,6 +75,7 @@ obj-$(CONFIG_ASM9260_TIMER)		+= asm9260_timer.o
+ obj-$(CONFIG_H8300_TMR8)		+= h8300_timer8.o
+ obj-$(CONFIG_H8300_TMR16)		+= h8300_timer16.o
+ obj-$(CONFIG_H8300_TPU)			+= h8300_tpu.o
++obj-$(CONFIG_INGENIC_OST)		+= ingenic-ost.o
+ obj-$(CONFIG_INGENIC_TIMER)		+= ingenic-timer.o
+ obj-$(CONFIG_CLKSRC_ST_LPC)		+= clksrc_st_lpc.o
+ obj-$(CONFIG_X86_NUMACHIP)		+= numachip.o
+diff --git a/drivers/clocksource/ingenic-ost.c b/drivers/clocksource/ingenic-ost.c
+new file mode 100644
+index 000000000000..224e78926f29
+--- /dev/null
++++ b/drivers/clocksource/ingenic-ost.c
+@@ -0,0 +1,199 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * JZ47xx SoCs TCU Operating System Timer driver
++ *
++ * Copyright (C) 2016 Maarten ter Huurne <maarten@treewalker.org>
++ * Copyright (C) 2018 Paul Cercueil <paul@crapouillou.net>
++ */
 +
-+		pinctrl-names = "default";
-+		pinctrl-0 = <&pins_pwm4>;
-+	};
- };
- 
- &ext {
-@@ -30,4 +38,10 @@
- 		groups = "uart0-data";
- 		bias-disable;
- 	};
++#include <linux/clk.h>
++#include <linux/clocksource.h>
++#include <linux/mfd/ingenic-tcu.h>
++#include <linux/module.h>
++#include <linux/of_device.h>
++#include <linux/platform_device.h>
++#include <linux/pm.h>
++#include <linux/regmap.h>
++#include <linux/sched_clock.h>
 +
-+	pins_pwm4: pwm4 {
-+		function = "pwm4";
-+		groups = "pwm4";
-+		bias-disable;
-+	};
- };
-diff --git a/arch/mips/jz4740/board-qi_lb60.c b/arch/mips/jz4740/board-qi_lb60.c
-index 60f0767507c6..2db32cb9ed47 100644
---- a/arch/mips/jz4740/board-qi_lb60.c
-+++ b/arch/mips/jz4740/board-qi_lb60.c
-@@ -27,7 +27,6 @@
- #include <linux/power_supply.h>
- #include <linux/power/jz4740-battery.h>
- #include <linux/power/gpio-charger.h>
--#include <linux/pwm.h>
- 
- #include <asm/mach-jz4740/gpio.h>
- #include <asm/mach-jz4740/jz4740_fb.h>
-@@ -391,17 +390,6 @@ static struct jz4740_mmc_platform_data qi_lb60_mmc_pdata = {
- 	.power_active_low	= 1,
- };
- 
--/* beeper */
--static struct pwm_lookup qi_lb60_pwm_lookup[] = {
--	PWM_LOOKUP("jz4740-pwm", 4, "pwm-beeper", NULL, 0,
--		   PWM_POLARITY_NORMAL),
--};
--
--static struct platform_device qi_lb60_pwm_beeper = {
--	.name = "pwm-beeper",
--	.id = -1,
--};
--
- /* charger */
- static char *qi_lb60_batteries[] = {
- 	"battery",
-@@ -450,10 +438,8 @@ static struct platform_device *jz_platform_devices[] __initdata = {
- 	&jz4740_i2s_device,
- 	&jz4740_codec_device,
- 	&jz4740_adc_device,
--	&jz4740_pwm_device,
- 	&jz4740_dma_device,
- 	&qi_lb60_gpio_keys,
--	&qi_lb60_pwm_beeper,
- 	&qi_lb60_charger_device,
- 	&qi_lb60_audio_device,
- };
-@@ -482,10 +468,6 @@ static struct pinctrl_map pin_map[] __initdata = {
- 			"10010000.jz4740-pinctrl", "PD0", pin_cfg_bias_disable),
- 	PIN_MAP_CONFIGS_PIN_DEFAULT("jz4740-mmc.0",
- 			"10010000.jz4740-pinctrl", "PD2", pin_cfg_bias_disable),
--
--	/* PWM pin configuration */
--	PIN_MAP_MUX_GROUP_DEFAULT("jz4740-pwm",
--			"10010000.jz4740-pinctrl", "pwm4", "pwm4"),
- };
- 
- 
-@@ -503,7 +485,6 @@ static int __init qi_lb60_init_platform_devices(void)
- 	spi_register_board_info(qi_lb60_spi_board_info,
- 				ARRAY_SIZE(qi_lb60_spi_board_info));
- 
--	pwm_add_table(qi_lb60_pwm_lookup, ARRAY_SIZE(qi_lb60_pwm_lookup));
- 	pinctrl_register_mappings(pin_map, ARRAY_SIZE(pin_map));
- 
- 	return platform_add_devices(jz_platform_devices,
++#include "ingenic-timer.h"
++
++#define TCU_OST_TCSR_MASK	0xc0
++#define TCU_OST_TCSR_CNT_MD	BIT(15)
++
++#define TCU_OST_CHANNEL		15
++
++enum jz_version {
++	ID_JZ4725B,
++	ID_JZ4770,
++};
++
++struct ingenic_ost {
++	enum jz_version version;
++
++	struct regmap *map;
++	struct clk *clk;
++
++	struct clocksource cs;
++};
++
++static u64 notrace ingenic_ost_read_cntl(void)
++{
++	/* Bypass the regmap here as we must return as soon as possible */
++	return readl(ingenic_tcu_base + TCU_REG_OST_CNTL);
++}
++
++static u64 notrace ingenic_ost_read_cnth(void)
++{
++	/* Bypass the regmap here as we must return as soon as possible */
++	return readl(ingenic_tcu_base + TCU_REG_OST_CNTH);
++}
++
++static u64 notrace ingenic_ost_clocksource_read(struct clocksource *cs)
++{
++	u32 val1, val2;
++	u64 count, recount;
++	s64 diff;
++
++	/*
++	 * The buffering of the upper 32 bits of the timer prevents wrong
++	 * results from the bottom 32 bits overflowing due to the timer ticking
++	 * along. However, it does not prevent wrong results from simultaneous
++	 * reads of the timer, which could reset the buffer mid-read.
++	 * Since this kind of wrong read can happen only when the bottom bits
++	 * overflow, there will be minutes between wrong reads, so if we read
++	 * twice in succession, at least one of the reads will be correct.
++	 */
++
++	/* Bypass the regmap here as we must return as soon as possible */
++	val1 = readl(ingenic_tcu_base + TCU_REG_OST_CNTL);
++	val2 = readl(ingenic_tcu_base + TCU_REG_OST_CNTHBUF);
++	count = (u64)val1 | (u64)val2 << 32;
++
++	val1 = readl(ingenic_tcu_base + TCU_REG_OST_CNTL);
++	val2 = readl(ingenic_tcu_base + TCU_REG_OST_CNTHBUF);
++	recount = (u64)val1 | (u64)val2 << 32;
++
++	/*
++	 * A wrong read will produce a result that is 1<<32 too high: the bottom
++	 * part from before overflow and the upper part from after overflow.
++	 * Therefore, the lower value of the two reads is the correct value.
++	 */
++
++	diff = (s64)(recount - count);
++	if (unlikely(diff < 0))
++		count = recount;
++
++	return count;
++}
++
++static const struct of_device_id ingenic_ost_of_match[] = {
++	{ .compatible = "ingenic,jz4725b-ost", .data = (void *)ID_JZ4725B, },
++	{ .compatible = "ingenic,jz4770-ost",  .data = (void *)ID_JZ4770,  },
++	{ }
++};
++MODULE_DEVICE_TABLE(of, ingenic_ost_of_match);
++
++static int __init ingenic_ost_probe(struct platform_device *pdev)
++{
++	struct device *dev = &pdev->dev;
++	struct ingenic_ost *ost;
++	struct clocksource *cs;
++	unsigned long rate, flags;
++	int err;
++
++	ost = devm_kzalloc(dev, sizeof(*ost), GFP_KERNEL);
++	if (!ost)
++		return -ENOMEM;
++
++	ost->map = dev_get_regmap(dev->parent, NULL);
++	if (IS_ERR(ost->map))
++		return PTR_ERR(ost->map);
++
++	ost->clk = devm_clk_get(dev, "ost");
++	if (IS_ERR(ost->clk))
++		return PTR_ERR(ost->clk);
++
++	ost->version = (enum jz_version)of_device_get_match_data(dev);
++
++	err = clk_prepare_enable(ost->clk);
++	if (err)
++		return err;
++
++	/* Clear counter high/low registers */
++	if (ost->version == ID_JZ4770)
++		regmap_write(ost->map, TCU_REG_OST_CNTL, 0);
++	regmap_write(ost->map, TCU_REG_OST_CNTH, 0);
++
++	/* Don't reset counter at compare value. */
++	regmap_update_bits(ost->map, TCU_REG_OST_TCSR,
++			   TCU_OST_TCSR_MASK, TCU_OST_TCSR_CNT_MD);
++
++	rate = clk_get_rate(ost->clk);
++
++	/* Enable OST TCU channel */
++	regmap_write(ost->map, TCU_REG_TESR, BIT(TCU_OST_CHANNEL));
++
++	cs = &ost->cs;
++	cs->name	= "ingenic-ost";
++	cs->rating	= 320;
++	cs->flags	= CLOCK_SOURCE_IS_CONTINUOUS;
++
++	if (ost->version == ID_JZ4770) {
++		cs->mask = CLOCKSOURCE_MASK(64);
++		cs->read = ingenic_ost_clocksource_read;
++	} else {
++		cs->mask = CLOCKSOURCE_MASK(32);
++		cs->read = (u64 (*)(struct clocksource *))ingenic_ost_read_cnth;
++	}
++
++	err = clocksource_register_hz(cs, rate);
++	if (err) {
++		dev_err(dev, "clocksource registration failed: %d\n", err);
++		clk_disable_unprepare(ost->clk);
++		return err;
++	}
++
++	/* Cannot register a sched_clock with interrupts on */
++	local_irq_save(flags);
++	if (ost->version == ID_JZ4770)
++		sched_clock_register(ingenic_ost_read_cntl, 32, rate);
++	else
++		sched_clock_register(ingenic_ost_read_cnth, 32, rate);
++	local_irq_restore(flags);
++
++	return 0;
++}
++
++#ifdef CONFIG_PM_SLEEP
++static int ingenic_ost_suspend(struct device *dev)
++{
++	struct ingenic_ost *ost = dev_get_drvdata(dev);
++
++	clk_disable(ost->clk);
++	return 0;
++}
++
++static int ingenic_ost_resume(struct device *dev)
++{
++	struct ingenic_ost *ost = dev_get_drvdata(dev);
++
++	return clk_enable(ost->clk);
++}
++
++static SIMPLE_DEV_PM_OPS(ingenic_ost_pm_ops, ingenic_ost_suspend,
++			 ingenic_ost_resume);
++#define INGENIC_OST_PM_OPS (&ingenic_ost_pm_ops)
++#else
++#define INGENIC_OST_PM_OPS NULL
++#endif /* CONFIG_PM_SUSPEND */
++
++static struct platform_driver ingenic_ost_driver = {
++	.probe = ingenic_ost_probe,
++	.driver = {
++		.name	= "ingenic-ost",
++		.pm	= INGENIC_OST_PM_OPS,
++		.of_match_table = ingenic_ost_of_match,
++	},
++};
++module_platform_driver(ingenic_ost_driver);
 -- 
 2.11.0
 
