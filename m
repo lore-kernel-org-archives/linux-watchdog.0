@@ -1,463 +1,267 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx2.mailbox.org ([80.241.60.215]:29568 "EHLO mx2.mailbox.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388109AbeGXGpB (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 24 Jul 2018 02:45:01 -0400
-Subject: Re: [PATCH 2/3] wdt: lantiq: Convert to watchdog_device
-To: Guenter Roeck <linux@roeck-us.net>, wim@linux-watchdog.org
-Cc: linux-watchdog@vger.kernel.org, john@phrozen.org, dev@kresin.me
-References: <20180721232635.10523-1-hauke@hauke-m.de>
- <20180721232635.10523-2-hauke@hauke-m.de>
- <1df1b7d3-0101-e20a-95bc-a7352b05b398@roeck-us.net>
-From: Hauke Mehrtens <hauke@hauke-m.de>
-Message-ID: <87f84e7e-8e7f-6386-8800-d99cf94d9a55@hauke-m.de>
-Date: Tue, 24 Jul 2018 07:40:10 +0200
+Received: from mail-io0-f193.google.com ([209.85.223.193]:36982 "EHLO
+        mail-io0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728462AbeGYQdP (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Wed, 25 Jul 2018 12:33:15 -0400
+Date: Wed, 25 Jul 2018 09:21:05 -0600
+From: Rob Herring <robh@kernel.org>
+To: Paul Cercueil <paul@crapouillou.net>
+Cc: Thierry Reding <thierry.reding@gmail.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        Paul Burton <paul.burton@mips.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Lee Jones <lee.jones@linaro.org>, linux-pwm@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-watchdog@vger.kernel.org, linux-mips@linux-mips.org,
+        linux-doc@vger.kernel.org, linux-clk@vger.kernel.org
+Subject: Re: [PATCH v5 04/21] dt-bindings: Add doc for the Ingenic TCU drivers
+Message-ID: <20180725152105.GA6347@rob-hp-laptop>
+References: <20180724231958.20659-1-paul@crapouillou.net>
+ <20180724231958.20659-5-paul@crapouillou.net>
 MIME-Version: 1.0
-In-Reply-To: <1df1b7d3-0101-e20a-95bc-a7352b05b398@roeck-us.net>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-GB
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20180724231958.20659-5-paul@crapouillou.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Guenter,
+On Wed, Jul 25, 2018 at 01:19:41AM +0200, Paul Cercueil wrote:
+> Add documentation about how to properly use the Ingenic TCU
+> (Timer/Counter Unit) drivers from devicetree.
+> 
+> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+> ---
+>  .../devicetree/bindings/pwm/ingenic,jz47xx-pwm.txt |  24 +---
+>  .../devicetree/bindings/timer/ingenic,tcu.txt      | 147 +++++++++++++++++++++
+>  .../bindings/watchdog/ingenic,jz4740-wdt.txt       |  17 +--
+>  3 files changed, 151 insertions(+), 37 deletions(-)
+>  create mode 100644 Documentation/devicetree/bindings/timer/ingenic,tcu.txt
+> 
+>  v4: New patch in this series. Corresponds to V2 patches 3-4-5 with
+>      added content.
+> 
+>  v5: - Edited PWM/watchdog DT bindings documentation to point to the new
+>        document.
+>      - Moved main document to
+>        Documentation/devicetree/bindings/timer/ingenic,tcu.txt
+>      - Updated documentation to reflect the new devicetree bindings.
+> 
+> diff --git a/Documentation/devicetree/bindings/pwm/ingenic,jz47xx-pwm.txt b/Documentation/devicetree/bindings/pwm/ingenic,jz47xx-pwm.txt
+> index 7d9d3f90641b..a722cdde3aa7 100644
+> --- a/Documentation/devicetree/bindings/pwm/ingenic,jz47xx-pwm.txt
+> +++ b/Documentation/devicetree/bindings/pwm/ingenic,jz47xx-pwm.txt
+> @@ -1,25 +1,5 @@
+>  Ingenic JZ47xx PWM Controller
+>  =============================
+>  
+> -Required properties:
+> -- compatible: One of:
+> -  * "ingenic,jz4740-pwm"
+> -  * "ingenic,jz4770-pwm"
+> -  * "ingenic,jz4780-pwm"
+> -- #pwm-cells: Should be 3. See pwm.txt in this directory for a description
+> -  of the cells format.
+> -- clocks : phandle to the external clock.
+> -- clock-names : Should be "ext".
+> -
+> -
+> -Example:
+> -
+> -	pwm: pwm@10002000 {
+> -		compatible = "ingenic,jz4740-pwm";
+> -		reg = <0x10002000 0x1000>;
+> -
+> -		#pwm-cells = <3>;
+> -
+> -		clocks = <&ext>;
+> -		clock-names = "ext";
+> -	};
+> +This documentation has moved; for a description of the devicetree bindings of
+> +this driver, please refer to ../timer/ingenic,tcu.txt.
 
-Thanks for the review.
+This should be evident from the git log. Just remove it.
 
-On 07/22/2018 04:11 PM, Guenter Roeck wrote:
-> On 07/21/2018 04:26 PM, Hauke Mehrtens wrote:
->> Instead of doing the ioctl handling manually just use register a
->> watchdog_device and let the watchdog framework do the ioctl handling.
->>
->> Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
->> ---
->>   drivers/watchdog/Kconfig      |   1 +
->>   drivers/watchdog/lantiq_wdt.c | 245
->> ++++++++++++++++++------------------------
->>   2 files changed, 108 insertions(+), 138 deletions(-)
->>
->> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
->> index 9af07fd92763..2118a86bfe0e 100644
->> --- a/drivers/watchdog/Kconfig
->> +++ b/drivers/watchdog/Kconfig
->> @@ -1611,6 +1611,7 @@ config IMGPDC_WDT
->>   config LANTIQ_WDT
->>       tristate "Lantiq SoC watchdog"
->>       depends on LANTIQ
->> +    select WATCHDOG_CORE
->>       help
->>         Hardware driver for the Lantiq SoC Watchdog Timer.
->>   diff --git a/drivers/watchdog/lantiq_wdt.c
->> b/drivers/watchdog/lantiq_wdt.c
->> index 8732a7bcc7ba..5cc02849f599 100644
->> --- a/drivers/watchdog/lantiq_wdt.c
->> +++ b/drivers/watchdog/lantiq_wdt.c
->> @@ -8,8 +8,6 @@
->>    *  Based on EP93xx wdt driver
->>    */
->>   -#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
->> -
->>   #include <linux/module.h>
->>   #include <linux/fs.h>
->>   #include <linux/miscdevice.h>
-> 
-> The above two includes are no longer needed, as is uaccess.h.
-> 
->> @@ -52,155 +50,99 @@
->>   #define LTQ_WDT_SR        0x8    /* watchdog status register */
->>   #define  LTQ_WDT_SR_VALUE_MASK    GENMASK(15, 0)    /* Timer value */
->>   -#define LTQ_WDT_DIVIDER        0x40000
->> +#define LTQ_WDT_DIVIDER        0x40000ll
->>   #define LTQ_MAX_TIMEOUT        ((1 << 16) - 1)    /* the reload
->> field is 16 bit */
->>   
-> 
-> Not or no longer used (which means don't bother updating patch #1,
-> but drop the define here).
-> 
->>   static bool nowayout = WATCHDOG_NOWAYOUT;
->>   -static void __iomem *ltq_wdt_membase;
->> -static unsigned long ltq_io_region_clk_rate;
->> -
->> -static unsigned long ltq_wdt_bootstatus;
->> -static unsigned long ltq_wdt_in_use;
->> -static int ltq_wdt_timeout = 30;
->> -static int ltq_wdt_ok_to_close;
->> +struct ltq_wdt_priv {
->> +    struct watchdog_device wdt;
->> +    void __iomem *membase;
->> +    unsigned long clk_rate;
->> +};
->>   -static void
->> -ltq_wdt_enable(void)
->> +static u32 ltq_wdt_r32(struct ltq_wdt_priv *priv, u32 offset)
->>   {
->> -    unsigned long int timeout = ltq_wdt_timeout *
->> -            (ltq_io_region_clk_rate / LTQ_WDT_DIVIDER) + 0x1000;
->> -    if (timeout > LTQ_MAX_TIMEOUT)
->> -        timeout = LTQ_MAX_TIMEOUT;
->> -
->> -    /* write the first password magic */
->> -    ltq_w32(LTQ_WDT_CR_PW1, ltq_wdt_membase + LTQ_WDT_CR);
->> -    /* write the second magic plus the configuration and new timeout */
->> -    ltq_w32(LTQ_WDT_CR_GEN | LTQ_WDT_CR_PWL | LTQ_WDT_CR_CLKDIV |
->> -        LTQ_WDT_CR_PW2 | timeout, ltq_wdt_membase + LTQ_WDT_CR);
->> +    return __raw_readl(priv->membase + offset);
->>   }
->>   -static void
->> -ltq_wdt_disable(void)
->> +static void ltq_wdt_w32(struct ltq_wdt_priv *priv, u32 val, u32 offset)
->>   {
->> -    /* write the first password magic */
->> -    ltq_w32(LTQ_WDT_CR_PW1, ltq_wdt_membase + LTQ_WDT_CR);
->> -    /*
->> -     * write the second password magic with no config
->> -     * this turns the watchdog off
->> -     */
->> -    ltq_w32(LTQ_WDT_CR_PW2, ltq_wdt_membase + LTQ_WDT_CR);
->> +    return __raw_writel(val, priv->membase + offset);
->>   }
->>   -static ssize_t
->> -ltq_wdt_write(struct file *file, const char __user *data,
->> -        size_t len, loff_t *ppos)
->> +static void ltq_wdt_mask(struct ltq_wdt_priv *priv, u32 clear, u32 set,
->> +             u32 offset)
->>   {
->> -    if (len) {
->> -        if (!nowayout) {
->> -            size_t i;
->> -
->> -            ltq_wdt_ok_to_close = 0;
->> -            for (i = 0; i != len; i++) {
->> -                char c;
->> -
->> -                if (get_user(c, data + i))
->> -                    return -EFAULT;
->> -                if (c == 'V')
->> -                    ltq_wdt_ok_to_close = 1;
->> -                else
->> -                    ltq_wdt_ok_to_close = 0;
->> -            }
->> -        }
->> -        ltq_wdt_enable();
->> -    }
->> +    u32 val = ltq_wdt_r32(priv, offset);
->> +
->> +    val &= ~(clear);
->> +    val |= set;
->> +    ltq_wdt_w32(priv, val, offset);
->> +}
->>   
-> 
-> Those operations are quite identical to existing regmap operations. How
-> about using regmap ?
+> diff --git a/Documentation/devicetree/bindings/timer/ingenic,tcu.txt b/Documentation/devicetree/bindings/timer/ingenic,tcu.txt
+> new file mode 100644
+> index 000000000000..65d125b460aa
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/timer/ingenic,tcu.txt
+> @@ -0,0 +1,147 @@
+> +Ingenic JZ47xx SoCs Timer/Counter Unit devicetree bindings
+> +==========================================================
+> +
+> +For a description of the TCU hardware and drivers, have a look at
+> +Documentation/mips/ingenic-tcu.txt.
+> +
+> +Required properties:
+> +
+> +- compatible: Must be one of:
+> +  * ingenic,jz4740-tcu
+> +  * ingenic,jz4725b-tcu
+> +  * ingenic,jz4770-tcu
+> +- reg: Should be the offset/length value corresponding to the TCU registers
 
-We can use regmap here, but I do not see the advantage. These registers
-are only used by the watchdog and there are only 2 registers in this block.
+> +- #address-cells: Should be <1>;
+> +- #size-cells: Should be <1>;
+> +- ranges: Should be one range for the full TCU registers area
 
-This is just a standard memory mask function, so I do not have to do it
-manually in all the code.
+These can all be implied.
 
-> 
->> -    return len;
->> +static struct ltq_wdt_priv *ltq_wdt_get_priv(struct watchdog_device
->> *wdt)
->> +{
->> +    return container_of(wdt, struct ltq_wdt_priv, wdt);
->>   }
->>   -static struct watchdog_info ident = {
->> +static struct watchdog_info ltq_wdt_info = {
->>       .options = WDIOF_MAGICCLOSE | WDIOF_SETTIMEOUT |
->> WDIOF_KEEPALIVEPING |
->> -            WDIOF_CARDRESET,
->> +           WDIOF_CARDRESET,
->>       .identity = "ltq_wdt",
->>   };
->>   -static long
->> -ltq_wdt_ioctl(struct file *file,
->> -        unsigned int cmd, unsigned long arg)
->> +static int ltq_wdt_start(struct watchdog_device *wdt)
->>   {
->> -    int ret = -ENOTTY;
->> -
->> -    switch (cmd) {
->> -    case WDIOC_GETSUPPORT:
->> -        ret = copy_to_user((struct watchdog_info __user *)arg, &ident,
->> -                sizeof(ident)) ? -EFAULT : 0;
->> -        break;
->> -
->> -    case WDIOC_GETBOOTSTATUS:
->> -        ret = put_user(ltq_wdt_bootstatus, (int __user *)arg);
->> -        break;
->> -
->> -    case WDIOC_GETSTATUS:
->> -        ret = put_user(0, (int __user *)arg);
->> -        break;
->> -
->> -    case WDIOC_SETTIMEOUT:
->> -        ret = get_user(ltq_wdt_timeout, (int __user *)arg);
->> -        if (!ret)
->> -            ltq_wdt_enable();
->> -        /* intentional drop through */
->> -    case WDIOC_GETTIMEOUT:
->> -        ret = put_user(ltq_wdt_timeout, (int __user *)arg);
->> -        break;
->> -
->> -    case WDIOC_KEEPALIVE:
->> -        ltq_wdt_enable();
->> -        ret = 0;
->> -        break;
->> -    }
->> -    return ret;
->> +    struct ltq_wdt_priv *priv = ltq_wdt_get_priv(wdt);
->> +    u32 timeout;
->> +
->> +    timeout = wdt->timeout * (priv->clk_rate / LTQ_WDT_DIVIDER);
->> +
-> Consider storing priv->clk_rate / LTQ_WDT_DIVIDER [or even
-> wdt->timeout * (priv->clk_rate / LTQ_WDT_DIVIDER)] in the local
-> data structure. That would save the divide operation each time
-> the value is needed/used.
+> +- clocks: List of phandle & clock specifiers for clocks external to the TCU.
+> +  The "pclk", "rtc", "ext" and "tcu" clocks should be provided.
+> +- clock-names: List of name strings for the external clocks.
+> +- #clock-cells: Should be <1>;
+> +  Clock consumers specify this argument to identify a clock. The valid values
+> +  may be found in <dt-bindings/clock/ingenic,tcu.h>.
+> +- interrupt-controller : Identifies the node as an interrupt controller
+> +- #interrupt-cells : Specifies the number of cells needed to encode an
+> +  interrupt source. The value should be 1.
+> +- interrupt-parent : phandle of the interrupt controller.
+> +- interrupts : Specifies the interrupt the controller is connected to.
 
-Ok will do that.
+How many and what are they. The example shows there are 3.
+> +
+> +Optional properties:
+> +
+> +- ingenic,timer-channel: Specifies the TCU channel that should be used as
+> +  system timer. If not provided, the TCU channel 0 is used for the system timer.
+> +
+> +- ingenic,clocksource-channel: Specifies the TCU channel that should be used
+> +  as clocksource and sched_clock. It must be a different channel than the one
+> +  used as system timer. If not provided, neither a clocksource nor a
+> +  sched_clock is instantiated.
 
-> 
->> +    ltq_wdt_mask(priv, LTQ_WDT_CR_PW_MASK, LTQ_WDT_CR_PW1, LTQ_WDT_CR);
->> +    /* write the second magic plus the configuration and new timeout */
->> +    ltq_wdt_mask(priv, LTQ_WDT_CR_PW_MASK | LTQ_WDT_CR_RELOAD_MASK,
->> +             LTQ_WDT_CR_GEN | LTQ_WDT_CR_PWL | LTQ_WDT_CR_CLKDIV |
->> +             LTQ_WDT_CR_PW2 | timeout,
->> +             LTQ_WDT_CR);
-> 
-> Since the added defines from patch #1 are used here, they should be defined
-> in this patch.
+clocksource and sched_clock are Linux specific and don't belong in DT. 
+You should define properties of the hardware or use existing properties 
+like interrupts or clocks to figure out which channel to use. For 
+example, if some channels don't have an interrupt, then use them for 
+clocksource and not a clockevent. Or you could have timers that run in 
+low-power modes or not. If all the channels are identical, then it 
+shouldn't matter which ones the OS picks.
 
-Ok will do so.
+> +
+> +
+> +Children nodes
+> +==========================================================
+> +
+> +
+> +PWM node:
+> +---------
+> +
+> +Required properties:
+> +
+> +- compatible: Must be one of:
+> +  * ingenic,jz4740-pwm
+> +  * ingenic,jz4725b-pwm
+> +- #pwm-cells: Should be 3. See ../pwm/pwm.txt for a description of the cell
+> +  format.
+> +- clocks: List of phandle & clock specifiers for the TCU clocks.
+> +- clock-names: List of name strings for the TCU clocks.
+> +
+> +
+> +Watchdog node:
+> +--------------
+> +
+> +Required properties:
+> +
+> +- compatible: Must be one of:
+> +  * ingenic,jz4740-watchdog
+> +  * ingenic,jz4780-watchdog
+> +- clocks: phandle to the RTC clock
+> +- clock-names: should be "rtc"
+> +
+> +
+> +OST node:
+> +---------
+> +
+> +Required properties:
+> +
+> +- compatible: Must be one of:
+> +  * ingenic,jz4725b-ost
+> +  * ingenic,jz4770-ost
+> +- clocks: phandle to the OST clock
+> +- clock-names: should be "ost"
+> +- interrupts : Specifies the interrupt the OST is connected to.
+> +
+> +
+> +Example
+> +==========================================================
+> +
+> +#include <dt-bindings/clock/jz4770-cgu.h>
+> +#include <dt-bindings/clock/ingenic,tcu.h>
+> +
+> +/ {
+> +	tcu: timer@10002000 {
+> +		compatible = "ingenic,jz4770-tcu";
+> +		reg = <0x10002000 0x1000>;
+> +		#address-cells = <1>;
+> +		#size-cells = <1>;
+> +		ranges = <0x0 0x10002000 0x1000>;
+> +
+> +		#clock-cells = <1>;
+> +
+> +		clocks = <&cgu JZ4770_CLK_RTC
+> +			  &cgu JZ4770_CLK_EXT
+> +			  &cgu JZ4770_CLK_PCLK
+> +			  &cgu JZ4770_CLK_EXT>;
+> +		clock-names = "rtc", "ext", "pclk", "tcu";
+> +
+> +		interrupt-controller;
+> +		#interrupt-cells = <1>;
+> +
+> +		interrupt-parent = <&intc>;
+> +		interrupts = <27 26 25>;
+> +
+> +		watchdog: watchdog@0 {
+> +			compatible = "ingenic,jz4740-watchdog";
+> +			reg = <0x0 0x10>;
+> +
+> +			clocks = <&tcu TCU_CLK_WDT>;
+> +			clock-names = "wdt";
+> +		};
+> +
+> +		pwm: pwm@10 {
+> +			compatible = "ingenic,jz4740-pwm";
+> +			reg = <0x10 0xff0>;
+> +
+> +			#pwm-cells = <3>;
+> +
+> +			clocks = <&tcu TCU_CLK_TIMER0
+> +				  &tcu TCU_CLK_TIMER1
+> +				  &tcu TCU_CLK_TIMER2
+> +				  &tcu TCU_CLK_TIMER3
+> +				  &tcu TCU_CLK_TIMER4
+> +				  &tcu TCU_CLK_TIMER5
+> +				  &tcu TCU_CLK_TIMER6
+> +				  &tcu TCU_CLK_TIMER7>;
+> +			clock-names = "timer0", "timer1", "timer2", "timer3",
+> +				      "timer4", "timer5", "timer6", "timer7";
+> +		};
+> +
+> +		ost: timer@e0 {
+> +			compatible = "ingenic,jz4770-ost";
+> +			reg = <0xe0 0x20>;
 
-> 
->> +
->> +    return 0;
->>   }
->>   -static int
->> -ltq_wdt_open(struct inode *inode, struct file *file)
->> +static int ltq_wdt_stop(struct watchdog_device *wdt)
->>   {
->> -    if (test_and_set_bit(0, &ltq_wdt_in_use))
->> -        return -EBUSY;
->> -    ltq_wdt_in_use = 1;
->> -    ltq_wdt_enable();
->> +    struct ltq_wdt_priv *priv = ltq_wdt_get_priv(wdt);
->>   -    return nonseekable_open(inode, file);
->> +    ltq_wdt_mask(priv, LTQ_WDT_CR_PW_MASK, LTQ_WDT_CR_PW1, LTQ_WDT_CR);
->> +    ltq_wdt_mask(priv, LTQ_WDT_CR_GEN | LTQ_WDT_CR_PW_MASK,
->> +             LTQ_WDT_CR_PW2, LTQ_WDT_CR);
->> +
->> +    return 0;
->>   }
->>   -static int
->> -ltq_wdt_release(struct inode *inode, struct file *file)
->> +static int ltq_wdt_ping(struct watchdog_device *wdt)
->>   {
->> -    if (ltq_wdt_ok_to_close)
->> -        ltq_wdt_disable();
->> -    else
->> -        pr_err("watchdog closed without warning\n");
->> -    ltq_wdt_ok_to_close = 0;
->> -    clear_bit(0, &ltq_wdt_in_use);
->> +    struct ltq_wdt_priv *priv = ltq_wdt_get_priv(wdt);
->> +    u32 timeout;
->> +
->> +    timeout = wdt->timeout * (priv->clk_rate / LTQ_WDT_DIVIDER);
->> +
->> +    ltq_wdt_mask(priv, LTQ_WDT_CR_PW_MASK, LTQ_WDT_CR_PW1, LTQ_WDT_CR);
->> +    /* write the second magic plus the configuration and new timeout */
->> +    ltq_wdt_mask(priv, LTQ_WDT_CR_PW_MASK | LTQ_WDT_CR_RELOAD_MASK,
->> +             LTQ_WDT_CR_PW2 | timeout, LTQ_WDT_CR);
->>         return 0;
->>   }
->>   -static const struct file_operations ltq_wdt_fops = {
->> +static const struct watchdog_ops ltq_wdt_ops = {
->>       .owner        = THIS_MODULE,
->> -    .write        = ltq_wdt_write,
->> -    .unlocked_ioctl    = ltq_wdt_ioctl,
->> -    .open        = ltq_wdt_open,
->> -    .release    = ltq_wdt_release,
->> -    .llseek        = no_llseek,
->> -};
->> -
->> -static struct miscdevice ltq_wdt_miscdev = {
->> -    .minor    = WATCHDOG_MINOR,
->> -    .name    = "watchdog",
->> -    .fops    = &ltq_wdt_fops,
->> +    .start        = ltq_wdt_start,
->> +    .stop        = ltq_wdt_stop,
->> +    .ping        = ltq_wdt_ping,
->>   };
->>   -typedef int (*ltq_wdt_bootstatus_set)(struct platform_device *pdev);
->> +typedef int (*ltq_wdt_bootstatus_get)(struct platform_device *pdev);
->>   
-> 
-> Please drop that typedef. Doesn't that generate a checkpatch warning ?
+This is creating an overlapping region with PWM which should be avoided. 
+Are timers and PWM the same h/w? Then there should be one node (or maybe 
+you can do 1 node per channel if each channel is independent (has its 
+own register range, clocks, interrupts, etc.
 
-I can also convert this to a structure with just this function pointer.
-I just need different code for different SoCs to access the boot cuase
-register.
+Or the PWM node needs to exclude this region (by having 2 reg regions).
 
-Checkpatch did not complain about this patch as far as I remember.
-
-> 
->>   static int ltq_wdt_bootstatus_xrx(struct platform_device *pdev)
->>   {
->> @@ -218,7 +160,7 @@ static int ltq_wdt_bootstatus_xrx(struct
->> platform_device *pdev)
->>           return err;
->>         if (val & LTQ_XRX_RCU_RST_STAT_WDT)
->> -        ltq_wdt_bootstatus = WDIOF_CARDRESET;
->> +        return WDIOF_CARDRESET;
->>         return 0;
->>   }
->> @@ -240,29 +182,31 @@ static int ltq_wdt_bootstatus_falcon(struct
->> platform_device *pdev)
->>           return err;
->>         if ((val & LTQ_FALCON_SYS1_CPU0RS_MASK) ==
->> LTQ_FALCON_SYS1_CPU0RS_WDT)
->> -        ltq_wdt_bootstatus = WDIOF_CARDRESET;
->> +        return WDIOF_CARDRESET;
->>         return 0;
->>   }
->>   -static int
->> -ltq_wdt_probe(struct platform_device *pdev)
->> +static int ltq_wdt_probe(struct platform_device *pdev)
->>   {
->> -    struct resource *res = platform_get_resource(pdev,
->> IORESOURCE_MEM, 0);
->> +    u64 max_clocks = LTQ_MAX_TIMEOUT * LTQ_WDT_DIVIDER;
-> 
-> That can be a define.
-
-Ok I will clean this up, I just have to make sure this is 64 bit long as
-32 bit will overflow.
-
-> 
->> +    struct ltq_wdt_priv *priv;
->> +    struct watchdog_device *wdt;
->> +    struct resource *res;
->>       struct clk *clk;
->> -    ltq_wdt_bootstatus_set ltq_wdt_bootstatus_set;
->> +    ltq_wdt_bootstatus_get ltq_wdt_bootstatus_get;
->>       int ret;
->>   -    ltq_wdt_membase = devm_ioremap_resource(&pdev->dev, res);
->> -    if (IS_ERR(ltq_wdt_membase))
->> -        return PTR_ERR(ltq_wdt_membase);
->> +    priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
->> +    if (!priv)
->> +        return -ENOMEM;
->>   -    ltq_wdt_bootstatus_set = of_device_get_match_data(&pdev->dev);
->> -    if (ltq_wdt_bootstatus_set) {
->> -        ret = ltq_wdt_bootstatus_set(pdev);
->> -        if (ret)
->> -            return ret;
->> -    }
->> +    wdt = &priv->wdt;
->> +
->> +    res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
->> +    priv->membase = devm_ioremap_resource(&pdev->dev, res);
->> +    if (IS_ERR(priv->membase))
->> +        return PTR_ERR(priv->membase);
->>         /* we do not need to enable the clock as it is always running */
->>       clk = clk_get_io();
->> @@ -270,17 +214,42 @@ ltq_wdt_probe(struct platform_device *pdev)
->>           dev_err(&pdev->dev, "Failed to get clock\n");
->>           return -ENOENT;
->>       }
->> -    ltq_io_region_clk_rate = clk_get_rate(clk);
->> +    priv->clk_rate = clk_get_rate(clk);
-> 
-> Please check if this is 0 and bail out if it is.
-
-ok
-> 
->>       clk_put(clk);
->>   -    dev_info(&pdev->dev, "Init done\n");
->> -    return misc_register(&ltq_wdt_miscdev);
->> +    wdt->info        = &ltq_wdt_info;
->> +    wdt->ops        = &ltq_wdt_ops;
->> +    wdt->status        = 0;
-> 
-> Unnecessary.
-> 
->> +    wdt->min_timeout    = 1;
->> +    wdt->max_timeout    = div_u64(max_clocks, priv->clk_rate);
-> 
-> At least theoretically this can overflow. It would be better to assign it
-> to a variable and clamp it to [1, INT_MAX].
-
-ok
-
-> 
->> +    wdt->timeout        = wdt->max_timeout;
->> +    wdt->parent        = &pdev->dev;
->> +
->> +    ltq_wdt_bootstatus_get = of_device_get_match_data(&pdev->dev);
->> +    if (ltq_wdt_bootstatus_get) {
->> +        ret = ltq_wdt_bootstatus_get(pdev);
->> +        if (ret < 0)
->> +            return ret;
->> +        wdt->bootstatus = ret;
->> +    }
->> +
->> +    watchdog_set_nowayout(wdt, nowayout);
-> 
-> Add watchdog_set_timeout(wdt, 0) ? This way the initial timeout is taken
-> from
-> devicetree.
-
-nice feature.
-
-> 
->> +    platform_set_drvdata(pdev, priv);
-> 
-> Not needed if you use the devm_ registration function.
-
-ok
-
-> 
->> +
->> +    ltq_wdt_stop(wdt);
-> 
-> Is this necessary ? It might be better to tell the watchdog core
-> that the watchdog is running if it is.
-
-Ok, will do that.
-It is sometimes already activated by U-boot to make sure it triggers
-when Linux does not boot up.
-
-> 
->> +
->> +    ret = watchdog_register_device(wdt);
-> 
-> return devm_watchdog_register_device() ...
-
-Will use that.
-
-> 
->> +    if (ret)
->> +        return ret;
->> +
->> +    return 0;
->>   }
->>   -static int
->> -ltq_wdt_remove(struct platform_device *pdev)
->> +static int ltq_wdt_remove(struct platform_device *pdev)
->>   {
->> -    misc_deregister(&ltq_wdt_miscdev);
->> +    struct ltq_wdt_priv *priv = platform_get_drvdata(pdev);
->> +
->> +    watchdog_unregister_device(&priv->wdt);
->>   
-> ... and drop the remove function.
-> 
->>       return 0;
->>   }
->>
-> 
+> +
+> +			clocks = <&tcu TCU_CLK_OST>;
+> +			clock-names = "ost";
+> +
+> +			interrupts = <15>;
+> +		};
+> +	};
+> +};
