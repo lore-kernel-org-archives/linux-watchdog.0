@@ -1,102 +1,109 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pg1-f195.google.com ([209.85.215.195]:34009 "EHLO
-        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727488AbeHaRXE (ORCPT
+Received: from www.linux-watchdog.org ([185.87.125.42]:45946 "EHLO
+        www.linux-watchdog.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730724AbeHFRs2 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 31 Aug 2018 13:23:04 -0400
-Received: by mail-pg1-f195.google.com with SMTP id d19-v6so5453501pgv.1
-        for <linux-watchdog@vger.kernel.org>; Fri, 31 Aug 2018 06:15:38 -0700 (PDT)
-Subject: Re: [PATCH 2/2] watchdog: iTCO_wdt: Remove unused hooks
-To: Jean Delvare <jdelvare@suse.de>, linux-watchdog@vger.kernel.org
-Cc: Martin Wilck <mwilck@suse.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>
-References: <20180831150610.0d3c5d9c@endymion>
- <20180831150734.2bc2fc02@endymion>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <12e5c67e-fff7-9456-5028-9e20925b8a3a@roeck-us.net>
-Date: Fri, 31 Aug 2018 06:15:37 -0700
+        Mon, 6 Aug 2018 13:48:28 -0400
+Date: Mon, 6 Aug 2018 17:14:09 +0200
+From: Wim Van Sebroeck <wim@linux-watchdog.org>
+To: Johannes Thumshirn <jth@kernel.org>
+Cc: Randy Dunlap <rdunlap@infradead.org>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        Linux-Next Mailing List <linux-next@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-watchdog@vger.kernel.org
+Subject: Re: linux-next: Tree for Aug 3 (watchdog/menz69_wdt.c)
+Message-ID: <20180806151409.GA12969@www.linux-watchdog.org>
+References: <20180803192942.6975df0c@canb.auug.org.au>
+ <9d17144d-6f19-781f-8abc-1ee1c6f840bd@infradead.org>
+ <20180803164024.tfujwvz2s6ekvjpv@linux-x5ow.site>
 MIME-Version: 1.0
-In-Reply-To: <20180831150734.2bc2fc02@endymion>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20180803164024.tfujwvz2s6ekvjpv@linux-x5ow.site>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 08/31/2018 06:07 AM, Jean Delvare wrote:
-> As the only user of iTCO_vendor_pre_keepalive and
-> iTCO_vendor_pre_set_heartbeat has just been removed, we can delete
-> these 2 hooks.
+Hi Johannes,
+
+> On Fri, Aug 03, 2018 at 08:39:48AM -0700, Randy Dunlap wrote:
+> > On 08/03/2018 02:29 AM, Stephen Rothwell wrote:
+> > > Hi all,
+> > > 
+> > > Changes since 20180802:
+> > > 
+> > 
+> > Hi,
+> > 
+> > On i386 randconfig with COMPILE_TEST=y and MCB not enabled, I see:
+> > 
+> > drivers/watchdog/menz69_wdt.o: In function `men_z069_remove':
+> > menz69_wdt.c:(.text+0xa6): undefined reference to `mcb_release_mem'
+> > drivers/watchdog/menz69_wdt.o: In function `men_z069_probe':
+> > menz69_wdt.c:(.text+0xdb): undefined reference to `mcb_request_mem'
+> > menz69_wdt.c:(.text+0x14a): undefined reference to `mcb_release_mem'
+> > drivers/watchdog/menz69_wdt.o: In function `men_z069_driver_init':
+> > menz69_wdt.c:(.init.text+0x15): undefined reference to `__mcb_register_driver'
+> > drivers/watchdog/menz69_wdt.o: In function `men_z069_driver_exit':
+> > menz69_wdt.c:(.exit.text+0x9): undefined reference to `mcb_unregister_driver'
+> > 
+> > 
+> > The Kconfig for MENZ069_WATCHDOG says:
+> > config MENZ069_WATCHDOG
+> > 	tristate "MEN 16Z069 Watchdog"
+> > 	depends on MCB || COMPILE_TEST
+> > 	select WATCHDOG_CORE
+> > 
+> > Looks to me like the driver really depends on MCB, unless someone wants
+> > to add stubs in <linux/mcb.h>.
 > 
-> Signed-off-by: Jean Delvare <jdelvare@suse.de>
-> Cc: Martin Wilck <mwilck@suse.com>
-> Cc: Wim Van Sebroeck <wim@linux-watchdog.org>
-> Cc: Guenter Roeck <linux@roeck-us.net>
+> *doh* looks like a copy & paste error. Wim can you fold that one in
+> (or stage to your tree)?
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Added in my tree.
 
+Kind regards,
+Wim.
+
+> >From ae045015849cd15fd180e20f44d364e7a37c39c6 Mon Sep 17 00:00:00 2001
+> From: Johannes Thumshirn <jthumshirn@suse.de>
+> Date: Fri, 3 Aug 2018 18:35:17 +0200
+> Subject: [PATCH] watchdog: fix dependencies  of menz69_wdt.o
+> 
+> Currently menz69_wdt.ko has a dependency on MCB or COMPILE_TEST. But
+> it actually needs symbols exported by MCB so the || COMPILE_TEST is
+> wrong.
+> 
+> Signed-off-by: Johannes Thumshirn <jthumshirn@suse.de>
+> Reported-by: Randy Dunlap <rdunlap@infradead.org>
 > ---
->   drivers/watchdog/iTCO_vendor.h         |    4 ----
->   drivers/watchdog/iTCO_vendor_support.c |   10 ----------
->   drivers/watchdog/iTCO_wdt.c            |    4 ----
->   3 files changed, 18 deletions(-)
+>  drivers/watchdog/Kconfig | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> --- linux-4.18.orig/drivers/watchdog/iTCO_vendor.h	2018-08-31 13:36:44.969460371 +0200
-> +++ linux-4.18/drivers/watchdog/iTCO_vendor.h	2018-08-31 14:37:19.197296115 +0200
-> @@ -3,14 +3,10 @@
->   #ifdef CONFIG_ITCO_VENDOR_SUPPORT
->   extern void iTCO_vendor_pre_start(struct resource *, unsigned int);
->   extern void iTCO_vendor_pre_stop(struct resource *);
-> -extern void iTCO_vendor_pre_keepalive(struct resource *, unsigned int);
-> -extern void iTCO_vendor_pre_set_heartbeat(unsigned int);
->   extern int iTCO_vendor_check_noreboot_on(void);
->   #else
->   #define iTCO_vendor_pre_start(acpibase, heartbeat)	{}
->   #define iTCO_vendor_pre_stop(acpibase)			{}
-> -#define iTCO_vendor_pre_keepalive(acpibase, heartbeat)	{}
-> -#define iTCO_vendor_pre_set_heartbeat(heartbeat)	{}
->   #define iTCO_vendor_check_noreboot_on()			1
->   				/* 1=check noreboot; 0=don't check */
->   #endif
-> --- linux-4.18.orig/drivers/watchdog/iTCO_vendor_support.c	2018-08-31 14:27:06.438895718 +0200
-> +++ linux-4.18/drivers/watchdog/iTCO_vendor_support.c	2018-08-31 14:37:10.693180108 +0200
-> @@ -180,16 +180,6 @@ void iTCO_vendor_pre_stop(struct resourc
->   }
->   EXPORT_SYMBOL(iTCO_vendor_pre_stop);
->   
-> -void iTCO_vendor_pre_keepalive(struct resource *smires, unsigned int heartbeat)
-> -{
-> -}
-> -EXPORT_SYMBOL(iTCO_vendor_pre_keepalive);
-> -
-> -void iTCO_vendor_pre_set_heartbeat(unsigned int heartbeat)
-> -{
-> -}
-> -EXPORT_SYMBOL(iTCO_vendor_pre_set_heartbeat);
-> -
->   int iTCO_vendor_check_noreboot_on(void)
->   {
->   	switch (vendorsupport) {
-> --- linux-4.18.orig/drivers/watchdog/iTCO_wdt.c	2018-08-12 22:41:04.000000000 +0200
-> +++ linux-4.18/drivers/watchdog/iTCO_wdt.c	2018-08-31 14:38:19.295115483 +0200
-> @@ -304,8 +304,6 @@ static int iTCO_wdt_ping(struct watchdog
->   
->   	spin_lock(&p->io_lock);
->   
-> -	iTCO_vendor_pre_keepalive(p->smi_res, wd_dev->timeout);
-> -
->   	/* Reload the timer by writing to the TCO Timer Counter register */
->   	if (p->iTCO_version >= 2) {
->   		outw(0x01, TCO_RLD(p));
-> @@ -342,8 +340,6 @@ static int iTCO_wdt_set_timeout(struct w
->   	    (p->iTCO_version == 1 && tmrval > 0x03f))
->   		return -EINVAL;
->   
-> -	iTCO_vendor_pre_set_heartbeat(tmrval);
-> -
->   	/* Write new heartbeat to watchdog */
->   	if (p->iTCO_version >= 2) {
->   		spin_lock(&p->io_lock);
+> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> index df55d65bbb1c..5ea8909a41f9 100644
+> --- a/drivers/watchdog/Kconfig
+> +++ b/drivers/watchdog/Kconfig
+> @@ -163,7 +163,7 @@ config MENF21BMC_WATCHDOG
+>  
+>  config MENZ069_WATCHDOG
+>  	tristate "MEN 16Z069 Watchdog"
+> -	depends on MCB || COMPILE_TEST
+> +	depends on MCB
+>  	select WATCHDOG_CORE
+>  	help
+>  	  Say Y here to include support for the MEN 16Z069 Watchdog.
+> -- 
+> 2.16.4
 > 
 > 
+> 
+> -- 
+> Johannes Thumshirn                                          Storage
+> jthumshirn@suse.de                                +49 911 74053 689
+> SUSE LINUX GmbH, Maxfeldstr. 5, 90409 Nürnberg
+> GF: Felix Imendörffer, Jane Smithard, Graham Norton
+> HRB 21284 (AG Nürnberg)
+> Key fingerprint = EC38 9CAB C2C4 F25D 8600 D0D0 0393 969D 2D76 0850
