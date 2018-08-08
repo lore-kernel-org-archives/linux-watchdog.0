@@ -6,62 +6,32 @@ To: wim@linux-watchdog.org,
 Cc: linux-watchdog@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	Jerry Hoemann <jerry.hoemann@hpe.com>
-Subject: [PATCH v2 0/5] watchdog: hpwdt: Bug Fixes/Enhancement
-Date: Wed,  8 Aug 2018 13:13:22 -0600
-Message-Id: <1533755607-71418-1-git-send-email-jerry.hoemann@hpe.com>
+Subject: [PATCH v2 5/5] watchdog: hpwdt: Update version number.
+Date: Wed,  8 Aug 2018 13:13:27 -0600
+Message-Id: <1533755607-71418-6-git-send-email-jerry.hoemann@hpe.com>
+In-Reply-To: <1533755607-71418-1-git-send-email-jerry.hoemann@hpe.com>
+References: <1533755607-71418-1-git-send-email-jerry.hoemann@hpe.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Changes for v2
+Bump version number to reflect recent bug fixes.
 
-1) Patch 0001: Simplify initialization of pretimeout removing #ifdef.
-2) Patch 0002: Loosen check on mynmi to accommodate potential FW issue.
-3) Patch 0003: Split dev_info into mulitple calls as output was getting long.
-4) Patch 0004: New: Add alias to module parameter soft_margin.
+Signed-off-by: Jerry Hoemann <jerry.hoemann@hpe.com>
+---
+ drivers/watchdog/hpwdt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-
------------------------------
-
-Two defect fixes and one enhancement.  
-
-0001: Initialize pretimeout from module parameter.
-
-Bug Fix.
-
-Pretimeout was getting programmed correctly in the hardware,
-but this issue caused it to not be displayed correctly
-in sysfs.
-
-
-
-0002: Claim NMI from iLO
-
-Bug Fix.
-
-Default configuration worked, but if user were to disable the
-pretimeout for the watchdog, then an explicit request to NMI
-the system from the iLO virutal button would fail.
-
-
-0003: Display module parameters
-
-Enhancement.
-
-Display all the module parameters when loading the driver.
-Makes it easier to diagnose problems.
-
-
-Jerry
-
-
-Jerry Hoemann (5):
-  watchdog: hpwdt: Initialize pretimeout from module parameter.
-  watchdog: hpwdt: Claim NMI from iLO
-  watchdog: hpwdt: Display module parameters.
-  watchdog: hpwdt: Module paramerter alias.
-  watchdog: hpwdt: Update version number.
-
- drivers/watchdog/hpwdt.c | 20 +++++++++++++-------
- 1 file changed, 13 insertions(+), 7 deletions(-)
-
+diff --git a/drivers/watchdog/hpwdt.c b/drivers/watchdog/hpwdt.c
+index eb947bc..7af358b 100644
+--- a/drivers/watchdog/hpwdt.c
++++ b/drivers/watchdog/hpwdt.c
+@@ -26,7 +26,7 @@
+ #include <linux/watchdog.h>
+ #include <asm/nmi.h>
+ 
+-#define HPWDT_VERSION			"2.0.0"
++#define HPWDT_VERSION			"2.0.1"
+ #define SECS_TO_TICKS(secs)		((secs) * 1000 / 128)
+ #define TICKS_TO_SECS(ticks)		((ticks) * 128 / 1000)
+ #define HPWDT_MAX_TIMER			TICKS_TO_SECS(65535)
 -- 
 1.8.3.1
