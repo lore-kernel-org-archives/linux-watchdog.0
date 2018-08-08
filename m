@@ -1,48 +1,58 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from g4t3426.houston.hpe.com ([15.241.140.75]:29805 "EHLO
+Received: from g4t3426.houston.hpe.com ([15.241.140.75]:29787 "EHLO
         g4t3426.houston.hpe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727295AbeHHVm5 (ORCPT
+        with ESMTP id S1727480AbeHHVm5 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
         Wed, 8 Aug 2018 17:42:57 -0400
 From: Jerry Hoemann <jerry.hoemann@hpe.com>
 To: wim@linux-watchdog.org, linux@roeck-us.net
 Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
         Jerry Hoemann <jerry.hoemann@hpe.com>
-Subject: [PATCH v2 2/5] watchdog: hpwdt: Claim NMI from iLO
-Date: Wed,  8 Aug 2018 13:13:24 -0600
-Message-Id: <1533755607-71418-3-git-send-email-jerry.hoemann@hpe.com>
+Subject: [PATCH v2 1/5] watchdog: hpwdt: Initialize pretimeout from module parameter.
+Date: Wed,  8 Aug 2018 13:13:23 -0600
+Message-Id: <1533755607-71418-2-git-send-email-jerry.hoemann@hpe.com>
 In-Reply-To: <1533755607-71418-1-git-send-email-jerry.hoemann@hpe.com>
 References: <1533755607-71418-1-git-send-email-jerry.hoemann@hpe.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The hwpdt driver is overloaded for handling both the iLO
-watchdog and the explicit "Generate NMI to System" virutal
-button.  Hence NMI handler needs to claim NMI resulting
-from the virutal button.
+When the pretimeout is specified as a module parameter, the
+value should be reflected in hpwdt_dev.pretimeout.  The default
+(on) case is correct.  But, when disabling pretimeout, the value
+should be set to zero in hpwdt_dev.
 
-Claim if iLO generated accommodating firmware that might
-set wrong bit.
+When compiling w/o CONFIG_HPWDT_NMI_DECODING defined, the pretimeout
+module parameter is ignored and the value internally will be 0.
 
 Signed-off-by: Jerry Hoemann <jerry.hoemann@hpe.com>
 ---
- drivers/watchdog/hpwdt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/watchdog/hpwdt.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/watchdog/hpwdt.c b/drivers/watchdog/hpwdt.c
-index fae9364..bb41714 100644
+index 9dc62a4..fae9364 100644
 --- a/drivers/watchdog/hpwdt.c
 +++ b/drivers/watchdog/hpwdt.c
-@@ -162,7 +162,7 @@ static int hpwdt_pretimeout(unsigned int ulReason, struct pt_regs *regs)
- 	if (ilo5 && ulReason == NMI_UNKNOWN && !mynmi)
- 		return NMI_DONE;
+@@ -205,9 +205,7 @@ static int hpwdt_pretimeout(unsigned int ulReason, struct pt_regs *regs)
+ 	.min_timeout	= 1,
+ 	.max_timeout	= HPWDT_MAX_TIMER,
+ 	.timeout	= DEFAULT_MARGIN,
+-#ifdef CONFIG_HPWDT_NMI_DECODING
+ 	.pretimeout	= PRETIMEOUT_SEC,
+-#endif
+ };
  
--	if (ilo5 && !pretimeout)
-+	if (ilo5 && !pretimeout && !mynmi)
- 		return NMI_DONE;
  
- 	hpwdt_stop();
+@@ -313,6 +311,8 @@ static int hpwdt_init_one(struct pci_dev *dev,
+ 	if (watchdog_init_timeout(&hpwdt_dev, soft_margin, NULL))
+ 		dev_warn(&dev->dev, "Invalid soft_margin: %d.\n", soft_margin);
+ 
++	hpwdt_dev.pretimeout = pretimeout ? PRETIMEOUT_SEC : 0;
++
+ 	hpwdt_dev.parent = &dev->dev;
+ 	retval = watchdog_register_device(&hpwdt_dev);
+ 	if (retval < 0) {
 -- 
 1.8.3.1
 
