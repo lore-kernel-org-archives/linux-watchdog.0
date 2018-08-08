@@ -1,37 +1,45 @@
-Return-Path: <jerry.hoemann@hpe.com>
-Return-path: <jerry.hoemann@hpe.com>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from g4t3426.houston.hpe.com ([15.241.140.75]:29861 "EHLO
+        g4t3426.houston.hpe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730172AbeHHVm6 (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Wed, 8 Aug 2018 17:42:58 -0400
 From: Jerry Hoemann <jerry.hoemann@hpe.com>
-To: wim@linux-watchdog.org,
-	linux@roeck-us.net
-Cc: linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Jerry Hoemann <jerry.hoemann@hpe.com>
-Subject: [PATCH v2 5/5] watchdog: hpwdt: Update version number.
-Date: Wed,  8 Aug 2018 13:13:27 -0600
-Message-Id: <1533755607-71418-6-git-send-email-jerry.hoemann@hpe.com>
+To: wim@linux-watchdog.org, linux@roeck-us.net
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Jerry Hoemann <jerry.hoemann@hpe.com>
+Subject: [PATCH v2 4/5] watchdog: hpwdt: Module paramerter alias.
+Date: Wed,  8 Aug 2018 13:13:26 -0600
+Message-Id: <1533755607-71418-5-git-send-email-jerry.hoemann@hpe.com>
 In-Reply-To: <1533755607-71418-1-git-send-email-jerry.hoemann@hpe.com>
 References: <1533755607-71418-1-git-send-email-jerry.hoemann@hpe.com>
-List-ID: <linux-watchdog@vger.kernel.org>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-Bump version number to reflect recent bug fixes.
+Add module parameter "timeout" as an alias to "soft_margin."
+This aligns hpwdt usage more closely with other WDT while
+retaining backwards compatibility.
 
 Signed-off-by: Jerry Hoemann <jerry.hoemann@hpe.com>
 ---
- drivers/watchdog/hpwdt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/watchdog/hpwdt.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
 diff --git a/drivers/watchdog/hpwdt.c b/drivers/watchdog/hpwdt.c
-index eb947bc..7af358b 100644
+index 69a88b1..eb947bc 100644
 --- a/drivers/watchdog/hpwdt.c
 +++ b/drivers/watchdog/hpwdt.c
-@@ -26,7 +26,7 @@
- #include <linux/watchdog.h>
- #include <asm/nmi.h>
+@@ -367,6 +367,9 @@ static void hpwdt_exit(struct pci_dev *dev)
+ module_param(soft_margin, int, 0);
+ MODULE_PARM_DESC(soft_margin, "Watchdog timeout in seconds");
  
--#define HPWDT_VERSION			"2.0.0"
-+#define HPWDT_VERSION			"2.0.1"
- #define SECS_TO_TICKS(secs)		((secs) * 1000 / 128)
- #define TICKS_TO_SECS(ticks)		((ticks) * 128 / 1000)
- #define HPWDT_MAX_TIMER			TICKS_TO_SECS(65535)
++module_param_named(timeout, soft_margin, int, 0);
++MODULE_PARM_DESC(timeout, "Alias of soft_margin");
++
+ module_param(nowayout, bool, 0);
+ MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
+ 		__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
 -- 
 1.8.3.1
+
