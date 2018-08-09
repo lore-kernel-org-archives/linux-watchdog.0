@@ -23,39 +23,55 @@ Cc: linux-pwm@vger.kernel.org,
 	linux-doc@vger.kernel.org,
 	linux-clk@vger.kernel.org,
 	Paul Cercueil <paul@crapouillou.net>
-Subject: [PATCH v6 15/24] pwm: jz4740: Remove unused devicetree compatible strings
-Date: Thu,  9 Aug 2018 23:44:05 +0200
-Message-Id: <20180809214414.20905-16-paul@crapouillou.net>
+Subject: [PATCH v6 17/24] clk: jz4740: Add TCU clock
+Date: Thu,  9 Aug 2018 23:44:07 +0200
+Message-Id: <20180809214414.20905-18-paul@crapouillou.net>
 In-Reply-To: <20180809214414.20905-1-paul@crapouillou.net>
 References: <20180809214414.20905-1-paul@crapouillou.net>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Right now none of the Ingenic-based boards probe this driver from
-devicetree. This driver defined three compatible strings for the exact
-same behaviour. Before these strings are used, we can remove two of
-them.
+Add the missing TCU clock to the list of clocks supplied by the CGU for
+the JZ4740 SoC.
 
 Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Acked-by: Stephen Boyd <sboyd@kernel.org>
+Acked-by: Rob Herring <robh@kernel.org>
 ---
- drivers/pwm/pwm-jz4740.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/clk/ingenic/jz4740-cgu.c       | 6 ++++++
+ include/dt-bindings/clock/jz4740-cgu.h | 1 +
+ 2 files changed, 7 insertions(+)
 
  v5: New patch
 
  v6: No change
 
-diff --git a/drivers/pwm/pwm-jz4740.c b/drivers/pwm/pwm-jz4740.c
-index d08274ec007f..5814825d9bed 100644
---- a/drivers/pwm/pwm-jz4740.c
-+++ b/drivers/pwm/pwm-jz4740.c
-@@ -235,8 +235,6 @@ static int jz4740_pwm_remove(struct platform_device *pdev)
- #ifdef CONFIG_OF
- static const struct of_device_id jz4740_pwm_dt_ids[] = {
- 	{ .compatible = "ingenic,jz4740-pwm", },
--	{ .compatible = "ingenic,jz4770-pwm", },
--	{ .compatible = "ingenic,jz4780-pwm", },
- 	{},
+diff --git a/drivers/clk/ingenic/jz4740-cgu.c b/drivers/clk/ingenic/jz4740-cgu.c
+index 32fcc75f6f77..216ba051e743 100644
+--- a/drivers/clk/ingenic/jz4740-cgu.c
++++ b/drivers/clk/ingenic/jz4740-cgu.c
+@@ -211,6 +211,12 @@ static const struct ingenic_cgu_clk_info jz4740_cgu_clocks[] = {
+ 		.parents = { JZ4740_CLK_EXT, -1, -1, -1 },
+ 		.gate = { CGU_REG_CLKGR, 5 },
+ 	},
++
++	[JZ4740_CLK_TCU] = {
++		"tcu", CGU_CLK_GATE,
++		.parents = { JZ4740_CLK_EXT, -1, -1, -1 },
++		.gate = { CGU_REG_CLKGR, 1 },
++	},
  };
- MODULE_DEVICE_TABLE(of, jz4740_pwm_dt_ids);
+ 
+ static void __init jz4740_cgu_init(struct device_node *np)
+diff --git a/include/dt-bindings/clock/jz4740-cgu.h b/include/dt-bindings/clock/jz4740-cgu.h
+index 6ed83f926ae7..e82d77028581 100644
+--- a/include/dt-bindings/clock/jz4740-cgu.h
++++ b/include/dt-bindings/clock/jz4740-cgu.h
+@@ -34,5 +34,6 @@
+ #define JZ4740_CLK_ADC		19
+ #define JZ4740_CLK_I2C		20
+ #define JZ4740_CLK_AIC		21
++#define JZ4740_CLK_TCU		22
+ 
+ #endif /* __DT_BINDINGS_CLOCK_JZ4740_CGU_H__ */
 -- 
 2.11.0
