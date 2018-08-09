@@ -23,38 +23,38 @@ Cc: linux-pwm@vger.kernel.org,
 	linux-doc@vger.kernel.org,
 	linux-clk@vger.kernel.org,
 	Paul Cercueil <paul@crapouillou.net>
-Subject: [PATCH v6 21/24] MIPS: qi_lb60: Reduce system timer and clocksource to 750 kHz
-Date: Thu,  9 Aug 2018 23:46:19 +0200
-Message-Id: <20180809214622.21256-1-paul@crapouillou.net>
+Subject: [PATCH v6 22/24] MIPS: CI20: Reduce system timer and clocksource to 3 MHz
+Date: Thu,  9 Aug 2018 23:46:52 +0200
+Message-Id: <20180809214654.21308-1-paul@crapouillou.net>
 In-Reply-To: <20180809214414.20905-1-paul@crapouillou.net>
 References: <20180809214414.20905-1-paul@crapouillou.net>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-The default clock (12 MHz) is too fast for the system timer, which fails
+The default clock (48 MHz) is too fast for the system timer, which fails
 to report time accurately.
 
 Signed-off-by: Paul Cercueil <paul@crapouillou.net>
 ---
- arch/mips/boot/dts/ingenic/qi_lb60.dts | 6 ++++++
+ arch/mips/boot/dts/ingenic/ci20.dts | 6 ++++++
  1 file changed, 6 insertions(+)
 
  v5: New patch
 
- v6: Remove ingenic,clocksource-channel property
+ v6: Set also the rate for the clocksource channel's clock
 
-diff --git a/arch/mips/boot/dts/ingenic/qi_lb60.dts b/arch/mips/boot/dts/ingenic/qi_lb60.dts
-index 85529a142409..de9d45e2c24a 100644
---- a/arch/mips/boot/dts/ingenic/qi_lb60.dts
-+++ b/arch/mips/boot/dts/ingenic/qi_lb60.dts
-@@ -45,3 +45,9 @@
+diff --git a/arch/mips/boot/dts/ingenic/ci20.dts b/arch/mips/boot/dts/ingenic/ci20.dts
+index 50cff3cbcc6d..f64d32443097 100644
+--- a/arch/mips/boot/dts/ingenic/ci20.dts
++++ b/arch/mips/boot/dts/ingenic/ci20.dts
+@@ -238,3 +238,9 @@
  		bias-disable;
  	};
  };
 +
 +&tcu {
-+	/* 750 kHz for the system timer and clocksource */
++	/* 3 MHz for the system timer and clocksource */
 +	assigned-clocks = <&tcu TCU_CLK_TIMER0>, <&tcu TCU_CLK_TIMER1>;
-+	assigned-clock-rates = <750000>, <750000>;
++	assigned-clock-rates = <3000000>, <3000000>;
 +};
 -- 
 2.11.0
