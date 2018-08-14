@@ -1,58 +1,55 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from g4t3426.houston.hpe.com ([15.241.140.75]:29787 "EHLO
-        g4t3426.houston.hpe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727480AbeHHVm5 (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 8 Aug 2018 17:42:57 -0400
-From: Jerry Hoemann <jerry.hoemann@hpe.com>
-To: wim@linux-watchdog.org, linux@roeck-us.net
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Jerry Hoemann <jerry.hoemann@hpe.com>
-Subject: [PATCH v2 1/5] watchdog: hpwdt: Initialize pretimeout from module parameter.
-Date: Wed,  8 Aug 2018 13:13:23 -0600
-Message-Id: <1533755607-71418-2-git-send-email-jerry.hoemann@hpe.com>
-In-Reply-To: <1533755607-71418-1-git-send-email-jerry.hoemann@hpe.com>
-References: <1533755607-71418-1-git-send-email-jerry.hoemann@hpe.com>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-Path: <fabrizio.castro@bp.renesas.com>
+Return-path: <fabrizio.castro@bp.renesas.com>
+From: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
+To: Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Rob Herring <robh+dt@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>
+Cc: Fabrizio Castro <fabrizio.castro@bp.renesas.com>,
+	linux-watchdog@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Simon Horman <horms@verge.net.au>,
+	Geert Uytterhoeven <geert+renesas@glider.be>,
+	Chris Paterson <Chris.Paterson2@renesas.com>,
+	Biju Das <biju.das@bp.renesas.com>,
+	linux-renesas-soc@vger.kernel.org
+Subject: [PATCH] dt-bindings: watchdog: renesas-wdt: Document r8a774a1 support
+Date: Tue, 14 Aug 2018 13:33:48 +0100
+Message-Id: <1534250028-15770-1-git-send-email-fabrizio.castro@bp.renesas.com>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-When the pretimeout is specified as a module parameter, the
-value should be reflected in hpwdt_dev.pretimeout.  The default
-(on) case is correct.  But, when disabling pretimeout, the value
-should be set to zero in hpwdt_dev.
+RZ/G2M (R8A774A1) watchdog implementation is compatible with R-Car
+Gen3, therefore add relevant documentation.
 
-When compiling w/o CONFIG_HPWDT_NMI_DECODING defined, the pretimeout
-module parameter is ignored and the value internally will be 0.
-
-Signed-off-by: Jerry Hoemann <jerry.hoemann@hpe.com>
+Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
+Reviewed-by: Biju Das <biju.das@bp.renesas.com>
 ---
- drivers/watchdog/hpwdt.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ Documentation/devicetree/bindings/watchdog/renesas-wdt.txt | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/watchdog/hpwdt.c b/drivers/watchdog/hpwdt.c
-index 9dc62a4..fae9364 100644
---- a/drivers/watchdog/hpwdt.c
-+++ b/drivers/watchdog/hpwdt.c
-@@ -205,9 +205,7 @@ static int hpwdt_pretimeout(unsigned int ulReason, struct pt_regs *regs)
- 	.min_timeout	= 1,
- 	.max_timeout	= HPWDT_MAX_TIMER,
- 	.timeout	= DEFAULT_MARGIN,
--#ifdef CONFIG_HPWDT_NMI_DECODING
- 	.pretimeout	= PRETIMEOUT_SEC,
--#endif
- };
+diff --git a/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt b/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
+index 5d47a26..9407212 100644
+--- a/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
++++ b/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
+@@ -7,6 +7,7 @@ Required properties:
+ 	       Examples with soctypes are:
+ 		 - "renesas,r8a7743-wdt" (RZ/G1M)
+ 		 - "renesas,r8a7745-wdt" (RZ/G1E)
++		 - "renesas,r8a774a1-wdt" (RZ/G2M)
+ 	         - "renesas,r8a7790-wdt" (R-Car H2)
+ 	         - "renesas,r8a7791-wdt" (R-Car M2-W)
+ 	         - "renesas,r8a7792-wdt" (R-Car V2H)
+@@ -21,8 +22,8 @@ Required properties:
+ 	         - "renesas,r7s72100-wdt" (RZ/A1)
+ 		The generic compatible string must be:
+ 		 - "renesas,rza-wdt" for RZ/A
+-		 - "renesas,rcar-gen2-wdt" for R-Car Gen2 and RZ/G
+-		 - "renesas,rcar-gen3-wdt" for R-Car Gen3
++		 - "renesas,rcar-gen2-wdt" for R-Car Gen2 and RZ/G1
++		 - "renesas,rcar-gen3-wdt" for R-Car Gen3 and RZ/G2
  
- 
-@@ -313,6 +311,8 @@ static int hpwdt_init_one(struct pci_dev *dev,
- 	if (watchdog_init_timeout(&hpwdt_dev, soft_margin, NULL))
- 		dev_warn(&dev->dev, "Invalid soft_margin: %d.\n", soft_margin);
- 
-+	hpwdt_dev.pretimeout = pretimeout ? PRETIMEOUT_SEC : 0;
-+
- 	hpwdt_dev.parent = &dev->dev;
- 	retval = watchdog_register_device(&hpwdt_dev);
- 	if (retval < 0) {
+ - reg : Should contain WDT registers location and length
+ - clocks : the clock feeding the watchdog timer.
 -- 
-1.8.3.1
-
+2.7.4
