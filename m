@@ -1,47 +1,42 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pf1-f193.google.com ([209.85.210.193]:42858 "EHLO
-        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730488AbeHNQTQ (ORCPT
+Received: from mail-it0-f65.google.com ([209.85.214.65]:32891 "EHLO
+        mail-it0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727861AbeHOXPK (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 14 Aug 2018 12:19:16 -0400
-Subject: Re: [PATCH v2 5/5] watchdog: hpwdt: Update version number.
-To: Jerry Hoemann <jerry.hoemann@hpe.com>, wim@linux-watchdog.org
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <1533755607-71418-1-git-send-email-jerry.hoemann@hpe.com>
- <1533755607-71418-6-git-send-email-jerry.hoemann@hpe.com>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <39fe61eb-52b1-7234-8b02-ecf41f1efdbe@roeck-us.net>
-Date: Tue, 14 Aug 2018 06:32:03 -0700
+        Wed, 15 Aug 2018 19:15:10 -0400
+Date: Wed, 15 Aug 2018 14:21:28 -0600
+From: Rob Herring <robh@kernel.org>
+To: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Fabrizio Castro <fabrizio.castro@bp.renesas.com>,
+        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Simon Horman <horms@verge.net.au>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Chris Paterson <Chris.Paterson2@renesas.com>,
+        Biju Das <biju.das@bp.renesas.com>,
+        linux-renesas-soc@vger.kernel.org
+Subject: Re: [PATCH] dt-bindings: watchdog: renesas-wdt: Document r8a774a1
+ support
+Message-ID: <20180815202128.GA11673@rob-hp-laptop>
+References: <1534250028-15770-1-git-send-email-fabrizio.castro@bp.renesas.com>
 MIME-Version: 1.0
-In-Reply-To: <1533755607-71418-6-git-send-email-jerry.hoemann@hpe.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1534250028-15770-1-git-send-email-fabrizio.castro@bp.renesas.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 08/08/2018 12:13 PM, Jerry Hoemann wrote:
-> Bump version number to reflect recent bug fixes.
+On Tue, 14 Aug 2018 13:33:48 +0100, Fabrizio Castro wrote:
+> RZ/G2M (R8A774A1) watchdog implementation is compatible with R-Car
+> Gen3, therefore add relevant documentation.
 > 
-> Signed-off-by: Jerry Hoemann <jerry.hoemann@hpe.com>
-
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-
+> Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
+> Reviewed-by: Biju Das <biju.das@bp.renesas.com>
 > ---
->   drivers/watchdog/hpwdt.c | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
+>  Documentation/devicetree/bindings/watchdog/renesas-wdt.txt | 5 +++--
+>  1 file changed, 3 insertions(+), 2 deletions(-)
 > 
-> diff --git a/drivers/watchdog/hpwdt.c b/drivers/watchdog/hpwdt.c
-> index eb947bc..7af358b 100644
-> --- a/drivers/watchdog/hpwdt.c
-> +++ b/drivers/watchdog/hpwdt.c
-> @@ -26,7 +26,7 @@
->   #include <linux/watchdog.h>
->   #include <asm/nmi.h>
->   
-> -#define HPWDT_VERSION			"2.0.0"
-> +#define HPWDT_VERSION			"2.0.1"
->   #define SECS_TO_TICKS(secs)		((secs) * 1000 / 128)
->   #define TICKS_TO_SECS(ticks)		((ticks) * 128 / 1000)
->   #define HPWDT_MAX_TIMER			TICKS_TO_SECS(65535)
-> 
+
+Reviewed-by: Rob Herring <robh@kernel.org>
