@@ -1,101 +1,153 @@
-Return-Path: <wim@linux-watchdog.org>
-Return-path: <wim@linux-watchdog.org>
-Date: Fri, 17 Aug 2018 13:00:54 +0200
-From: Wim Van Sebroeck <wim@linux-watchdog.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-	LKML <linux-kernel@vger.kernel.org>,
-	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Johannes Thumshirn <jthumshirn@suse.de>,
-	Srinath Mannam <srinath.mannam@broadcom.com>,
-	Wei Yongjun <weiyongjun1@huawei.com>,
-	Fabio Estevam <fabio.estevam@nxp.com>,
-	Ray Jui <ray.jui@broadcom.com>, Maxim Kochetkov <fido_max@inbox.ru>,
-	Ludovic Barre <ludovic.barre@st.com>,
-	Masaharu Hayakawa <masaharu.hayakawa.ry@renesas.com>
-Subject: [GIT PULL REQUEST] watchdog - v4.19 Merge window
-Message-ID: <20180817110054.GA22769@www.linux-watchdog.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Return-Path: <jerry.hoemann@hpe.com>
+Return-path: <jerry.hoemann@hpe.com>
+From: Jerry Hoemann <jerry.hoemann@hpe.com>
+To: wim@linux-watchdog.org,
+	linux@roeck-us.net
+Cc: linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	rwright@hpe.com,
+	Jerry Hoemann <jerry.hoemann@hpe.com>
+Subject: [PATCH] watchdog: hpwdt: Update Driver Documentation.
+Date: Mon, 20 Aug 2018 13:31:23 -0600
+Message-Id: <20180820193123.23976-1-jerry.hoemann@hpe.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi Linus,
+Remove references to deprecated features like NMI sourcing
+and obsoleted module parameters.
 
-Please pull the watchdog changes for the v4.19 release cycle.
+Add details concerning new module parameter pretimeout and tips
+to programming it.
 
-This series contains:
-* MEN 16z069 IP-Core: Add driver
-* renesas-wdt: Add support for the R8A77990 wdt
-* stm32_iwdg: Add stm32mp1 support and pclk feature
-* sp805_wdt, orion_wdt, sprd_wdt: add several improvements
-* imx2_wdt, stmp3xxx: Switch to SPDX identifier
+Signed-off-by: Jerry Hoemann <jerry.hoemann@hpe.com>
+---
+ Documentation/watchdog/hpwdt.txt | 93 ++++++++++++++--------------------------
+ 1 file changed, 31 insertions(+), 62 deletions(-)
 
-The output from git request-pull:
-----------------------------------------------------------------
-
-The following changes since commit 9d3cce1e8b8561fed5f383d22a4d6949db4eadbe:
-
-  Linux 4.18-rc5 (2018-07-15 12:49:31 -0700)
-
-are available in the git repository at:
-
-  git://www.linux-watchdog.org/linux-watchdog.git tags/linux-watchdog-4.19-rc1
-
-for you to fetch changes up to 12aea518a202bc7c947553840f1d93f8129b41b2:
-
-  watchdog: fix dependencies of menz69_wdt.o (2018-08-06 17:12:42 +0200)
-
-----------------------------------------------------------------
-linux-watchdog 4.19-rc1 tag
-
-----------------------------------------------------------------
-Fabio Estevam (2):
-      watchdog: imx2_wdt: Switch to SPDX identifier
-      watchdog: stmp3xxx: Switch to SPDX identifier
-
-Johannes Thumshirn (2):
-      watchdog: add driver for the MEN 16z069 IP-Core
-      watchdog: fix dependencies of menz69_wdt.o
-
-Ludovic Barre (2):
-      dt-bindings: watchdog: add stm32mp1 support
-      watchdog: stm32: add pclk feature for stm32mp1
-
-Masaharu Hayakawa (1):
-      dt-bindings: watchdog: renesas-wdt: Add support for the R8A77990 wdt
-
-Maxim Kochetkov (1):
-      watchdog: orion_wdt: Mark watchdog as active when running at probe
-
-Ray Jui (4):
-      dt-bindings: watchdog: Consolidate SP805 binding docs
-      dt-bindings: watchdog: Add optional 'timeout-sec' property for sp805
-      watchdog: sp805: add 'timeout-sec' DT property support
-      watchdog: sp805: set WDOG_HW_RUNNING when appropriate
-
-Srinath Mannam (1):
-      watchdog: sp805: Add clock-frequency property
-
-Wei Yongjun (1):
-      watchdog: sprd_wdt: Remove redundant dev_err call in sprd_wdt_probe()
-
- .../devicetree/bindings/watchdog/arm,sp805.txt     |  29 +++-
- .../devicetree/bindings/watchdog/renesas-wdt.txt   |   1 +
- .../devicetree/bindings/watchdog/sp805-wdt.txt     |  31 ----
- .../devicetree/bindings/watchdog/st,stm32-iwdg.txt |  13 +-
- MAINTAINERS                                        |   6 +
- drivers/watchdog/Kconfig                           |  10 ++
- drivers/watchdog/Makefile                          |   1 +
- drivers/watchdog/imx2_wdt.c                        |   5 +-
- drivers/watchdog/menz69_wdt.c                      | 170 +++++++++++++++++++++
- drivers/watchdog/orion_wdt.c                       |   2 +
- drivers/watchdog/sp805_wdt.c                       |  63 ++++++--
- drivers/watchdog/sprd_wdt.c                        |   4 +-
- drivers/watchdog/stm32_iwdg.c                      | 116 +++++++++-----
- drivers/watchdog/stmp3xxx_rtc_wdt.c                |   5 +-
- 14 files changed, 351 insertions(+), 105 deletions(-)
- delete mode 100644 Documentation/devicetree/bindings/watchdog/sp805-wdt.txt
- create mode 100644 drivers/watchdog/menz69_wdt.c
+diff --git a/Documentation/watchdog/hpwdt.txt b/Documentation/watchdog/hpwdt.txt
+index 6d866c537127..55df692c5595 100644
+--- a/Documentation/watchdog/hpwdt.txt
++++ b/Documentation/watchdog/hpwdt.txt
+@@ -1,15 +1,12 @@
+-Last reviewed: 05/20/2016
++Last reviewed: 08/20/2018
+ 
+                      HPE iLO NMI Watchdog Driver
+-              NMI sourcing for iLO based ProLiant Servers
+-                     Documentation and Driver by
+-                         Thomas Mingarelli
++                   for iLO based ProLiant Servers
+ 
+  The HPE iLO NMI Watchdog driver is a kernel module that provides basic
+- watchdog functionality and the added benefit of NMI sourcing. Both the
+- watchdog functionality and the NMI sourcing capability need to be enabled
+- by the user. Remember that the two modes are not dependent on one another.
+- A user can have the NMI sourcing without the watchdog timer and vice-versa.
++ watchdog functionality and handler for the iLO "Generate NMI to System"
++ virtual button.
++
+  All references to iLO in this document imply it also works on iLO2 and all
+  subsequent generations.
+ 
+@@ -21,12 +18,16 @@ Last reviewed: 05/20/2016
+  not be updated in a timely fashion and a hardware system reset (also known as
+  an Automatic Server Recovery (ASR)) event will occur.
+ 
+- The hpwdt driver also has three (3) module parameters. They are the following:
++ The hpwdt driver also has the following module parameters:
+ 
+  soft_margin - allows the user to set the watchdog timer value.
+                Default value is 30 seconds.
+- allow_kdump - allows the user to save off a kernel dump image after an NMI.
+-               Default value is 1/ON
++ timeout     - an alias of soft_margin.
++ pretimeout  - allows the user to set the watchdog pretimeout value.
++               This is the number of seconds before timeout when an
++               NMI is delivered to the system. Setting the value to
++               zero disables the pretimeout NMI.
++               Default value is 9 seconds.
+  nowayout    - basic watchdog parameter that does not allow the timer to
+                be restarted or an impending ASR to be escaped.
+                Default value is set when compiling the kernel. If it is set
+@@ -37,61 +38,29 @@ Last reviewed: 05/20/2016
+        interface to /dev/watchdog can be found in
+        Documentation/watchdog/watchdog-api.txt and Documentation/IPMI.txt.
+ 
+- The NMI sourcing capability is disabled by default due to the inability to
+- distinguish between "NMI Watchdog Ticks" and "HW generated NMI events" in the
+- Linux kernel. What this means is that the hpwdt nmi handler code is called
+- each time the NMI signal fires off. This could amount to several thousands of
+- NMIs in a matter of seconds. If a user sees the Linux kernel's "dazed and
+- confused" message in the logs or if the system gets into a hung state, then
+- the hpwdt driver can be reloaded.
+-
+- 1. If the kernel has not been booted with nmi_watchdog turned off then
+-    edit and place the nmi_watchdog=0 at the end of the currently booting
+-    kernel line. Depending on your Linux distribution and platform setup:
+-    For non-UEFI systems
+-       /boot/grub/grub.conf   or
+-       /boot/grub/menu.lst
+-    For UEFI systems
+-      /boot/efi/EFI/distroname/grub.conf   or
+-      /boot/efi/efi/distroname/elilo.conf
+- 2. reboot the sever
+- 3. Once the system comes up perform a modprobe -r hpwdt
+- 4. modprobe /lib/modules/`uname -r`/kernel/drivers/watchdog/hpwdt.ko
+-
+- Now, the hpwdt can successfully receive and source the NMI and provide a log
+- message that details the reason for the NMI (as determined by the HPE BIOS).
+-
+- Below is a list of NMIs the HPE BIOS understands along with the associated
+- code (reason):
+-
+-	No source found                00h
+-
+-	Uncorrectable Memory Error     01h
+-
+-	ASR NMI                        1Bh
+-
+-	PCI Parity Error               20h
+-
+-	NMI Button Press               27h
+-
+-	SB_BUS_NMI                     28h
+-
+-	ILO Doorbell NMI               29h
+-
+-	ILO IOP NMI                    2Ah
+-
+-	ILO Watchdog NMI               2Bh
+-
+-	Proc Throt NMI                 2Ch
++ Due to limitations in the iLO hardware, the NMI pretimeout if enabled,
++ can only be set to 9 seconds.  Attempts to set pretimeout to other
++ non-zero values will be rounded, possibly to zero.  Users should verify
++ the pretimeout value after attempting to set pretimeout or timeout.
+ 
+-	Front Side Bus NMI             2Dh
++ Upon receipt of an NMI from the iLO, the hpwdt driver will initiate a
++ panic. This is to allow for a crash dump to be collected.  It is incumbent
++ upon the user to have properly configured the system for kdump.
+ 
+-	PCI Express Error              2Fh
++ The default Linux kernel behavior upon panic is to print a kernel tombstone
++ and loop forever.  This is generally not what a watchdog user wants.
+ 
+-	DMA controller NMI             30h
++ For those wishing to learn more please see:
++	Documentation/kdump/kdump.txt
++	Documentation/admin-guide/kernel-parameters.txt (panic=)
++	Your Linux Distribution specific documentation.
+ 
+-	Hypertransport/CSI Error       31h
++ If the hpwdt does not receive the NMI associated with an expiring timer,
++ the iLO will proceed to reset the system at timeout if the timer hasn't
++ been updated.
+ 
++--
+ 
++ The HPE iLO NMI Watchdog Driver and documentation were originally developed
++ by Tom Mingarelli.
+ 
+- -- Tom Mingarelli
+-- 
+2.13.6
