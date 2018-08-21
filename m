@@ -1,9 +1,9 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from outils.crapouillou.net ([89.234.176.41]:57628 "EHLO
+Received: from outils.crapouillou.net ([89.234.176.41]:33106 "EHLO
         crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727407AbeHUUiR (ORCPT
+        with ESMTP id S1726627AbeHUUiU (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 21 Aug 2018 16:38:17 -0400
+        Tue, 21 Aug 2018 16:38:20 -0400
 From: Paul Cercueil <paul@crapouillou.net>
 To: Thomas Gleixner <tglx@linutronix.de>,
         Daniel Lezcano <daniel.lezcano@linaro.org>,
@@ -18,89 +18,60 @@ Cc: od@zcrc.me, Mathieu Malaterre <malat@debian.org>,
         linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
         linux-mips@linux-mips.org, linux-doc@vger.kernel.org,
         linux-clk@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>
-Subject: [PATCH v7 16/24] pwm: jz4740: Add support for the JZ4725B
-Date: Tue, 21 Aug 2018 19:16:27 +0200
-Message-Id: <20180821171635.22740-17-paul@crapouillou.net>
+Subject: [PATCH v7 17/24] clk: jz4740: Add TCU clock
+Date: Tue, 21 Aug 2018 19:16:28 +0200
+Message-Id: <20180821171635.22740-18-paul@crapouillou.net>
 In-Reply-To: <20180821171635.22740-1-paul@crapouillou.net>
 References: <20180821171635.22740-1-paul@crapouillou.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The PWM in the JZ4725B works the same as in the JZ4740, except that it
-only has 6 channels available instead of 8.
+Add the missing TCU clock to the list of clocks supplied by the CGU for
+the JZ4740 SoC.
 
 Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Acked-by: Stephen Boyd <sboyd@kernel.org>
+Acked-by: Rob Herring <robh@kernel.org>
 ---
 
 Notes:
      v5: New patch
     
-     v6: - Move of_device_id structure back at the bottom (less noise in
-           patch)
-         - Use device_get_match_data() instead of of_* variant
+     v6: No change
     
      v7: No change
 
- drivers/pwm/pwm-jz4740.c | 22 ++++++++++++++++++++--
- 1 file changed, 20 insertions(+), 2 deletions(-)
+ drivers/clk/ingenic/jz4740-cgu.c       | 6 ++++++
+ include/dt-bindings/clock/jz4740-cgu.h | 1 +
+ 2 files changed, 7 insertions(+)
 
-diff --git a/drivers/pwm/pwm-jz4740.c b/drivers/pwm/pwm-jz4740.c
-index 5814825d9bed..66a72bd7424f 100644
---- a/drivers/pwm/pwm-jz4740.c
-+++ b/drivers/pwm/pwm-jz4740.c
-@@ -25,6 +25,10 @@
- 
- #define NUM_PWM 8
- 
-+struct jz4740_soc_info {
-+	unsigned int num_pwms;
-+};
+diff --git a/drivers/clk/ingenic/jz4740-cgu.c b/drivers/clk/ingenic/jz4740-cgu.c
+index 32fcc75f6f77..216ba051e743 100644
+--- a/drivers/clk/ingenic/jz4740-cgu.c
++++ b/drivers/clk/ingenic/jz4740-cgu.c
+@@ -211,6 +211,12 @@ static const struct ingenic_cgu_clk_info jz4740_cgu_clocks[] = {
+ 		.parents = { JZ4740_CLK_EXT, -1, -1, -1 },
+ 		.gate = { CGU_REG_CLKGR, 5 },
+ 	},
 +
- struct jz4740_pwm_chip {
- 	struct pwm_chip chip;
- 	struct clk *clks[NUM_PWM];
-@@ -200,9 +204,14 @@ static const struct pwm_ops jz4740_pwm_ops = {
- 
- static int jz4740_pwm_probe(struct platform_device *pdev)
- {
-+	const struct jz4740_soc_info *soc_info;
- 	struct jz4740_pwm_chip *jz4740;
- 	struct device *dev = &pdev->dev;
- 
-+	soc_info = device_get_match_data(dev);
-+	if (!soc_info)
-+		return -EINVAL;
-+
- 	jz4740 = devm_kzalloc(dev, sizeof(*jz4740), GFP_KERNEL);
- 	if (!jz4740)
- 		return -ENOMEM;
-@@ -215,7 +224,7 @@ static int jz4740_pwm_probe(struct platform_device *pdev)
- 
- 	jz4740->chip.dev = dev;
- 	jz4740->chip.ops = &jz4740_pwm_ops;
--	jz4740->chip.npwm = NUM_PWM;
-+	jz4740->chip.npwm = soc_info->num_pwms;
- 	jz4740->chip.base = -1;
- 	jz4740->chip.of_xlate = of_pwm_xlate_with_flags;
- 	jz4740->chip.of_pwm_n_cells = 3;
-@@ -233,8 +242,17 @@ static int jz4740_pwm_remove(struct platform_device *pdev)
- }
- 
- #ifdef CONFIG_OF
-+static const struct jz4740_soc_info jz4740_soc_info = {
-+	.num_pwms = 8,
-+};
-+
-+static const struct jz4740_soc_info jz4725b_soc_info = {
-+	.num_pwms = 6,
-+};
-+
- static const struct of_device_id jz4740_pwm_dt_ids[] = {
--	{ .compatible = "ingenic,jz4740-pwm", },
-+	{ .compatible = "ingenic,jz4740-pwm", .data = &jz4740_soc_info },
-+	{ .compatible = "ingenic,jz4725b-pwm", .data = &jz4725b_soc_info },
- 	{},
++	[JZ4740_CLK_TCU] = {
++		"tcu", CGU_CLK_GATE,
++		.parents = { JZ4740_CLK_EXT, -1, -1, -1 },
++		.gate = { CGU_REG_CLKGR, 1 },
++	},
  };
- MODULE_DEVICE_TABLE(of, jz4740_pwm_dt_ids);
+ 
+ static void __init jz4740_cgu_init(struct device_node *np)
+diff --git a/include/dt-bindings/clock/jz4740-cgu.h b/include/dt-bindings/clock/jz4740-cgu.h
+index 6ed83f926ae7..e82d77028581 100644
+--- a/include/dt-bindings/clock/jz4740-cgu.h
++++ b/include/dt-bindings/clock/jz4740-cgu.h
+@@ -34,5 +34,6 @@
+ #define JZ4740_CLK_ADC		19
+ #define JZ4740_CLK_I2C		20
+ #define JZ4740_CLK_AIC		21
++#define JZ4740_CLK_TCU		22
+ 
+ #endif /* __DT_BINDINGS_CLOCK_JZ4740_CGU_H__ */
 -- 
 2.11.0
