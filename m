@@ -1,29 +1,36 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from kirsty.vergenet.net ([202.4.237.240]:49507 "EHLO
-        kirsty.vergenet.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728315AbeHVM7Q (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 22 Aug 2018 08:59:16 -0400
-Date: Wed, 22 Aug 2018 11:35:06 +0200
-From: Simon Horman <horms@verge.net.au>
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Received: from sauhun.de ([88.99.104.3]:39100 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727146AbeH1OMu (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 28 Aug 2018 10:12:50 -0400
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: linux-watchdog@vger.kernel.org
 Cc: linux-renesas-soc@vger.kernel.org,
-        Kuninori Morimoto <kuninori.morimoto.gx@gmail.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 11/11] watchdog: use SPDX identifier for Renesas drivers
-Message-ID: <20180822093506.jajmzh77xizlldpc@verge.net.au>
-References: <20180821220233.9202-1-wsa+renesas@sang-engineering.com>
- <20180821220233.9202-12-wsa+renesas@sang-engineering.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20180821220233.9202-12-wsa+renesas@sang-engineering.com>
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        Fabrizio Castro <fabrizio.castro@bp.renesas.com>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>
+Subject: [PATCH 0/2] watchdog: fix OOPS when using stop_on_unregister and use it for R-Car
+Date: Tue, 28 Aug 2018 12:13:46 +0200
+Message-Id: <20180828101348.12443-1-wsa+renesas@sang-engineering.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Aug 22, 2018 at 12:02:24AM +0200, Wolfram Sang wrote:
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+I wanted to activate 'stop_on_unregister' for the Renesas R-Car driver (see
+patch 2) and stumbled over an OOPS when using it. So, patch 1 addresses this
+problem to the best of my knowledge. Looking forward to comments.
 
-Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
+Happy hacking,
+
+   Wolfram
+
+
+Wolfram Sang (2):
+  watchdog: core: fix null pointer dereference when releasing cdev
+  watchdog: renesas_wdt: stop when unregistering
+
+ drivers/watchdog/renesas_wdt.c  |  1 +
+ drivers/watchdog/watchdog_dev.c | 10 +++++-----
+ 2 files changed, 6 insertions(+), 5 deletions(-)
+
+-- 
+2.11.0
