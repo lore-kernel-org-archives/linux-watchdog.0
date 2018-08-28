@@ -1,53 +1,92 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pl1-f193.google.com ([209.85.214.193]:44451 "EHLO
-        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727342AbeH1Rtl (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 28 Aug 2018 13:49:41 -0400
-Subject: Re: [PATCH 2/2] watchdog: renesas_wdt: stop when unregistering
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        linux-watchdog@vger.kernel.org
-Cc: linux-renesas-soc@vger.kernel.org,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Fabrizio Castro <fabrizio.castro@bp.renesas.com>
-References: <20180828101348.12443-1-wsa+renesas@sang-engineering.com>
- <20180828101348.12443-3-wsa+renesas@sang-engineering.com>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <ecfc84c3-edaf-c683-7b8c-114304b6da8d@roeck-us.net>
-Date: Tue, 28 Aug 2018 06:57:52 -0700
+Received: from mail-cys01nam02on0121.outbound.protection.outlook.com ([104.47.37.121]:51168
+        "EHLO NAM02-CY1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726961AbeH1VPu (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 28 Aug 2018 17:15:50 -0400
+Date: Tue, 28 Aug 2018 10:23:05 -0700
+From: Paul Burton <paul.burton@mips.com>
+To: Thomas Gleixner <tglx@linutronix.de>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>
+Cc: Paul Cercueil <paul@crapouillou.net>,
+        Rob Herring <robh+dt@kernel.org>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        Jonathan Corbet <corbet@lwn.net>, od@zcrc.me,
+        Mathieu Malaterre <malat@debian.org>,
+        linux-pwm@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-mips@linux-mips.org, linux-doc@vger.kernel.org,
+        linux-clk@vger.kernel.org
+Subject: Re: [PATCH v7 05/24] clocksource: Add a new timer-ingenic driver
+Message-ID: <20180828172305.bohg6cggnzm3wsuj@pburton-laptop>
+References: <20180821171635.22740-1-paul@crapouillou.net>
+ <20180821171635.22740-6-paul@crapouillou.net>
 MIME-Version: 1.0
-In-Reply-To: <20180828101348.12443-3-wsa+renesas@sang-engineering.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20180821171635.22740-6-paul@crapouillou.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 08/28/2018 03:13 AM, Wolfram Sang wrote:
-> We want to go into a sane state when unregistering. Currently, it
-> happens that the watchdog stops when unbinding because of RuntimePM
-> stopping the core clock. When rebinding, the core clock gets reactivated
-> and the watchdog fires even though it hasn't been opened by userspace
-> yet. Strange scenario, yes, but sane state is much preferred anyhow.
+Hi Daniel & Thomas,
+
+On Tue, Aug 21, 2018 at 07:16:16PM +0200, Paul Cercueil wrote:
+> This driver handles the TCU (Timer Counter Unit) present on the Ingenic
+> JZ47xx SoCs, and provides the kernel with a system timer, and optionally
+> with a clocksource and a sched_clock.
 > 
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-
+> It also provides clocks and interrupt handling to client drivers.
+> 
+> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
 > ---
->   drivers/watchdog/renesas_wdt.c | 1 +
->   1 file changed, 1 insertion(+)
 > 
-> diff --git a/drivers/watchdog/renesas_wdt.c b/drivers/watchdog/renesas_wdt.c
-> index 88d81feba4e6..f45cb183fa75 100644
-> --- a/drivers/watchdog/renesas_wdt.c
-> +++ b/drivers/watchdog/renesas_wdt.c
-> @@ -234,6 +234,7 @@ static int rwdt_probe(struct platform_device *pdev)
->   	watchdog_set_drvdata(&priv->wdev, priv);
->   	watchdog_set_nowayout(&priv->wdev, nowayout);
->   	watchdog_set_restart_priority(&priv->wdev, 0);
-> +	watchdog_stop_on_unregister(&priv->wdev);
->   
->   	/* This overrides the default timeout only if DT configuration was found */
->   	ret = watchdog_init_timeout(&priv->wdev, 0, &pdev->dev);
+> Notes:
+>      v2: Use SPDX identifier for the license
+>     
+>      v3: - Move documentation to its own patch
+>          - Search the devicetree for PWM clients, and use all the TCU
+>     	   channels that won't be used for PWM
+>     
+>      v4: - Add documentation about why we search for PWM clients
+>          - Verify that the PWM clients are for the TCU PWM driver
+>     
+>      v5: Major overhaul. Too many changes to list. Consider it's a new
+>          patch.
+>     
+>      v6: - Add two API functions ingenic_tcu_request_channel and
+>            ingenic_tcu_release_channel. To be used by the PWM driver to
+>            request the use of a TCU channel. The driver will now dynamically
+>            move away the system timer or clocksource to a new TCU channel.
+>          - The system timer now defaults to channel 0, the clocksource now
+>            defaults to channel 1 and is no more optional. The
+>            ingenic,timer-channel and ingenic,clocksource-channel devicetree
+>            properties are now gone.
+>          - Fix round_rate / set_rate not calculating the prescale divider
+>            the same way. This caused problems when (parent_rate / div) would
+>            give a non-integer result. The behaviour is correct now.
+>          - The clocksource clock is turned off on suspend now.
+>     
+>      v7: Fix section mismatch by using builtin_platform_driver_probe()
 > 
+>  drivers/clocksource/Kconfig         |   10 +
+>  drivers/clocksource/Makefile        |    1 +
+>  drivers/clocksource/ingenic-timer.c | 1124 +++++++++++++++++++++++++++++++++++
+>  drivers/clocksource/ingenic-timer.h |   15 +
+>  include/linux/mfd/ingenic-tcu.h     |    3 +
+>  5 files changed, 1153 insertions(+)
+>  create mode 100644 drivers/clocksource/ingenic-timer.c
+>  create mode 100644 drivers/clocksource/ingenic-timer.h
+>%
+
+How is this & patch 6 of the series looking to you from a
+drivers/clocksource perspective?
+
+If you're happy with them it'd be great to get an ack so I can take this
+through the MIPS tree with the rest of the series. The alternative would
+be to get the drivers in first then the MIPS bits in the next release
+cycle.
+
+Thanks,
+    Paul
