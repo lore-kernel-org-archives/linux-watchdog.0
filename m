@@ -1,16 +1,16 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-cys01nam02on0121.outbound.protection.outlook.com ([104.47.37.121]:51168
-        "EHLO NAM02-CY1-obe.outbound.protection.outlook.com"
+Received: from mail-co1nam03on0094.outbound.protection.outlook.com ([104.47.40.94]:49514
+        "EHLO NAM03-CO1-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726961AbeH1VPu (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 28 Aug 2018 17:15:50 -0400
-Date: Tue, 28 Aug 2018 10:23:05 -0700
+        id S1727040AbeH1VXp (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 28 Aug 2018 17:23:45 -0400
+Date: Tue, 28 Aug 2018 10:30:54 -0700
 From: Paul Burton <paul.burton@mips.com>
-To: Thomas Gleixner <tglx@linutronix.de>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>
+To: Thierry Reding <thierry.reding@gmail.com>
 Cc: Paul Cercueil <paul@crapouillou.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
         Rob Herring <robh+dt@kernel.org>,
-        Thierry Reding <thierry.reding@gmail.com>,
         Mark Rutland <mark.rutland@arm.com>,
         Ralf Baechle <ralf@linux-mips.org>,
         Jonathan Corbet <corbet@lwn.net>, od@zcrc.me,
@@ -19,74 +19,51 @@ Cc: Paul Cercueil <paul@crapouillou.net>,
         linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
         linux-mips@linux-mips.org, linux-doc@vger.kernel.org,
         linux-clk@vger.kernel.org
-Subject: Re: [PATCH v7 05/24] clocksource: Add a new timer-ingenic driver
-Message-ID: <20180828172305.bohg6cggnzm3wsuj@pburton-laptop>
+Subject: Re: [PATCH v7 12/24] pwm: jz4740: Use regmap and clocks from TCU
+ driver
+Message-ID: <20180828173054.jlzczfxwjipdwntt@pburton-laptop>
 References: <20180821171635.22740-1-paul@crapouillou.net>
- <20180821171635.22740-6-paul@crapouillou.net>
+ <20180821171635.22740-13-paul@crapouillou.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20180821171635.22740-6-paul@crapouillou.net>
+In-Reply-To: <20180821171635.22740-13-paul@crapouillou.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Daniel & Thomas,
+Hi Thierry,
 
-On Tue, Aug 21, 2018 at 07:16:16PM +0200, Paul Cercueil wrote:
-> This driver handles the TCU (Timer Counter Unit) present on the Ingenic
-> JZ47xx SoCs, and provides the kernel with a system timer, and optionally
-> with a clocksource and a sched_clock.
+On Tue, Aug 21, 2018 at 07:16:23PM +0200, Paul Cercueil wrote:
+> The ingenic-timer "TCU" driver provides us with a regmap, that we can
+> use to safely access the TCU registers.
 > 
-> It also provides clocks and interrupt handling to client drivers.
+> It also provides us with clocks, that can be (un)gated, reparented or
+> reclocked from devicetree, instead of having these settings hardcoded in
+> this driver.
+> 
+> While this driver is devicetree-compatible, it is never (as of now)
+> probed from devicetree, so this change does not introduce a ABI problem
+> with current devicetree files.
 > 
 > Signed-off-by: Paul Cercueil <paul@crapouillou.net>
 > ---
 > 
 > Notes:
->      v2: Use SPDX identifier for the license
+>      v5: New patch
 >     
->      v3: - Move documentation to its own patch
->          - Search the devicetree for PWM clients, and use all the TCU
->     	   channels that won't be used for PWM
+>      v6: Drop requirement of probing from devicetree
 >     
->      v4: - Add documentation about why we search for PWM clients
->          - Verify that the PWM clients are for the TCU PWM driver
->     
->      v5: Major overhaul. Too many changes to list. Consider it's a new
->          patch.
->     
->      v6: - Add two API functions ingenic_tcu_request_channel and
->            ingenic_tcu_release_channel. To be used by the PWM driver to
->            request the use of a TCU channel. The driver will now dynamically
->            move away the system timer or clocksource to a new TCU channel.
->          - The system timer now defaults to channel 0, the clocksource now
->            defaults to channel 1 and is no more optional. The
->            ingenic,timer-channel and ingenic,clocksource-channel devicetree
->            properties are now gone.
->          - Fix round_rate / set_rate not calculating the prescale divider
->            the same way. This caused problems when (parent_rate / div) would
->            give a non-integer result. The behaviour is correct now.
->          - The clocksource clock is turned off on suspend now.
->     
->      v7: Fix section mismatch by using builtin_platform_driver_probe()
+>      v7: No change
 > 
->  drivers/clocksource/Kconfig         |   10 +
->  drivers/clocksource/Makefile        |    1 +
->  drivers/clocksource/ingenic-timer.c | 1124 +++++++++++++++++++++++++++++++++++
->  drivers/clocksource/ingenic-timer.h |   15 +
->  include/linux/mfd/ingenic-tcu.h     |    3 +
->  5 files changed, 1153 insertions(+)
->  create mode 100644 drivers/clocksource/ingenic-timer.c
->  create mode 100644 drivers/clocksource/ingenic-timer.h
->%
+>  drivers/pwm/Kconfig      |   2 +
+>  drivers/pwm/pwm-jz4740.c | 124 +++++++++++++++++++++++++++++++----------------
+>  2 files changed, 83 insertions(+), 43 deletions(-)
 
-How is this & patch 6 of the series looking to you from a
-drivers/clocksource perspective?
+How do patches 12-16 of this series look to you from a drivers/pwm
+perspective?
 
 If you're happy with them it'd be great to get an ack so I can take this
-through the MIPS tree with the rest of the series. The alternative would
-be to get the drivers in first then the MIPS bits in the next release
-cycle.
+through the MIPS tree along with the rest of the series.
 
 Thanks,
     Paul
