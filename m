@@ -1,153 +1,62 @@
-Return-Path: <jerry.hoemann@hpe.com>
-Return-path: <jerry.hoemann@hpe.com>
-From: Jerry Hoemann <jerry.hoemann@hpe.com>
-To: wim@linux-watchdog.org,
-	linux@roeck-us.net
-Cc: linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	rwright@hpe.com,
-	Jerry Hoemann <jerry.hoemann@hpe.com>
-Subject: [PATCH] watchdog: hpwdt: Update Driver Documentation.
-Date: Mon, 20 Aug 2018 13:31:23 -0600
-Message-Id: <20180820193123.23976-1-jerry.hoemann@hpe.com>
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:41460 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727067AbeH1XHg (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 28 Aug 2018 19:07:36 -0400
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: linux-watchdog@vger.kernel.org
+Cc: linux-renesas-soc@vger.kernel.org,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>
+Subject: [RFC PATCH v2 1/4] watchdog: core: add mechanism to prevent removing if NOWAYOUT
+Date: Tue, 28 Aug 2018 21:14:13 +0200
+Message-Id: <20180828191416.7781-2-wsa+renesas@sang-engineering.com>
+In-Reply-To: <20180828191416.7781-1-wsa+renesas@sang-engineering.com>
+References: <20180828191416.7781-1-wsa+renesas@sang-engineering.com>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-Remove references to deprecated features like NMI sourcing
-and obsoleted module parameters.
+To prevent removing if NOWAYOUT, we invalidate the .remove function and
+suppress the bind/unbind attributes in sysfs. These are driver
+capabilities, so we need to set it up at runtime during init. To avoid
+boilerplate, introduce module_watchdog_driver() similar to
+module_driver(). On top of that, we then build
+module_watchdog_platform_driver(). Others may follow, if needed.
 
-Add details concerning new module parameter pretimeout and tips
-to programming it.
-
-Signed-off-by: Jerry Hoemann <jerry.hoemann@hpe.com>
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- Documentation/watchdog/hpwdt.txt | 93 ++++++++++++++--------------------------
- 1 file changed, 31 insertions(+), 62 deletions(-)
+ include/linux/watchdog.h | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
-diff --git a/Documentation/watchdog/hpwdt.txt b/Documentation/watchdog/hpwdt.txt
-index 6d866c537127..55df692c5595 100644
---- a/Documentation/watchdog/hpwdt.txt
-+++ b/Documentation/watchdog/hpwdt.txt
-@@ -1,15 +1,12 @@
--Last reviewed: 05/20/2016
-+Last reviewed: 08/20/2018
+diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
+index 44985c4a1e86..5768fb6b5cde 100644
+--- a/include/linux/watchdog.h
++++ b/include/linux/watchdog.h
+@@ -216,4 +216,24 @@ extern void watchdog_unregister_device(struct watchdog_device *);
+ /* devres register variant */
+ int devm_watchdog_register_device(struct device *dev, struct watchdog_device *);
  
-                      HPE iLO NMI Watchdog Driver
--              NMI sourcing for iLO based ProLiant Servers
--                     Documentation and Driver by
--                         Thomas Mingarelli
-+                   for iLO based ProLiant Servers
- 
-  The HPE iLO NMI Watchdog driver is a kernel module that provides basic
-- watchdog functionality and the added benefit of NMI sourcing. Both the
-- watchdog functionality and the NMI sourcing capability need to be enabled
-- by the user. Remember that the two modes are not dependent on one another.
-- A user can have the NMI sourcing without the watchdog timer and vice-versa.
-+ watchdog functionality and handler for the iLO "Generate NMI to System"
-+ virtual button.
++#define module_watchdog_driver(__driver, __register, __unregister, __nowayout, ...) \
++static int __init __driver##_init(void) \
++{ \
++	if (__nowayout) { \
++		__driver.driver.suppress_bind_attrs = true; \
++		__driver.remove = NULL; \
++	} \
++	return __register(&(__driver)  ##__VA_ARGS__); \
++} \
++module_init(__driver##_init); \
++static void __exit __driver##_exit(void) \
++{ \
++	__unregister(&(__driver), ##__VA_ARGS__); \
++} \
++module_exit(__driver##_exit)
 +
-  All references to iLO in this document imply it also works on iLO2 and all
-  subsequent generations.
- 
-@@ -21,12 +18,16 @@ Last reviewed: 05/20/2016
-  not be updated in a timely fashion and a hardware system reset (also known as
-  an Automatic Server Recovery (ASR)) event will occur.
- 
-- The hpwdt driver also has three (3) module parameters. They are the following:
-+ The hpwdt driver also has the following module parameters:
- 
-  soft_margin - allows the user to set the watchdog timer value.
-                Default value is 30 seconds.
-- allow_kdump - allows the user to save off a kernel dump image after an NMI.
--               Default value is 1/ON
-+ timeout     - an alias of soft_margin.
-+ pretimeout  - allows the user to set the watchdog pretimeout value.
-+               This is the number of seconds before timeout when an
-+               NMI is delivered to the system. Setting the value to
-+               zero disables the pretimeout NMI.
-+               Default value is 9 seconds.
-  nowayout    - basic watchdog parameter that does not allow the timer to
-                be restarted or an impending ASR to be escaped.
-                Default value is set when compiling the kernel. If it is set
-@@ -37,61 +38,29 @@ Last reviewed: 05/20/2016
-        interface to /dev/watchdog can be found in
-        Documentation/watchdog/watchdog-api.txt and Documentation/IPMI.txt.
- 
-- The NMI sourcing capability is disabled by default due to the inability to
-- distinguish between "NMI Watchdog Ticks" and "HW generated NMI events" in the
-- Linux kernel. What this means is that the hpwdt nmi handler code is called
-- each time the NMI signal fires off. This could amount to several thousands of
-- NMIs in a matter of seconds. If a user sees the Linux kernel's "dazed and
-- confused" message in the logs or if the system gets into a hung state, then
-- the hpwdt driver can be reloaded.
--
-- 1. If the kernel has not been booted with nmi_watchdog turned off then
--    edit and place the nmi_watchdog=0 at the end of the currently booting
--    kernel line. Depending on your Linux distribution and platform setup:
--    For non-UEFI systems
--       /boot/grub/grub.conf   or
--       /boot/grub/menu.lst
--    For UEFI systems
--      /boot/efi/EFI/distroname/grub.conf   or
--      /boot/efi/efi/distroname/elilo.conf
-- 2. reboot the sever
-- 3. Once the system comes up perform a modprobe -r hpwdt
-- 4. modprobe /lib/modules/`uname -r`/kernel/drivers/watchdog/hpwdt.ko
--
-- Now, the hpwdt can successfully receive and source the NMI and provide a log
-- message that details the reason for the NMI (as determined by the HPE BIOS).
--
-- Below is a list of NMIs the HPE BIOS understands along with the associated
-- code (reason):
--
--	No source found                00h
--
--	Uncorrectable Memory Error     01h
--
--	ASR NMI                        1Bh
--
--	PCI Parity Error               20h
--
--	NMI Button Press               27h
--
--	SB_BUS_NMI                     28h
--
--	ILO Doorbell NMI               29h
--
--	ILO IOP NMI                    2Ah
--
--	ILO Watchdog NMI               2Bh
--
--	Proc Throt NMI                 2Ch
-+ Due to limitations in the iLO hardware, the NMI pretimeout if enabled,
-+ can only be set to 9 seconds.  Attempts to set pretimeout to other
-+ non-zero values will be rounded, possibly to zero.  Users should verify
-+ the pretimeout value after attempting to set pretimeout or timeout.
- 
--	Front Side Bus NMI             2Dh
-+ Upon receipt of an NMI from the iLO, the hpwdt driver will initiate a
-+ panic. This is to allow for a crash dump to be collected.  It is incumbent
-+ upon the user to have properly configured the system for kdump.
- 
--	PCI Express Error              2Fh
-+ The default Linux kernel behavior upon panic is to print a kernel tombstone
-+ and loop forever.  This is generally not what a watchdog user wants.
- 
--	DMA controller NMI             30h
-+ For those wishing to learn more please see:
-+	Documentation/kdump/kdump.txt
-+	Documentation/admin-guide/kernel-parameters.txt (panic=)
-+	Your Linux Distribution specific documentation.
- 
--	Hypertransport/CSI Error       31h
-+ If the hpwdt does not receive the NMI associated with an expiring timer,
-+ the iLO will proceed to reset the system at timeout if the timer hasn't
-+ been updated.
- 
-+--
- 
-+ The HPE iLO NMI Watchdog Driver and documentation were originally developed
-+ by Tom Mingarelli.
- 
-- -- Tom Mingarelli
++#define module_watchdog_platform_driver(__platform_driver, __nowayout) \
++	module_watchdog_driver(__platform_driver, platform_driver_register, \
++				platform_driver_unregister, __nowayout)
++
+ #endif  /* ifndef _LINUX_WATCHDOG_H */
 -- 
-2.13.6
+2.11.0
