@@ -1,52 +1,54 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pl1-f171.google.com ([209.85.214.171]:43779 "EHLO
-        mail-pl1-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726998AbeH2Ak3 (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 28 Aug 2018 20:40:29 -0400
-Date: Tue, 28 Aug 2018 13:47:04 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        linux-watchdog@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Subject: Re: [RFC PATCH v2 1/4] watchdog: core: add mechanism to prevent
- removing if NOWAYOUT
-Message-ID: <20180828204704.GA31691@roeck-us.net>
-References: <20180828191416.7781-1-wsa+renesas@sang-engineering.com>
- <20180828191416.7781-2-wsa+renesas@sang-engineering.com>
- <20180828193320.GA22656@roeck-us.net>
- <20180828200739.ghu5trdp7jq6ixiz@katana>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20180828200739.ghu5trdp7jq6ixiz@katana>
+Received: from sauhun.de ([88.99.104.3]:39146 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727177AbeH1OUO (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 28 Aug 2018 10:20:14 -0400
+From: Wolfram Sang <wsa@the-dreams.de>
+To: linux-watchdog@vger.kernel.org
+Cc: linux-renesas-soc@vger.kernel.org,
+        Wolfram Sang <wsa@the-dreams.de>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>
+Subject: [RFC PATCH] watchdog: HACK: disable bind attributes with NOWAYOUT
+Date: Tue, 28 Aug 2018 12:29:06 +0200
+Message-Id: <20180828102906.12840-1-wsa@the-dreams.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, Aug 28, 2018 at 10:07:40PM +0200, Wolfram Sang wrote:
-> Hi Guenter,
-> 
-> > > +		__driver.remove = NULL; \
-> > 
-> > Does that really do any good ? If I understand correctly, the only
-> > impact is that the platform driver remove function will believe that
-> > nothing needs to be done on removal. See platform_drv_remove().
-> 
-> This might be biased for my use case. Not calling remove will also leave
-> the clock for that module enabled. But true, the platform device will be
-> removed and without proper cleanup, there could be dangling pointers.
-> 
+With NOWAYOUT, prevent bind/unbind possibilities in SYSFS.
+Proof-of-concept, not for upstream yet.
 
-For many drivers the watchdog device would not be removed. That would
-indeed be fatal.
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
 
-> In general, what do you think of this approach if we'd left out the
-> above line?
-> 
-
-LGTM without that line.
+So, this is really an RFC to check if something like this is considered useful
+or not. If so, we probably need to do it differently because modifying the
+parent's driver is likely a layering violation. We could add the driver to
+modify as an optional parameter to watchdog_set_nowayout(). I wouldn't favor
+another seperate function to configure this, but am open for discussion.
 
 Thanks,
-Guenter
+
+   Wolfram
+
+ include/linux/watchdog.h | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
+index 44985c4a1e86..241de0fa0010 100644
+--- a/include/linux/watchdog.h
++++ b/include/linux/watchdog.h
+@@ -143,8 +143,10 @@ static inline bool watchdog_hw_running(struct watchdog_device *wdd)
+ /* Use the following function to set the nowayout feature */
+ static inline void watchdog_set_nowayout(struct watchdog_device *wdd, bool nowayout)
+ {
+-	if (nowayout)
++	if (nowayout) {
+ 		set_bit(WDOG_NO_WAY_OUT, &wdd->status);
++		wdd->parent->driver->suppress_bind_attrs = true;
++	}
+ }
+ 
+ /* Use the following function to stop the watchdog on reboot */
+-- 
+2.11.0
