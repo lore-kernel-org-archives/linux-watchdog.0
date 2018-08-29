@@ -1,18 +1,19 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pg1-f195.google.com ([209.85.215.195]:44976 "EHLO
-        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727484AbeH2UMT (ORCPT
+Received: from g4t3426.houston.hpe.com ([15.241.140.75]:12901 "EHLO
+        g4t3426.houston.hpe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728228AbeH3AyP (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 29 Aug 2018 16:12:19 -0400
-Date: Wed, 29 Aug 2018 09:14:38 -0700
-From: Guenter Roeck <linux@roeck-us.net>
+        Wed, 29 Aug 2018 20:54:15 -0400
+Date: Wed, 29 Aug 2018 14:55:35 -0600
+From: Jerry Hoemann <jerry.hoemann@hpe.com>
 To: Wolfram Sang <wsa+renesas@sang-engineering.com>
 Cc: linux-watchdog@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
         Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 Subject: Re: [RFC PATCH v3 1/4] watchdog: core: add mechanism to prevent
  removing if NOWAYOUT
-Message-ID: <20180829161438.GA6723@roeck-us.net>
+Message-ID: <20180829205535.GA30332@anatevka.americas.hpqcorp.net>
+Reply-To: Jerry.Hoemann@hpe.com
 References: <20180829074241.1943-1-wsa+renesas@sang-engineering.com>
  <20180829074241.1943-2-wsa+renesas@sang-engineering.com>
 MIME-Version: 1.0
@@ -44,30 +45,42 @@ On Wed, Aug 29, 2018 at 09:42:38AM +0200, Wolfram Sang wrote:
 >  int devm_watchdog_register_device(struct device *dev, struct watchdog_device *);
 >  
 > +#define module_watchdog_driver(__driver, __register, __unregister, __nowayout, ...) \
+> +static int __init __driver##_init(void) \
+> +{ \
+> +	__driver.driver.suppress_bind_attrs = !!(__nowayout); \
+> +	return __register(&(__driver)  ##__VA_ARGS__); \
+> +} \
 
-Another option might be to add another argument to this macro. Something like:
+Sorry, I'm not familiar w/ this level of detail of the driver interface.
 
-#define module_watchdog_driver(__wdriver, __driver, __register, __unregister, __nowayout, ...) \
-static int __init __wdriver##_init(void) \
-{ \
-	__driver->suppress_bind_attrs = !!(__nowayout); \
-	return __register(&(__wdriver)  ##__VA_ARGS__); \
-} \
-module_init(__wdriver##_init); \
-static void __exit __wdriver##_exit(void) \
-{ \
-	__unregister(&(__wdriver), ##__VA_ARGS__); \
-} \
-module_exit(__wdriver##_exit)
+Is the intent of the proposed changes to prevent the unload of
+a module if it was loaded with the "nowayout" parameter?
 
-#define module_watchdog_platform_driver(__platform_driver, __nowayout) \
-	module_watchdog_driver(__platform_driver, &__platform_driver->driver, \
-				platform_driver_register, \
-				platform_driver_unregister, __nowayout)
+If so, I thought the WD "nowayout" semantic was only supposed to be in effect
+after /dev/watchdog was opened.  The proposed change looks like it makes the
+"nowayout" semantic take effect before /dev/watchdog is opened.
 
-This would avoid the dependency of having a ".driver" structure in each
-supported bus driver structure.
 
-Would that make sense ?
+Thanks
 
-Guenter
+
+> +module_init(__driver##_init); \
+> +static void __exit __driver##_exit(void) \
+> +{ \
+> +	__unregister(&(__driver), ##__VA_ARGS__); \
+> +} \
+> +module_exit(__driver##_exit)
+> +
+> +#define module_watchdog_platform_driver(__platform_driver, __nowayout) \
+> +	module_watchdog_driver(__platform_driver, platform_driver_register, \
+> +				platform_driver_unregister, __nowayout)
+> +
+>  #endif  /* ifndef _LINUX_WATCHDOG_H */
+> -- 
+> 2.11.0
+
+-- 
+
+-----------------------------------------------------------------------------
+Jerry Hoemann                  Software Engineer   Hewlett Packard Enterprise
+-----------------------------------------------------------------------------
