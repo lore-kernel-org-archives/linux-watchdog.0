@@ -1,57 +1,51 @@
-Return-Path: <wsa@the-dreams.de>
-Return-path: <wsa@the-dreams.de>
-Date: Tue, 28 Aug 2018 18:37:15 +0200
-From: Wolfram Sang <wsa@the-dreams.de>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-watchdog@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
-	Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: Re: [RFC PATCH] watchdog: HACK: disable bind attributes with NOWAYOUT
-Message-ID: <20180828163715.bou2uhjp3prpqrkg@ninjato>
-References: <20180828102906.12840-1-wsa@the-dreams.de>
- <3d3a5bde-b8bd-0810-5571-cdc64cd57ee4@roeck-us.net>
- <20180828141850.opoduyldzvp2e53v@ninjato>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="rljep6fp2uwthf37"
-Content-Disposition: inline
-In-Reply-To: <20180828141850.opoduyldzvp2e53v@ninjato>
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:44848 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727072AbeH2LiS (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Wed, 29 Aug 2018 07:38:18 -0400
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: linux-watchdog@vger.kernel.org
+Cc: linux-renesas-soc@vger.kernel.org,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>
+Subject: [RFC PATCH v3 0/4] watchdog: prevent removing a driver if NOWAYOUT
+Date: Wed, 29 Aug 2018 09:42:37 +0200
+Message-Id: <20180829074241.1943-1-wsa+renesas@sang-engineering.com>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
+So, here is my second approach, now avoiding probe() and targetting the init
+call. To avoid boilerplate, I introduced macros similar to module_driver(). It
+still feels a little adventurous because of hard-coding
+'.driver.suppress_bind_attts' in the macro and trusting various driver types
+(like platform and PCI) to follow this structure.
 
---rljep6fp2uwthf37
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Having all this said, it works nicely on my Renesas Salvator-XS (R-Car M3-N).
+build bot is happy. A git branch can be found here:
 
+git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git renesas/wdt-suppress-attr
 
-> void watchdog_set_nowayout(struct watchdog_device *wdd, struct driver
-> 			   *drv, bool nowayout)
->=20
-> I'd think this would work from a layering perspective.
+Looking forward to comments.
 
-No, this is also bogus. probe() works per device, and
-=2Esuppress_bind_attrs works per driver. We need to tackle this in the
-init callback.
+Thanks,
 
+   Wolfram
 
---rljep6fp2uwthf37
-Content-Type: application/pgp-signature; name="signature.asc"
+Changes since V2:
+	* keep the remove callback valid
+	* remove 'if' from macro
 
------BEGIN PGP SIGNATURE-----
+Wolfram Sang (4):
+  watchdog: core: add mechanism to prevent removing if NOWAYOUT
+  watchdog: renesas_wdt: avoid removing if NOWAYOUT
+  watchdog: core: add module_watchdog_pci_driver()
+  watchdog: i6300esb: avoid removing if NOWAYOUT
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAluFejYACgkQFA3kzBSg
-Kbb0iQ/9HqcuKPDd/1W0mSIW06NtVE2MPiyPDegIeHP0Xx6JljHV2ync2KTUiYD6
-E1WqBTQhNk9fchfizD+Ysvy3aEjYqe2YHthFPjh8v+8Qi6YZHPsyIv8TMu2BAn+8
-uxusiIIHLoIitQRWBRtoQNkexR2Xk9B+zoxCgMk4jtCu22DI7J3VDRw43rx5i6s2
-d1LY+1KiePVPxu29yXxuXnYLuiiEW917TJ37IPRr1s+hVo+70tuP8M/f9UEWGku7
-BNqj4MzYjklXRRO22mg4Gii/w2SaauiR2caycN4QPOAtHVuaPAY0Xd/JNo+v06Nw
-Vo34vwcM2eY3ktPdSGmT9sl35/wAYacr6uLg7W47jEJNxZ2J5AHFO6y3q730kTsp
-H1BU9peLPz+1k/BK+uu+/dBUX6pE2NQ15nst9xTpq4g/SdbPSxfb7CDPYHUvlUCv
-aSqjlUklNbIvMXTgzd1UBAoJAwQkyKK7dZtyY34/7gBC6F3c8gZcNiJ//YNoaH00
-SiHeYVeO4rYwSsrr/UPjtk44IVtH2uFc1cGfgppCH0QbORbKLVY5f5MGdM3qvMK2
-xQaG4QlnC+fsYy3tOELSSZtM2b/ex81DPEOoRBq/hFSCr4xJv3+ShdLL8MNuF/sj
-UP6SytB7KGJezunVlxP4UOd5sn7mwY+w3dEgbl8Tz/Gw+LN/Iq4=
-=25il
------END PGP SIGNATURE-----
+ drivers/watchdog/i6300esb.c    |  2 +-
+ drivers/watchdog/renesas_wdt.c |  2 +-
+ include/linux/watchdog.h       | 21 +++++++++++++++++++++
+ 3 files changed, 23 insertions(+), 2 deletions(-)
 
---rljep6fp2uwthf37--
+-- 
+2.11.0
