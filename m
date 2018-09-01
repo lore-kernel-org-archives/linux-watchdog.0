@@ -1,92 +1,59 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pg1-f195.google.com ([209.85.215.195]:36754 "EHLO
-        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727273AbeIAFVO (ORCPT
+Received: from www.linux-watchdog.org ([185.87.125.42]:47156 "EHLO
+        www.linux-watchdog.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725964AbeIANAQ (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 1 Sep 2018 01:21:14 -0400
-Received: by mail-pg1-f195.google.com with SMTP id d1-v6so6157936pgo.3
-        for <linux-watchdog@vger.kernel.org>; Fri, 31 Aug 2018 18:11:11 -0700 (PDT)
-Subject: Re: [PATCH 1/2] watchdog: Add support for Armada 37xx CPU watchdog
-To: Marek Behun <marek.behun@nic.cz>
-Cc: linux-watchdog@vger.kernel.org, wim@linux-watchdog.org
-References: <20180830142243.12153-1-marek.behun@nic.cz>
- <20180830162853.GA27086@roeck-us.net> <20180830204223.391d6066@nic.cz>
- <20180830205004.6fe9858f@nic.cz> <20180830191226.GB6752@roeck-us.net>
- <20180901022930.64ef4062@nic.cz>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <0a9c1c83-db36-1572-b4a6-8c49acffa1b0@roeck-us.net>
-Date: Fri, 31 Aug 2018 17:47:38 -0700
+        Sat, 1 Sep 2018 09:00:16 -0400
+Date: Sat, 1 Sep 2018 10:28:36 +0200
+From: Wim Van Sebroeck <wim@linux-watchdog.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Fabrizio Castro <fabrizio.castro@bp.renesas.com>
+Subject: [GIT PULL REQUEST] watchdog - v4.19-rc2
+Message-ID: <20180901082836.GA21742@www.linux-watchdog.org>
 MIME-Version: 1.0
-In-Reply-To: <20180901022930.64ef4062@nic.cz>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 08/31/2018 05:29 PM, Marek Behun wrote:
-> Hello Guenter,
-> I just read in the specification that software does not need to
-> do debouncing, because when low is read, high is latched into 32 bit
-> flip flop so that it can be read correctly.
-> So the correct way is to read low first, then high, and that's it.
-> I shall write a comment describing this into new code.
+Hi Linus,
 
-Excellent. Thanks for checking!
+Please pull the watchdog changes for the v4.19 release cycle.
 
-Guenter
+This pull contains:
+* renesas-wdt: Document support for r8a774a1
 
-> Marek
-> 
-> On Thu, 30 Aug 2018 12:12:26 -0700
-> Guenter Roeck <linux@roeck-us.net> wrote:
-> 
->> On Thu, Aug 30, 2018 at 08:50:04PM +0200, Marek Behun wrote:
->>>>>> +static u64 get_counter_value(struct armada_37xx_watchdog
->>>>>> *dev) +{
->>>>>> +	u64 val;
->>>>>> +
->>>>>> +	val = readl(dev->reg + CNTR_COUNT_HIGH);
->>>>>> +	val = (val << 32) | readl(dev->reg +
->>>>>> CNTR_COUNT_LOW);
->>>>>
->>>>> Is this guaranteed to be consistent ? What happens if there is a
->>>>> 32-bit wrap between those two operations ?
->>>>
->>>> hmmm. The address is not divisible by 8, so I can't use
->>>> readq :( what do you propose?
->>>
->>> What do you think of this solution?
->>>
->>> u64 val;
->>> u32 low1, low2;
->>>
->>> low1 = readl(dev->reg + CNTR_COUNT_LOW);
->>> val = readl(dev->reg + CNTR_COUNT_HIGH);
->>> low2 = readl(dev->reg + CNTR_COUNT_LOW);
->>>
->>> /*
->>>   * If low jumped in this short time more than 2^31, a wrap probably
->>>   * occured. Read high again.
->>>   */
->>> if (low2 - low1 > 0x80000000)
->>> 	val = readl(dev->reg + CNTR_COUNT_HIGH);
->>> val = (val << 32) | low2;
->>
->> Yes, that is one option. The other would be to read high again
->> all the time and repeat reading low if high changed on the second
->> read of high.
->>
->> 	high1 = readl(dev->reg + CNTR_COUNT_HIGH);
->> 	low = readl(dev->reg + CNTR_COUNT_LOW);
->> 	high2 = readl(dev->reg + CNTR_COUNT_HIGH);
->> 	if (high2 != high1)
->> 		low = readl(dev->reg + CNTR_COUNT_LOW);
->> 	val = (high2 << 32) | low;
->>
->> There is no ambiguity in this case: We _know_ that
->> a wrap occurred if high1 and high2 are different.
->>
->> Guenter
-> 
-> 
+The output from git request-pull:
+----------------------------------------------------------------
+
+The following changes since commit 3f16503b7d2274ac8cbab11163047ac0b4c66cfe:
+
+  Merge branch 'fixes' of git://git.kernel.org/pub/scm/linux/kernel/git/evalenti/linux-soc-thermal (2018-08-28 16:11:34 -0700)
+
+are available in the git repository at:
+
+  git://www.linux-watchdog.org/linux-watchdog.git tags/linux-watchdog-4.19-rc2
+
+for you to fetch changes up to 74081c9f16a213f8f2681c175dc6ad7d17ad16ba:
+
+  dt-bindings: watchdog: renesas-wdt: Document r8a774a1 support (2018-08-29 20:32:04 +0200)
+
+----------------------------------------------------------------
+linux-watchdog 4.19-rc2 tag
+
+----------------------------------------------------------------
+Fabrizio Castro (1):
+      dt-bindings: watchdog: renesas-wdt: Document r8a774a1 support
+
+ Documentation/devicetree/bindings/watchdog/renesas-wdt.txt | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+----------------------------------------------------------------
+
+Kind regards,
+Wim.
