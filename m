@@ -1,65 +1,128 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from relmlor4.renesas.com ([210.160.252.174]:35163 "EHLO
-        relmlie3.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727049AbeICSRN (ORCPT
+Received: from mail-oi0-f66.google.com ([209.85.218.66]:42158 "EHLO
+        mail-oi0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726103AbeIDDbi (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 3 Sep 2018 14:17:13 -0400
-From: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
-CC: "linux-renesas-soc@vger.kernel.org"
-        <linux-renesas-soc@vger.kernel.org>,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Subject: RE: [PATCH 2/2] watchdog: renesas_wdt: stop when unregistering
-Date: Mon, 3 Sep 2018 13:56:51 +0000
-Message-ID: <TYXPR01MB17757C93A747366F5A1B3CDCC00C0@TYXPR01MB1775.jpnprd01.prod.outlook.com>
-References: <20180828101348.12443-1-wsa+renesas@sang-engineering.com>
- <20180828101348.12443-3-wsa+renesas@sang-engineering.com>
-In-Reply-To: <20180828101348.12443-3-wsa+renesas@sang-engineering.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+        Mon, 3 Sep 2018 23:31:38 -0400
+Received: by mail-oi0-f66.google.com with SMTP id k81-v6so3290251oib.9
+        for <linux-watchdog@vger.kernel.org>; Mon, 03 Sep 2018 16:09:18 -0700 (PDT)
+Date: Mon, 3 Sep 2018 16:09:15 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Hauke Mehrtens <hauke@hauke-m.de>
+Cc: wim@linux-watchdog.org, linux-watchdog@vger.kernel.org,
+        john@phrozen.org, dev@kresin.me
+Subject: Re: [v2,1/3] wdt: lantiq: update register names to better match spec
+Message-ID: <20180903230915.GA30065@roeck-us.net>
+References: <20180902113233.29113-2-hauke@hauke-m.de>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20180902113233.29113-2-hauke@hauke-m.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-> Subject: [PATCH 2/2] watchdog: renesas_wdt: stop when unregistering
->
-> We want to go into a sane state when unregistering. Currently, it
-> happens that the watchdog stops when unbinding because of RuntimePM
-> stopping the core clock. When rebinding, the core clock gets reactivated
-> and the watchdog fires even though it hasn't been opened by userspace
-> yet. Strange scenario, yes, but sane state is much preferred anyhow.
->
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+On Sun, Sep 02, 2018 at 01:32:31PM +0200, Hauke Mehrtens wrote:
+> Some of the names of the bits were confusing to me.
+> Now the bits share the same prefix as the register they are set on.
+> 
 
-Reviewed-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
+Plus you changed the description. Overall I find the new defines
+more confusing than the old ones, especially the changed meaning.
+Can you point me to a reference manual ?
 
+> Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
 > ---
->  drivers/watchdog/renesas_wdt.c | 1 +
->  1 file changed, 1 insertion(+)
->
-> diff --git a/drivers/watchdog/renesas_wdt.c b/drivers/watchdog/renesas_wd=
-t.c
-> index 88d81feba4e6..f45cb183fa75 100644
-> --- a/drivers/watchdog/renesas_wdt.c
-> +++ b/drivers/watchdog/renesas_wdt.c
-> @@ -234,6 +234,7 @@ static int rwdt_probe(struct platform_device *pdev)
->  watchdog_set_drvdata(&priv->wdev, priv);
->  watchdog_set_nowayout(&priv->wdev, nowayout);
->  watchdog_set_restart_priority(&priv->wdev, 0);
-> +watchdog_stop_on_unregister(&priv->wdev);
->
->  /* This overrides the default timeout only if DT configuration was found=
- */
->  ret =3D watchdog_init_timeout(&priv->wdev, 0, &pdev->dev);
-> --
-> 2.11.0
+>  drivers/watchdog/lantiq_wdt.c | 32 ++++++++++++++++----------------
+>  1 file changed, 16 insertions(+), 16 deletions(-)
+> 
+> diff --git a/drivers/watchdog/lantiq_wdt.c b/drivers/watchdog/lantiq_wdt.c
+> index 7f43cefa0eae..e5937be09bd4 100644
+> --- a/drivers/watchdog/lantiq_wdt.c
+> +++ b/drivers/watchdog/lantiq_wdt.c
+> @@ -13,6 +13,7 @@
+>  #include <linux/module.h>
+>  #include <linux/fs.h>
+>  #include <linux/miscdevice.h>
+> +#include <linux/bitops.h>
+>  #include <linux/watchdog.h>
+>  #include <linux/of_platform.h>
+>  #include <linux/uaccess.h>
+> @@ -40,18 +41,17 @@
+>   * essentially the following two magic passwords need to be written to allow
+>   * IO access to the WDT core
+>   */
+> -#define LTQ_WDT_PW1		0x00BE0000
+> -#define LTQ_WDT_PW2		0x00DC0000
+> +#define LTQ_WDT_CR_PW1		0x00BE0000
+> +#define LTQ_WDT_CR_PW2		0x00DC0000
+>  
+> -#define LTQ_WDT_CR		0x0	/* watchdog control register */
+> -#define LTQ_WDT_SR		0x8	/* watchdog status register */
+> +#define LTQ_WDT_CR		0x0		/* watchdog control register */
+> +#define  LTQ_WDT_CR_GEN		BIT(31)		/* enable bit */
+> +#define  LTQ_WDT_CR_PWL		(0x3 << 26)	/* Pre-warning limit set to 1/16 of max WDT period */
 
+Old was "turn on power"
 
+> +#define  LTQ_WDT_CR_CLKDIV	(0x3 << 24)	/* set clock divider to 0x40000 */
 
+Old was: "turn on clock and set divider to 0x40000". Note that the comment
+itself does not really add much value, except that it suggests that one
+of the bits may _not_ really set a clock mask.
 
-Renesas Electronics Europe Ltd, Dukes Meadow, Millboard Road, Bourne End, B=
-uckinghamshire, SL8 5FH, UK. Registered in England & Wales under Registered=
- No. 04586709.
+So this doesn't just rename the defines, it also changes the meaning.
+
+Also, while some may feel differently, I do think we should stick with the
+80-column limit as long as it exists and generates checkpatch warnings.
+
+> +#define  LTQ_WDT_CR_PW_MASK	GENMASK(23, 16)	/* Password field */
+> +#define  LTQ_WDT_CR_RELOAD_MASK	GENMASK(15, 0)	/* Reload value */
+>  
+
+The mixed use of GENMASK() for some defines and shift for others is
+confusing. 
+
+> -#define LTQ_WDT_SR_EN		(0x1 << 31)	/* enable bit */
+> -#define LTQ_WDT_SR_PWD		(0x3 << 26)	/* turn on power */
+> -#define LTQ_WDT_SR_CLKDIV	(0x3 << 24)	/* turn on clock and set */
+> -						/* divider to 0x40000 */
+>  #define LTQ_WDT_DIVIDER		0x40000
+> -#define LTQ_MAX_TIMEOUT		((1 << 16) - 1)	/* the reload field is 16 bit */
+>  
+I question if the change from LTQ_MAX_TIMEOUT to LTQ_WDT_CR_RELOAD_MASK
+really adds value. Sure, the maximum value must fit into a mask, but it
+is still a maximum value.
+
+>  static bool nowayout = WATCHDOG_NOWAYOUT;
+>  
+> @@ -68,26 +68,26 @@ ltq_wdt_enable(void)
+>  {
+>  	unsigned long int timeout = ltq_wdt_timeout *
+>  			(ltq_io_region_clk_rate / LTQ_WDT_DIVIDER) + 0x1000;
+> -	if (timeout > LTQ_MAX_TIMEOUT)
+> -		timeout = LTQ_MAX_TIMEOUT;
+> +	if (timeout > LTQ_WDT_CR_RELOAD_MASK)
+> +		timeout = LTQ_WDT_CR_RELOAD_MASK;
+
+And this is less confusing than before ? Not to me. I find the new code
+more confusing.
+
+>  
+>  	/* write the first password magic */
+> -	ltq_w32(LTQ_WDT_PW1, ltq_wdt_membase + LTQ_WDT_CR);
+> +	ltq_w32(LTQ_WDT_CR_PW1, ltq_wdt_membase + LTQ_WDT_CR);
+>  	/* write the second magic plus the configuration and new timeout */
+> -	ltq_w32(LTQ_WDT_SR_EN | LTQ_WDT_SR_PWD | LTQ_WDT_SR_CLKDIV | -
+> LTQ_WDT_PW2 | timeout, ltq_wdt_membase + LTQ_WDT_CR); +
+> ltq_w32(LTQ_WDT_CR_GEN | LTQ_WDT_CR_PWL | LTQ_WDT_CR_CLKDIV | +
+> LTQ_WDT_CR_PW2 | timeout, ltq_wdt_membase + LTQ_WDT_CR); }
+>  
+>  static void ltq_wdt_disable(void) { /* write the first password magic */ -
+>  ltq_w32(LTQ_WDT_PW1, ltq_wdt_membase + LTQ_WDT_CR); +
+>  ltq_w32(LTQ_WDT_CR_PW1, ltq_wdt_membase + LTQ_WDT_CR); /* * write the second
+>  password magic with no config * this turns the watchdog off */ -
+>  ltq_w32(LTQ_WDT_PW2, ltq_wdt_membase + LTQ_WDT_CR); +
+>  ltq_w32(LTQ_WDT_CR_PW2, ltq_wdt_membase + LTQ_WDT_CR); }
+>  
+>  static ssize_t
