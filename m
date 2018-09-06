@@ -1,93 +1,102 @@
-Return-Path: <jerry.hoemann@hpe.com>
-Return-path: <jerry.hoemann@hpe.com>
-Date: Thu, 6 Sep 2018 00:03:21 -0600
-From: Jerry Hoemann <jerry.hoemann@hpe.com>
-To: wim@linux-watchdog.org, linux@roeck-us.net
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 0/5] watchdog: hpwdt: Bug Fixes/Enhancement
-Message-ID: <20180906060321.GA14264@anatevka.americas.hpqcorp.net>
-Reply-To: Jerry.Hoemann@hpe.com
-References: <1533755607-71418-1-git-send-email-jerry.hoemann@hpe.com>
+Return-Path: <geert.uytterhoeven@gmail.com>
+Return-path: <geert.uytterhoeven@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1533755607-71418-1-git-send-email-jerry.hoemann@hpe.com>
+References: <20180905173743.47938-1-chris.brandt@renesas.com>
+In-Reply-To: <20180905173743.47938-1-chris.brandt@renesas.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Thu, 6 Sep 2018 12:07:06 +0200
+Message-ID: <CAMuHMdUK7OSYwE85F-1Pw4gQfDR9JJ5-_cPCk=BRiV5pzt=DCw@mail.gmail.com>
+Subject: Re: [PATCH] watchdog: rza_wdt: Extend clock sources for RZ/A2
+To: Chris Brandt <chris.brandt@renesas.com>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>,
+	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
+	Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
+	Simon Horman <horms+renesas@verge.net.au>
+Content-Type: text/plain; charset="UTF-8"
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On Wed, Aug 08, 2018 at 01:13:22PM -0600, Jerry Hoemann wrote:
-> Changes for v2
-> 
-> 1) Patch 0001: Simplify initialization of pretimeout removing #ifdef.
-> 2) Patch 0002: Loosen check on mynmi to accommodate potential FW issue.
-> 3) Patch 0003: Split dev_info into mulitple calls as output was getting long.
-> 4) Patch 0004: New: Add alias to module parameter soft_margin.
-> 
+Hi Chris,
 
-Wim,
+On Wed, Sep 5, 2018 at 7:40 PM Chris Brandt <chris.brandt@renesas.com> wrote:
+> The RZ/A2 watchdog timer extends the clock source options in order to give
+> you longer timeout options.
+>
+> Signed-off-by: Chris Brandt <chris.brandt@renesas.com>
 
-I would like to get our Distro partners to back port these changes,
-but they must first be upstream.  :)
+Thanks for your patch!
 
-Do you know when you will include these in a pull request so that I can
-pass on to them when to schedule the work?
+> --- a/drivers/watchdog/rza_wdt.c
+> +++ b/drivers/watchdog/rza_wdt.c
+> @@ -38,8 +38,37 @@ struct rza_wdt {
+>         struct watchdog_device wdev;
+>         void __iomem *base;
+>         struct clk *clk;
+> +       bool ext_cks;
+> +       u8 count;
+> +       u8 cks;
+> +       u8 timeout;
+>  };
+>
+> +static void rza_wdt_calc_timeout(struct rza_wdt *priv, int timeout)
+> +{
+> +       int rate = clk_get_rate(priv->clk);
+> +       u16 counter;
+> +
+> +       if (priv->ext_cks) {
+> +               /* Add the 1 to deal with the inevitable fraction */
+> +               counter = ((timeout * rate) /  4194304) + 1;
 
-Thanks
+"timeout * rate" may overflow
+DIV_ROUND_UP()?
 
-The patch e-mails are at:
-	https://lkml.org/lkml/2018/8/8/769
+> +               if (counter > 255)
+> +                       counter = 0;
+> +
+> +               priv->cks = 0xF;
+> +               priv->count = 256 - counter;
+> +       } else {
+> +               /* Start timer with longest timeout */
+> +               priv->cks = 7;
+> +               priv->count = 0;
+> +       }
+> +
+> +       priv->timeout = timeout;
+> +
+> +       pr_debug("%s: timeout set to %d (WTCNT=%d)\n", __func__,
 
-Jerry
+%u for unsigned.
 
-> 
-> -----------------------------
-> 
-> Two defect fixes and one enhancement.  
-> 
-> 0001: Initialize pretimeout from module parameter.
-> 
-> Bug Fix.
-> 
-> Pretimeout was getting programmed correctly in the hardware,
-> but this issue caused it to not be displayed correctly
-> in sysfs.
-> 
-> 
-> 
-> 0002: Claim NMI from iLO
-> 
-> Bug Fix.
-> 
-> Default configuration worked, but if user were to disable the
-> pretimeout for the watchdog, then an explicit request to NMI
-> the system from the iLO virutal button would fail.
-> 
-> 
-> 0003: Display module parameters
-> 
-> Enhancement.
-> 
-> Display all the module parameters when loading the driver.
-> Makes it easier to diagnose problems.
-> 
-> 
-> Jerry
-> 
-> 
-> Jerry Hoemann (5):
->   watchdog: hpwdt: Initialize pretimeout from module parameter.
->   watchdog: hpwdt: Claim NMI from iLO
->   watchdog: hpwdt: Display module parameters.
->   watchdog: hpwdt: Module paramerter alias.
->   watchdog: hpwdt: Update version number.
-> 
->  drivers/watchdog/hpwdt.c | 20 +++++++++++++-------
->  1 file changed, 13 insertions(+), 7 deletions(-)
-> 
-> -- 
-> 1.8.3.1
+> +                timeout, priv->count);
+> +}
+
+> @@ -150,20 +184,29 @@ static int rza_wdt_probe(struct platform_device *pdev)
+>                 return -ENOENT;
+>         }
+>
+> -       /* Assume slowest clock rate possible (CKS=7) */
+> -       rate /= 16384;
+> +       if (of_device_is_compatible(np, "renesas,r7s9210-wdt"))
+> +               priv->ext_cks = true;
+
+That's not the proper way to support multiple devices.
+Please add an entry for "renesas,r7s9210-wdt" to rza_wdt_of_match[].
+"renesas,r7s9210-wdt" must be documented in the DT bindings.
+
+I suggest storing cks in rza_wdt_of_match[].data, and retrieving it with
+of_device_get_match_data() in your probe function, so you can use that to
+differentiate, and get rid of the ext_cks flag.
+
+BTW, is the RZ/A2 WDT compatible with the RZ/A1 WDT, i.e. does it work
+with the unmodified driver? If not, "renesas,rza-wdt" must not be used as a
+fallback.
+
+Gr{oetje,eeting}s,
+
+                        Geert
 
 -- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
------------------------------------------------------------------------------
-Jerry Hoemann                  Software Engineer   Hewlett Packard Enterprise
------------------------------------------------------------------------------
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
