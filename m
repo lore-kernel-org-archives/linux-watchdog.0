@@ -1,38 +1,70 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from relmlor3.renesas.com ([210.160.252.173]:20942 "EHLO
+Received: from relmlor3.renesas.com ([210.160.252.173]:3101 "EHLO
         relmlie2.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726131AbeIFUsK (ORCPT
+        by vger.kernel.org with ESMTP id S1728845AbeIGASD (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 6 Sep 2018 16:48:10 -0400
+        Thu, 6 Sep 2018 20:18:03 -0400
 From: Chris Brandt <Chris.Brandt@renesas.com>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Guenter Roeck <linux@roeck-us.net>
 CC: Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-        Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "linux-renesas-soc@vger.kernel.org"
+        <linux-renesas-soc@vger.kernel.org>,
         Simon Horman <horms+renesas@verge.net.au>
-Subject: RE: [PATCH] watchdog: rza_wdt: Extend clock sources for RZ/A2
-Date: Thu, 6 Sep 2018 16:11:49 +0000
-Message-ID: <TY1PR01MB15625EA79950C5CCFFA1C3E28A010@TY1PR01MB1562.jpnprd01.prod.outlook.com>
-References: <20180905173743.47938-1-chris.brandt@renesas.com>
- <CAMuHMdUK7OSYwE85F-1Pw4gQfDR9JJ5-_cPCk=BRiV5pzt=DCw@mail.gmail.com>
- <TY1PR01MB15628F6B1EE72F7CCB4307938A010@TY1PR01MB1562.jpnprd01.prod.outlook.com>
-In-Reply-To: <TY1PR01MB15628F6B1EE72F7CCB4307938A010@TY1PR01MB1562.jpnprd01.prod.outlook.com>
+Subject: RE: [PATCH v2 1/2] watchdog: rza_wdt: Support longer timeouts
+Date: Thu, 6 Sep 2018 19:40:59 +0000
+Message-ID:
+ <TY1PR01MB15621632D4B8A445937C62518A010@TY1PR01MB1562.jpnprd01.prod.outlook.com>
+References: <20180906183738.81238-1-chris.brandt@renesas.com>
+ <20180906183738.81238-2-chris.brandt@renesas.com>
+ <20180906185247.GA25433@roeck-us.net> <20180906185643.GA25704@roeck-us.net>
+In-Reply-To: <20180906185643.GA25704@roeck-us.net>
 Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
+Message-ID: <20180906194059.88hfUyEj-uMlr0gMtYF8ndg6irMQMxJOa_mCUqZ-hAw@z>
 
-SGkgR2VlcnQsDQoNCkNvcnJlY3Rpb246DQoNCk9uIFRodXJzZGF5LCBTZXB0ZW1iZXIgMDYsIDIw
-MTgsIENocmlzIEJyYW5kdCB3cm90ZToNCj4gPiBCVFcsIGlzIHRoZSBSWi9BMiBXRFQgY29tcGF0
-aWJsZSB3aXRoIHRoZSBSWi9BMSBXRFQsIGkuZS4gZG9lcyBpdCB3b3JrDQo+ID4gd2l0aCB0aGUg
-dW5tb2RpZmllZCBkcml2ZXI/IElmIG5vdCwgInJlbmVzYXMscnphLXdkdCIgbXVzdCBub3QgYmUg
-dXNlZA0KPiBhcw0KPiA+IGENCj4gPiBmYWxsYmFjay4NCj4gDQo+IEkgd291bGQgc2F5IGl0IGlz
-IG5vdCwgYmVjYXVzZSB0aGUgZGl2aWRlcnMgYXJlIGRpZmZlcmVudCAobWVhbmluZyB0aGUNCj4g
-Y2FsY3VsYXRlZCB0aW1lb3V0cyB3b3VsZCBub3QgYmUgY29ycmVjdCkuDQoNCkFjdHVhbGx5LCB0
-aGUgY2xvY2sgZGl2aWRlcnMgYXJlIHRoZSBzYW1lIGZvciB0aGUgZmlyc3QgdGhyZWUgYml0cyAN
-CmJldHdlZW4gUlovQTEgYW5kIFJaL0EyLiBTbyB5b3UgY291bGQgdXNlICJyZW5lc2FzLHJ6YS13
-ZHQiIHdpdGggYW4gUlovQTIgYW5kDQppdCB3b3VsZCB3b3JrIGV4YWN0bHkgdGhlIHNhbWUgYXMg
-UlovQTEuDQoNCg0KQ2hyaXMNCg0KDQo=
+On Thursday, September 06, 2018, Guenter Roeck wrote:
+> > > +		if (counter > 255)
+> > > +			counter =3D 0;
+> >
+> > This is difficult to understand.
+> >
+> > > +
+> > > +		priv->count =3D 256 - counter;
+> >
+> > It sets priv->count to 256, meaning that 0x5B00 instead of
+> > 0x5Axx will be written into the counter register. That really
+> > asks for some explanation.
+> >
+>=20
+> No, wait, priv->count is an 8-bit variable, so this really sets
+> priv->counter to 0. I am getting more and more confused. Why
+> not just set "counter =3D 256" above to make it obvious if that
+> is what is supposed to happen ?
+
+That's a good point.
+
+The math is supposed to be:
+
+  256 - [number of ticks you want] =3D [register value]
+
+Where [number of ticks you want] must be <=3D 256
+
+Of course it's 8-bit variable so it will work...but that's not obvious=20
+at first.
+
+I'll change it to:
+
+	if (counter > 256)
+		counter =3D 256;
+
+
+Chris
