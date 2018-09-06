@@ -1,59 +1,51 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from www.linux-watchdog.org ([185.87.125.42]:47156 "EHLO
-        www.linux-watchdog.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725964AbeIANAQ (ORCPT
+Received: from relmlor4.renesas.com ([210.160.252.174]:29384 "EHLO
+        relmlie3.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727609AbeIFRUG (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 1 Sep 2018 09:00:16 -0400
-Date: Sat, 1 Sep 2018 10:28:36 +0200
-From: Wim Van Sebroeck <wim@linux-watchdog.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
+        Thu, 6 Sep 2018 13:20:06 -0400
+From: Chris Brandt <Chris.Brandt@renesas.com>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+CC: Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Fabrizio Castro <fabrizio.castro@bp.renesas.com>
-Subject: [GIT PULL REQUEST] watchdog - v4.19-rc2
-Message-ID: <20180901082836.GA21742@www.linux-watchdog.org>
+        Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
+        Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
+        Simon Horman <horms+renesas@verge.net.au>
+Subject: RE: [PATCH] watchdog: rza_wdt: Extend clock sources for RZ/A2
+Date: Thu, 6 Sep 2018 12:44:42 +0000
+Message-ID:
+ <TY1PR01MB15628F6B1EE72F7CCB4307938A010@TY1PR01MB1562.jpnprd01.prod.outlook.com>
+References: <20180905173743.47938-1-chris.brandt@renesas.com>
+ <CAMuHMdUK7OSYwE85F-1Pw4gQfDR9JJ5-_cPCk=BRiV5pzt=DCw@mail.gmail.com>
+In-Reply-To: <CAMuHMdUK7OSYwE85F-1Pw4gQfDR9JJ5-_cPCk=BRiV5pzt=DCw@mail.gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
+Message-ID: <20180906124442.Ox0KukL_zPV-N7h11hx_rt7eMa_rzR2YSKPj2UpC5Nk@z>
 
-Hi Linus,
-
-Please pull the watchdog changes for the v4.19 release cycle.
-
-This pull contains:
-* renesas-wdt: Document support for r8a774a1
-
-The output from git request-pull:
-----------------------------------------------------------------
-
-The following changes since commit 3f16503b7d2274ac8cbab11163047ac0b4c66cfe:
-
-  Merge branch 'fixes' of git://git.kernel.org/pub/scm/linux/kernel/git/evalenti/linux-soc-thermal (2018-08-28 16:11:34 -0700)
-
-are available in the git repository at:
-
-  git://www.linux-watchdog.org/linux-watchdog.git tags/linux-watchdog-4.19-rc2
-
-for you to fetch changes up to 74081c9f16a213f8f2681c175dc6ad7d17ad16ba:
-
-  dt-bindings: watchdog: renesas-wdt: Document r8a774a1 support (2018-08-29 20:32:04 +0200)
-
-----------------------------------------------------------------
-linux-watchdog 4.19-rc2 tag
-
-----------------------------------------------------------------
-Fabrizio Castro (1):
-      dt-bindings: watchdog: renesas-wdt: Document r8a774a1 support
-
- Documentation/devicetree/bindings/watchdog/renesas-wdt.txt | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
-
-----------------------------------------------------------------
-
-Kind regards,
-Wim.
+SGkgR2VlcnQsDQoNCk9uIFRodXJzZGF5LCBTZXB0ZW1iZXIgMDYsIDIwMTgsIEdlZXJ0IFV5dHRl
+cmhvZXZlbiB3cm90ZToNCj4gVGhhbmtzIGZvciB5b3VyIHBhdGNoIQ0KDQpUaGFuayB5b3UgZm9y
+IHlvdXIgcmV2aWV3Lg0KDQo+ICJ0aW1lb3V0ICogcmF0ZSIgbWF5IG92ZXJmbG93DQo+IERJVl9S
+T1VORF9VUCgpPw0KT0suDQoNCj4gPiArICAgICAgIHByX2RlYnVnKCIlczogdGltZW91dCBzZXQg
+dG8gJWQgKFdUQ05UPSVkKVxuIiwgX19mdW5jX18sDQo+IA0KPiAldSBmb3IgdW5zaWduZWQuDQpP
+Sy4NCg0KDQo+ID4gKyAgICAgICBpZiAob2ZfZGV2aWNlX2lzX2NvbXBhdGlibGUobnAsICJyZW5l
+c2FzLHI3czkyMTAtd2R0IikpDQo+ID4gKyAgICAgICAgICAgICAgIHByaXYtPmV4dF9ja3MgPSB0
+cnVlOw0KPiANCj4gVGhhdCdzIG5vdCB0aGUgcHJvcGVyIHdheSB0byBzdXBwb3J0IG11bHRpcGxl
+IGRldmljZXMuDQo+IFBsZWFzZSBhZGQgYW4gZW50cnkgZm9yICJyZW5lc2FzLHI3czkyMTAtd2R0
+IiB0byByemFfd2R0X29mX21hdGNoW10uDQo+ICJyZW5lc2FzLHI3czkyMTAtd2R0IiBtdXN0IGJl
+IGRvY3VtZW50ZWQgaW4gdGhlIERUIGJpbmRpbmdzLg0KPiANCj4gSSBzdWdnZXN0IHN0b3Jpbmcg
+Y2tzIGluIHJ6YV93ZHRfb2ZfbWF0Y2hbXS5kYXRhLCBhbmQgcmV0cmlldmluZyBpdCB3aXRoDQo+
+IG9mX2RldmljZV9nZXRfbWF0Y2hfZGF0YSgpIGluIHlvdXIgcHJvYmUgZnVuY3Rpb24sIHNvIHlv
+dSBjYW4gdXNlIHRoYXQgdG8NCj4gZGlmZmVyZW50aWF0ZSwgDQoNCk9LLCBJIHdpbGwgY2hhbmdl
+IHRvIHRoYXQuDQoNCj4gYW5kIGdldCByaWQgb2YgdGhlIGV4dF9ja3MgZmxhZy4NCg0KSSBzdGls
+bCBuZWVkIHRvIGtlZXAgdHJhY2sgaWYgaXQncyBhIFJaL0ExIG9yIFJaL0EyIChleHRfY2tzKSBm
+b3IgDQpmdW5jdGlvbnMgb3V0c2lkZSBvZiBwcm9iZSAocnphX3dkdF9jYWxjX3RpbWVvdXQpLg0K
+DQo+IEJUVywgaXMgdGhlIFJaL0EyIFdEVCBjb21wYXRpYmxlIHdpdGggdGhlIFJaL0ExIFdEVCwg
+aS5lLiBkb2VzIGl0IHdvcmsNCj4gd2l0aCB0aGUgdW5tb2RpZmllZCBkcml2ZXI/IElmIG5vdCwg
+InJlbmVzYXMscnphLXdkdCIgbXVzdCBub3QgYmUgdXNlZCBhcw0KPiBhDQo+IGZhbGxiYWNrLg0K
+DQpJIHdvdWxkIHNheSBpdCBpcyBub3QsIGJlY2F1c2UgdGhlIGRpdmlkZXJzIGFyZSBkaWZmZXJl
+bnQgKG1lYW5pbmcgdGhlIA0KY2FsY3VsYXRlZCB0aW1lb3V0cyB3b3VsZCBub3QgYmUgY29ycmVj
+dCkuDQoNClRoYW5rcywNCkNocmlzDQoNCg==
