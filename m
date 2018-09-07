@@ -5,34 +5,59 @@ To: linux-watchdog@vger.kernel.org
 Cc: wim@linux-watchdog.org,
 	Guenter Roeck <linux@roeck-us.net>,
 	Miquel Raynal <miquel.raynal@bootlin.com>,
-	Gregory CLEMENT <gregory.clement@bootlin.com>
-Subject: [PATCH v3 0/4] Add support for Armada 37xx CPU watchdog
-Date: Fri,  7 Sep 2018 15:05:49 +0200
-Message-Id: <20180907130553.14271-1-marek.behun@nic.cz>
+	Gregory CLEMENT <gregory.clement@bootlin.com>,
+	=?UTF-8?q?Marek=20Beh=C3=BAn?= <marek.behun@nic.cz>,
+	Rob Herring <robh+dt@kernel.org>,
+	devicetree@vger.kernel.org
+Subject: [PATCH v3 2/4] dt-bindings: watchdog: Document armada-37xx-wdt binding
+Date: Fri,  7 Sep 2018 15:05:51 +0200
+Message-Id: <20180907130553.14271-3-marek.behun@nic.cz>
+In-Reply-To: <20180907130553.14271-1-marek.behun@nic.cz>
+References: <20180907130553.14271-1-marek.behun@nic.cz>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Hello.
+This adds device tree binding documentation for the CPU watchdog found
+on Armada 37xx SOCs (EspressoBin, Turris Mox).
 
-This is a resend of v2 patch series, which didn't include explanation of
-changes from previous version nor proper Cc to devicetree maintainers.
+Signed-off-by: Marek Behún <marek.behun@nic.cz>
+Cc: Rob Herring <robh+dt@kernel.org>
+Cc: devicetree@vger.kernel.org
+---
+ .../bindings/watchdog/armada-37xx-wdt.txt          | 23 ++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/armada-37xx-wdt.txt
 
-Changes from previous version (v1)
-  - devicetree binding and documentation is in a separate patch
-  - watchdog pinging is done differently. In previous version only
-    one counter (ID 1) was used to implement watchdog, and this counter
-    had to be restarted when pinging, leaving the system in a vulnerable
-    state for a brief period of time.
-    Now pinging is done by forcing immediate expiration event on counter
-    ID 0, and counter ID 1 is set to restart counting from the initial value
-    when this event happens. Thus counter ID 1, which is set to be watchdog
-    counter, is never disabled, and the system is never in this brief
-    vulnerable state
-  - reading current value of the counter now reads low 32 bits first, because
-    when this is done, the hardware puts the high 32 bits in flip-flops so as
-    to avoid software debouncing. This way get_counter_value always returns
-    correct result
-
-Marek
+diff --git a/Documentation/devicetree/bindings/watchdog/armada-37xx-wdt.txt b/Documentation/devicetree/bindings/watchdog/armada-37xx-wdt.txt
+new file mode 100644
+index 000000000000..4ba9e40ad386
+--- /dev/null
++++ b/Documentation/devicetree/bindings/watchdog/armada-37xx-wdt.txt
+@@ -0,0 +1,23 @@
++* Armada 37xx CPU Watchdog Timer Controller
++
++Required properties:
++- compatible : must be "marvell,armada-3700-wdt"
++- reg : base physical address of the controller and length of memory mapped
++	region.
++- clocks : the clock feeding the watchdog timer. See clock-bindings.txt
++- marvell,system-controller : reference to syscon node for the CPU Miscellaneous
++	Registers
++
++Example:
++
++	cpu_misc: system-controller@d000 {
++		compatible = "syscon", "simple-mfd";
++		reg = <0xd000 0x1000>;
++	};
++
++	wdt: watchdog-timer@8300 {
++		compatible = "marvell,armada-3700-wdt";
++		reg = <0x8300 0x40>;
++		marvell,system-controller = <&cpu_misc>;
++		clocks = <&xtalclk>;
++	};
+-- 
+2.16.4
