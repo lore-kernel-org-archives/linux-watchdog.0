@@ -1,16 +1,17 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx08-00178001.pphosted.com ([91.207.212.93]:41222 "EHLO
-        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729622AbeIGRlK (ORCPT
+Received: from heliosphere.sirena.org.uk ([172.104.155.198]:60368 "EHLO
+        heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727378AbeIGUiH (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 7 Sep 2018 13:41:10 -0400
-From: Pascal PAILLET-LME <p.paillet@st.com>
-To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
+        Fri, 7 Sep 2018 16:38:07 -0400
+Date: Fri, 7 Sep 2018 16:56:26 +0100
+From: Mark Brown <broonie@kernel.org>
+To: Pascal PAILLET-LME <p.paillet@st.com>
+Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
         "robh+dt@kernel.org" <robh+dt@kernel.org>,
         "mark.rutland@arm.com" <mark.rutland@arm.com>,
         "lee.jones@linaro.org" <lee.jones@linaro.org>,
         "lgirdwood@gmail.com" <lgirdwood@gmail.com>,
-        "broonie@kernel.org" <broonie@kernel.org>,
         "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
         "linux@roeck-us.net" <linux@roeck-us.net>,
         "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
@@ -19,76 +20,49 @@ To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
         "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
         "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>,
         "eballetbo@gmail.com" <eballetbo@gmail.com>
-CC: Pascal PAILLET-LME <p.paillet@st.com>
-Subject: [PATCH V2 0/8] Introduce STPMIC1 PMIC Driver
-Date: Fri, 7 Sep 2018 12:59:42 +0000
-Message-ID: <1536325173-16617-1-git-send-email-p.paillet@st.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+Subject: Re: [PATCH V2 4/8] regulator: stpmic1: add stpmic1 regulator driver
+Message-ID: <20180907155626.GI17459@sirena.org.uk>
+References: <1536325173-16617-1-git-send-email-p.paillet@st.com>
+ <1536325173-16617-5-git-send-email-p.paillet@st.com>
 MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="Op27XXJsWz80g3oF"
+Content-Disposition: inline
+In-Reply-To: <1536325173-16617-5-git-send-email-p.paillet@st.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-From: pascal paillet <p.paillet@st.com>
 
-The goal of this patch-set is to propose a driver for the STPMIC1 PMIC from 
-STMicroelectronics. 
-The STPMIC1 regulators supply power to an application processor as well as 
-to external system peripherals such as DDR, Flash memories and system
-devices. It also features onkey button input and an hardware watchdog.
-The STPMIC1 is controlled via I2C. 
+--Op27XXJsWz80g3oF
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Main driver is drivers/mfd/stpmic1 that handle I2C regmap configuration and
-irqchip. stpmic1_regulator, stpmic1_onkey and stpmic1_wdt need stpmic1 mfd
-as parent.
+On Fri, Sep 07, 2018 at 12:59:44PM +0000, Pascal PAILLET-LME wrote:
 
-stpmic1 mfd and regulator drivers maybe mandatory at boot time.
+> @@ -804,6 +804,18 @@ config REGULATOR_TI_ABB
+>  	  on TI SoCs may be unstable without enabling this as it provides
+>  	  device specific optimized bias to allow/optimize functionality.
+> =20
+> +config REGULATOR_STPMIC1
 
-changes in v2:
-* the hardware component has been renamed from stpmu1 to stpmic1 !
-* change headers
-* handles remarks from the reviews.
+This looks good to me except the Kconfig isn't alphabetically sorted and
+has a conflict.  If the series doesn't otherwise need a resend I should
+be able to fix by hand, let me know.
 
-pascal paillet (8):
-  dt-bindings: mfd: document stpmic1
-  mfd: stpmic1: add stpmic1 driver
-  dt-bindings: regulator: document stpmic1 pmic regulators
-  regulator: stpmic1: add stpmic1 regulator driver
-  dt-bindings: input: document stpmic1 pmic onkey
-  input: stpmic1: add stpmic1 onkey driver
-  dt-bindings: watchdog: document stpmic1 pmic watchdog
-  watchdog: stpmic1: add stpmic1 watchdog driver
+--Op27XXJsWz80g3oF
+Content-Type: application/pgp-signature; name="signature.asc"
 
- .../devicetree/bindings/input/st,stpmic1-onkey.txt |  31 +
- .../devicetree/bindings/mfd/st,stpmic1.txt         | 137 ++++
- .../bindings/regulator/st,stpmic1-regulator.txt    |  68 ++
- .../bindings/watchdog/st,stpmic1-wdt.txt           |  11 +
- drivers/input/misc/Kconfig                         |  11 +
- drivers/input/misc/Makefile                        |   2 +
- drivers/input/misc/stpmic1_onkey.c                 | 257 ++++++++
- drivers/mfd/Kconfig                                |  13 +
- drivers/mfd/Makefile                               |   1 +
- drivers/mfd/stpmic1.c                              | 457 ++++++++++++++
- drivers/regulator/Kconfig                          |  12 +
- drivers/regulator/Makefile                         |   1 +
- drivers/regulator/stpmic1_regulator.c              | 692 +++++++++++++++++++++
- drivers/watchdog/Kconfig                           |  12 +
- drivers/watchdog/Makefile                          |   1 +
- drivers/watchdog/stpmic1_wdt.c                     | 130 ++++
- include/dt-bindings/mfd/st,stpmic1.h               |  46 ++
- include/linux/mfd/stpmic1.h                        | 220 +++++++
- 18 files changed, 2102 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/st,stpmic1-onkey.txt
- create mode 100644 Documentation/devicetree/bindings/mfd/st,stpmic1.txt
- create mode 100644 Documentation/devicetree/bindings/regulator/st,stpmic1-regulator.txt
- create mode 100644 Documentation/devicetree/bindings/watchdog/st,stpmic1-wdt.txt
- create mode 100644 drivers/input/misc/stpmic1_onkey.c
- create mode 100644 drivers/mfd/stpmic1.c
- create mode 100644 drivers/regulator/stpmic1_regulator.c
- create mode 100644 drivers/watchdog/stpmic1_wdt.c
- create mode 100644 include/dt-bindings/mfd/st,stpmic1.h
- create mode 100644 include/linux/mfd/stpmic1.h
+-----BEGIN PGP SIGNATURE-----
 
--- 
-1.9.1
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAluSn6kACgkQJNaLcl1U
+h9D0Hwf+Mz7oDPoli2YWJfuvAyjir33WC91k9f7g81u4O/QJ6AJJ+Tl2yc8D9VAd
+sfPk5SF3UMl3eMbsQ8/al6P7j4H0gMvkvgVt/0baJGkHd+v4X+vTWGWiO1Rlk7Wk
+2PeLVMwJJ4W/ma+jNo++WQngv/SHsRddiH7zDaHgrlCCiGEnsqPX1MBg/T/lwCkF
+de/8sT5o3PWmbl9Uvfow7mX9FLRLPDZFKULPRQqJNTyW/pa/VPbdwC9vHf8aYGdg
+y91SSOy/u4BoiegzZNMuLnuG9jekHultXFFsmlbZdBlAM3u1vyjqLuzwTEh3EpnU
+MFMZNboU65z5qOhlMMCHIOJ/6nVEkw==
+=M5Mz
+-----END PGP SIGNATURE-----
+
+--Op27XXJsWz80g3oF--
