@@ -1,73 +1,69 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pf1-f195.google.com ([209.85.210.195]:39435 "EHLO
-        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726498AbeIHSey (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 8 Sep 2018 14:34:54 -0400
-Received: by mail-pf1-f195.google.com with SMTP id j8-v6so8327281pff.6
-        for <linux-watchdog@vger.kernel.org>; Sat, 08 Sep 2018 06:49:03 -0700 (PDT)
-Subject: Re: [PATCH] watchdog: fix a small number of "watchog" typos in
- comments
-To: "Robert P. J. Day" <rpjday@crashcourse.ca>,
-        Linux watchdog mailing list <linux-watchdog@vger.kernel.org>
-Cc: wim@linux-watchdog.org
-References: <alpine.LFD.2.21.1809071400230.14610@localhost.localdomain>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <6356e46a-cc74-6a05-c8fb-fb3e1edccbe9@roeck-us.net>
-Date: Sat, 8 Sep 2018 06:49:01 -0700
-MIME-Version: 1.0
-In-Reply-To: <alpine.LFD.2.21.1809071400230.14610@localhost.localdomain>
-Content-Type: text/plain; charset=utf-8; format=flowed
+Return-Path: <p.paillet@st.com>
+Return-path: <p.paillet@st.com>
+From: Pascal PAILLET-LME <p.paillet@st.com>
+To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
+        "robh+dt@kernel.org" <robh+dt@kernel.org>,
+        "mark.rutland@arm.com"
+	<mark.rutland@arm.com>,
+        "lee.jones@linaro.org" <lee.jones@linaro.org>,
+        "lgirdwood@gmail.com" <lgirdwood@gmail.com>,
+        "broonie@kernel.org"
+	<broonie@kernel.org>,
+        "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
+        "linux@roeck-us.net" <linux@roeck-us.net>,
+        "linux-input@vger.kernel.org"
+	<linux-input@vger.kernel.org>,
+        "devicetree@vger.kernel.org"
+	<devicetree@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org"
+	<linux-kernel@vger.kernel.org>,
+        "linux-watchdog@vger.kernel.org"
+	<linux-watchdog@vger.kernel.org>,
+        "benjamin.gaignard@linaro.org"
+	<benjamin.gaignard@linaro.org>,
+        "eballetbo@gmail.com" <eballetbo@gmail.com>
+CC: Pascal PAILLET-LME <p.paillet@st.com>
+Subject: [PATCH V2 7/8] dt-bindings: watchdog: document stpmic1 pmic watchdog
+Date: Fri, 7 Sep 2018 12:59:45 +0000
+Message-ID: <1536325173-16617-8-git-send-email-p.paillet@st.com>
+References: <1536325173-16617-1-git-send-email-p.paillet@st.com>
+In-Reply-To: <1536325173-16617-1-git-send-email-p.paillet@st.com>
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 09/08/2018 03:20 AM, Robert P. J. Day wrote:
-> 
-> All typos in comments, should not affect functionality.
-> 
-> Signed-off-by: Robert P. J. Day <rpjday@crashcourse.ca>
+From: pascal paillet <p.paillet@st.com>
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+The stpmic1 PMIC embeds a watchdog which is disabled by default.
+In case of watchdog, the PMIC goes off.
 
-> 
-> ---
-> 
-> diff --git a/drivers/watchdog/booke_wdt.c b/drivers/watchdog/booke_wdt.c
-> index 3ad1e44bef44..6e78a34c2370 100644
-> --- a/drivers/watchdog/booke_wdt.c
-> +++ b/drivers/watchdog/booke_wdt.c
-> @@ -25,7 +25,7 @@
->   /* If the kernel parameter wdt=1, the watchdog will be enabled at boot.
->    * Also, the wdt_period sets the watchdog timer period timeout.
->    * For E500 cpus the wdt_period sets which bit changing from 0->1 will
-> - * trigger a watchog timeout. This watchdog timeout will occur 3 times, the
-> + * trigger a watchdog timeout. This watchdog timeout will occur 3 times, the
->    * first time nothing will happen, the second time a watchdog exception will
->    * occur, and the final time the board will reset.
->    */
-> diff --git a/drivers/watchdog/via_wdt.c b/drivers/watchdog/via_wdt.c
-> index b085ef1084ec..d56d0a927a1e 100644
-> --- a/drivers/watchdog/via_wdt.c
-> +++ b/drivers/watchdog/via_wdt.c
-> @@ -30,7 +30,7 @@
->   #define VIA_WDT_CONF_MMIO	0x02	/* 1: enable watchdog MMIO */
-> 
->   /*
-> - * The MMIO region contains the watchog control register and the
-> + * The MMIO region contains the watchdog control register and the
->    * hardware timer counter.
->    */
->   #define VIA_WDT_MMIO_LEN	8	/* MMIO region length in bytes */
-> @@ -82,7 +82,7 @@ static inline void wdt_reset(void)
->   /*
->    * Timer tick: the timer will make sure that the watchdog timer hardware
->    * is being reset in time. The conditions to do this are:
-> - *  1) the watchog timer has been started and /dev/watchdog is open
-> + *  1) the watchdog timer has been started and /dev/watchdog is open
->    *     and there is still time left before userspace should send the
->    *     next heartbeat/ping. (note: the internal heartbeat is much smaller
->    *     then the external/userspace heartbeat).
-> 
+Signed-off-by: pascal paillet <p.paillet@st.com>
+---
+ Documentation/devicetree/bindings/watchdog/st,stpmic1-wdt.txt | 11 +++++++=
+++++
+ 1 file changed, 11 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/st,stpmic1-w=
+dt.txt
+
+diff --git a/Documentation/devicetree/bindings/watchdog/st,stpmic1-wdt.txt =
+b/Documentation/devicetree/bindings/watchdog/st,stpmic1-wdt.txt
+new file mode 100644
+index 0000000..7cc1407
+--- /dev/null
++++ b/Documentation/devicetree/bindings/watchdog/st,stpmic1-wdt.txt
+@@ -0,0 +1,11 @@
++STMicroelectronics STPMIC1 Watchdog
++
++Required properties:
++
++- compatible : should be "st,stpmic1-wdt"
++
++Example:
++
++watchdog {
++	compatible =3D "st,stpmic1-wdt";
++};
+--=20
+1.9.1
