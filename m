@@ -1,250 +1,227 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pl1-f193.google.com ([209.85.214.193]:33956 "EHLO
+Received: from mail-pl1-f193.google.com ([209.85.214.193]:38841 "EHLO
         mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728459AbeIGS3H (ORCPT
+        with ESMTP id S1726314AbeIHU4j (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 7 Sep 2018 14:29:07 -0400
-Subject: Re: [PATCH V2 8/8] watchdog: stpmic1: add stpmic1 watchdog driver
-To: Pascal PAILLET-LME <p.paillet@st.com>,
-        "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
-        "robh+dt@kernel.org" <robh+dt@kernel.org>,
-        "mark.rutland@arm.com" <mark.rutland@arm.com>,
-        "lee.jones@linaro.org" <lee.jones@linaro.org>,
-        "lgirdwood@gmail.com" <lgirdwood@gmail.com>,
-        "broonie@kernel.org" <broonie@kernel.org>,
-        "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
-        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>,
-        "eballetbo@gmail.com" <eballetbo@gmail.com>
-References: <1536325173-16617-1-git-send-email-p.paillet@st.com>
- <1536325173-16617-9-git-send-email-p.paillet@st.com>
+        Sat, 8 Sep 2018 16:56:39 -0400
+Subject: Re: [PATCH v3 1/2] watchdog: rza_wdt: Support longer timeouts
+To: Chris Brandt <chris.brandt@renesas.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-renesas-soc@vger.kernel.org,
+        Simon Horman <horms+renesas@verge.net.au>
+References: <20180907012243.86603-1-chris.brandt@renesas.com>
+ <20180907012243.86603-2-chris.brandt@renesas.com>
 From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <c1594be0-5210-bfe0-59b8-d8b163195da5@roeck-us.net>
-Date: Fri, 7 Sep 2018 06:48:02 -0700
+Message-ID: <314e2981-8fbd-43ed-2f2d-c080a2961055@roeck-us.net>
+Date: Sat, 8 Sep 2018 09:10:19 -0700
 MIME-Version: 1.0
-In-Reply-To: <1536325173-16617-9-git-send-email-p.paillet@st.com>
+In-Reply-To: <20180907012243.86603-2-chris.brandt@renesas.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 09/07/2018 05:59 AM, Pascal PAILLET-LME wrote:
-> From: pascal paillet <p.paillet@st.com>
+On 09/06/2018 06:22 PM, Chris Brandt wrote:
+> The RZ/A2 watchdog timer extends the clock source options in order to
+> allow for longer timeouts.
 > 
-> The stpmic1 PMIC embeds a watchdog which is disabled by default. As soon
-> as the watchdog is started, it must be refreshed periodically otherwise
-> the PMIC goes off.
-> 
-> Signed-off-by: pascal paillet <p.paillet@st.com>
+> Signed-off-by: Chris Brandt <chris.brandt@renesas.com>
 > ---
-> changes in v2:
-> * the hardware component has been renamed from stpmu1 to stpmic1 !
-> * change headers
-> * handle remarks from Guenter
-
-Hmm ... as if I would remember what those were.
-
-> * fix set timeout
+> v3:
+>   * Removed + 1 from DIV_ROUND_UP line
+>   * resetting to 0 if time to big did not make as much sense are resetting
+>     to 256
+> v2:
+> * use DIV_ROUND_UP
+> * use %u for pr_debug
+> * use of_match data to determine the size of CKS register
+> ---
+>   drivers/watchdog/rza_wdt.c | 81 +++++++++++++++++++++++++++++++++++-----------
+>   1 file changed, 63 insertions(+), 18 deletions(-)
 > 
->   drivers/watchdog/Kconfig       |  12 ++++
->   drivers/watchdog/Makefile      |   1 +
->   drivers/watchdog/stpmic1_wdt.c | 130 +++++++++++++++++++++++++++++++++++++++++
->   3 files changed, 143 insertions(+)
->   create mode 100644 drivers/watchdog/stpmic1_wdt.c
-> 
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index 9af07fd..11c5937 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -796,6 +796,18 @@ config STM32_WATCHDOG
->   	  To compile this driver as a module, choose M here: the
->   	  module will be called stm32_iwdg.
+> diff --git a/drivers/watchdog/rza_wdt.c b/drivers/watchdog/rza_wdt.c
+> index e618218d2374..64a733492b96 100644
+> --- a/drivers/watchdog/rza_wdt.c
+> +++ b/drivers/watchdog/rza_wdt.c
+> @@ -14,6 +14,7 @@
+>   #include <linux/delay.h>
+>   #include <linux/module.h>
+>   #include <linux/of_address.h>
+> +#include <linux/of_device.h>
+>   #include <linux/platform_device.h>
+>   #include <linux/watchdog.h>
 >   
-> +config STPMIC1_WATCHDOG
-> +	tristate "STPMIC1 PMIC watchdog support"
-> +	depends on MFD_STPMIC1
-> +	select WATCHDOG_CORE
-> +	help
-> +	  Say Y here to include watchdog support embedded into STPMIC1 PMIC.
-> +	  If the watchdog timer expires, stpmic1 shut-down all its power
-> +	  supplies.
+> @@ -34,12 +35,40 @@
+>   #define WRCSR_RSTE		BIT(6)
+>   #define WRCSR_CLEAR_WOVF	0xA500	/* special value */
+>   
+> +#define CKS_3BIT		0x7
+> +#define CKS_4BIT		0xF
 > +
-> +	  To compile this driver as a module, choose M here: the
-> +	  module will be called spmic1_wdt.
-> +
->   config UNIPHIER_WATCHDOG
->   	tristate "UniPhier watchdog support"
->   	depends on ARCH_UNIPHIER || COMPILE_TEST
-> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-> index 1d3c6b0..a898d8f 100644
-> --- a/drivers/watchdog/Makefile
-> +++ b/drivers/watchdog/Makefile
-> @@ -216,3 +216,4 @@ obj-$(CONFIG_ZIIRAVE_WATCHDOG) += ziirave_wdt.o
->   obj-$(CONFIG_SOFT_WATCHDOG) += softdog.o
->   obj-$(CONFIG_MENF21BMC_WATCHDOG) += menf21bmc_wdt.o
->   obj-$(CONFIG_RAVE_SP_WATCHDOG) += rave-sp-wdt.o
-> +obj-$(CONFIG_STPMIC1_WATCHDOG) += stpmic1_wdt.o
-> diff --git a/drivers/watchdog/stpmic1_wdt.c b/drivers/watchdog/stpmic1_wdt.c
-> new file mode 100644
-> index 0000000..391e544
-> --- /dev/null
-> +++ b/drivers/watchdog/stpmic1_wdt.c
-> @@ -0,0 +1,130 @@
-> +// SPDX-License-Identifier: GPL-2.0
-> +// Copyright (C) STMicroelectronics 2018
-> +// Author: Pascal Paillet <p.paillet@st.com> for STMicroelectronics.
-> + > +#include <linux/kernel.h>
-> +#include <linux/mfd/stpmic1.h>
-> +#include <linux/module.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/of.h>
-> +#include <linux/regmap.h>
-> +#include <linux/reboot.h>
-> +#include <linux/slab.h>
-> +#include <linux/watchdog.h>
-> +
-> +/* WATCHDOG CONTROL REGISTER bit */
-> +#define WDT_START		BIT(0)
-> +#define WDT_PING		BIT(1)
-> +#define WDT_START_MASK		BIT(0)
-> +#define WDT_PING_MASK		BIT(1)
-> +
-> +#define PMIC_WDT_MIN_TIMEOUT 1
-> +#define PMIC_WDT_MAX_TIMEOUT 256
-> +
-> +struct stpmic1_wdt {
-> +	struct stpmic1_dev *pmic;
-> +	struct watchdog_device wdtdev;
-> +};
-> +
-> +static int pmic_wdt_start(struct watchdog_device *wdd)
+
+Any special reason for the value of those defines ? They are just used as flags,
+or am I missing something ? Why not just use 0 / 1 or an enum ?
+
+>   struct rza_wdt {
+>   	struct watchdog_device wdev;
+>   	void __iomem *base;
+>   	struct clk *clk;
+> +	u8 count;
+> +	u8 cks;
+> +	u8 timeout;
+
+Hmm ... this limits the effective timeout to 255 seconds. That seems odd.
+Maybe it is true in practice, if the clock is always guaranteed to be
+above 4194304 Hz, but it is an odd assumption that isn't really reflected
+in the code.
+
+>   };
+>   
+> +static void rza_wdt_calc_timeout(struct rza_wdt *priv, int timeout)
 > +{
-> +	struct stpmic1_wdt *wdt = watchdog_get_drvdata(wdd);
+> +	unsigned long rate = clk_get_rate(priv->clk);
+> +	unsigned int ticks;
 > +
-> +	return regmap_update_bits(wdt->pmic->regmap,
-> +				  WCHDG_CR, WDT_START_MASK, WDT_START);
+> +	if (priv->cks == CKS_4BIT) {
+> +		ticks = DIV_ROUND_UP((timeout * rate), 4194304);
+
+The ( ) around timeout * rate is unnecessary. Also, it would be nice
+to have a define and explanation for 4194304 (and 0x400000 would probably
+be a better value to use).
+
+> +		if (ticks > 256)
+> +			ticks = 256;
+
+If you keep this, you should as well recalculate timeout since it won't
+match the expected value.
+
+		if (ticks > 256) {
+			ticks = 256;
+			timeout = ticks * 4194304 / rate;
+		}
+
+Not that it can ever happen, since max_timeout limits the value.
+Personally I would rather see this dropped with a comment stating that
+ticks <= 256 is guaranteed by max_timeout; I am not a friend of dead code
+in the kernel.
+
+> +
+> +		priv->count = 256 - ticks;
+> +	} else {
+> +		/* Start timer with longest timeout */
+> +		priv->count = 0;
+> +	}
+> +
+> +	priv->timeout = timeout;
+> +
+> +	pr_debug("%s: timeout set to %u (WTCNT=%d)\n", __func__,
+> +		 timeout, priv->count);
 > +}
 > +
-> +static int pmic_wdt_stop(struct watchdog_device *wdd)
-> +{
-> +	struct stpmic1_wdt *wdt = watchdog_get_drvdata(wdd);
+>   static int rza_wdt_start(struct watchdog_device *wdev)
+>   {
+>   	struct rza_wdt *priv = watchdog_get_drvdata(wdev);
+> @@ -51,13 +80,12 @@ static int rza_wdt_start(struct watchdog_device *wdev)
+>   	readb(priv->base + WRCSR);
+>   	writew(WRCSR_CLEAR_WOVF, priv->base + WRCSR);
+>   
+> -	/*
+> -	 * Start timer with slowest clock source and reset option enabled.
+> -	 */
+> +	rza_wdt_calc_timeout(priv, wdev->timeout);
 > +
-> +	return regmap_update_bits(wdt->pmic->regmap,
-> +				  WCHDG_CR, WDT_START_MASK, ~WDT_START);
-> +}
+>   	writew(WRCSR_MAGIC | WRCSR_RSTE, priv->base + WRCSR);
+> -	writew(WTCNT_MAGIC | 0, priv->base + WTCNT);
+> -	writew(WTCSR_MAGIC | WTSCR_WT | WTSCR_TME | WTSCR_CKS(7),
+> -	       priv->base + WTCSR);
+> +	writew(WTCNT_MAGIC | priv->count, priv->base + WTCNT);
+> +	writew(WTCSR_MAGIC | WTSCR_WT | WTSCR_TME |
+> +	       WTSCR_CKS(priv->cks), priv->base + WTCSR);
+>   
+>   	return 0;
+>   }
+> @@ -75,7 +103,12 @@ static int rza_wdt_ping(struct watchdog_device *wdev)
+>   {
+>   	struct rza_wdt *priv = watchdog_get_drvdata(wdev);
+>   
+> -	writew(WTCNT_MAGIC | 0, priv->base + WTCNT);
+> +	if (priv->timeout != wdev->timeout)
+> +		rza_wdt_calc_timeout(priv, wdev->timeout);
 > +
-> +static int pmic_wdt_ping(struct watchdog_device *wdd)
-> +{
-> +	struct stpmic1_wdt *wdt = watchdog_get_drvdata(wdd);
-> +
-> +	return regmap_update_bits(wdt->pmic->regmap,
-> +				  WCHDG_CR, WDT_PING_MASK, WDT_PING);
-> +}
-> +
-> +static int pmic_wdt_set_timeout(struct watchdog_device *wdd,
-> +				unsigned int timeout)
-> +{
-> +	struct stpmic1_wdt *wdt = watchdog_get_drvdata(wdd);
-> +
-> +	return regmap_write(wdt->pmic->regmap, WCHDG_TIMER_CR, timeout - 1);
+FWIW, odd way of updating the timeout. Why not do it in the set_timeout()
+function where it belongs. Which makes me wonder why priv->timeout is needed
+in the first place (and why it is u8 - as mentioned above).
 
-What happens if the configured timeout is 1 ? Does that translate to a 1-second
-timeout ?
-
-This function also has to set wdd->timeout.
-
-> +}
+> +	writew(WTCNT_MAGIC | priv->count, priv->base + WTCNT);
 > +
-> +static const struct watchdog_info pmic_watchdog_info = {
-> +	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
+> +	pr_debug("%s: timeout = %u\n", __func__, wdev->timeout);
+>   
 
-No WDIOF_MAGICCLOSE ?
+Do you really want this displayed with each ping, even as debug message ?
+Just wondering.
 
-> +	.identity = "STPMIC1 PMIC Watchdog",
-> +};
+>   	return 0;
+>   }
+> @@ -150,20 +183,31 @@ static int rza_wdt_probe(struct platform_device *pdev)
+>   		return -ENOENT;
+>   	}
+>   
+> -	/* Assume slowest clock rate possible (CKS=7) */
+> -	rate /= 16384;
+> -
+>   	priv->wdev.info = &rza_wdt_ident,
+>   	priv->wdev.ops = &rza_wdt_ops,
+>   	priv->wdev.parent = &pdev->dev;
+>   
+> -	/*
+> -	 * Since the max possible timeout of our 8-bit count register is less
+> -	 * than a second, we must use max_hw_heartbeat_ms.
+> -	 */
+> -	priv->wdev.max_hw_heartbeat_ms = (1000 * U8_MAX) / rate;
+> -	dev_dbg(&pdev->dev, "max hw timeout of %dms\n",
+> -		 priv->wdev.max_hw_heartbeat_ms);
+> +	priv->cks = (unsigned int)of_device_get_match_data(&pdev->dev);
+> +	if (priv->cks == CKS_4BIT) {
+> +		/* Assume slowest clock rate possible (CKS=0xF) */
+> +		priv->wdev.max_timeout = (4194304 * U8_MAX) / rate;
 > +
-> +static const struct watchdog_ops pmic_watchdog_ops = {
-> +	.owner = THIS_MODULE,
-> +	.start = pmic_wdt_start,
-> +	.stop = pmic_wdt_stop,
-> +	.ping = pmic_wdt_ping,
-> +	.set_timeout = pmic_wdt_set_timeout,
-> +};
+> +	} else if (priv->cks == CKS_3BIT) {
+> +		/* Assume slowest clock rate possible (CKS=7) */
+> +		rate /= 16384;
 > +
-> +static int pmic_wdt_probe(struct platform_device *pdev)
-> +{
-> +	int ret;
-> +	struct stpmic1_dev *pmic;
-> +	struct stpmic1_wdt *wdt;
-> +
-> +	if (!pdev->dev.parent)
+> +		/*
+> +		 * Since the max possible timeout of our 8-bit count
+> +		 * register is less than a second, we must use
+> +		 * max_hw_heartbeat_ms.
+> +		 */
+> +		priv->wdev.max_hw_heartbeat_ms = (1000 * U8_MAX) / rate;
+> +		dev_dbg(&pdev->dev, "max hw timeout of %dms\n",
+> +			 priv->wdev.max_hw_heartbeat_ms);
+> +	} else {
+> +		dev_err(&pdev->dev, "invalid CKS value (%u)\n", priv->cks);
 > +		return -EINVAL;
-> +
-> +	pmic = dev_get_drvdata(pdev->dev.parent);
-> +	if (!pmic)
-> +		return -EINVAL;
-> +
-> +	wdt = devm_kzalloc(&pdev->dev, sizeof(struct stpmic1_wdt), GFP_KERNEL);
-> +	if (!wdt)
-> +		return -ENOMEM;
-> +
-> +	wdt->pmic = pmic;
-> +
-> +	wdt->wdtdev.info = &pmic_watchdog_info;
-> +	wdt->wdtdev.ops = &pmic_watchdog_ops;
-> +	wdt->wdtdev.min_timeout = PMIC_WDT_MIN_TIMEOUT;
-> +	wdt->wdtdev.max_timeout = PMIC_WDT_MAX_TIMEOUT;
-> +	wdt->wdtdev.timeout = PMIC_WDT_MIN_TIMEOUT;
+> +	}
 
-Are you sure about that ? A timeout of 1 second may be a cause for unexpected
-reboots if user space is busy. Personally I find it better to set a larger
-default and let userspace configure a tighter value if so desired.
+I don't really see the point of this else statement. It is pretty much dead code,
+and the message is quite useless for the user.
 
-Also,
-	watchdog_init_timeout(&wdt->wdtdev, 0, &pdev->dev);
-might be desirable if you want to be able to specify the timeout in the
-devicetree file.
-
-
-> +
-> +	wdt->wdtdev.status = WATCHDOG_NOWAYOUT_INIT_STATUS;
-> +
-> +	watchdog_set_drvdata(&wdt->wdtdev, wdt);
-> +	dev_set_drvdata(&pdev->dev, wdt);
-
-Unless I am missing something this should not be needed.
-
-> +
-> +	ret = devm_watchdog_register_device(&pdev->dev, &wdt->wdtdev);
-> +	if (ret)
-> +		return ret;
-> +
-> +	dev_dbg(wdt->pmic->dev, "PMIC Watchdog driver probed\n");
-> +	return 0;
-> +}
-> +
-> +static const struct of_device_id of_pmic_wdt_match[] = {
-> +	{ .compatible = "st,stpmic1-wdt" },
-> +	{ },
-> +};
-> +
-> +MODULE_DEVICE_TABLE(of, of_pmic_wdt_match);
-> +
-> +static struct platform_driver stpmic1_wdt_driver = {
-> +	.probe = pmic_wdt_probe,
-> +	.driver = {
-> +		.name = "stpmic1-wdt",
-> +		.of_match_table = of_pmic_wdt_match,
-> +	},
-> +};
-> +module_platform_driver(stpmic1_wdt_driver);
-> +
-> +MODULE_DESCRIPTION("Watchdog driver for STPMIC1 device");
-> +MODULE_AUTHOR("Pascal Paillet");
-> +MODULE_LICENSE("GPL v2");
+>   
+>   	priv->wdev.min_timeout = 1;
+>   	priv->wdev.timeout = DEFAULT_TIMEOUT;
+> @@ -179,7 +223,8 @@ static int rza_wdt_probe(struct platform_device *pdev)
+>   }
+>   
+>   static const struct of_device_id rza_wdt_of_match[] = {
+> -	{ .compatible = "renesas,rza-wdt", },
+> +	{ .compatible = "renesas,r7s9210-wdt",	.data = (void *)CKS_4BIT, },
+> +	{ .compatible = "renesas,rza-wdt",	.data = (void *)CKS_3BIT, },
+>   	{ /* sentinel */ }
+>   };
+>   MODULE_DEVICE_TABLE(of, rza_wdt_of_match);
 > 
