@@ -1,586 +1,113 @@
-Return-Path: <hauke@hauke-m.de>
-Return-path: <hauke@hauke-m.de>
-Subject: Re: [PATCH v2 2/3] wdt: lantiq: Convert to watchdog_device
-To: Guenter Roeck <linux@roeck-us.net>, wim@linux-watchdog.org
-Cc: linux-watchdog@vger.kernel.org, john@phrozen.org, dev@kresin.me
-References: <20180902113233.29113-1-hauke@hauke-m.de>
- <20180902113233.29113-3-hauke@hauke-m.de>
- <7c475c33-72c9-1217-7655-c8063683b3fc@roeck-us.net>
-From: Hauke Mehrtens <hauke@hauke-m.de>
-Message-ID: <6315a579-3249-e83b-69ea-54ac13b15799@hauke-m.de>
-Date: Sun, 9 Sep 2018 23:07:59 +0200
+Return-Path: <Chris.Brandt@renesas.com>
+Return-path: <Chris.Brandt@renesas.com>
+From: Chris Brandt <Chris.Brandt@renesas.com>
+To: Guenter Roeck <linux@roeck-us.net>, Wim Van Sebroeck
+	<wim@linux-watchdog.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland
+	<mark.rutland@arm.com>, Geert Uytterhoeven <geert@linux-m68k.org>
+CC: "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+	"linux-renesas-soc@vger.kernel.org" <linux-renesas-soc@vger.kernel.org>,
+	Simon Horman <horms+renesas@verge.net.au>
+Subject: RE: [PATCH v3 1/2] watchdog: rza_wdt: Support longer timeouts
+Date: Mon, 10 Sep 2018 13:53:28 +0000
+Message-ID: 
+ <TY1PR01MB156229CF6EA73FD0B083B0A18A050@TY1PR01MB1562.jpnprd01.prod.outlook.com>
+References: <20180907012243.86603-1-chris.brandt@renesas.com>
+ <20180907012243.86603-2-chris.brandt@renesas.com>
+ <314e2981-8fbd-43ed-2f2d-c080a2961055@roeck-us.net>
+In-Reply-To: <314e2981-8fbd-43ed-2f2d-c080a2961055@roeck-us.net>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-In-Reply-To: <7c475c33-72c9-1217-7655-c8063683b3fc@roeck-us.net>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="DYBkmnUT6QndCQKW1uyHjQulEG6chpopo"
 List-ID: <linux-watchdog@vger.kernel.org>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---DYBkmnUT6QndCQKW1uyHjQulEG6chpopo
-Content-Type: multipart/mixed; boundary="kG6mtJb8BhscPaEh3jP0adgnyr8lD9TPY";
- protected-headers="v1"
-From: Hauke Mehrtens <hauke@hauke-m.de>
-To: Guenter Roeck <linux@roeck-us.net>, wim@linux-watchdog.org
-Cc: linux-watchdog@vger.kernel.org, john@phrozen.org, dev@kresin.me
-Message-ID: <6315a579-3249-e83b-69ea-54ac13b15799@hauke-m.de>
-Subject: Re: [PATCH v2 2/3] wdt: lantiq: Convert to watchdog_device
-References: <20180902113233.29113-1-hauke@hauke-m.de>
- <20180902113233.29113-3-hauke@hauke-m.de>
- <7c475c33-72c9-1217-7655-c8063683b3fc@roeck-us.net>
-In-Reply-To: <7c475c33-72c9-1217-7655-c8063683b3fc@roeck-us.net>
-
---kG6mtJb8BhscPaEh3jP0adgnyr8lD9TPY
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
-
-On 09/04/2018 01:43 AM, Guenter Roeck wrote:
-> On 09/02/2018 04:32 AM, Hauke Mehrtens wrote:
->> Instead of doing the ioctl handling manually just use register a
->> watchdog_device and let the watchdog framework do the ioctl handling.
->>
->> This also removes the ltq_wdt_bootstatus_set typedef and replaces it
->> with a structure providing the chip specific functions pointer.
->> The watchdog_init_timeout() function is now used and the initial timeo=
-ut
->> can be provided in device tree.
->> If the watchdog was already activated it will not be stopped any more,=
-
->> but the settings from the driver will be used and the watchdog subsyst=
-em
->> will take care.
->>
->> Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
->> ---
->> =C2=A0 drivers/watchdog/Kconfig=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0=C2=
-=A0 1 +
->> =C2=A0 drivers/watchdog/lantiq_wdt.c | 277
->> +++++++++++++++++++-----------------------
->> =C2=A0 2 files changed, 126 insertions(+), 152 deletions(-)
->>
->> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
->> index 5ea8909a41f9..5637d8be31e0 100644
->> --- a/drivers/watchdog/Kconfig
->> +++ b/drivers/watchdog/Kconfig
->> @@ -1621,6 +1621,7 @@ config IMGPDC_WDT
->> =C2=A0 config LANTIQ_WDT
->> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 tristate "Lantiq SoC watchdog"
->> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 depends on LANTIQ
->> +=C2=A0=C2=A0=C2=A0 select WATCHDOG_CORE
->> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 help
->> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 Hardware driver for the Lan=
-tiq SoC Watchdog Timer.
->> =C2=A0 diff --git a/drivers/watchdog/lantiq_wdt.c
->> b/drivers/watchdog/lantiq_wdt.c
->> index e5937be09bd4..666db382b824 100644
->> --- a/drivers/watchdog/lantiq_wdt.c
->> +++ b/drivers/watchdog/lantiq_wdt.c
->> @@ -8,11 +8,7 @@
->> =C2=A0=C2=A0 *=C2=A0 Based on EP93xx wdt driver
->> =C2=A0=C2=A0 */
->> =C2=A0 -#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
->> -
->> =C2=A0 #include <linux/module.h>
->> -#include <linux/fs.h>
->> -#include <linux/miscdevice.h>
->> =C2=A0 #include <linux/bitops.h>
->> =C2=A0 #include <linux/watchdog.h>
->> =C2=A0 #include <linux/of_platform.h>
->> @@ -55,154 +51,99 @@
->> =C2=A0 =C2=A0 static bool nowayout =3D WATCHDOG_NOWAYOUT;
->> =C2=A0 -static void __iomem *ltq_wdt_membase;
->> -static unsigned long ltq_io_region_clk_rate;
->> +struct ltq_wdt_hw {
->> +=C2=A0=C2=A0=C2=A0 int (*bootstatus_get)(struct device *dev);
->> +};
->> =C2=A0 -static unsigned long ltq_wdt_bootstatus;
->> -static unsigned long ltq_wdt_in_use;
->> -static int ltq_wdt_timeout =3D 30;
->> -static int ltq_wdt_ok_to_close;
->> +struct ltq_wdt_priv {
->> +=C2=A0=C2=A0=C2=A0 struct watchdog_device wdt;
->> +=C2=A0=C2=A0=C2=A0 void __iomem *membase;
->> +=C2=A0=C2=A0=C2=A0 unsigned long clk_rate;
->> +};
->> =C2=A0 -static void
->> -ltq_wdt_enable(void)
->> +static u32 ltq_wdt_r32(struct ltq_wdt_priv *priv, u32 offset)
->> =C2=A0 {
->> -=C2=A0=C2=A0=C2=A0 unsigned long int timeout =3D ltq_wdt_timeout *
->> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 (l=
-tq_io_region_clk_rate / LTQ_WDT_DIVIDER) + 0x1000;
->> -=C2=A0=C2=A0=C2=A0 if (timeout > LTQ_WDT_CR_RELOAD_MASK)
->> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 timeout =3D LTQ_WDT_CR_REL=
-OAD_MASK;
->> -
->> -=C2=A0=C2=A0=C2=A0 /* write the first password magic */
->> -=C2=A0=C2=A0=C2=A0 ltq_w32(LTQ_WDT_CR_PW1, ltq_wdt_membase + LTQ_WDT_=
-CR);
->> -=C2=A0=C2=A0=C2=A0 /* write the second magic plus the configuration a=
-nd new timeout */
->> -=C2=A0=C2=A0=C2=A0 ltq_w32(LTQ_WDT_CR_GEN | LTQ_WDT_CR_PWL | LTQ_WDT_=
-CR_CLKDIV |
->> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 LTQ_WDT_CR_PW2 | timeout, =
-ltq_wdt_membase + LTQ_WDT_CR);
->> +=C2=A0=C2=A0=C2=A0 return __raw_readl(priv->membase + offset);
->> =C2=A0 }
->> =C2=A0 -static void
->> -ltq_wdt_disable(void)
->> +static void ltq_wdt_w32(struct ltq_wdt_priv *priv, u32 val, u32 offse=
-t)
->> =C2=A0 {
->> -=C2=A0=C2=A0=C2=A0 /* write the first password magic */
->> -=C2=A0=C2=A0=C2=A0 ltq_w32(LTQ_WDT_CR_PW1, ltq_wdt_membase + LTQ_WDT_=
-CR);
->> -=C2=A0=C2=A0=C2=A0 /*
->> -=C2=A0=C2=A0=C2=A0=C2=A0 * write the second password magic with no co=
-nfig
->> -=C2=A0=C2=A0=C2=A0=C2=A0 * this turns the watchdog off
->> -=C2=A0=C2=A0=C2=A0=C2=A0 */
->> -=C2=A0=C2=A0=C2=A0 ltq_w32(LTQ_WDT_CR_PW2, ltq_wdt_membase + LTQ_WDT_=
-CR);
->> +=C2=A0=C2=A0=C2=A0 return __raw_writel(val, priv->membase + offset);
->> =C2=A0 }
->> =C2=A0 -static ssize_t
->> -ltq_wdt_write(struct file *file, const char __user *data,
->> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 size_t len, loff_t *ppos)
->> +static void ltq_wdt_mask(struct ltq_wdt_priv *priv, u32 clear, u32 se=
-t,
->> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0 u32 offset)
->> =C2=A0 {
->> -=C2=A0=C2=A0=C2=A0 if (len) {
->> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (!nowayout) {
->> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 si=
-ze_t i;
->> -
->> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 lt=
-q_wdt_ok_to_close =3D 0;
->> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 fo=
-r (i =3D 0; i !=3D len; i++) {
->> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0 char c;
->> -
->> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0 if (get_user(c, data + i))
->> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 return -EFAULT;
->> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0 if (c =3D=3D 'V')
->> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 ltq_wdt_ok_to_close =3D 1;
->> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0 else
->> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 ltq_wdt_ok_to_close =3D 0;
->> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 }
->> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 }
->> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 ltq_wdt_enable();
->> -=C2=A0=C2=A0=C2=A0 }
->> +=C2=A0=C2=A0=C2=A0 u32 val =3D ltq_wdt_r32(priv, offset);
->> =C2=A0 -=C2=A0=C2=A0=C2=A0 return len;
->> +=C2=A0=C2=A0=C2=A0 val &=3D ~(clear);
->> +=C2=A0=C2=A0=C2=A0 val |=3D set;
->> +=C2=A0=C2=A0=C2=A0 ltq_wdt_w32(priv, val, offset);
->> =C2=A0 }
->> =C2=A0 -static struct watchdog_info ident =3D {
->> +static struct ltq_wdt_priv *ltq_wdt_get_priv(struct watchdog_device
->> *wdt)
->> +{
->> +=C2=A0=C2=A0=C2=A0 return container_of(wdt, struct ltq_wdt_priv, wdt)=
-;
->> +}
->> +
->> +static struct watchdog_info ltq_wdt_info =3D {
->> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 .options =3D WDIOF_MAGICCLOSE | WDIOF_S=
-ETTIMEOUT |
->> WDIOF_KEEPALIVEPING |
->> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 WD=
-IOF_CARDRESET,
->> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 WDIOF_CA=
-RDRESET,
->> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 .identity =3D "ltq_wdt",
->> =C2=A0 };
->> =C2=A0 -static long
->> -ltq_wdt_ioctl(struct file *file,
->> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 unsigned int cmd, unsigned=
- long arg)
->> +static int ltq_wdt_start(struct watchdog_device *wdt)
->> =C2=A0 {
->> -=C2=A0=C2=A0=C2=A0 int ret =3D -ENOTTY;
->> -
->> -=C2=A0=C2=A0=C2=A0 switch (cmd) {
->> -=C2=A0=C2=A0=C2=A0 case WDIOC_GETSUPPORT:
->> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 ret =3D copy_to_user((stru=
-ct watchdog_info __user *)arg, &ident,
->> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0 sizeof(ident)) ? -EFAULT : 0;
->> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 break;
->> -
->> -=C2=A0=C2=A0=C2=A0 case WDIOC_GETBOOTSTATUS:
->> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 ret =3D put_user(ltq_wdt_b=
-ootstatus, (int __user *)arg);
->> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 break;
->> -
->> -=C2=A0=C2=A0=C2=A0 case WDIOC_GETSTATUS:
->> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 ret =3D put_user(0, (int _=
-_user *)arg);
->> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 break;
->> -
->> -=C2=A0=C2=A0=C2=A0 case WDIOC_SETTIMEOUT:
->> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 ret =3D get_user(ltq_wdt_t=
-imeout, (int __user *)arg);
->> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (!ret)
->> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 lt=
-q_wdt_enable();
->> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 /* intentional drop throug=
-h */
->> -=C2=A0=C2=A0=C2=A0 case WDIOC_GETTIMEOUT:
->> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 ret =3D put_user(ltq_wdt_t=
-imeout, (int __user *)arg);
->> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 break;
->> -
->> -=C2=A0=C2=A0=C2=A0 case WDIOC_KEEPALIVE:
->> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 ltq_wdt_enable();
->> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 ret =3D 0;
->> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 break;
->> -=C2=A0=C2=A0=C2=A0 }
->> -=C2=A0=C2=A0=C2=A0 return ret;
->> +=C2=A0=C2=A0=C2=A0 struct ltq_wdt_priv *priv =3D ltq_wdt_get_priv(wdt=
-);
->> +=C2=A0=C2=A0=C2=A0 u32 timeout;
->> +
->> +=C2=A0=C2=A0=C2=A0 timeout =3D wdt->timeout * priv->clk_rate;
->> +
->> +=C2=A0=C2=A0=C2=A0 ltq_wdt_mask(priv, LTQ_WDT_CR_PW_MASK, LTQ_WDT_CR_=
-PW1, LTQ_WDT_CR);
->> +=C2=A0=C2=A0=C2=A0 /* write the second magic plus the configuration a=
-nd new timeout */
->> +=C2=A0=C2=A0=C2=A0 ltq_wdt_mask(priv, LTQ_WDT_CR_PW_MASK | LTQ_WDT_CR=
-_RELOAD_MASK,
->> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0 LTQ_WDT_CR_GEN | LTQ_WDT_CR_PWL | LTQ_WDT_CR_CLKDIV |
->> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0 LTQ_WDT_CR_PW2 | timeout,
->> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0 LTQ_WDT_CR);
->> +
->> +=C2=A0=C2=A0=C2=A0 return 0;
->> =C2=A0 }
->> =C2=A0 -static int
->> -ltq_wdt_open(struct inode *inode, struct file *file)
->> +static int ltq_wdt_stop(struct watchdog_device *wdt)
->> =C2=A0 {
->> -=C2=A0=C2=A0=C2=A0 if (test_and_set_bit(0, &ltq_wdt_in_use))
->> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 return -EBUSY;
->> -=C2=A0=C2=A0=C2=A0 ltq_wdt_in_use =3D 1;
->> -=C2=A0=C2=A0=C2=A0 ltq_wdt_enable();
->> +=C2=A0=C2=A0=C2=A0 struct ltq_wdt_priv *priv =3D ltq_wdt_get_priv(wdt=
-);
->> =C2=A0 -=C2=A0=C2=A0=C2=A0 return nonseekable_open(inode, file);
->> +=C2=A0=C2=A0=C2=A0 ltq_wdt_mask(priv, LTQ_WDT_CR_PW_MASK, LTQ_WDT_CR_=
-PW1, LTQ_WDT_CR);
->> +=C2=A0=C2=A0=C2=A0 ltq_wdt_mask(priv, LTQ_WDT_CR_GEN | LTQ_WDT_CR_PW_=
-MASK,
->> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0 LTQ_WDT_CR_PW2, LTQ_WDT_CR);
->> +
->> +=C2=A0=C2=A0=C2=A0 return 0;
->> =C2=A0 }
->> =C2=A0 -static int
->> -ltq_wdt_release(struct inode *inode, struct file *file)
->> +static int ltq_wdt_ping(struct watchdog_device *wdt)
->> =C2=A0 {
->> -=C2=A0=C2=A0=C2=A0 if (ltq_wdt_ok_to_close)
->> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 ltq_wdt_disable();
->> -=C2=A0=C2=A0=C2=A0 else
->> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 pr_err("watchdog closed wi=
-thout warning\n");
->> -=C2=A0=C2=A0=C2=A0 ltq_wdt_ok_to_close =3D 0;
->> -=C2=A0=C2=A0=C2=A0 clear_bit(0, &ltq_wdt_in_use);
->> +=C2=A0=C2=A0=C2=A0 struct ltq_wdt_priv *priv =3D ltq_wdt_get_priv(wdt=
-);
->> +=C2=A0=C2=A0=C2=A0 u32 timeout;
->> +
->> +=C2=A0=C2=A0=C2=A0 timeout =3D wdt->timeout * priv->clk_rate;
->> +
->> +=C2=A0=C2=A0=C2=A0 ltq_wdt_mask(priv, LTQ_WDT_CR_PW_MASK, LTQ_WDT_CR_=
-PW1, LTQ_WDT_CR);
->> +=C2=A0=C2=A0=C2=A0 /* write the second magic plus the configuration a=
-nd new timeout */
->> +=C2=A0=C2=A0=C2=A0 ltq_wdt_mask(priv, LTQ_WDT_CR_PW_MASK | LTQ_WDT_CR=
-_RELOAD_MASK,
->> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0 LTQ_WDT_CR_PW2 | timeout, LTQ_WDT_CR);
->> =C2=A0 =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 return 0;
->> =C2=A0 }
->> =C2=A0 -static const struct file_operations ltq_wdt_fops =3D {
->> +static const struct watchdog_ops ltq_wdt_ops =3D {
->> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 .owner=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0 =3D THIS_MODULE,
->> -=C2=A0=C2=A0=C2=A0 .write=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 =3D=
- ltq_wdt_write,
->> -=C2=A0=C2=A0=C2=A0 .unlocked_ioctl=C2=A0=C2=A0=C2=A0 =3D ltq_wdt_ioct=
-l,
->> -=C2=A0=C2=A0=C2=A0 .open=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 =3D=
- ltq_wdt_open,
->> -=C2=A0=C2=A0=C2=A0 .release=C2=A0=C2=A0=C2=A0 =3D ltq_wdt_release,
->> -=C2=A0=C2=A0=C2=A0 .llseek=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 =
-=3D no_llseek,
->> +=C2=A0=C2=A0=C2=A0 .start=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 =3D=
- ltq_wdt_start,
->> +=C2=A0=C2=A0=C2=A0 .stop=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 =3D=
- ltq_wdt_stop,
->> +=C2=A0=C2=A0=C2=A0 .ping=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 =3D=
- ltq_wdt_ping,
->> =C2=A0 };
->> =C2=A0 -static struct miscdevice ltq_wdt_miscdev =3D {
->> -=C2=A0=C2=A0=C2=A0 .minor=C2=A0=C2=A0=C2=A0 =3D WATCHDOG_MINOR,
->> -=C2=A0=C2=A0=C2=A0 .name=C2=A0=C2=A0=C2=A0 =3D "watchdog",
->> -=C2=A0=C2=A0=C2=A0 .fops=C2=A0=C2=A0=C2=A0 =3D &ltq_wdt_fops,
->> -};
->> -
->> -typedef int (*ltq_wdt_bootstatus_set)(struct platform_device *pdev);
->> -
->> -static int ltq_wdt_bootstatus_xrx(struct platform_device *pdev)
->> +static int ltq_wdt_bootstatus_xrx(struct device *dev)
->> =C2=A0 {
->> -=C2=A0=C2=A0=C2=A0 struct device *dev =3D &pdev->dev;
->> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 struct regmap *rcu_regmap;
->> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 u32 val;
->> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 int err;
->> @@ -216,14 +157,13 @@ static int ltq_wdt_bootstatus_xrx(struct
->> platform_device *pdev)
->> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 return err;
->> =C2=A0 =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (val & LTQ_XRX_RCU_RST_STAT_W=
-DT)
->> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 ltq_wdt_bootstatus =3D WDI=
-OF_CARDRESET;
->> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 return WDIOF_CARDRESET;
->> =C2=A0 =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 return 0;
->> =C2=A0 }
->> =C2=A0 -static int ltq_wdt_bootstatus_falcon(struct platform_device *p=
-dev)
->> +static int ltq_wdt_bootstatus_falcon(struct device *dev)
->> =C2=A0 {
->> -=C2=A0=C2=A0=C2=A0 struct device *dev =3D &pdev->dev;
->> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 struct regmap *rcu_regmap;
->> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 u32 val;
->> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 int err;
->> @@ -238,62 +178,95 @@ static int ltq_wdt_bootstatus_falcon(struct
->> platform_device *pdev)
->> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 return err;
->> =C2=A0 =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if ((val & LTQ_FALCON_SYS1_CPU0R=
-S_MASK) =3D=3D
->> LTQ_FALCON_SYS1_CPU0RS_WDT)
->> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 ltq_wdt_bootstatus =3D WDI=
-OF_CARDRESET;
->> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 return WDIOF_CARDRESET;
->> =C2=A0 =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 return 0;
->> =C2=A0 }
->> =C2=A0 -static int
->> -ltq_wdt_probe(struct platform_device *pdev)
->> +static int ltq_wdt_probe(struct platform_device *pdev)
->> =C2=A0 {
->> -=C2=A0=C2=A0=C2=A0 struct resource *res =3D platform_get_resource(pde=
-v,
->> IORESOURCE_MEM, 0);
->> +=C2=A0=C2=A0=C2=A0 struct device *dev =3D &pdev->dev;
->> +=C2=A0=C2=A0=C2=A0 struct ltq_wdt_priv *priv;
->> +=C2=A0=C2=A0=C2=A0 struct watchdog_device *wdt;
->> +=C2=A0=C2=A0=C2=A0 struct resource *res;
->> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 struct clk *clk;
->> -=C2=A0=C2=A0=C2=A0 ltq_wdt_bootstatus_set ltq_wdt_bootstatus_set;
->> +=C2=A0=C2=A0=C2=A0 const struct ltq_wdt_hw *ltq_wdt_hw;
->> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 int ret;
->> +=C2=A0=C2=A0=C2=A0 u32 status;
->> =C2=A0 -=C2=A0=C2=A0=C2=A0 ltq_wdt_membase =3D devm_ioremap_resource(&=
-pdev->dev, res);
->> -=C2=A0=C2=A0=C2=A0 if (IS_ERR(ltq_wdt_membase))
->> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 return PTR_ERR(ltq_wdt_mem=
-base);
->> +=C2=A0=C2=A0=C2=A0 priv =3D devm_kzalloc(dev, sizeof(*priv), GFP_KERN=
-EL);
->> +=C2=A0=C2=A0=C2=A0 if (!priv)
->> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 return -ENOMEM;
->> =C2=A0 -=C2=A0=C2=A0=C2=A0 ltq_wdt_bootstatus_set =3D of_device_get_ma=
-tch_data(&pdev->dev);
->> -=C2=A0=C2=A0=C2=A0 if (ltq_wdt_bootstatus_set) {
->> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 ret =3D ltq_wdt_bootstatus=
-_set(pdev);
->> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (ret)
->> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 re=
-turn ret;
->> -=C2=A0=C2=A0=C2=A0 }
->> +=C2=A0=C2=A0=C2=A0 res =3D platform_get_resource(pdev, IORESOURCE_MEM=
-, 0);
->> +=C2=A0=C2=A0=C2=A0 priv->membase =3D devm_ioremap_resource(dev, res);=
-
->> +=C2=A0=C2=A0=C2=A0 if (IS_ERR(priv->membase))
->> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 return PTR_ERR(priv->memba=
-se);
->> =C2=A0 =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 /* we do not need to enable the =
-clock as it is always running */
->> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 clk =3D clk_get_io();
->> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (IS_ERR(clk)) {
->=20
-> Not new, nor that it really matters, but this error check is quite
-> pointless:
-> The function never returns an error.
-
-Ok, I will remove this.
-
->=20
->> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 dev_err(&pdev->dev, "Faile=
-d to get clock\n");
->> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 return -ENOENT;
->> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 dev_err(dev, "Failed to ge=
-t clock");
->> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 return PTR_ERR(clk);
->> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 }
->> -=C2=A0=C2=A0=C2=A0 ltq_io_region_clk_rate =3D clk_get_rate(clk);
->> +=C2=A0=C2=A0=C2=A0 priv->clk_rate =3D clk_get_rate(clk) / LTQ_WDT_DIV=
-IDER;
->> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 clk_put(clk);
->=20
-> Calling clk_put() here actually odd and should be dropped. Unlike
-> clk_get(),
-> clk_get_io() does not get a reference to the clock instance. It just
-> returns
-> a pointer to a static clock.
-
-I will remove it.
-
->> +=C2=A0=C2=A0=C2=A0 if (!priv->clk_rate) {
->> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 dev_err(dev, "clock has wr=
-ong value of 0");
->=20
-> This is misleading: It is not known if the clock rate is indeed 0.
-> It is only known that the clock rate is below LTQ_WDT_DIVIDER.
-
-Ok I will update this.
-
->> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 return -EIO;
->=20
-> I am not happy with EIO in this case. There is no indication
-> of an I/O error.
-
-Is -EINVAL better?
-
->> +=C2=A0=C2=A0=C2=A0 }
->> =C2=A0 -=C2=A0=C2=A0=C2=A0 dev_info(&pdev->dev, "Init done\n");
->> -=C2=A0=C2=A0=C2=A0 return misc_register(&ltq_wdt_miscdev);
->> -}
->> +=C2=A0=C2=A0=C2=A0 wdt =3D &priv->wdt;
->> +=C2=A0=C2=A0=C2=A0 wdt->info=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
- =3D &ltq_wdt_info;
->> +=C2=A0=C2=A0=C2=A0 wdt->ops=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
- =3D &ltq_wdt_ops;
->> +=C2=A0=C2=A0=C2=A0 wdt->min_timeout=C2=A0=C2=A0=C2=A0 =3D 1;
->> +=C2=A0=C2=A0=C2=A0 wdt->max_timeout=C2=A0=C2=A0=C2=A0 =3D LTQ_WDT_CR_=
-RELOAD_MASK / priv->clk_rate;
->> +=C2=A0=C2=A0=C2=A0 wdt->timeout=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0 =3D wdt->max_timeout;
->> +=C2=A0=C2=A0=C2=A0 wdt->parent=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0 =3D dev;
->> +
->> +=C2=A0=C2=A0=C2=A0 ltq_wdt_hw =3D of_device_get_match_data(dev);
->> +=C2=A0=C2=A0=C2=A0 if (ltq_wdt_hw && ltq_wdt_hw->bootstatus_get) {
->> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 ret =3D ltq_wdt_hw->bootst=
-atus_get(dev);
->> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (ret < 0)
->> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 re=
-turn ret;
->=20
-> This is also quite pointless: The functions never return an error.
-> Might as well just assign the returned value to bootstatus.
->=20
-> While it makes some sense to have the error checks above (after all,
-> the API could change), this one really does not make sense since it is
-> in full driver control.
-
-Ok, I will remove this.
-
->=20
->> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 wdt->bootstatus =3D ret;
->> +=C2=A0=C2=A0=C2=A0 }
->> =C2=A0 -static int
->> -ltq_wdt_remove(struct platform_device *pdev)
->> -{
->> -=C2=A0=C2=A0=C2=A0 misc_deregister(&ltq_wdt_miscdev);
->> +=C2=A0=C2=A0=C2=A0 watchdog_set_nowayout(wdt, nowayout);
->> +=C2=A0=C2=A0=C2=A0 watchdog_init_timeout(wdt, 0, dev);
->> +
->> +=C2=A0=C2=A0=C2=A0 status =3D ltq_wdt_r32(priv, LTQ_WDT_CR);
->> +=C2=A0=C2=A0=C2=A0 if (status & LTQ_WDT_CR_GEN) {
->> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 /*
->> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 * If the watchdog is=
- already running overwrite it with our
->> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 * new settings. Stop=
- is not needed as the start call will
->> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 * replace all settin=
-gs anyway.
->> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 */
->> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 ltq_wdt_start(wdt);
->> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 set_bit(WDOG_HW_RUNNING, &=
-wdt->status);
->> +=C2=A0=C2=A0=C2=A0 }
->> =C2=A0 -=C2=A0=C2=A0=C2=A0 return 0;
->> +=C2=A0=C2=A0=C2=A0 return devm_watchdog_register_device(dev, wdt);
->> =C2=A0 }
->> =C2=A0 +static const struct ltq_wdt_hw ltq_wdt_xrx100 =3D {
->> +=C2=A0=C2=A0=C2=A0 .bootstatus_get =3D ltq_wdt_bootstatus_xrx,
->> +};
->> +
->> +static const struct ltq_wdt_hw ltq_wdt_falcon =3D {
->> +=C2=A0=C2=A0=C2=A0 .bootstatus_get =3D ltq_wdt_bootstatus_falcon,
->> +};
->> +
->> =C2=A0 static const struct of_device_id ltq_wdt_match[] =3D {
->> -=C2=A0=C2=A0=C2=A0 { .compatible =3D "lantiq,wdt", .data =3D NULL},
->> -=C2=A0=C2=A0=C2=A0 { .compatible =3D "lantiq,xrx100-wdt", .data =3D
->> ltq_wdt_bootstatus_xrx },
->> -=C2=A0=C2=A0=C2=A0 { .compatible =3D "lantiq,falcon-wdt", .data =3D
->> ltq_wdt_bootstatus_falcon },
->> +=C2=A0=C2=A0=C2=A0 { .compatible =3D "lantiq,wdt", .data =3D NULL },
->> +=C2=A0=C2=A0=C2=A0 { .compatible =3D "lantiq,xrx100-wdt", .data =3D &=
-ltq_wdt_xrx100 },
->> +=C2=A0=C2=A0=C2=A0 { .compatible =3D "lantiq,falcon-wdt", .data =3D &=
-ltq_wdt_falcon },
->> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 {},
->> =C2=A0 };
->> =C2=A0 MODULE_DEVICE_TABLE(of, ltq_wdt_match);
->> =C2=A0 =C2=A0 static struct platform_driver ltq_wdt_driver =3D {
->> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 .probe =3D ltq_wdt_probe,
->> -=C2=A0=C2=A0=C2=A0 .remove =3D ltq_wdt_remove,
->> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 .driver =3D {
->> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 .name =3D "wdt"=
-,
->> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 .of_match_table=
- =3D ltq_wdt_match,
->>
->=20
-
-
-
---kG6mtJb8BhscPaEh3jP0adgnyr8lD9TPY--
-
---DYBkmnUT6QndCQKW1uyHjQulEG6chpopo
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEEyz0/uAcd+JwXmwtD8bdnhZyy68cFAluVi68ACgkQ8bdnhZyy
-68eI9Qf/VzEXToLU0659meOqIs9cA6EQIGRv2jwKHkkXxQKef7g4DG5Q00rilecd
-m7KGfHGovoxxI5Ux+f2DBVn5Qs2vqYiAqPqRzO41XW9PCnTId/qvtd/XmHu2dy+9
-1ZlB/TYyjH+LoJhrFdqLI56qLxxh9Z2c9EbzfPUYWiV/U92WrsIbUvXU8wH12D1C
-xoyt4z1xFIQI8MAGI/1WzRJZ+774MR8zTw9hgE+OZ9OIflSI/tM65byJbwDuehMX
-OPyGql0q9ohWxWTx1yQ73EnU2wMOkGiQAPZ8M68oAEXy2AAaU3FfKBY1Kb5MXA/u
-LNCxlTvAyTI/S2t5ct/rakuqSXmYLQ==
-=UDcA
------END PGP SIGNATURE-----
-
---DYBkmnUT6QndCQKW1uyHjQulEG6chpopo--
+T24gU2F0dXJkYXksIFNlcHRlbWJlciAwOCwgMjAxOCAxLCBHdWVudGVyIFJvZWNrIHdyb3RlOg0K
+PiA+ICsjZGVmaW5lIENLU18zQklUCQkweDcNCj4gPiArI2RlZmluZSBDS1NfNEJJVAkJMHhGDQo+
+DQo+IEFueSBzcGVjaWFsIHJlYXNvbiBmb3IgdGhlIHZhbHVlIG9mIHRob3NlIGRlZmluZXMgPyBU
+aGV5IGFyZSBqdXN0IHVzZWQgYXMNCj4gZmxhZ3MsDQo+IG9yIGFtIEkgbWlzc2luZyBzb21ldGhp
+bmcgPyBXaHkgbm90IGp1c3QgdXNlIDAgLyAxIG9yIGFuIGVudW0gPw0KDQpHZWVydCdzIHN1Z2dl
+c3Rpb24gd2FzOg0KDQogID4+IEkgc3VnZ2VzdCBzdG9yaW5nIGNrcyBpbiByemFfd2R0X29mX21h
+dGNoW10uZGF0YSwgYW5kDQogID4+IHJldHJpZXZpbmcgaXQgd2l0aCBvZl9kZXZpY2VfZ2V0X21h
+dGNoX2RhdGEoKSBpbiB5b3VyDQogID4+IHByb2JlIGZ1bmN0aW9uLi4uDQoNClNvIG5vdyBJIGp1
+c3QgbGl0ZXJhbGx5IHJlYWQgaW4gdGhlIHZhbHVlIEkgd2FudCB0byB3cml0ZSBpbnRvIENLUyAN
+CnJlZ2lzdGVyIGluIHRoZSBwcm9iZSBmdW5jdGlvbi4NCg0KICAgIHByaXYtPmNrcyA9ICh1bnNp
+Z25lZCBpbnQpb2ZfZGV2aWNlX2dldF9tYXRjaF9kYXRhKCZwZGV2LT5kZXYpOw0KDQpBbmQgc2lu
+Y2UgSSB3YW50IHRvIHNsb3dlc3QgY2xvY2sgc291cmNlIChDS1MpIHBvc3NpYmxlLCB0aGF0J3Mg
+JzB4NycgaWYNCkNLUyBpcyBvbmx5IDMgYml0cywgYW5kICcweEYnIGlmIENLUyBpcyA0IGJpdHMu
+DQpJIGNhbiBhZGQgYSBjb21tZW50IGFib3ZlIHRoZSAjZGVmaW5lIHRvIGV4cGxhaW4gbXkgcmVh
+c29uaW5nLg0KDQoNCj4gPiAgIHN0cnVjdCByemFfd2R0IHsNCj4gPiAgIAlzdHJ1Y3Qgd2F0Y2hk
+b2dfZGV2aWNlIHdkZXY7DQo+ID4gICAJdm9pZCBfX2lvbWVtICpiYXNlOw0KPiA+ICAgCXN0cnVj
+dCBjbGsgKmNsazsNCj4gPiArCXU4IGNvdW50Ow0KPiA+ICsJdTggY2tzOw0KPiA+ICsJdTggdGlt
+ZW91dDsNCj4gDQo+IEhtbSAuLi4gdGhpcyBsaW1pdHMgdGhlIGVmZmVjdGl2ZSB0aW1lb3V0IHRv
+IDI1NSBzZWNvbmRzLiBUaGF0IHNlZW1zIG9kZC4NCj4gTWF5YmUgaXQgaXMgdHJ1ZSBpbiBwcmFj
+dGljZSwgaWYgdGhlIGNsb2NrIGlzIGFsd2F5cyBndWFyYW50ZWVkIHRvIGJlDQo+IGFib3ZlIDQx
+OTQzMDQgSHosIGJ1dCBpdCBpcyBhbiBvZGQgYXNzdW1wdGlvbiB0aGF0IGlzbid0IHJlYWxseSBy
+ZWZsZWN0ZWQNCj4gaW4gdGhlIGNvZGUuDQoNCkkgY2FuIGNoYW5nZSB0aGF0IHRvIHNvbWV0aGlu
+ZyBlbHNlIGxpa2UgdTE2Lg0KDQpJbiByZWFsaXR5LCB0aGVyZSBhcmUgMiB2YXJpYXRpb25zIG9m
+IEhXOg0KDQojMS4gSWYgdGhlIENLUyBpcyBvbmx5IDMtYml0cywgdGhlIG1heCBIVyB0aW1lb3V0
+IGlzIDIwMG1zLCBzbyBJJ20gDQpzZXR0aW5nICdtYXhfaHdfaGVhcnRiZWF0X21zJyBhbmQgdGhl
+biB0aGUgdXNlIGNhbiBzZXQgYSB0aW1lb3V0IGFzIGxvbmcgYXMgDQp0aGV5IHdhbnQgKGJ1dCBp
+dCdzIG5vdCByZWFsbHkgYSB0cnVlIEhXIHdhdGNoZG9nKS4NCg0KIzIuIElmIHRoZSBDS1MgaXMg
+b25seSA0LWJpdHMsIHRoZSBtYXggSFcgdGltZW91dCBpcyAzMiBzZWNvbmRzLiAoc28gDQondGlt
+ZW91dCcgY2FuIG5ldmVyIGJlIG1vcmUgdGhhdCBhIHU4KS4NCg0KDQo+ID4gKwlpZiAocHJpdi0+
+Y2tzID09IENLU180QklUKSB7DQo+ID4gKwkJdGlja3MgPSBESVZfUk9VTkRfVVAoKHRpbWVvdXQg
+KiByYXRlKSwgNDE5NDMwNCk7DQo+IA0KPiBUaGUgKCApIGFyb3VuZCB0aW1lb3V0ICogcmF0ZSBp
+cyB1bm5lY2Vzc2FyeS4NCg0KWWVzLCB5b3UncmUgcmlnaHQuDQoNCg0KPiBBbHNvLCBpdCB3b3Vs
+ZCBiZSBuaWNlDQo+IHRvIGhhdmUgYSBkZWZpbmUgYW5kIGV4cGxhbmF0aW9uIGZvciA0MTk0MzA0
+IChhbmQgMHg0MDAwMDAgd291bGQgcHJvYmFibHkNCj4gYmUgYSBiZXR0ZXIgdmFsdWUgdG8gdXNl
+KS4NCg0KVGhlIG51bWJlciAiNDE5NDMwNCIgaXMgZXhhY3RseSBob3cgaXQgaXMgZG9jdW1lbnRl
+ZCBpbiB0aGUgaGFyZHdhcmUgDQptYW51YWwsIHRoYXQgaXMgd2h5IEknbSB1c2luZyBpdCB0aGF0
+IHdheS4gWWVzLCAweDQwMDAwMCBtYWtlcyBtb3JlIA0Kc2Vuc2UsIGJ1dCBJIGxpa2UgbWF0Y2hp
+bmcgdGhlIGRldmljZSBkb2N1bWVudGluZyBhcyBtdWNoIGFzIHBvc3NpYmxlIHRvIA0KaGVscCB0
+aGUgbmV4dCBwZXJzb24gdGhhdCBjb21lcyBhbG9uZyBhbmQgaGFzIHRvIGRlYnVnIHRoaXMgY29k
+ZS4NCg0KDQo+ID4gKwkJaWYgKHRpY2tzID4gMjU2KQ0KPiA+ICsJCQl0aWNrcyA9IDI1NjsNCj4g
+DQo+IElmIHlvdSBrZWVwIHRoaXMsIHlvdSBzaG91bGQgYXMgd2VsbCByZWNhbGN1bGF0ZSB0aW1l
+b3V0IHNpbmNlIGl0IHdvbid0DQo+IG1hdGNoIHRoZSBleHBlY3RlZCB2YWx1ZS4NCj4gDQo+IAkJ
+aWYgKHRpY2tzID4gMjU2KSB7DQo+IAkJCXRpY2tzID0gMjU2Ow0KPiAJCQl0aW1lb3V0ID0gdGlj
+a3MgKiA0MTk0MzA0IC8gcmF0ZTsNCj4gCQl9DQoNClRoYXQncyBhIGdvb2QgcG9pbnQhDQoNCg0K
+PiBOb3QgdGhhdCBpdCBjYW4gZXZlciBoYXBwZW4sIHNpbmNlIG1heF90aW1lb3V0IGxpbWl0cyB0
+aGUgdmFsdWUuDQo+IFBlcnNvbmFsbHkgSSB3b3VsZCByYXRoZXIgc2VlIHRoaXMgZHJvcHBlZCB3
+aXRoIGEgY29tbWVudCBzdGF0aW5nIHRoYXQNCj4gdGlja3MgPD0gMjU2IGlzIGd1YXJhbnRlZWQg
+YnkgbWF4X3RpbWVvdXQ7IEkgYW0gbm90IGEgZnJpZW5kIG9mIGRlYWQgY29kZQ0KPiBpbiB0aGUg
+a2VybmVsLg0KDQpJIGFncmVlLiBJIHdpbGwgZHJvcCB0aGlzIGNvZGUgYW5kIHB1dCBhIGNvbW1l
+bnQuDQoNCg0KPiA+IEBAIC03NSw3ICsxMDMsMTIgQEAgc3RhdGljIGludCByemFfd2R0X3Bpbmco
+c3RydWN0IHdhdGNoZG9nX2RldmljZQ0KPiAqd2RldikNCj4gPiAgIHsNCj4gPiAgIAlzdHJ1Y3Qg
+cnphX3dkdCAqcHJpdiA9IHdhdGNoZG9nX2dldF9kcnZkYXRhKHdkZXYpOw0KPiA+DQo+ID4gLQl3
+cml0ZXcoV1RDTlRfTUFHSUMgfCAwLCBwcml2LT5iYXNlICsgV1RDTlQpOw0KPiA+ICsJaWYgKHBy
+aXYtPnRpbWVvdXQgIT0gd2Rldi0+dGltZW91dCkNCj4gPiArCQlyemFfd2R0X2NhbGNfdGltZW91
+dChwcml2LCB3ZGV2LT50aW1lb3V0KTsNCj4gPiArDQo+IEZXSVcsIG9kZCB3YXkgb2YgdXBkYXRp
+bmcgdGhlIHRpbWVvdXQuIFdoeSBub3QgZG8gaXQgaW4gdGhlIHNldF90aW1lb3V0KCkNCj4gZnVu
+Y3Rpb24gd2hlcmUgaXQgYmVsb25ncy4gV2hpY2ggbWFrZXMgbWUgd29uZGVyIHdoeSBwcml2LT50
+aW1lb3V0IGlzDQo+IG5lZWRlZA0KPiBpbiB0aGUgZmlyc3QgcGxhY2UgKGFuZCB3aHkgaXQgaXMg
+dTggLSBhcyBtZW50aW9uZWQgYWJvdmUpLg0KDQpCZWNhdXNlIHdoZW4gSSB3YXMgZG9pbmcgYWxs
+IG15IHRlc3RpbmcsIEkgZm91bmQgY2FzZXMgd2hlcmUgJy5waW5nJyB3YXMNCmNhbGxlZCBmcm9t
+IHRoZSB1cHBlciBsYXllciB3aXRob3V0ICcuc3RhcnQnIGJlaW5nIGNhbGxlZCBmaXJzdC4gU28s
+IEkgDQpjaGFuZ2VkIHRoZSBjb2RlIGFzIHlvdSBzZWUgaXQgbm93LiBUaGlzIGd1YXJhbnRlZWQg
+SSB3b3VsZCBhbHNvIGdldCB0aGUNCnRpbWVvdXQgdGhlIHVzZXIgd2FzIHJlcXVlc3RpbmcuDQoN
+Cg0KPiA+ICsJd3JpdGV3KFdUQ05UX01BR0lDIHwgcHJpdi0+Y291bnQsIHByaXYtPmJhc2UgKyBX
+VENOVCk7DQo+ID4gKw0KPiA+ICsJcHJfZGVidWcoIiVzOiB0aW1lb3V0ID0gJXVcbiIsIF9fZnVu
+Y19fLCB3ZGV2LT50aW1lb3V0KTsNCj4gPg0KPiANCj4gRG8geW91IHJlYWxseSB3YW50IHRoaXMg
+ZGlzcGxheWVkIHdpdGggZWFjaCBwaW5nLCBldmVuIGFzIGRlYnVnIG1lc3NhZ2UgPw0KPiBKdXN0
+IHdvbmRlcmluZy4NCg0KVGhpcyBpcyBob3cgeW91IGNhbiBzZWUgdGhhdCBzb21ldGltZXMgJy5w
+aW5nJyBpcyBjYWxsZWQgd2l0aG91dCAnLnN0YXJ0Jw0KYmVpbmcgY2FsbGVkIGZpcnN0Lg0KDQoN
+Cg0KPiA+ICsJaWYgKHByaXYtPmNrcyA9PSBDS1NfNEJJVCkgew0KPiA+ICsJCS8qIEFzc3VtZSBz
+bG93ZXN0IGNsb2NrIHJhdGUgcG9zc2libGUgKENLUz0weEYpICovDQo+ID4gKwkJcHJpdi0+d2Rl
+di5tYXhfdGltZW91dCA9ICg0MTk0MzA0ICogVThfTUFYKSAvIHJhdGU7DQo+ID4gKw0KPiA+ICsJ
+fSBlbHNlIGlmIChwcml2LT5ja3MgPT0gQ0tTXzNCSVQpIHsNCj4gPiArCQkvKiBBc3N1bWUgc2xv
+d2VzdCBjbG9jayByYXRlIHBvc3NpYmxlIChDS1M9NykgKi8NCj4gPiArCQlyYXRlIC89IDE2Mzg0
+Ow0KPiA+ICsNCj4gPiArCQkvKg0KPiA+ICsJCSAqIFNpbmNlIHRoZSBtYXggcG9zc2libGUgdGlt
+ZW91dCBvZiBvdXIgOC1iaXQgY291bnQNCj4gPiArCQkgKiByZWdpc3RlciBpcyBsZXNzIHRoYW4g
+YSBzZWNvbmQsIHdlIG11c3QgdXNlDQo+ID4gKwkJICogbWF4X2h3X2hlYXJ0YmVhdF9tcy4NCj4g
+PiArCQkgKi8NCj4gPiArCQlwcml2LT53ZGV2Lm1heF9od19oZWFydGJlYXRfbXMgPSAoMTAwMCAq
+IFU4X01BWCkgLyByYXRlOw0KPiA+ICsJCWRldl9kYmcoJnBkZXYtPmRldiwgIm1heCBodyB0aW1l
+b3V0IG9mICVkbXNcbiIsDQo+ID4gKwkJCSBwcml2LT53ZGV2Lm1heF9od19oZWFydGJlYXRfbXMp
+Ow0KPiA+ICsJfSBlbHNlIHsNCj4gPiArCQlkZXZfZXJyKCZwZGV2LT5kZXYsICJpbnZhbGlkIENL
+UyB2YWx1ZSAoJXUpXG4iLCBwcml2LT5ja3MpOw0KPiA+ICsJCXJldHVybiAtRUlOVkFMOw0KPiA+
+ICsJfQ0KPiANCj4gSSBkb24ndCByZWFsbHkgc2VlIHRoZSBwb2ludCBvZiB0aGlzIGVsc2Ugc3Rh
+dGVtZW50LiBJdCBpcyBwcmV0dHkgbXVjaA0KPiBkZWFkIGNvZGUsDQo+IGFuZCB0aGUgbWVzc2Fn
+ZSBpcyBxdWl0ZSB1c2VsZXNzIGZvciB0aGUgdXNlci4NCg0KR29vZCBwb2ludC4gVGhlIG9ubHkg
+dGltZSB5b3Ugd291bGQgaGl0IHRoaXMgaXMgaWYgeW91IHdlcmUgbW9kaWZ5aW5nIA0KdGhlIGRy
+aXZlci4gQW5kIGluIHRoYXQgY2FzZSwgeW91IGFyZSBub3QgYSAidXNlciIuDQpJIHdpbGwgZGVs
+ZXRlIHRoZSBlbHNlLg0KDQoNClRoYW5rIHlvdSBmb3IgeW91ciByZXZpZXcuDQoNCg0KQ2hyaXMN
+Cg==
