@@ -1,16 +1,24 @@
-Return-Path: <Chris.Brandt@renesas.com>
-Return-path: <Chris.Brandt@renesas.com>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from relmlor3.renesas.com ([210.160.252.173]:30982 "EHLO
+        relmlie2.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728110AbeIJSrq (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 10 Sep 2018 14:47:46 -0400
 From: Chris Brandt <Chris.Brandt@renesas.com>
-To: Guenter Roeck <linux@roeck-us.net>, Wim Van Sebroeck
-	<wim@linux-watchdog.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland
-	<mark.rutland@arm.com>, Geert Uytterhoeven <geert@linux-m68k.org>
+To: Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>
 CC: "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-	"linux-renesas-soc@vger.kernel.org" <linux-renesas-soc@vger.kernel.org>,
-	Simon Horman <horms+renesas@verge.net.au>
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "linux-renesas-soc@vger.kernel.org"
+        <linux-renesas-soc@vger.kernel.org>,
+        Simon Horman <horms+renesas@verge.net.au>
 Subject: RE: [PATCH v3 1/2] watchdog: rza_wdt: Support longer timeouts
 Date: Mon, 10 Sep 2018 13:53:28 +0000
-Message-ID: 
+Message-ID:
  <TY1PR01MB156229CF6EA73FD0B083B0A18A050@TY1PR01MB1562.jpnprd01.prod.outlook.com>
 References: <20180907012243.86603-1-chris.brandt@renesas.com>
  <20180907012243.86603-2-chris.brandt@renesas.com>
@@ -20,7 +28,9 @@ Content-Language: en-US
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-List-ID: <linux-watchdog@vger.kernel.org>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
+Message-ID: <20180910135328.Ym2s6oyZDE0B07JpK0BSm7GrNay9rtOhz8TeghsPx3k@z>
 
 T24gU2F0dXJkYXksIFNlcHRlbWJlciAwOCwgMjAxOCAxLCBHdWVudGVyIFJvZWNrIHdyb3RlOg0K
 PiA+ICsjZGVmaW5lIENLU18zQklUCQkweDcNCj4gPiArI2RlZmluZSBDS1NfNEJJVAkJMHhGDQo+
