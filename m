@@ -1,123 +1,88 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from relmlor3.renesas.com ([210.160.252.173]:30982 "EHLO
-        relmlie2.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728110AbeIJSrq (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 10 Sep 2018 14:47:46 -0400
+Return-Path: <Chris.Brandt@renesas.com>
+Return-path: <Chris.Brandt@renesas.com>
 From: Chris Brandt <Chris.Brandt@renesas.com>
-To: Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>
-CC: "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "linux-renesas-soc@vger.kernel.org"
-        <linux-renesas-soc@vger.kernel.org>,
-        Simon Horman <horms+renesas@verge.net.au>
+To: Guenter Roeck <linux@roeck-us.net>
+CC: Wim Van Sebroeck <wim@linux-watchdog.org>, Rob Herring
+	<robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Geert Uytterhoeven
+	<geert@linux-m68k.org>, "linux-watchdog@vger.kernel.org"
+	<linux-watchdog@vger.kernel.org>, "devicetree@vger.kernel.org"
+	<devicetree@vger.kernel.org>, "linux-renesas-soc@vger.kernel.org"
+	<linux-renesas-soc@vger.kernel.org>, Simon Horman
+	<horms+renesas@verge.net.au>
 Subject: RE: [PATCH v3 1/2] watchdog: rza_wdt: Support longer timeouts
-Date: Mon, 10 Sep 2018 13:53:28 +0000
-Message-ID:
- <TY1PR01MB156229CF6EA73FD0B083B0A18A050@TY1PR01MB1562.jpnprd01.prod.outlook.com>
+Date: Mon, 10 Sep 2018 17:36:39 +0000
+Message-ID: 
+ <TY1PR01MB1562909374EEAA97DFAC173C8A050@TY1PR01MB1562.jpnprd01.prod.outlook.com>
 References: <20180907012243.86603-1-chris.brandt@renesas.com>
  <20180907012243.86603-2-chris.brandt@renesas.com>
  <314e2981-8fbd-43ed-2f2d-c080a2961055@roeck-us.net>
-In-Reply-To: <314e2981-8fbd-43ed-2f2d-c080a2961055@roeck-us.net>
+ <TY1PR01MB156229CF6EA73FD0B083B0A18A050@TY1PR01MB1562.jpnprd01.prod.outlook.com>
+ <20180910161300.GA19858@roeck-us.net>
+In-Reply-To: <20180910161300.GA19858@roeck-us.net>
 Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
-Message-ID: <20180910135328.Ym2s6oyZDE0B07JpK0BSm7GrNay9rtOhz8TeghsPx3k@z>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-T24gU2F0dXJkYXksIFNlcHRlbWJlciAwOCwgMjAxOCAxLCBHdWVudGVyIFJvZWNrIHdyb3RlOg0K
-PiA+ICsjZGVmaW5lIENLU18zQklUCQkweDcNCj4gPiArI2RlZmluZSBDS1NfNEJJVAkJMHhGDQo+
-DQo+IEFueSBzcGVjaWFsIHJlYXNvbiBmb3IgdGhlIHZhbHVlIG9mIHRob3NlIGRlZmluZXMgPyBU
-aGV5IGFyZSBqdXN0IHVzZWQgYXMNCj4gZmxhZ3MsDQo+IG9yIGFtIEkgbWlzc2luZyBzb21ldGhp
-bmcgPyBXaHkgbm90IGp1c3QgdXNlIDAgLyAxIG9yIGFuIGVudW0gPw0KDQpHZWVydCdzIHN1Z2dl
-c3Rpb24gd2FzOg0KDQogID4+IEkgc3VnZ2VzdCBzdG9yaW5nIGNrcyBpbiByemFfd2R0X29mX21h
-dGNoW10uZGF0YSwgYW5kDQogID4+IHJldHJpZXZpbmcgaXQgd2l0aCBvZl9kZXZpY2VfZ2V0X21h
-dGNoX2RhdGEoKSBpbiB5b3VyDQogID4+IHByb2JlIGZ1bmN0aW9uLi4uDQoNClNvIG5vdyBJIGp1
-c3QgbGl0ZXJhbGx5IHJlYWQgaW4gdGhlIHZhbHVlIEkgd2FudCB0byB3cml0ZSBpbnRvIENLUyAN
-CnJlZ2lzdGVyIGluIHRoZSBwcm9iZSBmdW5jdGlvbi4NCg0KICAgIHByaXYtPmNrcyA9ICh1bnNp
-Z25lZCBpbnQpb2ZfZGV2aWNlX2dldF9tYXRjaF9kYXRhKCZwZGV2LT5kZXYpOw0KDQpBbmQgc2lu
-Y2UgSSB3YW50IHRvIHNsb3dlc3QgY2xvY2sgc291cmNlIChDS1MpIHBvc3NpYmxlLCB0aGF0J3Mg
-JzB4NycgaWYNCkNLUyBpcyBvbmx5IDMgYml0cywgYW5kICcweEYnIGlmIENLUyBpcyA0IGJpdHMu
-DQpJIGNhbiBhZGQgYSBjb21tZW50IGFib3ZlIHRoZSAjZGVmaW5lIHRvIGV4cGxhaW4gbXkgcmVh
-c29uaW5nLg0KDQoNCj4gPiAgIHN0cnVjdCByemFfd2R0IHsNCj4gPiAgIAlzdHJ1Y3Qgd2F0Y2hk
-b2dfZGV2aWNlIHdkZXY7DQo+ID4gICAJdm9pZCBfX2lvbWVtICpiYXNlOw0KPiA+ICAgCXN0cnVj
-dCBjbGsgKmNsazsNCj4gPiArCXU4IGNvdW50Ow0KPiA+ICsJdTggY2tzOw0KPiA+ICsJdTggdGlt
-ZW91dDsNCj4gDQo+IEhtbSAuLi4gdGhpcyBsaW1pdHMgdGhlIGVmZmVjdGl2ZSB0aW1lb3V0IHRv
-IDI1NSBzZWNvbmRzLiBUaGF0IHNlZW1zIG9kZC4NCj4gTWF5YmUgaXQgaXMgdHJ1ZSBpbiBwcmFj
-dGljZSwgaWYgdGhlIGNsb2NrIGlzIGFsd2F5cyBndWFyYW50ZWVkIHRvIGJlDQo+IGFib3ZlIDQx
-OTQzMDQgSHosIGJ1dCBpdCBpcyBhbiBvZGQgYXNzdW1wdGlvbiB0aGF0IGlzbid0IHJlYWxseSBy
-ZWZsZWN0ZWQNCj4gaW4gdGhlIGNvZGUuDQoNCkkgY2FuIGNoYW5nZSB0aGF0IHRvIHNvbWV0aGlu
-ZyBlbHNlIGxpa2UgdTE2Lg0KDQpJbiByZWFsaXR5LCB0aGVyZSBhcmUgMiB2YXJpYXRpb25zIG9m
-IEhXOg0KDQojMS4gSWYgdGhlIENLUyBpcyBvbmx5IDMtYml0cywgdGhlIG1heCBIVyB0aW1lb3V0
-IGlzIDIwMG1zLCBzbyBJJ20gDQpzZXR0aW5nICdtYXhfaHdfaGVhcnRiZWF0X21zJyBhbmQgdGhl
-biB0aGUgdXNlIGNhbiBzZXQgYSB0aW1lb3V0IGFzIGxvbmcgYXMgDQp0aGV5IHdhbnQgKGJ1dCBp
-dCdzIG5vdCByZWFsbHkgYSB0cnVlIEhXIHdhdGNoZG9nKS4NCg0KIzIuIElmIHRoZSBDS1MgaXMg
-b25seSA0LWJpdHMsIHRoZSBtYXggSFcgdGltZW91dCBpcyAzMiBzZWNvbmRzLiAoc28gDQondGlt
-ZW91dCcgY2FuIG5ldmVyIGJlIG1vcmUgdGhhdCBhIHU4KS4NCg0KDQo+ID4gKwlpZiAocHJpdi0+
-Y2tzID09IENLU180QklUKSB7DQo+ID4gKwkJdGlja3MgPSBESVZfUk9VTkRfVVAoKHRpbWVvdXQg
-KiByYXRlKSwgNDE5NDMwNCk7DQo+IA0KPiBUaGUgKCApIGFyb3VuZCB0aW1lb3V0ICogcmF0ZSBp
-cyB1bm5lY2Vzc2FyeS4NCg0KWWVzLCB5b3UncmUgcmlnaHQuDQoNCg0KPiBBbHNvLCBpdCB3b3Vs
-ZCBiZSBuaWNlDQo+IHRvIGhhdmUgYSBkZWZpbmUgYW5kIGV4cGxhbmF0aW9uIGZvciA0MTk0MzA0
-IChhbmQgMHg0MDAwMDAgd291bGQgcHJvYmFibHkNCj4gYmUgYSBiZXR0ZXIgdmFsdWUgdG8gdXNl
-KS4NCg0KVGhlIG51bWJlciAiNDE5NDMwNCIgaXMgZXhhY3RseSBob3cgaXQgaXMgZG9jdW1lbnRl
-ZCBpbiB0aGUgaGFyZHdhcmUgDQptYW51YWwsIHRoYXQgaXMgd2h5IEknbSB1c2luZyBpdCB0aGF0
-IHdheS4gWWVzLCAweDQwMDAwMCBtYWtlcyBtb3JlIA0Kc2Vuc2UsIGJ1dCBJIGxpa2UgbWF0Y2hp
-bmcgdGhlIGRldmljZSBkb2N1bWVudGluZyBhcyBtdWNoIGFzIHBvc3NpYmxlIHRvIA0KaGVscCB0
-aGUgbmV4dCBwZXJzb24gdGhhdCBjb21lcyBhbG9uZyBhbmQgaGFzIHRvIGRlYnVnIHRoaXMgY29k
-ZS4NCg0KDQo+ID4gKwkJaWYgKHRpY2tzID4gMjU2KQ0KPiA+ICsJCQl0aWNrcyA9IDI1NjsNCj4g
-DQo+IElmIHlvdSBrZWVwIHRoaXMsIHlvdSBzaG91bGQgYXMgd2VsbCByZWNhbGN1bGF0ZSB0aW1l
-b3V0IHNpbmNlIGl0IHdvbid0DQo+IG1hdGNoIHRoZSBleHBlY3RlZCB2YWx1ZS4NCj4gDQo+IAkJ
-aWYgKHRpY2tzID4gMjU2KSB7DQo+IAkJCXRpY2tzID0gMjU2Ow0KPiAJCQl0aW1lb3V0ID0gdGlj
-a3MgKiA0MTk0MzA0IC8gcmF0ZTsNCj4gCQl9DQoNClRoYXQncyBhIGdvb2QgcG9pbnQhDQoNCg0K
-PiBOb3QgdGhhdCBpdCBjYW4gZXZlciBoYXBwZW4sIHNpbmNlIG1heF90aW1lb3V0IGxpbWl0cyB0
-aGUgdmFsdWUuDQo+IFBlcnNvbmFsbHkgSSB3b3VsZCByYXRoZXIgc2VlIHRoaXMgZHJvcHBlZCB3
-aXRoIGEgY29tbWVudCBzdGF0aW5nIHRoYXQNCj4gdGlja3MgPD0gMjU2IGlzIGd1YXJhbnRlZWQg
-YnkgbWF4X3RpbWVvdXQ7IEkgYW0gbm90IGEgZnJpZW5kIG9mIGRlYWQgY29kZQ0KPiBpbiB0aGUg
-a2VybmVsLg0KDQpJIGFncmVlLiBJIHdpbGwgZHJvcCB0aGlzIGNvZGUgYW5kIHB1dCBhIGNvbW1l
-bnQuDQoNCg0KPiA+IEBAIC03NSw3ICsxMDMsMTIgQEAgc3RhdGljIGludCByemFfd2R0X3Bpbmco
-c3RydWN0IHdhdGNoZG9nX2RldmljZQ0KPiAqd2RldikNCj4gPiAgIHsNCj4gPiAgIAlzdHJ1Y3Qg
-cnphX3dkdCAqcHJpdiA9IHdhdGNoZG9nX2dldF9kcnZkYXRhKHdkZXYpOw0KPiA+DQo+ID4gLQl3
-cml0ZXcoV1RDTlRfTUFHSUMgfCAwLCBwcml2LT5iYXNlICsgV1RDTlQpOw0KPiA+ICsJaWYgKHBy
-aXYtPnRpbWVvdXQgIT0gd2Rldi0+dGltZW91dCkNCj4gPiArCQlyemFfd2R0X2NhbGNfdGltZW91
-dChwcml2LCB3ZGV2LT50aW1lb3V0KTsNCj4gPiArDQo+IEZXSVcsIG9kZCB3YXkgb2YgdXBkYXRp
-bmcgdGhlIHRpbWVvdXQuIFdoeSBub3QgZG8gaXQgaW4gdGhlIHNldF90aW1lb3V0KCkNCj4gZnVu
-Y3Rpb24gd2hlcmUgaXQgYmVsb25ncy4gV2hpY2ggbWFrZXMgbWUgd29uZGVyIHdoeSBwcml2LT50
-aW1lb3V0IGlzDQo+IG5lZWRlZA0KPiBpbiB0aGUgZmlyc3QgcGxhY2UgKGFuZCB3aHkgaXQgaXMg
-dTggLSBhcyBtZW50aW9uZWQgYWJvdmUpLg0KDQpCZWNhdXNlIHdoZW4gSSB3YXMgZG9pbmcgYWxs
-IG15IHRlc3RpbmcsIEkgZm91bmQgY2FzZXMgd2hlcmUgJy5waW5nJyB3YXMNCmNhbGxlZCBmcm9t
-IHRoZSB1cHBlciBsYXllciB3aXRob3V0ICcuc3RhcnQnIGJlaW5nIGNhbGxlZCBmaXJzdC4gU28s
-IEkgDQpjaGFuZ2VkIHRoZSBjb2RlIGFzIHlvdSBzZWUgaXQgbm93LiBUaGlzIGd1YXJhbnRlZWQg
-SSB3b3VsZCBhbHNvIGdldCB0aGUNCnRpbWVvdXQgdGhlIHVzZXIgd2FzIHJlcXVlc3RpbmcuDQoN
-Cg0KPiA+ICsJd3JpdGV3KFdUQ05UX01BR0lDIHwgcHJpdi0+Y291bnQsIHByaXYtPmJhc2UgKyBX
-VENOVCk7DQo+ID4gKw0KPiA+ICsJcHJfZGVidWcoIiVzOiB0aW1lb3V0ID0gJXVcbiIsIF9fZnVu
-Y19fLCB3ZGV2LT50aW1lb3V0KTsNCj4gPg0KPiANCj4gRG8geW91IHJlYWxseSB3YW50IHRoaXMg
-ZGlzcGxheWVkIHdpdGggZWFjaCBwaW5nLCBldmVuIGFzIGRlYnVnIG1lc3NhZ2UgPw0KPiBKdXN0
-IHdvbmRlcmluZy4NCg0KVGhpcyBpcyBob3cgeW91IGNhbiBzZWUgdGhhdCBzb21ldGltZXMgJy5w
-aW5nJyBpcyBjYWxsZWQgd2l0aG91dCAnLnN0YXJ0Jw0KYmVpbmcgY2FsbGVkIGZpcnN0Lg0KDQoN
-Cg0KPiA+ICsJaWYgKHByaXYtPmNrcyA9PSBDS1NfNEJJVCkgew0KPiA+ICsJCS8qIEFzc3VtZSBz
-bG93ZXN0IGNsb2NrIHJhdGUgcG9zc2libGUgKENLUz0weEYpICovDQo+ID4gKwkJcHJpdi0+d2Rl
-di5tYXhfdGltZW91dCA9ICg0MTk0MzA0ICogVThfTUFYKSAvIHJhdGU7DQo+ID4gKw0KPiA+ICsJ
-fSBlbHNlIGlmIChwcml2LT5ja3MgPT0gQ0tTXzNCSVQpIHsNCj4gPiArCQkvKiBBc3N1bWUgc2xv
-d2VzdCBjbG9jayByYXRlIHBvc3NpYmxlIChDS1M9NykgKi8NCj4gPiArCQlyYXRlIC89IDE2Mzg0
-Ow0KPiA+ICsNCj4gPiArCQkvKg0KPiA+ICsJCSAqIFNpbmNlIHRoZSBtYXggcG9zc2libGUgdGlt
-ZW91dCBvZiBvdXIgOC1iaXQgY291bnQNCj4gPiArCQkgKiByZWdpc3RlciBpcyBsZXNzIHRoYW4g
-YSBzZWNvbmQsIHdlIG11c3QgdXNlDQo+ID4gKwkJICogbWF4X2h3X2hlYXJ0YmVhdF9tcy4NCj4g
-PiArCQkgKi8NCj4gPiArCQlwcml2LT53ZGV2Lm1heF9od19oZWFydGJlYXRfbXMgPSAoMTAwMCAq
-IFU4X01BWCkgLyByYXRlOw0KPiA+ICsJCWRldl9kYmcoJnBkZXYtPmRldiwgIm1heCBodyB0aW1l
-b3V0IG9mICVkbXNcbiIsDQo+ID4gKwkJCSBwcml2LT53ZGV2Lm1heF9od19oZWFydGJlYXRfbXMp
-Ow0KPiA+ICsJfSBlbHNlIHsNCj4gPiArCQlkZXZfZXJyKCZwZGV2LT5kZXYsICJpbnZhbGlkIENL
-UyB2YWx1ZSAoJXUpXG4iLCBwcml2LT5ja3MpOw0KPiA+ICsJCXJldHVybiAtRUlOVkFMOw0KPiA+
-ICsJfQ0KPiANCj4gSSBkb24ndCByZWFsbHkgc2VlIHRoZSBwb2ludCBvZiB0aGlzIGVsc2Ugc3Rh
-dGVtZW50LiBJdCBpcyBwcmV0dHkgbXVjaA0KPiBkZWFkIGNvZGUsDQo+IGFuZCB0aGUgbWVzc2Fn
-ZSBpcyBxdWl0ZSB1c2VsZXNzIGZvciB0aGUgdXNlci4NCg0KR29vZCBwb2ludC4gVGhlIG9ubHkg
-dGltZSB5b3Ugd291bGQgaGl0IHRoaXMgaXMgaWYgeW91IHdlcmUgbW9kaWZ5aW5nIA0KdGhlIGRy
-aXZlci4gQW5kIGluIHRoYXQgY2FzZSwgeW91IGFyZSBub3QgYSAidXNlciIuDQpJIHdpbGwgZGVs
-ZXRlIHRoZSBlbHNlLg0KDQoNClRoYW5rIHlvdSBmb3IgeW91ciByZXZpZXcuDQoNCg0KQ2hyaXMN
-Cg==
+On Monday, September 10, 2018 1, Guenter Roeck wrote:
+> > #2. If the CKS is only 4-bits, the max HW timeout is 32 seconds. (so
+> > 'timeout' can never be more that a u8).
+> >
+> That is not the point. The point is that there is no need to keep two
+> 'timeout' variables.
+
+But there was a reason.
+
+The reason was that the upper layer would call the .ping() function=20
+without calling .start() again.
+
+Meaning it would change 'timeout' in the structure, but not explicitly=20
+tell the driver.
+
+That why I had to keep track of my own timeout (what the HW was actually
+set to).
+
+Every time the upper layer calls .ping(), I have to see if the timeout=20
+field still matches.
+
+
+> > The number "4194304" is exactly how it is documented in the hardware
+> > manual, that is why I'm using it that way. Yes, 0x400000 makes more
+> > sense, but I like matching the device documenting as much as possible t=
+o
+> > help the next person that comes along and has to debug this code.
+> >
+> Use at least a define.
+
+OK.
+
+
+> > Because when I was doing all my testing, I found cases where '.ping' wa=
+s
+> > called from the upper layer without '.start' being called first. So, I
+> > changed the code as you see it now. This guaranteed I would also get th=
+e
+> > timeout the user was requesting.
+> >
+> That would only happen if the watchdog is considered to be running.
+> Also, we are talking about the set_timeout function which is the one whic=
+h
+> should set the timeout and update the HW if needed, ie if the watchdog is
+> already running.
+
+This driver doesn't have .set_timeout
+
+static const struct watchdog_ops rza_wdt_ops =3D {
+	.owner =3D THIS_MODULE,
+	.start =3D rza_wdt_start,
+	.stop =3D rza_wdt_stop,
+	.ping =3D rza_wdt_ping,
+	.restart =3D rza_wdt_restart,
+};
+
+
+If you really don't like checking in .ping, I can add a set_timeout=20
+function and remove the local priv->timeout.
+
+Chris
