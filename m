@@ -1,50 +1,34 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from relmlor3.renesas.com ([210.160.252.173]:28529 "EHLO
-        relmlie2.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726755AbeIJXLQ (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 10 Sep 2018 19:11:16 -0400
-From: Chris Brandt <Chris.Brandt@renesas.com>
-To: Guenter Roeck <linux@roeck-us.net>
-CC: Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "linux-renesas-soc@vger.kernel.org"
-        <linux-renesas-soc@vger.kernel.org>,
-        Simon Horman <horms+renesas@verge.net.au>
-Subject: RE: [PATCH v3 1/2] watchdog: rza_wdt: Support longer timeouts
-Date: Mon, 10 Sep 2018 18:15:47 +0000
-Message-ID:
- <TY1PR01MB1562CB6FD37074013E7892FD8A050@TY1PR01MB1562.jpnprd01.prod.outlook.com>
+Return-Path: <robherring2@gmail.com>
+Return-path: <robherring2@gmail.com>
+Date: Mon, 10 Sep 2018 15:49:30 -0500
+From: Rob Herring <robh@kernel.org>
+To: Chris Brandt <chris.brandt@renesas.com>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+	linux-renesas-soc@vger.kernel.org,
+	Simon Horman <horms+renesas@verge.net.au>,
+	Chris Brandt <chris.brandt@renesas.com>
+Subject: Re: [PATCH v3 2/2] dt-bindings: watchdog: renesas-wdt: Add support
+ for R7S9210
+Message-ID: <20180910204930.GA18405@bogus>
 References: <20180907012243.86603-1-chris.brandt@renesas.com>
- <20180907012243.86603-2-chris.brandt@renesas.com>
- <314e2981-8fbd-43ed-2f2d-c080a2961055@roeck-us.net>
- <TY1PR01MB156229CF6EA73FD0B083B0A18A050@TY1PR01MB1562.jpnprd01.prod.outlook.com>
- <20180910161300.GA19858@roeck-us.net>
- <TY1PR01MB1562909374EEAA97DFAC173C8A050@TY1PR01MB1562.jpnprd01.prod.outlook.com>
- <20180910175934.GA16216@roeck-us.net>
-In-Reply-To: <20180910175934.GA16216@roeck-us.net>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+ <20180907012243.86603-3-chris.brandt@renesas.com>
 MIME-Version: 1.0
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
-Message-ID: <20180910181547.727NggWgE41BygyzRsASUWkoRIiYvalM694zndoq5ME@z>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20180907012243.86603-3-chris.brandt@renesas.com>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On Monday, September 10, 2018, Guenter Roeck wrote:
-> > If you really don't like checking in .ping, I can add a set_timeout
-> > function and remove the local priv->timeout.
-> >
->=20
-> No, I do not like checking and setting the timeout in the ping function
-> at all. That is what the set_timeout function is for, and I don't see
-> a point in bypassing the infrastructure.
+On Thu,  6 Sep 2018 20:22:43 -0500, Chris Brandt wrote:
+> Document support for RZ/A2
+> 
+> Signed-off-by: Chris Brandt <chris.brandt@renesas.com>
+> ---
+>  Documentation/devicetree/bindings/watchdog/renesas-wdt.txt | 1 +
+>  1 file changed, 1 insertion(+)
+> 
 
-OK. I will add a set_timeout and resubmit.
-
-Chris
+Reviewed-by: Rob Herring <robh@kernel.org>
