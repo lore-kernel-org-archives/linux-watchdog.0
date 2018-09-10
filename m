@@ -1,17 +1,24 @@
-Return-Path: <Chris.Brandt@renesas.com>
-Return-path: <Chris.Brandt@renesas.com>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from relmlor3.renesas.com ([210.160.252.173]:28529 "EHLO
+        relmlie2.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726755AbeIJXLQ (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 10 Sep 2018 19:11:16 -0400
 From: Chris Brandt <Chris.Brandt@renesas.com>
 To: Guenter Roeck <linux@roeck-us.net>
-CC: Wim Van Sebroeck <wim@linux-watchdog.org>, Rob Herring
-	<robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Geert Uytterhoeven
-	<geert@linux-m68k.org>, "linux-watchdog@vger.kernel.org"
-	<linux-watchdog@vger.kernel.org>, "devicetree@vger.kernel.org"
-	<devicetree@vger.kernel.org>, "linux-renesas-soc@vger.kernel.org"
-	<linux-renesas-soc@vger.kernel.org>, Simon Horman
-	<horms+renesas@verge.net.au>
+CC: Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "linux-renesas-soc@vger.kernel.org"
+        <linux-renesas-soc@vger.kernel.org>,
+        Simon Horman <horms+renesas@verge.net.au>
 Subject: RE: [PATCH v3 1/2] watchdog: rza_wdt: Support longer timeouts
 Date: Mon, 10 Sep 2018 18:15:47 +0000
-Message-ID: 
+Message-ID:
  <TY1PR01MB1562CB6FD37074013E7892FD8A050@TY1PR01MB1562.jpnprd01.prod.outlook.com>
 References: <20180907012243.86603-1-chris.brandt@renesas.com>
  <20180907012243.86603-2-chris.brandt@renesas.com>
@@ -25,7 +32,9 @@ Content-Language: en-US
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-List-ID: <linux-watchdog@vger.kernel.org>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
+Message-ID: <20180910181547.727NggWgE41BygyzRsASUWkoRIiYvalM694zndoq5ME@z>
 
 On Monday, September 10, 2018, Guenter Roeck wrote:
 > > If you really don't like checking in .ping, I can add a set_timeout
