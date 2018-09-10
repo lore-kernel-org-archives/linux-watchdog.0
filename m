@@ -1,73 +1,172 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wm0-f66.google.com ([74.125.82.66]:50957 "EHLO
-        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728127AbeIJTwh (ORCPT
+Received: from mail-pg1-f195.google.com ([209.85.215.195]:36906 "EHLO
+        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728164AbeIJVHw (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 10 Sep 2018 15:52:37 -0400
-Received: by mail-wm0-f66.google.com with SMTP id s12-v6so21918438wmc.0
-        for <linux-watchdog@vger.kernel.org>; Mon, 10 Sep 2018 07:58:07 -0700 (PDT)
-Date: Mon, 10 Sep 2018 15:58:02 +0100
-From: Lee Jones <lee.jones@linaro.org>
-To: Paul Cercueil <paul@crapouillou.net>
-Cc: Thomas Gleixner <tglx@linutronix.de>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Mon, 10 Sep 2018 17:07:52 -0400
+Date: Mon, 10 Sep 2018 09:13:00 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Chris Brandt <Chris.Brandt@renesas.com>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
         Rob Herring <robh+dt@kernel.org>,
-        Thierry Reding <thierry.reding@gmail.com>,
         Mark Rutland <mark.rutland@arm.com>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Paul Burton <paul.burton@mips.com>,
-        Jonathan Corbet <corbet@lwn.net>, od@zcrc.me,
-        Mathieu Malaterre <malat@debian.org>,
-        linux-pwm@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        linux-mips@linux-mips.org, linux-doc@vger.kernel.org,
-        linux-clk@vger.kernel.org
-Subject: Re: [PATCH v7 01/24] mfd: Add ingenic-tcu.h header
-Message-ID: <20180910145802.GV28860@dell>
-References: <20180821171635.22740-1-paul@crapouillou.net>
- <20180821171635.22740-2-paul@crapouillou.net>
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "linux-renesas-soc@vger.kernel.org"
+        <linux-renesas-soc@vger.kernel.org>,
+        Simon Horman <horms+renesas@verge.net.au>
+Subject: Re: [PATCH v3 1/2] watchdog: rza_wdt: Support longer timeouts
+Message-ID: <20180910161300.GA19858@roeck-us.net>
+References: <20180907012243.86603-1-chris.brandt@renesas.com>
+ <20180907012243.86603-2-chris.brandt@renesas.com>
+ <314e2981-8fbd-43ed-2f2d-c080a2961055@roeck-us.net>
+ <TY1PR01MB156229CF6EA73FD0B083B0A18A050@TY1PR01MB1562.jpnprd01.prod.outlook.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20180821171635.22740-2-paul@crapouillou.net>
+In-Reply-To: <TY1PR01MB156229CF6EA73FD0B083B0A18A050@TY1PR01MB1562.jpnprd01.prod.outlook.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, 21 Aug 2018, Paul Cercueil wrote:
-
-> This header contains macros for the registers that are present in the
-> regmap shared by all the drivers related to the TCU (Timer Counter Unit)
-> of the Ingenic JZ47xx SoCs.
+On Mon, Sep 10, 2018 at 01:53:28PM +0000, Chris Brandt wrote:
+> On Saturday, September 08, 2018 1, Guenter Roeck wrote:
+> > > +#define CKS_3BIT		0x7
+> > > +#define CKS_4BIT		0xF
+> >
+> > Any special reason for the value of those defines ? They are just used as
+> > flags,
+> > or am I missing something ? Why not just use 0 / 1 or an enum ?
 > 
-> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-> Acked-by: Lee Jones <lee.jones@linaro.org>
-> ---
+> Geert's suggestion was:
 > 
-> Notes:
->      v2: Use SPDX identifier for the license
->     
->      v3: - Use macros instead of enum
->          - Add 'TCU_' at the beginning of each macro
->     	 - Remove useless include <linux/regmap.h>
->     
->      v4: No change
->     
->      v5: No change
->     
->      v6: Rename barrier macro from __LINUX_CLK_INGENIC_TCU_H__ to
->          __LINUX_MFD_INGENIC_TCU_H__
->     
->      v7: No change
+>   >> I suggest storing cks in rza_wdt_of_match[].data, and
+>   >> retrieving it with of_device_get_match_data() in your
+>   >> probe function...
 > 
->  include/linux/mfd/ingenic-tcu.h | 56 +++++++++++++++++++++++++++++++++++++++++
->  1 file changed, 56 insertions(+)
->  create mode 100644 include/linux/mfd/ingenic-tcu.h
+> So now I just literally read in the value I want to write into CKS 
+> register in the probe function.
+> 
+>     priv->cks = (unsigned int)of_device_get_match_data(&pdev->dev);
+> 
+> And since I want to slowest clock source (CKS) possible, that's '0x7' if
+> CKS is only 3 bits, and '0xF' if CKS is 4 bits.
+> I can add a comment above the #define to explain my reasoning.
+> 
+Yes, that would help.
 
-Applied, thanks.
+> 
+> > >   struct rza_wdt {
+> > >   	struct watchdog_device wdev;
+> > >   	void __iomem *base;
+> > >   	struct clk *clk;
+> > > +	u8 count;
+> > > +	u8 cks;
+> > > +	u8 timeout;
+> > 
+> > Hmm ... this limits the effective timeout to 255 seconds. That seems odd.
+> > Maybe it is true in practice, if the clock is always guaranteed to be
+> > above 4194304 Hz, but it is an odd assumption that isn't really reflected
+> > in the code.
+> 
+> I can change that to something else like u16.
+> 
+Sorry, I see no point ion 1) keeping this a separate variable and not using
+the one in the watchdog data structure.
 
--- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+> In reality, there are 2 variations of HW:
+> 
+> #1. If the CKS is only 3-bits, the max HW timeout is 200ms, so I'm 
+> setting 'max_hw_heartbeat_ms' and then the use can set a timeout as long as 
+> they want (but it's not really a true HW watchdog).
+> 
+> #2. If the CKS is only 4-bits, the max HW timeout is 32 seconds. (so 
+> 'timeout' can never be more that a u8).
+> 
+That is not the point. The point is that there is no need to keep two
+'timeout' variables.
+
+> 
+> > > +	if (priv->cks == CKS_4BIT) {
+> > > +		ticks = DIV_ROUND_UP((timeout * rate), 4194304);
+> > 
+> > The ( ) around timeout * rate is unnecessary.
+> 
+> Yes, you're right.
+> 
+> 
+> > Also, it would be nice
+> > to have a define and explanation for 4194304 (and 0x400000 would probably
+> > be a better value to use).
+> 
+> The number "4194304" is exactly how it is documented in the hardware 
+> manual, that is why I'm using it that way. Yes, 0x400000 makes more 
+> sense, but I like matching the device documenting as much as possible to 
+> help the next person that comes along and has to debug this code.
+> 
+Use at least a define.
+
+> 
+> > > +		if (ticks > 256)
+> > > +			ticks = 256;
+> > 
+> > If you keep this, you should as well recalculate timeout since it won't
+> > match the expected value.
+> > 
+> > 		if (ticks > 256) {
+> > 			ticks = 256;
+> > 			timeout = ticks * 4194304 / rate;
+> > 		}
+> 
+> That's a good point!
+> 
+> 
+> > Not that it can ever happen, since max_timeout limits the value.
+> > Personally I would rather see this dropped with a comment stating that
+> > ticks <= 256 is guaranteed by max_timeout; I am not a friend of dead code
+> > in the kernel.
+> 
+> I agree. I will drop this code and put a comment.
+> 
+> 
+> > > @@ -75,7 +103,12 @@ static int rza_wdt_ping(struct watchdog_device
+> > *wdev)
+> > >   {
+> > >   	struct rza_wdt *priv = watchdog_get_drvdata(wdev);
+> > >
+> > > -	writew(WTCNT_MAGIC | 0, priv->base + WTCNT);
+> > > +	if (priv->timeout != wdev->timeout)
+> > > +		rza_wdt_calc_timeout(priv, wdev->timeout);
+> > > +
+> > FWIW, odd way of updating the timeout. Why not do it in the set_timeout()
+> > function where it belongs. Which makes me wonder why priv->timeout is
+> > needed
+> > in the first place (and why it is u8 - as mentioned above).
+> 
+> Because when I was doing all my testing, I found cases where '.ping' was
+> called from the upper layer without '.start' being called first. So, I 
+> changed the code as you see it now. This guaranteed I would also get the
+> timeout the user was requesting.
+> 
+That would only happen if the watchdog is considered to be running. 
+Also, we are talking about the set_timeout function which is the one which
+should set the timeout and update the HW if needed, ie if the watchdog is
+already running.
+
+> 
+> > > +	writew(WTCNT_MAGIC | priv->count, priv->base + WTCNT);
+> > > +
+> > > +	pr_debug("%s: timeout = %u\n", __func__, wdev->timeout);
+> > >
+> > 
+> > Do you really want this displayed with each ping, even as debug message ?
+> > Just wondering.
+> 
+> This is how you can see that sometimes '.ping' is called without '.start'
+> being called first.
+> 
+If that happens and the watchdog was not already started, it would be
+a bug that would affect all watchdog drivers. If that is the case,
+working around it in a driver is most definitely the wrong solution.
+
+Guenter
