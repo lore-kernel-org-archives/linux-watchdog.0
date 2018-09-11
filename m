@@ -1,40 +1,33 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:37495 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726387AbeIKMhf (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 11 Sep 2018 08:37:35 -0400
-Date: Tue, 11 Sep 2018 09:39:22 +0200
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Jeremy Gebben <jgebben@sweptlaser.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] rtc: abx80x: add basic watchdog support
-Message-ID: <20180911073922.GG2494@piout.net>
-References: <20180910213654.26059-1-jgebben@sweptlaser.com>
- <20180910213654.26059-3-jgebben@sweptlaser.com>
- <20180910232019.GA8439@roeck-us.net>
+Received: from kirsty.vergenet.net ([202.4.237.240]:52276 "EHLO
+        kirsty.vergenet.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726689AbeIKSZZ (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 11 Sep 2018 14:25:25 -0400
+Date: Tue, 11 Sep 2018 15:26:01 +0200
+From: Simon Horman <horms@verge.net.au>
+To: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
+        linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH] watchdog: rza_wdt: convert to SPDX identifiers
+Message-ID: <20180911132601.zcftk762nf3jghkv@verge.net.au>
+References: <87woryoyfx.wl-kuninori.morimoto.gx@renesas.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20180910232019.GA8439@roeck-us.net>
+In-Reply-To: <87woryoyfx.wl-kuninori.morimoto.gx@renesas.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 10/09/2018 16:20:19-0700, Guenter Roeck wrote:
-> > +static int abx80x_wdog_set_timeout(struct watchdog_device *wdog,
-> > +				unsigned int new_timeout)
+On Fri, Sep 07, 2018 at 02:11:17AM +0000, Kuninori Morimoto wrote:
 > 
-> I'll leave multi-line alignment issues to the driver maintainer.
+> From: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
 > 
+> This patch updates license to use SPDX-License-Identifier
+> instead of verbose license text.
+> 
+> Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
 
-Indeed, I'd like those to be aligned on the parenthesis.
-
-Thank you for your review.
-
--- 
-Alexandre Belloni, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
