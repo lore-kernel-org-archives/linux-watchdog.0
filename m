@@ -1,274 +1,40 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pg1-f196.google.com ([209.85.215.196]:43439 "EHLO
-        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726429AbeIKEQn (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 11 Sep 2018 00:16:43 -0400
-Date: Mon, 10 Sep 2018 16:20:19 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Jeremy Gebben <jgebben@sweptlaser.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+Received: from mail.bootlin.com ([62.4.15.54]:37495 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726387AbeIKMhf (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 11 Sep 2018 08:37:35 -0400
+Date: Tue, 11 Sep 2018 09:39:22 +0200
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Jeremy Gebben <jgebben@sweptlaser.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
         linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
         linux-kernel@vger.kernel.org
 Subject: Re: [PATCH 2/2] rtc: abx80x: add basic watchdog support
-Message-ID: <20180910232019.GA8439@roeck-us.net>
+Message-ID: <20180911073922.GG2494@piout.net>
 References: <20180910213654.26059-1-jgebben@sweptlaser.com>
  <20180910213654.26059-3-jgebben@sweptlaser.com>
+ <20180910232019.GA8439@roeck-us.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20180910213654.26059-3-jgebben@sweptlaser.com>
+In-Reply-To: <20180910232019.GA8439@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Sep 10, 2018 at 03:36:54PM -0600, Jeremy Gebben wrote:
-> The abx804 and abx805 chips have support for a simple watchdog
-> function that can trigger an external reset.
+On 10/09/2018 16:20:19-0700, Guenter Roeck wrote:
+> > +static int abx80x_wdog_set_timeout(struct watchdog_device *wdog,
+> > +				unsigned int new_timeout)
 > 
-> Signed-off-by: Jeremy Gebben <jgebben@sweptlaser.com>
-
-I am missing the "select WATCHDOG_CORE" that would normally go
-with watchdog drivers. If you don't want a separate configuration
-option for the watchdog, you'll still need something like
-
-	select WATCHDOG_CORE if WATCHDOG
-
-in the Kconfig entry for this driver.
-
-> ---
->  drivers/rtc/rtc-abx80x.c | 132 +++++++++++++++++++++++++++++++++++++--
->  1 file changed, 128 insertions(+), 4 deletions(-)
+> I'll leave multi-line alignment issues to the driver maintainer.
 > 
-> diff --git a/drivers/rtc/rtc-abx80x.c b/drivers/rtc/rtc-abx80x.c
-> index 9d49054a0a4a..e1ec4cce093a 100644
-> --- a/drivers/rtc/rtc-abx80x.c
-> +++ b/drivers/rtc/rtc-abx80x.c
-> @@ -17,6 +17,7 @@
->  #include <linux/i2c.h>
->  #include <linux/module.h>
->  #include <linux/rtc.h>
-> +#include <linux/watchdog.h>
->  
->  #define ABX8XX_REG_HTH		0x00
->  #define ABX8XX_REG_SC		0x01
-> @@ -37,6 +38,7 @@
->  
->  #define ABX8XX_REG_STATUS	0x0f
->  #define ABX8XX_STATUS_AF	BIT(2)
-> +#define ABX8XX_STATUS_WDT	BIT(6)
->  
->  #define ABX8XX_REG_CTRL1	0x10
->  #define ABX8XX_CTRL_WRITE	BIT(0)
-> @@ -61,6 +63,14 @@
->  #define ABX8XX_OSS_OF		BIT(1)
->  #define ABX8XX_OSS_OMODE	BIT(4)
->  
-> +#define ABX8XX_REG_WDT		0x1b
-> +#define ABX8XX_WDT_WDS		BIT(7)
-> +#define ABX8XX_WDT_BMB_MASK	0x7c
-> +#define ABX8XX_WDT_BMB_SHIFT	2
-> +#define ABX8XX_WDT_MAX_TIME	(ABX8XX_WDT_BMB_MASK >> ABX8XX_WDT_BMB_SHIFT)
-> +#define ABX8XX_WDT_WRB_MASK	0x03
-> +#define ABX8XX_WDT_WRB_1HZ	0x02
-> +
->  #define ABX8XX_REG_CFG_KEY	0x1f
->  #define ABX8XX_CFG_KEY_OSC	0xa1
->  #define ABX8XX_CFG_KEY_MISC	0x9d
-> @@ -80,23 +90,25 @@ enum abx80x_chip {AB0801, AB0803, AB0804, AB0805,
->  struct abx80x_cap {
->  	u16 pn;
->  	bool has_tc;
-> +	bool has_wdog;
->  };
->  
->  static struct abx80x_cap abx80x_caps[] = {
->  	[AB0801] = {.pn = 0x0801},
->  	[AB0803] = {.pn = 0x0803},
-> -	[AB0804] = {.pn = 0x0804, .has_tc = true},
-> -	[AB0805] = {.pn = 0x0805, .has_tc = true},
-> +	[AB0804] = {.pn = 0x0804, .has_tc = true, .has_wdog = true},
-> +	[AB0805] = {.pn = 0x0805, .has_tc = true, .has_wdog = true},
->  	[AB1801] = {.pn = 0x1801},
->  	[AB1803] = {.pn = 0x1803},
-> -	[AB1804] = {.pn = 0x1804, .has_tc = true},
-> -	[AB1805] = {.pn = 0x1805, .has_tc = true},
-> +	[AB1804] = {.pn = 0x1804, .has_tc = true, .has_wdog = true},
-> +	[AB1805] = {.pn = 0x1805, .has_tc = true, .has_wdog = true},
->  	[ABX80X] = {.pn = 0}
->  };
->  
->  struct abx80x_priv {
->  	struct rtc_device *rtc;
->  	struct i2c_client *client;
-> +	struct watchdog_device wdog;
->  };
->  
->  static int abx80x_is_rc_mode(struct i2c_client *client)
-> @@ -234,6 +246,13 @@ static irqreturn_t abx80x_handle_irq(int irq, void *dev_id)
->  	if (status & ABX8XX_STATUS_AF)
->  		rtc_update_irq(rtc, 1, RTC_AF | RTC_IRQF);
->  
-> +	/*
-> +	 * It is unclear if we'll get an interrupt before the external
-> +	 * reset kicks in.
-> +	 */
-> +	if (status & ABX8XX_STATUS_WDT)
-> +		dev_alert(&client->dev, "watchdog timeout interrupt.\n");
-> +
->  	i2c_smbus_write_byte_data(client, ABX8XX_REG_STATUS, 0);
->  
->  	return IRQ_HANDLED;
-> @@ -535,6 +554,105 @@ static void rtc_calib_remove_sysfs_group(void *_dev)
->  	sysfs_remove_group(&dev->kobj, &rtc_calib_attr_group);
->  }
->  
-> +#ifdef CONFIG_WATCHDOG
-> +
-> +static inline u8 timeout_bits(unsigned int timeout)
-> +{
-> +	return ((timeout << ABX8XX_WDT_BMB_SHIFT) & ABX8XX_WDT_BMB_MASK) |
-> +		 ABX8XX_WDT_WRB_1HZ;
-> +}
-> +
-> +static int __abx80x_wdog_set_timeout(struct watchdog_device *wdog,
-> +				    unsigned int timeout)
-> +{
-> +	struct abx80x_priv *priv = watchdog_get_drvdata(wdog);
-> +	u8 val = ABX8XX_WDT_WDS | timeout_bits(timeout);
-> +
-> +	/*
-> +	 * Writing any timeout to the WDT register resets the watchdog timer.
-> +	 * Writing 0 disables it.
-> +	 */
-> +	return i2c_smbus_write_byte_data(priv->client, ABX8XX_REG_WDT, val);
-> +}
-> +
-> +static int abx80x_wdog_set_timeout(struct watchdog_device *wdog,
-> +				unsigned int new_timeout)
 
-I'll leave multi-line alignment issues to the driver maintainer.
+Indeed, I'd like those to be aligned on the parenthesis.
 
-> +{
-> +	int err = __abx80x_wdog_set_timeout(wdog, new_timeout);
-> +
+Thank you for your review.
 
-This will unconditionally enable the watchdog, even if it is currently
-disabled.
-
-> +	if (err)
-> +		return err;
-> +
-> +	wdog->timeout = new_timeout;
-> +	return 0;
-> +}
-> +
-> +static int abx80x_wdog_ping(struct watchdog_device *wdog)
-> +{
-> +	return __abx80x_wdog_set_timeout(wdog, wdog->timeout);
-> +}
-> +
-> +static int abx80x_wdog_start(struct watchdog_device *wdog)
-> +{
-> +	int err = __abx80x_wdog_set_timeout(wdog, wdog->timeout);
-> +
-> +	if (err)
-> +		return err;
-> +
-> +	set_bit(WDOG_HW_RUNNING, &wdog->status);
-
-This is only necessary if the watchdog is running at probe,
-or if it can not be stopped.
-
-> +	return 0;
-> +}
-> +
-> +static int abx80x_wdog_stop(struct watchdog_device *wdog)
-> +{
-> +	int err = __abx80x_wdog_set_timeout(wdog, 0);
-> +
-> +	if (err)
-> +		return err;
-> +
-> +	clear_bit(WDOG_HW_RUNNING, &wdog->status);
-
-This suggests that the watchdog can be stopped, thus it is
-unnecessary to set or clear the bit.
-
-> +	return 0;
-> +}
-> +
-> +static const struct watchdog_info abx80x_wdog_info = {
-> +	.identity = "abx80x watchdog",
-> +	.options = WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE,
-> +};
-> +
-> +static const struct watchdog_ops abx80x_wdog_ops = {
-> +	.owner = THIS_MODULE,
-> +	.start = abx80x_wdog_start,
-> +	.stop = abx80x_wdog_stop,
-> +	.ping = abx80x_wdog_ping,
-> +	.set_timeout = abx80x_wdog_set_timeout,
-> +};
-> +
-> +static int abx80x_setup_watchdog(struct abx80x_priv *priv)
-> +{
-> +	int err;
-> +
-> +	priv->wdog.ops = &abx80x_wdog_ops;
-> +	priv->wdog.info = &abx80x_wdog_info;
-> +	priv->wdog.min_timeout = 1;
-> +	priv->wdog.max_timeout = ABX8XX_WDT_MAX_TIME;
-
-priv->wdog.parent should be set.
-
-> +
-> +	err = devm_watchdog_register_device(&priv->client->dev,
-> +					    &priv->wdog);
-> +	if (err)
-> +		return err;
-> +
-> +	watchdog_set_drvdata(&priv->wdog, priv);
-
-This is too late and racy; it must be called prior to registration.
-
-> +	watchdog_init_timeout(&priv->wdog, ABX8XX_WDT_MAX_TIME,
-> +			      &priv->client->dev);
-
-This is quite pointless. Just set
-	priv->wdog.timeout = ABX8XX_WDT_MAX_TIME;
-above (prior to registration). If the idea is to be able to pick
-a timeout value from devicetree, you would still set the default
-value above and make the call
-	watchdog_init_timeout(&priv->wdog, 0, &priv->client->dev);
-but again prior to registration.
-
-> +	return 0;
-> +}
-> +#else
-> +static int abx80x_setup_watchdog(struct abx80x_priv *priv)
-> +{
-> +	return 0;
-> +}
-> +#endif
-> +
->  static int abx80x_probe(struct i2c_client *client,
->  			const struct i2c_device_id *id)
->  {
-> @@ -629,6 +747,12 @@ static int abx80x_probe(struct i2c_client *client,
->  
->  	i2c_set_clientdata(client, priv);
->  
-> +	if (abx80x_caps[part].has_wdog) {
-> +		err = abx80x_setup_watchdog(priv);
-> +		if (err)
-> +			return err;
-> +	}
-> +
->  	if (client->irq > 0) {
->  		dev_info(&client->dev, "IRQ %d supplied\n", client->irq);
->  		err = devm_request_threaded_irq(&client->dev, client->irq, NULL,
-> -- 
-> 2.17.1
-> 
+-- 
+Alexandre Belloni, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
