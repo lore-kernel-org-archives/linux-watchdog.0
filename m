@@ -1,55 +1,76 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pg1-f195.google.com ([209.85.215.195]:38131 "EHLO
-        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726140AbeIPGN1 (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 16 Sep 2018 02:13:27 -0400
-Received: by mail-pg1-f195.google.com with SMTP id t84-v6so6037576pgb.5
-        for <linux-watchdog@vger.kernel.org>; Sat, 15 Sep 2018 17:52:26 -0700 (PDT)
-Date: Sat, 15 Sep 2018 17:52:25 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Marek =?iso-8859-1?Q?Beh=FAn?= <marek.behun@nic.cz>
-Cc: linux-watchdog@vger.kernel.org, wim@linux-watchdog.org,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>
-Subject: Re: [v3, 3/4] documentation: watchdog: add documentation for
- armada-37xx-wdt
-Message-ID: <20180916005224.GA31525@roeck-us.net>
-References: <20180907130553.14271-4-marek.behun@nic.cz>
+Return-Path: <romain.izard@mobile-devices.fr>
+Return-path: <romain.izard@mobile-devices.fr>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20180907130553.14271-4-marek.behun@nic.cz>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Sender: romain.izard@mobile-devices.fr
+In-Reply-To: <20180914102732.GP14988@piout.net>
+References: <20180914101339.7382-1-romain.izard.pro@gmail.com>
+ <20180914101339.7382-3-romain.izard.pro@gmail.com> <20180914102732.GP14988@piout.net>
+From: Romain Izard <romain.izard.pro@gmail.com>
+Date: Mon, 17 Sep 2018 15:58:45 +0200
+Message-ID: <CAGkQfmPydsn6cH2pHQ9HQeGQo0J4qJ9vXjkQD+_W5iyz---KEA@mail.gmail.com>
+Subject: Re: [PATCH 2/2] watchdog: sama5d4: write the mode register in two steps
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Nicolas Ferre <nicolas.ferre@microchip.com>, Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>, Marcus Folkesson <marcus.folkesson@gmail.com>,
+	linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linux-watchdog@vger.kernel.org,
+	LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On Fri, Sep 07, 2018 at 03:05:52PM +0200, Marek Behún wrote:
-> Add documentation for the kernel module parameters accepted by
-> armada-37xx-wdt.
-> 
-> Signed-off-by: Marek Behún <marek.behun@nic.cz>
+2018-09-14 12:27 GMT+02:00 Alexandre Belloni <alexandre.belloni@bootlin.com>:
+> On 14/09/2018 12:13:39+0200, Romain Izard wrote:
+>> The specification for SAMA5D2 and SAMA5D4 chips, that use this IP for
+>> their watchdog timer, has the following advice regarding the Mode Register:
+>>
+>> "When setting the WDDIS bit, and while it is set, the fields WDV and WDD
+>> must not be modified."
+>>
+>> I have observed on a board based on a SAMA5D2 chip that using any other
+>> timeout duration than the default 16s in the device tree will reset the
+>> board when the watchdog device is opened; this is probably due to ignoring
+>> the aforementioned constraint.
+>>
+>> To fix this, read the content of the Mode Register before writing it,
+>> and split the access into two parts if WDV or WDD need to be changed.
+>>
+>
+> Hum, that is really weird because when I developed
+> 015b528644a84b0018d3286ecd6ea5f82dce0180, I tested with a program doing:
+>
+>         flags = WDIOS_DISABLECARD;
+>         ioctl(fd, WDIOC_SETOPTIONS, &flags);
+>         for (i = 16; i > 2; i--) {
+>                 ioctl(fd, WDIOC_SETTIMEOUT, &i);
+>         }
+>
+>         ioctl(fd, WDIOC_KEEPALIVE, &dummy);
+>
+>         flags = WDIOS_ENABLECARD;
+>         ioctl(fd, WDIOC_SETOPTIONS, &flags);
+>
+>         for (i = 16; i > 2; i--) {
+>                 ioctl(fd, WDIOC_SETTIMEOUT, &i);
+>         }
+>
+> This would immediately reproduce the reset when changing WDV/WDD with
+> WDDIS set.
+>
+> I'll test again.
+>
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+The issue is visible when setting a custom value for the timeout on startup.
+In the past it was only possible to do so with a module parameter, and the
+previous patch in the series makes it possible to do with the device tree.
 
-> ---
->  Documentation/watchdog/watchdog-parameters.txt | 5 +++++
->  1 file changed, 5 insertions(+)
-> 
-> diff --git a/Documentation/watchdog/watchdog-parameters.txt b/Documentation/watchdog/watchdog-parameters.txt
-> index 6d6200ea27b8..0b88e333f9e1 100644
-> --- a/Documentation/watchdog/watchdog-parameters.txt
-> +++ b/Documentation/watchdog/watchdog-parameters.txt
-> @@ -40,6 +40,11 @@ margin: Watchdog margin in seconds (default=60)
->  nowayout: Disable watchdog shutdown on close
->  	(default=kernel config parameter)
->  -------------------------------------------------
-> +armada_37xx_wdt:
-> +timeout: Watchdog timeout in seconds. (default=120)
-> +nowayout: Disable watchdog shutdown on close
-> +	(default=kernel config parameter)
-> +-------------------------------------------------
->  at91rm9200_wdt:
->  wdt_time: Watchdog time in seconds. (default=5)
->  nowayout: Watchdog cannot be stopped once started
+When using the Linux4SAM 5.7 release, it is sufficient to set the timeout on
+the command line to reproduce the issue:
+
+In the bootloader:
+# setenv bootargs $bootargs sama5d4_wdt.wdt_timeout=10
+
+To trigger an immediate reset (with some code that should work):
+# (echo 1; while sleep 3; do echo 1; done) > /dev/watchdog
+
+Best regards,
+-- 
+Romain Izard
