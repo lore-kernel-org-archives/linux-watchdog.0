@@ -1,36 +1,103 @@
-Return-Path: <robherring2@gmail.com>
-Return-path: <robherring2@gmail.com>
-Date: Thu, 27 Sep 2018 13:42:26 -0500
-From: Rob Herring <robh@kernel.org>
-To: Marek =?iso-8859-1?Q?Beh=FAn?= <marek.behun@nic.cz>
-Cc: linux-watchdog@vger.kernel.org, wim@linux-watchdog.org,
-	Guenter Roeck <linux@roeck-us.net>,
-	Gregory CLEMENT <gregory.clement@bootlin.com>,
-	Marek =?iso-8859-1?Q?Beh=FAn?= <marek.behun@nic.cz>,
-	devicetree@vger.kernel.org
-Subject: Re: [PATCH v4 2/4] dt-bindings: watchdog: Document armada-37xx-wdt
- binding
-Message-ID: <20180927184226.GA25910@bogus>
-References: <20180924110654.7329-1-marek.behun@nic.cz>
- <20180924110654.7329-3-marek.behun@nic.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20180924110654.7329-3-marek.behun@nic.cz>
+Return-Path: <christophe.leroy@c-s.fr>
+Return-path: <christophe.leroy@c-s.fr>
+Message-Id: <c09f541d459c29aca40d54fff152d5645e24b50d.1537163776.git.christophe.leroy@c-s.fr>
+From: Christophe Leroy <christophe.leroy@c-s.fr>
+Subject: [PATCH v3 1/3] watchdog: mpc8xxx: use dev_xxxx() instead of pr_xxxx()
+To: Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>, Radu Rendec <radu.rendec@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>
+Cc: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org
+Date: Mon, 17 Sep 2018 06:22:47 +0000 (UTC)
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On Mon, 24 Sep 2018 13:06:52 +0200, =?UTF-8?q?Marek=20Beh=C3=BAn?= wrote:
-> This adds device tree binding documentation for the CPU watchdog found
-> on Armada 37xx SOCs (EspressoBin, Turris Mox).
-> 
-> Signed-off-by: Marek Behún <marek.behun@nic.cz>
-> Cc: Rob Herring <robh+dt@kernel.org>
-> Cc: devicetree@vger.kernel.org
-> ---
->  .../bindings/watchdog/armada-37xx-wdt.txt          | 23 ++++++++++++++++++++++
->  1 file changed, 23 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/watchdog/armada-37xx-wdt.txt
-> 
+mpc8xxx watchdog driver is a platform device drivers, it is
+therefore possible to use dev_xxx() messaging rather than pr_xxx()
 
-Reviewed-by: Rob Herring <robh@kernel.org>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+---
+ drivers/watchdog/mpc8xxx_wdt.c | 24 ++++++++++++------------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
+
+diff --git a/drivers/watchdog/mpc8xxx_wdt.c b/drivers/watchdog/mpc8xxx_wdt.c
+index aca2d6323f8a..1dcf5f10cdd9 100644
+--- a/drivers/watchdog/mpc8xxx_wdt.c
++++ b/drivers/watchdog/mpc8xxx_wdt.c
+@@ -17,8 +17,6 @@
+  * option) any later version.
+  */
+ 
+-#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+-
+ #include <linux/fs.h>
+ #include <linux/init.h>
+ #include <linux/kernel.h>
+@@ -137,26 +135,27 @@ static int mpc8xxx_wdt_probe(struct platform_device *ofdev)
+ 	struct mpc8xxx_wdt_ddata *ddata;
+ 	u32 freq = fsl_get_sys_freq();
+ 	bool enabled;
++	struct device *dev = &ofdev->dev;
+ 
+-	wdt_type = of_device_get_match_data(&ofdev->dev);
++	wdt_type = of_device_get_match_data(dev);
+ 	if (!wdt_type)
+ 		return -EINVAL;
+ 
+ 	if (!freq || freq == -1)
+ 		return -EINVAL;
+ 
+-	ddata = devm_kzalloc(&ofdev->dev, sizeof(*ddata), GFP_KERNEL);
++	ddata = devm_kzalloc(dev, sizeof(*ddata), GFP_KERNEL);
+ 	if (!ddata)
+ 		return -ENOMEM;
+ 
+ 	res = platform_get_resource(ofdev, IORESOURCE_MEM, 0);
+-	ddata->base = devm_ioremap_resource(&ofdev->dev, res);
++	ddata->base = devm_ioremap_resource(dev, res);
+ 	if (IS_ERR(ddata->base))
+ 		return PTR_ERR(ddata->base);
+ 
+ 	enabled = in_be32(&ddata->base->swcrr) & SWCRR_SWEN;
+ 	if (!enabled && wdt_type->hw_enabled) {
+-		pr_info("could not be enabled in software\n");
++		dev_info(dev, "could not be enabled in software\n");
+ 		return -ENODEV;
+ 	}
+ 
+@@ -166,7 +165,7 @@ static int mpc8xxx_wdt_probe(struct platform_device *ofdev)
+ 	ddata->wdd.ops = &mpc8xxx_wdt_ops,
+ 
+ 	ddata->wdd.timeout = WATCHDOG_TIMEOUT;
+-	watchdog_init_timeout(&ddata->wdd, timeout, &ofdev->dev);
++	watchdog_init_timeout(&ddata->wdd, timeout, dev);
+ 
+ 	watchdog_set_nowayout(&ddata->wdd, nowayout);
+ 
+@@ -189,12 +188,13 @@ static int mpc8xxx_wdt_probe(struct platform_device *ofdev)
+ 
+ 	ret = watchdog_register_device(&ddata->wdd);
+ 	if (ret) {
+-		pr_err("cannot register watchdog device (err=%d)\n", ret);
++		dev_err(dev, "cannot register watchdog device (err=%d)\n", ret);
+ 		return ret;
+ 	}
+ 
+-	pr_info("WDT driver for MPC8xxx initialized. mode:%s timeout=%d sec\n",
+-		reset ? "reset" : "interrupt", ddata->wdd.timeout);
++	dev_info(dev,
++		 "WDT driver for MPC8xxx initialized. mode:%s timeout=%d sec\n",
++		 reset ? "reset" : "interrupt", ddata->wdd.timeout);
+ 
+ 	platform_set_drvdata(ofdev, ddata);
+ 	return 0;
+@@ -204,8 +204,8 @@ static int mpc8xxx_wdt_remove(struct platform_device *ofdev)
+ {
+ 	struct mpc8xxx_wdt_ddata *ddata = platform_get_drvdata(ofdev);
+ 
+-	pr_crit("Watchdog removed, expect the %s soon!\n",
+-		reset ? "reset" : "machine check exception");
++	dev_crit(&ofdev->dev, "Watchdog removed, expect the %s soon!\n",
++		 reset ? "reset" : "machine check exception");
+ 	watchdog_unregister_device(&ddata->wdd);
+ 
+ 	return 0;
+-- 
+2.13.3
