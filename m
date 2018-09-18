@@ -1,76 +1,94 @@
-Return-Path: <romain.izard@mobile-devices.fr>
-Return-path: <romain.izard@mobile-devices.fr>
+Return-Path: <s.trumtrar@pengutronix.de>
+Return-path: <s.trumtrar@pengutronix.de>
+From: Steffen Trumtrar <s.trumtrar@pengutronix.de>
+To: linux-watchdog@vger.kernel.org
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>, Christophe Leroy <christophe.leroy@c-s.fr>, linux-rt-users@vger.kernel.org 
+Subject: [BUG] dw_wdt watchdog on linux-rt 4.18.5-rt4 not triggering
+Date: Tue, 18 Sep 2018 15:21:08 +0200
+Message-ID: <73d0tbdjqz.fsf@pengutronix.de>
 MIME-Version: 1.0
-Sender: romain.izard@mobile-devices.fr
-In-Reply-To: <20180914102732.GP14988@piout.net>
-References: <20180914101339.7382-1-romain.izard.pro@gmail.com>
- <20180914101339.7382-3-romain.izard.pro@gmail.com> <20180914102732.GP14988@piout.net>
-From: Romain Izard <romain.izard.pro@gmail.com>
-Date: Mon, 17 Sep 2018 15:58:45 +0200
-Message-ID: <CAGkQfmPydsn6cH2pHQ9HQeGQo0J4qJ9vXjkQD+_W5iyz---KEA@mail.gmail.com>
-Subject: Re: [PATCH 2/2] watchdog: sama5d4: write the mode register in two steps
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Nicolas Ferre <nicolas.ferre@microchip.com>, Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Guenter Roeck <linux@roeck-us.net>, Marcus Folkesson <marcus.folkesson@gmail.com>,
-	linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linux-watchdog@vger.kernel.org,
-	LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; format=flowed
 List-ID: <linux-watchdog@vger.kernel.org>
 
-2018-09-14 12:27 GMT+02:00 Alexandre Belloni <alexandre.belloni@bootlin.com>:
-> On 14/09/2018 12:13:39+0200, Romain Izard wrote:
->> The specification for SAMA5D2 and SAMA5D4 chips, that use this IP for
->> their watchdog timer, has the following advice regarding the Mode Register:
->>
->> "When setting the WDDIS bit, and while it is set, the fields WDV and WDD
->> must not be modified."
->>
->> I have observed on a board based on a SAMA5D2 chip that using any other
->> timeout duration than the default 16s in the device tree will reset the
->> board when the watchdog device is opened; this is probably due to ignoring
->> the aforementioned constraint.
->>
->> To fix this, read the content of the Mode Register before writing it,
->> and split the access into two parts if WDV or WDD need to be changed.
->>
->
-> Hum, that is really weird because when I developed
-> 015b528644a84b0018d3286ecd6ea5f82dce0180, I tested with a program doing:
->
->         flags = WDIOS_DISABLECARD;
->         ioctl(fd, WDIOC_SETOPTIONS, &flags);
->         for (i = 16; i > 2; i--) {
->                 ioctl(fd, WDIOC_SETTIMEOUT, &i);
->         }
->
->         ioctl(fd, WDIOC_KEEPALIVE, &dummy);
->
->         flags = WDIOS_ENABLECARD;
->         ioctl(fd, WDIOC_SETOPTIONS, &flags);
->
->         for (i = 16; i > 2; i--) {
->                 ioctl(fd, WDIOC_SETTIMEOUT, &i);
->         }
->
-> This would immediately reproduce the reset when changing WDV/WDD with
-> WDDIS set.
->
-> I'll test again.
->
 
-The issue is visible when setting a custom value for the timeout on startup.
-In the past it was only possible to do so with a module parameter, and the
-previous patch in the series makes it possible to do with the device tree.
+Hi all!
 
-When using the Linux4SAM 5.7 release, it is sufficient to set the timeout on
-the command line to reproduce the issue:
+I'm seeing an issue with the dw_wdt watchdog on the SoCFPGA ARM 
+platform with the latest linux-rt v4.18.5-rt4. Actually I seem to 
+have the same problem, that these patches try to fix:
 
-In the bootloader:
-# setenv bootargs $bootargs sama5d4_wdt.wdt_timeout=10
+  38a1222ae4f364d5bd5221fe305dbb0889f45d15
+  Author:     Christophe Leroy <christophe.leroy@c-s.fr>
+  AuthorDate: Fri Dec 8 11:18:35 2017 +0100
+  Commit:     Wim Van Sebroeck <wim@iguana.be>
+  CommitDate: Thu Dec 28 20:45:57 2017 +0100
 
-To trigger an immediate reset (with some code that should work):
-# (echo 1; while sleep 3; do echo 1; done) > /dev/watchdog
+  Follows:    v4.15-rc3 (345)
+  Precedes:   v4.16-rc1 (13997)
+
+  watchdog: core: make sure the watchdog worker always works
+
+  When running a command like 'chrt -f 50 dd if=/dev/zero 
+  of=/dev/null',
+  the watchdog_worker fails to service the HW watchdog and the
+  HW watchdog fires long before the watchdog soft timeout.
+
+  At the moment, the watchdog_worker is invoked as a delayed work.
+  Delayed works are handled by non realtime kernel threads. The
+  WQ_HIGHPRI flag only increases the niceness of that threads.
+
+  This patch replaces the delayed work logic by kthread delayed 
+  work,
+  and sets the associated kernel task to SCHED_FIFO with the 
+  highest
+  priority, in order to ensure that the watchdog worker will run 
+  as
+  soon as possible.
+
+
+  1ff688209e2ed23f699269b9733993e2ce123fd2
+  Author:     Christophe Leroy <christophe.leroy@c-s.fr>
+  AuthorDate: Thu Jan 18 12:11:21 2018 +0100
+  Commit:     Wim Van Sebroeck <wim@iguana.be>
+  CommitDate: Sun Jan 21 12:44:59 2018 +0100
+
+  Follows:    v4.15-rc3 (349)
+  Precedes:   v4.16-rc1 (13993)
+
+  watchdog: core: make sure the watchdog_worker is not deferred
+
+  commit 4cd13c21b207e ("softirq: Let ksoftirqd do its job") has 
+  the
+  effect of deferring timer handling in case of high CPU load, 
+  hence
+  delaying the delayed work allthought the worker is running which
+  high realtime priority.
+
+  As hrtimers are not managed by softirqs, this patch replaces the
+  delayed work by a plain work and uses an hrtimer to schedule 
+  that work.
+
+
+If I run the same test or 'chrt 50 hackbench 20 -l 150' or any 
+task where I change the prio with chrt and that runs long enough, 
+I get a system reset from the watchdog because it times out. This 
+only happens if the watchdog is already enabled on boot and 
+CONFIG_PREEMPT_RT_FULL is set.
+
+Any idea if I'm missing something essential? If I understand it 
+correctly, the two commits fix the framework and therefore the 
+dw_wdt driver doesn't need any updates.
+
 
 Best regards,
--- 
-Romain Izard
+Steffen
+
+--
+Pengutronix e.K.                          | Steffen Trumtrar 
+|
+Industrial Linux Solutions                | 
+http://www.pengutronix.de/ |
+Peiner Str. 6-8, 31137 Hildesheim, Germany| Phone: 
++49-5121-206917-0   |
+Amtsgericht Hildesheim, HRA 2686          | Fax: 
++49-5121-206917-5555|
