@@ -1,156 +1,50 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pl1-f196.google.com ([209.85.214.196]:40689 "EHLO
-        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732351AbeITBWa (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 19 Sep 2018 21:22:30 -0400
-Date: Wed, 19 Sep 2018 12:43:03 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Steffen Trumtrar <s.trumtrar@pengutronix.de>
-Cc: linux-watchdog@vger.kernel.org,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Christophe Leroy <christophe.leroy@c-s.fr>,
-        linux-rt-users@vger.kernel.org
+Return-Path: <tim@krieglstein.org>
+Return-path: <tim@krieglstein.org>
+From: Tim Sander <tim@krieglstein.org>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Steffen Trumtrar <s.trumtrar@pengutronix.de>, linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@linux-watchdog.org>, Christophe Leroy <christophe.leroy@c-s.fr>, linux-rt-users@vger.kernel.org
 Subject: Re: [BUG] dw_wdt watchdog on linux-rt 4.18.5-rt4 not triggering
-Message-ID: <20180919194303.GA5033@roeck-us.net>
-References: <73d0tbdjqz.fsf@pengutronix.de>
- <714e73d5-f7ce-bdcf-b7fd-fc9f02b12693@roeck-us.net>
- <20180919064619.soi27bbq3xtatpxp@pengutronix.de>
+Date: Thu, 20 Sep 2018 10:18:33 +0200
+Message-ID: <2133238.jDSj0JK9k1@dabox>
+In-Reply-To: <714e73d5-f7ce-bdcf-b7fd-fc9f02b12693@roeck-us.net>
+References: <73d0tbdjqz.fsf@pengutronix.de> <714e73d5-f7ce-bdcf-b7fd-fc9f02b12693@roeck-us.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20180919064619.soi27bbq3xtatpxp@pengutronix.de>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="us-ascii"
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On Wed, Sep 19, 2018 at 08:46:19AM +0200, Steffen Trumtrar wrote:
-> On Tue, Sep 18, 2018 at 06:46:15AM -0700, Guenter Roeck wrote:
-> > On 09/18/2018 06:21 AM, Steffen Trumtrar wrote:
-> > > 
-> > > Hi all!
-> > > 
-> > > I'm seeing an issue with the dw_wdt watchdog on the SoCFPGA ARM platform with the latest linux-rt v4.18.5-rt4. Actually I seem to have the same problem, that these patches try to fix:
-> > > 
-> > >   38a1222ae4f364d5bd5221fe305dbb0889f45d15
-> > >   Author:     Christophe Leroy <christophe.leroy@c-s.fr>
-> > >   AuthorDate: Fri Dec 8 11:18:35 2017 +0100
-> > >   Commit:     Wim Van Sebroeck <wim@iguana.be>
-> > >   CommitDate: Thu Dec 28 20:45:57 2017 +0100
-> > > 
-> > >   Follows:    v4.15-rc3 (345)
-> > >   Precedes:   v4.16-rc1 (13997)
-> > > 
-> > >   watchdog: core: make sure the watchdog worker always works
-> > > 
-> > >   When running a command like 'chrt -f 50 dd if=/dev/zero  of=/dev/null',
-> > >   the watchdog_worker fails to service the HW watchdog and the
-> > >   HW watchdog fires long before the watchdog soft timeout.
-> > > 
-> > >   At the moment, the watchdog_worker is invoked as a delayed work.
-> > >   Delayed works are handled by non realtime kernel threads. The
-> > >   WQ_HIGHPRI flag only increases the niceness of that threads.
-> > > 
-> > >   This patch replaces the delayed work logic by kthread delayed  work,
-> > >   and sets the associated kernel task to SCHED_FIFO with the  highest
-> > >   priority, in order to ensure that the watchdog worker will run  as
-> > >   soon as possible.
-> > > 
-> > > 
-> > >   1ff688209e2ed23f699269b9733993e2ce123fd2
-> > >   Author:     Christophe Leroy <christophe.leroy@c-s.fr>
-> > >   AuthorDate: Thu Jan 18 12:11:21 2018 +0100
-> > >   Commit:     Wim Van Sebroeck <wim@iguana.be>
-> > >   CommitDate: Sun Jan 21 12:44:59 2018 +0100
-> > > 
-> > >   Follows:    v4.15-rc3 (349)
-> > >   Precedes:   v4.16-rc1 (13993)
-> > > 
-> > >   watchdog: core: make sure the watchdog_worker is not deferred
-> > > 
-> > >   commit 4cd13c21b207e ("softirq: Let ksoftirqd do its job") has  the
-> > >   effect of deferring timer handling in case of high CPU load,  hence
-> > >   delaying the delayed work allthought the worker is running which
-> > >   high realtime priority.
-> > > 
-> > >   As hrtimers are not managed by softirqs, this patch replaces the
-> > >   delayed work by a plain work and uses an hrtimer to schedule  that work.
-> > > 
-> > > 
-> > > If I run the same test or 'chrt 50 hackbench 20 -l 150' or any task where I change the prio with chrt and that runs long enough, I get a system reset from the watchdog because it times out. This only happens if the watchdog is already enabled on boot and CONFIG_PREEMPT_RT_FULL is set.
-> > > 
-> > > Any idea if I'm missing something essential? If I understand it correctly, the two commits fix the framework and therefore the dw_wdt driver doesn't need any updates.
-> > > 
-> > 
-> > I find your e-mail confusing, sorry. The subject says that the watchdog is not
-> > triggering, the description says that it is triggering when it should not.
-> > 
-> 
-> Sorry. Let me try again.
-> The problem I observe, is that the watchdog is trigged, because it doesn't get pinged.
-> The ksoftirqd seems to be blocked although it runs at a much higher priority than the
-> blocking userspace task.
-> 
-Are you sure about that ? The other email seemed to suggest that the userspace
-task is running at higher priority.
+Hi
 
-> > You also provide no information if the watchdog is active (open from user space)
-> > or not. There is some indication in "This only happens if the watchdog is already
-> > enabled on boot" but that isn't really precise - it may be enabled on boot but still
-> > open. On top of that, your e-mail suggests that the problem may be a regression,
-> > since you refer to a specific kernel release, yet you provide no information if
-> > the very same test worked with a different kernel version, or what that kernel
-> > version would be.
-> > 
-> > Please not only describe what you are doing, but also provide the complete context.
-> > Specifically,
-> > - Did this ever work ? If yes, what are working kernel versions ?
-> 
-> I don't know, if it ever worked or not. This is the first kernel version I tried.
-> According to the two commits mentioned, I assume that it won't work in older versions.
-> 
-> > - Is the watchdog device open ?
-> > - Does it make a difference if it is ?
-> 
-> In my test case, the device is not open. It gets started by the bootloader and than is
-> running. I tried opening the device after it was already running, but it does not make
-> a difference. If the watchdog is put into running state by opening it from userspace,
-> the bug does not occur. If the bootloader starts it and the kernel just continues pinging
-> the watchdog, it does occur, open or not.
-> 
-The big question here is if the watchdog daemon that keeps the watchdog open is
-running at higher priority than the userspace task taking all available CPU
-time.
+I am also seeing this problem. 
+Am Dienstag, 18. September 2018, 15:46:15 CEST schrieb Guenter Roeck:
+> Please not only describe what you are doing, but also provide the complete
+> context. Specifically,
+> - Did this ever work ?
+I have not found a working kernel version.
+> If yes, what are working kernel versions ?
+I have tried different kernel version which where *not* working:
+patch-4.11.12-rt15 (with some Altera/Intel driver patches)
+4.16.8-rt3
+4.18-rc8-rt1
+4.18.7-rt5 (with adxl372 iio patches and denali nand race fix reported on 
+mainline)
+> - Is the watchdog device open ?
+Good point: The bootloader arms the watchdog.  Then 
+WATCHDOG_HANDLE_BOOT_ENABLED is enabled in kernel.
+But i forgot to let usermode take over.
 
-If the watchdog daemon runs at lower priority, the observed behavior would be
-as expected.
+> - Does it make a difference if it is ?
+If i set RuntimeWatchdogSec=30 in /etc/systemd/system.conf (i.e. enable 
+usermode watchdog) the problem seems to go away (at least i didn't had a 
+reboot dony with my short testruns by now).
 
-Overall, we have a number possibilities to consider:
+> - What is the configured watchdog timeout (both from BIOS/ROMMON and in
+> Linux) ?
+30s
 
-- The kernel watchdog timer thread is not triggered at all under some
-  circumstances, meaning it is not set properly. So far we have no real
-  indication that this is the case (since the code works fine unless some
-  userspace task takes all available CPU time).
-- The watchdog device is closed. The kernel watchdog timer thread is
-  starved and does not get to run. The question is what to do in this
-  situation. In a real time system, this is almost always a fatal
-  condition. Should the system really be kept alive in this situation ?
-- The watchdog device is open.
-  - The watchdog daemon runs at higher priority than the process taking
-    all CPU time. Everything should work as expected.
-  - The watchdog daemon runs at the same or at a lower priority than
-    the process taking all CPU time. I would argue that, in this case,
-    everything is also working as expected: The watchdog daemon is starved,
-    does not get to run, and the system resets because, per its configuration,
-    it is in bad shape.
+So to wrap up: i have the suspicion that the option 
+WATCHDOG_HANDLE_BOOT_ENABLED without usermode taking over in Linux leads to 
+some strange behaviour with preempt rt?
 
-Overall, the only real possible problem would be if the watchdog thread
-in the kernel does not run because of some bug, and that it is not really
-starved. We would probably have to instrument the kernel to find out if
-this is the case, unless someone has a better idea.
-
-Am I missing something ?
-
-Thanks,
-Guenter
+Best regards
+Tim
