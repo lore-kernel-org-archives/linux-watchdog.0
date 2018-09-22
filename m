@@ -1,77 +1,33 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:33617 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389022AbeIUQgr (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 21 Sep 2018 12:36:47 -0400
-From: Gregory CLEMENT <gregory.clement@bootlin.com>
-To: Marek =?utf-8?Q?Beh=C3=BAn?= <marek.behun@nic.cz>
-Cc: linux-watchdog@vger.kernel.org, wim@linux-watchdog.org,
-        Guenter Roeck <linux@roeck-us.net>,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: Re: [PATCH v3 4/4] arm64: dts: marvell: armada-37xx: add nodes to support watchdog
-References: <20180907130553.14271-1-marek.behun@nic.cz>
-        <20180907130553.14271-5-marek.behun@nic.cz>
-Date: Fri, 21 Sep 2018 12:48:26 +0200
-In-Reply-To: <20180907130553.14271-5-marek.behun@nic.cz> ("Marek
- =?utf-8?Q?Beh=C3=BAn=22's?=
-        message of "Fri, 7 Sep 2018 15:05:53 +0200")
-Message-ID: <87pnx7i0sl.fsf@bootlin.com>
+Received: from mail-pf1-f194.google.com ([209.85.210.194]:41591 "EHLO
+        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2392142AbeIVGNh (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Sat, 22 Sep 2018 02:13:37 -0400
+Subject: Re: [PATCH] watchdog/hpwdt: Disable PreTimeout when Timeout is
+ smaller
+To: Jerry Hoemann <jerry.hoemann@hpe.com>, wim@linux-watchdog.org
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20180921205039.11466-1-jerry.hoemann@hpe.com>
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <32cd1d39-f8d2-8b40-e025-4e3cda27c2c5@roeck-us.net>
+Date: Fri, 21 Sep 2018 17:22:16 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
+In-Reply-To: <20180921205039.11466-1-jerry.hoemann@hpe.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Marek,
- 
- On ven., sept. 07 2018, Marek Behún <marek.behun@nic.cz> wrote:
+On 09/21/2018 01:50 PM, Jerry Hoemann wrote:
+> During module install, disable pretimeout if the requested timeout
+> value is not greater than the minimal pretimeout value that is
+> supported by hardware.
+> 
+> This makes the module load handling of pretimeout consistent
+> with the ioctl handling of pretimeout.
+> 
+> Signed-off-by: Jerry Hoemann <jerry.hoemann@hpe.com>
 
-> This adds the system controller node for CPU Miscellaneous Registers
-> (which is needed for the watchdog node) and the watchdog node.
->
-> Signed-off-by: Marek Behún <marek.behun@nic.cz>
-
-
-I just want to let you know that once you will modify the device tree
-according to Rob's comment about the binding, I will apply this patch on
-mvebu trees.
-
-Thanks,
-
-Gregory
-
-> ---
->  arch/arm64/boot/dts/marvell/armada-37xx.dtsi | 12 ++++++++++++
->  1 file changed, 12 insertions(+)
->
-> diff --git a/arch/arm64/boot/dts/marvell/armada-37xx.dtsi b/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
-> index d9531e242eb4..048b072080c2 100644
-> --- a/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
-> +++ b/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
-> @@ -80,6 +80,18 @@
->  			/* 32M internal register @ 0xd000_0000 */
->  			ranges = <0x0 0x0 0xd0000000 0x2000000>;
->  
-> +			wdt: watchdog-timer@8300 {
-> +				compatible = "marvell,armada-3700-wdt";
-> +				reg = <0x8300 0x40>;
-> +				marvell,system-controller = <&cpu_misc>;
-> +				clocks = <&xtalclk>;
-> +			};
-> +
-> +			cpu_misc: system-controller@d000 {
-> +				compatible = "syscon", "simple-mfd";
-> +				reg = <0xd000 0x1000>;
-> +			};
-> +
->  			spi0: spi@10600 {
->  				compatible = "marvell,armada-3700-spi";
->  				#address-cells = <1>;
-> -- 
-> 2.16.4
->
-
--- 
-Gregory Clement, Bootlin
-Embedded Linux and Kernel engineering
-http://bootlin.com
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
