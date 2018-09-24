@@ -1,42 +1,52 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from relmlor4.renesas.com ([210.160.252.174]:49802 "EHLO
-        relmlie3.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729306AbeIYVrn (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 25 Sep 2018 17:47:43 -0400
-From: Chris Brandt <Chris.Brandt@renesas.com>
-To: Rob Herring <robh@kernel.org>
-CC: Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "linux-renesas-soc@vger.kernel.org"
-        <linux-renesas-soc@vger.kernel.org>,
-        Simon Horman <horms+renesas@verge.net.au>
-Subject: RE: [PATCH v5 2/2] dt-bindings: watchdog: renesas-wdt: Add support
- for R7S9210
-Date: Tue, 25 Sep 2018 15:39:33 +0000
-Message-ID:
- <TY1PR01MB1562EEC331C026ECB9FEB2588A160@TY1PR01MB1562.jpnprd01.prod.outlook.com>
-References: <20180924135816.19474-1-chris.brandt@renesas.com>
- <20180924135816.19474-3-chris.brandt@renesas.com>
- <20180925152932.GA30838@bogus>
-In-Reply-To: <20180925152932.GA30838@bogus>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Return-Path: <marek.behun@nic.cz>
+Return-path: <marek.behun@nic.cz>
+From: =?UTF-8?q?Marek=20Beh=C3=BAn?= <marek.behun@nic.cz>
+To: linux-watchdog@vger.kernel.org
+Cc: wim@linux-watchdog.org,
+	Guenter Roeck <linux@roeck-us.net>,
+	Gregory CLEMENT <gregory.clement@bootlin.com>,
+	=?UTF-8?q?Marek=20Beh=C3=BAn?= <marek.behun@nic.cz>
+Subject: [PATCH v4 4/4] arm64: dts: marvell: armada-37xx: add nodes to support watchdog
+Date: Mon, 24 Sep 2018 13:06:54 +0200
+Message-Id: <20180924110654.7329-5-marek.behun@nic.cz>
+In-Reply-To: <20180924110654.7329-1-marek.behun@nic.cz>
+References: <20180924110654.7329-1-marek.behun@nic.cz>
 MIME-Version: 1.0
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
-Message-ID: <20180925153933.3F3uLqWsRfGmrhZyDs-D1rKO_mDtAdk9wBQREii3iq4@z>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On Tuesday, September 25, 2018 1, Rob Herring wrote:
-> I gave Reviewed-by on v3. Please add acks/reviewed-bys when posting new
-> versions.
+This adds the system controller node for CPU Miscellaneous Registers
+(which is needed for the watchdog node) and the watchdog node.
 
-Sorry about that!
+Signed-off-by: Marek Behún <marek.behun@nic.cz>
+---
+ arch/arm64/boot/dts/marvell/armada-37xx.dtsi | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-Chris
+diff --git a/arch/arm64/boot/dts/marvell/armada-37xx.dtsi b/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
+index d9531e242eb4..f5eaec531aa8 100644
+--- a/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
++++ b/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
+@@ -80,6 +80,19 @@
+ 			/* 32M internal register @ 0xd000_0000 */
+ 			ranges = <0x0 0x0 0xd0000000 0x2000000>;
+ 
++			wdt: watchdog@8300 {
++				compatible = "marvell,armada-3700-wdt";
++				reg = <0x8300 0x40>;
++				marvell,system-controller = <&cpu_misc>;
++				clocks = <&xtalclk>;
++			};
++
++			cpu_misc: system-controller@d000 {
++				compatible = "marvell,armada-3700-cpu-misc",
++					     "syscon";
++				reg = <0xd000 0x1000>;
++			};
++
+ 			spi0: spi@10600 {
+ 				compatible = "marvell,armada-3700-spi";
+ 				#address-cells = <1>;
+-- 
+2.16.4
