@@ -1,39 +1,31 @@
-Return-Path: <geert.uytterhoeven@gmail.com>
-Return-path: <geert.uytterhoeven@gmail.com>
-MIME-Version: 1.0
-References: <1537895241-7686-1-git-send-email-biju.das@bp.renesas.com>
-In-Reply-To: <1537895241-7686-1-git-send-email-biju.das@bp.renesas.com>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Wed, 26 Sep 2018 13:32:15 +0200
-Message-ID: <CAMuHMdXGfup0F8KXDkhGAwXE3Ok2f5pNDnVVD_asqwHjg+O-6g@mail.gmail.com>
-Subject: Re: [PATCH] dt-bindings: watchdog: renesas-wdt: Document r8a7744 support
-To: Biju Das <biju.das@bp.renesas.com>
-Cc: Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>,
-	Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
-	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-	"open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" <devicetree@vger.kernel.org>, Simon Horman <horms@verge.net.au>,
-	Geert Uytterhoeven <geert+renesas@glider.be>, Chris Paterson <Chris.Paterson2@renesas.com>,
-	Fabrizio Castro <fabrizio.castro@bp.renesas.com>,
-	Linux-Renesas <linux-renesas-soc@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Return-Path: <chris.brandt@renesas.com>
+Return-path: <chris.brandt@renesas.com>
+From: Chris Brandt <chris.brandt@renesas.com>
+To: Guenter Roeck <linux@roeck-us.net>,
+	Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Rob Herring <robh+dt@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: linux-watchdog@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-renesas-soc@vger.kernel.org,
+	Simon Horman <horms+renesas@verge.net.au>,
+	Chris Brandt <chris.brandt@renesas.com>
+Subject: [PATCH v5 0/2] Add support for RZ/A2 wdt
+Date: Mon, 24 Sep 2018 08:58:14 -0500
+Message-Id: <20180924135816.19474-1-chris.brandt@renesas.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On Tue, Sep 25, 2018 at 7:14 PM Biju Das <biju.das@bp.renesas.com> wrote:
-> RZ/G1N (R8A7744) watchdog implementation is compatible with R-Car
-> Gen2, therefore add relevant documentation.
->
-> Signed-off-by: Biju Das <biju.das@bp.renesas.com>
-> Reviewed-by: Chris Paterson <Chris.Paterson2@renesas.com>
+Slightly modify the rza_wdt.c driver and update the binding docs.
 
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
 
-Gr{oetje,eeting}s,
+Chris Brandt (2):
+  watchdog: rza_wdt: Support longer timeouts
+  dt-bindings: watchdog: renesas-wdt: Add support for R7S9210
 
-                        Geert
+ .../devicetree/bindings/watchdog/renesas-wdt.txt   |  1 +
+ drivers/watchdog/rza_wdt.c                         | 88 +++++++++++++++++-----
+ 2 files changed, 71 insertions(+), 18 deletions(-)
 
 -- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+2.16.1
