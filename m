@@ -1,91 +1,115 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ot1-f67.google.com ([209.85.210.67]:44641 "EHLO
-        mail-ot1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726436AbeIZDqi (ORCPT
+Received: from mail-wm1-f65.google.com ([209.85.128.65]:34568 "EHLO
+        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727043AbeIZOQ7 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 25 Sep 2018 23:46:38 -0400
-Date: Tue, 25 Sep 2018 16:37:03 -0500
-From: Rob Herring <robh@kernel.org>
-To: Pascal PAILLET-LME <p.paillet@st.com>
-Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
-        "mark.rutland@arm.com" <mark.rutland@arm.com>,
-        "lee.jones@linaro.org" <lee.jones@linaro.org>,
-        "lgirdwood@gmail.com" <lgirdwood@gmail.com>,
-        "broonie@kernel.org" <broonie@kernel.org>,
-        "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
-        "linux@roeck-us.net" <linux@roeck-us.net>,
-        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>,
-        "eballetbo@gmail.com" <eballetbo@gmail.com>
-Subject: Re: [PATCH V2 5/8] dt-bindings: input: document stpmic1 pmic onkey
-Message-ID: <20180925213703.GA6116@bogus>
-References: <1536325173-16617-1-git-send-email-p.paillet@st.com>
- <1536325173-16617-6-git-send-email-p.paillet@st.com>
+        Wed, 26 Sep 2018 10:16:59 -0400
+Received: by mail-wm1-f65.google.com with SMTP id y3-v6so365343wma.1
+        for <linux-watchdog@vger.kernel.org>; Wed, 26 Sep 2018 01:05:16 -0700 (PDT)
+Subject: Re: [PATCH v7 05/24] clocksource: Add a new timer-ingenic driver
+To: Paul Cercueil <paul@crapouillou.net>
+Cc: Mathieu Malaterre <malat@debian.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Rob Herring <robh+dt@kernel.org>, linux-doc@vger.kernel.org,
+        linux-watchdog@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>,
+        od@zcrc.me, linux-mips@linux-mips.org,
+        Paul Burton <paul.burton@mips.com>,
+        Mark Rutland <mark.rutland@arm.com>, linux-clk@vger.kernel.org,
+        linux-kernel@vger.kernel.org, devicetree@vger.kernel.org,
+        Ralf Baechle <ralf@linux-mips.org>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        linux-pwm@vger.kernel.org
+References: <5bab3024.1c69fb81.b6a71.9c38SMTPIN_ADDED_MISSING@mx.google.com>
+From: Daniel Lezcano <daniel.lezcano@linaro.org>
+Message-ID: <5af26854-0752-312b-6148-3ffa9abb2570@linaro.org>
+Date: Wed, 26 Sep 2018 10:05:13 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1536325173-16617-6-git-send-email-p.paillet@st.com>
+In-Reply-To: <5bab3024.1c69fb81.b6a71.9c38SMTPIN_ADDED_MISSING@mx.google.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, Sep 07, 2018 at 12:59:45PM +0000, Pascal PAILLET-LME wrote:
-> From: pascal paillet <p.paillet@st.com>
+On 26/09/2018 08:01, Paul Cercueil wrote:
 > 
-> The stpmic1 pmic is able to manage an onkey button. It can be configured
-> to shut-down the power supplies on a long key-press with an adjustable
-> duration.
+> Le 25 sept. 2018 10:12 PM, Daniel Lezcano <daniel.lezcano@linaro.org> a écrit :
+>>
+>> On 25/09/2018 15:38, Paul Cercueil wrote: 
+>>>
+>>> Le 24 sept. 2018 9:14 AM, Daniel Lezcano <daniel.lezcano@linaro.org> a écrit : 
+>>>>
+>>>> On 24/09/2018 08:53, Paul Cercueil wrote: 
+>>>>>
+>>>>> Le 24 sept. 2018 07:58, Daniel Lezcano <daniel.lezcano@linaro.org> a écrit : 
+>>>>>>
+>>>>>> On 24/09/2018 07:49, Paul Cercueil wrote: 
+>>>>>>>
+>>>>>>> Le 24 sept. 2018 07:35, Daniel Lezcano <daniel.lezcano@linaro.org> a 
+>>>>>>> écrit : 
+>>>>>>>>
+>>>>>>>> On 24/09/2018 07:24, Paul Cercueil wrote: 
+>>>>>>>>> Hi Daniel, 
+>>>>>>>>>
+>>>>>>>>> Le 24 sept. 2018 05:12, Daniel Lezcano 
+>>>>>>>>> <daniel.lezcano@linaro.org> a écrit : 
+>>>>>>>>>>
+>>>>>>>>>> On 21/08/2018 19:16, Paul Cercueil wrote: 
+>>>>>>>>>>> This driver handles the TCU (Timer Counter Unit) present on 
+>>>>>>>>>>> the Ingenic JZ47xx SoCs, and provides the kernel with a 
+>>>>>>>>>>> system timer, and optionally with a clocksource and a 
+>>>>>>>>>>> sched_clock. 
+>>>>>>>>>>>
+>>>>>>>>>>> It also provides clocks and interrupt handling to client 
+>>>>>>>>>>> drivers. 
+>>>>>>>>>>
+>>>>>>>>>> Can you provide a much more complete description of the timer 
+>>>>>>>>>> in order to make my life easier for the review of this patch? 
+>>>>>>>>>
+>>>>>>>>> See patch [03/24], it adds a doc file that describes the 
+>>>>>>>>> hardware. 
+>>>>>>>>
+>>>>>>>> Thanks, I went through but it is incomplete to understand what the 
+>>>>>>>> timer do. I will reverse-engineer the code but it would help if you 
+>>>>>>>> can give the gross approach. Why multiple channels ? mutexes and 
+>>>>>>>> completion ? 
+>>>>>>>
+>>>>>>> Much of the complexity is because of the multi-purpose nature of the 
+>>>>>>> TCU channels. Each one can be used as timer/clocksource, or PWM. 
+>>>>>>>
+>>>>>>> The driver starts by using channels 0 and 1 as system timer and 
+>>>>>>> clocksource, respectively, the other ones being unused for now. Then, 
+>>>>>>> *if* the PWM driver requests one of the channels in use by the 
+>>>>>>> timer/clocksource driver, say channel 0, the timer/clocksource driver 
+>>>>>>> will dynamically reassign the system timer to a free channel, from 
+>>>>>>> channel 0 to e.g. channel 2. Only in that case the completion/mutex 
+>>>>>>> are actually used. 
+>>>>>>
+>>>>>> Why do you need to do this? Can't be the channels dedicated and reserved 
+>>>>>> for clocksource and clockevent? 
+>>>>>
+>>>>> That's what I had in place (ingenic,timer-channel and ingenic,clocksource-channel DT properties), but Rob didn't want any linux-specific properties in the devicetree binding :( 
+>>>>
+>>>> Isn't possible to specify the channel to use in the DT? like renesas16 ? 
+>>>
+>>> That's what I did in V6 (and before), but Rob did not want me to add properties for Linux-specific concepts such as clocksource. 
+>>
+>> Hmm, I remember something like that, yes but I did a delete of the 
+>> previous version when you posted the v7. Can you give a pointer to its 
+>> answer ? 
 > 
-> Signed-off-by: pascal paillet <p.paillet@st.com>
-> ---
->  .../devicetree/bindings/input/st,stpmic1-onkey.txt | 31 ++++++++++++++++++++++
->  1 file changed, 31 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/input/st,stpmic1-onkey.txt
+> Yes, this was his answer:
+> https://lkml.org/lkml/2018/7/25/508
 > 
-> diff --git a/Documentation/devicetree/bindings/input/st,stpmic1-onkey.txt b/Documentation/devicetree/bindings/input/st,stpmic1-onkey.txt
-> new file mode 100644
-> index 0000000..b0db90d
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/st,stpmic1-onkey.txt
-> @@ -0,0 +1,31 @@
-> +STMicroelectronics STPMIC1 Onkey
-> +
-> +Required properties:
-> +
-> +- compatible = "st,stpmic1-onkey";
-> +- interrupt-parent: phandle to the parent interrupt controller
-> +- interrupts: interrupt line to use
-> +- interrupt-names = "onkey-falling", "onkey-rising"
-> +	onkey-falling: happens when onkey is pressed; IT_PONKEY_F of pmic
-> +	onkey-rising: happens when onkey is released; IT_PONKEY_R of pmic
-> +
-> +Optional properties:
-> +
-> +- st,onkey-pwroff-enabled: power off on long key-press
+> Then mine:
+> https://lkml.org/lkml/2018/7/30/883
 
-This can be implied by the presence of 'power-off-time-sec' or not.
+Thanks !
 
-> +- st,onkey-long-press-seconds: long key-press duration from 1 to 16s
-> +  (default 16s)
-> +- st,onkey-clear-cc-flag: onkey is able power on after an
-> +  over-current shutdown event.
-> +- st,onkey-pu-inactive: onkey pull up is not active
-> +
-> +Example:
-> +
-> +onkey {
-> +	compatible = "st,stpmic1-onkey";
-> +	interrupt-parent = <&pmic>;
-> +	interrupts = <IT_PONKEY_F 0>,<IT_PONKEY_R 1>;
-> +	interrupt-names = "onkey-falling", "onkey-rising";
-> +	status = "okay";
 
-Don't show status in examples.
+-- 
+ <http://www.linaro.org/> Linaro.org │ Open source software for ARM SoCs
 
-> +	st,onkey-pwroff-enabled;
-> +	st,onkey-long-press-seconds = <10>;
-> +};
-> -- 
-> 1.9.1
+Follow Linaro:  <http://www.facebook.com/pages/Linaro> Facebook |
+<http://twitter.com/#!/linaroorg> Twitter |
+<http://www.linaro.org/linaro-blog/> Blog
