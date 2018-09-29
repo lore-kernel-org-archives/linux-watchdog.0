@@ -1,69 +1,56 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pf1-f194.google.com ([209.85.210.194]:36024 "EHLO
-        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728197AbeI3Axf (ORCPT
+Received: from mail-pg1-f194.google.com ([209.85.215.194]:39359 "EHLO
+        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728197AbeI3A6k (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 29 Sep 2018 20:53:35 -0400
-Date: Sat, 29 Sep 2018 11:24:08 -0700
+        Sat, 29 Sep 2018 20:58:40 -0400
+Date: Sat, 29 Sep 2018 11:29:11 -0700
 From: Guenter Roeck <linux@roeck-us.net>
-To: Marek =?iso-8859-1?Q?Beh=FAn?= <marek.behun@nic.cz>
-Cc: linux-watchdog@vger.kernel.org, wim@linux-watchdog.org,
-        Gregory CLEMENT <gregory.clement@bootlin.com>,
-        Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org
-Subject: Re: [v4,2/4] dt-bindings: watchdog: Document armada-37xx-wdt binding
-Message-ID: <20180929182408.GA18680@roeck-us.net>
-References: <20180924110654.7329-3-marek.behun@nic.cz>
+To: Biju Das <biju.das@bp.renesas.com>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+        Simon Horman <horms@verge.net.au>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Chris Paterson <Chris.Paterson2@renesas.com>,
+        Fabrizio Castro <fabrizio.castro@bp.renesas.com>,
+        linux-renesas-soc@vger.kernel.org
+Subject: Re: dt-bindings: watchdog: renesas-wdt: Document r8a7744 support
+Message-ID: <20180929182911.GA20830@roeck-us.net>
+References: <1537895241-7686-1-git-send-email-biju.das@bp.renesas.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20180924110654.7329-3-marek.behun@nic.cz>
+In-Reply-To: <1537895241-7686-1-git-send-email-biju.das@bp.renesas.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Sep 24, 2018 at 01:06:52PM +0200, Marek Behún wrote:
-> This adds device tree binding documentation for the CPU watchdog found
-> on Armada 37xx SOCs (EspressoBin, Turris Mox).
+On Tue, Sep 25, 2018 at 06:07:21PM +0100, Biju Das wrote:
+> RZ/G1N (R8A7744) watchdog implementation is compatible with R-Car
+> Gen2, therefore add relevant documentation.
 > 
-> Signed-off-by: Marek Behún <marek.behun@nic.cz>
-> Cc: Rob Herring <robh+dt@kernel.org>
-> Cc: devicetree@vger.kernel.org
-> Reviewed-by: Rob Herring <robh@kernel.org>
+> Signed-off-by: Biju Das <biju.das@bp.renesas.com>
+> Reviewed-by: Chris Paterson <Chris.Paterson2@renesas.com>
+> Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
+> Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
 
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
 > ---
->  .../bindings/watchdog/armada-37xx-wdt.txt          | 23 ++++++++++++++++++++++
->  1 file changed, 23 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/watchdog/armada-37xx-wdt.txt
+>  Documentation/devicetree/bindings/watchdog/renesas-wdt.txt | 1 +
+>  1 file changed, 1 insertion(+)
 > 
-> diff --git a/Documentation/devicetree/bindings/watchdog/armada-37xx-wdt.txt b/Documentation/devicetree/bindings/watchdog/armada-37xx-wdt.txt
-> new file mode 100644
-> index 000000000000..a8d00c31a1d8
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/watchdog/armada-37xx-wdt.txt
-> @@ -0,0 +1,23 @@
-> +* Armada 37xx CPU Watchdog Timer Controller
-> +
-> +Required properties:
-> +- compatible : must be "marvell,armada-3700-wdt"
-> +- reg : base physical address of the controller and length of memory mapped
-> +	region.
-> +- clocks : the clock feeding the watchdog timer. See clock-bindings.txt
-> +- marvell,system-controller : reference to syscon node for the CPU Miscellaneous
-> +	Registers
-> +
-> +Example:
-> +
-> +	cpu_misc: system-controller@d000 {
-> +		compatible = "marvell,armada-3700-cpu-misc", "syscon";
-> +		reg = <0xd000 0x1000>;
-> +	};
-> +
-> +	wdt: watchdog@8300 {
-> +		compatible = "marvell,armada-3700-wdt";
-> +		reg = <0x8300 0x40>;
-> +		marvell,system-controller = <&cpu_misc>;
-> +		clocks = <&xtalclk>;
-> +	};
+> diff --git a/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt b/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
+> index 9407212..d72d118 100644
+> --- a/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
+> +++ b/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
+> @@ -6,6 +6,7 @@ Required properties:
+>  		version.
+>  	       Examples with soctypes are:
+>  		 - "renesas,r8a7743-wdt" (RZ/G1M)
+> +		 - "renesas,r8a7744-wdt" (RZ/G1N)
+>  		 - "renesas,r8a7745-wdt" (RZ/G1E)
+>  		 - "renesas,r8a774a1-wdt" (RZ/G2M)
+>  	         - "renesas,r8a7790-wdt" (R-Car H2)
