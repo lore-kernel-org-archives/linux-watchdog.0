@@ -1,71 +1,69 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pg1-f195.google.com ([209.85.215.195]:36784 "EHLO
-        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728197AbeI3AtP (ORCPT
+Received: from mail-pf1-f194.google.com ([209.85.210.194]:36024 "EHLO
+        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728197AbeI3Axf (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 29 Sep 2018 20:49:15 -0400
-Date: Sat, 29 Sep 2018 11:19:49 -0700
+        Sat, 29 Sep 2018 20:53:35 -0400
+Date: Sat, 29 Sep 2018 11:24:08 -0700
 From: Guenter Roeck <linux@roeck-us.net>
-To: Christophe Leroy <christophe.leroy@c-s.fr>
-Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Radu Rendec <radu.rendec@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org
-Subject: Re: [v3,3/3] dt-bindings: watchdog: add mpc8xxx-wdt support
-Message-ID: <20180929181949.GA4420@roeck-us.net>
-References: <e3e0bcfd7b779b978d07e088a8bd667ea9ddf4aa.1537163780.git.christophe.leroy@c-s.fr>
+To: Marek =?iso-8859-1?Q?Beh=FAn?= <marek.behun@nic.cz>
+Cc: linux-watchdog@vger.kernel.org, wim@linux-watchdog.org,
+        Gregory CLEMENT <gregory.clement@bootlin.com>,
+        Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org
+Subject: Re: [v4,2/4] dt-bindings: watchdog: Document armada-37xx-wdt binding
+Message-ID: <20180929182408.GA18680@roeck-us.net>
+References: <20180924110654.7329-3-marek.behun@nic.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <e3e0bcfd7b779b978d07e088a8bd667ea9ddf4aa.1537163780.git.christophe.leroy@c-s.fr>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20180924110654.7329-3-marek.behun@nic.cz>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Sep 17, 2018 at 06:22:53AM +0000, Christophe Leroy wrote:
-> Add description of DT bindings for mpc8xxx-wdt driver which
-> handles the CPU watchdog timer on the mpc83xx, mpc86xx and mpc8xx.
+On Mon, Sep 24, 2018 at 01:06:52PM +0200, Marek Behún wrote:
+> This adds device tree binding documentation for the CPU watchdog found
+> on Armada 37xx SOCs (EspressoBin, Turris Mox).
 > 
-> Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+> Signed-off-by: Marek Behún <marek.behun@nic.cz>
+> Cc: Rob Herring <robh+dt@kernel.org>
+> Cc: devicetree@vger.kernel.org
 > Reviewed-by: Rob Herring <robh@kernel.org>
 
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
 > ---
->  .../devicetree/bindings/watchdog/mpc8xxx-wdt.txt   | 25 ++++++++++++++++++++++
->  1 file changed, 25 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/watchdog/mpc8xxx-wdt.txt
+>  .../bindings/watchdog/armada-37xx-wdt.txt          | 23 ++++++++++++++++++++++
+>  1 file changed, 23 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/watchdog/armada-37xx-wdt.txt
 > 
-> diff --git a/Documentation/devicetree/bindings/watchdog/mpc8xxx-wdt.txt b/Documentation/devicetree/bindings/watchdog/mpc8xxx-wdt.txt
+> diff --git a/Documentation/devicetree/bindings/watchdog/armada-37xx-wdt.txt b/Documentation/devicetree/bindings/watchdog/armada-37xx-wdt.txt
 > new file mode 100644
-> index 000000000000..e176face472a
+> index 000000000000..a8d00c31a1d8
 > --- /dev/null
-> +++ b/Documentation/devicetree/bindings/watchdog/mpc8xxx-wdt.txt
-> @@ -0,0 +1,25 @@
-> +* Freescale mpc8xxx watchdog driver (For 83xx, 86xx and 8xx)
+> +++ b/Documentation/devicetree/bindings/watchdog/armada-37xx-wdt.txt
+> @@ -0,0 +1,23 @@
+> +* Armada 37xx CPU Watchdog Timer Controller
 > +
 > +Required properties:
-> +- compatible: Shall contain one of the following:
-> +	"mpc83xx_wdt" for an mpc83xx
-> +	"fsl,mpc8610-wdt" for an mpc86xx
-> +	"fsl,mpc823-wdt" for an mpc8xx
-> +- reg: base physical address and length of the area hosting the
-> +       watchdog registers.
-> +		On the 83xx, "Watchdog Timer Registers" area:	<0x200 0x100>
-> +		On the 86xx, "Watchdog Timer Registers" area:	<0xe4000 0x100>
-> +		On the 8xx, "General System Interface Unit" area: <0x0 0x10>
-> +
-> +Optional properties:
-> +- reg: additional physical address and length (4) of location of the
-> +       Reset Status Register (called RSTRSCR on the mpc86xx)
-> +       		On the 83xx, it is located at offset 0x910
-> +       		On the 86xx, it is located at offset 0xe0094
-> +       		On the 8xx, it is located at offset 0x288
+> +- compatible : must be "marvell,armada-3700-wdt"
+> +- reg : base physical address of the controller and length of memory mapped
+> +	region.
+> +- clocks : the clock feeding the watchdog timer. See clock-bindings.txt
+> +- marvell,system-controller : reference to syscon node for the CPU Miscellaneous
+> +	Registers
 > +
 > +Example:
-> +		WDT: watchdog@0 {
-> +		    compatible = "fsl,mpc823-wdt";
-> +		    reg = <0x0 0x10 0x288 0x4>;
-> +		};
+> +
+> +	cpu_misc: system-controller@d000 {
+> +		compatible = "marvell,armada-3700-cpu-misc", "syscon";
+> +		reg = <0xd000 0x1000>;
+> +	};
+> +
+> +	wdt: watchdog@8300 {
+> +		compatible = "marvell,armada-3700-wdt";
+> +		reg = <0x8300 0x40>;
+> +		marvell,system-controller = <&cpu_misc>;
+> +		clocks = <&xtalclk>;
+> +	};
