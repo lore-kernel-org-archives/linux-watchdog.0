@@ -1,11 +1,11 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pg1-f193.google.com ([209.85.215.193]:41285 "EHLO
-        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728197AbeI3AsZ (ORCPT
+Received: from mail-pg1-f195.google.com ([209.85.215.195]:36784 "EHLO
+        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728197AbeI3AtP (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 29 Sep 2018 20:48:25 -0400
-Date: Sat, 29 Sep 2018 11:18:58 -0700
+        Sat, 29 Sep 2018 20:49:15 -0400
+Date: Sat, 29 Sep 2018 11:19:49 -0700
 From: Guenter Roeck <linux@roeck-us.net>
 To: Christophe Leroy <christophe.leroy@c-s.fr>
 Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
@@ -14,113 +14,58 @@ Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
         Mark Rutland <mark.rutland@arm.com>,
         linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
         linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org
-Subject: Re: [v3,2/3] watchdog: mpc8xxx: provide boot status
-Message-ID: <20180929181858.GA5758@roeck-us.net>
-References: <207741bf9c994a869f574a93d4fb4152d4e169c9.1537163779.git.christophe.leroy@c-s.fr>
+Subject: Re: [v3,3/3] dt-bindings: watchdog: add mpc8xxx-wdt support
+Message-ID: <20180929181949.GA4420@roeck-us.net>
+References: <e3e0bcfd7b779b978d07e088a8bd667ea9ddf4aa.1537163780.git.christophe.leroy@c-s.fr>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <207741bf9c994a869f574a93d4fb4152d4e169c9.1537163779.git.christophe.leroy@c-s.fr>
+In-Reply-To: <e3e0bcfd7b779b978d07e088a8bd667ea9ddf4aa.1537163780.git.christophe.leroy@c-s.fr>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Sep 17, 2018 at 06:22:50AM +0000, Christophe Leroy wrote:
-> mpc8xxx watchdog driver supports the following platforms:
-> - mpc8xx
-> - mpc83xx
-> - mpc86xx
+On Mon, Sep 17, 2018 at 06:22:53AM +0000, Christophe Leroy wrote:
+> Add description of DT bindings for mpc8xxx-wdt driver which
+> handles the CPU watchdog timer on the mpc83xx, mpc86xx and mpc8xx.
 > 
-> Those three platforms have a 32 bits register which provides the
-> reason of the last boot, including whether it was caused by the
-> watchdog.
-> 
-> mpc8xx: Register RSR, bit SWRS (bit 3)
-> mpc83xx: Register RSR, bit SWRS (bit 28)
-> mpc86xx: Register RSTRSCR, bit WDT_RR (bit 11)
-> 
-> This patch maps the register as defined in the device tree and updates
-> wdt.bootstatus based on the value of the watchdog related bit. Then
-> the information can be retrieved via the WDIOC_GETBOOTSTATUS ioctl.
-> 
-> Hereunder is an example of devicetree for mpc8xx,
-> the Reset Status Register being at offset 0x288:
-> 
-> 		WDT: watchdog@0 {
-> 			compatible = "fsl,mpc823-wdt";
-> 			reg = <0x0 0x10 0x288 0x4>;
-> 		};
-> 
-> On the mpc83xx, RSR is at offset 0x910
-> On the mpc86xx, RSTRSCR is at offset 0xe0094
-> 
-> Suggested-by: Radu Rendec <radu.rendec@gmail.com>
-> Tested-by: Christophe Leroy <christophe.leroy@c-s.fr> # On mpc885
 > Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+> Reviewed-by: Rob Herring <robh@kernel.org>
 
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
 > ---
->  drivers/watchdog/mpc8xxx_wdt.c | 22 ++++++++++++++++++++++
->  1 file changed, 22 insertions(+)
+>  .../devicetree/bindings/watchdog/mpc8xxx-wdt.txt   | 25 ++++++++++++++++++++++
+>  1 file changed, 25 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/watchdog/mpc8xxx-wdt.txt
 > 
-> diff --git a/drivers/watchdog/mpc8xxx_wdt.c b/drivers/watchdog/mpc8xxx_wdt.c
-> index 1dcf5f10cdd9..069072e6747d 100644
-> --- a/drivers/watchdog/mpc8xxx_wdt.c
-> +++ b/drivers/watchdog/mpc8xxx_wdt.c
-> @@ -47,6 +47,7 @@ struct mpc8xxx_wdt {
->  struct mpc8xxx_wdt_type {
->  	int prescaler;
->  	bool hw_enabled;
-> +	u32 rsr_mask;
->  };
->  
->  struct mpc8xxx_wdt_ddata {
-> @@ -159,6 +160,24 @@ static int mpc8xxx_wdt_probe(struct platform_device *ofdev)
->  		return -ENODEV;
->  	}
->  
-> +	res = platform_get_resource(ofdev, IORESOURCE_MEM, 1);
-> +	if (res) {
-> +		bool status;
-> +		u32 __iomem *rsr = ioremap(res->start, resource_size(res));
+> diff --git a/Documentation/devicetree/bindings/watchdog/mpc8xxx-wdt.txt b/Documentation/devicetree/bindings/watchdog/mpc8xxx-wdt.txt
+> new file mode 100644
+> index 000000000000..e176face472a
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/watchdog/mpc8xxx-wdt.txt
+> @@ -0,0 +1,25 @@
+> +* Freescale mpc8xxx watchdog driver (For 83xx, 86xx and 8xx)
 > +
-> +		if (!rsr)
-> +			return -ENOMEM;
+> +Required properties:
+> +- compatible: Shall contain one of the following:
+> +	"mpc83xx_wdt" for an mpc83xx
+> +	"fsl,mpc8610-wdt" for an mpc86xx
+> +	"fsl,mpc823-wdt" for an mpc8xx
+> +- reg: base physical address and length of the area hosting the
+> +       watchdog registers.
+> +		On the 83xx, "Watchdog Timer Registers" area:	<0x200 0x100>
+> +		On the 86xx, "Watchdog Timer Registers" area:	<0xe4000 0x100>
+> +		On the 8xx, "General System Interface Unit" area: <0x0 0x10>
 > +
-> +		status = in_be32(rsr) & wdt_type->rsr_mask;
-> +		ddata->wdd.bootstatus = status ? WDIOF_CARDRESET : 0;
-> +		 /* clear reset status bits related to watchdog timer */
-> +		out_be32(rsr, wdt_type->rsr_mask);
-> +		iounmap(rsr);
+> +Optional properties:
+> +- reg: additional physical address and length (4) of location of the
+> +       Reset Status Register (called RSTRSCR on the mpc86xx)
+> +       		On the 83xx, it is located at offset 0x910
+> +       		On the 86xx, it is located at offset 0xe0094
+> +       		On the 8xx, it is located at offset 0x288
 > +
-> +		dev_info(dev, "Last boot was %scaused by watchdog\n",
-> +			 status ? "" : "not ");
-> +	}
-> +
->  	spin_lock_init(&ddata->lock);
->  
->  	ddata->wdd.info = &mpc8xxx_wdt_info,
-> @@ -216,6 +235,7 @@ static const struct of_device_id mpc8xxx_wdt_match[] = {
->  		.compatible = "mpc83xx_wdt",
->  		.data = &(struct mpc8xxx_wdt_type) {
->  			.prescaler = 0x10000,
-> +			.rsr_mask = BIT(3), /* RSR Bit SWRS */
->  		},
->  	},
->  	{
-> @@ -223,6 +243,7 @@ static const struct of_device_id mpc8xxx_wdt_match[] = {
->  		.data = &(struct mpc8xxx_wdt_type) {
->  			.prescaler = 0x10000,
->  			.hw_enabled = true,
-> +			.rsr_mask = BIT(20), /* RSTRSCR Bit WDT_RR */
->  		},
->  	},
->  	{
-> @@ -230,6 +251,7 @@ static const struct of_device_id mpc8xxx_wdt_match[] = {
->  		.data = &(struct mpc8xxx_wdt_type) {
->  			.prescaler = 0x800,
->  			.hw_enabled = true,
-> +			.rsr_mask = BIT(28), /* RSR Bit SWRS */
->  		},
->  	},
->  	{},
+> +Example:
+> +		WDT: watchdog@0 {
+> +		    compatible = "fsl,mpc823-wdt";
+> +		    reg = <0x0 0x10 0x288 0x4>;
+> +		};
