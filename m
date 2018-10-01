@@ -1,73 +1,89 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.bootlin.com ([62.4.15.54]:46493 "EHLO mail.bootlin.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726603AbeI1OX6 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 28 Sep 2018 10:23:58 -0400
-From: Gregory CLEMENT <gregory.clement@bootlin.com>
-To: Marek =?utf-8?Q?Beh=C3=BAn?= <marek.behun@nic.cz>
-Cc: linux-watchdog@vger.kernel.org, wim@linux-watchdog.org,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH v4 4/4] arm64: dts: marvell: armada-37xx: add nodes to support watchdog
-References: <20180924110654.7329-1-marek.behun@nic.cz>
-        <20180924110654.7329-5-marek.behun@nic.cz>
-Date: Fri, 28 Sep 2018 10:01:15 +0200
-In-Reply-To: <20180924110654.7329-5-marek.behun@nic.cz> ("Marek
- =?utf-8?Q?Beh=C3=BAn=22's?=
-        message of "Mon, 24 Sep 2018 13:06:54 +0200")
-Message-ID: <871s9edp9w.fsf@bootlin.com>
+Return-Path: <alexandre.belloni@bootlin.com>
+Return-path: <alexandre.belloni@bootlin.com>
+Date: Mon, 1 Oct 2018 17:52:17 +0200
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Romain Izard <romain.izard.pro@gmail.com>
+Cc: Nicolas Ferre <nicolas.ferre@microchip.com>,
+	Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Marcus Folkesson <marcus.folkesson@gmail.com>,
+	linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+	linux-watchdog@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2/2] watchdog: sama5d4: write the mode register in two
+ steps
+Message-ID: <20181001155217.GE2967@piout.net>
+References: <20180914101339.7382-1-romain.izard.pro@gmail.com>
+ <20180914101339.7382-3-romain.izard.pro@gmail.com>
+ <20180914102732.GP14988@piout.net>
+ <CAGkQfmPydsn6cH2pHQ9HQeGQo0J4qJ9vXjkQD+_W5iyz---KEA@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAGkQfmPydsn6cH2pHQ9HQeGQo0J4qJ9vXjkQD+_W5iyz---KEA@mail.gmail.com>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi Marek,
- 
- On lun., sept. 24 2018, Marek Behún <marek.behun@nic.cz> wrote:
+On 17/09/2018 15:58:45+0200, Romain Izard wrote:
+> 2018-09-14 12:27 GMT+02:00 Alexandre Belloni <alexandre.belloni@bootlin.com>:
+> > On 14/09/2018 12:13:39+0200, Romain Izard wrote:
+> >> The specification for SAMA5D2 and SAMA5D4 chips, that use this IP for
+> >> their watchdog timer, has the following advice regarding the Mode Register:
+> >>
+> >> "When setting the WDDIS bit, and while it is set, the fields WDV and WDD
+> >> must not be modified."
+> >>
+> >> I have observed on a board based on a SAMA5D2 chip that using any other
+> >> timeout duration than the default 16s in the device tree will reset the
+> >> board when the watchdog device is opened; this is probably due to ignoring
+> >> the aforementioned constraint.
+> >>
+> >> To fix this, read the content of the Mode Register before writing it,
+> >> and split the access into two parts if WDV or WDD need to be changed.
+> >>
+> >
+> > Hum, that is really weird because when I developed
+> > 015b528644a84b0018d3286ecd6ea5f82dce0180, I tested with a program doing:
+> >
+> >         flags = WDIOS_DISABLECARD;
+> >         ioctl(fd, WDIOC_SETOPTIONS, &flags);
+> >         for (i = 16; i > 2; i--) {
+> >                 ioctl(fd, WDIOC_SETTIMEOUT, &i);
+> >         }
+> >
+> >         ioctl(fd, WDIOC_KEEPALIVE, &dummy);
+> >
+> >         flags = WDIOS_ENABLECARD;
+> >         ioctl(fd, WDIOC_SETOPTIONS, &flags);
+> >
+> >         for (i = 16; i > 2; i--) {
+> >                 ioctl(fd, WDIOC_SETTIMEOUT, &i);
+> >         }
+> >
+> > This would immediately reproduce the reset when changing WDV/WDD with
+> > WDDIS set.
+> >
+> > I'll test again.
+> >
+> 
+> The issue is visible when setting a custom value for the timeout on startup.
+> In the past it was only possible to do so with a module parameter, and the
+> previous patch in the series makes it possible to do with the device tree.
+> 
+> When using the Linux4SAM 5.7 release, it is sufficient to set the timeout on
+> the command line to reproduce the issue:
+> 
+> In the bootloader:
+> # setenv bootargs $bootargs sama5d4_wdt.wdt_timeout=10
+> 
+> To trigger an immediate reset (with some code that should work):
+> # (echo 1; while sleep 3; do echo 1; done) > /dev/watchdog
+> 
 
-> This adds the system controller node for CPU Miscellaneous Registers
-> (which is needed for the watchdog node) and the watchdog node.
->
-> Signed-off-by: Marek Behún <marek.behun@nic.cz>
-
-Applied on mvebu/dt64
-
-Thanks,
-
-Gregory
-> ---
->  arch/arm64/boot/dts/marvell/armada-37xx.dtsi | 13 +++++++++++++
->  1 file changed, 13 insertions(+)
->
-> diff --git a/arch/arm64/boot/dts/marvell/armada-37xx.dtsi b/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
-> index d9531e242eb4..f5eaec531aa8 100644
-> --- a/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
-> +++ b/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
-> @@ -80,6 +80,19 @@
->  			/* 32M internal register @ 0xd000_0000 */
->  			ranges = <0x0 0x0 0xd0000000 0x2000000>;
->  
-> +			wdt: watchdog@8300 {
-> +				compatible = "marvell,armada-3700-wdt";
-> +				reg = <0x8300 0x40>;
-> +				marvell,system-controller = <&cpu_misc>;
-> +				clocks = <&xtalclk>;
-> +			};
-> +
-> +			cpu_misc: system-controller@d000 {
-> +				compatible = "marvell,armada-3700-cpu-misc",
-> +					     "syscon";
-> +				reg = <0xd000 0x1000>;
-> +			};
-> +
->  			spi0: spi@10600 {
->  				compatible = "marvell,armada-3700-spi";
->  				#address-cells = <1>;
-> -- 
-> 2.16.4
->
+Ok, I've tested and seen the issue. I agree with Guenter that it is
+probably worth having a function to update MR that takes the timeout
+value and whether the watchdog needs to be enabled. It would probably
+make caching mr unnecessary.
 
 -- 
-Gregory Clement, Bootlin
+Alexandre Belloni, Bootlin
 Embedded Linux and Kernel engineering
-http://bootlin.com
+https://bootlin.com
