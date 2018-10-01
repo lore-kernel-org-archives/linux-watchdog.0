@@ -1,138 +1,70 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pl1-f169.google.com ([209.85.214.169]:42770 "EHLO
-        mail-pl1-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726293AbeJBUIS (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 2 Oct 2018 16:08:18 -0400
-Received: by mail-pl1-f169.google.com with SMTP id c8-v6so1483343plo.9
-        for <linux-watchdog@vger.kernel.org>; Tue, 02 Oct 2018 06:24:57 -0700 (PDT)
+Return-Path: <giel@mortis.eu>
+Return-path: <giel@mortis.eu>
 Subject: Re: Default behavior of watchdog drivers
-To: Wim Van Sebroeck <wim@linux-watchdog.org>
-Cc: Jean Delvare <jdelvare@suse.de>, linux-watchdog@vger.kernel.org,
-        Martin Wilck <mwilck@suse.com>,
-        Giel van Schijndel <me@mortis.eu>,
-        "Steven J. Hill" <Steven.Hill@cavium.com>
-References: <20180930130916.GA29981@www.linux-watchdog.org>
- <dc240d8c-d31d-45cc-2741-261c4c27ec81@roeck-us.net>
- <20181002113906.GA8969@www.linux-watchdog.org>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <1bbe6c94-6b14-3b79-4da1-5a610e2a2148@roeck-us.net>
-Date: Tue, 2 Oct 2018 06:24:54 -0700
+To: Guenter Roeck <linux@roeck-us.net>, Jean Delvare <jdelvare@suse.de>,
+ linux-watchdog@vger.kernel.org, Martin Wilck <mwilck@suse.com>,
+ Wim Van Sebroeck <wim@linux-watchdog.org>
+Cc: Giel van Schijndel <me@mortis.eu>, "Steven J. Hill"
+ <Steven.Hill@cavium.com>
+References: <20180927143855.6f8cc48e@endymion>
+ <253a3ffa-2965-cb74-addb-ebcda2f6ab55@roeck-us.net>
+From: Giel van Schijndel <giel@mortis.eu>
+Message-ID: <738b74f7-5fcd-f50c-8f38-653fb7f573f7@mortis.eu>
+Date: Mon, 1 Oct 2018 13:36:14 +0200
 MIME-Version: 1.0
-In-Reply-To: <20181002113906.GA8969@www.linux-watchdog.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
+In-Reply-To: <253a3ffa-2965-cb74-addb-ebcda2f6ab55@roeck-us.net>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi Wim,
+Hi Jean, Guenter,
 
-On 10/02/2018 04:39 AM, Wim Van Sebroeck wrote:
-> Hi Guenter,
-> 
->> On 09/30/2018 06:09 AM, Wim Van Sebroeck wrote:
->>> hi Jean, Guenter,
->>>
->>>> Hi Jean,
->>>>
->>>> On 09/27/2018 05:38 AM, Jean Delvare wrote:
->>>>> Hello,
->>>>>
->>>>> It seems that various watchdog drivers behave differently if the
->>>>> watchdog timer is already enabled when the driver is loaded:
->>>>>
->>>>> * iTCO_wdt will disable the timer. I think this is what most drivers
->>>>>    do, but not all.
->>>>> * w83627hf_wdt will let the timer run, unless option early_disable=1 is
->>>>>    passed.
->>>>>
->>>>> These are the 2 which bother me the most because they are among the
->>>>> most popular watchdog drivers on x86 systems. Having a different
->>>>> behavior depending on which driver is used is quite confusing.
->>>>>
->>>>> Can we please settle on a default behavior (either all drivers reset
->>>>> the timer a load time, or none do it) and have all watchdog drivers
->>>>> stick to that?
->>>>>
->>>>
->>>> Since
->>>>
->>>> ee142889e32f watchdog: Introduce WDOG_HW_RUNNING flag
->>>> 664a39236e71 watchdog: Introduce hardware maximum heartbeat in watchdog core
->>>>
->>>> the default behavior _should_ be that the timer is kept running but the
->>>> core is informed that it is running. Of course, that doesn't mean that
->>>> (legacy) drivers actually do that.
->>>>
->>>> Please note that some watchdog drivers can not be stopped, so a common
->>>> mechanism to stop watchdogs during probe is technically impossible.
->>>
->>> Originally the default behaviour was to stop the watchdog if it was running and restart it when /dev/watchdog was opened.
->>> However some watchdog devices can't be stopped once running and the starting of it or not is done on "BIOS" level. So there we said that if the watchdog is allready running and it can't be stopped that the core should keep the watchdog running as long as the device is not "opened".
->>>
->>> So the correct behaviour is that we should not have the watchdog device active if the device is not being used, but when the device can't be stopped then we need to keep the watchdog running and do the keepalive ping ourselves. It makes no sense to start the watchdog and ping it while itis not in use and can be stopped.
->>>
->>> So looking at Jean's comment I think we need to review how w83627hf_wdt does the logic.
->>>
+On 27-09-18 15:08, Guenter Roeck wrote:
+> Hi Jean,
+>
+> On 09/27/2018 05:38 AM, Jean Delvare wrote:
+>> It seems that various watchdog drivers behave differently if the
+>> watchdog timer is already enabled when the driver is loaded:
 >>
->> I have seen requests that evrn watchdogs which can be stopped should be
->> kept running to ensure that the system is always protected. Given that,
->> I would hesitate to take that functionality away from the w83627hf_wdt
->> driver.
-> 
-> That's not according to the specs that stipulate that it is userspace that should control that.
-> And if it's not default behaviour then you could fix it by a module_param that enables that if you set it to do that.
-> 
-
-It is difficult for userspace to control behavior that applies prior
-to userspace running.
-
-There have been some arguments back and forth discussing how and when
-to enable the watchdog prior to userspace opening it (and what the initial
-timeout should be). Maybe it is time to revisit that and find a consistent
-solution.
-
-Thanks,
-Guenter
-
->> Guenter
+>> ... snip ...
 >>
->>>>> If an option to get the opposite behavior is deemed useful, can we
->>>>> settle on a standard name for it? Or even implement it at the
->>>>> watchdog_core level, so that each driver doesn't need to implement it
->>>>> separately?
->>>>>
->>>>> While looking into this, I found a few other strange module parameters:
->>>>>
->>>>> * f71808e_wdt has "start_withtimeout", which starts the timer even if
->>>>>    nobody opens the watchdog device node. Giel, do we really need this?
->>>>
->>>> We had requests for a common mechanism to do that, ie some kind of boot
->>>> timeout. Idea would be to reboot the system if the watchdog device has
->>>> not been opened after a set period of time. Maybe that is the idea here.
->>>>
->>>> Guenter
->>>>
->>>>> * octeon-wdt has "disable", which completely disables the watchdog
->>>>>    function. This "feature" was sneaked in via commit 381cec022e46
->>>>>    ("watchdog: octeon-wdt: File cleaning.") which was supposed to be a
->>>>>    cleanup-only patch, without any explanation nor even mention. I can't
->>>>>    see how such an option can be useful. If you don't need the driver,
->>>>>    just don't load it. Steven, can you explain?
->>>>>
->>>>> Thanks,
->>>>>
->>>>
->>>
->>> Kind regards,
->>> Wim.
->>>
->>>
+>> Can we please settle on a default behavior (either all drivers reset
+>> the timer a load time, or none do it) and have all watchdog drivers
+>> stick to that?
 >>
-> 
-> Kind regards,
-> Wim.
-> 
-> 
+>
+> ... snip ...
+>
+>> If an option to get the opposite behavior is deemed useful, can we
+>> settle on a standard name for it? Or even implement it at the
+>> watchdog_core level, so that each driver doesn't need to implement it
+>> separately?
+>>
+>> While looking into this, I found a few other strange module parameters:
+>>
+>> * f71808e_wdt has "start_withtimeout", which starts the timer even if
+>>    nobody opens the watchdog device node. Giel, do we really need this?
+>
+> We had requests for a common mechanism to do that, ie some kind of boot
+> timeout. Idea would be to reboot the system if the watchdog device has
+> not been opened after a set period of time. Maybe that is the idea here.
+
+The purpose of this parameter is to reduce the time window that we need to
+trust software to behave correctly. Withthis parameter we don't need to
+trust user land at all in order to still be protected by the watchdog.
+
+I'm not sure currently because I no longer work for the company that relied
+on this. But, from memory, the init system that was being used at the time
+was, occassionaly, prone to hang due to some services hanging at startup,
+preventing watchdog startup. These were systems deployed at distant
+locations
+in the field with, unreliable, GPRS connections for remote maintenance. This
+watchdog parameter completely eliminated the need for field trips for
+anything
+less than hardware failure in the time that I was there (about a year).
+
+-- 
+Met vriendelijke groet,
+With kind regards,
+Giel van Schijndel
