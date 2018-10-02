@@ -1,80 +1,111 @@
 Return-Path: <wim@linux-watchdog.org>
 Return-path: <wim@linux-watchdog.org>
-Date: Tue, 2 Oct 2018 13:35:16 +0200
+Date: Tue, 2 Oct 2018 13:39:06 +0200
 From: Wim Van Sebroeck <wim@linux-watchdog.org>
 To: Guenter Roeck <linux@roeck-us.net>
 Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
-	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] watchdog: w83627hf_wdt: Support NCT6796D, NCT6797D,
- NCT6798D
-Message-ID: <20181002113516.GA8957@www.linux-watchdog.org>
-References: <1537710851-11017-1-git-send-email-linux@roeck-us.net>
+	Jean Delvare <jdelvare@suse.de>, linux-watchdog@vger.kernel.org,
+	Martin Wilck <mwilck@suse.com>, Giel van Schijndel <me@mortis.eu>,
+	"Steven J. Hill" <Steven.Hill@cavium.com>
+Subject: Re: Default behavior of watchdog drivers
+Message-ID: <20181002113906.GA8969@www.linux-watchdog.org>
+References: <20180930130916.GA29981@www.linux-watchdog.org>
+ <dc240d8c-d31d-45cc-2741-261c4c27ec81@roeck-us.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1537710851-11017-1-git-send-email-linux@roeck-us.net>
+In-Reply-To: <dc240d8c-d31d-45cc-2741-261c4c27ec81@roeck-us.net>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On Sun, Sep 23, 2018 at 06:54:11AM -0700, Guenter Roeck wrote:
+Hi Guenter,
 
-> The watchdog controller on NCT6796D, NCT6797D, and NCT6798D is compatible
-> with the wtachdog controller on other Nuvoton chips.
+> On 09/30/2018 06:09 AM, Wim Van Sebroeck wrote:
+> >hi Jean, Guenter,
+> >
+> >>Hi Jean,
+> >>
+> >>On 09/27/2018 05:38 AM, Jean Delvare wrote:
+> >>>Hello,
+> >>>
+> >>>It seems that various watchdog drivers behave differently if the
+> >>>watchdog timer is already enabled when the driver is loaded:
+> >>>
+> >>>* iTCO_wdt will disable the timer. I think this is what most drivers
+> >>>   do, but not all.
+> >>>* w83627hf_wdt will let the timer run, unless option early_disable=1 is
+> >>>   passed.
+> >>>
+> >>>These are the 2 which bother me the most because they are among the
+> >>>most popular watchdog drivers on x86 systems. Having a different
+> >>>behavior depending on which driver is used is quite confusing.
+> >>>
+> >>>Can we please settle on a default behavior (either all drivers reset
+> >>>the timer a load time, or none do it) and have all watchdog drivers
+> >>>stick to that?
+> >>>
+> >>
+> >>Since
+> >>
+> >>ee142889e32f watchdog: Introduce WDOG_HW_RUNNING flag
+> >>664a39236e71 watchdog: Introduce hardware maximum heartbeat in watchdog core
+> >>
+> >>the default behavior _should_ be that the timer is kept running but the
+> >>core is informed that it is running. Of course, that doesn't mean that
+> >>(legacy) drivers actually do that.
+> >>
+> >>Please note that some watchdog drivers can not be stopped, so a common
+> >>mechanism to stop watchdogs during probe is technically impossible.
+> >
+> >Originally the default behaviour was to stop the watchdog if it was running and restart it when /dev/watchdog was opened.
+> >However some watchdog devices can't be stopped once running and the starting of it or not is done on "BIOS" level. So there we said that if the watchdog is allready running and it can't be stopped that the core should keep the watchdog running as long as the device is not "opened".
+> >
+> >So the correct behaviour is that we should not have the watchdog device active if the device is not being used, but when the device can't be stopped then we need to keep the watchdog running and do the keepalive ping ourselves. It makes no sense to start the watchdog and ping it while itis not in use and can be stopped.
+> >
+> >So looking at Jean's comment I think we need to review how w83627hf_wdt does the logic.
+> >
 > 
-> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+> I have seen requests that evrn watchdogs which can be stopped should be
+> kept running to ensure that the system is always protected. Given that,
+> I would hesitate to take that functionality away from the w83627hf_wdt
+> driver.
 
-Reviewed-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+That's not according to the specs that stipulate that it is userspace that should control that.
+And if it's not default behaviour then you could fix it by a module_param that enables that if you set it to do that.
 
-> ---
->  drivers/watchdog/w83627hf_wdt.c | 8 +++++++-
->  1 file changed, 7 insertions(+), 1 deletion(-)
+> Guenter
 > 
-> diff --git a/drivers/watchdog/w83627hf_wdt.c b/drivers/watchdog/w83627hf_wdt.c
-> index 7817836bff55..4b9365d4de7a 100644
-> --- a/drivers/watchdog/w83627hf_wdt.c
-> +++ b/drivers/watchdog/w83627hf_wdt.c
-> @@ -50,7 +50,7 @@ static int cr_wdt_csr;		/* WDT control & status register */
->  enum chips { w83627hf, w83627s, w83697hf, w83697ug, w83637hf, w83627thf,
->  	     w83687thf, w83627ehf, w83627dhg, w83627uhg, w83667hg, w83627dhg_p,
->  	     w83667hg_b, nct6775, nct6776, nct6779, nct6791, nct6792, nct6793,
-> -	     nct6795, nct6102 };
-> +	     nct6795, nct6796, nct6102 };
->  
->  static int timeout;			/* in seconds */
->  module_param(timeout, int, 0);
-> @@ -100,6 +100,7 @@ MODULE_PARM_DESC(early_disable, "Disable watchdog at boot time (default=0)");
->  #define NCT6792_ID		0xc9
->  #define NCT6793_ID		0xd1
->  #define NCT6795_ID		0xd3
-> +#define NCT6796_ID		0xd4	/* also NCT9697D, NCT9698D */
->  
->  #define W83627HF_WDT_TIMEOUT	0xf6
->  #define W83697HF_WDT_TIMEOUT	0xf4
-> @@ -209,6 +210,7 @@ static int w83627hf_init(struct watchdog_device *wdog, enum chips chip)
->  	case nct6792:
->  	case nct6793:
->  	case nct6795:
-> +	case nct6796:
->  	case nct6102:
->  		/*
->  		 * These chips have a fixed WDTO# output pin (W83627UHG),
-> @@ -407,6 +409,9 @@ static int wdt_find(int addr)
->  	case NCT6795_ID:
->  		ret = nct6795;
->  		break;
-> +	case NCT6796_ID:
-> +		ret = nct6796;
-> +		break;
->  	case NCT6102_ID:
->  		ret = nct6102;
->  		cr_wdt_timeout = NCT6102D_WDT_TIMEOUT;
-> @@ -450,6 +455,7 @@ static int __init wdt_init(void)
->  		"NCT6792",
->  		"NCT6793",
->  		"NCT6795",
-> +		"NCT6796",
->  		"NCT6102",
->  	};
->  
-> -- 
-> 2.7.4
+> >>>If an option to get the opposite behavior is deemed useful, can we
+> >>>settle on a standard name for it? Or even implement it at the
+> >>>watchdog_core level, so that each driver doesn't need to implement it
+> >>>separately?
+> >>>
+> >>>While looking into this, I found a few other strange module parameters:
+> >>>
+> >>>* f71808e_wdt has "start_withtimeout", which starts the timer even if
+> >>>   nobody opens the watchdog device node. Giel, do we really need this?
+> >>
+> >>We had requests for a common mechanism to do that, ie some kind of boot
+> >>timeout. Idea would be to reboot the system if the watchdog device has
+> >>not been opened after a set period of time. Maybe that is the idea here.
+> >>
+> >>Guenter
+> >>
+> >>>* octeon-wdt has "disable", which completely disables the watchdog
+> >>>   function. This "feature" was sneaked in via commit 381cec022e46
+> >>>   ("watchdog: octeon-wdt: File cleaning.") which was supposed to be a
+> >>>   cleanup-only patch, without any explanation nor even mention. I can't
+> >>>   see how such an option can be useful. If you don't need the driver,
+> >>>   just don't load it. Steven, can you explain?
+> >>>
+> >>>Thanks,
+> >>>
+> >>
+> >
+> >Kind regards,
+> >Wim.
+> >
+> >
 > 
+
+Kind regards,
+Wim.
