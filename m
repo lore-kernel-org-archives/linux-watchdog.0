@@ -1,97 +1,58 @@
-Return-Path: <p.paillet@st.com>
-Return-path: <p.paillet@st.com>
-From: Pascal PAILLET-LME <p.paillet@st.com>
-To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-pg1-f196.google.com ([209.85.215.196]:46186 "EHLO
+        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725837AbeJJFDu (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Wed, 10 Oct 2018 01:03:50 -0400
+Date: Tue, 9 Oct 2018 14:44:50 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Pascal PAILLET-LME <p.paillet@st.com>
+Cc: kbuild-all@01.org,
+        "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
         "robh+dt@kernel.org" <robh+dt@kernel.org>,
-        "mark.rutland@arm.com"
-	<mark.rutland@arm.com>,
+        "mark.rutland@arm.com" <mark.rutland@arm.com>,
         "lee.jones@linaro.org" <lee.jones@linaro.org>,
         "lgirdwood@gmail.com" <lgirdwood@gmail.com>,
-        "broonie@kernel.org"
-	<broonie@kernel.org>,
+        "broonie@kernel.org" <broonie@kernel.org>,
         "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
-        "linux@roeck-us.net" <linux@roeck-us.net>,
-        "linux-input@vger.kernel.org"
-	<linux-input@vger.kernel.org>,
-        "devicetree@vger.kernel.org"
-	<devicetree@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>,
-        "linux-watchdog@vger.kernel.org"
-	<linux-watchdog@vger.kernel.org>,
-        "benjamin.gaignard@linaro.org"
-	<benjamin.gaignard@linaro.org>,
+        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+        "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>,
         "eballetbo@gmail.com" <eballetbo@gmail.com>
-Subject: Re: [PATCH v3 5/8] dt-bindings: input: document stpmic1 pmic onkey
-Date: Tue, 9 Oct 2018 13:52:52 +0000
-Message-ID: <5BBCB2B4.4070104@st.com>
-References: <1539016176-4072-1-git-send-email-p.paillet@st.com>
- <1539016176-4072-6-git-send-email-p.paillet@st.com>
-In-Reply-To: <1539016176-4072-6-git-send-email-p.paillet@st.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="Windows-1252"
-Content-ID: <0E93B6F714354E4691589622724375B9@st.com>
-Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH v3 8/8] watchdog: stpmic1: add stpmic1 watchdog driver
+Message-ID: <20181009214450.GA13702@roeck-us.net>
+References: <1539016176-4072-9-git-send-email-p.paillet@st.com>
+ <201810090846.it9ed9td%fengguang.wu@intel.com>
 MIME-Version: 1.0
-List-ID: <linux-watchdog@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <201810090846.it9ed9td%fengguang.wu@intel.com>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-Le 10/08/2018 06:29 PM, Pascal PAILLET-LME a =E9crit :
-> From: pascal paillet <p.paillet@st.com>
->
-> The stpmic1 pmic is able to manage an onkey button. It can be configured
-> to shut-down the power supplies on a long key-press with an adjustable
-> duration.
->
-> Signed-off-by: pascal paillet <p.paillet@st.com>
-> ---
-> changes in v3:
-> * Replace st,onkey-long-press-seconds and st,onkey-pwroff-enabled by
-> power-off-time-sec.
->
->   .../devicetree/bindings/input/st,stpmic1-onkey.txt | 30 +++++++++++++++=
-+++++++
->   1 file changed, 30 insertions(+)
->   create mode 100644 Documentation/devicetree/bindings/input/st,stpmic1-o=
-nkey.txt
->
-> diff --git a/Documentation/devicetree/bindings/input/st,stpmic1-onkey.txt=
- b/Documentation/devicetree/bindings/input/st,stpmic1-onkey.txt
-> new file mode 100644
-> index 0000000..8c58186
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/st,stpmic1-onkey.txt
-> @@ -0,0 +1,30 @@
-> +STMicroelectronics STPMIC1 Onkey
-> +
-> +Required properties:
-> +
-> +- compatible =3D "st,stpmic1-onkey";
-> +- interrupt-parent: phandle to the parent interrupt controller
-> +- interrupts: interrupt line to use
-> +- interrupt-names =3D "onkey-falling", "onkey-rising"
-> +	onkey-falling: happens when onkey is pressed; IT_PONKEY_F of pmic
-> +	onkey-rising: happens when onkey is released; IT_PONKEY_R of pmic
-> +
-> +Optional properties:
-> +
-> +- st,onkey-clear-cc-flag: onkey is able power on after an
-> +  over-current shutdown event.
-> +- st,onkey-pu-inactive: onkey pull up is not active
-> +- power-off-time-sec: Duration in seconds which the key should be kept
-> +        pressed for device to power off automatically (from 1 to 16 seco=
-nds).
-> +        see See Documentation/devicetree/bindings/input/keys.txt
-> +
-> +Example:
-> +
-> +onkey {
-> +	compatible =3D "st,stpmic1-onkey";
-> +	interrupt-parent =3D <&pmic>;
-> +	interrupts =3D <IT_PONKEY_F 0>,<IT_PONKEY_R 1>;
-> +	interrupt-names =3D "onkey-falling", "onkey-rising";
-> +	st,onkey-pwroff-enabled;
-> +	st,onkey-long-press-seconds =3D <10>;
-st,onkey-pwroff-enabled and st,onkey-long-press-seconds to be replaced=20
-by power-off-time-sec
+On Tue, Oct 09, 2018 at 08:47:26AM +0800, kbuild test robot wrote:
+> Hi pascal,
+> 
+> Thank you for the patch! Perhaps something to improve:
+> 
 
-> +};
+[ ... ]
+
+>     42	
+>     43	static int pmic_wdt_stop(struct watchdog_device *wdd)
+>     44	{
+>     45		struct stpmic1_wdt *wdt = watchdog_get_drvdata(wdd);
+>     46	
+>     47		return regmap_update_bits(wdt->pmic->regmap,
+>   > 48					  WCHDG_CR, WDT_START_MASK, ~WDT_START);
+
+Maybe use
+
+#define WDT_STOP	0
+
+instead, or just write 0. ~WDT_START may be convenient but not really correct.
+
+Guenter
