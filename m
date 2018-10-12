@@ -1,10 +1,10 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wr1-f65.google.com ([209.85.221.65]:40443 "EHLO
+Received: from mail-wr1-f65.google.com ([209.85.221.65]:42746 "EHLO
         mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727583AbeJLSOX (ORCPT
+        with ESMTP id S1726665AbeJLSPE (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 12 Oct 2018 14:14:23 -0400
-Date: Fri, 12 Oct 2018 12:42:31 +0200
+        Fri, 12 Oct 2018 14:15:04 -0400
+Date: Fri, 12 Oct 2018 12:43:12 +0200
 From: Thierry Reding <thierry.reding@gmail.com>
 To: Paul Cercueil <paul@crapouillou.net>
 Cc: Thomas Gleixner <tglx@linutronix.de>,
@@ -19,30 +19,27 @@ Cc: Thomas Gleixner <tglx@linutronix.de>,
         linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
         linux-mips@linux-mips.org, linux-doc@vger.kernel.org,
         linux-clk@vger.kernel.org
-Subject: Re: [PATCH v7 15/24] pwm: jz4740: Remove unused devicetree
- compatible strings
-Message-ID: <20181012104231.GI9162@ulmo>
+Subject: Re: [PATCH v7 16/24] pwm: jz4740: Add support for the JZ4725B
+Message-ID: <20181012104312.GJ9162@ulmo>
 References: <20180821171635.22740-1-paul@crapouillou.net>
- <20180821171635.22740-16-paul@crapouillou.net>
+ <20180821171635.22740-17-paul@crapouillou.net>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="0XMZdl/q8hSSmFeD"
+        protocol="application/pgp-signature"; boundary="ONvqYzh+7ST5RsLk"
 Content-Disposition: inline
-In-Reply-To: <20180821171635.22740-16-paul@crapouillou.net>
+In-Reply-To: <20180821171635.22740-17-paul@crapouillou.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
 
---0XMZdl/q8hSSmFeD
+--ONvqYzh+7ST5RsLk
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Aug 21, 2018 at 07:16:26PM +0200, Paul Cercueil wrote:
-> Right now none of the Ingenic-based boards probe this driver from
-> devicetree. This driver defined three compatible strings for the exact
-> same behaviour. Before these strings are used, we can remove two of
-> them.
+On Tue, Aug 21, 2018 at 07:16:27PM +0200, Paul Cercueil wrote:
+> The PWM in the JZ4725B works the same as in the JZ4740, except that it
+> only has 6 channels available instead of 8.
 >=20
 > Signed-off-by: Paul Cercueil <paul@crapouillou.net>
 > ---
@@ -50,33 +47,35 @@ On Tue, Aug 21, 2018 at 07:16:26PM +0200, Paul Cercueil wrote:
 > Notes:
 >      v5: New patch
 >    =20
->      v6: No change
+>      v6: - Move of_device_id structure back at the bottom (less noise in
+>            patch)
+>          - Use device_get_match_data() instead of of_* variant
 >    =20
 >      v7: No change
 >=20
->  drivers/pwm/pwm-jz4740.c | 2 --
->  1 file changed, 2 deletions(-)
+>  drivers/pwm/pwm-jz4740.c | 22 ++++++++++++++++++++--
+>  1 file changed, 20 insertions(+), 2 deletions(-)
 
 Acked-by: Thierry Reding <thierry.reding@gmail.com>
 
---0XMZdl/q8hSSmFeD
+--ONvqYzh+7ST5RsLk
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAlvAepcACgkQ3SOs138+
-s6HYNA/+ONd+BCqmE0Z29A+IoPCHFyLIVoy/aZWszgeBoqk9D9PAKKbi2eHSBBL2
-Iq0GqudniRWhko8hmM9NU0XhYgDm8sq98sTAQReqW1ctn7/Fx5FNwM9Rtxe9yKfx
-EWELqIPbypO7nHU/6kC9ekdf7KI+a35Envx+/8oOdgF//KqzzVMQsuVCFlnzPCvp
-tXHT+2zHxrxMnaDVSxJQsXC5lnrFeP+lAE6+XN0W/d9x+wAtL56Nh0DOO8OJIfpm
-aJYZHN8hmZxTMxNUV5j3gip0uF4+m9iumnwAXAY1SZH84NPBviqGho5P/I9NqCwO
-GvncripVWrqlJVAGYfh5c/2Vg6mEGTE3gqjDumEpvPh6nyqAS4U/rmiB9wr2pE7u
-FlmbeqgUe8FBm9gm/uaP7iMxkeH2ChSsQ3OKtYUv+frGhte1iCbpe4RSIK4q4FGN
-Wxc5rJcOzud1GGhbrPmARDE9RzjX68N7XlIZtpDsxDLakwkmh1rJLk5wHWSLkYeh
-nGRXMhOm1R5jTaipnpJ6C+h14xp7+5N4ccXHa+2Uu1x8wn01L1SL2jg4JpfidAnO
-9z5i5OjGgs8ZsJOR0u3zaZSKq/fdgkw+CGXxvz3sQXRvZ/HjOpdXAXvDeweO87Ax
-7H9hEhbaGvSzmyBSP0Sn5KxlE+5xfOpajThQsJhWBASaWaTlKUk=
-=81jk
+iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAlvAesAACgkQ3SOs138+
+s6FK7g//XMqm9tY/j9ebBHkmvyejEcCSzNYK6TscB0/JcxIikY5BBEPT3Zu4yk5K
+jvy11nwiuGXxqeoCCvrprgWlMskRbB0vfjaXbkbium0WtcDWECGAD2q0PQ61wT2Q
+HwtIecyTHVHp5vTht3FuqhRW/ISdQo/h4aN54HiX3GTvFEPXIobrW/52smXWIGLw
+BBE0fz2a94H3zVewmeiqwzViQAfBTT3FqKl13AH0iAfmfT3mjgxsPgnnCGmQo9gc
+zt8cvqS9LAPy1cw07bFfiyPGVn3DL4KhlybPi2NTOn+zGKIMJeza0iYKpyh/PcGX
+xMgk1VSLKNFQTITXllRnw69ad9QfW2hs3kHqy1W3oTaQe7VmXuUAS0LlFkX4WRG7
+vhnwdCZVlGjpdzmt9IduRBUBhZuTkqNLdzF4WhoeQjEeohvmmvKFGjy5OwMw0F9Y
+pDYjp0bfECwQNKynPVF+pPSw7B3nh1D97o5VGZGILYXYFIE5MlKOXqMVXpSd2HIj
+NmjziYKpPZk6auyQlbdsijlZ/jra0RYGvLdi8bWBJVbpo4IqC9iFjtC4/9vJ0m+R
+YLwQlJoZGqRKCVpwdQKDEEBx+4bQxdQcQJZrYueZXMCRIimzWC2H2cmxKpRWdjqw
+mokR4lpnDhHpADP3A7wPVKCvMoJn39U1saRvscYMRxkH8cV1J9g=
+=OX+r
 -----END PGP SIGNATURE-----
 
---0XMZdl/q8hSSmFeD--
+--ONvqYzh+7ST5RsLk--
