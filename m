@@ -1,10 +1,10 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wm1-f65.google.com ([209.85.128.65]:51436 "EHLO
+Received: from mail-wm1-f65.google.com ([209.85.128.65]:51172 "EHLO
         mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726665AbeJLSLt (ORCPT
+        with ESMTP id S1727387AbeJLSMp (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 12 Oct 2018 14:11:49 -0400
-Date: Fri, 12 Oct 2018 12:39:57 +0200
+        Fri, 12 Oct 2018 14:12:45 -0400
+Date: Fri, 12 Oct 2018 12:40:53 +0200
 From: Thierry Reding <thierry.reding@gmail.com>
 To: Paul Cercueil <paul@crapouillou.net>
 Cc: Thomas Gleixner <tglx@linutronix.de>,
@@ -19,97 +19,64 @@ Cc: Thomas Gleixner <tglx@linutronix.de>,
         linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
         linux-mips@linux-mips.org, linux-doc@vger.kernel.org,
         linux-clk@vger.kernel.org
-Subject: Re: [PATCH v7 12/24] pwm: jz4740: Use regmap and clocks from TCU
- driver
-Message-ID: <20181012103957.GF9162@ulmo>
+Subject: Re: [PATCH v7 13/24] pwm: jz4740: Allow selection of PWM channels 0
+ and 1
+Message-ID: <20181012104053.GG9162@ulmo>
 References: <20180821171635.22740-1-paul@crapouillou.net>
- <20180821171635.22740-13-paul@crapouillou.net>
+ <20180821171635.22740-14-paul@crapouillou.net>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="H4SyuGOnfnj3aJqJ"
+        protocol="application/pgp-signature"; boundary="HB4mHL4PVvkpZAgW"
 Content-Disposition: inline
-In-Reply-To: <20180821171635.22740-13-paul@crapouillou.net>
+In-Reply-To: <20180821171635.22740-14-paul@crapouillou.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
 
---H4SyuGOnfnj3aJqJ
+--HB4mHL4PVvkpZAgW
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Aug 21, 2018 at 07:16:23PM +0200, Paul Cercueil wrote:
-> The ingenic-timer "TCU" driver provides us with a regmap, that we can
-> use to safely access the TCU registers.
+On Tue, Aug 21, 2018 at 07:16:24PM +0200, Paul Cercueil wrote:
+> The TCU channels 0 and 1 were previously reserved for system tasks, and
+> thus unavailable for PWM.
 >=20
-> It also provides us with clocks, that can be (un)gated, reparented or
-> reclocked from devicetree, instead of having these settings hardcoded in
-> this driver.
->=20
-> While this driver is devicetree-compatible, it is never (as of now)
-> probed from devicetree, so this change does not introduce a ABI problem
-> with current devicetree files.
+> This commit uses the newly introduced API functions of the ingenic-timer
+> driver to request/release the TCU channels that should be used as PWM.
+> This allows all the TCU channels to be used as PWM.
 >=20
 > Signed-off-by: Paul Cercueil <paul@crapouillou.net>
 > ---
 >=20
 > Notes:
->      v5: New patch
->    =20
->      v6: Drop requirement of probing from devicetree
+>      v6: New patch
 >    =20
 >      v7: No change
 >=20
->  drivers/pwm/Kconfig      |   2 +
->  drivers/pwm/pwm-jz4740.c | 124 +++++++++++++++++++++++++++++++----------=
-------
->  2 files changed, 83 insertions(+), 43 deletions(-)
->=20
-> diff --git a/drivers/pwm/Kconfig b/drivers/pwm/Kconfig
-> index a4d262db9945..58359bf22b96 100644
-> --- a/drivers/pwm/Kconfig
-> +++ b/drivers/pwm/Kconfig
-> @@ -202,6 +202,8 @@ config PWM_IMX
->  config PWM_JZ4740
->  	tristate "Ingenic JZ47xx PWM support"
->  	depends on MACH_INGENIC
-> +	depends on COMMON_CLK
-> +	select INGENIC_TIMER
->  	help
->  	  Generic PWM framework driver for Ingenic JZ47xx based
->  	  machines.
-> diff --git a/drivers/pwm/pwm-jz4740.c b/drivers/pwm/pwm-jz4740.c
-> index a7b134af5e04..1bda8d8e9865 100644
-> --- a/drivers/pwm/pwm-jz4740.c
-> +++ b/drivers/pwm/pwm-jz4740.c
-> @@ -14,21 +14,21 @@
->   */
-> =20
->  #include <linux/clk.h>
-> +#include <linux/clk-provider.h>
+>  drivers/pwm/pwm-jz4740.c | 28 ++++++++++++++++------------
+>  1 file changed, 16 insertions(+), 12 deletions(-)
 
-Why do you need this?
+Acked-by: Thierry Reding <treding@nvidia.com>
 
-Thierry
-
---H4SyuGOnfnj3aJqJ
+--HB4mHL4PVvkpZAgW
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAlvAef0ACgkQ3SOs138+
-s6Etkw/8CDqjDhw3dT5o3iLxU8WHHcL1syZVxtoMp8myKzUL83S+RIRFfWhrXYrg
-0GoMLZCuuq5YQAFmH2IyOrcyQNP8za88WJmW6ahO5rUj2dToorEqD2kijC8Z1YY4
-gJBm2OpTKROOUoZdP3fUkcLsJradOzua+wrzHeKkIOwleWWIRC4yXnfkPSlvYdAH
-0ul5Nhteg6ulN25WE8uPEFGqWPgMAA0+tU64/COQ4V9Yg7P5YJbERNax72Dm7v0N
-eIppDnmtbVtt+SvJ+QAM8NgZogMhJnkdf8T7Ax8UPGMG6JSxmVsSz0hCMB5IVenF
-Lfp5u68cXO6hxyhku3ss4nthU8QMprEsM55chBEHvXyH7+4IsB6U+WEfc5tGxxN+
-AJcQgan0mRO179DjdCYtxcELpJVRLglzhpjTIJisip+Kp0WtxJPd7wYtovMVlEHl
-VyqEXCearUquqFdJ3R20ZN5sUanv5miTaK9QpNYdQrkCv9t3/KK5KdutUZDpyDD7
-3kubTcLr4W3cSqwrq2GJF6KV+9b6VdLUeZgmPHvAj/81pfHFb3j7Q9gmjJLgGgBr
-tVNXoCLSOaWWya9qrLPeKoZmm90zG3NpEoyExycPdai8qDGLIuhOspNZ7SG/ixFw
-eKm2sG95UCmCkGVSaIUVTZRgslDEv63kjKKG6qoza9kEMRjmqCg=
-=TBBW
+iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAlvAejUACgkQ3SOs138+
+s6FhYw/9FW8lZprZj6ntLye6m/IyGDHZalykPoLYefvS8bTuDn3qwMPId77gLA8m
+t8XjWmPCnwAJlXJO6v4L9Ttix2VAGpApZ5fyIAK9pv9Q5XhwCVYVbgyrPOnz1at7
+EsBxEwRNKMR79BkCA9JbT4eQy5tC/bpFadpItJxgRLyJAtTJX0kWa5piOvn3typ2
+zPm3osA5C1Og8EIS8kk1SxlRP9+gOcollqUqkFDMsG+h82RAzWZqCMOU+c3kmyvr
+v5EelQuSbw+H4Y6ZOZj6tEeIiyzUnedD07NbjRdkK33JUnE8xt33anbe5X/6P6e0
+AhUlG4y8kqN0mxhkWgpgIrJh/VOEsjTj18gMCU4LFNBDzj1MLon0wukTaZ7mq4yg
+lKMbQq0l+Il5Ii7JBKzz9LrbUzard4dVGDYQD2ChSQmLUTS5Yh0lAMzlYiIui+ja
+/Hv5+KuxJnii1KcKenvxOgOlOyJMk6AmTfD57Wk/wM2wm3IotiV1TFhAUG8we//3
+KAGPr83Uvpcx2oDhvcPplPK05TolV9W6b2QoxRaQfAcr4pEoSI3Fq7I4Mo1FvOT1
+0k/zXI6YUADZY55+6B8b6oqMk+OM+lZxipHgtIQo3LmtI8JysGBzkpT+MTyQZSvI
+/+neLH2EXccv9Ut5s5yYQw/uSq36oAO34Tu3zk+GsPx8XZB+Zqk=
+=1+ye
 -----END PGP SIGNATURE-----
 
---H4SyuGOnfnj3aJqJ--
+--HB4mHL4PVvkpZAgW--
