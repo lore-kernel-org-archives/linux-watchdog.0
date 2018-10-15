@@ -1,91 +1,42 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ot1-f65.google.com ([209.85.210.65]:41360 "EHLO
-        mail-ot1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728857AbeJLXHC (ORCPT
+Received: from mail-oi1-f193.google.com ([209.85.167.193]:44835 "EHLO
+        mail-oi1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726576AbeJPAlc (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 12 Oct 2018 19:07:02 -0400
-Date: Fri, 12 Oct 2018 10:33:59 -0500
+        Mon, 15 Oct 2018 20:41:32 -0400
+Date: Mon, 15 Oct 2018 11:55:27 -0500
 From: Rob Herring <robh@kernel.org>
-To: Pascal PAILLET-LME <p.paillet@st.com>
-Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
-        "mark.rutland@arm.com" <mark.rutland@arm.com>,
-        "lee.jones@linaro.org" <lee.jones@linaro.org>,
-        "lgirdwood@gmail.com" <lgirdwood@gmail.com>,
-        "broonie@kernel.org" <broonie@kernel.org>,
-        "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
-        "linux@roeck-us.net" <linux@roeck-us.net>,
-        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>,
-        "eballetbo@gmail.com" <eballetbo@gmail.com>
-Subject: Re: [PATCH v3 5/8] dt-bindings: input: document stpmic1 pmic onkey
-Message-ID: <20181012153359.GA31604@bogus>
-References: <1539016176-4072-1-git-send-email-p.paillet@st.com>
- <1539016176-4072-6-git-send-email-p.paillet@st.com>
+To: Biju Das <biju.das@bp.renesas.com>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Mark Rutland <mark.rutland@arm.com>,
+        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+        Simon Horman <horms@verge.net.au>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Chris Paterson <Chris.Paterson2@renesas.com>,
+        Fabrizio Castro <fabrizio.castro@bp.renesas.com>,
+        linux-renesas-soc@vger.kernel.org
+Subject: Re: [PATCH] dt-bindings: watchdog: renesas-wdt: Document r8a7744
+ support
+Message-ID: <20181015165527.GA14954@bogus>
+References: <1537895241-7686-1-git-send-email-biju.das@bp.renesas.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1539016176-4072-6-git-send-email-p.paillet@st.com>
+In-Reply-To: <1537895241-7686-1-git-send-email-biju.das@bp.renesas.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Oct 08, 2018 at 04:29:41PM +0000, Pascal PAILLET-LME wrote:
-> From: pascal paillet <p.paillet@st.com>
+On Tue, Sep 25, 2018 at 06:07:21PM +0100, Biju Das wrote:
+> RZ/G1N (R8A7744) watchdog implementation is compatible with R-Car
+> Gen2, therefore add relevant documentation.
 > 
-> The stpmic1 pmic is able to manage an onkey button. It can be configured
-> to shut-down the power supplies on a long key-press with an adjustable
-> duration.
-> 
-> Signed-off-by: pascal paillet <p.paillet@st.com>
+> Signed-off-by: Biju Das <biju.das@bp.renesas.com>
+> Reviewed-by: Chris Paterson <Chris.Paterson2@renesas.com>
 > ---
-> changes in v3:
-> * Replace st,onkey-long-press-seconds and st,onkey-pwroff-enabled by 
-> power-off-time-sec.
-> 
->  .../devicetree/bindings/input/st,stpmic1-onkey.txt | 30 ++++++++++++++++++++++
->  1 file changed, 30 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/input/st,stpmic1-onkey.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/input/st,stpmic1-onkey.txt b/Documentation/devicetree/bindings/input/st,stpmic1-onkey.txt
-> new file mode 100644
-> index 0000000..8c58186
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/st,stpmic1-onkey.txt
-> @@ -0,0 +1,30 @@
-> +STMicroelectronics STPMIC1 Onkey
-> +
-> +Required properties:
-> +
-> +- compatible = "st,stpmic1-onkey";
-> +- interrupt-parent: phandle to the parent interrupt controller
+>  Documentation/devicetree/bindings/watchdog/renesas-wdt.txt | 1 +
+>  1 file changed, 1 insertion(+)
 
-Drop this.
+Applied.
 
-> +- interrupts: interrupt line to use
-> +- interrupt-names = "onkey-falling", "onkey-rising"
-> +	onkey-falling: happens when onkey is pressed; IT_PONKEY_F of pmic
-> +	onkey-rising: happens when onkey is released; IT_PONKEY_R of pmic
-> +
-> +Optional properties:
-> +
-> +- st,onkey-clear-cc-flag: onkey is able power on after an
-> +  over-current shutdown event.
-> +- st,onkey-pu-inactive: onkey pull up is not active
-> +- power-off-time-sec: Duration in seconds which the key should be kept
-> +        pressed for device to power off automatically (from 1 to 16 seconds).
-> +        see See Documentation/devicetree/bindings/input/keys.txt
-> +
-> +Example:
-> +
-> +onkey {
-> +	compatible = "st,stpmic1-onkey";
-> +	interrupt-parent = <&pmic>;
-> +	interrupts = <IT_PONKEY_F 0>,<IT_PONKEY_R 1>;
-> +	interrupt-names = "onkey-falling", "onkey-rising";
-> +	st,onkey-pwroff-enabled;
-> +	st,onkey-long-press-seconds = <10>;
-> +};
-> -- 
-> 1.9.1
+Rob
