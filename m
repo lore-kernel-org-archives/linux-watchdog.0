@@ -23,9 +23,9 @@ To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
 	<benjamin.gaignard@linaro.org>,
         "eballetbo@gmail.com" <eballetbo@gmail.com>
 CC: Pascal PAILLET-LME <p.paillet@st.com>
-Subject: [PATCH v4 7/8] dt-bindings: watchdog: document stpmic1 pmic watchdog
+Subject: [PATCH v4 6/8] input: stpmic1: add stpmic1 onkey driver
 Date: Thu, 18 Oct 2018 09:02:13 +0000
-Message-ID: <1539853324-29051-8-git-send-email-p.paillet@st.com>
+Message-ID: <1539853324-29051-7-git-send-email-p.paillet@st.com>
 References: <1539853324-29051-1-git-send-email-p.paillet@st.com>
 In-Reply-To: <1539853324-29051-1-git-send-email-p.paillet@st.com>
 Content-Language: en-US
@@ -36,35 +36,266 @@ List-ID: <linux-watchdog@vger.kernel.org>
 
 From: pascal paillet <p.paillet@st.com>
 
-The stpmic1 PMIC embeds a watchdog which is disabled by default.
-In case of watchdog, the PMIC goes off.
+The stpmic1 pmic is able to manage an onkey button. This driver exposes
+the stpmic1 onkey as an input device. It can also be configured to
+shut-down the power supplies on a long key-press with an adjustable
+duration.
 
 Signed-off-by: pascal paillet <p.paillet@st.com>
-Reviewed-by: Rob Herring <robh@kernel.org>
 ---
- Documentation/devicetree/bindings/watchdog/st,stpmic1-wdt.txt | 11 +++++++=
-++++
- 1 file changed, 11 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/watchdog/st,stpmic1-w=
-dt.txt
+changes in v4:
+* remove remove function
+* merge stpmic1_onkey_dt_params() in probe function
+* suppresse struct pmic_onkey_config
+* rename PONKEY_PU_ACTIVE to PONKEY_PU_INACTIVE
 
-diff --git a/Documentation/devicetree/bindings/watchdog/st,stpmic1-wdt.txt =
-b/Documentation/devicetree/bindings/watchdog/st,stpmic1-wdt.txt
+ drivers/input/misc/Kconfig         |  11 +++
+ drivers/input/misc/Makefile        |   2 +
+ drivers/input/misc/stpmic1_onkey.c | 197 +++++++++++++++++++++++++++++++++=
+++++
+ 3 files changed, 210 insertions(+)
+ create mode 100644 drivers/input/misc/stpmic1_onkey.c
+
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index ca59a2b..279fb02 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -851,4 +851,15 @@ config INPUT_SC27XX_VIBRA
+ 	  To compile this driver as a module, choose M here. The module will
+ 	  be called sc27xx_vibra.
+=20
++config INPUT_STPMIC1_ONKEY
++	tristate "STPMIC1 PMIC Onkey support"
++	depends on MFD_STPMIC1
++	help
++	  Say Y to enable support of onkey embedded into STPMIC1 PMIC. onkey
++	  can be used to wakeup from low power modes and force a shut-down on
++	  long press.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called stpmic1_onkey.
++
+ endif
+diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+index 9d0f9d1..1b44202 100644
+--- a/drivers/input/misc/Makefile
++++ b/drivers/input/misc/Makefile
+@@ -71,6 +71,7 @@ obj-$(CONFIG_INPUT_SGI_BTNS)		+=3D sgi_btns.o
+ obj-$(CONFIG_INPUT_SIRFSOC_ONKEY)	+=3D sirfsoc-onkey.o
+ obj-$(CONFIG_INPUT_SOC_BUTTON_ARRAY)	+=3D soc_button_array.o
+ obj-$(CONFIG_INPUT_SPARCSPKR)		+=3D sparcspkr.o
++obj-$(CONFIG_INPUT_STPMIC1_ONKEY)  	+=3D stpmic1_onkey.o
+ obj-$(CONFIG_INPUT_TPS65218_PWRBUTTON)	+=3D tps65218-pwrbutton.o
+ obj-$(CONFIG_INPUT_TWL4030_PWRBUTTON)	+=3D twl4030-pwrbutton.o
+ obj-$(CONFIG_INPUT_TWL4030_VIBRA)	+=3D twl4030-vibra.o
+@@ -81,3 +82,4 @@ obj-$(CONFIG_INPUT_WM831X_ON)		+=3D wm831x-on.o
+ obj-$(CONFIG_INPUT_XEN_KBDDEV_FRONTEND)	+=3D xen-kbdfront.o
+ obj-$(CONFIG_INPUT_YEALINK)		+=3D yealink.o
+ obj-$(CONFIG_INPUT_IDEAPAD_SLIDEBAR)	+=3D ideapad_slidebar.o
++
+diff --git a/drivers/input/misc/stpmic1_onkey.c b/drivers/input/misc/stpmic=
+1_onkey.c
 new file mode 100644
-index 0000000..7cc1407
+index 0000000..6a7f08b
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/watchdog/st,stpmic1-wdt.txt
-@@ -0,0 +1,11 @@
-+STMicroelectronics STPMIC1 Watchdog
++++ b/drivers/input/misc/stpmic1_onkey.c
+@@ -0,0 +1,197 @@
++// SPDX-License-Identifier: GPL-2.0
++// Copyright (C) STMicroelectronics 2018
++// Author: Pascal Paillet <p.paillet@st.com> for STMicroelectronics.
 +
-+Required properties:
++#include <linux/input.h>
++#include <linux/interrupt.h>
++#include <linux/mfd/stpmic1.h>
++#include <linux/module.h>
++#include <linux/of.h>
++#include <linux/platform_device.h>
++#include <linux/property.h>
++#include <linux/regmap.h>
 +
-+- compatible : should be "st,stpmic1-wdt"
-+
-+Example:
-+
-+watchdog {
-+	compatible =3D "st,stpmic1-wdt";
++/**
++ * struct stpmic1_onkey - OnKey data
++ * @input_dev:		pointer to input device
++ * @irq_falling:	irq that we are hooked on to
++ * @irq_rising:		irq that we are hooked on to
++ */
++struct stpmic1_onkey {
++	struct input_dev *input_dev;
++	int irq_falling;
++	int irq_rising;
 +};
++
++static irqreturn_t onkey_falling_irq(int irq, void *ponkey)
++{
++	struct stpmic1_onkey *onkey =3D ponkey;
++	struct input_dev *input_dev =3D onkey->input_dev;
++
++	input_report_key(input_dev, KEY_POWER, 1);
++	pm_wakeup_event(input_dev->dev.parent, 0);
++	input_sync(input_dev);
++
++	return IRQ_HANDLED;
++}
++
++static irqreturn_t onkey_rising_irq(int irq, void *ponkey)
++{
++	struct stpmic1_onkey *onkey =3D ponkey;
++	struct input_dev *input_dev =3D onkey->input_dev;
++
++	input_report_key(input_dev, KEY_POWER, 0);
++	pm_wakeup_event(input_dev->dev.parent, 0);
++	input_sync(input_dev);
++
++	return IRQ_HANDLED;
++}
++
++static int stpmic1_onkey_probe(struct platform_device *pdev)
++{
++	struct stpmic1 *pmic =3D dev_get_drvdata(pdev->dev.parent);
++	struct device *dev =3D &pdev->dev;
++	struct input_dev *input_dev;
++	struct stpmic1_onkey *onkey;
++	unsigned int val, reg =3D 0;
++	int error;
++
++	onkey =3D devm_kzalloc(dev, sizeof(*onkey), GFP_KERNEL);
++	if (!onkey)
++		return -ENOMEM;
++
++	onkey->irq_falling =3D platform_get_irq_byname(pdev, "onkey-falling");
++	if (onkey->irq_falling < 0) {
++		dev_err(dev, "failed: request IRQ onkey-falling %d\n",
++			onkey->irq_falling);
++		return onkey->irq_falling;
++	}
++
++	onkey->irq_rising =3D platform_get_irq_byname(pdev, "onkey-rising");
++	if (onkey->irq_rising < 0) {
++		dev_err(dev, "failed: request IRQ onkey-rising %d\n",
++			onkey->irq_rising);
++		return onkey->irq_rising;
++	}
++
++	if (!device_property_read_u32(dev, "power-off-time-sec", &val)) {
++		if ((val > 0) && (val <=3D 16)) {
++			dev_dbg(dev, "power-off-time=3D%d seconds\n", val);
++			reg |=3D PONKEY_PWR_OFF;
++			reg |=3D ((16 - val) & PONKEY_TURNOFF_TIMER_MASK);
++		} else {
++			dev_err(dev, "power-off-time-sec out of range\n");
++			return -EINVAL;
++		}
++	}
++
++	if (device_property_present(dev, "st,onkey-clear-cc-flag"))
++		reg |=3D PONKEY_CC_FLAG_CLEAR;
++
++	error =3D regmap_update_bits(pmic->regmap, PKEY_TURNOFF_CR,
++				   PONKEY_TURNOFF_MASK, reg);
++	if (error) {
++		dev_err(dev, "PKEY_TURNOFF_CR write failed: %d\n", error);
++		return error;
++	}
++
++	if (device_property_present(dev, "st,onkey-pu-inactive")) {
++		error =3D regmap_update_bits(pmic->regmap, PADS_PULL_CR,
++					   PONKEY_PU_INACTIVE,
++					   PONKEY_PU_INACTIVE);
++		if (error) {
++			dev_err(dev, "ONKEY Pads configuration failed: %d\n", error);
++			return error;
++		}
++	}
++
++	input_dev =3D devm_input_allocate_device(dev);
++	if (!input_dev) {
++		dev_err(dev, "Can't allocate Pwr Onkey Input Device\n");
++		return -ENOMEM;
++	}
++
++	input_dev->name =3D "pmic_onkey";
++	input_dev->phys =3D "pmic_onkey/input0";
++
++	input_set_capability(input_dev, EV_KEY, KEY_POWER);
++
++	onkey->input_dev =3D input_dev;
++
++	/* interrupt is nested in a thread */
++	error =3D devm_request_threaded_irq(dev, onkey->irq_falling, NULL,
++					  onkey_falling_irq, IRQF_ONESHOT,
++					  dev_name(dev), onkey);
++	if (error) {
++		dev_err(dev, "Can't get IRQ Onkey Falling: %d\n", error);
++		return error;
++	}
++
++	error =3D devm_request_threaded_irq(dev, onkey->irq_rising, NULL,
++					  onkey_rising_irq, IRQF_ONESHOT,
++					  dev_name(dev), onkey);
++	if (error) {
++		dev_err(dev, "Can't get IRQ Onkey Rising: %d\n", error);
++		return error;
++	}
++
++	error =3D input_register_device(input_dev);
++	if (error) {
++		dev_err(dev, "Can't register power button: %d\n", error);
++		return error;
++	}
++
++	platform_set_drvdata(pdev, onkey);
++	device_init_wakeup(dev, true);
++
++	return 0;
++}
++
++static int __maybe_unused stpmic1_onkey_suspend(struct device *dev)
++{
++	struct platform_device *pdev =3D to_platform_device(dev);
++	struct stpmic1_onkey *onkey =3D platform_get_drvdata(pdev);
++
++	if (device_may_wakeup(dev)) {
++		enable_irq_wake(onkey->irq_falling);
++		enable_irq_wake(onkey->irq_rising);
++	}
++	return 0;
++}
++
++static int __maybe_unused stpmic1_onkey_resume(struct device *dev)
++{
++	struct platform_device *pdev =3D to_platform_device(dev);
++	struct stpmic1_onkey *onkey =3D platform_get_drvdata(pdev);
++
++	if (device_may_wakeup(dev)) {
++		disable_irq_wake(onkey->irq_falling);
++		disable_irq_wake(onkey->irq_rising);
++	}
++	return 0;
++}
++
++static SIMPLE_DEV_PM_OPS(stpmic1_onkey_pm,
++			 stpmic1_onkey_suspend,
++			 stpmic1_onkey_resume);
++
++static const struct of_device_id of_stpmic1_onkey_match[] =3D {
++	{ .compatible =3D "st,stpmic1-onkey" },
++	{ },
++};
++
++MODULE_DEVICE_TABLE(of, of_stpmic1_onkey_match);
++
++static struct platform_driver stpmic1_onkey_driver =3D {
++	.probe	=3D stpmic1_onkey_probe,
++	.driver	=3D {
++		.name	=3D "stpmic1_onkey",
++		.of_match_table =3D of_match_ptr(of_stpmic1_onkey_match),
++		.pm	=3D &stpmic1_onkey_pm,
++	},
++};
++module_platform_driver(stpmic1_onkey_driver);
++
++MODULE_DESCRIPTION("Onkey driver for STPMIC1");
++MODULE_AUTHOR("Pascal Paillet <p.paillet@st.com>");
++MODULE_LICENSE("GPL v2");
 --=20
 1.9.1
