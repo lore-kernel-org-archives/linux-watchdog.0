@@ -1,232 +1,93 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx08-00178001.pphosted.com ([91.207.212.93]:15177 "EHLO
-        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727969AbeJRRCr (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 18 Oct 2018 13:02:47 -0400
+Return-Path: <p.paillet@st.com>
+Return-path: <p.paillet@st.com>
 From: Pascal PAILLET-LME <p.paillet@st.com>
 To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
         "robh+dt@kernel.org" <robh+dt@kernel.org>,
-        "mark.rutland@arm.com" <mark.rutland@arm.com>,
+        "mark.rutland@arm.com"
+	<mark.rutland@arm.com>,
         "lee.jones@linaro.org" <lee.jones@linaro.org>,
         "lgirdwood@gmail.com" <lgirdwood@gmail.com>,
-        "broonie@kernel.org" <broonie@kernel.org>,
+        "broonie@kernel.org"
+	<broonie@kernel.org>,
         "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
         "linux@roeck-us.net" <linux@roeck-us.net>,
-        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>,
+        "linux-input@vger.kernel.org"
+	<linux-input@vger.kernel.org>,
+        "devicetree@vger.kernel.org"
+	<devicetree@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org"
+	<linux-kernel@vger.kernel.org>,
+        "linux-watchdog@vger.kernel.org"
+	<linux-watchdog@vger.kernel.org>,
+        "benjamin.gaignard@linaro.org"
+	<benjamin.gaignard@linaro.org>,
         "eballetbo@gmail.com" <eballetbo@gmail.com>
 CC: Pascal PAILLET-LME <p.paillet@st.com>
-Subject: [PATCH v4 8/8] watchdog: stpmic1: add stpmic1 watchdog driver
-Date: Thu, 18 Oct 2018 09:02:14 +0000
-Message-ID: <1539853324-29051-9-git-send-email-p.paillet@st.com>
+Subject: [PATCH v4 5/8] dt-bindings: input: document stpmic1 pmic onkey
+Date: Thu, 18 Oct 2018 09:02:13 +0000
+Message-ID: <1539853324-29051-6-git-send-email-p.paillet@st.com>
 References: <1539853324-29051-1-git-send-email-p.paillet@st.com>
 In-Reply-To: <1539853324-29051-1-git-send-email-p.paillet@st.com>
 Content-Language: en-US
 Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+List-ID: <linux-watchdog@vger.kernel.org>
 
 From: pascal paillet <p.paillet@st.com>
 
-The stpmic1 PMIC embeds a watchdog which is disabled by default. As soon
-as the watchdog is started, it must be refreshed periodically otherwise
-the PMIC goes off.
+The stpmic1 pmic is able to manage an onkey button. It can be configured
+to shut-down the power supplies on a long key-press with an adjustable
+duration.
 
 Signed-off-by: pascal paillet <p.paillet@st.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
 ---
 changes in v4:
-* fix stop watchdog function
-* Kconfig: fix grammar issue
+* remove interrupt-parent description
+* remove st,onkey-pwroff-enabled and power-off-time-sec properties
 
- drivers/watchdog/Kconfig       |  12 ++++
- drivers/watchdog/Makefile      |   1 +
- drivers/watchdog/stpmic1_wdt.c | 139 +++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 152 insertions(+)
- create mode 100644 drivers/watchdog/stpmic1_wdt.c
+ .../devicetree/bindings/input/st,stpmic1-onkey.txt | 28 ++++++++++++++++++=
+++++
+ 1 file changed, 28 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/st,stpmic1-onke=
+y.txt
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 5ea8909..6d2ffef 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -806,6 +806,18 @@ config STM32_WATCHDOG
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called stm32_iwdg.
- 
-+config STPMIC1_WATCHDOG
-+	tristate "STPMIC1 PMIC watchdog support"
-+	depends on MFD_STPMIC1
-+	select WATCHDOG_CORE
-+	help
-+	  Say Y here to include watchdog support embedded into STPMIC1 PMIC.
-+	  If the watchdog timer expires, stpmic1 will shut down all its power
-+	  supplies.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called spmic1_wdt.
-+
- config UNIPHIER_WATCHDOG
- 	tristate "UniPhier watchdog support"
- 	depends on ARCH_UNIPHIER || COMPILE_TEST
-diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index bf92e7b..2649cf3 100644
---- a/drivers/watchdog/Makefile
-+++ b/drivers/watchdog/Makefile
-@@ -217,3 +217,4 @@ obj-$(CONFIG_SOFT_WATCHDOG) += softdog.o
- obj-$(CONFIG_MENF21BMC_WATCHDOG) += menf21bmc_wdt.o
- obj-$(CONFIG_MENZ069_WATCHDOG) += menz69_wdt.o
- obj-$(CONFIG_RAVE_SP_WATCHDOG) += rave-sp-wdt.o
-+obj-$(CONFIG_STPMIC1_WATCHDOG) += stpmic1_wdt.o
-diff --git a/drivers/watchdog/stpmic1_wdt.c b/drivers/watchdog/stpmic1_wdt.c
+diff --git a/Documentation/devicetree/bindings/input/st,stpmic1-onkey.txt b=
+/Documentation/devicetree/bindings/input/st,stpmic1-onkey.txt
 new file mode 100644
-index 0000000..a6cbc27
+index 0000000..4494613
 --- /dev/null
-+++ b/drivers/watchdog/stpmic1_wdt.c
-@@ -0,0 +1,139 @@
-+// SPDX-License-Identifier: GPL-2.0
-+// Copyright (C) STMicroelectronics 2018
-+// Author: Pascal Paillet <p.paillet@st.com> for STMicroelectronics.
++++ b/Documentation/devicetree/bindings/input/st,stpmic1-onkey.txt
+@@ -0,0 +1,28 @@
++STMicroelectronics STPMIC1 Onkey
 +
-+#include <linux/kernel.h>
-+#include <linux/mfd/stpmic1.h>
-+#include <linux/module.h>
-+#include <linux/platform_device.h>
-+#include <linux/of.h>
-+#include <linux/regmap.h>
-+#include <linux/slab.h>
-+#include <linux/watchdog.h>
++Required properties:
 +
-+/* WATCHDOG CONTROL REGISTER bit */
-+#define WDT_START		BIT(0)
-+#define WDT_PING		BIT(1)
-+#define WDT_START_MASK		BIT(0)
-+#define WDT_PING_MASK		BIT(1)
-+#define WDT_STOP		0
++- compatible =3D "st,stpmic1-onkey";
++- interrupts: interrupt line to use
++- interrupt-names =3D "onkey-falling", "onkey-rising"
++	onkey-falling: happens when onkey is pressed; IT_PONKEY_F of pmic
++	onkey-rising: happens when onkey is released; IT_PONKEY_R of pmic
 +
-+#define PMIC_WDT_MIN_TIMEOUT 1
-+#define PMIC_WDT_MAX_TIMEOUT 256
-+#define PMIC_WDT_DEFAULT_TIMEOUT 30
++Optional properties:
 +
-+static bool nowayout = WATCHDOG_NOWAYOUT;
-+module_param(nowayout, bool, 0);
-+MODULE_PARM_DESC(nowayout,
-+		"Watchdog cannot be stopped once started (default="
-+				__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
++- st,onkey-clear-cc-flag: onkey is able power on after an
++  over-current shutdown event.
++- st,onkey-pu-inactive: onkey pull up is not active
++- power-off-time-sec: Duration in seconds which the key should be kept
++        pressed for device to power off automatically (from 1 to 16 second=
+s).
++        see See Documentation/devicetree/bindings/input/keys.txt
 +
-+struct stpmic1_wdt {
-+	struct stpmic1 *pmic;
-+	struct watchdog_device wdtdev;
++Example:
++
++onkey {
++	compatible =3D "st,stpmic1-onkey";
++	interrupt-parent =3D <&pmic>;
++	interrupts =3D <IT_PONKEY_F 0>,<IT_PONKEY_R 1>;
++	interrupt-names =3D "onkey-falling", "onkey-rising";
++	power-off-time-sec =3D <10>;
 +};
-+
-+static int pmic_wdt_start(struct watchdog_device *wdd)
-+{
-+	struct stpmic1_wdt *wdt = watchdog_get_drvdata(wdd);
-+
-+	return regmap_update_bits(wdt->pmic->regmap,
-+				  WCHDG_CR, WDT_START_MASK, WDT_START);
-+}
-+
-+static int pmic_wdt_stop(struct watchdog_device *wdd)
-+{
-+	struct stpmic1_wdt *wdt = watchdog_get_drvdata(wdd);
-+
-+	return regmap_update_bits(wdt->pmic->regmap,
-+				  WCHDG_CR, WDT_START_MASK, WDT_STOP);
-+}
-+
-+static int pmic_wdt_ping(struct watchdog_device *wdd)
-+{
-+	struct stpmic1_wdt *wdt = watchdog_get_drvdata(wdd);
-+
-+	return regmap_update_bits(wdt->pmic->regmap,
-+				  WCHDG_CR, WDT_PING_MASK, WDT_PING);
-+}
-+
-+static int pmic_wdt_set_timeout(struct watchdog_device *wdd,
-+				unsigned int timeout)
-+{
-+	struct stpmic1_wdt *wdt = watchdog_get_drvdata(wdd);
-+
-+	wdd->timeout = timeout;
-+	/* timeout is equal to register value + 1 */
-+	return regmap_write(wdt->pmic->regmap, WCHDG_TIMER_CR, timeout - 1);
-+}
-+
-+static const struct watchdog_info pmic_watchdog_info = {
-+	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
-+	.identity = "STPMIC1 PMIC Watchdog",
-+};
-+
-+static const struct watchdog_ops pmic_watchdog_ops = {
-+	.owner = THIS_MODULE,
-+	.start = pmic_wdt_start,
-+	.stop = pmic_wdt_stop,
-+	.ping = pmic_wdt_ping,
-+	.set_timeout = pmic_wdt_set_timeout,
-+};
-+
-+static int pmic_wdt_probe(struct platform_device *pdev)
-+{
-+	int ret;
-+	struct stpmic1 *pmic;
-+	struct stpmic1_wdt *wdt;
-+
-+	if (!pdev->dev.parent)
-+		return -EINVAL;
-+
-+	pmic = dev_get_drvdata(pdev->dev.parent);
-+	if (!pmic)
-+		return -EINVAL;
-+
-+	wdt = devm_kzalloc(&pdev->dev, sizeof(struct stpmic1_wdt), GFP_KERNEL);
-+	if (!wdt)
-+		return -ENOMEM;
-+
-+	wdt->pmic = pmic;
-+
-+	wdt->wdtdev.info = &pmic_watchdog_info;
-+	wdt->wdtdev.ops = &pmic_watchdog_ops;
-+	wdt->wdtdev.min_timeout = PMIC_WDT_MIN_TIMEOUT;
-+	wdt->wdtdev.max_timeout = PMIC_WDT_MAX_TIMEOUT;
-+
-+	wdt->wdtdev.timeout = PMIC_WDT_DEFAULT_TIMEOUT;
-+	watchdog_init_timeout(&wdt->wdtdev, 0, &pdev->dev);
-+
-+	watchdog_set_nowayout(&wdt->wdtdev, nowayout);
-+	watchdog_set_drvdata(&wdt->wdtdev, wdt);
-+
-+	ret = devm_watchdog_register_device(&pdev->dev, &wdt->wdtdev);
-+	if (ret)
-+		return ret;
-+
-+	dev_dbg(wdt->pmic->dev, "PMIC Watchdog driver probed\n");
-+	return 0;
-+}
-+
-+static const struct of_device_id of_pmic_wdt_match[] = {
-+	{ .compatible = "st,stpmic1-wdt" },
-+	{ },
-+};
-+
-+MODULE_DEVICE_TABLE(of, of_pmic_wdt_match);
-+
-+static struct platform_driver stpmic1_wdt_driver = {
-+	.probe = pmic_wdt_probe,
-+	.driver = {
-+		.name = "stpmic1-wdt",
-+		.of_match_table = of_pmic_wdt_match,
-+	},
-+};
-+module_platform_driver(stpmic1_wdt_driver);
-+
-+MODULE_DESCRIPTION("Watchdog driver for STPMIC1 device");
-+MODULE_AUTHOR("Pascal Paillet <p.paillet@st.com>");
-+MODULE_LICENSE("GPL v2");
--- 
+--=20
 1.9.1
