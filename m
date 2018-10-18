@@ -1,15 +1,14 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pl1-f194.google.com ([209.85.214.194]:43701 "EHLO
-        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726430AbeJPGUL (ORCPT
+Received: from mail-pg1-f193.google.com ([209.85.215.193]:42733 "EHLO
+        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726960AbeJSCPH (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 16 Oct 2018 02:20:11 -0400
-Date: Mon, 15 Oct 2018 15:32:52 -0700
+        Thu, 18 Oct 2018 22:15:07 -0400
+Date: Thu, 18 Oct 2018 11:12:54 -0700
 From: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
-To: Pascal PAILLET-LME <p.paillet@st.com>
+To: Pascal PAILLET-LME <p.paillet@st.com>, lee.jones@linaro.org
 Cc: "robh+dt@kernel.org" <robh+dt@kernel.org>,
         "mark.rutland@arm.com" <mark.rutland@arm.com>,
-        "lee.jones@linaro.org" <lee.jones@linaro.org>,
         "lgirdwood@gmail.com" <lgirdwood@gmail.com>,
         "broonie@kernel.org" <broonie@kernel.org>,
         "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
@@ -20,20 +19,18 @@ Cc: "robh+dt@kernel.org" <robh+dt@kernel.org>,
         "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
         "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>,
         "eballetbo@gmail.com" <eballetbo@gmail.com>
-Subject: Re: [PATCH v3 6/8] input: stpmic1: add stpmic1 onkey driver
-Message-ID: <20181015223252.GE127224@dtor-ws>
-References: <1539016176-4072-1-git-send-email-p.paillet@st.com>
- <1539016176-4072-7-git-send-email-p.paillet@st.com>
+Subject: Re: [PATCH v4 6/8] input: stpmic1: add stpmic1 onkey driver
+Message-ID: <20181018181254.GB210757@dtor-ws>
+References: <1539853324-29051-1-git-send-email-p.paillet@st.com>
+ <1539853324-29051-7-git-send-email-p.paillet@st.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1539016176-4072-7-git-send-email-p.paillet@st.com>
+In-Reply-To: <1539853324-29051-7-git-send-email-p.paillet@st.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Pascal,
-
-On Mon, Oct 08, 2018 at 04:29:41PM +0000, Pascal PAILLET-LME wrote:
+On Thu, Oct 18, 2018 at 09:02:13AM +0000, Pascal PAILLET-LME wrote:
 > From: pascal paillet <p.paillet@st.com>
 > 
 > The stpmic1 pmic is able to manage an onkey button. This driver exposes
@@ -42,17 +39,23 @@ On Mon, Oct 08, 2018 at 04:29:41PM +0000, Pascal PAILLET-LME wrote:
 > duration.
 > 
 > Signed-off-by: pascal paillet <p.paillet@st.com>
+
+OK, so this has dependency on linux/mfd/stpmic1.h and therefore I expect
+it will go in through Lee's tree.
+
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
 > ---
-> changes in v3:
-> * Rename struct stpmic1_dev by struct stpmic1.
-> * Replace of_property_ by device_property.
-> * Remove log in IRQ handler.
-> * Add email address in MODULE_AUTHOR.
+> changes in v4:
+> * remove remove function
+> * merge stpmic1_onkey_dt_params() in probe function
+> * suppresse struct pmic_onkey_config
+> * rename PONKEY_PU_ACTIVE to PONKEY_PU_INACTIVE
 > 
->  drivers/input/misc/Kconfig         |  11 ++
+>  drivers/input/misc/Kconfig         |  11 +++
 >  drivers/input/misc/Makefile        |   2 +
->  drivers/input/misc/stpmic1_onkey.c | 248 +++++++++++++++++++++++++++++++++++++
->  3 files changed, 261 insertions(+)
+>  drivers/input/misc/stpmic1_onkey.c | 197 +++++++++++++++++++++++++++++++++++++
+>  3 files changed, 210 insertions(+)
 >  create mode 100644 drivers/input/misc/stpmic1_onkey.c
 > 
 > diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
@@ -94,10 +97,10 @@ On Mon, Oct 08, 2018 at 04:29:41PM +0000, Pascal PAILLET-LME wrote:
 > +
 > diff --git a/drivers/input/misc/stpmic1_onkey.c b/drivers/input/misc/stpmic1_onkey.c
 > new file mode 100644
-> index 0000000..871a087
+> index 0000000..6a7f08b
 > --- /dev/null
 > +++ b/drivers/input/misc/stpmic1_onkey.c
-> @@ -0,0 +1,248 @@
+> @@ -0,0 +1,197 @@
 > +// SPDX-License-Identifier: GPL-2.0
 > +// Copyright (C) STMicroelectronics 2018
 > +// Author: Pascal Paillet <p.paillet@st.com> for STMicroelectronics.
@@ -113,29 +116,14 @@ On Mon, Oct 08, 2018 at 04:29:41PM +0000, Pascal PAILLET-LME wrote:
 > +
 > +/**
 > + * struct stpmic1_onkey - OnKey data
-> + * @pmic:		pointer to STPMIC1 PMIC device
 > + * @input_dev:		pointer to input device
 > + * @irq_falling:	irq that we are hooked on to
 > + * @irq_rising:		irq that we are hooked on to
 > + */
 > +struct stpmic1_onkey {
-> +	struct stpmic1 *pmic;
 > +	struct input_dev *input_dev;
 > +	int irq_falling;
 > +	int irq_rising;
-> +};
-> +
-> +/**
-> + * struct pmic_onkey_config - configuration of pmic PONKEYn
-> + * @cc_flag_clear:		value to clear CC flag in case of PowerOff
-> + * trigger by longkey press
-> + * @onkey_pullup_val:		value of PONKEY PullUp (active or inactive)
-> + * @power_off_time_sec:		value for long press h/w shutdown event
-> + */
-> +struct pmic_onkey_config {
-> +	bool cc_flag_clear;
-> +	u8 onkey_pullup_val;
-> +	u8 power_off_time_sec;
 > +};
 > +
 > +static irqreturn_t onkey_falling_irq(int irq, void *ponkey)
@@ -162,12 +150,18 @@ On Mon, Oct 08, 2018 at 04:29:41PM +0000, Pascal PAILLET-LME wrote:
 > +	return IRQ_HANDLED;
 > +}
 > +
-> +static int stpmic1_onkey_dt_params(struct platform_device *pdev,
-> +				   struct stpmic1_onkey *onkey,
-> +				   struct pmic_onkey_config *config)
+> +static int stpmic1_onkey_probe(struct platform_device *pdev)
 > +{
+> +	struct stpmic1 *pmic = dev_get_drvdata(pdev->dev.parent);
 > +	struct device *dev = &pdev->dev;
-> +	u32 val;
+> +	struct input_dev *input_dev;
+> +	struct stpmic1_onkey *onkey;
+> +	unsigned int val, reg = 0;
+> +	int error;
+> +
+> +	onkey = devm_kzalloc(dev, sizeof(*onkey), GFP_KERNEL);
+> +	if (!onkey)
+> +		return -ENOMEM;
 > +
 > +	onkey->irq_falling = platform_get_irq_byname(pdev, "onkey-falling");
 > +	if (onkey->irq_falling < 0) {
@@ -185,7 +179,9 @@ On Mon, Oct 08, 2018 at 04:29:41PM +0000, Pascal PAILLET-LME wrote:
 > +
 > +	if (!device_property_read_u32(dev, "power-off-time-sec", &val)) {
 > +		if ((val > 0) && (val <= 16)) {
-> +			config->power_off_time_sec = val;
+> +			dev_dbg(dev, "power-off-time=%d seconds\n", val);
+> +			reg |= PONKEY_PWR_OFF;
+> +			reg |= ((16 - val) & PONKEY_TURNOFF_TIMER_MASK);
 > +		} else {
 > +			dev_err(dev, "power-off-time-sec out of range\n");
 > +			return -EINVAL;
@@ -193,35 +189,24 @@ On Mon, Oct 08, 2018 at 04:29:41PM +0000, Pascal PAILLET-LME wrote:
 > +	}
 > +
 > +	if (device_property_present(dev, "st,onkey-clear-cc-flag"))
-> +		config->cc_flag_clear = true;
+> +		reg |= PONKEY_CC_FLAG_CLEAR;
 > +
-> +	if (device_property_present(dev, "st,onkey-pu-inactive"))
-> +		config->onkey_pullup_val = PONKEY_PU_ACTIVE;
-> +
-> +	dev_dbg(dev, "onkey-switch-off duration=%d seconds\n",
-> +		config->power_off_time_sec);
-> +
-> +	return 0;
-> +}
-> +
-> +static int stpmic1_onkey_probe(struct platform_device *pdev)
-> +{
-> +	struct stpmic1 *pmic = dev_get_drvdata(pdev->dev.parent);
-> +	struct device *dev = &pdev->dev;
-> +	struct input_dev *input_dev;
-> +	struct stpmic1_onkey *onkey;
-> +	struct pmic_onkey_config config;
-> +	unsigned int val = 0;
-> +	int error;
-> +
-> +	onkey = devm_kzalloc(dev, sizeof(*onkey), GFP_KERNEL);
-> +	if (!onkey)
-> +		return -ENOMEM;
-> +
-> +	memset(&config, 0, sizeof(struct pmic_onkey_config));
-> +	error = stpmic1_onkey_dt_params(pdev, onkey, &config);
-> +	if (error)
+> +	error = regmap_update_bits(pmic->regmap, PKEY_TURNOFF_CR,
+> +				   PONKEY_TURNOFF_MASK, reg);
+> +	if (error) {
+> +		dev_err(dev, "PKEY_TURNOFF_CR write failed: %d\n", error);
 > +		return error;
+> +	}
+> +
+> +	if (device_property_present(dev, "st,onkey-pu-inactive")) {
+> +		error = regmap_update_bits(pmic->regmap, PADS_PULL_CR,
+> +					   PONKEY_PU_INACTIVE,
+> +					   PONKEY_PU_INACTIVE);
+> +		if (error) {
+> +			dev_err(dev, "ONKEY Pads configuration failed: %d\n", error);
+> +			return error;
+> +		}
+> +	}
 > +
 > +	input_dev = devm_input_allocate_device(dev);
 > +	if (!input_dev) {
@@ -234,39 +219,6 @@ On Mon, Oct 08, 2018 at 04:29:41PM +0000, Pascal PAILLET-LME wrote:
 > +
 > +	input_set_capability(input_dev, EV_KEY, KEY_POWER);
 > +
-> +	/* Setup Power Onkey Hardware parameters (long key press)*/
-> +	if (config.power_off_time_sec > 0) {
-> +		val |= PONKEY_PWR_OFF;
-> +		val |= ((16 - config.power_off_time_sec) &
-> +			PONKEY_TURNOFF_TIMER_MASK);
-> +	}
-> +	if (config.cc_flag_clear)
-
-How about doing:
-
-	if (device_property_present(dev, "st,onkey-clear-cc-flag"))
-> +		val |= PONKEY_CC_FLAG_CLEAR;
-
-and similarly handle other properties?  Then you would not really need
-the "config" structure/variable nor stpmic1_onkey_dt_params() and I do
-not think you'd lose any readability.
-
-> +	error = regmap_update_bits(pmic->regmap, PKEY_TURNOFF_CR,
-> +				   PONKEY_TURNOFF_MASK, val);
-> +	if (error) {
-> +		dev_err(dev, "LONG_PRESS_KEY_UPDATE failed: %d\n", error);
-> +		return error;
-> +	}
-> +
-> +	error = regmap_update_bits(pmic->regmap, PADS_PULL_CR,
-> +				   PONKEY_PU_ACTIVE,
-> +				   config.onkey_pullup_val);
-> +	if (error) {
-> +		dev_err(dev, "ONKEY Pads configuration failed: %d\n", error);
-> +		return error;
-> +	}
-> +
-> +	onkey->pmic = pmic;
 > +	onkey->input_dev = input_dev;
 > +
 > +	/* interrupt is nested in a thread */
@@ -295,18 +247,6 @@ not think you'd lose any readability.
 > +	platform_set_drvdata(pdev, onkey);
 > +	device_init_wakeup(dev, true);
 > +
-> +	return 0;
-> +}
-> +
-> +static int stpmic1_onkey_remove(struct platform_device *pdev)
-> +{
-> +	struct stpmic1_onkey *onkey = platform_get_drvdata(pdev);
-> +
-> +	input_unregister_device(onkey->input_dev);
-
-Input device is devm-managed, it doe snot have to be unregistered
-manually. You can remove stpmic1_onkey_remove altogether.
-
 > +	return 0;
 > +}
 > +
@@ -347,7 +287,6 @@ manually. You can remove stpmic1_onkey_remove altogether.
 > +
 > +static struct platform_driver stpmic1_onkey_driver = {
 > +	.probe	= stpmic1_onkey_probe,
-> +	.remove	= stpmic1_onkey_remove,
 > +	.driver	= {
 > +		.name	= "stpmic1_onkey",
 > +		.of_match_table = of_match_ptr(of_stpmic1_onkey_match),
