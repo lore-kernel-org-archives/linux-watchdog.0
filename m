@@ -1,13 +1,12 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from heliosphere.sirena.org.uk ([172.104.155.198]:34314 "EHLO
-        heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726784AbeJST4H (ORCPT
+Received: from mx08-00178001.pphosted.com ([91.207.212.93]:44713 "EHLO
+        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727177AbeJXVXP (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 19 Oct 2018 15:56:07 -0400
-Date: Fri, 19 Oct 2018 12:50:15 +0100
-From: Mark Brown <broonie@kernel.org>
-To: Pascal PAILLET-LME <p.paillet@st.com>
-Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
+        Wed, 24 Oct 2018 17:23:15 -0400
+From: Pascal PAILLET-LME <p.paillet@st.com>
+To: Mark Brown <broonie@kernel.org>
+CC: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
         "robh+dt@kernel.org" <robh+dt@kernel.org>,
         "mark.rutland@arm.com" <mark.rutland@arm.com>,
         "lee.jones@linaro.org" <lee.jones@linaro.org>,
@@ -21,54 +20,53 @@ Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
         "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>,
         "eballetbo@gmail.com" <eballetbo@gmail.com>
 Subject: Re: [PATCH v4 4/8] regulator: stpmic1: add stpmic1 regulator driver
-Message-ID: <20181019115015.GC5895@sirena.org.uk>
+Date: Wed, 24 Oct 2018 12:54:46 +0000
+Message-ID: <5BD06B96.3080809@st.com>
 References: <1539853324-29051-1-git-send-email-p.paillet@st.com>
  <1539853324-29051-5-git-send-email-p.paillet@st.com>
+ <20181019115015.GC5895@sirena.org.uk>
+In-Reply-To: <20181019115015.GC5895@sirena.org.uk>
+Content-Language: en-US
+Content-Type: text/plain; charset="Windows-1252"
+Content-ID: <25C03AB68B403D46ADF5E95C06741A59@st.com>
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="TYecfFk8j8mZq+dy"
-Content-Disposition: inline
-In-Reply-To: <1539853324-29051-5-git-send-email-p.paillet@st.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+Hello Mark,
 
---TYecfFk8j8mZq+dy
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Le 10/19/2018 01:50 PM, Mark Brown a écrit :
+> On Thu, Oct 18, 2018 at 09:02:12AM +0000, Pascal PAILLET-LME wrote:
+>
+>> +	for (i = 0; i < ARRAY_SIZE(stpmic1_regulator_cfgs); i++) {
+>> +		/* Parse DT & find regulators to register */
+>> +		init_data = stpmic1_regulators_matches[i].init_data;
+>> +		if (init_data)
+>> +			init_data->regulator_init = &stpmic1_regulator_parse_dt;
+>> +
+>> +		rdev = stpmic1_regulator_register(pdev, i, init_data, regul);
+>> +		if (IS_ERR(rdev))
+>> +			return PTR_ERR(rdev);
+> This looks mostly good, the only big thing is this - the default is to
+> just unconditionally register all the regulators that exist rather than
+> only those that are configured on that particular platform.  This is a
+> bit simpler and means that all the readback of the configuration for the
+> unconfigured regulators is available for diagnostics.  Is there a reason
+> not to do that?
+I'm sorry, I'm not sure to understand. Would you prefer to not register 
+regulators that
+are not described in the device-tree ?
 
-On Thu, Oct 18, 2018 at 09:02:12AM +0000, Pascal PAILLET-LME wrote:
+In that case I could add:
+     if (!init_data)
+         continue;
 
-> +	for (i = 0; i < ARRAY_SIZE(stpmic1_regulator_cfgs); i++) {
-> +		/* Parse DT & find regulators to register */
-> +		init_data = stpmic1_regulators_matches[i].init_data;
-> +		if (init_data)
-> +			init_data->regulator_init = &stpmic1_regulator_parse_dt;
-> +
-> +		rdev = stpmic1_regulator_register(pdev, i, init_data, regul);
-> +		if (IS_ERR(rdev))
-> +			return PTR_ERR(rdev);
+This would permit to keep some regulators unmodified by the kernel. This 
+can be useful
+because we have some regulators configured by boot loaders (for the DDR 
+at least) and
+it would be more simple to not handle them in the kernel.
 
-This looks mostly good, the only big thing is this - the default is to
-just unconditionally register all the regulators that exist rather than
-only those that are configured on that particular platform.  This is a
-bit simpler and means that all the readback of the configuration for the
-unconfigured regulators is available for diagnostics.  Is there a reason
-not to do that?
-
---TYecfFk8j8mZq+dy
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAlvJxPYACgkQJNaLcl1U
-h9AVFwf9HuCK1nKd89bM5cuVWMEtrJN5wwS0dwfV9NJNvZ8H5h6NdUcTYb8JASZo
-c2MckaIg5ZWdFkVtQseoT85lrBAtbROJWGrSks44FXy+fmQM6SBosll+LKRavA2b
-1VPuCiyqBHPTUz6+dVUeAQRidxERF+dZdfK2FrJGaw7G96WKeHfg7zQXy4cRNJJ0
-kcfl9qNCYjF7I4FKDqugM0gKnEARpRPThYY0agxvSnJvjsR9HAcEKDNh2BBIrDQG
-acGQE+u8/nDkD6a0Wo8NgQ+V2GsJeSjMgBVUgl+gUFaoEcogr8t0wuAlnG+kvxtX
-/pYld58dINQUYBa8+hAqgvDZK9V+iQ==
-=W0oL
------END PGP SIGNATURE-----
-
---TYecfFk8j8mZq+dy--
+best regards,
+pascal
