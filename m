@@ -1,68 +1,110 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx08-00178001.pphosted.com ([91.207.212.93]:48506 "EHLO
-        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727234AbeJYV4U (ORCPT
+Received: from mail-wm1-f68.google.com ([209.85.128.68]:35582 "EHLO
+        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725907AbeJZPWD (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 25 Oct 2018 17:56:20 -0400
-From: Pascal PAILLET-LME <p.paillet@st.com>
-To: Mark Brown <broonie@kernel.org>
-CC: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
-        "robh+dt@kernel.org" <robh+dt@kernel.org>,
-        "mark.rutland@arm.com" <mark.rutland@arm.com>,
-        "lee.jones@linaro.org" <lee.jones@linaro.org>,
-        "lgirdwood@gmail.com" <lgirdwood@gmail.com>,
-        "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
-        "linux@roeck-us.net" <linux@roeck-us.net>,
-        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        Fri, 26 Oct 2018 11:22:03 -0400
+Received: by mail-wm1-f68.google.com with SMTP id w186-v6so321423wmf.0
+        for <linux-watchdog@vger.kernel.org>; Thu, 25 Oct 2018 23:46:17 -0700 (PDT)
+Date: Fri, 26 Oct 2018 07:46:14 +0100
+From: Lee Jones <lee.jones@linaro.org>
+To: Rob Herring <robh+dt@kernel.org>
+Cc: Pascal PAILLET-LME <p.paillet@st.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
         "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>,
-        "eballetbo@gmail.com" <eballetbo@gmail.com>
-Subject: Re: [PATCH v4 4/8] regulator: stpmic1: add stpmic1 regulator driver
-Date: Thu, 25 Oct 2018 13:23:08 +0000
-Message-ID: <5BD1C3BB.6060500@st.com>
+        LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
+        Benjamin Gaignard <benjamin.gaignard@linaro.org>,
+        Enric Balletbo i Serra <eballetbo@gmail.com>
+Subject: Re: [PATCH v4 1/8] dt-bindings: mfd: document stpmic1
+Message-ID: <20181026064614.GG4870@dell>
 References: <1539853324-29051-1-git-send-email-p.paillet@st.com>
- <1539853324-29051-5-git-send-email-p.paillet@st.com>
- <20181019115015.GC5895@sirena.org.uk> <5BD06B96.3080809@st.com>
- <20181024131716.GQ2103@sirena.org.uk>
-In-Reply-To: <20181024131716.GQ2103@sirena.org.uk>
-Content-Language: en-US
-Content-Type: text/plain; charset="Windows-1252"
-Content-ID: <AF637F4DFBD7E54B9A25F414B9E1D73B@st.com>
-Content-Transfer-Encoding: 8BIT
+ <1539853324-29051-2-git-send-email-p.paillet@st.com>
+ <20181025094430.GQ4939@dell>
+ <CAL_JsqKsp8kTK2v_cBrNm+enzieQSEh2G7KMxsBdidr+XhDwTg@mail.gmail.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAL_JsqKsp8kTK2v_cBrNm+enzieQSEh2G7KMxsBdidr+XhDwTg@mail.gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hello Mark,
+On Thu, 25 Oct 2018, Rob Herring wrote:
 
-Le 10/24/2018 03:17 PM, Mark Brown a �crit :
-> On Wed, Oct 24, 2018 at 12:54:46PM +0000, Pascal PAILLET-LME wrote:
->
->> I'm sorry, I'm not sure to understand. Would you prefer to not register
->> regulators that
->> are not described in the device-tree ?
-> No, I'm saying register all regulators regardless of if they are in the
-> device tree - you shouldn't be looking at the init data at all here,
-> just let the framework match them using of_match.
-I have reworked the code so that we don't touch any more to the init_data.
-the new loop to register the regulators is below:
+> On Thu, Oct 25, 2018 at 4:44 AM Lee Jones <lee.jones@linaro.org> wrote:
+> >
+> > Rob: please grep your name for some feedback.
 
-     for (i = 0; i < ARRAY_SIZE(stpmic1_regulator_cfgs); i++) {
-         ret = stpmic1_regulator_register(pdev, i, &stpmic1_matches[i],
-                          regul);
-         if (ret < 0)
-             return ret;
-         regul++;
-     }
+[Moved to the top]
 
-Each regulator is registered, even is it is not described in the 
-device-tree.
+> > I'm surprised Rob allowed you to add register bits in a DT property?
+> 
+> Yeah, they are certainly questionable and not something we encourage,
+> but the alternative would be dozens of properties which only apply for
+> this one device and just get translated back to register values.
 
-stpmic1_regulator_parse_dt() and stpmic1_regulator_init() are now merged 
-inside
-stpmic1_regulator_register() function.
+I don't see how this device is any different to the 100's of devices
+which are already supported in DT.
 
-Thank You,
-pascal
+> > On Thu, 18 Oct 2018, Pascal PAILLET-LME wrote:
+> >
+> > > From: pascal paillet <p.paillet@st.com>
+> 
+> > > +Optional parent device properties:
+> > > +- st,main-control-register:
+> > > +     -bit 1: Power cycling will be performed on turn OFF condition
+> > > +     -bit 2: PWRCTRL is functional
+> > > +     -bit 3: PWRCTRL active high
+> > > +- st,pads-pull-register:
+> > > +     -bit 1: WAKEUP pull down is not active
+> > > +     -bit 2: PWRCTRL pull up is active
+> > > +     -bit 3: PWRCTRL pull down is active
+> > > +     -bit 4: WAKEUP detector is disabled
+
+This should be part of the Pinctrl configuration/driver.
+
+And Pinctrl probably already has properties for this?
+
+> > > +- st,vin-control-register:
+> > > +     -bit 0: VINLOW monitoring is enabled
+> > > +     -bit [1...3]: VINLOW rising threshold
+> > > +             000 VINOK_f + 50mV
+> > > +             001 VINOK_f + 100mV
+> > > +             010 VINOK_f + 150mV
+> > > +             011 VINOK_f + 200mV
+> > > +             100 VINOK_f + 250mV
+> > > +             101 VINOK_f + 300mV
+> > > +             110 VINOK_f + 350mV
+> > > +             111 VINOK_f + 400mV
+> > > +     -bit [4...5]: VINLOW hyst
+> > > +             00 100mV
+> > > +             01 200mV
+> > > +             10 300mV
+> > > +             11 400mV
+> > > +     -bit 6: SW_OUT detector is disabled
+> > > +     -bit 7: SW_IN detector is enabled.
+
+This should be part of the Regulator configuration/driver?
+
+> > > +- st,usb-control-register:
+> > > +     -bit 3: SW_OUT current limit
+> > > +             0: 600mA
+> > > +             1: 1.1A
+> > > +     -bit 4: VBUS_OTG discharge is enabled
+> > > +     -bit 5: SW_OUT discharge is enabled
+> > > +     -bit 6: VBUS_OTG detection is enabled
+> > > +     -bit 7: BOOST_OVP is disabled
+
+This should be part of the USB configuration/driver?
+
+-- 
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
