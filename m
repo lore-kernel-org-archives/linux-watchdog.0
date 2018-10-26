@@ -1,120 +1,78 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wm1-f65.google.com ([209.85.128.65]:40785 "EHLO
-        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727462AbeJZUXK (ORCPT
+Received: from heliosphere.sirena.org.uk ([172.104.155.198]:37708 "EHLO
+        heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726730AbeJ0FMT (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 26 Oct 2018 16:23:10 -0400
-Received: by mail-wm1-f65.google.com with SMTP id b203-v6so1143815wme.5
-        for <linux-watchdog@vger.kernel.org>; Fri, 26 Oct 2018 04:46:22 -0700 (PDT)
-Date: Fri, 26 Oct 2018 12:46:18 +0100
-From: Lee Jones <lee.jones@linaro.org>
+        Sat, 27 Oct 2018 01:12:19 -0400
+Date: Fri, 26 Oct 2018 21:33:44 +0100
+From: Mark Brown <broonie@kernel.org>
 To: Pascal PAILLET-LME <p.paillet@st.com>
-Cc: Rob Herring <robh+dt@kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
+Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
+        "robh+dt@kernel.org" <robh+dt@kernel.org>,
+        "mark.rutland@arm.com" <mark.rutland@arm.com>,
+        "lee.jones@linaro.org" <lee.jones@linaro.org>,
+        "lgirdwood@gmail.com" <lgirdwood@gmail.com>,
+        "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
+        "linux@roeck-us.net" <linux@roeck-us.net>,
         "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
         "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
         "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
-        Benjamin Gaignard <benjamin.gaignard@linaro.org>,
-        Enric Balletbo i Serra <eballetbo@gmail.com>
-Subject: Re: [PATCH v4 1/8] dt-bindings: mfd: document stpmic1
-Message-ID: <20181026114618.GR4870@dell>
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+        "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>,
+        "eballetbo@gmail.com" <eballetbo@gmail.com>
+Subject: Re: [PATCH v4 4/8] regulator: stpmic1: add stpmic1 regulator driver
+Message-ID: <20181026203344.GD27137@sirena.org.uk>
 References: <1539853324-29051-1-git-send-email-p.paillet@st.com>
- <1539853324-29051-2-git-send-email-p.paillet@st.com>
- <20181025094430.GQ4939@dell>
- <CAL_JsqKsp8kTK2v_cBrNm+enzieQSEh2G7KMxsBdidr+XhDwTg@mail.gmail.com>
- <20181026064614.GG4870@dell>
- <5BD2E2DB.5090305@st.com>
+ <1539853324-29051-5-git-send-email-p.paillet@st.com>
+ <20181019115015.GC5895@sirena.org.uk>
+ <5BD06B96.3080809@st.com>
+ <20181024131716.GQ2103@sirena.org.uk>
+ <5BD1C3BB.6060500@st.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="WChQLJJJfbwij+9x"
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <5BD2E2DB.5090305@st.com>
+In-Reply-To: <5BD1C3BB.6060500@st.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, 26 Oct 2018, Pascal PAILLET-LME wrote:
 
-> Hello Lee,
-> 
-> Le 10/26/2018 08:46 AM, Lee Jones a écrit :
-> > On Thu, 25 Oct 2018, Rob Herring wrote:
-> >
-> >> On Thu, Oct 25, 2018 at 4:44 AM Lee Jones <lee.jones@linaro.org> wrote:
-> >>> Rob: please grep your name for some feedback.
-> > [Moved to the top]
-> >
-> >>> I'm surprised Rob allowed you to add register bits in a DT property?
-> >> Yeah, they are certainly questionable and not something we encourage,
-> >> but the alternative would be dozens of properties which only apply for
-> >> this one device and just get translated back to register values.
-> > I don't see how this device is any different to the 100's of devices
-> > which are already supported in DT.
-> >
-> >>> On Thu, 18 Oct 2018, Pascal PAILLET-LME wrote:
-> >>>
-> >>>> From: pascal paillet <p.paillet@st.com>
-> >>>> +Optional parent device properties:
-> >>>> +- st,main-control-register:
-> >>>> +     -bit 1: Power cycling will be performed on turn OFF condition
-> >>>> +     -bit 2: PWRCTRL is functional
-> >>>> +     -bit 3: PWRCTRL active high
-> >>>> +- st,pads-pull-register:
-> >>>> +     -bit 1: WAKEUP pull down is not active
-> >>>> +     -bit 2: PWRCTRL pull up is active
-> >>>> +     -bit 3: PWRCTRL pull down is active
-> >>>> +     -bit 4: WAKEUP detector is disabled
-> > This should be part of the Pinctrl configuration/driver.
-> >
-> > And Pinctrl probably already has properties for this?
-> I will remove this in the next version.
-> >>>> +- st,vin-control-register:
-> >>>> +     -bit 0: VINLOW monitoring is enabled
-> >>>> +     -bit [1...3]: VINLOW rising threshold
-> >>>> +             000 VINOK_f + 50mV
-> >>>> +             001 VINOK_f + 100mV
-> >>>> +             010 VINOK_f + 150mV
-> >>>> +             011 VINOK_f + 200mV
-> >>>> +             100 VINOK_f + 250mV
-> >>>> +             101 VINOK_f + 300mV
-> >>>> +             110 VINOK_f + 350mV
-> >>>> +             111 VINOK_f + 400mV
-> >>>> +     -bit [4...5]: VINLOW hyst
-> >>>> +             00 100mV
-> >>>> +             01 200mV
-> >>>> +             10 300mV
-> >>>> +             11 400mV
-> >>>> +     -bit 6: SW_OUT detector is disabled
-> >>>> +     -bit 7: SW_IN detector is enabled.
-> > This should be part of the Regulator configuration/driver?
-> I will also remove this in the next version. I think this could be 
-> handled by an hardware monitor future driver.
-> >>>> +- st,usb-control-register:
-> >>>> +     -bit 3: SW_OUT current limit
-> >>>> +             0: 600mA
-> >>>> +             1: 1.1A
-> >>>> +     -bit 4: VBUS_OTG discharge is enabled
-> >>>> +     -bit 5: SW_OUT discharge is enabled
-> >>>> +     -bit 6: VBUS_OTG detection is enabled
-> >>>> +     -bit 7: BOOST_OVP is disabled
-> > This should be part of the USB configuration/driver?
-> >
-> I will also remove this in the next version. And I'm going to add active 
-> discharge ops in the regulator driver.
+--WChQLJJJfbwij+9x
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-And unless this device is in any way special, these subsystems should
-already have generic bindings to set these hardware configuration
-options.
+On Thu, Oct 25, 2018 at 01:23:08PM +0000, Pascal PAILLET-LME wrote:
 
-I would say that passing raw register values is not the way to go.
+> I have reworked the code so that we don't touch any more to the init_data.
+> the new loop to register the regulators is below:
+>=20
+>      for (i =3D 0; i < ARRAY_SIZE(stpmic1_regulator_cfgs); i++) {
+>          ret =3D stpmic1_regulator_register(pdev, i, &stpmic1_matches[i],
+>                           regul);
+>          if (ret < 0)
+>              return ret;
+>          regul++;
+>      }
+>=20
+> Each regulator is registered, even is it is not described in the=20
+> device-tree.
 
--- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+Looks good.
+
+--WChQLJJJfbwij+9x
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAlvTeicACgkQJNaLcl1U
+h9BNawf/cbL/eN87EoAK84d4Blf5KW/72h2ON2hIQ4Zz17sppoHuiZaArEUDLbjv
+tDanZ8eCfCKDWaysFbU8014ck8IO74gnCgehAh9RAu4UMmFHBX3JBpfgnWtOhYYX
+Kw3MuAnBzFqeDq11wTdjUW3vfd6SZsm+/Zaezw/Py7btUesDIbo4Rg7OAtaG5Rkn
+2xnh/Upm2W0dHxwN3aH1Y9zxxJrr6xyROTO5LZnkkPmYNewAgW9UFuyzsmqJq8+N
+W7u9b900oQWhEa7cwxlwDMeVV+TPb5SOU8xTP0soHgLKf8ymDvom6Xf2Oi9jsKLX
+73RVLYgMgNl607gHIfWVbpaX61LQIg==
+=Uxw5
+-----END PGP SIGNATURE-----
+
+--WChQLJJJfbwij+9x--
