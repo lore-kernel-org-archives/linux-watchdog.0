@@ -1,71 +1,120 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-os2jpn01on0138.outbound.protection.outlook.com ([104.47.92.138]:29031
-        "EHLO JPN01-OS2-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726128AbeJZSZx (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 26 Oct 2018 14:25:53 -0400
-From: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
-To: Biju Das <biju.das@bp.renesas.com>,
+Received: from mail-wm1-f65.google.com ([209.85.128.65]:40785 "EHLO
+        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727462AbeJZUXK (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 26 Oct 2018 16:23:10 -0400
+Received: by mail-wm1-f65.google.com with SMTP id b203-v6so1143815wme.5
+        for <linux-watchdog@vger.kernel.org>; Fri, 26 Oct 2018 04:46:22 -0700 (PDT)
+Date: Fri, 26 Oct 2018 12:46:18 +0100
+From: Lee Jones <lee.jones@linaro.org>
+To: Pascal PAILLET-LME <p.paillet@st.com>
+Cc: Rob Herring <robh+dt@kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>
-CC: Biju Das <biju.das@bp.renesas.com>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
         "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        Simon Horman <horms@verge.net.au>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Chris Paterson <Chris.Paterson2@renesas.com>,
-        "linux-renesas-soc@vger.kernel.org"
-        <linux-renesas-soc@vger.kernel.org>
-Subject: RE: [PATCH] dt-bindings: watchdog: renesas-wdt: Document r8a77470
- support
-Date: Fri, 26 Oct 2018 09:49:24 +0000
-Message-ID: <TYXPR01MB177523BF9A1BC792C2EB2374C0F00@TYXPR01MB1775.jpnprd01.prod.outlook.com>
-References: <1540544153-48098-1-git-send-email-biju.das@bp.renesas.com>
-In-Reply-To: <1540544153-48098-1-git-send-email-biju.das@bp.renesas.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
+        Benjamin Gaignard <benjamin.gaignard@linaro.org>,
+        Enric Balletbo i Serra <eballetbo@gmail.com>
+Subject: Re: [PATCH v4 1/8] dt-bindings: mfd: document stpmic1
+Message-ID: <20181026114618.GR4870@dell>
+References: <1539853324-29051-1-git-send-email-p.paillet@st.com>
+ <1539853324-29051-2-git-send-email-p.paillet@st.com>
+ <20181025094430.GQ4939@dell>
+ <CAL_JsqKsp8kTK2v_cBrNm+enzieQSEh2G7KMxsBdidr+XhDwTg@mail.gmail.com>
+ <20181026064614.GG4870@dell>
+ <5BD2E2DB.5090305@st.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <5BD2E2DB.5090305@st.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-> Subject: [PATCH] dt-bindings: watchdog: renesas-wdt: Document r8a77470 su=
-pport
->
-> RZ/G1C (R8A77470) watchdog implementation is compatible with R-Car
-> Gen2, therefore add relevant documentation.
->
-> Signed-off-by: Biju Das <biju.das@bp.renesas.com>
+On Fri, 26 Oct 2018, Pascal PAILLET-LME wrote:
 
-Reviewed-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
+> Hello Lee,
+> 
+> Le 10/26/2018 08:46 AM, Lee Jones a écrit :
+> > On Thu, 25 Oct 2018, Rob Herring wrote:
+> >
+> >> On Thu, Oct 25, 2018 at 4:44 AM Lee Jones <lee.jones@linaro.org> wrote:
+> >>> Rob: please grep your name for some feedback.
+> > [Moved to the top]
+> >
+> >>> I'm surprised Rob allowed you to add register bits in a DT property?
+> >> Yeah, they are certainly questionable and not something we encourage,
+> >> but the alternative would be dozens of properties which only apply for
+> >> this one device and just get translated back to register values.
+> > I don't see how this device is any different to the 100's of devices
+> > which are already supported in DT.
+> >
+> >>> On Thu, 18 Oct 2018, Pascal PAILLET-LME wrote:
+> >>>
+> >>>> From: pascal paillet <p.paillet@st.com>
+> >>>> +Optional parent device properties:
+> >>>> +- st,main-control-register:
+> >>>> +     -bit 1: Power cycling will be performed on turn OFF condition
+> >>>> +     -bit 2: PWRCTRL is functional
+> >>>> +     -bit 3: PWRCTRL active high
+> >>>> +- st,pads-pull-register:
+> >>>> +     -bit 1: WAKEUP pull down is not active
+> >>>> +     -bit 2: PWRCTRL pull up is active
+> >>>> +     -bit 3: PWRCTRL pull down is active
+> >>>> +     -bit 4: WAKEUP detector is disabled
+> > This should be part of the Pinctrl configuration/driver.
+> >
+> > And Pinctrl probably already has properties for this?
+> I will remove this in the next version.
+> >>>> +- st,vin-control-register:
+> >>>> +     -bit 0: VINLOW monitoring is enabled
+> >>>> +     -bit [1...3]: VINLOW rising threshold
+> >>>> +             000 VINOK_f + 50mV
+> >>>> +             001 VINOK_f + 100mV
+> >>>> +             010 VINOK_f + 150mV
+> >>>> +             011 VINOK_f + 200mV
+> >>>> +             100 VINOK_f + 250mV
+> >>>> +             101 VINOK_f + 300mV
+> >>>> +             110 VINOK_f + 350mV
+> >>>> +             111 VINOK_f + 400mV
+> >>>> +     -bit [4...5]: VINLOW hyst
+> >>>> +             00 100mV
+> >>>> +             01 200mV
+> >>>> +             10 300mV
+> >>>> +             11 400mV
+> >>>> +     -bit 6: SW_OUT detector is disabled
+> >>>> +     -bit 7: SW_IN detector is enabled.
+> > This should be part of the Regulator configuration/driver?
+> I will also remove this in the next version. I think this could be 
+> handled by an hardware monitor future driver.
+> >>>> +- st,usb-control-register:
+> >>>> +     -bit 3: SW_OUT current limit
+> >>>> +             0: 600mA
+> >>>> +             1: 1.1A
+> >>>> +     -bit 4: VBUS_OTG discharge is enabled
+> >>>> +     -bit 5: SW_OUT discharge is enabled
+> >>>> +     -bit 6: VBUS_OTG detection is enabled
+> >>>> +     -bit 7: BOOST_OVP is disabled
+> > This should be part of the USB configuration/driver?
+> >
+> I will also remove this in the next version. And I'm going to add active 
+> discharge ops in the regulator driver.
 
-> ---
-> This patch is tested against linux-next
-> ---
->  Documentation/devicetree/bindings/watchdog/renesas-wdt.txt | 1 +
->  1 file changed, 1 insertion(+)
->
-> diff --git a/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
-> b/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
-> index a8ee29f..a47bdea 100644
-> --- a/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
-> +++ b/Documentation/devicetree/bindings/watchdog/renesas-wdt.txt
-> @@ -8,6 +8,7 @@ Required properties:
->   - "renesas,r8a7743-wdt" (RZ/G1M)
->   - "renesas,r8a7744-wdt" (RZ/G1N)
->   - "renesas,r8a7745-wdt" (RZ/G1E)
-> + - "renesas,r8a77470-wdt" (RZ/G1C)
->   - "renesas,r8a774a1-wdt" (RZ/G2M)
->           - "renesas,r8a7790-wdt" (R-Car H2)
->           - "renesas,r8a7791-wdt" (R-Car M2-W)
-> --
-> 2.7.4
+And unless this device is in any way special, these subsystems should
+already have generic bindings to set these hardware configuration
+options.
 
+I would say that passing raw register values is not the way to go.
 
-
-
-Renesas Electronics Europe Ltd, Dukes Meadow, Millboard Road, Bourne End, B=
-uckinghamshire, SL8 5FH, UK. Registered in England & Wales under Registered=
- No. 04586709.
+-- 
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
