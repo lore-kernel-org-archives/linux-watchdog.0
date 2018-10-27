@@ -1,78 +1,42 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from heliosphere.sirena.org.uk ([172.104.155.198]:37708 "EHLO
-        heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726730AbeJ0FMT (ORCPT
+Received: from mail-lj1-f172.google.com ([209.85.208.172]:45706 "EHLO
+        mail-lj1-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728801AbeJ1CIl (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 27 Oct 2018 01:12:19 -0400
-Date: Fri, 26 Oct 2018 21:33:44 +0100
-From: Mark Brown <broonie@kernel.org>
-To: Pascal PAILLET-LME <p.paillet@st.com>
-Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
-        "robh+dt@kernel.org" <robh+dt@kernel.org>,
-        "mark.rutland@arm.com" <mark.rutland@arm.com>,
-        "lee.jones@linaro.org" <lee.jones@linaro.org>,
-        "lgirdwood@gmail.com" <lgirdwood@gmail.com>,
-        "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
-        "linux@roeck-us.net" <linux@roeck-us.net>,
-        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>,
-        "eballetbo@gmail.com" <eballetbo@gmail.com>
-Subject: Re: [PATCH v4 4/8] regulator: stpmic1: add stpmic1 regulator driver
-Message-ID: <20181026203344.GD27137@sirena.org.uk>
-References: <1539853324-29051-1-git-send-email-p.paillet@st.com>
- <1539853324-29051-5-git-send-email-p.paillet@st.com>
- <20181019115015.GC5895@sirena.org.uk>
- <5BD06B96.3080809@st.com>
- <20181024131716.GQ2103@sirena.org.uk>
- <5BD1C3BB.6060500@st.com>
+        Sat, 27 Oct 2018 22:08:41 -0400
+Received: by mail-lj1-f172.google.com with SMTP id j4-v6so3998699ljc.12
+        for <linux-watchdog@vger.kernel.org>; Sat, 27 Oct 2018 10:27:00 -0700 (PDT)
+Received: from mail-lf1-f41.google.com (mail-lf1-f41.google.com. [209.85.167.41])
+        by smtp.gmail.com with ESMTPSA id l15-v6sm2345222lfl.69.2018.10.27.10.26.57
+        for <linux-watchdog@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 27 Oct 2018 10:26:57 -0700 (PDT)
+Received: by mail-lf1-f41.google.com with SMTP id h192so3179649lfg.3
+        for <linux-watchdog@vger.kernel.org>; Sat, 27 Oct 2018 10:26:57 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="WChQLJJJfbwij+9x"
-Content-Disposition: inline
-In-Reply-To: <5BD1C3BB.6060500@st.com>
+References: <20181027112724.GA26504@www.linux-watchdog.org>
+In-Reply-To: <20181027112724.GA26504@www.linux-watchdog.org>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Date: Sat, 27 Oct 2018 10:26:41 -0700
+Message-ID: <CAHk-=wicMwPp77jc-nDt3+FZOUKnRqeresdYhUPbJUMbiJsg9g@mail.gmail.com>
+Subject: Re: [GIT PULL REQUEST] watchdog - v4.20 Merge window
+To: wim@linux-watchdog.org
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-watchdog@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        khoroshilov@ispras.ru, chris.brandt@renesas.com,
+        christophe.leroy@c-s.fr, hauke@hauke-m.de, jdelvare@suse.de,
+        jerry.hoemann@hpe.com, kuninori.morimoto.gx@renesas.com,
+        marek.behun@nic.cz, rpjday@crashcourse.ca,
+        romain.izard.pro@gmail.com, wsa+renesas@sang-engineering.com
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+On Sat, Oct 27, 2018 at 4:50 AM Wim Van Sebroeck <wim@linux-watchdog.org> wrote:
+>
+> Please pull the watchdog changes for the v4.20 (or 5.00) release cycle.
 
---WChQLJJJfbwij+9x
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Pulled,
 
-On Thu, Oct 25, 2018 at 01:23:08PM +0000, Pascal PAILLET-LME wrote:
-
-> I have reworked the code so that we don't touch any more to the init_data.
-> the new loop to register the regulators is below:
->=20
->      for (i =3D 0; i < ARRAY_SIZE(stpmic1_regulator_cfgs); i++) {
->          ret =3D stpmic1_regulator_register(pdev, i, &stpmic1_matches[i],
->                           regul);
->          if (ret < 0)
->              return ret;
->          regul++;
->      }
->=20
-> Each regulator is registered, even is it is not described in the=20
-> device-tree.
-
-Looks good.
-
---WChQLJJJfbwij+9x
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAlvTeicACgkQJNaLcl1U
-h9BNawf/cbL/eN87EoAK84d4Blf5KW/72h2ON2hIQ4Zz17sppoHuiZaArEUDLbjv
-tDanZ8eCfCKDWaysFbU8014ck8IO74gnCgehAh9RAu4UMmFHBX3JBpfgnWtOhYYX
-Kw3MuAnBzFqeDq11wTdjUW3vfd6SZsm+/Zaezw/Py7btUesDIbo4Rg7OAtaG5Rkn
-2xnh/Upm2W0dHxwN3aH1Y9zxxJrr6xyROTO5LZnkkPmYNewAgW9UFuyzsmqJq8+N
-W7u9b900oQWhEa7cwxlwDMeVV+TPb5SOU8xTP0soHgLKf8ymDvom6Xf2Oi9jsKLX
-73RVLYgMgNl607gHIfWVbpaX61LQIg==
-=Uxw5
------END PGP SIGNATURE-----
-
---WChQLJJJfbwij+9x--
+                     Linus
