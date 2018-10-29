@@ -24,9 +24,10 @@ To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
         "eballetbo@gmail.com" <eballetbo@gmail.com>,
         "axel.lin@ingics.com" <axel.lin@ingics.com>
 CC: Pascal PAILLET-LME <p.paillet@st.com>
-Subject: [PATCH v5 1/8] dt-bindings: mfd: document stpmic1
-Date: Mon, 29 Oct 2018 16:22:04 +0000
-Message-ID: <1540830122-2577-2-git-send-email-p.paillet@st.com>
+Subject: [PATCH v5 3/8] dt-bindings: regulator: document stpmic1 pmic
+ regulators
+Date: Mon, 29 Oct 2018 16:22:05 +0000
+Message-ID: <1540830122-2577-4-git-send-email-p.paillet@st.com>
 References: <1540830122-2577-1-git-send-email-p.paillet@st.com>
 In-Reply-To: <1540830122-2577-1-git-send-email-p.paillet@st.com>
 Content-Language: en-US
@@ -35,148 +36,98 @@ Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
 List-ID: <linux-watchdog@vger.kernel.org>
 
-stpmic1 is a pmic from STMicroelectronics. The STPMIC1 integrates 10
-regulators, 3 power switches, a watchdog and an input for a power on key.
+The STPMIC1 regulators supply power to the application processor as well as
+to the external system peripherals such as DDR, Flash memories and system
+devices.
 
 Signed-off-by: Pascal Paillet <p.paillet@st.com>
 ---
 changes in v5:
-* removed st properties
-* added buck modes definitions in the header
+* describe regulator-active-discharge is available for power switches
+* remove interrupt parents
 
- .../devicetree/bindings/mfd/st,stpmic1.txt         | 61 ++++++++++++++++++=
+ .../bindings/regulator/st,stpmic1-regulator.txt    | 67 ++++++++++++++++++=
 ++++
- include/dt-bindings/mfd/st,stpmic1.h               | 50 ++++++++++++++++++
- 2 files changed, 111 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/mfd/st,stpmic1.txt
- create mode 100644 include/dt-bindings/mfd/st,stpmic1.h
+ 1 file changed, 67 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/regulator/st,stpmic1-=
+regulator.txt
 
-diff --git a/Documentation/devicetree/bindings/mfd/st,stpmic1.txt b/Documen=
-tation/devicetree/bindings/mfd/st,stpmic1.txt
+diff --git a/Documentation/devicetree/bindings/regulator/st,stpmic1-regulat=
+or.txt b/Documentation/devicetree/bindings/regulator/st,stpmic1-regulator.t=
+xt
 new file mode 100644
-index 0000000..afd45c0
+index 0000000..5adc938
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/mfd/st,stpmic1.txt
-@@ -0,0 +1,61 @@
-+* STMicroelectronics STPMIC1 Power Management IC
++++ b/Documentation/devicetree/bindings/regulator/st,stpmic1-regulator.txt
+@@ -0,0 +1,67 @@
++STMicroelectronics STPMIC1 Voltage regulators
 +
-+Required properties:
-+- compatible:		: "st,stpmic1"
-+- reg:			: The I2C slave address for the STPMIC1 chip.
-+- interrupts:		: The interrupt line the device is connected to.
-+- #interrupt-cells:	: Should be 1.
-+- interrupt-controller:	: Marks the device node as an interrupt controller=
-.
-+			    Interrupt numbers are defined at
-+			    dt-bindings/mfd/st,stpmic1.h.
++Regulator Nodes are optional depending on needs.
 +
-+STPMIC1 consists in a varied group of sub-devices.
-+Each sub-device binding is be described in own documentation file.
++Available Regulators in STPMIC1 device are:
++  - buck1 for Buck BUCK1
++  - buck2 for Buck BUCK2
++  - buck3 for Buck BUCK3
++  - buck4 for Buck BUCK4
++  - ldo1 for LDO LDO1
++  - ldo2 for LDO LDO2
++  - ldo3 for LDO LDO3
++  - ldo4 for LDO LDO4
++  - ldo5 for LDO LDO5
++  - ldo6 for LDO LDO6
++  - vref_ddr for LDO Vref DDR
++  - boost for Buck BOOST
++  - pwr_sw1 for VBUS_OTG switch
++  - pwr_sw2 for SW_OUT switch
 +
-+Device			 Description
-+------			------------
-+st,stpmic1-onkey	: Power on key, see ../input/st,stpmic1-onkey.txt
-+st,stpmic1-regulators	: Regulators, see ../regulator/st,stpmic1-regulator.=
-txt
-+st,stpmic1-wdt		: Watchdog, see ../watchdog/st,stpmic1-wdt.txt
++Switches are fixed voltage regulators with only enable/disable capability.
++
++Optional properties:
++- st,mask-reset: mask reset for this regulator: the regulator configuratio=
+n
++  is maintained during pmic reset.
++- regulator-pull-down: enable high pull down
++  if not specified light pull down is used
++- regulator-over-current-protection:
++    if set, all regulators are switched off in case of over-current detect=
+ion
++    on this regulator,
++    if not set, the driver only sends an over-current event.
++- interrupt-parent: phandle to the parent interrupt controller
++- interrupts: index of current limit detection interrupt
++- <regulator>-supply: phandle to the parent supply/regulator node
++	each regulator supply can be described except vref_ddr.
++- regulator-active-discharge: can be used on pwr_sw1 and pwr_sw2.
 +
 +Example:
++regulators {
++	compatible =3D "st,stpmic1-regulators";
 +
-+#include <dt-bindings/mfd/st,stpmic1.h>
++	ldo6-supply =3D <&v3v3>;
 +
-+pmic: pmic@33 {
-+	compatible =3D "st,stpmic1";
-+	reg =3D <0x33>;
-+	interrupt-parent =3D <&gpioa>;
-+	interrupts =3D <0 2>;
-+
-+	interrupt-controller;
-+	#interrupt-cells =3D <2>;
-+
-+	onkey {
-+		compatible =3D "st,stpmic1-onkey";
-+		interrupts =3D <IT_PONKEY_F 0>,<IT_PONKEY_R 1>;
-+		interrupt-names =3D "onkey-falling", "onkey-rising";
-+		power-off-time-sec =3D <10>;
++	vdd_core: buck1 {
++		regulator-name =3D "vdd_core";
++		interrupts =3D <IT_CURLIM_BUCK1 0>;
++		st,mask-reset;
++		regulator-pull-down;
++		regulator-min-microvolt =3D <700000>;
++		regulator-max-microvolt =3D <1200000>;
 +	};
 +
-+	watchdog {
-+		compatible =3D "st,stpmic1-wdt";
++	v3v3: buck4 {
++		regulator-name =3D "v3v3";
++		interrupts =3D <IT_CURLIM_BUCK4 0>;
++
++		regulator-min-microvolt =3D <3300000>;
++		regulator-max-microvolt =3D <3300000>;
 +	};
 +
-+	regulators {
-+		compatible =3D "st,stpmic1-regulators";
-+
-+		vdd_core: buck1 {
-+			regulator-name =3D "vdd_core";
-+			regulator-boot-on;
-+			regulator-min-microvolt =3D <700000>;
-+			regulator-max-microvolt =3D <1200000>;
-+		};
-+		vdd: buck3 {
-+			regulator-name =3D "vdd";
-+			regulator-min-microvolt =3D <3300000>;
-+			regulator-max-microvolt =3D <3300000>;
-+			regulator-boot-on;
-+			regulator-pull-down;
-+		};
++	v1v8: ldo6 {
++		regulator-name =3D "v1v8";
++		regulator-min-microvolt =3D <1800000>;
++		regulator-max-microvolt =3D <1800000>;
++		regulator-over-current-protection;
 +	};
-diff --git a/include/dt-bindings/mfd/st,stpmic1.h b/include/dt-bindings/mfd=
-/st,stpmic1.h
-new file mode 100644
-index 0000000..321cd087
---- /dev/null
-+++ b/include/dt-bindings/mfd/st,stpmic1.h
-@@ -0,0 +1,50 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+/*
-+ * Copyright (C) STMicroelectronics 2018 - All Rights Reserved
-+ * Author: Philippe Peurichard <philippe.peurichard@st.com>,
-+ * Pascal Paillet <p.paillet@st.com> for STMicroelectronics.
-+ */
-+
-+#ifndef __DT_BINDINGS_STPMIC1_H__
-+#define __DT_BINDINGS_STPMIC1_H__
-+
-+/* IRQ definitions */
-+#define IT_PONKEY_F	0
-+#define IT_PONKEY_R	1
-+#define IT_WAKEUP_F	2
-+#define IT_WAKEUP_R	3
-+#define IT_VBUS_OTG_F	4
-+#define IT_VBUS_OTG_R	5
-+#define IT_SWOUT_F	6
-+#define IT_SWOUT_R	7
-+
-+#define IT_CURLIM_BUCK1	8
-+#define IT_CURLIM_BUCK2	9
-+#define IT_CURLIM_BUCK3	10
-+#define IT_CURLIM_BUCK4	11
-+#define IT_OCP_OTG	12
-+#define IT_OCP_SWOUT	13
-+#define IT_OCP_BOOST	14
-+#define IT_OVP_BOOST	15
-+
-+#define IT_CURLIM_LDO1	16
-+#define IT_CURLIM_LDO2	17
-+#define IT_CURLIM_LDO3	18
-+#define IT_CURLIM_LDO4	19
-+#define IT_CURLIM_LDO5	20
-+#define IT_CURLIM_LDO6	21
-+#define IT_SHORT_SWOTG	22
-+#define IT_SHORT_SWOUT	23
-+
-+#define IT_TWARN_F	24
-+#define IT_TWARN_R	25
-+#define IT_VINLOW_F	26
-+#define IT_VINLOW_R	27
-+#define IT_SWIN_F	30
-+#define IT_SWIN_R	31
-+
-+/* BUCK MODES definitions */
-+#define STPMIC1_BUCK_MODE_NORMAL 0
-+#define STPMIC1_BUCK_MODE_LP 2
-+
-+#endif /* __DT_BINDINGS_STPMIC1_H__ */
++};
 --=20
 1.9.1
