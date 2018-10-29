@@ -1,42 +1,88 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-lj1-f172.google.com ([209.85.208.172]:45706 "EHLO
-        mail-lj1-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728801AbeJ1CIl (ORCPT
+Received: from mx08-00178001.pphosted.com ([91.207.212.93]:36263 "EHLO
+        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727690AbeJ3BLt (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 27 Oct 2018 22:08:41 -0400
-Received: by mail-lj1-f172.google.com with SMTP id j4-v6so3998699ljc.12
-        for <linux-watchdog@vger.kernel.org>; Sat, 27 Oct 2018 10:27:00 -0700 (PDT)
-Received: from mail-lf1-f41.google.com (mail-lf1-f41.google.com. [209.85.167.41])
-        by smtp.gmail.com with ESMTPSA id l15-v6sm2345222lfl.69.2018.10.27.10.26.57
-        for <linux-watchdog@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 27 Oct 2018 10:26:57 -0700 (PDT)
-Received: by mail-lf1-f41.google.com with SMTP id h192so3179649lfg.3
-        for <linux-watchdog@vger.kernel.org>; Sat, 27 Oct 2018 10:26:57 -0700 (PDT)
+        Mon, 29 Oct 2018 21:11:49 -0400
+From: Pascal PAILLET-LME <p.paillet@st.com>
+To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
+        "robh+dt@kernel.org" <robh+dt@kernel.org>,
+        "mark.rutland@arm.com" <mark.rutland@arm.com>,
+        "lee.jones@linaro.org" <lee.jones@linaro.org>,
+        "lgirdwood@gmail.com" <lgirdwood@gmail.com>,
+        "broonie@kernel.org" <broonie@kernel.org>,
+        "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
+        "linux@roeck-us.net" <linux@roeck-us.net>,
+        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+        "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>,
+        "eballetbo@gmail.com" <eballetbo@gmail.com>,
+        "axel.lin@ingics.com" <axel.lin@ingics.com>
+CC: Pascal PAILLET-LME <p.paillet@st.com>
+Subject: [PATCH v5 0/8] Introduce STPMIC1 PMIC Driver
+Date: Mon, 29 Oct 2018 16:22:04 +0000
+Message-ID: <1540830122-2577-1-git-send-email-p.paillet@st.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-References: <20181027112724.GA26504@www.linux-watchdog.org>
-In-Reply-To: <20181027112724.GA26504@www.linux-watchdog.org>
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Date: Sat, 27 Oct 2018 10:26:41 -0700
-Message-ID: <CAHk-=wicMwPp77jc-nDt3+FZOUKnRqeresdYhUPbJUMbiJsg9g@mail.gmail.com>
-Subject: Re: [GIT PULL REQUEST] watchdog - v4.20 Merge window
-To: wim@linux-watchdog.org
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-watchdog@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
-        khoroshilov@ispras.ru, chris.brandt@renesas.com,
-        christophe.leroy@c-s.fr, hauke@hauke-m.de, jdelvare@suse.de,
-        jerry.hoemann@hpe.com, kuninori.morimoto.gx@renesas.com,
-        marek.behun@nic.cz, rpjday@crashcourse.ca,
-        romain.izard.pro@gmail.com, wsa+renesas@sang-engineering.com
-Content-Type: text/plain; charset="UTF-8"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Sat, Oct 27, 2018 at 4:50 AM Wim Van Sebroeck <wim@linux-watchdog.org> wrote:
->
-> Please pull the watchdog changes for the v4.20 (or 5.00) release cycle.
+The goal of this patch-set is to propose a driver for the STPMIC1 PMIC from 
+STMicroelectronics. 
+The STPMIC1 regulators supply power to an application processor as well as 
+to external system peripherals such as DDR, Flash memories and system
+devices. It also features onkey button input and an hardware watchdog.
+The STPMIC1 is controlled via I2C. 
 
-Pulled,
+Main driver is drivers/mfd/stpmic1 that handle I2C regmap configuration and
+irqchip. stpmic1_regulator, stpmic1_onkey and stpmic1_wdt need stpmic1 mfd
+as parent.
 
-                     Linus
+stpmic1 mfd and regulator drivers maybe mandatory at boot time.
+
+Pascal Paillet (8):
+  dt-bindings: mfd: document stpmic1
+  mfd: stpmic1: add stpmic1 driver
+  dt-bindings: regulator: document stpmic1 pmic regulators
+  regulator: stpmic1: add stpmic1 regulator driver
+  dt-bindings: input: document stpmic1 pmic onkey
+  input: stpmic1: add stpmic1 onkey driver
+  dt-bindings: watchdog: document stpmic1 pmic watchdog
+  watchdog: stpmic1: add stpmic1 watchdog driver
+
+ .../devicetree/bindings/input/st,stpmic1-onkey.txt |  28 +
+ .../devicetree/bindings/mfd/st,stpmic1.txt         |  61 ++
+ .../bindings/regulator/st,stpmic1-regulator.txt    |  67 +++
+ .../bindings/watchdog/st,stpmic1-wdt.txt           |  11 +
+ drivers/input/misc/Kconfig                         |  11 +
+ drivers/input/misc/Makefile                        |   2 +
+ drivers/input/misc/stpmic1_onkey.c                 | 198 ++++++
+ drivers/mfd/Kconfig                                |  16 +
+ drivers/mfd/Makefile                               |   1 +
+ drivers/mfd/stpmic1.c                              | 215 +++++++
+ drivers/regulator/Kconfig                          |  12 +
+ drivers/regulator/Makefile                         |   1 +
+ drivers/regulator/stpmic1_regulator.c              | 667 +++++++++++++++++++++
+ drivers/watchdog/Kconfig                           |  12 +
+ drivers/watchdog/Makefile                          |   1 +
+ drivers/watchdog/stpmic1_wdt.c                     | 139 +++++
+ include/dt-bindings/mfd/st,stpmic1.h               |  50 ++
+ include/linux/mfd/stpmic1.h                        | 212 +++++++
+ 18 files changed, 1704 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/st,stpmic1-onkey.txt
+ create mode 100644 Documentation/devicetree/bindings/mfd/st,stpmic1.txt
+ create mode 100644 Documentation/devicetree/bindings/regulator/st,stpmic1-regulator.txt
+ create mode 100644 Documentation/devicetree/bindings/watchdog/st,stpmic1-wdt.txt
+ create mode 100644 drivers/input/misc/stpmic1_onkey.c
+ create mode 100644 drivers/mfd/stpmic1.c
+ create mode 100644 drivers/regulator/stpmic1_regulator.c
+ create mode 100644 drivers/watchdog/stpmic1_wdt.c
+ create mode 100644 include/dt-bindings/mfd/st,stpmic1.h
+ create mode 100644 include/linux/mfd/stpmic1.h
+
+-- 
+1.9.1
