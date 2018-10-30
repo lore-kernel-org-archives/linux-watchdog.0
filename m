@@ -1,11 +1,13 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx08-00178001.pphosted.com ([91.207.212.93]:36263 "EHLO
-        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727690AbeJ3BLt (ORCPT
+Received: from mail-ot1-f67.google.com ([209.85.210.67]:33178 "EHLO
+        mail-ot1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725765AbeJaE1K (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 29 Oct 2018 21:11:49 -0400
-From: Pascal PAILLET-LME <p.paillet@st.com>
-To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
+        Wed, 31 Oct 2018 00:27:10 -0400
+Date: Tue, 30 Oct 2018 14:32:20 -0500
+From: Rob Herring <robh@kernel.org>
+To: Pascal PAILLET-LME <p.paillet@st.com>
+Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
         "robh+dt@kernel.org" <robh+dt@kernel.org>,
         "mark.rutland@arm.com" <mark.rutland@arm.com>,
         "lee.jones@linaro.org" <lee.jones@linaro.org>,
@@ -19,70 +21,34 @@ To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
         "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
         "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>,
         "eballetbo@gmail.com" <eballetbo@gmail.com>,
-        "axel.lin@ingics.com" <axel.lin@ingics.com>
-CC: Pascal PAILLET-LME <p.paillet@st.com>
-Subject: [PATCH v5 0/8] Introduce STPMIC1 PMIC Driver
-Date: Mon, 29 Oct 2018 16:22:04 +0000
-Message-ID: <1540830122-2577-1-git-send-email-p.paillet@st.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+        "axel.lin@ingics.com" <axel.lin@ingics.com>,
+        Pascal PAILLET-LME <p.paillet@st.com>
+Subject: Re: [PATCH v5 1/8] dt-bindings: mfd: document stpmic1
+Message-ID: <20181030193220.GA29498@bogus>
+References: <1540830122-2577-1-git-send-email-p.paillet@st.com>
+ <1540830122-2577-2-git-send-email-p.paillet@st.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1540830122-2577-2-git-send-email-p.paillet@st.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The goal of this patch-set is to propose a driver for the STPMIC1 PMIC from 
-STMicroelectronics. 
-The STPMIC1 regulators supply power to an application processor as well as 
-to external system peripherals such as DDR, Flash memories and system
-devices. It also features onkey button input and an hardware watchdog.
-The STPMIC1 is controlled via I2C. 
+On Mon, 29 Oct 2018 16:22:04 +0000, Pascal PAILLET-LME wrote:
+> stpmic1 is a pmic from STMicroelectronics. The STPMIC1 integrates 10
+> regulators, 3 power switches, a watchdog and an input for a power on key.
+> 
+> Signed-off-by: Pascal Paillet <p.paillet@st.com>
+> ---
+> changes in v5:
+> * removed st properties
+> * added buck modes definitions in the header
+> 
+>  .../devicetree/bindings/mfd/st,stpmic1.txt         | 61 ++++++++++++++++++++++
+>  include/dt-bindings/mfd/st,stpmic1.h               | 50 ++++++++++++++++++
+>  2 files changed, 111 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/mfd/st,stpmic1.txt
+>  create mode 100644 include/dt-bindings/mfd/st,stpmic1.h
+> 
 
-Main driver is drivers/mfd/stpmic1 that handle I2C regmap configuration and
-irqchip. stpmic1_regulator, stpmic1_onkey and stpmic1_wdt need stpmic1 mfd
-as parent.
-
-stpmic1 mfd and regulator drivers maybe mandatory at boot time.
-
-Pascal Paillet (8):
-  dt-bindings: mfd: document stpmic1
-  mfd: stpmic1: add stpmic1 driver
-  dt-bindings: regulator: document stpmic1 pmic regulators
-  regulator: stpmic1: add stpmic1 regulator driver
-  dt-bindings: input: document stpmic1 pmic onkey
-  input: stpmic1: add stpmic1 onkey driver
-  dt-bindings: watchdog: document stpmic1 pmic watchdog
-  watchdog: stpmic1: add stpmic1 watchdog driver
-
- .../devicetree/bindings/input/st,stpmic1-onkey.txt |  28 +
- .../devicetree/bindings/mfd/st,stpmic1.txt         |  61 ++
- .../bindings/regulator/st,stpmic1-regulator.txt    |  67 +++
- .../bindings/watchdog/st,stpmic1-wdt.txt           |  11 +
- drivers/input/misc/Kconfig                         |  11 +
- drivers/input/misc/Makefile                        |   2 +
- drivers/input/misc/stpmic1_onkey.c                 | 198 ++++++
- drivers/mfd/Kconfig                                |  16 +
- drivers/mfd/Makefile                               |   1 +
- drivers/mfd/stpmic1.c                              | 215 +++++++
- drivers/regulator/Kconfig                          |  12 +
- drivers/regulator/Makefile                         |   1 +
- drivers/regulator/stpmic1_regulator.c              | 667 +++++++++++++++++++++
- drivers/watchdog/Kconfig                           |  12 +
- drivers/watchdog/Makefile                          |   1 +
- drivers/watchdog/stpmic1_wdt.c                     | 139 +++++
- include/dt-bindings/mfd/st,stpmic1.h               |  50 ++
- include/linux/mfd/stpmic1.h                        | 212 +++++++
- 18 files changed, 1704 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/st,stpmic1-onkey.txt
- create mode 100644 Documentation/devicetree/bindings/mfd/st,stpmic1.txt
- create mode 100644 Documentation/devicetree/bindings/regulator/st,stpmic1-regulator.txt
- create mode 100644 Documentation/devicetree/bindings/watchdog/st,stpmic1-wdt.txt
- create mode 100644 drivers/input/misc/stpmic1_onkey.c
- create mode 100644 drivers/mfd/stpmic1.c
- create mode 100644 drivers/regulator/stpmic1_regulator.c
- create mode 100644 drivers/watchdog/stpmic1_wdt.c
- create mode 100644 include/dt-bindings/mfd/st,stpmic1.h
- create mode 100644 include/linux/mfd/stpmic1.h
-
--- 
-1.9.1
+Reviewed-by: Rob Herring <robh@kernel.org>
