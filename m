@@ -1,50 +1,42 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from relmlor4.renesas.com ([210.160.252.174]:36067 "EHLO
-        relmlie3.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726255AbeKEUOG (ORCPT
+Received: from 212.199.177.27.static.012.net.il ([212.199.177.27]:54811 "EHLO
+        herzl.nuvoton.co.il" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S2387436AbeKFBkP (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 5 Nov 2018 15:14:06 -0500
-From: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
-To: Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Cc: Fabrizio Castro <fabrizio.castro@bp.renesas.com>,
-        linux-watchdog@vger.kernel.org, Simon Horman <horms@verge.net.au>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Chris Paterson <Chris.Paterson2@renesas.com>,
-        Biju Das <biju.das@bp.renesas.com>,
-        linux-renesas-soc@vger.kernel.org
-Subject: [PATCH v2] watchdog: renesas_wdt: Fix typos
-Date: Mon,  5 Nov 2018 10:53:47 +0000
-Message-Id: <1541415227-4991-1-git-send-email-fabrizio.castro@bp.renesas.com>
+        Mon, 5 Nov 2018 20:40:15 -0500
+From: Tomer Maimon <tmaimon77@gmail.com>
+To: wim@linux-watchdog.org, linux@roeck-us.net, yuenn@google.com,
+        venture@google.com, benjaminfair@google.com,
+        brendanhiggins@google.com, avifishman70@gmail.com, joel@jms.id.au
+Cc: linux-watchdog@vger.kernel.org, openbmc@lists.ozlabs.org,
+        linux-kernel@vger.kernel.org, Tomer Maimon <tmaimon77@gmail.com>
+Subject: [PATCH v1] watchdog: npcm: Modify npcm watchdog kconfig arch parameter
+Date: Mon,  5 Nov 2018 18:11:52 +0200
+Message-Id: <20181105161152.205524-1-tmaimon77@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Do not use "," but ";" to separate instructions.
+Modify Nuvoton watchdog Kconfig default supported architecture
+name to ARCH_NPCM7XX because ARCH_NPCM750 architecture name
+is not supported.
 
-Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-
+Signed-off-by: Tomer Maimon <tmaimon77@gmail.com>
 ---
-v1->v2:
-* Added changelog as suggested by Guenter Roeck
+ drivers/watchdog/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
- drivers/watchdog/renesas_wdt.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/watchdog/renesas_wdt.c b/drivers/watchdog/renesas_wdt.c
-index 0d74c3e..b570962 100644
---- a/drivers/watchdog/renesas_wdt.c
-+++ b/drivers/watchdog/renesas_wdt.c
-@@ -220,8 +220,8 @@ static int rwdt_probe(struct platform_device *pdev)
- 		goto out_pm_disable;
- 	}
- 
--	priv->wdev.info = &rwdt_ident,
--	priv->wdev.ops = &rwdt_ops,
-+	priv->wdev.info = &rwdt_ident;
-+	priv->wdev.ops = &rwdt_ops;
- 	priv->wdev.parent = &pdev->dev;
- 	priv->wdev.min_timeout = 1;
- 	priv->wdev.max_timeout = DIV_BY_CLKS_PER_SEC(priv, 65536);
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 2d64333f4782..746759ec8960 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -538,7 +538,7 @@ config COH901327_WATCHDOG
+ config NPCM7XX_WATCHDOG
+ 	bool "Nuvoton NPCM750 watchdog"
+ 	depends on ARCH_NPCM || COMPILE_TEST
+-	default y if ARCH_NPCM750
++	default y if ARCH_NPCM7XX
+ 	select WATCHDOG_CORE
+ 	help
+ 	  Say Y here to include Watchdog timer support for the
 -- 
-2.7.4
+2.14.1
