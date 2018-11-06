@@ -1,54 +1,43 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pg1-f195.google.com ([209.85.215.195]:38955 "EHLO
-        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387469AbeKFGlO (ORCPT
+Received: from mail-ot1-f67.google.com ([209.85.210.67]:37424 "EHLO
+        mail-ot1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388422AbeKGBYQ (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 6 Nov 2018 01:41:14 -0500
-Date: Mon, 5 Nov 2018 13:19:35 -0800
-From: Guenter Roeck <linux@roeck-us.net>
-To: Tomer Maimon <tmaimon77@gmail.com>
-Cc: wim@linux-watchdog.org, yuenn@google.com, venture@google.com,
-        benjaminfair@google.com, brendanhiggins@google.com,
-        avifishman70@gmail.com, joel@jms.id.au,
-        linux-watchdog@vger.kernel.org, openbmc@lists.ozlabs.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v1] watchdog: npcm: Modify npcm watchdog kconfig arch
- parameter
-Message-ID: <20181105211935.GB15984@roeck-us.net>
-References: <20181105161152.205524-1-tmaimon77@gmail.com>
+        Tue, 6 Nov 2018 20:24:16 -0500
+Date: Tue, 6 Nov 2018 09:58:22 -0600
+From: Rob Herring <robh@kernel.org>
+To: Biju Das <biju.das@bp.renesas.com>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Biju Das <biju.das@bp.renesas.com>,
+        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+        Simon Horman <horms@verge.net.au>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Chris Paterson <Chris.Paterson2@renesas.com>,
+        Fabrizio Castro <fabrizio.castro@bp.renesas.com>,
+        linux-renesas-soc@vger.kernel.org
+Subject: Re: [PATCH] dt-bindings: watchdog: renesas-wdt: Document r8a77470
+ support
+Message-ID: <20181106155822.GA2181@bogus>
+References: <1540544153-48098-1-git-send-email-biju.das@bp.renesas.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20181105161152.205524-1-tmaimon77@gmail.com>
+In-Reply-To: <1540544153-48098-1-git-send-email-biju.das@bp.renesas.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Nov 05, 2018 at 06:11:52PM +0200, Tomer Maimon wrote:
-> Modify Nuvoton watchdog Kconfig default supported architecture
-> name to ARCH_NPCM7XX because ARCH_NPCM750 architecture name
-> is not supported.
+On Fri, 26 Oct 2018 09:55:53 +0100, Biju Das wrote:
+> RZ/G1C (R8A77470) watchdog implementation is compatible with R-Car
+> Gen2, therefore add relevant documentation.
 > 
-> Signed-off-by: Tomer Maimon <tmaimon77@gmail.com>
-
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-
+> Signed-off-by: Biju Das <biju.das@bp.renesas.com>
 > ---
->  drivers/watchdog/Kconfig | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> This patch is tested against linux-next
+> ---
+>  Documentation/devicetree/bindings/watchdog/renesas-wdt.txt | 1 +
+>  1 file changed, 1 insertion(+)
 > 
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index 2d64333f4782..746759ec8960 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -538,7 +538,7 @@ config COH901327_WATCHDOG
->  config NPCM7XX_WATCHDOG
->  	bool "Nuvoton NPCM750 watchdog"
->  	depends on ARCH_NPCM || COMPILE_TEST
-> -	default y if ARCH_NPCM750
-> +	default y if ARCH_NPCM7XX
->  	select WATCHDOG_CORE
->  	help
->  	  Say Y here to include Watchdog timer support for the
-> -- 
-> 2.14.1
-> 
+
+Reviewed-by: Rob Herring <robh@kernel.org>
