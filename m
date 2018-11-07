@@ -1,45 +1,58 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailgw02.mediatek.com ([210.61.82.184]:46823 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726544AbeKGQjs (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 7 Nov 2018 11:39:48 -0500
-From: Ryder Lee <ryder.lee@mediatek.com>
-To: Guenter Roeck <linux@roeck-us.net>,
-        Rob Herring <robh+dt@kernel.org>
-CC: Matthias Brugger <matthias.bgg@gmail.com>,
-        <linux-watchdog@vger.kernel.org>,
-        Weijie Gao <weijie.gao@mediatek.com>,
-        <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-mediatek@lists.infradead.org>,
-        Ryder Lee <ryder.lee@mediatek.com>
-Subject: [PATCH] dt-bindings: watchdog: update bindings for MT7629 SoC
-Date: Wed, 7 Nov 2018 15:10:36 +0800
-Message-ID: <55d108719233b3c30c747e75a010b9e64681af09.1541573395.git.ryder.lee@mediatek.com>
-MIME-Version: 1.0
-Content-Type: text/plain
+Received: from sauhun.de ([88.99.104.3]:58894 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726323AbeKHFRz (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Thu, 8 Nov 2018 00:17:55 -0500
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: linux-watchdog@vger.kernel.org
+Cc: linux-renesas-soc@vger.kernel.org,
+        Fabrizio Castro <fabrizio.castro@bp.renesas.com>,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>
+Subject: [PATCH v2] watchdog: renesas_wdt: don't set divider while watchdog is running
+Date: Wed,  7 Nov 2018 20:46:02 +0100
+Message-Id: <20181107194602.7209-1-wsa+renesas@sang-engineering.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This updates dt-binding documentation for MT7629 SoC
+The datasheet says we must stop the timer before changing the clock
+divider. This can happen when the restart handler is called while the
+watchdog is running.
 
-Signed-off-by: Ryder Lee <ryder.lee@mediatek.com>
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- Documentation/devicetree/bindings/watchdog/mtk-wdt.txt | 1 +
- 1 file changed, 1 insertion(+)
 
-diff --git a/Documentation/devicetree/bindings/watchdog/mtk-wdt.txt b/Documentation/devicetree/bindings/watchdog/mtk-wdt.txt
-index 859dee1..8682d6a 100644
---- a/Documentation/devicetree/bindings/watchdog/mtk-wdt.txt
-+++ b/Documentation/devicetree/bindings/watchdog/mtk-wdt.txt
-@@ -8,6 +8,7 @@ Required properties:
- 	"mediatek,mt6797-wdt", "mediatek,mt6589-wdt": for MT6797
- 	"mediatek,mt7622-wdt", "mediatek,mt6589-wdt": for MT7622
- 	"mediatek,mt7623-wdt", "mediatek,mt6589-wdt": for MT7623
-+	"mediatek,mt7629-wdt", "mediatek,mt6589-wdt": for MT7629
+Change since V1: reworded commit message.
+
+I sent V1 back then when it was more a recommendation of the datasheet to do it
+like this. But meanwhile the code changed, so we actually need to do it.
+
+ drivers/watchdog/renesas_wdt.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/watchdog/renesas_wdt.c b/drivers/watchdog/renesas_wdt.c
+index 0d74c3e48979..55c9eb6c6e51 100644
+--- a/drivers/watchdog/renesas_wdt.c
++++ b/drivers/watchdog/renesas_wdt.c
+@@ -74,12 +74,17 @@ static int rwdt_init_timeout(struct watchdog_device *wdev)
+ static int rwdt_start(struct watchdog_device *wdev)
+ {
+ 	struct rwdt_priv *priv = watchdog_get_drvdata(wdev);
++	u8 val;
  
- - reg : Specifies base physical address and size of the registers.
+ 	pm_runtime_get_sync(wdev->parent);
  
+-	rwdt_write(priv, 0, RWTCSRB);
+-	rwdt_write(priv, priv->cks, RWTCSRA);
++	/* Stop the timer before we modify any register */
++	val = readb_relaxed(priv->base + RWTCSRA) & ~RWTCSRA_TME;
++	rwdt_write(priv, val, RWTCSRA);
++
+ 	rwdt_init_timeout(wdev);
++	rwdt_write(priv, priv->cks, RWTCSRA);
++	rwdt_write(priv, 0, RWTCSRB);
+ 
+ 	while (readb_relaxed(priv->base + RWTCSRA) & RWTCSRA_WRFLG)
+ 		cpu_relax();
 -- 
-1.9.1
+2.11.0
