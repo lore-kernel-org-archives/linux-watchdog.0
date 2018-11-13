@@ -1,69 +1,53 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pf1-f193.google.com ([209.85.210.193]:41153 "EHLO
-        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726659AbeKHGRn (ORCPT
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:45258 "EHLO
+        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728818AbeKMR0c (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 8 Nov 2018 01:17:43 -0500
-Date: Wed, 7 Nov 2018 12:45:35 -0800
-From: Guenter Roeck <linux@roeck-us.net>
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-watchdog@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
-        Fabrizio Castro <fabrizio.castro@bp.renesas.com>,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Subject: Re: [PATCH v2] watchdog: renesas_wdt: don't set divider while
- watchdog is running
-Message-ID: <20181107204535.GA12273@roeck-us.net>
-References: <20181107194602.7209-1-wsa+renesas@sang-engineering.com>
+        Tue, 13 Nov 2018 12:26:32 -0500
+Received: by mail-wr1-f66.google.com with SMTP id k15-v6so12014036wre.12
+        for <linux-watchdog@vger.kernel.org>; Mon, 12 Nov 2018 23:29:42 -0800 (PST)
+Date: Tue, 13 Nov 2018 07:29:38 +0000
+From: Lee Jones <lee.jones@linaro.org>
+To: Pascal PAILLET-LME <p.paillet@st.com>
+Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
+        "robh+dt@kernel.org" <robh+dt@kernel.org>,
+        "mark.rutland@arm.com" <mark.rutland@arm.com>,
+        "lgirdwood@gmail.com" <lgirdwood@gmail.com>,
+        "broonie@kernel.org" <broonie@kernel.org>,
+        "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
+        "linux@roeck-us.net" <linux@roeck-us.net>,
+        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+        "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>,
+        "eballetbo@gmail.com" <eballetbo@gmail.com>,
+        "axel.lin@ingics.com" <axel.lin@ingics.com>
+Subject: Re: [PATCH v5 1/8] dt-bindings: mfd: document stpmic1
+Message-ID: <20181113072938.GB29388@dell>
+References: <1540830122-2577-1-git-send-email-p.paillet@st.com>
+ <1540830122-2577-2-git-send-email-p.paillet@st.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20181107194602.7209-1-wsa+renesas@sang-engineering.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1540830122-2577-2-git-send-email-p.paillet@st.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Nov 07, 2018 at 08:46:02PM +0100, Wolfram Sang wrote:
-> The datasheet says we must stop the timer before changing the clock
-> divider. This can happen when the restart handler is called while the
-> watchdog is running.
-> 
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+On Mon, 29 Oct 2018, Pascal PAILLET-LME wrote:
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+> stpmic1 is a pmic from STMicroelectronics. The STPMIC1 integrates 10
 
-> ---
-> 
-> Change since V1: reworded commit message.
-> 
-> I sent V1 back then when it was more a recommendation of the datasheet to do it
-> like this. But meanwhile the code changed, so we actually need to do it.
-> 
->  drivers/watchdog/renesas_wdt.c | 9 +++++++--
->  1 file changed, 7 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/watchdog/renesas_wdt.c b/drivers/watchdog/renesas_wdt.c
-> index 0d74c3e48979..55c9eb6c6e51 100644
-> --- a/drivers/watchdog/renesas_wdt.c
-> +++ b/drivers/watchdog/renesas_wdt.c
-> @@ -74,12 +74,17 @@ static int rwdt_init_timeout(struct watchdog_device *wdev)
->  static int rwdt_start(struct watchdog_device *wdev)
->  {
->  	struct rwdt_priv *priv = watchdog_get_drvdata(wdev);
-> +	u8 val;
->  
->  	pm_runtime_get_sync(wdev->parent);
->  
-> -	rwdt_write(priv, 0, RWTCSRB);
-> -	rwdt_write(priv, priv->cks, RWTCSRA);
-> +	/* Stop the timer before we modify any register */
-> +	val = readb_relaxed(priv->base + RWTCSRA) & ~RWTCSRA_TME;
-> +	rwdt_write(priv, val, RWTCSRA);
-> +
->  	rwdt_init_timeout(wdev);
-> +	rwdt_write(priv, priv->cks, RWTCSRA);
-> +	rwdt_write(priv, 0, RWTCSRB);
->  
->  	while (readb_relaxed(priv->base + RWTCSRA) & RWTCSRA_WRFLG)
->  		cpu_relax();
-> -- 
-> 2.11.0
-> 
+Nit: "STPMIC1 is a PMIC".
+
+Once corrected, please apply my:
+
+For my own reference:
+  Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
+
+-- 
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
