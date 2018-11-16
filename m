@@ -1,66 +1,40 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pl1-f193.google.com ([209.85.214.193]:42453 "EHLO
-        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725985AbeKPK3q (ORCPT
+Received: from mx0b-00082601.pphosted.com ([67.231.153.30]:40846 "EHLO
+        mx0a-00082601.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726271AbeKPKsZ (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 16 Nov 2018 05:29:46 -0500
-Date: Thu, 15 Nov 2018 16:19:38 -0800
-From: Guenter Roeck <linux@roeck-us.net>
-To: Tao Ren <taoren@fb.com>
-Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Fri, 16 Nov 2018 05:48:25 -0500
+From: Tao Ren <taoren@fb.com>
+To: Guenter Roeck <linux@roeck-us.net>
+CC: Wim Van Sebroeck <wim@linux-watchdog.org>,
         "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
         "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
         "openbmc@lists.ozlabs.org" <openbmc@lists.ozlabs.org>
 Subject: Re: [PATCH] watchdog: core: suppress "watchdog did not stop" message
-Message-ID: <20181116001938.GA16009@roeck-us.net>
+Date: Fri, 16 Nov 2018 00:37:28 +0000
+Message-ID: <9a43bb84-f476-d6c8-886a-2120312ee8e7@fb.com>
 References: <20181115234413.27009-1-taoren@fb.com>
+ <20181116001938.GA16009@roeck-us.net>
+In-Reply-To: <20181116001938.GA16009@roeck-us.net>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <08A31BE9AC472D4B80052C833341EE5F@namprd15.prod.outlook.com>
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20181115234413.27009-1-taoren@fb.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Thu, Nov 15, 2018 at 11:44:26PM +0000, Tao Ren wrote:
-> Currently "watchdog did not stop!" message is printed when the watchdog
-> timer is not stopped at close. For example, people may see the message
-> when rebooting the system, or the message will be logged to console
-> periodically if watchdog is kicked by a scirpt which runs "echo k >
-> /dev/watchdog" command.
-> 
-> Given a critical message usually indicates a serious hardware/software
-> failure, this message could easily lead to confusion, so it's better to
-> just delete the message.
-> 
-> Signed-off-by: Tao Ren <taoren@fb.com>
-
-NACK. This message is displayed if/when the watchdog application
-exits without stopping the watchdog and/or without closing properly.
-This _is_ critical since it will reboot the system after the next
-timeout period.
-
-If userspace triggers this message on purpose (eg by the mentioned
-script, which does not exit properly), userspace is at fault,
-not the kernel.
-
-Guenter
-
-> ---
->  drivers/watchdog/watchdog_dev.c | 1 -
->  1 file changed, 1 deletion(-)
-> 
-> diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-> index f6c24b22b37c..65e9ebbd8759 100644
-> --- a/drivers/watchdog/watchdog_dev.c
-> +++ b/drivers/watchdog/watchdog_dev.c
-> @@ -879,7 +879,6 @@ static int watchdog_release(struct inode *inode, struct file *file)
->  
->  	/* If the watchdog was not stopped, send a keepalive ping */
->  	if (err < 0) {
-> -		pr_crit("watchdog%d: watchdog did not stop!\n", wdd->id);
->  		watchdog_ping(wdd);
->  	}
->  
-> -- 
-> 2.17.1
-> 
+T24gMTEvMTUvMTggNDoxOSBQTSwgR3VlbnRlciBSb2VjayB3cm90ZToNCj4gTkFDSy4gVGhpcyBt
+ZXNzYWdlIGlzIGRpc3BsYXllZCBpZi93aGVuIHRoZSB3YXRjaGRvZyBhcHBsaWNhdGlvbg0KPiBl
+eGl0cyB3aXRob3V0IHN0b3BwaW5nIHRoZSB3YXRjaGRvZyBhbmQvb3Igd2l0aG91dCBjbG9zaW5n
+IHByb3Blcmx5Lg0KPiBUaGlzIF9pc18gY3JpdGljYWwgc2luY2UgaXQgd2lsbCByZWJvb3QgdGhl
+IHN5c3RlbSBhZnRlciB0aGUgbmV4dA0KPiB0aW1lb3V0IHBlcmlvZC4NCj4gDQo+IElmIHVzZXJz
+cGFjZSB0cmlnZ2VycyB0aGlzIG1lc3NhZ2Ugb24gcHVycG9zZSAoZWcgYnkgdGhlIG1lbnRpb25l
+ZA0KPiBzY3JpcHQsIHdoaWNoIGRvZXMgbm90IGV4aXQgcHJvcGVybHkpLCB1c2Vyc3BhY2UgaXMg
+YXQgZmF1bHQsDQo+IG5vdCB0aGUga2VybmVsLg0KPiANCj4gR3VlbnRlcg0KDQpUaGFuayB5b3Ug
+Zm9yIHRoZSBxdWljayByZXNwb25zZSwgR3VlbnRlci4gSSBzZWUgdGhlIGxvZyBlYWNoIHRpbWUg
+d2hlbiBJIHJlYm9vdCBteSBzeXN0ZW0sIGFuZCB3aGVuIEkgc2VhcmNoZWQgdGhlIG1lc3NhZ2Ug
+aW4gZ29vZ2xlLCBJIGFsc28gZm91bmQgcG9zdHMgYXNraW5nIHdoeSB0aGUgbWVzc2FnZSBpcyBw
+cmludGVkIGF0IHJlYm9vdCwgYW5kIHRoYXQncyB3aHkgSSBmZWVsIGl0J3MgY29uZnVzaW5nLg0K
+DQpBbnl3YXlzLCBwbGVhc2UgaWdub3JlIHRoZSBwYXRjaCBzaW5jZSBpdCdzIG5lY2Vzc2FyeS4N
+Cg0KVGhhbmtzLA0KVGFvIFJlbg0K
