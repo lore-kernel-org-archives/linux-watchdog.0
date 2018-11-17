@@ -1,131 +1,257 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pf1-f193.google.com ([209.85.210.193]:36515 "EHLO
-        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2407235AbeKTDhc (ORCPT
+Received: from mail-wm1-f65.google.com ([209.85.128.65]:53584 "EHLO
+        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725875AbeKQSok (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 19 Nov 2018 22:37:32 -0500
-Received: by mail-pf1-f193.google.com with SMTP id b85so8326318pfc.3
-        for <linux-watchdog@vger.kernel.org>; Mon, 19 Nov 2018 09:13:13 -0800 (PST)
-Date: Mon, 19 Nov 2018 09:13:11 -0800
-From: Guenter Roeck <linux@roeck-us.net>
-To: Jean Delvare <jdelvare@suse.de>
-Cc: linux-watchdog@vger.kernel.org,
-        Wim Van Sebroeck <wim@linux-watchdog.org>
-Subject: Re: [PATCH] watchdog: w83627hf_wdt: Add quirk for Inves system
-Message-ID: <20181119171311.GB27435@roeck-us.net>
-References: <20181119091738.0fc4dad6@endymion>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20181119091738.0fc4dad6@endymion>
+        Sat, 17 Nov 2018 13:44:40 -0500
+Received: by mail-wm1-f65.google.com with SMTP id g131so314639wmg.3
+        for <linux-watchdog@vger.kernel.org>; Sat, 17 Nov 2018 00:28:43 -0800 (PST)
+From: Loic Poulain <loic.poulain@linaro.org>
+To: wim@linux-watchdog.org, linux@roeck-us.net, robh+dt@kernel.org
+Cc: linux-arm-msm@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        devicetree@vger.kernel.org, andy.gross@linaro.org,
+        Loic Poulain <loic.poulain@linaro.org>
+Subject: [PATCH 1/3] watchdog: Add pm8916 watchdog driver
+Date: Sat, 17 Nov 2018 09:28:37 +0100
+Message-Id: <1542443319-23369-1-git-send-email-loic.poulain@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Nov 19, 2018 at 09:17:38AM +0100, Jean Delvare wrote:
-> On some systems, the NCT6791D comes with a companion chip and the
-> watchdog function is in this companion chip. We must use a different
-> unlocking sequence to access the companion chip.
-> 
-> Use DMI strings to identify such system and adjust the unlocking
-> sequence automatically.
-> 
-Ouch.
+The PM816 module is a versatile PMIC with many diverse functions
+integrated, including, a watchdog.
+This watchdog is subcomponent of the PON (Power On) peripheral,
+in the same way as pwrkey/resin buttons.
+It works with two timers (2-stages), the first one generates an
+IRQ to the main SoC (APQ8016/MSM8916), the second one performs
+the reset.
 
-> Signed-off-by: Jean Delvare <jdelvare@suse.de>
-> Cc: Wim Van Sebroeck <wim@linux-watchdog.org>
-> Cc: Guenter Roeck <linux@roeck-us.net>
+This driver expects the following device hierachy:
+[pm8916]->[pm8916-pon]->[pm8916-wdt]
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+It uses the pm8916 regmap to access PM8916 registers.
 
-> ---
->  drivers/watchdog/w83627hf_wdt.c |   38 +++++++++++++++++++++++++++++++++++---
->  1 file changed, 35 insertions(+), 3 deletions(-)
-> 
-> --- linux-4.20-rc2.orig/drivers/watchdog/w83627hf_wdt.c	2018-11-16 15:49:26.189851240 +0100
-> +++ linux-4.20-rc2/drivers/watchdog/w83627hf_wdt.c	2018-11-16 15:50:04.779339701 +0100
-> @@ -38,6 +38,7 @@
->  #include <linux/ioport.h>
->  #include <linux/init.h>
->  #include <linux/io.h>
-> +#include <linux/dmi.h>
->  
->  #define WATCHDOG_NAME "w83627hf/thf/hg/dhg WDT"
->  #define WATCHDOG_TIMEOUT 60		/* 60 sec default timeout */
-> @@ -46,6 +47,8 @@ static int wdt_io;
->  static int cr_wdt_timeout;	/* WDT timeout register */
->  static int cr_wdt_control;	/* WDT control register */
->  static int cr_wdt_csr;		/* WDT control & status register */
-> +static int wdt_cfg_enter = 0x87;/* key to unlock configuration space */
-> +static int wdt_cfg_leave = 0xAA;/* key to lock configuration space */
->  
->  enum chips { w83627hf, w83627s, w83697hf, w83697ug, w83637hf, w83627thf,
->  	     w83687thf, w83627ehf, w83627dhg, w83627uhg, w83667hg, w83627dhg_p,
-> @@ -130,8 +133,8 @@ static int superio_enter(void)
->  	if (!request_muxed_region(wdt_io, 2, WATCHDOG_NAME))
->  		return -EBUSY;
->  
-> -	outb_p(0x87, WDT_EFER); /* Enter extended function mode */
-> -	outb_p(0x87, WDT_EFER); /* Again according to manual */
-> +	outb_p(wdt_cfg_enter, WDT_EFER); /* Enter extended function mode */
-> +	outb_p(wdt_cfg_enter, WDT_EFER); /* Again according to manual */
->  
->  	return 0;
->  }
-> @@ -143,7 +146,7 @@ static void superio_select(int ld)
->  
->  static void superio_exit(void)
->  {
-> -	outb_p(0xAA, WDT_EFER); /* Leave extended function mode */
-> +	outb_p(wdt_cfg_leave, WDT_EFER); /* Leave extended function mode */
->  	release_region(wdt_io, 2);
->  }
->  
-> @@ -430,6 +433,32 @@ static int wdt_find(int addr)
->  	return ret;
->  }
->  
-> +/*
-> + * On some systems, the NCT6791D comes with a companion chip and the
-> + * watchdog function is in this companion chip. We must use a different
-> + * unlocking sequence to access the companion chip.
-> + */
-> +static int __init wdt_use_alt_key(const struct dmi_system_id *d)
-> +{
-> +	wdt_cfg_enter = 0x88;
-> +	wdt_cfg_leave = 0xBB;
-> +
-> +	return 0;
-> +}
-> +
-> +static const struct dmi_system_id wdt_dmi_table[] __initconst = {
-> +	{
-> +		.matches = {
-> +			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "INVES"),
-> +			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "CTS"),
-> +			DMI_EXACT_MATCH(DMI_BOARD_VENDOR, "INVES"),
-> +			DMI_EXACT_MATCH(DMI_BOARD_NAME, "SHARKBAY"),
-> +		},
-> +		.callback = wdt_use_alt_key,
-> +	},
-> +	{}
-> +};
-> +
->  static int __init wdt_init(void)
->  {
->  	int ret;
-> @@ -459,6 +488,9 @@ static int __init wdt_init(void)
->  		"NCT6102",
->  	};
->  
-> +	/* Apply system-specific quirks */
-> +	dmi_check_system(wdt_dmi_table);
-> +
->  	wdt_io = 0x2e;
->  	chip = wdt_find(0x2e);
->  	if (chip < 0) {
-> 
-> 
-> -- 
-> Jean Delvare
-> SUSE L3 Support
+Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
+---
+ drivers/watchdog/Kconfig      |   8 ++
+ drivers/watchdog/Makefile     |   1 +
+ drivers/watchdog/pm8916_wdt.c | 177 ++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 186 insertions(+)
+ create mode 100644 drivers/watchdog/pm8916_wdt.c
+
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 2d64333..66bab61 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -847,6 +847,14 @@ config SPRD_WATCHDOG
+ 	  Say Y here to include watchdog timer supported
+ 	  by Spreadtrum system.
+ 
++config PM8916_WATCHDOG
++	tristate "QCOM pm8916 pmic watchdog"
++	depends on OF && MFD_SPMI_PMIC
++	select WATCHDOG_CORE
++	help
++	  Say Y here to include support watchdog timer embedded into the
++	  pm8916 module.
++
+ # X86 (i386 + ia64 + x86_64) Architecture
+ 
+ config ACQUIRE_WDT
+diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+index f69cdff..cc90e72 100644
+--- a/drivers/watchdog/Makefile
++++ b/drivers/watchdog/Makefile
+@@ -92,6 +92,7 @@ obj-$(CONFIG_STM32_WATCHDOG) += stm32_iwdg.o
+ obj-$(CONFIG_UNIPHIER_WATCHDOG) += uniphier_wdt.o
+ obj-$(CONFIG_RTD119X_WATCHDOG) += rtd119x_wdt.o
+ obj-$(CONFIG_SPRD_WATCHDOG) += sprd_wdt.o
++obj-$(CONFIG_PM8916_WATCHDOG) += pm8916_wdt.o
+ 
+ # X86 (i386 + ia64 + x86_64) Architecture
+ obj-$(CONFIG_ACQUIRE_WDT) += acquirewdt.o
+diff --git a/drivers/watchdog/pm8916_wdt.c b/drivers/watchdog/pm8916_wdt.c
+new file mode 100644
+index 0000000..36f9763
+--- /dev/null
++++ b/drivers/watchdog/pm8916_wdt.c
+@@ -0,0 +1,177 @@
++/*
++ * Watchdog driver for QCOM PM8916
++ *
++ * Copyright (C) 2018 Loic Poulain, Linaro <loic.poulain@linaro.org>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 and
++ * only version 2 as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ */
++
++#include <linux/bitops.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/of.h>
++#include <linux/property.h>
++#include <linux/platform_device.h>
++#include <linux/watchdog.h>
++#include <linux/regmap.h>
++
++#define PM8916_WDT_DEFAULT_TIMEOUT 32
++
++#define PON_PMIC_WD_RESET_S1_TIMER	0x54
++#define PON_PMIC_WD_RESET_S2_TIMER	0x55
++#define PON_PMIC_WD_RESET_S2_CTL	0x56
++#define PON_PMIC_WD_RESET_S2_CTL2	0x57
++#define PON_PMIC_WD_RESET_PET		0x58
++
++#define S2_RESET_EN_MASK BIT(7)
++#define S2_RESET_EN (1 << 7)
++
++#define WATCHDOG_PET_MASK BIT(0)
++
++struct pm8916_wdt {
++	struct device *dev;
++	struct regmap *regmap;
++	struct watchdog_device wdev;
++	u32 baseaddr;
++};
++
++static int pm8916_wdt_start(struct watchdog_device *wdev)
++{
++	struct pm8916_wdt *wdt = watchdog_get_drvdata(wdev);
++
++	return regmap_update_bits(wdt->regmap,
++				  wdt->baseaddr + PON_PMIC_WD_RESET_S2_CTL2,
++				  S2_RESET_EN_MASK, S2_RESET_EN);
++}
++
++static int pm8916_wdt_stop(struct watchdog_device *wdev)
++{
++	struct pm8916_wdt *wdt = watchdog_get_drvdata(wdev);
++
++	return regmap_update_bits(wdt->regmap,
++				  wdt->baseaddr + PON_PMIC_WD_RESET_S2_CTL2,
++				  S2_RESET_EN_MASK, 0);
++}
++
++static int pm8916_wdt_ping(struct watchdog_device *wdev)
++{
++	struct pm8916_wdt *wdt = watchdog_get_drvdata(wdev);
++
++	return regmap_update_bits(wdt->regmap,
++				  wdt->baseaddr + PON_PMIC_WD_RESET_PET,
++				  WATCHDOG_PET_MASK, 1);
++}
++
++static int pm8916_wdt_set_timeout(struct watchdog_device *wdev,
++				  unsigned int timeout)
++{
++	struct pm8916_wdt *wdt = watchdog_get_drvdata(wdev);
++	int err;
++
++	wdev->timeout = timeout;
++
++	/* This is a two stages watchdog, set stage-1 timer generate an irq and
++	 * stage-2 trigger the reset. In order to respect expected timeout, set
++	 * stage-1 timer to timeout and stage-2 to 0.
++	 */
++	err = regmap_write(wdt->regmap,
++			   wdt->baseaddr + PON_PMIC_WD_RESET_S1_TIMER,
++			   timeout);
++	if (err)
++		return err;
++
++	return regmap_write(wdt->regmap,
++			    wdt->baseaddr + PON_PMIC_WD_RESET_S2_TIMER,
++			    0);
++}
++
++static const struct watchdog_info pm8916_wdt_ident = {
++	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
++	.identity = "QCOM PM8916 PON WDT",
++};
++
++static const struct watchdog_ops pm8916_wdt_ops = {
++	.owner = THIS_MODULE,
++	.start = pm8916_wdt_start,
++	.stop = pm8916_wdt_stop,
++	.ping = pm8916_wdt_ping,
++	.set_timeout = pm8916_wdt_set_timeout,
++};
++
++static int pm8916_wdt_probe(struct platform_device *pdev)
++{
++	struct pm8916_wdt *wdt;
++	struct device *parent;
++	int err;
++
++	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
++	if (!wdt)
++		return -ENOMEM;
++
++	wdt->dev = &pdev->dev;
++	parent = pdev->dev.parent;
++
++	/*
++	 * The pm8916-pon-wdt is a child of the pon device, which is a child
++	 * of the pm8916 mfd device. We want access to the pm8916 registers.
++	 * Retrieve regmap from pm8916 (parent->parent) and base address
++	 * from pm8916-pon (pon).
++	 */
++	wdt->regmap = dev_get_regmap(parent->parent, NULL);
++	if (!wdt->regmap) {
++		dev_err(&pdev->dev, "failed to locate regmap\n");
++		return -ENODEV;
++	}
++
++	err = device_property_read_u32(parent, "reg", &wdt->baseaddr);
++	if (err) {
++		dev_err(&pdev->dev, "failed to get address\n");
++		return err;
++	}
++
++	/* Configure watchdog to hard-reset mode */
++	err = regmap_write(wdt->regmap,
++			   wdt->baseaddr + PON_PMIC_WD_RESET_S2_CTL, 0x07);
++	if (err) {
++		dev_err(&pdev->dev, "failed configure watchdog\n");
++		return err;
++	}
++
++	wdt->wdev.info = &pm8916_wdt_ident,
++	wdt->wdev.ops = &pm8916_wdt_ops,
++	wdt->wdev.parent = &pdev->dev;
++	wdt->wdev.min_timeout = 1;
++	wdt->wdev.max_timeout = 127;
++	wdt->wdev.timeout = PM8916_WDT_DEFAULT_TIMEOUT;
++	watchdog_set_drvdata(&wdt->wdev, wdt);
++
++	pm8916_wdt_set_timeout(&wdt->wdev, wdt->wdev.timeout);
++
++	return watchdog_register_device(&wdt->wdev);
++}
++
++static const struct of_device_id pm8916_wdt_id_table[] = {
++	{ .compatible = "qcom,pm8916-wdt" },
++	{ }
++};
++MODULE_DEVICE_TABLE(of, pm8916_wdt_id_table);
++
++static struct platform_driver pm8916_wdt_driver = {
++	.probe = pm8916_wdt_probe,
++	.driver = {
++		.name = "pm8916-wdt",
++		.of_match_table = of_match_ptr(pm8916_wdt_id_table),
++	},
++};
++module_platform_driver(pm8916_wdt_driver);
++
++MODULE_AUTHOR("Loic Poulain <loic.poulain@linaro.org>");
++MODULE_DESCRIPTION("Qualcomm pm8916 watchdog driver");
++MODULE_LICENSE("GPL v2");
+-- 
+2.7.4
