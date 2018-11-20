@@ -1,40 +1,135 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx0b-00082601.pphosted.com ([67.231.153.30]:40846 "EHLO
-        mx0a-00082601.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726271AbeKPKsZ (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 16 Nov 2018 05:48:25 -0500
-From: Tao Ren <taoren@fb.com>
-To: Guenter Roeck <linux@roeck-us.net>
-CC: Wim Van Sebroeck <wim@linux-watchdog.org>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "openbmc@lists.ozlabs.org" <openbmc@lists.ozlabs.org>
-Subject: Re: [PATCH] watchdog: core: suppress "watchdog did not stop" message
-Date: Fri, 16 Nov 2018 00:37:28 +0000
-Message-ID: <9a43bb84-f476-d6c8-886a-2120312ee8e7@fb.com>
-References: <20181115234413.27009-1-taoren@fb.com>
- <20181116001938.GA16009@roeck-us.net>
-In-Reply-To: <20181116001938.GA16009@roeck-us.net>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <08A31BE9AC472D4B80052C833341EE5F@namprd15.prod.outlook.com>
-Content-Transfer-Encoding: base64
+Received: from mail.bootlin.com ([62.4.15.54]:58270 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725917AbeKUBio (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 20 Nov 2018 20:38:44 -0500
+Date: Tue, 20 Nov 2018 16:09:05 +0100
+From: Boris Brezillon <boris.brezillon@bootlin.com>
+To: Masahiro Yamada <yamada.masahiro@socionext.com>
+Cc: linux-kbuild@vger.kernel.org, Sam Ravnborg <sam@ravnborg.org>,
+        Marek Vasut <marek.vasut@gmail.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        linux-watchdog@vger.kernel.org,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        linux-doc@vger.kernel.org, Jim Cromie <jim.cromie@gmail.com>,
+        Jonathan Corbet <corbet@lwn.net>, linux-kernel@vger.kernel.org,
+        Michal Marek <michal.lkml@markovi.net>,
+        Brian Norris <computersforpeace@gmail.com>,
+        Richard Weinberger <richard@nod.at>,
+        linux-mtd@lists.infradead.org,
+        David Woodhouse <dwmw2@infradead.org>
+Subject: Re: [PATCH] kbuild: announce removal of SUBDIRS if used
+Message-ID: <20181120160905.5fc4ba4a@bbrezillon>
+In-Reply-To: <1542726258-8418-1-git-send-email-yamada.masahiro@socionext.com>
+References: <1542726258-8418-1-git-send-email-yamada.masahiro@socionext.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-T24gMTEvMTUvMTggNDoxOSBQTSwgR3VlbnRlciBSb2VjayB3cm90ZToNCj4gTkFDSy4gVGhpcyBt
-ZXNzYWdlIGlzIGRpc3BsYXllZCBpZi93aGVuIHRoZSB3YXRjaGRvZyBhcHBsaWNhdGlvbg0KPiBl
-eGl0cyB3aXRob3V0IHN0b3BwaW5nIHRoZSB3YXRjaGRvZyBhbmQvb3Igd2l0aG91dCBjbG9zaW5n
-IHByb3Blcmx5Lg0KPiBUaGlzIF9pc18gY3JpdGljYWwgc2luY2UgaXQgd2lsbCByZWJvb3QgdGhl
-IHN5c3RlbSBhZnRlciB0aGUgbmV4dA0KPiB0aW1lb3V0IHBlcmlvZC4NCj4gDQo+IElmIHVzZXJz
-cGFjZSB0cmlnZ2VycyB0aGlzIG1lc3NhZ2Ugb24gcHVycG9zZSAoZWcgYnkgdGhlIG1lbnRpb25l
-ZA0KPiBzY3JpcHQsIHdoaWNoIGRvZXMgbm90IGV4aXQgcHJvcGVybHkpLCB1c2Vyc3BhY2UgaXMg
-YXQgZmF1bHQsDQo+IG5vdCB0aGUga2VybmVsLg0KPiANCj4gR3VlbnRlcg0KDQpUaGFuayB5b3Ug
-Zm9yIHRoZSBxdWljayByZXNwb25zZSwgR3VlbnRlci4gSSBzZWUgdGhlIGxvZyBlYWNoIHRpbWUg
-d2hlbiBJIHJlYm9vdCBteSBzeXN0ZW0sIGFuZCB3aGVuIEkgc2VhcmNoZWQgdGhlIG1lc3NhZ2Ug
-aW4gZ29vZ2xlLCBJIGFsc28gZm91bmQgcG9zdHMgYXNraW5nIHdoeSB0aGUgbWVzc2FnZSBpcyBw
-cmludGVkIGF0IHJlYm9vdCwgYW5kIHRoYXQncyB3aHkgSSBmZWVsIGl0J3MgY29uZnVzaW5nLg0K
-DQpBbnl3YXlzLCBwbGVhc2UgaWdub3JlIHRoZSBwYXRjaCBzaW5jZSBpdCdzIG5lY2Vzc2FyeS4N
-Cg0KVGhhbmtzLA0KVGFvIFJlbg0K
+On Wed, 21 Nov 2018 00:04:18 +0900
+Masahiro Yamada <yamada.masahiro@socionext.com> wrote:
+
+> SUBDIRS has been kept as a backward compatibility since
+> commit ("[PATCH] kbuild: external module support") in 2002.
+> 
+> We do not need multiple ways to do the same thing, so I will remove
+> SUBDIRS after the Linux 5.3 release. I cleaned up in-tree code, and
+> updated the document so that nobody would try to use it.
+> 
+> Meanwhile, display the following warning if SUBDIRS is used.
+> 
+> Makefile:189: ================= WARNING ================
+> Makefile:190: 'SUBDIRS' will be removed after Linux 5.3
+> Makefile:191: Please use 'M=' or 'KBUILD_EXTMOD' instead
+> Makefile:192: ==========================================
+> 
+> Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+> ---
+> 
+>  Documentation/kbuild/kbuild.txt    | 7 +------
+>  Makefile                           | 4 ++++
+>  drivers/mtd/maps/scx200_docflash.c | 7 -------
+
+For the docflash driver
+
+Acked-by: Boris Brezillon <boris.brezillon@bootlin.com>
+
+>  drivers/watchdog/scx200_wdt.c      | 7 -------
+>  samples/connector/Makefile         | 2 +-
+>  5 files changed, 6 insertions(+), 21 deletions(-)
+> 
+> diff --git a/Documentation/kbuild/kbuild.txt b/Documentation/kbuild/kbuild.txt
+> index 8390c36..c9e3d93 100644
+> --- a/Documentation/kbuild/kbuild.txt
+> +++ b/Documentation/kbuild/kbuild.txt
+> @@ -81,12 +81,7 @@ KBUILD_EXTMOD
+>  --------------------------------------------------
+>  Set the directory to look for the kernel source when building external
+>  modules.
+> -The directory can be specified in several ways:
+> -1) Use "M=..." on the command line
+> -2) Environment variable KBUILD_EXTMOD
+> -3) Environment variable SUBDIRS
+> -The possibilities are listed in the order they take precedence.
+> -Using "M=..." will always override the others.
+> +Setting "M=..." takes precedence over KBUILD_EXTMOD.
+>  
+>  KBUILD_OUTPUT
+>  --------------------------------------------------
+> diff --git a/Makefile b/Makefile
+> index 370d13b..57be5fb 100644
+> --- a/Makefile
+> +++ b/Makefile
+> @@ -186,6 +186,10 @@ endif
+>  # Old syntax make ... SUBDIRS=$PWD is still supported
+>  # Setting the environment variable KBUILD_EXTMOD take precedence
+>  ifdef SUBDIRS
+> +  $(warning ================= WARNING ================)
+> +  $(warning 'SUBDIRS' will be removed after Linux 5.3)
+> +  $(warning Please use 'M=' or 'KBUILD_EXTMOD' instead)
+> +  $(warning ==========================================)
+>    KBUILD_EXTMOD ?= $(SUBDIRS)
+>  endif
+>  
+> diff --git a/drivers/mtd/maps/scx200_docflash.c b/drivers/mtd/maps/scx200_docflash.c
+> index f1c1f73..7f1a0e6 100644
+> --- a/drivers/mtd/maps/scx200_docflash.c
+> +++ b/drivers/mtd/maps/scx200_docflash.c
+> @@ -216,10 +216,3 @@ static void __exit cleanup_scx200_docflash(void)
+>  
+>  module_init(init_scx200_docflash);
+>  module_exit(cleanup_scx200_docflash);
+> -
+> -/*
+> -    Local variables:
+> -        compile-command: "make -k -C ../../.. SUBDIRS=drivers/mtd/maps modules"
+> -        c-basic-offset: 8
+> -    End:
+> -*/
+> diff --git a/drivers/watchdog/scx200_wdt.c b/drivers/watchdog/scx200_wdt.c
+> index 836377c..ec4063e 100644
+> --- a/drivers/watchdog/scx200_wdt.c
+> +++ b/drivers/watchdog/scx200_wdt.c
+> @@ -262,10 +262,3 @@ static void __exit scx200_wdt_cleanup(void)
+>  
+>  module_init(scx200_wdt_init);
+>  module_exit(scx200_wdt_cleanup);
+> -
+> -/*
+> -    Local variables:
+> -	compile-command: "make -k -C ../.. SUBDIRS=drivers/char modules"
+> -	c-basic-offset: 8
+> -    End:
+> -*/
+> diff --git a/samples/connector/Makefile b/samples/connector/Makefile
+> index fe3c854..6ad7162 100644
+> --- a/samples/connector/Makefile
+> +++ b/samples/connector/Makefile
+> @@ -14,4 +14,4 @@ HOSTCFLAGS_ucon.o += -I$(objtree)/usr/include
+>  all: modules
+>  
+>  modules clean:
+> -	$(MAKE) -C ../.. SUBDIRS=$(CURDIR) $@
+> +	$(MAKE) -C ../.. M=$(CURDIR) $@
