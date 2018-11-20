@@ -1,59 +1,85 @@
-Return-Path: <anholt@anholt.net>
-Return-path: <anholt@anholt.net>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from anholt.net ([50.246.234.109]:52750 "EHLO anholt.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727211AbeKUIIY (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Wed, 21 Nov 2018 03:08:24 -0500
 From: Eric Anholt <eric@anholt.net>
 To: Florian Fainelli <f.fainelli@gmail.com>,
-	Rob Herring <robh+dt@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Guenter Roeck <linux@roeck-us.net>,
-	linux-watchdog@vger.kernel.org
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        linux-watchdog@vger.kernel.org
 Cc: linux-rpi-kernel@lists.infradead.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	Stefan Wahren <stefan.wahren@i2se.com>,
-	bcm-kernel-feedback-list@broadcom.com,
-	Eric Anholt <eric@anholt.net>
-Subject: [PATCH v2 0/5] BCM2835 PM driver (MFD version)
-Date: Tue, 20 Nov 2018 13:36:57 -0800
-Message-Id: <20181120213702.27958-1-eric@anholt.net>
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Stefan Wahren <stefan.wahren@i2se.com>,
+        bcm-kernel-feedback-list@broadcom.com,
+        Eric Anholt <eric@anholt.net>
+Subject: [PATCH v2 5/5] ARM: bcm283x: Switch V3D over to using the PM driver instead of firmware.
+Date: Tue, 20 Nov 2018 13:37:02 -0800
+Message-Id: <20181120213702.27958-6-eric@anholt.net>
+In-Reply-To: <20181120213702.27958-1-eric@anholt.net>
+References: <20181120213702.27958-1-eric@anholt.net>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-List-ID: <linux-watchdog@vger.kernel.org>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-Guenter Roeck and Stefan Wahren both wanted a MFD-style driver to
-cover the PM node that lets WDT and soc/bcm2835-power both attach to
-it.  I think this is an ugly solution because it bloats this feature
-addition by 25% more lines for all the boilerplate, but here it is.
-Tested with V3D powering on, haven't double-checked the reset
-controller.
+The GRAFX domain only contains V3D, and this driver should be the only
+accessor of V3D (firmware usage gets disabled when V3D is in the DT),
+so we can safely make Linux control the GRAFX and GRAFX_V3D power
+domains.
 
-Eric Anholt (5):
-  dt-bindings: soc: Add a new binding for the BCM2835 PM node.
-  bcm2835-pm: Move bcm2835-watchdog's DT probe to an MFD.
-  soc: bcm: bcm2835-pm: Add support for power domains under a new
-    binding.
-  ARM: bcm283x: Extend the WDT DT node out to cover the whole PM block.
-  ARM: bcm283x: Switch V3D over to using the PM driver instead of
-    firmware.
+Signed-off-by: Eric Anholt <eric@anholt.net>
+---
+ arch/arm/boot/dts/bcm2835-rpi.dtsi | 4 ----
+ arch/arm/boot/dts/bcm283x.dtsi     | 4 +++-
+ 2 files changed, 3 insertions(+), 5 deletions(-)
 
- .../bindings/soc/bcm/brcm,bcm2835-pm.txt      |  42 ++
- arch/arm/boot/dts/bcm2835-rpi.dtsi            |   4 -
- arch/arm/boot/dts/bcm283x.dtsi                |  16 +-
- arch/arm/mach-bcm/Kconfig                     |   1 +
- drivers/mfd/Makefile                          |   1 +
- drivers/mfd/bcm2835-pm.c                      |  98 +++
- drivers/soc/bcm/Kconfig                       |  11 +
- drivers/soc/bcm/Makefile                      |   1 +
- drivers/soc/bcm/bcm2835-power.c               | 661 ++++++++++++++++++
- drivers/watchdog/bcm2835_wdt.c                |  30 +-
- include/dt-bindings/soc/bcm2835-pm.h          |  28 +
- include/linux/mfd/bcm2835-pm.h                |  14 +
- 12 files changed, 882 insertions(+), 25 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/soc/bcm/brcm,bcm2835-pm.txt
- create mode 100644 drivers/mfd/bcm2835-pm.c
- create mode 100644 drivers/soc/bcm/bcm2835-power.c
- create mode 100644 include/dt-bindings/soc/bcm2835-pm.h
- create mode 100644 include/linux/mfd/bcm2835-pm.h
-
+diff --git a/arch/arm/boot/dts/bcm2835-rpi.dtsi b/arch/arm/boot/dts/bcm2835-rpi.dtsi
+index cb2d6d78a7fb..21a930148709 100644
+--- a/arch/arm/boot/dts/bcm2835-rpi.dtsi
++++ b/arch/arm/boot/dts/bcm2835-rpi.dtsi
+@@ -87,10 +87,6 @@
+ 	power-domains = <&power RPI_POWER_DOMAIN_USB>;
+ };
+ 
+-&v3d {
+-	power-domains = <&power RPI_POWER_DOMAIN_V3D>;
+-};
+-
+ &hdmi {
+ 	power-domains = <&power RPI_POWER_DOMAIN_HDMI>;
+ 	status = "okay";
+diff --git a/arch/arm/boot/dts/bcm283x.dtsi b/arch/arm/boot/dts/bcm283x.dtsi
+index bd5be68b4561..ce7bc9cc43ae 100644
+--- a/arch/arm/boot/dts/bcm283x.dtsi
++++ b/arch/arm/boot/dts/bcm283x.dtsi
+@@ -3,6 +3,7 @@
+ #include <dt-bindings/clock/bcm2835-aux.h>
+ #include <dt-bindings/gpio/gpio.h>
+ #include <dt-bindings/interrupt-controller/irq.h>
++#include <dt-bindings/soc/bcm2835-pm.h>
+ 
+ /* firmware-provided startup stubs live here, where the secondary CPUs are
+  * spinning.
+@@ -120,7 +121,7 @@
+ 			#interrupt-cells = <2>;
+ 		};
+ 
+-		watchdog@7e100000 {
++		pm: watchdog@7e100000 {
+ 			compatible = "brcm,bcm2835-pm", "brcm,bcm2835-pm-wdt";
+ 			#power-domain-cells = <1>;
+ 			#reset-cells = <1>;
+@@ -637,6 +638,7 @@
+ 			compatible = "brcm,bcm2835-v3d";
+ 			reg = <0x7ec00000 0x1000>;
+ 			interrupts = <1 10>;
++			power-domains = <&pm BCM2835_POWER_DOMAIN_GRAFX_V3D>;
+ 		};
+ 
+ 		vc4: gpu {
 -- 
 2.19.1
