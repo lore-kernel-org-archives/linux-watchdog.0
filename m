@@ -1,9 +1,9 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from anholt.net ([50.246.234.109]:52714 "EHLO anholt.net"
+Received: from anholt.net ([50.246.234.109]:52684 "EHLO anholt.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726098AbeKUIIV (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 21 Nov 2018 03:08:21 -0500
+        id S1726098AbeKUIIS (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Wed, 21 Nov 2018 03:08:18 -0500
 From: Eric Anholt <eric@anholt.net>
 To: Florian Fainelli <f.fainelli@gmail.com>,
         Rob Herring <robh+dt@kernel.org>,
@@ -16,9 +16,9 @@ Cc: linux-rpi-kernel@lists.infradead.org,
         Stefan Wahren <stefan.wahren@i2se.com>,
         bcm-kernel-feedback-list@broadcom.com,
         Eric Anholt <eric@anholt.net>
-Subject: [PATCH v2 4/5] ARM: bcm283x: Extend the WDT DT node out to cover the whole PM block.
-Date: Tue, 20 Nov 2018 13:37:01 -0800
-Message-Id: <20181120213702.27958-5-eric@anholt.net>
+Subject: [PATCH v2 1/5] dt-bindings: soc: Add a new binding for the BCM2835 PM node.
+Date: Tue, 20 Nov 2018 13:36:58 -0800
+Message-Id: <20181120213702.27958-2-eric@anholt.net>
 In-Reply-To: <20181120213702.27958-1-eric@anholt.net>
 References: <20181120213702.27958-1-eric@anholt.net>
 MIME-Version: 1.0
@@ -26,42 +26,63 @@ Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-It was covering part of the PM block's range, up to the WDT regs.  To
-support the rest of the PM block's functionality, we need the full
-register range plus the AXI Async Bridge regs for PM sequencing.
-
-This doesn't convert any of the consumers over to the new binding yet,
-since we will need to be careful in coordinating our usage of firmware
-services that might power domains on and off versus the bcm2835-pm
-driver's access of those same domains.
+This binding supersedes the bcm2835-pm-wdt binding which only covered
+enough to provide a watchdog, but the HW block is actually mostly
+about power domains.
 
 Signed-off-by: Eric Anholt <eric@anholt.net>
 ---
- arch/arm/boot/dts/bcm283x.dtsi | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ .../bindings/soc/bcm/brcm,bcm2835-pm.txt      | 42 +++++++++++++++++++
+ 1 file changed, 42 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/soc/bcm/brcm,bcm2835-pm.txt
 
-diff --git a/arch/arm/boot/dts/bcm283x.dtsi b/arch/arm/boot/dts/bcm283x.dtsi
-index 31b29646b14c..bd5be68b4561 100644
---- a/arch/arm/boot/dts/bcm283x.dtsi
-+++ b/arch/arm/boot/dts/bcm283x.dtsi
-@@ -121,8 +121,16 @@
- 		};
- 
- 		watchdog@7e100000 {
--			compatible = "brcm,bcm2835-pm-wdt";
--			reg = <0x7e100000 0x28>;
-+			compatible = "brcm,bcm2835-pm", "brcm,bcm2835-pm-wdt";
-+			#power-domain-cells = <1>;
-+			#reset-cells = <1>;
-+			reg = <0x7e100000 0x114>,
-+			      <0x7e00a000 0x24>;
-+			clocks = <&clocks BCM2835_CLOCK_V3D>,
-+				 <&clocks BCM2835_CLOCK_PERI_IMAGE>,
-+				 <&clocks BCM2835_CLOCK_H264>,
-+				 <&clocks BCM2835_CLOCK_ISP>;
-+			clock-names = "v3d", "peri_image", "h264", "isp";
- 		};
- 
- 		clocks: cprman@7e101000 {
+diff --git a/Documentation/devicetree/bindings/soc/bcm/brcm,bcm2835-pm.txt b/Documentation/devicetree/bindings/soc/bcm/brcm,bcm2835-pm.txt
+new file mode 100644
+index 000000000000..7818d33a158f
+--- /dev/null
++++ b/Documentation/devicetree/bindings/soc/bcm/brcm,bcm2835-pm.txt
+@@ -0,0 +1,42 @@
++BCM2835 PM (Power domains, watchdog)
++
++The PM block controls power domains and some reset lines, and includes
++a watchdog timer.  This binding supersedes the brcm,bcm2835-pm-wdt
++binding which covered some of PM's register range and functionality.
++
++Required properties:
++
++- compatible:		Should be "brcm,bcm2835-pm"
++- reg:			Specifies base physical address and size of the two
++			  register ranges ("PM" and "ASYNC_BRIDGE" in that
++			  order)
++- clocks:		a) v3d: The V3D clock from CPRMAN
++			b) peri_image: The PERI_IMAGE clock from CPRMAN
++			c) h264: The H264 clock from CPRMAN
++			d) isp: The ISP clock from CPRMAN
++- #reset-cells: 	Should be 1.  This property follows the reset controller
++			  bindings[1].
++- #power-domain-cells:	Should be 1.  This property follows the power domain
++			  bindings[2].
++
++Optional properties:
++
++- timeout-sec:	Contains the watchdog timeout in seconds
++
++[1] Documentation/devicetree/bindings/reset/reset.txt
++[2] Documentation/devicetree/bindings/power/power_domain.txt
++
++Example:
++
++pm {
++	compatible = "brcm,bcm2835-pm", "brcm,bcm2835-pm-wdt";
++	#power-domain-cells = <1>;
++	#reset-cells = <1>;
++	reg = <0x7e100000 0x114>,
++	      <0x7e00a000 0x24>;
++	clocks = <&clocks BCM2835_CLOCK_V3D>,
++		 <&clocks BCM2835_CLOCK_PERI_IMAGE>,
++		 <&clocks BCM2835_CLOCK_H264>,
++		 <&clocks BCM2835_CLOCK_ISP>;
++	clock-names = "v3d", "peri_image", "h264", "isp";
++};
 -- 
 2.19.1
