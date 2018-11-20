@@ -13,69 +13,72 @@ Cc: linux-rpi-kernel@lists.infradead.org,
 	Stefan Wahren <stefan.wahren@i2se.com>,
 	bcm-kernel-feedback-list@broadcom.com,
 	Eric Anholt <eric@anholt.net>
-Subject: [PATCH 8/8] ARM: bcm283x: Switch V3D over to using the PM driver instead of firmware.
-Date: Tue, 20 Nov 2018 09:20:00 -0800
-Message-Id: <20181120172000.15102-9-eric@anholt.net>
+Subject: [PATCH 5/8] dt-bindings: soc: Add a new binding for the BCM2835 PM node.
+Date: Tue, 20 Nov 2018 09:19:57 -0800
+Message-Id: <20181120172000.15102-6-eric@anholt.net>
 In-Reply-To: <20181120172000.15102-1-eric@anholt.net>
 References: <20181120172000.15102-1-eric@anholt.net>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 List-ID: <linux-watchdog@vger.kernel.org>
 
-The GRAFX domain only contains V3D, and this driver should be the only
-accessor of V3D (firmware usage gets disabled when V3D is in the DT),
-so we can safely make Linux control the GRAFX and GRAFX_V3D power
-domains.
+This binding supersedes the bcm2835-pm-wdt binding which only covered
+enough to provide a watchdog, but the HW block is actually mostly
+about power domains.
 
 Signed-off-by: Eric Anholt <eric@anholt.net>
 ---
- arch/arm/boot/dts/bcm2835-rpi.dtsi | 4 ----
- arch/arm/boot/dts/bcm283x.dtsi     | 4 +++-
- 2 files changed, 3 insertions(+), 5 deletions(-)
+ .../bindings/soc/bcm/brcm,bcm2835-pm.txt      | 42 +++++++++++++++++++
+ 1 file changed, 42 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/soc/bcm/brcm,bcm2835-pm.txt
 
-diff --git a/arch/arm/boot/dts/bcm2835-rpi.dtsi b/arch/arm/boot/dts/bcm2835-rpi.dtsi
-index cb2d6d78a7fb..21a930148709 100644
---- a/arch/arm/boot/dts/bcm2835-rpi.dtsi
-+++ b/arch/arm/boot/dts/bcm2835-rpi.dtsi
-@@ -87,10 +87,6 @@
- 	power-domains = <&power RPI_POWER_DOMAIN_USB>;
- };
- 
--&v3d {
--	power-domains = <&power RPI_POWER_DOMAIN_V3D>;
--};
--
- &hdmi {
- 	power-domains = <&power RPI_POWER_DOMAIN_HDMI>;
- 	status = "okay";
-diff --git a/arch/arm/boot/dts/bcm283x.dtsi b/arch/arm/boot/dts/bcm283x.dtsi
-index bd5be68b4561..ce7bc9cc43ae 100644
---- a/arch/arm/boot/dts/bcm283x.dtsi
-+++ b/arch/arm/boot/dts/bcm283x.dtsi
-@@ -3,6 +3,7 @@
- #include <dt-bindings/clock/bcm2835-aux.h>
- #include <dt-bindings/gpio/gpio.h>
- #include <dt-bindings/interrupt-controller/irq.h>
-+#include <dt-bindings/soc/bcm2835-pm.h>
- 
- /* firmware-provided startup stubs live here, where the secondary CPUs are
-  * spinning.
-@@ -120,7 +121,7 @@
- 			#interrupt-cells = <2>;
- 		};
- 
--		watchdog@7e100000 {
-+		pm: watchdog@7e100000 {
- 			compatible = "brcm,bcm2835-pm", "brcm,bcm2835-pm-wdt";
- 			#power-domain-cells = <1>;
- 			#reset-cells = <1>;
-@@ -637,6 +638,7 @@
- 			compatible = "brcm,bcm2835-v3d";
- 			reg = <0x7ec00000 0x1000>;
- 			interrupts = <1 10>;
-+			power-domains = <&pm BCM2835_POWER_DOMAIN_GRAFX_V3D>;
- 		};
- 
- 		vc4: gpu {
+diff --git a/Documentation/devicetree/bindings/soc/bcm/brcm,bcm2835-pm.txt b/Documentation/devicetree/bindings/soc/bcm/brcm,bcm2835-pm.txt
+new file mode 100644
+index 000000000000..7818d33a158f
+--- /dev/null
++++ b/Documentation/devicetree/bindings/soc/bcm/brcm,bcm2835-pm.txt
+@@ -0,0 +1,42 @@
++BCM2835 PM (Power domains, watchdog)
++
++The PM block controls power domains and some reset lines, and includes
++a watchdog timer.  This binding supersedes the brcm,bcm2835-pm-wdt
++binding which covered some of PM's register range and functionality.
++
++Required properties:
++
++- compatible:		Should be "brcm,bcm2835-pm"
++- reg:			Specifies base physical address and size of the two
++			  register ranges ("PM" and "ASYNC_BRIDGE" in that
++			  order)
++- clocks:		a) v3d: The V3D clock from CPRMAN
++			b) peri_image: The PERI_IMAGE clock from CPRMAN
++			c) h264: The H264 clock from CPRMAN
++			d) isp: The ISP clock from CPRMAN
++- #reset-cells: 	Should be 1.  This property follows the reset controller
++			  bindings[1].
++- #power-domain-cells:	Should be 1.  This property follows the power domain
++			  bindings[2].
++
++Optional properties:
++
++- timeout-sec:	Contains the watchdog timeout in seconds
++
++[1] Documentation/devicetree/bindings/reset/reset.txt
++[2] Documentation/devicetree/bindings/power/power_domain.txt
++
++Example:
++
++pm {
++	compatible = "brcm,bcm2835-pm", "brcm,bcm2835-pm-wdt";
++	#power-domain-cells = <1>;
++	#reset-cells = <1>;
++	reg = <0x7e100000 0x114>,
++	      <0x7e00a000 0x24>;
++	clocks = <&clocks BCM2835_CLOCK_V3D>,
++		 <&clocks BCM2835_CLOCK_PERI_IMAGE>,
++		 <&clocks BCM2835_CLOCK_H264>,
++		 <&clocks BCM2835_CLOCK_ISP>;
++	clock-names = "v3d", "peri_image", "h264", "isp";
++};
 -- 
 2.19.1
