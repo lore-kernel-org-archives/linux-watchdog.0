@@ -1,45 +1,69 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx0b-00082601.pphosted.com ([67.231.153.30]:51108 "EHLO
-        mx0a-00082601.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727222AbeK0RJG (ORCPT
+Received: from mail-wm1-f67.google.com ([209.85.128.67]:53351 "EHLO
+        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729897AbeK0TzL (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 27 Nov 2018 12:09:06 -0500
-From: Tao Ren <taoren@fb.com>
-To: "Jerry.Hoemann@hpe.com" <jerry.hoemann@hpe.com>
-CC: Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+        Tue, 27 Nov 2018 14:55:11 -0500
+Received: by mail-wm1-f67.google.com with SMTP id y1so17637009wmi.3
+        for <linux-watchdog@vger.kernel.org>; Tue, 27 Nov 2018 00:57:59 -0800 (PST)
+Date: Tue, 27 Nov 2018 08:57:42 +0000
+From: Lee Jones <lee.jones@linaro.org>
+To: Pascal PAILLET-LME <p.paillet@st.com>
+Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
+        "robh+dt@kernel.org" <robh+dt@kernel.org>,
+        "mark.rutland@arm.com" <mark.rutland@arm.com>,
+        "lgirdwood@gmail.com" <lgirdwood@gmail.com>,
+        "broonie@kernel.org" <broonie@kernel.org>,
+        "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
+        "linux@roeck-us.net" <linux@roeck-us.net>,
+        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
         "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "openbmc@lists.ozlabs.org" <openbmc@lists.ozlabs.org>
-Subject: Re: [PATCH] watchdog: core: suppress "watchdog did not stop" message
-Date: Tue, 27 Nov 2018 06:11:46 +0000
-Message-ID: <12D0F3A5-602E-4C4B-908D-55C3C50823BB@fb.com>
-References: <20181115234413.27009-1-taoren@fb.com>
- <20181116001938.GA16009@roeck-us.net>
- <9a43bb84-f476-d6c8-886a-2120312ee8e7@fb.com>
- <20181127013117.GB11080@anatevka>
-In-Reply-To: <20181127013117.GB11080@anatevka>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <99C19D0526E0BD44B3DB6E607CF70289@namprd15.prod.outlook.com>
-Content-Transfer-Encoding: base64
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+        "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>,
+        "eballetbo@gmail.com" <eballetbo@gmail.com>,
+        "axel.lin@ingics.com" <axel.lin@ingics.com>
+Subject: Re: [PATCH v5 2/8] mfd: stpmic1: add stpmic1 driver
+Message-ID: <20181127085742.GG4272@dell>
+References: <1540830122-2577-1-git-send-email-p.paillet@st.com>
+ <1540830122-2577-3-git-send-email-p.paillet@st.com>
+ <20181113074037.GC29388@dell>
+ <5BFC2B69.1050204@st.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <5BFC2B69.1050204@st.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-T24gMTEvMjYvMTgsIDU6MzEgUE0sICJKZXJyeSBIb2VtYW5uIiA8amVycnkuaG9lbWFubkBocGUu
-Y29tPiB3cm90ZToNCj4gVGFvLA0KPiANCj4gSWYgeW91J3JlIG9uIGEgc3lzdGVtIHJ1bm5pbmcg
-c3lzdGVtZCwgdGhlIGRlZmF1bHQgYmVoYXZpb3IgaXMgdG8NCj4gZW5hYmxlIHRoZSB3YXRjaGRv
-ZyBkdXJpbmcgc2h1dGRvd24uICBUaGlzIGd1YXJkcyBhZ2FpbnN0IHNodXRkb3duIGhhbmdpbmcu
-DQo+IFNvIHRoaXMgbWVzc2FnZSB3aWxsIGJlIHJvdXRpbmVseSBwcmludGVkIG91dCBkdXJpbmcg
-b3JkZXJseSBzaHV0ZG93bi4NCg0KVGhhbmsgeW91IEplcnJ5IGZvciB0aGUgY29tbWVudHMuDQoN
-CkkgYWN0dWFsbHkgdXNlIGEgc2VwYXJhdGUgZGFlbW9uIHByb2Nlc3MgdG8ga2ljayB0aGUgd2F0
-Y2hkb2cgb24gbXkgQk1DIHN5c3RlbS4gVGhlIGRhZW1vbiBtb25pdG9ycyB0ZW1wZXJhdHVyZSBz
-ZW5zb3JzIGFuZCBvdGhlciBzeXN0ZW0gc3RhdGVzIGFuZCBraWNrcyB3YXRjaGRvZyBwZXJpb2Rp
-Y2FsbHk6IGlmIHRoZSBkYWVtb24gZ2V0cyBzdHVjayBvciBleGl0cywgdGhlbiB0aGUgbWFjaGlu
-ZSBuZWVkcyB0byByZWJvb3QgZXZlbiBpZiBrZXJuZWwvc3lzdGVtZCBpcyBmaW5lLiBQZXJoYXBz
-IEkgbmVlZCB0byBsb29rIGZvciBhIGJldHRlci9vZmZpY2lhbCB3YXkgdG8gbWFuYWdlIHRoZSB3
-YXRjaGRvZyBkZXZpY2UuLg0KDQpCVFcsIEkgd2lsbCBiZSB0cmF2ZWxsaW5nIGFicm9hZCBpbiB0
-aGUgbmV3IGZldyBkYXlzIGFuZCBtYXkgbm90IGJlIGFibGUgdG8gcmVwbHkgZW1haWxzIHRpbWVs
-eS4gVGhhbmsgeW91IGFnYWluIGZvciBqdW1waW5nIGluLg0KDQpCZXN0IHJlZ2FyZHMsDQpUYW8g
-UmVuDQogICAgDQoNCg==
+On Mon, 26 Nov 2018, Pascal PAILLET-LME wrote:
+> Hi Lee,
+> I have just one question regarding i2c_device_id.
+
+Don't forget to trim your responses.
+
+Lots of unrequired quotes here.
+
+[...]
+
+> >> +static const struct i2c_device_id stpmic1_id[] = {
+> >> +	{ "stpmic1"},
+> >> +	{}
+> >> +};
+> > I don't think this is required any more.
+> should I replace with the following ?
+> 
+> static const struct of_device_id stpmic1_of_match[] = {
+>      { .compatible = "st,stpmic1", },
+>      {},
+> };
+> MODULE_DEVICE_TABLE(of, stpmic1_of_match);
+
+I think it should have had that already.  So yes, please.
+
+-- 
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
