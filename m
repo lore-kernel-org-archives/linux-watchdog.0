@@ -1,16 +1,17 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx07-00178001.pphosted.com ([62.209.51.94]:63810 "EHLO
-        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726492AbeK1DvN (ORCPT
+Received: from heliosphere.sirena.org.uk ([172.104.155.198]:53392 "EHLO
+        heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727382AbeK1UtM (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 27 Nov 2018 22:51:13 -0500
-From: Pascal PAILLET-LME <p.paillet@st.com>
-To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
+        Wed, 28 Nov 2018 15:49:12 -0500
+Date: Wed, 28 Nov 2018 09:48:01 +0000
+From: Mark Brown <broonie@kernel.org>
+To: Pascal PAILLET-LME <p.paillet@st.com>
+Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
         "robh+dt@kernel.org" <robh+dt@kernel.org>,
         "mark.rutland@arm.com" <mark.rutland@arm.com>,
         "lee.jones@linaro.org" <lee.jones@linaro.org>,
         "lgirdwood@gmail.com" <lgirdwood@gmail.com>,
-        "broonie@kernel.org" <broonie@kernel.org>,
         "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
         "linux@roeck-us.net" <linux@roeck-us.net>,
         "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
@@ -20,105 +21,48 @@ To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
         "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>,
         "eballetbo@gmail.com" <eballetbo@gmail.com>,
         "axel.lin@ingics.com" <axel.lin@ingics.com>
-CC: Pascal PAILLET-LME <p.paillet@st.com>
-Subject: [PATCH v6 3/8] dt-bindings: regulator: document stpmic1 pmic
+Subject: Re: [PATCH v6 3/8] dt-bindings: regulator: document stpmic1 pmic
  regulators
-Date: Tue, 27 Nov 2018 16:52:15 +0000
-Message-ID: <1543337529-22301-4-git-send-email-p.paillet@st.com>
+Message-ID: <20181128094801.GF6828@sirena.org.uk>
 References: <1543337529-22301-1-git-send-email-p.paillet@st.com>
-In-Reply-To: <1543337529-22301-1-git-send-email-p.paillet@st.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+ <1543337529-22301-4-git-send-email-p.paillet@st.com>
 MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="twz1s1Hj1O0rHoT0"
+Content-Disposition: inline
+In-Reply-To: <1543337529-22301-4-git-send-email-p.paillet@st.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The STPMIC1 regulators supply power to the application processor as well as
-to the external system peripherals such as DDR, Flash memories and system
-devices.
 
-Signed-off-by: Pascal Paillet <p.paillet@st.com>
-Reviewed-by: Rob Herring <robh@kernel.org>
----
-changes in v6:
-* remove interrupt parent
+--twz1s1Hj1O0rHoT0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
- .../bindings/regulator/st,stpmic1-regulator.txt    | 67 ++++++++++++++++++++++
- 1 file changed, 67 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/regulator/st,stpmic1-regulator.txt
+On Tue, Nov 27, 2018 at 04:52:15PM +0000, Pascal PAILLET-LME wrote:
+> The STPMIC1 regulators supply power to the application processor as well as
+> to the external system peripherals such as DDR, Flash memories and system
+> devices.
 
-diff --git a/Documentation/devicetree/bindings/regulator/st,stpmic1-regulator.txt b/Documentation/devicetree/bindings/regulator/st,stpmic1-regulator.txt
-new file mode 100644
-index 0000000..5adc938
---- /dev/null
-+++ b/Documentation/devicetree/bindings/regulator/st,stpmic1-regulator.txt
-@@ -0,0 +1,66 @@
-+STMicroelectronics STPMIC1 Voltage regulators
-+
-+Regulator Nodes are optional depending on needs.
-+
-+Available Regulators in STPMIC1 device are:
-+  - buck1 for Buck BUCK1
-+  - buck2 for Buck BUCK2
-+  - buck3 for Buck BUCK3
-+  - buck4 for Buck BUCK4
-+  - ldo1 for LDO LDO1
-+  - ldo2 for LDO LDO2
-+  - ldo3 for LDO LDO3
-+  - ldo4 for LDO LDO4
-+  - ldo5 for LDO LDO5
-+  - ldo6 for LDO LDO6
-+  - vref_ddr for LDO Vref DDR
-+  - boost for Buck BOOST
-+  - pwr_sw1 for VBUS_OTG switch
-+  - pwr_sw2 for SW_OUT switch
-+
-+Switches are fixed voltage regulators with only enable/disable capability.
-+
-+Optional properties:
-+- st,mask-reset: mask reset for this regulator: the regulator configuration
-+  is maintained during pmic reset.
-+- regulator-pull-down: enable high pull down
-+  if not specified light pull down is used
-+- regulator-over-current-protection:
-+    if set, all regulators are switched off in case of over-current detection
-+    on this regulator,
-+    if not set, the driver only sends an over-current event.
-+- interrupts: index of current limit detection interrupt
-+- <regulator>-supply: phandle to the parent supply/regulator node
-+	each regulator supply can be described except vref_ddr.
-+- regulator-active-discharge: can be used on pwr_sw1 and pwr_sw2.
-+
-+Example:
-+regulators {
-+	compatible = "st,stpmic1-regulators";
-+
-+	ldo6-supply = <&v3v3>;
-+
-+	vdd_core: buck1 {
-+		regulator-name = "vdd_core";
-+		interrupts = <IT_CURLIM_BUCK1 0>;
-+		st,mask-reset;
-+		regulator-pull-down;
-+		regulator-min-microvolt = <700000>;
-+		regulator-max-microvolt = <1200000>;
-+	};
-+
-+	v3v3: buck4 {
-+		regulator-name = "v3v3";
-+		interrupts = <IT_CURLIM_BUCK4 0>;
-+
-+		regulator-min-microvolt = <3300000>;
-+		regulator-max-microvolt = <3300000>;
-+	};
-+
-+	v1v8: ldo6 {
-+		regulator-name = "v1v8";
-+		regulator-min-microvolt = <1800000>;
-+		regulator-max-microvolt = <1800000>;
-+		regulator-over-current-protection;
-+	};
-+};
--- 
-1.9.1
+Please do not submit new versions of already applied patches, please
+submit incremental updates to the existing code.  Modifying existing
+commits creates problems for other users building on top of those
+commits so it's best practice to only change pubished git commits if
+absolutely essential.
+
+--twz1s1Hj1O0rHoT0
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAlv+ZFAACgkQJNaLcl1U
+h9AA3wf+PMfJhuWzSDo4Gyt+6hi/sZYBOjjmRyNUvr4h4+MD5GD+hKM/khHZHOAX
+5DNTnPbq9QxpSz0diLf0ccI2gai1kxHGFeOn3rz6M7VTPPBM06h2KHDdNUQUOyFq
+QRCbUmCBT1BvgRXorwBiVQvc7KyanV9MkXaNgleXpb5wMCilOIWREX00Ldo6pZEA
+LZzRtxDzz+0HC0M8kADW56NfMKpATi4yW4qAejc/fnkkYAmpE4Jkt7tf2YzFgdRp
+f2GNjyVVwMqYnvOcDNeY7rajJQJFTaRahTdUn8LAtsR8tEicx0WAzexFgx/iNjDn
+TNPYztrJuVKThCXbbDQEOvlf8Q2EXg==
+=rEEf
+-----END PGP SIGNATURE-----
+
+--twz1s1Hj1O0rHoT0--
