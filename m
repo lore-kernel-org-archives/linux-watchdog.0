@@ -1,64 +1,63 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wm1-f68.google.com ([209.85.128.68]:38950 "EHLO
-        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727667AbeK1VQE (ORCPT
+Received: from mail-pf1-f196.google.com ([209.85.210.196]:33045 "EHLO
+        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726572AbeK3KsE (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 28 Nov 2018 16:16:04 -0500
-Received: by mail-wm1-f68.google.com with SMTP id n133so1954897wmd.4
-        for <linux-watchdog@vger.kernel.org>; Wed, 28 Nov 2018 02:14:55 -0800 (PST)
-Date: Wed, 28 Nov 2018 10:14:52 +0000
-From: Lee Jones <lee.jones@linaro.org>
-To: Pascal PAILLET-LME <p.paillet@st.com>
-Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
-        "robh+dt@kernel.org" <robh+dt@kernel.org>,
-        "mark.rutland@arm.com" <mark.rutland@arm.com>,
-        "lgirdwood@gmail.com" <lgirdwood@gmail.com>,
-        "broonie@kernel.org" <broonie@kernel.org>,
-        "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
-        "linux@roeck-us.net" <linux@roeck-us.net>,
-        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>,
-        "eballetbo@gmail.com" <eballetbo@gmail.com>,
-        "axel.lin@ingics.com" <axel.lin@ingics.com>
-Subject: Re: [PATCH v6 2/8] mfd: stpmic1: add stpmic1 driver
-Message-ID: <20181128101452.GE4272@dell>
-References: <1543337529-22301-1-git-send-email-p.paillet@st.com>
- <1543337529-22301-3-git-send-email-p.paillet@st.com>
+        Fri, 30 Nov 2018 05:48:04 -0500
+Date: Thu, 29 Nov 2018 15:40:46 -0800
+From: Guenter Roeck <linux@roeck-us.net>
+To: Colin King <colin.king@canonical.com>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
+        linux-watchdog@vger.kernel.org, kernel-janitors@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] watchdog: asm9260_wdt: make array mode_name static,
+ shrinks object size
+Message-ID: <20181129234046.GA19718@roeck-us.net>
+References: <20181129232500.5039-1-colin.king@canonical.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1543337529-22301-3-git-send-email-p.paillet@st.com>
+In-Reply-To: <20181129232500.5039-1-colin.king@canonical.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, 27 Nov 2018, Pascal PAILLET-LME wrote:
-
-> STPMIC1 is a PMIC from STMicroelectronics. The STPMIC1 integrates 10
-> regulators, 3 power switches, a watchdog and an input for a power on key.
+On Thu, Nov 29, 2018 at 11:25:00PM +0000, Colin King wrote:
+> From: Colin Ian King <colin.king@canonical.com>
 > 
-> Signed-off-by: Pascal Paillet <p.paillet@st.com>
+> Don't populate the const array mode_name on the stack but instead
+> make it static. Makes the object code smaller by 41 bytes:
+> 
+> Before:
+>    text	   data	    bss	    dec	    hex	filename
+>    7699	   1872	      0	   9571	   2563	drivers/watchdog/asm9260_wdt.o
+> 
+> After:
+>    text	   data	    bss	    dec	    hex	filename
+>    7594	   1936	      0	   9530	   253a	drivers/watchdog/asm9260_wdt.o
+> 
+> (gcc version 8.2.0 x86_64)
+> 
+> Signed-off-by: Colin Ian King <colin.king@canonical.com>
+
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+
 > ---
-> changes in v6:
-> * replace i2c_device_id by of_device_id
-> * fix commit message and Kconfig description
+>  drivers/watchdog/asm9260_wdt.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
->  drivers/mfd/Kconfig         |  16 ++++
->  drivers/mfd/Makefile        |   1 +
->  drivers/mfd/stpmic1.c       | 213 ++++++++++++++++++++++++++++++++++++++++++++
->  include/linux/mfd/stpmic1.h | 212 +++++++++++++++++++++++++++++++++++++++++++
->  4 files changed, 442 insertions(+)
->  create mode 100644 drivers/mfd/stpmic1.c
->  create mode 100644 include/linux/mfd/stpmic1.h
-
-For my own reference:
-  Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
-
--- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+> diff --git a/drivers/watchdog/asm9260_wdt.c b/drivers/watchdog/asm9260_wdt.c
+> index 2cf56b459d84..9768e44ffeb8 100644
+> --- a/drivers/watchdog/asm9260_wdt.c
+> +++ b/drivers/watchdog/asm9260_wdt.c
+> @@ -278,7 +278,7 @@ static int asm9260_wdt_probe(struct platform_device *pdev)
+>  	struct watchdog_device *wdd;
+>  	struct resource *res;
+>  	int ret;
+> -	const char * const mode_name[] = { "hw", "sw", "debug", };
+> +	static const char * const mode_name[] = { "hw", "sw", "debug", };
+>  
+>  	priv = devm_kzalloc(&pdev->dev, sizeof(struct asm9260_wdt_priv),
+>  			    GFP_KERNEL);
+> -- 
+> 2.19.1
+> 
