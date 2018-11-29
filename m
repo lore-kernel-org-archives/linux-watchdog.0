@@ -1,56 +1,38 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:54396 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726406AbeK3KcO (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 30 Nov 2018 05:32:14 -0500
-From: Colin King <colin.king@canonical.com>
-To: Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        linux-watchdog@vger.kernel.org
-Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] watchdog: asm9260_wdt: make array mode_name static, shrinks object size
-Date: Thu, 29 Nov 2018 23:25:00 +0000
-Message-Id: <20181129232500.5039-1-colin.king@canonical.com>
+Return-Path: <geert.uytterhoeven@gmail.com>
+Return-path: <geert.uytterhoeven@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+References: <1540544153-48098-1-git-send-email-biju.das@bp.renesas.com>
+In-Reply-To: <1540544153-48098-1-git-send-email-biju.das@bp.renesas.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Thu, 29 Nov 2018 13:26:36 +0100
+Message-ID: <CAMuHMdWaa+FHYD=4OeRzFJPepqqM5ffSepeZ4ej8ERZCM9aDFg@mail.gmail.com>
+Subject: Re: [PATCH] dt-bindings: watchdog: renesas-wdt: Document r8a77470 support
+To: Biju Das <biju.das@bp.renesas.com>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>,
+	Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
+	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
+	"open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" <devicetree@vger.kernel.org>, Simon Horman <horms@verge.net.au>,
+	Geert Uytterhoeven <geert+renesas@glider.be>, Chris Paterson <Chris.Paterson2@renesas.com>,
+	Fabrizio Castro <fabrizio.castro@bp.renesas.com>,
+	Linux-Renesas <linux-renesas-soc@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+List-ID: <linux-watchdog@vger.kernel.org>
 
-From: Colin Ian King <colin.king@canonical.com>
+On Fri, Oct 26, 2018 at 11:03 AM Biju Das <biju.das@bp.renesas.com> wrote:
+> RZ/G1C (R8A77470) watchdog implementation is compatible with R-Car
+> Gen2, therefore add relevant documentation.
+>
+> Signed-off-by: Biju Das <biju.das@bp.renesas.com>
 
-Don't populate the const array mode_name on the stack but instead
-make it static. Makes the object code smaller by 41 bytes:
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
 
-Before:
-   text	   data	    bss	    dec	    hex	filename
-   7699	   1872	      0	   9571	   2563	drivers/watchdog/asm9260_wdt.o
+Gr{oetje,eeting}s,
 
-After:
-   text	   data	    bss	    dec	    hex	filename
-   7594	   1936	      0	   9530	   253a	drivers/watchdog/asm9260_wdt.o
+                        Geert
 
-(gcc version 8.2.0 x86_64)
-
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
----
- drivers/watchdog/asm9260_wdt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/watchdog/asm9260_wdt.c b/drivers/watchdog/asm9260_wdt.c
-index 2cf56b459d84..9768e44ffeb8 100644
---- a/drivers/watchdog/asm9260_wdt.c
-+++ b/drivers/watchdog/asm9260_wdt.c
-@@ -278,7 +278,7 @@ static int asm9260_wdt_probe(struct platform_device *pdev)
- 	struct watchdog_device *wdd;
- 	struct resource *res;
- 	int ret;
--	const char * const mode_name[] = { "hw", "sw", "debug", };
-+	static const char * const mode_name[] = { "hw", "sw", "debug", };
- 
- 	priv = devm_kzalloc(&pdev->dev, sizeof(struct asm9260_wdt_priv),
- 			    GFP_KERNEL);
 -- 
-2.19.1
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
