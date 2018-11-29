@@ -1,35 +1,56 @@
-Return-Path: <robherring2@gmail.com>
-Return-path: <robherring2@gmail.com>
-Date: Mon, 26 Nov 2018 19:49:35 -0600
-From: Rob Herring <robh@kernel.org>
-To: Loic Poulain <loic.poulain@linaro.org>
-Cc: wim@linux-watchdog.org, linux@roeck-us.net, robh+dt@kernel.org,
-	linux-arm-msm@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	devicetree@vger.kernel.org, andy.gross@linaro.org,
-	Loic Poulain <loic.poulain@linaro.org>
-Subject: Re: [PATCH v3 2/3] dt-bindings: watchdog: Add Qualcomm PM8916
- watchdog
-Message-ID: <20181127014935.GA7099@bogus>
-References: <1542962678-13697-1-git-send-email-loic.poulain@linaro.org>
- <1542962678-13697-2-git-send-email-loic.poulain@linaro.org>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from youngberry.canonical.com ([91.189.89.112]:54396 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726406AbeK3KcO (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Fri, 30 Nov 2018 05:32:14 -0500
+From: Colin King <colin.king@canonical.com>
+To: Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        linux-watchdog@vger.kernel.org
+Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] watchdog: asm9260_wdt: make array mode_name static, shrinks object size
+Date: Thu, 29 Nov 2018 23:25:00 +0000
+Message-Id: <20181129232500.5039-1-colin.king@canonical.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1542962678-13697-2-git-send-email-loic.poulain@linaro.org>
-List-ID: <linux-watchdog@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, 23 Nov 2018 09:44:37 +0100, Loic Poulain wrote:
-> Document support for the Watchdog Timer (WDT) Controller in the
-> Qualcomm PM8916 PMIC module.
-> 
-> Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
-> ---
->  v2: Add interrupts and timeout-sec props
->  v3: Reword props summary
-> 
->  .../bindings/watchdog/qcom,pm8916-wdt.txt          | 28 ++++++++++++++++++++++
->  1 file changed, 28 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/watchdog/qcom,pm8916-wdt.txt
-> 
+From: Colin Ian King <colin.king@canonical.com>
 
-Reviewed-by: Rob Herring <robh@kernel.org>
+Don't populate the const array mode_name on the stack but instead
+make it static. Makes the object code smaller by 41 bytes:
+
+Before:
+   text	   data	    bss	    dec	    hex	filename
+   7699	   1872	      0	   9571	   2563	drivers/watchdog/asm9260_wdt.o
+
+After:
+   text	   data	    bss	    dec	    hex	filename
+   7594	   1936	      0	   9530	   253a	drivers/watchdog/asm9260_wdt.o
+
+(gcc version 8.2.0 x86_64)
+
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+---
+ drivers/watchdog/asm9260_wdt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/watchdog/asm9260_wdt.c b/drivers/watchdog/asm9260_wdt.c
+index 2cf56b459d84..9768e44ffeb8 100644
+--- a/drivers/watchdog/asm9260_wdt.c
++++ b/drivers/watchdog/asm9260_wdt.c
+@@ -278,7 +278,7 @@ static int asm9260_wdt_probe(struct platform_device *pdev)
+ 	struct watchdog_device *wdd;
+ 	struct resource *res;
+ 	int ret;
+-	const char * const mode_name[] = { "hw", "sw", "debug", };
++	static const char * const mode_name[] = { "hw", "sw", "debug", };
+ 
+ 	priv = devm_kzalloc(&pdev->dev, sizeof(struct asm9260_wdt_priv),
+ 			    GFP_KERNEL);
+-- 
+2.19.1
