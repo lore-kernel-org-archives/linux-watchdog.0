@@ -1,9 +1,9 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx08-00178001.pphosted.com ([91.207.212.93]:13577 "EHLO
-        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726527AbeK3VFJ (ORCPT
+Received: from mx07-00178001.pphosted.com ([62.209.51.94]:47640 "EHLO
+        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727035AbeK3VFL (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 30 Nov 2018 16:05:09 -0500
+        Fri, 30 Nov 2018 16:05:11 -0500
 From: Pascal PAILLET-LME <p.paillet@st.com>
 To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
         "robh+dt@kernel.org" <robh+dt@kernel.org>,
@@ -21,9 +21,9 @@ To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
         "eballetbo@gmail.com" <eballetbo@gmail.com>,
         "axel.lin@ingics.com" <axel.lin@ingics.com>
 CC: Pascal PAILLET-LME <p.paillet@st.com>
-Subject: [PATCH v7 6/7] watchdog: stpmic1: add stpmic1 watchdog driver
+Subject: [PATCH v7 7/7] regulator: stpmic1: fix regulator_lock usage
 Date: Fri, 30 Nov 2018 09:55:51 +0000
-Message-ID: <1543571742-17995-7-git-send-email-p.paillet@st.com>
+Message-ID: <1543571742-17995-8-git-send-email-p.paillet@st.com>
 References: <1543571742-17995-1-git-send-email-p.paillet@st.com>
 In-Reply-To: <1543571742-17995-1-git-send-email-p.paillet@st.com>
 Content-Language: en-US
@@ -33,197 +33,28 @@ MIME-Version: 1.0
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The stpmic1 PMIC embeds a watchdog which is disabled by default. As soon
-as the watchdog is started, it must be refreshed periodically otherwise
-the PMIC goes off.
+fix a compilation issue due to regulator_lock usage.
 
 Signed-off-by: Pascal Paillet <p.paillet@st.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 ---
-changes in v7: nothing
+changes in v7: 
+* new patch due to rebase on regul/for-next
 
- drivers/watchdog/Kconfig       |  12 ++++
- drivers/watchdog/Makefile      |   1 +
- drivers/watchdog/stpmic1_wdt.c | 139 +++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 152 insertions(+)
- create mode 100644 drivers/watchdog/stpmic1_wdt.c
+ drivers/regulator/stpmic1_regulator.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 2d64333..cc5155b 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -817,6 +817,18 @@ config STM32_WATCHDOG
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called stm32_iwdg.
+diff --git a/drivers/regulator/stpmic1_regulator.c b/drivers/regulator/stpmic1_regulator.c
+index eac0848..16ba029 100644
+--- a/drivers/regulator/stpmic1_regulator.c
++++ b/drivers/regulator/stpmic1_regulator.c
+@@ -489,7 +489,7 @@ static irqreturn_t stpmic1_curlim_irq_handler(int irq, void *data)
+ {
+ 	struct regulator_dev *rdev = (struct regulator_dev *)data;
  
-+config STPMIC1_WATCHDOG
-+	tristate "STPMIC1 PMIC watchdog support"
-+	depends on MFD_STPMIC1
-+	select WATCHDOG_CORE
-+	help
-+	  Say Y here to include watchdog support embedded into STPMIC1 PMIC.
-+	  If the watchdog timer expires, stpmic1 will shut down all its power
-+	  supplies.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called spmic1_wdt.
-+
- config UNIPHIER_WATCHDOG
- 	tristate "UniPhier watchdog support"
- 	depends on ARCH_UNIPHIER || COMPILE_TEST
-diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index f69cdff..bdc072c 100644
---- a/drivers/watchdog/Makefile
-+++ b/drivers/watchdog/Makefile
-@@ -218,3 +218,4 @@ obj-$(CONFIG_SOFT_WATCHDOG) += softdog.o
- obj-$(CONFIG_MENF21BMC_WATCHDOG) += menf21bmc_wdt.o
- obj-$(CONFIG_MENZ069_WATCHDOG) += menz69_wdt.o
- obj-$(CONFIG_RAVE_SP_WATCHDOG) += rave-sp-wdt.o
-+obj-$(CONFIG_STPMIC1_WATCHDOG) += stpmic1_wdt.o
-diff --git a/drivers/watchdog/stpmic1_wdt.c b/drivers/watchdog/stpmic1_wdt.c
-new file mode 100644
-index 0000000..ad431d8
---- /dev/null
-+++ b/drivers/watchdog/stpmic1_wdt.c
-@@ -0,0 +1,139 @@
-+// SPDX-License-Identifier: GPL-2.0
-+// Copyright (C) STMicroelectronics 2018
-+// Author: Pascal Paillet <p.paillet@st.com> for STMicroelectronics.
-+
-+#include <linux/kernel.h>
-+#include <linux/mfd/stpmic1.h>
-+#include <linux/module.h>
-+#include <linux/platform_device.h>
-+#include <linux/of.h>
-+#include <linux/regmap.h>
-+#include <linux/slab.h>
-+#include <linux/watchdog.h>
-+
-+/* WATCHDOG CONTROL REGISTER bit */
-+#define WDT_START		BIT(0)
-+#define WDT_PING		BIT(1)
-+#define WDT_START_MASK		BIT(0)
-+#define WDT_PING_MASK		BIT(1)
-+#define WDT_STOP		0
-+
-+#define PMIC_WDT_MIN_TIMEOUT 1
-+#define PMIC_WDT_MAX_TIMEOUT 256
-+#define PMIC_WDT_DEFAULT_TIMEOUT 30
-+
-+static bool nowayout = WATCHDOG_NOWAYOUT;
-+module_param(nowayout, bool, 0);
-+MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
-+		 __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
-+
-+struct stpmic1_wdt {
-+	struct stpmic1 *pmic;
-+	struct watchdog_device wdtdev;
-+};
-+
-+static int pmic_wdt_start(struct watchdog_device *wdd)
-+{
-+	struct stpmic1_wdt *wdt = watchdog_get_drvdata(wdd);
-+
-+	return regmap_update_bits(wdt->pmic->regmap,
-+				  WCHDG_CR, WDT_START_MASK, WDT_START);
-+}
-+
-+static int pmic_wdt_stop(struct watchdog_device *wdd)
-+{
-+	struct stpmic1_wdt *wdt = watchdog_get_drvdata(wdd);
-+
-+	return regmap_update_bits(wdt->pmic->regmap,
-+				  WCHDG_CR, WDT_START_MASK, WDT_STOP);
-+}
-+
-+static int pmic_wdt_ping(struct watchdog_device *wdd)
-+{
-+	struct stpmic1_wdt *wdt = watchdog_get_drvdata(wdd);
-+
-+	return regmap_update_bits(wdt->pmic->regmap,
-+				  WCHDG_CR, WDT_PING_MASK, WDT_PING);
-+}
-+
-+static int pmic_wdt_set_timeout(struct watchdog_device *wdd,
-+				unsigned int timeout)
-+{
-+	struct stpmic1_wdt *wdt = watchdog_get_drvdata(wdd);
-+
-+	wdd->timeout = timeout;
-+	/* timeout is equal to register value + 1 */
-+	return regmap_write(wdt->pmic->regmap, WCHDG_TIMER_CR, timeout - 1);
-+}
-+
-+static const struct watchdog_info pmic_watchdog_info = {
-+	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
-+	.identity = "STPMIC1 PMIC Watchdog",
-+};
-+
-+static const struct watchdog_ops pmic_watchdog_ops = {
-+	.owner = THIS_MODULE,
-+	.start = pmic_wdt_start,
-+	.stop = pmic_wdt_stop,
-+	.ping = pmic_wdt_ping,
-+	.set_timeout = pmic_wdt_set_timeout,
-+};
-+
-+static int pmic_wdt_probe(struct platform_device *pdev)
-+{
-+	int ret;
-+	struct stpmic1 *pmic;
-+	struct stpmic1_wdt *wdt;
-+
-+	if (!pdev->dev.parent)
-+		return -EINVAL;
-+
-+	pmic = dev_get_drvdata(pdev->dev.parent);
-+	if (!pmic)
-+		return -EINVAL;
-+
-+	wdt = devm_kzalloc(&pdev->dev, sizeof(struct stpmic1_wdt), GFP_KERNEL);
-+	if (!wdt)
-+		return -ENOMEM;
-+
-+	wdt->pmic = pmic;
-+
-+	wdt->wdtdev.info = &pmic_watchdog_info;
-+	wdt->wdtdev.ops = &pmic_watchdog_ops;
-+	wdt->wdtdev.min_timeout = PMIC_WDT_MIN_TIMEOUT;
-+	wdt->wdtdev.max_timeout = PMIC_WDT_MAX_TIMEOUT;
-+	wdt->wdtdev.parent = &pdev->dev;
-+
-+	wdt->wdtdev.timeout = PMIC_WDT_DEFAULT_TIMEOUT;
-+	watchdog_init_timeout(&wdt->wdtdev, 0, &pdev->dev);
-+
-+	watchdog_set_nowayout(&wdt->wdtdev, nowayout);
-+	watchdog_set_drvdata(&wdt->wdtdev, wdt);
-+
-+	ret = devm_watchdog_register_device(&pdev->dev, &wdt->wdtdev);
-+	if (ret)
-+		return ret;
-+
-+	dev_dbg(wdt->pmic->dev, "PMIC Watchdog driver probed\n");
-+	return 0;
-+}
-+
-+static const struct of_device_id of_pmic_wdt_match[] = {
-+	{ .compatible = "st,stpmic1-wdt" },
-+	{ },
-+};
-+
-+MODULE_DEVICE_TABLE(of, of_pmic_wdt_match);
-+
-+static struct platform_driver stpmic1_wdt_driver = {
-+	.probe = pmic_wdt_probe,
-+	.driver = {
-+		.name = "stpmic1-wdt",
-+		.of_match_table = of_pmic_wdt_match,
-+	},
-+};
-+module_platform_driver(stpmic1_wdt_driver);
-+
-+MODULE_DESCRIPTION("Watchdog driver for STPMIC1 device");
-+MODULE_AUTHOR("Pascal Paillet <p.paillet@st.com>");
-+MODULE_LICENSE("GPL v2");
+-	regulator_lock(rdev, NULL);
++	regulator_lock(rdev);
+ 
+ 	/* Send an overcurrent notification */
+ 	regulator_notifier_call_chain(rdev,
 -- 
 1.9.1
