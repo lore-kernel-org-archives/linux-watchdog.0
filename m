@@ -1,9 +1,9 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx08-00178001.pphosted.com ([91.207.212.93]:58863 "EHLO
+Received: from mx08-00178001.pphosted.com ([91.207.212.93]:40318 "EHLO
         mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726557AbeK3VFD (ORCPT
+        by vger.kernel.org with ESMTP id S1726499AbeK3VFC (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 30 Nov 2018 16:05:03 -0500
+        Fri, 30 Nov 2018 16:05:02 -0500
 From: Pascal PAILLET-LME <p.paillet@st.com>
 To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
         "robh+dt@kernel.org" <robh+dt@kernel.org>,
@@ -21,11 +21,9 @@ To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
         "eballetbo@gmail.com" <eballetbo@gmail.com>,
         "axel.lin@ingics.com" <axel.lin@ingics.com>
 CC: Pascal PAILLET-LME <p.paillet@st.com>
-Subject: [PATCH v7 3/7] dt-bindings: input: document stpmic1 pmic onkey
-Date: Fri, 30 Nov 2018 09:55:49 +0000
-Message-ID: <1543571742-17995-4-git-send-email-p.paillet@st.com>
-References: <1543571742-17995-1-git-send-email-p.paillet@st.com>
-In-Reply-To: <1543571742-17995-1-git-send-email-p.paillet@st.com>
+Subject: [PATCH v7 0/7] Introduce STPMIC1 PMIC Driver
+Date: Fri, 30 Nov 2018 09:55:48 +0000
+Message-ID: <1543571742-17995-1-git-send-email-p.paillet@st.com>
 Content-Language: en-US
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: 8BIT
@@ -33,52 +31,55 @@ MIME-Version: 1.0
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The stpmic1 pmic is able to manage an onkey button. It can be configured
-to shut-down the power supplies on a long key-press with an adjustable
-duration.
+The goal of this patch-set is to propose a driver for the STPMIC1 PMIC from 
+STMicroelectronics. 
+The STPMIC1 regulators supply power to an application processor as well as 
+to external system peripherals such as DDR, Flash memories and system
+devices. It also features onkey button input and an hardware watchdog.
+The STPMIC1 is controlled via I2C. 
 
-Signed-off-by: Pascal Paillet <p.paillet@st.com>
-Reviewed-by: Rob Herring <robh@kernel.org>
----
-changes in v7: nothing
+Main driver is drivers/mfd/stpmic1 that handle I2C regmap configuration and
+irqchip. stpmic1_regulator, stpmic1_onkey and stpmic1_wdt need stpmic1 mfd
+as parent.
 
- .../devicetree/bindings/input/st,stpmic1-onkey.txt | 28 ++++++++++++++++++++++
- 1 file changed, 28 insertions(+)
+STPMIC1 MFD and regulator drivers maybe mandatory at boot time.
+
+Pascal Paillet (7):
+changes in v7:
+* rebase on regul/for-next
+
+  dt-bindings: mfd: document stpmic1
+  mfd: stpmic1: add stpmic1 driver
+  dt-bindings: input: document stpmic1 pmic onkey
+  input: stpmic1: add stpmic1 onkey driver
+  dt-bindings: watchdog: document stpmic1 pmic watchdog
+  watchdog: stpmic1: add stpmic1 watchdog driver
+  regulator: stpmic1: fix regulator_lock usage
+
+ .../devicetree/bindings/input/st,stpmic1-onkey.txt |  28 +++
+ .../devicetree/bindings/mfd/st,stpmic1.txt         |  61 ++++++
+ .../bindings/watchdog/st,stpmic1-wdt.txt           |  11 ++
+ drivers/input/misc/Kconfig                         |  11 ++
+ drivers/input/misc/Makefile                        |   2 +
+ drivers/input/misc/stpmic1_onkey.c                 | 198 +++++++++++++++++++
+ drivers/mfd/Kconfig                                |  16 ++
+ drivers/mfd/Makefile                               |   1 +
+ drivers/mfd/stpmic1.c                              | 213 +++++++++++++++++++++
+ drivers/regulator/stpmic1_regulator.c              |   2 +-
+ drivers/watchdog/Kconfig                           |  12 ++
+ drivers/watchdog/Makefile                          |   1 +
+ drivers/watchdog/stpmic1_wdt.c                     | 139 ++++++++++++++
+ include/dt-bindings/mfd/st,stpmic1.h               |  50 +++++
+ include/linux/mfd/stpmic1.h                        | 212 ++++++++++++++++++++
+ 15 files changed, 956 insertions(+), 1 deletion(-)
  create mode 100644 Documentation/devicetree/bindings/input/st,stpmic1-onkey.txt
+ create mode 100644 Documentation/devicetree/bindings/mfd/st,stpmic1.txt
+ create mode 100644 Documentation/devicetree/bindings/watchdog/st,stpmic1-wdt.txt
+ create mode 100644 drivers/input/misc/stpmic1_onkey.c
+ create mode 100644 drivers/mfd/stpmic1.c
+ create mode 100644 drivers/watchdog/stpmic1_wdt.c
+ create mode 100644 include/dt-bindings/mfd/st,stpmic1.h
+ create mode 100644 include/linux/mfd/stpmic1.h
 
-diff --git a/Documentation/devicetree/bindings/input/st,stpmic1-onkey.txt b/Documentation/devicetree/bindings/input/st,stpmic1-onkey.txt
-new file mode 100644
-index 0000000..4494613
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/st,stpmic1-onkey.txt
-@@ -0,0 +1,28 @@
-+STMicroelectronics STPMIC1 Onkey
-+
-+Required properties:
-+
-+- compatible = "st,stpmic1-onkey";
-+- interrupts: interrupt line to use
-+- interrupt-names = "onkey-falling", "onkey-rising"
-+	onkey-falling: happens when onkey is pressed; IT_PONKEY_F of pmic
-+	onkey-rising: happens when onkey is released; IT_PONKEY_R of pmic
-+
-+Optional properties:
-+
-+- st,onkey-clear-cc-flag: onkey is able power on after an
-+  over-current shutdown event.
-+- st,onkey-pu-inactive: onkey pull up is not active
-+- power-off-time-sec: Duration in seconds which the key should be kept
-+        pressed for device to power off automatically (from 1 to 16 seconds).
-+        see See Documentation/devicetree/bindings/input/keys.txt
-+
-+Example:
-+
-+onkey {
-+	compatible = "st,stpmic1-onkey";
-+	interrupt-parent = <&pmic>;
-+	interrupts = <IT_PONKEY_F 0>,<IT_PONKEY_R 1>;
-+	interrupt-names = "onkey-falling", "onkey-rising";
-+	power-off-time-sec = <10>;
-+};
 -- 
 1.9.1
