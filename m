@@ -1,16 +1,16 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx07-00178001.pphosted.com ([62.209.51.94]:28387 "EHLO
-        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726572AbeK3UAc (ORCPT
+Received: from mx08-00178001.pphosted.com ([91.207.212.93]:18251 "EHLO
+        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726582AbeK3VFI (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 30 Nov 2018 15:00:32 -0500
+        Fri, 30 Nov 2018 16:05:08 -0500
 From: Pascal PAILLET-LME <p.paillet@st.com>
-To: Mark Brown <broonie@kernel.org>
-CC: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
+To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
         "robh+dt@kernel.org" <robh+dt@kernel.org>,
         "mark.rutland@arm.com" <mark.rutland@arm.com>,
         "lee.jones@linaro.org" <lee.jones@linaro.org>,
         "lgirdwood@gmail.com" <lgirdwood@gmail.com>,
+        "broonie@kernel.org" <broonie@kernel.org>,
         "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
         "linux@roeck-us.net" <linux@roeck-us.net>,
         "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
@@ -20,34 +20,48 @@ CC: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
         "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>,
         "eballetbo@gmail.com" <eballetbo@gmail.com>,
         "axel.lin@ingics.com" <axel.lin@ingics.com>
-Subject: Re: [PATCH v6 3/8] dt-bindings: regulator: document stpmic1 pmic
- regulators
-Date: Fri, 30 Nov 2018 08:51:28 +0000
-Message-ID: <5C00FA0F.3020303@st.com>
-References: <1543337529-22301-1-git-send-email-p.paillet@st.com>
- <1543337529-22301-4-git-send-email-p.paillet@st.com>
- <20181128094801.GF6828@sirena.org.uk>
-In-Reply-To: <20181128094801.GF6828@sirena.org.uk>
+CC: Pascal PAILLET-LME <p.paillet@st.com>
+Subject: [PATCH v7 5/7] dt-bindings: watchdog: document stpmic1 pmic watchdog
+Date: Fri, 30 Nov 2018 09:55:50 +0000
+Message-ID: <1543571742-17995-6-git-send-email-p.paillet@st.com>
+References: <1543571742-17995-1-git-send-email-p.paillet@st.com>
+In-Reply-To: <1543571742-17995-1-git-send-email-p.paillet@st.com>
 Content-Language: en-US
-Content-Type: text/plain; charset="Windows-1252"
-Content-ID: <9DB619103FCF3F4681616A2DF44F3FBE@st.com>
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Le 11/28/2018 10:48 AM, Mark Brown a écrit :
-> On Tue, Nov 27, 2018 at 04:52:15PM +0000, Pascal PAILLET-LME wrote:
->> The STPMIC1 regulators supply power to the application processor as well as
->> to the external system peripherals such as DDR, Flash memories and system
->> devices.
-> Please do not submit new versions of already applied patches, please
-> submit incremental updates to the existing code.  Modifying existing
-> commits creates problems for other users building on top of those
-> commits so it's best practice to only change pubished git commits if
-> absolutely essential.
+The stpmic1 PMIC embeds a watchdog which is disabled by default.
+In case of watchdog, the PMIC goes off.
 
-Sorry Mark, I will submit my changes on the regulator driver in separate 
-patches.
+Signed-off-by: Pascal Paillet <p.paillet@st.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+---
+changes in v7: nothing
 
-pascal
+ Documentation/devicetree/bindings/watchdog/st,stpmic1-wdt.txt | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/st,stpmic1-wdt.txt
+
+diff --git a/Documentation/devicetree/bindings/watchdog/st,stpmic1-wdt.txt b/Documentation/devicetree/bindings/watchdog/st,stpmic1-wdt.txt
+new file mode 100644
+index 0000000..7cc1407
+--- /dev/null
++++ b/Documentation/devicetree/bindings/watchdog/st,stpmic1-wdt.txt
+@@ -0,0 +1,11 @@
++STMicroelectronics STPMIC1 Watchdog
++
++Required properties:
++
++- compatible : should be "st,stpmic1-wdt"
++
++Example:
++
++watchdog {
++	compatible = "st,stpmic1-wdt";
++};
+-- 
+1.9.1
