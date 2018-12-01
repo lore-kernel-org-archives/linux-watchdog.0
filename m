@@ -1,85 +1,107 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx08-00178001.pphosted.com ([91.207.212.93]:40318 "EHLO
-        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726499AbeK3VFC (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 30 Nov 2018 16:05:02 -0500
-From: Pascal PAILLET-LME <p.paillet@st.com>
-To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
-        "robh+dt@kernel.org" <robh+dt@kernel.org>,
-        "mark.rutland@arm.com" <mark.rutland@arm.com>,
-        "lee.jones@linaro.org" <lee.jones@linaro.org>,
-        "lgirdwood@gmail.com" <lgirdwood@gmail.com>,
-        "broonie@kernel.org" <broonie@kernel.org>,
-        "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
-        "linux@roeck-us.net" <linux@roeck-us.net>,
-        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>,
-        "eballetbo@gmail.com" <eballetbo@gmail.com>,
-        "axel.lin@ingics.com" <axel.lin@ingics.com>
-CC: Pascal PAILLET-LME <p.paillet@st.com>
-Subject: [PATCH v7 0/7] Introduce STPMIC1 PMIC Driver
-Date: Fri, 30 Nov 2018 09:55:48 +0000
-Message-ID: <1543571742-17995-1-git-send-email-p.paillet@st.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-MIME-Version: 1.0
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-Path: <tiny.windzz@gmail.com>
+Return-path: <tiny.windzz@gmail.com>
+From: Yangtao Li <tiny.windzz@gmail.com>
+To: wim@linux-watchdog.org,
+	linux@roeck-us.net,
+	f.fainelli@gmail.com,
+	rjui@broadcom.com,
+	sbranden@broadcom.com
+Cc: bcm-kernel-feedback-list@broadcom.com,
+	linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Yangtao Li <tiny.windzz@gmail.com>
+Subject: [PATCH] watchdog: convert to DEFINE_SHOW_ATTRIBUTE
+Date: Sat,  1 Dec 2018 05:14:17 -0500
+Message-Id: <20181201101417.6368-1-tiny.windzz@gmail.com>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-The goal of this patch-set is to propose a driver for the STPMIC1 PMIC from 
-STMicroelectronics. 
-The STPMIC1 regulators supply power to an application processor as well as 
-to external system peripherals such as DDR, Flash memories and system
-devices. It also features onkey button input and an hardware watchdog.
-The STPMIC1 is controlled via I2C. 
+Use DEFINE_SHOW_ATTRIBUTE macro to simplify the code.
 
-Main driver is drivers/mfd/stpmic1 that handle I2C regmap configuration and
-irqchip. stpmic1_regulator, stpmic1_onkey and stpmic1_wdt need stpmic1 mfd
-as parent.
+Signed-off-by: Yangtao Li <tiny.windzz@gmail.com>
+---
+ drivers/watchdog/bcm_kona_wdt.c | 16 +++-------------
+ drivers/watchdog/ie6xx_wdt.c    | 16 +++-------------
+ 2 files changed, 6 insertions(+), 26 deletions(-)
 
-STPMIC1 MFD and regulator drivers maybe mandatory at boot time.
-
-Pascal Paillet (7):
-changes in v7:
-* rebase on regul/for-next
-
-  dt-bindings: mfd: document stpmic1
-  mfd: stpmic1: add stpmic1 driver
-  dt-bindings: input: document stpmic1 pmic onkey
-  input: stpmic1: add stpmic1 onkey driver
-  dt-bindings: watchdog: document stpmic1 pmic watchdog
-  watchdog: stpmic1: add stpmic1 watchdog driver
-  regulator: stpmic1: fix regulator_lock usage
-
- .../devicetree/bindings/input/st,stpmic1-onkey.txt |  28 +++
- .../devicetree/bindings/mfd/st,stpmic1.txt         |  61 ++++++
- .../bindings/watchdog/st,stpmic1-wdt.txt           |  11 ++
- drivers/input/misc/Kconfig                         |  11 ++
- drivers/input/misc/Makefile                        |   2 +
- drivers/input/misc/stpmic1_onkey.c                 | 198 +++++++++++++++++++
- drivers/mfd/Kconfig                                |  16 ++
- drivers/mfd/Makefile                               |   1 +
- drivers/mfd/stpmic1.c                              | 213 +++++++++++++++++++++
- drivers/regulator/stpmic1_regulator.c              |   2 +-
- drivers/watchdog/Kconfig                           |  12 ++
- drivers/watchdog/Makefile                          |   1 +
- drivers/watchdog/stpmic1_wdt.c                     | 139 ++++++++++++++
- include/dt-bindings/mfd/st,stpmic1.h               |  50 +++++
- include/linux/mfd/stpmic1.h                        | 212 ++++++++++++++++++++
- 15 files changed, 956 insertions(+), 1 deletion(-)
- create mode 100644 Documentation/devicetree/bindings/input/st,stpmic1-onkey.txt
- create mode 100644 Documentation/devicetree/bindings/mfd/st,stpmic1.txt
- create mode 100644 Documentation/devicetree/bindings/watchdog/st,stpmic1-wdt.txt
- create mode 100644 drivers/input/misc/stpmic1_onkey.c
- create mode 100644 drivers/mfd/stpmic1.c
- create mode 100644 drivers/watchdog/stpmic1_wdt.c
- create mode 100644 include/dt-bindings/mfd/st,stpmic1.h
- create mode 100644 include/linux/mfd/stpmic1.h
-
+diff --git a/drivers/watchdog/bcm_kona_wdt.c b/drivers/watchdog/bcm_kona_wdt.c
+index 1462be9e6fc5..4249b47902bd 100644
+--- a/drivers/watchdog/bcm_kona_wdt.c
++++ b/drivers/watchdog/bcm_kona_wdt.c
+@@ -90,7 +90,7 @@ static int secure_register_read(struct bcm_kona_wdt *wdt, uint32_t offset)
+ 
+ #ifdef CONFIG_BCM_KONA_WDT_DEBUG
+ 
+-static int bcm_kona_wdt_dbg_show(struct seq_file *s, void *data)
++static int bcm_kona_show(struct seq_file *s, void *data)
+ {
+ 	int ctl_val, cur_val;
+ 	unsigned long flags;
+@@ -130,17 +130,7 @@ static int bcm_kona_wdt_dbg_show(struct seq_file *s, void *data)
+ 	return 0;
+ }
+ 
+-static int bcm_kona_dbg_open(struct inode *inode, struct file *file)
+-{
+-	return single_open(file, bcm_kona_wdt_dbg_show, inode->i_private);
+-}
+-
+-static const struct file_operations bcm_kona_dbg_operations = {
+-	.open		= bcm_kona_dbg_open,
+-	.read		= seq_read,
+-	.llseek		= seq_lseek,
+-	.release	= single_release,
+-};
++DEFINE_SHOW_ATTRIBUTE(bcm_kona);
+ 
+ static void bcm_kona_wdt_debug_init(struct platform_device *pdev)
+ {
+@@ -157,7 +147,7 @@ static void bcm_kona_wdt_debug_init(struct platform_device *pdev)
+ 		return;
+ 
+ 	if (debugfs_create_file("info", S_IFREG | S_IRUGO, dir, wdt,
+-				&bcm_kona_dbg_operations))
++				&bcm_kona_fops))
+ 		wdt->debugfs = dir;
+ 	else
+ 		debugfs_remove_recursive(dir);
+diff --git a/drivers/watchdog/ie6xx_wdt.c b/drivers/watchdog/ie6xx_wdt.c
+index 78c2541f5d52..8de9fb1ed371 100644
+--- a/drivers/watchdog/ie6xx_wdt.c
++++ b/drivers/watchdog/ie6xx_wdt.c
+@@ -193,7 +193,7 @@ static struct watchdog_device ie6xx_wdt_dev = {
+ 
+ #ifdef CONFIG_DEBUG_FS
+ 
+-static int ie6xx_wdt_dbg_show(struct seq_file *s, void *unused)
++static int ie6xx_wdt_show(struct seq_file *s, void *unused)
+ {
+ 	seq_printf(s, "PV1   = 0x%08x\n",
+ 		inl(ie6xx_wdt_data.sch_wdtba + PV1));
+@@ -212,23 +212,13 @@ static int ie6xx_wdt_dbg_show(struct seq_file *s, void *unused)
+ 	return 0;
+ }
+ 
+-static int ie6xx_wdt_dbg_open(struct inode *inode, struct file *file)
+-{
+-	return single_open(file, ie6xx_wdt_dbg_show, NULL);
+-}
+-
+-static const struct file_operations ie6xx_wdt_dbg_operations = {
+-	.open		= ie6xx_wdt_dbg_open,
+-	.read		= seq_read,
+-	.llseek		= seq_lseek,
+-	.release	= single_release,
+-};
++DEFINE_SHOW_ATTRIBUTE(ie6xx_wdt);
+ 
+ static void ie6xx_wdt_debugfs_init(void)
+ {
+ 	/* /sys/kernel/debug/ie6xx_wdt */
+ 	ie6xx_wdt_data.debugfs = debugfs_create_file("ie6xx_wdt",
+-		S_IFREG | S_IRUGO, NULL, NULL, &ie6xx_wdt_dbg_operations);
++		S_IFREG | S_IRUGO, NULL, NULL, &ie6xx_wdt_fops);
+ }
+ 
+ static void ie6xx_wdt_debugfs_exit(void)
 -- 
-1.9.1
+2.17.0
