@@ -1,199 +1,98 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-lj1-f194.google.com ([209.85.208.194]:41991 "EHLO
-        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725776AbeLBLGU (ORCPT
+Received: from mail-wr1-f67.google.com ([209.85.221.67]:36888 "EHLO
+        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725838AbeLCHLv (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 2 Dec 2018 06:06:20 -0500
-Received: by mail-lj1-f194.google.com with SMTP id l15-v6so8741165lja.9
-        for <linux-watchdog@vger.kernel.org>; Sun, 02 Dec 2018 03:06:17 -0800 (PST)
-From: Linus Walleij <linus.walleij@linaro.org>
-To: Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Cc: linux-watchdog@vger.kernel.org,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Johannes Thumshirn <jthumshirn@suse.de>,
-        Johannes Thumshirn <morbidrsa@gmail.com>,
-        Johannes Thumshirn <jth@kernel.org>
-Subject: [PATCH] watchdog: mena21_wdt: Convert to GPIO descriptors
-Date: Sun,  2 Dec 2018 12:04:10 +0100
-Message-Id: <20181202110410.17562-1-linus.walleij@linaro.org>
+        Mon, 3 Dec 2018 02:11:51 -0500
+Received: by mail-wr1-f67.google.com with SMTP id j10so10895929wru.4
+        for <linux-watchdog@vger.kernel.org>; Sun, 02 Dec 2018 23:11:48 -0800 (PST)
+Date: Mon, 3 Dec 2018 07:11:45 +0000
+From: Lee Jones <lee.jones@linaro.org>
+To: Pascal PAILLET-LME <p.paillet@st.com>
+Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
+        "robh+dt@kernel.org" <robh+dt@kernel.org>,
+        "mark.rutland@arm.com" <mark.rutland@arm.com>,
+        "lgirdwood@gmail.com" <lgirdwood@gmail.com>,
+        "broonie@kernel.org" <broonie@kernel.org>,
+        "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
+        "linux@roeck-us.net" <linux@roeck-us.net>,
+        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+        "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>,
+        "eballetbo@gmail.com" <eballetbo@gmail.com>,
+        "axel.lin@ingics.com" <axel.lin@ingics.com>
+Subject: Re: [PATCH v7 0/7] Introduce STPMIC1 PMIC Driver
+Message-ID: <20181203071145.GA26661@dell>
+References: <1543571742-17995-1-git-send-email-p.paillet@st.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <1543571742-17995-1-git-send-email-p.paillet@st.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This drops the old OF API use to look up global GPIO
-numbers and replace it with the GPIO descriptor API.
+On Fri, 30 Nov 2018, Pascal PAILLET-LME wrote:
 
-Cc: Johannes Thumshirn <jthumshirn@suse.de>
-Cc: Johannes Thumshirn <morbidrsa@gmail.com>
-Cc: Johannes Thumshirn <jth@kernel.org>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
----
- drivers/watchdog/mena21_wdt.c | 73 +++++++++++++++++------------------
- 1 file changed, 36 insertions(+), 37 deletions(-)
+> The goal of this patch-set is to propose a driver for the STPMIC1 PMIC from 
+> STMicroelectronics. 
+> The STPMIC1 regulators supply power to an application processor as well as 
+> to external system peripherals such as DDR, Flash memories and system
+> devices. It also features onkey button input and an hardware watchdog.
+> The STPMIC1 is controlled via I2C. 
+> 
+> Main driver is drivers/mfd/stpmic1 that handle I2C regmap configuration and
+> irqchip. stpmic1_regulator, stpmic1_onkey and stpmic1_wdt need stpmic1 mfd
+> as parent.
+> 
+> STPMIC1 MFD and regulator drivers maybe mandatory at boot time.
+> 
+> Pascal Paillet (7):
+> changes in v7:
+> * rebase on regul/for-next
+> 
+>   dt-bindings: mfd: document stpmic1
+>   mfd: stpmic1: add stpmic1 driver
+>   dt-bindings: input: document stpmic1 pmic onkey
+>   input: stpmic1: add stpmic1 onkey driver
+>   dt-bindings: watchdog: document stpmic1 pmic watchdog
+>   watchdog: stpmic1: add stpmic1 watchdog driver
+>   regulator: stpmic1: fix regulator_lock usage
+> 
+>  .../devicetree/bindings/input/st,stpmic1-onkey.txt |  28 +++
+>  .../devicetree/bindings/mfd/st,stpmic1.txt         |  61 ++++++
+>  .../bindings/watchdog/st,stpmic1-wdt.txt           |  11 ++
+>  drivers/input/misc/Kconfig                         |  11 ++
+>  drivers/input/misc/Makefile                        |   2 +
+>  drivers/input/misc/stpmic1_onkey.c                 | 198 +++++++++++++++++++
+>  drivers/mfd/Kconfig                                |  16 ++
+>  drivers/mfd/Makefile                               |   1 +
+>  drivers/mfd/stpmic1.c                              | 213 +++++++++++++++++++++
 
-diff --git a/drivers/watchdog/mena21_wdt.c b/drivers/watchdog/mena21_wdt.c
-index 0be7f50e8ff9..6db69883ece6 100644
---- a/drivers/watchdog/mena21_wdt.c
-+++ b/drivers/watchdog/mena21_wdt.c
-@@ -13,10 +13,10 @@
- #include <linux/platform_device.h>
- #include <linux/watchdog.h>
- #include <linux/uaccess.h>
--#include <linux/gpio.h>
--#include <linux/of_gpio.h>
-+#include <linux/gpio/consumer.h>
- #include <linux/delay.h>
- #include <linux/bitops.h>
-+#include <linux/of.h>
- 
- #define NUM_GPIOS 6
- 
-@@ -31,7 +31,7 @@ enum a21_wdt_gpios {
- 
- struct a21_wdt_drv {
- 	struct watchdog_device wdt;
--	unsigned gpios[NUM_GPIOS];
-+	struct gpio_desc *gpios[NUM_GPIOS];
- };
- 
- static bool nowayout = WATCHDOG_NOWAYOUT;
-@@ -43,9 +43,9 @@ static unsigned int a21_wdt_get_bootstatus(struct a21_wdt_drv *drv)
- {
- 	int reset = 0;
- 
--	reset |= gpio_get_value(drv->gpios[GPIO_WD_RST0]) ? (1 << 0) : 0;
--	reset |= gpio_get_value(drv->gpios[GPIO_WD_RST1]) ? (1 << 1) : 0;
--	reset |= gpio_get_value(drv->gpios[GPIO_WD_RST2]) ? (1 << 2) : 0;
-+	reset |= gpiod_get_value(drv->gpios[GPIO_WD_RST0]) ? (1 << 0) : 0;
-+	reset |= gpiod_get_value(drv->gpios[GPIO_WD_RST1]) ? (1 << 1) : 0;
-+	reset |= gpiod_get_value(drv->gpios[GPIO_WD_RST2]) ? (1 << 2) : 0;
- 
- 	return reset;
- }
-@@ -54,7 +54,7 @@ static int a21_wdt_start(struct watchdog_device *wdt)
- {
- 	struct a21_wdt_drv *drv = watchdog_get_drvdata(wdt);
- 
--	gpio_set_value(drv->gpios[GPIO_WD_ENAB], 1);
-+	gpiod_set_value(drv->gpios[GPIO_WD_ENAB], 1);
- 
- 	return 0;
- }
-@@ -63,7 +63,7 @@ static int a21_wdt_stop(struct watchdog_device *wdt)
- {
- 	struct a21_wdt_drv *drv = watchdog_get_drvdata(wdt);
- 
--	gpio_set_value(drv->gpios[GPIO_WD_ENAB], 0);
-+	gpiod_set_value(drv->gpios[GPIO_WD_ENAB], 0);
- 
- 	return 0;
- }
-@@ -72,9 +72,9 @@ static int a21_wdt_ping(struct watchdog_device *wdt)
- {
- 	struct a21_wdt_drv *drv = watchdog_get_drvdata(wdt);
- 
--	gpio_set_value(drv->gpios[GPIO_WD_TRIG], 0);
-+	gpiod_set_value(drv->gpios[GPIO_WD_TRIG], 0);
- 	ndelay(10);
--	gpio_set_value(drv->gpios[GPIO_WD_TRIG], 1);
-+	gpiod_set_value(drv->gpios[GPIO_WD_TRIG], 1);
- 
- 	return 0;
- }
-@@ -96,9 +96,9 @@ static int a21_wdt_set_timeout(struct watchdog_device *wdt,
- 	}
- 
- 	if (timeout == 1)
--		gpio_set_value(drv->gpios[GPIO_WD_FAST], 1);
-+		gpiod_set_value(drv->gpios[GPIO_WD_FAST], 1);
- 	else
--		gpio_set_value(drv->gpios[GPIO_WD_FAST], 0);
-+		gpiod_set_value(drv->gpios[GPIO_WD_FAST], 0);
- 
- 	wdt->timeout = timeout;
- 
-@@ -127,7 +127,6 @@ static struct watchdog_device a21_wdt = {
- 
- static int a21_wdt_probe(struct platform_device *pdev)
- {
--	struct device_node *node;
- 	struct a21_wdt_drv *drv;
- 	unsigned int reset = 0;
- 	int num_gpios;
-@@ -138,40 +137,40 @@ static int a21_wdt_probe(struct platform_device *pdev)
- 	if (!drv)
- 		return -ENOMEM;
- 
--	/* Fill GPIO pin array */
--	node = pdev->dev.of_node;
--
--	num_gpios = of_gpio_count(node);
-+	num_gpios = gpiod_count(&pdev->dev, NULL);
- 	if (num_gpios != NUM_GPIOS) {
- 		dev_err(&pdev->dev, "gpios DT property wrong, got %d want %d",
- 			num_gpios, NUM_GPIOS);
- 		return -ENODEV;
- 	}
- 
--	for (i = 0; i < num_gpios; i++) {
--		int val;
--
--		val = of_get_gpio(node, i);
--		if (val < 0)
--			return val;
--
--		drv->gpios[i] = val;
--	}
--
- 	/* Request the used GPIOs */
- 	for (i = 0; i < num_gpios; i++) {
--		ret = devm_gpio_request(&pdev->dev, drv->gpios[i],
--					"MEN A21 Watchdog");
--		if (ret)
--			return ret;
-+		enum gpiod_flags gflags;
- 
- 		if (i < GPIO_WD_RST0)
--			ret = gpio_direction_output(drv->gpios[i],
--						gpio_get_value(drv->gpios[i]));
--		else		/* GPIO_WD_RST[0..2] are inputs */
--			ret = gpio_direction_input(drv->gpios[i]);
--		if (ret)
-+			gflags = GPIOD_ASIS;
-+		else
-+			gflags = GPIOD_IN;
-+		drv->gpios[i] = devm_gpiod_get_index(&pdev->dev, NULL, i,
-+						     gflags);
-+		if (IS_ERR(drv->gpios[i])) {
-+			ret = PTR_ERR(drv->gpios[i]);
- 			return ret;
-+		}
-+
-+		gpiod_set_consumer_name(drv->gpios[i], "MEN A21 Watchdog");
-+
-+		/*
-+		 * Retrieve the initial value from the GPIOs that should be
-+		 * output, then set up the line as output with that value.
-+		 */
-+		if (i < GPIO_WD_RST0) {
-+			int val;
-+
-+			val = gpiod_get_value(drv->gpios[i]);
-+			gpiod_direction_output(drv->gpios[i], val);
-+		}
- 	}
- 
- 	watchdog_init_timeout(&a21_wdt, 30, &pdev->dev);
-@@ -207,7 +206,7 @@ static void a21_wdt_shutdown(struct platform_device *pdev)
- {
- 	struct a21_wdt_drv *drv = dev_get_drvdata(&pdev->dev);
- 
--	gpio_set_value(drv->gpios[GPIO_WD_ENAB], 0);
-+	gpiod_set_value(drv->gpios[GPIO_WD_ENAB], 0);
- }
- 
- static const struct of_device_id a21_wdt_ids[] = {
+>  drivers/regulator/stpmic1_regulator.c              |   2 +-
+
+Is it just Mark you're waiting on now?
+
+>  drivers/watchdog/Kconfig                           |  12 ++
+>  drivers/watchdog/Makefile                          |   1 +
+>  drivers/watchdog/stpmic1_wdt.c                     | 139 ++++++++++++++
+>  include/dt-bindings/mfd/st,stpmic1.h               |  50 +++++
+>  include/linux/mfd/stpmic1.h                        | 212 ++++++++++++++++++++
+>  15 files changed, 956 insertions(+), 1 deletion(-)
+>  create mode 100644 Documentation/devicetree/bindings/input/st,stpmic1-onkey.txt
+>  create mode 100644 Documentation/devicetree/bindings/mfd/st,stpmic1.txt
+>  create mode 100644 Documentation/devicetree/bindings/watchdog/st,stpmic1-wdt.txt
+>  create mode 100644 drivers/input/misc/stpmic1_onkey.c
+>  create mode 100644 drivers/mfd/stpmic1.c
+>  create mode 100644 drivers/watchdog/stpmic1_wdt.c
+>  create mode 100644 include/dt-bindings/mfd/st,stpmic1.h
+>  create mode 100644 include/linux/mfd/stpmic1.h
+> 
+
 -- 
-2.19.1
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
