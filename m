@@ -1,76 +1,88 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pg1-f196.google.com ([209.85.215.196]:39732 "EHLO
-        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725971AbeLDFJV (ORCPT
+Received: from mx08-00178001.pphosted.com ([91.207.212.93]:51914 "EHLO
+        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726152AbeLDPZZ (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 4 Dec 2018 00:09:21 -0500
-Received: by mail-pg1-f196.google.com with SMTP id w6so6808401pgl.6
-        for <linux-watchdog@vger.kernel.org>; Mon, 03 Dec 2018 21:09:20 -0800 (PST)
-Subject: Re: x86_64 NMI watchdog false positive, watchdog_overflow_callback
- fires at random period
-To: Lin Feng <linf@wangsu.com>, linux-watchdog@vger.kernel.org
-Cc: wim@linux-watchdog.org, "x86@kernel.org >> x86" <x86@kernel.org>
-References: <56fbb89e-d49d-7bcb-84c7-37f5c3d5a15d@wangsu.com>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <39dc2d91-b6ab-06d7-e0e5-9d19b25beb1c@roeck-us.net>
-Date: Mon, 3 Dec 2018 21:09:17 -0800
-MIME-Version: 1.0
-In-Reply-To: <56fbb89e-d49d-7bcb-84c7-37f5c3d5a15d@wangsu.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+        Tue, 4 Dec 2018 10:25:25 -0500
+From: Pascal PAILLET-LME <p.paillet@st.com>
+To: Lee Jones <lee.jones@linaro.org>
+CC: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
+        "robh+dt@kernel.org" <robh+dt@kernel.org>,
+        "mark.rutland@arm.com" <mark.rutland@arm.com>,
+        "lgirdwood@gmail.com" <lgirdwood@gmail.com>,
+        "broonie@kernel.org" <broonie@kernel.org>,
+        "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
+        "linux@roeck-us.net" <linux@roeck-us.net>,
+        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+        "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>,
+        "eballetbo@gmail.com" <eballetbo@gmail.com>,
+        "axel.lin@ingics.com" <axel.lin@ingics.com>
+Subject: Re: [PATCH v7 0/7] Introduce STPMIC1 PMIC Driver
+Date: Tue, 4 Dec 2018 15:24:56 +0000
+Message-ID: <5C069C47.6080305@st.com>
+References: <1543571742-17995-1-git-send-email-p.paillet@st.com>
+ <20181203071145.GA26661@dell>
+In-Reply-To: <20181203071145.GA26661@dell>
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <8941E439D67E03489AE4B2FE7009C7A9@st.com>
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-+x86
-
-On 12/3/18 7:14 PM, Lin Feng wrote:
-> Hi all,
-> 
-> Would you please do me a favor, I google a lot but haven't got any useful information.
-> 
-> My server equips with Intel(R) Xeon(R) CPU E5-2650 0 @ 2.00GHz CPU, after updated kernel from
-> 2.6.32-358 to 3.10-693(centos release kernels), there are many servers panic by nmi hard lockup.
-> I found that it's a 'false positive', interrupt has never been disabled longer than hundreds
-> milliseconds. But watchdog_overflow_callback fires too often, as shown the in following log,
-> @97919.297501 time stamp, kernel sends a nmi warning(disable hardlockup_panic) and at exact this
-> second interval, watchdog_overflow_callback shot twice, which is much faster than
-> watchdog_timer_fn's period.
-> ---
->    Message from syslogd@zhengzdx26 at Nov 30 14:53:48 ...
->    kernel:[97919.297501] NMI watchdog: Watchdog detected hard LOCKUP on cpu 8
-> 
->              squid-12576 [008] d.h. 97557.301384: watchdog_overflow_callback <-__perf_event_overflow
->              squid-12818 [008] d.h. 97623.930167: watchdog_overflow_callback <-__perf_event_overflow
->            haproxy-16868 [008] d.h. 97658.308772: watchdog_overflow_callback <-__perf_event_overflow
->              squid-19961 [008] d.h. 97679.347461: watchdog_overflow_callback <-__perf_event_overflow
->            haproxy-16870 [008] d.h. 97746.912428: watchdog_overflow_callback <-__perf_event_overflow
->              squid-20037 [008] d.h. 97778.363767: watchdog_overflow_callback <-__perf_event_overflow
->            haproxy-16869 [008] d.h. 97847.725242: watchdog_overflow_callback <-__perf_event_overflow
->              squid-12817 [008] d.h. 97868.908962: watchdog_overflow_callback <-__perf_event_overflow
->              squid-12729 [008] d.h. 97893.879844: watchdog_overflow_callback <-__perf_event_overflow
->              squid-12818 [008] d.h. 97919.190085: watchdog_overflow_callback <-__perf_event_overflow
->              squid-12858 [008] d.h. 97919.297498: watchdog_overflow_callback <-__perf_event_overflow
-> ---
-> 
-> After diving into the source I know that the watchdog_thresh is changed from 60 to 10 in new kernels.
-> Based on this patch:
-> 'https://gitlab.ic.unicamp.br/lkcamp/linux-staging/commit/4eec42f392043063d0f019640b4ccc2a45570002'
-> 
->      wd_attr->sample_period = hw_nmi_get_sample_period(watchdog_thresh);
->      event = perf_event_create_kernel_counter(wd_attr, cpu, NULL, watchdog_overflow_callback);
-> 
-> IIUC watchdog_overflow_callback should be fired in a period of hw_nmi_get_sample_period(watchdog_thresh).
-> But as the trace log shown, the period is not regular at all, most of the interval is longer than
-> watchdog_thresh, this also happens in my desktop 4.18.14-200.fc28.x86_64, maybe it's about nohz quirk?
-> And even worse is that sometimes watchdog_overflow_callback gets called twice in a second, which making
-> a 'false positive', So what's the problem?
-> 
-> Best regards and Thanks,
-> linfeng
-> 
-> 
-> 
-> 
-> 
-> 
+SGkgTGVlLA0KDQpMZSAxMi8wMy8yMDE4IDA4OjExIEFNLCBMZWUgSm9uZXMgYSDDqWNyaXQgOg0K
+PiBPbiBGcmksIDMwIE5vdiAyMDE4LCBQYXNjYWwgUEFJTExFVC1MTUUgd3JvdGU6DQo+DQo+PiBU
+aGUgZ29hbCBvZiB0aGlzIHBhdGNoLXNldCBpcyB0byBwcm9wb3NlIGEgZHJpdmVyIGZvciB0aGUg
+U1RQTUlDMSBQTUlDIGZyb20NCj4+IFNUTWljcm9lbGVjdHJvbmljcy4NCj4+IFRoZSBTVFBNSUMx
+IHJlZ3VsYXRvcnMgc3VwcGx5IHBvd2VyIHRvIGFuIGFwcGxpY2F0aW9uIHByb2Nlc3NvciBhcyB3
+ZWxsIGFzDQo+PiB0byBleHRlcm5hbCBzeXN0ZW0gcGVyaXBoZXJhbHMgc3VjaCBhcyBERFIsIEZs
+YXNoIG1lbW9yaWVzIGFuZCBzeXN0ZW0NCj4+IGRldmljZXMuIEl0IGFsc28gZmVhdHVyZXMgb25r
+ZXkgYnV0dG9uIGlucHV0IGFuZCBhbiBoYXJkd2FyZSB3YXRjaGRvZy4NCj4+IFRoZSBTVFBNSUMx
+IGlzIGNvbnRyb2xsZWQgdmlhIEkyQy4NCj4+DQo+PiBNYWluIGRyaXZlciBpcyBkcml2ZXJzL21m
+ZC9zdHBtaWMxIHRoYXQgaGFuZGxlIEkyQyByZWdtYXAgY29uZmlndXJhdGlvbiBhbmQNCj4+IGly
+cWNoaXAuIHN0cG1pYzFfcmVndWxhdG9yLCBzdHBtaWMxX29ua2V5IGFuZCBzdHBtaWMxX3dkdCBu
+ZWVkIHN0cG1pYzEgbWZkDQo+PiBhcyBwYXJlbnQuDQo+Pg0KPj4gU1RQTUlDMSBNRkQgYW5kIHJl
+Z3VsYXRvciBkcml2ZXJzIG1heWJlIG1hbmRhdG9yeSBhdCBib290IHRpbWUuDQo+Pg0KPj4gUGFz
+Y2FsIFBhaWxsZXQgKDcpOg0KPj4gY2hhbmdlcyBpbiB2NzoNCj4+ICogcmViYXNlIG9uIHJlZ3Vs
+L2Zvci1uZXh0DQo+Pg0KPj4gICAgZHQtYmluZGluZ3M6IG1mZDogZG9jdW1lbnQgc3RwbWljMQ0K
+Pj4gICAgbWZkOiBzdHBtaWMxOiBhZGQgc3RwbWljMSBkcml2ZXINCj4+ICAgIGR0LWJpbmRpbmdz
+OiBpbnB1dDogZG9jdW1lbnQgc3RwbWljMSBwbWljIG9ua2V5DQo+PiAgICBpbnB1dDogc3RwbWlj
+MTogYWRkIHN0cG1pYzEgb25rZXkgZHJpdmVyDQo+PiAgICBkdC1iaW5kaW5nczogd2F0Y2hkb2c6
+IGRvY3VtZW50IHN0cG1pYzEgcG1pYyB3YXRjaGRvZw0KPj4gICAgd2F0Y2hkb2c6IHN0cG1pYzE6
+IGFkZCBzdHBtaWMxIHdhdGNoZG9nIGRyaXZlcg0KPj4gICAgcmVndWxhdG9yOiBzdHBtaWMxOiBm
+aXggcmVndWxhdG9yX2xvY2sgdXNhZ2UNCj4+DQo+PiAgIC4uLi9kZXZpY2V0cmVlL2JpbmRpbmdz
+L2lucHV0L3N0LHN0cG1pYzEtb25rZXkudHh0IHwgIDI4ICsrKw0KPj4gICAuLi4vZGV2aWNldHJl
+ZS9iaW5kaW5ncy9tZmQvc3Qsc3RwbWljMS50eHQgICAgICAgICB8ICA2MSArKysrKysNCj4+ICAg
+Li4uL2JpbmRpbmdzL3dhdGNoZG9nL3N0LHN0cG1pYzEtd2R0LnR4dCAgICAgICAgICAgfCAgMTEg
+KysNCj4+ICAgZHJpdmVycy9pbnB1dC9taXNjL0tjb25maWcgICAgICAgICAgICAgICAgICAgICAg
+ICAgfCAgMTEgKysNCj4+ICAgZHJpdmVycy9pbnB1dC9taXNjL01ha2VmaWxlICAgICAgICAgICAg
+ICAgICAgICAgICAgfCAgIDIgKw0KPj4gICBkcml2ZXJzL2lucHV0L21pc2Mvc3RwbWljMV9vbmtl
+eS5jICAgICAgICAgICAgICAgICB8IDE5OCArKysrKysrKysrKysrKysrKysrDQo+PiAgIGRyaXZl
+cnMvbWZkL0tjb25maWcgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgIDE2ICsrDQo+
+PiAgIGRyaXZlcnMvbWZkL01ha2VmaWxlICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwg
+ICAxICsNCj4+ICAgZHJpdmVycy9tZmQvc3RwbWljMS5jICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgfCAyMTMgKysrKysrKysrKysrKysrKysrKysrDQo+PiAgIGRyaXZlcnMvcmVndWxhdG9y
+L3N0cG1pYzFfcmVndWxhdG9yLmMgICAgICAgICAgICAgIHwgICAyICstDQo+IElzIGl0IGp1c3Qg
+TWFyayB5b3UncmUgd2FpdGluZyBvbiBub3c/DQpJdCBpcyBvayBub3csIE1hcmsgaGFzIGFwcGxp
+ZWQgdGhlIHBhdGNoLg0KRXZyZXkgdGhpbmcgaGFzIGJlZW4gYWNrZWQgbm93LiBXaGF0IGlzIHRo
+ZSBuZXggc3RlcCA/DQoNCj4+ICAgZHJpdmVycy93YXRjaGRvZy9LY29uZmlnICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgfCAgMTIgKysNCj4+ICAgZHJpdmVycy93YXRjaGRvZy9NYWtlZmlsZSAg
+ICAgICAgICAgICAgICAgICAgICAgICAgfCAgIDEgKw0KPj4gICBkcml2ZXJzL3dhdGNoZG9nL3N0
+cG1pYzFfd2R0LmMgICAgICAgICAgICAgICAgICAgICB8IDEzOSArKysrKysrKysrKysrKw0KPj4g
+ICBpbmNsdWRlL2R0LWJpbmRpbmdzL21mZC9zdCxzdHBtaWMxLmggICAgICAgICAgICAgICB8ICA1
+MCArKysrKw0KPj4gICBpbmNsdWRlL2xpbnV4L21mZC9zdHBtaWMxLmggICAgICAgICAgICAgICAg
+ICAgICAgICB8IDIxMiArKysrKysrKysrKysrKysrKysrKw0KPj4gICAxNSBmaWxlcyBjaGFuZ2Vk
+LCA5NTYgaW5zZXJ0aW9ucygrKSwgMSBkZWxldGlvbigtKQ0KPj4gICBjcmVhdGUgbW9kZSAxMDA2
+NDQgRG9jdW1lbnRhdGlvbi9kZXZpY2V0cmVlL2JpbmRpbmdzL2lucHV0L3N0LHN0cG1pYzEtb25r
+ZXkudHh0DQo+PiAgIGNyZWF0ZSBtb2RlIDEwMDY0NCBEb2N1bWVudGF0aW9uL2RldmljZXRyZWUv
+YmluZGluZ3MvbWZkL3N0LHN0cG1pYzEudHh0DQo+PiAgIGNyZWF0ZSBtb2RlIDEwMDY0NCBEb2N1
+bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3Mvd2F0Y2hkb2cvc3Qsc3RwbWljMS13ZHQudHh0
+DQo+PiAgIGNyZWF0ZSBtb2RlIDEwMDY0NCBkcml2ZXJzL2lucHV0L21pc2Mvc3RwbWljMV9vbmtl
+eS5jDQo+PiAgIGNyZWF0ZSBtb2RlIDEwMDY0NCBkcml2ZXJzL21mZC9zdHBtaWMxLmMNCj4+ICAg
+Y3JlYXRlIG1vZGUgMTAwNjQ0IGRyaXZlcnMvd2F0Y2hkb2cvc3RwbWljMV93ZHQuYw0KPj4gICBj
+cmVhdGUgbW9kZSAxMDA2NDQgaW5jbHVkZS9kdC1iaW5kaW5ncy9tZmQvc3Qsc3RwbWljMS5oDQo+
+PiAgIGNyZWF0ZSBtb2RlIDEwMDY0NCBpbmNsdWRlL2xpbnV4L21mZC9zdHBtaWMxLmgNCj4+DQo=
