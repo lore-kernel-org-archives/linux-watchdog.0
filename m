@@ -1,61 +1,76 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:55916 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725914AbeLCNkD (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 3 Dec 2018 08:40:03 -0500
-Date: Mon, 3 Dec 2018 14:38:57 +0100
-From: Wolfram Sang <wsa@the-dreams.de>
-To: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
-Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        linux-watchdog@vger.kernel.org, Simon Horman <horms@verge.net.au>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Chris Paterson <Chris.Paterson2@renesas.com>,
-        Biju Das <biju.das@bp.renesas.com>,
-        linux-renesas-soc@vger.kernel.org
-Subject: Re: [PATCH v2] watchdog: renesas_wdt: Fix typos
-Message-ID: <20181203133857.r7man7cmqfkjpbkk@ninjato>
-References: <1541415227-4991-1-git-send-email-fabrizio.castro@bp.renesas.com>
+Received: from mail-pg1-f196.google.com ([209.85.215.196]:39732 "EHLO
+        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725971AbeLDFJV (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 4 Dec 2018 00:09:21 -0500
+Received: by mail-pg1-f196.google.com with SMTP id w6so6808401pgl.6
+        for <linux-watchdog@vger.kernel.org>; Mon, 03 Dec 2018 21:09:20 -0800 (PST)
+Subject: Re: x86_64 NMI watchdog false positive, watchdog_overflow_callback
+ fires at random period
+To: Lin Feng <linf@wangsu.com>, linux-watchdog@vger.kernel.org
+Cc: wim@linux-watchdog.org, "x86@kernel.org >> x86" <x86@kernel.org>
+References: <56fbb89e-d49d-7bcb-84c7-37f5c3d5a15d@wangsu.com>
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <39dc2d91-b6ab-06d7-e0e5-9d19b25beb1c@roeck-us.net>
+Date: Mon, 3 Dec 2018 21:09:17 -0800
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="zrbv3qdnqob3r7fp"
-Content-Disposition: inline
-In-Reply-To: <1541415227-4991-1-git-send-email-fabrizio.castro@bp.renesas.com>
+In-Reply-To: <56fbb89e-d49d-7bcb-84c7-37f5c3d5a15d@wangsu.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
++x86
 
---zrbv3qdnqob3r7fp
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Mon, Nov 05, 2018 at 10:53:47AM +0000, Fabrizio Castro wrote:
-> Do not use "," but ";" to separate instructions.
-
-This sentence would even be better as $subject, because current $subject
-sounds like fixing a comment or so. Other than that:
-
-Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-
-
---zrbv3qdnqob3r7fp
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlwFMe0ACgkQFA3kzBSg
-KbbkkxAAoSuwu+qH0zDsr7kMrpFDDW5gTHCDw2ti3u+J+hLLVjSz10UennNAVL8g
-p8NK3VbXwZnj5+IuWHv43XYMdEPxr+onao1fqCNMP/wA1MuvX9J1cFRMemZnTW9V
-l/rtePAL9+Gl1IQZavjVscGUodYmHpE2qhweGEqLnR4Jdx5OkRU0fyF7jDxAFJtM
-pnSJ7ZQk4W/LLtFli0CNPwxA+1MsAMzARLYJte0pM7sYjn4OlBtUeDIlj/UXsUua
-N14ush/pWmzE9c334NvBnr60ObVEClQAxlElmFZKGQb8aGBESvxqo5xU2r72mc3d
-j99lYqdAAYB2iOkMXGT3Ku92CSW5Y/J0rs3+EhzLz1qxp2F6WarRmkD8CcLwcGWf
-cvPqkKUiSm6eNpqPNES5MJhxS8uwNP5cxf2j170CJICRaBAJDaEgvgYSUm3nl5HT
-6k6T2gZBejRYuu6TRJA/q3vlTv21qDqmQr86/4tDj2gTUX9dikVHwOCgiX4tsRws
-59LdWKjC1J1LDCQgGtomOVttKdwLABBbrE4/6FKVEBSnUAcdmKt6h/t1coWLO0df
-Cr1jFX739+pHEkdp9qDGb/wtcg8ii7xr55nVKx1jzbGdwBtZykajXGJ7H6Ie0CEI
-XpGCqbDgGyn6ukjHUtaCy6qzrmq7vf9L8Mvn4PGxnePkOgOlmGc=
-=h21u
------END PGP SIGNATURE-----
-
---zrbv3qdnqob3r7fp--
+On 12/3/18 7:14 PM, Lin Feng wrote:
+> Hi all,
+> 
+> Would you please do me a favor, I google a lot but haven't got any useful information.
+> 
+> My server equips with Intel(R) Xeon(R) CPU E5-2650 0 @ 2.00GHz CPU, after updated kernel from
+> 2.6.32-358 to 3.10-693(centos release kernels), there are many servers panic by nmi hard lockup.
+> I found that it's a 'false positive', interrupt has never been disabled longer than hundreds
+> milliseconds. But watchdog_overflow_callback fires too often, as shown the in following log,
+> @97919.297501 time stamp, kernel sends a nmi warning(disable hardlockup_panic) and at exact this
+> second interval, watchdog_overflow_callback shot twice, which is much faster than
+> watchdog_timer_fn's period.
+> ---
+>    Message from syslogd@zhengzdx26 at Nov 30 14:53:48 ...
+>    kernel:[97919.297501] NMI watchdog: Watchdog detected hard LOCKUP on cpu 8
+> 
+>              squid-12576 [008] d.h. 97557.301384: watchdog_overflow_callback <-__perf_event_overflow
+>              squid-12818 [008] d.h. 97623.930167: watchdog_overflow_callback <-__perf_event_overflow
+>            haproxy-16868 [008] d.h. 97658.308772: watchdog_overflow_callback <-__perf_event_overflow
+>              squid-19961 [008] d.h. 97679.347461: watchdog_overflow_callback <-__perf_event_overflow
+>            haproxy-16870 [008] d.h. 97746.912428: watchdog_overflow_callback <-__perf_event_overflow
+>              squid-20037 [008] d.h. 97778.363767: watchdog_overflow_callback <-__perf_event_overflow
+>            haproxy-16869 [008] d.h. 97847.725242: watchdog_overflow_callback <-__perf_event_overflow
+>              squid-12817 [008] d.h. 97868.908962: watchdog_overflow_callback <-__perf_event_overflow
+>              squid-12729 [008] d.h. 97893.879844: watchdog_overflow_callback <-__perf_event_overflow
+>              squid-12818 [008] d.h. 97919.190085: watchdog_overflow_callback <-__perf_event_overflow
+>              squid-12858 [008] d.h. 97919.297498: watchdog_overflow_callback <-__perf_event_overflow
+> ---
+> 
+> After diving into the source I know that the watchdog_thresh is changed from 60 to 10 in new kernels.
+> Based on this patch:
+> 'https://gitlab.ic.unicamp.br/lkcamp/linux-staging/commit/4eec42f392043063d0f019640b4ccc2a45570002'
+> 
+>      wd_attr->sample_period = hw_nmi_get_sample_period(watchdog_thresh);
+>      event = perf_event_create_kernel_counter(wd_attr, cpu, NULL, watchdog_overflow_callback);
+> 
+> IIUC watchdog_overflow_callback should be fired in a period of hw_nmi_get_sample_period(watchdog_thresh).
+> But as the trace log shown, the period is not regular at all, most of the interval is longer than
+> watchdog_thresh, this also happens in my desktop 4.18.14-200.fc28.x86_64, maybe it's about nohz quirk?
+> And even worse is that sometimes watchdog_overflow_callback gets called twice in a second, which making
+> a 'false positive', So what's the problem?
+> 
+> Best regards and Thanks,
+> linfeng
+> 
+> 
+> 
+> 
+> 
+> 
