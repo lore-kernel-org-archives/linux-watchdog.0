@@ -1,21 +1,21 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pf1-f193.google.com ([209.85.210.193]:40619 "EHLO
-        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726570AbeLDQ7c (ORCPT
+Received: from mail-pg1-f194.google.com ([209.85.215.194]:33860 "EHLO
+        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726570AbeLDRAY (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 4 Dec 2018 11:59:32 -0500
-Subject: Re: [PATCH 1/2] watchdog: bcm281xx: convert to DEFINE_SHOW_ATTRIBUTE
+        Tue, 4 Dec 2018 12:00:24 -0500
+Subject: Re: [PATCH 2/2] watchdog: convert to DEFINE_SHOW_ATTRIBUTE
 To: Yangtao Li <tiny.windzz@gmail.com>, wim@linux-watchdog.org,
         f.fainelli@gmail.com, rjui@broadcom.com, sbranden@broadcom.com,
         bcm-kernel-feedback-list@broadcom.com
 Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
 References: <20181201145140.8088-1-tiny.windzz@gmail.com>
- <20181201145140.8088-2-tiny.windzz@gmail.com>
+ <20181201145140.8088-3-tiny.windzz@gmail.com>
 From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <b041b3a1-124a-ac48-5366-718a7dea5b9d@roeck-us.net>
-Date: Tue, 4 Dec 2018 08:59:28 -0800
+Message-ID: <585a9e90-297a-3cc9-2a54-49eb82b82adf@roeck-us.net>
+Date: Tue, 4 Dec 2018 09:00:21 -0800
 MIME-Version: 1.0
-In-Reply-To: <20181201145140.8088-2-tiny.windzz@gmail.com>
+In-Reply-To: <20181201145140.8088-3-tiny.windzz@gmail.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -30,48 +30,46 @@ On 12/1/18 6:51 AM, Yangtao Li wrote:
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
 > ---
->   drivers/watchdog/bcm_kona_wdt.c | 16 +++-------------
+>   drivers/watchdog/ie6xx_wdt.c | 16 +++-------------
 >   1 file changed, 3 insertions(+), 13 deletions(-)
 > 
-> diff --git a/drivers/watchdog/bcm_kona_wdt.c b/drivers/watchdog/bcm_kona_wdt.c
-> index 1462be9e6fc5..4249b47902bd 100644
-> --- a/drivers/watchdog/bcm_kona_wdt.c
-> +++ b/drivers/watchdog/bcm_kona_wdt.c
-> @@ -90,7 +90,7 @@ static int secure_register_read(struct bcm_kona_wdt *wdt, uint32_t offset)
+> diff --git a/drivers/watchdog/ie6xx_wdt.c b/drivers/watchdog/ie6xx_wdt.c
+> index 78c2541f5d52..8de9fb1ed371 100644
+> --- a/drivers/watchdog/ie6xx_wdt.c
+> +++ b/drivers/watchdog/ie6xx_wdt.c
+> @@ -193,7 +193,7 @@ static struct watchdog_device ie6xx_wdt_dev = {
 >   
->   #ifdef CONFIG_BCM_KONA_WDT_DEBUG
+>   #ifdef CONFIG_DEBUG_FS
 >   
-> -static int bcm_kona_wdt_dbg_show(struct seq_file *s, void *data)
-> +static int bcm_kona_show(struct seq_file *s, void *data)
+> -static int ie6xx_wdt_dbg_show(struct seq_file *s, void *unused)
+> +static int ie6xx_wdt_show(struct seq_file *s, void *unused)
 >   {
->   	int ctl_val, cur_val;
->   	unsigned long flags;
-> @@ -130,17 +130,7 @@ static int bcm_kona_wdt_dbg_show(struct seq_file *s, void *data)
+>   	seq_printf(s, "PV1   = 0x%08x\n",
+>   		inl(ie6xx_wdt_data.sch_wdtba + PV1));
+> @@ -212,23 +212,13 @@ static int ie6xx_wdt_dbg_show(struct seq_file *s, void *unused)
 >   	return 0;
 >   }
 >   
-> -static int bcm_kona_dbg_open(struct inode *inode, struct file *file)
+> -static int ie6xx_wdt_dbg_open(struct inode *inode, struct file *file)
 > -{
-> -	return single_open(file, bcm_kona_wdt_dbg_show, inode->i_private);
+> -	return single_open(file, ie6xx_wdt_dbg_show, NULL);
 > -}
 > -
-> -static const struct file_operations bcm_kona_dbg_operations = {
-> -	.open		= bcm_kona_dbg_open,
+> -static const struct file_operations ie6xx_wdt_dbg_operations = {
+> -	.open		= ie6xx_wdt_dbg_open,
 > -	.read		= seq_read,
 > -	.llseek		= seq_lseek,
 > -	.release	= single_release,
 > -};
-> +DEFINE_SHOW_ATTRIBUTE(bcm_kona);
+> +DEFINE_SHOW_ATTRIBUTE(ie6xx_wdt);
 >   
->   static void bcm_kona_wdt_debug_init(struct platform_device *pdev)
+>   static void ie6xx_wdt_debugfs_init(void)
 >   {
-> @@ -157,7 +147,7 @@ static void bcm_kona_wdt_debug_init(struct platform_device *pdev)
->   		return;
+>   	/* /sys/kernel/debug/ie6xx_wdt */
+>   	ie6xx_wdt_data.debugfs = debugfs_create_file("ie6xx_wdt",
+> -		S_IFREG | S_IRUGO, NULL, NULL, &ie6xx_wdt_dbg_operations);
+> +		S_IFREG | S_IRUGO, NULL, NULL, &ie6xx_wdt_fops);
+>   }
 >   
->   	if (debugfs_create_file("info", S_IFREG | S_IRUGO, dir, wdt,
-> -				&bcm_kona_dbg_operations))
-> +				&bcm_kona_fops))
->   		wdt->debugfs = dir;
->   	else
->   		debugfs_remove_recursive(dir);
+>   static void ie6xx_wdt_debugfs_exit(void)
 > 
