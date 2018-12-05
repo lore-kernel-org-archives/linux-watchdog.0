@@ -1,90 +1,45 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wr1-f66.google.com ([209.85.221.66]:39155 "EHLO
-        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727182AbeLEJgJ (ORCPT
+Received: from mail-lf1-f65.google.com ([209.85.167.65]:42088 "EHLO
+        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726149AbeLEMVo (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 5 Dec 2018 04:36:09 -0500
-Received: by mail-wr1-f66.google.com with SMTP id t27so18888997wra.6
-        for <linux-watchdog@vger.kernel.org>; Wed, 05 Dec 2018 01:36:08 -0800 (PST)
-Date: Wed, 5 Dec 2018 09:36:04 +0000
-From: Lee Jones <lee.jones@linaro.org>
-To: Pascal PAILLET-LME <p.paillet@st.com>
-Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
-        "robh+dt@kernel.org" <robh+dt@kernel.org>,
-        "mark.rutland@arm.com" <mark.rutland@arm.com>,
-        "lgirdwood@gmail.com" <lgirdwood@gmail.com>,
-        "broonie@kernel.org" <broonie@kernel.org>,
-        "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
-        "linux@roeck-us.net" <linux@roeck-us.net>,
-        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>,
-        "eballetbo@gmail.com" <eballetbo@gmail.com>,
-        "axel.lin@ingics.com" <axel.lin@ingics.com>
-Subject: Re: [PATCH v7 0/7] Introduce STPMIC1 PMIC Driver
-Message-ID: <20181205093604.GZ26661@dell>
-References: <1543571742-17995-1-git-send-email-p.paillet@st.com>
- <20181203071145.GA26661@dell>
- <5C069C47.6080305@st.com>
+        Wed, 5 Dec 2018 07:21:44 -0500
+Received: by mail-lf1-f65.google.com with SMTP id l10so14541197lfh.9
+        for <linux-watchdog@vger.kernel.org>; Wed, 05 Dec 2018 04:21:42 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <5C069C47.6080305@st.com>
+References: <20181202110410.17562-1-linus.walleij@linaro.org> <5bc6b938-3cd0-73e5-f3c0-5ae2be2761f4@suse.de>
+In-Reply-To: <5bc6b938-3cd0-73e5-f3c0-5ae2be2761f4@suse.de>
+From: Linus Walleij <linus.walleij@linaro.org>
+Date: Wed, 5 Dec 2018 13:21:29 +0100
+Message-ID: <CACRpkda7UdF_whmm_n7gTVsc-gJTPNFf_Qt5y2g5NTqN5LtUKg@mail.gmail.com>
+Subject: Re: [PATCH] watchdog: mena21_wdt: Convert to GPIO descriptors
+To: Johannes Thumshirn <jthumshirn@suse.de>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
+        Johannes Thumshirn <morbidrsa@gmail.com>,
+        Johannes Thumshirn <jth@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, 04 Dec 2018, Pascal PAILLET-LME wrote:
-> Le 12/03/2018 08:11 AM, Lee Jones a écrit :
-> > On Fri, 30 Nov 2018, Pascal PAILLET-LME wrote:
+On Mon, Dec 3, 2018 at 9:12 AM Johannes Thumshirn <jthumshirn@suse.de> wrote:
+> On 02/12/2018 12:04, Linus Walleij wrote:
+> > This drops the old OF API use to look up global GPIO
+> > numbers and replace it with the GPIO descriptor API.
 > >
-> >> The goal of this patch-set is to propose a driver for the STPMIC1 PMIC from
-> >> STMicroelectronics.
-> >> The STPMIC1 regulators supply power to an application processor as well as
-> >> to external system peripherals such as DDR, Flash memories and system
-> >> devices. It also features onkey button input and an hardware watchdog.
-> >> The STPMIC1 is controlled via I2C.
-> >>
-> >> Main driver is drivers/mfd/stpmic1 that handle I2C regmap configuration and
-> >> irqchip. stpmic1_regulator, stpmic1_onkey and stpmic1_wdt need stpmic1 mfd
-> >> as parent.
-> >>
-> >> STPMIC1 MFD and regulator drivers maybe mandatory at boot time.
-> >>
-> >> Pascal Paillet (7):
-> >> changes in v7:
-> >> * rebase on regul/for-next
-> >>
-> >>    dt-bindings: mfd: document stpmic1
-> >>    mfd: stpmic1: add stpmic1 driver
-> >>    dt-bindings: input: document stpmic1 pmic onkey
-> >>    input: stpmic1: add stpmic1 onkey driver
-> >>    dt-bindings: watchdog: document stpmic1 pmic watchdog
-> >>    watchdog: stpmic1: add stpmic1 watchdog driver
-> >>    regulator: stpmic1: fix regulator_lock usage
-> >>
-> >>   .../devicetree/bindings/input/st,stpmic1-onkey.txt |  28 +++
-> >>   .../devicetree/bindings/mfd/st,stpmic1.txt         |  61 ++++++
-> >>   .../bindings/watchdog/st,stpmic1-wdt.txt           |  11 ++
-> >>   drivers/input/misc/Kconfig                         |  11 ++
-> >>   drivers/input/misc/Makefile                        |   2 +
-> >>   drivers/input/misc/stpmic1_onkey.c                 | 198 +++++++++++++++++++
-> >>   drivers/mfd/Kconfig                                |  16 ++
-> >>   drivers/mfd/Makefile                               |   1 +
-> >>   drivers/mfd/stpmic1.c                              | 213 +++++++++++++++++++++
-> >>   drivers/regulator/stpmic1_regulator.c              |   2 +-
-> > Is it just Mark you're waiting on now?
-> It is ok now, Mark has applied the patch.
-> Evrey thing has been acked now. What is the nex step ?
+> > Cc: Johannes Thumshirn <jthumshirn@suse.de>
+> > Cc: Johannes Thumshirn <morbidrsa@gmail.com>
+> > Cc: Johannes Thumshirn <jth@kernel.org>
+> > Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+> > ---
+>
+> I guess I have to many E-Mail addresses...
 
-Mark has applied patch 7?
+Haha :D
 
-Why don't I see that?  Should you have removed it from this set?
+I just found several in the MAINTAINERS file so I got
+confused and just added all of them.
 
--- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+Thanks!
+Linus Walleij
