@@ -6,29 +6,32 @@ Cc: wim@linux-watchdog.org,
 	linux-watchdog@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	Jerry Hoemann <jerry.hoemann@hpe.com>
-Subject: [PATCH v2 0/3] watchdog/hpwdt: Do not claim on unsupported hardware
-Date: Wed,  5 Dec 2018 17:42:20 -0700
-Message-Id: <1544056943-79958-1-git-send-email-jerry.hoemann@hpe.com>
+Subject: [PATCH v2 3/3] watchdog/hpwdt: Update driver version.
+Date: Wed,  5 Dec 2018 17:42:23 -0700
+Message-Id: <1544056943-79958-4-git-send-email-jerry.hoemann@hpe.com>
+In-Reply-To: <1544056943-79958-1-git-send-email-jerry.hoemann@hpe.com>
+References: <1544056943-79958-1-git-send-email-jerry.hoemann@hpe.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-hpwdt driver isn't supported on all iLO hardware.
+Bump version number to reflect recent minor changes.
 
+Signed-off-by: Jerry Hoemann <jerry.hoemann@hpe.com>
+---
+ drivers/watchdog/hpwdt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Changes in version 2:
-1) Instead of having explicit if statement to check device IDs,
-   provide a pci_device_id table of devices to blacklist.
-2) Convert the current instance where SSID 0x1979 was being skipped.
-3) Add new patch to add SSID 0x0289 to the blacklist table.
-4) Print via dev_dbg instead of dev_info.
-
-
-Jerry Hoemann (3):
-  watchdog/hpwdt: Exclude via blacklist
-  watchdog/hpwdt: Do not claim unsupported hardware
-  watchdog/hpwdt: Update driver version.
-
- drivers/watchdog/hpwdt.c | 15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
-
+diff --git a/drivers/watchdog/hpwdt.c b/drivers/watchdog/hpwdt.c
+index c8e8055..ef30c7e 100644
+--- a/drivers/watchdog/hpwdt.c
++++ b/drivers/watchdog/hpwdt.c
+@@ -26,7 +26,7 @@
+ #include <linux/watchdog.h>
+ #include <asm/nmi.h>
+ 
+-#define HPWDT_VERSION			"2.0.1"
++#define HPWDT_VERSION			"2.0.2"
+ #define SECS_TO_TICKS(secs)		((secs) * 1000 / 128)
+ #define TICKS_TO_SECS(ticks)		((ticks) * 128 / 1000)
+ #define HPWDT_MAX_TIMER			TICKS_TO_SECS(65535)
 -- 
 1.8.3.1
