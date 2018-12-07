@@ -1,12 +1,15 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx07-00178001.pphosted.com ([62.209.51.94]:32665 "EHLO
-        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727240AbeLEPhQ (ORCPT
+Received: from mail-wm1-f66.google.com ([209.85.128.66]:38620 "EHLO
+        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725994AbeLGHbh (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 5 Dec 2018 10:37:16 -0500
-From: Pascal PAILLET-LME <p.paillet@st.com>
-To: Lee Jones <lee.jones@linaro.org>
-CC: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
+        Fri, 7 Dec 2018 02:31:37 -0500
+Received: by mail-wm1-f66.google.com with SMTP id m22so3476558wml.3
+        for <linux-watchdog@vger.kernel.org>; Thu, 06 Dec 2018 23:31:35 -0800 (PST)
+Date: Fri, 7 Dec 2018 07:31:32 +0000
+From: Lee Jones <lee.jones@linaro.org>
+To: Pascal PAILLET-LME <p.paillet@st.com>
+Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
         "robh+dt@kernel.org" <robh+dt@kernel.org>,
         "mark.rutland@arm.com" <mark.rutland@arm.com>,
         "lgirdwood@gmail.com" <lgirdwood@gmail.com>,
@@ -21,65 +24,88 @@ CC: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
         "eballetbo@gmail.com" <eballetbo@gmail.com>,
         "axel.lin@ingics.com" <axel.lin@ingics.com>
 Subject: Re: [PATCH v7 0/7] Introduce STPMIC1 PMIC Driver
-Date: Wed, 5 Dec 2018 15:36:43 +0000
-Message-ID: <5C07F08B.2010701@st.com>
+Message-ID: <20181207073132.GH26661@dell>
 References: <1543571742-17995-1-git-send-email-p.paillet@st.com>
- <20181203071145.GA26661@dell> <5C069C47.6080305@st.com>
+ <20181203071145.GA26661@dell>
+ <5C069C47.6080305@st.com>
  <20181205093604.GZ26661@dell>
-In-Reply-To: <20181205093604.GZ26661@dell>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <817148D5BE30EA4E85D250CA2CFDBDB4@st.com>
-Content-Transfer-Encoding: base64
+ <5C07F08B.2010701@st.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <5C07F08B.2010701@st.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-DQpwYXNjYWwgcGFpbGxldCAocC5wYWlsbGV0QHN0LmNvbSkgTGUgTWFucyAvIEZyYW5jZQ0KTWlj
-cm9jb250cm9sbGVycyBhbmQgRGlnaXRhbCBJQ3MgR3JvdXAgfCBBcHBsaWNhdGlvbiBEZXZlbG9w
-bWVudA0KVEVMOiArMzMuKDApMi40NC4wMi43NC42OSB8IFRJTkE6IDE2NiA3NDY5DQoNCkxlIDEy
-LzA1LzIwMTggMTA6MzYgQU0sIExlZSBKb25lcyBhIMOpY3JpdCA6DQo+IE9uIFR1ZSwgMDQgRGVj
-IDIwMTgsIFBhc2NhbCBQQUlMTEVULUxNRSB3cm90ZToNCj4+IExlIDEyLzAzLzIwMTggMDg6MTEg
-QU0sIExlZSBKb25lcyBhIMOpY3JpdCA6DQo+Pj4gT24gRnJpLCAzMCBOb3YgMjAxOCwgUGFzY2Fs
-IFBBSUxMRVQtTE1FIHdyb3RlOg0KPj4+DQo+Pj4+IFRoZSBnb2FsIG9mIHRoaXMgcGF0Y2gtc2V0
-IGlzIHRvIHByb3Bvc2UgYSBkcml2ZXIgZm9yIHRoZSBTVFBNSUMxIFBNSUMgZnJvbQ0KPj4+PiBT
-VE1pY3JvZWxlY3Ryb25pY3MuDQo+Pj4+IFRoZSBTVFBNSUMxIHJlZ3VsYXRvcnMgc3VwcGx5IHBv
-d2VyIHRvIGFuIGFwcGxpY2F0aW9uIHByb2Nlc3NvciBhcyB3ZWxsIGFzDQo+Pj4+IHRvIGV4dGVy
-bmFsIHN5c3RlbSBwZXJpcGhlcmFscyBzdWNoIGFzIEREUiwgRmxhc2ggbWVtb3JpZXMgYW5kIHN5
-c3RlbQ0KPj4+PiBkZXZpY2VzLiBJdCBhbHNvIGZlYXR1cmVzIG9ua2V5IGJ1dHRvbiBpbnB1dCBh
-bmQgYW4gaGFyZHdhcmUgd2F0Y2hkb2cuDQo+Pj4+IFRoZSBTVFBNSUMxIGlzIGNvbnRyb2xsZWQg
-dmlhIEkyQy4NCj4+Pj4NCj4+Pj4gTWFpbiBkcml2ZXIgaXMgZHJpdmVycy9tZmQvc3RwbWljMSB0
-aGF0IGhhbmRsZSBJMkMgcmVnbWFwIGNvbmZpZ3VyYXRpb24gYW5kDQo+Pj4+IGlycWNoaXAuIHN0
-cG1pYzFfcmVndWxhdG9yLCBzdHBtaWMxX29ua2V5IGFuZCBzdHBtaWMxX3dkdCBuZWVkIHN0cG1p
-YzEgbWZkDQo+Pj4+IGFzIHBhcmVudC4NCj4+Pj4NCj4+Pj4gU1RQTUlDMSBNRkQgYW5kIHJlZ3Vs
-YXRvciBkcml2ZXJzIG1heWJlIG1hbmRhdG9yeSBhdCBib290IHRpbWUuDQo+Pj4+DQo+Pj4+IFBh
-c2NhbCBQYWlsbGV0ICg3KToNCj4+Pj4gY2hhbmdlcyBpbiB2NzoNCj4+Pj4gKiByZWJhc2Ugb24g
-cmVndWwvZm9yLW5leHQNCj4+Pj4NCj4+Pj4gICAgIGR0LWJpbmRpbmdzOiBtZmQ6IGRvY3VtZW50
-IHN0cG1pYzENCj4+Pj4gICAgIG1mZDogc3RwbWljMTogYWRkIHN0cG1pYzEgZHJpdmVyDQo+Pj4+
-ICAgICBkdC1iaW5kaW5nczogaW5wdXQ6IGRvY3VtZW50IHN0cG1pYzEgcG1pYyBvbmtleQ0KPj4+
-PiAgICAgaW5wdXQ6IHN0cG1pYzE6IGFkZCBzdHBtaWMxIG9ua2V5IGRyaXZlcg0KPj4+PiAgICAg
-ZHQtYmluZGluZ3M6IHdhdGNoZG9nOiBkb2N1bWVudCBzdHBtaWMxIHBtaWMgd2F0Y2hkb2cNCj4+
-Pj4gICAgIHdhdGNoZG9nOiBzdHBtaWMxOiBhZGQgc3RwbWljMSB3YXRjaGRvZyBkcml2ZXINCj4+
-Pj4gICAgIHJlZ3VsYXRvcjogc3RwbWljMTogZml4IHJlZ3VsYXRvcl9sb2NrIHVzYWdlDQo+Pj4+
-DQo+Pj4+ICAgIC4uLi9kZXZpY2V0cmVlL2JpbmRpbmdzL2lucHV0L3N0LHN0cG1pYzEtb25rZXku
-dHh0IHwgIDI4ICsrKw0KPj4+PiAgICAuLi4vZGV2aWNldHJlZS9iaW5kaW5ncy9tZmQvc3Qsc3Rw
-bWljMS50eHQgICAgICAgICB8ICA2MSArKysrKysNCj4+Pj4gICAgLi4uL2JpbmRpbmdzL3dhdGNo
-ZG9nL3N0LHN0cG1pYzEtd2R0LnR4dCAgICAgICAgICAgfCAgMTEgKysNCj4+Pj4gICAgZHJpdmVy
-cy9pbnB1dC9taXNjL0tjb25maWcgICAgICAgICAgICAgICAgICAgICAgICAgfCAgMTEgKysNCj4+
-Pj4gICAgZHJpdmVycy9pbnB1dC9taXNjL01ha2VmaWxlICAgICAgICAgICAgICAgICAgICAgICAg
-fCAgIDIgKw0KPj4+PiAgICBkcml2ZXJzL2lucHV0L21pc2Mvc3RwbWljMV9vbmtleS5jICAgICAg
-ICAgICAgICAgICB8IDE5OCArKysrKysrKysrKysrKysrKysrDQo+Pj4+ICAgIGRyaXZlcnMvbWZk
-L0tjb25maWcgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgIDE2ICsrDQo+Pj4+ICAg
-IGRyaXZlcnMvbWZkL01ha2VmaWxlICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgICAx
-ICsNCj4+Pj4gICAgZHJpdmVycy9tZmQvc3RwbWljMS5jICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgfCAyMTMgKysrKysrKysrKysrKysrKysrKysrDQo+Pj4+ICAgIGRyaXZlcnMvcmVndWxh
-dG9yL3N0cG1pYzFfcmVndWxhdG9yLmMgICAgICAgICAgICAgIHwgICAyICstDQo+Pj4gSXMgaXQg
-anVzdCBNYXJrIHlvdSdyZSB3YWl0aW5nIG9uIG5vdz8NCj4+IEl0IGlzIG9rIG5vdywgTWFyayBo
-YXMgYXBwbGllZCB0aGUgcGF0Y2guDQo+PiBFdnJleSB0aGluZyBoYXMgYmVlbiBhY2tlZCBub3cu
-IFdoYXQgaXMgdGhlIG5leCBzdGVwID8NCj4gTWFyayBoYXMgYXBwbGllZCBwYXRjaCA3Pw0KPg0K
-PiBXaHkgZG9uJ3QgSSBzZWUgdGhhdD8gIFNob3VsZCB5b3UgaGF2ZSByZW1vdmVkIGl0IGZyb20g
-dGhpcyBzZXQ/DQpIaSBMZWUsIEkgaGF2ZSByZWNlaXZlZCBhbiBlbWFpbCBmcm9tIE1hcmsgdGVs
-bGlpbmcgdGhhdCB0aGUgcmVndWxhdG9yIA0KcGF0Y2ggaXMgYXBwbGllZCBvbg0KDQogIGh0dHBz
-Oi8vZ2l0Lmtlcm5lbC5vcmcvcHViL3NjbS9saW51eC9rZXJuZWwvZ2l0L2Jyb29uaWUvcmVndWxh
-dG9yLmdpdCAgDQoNCkkgY2FuIHNlZSBpdCBvbiB0aGUgYnJhbmNoIHJlZ3VsL2Zvci1uZXh0Lg0K
-DQoNCnRoYW5rIHlvdSwNCnBhc2NhbA0KDQoNCj4NCg==
+On Wed, 05 Dec 2018, Pascal PAILLET-LME wrote:
+
+> 
+> pascal paillet (p.paillet@st.com) Le Mans / France
+> Microcontrollers and Digital ICs Group | Application Development
+> TEL: +33.(0)2.44.02.74.69 | TINA: 166 7469
+> 
+> Le 12/05/2018 10:36 AM, Lee Jones a écrit :
+> > On Tue, 04 Dec 2018, Pascal PAILLET-LME wrote:
+> >> Le 12/03/2018 08:11 AM, Lee Jones a écrit :
+> >>> On Fri, 30 Nov 2018, Pascal PAILLET-LME wrote:
+> >>>
+> >>>> The goal of this patch-set is to propose a driver for the STPMIC1 PMIC from
+> >>>> STMicroelectronics.
+> >>>> The STPMIC1 regulators supply power to an application processor as well as
+> >>>> to external system peripherals such as DDR, Flash memories and system
+> >>>> devices. It also features onkey button input and an hardware watchdog.
+> >>>> The STPMIC1 is controlled via I2C.
+> >>>>
+> >>>> Main driver is drivers/mfd/stpmic1 that handle I2C regmap configuration and
+> >>>> irqchip. stpmic1_regulator, stpmic1_onkey and stpmic1_wdt need stpmic1 mfd
+> >>>> as parent.
+> >>>>
+> >>>> STPMIC1 MFD and regulator drivers maybe mandatory at boot time.
+> >>>>
+> >>>> Pascal Paillet (7):
+> >>>> changes in v7:
+> >>>> * rebase on regul/for-next
+> >>>>
+> >>>>     dt-bindings: mfd: document stpmic1
+> >>>>     mfd: stpmic1: add stpmic1 driver
+> >>>>     dt-bindings: input: document stpmic1 pmic onkey
+> >>>>     input: stpmic1: add stpmic1 onkey driver
+> >>>>     dt-bindings: watchdog: document stpmic1 pmic watchdog
+> >>>>     watchdog: stpmic1: add stpmic1 watchdog driver
+> >>>>     regulator: stpmic1: fix regulator_lock usage
+> >>>>
+> >>>>    .../devicetree/bindings/input/st,stpmic1-onkey.txt |  28 +++
+> >>>>    .../devicetree/bindings/mfd/st,stpmic1.txt         |  61 ++++++
+> >>>>    .../bindings/watchdog/st,stpmic1-wdt.txt           |  11 ++
+> >>>>    drivers/input/misc/Kconfig                         |  11 ++
+> >>>>    drivers/input/misc/Makefile                        |   2 +
+> >>>>    drivers/input/misc/stpmic1_onkey.c                 | 198 +++++++++++++++++++
+> >>>>    drivers/mfd/Kconfig                                |  16 ++
+> >>>>    drivers/mfd/Makefile                               |   1 +
+> >>>>    drivers/mfd/stpmic1.c                              | 213 +++++++++++++++++++++
+> >>>>    drivers/regulator/stpmic1_regulator.c              |   2 +-
+> >>> Is it just Mark you're waiting on now?
+> >> It is ok now, Mark has applied the patch.
+> >> Evrey thing has been acked now. What is the nex step ?
+> > Mark has applied patch 7?
+> >
+> > Why don't I see that?  Should you have removed it from this set?
+> Hi Lee, I have received an email from Mark telliing that the regulator 
+> patch is applied on
+> 
+>   https://git.kernel.org/pub/scm/linux/kernel/git/broonie/regulator.git  
+> 
+> I can see it on the branch regul/for-next.
+
+Mark,
+
+Does your patch tracker only reply to the author?
+
+Any reason why I don't see it?
+
+-- 
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
