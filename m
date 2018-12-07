@@ -1,19 +1,17 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wm1-f66.google.com ([209.85.128.66]:38620 "EHLO
-        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725994AbeLGHbh (ORCPT
+Received: from heliosphere.sirena.org.uk ([172.104.155.198]:55846 "EHLO
+        heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725994AbeLGMUF (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 7 Dec 2018 02:31:37 -0500
-Received: by mail-wm1-f66.google.com with SMTP id m22so3476558wml.3
-        for <linux-watchdog@vger.kernel.org>; Thu, 06 Dec 2018 23:31:35 -0800 (PST)
-Date: Fri, 7 Dec 2018 07:31:32 +0000
-From: Lee Jones <lee.jones@linaro.org>
-To: Pascal PAILLET-LME <p.paillet@st.com>
-Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
+        Fri, 7 Dec 2018 07:20:05 -0500
+Date: Fri, 7 Dec 2018 12:19:55 +0000
+From: Mark Brown <broonie@kernel.org>
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Pascal PAILLET-LME <p.paillet@st.com>,
+        "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
         "robh+dt@kernel.org" <robh+dt@kernel.org>,
         "mark.rutland@arm.com" <mark.rutland@arm.com>,
         "lgirdwood@gmail.com" <lgirdwood@gmail.com>,
-        "broonie@kernel.org" <broonie@kernel.org>,
         "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
         "linux@roeck-us.net" <linux@roeck-us.net>,
         "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
@@ -24,88 +22,60 @@ Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
         "eballetbo@gmail.com" <eballetbo@gmail.com>,
         "axel.lin@ingics.com" <axel.lin@ingics.com>
 Subject: Re: [PATCH v7 0/7] Introduce STPMIC1 PMIC Driver
-Message-ID: <20181207073132.GH26661@dell>
+Message-ID: <20181207121955.GA6510@sirena.org.uk>
 References: <1543571742-17995-1-git-send-email-p.paillet@st.com>
  <20181203071145.GA26661@dell>
  <5C069C47.6080305@st.com>
  <20181205093604.GZ26661@dell>
  <5C07F08B.2010701@st.com>
+ <20181207073132.GH26661@dell>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="T4sUOijqQbZv57TR"
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <5C07F08B.2010701@st.com>
+In-Reply-To: <20181207073132.GH26661@dell>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, 05 Dec 2018, Pascal PAILLET-LME wrote:
 
-> 
-> pascal paillet (p.paillet@st.com) Le Mans / France
-> Microcontrollers and Digital ICs Group | Application Development
-> TEL: +33.(0)2.44.02.74.69 | TINA: 166 7469
-> 
-> Le 12/05/2018 10:36 AM, Lee Jones a écrit :
-> > On Tue, 04 Dec 2018, Pascal PAILLET-LME wrote:
-> >> Le 12/03/2018 08:11 AM, Lee Jones a écrit :
-> >>> On Fri, 30 Nov 2018, Pascal PAILLET-LME wrote:
-> >>>
-> >>>> The goal of this patch-set is to propose a driver for the STPMIC1 PMIC from
-> >>>> STMicroelectronics.
-> >>>> The STPMIC1 regulators supply power to an application processor as well as
-> >>>> to external system peripherals such as DDR, Flash memories and system
-> >>>> devices. It also features onkey button input and an hardware watchdog.
-> >>>> The STPMIC1 is controlled via I2C.
-> >>>>
-> >>>> Main driver is drivers/mfd/stpmic1 that handle I2C regmap configuration and
-> >>>> irqchip. stpmic1_regulator, stpmic1_onkey and stpmic1_wdt need stpmic1 mfd
-> >>>> as parent.
-> >>>>
-> >>>> STPMIC1 MFD and regulator drivers maybe mandatory at boot time.
-> >>>>
-> >>>> Pascal Paillet (7):
-> >>>> changes in v7:
-> >>>> * rebase on regul/for-next
-> >>>>
-> >>>>     dt-bindings: mfd: document stpmic1
-> >>>>     mfd: stpmic1: add stpmic1 driver
-> >>>>     dt-bindings: input: document stpmic1 pmic onkey
-> >>>>     input: stpmic1: add stpmic1 onkey driver
-> >>>>     dt-bindings: watchdog: document stpmic1 pmic watchdog
-> >>>>     watchdog: stpmic1: add stpmic1 watchdog driver
-> >>>>     regulator: stpmic1: fix regulator_lock usage
-> >>>>
-> >>>>    .../devicetree/bindings/input/st,stpmic1-onkey.txt |  28 +++
-> >>>>    .../devicetree/bindings/mfd/st,stpmic1.txt         |  61 ++++++
-> >>>>    .../bindings/watchdog/st,stpmic1-wdt.txt           |  11 ++
-> >>>>    drivers/input/misc/Kconfig                         |  11 ++
-> >>>>    drivers/input/misc/Makefile                        |   2 +
-> >>>>    drivers/input/misc/stpmic1_onkey.c                 | 198 +++++++++++++++++++
-> >>>>    drivers/mfd/Kconfig                                |  16 ++
-> >>>>    drivers/mfd/Makefile                               |   1 +
-> >>>>    drivers/mfd/stpmic1.c                              | 213 +++++++++++++++++++++
-> >>>>    drivers/regulator/stpmic1_regulator.c              |   2 +-
-> >>> Is it just Mark you're waiting on now?
-> >> It is ok now, Mark has applied the patch.
-> >> Evrey thing has been acked now. What is the nex step ?
-> > Mark has applied patch 7?
-> >
-> > Why don't I see that?  Should you have removed it from this set?
-> Hi Lee, I have received an email from Mark telliing that the regulator 
-> patch is applied on
-> 
->   https://git.kernel.org/pub/scm/linux/kernel/git/broonie/regulator.git  
-> 
-> I can see it on the branch regul/for-next.
+--T4sUOijqQbZv57TR
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Mark,
+On Fri, Dec 07, 2018 at 07:31:32AM +0000, Lee Jones wrote:
+> On Wed, 05 Dec 2018, Pascal PAILLET-LME wrote:
 
-Does your patch tracker only reply to the author?
+> > Hi Lee, I have received an email from Mark telliing that the regulator=
+=20
+> > patch is applied on
 
-Any reason why I don't see it?
+> >   https://git.kernel.org/pub/scm/linux/kernel/git/broonie/regulator.git=
+ =20
 
--- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+> > I can see it on the branch regul/for-next.
+
+> Does your patch tracker only reply to the author?
+
+> Any reason why I don't see it?
+
+It gets sent to anyone in patchwork.  It is possible there was some
+problem talking to patchwork, or that your mail system has filtered the
+mail.
+
+--T4sUOijqQbZv57TR
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAlwKZWgACgkQJNaLcl1U
+h9AqYQf/fPoVMFiBpJfNs61lytyuCMioJQadwRdtqBibh0un2085zKHfasON6BKV
+kFClkPGK0IVumMf0oAFEgUKCnq7cdAYKw9lIUs9n1cceblbjGDbKaTJlarP7SVWT
+EI6seMHKTYM3k6+CLwYY9EplerQ+1uDZ1wrMCB7THjElUPwFIgk2ITxOmqwQsbqa
+4H8vGI9SKmcRFj/Rf23oFlb541cSI+/QXSvQTlzaidz2EZxs8tQoNP8p0JVMoieh
+BSSnNwP7EBWxYYJoa0U6grg9yZ26Q5fz24/w0KY42DDEskdB8k36YYoTtPeYReLR
+Ig0Y7rO4nP2vuK4U14OofITZiDspWg==
+=+5Lu
+-----END PGP SIGNATURE-----
+
+--T4sUOijqQbZv57TR--
