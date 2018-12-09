@@ -1,51 +1,204 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pl1-f195.google.com ([209.85.214.195]:39947 "EHLO
-        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726212AbeLIOOD (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 9 Dec 2018 09:14:03 -0500
-Subject: Re: [PATCH] Watchdog: remove outdated comment
-To: Hardik Singh Rathore <hardiksingh.k@gmail.com>
-Cc: wim@linux-watchdog.org, linux-watchdog@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20181209104726.15610-1-hardiksingh.k@gmail.com>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <18f7e9ee-0d8f-7c73-cdc0-7826e912d33a@roeck-us.net>
-Date: Sun, 9 Dec 2018 06:13:59 -0800
-MIME-Version: 1.0
-In-Reply-To: <20181209104726.15610-1-hardiksingh.k@gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Received: from vps0.lunn.ch ([185.16.172.187]:39871 "EHLO vps0.lunn.ch"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726278AbeLIUIz (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Sun, 9 Dec 2018 15:08:55 -0500
+From: Andrew Lunn <andrew@lunn.ch>
+To: wim@linux-watchdog.org, linux@roeck-us.net
+Cc: linux-watchdog@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>
+Subject: [PATCH v2] watchdog: tqmx86: Add watchdog driver for the IO controller
+Date: Sun,  9 Dec 2018 21:08:27 +0100
+Message-Id: <1544386107-20503-1-git-send-email-andrew@lunn.ch>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 12/9/18 2:47 AM, Hardik Singh Rathore wrote:
-> The lock field doesn't exist in watchdog_device structure.
-> It was added by commit f4e9c82f64b5 ("watchdog: Add Locking support")
-> and removed by commit b4ffb1909843
-> ("watchdog: Separate and maintain variables based on variable lifetime")
-> 
-> Signed-off-by: Hardik Singh Rathore <hardiksingh.k@gmail.com>
+Some TQ-Systems ComExpress modules have an IO controller with a
+watchdog time.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Andrew Lunn <andrew@lunn.ch>
+---
+v2:
+Fix various typos
+Sort header files
+Use watchdog_init_timeout(() to handle module parameter
+Get core to validate timeout
+Remove redundant ping function
+Remove redundant stop function
+Use devm_watchdog_register_device allowing release to be removed
+Use WATCHDOG_NOWAYOUT
+---
+ drivers/watchdog/Kconfig      |  12 ++++
+ drivers/watchdog/Makefile     |   1 +
+ drivers/watchdog/tqmx86_wdt.c | 126 ++++++++++++++++++++++++++++++++++
+ 3 files changed, 139 insertions(+)
+ create mode 100644 drivers/watchdog/tqmx86_wdt.c
 
-> ---
->   include/linux/watchdog.h | 3 ---
->   1 file changed, 3 deletions(-)
-> 
-> diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
-> index 44985c4a1e86..417d9f37077a 100644
-> --- a/include/linux/watchdog.h
-> +++ b/include/linux/watchdog.h
-> @@ -90,9 +90,6 @@ struct watchdog_ops {
->    *
->    * The driver-data field may not be accessed directly. It must be accessed
->    * via the watchdog_set_drvdata and watchdog_get_drvdata helpers.
-> - *
-> - * The lock field is for watchdog core internal use only and should not be
-> - * touched.
->    */
->   struct watchdog_device {
->   	int id;
-> 
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 2d64333f4782..7c7528e8644b 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -1308,6 +1308,18 @@ config SMSC37B787_WDT
+ 
+ 	  Most people will say N.
+ 
++config TQMX86_WDT
++	tristate "TQ-Systems TQMX86 Watchdog Timer"
++	depends on X86
++	help
++	This is the driver for the hardware watchdog timer in the TQMN86 IO
++	controller found on some of their ComExpress Modules.
++
++	To compile this driver as a module, choose M here; the module
++	will be called tqmx86_wdt.
++
++	Most people will say N.
++
+ config VIA_WDT
+ 	tristate "VIA Watchdog Timer"
+ 	depends on X86 && PCI
+diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+index f69cdff5ad7f..b077e35414e2 100644
+--- a/drivers/watchdog/Makefile
++++ b/drivers/watchdog/Makefile
+@@ -129,6 +129,7 @@ obj-$(CONFIG_SBC7240_WDT) += sbc7240_wdt.o
+ obj-$(CONFIG_CPU5_WDT) += cpu5wdt.o
+ obj-$(CONFIG_SMSC_SCH311X_WDT) += sch311x_wdt.o
+ obj-$(CONFIG_SMSC37B787_WDT) += smsc37b787_wdt.o
++obj-$(CONFIG_TQMX86_WDT) += tqmx86_wdt.o
+ obj-$(CONFIG_VIA_WDT) += via_wdt.o
+ obj-$(CONFIG_W83627HF_WDT) += w83627hf_wdt.o
+ obj-$(CONFIG_W83877F_WDT) += w83877f_wdt.o
+diff --git a/drivers/watchdog/tqmx86_wdt.c b/drivers/watchdog/tqmx86_wdt.c
+new file mode 100644
+index 000000000000..9d2ff7bcb061
+--- /dev/null
++++ b/drivers/watchdog/tqmx86_wdt.c
+@@ -0,0 +1,126 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Watchdog driver for TQMx86 PLD.
++ *
++ * The watchdog supports power of 2 timeouts from 1 to 4096sec.
++ * Once started, it cannot be stopped.
++ */
++
++#include <linux/io.h>
++#include <linux/log2.h>
++#include <linux/module.h>
++#include <linux/platform_device.h>
++#include <linux/timer.h>
++#include <linux/watchdog.h>
++
++/* default timeout (secs) */
++#define WDT_TIMEOUT 32
++
++static unsigned int timeout;
++module_param(timeout, uint, 0);
++MODULE_PARM_DESC(timeout,
++	"Watchdog timeout in seconds. (1<=timeout<=4096, default="
++				__MODULE_STRING(WDT_TIMEOUT) ")");
++struct tqmx86_wdt {
++	struct watchdog_device wdd;
++	void __iomem *io_base;
++};
++
++#define TQMX86_WDCFG	0x00 /* Watchdog Configuration Register */
++#define TQMX86_WDCS	0x01 /* Watchdog Config/Status Register */
++
++static int tqmx86_wdt_start(struct watchdog_device *wdd)
++{
++	struct tqmx86_wdt *priv = watchdog_get_drvdata(wdd);
++
++	iowrite8(0x81, priv->io_base + TQMX86_WDCS);
++
++	return 0;
++}
++
++static int tqmx86_wdt_set_timeout(struct watchdog_device *wdd,
++				  unsigned int new_timeout)
++{
++	struct tqmx86_wdt *priv = watchdog_get_drvdata(wdd);
++	u8 val;
++
++	timeout = roundup_pow_of_two(new_timeout);
++	val = ilog2(timeout) | 0x90;
++	val += 3; /* values 0,1,2 correspond to 0.125,0.25,0.5s timeouts */
++	iowrite8(val, priv->io_base + TQMX86_WDCFG);
++
++	wdd->timeout = timeout;
++
++	return 0;
++}
++
++static const struct watchdog_info tqmx86_wdt_info = {
++	.options	= WDIOF_SETTIMEOUT |
++			  WDIOF_KEEPALIVEPING,
++	.identity	= "TQMx86 Watchdog",
++};
++
++static struct watchdog_ops tqmx86_wdt_ops = {
++	.owner		= THIS_MODULE,
++	.start		= tqmx86_wdt_start,
++	.set_timeout	= tqmx86_wdt_set_timeout,
++};
++
++static int tqmx86_wdt_probe(struct platform_device *pdev)
++{
++	struct tqmx86_wdt *priv;
++	struct resource *res;
++	int err;
++
++	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
++	if (!priv)
++		return -ENOMEM;
++
++	res = platform_get_resource(pdev, IORESOURCE_IO, 0);
++	if (IS_ERR(res))
++		return PTR_ERR(res);
++
++	priv->io_base = devm_ioport_map(&pdev->dev, res->start,
++					resource_size(res));
++	if (IS_ERR(priv->io_base))
++		return PTR_ERR(priv->io_base);
++
++	platform_set_drvdata(pdev, priv);
++	watchdog_set_drvdata(&priv->wdd, priv);
++
++	tqmx86_wdt_set_timeout(&priv->wdd, WDT_TIMEOUT);
++
++	priv->wdd.parent = &pdev->dev;
++	priv->wdd.info = &tqmx86_wdt_info;
++	priv->wdd.ops = &tqmx86_wdt_ops;
++	priv->wdd.min_timeout = 1;
++	priv->wdd.max_timeout = 4096;
++	priv->wdd.max_hw_heartbeat_ms = 4096*1000;
++	priv->wdd.timeout = WDT_TIMEOUT;
++
++	watchdog_init_timeout(&priv->wdd, timeout, &pdev->dev);
++
++	watchdog_set_nowayout(&priv->wdd, WATCHDOG_NOWAYOUT);
++
++	err = devm_watchdog_register_device(&pdev->dev, &priv->wdd);
++	if (err)
++		return err;
++
++	dev_info(&pdev->dev, "TQMx86 watchdog\n");
++
++	return 0;
++}
++
++static struct platform_driver tqmx86_wdt_driver = {
++	.driver		= {
++		.name	= "tqmx86-wdt",
++	},
++	.probe		= tqmx86_wdt_probe,
++};
++
++module_platform_driver(tqmx86_wdt_driver);
++
++MODULE_AUTHOR("Vadim V.Vlasov <vvlasov@dev.rtsoft.ru>");
++MODULE_DESCRIPTION("TQMx86 Watchdog");
++MODULE_ALIAS("platform:tqmx86-wdt");
++MODULE_LICENSE("GPL");
+-- 
+2.19.1
