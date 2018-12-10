@@ -1,139 +1,110 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-eopbgr1410120.outbound.protection.outlook.com ([40.107.141.120]:26272
+Received: from mail-eopbgr1410133.outbound.protection.outlook.com ([40.107.141.133]:59520
         "EHLO JPN01-OS2-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726888AbeLJOrs (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 10 Dec 2018 09:47:48 -0500
+        id S1726687AbeLJOtV (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 10 Dec 2018 09:49:21 -0500
 From: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
-To: Guenter Roeck <linux@roeck-us.net>,
-        Wolfram Sang <wsa@the-dreams.de>
-CC: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        "linux-renesas-soc@vger.kernel.org"
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
+CC: "linux-renesas-soc@vger.kernel.org"
         <linux-renesas-soc@vger.kernel.org>,
         Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 Subject: RE: [RFC] watchdog: renesas_wdt: don't keep timer value during
  suspend/resume
-Date: Mon, 10 Dec 2018 14:47:41 +0000
-Message-ID:
- <TY1PR01MB177068CC5D65810EDA87A1ADC0A50@TY1PR01MB1770.jpnprd01.prod.outlook.com>
+Date: Mon, 10 Dec 2018 14:49:17 +0000
+Message-ID: <TY1PR01MB177063E87996E5FDE4AD371DC0A50@TY1PR01MB1770.jpnprd01.prod.outlook.com>
 References: <20181204120146.1923-1-wsa+renesas@sang-engineering.com>
- <476b6d6c-657d-7e10-d0a8-a7aafe61eae9@roeck-us.net>
- <20181207214528.GA2853@kunai>
- <eb86c5d7-ab13-df05-0d0f-9dad811a6a98@roeck-us.net>
- <20181209163632.GB1673@kunai>
- <df16092e-f0f6-c085-3daf-303e1cb06428@roeck-us.net>
- <TY1PR01MB17704475D482D7A0B5B9D232C0A50@TY1PR01MB1770.jpnprd01.prod.outlook.com>
- <a9802cbe-b050-1f3c-f35f-b9b691f9d32b@roeck-us.net>
-In-Reply-To: <a9802cbe-b050-1f3c-f35f-b9b691f9d32b@roeck-us.net>
+In-Reply-To: <20181204120146.1923-1-wsa+renesas@sang-engineering.com>
 Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
-Message-ID: <20181210144741.SmlKW7PW8s83-sjWA8z55V6WnLpWK9n7opqh6naUbzk@z>
 
-SGVsbG8gR3VlbnRlciwNCg0KPiBGcm9tOiBHdWVudGVyIFJvZWNrIDxncm9lY2s3QGdtYWlsLmNv
-bT4gT24gQmVoYWxmIE9mIEd1ZW50ZXIgUm9lY2sNCj4gU2VudDogMTAgRGVjZW1iZXIgMjAxOCAx
-NDoyNA0KPiBTdWJqZWN0OiBSZTogW1JGQ10gd2F0Y2hkb2c6IHJlbmVzYXNfd2R0OiBkb24ndCBr
-ZWVwIHRpbWVyIHZhbHVlIGR1cmluZyBzdXNwZW5kL3Jlc3VtZQ0KPg0KPiBPbiAxMi8xMC8xOCAx
-OjM3IEFNLCBGYWJyaXppbyBDYXN0cm8gd3JvdGU6DQo+ID4gSGVsbG8gR3VlbnRlciwNCj4gPg0K
-PiA+PiBGcm9tOiBHdWVudGVyIFJvZWNrIDxncm9lY2s3QGdtYWlsLmNvbT4gT24gQmVoYWxmIE9m
-IEd1ZW50ZXIgUm9lY2sNCj4gPj4gU2VudDogMDkgRGVjZW1iZXIgMjAxOCAxODoxMw0KPiA+PiBT
-dWJqZWN0OiBSZTogW1JGQ10gd2F0Y2hkb2c6IHJlbmVzYXNfd2R0OiBkb24ndCBrZWVwIHRpbWVy
-IHZhbHVlIGR1cmluZyBzdXNwZW5kL3Jlc3VtZQ0KPiA+Pg0KPiA+PiBPbiAxMi85LzE4IDg6MzYg
-QU0sIFdvbGZyYW0gU2FuZyB3cm90ZToNCj4gPj4+IEhpIEd1ZW50ZXIsDQo+ID4+Pg0KPiA+Pj4+
-PiBJIGNhbiByZWxhdGUgdG8gdGhlIHBvbGljeSBhcmd1bWVudCwgdGhvdWdoLiBSZWdhcmRsZXNz
-IG9mIHRoaXMgcGF0Y2gsIEkNCj4gPj4+Pj4gd29uZGVyIGlmIHdlIGNhbiBtYWtlIGl0IGNvbmZp
-Z3VyYWJsZSBmcm9tIHVzZXJzcGFjZS4gQSBkcmFmdDoNCj4gPj4+Pj4NCj4gPj4+Pj4gI2RlZmlu
-ZVdESU9GX1JFU1VNRV9PUFRTMHgwODAwDQo+ID4+Pj4+DQo+ID4+Pj4+ICNkZWZpbmVXRElPU19S
-RVNVTUVfS0VFUDB4MDAwOA0KPiA+Pj4+PiAjZGVmaW5lV0RJT1NfUkVTVU1FX1JFU0VUMHgwMDEw
-DQo+ID4+Pj4+DQo+ID4+Pj4+IGFuZCB0aGVuIGluIHdhdGNoZG9nX2lvY3RsKCkgdW5kZXIgV0RJ
-T0NfU0VUT1BUSU9OUzoNCj4gPj4+Pj4NCj4gPj4+Pj4gaWYgKCEod2RkLT5pbmZvLT5vcHRpb25z
-ICYgV0RJT0ZfUkVTVU1FX09QVFMpKQ0KPiA+Pj4+PiBlcnIgPSAtRU9QTk9UU1VQUDsNCj4gPj4+
-Pj4gZ290byBicmVhazsNCj4gPj4+Pj4NCj4gPj4+Pj4gaWYgKHZhbCAmIFdESU9TX1JFU1VNRV9L
-RUVQKQ0KPiA+Pj4+PiB3ZGQtPnN0YXR1cyB8PSBXRE9HX0tFRVBfVElNRVJfV0hFTl9SRVNVTUU7
-DQo+ID4+Pj4+DQo+ID4+Pj4+IGlmICh2YWwgJiBXRElPU19SRVNVTUVfUkVTRVQpDQo+ID4+Pj4+
-IHdkZC0+c3RhdHVzIH49IH5XRE9HX0tFRVBfVElNRVJfV0hFTl9SRVNVTUU7DQo+ID4+Pj4+DQo+
-ID4+Pj4+IFNvLCBkcml2ZXJzIHdpdGggV0RJT0ZfUkVTVU1FX09QVFMgY291bGQgYWN0IG9uIHRo
-ZQ0KPiA+Pj4+PiBXRE9HX0tFRVBfVElNRVJfV0hFTl9SRVNVTUUgZmxhZy4NCj4gPj4+Pj4NCj4g
-Pj4+Pj4gT3BpbmlvbnM/DQo+ID4+Pj4+DQo+ID4+Pj4NCj4gPj4+PiBOb3QgZW50aXJlbHkgc3Vy
-ZSBJIHVuZGVyc3RhbmQgdGhlIHVzZSBjYXNlLg0KPiA+Pj4NCj4gPj4+IFdlbGwsIGFzIEkgbWVu
-dGlvbmVkIGJlZm9yZSwgSSBjYW4gdW5kZXJzdGFuZCB0aGUgImlzbid0IHRoaXMgcG9saWN5PyIN
-Cj4gPj4+IHF1ZXN0aW9uIGZyb20gRmFicml6aW8uIFdvdWxkIGJlIGdvb2QgdG8gaGVhciBoaXMg
-b3BpbmlvbiBvbiB0aGlzLg0KPiA+Pj4NCj4gPj4gSSB1bmRlcnN0YW5kLCBidXQgd2hhdCBpcyB0
-aGUgdXNlIGNhc2UgYmVoaW5kIGl0ID8gSWYgdGhlIHdhdGNoZG9nDQo+ID4NCj4gPiBJcyB0aGVy
-ZSBhIGRvY3VtZW50ZWQgdXNlIGNhc2UgZm9yIHJlc2V0dGluZyB0aGUgY291bnRlciBhdCByZXN1
-bWU/IEkgZG9uJ3QNCj4gPiB0aGluayB0aGUgZG9jdW1lbnRhdGlvbiBpcyBjbGVhciBhYm91dCB0
-aGlzLCB0aGVyZWZvcmUgd2UgbmVlZCB0byB0aGluayBhaGVhZA0KPiA+DQo+ID4+IHdhcyBjbG9z
-ZSB0byBleHBpcmUgb24gc3VzcGVuZCwgd2Ugd2FudCBpdCB0byBleHBpcmUgZm9yIGdvb2Qgb24g
-cmVzdW1lID8NCj4gPg0KPiA+IFRoYXQgZGVjaXNpb24gaXMgdXAgdG8gdXNlciBzcGFjZSwgaXNu
-J3QgaXQ/IFRoZSBkZWNpc2lvbiB0byBnbyB0byBzbGVlcCBjb21lcyBmcm9tDQo+ID4gdXNlciBz
-cGFjZSwgdGhlcmVmb3JlIHVzZXIgc3BhY2Ugc2hvdWxkIGNvbnNpZGVyIHRoZSB0aW1lIGxlZnQg
-b24gdGhlIGNvdW50ZXIgYmVmb3JlDQo+ID4gZ29pbmcgdG8gc2xlZXAgKG9yIGFzayB0aGUgc3lz
-dGVtIHRvIHBpbmcgdGhlIHdhdGNoZG9nIGF0IHJlc3VtZSksIGFuZCBkbyB3aGF0J3MNCj4gPiBi
-ZXN0IGZvciB0aGUgaGVhbHRoIG9mIHRoZSBzeXN0ZW0sIGZyb20ga2VybmVsIHNwYWNlIHdlIGRv
-bid0IGtub3cgaWYgdGhlIHVzZXIgYXBwbGljYXRpb24NCj4gPiBpcyBiZWhhdmluZyBhcyBleHBl
-Y3RlZCBvciBub3QsIHRoZXJlZm9yZSB3ZSBkb24ndCBrbm93IHdoYXQncyBiZXN0IGZvciB0aGUg
-c3lzdGVtLg0KPiA+IFdoeSBkb24ndCB3ZSBsZXQgdXNlciBzcGFjZSBkZWNpZGU/DQo+ID4gSSBn
-dWVzcyBXb2xmcmFtIHByb3Bvc2FsIGdvZXMgaW4gdGhlIHJpZ2h0IGRpcmVjdGlvbj8NCj4gPg0K
-PiA+PiBNYWtlIHRoZSB3YXRjaGRvZyBkdXJpbmcgYSBzdXNwZW5kL3Jlc3VtZSBjeWNsZSBtb3Jl
-IHN0cmluZ2VudCB0aGF0IGR1cmluZw0KPiA+PiBub3JtYWwgb3BlcmF0aW9uLCBlZmZlY3RpdmVs
-eSBsZXR0aW5nIGl0IGV4cGlyZSBlYXJseSAob3IgZWFybGllcikgPw0KPiA+DQo+ID4gQXMgdGhl
-IGRlY2lzaW9uIHRvIGdvIHRvIHNsZWVwIGNvbWVzIGZyb20gdXNlciBzcGFjZSwgSSBkb24ndCB0
-aGluayB3ZSBjYW4gc2F5IHRoYXQNCj4gPiBsZXR0aW5nIHRoZSB3YXRjaGRvZyBleHBpcmUgb24g
-cmVzdW1lIGlzIG1vcmUgc3RyaW5nZW50IChvciB1bmZhaXIpIHRoYW4gZHVyaW5nDQo+ID4gbm9y
-bWFsIG9wZXJhdGlvbiwgaWYgdGhlIHN5c3RlbSBpcyBoZWFsdGh5IHVzZXIgc3BhY2Ugc2hvdWxk
-IGNvbnNpZGVyIHRoZSBkZWxheQ0KPiA+IGludHJvZHVjZWQgYnkgZ29pbmcgdG8gc2xlZXAgYW5k
-IHdha2luZyB1cCBhbmQgaXQgc2hvdWxkIG1ha2Ugc3VyZSB0aGF0IHRoZXJlIGlzDQo+ID4gZW5v
-dWdoIHRpbWUgbGVmdCBvbiB0aGUgd2F0Y2hkb2cgdGltZXIgYmVmb3JlIGFza2luZyB0aGUgc3lz
-dGVtIHRvIGdvIHRvIHNsZWVwLg0KPiA+DQo+DQo+IFNob3VsZCBpdCA/IERvZXMgaXQgPyBJcyB0
-aGVyZSBhbnkgd2F0Y2hkb2cgZGFlbW9uIG91dCB0aGVyZSB3aGljaCBzZW5kcyBhIGZpbmFsDQo+
-IHBpbmcgdG8gdGhlIHdhdGNoZG9nIGp1c3QgYmVmb3JlIHN1c3BlbmQgb3IgaW1tZWRpYXRlbHkg
-YWZ0ZXIgcmVzdW1lID8NCj4NCj4gPj4NCj4gPj4gSSdkIHJhdGhlciBjbGFyaWZ5IGluIHRoZSBk
-b2N1bWVudGF0aW9uIHRoYXQgd2F0Y2hkb2cgZHJpdmVycyBhcmUgZXhwZWN0ZWQNCj4gPj4gdG8g
-cGluZyB0aGUgd2F0Y2hkb2cgYWZ0ZXIgcmVzdW1lLCBpZSB0aGF0IHJlc3RhcnRpbmcgdGhlIHdh
-dGNoZG9nIGFmdGVyDQo+ID4+IHJlc3VtZSBzaG91bGQgYmUgaGFuZGxlZCBsaWtlIHN0YXJ0aW5n
-IHRoZSB3YXRjaGRvZy4NCj4gPg0KPiA+IExldCBtZSB1bmRlcnN0YW5kIHRoaXMgYSBsaXR0bGUg
-Yml0IGJldHRlciwgaWYgeW91IGhhdmUgYSB1c2UgY2FzZSB3aGVyZSB5b3UgZG9uJ3QNCj4gPiB3
-YW50IHRvIGF1dG9tYXRpY2FsbHkgcGluZyB0aGUgd2F0Y2hkb2cgYXQgcmVzdW1lIHlvdSBjYW4n
-dCBnbyB0byBzbGVlcD8NCj4gPg0KPg0KPiBZZXMsIHRoZSBub3JtYWwgdXNlIGNhc2UuIFRoZSBw
-b2ludCBvZiBhIHdhdGNoZG9nIGlzIHRvIHJlY292ZXIgZnJvbSBhIGZhdGFsDQo+IHN5c3RlbSBm
-YWlsdXJlLiBGb3IgYSBub3JtYWwgdXNlIG9mIGEgd2F0Y2hkb2csIGVzcGVjaWFsbHkgb25lIHRo
-YXQgaW52b2x2ZXMNCj4gc3VzcGVuZC9yZXN1bWUgYW5kIGlzIHRodXMgbm90IHRpbWUgY3JpdGlj
-YWwsIHRoYXQgYmVoYXZpb3Igc2hvdWxkIGJlIHJlbGF4ZWQsDQo+IG5vdCBzdHJpbmdlbnQsIGFu
-ZCB1bmRlciBubyBjaXJjdW1zdGFuY2VzIHNob3VsZCByZXN1bHQgaW4gYW4gdW5uZWNlc3Nhcnkg
-Lw0KPiB1bmV4cGVjdGVkIHN5c3RlbSByZWJvb3QuDQo+DQo+ID4+DQo+ID4+Pj4gSGF2aW5nIHNh
-aWQgdGhhdCwgaWYgd2Ugd2VyZSB0byBhZGQgdGhpcyBvcHRpb24sIEkgdGhpbmsgb25seSBhIHNp
-bmdsZQ0KPiA+Pj4+IGZsYWcgd291bGQgYmUgbmVlZGVkIC0gV0RJT0ZfUkVTVU1FX0tFRVAuIEFs
-bCB3ZSBuZWVkIHRvIGRvIGlzIGRlY2xhcmUNCj4gPj4+PiB0aGF0IGEgcGluZyBvbiByZXN1bWUg
-c2hhbGwgYmUgdGhlIGRlZmF1bHQuIEFueXRoaW5nIGVsc2Ugd291bGQgcmVzdWx0DQo+ID4+Pj4g
-aW4gdW5kZWZpbmVkIHBlci1kcml2ZXIgZGVmYXVsdCBiZWhhdmlvci4NCj4gPj4+DQo+ID4+PiBJ
-IHdvdWxkIHZlcnkgbXVjaCBsb3ZlIHRoYXQuIFRvIGJlIGhvbmVzdCwgSSB0aG91Z2h0IHdlIGFs
-cmVhZHkgYXJlIGluDQo+ID4+PiB0aGUgdW5kZWZpbmVkIHBlci1kcml2ZXIgYmVoYXZpb3VyOyB0
-aGlzIGlzIHdoeSBJIGFkZGVkIHR3byBmbGFncywgdG8NCj4gPj4+IG5vdCBjYXVzZSByZWdyZXNz
-aW9ucy4gRGVjbGFyaW5nIGEgZGVmYXVsdCB3b3VsZCBiZSBhIGdyZWF0IGZpcnN0IHN0ZXANCj4g
-Pg0KPiA+IEkgYWdyZWUgd2l0aCBXb2xmcmFtLCB0byBtZSBpdCBsb29rcyBsaWtlIHRoaXMgaXMg
-dW5kZWZpbmVkIHBlci1kcml2ZXINCj4gPiBiZWhhdmlvdXIgYWxyZWFkeQ0KPiA+DQo+DQo+IFBv
-aW50IHdlbGwgbWFkZSwgYnV0IHRoYXQgaXMgcHJpbWFyaWx5IGEgZG9jdW1lbnRhdGlvbiBkZWZp
-Y2llbmN5OiBJZiB0aGUNCj4gZXhwZWN0ZWQgYmVoYXZpb3Igd2FzIHdlbGwgZG9jdW1lbnRlZCwg
-d2Ugd291bGQgbm90IGhhdmUgdGhpcyBhcmd1bWVudC4NCg0KRXhhY3RseQ0KDQo+DQo+IEF0IHRo
-aXMgcG9pbnQgSSB3b3VsZCBiZSBoYXBweSB0byBhY2NlcHQgYSBwYXRjaCBjbGFyaWZ5aW5nIHRo
-ZSBkb2N1bWVudGF0aW9uLg0KPiBVbmxlc3MgSSBnZXQgZ3VpZGFuY2UgZnJvbSBXaW0gc3VnZ2Vz
-dGluZyBvdGhlcndpc2UsIGdvaW5nIGZvcndhcmQgSSB3b24ndA0KPiBhY2NlcHQgYW55IHdhdGNo
-ZG9nIGRyaXZlcnMgd2hpY2ggZG8gbm90IGltcGxlbWVudCByZXNldHRpbmcgdGhlIHRpbWVyIG9u
-DQo+IHJlc3VtZS4NCg0KQWxyaWdodCB0aGVuLCBpbiB3aGljaCBjYXNlIEkgYWdyZWUgd2l0aCB0
-aGUgb3JpZ2luYWwgcHVycG9zZSBvZiB0aGlzIHBhdGNoLg0KDQpUaGFua3MsDQpGYWINCg0KPg0K
-PiBUaGFua3MsDQo+IEd1ZW50ZXINCg0KDQpbaHR0cHM6Ly93d3cyLnJlbmVzYXMuZXUvbWVkaWEv
-ZW1haWwvdW5pY2VmLmpwZ10NCg0KVGhpcyBDaHJpc3RtYXMsIGluc3RlYWQgb2Ygc2VuZGluZyBv
-dXQgY2FyZHMsIFJlbmVzYXMgRWxlY3Ryb25pY3MgRXVyb3BlIGhhdmUgZGVjaWRlZCB0byBzdXBw
-b3J0IFVuaWNlZiB3aXRoIGEgZG9uYXRpb24uIEZvciBmdXJ0aGVyIGRldGFpbHMgY2xpY2sgaGVy
-ZTxodHRwczovL3d3dy51bmljZWYub3JnLz4gdG8gZmluZCBvdXQgYWJvdXQgdGhlIHZhbHVhYmxl
-IHdvcmsgdGhleSBkbywgaGVscGluZyBjaGlsZHJlbiBhbGwgb3ZlciB0aGUgd29ybGQuDQpXZSB3
-b3VsZCBsaWtlIHRvIHRha2UgdGhpcyBvcHBvcnR1bml0eSB0byB3aXNoIHlvdSBhIE1lcnJ5IENo
-cmlzdG1hcyBhbmQgYSBwcm9zcGVyb3VzIE5ldyBZZWFyLg0KDQoNCg0KUmVuZXNhcyBFbGVjdHJv
-bmljcyBFdXJvcGUgTHRkLCBEdWtlcyBNZWFkb3csIE1pbGxib2FyZCBSb2FkLCBCb3VybmUgRW5k
-LCBCdWNraW5naGFtc2hpcmUsIFNMOCA1RkgsIFVLLiBSZWdpc3RlcmVkIGluIEVuZ2xhbmQgJiBX
-YWxlcyB1bmRlciBSZWdpc3RlcmVkIE5vLiAwNDU4NjcwOS4NCg==
+> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> Sent: 04 December 2018 12:02
+> Subject: [RFC] watchdog: renesas_wdt: don't keep timer value during suspe=
+nd/resume
+>
+> After discussing this mail thread [1] again, we concluded that giving
+> userspace enough time to prepare is our favourite option. So, do not
+> keep the time value when suspended but reset it when resuming.
+>
+> [1] https://patchwork.kernel.org/patch/10252209/
+>
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+
+Reviewed-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
+
+> ---
+>
+> Fabrizio: can you agree to that? The R-Car BSP team and we (the R-Car ups=
+tream
+> team) would prefer it this way (knowing it is also not perfect).
+>
+>  drivers/watchdog/renesas_wdt.c | 11 ++++-------
+>  1 file changed, 4 insertions(+), 7 deletions(-)
+>
+> diff --git a/drivers/watchdog/renesas_wdt.c b/drivers/watchdog/renesas_wd=
+t.c
+> index b570962e84f3..9f2307bf727b 100644
+> --- a/drivers/watchdog/renesas_wdt.c
+> +++ b/drivers/watchdog/renesas_wdt.c
+> @@ -48,7 +48,6 @@ struct rwdt_priv {
+>  void __iomem *base;
+>  struct watchdog_device wdev;
+>  unsigned long clk_rate;
+> -u16 time_left;
+>  u8 cks;
+>  };
+>
+> @@ -263,10 +262,9 @@ static int __maybe_unused rwdt_suspend(struct device=
+ *dev)
+>  {
+>  struct rwdt_priv *priv =3D dev_get_drvdata(dev);
+>
+> -if (watchdog_active(&priv->wdev)) {
+> -priv->time_left =3D readw(priv->base + RWTCNT);
+> +if (watchdog_active(&priv->wdev))
+>  rwdt_stop(&priv->wdev);
+> -}
+> +
+>  return 0;
+>  }
+>
+> @@ -274,10 +272,9 @@ static int __maybe_unused rwdt_resume(struct device =
+*dev)
+>  {
+>  struct rwdt_priv *priv =3D dev_get_drvdata(dev);
+>
+> -if (watchdog_active(&priv->wdev)) {
+> +if (watchdog_active(&priv->wdev))
+>  rwdt_start(&priv->wdev);
+> -rwdt_write(priv, priv->time_left, RWTCNT);
+> -}
+> +
+>  return 0;
+>  }
+>
+> --
+> 2.11.0
+
+
+
+[https://www2.renesas.eu/media/email/unicef.jpg]
+
+This Christmas, instead of sending out cards, Renesas Electronics Europe ha=
+ve decided to support Unicef with a donation. For further details click her=
+e<https://www.unicef.org/> to find out about the valuable work they do, hel=
+ping children all over the world.
+We would like to take this opportunity to wish you a Merry Christmas and a =
+prosperous New Year.
+
+
+
+Renesas Electronics Europe Ltd, Dukes Meadow, Millboard Road, Bourne End, B=
+uckinghamshire, SL8 5FH, UK. Registered in England & Wales under Registered=
+ No. 04586709.
