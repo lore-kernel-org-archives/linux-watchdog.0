@@ -1,19 +1,16 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pl1-f196.google.com ([209.85.214.196]:33442 "EHLO
-        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727396AbeLJOXq (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 10 Dec 2018 09:23:46 -0500
-Subject: Re: [RFC] watchdog: renesas_wdt: don't keep timer value during
+Return-Path: <fabrizio.castro@bp.renesas.com>
+Return-path: <fabrizio.castro@bp.renesas.com>
+From: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
+To: Guenter Roeck <linux@roeck-us.net>, Wolfram Sang <wsa@the-dreams.de>
+CC: Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	"linux-renesas-soc@vger.kernel.org" <linux-renesas-soc@vger.kernel.org>,
+	Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Subject: RE: [RFC] watchdog: renesas_wdt: don't keep timer value during
  suspend/resume
-To: Fabrizio Castro <fabrizio.castro@bp.renesas.com>,
-        Wolfram Sang <wsa@the-dreams.de>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        "linux-renesas-soc@vger.kernel.org"
-        <linux-renesas-soc@vger.kernel.org>,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Date: Mon, 10 Dec 2018 14:47:41 +0000
+Message-ID: 
+ <TY1PR01MB177068CC5D65810EDA87A1ADC0A50@TY1PR01MB1770.jpnprd01.prod.outlook.com>
 References: <20181204120146.1923-1-wsa+renesas@sang-engineering.com>
  <476b6d6c-657d-7e10-d0a8-a7aafe61eae9@roeck-us.net>
  <20181207214528.GA2853@kunai>
@@ -21,122 +18,113 @@ References: <20181204120146.1923-1-wsa+renesas@sang-engineering.com>
  <20181209163632.GB1673@kunai>
  <df16092e-f0f6-c085-3daf-303e1cb06428@roeck-us.net>
  <TY1PR01MB17704475D482D7A0B5B9D232C0A50@TY1PR01MB1770.jpnprd01.prod.outlook.com>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <a9802cbe-b050-1f3c-f35f-b9b691f9d32b@roeck-us.net>
-Date: Mon, 10 Dec 2018 06:23:42 -0800
-MIME-Version: 1.0
-In-Reply-To: <TY1PR01MB17704475D482D7A0B5B9D232C0A50@TY1PR01MB1770.jpnprd01.prod.outlook.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+ <a9802cbe-b050-1f3c-f35f-b9b691f9d32b@roeck-us.net>
+In-Reply-To: <a9802cbe-b050-1f3c-f35f-b9b691f9d32b@roeck-us.net>
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 12/10/18 1:37 AM, Fabrizio Castro wrote:
-> Hello Guenter,
-> 
->> From: Guenter Roeck <groeck7@gmail.com> On Behalf Of Guenter Roeck
->> Sent: 09 December 2018 18:13
->> Subject: Re: [RFC] watchdog: renesas_wdt: don't keep timer value during suspend/resume
->>
->> On 12/9/18 8:36 AM, Wolfram Sang wrote:
->>> Hi Guenter,
->>>
->>>>> I can relate to the policy argument, though. Regardless of this patch, I
->>>>> wonder if we can make it configurable from userspace. A draft:
->>>>>
->>>>> #defineWDIOF_RESUME_OPTS0x0800
->>>>>
->>>>> #defineWDIOS_RESUME_KEEP0x0008
->>>>> #defineWDIOS_RESUME_RESET0x0010
->>>>>
->>>>> and then in watchdog_ioctl() under WDIOC_SETOPTIONS:
->>>>>
->>>>> if (!(wdd->info->options & WDIOF_RESUME_OPTS))
->>>>> err = -EOPNOTSUPP;
->>>>> goto break;
->>>>>
->>>>> if (val & WDIOS_RESUME_KEEP)
->>>>> wdd->status |= WDOG_KEEP_TIMER_WHEN_RESUME;
->>>>>
->>>>> if (val & WDIOS_RESUME_RESET)
->>>>> wdd->status ~= ~WDOG_KEEP_TIMER_WHEN_RESUME;
->>>>>
->>>>> So, drivers with WDIOF_RESUME_OPTS could act on the
->>>>> WDOG_KEEP_TIMER_WHEN_RESUME flag.
->>>>>
->>>>> Opinions?
->>>>>
->>>>
->>>> Not entirely sure I understand the use case.
->>>
->>> Well, as I mentioned before, I can understand the "isn't this policy?"
->>> question from Fabrizio. Would be good to hear his opinion on this.
->>>
->> I understand, but what is the use case behind it ? If the watchdog
-> 
-> Is there a documented use case for resetting the counter at resume? I don't
-> think the documentation is clear about this, therefore we need to think ahead
-> 
->> was close to expire on suspend, we want it to expire for good on resume ?
-> 
-> That decision is up to user space, isn't it? The decision to go to sleep comes from
-> user space, therefore user space should consider the time left on the counter before
-> going to sleep (or ask the system to ping the watchdog at resume), and do what's
-> best for the health of the system, from kernel space we don't know if the user application
-> is behaving as expected or not, therefore we don't know what's best for the system.
-> Why don't we let user space decide?
-> I guess Wolfram proposal goes in the right direction?
-> 
->> Make the watchdog during a suspend/resume cycle more stringent that during
->> normal operation, effectively letting it expire early (or earlier) ?
-> 
-> As the decision to go to sleep comes from user space, I don't think we can say that
-> letting the watchdog expire on resume is more stringent (or unfair) than during
-> normal operation, if the system is healthy user space should consider the delay
-> introduced by going to sleep and waking up and it should make sure that there is
-> enough time left on the watchdog timer before asking the system to go to sleep.
-> 
-
-Should it ? Does it ? Is there any watchdog daemon out there which sends a final
-ping to the watchdog just before suspend or immediately after resume ?
-
->>
->> I'd rather clarify in the documentation that watchdog drivers are expected
->> to ping the watchdog after resume, ie that restarting the watchdog after
->> resume should be handled like starting the watchdog.
-> 
-> Let me understand this a little bit better, if you have a use case where you don't
-> want to automatically ping the watchdog at resume you can't go to sleep?
-> 
-
-Yes, the normal use case. The point of a watchdog is to recover from a fatal
-system failure. For a normal use of a watchdog, especially one that involves
-suspend/resume and is thus not time critical, that behavior should be relaxed,
-not stringent, and under no circumstances should result in an unnecessary /
-unexpected system reboot.
-
->>
->>>> Having said that, if we were to add this option, I think only a single
->>>> flag would be needed - WDIOF_RESUME_KEEP. All we need to do is declare
->>>> that a ping on resume shall be the default. Anything else would result
->>>> in undefined per-driver default behavior.
->>>
->>> I would very much love that. To be honest, I thought we already are in
->>> the undefined per-driver behaviour; this is why I added two flags, to
->>> not cause regressions. Declaring a default would be a great first step
-> 
-> I agree with Wolfram, to me it looks like this is undefined per-driver
-> behaviour already
-> 
-
-Point well made, but that is primarily a documentation deficiency: If the
-expected behavior was well documented, we would not have this argument.
-
-At this point I would be happy to accept a patch clarifying the documentation.
-Unless I get guidance from Wim suggesting otherwise, going forward I won't
-accept any watchdog drivers which do not implement resetting the timer on
-resume.
-
-Thanks,
-Guenter
+SGVsbG8gR3VlbnRlciwNCg0KPiBGcm9tOiBHdWVudGVyIFJvZWNrIDxncm9lY2s3QGdtYWlsLmNv
+bT4gT24gQmVoYWxmIE9mIEd1ZW50ZXIgUm9lY2sNCj4gU2VudDogMTAgRGVjZW1iZXIgMjAxOCAx
+NDoyNA0KPiBTdWJqZWN0OiBSZTogW1JGQ10gd2F0Y2hkb2c6IHJlbmVzYXNfd2R0OiBkb24ndCBr
+ZWVwIHRpbWVyIHZhbHVlIGR1cmluZyBzdXNwZW5kL3Jlc3VtZQ0KPg0KPiBPbiAxMi8xMC8xOCAx
+OjM3IEFNLCBGYWJyaXppbyBDYXN0cm8gd3JvdGU6DQo+ID4gSGVsbG8gR3VlbnRlciwNCj4gPg0K
+PiA+PiBGcm9tOiBHdWVudGVyIFJvZWNrIDxncm9lY2s3QGdtYWlsLmNvbT4gT24gQmVoYWxmIE9m
+IEd1ZW50ZXIgUm9lY2sNCj4gPj4gU2VudDogMDkgRGVjZW1iZXIgMjAxOCAxODoxMw0KPiA+PiBT
+dWJqZWN0OiBSZTogW1JGQ10gd2F0Y2hkb2c6IHJlbmVzYXNfd2R0OiBkb24ndCBrZWVwIHRpbWVy
+IHZhbHVlIGR1cmluZyBzdXNwZW5kL3Jlc3VtZQ0KPiA+Pg0KPiA+PiBPbiAxMi85LzE4IDg6MzYg
+QU0sIFdvbGZyYW0gU2FuZyB3cm90ZToNCj4gPj4+IEhpIEd1ZW50ZXIsDQo+ID4+Pg0KPiA+Pj4+
+PiBJIGNhbiByZWxhdGUgdG8gdGhlIHBvbGljeSBhcmd1bWVudCwgdGhvdWdoLiBSZWdhcmRsZXNz
+IG9mIHRoaXMgcGF0Y2gsIEkNCj4gPj4+Pj4gd29uZGVyIGlmIHdlIGNhbiBtYWtlIGl0IGNvbmZp
+Z3VyYWJsZSBmcm9tIHVzZXJzcGFjZS4gQSBkcmFmdDoNCj4gPj4+Pj4NCj4gPj4+Pj4gI2RlZmlu
+ZVdESU9GX1JFU1VNRV9PUFRTMHgwODAwDQo+ID4+Pj4+DQo+ID4+Pj4+ICNkZWZpbmVXRElPU19S
+RVNVTUVfS0VFUDB4MDAwOA0KPiA+Pj4+PiAjZGVmaW5lV0RJT1NfUkVTVU1FX1JFU0VUMHgwMDEw
+DQo+ID4+Pj4+DQo+ID4+Pj4+IGFuZCB0aGVuIGluIHdhdGNoZG9nX2lvY3RsKCkgdW5kZXIgV0RJ
+T0NfU0VUT1BUSU9OUzoNCj4gPj4+Pj4NCj4gPj4+Pj4gaWYgKCEod2RkLT5pbmZvLT5vcHRpb25z
+ICYgV0RJT0ZfUkVTVU1FX09QVFMpKQ0KPiA+Pj4+PiBlcnIgPSAtRU9QTk9UU1VQUDsNCj4gPj4+
+Pj4gZ290byBicmVhazsNCj4gPj4+Pj4NCj4gPj4+Pj4gaWYgKHZhbCAmIFdESU9TX1JFU1VNRV9L
+RUVQKQ0KPiA+Pj4+PiB3ZGQtPnN0YXR1cyB8PSBXRE9HX0tFRVBfVElNRVJfV0hFTl9SRVNVTUU7
+DQo+ID4+Pj4+DQo+ID4+Pj4+IGlmICh2YWwgJiBXRElPU19SRVNVTUVfUkVTRVQpDQo+ID4+Pj4+
+IHdkZC0+c3RhdHVzIH49IH5XRE9HX0tFRVBfVElNRVJfV0hFTl9SRVNVTUU7DQo+ID4+Pj4+DQo+
+ID4+Pj4+IFNvLCBkcml2ZXJzIHdpdGggV0RJT0ZfUkVTVU1FX09QVFMgY291bGQgYWN0IG9uIHRo
+ZQ0KPiA+Pj4+PiBXRE9HX0tFRVBfVElNRVJfV0hFTl9SRVNVTUUgZmxhZy4NCj4gPj4+Pj4NCj4g
+Pj4+Pj4gT3BpbmlvbnM/DQo+ID4+Pj4+DQo+ID4+Pj4NCj4gPj4+PiBOb3QgZW50aXJlbHkgc3Vy
+ZSBJIHVuZGVyc3RhbmQgdGhlIHVzZSBjYXNlLg0KPiA+Pj4NCj4gPj4+IFdlbGwsIGFzIEkgbWVu
+dGlvbmVkIGJlZm9yZSwgSSBjYW4gdW5kZXJzdGFuZCB0aGUgImlzbid0IHRoaXMgcG9saWN5PyIN
+Cj4gPj4+IHF1ZXN0aW9uIGZyb20gRmFicml6aW8uIFdvdWxkIGJlIGdvb2QgdG8gaGVhciBoaXMg
+b3BpbmlvbiBvbiB0aGlzLg0KPiA+Pj4NCj4gPj4gSSB1bmRlcnN0YW5kLCBidXQgd2hhdCBpcyB0
+aGUgdXNlIGNhc2UgYmVoaW5kIGl0ID8gSWYgdGhlIHdhdGNoZG9nDQo+ID4NCj4gPiBJcyB0aGVy
+ZSBhIGRvY3VtZW50ZWQgdXNlIGNhc2UgZm9yIHJlc2V0dGluZyB0aGUgY291bnRlciBhdCByZXN1
+bWU/IEkgZG9uJ3QNCj4gPiB0aGluayB0aGUgZG9jdW1lbnRhdGlvbiBpcyBjbGVhciBhYm91dCB0
+aGlzLCB0aGVyZWZvcmUgd2UgbmVlZCB0byB0aGluayBhaGVhZA0KPiA+DQo+ID4+IHdhcyBjbG9z
+ZSB0byBleHBpcmUgb24gc3VzcGVuZCwgd2Ugd2FudCBpdCB0byBleHBpcmUgZm9yIGdvb2Qgb24g
+cmVzdW1lID8NCj4gPg0KPiA+IFRoYXQgZGVjaXNpb24gaXMgdXAgdG8gdXNlciBzcGFjZSwgaXNu
+J3QgaXQ/IFRoZSBkZWNpc2lvbiB0byBnbyB0byBzbGVlcCBjb21lcyBmcm9tDQo+ID4gdXNlciBz
+cGFjZSwgdGhlcmVmb3JlIHVzZXIgc3BhY2Ugc2hvdWxkIGNvbnNpZGVyIHRoZSB0aW1lIGxlZnQg
+b24gdGhlIGNvdW50ZXIgYmVmb3JlDQo+ID4gZ29pbmcgdG8gc2xlZXAgKG9yIGFzayB0aGUgc3lz
+dGVtIHRvIHBpbmcgdGhlIHdhdGNoZG9nIGF0IHJlc3VtZSksIGFuZCBkbyB3aGF0J3MNCj4gPiBi
+ZXN0IGZvciB0aGUgaGVhbHRoIG9mIHRoZSBzeXN0ZW0sIGZyb20ga2VybmVsIHNwYWNlIHdlIGRv
+bid0IGtub3cgaWYgdGhlIHVzZXIgYXBwbGljYXRpb24NCj4gPiBpcyBiZWhhdmluZyBhcyBleHBl
+Y3RlZCBvciBub3QsIHRoZXJlZm9yZSB3ZSBkb24ndCBrbm93IHdoYXQncyBiZXN0IGZvciB0aGUg
+c3lzdGVtLg0KPiA+IFdoeSBkb24ndCB3ZSBsZXQgdXNlciBzcGFjZSBkZWNpZGU/DQo+ID4gSSBn
+dWVzcyBXb2xmcmFtIHByb3Bvc2FsIGdvZXMgaW4gdGhlIHJpZ2h0IGRpcmVjdGlvbj8NCj4gPg0K
+PiA+PiBNYWtlIHRoZSB3YXRjaGRvZyBkdXJpbmcgYSBzdXNwZW5kL3Jlc3VtZSBjeWNsZSBtb3Jl
+IHN0cmluZ2VudCB0aGF0IGR1cmluZw0KPiA+PiBub3JtYWwgb3BlcmF0aW9uLCBlZmZlY3RpdmVs
+eSBsZXR0aW5nIGl0IGV4cGlyZSBlYXJseSAob3IgZWFybGllcikgPw0KPiA+DQo+ID4gQXMgdGhl
+IGRlY2lzaW9uIHRvIGdvIHRvIHNsZWVwIGNvbWVzIGZyb20gdXNlciBzcGFjZSwgSSBkb24ndCB0
+aGluayB3ZSBjYW4gc2F5IHRoYXQNCj4gPiBsZXR0aW5nIHRoZSB3YXRjaGRvZyBleHBpcmUgb24g
+cmVzdW1lIGlzIG1vcmUgc3RyaW5nZW50IChvciB1bmZhaXIpIHRoYW4gZHVyaW5nDQo+ID4gbm9y
+bWFsIG9wZXJhdGlvbiwgaWYgdGhlIHN5c3RlbSBpcyBoZWFsdGh5IHVzZXIgc3BhY2Ugc2hvdWxk
+IGNvbnNpZGVyIHRoZSBkZWxheQ0KPiA+IGludHJvZHVjZWQgYnkgZ29pbmcgdG8gc2xlZXAgYW5k
+IHdha2luZyB1cCBhbmQgaXQgc2hvdWxkIG1ha2Ugc3VyZSB0aGF0IHRoZXJlIGlzDQo+ID4gZW5v
+dWdoIHRpbWUgbGVmdCBvbiB0aGUgd2F0Y2hkb2cgdGltZXIgYmVmb3JlIGFza2luZyB0aGUgc3lz
+dGVtIHRvIGdvIHRvIHNsZWVwLg0KPiA+DQo+DQo+IFNob3VsZCBpdCA/IERvZXMgaXQgPyBJcyB0
+aGVyZSBhbnkgd2F0Y2hkb2cgZGFlbW9uIG91dCB0aGVyZSB3aGljaCBzZW5kcyBhIGZpbmFsDQo+
+IHBpbmcgdG8gdGhlIHdhdGNoZG9nIGp1c3QgYmVmb3JlIHN1c3BlbmQgb3IgaW1tZWRpYXRlbHkg
+YWZ0ZXIgcmVzdW1lID8NCj4NCj4gPj4NCj4gPj4gSSdkIHJhdGhlciBjbGFyaWZ5IGluIHRoZSBk
+b2N1bWVudGF0aW9uIHRoYXQgd2F0Y2hkb2cgZHJpdmVycyBhcmUgZXhwZWN0ZWQNCj4gPj4gdG8g
+cGluZyB0aGUgd2F0Y2hkb2cgYWZ0ZXIgcmVzdW1lLCBpZSB0aGF0IHJlc3RhcnRpbmcgdGhlIHdh
+dGNoZG9nIGFmdGVyDQo+ID4+IHJlc3VtZSBzaG91bGQgYmUgaGFuZGxlZCBsaWtlIHN0YXJ0aW5n
+IHRoZSB3YXRjaGRvZy4NCj4gPg0KPiA+IExldCBtZSB1bmRlcnN0YW5kIHRoaXMgYSBsaXR0bGUg
+Yml0IGJldHRlciwgaWYgeW91IGhhdmUgYSB1c2UgY2FzZSB3aGVyZSB5b3UgZG9uJ3QNCj4gPiB3
+YW50IHRvIGF1dG9tYXRpY2FsbHkgcGluZyB0aGUgd2F0Y2hkb2cgYXQgcmVzdW1lIHlvdSBjYW4n
+dCBnbyB0byBzbGVlcD8NCj4gPg0KPg0KPiBZZXMsIHRoZSBub3JtYWwgdXNlIGNhc2UuIFRoZSBw
+b2ludCBvZiBhIHdhdGNoZG9nIGlzIHRvIHJlY292ZXIgZnJvbSBhIGZhdGFsDQo+IHN5c3RlbSBm
+YWlsdXJlLiBGb3IgYSBub3JtYWwgdXNlIG9mIGEgd2F0Y2hkb2csIGVzcGVjaWFsbHkgb25lIHRo
+YXQgaW52b2x2ZXMNCj4gc3VzcGVuZC9yZXN1bWUgYW5kIGlzIHRodXMgbm90IHRpbWUgY3JpdGlj
+YWwsIHRoYXQgYmVoYXZpb3Igc2hvdWxkIGJlIHJlbGF4ZWQsDQo+IG5vdCBzdHJpbmdlbnQsIGFu
+ZCB1bmRlciBubyBjaXJjdW1zdGFuY2VzIHNob3VsZCByZXN1bHQgaW4gYW4gdW5uZWNlc3Nhcnkg
+Lw0KPiB1bmV4cGVjdGVkIHN5c3RlbSByZWJvb3QuDQo+DQo+ID4+DQo+ID4+Pj4gSGF2aW5nIHNh
+aWQgdGhhdCwgaWYgd2Ugd2VyZSB0byBhZGQgdGhpcyBvcHRpb24sIEkgdGhpbmsgb25seSBhIHNp
+bmdsZQ0KPiA+Pj4+IGZsYWcgd291bGQgYmUgbmVlZGVkIC0gV0RJT0ZfUkVTVU1FX0tFRVAuIEFs
+bCB3ZSBuZWVkIHRvIGRvIGlzIGRlY2xhcmUNCj4gPj4+PiB0aGF0IGEgcGluZyBvbiByZXN1bWUg
+c2hhbGwgYmUgdGhlIGRlZmF1bHQuIEFueXRoaW5nIGVsc2Ugd291bGQgcmVzdWx0DQo+ID4+Pj4g
+aW4gdW5kZWZpbmVkIHBlci1kcml2ZXIgZGVmYXVsdCBiZWhhdmlvci4NCj4gPj4+DQo+ID4+PiBJ
+IHdvdWxkIHZlcnkgbXVjaCBsb3ZlIHRoYXQuIFRvIGJlIGhvbmVzdCwgSSB0aG91Z2h0IHdlIGFs
+cmVhZHkgYXJlIGluDQo+ID4+PiB0aGUgdW5kZWZpbmVkIHBlci1kcml2ZXIgYmVoYXZpb3VyOyB0
+aGlzIGlzIHdoeSBJIGFkZGVkIHR3byBmbGFncywgdG8NCj4gPj4+IG5vdCBjYXVzZSByZWdyZXNz
+aW9ucy4gRGVjbGFyaW5nIGEgZGVmYXVsdCB3b3VsZCBiZSBhIGdyZWF0IGZpcnN0IHN0ZXANCj4g
+Pg0KPiA+IEkgYWdyZWUgd2l0aCBXb2xmcmFtLCB0byBtZSBpdCBsb29rcyBsaWtlIHRoaXMgaXMg
+dW5kZWZpbmVkIHBlci1kcml2ZXINCj4gPiBiZWhhdmlvdXIgYWxyZWFkeQ0KPiA+DQo+DQo+IFBv
+aW50IHdlbGwgbWFkZSwgYnV0IHRoYXQgaXMgcHJpbWFyaWx5IGEgZG9jdW1lbnRhdGlvbiBkZWZp
+Y2llbmN5OiBJZiB0aGUNCj4gZXhwZWN0ZWQgYmVoYXZpb3Igd2FzIHdlbGwgZG9jdW1lbnRlZCwg
+d2Ugd291bGQgbm90IGhhdmUgdGhpcyBhcmd1bWVudC4NCg0KRXhhY3RseQ0KDQo+DQo+IEF0IHRo
+aXMgcG9pbnQgSSB3b3VsZCBiZSBoYXBweSB0byBhY2NlcHQgYSBwYXRjaCBjbGFyaWZ5aW5nIHRo
+ZSBkb2N1bWVudGF0aW9uLg0KPiBVbmxlc3MgSSBnZXQgZ3VpZGFuY2UgZnJvbSBXaW0gc3VnZ2Vz
+dGluZyBvdGhlcndpc2UsIGdvaW5nIGZvcndhcmQgSSB3b24ndA0KPiBhY2NlcHQgYW55IHdhdGNo
+ZG9nIGRyaXZlcnMgd2hpY2ggZG8gbm90IGltcGxlbWVudCByZXNldHRpbmcgdGhlIHRpbWVyIG9u
+DQo+IHJlc3VtZS4NCg0KQWxyaWdodCB0aGVuLCBpbiB3aGljaCBjYXNlIEkgYWdyZWUgd2l0aCB0
+aGUgb3JpZ2luYWwgcHVycG9zZSBvZiB0aGlzIHBhdGNoLg0KDQpUaGFua3MsDQpGYWINCg0KPg0K
+PiBUaGFua3MsDQo+IEd1ZW50ZXINCg0KDQpbaHR0cHM6Ly93d3cyLnJlbmVzYXMuZXUvbWVkaWEv
+ZW1haWwvdW5pY2VmLmpwZ10NCg0KVGhpcyBDaHJpc3RtYXMsIGluc3RlYWQgb2Ygc2VuZGluZyBv
+dXQgY2FyZHMsIFJlbmVzYXMgRWxlY3Ryb25pY3MgRXVyb3BlIGhhdmUgZGVjaWRlZCB0byBzdXBw
+b3J0IFVuaWNlZiB3aXRoIGEgZG9uYXRpb24uIEZvciBmdXJ0aGVyIGRldGFpbHMgY2xpY2sgaGVy
+ZTxodHRwczovL3d3dy51bmljZWYub3JnLz4gdG8gZmluZCBvdXQgYWJvdXQgdGhlIHZhbHVhYmxl
+IHdvcmsgdGhleSBkbywgaGVscGluZyBjaGlsZHJlbiBhbGwgb3ZlciB0aGUgd29ybGQuDQpXZSB3
+b3VsZCBsaWtlIHRvIHRha2UgdGhpcyBvcHBvcnR1bml0eSB0byB3aXNoIHlvdSBhIE1lcnJ5IENo
+cmlzdG1hcyBhbmQgYSBwcm9zcGVyb3VzIE5ldyBZZWFyLg0KDQoNCg0KUmVuZXNhcyBFbGVjdHJv
+bmljcyBFdXJvcGUgTHRkLCBEdWtlcyBNZWFkb3csIE1pbGxib2FyZCBSb2FkLCBCb3VybmUgRW5k
+LCBCdWNraW5naGFtc2hpcmUsIFNMOCA1RkgsIFVLLiBSZWdpc3RlcmVkIGluIEVuZ2xhbmQgJiBX
+YWxlcyB1bmRlciBSZWdpc3RlcmVkIE5vLiAwNDU4NjcwOS4NCg==
