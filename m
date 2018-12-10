@@ -1,15 +1,22 @@
-Return-Path: <fabrizio.castro@bp.renesas.com>
-Return-path: <fabrizio.castro@bp.renesas.com>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-eopbgr1410120.outbound.protection.outlook.com ([40.107.141.120]:26272
+        "EHLO JPN01-OS2-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726888AbeLJOrs (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 10 Dec 2018 09:47:48 -0500
 From: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
-To: Guenter Roeck <linux@roeck-us.net>, Wolfram Sang <wsa@the-dreams.de>
+To: Guenter Roeck <linux@roeck-us.net>,
+        Wolfram Sang <wsa@the-dreams.de>
 CC: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	"linux-renesas-soc@vger.kernel.org" <linux-renesas-soc@vger.kernel.org>,
-	Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+        "linux-renesas-soc@vger.kernel.org"
+        <linux-renesas-soc@vger.kernel.org>,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 Subject: RE: [RFC] watchdog: renesas_wdt: don't keep timer value during
  suspend/resume
 Date: Mon, 10 Dec 2018 14:47:41 +0000
-Message-ID: 
+Message-ID:
  <TY1PR01MB177068CC5D65810EDA87A1ADC0A50@TY1PR01MB1770.jpnprd01.prod.outlook.com>
 References: <20181204120146.1923-1-wsa+renesas@sang-engineering.com>
  <476b6d6c-657d-7e10-d0a8-a7aafe61eae9@roeck-us.net>
@@ -24,7 +31,9 @@ Content-Language: en-US
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-List-ID: <linux-watchdog@vger.kernel.org>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
+Message-ID: <20181210144741.SmlKW7PW8s83-sjWA8z55V6WnLpWK9n7opqh6naUbzk@z>
 
 SGVsbG8gR3VlbnRlciwNCg0KPiBGcm9tOiBHdWVudGVyIFJvZWNrIDxncm9lY2s3QGdtYWlsLmNv
 bT4gT24gQmVoYWxmIE9mIEd1ZW50ZXIgUm9lY2sNCj4gU2VudDogMTAgRGVjZW1iZXIgMjAxOCAx
