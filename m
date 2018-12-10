@@ -1,69 +1,117 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:54352 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726097AbeLISkN (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 9 Dec 2018 13:40:13 -0500
-Date: Sun, 9 Dec 2018 19:40:11 +0100
-From: Wolfram Sang <wsa@the-dreams.de>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        linux-watchdog@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Fabrizio Castro <fabrizio.castro@bp.renesas.com>
-Subject: Re: [RFC] watchdog: renesas_wdt: don't keep timer value during
+Received: from mail-eopbgr1400122.outbound.protection.outlook.com ([40.107.140.122]:45082
+        "EHLO JPN01-TY1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726029AbeLJJhh (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 10 Dec 2018 04:37:37 -0500
+From: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
+To: Guenter Roeck <linux@roeck-us.net>,
+        Wolfram Sang <wsa@the-dreams.de>
+CC: Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+        "linux-renesas-soc@vger.kernel.org"
+        <linux-renesas-soc@vger.kernel.org>,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Subject: RE: [RFC] watchdog: renesas_wdt: don't keep timer value during
  suspend/resume
-Message-ID: <20181209184010.GA3585@kunai>
+Date: Mon, 10 Dec 2018 09:37:30 +0000
+Message-ID: <TY1PR01MB17704475D482D7A0B5B9D232C0A50@TY1PR01MB1770.jpnprd01.prod.outlook.com>
 References: <20181204120146.1923-1-wsa+renesas@sang-engineering.com>
  <476b6d6c-657d-7e10-d0a8-a7aafe61eae9@roeck-us.net>
  <20181207214528.GA2853@kunai>
  <eb86c5d7-ab13-df05-0d0f-9dad811a6a98@roeck-us.net>
  <20181209163632.GB1673@kunai>
  <df16092e-f0f6-c085-3daf-303e1cb06428@roeck-us.net>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="7JfCtLOvnd9MIVvH"
-Content-Disposition: inline
 In-Reply-To: <df16092e-f0f6-c085-3daf-303e1cb06428@roeck-us.net>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-
---7JfCtLOvnd9MIVvH
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-
-> I understand, but what is the use case behind it ? If the watchdog
-
-I'll leave this discussion to Fabrizio...
-
-> I'd rather clarify in the documentation that watchdog drivers are expected
-> to ping the watchdog after resume, ie that restarting the watchdog after
-> resume should be handled like starting the watchdog.
-
-... because this (a documented default) is exactly what *I* am
-interested in :)
-
-
---7JfCtLOvnd9MIVvH
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlwNYYYACgkQFA3kzBSg
-KbYF3Q/+KGoVRveBm8uigLk/RRt8BBYK7TG17p03I6EE+29uhMowE+ySsX/ToSyQ
-gfGXouE6gH2+jWKYK95T7UfQbjmQeMTGhEkBYZuStwjkqCVjutLs0SSCdR0be//T
-/A0fPlOzd8khGiA0DSSpvZzrFlrAcKZJJZqalUqf8vpgWWeuDUJ5GXITNZj0wsEN
-qH+sGoGWBHI/UPj+FbsacOLK8Q3kF63/13JFckIwv4a2LyEBBWTfLt7f18n6V0ZV
-ml7KaM06qqxPS3SJBrQN0srG0Xzx6ehpbjfoRClUPXdgRBqf7vXiDmpYCZUjRqXT
-tKrtczSVRPnedj5Dix5BmA6Q6dBIZ2WvlTKRq/8kMqk7JICE6KsW4JSJCmXnBd57
-3h5wregOKeDiJx4kQb2wHN9UeSP2cRSwVBQhnWi3F65oKyCFbihTmuNlBc+XN3oC
-hj4JsqGVEgDSOx8K1FIcSZ0mXBJyKaTDO6aBrRCrvLnKS8VslJLsUWO3R6cn9z7x
-cXwHWh105605LtC1VcZdFOWlW+N/L3czkfSXSJuE6jI/BS571kfCEF39W9ALrKCR
-QHSj3MnPMmKs3lNS6SibZ0GGoSaqRvzVHsoDk3G1ZyBt9UeYTcTHhmKjMdOSOiOl
-lXN5VD+vgmbG1FL/4RD4AEoTE/YHTXbn8t1Ju0DLAGW4kbs/cxA=
-=4nqP
------END PGP SIGNATURE-----
-
---7JfCtLOvnd9MIVvH--
+SGVsbG8gR3VlbnRlciwNCg0KPiBGcm9tOiBHdWVudGVyIFJvZWNrIDxncm9lY2s3QGdtYWlsLmNv
+bT4gT24gQmVoYWxmIE9mIEd1ZW50ZXIgUm9lY2sNCj4gU2VudDogMDkgRGVjZW1iZXIgMjAxOCAx
+ODoxMw0KPiBTdWJqZWN0OiBSZTogW1JGQ10gd2F0Y2hkb2c6IHJlbmVzYXNfd2R0OiBkb24ndCBr
+ZWVwIHRpbWVyIHZhbHVlIGR1cmluZyBzdXNwZW5kL3Jlc3VtZQ0KPg0KPiBPbiAxMi85LzE4IDg6
+MzYgQU0sIFdvbGZyYW0gU2FuZyB3cm90ZToNCj4gPiBIaSBHdWVudGVyLA0KPiA+DQo+ID4+PiBJ
+IGNhbiByZWxhdGUgdG8gdGhlIHBvbGljeSBhcmd1bWVudCwgdGhvdWdoLiBSZWdhcmRsZXNzIG9m
+IHRoaXMgcGF0Y2gsIEkNCj4gPj4+IHdvbmRlciBpZiB3ZSBjYW4gbWFrZSBpdCBjb25maWd1cmFi
+bGUgZnJvbSB1c2Vyc3BhY2UuIEEgZHJhZnQ6DQo+ID4+Pg0KPiA+Pj4gI2RlZmluZVdESU9GX1JF
+U1VNRV9PUFRTMHgwODAwDQo+ID4+Pg0KPiA+Pj4gI2RlZmluZVdESU9TX1JFU1VNRV9LRUVQMHgw
+MDA4DQo+ID4+PiAjZGVmaW5lV0RJT1NfUkVTVU1FX1JFU0VUMHgwMDEwDQo+ID4+Pg0KPiA+Pj4g
+YW5kIHRoZW4gaW4gd2F0Y2hkb2dfaW9jdGwoKSB1bmRlciBXRElPQ19TRVRPUFRJT05TOg0KPiA+
+Pj4NCj4gPj4+IGlmICghKHdkZC0+aW5mby0+b3B0aW9ucyAmIFdESU9GX1JFU1VNRV9PUFRTKSkN
+Cj4gPj4+IGVyciA9IC1FT1BOT1RTVVBQOw0KPiA+Pj4gZ290byBicmVhazsNCj4gPj4+DQo+ID4+
+PiBpZiAodmFsICYgV0RJT1NfUkVTVU1FX0tFRVApDQo+ID4+PiB3ZGQtPnN0YXR1cyB8PSBXRE9H
+X0tFRVBfVElNRVJfV0hFTl9SRVNVTUU7DQo+ID4+Pg0KPiA+Pj4gaWYgKHZhbCAmIFdESU9TX1JF
+U1VNRV9SRVNFVCkNCj4gPj4+IHdkZC0+c3RhdHVzIH49IH5XRE9HX0tFRVBfVElNRVJfV0hFTl9S
+RVNVTUU7DQo+ID4+Pg0KPiA+Pj4gU28sIGRyaXZlcnMgd2l0aCBXRElPRl9SRVNVTUVfT1BUUyBj
+b3VsZCBhY3Qgb24gdGhlDQo+ID4+PiBXRE9HX0tFRVBfVElNRVJfV0hFTl9SRVNVTUUgZmxhZy4N
+Cj4gPj4+DQo+ID4+PiBPcGluaW9ucz8NCj4gPj4+DQo+ID4+DQo+ID4+IE5vdCBlbnRpcmVseSBz
+dXJlIEkgdW5kZXJzdGFuZCB0aGUgdXNlIGNhc2UuDQo+ID4NCj4gPiBXZWxsLCBhcyBJIG1lbnRp
+b25lZCBiZWZvcmUsIEkgY2FuIHVuZGVyc3RhbmQgdGhlICJpc24ndCB0aGlzIHBvbGljeT8iDQo+
+ID4gcXVlc3Rpb24gZnJvbSBGYWJyaXppby4gV291bGQgYmUgZ29vZCB0byBoZWFyIGhpcyBvcGlu
+aW9uIG9uIHRoaXMuDQo+ID4NCj4gSSB1bmRlcnN0YW5kLCBidXQgd2hhdCBpcyB0aGUgdXNlIGNh
+c2UgYmVoaW5kIGl0ID8gSWYgdGhlIHdhdGNoZG9nDQoNCklzIHRoZXJlIGEgZG9jdW1lbnRlZCB1
+c2UgY2FzZSBmb3IgcmVzZXR0aW5nIHRoZSBjb3VudGVyIGF0IHJlc3VtZT8gSSBkb24ndA0KdGhp
+bmsgdGhlIGRvY3VtZW50YXRpb24gaXMgY2xlYXIgYWJvdXQgdGhpcywgdGhlcmVmb3JlIHdlIG5l
+ZWQgdG8gdGhpbmsgYWhlYWQNCg0KPiB3YXMgY2xvc2UgdG8gZXhwaXJlIG9uIHN1c3BlbmQsIHdl
+IHdhbnQgaXQgdG8gZXhwaXJlIGZvciBnb29kIG9uIHJlc3VtZSA/DQoNClRoYXQgZGVjaXNpb24g
+aXMgdXAgdG8gdXNlciBzcGFjZSwgaXNuJ3QgaXQ/IFRoZSBkZWNpc2lvbiB0byBnbyB0byBzbGVl
+cCBjb21lcyBmcm9tDQp1c2VyIHNwYWNlLCB0aGVyZWZvcmUgdXNlciBzcGFjZSBzaG91bGQgY29u
+c2lkZXIgdGhlIHRpbWUgbGVmdCBvbiB0aGUgY291bnRlciBiZWZvcmUNCmdvaW5nIHRvIHNsZWVw
+IChvciBhc2sgdGhlIHN5c3RlbSB0byBwaW5nIHRoZSB3YXRjaGRvZyBhdCByZXN1bWUpLCBhbmQg
+ZG8gd2hhdCdzDQpiZXN0IGZvciB0aGUgaGVhbHRoIG9mIHRoZSBzeXN0ZW0sIGZyb20ga2VybmVs
+IHNwYWNlIHdlIGRvbid0IGtub3cgaWYgdGhlIHVzZXIgYXBwbGljYXRpb24NCmlzIGJlaGF2aW5n
+IGFzIGV4cGVjdGVkIG9yIG5vdCwgdGhlcmVmb3JlIHdlIGRvbid0IGtub3cgd2hhdCdzIGJlc3Qg
+Zm9yIHRoZSBzeXN0ZW0uDQpXaHkgZG9uJ3Qgd2UgbGV0IHVzZXIgc3BhY2UgZGVjaWRlPw0KSSBn
+dWVzcyBXb2xmcmFtIHByb3Bvc2FsIGdvZXMgaW4gdGhlIHJpZ2h0IGRpcmVjdGlvbj8NCg0KPiBN
+YWtlIHRoZSB3YXRjaGRvZyBkdXJpbmcgYSBzdXNwZW5kL3Jlc3VtZSBjeWNsZSBtb3JlIHN0cmlu
+Z2VudCB0aGF0IGR1cmluZw0KPiBub3JtYWwgb3BlcmF0aW9uLCBlZmZlY3RpdmVseSBsZXR0aW5n
+IGl0IGV4cGlyZSBlYXJseSAob3IgZWFybGllcikgPw0KDQpBcyB0aGUgZGVjaXNpb24gdG8gZ28g
+dG8gc2xlZXAgY29tZXMgZnJvbSB1c2VyIHNwYWNlLCBJIGRvbid0IHRoaW5rIHdlIGNhbiBzYXkg
+dGhhdA0KbGV0dGluZyB0aGUgd2F0Y2hkb2cgZXhwaXJlIG9uIHJlc3VtZSBpcyBtb3JlIHN0cmlu
+Z2VudCAob3IgdW5mYWlyKSB0aGFuIGR1cmluZw0Kbm9ybWFsIG9wZXJhdGlvbiwgaWYgdGhlIHN5
+c3RlbSBpcyBoZWFsdGh5IHVzZXIgc3BhY2Ugc2hvdWxkIGNvbnNpZGVyIHRoZSBkZWxheQ0KaW50
+cm9kdWNlZCBieSBnb2luZyB0byBzbGVlcCBhbmQgd2FraW5nIHVwIGFuZCBpdCBzaG91bGQgbWFr
+ZSBzdXJlIHRoYXQgdGhlcmUgaXMNCmVub3VnaCB0aW1lIGxlZnQgb24gdGhlIHdhdGNoZG9nIHRp
+bWVyIGJlZm9yZSBhc2tpbmcgdGhlIHN5c3RlbSB0byBnbyB0byBzbGVlcC4NCg0KPg0KPiBJJ2Qg
+cmF0aGVyIGNsYXJpZnkgaW4gdGhlIGRvY3VtZW50YXRpb24gdGhhdCB3YXRjaGRvZyBkcml2ZXJz
+IGFyZSBleHBlY3RlZA0KPiB0byBwaW5nIHRoZSB3YXRjaGRvZyBhZnRlciByZXN1bWUsIGllIHRo
+YXQgcmVzdGFydGluZyB0aGUgd2F0Y2hkb2cgYWZ0ZXINCj4gcmVzdW1lIHNob3VsZCBiZSBoYW5k
+bGVkIGxpa2Ugc3RhcnRpbmcgdGhlIHdhdGNoZG9nLg0KDQpMZXQgbWUgdW5kZXJzdGFuZCB0aGlz
+IGEgbGl0dGxlIGJpdCBiZXR0ZXIsIGlmIHlvdSBoYXZlIGEgdXNlIGNhc2Ugd2hlcmUgeW91IGRv
+bid0DQp3YW50IHRvIGF1dG9tYXRpY2FsbHkgcGluZyB0aGUgd2F0Y2hkb2cgYXQgcmVzdW1lIHlv
+dSBjYW4ndCBnbyB0byBzbGVlcD8NCg0KPg0KPiA+PiBIYXZpbmcgc2FpZCB0aGF0LCBpZiB3ZSB3
+ZXJlIHRvIGFkZCB0aGlzIG9wdGlvbiwgSSB0aGluayBvbmx5IGEgc2luZ2xlDQo+ID4+IGZsYWcg
+d291bGQgYmUgbmVlZGVkIC0gV0RJT0ZfUkVTVU1FX0tFRVAuIEFsbCB3ZSBuZWVkIHRvIGRvIGlz
+IGRlY2xhcmUNCj4gPj4gdGhhdCBhIHBpbmcgb24gcmVzdW1lIHNoYWxsIGJlIHRoZSBkZWZhdWx0
+LiBBbnl0aGluZyBlbHNlIHdvdWxkIHJlc3VsdA0KPiA+PiBpbiB1bmRlZmluZWQgcGVyLWRyaXZl
+ciBkZWZhdWx0IGJlaGF2aW9yLg0KPiA+DQo+ID4gSSB3b3VsZCB2ZXJ5IG11Y2ggbG92ZSB0aGF0
+LiBUbyBiZSBob25lc3QsIEkgdGhvdWdodCB3ZSBhbHJlYWR5IGFyZSBpbg0KPiA+IHRoZSB1bmRl
+ZmluZWQgcGVyLWRyaXZlciBiZWhhdmlvdXI7IHRoaXMgaXMgd2h5IEkgYWRkZWQgdHdvIGZsYWdz
+LCB0bw0KPiA+IG5vdCBjYXVzZSByZWdyZXNzaW9ucy4gRGVjbGFyaW5nIGEgZGVmYXVsdCB3b3Vs
+ZCBiZSBhIGdyZWF0IGZpcnN0IHN0ZXANCg0KSSBhZ3JlZSB3aXRoIFdvbGZyYW0sIHRvIG1lIGl0
+IGxvb2tzIGxpa2UgdGhpcyBpcyB1bmRlZmluZWQgcGVyLWRyaXZlcg0KYmVoYXZpb3VyIGFscmVh
+ZHkNCg0KSSBob3BlIHRoaXMgaGVscHMuDQoNCkZhYg0KDQo+DQo+IEhvdyB3b3VsZCBhZGRpbmcg
+dHdvIGZsYWcgYml0cyAob3Igb25lLCBmb3IgdGhhdCBtYXR0ZXIpIGNoYW5nZSB0aGUNCj4gY3Vy
+cmVudCAodW5kZWZpbmVkKSBiZWhhdmlvciA/DQo+IEFsc28sIHdoYXQgZXhhY3RseSB3b3VsZCBi
+ZSB0aGUgcmVncmVzc2lvbiA/IEV4aXN0aW5nIGRyaXZlcnMgd291bGQNCj4gbm90IGNoYW5nZSB0
+aGVpciBiZWhhdmlvciwgbmVpdGhlciB3aXRoIG9uZSBvciB0d28gb3IgdGhyZWUgZmxhZyBiaXRz
+Lg0KPg0KPiBUaGFua3MsDQo+IEd1ZW50ZXINCj4NCj4gPiBJTUhPLCBhbmQgdGhlbiB3ZSBjYW4g
+YnVpbGQgdGhlIFdESU9GX1JFU1VNRV9LRUVQIG9wdGlvbiBvbiB0b3Agb2YgaXQsDQo+ID4gaWYg
+bmVlZGVkLiBCdXQgZm9yIGNsYXJpdHksIHRoZSBmaXJzdCBzdGVwIHNlZW1zIHRvIGJlIGEgZ29v
+ZCBpZGVhIGluDQo+ID4gYW55IGNhc2UsIEknZCBzYXkuDQo+ID4gID4gVGhhbmtzLA0KPiA+DQo+
+ID4gICAgIFdvbGZyYW0NCj4gPg0KPiA+DQoNCg0KDQpbaHR0cHM6Ly93d3cyLnJlbmVzYXMuZXUv
+bWVkaWEvZW1haWwvdW5pY2VmLmpwZ10NCg0KVGhpcyBDaHJpc3RtYXMsIGluc3RlYWQgb2Ygc2Vu
+ZGluZyBvdXQgY2FyZHMsIFJlbmVzYXMgRWxlY3Ryb25pY3MgRXVyb3BlIGhhdmUgZGVjaWRlZCB0
+byBzdXBwb3J0IFVuaWNlZiB3aXRoIGEgZG9uYXRpb24uIEZvciBmdXJ0aGVyIGRldGFpbHMgY2xp
+Y2sgaGVyZTxodHRwczovL3d3dy51bmljZWYub3JnLz4gdG8gZmluZCBvdXQgYWJvdXQgdGhlIHZh
+bHVhYmxlIHdvcmsgdGhleSBkbywgaGVscGluZyBjaGlsZHJlbiBhbGwgb3ZlciB0aGUgd29ybGQu
+DQpXZSB3b3VsZCBsaWtlIHRvIHRha2UgdGhpcyBvcHBvcnR1bml0eSB0byB3aXNoIHlvdSBhIE1l
+cnJ5IENocmlzdG1hcyBhbmQgYSBwcm9zcGVyb3VzIE5ldyBZZWFyLg0KDQoNCg0KUmVuZXNhcyBF
+bGVjdHJvbmljcyBFdXJvcGUgTHRkLCBEdWtlcyBNZWFkb3csIE1pbGxib2FyZCBSb2FkLCBCb3Vy
+bmUgRW5kLCBCdWNraW5naGFtc2hpcmUsIFNMOCA1RkgsIFVLLiBSZWdpc3RlcmVkIGluIEVuZ2xh
+bmQgJiBXYWxlcyB1bmRlciBSZWdpc3RlcmVkIE5vLiAwNDU4NjcwOS4NCg==
