@@ -1,239 +1,162 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pf1-f196.google.com ([209.85.210.196]:38999 "EHLO
-        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726194AbeLIUv3 (ORCPT
+Received: from mail-lf1-f66.google.com ([209.85.167.66]:34519 "EHLO
+        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726275AbeLKMEX (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 9 Dec 2018 15:51:29 -0500
-Received: by mail-pf1-f196.google.com with SMTP id c72so4351083pfc.6
-        for <linux-watchdog@vger.kernel.org>; Sun, 09 Dec 2018 12:51:28 -0800 (PST)
-Subject: Re: [PATCH v2] watchdog: tqmx86: Add watchdog driver for the IO
- controller
-To: Andrew Lunn <andrew@lunn.ch>, wim@linux-watchdog.org
-Cc: linux-watchdog@vger.kernel.org
-References: <1544386107-20503-1-git-send-email-andrew@lunn.ch>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <a596407a-6b6f-a9f7-519a-094da5efc374@roeck-us.net>
-Date: Sun, 9 Dec 2018 12:51:25 -0800
+        Tue, 11 Dec 2018 07:04:23 -0500
+Received: by mail-lf1-f66.google.com with SMTP id p6so10594063lfc.1
+        for <linux-watchdog@vger.kernel.org>; Tue, 11 Dec 2018 04:04:21 -0800 (PST)
+From: Linus Walleij <linus.walleij@linaro.org>
+To: Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Cc: linux-watchdog@vger.kernel.org,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Florian Fainelli <f.fainelli@gmail.com>
+Subject: [PATCH v3] watchdog: mtx-1: Convert to use GPIO descriptor
+Date: Tue, 11 Dec 2018 13:04:12 +0100
+Message-Id: <20181211120412.27773-1-linus.walleij@linaro.org>
 MIME-Version: 1.0
-In-Reply-To: <1544386107-20503-1-git-send-email-andrew@lunn.ch>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 12/9/18 12:08 PM, Andrew Lunn wrote:
-> Some TQ-Systems ComExpress modules have an IO controller with a
-> watchdog time.
-> 
-watchdog timer ?
+This converts the MTX-1 driver to grab a GPIO descriptor
+associated with the device instead of using a resource with
+a global GPIO number.
 
-> Signed-off-by: Andrew Lunn <andrew@lunn.ch>
-> ---
-> v2:
-> Fix various typos
-> Sort header files
-> Use watchdog_init_timeout(() to handle module parameter
-> Get core to validate timeout
-> Remove redundant ping function
-> Remove redundant stop function
-> Use devm_watchdog_register_device allowing release to be removed
-> Use WATCHDOG_NOWAYOUT
-> ---
->   drivers/watchdog/Kconfig      |  12 ++++
->   drivers/watchdog/Makefile     |   1 +
->   drivers/watchdog/tqmx86_wdt.c | 126 ++++++++++++++++++++++++++++++++++
->   3 files changed, 139 insertions(+)
->   create mode 100644 drivers/watchdog/tqmx86_wdt.c
-> 
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index 2d64333f4782..7c7528e8644b 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -1308,6 +1308,18 @@ config SMSC37B787_WDT
->   
->   	  Most people will say N.
->   
-> +config TQMX86_WDT
-> +	tristate "TQ-Systems TQMX86 Watchdog Timer"
-> +	depends on X86
-> +	help
-> +	This is the driver for the hardware watchdog timer in the TQMN86 IO
+The board using this driver appears to be out-of-tree
+(OpenWRT), but the users can be easily augmented by adding a
+machine descriptor table before registering the device.
 
-TQMN86 or TQMX86 ?
+Cc: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+---
+ChangeLog v2->v3:
+- Fix to acces .gpiod rather than .gpio
+- Drop resource assignment in boardfile: no resources left
+  to pass.
+ChangeLog v1->v2:
+- Add the correct descriptor table to the board file and
+  register it. I missed the existing board file in the
+  previous iteration.
+---
+ arch/mips/alchemy/board-mtx1.c | 18 +++++++++---------
+ drivers/watchdog/mtx-1_wdt.c   | 19 +++++++++----------
+ 2 files changed, 18 insertions(+), 19 deletions(-)
 
-> +	controller found on some of their ComExpress Modules.
-> +
-> +	To compile this driver as a module, choose M here; the module
-> +	will be called tqmx86_wdt.
-> +
-> +	Most people will say N.
-> +
->   config VIA_WDT
->   	tristate "VIA Watchdog Timer"
->   	depends on X86 && PCI
-> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-> index f69cdff5ad7f..b077e35414e2 100644
-> --- a/drivers/watchdog/Makefile
-> +++ b/drivers/watchdog/Makefile
-> @@ -129,6 +129,7 @@ obj-$(CONFIG_SBC7240_WDT) += sbc7240_wdt.o
->   obj-$(CONFIG_CPU5_WDT) += cpu5wdt.o
->   obj-$(CONFIG_SMSC_SCH311X_WDT) += sch311x_wdt.o
->   obj-$(CONFIG_SMSC37B787_WDT) += smsc37b787_wdt.o
-> +obj-$(CONFIG_TQMX86_WDT) += tqmx86_wdt.o
->   obj-$(CONFIG_VIA_WDT) += via_wdt.o
->   obj-$(CONFIG_W83627HF_WDT) += w83627hf_wdt.o
->   obj-$(CONFIG_W83877F_WDT) += w83877f_wdt.o
-> diff --git a/drivers/watchdog/tqmx86_wdt.c b/drivers/watchdog/tqmx86_wdt.c
-> new file mode 100644
-> index 000000000000..9d2ff7bcb061
-> --- /dev/null
-> +++ b/drivers/watchdog/tqmx86_wdt.c
-> @@ -0,0 +1,126 @@
-> +// SPDX-License-Identifier: GPL-2.0
-> +/*
-> + * Watchdog driver for TQMx86 PLD.
-> + *
-> + * The watchdog supports power of 2 timeouts from 1 to 4096sec.
-> + * Once started, it cannot be stopped.
-> + */
-> +
-> +#include <linux/io.h>
-> +#include <linux/log2.h>
-> +#include <linux/module.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/timer.h>
-> +#include <linux/watchdog.h>
-> +
-> +/* default timeout (secs) */
-> +#define WDT_TIMEOUT 32
-> +
-> +static unsigned int timeout;
-> +module_param(timeout, uint, 0);
-> +MODULE_PARM_DESC(timeout,
-> +	"Watchdog timeout in seconds. (1<=timeout<=4096, default="
-> +				__MODULE_STRING(WDT_TIMEOUT) ")");
-> +struct tqmx86_wdt {
-> +	struct watchdog_device wdd;
-> +	void __iomem *io_base;
-> +};
-> +
-> +#define TQMX86_WDCFG	0x00 /* Watchdog Configuration Register */
-> +#define TQMX86_WDCS	0x01 /* Watchdog Config/Status Register */
-> +
-> +static int tqmx86_wdt_start(struct watchdog_device *wdd)
-> +{
-> +	struct tqmx86_wdt *priv = watchdog_get_drvdata(wdd);
-> +
-> +	iowrite8(0x81, priv->io_base + TQMX86_WDCS);
-> +
-> +	return 0;
-> +}
-> +
-> +static int tqmx86_wdt_set_timeout(struct watchdog_device *wdd,
-> +				  unsigned int new_timeout)
-> +{
-> +	struct tqmx86_wdt *priv = watchdog_get_drvdata(wdd);
-> +	u8 val;
-> +
-> +	timeout = roundup_pow_of_two(new_timeout);
-
-This won't work as (I think it is) intended. 'timeout' is the global
-variable. This function is called from the probe function with
-WDT_TIMEOUT as parameter. The overwritten variable is then later
-used in the call to watchdog_init_timeout(). This means that any
-value passed as module parameter will be ignored.
-
-You could just reassign the value to new_timeout; there is no need
-for a second variable here. I would also suggest to just use 't'
-as variable name, but that is really optional.
-
-> +	val = ilog2(timeout) | 0x90;
-> +	val += 3; /* values 0,1,2 correspond to 0.125,0.25,0.5s timeouts */
-> +	iowrite8(val, priv->io_base + TQMX86_WDCFG);
-> +
-> +	wdd->timeout = timeout;
-> +
-> +	return 0;
-> +}
-> +
-> +static const struct watchdog_info tqmx86_wdt_info = {
-> +	.options	= WDIOF_SETTIMEOUT |
-> +			  WDIOF_KEEPALIVEPING,
-> +	.identity	= "TQMx86 Watchdog",
-> +};
-> +
-> +static struct watchdog_ops tqmx86_wdt_ops = {
-> +	.owner		= THIS_MODULE,
-> +	.start		= tqmx86_wdt_start,
-> +	.set_timeout	= tqmx86_wdt_set_timeout,
-> +};
-> +
-> +static int tqmx86_wdt_probe(struct platform_device *pdev)
-> +{
-> +	struct tqmx86_wdt *priv;
-> +	struct resource *res;
-> +	int err;
-> +
-> +	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
-> +	if (!priv)
-> +		return -ENOMEM;
-> +
-> +	res = platform_get_resource(pdev, IORESOURCE_IO, 0);
-> +	if (IS_ERR(res))
-> +		return PTR_ERR(res);
-> +
-> +	priv->io_base = devm_ioport_map(&pdev->dev, res->start,
-> +					resource_size(res));
-> +	if (IS_ERR(priv->io_base))
-> +		return PTR_ERR(priv->io_base);
-> +
-> +	platform_set_drvdata(pdev, priv);
-
-Unless I am missing something, this is no longer needed
-(no remove function).
-
-> +	watchdog_set_drvdata(&priv->wdd, priv);
-> +
-> +	tqmx86_wdt_set_timeout(&priv->wdd, WDT_TIMEOUT);
-> +
-It might be better to call this with wdd->timeout as parameter
-after the call to watchdog_init_timeout(). This would set it
-to the value you actually want (and update wdd->timeout to a
-supported value if it was set with a module parameter).
-
-> +	priv->wdd.parent = &pdev->dev;
-> +	priv->wdd.info = &tqmx86_wdt_info;
-> +	priv->wdd.ops = &tqmx86_wdt_ops;
-> +	priv->wdd.min_timeout = 1;
-> +	priv->wdd.max_timeout = 4096;
-> +	priv->wdd.max_hw_heartbeat_ms = 4096*1000;
-> +	priv->wdd.timeout = WDT_TIMEOUT;
-> +
-> +	watchdog_init_timeout(&priv->wdd, timeout, &pdev->dev);
-> +
-> +	watchdog_set_nowayout(&priv->wdd, WATCHDOG_NOWAYOUT);
-> +
-> +	err = devm_watchdog_register_device(&pdev->dev, &priv->wdd);
-> +	if (err)
-> +		return err;
-> +
-> +	dev_info(&pdev->dev, "TQMx86 watchdog\n");
-> +
-> +	return 0;
-> +}
-> +
-> +static struct platform_driver tqmx86_wdt_driver = {
-> +	.driver		= {
-> +		.name	= "tqmx86-wdt",
-> +	},
-> +	.probe		= tqmx86_wdt_probe,
-> +};
-> +
-> +module_platform_driver(tqmx86_wdt_driver);
-> +
-> +MODULE_AUTHOR("Vadim V.Vlasov <vvlasov@dev.rtsoft.ru>");
-> +MODULE_DESCRIPTION("TQMx86 Watchdog");
-> +MODULE_ALIAS("platform:tqmx86-wdt");
-> +MODULE_LICENSE("GPL");
-> 
+diff --git a/arch/mips/alchemy/board-mtx1.c b/arch/mips/alchemy/board-mtx1.c
+index d625e6f99ae7..9d9d4ee31605 100644
+--- a/arch/mips/alchemy/board-mtx1.c
++++ b/arch/mips/alchemy/board-mtx1.c
+@@ -24,6 +24,7 @@
+ #include <linux/platform_device.h>
+ #include <linux/leds.h>
+ #include <linux/gpio.h>
++#include <linux/gpio/machine.h>
+ #include <linux/gpio_keys.h>
+ #include <linux/input.h>
+ #include <linux/mtd/partitions.h>
+@@ -130,20 +131,18 @@ static struct platform_device mtx1_button = {
+ 	}
+ };
+ 
+-static struct resource mtx1_wdt_res[] = {
+-	[0] = {
+-		.start	= 215,
+-		.end	= 215,
+-		.name	= "mtx1-wdt-gpio",
+-		.flags	= IORESOURCE_IRQ,
+-	}
++static struct gpiod_lookup_table mtx1_wdt_gpio_table = {
++	.dev_id = "mtx1-wdt.0",
++	.table = {
++		/* Global number 215 is offset 15 on Alchemy GPIO 2 */
++		GPIO_LOOKUP("alchemy-gpio2", 15, NULL, GPIO_ACTIVE_HIGH),
++		{ },
++	},
+ };
+ 
+ static struct platform_device mtx1_wdt = {
+ 	.name = "mtx1-wdt",
+ 	.id = 0,
+-	.num_resources = ARRAY_SIZE(mtx1_wdt_res),
+-	.resource = mtx1_wdt_res,
+ };
+ 
+ static const struct gpio_led default_leds[] = {
+@@ -310,6 +309,7 @@ static int __init mtx1_register_devices(void)
+ 	}
+ 	gpio_direction_input(mtx1_gpio_button[0].gpio);
+ out:
++	gpiod_add_lookup_table(&mtx1_wdt_gpio_table);
+ 	return platform_add_devices(mtx1_devs, ARRAY_SIZE(mtx1_devs));
+ }
+ arch_initcall(mtx1_register_devices);
+diff --git a/drivers/watchdog/mtx-1_wdt.c b/drivers/watchdog/mtx-1_wdt.c
+index 1fa7d2b32494..e028e0a2eca0 100644
+--- a/drivers/watchdog/mtx-1_wdt.c
++++ b/drivers/watchdog/mtx-1_wdt.c
+@@ -39,7 +39,7 @@
+ #include <linux/platform_device.h>
+ #include <linux/io.h>
+ #include <linux/uaccess.h>
+-#include <linux/gpio.h>
++#include <linux/gpio/consumer.h>
+ 
+ #include <asm/mach-au1x00/au1000.h>
+ 
+@@ -55,7 +55,7 @@ static struct {
+ 	int queue;
+ 	int default_ticks;
+ 	unsigned long inuse;
+-	unsigned gpio;
++	struct gpio_desc *gpiod;
+ 	unsigned int gstate;
+ } mtx1_wdt_device;
+ 
+@@ -67,7 +67,7 @@ static void mtx1_wdt_trigger(struct timer_list *unused)
+ 
+ 	/* toggle wdt gpio */
+ 	mtx1_wdt_device.gstate = !mtx1_wdt_device.gstate;
+-	gpio_set_value(mtx1_wdt_device.gpio, mtx1_wdt_device.gstate);
++	gpiod_set_value(mtx1_wdt_device.gpiod, mtx1_wdt_device.gstate);
+ 
+ 	if (mtx1_wdt_device.queue && ticks)
+ 		mod_timer(&mtx1_wdt_device.timer, jiffies + MTX1_WDT_INTERVAL);
+@@ -90,7 +90,7 @@ static void mtx1_wdt_start(void)
+ 	if (!mtx1_wdt_device.queue) {
+ 		mtx1_wdt_device.queue = 1;
+ 		mtx1_wdt_device.gstate = 1;
+-		gpio_set_value(mtx1_wdt_device.gpio, 1);
++		gpiod_set_value(mtx1_wdt_device.gpiod, 1);
+ 		mod_timer(&mtx1_wdt_device.timer, jiffies + MTX1_WDT_INTERVAL);
+ 	}
+ 	mtx1_wdt_device.running++;
+@@ -105,7 +105,7 @@ static int mtx1_wdt_stop(void)
+ 	if (mtx1_wdt_device.queue) {
+ 		mtx1_wdt_device.queue = 0;
+ 		mtx1_wdt_device.gstate = 0;
+-		gpio_set_value(mtx1_wdt_device.gpio, 0);
++		gpiod_set_value(mtx1_wdt_device.gpiod, 0);
+ 	}
+ 	ticks = mtx1_wdt_device.default_ticks;
+ 	spin_unlock_irqrestore(&mtx1_wdt_device.lock, flags);
+@@ -198,12 +198,11 @@ static int mtx1_wdt_probe(struct platform_device *pdev)
+ {
+ 	int ret;
+ 
+-	mtx1_wdt_device.gpio = pdev->resource[0].start;
+-	ret = devm_gpio_request_one(&pdev->dev, mtx1_wdt_device.gpio,
+-				GPIOF_OUT_INIT_HIGH, "mtx1-wdt");
+-	if (ret < 0) {
++	mtx1_wdt_device.gpiod = devm_gpiod_get(&pdev->dev,
++					       NULL, GPIOD_OUT_HIGH);
++	if (IS_ERR(mtx1_wdt_device.gpiod)) {
+ 		dev_err(&pdev->dev, "failed to request gpio");
+-		return ret;
++		return PTR_ERR(mtx1_wdt_device.gpiod);
+ 	}
+ 
+ 	spin_lock_init(&mtx1_wdt_device.lock);
+-- 
+2.19.2
