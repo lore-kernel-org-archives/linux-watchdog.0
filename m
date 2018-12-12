@@ -1,9 +1,9 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from outils.crapouillou.net ([89.234.176.41]:40770 "EHLO
+Received: from outils.crapouillou.net ([89.234.176.41]:40702 "EHLO
         crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728414AbeLLWQ4 (ORCPT
+        with ESMTP id S1728620AbeLLWQ5 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 12 Dec 2018 17:16:56 -0500
+        Wed, 12 Dec 2018 17:16:57 -0500
 From: Paul Cercueil <paul@crapouillou.net>
 To: Thierry Reding <thierry.reding@gmail.com>,
         Rob Herring <robh+dt@kernel.org>,
@@ -22,28 +22,27 @@ Cc: Mathieu Malaterre <malat@debian.org>,
         linux-mips@vger.kernel.org, linux-doc@vger.kernel.org,
         linux-clk@vger.kernel.org, od@zcrc.me,
         Paul Cercueil <paul@crapouillou.net>
-Subject: [PATCH v8 13/26] pwm: jz4740: Drop dependency on MACH_INGENIC, use COMPILE_TEST
-Date: Wed, 12 Dec 2018 23:09:08 +0100
-Message-Id: <20181212220922.18759-14-paul@crapouillou.net>
+Subject: [PATCH v8 06/26] MAINTAINERS: Add myself as maintainer for Ingenic TCU drivers
+Date: Wed, 12 Dec 2018 23:09:01 +0100
+Message-Id: <20181212220922.18759-7-paul@crapouillou.net>
 In-Reply-To: <20181212220922.18759-1-paul@crapouillou.net>
 References: <20181212220922.18759-1-paul@crapouillou.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Depending on MACH_INGENIC prevent us from creating a generic kernel that
-works on more than one MIPS board. Instead, we just depend on MIPS being
-set.
-
-On other architectures, this driver can still be built, thanks to
-COMPILE_TEST. This is used by automated tools to find bugs, for
-instance.
+Add myself as maintainer for the ingenic-timer and ingenic-ost drivers.
 
 Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Acked-by: Thierry Reding <thierry.reding@gmail.com>
 ---
 
 Notes:
-     v5: New patch
+     v2: No change
+    
+     v3: No change
+    
+     v4: No change
+    
+     v5: Update with new files
     
      v6: No change
     
@@ -51,21 +50,28 @@ Notes:
 
      v8: No change
 
- drivers/pwm/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ MAINTAINERS | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/pwm/Kconfig b/drivers/pwm/Kconfig
-index 0343f0c1238e..d6f62d9cdc18 100644
---- a/drivers/pwm/Kconfig
-+++ b/drivers/pwm/Kconfig
-@@ -201,7 +201,7 @@ config PWM_IMX
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 8119141a926f..7a035cd5787a 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -7387,6 +7387,15 @@ L:	linux-mtd@lists.infradead.org
+ S:	Maintained
+ F:	drivers/mtd/nand/raw/jz4780_*
  
- config PWM_JZ4740
- 	tristate "Ingenic JZ47xx PWM support"
--	depends on MACH_INGENIC
-+	depends on MIPS || COMPILE_TEST
- 	depends on COMMON_CLK
- 	select INGENIC_TIMER
- 	help
++INGENIC TCU driver
++M:	Paul Cercueil <paul@crapouillou.net>
++S:	Maintained
++F:	drivers/clocksource/ingenic-ost.c
++F:	drivers/clocksource/ingenic-timer.c
++F:	drivers/clocksource/ingenic-timer.h
++F:	include/linux/mfd/ingenic-tcu.h
++F:	include/dt-bindings/clock/ingenic,tcu.h
++
+ INOTIFY
+ M:	Jan Kara <jack@suse.cz>
+ R:	Amir Goldstein <amir73il@gmail.com>
 -- 
 2.11.0
