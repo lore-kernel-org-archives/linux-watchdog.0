@@ -1,9 +1,9 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from outils.crapouillou.net ([89.234.176.41]:40650 "EHLO
+Received: from outils.crapouillou.net ([89.234.176.41]:40640 "EHLO
         crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728521AbeLLWQm (ORCPT
+        with ESMTP id S1728520AbeLLWQl (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 12 Dec 2018 17:16:42 -0500
+        Wed, 12 Dec 2018 17:16:41 -0500
 From: Paul Cercueil <paul@crapouillou.net>
 To: Thierry Reding <thierry.reding@gmail.com>,
         Rob Herring <robh+dt@kernel.org>,
@@ -22,29 +22,23 @@ Cc: Mathieu Malaterre <malat@debian.org>,
         linux-mips@vger.kernel.org, linux-doc@vger.kernel.org,
         linux-clk@vger.kernel.org, od@zcrc.me,
         Paul Cercueil <paul@crapouillou.net>
-Subject: [PATCH v8 01/26] dt-bindings: ingenic: Add DT bindings for TCU clocks
-Date: Wed, 12 Dec 2018 23:08:56 +0100
-Message-Id: <20181212220922.18759-2-paul@crapouillou.net>
+Subject: [PATCH v8 17/26] MIPS: Kconfig: Select TCU timer driver when MACH_INGENIC is set
+Date: Wed, 12 Dec 2018 23:09:12 +0100
+Message-Id: <20181212220922.18759-18-paul@crapouillou.net>
 In-Reply-To: <20181212220922.18759-1-paul@crapouillou.net>
 References: <20181212220922.18759-1-paul@crapouillou.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This header provides clock numbers for the ingenic,tcu
-DT binding.
+We cannot boot to userspace (not even initramfs) if the timer driver is
+not present; so it makes sense to enable it unconditionally when
+MACH_INGENIC is set.
 
 Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Reviewed-by: Rob Herring <robh@kernel.org>
 ---
 
 Notes:
-     v2: Use SPDX identifier for the license
-    
-     v3: No change
-    
-     v4: No change
-    
-     v5: s/JZ47*_/TCU_/ and dropped *_CLK_LAST defines
+     v5: New patch
     
      v6: No change
     
@@ -52,35 +46,20 @@ Notes:
 
      v8: No change
 
- include/dt-bindings/clock/ingenic,tcu.h | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
- create mode 100644 include/dt-bindings/clock/ingenic,tcu.h
+ arch/mips/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/include/dt-bindings/clock/ingenic,tcu.h b/include/dt-bindings/clock/ingenic,tcu.h
-new file mode 100644
-index 000000000000..d569650a7945
---- /dev/null
-+++ b/include/dt-bindings/clock/ingenic,tcu.h
-@@ -0,0 +1,20 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+/*
-+ * This header provides clock numbers for the ingenic,tcu DT binding.
-+ */
-+
-+#ifndef __DT_BINDINGS_CLOCK_INGENIC_TCU_H__
-+#define __DT_BINDINGS_CLOCK_INGENIC_TCU_H__
-+
-+#define TCU_CLK_TIMER0	0
-+#define TCU_CLK_TIMER1	1
-+#define TCU_CLK_TIMER2	2
-+#define TCU_CLK_TIMER3	3
-+#define TCU_CLK_TIMER4	4
-+#define TCU_CLK_TIMER5	5
-+#define TCU_CLK_TIMER6	6
-+#define TCU_CLK_TIMER7	7
-+#define TCU_CLK_WDT	8
-+#define TCU_CLK_OST	9
-+
-+#endif /* __DT_BINDINGS_CLOCK_INGENIC_TCU_H__ */
+diff --git a/arch/mips/Kconfig b/arch/mips/Kconfig
+index 8272ea4c7264..8bd53a4e871b 100644
+--- a/arch/mips/Kconfig
++++ b/arch/mips/Kconfig
+@@ -390,6 +390,7 @@ config MACH_INGENIC
+ 	select BUILTIN_DTB
+ 	select USE_OF
+ 	select LIBFDT
++	select INGENIC_TIMER
+ 
+ config LANTIQ
+ 	bool "Lantiq based platforms"
 -- 
 2.11.0
