@@ -1,43 +1,85 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailgw02.mediatek.com ([1.203.163.81]:3000 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726170AbeLKN0j (ORCPT
+Received: from outils.crapouillou.net ([89.234.176.41]:38382 "EHLO
+        crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726294AbeLLWOo (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 11 Dec 2018 08:26:39 -0500
-Message-ID: <1544534787.3621.2.camel@mtkswgap22>
-Subject: Re: [PATCH] dt-bindings: watchdog: update bindings for MT7629 SoC
-From: Ryder Lee <ryder.lee@mediatek.com>
-To: Guenter Roeck <linux@roeck-us.net>
-CC: Rob Herring <robh@kernel.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        <linux-watchdog@vger.kernel.org>,
-        Weijie Gao <weijie.gao@mediatek.com>,
-        <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-mediatek@lists.infradead.org>
-Date: Tue, 11 Dec 2018 21:26:27 +0800
-In-Reply-To: <5bea0ebd.1c69fb81.125ec.5dc5@mx.google.com>
-References: <55d108719233b3c30c747e75a010b9e64681af09.1541573395.git.ryder.lee@mediatek.com>
-         <5bea0ebd.1c69fb81.125ec.5dc5@mx.google.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
+        Wed, 12 Dec 2018 17:14:44 -0500
+From: Paul Cercueil <paul@crapouillou.net>
+To: Thierry Reding <thierry.reding@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        Paul Burton <paul.burton@mips.com>,
+        James Hogan <jhogan@kernel.org>,
+        Jonathan Corbet <corbet@lwn.net>
+Cc: Mathieu Malaterre <malat@debian.org>,
+        Ezequiel Garcia <ezequiel@collabora.co.uk>,
+        PrasannaKumar Muralidharan <prasannatsmkumar@gmail.com>,
+        linux-pwm@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-doc@vger.kernel.org,
+        linux-clk@vger.kernel.org, od@zcrc.me,
+        Paul Cercueil <paul@crapouillou.net>
+Subject: [PATCH v8 25/26] MIPS: GCW0: defconfig: Enable OST, watchdog, PWM drivers
+Date: Wed, 12 Dec 2018 23:14:35 +0100
+Message-Id: <20181212221436.19613-1-paul@crapouillou.net>
+In-Reply-To: <20181212220922.18759-1-paul@crapouillou.net>
+References: <20181212220922.18759-1-paul@crapouillou.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Guenter,
+The OST driver provides a clocksource and sched_clock that are much more
+accurate than the default ones.
 
-Just a gentle ping!
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+---
 
-On Mon, 2018-11-12 at 17:37 -0600, Rob Herring wrote:
-> On Wed, 7 Nov 2018 15:10:36 +0800, Ryder Lee wrote:
-> > This updates dt-binding documentation for MT7629 SoC
-> > 
-> > Signed-off-by: Ryder Lee <ryder.lee@mediatek.com>
-> > ---
-> >  Documentation/devicetree/bindings/watchdog/mtk-wdt.txt | 1 +
-> >  1 file changed, 1 insertion(+)
-> > 
-> 
-> Reviewed-by: Rob Herring <robh@kernel.org>
-> 
+Notes:
+     v8: New patch
+
+ arch/mips/configs/gcw0_defconfig | 17 +++++++++++------
+ 1 file changed, 11 insertions(+), 6 deletions(-)
+
+diff --git a/arch/mips/configs/gcw0_defconfig b/arch/mips/configs/gcw0_defconfig
+index 99ac1fa3b35f..7116400e8cbf 100644
+--- a/arch/mips/configs/gcw0_defconfig
++++ b/arch/mips/configs/gcw0_defconfig
+@@ -1,14 +1,14 @@
++CONFIG_NO_HZ_IDLE=y
++CONFIG_HIGH_RES_TIMERS=y
++CONFIG_PREEMPT_VOLUNTARY=y
++CONFIG_EMBEDDED=y
+ CONFIG_MACH_INGENIC=y
+ CONFIG_JZ4770_GCW0=y
+ CONFIG_HIGHMEM=y
+-# CONFIG_BOUNCE is not set
+-CONFIG_PREEMPT_VOLUNTARY=y
+ # CONFIG_SECCOMP is not set
+-CONFIG_NO_HZ_IDLE=y
+-CONFIG_HIGH_RES_TIMERS=y
+-CONFIG_EMBEDDED=y
+-# CONFIG_BLK_DEV_BSG is not set
+ # CONFIG_SUSPEND is not set
++# CONFIG_BLK_DEV_BSG is not set
++# CONFIG_BOUNCE is not set
+ CONFIG_NET=y
+ CONFIG_PACKET=y
+ CONFIG_UNIX=y
+@@ -20,8 +20,13 @@ CONFIG_SERIAL_8250=y
+ # CONFIG_SERIAL_8250_DEPRECATED_OPTIONS is not set
+ CONFIG_SERIAL_8250_CONSOLE=y
+ CONFIG_SERIAL_8250_INGENIC=y
++CONFIG_WATCHDOG=y
++CONFIG_JZ4740_WDT=y
+ CONFIG_USB=y
+ CONFIG_USB_OHCI_HCD=y
+ CONFIG_USB_OHCI_HCD_PLATFORM=y
+ CONFIG_NOP_USB_XCEIV=y
++CONFIG_INGENIC_OST=y
++CONFIG_PWM=y
++CONFIG_PWM_JZ4740=y
+ CONFIG_TMPFS=y
+-- 
+2.11.0
