@@ -1,9 +1,9 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from outils.crapouillou.net ([89.234.176.41]:40702 "EHLO
+Received: from outils.crapouillou.net ([89.234.176.41]:40704 "EHLO
         crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728620AbeLLWQ5 (ORCPT
+        with ESMTP id S1728359AbeLLWQ4 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 12 Dec 2018 17:16:57 -0500
+        Wed, 12 Dec 2018 17:16:56 -0500
 From: Paul Cercueil <paul@crapouillou.net>
 To: Thierry Reding <thierry.reding@gmail.com>,
         Rob Herring <robh+dt@kernel.org>,
@@ -22,27 +22,28 @@ Cc: Mathieu Malaterre <malat@debian.org>,
         linux-mips@vger.kernel.org, linux-doc@vger.kernel.org,
         linux-clk@vger.kernel.org, od@zcrc.me,
         Paul Cercueil <paul@crapouillou.net>
-Subject: [PATCH v8 06/26] MAINTAINERS: Add myself as maintainer for Ingenic TCU drivers
-Date: Wed, 12 Dec 2018 23:09:01 +0100
-Message-Id: <20181212220922.18759-7-paul@crapouillou.net>
+Subject: [PATCH v8 10/26] watchdog: jz4740: Drop dependency on MACH_JZ47xx, use COMPILE_TEST
+Date: Wed, 12 Dec 2018 23:09:05 +0100
+Message-Id: <20181212220922.18759-11-paul@crapouillou.net>
 In-Reply-To: <20181212220922.18759-1-paul@crapouillou.net>
 References: <20181212220922.18759-1-paul@crapouillou.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Add myself as maintainer for the ingenic-timer and ingenic-ost drivers.
+Depending on MACH_JZ47xx prevent us from creating a generic kernel that
+works on more than one MIPS board. Instead, we just depend on MIPS being
+set.
+
+On other architectures, this driver can still be built, thanks to
+COMPILE_TEST. This is used by automated tools to find bugs, for
+instance.
 
 Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 ---
 
 Notes:
-     v2: No change
-    
-     v3: No change
-    
-     v4: No change
-    
-     v5: Update with new files
+     v5: New patch
     
      v6: No change
     
@@ -50,28 +51,21 @@ Notes:
 
      v8: No change
 
- MAINTAINERS | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/watchdog/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 8119141a926f..7a035cd5787a 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -7387,6 +7387,15 @@ L:	linux-mtd@lists.infradead.org
- S:	Maintained
- F:	drivers/mtd/nand/raw/jz4780_*
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index cfd7368fc3c0..eb5dbb1db64d 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -1496,7 +1496,7 @@ config INDYDOG
  
-+INGENIC TCU driver
-+M:	Paul Cercueil <paul@crapouillou.net>
-+S:	Maintained
-+F:	drivers/clocksource/ingenic-ost.c
-+F:	drivers/clocksource/ingenic-timer.c
-+F:	drivers/clocksource/ingenic-timer.h
-+F:	include/linux/mfd/ingenic-tcu.h
-+F:	include/dt-bindings/clock/ingenic,tcu.h
-+
- INOTIFY
- M:	Jan Kara <jack@suse.cz>
- R:	Amir Goldstein <amir73il@gmail.com>
+ config JZ4740_WDT
+ 	tristate "Ingenic jz4740 SoC hardware watchdog"
+-	depends on MACH_JZ4740 || MACH_JZ4780
++	depends on MIPS || COMPILE_TEST
+ 	depends on COMMON_CLK
+ 	select WATCHDOG_CORE
+ 	select INGENIC_TIMER
 -- 
 2.11.0
