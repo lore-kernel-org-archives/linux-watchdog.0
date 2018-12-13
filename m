@@ -1,10 +1,10 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from metis.ext.pengutronix.de ([85.220.165.71]:53043 "EHLO
+Received: from metis.ext.pengutronix.de ([85.220.165.71]:52753 "EHLO
         metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727417AbeLMUc7 (ORCPT
+        with ESMTP id S1727160AbeLMUmf (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 13 Dec 2018 15:32:59 -0500
-Date: Thu, 13 Dec 2018 21:32:43 +0100
+        Thu, 13 Dec 2018 15:42:35 -0500
+Date: Thu, 13 Dec 2018 21:42:19 +0100
 From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
         <u.kleine-koenig@pengutronix.de>
 To: Paul Cercueil <paul@crapouillou.net>
@@ -23,116 +23,53 @@ Cc: Thierry Reding <thierry.reding@gmail.com>,
         linux-pwm@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
         linux-mips@vger.kernel.org, linux-doc@vger.kernel.org,
-        linux-clk@vger.kernel.org, od@zcrc.me
-Subject: Re: [PATCH v8 12/26] pwm: jz4740: Allow selection of PWM channels 0
- and 1
-Message-ID: <20181213203243.ucjwqtkyp6aboxp4@pengutronix.de>
+        linux-clk@vger.kernel.org, od@zcrc.me,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH v8 15/26] pwm: jz4740: Add support for the JZ4725B
+Message-ID: <20181213204219.onem3q6dcmakusl2@pengutronix.de>
 References: <20181212220922.18759-1-paul@crapouillou.net>
- <20181212220922.18759-13-paul@crapouillou.net>
- <20181213091822.r5ilpsllfhzaiqw4@pengutronix.de>
- <1544709511.18952.0@crapouillou.net>
+ <20181212220922.18759-16-paul@crapouillou.net>
+ <20181213092409.ml4wpnzow2nnszkd@pengutronix.de>
+ <1544709795.18952.1@crapouillou.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <1544709511.18952.0@crapouillou.net>
+In-Reply-To: <1544709795.18952.1@crapouillou.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Thu, Dec 13, 2018 at 02:58:31PM +0100, Paul Cercueil wrote:
-> Hi,
-> 
-> Le jeu. 13 déc. 2018 à 10:18, Uwe Kleine-König
+[Adding Linus Walleij to Cc:]
+
+Hello,
+
+On Thu, Dec 13, 2018 at 03:03:15PM +0100, Paul Cercueil wrote:
+> Le jeu. 13 déc. 2018 à 10:24, Uwe Kleine-König
 > <u.kleine-koenig@pengutronix.de> a écrit :
-> > On Wed, Dec 12, 2018 at 11:09:07PM +0100, Paul Cercueil wrote:
-> > >  The TCU channels 0 and 1 were previously reserved for system tasks,
-> > > and
-> > >  thus unavailable for PWM.
-> > > 
-> > >  The driver will now only allow a PWM channel to be requested if
-> > > memory
-> > >  resources corresponding to the register area of the channel were
-> > >  supplied to the driver. This allows the TCU channels to be reserved
-> > > for
-> > >  system tasks from within the devicetree.
-> > > 
-> > >  Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+> > On Wed, Dec 12, 2018 at 11:09:10PM +0100, Paul Cercueil wrote:
+> > >  The PWM in the JZ4725B works the same as in the JZ4740, except that
+> > > it
+> > >  only has 6 channels available instead of 8.
 > > 
-> > While there is someone caring for this driver I'd like to complete (a
-> > bit) my picture about the different capabilities and specialities of the
-> > supported PWMs. So I have a few questions:
-> > 
-> > Is there a publicly available reference manual for this device? (If
-> > yes, adding a link to the driver would be great.)
+> > this driver is probed only from device tree? If yes, it might be
+> > sensible to specify the number of PWMs there and get it from there.
+> > There doesn't seem to be a generic binding for that, but there are
+> > several drivers that could benefit from it. (This is a bigger project
+> > though and shouldn't stop your patch. Still more as it already got
+> > Thierry's ack.)
 > 
-> I have them here: https://zcrc.me/~paul/jz_docs/
+> I think there needs to be a proper guideline, as there doesn't seem to be
+> a consensus about this. I learned from emails with Rob and Linus (Walleij)
+> that I should not have in devicetree what I can deduce from the compatible
+> string.
 
-Is this link good enough to add it to the driver? From a quick view I'd
-say this is another pwm implementation that gets active on pwm_disable().
-Can you confirm this?
+I understood them a bit differently. It is ok to deduce things from the
+compatible string. But if you define a generic property (say) "num-pwms"
+that is used uniformly in most bindings this is ok, too. (And then the
+two different devices could use the same compatible.)
 
-> > jz4740_pwm_config looks as if the currently running period isn't
-> > completed before the new config is in effect. Is that correct? If yes,
-> > can this be fixed? A similar question for set_polarity: Does setting the
-> > JZ_TIMER_CTRL_PWM_ACTIVE_LOW bit in the control register take effect
-> > immediately or is this shadowed until the next period starts?
-> 
-> I don't really know. We only use this driver for a rumble motor and
-> backlight.
-> Somebody would have to check with a logic analyzer.
-
-depending on the possible timings you might also be able to test this
-e.g. by setting:
-
-	duty_cycle=1ms, period=5s
-
-and then
-
-	duty_cycle=5s, period=5s
-
-. If the implementation is right your display should be dark for nearly
-5 seconds. (And the second call to pwm_apply should also block until the
-display is on.)
-
-> > How does the device's output behave after the PWM is disabled?
-> > Does it complete the currently running period? How does the output
-> > behave then? (active/inactive/high/low/high-z?)
-> 
-> There's a bit to toggle between "graceful" shutdown (bit clear) and "abrupt"
-> shutdown (bit set). TCSR bit 9. I think that graceful shutdown will complete
-> the running period, then keep the level active. Abrupt shutdown will keep
-> the
-> current level of the line.
-
-Can you confirm the things you think above? I'd like to have them
-eventually documented in the driver.
-
-> > >  @@ -42,11 +68,7 @@ static int jz4740_pwm_request(struct pwm_chip
-> > > *chip, struct pwm_device *pwm)
-> > >   	char clk_name[16];
-> > >   	int ret;
-> > > 
-> > >  -	/*
-> > >  -	 * Timers 0 and 1 are used for system tasks, so they are
-> > > unavailable
-> > >  -	 * for use as PWMs.
-> > >  -	 */
-> > >  -	if (pwm->hwpwm < 2)
-> > >  +	if (!jz4740_pwm_can_use_chn(jz, pwm->hwpwm))
-> > >   		return -EBUSY;
-> > 
-> > Maybe EBUSY isn't the best choice here. If the needed register space for
-> > the requested pwm is not included in the memory resources provided to
-> > the device I'd prefer ENXIO or ENODEV.
-> 
-> The idea was that if we don't get the register space we need, that means
-> the channel is used for something else, hence the EBUSY. Should I switch
-> it to ENXIO?
-
-I understand your reasoning, but I think it's misleading. If I get
--EBUSY from a PWM driver I'd start searching for another user of said
-resource. With ENXIO or ENODEV it's more obvious that the driver isn't
-responsible for the resource that was requested.
+An upside of the generic "num-pwms" property is that the pwm core could
+sanity check pwm phandles before passing them to the hardware drivers.
 
 Best regards
 Uwe
