@@ -1,88 +1,104 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from anholt.net ([50.246.234.109]:59164 "EHLO anholt.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728546AbeLLXwB (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 12 Dec 2018 18:52:01 -0500
-From: Eric Anholt <eric@anholt.net>
-To: Florian Fainelli <f.fainelli@gmail.com>,
-        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Lee Jones <lee.jones@linaro.org>,
-        Stefan Wahren <stefan.wahren@i2se.com>,
+Received: from metis.ext.pengutronix.de ([85.220.165.71]:32801 "EHLO
+        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727720AbeLMJSh (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Thu, 13 Dec 2018 04:18:37 -0500
+Date: Thu, 13 Dec 2018 10:18:22 +0100
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+        <u.kleine-koenig@pengutronix.de>
+To: Paul Cercueil <paul@crapouillou.net>
+Cc: Thierry Reding <thierry.reding@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
         Mark Rutland <mark.rutland@arm.com>,
-        Rob Herring <robh+dt@kernel.org>
-Cc: linux-rpi-kernel@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        bcm-kernel-feedback-list@broadcom.com,
-        Eric Anholt <eric@anholt.net>
-Subject: [PATCH v4 5/5] ARM: bcm283x: Switch V3D over to using the PM driver instead of firmware.
-Date: Wed, 12 Dec 2018 15:51:50 -0800
-Message-Id: <20181212235150.6491-6-eric@anholt.net>
-In-Reply-To: <20181212235150.6491-1-eric@anholt.net>
-References: <20181212235150.6491-1-eric@anholt.net>
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        Paul Burton <paul.burton@mips.com>,
+        James Hogan <jhogan@kernel.org>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Mathieu Malaterre <malat@debian.org>,
+        Ezequiel Garcia <ezequiel@collabora.co.uk>,
+        PrasannaKumar Muralidharan <prasannatsmkumar@gmail.com>,
+        linux-pwm@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-doc@vger.kernel.org,
+        linux-clk@vger.kernel.org, od@zcrc.me
+Subject: Re: [PATCH v8 12/26] pwm: jz4740: Allow selection of PWM channels 0
+ and 1
+Message-ID: <20181213091822.r5ilpsllfhzaiqw4@pengutronix.de>
+References: <20181212220922.18759-1-paul@crapouillou.net>
+ <20181212220922.18759-13-paul@crapouillou.net>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <20181212220922.18759-13-paul@crapouillou.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The GRAFX domain only contains V3D, and this driver should be the only
-accessor of V3D (firmware usage gets disabled when V3D is in the DT),
-so we can safely make Linux control the GRAFX and GRAFX_V3D power
-domains.
+On Wed, Dec 12, 2018 at 11:09:07PM +0100, Paul Cercueil wrote:
+> The TCU channels 0 and 1 were previously reserved for system tasks, and
+> thus unavailable for PWM.
+> 
+> The driver will now only allow a PWM channel to be requested if memory
+> resources corresponding to the register area of the channel were
+> supplied to the driver. This allows the TCU channels to be reserved for
+> system tasks from within the devicetree.
+> 
+> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
 
-Signed-off-by: Eric Anholt <eric@anholt.net>
----
+While there is someone caring for this driver I'd like to complete (a
+bit) my picture about the different capabilities and specialities of the
+supported PWMs. So I have a few questions:
 
-v4: no change
+Is there a publicly available reference manual for this device? (If
+yes, adding a link to the driver would be great.)
 
- arch/arm/boot/dts/bcm2835-rpi.dtsi | 4 ----
- arch/arm/boot/dts/bcm283x.dtsi     | 4 +++-
- 2 files changed, 3 insertions(+), 5 deletions(-)
+jz4740_pwm_config looks as if the currently running period isn't
+completed before the new config is in effect. Is that correct? If yes,
+can this be fixed? A similar question for set_polarity: Does setting the
+JZ_TIMER_CTRL_PWM_ACTIVE_LOW bit in the control register take effect
+immediately or is this shadowed until the next period starts?
 
-diff --git a/arch/arm/boot/dts/bcm2835-rpi.dtsi b/arch/arm/boot/dts/bcm2835-rpi.dtsi
-index cb2d6d78a7fb..21a930148709 100644
---- a/arch/arm/boot/dts/bcm2835-rpi.dtsi
-+++ b/arch/arm/boot/dts/bcm2835-rpi.dtsi
-@@ -87,10 +87,6 @@
- 	power-domains = <&power RPI_POWER_DOMAIN_USB>;
- };
- 
--&v3d {
--	power-domains = <&power RPI_POWER_DOMAIN_V3D>;
--};
--
- &hdmi {
- 	power-domains = <&power RPI_POWER_DOMAIN_HDMI>;
- 	status = "okay";
-diff --git a/arch/arm/boot/dts/bcm283x.dtsi b/arch/arm/boot/dts/bcm283x.dtsi
-index 20ed8b1da11b..9777644c6c2b 100644
---- a/arch/arm/boot/dts/bcm283x.dtsi
-+++ b/arch/arm/boot/dts/bcm283x.dtsi
-@@ -3,6 +3,7 @@
- #include <dt-bindings/clock/bcm2835-aux.h>
- #include <dt-bindings/gpio/gpio.h>
- #include <dt-bindings/interrupt-controller/irq.h>
-+#include <dt-bindings/soc/bcm2835-pm.h>
- 
- /* firmware-provided startup stubs live here, where the secondary CPUs are
-  * spinning.
-@@ -120,7 +121,7 @@
- 			#interrupt-cells = <2>;
- 		};
- 
--		watchdog@7e100000 {
-+		pm: watchdog@7e100000 {
- 			compatible = "brcm,bcm2835-pm", "brcm,bcm2835-pm-wdt";
- 			#power-domain-cells = <1>;
- 			#reset-cells = <1>;
-@@ -638,6 +639,7 @@
- 			compatible = "brcm,bcm2835-v3d";
- 			reg = <0x7ec00000 0x1000>;
- 			interrupts = <1 10>;
-+			power-domains = <&pm BCM2835_POWER_DOMAIN_GRAFX_V3D>;
- 		};
- 
- 		vc4: gpu {
+How does the device's output behave after the PWM is disabled?
+Does it complete the currently running period? How does the output
+behave then? (active/inactive/high/low/high-z?)
+
+> @@ -42,11 +68,7 @@ static int jz4740_pwm_request(struct pwm_chip *chip, struct pwm_device *pwm)
+>  	char clk_name[16];
+>  	int ret;
+>  
+> -	/*
+> -	 * Timers 0 and 1 are used for system tasks, so they are unavailable
+> -	 * for use as PWMs.
+> -	 */
+> -	if (pwm->hwpwm < 2)
+> +	if (!jz4740_pwm_can_use_chn(jz, pwm->hwpwm))
+>  		return -EBUSY;
+
+Maybe EBUSY isn't the best choice here. If the needed register space for
+the requested pwm is not included in the memory resources provided to
+the device I'd prefer ENXIO or ENODEV.
+
+>  	snprintf(clk_name, sizeof(clk_name), "timer%u", pwm->hwpwm);
+> @@ -208,6 +230,12 @@ static int jz4740_pwm_probe(struct platform_device *pdev)
+>  		return -EINVAL;
+>  	}
+>  
+> +	jz4740->parent_res = platform_get_resource(
+> +				to_platform_device(dev->parent),
+> +				IORESOURCE_MEM, 0);
+> +	if (!jz4740->parent_res)
+> +		return -EINVAL;
+> +
+>  	jz4740->chip.dev = dev;
+>  	jz4740->chip.ops = &jz4740_pwm_ops;
+>  	jz4740->chip.npwm = NUM_PWM;
+
+Thanks
+Uwe
+
 -- 
-2.20.0.rc1
+Pengutronix e.K.                           | Uwe Kleine-König            |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
