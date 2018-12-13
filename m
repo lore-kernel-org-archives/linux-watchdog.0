@@ -1,13 +1,15 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from metis.ext.pengutronix.de ([85.220.165.71]:58271 "EHLO
-        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727063AbeLMJbD (ORCPT
+Received: from outils.crapouillou.net ([89.234.176.41]:57384 "EHLO
+        crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729516AbeLMN6m (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 13 Dec 2018 04:31:03 -0500
-Date: Thu, 13 Dec 2018 10:30:49 +0100
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+        Thu, 13 Dec 2018 08:58:42 -0500
+Date: Thu, 13 Dec 2018 14:58:31 +0100
+From: Paul Cercueil <paul@crapouillou.net>
+Subject: Re: [PATCH v8 12/26] pwm: jz4740: Allow selection of PWM channels 0
+ and 1
+To: Uwe =?iso-8859-1?q?Kleine-K=F6nig?=
         <u.kleine-koenig@pengutronix.de>
-To: Paul Cercueil <paul@crapouillou.net>
 Cc: Thierry Reding <thierry.reding@gmail.com>,
         Rob Herring <robh+dt@kernel.org>,
         Mark Rutland <mark.rutland@arm.com>,
@@ -24,87 +26,113 @@ Cc: Thierry Reding <thierry.reding@gmail.com>,
         linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
         linux-mips@vger.kernel.org, linux-doc@vger.kernel.org,
         linux-clk@vger.kernel.org, od@zcrc.me
-Subject: Re: [PATCH v8 11/26] pwm: jz4740: Use regmap and clocks from TCU
- driver
-Message-ID: <20181213093049.rxdvf6tip7iqdj3c@pengutronix.de>
+Message-Id: <1544709511.18952.0@crapouillou.net>
+In-Reply-To: <20181213091822.r5ilpsllfhzaiqw4@pengutronix.de>
 References: <20181212220922.18759-1-paul@crapouillou.net>
- <20181212220922.18759-12-paul@crapouillou.net>
+        <20181212220922.18759-13-paul@crapouillou.net>
+        <20181213091822.r5ilpsllfhzaiqw4@pengutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20181212220922.18759-12-paul@crapouillou.net>
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hello,
+Hi,
 
-On Wed, Dec 12, 2018 at 11:09:06PM +0100, Paul Cercueil wrote:
-> [...]
->  static int jz4740_pwm_enable(struct pwm_chip *chip, struct pwm_device *pwm)
->  {
-> -	uint32_t ctrl = jz4740_timer_get_ctrl(pwm->pwm);
-> +	struct jz4740_pwm_chip *jz = to_jz4740(chip);
->  
-> -	ctrl |= JZ_TIMER_CTRL_PWM_ENABLE;
-> -	jz4740_timer_set_ctrl(pwm->hwpwm, ctrl);
-> -	jz4740_timer_enable(pwm->hwpwm);
-> +	/* Enable PWM output */
-> +	regmap_update_bits(jz->map, TCU_REG_TCSRc(pwm->hwpwm),
-> +				TCU_TCSR_PWM_EN, TCU_TCSR_PWM_EN);
+Le jeu. 13 d=E9c. 2018 =E0 10:18, Uwe Kleine-K=F6nig=20
+<u.kleine-koenig@pengutronix.de> a =E9crit :
+> On Wed, Dec 12, 2018 at 11:09:07PM +0100, Paul Cercueil wrote:
+>>  The TCU channels 0 and 1 were previously reserved for system tasks,=20
+>> and
+>>  thus unavailable for PWM.
+>>=20
+>>  The driver will now only allow a PWM channel to be requested if=20
+>> memory
+>>  resources corresponding to the register area of the channel were
+>>  supplied to the driver. This allows the TCU channels to be reserved=20
+>> for
+>>  system tasks from within the devicetree.
+>>=20
+>>  Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+>=20
+> While there is someone caring for this driver I'd like to complete (a
+> bit) my picture about the different capabilities and specialities of=20
+> the
+> supported PWMs. So I have a few questions:
+>=20
+> Is there a publicly available reference manual for this device? (If
+> yes, adding a link to the driver would be great.)
 
-Usually follow-up lines are indented to the matching parenthesis.
+I have them here: https://zcrc.me/~paul/jz_docs/
 
-> [...]
->  static int jz4740_pwm_config(struct pwm_chip *chip, struct pwm_device *pwm,
->  			     int duty_ns, int period_ns)
->  {
->  	struct jz4740_pwm_chip *jz4740 = to_jz4740(pwm->chip);
-> +	struct clk *clk = jz4740->clks[pwm->hwpwm];
-> +	unsigned long rate, new_rate, period, duty;
->  	unsigned long long tmp;
-> -	unsigned long period, duty;
-> -	unsigned int prescaler = 0;
-> -	uint16_t ctrl;
-> +	unsigned int tcsr;
->  	bool is_enabled;
->  
-> -	tmp = (unsigned long long)clk_get_rate(jz4740->clk) * period_ns;
-> -	do_div(tmp, 1000000000);
-> -	period = tmp;
-> +	rate = clk_get_rate(clk);
-> +
-> +	for (;;) {
-> +		tmp = (unsigned long long) rate * period_ns;
-> +		do_div(tmp, 1000000000);
->  
-> -	while (period > 0xffff && prescaler < 6) {
-> -		period >>= 2;
-> -		++prescaler;
-> +		if (tmp <= 0xffff)
-> +			break;
-> +
-> +		new_rate = clk_round_rate(clk, rate / 2);
-> +
-> +		if (new_rate < rate)
-> +			rate = new_rate;
-> +		else
-> +			return -EINVAL;
->  	}
->  
-> -	if (prescaler == 6)
-> -		return -EINVAL;
-> +	clk_set_rate(clk, rate);
+> jz4740_pwm_config looks as if the currently running period isn't
+> completed before the new config is in effect. Is that correct? If yes,
+> can this be fixed? A similar question for set_polarity: Does setting=20
+> the
+> JZ_TIMER_CTRL_PWM_ACTIVE_LOW bit in the control register take effect
+> immediately or is this shadowed until the next period starts?
 
-Maybe this could better live in a separate patch. If you split still
-further to have the conversion to regmap in a single patch, then the
-conversion to the clk_* functions and then improve the algorithm for the
-clk settings each of the patches is easier to review than this one patch
-that does all three things at once.
+I don't really know. We only use this driver for a rumble motor and=20
+backlight.
+Somebody would have to check with a logic analyzer.
 
-Best regards
-Uwe
+> How does the device's output behave after the PWM is disabled?
+> Does it complete the currently running period? How does the output
+> behave then? (active/inactive/high/low/high-z?)
 
--- 
-Pengutronix e.K.                           | Uwe Kleine-König            |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+There's a bit to toggle between "graceful" shutdown (bit clear) and=20
+"abrupt"
+shutdown (bit set). TCSR bit 9. I think that graceful shutdown will=20
+complete
+the running period, then keep the level active. Abrupt shutdown will=20
+keep the
+current level of the line.
+
+>>  @@ -42,11 +68,7 @@ static int jz4740_pwm_request(struct pwm_chip=20
+>> *chip, struct pwm_device *pwm)
+>>   	char clk_name[16];
+>>   	int ret;
+>>=20
+>>  -	/*
+>>  -	 * Timers 0 and 1 are used for system tasks, so they are=20
+>> unavailable
+>>  -	 * for use as PWMs.
+>>  -	 */
+>>  -	if (pwm->hwpwm < 2)
+>>  +	if (!jz4740_pwm_can_use_chn(jz, pwm->hwpwm))
+>>   		return -EBUSY;
+>=20
+> Maybe EBUSY isn't the best choice here. If the needed register space=20
+> for
+> the requested pwm is not included in the memory resources provided to
+> the device I'd prefer ENXIO or ENODEV.
+
+The idea was that if we don't get the register space we need, that means
+the channel is used for something else, hence the EBUSY. Should I switch
+it to ENXIO?
+
+>>   	snprintf(clk_name, sizeof(clk_name), "timer%u", pwm->hwpwm);
+>>  @@ -208,6 +230,12 @@ static int jz4740_pwm_probe(struct=20
+>> platform_device *pdev)
+>>   		return -EINVAL;
+>>   	}
+>>=20
+>>  +	jz4740->parent_res =3D platform_get_resource(
+>>  +				to_platform_device(dev->parent),
+>>  +				IORESOURCE_MEM, 0);
+>>  +	if (!jz4740->parent_res)
+>>  +		return -EINVAL;
+>>  +
+>>   	jz4740->chip.dev =3D dev;
+>>   	jz4740->chip.ops =3D &jz4740_pwm_ops;
+>>   	jz4740->chip.npwm =3D NUM_PWM;
+>=20
+> Thanks
+> Uwe
+>=20
+> --
+> Pengutronix e.K.                           | Uwe Kleine-K=F6nig       =20
+>     |
+> Industrial Linux Solutions                 |=20
+> http://www.pengutronix.de/  |
+=
