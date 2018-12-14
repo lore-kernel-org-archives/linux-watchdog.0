@@ -1,50 +1,77 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-vs1-f67.google.com ([209.85.217.67]:40447 "EHLO
-        mail-vs1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726344AbeLNKHC (ORCPT
+Received: from mail-wm1-f66.google.com ([209.85.128.66]:52961 "EHLO
+        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729629AbeLNMrF (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 14 Dec 2018 05:07:02 -0500
+        Fri, 14 Dec 2018 07:47:05 -0500
+Received: by mail-wm1-f66.google.com with SMTP id m1so5573209wml.2
+        for <linux-watchdog@vger.kernel.org>; Fri, 14 Dec 2018 04:47:04 -0800 (PST)
+Date: Fri, 14 Dec 2018 12:47:01 +0000
+From: Lee Jones <lee.jones@linaro.org>
+To: Pascal PAILLET-LME <p.paillet@st.com>
+Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
+        "robh+dt@kernel.org" <robh+dt@kernel.org>,
+        "mark.rutland@arm.com" <mark.rutland@arm.com>,
+        "lgirdwood@gmail.com" <lgirdwood@gmail.com>,
+        "broonie@kernel.org" <broonie@kernel.org>,
+        "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
+        "linux@roeck-us.net" <linux@roeck-us.net>,
+        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+        "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>,
+        "eballetbo@gmail.com" <eballetbo@gmail.com>,
+        "axel.lin@ingics.com" <axel.lin@ingics.com>
+Subject: Re: [PATCH v7 0/7] Introduce STPMIC1 PMIC Driver
+Message-ID: <20181214124701.GZ4497@dell>
+References: <1543571742-17995-1-git-send-email-p.paillet@st.com>
 MIME-Version: 1.0
-References: <1544732333-6086-1-git-send-email-fabrizio.castro@bp.renesas.com>
-In-Reply-To: <1544732333-6086-1-git-send-email-fabrizio.castro@bp.renesas.com>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Fri, 14 Dec 2018 11:06:49 +0100
-Message-ID: <CAMuHMdXTZTxaKwJ3R+1FqHZDxgC-WPQGMHOBxh3MLCNJxu7ZBA@mail.gmail.com>
-Subject: Re: [PATCH] dt-bindings: watchdog: renesas-wdt: Document r8a774c0 support
-To: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
-Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS"
-        <devicetree@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Simon Horman <horms@verge.net.au>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Chris Paterson <Chris.Paterson2@renesas.com>,
-        Biju Das <biju.das@bp.renesas.com>,
-        Linux-Renesas <linux-renesas-soc@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1543571742-17995-1-git-send-email-p.paillet@st.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Thu, Dec 13, 2018 at 9:19 PM Fabrizio Castro
-<fabrizio.castro@bp.renesas.com> wrote:
-> RZ/G2E (R8A774C0) watchdog implementation is compatible with R-Car
-> Gen3, therefore add relevant documentation.
->
-> Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
+On Fri, 30 Nov 2018, Pascal PAILLET-LME wrote:
 
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+> The goal of this patch-set is to propose a driver for the STPMIC1 PMIC from 
+> STMicroelectronics. 
+> The STPMIC1 regulators supply power to an application processor as well as 
+> to external system peripherals such as DDR, Flash memories and system
+> devices. It also features onkey button input and an hardware watchdog.
+> The STPMIC1 is controlled via I2C. 
+> 
+> Main driver is drivers/mfd/stpmic1 that handle I2C regmap configuration and
+> irqchip. stpmic1_regulator, stpmic1_onkey and stpmic1_wdt need stpmic1 mfd
+> as parent.
+> 
+> STPMIC1 MFD and regulator drivers maybe mandatory at boot time.
+> 
+> Pascal Paillet (7):
+> changes in v7:
+> * rebase on regul/for-next
+> 
+>   dt-bindings: mfd: document stpmic1
+>   mfd: stpmic1: add stpmic1 driver
+>   dt-bindings: input: document stpmic1 pmic onkey
+>   input: stpmic1: add stpmic1 onkey driver
+>   dt-bindings: watchdog: document stpmic1 pmic watchdog
+>   watchdog: stpmic1: add stpmic1 watchdog driver
+>   regulator: stpmic1: fix regulator_lock usage
 
-Gr{oetje,eeting}s,
+Could you please remove any patches which have been applied and
+[RESEND]?
 
-                        Geert
+Also, is Dmitry planning on Acking:
+
+  dt-bindings: input: document stpmic1 pmic onkey
+
+... or is Rob's Ack enough?
 
 -- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
