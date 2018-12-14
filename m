@@ -1,103 +1,50 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from metis.ext.pengutronix.de ([85.220.165.71]:41545 "EHLO
-        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730138AbeLNO0p (ORCPT
+Received: from mx08-00178001.pphosted.com ([91.207.212.93]:42450 "EHLO
+        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726554AbeLNOhU (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 14 Dec 2018 09:26:45 -0500
-Date: Fri, 14 Dec 2018 15:26:28 +0100
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-        <u.kleine-koenig@pengutronix.de>
-To: Linus Walleij <linus.walleij@linaro.org>,
-        "thierry.reding@gmail.com" <thierry.reding@gmail.com>
-Cc: Paul Cercueil <paul@crapouillou.net>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ralf Baechle <ralf@linux-mips.org>, paul.burton@mips.com,
-        James Hogan <jhogan@kernel.org>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Mathieu Malaterre <malat@debian.org>, ezequiel@collabora.co.uk,
-        prasannatsmkumar@gmail.com, linux-pwm@vger.kernel.org,
-        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS"
-        <devicetree@vger.kernel.org>,
+        Fri, 14 Dec 2018 09:37:20 -0500
+From: Pascal PAILLET-LME <p.paillet@st.com>
+To: Lee Jones <lee.jones@linaro.org>
+CC: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
+        "robh+dt@kernel.org" <robh+dt@kernel.org>,
+        "mark.rutland@arm.com" <mark.rutland@arm.com>,
+        "lgirdwood@gmail.com" <lgirdwood@gmail.com>,
+        "broonie@kernel.org" <broonie@kernel.org>,
+        "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
+        "linux@roeck-us.net" <linux@roeck-us.net>,
+        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
         "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
-        linux-mips@vger.kernel.org, linux-doc@vger.kernel.org,
-        linux-clk <linux-clk@vger.kernel.org>, od@zcrc.me
-Subject: Re: [PATCH v8 15/26] pwm: jz4740: Add support for the JZ4725B
-Message-ID: <20181214142628.zwi4hadrju53z6f3@pengutronix.de>
-References: <20181212220922.18759-1-paul@crapouillou.net>
- <20181212220922.18759-16-paul@crapouillou.net>
- <20181213092409.ml4wpnzow2nnszkd@pengutronix.de>
- <1544709795.18952.1@crapouillou.net>
- <20181213204219.onem3q6dcmakusl2@pengutronix.de>
- <CACRpkdbABtDgwKai=8Pfji7qVb-XHsX8pDsuDdS5hhg7qEN0Bw@mail.gmail.com>
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+        "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>,
+        "eballetbo@gmail.com" <eballetbo@gmail.com>,
+        "axel.lin@ingics.com" <axel.lin@ingics.com>
+Subject: Re: [PATCH v7 0/7] Introduce STPMIC1 PMIC Driver
+Date: Fri, 14 Dec 2018 14:36:52 +0000
+Message-ID: <5C13C004.9060504@st.com>
+References: <1543571742-17995-1-git-send-email-p.paillet@st.com>
+ <20181214124701.GZ4497@dell>
+In-Reply-To: <20181214124701.GZ4497@dell>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <D6BF6915D0936E40BD5E128ADF17C378@st.com>
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CACRpkdbABtDgwKai=8Pfji7qVb-XHsX8pDsuDdS5hhg7qEN0Bw@mail.gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hello,
-
-On Fri, Dec 14, 2018 at 02:50:20PM +0100, Linus Walleij wrote:
-> On Thu, Dec 13, 2018 at 9:42 PM Uwe Kleine-König
-> <u.kleine-koenig@pengutronix.de> wrote:
-> > [Adding Linus Walleij to Cc:]
-> > On Thu, Dec 13, 2018 at 03:03:15PM +0100, Paul Cercueil wrote:
-> > > Le jeu. 13 déc. 2018 à 10:24, Uwe Kleine-König
-> > > <u.kleine-koenig@pengutronix.de> a écrit :
-> > > > On Wed, Dec 12, 2018 at 11:09:10PM +0100, Paul Cercueil wrote:
-> > > > >  The PWM in the JZ4725B works the same as in the JZ4740, except that
-> > > > > it
-> > > > >  only has 6 channels available instead of 8.
-> > > >
-> > > > this driver is probed only from device tree? If yes, it might be
-> > > > sensible to specify the number of PWMs there and get it from there.
-> > > > There doesn't seem to be a generic binding for that, but there are
-> > > > several drivers that could benefit from it. (This is a bigger project
-> > > > though and shouldn't stop your patch. Still more as it already got
-> > > > Thierry's ack.)
-> > >
-> > > I think there needs to be a proper guideline, as there doesn't seem to be
-> > > a consensus about this. I learned from emails with Rob and Linus (Walleij)
-> > > that I should not have in devicetree what I can deduce from the compatible
-> > > string.
-> >
-> > I understood them a bit differently. It is ok to deduce things from the
-> > compatible string. But if you define a generic property (say) "num-pwms"
-> > that is used uniformly in most bindings this is ok, too. (And then the
-> > two different devices could use the same compatible.)
-> >
-> > An upside of the generic "num-pwms" property is that the pwm core could
-> > sanity check pwm phandles before passing them to the hardware drivers.
-> 
-> I don't know if this helps, but in GPIO we have "ngpios" which is
-> used to augment an existing block as to the number of lines actually
-> used with it.
-> 
-> The typical case is that an ASIC engineer synthesize a block for
-> 32 GPIOs but only 12 of them are routed to external pads. So
-> we augment the behaviour of that driver to only use 12 of the
-> 32 lines.
-> 
-> I guess using the remaining 20 lines "works" in a sense but they
-> have no practical use and will just bias electrons in the silicon
-> for no use.
-
-This looks very similar to the case under discussion.
- 
-> So if the PWM case is something similar, then by all means add
-> num-pwms.
-
-.. or "npwms" to use the same nomenclature as the gpio binding?
-
-Best regards
-Uwe
-
--- 
-Pengutronix e.K.                           | Uwe Kleine-König            |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+SGVsbG8gTGVlLA0KDQpMZSAxMi8xNC8yMDE4IDAxOjQ3IFBNLCBMZWUgSm9uZXMgYSDDqWNyaXQg
+Og0KPiBjaGFuZ2VzIGluIHY3Og0KPiAqIHJlYmFzZSBvbiByZWd1bC9mb3ItbmV4dA0KPg0KPiAg
+ICBkdC1iaW5kaW5nczogbWZkOiBkb2N1bWVudCBzdHBtaWMxDQo+ICAgIG1mZDogc3RwbWljMTog
+YWRkIHN0cG1pYzEgZHJpdmVyDQo+ICAgIGR0LWJpbmRpbmdzOiBpbnB1dDogZG9jdW1lbnQgc3Rw
+bWljMSBwbWljIG9ua2V5DQo+ICAgIGlucHV0OiBzdHBtaWMxOiBhZGQgc3RwbWljMSBvbmtleSBk
+cml2ZXINCj4gICAgZHQtYmluZGluZ3M6IHdhdGNoZG9nOiBkb2N1bWVudCBzdHBtaWMxIHBtaWMg
+d2F0Y2hkb2cNCj4gICAgd2F0Y2hkb2c6IHN0cG1pYzE6IGFkZCBzdHBtaWMxIHdhdGNoZG9nIGRy
+aXZlcg0KPiAgICByZWd1bGF0b3I6IHN0cG1pYzE6IGZpeCByZWd1bGF0b3JfbG9jayB1c2FnZQ0K
+PiBDb3VsZCB5b3UgcGxlYXNlIHJlbW92ZSBhbnkgcGF0Y2hlcyB3aGljaCBoYXZlIGJlZW4gYXBw
+bGllZCBhbmQNCj4gW1JFU0VORF0/DQpET05FLCBJIGhhdmUgcmVzZW50IGEgVjggd2l0aG91dCAg
+dGhlIHJlZ3VsYXRvciBwYXRjaC4NCg0KPiBBbHNvLCBpcyBEbWl0cnkgcGxhbm5pbmcgb24gQWNr
+aW5nOg0KPg0KPiAgICBkdC1iaW5kaW5nczogaW5wdXQ6IGRvY3VtZW50IHN0cG1pYzEgcG1pYyBv
+bmtleQ0KPg0KPiAuLi4gb3IgaXMgUm9iJ3MgQWNrIGVub3VnaD8NCj4NCg0KDQp0aGFuayB5b3Us
+DQpwYXNjYWwNCg==
