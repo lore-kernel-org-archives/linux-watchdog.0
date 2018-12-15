@@ -1,49 +1,73 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pg1-f194.google.com ([209.85.215.194]:44102 "EHLO
-        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730075AbeLOQXg (ORCPT
+Received: from mail-pg1-f193.google.com ([209.85.215.193]:43075 "EHLO
+        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730119AbeLOQ0E (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 15 Dec 2018 11:23:36 -0500
-Date: Sat, 15 Dec 2018 08:23:32 -0800
+        Sat, 15 Dec 2018 11:26:04 -0500
+Date: Sat, 15 Dec 2018 08:26:01 -0800
 From: Guenter Roeck <linux@roeck-us.net>
-To: Ryder Lee <ryder.lee@mediatek.com>
-Cc: Rob Herring <robh+dt@kernel.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        linux-watchdog@vger.kernel.org,
-        Weijie Gao <weijie.gao@mediatek.com>,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: Re: dt-bindings: watchdog: update bindings for MT7629 SoC
-Message-ID: <20181215162332.GA30762@roeck-us.net>
-References: <55d108719233b3c30c747e75a010b9e64681af09.1541573395.git.ryder.lee@mediatek.com>
+To: Loic Poulain <loic.poulain@linaro.org>
+Cc: wim@linux-watchdog.org, robh+dt@kernel.org,
+        linux-arm-msm@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        devicetree@vger.kernel.org, andy.gross@linaro.org
+Subject: Re: [v3,2/3] dt-bindings: watchdog: Add Qualcomm PM8916 watchdog
+Message-ID: <20181215162601.GA8605@roeck-us.net>
+References: <1542962678-13697-2-git-send-email-loic.poulain@linaro.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <55d108719233b3c30c747e75a010b9e64681af09.1541573395.git.ryder.lee@mediatek.com>
+In-Reply-To: <1542962678-13697-2-git-send-email-loic.poulain@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Nov 07, 2018 at 03:10:36PM +0800, Ryder Lee wrote:
-> This updates dt-binding documentation for MT7629 SoC
+On Fri, Nov 23, 2018 at 09:44:37AM +0100, Loic Poulain wrote:
+> Document support for the Watchdog Timer (WDT) Controller in the
+> Qualcomm PM8916 PMIC module.
 > 
-> Signed-off-by: Ryder Lee <ryder.lee@mediatek.com>
+> Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
+> Reviewed-by: Rob Herring <robh@kernel.org>
 
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
 > ---
->  Documentation/devicetree/bindings/watchdog/mtk-wdt.txt | 1 +
->  1 file changed, 1 insertion(+)
+>  v2: Add interrupts and timeout-sec props
+>  v3: Reword props summary
 > 
-> diff --git a/Documentation/devicetree/bindings/watchdog/mtk-wdt.txt b/Documentation/devicetree/bindings/watchdog/mtk-wdt.txt
-> index 859dee1..8682d6a 100644
-> --- a/Documentation/devicetree/bindings/watchdog/mtk-wdt.txt
-> +++ b/Documentation/devicetree/bindings/watchdog/mtk-wdt.txt
-> @@ -8,6 +8,7 @@ Required properties:
->  	"mediatek,mt6797-wdt", "mediatek,mt6589-wdt": for MT6797
->  	"mediatek,mt7622-wdt", "mediatek,mt6589-wdt": for MT7622
->  	"mediatek,mt7623-wdt", "mediatek,mt6589-wdt": for MT7623
-> +	"mediatek,mt7629-wdt", "mediatek,mt6589-wdt": for MT7629
->  
->  - reg : Specifies base physical address and size of the registers.
->  
+>  .../bindings/watchdog/qcom,pm8916-wdt.txt          | 28 ++++++++++++++++++++++
+>  1 file changed, 28 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/watchdog/qcom,pm8916-wdt.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/watchdog/qcom,pm8916-wdt.txt b/Documentation/devicetree/bindings/watchdog/qcom,pm8916-wdt.txt
+> new file mode 100644
+> index 0000000..6fb984f
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/watchdog/qcom,pm8916-wdt.txt
+> @@ -0,0 +1,28 @@
+> +QCOM PM8916 watchdog timer controller
+> +
+> +This pm8916 watchdog timer controller must be under pm8916-pon node.
+> +
+> +Required properties:
+> +- compatible: should be "qcom,pm8916-wdt"
+> +
+> +Optional properties :
+> +- interrupts : Watchdog pre-timeout (bark) interrupt.
+> +- timeout-sec : Watchdog timeout value in seconds.
+> +
+> +Example:
+> +
+> +	pm8916_0: pm8916@0 {
+> +		compatible = "qcom,pm8916", "qcom,spmi-pmic";
+> +		reg = <0x0 SPMI_USID>;
+> +
+> +		pon@800 {
+> +			compatible = "qcom,pm8916-pon";
+> +			reg = <0x800>;
+> +
+> +			watchdog {
+> +				compatible = "qcom,pm8916-wdt";
+> +				interrupts = <0x0 0x8 6 IRQ_TYPE_EDGE_RISING>;
+> +				timeout-sec = <10>;
+> +			};
+> +		};
+> +	};
