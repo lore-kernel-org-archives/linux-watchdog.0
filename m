@@ -1,37 +1,49 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from kirsty.vergenet.net ([202.4.237.240]:47074 "EHLO
-        kirsty.vergenet.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729687AbeLONvw (ORCPT
+Received: from mail-pg1-f194.google.com ([209.85.215.194]:44102 "EHLO
+        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730075AbeLOQXg (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 15 Dec 2018 08:51:52 -0500
-Date: Sat, 15 Dec 2018 14:51:47 +0100
-From: Simon Horman <horms@verge.net.au>
-To: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
-Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Chris Paterson <Chris.Paterson2@renesas.com>,
-        Biju Das <biju.das@bp.renesas.com>,
-        linux-renesas-soc@vger.kernel.org
-Subject: Re: [PATCH] dt-bindings: watchdog: renesas-wdt: Document r8a774c0
- support
-Message-ID: <20181215135147.w2kpucxvmoe27yzr@verge.net.au>
-References: <1544732333-6086-1-git-send-email-fabrizio.castro@bp.renesas.com>
+        Sat, 15 Dec 2018 11:23:36 -0500
+Date: Sat, 15 Dec 2018 08:23:32 -0800
+From: Guenter Roeck <linux@roeck-us.net>
+To: Ryder Lee <ryder.lee@mediatek.com>
+Cc: Rob Herring <robh+dt@kernel.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        linux-watchdog@vger.kernel.org,
+        Weijie Gao <weijie.gao@mediatek.com>,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: Re: dt-bindings: watchdog: update bindings for MT7629 SoC
+Message-ID: <20181215162332.GA30762@roeck-us.net>
+References: <55d108719233b3c30c747e75a010b9e64681af09.1541573395.git.ryder.lee@mediatek.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1544732333-6086-1-git-send-email-fabrizio.castro@bp.renesas.com>
+In-Reply-To: <55d108719233b3c30c747e75a010b9e64681af09.1541573395.git.ryder.lee@mediatek.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Thu, Dec 13, 2018 at 08:18:53PM +0000, Fabrizio Castro wrote:
-> RZ/G2E (R8A774C0) watchdog implementation is compatible with R-Car
-> Gen3, therefore add relevant documentation.
+On Wed, Nov 07, 2018 at 03:10:36PM +0800, Ryder Lee wrote:
+> This updates dt-binding documentation for MT7629 SoC
 > 
-> Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
+> Signed-off-by: Ryder Lee <ryder.lee@mediatek.com>
 
-Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+
+> ---
+>  Documentation/devicetree/bindings/watchdog/mtk-wdt.txt | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/Documentation/devicetree/bindings/watchdog/mtk-wdt.txt b/Documentation/devicetree/bindings/watchdog/mtk-wdt.txt
+> index 859dee1..8682d6a 100644
+> --- a/Documentation/devicetree/bindings/watchdog/mtk-wdt.txt
+> +++ b/Documentation/devicetree/bindings/watchdog/mtk-wdt.txt
+> @@ -8,6 +8,7 @@ Required properties:
+>  	"mediatek,mt6797-wdt", "mediatek,mt6589-wdt": for MT6797
+>  	"mediatek,mt7622-wdt", "mediatek,mt6589-wdt": for MT7622
+>  	"mediatek,mt7623-wdt", "mediatek,mt6589-wdt": for MT7623
+> +	"mediatek,mt7629-wdt", "mediatek,mt6589-wdt": for MT7629
+>  
+>  - reg : Specifies base physical address and size of the registers.
+>  
