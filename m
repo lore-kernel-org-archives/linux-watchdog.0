@@ -1,174 +1,117 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from metis.ext.pengutronix.de ([85.220.165.71]:39993 "EHLO
+Received: from metis.ext.pengutronix.de ([85.220.165.71]:39327 "EHLO
         metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731080AbeLQHnh (ORCPT
+        with ESMTP id S1726622AbeLQHxe (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 17 Dec 2018 02:43:37 -0500
-Date: Mon, 17 Dec 2018 08:43:18 +0100
+        Mon, 17 Dec 2018 02:53:34 -0500
+Date: Mon, 17 Dec 2018 08:53:21 +0100
 From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
         <u.kleine-koenig@pengutronix.de>
 To: Paul Cercueil <paul@crapouillou.net>
-Cc: Thierry Reding <thierry.reding@gmail.com>,
+Cc: Linus Walleij <linus.walleij@linaro.org>,
+        "thierry.reding@gmail.com" <thierry.reding@gmail.com>,
         Rob Herring <robh+dt@kernel.org>,
         Mark Rutland <mark.rutland@arm.com>,
         Daniel Lezcano <daniel.lezcano@linaro.org>,
         Thomas Gleixner <tglx@linutronix.de>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Paul Burton <paul.burton@mips.com>,
+        Ralf Baechle <ralf@linux-mips.org>, paul.burton@mips.com,
         James Hogan <jhogan@kernel.org>,
         Jonathan Corbet <corbet@lwn.net>,
-        Mathieu Malaterre <malat@debian.org>,
-        Ezequiel Garcia <ezequiel@collabora.co.uk>,
-        PrasannaKumar Muralidharan <prasannatsmkumar@gmail.com>,
-        linux-pwm@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        Mathieu Malaterre <malat@debian.org>, ezequiel@collabora.co.uk,
+        prasannatsmkumar@gmail.com, linux-pwm@vger.kernel.org,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS"
+        <devicetree@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
         linux-mips@vger.kernel.org, linux-doc@vger.kernel.org,
-        linux-clk@vger.kernel.org, od@zcrc.me
-Subject: Re: [PATCH v8 12/26] pwm: jz4740: Allow selection of PWM channels 0
- and 1
-Message-ID: <20181217074318.y3mtn5aqmnknae3d@pengutronix.de>
+        linux-clk <linux-clk@vger.kernel.org>, od@zcrc.me
+Subject: Re: [PATCH v8 15/26] pwm: jz4740: Add support for the JZ4725B
+Message-ID: <20181217075321.k45vhgnszeqs3tea@pengutronix.de>
 References: <20181212220922.18759-1-paul@crapouillou.net>
- <20181212220922.18759-13-paul@crapouillou.net>
- <20181213091822.r5ilpsllfhzaiqw4@pengutronix.de>
- <1544709511.18952.0@crapouillou.net>
- <20181213203243.ucjwqtkyp6aboxp4@pengutronix.de>
- <1544967364.1649.0@crapouillou.net>
+ <20181212220922.18759-16-paul@crapouillou.net>
+ <20181213092409.ml4wpnzow2nnszkd@pengutronix.de>
+ <1544709795.18952.1@crapouillou.net>
+ <20181213204219.onem3q6dcmakusl2@pengutronix.de>
+ <CACRpkdbABtDgwKai=8Pfji7qVb-XHsX8pDsuDdS5hhg7qEN0Bw@mail.gmail.com>
+ <20181214142628.zwi4hadrju53z6f3@pengutronix.de>
+ <1544969932.1649.1@crapouillou.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <1544967364.1649.0@crapouillou.net>
+In-Reply-To: <1544969932.1649.1@crapouillou.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hello Paul,
-
-On Sun, Dec 16, 2018 at 02:36:03PM +0100, Paul Cercueil wrote:
-> Le jeu. 13 déc. 2018 à 21:32, Uwe Kleine-König
+On Sun, Dec 16, 2018 at 03:18:52PM +0100, Paul Cercueil wrote:
+> Hi,
+> 
+> Le ven. 14 déc. 2018 à 15:26, Uwe Kleine-König
 > <u.kleine-koenig@pengutronix.de> a écrit :
-> > On Thu, Dec 13, 2018 at 02:58:31PM +0100, Paul Cercueil wrote:
-> > >  Hi,
+> > Hello,
+> > 
+> > On Fri, Dec 14, 2018 at 02:50:20PM +0100, Linus Walleij wrote:
+> > > On Thu, Dec 13, 2018 at 9:42 PM Uwe Kleine-König
+> > > <u.kleine-koenig@pengutronix.de> wrote:
+> > > > [Adding Linus Walleij to Cc:]
+> > > > On Thu, Dec 13, 2018 at 03:03:15PM +0100, Paul Cercueil wrote:
+> > > > > Le jeu. 13 déc. 2018 à 10:24, Uwe Kleine-König
+> > > > > <u.kleine-koenig@pengutronix.de> a écrit :
+> > > > > > On Wed, Dec 12, 2018 at 11:09:10PM +0100, Paul Cercueil wrote:
+> > > > > > >  The PWM in the JZ4725B works the same as in the JZ4740,
+> > > > > > >  except that it only has 6 channels available instead of
+> > > > > > >  8.
+> > > > > >
+> > > > > > this driver is probed only from device tree? If yes, it
+> > > > > > might be sensible to specify the number of PWMs there and
+> > > > > > get it from there.
+> > > > > > There doesn't seem to be a generic binding for that, but there are
+> > > > > > several drivers that could benefit from it. (This is a bigger project
+> > > > > > though and shouldn't stop your patch. Still more as it already got
+> > > > > > Thierry's ack.)
+> > > > >
+> > > > > I think there needs to be a proper guideline, as there doesn't seem to be
+> > > > > a consensus about this. I learned from emails with Rob and  Linus (Walleij)
+> > > > > that I should not have in devicetree what I can deduce from the compatible
+> > > > > string.
+> > > >
+> > > > I understood them a bit differently. It is ok to deduce things from the
+> > > > compatible string. But if you define a generic property (say) "num-pwms"
+> > > > that is used uniformly in most bindings this is ok, too. (And then the
+> > > > two different devices could use the same compatible.)
+> > > >
+> > > > An upside of the generic "num-pwms" property is that the pwm core could
+> > > > sanity check pwm phandles before passing them to the hardware drivers.
 > > > 
-> > >  Le jeu. 13 déc. 2018 à 10:18, Uwe Kleine-König
-> > >  <u.kleine-koenig@pengutronix.de> a écrit :
-> > >  > On Wed, Dec 12, 2018 at 11:09:07PM +0100, Paul Cercueil wrote:
-> > >  > >  The TCU channels 0 and 1 were previously reserved for system
-> > > tasks,
-> > >  > > and
-> > >  > >  thus unavailable for PWM.
-> > >  > >
-> > >  > >  The driver will now only allow a PWM channel to be requested if
-> > >  > > memory
-> > >  > >  resources corresponding to the register area of the channel
-> > > were
-> > >  > >  supplied to the driver. This allows the TCU channels to be
-> > > reserved
-> > >  > > for
-> > >  > >  system tasks from within the devicetree.
-> > >  > >
-> > >  > >  Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-> > >  >
-> > >  > While there is someone caring for this driver I'd like to
-> > > complete (a
-> > >  > bit) my picture about the different capabilities and specialities
-> > > of the
-> > >  > supported PWMs. So I have a few questions:
-> > >  >
-> > >  > Is there a publicly available reference manual for this device?
-> > > (If
-> > >  > yes, adding a link to the driver would be great.)
+> > >  I don't know if this helps, but in GPIO we have "ngpios" which is
+> > >  used to augment an existing block as to the number of lines actually
+> > >  used with it.
 > > > 
-> > >  I have them here: https://zcrc.me/~paul/jz_docs/
-> > 
-> > Is this link good enough to add it to the driver? From a quick view I'd
-> > say this is another pwm implementation that gets active on
-> > pwm_disable().
-> > Can you confirm this?
-> 
-> It's my website, so if these get moved, I can update the link.
-> 
-> What do you mean it gets active on pwm_disable()? If pwm_disable() gets
-> called the PWM line goes back to inactive state, which is what it
-> should do.
-
-The register description for TCSRn.PWM_EN reads:
-
-	1: PWM pin output enable
-	0: PWM pin output disable, and the PWM pin will be set to the
-	   initial level according to INITL
-
-As I read the manual (but that differes from the driver) you should use
-INITL=1 for an uninverted PWM such that the period starts with the
-output being 1. And with that I'd expect that the output goes high on
-disable. Given that the driver inverts this and sets INITL (called
-JZ_TIMER_CTRL_PWM_ACTIVE_LOW in the driver) for an inverted pwm that
-behaviour is ok. With this approach the bug is not the level when
-pwm_disable was called but that the period doesn't start with the active
-part of the period.
-
-> > >  > jz4740_pwm_config looks as if the currently running period isn't
-> > >  > completed before the new config is in effect. Is that correct? If
-> > > yes,
-> > >  > can this be fixed? A similar question for set_polarity: Does
-> > > setting the
-> > >  > JZ_TIMER_CTRL_PWM_ACTIVE_LOW bit in the control register take
-> > > effect
-> > >  > immediately or is this shadowed until the next period starts?
+> > >  The typical case is that an ASIC engineer synthesize a block for
+> > >  32 GPIOs but only 12 of them are routed to external pads. So
+> > >  we augment the behaviour of that driver to only use 12 of the
+> > >  32 lines.
 > > > 
-> > >  I don't really know. We only use this driver for a rumble motor and
-> > >  backlight.
-> > >  Somebody would have to check with a logic analyzer.
+> > >  I guess using the remaining 20 lines "works" in a sense but they
+> > >  have no practical use and will just bias electrons in the silicon
+> > >  for no use.
 > > 
-> > depending on the possible timings you might also be able to test this
-> > e.g. by setting:
+> > This looks very similar to the case under discussion.
 > > 
-> > 	duty_cycle=1ms, period=5s
+> > >  So if the PWM case is something similar, then by all means add
+> > >  num-pwms.
 > > 
-> > and then
-> > 
-> > 	duty_cycle=5s, period=5s
-> > 
-> > . If the implementation is right your display should be dark for nearly
-> > 5 seconds. (And the second call to pwm_apply should also block until the
-> > display is on.)
+> > .. or "npwms" to use the same nomenclature as the gpio binding?
 > 
-> So it switches to full ON as soon as I set the duty cycle to 5s. Same for
-> the polarity, it is updated as soon as the register is written. So the
-> registers are not shadowed.
+> If we're going to do something like this, should it be the drivers or
+> the core (within pwmchip_add) that checks for this "npwms" property?
 
-Then I think the right thing to do is to gracefully disable the hardware
-on a duty/period change first to ensure the currently running period is
-completed before the next configuration gets active.
+Of course this should be done in the core. The driver than can rely on
+the validity of the index. But as I wrote before, this shouldn't stop
+your patch from going in.
 
-> > >  > How does the device's output behave after the PWM is disabled?
-> > >  > Does it complete the currently running period? How does the output
-> > >  > behave then? (active/inactive/high/low/high-z?)
-> > > 
-> > >  There's a bit to toggle between "graceful" shutdown (bit clear) and
-> > > "abrupt"
-> > >  shutdown (bit set). TCSR bit 9. I think that graceful shutdown will
-> > > complete
-> > >  the running period, then keep the level active. Abrupt shutdown
-> > > will keep
-> > >  the
-> > >  current level of the line.
-> > 
-> > Can you confirm the things you think above? I'd like to have them
-> > eventually documented in the driver.
-> 
-> From what I can see, with "abrupt" shutdown the line will always return to
-> its inactive state (be it low or high, depending on the polarity). Setting
-> this bit to "graceful" shutdown, the only difference is that the hardware
-> will keep its current state, active or inactive. That's why we use the
-> "abrupt" shutdown in the PWM driver.
-
-That sounds backwards from your last mail and the reference manual. As I
-read the manual "graceful" means the period is completed until FULL
-matches. And I understand "aprupt" as "immediatly freeze". If this is
-the case the names in the manual are well chosen.
-
-For the pwm framework the intended behaviour is the graceful one. (For
-both, disable and duty/period change.)
+But if Thierry agrees that this npmws (or num-pwms) is a good idea, it
+would be great to start early to convert drivers.
 
 Best regards
 Uwe
