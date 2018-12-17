@@ -1,61 +1,210 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pl1-f196.google.com ([209.85.214.196]:40508 "EHLO
-        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727038AbeLQUIl (ORCPT
+Received: from mail-ot1-f65.google.com ([209.85.210.65]:42632 "EHLO
+        mail-ot1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728204AbeLQVFe (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 17 Dec 2018 15:08:41 -0500
-Date: Mon, 17 Dec 2018 12:08:39 -0800
-From: Guenter Roeck <linux@roeck-us.net>
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-watchdog@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
-        Wim Van Sebroeck <wim@linux-watchdog.org>
-Subject: Re: [PATCH] watchdog: add documentation for PM usage
-Message-ID: <20181217200839.GB29585@roeck-us.net>
-References: <20181217193314.3487-1-wsa+renesas@sang-engineering.com>
+        Mon, 17 Dec 2018 16:05:34 -0500
+Date: Mon, 17 Dec 2018 15:05:31 -0600
+From: Rob Herring <robh@kernel.org>
+To: Paul Cercueil <paul@crapouillou.net>
+Cc: Thierry Reding <thierry.reding@gmail.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        Paul Burton <paul.burton@mips.com>,
+        James Hogan <jhogan@kernel.org>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Mathieu Malaterre <malat@debian.org>,
+        Ezequiel Garcia <ezequiel@collabora.co.uk>,
+        PrasannaKumar Muralidharan <prasannatsmkumar@gmail.com>,
+        linux-pwm@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-doc@vger.kernel.org,
+        linux-clk@vger.kernel.org, od@zcrc.me
+Subject: Re: [PATCH v8 03/26] dt-bindings: Add doc for the Ingenic TCU drivers
+Message-ID: <20181217210531.GA29770@bogus>
+References: <20181212220922.18759-1-paul@crapouillou.net>
+ <20181212220922.18759-4-paul@crapouillou.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20181217193314.3487-1-wsa+renesas@sang-engineering.com>
+In-Reply-To: <20181212220922.18759-4-paul@crapouillou.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Dec 17, 2018 at 08:33:14PM +0100, Wolfram Sang wrote:
-> Add the first rule we recently agreed on.
+On Wed, Dec 12, 2018 at 11:08:58PM +0100, Paul Cercueil wrote:
+> Add documentation about how to properly use the Ingenic TCU
+> (Timer/Counter Unit) drivers from devicetree.
 > 
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-
+> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
 > ---
->  Documentation/watchdog/watchdog-pm.txt | 19 +++++++++++++++++++
->  1 file changed, 19 insertions(+)
->  create mode 100644 Documentation/watchdog/watchdog-pm.txt
 > 
-> diff --git a/Documentation/watchdog/watchdog-pm.txt b/Documentation/watchdog/watchdog-pm.txt
+> Notes:
+>      v4: New patch in this series. Corresponds to V2 patches 3-4-5 with
+>          added content.
+>     
+>      v5: - Edited PWM/watchdog DT bindings documentation to point to the new
+>            document.
+>          - Moved main document to
+>            Documentation/devicetree/bindings/timer/ingenic,tcu.txt
+>          - Updated documentation to reflect the new devicetree bindings.
+>     
+>      v6: - Removed PWM/watchdog documentation files as asked by upstream
+>          - Removed doc about properties that should be implicit
+>          - Removed doc about ingenic,timer-channel /
+>            ingenic,clocksource-channel as they are gone
+>          - Fix WDT clock name in the binding doc
+>          - Fix lengths of register areas in watchdog/pwm nodes
+>     
+>      v7: No change
+> 
+>      v8: - Fix address of the PWM node
+>          - Added doc about system timer and clocksource children nodes
+
+I thought we'd sorted this out...
+
+> 
+>  .../devicetree/bindings/pwm/ingenic,jz47xx-pwm.txt |  25 ---
+>  .../devicetree/bindings/timer/ingenic,tcu.txt      | 176 +++++++++++++++++++++
+>  .../bindings/watchdog/ingenic,jz4740-wdt.txt       |  17 --
+>  3 files changed, 176 insertions(+), 42 deletions(-)
+>  delete mode 100644 Documentation/devicetree/bindings/pwm/ingenic,jz47xx-pwm.txt
+>  create mode 100644 Documentation/devicetree/bindings/timer/ingenic,tcu.txt
+>  delete mode 100644 Documentation/devicetree/bindings/watchdog/ingenic,jz4740-wdt.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/pwm/ingenic,jz47xx-pwm.txt b/Documentation/devicetree/bindings/pwm/ingenic,jz47xx-pwm.txt
+> deleted file mode 100644
+> index 7d9d3f90641b..000000000000
+> --- a/Documentation/devicetree/bindings/pwm/ingenic,jz47xx-pwm.txt
+> +++ /dev/null
+> @@ -1,25 +0,0 @@
+> -Ingenic JZ47xx PWM Controller
+> -=============================
+> -
+> -Required properties:
+> -- compatible: One of:
+> -  * "ingenic,jz4740-pwm"
+> -  * "ingenic,jz4770-pwm"
+> -  * "ingenic,jz4780-pwm"
+> -- #pwm-cells: Should be 3. See pwm.txt in this directory for a description
+> -  of the cells format.
+> -- clocks : phandle to the external clock.
+> -- clock-names : Should be "ext".
+> -
+> -
+> -Example:
+> -
+> -	pwm: pwm@10002000 {
+> -		compatible = "ingenic,jz4740-pwm";
+> -		reg = <0x10002000 0x1000>;
+> -
+> -		#pwm-cells = <3>;
+> -
+> -		clocks = <&ext>;
+> -		clock-names = "ext";
+> -	};
+> diff --git a/Documentation/devicetree/bindings/timer/ingenic,tcu.txt b/Documentation/devicetree/bindings/timer/ingenic,tcu.txt
 > new file mode 100644
-> index 000000000000..7a4dd46e0d24
+> index 000000000000..8a4ce7edf50f
 > --- /dev/null
-> +++ b/Documentation/watchdog/watchdog-pm.txt
-> @@ -0,0 +1,19 @@
-> +The Linux WatchDog Timer Power Management Guide
-> +===============================================
-> +Last reviewed: 17-Dec-2018
+> +++ b/Documentation/devicetree/bindings/timer/ingenic,tcu.txt
+> @@ -0,0 +1,176 @@
+> +Ingenic JZ47xx SoCs Timer/Counter Unit devicetree bindings
+> +==========================================================
 > +
-> +Wolfram Sang <wsa+renesas@sang-engineering.com>
+> +For a description of the TCU hardware and drivers, have a look at
+> +Documentation/mips/ingenic-tcu.txt.
 > +
-> +Introduction
-> +------------
-> +This document states rules about watchdog devices and their power management
-> +handling to ensure a uniform behaviour for Linux systems.
+> +Required properties:
+> +
+> +- compatible: Must be one of:
+> +  * ingenic,jz4740-tcu
+> +  * ingenic,jz4725b-tcu
+> +  * ingenic,jz4770-tcu
+> +- reg: Should be the offset/length value corresponding to the TCU registers
+> +- clocks: List of phandle & clock specifiers for clocks external to the TCU.
+> +  The "pclk", "rtc", "ext" and "tcu" clocks should be provided.
+> +- clock-names: List of name strings for the external clocks.
+> +- #clock-cells: Should be <1>;
+> +  Clock consumers specify this argument to identify a clock. The valid values
+> +  may be found in <dt-bindings/clock/ingenic,tcu.h>.
+> +- interrupt-controller : Identifies the node as an interrupt controller
+> +- #interrupt-cells : Specifies the number of cells needed to encode an
+> +  interrupt source. The value should be 1.
+> +- interrupt-parent : phandle of the interrupt controller.
+> +- interrupts : Specifies the interrupt the controller is connected to.
 > +
 > +
-> +Ping on resume
+> +Children nodes
+> +==========================================================
+> +
+> +
+> +PWM node:
+> +---------
+> +
+> +Required properties:
+> +
+> +- compatible: Must be one of:
+> +  * ingenic,jz4740-pwm
+> +  * ingenic,jz4725b-pwm
+> +- #pwm-cells: Should be 3. See ../pwm/pwm.txt for a description of the cell
+> +  format.
+> +- clocks: List of phandle & clock specifiers for the TCU clocks.
+> +- clock-names: List of name strings for the TCU clocks.
+> +
+> +
+> +Watchdog node:
 > +--------------
-> +On resume, a watchdog timer shall be reset to its selected value to give
-> +userspace enough time to resume. [1] [2]
 > +
-> +[1] https://patchwork.kernel.org/patch/10252209/
-> +[2] https://patchwork.kernel.org/patch/10711625/
-> -- 
-> 2.19.1
-> 
+> +Required properties:
+> +
+> +- compatible: Must be one of:
+> +  * ingenic,jz4740-watchdog
+> +  * ingenic,jz4780-watchdog
+> +- clocks: phandle to the WDT clock
+> +- clock-names: should be "wdt"
+> +
+> +
+> +OST node:
+> +---------
+> +
+> +Required properties:
+> +
+> +- compatible: Must be one of:
+> +  * ingenic,jz4725b-ost
+> +  * ingenic,jz4770-ost
+> +- clocks: phandle to the OST clock
+> +- clock-names: should be "ost"
+> +- interrupts : Specifies the interrupt the OST is connected to.
+> +
+> +
+> +System timer node:
+> +------------------
+> +
+> +Required properties:
+> +
+> +- compatible: Must be "ingenic,jz4740-tcu-timer"
+
+Is this an actual sub-block? Or just a way to assign a timer to a 
+clockevent?
+
+> +- clocks: phandle to the clock of the TCU channel used
+> +- clock-names: Should be "timer"
+> +- interrupts : Specifies the interrupt line of the TCU channel used.
+> +
+> +
+> +System clocksource node:
+> +------------------------
+> +
+> +Required properties:
+> +
+> +- compatible: Must be "ingenic,jz4740-tcu-clocksource"
+
+The h/w has a block called 'clocksource'?
+
+If there's a difference in the timer channels, then that difference 
+should be described in DT, not just 'use timer X for clocksource'.
+
+> +- clocks: phandle to the clock of the TCU channel used
+> +- clock-names: Should be "timer"
