@@ -1,44 +1,74 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:39610 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726934AbeLQXSk (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 17 Dec 2018 18:18:40 -0500
-Content-Type: text/plain; charset="utf-8"
+Received: from mail-vk1-f194.google.com ([209.85.221.194]:36257 "EHLO
+        mail-vk1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726370AbeLRHsU (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 18 Dec 2018 02:48:20 -0500
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <20181212220922.18759-2-paul@crapouillou.net>
-Subject: Re: [PATCH v8 01/26] dt-bindings: ingenic: Add DT bindings for TCU clocks
-To: Daniel Lezcano <daniel.lezcano@linaro.org>,
-        James Hogan <jhogan@kernel.org>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Paul Burton <paul.burton@mips.com>,
-        Paul Cercueil <paul@crapouillou.net>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-References: <20181212220922.18759-1-paul@crapouillou.net> <20181212220922.18759-2-paul@crapouillou.net>
-Message-ID: <154508871842.19322.11473376752929195621@swboyd.mtv.corp.google.com>
-From: Stephen Boyd <sboyd@kernel.org>
-Cc: Mathieu Malaterre <malat@debian.org>,
-        Ezequiel Garcia <ezequiel@collabora.co.uk>,
-        PrasannaKumar Muralidharan <prasannatsmkumar@gmail.com>,
-        linux-pwm@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        linux-mips@vger.kernel.org, linux-doc@vger.kernel.org,
-        linux-clk@vger.kernel.org, od@zcrc.me,
-        Paul Cercueil <paul@crapouillou.net>
-Date: Mon, 17 Dec 2018 15:18:38 -0800
+References: <20181217193314.3487-1-wsa+renesas@sang-engineering.com>
+In-Reply-To: <20181217193314.3487-1-wsa+renesas@sang-engineering.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Tue, 18 Dec 2018 08:48:06 +0100
+Message-ID: <CAMuHMdWJE9gu1LJbBz1++VxF9VkO8_Xkvc368BriXhcR6z88zQ@mail.gmail.com>
+Subject: Re: [PATCH] watchdog: add documentation for PM usage
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
+        Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Kieran Bingham <kbingham@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Quoting Paul Cercueil (2018-12-12 14:08:56)
-> This header provides clock numbers for the ingenic,tcu
-> DT binding.
->=20
-> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-> Reviewed-by: Rob Herring <robh@kernel.org>
-> ---
+Hi Wolfram,
 
-Acked-by: Stephen Boyd <sboyd@kernel.org>
+On Mon, Dec 17, 2018 at 9:36 PM Wolfram Sang
+<wsa+renesas@sang-engineering.com> wrote:
+> Add the first rule we recently agreed on.
+>
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> ---
+>  Documentation/watchdog/watchdog-pm.txt | 19 +++++++++++++++++++
+>  1 file changed, 19 insertions(+)
+>  create mode 100644 Documentation/watchdog/watchdog-pm.txt
+>
+> diff --git a/Documentation/watchdog/watchdog-pm.txt b/Documentation/watchdog/watchdog-pm.txt
+> new file mode 100644
+> index 000000000000..7a4dd46e0d24
+> --- /dev/null
+> +++ b/Documentation/watchdog/watchdog-pm.txt
+> @@ -0,0 +1,19 @@
+> +The Linux WatchDog Timer Power Management Guide
+> +===============================================
+> +Last reviewed: 17-Dec-2018
+> +
+> +Wolfram Sang <wsa+renesas@sang-engineering.com>
+> +
+> +Introduction
+> +------------
+> +This document states rules about watchdog devices and their power management
+> +handling to ensure a uniform behaviour for Linux systems.
+> +
+> +
+> +Ping on resume
+> +--------------
+> +On resume, a watchdog timer shall be reset to its selected value to give
+> +userspace enough time to resume. [1] [2]
+> +
+> +[1] https://patchwork.kernel.org/patch/10252209/
+> +[2] https://patchwork.kernel.org/patch/10711625/
+
+Is patchwork content preserved eternally?
+I would use a link to lore.kernel.org instead, except that the above two threads
+can't be found (while they should).
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
