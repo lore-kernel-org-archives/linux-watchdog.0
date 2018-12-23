@@ -1,36 +1,32 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pl1-f194.google.com ([209.85.214.194]:45511 "EHLO
-        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725865AbeLVQ4A (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 22 Dec 2018 11:56:00 -0500
-Received: by mail-pl1-f194.google.com with SMTP id a14so3884080plm.12
-        for <linux-watchdog@vger.kernel.org>; Sat, 22 Dec 2018 08:55:59 -0800 (PST)
+Return-Path: <pburton@wavecomp.com>
+Return-path: <pburton@wavecomp.com>
+From: Paul Burton <paul.burton@mips.com>
+To: Linus Walleij <linus.walleij@linaro.org>
+CC: Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck
+	<linux@roeck-us.net>, "linux-watchdog@vger.kernel.org"
+	<linux-watchdog@vger.kernel.org>, Ralf Baechle <ralf@linux-mips.org>, James
+ Hogan <jhogan@kernel.org>, "linux-mips@linux-mips.org"
+	<linux-mips@linux-mips.org>, "linux-mips@vger.kernel.org"
+	<linux-mips@vger.kernel.org>, Florian Fainelli <f.fainelli@gmail.com>
 Subject: Re: [PATCH v4] watchdog: mtx-1: Convert to use GPIO descriptor
-To: Linus Walleij <linus.walleij@linaro.org>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>
-Cc: linux-watchdog@vger.kernel.org, Ralf Baechle <ralf@linux-mips.org>,
-        Paul Burton <paul.burton@mips.com>,
-        James Hogan <jhogan@kernel.org>, linux-mips@linux-mips.org,
-        Florian Fainelli <f.fainelli@gmail.com>
+Date: Sun, 23 Dec 2018 15:26:33 +0000
+Message-ID: <20181223152625.bbaa6o3gc6q2r7qo@pburton-laptop>
 References: <20181222101231.19092-1-linus.walleij@linaro.org>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <e5cd3f12-867b-4719-d25e-6f8fdc1a763f@roeck-us.net>
-Date: Sat, 22 Dec 2018 07:04:37 -0800
-MIME-Version: 1.0
 In-Reply-To: <20181222101231.19092-1-linus.walleij@linaro.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <320562F142CED54A9FBE79D0F44B40ED@namprd22.prod.outlook.com>
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 12/22/18 2:12 AM, Linus Walleij wrote:
+Hi Linus,
+
+On Sat, Dec 22, 2018 at 11:12:31AM +0100, Linus Walleij wrote:
 > This converts the MTX-1 driver to grab a GPIO descriptor
 > associated with the device instead of using a resource with
 > a global GPIO number. Augment the driver and the boardfile.
-> 
+>=20
 > Cc: Ralf Baechle <ralf@linux-mips.org>
 > Cc: Paul Burton <paul.burton@mips.com>
 > Cc: James Hogan <jhogan@kernel.org>
@@ -38,139 +34,13 @@ On 12/22/18 2:12 AM, Linus Walleij wrote:
 > Cc: Florian Fainelli <f.fainelli@gmail.com>
 > Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
 > Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-
 > ---
 > ChangeLog v3->v4:
 > - Collect Florian's Review-tag.
 > - Cc MIPS maintainers. Please provide an ACK so that Guenther
->    can merge this into the watchdog tree!
-> ChangeLog v2->v3:
-> - Fix to acces .gpiod rather than .gpio
-> - Drop resource assignment in boardfile: no resources left
->    to pass.
-> ChangeLog v1->v2:
-> - Add the correct descriptor table to the board file and
->    register it. I missed the existing board file in the
->    previous iteration.
-> ---
->   arch/mips/alchemy/board-mtx1.c | 18 +++++++++---------
->   drivers/watchdog/mtx-1_wdt.c   | 19 +++++++++----------
->   2 files changed, 18 insertions(+), 19 deletions(-)
-> 
-> diff --git a/arch/mips/alchemy/board-mtx1.c b/arch/mips/alchemy/board-mtx1.c
-> index d625e6f99ae7..9d9d4ee31605 100644
-> --- a/arch/mips/alchemy/board-mtx1.c
-> +++ b/arch/mips/alchemy/board-mtx1.c
-> @@ -24,6 +24,7 @@
->   #include <linux/platform_device.h>
->   #include <linux/leds.h>
->   #include <linux/gpio.h>
-> +#include <linux/gpio/machine.h>
->   #include <linux/gpio_keys.h>
->   #include <linux/input.h>
->   #include <linux/mtd/partitions.h>
-> @@ -130,20 +131,18 @@ static struct platform_device mtx1_button = {
->   	}
->   };
->   
-> -static struct resource mtx1_wdt_res[] = {
-> -	[0] = {
-> -		.start	= 215,
-> -		.end	= 215,
-> -		.name	= "mtx1-wdt-gpio",
-> -		.flags	= IORESOURCE_IRQ,
-> -	}
-> +static struct gpiod_lookup_table mtx1_wdt_gpio_table = {
-> +	.dev_id = "mtx1-wdt.0",
-> +	.table = {
-> +		/* Global number 215 is offset 15 on Alchemy GPIO 2 */
-> +		GPIO_LOOKUP("alchemy-gpio2", 15, NULL, GPIO_ACTIVE_HIGH),
-> +		{ },
-> +	},
->   };
->   
->   static struct platform_device mtx1_wdt = {
->   	.name = "mtx1-wdt",
->   	.id = 0,
-> -	.num_resources = ARRAY_SIZE(mtx1_wdt_res),
-> -	.resource = mtx1_wdt_res,
->   };
->   
->   static const struct gpio_led default_leds[] = {
-> @@ -310,6 +309,7 @@ static int __init mtx1_register_devices(void)
->   	}
->   	gpio_direction_input(mtx1_gpio_button[0].gpio);
->   out:
-> +	gpiod_add_lookup_table(&mtx1_wdt_gpio_table);
->   	return platform_add_devices(mtx1_devs, ARRAY_SIZE(mtx1_devs));
->   }
->   arch_initcall(mtx1_register_devices);
-> diff --git a/drivers/watchdog/mtx-1_wdt.c b/drivers/watchdog/mtx-1_wdt.c
-> index 1fa7d2b32494..e028e0a2eca0 100644
-> --- a/drivers/watchdog/mtx-1_wdt.c
-> +++ b/drivers/watchdog/mtx-1_wdt.c
-> @@ -39,7 +39,7 @@
->   #include <linux/platform_device.h>
->   #include <linux/io.h>
->   #include <linux/uaccess.h>
-> -#include <linux/gpio.h>
-> +#include <linux/gpio/consumer.h>
->   
->   #include <asm/mach-au1x00/au1000.h>
->   
-> @@ -55,7 +55,7 @@ static struct {
->   	int queue;
->   	int default_ticks;
->   	unsigned long inuse;
-> -	unsigned gpio;
-> +	struct gpio_desc *gpiod;
->   	unsigned int gstate;
->   } mtx1_wdt_device;
->   
-> @@ -67,7 +67,7 @@ static void mtx1_wdt_trigger(struct timer_list *unused)
->   
->   	/* toggle wdt gpio */
->   	mtx1_wdt_device.gstate = !mtx1_wdt_device.gstate;
-> -	gpio_set_value(mtx1_wdt_device.gpio, mtx1_wdt_device.gstate);
-> +	gpiod_set_value(mtx1_wdt_device.gpiod, mtx1_wdt_device.gstate);
->   
->   	if (mtx1_wdt_device.queue && ticks)
->   		mod_timer(&mtx1_wdt_device.timer, jiffies + MTX1_WDT_INTERVAL);
-> @@ -90,7 +90,7 @@ static void mtx1_wdt_start(void)
->   	if (!mtx1_wdt_device.queue) {
->   		mtx1_wdt_device.queue = 1;
->   		mtx1_wdt_device.gstate = 1;
-> -		gpio_set_value(mtx1_wdt_device.gpio, 1);
-> +		gpiod_set_value(mtx1_wdt_device.gpiod, 1);
->   		mod_timer(&mtx1_wdt_device.timer, jiffies + MTX1_WDT_INTERVAL);
->   	}
->   	mtx1_wdt_device.running++;
-> @@ -105,7 +105,7 @@ static int mtx1_wdt_stop(void)
->   	if (mtx1_wdt_device.queue) {
->   		mtx1_wdt_device.queue = 0;
->   		mtx1_wdt_device.gstate = 0;
-> -		gpio_set_value(mtx1_wdt_device.gpio, 0);
-> +		gpiod_set_value(mtx1_wdt_device.gpiod, 0);
->   	}
->   	ticks = mtx1_wdt_device.default_ticks;
->   	spin_unlock_irqrestore(&mtx1_wdt_device.lock, flags);
-> @@ -198,12 +198,11 @@ static int mtx1_wdt_probe(struct platform_device *pdev)
->   {
->   	int ret;
->   
-> -	mtx1_wdt_device.gpio = pdev->resource[0].start;
-> -	ret = devm_gpio_request_one(&pdev->dev, mtx1_wdt_device.gpio,
-> -				GPIOF_OUT_INIT_HIGH, "mtx1-wdt");
-> -	if (ret < 0) {
-> +	mtx1_wdt_device.gpiod = devm_gpiod_get(&pdev->dev,
-> +					       NULL, GPIOD_OUT_HIGH);
-> +	if (IS_ERR(mtx1_wdt_device.gpiod)) {
->   		dev_err(&pdev->dev, "failed to request gpio");
-> -		return ret;
-> +		return PTR_ERR(mtx1_wdt_device.gpiod);
->   	}
->   
->   	spin_lock_init(&mtx1_wdt_device.lock);
-> 
+>   can merge this into the watchdog tree!
+
+Acked-by: Paul Burton <paul.burton@mips.com>
+
+Thanks,
+    Paul
