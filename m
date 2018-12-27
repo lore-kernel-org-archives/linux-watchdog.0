@@ -2,34 +2,35 @@ Return-Path: <SRS0=bdk6=PE=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+X-Spam-Status: No, score=-4.0 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
+	SPF_PASS,UNWANTED_LANGUAGE_BODY autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 46865C43387
-	for <linux-watchdog@archiver.kernel.org>; Thu, 27 Dec 2018 18:15:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 24E20C43387
+	for <linux-watchdog@archiver.kernel.org>; Thu, 27 Dec 2018 18:15:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 0F87620856
-	for <linux-watchdog@archiver.kernel.org>; Thu, 27 Dec 2018 18:15:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E878F206BB
+	for <linux-watchdog@archiver.kernel.org>; Thu, 27 Dec 2018 18:15:19 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=crapouillou.net header.i=@crapouillou.net header.b="HrfmVMfg"
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=crapouillou.net header.i=@crapouillou.net header.b="KzLtU5Wh"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727321AbeL0SOF (ORCPT
+        id S1728508AbeL0SPO (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 27 Dec 2018 13:14:05 -0500
-Received: from outils.crapouillou.net ([89.234.176.41]:54294 "EHLO
+        Thu, 27 Dec 2018 13:15:14 -0500
+Received: from outils.crapouillou.net ([89.234.176.41]:53846 "EHLO
         crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726639AbeL0SOE (ORCPT
+        with ESMTP id S1727178AbeL0SOF (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 27 Dec 2018 13:14:04 -0500
+        Thu, 27 Dec 2018 13:14:05 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
-        s=mail; t=1545934439; h=from:from:sender:reply-to:subject:subject:date:date:
+        s=mail; t=1545934442; h=from:from:sender:reply-to:subject:subject:date:date:
          message-id:message-id:to:to:cc:cc:mime-version:content-type:
          content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
-        bh=yFq9PATHo+DDPckUfNumupkmaX3d3PAQeKsmpJweYF8=;
-        b=HrfmVMfgl36GGP1ccpGslqVkkt4mzYQv9+JcDdRLfH6jj/o91c02TSbonmk9lvQofm3ngA
-        MdqziwrdWO6cPfWx0zD2XIcYHg3pP/jlUqFzm9lfH5xDCrzW3Jo9Xc1AhHhHkYmSfLvbZQ
-        aKBQt6mcuk64Zx4XwwuVXhkVsxbuJEI=
+        bh=GD/JCnNlSpMuf8sRLklAFmtJ8QSk/VitOnv7az13piw=;
+        b=KzLtU5WhKgKrjWPqhfl18SQtXg5kQb1RKpUmiY/M/MyOK6nXg4YJUxnSewWu6XaUmFW/RA
+        LHf4vUXUykla5wtWSv1FguyisW5fMCn1aRFAULDyr2OEkwleraeljky9WKfkUXd6T5Gym3
+        ryjLbeIsOeeAWOlhW48P6axpafGyDxY=
 From:   Paul Cercueil <paul@crapouillou.net>
 To:     Thierry Reding <thierry.reding@gmail.com>,
         Rob Herring <robh+dt@kernel.org>,
@@ -46,9 +47,9 @@ Cc:     linux-pwm@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
         linux-mips@vger.kernel.org, linux-doc@vger.kernel.org,
         linux-clk@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>
-Subject: [PATCH v9 16/27] pwm: jz4740: Drop dependency on MACH_INGENIC, use COMPILE_TEST
-Date:   Thu, 27 Dec 2018 19:13:08 +0100
-Message-Id: <20181227181319.31095-17-paul@crapouillou.net>
+Subject: [PATCH v9 18/27] clk: jz4740: Add TCU clock
+Date:   Thu, 27 Dec 2018 19:13:10 +0100
+Message-Id: <20181227181319.31095-19-paul@crapouillou.net>
 In-Reply-To: <20181227181319.31095-1-paul@crapouillou.net>
 References: <20181227181319.31095-1-paul@crapouillou.net>
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -56,16 +57,12 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Depending on MACH_INGENIC prevent us from creating a generic kernel that
-works on more than one MIPS board. Instead, we just depend on MIPS being
-set.
-
-On other architectures, this driver can still be built, thanks to
-COMPILE_TEST. This is used by automated tools to find bugs, for
-instance.
+Add the missing TCU clock to the list of clocks supplied by the CGU for
+the JZ4740 SoC.
 
 Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Acked-by: Thierry Reding <thierry.reding@gmail.com>
+Acked-by: Stephen Boyd <sboyd@kernel.org>
+Acked-by: Rob Herring <robh@kernel.org>
 ---
 
 Notes:
@@ -79,22 +76,38 @@ Notes:
 
      v9: No change
 
- drivers/pwm/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/clk/ingenic/jz4740-cgu.c       | 6 ++++++
+ include/dt-bindings/clock/jz4740-cgu.h | 1 +
+ 2 files changed, 7 insertions(+)
 
-diff --git a/drivers/pwm/Kconfig b/drivers/pwm/Kconfig
-index 0343f0c1238e..d6f62d9cdc18 100644
---- a/drivers/pwm/Kconfig
-+++ b/drivers/pwm/Kconfig
-@@ -201,7 +201,7 @@ config PWM_IMX
+diff --git a/drivers/clk/ingenic/jz4740-cgu.c b/drivers/clk/ingenic/jz4740-cgu.c
+index 4479c102e899..d8ac7f2e183a 100644
+--- a/drivers/clk/ingenic/jz4740-cgu.c
++++ b/drivers/clk/ingenic/jz4740-cgu.c
+@@ -211,6 +211,12 @@ static const struct ingenic_cgu_clk_info jz4740_cgu_clocks[] = {
+ 		.parents = { JZ4740_CLK_EXT, -1, -1, -1 },
+ 		.gate = { CGU_REG_CLKGR, 5 },
+ 	},
++
++	[JZ4740_CLK_TCU] = {
++		"tcu", CGU_CLK_GATE,
++		.parents = { JZ4740_CLK_EXT, -1, -1, -1 },
++		.gate = { CGU_REG_CLKGR, 1 },
++	},
+ };
  
- config PWM_JZ4740
- 	tristate "Ingenic JZ47xx PWM support"
--	depends on MACH_INGENIC
-+	depends on MIPS || COMPILE_TEST
- 	depends on COMMON_CLK
- 	select INGENIC_TIMER
- 	help
+ static void __init jz4740_cgu_init(struct device_node *np)
+diff --git a/include/dt-bindings/clock/jz4740-cgu.h b/include/dt-bindings/clock/jz4740-cgu.h
+index 6ed83f926ae7..e82d77028581 100644
+--- a/include/dt-bindings/clock/jz4740-cgu.h
++++ b/include/dt-bindings/clock/jz4740-cgu.h
+@@ -34,5 +34,6 @@
+ #define JZ4740_CLK_ADC		19
+ #define JZ4740_CLK_I2C		20
+ #define JZ4740_CLK_AIC		21
++#define JZ4740_CLK_TCU		22
+ 
+ #endif /* __DT_BINDINGS_CLOCK_JZ4740_CGU_H__ */
 -- 
 2.11.0
 
