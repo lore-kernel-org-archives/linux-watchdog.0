@@ -4,32 +4,32 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
+	SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 50E8BC43387
-	for <linux-watchdog@archiver.kernel.org>; Thu, 27 Dec 2018 18:15:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7FAA8C43387
+	for <linux-watchdog@archiver.kernel.org>; Thu, 27 Dec 2018 18:15:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 24C9220856
-	for <linux-watchdog@archiver.kernel.org>; Thu, 27 Dec 2018 18:15:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5155E2087F
+	for <linux-watchdog@archiver.kernel.org>; Thu, 27 Dec 2018 18:15:34 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=crapouillou.net header.i=@crapouillou.net header.b="mO0MUebZ"
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=crapouillou.net header.i=@crapouillou.net header.b="VqdQMgDA"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728573AbeL0SPV (ORCPT
+        id S1727173AbeL0SOC (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 27 Dec 2018 13:15:21 -0500
-Received: from outils.crapouillou.net ([89.234.176.41]:54144 "EHLO
+        Thu, 27 Dec 2018 13:14:02 -0500
+Received: from outils.crapouillou.net ([89.234.176.41]:53846 "EHLO
         crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727118AbeL0SOF (ORCPT
+        with ESMTP id S1727026AbeL0SOA (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 27 Dec 2018 13:14:05 -0500
+        Thu, 27 Dec 2018 13:14:00 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
-        s=mail; t=1545934440; h=from:from:sender:reply-to:subject:subject:date:date:
+        s=mail; t=1545934437; h=from:from:sender:reply-to:subject:subject:date:date:
          message-id:message-id:to:to:cc:cc:mime-version:content-type:
          content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
-        bh=mH/P5WSX8e9xe1IdeQqoE396OKHkFROVYAGUvVoli1U=;
-        b=mO0MUebZA0dn62sAO/t036D516Qod5jTgDn2/3IrB04NWzM61zDa7GLZ7Z21GrWEbJOlW6
-        NuK/abPNN6oK4IcKLcyCMi7ZYwyMQ9JY6Wia4AVYZRiOid4AaCYwtXTEsi8O9AC7gBt28E
-        6VZm4MibWRxEVHFD00dnKbQfQsaHOE8=
+        bh=3168832JMPbMn1JDoOvcnDrXcFxDhbr15lAqwArQBs8=;
+        b=VqdQMgDA7EsObgDcfEK18FWh7v5cKrD38YYcvPksOgUofBS/teUiQGPGK4zWhzNNEYC8ih
+        gpf0KeBSg8/v9X2hRYwQ/tBGU6v5rhql42jCXAdG4tx1N1GFuhFeQj/y+WuFWY/eN5QlSZ
+        cTU9IoEfupLbi+t6Oioy0ZJCT/zH/5A=
 From:   Paul Cercueil <paul@crapouillou.net>
 To:     Thierry Reding <thierry.reding@gmail.com>,
         Rob Herring <robh+dt@kernel.org>,
@@ -46,9 +46,9 @@ Cc:     linux-pwm@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
         linux-mips@vger.kernel.org, linux-doc@vger.kernel.org,
         linux-clk@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>
-Subject: [PATCH v9 17/27] pwm: jz4740: Remove unused devicetree compatible strings
-Date:   Thu, 27 Dec 2018 19:13:09 +0100
-Message-Id: <20181227181319.31095-18-paul@crapouillou.net>
+Subject: [PATCH v9 15/27] pwm: jz4740: Allow selection of PWM channels 0 and 1
+Date:   Thu, 27 Dec 2018 19:13:07 +0100
+Message-Id: <20181227181319.31095-16-paul@crapouillou.net>
 In-Reply-To: <20181227181319.31095-1-paul@crapouillou.net>
 References: <20181227181319.31095-1-paul@crapouillou.net>
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -56,42 +56,44 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Right now none of the Ingenic-based boards probe this driver from
-devicetree. This driver defined three compatible strings for the exact
-same behaviour. Before these strings are used, we can remove two of
-them.
+The TCU channels 0 and 1 were previously reserved for system tasks, and
+thus unavailable for PWM.
 
 Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Acked-by: Thierry Reding <thierry.reding@gmail.com>
 ---
 
 Notes:
-     v5: New patch
-    
-     v6: No change
+     v6: New patch
     
      v7: No change
 
-     v8: No change
+     v8: ingenic_tcu_[request,release]_channel are dropped. We now use
+         the memory resources provided to the driver to detect whether
+	 or not we are allowed to use the TCU channel.
 
-     v9: No change
+     v9: Drop previous system. Call a API function provided by the
+         clocksource driver to know if we can use the channel as PWM.
 
- drivers/pwm/pwm-jz4740.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/pwm/pwm-jz4740.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
 diff --git a/drivers/pwm/pwm-jz4740.c b/drivers/pwm/pwm-jz4740.c
-index b6e105e774bd..3171ada8c212 100644
+index dd80a2cf6528..b6e105e774bd 100644
 --- a/drivers/pwm/pwm-jz4740.c
 +++ b/drivers/pwm/pwm-jz4740.c
-@@ -215,8 +215,6 @@ static int jz4740_pwm_remove(struct platform_device *pdev)
- #ifdef CONFIG_OF
- static const struct of_device_id jz4740_pwm_dt_ids[] = {
- 	{ .compatible = "ingenic,jz4740-pwm", },
--	{ .compatible = "ingenic,jz4770-pwm", },
--	{ .compatible = "ingenic,jz4780-pwm", },
- 	{},
- };
- MODULE_DEVICE_TABLE(of, jz4740_pwm_dt_ids);
+@@ -44,11 +44,7 @@ static int jz4740_pwm_request(struct pwm_chip *chip, struct pwm_device *pwm)
+ 	char clk_name[16];
+ 	int ret;
+ 
+-	/*
+-	 * Timers 0 and 1 are used for system tasks, so they are unavailable
+-	 * for use as PWMs.
+-	 */
+-	if (pwm->hwpwm < 2)
++	if (!ingenic_tcu_pwm_can_use_chn(pwm->hwpwm))
+ 		return -EBUSY;
+ 
+ 	snprintf(clk_name, sizeof(clk_name), "timer%u", pwm->hwpwm);
 -- 
 2.11.0
 
