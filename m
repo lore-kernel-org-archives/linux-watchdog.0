@@ -6,30 +6,30 @@ X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
 	SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E3168C43387
-	for <linux-watchdog@archiver.kernel.org>; Thu, 27 Dec 2018 18:16:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7AFFAC43444
+	for <linux-watchdog@archiver.kernel.org>; Thu, 27 Dec 2018 18:16:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B84C920856
-	for <linux-watchdog@archiver.kernel.org>; Thu, 27 Dec 2018 18:16:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4BF6E206BB
+	for <linux-watchdog@archiver.kernel.org>; Thu, 27 Dec 2018 18:16:46 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=crapouillou.net header.i=@crapouillou.net header.b="nuyb9Zm+"
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=crapouillou.net header.i=@crapouillou.net header.b="uETdhbvo"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728999AbeL0SQa (ORCPT
+        id S1729040AbeL0SQp (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 27 Dec 2018 13:16:30 -0500
-Received: from outils.crapouillou.net ([89.234.176.41]:53792 "EHLO
+        Thu, 27 Dec 2018 13:16:45 -0500
+Received: from outils.crapouillou.net ([89.234.176.41]:53742 "EHLO
         crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726814AbeL0SNx (ORCPT
+        with ESMTP id S1726781AbeL0SNv (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 27 Dec 2018 13:13:53 -0500
+        Thu, 27 Dec 2018 13:13:51 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
-        s=mail; t=1545934427; h=from:from:sender:reply-to:subject:subject:date:date:
+        s=mail; t=1545934422; h=from:from:sender:reply-to:subject:subject:date:date:
          message-id:message-id:to:to:cc:cc:mime-version:content-type:
          content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
-        bh=Mv1J2mU+9gNCmHpAb3NY7AGa/mgn4S2y1YCyCsNWyNE=;
-        b=nuyb9Zm+sIIkD/EhbdHL5F9sKfr4YKhybnhW54Zn3VNRJWlIHHvC3iqyEtIG4hjWMQsbzI
-        Rk6k2S15MGlNcoJR7V9v4Ofgj2u6ilRJWWOPym2l3UGUuNtktSWuMdUkY8yJZ2cDD39m06
-        qmTDfGVBXSOhAPHa2vLpvQ/O4aV60g0=
+        bh=gN2J1+jwqcweozD9p1B4uBGA/xrud5HFcCvMnWyBCcM=;
+        b=uETdhbvozBsxbww2HHMziDfCadWE/7SQ0XKfSaynR57Q1IUFC0+xEa4QTyBTBP6TtSEwjM
+        tSsH/G3yf8rO7cLs/2nTjGA1AvQL14VuFFWNWfPwxC0V1CHSC014Gqff3dXH+huNT+4FjA
+        yguhsTG2AnGnq+qcsn/rkpLlaz1r+YA=
 From:   Paul Cercueil <paul@crapouillou.net>
 To:     Thierry Reding <thierry.reding@gmail.com>,
         Rob Herring <robh+dt@kernel.org>,
@@ -46,9 +46,9 @@ Cc:     linux-pwm@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
         linux-mips@vger.kernel.org, linux-doc@vger.kernel.org,
         linux-clk@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>
-Subject: [PATCH v9 09/27] watchdog: jz4740: Avoid starting watchdog in set_timeout
-Date:   Thu, 27 Dec 2018 19:13:01 +0100
-Message-Id: <20181227181319.31095-10-paul@crapouillou.net>
+Subject: [PATCH v9 06/27] MAINTAINERS: Add myself as maintainer for Ingenic TCU drivers
+Date:   Thu, 27 Dec 2018 19:12:58 +0100
+Message-Id: <20181227181319.31095-7-paul@crapouillou.net>
 In-Reply-To: <20181227181319.31095-1-paul@crapouillou.net>
 References: <20181227181319.31095-1-paul@crapouillou.net>
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -56,18 +56,21 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Previously the jz4740_wdt_set_timeout() function was starting the timer
-unconditionally, even if it was stopped when that function was entered.
-
-Now, the timer will be restarted only if it was already running before
-this function is called.
+Add myself as maintainer for the ingenic-timer and ingenic-ost drivers.
 
 Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 ---
 
 Notes:
-     v6: New patch
+     v2: No change
+    
+     v3: No change
+    
+     v4: No change
+    
+     v5: Update with new files
+    
+     v6: No change
     
      v7: No change
 
@@ -75,38 +78,29 @@ Notes:
 
      v9: No change
 
- drivers/watchdog/jz4740_wdt.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ MAINTAINERS | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/watchdog/jz4740_wdt.c b/drivers/watchdog/jz4740_wdt.c
-index 0f54306aee25..45d9495170e5 100644
---- a/drivers/watchdog/jz4740_wdt.c
-+++ b/drivers/watchdog/jz4740_wdt.c
-@@ -64,13 +64,15 @@ static int jz4740_wdt_set_timeout(struct watchdog_device *wdt_dev,
- {
- 	struct jz4740_wdt_drvdata *drvdata = watchdog_get_drvdata(wdt_dev);
- 	u16 timeout_value = (u16)(drvdata->clk_rate * new_timeout);
-+	u32 tcer;
+diff --git a/MAINTAINERS b/MAINTAINERS
+index f3a5c97e3419..da08c2b9f261 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -7401,6 +7401,15 @@ L:	linux-mtd@lists.infradead.org
+ S:	Maintained
+ F:	drivers/mtd/nand/raw/jz4780_*
  
-+	regmap_read(drvdata->map, TCU_REG_WDT_TCER, &tcer);
- 	regmap_write(drvdata->map, TCU_REG_WDT_TCER, 0);
- 
- 	regmap_write(drvdata->map, TCU_REG_WDT_TDR, timeout_value);
- 	regmap_write(drvdata->map, TCU_REG_WDT_TCNT, 0);
- 
--	regmap_write(drvdata->map, TCU_REG_WDT_TCER, TCU_WDT_TCER_TCEN);
-+	regmap_write(drvdata->map, TCU_REG_WDT_TCER, tcer & TCU_WDT_TCER_TCEN);
- 
- 	wdt_dev->timeout = new_timeout;
- 	return 0;
-@@ -86,6 +88,7 @@ static int jz4740_wdt_start(struct watchdog_device *wdt_dev)
- 		return ret;
- 
- 	jz4740_wdt_set_timeout(wdt_dev, wdt_dev->timeout);
-+	regmap_write(drvdata->map, TCU_REG_WDT_TCER, TCU_WDT_TCER_TCEN);
- 
- 	return 0;
- }
++INGENIC TCU driver
++M:	Paul Cercueil <paul@crapouillou.net>
++S:	Maintained
++F:	drivers/clocksource/ingenic-ost.c
++F:	drivers/clocksource/ingenic-timer.c
++F:	drivers/clocksource/ingenic-timer.h
++F:	include/linux/mfd/ingenic-tcu.h
++F:	include/dt-bindings/clock/ingenic,tcu.h
++
+ INOTIFY
+ M:	Jan Kara <jack@suse.cz>
+ R:	Amir Goldstein <amir73il@gmail.com>
 -- 
 2.11.0
 
