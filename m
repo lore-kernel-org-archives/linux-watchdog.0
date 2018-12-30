@@ -2,105 +2,174 @@ Return-Path: <SRS0=dfIb=PH=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PULL_REQUEST,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_MUTT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 30CCEC43387
-	for <linux-watchdog@archiver.kernel.org>; Sun, 30 Dec 2018 03:22:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B39C7C43387
+	for <linux-watchdog@archiver.kernel.org>; Sun, 30 Dec 2018 11:57:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id F03CA20866
-	for <linux-watchdog@archiver.kernel.org>; Sun, 30 Dec 2018 03:22:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4F34020861
+	for <linux-watchdog@archiver.kernel.org>; Sun, 30 Dec 2018 11:57:48 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=linux-watchdog.org header.i=@linux-watchdog.org header.b="WYQgD8Qr"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725892AbeL3DWC (ORCPT
+        id S1725974AbeL3L5r (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sat, 29 Dec 2018 22:22:02 -0500
-Received: from mx2.suse.de ([195.135.220.15]:38964 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1725878AbeL3DWC (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 29 Dec 2018 22:22:02 -0500
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id 65CEAAECF;
-        Sun, 30 Dec 2018 03:22:00 +0000 (UTC)
-From:   NeilBrown <neil@brown.name>
-To:     Guenter Roeck <linux@roeck-us.net>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        linux-watchdog@vger.kernel.org, linux-mediatek@lists.infradead.org,
-        linux-kernel@vger.kernel.org
-Date:   Sun, 30 Dec 2018 14:21:52 +1100
-Subject: [PATCH] Fix compilation problem for mt7621_wdt.c and rt2880_wdt.c
-Message-ID: <87va3baecv.fsf@notabene.neil.brown.name>
+        Sun, 30 Dec 2018 06:57:47 -0500
+Received: from www.linux-watchdog.org ([185.87.125.42]:58698 "EHLO
+        www.linux-watchdog.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725971AbeL3L5r (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Sun, 30 Dec 2018 06:57:47 -0500
+X-Greylist: delayed 359 seconds by postgrey-1.27 at vger.kernel.org; Sun, 30 Dec 2018 06:57:46 EST
+Received: by www.linux-watchdog.org (Postfix, from userid 500)
+        id AADDE405AC; Sun, 30 Dec 2018 12:24:45 +0100 (CET)
+DKIM-Filter: OpenDKIM Filter v2.11.0 www.linux-watchdog.org AADDE405AC
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-watchdog.org;
+        s=odk20180602; t=1546169085;
+        bh=jEYhZ7NuBnTccO+pSB6NQmLCKgEaz+55LqWKLGz3Leg=;
+        h=Date:From:To:Cc:Subject:From;
+        b=WYQgD8Qr5WCpW4Y+Y5XKnQvPQ674IZUbonKpASgwOYvEVcwTxLfFixU/feQwzmryF
+         MsEIi17eyuRCR/QzAPzkp9mQRVwT0/hBmmf531f4W08dOh0E6s3AYh5K8i+uDcSNFp
+         OCrOhR+4XwXOe1g+GEVnT9ztEBz9FQTTNxPLTaIA=
+Date:   Sun, 30 Dec 2018 12:24:45 +0100
+From:   Wim Van Sebroeck <wim@linux-watchdog.org>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Colin Ian King <colin.king@canonical.com>,
+        Fabrizio Castro <fabrizio.castro@bp.renesas.com>,
+        Hardik Singh Rathore <hardiksingh.k@gmail.com>,
+        Jean Delvare <jdelvare@suse.de>,
+        Jerry Hoemann <jerry.hoemann@hpe.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Loic Poulain <loic.poulain@linaro.org>,
+        Ryder Lee <ryder.lee@mediatek.com>,
+        Tomer Maimon <tmaimon77@gmail.com>,
+        Yangtao Li <tiny.windzz@gmail.com>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>
+Subject: [GIT PULL REQUEST] watchdog - v4.21 Merge window
+Message-ID: <20181230112445.GA12489@www.linux-watchdog.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
-        micalg=pgp-sha256; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.20 (2009-12-10)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
---=-=-=
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Hi Linus,
 
+Please pull the watchdog changes for the v4.21 release cycle.
 
-These files need
-   #include <linux/mod_devicetable.h>
-to compile correctly.
+This series contains:
+* add TQ-Systems TQMX86 watchdog driver
+* add Qualcomm PM8916 watchdog driver
+* w83627hf_wdt: add quirk for Inves system
+* renesas_wdt: several improvements and document r8a774c0 support
+* mena21_wdt, mtx-1: Convert to use GPIO descriptor
+* bcm281xx, ie6xx_wdt: convert to DEFINE_SHOW_ATTRIBUTE
+* documentation: add PM usage and kernel-api: don't reference removed functions
+* update bindings for MT7629 SoC
+* several small fixes
 
-Fixes: ac3167257b9f ("headers: separate linux/mod_devicetable.h from linux/=
-platform_device.h")
-Signed-off-by: NeilBrown <neil@brown.name>
-=2D--
- drivers/watchdog/mt7621_wdt.c | 1 +
- drivers/watchdog/rt2880_wdt.c | 1 +
- 2 files changed, 2 insertions(+)
+The output from git request-pull:
+----------------------------------------------------------------
+The following changes since commit ccda4af0f4b92f7b4c308d3acc262f4a7e3affad:
 
-diff --git a/drivers/watchdog/mt7621_wdt.c b/drivers/watchdog/mt7621_wdt.c
-index 5c4a764717c4..81208cd3f4ec 100644
-=2D-- a/drivers/watchdog/mt7621_wdt.c
-+++ b/drivers/watchdog/mt7621_wdt.c
-@@ -17,6 +17,7 @@
- #include <linux/watchdog.h>
- #include <linux/moduleparam.h>
- #include <linux/platform_device.h>
-+#include <linux/mod_devicetable.h>
-=20
- #include <asm/mach-ralink/ralink_regs.h>
-=20
-diff --git a/drivers/watchdog/rt2880_wdt.c b/drivers/watchdog/rt2880_wdt.c
-index 98967f0a7d10..db7c57d82cfd 100644
-=2D-- a/drivers/watchdog/rt2880_wdt.c
-+++ b/drivers/watchdog/rt2880_wdt.c
-@@ -18,6 +18,7 @@
- #include <linux/watchdog.h>
- #include <linux/moduleparam.h>
- #include <linux/platform_device.h>
-+#include <linux/mod_devicetable.h>
-=20
- #include <asm/mach-ralink/ralink_regs.h>
-=20
-=2D-=20
-2.14.0.rc0.dirty
+  Linux 4.20-rc2 (2018-11-11 17:12:31 -0600)
 
+are available in the git repository at:
 
---=-=-=
-Content-Type: application/pgp-signature; name="signature.asc"
+  git://www.linux-watchdog.org/linux-watchdog.git tags/linux-watchdog-4.21-rc1
 
------BEGIN PGP SIGNATURE-----
+for you to fetch changes up to e3c21e088f8936a004a3d9f2f4e14b3f2bdd6ea9:
 
-iQIzBAEBCAAdFiEEG8Yp69OQ2HB7X0l6Oeye3VZigbkFAlwoOdAACgkQOeye3VZi
-gbkqWQ//YKTJTvlZMqjc9uJfZ21otVhUFJ5H0mupNw4O8K4DD+KsntNV9BvyeClm
-AsNC9XztkaUTW0Oa8De+LQdwHDNXDFl/MA6ISVESD6KPY5ZHjg9yjAstiuUt1HdV
-YGODAKsPlkfwSIUVVmWJf7vWw8WXTqn573TPJfxVIsVfkU9zYsv/uN6SfjFxjAVR
-p7KMoEqL4SAlo07ZPpED99eK8CmTd6MJTUdtEkiZbRv8Pq0zX7xnikjahEXhsy7a
-PqzUDD9asoul0h/8ZgH2zV6ihanMaQWAKHRSeEapLPuswIYpxuwiCM1rDBdkezbK
-nnRAsFjAf99DdquBq+W/4UPE47mOIFmV29C4Cpptjs7aHtCfF0RJgNYn3CpaDsTn
-xnjiBkcz6NONZIDQEDIDmn5V0yfVbZKd5+WjbhlOeEpYXvigQtM80Gvtpn2NlZaj
-yqSwbtDm7qdWw6y3BNcpkZg2UabE+/7EfZjCriZk6RQ4l6NiGSDzFIBK57ea/NT3
-JpZYLuIBneTBEki/LnKcHQQ6pACXDBhUGp1VkqgCMxMBPB9eKTgMFTFdd+erercm
-rkZjlGRWGadpEzhi/Fe396/U5BPOgrpqB+I1oW7BCqxjlfWQKYPKuwZZaaIPJmzb
-43jbdSa/JctG7XFYo9zQayaz7FwL7nf5fTP42f7VATvGVHvG4JM=
-=MXIp
------END PGP SIGNATURE-----
---=-=-=--
+  watchdog: tqmx86: Add watchdog driver for the IO controller (2018-12-24 13:15:07 +0100)
+
+----------------------------------------------------------------
+linux-watchdog 4.21-rc1 tag
+
+----------------------------------------------------------------
+Andrew Lunn (1):
+      watchdog: tqmx86: Add watchdog driver for the IO controller
+
+Colin Ian King (1):
+      watchdog: asm9260_wdt: make array mode_name static, shrinks object size
+
+Fabrizio Castro (2):
+      watchdog: renesas_wdt: Fix typos
+      dt-bindings: watchdog: renesas-wdt: Document r8a774c0 support
+
+Hardik Singh Rathore (1):
+      Watchdog: remove outdated comment
+
+Jean Delvare (1):
+      watchdog: w83627hf_wdt: Add quirk for Inves system
+
+Jerry Hoemann (3):
+      watchdog/hpwdt: Exclude via blacklist
+      watchdog/hpwdt: Do not claim unsupported hardware
+      watchdog/hpwdt: Update driver version.
+
+Linus Walleij (2):
+      watchdog: mena21_wdt: Convert to GPIO descriptors
+      watchdog: mtx-1: Convert to use GPIO descriptor
+
+Loic Poulain (2):
+      watchdog: Add pm8916 watchdog driver
+      dt-bindings: watchdog: Add Qualcomm PM8916 watchdog
+
+Ryder Lee (1):
+      dt-bindings: watchdog: update bindings for MT7629 SoC
+
+Tomer Maimon (1):
+      watchdog: npcm: Modify npcm watchdog kconfig arch parameter
+
+Wolfram Sang (4):
+      watchdog: renesas_wdt: don't set divider while watchdog is running
+      watchdog: renesas_wdt: don't keep timer value during suspend/resume
+      watchdog: add documentation for PM usage
+      watchdog: docs: kernel-api: don't reference removed functions
+
+Yangtao Li (3):
+      watchdog: cpwd: add of_node_put()
+      watchdog: bcm281xx: convert to DEFINE_SHOW_ATTRIBUTE
+      watchdog: ie6xx_wdt: convert to DEFINE_SHOW_ATTRIBUTE
+
+ .../devicetree/bindings/watchdog/mtk-wdt.txt       |   1 +
+ .../bindings/watchdog/qcom,pm8916-wdt.txt          |  28 +++
+ .../devicetree/bindings/watchdog/renesas-wdt.txt   |   1 +
+ Documentation/watchdog/watchdog-kernel-api.txt     |   4 -
+ Documentation/watchdog/watchdog-pm.txt             |  19 ++
+ arch/mips/alchemy/board-mtx1.c                     |  18 +-
+ drivers/watchdog/Kconfig                           |  22 ++-
+ drivers/watchdog/Makefile                          |   2 +
+ drivers/watchdog/asm9260_wdt.c                     |   2 +-
+ drivers/watchdog/bcm_kona_wdt.c                    |  16 +-
+ drivers/watchdog/cpwd.c                            |   2 +
+ drivers/watchdog/hpwdt.c                           |  15 +-
+ drivers/watchdog/ie6xx_wdt.c                       |  16 +-
+ drivers/watchdog/mena21_wdt.c                      |  73 ++++---
+ drivers/watchdog/mtx-1_wdt.c                       |  19 +-
+ drivers/watchdog/pm8916_wdt.c                      | 211 +++++++++++++++++++++
+ drivers/watchdog/renesas_wdt.c                     |  24 +--
+ drivers/watchdog/tqmx86_wdt.c                      | 126 ++++++++++++
+ drivers/watchdog/w83627hf_wdt.c                    |  38 +++-
+ include/linux/watchdog.h                           |   3 -
+ 20 files changed, 529 insertions(+), 111 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/qcom,pm8916-wdt.txt
+ create mode 100644 Documentation/watchdog/watchdog-pm.txt
+ create mode 100644 drivers/watchdog/pm8916_wdt.c
+ create mode 100644 drivers/watchdog/tqmx86_wdt.c
+----------------------------------------------------------------
+
+Kind regards and best wishes,
+Wim.
+
