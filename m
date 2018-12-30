@@ -1,120 +1,106 @@
-Return-Path: <SRS0=R3J5=PF=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=dfIb=PH=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_MUTT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5B5D6C43612
-	for <linux-watchdog@archiver.kernel.org>; Fri, 28 Dec 2018 21:49:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 30CCEC43387
+	for <linux-watchdog@archiver.kernel.org>; Sun, 30 Dec 2018 03:22:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 2A63820856
-	for <linux-watchdog@archiver.kernel.org>; Fri, 28 Dec 2018 21:49:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1546033741;
-	bh=HFMaKroDzHtipIHAZDno4GUadc1hp4rR+dpnwd3/iSA=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=a2h0WZXun08H2FxyFyvp0DW9mm7l56TNaAZ9UYOzSIppA9URfkZt8mdzXBXVgkN4v
-	 Rc47AfDDxAyeKWindNb03pHkrmF2kG+3LBmmp/2apbxTuO6oau32rC0kmtY3dcLfOC
-	 Ra0ZMwTkH63yXnp8CBSqUzyUeOGHSFDtCV5xVT2A=
+	by mail.kernel.org (Postfix) with ESMTP id F03CA20866
+	for <linux-watchdog@archiver.kernel.org>; Sun, 30 Dec 2018 03:22:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726351AbeL1Vs6 (ORCPT
+        id S1725892AbeL3DWC (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 28 Dec 2018 16:48:58 -0500
-Received: from mail-io1-f65.google.com ([209.85.166.65]:46839 "EHLO
-        mail-io1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725913AbeL1Vs5 (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 28 Dec 2018 16:48:57 -0500
-Received: by mail-io1-f65.google.com with SMTP id v10so17639484ios.13;
-        Fri, 28 Dec 2018 13:48:56 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=Pgp8QGM8Sxxy+ekOkA+knxIXmgF85vwv+RMpA4VSbk8=;
-        b=lAWfndzZAMnCjngEkD+CYOj+aq8t05yWQfWRZosGqPSC12qfTFpRAKpMSd6gf3TkV6
-         IL25p+pRj2n++KIGdwJTc9+EypgTMJG3llJCiOjHUnfjH0x0XQhwisTC1be7hj4Qv65W
-         AQK3fJ84WdfcHi16RktPzKRrQAW6W9loM1+954d0GTXRgptdf535yYHtzFphVbn+9mtk
-         /Q2e01DzgEcgPgRbamGmig9oPxuzmqmjTT8/8WXgAX1Do5cfotxv+E3oyzHZBBcwBd+o
-         xxgc+ct6DoLDq0A1rAr7c8TuCSpFWTK21xakt4cwx0vuxMuJeQlVcIloRzVoQfXKj+Fs
-         AbbQ==
-X-Gm-Message-State: AJcUukdjTKdDG8gMQDC2OfNnLjGcDrfV2BmlkKOF7UU0m9gh9kCdIJGs
-        kU7dfUrxbPwScQvLW38yxLyp0kU=
-X-Google-Smtp-Source: ALg8bN6aDTD1I7/EbuShlAij+H9/MbsXHjlDPik1xXo1Fd8ylo7K27yHtXd/qIvMn/YaGE7V6iXytg==
-X-Received: by 2002:a6b:2b07:: with SMTP id r7mr19828025ior.169.1546033735971;
-        Fri, 28 Dec 2018 13:48:55 -0800 (PST)
-Received: from localhost ([24.51.61.172])
-        by smtp.gmail.com with ESMTPSA id m10sm4218931ioq.25.2018.12.28.13.48.54
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Fri, 28 Dec 2018 13:48:55 -0800 (PST)
-Date:   Fri, 28 Dec 2018 15:48:53 -0600
-From:   Rob Herring <robh@kernel.org>
-To:     Paul Cercueil <paul@crapouillou.net>
-Cc:     Thierry Reding <thierry.reding@gmail.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= 
-        <u.kleine-koenig@pengutronix.de>, linux-pwm@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-watchdog@vger.kernel.org, linux-mips@vger.kernel.org,
-        linux-doc@vger.kernel.org, linux-clk@vger.kernel.org,
-        Paul Cercueil <paul@crapouillou.net>
-Subject: Re: [PATCH v9 03/27] dt-bindings: Add doc for the Ingenic TCU drivers
-Message-ID: <20181228214853.GA8568@bogus>
-References: <20181227181319.31095-1-paul@crapouillou.net>
- <20181227181319.31095-4-paul@crapouillou.net>
+        Sat, 29 Dec 2018 22:22:02 -0500
+Received: from mx2.suse.de ([195.135.220.15]:38964 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1725878AbeL3DWC (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Sat, 29 Dec 2018 22:22:02 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id 65CEAAECF;
+        Sun, 30 Dec 2018 03:22:00 +0000 (UTC)
+From:   NeilBrown <neil@brown.name>
+To:     Guenter Roeck <linux@roeck-us.net>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        linux-watchdog@vger.kernel.org, linux-mediatek@lists.infradead.org,
+        linux-kernel@vger.kernel.org
+Date:   Sun, 30 Dec 2018 14:21:52 +1100
+Subject: [PATCH] Fix compilation problem for mt7621_wdt.c and rt2880_wdt.c
+Message-ID: <87va3baecv.fsf@notabene.neil.brown.name>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20181227181319.31095-4-paul@crapouillou.net>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: multipart/signed; boundary="=-=-=";
+        micalg=pgp-sha256; protocol="application/pgp-signature"
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Thu, 27 Dec 2018 19:12:55 +0100, Paul Cercueil wrote:
-> Add documentation about how to properly use the Ingenic TCU
-> (Timer/Counter Unit) drivers from devicetree.
-> 
-> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-> ---
-> 
-> Notes:
->      v4: New patch in this series. Corresponds to V2 patches 3-4-5 with
->          added content.
->     
->      v5: - Edited PWM/watchdog DT bindings documentation to point to the new
->            document.
->          - Moved main document to
->            Documentation/devicetree/bindings/timer/ingenic,tcu.txt
->          - Updated documentation to reflect the new devicetree bindings.
->     
->      v6: - Removed PWM/watchdog documentation files as asked by upstream
->          - Removed doc about properties that should be implicit
->          - Removed doc about ingenic,timer-channel /
->            ingenic,clocksource-channel as they are gone
->          - Fix WDT clock name in the binding doc
->          - Fix lengths of register areas in watchdog/pwm nodes
->     
->      v7: No change
-> 
->      v8: - Fix address of the PWM node
->          - Added doc about system timer and clocksource children nodes
-> 
->      v9: - Remove doc about system timer and clocksource children
->            nodes...
-> 	 - Add doc about ingenic,pwm-channels-mask property
-> 
->  .../devicetree/bindings/pwm/ingenic,jz47xx-pwm.txt |  25 ----
->  .../devicetree/bindings/timer/ingenic,tcu.txt      | 139 +++++++++++++++++++++
->  .../bindings/watchdog/ingenic,jz4740-wdt.txt       |  17 ---
->  3 files changed, 139 insertions(+), 42 deletions(-)
->  delete mode 100644 Documentation/devicetree/bindings/pwm/ingenic,jz47xx-pwm.txt
->  create mode 100644 Documentation/devicetree/bindings/timer/ingenic,tcu.txt
->  delete mode 100644 Documentation/devicetree/bindings/watchdog/ingenic,jz4740-wdt.txt
-> 
+--=-=-=
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Reviewed-by: Rob Herring <robh@kernel.org>
+
+These files need
+   #include <linux/mod_devicetable.h>
+to compile correctly.
+
+Fixes: ac3167257b9f ("headers: separate linux/mod_devicetable.h from linux/=
+platform_device.h")
+Signed-off-by: NeilBrown <neil@brown.name>
+=2D--
+ drivers/watchdog/mt7621_wdt.c | 1 +
+ drivers/watchdog/rt2880_wdt.c | 1 +
+ 2 files changed, 2 insertions(+)
+
+diff --git a/drivers/watchdog/mt7621_wdt.c b/drivers/watchdog/mt7621_wdt.c
+index 5c4a764717c4..81208cd3f4ec 100644
+=2D-- a/drivers/watchdog/mt7621_wdt.c
++++ b/drivers/watchdog/mt7621_wdt.c
+@@ -17,6 +17,7 @@
+ #include <linux/watchdog.h>
+ #include <linux/moduleparam.h>
+ #include <linux/platform_device.h>
++#include <linux/mod_devicetable.h>
+=20
+ #include <asm/mach-ralink/ralink_regs.h>
+=20
+diff --git a/drivers/watchdog/rt2880_wdt.c b/drivers/watchdog/rt2880_wdt.c
+index 98967f0a7d10..db7c57d82cfd 100644
+=2D-- a/drivers/watchdog/rt2880_wdt.c
++++ b/drivers/watchdog/rt2880_wdt.c
+@@ -18,6 +18,7 @@
+ #include <linux/watchdog.h>
+ #include <linux/moduleparam.h>
+ #include <linux/platform_device.h>
++#include <linux/mod_devicetable.h>
+=20
+ #include <asm/mach-ralink/ralink_regs.h>
+=20
+=2D-=20
+2.14.0.rc0.dirty
+
+
+--=-=-=
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEG8Yp69OQ2HB7X0l6Oeye3VZigbkFAlwoOdAACgkQOeye3VZi
+gbkqWQ//YKTJTvlZMqjc9uJfZ21otVhUFJ5H0mupNw4O8K4DD+KsntNV9BvyeClm
+AsNC9XztkaUTW0Oa8De+LQdwHDNXDFl/MA6ISVESD6KPY5ZHjg9yjAstiuUt1HdV
+YGODAKsPlkfwSIUVVmWJf7vWw8WXTqn573TPJfxVIsVfkU9zYsv/uN6SfjFxjAVR
+p7KMoEqL4SAlo07ZPpED99eK8CmTd6MJTUdtEkiZbRv8Pq0zX7xnikjahEXhsy7a
+PqzUDD9asoul0h/8ZgH2zV6ihanMaQWAKHRSeEapLPuswIYpxuwiCM1rDBdkezbK
+nnRAsFjAf99DdquBq+W/4UPE47mOIFmV29C4Cpptjs7aHtCfF0RJgNYn3CpaDsTn
+xnjiBkcz6NONZIDQEDIDmn5V0yfVbZKd5+WjbhlOeEpYXvigQtM80Gvtpn2NlZaj
+yqSwbtDm7qdWw6y3BNcpkZg2UabE+/7EfZjCriZk6RQ4l6NiGSDzFIBK57ea/NT3
+JpZYLuIBneTBEki/LnKcHQQ6pACXDBhUGp1VkqgCMxMBPB9eKTgMFTFdd+erercm
+rkZjlGRWGadpEzhi/Fe396/U5BPOgrpqB+I1oW7BCqxjlfWQKYPKuwZZaaIPJmzb
+43jbdSa/JctG7XFYo9zQayaz7FwL7nf5fTP42f7VATvGVHvG4JM=
+=MXIp
+-----END PGP SIGNATURE-----
+--=-=-=--
