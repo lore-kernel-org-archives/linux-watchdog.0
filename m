@@ -1,122 +1,84 @@
-Return-Path: <SRS0=dfIb=PH=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=JDo0=PJ=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_PASS,
+	URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B9B39C43387
-	for <linux-watchdog@archiver.kernel.org>; Sun, 30 Dec 2018 17:16:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3FC1CC43387
+	for <linux-watchdog@archiver.kernel.org>; Tue,  1 Jan 2019 21:40:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 8178A20828
-	for <linux-watchdog@archiver.kernel.org>; Sun, 30 Dec 2018 17:16:51 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BuPgZpdL"
+	by mail.kernel.org (Postfix) with ESMTP id 06BD3218AE
+	for <linux-watchdog@archiver.kernel.org>; Tue,  1 Jan 2019 21:40:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1546378818;
+	bh=NaSMwkTzAimuJ+VwIEQRsl2b5Xm0zT4CpiI2HNXUWd4=;
+	h=Subject:From:In-Reply-To:References:Date:To:Cc:List-ID:From;
+	b=nJWU4V0aDzv2pu4ik2eiH5zQcEMK33eBgnTMQX+e9QemoPQScISmHsx1UylYiqn7H
+	 60Y9BFOmnLcspo53QqcOzDO+4enOeikMV1SqPg22IcBnIa/7LYH4qkvAgJi5X7ZRpq
+	 vR6XmyLFB0fOdc/A3GKOU81eSZiyGN5VxXhQSD4Q=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726325AbeL3RQv (ORCPT
+        id S1727313AbfAAVkD (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sun, 30 Dec 2018 12:16:51 -0500
-Received: from mail-pl1-f193.google.com ([209.85.214.193]:44362 "EHLO
-        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726216AbeL3RQu (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 30 Dec 2018 12:16:50 -0500
-Received: by mail-pl1-f193.google.com with SMTP id e11so11906936plt.11;
-        Sun, 30 Dec 2018 09:16:50 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=brQI5fj0uhmb8/TGIYm6CuOLijCOJYHnplKy2RgejWQ=;
-        b=BuPgZpdLZo828+lc22AA41zmHzqkaMRhYP3upvRpotauiSA0BcO+N7zY9hD4wDyNRE
-         +u3WTsZ6zPLb6BGeXutFMPSYBiDazo0LbVlnPTJ1dMNlRZ0p1H90+fuelhZ5R83i+TLl
-         6Ze3hxb6+RtxLZhtK0GFE66FGvATXI16GOOQFbWXV8JEQIoxRqnmTH3FTQW89nkR7L1S
-         LH0GsEog7vaDiePG8haEU63+ZnJwQWpUW+qo/ooh0fbq7YQOri87s3QL/vya1qw+AtPt
-         nM1l72F4I+8drvONEUlBInW3iIUB6IjWOo57Kxc8VHoq1IagYL0WAfcmGi7ghaTo3BHh
-         p7+Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=brQI5fj0uhmb8/TGIYm6CuOLijCOJYHnplKy2RgejWQ=;
-        b=P4wt5DCmWoPsR2thyEF7SRFGgzUJIYl/36DixCfZEoIaFsLQSLvGgrV0sJO3EG2hHy
-         /Kj8bvaKTSnr7M8E9Kun0XmKeW3ySV4ffgILOKIwTbqZvq/t57TN5NMikvPJi2YJcTkK
-         LV+iozzuiKxeZVdENRoymR7eYrUaLSrXb/fcnE3ZC3dOvGm6F5c3BIxfF7k+jxpyMrVN
-         FjNZVPXu7y5ToQz9yY7pvl+D2TzoVt4Nhz6Z239ig/paCSUSnP6C8WXaIY3obV9QvaR+
-         17yS9zVpX6XLqbW1ct2wjcgN+cMhYEZGPMzhRuNVKEgNcBpML8g9odfcpgt41fpdLVU+
-         gQJg==
-X-Gm-Message-State: AJcUukfOE/AIGYxFxwvYLl1tGvlkcIUqtne+ZTAv4VdjdLHeq/HemeC1
-        GVtyEqGE9f8QxxK3FgjNeRs=
-X-Google-Smtp-Source: ALg8bN4STj67qfaPwKf23UhqC1VPC2J3hJRIlIqSKEzOPx/6PuHJqZk2bm+4xWyrfEsh8nR7j2u+ag==
-X-Received: by 2002:a17:902:848d:: with SMTP id c13mr34754100plo.257.1546190210063;
-        Sun, 30 Dec 2018 09:16:50 -0800 (PST)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id 125sm82959308pfd.124.2018.12.30.09.16.47
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 30 Dec 2018 09:16:48 -0800 (PST)
-Date:   Sun, 30 Dec 2018 09:16:47 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     NeilBrown <neil@brown.name>
-Cc:     Matthias Brugger <matthias.bgg@gmail.com>,
-        linux-watchdog@vger.kernel.org, linux-mediatek@lists.infradead.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix compilation problem for mt7621_wdt.c and rt2880_wdt.c
-Message-ID: <20181230171647.GA8311@roeck-us.net>
-References: <87va3baecv.fsf@notabene.neil.brown.name>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87va3baecv.fsf@notabene.neil.brown.name>
-User-Agent: Mutt/1.5.24 (2015-08-30)
+        Tue, 1 Jan 2019 16:40:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35284 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726809AbfAAVkC (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 1 Jan 2019 16:40:02 -0500
+Subject: Re: [GIT PULL REQUEST] watchdog - v4.21 Merge window
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1546378802;
+        bh=NaSMwkTzAimuJ+VwIEQRsl2b5Xm0zT4CpiI2HNXUWd4=;
+        h=From:In-Reply-To:References:Date:To:Cc:From;
+        b=rBUZ6qiGzIXSxLZoAnTtwOYWmmBt5gLRTTfORTYLWEpznmqypL+OMRNrXsLav57A/
+         12SxmdtT+fK4+B8wnLSI0ms6wBl7HLie00XhpqoWnDoCtVk0rYe991v68v0A5BmVq7
+         nvuw/xcSZBmi7AvjdyH/5wsQ19YovpobJUAjD+PE=
+From:   pr-tracker-bot@kernel.org
+In-Reply-To: <20181230112445.GA12489@www.linux-watchdog.org>
+References: <20181230112445.GA12489@www.linux-watchdog.org>
+X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
+X-PR-Tracked-Message-Id: <20181230112445.GA12489@www.linux-watchdog.org>
+X-PR-Tracked-Remote: git://www.linux-watchdog.org/linux-watchdog.git
+ tags/linux-watchdog-4.21-rc1
+X-PR-Tracked-Commit-Id: e3c21e088f8936a004a3d9f2f4e14b3f2bdd6ea9
+X-PR-Merge-Tree: torvalds/linux.git
+X-PR-Merge-Refname: refs/heads/master
+X-PR-Merge-Commit-Id: 115502a6f31d84d8172a71283aaea266302a8ad5
+Message-Id: <20190101214002.29500.27049.pr-tracker-bot@pdx-korg-gitolite-1.ci.codeaurora.org>
+Date:   Tue, 01 Jan 2019 21:40:02 +0000
+To:     Wim Van Sebroeck <wim@linux-watchdog.org>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Colin Ian King <colin.king@canonical.com>,
+        Fabrizio Castro <fabrizio.castro@bp.renesas.com>,
+        Hardik Singh Rathore <hardiksingh.k@gmail.com>,
+        Jean Delvare <jdelvare@suse.de>,
+        Jerry Hoemann <jerry.hoemann@hpe.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Loic Poulain <loic.poulain@linaro.org>,
+        Ryder Lee <ryder.lee@mediatek.com>,
+        Tomer Maimon <tmaimon77@gmail.com>,
+        Yangtao Li <tiny.windzz@gmail.com>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Sun, Dec 30, 2018 at 02:21:52PM +1100, NeilBrown wrote:
-> 
-> These files need
->    #include <linux/mod_devicetable.h>
-> to compile correctly.
-> 
-> Fixes: ac3167257b9f ("headers: separate linux/mod_devicetable.h from linux/platform_device.h")
-> Signed-off-by: NeilBrown <neil@brown.name>
+The pull request you sent on Sun, 30 Dec 2018 12:24:45 +0100:
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+> git://www.linux-watchdog.org/linux-watchdog.git tags/linux-watchdog-4.21-rc1
 
-> ---
->  drivers/watchdog/mt7621_wdt.c | 1 +
->  drivers/watchdog/rt2880_wdt.c | 1 +
->  2 files changed, 2 insertions(+)
-> 
-> diff --git a/drivers/watchdog/mt7621_wdt.c b/drivers/watchdog/mt7621_wdt.c
-> index 5c4a764717c4..81208cd3f4ec 100644
-> --- a/drivers/watchdog/mt7621_wdt.c
-> +++ b/drivers/watchdog/mt7621_wdt.c
-> @@ -17,6 +17,7 @@
->  #include <linux/watchdog.h>
->  #include <linux/moduleparam.h>
->  #include <linux/platform_device.h>
-> +#include <linux/mod_devicetable.h>
->  
->  #include <asm/mach-ralink/ralink_regs.h>
->  
-> diff --git a/drivers/watchdog/rt2880_wdt.c b/drivers/watchdog/rt2880_wdt.c
-> index 98967f0a7d10..db7c57d82cfd 100644
-> --- a/drivers/watchdog/rt2880_wdt.c
-> +++ b/drivers/watchdog/rt2880_wdt.c
-> @@ -18,6 +18,7 @@
->  #include <linux/watchdog.h>
->  #include <linux/moduleparam.h>
->  #include <linux/platform_device.h>
-> +#include <linux/mod_devicetable.h>
->  
->  #include <asm/mach-ralink/ralink_regs.h>
->  
-> -- 
-> 2.14.0.rc0.dirty
-> 
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/115502a6f31d84d8172a71283aaea266302a8ad5
 
+Thank you!
 
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.wiki.kernel.org/userdoc/prtracker
