@@ -2,42 +2,36 @@ Return-Path: <SRS0=S4iV=PN=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED,USER_AGENT_NEOMUTT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E0630C43387
-	for <linux-watchdog@archiver.kernel.org>; Sat,  5 Jan 2019 21:06:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 94B81C43387
+	for <linux-watchdog@archiver.kernel.org>; Sat,  5 Jan 2019 21:18:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id AD0AC2231B
-	for <linux-watchdog@archiver.kernel.org>; Sat,  5 Jan 2019 21:06:04 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=crapouillou.net header.i=@crapouillou.net header.b="EI2cnr69"
+	by mail.kernel.org (Postfix) with ESMTP id 69FA2213A2
+	for <linux-watchdog@archiver.kernel.org>; Sat,  5 Jan 2019 21:18:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726354AbfAEVGA (ORCPT
+        id S1726377AbfAEVSf (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sat, 5 Jan 2019 16:06:00 -0500
-Received: from outils.crapouillou.net ([89.234.176.41]:35844 "EHLO
-        crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726299AbfAEVGA (ORCPT
+        Sat, 5 Jan 2019 16:18:35 -0500
+Received: from metis.ext.pengutronix.de ([85.220.165.71]:39999 "EHLO
+        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726368AbfAEVSe (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 5 Jan 2019 16:06:00 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
-        s=mail; t=1546722357; h=from:from:sender:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Fkt09vQJF+9zLmZ0ojGsJB9dWYlKrc/IC87NSo6xix4=;
-        b=EI2cnr691Hi2v0b8cREcjxbjVQXcmWnnuJaO2+LRMgWBdnioMxGjMVp7gMmzzl+TLGp1qs
-        dJqWUwJywi9TXvLRABQYLCfmMqDVKdOt+CFAQqy2m5PWNXQs5py5gqoqjV6rKwuxxq7C1M
-        02n0fkYxgsETf31Yld93zl/o3XNExKs=
-Date:   Sat, 05 Jan 2019 18:05:38 -0300
-From:   Paul Cercueil <paul@crapouillou.net>
-Subject: Re: [PATCH v9 14/27] pwm: jz4740: Improve algorithm of clock
- calculation
-To:     Uwe =?iso-8859-1?q?Kleine-K=F6nig?= 
+        Sat, 5 Jan 2019 16:18:34 -0500
+Received: from ptx.hi.pengutronix.de ([2001:67c:670:100:1d::c0])
+        by metis.ext.pengutronix.de with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.89)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1gftKo-0005vi-S4; Sat, 05 Jan 2019 22:18:22 +0100
+Received: from ukl by ptx.hi.pengutronix.de with local (Exim 4.89)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1gftKm-0008Q4-9A; Sat, 05 Jan 2019 22:18:20 +0100
+Date:   Sat, 5 Jan 2019 22:18:20 +0100
+From:   Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= 
         <u.kleine-koenig@pengutronix.de>
+To:     Paul Cercueil <paul@crapouillou.net>
 Cc:     Thierry Reding <thierry.reding@gmail.com>,
         Rob Herring <robh+dt@kernel.org>,
         Mark Rutland <mark.rutland@arm.com>,
@@ -50,107 +44,77 @@ Cc:     Thierry Reding <thierry.reding@gmail.com>,
         devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-watchdog@vger.kernel.org, linux-mips@vger.kernel.org,
         linux-doc@vger.kernel.org, linux-clk@vger.kernel.org
-Message-Id: <1546722339.30174.0@crapouillou.net>
-In-Reply-To: <20190105195725.cuxfge6zkpbt3cyk@pengutronix.de>
+Subject: Re: [PATCH v9 12/27] pwm: jz4740: Use regmap from TCU driver
+Message-ID: <20190105211820.lax3opgdhyn662tw@pengutronix.de>
 References: <20181227181319.31095-1-paul@crapouillou.net>
-        <20181227181319.31095-15-paul@crapouillou.net>
-        <20190105195725.cuxfge6zkpbt3cyk@pengutronix.de>
+ <20181227181319.31095-13-paul@crapouillou.net>
+ <20190105194226.pe4huzynz4civ3lm@pengutronix.de>
+ <1546721178.28727.0@crapouillou.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1546721178.28727.0@crapouillou.net>
+User-Agent: NeoMutt/20170113 (1.7.2)
+X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c0
+X-SA-Exim-Mail-From: ukl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: linux-watchdog@vger.kernel.org
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Hi,
+Hello Paul,
 
-On Sat, Jan 5, 2019 at 4:57 PM, Uwe Kleine-K=F6nig=20
-<u.kleine-koenig@pengutronix.de> wrote:
-> On Thu, Dec 27, 2018 at 07:13:06PM +0100, Paul Cercueil wrote:
->>  The previous algorithm hardcoded details about how the TCU clocks=20
->> work.
->>  The new algorithm will use clk_round_rate to find the perfect clock=20
->> rate
->>  for the PWM channel.
->>=20
->>  Signed-off-by: Paul Cercueil <paul@crapouillou.net>
->>  ---
->>=20
->>  Notes:
->>       v9: New patch
->>=20
->>   drivers/pwm/pwm-jz4740.c | 26 +++++++++++++++-----------
->>   1 file changed, 15 insertions(+), 11 deletions(-)
->>=20
->>  diff --git a/drivers/pwm/pwm-jz4740.c b/drivers/pwm/pwm-jz4740.c
->>  index c6136bd4434b..dd80a2cf6528 100644
->>  --- a/drivers/pwm/pwm-jz4740.c
->>  +++ b/drivers/pwm/pwm-jz4740.c
->>  @@ -110,23 +110,27 @@ static int jz4740_pwm_apply(struct pwm_chip=20
->> *chip, struct pwm_device *pwm,
->>   	struct jz4740_pwm_chip *jz4740 =3D to_jz4740(pwm->chip);
->>   	struct clk *clk =3D jz4740->clks[pwm->hwpwm],
->>   		   *parent_clk =3D clk_get_parent(clk);
->>  -	unsigned long rate, period, duty;
->>  +	unsigned long rate, new_rate, period, duty;
->>   	unsigned long long tmp;
->>  -	unsigned int prescaler =3D 0;
->>=20
->>   	rate =3D clk_get_rate(parent_clk);
->>  -	tmp =3D (unsigned long long)rate * state->period;
->>  -	do_div(tmp, 1000000000);
->>  -	period =3D tmp;
->>=20
->>  -	while (period > 0xffff && prescaler < 6) {
->>  -		period >>=3D 2;
->>  -		rate >>=3D 2;
->>  -		++prescaler;
->>  +	for (;;) {
->>  +		tmp =3D (unsigned long long)rate * state->period;
->>  +		do_div(tmp, 1000000000);
->=20
-> NSEC_PER_SEC?
+On Sat, Jan 05, 2019 at 05:46:18PM -0300, Paul Cercueil wrote:
+> On Sat, Jan 5, 2019 at 4:42 PM, Uwe Kleine-König
+> <u.kleine-koenig@pengutronix.de> wrote:
+> > On Thu, Dec 27, 2018 at 07:13:04PM +0100, Paul Cercueil wrote:
+> > >  The ingenic-timer "TCU" driver provides us with a regmap, that we
+> > > can
+> > >  use to safely access the TCU registers.
+> > > 
+> > >  While this driver is devicetree-compatible, it is never (as of now)
+> > >  probed from devicetree, so this change does not introduce a ABI
+> > > problem
+> > >  with current devicetree files.
+> > 
+> > Does it change behaviour? If so, how?
+> 
+> No, it does not change the behaviour.
 
-Ok, didn't know about it.
+Then this paragraph in the commit log can better be dropped.
 
->>  +
->>  +		if (tmp <=3D 0xffff)
->>  +			break;
->>  +
->>  +		new_rate =3D clk_round_rate(clk, rate - 1);
->>  +
->>  +		if (new_rate < rate)
->>  +			rate =3D new_rate;
->>  +		else
->>  +			return -EINVAL;
->=20
-> You are assuming stuff here about the parent clk which isn't=20
-> guaranteed
-> (AFAICT) by the clk framework: If you call clk_round_rate(clk, rate -=20
-> 1)
-> this might well return rate even if the clock could run slower than
-> rate.
+> > >  @@ -113,26 +117,37 @@ static int jz4740_pwm_apply(struct pwm_chip
+> > > *chip, struct pwm_device *pwm,
+> > > 
+> > >   	jz4740_pwm_disable(chip, pwm);
+> > > 
+> > >  -	jz4740_timer_set_count(pwm->hwpwm, 0);
+> > >  -	jz4740_timer_set_duty(pwm->hwpwm, duty);
+> > >  -	jz4740_timer_set_period(pwm->hwpwm, period);
+> > >  +	/* Set abrupt shutdown */
+> > >  +	regmap_update_bits(jz4740->map, TCU_REG_TCSRc(pwm->hwpwm),
+> > >  +			   TCU_TCSR_PWM_SD, TCU_TCSR_PWM_SD);
+> > 
+> > I think I already pointed that out before: abrupt mode is wrong. If
+> > .apply is called with a new set of parameters the currently running
+> > period with the old values is expected to complete before the new values
+> > take effect.
+> 
+> You pointed it, indeed; but I won't change it until I can verify that the
+> behaviour is correct (which does not seem to be the case even if I leave
+> this bit cleared). Besides, this is the TCU patchset, fixes and patches
+> unrelated to the TCU don't belong here.
 
-It may not be guaranteed by the clock framework itself, but it is=20
-guaranteed
-to behave like that on this family of SoCs.
+So abrupt mode was already used before? Then maybe note in a comment
+that this is wrong but kept for now as this change is only refactoring
+without changing behaviour.
 
-> Wouldn't it make sense to start iterating with rate =3D 0xffff * 1e9 /
-> period? Otherwise you get bad configurations if rate is considerable
-> slower than necessary.
+Best regards
+Uwe
 
-The algorithm will start with 'rate' being the parent clock's rate,=20
-which
-will always be the highest rate that the child clock will support.
-
-> Best regards
-> Uwe
->=20
-> --
-> Pengutronix e.K.                           | Uwe Kleine-K=F6nig       =20
->     |
-> Industrial Linux Solutions                 |=20
-> http://www.pengutronix.de/  |
-=
-
+-- 
+Pengutronix e.K.                           | Uwe Kleine-König            |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
