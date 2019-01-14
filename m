@@ -1,127 +1,104 @@
-Return-Path: <SRS0=gfjW=PS=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=oKES=PW=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B6B0CC43613
-	for <linux-watchdog@archiver.kernel.org>; Thu, 10 Jan 2019 14:05:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 988BEC43387
+	for <linux-watchdog@archiver.kernel.org>; Mon, 14 Jan 2019 02:36:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 85E6320660
-	for <linux-watchdog@archiver.kernel.org>; Thu, 10 Jan 2019 14:05:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5D82320854
+	for <linux-watchdog@archiver.kernel.org>; Mon, 14 Jan 2019 02:36:35 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=crapouillou.net header.i=@crapouillou.net header.b="cNKUof4i"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="W7df3quO"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728984AbfAJOFT (ORCPT
+        id S1726677AbfANCge (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 10 Jan 2019 09:05:19 -0500
-Received: from outils.crapouillou.net ([89.234.176.41]:49072 "EHLO
-        crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728383AbfAJOFS (ORCPT
+        Sun, 13 Jan 2019 21:36:34 -0500
+Received: from mail-lf1-f66.google.com ([209.85.167.66]:44229 "EHLO
+        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726631AbfANCge (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 10 Jan 2019 09:05:18 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
-        s=mail; t=1547129114; h=from:from:sender:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=UVALlfdv0MyaDaXOTjaTowekBqEatV4nVCmh59/6uRM=;
-        b=cNKUof4iDo74Ueha76HbgI8cs6/vl556x5I8bVg4FFV+2Kh1dNVNXNJCouNg9gDUTiYUQH
-        b4RMT2GIVqb+GzHqOYVE/GSifLGILKdA5KgoIzgCiXXiTGHHtALCZk0GfXSzuZa71JY9O/
-        sIC4RhWBWclvsi91/gk3DMPtpsueo/s=
-Date:   Thu, 10 Jan 2019 11:04:56 -0300
-From:   Paul Cercueil <paul@crapouillou.net>
-Subject: Re: [PATCH v9 14/27] pwm: jz4740: Improve algorithm of clock
- calculation
-To:     Uwe =?iso-8859-1?q?Kleine-K=F6nig?= 
-        <u.kleine-koenig@pengutronix.de>, Stephen Boyd <sboyd@kernel.org>
-Cc:     Thierry Reding <thierry.reding@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Paul Burton <paul.burton@mips.com>,
-        James Hogan <jhogan@kernel.org>,
-        Jonathan Corbet <corbet@lwn.net>, linux-pwm@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-watchdog@vger.kernel.org, linux-mips@vger.kernel.org,
-        linux-doc@vger.kernel.org, linux-clk@vger.kernel.org,
-        Russell King <linux@armlinux.org.uk>
-Message-Id: <1547129096.16183.0@crapouillou.net>
-In-Reply-To: <20190105212711.s765knwwerceytvk@pengutronix.de>
-References: <20181227181319.31095-1-paul@crapouillou.net>
-        <20181227181319.31095-15-paul@crapouillou.net>
-        <20190105195725.cuxfge6zkpbt3cyk@pengutronix.de>
-        <1546722339.30174.0@crapouillou.net>
-        <20190105212711.s765knwwerceytvk@pengutronix.de>
+        Sun, 13 Jan 2019 21:36:34 -0500
+Received: by mail-lf1-f66.google.com with SMTP id z13so14493343lfe.11;
+        Sun, 13 Jan 2019 18:36:33 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=y+q+rXMvogXdc6F7IN6IPRNFTF1TLIu1HY7R8susB90=;
+        b=W7df3quOPPBJLnK9RguA1iI1FTGEgC0EInyBuuXQHXJg6Dc1vaUUoWsW0/mjR3r4cC
+         a69ZFE4BNsoarblmC/9eI1N8KOsE9avHxb16mPLQCVuzvbqv0fjPekt4OW4hfl2RqftJ
+         Uxho6Dw1SIiKye/usqecdvIUK2+h0utCaYSk1imun5xnvqQgA9jwyuBq59MKwCCb2P6L
+         H7ruRsn/zJWiTNKqkp2tO81ShbIxcyKOOLKQ6PEB4Q2KMJk8o7Wml4rLdlT5GXd79DDj
+         Ea5wkCi0OP78ph+vHeAeryTQm+npeDXZNn0Tt7/seRIIiJ+uUekfwfMBUNDCL8FVyz0x
+         OZ0Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=y+q+rXMvogXdc6F7IN6IPRNFTF1TLIu1HY7R8susB90=;
+        b=rKmchuQW1lE/vf5EUvcM2mhR1P3ICA+mxEEoUYjGlWH9xfqzYpOvXXckq3MrEnFyLR
+         pwKNjiQ7wxLVYAucFmONxi4QCMOgGS+I0TxdwM3fPZudh0amNK3iiR7hJ9RZWYeXcO1o
+         4rzPbCc9iQO7XIYdG8y1YSObNseXScSXy/b3vYkQKKLOaADrWJSbirY7lRpuul6Anzrz
+         B+WCasBRlruchI890iJdQKcrs/InzSozOD45UI6bWUNOejVk+MG6F8byutOUHQOu8mGd
+         5nM+JVXB3hu4XyJCKZ9hTKmglkDGJSVGGuxH6ohHQ19gTF7iWo97j4mqk02vfCeO9ZGq
+         s8lw==
+X-Gm-Message-State: AJcUukfUzzLH5dN1HAf8X1bFy8I0XKFoFI4/Wiql1FgBVWr+cNSpC+S+
+        a2HaGkdcUzyacfEZ2iHinuycpHPq4J0=
+X-Google-Smtp-Source: ALg8bN4ZwSd9P+P4cNjsOzbwTaa4uUN2Pcwmlz+Ul1T7nmBXFY3aODni8RapBBlkj4OaL3aisfLOZA==
+X-Received: by 2002:a19:f510:: with SMTP id j16mr4205968lfb.35.1547433392026;
+        Sun, 13 Jan 2019 18:36:32 -0800 (PST)
+Received: from localhost.localdomain (pool-109-191-228-208.is74.ru. [109.191.228.208])
+        by smtp.gmail.com with ESMTPSA id m4-v6sm16876897ljb.58.2019.01.13.18.36.28
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Sun, 13 Jan 2019 18:36:31 -0800 (PST)
+From:   Ivan Mironov <mironov.ivan@gmail.com>
+To:     linux-watchdog@vger.kernel.org, mironov.ivan@gmail.com
+Cc:     linux-kernel@vger.kernel.org,
+        Jerry Hoemann <jerry.hoemann@hpe.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [RFC PATCH 0/4] watchdog: hpwdt: Fix NMI-related behaviour when CONFIG_HPWDT_NMI_DECODING is enabled
+Date:   Mon, 14 Jan 2019 07:36:13 +0500
+Message-Id: <20190114023617.10656-1-mironov.ivan@gmail.com>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Adding Stephen to the discussion.
-Adding Stephen to the discussion.
+Hi,
 
-On Sat, Jan 5, 2019 at 6:27 PM, Uwe Kleine-K=F6nig=20
-<u.kleine-koenig@pengutronix.de> wrote:
-> Hello Paul,
->=20
-> On Sat, Jan 05, 2019 at 06:05:38PM -0300, Paul Cercueil wrote:
->>  On Sat, Jan 5, 2019 at 4:57 PM, Uwe Kleine-K=F6nig
->>  <u.kleine-koenig@pengutronix.de> wrote:
->>  > You are assuming stuff here about the parent clk which isn't=20
->> guaranteed
->>  > (AFAICT) by the clk framework: If you call clk_round_rate(clk,=20
->> rate - 1)
->>  > this might well return rate even if the clock could run slower=20
->> than
->>  > rate.
->>=20
->>  It may not be guaranteed by the clock framework itself, but it is=20
->> guaranteed
->>  to behave like that on this family of SoCs.
->=20
-> You shouldn't rely on that. Experience shows that people will start
-> copying code to machines where this is not guaranteed. Even if they
-> don't copy and only learn from reading this is bad. Also how do you
-> guarantee that this won't change in the future making the pwm code=20
-> break
-> without noticing?
->=20
-> If you use an API better don't assume more things given than are
-> guaranteed by the API.
->=20
-> Having said that I would consider it sensible to introduce something
-> like clk_roundup_rate() and clk_rounddown_rate() which would allow
-> calculations like that.
+I found out that hpwdt alters NMI behaviour unexpectedly if compiled
+with enabled CONFIG_HPWDT_NMI_DECODING:
 
-@Stephen:
-Some context: my algorithm makes use of clk_round_rate(clk, rate - 1)=20
-to get the
-next (smaller) clock rate that a clock support.
+ * System starts to panic on any NMI with misleading message.
+ * Watchdog provided by hpwdt is not working after such panic.
 
-Is it something safe to assume? If not is there a better way?
+Here are the patches that should fix this.
 
->>  > Wouldn't it make sense to start iterating with rate =3D 0xffff *=20
->> 1e9 /
->>  > period? Otherwise you get bad configurations if rate is=20
->> considerable
->>  > slower than necessary.
->>=20
->>  The algorithm will start with 'rate' being the parent clock's rate,=20
->> which
->>  will always be the highest rate that the child clock will support.
->=20
-> Ah right, I missed that bit.
+This is an RFC patch series because I am not sure that patches are
+correct. Questions:
 
-Thanks,
--Paul
-=
+ * Are "mynmi" flags always set on all supported iLO versions when iLO
+   is the source of NMI?
+ * Is it safe to reset "mynmi" flags to zero if code decides to not panic?
+
+Ivan Mironov (4):
+  watchdog: hpwdt: Don't disable watchdog on NMI
+  watchdog: hpwdt: Don't panic on foreign NMI
+  watchdog: hpwdt: Add more information into message
+  watchdog: hpwdt: Make panic behaviour configurable
+
+ drivers/watchdog/hpwdt.c | 45 ++++++++++++++++++++++------------------
+ 1 file changed, 25 insertions(+), 20 deletions(-)
+
+-- 
+2.20.1
 
