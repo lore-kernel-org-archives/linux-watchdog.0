@@ -7,64 +7,64 @@ X-Spam-Status: No, score=-9.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
 	SPF_PASS,USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7EB73C43387
-	for <linux-watchdog@archiver.kernel.org>; Mon, 14 Jan 2019 02:36:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E5170C43387
+	for <linux-watchdog@archiver.kernel.org>; Mon, 14 Jan 2019 02:36:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 48D5120657
-	for <linux-watchdog@archiver.kernel.org>; Mon, 14 Jan 2019 02:36:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B740A20850
+	for <linux-watchdog@archiver.kernel.org>; Mon, 14 Jan 2019 02:36:57 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KUcgF9gO"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jIPdLXVy"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726785AbfANCgv (ORCPT
+        id S1726730AbfANCgg (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sun, 13 Jan 2019 21:36:51 -0500
-Received: from mail-lf1-f68.google.com ([209.85.167.68]:40706 "EHLO
-        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726631AbfANCgh (ORCPT
+        Sun, 13 Jan 2019 21:36:36 -0500
+Received: from mail-lf1-f65.google.com ([209.85.167.65]:33122 "EHLO
+        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726676AbfANCgf (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 13 Jan 2019 21:36:37 -0500
-Received: by mail-lf1-f68.google.com with SMTP id v5so14517233lfe.7;
-        Sun, 13 Jan 2019 18:36:35 -0800 (PST)
+        Sun, 13 Jan 2019 21:36:35 -0500
+Received: by mail-lf1-f65.google.com with SMTP id i26so14541920lfc.0;
+        Sun, 13 Jan 2019 18:36:34 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=Opr3NrUjHsdMnnvPUkP3p8C3slPySw65l2P6gBVK14A=;
-        b=KUcgF9gOacUtg0z2RsOIcf5psNNCJ+F8079/2+r98J5KOcR04FRcZ0ljHyqH7XBidb
-         fKslQXOlkrciBbgMerFgi05CLYzdEQnxfACqf3mwUZW9g+Ucc2KQlgpS9K+O+AAL7tyZ
-         3Wfs/a0F5BCXpHONuUpwW2WcQ2DR7VITwwso09DJWUAevoQoEXnscJHIzCFDMgpjJxvM
-         g7qQDZR+WmphRYH2cQRaDUr1E5zFitJRXsSU63UcXGoi2oFEDF4h/tofLi22nktoTxGs
-         /SqmNTlbiN5hY4uGVXFjSzw027agZsWPaaUx54+zhgc0oRMbrx5RY2ZAt4HB9j+86RmK
-         XTKQ==
+        bh=eLVg0+ENJ/5XPW9yjyuBatmV6D3BisOsaCbTr0AZ5dE=;
+        b=jIPdLXVyvFed4r/Qmkh91drRraHRHmFajHovy3QOdTXIXOJApw9/znP2w06AW7CCSJ
+         mCcbBozgqomsmr7WEHqHzl6+NzqGGfPs78Fpg3fvhquSYoGDFnIOPZjmyR9NcjqUCtHs
+         QWl6TAV+z4fHwhbKuHLZ1dl/I0OV0kOLg+B5OcuuqU8qaZV09d1pArbO17231sEilYLG
+         ivfr7aVDWW75PjDH4uur+JuWwdd4OV4rbh+GGHDqSRq4H6l+yRor4Hfpv8Hvi4D+fHLy
+         1e9mbXFq1b1GszSZyHaBmXyDYzGJaKiAd9GI/dwBtdCyfkv4NpxYdA0L9RGEM6dbxeaB
+         iOIA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=Opr3NrUjHsdMnnvPUkP3p8C3slPySw65l2P6gBVK14A=;
-        b=etd8jzoPrOoChRVvrleO2fsHKhl00UqPcGq/H7ldY1XZ1FTn+oYj/klSNf9jW3M7JE
-         7sWODCxynk1b2T80C9qObbYMCigy/xQiQkQOfgrYwftcUamvl1qedjZzn9dnOYnB0FFc
-         KqlTbGixUBg0dCJz/Qki13fUYyL62t1yggOM6r/QR6NSHAgr267FMl2OqgKtn+TzcGlN
-         SCfr7MLuHr0xEHV74Q8pRDuNl2XElUCUJIde9XuoNpeECXxJ9ozsIJDZrYVi7W6wbDHS
-         lLVyACVjBcnm5CnUg7DUP4f1jwKPxhDbrzzDym3kQ2clv/eecmotd6dq54cBsez4Jm/C
-         NVjA==
-X-Gm-Message-State: AJcUukcDGcwX9Y4Y/p7GiBmcaryvGn6F6Mt/WC97OW45OSCSuUPzyxP/
-        /RJQtTgz1XsCGB1kWz2qYM7kyh6sY/Ev/A==
-X-Google-Smtp-Source: ALg8bN50HMQYy075e7ZefJlD5omcvIlmoSaFWBHvv9qPB9OtXZWcA2N8mbGpCedCsXmLT2Mw+MxSSQ==
-X-Received: by 2002:a19:ec16:: with SMTP id b22mr6025427lfa.65.1547433394797;
-        Sun, 13 Jan 2019 18:36:34 -0800 (PST)
+        bh=eLVg0+ENJ/5XPW9yjyuBatmV6D3BisOsaCbTr0AZ5dE=;
+        b=ao7MnuXH3Xri8ZycV2TaqHVovtBeN1Fufj8fiEvWpykNt81n257fRisk11jzTBcZ7R
+         pTtIptIXrZEZNkVtsp+PUH1fT20DO8SLsS2oidqXLhhg7aJV4R3QdTc7Acx5hztb1JXc
+         22yHIgstVj0uwWDaf5fEI9H1RceEM2cZpZMVANCmZRKBHHFog9L9VuS2VRElOmE6OEcl
+         LHsKgF7dSK71yIDsjCf6iH38auUhETFQ/Mb7KilWHTbzJx/D7Nk367froqKeGeb5/oVu
+         C0MUjkHD8Ueuku2ioV0tYnY3ChSPa5h5Zr4s8vygaBSzKk49dcQXpvLK9M+h1TUqV1cS
+         MqDQ==
+X-Gm-Message-State: AJcUukfCcRseQEstQe2qdoWh26gahXPPukcHiEn/iO8CGbOOzruTS92K
+        HzWrTRShvNruyj0C8rZ+wvV5JdYFBTQiKA==
+X-Google-Smtp-Source: ALg8bN5ma2Ok4zzJSM5U2V1OfAlI94FpM0ZnZDkJJVclDkZcLsrNAa0C/m8yKQfRO5tcRqKXGZT1Pw==
+X-Received: by 2002:a19:a104:: with SMTP id k4mr12766802lfe.36.1547433393382;
+        Sun, 13 Jan 2019 18:36:33 -0800 (PST)
 Received: from localhost.localdomain (pool-109-191-228-208.is74.ru. [109.191.228.208])
-        by smtp.gmail.com with ESMTPSA id m4-v6sm16876897ljb.58.2019.01.13.18.36.33
+        by smtp.gmail.com with ESMTPSA id m4-v6sm16876897ljb.58.2019.01.13.18.36.32
         (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Sun, 13 Jan 2019 18:36:34 -0800 (PST)
+        Sun, 13 Jan 2019 18:36:32 -0800 (PST)
 From:   Ivan Mironov <mironov.ivan@gmail.com>
 To:     linux-watchdog@vger.kernel.org, mironov.ivan@gmail.com
 Cc:     linux-kernel@vger.kernel.org,
         Jerry Hoemann <jerry.hoemann@hpe.com>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>
-Subject: [RFC PATCH 2/4] watchdog: hpwdt: Don't panic on foreign NMI
-Date:   Mon, 14 Jan 2019 07:36:15 +0500
-Message-Id: <20190114023617.10656-3-mironov.ivan@gmail.com>
+Subject: [RFC PATCH 1/4] watchdog: hpwdt: Don't disable watchdog on NMI
+Date:   Mon, 14 Jan 2019 07:36:14 +0500
+Message-Id: <20190114023617.10656-2-mironov.ivan@gmail.com>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190114023617.10656-1-mironov.ivan@gmail.com>
 References: <20190114023617.10656-1-mironov.ivan@gmail.com>
@@ -75,52 +75,33 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Currently, hpwdt unconditionally panics on foreign NMIs in some cases.
-This goes against the default kernel behaviour (which is configured by
-unknown_nmi_panic and panic_on_unrecovered_nmi).
+Existing code disables watchdog on NMI right before completely hanging
+the system.
 
-With this patch, hpwdt will simply ignore NMI unless one of "mynmi"
-flags is set by iLO.
+There are two problems here:
+
+ * First, watchdog is expected to reset the system in a case of such
+   failure, no matter what.
+ * Second, this code has no effect if there are more than one watchdog.
 
 Signed-off-by: Ivan Mironov <mironov.ivan@gmail.com>
 ---
- drivers/watchdog/hpwdt.c | 9 +--------
- 1 file changed, 1 insertion(+), 8 deletions(-)
+ drivers/watchdog/hpwdt.c | 2 --
+ 1 file changed, 2 deletions(-)
 
 diff --git a/drivers/watchdog/hpwdt.c b/drivers/watchdog/hpwdt.c
-index 2467e6bc25c2..e2958df46c69 100644
+index ef30c7e9728d..2467e6bc25c2 100644
 --- a/drivers/watchdog/hpwdt.c
 +++ b/drivers/watchdog/hpwdt.c
-@@ -33,7 +33,6 @@
- #define DEFAULT_MARGIN			30
- #define PRETIMEOUT_SEC			9
- 
--static bool ilo5;
- static unsigned int soft_margin = DEFAULT_MARGIN;	/* in seconds */
- static bool nowayout = WATCHDOG_NOWAYOUT;
- static bool pretimeout = IS_ENABLED(CONFIG_HPWDT_NMI_DECODING);
-@@ -164,10 +163,7 @@ static int hpwdt_pretimeout(unsigned int ulReason, struct pt_regs *regs)
- 		"3. OA Forward Progress Log\n"
- 		"4. iLO Event Log";
- 
--	if (ilo5 && ulReason == NMI_UNKNOWN && !mynmi)
--		return NMI_DONE;
--
--	if (ilo5 && !pretimeout && !mynmi)
-+	if (!mynmi)
+@@ -170,8 +170,6 @@ static int hpwdt_pretimeout(unsigned int ulReason, struct pt_regs *regs)
+ 	if (ilo5 && !pretimeout && !mynmi)
  		return NMI_DONE;
  
- 	hex_byte_pack(panic_msg, mynmi);
-@@ -332,9 +328,6 @@ static int hpwdt_init_one(struct pci_dev *dev,
- 	dev_info(&dev->dev, "pretimeout: %s.\n",
- 				pretimeout ? "on" : "off");
- 
--	if (dev->subsystem_vendor == PCI_VENDOR_ID_HP_3PAR)
--		ilo5 = true;
+-	hpwdt_stop();
 -
- 	return 0;
+ 	hex_byte_pack(panic_msg, mynmi);
+ 	nmi_panic(regs, panic_msg);
  
- error_wd_register:
 -- 
 2.20.1
 
