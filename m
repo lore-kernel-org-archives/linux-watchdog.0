@@ -2,179 +2,143 @@ Return-Path: <SRS0=FcDn=PY=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PULL_REQUEST,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_PASS,USER_AGENT_MUTT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ECCA7C43387
-	for <linux-watchdog@archiver.kernel.org>; Wed, 16 Jan 2019 12:15:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 11167C43387
+	for <linux-watchdog@archiver.kernel.org>; Wed, 16 Jan 2019 14:04:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B2E032082F
-	for <linux-watchdog@archiver.kernel.org>; Wed, 16 Jan 2019 12:15:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D1C8C20657
+	for <linux-watchdog@archiver.kernel.org>; Wed, 16 Jan 2019 14:04:31 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=prevas.se header.i=@prevas.se header.b="gZU3PZi4"
+	dkim=pass (1024-bit key) header.d=linaro.org header.i=@linaro.org header.b="M+hmCxb/"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404020AbfAPMO5 (ORCPT
+        id S2390592AbfAPOEb (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 16 Jan 2019 07:14:57 -0500
-Received: from mail-eopbgr50124.outbound.protection.outlook.com ([40.107.5.124]:6116
-        "EHLO EUR03-VE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1730413AbfAPMOz (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 16 Jan 2019 07:14:55 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=prevas.se;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=DGTObNPg/mRLyfZHQcxH+Xv666mNSdafhU8ca+oV0rI=;
- b=gZU3PZi4z74gqplbKOhZ/3FyP8G1Pc/eSRGy8Ulg5E2RfKQXKJAQfL2xtXZH38B4a1f5oZ3Ppt6zPYykbBJB7JEsJ+EMdEZ8i7//ea02jhz+w/omzKYVVraJD2kH4RJdPhI/j5zqJQ6zJMGQj2LK5Mxnq8TusAJYoUF1AlczRKg=
-Received: from VI1PR10MB2672.EURPRD10.PROD.OUTLOOK.COM (20.178.126.212) by
- VI1PR10MB2272.EURPRD10.PROD.OUTLOOK.COM (20.177.62.32) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.1516.18; Wed, 16 Jan 2019 12:14:44 +0000
-Received: from VI1PR10MB2672.EURPRD10.PROD.OUTLOOK.COM
- ([fe80::dc83:d2d3:895c:e6fc]) by VI1PR10MB2672.EURPRD10.PROD.OUTLOOK.COM
- ([fe80::dc83:d2d3:895c:e6fc%4]) with mapi id 15.20.1516.019; Wed, 16 Jan 2019
- 12:14:44 +0000
-From:   Rasmus Villemoes <rasmus.villemoes@prevas.dk>
-To:     "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Jonathan Corbet <corbet@lwn.net>
-CC:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-        Esben Haabendal <esben@haabendal.dk>,
-        "martin@hundeboll.net" <martin@hundeboll.net>,
-        Rasmus Villemoes <Rasmus.Villemoes@prevas.se>
-Subject: [PATCH v8 2/3] watchdog: introduce CONFIG_WATCHDOG_OPEN_TIMEOUT
-Thread-Topic: [PATCH v8 2/3] watchdog: introduce CONFIG_WATCHDOG_OPEN_TIMEOUT
-Thread-Index: AQHUrZUQd+iTHOdbz0qapDB2+iUs3g==
-Date:   Wed, 16 Jan 2019 12:14:44 +0000
-Message-ID: <20190116121432.26732-3-rasmus.villemoes@prevas.dk>
-References: <20190116121432.26732-1-rasmus.villemoes@prevas.dk>
-In-Reply-To: <20190116121432.26732-1-rasmus.villemoes@prevas.dk>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-clientproxiedby: HE1PR05CA0204.eurprd05.prod.outlook.com
- (2603:10a6:3:f9::28) To VI1PR10MB2672.EURPRD10.PROD.OUTLOOK.COM
- (2603:10a6:803:e3::20)
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=Rasmus.Villemoes@prevas.se; 
-x-ms-exchange-messagesentrepresentingtype: 1
-x-mailer: git-send-email 2.20.1
-x-originating-ip: [81.216.59.226]
-x-ms-publictraffictype: Email
-x-microsoft-exchange-diagnostics: 1;VI1PR10MB2272;6:CjLtDY3y6mrUPNX/Q7iDDvDdSjUrBeq6Ip/trZfDxuI8tuV/wkBmrz5PvkbJuqcYlfNoFqvuXeeC3y5CFmdxmELxCuZF5/z0hIghK+LnqnZPhyVWfrmiP/kkmqHmd/ivUzpjaQBKbZpCokI3vAwKEVux+lsN/0ki3RROhaTgYrt+g59EFx7Ib/EzE2vcRiBMbmAJHCXcXRsfEMLKChXnG06xoLV7Uvi2KEXIWlkzVKBVyiLCIQP3cuytC7ha5VHLj1bZ7woDKEWljKj5DyuRcbSj1K+zdnMyXEf8TCBVcFTKuLIZwnvO+u7HxuUJcRYc+qk25vTx4laIeG2s+xNtfYnKCdyOPCuVRcii4SOh4M3wb7dGYbEWuRGKYwkYdHDkn1MJdUIecR81MA2VxYAyd5A4Yajd7MHpDWxyQpDQubm7tcb5KFr0srnVDLRh1iP9oYuiFptspXLeFd49IniXqQ==;5:ctgFNwv10mRYso1nAQbt+oTWczixrKw0QJGC0h5+CjeSr/i47e/agFh0qjdrjeAmu+Y9IRJcSdNi+haCDkC9PcoqX5w3hkfLRSlb3QSwuihxdeROuSP4II7vPdX7T/QBUctsIm0hQu5VTvsQ0ZEQwwWxBUD6H+o1SOI7yMJRDKpG2QZ2y2KD+Xq7l6zFVulULhWAvF3/SneuNcfbm9h0hA==;7:je24AXDdcKeCRx6eSQolWUnmxVK7xBpexStTzhNNBE7S5iZJjjaiaiBYAv7BLS9gR0wVH2AbdRdxhYYfP9WadwfHItJ6LrCGGQDlDTarudoGHtZUHU3ehbWRSFi33BRj1EDcqBWEQGXNSxR657ZBtg==
-x-ms-office365-filtering-correlation-id: 78016e40-81ec-44ca-278a-08d67bac32ff
-x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600109)(711020)(2017052603328)(7153060)(7193020);SRVR:VI1PR10MB2272;
-x-ms-traffictypediagnostic: VI1PR10MB2272:
-x-microsoft-antispam-prvs: <VI1PR10MB227251550D28A91431A28CBD8A820@VI1PR10MB2272.EURPRD10.PROD.OUTLOOK.COM>
-x-forefront-prvs: 091949432C
-x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(396003)(136003)(346002)(39850400004)(366004)(376002)(199004)(189003)(43544003)(316002)(478600001)(36756003)(6506007)(386003)(7736002)(50226002)(71190400001)(305945005)(74482002)(4326008)(71200400001)(102836004)(52116002)(68736007)(76176011)(44832011)(110136005)(97736004)(25786009)(54906003)(1076003)(14444005)(72206003)(256004)(14454004)(5660300001)(53936002)(42882007)(2906002)(11346002)(26005)(2616005)(446003)(486006)(476003)(6436002)(66066001)(81156014)(81166006)(186003)(107886003)(99286004)(8936002)(3846002)(8976002)(105586002)(6116002)(106356001)(6486002)(2501003)(8676002)(6512007);DIR:OUT;SFP:1102;SCL:1;SRVR:VI1PR10MB2272;H:VI1PR10MB2672.EURPRD10.PROD.OUTLOOK.COM;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
-received-spf: None (protection.outlook.com: prevas.se does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam-message-info: usM/C2WtcdcPKaGo8gW6j8o8CUsSE9hS0dh9+0M04yaZpk9xCb0iAer4tRcGYiA7oabbVmcAa93jCMu7JvgpbxKpFyV+0+fxK7t7AzgayV1A8fFt6pFGnaQc8wggoSds4/mp+JdtA/yk4yvLVRdZVMreJDFRRxXP0pggUImWQBAMl0nZU6EOzEBUEf6ws1vnDHRS3arNQivynyvhmx4QQorJf16KheGci+ltq/pu4Z0aly3mpfyYi+XwJwaqiTUG5yAVPAidbj4jHCc+JgUQHVvOF6EuyizK+eoV61gxFititEcTwDiO5X8UnboyibVUA25move+2gl3wDKDlgZtt6EycDVxl3093FHsbuSBnM9yfrh5fekPmUbAtoKKZbfsx5xIs+/PO5AIvc1yzHEUgymMsDcXwGs+C1r07djg8s0=
-spamdiagnosticoutput: 1:99
-spamdiagnosticmetadata: NSPM
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+        Wed, 16 Jan 2019 09:04:31 -0500
+Received: from mail-wr1-f65.google.com ([209.85.221.65]:34618 "EHLO
+        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2390549AbfAPOEb (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Wed, 16 Jan 2019 09:04:31 -0500
+Received: by mail-wr1-f65.google.com with SMTP id j2so7108187wrw.1
+        for <linux-watchdog@vger.kernel.org>; Wed, 16 Jan 2019 06:04:30 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to
+         :user-agent;
+        bh=hHXoFUtu+ddd4xxKPygSSUO6RvYAa9FR8CgoDBJzUJ8=;
+        b=M+hmCxb/VO4buKAMmDJuWYSvcTKdbOQJxaDQw5p2nqKflYI6twnXR06AbIUwrGAF2p
+         gzgHCWoe5Y1lsAnDFoMWAC8IfWkVYfVMdImDd3i+mMmYix8JLtga87XaoM/IZQdg83oP
+         /BJsAaUNP4PyMyY1P3aiO4tJmnRua/3PTuwHE=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to:user-agent;
+        bh=hHXoFUtu+ddd4xxKPygSSUO6RvYAa9FR8CgoDBJzUJ8=;
+        b=aOd8Vf/GvtQ1jhHbbtEr/mkeKjh2Vc1v8thoGCC0A73vav860eIIg4LL9bZwWaL7RF
+         CVbcohJ4gm/viY8juR3/ZCDvXyLGbgLXMfxLO2xVO7EZWEmwE7VWOZ9WxkcBqZt+eVSM
+         qJbCbbW8PQCbvuAzCH1MafNttljyETss6G/GwMhOGZqFAhicI5r5XrYawfYTuDzaLtTJ
+         ckOIBSdXdfRCKNRKhyalzRA18IovFqfFzUSJkDlS1lGSz3rhL3efWEy7NYuKDwO6dbHO
+         LFJ5gjoz42dfiY/JXMXPFP0Xuw1NKA9lWBXFQ/9zQZsna/XSDjCZrHIq6pMgsmjQ3QFb
+         dmhQ==
+X-Gm-Message-State: AJcUukf161EQybg9Q16Kc+qdYE+pYJUhkSYlNX/suRD4W9HjeJXvO/rD
+        Q1K08IHEZIQw4X/cRRro8Ihykg==
+X-Google-Smtp-Source: ALg8bN6YtQI2EELIJFf9GvIiOh/nmYLu3rHDpN6vtBhR818pd+E95cUipKwe7T84Wu0ZSIBDVbqEag==
+X-Received: by 2002:adf:9ec8:: with SMTP id b8mr8098176wrf.164.1547647469209;
+        Wed, 16 Jan 2019 06:04:29 -0800 (PST)
+Received: from dell ([2.27.35.149])
+        by smtp.gmail.com with ESMTPSA id t5sm38754503wmd.15.2019.01.16.06.04.27
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Wed, 16 Jan 2019 06:04:27 -0800 (PST)
+Date:   Wed, 16 Jan 2019 14:04:26 +0000
+From:   Lee Jones <lee.jones@linaro.org>
+To:     Pascal PAILLET-LME <p.paillet@st.com>
+Cc:     "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
+        "robh+dt@kernel.org" <robh+dt@kernel.org>,
+        "mark.rutland@arm.com" <mark.rutland@arm.com>,
+        "lgirdwood@gmail.com" <lgirdwood@gmail.com>,
+        "broonie@kernel.org" <broonie@kernel.org>,
+        "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
+        "linux@roeck-us.net" <linux@roeck-us.net>,
+        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+        "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>,
+        "eballetbo@gmail.com" <eballetbo@gmail.com>,
+        "axel.lin@ingics.com" <axel.lin@ingics.com>
+Subject: [GIT PULL] Immutable branch between MFD, Input and Watchdog due for
+ the v5.1 merge window
+Message-ID: <20190116140426.GF23399@dell>
+References: <1547460290-21049-1-git-send-email-p.paillet@st.com>
 MIME-Version: 1.0
-X-OriginatorOrg: prevas.dk
-X-MS-Exchange-CrossTenant-Network-Message-Id: 78016e40-81ec-44ca-278a-08d67bac32ff
-X-MS-Exchange-CrossTenant-originalarrivaltime: 16 Jan 2019 12:14:43.2202
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: d350cf71-778d-4780-88f5-071a4cb1ed61
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: VI1PR10MB2272
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1547460290-21049-1-git-send-email-p.paillet@st.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-This allows setting a default value for the watchdog.open_timeout
-commandline parameter via Kconfig.
+Enjoy!
 
-Some BSPs allow remote updating of the kernel image and root file
-system, but updating the bootloader requires physical access. Hence, if
-one has a firmware update that requires relaxing the
-watchdog.open_timeout a little, the value used must be baked into the
-kernel image itself and cannot come from the u-boot environment via the
-kernel command line.
+The following changes since commit bfeffd155283772bbe78c6a05dec7c0128ee500c:
 
-Being able to set the initial value in .config doesn't change the fact
-that the value on the command line, if present, takes precedence, and is
-of course immensely useful for development purposes while one has
-console acccess, as well as usable in the cases where one can make a
-permanent update of the kernel command line.
+  Linux 5.0-rc1 (2019-01-06 17:08:20 -0800)
 
-Signed-off-by: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
----
- Documentation/watchdog/watchdog-parameters.txt | 3 ++-
- drivers/watchdog/Kconfig                       | 9 +++++++++
- drivers/watchdog/watchdog_dev.c                | 5 +++--
- 3 files changed, 14 insertions(+), 3 deletions(-)
+are available in the Git repository at:
 
-diff --git a/Documentation/watchdog/watchdog-parameters.txt b/Documentation=
-/watchdog/watchdog-parameters.txt
-index 5e4235989154..f550f4fb831d 100644
---- a/Documentation/watchdog/watchdog-parameters.txt
-+++ b/Documentation/watchdog/watchdog-parameters.txt
-@@ -11,7 +11,8 @@ modules.
- The watchdog core parameter watchdog.open_timeout is the maximum time,
- in milliseconds, for which the watchdog framework will take care of
- pinging a hardware watchdog until userspace opens the corresponding
--/dev/watchdogN device. A value of 0 (the default) means an infinite
-+/dev/watchdogN device. The defalt value is
-+CONFIG_WATCHDOG_OPEN_TIMEOUT. A value of 0 means an infinite
- timeout. Setting this to a non-zero value can be useful to ensure that
- either userspace comes up properly, or the board gets reset and allows
- fallback logic in the bootloader to try something else.
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 57f017d74a97..289d13fecc27 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -63,6 +63,15 @@ config WATCHDOG_SYSFS
- 	  Say Y here if you want to enable watchdog device status read through
- 	  sysfs attributes.
-=20
-+config WATCHDOG_OPEN_TIMEOUT
-+	int "Timeout value for opening watchdog device"
-+	default 0
-+	help
-+	  The maximum time, in milliseconds, for which the watchdog
-+	  framework takes care of pinging a hardware watchdog. A value
-+	  of 0 means infinite. The value set here can be overridden by
-+	  the commandline parameter "watchdog.open_timeout".
-+
- #
- # General Watchdog drivers
- #
-diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_de=
-v.c
-index a9585925458f..804da5b2ce02 100644
---- a/drivers/watchdog/watchdog_dev.c
-+++ b/drivers/watchdog/watchdog_dev.c
-@@ -88,7 +88,7 @@ static struct kthread_worker *watchdog_kworker;
- static bool handle_boot_enabled =3D
- 	IS_ENABLED(CONFIG_WATCHDOG_HANDLE_BOOT_ENABLED);
-=20
--static unsigned open_timeout;
-+static unsigned open_timeout =3D CONFIG_WATCHDOG_OPEN_TIMEOUT;
-=20
- static bool watchdog_past_open_deadline(struct watchdog_core_data *data)
- {
-@@ -1206,4 +1206,5 @@ MODULE_PARM_DESC(handle_boot_enabled,
-=20
- module_param(open_timeout, uint, 0644);
- MODULE_PARM_DESC(open_timeout,
--	"Maximum time (in milliseconds, 0 means infinity) for userspace to take o=
-ver a running watchdog (default=3D0)");
-+	"Maximum time (in milliseconds, 0 means infinity) for userspace to take o=
-ver a running watchdog (default=3D"
-+	__MODULE_STRING(CONFIG_WATCHDOG_OPEN_TIMEOUT) ")");
---=20
-2.20.1
+  git://git.kernel.org/pub/scm/linux/kernel/git/lee/mfd.git ib-mfd-input-watchdog-v5.1
 
+for you to fetch changes up to 28804c2c8fb3401aa4b7f16a883d49dd82f5e377:
+
+  watchdog: stpmic1: Add STPMIC1 watchdog driver (2019-01-16 14:01:19 +0000)
+
+----------------------------------------------------------------
+Immutable branch between MFD, Input and Watchdog due for the v5.1 merge window
+
+----------------------------------------------------------------
+Pascal PAILLET-LME (6):
+      dt-bindings: mfd: Document STPMIC1
+      mfd: stpmic1: Add STPMIC1 driver
+      dt-bindings: input: Document STPMIC1 PMIC onkey
+      input: stpmic1: Add STPMIC1 onkey driver
+      dt-bindings: watchdog: document STPMIC1 PMIC watchdog
+      watchdog: stpmic1: Add STPMIC1 watchdog driver
+
+ .../devicetree/bindings/input/st,stpmic1-onkey.txt |  28 +++
+ .../devicetree/bindings/mfd/st,stpmic1.txt         |  61 ++++++
+ .../bindings/watchdog/st,stpmic1-wdt.txt           |  11 ++
+ drivers/input/misc/Kconfig                         |  11 ++
+ drivers/input/misc/Makefile                        |   2 +
+ drivers/input/misc/stpmic1_onkey.c                 | 198 +++++++++++++++++++
+ drivers/mfd/Kconfig                                |  16 ++
+ drivers/mfd/Makefile                               |   1 +
+ drivers/mfd/stpmic1.c                              | 213 +++++++++++++++++++++
+ drivers/watchdog/Kconfig                           |  12 ++
+ drivers/watchdog/Makefile                          |   1 +
+ drivers/watchdog/stpmic1_wdt.c                     | 139 ++++++++++++++
+ include/dt-bindings/mfd/st,stpmic1.h               |  50 +++++
+ include/linux/mfd/stpmic1.h                        | 212 ++++++++++++++++++++
+ 14 files changed, 955 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/st,stpmic1-onkey.txt
+ create mode 100644 Documentation/devicetree/bindings/mfd/st,stpmic1.txt
+ create mode 100644 Documentation/devicetree/bindings/watchdog/st,stpmic1-wdt.txt
+ create mode 100644 drivers/input/misc/stpmic1_onkey.c
+ create mode 100644 drivers/mfd/stpmic1.c
+ create mode 100644 drivers/watchdog/stpmic1_wdt.c
+ create mode 100644 include/dt-bindings/mfd/st,stpmic1.h
+ create mode 100644 include/linux/mfd/stpmic1.h
+
+-- 
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
