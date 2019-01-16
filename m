@@ -2,136 +2,106 @@ Return-Path: <SRS0=FcDn=PY=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_MUTT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,
+	URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A260C43387
-	for <linux-watchdog@archiver.kernel.org>; Wed, 16 Jan 2019 14:05:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 99560C43444
+	for <linux-watchdog@archiver.kernel.org>; Wed, 16 Jan 2019 15:01:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 54AE020657
-	for <linux-watchdog@archiver.kernel.org>; Wed, 16 Jan 2019 14:05:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6A190205C9
+	for <linux-watchdog@archiver.kernel.org>; Wed, 16 Jan 2019 15:01:13 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=haabendal.dk header.i=@haabendal.dk header.b="2aNsSdUA"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390272AbfAPOFI (ORCPT
+        id S2404788AbfAPPBM (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 16 Jan 2019 09:05:08 -0500
-Received: from mx0b-002e3701.pphosted.com ([148.163.143.35]:49680 "EHLO
-        mx0b-002e3701.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730952AbfAPOFH (ORCPT
+        Wed, 16 Jan 2019 10:01:12 -0500
+Received: from mailrelay4-1.pub.mailoutpod1-cph3.one.com ([46.30.210.185]:23917
+        "EHLO mailrelay4-1.pub.mailoutpod1-cph3.one.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1732029AbfAPPBJ (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 16 Jan 2019 09:05:07 -0500
-Received: from pps.filterd (m0148664.ppops.net [127.0.0.1])
-        by mx0b-002e3701.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x0G2Qbc5018936;
-        Wed, 16 Jan 2019 02:27:33 GMT
-Received: from g2t2354.austin.hpe.com (g2t2354.austin.hpe.com [15.233.44.27])
-        by mx0b-002e3701.pphosted.com with ESMTP id 2q1qyd9cfy-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 16 Jan 2019 02:27:32 +0000
-Received: from g2t2360.austin.hpecorp.net (g2t2360.austin.hpecorp.net [16.196.225.135])
-        by g2t2354.austin.hpe.com (Postfix) with ESMTP id 4F431A2;
-        Wed, 16 Jan 2019 02:27:32 +0000 (UTC)
-Received: from anatevka (anatevka.americas.hpqcorp.net [10.34.81.61])
-        by g2t2360.austin.hpecorp.net (Postfix) with ESMTP id EF87B3A;
-        Wed, 16 Jan 2019 02:27:31 +0000 (UTC)
-Date:   Tue, 15 Jan 2019 19:27:31 -0700
-From:   Jerry Hoemann <jerry.hoemann@hpe.com>
-To:     Ivan Mironov <mironov.ivan@gmail.com>
-Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Wed, 16 Jan 2019 10:01:09 -0500
+X-Greylist: delayed 962 seconds by postgrey-1.27 at vger.kernel.org; Wed, 16 Jan 2019 10:01:08 EST
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=haabendal.dk; s=20140924;
+        h=content-type:mime-version:message-id:in-reply-to:date:references:subject:cc:
+         to:from:from;
+        bh=cQB9rzXu6IIyWGE4rBq3324xGrsxfBHHLKXsSOdVsE8=;
+        b=2aNsSdUA+6s4XLpKs0tyfk2RWoBuIvUG/Cm7kAHGTn71db8iG2h65DxGeZsAUBNtfgnDzM1VyN9ur
+         p4azDcPMxjB3Zw5miWjhIR/zf5kTlKF+1xdJ15FwWXm+E9fzmyM757EjJK6qTKUMUB2+8K8DgA9fch
+         om8FyLLFuG70e1Do=
+X-HalOne-Cookie: 0b32515dc14c55f8adf2817b6a7d371658f604a5
+X-HalOne-ID: 4e1533be-199d-11e9-834b-d0431ea8bb10
+Received: from localhost (unknown [87.49.44.116])
+        by mailrelay4.pub.mailoutpod1-cph3.one.com (Halon) with ESMTPSA
+        id 4e1533be-199d-11e9-834b-d0431ea8bb10;
+        Wed, 16 Jan 2019 14:45:02 +0000 (UTC)
+From:   Esben Haabendal <esben@haabendal.dk>
+To:     Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+Cc:     "linux-watchdog\@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+        Guenter Roeck <linux@roeck-us.net>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [RFC PATCH 1/4] watchdog: hpwdt: Don't disable watchdog on NMI
-Message-ID: <20190116022731.GD18342@anatevka>
-Reply-To: Jerry.Hoemann@hpe.com
-References: <20190114023617.10656-1-mironov.ivan@gmail.com>
- <20190114023617.10656-2-mironov.ivan@gmail.com>
+        Jonathan Corbet <corbet@lwn.net>,
+        "linux-kernel\@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-doc\@vger.kernel.org" <linux-doc@vger.kernel.org>,
+        "martin\@hundeboll.net" <martin@hundeboll.net>,
+        Rasmus Villemoes <Rasmus.Villemoes@prevas.se>
+Subject: Re: [PATCH v8 0/3] watchdog: allow setting deadline for opening /dev/watchdogN
+References: <20190116121432.26732-1-rasmus.villemoes@prevas.dk>
+Date:   Wed, 16 Jan 2019 15:45:02 +0100
+In-Reply-To: <20190116121432.26732-1-rasmus.villemoes@prevas.dk> (Rasmus
+        Villemoes's message of "Wed, 16 Jan 2019 12:14:41 +0000")
+Message-ID: <87pnsw3bm9.fsf@haabendal.dk>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190114023617.10656-2-mironov.ivan@gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-HPE-SCL: -1
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-01-16_01:,,
- signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- malwarescore=0 suspectscore=0 phishscore=0 bulkscore=0 spamscore=0
- clxscore=1015 lowpriorityscore=0 mlxscore=0 impostorscore=0
- mlxlogscore=999 adultscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.0.1-1810050000 definitions=main-1901160016
+Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Mon, Jan 14, 2019 at 07:36:14AM +0500, Ivan Mironov wrote:
-> Existing code disables watchdog on NMI right before completely hanging
-> the system.
-> 
-> There are two problems here:
-> 
->  * First, watchdog is expected to reset the system in a case of such
->    failure, no matter what.
+Rasmus Villemoes <rasmus.villemoes@prevas.dk> writes:
 
-Documentation/watchdog/watchdog-api.txt
+> If a watchdog driver tells the framework that the device is running,
+> the framework takes care of feeding the watchdog until userspace opens
+> the device. If the userspace application which is supposed to do that
+> never comes up properly, the watchdog is fed indefinitely by the
+> kernel. This can be especially problematic for embedded devices.
+>
+> The existing handle_boot_enabled cmdline parameter/config option
+> partially solves that, but that is only usable for the subset of
+> hardware watchdogs that have (or can be configured by the bootloader
+> to have) a timeout that is sufficient to make it realistic for
+> userspace to come up. Many devices have timeouts of only a few
+> seconds, or even less, making handle_boot_enabled insufficient.
+>
+> These patches allow one to set a maximum time for which the kernel
+> will feed the watchdog, thus ensuring that either userspace has come
+> up, or the board gets reset. This allows fallback logic in the
+> bootloader to attempt some recovery (for example, if an automatic
+> update is in progress, it could roll back to the previous version).
+>
+> The patches have been tested on a Raspberry Pi 2 and a Wandboard.
+>
+> Changes in v8: Redo on top of 5.0-rc1 - in particular, adapt to the
+> jiffies->ktime_t conversion (1ff68820 "watchdog: core: make sure the
+> watchdog_worker is not deferred"). Add a patch to make the hardware
+> timeout at the deadline as requested by Guenther - which was actually
+> made very easy by the ktime_t conversion.
+>
+> v7 submission at <https://lore.kernel.org/lkml/1511865350-20665-1-git-send-email-rasmus.villemoes@prevas.dk/>
+>
+> Rasmus Villemoes (3):
+>   watchdog: introduce watchdog.open_timeout commandline parameter
+>   watchdog: introduce CONFIG_WATCHDOG_OPEN_TIMEOUT
+>   watchdog: make the device time out at open_deadline when open_timeout
+>     is used
+>
+>  .../watchdog/watchdog-parameters.txt          |  9 ++++
+>  drivers/watchdog/Kconfig                      |  9 ++++
+>  drivers/watchdog/watchdog_dev.c               | 42 +++++++++++++++----
+>  3 files changed, 53 insertions(+), 7 deletions(-)
 
-explicitly allows for pretimeout NMI and generation of kernel crash dumps.
-
-By removing hpwdt_stop the system will likely fail to crash dump
-as there is only 9 seconds between receipt of a NMI and the iLO
-resetting the system.
-
-Unfortunately, kdump is not without issues and can also be difficult
-to properly configure either of which can result in failure to dump
-and reset.
-
-Customers who value availability over kdump collection, the pretimeout
-NMI can be disabled and hardware will not issue the pretimeout NMI
-and will only do reset.
-
-A middle ground for those who want tombstones but not kdump, would
-be to leave the pretimeout NMI enabled and add "panic=N" to the
-Linux command line.  That way after the panic, the tombstone is
-printed and the system resets after N seconds.
-
-
-
->  * Second, this code has no effect if there are more than one watchdog.
-
-That is correct.  Hpwdt will not turn off any other WDT.
-
-I don't see a current method of notifying other watchdogs
-that a given watchdog is going to take the system down.
-
-The closest I hook see is watchdog_notify_pretimeout, but I don't
-see that notifying other WDT.  Its not clear to me that it should.
-(e.g. the second WDT could be of longer duration and protect against
-kdump hanging. This would need to be thought through.)
-
-
-
-> 
-> Signed-off-by: Ivan Mironov <mironov.ivan@gmail.com>
-> ---
->  drivers/watchdog/hpwdt.c | 2 --
->  1 file changed, 2 deletions(-)
-> 
-> diff --git a/drivers/watchdog/hpwdt.c b/drivers/watchdog/hpwdt.c
-> index ef30c7e9728d..2467e6bc25c2 100644
-> --- a/drivers/watchdog/hpwdt.c
-> +++ b/drivers/watchdog/hpwdt.c
-> @@ -170,8 +170,6 @@ static int hpwdt_pretimeout(unsigned int ulReason, struct pt_regs *regs)
->  	if (ilo5 && !pretimeout && !mynmi)
->  		return NMI_DONE;
->  
-> -	hpwdt_stop();
-> -
->  	hex_byte_pack(panic_msg, mynmi);
->  	nmi_panic(regs, panic_msg);
->  
-> -- 
-> 2.20.1
-
--- 
-
------------------------------------------------------------------------------
-Jerry Hoemann                  Software Engineer   Hewlett Packard Enterprise
------------------------------------------------------------------------------
+For the whole series:
+Acked-by: Esben Haabendal <esben@haabendal.dk>
