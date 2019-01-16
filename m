@@ -2,154 +2,141 @@ Return-Path: <SRS0=FcDn=PY=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-2.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_MUTT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8DE6CC43387
-	for <linux-watchdog@archiver.kernel.org>; Wed, 16 Jan 2019 03:47:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BF6E6C43387
+	for <linux-watchdog@archiver.kernel.org>; Wed, 16 Jan 2019 08:14:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5DDB220675
-	for <linux-watchdog@archiver.kernel.org>; Wed, 16 Jan 2019 03:47:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 85A4E20859
+	for <linux-watchdog@archiver.kernel.org>; Wed, 16 Jan 2019 08:14:03 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=linaro.org header.i=@linaro.org header.b="UAe4AuZ6"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729825AbfAPDrp (ORCPT
+        id S2388558AbfAPIOC (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 15 Jan 2019 22:47:45 -0500
-Received: from mx0b-002e3701.pphosted.com ([148.163.143.35]:59564 "EHLO
-        mx0b-002e3701.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728627AbfAPDrp (ORCPT
+        Wed, 16 Jan 2019 03:14:02 -0500
+Received: from mail-wm1-f67.google.com ([209.85.128.67]:51721 "EHLO
+        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1732481AbfAPIOC (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 15 Jan 2019 22:47:45 -0500
-X-Greylist: delayed 5080 seconds by postgrey-1.27 at vger.kernel.org; Tue, 15 Jan 2019 22:47:44 EST
-Received: from pps.filterd (m0150244.ppops.net [127.0.0.1])
-        by mx0b-002e3701.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x0G2BwCR029079;
-        Wed, 16 Jan 2019 02:22:44 GMT
-Received: from g2t2352.austin.hpe.com (g2t2352.austin.hpe.com [15.233.44.25])
-        by mx0b-002e3701.pphosted.com with ESMTP id 2q1qkb9ghf-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 16 Jan 2019 02:22:44 +0000
-Received: from g2t2360.austin.hpecorp.net (g2t2360.austin.hpecorp.net [16.196.225.135])
-        by g2t2352.austin.hpe.com (Postfix) with ESMTP id CA30D85;
-        Wed, 16 Jan 2019 02:22:43 +0000 (UTC)
-Received: from anatevka (anatevka.americas.hpqcorp.net [10.34.81.61])
-        by g2t2360.austin.hpecorp.net (Postfix) with ESMTP id 2679A3A;
-        Wed, 16 Jan 2019 02:22:43 +0000 (UTC)
-Date:   Tue, 15 Jan 2019 19:22:42 -0700
-From:   Jerry Hoemann <jerry.hoemann@hpe.com>
-To:     Ivan Mironov <mironov.ivan@gmail.com>
-Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [RFC PATCH 0/4] watchdog: hpwdt: Fix NMI-related behaviour when
- CONFIG_HPWDT_NMI_DECODING is enabled
-Message-ID: <20190116022242.GC18342@anatevka>
-Reply-To: Jerry.Hoemann@hpe.com
-References: <20190114023617.10656-1-mironov.ivan@gmail.com>
+        Wed, 16 Jan 2019 03:14:02 -0500
+Received: by mail-wm1-f67.google.com with SMTP id b11so962908wmj.1
+        for <linux-watchdog@vger.kernel.org>; Wed, 16 Jan 2019 00:14:00 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to
+         :user-agent;
+        bh=pHG+BUOwpa9VHZNedTQ9afqjkM8N+M5cVumSRF2uNwA=;
+        b=UAe4AuZ6CV2oi7R63WMD/lkiJ1rkY/pvZMNkl26QN4eqyfwmO/T7wuT/+C8q8PDIYA
+         q7tEffu9ehGWmflkX24nvZJWQuhB6nsjgbsQJLUiU2ID0i0/Id4Z1a2TIQq87mCe8KG6
+         I6f+zBRV1HwTs+xFWKP5fKcVnXV2HGacWvpGo=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to:user-agent;
+        bh=pHG+BUOwpa9VHZNedTQ9afqjkM8N+M5cVumSRF2uNwA=;
+        b=S6U5y3ecDX78SnHpI07O4+nHIPmwB13/5ZTxPeQCFwGcWjFFsar2LY5H9IeyFcbzog
+         JR5BcDjggJIvZQmQMZyPxPPgv7+V8LY5c3BngLnvILxTO2PsdrTBrxDbRlBS2xMMq756
+         /aAOTSsGrp/8qtsSMD+oMtpjEAZeGopPRPVD4mA6miXc24+uNAedeiJs1UgG8dUZ6Fnp
+         Kmk4gmWcd6NHDREvBTNXM7wPpS3f1n3drN8p0yHAOVtJyK0qMaiA0i06lUzcryasEj6j
+         TAdTdBmdeRtucl+s1Y+mewcLSPT6ToQzaZRm7janAS+JD8OK42/DkUST6G9UPj07WBVR
+         HbsA==
+X-Gm-Message-State: AJcUukc4c7Szt1U8P+Me8d2u3iHRhAG4ubHZkPguiTiBxsYojiQQLQ0V
+        CIUaJpahirdDfm+QKB5/PQuZZg==
+X-Google-Smtp-Source: ALg8bN57izQtVwJrEtN1dejN8muWFcjllCxTKKOVt+A6vVTBk05ig1yKWbb0Dpy1bpbkRiRVW5kwMw==
+X-Received: by 2002:a1c:96ce:: with SMTP id y197mr6675914wmd.36.1547626439866;
+        Wed, 16 Jan 2019 00:13:59 -0800 (PST)
+Received: from dell ([2.27.35.149])
+        by smtp.gmail.com with ESMTPSA id x81sm35165380wmg.17.2019.01.16.00.13.57
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Wed, 16 Jan 2019 00:13:58 -0800 (PST)
+Date:   Wed, 16 Jan 2019 08:13:56 +0000
+From:   Lee Jones <lee.jones@linaro.org>
+To:     "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
+Cc:     Pascal PAILLET-LME <p.paillet@st.com>,
+        "robh+dt@kernel.org" <robh+dt@kernel.org>,
+        "mark.rutland@arm.com" <mark.rutland@arm.com>,
+        "lgirdwood@gmail.com" <lgirdwood@gmail.com>,
+        "broonie@kernel.org" <broonie@kernel.org>,
+        "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
+        "linux@roeck-us.net" <linux@roeck-us.net>,
+        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+        "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>,
+        "eballetbo@gmail.com" <eballetbo@gmail.com>,
+        "axel.lin@ingics.com" <axel.lin@ingics.com>
+Subject: Re: [PATCH v7 0/7] Introduce STPMIC1 PMIC Driver
+Message-ID: <20190116081356.GA23399@dell>
+References: <1543571742-17995-1-git-send-email-p.paillet@st.com>
+ <20181214124701.GZ4497@dell>
+ <20190115004856.GL117329@dtor-ws>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20190114023617.10656-1-mironov.ivan@gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-HPE-SCL: -1
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-01-16_01:,,
- signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- malwarescore=0 suspectscore=0 phishscore=0 bulkscore=0 spamscore=0
- clxscore=1011 lowpriorityscore=0 mlxscore=0 impostorscore=0
- mlxlogscore=936 adultscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.0.1-1810050000 definitions=main-1901160015
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20190115004856.GL117329@dtor-ws>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Mon, Jan 14, 2019 at 07:36:13AM +0500, Ivan Mironov wrote:
-> Hi,
+On Mon, 14 Jan 2019, dmitry.torokhov@gmail.com wrote:
+
+> On Fri, Dec 14, 2018 at 12:47:01PM +0000, Lee Jones wrote:
+> > On Fri, 30 Nov 2018, Pascal PAILLET-LME wrote:
+> > 
+> > > The goal of this patch-set is to propose a driver for the STPMIC1 PMIC from 
+> > > STMicroelectronics. 
+> > > The STPMIC1 regulators supply power to an application processor as well as 
+> > > to external system peripherals such as DDR, Flash memories and system
+> > > devices. It also features onkey button input and an hardware watchdog.
+> > > The STPMIC1 is controlled via I2C. 
+> > > 
+> > > Main driver is drivers/mfd/stpmic1 that handle I2C regmap configuration and
+> > > irqchip. stpmic1_regulator, stpmic1_onkey and stpmic1_wdt need stpmic1 mfd
+> > > as parent.
+> > > 
+> > > STPMIC1 MFD and regulator drivers maybe mandatory at boot time.
+> > > 
+> > > Pascal Paillet (7):
+> > > changes in v7:
+> > > * rebase on regul/for-next
+> > > 
+> > >   dt-bindings: mfd: document stpmic1
+> > >   mfd: stpmic1: add stpmic1 driver
+> > >   dt-bindings: input: document stpmic1 pmic onkey
+> > >   input: stpmic1: add stpmic1 onkey driver
+> > >   dt-bindings: watchdog: document stpmic1 pmic watchdog
+> > >   watchdog: stpmic1: add stpmic1 watchdog driver
+> > >   regulator: stpmic1: fix regulator_lock usage
+> > 
+> > Could you please remove any patches which have been applied and
+> > [RESEND]?
+> > 
+> > Also, is Dmitry planning on Acking:
+> > 
+> >   dt-bindings: input: document stpmic1 pmic onkey
+> > 
+> > ... or is Rob's Ack enough?
 > 
-> I found out that hpwdt alters NMI behaviour unexpectedly if compiled
-> with enabled CONFIG_HPWDT_NMI_DECODING:
-> 
->  * System starts to panic on any NMI with misleading message.
+> For bindings I normally defer to Rob (unless I see something that really
+> bugs me and then I'll speak up).
 
-hpwdt doesn't start to panic on any NMI.  It starts to panic on:
+I usually do the opposite.  Seeing as Rob is pretty heavily laden with
+DT patches, I tend to review/apply patches which do not add new DT
+properties and/or are obvious/trivial and leave Rob to the rest.
 
-1) NMI_SERR		associated with NMI
-2) NMI_IO_CHECK		associated with IO errors
-3) NMI_UNKNOWN		NMI unclaimed by all local handlers.
-
-On Gen10 going forward we plan to restrict to just iLO
-generated NMIs.
-
-There is a long history on hp/hpe proliant systems where hpwdt
-was handler of general IO errors (at least ones that would cause
-NMI to be generated) and we chose to panic in these situation
-as the errors were generally quite serious.
-
-Yes, this has caused some problems in the past as Linux has
-overloaded NMI and some subsystems didn't claim the NMIs that
-they generated (think profiling.)  But, I haven't seen these
-types of problems for several years now.
-
-The more modern platforms have more robust error handling built
-into them and to linux so going forward we'll restrict hpwdt to a more
-traditional WDT role.  But we're retaining the more conservative
-approach for legacy platforms.
-
-How would you suggest that the message be enhanced?
-
-
->  * Watchdog provided by hpwdt is not working after such panic.
-> 
-> Here are the patches that should fix this.
-> 
-> This is an RFC patch series because I am not sure that patches are
-> correct. Questions:
-> 
->  * Are "mynmi" flags always set on all supported iLO versions when iLO
->    is the source of NMI?
-
-
-Unfortunately no.
-
-hpwdt is a dual purpose driver.  It handles the iLO watchdog timer
-and the "Generate NMI to System" button.  These are closely related
-hardware wise.
-
-However, some platforms generate NMI for "Generate NMI to System" button but aren't
-signaled via iLO registers.  These will show up as NMI_UNKNOWN, hence while
-hpwdt still claims these.
-
-There are also some systems that do not set the nmistat bits correctly.
-
-So as to not break legacy platforms, the use the nmistat bits for
-control will be for Gen10 going forward.
-
-
-
->  * Is it safe to reset "mynmi" flags to zero if code decides to not panic?
-
-The reading of the registers is itself destructive (sets to zero) but the real
-issue is that some proliant systems lack the ability to acknowledge the NMI so
-only one can ever be received.  So returning is not advisable as no
-further NMI will be generated via this path.  A reset through firmware
-is required to restore the feature.
-
-
-> 
-> Ivan Mironov (4):
->   watchdog: hpwdt: Don't disable watchdog on NMI
->   watchdog: hpwdt: Don't panic on foreign NMI
->   watchdog: hpwdt: Add more information into message
->   watchdog: hpwdt: Make panic behaviour configurable
-> 
->  drivers/watchdog/hpwdt.c | 45 ++++++++++++++++++++++------------------
->  1 file changed, 25 insertions(+), 20 deletions(-)
-> 
-> -- 
-> 2.20.1
+Your train-set though of course, your decision.
 
 -- 
-
------------------------------------------------------------------------------
-Jerry Hoemann                  Software Engineer   Hewlett Packard Enterprise
------------------------------------------------------------------------------
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
