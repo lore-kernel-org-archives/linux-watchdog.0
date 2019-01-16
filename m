@@ -1,123 +1,159 @@
-Return-Path: <SRS0=A+Dz=PX=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=FcDn=PY=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FROM_EXCESS_BASE64,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A653DC43387
-	for <linux-watchdog@archiver.kernel.org>; Tue, 15 Jan 2019 15:29:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2AFCCC43387
+	for <linux-watchdog@archiver.kernel.org>; Wed, 16 Jan 2019 02:52:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5068320675
-	for <linux-watchdog@archiver.kernel.org>; Tue, 15 Jan 2019 15:29:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id ECA9220859
+	for <linux-watchdog@archiver.kernel.org>; Wed, 16 Jan 2019 02:52:06 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=vdorst.com header.i=@vdorst.com header.b="s6y5bZEl"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qg2D3UYu"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728712AbfAOP3Q (ORCPT
+        id S1730079AbfAPCwG (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 15 Jan 2019 10:29:16 -0500
-Received: from mail.0dd.nl ([5.2.79.48]:40142 "EHLO mail.0dd.nl"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728034AbfAOP3P (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 15 Jan 2019 10:29:15 -0500
-X-Greylist: delayed 65496 seconds by postgrey-1.27 at vger.kernel.org; Tue, 15 Jan 2019 10:29:15 EST
-Received: from mail.vdorst.com (mta.0dd.nl [IPv6:fd01::250])
-        (using TLSv1.2 with cipher ADH-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.0dd.nl (Postfix) with ESMTPS id EDA1E5FED0;
-        Tue, 15 Jan 2019 16:29:13 +0100 (CET)
-Received: from www (www.vdorst.com [192.168.2.222])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.vdorst.com (Postfix) with ESMTPSA id 77146136B551;
-        Tue, 15 Jan 2019 16:29:13 +0100 (CET)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.vdorst.com 77146136B551
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=vdorst.com;
-        s=default; t=1547566153;
-        bh=CtqOFWEWKetUG8W7gjyhx30WNQlm/JUNoXvVz3AS5BM=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=s6y5bZEl2lLIdCB6nPwyw5bAvxcCxJ9ZzzygRz7qTwKV6wOMJWWERHl7obYfT8wpA
-         boQpcu5pHuk2/tK4qugL1pUvDHToSY4M4ZwFGGZ4ait0LKbAnp/qNUrNCVieBxMQyn
-         QHYb+ubGr3XiEBdL84fnMNAExsBp/zi3OAw2xh6hIC15tsIF+w9MigPM/G5AnJaMxB
-         /h9R6KGeRKOptTCni5i+1/6Mqgojk+nCH2xUhKyLM69+ovZhltNJWEpRA4A+4nImL1
-         HmRxhpNlDr9llew1DzEev3sQqBJz6bJUqfxTwyEopb84s6afQtYXjifpTujIKNX8NF
-         urWNAjwURzM3g==
-Received: from localhost.localdomain (localhost.localdomain [127.0.0.1]) by
- www.vdorst.com (Horde Framework) with HTTPS; Tue, 15 Jan 2019 15:29:13 +0000
-Date:   Tue, 15 Jan 2019 15:29:13 +0000
-Message-ID: <20190115152913.Horde.lq_7NPUmj51AEcDDGP2xSEw@www.vdorst.com>
-From:   =?utf-8?b?UmVuw6k=?= van Dorst <opensource@vdorst.com>
-To:     Matthias Brugger <matthias.bgg@gmail.com>
-Cc:     linux-watchdog@vger.kernel.org, linux-mediatek@lists.infradead.org
-Subject: Re: [PATCH] watchdog: mt7621: Fix compiler error, missing include
-References: <20190114211719.11461-1-opensource@vdorst.com>
- <a8b870f2-a50d-144e-cdca-b8a95d48846b@gmail.com>
-In-Reply-To: <a8b870f2-a50d-144e-cdca-b8a95d48846b@gmail.com>
-User-Agent: Horde Application Framework 5
-Content-Type: text/plain; charset=utf-8; format=flowed; DelSp=Yes
+        Tue, 15 Jan 2019 21:52:06 -0500
+Received: from mail-pf1-f195.google.com ([209.85.210.195]:38529 "EHLO
+        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729698AbfAPCwG (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 15 Jan 2019 21:52:06 -0500
+Received: by mail-pf1-f195.google.com with SMTP id q1so2290822pfi.5;
+        Tue, 15 Jan 2019 18:52:05 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=rvskhnH1HdI6/Ux5FN/lBQ4hWy2vZlVwBSH6mr0AhDo=;
+        b=qg2D3UYuS74kiL54zu9ReII1VYiNBYfpVSJrFxIOPd7r1LoZkrMNV7Zt7j6nUfkI3M
+         YxfhYMZDfb/bCmIvBREkxH0N1BSv8sIGMkPp94rXyFpK9LSwSSHPr8w3tok+ElK39h+2
+         YtMQCRRQmBfU/QgeT/zQxM1zgupPetVV85xAlmO0ASkY73X3jnRFwXuV/2RvpvY7tMNK
+         6SgiedeJYhojFachAEt7s73IofJPspnzuhoIrgY21hCSzFkuTzpiBi7ypIlW2TjfhWY6
+         r+MLkEJ4jqMNVoyHiyCba6oNOmdMLhRA5AUoRsSxUYHU7acEQkmyrG0H+/fXy5cQ8LzC
+         IVQg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=rvskhnH1HdI6/Ux5FN/lBQ4hWy2vZlVwBSH6mr0AhDo=;
+        b=rvGdDNSd34JTZsFgpZx2Ib0ylL5hwNBKJ5IlQCmRgHOeWsSmXytsGrB5vkMeqHfAPg
+         Z/L9vZM4MUdyKg+Dmr/7O2nlMsRlX4gzkBHURAZg2g7TtyEL0tkeSEbTZmCUBzFD4k+u
+         KwMxjOvYx3LXsR5d5iRq6t7aB182BxI/Nm35NXGPKtMlzhOwx9yWhCud8Fw2O9Gyuspi
+         IdOIBfp653EdAhPcDp2IXWK4YqBbaNJDIwhN+QgYMI+IY61aGqLZuTn+vt6DrCtl9LnQ
+         JoWTzHMvhplbKOLmAJTTa9BdBHHZs3fNRnzTZArJlqxyci/uF+vm+HPP9GIkHDlLgT66
+         0SjQ==
+X-Gm-Message-State: AJcUukdIV9VU66yIPOGcUV1BfdYmAAwPGVhCpRXr9TSDUtpMzS0woaB/
+        wopxD+jZgu913odYeDDm414=
+X-Google-Smtp-Source: ALg8bN71j3U/SvbXlBfSqmkXvSnLsv/cV1XuF0RkmgqgS1sLf0f0zOpXADvooqDM6wz3vRDZlEZz5Q==
+X-Received: by 2002:a62:b24a:: with SMTP id x71mr7511937pfe.148.1547607124787;
+        Tue, 15 Jan 2019 18:52:04 -0800 (PST)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id 134sm4916267pgb.78.2019.01.15.18.52.02
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 15 Jan 2019 18:52:03 -0800 (PST)
+Subject: Re: [RFC PATCH 1/4] watchdog: hpwdt: Don't disable watchdog on NMI
+To:     Jerry.Hoemann@hpe.com, Ivan Mironov <mironov.ivan@gmail.com>
+Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Wim Van Sebroeck <wim@linux-watchdog.org>
+References: <20190114023617.10656-1-mironov.ivan@gmail.com>
+ <20190114023617.10656-2-mironov.ivan@gmail.com>
+ <20190116022731.GD18342@anatevka>
+From:   Guenter Roeck <linux@roeck-us.net>
+Message-ID: <24e18efa-441b-8e62-7cb8-363afacfe05d@roeck-us.net>
+Date:   Tue, 15 Jan 2019 18:52:01 -0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.2.1
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20190116022731.GD18342@anatevka>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Quoting Matthias Brugger <matthias.bgg@gmail.com>:
-
-> On 14/01/2019 22:17, René van Dorst wrote:
->> drivers/watchdog/mt7621_wdt.c:174:34: error: array type has  
->> incomplete element type 'struct of_device_id'
->>  static const struct of_device_id mt7621_wdt_match[] = {
->>                                   ^~~~~~~~~~~~~~~~
->> drivers/watchdog/mt7621_wdt.c:175:4: error: field name not in  
->> record or union initializer
->>   { .compatible = "mediatek,mt7621-wdt" },
->>     ^
->> drivers/watchdog/mt7621_wdt.c:175:4: note: (near initialization for  
->> 'mt7621_wdt_match')
->> drivers/watchdog/mt7621_wdt.c:174:34: warning: 'mt7621_wdt_match'  
->> defined but not used [-Wunused-variable]
->>  static const struct of_device_id mt7621_wdt_match[] = {
->>                                   ^~~~~~~~~~~~~~~~
+On 1/15/19 6:27 PM, Jerry Hoemann wrote:
+> On Mon, Jan 14, 2019 at 07:36:14AM +0500, Ivan Mironov wrote:
+>> Existing code disables watchdog on NMI right before completely hanging
+>> the system.
 >>
->
-> Did this work in the past?
-> I suppose so. Could you provide a fixes tag for stable.
+>> There are two problems here:
+>>
+>>   * First, watchdog is expected to reset the system in a case of such
+>>     failure, no matter what.
+> 
+> Documentation/watchdog/watchdog-api.txt
+> 
+> explicitly allows for pretimeout NMI and generation of kernel crash dumps.
+> 
+> By removing hpwdt_stop the system will likely fail to crash dump
+> as there is only 9 seconds between receipt of a NMI and the iLO
+> resetting the system.
+> 
+> Unfortunately, kdump is not without issues and can also be difficult
+> to properly configure either of which can result in failure to dump
+> and reset.
+> 
+> Customers who value availability over kdump collection, the pretimeout
+> NMI can be disabled and hardware will not issue the pretimeout NMI
+> and will only do reset.
+> 
+> A middle ground for those who want tombstones but not kdump, would
+> be to leave the pretimeout NMI enabled and add "panic=N" to the
+> Linux command line.  That way after the panic, the tombstone is
+> printed and the system resets after N seconds.
+> 
+> 
+> 
+>>   * Second, this code has no effect if there are more than one watchdog.
+> 
+> That is correct.  Hpwdt will not turn off any other WDT.
+> 
+> I don't see a current method of notifying other watchdogs
+> that a given watchdog is going to take the system down.
+> 
+And there should not be.
 
-I see that I am not the first who spotted this.  
-https://patchwork.kernel.org/patch/10745049/
+> The closest I hook see is watchdog_notify_pretimeout, but I don't
+> see that notifying other WDT.  Its not clear to me that it should.
+> (e.g. the second WDT could be of longer duration and protect against
+> kdump hanging. This would need to be thought through.)
+> 
 
-So better drop this one.
+Watchdogs are independent of each other. If there is more than one,
+they need to be configured carefully (just like pretimeout vs. timeout).
+It is not up to the kernel to let watchdogs interfere with each other.
 
-Greats,
+Guenter
 
-René
-
-
-> Thanks,
-> Matthias
->
->> Signed-off-by: René van Dorst <opensource@vdorst.com>
+> 
+> 
+>>
+>> Signed-off-by: Ivan Mironov <mironov.ivan@gmail.com>
 >> ---
->>  drivers/watchdog/mt7621_wdt.c | 1 +
->>  1 file changed, 1 insertion(+)
+>>   drivers/watchdog/hpwdt.c | 2 --
+>>   1 file changed, 2 deletions(-)
 >>
->> diff --git a/drivers/watchdog/mt7621_wdt.c b/drivers/watchdog/mt7621_wdt.c
->> index 5c4a764717c4..a3be7db9d76f 100644
->> --- a/drivers/watchdog/mt7621_wdt.c
->> +++ b/drivers/watchdog/mt7621_wdt.c
->> @@ -16,6 +16,7 @@
->>  #include <linux/kernel.h>
->>  #include <linux/watchdog.h>
->>  #include <linux/moduleparam.h>
->> +#include <linux/of.h>
->>  #include <linux/platform_device.h>
->>
->>  #include <asm/mach-ralink/ralink_regs.h>
->>
-
-
+>> diff --git a/drivers/watchdog/hpwdt.c b/drivers/watchdog/hpwdt.c
+>> index ef30c7e9728d..2467e6bc25c2 100644
+>> --- a/drivers/watchdog/hpwdt.c
+>> +++ b/drivers/watchdog/hpwdt.c
+>> @@ -170,8 +170,6 @@ static int hpwdt_pretimeout(unsigned int ulReason, struct pt_regs *regs)
+>>   	if (ilo5 && !pretimeout && !mynmi)
+>>   		return NMI_DONE;
+>>   
+>> -	hpwdt_stop();
+>> -
+>>   	hex_byte_pack(panic_msg, mynmi);
+>>   	nmi_panic(regs, panic_msg);
+>>   
+>> -- 
+>> 2.20.1
+> 
 
