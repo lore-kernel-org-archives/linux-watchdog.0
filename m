@@ -2,142 +2,149 @@ Return-Path: <SRS0=FcDn=PY=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_MUTT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 307A5C43387
-	for <linux-watchdog@archiver.kernel.org>; Wed, 16 Jan 2019 03:38:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8DE6CC43387
+	for <linux-watchdog@archiver.kernel.org>; Wed, 16 Jan 2019 03:47:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 0A4F220840
-	for <linux-watchdog@archiver.kernel.org>; Wed, 16 Jan 2019 03:38:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5DDB220675
+	for <linux-watchdog@archiver.kernel.org>; Wed, 16 Jan 2019 03:47:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730907AbfAPDil (ORCPT
+        id S1729825AbfAPDrp (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 15 Jan 2019 22:38:41 -0500
-Received: from mx0a-002e3701.pphosted.com ([148.163.147.86]:56960 "EHLO
-        mx0a-002e3701.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730481AbfAPDil (ORCPT
+        Tue, 15 Jan 2019 22:47:45 -0500
+Received: from mx0b-002e3701.pphosted.com ([148.163.143.35]:59564 "EHLO
+        mx0b-002e3701.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728627AbfAPDrp (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 15 Jan 2019 22:38:41 -0500
-X-Greylist: delayed 4074 seconds by postgrey-1.27 at vger.kernel.org; Tue, 15 Jan 2019 22:38:40 EST
-Received: from pps.filterd (m0150242.ppops.net [127.0.0.1])
-        by mx0a-002e3701.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x0G2QA3P029498;
-        Wed, 16 Jan 2019 02:30:25 GMT
-Received: from g4t3427.houston.hpe.com (g4t3427.houston.hpe.com [15.241.140.73])
-        by mx0a-002e3701.pphosted.com with ESMTP id 2q1qvj9dn5-1
+        Tue, 15 Jan 2019 22:47:45 -0500
+X-Greylist: delayed 5080 seconds by postgrey-1.27 at vger.kernel.org; Tue, 15 Jan 2019 22:47:44 EST
+Received: from pps.filterd (m0150244.ppops.net [127.0.0.1])
+        by mx0b-002e3701.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x0G2BwCR029079;
+        Wed, 16 Jan 2019 02:22:44 GMT
+Received: from g2t2352.austin.hpe.com (g2t2352.austin.hpe.com [15.233.44.25])
+        by mx0b-002e3701.pphosted.com with ESMTP id 2q1qkb9ghf-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 16 Jan 2019 02:30:25 +0000
-Received: from g4t3433.houston.hpecorp.net (g4t3433.houston.hpecorp.net [16.208.49.245])
-        by g4t3427.houston.hpe.com (Postfix) with ESMTP id 9DD0957;
-        Wed, 16 Jan 2019 02:30:23 +0000 (UTC)
+        Wed, 16 Jan 2019 02:22:44 +0000
+Received: from g2t2360.austin.hpecorp.net (g2t2360.austin.hpecorp.net [16.196.225.135])
+        by g2t2352.austin.hpe.com (Postfix) with ESMTP id CA30D85;
+        Wed, 16 Jan 2019 02:22:43 +0000 (UTC)
 Received: from anatevka (anatevka.americas.hpqcorp.net [10.34.81.61])
-        by g4t3433.houston.hpecorp.net (Postfix) with ESMTP id CCBF458;
-        Wed, 16 Jan 2019 02:30:22 +0000 (UTC)
-Date:   Tue, 15 Jan 2019 19:30:22 -0700
+        by g2t2360.austin.hpecorp.net (Postfix) with ESMTP id 2679A3A;
+        Wed, 16 Jan 2019 02:22:43 +0000 (UTC)
+Date:   Tue, 15 Jan 2019 19:22:42 -0700
 From:   Jerry Hoemann <jerry.hoemann@hpe.com>
 To:     Ivan Mironov <mironov.ivan@gmail.com>
 Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [RFC PATCH 4/4] watchdog: hpwdt: Make panic behaviour
- configurable
-Message-ID: <20190116023022.GE18342@anatevka>
+Subject: Re: [RFC PATCH 0/4] watchdog: hpwdt: Fix NMI-related behaviour when
+ CONFIG_HPWDT_NMI_DECODING is enabled
+Message-ID: <20190116022242.GC18342@anatevka>
 Reply-To: Jerry.Hoemann@hpe.com
 References: <20190114023617.10656-1-mironov.ivan@gmail.com>
- <20190114023617.10656-5-mironov.ivan@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190114023617.10656-5-mironov.ivan@gmail.com>
+In-Reply-To: <20190114023617.10656-1-mironov.ivan@gmail.com>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 X-HPE-SCL: -1
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-01-16_01:,,
  signatures=0
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
  malwarescore=0 suspectscore=0 phishscore=0 bulkscore=0 spamscore=0
- clxscore=1015 lowpriorityscore=0 mlxscore=0 impostorscore=0
- mlxlogscore=999 adultscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.0.1-1810050000 definitions=main-1901160016
+ clxscore=1011 lowpriorityscore=0 mlxscore=0 impostorscore=0
+ mlxlogscore=936 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.0.1-1810050000 definitions=main-1901160015
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Mon, Jan 14, 2019 at 07:36:17AM +0500, Ivan Mironov wrote:
-> This adds an option to not panic on NMI even if it was caused by iLO.
+On Mon, Jan 14, 2019 at 07:36:13AM +0500, Ivan Mironov wrote:
+> Hi,
 > 
-> Signed-off-by: Ivan Mironov <mironov.ivan@gmail.com>
-> ---
->  drivers/watchdog/hpwdt.c | 19 ++++++++++++++++---
->  1 file changed, 16 insertions(+), 3 deletions(-)
+> I found out that hpwdt alters NMI behaviour unexpectedly if compiled
+> with enabled CONFIG_HPWDT_NMI_DECODING:
 > 
-> diff --git a/drivers/watchdog/hpwdt.c b/drivers/watchdog/hpwdt.c
-> index 95d002b5b120..b12858491189 100644
-> --- a/drivers/watchdog/hpwdt.c
-> +++ b/drivers/watchdog/hpwdt.c
-> @@ -37,6 +37,10 @@ static unsigned int soft_margin = DEFAULT_MARGIN;	/* in seconds */
->  static bool nowayout = WATCHDOG_NOWAYOUT;
->  static bool pretimeout = IS_ENABLED(CONFIG_HPWDT_NMI_DECODING);
->  
-> +#ifdef CONFIG_HPWDT_NMI_DECODING
-> +static bool panic_on_nmi = true;
-> +#endif /* CONFIG_HPWDT_NMI_DECODING */
-> +
->  static void __iomem *pci_mem_addr;		/* the PCI-memory address */
->  static unsigned long __iomem *hpwdt_nmistat;
->  static unsigned long __iomem *hpwdt_timer_reg;
-> @@ -146,7 +150,10 @@ static int hpwdt_set_pretimeout(struct watchdog_device *wdd, unsigned int req)
->  
->  static int hpwdt_my_nmi(void)
->  {
-> -	return ioread8(hpwdt_nmistat) & 0x6;
-> +	int nmistat = ioread8(hpwdt_nmistat);
-> +
-> +	iowrite8(nmistat & ~0x6, hpwdt_nmistat);
-> +	return nmistat & 0x6;
+>  * System starts to panic on any NMI with misleading message.
+
+hpwdt doesn't start to panic on any NMI.  It starts to panic on:
+
+1) NMI_SERR		associated with NMI
+2) NMI_IO_CHECK		associated with IO errors
+3) NMI_UNKNOWN		NMI unclaimed by all local handlers.
+
+On Gen10 going forward we plan to restrict to just iLO
+generated NMIs.
+
+There is a long history on hp/hpe proliant systems where hpwdt
+was handler of general IO errors (at least ones that would cause
+NMI to be generated) and we chose to panic in these situation
+as the errors were generally quite serious.
+
+Yes, this has caused some problems in the past as Linux has
+overloaded NMI and some subsystems didn't claim the NMIs that
+they generated (think profiling.)  But, I haven't seen these
+types of problems for several years now.
+
+The more modern platforms have more robust error handling built
+into them and to linux so going forward we'll restrict hpwdt to a more
+traditional WDT role.  But we're retaining the more conservative
+approach for legacy platforms.
+
+How would you suggest that the message be enhanced?
 
 
-This is a read only register.
+>  * Watchdog provided by hpwdt is not working after such panic.
+> 
+> Here are the patches that should fix this.
+> 
+> This is an RFC patch series because I am not sure that patches are
+> correct. Questions:
+> 
+>  * Are "mynmi" flags always set on all supported iLO versions when iLO
+>    is the source of NMI?
 
 
->  }
->  
->  /*
-> @@ -168,7 +175,10 @@ static int hpwdt_pretimeout(unsigned int ulReason, struct pt_regs *regs)
->  		 "4. iLO Event Log\n",
->  		 mynmi, ulReason, smp_processor_id());
->  
-> -	nmi_panic(regs, "hpwdt: NMI: Not continuing");
-> +	if (panic_on_nmi)
-> +		nmi_panic(regs, "hpwdt: NMI: Not continuing");
-> +
-> +	pr_emerg("Dazed and confused, but trying to continue\n");
->  
+Unfortunately no.
+
+hpwdt is a dual purpose driver.  It handles the iLO watchdog timer
+and the "Generate NMI to System" button.  These are closely related
+hardware wise.
+
+However, some platforms generate NMI for "Generate NMI to System" button but aren't
+signaled via iLO registers.  These will show up as NMI_UNKNOWN, hence while
+hpwdt still claims these.
+
+There are also some systems that do not set the nmistat bits correctly.
+
+So as to not break legacy platforms, the use the nmistat bits for
+control will be for Gen10 going forward.
 
 
-The watchdog core provides a way to enable/disable the NMI pretimeout dynamically
-via ioctl.  The pretimeout NMI can also be disabled via module parameter to hpwdt.
-This adds complexity without really adding functionality.
+
+>  * Is it safe to reset "mynmi" flags to zero if code decides to not panic?
+
+The reading of the registers is itself destructive (sets to zero) but the real
+issue is that some proliant systems lack the ability to acknowledge the NMI so
+only one can ever be received.  So returning is not advisable as no
+further NMI will be generated via this path.  A reset through firmware
+is required to restore the feature.
 
 
-BTW, don't reuse error messages.  Makes it difficult to tell where the error
-originated from.
-
-
->  	return NMI_HANDLED;
->  }
-> @@ -376,6 +386,9 @@ MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
->  #ifdef CONFIG_HPWDT_NMI_DECODING
->  module_param(pretimeout, bool, 0);
->  MODULE_PARM_DESC(pretimeout, "Watchdog pretimeout enabled");
-> -#endif
-> +
-> +module_param(panic_on_nmi, bool, 0);
-> +MODULE_PARM_DESC(panic_on_nmi, "Cause panic on NMI induced by iLO (default=1)");
-> +#endif /* CONFIG_HPWDT_NMI_DECODING */
->  
->  module_pci_driver(hpwdt_driver);
+> 
+> Ivan Mironov (4):
+>   watchdog: hpwdt: Don't disable watchdog on NMI
+>   watchdog: hpwdt: Don't panic on foreign NMI
+>   watchdog: hpwdt: Add more information into message
+>   watchdog: hpwdt: Make panic behaviour configurable
+> 
+>  drivers/watchdog/hpwdt.c | 45 ++++++++++++++++++++++------------------
+>  1 file changed, 25 insertions(+), 20 deletions(-)
+> 
 > -- 
 > 2.20.1
 
