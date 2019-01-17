@@ -2,62 +2,54 @@ Return-Path: <SRS0=Jq5p=PZ=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.3 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 49C74C43387
-	for <linux-watchdog@archiver.kernel.org>; Thu, 17 Jan 2019 14:30:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A3218C43387
+	for <linux-watchdog@archiver.kernel.org>; Thu, 17 Jan 2019 15:07:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 1AE7B205C9
-	for <linux-watchdog@archiver.kernel.org>; Thu, 17 Jan 2019 14:30:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 72AC220851
+	for <linux-watchdog@archiver.kernel.org>; Thu, 17 Jan 2019 15:07:22 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RQKx2Wmr"
+	dkim=fail reason="key not found in DNS" (0-bit key) header.d=codeaurora.org header.i=@codeaurora.org header.b="n3upj/q5";
+	dkim=fail reason="key not found in DNS" (0-bit key) header.d=codeaurora.org header.i=@codeaurora.org header.b="GLFI0x/V"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727070AbfAQOar (ORCPT
+        id S1727934AbfAQPHW (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 17 Jan 2019 09:30:47 -0500
-Received: from mail-pf1-f193.google.com ([209.85.210.193]:37796 "EHLO
-        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725878AbfAQOar (ORCPT
+        Thu, 17 Jan 2019 10:07:22 -0500
+Received: from smtp.codeaurora.org ([198.145.29.96]:34892 "EHLO
+        smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726916AbfAQPHW (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 17 Jan 2019 09:30:47 -0500
-Received: by mail-pf1-f193.google.com with SMTP id y126so4916268pfb.4;
-        Thu, 17 Jan 2019 06:30:46 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=vPE0iJH00uw3g29XdpOWj4FUNR/fWr5PSPg5JASa3T4=;
-        b=RQKx2Wmr1EIzy8KrI0FcG/Cj+y3OidW4W4o6VJDIh4MH3P5s3f7H2BrcxxdU71m2uN
-         z1e7uPNp+vlTCi2Ds53R8uJj0NdqB0Ioa0qr21OKkhBQJiV3LYVarWpNj+goSl7NHjjE
-         jhKJNcdGwWluHmoipQ9PJK/uCO7JxyMz2qcTcMdssSOXF3nT4DN6sxk0g0zXip6YbFGQ
-         M5YBdYZxcDUJFkH5IUyOEtSnS4NhJp7jfSiYCwgZmW9DG7VKciHODyme/+BJi9jRcEUi
-         G8LgwstwY6qw42ll9SVmtVNHg2HfY2NE75F6O+DtOeQWr/vc3ld5isaFuz6BKRCLUN4h
-         Psxg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=vPE0iJH00uw3g29XdpOWj4FUNR/fWr5PSPg5JASa3T4=;
-        b=So6aT+I/oZx9g7meNzkYCsIDYq27Gg/GoVM3nHcLP9zh12//+Pud9CflXj8RUUdYxi
-         GiqPw4D/AmEn6XBYNY/tpF5pcwjY5fnGzEerOIE3c+l6Yv6bUeqnIGK8/GlZuThMt87O
-         hqTPfjM7KknGIkiCZi0CgLpaUyntStQyknd0QApoRQJx/B81P/WxdyBgBLwW3PUxE80L
-         SRY9j2UnbB7Av3hhgHF+69WMmasyKzAhPjDiKqPcsE7Se+W8R/2T8giDs61CgvAdL+5n
-         BBjFtqR68RG/5LAgrLfuV+5mVxRgZpA3QLMIUnwoDGim5WlEZxgOtCRHhBUA/m3Cwr1r
-         KGqw==
-X-Gm-Message-State: AJcUukdx6CppoofVMwBA++LgGjNDz3gwVB/bbQQ2CWXmIVdCqLSeZPun
-        mL/Jc8nM7cS1meEIgRXDfLM=
-X-Google-Smtp-Source: ALg8bN7scCulcV6ZI4hjZ5rcT2zWWnBwK7E7cCHqYdj6Yvq2Ge+p1DbVb0QknU4Q+XJwjw+usKpjag==
-X-Received: by 2002:a62:1289:: with SMTP id 9mr15352393pfs.102.1547735446408;
-        Thu, 17 Jan 2019 06:30:46 -0800 (PST)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id s130sm2363225pgc.60.2019.01.17.06.30.44
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 17 Jan 2019 06:30:45 -0800 (PST)
-Date:   Thu, 17 Jan 2019 06:30:44 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
+        Thu, 17 Jan 2019 10:07:22 -0500
+Received: by smtp.codeaurora.org (Postfix, from userid 1000)
+        id 62D126081E; Thu, 17 Jan 2019 15:07:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+        s=default; t=1547737641;
+        bh=B94wqvUG1zQiQ7J/DXu6pKDX2bWVrpTumpBEZo9Wp8U=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=n3upj/q5AHlbdPJ8EHdOfiGoHJSfGM87KCD1c1f1VfoS+2G9AV0i9fP+qKasiEocy
+         mxOjSmJ97A36w/9Su610VExcfFEv+fFSP7cKjZfmDjOY42BJT5VyHGDWBwHQeEtedk
+         ShF/p2RXRLgPNwjgf3S18Xdo+VSCrhIJ4tJoSuWI=
+Received: from [192.168.1.100] (unknown [157.45.228.214])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        (Authenticated sender: saiprakash.ranjan@smtp.codeaurora.org)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id 3F6A5606E1;
+        Thu, 17 Jan 2019 15:07:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+        s=default; t=1547737640;
+        bh=B94wqvUG1zQiQ7J/DXu6pKDX2bWVrpTumpBEZo9Wp8U=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=GLFI0x/VM/jnJ/w/1V3u4xcNCtHIYPL1ZZVNLW+0TJi8ihJEV44fa1DcA5ITAKBvT
+         U+DJQiVvYOalcaD0XZuEYcclzmtQ5Pd10S8oyO4m9KhZcKLuYVlH9EK75hApzO7PkU
+         pKoiKCT+CwPnghjsYx3LETSIBKre0XGpr858qTzY=
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 3F6A5606E1
+Authentication-Results: pdx-caf-mail.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: pdx-caf-mail.web.codeaurora.org; spf=none smtp.mailfrom=saiprakash.ranjan@codeaurora.org
+Subject: Re: [PATCH] watchdog: qcom: Add suspend/resume support
+To:     Guenter Roeck <linux@roeck-us.net>
 Cc:     Brian Masney <masneyb@onstation.org>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
         linux-watchdog@vger.kernel.org,
@@ -70,109 +62,39 @@ Cc:     Brian Masney <masneyb@onstation.org>,
         Bjorn Andersson <bjorn.andersson@linaro.org>,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
         linux-arm-msm@vger.kernel.org
-Subject: Re: [PATCH] watchdog: qcom: Add suspend/resume support
-Message-ID: <20190117143044.GA30757@roeck-us.net>
 References: <20190117091555.2018-1-saiprakash.ranjan@codeaurora.org>
  <20190117093113.GA23389@basecamp>
  <91108b9b-fe05-1068-b07e-872cb4cd4012@codeaurora.org>
  <20190117112730.GA25198@basecamp>
  <b9f573ec-3787-2b05-52e3-60f11c061dd7@codeaurora.org>
+ <20190117143044.GA30757@roeck-us.net>
+From:   Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
+Message-ID: <4bd782a4-1534-28bf-78d3-c14b677641b0@codeaurora.org>
+Date:   Thu, 17 Jan 2019 20:37:10 +0530
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.4.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <b9f573ec-3787-2b05-52e3-60f11c061dd7@codeaurora.org>
-User-Agent: Mutt/1.5.24 (2015-08-30)
+In-Reply-To: <20190117143044.GA30757@roeck-us.net>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Thu, Jan 17, 2019 at 06:30:41PM +0530, Sai Prakash Ranjan wrote:
-> On 1/17/2019 4:57 PM, Brian Masney wrote:
-> >
-> >That attribute suppresses a warning from the compiler if the function is
-> >unused when PM_SLEEP is disabled.  I don't consider it hackish since the
-> >function name no longer appears outside the #ifdef. For example:
-> >
-> >	#ifdef CONFIG_PM_SLEEP
-> >	static int qcom_wdt_suspend(struct device *dev)
-> >	{
-> >		...
-> >	}
-> >	#endif /* CONFIG_PM_SLEEP */
-> >
-> >	static SIMPLE_DEV_PM_OPS(..., qcom_wdt_suspend, ...);
-> >
-> >SIMPLE_DEV_PM_OPS (actually SET_SYSTEM_SLEEP_PM_OP) includes the check
-> >for PM_SLEEP and its a noop if PM_SLEEP is disabled so this works.
-> >
-> >Now here's the code with __maybe_unused:
-> >
-> >	static int __maybe_unused qcom_wdt_suspend(struct device *dev)
-> >	{
-> >		...
-> >	}
-> >
-> >	static SIMPLE_DEV_PM_OPS(..., qcom_wdt_suspend, ...);
-> >
-> >This will still be a NOOP when power management is disabled, but have
-> >the benefit of increased compile-time test coverage in that situation.
-> >The symbols won't be included in the final executable. I personally
-> >think the code a is cleaner with __maybe_unused.
-> >
-> >This pattern is already in use across various subsystems in the kernel
-> >for suspend and resume functions:
-> >
-> >$ git grep __maybe_unused | egrep "_suspend|_resume"  | wc -l
-> >767
-> >
-> 
-> Thanks for the explanation Brian.
-> 
-> But I did see the maybe_unused attribute usage in other suspend and resume
-> functions before posting and decided to go with ifdef because
-> I think this attribute wastes CPU time by building and later discarding if
-> the function is unused (it may be negligible).
-> 
-Your argument is that the increased build time test coverage, the improved
-code readability, and the reduced risk of dependency errors are not worth
-the additional compile time. You might want to take that up with the upstream
-kernel community.
+Hi Guenter,
 
-> I did not understand the increased compile-time test coverage
-> you mentioned when PM_SLEEP=n because why would we need to compile
-> when the config is disabled? We could just discard it. We would just
-
-It is beneficial to know that a future change in the conditional code,
-or an infrastructure change affecting it, doesn't cause a build error,
-even if the person submitting the change didn't bother compiling with
-PM_SLEEP=y.
-
-> increase the build time with this attribute (although for this case it would
-> be negligible but say we compile with PM_SLEEP disabled for all those
-> suspend/resume functions with maybe_unused attribute).
+On 1/17/2019 8:00 PM, Guenter Roeck wrote:
 > 
-> Looking at previous discussions in LKML[1] as to why the pm suspend/resume
-> functions used __maybe_unused seemes to be because of
-> wrong ifdef usage. For ex: Using #ifdef CONFIG_PM instead of
-> #ifdef CONFIG_PM_SLEEP would result in a warning when
-> CONFIG_PM_SLEEP=n but CONFIG_PM=y.
+> I personally very much prefer __maybe_unused over #ifdef, for the reasons
+> stated above. Other maintainers may think differently.
 > 
 
-Do you realize that you are proving a point here, and that it isn't
-your point ?
+Thanks for making your preference clear. I will post the second version
+soon with the changes.
 
-I personally very much prefer __maybe_unused over #ifdef, for the reasons
-stated above. Other maintainers may think differently.
-
-Guenter
-
-> Anyways, *I am OK with either of them*, after some more review on the
-> patch I can make the change in next version of the patch.
-> 
-> [1] https://lore.kernel.org/patchwork/patch/732981/
-> 
-> - Sai
-> -- 
-> QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a member
-> of Code Aurora Forum, hosted by The Linux Foundation
+- Sai
+-- 
+QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a member
+of Code Aurora Forum, hosted by The Linux Foundation
