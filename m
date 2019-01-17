@@ -2,148 +2,123 @@ Return-Path: <SRS0=Jq5p=PZ=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT autolearn=ham autolearn_force=no
+X-Spam-Status: No, score=-5.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_PASS autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 26DB7C43387
-	for <linux-watchdog@archiver.kernel.org>; Thu, 17 Jan 2019 18:16:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 73981C43387
+	for <linux-watchdog@archiver.kernel.org>; Thu, 17 Jan 2019 18:37:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E894F20855
-	for <linux-watchdog@archiver.kernel.org>; Thu, 17 Jan 2019 18:16:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 42A7F20851
+	for <linux-watchdog@archiver.kernel.org>; Thu, 17 Jan 2019 18:37:15 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TIZMFkVV"
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="I5hxFv/j"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728201AbfAQSQH (ORCPT
+        id S1726900AbfAQShO (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 17 Jan 2019 13:16:07 -0500
-Received: from mail-pl1-f194.google.com ([209.85.214.194]:46948 "EHLO
-        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728187AbfAQSQH (ORCPT
+        Thu, 17 Jan 2019 13:37:14 -0500
+Received: from mail-pg1-f193.google.com ([209.85.215.193]:39663 "EHLO
+        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726905AbfAQShK (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 17 Jan 2019 13:16:07 -0500
-Received: by mail-pl1-f194.google.com with SMTP id t13so5084167ply.13;
-        Thu, 17 Jan 2019 10:16:06 -0800 (PST)
+        Thu, 17 Jan 2019 13:37:10 -0500
+Received: by mail-pg1-f193.google.com with SMTP id w6so4809791pgl.6
+        for <linux-watchdog@vger.kernel.org>; Thu, 17 Jan 2019 10:37:09 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=C2Z4QWy5wNJw+5XfdnScGboqm8ucQNIbMLIloYyNmGs=;
-        b=TIZMFkVVr50pLywqY+9ZmLTAPt1srFAEqLNU42/hQaulTSrqjj0pfJdkcXYADAlW4U
-         VF1StksTRnrLRVvo27iasEhRcp+QRIoMn8KtgvYVTPCyI4xv+1R8h4C6Q6KDHOGofdou
-         A/sNqGgs/oheekTNdaCg34W9CoAqOzGivZsZLbDflH8BI/8TYKXNvr4YVULYUOoANJBC
-         F5lgTrJVlpQ4/mVAUhv8RYuf/e558bNZr3xDaH7zbGQZXm3vQfuzn8JOUbHJ1GfdCaLc
-         1y/4qqMSvxbPxXiFGdJGV3aueip1Eg/TfgKuNnEi9eXbR34qPiO0dkHMkRJbEUJloAtT
-         YvrQ==
+        d=chromium.org; s=google;
+        h=mime-version:content-transfer-encoding:subject:user-agent
+         :in-reply-to:references:cc:to:message-id:from:date;
+        bh=Iwme1IJBrOll4LMdbMEnsclPpzmiRPiz5uaby3aLiM0=;
+        b=I5hxFv/jkLE38D/g2QLZ2U+muN4vWmD65O93e7B78rbFQl9RZjo5zcVxyLkJ9aicqe
+         IqZ1k58mIJoPc/vQxLdBkSWpp2DfX0BJ4APP109iP0s/uuVm+EE4kckJGeLAg70uJHE/
+         I4UPlaWJgJKAakQpeb31R7DoiTa+NETXnsrf4=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=C2Z4QWy5wNJw+5XfdnScGboqm8ucQNIbMLIloYyNmGs=;
-        b=D8uzm/cxVCAS7UT7lyPwpvpKtpNmGnLFsDZ03AA/XLB0JsO9PZbThpG9UZ4m/Etj3s
-         j2QZMlxsSQFVm2PKC5yBoAq67T1cUK+ni/zlEwgwp04A5ZjDUAFbVXIUvP+HQJUA+I68
-         dUQXjvYRk/rI+l4L7aLoHsKMKBF7qKg32QoYcdUEPdYR0lafX8LeOoU1rxnQU7x2QiSE
-         n8BDHif1ni7v8Su8ODr4LJODgGOAk8UGOR1u3pr26UTotZeQuHcD9xDXvegszoiSA/Zx
-         Lw9l4hr7hul5JQI+LhrcCYmL5UIzV08UxOVV0fe1/w8FcWJnzSg8jptDwCpxqGQu1jco
-         KouA==
-X-Gm-Message-State: AJcUukfYnueS5wvSL1sjWwSUChOs8iNOPO6yRhxrPw9R6gf0d2CIDLZU
-        kCTm0AmgiPLdma+aSwOv9gdoV0lx
-X-Google-Smtp-Source: ALg8bN5rtvdvpSZL7vF3ibwgosO2reRsvgoAjNIN0+T/5vvJSnab7IbNYCwaxd0YjXte0uEmGBdhYQ==
-X-Received: by 2002:a17:902:2aa8:: with SMTP id j37mr15399309plb.226.1547748966386;
-        Thu, 17 Jan 2019 10:16:06 -0800 (PST)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id s190sm3275776pfb.103.2019.01.17.10.16.04
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 17 Jan 2019 10:16:05 -0800 (PST)
-Date:   Thu, 17 Jan 2019 10:16:03 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
-Cc:     Wim Van Sebroeck <wim@linux-watchdog.org>,
-        linux-watchdog@vger.kernel.org,
-        Guenter Roeck <groeck@chromium.org>,
-        Rajendra Nayak <rnayak@codeaurora.org>,
+        h=x-gm-message-state:mime-version:content-transfer-encoding:subject
+         :user-agent:in-reply-to:references:cc:to:message-id:from:date;
+        bh=Iwme1IJBrOll4LMdbMEnsclPpzmiRPiz5uaby3aLiM0=;
+        b=CxWE5nfK0M73zeQyE5W/bc5ZkxXqY94e5VUN7lYfKbojd1cZHokUSLQzpjj4opX+bZ
+         7v7nHk3w63P4NeGgFl9kaIyoRYfRsJFI9mt2FzSfzwU0Yi4TvuKq5bGE4fba+1x4hLKA
+         AWXEbiB3YjCLfguSGRfQjBiTY1a96ODdVHYc4sd0qp5tlng+pO4F5ga+LsdrBSy1BdRA
+         nFtjXQ6j0LXHsE8enEw5N/ME8Egm2RZoP3JSlulH9auwO429FDItdOQRdXJpOriyENKA
+         YL+pvFgiNbuwdpkem7mqnjThZLaiYPDr7tWcL5O2sHgpGtIqEO6MOmtxQ/Nld+dydCVG
+         Ym8w==
+X-Gm-Message-State: AJcUukdzzixnnGPuPyWcpn8hRqoQYm78eO8vscMh+u+yXauh9zaO8oRZ
+        1pGTK+Q1A7N+u8Bg5nwdiP+etA==
+X-Google-Smtp-Source: ALg8bN5c6ip8oeTRd7auagE/kbJfwwUkROGSHholusOTakST1qYPB5Y9k5w0+61mgYGzxW0TbVGwCQ==
+X-Received: by 2002:a63:8742:: with SMTP id i63mr14326263pge.298.1547750229112;
+        Thu, 17 Jan 2019 10:37:09 -0800 (PST)
+Received: from localhost ([2620:15c:202:1:fa53:7765:582b:82b9])
+        by smtp.gmail.com with ESMTPSA id b2sm3216692pgg.87.2019.01.17.10.37.08
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Thu, 17 Jan 2019 10:37:08 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCHv2] watchdog: qcom: Add suspend/resume support
+User-Agent: alot/0.8
+In-Reply-To: <20190117151942.6092-1-saiprakash.ranjan@codeaurora.org>
+References: <20190117151942.6092-1-saiprakash.ranjan@codeaurora.org>
+Cc:     Rajendra Nayak <rnayak@codeaurora.org>,
         Vivek Gautam <vivek.gautam@codeaurora.org>,
         Sibi Sankar <sibis@codeaurora.org>,
-        Stephen Boyd <sboyd@kernel.org>,
         Doug Anderson <dianders@chromium.org>,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-arm-msm@vger.kernel.org
-Subject: Re: [PATCHv2] watchdog: qcom: Add suspend/resume support
-Message-ID: <20190117181603.GA14800@roeck-us.net>
-References: <20190117151942.6092-1-saiprakash.ranjan@codeaurora.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190117151942.6092-1-saiprakash.ranjan@codeaurora.org>
-User-Agent: Mutt/1.5.24 (2015-08-30)
+        linux-arm-msm@vger.kernel.org,
+        Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
+To:     Guenter Roeck <groeck@chromium.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        linux-watchdog@vger.kernel.org
+Message-ID: <154775022743.169631.1716489383315213219@swboyd.mtv.corp.google.com>
+From:   Stephen Boyd <swboyd@chromium.org>
+Date:   Thu, 17 Jan 2019 10:37:07 -0800
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Thu, Jan 17, 2019 at 08:49:42PM +0530, Sai Prakash Ranjan wrote:
-> This adds the support for qcom watchdog suspend and resume
-> when entering and exiting deep sleep states. Otherwise
-> having watchdog active after suspend would result in unwanted
-> crashes/resets if resume happens after a long time.
-> 
-> Signed-off-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
-
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-
-> 
-> ---
-> 
-> v2:
->  * Use __maybe_unused instead of #ifdef as suggested by
->    Brian and Guenter
-> ---
->  drivers/watchdog/qcom-wdt.c | 23 +++++++++++++++++++++++
->  1 file changed, 23 insertions(+)
-> 
+Quoting Sai Prakash Ranjan (2019-01-17 07:19:42)
 > diff --git a/drivers/watchdog/qcom-wdt.c b/drivers/watchdog/qcom-wdt.c
 > index 780971318810..5dfd604477a4 100644
 > --- a/drivers/watchdog/qcom-wdt.c
 > +++ b/drivers/watchdog/qcom-wdt.c
-> @@ -245,6 +245,28 @@ static int qcom_wdt_remove(struct platform_device *pdev)
->  	return 0;
+> @@ -245,6 +245,28 @@ static int qcom_wdt_remove(struct platform_device *p=
+dev)
+>         return 0;
 >  }
->  
+> =20
 > +static int __maybe_unused qcom_wdt_suspend(struct device *dev)
 > +{
-> +	struct qcom_wdt *wdt = dev_get_drvdata(dev);
+> +       struct qcom_wdt *wdt =3D dev_get_drvdata(dev);
 > +
-> +	if (watchdog_active(&wdt->wdd))
-> +		qcom_wdt_stop(&wdt->wdd);
+> +       if (watchdog_active(&wdt->wdd))
+> +               qcom_wdt_stop(&wdt->wdd);
 > +
-> +	return 0;
+> +       return 0;
 > +}
 > +
 > +static int __maybe_unused qcom_wdt_resume(struct device *dev)
 > +{
-> +	struct qcom_wdt *wdt = dev_get_drvdata(dev);
+> +       struct qcom_wdt *wdt =3D dev_get_drvdata(dev);
 > +
-> +	if (watchdog_active(&wdt->wdd))
-> +		qcom_wdt_start(&wdt->wdd);
+> +       if (watchdog_active(&wdt->wdd))
+> +               qcom_wdt_start(&wdt->wdd);
 > +
-> +	return 0;
+> +       return 0;
 > +}
-> +
-> +static SIMPLE_DEV_PM_OPS(qcom_wdt_pm_ops, qcom_wdt_suspend, qcom_wdt_resume);
-> +
->  static const struct of_device_id qcom_wdt_of_table[] = {
->  	{ .compatible = "qcom,kpss-timer", .data = reg_offset_data_apcs_tmr },
->  	{ .compatible = "qcom,scss-timer", .data = reg_offset_data_apcs_tmr },
-> @@ -259,6 +281,7 @@ static struct platform_driver qcom_watchdog_driver = {
->  	.driver	= {
->  		.name		= KBUILD_MODNAME,
->  		.of_match_table	= qcom_wdt_of_table,
-> +		.pm		= &qcom_wdt_pm_ops,
->  	},
->  };
->  module_platform_driver(qcom_watchdog_driver);
-> -- 
-> QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a member
-> of Code Aurora Forum, hosted by The Linux Foundation
-> 
+
+This looks fairly generic. For example, the Mediatek driver also stops
+and starts (but also pings after starting). Grepping for 'active' in
+drivers/watchdog/ finds more examples. Could there be some functions in
+watchdog core that do the common things like watchdog_stop() and
+watchdog_start() and watchdog_start_and_ping()? Or maybe a bit can be
+set during registration so that the 'struct class watchdog_class' can
+get PM ops to stop and start on suspend/resume of the watchdog character
+device?
+
+Nothing is wrong with the patch, I'm just bemoaning the amount of code
+duplication here.
+
