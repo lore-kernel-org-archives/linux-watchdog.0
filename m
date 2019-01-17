@@ -2,41 +2,54 @@ Return-Path: <SRS0=Jq5p=PZ=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.3 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B5B9C43387
-	for <linux-watchdog@archiver.kernel.org>; Thu, 17 Jan 2019 09:31:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 529C6C43387
+	for <linux-watchdog@archiver.kernel.org>; Thu, 17 Jan 2019 10:39:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 40D3920851
-	for <linux-watchdog@archiver.kernel.org>; Thu, 17 Jan 2019 09:31:27 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0B61020856
+	for <linux-watchdog@archiver.kernel.org>; Thu, 17 Jan 2019 10:39:00 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=onstation.org header.i=@onstation.org header.b="TITJ/CQ1"
+	dkim=fail reason="key not found in DNS" (0-bit key) header.d=codeaurora.org header.i=@codeaurora.org header.b="TqsTivjY";
+	dkim=fail reason="key not found in DNS" (0-bit key) header.d=codeaurora.org header.i=@codeaurora.org header.b="TqsTivjY"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728379AbfAQJbP (ORCPT
+        id S1727504AbfAQKi7 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 17 Jan 2019 04:31:15 -0500
-Received: from onstation.org ([52.200.56.107]:55440 "EHLO onstation.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726855AbfAQJbP (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 17 Jan 2019 04:31:15 -0500
-Received: from localhost (c-98-239-145-235.hsd1.wv.comcast.net [98.239.145.235])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        Thu, 17 Jan 2019 05:38:59 -0500
+Received: from smtp.codeaurora.org ([198.145.29.96]:56336 "EHLO
+        smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727128AbfAQKi7 (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Thu, 17 Jan 2019 05:38:59 -0500
+Received: by smtp.codeaurora.org (Postfix, from userid 1000)
+        id DF6CD60807; Thu, 17 Jan 2019 10:38:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+        s=default; t=1547721538;
+        bh=Qavo8mmtgJddz2ii2CbmcaSj9WDDVzTXexKEQj41nCA=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=TqsTivjYgfgg/tJuNEWhxrbIHcpU+HDyurK/L2f4mdlzoSVSW+0U9LICjsPUbOOkJ
+         aWU8foc1i+sRrgdzzOcbdcu8WodEVsRxl+6zVYKPGgwWrSRzZANWh1K66Ii0tjmf4N
+         BCIoqmIrqBP2aNR1LTyNcmUlAIm5TUTnks6kG2xM=
+Received: from [10.79.128.65] (blr-bdr-fw-01_globalnat_allzones-outside.qualcomm.com [103.229.18.19])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        (Authenticated sender: masneyb)
-        by onstation.org (Postfix) with ESMTPSA id 323C017F;
-        Thu, 17 Jan 2019 09:31:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=onstation.org;
-        s=default; t=1547717474;
-        bh=/QsjZEGIpt5Da8VNhfyvB/zWQZrnsZNtz4RzdivxsE0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=TITJ/CQ1Cm33wAial7ZB4vJoqhQQZeWMMajczPw67zquYBrovugGtbR3x4FP7kLP3
-         cO+v7b2AzlQ7EbLUu9D/X+BYV8YU3r+TUONpM2wAET2rv68D2hf3Gh/emUWdNGj0YU
-         CDQ1VF7e5OeR2W6NyD6PolT3HHmCaHMbg4ei08ho=
-Date:   Thu, 17 Jan 2019 04:31:13 -0500
-From:   Brian Masney <masneyb@onstation.org>
-To:     Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
+        (Authenticated sender: saiprakash.ranjan@smtp.codeaurora.org)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id 4BBF36024C;
+        Thu, 17 Jan 2019 10:38:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+        s=default; t=1547721538;
+        bh=Qavo8mmtgJddz2ii2CbmcaSj9WDDVzTXexKEQj41nCA=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=TqsTivjYgfgg/tJuNEWhxrbIHcpU+HDyurK/L2f4mdlzoSVSW+0U9LICjsPUbOOkJ
+         aWU8foc1i+sRrgdzzOcbdcu8WodEVsRxl+6zVYKPGgwWrSRzZANWh1K66Ii0tjmf4N
+         BCIoqmIrqBP2aNR1LTyNcmUlAIm5TUTnks6kG2xM=
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 4BBF36024C
+Authentication-Results: pdx-caf-mail.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: pdx-caf-mail.web.codeaurora.org; spf=none smtp.mailfrom=saiprakash.ranjan@codeaurora.org
+Subject: Re: [PATCH] watchdog: qcom: Add suspend/resume support
+To:     Brian Masney <masneyb@onstation.org>
 Cc:     Guenter Roeck <linux@roeck-us.net>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
         linux-watchdog@vger.kernel.org,
@@ -49,44 +62,41 @@ Cc:     Guenter Roeck <linux@roeck-us.net>,
         Bjorn Andersson <bjorn.andersson@linaro.org>,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
         linux-arm-msm@vger.kernel.org
-Subject: Re: [PATCH] watchdog: qcom: Add suspend/resume support
-Message-ID: <20190117093113.GA23389@basecamp>
 References: <20190117091555.2018-1-saiprakash.ranjan@codeaurora.org>
+ <20190117093113.GA23389@basecamp>
+From:   Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
+Message-ID: <91108b9b-fe05-1068-b07e-872cb4cd4012@codeaurora.org>
+Date:   Thu, 17 Jan 2019 16:08:52 +0530
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.4.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190117091555.2018-1-saiprakash.ranjan@codeaurora.org>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+In-Reply-To: <20190117093113.GA23389@basecamp>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Thu, Jan 17, 2019 at 02:45:55PM +0530, Sai Prakash Ranjan wrote:
-> +#ifdef CONFIG_PM_SLEEP
-> +static int qcom_wdt_suspend(struct device *dev)
-> +{
-> +	struct qcom_wdt *wdt = dev_get_drvdata(dev);
-> +
-> +	if (watchdog_active(&wdt->wdd))
-> +		qcom_wdt_stop(&wdt->wdd);
-> +
-> +	return 0;
-> +}
-> +
-> +static int qcom_wdt_resume(struct device *dev)
-> +{
-> +	struct qcom_wdt *wdt = dev_get_drvdata(dev);
-> +
-> +	if (watchdog_active(&wdt->wdd))
-> +		qcom_wdt_start(&wdt->wdd);
-> +
-> +	return 0;
-> +}
-> +#endif /* CONFIG_PM_SLEEP */
+Hi Brian,
 
-You can use the __maybe_unused attribute to remove the #ifdef:
+On 1/17/2019 3:01 PM, Brian Masney wrote:
+> 
+> You can use the __maybe_unused attribute to remove the #ifdef:
+> 
+> static int __maybe_unused qcom_wdt_suspend(struct device *dev)
+> 
 
-static int __maybe_unused qcom_wdt_suspend(struct device *dev)
+Thanks for looking into this.
 
-Brian
+As for __maybe_unused, I think it's better to keep #ifdef rather than
+this attribute which seems to be meaning unused when actually its 
+possible that it's used often(PM_SLEEP is def y). It's like saying 
+unused when you are actually using it. The attribute seems like a
+hack to avoid compilation error. Please correct me if I am wrong.
+
+  - Sai
+-- 
+QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a member
+of Code Aurora Forum, hosted by The Linux Foundation
