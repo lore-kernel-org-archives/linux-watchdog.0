@@ -1,241 +1,97 @@
-Return-Path: <SRS0=Jq5p=PZ=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=0WcM=P2=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,USER_AGENT_MUTT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,
+	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 32967C43387
-	for <linux-watchdog@archiver.kernel.org>; Thu, 17 Jan 2019 21:24:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1AA97C43387
+	for <linux-watchdog@archiver.kernel.org>; Fri, 18 Jan 2019 02:58:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E615820855
-	for <linux-watchdog@archiver.kernel.org>; Thu, 17 Jan 2019 21:24:27 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DCDF120873
+	for <linux-watchdog@archiver.kernel.org>; Fri, 18 Jan 2019 02:58:51 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FF1ItXkF"
+	dkim=fail reason="key not found in DNS" (0-bit key) header.d=codeaurora.org header.i=@codeaurora.org header.b="BR/2GLE5";
+	dkim=fail reason="key not found in DNS" (0-bit key) header.d=codeaurora.org header.i=@codeaurora.org header.b="Nb1SWz9z"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728750AbfAQVY1 (ORCPT
+        id S1726761AbfARC6v (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 17 Jan 2019 16:24:27 -0500
-Received: from mail-pf1-f196.google.com ([209.85.210.196]:35086 "EHLO
-        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726905AbfAQVY1 (ORCPT
+        Thu, 17 Jan 2019 21:58:51 -0500
+Received: from smtp.codeaurora.org ([198.145.29.96]:60818 "EHLO
+        smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725934AbfARC6v (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 17 Jan 2019 16:24:27 -0500
-Received: by mail-pf1-f196.google.com with SMTP id z9so5451934pfi.2;
-        Thu, 17 Jan 2019 13:24:26 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=NWGobzW0BYoOoe4sPTgj6HUlUWE+wmwldwmLOgXsgc0=;
-        b=FF1ItXkFJeN9zJSqe3b0wpCdljB//VtxEpNWDdqXWZARIBgeeh0E/VgREqWe7bWl0h
-         K6LYRaY2OpjCcKHuhAQjsV8Ha4sFwpl09SK3o+WbQVGqCD+8NcwZhzNmcwh0PZB6lOks
-         Ijf5PXE0ebqkTenmvSrRV460B7fAKBw2MAF9YCTl6zOAmZfodUgas5ylXHnaflKUSl8r
-         mtciYrj/B2+osABSo1+PC13cE0wm3bXUBvjFbhmtNiIoeznrMD5czz1NUZpG9YKH9KjT
-         nkXatCNSFFDi2rTBO08NIpwSVlpX8rRfSqf5inc6a5WCg/bMAZHtV8mUhZJJTFDHz7Pt
-         DLHA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=NWGobzW0BYoOoe4sPTgj6HUlUWE+wmwldwmLOgXsgc0=;
-        b=Q8j+j85+yi6uIYlBKpwpH7BLxuBaqZ0QY0pV7Xldw7erZBR7M52Nb4ZwfNYf6qtZwy
-         A7H+RUmGHMy07oXVEZds6VP27ypFycgvRNWeZGBhWHIFZ+eWvtTuHVK7m4iJ+291JPgo
-         b7SkkaYUq5jLBEfECEA9rG1BxO76B+MapeM709gm0dcxcbrAHaESQE91/YibYrcepDz4
-         K8SwC6mynSve7dLmZJS3r23uo/V1OAN9bM4nWJTR+9w/I3unsVg9bLjslpjSNCj039iW
-         nQ/Ft1XUMQKZ40mRi90WSoHz1w7VLIF5tXP6unTXBhrDPUGj/OZifKAEC4/MO6MTya0P
-         pvbw==
-X-Gm-Message-State: AJcUukcEqX63jpVI7fC0AVutTZK+TlKE2vetmjwPPFpPuOyV0fqsoBSk
-        bJlzMAfkT3WOUHFyF64HBSg=
-X-Google-Smtp-Source: ALg8bN4cVA5bppw+sIvFAqyvxZwwO3gZAjZJQgilq2K0MvKcr/+z5r8kCoAWM6nMqHL/07oBWJa7LA==
-X-Received: by 2002:a63:9501:: with SMTP id p1mr15002034pgd.149.1547760265539;
-        Thu, 17 Jan 2019 13:24:25 -0800 (PST)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id b9sm3304218pfi.118.2019.01.17.13.24.24
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 17 Jan 2019 13:24:24 -0800 (PST)
-Date:   Thu, 17 Jan 2019 13:24:23 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Rasmus Villemoes <rasmus.villemoes@prevas.dk>
-Cc:     "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Jonathan Corbet <corbet@lwn.net>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-        Esben Haabendal <esben@haabendal.dk>,
-        "martin@hundeboll.net" <martin@hundeboll.net>,
-        Rasmus Villemoes <Rasmus.Villemoes@prevas.se>
-Subject: Re: [PATCH v8 1/3] watchdog: introduce watchdog.open_timeout
- commandline parameter
-Message-ID: <20190117212423.GA14108@roeck-us.net>
-References: <20190116121432.26732-1-rasmus.villemoes@prevas.dk>
- <20190116121432.26732-2-rasmus.villemoes@prevas.dk>
+        Thu, 17 Jan 2019 21:58:51 -0500
+Received: by smtp.codeaurora.org (Postfix, from userid 1000)
+        id 914726085C; Fri, 18 Jan 2019 02:58:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+        s=default; t=1547780330;
+        bh=CSkykrvA55vjxsZCmu5sLXiMDCi4xY1mk5bDpqWwcMI=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=BR/2GLE5kjnm9wr8N9v9a2R+30dlysrr+Xs6LPPi24wlCiaNe3eGVaZkZea620yGX
+         cXY4rQmtxBpoO8J0nSRl5E4cglth7YtFl0A6z5eLuV3ZsrpgSXaq3xMTTpS3hb2e4k
+         SXdh4feyACzVUZ5I8YUr/o0nEgOo71oDRx4azVKU=
+Received: from [10.79.129.0] (blr-bdr-fw-01_globalnat_allzones-outside.qualcomm.com [103.229.18.19])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        (Authenticated sender: saiprakash.ranjan@smtp.codeaurora.org)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id 7A76D605A0;
+        Fri, 18 Jan 2019 02:58:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+        s=default; t=1547780329;
+        bh=CSkykrvA55vjxsZCmu5sLXiMDCi4xY1mk5bDpqWwcMI=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=Nb1SWz9zMPeWfrb/1qfQjUr/E1V/IifhFw6rMJ8IKG7uO9ydvLXqNTxuilcoodgYS
+         rKnzUyHCnoHKzlzRwkAhkJRvLXxX781zv76uMA88P8KAg1RSXEGeb0H/fBW7C+BQla
+         bmhW+R/NePvXnxrTXM+CiTyZuOs8s9Sh2yIthAKw=
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 7A76D605A0
+Authentication-Results: pdx-caf-mail.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: pdx-caf-mail.web.codeaurora.org; spf=none smtp.mailfrom=saiprakash.ranjan@codeaurora.org
+Subject: Re: [PATCHv2] watchdog: qcom: Add suspend/resume support
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     Wim Van Sebroeck <wim@linux-watchdog.org>,
+        linux-watchdog@vger.kernel.org,
+        Guenter Roeck <groeck@chromium.org>,
+        Rajendra Nayak <rnayak@codeaurora.org>,
+        Vivek Gautam <vivek.gautam@codeaurora.org>,
+        Sibi Sankar <sibis@codeaurora.org>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Doug Anderson <dianders@chromium.org>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-arm-msm@vger.kernel.org
+References: <20190117151942.6092-1-saiprakash.ranjan@codeaurora.org>
+ <20190117181603.GA14800@roeck-us.net>
+From:   Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
+Message-ID: <bae21498-32be-6842-adce-1fc5b9c7e263@codeaurora.org>
+Date:   Fri, 18 Jan 2019 08:28:44 +0530
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.4.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190116121432.26732-2-rasmus.villemoes@prevas.dk>
-User-Agent: Mutt/1.5.24 (2015-08-30)
+In-Reply-To: <20190117181603.GA14800@roeck-us.net>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Wed, Jan 16, 2019 at 12:14:42PM +0000, Rasmus Villemoes wrote:
-> The watchdog framework takes care of feeding a hardware watchdog until
-> userspace opens /dev/watchdogN. If that never happens for some reason
-> (buggy init script, corrupt root filesystem or whatnot) but the kernel
-> itself is fine, the machine stays up indefinitely. This patch allows
-> setting an upper limit for how long the kernel will take care of the
-> watchdog, thus ensuring that the watchdog will eventually reset the
-> machine.
+On 1/17/2019 11:46 PM, Guenter Roeck wrote:
+> On Thu, Jan 17, 2019 at 08:49:42PM +0530, Sai Prakash Ranjan wrote:
+>> This adds the support for qcom watchdog suspend and resume
+>> when entering and exiting deep sleep states. Otherwise
+>> having watchdog active after suspend would result in unwanted
+>> crashes/resets if resume happens after a long time.
+>>
+>> Signed-off-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
 > 
-> A value of 0 (the default) means infinite timeout, preserving the
-> current behaviour.
-> 
-> This is particularly useful for embedded devices where some fallback
-> logic is implemented in the bootloader (e.g., use a different root
-> partition, boot from network, ...).
-> 
-> There is already handle_boot_enabled serving a similar purpose. However,
-> such a binary choice is unsuitable if the hardware watchdog cannot be
-> programmed by the bootloader to provide a timeout long enough for
-> userspace to get up and running. Many of the embedded devices we see use
-> external (gpio-triggered) watchdogs with a fixed timeout of the order of
-> 1-2 seconds.
-> 
-> The open timeout is also used as a maximum time for an application to
-> re-open /dev/watchdogN after closing it. Again, while the kernel already
-> has a nowayout mechanism, using that means userspace is at the mercy of
-> whatever timeout the hardware has.
-> 
-> Being a module parameter, one can revert to the ordinary behaviour of
-> having the kernel maintain the watchdog indefinitely by simply writing 0
-> to /sys/... after initially opening /dev/watchdog; conversely, one can
-> of course also have the current behaviour of allowing indefinite time
-> until the first open, and then set that module parameter.
-> 
-> The unit is milliseconds rather than seconds because that covers more
-> use cases. For example, userspace might need a long time to get in the
-> air initially, requiring a somewhat liberal open_timeout, but when (for
-> whatever reason) the application might then want to re-exec itself, it
-> can set a much smaller threshold.
+> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 > 
 
-I don't buy this use case. We are not in control of the exact time between
-hand-off to the Linux kernel and to driver instantiation, and we can not even
-measure it. A less-than-one second granularity, especially since it is from
-instantiation time and not even from handoff time, does not really make
-sense and would only create a false impression of accuracy. Let's stick with
-seconds.
+Thanks Guenter. Should I send a v3 with your reviewed-by?
 
-Guenter
-
-> Signed-off-by: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
-> ---
->  .../watchdog/watchdog-parameters.txt          |  8 +++++
->  drivers/watchdog/watchdog_dev.c               | 30 +++++++++++++++++--
->  2 files changed, 36 insertions(+), 2 deletions(-)
-> 
-> diff --git a/Documentation/watchdog/watchdog-parameters.txt b/Documentation/watchdog/watchdog-parameters.txt
-> index 0b88e333f9e1..5e4235989154 100644
-> --- a/Documentation/watchdog/watchdog-parameters.txt
-> +++ b/Documentation/watchdog/watchdog-parameters.txt
-> @@ -8,6 +8,14 @@ See Documentation/admin-guide/kernel-parameters.rst for information on
->  providing kernel parameters for builtin drivers versus loadable
->  modules.
->  
-> +The watchdog core parameter watchdog.open_timeout is the maximum time,
-> +in milliseconds, for which the watchdog framework will take care of
-> +pinging a hardware watchdog until userspace opens the corresponding
-> +/dev/watchdogN device. A value of 0 (the default) means an infinite
-> +timeout. Setting this to a non-zero value can be useful to ensure that
-> +either userspace comes up properly, or the board gets reset and allows
-> +fallback logic in the bootloader to try something else.
-> +
->  
->  -------------------------------------------------
->  acquirewdt:
-> diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-> index f6c24b22b37c..a9585925458f 100644
-> --- a/drivers/watchdog/watchdog_dev.c
-> +++ b/drivers/watchdog/watchdog_dev.c
-> @@ -69,6 +69,7 @@ struct watchdog_core_data {
->  	struct mutex lock;
->  	ktime_t last_keepalive;
->  	ktime_t last_hw_keepalive;
-> +	ktime_t open_deadline;
->  	struct hrtimer timer;
->  	struct kthread_work work;
->  	unsigned long status;		/* Internal status bits */
-> @@ -87,6 +88,19 @@ static struct kthread_worker *watchdog_kworker;
->  static bool handle_boot_enabled =
->  	IS_ENABLED(CONFIG_WATCHDOG_HANDLE_BOOT_ENABLED);
->  
-> +static unsigned open_timeout;
-> +
-> +static bool watchdog_past_open_deadline(struct watchdog_core_data *data)
-> +{
-> +	return ktime_after(ktime_get(), data->open_deadline);
-> +}
-> +
-> +static void watchdog_set_open_deadline(struct watchdog_core_data *data)
-> +{
-> +	data->open_deadline = open_timeout ?
-> +		ktime_get() + ms_to_ktime(open_timeout) : KTIME_MAX;
-> +}
-> +
->  static inline bool watchdog_need_worker(struct watchdog_device *wdd)
->  {
->  	/* All variables in milli-seconds */
-> @@ -211,7 +225,13 @@ static bool watchdog_worker_should_ping(struct watchdog_core_data *wd_data)
->  {
->  	struct watchdog_device *wdd = wd_data->wdd;
->  
-> -	return wdd && (watchdog_active(wdd) || watchdog_hw_running(wdd));
-> +	if (!wdd)
-> +		return false;
-> +
-> +	if (watchdog_active(wdd))
-> +		return true;
-> +
-> +	return watchdog_hw_running(wdd) && !watchdog_past_open_deadline(wd_data);
->  }
->  
->  static void watchdog_ping_work(struct kthread_work *work)
-> @@ -297,7 +317,7 @@ static int watchdog_stop(struct watchdog_device *wdd)
->  		return -EBUSY;
->  	}
->  
-> -	if (wdd->ops->stop) {
-> +	if (wdd->ops->stop && !open_timeout) {
->  		clear_bit(WDOG_HW_RUNNING, &wdd->status);
->  		err = wdd->ops->stop(wdd);
->  	} else {
-> @@ -883,6 +903,7 @@ static int watchdog_release(struct inode *inode, struct file *file)
->  		watchdog_ping(wdd);
->  	}
->  
-> +	watchdog_set_open_deadline(wd_data);
->  	watchdog_update_worker(wdd);
->  
->  	/* make sure that /dev/watchdog can be re-opened */
-> @@ -983,6 +1004,7 @@ static int watchdog_cdev_register(struct watchdog_device *wdd, dev_t devno)
->  
->  	/* Record time of most recent heartbeat as 'just before now'. */
->  	wd_data->last_hw_keepalive = ktime_sub(ktime_get(), 1);
-> +	watchdog_set_open_deadline(wd_data);
->  
->  	/*
->  	 * If the watchdog is running, prevent its driver from being unloaded,
-> @@ -1181,3 +1203,7 @@ module_param(handle_boot_enabled, bool, 0444);
->  MODULE_PARM_DESC(handle_boot_enabled,
->  	"Watchdog core auto-updates boot enabled watchdogs before userspace takes over (default="
->  	__MODULE_STRING(IS_ENABLED(CONFIG_WATCHDOG_HANDLE_BOOT_ENABLED)) ")");
-> +
-> +module_param(open_timeout, uint, 0644);
-> +MODULE_PARM_DESC(open_timeout,
-> +	"Maximum time (in milliseconds, 0 means infinity) for userspace to take over a running watchdog (default=0)");
-> -- 
-> 2.20.1
-> 
+- Sai
+-- 
+QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a member
+of Code Aurora Forum, hosted by The Linux Foundation
