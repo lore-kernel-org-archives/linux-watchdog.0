@@ -1,109 +1,96 @@
-Return-Path: <SRS0=0WcM=P2=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=FUYB=P3=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,
-	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PULL_REQUEST,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_MUTT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 07780C43387
-	for <linux-watchdog@archiver.kernel.org>; Fri, 18 Jan 2019 04:25:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1806FC61CE8
+	for <linux-watchdog@archiver.kernel.org>; Sat, 19 Jan 2019 12:08:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id C1C2220855
-	for <linux-watchdog@archiver.kernel.org>; Fri, 18 Jan 2019 04:25:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 794952086A
+	for <linux-watchdog@archiver.kernel.org>; Sat, 19 Jan 2019 12:08:16 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="key not found in DNS" (0-bit key) header.d=codeaurora.org header.i=@codeaurora.org header.b="LFVyLszD";
-	dkim=fail reason="key not found in DNS" (0-bit key) header.d=codeaurora.org header.i=@codeaurora.org header.b="RLZGz5Ob"
+	dkim=pass (1024-bit key) header.d=linux-watchdog.org header.i=@linux-watchdog.org header.b="Y6lgjdG1"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727032AbfAREZX (ORCPT
+        id S1727924AbfASMIQ (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 17 Jan 2019 23:25:23 -0500
-Received: from smtp.codeaurora.org ([198.145.29.96]:57742 "EHLO
-        smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726989AbfAREZX (ORCPT
+        Sat, 19 Jan 2019 07:08:16 -0500
+Received: from www.linux-watchdog.org ([185.87.125.42]:59548 "EHLO
+        www.linux-watchdog.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727915AbfASMIP (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 17 Jan 2019 23:25:23 -0500
-Received: by smtp.codeaurora.org (Postfix, from userid 1000)
-        id 83B2560851; Fri, 18 Jan 2019 04:25:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
-        s=default; t=1547785522;
-        bh=zxdnncJvdfjdoXVz+A3Xi39ceyRU/E+klUDVEQZ4emg=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=LFVyLszDEMrcknMKOZeM6b54rIChsDyn9gwd1AX0H9Fz0CPTJFvCLFpOTVzzy1q+3
-         hwzfPGCimXVkWx6auqNUsj4yxy2s3G6rx6Evf4mJfzGEgfW0YsUiuq3OuXdEicaZyy
-         aAXi8UQRnv9Y8bBOHRv/Py7Pp+ulTtUGp7yg0qkI=
-Received: from [10.79.129.0] (blr-bdr-fw-01_globalnat_allzones-outside.qualcomm.com [103.229.18.19])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        (Authenticated sender: saiprakash.ranjan@smtp.codeaurora.org)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id DB36660734;
-        Fri, 18 Jan 2019 04:25:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
-        s=default; t=1547785520;
-        bh=zxdnncJvdfjdoXVz+A3Xi39ceyRU/E+klUDVEQZ4emg=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=RLZGz5ObjbK2akWBSTMikndWPAZAVKCFVsndNNlhdSCdLNXdagBgoQ/rXWjpA291i
-         qEEhG3BC+xrdT7XPsHI/Lv0E0Ww3pe1AoGYSZ3Tbkwg2OzC5ug5vGoRQanoYkR2PmK
-         8fOh8XQDwkbVI+2bzsLq+13RZq+/6/yvcVuIABrM=
-DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org DB36660734
-Authentication-Results: pdx-caf-mail.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
-Authentication-Results: pdx-caf-mail.web.codeaurora.org; spf=none smtp.mailfrom=saiprakash.ranjan@codeaurora.org
-Subject: Re: [PATCHv2] watchdog: qcom: Add suspend/resume support
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     Wim Van Sebroeck <wim@linux-watchdog.org>,
-        linux-watchdog@vger.kernel.org,
-        Guenter Roeck <groeck@chromium.org>,
-        Rajendra Nayak <rnayak@codeaurora.org>,
-        Vivek Gautam <vivek.gautam@codeaurora.org>,
-        Sibi Sankar <sibis@codeaurora.org>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Doug Anderson <dianders@chromium.org>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-arm-msm@vger.kernel.org
-References: <20190117151942.6092-1-saiprakash.ranjan@codeaurora.org>
- <20190117181603.GA14800@roeck-us.net>
- <bae21498-32be-6842-adce-1fc5b9c7e263@codeaurora.org>
- <a10264b5-74a2-2d80-a523-2ab1f4ca02b9@roeck-us.net>
-From:   Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
-Message-ID: <93e399e9-06ec-e695-54c4-71b6a22f0f29@codeaurora.org>
-Date:   Fri, 18 Jan 2019 09:55:14 +0530
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
- Thunderbird/60.4.0
+        Sat, 19 Jan 2019 07:08:15 -0500
+Received: by www.linux-watchdog.org (Postfix, from userid 500)
+        id 007B2407DA; Sat, 19 Jan 2019 12:40:07 +0100 (CET)
+DKIM-Filter: OpenDKIM Filter v2.11.0 www.linux-watchdog.org 007B2407DA
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-watchdog.org;
+        s=odk20180602; t=1547898008;
+        bh=U9shrOMEjJW+FUZqB9QlVGVp5gP3ABviHcUzETNUfd4=;
+        h=Date:From:To:Cc:Subject:From;
+        b=Y6lgjdG1paELuc7WT8EoY+ETRtcQs69Lk06psLVsnf5iuASY9dObZXyptvFmgOwyk
+         WRqmEpCPqTQGom5YxlxCwKYNfPRAxaOY2ynGPLtC3gLsSVjmQzYpcsnjWQTrOiV1Yy
+         N3CJLxYx7oJMnW6m/fQI839D7Ismn3msLm6iHI2s=
+Date:   Sat, 19 Jan 2019 12:40:07 +0100
+From:   Wim Van Sebroeck <wim@linux-watchdog.org>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        NeilBrown <neil@brown.name>
+Subject: [GIT PULL REQUEST] watchdog - v5.0-rc Fixes
+Message-ID: <20190119114007.GA22111@www.linux-watchdog.org>
 MIME-Version: 1.0
-In-Reply-To: <a10264b5-74a2-2d80-a523-2ab1f4ca02b9@roeck-us.net>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.20 (2009-12-10)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 1/18/2019 9:23 AM, Guenter Roeck wrote:
-> On 1/17/19 6:58 PM, Sai Prakash Ranjan wrote:
->> On 1/17/2019 11:46 PM, Guenter Roeck wrote:
->>> On Thu, Jan 17, 2019 at 08:49:42PM +0530, Sai Prakash Ranjan wrote:
->>>> This adds the support for qcom watchdog suspend and resume
->>>> when entering and exiting deep sleep states. Otherwise
->>>> having watchdog active after suspend would result in unwanted
->>>> crashes/resets if resume happens after a long time.
->>>>
->>>> Signed-off-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
->>>
->>> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
->>>
->>
->> Thanks Guenter. Should I send a v3 with your reviewed-by?
->>
-> 
-> I add it to my watchdog-next branch and Wim will pick it up from there.
-> No need to resend.
-> 
+Hi Linus,
 
-Ok thanks.
+Please pull the watchdog changes for the v4.21 release cycle.
 
-- Sai
+This series contains:
+* mt7621_wdt/rt2880_wdt: Fix compilation problem
+* tqmx86: Fix a couple IS_ERR() vs NULL bugs
 
--- 
-QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a member
-of Code Aurora Forum, hosted by The Linux Foundation
+The output from git request-pull:
+----------------------------------------------------------------
+The following changes since commit 3bd6e94bec122a951d462c239b47954cf5f36e33:
+
+  arch: restore generic-y += shmparam.h for some architectures (2019-01-06 18:16:11 -0800)
+
+are available in the git repository at:
+
+  git://www.linux-watchdog.org/linux-watchdog.git tags/linux-watchdog-5.0-rc-fixes
+
+for you to fetch changes up to 4a22fc534f2f55808c41197cf17d829099032acb:
+
+  watchdog: tqmx86: Fix a couple IS_ERR() vs NULL bugs (2019-01-07 10:10:35 +0100)
+
+----------------------------------------------------------------
+linux-watchdog 5.0-rc-fixes tag
+
+----------------------------------------------------------------
+Dan Carpenter (1):
+      watchdog: tqmx86: Fix a couple IS_ERR() vs NULL bugs
+
+NeilBrown (1):
+      watchdog: mt7621_wdt/rt2880_wdt: Fix compilation problem
+
+ drivers/watchdog/mt7621_wdt.c | 1 +
+ drivers/watchdog/rt2880_wdt.c | 1 +
+ drivers/watchdog/tqmx86_wdt.c | 8 ++++----
+ 3 files changed, 6 insertions(+), 4 deletions(-)
+----------------------------------------------------------------
+
+Kind regards,
+Wim.
+
