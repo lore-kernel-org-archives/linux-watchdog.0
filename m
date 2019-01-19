@@ -2,95 +2,73 @@ Return-Path: <SRS0=FUYB=P3=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PULL_REQUEST,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_MUTT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1806FC61CE8
-	for <linux-watchdog@archiver.kernel.org>; Sat, 19 Jan 2019 12:08:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F143AC61CE8
+	for <linux-watchdog@archiver.kernel.org>; Sat, 19 Jan 2019 22:35:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 794952086A
-	for <linux-watchdog@archiver.kernel.org>; Sat, 19 Jan 2019 12:08:16 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux-watchdog.org header.i=@linux-watchdog.org header.b="Y6lgjdG1"
+	by mail.kernel.org (Postfix) with ESMTP id BB16620883
+	for <linux-watchdog@archiver.kernel.org>; Sat, 19 Jan 2019 22:35:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1547937302;
+	bh=9PxH6ahYUyXJ9m5v4M3PfSKb6ibV+miuNwdFEzAgx6o=;
+	h=Subject:From:In-Reply-To:References:Date:To:Cc:List-ID:From;
+	b=jCUZN5mH+OYdRfNF5Bw0RHYkrqLCKEUX/H1+ZXfm4nfN+aXWl1JoG/NU/7w1Fq2ZO
+	 IspQjJ3cFdKVJB9wwoF+ZKzQDzk9LPDUUpovKLo1ZUPi+GPdjBsazIjqZ3V4bG1wm/
+	 SE0pHGgxJ6u0tSSPeCEgehKCFQEq2YzV57ScYJqg=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727924AbfASMIQ (ORCPT
+        id S1729704AbfASWfC (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sat, 19 Jan 2019 07:08:16 -0500
-Received: from www.linux-watchdog.org ([185.87.125.42]:59548 "EHLO
-        www.linux-watchdog.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727915AbfASMIP (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 19 Jan 2019 07:08:15 -0500
-Received: by www.linux-watchdog.org (Postfix, from userid 500)
-        id 007B2407DA; Sat, 19 Jan 2019 12:40:07 +0100 (CET)
-DKIM-Filter: OpenDKIM Filter v2.11.0 www.linux-watchdog.org 007B2407DA
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-watchdog.org;
-        s=odk20180602; t=1547898008;
-        bh=U9shrOMEjJW+FUZqB9QlVGVp5gP3ABviHcUzETNUfd4=;
-        h=Date:From:To:Cc:Subject:From;
-        b=Y6lgjdG1paELuc7WT8EoY+ETRtcQs69Lk06psLVsnf5iuASY9dObZXyptvFmgOwyk
-         WRqmEpCPqTQGom5YxlxCwKYNfPRAxaOY2ynGPLtC3gLsSVjmQzYpcsnjWQTrOiV1Yy
-         N3CJLxYx7oJMnW6m/fQI839D7Ismn3msLm6iHI2s=
-Date:   Sat, 19 Jan 2019 12:40:07 +0100
-From:   Wim Van Sebroeck <wim@linux-watchdog.org>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Sat, 19 Jan 2019 17:35:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54122 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729642AbfASWfC (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Sat, 19 Jan 2019 17:35:02 -0500
+Subject: Re: [GIT PULL REQUEST] watchdog - v5.0-rc Fixes
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1547937301;
+        bh=9PxH6ahYUyXJ9m5v4M3PfSKb6ibV+miuNwdFEzAgx6o=;
+        h=From:In-Reply-To:References:Date:To:Cc:From;
+        b=s8TJueyzQlI/Gp9KpRWM9dpNLlm9oyY25I5RxjW8LA448oiKvdRTs4YPT/istwMs1
+         75oD0tSTwls13o51LnTtnJP6MD/LtvQTOd7vRAkrVBGsTBWtjSPubZVB20uKA80jtP
+         NLGyuXnh3DcQWC7GrL4Nb6DbUQlBD6yYe0d63xuY=
+From:   pr-tracker-bot@kernel.org
+In-Reply-To: <20190119114007.GA22111@www.linux-watchdog.org>
+References: <20190119114007.GA22111@www.linux-watchdog.org>
+X-PR-Tracked-List-Id: <linux-watchdog.vger.kernel.org>
+X-PR-Tracked-Message-Id: <20190119114007.GA22111@www.linux-watchdog.org>
+X-PR-Tracked-Remote: git://www.linux-watchdog.org/linux-watchdog.git
+ tags/linux-watchdog-5.0-rc-fixes
+X-PR-Tracked-Commit-Id: 4a22fc534f2f55808c41197cf17d829099032acb
+X-PR-Merge-Tree: torvalds/linux.git
+X-PR-Merge-Refname: refs/heads/master
+X-PR-Merge-Commit-Id: f403d718ebde2059de848ae7548392dfb25a13ae
+Message-Id: <154793730170.16838.17686429447862894559.pr-tracker-bot@kernel.org>
+Date:   Sat, 19 Jan 2019 22:35:01 +0000
+To:     Wim Van Sebroeck <wim@linux-watchdog.org>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
         LKML <linux-kernel@vger.kernel.org>,
         Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
         Guenter Roeck <linux@roeck-us.net>,
         Dan Carpenter <dan.carpenter@oracle.com>,
         NeilBrown <neil@brown.name>
-Subject: [GIT PULL REQUEST] watchdog - v5.0-rc Fixes
-Message-ID: <20190119114007.GA22111@www.linux-watchdog.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.20 (2009-12-10)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Hi Linus,
+The pull request you sent on Sat, 19 Jan 2019 12:40:07 +0100:
 
-Please pull the watchdog changes for the v4.21 release cycle.
+> git://www.linux-watchdog.org/linux-watchdog.git tags/linux-watchdog-5.0-rc-fixes
 
-This series contains:
-* mt7621_wdt/rt2880_wdt: Fix compilation problem
-* tqmx86: Fix a couple IS_ERR() vs NULL bugs
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/f403d718ebde2059de848ae7548392dfb25a13ae
 
-The output from git request-pull:
-----------------------------------------------------------------
-The following changes since commit 3bd6e94bec122a951d462c239b47954cf5f36e33:
+Thank you!
 
-  arch: restore generic-y += shmparam.h for some architectures (2019-01-06 18:16:11 -0800)
-
-are available in the git repository at:
-
-  git://www.linux-watchdog.org/linux-watchdog.git tags/linux-watchdog-5.0-rc-fixes
-
-for you to fetch changes up to 4a22fc534f2f55808c41197cf17d829099032acb:
-
-  watchdog: tqmx86: Fix a couple IS_ERR() vs NULL bugs (2019-01-07 10:10:35 +0100)
-
-----------------------------------------------------------------
-linux-watchdog 5.0-rc-fixes tag
-
-----------------------------------------------------------------
-Dan Carpenter (1):
-      watchdog: tqmx86: Fix a couple IS_ERR() vs NULL bugs
-
-NeilBrown (1):
-      watchdog: mt7621_wdt/rt2880_wdt: Fix compilation problem
-
- drivers/watchdog/mt7621_wdt.c | 1 +
- drivers/watchdog/rt2880_wdt.c | 1 +
- drivers/watchdog/tqmx86_wdt.c | 8 ++++----
- 3 files changed, 6 insertions(+), 4 deletions(-)
-----------------------------------------------------------------
-
-Kind regards,
-Wim.
-
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.wiki.kernel.org/userdoc/prtracker
