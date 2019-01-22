@@ -2,349 +2,244 @@ Return-Path: <SRS0=+Q4Y=P6=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_MUTT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DA6E7C282C4
-	for <linux-watchdog@archiver.kernel.org>; Tue, 22 Jan 2019 17:10:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CC854C282C3
+	for <linux-watchdog@archiver.kernel.org>; Tue, 22 Jan 2019 17:29:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 8DACD20879
-	for <linux-watchdog@archiver.kernel.org>; Tue, 22 Jan 2019 17:10:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9238821019
+	for <linux-watchdog@archiver.kernel.org>; Tue, 22 Jan 2019 17:29:43 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OFwKmwbn"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729462AbfAVRKc (ORCPT
+        id S1726042AbfAVR3i (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 22 Jan 2019 12:10:32 -0500
-Received: from mail-lj1-f196.google.com ([209.85.208.196]:35194 "EHLO
-        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729357AbfAVRKc (ORCPT
+        Tue, 22 Jan 2019 12:29:38 -0500
+Received: from mail-pg1-f195.google.com ([209.85.215.195]:33215 "EHLO
+        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725899AbfAVR3i (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 22 Jan 2019 12:10:32 -0500
-Received: by mail-lj1-f196.google.com with SMTP id x85-v6so21349176ljb.2;
-        Tue, 22 Jan 2019 09:10:28 -0800 (PST)
+        Tue, 22 Jan 2019 12:29:38 -0500
+Received: by mail-pg1-f195.google.com with SMTP id z11so11376197pgu.0;
+        Tue, 22 Jan 2019 09:29:37 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=+pKolkDkzQZWKrYyCQSIvZW7bJreVHMPVec+TmL/YUY=;
+        b=OFwKmwbnnrJEOCtyGtO7ATF6EeU5fqHIRMp9mtq1RPIi6xwyan62N43d4K2m4QLRZX
+         Ls89khGFsgcJm1bm4HGQ489LxnToFNMM3M9OggqXqqkyiCYhJTs7kg9dAfkz3BzOz74S
+         lwiB9k6Vt6Luj0Lqyn3WUuYsF2Lg7fzNo1iMNmyiD7exqJnDCfO3pHTw1i9M27oUCT3o
+         77rCnOHamI4kfoRbWMD6RS2sUfTKGi4v7v+FA4q3GSRjTbYlJnXJK/4maSxUPCITgs+u
+         moLy1ngvG5HKEd48lCTj6h66aWDPucHlJOyu2H2D3baVqF5tbtZXi1Vl4jsYE3jFaz9u
+         mfNA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=Omd9lHu+tGDackOr8psvsmVsE5lGs+EJhEFZ40+ioJw=;
-        b=RDKQTt30EoufpiSMUvMX+ap6W/NPPLf5IKuB3LrVrDb43h/VMiXnYaVpg4j0pQklkn
-         R3SsEeWSAzEe31o17SbUjmwF/PT8Yotw32ilQs5RHJpIOdBAhv/Qlk/yHUlJGaVlRbY+
-         9xO/7bMIwiiCD1fLr+ZMUY5Y3riYvBgT4ELGWwJyGnUZ+bXS8vLoIqUr0OKnkYpBBBr8
-         k1zPrvNgDxD1LBhBoEYmfvaMOSonRy/LXA/J0WExv5fRk7plb/4QIReRu+gg7RZhjANN
-         6+gKSlmrET/YUCe4QhgHYHa8P68nffMXBmGdnzmb826/ydE/+4OSCvjUYhGoTerWzmy8
-         9wxg==
-X-Gm-Message-State: AJcUukeaSn0OmIFamKRaNcXwyFKk+51aPtx5VQpRgtuQAuHd8y/V7cAo
-        TDaXC0fQZRDNKyJQ/z9Ho80=
-X-Google-Smtp-Source: ALg8bN6tlyTGBSfPMDGZE0TLQdpeOAoramkhomhjg/RhwVbqp3V+5/xIByVf0NtB2G7sRu9BaQZKPg==
-X-Received: by 2002:a2e:8855:: with SMTP id z21-v6mr1201262ljj.191.1548177027510;
-        Tue, 22 Jan 2019 09:10:27 -0800 (PST)
-Received: from localhost.localdomain (82-203-157-3.bb.dnainternet.fi. [82.203.157.3])
-        by smtp.gmail.com with ESMTPSA id w9sm87447lfc.66.2019.01.22.09.10.25
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Tue, 22 Jan 2019 09:10:26 -0800 (PST)
-Date:   Tue, 22 Jan 2019 19:10:23 +0200
-From:   Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     mazziesaccount@gmail.com, lee.jones@linaro.org, robh+dt@kernel.org,
-        mark.rutland@arm.com, lgirdwood@gmail.com, broonie@kernel.org,
-        gregkh@linuxfoundation.org, rafael@kernel.org,
-        mturquette@baylibre.com, sboyd@kernel.org,
-        linus.walleij@linaro.org, bgolaszewski@baylibre.com,
-        sre@kernel.org, a.zummo@towertech.it,
-        alexandre.belloni@bootlin.com, wim@linux-watchdog.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-clk@vger.kernel.org, linux-gpio@vger.kernel.org,
-        linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linux-watchdog@vger.kernel.org, mikko.mutanen@fi.rohmeurope.com,
-        heikki.haikola@fi.rohmeurope.com
-Subject: Re: [RFC PATCH v1 13/13] watchdog: bd70528: Initial support for ROHM
- BD70528 watchdog block
-Message-ID: <20190122171023.GC2559@localhost.localdomain>
-References: <cover.1548149337.git.matti.vaittinen@fi.rohmeurope.com>
- <ec70833179d1953dbc91e01901b79d3319ff013d.1548149337.git.matti.vaittinen@fi.rohmeurope.com>
- <20190122154750.GB1705@roeck-us.net>
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to:user-agent;
+        bh=+pKolkDkzQZWKrYyCQSIvZW7bJreVHMPVec+TmL/YUY=;
+        b=pUZt0kPv//xW7PhYXY60kMQ2BCt2tIOwOFUq0v0EpIKjuYijZJEI2zYBNv3zH3Gwl/
+         EefXJG5i73wTYXuXK1sNDwcJkjYRP94gZTHmdUWRqtDzQVFZNs7qt9qulphlOeRuCLO5
+         ypTWcAFPx5S0eWKXeVjGLwUEj4q7mud6xviKn8Cj3DkvtlkRX+f6yBQIOW3VvTe5iAfT
+         yV2ZfRU13zPJU0SEMzdhAd6x09C1OaOuR0EZJBk0G05BrKZqzRfADve3zxlKjrtUbVtq
+         GWCWh1IOH1GdWzv9h0TxYVru9ZvJhwttKC3mbS6UyKbdBrFqm5FpljRabYrr6sJPK3Ib
+         M4Nw==
+X-Gm-Message-State: AJcUuke4gyZ5XYobNA1EuT5COXKkjKfHj1VFtLQ/ohfgUBdC3PSavom1
+        e/gUW3TeZllQPI2gtTkeRwY=
+X-Google-Smtp-Source: ALg8bN5y72Tx0hwHvGa7rE0MvxFcn7+tQZKrr2MiKsi9PlehMcEHyfoFpp5DzJ7ILaxmrAj2/O0r2A==
+X-Received: by 2002:a63:8d44:: with SMTP id z65mr32961434pgd.57.1548178177040;
+        Tue, 22 Jan 2019 09:29:37 -0800 (PST)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id t24sm32713763pfm.127.2019.01.22.09.29.35
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 22 Jan 2019 09:29:36 -0800 (PST)
+Date:   Tue, 22 Jan 2019 09:29:35 -0800
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+Cc:     "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Jonathan Corbet <corbet@lwn.net>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
+        Esben Haabendal <esben@haabendal.dk>,
+        "martin@hundeboll.net" <martin@hundeboll.net>,
+        Rasmus Villemoes <Rasmus.Villemoes@prevas.se>
+Subject: Re: [PATCH v9 1/3] watchdog: introduce watchdog.open_timeout
+ commandline parameter
+Message-ID: <20190122172935.GA4964@roeck-us.net>
+References: <20190116121432.26732-1-rasmus.villemoes@prevas.dk>
+ <20190121204527.5548-1-rasmus.villemoes@prevas.dk>
+ <20190121204527.5548-2-rasmus.villemoes@prevas.dk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190122154750.GB1705@roeck-us.net>
-User-Agent: Mutt/1.9.2 (2017-12-15)
+In-Reply-To: <20190121204527.5548-2-rasmus.villemoes@prevas.dk>
+User-Agent: Mutt/1.5.24 (2015-08-30)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Tue, Jan 22, 2019 at 07:47:50AM -0800, Guenter Roeck wrote:
-> On Tue, Jan 22, 2019 at 11:48:36AM +0200, Matti Vaittinen wrote:
-> > Initial support for watchdog block included in ROHM BD70528
-> > power management IC.
-> > 
-> > Configurations for low power states are still to be checked.
-> > 
-> > Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-> > ---
-> >  drivers/watchdog/Kconfig       |  12 +++
-> >  drivers/watchdog/Makefile      |   1 +
-> >  drivers/watchdog/bd70528_wdt.c | 161 +++++++++++++++++++++++++++++++++++++++++
-> >  3 files changed, 174 insertions(+)
-> >  create mode 100644 drivers/watchdog/bd70528_wdt.c
-> > 
-> > diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> > index 57f017d74a97..f30e3a3e886e 100644
-> > --- a/drivers/watchdog/Kconfig
-> > +++ b/drivers/watchdog/Kconfig
-> > @@ -90,6 +90,18 @@ config SOFT_WATCHDOG_PRETIMEOUT
-> >  	  watchdog. Be aware that governors might affect the watchdog because it
-> >  	  is purely software, e.g. the panic governor will stall it!
-> >  
-> > +config BD70528_WATCHDOG
-> > +	tristate "ROHM BD70528 PMIC Watchdog"
-> > +	depends on MFD_ROHM_BD70528
-> > +	select WATCHDOG_CORE
-> > +	help
-> > +	  Support for the watchdog in the ROHM BD70528 PMIC. Watchdog trigger
-> > +	  cause system reset.
-> > +
-> > +	  Say Y here to include support for the ROHM BD70528 watchdog.
-> > +	  Alternatively say M to compile the driver as a module,
-> > +	  which will be called bd70528_wdt.
-> > +
-> >  config DA9052_WATCHDOG
-> >  	tristate "Dialog DA9052 Watchdog"
-> >  	depends on PMIC_DA9052 || COMPILE_TEST
-> > diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-> > index a0917ef28e07..1ce87a3b1172 100644
-> > --- a/drivers/watchdog/Makefile
-> > +++ b/drivers/watchdog/Makefile
-> > @@ -204,6 +204,7 @@ obj-$(CONFIG_WATCHDOG_SUN4V)		+= sun4v_wdt.o
-> >  obj-$(CONFIG_XEN_WDT) += xen_wdt.o
-> >  
-> >  # Architecture Independent
-> > +obj-$(CONFIG_BD70528_WATCHDOG) += bd70528_wdt.o
-> >  obj-$(CONFIG_DA9052_WATCHDOG) += da9052_wdt.o
-> >  obj-$(CONFIG_DA9055_WATCHDOG) += da9055_wdt.o
-> >  obj-$(CONFIG_DA9062_WATCHDOG) += da9062_wdt.o
-> > diff --git a/drivers/watchdog/bd70528_wdt.c b/drivers/watchdog/bd70528_wdt.c
-> > new file mode 100644
-> > index 000000000000..e9a32566f595
-> > --- /dev/null
-> > +++ b/drivers/watchdog/bd70528_wdt.c
-> > @@ -0,0 +1,161 @@
-> > +// SPDX-License-Identifier: GPL-2.0
-> > +// Copyright (C) 2018 ROHM Semiconductors
-> > +// ROHM BD70528MWV watchdog driver
-> > +
-> > +#include <linux/bcd.h>
-> > +#include <linux/kernel.h>
-> > +#include <linux/mfd/rohm-bd70528.h>
-> > +#include <linux/module.h>
-> > +#include <linux/of.h>
-> > +#include <linux/platform_device.h>
-> > +#include <linux/regmap.h>
-> > +#include <linux/watchdog.h>
-> > +
-> > +static int bd70528_wdt_set(struct bd70528 *bd70528, int enable)
-> > +{
-> > +	int ret;
-> > +
-> > +	if (bd70528->rtc_timer_lock)
-> > +		mutex_lock(bd70528->rtc_timer_lock);
+On Mon, Jan 21, 2019 at 08:45:39PM +0000, Rasmus Villemoes wrote:
+> The watchdog framework takes care of feeding a hardware watchdog until
+> userspace opens /dev/watchdogN. If that never happens for some reason
+> (buggy init script, corrupt root filesystem or whatnot) but the kernel
+> itself is fine, the machine stays up indefinitely. This patch allows
+> setting an upper limit for how long the kernel will take care of the
+> watchdog, thus ensuring that the watchdog will eventually reset the
+> machine.
 > 
-> This looks awkward. I don't think the if() is necessary.
-
-Right. Now when only bd70528 MFD driver uses this WDT this if is not
-required.
-
-> > +
-> > +	ret = bd70528->wdt_set(bd70528, enable, NULL);
-> > +
-> > +	if (bd70528->rtc_timer_lock)
-> > +		mutex_unlock(bd70528->rtc_timer_lock);
-> > +	return ret;
-> > +}
-> > +
-> > +static int bd70528_wdt_start(struct watchdog_device *wdt)
-> > +{
-> > +	struct bd70528 *bd70528 = watchdog_get_drvdata(wdt);
-> > +
-> > +	return bd70528_wdt_set(bd70528, 1);
-> > +}
-> > +
-> > +static int bd70528_wdt_stop(struct watchdog_device *wdt)
-> > +{
-> > +	struct bd70528 *bd70528 = watchdog_get_drvdata(wdt);
-> > +
-> > +	return bd70528_wdt_set(bd70528, 0);
-> > +}
-> > +
-> > +static int bd70528_wdt_set_timeout(struct watchdog_device *wdt,
-> > +				    unsigned int timeout)
-> > +{
-> > +	unsigned int hours;
-> > +	unsigned int minutes;
-> > +	unsigned int seconds;
-> > +	int ret;
-> > +	struct bd70528 *bd70528 = watchdog_get_drvdata(wdt);
-> > +
-> > +	seconds = timeout;
-> > +	hours = timeout / (60 * 60);
-> > +	/* Maximum timeout is 1h 59m 59s => hours is 1 or 0 */
-> > +	if (hours)
-> > +		seconds -= (60 * 60);
-> > +	minutes = seconds / 60;
-> > +	seconds = seconds % 60;
-> > +
-> > +	if (bd70528->rtc_timer_lock)
-> > +		mutex_lock(bd70528->rtc_timer_lock);
-> > +
-> > +	ret = bd70528->wdt_set(bd70528, 0, NULL);
-> > +	if (ret)
-> > +		goto out_unlock;
-> > +
-> > +	ret = regmap_update_bits(bd70528->chip.regmap, BD70528_REG_WDT_HOUR,
-> > +				 BD70528_MASK_WDT_HOUR, hours);
-> > +	if (ret) {
-> > +		dev_err(bd70528->chip.dev, "Failed to set WDT hours\n");
-> > +		goto out_en_unlock;
-> > +	}
-> > +	ret = regmap_update_bits(bd70528->chip.regmap, BD70528_REG_WDT_MINUTE,
-> > +				 BD70528_MASK_WDT_MINUTE, bin2bcd(minutes));
-> > +	if (ret) {
-> > +		dev_err(bd70528->chip.dev, "Failed to set WDT minutes\n");
-> > +		goto out_en_unlock;
-> > +	}
-> > +	ret = regmap_update_bits(bd70528->chip.regmap, BD70528_REG_WDT_SEC,
-> > +				 BD70528_MASK_WDT_SEC, bin2bcd(seconds));
-> > +	if (ret) {
-> > +		dev_err(bd70528->chip.dev, "Failed to set WDT seconds\n");
-> > +		goto out_en_unlock;
+> A value of 0 (the default) means infinite timeout, preserving the
+> current behaviour.
 > 
-> Unnecessary goto.
-
-True. I'll drop this.
-
+> This is particularly useful for embedded devices where some fallback
+> logic is implemented in the bootloader (e.g., use a different root
+> partition, boot from network, ...).
 > 
-> > +	}
-> > +
-> > +out_en_unlock:
-> > +	ret = bd70528->wdt_set(bd70528, 1, NULL);
-> > +out_unlock:
-> > +	if (bd70528->rtc_timer_lock)
-> > +		mutex_lock(bd70528->rtc_timer_lock);
+> There is already handle_boot_enabled serving a similar purpose. However,
+> such a binary choice is unsuitable if the hardware watchdog cannot be
+> programmed by the bootloader to provide a timeout long enough for
+> userspace to get up and running. Many of the embedded devices we see use
+> external (gpio-triggered) watchdogs with a fixed timeout of the order of
+> 1-2 seconds.
 > 
-> I don't think this code was ever tested.
-
-Yep. This should be unlock. What comes to testingI'll quote the
-cover-sheet for the patch set:
-
-> Currently only MFD core, clk, RTC and regulator portions are
-> somehow tested. The RFC series also include initial gpio, power-supply
-> and watchdog patches in order to provide better overview on chip
-> and to collect initial feedback. Reset and ADC are not supported by
-> this series.
-
-I think having the wdt_set and rtc_timer_lock in MFD would have been
-completely mysterious if watchdog draft was not included =)
-
-> > +static const struct watchdog_info bd70528_wdt_info = {
-> > +	.identity = "bd70528-wdt",
-> > +	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
-> > +};
-> > +
-> > +static const struct watchdog_ops bd70528_wdt_ops = {
-> > +	.start		= bd70528_wdt_start,
-> > +	.stop		= bd70528_wdt_stop,
-> > +	/*
-> > +	 *  bd70528 WDT ping is same as enable. Eg, writing 'enable' to enabled
-> > +	 * WDT will restart the timeout
-> > +	 */
-> Unnecessary comment.
+> The open timeout is also used as a maximum time for an application to
+> re-open /dev/watchdogN after closing it. Again, while the kernel already
+> has a nowayout mechanism, using that means userspace is at the mercy of
+> whatever timeout the hardware has.
 > 
-
-Ok. I will remove the comment if this is obvious to others. For me it
-was not obvious. I was first writing a separate ping and start functions
-untill I realized that it is the same operation. But this was my first
-WDT driver so I don't know if this is a normal for all WDTs.
-
-> > +	.ping		= bd70528_wdt_start,
-> > +	.set_timeout	= bd70528_wdt_set_timeout,
-> > +};
-> > +
-> > +/* Max time we can set is 1 hour, 59 minutes and 59 seconds */
-> > +#define WDT_MAX_MS ((2 * 60 * 60 - 1) * 1000)
-> > +/* Minimum time is 1 second */
-> > +#define WDT_MIN_MS 1000
-> > +static struct watchdog_device bd70528_wd = {
-> > +	.info = &bd70528_wdt_info,
-> > +	.ops =  &bd70528_wdt_ops,
-> > +	.min_hw_heartbeat_ms = WDT_MIN_MS,
-> > +	.max_hw_heartbeat_ms = WDT_MAX_MS,
-> > +};
-> > +
-> > +static int bd70528_wdt_probe(struct platform_device *pdev)
-> > +{
-> > +	struct bd70528 *tmp;
-> > +	struct bd70528 *bd70528;
-> > +	int ret;
-> > +
-> > +	tmp = dev_get_drvdata(pdev->dev.parent);
-> > +	if (!tmp) {
-> > +		dev_err(&pdev->dev, "No MFD driver data\n");
-> > +		return -EINVAL;
-> > +	}
-> > +	bd70528 = devm_kzalloc(&pdev->dev, sizeof(*bd70528), GFP_KERNEL);
-> > +	if (!bd70528)
-> > +		return -ENOMEM;
-> > +
-> > +	*bd70528 = *tmp;
-> > +	bd70528->chip.dev = &pdev->dev;
+> Being a module parameter, one can revert to the ordinary behaviour of
+> having the kernel maintain the watchdog indefinitely by simply writing 0
+> to /sys/... after initially opening /dev/watchdog; conversely, one can
+> of course also have the current behaviour of allowing indefinite time
+> until the first open, and then set that module parameter.
 > 
-> This is wrong.
-> You should not copy the parent's driver data but have local driver
-> data as needed which then points to the parent's driver data if
-> needed. I assume this is why the mutex is a pointer, but that
-> just shows that the whole approach is wrong.
-
-Mutex is a pointer because we want to use same mutex from WDT and RTC.
-We can sure point to parent data but then we still need our own dev
-pointer. So we can have a struct with pointer to parent data and dev
-pointer - but I'm not at all sure it is any clearer.
+> Signed-off-by: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+> ---
+>  .../watchdog/watchdog-parameters.txt          |  8 +++++
+>  drivers/watchdog/watchdog_dev.c               | 30 +++++++++++++++++--
+>  2 files changed, 36 insertions(+), 2 deletions(-)
 > 
-> > +
-> > +	/*
-> > +	 * TODO: Set the initial state and timeout.
+> diff --git a/Documentation/watchdog/watchdog-parameters.txt b/Documentation/watchdog/watchdog-parameters.txt
+> index 0b88e333f9e1..907c4bb13810 100644
+> --- a/Documentation/watchdog/watchdog-parameters.txt
+> +++ b/Documentation/watchdog/watchdog-parameters.txt
+> @@ -8,6 +8,14 @@ See Documentation/admin-guide/kernel-parameters.rst for information on
+>  providing kernel parameters for builtin drivers versus loadable
+>  modules.
+>  
+> +The watchdog core parameter watchdog.open_timeout is the maximum time,
+> +in seconds, for which the watchdog framework will take care of pinging
+> +a hardware watchdog until userspace opens the corresponding
+> +/dev/watchdogN device. A value of 0 (the default) means an infinite
+> +timeout. Setting this to a non-zero value can be useful to ensure that
+> +either userspace comes up properly, or the board gets reset and allows
+> +fallback logic in the bootloader to try something else.
+> +
+
+This is misleading. Unless I am missing something, the above only applies
+if the watchdog is already runnning at boot, and after it has been opened
+and closed once.
+
+FWIW, I find this operation quite confusing. What is the rationale for not
+starting the watchdog at boot time if it is not running and open_timeout
+is set, but then refusing to stop it after it has been started once ?
+
+>  
+>  -------------------------------------------------
+>  acquirewdt:
+> diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
+> index f6c24b22b37c..ab2ad20f13eb 100644
+> --- a/drivers/watchdog/watchdog_dev.c
+> +++ b/drivers/watchdog/watchdog_dev.c
+> @@ -69,6 +69,7 @@ struct watchdog_core_data {
+>  	struct mutex lock;
+>  	ktime_t last_keepalive;
+>  	ktime_t last_hw_keepalive;
+> +	ktime_t open_deadline;
+>  	struct hrtimer timer;
+>  	struct kthread_work work;
+>  	unsigned long status;		/* Internal status bits */
+> @@ -87,6 +88,19 @@ static struct kthread_worker *watchdog_kworker;
+>  static bool handle_boot_enabled =
+>  	IS_ENABLED(CONFIG_WATCHDOG_HANDLE_BOOT_ENABLED);
+>  
+> +static unsigned open_timeout;
+> +
+> +static bool watchdog_past_open_deadline(struct watchdog_core_data *data)
+> +{
+> +	return ktime_after(ktime_get(), data->open_deadline);
+> +}
+> +
+> +static void watchdog_set_open_deadline(struct watchdog_core_data *data)
+> +{
+> +	data->open_deadline = open_timeout ?
+> +		ktime_get() + ktime_set(open_timeout, 0) : KTIME_MAX;
+> +}
+> +
+>  static inline bool watchdog_need_worker(struct watchdog_device *wdd)
+>  {
+>  	/* All variables in milli-seconds */
+> @@ -211,7 +225,13 @@ static bool watchdog_worker_should_ping(struct watchdog_core_data *wd_data)
+>  {
+>  	struct watchdog_device *wdd = wd_data->wdd;
+>  
+> -	return wdd && (watchdog_active(wdd) || watchdog_hw_running(wdd));
+> +	if (!wdd)
+> +		return false;
+> +
+> +	if (watchdog_active(wdd))
+> +		return true;
+> +
+> +	return watchdog_hw_running(wdd) && !watchdog_past_open_deadline(wd_data);
+>  }
+>  
+>  static void watchdog_ping_work(struct kthread_work *work)
+> @@ -297,7 +317,7 @@ static int watchdog_stop(struct watchdog_device *wdd)
+>  		return -EBUSY;
+>  	}
+>  
+> -	if (wdd->ops->stop) {
+> +	if (wdd->ops->stop && !open_timeout) {
+
+This changes the semantics of WDIOC_SETOPTIONS / WDIOS_DISABLECARD.
+"Turn off the watchdog timer" is well defined and doesn't leave
+the option of setting a timeout on it.
+
+>  		clear_bit(WDOG_HW_RUNNING, &wdd->status);
+>  		err = wdd->ops->stop(wdd);
+>  	} else {
+> @@ -883,6 +903,7 @@ static int watchdog_release(struct inode *inode, struct file *file)
+>  		watchdog_ping(wdd);
+>  	}
+>  
+> +	watchdog_set_open_deadline(wd_data);
+>  	watchdog_update_worker(wdd);
+>  
+>  	/* make sure that /dev/watchdog can be re-opened */
+> @@ -983,6 +1004,7 @@ static int watchdog_cdev_register(struct watchdog_device *wdd, dev_t devno)
+>  
+>  	/* Record time of most recent heartbeat as 'just before now'. */
+>  	wd_data->last_hw_keepalive = ktime_sub(ktime_get(), 1);
+> +	watchdog_set_open_deadline(wd_data);
+>  
+>  	/*
+>  	 * If the watchdog is running, prevent its driver from being unloaded,
+> @@ -1181,3 +1203,7 @@ module_param(handle_boot_enabled, bool, 0444);
+>  MODULE_PARM_DESC(handle_boot_enabled,
+>  	"Watchdog core auto-updates boot enabled watchdogs before userspace takes over (default="
+>  	__MODULE_STRING(IS_ENABLED(CONFIG_WATCHDOG_HANDLE_BOOT_ENABLED)) ")");
+> +
+> +module_param(open_timeout, uint, 0644);
+> +MODULE_PARM_DESC(open_timeout,
+> +	"Maximum time (in seconds, 0 means infinity) for userspace to take over a running watchdog (default=0)");
+
+The description is misleading. After the initial open, a subsequent close no
+longer really stops the watchdog.
+
+> -- 
+> 2.20.1
 > 
-> Confused. Why don't you just do it ?
-
-I will. But it's not ready yet. I still wanted to include the WDT for
-this RFC. And I hope I could get the MFD core part included in Lee's
-tree at early phase so that the include/linux/mfd/rohm-bd70528.h would
-be in other sub trees when they're finalized for upstreaming.
-
-> 
-> > +	 * See whether the low power states require special handling
-> > +	 */
-> > +	watchdog_set_drvdata(&bd70528_wd, bd70528);
-> 
-> At least in theory there can be more than one of those devices
-> in the system, since it is an i2c device. With that in mind, bd70528_wd
-> should be locally allocated.
-
-Point taken, thanks.
-
-> Also, bd70528_wd should be fully initialized. For example, the parent
-> device is not set.
-
-Thanks for this point too =) I will see what are all the missing
-initializations before sending out the final version.
-
-I do really appreciate that you see the trouble of doing the review and
-giving me the push to right direction!
-
-Br,
-	Matti Vaittinen
-
--- 
-Matti Vaittinen
-ROHM Semiconductors
-
-~~~ "I don't think so," said Rene Descartes.  Just then, he vanished ~~~
