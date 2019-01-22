@@ -3,46 +3,46 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT autolearn=ham autolearn_force=no
-	version=3.4.0
+	MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 01DEAC282C5
-	for <linux-watchdog@archiver.kernel.org>; Tue, 22 Jan 2019 16:21:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6CFD9C282C3
+	for <linux-watchdog@archiver.kernel.org>; Tue, 22 Jan 2019 16:29:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id CC43A21726
-	for <linux-watchdog@archiver.kernel.org>; Tue, 22 Jan 2019 16:21:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 455432085A
+	for <linux-watchdog@archiver.kernel.org>; Tue, 22 Jan 2019 16:29:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729272AbfAVQVE (ORCPT
+        id S1729193AbfAVQ3k (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 22 Jan 2019 11:21:04 -0500
-Received: from mail-lj1-f194.google.com ([209.85.208.194]:40394 "EHLO
+        Tue, 22 Jan 2019 11:29:40 -0500
+Received: from mail-lj1-f194.google.com ([209.85.208.194]:35375 "EHLO
         mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728926AbfAVQVE (ORCPT
+        with ESMTP id S1728580AbfAVQ3k (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 22 Jan 2019 11:21:04 -0500
-Received: by mail-lj1-f194.google.com with SMTP id n18-v6so21133861lji.7;
-        Tue, 22 Jan 2019 08:21:01 -0800 (PST)
+        Tue, 22 Jan 2019 11:29:40 -0500
+Received: by mail-lj1-f194.google.com with SMTP id x85-v6so21217997ljb.2;
+        Tue, 22 Jan 2019 08:29:37 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=PkOklqGVwHq7ll/rbU8Gr2vyzx12G/yCiDYJZx1VSDM=;
-        b=WBMoRGlgxX0D6GftKGxZ4N7CTt7eY99/9t+w4xitQuDnXs05FrU9ve6X09TeHr5MRx
-         Rsxq1X68mU2VDCUxNb26ilD3mmSyJ81WunYuOKc9C/tR3Ds6hcoTmol7fWCpXtqOIVFG
-         fs2gCUDJ1ydG2a388byRKCLVvBO8+5/nGu3EzPldaWLx6fkd8UK+lx/qlkCU8XVjrMwY
-         iIzNXT7b2g12A+yWfalgbr9K8iCxuhJTlBUJVmGwL31E+JIkfB0+8JahffCpPIlZzd62
-         Vb3XaBjrHIqNep/FvPG6XQCLuU24SVP30RbiJNbBRBCKeMUfCS0Kzenjql5915lnI/fi
-         w8jw==
-X-Gm-Message-State: AJcUukdcujUYXPw5vua3sFOcmwJa6c0ljVe0Nt3bF/+OoXQ+XlHv3fUe
-        ki/a15MIHvkXp97XdyXczsY=
-X-Google-Smtp-Source: ALg8bN4mDWVXczefW4x1mB9qVDLVkxgh8++OZDBh4hKX7AE4i55P6LtjZf+JxhuAaO9fVvImu1xCKQ==
-X-Received: by 2002:a2e:841:: with SMTP id g1-v6mr22650096ljd.21.1548174060850;
-        Tue, 22 Jan 2019 08:21:00 -0800 (PST)
+        bh=t9n/5sXdoTPr3CpWzcc788OMKiVQhMebV1SwmFqOkDM=;
+        b=kc4ImfRHJ2aMVsf55zZP8lUCmmJ37QbdjsKPhci54UIIqIlRGs2wRGzNv8ZhlB3wI5
+         hM9ZIo0+HzErsWrrJ/YTQtSObY6+YEHYaC+renfJVgV2301Rw7y+coMkk+Xf504OVmDM
+         FI1nlLzULKU/ipD3z3/oqzUMbifHQcX5IDin5WlVPEGtEvK56tsxtV8Gu2s8xIXUEUUQ
+         IALpk/uGeHl/0XuTIMaURd02vRx+GIIQRcE3nF17RxvZNOq6LRXkuoTigclJD92bnJfd
+         CtwnhSLEZ22YZJsUxilESOQ3XDL9daL4nBJSmDQ30+KUVx5jOyUhRTwIssclrwa9m+5w
+         YdvA==
+X-Gm-Message-State: AJcUukeDof6kSjknN4fYDyk+y0kBgniHQ3V5AkbxjgWSt0SdHXXgf4xq
+        rQ9vKRz6nTvmaGKZWG67ghg=
+X-Google-Smtp-Source: ALg8bN5YUVS7ySRm9No2eyYMF5Ufbs7NAJdPtgs1BAemEDk2cT7J3LmrPSOqxFA2z0aqGFT6E7LeOA==
+X-Received: by 2002:a2e:914b:: with SMTP id q11-v6mr8884858ljg.164.1548174576827;
+        Tue, 22 Jan 2019 08:29:36 -0800 (PST)
 Received: from localhost.localdomain (82-203-157-3.bb.dnainternet.fi. [82.203.157.3])
-        by smtp.gmail.com with ESMTPSA id p10-v6sm72214ljh.59.2019.01.22.08.20.58
+        by smtp.gmail.com with ESMTPSA id h22-v6sm87861lji.45.2019.01.22.08.29.34
         (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Tue, 22 Jan 2019 08:21:00 -0800 (PST)
-Date:   Tue, 22 Jan 2019 18:20:51 +0200
+        Tue, 22 Jan 2019 08:29:36 -0800 (PST)
+Date:   Tue, 22 Jan 2019 18:29:31 +0200
 From:   Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
 To:     Guenter Roeck <linux@roeck-us.net>
 Cc:     mazziesaccount@gmail.com, lee.jones@linaro.org, robh+dt@kernel.org,
@@ -57,63 +57,61 @@ Cc:     mazziesaccount@gmail.com, lee.jones@linaro.org, robh+dt@kernel.org,
         linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org,
         linux-watchdog@vger.kernel.org, mikko.mutanen@fi.rohmeurope.com,
         heikki.haikola@fi.rohmeurope.com
-Subject: Re: [RFC PATCH v1 05/13] mfd: bd70528: Support ROHM bd70528 PMIC -
- core
-Message-ID: <20190122162051.GA2559@localhost.localdomain>
+Subject: Re: [RFC PATCH v1 11/13] rtc: bd70528: Initial support for ROHM
+ bd70528 RTC
+Message-ID: <20190122162931.GB2559@localhost.localdomain>
 References: <cover.1548149337.git.matti.vaittinen@fi.rohmeurope.com>
- <fea02522fe54190cfc7f3500f4e6540c8af82453.1548149337.git.matti.vaittinen@fi.rohmeurope.com>
- <9abdc69e-6aea-e1a5-c170-ebcba7f5b20f@roeck-us.net>
+ <ebe1618710baf7cf59622c878e40052ca48cc7c3.1548149337.git.matti.vaittinen@fi.rohmeurope.com>
+ <390e9379-329b-02dc-13f6-763aeae703e1@roeck-us.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <9abdc69e-6aea-e1a5-c170-ebcba7f5b20f@roeck-us.net>
+In-Reply-To: <390e9379-329b-02dc-13f6-763aeae703e1@roeck-us.net>
 User-Agent: Mutt/1.9.2 (2017-12-15)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Hello Guenter,
-
-Thanks for taking the time and doing review!
-
-On Tue, Jan 22, 2019 at 06:51:26AM -0800, Guenter Roeck wrote:
-> On 1/22/19 1:44 AM, Matti Vaittinen wrote:
-> > +static DEFINE_MUTEX(rtc_timer_mutex);
-
+On Tue, Jan 22, 2019 at 06:48:21AM -0800, Guenter Roeck wrote:
+> On 1/22/19 1:47 AM, Matti Vaittinen wrote:
+> > +
+> > +static int bd70528_set_rtc_based_timers(struct bd70528 *bd70528, int new_state,
+> > +							int *old_state)
+> 
+> Passed parameter is an int, not int *. I'd be quite surprised if this compiles
+> without warning.
+> 
+> > +static int bd70528_re_enable_rtc_based_timers(struct bd70528 *bd70528,
+> > +							int old_state)
 // snip
+> > +	return bd70528_set_rtc_based_timers(bd70528, old_state, NULL);
 
-> > +static int bd70528_i2c_probe(struct i2c_client *i2c,
-> > +			    const struct i2c_device_id *id)
+and
+
+> > +static int bd70528_disable_rtc_based_timers(struct bd70528 *bd70528,
+> > +							int *old_state)
+// snip
+> > +	return bd70528_set_rtc_based_timers(bd70528, 0, old_state);
+
+I'm not quite sure I understand what you mean by that. Second parameter is int,
+third one is is int *.
+
+> > +static int bd70528_re_enable_rtc_based_timers(struct bd70528 *bd70528,
+> > +							int old_state)
 > > +{
-> > +	struct bd70528 *bd70528;
-> > +	struct regmap_irq_chip_data *irq_data;
-> > +	int ret, i;
+> > +	if (bd70528->rtc_timer_lock)
+> > +		mutex_unlock(bd70528->rtc_timer_lock);
 > > +
-> > +	if (!i2c->irq) {
-> > +		dev_err(&i2c->dev, "No IRQ configured\n");
-> > +		return -EINVAL;
-> > +	}
-> > +	bd70528 = devm_kzalloc(&i2c->dev, sizeof(*bd70528), GFP_KERNEL);
-> > +
-> > +	if (!bd70528)
-> > +		return -ENOMEM;
-> > +
-> > +	dev_set_drvdata(&i2c->dev, bd70528);
-> > +	bd70528->rtc_timer_lock = &rtc_timer_mutex;
-> 
-> One global mutex for all instances of this driver is odd.
-> Why isn't this just part of struct bd70528 ?
+> Unlock before calling bd70528_set_rtc_based_timers is odd, especially since it
+> is called after locking below.
 > 
 
-You are right. This was a brainfart from my side. I don't think there
-is many cases where this would har though. I don't expect to see
-many instances of PMIC drivers load. But you are correct nevertheless.
-I will fix this in future version. Thanks for pointing it out!
+Yet another brainfart. Thanks for pointing this out! Will be fixed as
+well.
 
 Br,
 	Matti Vaittinen
-
 
 -- 
 Matti Vaittinen
