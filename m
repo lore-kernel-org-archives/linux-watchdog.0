@@ -2,133 +2,105 @@ Return-Path: <SRS0=4i9s=P7=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,
-	URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.7 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E78F2C282C5
-	for <linux-watchdog@archiver.kernel.org>; Wed, 23 Jan 2019 14:32:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6821FC282C2
+	for <linux-watchdog@archiver.kernel.org>; Wed, 23 Jan 2019 15:51:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B81E121726
-	for <linux-watchdog@archiver.kernel.org>; Wed, 23 Jan 2019 14:32:04 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="d1YXDq03"
+	by mail.kernel.org (Postfix) with ESMTP id 334E221019
+	for <linux-watchdog@archiver.kernel.org>; Wed, 23 Jan 2019 15:51:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1548258704;
+	bh=r4E+pvCqUihapAdoUwLnde00TByPhh0Nlj5vkksNEe4=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
+	b=FZURITsoVAogHTD09lJ2qEg+3M+848NOYaFo68X9TRz1tl+J90Nows3Z9o52CquSO
+	 NZ2crkLKuxj0HLULYYp4K0xg9eyE/sI8DZ5yk5joPO6tOl8zcSamc1pYL1wWHt1jGb
+	 0bBbObYzVLJMhA6/T6+iYgI6Ppw/ep829+S75j7A=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727087AbfAWOcB (ORCPT
+        id S1727126AbfAWPvk (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 23 Jan 2019 09:32:01 -0500
-Received: from mail-pf1-f195.google.com ([209.85.210.195]:38539 "EHLO
-        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725995AbfAWOcA (ORCPT
+        Wed, 23 Jan 2019 10:51:40 -0500
+Received: from heliosphere.sirena.org.uk ([172.104.155.198]:59758 "EHLO
+        heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726200AbfAWPvj (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 23 Jan 2019 09:32:00 -0500
-Received: by mail-pf1-f195.google.com with SMTP id q1so1271770pfi.5;
-        Wed, 23 Jan 2019 06:31:59 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=q6zr4duEuqkHqp/AxXwzIfvCn+2hBll4m8lmlyLiYcA=;
-        b=d1YXDq03trpU1Gc53mbDtCXSdqiT25thEg03HzDBoL4dEY233GcfkVFoMPj6NiPadE
-         A2bwQTdA15w7R+Wozlx2jxDxxjVHOSknrLu3Tesw4V2o/TAbV5D/fSo98wG/IXiMj/Ir
-         My/veSriRP/3p7fXHtDnpuT5WtTJ6pibHb3bL4fp38BX+VpVH7rAI60uANRqQ6mLjC3v
-         qOH8AmKZ5KU29dy/hj9xOh7O+3RDbNKPZ9mVZbB0Y/YifyoyaJhT5miOrLS/s4FWmecx
-         3Z7vyxXkZCB1lIgTJT9odhOfHTb4mlgj+YZ7XDzHJ1iu9VdiJnY0YHBYhk0J1zpmjwDo
-         BGfA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
-         :date:user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=q6zr4duEuqkHqp/AxXwzIfvCn+2hBll4m8lmlyLiYcA=;
-        b=VnL6qQkpRLRf+brBBnTpenKHsRKyXNQ2WK1AdNSpT0Xc0GE84GoBGqGqRt14XnkMVf
-         S3F/yVAgJL1liczhNoXoasxk2mizkpF3Zh/kVLZh0f7BdMWTqwLhAwN/BVmD8zUOLJvz
-         58UqMyF4YxHW75XeQvudYUQwNZiFfo/iINyCl9mr9Exn9iuK9IQ6i916tmelv99IHrMC
-         CB0MzynLedkrqCbcR7Q0G/r6kZuk+b21XfSschSuXzXHYwag4/IAQnzwjLfrsBMm7XTn
-         5BI1TZhI2C9bWH2bpE6/T8O4ThrseOYWSuWAn3K6rvy+RH2oJXJVSDYFY4kOhwFUcodt
-         RjHQ==
-X-Gm-Message-State: AJcUukdHR5xyjDXWaqMVjKtNPvHA8UUAupVqZYm2W5ihf6g0Q0oSJ1NF
-        UA1bUFm7wiA8ZKUoDtanhSqVKj0CTCY=
-X-Google-Smtp-Source: ALg8bN7tWAzWd9WdstBK53g+Xbj8sxXWFsslmLyqSE3AbFUZsb7/5+DQRrDsORffy03cxkdl02+Gvg==
-X-Received: by 2002:a63:9256:: with SMTP id s22mr2085019pgn.224.1548253919646;
-        Wed, 23 Jan 2019 06:31:59 -0800 (PST)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id y1sm24595808pfe.9.2019.01.23.06.31.57
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 23 Jan 2019 06:31:58 -0800 (PST)
-Subject: Re: [PATCH v8 05/26] clocksource: Add driver for the Ingenic JZ47xx
- OST
-To:     Mathieu Malaterre <malat@debian.org>,
-        Paul Cercueil <paul@crapouillou.net>
-Cc:     Thierry Reding <thierry.reding@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Paul Burton <paul.burton@mips.com>,
-        James Hogan <jhogan@kernel.org>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Ezequiel Garcia <ezequiel@collabora.co.uk>,
-        PrasannaKumar Muralidharan <prasannatsmkumar@gmail.com>,
-        linux-pwm@vger.kernel.org,
-        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
-        <devicetree@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>,
-        linux-watchdog@vger.kernel.org, linux-mips@vger.kernel.org,
-        linux-doc@vger.kernel.org, linux-clk@vger.kernel.org, od@zcrc.me,
-        Maarten ter Huurne <maarten@treewalker.org>
-References: <20181212220922.18759-1-paul@crapouillou.net>
- <20181212220922.18759-6-paul@crapouillou.net>
- <CA+7wUsxNN2SL9_7tDh0DiBAgdUwxd_osgmi=09HP7110Tm0DYQ@mail.gmail.com>
-From:   Guenter Roeck <linux@roeck-us.net>
-Message-ID: <128675a5-7ede-4114-a649-89a536346dc8@roeck-us.net>
-Date:   Wed, 23 Jan 2019 06:31:57 -0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.2.1
+        Wed, 23 Jan 2019 10:51:39 -0500
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=sirena.org.uk; s=20170815-heliosphere; h=In-Reply-To:Content-Type:
+        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=r4E+pvCqUihapAdoUwLnde00TByPhh0Nlj5vkksNEe4=; b=Zzs14wmoOPJ5EHWjT7qTKo53y
+        pM4aRzA4KXipACZUFesROAwQLGBdUD5HII1S3rsStdtCVD/V47DnG9EbXeZoe5wJFVEpuHukWtkoy
+        uOZMynXOh2ky59NaxW3kRWM+LPJpdC98KGbBNznZ1Hat9BGL6YLKb9mGFifzo1y72vhUc=;
+Received: from cpc102320-sgyl38-2-0-cust46.18-2.cable.virginm.net ([82.37.168.47] helo=debutante.sirena.org.uk)
+        by heliosphere.sirena.org.uk with esmtpa (Exim 4.89)
+        (envelope-from <broonie@sirena.org.uk>)
+        id 1gmKoE-0005oX-0P; Wed, 23 Jan 2019 15:51:22 +0000
+Received: by debutante.sirena.org.uk (Postfix, from userid 1000)
+        id 2678B1127ABA; Wed, 23 Jan 2019 15:51:21 +0000 (GMT)
+Date:   Wed, 23 Jan 2019 15:51:21 +0000
+From:   Mark Brown <broonie@kernel.org>
+To:     Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+Cc:     mazziesaccount@gmail.com, lee.jones@linaro.org, robh+dt@kernel.org,
+        mark.rutland@arm.com, lgirdwood@gmail.com,
+        gregkh@linuxfoundation.org, rafael@kernel.org,
+        mturquette@baylibre.com, sboyd@kernel.org,
+        linus.walleij@linaro.org, bgolaszewski@baylibre.com,
+        sre@kernel.org, a.zummo@towertech.it,
+        alexandre.belloni@bootlin.com, wim@linux-watchdog.org,
+        linux@roeck-us.net, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org,
+        linux-gpio@vger.kernel.org, linux-pm@vger.kernel.org,
+        linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        mikko.mutanen@fi.rohmeurope.com, heikki.haikola@fi.rohmeurope.com
+Subject: Re: [RFC PATCH v1 03/13] regulator: bd718x7 use chip specific and
+ generic data structs
+Message-ID: <20190123155121.GB7503@sirena.org.uk>
+References: <cover.1548149337.git.matti.vaittinen@fi.rohmeurope.com>
+ <3fb3eab3a8a2767404588d0a0a531273fddfc659.1548149337.git.matti.vaittinen@fi.rohmeurope.com>
 MIME-Version: 1.0
-In-Reply-To: <CA+7wUsxNN2SL9_7tDh0DiBAgdUwxd_osgmi=09HP7110Tm0DYQ@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="BwCQnh7xodEAoBMC"
+Content-Disposition: inline
+In-Reply-To: <3fb3eab3a8a2767404588d0a0a531273fddfc659.1548149337.git.matti.vaittinen@fi.rohmeurope.com>
+X-Cookie: A couch is as good as a chair.
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 1/23/19 4:58 AM, Mathieu Malaterre wrote:
-> On Wed, Dec 12, 2018 at 11:09 PM Paul Cercueil <paul@crapouillou.net> wrote:
->>
->> From: Maarten ter Huurne <maarten@treewalker.org>
->>
->> OST is the OS Timer, a 64-bit timer/counter with buffered reading.
->>
->> SoCs before the JZ4770 had (if any) a 32-bit OST; the JZ4770 and
->> JZ4780 have a 64-bit OST.
->>
->> This driver will register both a clocksource and a sched_clock to the
->> system.
->>
->> Signed-off-by: Maarten ter Huurne <maarten@treewalker.org>
->> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
->> ---
->>
->> Notes:
->>       v5: New patch
->>
->>       v6: - Get rid of SoC IDs; pass pointer to ingenic_ost_soc_info as
->>             devicetree match data instead.
->>           - Use device_get_match_data() instead of the of_* variant
->>           - Handle error of dev_get_regmap() properly
->>
->>       v7: Fix section mismatch by using builtin_platform_driver_probe()
->>
->>       v8: builtin_platform_driver_probe() does not work anymore in
->>           4.20-rc6? The probe function won't be called. Work around this
->>           for now by using late_initcall.
->>
 
-Did anyone notice this ? Either something is wrong with the driver, or
-with the kernel core. Hacking around it seems like the worst possible
-"solution".
+--BwCQnh7xodEAoBMC
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Guenter
+On Tue, Jan 22, 2019 at 11:43:28AM +0200, Matti Vaittinen wrote:
+> Header rohm-bd718x7.h was split to generic and component specific
+> parts. This changed the struct bd718x7. Adapt the regulator driver to
+> these changes.
+
+Acked-by: Mark Brown <broonie@kernel.org>
+
+Does this need to be squashed into the earlier commit for bisection?
+
+--BwCQnh7xodEAoBMC
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAlxIjXgACgkQJNaLcl1U
+h9A/Twf8Cy6U369BDxcnv/21rcw0n0Uj1AO6jYJvFLlzmp5afcCluF69AVR0MDaA
+CqMU/8FU5UJ49/CUW9IP1pq3ZPiUB/6ro7fty0LmKuAvJ52BdzEXIAaSyFO/qBuI
+urEIErNz+20P439mtrwRXjwelnkOvOTq1UcIqRGSFvQIgDJzHrqfwvG/gDTPz+zy
+FfZ3Cwg/FzkGEy9BMxgfObERG0xQ3TMzBVjFf4AWw/aqhoU8xl6wt6lu4sy16GM+
+k9/OZ0vcgINI1RW+/xedkwvvgx/OpyLpiLyxevKVxMaQIGPBRq4cBjEs39SnWo8z
+PbDTVv2+1yyNZGTzEh7mg47Aic1MvQ==
+=nP4q
+-----END PGP SIGNATURE-----
+
+--BwCQnh7xodEAoBMC--
