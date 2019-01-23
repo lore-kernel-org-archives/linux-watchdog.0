@@ -2,156 +2,109 @@ Return-Path: <SRS0=4i9s=P7=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,
-	USER_AGENT_MUTT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS,USER_AGENT_MUTT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 65478C282C0
-	for <linux-watchdog@archiver.kernel.org>; Wed, 23 Jan 2019 18:02:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 717A0C282C0
+	for <linux-watchdog@archiver.kernel.org>; Wed, 23 Jan 2019 18:05:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 38AD421855
-	for <linux-watchdog@archiver.kernel.org>; Wed, 23 Jan 2019 18:02:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4719221872
+	for <linux-watchdog@archiver.kernel.org>; Wed, 23 Jan 2019 18:05:47 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mgi+EmlE"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="T8xI0QB6"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726178AbfAWSCA (ORCPT
+        id S1726126AbfAWSFq (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 23 Jan 2019 13:02:00 -0500
-Received: from mail-pf1-f195.google.com ([209.85.210.195]:32783 "EHLO
-        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725896AbfAWSCA (ORCPT
+        Wed, 23 Jan 2019 13:05:46 -0500
+Received: from mail-pl1-f196.google.com ([209.85.214.196]:45142 "EHLO
+        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726028AbfAWSFq (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 23 Jan 2019 13:02:00 -0500
-Received: by mail-pf1-f195.google.com with SMTP id c123so1563730pfb.0;
-        Wed, 23 Jan 2019 10:01:59 -0800 (PST)
+        Wed, 23 Jan 2019 13:05:46 -0500
+Received: by mail-pl1-f196.google.com with SMTP id a14so1533216plm.12;
+        Wed, 23 Jan 2019 10:05:46 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to
-         :user-agent;
-        bh=GbS/bw1Q1LNpVWE4WkzTusWZU78c0yUUx2ltlSTZJ1g=;
-        b=mgi+EmlEekcISk+dKlOgEB60/d3g+xVxn3Rnm5+K8DwbHdX1phVsdsjqYdpT4zN9Ke
-         t0y6cG+RefMrUmvrSxCYx86+xZL+ZNUnIKQPc48NeO5/0D8AHKggaM0NvI4Xxg7UkhUk
-         GtkeRfcRd4jHpb4peb3xuOJ+Dt2G21H0FrBbrHiY3hI1A64ZenPzhoaPB48z75XNEDAY
-         p+KuSz8MUtxFz1RqqvNcJhopklJ3+dn/GNZuvTI6lj7hkhiIE5m/RHqeHSlGhU7BEFX9
-         GbIhPjB271ungELjzhfOotFh4fZfT9lcvUPJZU6DuGAJ/CG2b1VJd4ADWSUAZ7eeHZyR
-         KgDA==
+         :content-disposition:in-reply-to:user-agent;
+        bh=TVLr370wVQEq/+xLWf71Sn3PgQoIIdaTqQOjWzZbyw4=;
+        b=T8xI0QB6OWd2eYRNKOLF0NmB66eG5xCLtTeh4icUXGYHBjnqmcRAwUd7ng+9RfYAmu
+         IXky1KlgCSpO53nzjgma9a7kRwe7BmRryP4mXF5wxWSXHsUrjbc0lZzzcuqeJG8BDc9A
+         3bgbwBnXodvbS3Kq5QBccQoDE0Uv6dbfBGSW/cp6Ib4NHHEiYs/Iho/R+EWEoejKUzII
+         0jK6G36ei8/kJfQlnlSwORB8DuovZFvQZ1SJfYYyq4VNT1T1v2Yj5V1eLdigVFhSHOGt
+         BWRDkdZimfTtiA9ulK+1xTWOsdTiBRjSZU/GUT7dhdtKCT3h4zbv44plBT68ifhCvXli
+         RvjQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition
-         :content-transfer-encoding:in-reply-to:user-agent;
-        bh=GbS/bw1Q1LNpVWE4WkzTusWZU78c0yUUx2ltlSTZJ1g=;
-        b=mccSMa05hspZX6mn7l0r1OIW6LZWVOLChyQC/tJfosZJKwEcwogngL7ideX0f9IMvT
-         DgCFtkS25MRg47uOhyWCo1ZcZQU9d/No4u+wgsnEasLmVzOX6O/Xr34k7Vzl1hEuzwNe
-         JDFS07vJ0a7jI8SeEkmC+mNJdcn/8kBsa+GGJIae78b5s26jfWsFirn5HPQWKq8TOx2W
-         jTxzmTXMBGsR3ESqJJetWJZH0NERs1a4Uo5nos4YA7PEoTULkhFZAYiq1czYzbJlp1Ev
-         nybsRSS+q159oK2eeRQV9GNbuX53jy6JElWLfuBKS6VSrU/YaS9gUTfONrREr1Hvf19i
-         zsOQ==
-X-Gm-Message-State: AJcUukcbng6q0gglNiTJo6lRpEFTN5DL5zzU6if/vjyQsaULXdgMUY7p
-        A+YL03tddw3jK+8yluM45z2vwhDATdQ=
-X-Google-Smtp-Source: ALg8bN6DpZ3VpwhnNT4m9Z/RS4eaFfVgqszbVMmDgu/9GCIh3gQKr/kbRBpUXJvwF2656T3cNPxW2Q==
-X-Received: by 2002:a62:1a91:: with SMTP id a139mr3054735pfa.64.1548266518787;
-        Wed, 23 Jan 2019 10:01:58 -0800 (PST)
+         :references:mime-version:content-disposition:in-reply-to:user-agent;
+        bh=TVLr370wVQEq/+xLWf71Sn3PgQoIIdaTqQOjWzZbyw4=;
+        b=PW9ZNsPgIq09qhmnjewpEBZOFCN1qfH10/FZzXC9zSjmxWkf0btMKXYu01nB7yFAyP
+         pocCnu3Z2fP4kqz8YaIRNeJnkY01p1hkrwv0syJKprVcHn53gttBYbeZAVrH3pWewAg1
+         QfsTMFWZ6w3tUwqz3DxRfajP/STT1q/D1Gj2FrMgFy/R/v88gMfIeuG0J6iNBVbqtuRD
+         OvPK/I7yQp4UZylxZJ7CMVdYIdmIPED3eIGeEw2Sg5hWEp8ywvNlmRroNH5gdgoKEFGB
+         PsujkcXxVWpYZl9t8Zy/Kl1eV6mZeKmEVl8BZEfRSCC0e84ovE49DxYvJ0hBp1mlsbwC
+         ZI1A==
+X-Gm-Message-State: AJcUukeOp3Bne1itG5Cs7gAX++/HWB1yqSCTzIhpJ8H8nKm5rw1aARIb
+        v8zG7ZSbiIO7QzD0+PDf+sK6F4e9
+X-Google-Smtp-Source: ALg8bN7tlhvROdImwV8f7YiTdHHTXYAO672CrFHzzL/TxkDrzpBR09lGFcC3Eahfpm99cWh0EI3dCQ==
+X-Received: by 2002:a17:902:8306:: with SMTP id bd6mr3227914plb.217.1548266746208;
+        Wed, 23 Jan 2019 10:05:46 -0800 (PST)
 Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id u70sm40602011pfa.176.2019.01.23.10.01.56
+        by smtp.gmail.com with ESMTPSA id c72sm39919454pfb.107.2019.01.23.10.05.45
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 23 Jan 2019 10:01:57 -0800 (PST)
-Date:   Wed, 23 Jan 2019 10:01:55 -0800
+        Wed, 23 Jan 2019 10:05:45 -0800 (PST)
+Date:   Wed, 23 Jan 2019 10:05:44 -0800
 From:   Guenter Roeck <linux@roeck-us.net>
-To:     Paul Cercueil <paul@crapouillou.net>
-Cc:     Mathieu Malaterre <malat@debian.org>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Paul Burton <paul.burton@mips.com>,
-        James Hogan <jhogan@kernel.org>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Ezequiel Garcia <ezequiel@collabora.co.uk>,
-        PrasannaKumar Muralidharan <prasannatsmkumar@gmail.com>,
-        linux-pwm@vger.kernel.org,
-        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
-        <devicetree@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>,
-        linux-watchdog@vger.kernel.org, linux-mips@vger.kernel.org,
-        linux-doc@vger.kernel.org, linux-clk@vger.kernel.org, od@zcrc.me,
-        Maarten ter Huurne <maarten@treewalker.org>
-Subject: Re: [PATCH v8 05/26] clocksource: Add driver for the Ingenic JZ47xx
- OST
-Message-ID: <20190123180155.GB9781@roeck-us.net>
-References: <20181212220922.18759-1-paul@crapouillou.net>
- <20181212220922.18759-6-paul@crapouillou.net>
- <CA+7wUsxNN2SL9_7tDh0DiBAgdUwxd_osgmi=09HP7110Tm0DYQ@mail.gmail.com>
- <128675a5-7ede-4114-a649-89a536346dc8@roeck-us.net>
- <1548264353.3173.1@crapouillou.net>
+To:     YueHaibing <yuehaibing@huawei.com>
+Cc:     wim@linux-watchdog.org, linux-kernel@vger.kernel.org,
+        linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH -next] watchdog: pika_wdt: drop pointless static
+ qualifier in pikawdt_init
+Message-ID: <20190123180544.GC9781@roeck-us.net>
+References: <20190123090524.13320-1-yuehaibing@huawei.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1548264353.3173.1@crapouillou.net>
+In-Reply-To: <20190123090524.13320-1-yuehaibing@huawei.com>
 User-Agent: Mutt/1.5.24 (2015-08-30)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Wed, Jan 23, 2019 at 02:25:53PM -0300, Paul Cercueil wrote:
-> Hi,
+On Wed, Jan 23, 2019 at 05:05:24PM +0800, YueHaibing wrote:
+> There is no need to have the 'post1' variable static since
+> new value always be assigned before use it.
 > 
-> Le mer. 23 janv. 2019 à 11:31, Guenter Roeck <linux@roeck-us.net> a écrit :
-> >On 1/23/19 4:58 AM, Mathieu Malaterre wrote:
-> >>On Wed, Dec 12, 2018 at 11:09 PM Paul Cercueil <paul@crapouillou.net>
-> >>wrote:
-> >>>
-> >>>From: Maarten ter Huurne <maarten@treewalker.org>
-> >>>
-> >>>OST is the OS Timer, a 64-bit timer/counter with buffered reading.
-> >>>
-> >>>SoCs before the JZ4770 had (if any) a 32-bit OST; the JZ4770 and
-> >>>JZ4780 have a 64-bit OST.
-> >>>
-> >>>This driver will register both a clocksource and a sched_clock to the
-> >>>system.
-> >>>
-> >>>Signed-off-by: Maarten ter Huurne <maarten@treewalker.org>
-> >>>Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-> >>>---
-> >>>
-> >>>Notes:
-> >>>      v5: New patch
-> >>>
-> >>>      v6: - Get rid of SoC IDs; pass pointer to ingenic_ost_soc_info
-> >>>as
-> >>>            devicetree match data instead.
-> >>>          - Use device_get_match_data() instead of the of_* variant
-> >>>          - Handle error of dev_get_regmap() properly
-> >>>
-> >>>      v7: Fix section mismatch by using
-> >>>builtin_platform_driver_probe()
-> >>>
-> >>>      v8: builtin_platform_driver_probe() does not work anymore in
-> >>>          4.20-rc6? The probe function won't be called. Work around
-> >>>this
-> >>>          for now by using late_initcall.
-> >>>
-> >
-> >Did anyone notice this ? Either something is wrong with the driver, or
-> >with the kernel core. Hacking around it seems like the worst possible
-> >"solution".
-> 
-> I can confirm it still happens on 5.0-rc3.
-> 
-> Just to explain what I'm doing:
-> 
-> My ingenic-timer driver probes with builtin_platform_driver_probe (this
-> works),
-> and then calls of_platform_populate to probe its children. This driver,
-> ingenic-ost, is one of them, and will fail to probe with
-> builtin_platform_driver_probe.
-> 
+> Signed-off-by: YueHaibing <yuehaibing@huawei.com>
 
-The big question is _why_ it fails to probe.
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+
+Is anyone still using this driver ? If yes it might make sense to convert
+it to use the watchdog subsystem.
 
 Guenter
+
+> ---
+>  drivers/watchdog/pika_wdt.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/watchdog/pika_wdt.c b/drivers/watchdog/pika_wdt.c
+> index e0a6f8c..bb97f5b 100644
+> --- a/drivers/watchdog/pika_wdt.c
+> +++ b/drivers/watchdog/pika_wdt.c
+> @@ -225,7 +225,7 @@ static int __init pikawdt_init(void)
+>  {
+>  	struct device_node *np;
+>  	void __iomem *fpga;
+> -	static u32 post1;
+> +	u32 post1;
+>  	int ret;
+>  
+>  	np = of_find_compatible_node(NULL, NULL, "pika,fpga");
+> -- 
+> 2.7.0
+> 
+> 
