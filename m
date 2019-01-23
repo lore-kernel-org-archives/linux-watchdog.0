@@ -2,42 +2,66 @@ Return-Path: <SRS0=4i9s=P7=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,
+	USER_AGENT_MUTT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 76869C282C0
-	for <linux-watchdog@archiver.kernel.org>; Wed, 23 Jan 2019 17:27:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 65478C282C0
+	for <linux-watchdog@archiver.kernel.org>; Wed, 23 Jan 2019 18:02:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 35CC221873
-	for <linux-watchdog@archiver.kernel.org>; Wed, 23 Jan 2019 17:27:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 38AD421855
+	for <linux-watchdog@archiver.kernel.org>; Wed, 23 Jan 2019 18:02:04 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=crapouillou.net header.i=@crapouillou.net header.b="X2W9nfXy"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mgi+EmlE"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726192AbfAWR1r (ORCPT
+        id S1726178AbfAWSCA (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 23 Jan 2019 12:27:47 -0500
-Received: from outils.crapouillou.net ([89.234.176.41]:36324 "EHLO
-        crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725994AbfAWR1q (ORCPT
+        Wed, 23 Jan 2019 13:02:00 -0500
+Received: from mail-pf1-f195.google.com ([209.85.210.195]:32783 "EHLO
+        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725896AbfAWSCA (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 23 Jan 2019 12:27:46 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
-        s=mail; t=1548264463; h=from:from:sender:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=8SNmejVZ6E9h68DkJr+OJGS+RH6VpPmkQYhsz5XTWz8=;
-        b=X2W9nfXy6rZLMTLJrmOouqp8XD2FGxdj5QVqxAfk65zlVe1cTztLy37Zc6ng7MIDWi1x0a
-        wt3IESMC5Ra2dj7sSSD1bT6pkW7a5cE/a6t+dOFwPBedSgQOqeegAADn0TVxT4VqlIbJYB
-        7tesc97JZSlaU8oBZkkpsVp7ujBW4As=
-Date:   Wed, 23 Jan 2019 14:27:25 -0300
-From:   Paul Cercueil <paul@crapouillou.net>
-Subject: Re: [PATCH v8 05/26] clocksource: Add driver for the Ingenic JZ47xx
- OST
-To:     Mathieu Malaterre <malat@debian.org>
-Cc:     Thierry Reding <thierry.reding@gmail.com>,
+        Wed, 23 Jan 2019 13:02:00 -0500
+Received: by mail-pf1-f195.google.com with SMTP id c123so1563730pfb.0;
+        Wed, 23 Jan 2019 10:01:59 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to
+         :user-agent;
+        bh=GbS/bw1Q1LNpVWE4WkzTusWZU78c0yUUx2ltlSTZJ1g=;
+        b=mgi+EmlEekcISk+dKlOgEB60/d3g+xVxn3Rnm5+K8DwbHdX1phVsdsjqYdpT4zN9Ke
+         t0y6cG+RefMrUmvrSxCYx86+xZL+ZNUnIKQPc48NeO5/0D8AHKggaM0NvI4Xxg7UkhUk
+         GtkeRfcRd4jHpb4peb3xuOJ+Dt2G21H0FrBbrHiY3hI1A64ZenPzhoaPB48z75XNEDAY
+         p+KuSz8MUtxFz1RqqvNcJhopklJ3+dn/GNZuvTI6lj7hkhiIE5m/RHqeHSlGhU7BEFX9
+         GbIhPjB271ungELjzhfOotFh4fZfT9lcvUPJZU6DuGAJ/CG2b1VJd4ADWSUAZ7eeHZyR
+         KgDA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition
+         :content-transfer-encoding:in-reply-to:user-agent;
+        bh=GbS/bw1Q1LNpVWE4WkzTusWZU78c0yUUx2ltlSTZJ1g=;
+        b=mccSMa05hspZX6mn7l0r1OIW6LZWVOLChyQC/tJfosZJKwEcwogngL7ideX0f9IMvT
+         DgCFtkS25MRg47uOhyWCo1ZcZQU9d/No4u+wgsnEasLmVzOX6O/Xr34k7Vzl1hEuzwNe
+         JDFS07vJ0a7jI8SeEkmC+mNJdcn/8kBsa+GGJIae78b5s26jfWsFirn5HPQWKq8TOx2W
+         jTxzmTXMBGsR3ESqJJetWJZH0NERs1a4Uo5nos4YA7PEoTULkhFZAYiq1czYzbJlp1Ev
+         nybsRSS+q159oK2eeRQV9GNbuX53jy6JElWLfuBKS6VSrU/YaS9gUTfONrREr1Hvf19i
+         zsOQ==
+X-Gm-Message-State: AJcUukcbng6q0gglNiTJo6lRpEFTN5DL5zzU6if/vjyQsaULXdgMUY7p
+        A+YL03tddw3jK+8yluM45z2vwhDATdQ=
+X-Google-Smtp-Source: ALg8bN6DpZ3VpwhnNT4m9Z/RS4eaFfVgqszbVMmDgu/9GCIh3gQKr/kbRBpUXJvwF2656T3cNPxW2Q==
+X-Received: by 2002:a62:1a91:: with SMTP id a139mr3054735pfa.64.1548266518787;
+        Wed, 23 Jan 2019 10:01:58 -0800 (PST)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id u70sm40602011pfa.176.2019.01.23.10.01.56
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 23 Jan 2019 10:01:57 -0800 (PST)
+Date:   Wed, 23 Jan 2019 10:01:55 -0800
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Paul Cercueil <paul@crapouillou.net>
+Cc:     Mathieu Malaterre <malat@debian.org>,
+        Thierry Reding <thierry.reding@gmail.com>,
         Rob Herring <robh+dt@kernel.org>,
         Mark Rutland <mark.rutland@arm.com>,
         Daniel Lezcano <daniel.lezcano@linaro.org>,
@@ -54,352 +78,80 @@ Cc:     Thierry Reding <thierry.reding@gmail.com>,
         linux-watchdog@vger.kernel.org, linux-mips@vger.kernel.org,
         linux-doc@vger.kernel.org, linux-clk@vger.kernel.org, od@zcrc.me,
         Maarten ter Huurne <maarten@treewalker.org>
-Message-Id: <1548264445.3173.2@crapouillou.net>
-In-Reply-To: <CA+7wUsxNN2SL9_7tDh0DiBAgdUwxd_osgmi=09HP7110Tm0DYQ@mail.gmail.com>
+Subject: Re: [PATCH v8 05/26] clocksource: Add driver for the Ingenic JZ47xx
+ OST
+Message-ID: <20190123180155.GB9781@roeck-us.net>
 References: <20181212220922.18759-1-paul@crapouillou.net>
-        <20181212220922.18759-6-paul@crapouillou.net>
-        <CA+7wUsxNN2SL9_7tDh0DiBAgdUwxd_osgmi=09HP7110Tm0DYQ@mail.gmail.com>
+ <20181212220922.18759-6-paul@crapouillou.net>
+ <CA+7wUsxNN2SL9_7tDh0DiBAgdUwxd_osgmi=09HP7110Tm0DYQ@mail.gmail.com>
+ <128675a5-7ede-4114-a649-89a536346dc8@roeck-us.net>
+ <1548264353.3173.1@crapouillou.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1548264353.3173.1@crapouillou.net>
+User-Agent: Mutt/1.5.24 (2015-08-30)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-(re-send, in plain text this time, sorry for those who got it twice)
+On Wed, Jan 23, 2019 at 02:25:53PM -0300, Paul Cercueil wrote:
+> Hi,
+> 
+> Le mer. 23 janv. 2019 à 11:31, Guenter Roeck <linux@roeck-us.net> a écrit :
+> >On 1/23/19 4:58 AM, Mathieu Malaterre wrote:
+> >>On Wed, Dec 12, 2018 at 11:09 PM Paul Cercueil <paul@crapouillou.net>
+> >>wrote:
+> >>>
+> >>>From: Maarten ter Huurne <maarten@treewalker.org>
+> >>>
+> >>>OST is the OS Timer, a 64-bit timer/counter with buffered reading.
+> >>>
+> >>>SoCs before the JZ4770 had (if any) a 32-bit OST; the JZ4770 and
+> >>>JZ4780 have a 64-bit OST.
+> >>>
+> >>>This driver will register both a clocksource and a sched_clock to the
+> >>>system.
+> >>>
+> >>>Signed-off-by: Maarten ter Huurne <maarten@treewalker.org>
+> >>>Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+> >>>---
+> >>>
+> >>>Notes:
+> >>>      v5: New patch
+> >>>
+> >>>      v6: - Get rid of SoC IDs; pass pointer to ingenic_ost_soc_info
+> >>>as
+> >>>            devicetree match data instead.
+> >>>          - Use device_get_match_data() instead of the of_* variant
+> >>>          - Handle error of dev_get_regmap() properly
+> >>>
+> >>>      v7: Fix section mismatch by using
+> >>>builtin_platform_driver_probe()
+> >>>
+> >>>      v8: builtin_platform_driver_probe() does not work anymore in
+> >>>          4.20-rc6? The probe function won't be called. Work around
+> >>>this
+> >>>          for now by using late_initcall.
+> >>>
+> >
+> >Did anyone notice this ? Either something is wrong with the driver, or
+> >with the kernel core. Hacking around it seems like the worst possible
+> >"solution".
+> 
+> I can confirm it still happens on 5.0-rc3.
+> 
+> Just to explain what I'm doing:
+> 
+> My ingenic-timer driver probes with builtin_platform_driver_probe (this
+> works),
+> and then calls of_platform_populate to probe its children. This driver,
+> ingenic-ost, is one of them, and will fail to probe with
+> builtin_platform_driver_probe.
+> 
 
+The big question is _why_ it fails to probe.
 
-Le mer. 23 janv. 2019 =E0 9:58, Mathieu Malaterre <malat@debian.org> a=20
-=E9crit :
-> On Wed, Dec 12, 2018 at 11:09 PM Paul Cercueil <paul@crapouillou.net>=20
-> wrote:
->>=20
->>  From: Maarten ter Huurne <maarten@treewalker.org>
->>=20
->>  OST is the OS Timer, a 64-bit timer/counter with buffered reading.
->>=20
->>  SoCs before the JZ4770 had (if any) a 32-bit OST; the JZ4770 and
->>  JZ4780 have a 64-bit OST.
->>=20
->>  This driver will register both a clocksource and a sched_clock to=20
->> the
->>  system.
->>=20
->>  Signed-off-by: Maarten ter Huurne <maarten@treewalker.org>
->>  Signed-off-by: Paul Cercueil <paul@crapouillou.net>
->>  ---
->>=20
->>  Notes:
->>       v5: New patch
->>=20
->>       v6: - Get rid of SoC IDs; pass pointer to ingenic_ost_soc_info=20
->> as
->>             devicetree match data instead.
->>           - Use device_get_match_data() instead of the of_* variant
->>           - Handle error of dev_get_regmap() properly
->>=20
->>       v7: Fix section mismatch by using=20
->> builtin_platform_driver_probe()
->>=20
->>       v8: builtin_platform_driver_probe() does not work anymore in
->>           4.20-rc6? The probe function won't be called. Work around=20
->> this
->>           for now by using late_initcall.
->>=20
->>   drivers/clocksource/Kconfig       |   8 ++
->>   drivers/clocksource/Makefile      |   1 +
->>   drivers/clocksource/ingenic-ost.c | 215=20
->> ++++++++++++++++++++++++++++++++++++++
->>   3 files changed, 224 insertions(+)
->>   create mode 100644 drivers/clocksource/ingenic-ost.c
->>=20
->>  diff --git a/drivers/clocksource/Kconfig=20
->> b/drivers/clocksource/Kconfig
->>  index 4e69af15c3e7..e0646878b0de 100644
->>  --- a/drivers/clocksource/Kconfig
->>  +++ b/drivers/clocksource/Kconfig
->>  @@ -648,4 +648,12 @@ config INGENIC_TIMER
->>          help
->>            Support for the timer/counter unit of the Ingenic JZ SoCs.
->>=20
->>  +config INGENIC_OST
->>  +       bool "Ingenic JZ47xx Operating System Timer"
->>  +       depends on MIPS || COMPILE_TEST
->>  +       depends on COMMON_CLK
->>  +       select INGENIC_TIMER
->>  +       help
->>  +         Support for the OS Timer of the Ingenic JZ4770 or similar=20
->> SoC.
->>  +
->>   endmenu
->>  diff --git a/drivers/clocksource/Makefile=20
->> b/drivers/clocksource/Makefile
->>  index 7c8f790dcf67..7faa8108574a 100644
->>  --- a/drivers/clocksource/Makefile
->>  +++ b/drivers/clocksource/Makefile
->>  @@ -75,6 +75,7 @@ obj-$(CONFIG_ASM9260_TIMER)           +=3D=20
->> asm9260_timer.o
->>   obj-$(CONFIG_H8300_TMR8)               +=3D h8300_timer8.o
->>   obj-$(CONFIG_H8300_TMR16)              +=3D h8300_timer16.o
->>   obj-$(CONFIG_H8300_TPU)                        +=3D h8300_tpu.o
->>  +obj-$(CONFIG_INGENIC_OST)              +=3D ingenic-ost.o
->>   obj-$(CONFIG_INGENIC_TIMER)            +=3D ingenic-timer.o
->>   obj-$(CONFIG_CLKSRC_ST_LPC)            +=3D clksrc_st_lpc.o
->>   obj-$(CONFIG_X86_NUMACHIP)             +=3D numachip.o
->>  diff --git a/drivers/clocksource/ingenic-ost.c=20
->> b/drivers/clocksource/ingenic-ost.c
->>  new file mode 100644
->>  index 000000000000..cc0fee3efd29
->>  --- /dev/null
->>  +++ b/drivers/clocksource/ingenic-ost.c
->>  @@ -0,0 +1,215 @@
->>  +// SPDX-License-Identifier: GPL-2.0
->>  +/*
->>  + * JZ47xx SoCs TCU Operating System Timer driver
->>  + *
->>  + * Copyright (C) 2016 Maarten ter Huurne <maarten@treewalker.org>
->>  + * Copyright (C) 2018 Paul Cercueil <paul@crapouillou.net>
->>  + */
->>  +
->>  +#include <linux/clk.h>
->>  +#include <linux/clocksource.h>
->>  +#include <linux/mfd/ingenic-tcu.h>
->>  +#include <linux/of.h>
->>  +#include <linux/platform_device.h>
->>  +#include <linux/pm.h>
->>  +#include <linux/regmap.h>
->>  +#include <linux/sched_clock.h>
->>  +
->>  +#include "ingenic-timer.h"
->>  +
->>  +#define TCU_OST_TCSR_MASK      0xc0
->>  +#define TCU_OST_TCSR_CNT_MD    BIT(15)
->>  +
->>  +#define TCU_OST_CHANNEL                15
->>  +
->>  +struct ingenic_ost_soc_info {
->>  +       bool is64bit;
->>  +};
->>  +
->>  +struct ingenic_ost {
->>  +       struct regmap *map;
->>  +       struct clk *clk;
->>  +
->>  +       struct clocksource cs;
->>  +};
->>  +
->>  +static u64 notrace ingenic_ost_read_cntl(void)
->>  +{
->>  +       /* Bypass the regmap here as we must return as soon as=20
->> possible */
->>  +       return readl(ingenic_tcu_base + TCU_REG_OST_CNTL);
->>  +}
->>  +
->>  +static u64 notrace ingenic_ost_read_cnth(void)
->>  +{
->>  +       /* Bypass the regmap here as we must return as soon as=20
->> possible */
->>  +       return readl(ingenic_tcu_base + TCU_REG_OST_CNTH);
->>  +}
->>  +
->>  +static u64 notrace ingenic_ost_clocksource_read(struct clocksource=20
->> *cs)
->>  +{
->>  +       u32 val1, val2;
->>  +       u64 count, recount;
->>  +       s64 diff;
->>  +
->>  +       /*
->>  +        * The buffering of the upper 32 bits of the timer prevents=20
->> wrong
->>  +        * results from the bottom 32 bits overflowing due to the=20
->> timer ticking
->>  +        * along. However, it does not prevent wrong results from=20
->> simultaneous
->>  +        * reads of the timer, which could reset the buffer=20
->> mid-read.
->>  +        * Since this kind of wrong read can happen only when the=20
->> bottom bits
->>  +        * overflow, there will be minutes between wrong reads, so=20
->> if we read
->>  +        * twice in succession, at least one of the reads will be=20
->> correct.
->>  +        */
->>  +
->>  +       /* Bypass the regmap here as we must return as soon as=20
->> possible */
->>  +       val1 =3D readl(ingenic_tcu_base + TCU_REG_OST_CNTL);
->>  +       val2 =3D readl(ingenic_tcu_base + TCU_REG_OST_CNTHBUF);
->>  +       count =3D (u64)val1 | (u64)val2 << 32;
->>  +
->>  +       val1 =3D readl(ingenic_tcu_base + TCU_REG_OST_CNTL);
->>  +       val2 =3D readl(ingenic_tcu_base + TCU_REG_OST_CNTHBUF);
->>  +       recount =3D (u64)val1 | (u64)val2 << 32;
->>  +
->>  +       /*
->>  +        * A wrong read will produce a result that is 1<<32 too=20
->> high: the bottom
->>  +        * part from before overflow and the upper part from after=20
->> overflow.
->>  +        * Therefore, the lower value of the two reads is the=20
->> correct value.
->>  +        */
->>  +
->>  +       diff =3D (s64)(recount - count);
->>  +       if (unlikely(diff < 0))
->>  +               count =3D recount;
->>  +
->>  +       return count;
->>  +}
->>  +
->>  +static int __init ingenic_ost_probe(struct platform_device *pdev)
->>  +{
->>  +       const struct ingenic_ost_soc_info *soc_info;
->>  +       struct device *dev =3D &pdev->dev;
->>  +       struct ingenic_ost *ost;
->>  +       struct clocksource *cs;
->>  +       unsigned long rate, flags;
->>  +       int err;
->>  +
->>  +       soc_info =3D device_get_match_data(dev);
->>  +       if (!soc_info)
->>  +               return -EINVAL;
->>  +
->>  +       ost =3D devm_kzalloc(dev, sizeof(*ost), GFP_KERNEL);
->>  +       if (!ost)
->>  +               return -ENOMEM;
->>  +
->>  +       ost->map =3D dev_get_regmap(dev->parent, NULL);
->>  +       if (!ost->map) {
->>  +               dev_err(dev, "regmap not found\n");
->>  +               return -EINVAL;
->>  +       }
->>  +
->>  +       ost->clk =3D devm_clk_get(dev, "ost");
->>  +       if (IS_ERR(ost->clk))
->>  +               return PTR_ERR(ost->clk);
->>  +
->>  +       err =3D clk_prepare_enable(ost->clk);
->>  +       if (err)
->>  +               return err;
->>  +
->>  +       /* Clear counter high/low registers */
->>  +       if (soc_info->is64bit)
->>  +               regmap_write(ost->map, TCU_REG_OST_CNTL, 0);
->>  +       regmap_write(ost->map, TCU_REG_OST_CNTH, 0);
->>  +
->>  +       /* Don't reset counter at compare value. */
->>  +       regmap_update_bits(ost->map, TCU_REG_OST_TCSR,
->>  +                          TCU_OST_TCSR_MASK, TCU_OST_TCSR_CNT_MD);
->>  +
->>  +       rate =3D clk_get_rate(ost->clk);
->>  +
->>  +       /* Enable OST TCU channel */
->>  +       regmap_write(ost->map, TCU_REG_TESR, BIT(TCU_OST_CHANNEL));
->>  +
->>  +       cs =3D &ost->cs;
->>  +       cs->name        =3D "ingenic-ost";
->>  +       cs->rating      =3D 320;
->>  +       cs->flags       =3D CLOCK_SOURCE_IS_CONTINUOUS;
->>  +
->>  +       if (soc_info->is64bit) {
->>  +               cs->mask =3D CLOCKSOURCE_MASK(64);
->>  +               cs->read =3D ingenic_ost_clocksource_read;
->>  +       } else {
->>  +               cs->mask =3D CLOCKSOURCE_MASK(32);
->>  +               cs->read =3D (u64 (*)(struct clocksource=20
->> *))ingenic_ost_read_cnth;
->=20
-> The function is declared as ingenic_ost_read_cnth(void), are you sure
-> this is going to work ?
-
-Hence the cast. The clocksource pointer passed as the first argument=20
-will
-simply be ignored by the function. This works fine.
-
->>  +       }
->>  +
->>  +       err =3D clocksource_register_hz(cs, rate);
->>  +       if (err) {
->>  +               dev_err(dev, "clocksource registration failed:=20
->> %d\n", err);
->>  +               clk_disable_unprepare(ost->clk);
->>  +               return err;
->>  +       }
->>  +
->>  +       /* Cannot register a sched_clock with interrupts on */
->>  +       local_irq_save(flags);
->>  +       if (soc_info->is64bit)
->>  +               sched_clock_register(ingenic_ost_read_cntl, 32,=20
->> rate);
->>  +       else
->>  +               sched_clock_register(ingenic_ost_read_cnth, 32,=20
->> rate);
->>  +       local_irq_restore(flags);
->>  +
->>  +       return 0;
->>  +}
->>  +
->>  +#ifdef CONFIG_PM_SLEEP
->>  +static int ingenic_ost_suspend(struct device *dev)
->>  +{
->>  +       struct ingenic_ost *ost =3D dev_get_drvdata(dev);
->>  +
->>  +       clk_disable(ost->clk);
->>  +       return 0;
->>  +}
->>  +
->>  +static int ingenic_ost_resume(struct device *dev)
->>  +{
->>  +       struct ingenic_ost *ost =3D dev_get_drvdata(dev);
->>  +
->>  +       return clk_enable(ost->clk);
->>  +}
->>  +
->>  +static SIMPLE_DEV_PM_OPS(ingenic_ost_pm_ops, ingenic_ost_suspend,
->>  +                        ingenic_ost_resume);
->>  +#define INGENIC_OST_PM_OPS (&ingenic_ost_pm_ops)
->>  +#else
->>  +#define INGENIC_OST_PM_OPS NULL
->>  +#endif /* CONFIG_PM_SUSPEND */
->>  +
->>  +static const struct ingenic_ost_soc_info jz4725b_ost_soc_info =3D {
->>  +       .is64bit =3D false,
->>  +};
->>  +
->>  +static const struct ingenic_ost_soc_info jz4770_ost_soc_info =3D {
->>  +       .is64bit =3D true,
->>  +};
->>  +
->>  +static const struct of_device_id ingenic_ost_of_match[] =3D {
->>  +       { .compatible =3D "ingenic,jz4725b-ost", .data =3D=20
->> &jz4725b_ost_soc_info, },
->>  +       { .compatible =3D "ingenic,jz4770-ost",  .data =3D=20
->> &jz4770_ost_soc_info,  },
->>  +       { }
->>  +};
->>  +
->>  +static struct platform_driver ingenic_ost_driver =3D {
->>  +       .driver =3D {
->>  +               .name   =3D "ingenic-ost",
->>  +               .pm     =3D INGENIC_OST_PM_OPS,
->>  +               .of_match_table =3D ingenic_ost_of_match,
->>  +       },
->>  +};
->>  +
->>  +/* FIXME: Using device_initcall (or buildin_platform_driver_probe)=20
->> results
->>  + * in the driver not being probed at all. It worked in 4.18...
->>  + */
->>  +static int __init ingenic_ost_drv_register(void)
->>  +{
->>  +       return platform_driver_probe(&ingenic_ost_driver,
->>  +                                    ingenic_ost_probe);
->>  +}
->>  +late_initcall(ingenic_ost_drv_register);
->>  --
->>  2.11.0
->>=20
-=
-
+Guenter
