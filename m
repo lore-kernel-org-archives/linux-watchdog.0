@@ -2,133 +2,128 @@ Return-Path: <SRS0=4i9s=P7=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.7 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PULL_REQUEST,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_PASS,USER_AGENT_MUTT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,
+	URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7C87CC282C2
-	for <linux-watchdog@archiver.kernel.org>; Wed, 23 Jan 2019 15:55:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E07A0C282C0
+	for <linux-watchdog@archiver.kernel.org>; Wed, 23 Jan 2019 17:26:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 49B2F21019
-	for <linux-watchdog@archiver.kernel.org>; Wed, 23 Jan 2019 15:55:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1548258952;
-	bh=4XiF7XB6j/3r3YmS3LSqBWnY8A/uK9xGTJhL4sUFnJ4=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=MfyeyIrqRK12kdSSQ7zSAyu7hFm0jNYSZZhgAtNduxo0xJODvyC9NX7UCdec5iRyA
-	 fcWpzdBpbZK5BS4dBZt6ov8jRrF8y/tHYm3bPSgM4RPKfcMtq4i8eYyxx/w1mlxsMq
-	 vwy3RCWILdbB0XQmqedY0A5ZY8BmqCYX5ZnxXEBQ=
+	by mail.kernel.org (Postfix) with ESMTP id B0BD721872
+	for <linux-watchdog@archiver.kernel.org>; Wed, 23 Jan 2019 17:26:23 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=crapouillou.net header.i=@crapouillou.net header.b="mKL7qPey"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726251AbfAWPzr (ORCPT
+        id S1726152AbfAWR0S (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 23 Jan 2019 10:55:47 -0500
-Received: from heliosphere.sirena.org.uk ([172.104.155.198]:38494 "EHLO
-        heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725871AbfAWPzr (ORCPT
+        Wed, 23 Jan 2019 12:26:18 -0500
+Received: from outils.crapouillou.net ([89.234.176.41]:35228 "EHLO
+        crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725994AbfAWR0R (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 23 Jan 2019 10:55:47 -0500
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=sirena.org.uk; s=20170815-heliosphere; h=In-Reply-To:Content-Type:
-        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=qCb2cfVsJ18RrAwohqaEffdA2F77n5lDC7o3AK/BZHM=; b=mps/FHoYLmktEb7TKgx7CrBPm
-        w6qMI8j0IcY3UJ2d1isBCMfrPChpZVej0SBylFxCiBCF1gVdikz95KxNbJA3IX0kBJ9TWjfVneyyS
-        bKsmqxSbSjdetg6nnzRz70qk9Tx7OmFQ0s/iJA6HssqIkoAYOOxzv7MxOjGrACMNHmy7U=;
-Received: from cpc102320-sgyl38-2-0-cust46.18-2.cable.virginm.net ([82.37.168.47] helo=debutante.sirena.org.uk)
-        by heliosphere.sirena.org.uk with esmtpa (Exim 4.89)
-        (envelope-from <broonie@sirena.org.uk>)
-        id 1gmKsF-0005rq-Q7; Wed, 23 Jan 2019 15:55:31 +0000
-Received: by debutante.sirena.org.uk (Postfix, from userid 1000)
-        id 6C47C1127ABA; Wed, 23 Jan 2019 15:55:31 +0000 (GMT)
-Date:   Wed, 23 Jan 2019 15:55:31 +0000
-From:   Mark Brown <broonie@kernel.org>
-To:     Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-Cc:     mazziesaccount@gmail.com, lee.jones@linaro.org, robh+dt@kernel.org,
-        mark.rutland@arm.com, lgirdwood@gmail.com,
-        gregkh@linuxfoundation.org, rafael@kernel.org,
-        mturquette@baylibre.com, sboyd@kernel.org,
-        linus.walleij@linaro.org, bgolaszewski@baylibre.com,
-        sre@kernel.org, a.zummo@towertech.it,
-        alexandre.belloni@bootlin.com, wim@linux-watchdog.org,
-        linux@roeck-us.net, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org,
-        linux-gpio@vger.kernel.org, linux-pm@vger.kernel.org,
-        linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        mikko.mutanen@fi.rohmeurope.com, heikki.haikola@fi.rohmeurope.com
-Subject: Re: [RFC PATCH v1 01/13] regmap: regmap-irq: Add main status
- register support
-Message-ID: <20190123155531.GC7503@sirena.org.uk>
-References: <cover.1548149337.git.matti.vaittinen@fi.rohmeurope.com>
- <a5a3cdb00b9181897fc675f4a6900064d9289fdc.1548149337.git.matti.vaittinen@fi.rohmeurope.com>
+        Wed, 23 Jan 2019 12:26:17 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
+        s=mail; t=1548264374; h=from:from:sender:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=F8HbjGDteo+6JpL2EkbWp1H5bMYz35iLdatBc+j8QCQ=;
+        b=mKL7qPeyAvviLaEFk/hlLBWyJB1mexdKWJnESSOtbBglRiNMPJznFe0yTvYny9fz9JE4ZK
+        cCO6vaVKJUHtkXkylOWPKgxr7Zmewuo4H8mazsg2PGuMUmFhr+jfx6FSwz/N0Qc4V4EPll
+        DqOowrshKf5MK99IJEDb91WF+xptKM0=
+Date:   Wed, 23 Jan 2019 14:25:53 -0300
+From:   Paul Cercueil <paul@crapouillou.net>
+Subject: Re: [PATCH v8 05/26] clocksource: Add driver for the Ingenic JZ47xx
+ OST
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     Mathieu Malaterre <malat@debian.org>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        Paul Burton <paul.burton@mips.com>,
+        James Hogan <jhogan@kernel.org>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Ezequiel Garcia <ezequiel@collabora.co.uk>,
+        PrasannaKumar Muralidharan <prasannatsmkumar@gmail.com>,
+        linux-pwm@vger.kernel.org,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
+        <devicetree@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>,
+        linux-watchdog@vger.kernel.org, linux-mips@vger.kernel.org,
+        linux-doc@vger.kernel.org, linux-clk@vger.kernel.org, od@zcrc.me,
+        Maarten ter Huurne <maarten@treewalker.org>
+Message-Id: <1548264353.3173.1@crapouillou.net>
+In-Reply-To: <128675a5-7ede-4114-a649-89a536346dc8@roeck-us.net>
+References: <20181212220922.18759-1-paul@crapouillou.net>
+        <20181212220922.18759-6-paul@crapouillou.net>
+        <CA+7wUsxNN2SL9_7tDh0DiBAgdUwxd_osgmi=09HP7110Tm0DYQ@mail.gmail.com>
+        <128675a5-7ede-4114-a649-89a536346dc8@roeck-us.net>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="ZwgA9U+XZDXt4+m+"
-Content-Disposition: inline
-In-Reply-To: <a5a3cdb00b9181897fc675f4a6900064d9289fdc.1548149337.git.matti.vaittinen@fi.rohmeurope.com>
-X-Cookie: A couch is as good as a chair.
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
+Hi,
 
---ZwgA9U+XZDXt4+m+
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Le mer. 23 janv. 2019 =E0 11:31, Guenter Roeck <linux@roeck-us.net> a=20
+=E9crit :
+> On 1/23/19 4:58 AM, Mathieu Malaterre wrote:
+>> On Wed, Dec 12, 2018 at 11:09 PM Paul Cercueil=20
+>> <paul@crapouillou.net> wrote:
+>>>=20
+>>> From: Maarten ter Huurne <maarten@treewalker.org>
+>>>=20
+>>> OST is the OS Timer, a 64-bit timer/counter with buffered reading.
+>>>=20
+>>> SoCs before the JZ4770 had (if any) a 32-bit OST; the JZ4770 and
+>>> JZ4780 have a 64-bit OST.
+>>>=20
+>>> This driver will register both a clocksource and a sched_clock to=20
+>>> the
+>>> system.
+>>>=20
+>>> Signed-off-by: Maarten ter Huurne <maarten@treewalker.org>
+>>> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+>>> ---
+>>>=20
+>>> Notes:
+>>>       v5: New patch
+>>>=20
+>>>       v6: - Get rid of SoC IDs; pass pointer to=20
+>>> ingenic_ost_soc_info as
+>>>             devicetree match data instead.
+>>>           - Use device_get_match_data() instead of the of_* variant
+>>>           - Handle error of dev_get_regmap() properly
+>>>=20
+>>>       v7: Fix section mismatch by using=20
+>>> builtin_platform_driver_probe()
+>>>=20
+>>>       v8: builtin_platform_driver_probe() does not work anymore in
+>>>           4.20-rc6? The probe function won't be called. Work around=20
+>>> this
+>>>           for now by using late_initcall.
+>>>=20
+>=20
+> Did anyone notice this ? Either something is wrong with the driver, or
+> with the kernel core. Hacking around it seems like the worst possible
+> "solution".
 
-On Tue, Jan 22, 2019 at 11:42:24AM +0200, Matti Vaittinen wrote:
+I can confirm it still happens on 5.0-rc3.
 
-> There is bunch of devices with multiple logical blocks which
-> can generate interrupts. It's not a rare case that the interrupt
-> reason registers are arranged so that there is own status/ack/mask
-> register for each logical block. In some devices there is also a
-> 'main interrupt register(s)' which can indicate what sub blocks
-> have interrupts pending.
+Just to explain what I'm doing:
 
-The following changes since commit bfeffd155283772bbe78c6a05dec7c0128ee500c:
+My ingenic-timer driver probes with builtin_platform_driver_probe (this=20
+works),
+and then calls of_platform_populate to probe its children. This driver,
+ingenic-ost, is one of them, and will fail to probe with
+builtin_platform_driver_probe.
 
-  Linux 5.0-rc1 (2019-01-06 17:08:20 -0800)
+-Paul
+=
 
-are available in the Git repository at:
-
-  https://git.kernel.org/pub/scm/linux/kernel/git/broonie/regmap.git tags/regmap-irq-main-status
-
-for you to fetch changes up to a2d21848d9211dad5e786aa7368709ca8938834e:
-
-  regmap: regmap-irq: Add main status register support (2019-01-23 15:52:15 +0000)
-
-----------------------------------------------------------------
-regmap: Main status register support
-
-Add support for a main status register, used by chips on slower buses
-with many interrupt sources to improve performance in interrupt
-handling.
-
-----------------------------------------------------------------
-Matti Vaittinen (1):
-      regmap: regmap-irq: Add main status register support
-
- drivers/base/regmap/regmap-irq.c | 99 ++++++++++++++++++++++++++++++++++++++--
- include/linux/regmap.h           | 31 +++++++++++++
- 2 files changed, 126 insertions(+), 4 deletions(-)
-
---ZwgA9U+XZDXt4+m+
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAlxIjnIACgkQJNaLcl1U
-h9A6Dwf6A9lsIBpD+TiAoijbdEzoXqd/cmk7XgSy/A667LTDjzbi5yBhrjhOGwkz
-83o5oE/oS6bba5hgVls8QO4C3sGrPhdtDPF+Q6LpGS4uNxq/o6Mv3KRbZU8RAPzZ
-F0znv/m2UqJa67vx20iiS72+oZEyFfuaihQRjMBP+nP4nFu/dmnmLZegh3h6R/z6
-xliTfo5ljMjCb2h379hdmlbv4FUJ9d4A7ARvs49AB6Wt/br0WWVdINBPQiVRWYY7
-bTLeY9HglV2z2UL72NNMRU5ie1vhiLGDwCkEbiVWVXscay3sLl3xyBUJHFfLbc4D
-kIE6YXfIVU52U/5gIucvj4wN2qz+Qg==
-=kp0o
------END PGP SIGNATURE-----
-
---ZwgA9U+XZDXt4+m+--
