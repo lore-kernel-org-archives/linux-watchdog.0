@@ -2,109 +2,152 @@ Return-Path: <SRS0=q5vp=QA=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.7 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 97643C282C6
-	for <linux-watchdog@archiver.kernel.org>; Thu, 24 Jan 2019 10:25:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 02DC9C282C5
+	for <linux-watchdog@archiver.kernel.org>; Thu, 24 Jan 2019 10:44:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 67939218A6
-	for <linux-watchdog@archiver.kernel.org>; Thu, 24 Jan 2019 10:25:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1548325521;
-	bh=5rnJF7lJB6IUTZDaBdhg15C9A/kYKyWxbcx9BKPRzeE=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=vOvUZKfeBPJw44wIbU+0mxXhnAYL5nIMIPhl+Ofjw0hF7xr52wYWkU1ml9+6SYA5B
-	 vustrkoF8Pz4QOpGnYelsMSEtAk8i8UwZ/g1J+BapXpCPsOYjOp3UYXcCQYOZBbttY
-	 CeIpXXp9MhfXqm8Qmcbd9x/kh/3NWfCf/VXfzSVE=
+	by mail.kernel.org (Postfix) with ESMTP id D0514218A6
+	for <linux-watchdog@archiver.kernel.org>; Thu, 24 Jan 2019 10:44:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727159AbfAXKZQ (ORCPT
+        id S1727635AbfAXKom (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 24 Jan 2019 05:25:16 -0500
-Received: from heliosphere.sirena.org.uk ([172.104.155.198]:37514 "EHLO
-        heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726012AbfAXKZQ (ORCPT
+        Thu, 24 Jan 2019 05:44:42 -0500
+Received: from mail-lj1-f193.google.com ([209.85.208.193]:44529 "EHLO
+        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727170AbfAXKom (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 24 Jan 2019 05:25:16 -0500
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=sirena.org.uk; s=20170815-heliosphere; h=In-Reply-To:Content-Type:
-        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=5rnJF7lJB6IUTZDaBdhg15C9A/kYKyWxbcx9BKPRzeE=; b=rz0Hj8E30Q+LDzScl3H2q3FTz
-        I1qbD+yO7kuoHc8dc1c6Lf5pkoaZgVGJjRY9iXo0hx6lkSrIU3QGDf0vOOAzds6ptOecPj7djg6Cw
-        IIqCjNDFe3pOMXkipOih7bIfg/GACreP0eJTNUDlXneYq5r9TBT2bsRUIVI6Q8DQXZ+Ow=;
-Received: from cpc102320-sgyl38-2-0-cust46.18-2.cable.virginm.net ([82.37.168.47] helo=debutante.sirena.org.uk)
-        by heliosphere.sirena.org.uk with esmtpa (Exim 4.89)
-        (envelope-from <broonie@sirena.org.uk>)
-        id 1gmcBr-0005Zp-FJ; Thu, 24 Jan 2019 10:24:55 +0000
-Received: by debutante.sirena.org.uk (Postfix, from userid 1000)
-        id B2B9C1127480; Thu, 24 Jan 2019 10:24:54 +0000 (GMT)
-Date:   Thu, 24 Jan 2019 10:24:54 +0000
-From:   Mark Brown <broonie@kernel.org>
-To:     Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-Cc:     mazziesaccount@gmail.com, lee.jones@linaro.org, robh+dt@kernel.org,
-        mark.rutland@arm.com, lgirdwood@gmail.com,
+        Thu, 24 Jan 2019 05:44:42 -0500
+Received: by mail-lj1-f193.google.com with SMTP id k19-v6so4759965lji.11;
+        Thu, 24 Jan 2019 02:44:39 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=hGK0TSry9wU/GF16Ejw34cROI9xmo1iBl3H5hZu+ivc=;
+        b=ayHvEcyo9NnzIa8udeViMnBD6av9Z1XF3kA4DfhhTpL7aWnAzyAkc45bNBzUcwtf9P
+         S113xolBXEtT803Ccy4AuB5ZW5NCLp7ij83+pni+ybOLM27yuhpZKCBvCihws8HLYn6i
+         AbooCiV/OIEBsPPBC7Z3QDMdkUe4tk0gtyKL5QjmHxBFw/ix4Qg3fgtEkbGMmQBzwH56
+         Uj6ZFeQsXBkwvpVTY2ajrzd+6t0O1HpbAGUhViY8xeBk3NkAld/kf/tNi9eHRcr7u9wy
+         V3R6WLtA3mNl0YT7TngeCgDZ7ctuuPQ1nxmy6e5jehf0ZwhRrZqhlEKQNCPqMspVw8N6
+         JSDA==
+X-Gm-Message-State: AJcUuketEwi8cymifiktBWsU3d8IM2KFn4ENFbTqnNbgi/Y3SfFJIoJl
+        UTNzpImWwnCfJrAQND5kPgI=
+X-Google-Smtp-Source: ALg8bN6QWN0ZSO4D01kCBuVCpP8osM4lgcttt7BDvcbvj7hAbpR/zZVJii4tJENAW8CKhm9Ts/xvdA==
+X-Received: by 2002:a2e:6109:: with SMTP id v9-v6mr4924150ljb.126.1548326678883;
+        Thu, 24 Jan 2019 02:44:38 -0800 (PST)
+Received: from localhost.localdomain ([213.255.186.46])
+        by smtp.gmail.com with ESMTPSA id m4-v6sm912945ljb.58.2019.01.24.02.44.36
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Thu, 24 Jan 2019 02:44:38 -0800 (PST)
+Date:   Thu, 24 Jan 2019 12:44:35 +0200
+From:   Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+To:     Sebastian Reichel <sre@kernel.org>
+Cc:     Guenter Roeck <linux@roeck-us.net>, mazziesaccount@gmail.com,
+        lee.jones@linaro.org, robh+dt@kernel.org, mark.rutland@arm.com,
+        lgirdwood@gmail.com, broonie@kernel.org,
         gregkh@linuxfoundation.org, rafael@kernel.org,
         mturquette@baylibre.com, sboyd@kernel.org,
         linus.walleij@linaro.org, bgolaszewski@baylibre.com,
-        sre@kernel.org, a.zummo@towertech.it,
-        alexandre.belloni@bootlin.com, wim@linux-watchdog.org,
-        linux@roeck-us.net, devicetree@vger.kernel.org,
+        a.zummo@towertech.it, alexandre.belloni@bootlin.com,
+        wim@linux-watchdog.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org,
         linux-gpio@vger.kernel.org, linux-pm@vger.kernel.org,
         linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
         mikko.mutanen@fi.rohmeurope.com, heikki.haikola@fi.rohmeurope.com
-Subject: Re: [RFC PATCH v1 03/13] regulator: bd718x7 use chip specific and
- generic data structs
-Message-ID: <20190124102454.GA5641@sirena.org.uk>
+Subject: Re: [RFC PATCH v1 13/13] watchdog: bd70528: Initial support for ROHM
+ BD70528 watchdog block
+Message-ID: <20190124104434.GF2559@localhost.localdomain>
 References: <cover.1548149337.git.matti.vaittinen@fi.rohmeurope.com>
- <3fb3eab3a8a2767404588d0a0a531273fddfc659.1548149337.git.matti.vaittinen@fi.rohmeurope.com>
- <20190123155121.GB7503@sirena.org.uk>
- <20190124071635.GE2559@localhost.localdomain>
+ <ec70833179d1953dbc91e01901b79d3319ff013d.1548149337.git.matti.vaittinen@fi.rohmeurope.com>
+ <20190122154750.GB1705@roeck-us.net>
+ <20190122171023.GC2559@localhost.localdomain>
+ <20190122174056.GB4964@roeck-us.net>
+ <20190122180309.GD2559@localhost.localdomain>
+ <20190123174728.uu7zhno5xea2bga7@earth.universe>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="6c2NcOVqGQ03X4Wi"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190124071635.GE2559@localhost.localdomain>
-X-Cookie: Love America -- or give it back.
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20190123174728.uu7zhno5xea2bga7@earth.universe>
+User-Agent: Mutt/1.9.2 (2017-12-15)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
+On Wed, Jan 23, 2019 at 06:47:28PM +0100, Sebastian Reichel wrote:
+> Hi,
+> 
+> On Tue, Jan 22, 2019 at 08:03:09PM +0200, Matti Vaittinen wrote:
+> > On Tue, Jan 22, 2019 at 09:40:56AM -0800, Guenter Roeck wrote:
+> > > On Tue, Jan 22, 2019 at 07:10:23PM +0200, Matti Vaittinen wrote:
+> > > > On Tue, Jan 22, 2019 at 07:47:50AM -0800, Guenter Roeck wrote:
+> > > > > On Tue, Jan 22, 2019 at 11:48:36AM +0200, Matti Vaittinen wrote:
+> > > > > > +static int bd70528_wdt_probe(struct platform_device *pdev)
+> > > > > > +{
+> > > > > > +	struct bd70528 *tmp;
+> > > > > > +	struct bd70528 *bd70528;
+> > > > > > +	int ret;
+> > > > > > +
+> > > > > > +	tmp = dev_get_drvdata(pdev->dev.parent);
+> > > > > > +	if (!tmp) {
+> > > > > > +		dev_err(&pdev->dev, "No MFD driver data\n");
+> > > > > > +		return -EINVAL;
+> > > > > > +	}
+> > > > > > +	bd70528 = devm_kzalloc(&pdev->dev, sizeof(*bd70528), GFP_KERNEL);
+> > > > > > +	if (!bd70528)
+> > > > > > +		return -ENOMEM;
+> > > > > > +
+> > > > > > +	*bd70528 = *tmp;
+> > > > > > +	bd70528->chip.dev = &pdev->dev;
+> > > > > 
+> > > > > This is wrong.
+> > > > > You should not copy the parent's driver data but have local driver
+> > > > > data as needed which then points to the parent's driver data if
+> > > > > needed. I assume this is why the mutex is a pointer, but that
+> > > > > just shows that the whole approach is wrong.
+> > > > 
+> > > > Mutex is a pointer because we want to use same mutex from WDT and RTC.
+> > > > We can sure point to parent data but then we still need our own dev
+> > > > pointer. So we can have a struct with pointer to parent data and dev
+> > > > pointer - but I'm not at all sure it is any clearer.
+> > > 
+> > > As I said, that is wrong. To say it in plaintext, I won't accept
+> > > the driver if it copies the parent's driver data. The driver should
+> > > have and use its own driver data, and only maintain a pointer to
+> > > its parent's driver data. And most definitely you don't want to
+> > > copy and use any device data structure from the parent.
+> > 
+> > Allright. At the moment the WDT driver only needs regmap pointer from
+> > parent. I'm not sure if it will later need DT or "chip type" - but I
+> > will change this.
+> 
+> You probably want to use this:
+> 
+> dev_get_regmap(pdev->dev.parent, NULL);
 
---6c2NcOVqGQ03X4Wi
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Thanks a bunch Sebastian. All help is highly appreciated!! =)
 
-On Thu, Jan 24, 2019 at 09:16:35AM +0200, Matti Vaittinen wrote:
+Unfortunately I forgot to mention the key thing - the RTC mutex. We also
+need that because RTC needs to stop WDT when RTC is adjusted as the WDT
+uses RTC as counter - and jumping the RTC WDT enabled might trigger WDT
+or have other consequences.
 
-> Yes. If we don't want to break the compilation between commits then
-> the patches 2, 3 and 4 should be squashed into one. I sent them as
-> separare changes for easier review. I can squash them and send them
-> squashed if they are Ok to Lee and Stephen. Please just let me know
-> whose tree I should use as the basis so I can do rebasing if needed.
-> (Or is there some better way to do changes like this?)
+Se even if we used dev_get_regmap (which is slightly heavier than
+accessing direct pointer) - we would still need at least the mutex from
+parent data, possibly also the chip type and if we want to avoid code
+dublication - then also the WDT start/stop function.
 
-I'd guess Lee's but check with him and Stephen.
+Thus I guess we can as well keep the regmap in parent data because we
+need the parent data anyways, right?
 
---6c2NcOVqGQ03X4Wi
-Content-Type: application/pgp-signature; name="signature.asc"
+Br
+	Matti Vaittinen
 
------BEGIN PGP SIGNATURE-----
+-- 
+Matti Vaittinen
+ROHM Semiconductors
 
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAlxJknMACgkQJNaLcl1U
-h9Dtlgf/SsJMyLuFfn78Xh+NzwTORnNG0kgbZhy+ZOar3p3fo+pGb9I3n38ZSfnm
-Yjr++oIq5gaGs8+0r+FsSQ0EuTOZfFkiq0zC7syPSP4JfRl67gAocUi0/drX6mxU
-O9HzjoF+57LKb0a40VTVwBxy4cHxJ2fBVBabVgXpaSyR8F93P2E3USs6CbzKo0AP
-KxFOXFeVwmRA4y/Jl7doUHKpEOFW6ey99iG11j3pXojvMamjEN8JMMYkaW2BBUqM
-KTXbSb4GLqTQBjF9KESSZrz+nccDutK2XqUnHrg+7si69AWpkbxlfvyOv995BLXY
-2XtqxvG+S+MrH1Kghsn7giXoZl6KlA==
-=o2ie
------END PGP SIGNATURE-----
-
---6c2NcOVqGQ03X4Wi--
+~~~ "I don't think so," said Rene Descartes.  Just then, he vanished ~~~
