@@ -2,44 +2,51 @@ Return-Path: <SRS0=q5vp=QA=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,
-	URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F1B20C282C3
-	for <linux-watchdog@archiver.kernel.org>; Thu, 24 Jan 2019 20:47:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B9046C282C5
+	for <linux-watchdog@archiver.kernel.org>; Thu, 24 Jan 2019 21:26:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id C1B16218D0
-	for <linux-watchdog@archiver.kernel.org>; Thu, 24 Jan 2019 20:47:02 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=crapouillou.net header.i=@crapouillou.net header.b="Hg5FfwzG"
+	by mail.kernel.org (Postfix) with ESMTP id 900A4218D2
+	for <linux-watchdog@archiver.kernel.org>; Thu, 24 Jan 2019 21:26:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727893AbfAXUq5 (ORCPT
+        id S1727858AbfAXV0Y (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 24 Jan 2019 15:46:57 -0500
-Received: from outils.crapouillou.net ([89.234.176.41]:52230 "EHLO
-        crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727664AbfAXUq5 (ORCPT
+        Thu, 24 Jan 2019 16:26:24 -0500
+Received: from mail-oi1-f194.google.com ([209.85.167.194]:36572 "EHLO
+        mail-oi1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726095AbfAXV0Y (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 24 Jan 2019 15:46:57 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
-        s=mail; t=1548362813; h=from:from:sender:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=6S8WqaR8jL4inlJRV8cYTRGRLMje5ISJrfQpJ6yoSXM=;
-        b=Hg5FfwzGKF9kVKeamT12Dmllt4zC044UtiXjaNcdDL4QL0QwbK9xI3cUIZvQ8jf6ubG/GB
-        6sCS8goRmMVntSdDE8JKhrP1C/2vex0wJdYYhWimiEJEH0ZRFi4Drd6t2w1j+bn7WT8mTt
-        T6gL+ejH9KPq3VEnNDhJd+fA2lXu6F8=
-Date:   Thu, 24 Jan 2019 17:46:28 -0300
-From:   Paul Cercueil <paul@crapouillou.net>
-Subject: Re: [PATCH v8 05/26] clocksource: Add driver for the Ingenic JZ47xx
- OST
-To:     Stephen Boyd <sboyd@kernel.org>
-Cc:     Guenter Roeck <linux@roeck-us.net>,
-        Mathieu Malaterre <malat@debian.org>,
-        Thierry Reding <thierry.reding@gmail.com>,
+        Thu, 24 Jan 2019 16:26:24 -0500
+Received: by mail-oi1-f194.google.com with SMTP id x23so6120205oix.3;
+        Thu, 24 Jan 2019 13:26:23 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=3BKASeLMZBaJ/TSA8g4AVbiUtB0M/I+YsAh4EUI6f1I=;
+        b=mDtGIznVqujHLrgFv5n+7AyN5AubPd3qnXa+qSLCYmp0zzvpxKZWx4ahzJWfcG1d2p
+         BxJ4ACl3yaIDL2T+bvHqWvUBet4fJol6Q4DwJ9W4bv2EgSMhNnE1f/tth9zxwlQQ+4oE
+         Kl0r2p8MwQr5u/kcrOS830UlZDZmaf/Rk33fUa+Oo3HqNi59JPD2itaQ39tCXAZLY0Zr
+         DTsFUlsWGq2DXlB2c+cEjCgexOragOK742bQyypeGwLYZ6TIgj76beeRGZRi2MDG5XMA
+         iUalQOSe3p2RP+WGFF13QxgvQc3gV6kOwUmXTRLmpihwck8yyGv+foFm7fuslMcvpo3u
+         DzYw==
+X-Gm-Message-State: AJcUukerRzh2GAGduKjuMY0STW1N8gXROmUXczutRcKaQTFd0iTpNFGa
+        QssSBU1Gm69iinqS7y1RDvirnEO3gXV4rz+x0wA=
+X-Google-Smtp-Source: ALg8bN7I3dzDDE37T4ya0I4Yuv8D8lZBMBAURA28lB6dUyh12DiW6fMx2EYsyoDEAfqqSDW+YjKTTsdBaZHHFjc0U1s=
+X-Received: by 2002:aca:5117:: with SMTP id f23mr2405614oib.72.1548365182672;
+ Thu, 24 Jan 2019 13:26:22 -0800 (PST)
+MIME-Version: 1.0
+References: <20181212220922.18759-1-paul@crapouillou.net>
+In-Reply-To: <20181212220922.18759-1-paul@crapouillou.net>
+From:   Mathieu Malaterre <malat@debian.org>
+Date:   Thu, 24 Jan 2019 22:26:11 +0100
+Message-ID: <CA+7wUszMOvGoPSVOKP7F_KHxgJvjBGT7oJmn5EO62hGGTQK4KA@mail.gmail.com>
+Subject: Re: [PATCH v8 00/26] Ingenic TCU patchset v8
+To:     Paul Cercueil <paul@crapouillou.net>
+Cc:     Thierry Reding <thierry.reding@gmail.com>,
         Rob Herring <robh+dt@kernel.org>,
         Mark Rutland <mark.rutland@arm.com>,
         Daniel Lezcano <daniel.lezcano@linaro.org>,
@@ -54,108 +61,51 @@ Cc:     Guenter Roeck <linux@roeck-us.net>,
         "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
         <devicetree@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>,
         linux-watchdog@vger.kernel.org, linux-mips@vger.kernel.org,
-        linux-doc@vger.kernel.org, linux-clk@vger.kernel.org, od@zcrc.me,
-        Maarten ter Huurne <maarten@treewalker.org>
-Message-Id: <1548362788.3881.0@crapouillou.net>
-In-Reply-To: <154835808767.136743.14531363127962557756@swboyd.mtv.corp.google.com>
-References: <20181212220922.18759-1-paul@crapouillou.net>
-        <20181212220922.18759-6-paul@crapouillou.net>
-        <CA+7wUsxNN2SL9_7tDh0DiBAgdUwxd_osgmi=09HP7110Tm0DYQ@mail.gmail.com>
-        <128675a5-7ede-4114-a649-89a536346dc8@roeck-us.net>
-        <1548264353.3173.1@crapouillou.net> <20190123180155.GB9781@roeck-us.net>
-        <154835808767.136743.14531363127962557756@swboyd.mtv.corp.google.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Transfer-Encoding: quoted-printable
+        linux-doc@vger.kernel.org, linux-clk@vger.kernel.org, od@zcrc.me
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
+Paul,
+
+On Wed, Dec 12, 2018 at 11:09 PM Paul Cercueil <paul@crapouillou.net> wrote:
+>
+> Hi,
+>
+> Here's the version 8 and hopefully final version of my patchset, which
+> adds support for the Timer/Counter Unit found in JZ47xx SoCs from
+> Ingenic.
+
+I can no longer boot my MIPS Creator CI20 with this series (merged
+opendingux/for-upstream-timer-v8).
+
+Using screen+ttyUSB, I can see messages stopping at:
+
+...
+[  OK  ] Started Cgroup management daemon.
+         Starting Regular background program processing daemon...
+[  OK  ] Started Regular background program processing daemon.
+         Starting System Logging Service...
+         Starting Provide limited super user privileges to specific users...
+         Starting Restore /etc/resolv.conf if the system cras...s shut down....
+         Starting WPA supplicant...
+         Starting D-Bus System Message Bus...
+[  OK  ] Started D-Bus System Message Bus.
+
+Nothing really stands out in the error messages. Could you suggest
+things to try out to get into a bootable state ?
 
 
-Le jeu. 24 janv. 2019 =E0 16:28, Stephen Boyd <sboyd@kernel.org> a=20
-=E9crit :
-> Quoting Guenter Roeck (2019-01-23 10:01:55)
->>  On Wed, Jan 23, 2019 at 02:25:53PM -0300, Paul Cercueil wrote:
->>  > Hi,
->>  >
->>  > Le mer. 23 janv. 2019 =C3  11:31, Guenter Roeck=20
->> <linux@roeck-us.net> a =C3=A9crit :
->>  > >On 1/23/19 4:58 AM, Mathieu Malaterre wrote:
->>  > >>On Wed, Dec 12, 2018 at 11:09 PM Paul Cercueil=20
->> <paul@crapouillou.net>
->>  > >>wrote:
->>  > >>>
->>  > >>>From: Maarten ter Huurne <maarten@treewalker.org>
->>  > >>>
->>  > >>>OST is the OS Timer, a 64-bit timer/counter with buffered=20
->> reading.
->>  > >>>
->>  > >>>SoCs before the JZ4770 had (if any) a 32-bit OST; the JZ4770=20
->> and
->>  > >>>JZ4780 have a 64-bit OST.
->>  > >>>
->>  > >>>This driver will register both a clocksource and a sched_clock=20
->> to the
->>  > >>>system.
->>  > >>>
->>  > >>>Signed-off-by: Maarten ter Huurne <maarten@treewalker.org>
->>  > >>>Signed-off-by: Paul Cercueil <paul@crapouillou.net>
->>  > >>>---
->>  > >>>
->>  > >>>Notes:
->>  > >>>      v5: New patch
->>  > >>>
->>  > >>>      v6: - Get rid of SoC IDs; pass pointer to=20
->> ingenic_ost_soc_info
->>  > >>>as
->>  > >>>            devicetree match data instead.
->>  > >>>          - Use device_get_match_data() instead of the of_*=20
->> variant
->>  > >>>          - Handle error of dev_get_regmap() properly
->>  > >>>
->>  > >>>      v7: Fix section mismatch by using
->>  > >>>builtin_platform_driver_probe()
->>  > >>>
->>  > >>>      v8: builtin_platform_driver_probe() does not work=20
->> anymore in
->>  > >>>          4.20-rc6? The probe function won't be called. Work=20
->> around
->>  > >>>this
->>  > >>>          for now by using late_initcall.
->>  > >>>
->>  > >
->>  > >Did anyone notice this ? Either something is wrong with the=20
->> driver, or
->>  > >with the kernel core. Hacking around it seems like the worst=20
->> possible
->>  > >"solution".
->>  >
->>  > I can confirm it still happens on 5.0-rc3.
->>  >
->>  > Just to explain what I'm doing:
->>  >
->>  > My ingenic-timer driver probes with builtin_platform_driver_probe=20
->> (this
->>  > works),
->>  > and then calls of_platform_populate to probe its children. This=20
->> driver,
->>  > ingenic-ost, is one of them, and will fail to probe with
->>  > builtin_platform_driver_probe.
->>  >
->>=20
->>  The big question is _why_ it fails to probe.
->>=20
->=20
-> Are you sharing the device tree node between a 'normal' platform=20
-> device
-> driver and something more low level DT that marks the device's backing
-> DT node as OF_POPULATED early on? That's my only guess why it's not
-> working.
-
-I do, but I clear the OF_POPULATED flag so that it is then probed as a
-normal platform device, and it's not on this driver's node but its=20
-parent.
-=
-
+> The big change is that the timer driver has been simplified. The code to
+> dynamically update the system timer or clocksource to a new channel has
+> been removed. Now, the system timer and clocksource are provided as
+> children nodes in the devicetree, and the TCU channel to use for these
+> is deduced from their respective memory resource. The PWM driver will
+> also deduce from its memory resources whether a given PWM channel can be
+> used, or is reserved for the system timers.
+>
+> Kind regards,
+> - Paul Cercueil
+>
