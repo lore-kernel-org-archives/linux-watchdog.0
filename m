@@ -2,50 +2,40 @@ Return-Path: <SRS0=q5vp=QA=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B9046C282C5
-	for <linux-watchdog@archiver.kernel.org>; Thu, 24 Jan 2019 21:26:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4826EC282C3
+	for <linux-watchdog@archiver.kernel.org>; Thu, 24 Jan 2019 21:42:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 900A4218D2
-	for <linux-watchdog@archiver.kernel.org>; Thu, 24 Jan 2019 21:26:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 17934218B0
+	for <linux-watchdog@archiver.kernel.org>; Thu, 24 Jan 2019 21:42:07 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=crapouillou.net header.i=@crapouillou.net header.b="oChVkpbe"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727858AbfAXV0Y (ORCPT
+        id S1727845AbfAXVmB (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 24 Jan 2019 16:26:24 -0500
-Received: from mail-oi1-f194.google.com ([209.85.167.194]:36572 "EHLO
-        mail-oi1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726095AbfAXV0Y (ORCPT
+        Thu, 24 Jan 2019 16:42:01 -0500
+Received: from outils.crapouillou.net ([89.234.176.41]:55058 "EHLO
+        crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726347AbfAXVmB (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 24 Jan 2019 16:26:24 -0500
-Received: by mail-oi1-f194.google.com with SMTP id x23so6120205oix.3;
-        Thu, 24 Jan 2019 13:26:23 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=3BKASeLMZBaJ/TSA8g4AVbiUtB0M/I+YsAh4EUI6f1I=;
-        b=mDtGIznVqujHLrgFv5n+7AyN5AubPd3qnXa+qSLCYmp0zzvpxKZWx4ahzJWfcG1d2p
-         BxJ4ACl3yaIDL2T+bvHqWvUBet4fJol6Q4DwJ9W4bv2EgSMhNnE1f/tth9zxwlQQ+4oE
-         Kl0r2p8MwQr5u/kcrOS830UlZDZmaf/Rk33fUa+Oo3HqNi59JPD2itaQ39tCXAZLY0Zr
-         DTsFUlsWGq2DXlB2c+cEjCgexOragOK742bQyypeGwLYZ6TIgj76beeRGZRi2MDG5XMA
-         iUalQOSe3p2RP+WGFF13QxgvQc3gV6kOwUmXTRLmpihwck8yyGv+foFm7fuslMcvpo3u
-         DzYw==
-X-Gm-Message-State: AJcUukerRzh2GAGduKjuMY0STW1N8gXROmUXczutRcKaQTFd0iTpNFGa
-        QssSBU1Gm69iinqS7y1RDvirnEO3gXV4rz+x0wA=
-X-Google-Smtp-Source: ALg8bN7I3dzDDE37T4ya0I4Yuv8D8lZBMBAURA28lB6dUyh12DiW6fMx2EYsyoDEAfqqSDW+YjKTTsdBaZHHFjc0U1s=
-X-Received: by 2002:aca:5117:: with SMTP id f23mr2405614oib.72.1548365182672;
- Thu, 24 Jan 2019 13:26:22 -0800 (PST)
-MIME-Version: 1.0
-References: <20181212220922.18759-1-paul@crapouillou.net>
-In-Reply-To: <20181212220922.18759-1-paul@crapouillou.net>
-From:   Mathieu Malaterre <malat@debian.org>
-Date:   Thu, 24 Jan 2019 22:26:11 +0100
-Message-ID: <CA+7wUszMOvGoPSVOKP7F_KHxgJvjBGT7oJmn5EO62hGGTQK4KA@mail.gmail.com>
+        Thu, 24 Jan 2019 16:42:01 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
+        s=mail; t=1548366117; h=from:from:sender:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=CvRzEbTgAQ9trPEVGxl/lVEhzA9RVr/wI5nkhToSdgg=;
+        b=oChVkpbeL3xIHMcvcFvke5Gn2a3wSxpeTab0ZXH0owYo46vXNHQYHSpDX9YndxIpSQSt6i
+        /eU15Wt7jHeKzldO+xpCQfHnm9FN/2P16qqpq9nPweT/ILXKfKMFdsuJFfG9xrPFPaxXaB
+        rIwv/bG+wLDX7Q1U3j0xecUFwp3P6OM=
+Date:   Thu, 24 Jan 2019 18:41:35 -0300
+From:   Paul Cercueil <paul@crapouillou.net>
 Subject: Re: [PATCH v8 00/26] Ingenic TCU patchset v8
-To:     Paul Cercueil <paul@crapouillou.net>
+To:     Mathieu Malaterre <malat@debian.org>
 Cc:     Thierry Reding <thierry.reding@gmail.com>,
         Rob Herring <robh+dt@kernel.org>,
         Mark Rutland <mark.rutland@arm.com>,
@@ -62,50 +52,76 @@ Cc:     Thierry Reding <thierry.reding@gmail.com>,
         <devicetree@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>,
         linux-watchdog@vger.kernel.org, linux-mips@vger.kernel.org,
         linux-doc@vger.kernel.org, linux-clk@vger.kernel.org, od@zcrc.me
-Content-Type: text/plain; charset="UTF-8"
+Message-Id: <1548366095.3881.1@crapouillou.net>
+In-Reply-To: <CA+7wUszMOvGoPSVOKP7F_KHxgJvjBGT7oJmn5EO62hGGTQK4KA@mail.gmail.com>
+References: <20181212220922.18759-1-paul@crapouillou.net>
+        <CA+7wUszMOvGoPSVOKP7F_KHxgJvjBGT7oJmn5EO62hGGTQK4KA@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Paul,
+Hi Mathieu,
 
-On Wed, Dec 12, 2018 at 11:09 PM Paul Cercueil <paul@crapouillou.net> wrote:
->
-> Hi,
->
-> Here's the version 8 and hopefully final version of my patchset, which
-> adds support for the Timer/Counter Unit found in JZ47xx SoCs from
-> Ingenic.
+Le jeu. 24 janv. 2019 =E0 18:26, Mathieu Malaterre <malat@debian.org> a=20
+=E9crit :
+> Paul,
+>=20
+> On Wed, Dec 12, 2018 at 11:09 PM Paul Cercueil <paul@crapouillou.net>=20
+> wrote:
+>>=20
+>>  Hi,
+>>=20
+>>  Here's the version 8 and hopefully final version of my patchset,=20
+>> which
+>>  adds support for the Timer/Counter Unit found in JZ47xx SoCs from
+>>  Ingenic.
+>=20
+> I can no longer boot my MIPS Creator CI20 with this series (merged
+> opendingux/for-upstream-timer-v8).
+>=20
+> Using screen+ttyUSB, I can see messages stopping at:
+>=20
+> ...
+> [  OK  ] Started Cgroup management daemon.
+>          Starting Regular background program processing daemon...
+> [  OK  ] Started Regular background program processing daemon.
+>          Starting System Logging Service...
+>          Starting Provide limited super user privileges to specific=20
+> users...
+>          Starting Restore /etc/resolv.conf if the system cras...s=20
+> shut down....
+>          Starting WPA supplicant...
+>          Starting D-Bus System Message Bus...
+> [  OK  ] Started D-Bus System Message Bus.
+>=20
+> Nothing really stands out in the error messages. Could you suggest
+> things to try out to get into a bootable state ?
 
-I can no longer boot my MIPS Creator CI20 with this series (merged
-opendingux/for-upstream-timer-v8).
+I'm debugging it right now on jz4740, it seems to happen when the=20
+clocksource
+from the ingenic-timer driver is used. Is it your case? It should not=20
+happen
+if you have CONFIG_INGENIC_OST set.
 
-Using screen+ttyUSB, I can see messages stopping at:
+>>  The big change is that the timer driver has been simplified. The=20
+>> code to
+>>  dynamically update the system timer or clocksource to a new channel=20
+>> has
+>>  been removed. Now, the system timer and clocksource are provided as
+>>  children nodes in the devicetree, and the TCU channel to use for=20
+>> these
+>>  is deduced from their respective memory resource. The PWM driver=20
+>> will
+>>  also deduce from its memory resources whether a given PWM channel=20
+>> can be
+>>  used, or is reserved for the system timers.
+>>=20
+>>  Kind regards,
+>>  - Paul Cercueil
+>>=20
+=
 
-...
-[  OK  ] Started Cgroup management daemon.
-         Starting Regular background program processing daemon...
-[  OK  ] Started Regular background program processing daemon.
-         Starting System Logging Service...
-         Starting Provide limited super user privileges to specific users...
-         Starting Restore /etc/resolv.conf if the system cras...s shut down....
-         Starting WPA supplicant...
-         Starting D-Bus System Message Bus...
-[  OK  ] Started D-Bus System Message Bus.
-
-Nothing really stands out in the error messages. Could you suggest
-things to try out to get into a bootable state ?
-
-
-> The big change is that the timer driver has been simplified. The code to
-> dynamically update the system timer or clocksource to a new channel has
-> been removed. Now, the system timer and clocksource are provided as
-> children nodes in the devicetree, and the TCU channel to use for these
-> is deduced from their respective memory resource. The PWM driver will
-> also deduce from its memory resources whether a given PWM channel can be
-> used, or is reserved for the system timers.
->
-> Kind regards,
-> - Paul Cercueil
->
