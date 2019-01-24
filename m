@@ -1,110 +1,104 @@
-Return-Path: <SRS0=4i9s=P7=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=q5vp=QA=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,USER_AGENT_MUTT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 717A0C282C0
-	for <linux-watchdog@archiver.kernel.org>; Wed, 23 Jan 2019 18:05:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 14B20C282C5
+	for <linux-watchdog@archiver.kernel.org>; Thu, 24 Jan 2019 07:16:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4719221872
-	for <linux-watchdog@archiver.kernel.org>; Wed, 23 Jan 2019 18:05:47 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="T8xI0QB6"
+	by mail.kernel.org (Postfix) with ESMTP id E28AA21872
+	for <linux-watchdog@archiver.kernel.org>; Thu, 24 Jan 2019 07:16:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726126AbfAWSFq (ORCPT
+        id S1726249AbfAXHQm (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 23 Jan 2019 13:05:46 -0500
-Received: from mail-pl1-f196.google.com ([209.85.214.196]:45142 "EHLO
-        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726028AbfAWSFq (ORCPT
+        Thu, 24 Jan 2019 02:16:42 -0500
+Received: from mail-lj1-f194.google.com ([209.85.208.194]:33564 "EHLO
+        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725939AbfAXHQl (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 23 Jan 2019 13:05:46 -0500
-Received: by mail-pl1-f196.google.com with SMTP id a14so1533216plm.12;
-        Wed, 23 Jan 2019 10:05:46 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=TVLr370wVQEq/+xLWf71Sn3PgQoIIdaTqQOjWzZbyw4=;
-        b=T8xI0QB6OWd2eYRNKOLF0NmB66eG5xCLtTeh4icUXGYHBjnqmcRAwUd7ng+9RfYAmu
-         IXky1KlgCSpO53nzjgma9a7kRwe7BmRryP4mXF5wxWSXHsUrjbc0lZzzcuqeJG8BDc9A
-         3bgbwBnXodvbS3Kq5QBccQoDE0Uv6dbfBGSW/cp6Ib4NHHEiYs/Iho/R+EWEoejKUzII
-         0jK6G36ei8/kJfQlnlSwORB8DuovZFvQZ1SJfYYyq4VNT1T1v2Yj5V1eLdigVFhSHOGt
-         BWRDkdZimfTtiA9ulK+1xTWOsdTiBRjSZU/GUT7dhdtKCT3h4zbv44plBT68ifhCvXli
-         RvjQ==
+        Thu, 24 Jan 2019 02:16:41 -0500
+Received: by mail-lj1-f194.google.com with SMTP id v1-v6so4312453ljd.0;
+        Wed, 23 Jan 2019 23:16:39 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=TVLr370wVQEq/+xLWf71Sn3PgQoIIdaTqQOjWzZbyw4=;
-        b=PW9ZNsPgIq09qhmnjewpEBZOFCN1qfH10/FZzXC9zSjmxWkf0btMKXYu01nB7yFAyP
-         pocCnu3Z2fP4kqz8YaIRNeJnkY01p1hkrwv0syJKprVcHn53gttBYbeZAVrH3pWewAg1
-         QfsTMFWZ6w3tUwqz3DxRfajP/STT1q/D1Gj2FrMgFy/R/v88gMfIeuG0J6iNBVbqtuRD
-         OvPK/I7yQp4UZylxZJ7CMVdYIdmIPED3eIGeEw2Sg5hWEp8ywvNlmRroNH5gdgoKEFGB
-         PsujkcXxVWpYZl9t8Zy/Kl1eV6mZeKmEVl8BZEfRSCC0e84ovE49DxYvJ0hBp1mlsbwC
-         ZI1A==
-X-Gm-Message-State: AJcUukeOp3Bne1itG5Cs7gAX++/HWB1yqSCTzIhpJ8H8nKm5rw1aARIb
-        v8zG7ZSbiIO7QzD0+PDf+sK6F4e9
-X-Google-Smtp-Source: ALg8bN7tlhvROdImwV8f7YiTdHHTXYAO672CrFHzzL/TxkDrzpBR09lGFcC3Eahfpm99cWh0EI3dCQ==
-X-Received: by 2002:a17:902:8306:: with SMTP id bd6mr3227914plb.217.1548266746208;
-        Wed, 23 Jan 2019 10:05:46 -0800 (PST)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id c72sm39919454pfb.107.2019.01.23.10.05.45
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 23 Jan 2019 10:05:45 -0800 (PST)
-Date:   Wed, 23 Jan 2019 10:05:44 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     YueHaibing <yuehaibing@huawei.com>
-Cc:     wim@linux-watchdog.org, linux-kernel@vger.kernel.org,
-        linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH -next] watchdog: pika_wdt: drop pointless static
- qualifier in pikawdt_init
-Message-ID: <20190123180544.GC9781@roeck-us.net>
-References: <20190123090524.13320-1-yuehaibing@huawei.com>
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=LP/avWTvepn7HWKvKZScd337ZUBQpptaYWJEMiVqdw8=;
+        b=gXJSjKawLFyKSxMu9knPi8OeEYEt0k2X6LsvZ1rZVf6IoOiIrFdHmGxLWl+nalbF9E
+         8P9yoaPTSq4rbiMLoQ5aeq/MEhHGj6cjv3xA6gVufILow/qmvTrPiyYksrwgkChKw+u9
+         N4qp/riF2+VYpO4/7j+VrGHYjf9WwFC2YoAHf/4kmBfbMoIOJJij0x3emBSgerFtaMZc
+         EEr0B16UFi7zHnqwo5JZ9tdS4DHTg2X515AcAIvJL72hUw4aGnsec9k6JAbYgBqs2ig+
+         lnQ+QwLUOi7Y4Rgmg42JHcSpJtauJjf/e6lPeQ3nArf8cFfT2T1/4WmEtDh66fr9CTbp
+         TOYA==
+X-Gm-Message-State: AJcUukfad0myvBk+qrCjFIg6GEb7J0metZRHnyU3qFTAQsOB4MSMSiUj
+        c1Z2ZH551pUGfsgDWtSGWak=
+X-Google-Smtp-Source: ALg8bN6YVI1nDjTAHHQcPyrvgygWgP0Klv2vOk1tt7ZLHPFyNSvEzs1wFzosiQXasyg74B91Vn9/IQ==
+X-Received: by 2002:a2e:5b1d:: with SMTP id p29-v6mr4369103ljb.176.1548314198679;
+        Wed, 23 Jan 2019 23:16:38 -0800 (PST)
+Received: from localhost.localdomain ([213.255.186.46])
+        by smtp.gmail.com with ESMTPSA id p10-v6sm849502ljh.59.2019.01.23.23.16.36
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Wed, 23 Jan 2019 23:16:37 -0800 (PST)
+Date:   Thu, 24 Jan 2019 09:16:35 +0200
+From:   Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+To:     Mark Brown <broonie@kernel.org>
+Cc:     mazziesaccount@gmail.com, lee.jones@linaro.org, robh+dt@kernel.org,
+        mark.rutland@arm.com, lgirdwood@gmail.com,
+        gregkh@linuxfoundation.org, rafael@kernel.org,
+        mturquette@baylibre.com, sboyd@kernel.org,
+        linus.walleij@linaro.org, bgolaszewski@baylibre.com,
+        sre@kernel.org, a.zummo@towertech.it,
+        alexandre.belloni@bootlin.com, wim@linux-watchdog.org,
+        linux@roeck-us.net, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org,
+        linux-gpio@vger.kernel.org, linux-pm@vger.kernel.org,
+        linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        mikko.mutanen@fi.rohmeurope.com, heikki.haikola@fi.rohmeurope.com
+Subject: Re: [RFC PATCH v1 03/13] regulator: bd718x7 use chip specific and
+ generic data structs
+Message-ID: <20190124071635.GE2559@localhost.localdomain>
+References: <cover.1548149337.git.matti.vaittinen@fi.rohmeurope.com>
+ <3fb3eab3a8a2767404588d0a0a531273fddfc659.1548149337.git.matti.vaittinen@fi.rohmeurope.com>
+ <20190123155121.GB7503@sirena.org.uk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190123090524.13320-1-yuehaibing@huawei.com>
-User-Agent: Mutt/1.5.24 (2015-08-30)
+In-Reply-To: <20190123155121.GB7503@sirena.org.uk>
+User-Agent: Mutt/1.9.2 (2017-12-15)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Wed, Jan 23, 2019 at 05:05:24PM +0800, YueHaibing wrote:
-> There is no need to have the 'post1' variable static since
-> new value always be assigned before use it.
-> 
-> Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Hello Mark,
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Thanks again for looking through my changes =)
 
-Is anyone still using this driver ? If yes it might make sense to convert
-it to use the watchdog subsystem.
+On Wed, Jan 23, 2019 at 03:51:21PM +0000, Mark Brown wrote:
+> On Tue, Jan 22, 2019 at 11:43:28AM +0200, Matti Vaittinen wrote:
+> > Header rohm-bd718x7.h was split to generic and component specific
+> > parts. This changed the struct bd718x7. Adapt the regulator driver to
+> > these changes.
+> 
+> Acked-by: Mark Brown <broonie@kernel.org>
+> 
+> Does this need to be squashed into the earlier commit for bisection?
 
-Guenter
+Yes. If we don't want to break the compilation between commits then
+the patches 2, 3 and 4 should be squashed into one. I sent them as
+separare changes for easier review. I can squash them and send them
+squashed if they are Ok to Lee and Stephen. Please just let me know
+whose tree I should use as the basis so I can do rebasing if needed.
+(Or is there some better way to do changes like this?)
 
-> ---
->  drivers/watchdog/pika_wdt.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/watchdog/pika_wdt.c b/drivers/watchdog/pika_wdt.c
-> index e0a6f8c..bb97f5b 100644
-> --- a/drivers/watchdog/pika_wdt.c
-> +++ b/drivers/watchdog/pika_wdt.c
-> @@ -225,7 +225,7 @@ static int __init pikawdt_init(void)
->  {
->  	struct device_node *np;
->  	void __iomem *fpga;
-> -	static u32 post1;
-> +	u32 post1;
->  	int ret;
->  
->  	np = of_find_compatible_node(NULL, NULL, "pika,fpga");
-> -- 
-> 2.7.0
-> 
-> 
+Br,
+	Matti Vaittinen 
+
+-- 
+Matti Vaittinen
+ROHM Semiconductors
+
+~~~ "I don't think so," said Rene Descartes.  Just then, he vanished ~~~
