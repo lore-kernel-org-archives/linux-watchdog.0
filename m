@@ -1,50 +1,65 @@
-Return-Path: <SRS0=7pU3=QB=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=r5O+=QC=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_MUTT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 65112C282C2
-	for <linux-watchdog@archiver.kernel.org>; Fri, 25 Jan 2019 11:06:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0F14FC282C7
+	for <linux-watchdog@archiver.kernel.org>; Sat, 26 Jan 2019 16:30:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 3669B2184B
-	for <linux-watchdog@archiver.kernel.org>; Fri, 25 Jan 2019 11:06:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B5468218B0
+	for <linux-watchdog@archiver.kernel.org>; Sat, 26 Jan 2019 16:30:35 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dIrV2me0"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728074AbfAYLGn (ORCPT
+        id S1726248AbfAZQab (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 25 Jan 2019 06:06:43 -0500
-Received: from mail-lj1-f193.google.com ([209.85.208.193]:46793 "EHLO
-        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725909AbfAYLGn (ORCPT
+        Sat, 26 Jan 2019 11:30:31 -0500
+Received: from mail-pg1-f193.google.com ([209.85.215.193]:42416 "EHLO
+        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726038AbfAZQaa (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 25 Jan 2019 06:06:43 -0500
-Received: by mail-lj1-f193.google.com with SMTP id v15-v6so7996348ljh.13;
-        Fri, 25 Jan 2019 03:06:39 -0800 (PST)
+        Sat, 26 Jan 2019 11:30:30 -0500
+Received: by mail-pg1-f193.google.com with SMTP id d72so5406826pga.9;
+        Sat, 26 Jan 2019 08:30:29 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=fFa/0BWhN7gscoZhoLEWj0tkxbSLeP2wYD7UzyuqCWU=;
+        b=dIrV2me0giwHSwcSUx+mqOuRrCKNpnIRBD/Goa3cvej7CmKl+jkbMq6z5b2W6RFneG
+         vLklnPuVJYnwY/LcYM2cSK293VO7kfP4NH1JiO6NhQNmRXtsj98WLndt+sGLCwks/UTi
+         bTmNoHbKvpSHRkfDtnoqWNo9TXH1kxOH7i1hWupSZ7Ye8RHToJyHMOvPWhneO/5LyqOW
+         naTGjUXu1DsSTD9Vc8Ccd947GFTcaoGngsAI4ub7PXpbHcAbvDSWSzEgttCOfGaApJhX
+         eY8Jomt4H/TF+GPnZSVobutbhvT3kQdFliybicCSwbjbtPqDq9zVoFqWCq3MvfD/mT3S
+         kCDg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
-         :content-disposition:user-agent;
-        bh=J5DY9JE5xtg3hKje1YdVfyM5hb/HtMr8ifhsvQgDaWg=;
-        b=lf27b9PsG+ZkdvE06SzuDaL9LtS2NlxtH6s/6vME3wy1F3u8TBLO3Lv6Lt7WzZSagF
-         MWaa7ZZhGJUQzKZ33QuoyBdMtt0fZDu4hzDwgeD9PTj3NWAycg/Ua03vr4f2BjsX6DAm
-         eBJ9ODqemFhPYXpT/ySlDufYYVM/mMLMmKbxKVoEOz2lE0NXWgTb6SDTusxNRkE0nCBC
-         A1aUdU90gWwPRYd7DoscmaARlSzwX4zn6wg0ZX24XX7I3VrbPjOXuzmHuDoqqkTkRzE6
-         3Sv/4ezjAYqQw7MFCpy0/jR2yAQwpIiPOYTYaI3RQQVFMHtneIcG5OrelJS5/XZJ2hOE
-         yRMA==
-X-Gm-Message-State: AJcUukfbjF9lO4UwvYi9RWAvFex16YBpZmjPBI1NkxarCkK/eY1oKDSH
-        LXcBNxLRkHyaXAMrkTuMQ74=
-X-Google-Smtp-Source: ALg8bN4h0uKpOV0hldBSCTXukgisx7ccI9QeFWVWf/qBIs/ar/xKL9EI1imFP4/dIz4QbWdsrmmlWQ==
-X-Received: by 2002:a2e:551:: with SMTP id 78-v6mr8632048ljf.82.1548414399083;
-        Fri, 25 Jan 2019 03:06:39 -0800 (PST)
-Received: from localhost.localdomain ([213.255.186.46])
-        by smtp.gmail.com with ESMTPSA id r7-v6sm1432276ljc.10.2019.01.25.03.06.37
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Fri, 25 Jan 2019 03:06:38 -0800 (PST)
-Date:   Fri, 25 Jan 2019 13:06:25 +0200
-From:   Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-To:     mazziesaccount@gmail.com, matti.vaittinen@fi.rohmeurope.com
+        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=fFa/0BWhN7gscoZhoLEWj0tkxbSLeP2wYD7UzyuqCWU=;
+        b=JSd5L7a0EEdvpGiFN84hIXWh1/3XZ3+8poItrGCbuNyz/odD4JkKnua3nanTui5IDZ
+         TGbsTYT1iel2RYwnIaXnCwGKrp6RtMFT8s8wTssuO4FvC3lHKsoYrAT39qoChG+RX8fk
+         4zC6WoeobnK98tleiIMbf0CvW/kcxH/0zYU3Kdg/oGag7GDrxAh3cy/QnZtmY6h+4jG7
+         f4Smmhe0gzsCq3FIy+tCuai37eE9cxLmOclWi/7q31hKe+Xk0hJDmUz9zOjMRcN+bIxC
+         ov+Sr62fJ5lMwqfP/i1lhH+hS/fkxHmrzct/w1WzxZq1QMyiKJPUJL2QO5ZXV38MsoHN
+         EeDg==
+X-Gm-Message-State: AJcUuke6t+6hsIsfSagJg0AfWCuu8iU6bnrvOUT6ihGch7pwjpZZjFaV
+        0kaYTh7AWYxqeRN1IBG9wKJcvk+M
+X-Google-Smtp-Source: ALg8bN4iO8RYvWrfF9mBbUfJLNfxfPYtaJmVygaRLQduZFR1tLZeIxmx/2nu27BPUurLSYwOUj5PhA==
+X-Received: by 2002:a63:f141:: with SMTP id o1mr14056626pgk.134.1548520228331;
+        Sat, 26 Jan 2019 08:30:28 -0800 (PST)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id j9sm32982481pfi.86.2019.01.26.08.30.25
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 26 Jan 2019 08:30:27 -0800 (PST)
+Subject: Re: [RFC PATCH v2 08/10] rtc: bd70528: Initial support for ROHM
+ bd70528 RTC
+To:     Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>,
+        mazziesaccount@gmail.com
 Cc:     heikki.haikola@fi.rohmeurope.com, mikko.mutanen@fi.rohmeurope.com,
         lee.jones@linaro.org, robh+dt@kernel.org, mark.rutland@arm.com,
         broonie@kernel.org, gregkh@linuxfoundation.org, rafael@kernel.org,
@@ -52,265 +67,561 @@ Cc:     heikki.haikola@fi.rohmeurope.com, mikko.mutanen@fi.rohmeurope.com,
         linus.walleij@linaro.org, bgolaszewski@baylibre.com,
         sre@kernel.org, lgirdwood@gmail.com, a.zummo@towertech.it,
         alexandre.belloni@bootlin.com, wim@linux-watchdog.org,
-        linux@roeck-us.net, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org,
-        linux-gpio@vger.kernel.org, linux-pm@vger.kernel.org,
-        linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org
-Subject: [RFC PATCH v2 10/10] watchdog: bd70528: Initial support for ROHM
- BD70528 watchdog block
-Message-ID: <20190125110625.GA29348@localhost.localdomain>
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-clk@vger.kernel.org, linux-gpio@vger.kernel.org,
+        linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org,
+        linux-watchdog@vger.kernel.org
+References: <20190125110536.GA29321@localhost.localdomain>
+From:   Guenter Roeck <linux@roeck-us.net>
+Message-ID: <35bbc5b9-5f8c-ec80-3eaa-bb2c0e2812c9@roeck-us.net>
+Date:   Sat, 26 Jan 2019 08:30:24 -0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.2.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.9.2 (2017-12-15)
+In-Reply-To: <20190125110536.GA29321@localhost.localdomain>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Initial support for watchdog block included in ROHM BD70528
-power management IC.
+On 1/25/19 3:05 AM, Matti Vaittinen wrote:
+> Support RTC block in ROHM bd70528 power management IC. Support
+> getting and setting the time and date as well as arming an alarm
+> which can also be used to wake the PMIC from standby state.
+> 
+> HW supports wake interrupt only for the next 24 hours (sec, minute
+> and hour information only) so we limit also the alarm interrupt to
+> this 24 hours for the sake of consistency.
+> 
+> Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+> ---
+>   drivers/rtc/Kconfig       |   8 +
+>   drivers/rtc/Makefile      |   1 +
+>   drivers/rtc/rtc-bd70528.c | 451 ++++++++++++++++++++++++++++++++++++++++++++++
+>   3 files changed, 460 insertions(+)
+>   create mode 100644 drivers/rtc/rtc-bd70528.c
+> 
+> diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+> index 225b0b8516f3..df6211cbd83f 100644
+> --- a/drivers/rtc/Kconfig
+> +++ b/drivers/rtc/Kconfig
+> @@ -487,6 +487,14 @@ config RTC_DRV_M41T80_WDT
+>   	help
+>   	  If you say Y here you will get support for the
+>   	  watchdog timer in the ST M41T60 and M41T80 RTC chips series.
+> +config RTC_DRV_BD70528
+> +	tristate "ROHM BD70528 PMIC RTC"
+> +	help
+> +	  If you say Y here you will get support for the RTC
+> +	  on ROHM BD70528 Power Management IC.
+> +
+> +	  This driver can also be built as a module. If so, the module
+> +	  will be called rtc-bd70528.
+>   
+>   config RTC_DRV_BQ32K
+>   	tristate "TI BQ32000"
+> diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
+> index df022d820bee..740b13840913 100644
+> --- a/drivers/rtc/Makefile
+> +++ b/drivers/rtc/Makefile
+> @@ -36,6 +36,7 @@ obj-$(CONFIG_RTC_DRV_ASM9260)	+= rtc-asm9260.o
+>   obj-$(CONFIG_RTC_DRV_AT91RM9200)+= rtc-at91rm9200.o
+>   obj-$(CONFIG_RTC_DRV_AT91SAM9)	+= rtc-at91sam9.o
+>   obj-$(CONFIG_RTC_DRV_AU1XXX)	+= rtc-au1xxx.o
+> +obj-$(CONFIG_RTC_DRV_BD70528)	+= rtc-bd70528.o
+>   obj-$(CONFIG_RTC_DRV_BQ32K)	+= rtc-bq32k.o
+>   obj-$(CONFIG_RTC_DRV_BQ4802)	+= rtc-bq4802.o
+>   obj-$(CONFIG_RTC_DRV_BRCMSTB)	+= rtc-brcmstb-waketimer.o
+> diff --git a/drivers/rtc/rtc-bd70528.c b/drivers/rtc/rtc-bd70528.c
+> new file mode 100644
+> index 000000000000..250fb218c784
+> --- /dev/null
+> +++ b/drivers/rtc/rtc-bd70528.c
+> @@ -0,0 +1,451 @@
+> +// SPDX-License-Identifier: GPL-2.0-or-later
+> +//
+> +// Copyright (C) 2018 ROHM Semiconductors
+> +//
+> +// RTC driver for ROHM BD70528 PMIC
+> +
+> +#include <linux/bcd.h>
+> +#include <linux/mfd/rohm-bd70528.h>
+> +#include <linux/module.h>
+> +#include <linux/of.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/regmap.h>
+> +#include <linux/rtc.h>
+> +
+> +/*
+> + * We read regs RTC_SEC => RTC_YEAR
+> + * this struct is ordered according to chip registers.
+> + * Keep it u8 only to avoid padding issues.
+> + */
+> +struct bd70528_rtc_day {
+> +	u8 sec;
+> +	u8 min;
+> +	u8 hour;
+> +};
+> +
+> +struct bd70528_rtc_data {
+> +	struct bd70528_rtc_day time;
+> +	u8 week;
+> +	u8 day;
+> +	u8 month;
+> +	u8 year;
+> +};
+> +
+> +struct bd70528_rtc_wake {
+> +	struct bd70528_rtc_day time;
+> +	u8 ctrl;
+> +};
+> +
+> +struct bd70528_rtc_alm {
+> +	struct bd70528_rtc_data data;
+> +	u8 alm_mask;
+> +	u8 alm_repeat;
+> +};
 
-Configurations for low power states are still to be checked.
+At least some of the above are directly associated with chip registers.
+I don't think this will work for all architectures without explicit packed
+attribute.
 
-Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
----
- drivers/watchdog/Kconfig       |  12 +++
- drivers/watchdog/Makefile      |   1 +
- drivers/watchdog/bd70528_wdt.c | 183 +++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 196 insertions(+)
- create mode 100644 drivers/watchdog/bd70528_wdt.c
+> +
+> +struct bd70528_rtc {
+> +	struct bd70528 *mfd;
+> +	struct device *dev;
+> +};
+> +
+> +static int bd70528_set_wake(struct bd70528 *bd70528,
+> +			    int enable, int *old_state)
+> +{
+> +	int ret;
+> +	unsigned int ctrl_reg;
+> +
+> +	ret = regmap_read(bd70528->chip.regmap, BD70528_REG_WAKE_EN, &ctrl_reg);
+> +	if (ret)
+> +		return ret;
+> +
+> +	if (old_state) {
+> +		if (ctrl_reg & BD70528_MASK_WAKE_EN)
+> +			*old_state |= BD70528_WAKE_STATE_BIT;
+> +		else
+> +			*old_state &= ~BD70528_WAKE_STATE_BIT;
+> +
+> +		if ((!enable) == (!(*old_state & BD70528_WAKE_STATE_BIT)))
+> +			return 0;
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 57f017d74a97..f30e3a3e886e 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -90,6 +90,18 @@ config SOFT_WATCHDOG_PRETIMEOUT
- 	  watchdog. Be aware that governors might affect the watchdog because it
- 	  is purely software, e.g. the panic governor will stall it!
- 
-+config BD70528_WATCHDOG
-+	tristate "ROHM BD70528 PMIC Watchdog"
-+	depends on MFD_ROHM_BD70528
-+	select WATCHDOG_CORE
-+	help
-+	  Support for the watchdog in the ROHM BD70528 PMIC. Watchdog trigger
-+	  cause system reset.
-+
-+	  Say Y here to include support for the ROHM BD70528 watchdog.
-+	  Alternatively say M to compile the driver as a module,
-+	  which will be called bd70528_wdt.
-+
- config DA9052_WATCHDOG
- 	tristate "Dialog DA9052 Watchdog"
- 	depends on PMIC_DA9052 || COMPILE_TEST
-diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index a0917ef28e07..1ce87a3b1172 100644
---- a/drivers/watchdog/Makefile
-+++ b/drivers/watchdog/Makefile
-@@ -204,6 +204,7 @@ obj-$(CONFIG_WATCHDOG_SUN4V)		+= sun4v_wdt.o
- obj-$(CONFIG_XEN_WDT) += xen_wdt.o
- 
- # Architecture Independent
-+obj-$(CONFIG_BD70528_WATCHDOG) += bd70528_wdt.o
- obj-$(CONFIG_DA9052_WATCHDOG) += da9052_wdt.o
- obj-$(CONFIG_DA9055_WATCHDOG) += da9055_wdt.o
- obj-$(CONFIG_DA9062_WATCHDOG) += da9062_wdt.o
-diff --git a/drivers/watchdog/bd70528_wdt.c b/drivers/watchdog/bd70528_wdt.c
-new file mode 100644
-index 000000000000..347339683cb9
---- /dev/null
-+++ b/drivers/watchdog/bd70528_wdt.c
-@@ -0,0 +1,183 @@
-+// SPDX-License-Identifier: GPL-2.0
-+// Copyright (C) 2018 ROHM Semiconductors
-+// ROHM BD70528MWV watchdog driver
-+
-+#include <linux/bcd.h>
-+#include <linux/kernel.h>
-+#include <linux/mfd/rohm-bd70528.h>
-+#include <linux/module.h>
-+#include <linux/of.h>
-+#include <linux/platform_device.h>
-+#include <linux/regmap.h>
-+#include <linux/watchdog.h>
-+
-+struct wdtbd70528 {
-+	struct bd70528 *bd;
-+	struct device *dev;
-+};
-+
-+static int bd70528_wdt_set(struct bd70528 *bd70528, int enable)
-+{
-+	int ret;
-+
-+	mutex_lock(&bd70528->rtc_timer_lock);
-+	ret = bd70528->wdt_set(bd70528, enable, NULL);
-+	mutex_unlock(&bd70528->rtc_timer_lock);
-+
-+	return ret;
-+}
-+
-+static int bd70528_wdt_start(struct watchdog_device *wdt)
-+{
-+	struct wdtbd70528 *w = watchdog_get_drvdata(wdt);
-+
-+	dev_dbg(w->dev, "WDT ping...\n");
-+	return bd70528_wdt_set(w->bd, 1);
-+}
-+
-+static int bd70528_wdt_stop(struct watchdog_device *wdt)
-+{
-+	struct wdtbd70528 *w = watchdog_get_drvdata(wdt);
-+
-+	dev_dbg(w->dev, "WDT stopping...\n");
-+	return bd70528_wdt_set(w->bd, 0);
-+}
-+
-+static int bd70528_wdt_set_timeout(struct watchdog_device *wdt,
-+				    unsigned int timeout)
-+{
-+	unsigned int hours;
-+	unsigned int minutes;
-+	unsigned int seconds;
-+	int ret;
-+	struct bd70528 *bd70528;
-+	struct wdtbd70528 *w = watchdog_get_drvdata(wdt);
-+
-+	bd70528 = w->bd;
-+	seconds = timeout;
-+	hours = timeout / (60 * 60);
-+	/* Maximum timeout is 1h 59m 59s => hours is 1 or 0 */
-+	if (hours)
-+		seconds -= (60 * 60);
-+	minutes = seconds / 60;
-+	seconds = seconds % 60;
-+
-+	mutex_lock(&bd70528->rtc_timer_lock);
-+
-+	ret = bd70528->wdt_set(bd70528, 0, NULL);
-+	if (ret)
-+		goto out_unlock;
-+
-+	ret = regmap_update_bits(bd70528->chip.regmap, BD70528_REG_WDT_HOUR,
-+				 BD70528_MASK_WDT_HOUR, hours);
-+	if (ret) {
-+		dev_err(w->dev, "Failed to set WDT hours\n");
-+		goto out_en_unlock;
-+	}
-+	ret = regmap_update_bits(bd70528->chip.regmap, BD70528_REG_WDT_MINUTE,
-+				 BD70528_MASK_WDT_MINUTE, bin2bcd(minutes));
-+	if (ret) {
-+		dev_err(w->dev, "Failed to set WDT minutes\n");
-+		goto out_en_unlock;
-+	}
-+	ret = regmap_update_bits(bd70528->chip.regmap, BD70528_REG_WDT_SEC,
-+				 BD70528_MASK_WDT_SEC, bin2bcd(seconds));
-+	if (ret)
-+		dev_err(w->dev, "Failed to set WDT seconds\n");
-+	else
-+		dev_dbg(w->dev, "WDT tmo set to %u\n", timeout);
-+
-+out_en_unlock:
-+	ret = bd70528->wdt_set(bd70528, 1, NULL);
-+out_unlock:
-+	mutex_unlock(&bd70528->rtc_timer_lock);
-+
-+	return ret;
-+}
-+
-+static const struct watchdog_info bd70528_wdt_info = {
-+	.identity = "bd70528-wdt",
-+	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
-+};
-+
-+static const struct watchdog_ops bd70528_wdt_ops = {
-+	.start		= bd70528_wdt_start,
-+	.stop		= bd70528_wdt_stop,
-+	.set_timeout	= bd70528_wdt_set_timeout,
-+};
-+
-+/* Max time we can set is 1 hour, 59 minutes and 59 seconds */
-+#define WDT_MAX_MS ((2 * 60 * 60 - 1) * 1000)
-+/* Minimum time is 1 second */
-+#define WDT_MIN_MS 1000
-+#define DEFAULT_TIMEOUT 60
-+
-+static int bd70528_wdt_probe(struct platform_device *pdev)
-+{
-+	struct bd70528 *bd70528;
-+	struct wdtbd70528 *w;
-+	int ret;
-+	unsigned int reg;
-+	struct watchdog_device *wdt;
-+
-+	bd70528 = dev_get_drvdata(pdev->dev.parent);
-+	if (!bd70528) {
-+		dev_err(&pdev->dev, "No MFD driver data\n");
-+		return -EINVAL;
-+	}
-+	w = devm_kzalloc(&pdev->dev, sizeof(*w), GFP_KERNEL);
-+	if (!w)
-+		return -ENOMEM;
-+	w->bd = bd70528;
-+	w->dev = &pdev->dev;
-+
-+	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
-+	if (!wdt)
-+		return -ENOMEM;
-+
-+	wdt->info = &bd70528_wdt_info;
-+	wdt->ops =  &bd70528_wdt_ops;
-+	wdt->min_hw_heartbeat_ms = WDT_MIN_MS;
-+	wdt->max_hw_heartbeat_ms = WDT_MAX_MS;
-+	wdt->parent = pdev->dev.parent;
-+	wdt->timeout = DEFAULT_TIMEOUT;
-+	watchdog_set_drvdata(wdt, w);
-+	watchdog_init_timeout(wdt, 0, pdev->dev.parent);
-+
-+	ret = bd70528_wdt_set_timeout(wdt, wdt->timeout);
-+	if (ret) {
-+		dev_err(&pdev->dev, "Failed to set the watchdog timeout\n");
-+		return ret;
-+	}
-+
-+	mutex_lock(&bd70528->rtc_timer_lock);
-+	ret = regmap_read(bd70528->chip.regmap, BD70528_REG_WDT_CTRL, &reg);
-+	mutex_unlock(&bd70528->rtc_timer_lock);
-+
-+	if (ret) {
-+		dev_err(&pdev->dev, "Failed to get the watchdog state\n");
-+		return ret;
-+	}
-+	if (reg & BD70528_MASK_WDT_EN) {
-+		dev_dbg(&pdev->dev, "watchdog was running during probe\n");
-+		set_bit(WDOG_HW_RUNNING, &wdt->status);
-+	}
-+
-+	ret = devm_watchdog_register_device(&pdev->dev, wdt);
-+	if (ret < 0)
-+		dev_err(&pdev->dev, "watchdog registration failed: %d\n", ret);
-+
-+	return ret;
-+}
-+static struct platform_driver bd70528_wdt = {
-+	.driver = {
-+		.name = "bd70528-wdt"
-+	},
-+	.probe = bd70528_wdt_probe,
-+};
-+
-+module_platform_driver(bd70528_wdt);
-+
-+MODULE_AUTHOR("Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>");
-+MODULE_DESCRIPTION("BD70528 watchdog driver");
-+MODULE_LICENSE("GPL");
--- 
-2.14.3
+I think
+		if (enable == !!(*old_state & BD70528_WAKE_STATE_BIT))
+would be much better readable. Even if not, there are way too many ()
+in the above conditional.
 
 
--- 
-Matti Vaittinen
-ROHM Semiconductors
+> +	}
+> +
+> +	if (enable)
+> +		ctrl_reg |= BD70528_MASK_WAKE_EN;
+> +	else
+> +		ctrl_reg &= ~BD70528_MASK_WAKE_EN;
+> +
+> +	return regmap_write(bd70528->chip.regmap, BD70528_REG_WAKE_EN,
+> +			    ctrl_reg);
+> +}
+> +
+> +static int bd70528_set_elapsed_tmr(struct bd70528 *bd70528,
+> +				   int enable, int *old_state)
+> +{
+> +	int ret;
+> +	unsigned int ctrl_reg;
+> +
+> +	/*
+> +	 * TBD
+> +	 * What is the purpose of elapsed timer ?
+> +	 * Is the timeout registers counting down, or is the disable - re-enable
+> +	 * going to restart the elapsed-time counting? If counting is restarted
+> +	 * the timeout should be decreased by the amount of time that has
+> +	 * elapsed since starting the timer. Maybe we should store the monotonic
+> +	 * clock value when timer is started so that if RTC is set while timer
+> +	 * is armed we could do the compensation. This is a hack if RTC/system
+> +	 * clk are drifting. OTOH, RTC controlled via I2C is in any case
+> +	 * inaccurate...
+> +	 */
+> +	ret = regmap_read(bd70528->chip.regmap, BD70528_REG_ELAPSED_TIMER_EN,
+> +			  &ctrl_reg);
+> +	if (ret)
+> +		return ret;
+> +
+> +	if (old_state) {
+> +		if (ctrl_reg & BD70528_MASK_ELAPSED_TIMER_EN)
+> +			*old_state |= BD70528_ELAPSED_STATE_BIT;
+> +		else
+> +			*old_state &= ~BD70528_ELAPSED_STATE_BIT;
+> +
+> +		if ((!enable) == (!(*old_state & BD70528_ELAPSED_STATE_BIT)))
+> +			return 0;
+> +	}
+> +
+> +	if (enable)
+> +		ctrl_reg |= BD70528_MASK_ELAPSED_TIMER_EN;
+> +	else
+> +		ctrl_reg &= ~BD70528_MASK_ELAPSED_TIMER_EN;
+> +
+> +	return regmap_write(bd70528->chip.regmap, BD70528_REG_ELAPSED_TIMER_EN,
+> +			    ctrl_reg);
+> +}
+> +
+> +static int bd70528_set_rtc_based_timers(struct bd70528_rtc *r, int new_state,
+> +							int *old_state)
+> +{
+> +	int ret;
+> +
+> +	ret = r->mfd->wdt_set(r->mfd, new_state & BD70528_WDT_STATE_BIT,
+> +			       old_state);
+> +	if (ret) {
+> +		dev_err(r->dev,
+> +			"Failed to disable WDG for RTC setting (%d)\n", ret);
+> +		return ret;
+> +	}
+> +	ret = bd70528_set_elapsed_tmr(r->mfd,
+> +				      new_state & BD70528_ELAPSED_STATE_BIT,
+> +				      old_state);
+> +	if (ret) {
+> +		dev_err(r->dev,
+> +			"Failed to disable 'elapsed timer' for RTC setting\n");
+> +		return ret;
+> +	}
+> +	ret = bd70528_set_wake(r->mfd, new_state & BD70528_WAKE_STATE_BIT,
+> +			       old_state);
+> +	if (ret) {
+> +		dev_err(r->dev,
+> +			"Failed to disable 'wake timer' for RTC setting\n");
+> +		return ret;
+> +	}
+> +
+> +	return ret;
+> +}
+> +
+> +static int bd70528_re_enable_rtc_based_timers(struct bd70528_rtc *r,
+> +							int old_state)
+> +{
+> +	int ret;
+> +
+> +	ret = bd70528_set_rtc_based_timers(r, old_state, NULL);
+> +	mutex_unlock(&r->mfd->rtc_timer_lock);
+> +
+> +	return ret;
+> +}
+> +
+> +static int bd70528_disable_rtc_based_timers(struct bd70528_rtc *r,
+> +							int *old_state)
+> +{
+> +	mutex_lock(&r->mfd->rtc_timer_lock);
+> +
+> +	return bd70528_set_rtc_based_timers(r, 0, old_state);
+> +}
+> +
+> +static inline void tmday2rtc(struct rtc_time *t, struct bd70528_rtc_day *d)
+> +{
+> +	d->sec &= ~BD70528_MASK_RTC_SEC;
+> +	d->min &= ~BD70528_MASK_RTC_MINUTE;
+> +	d->hour &= ~BD70528_MASK_RTC_HOUR;
+> +	d->sec |= bin2bcd(t->tm_sec);
+> +	d->min |= bin2bcd(t->tm_min);
+> +	d->hour |= bin2bcd(t->tm_hour);
+> +}
+> +
+> +static inline void tm2rtc(struct rtc_time *t, struct bd70528_rtc_data *r)
+> +{
+> +	r->day &= ~BD70528_MASK_RTC_DAY;
+> +	r->week &= ~BD70528_MASK_RTC_WEEK;
+> +	r->month &= ~BD70528_MASK_RTC_MONTH;
+> +	/*
+> +	 * PM and 24H bits are not used by Wake - thus we clear them
+> +	 * here and not in tmday2rtc() which is also used by wake.
+> +	 */
+> +	r->time.hour &= ~(BD70528_MASK_RTC_HOUR_PM | BD70528_MASK_RTC_HOUR_24H);
+> +
+> +	tmday2rtc(t, &r->time);
+> +	/*
+> +	 * We do always set time in 24H mode.
+> +	 */
+> +	r->time.hour |= BD70528_MASK_RTC_HOUR_24H;
+> +	r->day |= bin2bcd(t->tm_mday);
+> +	r->week |= bin2bcd(t->tm_wday);
+> +	r->month |= bin2bcd(t->tm_mon + 1);
+> +	r->year = bin2bcd(t->tm_year-100);
+> +}
+> +
+> +static inline void rtc2tm(struct bd70528_rtc_data *r, struct rtc_time *t)
+> +{
+> +	t->tm_sec = bcd2bin(r->time.sec & BD70528_MASK_RTC_SEC);
+> +	t->tm_min = bcd2bin(r->time.min & BD70528_MASK_RTC_MINUTE);
+> +	t->tm_hour = bcd2bin(r->time.hour & BD70528_MASK_RTC_HOUR);
+> +	/*
+> +	 * If RTC is in 12H mode, then bit BD70528_MASK_RTC_HOUR_PM
+> +	 * is not BCD value but tells whether it is AM or PM
+> +	 */
+> +	if (!(r->time.hour & BD70528_MASK_RTC_HOUR_24H)) {
+> +		t->tm_hour %= 12;
+> +		if (r->time.hour & BD70528_MASK_RTC_HOUR_PM)
+> +			t->tm_hour += 12;
+> +	}
+> +	t->tm_mday = bcd2bin(r->day & BD70528_MASK_RTC_DAY);
+> +	t->tm_mon = bcd2bin(r->month & BD70528_MASK_RTC_MONTH) - 1;
+> +	t->tm_year = 100 + bcd2bin(r->year & BD70528_MASK_RTC_YEAR);
+> +	t->tm_wday = bcd2bin(r->week & BD70528_MASK_RTC_WEEK);
+> +}
+> +
+> +static int bd70528_set_alarm(struct device *dev, struct rtc_wkalrm *a)
+> +{
+> +	struct bd70528_rtc_wake wake;
+> +	struct bd70528_rtc_alm alm;
+> +	int ret;
+> +	struct bd70528_rtc *r = dev_get_drvdata(dev);
+> +	struct bd70528 *bd70528 = r->mfd;
+> +
+> +	ret = regmap_bulk_read(bd70528->chip.regmap, BD70528_REG_RTC_WAKE_START,
+> +			       &wake, sizeof(wake));
+> +	if (ret) {
+> +		dev_err(dev, "Failed to read wake regs\n");
+> +		return ret;
+> +	}
+> +
+> +	ret = regmap_bulk_read(bd70528->chip.regmap, BD70528_REG_RTC_ALM_START,
+> +			       &alm, sizeof(alm));
+> +	if (ret) {
+> +		dev_err(dev, "Failed to read alarm regs\n");
+> +		return ret;
+> +	}
+> +
+> +	tm2rtc(&a->time, &alm.data);
+> +	tmday2rtc(&a->time, &wake.time);
+> +
+> +	if (a->enabled) {
+> +		alm.alm_mask &= ~BD70528_MASK_ALM_EN;
+> +		wake.ctrl |= BD70528_MASK_WAKE_EN;
+> +	} else {
+> +		alm.alm_mask |= BD70528_MASK_ALM_EN;
+> +		wake.ctrl &= ~BD70528_MASK_WAKE_EN;
+> +	}
+> +
+> +	ret = regmap_bulk_write(bd70528->chip.regmap,
+> +				BD70528_REG_RTC_WAKE_START, &wake,
+> +				sizeof(wake));
+> +	if (ret) {
+> +		dev_err(dev, "Failed to set wake time\n");
+> +		return ret;
+> +	}
+> +	ret = regmap_bulk_write(bd70528->chip.regmap, BD70528_REG_RTC_ALM_START,
+> +				&alm, sizeof(alm));
+> +	if (ret)
+> +		dev_err(dev, "Failed to set alarm time\n");
+> +
+> +	return ret;
+> +}
+> +
+> +static int bd70528_read_alarm(struct device *dev, struct rtc_wkalrm *a)
+> +{
+> +	struct bd70528_rtc_alm alm;
+> +	int ret;
+> +	struct bd70528_rtc *r = dev_get_drvdata(dev);
+> +	struct bd70528 *bd70528 = r->mfd;
+> +
+> +	ret = regmap_bulk_read(bd70528->chip.regmap, BD70528_REG_RTC_ALM_START,
+> +			  &alm, sizeof(alm));
+> +	if (ret) {
+> +		dev_err(dev, "Failed to read alarm regs\n");
+> +		return ret;
+> +	}
+> +
+> +	rtc2tm(&alm.data, &a->time);
+> +	a->time.tm_mday = -1;
+> +	a->time.tm_mon = -1;
+> +	a->time.tm_year = -1;
+> +	if (alm.alm_mask & BD70528_MASK_ALM_EN)
+> +		a->enabled = 0;
+> +	else
+> +		a->enabled = 1;
+> +
+Without conditional:
+	a->enabled = !(alm.alm_mask & BD70528_MASK_ALM_EN);
 
-~~~ "I don't think so," said Rene Descartes.  Just then, he vanished ~~~
+> +	a->pending = 0;
+> +
+> +	return 0;
+> +}
+> +
+> +static int bd70528_set_time(struct device *dev, struct rtc_time *t)
+> +{
+> +	int ret, old_states;
+> +	struct bd70528_rtc_data rtc_data;
+> +	struct bd70528_rtc *r = dev_get_drvdata(dev);
+> +	struct bd70528 *bd70528 = r->mfd;
+> +
+> +	ret = bd70528_disable_rtc_based_timers(r, &old_states);
+> +
+
+AFAICS the disable/enable functions are only called once. Since they
+also apply set / clear a mutex, I find that a bit confusing. I think
+it would be better to fold the code into this function. If anything,
+I could imagine something like
+
+	mutex_lock();
+	ret = bd70528_set_time_locked();
+	mutex_unlock()
+
+to simplify error handling.
+
+
+> +	ret = regmap_bulk_read(bd70528->chip.regmap,
+> +			       BD70528_REG_RTC_START, &rtc_data,
+> +			       sizeof(rtc_data));
+> +
+> +	tm2rtc(t, &rtc_data);
+> +
+> +	ret = regmap_bulk_write(bd70528->chip.regmap,
+> +				BD70528_REG_RTC_START, &rtc_data,
+> +				sizeof(rtc_data));
+> +
+> +	ret = bd70528_re_enable_rtc_based_timers(r, old_states);
+> +
+
+Kind of off that all the error returns are ignored here.
+
+> +	return 0;
+> +}
+> +static int bd70528_get_time(struct device *dev, struct rtc_time *t)
+> +{
+> +	struct bd70528_rtc *r = dev_get_drvdata(dev);
+> +	struct bd70528 *bd70528 = r->mfd;
+> +	struct bd70528_rtc_data rtc_data;
+> +	int ret;
+> +
+> +	/* read the RTC date and time registers all at once */
+> +	ret = regmap_bulk_read(bd70528->chip.regmap,
+> +			       BD70528_REG_RTC_START, &rtc_data,
+> +			       sizeof(rtc_data));
+> +	if (ret) {
+> +		dev_err(dev, "Failed to read RTC time (err %d)\n", ret);
+> +		return ret;
+> +	}
+> +
+> +	rtc2tm(&rtc_data, t);
+> +
+> +	return 0;
+> +}
+> +
+> +static const struct rtc_class_ops bd70528_rtc_ops = {
+> +	.read_time	= bd70528_get_time,
+> +	.set_time	= bd70528_set_time,
+> +	.read_alarm	= bd70528_read_alarm,
+> +	.set_alarm	= bd70528_set_alarm,
+> +};
+> +
+> +static irqreturn_t alm_hndlr(int irq, void *data)
+> +{
+> +	struct rtc_device *rtc = data;
+> +
+> +	rtc_update_irq(rtc, 1, RTC_IRQF | RTC_AF | RTC_PF);
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +static int bd70528_probe(struct platform_device *pdev)
+> +{
+> +	struct bd70528_rtc *bd_rtc;
+> +	struct bd70528 *mfd;
+> +	int ret;
+> +	struct rtc_device *rtc;
+> +	int irq;
+> +	unsigned int hr;
+> +
+> +	mfd = dev_get_drvdata(pdev->dev.parent);
+> +	if (!mfd) {
+> +		dev_err(&pdev->dev, "No MFD driver data\n");
+> +		return -EINVAL;
+> +	}
+> +	bd_rtc = devm_kzalloc(&pdev->dev, sizeof(*bd_rtc), GFP_KERNEL);
+> +	if (!bd_rtc)
+> +		return -ENOMEM;
+> +
+> +	bd_rtc->mfd = mfd;
+> +	bd_rtc->dev = &pdev->dev;
+> +
+> +	irq = platform_get_irq_byname(pdev, "bd70528-rtc-alm");
+> +
+> +	if (irq < 0) {
+> +		dev_err(&pdev->dev, "Failed to get irq\n");
+> +		return irq;
+> +	}
+> +
+> +	platform_set_drvdata(pdev, bd_rtc);
+> +
+> +	ret = regmap_read(mfd->chip.regmap, BD70528_REG_RTC_HOUR, &hr);
+> +
+> +	if (ret) {
+> +		dev_err(&pdev->dev, "Failed to reag RTC clock\n");
+> +		return ret;
+> +	}
+> +
+> +	if (!(hr & BD70528_MASK_RTC_HOUR_24H)) {
+> +		struct rtc_time t;
+> +
+> +		ret = bd70528_get_time(&pdev->dev, &t);
+> +		if (ret)
+> +			return ret;
+> +
+> +		ret = bd70528_set_time(&pdev->dev, &t);
+> +		if (ret)
+> +			return ret;
+> +	}
+> +
+> +	if (ret) {
+> +		dev_err(&pdev->dev, "Setting 24H clock for RTC failed\n");
+> +		return ret;
+> +	}
+> +
+> +	device_set_wakeup_capable(&pdev->dev, true);
+> +	device_wakeup_enable(&pdev->dev);
+> +	rtc = devm_rtc_device_register(&pdev->dev, "bd70528-rtc",
+> +				       &bd70528_rtc_ops, THIS_MODULE);
+> +	if (IS_ERR(rtc)) {
+> +		dev_err(&pdev->dev, "Registering RTC failed\n");
+> +		return PTR_ERR(rtc);
+> +	}
+> +
+> +	ret = devm_request_threaded_irq(&pdev->dev, irq, NULL, &alm_hndlr,
+> +					IRQF_ONESHOT, "bd70528-rtc", rtc);
+> +
+> +	/*
+> +	 *  BD70528 irq controller is not touching the main mask register.
+> +	 *  So enable the RTC block interrupts at main level. We can just
+> +	 *  leave them enabled as irq-controller should disable irqs
+> +	 *  from sub-registers when IRQ is disabled or freed.
+> +	 */
+> +	ret = regmap_update_bits(mfd->chip.regmap,
+> +				 BD70528_REG_INT_MAIN_MASK,
+> +				 BD70528_INT_RTC_MASK, 0);
+> +
+> +	if (ret)
+> +		dev_err(&pdev->dev, "Failed to enable RTC interrupts\n");
+> +
+> +	return ret;
+> +}
+> +
+> +static struct platform_driver bd70528_rtc = {
+> +	.driver = {
+> +		.name = "bd70528-rtc"
+> +	},
+> +	.probe = bd70528_probe,
+> +};
+> +
+> +module_platform_driver(bd70528_rtc);
+> +
+> +MODULE_AUTHOR("Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>");
+> +MODULE_DESCRIPTION("BD70528 RTC driver");
+> +MODULE_LICENSE("GPL");
+> 
+
