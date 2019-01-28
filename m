@@ -2,50 +2,64 @@ Return-Path: <SRS0=V4UY=QE=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2B052C282C8
-	for <linux-watchdog@archiver.kernel.org>; Mon, 28 Jan 2019 14:04:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 254C3C282C8
+	for <linux-watchdog@archiver.kernel.org>; Mon, 28 Jan 2019 14:46:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 0A4D020989
-	for <linux-watchdog@archiver.kernel.org>; Mon, 28 Jan 2019 14:04:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DF7032177B
+	for <linux-watchdog@archiver.kernel.org>; Mon, 28 Jan 2019 14:46:26 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=linaro.org header.i=@linaro.org header.b="fjBO6NAS"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727000AbfA1OEy (ORCPT
+        id S1726996AbfA1Oq0 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 28 Jan 2019 09:04:54 -0500
-Received: from mail-lf1-f65.google.com ([209.85.167.65]:36209 "EHLO
-        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726683AbfA1OEx (ORCPT
+        Mon, 28 Jan 2019 09:46:26 -0500
+Received: from mail-lf1-f67.google.com ([209.85.167.67]:33674 "EHLO
+        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726774AbfA1OqZ (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 28 Jan 2019 09:04:53 -0500
-Received: by mail-lf1-f65.google.com with SMTP id a16so11921005lfg.3;
-        Mon, 28 Jan 2019 06:04:51 -0800 (PST)
+        Mon, 28 Jan 2019 09:46:25 -0500
+Received: by mail-lf1-f67.google.com with SMTP id i26so12068857lfc.0
+        for <linux-watchdog@vger.kernel.org>; Mon, 28 Jan 2019 06:46:23 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=i0A15Ao45YICdfHTMKUh/nirt0xQjJRx12IsNVpUXSk=;
+        b=fjBO6NASJUNwGZiT0ipeqUMB2WymDWSu+H+iMvHuPha+BKeq3OXDHrrvdsxLaLcvZ9
+         H2TGSGUD7NE9ji9cvg95etV9hMmO2VN3Yc7h6OdH8kviUdKnJ47vHsEws2VrRu/lfOVW
+         a0cKBLUbHDNZjmV7NHwVagWFvZyPeeNDOeWyQ=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=2DnoYUTPil3lnC/tr8LJXrq2BP9a/vq0o37VypGxF5o=;
-        b=e7TkWSlUzOZy0cf9HihHuhYRuDlr4OHhuhj+uPm02FiT7YGngqAYoWtjCU91gsVhmj
-         GuMEuDsu2FiT3DzNwLt5RzpOvQ2A3NOAYUbpb2dn27Got88wtoHKpuNI1/Clz5BuKinP
-         JpMsdtgBvl1SpmmLKw1NPnUQGH7d93gpEz9+dZdUy3xKWtUvxv3MnzJNoBO223r2fQWu
-         HRzqtDb0wQaAZGmWtvFib2Fst6xgKhS3uz9YsAdTOvWCWTYLQf1dajf+kk158k+BSSER
-         Sfqo9xNed1uL5jfitqi4DlYra+oy57ecMzkrUCOPTqeraOcxygS+x8FGgw0dPJG/0TKq
-         3kcg==
-X-Gm-Message-State: AJcUukdM5SkEP3f+Z2KGy088CRhXDhfDNrUCYkBU8fVFCnmAY3zI7Vbj
-        KaFK2xzVrvY5p5yXfOFttUQ=
-X-Google-Smtp-Source: ALg8bN457TwXGKT2k6IVkN+A0kr8Fz+QSImc8YOiO7nviNcYHIWxCzON9Mq8v9YidFhl3sv9v1oo+w==
-X-Received: by 2002:ac2:5382:: with SMTP id g2mr15989118lfh.159.1548684290499;
-        Mon, 28 Jan 2019 06:04:50 -0800 (PST)
-Received: from localhost.localdomain (mobile-access-bcee00-77.dhcp.inet.fi. [188.238.0.77])
-        by smtp.gmail.com with ESMTPSA id w4sm2889858lfk.83.2019.01.28.06.04.48
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Mon, 28 Jan 2019 06:04:49 -0800 (PST)
-Date:   Mon, 28 Jan 2019 16:04:45 +0200
-From:   Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-To:     Linus Walleij <linus.walleij@linaro.org>
-Cc:     Matti Vaittinen <mazziesaccount@gmail.com>,
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=i0A15Ao45YICdfHTMKUh/nirt0xQjJRx12IsNVpUXSk=;
+        b=beT2cSs70/GCwYfFM9O72vGbN6hGIVQKzkGpVbJveC1in3GfzAl47EEHHuYSurZ1WI
+         BAWPak0ccPKC77NT9txTFk3o0hDufbLbUqZPBlZWIMfBayFczqSGnCqffXBW37Jqf/FW
+         N/I3QbHZMBo5QWVycXA1RI+7bQbhYDwQ1d63+u1zr/Fm+gKs/TStVtKOe2Ao5L9Cuocg
+         aVzupt5VSVKrK0iH/9+9W5D0SRpDEvYMhfJXPK3gvJgvNrQmRHpItGV/o5NXqshckwbK
+         fy0hcxUHcVSBi4m0nseQ0FtiNpHOcQseQXll/F+icibbtA0LgLSB2mH9gJ4hrz3TQUca
+         /JZw==
+X-Gm-Message-State: AJcUukcY+SEyHpydYwjdpW1ydstmvwqn82R4atBe0IqeyGs057ELJn1l
+        hueG21SZ4Oj/X3A4VZswf6zNyt8hXBqzuzdLB7ncHQ==
+X-Google-Smtp-Source: ALg8bN4UdQe0NnePjP5wtLROColhji+ieN3FU0f/+czK7dWpJFjaW7J4FEonaVXj/SfJNJ31lI9Os4gslG7LjPJz6e8=
+X-Received: by 2002:a19:8096:: with SMTP id b144mr16277616lfd.8.1548686782648;
+ Mon, 28 Jan 2019 06:46:22 -0800 (PST)
+MIME-Version: 1.0
+References: <20190125110600.GA29332@localhost.localdomain> <CACRpkdYTCgXo8FeitEfRujeWdshnsR3Kn57cKUZsA3CsZ5Cnrw@mail.gmail.com>
+ <20190128135354.GA4156@localhost.localdomain>
+In-Reply-To: <20190128135354.GA4156@localhost.localdomain>
+From:   Linus Walleij <linus.walleij@linaro.org>
+Date:   Mon, 28 Jan 2019 15:46:10 +0100
+Message-ID: <CACRpkdZDOJJ6qSS8fkqQsgmchDWATfhTP=TZATwt6-Z_WQXpJQ@mail.gmail.com>
+Subject: Re: [RFC PATCH v2 09/10] power: supply: Initial support for ROHM
+ BD70528 PMIC charger block
+To:     Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+Cc:     Baolin Wang <baolin.wang@linaro.org>,
+        Matti Vaittinen <mazziesaccount@gmail.com>,
         heikki.haikola@fi.rohmeurope.com, mikko.mutanen@fi.rohmeurope.com,
         Lee Jones <lee.jones@linaro.org>,
         Rob Herring <robh+dt@kernel.org>,
@@ -70,104 +84,110 @@ Cc:     Matti Vaittinen <mazziesaccount@gmail.com>,
         Linux PM list <linux-pm@vger.kernel.org>,
         linux-rtc@vger.kernel.org,
         LINUXWATCHDOG <linux-watchdog@vger.kernel.org>
-Subject: Re: [RFC PATCH v2 07/10] gpio: Initial support for ROHM bd70528 GPIO
- block
-Message-ID: <20190128140445.GB4156@localhost.localdomain>
-References: <20190125110509.GA29310@localhost.localdomain>
- <CACRpkdYTUB8vPiCF=s5-TARhv=DsPDQHVyCwP7fMc27gyDvKSg@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CACRpkdYTUB8vPiCF=s5-TARhv=DsPDQHVyCwP7fMc27gyDvKSg@mail.gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Mon, Jan 28, 2019 at 01:55:48PM +0100, Linus Walleij wrote:
-> Hi Matti!
-> 
-> Thanks for your patch!
+On Mon, Jan 28, 2019 at 2:54 PM Matti Vaittinen
+<matti.vaittinen@fi.rohmeurope.com> wrote:
 
-No, thank you for the review =)
+> > These charging drivers are growing wild. This is starting to get out
+> > of hand, we need some more framework for properly handling charging
+> > state machines the kernel. Not specifically your problem, but
+> > when working on the driver try to keep generic support in mind.
+>
+> I for sure can try - but as the power subsystem is quite new to me - any
+> specific items you would like me to really pay attention?
 
-> On Fri, Jan 25, 2019 at 12:05 PM Matti Vaittinen
-> <matti.vaittinen@fi.rohmeurope.com> wrote:
-> 
-> > ROHM BD70528 PMIC has 4 GPIO pins. Allow them to be
-> > controlled by GPIO framework.
-> >
-> > IRQs are handled by regmap-irq and GPIO driver is not
-> > aware of the irq usage.
-> >
-> > Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-> 
-> This is overall a very nicely written driver.
-> 
-> Just small comments:
-> 
-> > +#include <linux/gpio/driver.h>
-> > +#include <linux/interrupt.h>
-> 
-> Why interrupt? You do not use it.
+So I am not saying you have to do this or anything, but I think
+what we need is a generic state machine and policy engine
+for charging, where different charging drivers just plug in.
 
-Right, I'd better to drop it.
+They all seem to have trickle and fast charging, USB phy
+interaction and AC plug interaction of some kind for detecting
+those and in some cases temperature detection directly
+or using an ADC.
 
-> 
-> > +static int bd70528_get_direction(struct gpio_chip *chip, unsigned int offset)
-> > +{
-> > +       struct bd70528_gpio *bdgpio = gpiochip_get_data(chip);
-> > +       int val, ret;
-> > +
-> > +       /* Do we need to do something to IRQs here? */
-> 
-> Well you don't support IRQs yet so no problem as long as they're masked?
+We have a bunch of drivers with software-controlled charging:
+ab8500*
+axp288*
+etc.
 
-I may have not worded this correctly. These pins can be used for IRQs.
-HW supports it and I added the irq registers in regmap-irq controller
-(please see the MFD part). It's just that this GPIO driver is currently not
-aware of that. This comment here is a reminder for me to figure out if
-we should look whether the pin is used for I/O or for irqs here - and
-what should we return if pin is configured to be used for IRQs.
+If we could get just two drivers to share some changing
+infrastructure we would have a start.
 
-> > +       ret = regmap_read(bdgpio->chip.regmap, GPIO_OUT_REG(offset), &val);
-> > +       if (ret) {
-> > +               dev_err(bdgpio->chip.dev, "Could not read gpio direction\n");
-> > +               return ret;
-> > +       }
-> > +
-> > +       return !(val & BD70528_GPIO_OUT_EN_MASK);
-> > +}
-> > +
-> > +static int bd70528_gpio_set_config(struct gpio_chip *chip, unsigned int offset,
-> > +                                  unsigned long config)
-> 
-> This is very nice. With Thomas Petazzoni's ongoing work you will be
-> able to also support pull up/down if you need it.
-> 
-> > +static int bd70528_direction_input(struct gpio_chip *chip, unsigned int offset)
-> > +{
-> > +       struct bd70528_gpio *bdgpio = gpiochip_get_data(chip);
-> > +
-> > +       /* Do we need to do something to IRQs here? */
-> 
-> Hmmm?
+I have no idea how hard it could be, but I think it would
+be a pretty interesting adventure if someone gathered
+some different hardwares and started to generalize parts
+of this.
 
-Same thing as with the get_direction. Should we allow setting the
-direction if pin is already configured as an irq source? Should we
-somehow try to warn user if it seems the pin is tried to be used for
-both irqs and I/O?
+> > So what I am seeing is that these states are starting to turn up in more
+> > and more drivers, so we really need to think about a central management
+> > component for charging state machines. I do not think they are all
+> > that different after all.
+>
+> Any suggestions how I should take this into account with bd70528?
 
-> 
-> Apart from that it looks good. Feel free to add:
-> Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-> on the next iteration.
+Not more than above, it is unfair to ask random contributors to
+invent entire new worlds of kernel infrastructure. But I guess I
+just need to say it so we are aware: this charging state machine
+engine is needed. Doing it is another thing.
 
-I will need to do some further testing on this before submitting next
-version. I will gladly maintain your Reviewed-by if I don't do any
-bigger changes to the driver - but if I do I'll drop your tag and ask
-for re-review :)
+> > I am certain you must have a graphical picture of this state
+> > machine somewhere, it seems to be how charging hardware people
+> > do their thinking.
+>
+> I don't have any document I could link to yet. I can ask around if we
+> can have some public doc for this :/ And as a last resort I can do some
+> ASCII art in commenets - if this is seen helpfull.
 
-Br,
-	Matti Vaittinen
+That'd be nice.
+
+> > If I'm not mistaken this is yet another instance of linear interpolation
+> > from a table?
+>
+> "linear interpolation from a table" is really not part of my
+> vocabulary :] But I guess you know the REGULATOR_LINEAR_VOLTAGE - macro?
+> I borrowed the idea from there...
+
+I'm referring to this essentially:
+https://en.wikipedia.org/wiki/Linear_interpolation
+
+What many charging drivers tends to do is:
+- Look up where I am in a table, say between row 4 and 5
+- For x-axis n..n+1, interpolate y-axis between
+  the values found for x=1 and x=n+1 using
+  common linear interpolation.
+
+> > We really need to think about abstracting this. Last time this
+> > duplication appeared I suggested adding linear interpolation
+> > primitives to:
+> > include/linux/fixp-arith.h
+>
+> ... I really think a generic helper for this would be usefull.
+
+Indeed.
+
+> It will take some time untill I can send a proper (non RFC patch) for
+> the charger block as I currently lack of HW I could use for testing the
+> charger properly. Do you think it is better to drop the charger part
+> from the series untill then and submit it only later?
+
+Not really, we need to face the hardware out there and I usually
+use the stance "rough consensus and running code". If noone
+invents a unified charging framework, your hardware needs to
+run so a custom driver isn't that bad either, and it's still better
+to have it in-tree than to maintain it out-of-tree as long as it
+is clearly isolated.
+
+> As I mentioned in
+> cover-letter, the charger part is currently submitted more to give an
+> overview of the chip than to be applied as 'finalized' version of
+> driver.
+
+That's OK.
+
+Yours,
+Linus Walleij
