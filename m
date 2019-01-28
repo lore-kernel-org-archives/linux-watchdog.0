@@ -6,43 +6,43 @@ X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A80A4C282CB
-	for <linux-watchdog@archiver.kernel.org>; Mon, 28 Jan 2019 07:49:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0CDDAC282C8
+	for <linux-watchdog@archiver.kernel.org>; Mon, 28 Jan 2019 08:00:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 8311A217D6
-	for <linux-watchdog@archiver.kernel.org>; Mon, 28 Jan 2019 07:49:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DA52D21736
+	for <linux-watchdog@archiver.kernel.org>; Mon, 28 Jan 2019 08:00:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726695AbfA1Hs6 (ORCPT
+        id S1726875AbfA1IAn (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 28 Jan 2019 02:48:58 -0500
-Received: from mail-lj1-f193.google.com ([209.85.208.193]:42851 "EHLO
-        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726627AbfA1Hs5 (ORCPT
+        Mon, 28 Jan 2019 03:00:43 -0500
+Received: from mail-lf1-f66.google.com ([209.85.167.66]:36162 "EHLO
+        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726647AbfA1IAn (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 28 Jan 2019 02:48:57 -0500
-Received: by mail-lj1-f193.google.com with SMTP id l15-v6so13341677lja.9;
-        Sun, 27 Jan 2019 23:48:55 -0800 (PST)
+        Mon, 28 Jan 2019 03:00:43 -0500
+Received: by mail-lf1-f66.google.com with SMTP id a16so11108319lfg.3;
+        Mon, 28 Jan 2019 00:00:41 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=tcOCp8of7K1VvdRoo3+VkXtmUKgqAO/Ldh/NbgNbGSs=;
-        b=hNi6Wz11RlBDasAtV5vT/DKuaEKX3bDo+FrPP+QBfAtLsysvPcOaEIDu1KhkX1wUx3
-         A37AyCG0uJgF5npc4AizObfODZoaHj57Z5oT5UI/DczXvKQMeO9kG5HXpWok34dhnxNG
-         LuxqE9FTQ7gLEldD+P7jfaRNM1RoU2VqGEgs+pBuQrBxZA0c5UV0IgVRP3DCesRdMWu/
-         0W9rWDIeMp7m8TtGKfQLVaW02Qq9OykxNtd3wl8nc/OiMPl/zGATIos+PlMtLj7lxz52
-         a/szjQGxckZKuTfxdUSlOaA0cWV0EXJd+jBHlvz8wodMrZdM8f8TtvbGi3KQrDc+DdIu
-         lbWA==
-X-Gm-Message-State: AJcUukcP9wDecenHTriixaifRyyUTevHYuSB0EN3a6/C2hwtlt6/c5KD
-        UheUoUXZE26TWi9YH76ke80=
-X-Google-Smtp-Source: ALg8bN5ANr1VznXWl85llSwR9jiZE+NOQY5Am11MEe55qpPe73C2UGWFkq2jlNqw1DpN8uXmtkXl/g==
-X-Received: by 2002:a2e:c41:: with SMTP id o1-v6mr16399186ljd.152.1548661734332;
-        Sun, 27 Jan 2019 23:48:54 -0800 (PST)
+        bh=VC16U5ereJxyPItEEQ6j9mgF3VVe/205qxplcO0sYK8=;
+        b=NsRscJKtiTO3IqZCIHmmjL4QruiYZnv/AewxcDq0KFe2S5RoxkcnbEN6xwD8pj4zee
+         if/ZOmAoHf4zg45cNwMk6e3q3i1gUfqXbPtB7TUb5AdPnx/9sDuWJ096PHILJnxxdGj3
+         y7kcbUxdssedhBVhgpitZpGathbBFPPPqYufPs5kve/QZv767FucEW4+WJ2szRzJBoXl
+         mxkJgNXvshqiuguxiQR2WB9GQkPB4eWg18/V+bsEyKTCIwithfy9CvyoS+HAZO0jGnY6
+         IoEPG7s4lgA4vVl3E4wzaXfKxQPdIJsxMUjCvrabC924lvdUFEn9ig6w2041fGE0Gdov
+         tYhQ==
+X-Gm-Message-State: AJcUukcjrWWV/ot0Raeq8b8KQFeGUkGyetRa28wpQiMPuxpbj7ai8bFK
+        pzdY7QVWVZw82XKfcjl7Cp0=
+X-Google-Smtp-Source: ALg8bN7MVgutX/gx4UKOurPmykpoxo7K+ac3YiKbJ1Vbu35rcvNQ2RdQANmrOvFPBNTckg+1N4UklA==
+X-Received: by 2002:a19:d619:: with SMTP id n25mr14316637lfg.91.1548662440197;
+        Mon, 28 Jan 2019 00:00:40 -0800 (PST)
 Received: from localhost.localdomain (dytkl7s9vpj00trvf9g2y-4.rev.dnainternet.fi. [2001:14bb:410:9dbf:b161:fde8:3a24:e96c])
-        by smtp.gmail.com with ESMTPSA id 18-v6sm2870799ljg.83.2019.01.27.23.48.52
+        by smtp.gmail.com with ESMTPSA id h82sm2825838lfg.94.2019.01.28.00.00.37
         (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Sun, 27 Jan 2019 23:48:53 -0800 (PST)
-Date:   Mon, 28 Jan 2019 09:48:49 +0200
+        Mon, 28 Jan 2019 00:00:39 -0800 (PST)
+Date:   Mon, 28 Jan 2019 10:00:35 +0200
 From:   Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
 To:     Guenter Roeck <linux@roeck-us.net>
 Cc:     mazziesaccount@gmail.com, heikki.haikola@fi.rohmeurope.com,
@@ -57,129 +57,99 @@ Cc:     mazziesaccount@gmail.com, heikki.haikola@fi.rohmeurope.com,
         linux-clk@vger.kernel.org, linux-gpio@vger.kernel.org,
         linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org,
         linux-watchdog@vger.kernel.org
-Subject: Re: [RFC PATCH v2 08/10] rtc: bd70528: Initial support for ROHM
- bd70528 RTC
-Message-ID: <20190128074849.GB2030@localhost.localdomain>
-References: <20190125110536.GA29321@localhost.localdomain>
- <35bbc5b9-5f8c-ec80-3eaa-bb2c0e2812c9@roeck-us.net>
+Subject: Re: [RFC PATCH v2 10/10] watchdog: bd70528: Initial support for ROHM
+ BD70528 watchdog block
+Message-ID: <20190128080035.GC2030@localhost.localdomain>
+References: <20190125110625.GA29348@localhost.localdomain>
+ <1d05ec19-daf6-f1d9-f80c-57fc92906d22@roeck-us.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <35bbc5b9-5f8c-ec80-3eaa-bb2c0e2812c9@roeck-us.net>
+In-Reply-To: <1d05ec19-daf6-f1d9-f80c-57fc92906d22@roeck-us.net>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Thanks again Guenter,
-
-On Sat, Jan 26, 2019 at 08:30:24AM -0800, Guenter Roeck wrote:
-> On 1/25/19 3:05 AM, Matti Vaittinen wrote:
-> > +/*
-> > + * We read regs RTC_SEC => RTC_YEAR
-> > + * this struct is ordered according to chip registers.
-> > + * Keep it u8 only to avoid padding issues.
-> > + */
-> > +struct bd70528_rtc_day {
-> > +	u8 sec;
-> > +	u8 min;
-> > +	u8 hour;
-> > +};
+On Sat, Jan 26, 2019 at 08:36:14AM -0800, Guenter Roeck wrote:
+> On 1/25/19 3:06 AM, Matti Vaittinen wrote:
+> > +/* Max time we can set is 1 hour, 59 minutes and 59 seconds */
+> > +#define WDT_MAX_MS ((2 * 60 * 60 - 1) * 1000)
+> > +/* Minimum time is 1 second */
+> > +#define WDT_MIN_MS 1000
+> > +#define DEFAULT_TIMEOUT 60
 > > +
-> > +struct bd70528_rtc_data {
-> > +	struct bd70528_rtc_day time;
-> > +	u8 week;
-> > +	u8 day;
-> > +	u8 month;
-> > +	u8 year;
-> > +};
-> > +
-> > +struct bd70528_rtc_wake {
-> > +	struct bd70528_rtc_day time;
-> > +	u8 ctrl;
-> > +};
-> > +
-> > +struct bd70528_rtc_alm {
-> > +	struct bd70528_rtc_data data;
-> > +	u8 alm_mask;
-> > +	u8 alm_repeat;
-> > +};
-> 
-> At least some of the above are directly associated with chip registers.
-> I don't think this will work for all architectures without explicit packed
-> attribute.
-
-Allright. I was thinking of that but thought that most of the
-architectures using this PMIC would handle alignments fine if I used
-only u8 members. I did consider using __attribute__((packed)) - but I'm
-not sure if we hit into troubles with that too. I guess some people
-would like to compile kernel with other compiler(s) but gcc - although
-I'm not sure if this should be taken into account. I'll try doing some
-study on this - unless someone replies to this and just tells how this
-should be done. (I am pretty sure I can find the answer from mail
-archives though). I'll try adding some packing hint for compiler at v3.
-
-> > +		if ((!enable) == (!(*old_state & BD70528_WAKE_STATE_BIT)))
-> > +			return 0;
-> 
-> I think
-> 		if (enable == !!(*old_state & BD70528_WAKE_STATE_BIT))
-> would be much better readable. Even if not, there are way too many ()
-> in the above conditional.
-
-Allright. I'll fix this
- 
-> > +	if (alm.alm_mask & BD70528_MASK_ALM_EN)
-> > +		a->enabled = 0;
-> > +	else
-> > +		a->enabled = 1;
-> > +
-> Without conditional:
-> 	a->enabled = !(alm.alm_mask & BD70528_MASK_ALM_EN);
-> 
-
-Right. Much nicer, thanks! I'll change this.
-
-> > +static int bd70528_set_time(struct device *dev, struct rtc_time *t)
+> > +static int bd70528_wdt_probe(struct platform_device *pdev)
 > > +{
-> > +	int ret, old_states;
-> > +	struct bd70528_rtc_data rtc_data;
-> > +	struct bd70528_rtc *r = dev_get_drvdata(dev);
-> > +	struct bd70528 *bd70528 = r->mfd;
+> > +	struct bd70528 *bd70528;
+> > +	struct wdtbd70528 *w;
+> > +	int ret;
+> > +	unsigned int reg;
+> > +	struct watchdog_device *wdt;
 > > +
-> > +	ret = bd70528_disable_rtc_based_timers(r, &old_states);
+> > +	bd70528 = dev_get_drvdata(pdev->dev.parent);
+> > +	if (!bd70528) {
+> > +		dev_err(&pdev->dev, "No MFD driver data\n");
+> > +		return -EINVAL;
+> > +	}
+> > +	w = devm_kzalloc(&pdev->dev, sizeof(*w), GFP_KERNEL);
+> > +	if (!w)
+> > +		return -ENOMEM;
+> > +	w->bd = bd70528;
+> 
+> Unless I am missing something, only the mutex and the regmap pointer
+> are used from struct bd70528. With that in mind, it might be desirable
+> to copy those pointers to struct wdtbd70528 to avoid the additional
+> dereferencing at runtime.
+
+You are not missing anyting. If we ever add support for another PMIC
+variant we will probably be using also the chip_type. Untill then only
+the mutex and regmap. (And maybe the of_node if we have any RTC
+properties in DT). So at this point we just use regmap and mutex. I will
+change this.
+
+> > +	w->dev = &pdev->dev;
+> > +
+> > +	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
+> > +	if (!wdt)
+> > +		return -ENOMEM;
 > > +
 > 
-> AFAICS the disable/enable functions are only called once. Since they
-> also apply set / clear a mutex, I find that a bit confusing. I think
-> it would be better to fold the code into this function. If anything,
-> I could imagine something like
+> struct watchdog_device can be part of struct wdtbd70528. Two separate allocations
+> are not necessary.
+
+Correct. Thanks for pointing that out. I'll simplify this.
+
+> > +	wdt->info = &bd70528_wdt_info;
+> > +	wdt->ops =  &bd70528_wdt_ops;
+> > +	wdt->min_hw_heartbeat_ms = WDT_MIN_MS;
+> > +	wdt->max_hw_heartbeat_ms = WDT_MAX_MS;
+> > +	wdt->parent = pdev->dev.parent;
+> > +	wdt->timeout = DEFAULT_TIMEOUT;
+> > +	watchdog_set_drvdata(wdt, w);
+> > +	watchdog_init_timeout(wdt, 0, pdev->dev.parent);
+> > +
+> > +	ret = bd70528_wdt_set_timeout(wdt, wdt->timeout);
+> > +	if (ret) {
+> > +		dev_err(&pdev->dev, "Failed to set the watchdog timeout\n");
+> > +		return ret;
+> > +	}
+> > +
+> > +	mutex_lock(&bd70528->rtc_timer_lock);
+> > +	ret = regmap_read(bd70528->chip.regmap, BD70528_REG_WDT_CTRL, &reg);
+> > +	mutex_unlock(&bd70528->rtc_timer_lock);
+> > +
 > 
-> 	mutex_lock();
-> 	ret = bd70528_set_time_locked();
-> 	mutex_unlock()
-> 
-> to simplify error handling.
+> I don't see the point for the above mutex locks. This is just reading a
+> single register. regmap itself provides locking for that already.
 
-Yep. Makes sense. I'll tidy this.
-
-> > +	ret = regmap_bulk_read(bd70528->chip.regmap,
-> > +			       BD70528_REG_RTC_START, &rtc_data,
-> > +			       sizeof(rtc_data));
-> > +
-> > +	tm2rtc(t, &rtc_data);
-> > +
-> > +	ret = regmap_bulk_write(bd70528->chip.regmap,
-> > +				BD70528_REG_RTC_START, &rtc_data,
-> > +				sizeof(rtc_data));
-> > +
-> > +	ret = bd70528_re_enable_rtc_based_timers(r, old_states);
-> > +
-> 
-> Kind of off that all the error returns are ignored here.
-
-And I'll fix this too.
-
+It has a purpose here - but I'd better add a comment. We want to get the
+initial state of WDG here. If the probe is executed when RTC time is being
+set we may read the state just when RTC is (temporarily) disabling WDT -
+and we might tell the WDT core that WDT is disabled - even if it is
+actually enabled. The mutex prevents us from reading the WDT state when
+RTC is being set.
+ 
 Br,
 	Matti Vaittinen
