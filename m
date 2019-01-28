@@ -4,53 +4,52 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+	SPF_PASS,USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8FC03C282CF
-	for <linux-watchdog@archiver.kernel.org>; Mon, 28 Jan 2019 17:18:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CAD16C282D0
+	for <linux-watchdog@archiver.kernel.org>; Mon, 28 Jan 2019 17:42:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 555E92082E
-	for <linux-watchdog@archiver.kernel.org>; Mon, 28 Jan 2019 17:18:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8E324214DA
+	for <linux-watchdog@archiver.kernel.org>; Mon, 28 Jan 2019 17:42:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1548695913;
-	bh=L67plHKj0uRvuW2ab7uXhM+XoaBr+WX1EBJiqIdZRNM=;
+	s=default; t=1548697333;
+	bh=ZbMytEUdLH9aGQ71UHhqBRVS72KYdBykgOF2tIcVg50=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=OvvPF3uKeVkLiNwVCyQpyriz1VkQMpgQduszagWDuETzLp9toaHmZJQx9G+W74qdh
-	 rolquKzneMpFPtXYo2FpRw3wo/fG7NLE1i0HqQ1pvSKF/jmvGGLN9WiLQ7Dx5BXMwJ
-	 XSpLxjSdZdVnEeLGI/OVUIeeCAZQUGQOa4WmFLsg=
+	b=OeYVREVDqfxant1C8MHtO3nm+97sW12g1FhdeN0wuuegUuT9Y7v1daIDkYqW90ke8
+	 OiymAmV82RDIF6PLVvmPOEC4CqXM9C/s+1VEnrlLUzh9jn1IVCA51+k1Y9CgOEVlhm
+	 DBHB9ouK3aWDG0WVvRw3bIapqf5Z1AjhfZ4fu9SY=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729479AbfA1RS1 (ORCPT
+        id S1728974AbfA1Puk (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 28 Jan 2019 12:18:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51786 "EHLO mail.kernel.org"
+        Mon, 28 Jan 2019 10:50:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37092 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731333AbfA1QFS (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 28 Jan 2019 11:05:18 -0500
+        id S1728969AbfA1Puj (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 28 Jan 2019 10:50:39 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 411FD2173C;
-        Mon, 28 Jan 2019 16:05:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BAA4021741;
+        Mon, 28 Jan 2019 15:50:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1548691517;
-        bh=L67plHKj0uRvuW2ab7uXhM+XoaBr+WX1EBJiqIdZRNM=;
+        s=default; t=1548690639;
+        bh=ZbMytEUdLH9aGQ71UHhqBRVS72KYdBykgOF2tIcVg50=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CHuN+vCy2kufRn60/mEe4WD4Qq7uhdE7I0WqAhZIKGiC0z0gJRdxZw9CQDgwYGIB/
-         D5MNpyNf48XUfib87or+dn1kimQAAIgvga8fCr9zVpOUWAd4eRwAardVL0zgRKvWtU
-         kvs+bgxDDhTWkWoT3J3VLvY0REtS1O4mbrxTP+AU=
+        b=k080CkaSBfZAVZtoJ3HMwSTYKJkwbZJTIXUzUKRpuJ7doBkmO6iVwl/I+DNzl2RvG
+         bzLi58YKPMVyIz1R20hyRsn6SvH+rLP1FtWGCCzwhvozMKvVyuO2ekpoxbcuiw5VTd
+         ouvipqgV2NtD+6A600Hlmzo4fTFBG6ZV59uRwxAU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
         Guenter Roeck <linux@roeck-us.net>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
         Sasha Levin <sashal@kernel.org>, linux-watchdog@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 125/258] watchdog: renesas_wdt: don't set divider while watchdog is running
-Date:   Mon, 28 Jan 2019 10:57:11 -0500
-Message-Id: <20190128155924.51521-125-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.20 149/304] watchdog: renesas_wdt: don't set divider while watchdog is running
+Date:   Mon, 28 Jan 2019 10:41:06 -0500
+Message-Id: <20190128154341.47195-149-sashal@kernel.org>
 X-Mailer: git-send-email 2.19.1
-In-Reply-To: <20190128155924.51521-1-sashal@kernel.org>
-References: <20190128155924.51521-1-sashal@kernel.org>
+In-Reply-To: <20190128154341.47195-1-sashal@kernel.org>
+References: <20190128154341.47195-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -78,10 +77,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 7 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/watchdog/renesas_wdt.c b/drivers/watchdog/renesas_wdt.c
-index 88d81feba4e6..d01efd342dc0 100644
+index 0d74c3e48979..55c9eb6c6e51 100644
 --- a/drivers/watchdog/renesas_wdt.c
 +++ b/drivers/watchdog/renesas_wdt.c
-@@ -77,12 +77,17 @@ static int rwdt_init_timeout(struct watchdog_device *wdev)
+@@ -74,12 +74,17 @@ static int rwdt_init_timeout(struct watchdog_device *wdev)
  static int rwdt_start(struct watchdog_device *wdev)
  {
  	struct rwdt_priv *priv = watchdog_get_drvdata(wdev);
