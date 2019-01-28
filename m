@@ -2,161 +2,194 @@ Return-Path: <SRS0=V4UY=QE=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,
+	URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3A344C282CB
-	for <linux-watchdog@archiver.kernel.org>; Mon, 28 Jan 2019 08:14:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AD1FCC282CD
+	for <linux-watchdog@archiver.kernel.org>; Mon, 28 Jan 2019 12:49:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 1579521736
-	for <linux-watchdog@archiver.kernel.org>; Mon, 28 Jan 2019 08:14:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6E7E72173C
+	for <linux-watchdog@archiver.kernel.org>; Mon, 28 Jan 2019 12:49:20 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=linaro.org header.i=@linaro.org header.b="KHeCElCT"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726744AbfA1IN4 (ORCPT
+        id S1726752AbfA1MtT (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 28 Jan 2019 03:13:56 -0500
-Received: from mail-lj1-f196.google.com ([209.85.208.196]:34119 "EHLO
-        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726647AbfA1INz (ORCPT
+        Mon, 28 Jan 2019 07:49:19 -0500
+Received: from mail-lj1-f193.google.com ([209.85.208.193]:45003 "EHLO
+        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726689AbfA1MtT (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 28 Jan 2019 03:13:55 -0500
-Received: by mail-lj1-f196.google.com with SMTP id u89-v6so13437113lje.1;
-        Mon, 28 Jan 2019 00:13:53 -0800 (PST)
+        Mon, 28 Jan 2019 07:49:19 -0500
+Received: by mail-lj1-f193.google.com with SMTP id k19-v6so14080843lji.11
+        for <linux-watchdog@vger.kernel.org>; Mon, 28 Jan 2019 04:49:17 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=DRhHTshRy93ZavvcEIkGkkKleavHMBYy/IVRyHzjjYk=;
+        b=KHeCElCTAUQULHQkI6+LqXf1i+bdWtjRu+/A7TRxBL2YFMoufazuDbKR4fWzPJeBLa
+         n1I3k8+JqMDDvERYpjK+Ya8Gx4L1HLbxVozIPVoQYsIoA2Lkdd65tOXs5HL5zvHq2XLv
+         v5+j/MNwpoY1A0lAVUJEuGI7sUKT6vtAemA6g=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=mDH2EBeuVoPNQ28shq2o7cEzMyblSwKtoSJoNnp5B7U=;
-        b=mxD/50dkp4J1JHSx61IbNaRgK+QU/eBeHlRP7B4BJonWcBOh82pG1LBHEgMSDFNrut
-         HN8vViQGrHSDBTZTHBPR4yVsdzfiuL4+8yGk95Mx7lLGldRdBN/M+wpbdMJYk9HGdrYf
-         ujbYX+OiQJGoTWLy5EvKLU7Ks/CgZG8yQRWwyBaPQNEjzJpaoZBzNPE+wgXe0dRz1vJ7
-         HVCG4x49+BpoBY+7MPjplLd7LfffR2JDQJIJv8blDIu5m+++Aoze8JPOQ5sIcWx6CJca
-         UkuRZDDh1TfPcDhHLYMfQT4BFE+cEAM+ABeik449Jxf39nAqHR8WzDn7fDp/L4TNsWtI
-         Bb8g==
-X-Gm-Message-State: AJcUukcAl1K7QxoDpkjDWMLHATdnE7GxaroAjVCvI7+F8hnTrook4W59
-        3+k0byLxjJTVwefqc3tJTQk=
-X-Google-Smtp-Source: ALg8bN5XiLCONylg2aC6T/SdpHwq5xUWV2QXoVhOpZ9Gd6Y0ijp8JaIyaViyFHsxDFyrgyllJ+E/CA==
-X-Received: by 2002:a2e:630a:: with SMTP id x10-v6mr16234002ljb.11.1548663232370;
-        Mon, 28 Jan 2019 00:13:52 -0800 (PST)
-Received: from localhost.localdomain (dytkl7s9vpj00trvf9g2y-4.rev.dnainternet.fi. [2001:14bb:410:9dbf:b161:fde8:3a24:e96c])
-        by smtp.gmail.com with ESMTPSA id w12sm2801890lfe.80.2019.01.28.00.13.49
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Mon, 28 Jan 2019 00:13:51 -0800 (PST)
-Date:   Mon, 28 Jan 2019 10:13:47 +0200
-From:   Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     mazziesaccount@gmail.com, heikki.haikola@fi.rohmeurope.com,
-        mikko.mutanen@fi.rohmeurope.com, lee.jones@linaro.org,
-        robh+dt@kernel.org, mark.rutland@arm.com, broonie@kernel.org,
-        gregkh@linuxfoundation.org, rafael@kernel.org,
-        mturquette@baylibre.com, sboyd@kernel.org,
-        linus.walleij@linaro.org, bgolaszewski@baylibre.com,
-        sre@kernel.org, lgirdwood@gmail.com, a.zummo@towertech.it,
-        alexandre.belloni@bootlin.com, wim@linux-watchdog.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-clk@vger.kernel.org, linux-gpio@vger.kernel.org,
-        linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linux-watchdog@vger.kernel.org
-Subject: Re: [RFC PATCH v2 10/10] watchdog: bd70528: Initial support for ROHM
- BD70528 watchdog block
-Message-ID: <20190128081347.GD2030@localhost.localdomain>
-References: <20190125110625.GA29348@localhost.localdomain>
- <1d05ec19-daf6-f1d9-f80c-57fc92906d22@roeck-us.net>
- <20190128080035.GC2030@localhost.localdomain>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=DRhHTshRy93ZavvcEIkGkkKleavHMBYy/IVRyHzjjYk=;
+        b=EItb2Mu3PBDeh5B/SqaRi3ZsrOdjCmpcYztifxbq9fW72zS2o1haiSgvox3e7f95J4
+         al4yA+itByBeuEx1Yk4z3swIogBqimckCeWl/CsUE85E0rDGgkZ6Oh3eET9f5bVbVP+N
+         7PQZ5IpheuZy6umWPAeUBw2mIENEbr6r/0Mp/ayEJgWnWUBIjCIyGu6PmFYabOww4ppN
+         ORoy5CKy4eTZ8J+4KtvrkXEuZFywX+ZuYYpFQcZ7C0ywAZyaPI06CvXbC2zeiuxvV4CM
+         CDpOgVDqNOZnaNmlcjMyNINcU0WnAxbXG8k1ENzIWBDFO7cjSUAxBCbxth8N0G0pleRv
+         BCaA==
+X-Gm-Message-State: AJcUukcoH71Yve+4Vn310YZCsdAnaDXCgtczpgsb8PKvmn6mbqw6Dg5x
+        nLgHY1qXHRtICPTDPZ7+1hQwao13NEUh6biggbNLNw==
+X-Google-Smtp-Source: ALg8bN6hHc81mWUi5OEd/I/TqPaIgQATp+cVW3qkdu0pa8pQotv3LN8Y3OYJ8XT41iZ7yI1vFjaRM8paCX4pxAZwmOQ=
+X-Received: by 2002:a2e:131a:: with SMTP id 26-v6mr16554297ljt.107.1548679756442;
+ Mon, 28 Jan 2019 04:49:16 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190128080035.GC2030@localhost.localdomain>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <20190125110600.GA29332@localhost.localdomain>
+In-Reply-To: <20190125110600.GA29332@localhost.localdomain>
+From:   Linus Walleij <linus.walleij@linaro.org>
+Date:   Mon, 28 Jan 2019 13:49:04 +0100
+Message-ID: <CACRpkdYTCgXo8FeitEfRujeWdshnsR3Kn57cKUZsA3CsZ5Cnrw@mail.gmail.com>
+Subject: Re: [RFC PATCH v2 09/10] power: supply: Initial support for ROHM
+ BD70528 PMIC charger block
+To:     Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>,
+        Baolin Wang <baolin.wang@linaro.org>
+Cc:     Matti Vaittinen <mazziesaccount@gmail.com>,
+        heikki.haikola@fi.rohmeurope.com, mikko.mutanen@fi.rohmeurope.com,
+        Lee Jones <lee.jones@linaro.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Mark Brown <broonie@kernel.org>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Sebastian Reichel <sre@kernel.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
+        <devicetree@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        linux-clk <linux-clk@vger.kernel.org>,
+        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
+        Linux PM list <linux-pm@vger.kernel.org>,
+        linux-rtc@vger.kernel.org,
+        LINUXWATCHDOG <linux-watchdog@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Mon, Jan 28, 2019 at 10:00:35AM +0200, Matti Vaittinen wrote:
-> On Sat, Jan 26, 2019 at 08:36:14AM -0800, Guenter Roeck wrote:
-> > On 1/25/19 3:06 AM, Matti Vaittinen wrote:
-> > > +/* Max time we can set is 1 hour, 59 minutes and 59 seconds */
-> > > +#define WDT_MAX_MS ((2 * 60 * 60 - 1) * 1000)
-> > > +/* Minimum time is 1 second */
-> > > +#define WDT_MIN_MS 1000
-> > > +#define DEFAULT_TIMEOUT 60
-> > > +
-> > > +static int bd70528_wdt_probe(struct platform_device *pdev)
-> > > +{
-> > > +	struct bd70528 *bd70528;
-> > > +	struct wdtbd70528 *w;
-> > > +	int ret;
-> > > +	unsigned int reg;
-> > > +	struct watchdog_device *wdt;
-> > > +
-> > > +	bd70528 = dev_get_drvdata(pdev->dev.parent);
-> > > +	if (!bd70528) {
-> > > +		dev_err(&pdev->dev, "No MFD driver data\n");
-> > > +		return -EINVAL;
-> > > +	}
-> > > +	w = devm_kzalloc(&pdev->dev, sizeof(*w), GFP_KERNEL);
-> > > +	if (!w)
-> > > +		return -ENOMEM;
-> > > +	w->bd = bd70528;
-> > 
-> > Unless I am missing something, only the mutex and the regmap pointer
-> > are used from struct bd70528. With that in mind, it might be desirable
-> > to copy those pointers to struct wdtbd70528 to avoid the additional
-> > dereferencing at runtime.
-> 
-> You are not missing anyting. If we ever add support for another PMIC
-> variant we will probably be using also the chip_type. Untill then only
-> the mutex and regmap. (And maybe the of_node if we have any RTC
-> properties in DT). So at this point we just use regmap and mutex. I will
-> change this.
+Hi Matti!
 
-Oh, but actually we are also using the WDT state setting function
-provided by MFD. And this is taking the struct bd70528 as parameter. So
-maybe we can keep it like this afterall? 
+Thanks for your patch.
 
-> 
-> > > +	w->dev = &pdev->dev;
-> > > +
-> > > +	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
-> > > +	if (!wdt)
-> > > +		return -ENOMEM;
-> > > +
-> > 
-> > struct watchdog_device can be part of struct wdtbd70528. Two separate allocations
-> > are not necessary.
-> 
-> Correct. Thanks for pointing that out. I'll simplify this.
-> 
-> > > +	wdt->info = &bd70528_wdt_info;
-> > > +	wdt->ops =  &bd70528_wdt_ops;
-> > > +	wdt->min_hw_heartbeat_ms = WDT_MIN_MS;
-> > > +	wdt->max_hw_heartbeat_ms = WDT_MAX_MS;
-> > > +	wdt->parent = pdev->dev.parent;
-> > > +	wdt->timeout = DEFAULT_TIMEOUT;
-> > > +	watchdog_set_drvdata(wdt, w);
-> > > +	watchdog_init_timeout(wdt, 0, pdev->dev.parent);
-> > > +
-> > > +	ret = bd70528_wdt_set_timeout(wdt, wdt->timeout);
-> > > +	if (ret) {
-> > > +		dev_err(&pdev->dev, "Failed to set the watchdog timeout\n");
-> > > +		return ret;
-> > > +	}
-> > > +
-> > > +	mutex_lock(&bd70528->rtc_timer_lock);
-> > > +	ret = regmap_read(bd70528->chip.regmap, BD70528_REG_WDT_CTRL, &reg);
-> > > +	mutex_unlock(&bd70528->rtc_timer_lock);
-> > > +
-> > 
-> > I don't see the point for the above mutex locks. This is just reading a
-> > single register. regmap itself provides locking for that already.
-> 
-> It has a purpose here - but I'd better add a comment. We want to get the
-> initial state of WDG here. If the probe is executed when RTC time is being
-> set we may read the state just when RTC is (temporarily) disabling WDT -
-> and we might tell the WDT core that WDT is disabled - even if it is
-> actually enabled. The mutex prevents us from reading the WDT state when
-> RTC is being set.
->  
-> Br,
-> 	Matti Vaittinen
+We are going to have a problem with the power subsystem.
+
+These charging drivers are growing wild. This is starting to get out
+of hand, we need some more framework for properly handling charging
+state machines the kernel. Not specifically your problem, but
+when working on the driver try to keep generic support in mind.
+
+On Fri, Jan 25, 2019 at 12:06 PM Matti Vaittinen
+<matti.vaittinen@fi.rohmeurope.com> wrote:
+
+> +#define CHG_STAT_SUSPEND       0x0
+> +#define CHG_STAT_TRICKLE       0x1
+> +#define CHG_STAT_FAST          0x3
+> +#define CHG_STAT_TOPOFF                0xe
+> +#define CHG_STAT_DONE          0xf
+> +#define CHG_STAT_OTP_TRICKLE   0x10
+> +#define CHG_STAT_OTP_FAST      0x11
+> +#define CHG_STAT_OTP_DONE      0x12
+> +#define CHG_STAT_TSD_TRICKLE   0x20
+> +#define CHG_STAT_TSD_FAST      0x21
+> +#define CHG_STAT_TSD_TOPOFF    0x22
+> +#define CHG_STAT_BAT_ERR       0x7f
+
+So what I am seeing is that these states are starting to turn up in more
+and more drivers, so we really need to think about a central management
+component for charging state machines. I do not think they are all
+that different after all.
+
+> +BD_ERR_IRQ_HND(BAT_OV_DET, "Battery overvoltage detected\n");
+> +BD_ERR_IRQ_HND(DBAT_DET, "Dead battery detected\n");
+> +BD_ERR_IRQ_HND(COLD_DET, "Battery cold\n");
+> +BD_ERR_IRQ_HND(HOT_DET, "Battery hot\n");
+> +BD_ERR_IRQ_HND(CHG_TSD, "Charger thermal shutdown\n");
+> +BD_ERR_IRQ_HND(DCIN2_OV_DET, "DCIN2 overvoltage detected\n");
+> +
+> +BD_INFO_IRQ_HND(BAT_OV_RES, "Battery voltage back to normal\n");
+> +BD_INFO_IRQ_HND(COLD_RES, "Battery temperature back to normal\n");
+> +BD_INFO_IRQ_HND(HOT_RES, "Battery temperature back to normal\n");
+> +BD_INFO_IRQ_HND(BAT_RMV, "Battery removed\n");
+> +BD_INFO_IRQ_HND(BAT_DET, "Battery detected\n");
+> +BD_INFO_IRQ_HND(DCIN2_OV_RES, "DCIN2 voltage back to normal\n");
+> +BD_INFO_IRQ_HND(DCIN2_RMV, "DCIN2 removed\n");
+> +BD_INFO_IRQ_HND(DCIN2_DET, "DCIN2 detected\n");
+> +BD_INFO_IRQ_HND(DCIN1_RMV, "DCIN1 removed\n");
+> +BD_INFO_IRQ_HND(DCIN1_DET, "DCIN1 detected\n");
+
+So we have states and events, and these events form edges
+between the states, right?
+
+I am certain you must have a graphical picture of this state
+machine somewhere, it seems to be how charging hardware people
+do their thinking.
+
+> +/*
+> + * For BD70528 voltage/current limits we happily accept any value which
+> + * belongs the range. We could check if value matching the selector is
+> + * desired by computing the range min + (sel - sel_low) * range step - but
+> + * I guess it is enough if we use voltage/current which is closest (below)
+> + * the requested?
+> + */
+> +static int find_selector_for_value_low(struct linear_range *r, int selectors,
+> +                                      unsigned int val, unsigned int *sel,
+> +                                      bool *found)
+> +{
+> +       int i;
+> +       int ret = -EINVAL;
+> +
+> +       *found = false;
+> +       for (i = 0; i < selectors; i++) {
+> +               if (r[i].min <= val) {
+> +                       if (r[i].min + r[i].step * r[i].vals >= val) {
+> +                               *found = true;
+> +                               *sel = r[i].low_sel + (val - r[i].min) /
+> +                                      r[i].step;
+> +                               ret = 0;
+> +                               break;
+> +                       }
+> +                       /*
+> +                        * If the range max is smaller than requested
+> +                        * we can set the max supported value from range
+> +                        */
+> +                       *sel = r[i].low_sel + r[i].vals;
+> +                       ret = 0;
+> +               }
+> +       }
+> +       return ret;
+> +}
+
+If I'm not mistaken this is yet another instance of linear interpolation
+from a table?
+
+We really need to think about abstracting this. Last time this
+duplication appeared I suggested adding linear interpolation
+primitives to:
+include/linux/fixp-arith.h
+
+I don't know what others say though?
+
+Yours,
+Linus Walleij
