@@ -2,192 +2,133 @@ Return-Path: <SRS0=V4UY=QE=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 254C3C282C8
-	for <linux-watchdog@archiver.kernel.org>; Mon, 28 Jan 2019 14:46:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 037E5C282CF
+	for <linux-watchdog@archiver.kernel.org>; Mon, 28 Jan 2019 16:57:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id DF7032177B
-	for <linux-watchdog@archiver.kernel.org>; Mon, 28 Jan 2019 14:46:26 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=linaro.org header.i=@linaro.org header.b="fjBO6NAS"
+	by mail.kernel.org (Postfix) with ESMTP id D381021848
+	for <linux-watchdog@archiver.kernel.org>; Mon, 28 Jan 2019 16:57:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726996AbfA1Oq0 (ORCPT
+        id S2388159AbfA1QRO (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 28 Jan 2019 09:46:26 -0500
-Received: from mail-lf1-f67.google.com ([209.85.167.67]:33674 "EHLO
-        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726774AbfA1OqZ (ORCPT
+        Mon, 28 Jan 2019 11:17:14 -0500
+Received: from mail-lj1-f193.google.com ([209.85.208.193]:45751 "EHLO
+        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388142AbfA1QRN (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 28 Jan 2019 09:46:25 -0500
-Received: by mail-lf1-f67.google.com with SMTP id i26so12068857lfc.0
-        for <linux-watchdog@vger.kernel.org>; Mon, 28 Jan 2019 06:46:23 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=i0A15Ao45YICdfHTMKUh/nirt0xQjJRx12IsNVpUXSk=;
-        b=fjBO6NASJUNwGZiT0ipeqUMB2WymDWSu+H+iMvHuPha+BKeq3OXDHrrvdsxLaLcvZ9
-         H2TGSGUD7NE9ji9cvg95etV9hMmO2VN3Yc7h6OdH8kviUdKnJ47vHsEws2VrRu/lfOVW
-         a0cKBLUbHDNZjmV7NHwVagWFvZyPeeNDOeWyQ=
+        Mon, 28 Jan 2019 11:17:13 -0500
+Received: by mail-lj1-f193.google.com with SMTP id s5-v6so14699789ljd.12;
+        Mon, 28 Jan 2019 08:17:10 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=i0A15Ao45YICdfHTMKUh/nirt0xQjJRx12IsNVpUXSk=;
-        b=beT2cSs70/GCwYfFM9O72vGbN6hGIVQKzkGpVbJveC1in3GfzAl47EEHHuYSurZ1WI
-         BAWPak0ccPKC77NT9txTFk3o0hDufbLbUqZPBlZWIMfBayFczqSGnCqffXBW37Jqf/FW
-         N/I3QbHZMBo5QWVycXA1RI+7bQbhYDwQ1d63+u1zr/Fm+gKs/TStVtKOe2Ao5L9Cuocg
-         aVzupt5VSVKrK0iH/9+9W5D0SRpDEvYMhfJXPK3gvJgvNrQmRHpItGV/o5NXqshckwbK
-         fy0hcxUHcVSBi4m0nseQ0FtiNpHOcQseQXll/F+icibbtA0LgLSB2mH9gJ4hrz3TQUca
-         /JZw==
-X-Gm-Message-State: AJcUukcY+SEyHpydYwjdpW1ydstmvwqn82R4atBe0IqeyGs057ELJn1l
-        hueG21SZ4Oj/X3A4VZswf6zNyt8hXBqzuzdLB7ncHQ==
-X-Google-Smtp-Source: ALg8bN4UdQe0NnePjP5wtLROColhji+ieN3FU0f/+czK7dWpJFjaW7J4FEonaVXj/SfJNJ31lI9Os4gslG7LjPJz6e8=
-X-Received: by 2002:a19:8096:: with SMTP id b144mr16277616lfd.8.1548686782648;
- Mon, 28 Jan 2019 06:46:22 -0800 (PST)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=02Z4Y/VtUKNB+3hQYTEh9goJq0x6vAgNA823SkAWJAk=;
+        b=ZZKQdwiuhat0Xul/nbD0JIgGPKW+3P/vHEyJiFyN4k1xoYK3lwcLpWJs88e9mSUwiP
+         ruhilUDsvYlO+fvOW4yKEC+8p4ViuXIc+rqdlc7T/6XIfNvBVNvQI2yu0FDTAonn1wLU
+         O7EEz7KHyLepqNThPHI5R+2xOmt1KhYBV6Lf+0FvvUwZQYY7A07F9KBEQuaBf1gNydBW
+         kRsC0l9PCwtyZFqkoG+8RddZS+KiDgPTaZogKhM/W+lLt06nPkEZXFnnRVZrmS15wvGs
+         ceOj0oVcO1/cjOxw9i/TgDz7Jom2jdHfI1pss1U+9iDxmh4NFhrc8JcegahhgZ+fhNIT
+         0lHg==
+X-Gm-Message-State: AJcUukcZCVgIzpxthOQdmUYAu4fm/0wVMyqFD/5dx0c3kaSecCPlY3qz
+        rFbIilMEf3nAztFovXd/hww=
+X-Google-Smtp-Source: ALg8bN41z723oGKt3ZuGbr0tHZmfSBAk/gvqUgRXEU+HcWVT7Jd8jVwv3ncU7TTZeTLytmh5bT+Tkw==
+X-Received: by 2002:a2e:6503:: with SMTP id z3-v6mr17780348ljb.153.1548692229874;
+        Mon, 28 Jan 2019 08:17:09 -0800 (PST)
+Received: from localhost.localdomain (dytkl7s9vpj00trvf9g2y-4.rev.dnainternet.fi. [2001:14bb:410:9dbf:b161:fde8:3a24:e96c])
+        by smtp.gmail.com with ESMTPSA id 85-v6sm3135206lja.16.2019.01.28.08.17.07
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Mon, 28 Jan 2019 08:17:09 -0800 (PST)
+Date:   Mon, 28 Jan 2019 18:16:59 +0200
+From:   Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     mazziesaccount@gmail.com, heikki.haikola@fi.rohmeurope.com,
+        mikko.mutanen@fi.rohmeurope.com, lee.jones@linaro.org,
+        robh+dt@kernel.org, mark.rutland@arm.com, broonie@kernel.org,
+        gregkh@linuxfoundation.org, rafael@kernel.org,
+        mturquette@baylibre.com, sboyd@kernel.org,
+        linus.walleij@linaro.org, bgolaszewski@baylibre.com,
+        sre@kernel.org, lgirdwood@gmail.com, a.zummo@towertech.it,
+        alexandre.belloni@bootlin.com, wim@linux-watchdog.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-clk@vger.kernel.org, linux-gpio@vger.kernel.org,
+        linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org,
+        linux-watchdog@vger.kernel.org
+Subject: Re: [RFC PATCH v2 08/10] rtc: bd70528: Initial support for ROHM
+ bd70528 RTC
+Message-ID: <20190128161659.GA2121@localhost.localdomain>
+References: <20190125110536.GA29321@localhost.localdomain>
+ <35bbc5b9-5f8c-ec80-3eaa-bb2c0e2812c9@roeck-us.net>
+ <20190128074849.GB2030@localhost.localdomain>
+ <11ff93bf-c71f-7489-841f-09bf757a8ba7@roeck-us.net>
 MIME-Version: 1.0
-References: <20190125110600.GA29332@localhost.localdomain> <CACRpkdYTCgXo8FeitEfRujeWdshnsR3Kn57cKUZsA3CsZ5Cnrw@mail.gmail.com>
- <20190128135354.GA4156@localhost.localdomain>
-In-Reply-To: <20190128135354.GA4156@localhost.localdomain>
-From:   Linus Walleij <linus.walleij@linaro.org>
-Date:   Mon, 28 Jan 2019 15:46:10 +0100
-Message-ID: <CACRpkdZDOJJ6qSS8fkqQsgmchDWATfhTP=TZATwt6-Z_WQXpJQ@mail.gmail.com>
-Subject: Re: [RFC PATCH v2 09/10] power: supply: Initial support for ROHM
- BD70528 PMIC charger block
-To:     Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-Cc:     Baolin Wang <baolin.wang@linaro.org>,
-        Matti Vaittinen <mazziesaccount@gmail.com>,
-        heikki.haikola@fi.rohmeurope.com, mikko.mutanen@fi.rohmeurope.com,
-        Lee Jones <lee.jones@linaro.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Mark Brown <broonie@kernel.org>,
-        Greg KH <gregkh@linuxfoundation.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Sebastian Reichel <sre@kernel.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
-        <devicetree@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        linux-clk <linux-clk@vger.kernel.org>,
-        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
-        Linux PM list <linux-pm@vger.kernel.org>,
-        linux-rtc@vger.kernel.org,
-        LINUXWATCHDOG <linux-watchdog@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <11ff93bf-c71f-7489-841f-09bf757a8ba7@roeck-us.net>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Mon, Jan 28, 2019 at 2:54 PM Matti Vaittinen
-<matti.vaittinen@fi.rohmeurope.com> wrote:
+On Mon, Jan 28, 2019 at 06:02:47AM -0800, Guenter Roeck wrote:
+> On 1/27/19 11:48 PM, Matti Vaittinen wrote:
+> > Thanks again Guenter,
+> > 
+> > On Sat, Jan 26, 2019 at 08:30:24AM -0800, Guenter Roeck wrote:
+> > > On 1/25/19 3:05 AM, Matti Vaittinen wrote:
+> > > > +/*
+> > > > + * We read regs RTC_SEC => RTC_YEAR
+> > > > + * this struct is ordered according to chip registers.
+> > > > + * Keep it u8 only to avoid padding issues.
+> > > > + */
+> > > > +struct bd70528_rtc_day {
+> > > > +	u8 sec;
+> > > > +	u8 min;
+> > > > +	u8 hour;
+> > > > +};
+> > > > +
+> > > > +struct bd70528_rtc_data {
+> > > > +	struct bd70528_rtc_day time;
+> > > > +	u8 week;
+> > > > +	u8 day;
+> > > > +	u8 month;
+> > > > +	u8 year;
+> > > > +};
+> > > > +
+> > > > +struct bd70528_rtc_wake {
+> > > > +	struct bd70528_rtc_day time;
+> > > > +	u8 ctrl;
+> > > > +};
+> > > > +
+> > > > +struct bd70528_rtc_alm {
+> > > > +	struct bd70528_rtc_data data;
+> > > > +	u8 alm_mask;
+> > > > +	u8 alm_repeat;
+> > > > +};
+> > > 
+> > > At least some of the above are directly associated with chip registers.
+> > > I don't think this will work for all architectures without explicit packed
+> > > attribute.
+> > 
+> > Allright. I was thinking of that but thought that most of the
+> > architectures using this PMIC would handle alignments fine if I used
+> > only u8 members. I did consider using __attribute__((packed)) - but I'm
+> > not sure if we hit into troubles with that too. I guess some people
+> > would like to compile kernel with other compiler(s) but gcc - although
+> > I'm not sure if this should be taken into account. I'll try doing some
+> > study on this - unless someone replies to this and just tells how this
+> > should be done. (I am pretty sure I can find the answer from mail
+> > archives though). I'll try adding some packing hint for compiler at v3.
+> > 
+> 
+> Use __packed ?
 
-> > These charging drivers are growing wild. This is starting to get out
-> > of hand, we need some more framework for properly handling charging
-> > state machines the kernel. Not specifically your problem, but
-> > when working on the driver try to keep generic support in mind.
->
-> I for sure can try - but as the power subsystem is quite new to me - any
-> specific items you would like me to really pay attention?
+Right. That appends to __attribute__((packed)) on gcc. I'll use that.
+Thanks for the tip :)
 
-So I am not saying you have to do this or anything, but I think
-what we need is a generic state machine and policy engine
-for charging, where different charging drivers just plug in.
-
-They all seem to have trickle and fast charging, USB phy
-interaction and AC plug interaction of some kind for detecting
-those and in some cases temperature detection directly
-or using an ADC.
-
-We have a bunch of drivers with software-controlled charging:
-ab8500*
-axp288*
-etc.
-
-If we could get just two drivers to share some changing
-infrastructure we would have a start.
-
-I have no idea how hard it could be, but I think it would
-be a pretty interesting adventure if someone gathered
-some different hardwares and started to generalize parts
-of this.
-
-> > So what I am seeing is that these states are starting to turn up in more
-> > and more drivers, so we really need to think about a central management
-> > component for charging state machines. I do not think they are all
-> > that different after all.
->
-> Any suggestions how I should take this into account with bd70528?
-
-Not more than above, it is unfair to ask random contributors to
-invent entire new worlds of kernel infrastructure. But I guess I
-just need to say it so we are aware: this charging state machine
-engine is needed. Doing it is another thing.
-
-> > I am certain you must have a graphical picture of this state
-> > machine somewhere, it seems to be how charging hardware people
-> > do their thinking.
->
-> I don't have any document I could link to yet. I can ask around if we
-> can have some public doc for this :/ And as a last resort I can do some
-> ASCII art in commenets - if this is seen helpfull.
-
-That'd be nice.
-
-> > If I'm not mistaken this is yet another instance of linear interpolation
-> > from a table?
->
-> "linear interpolation from a table" is really not part of my
-> vocabulary :] But I guess you know the REGULATOR_LINEAR_VOLTAGE - macro?
-> I borrowed the idea from there...
-
-I'm referring to this essentially:
-https://en.wikipedia.org/wiki/Linear_interpolation
-
-What many charging drivers tends to do is:
-- Look up where I am in a table, say between row 4 and 5
-- For x-axis n..n+1, interpolate y-axis between
-  the values found for x=1 and x=n+1 using
-  common linear interpolation.
-
-> > We really need to think about abstracting this. Last time this
-> > duplication appeared I suggested adding linear interpolation
-> > primitives to:
-> > include/linux/fixp-arith.h
->
-> ... I really think a generic helper for this would be usefull.
-
-Indeed.
-
-> It will take some time untill I can send a proper (non RFC patch) for
-> the charger block as I currently lack of HW I could use for testing the
-> charger properly. Do you think it is better to drop the charger part
-> from the series untill then and submit it only later?
-
-Not really, we need to face the hardware out there and I usually
-use the stance "rough consensus and running code". If noone
-invents a unified charging framework, your hardware needs to
-run so a custom driver isn't that bad either, and it's still better
-to have it in-tree than to maintain it out-of-tree as long as it
-is clearly isolated.
-
-> As I mentioned in
-> cover-letter, the charger part is currently submitted more to give an
-> overview of the chip than to be applied as 'finalized' version of
-> driver.
-
-That's OK.
-
-Yours,
-Linus Walleij
+Br,
+	Matti Vaittinen
