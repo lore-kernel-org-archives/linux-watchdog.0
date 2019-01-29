@@ -1,84 +1,116 @@
-Return-Path: <SRS0=V4UY=QE=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=Cpqu=QF=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AEDD3C282C8
-	for <linux-watchdog@archiver.kernel.org>; Mon, 28 Jan 2019 21:20:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C46ACC4151A
+	for <linux-watchdog@archiver.kernel.org>; Tue, 29 Jan 2019 07:01:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 7DACC2171F
-	for <linux-watchdog@archiver.kernel.org>; Mon, 28 Jan 2019 21:20:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9F1DB217F5
+	for <linux-watchdog@archiver.kernel.org>; Tue, 29 Jan 2019 07:01:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727444AbfA1VUS (ORCPT
+        id S1725613AbfA2HBS (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 28 Jan 2019 16:20:18 -0500
-Received: from relay1-d.mail.gandi.net ([217.70.183.193]:46333 "EHLO
-        relay1-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726744AbfA1VUR (ORCPT
+        Tue, 29 Jan 2019 02:01:18 -0500
+Received: from mail-lj1-f196.google.com ([209.85.208.196]:38834 "EHLO
+        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725267AbfA2HBS (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 28 Jan 2019 16:20:17 -0500
-X-Originating-IP: 86.202.150.119
-Received: from localhost (lfbn-lyo-1-59-119.w86-202.abo.wanadoo.fr [86.202.150.119])
-        (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay1-d.mail.gandi.net (Postfix) with ESMTPSA id C8CD424000F;
-        Mon, 28 Jan 2019 21:20:10 +0000 (UTC)
-Date:   Mon, 28 Jan 2019 22:20:09 +0100
-From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-Cc:     mazziesaccount@gmail.com, heikki.haikola@fi.rohmeurope.com,
-        mikko.mutanen@fi.rohmeurope.com, lee.jones@linaro.org,
-        robh+dt@kernel.org, mark.rutland@arm.com, broonie@kernel.org,
-        gregkh@linuxfoundation.org, rafael@kernel.org,
+        Tue, 29 Jan 2019 02:01:18 -0500
+Received: by mail-lj1-f196.google.com with SMTP id c19-v6so16506459lja.5;
+        Mon, 28 Jan 2019 23:01:15 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=+/qwbFdY2Na2O0rltiLqHVRyBmVnE1tqShBeGQVCfYo=;
+        b=D97IzD7d+iSTgpczYajGpmstLRYE7BWFhf3DlkbObNQKpYLjrUL9hlMh8qnlyt0K20
+         oFzgXUNhWkzdyiBaRKi7byT27UWr5G6nMFMg7vtxJfbwlu0+5TLwySsHfE+e6wLbSRKk
+         b9229jmyG4CvKenK34d/b1FeMi9Bp5Qzlluhg5PcCBYDpdRI8JWmYqDcK/HMyu/fhffX
+         ov+qRmL0GNX3ew023cL3It3hRH0dt/9qe+ss3HzULqF9NyfUjCd8qnpJdERX+DOFDgSW
+         k2sUM0KJBKky5yZ1L/bnoontLls/sAhdBDtN9x4zUwzv1t/PC6QIFGDJWw+uf7hwnks7
+         gXCA==
+X-Gm-Message-State: AJcUukfBq5vJjRwACFUOUz2ZqB1TmT68sB1nAX0SKJg+Rfa/Cp8CqiLT
+        jY3Ol0pzz2mIyriDNgpgB/k=
+X-Google-Smtp-Source: ALg8bN4MehNiWJ2Bq2slhWgMve4uHvp78jlZUoPkr8MoWVegVKz49ykLgUBMZVF8/qz9xQjw8Ghzsg==
+X-Received: by 2002:a2e:8e8e:: with SMTP id z14-v6mr16475950ljk.84.1548745275175;
+        Mon, 28 Jan 2019 23:01:15 -0800 (PST)
+Received: from localhost.localdomain (dytkl7s9vpj00trvf9g2y-4.rev.dnainternet.fi. [2001:14bb:410:9dbf:b161:fde8:3a24:e96c])
+        by smtp.gmail.com with ESMTPSA id s9-v6sm3062759lja.12.2019.01.28.23.01.12
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Mon, 28 Jan 2019 23:01:14 -0800 (PST)
+Date:   Tue, 29 Jan 2019 09:01:03 +0200
+From:   Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+To:     Jerry Hoemann <jerry.hoemann@hpe.com>
+Cc:     Guenter Roeck <linux@roeck-us.net>, mazziesaccount@gmail.com,
+        heikki.haikola@fi.rohmeurope.com, mikko.mutanen@fi.rohmeurope.com,
+        lee.jones@linaro.org, robh+dt@kernel.org, mark.rutland@arm.com,
+        broonie@kernel.org, gregkh@linuxfoundation.org, rafael@kernel.org,
         mturquette@baylibre.com, sboyd@kernel.org,
         linus.walleij@linaro.org, bgolaszewski@baylibre.com,
         sre@kernel.org, lgirdwood@gmail.com, a.zummo@towertech.it,
-        wim@linux-watchdog.org, linux@roeck-us.net,
+        alexandre.belloni@bootlin.com, wim@linux-watchdog.org,
         devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-clk@vger.kernel.org, linux-gpio@vger.kernel.org,
         linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org,
         linux-watchdog@vger.kernel.org
 Subject: Re: [RFC PATCH v2 08/10] rtc: bd70528: Initial support for ROHM
  bd70528 RTC
-Message-ID: <20190128212009.GE18309@piout.net>
+Message-ID: <20190129070103.GA2551@localhost.localdomain>
 References: <20190125110536.GA29321@localhost.localdomain>
+ <35bbc5b9-5f8c-ec80-3eaa-bb2c0e2812c9@roeck-us.net>
+ <20190128202656.GA17466@anatevka>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190125110536.GA29321@localhost.localdomain>
+In-Reply-To: <20190128202656.GA17466@anatevka>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Hello,
+On Mon, Jan 28, 2019 at 01:26:56PM -0700, Jerry Hoemann wrote:
+> On Sat, Jan 26, 2019 at 08:30:24AM -0800, Guenter Roeck wrote:
+> > On 1/25/19 3:05 AM, Matti Vaittinen wrote:
+> > > +static int bd70528_set_wake(struct bd70528 *bd70528,
+> > > +			    int enable, int *old_state)
+> > > +{
+> > > +	int ret;
+> > > +	unsigned int ctrl_reg;
+> > > +
+> > > +	ret = regmap_read(bd70528->chip.regmap, BD70528_REG_WAKE_EN, &ctrl_reg);
+> > > +	if (ret)
+> > > +		return ret;
+> > > +
+> > > +	if (old_state) {
+> > > +		if (ctrl_reg & BD70528_MASK_WAKE_EN)
+> > > +			*old_state |= BD70528_WAKE_STATE_BIT;
+> > > +		else
+> > > +			*old_state &= ~BD70528_WAKE_STATE_BIT;
+> > > +
+> > > +		if ((!enable) == (!(*old_state & BD70528_WAKE_STATE_BIT)))
+> > > +			return 0;
+> > 
+> > I think
+> > 		if (enable == !!(*old_state & BD70528_WAKE_STATE_BIT))
+> > would be much better readable. Even if not, there are way too many ()
+> > in the above conditional.
+> > 
+> 
+> The substitution is not equivalent to original.  I think you mean:
+> 
+>  		if (!!enable == !!(*old_state & BD70528_WAKE_STATE_BIT))
 
-On 25/01/2019 13:05:36+0200, Matti Vaittinen wrote:
-> +static const struct rtc_class_ops bd70528_rtc_ops = {
-> +	.read_time	= bd70528_get_time,
-> +	.set_time	= bd70528_set_time,
-> +	.read_alarm	= bd70528_read_alarm,
-> +	.set_alarm	= bd70528_set_alarm,
+Thanks Jerry! Good catch! I originally wanted that all non-zero values
+of 'enable' would be 'true'. So maybe I just use the original approach
+but get rid of extra parenthesis which were pointed out by Guenter.
 
-You actually need to provide a .alarm_irq_enable callback, else there is
-no way to disable a set alarm.
+		if (!enable == !(*old_state & BD70528_WAKE_STATE_BIT))
+should do it just fine, right?
 
-> +	rtc = devm_rtc_device_register(&pdev->dev, "bd70528-rtc",
-> +				       &bd70528_rtc_ops, THIS_MODULE);
-> +	if (IS_ERR(rtc)) {
-> +		dev_err(&pdev->dev, "Registering RTC failed\n");
-> +		return PTR_ERR(rtc);
-> +	}
-
-Please use devm_rtc_allocate_device() and set rtc->range_min and
-rtc->range_max before registering with rtc_register_device() (which can
-be done after trying to request the irq).
-
-
--- 
-Alexandre Belloni, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+Br,
+	Matti
