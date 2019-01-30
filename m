@@ -2,130 +2,234 @@ Return-Path: <SRS0=Chvn=QG=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D331BC282D4
-	for <linux-watchdog@archiver.kernel.org>; Wed, 30 Jan 2019 07:40:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9C4D3C282D6
+	for <linux-watchdog@archiver.kernel.org>; Wed, 30 Jan 2019 09:05:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 88B122087F
-	for <linux-watchdog@archiver.kernel.org>; Wed, 30 Jan 2019 07:40:20 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=prevas.se header.i=@prevas.se header.b="SCZuzs2L"
+	by mail.kernel.org (Postfix) with ESMTP id 6AC832087F
+	for <linux-watchdog@archiver.kernel.org>; Wed, 30 Jan 2019 09:05:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730137AbfA3HkU (ORCPT
+        id S1730404AbfA3JFY (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 30 Jan 2019 02:40:20 -0500
-Received: from mail-eopbgr140097.outbound.protection.outlook.com ([40.107.14.97]:36399
-        "EHLO EUR01-VE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1725819AbfA3HkU (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 30 Jan 2019 02:40:20 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=prevas.se;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=jTuf9WZbzjZ9LIDpiG9Vs0fdLS+DVg/kUqlKDlDAKow=;
- b=SCZuzs2LtmWxEiaf2wxZQe/QV7DixjF2tyHEYTVVjf5TEcDjDessBSlLBInpLpaUj4Qm+LPEgTnjU9Xh0fHamsYWty7lRJrhiC6KLz4wKV9JEhbGLGQXH9y1WP4LZVM0MIfgAQSPxil+8/ArhwYpedw96F9hP6BY2UIIQUfMdMk=
-Received: from VI1PR10MB2672.EURPRD10.PROD.OUTLOOK.COM (20.178.126.212) by
- VI1PR10MB1584.EURPRD10.PROD.OUTLOOK.COM (10.165.191.153) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.1558.21; Wed, 30 Jan 2019 07:40:15 +0000
-Received: from VI1PR10MB2672.EURPRD10.PROD.OUTLOOK.COM
- ([fe80::d49:d85b:58bf:cd5b]) by VI1PR10MB2672.EURPRD10.PROD.OUTLOOK.COM
- ([fe80::d49:d85b:58bf:cd5b%6]) with mapi id 15.20.1580.017; Wed, 30 Jan 2019
- 07:40:15 +0000
-From:   Rasmus Villemoes <Rasmus.Villemoes@prevas.se>
-To:     Guenter Roeck <linux@roeck-us.net>
-CC:     "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Jonathan Corbet <corbet@lwn.net>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-        Esben Haabendal <esben@haabendal.dk>,
-        "martin@hundeboll.net" <martin@hundeboll.net>
-Subject: Re: [PATCH v9 1/3] watchdog: introduce watchdog.open_timeout
- commandline parameter
-Thread-Topic: [PATCH v9 1/3] watchdog: introduce watchdog.open_timeout
- commandline parameter
-Thread-Index: AQHUscpEwvUxada9K0KrXhhGLz87qKW7jIGAgAs0LACAALnQgA==
-Date:   Wed, 30 Jan 2019 07:40:15 +0000
-Message-ID: <354edbef-1ad5-78d8-e210-e55c38798962@prevas.se>
-References: <20190116121432.26732-1-rasmus.villemoes@prevas.dk>
- <20190121204527.5548-1-rasmus.villemoes@prevas.dk>
- <20190121204527.5548-2-rasmus.villemoes@prevas.dk>
- <20190122172935.GA4964@roeck-us.net>
- <de4bd94c-d2f7-66c2-6386-8b1cec57af03@prevas.dk>
-In-Reply-To: <de4bd94c-d2f7-66c2-6386-8b1cec57af03@prevas.dk>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-clientproxiedby: HE1PR05CA0222.eurprd05.prod.outlook.com
- (2603:10a6:3:fa::22) To VI1PR10MB2672.EURPRD10.PROD.OUTLOOK.COM
- (2603:10a6:803:e3::20)
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=Rasmus.Villemoes@prevas.se; 
-x-ms-exchange-messagesentrepresentingtype: 1
-x-originating-ip: [81.216.59.226]
-x-ms-publictraffictype: Email
-x-microsoft-exchange-diagnostics: 1;VI1PR10MB1584;6:R3sc4d3wr0bMhoGutaCQJtfbdwu2gfsH8R2NOsCf1UJPxt1JHtgiCOIAwIfirbPEKIEAfAHr/gyLrawtKMiMnej9to480ByFLE4rVpiFcenIpaRTBpq1ukOg9WEhS3DZgTFl/uzb3C/7VX1ZGfZqAzDZqTo8kHm0HnlZW5gtz6x+8K90chvaWGKh++Ba2HOo7Co0+4xCrV8xOgZ2IFAAwjZdnVmfMGGppUdbZ9lsTLHc4dGL+aVUZjKadolcxjbrfjZHfAhhPVd7LSLDmI5XHNTE2VnelPqbhCj9J1UZsVOPL/ympJXe9uLlsjGPdVrwva5Mx43cnkXd/kfG1cjJDaoq6Oh4R7OmvKBLgHex/O8AV330FZyCxuW6B7u+ooVB25zSRImc8fQ6Qa0bspb6JIx5FL98SeTJQw7VttEGPSiadLD2/J+1wspdyS7km0SrRsKb1CmNPgRT3VrWwhLz4w==;5:o4OADamGD/Q+DxazAxoPwJOJmhba/fpEaQV6rE/Dbb1jVDthcV1EjGf7niH815jXFCXcApzXob9SnZUTKn1yS5t3Ski62nwGwfB6YDC8tJQbUpE01zivT9XSsquc5l/JkRZaQXdB7g0No9DZcW0DMrC9WjDyKU05H/iosNcWT7oI3i9pV4hYd5CGHv5xUThizuwWmMtIKnUjlojXJ4C6vg==;7:WgWx0UPC54IgmW/uRfvBn+eavMD3+oEZttnoAUwFgrbEzO1YVKaOKWhVw8njIKI2F8qFh4oQplTWC2Up6FRZ9Y/+XOzUPueZ9dRQFTKWvyC5HU+4C/vLDmzHyKXyFllklmqPNzPfbrioDAFVqnomvw==
-x-ms-office365-filtering-correlation-id: 303ddcaf-91e6-4faf-f9ce-08d686862cb7
-x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600110)(711020)(4605077)(2017052603328)(7153060)(7193020);SRVR:VI1PR10MB1584;
-x-ms-traffictypediagnostic: VI1PR10MB1584:
-x-microsoft-antispam-prvs: <VI1PR10MB15842B01769D6A806741DA138A900@VI1PR10MB1584.EURPRD10.PROD.OUTLOOK.COM>
-x-forefront-prvs: 0933E9FD8D
-x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(366004)(346002)(376002)(396003)(136003)(39850400004)(43544003)(199004)(189003)(99286004)(6512007)(93886005)(54906003)(256004)(2616005)(31696002)(36756003)(2906002)(7736002)(86362001)(486006)(316002)(14454004)(476003)(11346002)(446003)(4326008)(6916009)(53936002)(6436002)(74482002)(305945005)(6486002)(25786009)(68736007)(66066001)(97736004)(26005)(3846002)(52116002)(105586002)(6506007)(76176011)(102836004)(478600001)(106356001)(6246003)(386003)(6116002)(31686004)(72206003)(81166006)(81156014)(44832011)(71190400001)(71200400001)(8676002)(8936002)(186003)(229853002);DIR:OUT;SFP:1102;SCL:1;SRVR:VI1PR10MB1584;H:VI1PR10MB2672.EURPRD10.PROD.OUTLOOK.COM;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
-received-spf: None (protection.outlook.com: prevas.se does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam-message-info: GBddFpXjy/NioFeAIFVl+iIS6/4lvnLvOXIaDjD8YHCrsSZVyt5Sq2zDh4yxh0K4WhBQoSE2Y8cW0GiF17DvCylTTX0JD14ygpWcU3IeqW3lIFW9zWuf1kxThMdPrw1BsrDVqrQFlQkpW6Wpo7HmcF8ruxU3yyoinSxzo+O9G7kQCkIJhquyRCM5lp83vC2M7XsYZSY+V1i3NSVb9XIAzgNgyzoE4FN2eFB2Cj8ZOPby327tfH22DznM3ld2WmxVNeGUGbNBe6HPGXsiVHdm/Us+rpJ2nqAYgjIMbHGHuNAtDXIkQsjf4w73BjarwU2yefBbPEUZE3INDa5+8rzETlzgwqjfEX3BlLnfqJJ7Oyo/kNk3uHVcFAbTJUa5KHdmHfImQ9hQb2iVrxyruwbR6wy3JWCQ3iMkpsv4SbhmmZE=
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <FDCF14841DB6B84FBD02B6F038AE6ACE@EURPRD10.PROD.OUTLOOK.COM>
-Content-Transfer-Encoding: base64
+        Wed, 30 Jan 2019 04:05:24 -0500
+Received: from mail-lf1-f66.google.com ([209.85.167.66]:44013 "EHLO
+        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726583AbfA3JFX (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Wed, 30 Jan 2019 04:05:23 -0500
+Received: by mail-lf1-f66.google.com with SMTP id u18so16778724lff.10;
+        Wed, 30 Jan 2019 01:05:20 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
+         :content-disposition:user-agent;
+        bh=grOpMyO8u1NgLecVR0+Rvx+WInmWv8FnxSYenfQf3YY=;
+        b=qDqlbDLx9JA4XYYonU+tUmB17c76glGLQ1WBhD6SzII4WnZAca3jH2VwuHJs5DGYZg
+         1ZgyFCYlwCOF/VrVKJsfOArY9cA133fUoSGH3sSOxcwrvtMaVRhdM5aGsZYdt2R00Ian
+         C9t0Knmv4Aen7YRTiSHOHO2SQ/a04JGleUhEQdCnwuYXqzHlfSl7VMVUQ/MhxntZqdrY
+         dDAyMf5kL4NqS8dGbrOLLq5k9l/rJsKDnAzUYPjVsfE8gSDbkCDQjkoRU+TFtkeqmBF1
+         ymDXTuYu4i87WiAP4SfTqksqT/erY+iDAefliQuBijBMbcyXmsc2VWi0FAlQR2wS0NCj
+         iAvA==
+X-Gm-Message-State: AJcUukch2HC/i33ThewN0LXUYn16nspOC/Iq2hjC9tbbZ/17DsQaPKlL
+        C4+rdkCHk2FdkVhAAgaCSQw=
+X-Google-Smtp-Source: ALg8bN5sLdh6vdCdHbvCsw7oWJrRl/7I3vOkOsns6DN4FLQAsKJ/x17oYIssqBN0Ky3cEtIXz/Kftw==
+X-Received: by 2002:a19:d5:: with SMTP id 204mr24630957lfa.116.1548839119360;
+        Wed, 30 Jan 2019 01:05:19 -0800 (PST)
+Received: from localhost.localdomain ([213.255.186.46])
+        by smtp.gmail.com with ESMTPSA id y11-v6sm166136ljc.85.2019.01.30.01.05.17
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Wed, 30 Jan 2019 01:05:18 -0800 (PST)
+Date:   Wed, 30 Jan 2019 11:05:07 +0200
+From:   Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+To:     mazziesaccount@gmail.com, matti.vaittinen@fi.rohmeurope.com
+Cc:     heikki.haikola@fi.rohmeurope.com, mikko.mutanen@fi.rohmeurope.com,
+        lee.jones@linaro.org, robh+dt@kernel.org, mark.rutland@arm.com,
+        broonie@kernel.org, gregkh@linuxfoundation.org, rafael@kernel.org,
+        mturquette@baylibre.com, sboyd@kernel.org,
+        linus.walleij@linaro.org, bgolaszewski@baylibre.com,
+        sre@kernel.org, lgirdwood@gmail.com, a.zummo@towertech.it,
+        alexandre.belloni@bootlin.com, wim@linux-watchdog.org,
+        linux@roeck-us.net, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org,
+        linux-gpio@vger.kernel.org, linux-pm@vger.kernel.org,
+        linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org
+Subject: [RFC PATCH v3 00/10] support ROHM BD70528 PMIC
+Message-ID: <cover.1548838724.git.matti.vaittinen@fi.rohmeurope.com>
 MIME-Version: 1.0
-X-OriginatorOrg: prevas.se
-X-MS-Exchange-CrossTenant-Network-Message-Id: 303ddcaf-91e6-4faf-f9ce-08d686862cb7
-X-MS-Exchange-CrossTenant-originalarrivaltime: 30 Jan 2019 07:40:14.6583
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: d350cf71-778d-4780-88f5-071a4cb1ed61
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: VI1PR10MB1584
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.9.2 (2017-12-15)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-T24gMjkvMDEvMjAxOSAyMS4zNSwgUmFzbXVzIFZpbGxlbW9lcyB3cm90ZToNCj4gT24gMjIvMDEv
-MjAxOSAxOC4yOSwgR3VlbnRlciBSb2VjayB3cm90ZToNCj4+IE9uIE1vbiwgSmFuIDIxLCAyMDE5
-IGF0IDA4OjQ1OjM5UE0gKzAwMDAsIFJhc211cyBWaWxsZW1vZXMgd3JvdGU6DQo+Pj4gIA0KPj4+
-ICBzdGF0aWMgdm9pZCB3YXRjaGRvZ19waW5nX3dvcmsoc3RydWN0IGt0aHJlYWRfd29yayAqd29y
-aykNCj4+PiBAQCAtMjk3LDcgKzMxNyw3IEBAIHN0YXRpYyBpbnQgd2F0Y2hkb2dfc3RvcChzdHJ1
-Y3Qgd2F0Y2hkb2dfZGV2aWNlICp3ZGQpDQo+Pj4gIAkJcmV0dXJuIC1FQlVTWTsNCj4+PiAgCX0N
-Cj4+PiAgDQo+Pj4gLQlpZiAod2RkLT5vcHMtPnN0b3ApIHsNCj4+PiArCWlmICh3ZGQtPm9wcy0+
-c3RvcCAmJiAhb3Blbl90aW1lb3V0KSB7DQo+Pg0KPj4gVGhpcyBjaGFuZ2VzIHRoZSBzZW1hbnRp
-Y3Mgb2YgV0RJT0NfU0VUT1BUSU9OUyAvIFdESU9TX0RJU0FCTEVDQVJELg0KPj4gIlR1cm4gb2Zm
-IHRoZSB3YXRjaGRvZyB0aW1lciIgaXMgd2VsbCBkZWZpbmVkIGFuZCBkb2Vzbid0IGxlYXZlDQo+
-PiB0aGUgb3B0aW9uIG9mIHNldHRpbmcgYSB0aW1lb3V0IG9uIGl0Lg0KPiANCj4gSSBjYW4gZHJv
-cCB0aGlzIGh1bmssIHNpbmNlIGl0J3MgbW9zdGx5IGlycmVsZXZhbnQgdG8gdGhlIGFjdHVhbCB1
-c2UNCj4gY2FzZXMgSSBoYXZlIGluIG1pbmQuIEl0IG1ha2VzIHRlc3RpbmcgdGhlIGZlYXR1cmUg
-b24gcmVmZXJlbmNlIGJvYXJkcyBhDQo+IGxpdHRsZSBtb3JlIGF3a3dhcmQsIGJ1dCBJIGNhbiBs
-aXZlIHdpdGggdGhhdC4NCg0KQWN0dWFsbHksIHRoYXQncyBub3QgZW5vdWdoIC0gaWYgdGhlcmUg
-d2FzIGEgbm9uLXplcm8gb3Blbl90aW1lb3V0IGF0DQpib290LCB0aGUgZGV2aWNlIGhhcyBoYWQg
-aXRzIC0+b3Blbl9kZWFkbGluZSBzZXQgdG8gc29tZSBmaW5pdGUgKG5vdA0KS1RJTUVfTUFYKSB2
-YWx1ZSwgYW5kIC0+b3Blbl9kZWFkbGluZSBkb2VzIG5vdCBnZXQgdXBkYXRlZCBvbiB0aGUNCldE
-SU9DX1NFVE9QVElPTlMgLyBXRElPU19ESVNBQkxFQ0FSRCBwYXRoLg0KDQpTbywgSSB0aGluayBv
-bmUgd2F5IHRvIHByZXNlcnZlIHRoZSBzZW1hbnRpY3Mgb2YgV0RJT1NfRElTQUJMRUNBUkQNCih3
-aGljaCwgZm9yIGEgbm9uLXN0b3BhYmxlIHdhdGNoZG9nIHJlYWxseSBtZWFucyAicGxlYXNlIGxl
-dCB0aGUga2VybmVsDQp0YWtlIGNhcmUgb2YgdGhpcyBpbmRlZmluaXRlbHksIG9yIHVudGlsIFdE
-SU9TX0VOQUJMRUNBUkQiKSBpcyB0byBleHRlbmQNCndhdGNoZG9nX3N0b3Agd2l0aCBhIHRpbWVv
-dXQgcGFyYW1ldGVyLCBhbmQgZG8gdGhlIGNhbGwgb2YNCndhdGNoZG9nX3NldF9vcGVuX2RlYWRs
-aW5lKCkgZnJvbSB3YXRjaGRvZ19zdG9wKCkgdXNpbmcgdGhlIHBhc3NlZA0KdGltZW91dCB2YWx1
-ZS4gV2hlbiBjYWxsZWQgZnJvbSB0aGUgV0RJT1NfRElTQUJMRUNBUkQgY2FzZSwgd2UnZCBwYXNz
-IDANCmZvciB0aGF0IHRpbWVvdXQsIHdoaWxlIHRoZSBjYWxsIGZyb20gX3JlbGVhc2Ugd291bGQg
-cGFzcyB0aGUgbW9kdWxlDQpwYXJhbWV0ZXIgb3Blbl90aW1lb3V0LiBbT2J2aW91c2x5LCB3YXRj
-aGRvZ19zZXRfb3Blbl9kZWFkbGluZSgpIHdvdWxkDQphbHNvIHRha2UgdGhlIHRpbWVvdXQgYXMg
-YSBwYXJhbWV0ZXIgaW5zdGVhZCBvZiByZWZlcnJpbmcgdG8gdGhlDQpvcGVuX3RpbWVvdXQgZGly
-ZWN0bHkuXQ0KDQpUaGFua3MgZm9yIHBvaW50aW5nIG91dCB0aGUgV0RJT1NfRElTQUJMRUNBUkQg
-Y2FzZS4gSSdsbCB0cnkgdG8gbWFrZSB0aGUNCmFib3ZlIGludG8gY29kZSB0byBzZWUgaG93IGl0
-IGxvb2tzLg0KDQpSYXNtdXMNCg0K
+Patch series introducing support for ROHM BD70528 PMIC
+
+Please note that patch 1 breaks compilation without patches 2 and 3
+
+ROHM BD70528 is a programmable Power Management IC for battery
+powered 'ultra low power' systems like the pre-announced NXP
+i.MX7 ULP. This patch series introduces support for the PMIC.
+
+I send this a RFC now as I would like to receive comments from
+Lee, Mark and Stephen regarding splitting the existing
+include/linux/mfd/bd718x7.h into ROHM generic and chip specific
+portions. Benefit is that for example the clk sub-driver does
+not need to be aware of chip specific structure(s) (struct
+bd718x7 and struct bd70528) as it only needs to derefernce the
+generic struct rohm_regmap_dev. Thus same clk subdriver can
+support both the bd718x7 and bd70528 as long as MFD driver
+data has this generic structure in the beginning of allocated
+data. But knowing the bd718x7 driver is already in upstream,
+it might be good if this change went through single tree, right?
+
+RTC block of the bd70528 can support 'wake' irq which wakes PMIC
+from standby state. Wake irq's can be armed to wake up system up
+to 24 hours from arming. bd70528 can also generate alarm interrupts
+which can be armed to occur years after triggering. The RTC driver
+does always arm both the waker and alarm irqs and does not utilize
+longer period of alarm interrupts. All the RTC timers are limited
+to occur within the next 24 hours. Any suggestions on more elegant
+timer support are welcome =)
+
+GPIO portion of bd70528 driver adds I/O support for driving GPIO
+pins or reading the state. The interrupt functionality is provided
+by regmap-irq. Current GPIO driver is not aware of whether the pin(s)
+are used for I/O or interrupts and it is up-to driver user to
+ensure there is no misconfiguration or "double use".
+
+Currently only MFD core, clk, RTC and regulator portions are
+somehow tested. The RFC series also include initial gpio, power-supply
+and watchdog patches in order to provide better overview on chip
+and to collect initial feedback. Reset and ADC are not supported by
+this series.
+
+Changelog v3:
+patches 1,2,3,4,5,6,7,8 and 10 are unchanged from v2
+RTC fixups suggested by Guenter Roeck:
+- create bd70528_set_time_locked function in order to simplify
+  error handling and to make mutex lock/unlock path more obvious
+- don't ignore errors on bd70528_set_time_locked
+- simplify bd70528_read_alarm enabled condition setting
+- add __packed to structs where members are mapped to HW registers
+- remove unnecessary brackets from enable condition in set_wake
+RTC: fixups suggested by Alessandro Belloni
+- don't use deprecated devm_rtc_device_register
+- add alarm_irq_enable callback
+- add range_min and range_max
+WDT:
+- add regmap and mutex pointers to WDT data so that they can be accessed
+  without dereferencing the parent data
+- remove parent data pointer from WDT data
+- embed struct watchdog_device into WDT data in order to avoid double
+  allocation.
+GPIO:
+- remove unused header as pointed by Linus Walleij
+POWER:
+- do not copy the whole MFD data (especially the mutex to avoid
+  all possibilities of accidentally using the copy of a mutex)
+
+Changelog v2: Mainly feedback from Guenter Roeck:
+- patches 1, 2, 3, 4, 5, 9 are unchanged.
+- mfd: own mutex for each bd70528 instance - embed in struct bd70528
+- watchdog: do not copy parent device data
+- watchdog: fix deadlock caused by double locked mutex
+- watchdog: set initial timeouts and WDT parent information
+- watchdog: remove unnecessary ping function from ops
+- watchdog: and the comment regarding it
+- watchdog: allocate watchdog struct in order to allow multiple WDG
+  instances
+- rtc: bd70528 fix the order of mutex unlock and re-enabling RTC based
+  timers
+- rtc: fix the irq mask register address
+- power: fix the irq mask register address
+- regulator/regmap-irq: Drop the patches 1, 8 and 9 from original series
+  as those were already applied by Mark 
+
+Patch 1:
+	split the bd718x7.h to generic and chip specific portions.
+	(breaks compilation without patch 2 and 3)
+Patch 2:
+	adapt bd718x7.h changes to bd718x7 regulator driver
+Patch 3:
+	adapt bd718x7.h changes to bd718x7 clk driver
+Patch 4:
+	add MFD core support for bd70528
+Patch 5:
+	support bd70528 clk using bd718x7 clk driver
+Patch 6:
+	document DT bindings for BD70528
+Patch 7:
+	support BD70528 GPIO block
+Patch 8:
+	support BD70528 RTC
+Patch 9:
+	support BD70528 battery charger
+Patch 10:
+	support BD70528 watchdog
+
+This patch series is based on Mark's regulator/for-next branch
+
+---
+
+Matti Vaittinen (10):
+  mfd: bd718x7.h split to ROHM common and bd718x7 specific parts
+  regulator: bd718x7 use chip specific and generic data structs
+  clk: bd718x7: use chip specific and generic data structs
+  mfd: bd70528: Support ROHM bd70528 PMIC - core
+  clk: bd718x7: Support ROHM BD70528 clk block
+  devicetree: bindings: Document first ROHM BD70528 bindings
+  gpio: Initial support for ROHM bd70528 GPIO block
+  rtc: bd70528: Initial support for ROHM bd70528 RTC
+  power: supply: Initial support for ROHM BD70528 PMIC charger block
+  watchdog: bd70528: Initial support for ROHM BD70528 watchdog block
+
+ .../devicetree/bindings/mfd/rohm,bd70528-pmic.txt  | 104 ++++
+ drivers/clk/Kconfig                                |   6 +-
+ drivers/clk/clk-bd718x7.c                          |  25 +-
+ drivers/gpio/Kconfig                               |  11 +
+ drivers/gpio/Makefile                              |   1 +
+ drivers/gpio/gpio-bd70528.c                        | 191 ++++++
+ drivers/mfd/Kconfig                                |  17 +
+ drivers/mfd/Makefile                               |   1 +
+ drivers/mfd/rohm-bd70528.c                         | 410 +++++++++++++
+ drivers/mfd/rohm-bd718x7.c                         |  23 +-
+ drivers/power/supply/Kconfig                       |   9 +
+ drivers/power/supply/Makefile                      |   1 +
+ drivers/power/supply/bd70528-charger.c             | 676 +++++++++++++++++++++
+ drivers/regulator/bd718x7-regulator.c              |  22 +-
+ drivers/rtc/Kconfig                                |   8 +
+ drivers/rtc/Makefile                               |   1 +
+ drivers/rtc/rtc-bd70528.c                          | 502 +++++++++++++++
+ drivers/watchdog/Kconfig                           |  12 +
+ drivers/watchdog/Makefile                          |   1 +
+ drivers/watchdog/bd70528_wdt.c                     | 187 ++++++
+ include/linux/mfd/rohm-bd70528.h                   | 392 ++++++++++++
+ include/linux/mfd/rohm-bd718x7.h                   |  22 +-
+ include/linux/mfd/rohm-generic.h                   |  20 +
+ 23 files changed, 2597 insertions(+), 45 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/mfd/rohm,bd70528-pmic.txt
+ create mode 100644 drivers/gpio/gpio-bd70528.c
+ create mode 100644 drivers/mfd/rohm-bd70528.c
+ create mode 100644 drivers/power/supply/bd70528-charger.c
+ create mode 100644 drivers/rtc/rtc-bd70528.c
+ create mode 100644 drivers/watchdog/bd70528_wdt.c
+ create mode 100644 include/linux/mfd/rohm-bd70528.h
+ create mode 100644 include/linux/mfd/rohm-generic.h
+
+-- 
+2.14.3
+
+
+-- 
+Matti Vaittinen
+ROHM Semiconductors Finland SWDC
+Kiviharjunlenkki 1E
+90220 OULU
+FINLAND
+
+~~~ "I don't think so," said Rene Descartes.  Just then, he vanished ~~~
