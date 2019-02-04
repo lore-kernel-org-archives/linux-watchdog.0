@@ -4,58 +4,57 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-4.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
+	SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4D975C4151A
-	for <linux-watchdog@archiver.kernel.org>; Mon,  4 Feb 2019 11:25:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E2282C282C4
+	for <linux-watchdog@archiver.kernel.org>; Mon,  4 Feb 2019 11:30:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 1F67620815
-	for <linux-watchdog@archiver.kernel.org>; Mon,  4 Feb 2019 11:25:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B49F020815
+	for <linux-watchdog@archiver.kernel.org>; Mon,  4 Feb 2019 11:30:11 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=linaro.org header.i=@linaro.org header.b="OyoJQUVl"
+	dkim=pass (1024-bit key) header.d=linaro.org header.i=@linaro.org header.b="Y0qLziCh"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728030AbfBDLZ4 (ORCPT
+        id S1729027AbfBDLaJ (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 4 Feb 2019 06:25:56 -0500
-Received: from mail-lj1-f194.google.com ([209.85.208.194]:46978 "EHLO
+        Mon, 4 Feb 2019 06:30:09 -0500
+Received: from mail-lj1-f194.google.com ([209.85.208.194]:40660 "EHLO
         mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728299AbfBDLZ4 (ORCPT
+        with ESMTP id S1728901AbfBDLaH (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 4 Feb 2019 06:25:56 -0500
-Received: by mail-lj1-f194.google.com with SMTP id v15-v6so11166881ljh.13
-        for <linux-watchdog@vger.kernel.org>; Mon, 04 Feb 2019 03:25:55 -0800 (PST)
+        Mon, 4 Feb 2019 06:30:07 -0500
+Received: by mail-lj1-f194.google.com with SMTP id n18-v6so11214285lji.7
+        for <linux-watchdog@vger.kernel.org>; Mon, 04 Feb 2019 03:30:06 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=wRYfuP7oYobYTBvy6aIr+v9XulGm0xPZTNCq3iUqj+k=;
-        b=OyoJQUVlHhFQSKp34oawUzjkkJD20j0DGfRc8AUsiwOh6L47Iq47rbho1DAC6JojOK
-         8mdMAyYBzAuUpKy5aCmpgsA/pGdfSIm2Bwhu8w0vxuDCrVE8Y6nyXLMFaGqgCVZLxapX
-         z3iL1LeErLJ6w5QXPD21yv8wYjA1U8A4zy8Y4=
+        bh=osuavLz7brC0DOEgHfP8LzflHiXxFdskXEGvDqpOG8s=;
+        b=Y0qLziChpsM3r8H1BSfx7euAyCtU8/9iWn5+GyA7WAUkeWIN1wdilggaGPVaeBQHNV
+         SqLKI7IxynjARG3qvzpHkfE+UlmhNJ7J+HoayHrEOVy3iCEJm5YgVAqoDve9RSjiI2BG
+         waxPUywCHieJtFGrNb2x0e3YYvGPrHb0Yhepk=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=wRYfuP7oYobYTBvy6aIr+v9XulGm0xPZTNCq3iUqj+k=;
-        b=EexvXgE+B2ugLThIo6gdvQHUAi2sTh4Q7lVKbzbl7FKl4UoVNd1taRok8GAr/cDV1t
-         NlJS8uG8qhP0K+eLrQRBAR96O/he+ND+uh5+bxHPq7M1C8NErc+OIqP0YQgViTO+FjK9
-         FUd9Kr1sgmAfcMz7DQDMNvzZ3cE+oDvQdMzubTfWvZsFFWAtofFo9c/tCBMTnHynHM4h
-         5OgY6KSdHrMvE6UZmZQX2Po7WksXDkHnz4zJKWdIsOLY/ZoMCkmcBOyWKpKVKhAgcBR2
-         lnSMDm9tFrLUO//unkEVeBpljSawoTmn0TN9/KXmpe+wqb5MCzMtG5ZHpP4ZUxNVKOXv
-         roxA==
-X-Gm-Message-State: AJcUukcZYpNVzaegAkBwgcOTCQAHPghlEqf14ho7MkXinmOOGORff8oC
-        XaZTF2wGWh2PakTmuUXyvEfXqMy+uDwXpzqIuRGx6g==
-X-Google-Smtp-Source: ALg8bN7nx6sXITFyoPuFfw23CVvKBGmyEoL5ZFGpk6r4uHCrK3mNJtdnoravyOf/yoASu8/EqQzyBvCsgA2Xe1ImuZE=
-X-Received: by 2002:a2e:9356:: with SMTP id m22-v6mr39242047ljh.135.1549279554049;
- Mon, 04 Feb 2019 03:25:54 -0800 (PST)
+        bh=osuavLz7brC0DOEgHfP8LzflHiXxFdskXEGvDqpOG8s=;
+        b=PKLBa3sqXjLe80pdItHkXRu/wJMkFSrTfwN9WN/KN06kghPIPj0Hkw7hxrp3EsQCek
+         pl0NapFUQLBCkGB1M576MjE55JyTGNTM0/VlAejf5TaPAV7pwa0ewa/a6S5V1xpo46q9
+         iN5IT14wdyshqx5QEpunng4buLXd0Yqy79/QtxPbBftdKJzVn47tRPasCwcOflYx485N
+         W+6OBbs+be50ixO+2XFk25REVZff/Xm5SWxGKDvqxalCQM+xLz1Wd0VARhnuhzsoSb6u
+         EMy9/1ec+t+0iSvUh34E+kL0Aavr8I1b1IwIh0ZvyKI+IX2PqQjCFUIreMW3CaEN9Vjb
+         f+1g==
+X-Gm-Message-State: AJcUukc15bVFfBcfO3oQ90jxOTyQHB/XEYSeUVYB/FCgNso27npg95kw
+        2UWU4VOK5nmfPdw0h1O9Oya1oQSktiX1Urz7j3Wh4w==
+X-Google-Smtp-Source: ALg8bN6ZEPDpA3midCV/lkK6P4Ws7/B22xJbpb9blLfJftSYD8D6/JVmm3Q+/3QkqXZPwPIyld6lE+RuRRu8r2Y8Vyg=
+X-Received: by 2002:a2e:568d:: with SMTP id k13-v6mr42136476lje.105.1549279805224;
+ Mon, 04 Feb 2019 03:30:05 -0800 (PST)
 MIME-Version: 1.0
-References: <cover.1548935790.git.matti.vaittinen@fi.rohmeurope.com> <127bd8d6765e35272ad174c59838d1374813c910.1548935790.git.matti.vaittinen@fi.rohmeurope.com>
-In-Reply-To: <127bd8d6765e35272ad174c59838d1374813c910.1548935790.git.matti.vaittinen@fi.rohmeurope.com>
+References: <cover.1548935790.git.matti.vaittinen@fi.rohmeurope.com> <5f63684b62c7a320c514088bcf9091ed7efbd2cc.1548935790.git.matti.vaittinen@fi.rohmeurope.com>
+In-Reply-To: <5f63684b62c7a320c514088bcf9091ed7efbd2cc.1548935790.git.matti.vaittinen@fi.rohmeurope.com>
 From:   Linus Walleij <linus.walleij@linaro.org>
-Date:   Mon, 4 Feb 2019 12:25:41 +0100
-Message-ID: <CACRpkdZOzacQ5Myb_wsHz5wUGvwQ1avhfY5gaR+3oqhNtArH-A@mail.gmail.com>
-Subject: Re: [RFC PATCH v4 06/10] devicetree: bindings: Document first ROHM
- BD70528 bindings
+Date:   Mon, 4 Feb 2019 12:29:53 +0100
+Message-ID: <CACRpkdauoQ=qcFUi7wTUKu22ZHeq=g0grWqvZz1gfOt0=dXrbw@mail.gmail.com>
+Subject: Re: [RFC PATCH v4 07/10] gpio: Initial support for ROHM bd70528 GPIO block
 To:     Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
 Cc:     Matti Vaittinen <mazziesaccount@gmail.com>,
         heikki.haikola@fi.rohmeurope.com, mikko.mutanen@fi.rohmeurope.com,
@@ -88,34 +87,40 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Thu, Jan 31, 2019 at 1:04 PM Matti Vaittinen
+On Thu, Jan 31, 2019 at 1:08 PM Matti Vaittinen
 <matti.vaittinen@fi.rohmeurope.com> wrote:
 
-> Document bindings for regulators (3 bucks, 3 LDOs and 2 LED
-> drivers) and 4 GPIO pins which can be configured for I/O or
-> as interrupt sources withe configurable trigger levels.
+> ROHM BD70528 PMIC has 4 GPIO pins. Allow them to be
+> controlled by GPIO framework.
+>
+> IRQs are handled by regmap-irq and GPIO driver is not
+> aware of the irq usage.
 >
 > Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
 (...)
-> +Required properties:
-> + - compatible          : Should be "rohm,bd70528"
-> + - reg                 : I2C slave address.
-> + - interrupts          : The interrupt line the device is connected to.
-> + - interrupt-controller        : To indicate bd70528 acts as an interrupt controller.
-> + - #interrupt-cells    : Should be 2. usage is compliant to the 2 cells
-> +                         variant of ../interrupt-controller/interrupts.txt
-> + - gpio-controller     : To indicate bd70528 acts as a gpio controller.
-> + - #gpio-cells         : Should be 2. The first cell is the pin number and
-> +                         the second cell is used to specify flags. See
-> +                         ../gpio/gpio.txt for more information.
-> + - #clock-cells                : Should be 0.
-> + - regulators:         : List of child nodes that specify the regulators.
-> +                         Please see ../regulator/rohm,bd70528-regulator.txt
+> I dropped the review-by from Linus Walleij because I would like to
+> get a comment on if locking is required when we check the direction
+> in order to detect the correct register for getting the pin state.
 
-So if I understand correctly, the clocks and GPIO does not spawn any
-child nodes but are attached directly to the MFD node.
-This works!
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
+I don't know that. You isn't regmap locking inherently?
+
+> My initial feeling is that locking makes no sense.
+
+Mine too.
+
+> +       bdgpio->gpio.get_direction = &bd70528_get_direction;
+> +       bdgpio->gpio.direction_input = &bd70528_direction_input;
+> +       bdgpio->gpio.direction_output = &bd70528_direction_output;
+> +       bdgpio->gpio.set_config = &bd70528_gpio_set_config;
+> +       bdgpio->gpio.can_sleep = true;
+> +       bdgpio->gpio.get = &bd70528_gpio_get;
+> +       bdgpio->gpio.set = &bd70528_gpio_set;
+
+Drop the &ampersand in from of the functions. All functions
+are pointers.
+
+With that:
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
 
 Yours,
 Linus Walleij
