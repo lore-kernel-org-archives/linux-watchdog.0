@@ -1,100 +1,124 @@
-Return-Path: <SRS0=1Qnr=QL=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=LBhD=QM=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D9FA8C282C4
-	for <linux-watchdog@archiver.kernel.org>; Mon,  4 Feb 2019 23:58:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EE166C282C4
+	for <linux-watchdog@archiver.kernel.org>; Tue,  5 Feb 2019 01:11:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id ADCD220820
-	for <linux-watchdog@archiver.kernel.org>; Mon,  4 Feb 2019 23:58:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B399620821
+	for <linux-watchdog@archiver.kernel.org>; Tue,  5 Feb 2019 01:11:32 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mw9RBhAd"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727548AbfBDX6F (ORCPT
+        id S1727736AbfBEBLc (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 4 Feb 2019 18:58:05 -0500
-Received: from mx0b-002e3701.pphosted.com ([148.163.143.35]:44962 "EHLO
-        mx0b-002e3701.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726657AbfBDX6E (ORCPT
+        Mon, 4 Feb 2019 20:11:32 -0500
+Received: from mail-pf1-f194.google.com ([209.85.210.194]:38013 "EHLO
+        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726614AbfBEBLc (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 4 Feb 2019 18:58:04 -0500
-Received: from pps.filterd (m0134424.ppops.net [127.0.0.1])
-        by mx0b-002e3701.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x14Ntxk8014594;
-        Mon, 4 Feb 2019 23:57:43 GMT
-Received: from g2t2353.austin.hpe.com (g2t2353.austin.hpe.com [15.233.44.26])
-        by mx0b-002e3701.pphosted.com with ESMTP id 2qev95s76k-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 04 Feb 2019 23:57:43 +0000
-Received: from g2t2360.austin.hpecorp.net (g2t2360.austin.hpecorp.net [16.196.225.135])
-        by g2t2353.austin.hpe.com (Postfix) with ESMTP id 690E277;
-        Mon,  4 Feb 2019 23:57:42 +0000 (UTC)
-Received: from lxbuild.ftc.rdlabs.hpecorp.net (lxbuild.ftc.rdlabs.hpecorp.net [16.78.34.175])
-        by g2t2360.austin.hpecorp.net (Postfix) with ESMTP id 077223A;
-        Mon,  4 Feb 2019 23:57:41 +0000 (UTC)
-From:   Jerry Hoemann <jerry.hoemann@hpe.com>
-To:     wim@linux-watchdog.org, linux@roeck-us.net
-Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Jerry Hoemann <jerry.hoemann@hpe.com>
-Subject: [PATCH] watchdog: Update sysfs documentation.
-Date:   Mon,  4 Feb 2019 16:57:36 -0700
-Message-Id: <1549324656-78660-1-git-send-email-jerry.hoemann@hpe.com>
-X-Mailer: git-send-email 1.8.3.1
-X-HPE-SCL: -1
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-02-04_14:,,
- signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- malwarescore=0 suspectscore=0 phishscore=0 bulkscore=0 spamscore=0
- clxscore=1015 lowpriorityscore=0 mlxscore=0 impostorscore=0
- mlxlogscore=521 adultscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.0.1-1810050000 definitions=main-1902040177
+        Mon, 4 Feb 2019 20:11:32 -0500
+Received: by mail-pf1-f194.google.com with SMTP id q1so756132pfi.5;
+        Mon, 04 Feb 2019 17:11:31 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=8nlmQ7IS2mYLzzDHOfe9r2Py+GW2rYGgJszDC0FMfq4=;
+        b=mw9RBhAdHxuE3sOwX4xKHqmNCgRijDfsLBHrGnkTCszaaj/b6A8Ji91iGwL3AJN2Qm
+         9dqtO7h5PP1KUM8SnWAWy1mXNI7HGbdoQftJUvooECsF1TBUn3tuL3/A8q2gCZhUnFe2
+         CoN6C9YDlwTJkNIVkAWa6EhfGFwQszYuzczMv+m+JGAev+dOcM30iNAxsqBnbqaytCZi
+         6j3OOtQBVfgJnU5YeyX0td5twCCky+SxzM3ZUEuSEet83cPfd9Armslh7YM2iwoW/VpX
+         l0ZfYRR8SbKigQBWsmyjJJmi4Vmp1aAdQNyEXIA02X+//4H+cdaKPEoP5/k1vO7QVHeS
+         deEw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=8nlmQ7IS2mYLzzDHOfe9r2Py+GW2rYGgJszDC0FMfq4=;
+        b=lSUtGwr9OqgylKqQ2VhaATtVilRuJL5+0g1YYAELOwC/O9R4JNTie2gnN1m63nyM+c
+         m3ukCnnKkMVrzlLkri9d0/3DWmBYbA1Esi9SavKP8Vv6bCdXyjyojF9NFYGPGX/dLHeP
+         JD271RyBE+JkPOru4m5Ru4HRcd5yJHDb9LdejM3aqAIY9vitZBc6dwa+JPMan88pRdfW
+         DiyZ0qzzZMThPhnMSkZgPfrCVf9+hk5fNP81Xmpsdwcif2528CWbxeBVSafm/nuDUTUk
+         QLS0Bys1v3xFmqe87Q3k/sdWQwBY+71npLCPqVaqedRDSSYVFPSKJD5bNgsogJ5Pc0B9
+         zOng==
+X-Gm-Message-State: AHQUAuZ9Stjp1P6Us19bNS9ecxz14JOlloIDFSf2xMmPTkNwNNsJI+eO
+        n9V878SlwcFsdxdEDrj8Yvu+7bhl
+X-Google-Smtp-Source: AHgI3IaRWKAWAcbjZNfm0b/TzjTh+tJr/Bau/f7+BGOx4wilpevQv4bwQhlng0wfVDOpNPHRoNYKNw==
+X-Received: by 2002:a65:6105:: with SMTP id z5mr2158635pgu.26.1549329090658;
+        Mon, 04 Feb 2019 17:11:30 -0800 (PST)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id w136sm1762522pfd.169.2019.02.04.17.11.28
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 04 Feb 2019 17:11:29 -0800 (PST)
+Subject: Re: [PATCH] watchdog: Update sysfs documentation.
+To:     Jerry Hoemann <jerry.hoemann@hpe.com>, wim@linux-watchdog.org
+Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <1549324656-78660-1-git-send-email-jerry.hoemann@hpe.com>
+From:   Guenter Roeck <linux@roeck-us.net>
+Message-ID: <de1c8050-6784-8e92-a195-e18b849f7d91@roeck-us.net>
+Date:   Mon, 4 Feb 2019 17:11:27 -0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.2.1
+MIME-Version: 1.0
+In-Reply-To: <1549324656-78660-1-git-send-email-jerry.hoemann@hpe.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Document the sysfs attributes:
-	pretimeout
-	pretimeout_available_governors
-	pretimeout_governor
+On 2/4/19 3:57 PM, Jerry Hoemann wrote:
+> Document the sysfs attributes:
+> 	pretimeout
+> 	pretimeout_available_governors
+> 	pretimeout_governor
+> 
+> Signed-off-by: Jerry Hoemann <jerry.hoemann@hpe.com>
 
-Signed-off-by: Jerry Hoemann <jerry.hoemann@hpe.com>
----
- Documentation/ABI/testing/sysfs-class-watchdog | 23 +++++++++++++++++++++++
- 1 file changed, 23 insertions(+)
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-diff --git a/Documentation/ABI/testing/sysfs-class-watchdog b/Documentation/ABI/testing/sysfs-class-watchdog
-index 736046b..6317ade 100644
---- a/Documentation/ABI/testing/sysfs-class-watchdog
-+++ b/Documentation/ABI/testing/sysfs-class-watchdog
-@@ -49,3 +49,26 @@ Contact:	Wim Van Sebroeck <wim@iguana.be>
- Description:
- 		It is a read only file. It is read to know about current
- 		value of timeout programmed.
-+
-+What:		/sys/class/watchdog/watchdogn/pretimeout
-+Date:		December 2016
-+Contact:	Wim Van Sebroeck <wim@iguana.be>
-+Description:
-+		It is a read only file. It specifies the time in seconds before
-+		timeout when the pretimeout interrupt is delivered.  Pretimeout
-+		is an optional feature.
-+
-+What:		/sys/class/watchdog/watchdogn/pretimeout_avaialable_governors
-+Date:		February 2017
-+Contact:	Wim Van Sebroeck <wim@iguana.be>
-+Description:
-+		It is a read only file. It shows the pretimeout governors
-+		available for this watchdog.
-+
-+What:		/sys/class/watchdog/watchdogn/pretimeout_governor
-+Date:		February 2017
-+Contact:	Wim Van Sebroeck <wim@iguana.be>
-+Description:
-+		It is a read/write file. When read, the currently assigned
-+		pretimeout governor is returned.  When written, it sets
-+		the pretimeout governor.
--- 
-1.8.3.1
+> ---
+>   Documentation/ABI/testing/sysfs-class-watchdog | 23 +++++++++++++++++++++++
+>   1 file changed, 23 insertions(+)
+> 
+> diff --git a/Documentation/ABI/testing/sysfs-class-watchdog b/Documentation/ABI/testing/sysfs-class-watchdog
+> index 736046b..6317ade 100644
+> --- a/Documentation/ABI/testing/sysfs-class-watchdog
+> +++ b/Documentation/ABI/testing/sysfs-class-watchdog
+> @@ -49,3 +49,26 @@ Contact:	Wim Van Sebroeck <wim@iguana.be>
+>   Description:
+>   		It is a read only file. It is read to know about current
+>   		value of timeout programmed.
+> +
+> +What:		/sys/class/watchdog/watchdogn/pretimeout
+> +Date:		December 2016
+> +Contact:	Wim Van Sebroeck <wim@iguana.be>
+> +Description:
+> +		It is a read only file. It specifies the time in seconds before
+> +		timeout when the pretimeout interrupt is delivered.  Pretimeout
+> +		is an optional feature.
+> +
+> +What:		/sys/class/watchdog/watchdogn/pretimeout_avaialable_governors
+> +Date:		February 2017
+> +Contact:	Wim Van Sebroeck <wim@iguana.be>
+> +Description:
+> +		It is a read only file. It shows the pretimeout governors
+> +		available for this watchdog.
+> +
+> +What:		/sys/class/watchdog/watchdogn/pretimeout_governor
+> +Date:		February 2017
+> +Contact:	Wim Van Sebroeck <wim@iguana.be>
+> +Description:
+> +		It is a read/write file. When read, the currently assigned
+> +		pretimeout governor is returned.  When written, it sets
+> +		the pretimeout governor.
+> 
 
