@@ -2,37 +2,39 @@ Return-Path: <SRS0=QDKL=QN=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,UNPARSEABLE_RELAY,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0DBF0C169C4
-	for <linux-watchdog@archiver.kernel.org>; Wed,  6 Feb 2019 16:41:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7EE6DC282C2
+	for <linux-watchdog@archiver.kernel.org>; Wed,  6 Feb 2019 16:41:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id D916620811
-	for <linux-watchdog@archiver.kernel.org>; Wed,  6 Feb 2019 16:41:51 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4C71020811
+	for <linux-watchdog@archiver.kernel.org>; Wed,  6 Feb 2019 16:41:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731214AbfBFQlv (ORCPT
+        id S1731300AbfBFQl4 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 6 Feb 2019 11:41:51 -0500
-Received: from mail-il-dmz.mellanox.com ([193.47.165.129]:46842 "EHLO
+        Wed, 6 Feb 2019 11:41:56 -0500
+Received: from mail-il-dmz.mellanox.com ([193.47.165.129]:46855 "EHLO
         mellanox.co.il" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1730520AbfBFQlv (ORCPT
+        with ESMTP id S1730520AbfBFQl4 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 6 Feb 2019 11:41:51 -0500
+        Wed, 6 Feb 2019 11:41:56 -0500
 Received: from Internal Mail-Server by MTLPINE1 (envelope-from michaelsh@mellanox.com)
-        with ESMTPS (AES256-SHA encrypted); 6 Feb 2019 18:41:49 +0200
+        with ESMTPS (AES256-SHA encrypted); 6 Feb 2019 18:41:51 +0200
 Received: from r-build-lowlevel.mtr.labs.mlnx. (r-build-lowlevel.mtr.labs.mlnx [10.209.0.190])
-        by labmailer.mlnx (8.13.8/8.13.8) with ESMTP id x16GfnJa014415;
-        Wed, 6 Feb 2019 18:41:49 +0200
+        by labmailer.mlnx (8.13.8/8.13.8) with ESMTP id x16GfnJb014415;
+        Wed, 6 Feb 2019 18:41:51 +0200
 From:   michaelsh@mellanox.com
 To:     wim@linux-watchdog.org, linux@roeck-us.net
 Cc:     linux-watchdog@vger.kernel.org, vadimp@mellanox.com,
         Michael Shych <michaelsh@mellanox.com>
-Subject: [PATCH v1 0/3] introduce watchdog driver for Mellanox systems.
-Date:   Wed,  6 Feb 2019 16:41:42 +0000
-Message-Id: <20190206164145.4076-1-michaelsh@mellanox.com>
+Subject: [PATCH v1 1/3] platform_data/mlxreg:   addittions for mellanox watchdog driver.
+Date:   Wed,  6 Feb 2019 16:41:43 +0000
+Message-Id: <20190206164145.4076-2-michaelsh@mellanox.com>
 X-Mailer: git-send-email 2.11.0
+In-Reply-To: <20190206164145.4076-1-michaelsh@mellanox.com>
+References: <20190206164145.4076-1-michaelsh@mellanox.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
@@ -40,30 +42,45 @@ X-Mailing-List: linux-watchdog@vger.kernel.org
 
 From: Michael Shych <michaelsh@mellanox.com>
 
-This patchset introduces watchdog driver for a various range of Mellanox
-Ethernet and Infiniband switch systems.
-Mellanox watchdog device is implemented in programmable logic device.
-There are 2 types of HW watchdog implementations with diferent capabilities.
-This mlx-wdt driver supports both HW watchdog implementations.
-Mellanox system can have 2 watchdogs: main and auxiliary.
-Main and auxiliary watchdog devices can be enabled together on the same system.
-There are several actions that can be defined in the watchdog:
-system reset, start fans on full speed and increase register counter.
+There are two new fields added to mlxreg core structure:
+features - supported features of device and
+identity - device identity name.
+Add new defines for watchdog features.
 
-Michael Shych (3):
-  platform_data/mlxreg:	addittions for mellanox watchdog driver.
-  watchdog: mlx-wdt: introduce watchdog driver for Mellanox systems.
-  Documentation/watchdog: Add documentation mlx-wdt driver
+Signed-off-by: Michael Shych <michaelsh@mellanox.com>
+---
+ include/linux/platform_data/mlxreg.h | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
- Documentation/watchdog/mlx-wdt.txt   |  48 +++++
- drivers/watchdog/Kconfig             |  16 ++
- drivers/watchdog/Makefile            |   1 +
- drivers/watchdog/mlx_wdt.c           | 406 +++++++++++++++++++++++++++++++++++
- include/linux/platform_data/mlxreg.h |   6 +
- 5 files changed, 477 insertions(+)
- create mode 100644 Documentation/watchdog/mlx-wdt.txt
- create mode 100644 drivers/watchdog/mlx_wdt.c
-
+diff --git a/include/linux/platform_data/mlxreg.h b/include/linux/platform_data/mlxreg.h
+index 19f5cb618c55..e6bb0e2d6efc 100644
+--- a/include/linux/platform_data/mlxreg.h
++++ b/include/linux/platform_data/mlxreg.h
+@@ -35,6 +35,8 @@
+ #define __LINUX_PLATFORM_DATA_MLXREG_H
+ 
+ #define MLXREG_CORE_LABEL_MAX_SIZE	32
++#define MLXREG_CORE_WD_FEATURE_NOSTOP_AFTER_START	BIT(0)
++#define MLXREG_CORE_WD_FEATURE_START_AT_BOOT		BIT(1)
+ 
+ /**
+  * struct mlxreg_hotplug_device - I2C device data:
+@@ -110,11 +112,15 @@ struct mlxreg_core_item {
+  * @led_data: led private data;
+  * @regmap: register map of parent device;
+  * @counter: number of led instances;
++ * @features: supported features of device;
++ * @identity: device identity name;
+  */
+ struct mlxreg_core_platform_data {
+ 	struct mlxreg_core_data *data;
+ 	void *regmap;
+ 	int counter;
++	u32 features;
++	char identity[MLXREG_CORE_LABEL_MAX_SIZE];
+ };
+ 
+ /**
 -- 
 2.11.0
 
