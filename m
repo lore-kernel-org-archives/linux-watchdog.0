@@ -3,46 +3,46 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-8.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_MUTT autolearn=unavailable autolearn_force=no version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_MUTT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7F962C282C2
-	for <linux-watchdog@archiver.kernel.org>; Wed,  6 Feb 2019 09:36:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 195AAC4151A
+	for <linux-watchdog@archiver.kernel.org>; Wed,  6 Feb 2019 09:38:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4E92A217F9
-	for <linux-watchdog@archiver.kernel.org>; Wed,  6 Feb 2019 09:36:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E4591217F9
+	for <linux-watchdog@archiver.kernel.org>; Wed,  6 Feb 2019 09:38:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728429AbfBFJgS (ORCPT
+        id S1728829AbfBFJil (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 6 Feb 2019 04:36:18 -0500
-Received: from mail-lj1-f193.google.com ([209.85.208.193]:46925 "EHLO
-        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726715AbfBFJgR (ORCPT
+        Wed, 6 Feb 2019 04:38:41 -0500
+Received: from mail-lj1-f195.google.com ([209.85.208.195]:34034 "EHLO
+        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728468AbfBFJil (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 6 Feb 2019 04:36:17 -0500
-Received: by mail-lj1-f193.google.com with SMTP id v15-v6so5367384ljh.13;
-        Wed, 06 Feb 2019 01:36:15 -0800 (PST)
+        Wed, 6 Feb 2019 04:38:41 -0500
+Received: by mail-lj1-f195.google.com with SMTP id v14-v6so2626600ljv.1;
+        Wed, 06 Feb 2019 01:38:38 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=PUQ5JIe6tSnYfUZ9hquGsp4jQxfcuLm9eU/In1aybU8=;
-        b=fdAiwj63AKUL0lKKDEPRzfCEs5wgayXf/VorLvRxaYyf/Nn/oQYp9HVGf98lVxUe9U
-         51wqy5VfmjDYooLIyBc29KmlRJtiQT648gYSswDb/BQJ3jhZOB2Q2ASQP9ykgpzRFTeD
-         ytZDynEG19GTJoZMmYZW6Lu9SjZwNPhCzcJs2hNIQng7JhQbW2ziysYEIaJlIYGkK28M
-         YHriPM2QJC3Hxfn8XTS/OBjbPUxNpAC8IIRc9KFaktavdD8RtrzAQqfMdZ8hQQJ9l0mQ
-         jHr1ZwpIuN+7aoVQsGfLOtEz5pqYNvHsb2s6nrRA4KZXHW72BPfcVaU7lODyUgfsQYCR
-         vHLg==
-X-Gm-Message-State: AHQUAubt7YsD4DVGvczw75eov/ZuFfU/LNnzov7RQTv0udgjAPUhNF7e
-        5GQJfbcM0zUZAGzwetDRLIQ=
-X-Google-Smtp-Source: AHgI3IYi+8IRtGI0tWJ0Vf8+AuxnQV5cBrgwBPIovYv0o3sP5sRubrhimVe1VuFYsZs9F/UjC+TDFg==
-X-Received: by 2002:a05:651c:c8:: with SMTP id 8mr5777835ljr.53.1549445774200;
-        Wed, 06 Feb 2019 01:36:14 -0800 (PST)
+        bh=JO9LAwxTnBkCMWBTPI8Eo+lJGNOKmjDzNrji3wP532E=;
+        b=qJVJsQFxf/0BiFMz8qR6LE+BackK2KGopNju/uDf0fXXr5Qs/bvd7I3Kl4c/OFXD37
+         qwMqY+OsNSnSn6FW4EAjBpKcBp/dF/Zp1JCCGU3BzQN6P48ILjqcheSaCUkJQ0SjWY5X
+         zLm++gdYUlDtXucHLkg3+/gZD7usUiepF8/COadLC5VZDLQzv2LiLaty8JCbZeWJ5Vlf
+         Eh/xLu9L5FC5ITjZgJQ/KJN4SO4+zQetfamSvgMo/Kp8l3K+krL+haiwRKx16oS814Xi
+         Oa+AtO2lsq6O4wjPtUZU5s6k/VNhVqvyzuAEjzPe8R8g7iAUUoPtEtdhtnCjpmdVPUOZ
+         i/Rw==
+X-Gm-Message-State: AHQUAuZy7f6yxJQkQMwQIfNDsgORP/yOrzOA45u/RyulpjzcSmpKyD/8
+        aAXVlkD3PQxhjwZTg7DvyTg=
+X-Google-Smtp-Source: AHgI3IaPK90MCPw2CG+rMnoLhrF+sSktDsrNAkmk5mvL1Ah+tdtJNz+8HaESrraxoss8JLBlwwKIYA==
+X-Received: by 2002:a2e:310a:: with SMTP id x10-v6mr5773122ljx.6.1549445917794;
+        Wed, 06 Feb 2019 01:38:37 -0800 (PST)
 Received: from localhost.localdomain ([213.255.186.46])
-        by smtp.gmail.com with ESMTPSA id l16sm3096873lfh.58.2019.02.06.01.36.12
+        by smtp.gmail.com with ESMTPSA id u2-v6sm290279ljd.19.2019.02.06.01.38.36
         (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Wed, 06 Feb 2019 01:36:13 -0800 (PST)
-Date:   Wed, 6 Feb 2019 11:36:01 +0200
+        Wed, 06 Feb 2019 01:38:37 -0800 (PST)
+Date:   Wed, 6 Feb 2019 11:38:29 +0200
 From:   Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
 To:     Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>,
         mazziesaccount@gmail.com
@@ -58,9 +58,9 @@ Cc:     Guenter Roeck <linux@roeck-us.net>,
         linux-clk@vger.kernel.org, linux-gpio@vger.kernel.org,
         linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org,
         linux-watchdog@vger.kernel.org
-Subject: [PATCH v7 01/10] mfd: bd718x7.h split to ROHM common and bd718x7
- specific parts
-Message-ID: <0f5a3b94f936556c1ad05da58bfb35182ae20a96.1549444366.git.matti.vaittinen@fi.rohmeurope.com>
+Subject: [PATCH v7 02/10] regulator: bd718x7 use chip specific and generic
+ data structs
+Message-ID: <e0946d1b0c765d4db9d8e0806309527d0d644dde.1549444366.git.matti.vaittinen@fi.rohmeurope.com>
 References: <cover.1549444366.git.matti.vaittinen@fi.rohmeurope.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -72,162 +72,113 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Split the bd718x7.h to ROHM common and bd718x7 specific parts
-so that we do not need to add same things in every new ROHM
-PMIC header. Please note that this change requires changes also
-in bd718x7 sub-device drivers for regulators and clk.
+Header rohm-bd718x7.h was split to generic and component specific
+parts. This changed the struct bd718x7. Adapt the regulator driver to
+these changes.
 
 Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+Acked-by: Mark Brown <broonie@kernel.org>
 ---
- drivers/mfd/rohm-bd718x7.c       | 23 ++++++++++++-----------
- include/linux/mfd/rohm-bd718x7.h | 22 ++++++++--------------
- include/linux/mfd/rohm-generic.h | 20 ++++++++++++++++++++
- 3 files changed, 40 insertions(+), 25 deletions(-)
- create mode 100644 include/linux/mfd/rohm-generic.h
 
-diff --git a/drivers/mfd/rohm-bd718x7.c b/drivers/mfd/rohm-bd718x7.c
-index a29d529a96f4..7beb444a57cb 100644
---- a/drivers/mfd/rohm-bd718x7.c
-+++ b/drivers/mfd/rohm-bd718x7.c
-@@ -98,18 +98,19 @@ static int bd718xx_i2c_probe(struct i2c_client *i2c,
- 		return -ENOMEM;
- 
- 	bd718xx->chip_irq = i2c->irq;
--	bd718xx->chip_type = (unsigned int)(uintptr_t)
-+	bd718xx->chip.chip_type = (unsigned int)(uintptr_t)
- 				of_device_get_match_data(&i2c->dev);
--	bd718xx->dev = &i2c->dev;
-+	bd718xx->chip.dev = &i2c->dev;
- 	dev_set_drvdata(&i2c->dev, bd718xx);
- 
--	bd718xx->regmap = devm_regmap_init_i2c(i2c, &bd718xx_regmap_config);
--	if (IS_ERR(bd718xx->regmap)) {
-+	bd718xx->chip.regmap = devm_regmap_init_i2c(i2c,
-+						    &bd718xx_regmap_config);
-+	if (IS_ERR(bd718xx->chip.regmap)) {
- 		dev_err(&i2c->dev, "regmap initialization failed\n");
--		return PTR_ERR(bd718xx->regmap);
-+		return PTR_ERR(bd718xx->chip.regmap);
+Please note that I kept the Acked-by from Mark as the change
+from
+struct bd718xx_pmic_inits pmic_regulators[]
+to
+struct bd718xx_pmic_inits pmic_regulators[ROHM_CHIP_TYPE_AMOUNT]
+
+seemed like trivial fix to me. Please let me know if this was
+not Ok.
+
+ drivers/regulator/bd718x7-regulator.c | 24 ++++++++++++------------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
+
+diff --git a/drivers/regulator/bd718x7-regulator.c b/drivers/regulator/bd718x7-regulator.c
+index ccea133778c8..524a87b991f3 100644
+--- a/drivers/regulator/bd718x7-regulator.c
++++ b/drivers/regulator/bd718x7-regulator.c
+@@ -1017,12 +1017,12 @@ static int bd718xx_probe(struct platform_device *pdev)
+ {
+ 	struct bd718xx *mfd;
+ 	struct regulator_config config = { 0 };
+-	struct bd718xx_pmic_inits pmic_regulators[] = {
+-		[BD718XX_TYPE_BD71837] = {
++	struct bd718xx_pmic_inits pmic_regulators[ROHM_CHIP_TYPE_AMOUNT] = {
++		[ROHM_CHIP_TYPE_BD71837] = {
+ 			.r_datas = bd71837_regulators,
+ 			.r_amount = ARRAY_SIZE(bd71837_regulators),
+ 		},
+-		[BD718XX_TYPE_BD71847] = {
++		[ROHM_CHIP_TYPE_BD71847] = {
+ 			.r_datas = bd71847_regulators,
+ 			.r_amount = ARRAY_SIZE(bd71847_regulators),
+ 		},
+@@ -1037,15 +1037,15 @@ static int bd718xx_probe(struct platform_device *pdev)
+ 		goto err;
  	}
  
--	ret = devm_regmap_add_irq_chip(&i2c->dev, bd718xx->regmap,
-+	ret = devm_regmap_add_irq_chip(&i2c->dev, bd718xx->chip.regmap,
- 				       bd718xx->chip_irq, IRQF_ONESHOT, 0,
- 				       &bd718xx_irq_chip, &bd718xx->irq_data);
- 	if (ret) {
-@@ -118,7 +119,7 @@ static int bd718xx_i2c_probe(struct i2c_client *i2c,
+-	if (mfd->chip_type >= BD718XX_TYPE_AMOUNT ||
+-	    !pmic_regulators[mfd->chip_type].r_datas) {
++	if (mfd->chip.chip_type >= ROHM_CHIP_TYPE_AMOUNT ||
++	    !pmic_regulators[mfd->chip.chip_type].r_datas) {
+ 		dev_err(&pdev->dev, "Unsupported chip type\n");
+ 		err = -EINVAL;
+ 		goto err;
  	}
  
- 	/* Configure short press to 10 milliseconds */
--	ret = regmap_update_bits(bd718xx->regmap,
-+	ret = regmap_update_bits(bd718xx->chip.regmap,
- 				 BD718XX_REG_PWRONCONFIG0,
- 				 BD718XX_PWRBTN_PRESS_DURATION_MASK,
- 				 BD718XX_PWRBTN_SHORT_PRESS_10MS);
-@@ -129,7 +130,7 @@ static int bd718xx_i2c_probe(struct i2c_client *i2c,
+ 	/* Register LOCK release */
+-	err = regmap_update_bits(mfd->regmap, BD718XX_REG_REGLOCK,
++	err = regmap_update_bits(mfd->chip.regmap, BD718XX_REG_REGLOCK,
+ 				 (REGLOCK_PWRSEQ | REGLOCK_VREG), 0);
+ 	if (err) {
+ 		dev_err(&pdev->dev, "Failed to unlock PMIC (%d)\n", err);
+@@ -1065,7 +1065,7 @@ static int bd718xx_probe(struct platform_device *pdev)
+ 	 * for all reset types because OTP loading at READY will clear SEL
+ 	 * bit allowing HW defaults for power rails to be used
+ 	 */
+-	err = regmap_update_bits(mfd->regmap, BD718XX_REG_TRANS_COND1,
++	err = regmap_update_bits(mfd->chip.regmap, BD718XX_REG_TRANS_COND1,
+ 				 BD718XX_ON_REQ_POWEROFF_MASK |
+ 				 BD718XX_SWRESET_POWEROFF_MASK |
+ 				 BD718XX_WDOG_POWEROFF_MASK |
+@@ -1078,17 +1078,17 @@ static int bd718xx_probe(struct platform_device *pdev)
+ 		dev_dbg(&pdev->dev, "Changed all resets from SVNS to READY\n");
  	}
  
- 	/* Configure long press to 10 seconds */
--	ret = regmap_update_bits(bd718xx->regmap,
-+	ret = regmap_update_bits(bd718xx->chip.regmap,
- 				 BD718XX_REG_PWRONCONFIG1,
- 				 BD718XX_PWRBTN_PRESS_DURATION_MASK,
- 				 BD718XX_PWRBTN_LONG_PRESS_10S);
-@@ -149,7 +150,7 @@ static int bd718xx_i2c_probe(struct i2c_client *i2c,
+-	for (i = 0; i < pmic_regulators[mfd->chip_type].r_amount; i++) {
++	for (i = 0; i < pmic_regulators[mfd->chip.chip_type].r_amount; i++) {
  
- 	button.irq = ret;
+ 		const struct regulator_desc *desc;
+ 		struct regulator_dev *rdev;
+ 		const struct bd718xx_regulator_data *r;
  
--	ret = devm_mfd_add_devices(bd718xx->dev, PLATFORM_DEVID_AUTO,
-+	ret = devm_mfd_add_devices(bd718xx->chip.dev, PLATFORM_DEVID_AUTO,
- 				   bd718xx_mfd_cells,
- 				   ARRAY_SIZE(bd718xx_mfd_cells), NULL, 0,
- 				   regmap_irq_get_domain(bd718xx->irq_data));
-@@ -162,11 +163,11 @@ static int bd718xx_i2c_probe(struct i2c_client *i2c,
- static const struct of_device_id bd718xx_of_match[] = {
- 	{
- 		.compatible = "rohm,bd71837",
--		.data = (void *)BD718XX_TYPE_BD71837,
-+		.data = (void *)ROHM_CHIP_TYPE_BD71837,
- 	},
- 	{
- 		.compatible = "rohm,bd71847",
--		.data = (void *)BD718XX_TYPE_BD71847,
-+		.data = (void *)ROHM_CHIP_TYPE_BD71847,
- 	},
- 	{ }
- };
-diff --git a/include/linux/mfd/rohm-bd718x7.h b/include/linux/mfd/rohm-bd718x7.h
-index fd194bfc836f..7f2dbde402a1 100644
---- a/include/linux/mfd/rohm-bd718x7.h
-+++ b/include/linux/mfd/rohm-bd718x7.h
-@@ -4,14 +4,9 @@
- #ifndef __LINUX_MFD_BD718XX_H__
- #define __LINUX_MFD_BD718XX_H__
+-		r = &pmic_regulators[mfd->chip_type].r_datas[i];
++		r = &pmic_regulators[mfd->chip.chip_type].r_datas[i];
+ 		desc = &r->desc;
  
-+#include <linux/mfd/rohm-generic.h>
- #include <linux/regmap.h>
+ 		config.dev = pdev->dev.parent;
+-		config.regmap = mfd->regmap;
++		config.regmap = mfd->chip.regmap;
  
--enum {
--	BD718XX_TYPE_BD71837 = 0,
--	BD718XX_TYPE_BD71847,
--	BD718XX_TYPE_AMOUNT
--};
--
- enum {
- 	BD718XX_BUCK1 = 0,
- 	BD718XX_BUCK2,
-@@ -321,18 +316,17 @@ enum {
- 	BD718XX_PWRBTN_LONG_PRESS_15S
- };
- 
--struct bd718xx_clk;
--
- struct bd718xx {
--	unsigned int chip_type;
--	struct device *dev;
--	struct regmap *regmap;
--	unsigned long int id;
-+	/*
-+	 * Please keep this as the first member here as some
-+	 * drivers (clk) supporting more than one chip may only know this
-+	 * generic struct 'struct rohm_regmap_dev' and assume it is
-+	 * the first chunk of parent device's private data.
-+	 */
-+	struct rohm_regmap_dev chip;
- 
- 	int chip_irq;
- 	struct regmap_irq_chip_data *irq_data;
--
--	struct bd718xx_clk *clk;
- };
- 
- #endif /* __LINUX_MFD_BD718XX_H__ */
-diff --git a/include/linux/mfd/rohm-generic.h b/include/linux/mfd/rohm-generic.h
-new file mode 100644
-index 000000000000..bff15ac26f2c
---- /dev/null
-+++ b/include/linux/mfd/rohm-generic.h
-@@ -0,0 +1,20 @@
-+/* SPDX-License-Identifier: GPL-2.0-or-later */
-+/* Copyright (C) 2018 ROHM Semiconductors */
-+
-+#ifndef __LINUX_MFD_ROHM_H__
-+#define __LINUX_MFD_ROHM_H__
-+
-+enum {
-+	ROHM_CHIP_TYPE_BD71837 = 0,
-+	ROHM_CHIP_TYPE_BD71847,
-+	ROHM_CHIP_TYPE_BD70528,
-+	ROHM_CHIP_TYPE_AMOUNT
-+};
-+
-+struct rohm_regmap_dev {
-+	unsigned int chip_type;
-+	struct device *dev;
-+	struct regmap *regmap;
-+};
-+
-+#endif
+ 		rdev = devm_regulator_register(&pdev->dev, desc, &config);
+ 		if (IS_ERR(rdev)) {
+@@ -1104,7 +1104,7 @@ static int bd718xx_probe(struct platform_device *pdev)
+ 		 * can now switch the control from PMIC state machine to the
+ 		 * register interface
+ 		 */
+-		err = regmap_update_bits(mfd->regmap, r->init.reg,
++		err = regmap_update_bits(mfd->chip.regmap, r->init.reg,
+ 					 r->init.mask, r->init.val);
+ 		if (err) {
+ 			dev_err(&pdev->dev,
+@@ -1113,7 +1113,7 @@ static int bd718xx_probe(struct platform_device *pdev)
+ 			goto err;
+ 		}
+ 		for (j = 0; j < r->additional_init_amnt; j++) {
+-			err = regmap_update_bits(mfd->regmap,
++			err = regmap_update_bits(mfd->chip.regmap,
+ 						 r->additional_inits[j].reg,
+ 						 r->additional_inits[j].mask,
+ 						 r->additional_inits[j].val);
 -- 
 2.14.3
 
