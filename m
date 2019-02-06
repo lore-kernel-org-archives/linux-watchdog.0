@@ -2,97 +2,90 @@ Return-Path: <SRS0=QDKL=QN=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_PASS autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 60C45C169C4
-	for <linux-watchdog@archiver.kernel.org>; Wed,  6 Feb 2019 17:31:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 33590C4151A
+	for <linux-watchdog@archiver.kernel.org>; Wed,  6 Feb 2019 18:31:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 323C0218D2
-	for <linux-watchdog@archiver.kernel.org>; Wed,  6 Feb 2019 17:31:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1549474294;
-	bh=HGubEtjIHhsvq9MuLdRsz8HHicpY8WIhrCPqCiQFXTk=;
-	h=Cc:Subject:In-Reply-To:From:To:References:Date:List-ID:From;
-	b=V0TQuneS0Iob5bw2ZCM93YU296DuIhTjHcQVbXMp+ydbs/LFfdAooKq9qcghnDLBD
-	 uVHyVT1aTW9SSGPaF2bg5BNVb9uLHqRI3Nu7HhYAinGzLBY8SVT57UQizdwdHVdZJk
-	 nl55PQBUCA9hJQ4d8fBWqr/1L6t9XDhNHvBzW1Hs=
+	by mail.kernel.org (Postfix) with ESMTP id 007AE2175B
+	for <linux-watchdog@archiver.kernel.org>; Wed,  6 Feb 2019 18:31:47 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="key not found in DNS" (0-bit key) header.d=codeaurora.org header.i=@codeaurora.org header.b="J5GEJsPP";
+	dkim=fail reason="key not found in DNS" (0-bit key) header.d=codeaurora.org header.i=@codeaurora.org header.b="g6wxxWmU"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729804AbfBFRb3 (ORCPT
+        id S1726722AbfBFSbn (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 6 Feb 2019 12:31:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49722 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726727AbfBFRb3 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 6 Feb 2019 12:31:29 -0500
-Received: from localhost (unknown [104.132.0.74])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        Wed, 6 Feb 2019 13:31:43 -0500
+Received: from smtp.codeaurora.org ([198.145.29.96]:60286 "EHLO
+        smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726266AbfBFSbm (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Wed, 6 Feb 2019 13:31:42 -0500
+Received: by smtp.codeaurora.org (Postfix, from userid 1000)
+        id ABFC4608CE; Wed,  6 Feb 2019 18:31:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+        s=default; t=1549477901;
+        bh=YlngkEcrubiWf9pZRC9IG949L1KZB0gWKk+KzEWvo0E=;
+        h=From:To:Cc:Subject:References:Date:In-Reply-To:From;
+        b=J5GEJsPPxltNV7TvXemcdmfACth1ErwF0J5hSUIHH/4gGAnIVXeaTXzVKpAn4/sfh
+         cPvCDw2zyJFkiy2E2b/HfCQdCIbhHDTsrNoSvyBPVOUIcQ8z4OzWvUa7kMeIegTK+i
+         PBd6VTHaSN8+5BNMx+Ac/A7krSsyj2B8U0dVEJqY=
+Received: from x230.qca.qualcomm.com (88-114-240-156.elisa-laajakaista.fi [88.114.240.156])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0D1822186A;
-        Wed,  6 Feb 2019 17:31:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1549474288;
-        bh=HGubEtjIHhsvq9MuLdRsz8HHicpY8WIhrCPqCiQFXTk=;
-        h=Cc:Subject:In-Reply-To:From:To:References:Date:From;
-        b=Reyug6fd3OUcYvbvFhTk+MfA57kNbREfhXEYkoxak7jkY7uD/y+gxJyv89r3ESgHv
-         4o1btrZ7IvQ2sJuYUgAmsT4n48npD4z8a6gEuYLiSHOq1Zgo7muTg5grLEdY4OYq8a
-         rHv0njcYEvx6bM1hfQflDa7UgvHI4tmW1gu6pvfs=
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-User-Agent: alot/0.8
-Cc:     Guenter Roeck <linux@roeck-us.net>,
+        (Authenticated sender: kvalo@smtp.codeaurora.org)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id AE6316022B;
+        Wed,  6 Feb 2019 18:31:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+        s=default; t=1549477900;
+        bh=YlngkEcrubiWf9pZRC9IG949L1KZB0gWKk+KzEWvo0E=;
+        h=From:To:Cc:Subject:References:Date:In-Reply-To:From;
+        b=g6wxxWmU8r9BTtfCn/xNW7kozhVfkcVwLWxOnV4n6pOl/GPtGmqmjvLSho5Z2i12t
+         j1REG1veT03YyxuEdk8sSyKrzJP7rgs0qnpXdPXSntPhiUOWKC//IumUl8wHn5S/mN
+         gtSrRlu7iuVMO5rFMV4m3NEKyTcwsNPTev3IJcZ0=
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org AE6316022B
+Authentication-Results: pdx-caf-mail.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: pdx-caf-mail.web.codeaurora.org; spf=none smtp.mailfrom=kvalo@codeaurora.org
+From:   Kalle Valo <kvalo@codeaurora.org>
+To:     Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+Cc:     mazziesaccount@gmail.com, Guenter Roeck <linux@roeck-us.net>,
         heikki.haikola@fi.rohmeurope.com, mikko.mutanen@fi.rohmeurope.com,
         lee.jones@linaro.org, robh+dt@kernel.org, mark.rutland@arm.com,
         broonie@kernel.org, gregkh@linuxfoundation.org, rafael@kernel.org,
-        mturquette@baylibre.com, linus.walleij@linaro.org,
-        bgolaszewski@baylibre.com, sre@kernel.org, lgirdwood@gmail.com,
-        a.zummo@towertech.it, alexandre.belloni@bootlin.com,
-        wim@linux-watchdog.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org,
-        linux-gpio@vger.kernel.org, linux-pm@vger.kernel.org,
-        linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH v7 05/10] clk: bd718x7: Support ROHM BD70528 clk block
-In-Reply-To: <88c49b30bbb4b1f3ecc24d333647585e2c82f4e4.1549444366.git.matti.vaittinen@fi.rohmeurope.com>
-From:   Stephen Boyd <sboyd@kernel.org>
-Message-ID: <154947428734.74891.4523492147164733315@swboyd.mtv.corp.google.com>
-To:     Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>,
-        mazziesaccount@gmail.com
-References: <cover.1549444366.git.matti.vaittinen@fi.rohmeurope.com> <88c49b30bbb4b1f3ecc24d333647585e2c82f4e4.1549444366.git.matti.vaittinen@fi.rohmeurope.com>
-Date:   Wed, 06 Feb 2019 09:31:27 -0800
+        mturquette@baylibre.com, sboyd@kernel.org,
+        linus.walleij@linaro.org, bgolaszewski@baylibre.com,
+        sre@kernel.org, lgirdwood@gmail.com, a.zummo@towertech.it,
+        alexandre.belloni@bootlin.com, wim@linux-watchdog.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-clk@vger.kernel.org, linux-gpio@vger.kernel.org,
+        linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org,
+        linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH v7 00/10] support ROHM BD70528 PMIC
+References: <cover.1549444366.git.matti.vaittinen@fi.rohmeurope.com>
+Date:   Wed, 06 Feb 2019 20:31:32 +0200
+In-Reply-To: <cover.1549444366.git.matti.vaittinen@fi.rohmeurope.com> (Matti
+        Vaittinen's message of "Wed, 6 Feb 2019 11:35:36 +0200")
+Message-ID: <87o97ovke3.fsf@codeaurora.org>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/24.5 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Quoting Matti Vaittinen (2019-02-06 01:39:38)
-> @@ -86,9 +87,21 @@ static int bd71837_clk_probe(struct platform_device *p=
-dev)
->                 dev_err(&pdev->dev, "No parent clk found\n");
->                 return -EINVAL;
->         }
-> -
-> -       c->reg =3D BD718XX_REG_OUT32K;
-> -       c->mask =3D BD718XX_OUT32K_EN;
-> +       switch (mfd->chip_type) {
-> +       case ROHM_CHIP_TYPE_BD71837:
-> +       case ROHM_CHIP_TYPE_BD71847:
-> +
+Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com> writes:
 
-Nitpick: why the extra newline above?
+> Patch series introducing support for ROHM BD70528 PMIC
+>
+> Please note that patch 1 breaks compilation without patches 2 and 3
+> Knowing the bd718x7 driver is already in upstream, it might be good
+> if this change went through single tree, right?
 
-> +               c->reg =3D BD718XX_REG_OUT32K;
-> +               c->mask =3D BD718XX_OUT32K_EN;
-> +               break;
-> +       case ROHM_CHIP_TYPE_BD70528:
-> +               c->reg =3D BD70528_REG_CLK_OUT;
-> +               c->mask =3D BD70528_CLK_OUT_EN_MASK;
-> +               break;
-> +       default:
-> +               dev_err(&pdev->dev, "Unknown clk chip\n");
-> +               return -EINVAL;
-> +       }
->         c->mfd =3D mfd;
->         c->pdev =3D pdev;
->         c->hw.init =3D &init;
+That would break bisect, please avoid that. So after applying patches
+from a patchset one by one the compilation should always succeed.
+
+-- 
+Kalle Valo
