@@ -6,99 +6,92 @@ X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A58BAC282C2
-	for <linux-watchdog@archiver.kernel.org>; Thu,  7 Feb 2019 05:58:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2CBE7C282C2
+	for <linux-watchdog@archiver.kernel.org>; Thu,  7 Feb 2019 06:01:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 7E3BC2084D
-	for <linux-watchdog@archiver.kernel.org>; Thu,  7 Feb 2019 05:58:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 05C132175B
+	for <linux-watchdog@archiver.kernel.org>; Thu,  7 Feb 2019 06:01:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726655AbfBGF6y (ORCPT
+        id S1726804AbfBGGBm (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 7 Feb 2019 00:58:54 -0500
-Received: from mail-lj1-f193.google.com ([209.85.208.193]:37057 "EHLO
-        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726294AbfBGF6y (ORCPT
+        Thu, 7 Feb 2019 01:01:42 -0500
+Received: from mail-lf1-f67.google.com ([209.85.167.67]:46967 "EHLO
+        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726636AbfBGGBl (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 7 Feb 2019 00:58:54 -0500
-Received: by mail-lj1-f193.google.com with SMTP id r10-v6so2509931ljj.4;
-        Wed, 06 Feb 2019 21:58:51 -0800 (PST)
+        Thu, 7 Feb 2019 01:01:41 -0500
+Received: by mail-lf1-f67.google.com with SMTP id f5so7209912lfc.13;
+        Wed, 06 Feb 2019 22:01:39 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=1NXssaq1OMzv6iiyy2hHxOeyg8lE6RGRWHBL0iIV5jQ=;
-        b=r5OWoSt1lUZ/T7jrD5SkGFIUBU9Itz7c5SHOk1ZsKlogahY0SEIpn10bpfcqQ4Yu4v
-         NL8N+fNhOg106os07rUaD2abk+C8Jsa+Q0OCFqDcykpHl1XDWtAp/EZ/K63cHjclM93G
-         mtM4hQwPuZjswwYbpzpWEtt5C5E+MqC2j4NF/UG2EDDk4uUdgG1Tix01tSp0FK6tcEFJ
-         7isxXCbSpEC9o8EKI4V2NTpFFWTiUjl5//s2XBcNf4cKP+aarQDvs/fkYgYw/f0a48CZ
-         6qvhxhd5n4fnqDZc/C/ev0lXNBmbhcrbrl3z5W79Fsho4BoKRlOBYU+ZqI64EF35+Mp/
-         fKWQ==
-X-Gm-Message-State: AHQUAuZIVphaBq4Wh93orbJxEM1y2yWCr2S/5+yVufaakHiOeqWJv9kI
-        HG+lVfFG/Wv0oc2fB4FIhho=
-X-Google-Smtp-Source: AHgI3IbC+iMzjZRO4bHDREeeUhF9lQmrzYMpX0p97OYOnKikdkEdnFyVm+xyBS3WcJr9FaDjHShIzw==
-X-Received: by 2002:a2e:a202:: with SMTP id h2-v6mr8662492ljm.72.1549519131013;
-        Wed, 06 Feb 2019 21:58:51 -0800 (PST)
+        bh=YtjE25NANOkRGY0RUxMUUZAOa39JN3YFgyq9uzFUiuw=;
+        b=Ap77jc2+5oFDakiGFtYZ53FSoWNdC0WCrIqiqTwqSKSdGfblfEJBPHuQ0l/j2LM/FK
+         l14Ihr+AXNqaJ/1LvuPNDM5rPCzqYnVssAeirBkw3bX3gSoD/BNIr2CKr600GlkVM3ox
+         b211KzyqNFcjlxqcDyFAwSCBMv7h77Yj3sjX4QEusr4AO7eq0At9pt9s7L4YGRP9eFVC
+         UHC6H8nSMXAtnOPh1viGWWExyNo7aw840+hmCQbPot/bqOeiSzO3owSHouF+20g6lEpn
+         MAT80Um2NnKuSAM/uMU5QmXYdmyhGtZSlvMupCX95ntihw6+Um0zcBC9AaPm+8QRSIZj
+         p+cQ==
+X-Gm-Message-State: AHQUAua12tu08/DuVKFAY2YFiSNuxxCl+Ra8uPsxG6A2wbtyCX5/JK6h
+        hOI/QkhrlC/NCE8OgkxUguM=
+X-Google-Smtp-Source: AHgI3IbNt+QT3jXkTPbYd6sV0xozb+qYK9f6ctBZFsF7tycooX3IvjXSuPN0aBrMYdMsHf893CH2RQ==
+X-Received: by 2002:a19:59c2:: with SMTP id n185mr8667443lfb.118.1549519298495;
+        Wed, 06 Feb 2019 22:01:38 -0800 (PST)
 Received: from localhost.localdomain (82-203-157-3.bb.dnainternet.fi. [82.203.157.3])
-        by smtp.gmail.com with ESMTPSA id g11sm3870013lfg.31.2019.02.06.21.58.48
+        by smtp.gmail.com with ESMTPSA id y10-v6sm4033646ljy.65.2019.02.06.22.01.36
         (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Wed, 06 Feb 2019 21:58:50 -0800 (PST)
-Date:   Thu, 7 Feb 2019 07:57:38 +0200
+        Wed, 06 Feb 2019 22:01:37 -0800 (PST)
+Date:   Thu, 7 Feb 2019 08:01:04 +0200
 From:   Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-To:     Kalle Valo <kvalo@codeaurora.org>
+To:     Stephen Boyd <sboyd@kernel.org>
 Cc:     mazziesaccount@gmail.com, Guenter Roeck <linux@roeck-us.net>,
         heikki.haikola@fi.rohmeurope.com, mikko.mutanen@fi.rohmeurope.com,
         lee.jones@linaro.org, robh+dt@kernel.org, mark.rutland@arm.com,
         broonie@kernel.org, gregkh@linuxfoundation.org, rafael@kernel.org,
-        mturquette@baylibre.com, sboyd@kernel.org,
-        linus.walleij@linaro.org, bgolaszewski@baylibre.com,
-        sre@kernel.org, lgirdwood@gmail.com, a.zummo@towertech.it,
-        alexandre.belloni@bootlin.com, wim@linux-watchdog.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-clk@vger.kernel.org, linux-gpio@vger.kernel.org,
-        linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH v7 00/10] support ROHM BD70528 PMIC
-Message-ID: <20190207055738.GA5798@localhost.localdomain>
+        mturquette@baylibre.com, linus.walleij@linaro.org,
+        bgolaszewski@baylibre.com, sre@kernel.org, lgirdwood@gmail.com,
+        a.zummo@towertech.it, alexandre.belloni@bootlin.com,
+        wim@linux-watchdog.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org,
+        linux-gpio@vger.kernel.org, linux-pm@vger.kernel.org,
+        linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH v7 05/10] clk: bd718x7: Support ROHM BD70528 clk block
+Message-ID: <20190207060104.GB5798@localhost.localdomain>
 References: <cover.1549444366.git.matti.vaittinen@fi.rohmeurope.com>
- <87o97ovke3.fsf@codeaurora.org>
+ <88c49b30bbb4b1f3ecc24d333647585e2c82f4e4.1549444366.git.matti.vaittinen@fi.rohmeurope.com>
+ <154947428734.74891.4523492147164733315@swboyd.mtv.corp.google.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <87o97ovke3.fsf@codeaurora.org>
+In-Reply-To: <154947428734.74891.4523492147164733315@swboyd.mtv.corp.google.com>
 User-Agent: Mutt/1.9.2 (2017-12-15)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Moro Kalle,
-
-On Wed, Feb 06, 2019 at 08:31:32PM +0200, Kalle Valo wrote:
-> Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com> writes:
+On Wed, Feb 06, 2019 at 09:31:27AM -0800, Stephen Boyd wrote:
+> Quoting Matti Vaittinen (2019-02-06 01:39:38)
+> > @@ -86,9 +87,21 @@ static int bd71837_clk_probe(struct platform_device *pdev)
+> >                 dev_err(&pdev->dev, "No parent clk found\n");
+> >                 return -EINVAL;
+> >         }
+> > -
+> > -       c->reg = BD718XX_REG_OUT32K;
+> > -       c->mask = BD718XX_OUT32K_EN;
+> > +       switch (mfd->chip_type) {
+> > +       case ROHM_CHIP_TYPE_BD71837:
+> > +       case ROHM_CHIP_TYPE_BD71847:
+> > +
 > 
-> > Patch series introducing support for ROHM BD70528 PMIC
-> >
-> > Please note that patch 1 breaks compilation without patches 2 and 3
-> > Knowing the bd718x7 driver is already in upstream, it might be good
-> > if this change went through single tree, right?
-> 
-> That would break bisect, please avoid that. So after applying patches
-> from a patchset one by one the compilation should always succeed.
+> Nitpick: why the extra newline above?
+For no obvious reason. I'll fix this as I need to create new version
+anyways. I'll squash the first 3 patches and fix some issues pointed out
+by the 0-Day test suite.
 
-Right. Thanks for the reminder. Mark did also ask about this earlier.
-This split was originally done to clearly point out changes impacting
-in-tree drivers on separate subsystems/trees (mfd, clk and regulators).
-
-But you are right, these should be squashed before applying. I have now
-received acks from Mark and Stephen so I guess I can squash them even
-though Lee has not yet commented anything yet. I guess that 7 previous
-versions do already clearly enough point out these changes =)
-
-I will squash them in next version. Thanks for the reminder.
-
-> 
-> -- 
-> Kalle Valo
+Br,
+	Matti Vaittinen
 
 -- 
 Matti Vaittinen, Linux device drivers
