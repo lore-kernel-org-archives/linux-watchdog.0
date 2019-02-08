@@ -2,78 +2,234 @@ Return-Path: <SRS0=d5Mv=QP=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED,USER_AGENT_NEOMUTT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C5E3C169C4
-	for <linux-watchdog@archiver.kernel.org>; Fri,  8 Feb 2019 10:52:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 56F83C282CB
+	for <linux-watchdog@archiver.kernel.org>; Fri,  8 Feb 2019 10:57:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 09BDB21919
-	for <linux-watchdog@archiver.kernel.org>; Fri,  8 Feb 2019 10:52:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1A06E21924
+	for <linux-watchdog@archiver.kernel.org>; Fri,  8 Feb 2019 10:57:54 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="iK1+kJGk"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726162AbfBHKwd (ORCPT
+        id S1727767AbfBHK5t (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 8 Feb 2019 05:52:33 -0500
-Received: from metis.ext.pengutronix.de ([85.220.165.71]:33885 "EHLO
-        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726068AbfBHKwd (ORCPT
+        Fri, 8 Feb 2019 05:57:49 -0500
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:37365 "EHLO
+        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726465AbfBHK5t (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 8 Feb 2019 05:52:33 -0500
-Received: from pty.hi.pengutronix.de ([2001:67c:670:100:1d::c5])
-        by metis.ext.pengutronix.de with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.89)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1gs3ln-0008UL-Vl; Fri, 08 Feb 2019 11:52:31 +0100
-Received: from ukl by pty.hi.pengutronix.de with local (Exim 4.89)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1gs3ln-00024g-1K; Fri, 08 Feb 2019 11:52:31 +0100
-Date:   Fri, 8 Feb 2019 11:52:31 +0100
-From:   Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= 
-        <u.kleine-koenig@pengutronix.de>
-To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Cc:     linux-watchdog@vger.kernel.org
-Subject: What to set in struct watchdog_device::bootstatus?
-Message-ID: <20190208105230.g33nxiu4r6uqech3@pengutronix.de>
+        Fri, 8 Feb 2019 05:57:49 -0500
+Received: by mail-wr1-f66.google.com with SMTP id c8so3087724wrs.4
+        for <linux-watchdog@vger.kernel.org>; Fri, 08 Feb 2019 02:57:47 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to
+         :user-agent;
+        bh=W47bbTh6o9Yws6Hl6mzMoRtX36k2CVuI8Yvz2iSr9q0=;
+        b=iK1+kJGk3dsg88FlfyhsNxfekbqV5eIa1WCkCsw3fMdrD1IaHxJU76I6xc+aPIP56i
+         zB5c/E66yApHblki83G8jgMKywpJerAOfhNNrxnOdqmkogiFrDCnLmZPypBc7OIzbukT
+         mIjpv24PewR+z9kmZbIJrXzXTOYwqv1v3olWn9547enVRqh4Ry1tDQzupLreobRXKQmv
+         FWebumFSC4ZAzX1Wfe93HhoImVdbKfbuzSi87zPE9RzXCFwVqHuq1R4309yLhOPeWicE
+         gArFPRwD9KgkRb433ov66VqEYHxwYdKupHVptmkcdRAdgkXAXcWIHzE9McPiFbZcRgu/
+         kPkA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to:user-agent;
+        bh=W47bbTh6o9Yws6Hl6mzMoRtX36k2CVuI8Yvz2iSr9q0=;
+        b=NhGYzDvtOij1SIXufyuwUMqE0db1vuxWDBK0irHdtEFoQykRS8RbnKMV9o3A/mMhXL
+         qlS4IA1el8vRR21aRpfvsB/fe3Jkwa68Fbh7aPYFPqf1ZjKmDuWnmguG+vS7LjocOde7
+         gSuKPV33ztSloGclmjMLuc39uVo3q2I3RhYgZqTC8fP2+K5ny/fRLqr4rfH4lNxOEk8W
+         quDcXgWx2znrn7HwemWAtPYsWxHeVFbpmGGJR3vrsX9VbZVswWwDsmBSH48U67VNJbXi
+         pxl5vIC9Q2JkvmdFGiQ1S5lOu/y9VYZ9r0F652Mz/83Z63QeYjz7XjT8qW+4reVp8R8O
+         klgA==
+X-Gm-Message-State: AHQUAuYBcHAKC4QjcXgqgvhhyeFI5d5Cq3W+7dm76fTCCtfmn9rL8Qt4
+        zTVyLfoCx5uKdGE8Q6BYVZuzfg==
+X-Google-Smtp-Source: AHgI3IasWk7rNzqk4EurdoT9iqiLURJx1MIBwS3akPsiY4atwav1S5DfPqKga3b0Cbw7W8upv5WASA==
+X-Received: by 2002:adf:e98e:: with SMTP id h14mr16397609wrm.115.1549623466809;
+        Fri, 08 Feb 2019 02:57:46 -0800 (PST)
+Received: from dell ([2.27.35.171])
+        by smtp.gmail.com with ESMTPSA id g25sm1720738wmh.25.2019.02.08.02.57.44
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Fri, 08 Feb 2019 02:57:45 -0800 (PST)
+Date:   Fri, 8 Feb 2019 10:57:43 +0000
+From:   Lee Jones <lee.jones@linaro.org>
+To:     Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+Cc:     Matti Vaittinen <mazziesaccount@gmail.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        heikki.haikola@fi.rohmeurope.com, mikko.mutanen@fi.rohmeurope.com,
+        robh+dt@kernel.org, mark.rutland@arm.com, broonie@kernel.org,
+        gregkh@linuxfoundation.org, rafael@kernel.org,
+        mturquette@baylibre.com, sboyd@kernel.org,
+        linus.walleij@linaro.org, bgolaszewski@baylibre.com,
+        sre@kernel.org, lgirdwood@gmail.com, a.zummo@towertech.it,
+        alexandre.belloni@bootlin.com, wim@linux-watchdog.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-clk@vger.kernel.org, linux-gpio@vger.kernel.org,
+        linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org,
+        linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH v8 2/8] mfd: bd70528: Support ROHM bd70528 PMIC - core
+Message-ID: <20190208105743.GI20638@dell>
+References: <cover.1549523718.git.matti.vaittinen@fi.rohmeurope.com>
+ <50d1debf03bbd07f49b2c5a85cf9672439cbd0ac.1549523718.git.matti.vaittinen@fi.rohmeurope.com>
+ <20190207140053.GG20638@dell>
+ <20190207162807.GB1920@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-User-Agent: NeoMutt/20170113 (1.7.2)
-X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c5
-X-SA-Exim-Mail-From: ukl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: linux-watchdog@vger.kernel.org
+In-Reply-To: <20190207162807.GB1920@localhost.localdomain>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Hello,
+Mark,
 
-it's unclear to me, which bits I am supposed to set in the bootstatus
-member of struct watchdog_device at probe time.
+Something for you:
 
-The i.MX watchdog differentiates the following reset causes:
+> > > +/* bit [0] - Shutdown register */
+> > > +unsigned int bit0_offsets[] = {0};
+> > > +/* bit [1] - Power failure register */
+> > > +unsigned int bit1_offsets[] = {1};
+> > > +/* bit [2] - VR FAULT register */
+> > > +unsigned int bit2_offsets[] = {2};
+> > > +/* bit [3] - PMU register interrupts */
+> > > +unsigned int bit3_offsets[] = {3};
+> > > +/* bit [4] - Charger 1 and Charger 2 registers */
+> > > +unsigned int bit4_offsets[] = {4, 5};
+> > > +/* bit [5] - RTC register */
+> > > +unsigned int bit5_offsets[] = {6};
+> > > +/* bit [6] - GPIO register */
+> > > +unsigned int bit6_offsets[] = {7};
+> > > +/* bit [7] - Invalid operation register */
+> > > +unsigned int bit7_offsets[] = {8};
+> > 
+> > What on earth is this?
+> 
+> That's the mapping from main IRQ register bits to sub IRQ registers. The
+> RFC version 1 had the patch which brough main irq register support. But
+> good that you asked as I missed the fact that this commit is now only at
+> the regmap tree - and this one depends on that.
+>  
+> > > +static struct regmap_irq_sub_irq_map bd70528_sub_irq_offsets[] = {
+> > > +	REGMAP_IRQ_MAIN_REG_OFFSET(bit0_offsets),
+> > > +	REGMAP_IRQ_MAIN_REG_OFFSET(bit1_offsets),
+> > > +	REGMAP_IRQ_MAIN_REG_OFFSET(bit2_offsets),
+> > > +	REGMAP_IRQ_MAIN_REG_OFFSET(bit3_offsets),
+> > > +	REGMAP_IRQ_MAIN_REG_OFFSET(bit4_offsets),
+> > > +	REGMAP_IRQ_MAIN_REG_OFFSET(bit5_offsets),
+> > > +	REGMAP_IRQ_MAIN_REG_OFFSET(bit6_offsets),
+> > > +	REGMAP_IRQ_MAIN_REG_OFFSET(bit7_offsets),
+> > > +};
+> > 
+> > This looks totally hairy.  What is it mean to look like?
+> 
+> Yes. Sorry. As explained above - this requires commit from regmap tree:
+> https://git.kernel.org/pub/scm/linux/kernel/git/broonie/regmap.git/commit/include/linux/regmap.h?h=for-next&id=66fb181d6f824f7695417e8c19560c5b57dc8c2d
 
- - Power On
- - external reset
- - watchdog timeout
- - software reset using a bit in the watchdog register set
+Mark, is this how this should be implemented?
 
-(Not all i.MX variants implement all bits according to the respective
-reference manuals.)
+The global arrays are hideous!
 
-Should "Power On" result in setting WDIOF_POWERUNDER?
+> > Shouldn't this be one in the WDT driver?
+> 
+> This is needed by both RTC and WDT drivers as RTC driver must stop the
+> WDT when it sets RTC. WDT HW is using RTC counter and might trigger
+> timeout/reset when RTC is set. Options are to dublicate the
+> enable/disable to both drivers or to export a function or share a
+> function pointer. I didn't want dublication or dependency between RTC
+> and WDT drivers. Thus I thought that MFD is best place for this code as
+> both RTC and WDT require it anyways. Perhaps this should be commented
+> here?
 
-Should "software reset [...]" result in WDIOF_CARDRESET?
+I think an exported function with comments would be better.
 
-Should "external reset" result in WDIOF_EXTERN1? (I guess that no)
+[...]
 
-Best regards
-Uwe
+> > > +	irqs[BD70528_INT_GPIO3].type.type_reg_offset = 6;
+> > > +	irqs[BD70528_INT_GPIO3].type.type_rising_val = 0x20;
+> > > +	irqs[BD70528_INT_GPIO3].type.type_falling_val = 0x10;
+> > > +	irqs[BD70528_INT_GPIO3].type.type_level_high_val = 0x40;
+> > > +	irqs[BD70528_INT_GPIO3].type.type_level_low_val = 0x50;
+> > > +	irqs[BD70528_INT_GPIO3].type.types_supported = (IRQ_TYPE_EDGE_BOTH |
+> > > +				IRQ_TYPE_LEVEL_HIGH | IRQ_TYPE_LEVEL_LOW);
+> > 
+> > Could you please explain:
+> > 
+> > a) what you're doing here
+> 
+> Regmap-irq gained support for type-setting. On bd70528 the type setting
+> makes sense only for GPIO interrupts - so we must not populate type
+> setting information for the rest of the IRQs. The macro REGMAP_IRQ_REG
+> is nice and makes the irq struct initialization cleaner. Thus it is used.
+> It does not allow populating the type information - hence we do it here.
+> 
+> I can change this if you think some other way would be cleaner?
+
+It's pretty fugly.  Can the REGMAP_IRQ_REG be expanded upon?
+
+> > b) why you don't mass assign them
+> >     - seeing as most of the data is identical.
+> 
+> Maybe I am a bit slow today - but I don't know how the 'mass assignment'
+> should be done?
+
+Something like (completely untested):
+
+unsigned int type_reg_offset_inc = 0;
+for (i = BD70528_INT_GPIO0; i <=  BD70528_INT_GPIO3; i++) {
+	irqs[i].type.type_reg_offset     = type_reg_offset_inc;
+	irqs[i].type.type_rising_val     = 0x20;
+	irqs[i].type.type_falling_val    = 0x10;
+	irqs[i].type.type_level_high_val = 0x40;
+	irqs[i].type.type_level_low_val  = 0x50;
+	irqs[i].type.types_supported =
+		(IRQ_TYPE_EDGE_BOTH | IRQ_TYPE_LEVEL_HIGH | IRQ_TYPE_LEVEL_LOW);
+	type_reg_offset_inc += 2;
+}
+
+It's still fugly though.
+
+If we can do this via MACROs, it would be better.
+
+[...]
+
+> > > +subsys_initcall(bd70528_init);
+> > 
+> > Does it need to be initialised this early?
+> 
+> I think it may be required on some board(s). Is it a problem? I guess I
+> can change this for my purposes but guess it may become a problem later.
+
+If you do this normally, you can use MACROs (see other drivers) and
+remove the boilerplate init code you have here.
+
+> > > +struct bd70528 {
+> > > +	/*
+> > > +	 * Please keep this as the first member here as some
+> > > +	 * drivers (clk) supporting more than one chip may only know this
+> > > +	 * generic struct 'struct rohm_regmap_dev' and assume it is
+> > > +	 * the first chunk of parent device's private data.
+> > > +	 */
+> > > +	struct rohm_regmap_dev chip;
+> > > +	/* wdt_set must be called rtc_timer_lock held */
+> > 
+> > This doesn't make sense.
+> 
+> Umm.. The comment does not make sense? Maybe I can explain it further.
+
+"wdt_set must be called when the rtc_timer_lock is held"
 
 -- 
-Pengutronix e.K.                           | Uwe Kleine-K�nig            |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
