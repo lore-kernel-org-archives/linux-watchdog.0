@@ -2,121 +2,143 @@ Return-Path: <SRS0=d5Mv=QP=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2736CC282C2
-	for <linux-watchdog@archiver.kernel.org>; Fri,  8 Feb 2019 01:27:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EECC0C169C4
+	for <linux-watchdog@archiver.kernel.org>; Fri,  8 Feb 2019 04:17:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E99DA21916
-	for <linux-watchdog@archiver.kernel.org>; Fri,  8 Feb 2019 01:27:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BA3FA2147C
+	for <linux-watchdog@archiver.kernel.org>; Fri,  8 Feb 2019 04:17:34 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HmC6jpYx"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726876AbfBHB1W (ORCPT
+        id S1726793AbfBHERe (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 7 Feb 2019 20:27:22 -0500
-Received: from mx0a-002e3701.pphosted.com ([148.163.147.86]:40436 "EHLO
-        mx0a-002e3701.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726850AbfBHB1W (ORCPT
+        Thu, 7 Feb 2019 23:17:34 -0500
+Received: from mail-pf1-f194.google.com ([209.85.210.194]:46835 "EHLO
+        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726791AbfBHERe (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 7 Feb 2019 20:27:22 -0500
-Received: from pps.filterd (m0134421.ppops.net [127.0.0.1])
-        by mx0b-002e3701.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x181Qgv7030262;
-        Fri, 8 Feb 2019 01:27:00 GMT
-Received: from g2t2354.austin.hpe.com (g2t2354.austin.hpe.com [15.233.44.27])
-        by mx0b-002e3701.pphosted.com with ESMTP id 2qgw0tsvvd-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 08 Feb 2019 01:27:00 +0000
-Received: from g2t2360.austin.hpecorp.net (g2t2360.austin.hpecorp.net [16.196.225.135])
-        by g2t2354.austin.hpe.com (Postfix) with ESMTP id 6BB6811B;
-        Fri,  8 Feb 2019 01:26:59 +0000 (UTC)
-Received: from anatevka (anatevka.americas.hpqcorp.net [10.34.81.61])
-        by g2t2360.austin.hpecorp.net (Postfix) with ESMTP id BCBD936;
-        Fri,  8 Feb 2019 01:26:58 +0000 (UTC)
-Date:   Thu, 7 Feb 2019 18:26:58 -0700
-From:   Jerry Hoemann <jerry.hoemann@hpe.com>
-To:     Ivan Mironov <mironov.ivan@gmail.com>
-Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>
+        Thu, 7 Feb 2019 23:17:34 -0500
+Received: by mail-pf1-f194.google.com with SMTP id c73so1046591pfe.13;
+        Thu, 07 Feb 2019 20:17:33 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=0Jom0TD8luHFPGgknswKZsgXEV9ssoDNtGm5Ze3s9Yg=;
+        b=HmC6jpYxWZXcjiWe20xKiMeVr/A6x87H+wzAUqm6tYJ02P2ofU8ralQ+/FlhtHXDKv
+         sgfhcC4C/OV9URecWL3ikiR6B6MmJ8ubDUIZRMtIqgDpbPkMKBkBojoPcV1afJEywIBG
+         NH5h/CyO2mFu2SAS5f9RPR+eUwpSKpzWEjTJcPUWYnJru/ajs4gxZz/4Y0Lw+EJLvJcY
+         m0Lj10avjiub7XNjSbQkL2KqFZOR2x4Db5jZ/3ZwFwWAfN8yILHQ7jZ7cGl91iP/UaXX
+         nM17BvOVZtDnWn7lEE+S4UspjY6mBv5auQrTIKMBRCgQYxftdgGkNueg3zNKD68aR1V5
+         J46Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=0Jom0TD8luHFPGgknswKZsgXEV9ssoDNtGm5Ze3s9Yg=;
+        b=QResdlrdU/AMoLfkJuX+Broc2ICUO1d2A+tRToR0EdTO+VIZygwV9Z63ZL82nZwrGn
+         PrV8Okshb7iuFj9Np+7T978vggGTAg1ne819K/yCc61OV9cWSEgLE2qNxM0rGm5gvpP3
+         4JWQnflmFy3q6w+/t9v2emRAvZxGN/7BlgzUfeM5/Ggn4nX19bS+p1RtzZPztUnVPD+U
+         exqx+Le/J1t8U7wKhF937XpTzZTRQTjR9I/Z6HPvGFUeBpFf/g6Ta8/X1TAcFiStlU+z
+         u5x/Q6AQM7kkQJQwT+mqHvPG/s65esu0D6wLILphkK0DeofhmdcAcKJ4OWg9qtkJ35+A
+         pQWw==
+X-Gm-Message-State: AHQUAuZsKXmr1fW/R2KVvin1KJTN3eF5Dj8r0xcrUbVa7tmxPZDdYRVM
+        ihZ3CtFbNNoeaoNDMC9A5pVOn+CH
+X-Google-Smtp-Source: AHgI3IaZOJ0uwRgRg79GIx3+5X3o0lOhzk5GW3QSuMctvm6jHApb6YabzVI2QUv8wU1fwyL8nvF5+g==
+X-Received: by 2002:aa7:800c:: with SMTP id j12mr2156372pfi.183.1549599453231;
+        Thu, 07 Feb 2019 20:17:33 -0800 (PST)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id d13sm868355pfd.58.2019.02.07.20.17.30
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 07 Feb 2019 20:17:32 -0800 (PST)
 Subject: Re: [RFC PATCH 1/4] watchdog: hpwdt: Don't disable watchdog on NMI
-Message-ID: <20190208012658.GF28168@anatevka>
-Reply-To: Jerry.Hoemann@hpe.com
+To:     Jerry.Hoemann@hpe.com, Ivan Mironov <mironov.ivan@gmail.com>
+Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Wim Van Sebroeck <wim@linux-watchdog.org>
 References: <20190114023617.10656-1-mironov.ivan@gmail.com>
  <20190114023617.10656-2-mironov.ivan@gmail.com>
  <20190116022731.GD18342@anatevka>
  <84950aa0d194f28389f3bb209154ddc26e96c6de.camel@gmail.com>
+ <20190208012658.GF28168@anatevka>
+From:   Guenter Roeck <linux@roeck-us.net>
+Message-ID: <4f7de732-31cf-a220-f1eb-3d8182cf9c72@roeck-us.net>
+Date:   Thu, 7 Feb 2019 20:17:29 -0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.2.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <84950aa0d194f28389f3bb209154ddc26e96c6de.camel@gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-HPE-SCL: -1
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-02-07_15:,,
- signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- malwarescore=0 suspectscore=0 phishscore=0 bulkscore=0 spamscore=0
- clxscore=1015 lowpriorityscore=0 mlxscore=0 impostorscore=0
- mlxlogscore=941 adultscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.0.1-1810050000 definitions=main-1902080009
+In-Reply-To: <20190208012658.GF28168@anatevka>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Sat, Feb 02, 2019 at 09:55:29AM +0500, Ivan Mironov wrote:
-> On Tue, 2019-01-15 at 19:27 -0700, Jerry Hoemann wrote:
-> > On Mon, Jan 14, 2019 at 07:36:14AM +0500, Ivan Mironov wrote:
+On 2/7/19 5:26 PM, Jerry Hoemann wrote:
+> On Sat, Feb 02, 2019 at 09:55:29AM +0500, Ivan Mironov wrote:
+>> On Tue, 2019-01-15 at 19:27 -0700, Jerry Hoemann wrote:
+>>> On Mon, Jan 14, 2019 at 07:36:14AM +0500, Ivan Mironov wrote:
+>>
+>> Somehow I missed the whole pretimout thing when reading about the
+>> watchdog API. Thanks for clarification, now code makes much more sense
+>> =).
+>>
+>> Still, I do not really understand the point of enabling of kdump
+>> support in hpwdt driver by default while kdump is not enabled by
+>> default.
 > 
-> Somehow I missed the whole pretimout thing when reading about the
-> watchdog API. Thanks for clarification, now code makes much more sense
-> =).
+> Kdump is enabled by default by our Distro partners.
 > 
-> Still, I do not really understand the point of enabling of kdump
-> support in hpwdt driver by default while kdump is not enabled by
-> default.
-
-Kdump is enabled by default by our Distro partners.
-
-HPE works with distro partners to deliver a validated system which we support.
-
-The ability to generate crash dumps is one of the means we use to
-support our customers.  Even if kdump isn't configured, panic will
-at least print stack trace to indicate system activity.
-
-
+> HPE works with distro partners to deliver a validated system which we support.
 > 
-> Also, existing code may call hpwdt_stop() (and thus break watchdog)
-> even if pretimout is disabled.
+> The ability to generate crash dumps is one of the means we use to
+> support our customers.  Even if kdump isn't configured, panic will
+> at least print stack trace to indicate system activity.
 > 
-> Also, "panic=N" option is not providing a way to *not* panic on NMI
-> unrelated with iLO. This could be circumvented by blacklisting the
-> hpwdt module entirely, but normal watchdog functionality would be lost
-> then.
-
-panic=N provides for reset upon receipt of NMI if user wants timeout
-to reset system but not a crash dump.
-
-The panic is for error containment.  On the legacy systems within
-the context of hpwdt_pretimeout we cannot determine if the error
-is recoverable or not.  So, we have little choice but to panic.
-
-
 > 
-> It is possible to rebuild kernel without HPWDT_NMI_DECODING (which is
-> enabled in Fedora, for example). But it is nearly impossible to come to
-> this solution without examining the source code, because description of
-> this option does not mention that it is really about pretimout support
-> and panics and not about something else...
+>>
+>> Also, existing code may call hpwdt_stop() (and thus break watchdog)
+>> even if pretimout is disabled.
+>>
+>> Also, "panic=N" option is not providing a way to *not* panic on NMI
+>> unrelated with iLO. This could be circumvented by blacklisting the
+>> hpwdt module entirely, but normal watchdog functionality would be lost
+>> then.
+> 
+> panic=N provides for reset upon receipt of NMI if user wants timeout
+> to reset system but not a crash dump.
+> 
+> The panic is for error containment.  On the legacy systems within
+> the context of hpwdt_pretimeout we cannot determine if the error
+> is recoverable or not.  So, we have little choice but to panic.
+> 
+> 
+>>
+>> It is possible to rebuild kernel without HPWDT_NMI_DECODING (which is
+>> enabled in Fedora, for example). But it is nearly impossible to come to
+>> this solution without examining the source code, because description of
+>> this option does not mention that it is really about pretimout support
+>> and panics and not about something else...
+> 
+> The name is not the best given its current use, but I'm not sure a
+> name change would be allowed.
+> 
 
-The name is not the best given its current use, but I'm not sure a
-name change would be allowed.
+I would be open to accepting an improved help text of this configuration
+option. I am not going to entertain (or accept) a name change.
+That would open up a can of worms, with everyone in the world requesting
+name changes. That would be pretty pointless and make the kernel all but
+unmanageable.
 
-However, I will send a patch to update the documentation in Kconfig.
+Guenter
 
+> However, I will send a patch to update the documentation in Kconfig.
+> 
+> 
 
--- 
-
------------------------------------------------------------------------------
-Jerry Hoemann                  Software Engineer   Hewlett Packard Enterprise
------------------------------------------------------------------------------
