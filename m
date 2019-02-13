@@ -1,169 +1,105 @@
-Return-Path: <SRS0=faVA=QT=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=R/yM=QU=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS,USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E17EAC4151A
-	for <linux-watchdog@archiver.kernel.org>; Tue, 12 Feb 2019 09:39:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2F81AC282CA
+	for <linux-watchdog@archiver.kernel.org>; Wed, 13 Feb 2019 02:55:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id BB2C72186A
-	for <linux-watchdog@archiver.kernel.org>; Tue, 12 Feb 2019 09:39:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E841020835
+	for <linux-watchdog@archiver.kernel.org>; Wed, 13 Feb 2019 02:55:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1550026520;
+	bh=FzrSBgh3AeJmDI+fU2g8Rx+oVRaGBnAVnmfCi3hlrFw=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
+	b=st//CaBIwkR1X/9XJByEOm+nh+SI/JtKK3+lrpX7TcfADXS8cd7iXBiO9y+/O37OO
+	 AODvwCShniVFThWuxnBXtiAXiyvak2FWIAOtcIoin949OCJJxdz9EfbAKtwnasiC+p
+	 WWQueYXbaxE/5HHIxFN1oBJOZ1eMuxGYUpkrx1E8=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728820AbfBLJjX (ORCPT
+        id S2388336AbfBMCzN (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 12 Feb 2019 04:39:23 -0500
-Received: from mail-lf1-f66.google.com ([209.85.167.66]:41474 "EHLO
-        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727343AbfBLJjW (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 12 Feb 2019 04:39:22 -0500
-Received: by mail-lf1-f66.google.com with SMTP id e27so1454117lfj.8;
-        Tue, 12 Feb 2019 01:39:20 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to:user-agent;
-        bh=IYzTZa8cMrYHVdAvDdmKbju5m8+XCJc2uxdGTPkEE9c=;
-        b=V/yZ/+cxnBDMLJpg5InreWGWAV7/GyLPLpUUantZNCv+t+wxVqbGEH4rtM7xZq9Sqn
-         lZOUK9Vkhrtfk5T8ba8YQFxP0FfjRj5GliRCcpf8wnRY6NiPSv43UH4/eCkuNUcnfFXc
-         Upn7axSypF8nmVwRwgH+oFPyYtAkP7pCGHz/g9YQtrde2wna+tdSRaJzhLEIaeD5Nf5H
-         62IqEvjFesGAMf5VvhzE34CiBcvLSiI3W0jaJ33kZ5nuE5KVsceFfce0Njg2SQ5UStOW
-         eNvIXyaHZgJWUdk9261SredwQ53Gem7mc3fIbd5AFB17RtnvZAcofUnLlm3z0sWuK4PC
-         iseQ==
-X-Gm-Message-State: AHQUAuZ4n3b6zpUxqyTEGXSrb9BcosqrKaxdPd46nrKEJeaggsFa4FD7
-        0pe409m2VWjZMPLMxYkQvFf7c5vT
-X-Google-Smtp-Source: AHgI3IaB/hrmn5dbNT2bh9vbY8McYTMyFn7sJ7vPahR0Mq3C55IPyOWXQBeQYvhDVS/rgfhA4S1B2g==
-X-Received: by 2002:a19:2794:: with SMTP id n142mr1790046lfn.77.1549964359414;
-        Tue, 12 Feb 2019 01:39:19 -0800 (PST)
-Received: from localhost.localdomain ([213.255.186.46])
-        by smtp.gmail.com with ESMTPSA id p14sm2829049lfk.16.2019.02.12.01.39.17
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Tue, 12 Feb 2019 01:39:18 -0800 (PST)
-Date:   Tue, 12 Feb 2019 11:37:59 +0200
-From:   Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-To:     Lee Jones <lee.jones@linaro.org>
-Cc:     Matti Vaittinen <mazziesaccount@gmail.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        heikki.haikola@fi.rohmeurope.com, mikko.mutanen@fi.rohmeurope.com,
-        robh+dt@kernel.org, mark.rutland@arm.com, broonie@kernel.org,
-        gregkh@linuxfoundation.org, rafael@kernel.org,
-        mturquette@baylibre.com, sboyd@kernel.org,
-        linus.walleij@linaro.org, bgolaszewski@baylibre.com,
-        sre@kernel.org, lgirdwood@gmail.com, a.zummo@towertech.it,
-        alexandre.belloni@bootlin.com, wim@linux-watchdog.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-clk@vger.kernel.org, linux-gpio@vger.kernel.org,
-        linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH v8 2/8] mfd: bd70528: Support ROHM bd70528 PMIC - core
-Message-ID: <20190212093759.GA12247@localhost.localdomain>
-References: <cover.1549523718.git.matti.vaittinen@fi.rohmeurope.com>
- <50d1debf03bbd07f49b2c5a85cf9672439cbd0ac.1549523718.git.matti.vaittinen@fi.rohmeurope.com>
- <20190207140053.GG20638@dell>
- <20190207162807.GB1920@localhost.localdomain>
- <20190208105743.GI20638@dell>
- <20190208124111.GB3012@localhost.localdomain>
- <20190212091723.GZ20638@dell>
+        Tue, 12 Feb 2019 21:55:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41098 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1732802AbfBMChe (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 12 Feb 2019 21:37:34 -0500
+Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id BA01B222C9;
+        Wed, 13 Feb 2019 02:37:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1550025453;
+        bh=FzrSBgh3AeJmDI+fU2g8Rx+oVRaGBnAVnmfCi3hlrFw=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=RchDoxHN4cOHKkltmfdeKOI6L5Xe+9KVRzHsT4+uqB0Too+KwP4RsaUZe/GR0Hnhx
+         WK/7WduQ9uNsg+vdv+hp1lLpLZoTB8boe4whE+wTBlSbOhgaq12FGeV8d5rCWH8v1k
+         Dr3Jz/DvBq51Xw9jE/n7dER6/O6H2NzgrwZ1MFrE=
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     NeilBrown <neil@brown.name>, Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Sasha Levin <sashal@kernel.org>, linux-watchdog@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 26/83] watchdog: mt7621_wdt/rt2880_wdt: Fix compilation problem
+Date:   Tue, 12 Feb 2019 21:36:04 -0500
+Message-Id: <20190213023701.20286-26-sashal@kernel.org>
+X-Mailer: git-send-email 2.19.1
+In-Reply-To: <20190213023701.20286-1-sashal@kernel.org>
+References: <20190213023701.20286-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20190212091723.GZ20638@dell>
-User-Agent: Mutt/1.9.2 (2017-12-15)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Thanks Again Lee,
+From: NeilBrown <neil@brown.name>
 
-On Tue, Feb 12, 2019 at 09:17:23AM +0000, Lee Jones wrote:
-> On Fri, 08 Feb 2019, Matti Vaittinen wrote:
-> 
-> > > I think an exported function with comments would be better.
-> > So do you mean you would prefer exported function over the pointer from
-> Yes please.  Call-back pointers for non-subsystem level actions are a
-> bit messy IMHO.
+[ Upstream commit 3aa8b8bbc142eeaac89891de584535ceb7fce405 ]
 
-That's fine. I'll go with exported function then =)
+These files need
+   #include <linux/mod_devicetable.h>
+to compile correctly.
 
-> > case it just hides the meaning of values we are passing as arguments.
-> > With raw assignment we at least have some idea what the 0x40 or 0x20 are
-> > referring to =)
-> 
-> Well I do agree with your last comment.
-> 
-> Maybe doing the following would help with the ugliness (i.e. the shear
-> number of chars):
-> 
->  unsigned int type_reg_offset_inc = 0;
->  for (i = BD70528_INT_GPIO0; i <=  BD70528_INT_GPIO3; i++) {
->         <blar> *t = irqs[i].type;
->         t->type_reg_offset     = type_reg_offset_inc;
->  	t->type_rising_val     = 0x20;
->  	t->type_falling_val    = 0x10;
->  	t->type_level_high_val = 0x40;
->  	t->type_level_low_val  = 0x50;
->  	t->types_supported =
->  		(IRQ_TYPE_EDGE_BOTH | IRQ_TYPE_LEVEL_HIGH | IRQ_TYPE_LEVEL_LOW);
->  	type_reg_offset_inc += 2;
->  }
+Fixes: ac3167257b9f ("headers: separate linux/mod_devicetable.h from linux/platform_device.h")
+Signed-off-by: NeilBrown <neil@brown.name>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/watchdog/mt7621_wdt.c | 1 +
+ drivers/watchdog/rt2880_wdt.c | 1 +
+ 2 files changed, 2 insertions(+)
 
-I'll go with this for next version.
-
-> > > > > > +	/* wdt_set must be called rtc_timer_lock held */
-> > > > > 
-> > > > > This doesn't make sense.
-> > > > 
-> > > > Umm.. The comment does not make sense? Maybe I can explain it further.
-> > > 
-> > > "wdt_set must be called when the rtc_timer_lock is held"
-> > 
-> > Yes. I wanted to say that who-ever is calling the wdt_set function
-> > below, should have locked the rtc_timer_lock mutex (last in this
-> > struct). The function does not do locking inside because we want the RTC
-> > to be able to perform:
-> > 
-> > lock
-> > disable wdt (store original state)
-> > set RTC
-> > return wdt original state
-> > unlock
-> > 
-> > Locking is needed so that we can exclude the watchdog enabling or
-> > disabling the WDT timer between moments when RTC is getting the original
-> > WDT state and re-turning back the old state. Without the lock we have a
-> > risk that WDT-driver enables or disables the timer when RTC is being
-> > set, and RTC overwrites the watchdog driver changes when writing back
-> > the old state. I hope this makes sense now... Any suggestions how to
-> > explain this nicely in english?
-> 
-> I think I did already:
-> 
->  "wdt_set must be called when the rtc_timer_lock is held"
-> 
-> Actually, this is a little ambiguous.  A better sentence could read:
-> 
->  "rtc_timer_lock must be taken before calling wdt_set()"
-
-Sure. I'll ruthlessy plagiarize that sentence. (And as I am not at all
-sure if "ruthlessy plagiarize" actually means what I think it does -
-I tried to say that I'll take your suggestion and use it :] )
-
-Once again, thanks for the help =)
-
-Br,
-	Matti
-
+diff --git a/drivers/watchdog/mt7621_wdt.c b/drivers/watchdog/mt7621_wdt.c
+index 5c4a764717c4..81208cd3f4ec 100644
+--- a/drivers/watchdog/mt7621_wdt.c
++++ b/drivers/watchdog/mt7621_wdt.c
+@@ -17,6 +17,7 @@
+ #include <linux/watchdog.h>
+ #include <linux/moduleparam.h>
+ #include <linux/platform_device.h>
++#include <linux/mod_devicetable.h>
+ 
+ #include <asm/mach-ralink/ralink_regs.h>
+ 
+diff --git a/drivers/watchdog/rt2880_wdt.c b/drivers/watchdog/rt2880_wdt.c
+index 98967f0a7d10..db7c57d82cfd 100644
+--- a/drivers/watchdog/rt2880_wdt.c
++++ b/drivers/watchdog/rt2880_wdt.c
+@@ -18,6 +18,7 @@
+ #include <linux/watchdog.h>
+ #include <linux/moduleparam.h>
+ #include <linux/platform_device.h>
++#include <linux/mod_devicetable.h>
+ 
+ #include <asm/mach-ralink/ralink_regs.h>
+ 
 -- 
-Matti Vaittinen, Linux device drivers
-ROHM Semiconductors, Finland SWDC
-Kiviharjunlenkki 1E
-90220 OULU
-FINLAND
+2.19.1
 
-~~~ "I don't think so," said Rene Descartes.  Just then, he vanished ~~~
