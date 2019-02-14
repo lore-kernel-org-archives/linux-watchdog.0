@@ -3,44 +3,45 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-8.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_MUTT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_MUTT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F3B24C43381
-	for <linux-watchdog@archiver.kernel.org>; Thu, 14 Feb 2019 20:40:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5BECAC43381
+	for <linux-watchdog@archiver.kernel.org>; Thu, 14 Feb 2019 20:45:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id C4E35218FF
-	for <linux-watchdog@archiver.kernel.org>; Thu, 14 Feb 2019 20:40:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 328EF21B1A
+	for <linux-watchdog@archiver.kernel.org>; Thu, 14 Feb 2019 20:45:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391926AbfBNUk6 (ORCPT
+        id S2436912AbfBNUpL (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 14 Feb 2019 15:40:58 -0500
-Received: from gateway34.websitewelcome.com ([192.185.148.204]:12222 "EHLO
-        gateway34.websitewelcome.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2391051AbfBNUk6 (ORCPT
+        Thu, 14 Feb 2019 15:45:11 -0500
+Received: from gateway30.websitewelcome.com ([192.185.150.24]:23022 "EHLO
+        gateway30.websitewelcome.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2436742AbfBNUpK (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 14 Feb 2019 15:40:58 -0500
-X-Greylist: delayed 1487 seconds by postgrey-1.27 at vger.kernel.org; Thu, 14 Feb 2019 15:40:57 EST
-Received: from cm16.websitewelcome.com (cm16.websitewelcome.com [100.42.49.19])
-        by gateway34.websitewelcome.com (Postfix) with ESMTP id 34921BD3C9
-        for <linux-watchdog@vger.kernel.org>; Thu, 14 Feb 2019 14:16:10 -0600 (CST)
+        Thu, 14 Feb 2019 15:45:10 -0500
+X-Greylist: delayed 1491 seconds by postgrey-1.27 at vger.kernel.org; Thu, 14 Feb 2019 15:45:10 EST
+Received: from cm13.websitewelcome.com (cm13.websitewelcome.com [100.42.49.6])
+        by gateway30.websitewelcome.com (Postfix) with ESMTP id 56D6F5FBA
+        for <linux-watchdog@vger.kernel.org>; Thu, 14 Feb 2019 14:20:18 -0600 (CST)
 Received: from gator4166.hostgator.com ([108.167.133.22])
         by cmsmtp with SMTP
-        id uNQYgmAJE4FKpuNQYg6U1d; Thu, 14 Feb 2019 14:16:10 -0600
+        id uNUYgJxYdYTGMuNUYgdIhL; Thu, 14 Feb 2019 14:20:18 -0600
 X-Authority-Reason: nr=8
-Received: from [189.250.119.20] (port=44852 helo=embeddedor)
+Received: from [189.250.119.20] (port=44888 helo=embeddedor)
         by gator4166.hostgator.com with esmtpa (Exim 4.91)
         (envelope-from <gustavo@embeddedor.com>)
-        id 1guNQS-000AKy-LY; Thu, 14 Feb 2019 14:16:09 -0600
-Date:   Thu, 14 Feb 2019 14:16:01 -0600
+        id 1guNUO-000CeD-Fa; Thu, 14 Feb 2019 14:20:17 -0600
+Date:   Thu, 14 Feb 2019 14:20:08 -0600
 From:   "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
+To:     Zwane Mwaikambo <zwanem@gmail.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>
 Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
         "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
         Kees Cook <keescook@chromium.org>
-Subject: [PATCH] watchdog: smsc37b787_wdt: Mark expected switch fall-through
-Message-ID: <20190214201601.GA13098@embeddedor>
+Subject: [PATCH] watchdog: sc1200: Mark expected switch fall-through
+Message-ID: <20190214202008.GA15525@embeddedor>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
@@ -54,13 +55,13 @@ X-AntiAbuse: Sender Address Domain - embeddedor.com
 X-BWhitelist: no
 X-Source-IP: 189.250.119.20
 X-Source-L: No
-X-Exim-ID: 1guNQS-000AKy-LY
+X-Exim-ID: 1guNUO-000CeD-Fa
 X-Source: 
 X-Source-Args: 
 X-Source-Dir: 
-X-Source-Sender: (embeddedor) [189.250.119.20]:44852
+X-Source-Sender: (embeddedor) [189.250.119.20]:44888
 X-Source-Auth: gustavo@embeddedor.com
-X-Email-Count: 3
+X-Email-Count: 9
 X-Source-Cap: Z3V6aWRpbmU7Z3V6aWRpbmU7Z2F0b3I0MTY2Lmhvc3RnYXRvci5jb20=
 X-Local-Domain: yes
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -73,11 +74,11 @@ cases where we are expecting to fall through.
 
 This patch fixes the following warning:
 
-drivers/watchdog/smsc37b787_wdt.c: In function ‘wb_smsc_wdt_ioctl’:
-drivers/watchdog/smsc37b787_wdt.c:480:3: warning: this statement may fall through [-Wimplicit-fallthrough=]
-   wb_smsc_wdt_set_timeout(timeout);
-   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-drivers/watchdog/smsc37b787_wdt.c:482:2: note: here
+drivers/watchdog/sc1200wdt.c: In function ‘sc1200wdt_ioctl’:
+drivers/watchdog/sc1200wdt.c:241:3: warning: this statement may fall through [-Wimplicit-fallthrough=]
+   sc1200wdt_write_data(WDTO, timeout);
+   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+drivers/watchdog/sc1200wdt.c:244:2: note: here
   case WDIOC_GETTIMEOUT:
   ^~~~
 
@@ -91,22 +92,22 @@ This patch is part of the ongoing efforts to enable
 
 Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
 ---
- drivers/watchdog/smsc37b787_wdt.c | 2 +-
+ drivers/watchdog/sc1200wdt.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/watchdog/smsc37b787_wdt.c b/drivers/watchdog/smsc37b787_wdt.c
-index 445ea1ad1fa9..c768dcd53034 100644
---- a/drivers/watchdog/smsc37b787_wdt.c
-+++ b/drivers/watchdog/smsc37b787_wdt.c
-@@ -478,7 +478,7 @@ static long wb_smsc_wdt_ioctl(struct file *file,
+diff --git a/drivers/watchdog/sc1200wdt.c b/drivers/watchdog/sc1200wdt.c
+index 8e4e2fc13f87..e035a4d4b299 100644
+--- a/drivers/watchdog/sc1200wdt.c
++++ b/drivers/watchdog/sc1200wdt.c
+@@ -239,7 +239,7 @@ static long sc1200wdt_ioctl(struct file *file, unsigned int cmd,
  			return -EINVAL;
  		timeout = new_timeout;
- 		wb_smsc_wdt_set_timeout(timeout);
--		/* fall through and return the new timeout... */
-+		/* fall through - and return the new timeout... */
+ 		sc1200wdt_write_data(WDTO, timeout);
+-		/* fall through and return the new timeout */
++		/* fall through - and return the new timeout */
+ 
  	case WDIOC_GETTIMEOUT:
- 		new_timeout = timeout;
- 		if (unit == UNIT_MINUTE)
+ 		return put_user(timeout * 60, p);
 -- 
 2.20.1
 
