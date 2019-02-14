@@ -3,46 +3,46 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-8.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_MUTT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_MUTT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B0030C43381
-	for <linux-watchdog@archiver.kernel.org>; Thu, 14 Feb 2019 13:07:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C8520C4360F
+	for <linux-watchdog@archiver.kernel.org>; Thu, 14 Feb 2019 13:08:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 88104222B6
-	for <linux-watchdog@archiver.kernel.org>; Thu, 14 Feb 2019 13:07:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 980A3222D4
+	for <linux-watchdog@archiver.kernel.org>; Thu, 14 Feb 2019 13:08:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387692AbfBNNHp (ORCPT
+        id S2438705AbfBNNI2 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 14 Feb 2019 08:07:45 -0500
-Received: from mail-lf1-f65.google.com ([209.85.167.65]:47080 "EHLO
-        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726178AbfBNNHp (ORCPT
+        Thu, 14 Feb 2019 08:08:28 -0500
+Received: from mail-lf1-f67.google.com ([209.85.167.67]:42577 "EHLO
+        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725838AbfBNNI1 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 14 Feb 2019 08:07:45 -0500
-Received: by mail-lf1-f65.google.com with SMTP id f5so4455049lfc.13;
-        Thu, 14 Feb 2019 05:07:43 -0800 (PST)
+        Thu, 14 Feb 2019 08:08:27 -0500
+Received: by mail-lf1-f67.google.com with SMTP id l10so4475419lfh.9;
+        Thu, 14 Feb 2019 05:08:24 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=h7+XyUqAv6WuIJCnBF6kKgkrqT5xeDOdkGMyr/5jkjY=;
-        b=O0o8PCgcdTg4Ch8lXlD2QCFQRvLXc0b3ydkBzbusN7rhko5lWcSQh77cY8V78st7NK
-         8NyMpbRmqq0SuP1fUd/kzmTgj3i1LafNVa21ZKDgjk4D1s3XKiiwzuedweOT7MuuDXmL
-         VWI9DNgkADSSt6ITHJi6hvtkU6YPgBS7I/sdjpokK54FKZdbjNkJ/27FUJJxb7GLLvSZ
-         4aVIogjDqnebfXF3Q1oIwyBIsLJSIkDOrk66hFxNDdAfJ077aFFgrRug5PC+tBZdeQii
-         jITquanMcyQeDK3XqfwXHGIjjXIN2u4PRW41vF2GWF2HYU+jiV0V3ynFT6yI2tlwPSFE
-         hZMQ==
-X-Gm-Message-State: AHQUAub+rI1yZDckvsVp1QwjMGPwP5mHhS/+d3mi4OHpcmCedZbgy98M
-        EXMwQm/ZPohD36o/FHQJbd8=
-X-Google-Smtp-Source: AHgI3IZmjtUhIUdu5mGH9AS6pelLkAWTmgCjN3ZNz3bnguiXIa+lIkBQbbmqwTNToTgfG3jR3BRqhw==
-X-Received: by 2002:ac2:54a5:: with SMTP id w5mr2447819lfk.147.1550149662392;
-        Thu, 14 Feb 2019 05:07:42 -0800 (PST)
+        bh=Eu7lHWlxls44TPPvLrTFTcJsvdhBmvRyDzook3MPH5o=;
+        b=njFwhvPPrjy/DG91IrXtP5ZGPXxrWbeLT76ycTKADYq+u+3W67OzPKhKKJANAZRgye
+         ywTQawfhrzrqBoHk2MWlnqUM4uJ/jOx8QwQdC0sqJob6NqFzrga3/jwTYM+QgPHmu3iU
+         tOpXae8PKA2SxLt3TEEB4fmcxbd4JtKAv3fMiWQdZGEhHcYqrGcbHa3YwOcJdFH5alNm
+         96bdXinwzPsTNBEBoKpgP2Wr/lWBVgYPBo1Ii6BDJ2eJaz261RPgP4+sORb+uwEw50Sl
+         SP7tNtEERMbda3KWb+pnG7/Q86EKV8A9crxf6pjuux2IbALP2TqBfKDZtWV16TaCnb+9
+         EizA==
+X-Gm-Message-State: AHQUAuZTS1rVaKnl6f9LAB70lmfuGYe/oBY7oYbLMX/poaRQvzDh1YBi
+        IdTnI/UR7ZG1mkGmQjo4yQI=
+X-Google-Smtp-Source: AHgI3Ib9C6k22NKVtYSvUsH61hqjsJUpLexxaxf7KIpYRbIiERxilMH50obRQVMi2dybkWTs3P0CvQ==
+X-Received: by 2002:a19:f607:: with SMTP id x7mr2315490lfe.47.1550149703628;
+        Thu, 14 Feb 2019 05:08:23 -0800 (PST)
 Received: from localhost.localdomain ([213.255.186.46])
-        by smtp.gmail.com with ESMTPSA id g85-v6sm436721lji.17.2019.02.14.05.07.40
+        by smtp.gmail.com with ESMTPSA id q1sm465561lfk.15.2019.02.14.05.08.22
         (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Thu, 14 Feb 2019 05:07:41 -0800 (PST)
-Date:   Thu, 14 Feb 2019 15:07:34 +0200
+        Thu, 14 Feb 2019 05:08:23 -0800 (PST)
+Date:   Thu, 14 Feb 2019 15:08:09 +0200
 From:   Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
 To:     matti.vaittinen@fi.rohmeurope.com, mazziesaccount@gmail.com
 Cc:     Guenter Roeck <linux@roeck-us.net>,
@@ -57,8 +57,9 @@ Cc:     Guenter Roeck <linux@roeck-us.net>,
         linux-clk@vger.kernel.org, linux-gpio@vger.kernel.org,
         linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org,
         linux-watchdog@vger.kernel.org, bogdan-petru.chircu-mare@nxp.com
-Subject: [PATCH v10 3/9] clk: bd718x7: Support ROHM BD70528 clk block
-Message-ID: <b4bcc5e4c2c35bd4f71f5e96c02922aabba6d013.1550148989.git.matti.vaittinen@fi.rohmeurope.com>
+Subject: [PATCH v10 4/9] devicetree: bindings: Document first ROHM BD70528
+ bindings
+Message-ID: <90c3b820baf072a7cc3a21aa50c661774a045158.1550148989.git.matti.vaittinen@fi.rohmeurope.com>
 References: <cover.1550148989.git.matti.vaittinen@fi.rohmeurope.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -70,78 +71,126 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-ROHM BD70528 is an ultra low power PMIC with similar 32K clk as
-bd718x7. Only difference (from clk perspective) is register address.
-Add support for controlling BD70528 clk using bd718x7 driver.
+Document bindings for regulators (3 bucks, 3 LDOs and 2 LED
+drivers) and 4 GPIO pins which can be configured for I/O or
+as interrupt sources withe configurable trigger levels.
 
 Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-Acked-by: Stephen Boyd <sboyd@kernel.org>
+Reviewed-by: Rob Herring <robh@kernel.org>
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
 ---
- drivers/clk/Kconfig       |  6 +++---
- drivers/clk/clk-bd718x7.c | 20 ++++++++++++++++----
- 2 files changed, 19 insertions(+), 7 deletions(-)
+ .../devicetree/bindings/mfd/rohm,bd70528-pmic.txt  | 102 +++++++++++++++++++++
+ 1 file changed, 102 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/mfd/rohm,bd70528-pmic.txt
 
-diff --git a/drivers/clk/Kconfig b/drivers/clk/Kconfig
-index d2f0bb5ba47e..87f61a46cd5f 100644
---- a/drivers/clk/Kconfig
-+++ b/drivers/clk/Kconfig
-@@ -285,10 +285,10 @@ config COMMON_CLK_STM32H7
- 
- config COMMON_CLK_BD718XX
- 	tristate "Clock driver for ROHM BD718x7 PMIC"
--	depends on MFD_ROHM_BD718XX
-+	depends on MFD_ROHM_BD718XX || MFD_ROHM_BD70528
- 	help
--	  This driver supports ROHM BD71837 and ROHM BD71847
--	  PMICs clock gates.
-+	  This driver supports ROHM BD71837, ROHM BD71847 and
-+	  ROHM BD70528 PMICs clock gates.
- 
- source "drivers/clk/actions/Kconfig"
- source "drivers/clk/bcm/Kconfig"
-diff --git a/drivers/clk/clk-bd718x7.c b/drivers/clk/clk-bd718x7.c
-index 461228ebf703..ae6e5baee330 100644
---- a/drivers/clk/clk-bd718x7.c
-+++ b/drivers/clk/clk-bd718x7.c
-@@ -8,6 +8,7 @@
- #include <linux/platform_device.h>
- #include <linux/slab.h>
- #include <linux/mfd/rohm-bd718x7.h>
-+#include <linux/mfd/rohm-bd70528.h>
- #include <linux/clk-provider.h>
- #include <linux/clkdev.h>
- #include <linux/regmap.h>
-@@ -86,9 +87,20 @@ static int bd71837_clk_probe(struct platform_device *pdev)
- 		dev_err(&pdev->dev, "No parent clk found\n");
- 		return -EINVAL;
- 	}
--
--	c->reg = BD718XX_REG_OUT32K;
--	c->mask = BD718XX_OUT32K_EN;
-+	switch (mfd->chip_type) {
-+	case ROHM_CHIP_TYPE_BD71837:
-+	case ROHM_CHIP_TYPE_BD71847:
-+		c->reg = BD718XX_REG_OUT32K;
-+		c->mask = BD718XX_OUT32K_EN;
-+		break;
-+	case ROHM_CHIP_TYPE_BD70528:
-+		c->reg = BD70528_REG_CLK_OUT;
-+		c->mask = BD70528_CLK_OUT_EN_MASK;
-+		break;
-+	default:
-+		dev_err(&pdev->dev, "Unknown clk chip\n");
-+		return -EINVAL;
-+	}
- 	c->mfd = mfd;
- 	c->pdev = pdev;
- 	c->hw.init = &init;
-@@ -119,5 +131,5 @@ static struct platform_driver bd71837_clk = {
- module_platform_driver(bd71837_clk);
- 
- MODULE_AUTHOR("Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>");
--MODULE_DESCRIPTION("BD71837/BD71847 chip clk driver");
-+MODULE_DESCRIPTION("BD71837/BD71847/BD70528 chip clk driver");
- MODULE_LICENSE("GPL");
+diff --git a/Documentation/devicetree/bindings/mfd/rohm,bd70528-pmic.txt b/Documentation/devicetree/bindings/mfd/rohm,bd70528-pmic.txt
+new file mode 100644
+index 000000000000..120462c17904
+--- /dev/null
++++ b/Documentation/devicetree/bindings/mfd/rohm,bd70528-pmic.txt
+@@ -0,0 +1,102 @@
++* ROHM BD70528 Power Management Integrated Circuit bindings
++
++BD70528MWV is an ultra-low quiescet current general purpose single-chip
++power management IC for battery-powered portable devices. The IC
++integrates 3 ultra-low current consumption buck converters, 3 LDOs and 2
++LED Drivers. Also included are 4 GPIOs, a real-time clock (RTC), a 32kHz
++clock gate, high-accuracy VREF for use with an external ADC, flexible
++dual-input power path, 10 bit SAR ADC for battery temperature monitor and
++1S battery charger with scalable charge currents.
++
++Required properties:
++ - compatible		: Should be "rohm,bd70528"
++ - reg			: I2C slave address.
++ - interrupts		: The interrupt line the device is connected to.
++ - interrupt-controller	: To indicate BD70528 acts as an interrupt controller.
++ - #interrupt-cells	: Should be 2. Usage is compliant to the 2 cells
++			  variant of ../interrupt-controller/interrupts.txt
++ - gpio-controller	: To indicate BD70528 acts as a GPIO controller.
++ - #gpio-cells		: Should be 2. The first cell is the pin number and
++			  the second cell is used to specify flags. See
++			  ../gpio/gpio.txt for more information.
++ - #clock-cells		: Should be 0.
++ - regulators:		: List of child nodes that specify the regulators.
++			  Please see ../regulator/rohm,bd70528-regulator.txt
++
++Optional properties:
++ - clock-output-names	: Should contain name for output clock.
++
++Example:
++/* external oscillator */
++osc: oscillator {
++	compatible = "fixed-clock";
++	#clock-cells = <1>;
++	clock-frequency  = <32768>;
++	clock-output-names = "osc";
++};
++
++pmic: pmic@4b {
++	compatible = "rohm,bd70528";
++	reg = <0x4b>;
++	interrupt-parent = <&gpio1>;
++	interrupts = <29 GPIO_ACTIVE_LOW>;
++	clocks = <&osc 0>;
++	#clock-cells = <0>;
++	clock-output-names = "bd70528-32k-out";
++	#gpio-cells = <2>;
++	gpio-controller;
++	interrupt-controller;
++	#interrupt-cells = <2>;
++
++	regulators {
++		buck1: BUCK1 {
++			regulator-name = "buck1";
++			regulator-min-microvolt = <1200000>;
++			regulator-max-microvolt = <3400000>;
++			regulator-boot-on;
++			regulator-ramp-delay = <125>;
++		};
++		buck2: BUCK2 {
++			regulator-name = "buck2";
++			regulator-min-microvolt = <1200000>;
++			regulator-max-microvolt = <3300000>;
++			regulator-boot-on;
++			regulator-ramp-delay = <125>;
++		};
++		buck3: BUCK3 {
++			regulator-name = "buck3";
++			regulator-min-microvolt = <800000>;
++			regulator-max-microvolt = <1800000>;
++			regulator-boot-on;
++			regulator-ramp-delay = <250>;
++		};
++		ldo1: LDO1 {
++			regulator-name = "ldo1";
++			regulator-min-microvolt = <1650000>;
++			regulator-max-microvolt = <3300000>;
++			regulator-boot-on;
++		};
++		ldo2: LDO2 {
++			regulator-name = "ldo2";
++			regulator-min-microvolt = <1650000>;
++			regulator-max-microvolt = <3300000>;
++			regulator-boot-on;
++		};
++
++		ldo3: LDO3 {
++			regulator-name = "ldo3";
++			regulator-min-microvolt = <1650000>;
++			regulator-max-microvolt = <3300000>;
++		};
++		led_ldo1: LED_LDO1 {
++			regulator-name = "led_ldo1";
++			regulator-min-microvolt = <200000>;
++			regulator-max-microvolt = <300000>;
++		};
++		led_ldo2: LED_LDO2 {
++			regulator-name = "led_ldo2";
++			regulator-min-microvolt = <200000>;
++			regulator-max-microvolt = <300000>;
++		};
++	};
++};
 -- 
 2.14.3
 
