@@ -1,77 +1,150 @@
-Return-Path: <SRS0=R/yM=QU=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=mhZ9=QV=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,
-	URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CAE0EC282CA
-	for <linux-watchdog@archiver.kernel.org>; Wed, 13 Feb 2019 17:43:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 07807C43381
+	for <linux-watchdog@archiver.kernel.org>; Thu, 14 Feb 2019 08:00:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A12F42175B
-	for <linux-watchdog@archiver.kernel.org>; Wed, 13 Feb 2019 17:43:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1550079827;
-	bh=TbfWk5CfHlkm9v5iLC16NXhclESuNrAJ56dy9GYwMmI=;
-	h=To:In-Reply-To:Subject:References:Cc:From:Date:List-ID:From;
-	b=fel7YolfUk15gokFvU0VwsORC5XUGfUyQsYdj+ofux/E8NQLvpca8eLLxbSu2Fvvp
-	 zUHdipZk23ZKRsaAqdTXPOJ+dS5tChOPqON1wOllA49JKNrcUyhzWR+Hb/AdYcUA5u
-	 CFSocBmdV7EafBRg3FKYWjEf+k7hUOJ4q4h8XGFw=
+	by mail.kernel.org (Postfix) with ESMTP id CAEE4222A1
+	for <linux-watchdog@archiver.kernel.org>; Thu, 14 Feb 2019 08:00:52 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="iCSov9E2"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391077AbfBMRnn (ORCPT
+        id S1726473AbfBNIAr (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 13 Feb 2019 12:43:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37582 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730494AbfBMRnn (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 13 Feb 2019 12:43:43 -0500
-Received: from localhost (unknown [104.132.0.74])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 56C9820700;
-        Wed, 13 Feb 2019 17:43:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1550079822;
-        bh=TbfWk5CfHlkm9v5iLC16NXhclESuNrAJ56dy9GYwMmI=;
-        h=To:In-Reply-To:Subject:References:Cc:From:Date:From;
-        b=pZBCA6sGaKZr4s7ygA+8LOrA2p3OhQceZzJtsRqVpoev7O1oJefwe3Guw2+QM3/4Z
-         qO40GkNqEW7xK6oCI7lbF/qDcx32qgUQeKC/EHmPy2WJiJkg/ds7nJ5uOCqvxNdtOk
-         9UkejubmzUCH1gJBhFN8TSWCGuvHhoxNwlULGN/k=
-Content-Type: text/plain; charset="utf-8"
+        Thu, 14 Feb 2019 03:00:47 -0500
+Received: from mail-lf1-f65.google.com ([209.85.167.65]:43267 "EHLO
+        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2392606AbfBNIAq (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Thu, 14 Feb 2019 03:00:46 -0500
+Received: by mail-lf1-f65.google.com with SMTP id j1so3813963lfb.10
+        for <linux-watchdog@vger.kernel.org>; Thu, 14 Feb 2019 00:00:45 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=R+L0uutjU0v77oZKF4hFog6fNq1jSpgLPOCZjedtCco=;
+        b=iCSov9E2bQXkxP36zv4os/WDjwAfqs6XUhG75IYQU0p4p8NaPLou0+WJYlZ2aR50nI
+         nVUaj5lAR4YBfPErtwvaLue5BIsbWWCri1Fv9kT244izFGVcZ8tzcUz8K2dgl2uhd7Pd
+         8s5zWCCAP2PXD5Tj5di0Ee7Ds+Y64LL82bX5xRkYqcZePWpZwDLXf9GdnRdhk7GisuP8
+         Pgg4d9Qk8Ssbb/Ok2g5Jx9TReTr48sUkuSYLq9yxzDd1WNzcy895XAfBgMMizho3tr4d
+         2TvITrbH5oHKKDsWHL7tYgcCAg10/3qlXYL3Hu/NZSwoHS0rrrvLCD+2AlVgdqu51MCy
+         b66w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=R+L0uutjU0v77oZKF4hFog6fNq1jSpgLPOCZjedtCco=;
+        b=eJtc9L7DWahp+7DrF5370aTs9uQgFs7lGhjvMFsxshewbwn4rN4l4rTYS2vJQeiQf4
+         e/AxUvzEsVUIbgXzWe0jtPCnmWRJzXBOXb+DE/p5j1TnWK/xFueQWKGUBHhBt5N2r2k8
+         foZFbV9FDVTTeWkVBQZ7DJiTCj8nSP7tHhs6PY78uaFmKYQZGi/iIOIODkaPZo/hhqP3
+         V9ZUpaIpYtOrHn5RN8rfl98CmE1VJd5ShKqaFHec6/BJI7mnWikPCSZqifzYy5pV1nbs
+         WM18XIEoFnr7akmKHQG3PtQy8zkc+SZMs45bEbNjMt+T8ePKhxFw0yjWy/yQMK537Mit
+         vtSg==
+X-Gm-Message-State: AHQUAubbQiHvDVf345L9QxcS2yOBU8BlqLeUitXVR+emKY/9+d6y68Wp
+        wHv1fxAQ4FhRCleHLpk2vnLLit022hX4MBduvHS7cw==
+X-Google-Smtp-Source: AHgI3IapfV1/YDbAnxxptRM2o7gNF3qGLxevZNy2Vi8LGAnuaJACKbLArrBvLRuxMxzWdmXJTbCFerVaKnDwqQFj2tA=
+X-Received: by 2002:a19:5209:: with SMTP id m9mr1375265lfb.51.1550131244554;
+ Thu, 14 Feb 2019 00:00:44 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-To:     matti.vaittinen@fi.rohmeurope.com, mazziesaccount@gmail.com
-In-Reply-To: <f3d5163067e97426a9bb00991d200f04bcd0058b.1550063882.git.matti.vaittinen@fi.rohmeurope.com>
-User-Agent: alot/0.8
-Subject: Re: [PATCH v9 3/8] clk: bd718x7: Support ROHM BD70528 clk block
-Message-ID: <155007982166.115909.16929990408175018819@swboyd.mtv.corp.google.com>
-References: <cover.1550063882.git.matti.vaittinen@fi.rohmeurope.com> <f3d5163067e97426a9bb00991d200f04bcd0058b.1550063882.git.matti.vaittinen@fi.rohmeurope.com>
-Cc:     Guenter Roeck <linux@roeck-us.net>,
+References: <cover.1550063882.git.matti.vaittinen@fi.rohmeurope.com> <8334d6064575249e871e88aa6057b134795232e3.1550063882.git.matti.vaittinen@fi.rohmeurope.com>
+In-Reply-To: <8334d6064575249e871e88aa6057b134795232e3.1550063882.git.matti.vaittinen@fi.rohmeurope.com>
+From:   Linus Walleij <linus.walleij@linaro.org>
+Date:   Thu, 14 Feb 2019 09:00:33 +0100
+Message-ID: <CACRpkdYqSyWGSy6OKukE_SQWi1r0uOQD91JwpqUgrbJq28gbUQ@mail.gmail.com>
+Subject: Re: [PATCH v9 5/8] gpio: Initial support for ROHM bd70528 GPIO block
+To:     Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+Cc:     Matti Vaittinen <mazziesaccount@gmail.com>,
+        Guenter Roeck <linux@roeck-us.net>,
         heikki.haikola@fi.rohmeurope.com, mikko.mutanen@fi.rohmeurope.com,
-        lee.jones@linaro.org, robh+dt@kernel.org, mark.rutland@arm.com,
-        broonie@kernel.org, gregkh@linuxfoundation.org, rafael@kernel.org,
-        mturquette@baylibre.com, linus.walleij@linaro.org,
-        bgolaszewski@baylibre.com, sre@kernel.org, lgirdwood@gmail.com,
-        a.zummo@towertech.it, alexandre.belloni@bootlin.com,
-        wim@linux-watchdog.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org,
-        linux-gpio@vger.kernel.org, linux-pm@vger.kernel.org,
-        linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org
-From:   Stephen Boyd <sboyd@kernel.org>
-Date:   Wed, 13 Feb 2019 09:43:41 -0800
+        Lee Jones <lee.jones@linaro.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Mark Brown <broonie@kernel.org>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Sebastian Reichel <sre@kernel.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
+        <devicetree@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        linux-clk <linux-clk@vger.kernel.org>,
+        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
+        Linux PM list <linux-pm@vger.kernel.org>,
+        linux-rtc@vger.kernel.org,
+        LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
+        bogdan-petru.chircu-mare@nxp.com
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Quoting Matti Vaittinen (2019-02-13 05:29:55)
-> ROHM BD70528 is an ultra low power PMIC with similar 32K clk as
-> bd718x7. Only difference (from clk perspective) is register address.
-> Add support for controlling BD70528 clk using bd718x7 driver.
->=20
+On Wed, Feb 13, 2019 at 2:34 PM Matti Vaittinen
+<matti.vaittinen@fi.rohmeurope.com> wrote:
+
+> ROHM BD70528 PMIC has 4 GPIO pins. Allow them to be
+> controlled by GPIO framework.
+>
+> IRQs are handled by regmap-irq and GPIO driver is not
+> aware of the irq usage.
+>
 > Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-> ---
+> Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
 
-Acked-by: Stephen Boyd <sboyd@kernel.org>
+(...)
 
+Just spotted this:
+
+> +#include <linux/gpio/driver.h>
+> +#include <linux/gpio.h>
+
+A driver should only need <linux/gpio/driver.h>
+the <linux/gpio.h> should not be used at all in new code,
+it is a legacy header.
+
+> +static int bd70528_gpio_set_config(struct gpio_chip *chip, unsigned int offset,
+> +                                  unsigned long config)
+> +{
+> +       struct bd70528_gpio *bdgpio = gpiochip_get_data(chip);
+> +
+> +       switch (pinconf_to_config_param(config)) {
+> +       case PIN_CONFIG_DRIVE_OPEN_DRAIN:
+> +               return regmap_update_bits(bdgpio->chip.regmap,
+> +                                         GPIO_OUT_REG(offset),
+> +                                         BD70528_GPIO_DRIVE_MASK,
+> +                                         BD70528_GPIO_OPEN_DRAIN);
+> +               break;
+> +       case PIN_CONFIG_DRIVE_PUSH_PULL:
+> +               return regmap_update_bits(bdgpio->chip.regmap,
+> +                                         GPIO_OUT_REG(offset),
+> +                                         BD70528_GPIO_DRIVE_MASK,
+> +                                         BD70528_GPIO_PUSH_PULL);
+> +               break;
+> +       case PIN_CONFIG_INPUT_DEBOUNCE:
+> +               return bd70528_set_debounce(bdgpio, offset,
+> +                                           pinconf_to_config_argument(config));
+> +               break;
+> +       default:
+> +               break;
+> +       }
+> +       return -ENOTSUPP;
+> +}
+
+BTW I just merged code from Thomas Petazzoni that make it possible to
+also support pull-up and pull-down from GPIO here if you want to enable
+it.
+
+Yours,
+Linus Walleij
