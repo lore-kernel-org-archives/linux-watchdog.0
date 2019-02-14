@@ -6,80 +6,96 @@ X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
 	SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B7A3BC43381
-	for <linux-watchdog@archiver.kernel.org>; Thu, 14 Feb 2019 14:16:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 04B5BC43381
+	for <linux-watchdog@archiver.kernel.org>; Thu, 14 Feb 2019 14:50:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 6EDAB2080A
-	for <linux-watchdog@archiver.kernel.org>; Thu, 14 Feb 2019 14:16:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AD6582229F
+	for <linux-watchdog@archiver.kernel.org>; Thu, 14 Feb 2019 14:50:44 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VT8pkhkb"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cgs9uJwd"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404499AbfBNOQ0 (ORCPT
+        id S1733006AbfBNOuj (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 14 Feb 2019 09:16:26 -0500
-Received: from mail-pf1-f194.google.com ([209.85.210.194]:32778 "EHLO
-        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726213AbfBNOQZ (ORCPT
+        Thu, 14 Feb 2019 09:50:39 -0500
+Received: from mail-pf1-f193.google.com ([209.85.210.193]:36347 "EHLO
+        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1732706AbfBNOui (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 14 Feb 2019 09:16:25 -0500
-Received: by mail-pf1-f194.google.com with SMTP id c123so3188272pfb.0;
-        Thu, 14 Feb 2019 06:16:24 -0800 (PST)
+        Thu, 14 Feb 2019 09:50:38 -0500
+Received: by mail-pf1-f193.google.com with SMTP id n22so3222465pfa.3;
+        Thu, 14 Feb 2019 06:50:37 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:subject:to:cc:references:from:message-id:date:user-agent
          :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=2WKf2wLPNOtZj+tz7hWG5zDw6cecW0Aeb0XL4cCmrlM=;
-        b=VT8pkhkbPWzFzlEDZJftpO7BrWGLpiLsd9v4KaKpVJJuQ6MNVONfOmal2WIYsL5osR
-         24b5ten/kdQXFn/CVQFvi8QtoKj4UN2RSINRTyT7wW6INnBzo8f058aeHsNN7kyY0yXC
-         HXUn7VpJzLevZQDKxGWqv86S0I4Cw6ZLBTTQcZfzk6d72CWgn5bCoSwQKpdEi3DwaPtQ
-         HJfl3fIaClg/0z2YV8gWTe9iwb8mj0CbQQ0/RKbu+kPiUKmcCOp+mpDDjTPgo3b7NDSO
-         pU1VMH6wDVN3mTMC7qimmtWzq11s96JO6PsxJtcB3A6ywCXq+XTc3p1Ht2+ZY3iS4IQ2
-         YsAg==
+        bh=/6ddbdebD9iJzQo+1LigKy7GKDZ/EL0wAh/uqRy48F4=;
+        b=cgs9uJwd7aQilHTRs0BfGQBJgYPxJ8uesBz2JQKSfzQgq6KmLl3yAhClFLIztuYuOO
+         zpLdfeEIUGjc61mTwUZD76zq0nu03uw2oMnH3TdzI6m0TRVJQOVMMEjfVH9B3Oe6ae24
+         7gOvVvRbWc2yLYS/D4SqMGUmwXKm35GzHanlh7JeGVhBcLWjVH/UHr5ALl8Jz2Q/6aU6
+         ozzz6S4/Wx6Q0GukfYw2VlSMq4zN9/g8xcIkJN9NvIvSSD1sUjvIy7XuiF6JNMYYfs5i
+         ssxAWonQtPeC+Sd5MVKrjArmna/6ch+lirdWCNlvG5o8JN/9oB0fNxJscIv/RxHW6mQk
+         aCsQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
          :date:user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=2WKf2wLPNOtZj+tz7hWG5zDw6cecW0Aeb0XL4cCmrlM=;
-        b=SsunWHq59Y024STqZWl7CuL1lrWvS/v/IKzC21TodM/yTnYGeno9F4F1j6dBx9NDi0
-         Wa4Mzd/DXZ3Qz2Lnp22tvZ5unrRoGef13YWnpefoqdQZ7nybi4S6S39o5FeZVBQvJ77J
-         yj/5Xj7120KQMPsxMPaQfBWtDNSJDv9cA1JptSdDPNDzx0TZ2sLtDAfMtny9CxaqCgpw
-         luaLAsYgiCw4sWEb7n+3sDBHxEVivmHe/lq8SwDpkDnhK6RnkpwXFnVR2g67DTuGuoFq
-         kAZ9fQzfuPXUwAlgzwR2HY5Eqfq9hmuQlJbLYHfFDiefqIsmyu4hDqAUfnRh0KXhC9IP
-         0yZg==
-X-Gm-Message-State: AHQUAubbXDJM/nijQ5O72hpvXbx82fSrR3cDmRWx1kpwVmJPkCubCtGu
-        dpgt/19aIg51WOcfE6e4nz8=
-X-Google-Smtp-Source: AHgI3IaDvqHWThIXm+8Ddjy7mfO6gbbC5cRwcKAEPFnqJuJMNnKR7Ha9110lnlplS0mrTqMTdLUGww==
-X-Received: by 2002:a62:be0b:: with SMTP id l11mr4427114pff.52.1550153783985;
-        Thu, 14 Feb 2019 06:16:23 -0800 (PST)
+        bh=/6ddbdebD9iJzQo+1LigKy7GKDZ/EL0wAh/uqRy48F4=;
+        b=A7yDVMYoAl/zsPsRWvCpXsK/g+6uiK/4YprmNt4oCljpC4z97AmCuvw0RXiwX5ZFHo
+         M6AwLxGLeF3bo43bn6dxcXziIHWTone4YCG9uirJOmlDbNs9+zTKP1DTvkDhLbEBTirT
+         1J+z9hDCF00vwtMsG0jg7t9mZysivb65K3I8p4+tcLv2T3ZCdzBqVS6wqPL+3UbE+Sqf
+         bZ2j+wKQ1HsOOZ7jpzZJLAMiSIPS13fvwoH1of/5V4kwdbC31kVUaGkaaDKahZzuZfHA
+         r6pfPBL4DgcKi9HQSCBx1Yyg3ZMnGmHoVPxm2Teaq33GNq0Y3ctaJZgdW+ITBZwpFWmS
+         qGvQ==
+X-Gm-Message-State: AHQUAubsm3GKa0WM9uBlh58H70/quqddim7cE5euxMC2qaUT1Hl1XRfw
+        rEtoq9Nm7cfwqssvG+SDn60=
+X-Google-Smtp-Source: AHgI3IYUdduaKqJn681bDKNTZvqHHzr5vcqo0r1q6dCTqk3ZkG27QoyGfnu71hOZ61Fhhyi2NDhP9Q==
+X-Received: by 2002:a62:b248:: with SMTP id x69mr4429731pfe.256.1550155837389;
+        Thu, 14 Feb 2019 06:50:37 -0800 (PST)
 Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id e26sm3114294pfi.70.2019.02.14.06.16.19
+        by smtp.gmail.com with ESMTPSA id 11sm3236506pfh.131.2019.02.14.06.50.34
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 14 Feb 2019 06:16:22 -0800 (PST)
-Subject: Re: [PATCH v10 8/9] watchdog: bd70528: Initial support for ROHM
- BD70528 watchdog block
-To:     Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>,
-        mazziesaccount@gmail.com
-Cc:     heikki.haikola@fi.rohmeurope.com, mikko.mutanen@fi.rohmeurope.com,
-        lee.jones@linaro.org, robh+dt@kernel.org, mark.rutland@arm.com,
-        broonie@kernel.org, gregkh@linuxfoundation.org, rafael@kernel.org,
-        mturquette@baylibre.com, sboyd@kernel.org,
-        linus.walleij@linaro.org, bgolaszewski@baylibre.com,
-        sre@kernel.org, lgirdwood@gmail.com, a.zummo@towertech.it,
-        alexandre.belloni@bootlin.com, wim@linux-watchdog.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-clk@vger.kernel.org, linux-gpio@vger.kernel.org,
-        linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linux-watchdog@vger.kernel.org, bogdan-petru.chircu-mare@nxp.com
-References: <cover.1550148989.git.matti.vaittinen@fi.rohmeurope.com>
- <30eca0108663a382fd3bfceb04ba35577ec569bd.1550148989.git.matti.vaittinen@fi.rohmeurope.com>
+        Thu, 14 Feb 2019 06:50:36 -0800 (PST)
+Subject: Re: [PATCH 2/4] watchdog: imx_sc: Add i.MX system controller watchdog
+ support
+To:     Anson Huang <anson.huang@nxp.com>,
+        "robh+dt@kernel.org" <robh+dt@kernel.org>,
+        "mark.rutland@arm.com" <mark.rutland@arm.com>,
+        "shawnguo@kernel.org" <shawnguo@kernel.org>,
+        "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>,
+        "kernel@pengutronix.de" <kernel@pengutronix.de>,
+        "festevam@gmail.com" <festevam@gmail.com>,
+        "catalin.marinas@arm.com" <catalin.marinas@arm.com>,
+        "will.deacon@arm.com" <will.deacon@arm.com>,
+        "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
+        Aisheng Dong <aisheng.dong@nxp.com>,
+        "ulf.hansson@linaro.org" <ulf.hansson@linaro.org>,
+        Daniel Baluta <daniel.baluta@nxp.com>,
+        Andy Gross <andy.gross@linaro.org>,
+        "horms+renesas@verge.net.au" <horms+renesas@verge.net.au>,
+        "heiko@sntech.de" <heiko@sntech.de>,
+        "arnd@arndb.de" <arnd@arndb.de>,
+        "maxime.ripard@bootlin.com" <maxime.ripard@bootlin.com>,
+        "bjorn.andersson@linaro.org" <bjorn.andersson@linaro.org>,
+        "jagan@amarulasolutions.com" <jagan@amarulasolutions.com>,
+        "enric.balletbo@collabora.com" <enric.balletbo@collabora.com>,
+        "marc.w.gonzalez@free.fr" <marc.w.gonzalez@free.fr>,
+        "olof@lixom.net" <olof@lixom.net>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
+Cc:     dl-linux-imx <linux-imx@nxp.com>
+References: <1550144346-1187-1-git-send-email-Anson.Huang@nxp.com>
+ <1550144346-1187-3-git-send-email-Anson.Huang@nxp.com>
 From:   Guenter Roeck <linux@roeck-us.net>
-Message-ID: <81412eeb-c6d2-2042-9d89-e5dd7b87dda3@roeck-us.net>
-Date:   Thu, 14 Feb 2019 06:16:18 -0800
+Message-ID: <60e68ebe-389a-b410-d0b3-ad9a286b1a50@roeck-us.net>
+Date:   Thu, 14 Feb 2019 06:50:33 -0800
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.2.1
 MIME-Version: 1.0
-In-Reply-To: <30eca0108663a382fd3bfceb04ba35577ec569bd.1550148989.git.matti.vaittinen@fi.rohmeurope.com>
+In-Reply-To: <1550144346-1187-3-git-send-email-Anson.Huang@nxp.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -88,254 +104,288 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 2/14/19 5:12 AM, Matti Vaittinen wrote:
-> Initial support for watchdog block included in ROHM BD70528
-> power management IC.
+On 2/14/19 3:44 AM, Anson Huang wrote:
+> i.MX8QXP is an ARMv8 SoC which has a Cortex-M4 system controller
+> inside, the system controller is in charge of controlling power,
+> clock and watchdog etc..
 > 
-> Configurations for low power states are still to be checked.
+> This patch adds i.MX system controller watchdog driver support,
+> watchdog operation needs to be done in secure EL3 mode via
+> ARM-Trusted-Firmware, using SMC call, CPU will trap into
+> ARM-Trusted-Firmware and then it will request system controller
+> to do watchdog operation via IPC.
 > 
-> Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-
-Acked-by: Guenter Roeck <linux@roeck-us.net>
-
+> Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
 > ---
-> 
-> I dropped the Ack from Guenter as removal of struct bd70528
-> somewhat changed the code
-> 
->   drivers/watchdog/Kconfig       |  12 +++
->   drivers/watchdog/Makefile      |   1 +
->   drivers/watchdog/bd70528_wdt.c | 187 +++++++++++++++++++++++++++++++++++++++++
->   3 files changed, 200 insertions(+)
->   create mode 100644 drivers/watchdog/bd70528_wdt.c
+>   drivers/watchdog/Kconfig      |  13 +++
+>   drivers/watchdog/Makefile     |   1 +
+>   drivers/watchdog/imx_sc_wdt.c | 210 ++++++++++++++++++++++++++++++++++++++++++
+>   3 files changed, 224 insertions(+)
+>   create mode 100644 drivers/watchdog/imx_sc_wdt.c
 > 
 > diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index 57f017d74a97..f30e3a3e886e 100644
+> index 65c3c42..5c5b8ba 100644
 > --- a/drivers/watchdog/Kconfig
 > +++ b/drivers/watchdog/Kconfig
-> @@ -90,6 +90,18 @@ config SOFT_WATCHDOG_PRETIMEOUT
->   	  watchdog. Be aware that governors might affect the watchdog because it
->   	  is purely software, e.g. the panic governor will stall it!
+> @@ -625,6 +625,19 @@ config IMX2_WDT
+>   	  To compile this driver as a module, choose M here: the
+>   	  module will be called imx2_wdt.
 >   
-> +config BD70528_WATCHDOG
-> +	tristate "ROHM BD70528 PMIC Watchdog"
-> +	depends on MFD_ROHM_BD70528
+> +config IMX_SC_WDT
+> +	tristate "IMX SC Watchdog"
+> +	depends on ARCH_MXC || COMPILE_TEST
 > +	select WATCHDOG_CORE
 > +	help
-> +	  Support for the watchdog in the ROHM BD70528 PMIC. Watchdog trigger
-> +	  cause system reset.
+> +	  This is the driver for the system controller watchdog
+> +	  on the NXP i.MX SoCs with system controller inside.
+> +	  If you have one of these processors and wish to have
+> +	  watchdog support enabled, say Y, otherwise say N.
 > +
-> +	  Say Y here to include support for the ROHM BD70528 watchdog.
-> +	  Alternatively say M to compile the driver as a module,
-> +	  which will be called bd70528_wdt.
+> +	  To compile this driver as a module, choose M here: the
+> +	  module will be called imx_sc_wdt.
 > +
->   config DA9052_WATCHDOG
->   	tristate "Dialog DA9052 Watchdog"
->   	depends on PMIC_DA9052 || COMPILE_TEST
+>   config UX500_WATCHDOG
+>   	tristate "ST-Ericsson Ux500 watchdog"
+>   	depends on MFD_DB8500_PRCMU
 > diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-> index a0917ef28e07..1ce87a3b1172 100644
+> index 4e78a8c..0c9da63 100644
 > --- a/drivers/watchdog/Makefile
 > +++ b/drivers/watchdog/Makefile
-> @@ -204,6 +204,7 @@ obj-$(CONFIG_WATCHDOG_SUN4V)		+= sun4v_wdt.o
->   obj-$(CONFIG_XEN_WDT) += xen_wdt.o
->   
->   # Architecture Independent
-> +obj-$(CONFIG_BD70528_WATCHDOG) += bd70528_wdt.o
->   obj-$(CONFIG_DA9052_WATCHDOG) += da9052_wdt.o
->   obj-$(CONFIG_DA9055_WATCHDOG) += da9055_wdt.o
->   obj-$(CONFIG_DA9062_WATCHDOG) += da9062_wdt.o
-> diff --git a/drivers/watchdog/bd70528_wdt.c b/drivers/watchdog/bd70528_wdt.c
+> @@ -68,6 +68,7 @@ obj-$(CONFIG_NUC900_WATCHDOG) += nuc900_wdt.o
+>   obj-$(CONFIG_TS4800_WATCHDOG) += ts4800_wdt.o
+>   obj-$(CONFIG_TS72XX_WATCHDOG) += ts72xx_wdt.o
+>   obj-$(CONFIG_IMX2_WDT) += imx2_wdt.o
+> +obj-$(CONFIG_IMX_SC_WDT) += imx_sc_wdt.o
+>   obj-$(CONFIG_UX500_WATCHDOG) += ux500_wdt.o
+>   obj-$(CONFIG_RETU_WATCHDOG) += retu_wdt.o
+>   obj-$(CONFIG_BCM2835_WDT) += bcm2835_wdt.o
+> diff --git a/drivers/watchdog/imx_sc_wdt.c b/drivers/watchdog/imx_sc_wdt.c
 > new file mode 100644
-> index 000000000000..c014c915932a
+> index 0000000..ae52e34
 > --- /dev/null
-> +++ b/drivers/watchdog/bd70528_wdt.c
-> @@ -0,0 +1,187 @@
-> +// SPDX-License-Identifier: GPL-2.0
-> +// Copyright (C) 2018 ROHM Semiconductors
-> +// ROHM BD70528MWV watchdog driver
+> +++ b/drivers/watchdog/imx_sc_wdt.c
+> @@ -0,0 +1,210 @@
+> +// SPDX-License-Identifier: GPL-2.0+
+> +/*
+> + * Copyright 2018-2019 NXP.
+> + */
 > +
-> +#include <linux/bcd.h>
+> +#include <linux/arm-smccc.h>
+> +#include <linux/io.h>
+> +#include <linux/init.h>
 > +#include <linux/kernel.h>
-> +#include <linux/mfd/rohm-bd70528.h>
 > +#include <linux/module.h>
+> +#include <linux/moduleparam.h>
 > +#include <linux/of.h>
 > +#include <linux/platform_device.h>
-> +#include <linux/regmap.h>
+> +#include <linux/reboot.h>
 > +#include <linux/watchdog.h>
 > +
+> +#define DEFAULT_TIMEOUT 60
 > +/*
-> + * Max time we can set is 1 hour, 59 minutes and 59 seconds
-> + * and Minimum time is 1 second
+> + * Software timer tick implemented in scfw side, support 10ms to 0xffffffff ms
+> + * in theory, but for normal case, 1s~128s is enough, you can change this max
+> + * value in case it's not enough.
 > + */
-> +#define WDT_MAX_MS	((2 * 60 * 60 - 1) * 1000)
-> +#define WDT_MIN_MS	1000
-> +#define DEFAULT_TIMEOUT	60
+> +#define MAX_TIMEOUT 128
 > +
-> +struct wdtbd70528 {
-> +	struct device *dev;
-> +	struct regmap *regmap;
-> +	struct rohm_regmap_dev *mfd;
-> +	struct watchdog_device wdt;
+> +#define IMX_SIP_TIMER			0xC2000002
+> +#define IMX_SIP_TIMER_START_WDOG		0x01
+> +#define IMX_SIP_TIMER_STOP_WDOG		0x02
+> +#define IMX_SIP_TIMER_SET_WDOG_ACT	0x03
+> +#define IMX_SIP_TIMER_PING_WDOG		0x04
+> +#define IMX_SIP_TIMER_SET_TIMEOUT_WDOG	0x05
+> +#define IMX_SIP_TIMER_GET_WDOG_STAT	0x06
+> +#define IMX_SIP_TIMER_SET_PRETIME_WDOG	0x07
+> +
+> +#define SC_TIMER_WDOG_ACTION_PARTITION	0
+> +
+> +static bool nowayout = WATCHDOG_NOWAYOUT;
+> +module_param(nowayout, bool, 0000);
+> +MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
+> +		 __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+> +
+> +static unsigned int timeout = DEFAULT_TIMEOUT;
+> +module_param(timeout, uint, 0000);
+> +MODULE_PARM_DESC(timeout, "Watchdog timeout in seconds (default="
+> +		 __MODULE_STRING(DEFAULT_TIMEOUT) ")");
+> +
+> +static struct watchdog_device imx_sc_wdd;
+> +
+> +static int imx_sc_wdt_ping(struct watchdog_device *wdog)
+> +{
+> +	struct arm_smccc_res res;
+> +
+> +	arm_smccc_smc(IMX_SIP_TIMER, IMX_SIP_TIMER_PING_WDOG,
+> +		      0, 0, 0, 0, 0, 0, &res);
+> +
+> +	return res.a0;
+> +}
+> +
+> +static int imx_sc_wdt_start(struct watchdog_device *wdog)
+> +{
+> +	struct arm_smccc_res res;
+> +
+> +	arm_smccc_smc(IMX_SIP_TIMER, IMX_SIP_TIMER_START_WDOG,
+> +		      0, 0, 0, 0, 0, 0, &res);
+> +	if (res.a0)
+> +		return res.a0;
+> +
+> +	arm_smccc_smc(IMX_SIP_TIMER, IMX_SIP_TIMER_SET_WDOG_ACT,
+> +		      SC_TIMER_WDOG_ACTION_PARTITION,
+> +		      0, 0, 0, 0, 0, &res);
+> +
+> +	return res.a0;
+> +}
+> +
+> +static int imx_sc_wdt_stop(struct watchdog_device *wdog)
+> +{
+> +	struct arm_smccc_res res;
+> +
+> +	arm_smccc_smc(IMX_SIP_TIMER, IMX_SIP_TIMER_STOP_WDOG,
+> +		      0, 0, 0, 0, 0, 0, &res);
+> +
+> +	return res.a0;
+> +}
+> +
+> +static int imx_sc_wdt_set_timeout(struct watchdog_device *wdog,
+> +				unsigned int timeout)
+> +{
+> +	struct arm_smccc_res res;
+> +
+> +	wdog->timeout = timeout;
+> +	arm_smccc_smc(IMX_SIP_TIMER, IMX_SIP_TIMER_SET_TIMEOUT_WDOG,
+> +		      timeout * 1000, 0, 0, 0, 0, 0, &res);
+> +
+> +	return res.a0;
+> +}
+> +
+> +static const struct watchdog_ops imx_sc_wdt_ops = {
+> +	.owner = THIS_MODULE,
+> +	.start = imx_sc_wdt_start,
+> +	.stop  = imx_sc_wdt_stop,
+> +	.ping  = imx_sc_wdt_ping,
+> +	.set_timeout = imx_sc_wdt_set_timeout,
 > +};
 > +
-> +static int bd70528_wdt_set_locked(struct wdtbd70528 *w, int enable)
-> +{
-> +	return bd70528_wdt_set(w->mfd, enable, NULL);
-> +}
-> +
-> +static int bd70528_wdt_change(struct wdtbd70528 *w, int enable)
-> +{
-> +	int ret;
-> +
-> +	bd70528_wdt_lock(w->mfd);
-> +	ret = bd70528_wdt_set_locked(w, enable);
-> +	bd70528_wdt_unlock(w->mfd);
-> +
-> +	return ret;
-> +}
-> +
-> +static int bd70528_wdt_start(struct watchdog_device *wdt)
-> +{
-> +	struct wdtbd70528 *w = watchdog_get_drvdata(wdt);
-> +
-> +	dev_dbg(w->dev, "WDT ping...\n");
-> +	return bd70528_wdt_change(w, 1);
-> +}
-> +
-> +static int bd70528_wdt_stop(struct watchdog_device *wdt)
-> +{
-> +	struct wdtbd70528 *w = watchdog_get_drvdata(wdt);
-> +
-> +	dev_dbg(w->dev, "WDT stopping...\n");
-> +	return bd70528_wdt_change(w, 0);
-> +}
-> +
-> +static int bd70528_wdt_set_timeout(struct watchdog_device *wdt,
-> +				    unsigned int timeout)
-> +{
-> +	unsigned int hours;
-> +	unsigned int minutes;
-> +	unsigned int seconds;
-> +	int ret;
-> +	struct wdtbd70528 *w = watchdog_get_drvdata(wdt);
-> +
-> +	seconds = timeout;
-> +	hours = timeout / (60 * 60);
-> +	/* Maximum timeout is 1h 59m 59s => hours is 1 or 0 */
-> +	if (hours)
-> +		seconds -= (60 * 60);
-> +	minutes = seconds / 60;
-> +	seconds = seconds % 60;
-> +
-> +	bd70528_wdt_lock(w->mfd);
-> +
-> +	ret = bd70528_wdt_set_locked(w, 0);
-> +	if (ret)
-> +		goto out_unlock;
-> +
-> +	ret = regmap_update_bits(w->regmap, BD70528_REG_WDT_HOUR,
-> +				 BD70528_MASK_WDT_HOUR, hours);
-> +	if (ret) {
-> +		dev_err(w->dev, "Failed to set WDT hours\n");
-> +		goto out_en_unlock;
-> +	}
-> +	ret = regmap_update_bits(w->regmap, BD70528_REG_WDT_MINUTE,
-> +				 BD70528_MASK_WDT_MINUTE, bin2bcd(minutes));
-> +	if (ret) {
-> +		dev_err(w->dev, "Failed to set WDT minutes\n");
-> +		goto out_en_unlock;
-> +	}
-> +	ret = regmap_update_bits(w->regmap, BD70528_REG_WDT_SEC,
-> +				 BD70528_MASK_WDT_SEC, bin2bcd(seconds));
-> +	if (ret)
-> +		dev_err(w->dev, "Failed to set WDT seconds\n");
-> +	else
-> +		dev_dbg(w->dev, "WDT tmo set to %u\n", timeout);
-> +
-> +out_en_unlock:
-> +	ret = bd70528_wdt_set_locked(w, 1);
-> +out_unlock:
-> +	bd70528_wdt_unlock(w->mfd);
-> +
-> +	return ret;
-> +}
-> +
-> +static const struct watchdog_info bd70528_wdt_info = {
-> +	.identity = "bd70528-wdt",
-> +	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
+> +static const struct watchdog_info imx_sc_wdt_info = {
+> +	.identity	= "i.MX SC watchdog timer",
+> +	.options	= WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING |
+> +			  WDIOF_MAGICCLOSE | WDIOF_PRETIMEOUT,
 > +};
 > +
-> +static const struct watchdog_ops bd70528_wdt_ops = {
-> +	.start		= bd70528_wdt_start,
-> +	.stop		= bd70528_wdt_stop,
-> +	.set_timeout	= bd70528_wdt_set_timeout,
-> +};
-> +
-> +static int bd70528_wdt_probe(struct platform_device *pdev)
+> +#ifdef CONFIG_PM_SLEEP
+> +static int imx_sc_wdt_suspend(struct device *dev)
 > +{
-> +	struct rohm_regmap_dev *bd70528;
-> +	struct wdtbd70528 *w;
-> +	int ret;
-> +	unsigned int reg;
+> +	if (test_bit(WDOG_ACTIVE, &imx_sc_wdd.status))
+> +		imx_sc_wdt_stop(&imx_sc_wdd);
 > +
-> +	bd70528 = dev_get_drvdata(pdev->dev.parent);
-> +	if (!bd70528) {
-> +		dev_err(&pdev->dev, "No MFD driver data\n");
-> +		return -EINVAL;
-> +	}
-> +	w = devm_kzalloc(&pdev->dev, sizeof(*w), GFP_KERNEL);
-> +	if (!w)
-> +		return -ENOMEM;
-> +
-> +	w->regmap = bd70528->regmap;
-> +	w->mfd = bd70528;
-> +	w->dev = &pdev->dev;
-> +
-> +	w->wdt.info = &bd70528_wdt_info;
-> +	w->wdt.ops =  &bd70528_wdt_ops;
-> +	w->wdt.min_hw_heartbeat_ms = WDT_MIN_MS;
-> +	w->wdt.max_hw_heartbeat_ms = WDT_MAX_MS;
-> +	w->wdt.parent = pdev->dev.parent;
-> +	w->wdt.timeout = DEFAULT_TIMEOUT;
-> +	watchdog_set_drvdata(&w->wdt, w);
-> +	watchdog_init_timeout(&w->wdt, 0, pdev->dev.parent);
-> +
-> +	ret = bd70528_wdt_set_timeout(&w->wdt, w->wdt.timeout);
-> +	if (ret) {
-> +		dev_err(&pdev->dev, "Failed to set the watchdog timeout\n");
-> +		return ret;
-> +	}
-> +
-> +	bd70528_wdt_lock(w->mfd);
-> +	ret = regmap_read(w->regmap, BD70528_REG_WDT_CTRL, &reg);
-> +	bd70528_wdt_unlock(w->mfd);
-> +
-> +	if (ret) {
-> +		dev_err(&pdev->dev, "Failed to get the watchdog state\n");
-> +		return ret;
-> +	}
-> +	if (reg & BD70528_MASK_WDT_EN) {
-> +		dev_dbg(&pdev->dev, "watchdog was running during probe\n");
-> +		set_bit(WDOG_HW_RUNNING, &w->wdt.status);
-> +	}
-> +
-> +	ret = devm_watchdog_register_device(&pdev->dev, &w->wdt);
-> +	if (ret < 0)
-> +		dev_err(&pdev->dev, "watchdog registration failed: %d\n", ret);
-> +
-> +	return ret;
-> +}
-> +static struct platform_driver bd70528_wdt = {
-> +	.driver = {
-> +		.name = "bd70528-wdt"
-> +	},
-> +	.probe = bd70528_wdt_probe,
-> +};
-> +
-> +module_platform_driver(bd70528_wdt);
-> +
-> +MODULE_AUTHOR("Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>");
-> +MODULE_DESCRIPTION("BD70528 watchdog driver");
-> +MODULE_LICENSE("GPL");
-> 
 
+What is wrong with watchdog_active() ? It is used below ?
+
+> +	return 0;
+> +}
+> +
+> +static int imx_sc_wdt_resume(struct device *dev)
+> +{
+> +	if (test_bit(WDOG_ACTIVE, &imx_sc_wdd.status))
+> +		imx_sc_wdt_start(&imx_sc_wdd);
+> +
+> +	return 0;
+> +}
+> +
+> +static const struct dev_pm_ops imx_sc_wdt_pm_ops = {
+> +	.suspend = imx_sc_wdt_suspend,
+> +	.resume = imx_sc_wdt_resume,
+> +};
+> +
+> +#define IMX_SC_WDT_PM_OPS	(&imx_sc_wdt_pm_ops)
+> +
+> +#else
+> +
+> +#define IMX_SC_WDT_PM_OPS	NULL
+> +
+> +#endif
+> +
+> +static int imx_sc_wdt_probe(struct platform_device *pdev)
+> +{
+> +	struct watchdog_device *wdt = &imx_sc_wdd;
+
+Please use devm_kzalloc() and drop the static variable. You can use
+dev_get_drvdata() to access it where needed.
+
+> +	int err;
+> +
+> +	platform_set_drvdata(pdev, wdt);
+> +
+> +	wdt->info = &imx_sc_wdt_info;
+> +	wdt->ops = &imx_sc_wdt_ops;
+> +	wdt->min_timeout = 1;
+> +	wdt->max_timeout = MAX_TIMEOUT;
+> +	wdt->parent = &pdev->dev;
+> +	watchdog_set_drvdata(wdt, NULL);
+> +
+This is quite pointless.
+
+> +	err = watchdog_init_timeout(wdt, DEFAULT_TIMEOUT, &pdev->dev);
+> +	if (err) {
+> +		dev_err(&pdev->dev, "Failed to init the wdog timeout:%d\n",
+> +			err);
+> +		return err;
+> +	}
+> +
+> +	err = watchdog_register_device(wdt);
+> +	if (err) {
+> +		dev_err(&pdev->dev, "Failed to register watchdog device\n");
+> +		return err;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static int imx_sc_wdt_remove(struct platform_device *pdev)
+> +{
+> +	struct watchdog_device *wdt = platform_get_drvdata(pdev);
+> +
+> +	imx_sc_wdt_stop(wdt);
+
+Any reason for not using watchdog_stop_on_unregister() ?
+
+> +
+> +	watchdog_unregister_device(wdt);
+> +
+> +	return 0;
+> +}
+> +
+> +static void imx_sc_wdt_shutdown(struct platform_device *pdev)
+> +{
+> +	struct watchdog_device *wdt = platform_get_drvdata(pdev);
+> +
+> +	if (watchdog_active(wdt))
+> +		imx_sc_wdt_stop(wdt);
+> +}
+> +
+Any reason for not using watchdog_stop_on_reboot() ?
+
+> +static const struct of_device_id imx_sc_wdt_dt_ids[] = {
+> +	{ .compatible = "fsl,imx8qxp-sc-wdt", },
+> +	{ /*sentinel */ }
+> +};
+> +MODULE_DEVICE_TABLE(of, imx_sc_wdt_dt_ids);
+> +
+> +static struct platform_driver imx_sc_wdt_driver = {
+> +	.probe		= imx_sc_wdt_probe,
+> +	.remove		= imx_sc_wdt_remove,
+> +	.shutdown	= imx_sc_wdt_shutdown,
+> +	.driver		= {
+> +		.name	= "imx-sc-wdt",
+> +		.of_match_table = imx_sc_wdt_dt_ids,
+> +		.pm	= IMX_SC_WDT_PM_OPS,
+
+I prefer the use of SIMPLE_DEV_PM_OPS() together with
+__maybe_unused for the pm functions instead of #ifdef.
+This ensures that the unused code compiles even if PM_SLEEP
+is not enabled.
+
+Thanks,
+Guenter
