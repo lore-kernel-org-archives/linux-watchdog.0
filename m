@@ -7,34 +7,34 @@ X-Spam-Status: No, score=-9.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C5F76C10F07
-	for <linux-watchdog@archiver.kernel.org>; Mon, 18 Feb 2019 02:02:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 34562C10F09
+	for <linux-watchdog@archiver.kernel.org>; Mon, 18 Feb 2019 02:02:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 86B27218D8
-	for <linux-watchdog@archiver.kernel.org>; Mon, 18 Feb 2019 02:02:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EA49E218C3
+	for <linux-watchdog@archiver.kernel.org>; Mon, 18 Feb 2019 02:02:21 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=nxp.com header.i=@nxp.com header.b="tlX/7CXu"
+	dkim=pass (1024-bit key) header.d=nxp.com header.i=@nxp.com header.b="wkp+lLm8"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728238AbfBRCCE (ORCPT
+        id S1728276AbfBRCCQ (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sun, 17 Feb 2019 21:02:04 -0500
+        Sun, 17 Feb 2019 21:02:16 -0500
 Received: from mail-eopbgr80079.outbound.protection.outlook.com ([40.107.8.79]:55457
         "EHLO EUR04-VI1-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1728206AbfBRCCD (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 17 Feb 2019 21:02:03 -0500
+        id S1727873AbfBRCB7 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Sun, 17 Feb 2019 21:01:59 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=BiGaM5YKyHD5ZZNwpj8ttfuA8x55jKBMPFvp8LNvpag=;
- b=tlX/7CXuC8XW/c/D4Hqyu0mbVQlYBqX953vWmmzKFfQBoLoVYusQafnpqi+UnFin76mZS69NfPsfMmMveu68JQNsp1tgsoh6UQpunErR9Pa9xfh3Y5xHgzPDmYv/hW9liQiIDtwYPF34iiTC9Wn2Ube1bIqNCpliPkKQeCE2LFM=
+ bh=SQ7KBQRzG1pkCz+hQKnSbVHy2xbhBdBCBt48ommeQUU=;
+ b=wkp+lLm8Vw1ph6cSNtgcYwoGL0gq3jfbU55dLHXVZXfB+IXckxMuOYWQHUtdBAyRvp0mOV96fVKMgI4CvULW+g15BuHzC74F4qHZB2NetGHcNyVJfNfQYDQOapivS6s+F5LtvKqmIJ7scdr6gckjbrgh0JxfnzxyZqGdqCdiJY4=
 Received: from DB3PR0402MB3916.eurprd04.prod.outlook.com (52.134.72.18) by
  DB3PR0402MB3900.eurprd04.prod.outlook.com (52.134.71.14) with Microsoft SMTP
  Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.1601.17; Mon, 18 Feb 2019 02:01:37 +0000
+ 15.20.1601.17; Mon, 18 Feb 2019 02:01:20 +0000
 Received: from DB3PR0402MB3916.eurprd04.prod.outlook.com
  ([fe80::14e8:6d2e:fe21:4fd5]) by DB3PR0402MB3916.eurprd04.prod.outlook.com
  ([fe80::14e8:6d2e:fe21:4fd5%3]) with mapi id 15.20.1601.023; Mon, 18 Feb 2019
- 02:01:37 +0000
+ 02:01:20 +0000
 From:   Anson Huang <anson.huang@nxp.com>
 To:     "robh+dt@kernel.org" <robh+dt@kernel.org>,
         "mark.rutland@arm.com" <mark.rutland@arm.com>,
@@ -64,13 +64,11 @@ To:     "robh+dt@kernel.org" <robh+dt@kernel.org>,
         <linux-arm-kernel@lists.infradead.org>,
         "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
 CC:     dl-linux-imx <linux-imx@nxp.com>
-Subject: [PATCH V2 3/4] arm64: defconfig: add support for i.MX system
- controller watchdog
-Thread-Topic: [PATCH V2 3/4] arm64: defconfig: add support for i.MX system
- controller watchdog
-Thread-Index: AQHUxy3hUWZIuz2mrE2cLc3JYu3FGA==
-Date:   Mon, 18 Feb 2019 02:01:37 +0000
-Message-ID: <1550454997-4398-4-git-send-email-Anson.Huang@nxp.com>
+Subject: [PATCH V2 1/4] dt-bindings: fsl: scu: add watchdog binding
+Thread-Topic: [PATCH V2 1/4] dt-bindings: fsl: scu: add watchdog binding
+Thread-Index: AQHUxy3XB0HTxyCzNkOieuLhEA6Imw==
+Date:   Mon, 18 Feb 2019 02:01:19 +0000
+Message-ID: <1550454997-4398-2-git-send-email-Anson.Huang@nxp.com>
 References: <1550454997-4398-1-git-send-email-Anson.Huang@nxp.com>
 In-Reply-To: <1550454997-4398-1-git-send-email-Anson.Huang@nxp.com>
 Accept-Language: en-US
@@ -86,47 +84,48 @@ authentication-results: spf=none (sender IP is )
 x-ms-exchange-messagesentrepresentingtype: 1
 x-originating-ip: [119.31.174.66]
 x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: c7826d84-bb62-4a21-7d03-08d6954503f2
+x-ms-office365-filtering-correlation-id: fe3d3c72-d972-4eb7-c650-08d69544f975
 x-ms-office365-filtering-ht: Tenant
 x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600110)(711020)(4605104)(4618075)(2017052603328)(7153060)(7193020);SRVR:DB3PR0402MB3900;
 x-ms-traffictypediagnostic: DB3PR0402MB3900:
+x-ms-exchange-purlcount: 1
 x-ld-processed: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635,ExtAddr
-x-microsoft-exchange-diagnostics: =?iso-8859-1?Q?1;DB3PR0402MB3900;23:Kv2oF+VBsO3wLoNW0zQDoNMM/KHtUoly+MP2p?=
- =?iso-8859-1?Q?yAe+WQkrKB3akRhGe+rCbzMCv5rOQPozoRpy7FwzW025rssdqBoW3ltOZZ?=
- =?iso-8859-1?Q?xgcBuonsv9pCU0YhIvQvAP7jq06IAy3ZWz+2OaxPr7ltCkYmNKn9M53b3Q?=
- =?iso-8859-1?Q?V4ZKpkNa+t1YSdNJ18vudDOuXwECjWtQSp2WtjOxpy77Oyr1181leTqX40?=
- =?iso-8859-1?Q?rI972L26HCxlOVs0eQsijDVYgByMc5sKwck8nLYuQG09ZjrHZMOTWRCmWS?=
- =?iso-8859-1?Q?RCsJr7CyzZbcnMsKVivlVs8UzIV/yqE9d1+jjIaCwoJhTYj9ZuFAJPWZ1+?=
- =?iso-8859-1?Q?xLcpcCeuGzPBnnDRjabNwb3DKWCo+QjVheGF+bS1LEnlmnPOBJCxvcJtU1?=
- =?iso-8859-1?Q?dmJmClkJ+hFDpHk+ARz8Ip6g9ouxkZ8oVEbwiGINmwpFaBObNDmhfUPKNy?=
- =?iso-8859-1?Q?XUs2ReWk8ZEe8qeOpZ1vtDymM5qvy+5/DGaxIEmV2o1+M1tFNUCrY2Za20?=
- =?iso-8859-1?Q?OdPh8y4jqQ+mVxmthJ1Tq8aOwyD/jW6ktuDVXuak6yL68GHwiGEXsZoWjW?=
- =?iso-8859-1?Q?OH2AWICbMkkTv+qHQOkNQ8Tc2qQhGoI8srMUCD8e4Q+DryNVkA6VZBN3cD?=
- =?iso-8859-1?Q?90qOSOUtm2oz4lwO1t60bHwgEBDH1x6PCZ+02mE6KC9bkdx5wEO1+nnLjI?=
- =?iso-8859-1?Q?GhU+eH64YCJ4gKAR4PK1IowAohYtAekShwmNgp+PSrr4Cyj/6srgxrwtwq?=
- =?iso-8859-1?Q?x2cjvc475UQJfnYOM9J2DkfOh78x5MviJwajw72Xmmh60duWPx0M4Qsz7v?=
- =?iso-8859-1?Q?eilte0bQ9hexkqLOhrwQxZWmjbBPwGOZk25gMzSZa613QiqTKBg1rnz+dS?=
- =?iso-8859-1?Q?rH9Chc3O8M6Bf6uVN0vLnC9O7Ouwhs02mmjxAglaztOYwUz/vghtLBbhG5?=
- =?iso-8859-1?Q?ctOdHXNuuimaagkFj+I8AZfi+aag2UE2ENyk1V8TQONdKNgQGVky39kKEG?=
- =?iso-8859-1?Q?cvIJYphr7EUVdEB+lRifaufmB892dUGKxr3SjhzvJ7Qd+2yKdcPl6uI4+W?=
- =?iso-8859-1?Q?n+SUNGjLLkuR6MPUjgpnIOfn66PpBMMYEE3nUNXMk7Uvk7+keJncYECzhw?=
- =?iso-8859-1?Q?XVHEbUQwkSgNwiw3TmcohDI2U81ik/x2MDkybVMdpq+cAr0abu97NDlOxH?=
- =?iso-8859-1?Q?5I/iA+v+zq6rYM807k67QldjX2R87NkfK4VLeQgR/6Tmo4AobclQU0ekpU?=
- =?iso-8859-1?Q?QxP1Hj5TODwnQFbKxKNSnrKGWm1RfEdlS1OACBTwdmfArMRIaKde+fr6jD?=
- =?iso-8859-1?Q?hv7c=3D?=
-x-microsoft-antispam-prvs: <DB3PR0402MB3900E7109BC3747754E687B2F5630@DB3PR0402MB3900.eurprd04.prod.outlook.com>
+x-microsoft-exchange-diagnostics: =?iso-8859-1?Q?1;DB3PR0402MB3900;23:+yqbDc2AfVyL5JURXjkfR8RQlgbUHTrluKGM+?=
+ =?iso-8859-1?Q?uMAg3cFe9QghHZaPKTUHYVXDGtzzciulFawlgBOtTQAfS5Ji3bbFUPZyja?=
+ =?iso-8859-1?Q?KsE9RDjmbJG49xqVYk/NM62NpDS3L21Z4r9DBrdsFYmGK/LxxVsOXv2xji?=
+ =?iso-8859-1?Q?G9NlgRWk5864WZdMpDbOhgwWgXM8Y5isJ9L3s6CA/pwsYMc4zU6miL0A+r?=
+ =?iso-8859-1?Q?+yFnOKTv3IKbki4jCLfmSHQR55w+ti8SGinDsUFjtzSymr8X5Eao+X2BkP?=
+ =?iso-8859-1?Q?pIvfJMLrf9ZXayoruC7uag2QgzTPXpBx8ryxd/vyF3RdJV1Ugc+rdUJ78Y?=
+ =?iso-8859-1?Q?+i0v8IIWlyDJlfgKjnWsRaKrKmnN3NqDLWNSe6LK+tJKaHOdPuw7lYnlE9?=
+ =?iso-8859-1?Q?T6eHxolR143X9pBwO/aBSw25QWyt5Bv5GMf/MyiMGOtp1158hA1oKnADnv?=
+ =?iso-8859-1?Q?2b269xp5Pm85icTTRaRlb5+px8j6E52T/hTFjWj/bEEMInMyVC5t+T7aDK?=
+ =?iso-8859-1?Q?it0/mJ4k+GyizdREn7CxoT2GQTaf1S20ekKb7HyomlUzG7y1lcgBQ7R7vR?=
+ =?iso-8859-1?Q?NTNouh92Rs0OPPtDWtzASjuyMdYJZ4qV/nqqX9ldW3wNuXXEcJfYGAk2jy?=
+ =?iso-8859-1?Q?yBj8h+59PtUZGtcC9pQ35Fzjww611oW9lxg/5NcVJBsTxQsa+wFzQ0WE/s?=
+ =?iso-8859-1?Q?TkLGnmhQTMzr5lESGbPyf6s/271W1bgHhCa+9j5lurmPReOHA4lYIPG256?=
+ =?iso-8859-1?Q?s/efOlw7PgK0xGnIdNEoWRn4zfBqjmKq9r0H8pp3n2LuEqRmoWEz9TQrWV?=
+ =?iso-8859-1?Q?Az67wJVnLP3vhAAfxtnoIzos3b4ji36Cgn1TybLDeIbNj84aDvOXA4J0Mh?=
+ =?iso-8859-1?Q?UntKgyzv9hVd/2xB/gNRLMuAKlxyN1js4IWjzVyx/2qKLMcXnZ9pYCIhBm?=
+ =?iso-8859-1?Q?qU7MUNFrJAkd9pNGEZso/poioDjGIeBObn94EMguOFi3Q94z1yeLWU8d2x?=
+ =?iso-8859-1?Q?F6OGkdeuAXPsb3JLHjWd6r3fbtPRA+OCF0rqLXLM8uajZicTPORTkATzUS?=
+ =?iso-8859-1?Q?pnLlRrCBi3fXvGG67TLS/jh6vyp705+XtgwzyN9Ij5h21H/81rANghlykQ?=
+ =?iso-8859-1?Q?keBNb+YS1O4dalPvEMEK709pYrwRE8lVotODKsphenVtMo+l9qVWlHGUEr?=
+ =?iso-8859-1?Q?Qto9Y0dzSAEPk/UF5mhazP4z8EWwoNOAcGSxoLRdPG/aaDuxIl8WEnip9y?=
+ =?iso-8859-1?Q?8MhERfFf0RoWKZ07lvOgmwUbkkHnnnaGF/XI65CKQXP2vDw4EeKNNOYcp7?=
+ =?iso-8859-1?Q?tupSEf5AXDhu7eIkt7w6UAWrWo9SyOUBm8U2wtCIjVoVnkg=3D=3D?=
+x-microsoft-antispam-prvs: <DB3PR0402MB3900F95CDF78AA7D0F81ED95F5630@DB3PR0402MB3900.eurprd04.prod.outlook.com>
 x-forefront-prvs: 09525C61DB
-x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(346002)(136003)(39860400002)(376002)(396003)(366004)(189003)(199004)(7416002)(66066001)(81166006)(81156014)(8676002)(446003)(6512007)(11346002)(25786009)(3846002)(2501003)(8936002)(476003)(6116002)(2616005)(50226002)(68736007)(14454004)(478600001)(2906002)(2201001)(105586002)(6486002)(106356001)(110136005)(71190400001)(186003)(52116002)(76176011)(5660300002)(6436002)(36756003)(486006)(256004)(386003)(26005)(71200400001)(102836004)(99286004)(7736002)(53936002)(4326008)(305945005)(97736004)(86362001)(316002)(6506007)(921003)(1121003);DIR:OUT;SFP:1101;SCL:1;SRVR:DB3PR0402MB3900;H:DB3PR0402MB3916.eurprd04.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
+x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(346002)(136003)(39860400002)(376002)(396003)(366004)(189003)(199004)(6306002)(7416002)(66066001)(81166006)(81156014)(8676002)(446003)(6512007)(11346002)(25786009)(3846002)(2501003)(8936002)(476003)(6116002)(2616005)(50226002)(68736007)(14454004)(478600001)(2906002)(2201001)(105586002)(6486002)(106356001)(110136005)(71190400001)(186003)(52116002)(966005)(76176011)(5660300002)(6436002)(36756003)(486006)(256004)(386003)(26005)(71200400001)(102836004)(99286004)(7736002)(53936002)(4326008)(305945005)(97736004)(86362001)(316002)(6506007)(921003)(1121003);DIR:OUT;SFP:1101;SCL:1;SRVR:DB3PR0402MB3900;H:DB3PR0402MB3916.eurprd04.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
 received-spf: None (protection.outlook.com: nxp.com does not designate
  permitted sender hosts)
 x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam-message-info: UN61+SYR4Aq1PIADjt8vjUUgRsAYumUBtRChGuKI0Sk67tUMJlvPlua/ol6HX3HVFj6i7gI3tqUX3of7iAJ1jqXzC5g2nySrIXRwAZXksvxhvClI6fB/yXzCUFXqUllGE/BkynuGq47tLOc6P66sfQfFGBCTULPa9XPXyzIsqls1J7x/LiYOfKRqKg3fsv1zOyig5nEqrF9xmWY0wA0sBmRnPPNI/sMdJbFG6hHdmPJ61HtxZ/lRUIS7yt1isz3RBJQ68yj9i/zxLoSudWQiOxW+a9Aj6uCl4L4t+1MnnV/LqpbVfNRgAuypbqOh9Kjy9hkl3APCw086IeWsoUYZfL0fZOAInzxA76C2OHnao5YAYCS+J3Y9qcJpaOxAa8RzaECq4BFcuv1BHrS0Db7X45AsGu2ruQ90oLJPeUU8LIc=
+x-microsoft-antispam-message-info: FVjjdmL48xuH+DPQnUO9tW6l/Ufr5AbJ9kM72LAEAu4RE+bMInkhNnF6GrhSx089DPHCtewL+0yDq3SAXKDfBaud2RbeEak/SZj8sLVPTAL+KvJxni9Z+KEptJylpb+mWt8yLMwqzZvU09zNFuscietBCukLMqHSVA06hqi0/0EmYy6z6g9yKk6/SR1VNjm8ne7fdecoiU9LqMQrCHqXkfVzC9r/HL0X1MQZGpSbWfji+82f6auKH5gGFzGQWhbahFmAtVeDTWJeGU6I67lxOD3jvt2LBZZLAshd+r/xKJz2VZjNVTDjEuRnSBGjd2vWDTSqAGSLsrSXw1RBirO3I8vCD6D+og0a1nbMpsQ86/uTJgRt2NG+4Maud7Wz5XURqQVqspnYva/YBhRFrCqRakU69ky1TB4KFt2HCRMMqHM=
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
 X-OriginatorOrg: nxp.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: c7826d84-bb62-4a21-7d03-08d6954503f2
-X-MS-Exchange-CrossTenant-originalarrivaltime: 18 Feb 2019 02:01:28.8980
+X-MS-Exchange-CrossTenant-Network-Message-Id: fe3d3c72-d972-4eb7-c650-08d69544f975
+X-MS-Exchange-CrossTenant-originalarrivaltime: 18 Feb 2019 02:01:11.5086
  (UTC)
 X-MS-Exchange-CrossTenant-fromentityheader: Hosted
 X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
@@ -137,26 +136,46 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Enable CONFIG_IMX_SC_WDT as module to support i.MX system
-controller watchdog.
+Add i.MX8QXP system controller watchdog binding.
 
 Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
 ---
- arch/arm64/configs/defconfig | 1 +
- 1 file changed, 1 insertion(+)
+Note: this patch is based on my thermal patch series: https://patchwork.ker=
+nel.org/patch/10800699/
+---
+ Documentation/devicetree/bindings/arm/freescale/fsl,scu.txt | 10 +++++++++=
++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/arch/arm64/configs/defconfig b/arch/arm64/configs/defconfig
-index 2d9c390..690f4ba 100644
---- a/arch/arm64/configs/defconfig
-+++ b/arch/arm64/configs/defconfig
-@@ -427,6 +427,7 @@ CONFIG_WATCHDOG=3Dy
- CONFIG_ARM_SP805_WATCHDOG=3Dy
- CONFIG_S3C2410_WATCHDOG=3Dy
- CONFIG_IMX2_WDT=3Dy
-+CONFIG_IMX_SC_WDT=3Dm
- CONFIG_MESON_GXBB_WATCHDOG=3Dm
- CONFIG_MESON_WATCHDOG=3Dm
- CONFIG_RENESAS_WDT=3Dy
+diff --git a/Documentation/devicetree/bindings/arm/freescale/fsl,scu.txt b/=
+Documentation/devicetree/bindings/arm/freescale/fsl,scu.txt
+index 4b79751..f388ec6 100644
+--- a/Documentation/devicetree/bindings/arm/freescale/fsl,scu.txt
++++ b/Documentation/devicetree/bindings/arm/freescale/fsl,scu.txt
+@@ -136,6 +136,12 @@ Required properties:
+ 			   resource id for thermal driver to get temperature via
+ 			   SCU IPC.
+=20
++Watchdog bindings based on SCU Message Protocol
++------------------------------------------------------------
++
++Required properties:
++- compatible: should be "fsl,imx8qxp-sc-wdt";
++
+ Example (imx8qxp):
+ -------------
+ lsio_mu1: mailbox@5d1c0000 {
+@@ -188,6 +194,10 @@ firmware {
+ 			tsens-num =3D <1>;
+ 			#thermal-sensor-cells =3D <1>;
+ 		};
++
++		watchdog: watchdog {
++			compatible =3D "fsl,imx8qxp-sc-wdt";
++		};
+ 	};
+ };
+=20
 --=20
 2.7.4
 
