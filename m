@@ -2,517 +2,151 @@ Return-Path: <SRS0=tGrw=QZ=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 82561C43381
-	for <linux-watchdog@archiver.kernel.org>; Mon, 18 Feb 2019 16:26:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 84BFCC43381
+	for <linux-watchdog@archiver.kernel.org>; Mon, 18 Feb 2019 18:38:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 3DD902173C
-	for <linux-watchdog@archiver.kernel.org>; Mon, 18 Feb 2019 16:26:04 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="md8FNUpJ"
+	by mail.kernel.org (Postfix) with ESMTP id 5822E21773
+	for <linux-watchdog@archiver.kernel.org>; Mon, 18 Feb 2019 18:38:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732044AbfBRQ0E (ORCPT
+        id S1726147AbfBRSih (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 18 Feb 2019 11:26:04 -0500
-Received: from mail-pl1-f193.google.com ([209.85.214.193]:38021 "EHLO
-        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731218AbfBRQ0D (ORCPT
+        Mon, 18 Feb 2019 13:38:37 -0500
+Received: from gateway22.websitewelcome.com ([192.185.47.144]:15691 "EHLO
+        gateway22.websitewelcome.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725822AbfBRSih (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 18 Feb 2019 11:26:03 -0500
-Received: by mail-pl1-f193.google.com with SMTP id e5so8962236plb.5;
-        Mon, 18 Feb 2019 08:26:03 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=x8TFy+6CeEV92QUiffumvSXQli6P1gFziWyVNzjHXTc=;
-        b=md8FNUpJ+RiUSXe+CarxAjFBL8w32q1vVibcJLF+VcjpCsUzKpNEm6N+Rq5WsH0suF
-         kY5v8mFPhodS8Ba926EwnErXGTppl5siSz87nLdSEPnoD096r4s3k4kuxU2AEQM4kQyx
-         xBcFfVknf+RTcXvNxdmTKRP/NWZ8FHrpOkv4uu4IRRTiVnmK6JVaFQzrQXHdaXTZfjm7
-         NYbo2JhslzCwZvg4kt0Rnw8u9+nOIJ2IRHvuzs0yXjAi2CEYZ+ReilSy6aSi17uQ1z0y
-         ggnpxJ49ZdXhkV2mhGI45UTi32ZqY6n4xfmo4OMPtKuNbfkofnuKkpsM6FrbSYvad263
-         MfAA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
-         :date:user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=x8TFy+6CeEV92QUiffumvSXQli6P1gFziWyVNzjHXTc=;
-        b=tRDQtrngvax9dJvDLExcuuIQ6T+MA1l/u7Jsu/PEQAEHEwloVIYyQCChkHP+drtGgP
-         tQ0tN74/8mCVher6T4HpmMeabNwu/amSw2kLSchTipqr/15j+j27I7NWIqCn77qEnbng
-         JjOkezfLott5JHMHkMgJZtXyfNqkpXegDpCqJhdjEzL+n8Ri3R7IMYknI8pA1j7SM26G
-         n7yx0cHRAWKX0PKBq4MwNbxuu7PvVgiqfE7oyqQard0UahJl4TbjHiyVy/EUa3eVyU+A
-         qeZx1v+36YPjTsMY2Yu0DJDTfBBnpaLU8NuEUKvUIUZU79EfnQQ5vcO4Sdawtqr5vlU2
-         zcFw==
-X-Gm-Message-State: AHQUAuZoUkYCZUJP9nTxEUenV9hPylwXGmoHQqXyZSfuXxSpk3rDjn7a
-        hYymAgz65jKFzYTwOZuf0l103lAN
-X-Google-Smtp-Source: AHgI3IYAWR+uu3W60oA8h/7OL+lVyo+GT7C6PE2JbPi53s9Eln7Z4/Y06mgVMO7dA/Am7bHx/6yUnw==
-X-Received: by 2002:a17:902:724c:: with SMTP id c12mr16379535pll.110.1550507162656;
-        Mon, 18 Feb 2019 08:26:02 -0800 (PST)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id a4sm5314150pga.52.2019.02.18.08.26.01
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 18 Feb 2019 08:26:02 -0800 (PST)
-Subject: Re: [PATCH v2 2/3] watchdog: mlx-wdt: introduce watchdog driver for
- Mellanox systems.
-To:     michaelsh@mellanox.com, wim@linux-watchdog.org, andy@infradead.org,
-        dvhart@infradead.org
-Cc:     linux-watchdog@vger.kernel.org,
-        platform-driver-x86@vger.kernel.org, vadimp@mellanox.com
-References: <20190207211053.10766-1-michaelsh@mellanox.com>
- <20190207211053.10766-3-michaelsh@mellanox.com>
-From:   Guenter Roeck <linux@roeck-us.net>
-Message-ID: <92fff89b-7ea0-4ca1-730a-782696a453bd@roeck-us.net>
-Date:   Mon, 18 Feb 2019 08:26:00 -0800
+        Mon, 18 Feb 2019 13:38:37 -0500
+X-Greylist: delayed 1499 seconds by postgrey-1.27 at vger.kernel.org; Mon, 18 Feb 2019 13:38:36 EST
+Received: from cm11.websitewelcome.com (cm11.websitewelcome.com [100.42.49.5])
+        by gateway22.websitewelcome.com (Postfix) with ESMTP id 3DF78BE46
+        for <linux-watchdog@vger.kernel.org>; Mon, 18 Feb 2019 11:50:30 -0600 (CST)
+Received: from gator4166.hostgator.com ([108.167.133.22])
+        by cmsmtp with SMTP
+        id vn3mgPedTdnCevn3mgNdzG; Mon, 18 Feb 2019 11:50:30 -0600
+X-Authority-Reason: nr=8
+Received: from [189.250.119.20] (port=34682 helo=[192.168.1.76])
+        by gator4166.hostgator.com with esmtpsa (TLSv1.2:ECDHE-RSA-AES128-GCM-SHA256:128)
+        (Exim 4.91)
+        (envelope-from <gustavo@embeddedor.com>)
+        id 1gvn3l-004MnZ-Ry; Mon, 18 Feb 2019 11:50:29 -0600
+Subject: Re: [PATCH] watchdog: pc87413: Mark expected switch fall-through
+To:     Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>
+Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Kees Cook <keescook@chromium.org>
+References: <20190214202618.GA18658@embeddedor>
+ <d7065d30-d56b-1b76-cfc6-e209aadc61c0@roeck-us.net>
+From:   "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Openpgp: preference=signencrypt
+Autocrypt: addr=gustavo@embeddedor.com; keydata=
+ mQINBFssHAwBEADIy3ZoPq3z5UpsUknd2v+IQud4TMJnJLTeXgTf4biSDSrXn73JQgsISBwG
+ 2Pm4wnOyEgYUyJd5tRWcIbsURAgei918mck3tugT7AQiTUN3/5aAzqe/4ApDUC+uWNkpNnSV
+ tjOx1hBpla0ifywy4bvFobwSh5/I3qohxDx+c1obd8Bp/B/iaOtnq0inli/8rlvKO9hp6Z4e
+ DXL3PlD0QsLSc27AkwzLEc/D3ZaqBq7ItvT9Pyg0z3Q+2dtLF00f9+663HVC2EUgP25J3xDd
+ 496SIeYDTkEgbJ7WYR0HYm9uirSET3lDqOVh1xPqoy+U9zTtuA9NQHVGk+hPcoazSqEtLGBk
+ YE2mm2wzX5q2uoyptseSNceJ+HE9L+z1KlWW63HhddgtRGhbP8pj42bKaUSrrfDUsicfeJf6
+ m1iJRu0SXYVlMruGUB1PvZQ3O7TsVfAGCv85pFipdgk8KQnlRFkYhUjLft0u7CL1rDGZWDDr
+ NaNj54q2CX9zuSxBn9XDXvGKyzKEZ4NY1Jfw+TAMPCp4buawuOsjONi2X0DfivFY+ZsjAIcx
+ qQMglPtKk/wBs7q2lvJ+pHpgvLhLZyGqzAvKM1sVtRJ5j+ARKA0w4pYs5a5ufqcfT7dN6TBk
+ LXZeD9xlVic93Ju08JSUx2ozlcfxq+BVNyA+dtv7elXUZ2DrYwARAQABtCxHdXN0YXZvIEEu
+ IFIuIFNpbHZhIDxndXN0YXZvQGVtYmVkZGVkb3IuY29tPokCPQQTAQgAJwUCWywcDAIbIwUJ
+ CWYBgAULCQgHAgYVCAkKCwIEFgIDAQIeAQIXgAAKCRBHBbTLRwbbMZ6tEACk0hmmZ2FWL1Xi
+ l/bPqDGFhzzexrdkXSfTTZjBV3a+4hIOe+jl6Rci/CvRicNW4H9yJHKBrqwwWm9fvKqOBAg9
+ obq753jydVmLwlXO7xjcfyfcMWyx9QdYLERTeQfDAfRqxir3xMeOiZwgQ6dzX3JjOXs6jHBP
+ cgry90aWbaMpQRRhaAKeAS14EEe9TSIly5JepaHoVdASuxklvOC0VB0OwNblVSR2S5i5hSsh
+ ewbOJtwSlonsYEj4EW1noQNSxnN/vKuvUNegMe+LTtnbbocFQ7dGMsT3kbYNIyIsp42B5eCu
+ JXnyKLih7rSGBtPgJ540CjoPBkw2mCfhj2p5fElRJn1tcX2McsjzLFY5jK9RYFDavez5w3lx
+ JFgFkla6sQHcrxH62gTkb9sUtNfXKucAfjjCMJ0iuQIHRbMYCa9v2YEymc0k0RvYr43GkA3N
+ PJYd/vf9vU7VtZXaY4a/dz1d9dwIpyQARFQpSyvt++R74S78eY/+lX8wEznQdmRQ27kq7BJS
+ R20KI/8knhUNUJR3epJu2YFT/JwHbRYC4BoIqWl+uNvDf+lUlI/D1wP+lCBSGr2LTkQRoU8U
+ 64iK28BmjJh2K3WHmInC1hbUucWT7Swz/+6+FCuHzap/cjuzRN04Z3Fdj084oeUNpP6+b9yW
+ e5YnLxF8ctRAp7K4yVlvA7kCDQRbLBwMARAAsHCE31Ffrm6uig1BQplxMV8WnRBiZqbbsVJB
+ H1AAh8tq2ULl7udfQo1bsPLGGQboJSVN9rckQQNahvHAIK8ZGfU4Qj8+CER+fYPp/MDZj+t0
+ DbnWSOrG7z9HIZo6PR9z4JZza3Hn/35jFggaqBtuydHwwBANZ7A6DVY+W0COEU4of7CAahQo
+ 5NwYiwS0lGisLTqks5R0Vh+QpvDVfuaF6I8LUgQR/cSgLkR//V1uCEQYzhsoiJ3zc1HSRyOP
+ otJTApqGBq80X0aCVj1LOiOF4rrdvQnj6iIlXQssdb+WhSYHeuJj1wD0ZlC7ds5zovXh+FfF
+ l5qH5RFY/qVn3mNIVxeO987WSF0jh+T5ZlvUNdhedGndRmwFTxq2Li6GNMaolgnpO/CPcFpD
+ jKxY/HBUSmaE9rNdAa1fCd4RsKLlhXda+IWpJZMHlmIKY8dlUybP+2qDzP2lY7kdFgPZRU+e
+ zS/pzC/YTzAvCWM3tDgwoSl17vnZCr8wn2/1rKkcLvTDgiJLPCevqpTb6KFtZosQ02EGMuHQ
+ I6Zk91jbx96nrdsSdBLGH3hbvLvjZm3C+fNlVb9uvWbdznObqcJxSH3SGOZ7kCHuVmXUcqoz
+ ol6ioMHMb+InrHPP16aVDTBTPEGwgxXI38f7SUEn+NpbizWdLNz2hc907DvoPm6HEGCanpcA
+ EQEAAYkCJQQYAQgADwUCWywcDAIbDAUJCWYBgAAKCRBHBbTLRwbbMdsZEACUjmsJx2CAY+QS
+ UMebQRFjKavwXB/xE7fTt2ahuhHT8qQ/lWuRQedg4baInw9nhoPE+VenOzhGeGlsJ0Ys52sd
+ XvUjUocKgUQq6ekOHbcw919nO5L9J2ejMf/VC/quN3r3xijgRtmuuwZjmmi8ct24TpGeoBK4
+ WrZGh/1hAYw4ieARvKvgjXRstcEqM5thUNkOOIheud/VpY+48QcccPKbngy//zNJWKbRbeVn
+ imua0OpqRXhCrEVm/xomeOvl1WK1BVO7z8DjSdEBGzbV76sPDJb/fw+y+VWrkEiddD/9CSfg
+ fBNOb1p1jVnT2mFgGneIWbU0zdDGhleI9UoQTr0e0b/7TU+Jo6TqwosP9nbk5hXw6uR5k5PF
+ 8ieyHVq3qatJ9K1jPkBr8YWtI5uNwJJjTKIA1jHlj8McROroxMdI6qZ/wZ1ImuylpJuJwCDC
+ ORYf5kW61fcrHEDlIvGc371OOvw6ejF8ksX5+L2zwh43l/pKkSVGFpxtMV6d6J3eqwTafL86
+ YJWH93PN+ZUh6i6Rd2U/i8jH5WvzR57UeWxE4P8bQc0hNGrUsHQH6bpHV2lbuhDdqo+cM9eh
+ GZEO3+gCDFmKrjspZjkJbB5Gadzvts5fcWGOXEvuT8uQSvl+vEL0g6vczsyPBtqoBLa9SNrS
+ VtSixD1uOgytAP7RWS474w==
+Message-ID: <81ad685a-054c-6d5d-4501-ca983da0fc9d@embeddedor.com>
+Date:   Mon, 18 Feb 2019 11:50:28 -0600
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.4.0
 MIME-Version: 1.0
-In-Reply-To: <20190207211053.10766-3-michaelsh@mellanox.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+In-Reply-To: <d7065d30-d56b-1b76-cfc6-e209aadc61c0@roeck-us.net>
+Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - gator4166.hostgator.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - embeddedor.com
+X-BWhitelist: no
+X-Source-IP: 189.250.119.20
+X-Source-L: No
+X-Exim-ID: 1gvn3l-004MnZ-Ry
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: ([192.168.1.76]) [189.250.119.20]:34682
+X-Source-Auth: gustavo@embeddedor.com
+X-Email-Count: 11
+X-Source-Cap: Z3V6aWRpbmU7Z3V6aWRpbmU7Z2F0b3I0MTY2Lmhvc3RnYXRvci5jb20=
+X-Local-Domain: yes
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 2/7/19 1:10 PM, michaelsh@mellanox.com wrote:
-> From: Michael Shych <michaelsh@mellanox.com>
-> 
-> Introduce watchdog driver for variious rang of Mellanox Ethernet and
-> Infiniband switch systems.
-> 
-> Watchdog driver for Mellanox watchdog devices, implemented in
-> programmable logic device.
-> 
-> Main and auxiliary watchdog devices can exist on the same system.
-> There are several actions that can be defined in the watchdog:
-> system reset, start fans on full speed and increase a counter.
-> The last 2 actions are performed without a system reset.
-> Actions without reset are provided for auxiliary watchdog devices,
-> which is optional.
-> Access to HW registers is performed through generic
-> regmap interface.
-> 
-> There are 2 types of HW watchdog implementations.
-> Type 1: actual HW timeout can be defined as power of 2 msec.
-> e.g. timeout 20 sec will be rounded up to 32768 msec.;
-> maximum timeout period is 32 sec (32768 msec.);
-> get time-left isn't supported
-> Type 2: actual HW timeout is defined in sec. and it's the same as
-> user-defined timeout;
-> maximum timeout is 255 sec;
-> get time-left is supported;
-> 
-> Watchdog driver is probed from the common mlx_platform driver.
-> 
-> Signed-off-by: Michael Shych <michaelsh@mellanox.com>
-> 
-> ---
-> v1->v2:
-> Comments pointed out by Guenter:
-> 1. Remove unneeded lock in access functions.
-> 2. Change return  int to void in functions with constant 0 return value
->     or with unchecked returned code.
-> 3. Use regmap_update_bits() or regmap_update_bits_base() functions.
-> 4. Remove unneeded dev_info messages.
-> 5. Change set_timeout function.
-> 6. Changes in probe
-> 7. Delete unneeded remove function.
-> ---
->   drivers/watchdog/Kconfig   |  16 +++
->   drivers/watchdog/Makefile  |   1 +
->   drivers/watchdog/mlx_wdt.c | 323 +++++++++++++++++++++++++++++++++++++++++++++
->   3 files changed, 340 insertions(+)
->   create mode 100644 drivers/watchdog/mlx_wdt.c
-> 
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index 57f017d74a97..f1766eb081bb 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -241,6 +241,22 @@ config RAVE_SP_WATCHDOG
->   	help
->   	  Support for the watchdog on RAVE SP device.
->   
-> +config MLX_WDT
-> +	tristate "Mellanox Watchdog"
-> +	depends on MELLANOX_PLATFORM
-> +	select WATCHDOG_CORE
-> +	select REGMAP
-> +	help
-> +	  This is the driver for the hardware watchdog on Mellanox systems.
-> +	  If you are going to use it, say Y here, otherwise N.
-> +	  This driver can be used together with the watchdog daemon.
-> +	  It can also watch your kernel to make sure it doesn't freeze,
-> +	  and if it does, it reboots your system after a certain amount of
-> +	  time.
-> +
-> +	  To compile this driver as a module, choose M here: the
-> +	  module will be called mlx-wdt.
-> +
->   # ALPHA Architecture
->   
->   # ARM Architecture
-> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-> index a0917ef28e07..941b74185c9c 100644
-> --- a/drivers/watchdog/Makefile
-> +++ b/drivers/watchdog/Makefile
-> @@ -142,6 +142,7 @@ obj-$(CONFIG_INTEL_MID_WATCHDOG) += intel-mid_wdt.o
->   obj-$(CONFIG_INTEL_MEI_WDT) += mei_wdt.o
->   obj-$(CONFIG_NI903X_WDT) += ni903x_wdt.o
->   obj-$(CONFIG_NIC7018_WDT) += nic7018_wdt.o
-> +obj-$(CONFIG_MLX_WDT) += mlx_wdt.o
->   
->   # M68K Architecture
->   obj-$(CONFIG_M54xx_WATCHDOG) += m54xx_wdt.o
-> diff --git a/drivers/watchdog/mlx_wdt.c b/drivers/watchdog/mlx_wdt.c
-> new file mode 100644
-> index 000000000000..c8fad72c9137
-> --- /dev/null
-> +++ b/drivers/watchdog/mlx_wdt.c
-> @@ -0,0 +1,323 @@
-> +// SPDX-License-Identifier: GPL-2.0+
-> +/*
-> + * Mellanox watchdog driver
-> + *
-> + * Copyright (C) 2019 Mellanox Technologies
-> + * Copyright (C) 2019 Michael Shych <mshych@mellanox.com>
-> + */
-> +
-> +#include <linux/bitops.h>
-> +#include <linux/device.h>
-> +#include <linux/errno.h>
-> +#include <linux/log2.h>
-> +#include <linux/module.h>
-> +#include <linux/platform_data/mlxreg.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/regmap.h>
-> +#include <linux/spinlock.h>
-> +#include <linux/types.h>
-> +#include <linux/watchdog.h>
-> +
-> +#define MLXREG_WDT_CLOCK_SCALE		1000
-> +#define MLXREG_WDT_MAX_TIMEOUT_TYPE1	32
-> +#define MLXREG_WDT_MAX_TIMEOUT_TYPE2	255
-> +#define MLXREG_WDT_MIN_TIMEOUT		1
-> +#define MLXREG_WDT_HW_TIMEOUT_CONVERT(hw_timeout) ((1 << (hw_timeout)) \
-> +						   / MLXREG_WDT_CLOCK_SCALE)
 
-A bit nitpickish:  The _CONVERT and hw_ are really unnecessary,
-and (1 << (x) -> BIT(x).
 
-> +#define MLXREG_WDT_OPTIONS_BASE (WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE | \
-> +				 WDIOF_SETTIMEOUT)
-> +
-> +/**
-> + * enum mlxreg_wdt_type - type of HW watchdog
-> + *
-> + * TYPE1 can be differentiated by different register/mask
-> + *	 for WD action set and ping.
-> + */
-> +enum mlxreg_wdt_type {
-> +	MLX_WDT_TYPE1,
-> +	MLX_WDT_TYPE2,
-> +};
-> +
-> +/**
-> + * struct mlxreg_wdt - wd private data:
-> + *
-> + * @wdd:	watchdog device;
-> + * @device:	basic device;
-> + * @pdata:	data received from platform driver;
-> + * @regmap:	register map of parent device;
-> + * @timeout:	defined timeout in sec.;
-> + * @hw_timeout:	real timeout set in hw;
-> + *		It will be roundup base of 2 in WD type 1,
-> + *		in WD type 2 it will be same number of sec as timeout;
-> + * @action_idx:	index for direct access to action register;
-> + * @timeout_idx:index for direct access to TO register;
-> + * @tleft_idx:	index for direct access to time left register;
-> + * @ping_idx:	index for direct access to ping register;
-> + * @reset_idx:	index for direct access to reset cause register;
-> + * @wd_type:	watchdog HW type;
-> + * @hw_timeout:	actual HW timeout;
-> + */
-> +struct mlxreg_wdt {
-> +	struct watchdog_device wdd;
-> +	struct mlxreg_core_platform_data *pdata;
-> +	void *regmap;
-> +	int action_idx;
-> +	int timeout_idx;
-> +	int tleft_idx;
-> +	int ping_idx;
-> +	int reset_idx;
-> +	enum mlxreg_wdt_type wdt_type;
-> +	u8 hw_timeout;
-> +};
-> +
-> +static enum mlxreg_wdt_type
-> +mlxreg_wdt_check_watchdog_type(struct mlxreg_wdt *wdt,
-> +			       struct mlxreg_core_platform_data *pdata)
-> +{
-> +	if (pdata->data[wdt->action_idx].reg ==
-> +	    pdata->data[wdt->ping_idx].reg &&
-> +	    pdata->data[wdt->action_idx].mask ==
-> +	    pdata->data[wdt->ping_idx].mask)
-> +		return MLX_WDT_TYPE2;
-> +
-> +	return MLX_WDT_TYPE1;
-> +}
-> +
-> +static void mlxreg_wdt_check_card_reset(struct mlxreg_wdt *wdt)
-> +{
-> +	struct mlxreg_core_data *reg_data;
-> +	u32 regval;
-> +	int rc;
-> +
-> +	if (wdt->reset_idx == -EINVAL)
-> +		return;
-> +
-> +	if (!(wdt->wdd.info->options & WDIOF_CARDRESET))
-> +		return;
-> +
-> +	reg_data = &wdt->pdata->data[wdt->reset_idx];
-> +	rc = regmap_read(wdt->regmap, reg_data->reg, &regval);
-> +	if (!rc) {
-> +		if (regval & ~reg_data->mask) {
-> +			wdt->wdd.bootstatus = WDIOF_CARDRESET;
-> +			dev_info(wdt->wdd.parent,
-> +				 "watchdog previously reset the CPU\n");
-> +		}
-> +	}
-> +}
-> +
-> +static int mlxreg_wdt_start(struct watchdog_device *wdd)
-> +{
-> +	struct mlxreg_wdt *wdt = watchdog_get_drvdata(wdd);
-> +	struct mlxreg_core_data *reg_data = &wdt->pdata->data[wdt->action_idx];
-> +
-> +	return regmap_update_bits(wdt->regmap, reg_data->reg, ~reg_data->mask,
-> +				  BIT(reg_data->bit));
-> +}
-> +
-> +static int mlxreg_wdt_stop(struct watchdog_device *wdd)
-> +{
-> +	struct mlxreg_wdt *wdt = watchdog_get_drvdata(wdd);
-> +	struct mlxreg_core_data *reg_data = &wdt->pdata->data[wdt->action_idx];
-> +
-> +	return regmap_update_bits(wdt->regmap, reg_data->reg, ~reg_data->mask,
-> +				  ~BIT(reg_data->bit));
-> +}
-> +
-> +static int mlxreg_wdt_ping(struct watchdog_device *wdd)
-> +{
-> +	struct mlxreg_wdt *wdt = watchdog_get_drvdata(wdd);
-> +	struct mlxreg_core_data *reg_data = &wdt->pdata->data[wdt->ping_idx];
-> +
-> +	return regmap_update_bits_base(wdt->regmap, reg_data->reg,
-> +				       ~reg_data->mask, BIT(reg_data->bit),
-> +				       NULL, false, true);
-> +}
-> +
-> +static int mlxreg_wdt_set_timeout(struct watchdog_device *wdd,
-> +				  unsigned int timeout)
-> +{
-> +	struct mlxreg_wdt *wdt = watchdog_get_drvdata(wdd);
-> +	struct mlxreg_core_data *reg_data = &wdt->pdata->data[wdt->timeout_idx];
-> +	u32 regval, set_time;
-> +	int rc;
-> +
-> +	if (wdt->wdt_type == MLX_WDT_TYPE1) {
-> +		rc = regmap_read(wdt->regmap, reg_data->reg, &regval);
-> +		if (rc)
-> +			goto read_error;
-> +
-> +		wdt->hw_timeout = order_base_2(timeout *
-> +					       MLXREG_WDT_CLOCK_SCALE);
-> +		regval = (regval & reg_data->mask) | wdt->hw_timeout;
-> +		/* Rowndown to actual closest number of sec. */
-> +		set_time = MLXREG_WDT_HW_TIMEOUT_CONVERT(wdt->hw_timeout);
-> +	} else {
-> +		wdt->hw_timeout = timeout;
-> +		set_time = timeout;
-> +		regval = timeout;
-> +	}
-> +
-> +	wdd->timeout = set_time;
-> +	rc = regmap_write(wdt->regmap, reg_data->reg, regval);
-> +
-> +read_error:
-
-This label target doesn't really make sense: rc is not 0 if it is used.
-Might as well return immediately above and reduce reader confusion.
-
-> +	if (!rc) {
-> +		/*
-> +		 * Restart watchdog with new timeout period
-> +		 * if watchdog is already started.
-> +		 */
-> +		if (watchdog_active(wdd)) {
-> +			rc = mlxreg_wdt_stop(wdd);
-> +			if (!rc)
-> +				rc = mlxreg_wdt_start(wdd);
-> +		}
-> +	}
-> +
-> +	return rc;
-> +}
-> +
-> +static unsigned int mlxreg_wdt_get_timeleft(struct watchdog_device *wdd)
-> +{
-> +	struct mlxreg_wdt *wdt = watchdog_get_drvdata(wdd);
-> +	struct mlxreg_core_data *reg_data = &wdt->pdata->data[wdt->tleft_idx];
-> +	u32 regval;
-> +	int rc;
-> +
-> +	rc = regmap_read(wdt->regmap, reg_data->reg, &regval);
-> +
-> +	return rc == 0 ? regval : 0;
-> +}
-> +
-> +static const struct watchdog_ops mlxreg_wdt_ops_type1 = {
-> +	.start		= mlxreg_wdt_start,
-> +	.stop		= mlxreg_wdt_stop,
-> +	.ping		= mlxreg_wdt_ping,
-> +	.set_timeout	= mlxreg_wdt_set_timeout,
-> +	.owner		= THIS_MODULE,
-> +};
-> +
-> +static const struct watchdog_ops mlxreg_wdt_ops_type2 = {
-> +	.start		= mlxreg_wdt_start,
-> +	.stop		= mlxreg_wdt_stop,
-> +	.ping		= mlxreg_wdt_ping,
-> +	.set_timeout	= mlxreg_wdt_set_timeout,
-> +	.get_timeleft	= mlxreg_wdt_get_timeleft,
-> +	.owner		= THIS_MODULE,
-> +};
-> +
-> +static const struct watchdog_info mlxreg_wdt_main_info = {
-> +	.options	= MLXREG_WDT_OPTIONS_BASE
-> +			| WDIOF_CARDRESET,
-> +	.identity	= "mlx-wdt-main",
-> +};
-> +
-> +static const struct watchdog_info mlxreg_wdt_aux_info = {
-> +	.options	= MLXREG_WDT_OPTIONS_BASE
-> +			| WDIOF_ALARMONLY,
-> +	.identity	= "mlx-wdt-aux",
-> +};
-> +
-> +static void mlxreg_wdt_config(struct mlxreg_wdt *wdt,
-> +			      struct mlxreg_core_platform_data *pdata)
-> +{
-> +	struct mlxreg_core_data *data = pdata->data;
-> +	int i;
-> +
-> +	wdt->reset_idx = -EINVAL;
-> +	for (i = 0; i < pdata->counter; i++, data++) {
-> +		if (strnstr(data->label, "action", sizeof(data->label)))
-> +			wdt->action_idx = i;
-> +		else if (strnstr(data->label, "timeout", sizeof(data->label)))
-> +			wdt->timeout_idx = i;
-> +		else if (strnstr(data->label, "timeleft", sizeof(data->label)))
-> +			wdt->tleft_idx = i;
-> +		else if (strnstr(data->label, "ping", sizeof(data->label)))
-> +			wdt->ping_idx = i;
-> +		else if (strnstr(data->label, "reset", sizeof(data->label)))
-> +			wdt->reset_idx = i;
-> +	}
-> +
-> +	wdt->pdata = pdata;
-> +	if (strnstr(pdata->identity, mlxreg_wdt_main_info.identity,
-> +		    sizeof(mlxreg_wdt_main_info.identity)))
-> +		wdt->wdd.info = &mlxreg_wdt_main_info;
-> +	else
-> +		wdt->wdd.info = &mlxreg_wdt_aux_info;
-> +
-> +	wdt->wdt_type = mlxreg_wdt_check_watchdog_type(wdt, pdata);
-> +	if (wdt->wdt_type == MLX_WDT_TYPE2) {
-> +		wdt->wdd.ops = &mlxreg_wdt_ops_type2;
-> +		wdt->wdd.max_timeout = MLXREG_WDT_MAX_TIMEOUT_TYPE2;
-> +	} else {
-> +		wdt->wdd.ops = &mlxreg_wdt_ops_type1;
-> +		wdt->wdd.max_timeout = MLXREG_WDT_MAX_TIMEOUT_TYPE1;
-> +	}
-> +	wdt->wdd.min_timeout = MLXREG_WDT_MIN_TIMEOUT;
-> +}
-> +
-> +static int mlxreg_wdt_init_timeout(struct mlxreg_wdt *wdt,
-> +				   struct mlxreg_core_platform_data *pdata)
-> +{
-> +	u32 timeout;
-> +
-> +	timeout = pdata->data[wdt->timeout_idx].health_cntr;
-> +	return mlxreg_wdt_set_timeout(&wdt->wdd, timeout);
-> +}
-> +
-> +static int mlxreg_wdt_probe(struct platform_device *pdev)
-> +{
-> +	struct mlxreg_core_platform_data *pdata;
-> +	struct mlxreg_wdt *wdt;
-> +	int rc;
-> +
-> +	pdata = dev_get_platdata(&pdev->dev);
-> +	if (!pdata) {
-> +		dev_err(&pdev->dev, "Failed to get platform data.\n");
-> +		return -EINVAL;
-> +	}
-> +	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
-> +	if (!wdt)
-> +		return -ENOMEM;
-> +
-> +	wdt->wdd.parent = &pdev->dev;
-> +	wdt->regmap = pdata->regmap;
-> +	mlxreg_wdt_config(wdt, pdata);
-> +
-> +	if ((pdata->features & MLXREG_CORE_WD_FEATURE_NOWAYOUT))
-> +		watchdog_set_nowayout(&wdt->wdd, WATCHDOG_NOWAYOUT);
-
-This coming from platform data makes me wonder how it is enabled.
-Is there another config flag, or is it a hardware bit ? Anotehr config flag
-would not really make sense since it would duplicate WATCHDOG_NOWAYOUT.
-
-> +	watchdog_stop_on_reboot(&wdt->wdd);
-> +	watchdog_stop_on_unregister(&wdt->wdd);
-> +	watchdog_set_drvdata(&wdt->wdd, wdt);
-> +	rc = mlxreg_wdt_init_timeout(wdt, pdata);
-> +	if (rc)
-> +		goto register_error;
-> +
-> +	if ((pdata->features & MLXREG_CORE_WD_FEATURE_START_AT_BOOT)) {
-> +		rc = mlxreg_wdt_start(&wdt->wdd);
-> +		if (rc)
-> +			goto register_error;
-
-You do have to set HW_RUNNING here to inform the watchdog core that
-the watchdog is running.
-
-> +	}
-> +	mlxreg_wdt_check_card_reset(wdt);
-> +	rc = devm_watchdog_register_device(&pdev->dev, &wdt->wdd);
-> +
-> +register_error:
-> +	if (rc)
-> +		dev_err(&pdev->dev,
-> +			"Cannot register watchdog device (err=%d)\n", rc);
-> +	return rc;
-> +}
-> +
-> +static struct platform_driver mlxreg_wdt_driver = {
-> +	.probe	= mlxreg_wdt_probe,
-> +	.driver	= {
-> +			.name = "mlx-wdt",
-> +	},
-> +};
-> +
-> +module_platform_driver(mlxreg_wdt_driver);
-> +
-> +MODULE_AUTHOR("Michael Shych <michaelsh@mellanox.com>");
-> +MODULE_DESCRIPTION("Mellanox watchdog driver");
-> +MODULE_LICENSE("GPL");
-> +MODULE_ALIAS("platform:mlx-wdt");
+On 2/18/19 10:09 AM, Guenter Roeck wrote:
+> On 2/14/19 12:26 PM, Gustavo A. R. Silva wrote:
+>> In preparation to enabling -Wimplicit-fallthrough, mark switch
+>> cases where we are expecting to fall through.
+>>
+>> This patch fixes the following warning:
+>>
+>> drivers/watchdog/pc87413_wdt.c: In function ‘pc87413_ioctl’:
+>> drivers/watchdog/pc87413_wdt.c:439:3: warning: this statement may fall through [-Wimplicit-fallthrough=]
+>>     pc87413_refresh();
+>>     ^~~~~~~~~~~~~~~~~
+>> drivers/watchdog/pc87413_wdt.c:441:2: note: here
+>>    case WDIOC_GETTIMEOUT:
+>>    ^~~~
+>>
+>> Warning level 3 was used: -Wimplicit-fallthrough=3
+>>
+>> Notice that, in this particular case, the code comment is modified
+>> in accordance with what GCC is expecting to find.
+>>
+>> This patch is part of the ongoing efforts to enable
+>> -Wimplicit-fallthrough.
+>>
+>> Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+> 
+> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 > 
 
+Thanks, Guenter.
+
+--
+Gustavo
