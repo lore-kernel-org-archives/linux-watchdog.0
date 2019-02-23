@@ -6,94 +6,71 @@ X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
 	SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5AA77C43381
-	for <linux-watchdog@archiver.kernel.org>; Sat, 23 Feb 2019 17:08:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CEC16C43381
+	for <linux-watchdog@archiver.kernel.org>; Sat, 23 Feb 2019 17:12:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 21BE920657
-	for <linux-watchdog@archiver.kernel.org>; Sat, 23 Feb 2019 17:08:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 875A120657
+	for <linux-watchdog@archiver.kernel.org>; Sat, 23 Feb 2019 17:12:08 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RUID6WCQ"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MVL+Dh6X"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726169AbfBWRIO (ORCPT
+        id S1726089AbfBWRMI (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sat, 23 Feb 2019 12:08:14 -0500
-Received: from mail-pl1-f193.google.com ([209.85.214.193]:42289 "EHLO
-        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725893AbfBWRIO (ORCPT
+        Sat, 23 Feb 2019 12:12:08 -0500
+Received: from mail-pl1-f194.google.com ([209.85.214.194]:43710 "EHLO
+        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725893AbfBWRMI (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 23 Feb 2019 12:08:14 -0500
-Received: by mail-pl1-f193.google.com with SMTP id s1so2512282plp.9;
-        Sat, 23 Feb 2019 09:08:13 -0800 (PST)
+        Sat, 23 Feb 2019 12:12:08 -0500
+Received: by mail-pl1-f194.google.com with SMTP id m10so2508748plt.10;
+        Sat, 23 Feb 2019 09:12:07 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:subject:to:cc:references:from:message-id:date:user-agent
          :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=P9zrcJ5ZVjiahSM/zDa8W1CZlUjkwmjyOeaNOp58rtA=;
-        b=RUID6WCQvqT7YEb3Z3huI+Ac/gFHoNsWLepWDXdTvYyXGa3R2i/ZDZyeATz3zHE3fo
-         M9iZCc3sWeERV27+sc/zgbvTVrxvuqTEKE3faZTIw62ZC4lm9hPwEICgzPlPcGsS8Vga
-         hPspYRVIOMoeHbQLvzBnlIKhO1ZTziTPOTrF4gWRRAgJiJOkpLAWLyHsaVV1Fy34nucd
-         +D6vRp5C2jzjBU58rlyY7cZnguqS7uJzNp9+AoMZftVe4yz95we8WqHEsjjLZwDnbo6I
-         e4FloBI/UF7egCxqJEban8kTTM8knnhChWybCb1mnF7OOK1E/VFfawQrlFFMLIQrn7S7
-         PKIQ==
+        bh=QUZFiiG/rcUKEAIYD3DVHnicEKeO+0h3900EAsmV+Ac=;
+        b=MVL+Dh6XFBRJYOW+yz4Xe3PjQcD+tZt5enLIhhzxXDMJsbnqp+MULvtJRdQmDtKoCe
+         gzly+L+HkWwHnqs9WKiC2Gl2OZIGlpeDawWN0i84gqjlhI61iyhyJabfL3NoSzMdkOP8
+         Ye9H9fx2jNhDYMCvqCCp4sEKPBXZxhvPxhjcA7auPHzm9msotbkw51VGZiTH7pyVxsgF
+         BmYtpm/5bMXFRICiXT1stAzN7o4plxBljJvHSjYpVI0gLh5ogCfZfkZFods2bm5Hsz6N
+         DWJ06Lf6Hi1PvE8C4rWM6czxIoOqtsMTvaGc7/He4LiOHll9KUN6onfFCPo5zWn/gO2j
+         3O3A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
          :date:user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=P9zrcJ5ZVjiahSM/zDa8W1CZlUjkwmjyOeaNOp58rtA=;
-        b=kunCGxKNpqmU4kf956s30Ywhpi9+Dn82kRvXwsY5XF/mOxrJ0Cgs5TEDS/Rq7ptR6z
-         5wOrqDTFJsrEkJf/yOHcRkvONrz5eKxKcWm2m90LccNtoTZHfGzk7qwpjJ8v6cW9jWVm
-         iZn1lW7kdPyJPxE16AZLX+tAZUEnji0yeTwq5bcAr5a+NqPhi04WYsgglwC4RblBihjD
-         BZkcTdcmKN4nqareG76UqOUlHCOjFl4Syq2vRt5E33KVFmlbvqZj1ADvV/i0Z99bhhRB
-         isrKKueRgun9o1j+XnkC3C4pjYaWX1CcL7eRQYDvgt/b1cg+80v5rasfIL0252cJbbcp
-         WHEg==
-X-Gm-Message-State: AHQUAuZ+iFfv0gjRssQJFSfF0mn0QsEArODJMqVS9vJHJDg0/Wyy+Xn2
-        CNrAtwPdwbsInLOo1xjspOXu2fKf
-X-Google-Smtp-Source: AHgI3IZHgbp9uHcUuzMyBu17th+hht94AVajiXej7g2jrqtrJfnUr7Pfw+r2+DDKiHZ3wpWtfb/4Pw==
-X-Received: by 2002:a17:902:8697:: with SMTP id g23mr10451224plo.30.1550941693427;
-        Sat, 23 Feb 2019 09:08:13 -0800 (PST)
+        bh=QUZFiiG/rcUKEAIYD3DVHnicEKeO+0h3900EAsmV+Ac=;
+        b=t3a89R6qlQ/ue6y657P79GXNPk7fZi9P7tXY5YKAW8WsCXzxJPmQxSA1aaoi2D0c7A
+         MXEA785mriajqLf6vIQw0LsKBPcPheiomVEpEQCMHjqE4iaCUi6bmL7xqufx2n2B6zvz
+         G6aT3MKJvTIxMWVyNeBCW7KbHN30QImqYIiAMavaO5LkRCdBg/3SDQbyeNh9Rlht7Vrr
+         45YjLUSmYouIw+7jmoH32TeKVD1LOGq7/lOreOu1OPyPSsQhEPS4TSGHTBjY0keWWqkj
+         FaX8zUNdYiO60056EBmWxE4Uk1TlD4m2Sn1l00kfRM21wr4afMumQNU2oS4uC1etG9Dp
+         VasA==
+X-Gm-Message-State: AHQUAuaOeH+Heas2wbHSdyGuFSzyxaW/vi3WcdHIlNh236suZWK/tYmw
+        YMRBS/YLkfoD8YgFJ4CXU9s=
+X-Google-Smtp-Source: AHgI3IYHJLB6KxlBCyBeY1ueD/wZq2tQOHBVw8xXUtsubXcfbFdH2Ledni7Jxg26WKfV+I/xRmFpbA==
+X-Received: by 2002:a17:902:b598:: with SMTP id a24mr10352289pls.27.1550941927379;
+        Sat, 23 Feb 2019 09:12:07 -0800 (PST)
 Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id u66sm17146417pfi.115.2019.02.23.09.08.11
+        by smtp.gmail.com with ESMTPSA id x15sm6632140pfn.74.2019.02.23.09.12.06
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 23 Feb 2019 09:08:12 -0800 (PST)
-Subject: Re: [PATCH RESEND V2 1/4] dt-bindings: fsl: scu: add watchdog binding
-To:     Rob Herring <robh@kernel.org>, Anson Huang <anson.huang@nxp.com>
-Cc:     "mark.rutland@arm.com" <mark.rutland@arm.com>,
-        "shawnguo@kernel.org" <shawnguo@kernel.org>,
-        "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>,
-        "kernel@pengutronix.de" <kernel@pengutronix.de>,
-        "festevam@gmail.com" <festevam@gmail.com>,
-        "catalin.marinas@arm.com" <catalin.marinas@arm.com>,
-        "will.deacon@arm.com" <will.deacon@arm.com>,
-        "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
-        Aisheng Dong <aisheng.dong@nxp.com>,
-        "ulf.hansson@linaro.org" <ulf.hansson@linaro.org>,
-        Daniel Baluta <daniel.baluta@nxp.com>,
-        Andy Gross <andy.gross@linaro.org>,
-        "horms+renesas@verge.net.au" <horms+renesas@verge.net.au>,
-        "heiko@sntech.de" <heiko@sntech.de>,
-        "arnd@arndb.de" <arnd@arndb.de>,
-        "bjorn.andersson@linaro.org" <bjorn.andersson@linaro.org>,
-        "jagan@amarulasolutions.com" <jagan@amarulasolutions.com>,
-        "enric.balletbo@collabora.com" <enric.balletbo@collabora.com>,
-        "marc.w.gonzalez@free.fr" <marc.w.gonzalez@free.fr>,
-        "olof@lixom.net" <olof@lixom.net>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        dl-linux-imx <linux-imx@nxp.com>
-References: <1550472539-16590-1-git-send-email-Anson.Huang@nxp.com>
- <1550472539-16590-2-git-send-email-Anson.Huang@nxp.com>
- <20190222195217.GA22194@bogus>
+        Sat, 23 Feb 2019 09:12:06 -0800 (PST)
+Subject: Re: [PATCH v4 1/3] platform_data/mlxreg: additions for Mellanox
+ watchdog driver.
+To:     michaelsh@mellanox.com, wim@linux-watchdog.org, andy@infradead.org,
+        dvhart@infradead.org
+Cc:     linux-watchdog@vger.kernel.org,
+        platform-driver-x86@vger.kernel.org, vadimp@mellanox.com
+References: <20190220093424.5374-1-michaelsh@mellanox.com>
+ <20190220093424.5374-2-michaelsh@mellanox.com>
 From:   Guenter Roeck <linux@roeck-us.net>
-Message-ID: <bb19470c-1590-f8dd-72e6-b382444d7902@roeck-us.net>
-Date:   Sat, 23 Feb 2019 09:08:10 -0800
+Message-ID: <1b3f9492-7085-4c2e-69ec-a30dfb2185f6@roeck-us.net>
+Date:   Sat, 23 Feb 2019 09:12:05 -0800
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.4.0
 MIME-Version: 1.0
-In-Reply-To: <20190222195217.GA22194@bogus>
+In-Reply-To: <20190220093424.5374-2-michaelsh@mellanox.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -102,51 +79,72 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 2/22/19 11:52 AM, Rob Herring wrote:
-> On Mon, Feb 18, 2019 at 06:53:48AM +0000, Anson Huang wrote:
->> Add i.MX8QXP system controller watchdog binding.
->>
->> Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
->> ---
->> Changes since V1:
->> 	- update dts node name to "watchdog";
->> ---
->>   Documentation/devicetree/bindings/arm/freescale/fsl,scu.txt | 10 ++++++++++
->>   1 file changed, 10 insertions(+)
->>
->> diff --git a/Documentation/devicetree/bindings/arm/freescale/fsl,scu.txt b/Documentation/devicetree/bindings/arm/freescale/fsl,scu.txt
->> index 4b79751..f388ec6 100644
->> --- a/Documentation/devicetree/bindings/arm/freescale/fsl,scu.txt
->> +++ b/Documentation/devicetree/bindings/arm/freescale/fsl,scu.txt
->> @@ -136,6 +136,12 @@ Required properties:
->>   			   resource id for thermal driver to get temperature via
->>   			   SCU IPC.
->>   
->> +Watchdog bindings based on SCU Message Protocol
->> +------------------------------------------------------------
->> +
->> +Required properties:
->> +- compatible: should be "fsl,imx8qxp-sc-wdt";
->> +
->>   Example (imx8qxp):
->>   -------------
->>   lsio_mu1: mailbox@5d1c0000 {
->> @@ -188,6 +194,10 @@ firmware {
->>   			tsens-num = <1>;
->>   			#thermal-sensor-cells = <1>;
->>   		};
->> +
->> +		watchdog: watchdog {
->> +			compatible = "fsl,imx8qxp-sc-wdt";
+On 2/20/19 1:34 AM, michaelsh@mellanox.com wrote:
+> From: Michael Shych <michaelsh@mellanox.com>
 > 
-> As-is, there's no reason for this to be in DT. The parent node's driver
-> can instantiate the wdog.
+> There are two new fields added to mlxreg core structure:
+> features - supported features of device and
+> identity - device identity name.
+> Add new defines for watchdog features.
+> 
+> Signed-off-by: Michael Shych <michaelsh@mellanox.com>
+
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+
+> 
+> ---
+> v1->v2
+> Change feature name MLXREG_CORE_WD_FEATURE_NOSTOP_AFTER_START
+> to MLXREG_CORE_WD_FEATURE_NOWAYOUT
+> ---
+> v2->v3
+> 1. Move enum enum mlxreg_wdt_type from mlx_wdt driver to common mlxreg.h
+> 2. Add version field to mlxreg_core_platform_data struct.
+> ---
+>   include/linux/platform_data/mlxreg.h | 19 +++++++++++++++++++
+>   1 file changed, 19 insertions(+)
+> 
+> diff --git a/include/linux/platform_data/mlxreg.h b/include/linux/platform_data/mlxreg.h
+> index 19f5cb618c55..31f7c25a44da 100644
+> --- a/include/linux/platform_data/mlxreg.h
+> +++ b/include/linux/platform_data/mlxreg.h
+> @@ -35,6 +35,19 @@
+>   #define __LINUX_PLATFORM_DATA_MLXREG_H
+>   
+>   #define MLXREG_CORE_LABEL_MAX_SIZE	32
+> +#define MLXREG_CORE_WD_FEATURE_NOWAYOUT		BIT(0)
+> +#define MLXREG_CORE_WD_FEATURE_START_AT_BOOT	BIT(1)
+> +
+> +/**
+> + * enum mlxreg_wdt_type - type of HW watchdog
+> + *
+> + * TYPE1 HW watchdog implementation exist in old systems.
+> + * All new systems have TYPE2 HW watchdog.
+> + */
+> +enum mlxreg_wdt_type {
+> +	MLX_WDT_TYPE1,
+> +	MLX_WDT_TYPE2,
+> +};
+>   
+>   /**
+>    * struct mlxreg_hotplug_device - I2C device data:
+> @@ -110,11 +123,17 @@ struct mlxreg_core_item {
+>    * @led_data: led private data;
+>    * @regmap: register map of parent device;
+>    * @counter: number of led instances;
+> + * @features: supported features of device;
+> + * @version: implementation version;
+> + * @identity: device identity name;
+>    */
+>   struct mlxreg_core_platform_data {
+>   	struct mlxreg_core_data *data;
+>   	void *regmap;
+>   	int counter;
+> +	u32 features;
+> +	u32 version;
+> +	char identity[MLXREG_CORE_LABEL_MAX_SIZE];
+>   };
+>   
+>   /**
 > 
 
-As the driver is currently written, you are correct, since it doesn't accept
-watchdog timeout configuration through devicetree.
-
-Question is if that is intended. Is it ?
-
-Thanks,
-Guenter
