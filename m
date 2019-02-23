@@ -2,220 +2,135 @@ Return-Path: <SRS0=mrOV=Q6=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.7 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B9C7CC43381
-	for <linux-watchdog@archiver.kernel.org>; Sat, 23 Feb 2019 00:30:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0D4F7C43381
+	for <linux-watchdog@archiver.kernel.org>; Sat, 23 Feb 2019 01:18:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 7F6C8206C0
-	for <linux-watchdog@archiver.kernel.org>; Sat, 23 Feb 2019 00:30:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1550881848;
-	bh=QX5uUdByjiiWq59lOPox1ugOK6t4CcL2NDP3rUjVtqQ=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=M61ylvZrJWhHfHbPtQUp61wUskIwiXz8lssdx2arKrF0pKCYSNgu67ueoreewUC5V
-	 yfmVbYJagdK731b/MmtIrBsSDKdBcv4mh1Ptq0P/7QevGeUsY7c0OC6YSPI0U/epNC
-	 0lyT5+Fs0PvKzn9jLLBKvPp509mjm9Rs4952tTBw=
+	by mail.kernel.org (Postfix) with ESMTP id CF2632077B
+	for <linux-watchdog@archiver.kernel.org>; Sat, 23 Feb 2019 01:18:29 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=crapouillou.net header.i=@crapouillou.net header.b="PYc1r9Qh"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726225AbfBWAao (ORCPT
+        id S1727183AbfBWBSZ (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 22 Feb 2019 19:30:44 -0500
-Received: from mail-oi1-f196.google.com ([209.85.167.196]:35317 "EHLO
-        mail-oi1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725774AbfBWAao (ORCPT
+        Fri, 22 Feb 2019 20:18:25 -0500
+Received: from outils.crapouillou.net ([89.234.176.41]:54142 "EHLO
+        crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725811AbfBWBSZ (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 22 Feb 2019 19:30:44 -0500
-Received: by mail-oi1-f196.google.com with SMTP id u128so3172324oie.2;
-        Fri, 22 Feb 2019 16:30:43 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=mj2zpxbrV3m06WEbub19SHYmtQa20P4XRmG7bK+Mjbs=;
-        b=XxK82EtFsXU68IRCpo7V+iy4EG3bjrkfipmBauy4Zgc8vIGpPH3hpaNioQT5tI3j4Y
-         43RhUzEynlWOa+wmnMHRdFEUNhFA/ockwB5lsKdxb7f0bfJG50O5Udvwsr+btnhT4jnp
-         yQfoGqR2f/5oATCv6zdw0JC7sjsMOiq0HxQbZit+5r2v9kKxc0GSwVr7W7+fo7ea2BBr
-         nVVDeGDa1iSFhEs7CI2Yno4RtQccEUgGA0M1hjOrUeK4Ukb6uaj4yHokC5fc7bMSLRMe
-         u2TubQS19GxiMD1hdemGTKaNhytaw6+CAXAJW5ocYlC9urCQ7KykWaBhah1bZtmvUnTW
-         mjdg==
-X-Gm-Message-State: AHQUAua9+X9Xl0uv5avfADu9byLy2yuZQDEf7IxLei7lNNrrVd7zjWmL
-        o+Kpx2KhUTNOUE/eYxYogg==
-X-Google-Smtp-Source: AHgI3IZIFbKG9LmWSTtxCInD2vwNyddirZjOsIU49Y/DbcMTCyBhZRB/VdSyNFTaSWg92TKy38tyfQ==
-X-Received: by 2002:aca:dbc4:: with SMTP id s187mr4030761oig.124.1550881842825;
-        Fri, 22 Feb 2019 16:30:42 -0800 (PST)
-Received: from localhost (24-155-109-49.dyn.grandenetworks.net. [24.155.109.49])
-        by smtp.gmail.com with ESMTPSA id m89sm1208979otc.7.2019.02.22.16.30.41
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Fri, 22 Feb 2019 16:30:42 -0800 (PST)
-Date:   Fri, 22 Feb 2019 18:30:41 -0600
-From:   Rob Herring <robh@kernel.org>
-To:     Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-Cc:     mazziesaccount@gmail.com, lee.jones@linaro.org,
-        mark.rutland@arm.com, lgirdwood@gmail.com, broonie@kernel.org,
-        gregkh@linuxfoundation.org, rafael@kernel.org,
-        mturquette@baylibre.com, sboyd@kernel.org,
-        linus.walleij@linaro.org, bgolaszewski@baylibre.com,
-        sre@kernel.org, a.zummo@towertech.it,
-        alexandre.belloni@bootlin.com, wim@linux-watchdog.org,
-        linux@roeck-us.net, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org,
-        linux-gpio@vger.kernel.org, linux-pm@vger.kernel.org,
-        linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        mikko.mutanen@fi.rohmeurope.com, heikki.haikola@fi.rohmeurope.com
-Subject: Re: [RFC PATCH v1 07/13] devicetree: bindings: Document first ROHM
- BD70528 bindings
-Message-ID: <20190223003041.GA16670@bogus>
-References: <cover.1548149337.git.matti.vaittinen@fi.rohmeurope.com>
- <80de7a2b537ae3f414b0281736652256f38cf94c.1548149337.git.matti.vaittinen@fi.rohmeurope.com>
+        Fri, 22 Feb 2019 20:18:25 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
+        s=mail; t=1550884700; h=from:from:sender:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=U2Gzx13EM6NHHpEWkJGNYC/vDL9E3xqHovmRZEC0C7Y=;
+        b=PYc1r9QhSE1uAxYeMTY4hpm+IGKCnis5GhyYUKQnw/6PPV4cVISFdST77HlfrNhUMOz0Bp
+        BRF2HJ1/2YQhU+tQMqm56e8vzEkS65K+EHViYNfX/n5SfRSw+Db1YfNL0x0owV0544oPY8
+        bUllPRgZKDjLKFqIqSLVKYTWHXHQSTk=
+Date:   Fri, 22 Feb 2019 22:17:58 -0300
+From:   Paul Cercueil <paul@crapouillou.net>
+Subject: Re: [PATCH v9 14/27] pwm: jz4740: Improve algorithm of clock
+ calculation
+To:     Uwe =?iso-8859-1?q?Kleine-K=F6nig?= 
+        <u.kleine-koenig@pengutronix.de>, Stephen Boyd <sboyd@kernel.org>
+Cc:     Thierry Reding <thierry.reding@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        Paul Burton <paul.burton@mips.com>,
+        James Hogan <jhogan@kernel.org>,
+        Jonathan Corbet <corbet@lwn.net>, linux-pwm@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-watchdog@vger.kernel.org, linux-mips@vger.kernel.org,
+        linux-doc@vger.kernel.org, linux-clk@vger.kernel.org,
+        Russell King <linux@armlinux.org.uk>
+Message-Id: <1550884678.20534.0@crapouillou.net>
+In-Reply-To: <1547129096.16183.0@crapouillou.net>
+References: <20181227181319.31095-1-paul@crapouillou.net>
+        <20181227181319.31095-15-paul@crapouillou.net>
+        <20190105195725.cuxfge6zkpbt3cyk@pengutronix.de>
+        <1546722339.30174.0@crapouillou.net>
+        <20190105212711.s765knwwerceytvk@pengutronix.de>
+        <1547129096.16183.0@crapouillou.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <80de7a2b537ae3f414b0281736652256f38cf94c.1548149337.git.matti.vaittinen@fi.rohmeurope.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Tue, Jan 22, 2019 at 11:45:38AM +0200, Matti Vaittinen wrote:
-> Document bindings for regulators (3 bucks, 3 LDOs and 2 LED
-> drivers) and 4 GPIO pins which can be configured for I/O or
-> as interrupt sources withe configurable trigger levels.
+Hi,
 
-'dt-bindings: mfd: ...' for the subject.
+Le jeu. 10 janv. 2019 =E0 11:04, Paul Cercueil <paul@crapouillou.net> a=20
+=E9crit :
+> Adding Stephen to the discussion.
+> Adding Stephen to the discussion.
+>=20
+> On Sat, Jan 5, 2019 at 6:27 PM, Uwe Kleine-K=F6nig=20
+> <u.kleine-koenig@pengutronix.de> wrote:
+>> Hello Paul,
+>>=20
+>> On Sat, Jan 05, 2019 at 06:05:38PM -0300, Paul Cercueil wrote:
+>>>  On Sat, Jan 5, 2019 at 4:57 PM, Uwe Kleine-K=F6nig
+>>>  <u.kleine-koenig@pengutronix.de> wrote:
+>>>  > You are assuming stuff here about the parent clk which isn't=20
+>>> =7F=7Fguaranteed
+>>>  > (AFAICT) by the clk framework: If you call clk_round_rate(clk,=20
+>>> =7F=7Frate - 1)
+>>>  > this might well return rate even if the clock could run slower=20
+>>> =7F=7Fthan
+>>>  > rate.
+>>>=20
+>>>  It may not be guaranteed by the clock framework itself, but it is=20
+>>> =7F=7Fguaranteed
+>>>  to behave like that on this family of SoCs.
+>>=20
+>> You shouldn't rely on that. Experience shows that people will start
+>> copying code to machines where this is not guaranteed. Even if they
+>> don't copy and only learn from reading this is bad. Also how do you
+>> guarantee that this won't change in the future making the pwm code=20
+>> =7Fbreak
+>> without noticing?
+>>=20
+>> If you use an API better don't assume more things given than are
+>> guaranteed by the API.
+>>=20
+>> Having said that I would consider it sensible to introduce something
+>> like clk_roundup_rate() and clk_rounddown_rate() which would allow
+>> calculations like that.
+>=20
+> @Stephen:
+> Some context: my algorithm makes use of clk_round_rate(clk, rate - 1)=20
+> to get the
+> next (smaller) clock rate that a clock support.
+>=20
+> Is it something safe to assume? If not is there a better way?
 
-> 
-> Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-> ---
->  .../devicetree/bindings/mfd/rohm,bd70528-pmic.txt  | 104 +++++++++++++++++++++
->  1 file changed, 104 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/mfd/rohm,bd70528-pmic.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/mfd/rohm,bd70528-pmic.txt b/Documentation/devicetree/bindings/mfd/rohm,bd70528-pmic.txt
-> new file mode 100644
-> index 000000000000..21801440a53a
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/mfd/rohm,bd70528-pmic.txt
-> @@ -0,0 +1,104 @@
-> +* ROHM BD70528 Power Management Integrated Circuit bindings
-> +
-> +BD70528MWV is an ultra-low Iq general purpose single-chip power management IC
-> +for battery-powered portable devices. The IC integrates 3 ultra-low current
-> +consumption buck converters, 3 LDOs and 2 LED Drivers. Also included are 4
-> +GPIOs, a real-time clock (RTC), a 32kHz clock gate, high-accuracy VREF
-> +for use with an external ADC, flexible dual-input power path, 10 bits SAR ADC
-> +for battery temperature monitor and 1S battery charger with scalable charge
-> +currents.
-> +
-> +Required properties:
-> + - compatible		: Should be "rohm,bd70528"
-> + - reg			: I2C slave address.
-> + - interrupt-parent	: Phandle to the parent interrupt controller.
+Bump.
 
-Don't need to document this. It is implied and could be in the parent.
+What should I do here?
 
-> + - interrupts		: The interrupt line the device is connected to.
-> + - interrupt-controller	: To indicate bd70528 acts as an interrupt controller.
-> + - #interrupt-cells	: Should be 2. usage is compliant to the 2 cells
-> +			  variant of ../interrupt-controller/interrupts.txt
-> + - gpio-controller	: To indicate bd70528 acts as a gpio controller.
-> + - #gpio-cells		: Should be 2. The first cell is the pin number and
-> +			  the second cell is used to specify flags. See
-> +			  ../gpio/gpio.txt for more information.
-> + - clock-frequency	: Should be 32768
-> + - #clock-cells		: Should be 0.
-> + - regulators:		: List of child nodes that specify the regulators.
-> +			  Please see ../regulator/rohm,bd70528-regulator.txt
-> +
-> +Optional properties:
-> + - clock-output-names	: Should contain name for output clock.
-> +
-> +Example:
-> +/* external oscillator */
-> +osc: oscillator {
-> +	compatible = "fixed-clock";
-> +	#clock-cells = <1>;
-> +	clock-frequency  = <32768>;
-> +	clock-output-names = "osc";
-> +};
-> +
-> +pmic: bd70528@4b {
+>>>  > Wouldn't it make sense to start iterating with rate =3D 0xffff *=20
+>>> =7F=7F1e9 /
+>>>  > period? Otherwise you get bad configurations if rate is=20
+>>> =7F=7Fconsiderable
+>>>  > slower than necessary.
+>>>=20
+>>>  The algorithm will start with 'rate' being the parent clock's=20
+>>> rate, =7F=7Fwhich
+>>>  will always be the highest rate that the child clock will support.
+>>=20
+>> Ah right, I missed that bit.
 
-pmic@4b
+Thanks,
+-Paul
+=
 
-> +	compatible = "rohm,bd70528";
-> +	reg = <0x4b>;
-> +	interrupt-parent = <&gpio1>;
-> +	interrupts = <29 GPIO_ACTIVE_LOW>;
-> +	clocks = <&osc 0>;
-> +	#clock-cells = <0>;
-> +	clock-output-names = "bd70528-32k-out";
-> +	#gpio-cells = <2>;
-> +	gpio-controller;
-> +	interrupt-controller;
-> +	#interrupt-cells = <2>;
-> +
-> +	regulators {
-> +		buck1: BUCK1 {
-> +			regulator-name = "buck1";
-> +			regulator-min-microvolt = <1200000>;
-> +			regulator-max-microvolt = <3400000>;
-> +			regulator-boot-on;
-> +			regulator-ramp-delay = <125>;
-> +		};
-> +		buck2: BUCK2 {
-> +			regulator-name = "buck2";
-> +			regulator-min-microvolt = <1200000>;
-> +			regulator-max-microvolt = <3300000>;
-> +			regulator-boot-on;
-> +			regulator-ramp-delay = <125>;
-> +		};
-> +		buck3: BUCK3 {
-> +			regulator-name = "buck3";
-> +			regulator-min-microvolt = <800000>;
-> +			regulator-max-microvolt = <1800000>;
-> +			regulator-boot-on;
-> +			regulator-ramp-delay = <250>;
-> +		};
-> +		ldo1: LDO1 {
-> +			regulator-name = "ldo1";
-> +			regulator-min-microvolt = <1650000>;
-> +			regulator-max-microvolt = <3300000>;
-> +			regulator-boot-on;
-> +		};
-> +		ldo2: LDO2 {
-> +			regulator-name = "ldo2";
-> +			regulator-min-microvolt = <1650000>;
-> +			regulator-max-microvolt = <3300000>;
-> +			regulator-boot-on;
-> +		};
-> +
-> +		ldo3: LDO3 {
-> +			regulator-name = "ldo3";
-> +			regulator-min-microvolt = <1650000>;
-> +			regulator-max-microvolt = <3300000>;
-> +		};
-> +		led_ldo1: LED_LDO1 {
-> +			regulator-name = "led_ldo1";
-> +			regulator-min-microvolt = <200000>;
-> +			regulator-max-microvolt = <300000>;
-> +		};
-> +		led_ldo2: LED_LDO2 {
-> +			regulator-name = "led_ldo2";
-> +			regulator-min-microvolt = <200000>;
-> +			regulator-max-microvolt = <300000>;
-> +		};
-> +	};
-> +};
-> -- 
-> 2.14.3
-> 
-> 
-> -- 
-> Matti Vaittinen
-> ROHM Semiconductors
-> 
-> ~~~ "I don't think so," said Rene Descartes.  Just then, he vanished ~~~
