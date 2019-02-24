@@ -2,393 +2,158 @@ Return-Path: <SRS0=aOtl=Q7=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+X-Spam-Status: No, score=-4.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
 	SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8E042C43381
-	for <linux-watchdog@archiver.kernel.org>; Sun, 24 Feb 2019 03:29:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BDB81C43381
+	for <linux-watchdog@archiver.kernel.org>; Sun, 24 Feb 2019 11:36:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 3A12D2054F
-	for <linux-watchdog@archiver.kernel.org>; Sun, 24 Feb 2019 03:29:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 73F1D20663
+	for <linux-watchdog@archiver.kernel.org>; Sun, 24 Feb 2019 11:36:34 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="j/GCzRu2"
+	dkim=pass (1024-bit key) header.d=Mellanox.com header.i=@Mellanox.com header.b="Ei/dtT7/"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727915AbfBXD3E (ORCPT
+        id S1726274AbfBXLgd (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sat, 23 Feb 2019 22:29:04 -0500
-Received: from mail-pl1-f196.google.com ([209.85.214.196]:41326 "EHLO
-        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727752AbfBXD3E (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 23 Feb 2019 22:29:04 -0500
-Received: by mail-pl1-f196.google.com with SMTP id y5so2890481plk.8;
-        Sat, 23 Feb 2019 19:29:03 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=v5R5LCGjAlFCGhFSnspcqiVvj2dc3luKtcjDkiR+PU0=;
-        b=j/GCzRu2vT4DNYcV1gq9//xX1rrZz6vW+mwKXGLfS4MC3i8oCdIKHDpQHtkdKnGmGD
-         Iod5ptSz6+/wE41F7vaQsMVSUZtmNHztdc2Ja3GiIrZ5TQos5pCxmWAytGcM3mYSVwVK
-         bRcIVJCLdXeK9tACHp318Pt+pjCVWLdyApSC1AqI7TWQHz7nv9c9J9NMYTBo0sFkKiad
-         xnylVj6/M3GF8YUNgHB3HR+cUcSlCTITTHVZmnt6ULVvrgvBASOWioGSYr/P7WFlYH3q
-         ltTeKMvJkcKlCiQh0wpk4Glar2pcoxm+L4Jt+rUl+usi2HDaBSbfPZksA9jHf59Bi1+4
-         6Nsg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
-         :date:user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=v5R5LCGjAlFCGhFSnspcqiVvj2dc3luKtcjDkiR+PU0=;
-        b=IWpOb4pfqdDICYCd4jdz/be/E3sW0I7kqC3kQ+WhMyZO8sExZl41ktFwgHh8KIAyxH
-         0mISF2nR3ChBF6zqcprpzlxduS75yDBYPM5Oy+otzc7f8CTv6xFzRg8tO81Rk98VEu+k
-         aGgeyX+s5pNicYTVzG4pfobkp3ooak/R73Q7wEsp3R4riVvxZA5pxzo1DMdEUeLi/HgB
-         tQC1otEcpNop4BBU+MN6cGI5eVMJQzhRCpc0BTFp5H0mqsi/YBJ//y2dvDUtLqlDyErn
-         tlIYKmC3JTb1eXySJSqDn68U/fKhe2vGFKAIVboSHFt+dq3MZVRrpQPd+f4ug8EFszjl
-         ndOw==
-X-Gm-Message-State: AHQUAubANELVK7YYmMbGywoNGCTRxSA4Ub/HFJo8ryeaysFVOfWmqhng
-        lUChOuMYKA2HOee/UVdcw70=
-X-Google-Smtp-Source: AHgI3Ia9R2c1ss7zYNae4m0mgNhPhwVQ+A4+cPZvVGiTV00jvwlajfrkhlfXrKdqtSJPvro/jjO1fg==
-X-Received: by 2002:a17:902:298a:: with SMTP id h10mr12225949plb.312.1550978943359;
-        Sat, 23 Feb 2019 19:29:03 -0800 (PST)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id e63sm14631470pfc.47.2019.02.23.19.29.01
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 23 Feb 2019 19:29:02 -0800 (PST)
-Subject: Re: [PATCH RESEND V2 2/4] watchdog: imx_sc: Add i.MX system
- controller watchdog support
-To:     Anson Huang <anson.huang@nxp.com>,
-        "robh+dt@kernel.org" <robh+dt@kernel.org>,
-        "mark.rutland@arm.com" <mark.rutland@arm.com>,
-        "shawnguo@kernel.org" <shawnguo@kernel.org>,
-        "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>,
-        "kernel@pengutronix.de" <kernel@pengutronix.de>,
-        "festevam@gmail.com" <festevam@gmail.com>,
-        "catalin.marinas@arm.com" <catalin.marinas@arm.com>,
-        "will.deacon@arm.com" <will.deacon@arm.com>,
+        Sun, 24 Feb 2019 06:36:33 -0500
+Received: from mail-eopbgr150088.outbound.protection.outlook.com ([40.107.15.88]:9795
+        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726001AbfBXLgd (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Sun, 24 Feb 2019 06:36:33 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=K1K95wn96FivFis8B3KLS4e9dbv7ObM53KT/Y6rpWL0=;
+ b=Ei/dtT7/uAtuol3c6QUzkHsHr+9FCEINsps3ZRr0x8ByrpEAW4M5zvSbeWBsUkORtTTKO6uhVdgTJclkqMkWMom8areQNfw67qV1Z4SEgDMJyG+x/vJ9It5C9AiIrn87n5v/sM/SW7TomYVEJRdhBMOubBq7cumGaq4hfoIbaG0=
+Received: from AM6PR05MB5224.eurprd05.prod.outlook.com (20.177.196.210) by
+ AM6PR05MB5222.eurprd05.prod.outlook.com (20.177.191.88) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.1643.20; Sun, 24 Feb 2019 11:36:29 +0000
+Received: from AM6PR05MB5224.eurprd05.prod.outlook.com
+ ([fe80::195d:8821:cbf3:ca92]) by AM6PR05MB5224.eurprd05.prod.outlook.com
+ ([fe80::195d:8821:cbf3:ca92%5]) with mapi id 15.20.1643.019; Sun, 24 Feb 2019
+ 11:36:29 +0000
+From:   Vadim Pasternak <vadimp@mellanox.com>
+To:     Guenter Roeck <linux@roeck-us.net>,
+        Michael Shych <michaelsh@mellanox.com>,
         "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
-        Aisheng Dong <aisheng.dong@nxp.com>,
-        "ulf.hansson@linaro.org" <ulf.hansson@linaro.org>,
-        Daniel Baluta <daniel.baluta@nxp.com>,
-        Andy Gross <andy.gross@linaro.org>,
-        "horms+renesas@verge.net.au" <horms+renesas@verge.net.au>,
-        "heiko@sntech.de" <heiko@sntech.de>,
-        "arnd@arndb.de" <arnd@arndb.de>,
-        "bjorn.andersson@linaro.org" <bjorn.andersson@linaro.org>,
-        "jagan@amarulasolutions.com" <jagan@amarulasolutions.com>,
-        "enric.balletbo@collabora.com" <enric.balletbo@collabora.com>,
-        "marc.w.gonzalez@free.fr" <marc.w.gonzalez@free.fr>,
-        "olof@lixom.net" <olof@lixom.net>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
-Cc:     dl-linux-imx <linux-imx@nxp.com>
-References: <1550472539-16590-1-git-send-email-Anson.Huang@nxp.com>
- <1550472539-16590-3-git-send-email-Anson.Huang@nxp.com>
-From:   Guenter Roeck <linux@roeck-us.net>
-Message-ID: <a66a3bcd-ceed-bc4b-1b66-c3ce2c7addeb@roeck-us.net>
-Date:   Sat, 23 Feb 2019 19:29:00 -0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.4.0
-MIME-Version: 1.0
-In-Reply-To: <1550472539-16590-3-git-send-email-Anson.Huang@nxp.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+        "andy@infradead.org" <andy@infradead.org>,
+        "dvhart@infradead.org" <dvhart@infradead.org>
+CC:     "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+        "platform-driver-x86@vger.kernel.org" 
+        <platform-driver-x86@vger.kernel.org>
+Subject: RE: [PATCH v4 2/3] watchdog: mlx-wdt: introduce a watchdog driver for
+ Mellanox systems.
+Thread-Topic: [PATCH v4 2/3] watchdog: mlx-wdt: introduce a watchdog driver
+ for Mellanox systems.
+Thread-Index: AQHUyP+IjS564SDcWE+VCarmqBR+o6Xto+0AgAEza7A=
+Date:   Sun, 24 Feb 2019 11:36:29 +0000
+Message-ID: <AM6PR05MB522419E0EF2BD6098A00FB8EA2790@AM6PR05MB5224.eurprd05.prod.outlook.com>
+References: <20190220093424.5374-1-michaelsh@mellanox.com>
+ <20190220093424.5374-3-michaelsh@mellanox.com>
+ <a93993bf-cf72-83c0-0d44-d8f46230482c@roeck-us.net>
+In-Reply-To: <a93993bf-cf72-83c0-0d44-d8f46230482c@roeck-us.net>
+Accept-Language: en-US
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=vadimp@mellanox.com; 
+x-originating-ip: [193.47.165.251]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: 5b316c4a-e4d1-4e41-c5ed-08d69a4c5177
+x-ms-office365-filtering-ht: Tenant
+x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(5600110)(711020)(4605104)(4618075)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(2017052603328)(7153060)(7193020);SRVR:AM6PR05MB5222;
+x-ms-traffictypediagnostic: AM6PR05MB5222:
+x-microsoft-exchange-diagnostics: =?utf-8?B?MTtBTTZQUjA1TUI1MjIyOzIzOnpRVFpnVERMT3RKWjFKUFozS0tvK09ROFFT?=
+ =?utf-8?B?WE9LSTBudDBKYkh2NXRGUnQ0VWNjbW5ZSVJqZFhWVERWYUxWZ0wvdklOeVo2?=
+ =?utf-8?B?dDlhNllWZi9RTjVaek5Ra0kwdE8zQXo3Nk9RUEkvanpkQ0MwcjlHdmZvLzF2?=
+ =?utf-8?B?TEZQRkRYRXBsaTNQZGdKWnp2enk5ZzgrTVgwdlNMYklVR3d3U2RvVkJkZU9n?=
+ =?utf-8?B?d200S0ZxamJWQnpiaGtlajVXc28rV2tyV2hwV0MyZDUrZnlTMy83bDVxSGw0?=
+ =?utf-8?B?TDl3aGJjZnJMcXVoVkF2cmo5cnRMK0lWdzJ5RzRGOUJIT3puT2hpMzBtTExj?=
+ =?utf-8?B?QVR2R0kzUEFZVk14NEdIcC9nZlc5aWlWQzYrZEpubHF3b0JkakdHc0xuYUtl?=
+ =?utf-8?B?cHhMRHNJb0J2NzRGRXRZTXFXdjRDL0p0eHhVTmpSTzYvWGFsd1ZvS2RyS1FM?=
+ =?utf-8?B?UXJnNjJmUFQwQkZ4a09oWlN1S2JZRi9JOHVnc0YraUJVeVUrbG9sV3NxMnhv?=
+ =?utf-8?B?N0tnYkhoZURoM2FzMnhSMW5odzB6ejBsa3dvZEFWNk9KYmk2WUpCd0syMjI1?=
+ =?utf-8?B?YjhzSWI3S3BEWnZyTUR5UHRLcDFLbVJ0MHowbXVRUFhzQkJDN0twUDVsbnpu?=
+ =?utf-8?B?SlRjaDJ2R2duWkxlVitVTzNIbWtHTEFlYjJ1V3dUM2syUmN0eVlBMmlpZDZE?=
+ =?utf-8?B?NXlXUHZyVXZQYVc3aXhhKzA4L3FRTG9vc1EydXpzNHBuWFRVaHJTM2VIcE1H?=
+ =?utf-8?B?d3JVMVl6RG82SXVyRjhnYmtBNkJoZy8yaFpkZENaWWRKcGZpcmlEL2dNSm4r?=
+ =?utf-8?B?QmMycUpqZGgvbVNkRmZ0MllWQlFVTEN1VVM3bVFuTk51NDM5QnpnN0RKU0dU?=
+ =?utf-8?B?Z09obGVOaUZJTGlibVZrUE1vTHB6bFhEOGdZRHZvcGxmTDNqV1Fkc1BCK3pu?=
+ =?utf-8?B?Vk9OQkhKSGNOUENvZ29JaHFPUjRYVWF2blk1bSsxOG1QNnZYTzRraEsrYnp3?=
+ =?utf-8?B?ZGZTK3Z5L1NwQzVpTXNaK3pjcnVBZXFNRSt3c21oeS9qb3d0RWsvS2dDVXMv?=
+ =?utf-8?B?Q0J4dnBYbnB1akszbUpmSjdoMXo0OGJPeTRGa0lZU0t4VDkwNVN0Rk84dUlr?=
+ =?utf-8?B?STNabjI3emhmMkkxeDFkT3NhTkJHTTBZaWtvMllzVWVkQjBmNS9iVW4wOVlK?=
+ =?utf-8?B?U1NVdTJoSWhMV2o3a2pxSE1WcUIzREZCek9mVkhXK2tXaWVjNDJSajdRdDNH?=
+ =?utf-8?B?aHFEV1M2c1V3dzBqZURyZTZuVmxYeVhoam9QcWF5VEN4YlJnYWQ0VnhmUXpv?=
+ =?utf-8?B?OS9KZlEvUUFneUViTS91TUhpUGh0akg1cjV6aWU1RVpyRGlIZEhKbis5cU9T?=
+ =?utf-8?B?dDBLTlRUeXhva05Qd0FnV3JTQWl0Y2xZOTVVbkEra24yaUZkTFFCdEZsaS8r?=
+ =?utf-8?B?c3pReGNKMSsrTkJ6VDRwdzNqUHFxSGhSZmxwY3dhbjN6emtVR0VNS2Uza3Uz?=
+ =?utf-8?B?Y0VHRHB6eWd4RkdNREx6TFJ2WVhiSlVxNTdxaXErcHprWjZSRzUrd25sSjVO?=
+ =?utf-8?B?NDVJcWxPbEJ0VW5UUmZsdmc3ZFljUGpOUC9rVnEzNUFvRHpFZWNzWjUwd2F2?=
+ =?utf-8?B?dDR1bGNhdTJ0cjZwbXJNU0FqRkJ5aDNmblltRGdHOFF4WW9HNlVrQVpjQ1o0?=
+ =?utf-8?B?cVZnZXU3bFpOS0NQaXpNbGhWM0xJRnUzQmtYRTdPdlVwR0t1Y0x0RnA4bnBL?=
+ =?utf-8?Q?LjWYfEGTWKnf1VNzd4vZcakgqiiJGeXl7/61I=3D?=
+x-microsoft-antispam-prvs: <AM6PR05MB52221C39E91A69E4AB7E49E5A2790@AM6PR05MB5222.eurprd05.prod.outlook.com>
+x-forefront-prvs: 09583628E0
+x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(366004)(396003)(136003)(39850400004)(346002)(376002)(189003)(13464003)(199004)(6116002)(71190400001)(71200400001)(3846002)(102836004)(486006)(446003)(53936002)(6506007)(305945005)(25786009)(54906003)(76176011)(2201001)(11346002)(229853002)(86362001)(316002)(55016002)(476003)(105586002)(6246003)(110136005)(7696005)(9686003)(106356001)(7736002)(4326008)(6436002)(53546011)(97736004)(2906002)(14444005)(256004)(81166006)(81156014)(8676002)(33656002)(14454004)(26005)(74316002)(68736007)(2501003)(52536013)(99286004)(66066001)(8936002)(478600001)(5660300002)(186003);DIR:OUT;SFP:1101;SCL:1;SRVR:AM6PR05MB5222;H:AM6PR05MB5224.eurprd05.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
+received-spf: None (protection.outlook.com: mellanox.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam-message-info: YVsxFI+BogcARO7U7ug4dFXI7XX8gyuFM++opGhRGdaVW+aTBOstkGCDtjCpWJa1+/ALDRW+cGLafCbn4wKiL1mwHQ5ax/3ro0blD53KbblW3wPVHz1dBQU4Tvi11zC2mfk8KrCqI01I7dTyqxlzJDGEEWNofDrYJGo40/GaXTHddCSXNJbmwQRlDH1KuBBDoudj5NLWZyhLAd8VPPUhqR5lxXiAjcl/X8lG5rar71cVdbXFCumIVuHJszzvb47RHmNzHMgppyNya8m6hYTVnUjFJJ6IQZ/pfO3fCc6MnuTV4Z4PaZS+EtaT552Hy9IwWQYNRjasozkFEjpCsC3RBXu9B7Y7jVzNZ3cVa/TRhgPoyGgn6Nu5EhUEvknetuITguSmbSnTSpuha6IAxf4L5bYBEdPeJZbqHHTUadNklEA=
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+X-OriginatorOrg: Mellanox.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 5b316c4a-e4d1-4e41-c5ed-08d69a4c5177
+X-MS-Exchange-CrossTenant-originalarrivaltime: 24 Feb 2019 11:36:29.3659
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: a652971c-7d2e-4d9b-a6a4-d149256f461b
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM6PR05MB5222
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 2/17/19 10:53 PM, Anson Huang wrote:
-> i.MX8QXP is an ARMv8 SoC which has a Cortex-M4 system controller
-> inside, the system controller is in charge of controlling power,
-> clock and watchdog etc..
-> 
-> This patch adds i.MX system controller watchdog driver support,
-> watchdog operation needs to be done in secure EL3 mode via
-> ARM-Trusted-Firmware, using SMC call, CPU will trap into
-> ARM-Trusted-Firmware and then it will request system controller
-> to do watchdog operation via IPC.
-> 
-> Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
-
-Sorry, but I have to take back my Reviewed-by: Comments below.
-Sorry, I completely missed that earlier.
-
-> ---
-> Changes since V1:
->          - use watchdog_active() instead of comparing watchdog status directly;
->          - use devm_kzalloc instead of using static variable;
->          - remove unnecessary wdog set driver data in .probe;
->          - use watchdog_stop_on_unregister() instead of .remove callback;
->          - use watchdog_stop_on_reboot() instead of .shutdown callback;
->          - use SIMPLE_DEV_PM_OPS() to simply the PM code.
-> ---
->   drivers/watchdog/Kconfig      |  13 +++
->   drivers/watchdog/Makefile     |   1 +
->   drivers/watchdog/imx_sc_wdt.c | 185 ++++++++++++++++++++++++++++++++++++++++++
->   3 files changed, 199 insertions(+)
->   create mode 100644 drivers/watchdog/imx_sc_wdt.c
-> 
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index 65c3c42..5c5b8ba 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -625,6 +625,19 @@ config IMX2_WDT
->   	  To compile this driver as a module, choose M here: the
->   	  module will be called imx2_wdt.
->   
-> +config IMX_SC_WDT
-> +	tristate "IMX SC Watchdog"
-> +	depends on ARCH_MXC || COMPILE_TEST
-> +	select WATCHDOG_CORE
-> +	help
-> +	  This is the driver for the system controller watchdog
-> +	  on the NXP i.MX SoCs with system controller inside.
-> +	  If you have one of these processors and wish to have
-> +	  watchdog support enabled, say Y, otherwise say N.
-> +
-> +	  To compile this driver as a module, choose M here: the
-> +	  module will be called imx_sc_wdt.
-> +
->   config UX500_WATCHDOG
->   	tristate "ST-Ericsson Ux500 watchdog"
->   	depends on MFD_DB8500_PRCMU
-> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-> index 4e78a8c..0c9da63 100644
-> --- a/drivers/watchdog/Makefile
-> +++ b/drivers/watchdog/Makefile
-> @@ -68,6 +68,7 @@ obj-$(CONFIG_NUC900_WATCHDOG) += nuc900_wdt.o
->   obj-$(CONFIG_TS4800_WATCHDOG) += ts4800_wdt.o
->   obj-$(CONFIG_TS72XX_WATCHDOG) += ts72xx_wdt.o
->   obj-$(CONFIG_IMX2_WDT) += imx2_wdt.o
-> +obj-$(CONFIG_IMX_SC_WDT) += imx_sc_wdt.o
->   obj-$(CONFIG_UX500_WATCHDOG) += ux500_wdt.o
->   obj-$(CONFIG_RETU_WATCHDOG) += retu_wdt.o
->   obj-$(CONFIG_BCM2835_WDT) += bcm2835_wdt.o
-> diff --git a/drivers/watchdog/imx_sc_wdt.c b/drivers/watchdog/imx_sc_wdt.c
-> new file mode 100644
-> index 0000000..a234a0c
-> --- /dev/null
-> +++ b/drivers/watchdog/imx_sc_wdt.c
-> @@ -0,0 +1,185 @@
-> +// SPDX-License-Identifier: GPL-2.0+
-> +/*
-> + * Copyright 2018-2019 NXP.
-> + */
-> +
-> +#include <linux/arm-smccc.h>
-> +#include <linux/io.h>
-> +#include <linux/init.h>
-> +#include <linux/kernel.h>
-> +#include <linux/module.h>
-> +#include <linux/moduleparam.h>
-> +#include <linux/of.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/reboot.h>
-> +#include <linux/watchdog.h>
-> +
-> +#define DEFAULT_TIMEOUT 60
-> +/*
-> + * Software timer tick implemented in scfw side, support 10ms to 0xffffffff ms
-> + * in theory, but for normal case, 1s~128s is enough, you can change this max
-> + * value in case it's not enough.
-> + */
-> +#define MAX_TIMEOUT 128
-> +
-> +#define IMX_SIP_TIMER			0xC2000002
-> +#define IMX_SIP_TIMER_START_WDOG		0x01
-> +#define IMX_SIP_TIMER_STOP_WDOG		0x02
-> +#define IMX_SIP_TIMER_SET_WDOG_ACT	0x03
-> +#define IMX_SIP_TIMER_PING_WDOG		0x04
-> +#define IMX_SIP_TIMER_SET_TIMEOUT_WDOG	0x05
-> +#define IMX_SIP_TIMER_GET_WDOG_STAT	0x06
-> +#define IMX_SIP_TIMER_SET_PRETIME_WDOG	0x07
-> +
-> +#define SC_TIMER_WDOG_ACTION_PARTITION	0
-> +
-> +static bool nowayout = WATCHDOG_NOWAYOUT;
-> +module_param(nowayout, bool, 0000);
-> +MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
-> +		 __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
-> +
-> +static unsigned int timeout = DEFAULT_TIMEOUT;
-
-Should not be initialized.
-
-> +module_param(timeout, uint, 0000);
-> +MODULE_PARM_DESC(timeout, "Watchdog timeout in seconds (default="
-> +		 __MODULE_STRING(DEFAULT_TIMEOUT) ")");
-> +
-
-This suggests that you want to use that timeout. But that isn't the case.
-
-
-
-
-> +static int imx_sc_wdt_ping(struct watchdog_device *wdog)
-> +{
-> +	struct arm_smccc_res res;
-> +
-> +	arm_smccc_smc(IMX_SIP_TIMER, IMX_SIP_TIMER_PING_WDOG,
-> +		      0, 0, 0, 0, 0, 0, &res);
-> +
-> +	return res.a0;
-> +}
-> +
-> +static int imx_sc_wdt_start(struct watchdog_device *wdog)
-> +{
-> +	struct arm_smccc_res res;
-> +
-> +	arm_smccc_smc(IMX_SIP_TIMER, IMX_SIP_TIMER_START_WDOG,
-> +		      0, 0, 0, 0, 0, 0, &res);
-> +	if (res.a0)
-> +		return res.a0;
-> +
-> +	arm_smccc_smc(IMX_SIP_TIMER, IMX_SIP_TIMER_SET_WDOG_ACT,
-> +		      SC_TIMER_WDOG_ACTION_PARTITION,
-> +		      0, 0, 0, 0, 0, &res);
-> +	return res.a0;
-> +}
-> +
-> +static int imx_sc_wdt_stop(struct watchdog_device *wdog)
-> +{
-> +	struct arm_smccc_res res;
-> +
-> +	arm_smccc_smc(IMX_SIP_TIMER, IMX_SIP_TIMER_STOP_WDOG,
-> +		      0, 0, 0, 0, 0, 0, &res);
-> +
-> +	return res.a0;
-> +}
-> +
-> +static int imx_sc_wdt_set_timeout(struct watchdog_device *wdog,
-> +				unsigned int timeout)
-> +{
-> +	struct arm_smccc_res res;
-> +
-> +	wdog->timeout = timeout;
-> +	arm_smccc_smc(IMX_SIP_TIMER, IMX_SIP_TIMER_SET_TIMEOUT_WDOG,
-> +		      timeout * 1000, 0, 0, 0, 0, 0, &res);
-> +
-> +	return res.a0;
-> +}
-> +
-> +static const struct watchdog_ops imx_sc_wdt_ops = {
-> +	.owner = THIS_MODULE,
-> +	.start = imx_sc_wdt_start,
-> +	.stop  = imx_sc_wdt_stop,
-> +	.ping  = imx_sc_wdt_ping,
-> +	.set_timeout = imx_sc_wdt_set_timeout,
-> +};
-> +
-> +static const struct watchdog_info imx_sc_wdt_info = {
-> +	.identity	= "i.MX SC watchdog timer",
-> +	.options	= WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING |
-> +			  WDIOF_MAGICCLOSE | WDIOF_PRETIMEOUT,
-> +};
-> +
-> +static int imx_sc_wdt_probe(struct platform_device *pdev)
-> +{
-> +	struct watchdog_device *imx_sc_wdd;
-> +	int ret;
-> +
-> +	imx_sc_wdd = devm_kzalloc(&pdev->dev, sizeof(*imx_sc_wdd), GFP_KERNEL);
-> +	if (!imx_sc_wdd)
-> +		return -ENOMEM;
-> +
-> +	platform_set_drvdata(pdev, imx_sc_wdd);
-> +
-> +	imx_sc_wdd->info = &imx_sc_wdt_info;
-> +	imx_sc_wdd->ops = &imx_sc_wdt_ops;
-> +	imx_sc_wdd->min_timeout = 1;
-> +	imx_sc_wdd->max_timeout = MAX_TIMEOUT;
-> +	imx_sc_wdd->parent = &pdev->dev;
-
-	imx_sc_wdd->timeout = DEFAULT_TIMEOUT;
-
-> +
-> +	ret = watchdog_init_timeout(imx_sc_wdd, DEFAULT_TIMEOUT, &pdev->dev);
-
-As written this doesn't make sense: It will set the timeout to the default,
-which is always valid, making the error check unnecessary. I assume you meant
-the above plus
-	ret = watchdog_init_timeout(imx_sc_wdd, timeout, &pdev->dev);
-
-By not pre=initializing 'timeout', the watchdog core will try to read the
-configured timeout from devicetree. If it is not specified, it will keep
-the default timeout which should be set explicitly as suggested above.
-
-With that, the error check makes some sense, though it is unusual to
-bail out if an out-of-range timeout was specified. But that is your call.
-
-Again, sorry for not noticing this earlier.
-
-Guenter
-
-> +	if (ret) {
-> +		dev_err(&pdev->dev, "Failed to init the wdog timeout:%d\n",
-> +			ret);
-> +		return ret;
-> +	}
-> +
-> +	watchdog_stop_on_reboot(imx_sc_wdd);
-> +	watchdog_stop_on_unregister(imx_sc_wdd);
-> +
-> +	ret = devm_watchdog_register_device(&pdev->dev, imx_sc_wdd);
-> +	if (ret) {
-> +		dev_err(&pdev->dev, "Failed to register watchdog device\n");
-> +		return ret;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static const struct of_device_id imx_sc_wdt_dt_ids[] = {
-> +	{ .compatible = "fsl,imx8qxp-sc-wdt", },
-> +	{ /* sentinel */ }
-> +};
-> +MODULE_DEVICE_TABLE(of, imx_sc_wdt_dt_ids);
-> +
-> +static int __maybe_unused imx_sc_wdt_suspend(struct device *dev)
-> +{
-> +	struct watchdog_device *imx_sc_wdd = dev_get_drvdata(dev);
-> +
-> +	if (watchdog_active(imx_sc_wdd))
-> +		imx_sc_wdt_stop(imx_sc_wdd);
-> +
-> +	return 0;
-> +}
-> +
-> +static int __maybe_unused imx_sc_wdt_resume(struct device *dev)
-> +{
-> +	struct watchdog_device *imx_sc_wdd = dev_get_drvdata(dev);
-> +
-> +	if (watchdog_active(imx_sc_wdd))
-> +		imx_sc_wdt_start(imx_sc_wdd);
-> +
-> +	return 0;
-> +}
-> +
-> +static SIMPLE_DEV_PM_OPS(imx_sc_wdt_pm_ops,
-> +			 imx_sc_wdt_suspend, imx_sc_wdt_resume);
-> +
-> +static struct platform_driver imx_sc_wdt_driver = {
-> +	.probe		= imx_sc_wdt_probe,
-> +	.driver		= {
-> +		.name	= "imx-sc-wdt",
-> +		.of_match_table = imx_sc_wdt_dt_ids,
-> +		.pm	= &imx_sc_wdt_pm_ops,
-> +	},
-> +};
-> +
-> +module_platform_driver(imx_sc_wdt_driver);
-> +
-> +MODULE_AUTHOR("Robin Gong <yibin.gong@nxp.com>");
-> +MODULE_DESCRIPTION("NXP i.MX system controller watchdog driver");
-> +MODULE_LICENSE("GPL v2");
-> 
-
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogR3VlbnRlciBSb2VjayA8
+Z3JvZWNrN0BnbWFpbC5jb20+IE9uIEJlaGFsZiBPZiBHdWVudGVyIFJvZWNrDQo+IFNlbnQ6IFNh
+dHVyZGF5LCBGZWJydWFyeSAyMywgMjAxOSA3OjEzIFBNDQo+IFRvOiBNaWNoYWVsIFNoeWNoIDxt
+aWNoYWVsc2hAbWVsbGFub3guY29tPjsgd2ltQGxpbnV4LXdhdGNoZG9nLm9yZzsNCj4gYW5keUBp
+bmZyYWRlYWQub3JnOyBkdmhhcnRAaW5mcmFkZWFkLm9yZw0KPiBDYzogbGludXgtd2F0Y2hkb2dA
+dmdlci5rZXJuZWwub3JnOyBwbGF0Zm9ybS1kcml2ZXIteDg2QHZnZXIua2VybmVsLm9yZzsNCj4g
+VmFkaW0gUGFzdGVybmFrIDx2YWRpbXBAbWVsbGFub3guY29tPg0KPiBTdWJqZWN0OiBSZTogW1BB
+VENIIHY0IDIvM10gd2F0Y2hkb2c6IG1seC13ZHQ6IGludHJvZHVjZSBhIHdhdGNoZG9nIGRyaXZl
+ciBmb3INCj4gTWVsbGFub3ggc3lzdGVtcy4NCj4gDQo+IE9uIDIvMjAvMTkgMTozNCBBTSwgbWlj
+aGFlbHNoQG1lbGxhbm94LmNvbSB3cm90ZToNCj4gPiBGcm9tOiBNaWNoYWVsIFNoeWNoIDxtaWNo
+YWVsc2hAbWVsbGFub3guY29tPg0KPiA+DQo+ID4gSW50cm9kdWNlIHdhdGNoZG9nIGRyaXZlciBm
+b3IgYSB2YXJpb3VzIHJhbmdlIG9mIE1lbGxhbm94IEV0aGVybmV0IGFuZA0KPiA+IEluZmluaWJh
+bmQgc3dpdGNoIHN5c3RlbXMuDQo+ID4NCj4gPiBXYXRjaGRvZyBkcml2ZXIgZm9yIE1lbGxhbm94
+IHdhdGNoZG9nIGRldmljZXMsIGltcGxlbWVudGVkIGluDQo+ID4gcHJvZ3JhbW1hYmxlIGxvZ2lj
+IGRldmljZS4NCj4gPg0KPiA+IE1haW4gYW5kIGF1eGlsaWFyeSB3YXRjaGRvZyBkZXZpY2VzIGNh
+biBleGlzdCBvbiB0aGUgc2FtZSBzeXN0ZW0uDQo+ID4gVGhlcmUgYXJlIHNldmVyYWwgYWN0aW9u
+cyB0aGF0IGNhbiBiZSBkZWZpbmVkIGluIHRoZSB3YXRjaGRvZzoNCj4gPiBzeXN0ZW0gcmVzZXQs
+IHN0YXJ0IGZhbnMgb24gZnVsbCBzcGVlZCBhbmQgaW5jcmVhc2UgYSBjb3VudGVyLg0KPiA+IFRo
+ZSBsYXN0IDIgYWN0aW9ucyBhcmUgcGVyZm9ybWVkIHdpdGhvdXQgYSBzeXN0ZW0gcmVzZXQuDQo+
+ID4gQWN0aW9ucyB3aXRob3V0IHJlc2V0IGFyZSBwcm92aWRlZCBmb3IgYXV4aWxpYXJ5IHdhdGNo
+ZG9nIGRldmljZXMsDQo+ID4gd2hpY2ggaXMgb3B0aW9uYWwuDQo+ID4gQWNjZXNzIHRvIEhXIHJl
+Z2lzdGVycyBpcyBwZXJmb3JtZWQgdGhyb3VnaCBnZW5lcmljIHJlZ21hcCBpbnRlcmZhY2UuDQo+
+ID4NCj4gPiBUaGVyZSBhcmUgMiB0eXBlcyBvZiBIVyB3YXRjaGRvZyBpbXBsZW1lbnRhdGlvbnMu
+DQo+ID4gVHlwZSAxOiBhY3R1YWwgSFcgdGltZW91dCBjYW4gYmUgZGVmaW5lZCBhcyBwb3dlciBv
+ZiAyIG1zZWMuDQo+ID4gZS5nLiB0aW1lb3V0IDIwIHNlYyB3aWxsIGJlIHJvdW5kZWQgdXAgdG8g
+MzI3NjggbXNlYy47IG1heGltdW0gdGltZW91dA0KPiA+IHBlcmlvZCBpcyAzMiBzZWMgKDMyNzY4
+IG1zZWMuKTsgZ2V0IHRpbWUtbGVmdCBpc24ndCBzdXBwb3J0ZWQgVHlwZSAyOg0KPiA+IGFjdHVh
+bCBIVyB0aW1lb3V0IGlzIGRlZmluZWQgaW4gc2VjLiBhbmQgaXQncyB0aGUgc2FtZSBhcyB1c2Vy
+LWRlZmluZWQNCj4gPiB0aW1lb3V0OyBtYXhpbXVtIHRpbWVvdXQgaXMgMjU1IHNlYzsgZ2V0IHRp
+bWUtbGVmdCBpcyBzdXBwb3J0ZWQ7DQo+ID4NCj4gPiBXYXRjaGRvZyBkcml2ZXIgaXMgcHJvYmVk
+IGZyb20gdGhlIGNvbW1vbiBtbHhfcGxhdGZvcm0gZHJpdmVyLg0KPiA+DQo+ID4gU2lnbmVkLW9m
+Zi1ieTogTWljaGFlbCBTaHljaCA8bWljaGFlbHNoQG1lbGxhbm94LmNvbT4NCj4gDQo+IFJldmll
+d2VkLWJ5OiBHdWVudGVyIFJvZWNrIDxsaW51eEByb2Vjay11cy5uZXQ+DQo+IA0KPiA+DQoNCkhp
+IEd1ZW50ZXIsDQoNClRoYW5rIHlvdSB2ZXJ5IG11Y2ggZm9yIHlvdXIgcmV2aWV3cy4NCg0KSG93
+IHdlIHNob3VsZCBwcm9jZWVkIGZvciB0aGlzIHBhdGNoc2V0Pw0KDQpXaG8gc2hvdWxkIHRha2Ug
+aXQgdG8gdGhlIG5leHQsIHdhdGNoZG9nIG9yIHBsYXRmb3JtIG1haW5hdGFpbmVyPw0KDQpUaGFu
+a3MsDQpWYWRpbS4NCiANCg0KDQo=
