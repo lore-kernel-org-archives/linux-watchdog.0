@@ -2,99 +2,49 @@ Return-Path: <SRS0=Hp/S=RB=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_MUTT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F0E0C43381
-	for <linux-watchdog@archiver.kernel.org>; Tue, 26 Feb 2019 18:08:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AC7BBC43381
+	for <linux-watchdog@archiver.kernel.org>; Tue, 26 Feb 2019 18:23:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 2A3CE206B8
-	for <linux-watchdog@archiver.kernel.org>; Tue, 26 Feb 2019 18:08:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7BEFB217F5
+	for <linux-watchdog@archiver.kernel.org>; Tue, 26 Feb 2019 18:23:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728831AbfBZSI6 (ORCPT
+        id S1728920AbfBZSXN (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 26 Feb 2019 13:08:58 -0500
-Received: from gateway22.websitewelcome.com ([192.185.46.152]:22397 "EHLO
-        gateway22.websitewelcome.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727801AbfBZSI5 (ORCPT
+        Tue, 26 Feb 2019 13:23:13 -0500
+Received: from gateway33.websitewelcome.com ([192.185.145.23]:22122 "EHLO
+        gateway33.websitewelcome.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728793AbfBZSXN (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 26 Feb 2019 13:08:57 -0500
-X-Greylist: delayed 1365 seconds by postgrey-1.27 at vger.kernel.org; Tue, 26 Feb 2019 13:08:56 EST
-Received: from cm10.websitewelcome.com (cm10.websitewelcome.com [100.42.49.4])
-        by gateway22.websitewelcome.com (Postfix) with ESMTP id BECE4B1EFD
-        for <linux-watchdog@vger.kernel.org>; Tue, 26 Feb 2019 11:46:10 -0600 (CST)
+        Tue, 26 Feb 2019 13:23:13 -0500
+X-Greylist: delayed 1316 seconds by postgrey-1.27 at vger.kernel.org; Tue, 26 Feb 2019 13:23:12 EST
+Received: from cm16.websitewelcome.com (cm16.websitewelcome.com [100.42.49.19])
+        by gateway33.websitewelcome.com (Postfix) with ESMTP id 6CBF37A8D3
+        for <linux-watchdog@vger.kernel.org>; Tue, 26 Feb 2019 12:01:15 -0600 (CST)
 Received: from gator4166.hostgator.com ([108.167.133.22])
         by cmsmtp with SMTP
-        id ygnygvuZQ2PzOygnygMlYq; Tue, 26 Feb 2019 11:46:10 -0600
+        id yh2ZgBWmm4FKpyh2ZgTY5p; Tue, 26 Feb 2019 12:01:15 -0600
 X-Authority-Reason: nr=8
-Received: from [189.250.127.169] (port=57046 helo=[192.168.1.76])
-        by gator4166.hostgator.com with esmtpsa (TLSv1.2:ECDHE-RSA-AES128-GCM-SHA256:128)
-        (Exim 4.91)
+Received: from [189.250.127.169] (port=59444 helo=embeddedor)
+        by gator4166.hostgator.com with esmtpa (Exim 4.91)
         (envelope-from <gustavo@embeddedor.com>)
-        id 1gygny-0034JJ-DF; Tue, 26 Feb 2019 11:46:10 -0600
-Subject: Re: [PATCH] watchdog: pc87413: Mark expected switch fall-through
+        id 1gyh2Y-003Fau-HR; Tue, 26 Feb 2019 12:01:14 -0600
+Date:   Tue, 26 Feb 2019 12:01:14 -0600
 From:   "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-To:     Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>
+To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>
 Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Kees Cook <keescook@chromium.org>
-References: <20190214202618.GA18658@embeddedor>
- <d7065d30-d56b-1b76-cfc6-e209aadc61c0@roeck-us.net>
- <81ad685a-054c-6d5d-4501-ca983da0fc9d@embeddedor.com>
-Openpgp: preference=signencrypt
-Autocrypt: addr=gustavo@embeddedor.com; keydata=
- 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
- VtSixD1uOgytAP7RWS474w==
-Message-ID: <ceb0ac6a-df12-4e01-167a-39e306723dde@embeddedor.com>
-Date:   Tue, 26 Feb 2019 11:46:09 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.4.0
+        "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Subject: [PATCH] watchdog: sc520_wdt: Mark expected switch fall-through
+Message-ID: <20190226180114.GA13815@embeddedor>
 MIME-Version: 1.0
-In-Reply-To: <81ad685a-054c-6d5d-4501-ca983da0fc9d@embeddedor.com>
 Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.9.4 (2018-02-28)
 X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
 X-AntiAbuse: Primary Hostname - gator4166.hostgator.com
 X-AntiAbuse: Original Domain - vger.kernel.org
@@ -103,13 +53,13 @@ X-AntiAbuse: Sender Address Domain - embeddedor.com
 X-BWhitelist: no
 X-Source-IP: 189.250.127.169
 X-Source-L: No
-X-Exim-ID: 1gygny-0034JJ-DF
+X-Exim-ID: 1gyh2Y-003Fau-HR
 X-Source: 
 X-Source-Args: 
 X-Source-Dir: 
-X-Source-Sender: ([192.168.1.76]) [189.250.127.169]:57046
+X-Source-Sender: (embeddedor) [189.250.127.169]:59444
 X-Source-Auth: gustavo@embeddedor.com
-X-Email-Count: 8
+X-Email-Count: 3
 X-Source-Cap: Z3V6aWRpbmU7Z3V6aWRpbmU7Z2F0b3I0MTY2Lmhvc3RnYXRvci5jb20=
 X-Local-Domain: yes
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -117,50 +67,46 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Hi all,
+In preparation to enabling -Wimplicit-fallthrough, mark switch
+cases where we are expecting to fall through.
 
-Friendly ping:
+This patch fixes the following warning:
 
-Who can take this?
+drivers/watchdog/sc520_wdt.c: In function ‘fop_ioctl’:
+drivers/watchdog/sc520_wdt.c:326:3: warning: this statement may fall through [-Wimplicit-fallthrough=]
+   wdt_keepalive();
+   ^~~~~~~~~~~~~~~
+drivers/watchdog/sc520_wdt.c:329:2: note: here
+  case WDIOC_GETTIMEOUT:
+  ^~~~
 
-Thanks
---
-Gustavo
+Warning level 3 was used: -Wimplicit-fallthrough=3
 
+Notice that, in this particular case, the code comment is modified
+in accordance with what GCC is expecting to find.
 
-On 2/18/19 11:50 AM, Gustavo A. R. Silva wrote:
-> 
-> 
-> On 2/18/19 10:09 AM, Guenter Roeck wrote:
->> On 2/14/19 12:26 PM, Gustavo A. R. Silva wrote:
->>> In preparation to enabling -Wimplicit-fallthrough, mark switch
->>> cases where we are expecting to fall through.
->>>
->>> This patch fixes the following warning:
->>>
->>> drivers/watchdog/pc87413_wdt.c: In function ‘pc87413_ioctl’:
->>> drivers/watchdog/pc87413_wdt.c:439:3: warning: this statement may fall through [-Wimplicit-fallthrough=]
->>>     pc87413_refresh();
->>>     ^~~~~~~~~~~~~~~~~
->>> drivers/watchdog/pc87413_wdt.c:441:2: note: here
->>>    case WDIOC_GETTIMEOUT:
->>>    ^~~~
->>>
->>> Warning level 3 was used: -Wimplicit-fallthrough=3
->>>
->>> Notice that, in this particular case, the code comment is modified
->>> in accordance with what GCC is expecting to find.
->>>
->>> This patch is part of the ongoing efforts to enable
->>> -Wimplicit-fallthrough.
->>>
->>> Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
->>
->> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
->>
-> 
-> Thanks, Guenter.
-> 
-> --
-> Gustavo
-> 
+This patch is part of the ongoing efforts to enable
+-Wimplicit-fallthrough.
+
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+---
+ drivers/watchdog/sc520_wdt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/watchdog/sc520_wdt.c b/drivers/watchdog/sc520_wdt.c
+index 6aadb56e7faa..403542f9ed8d 100644
+--- a/drivers/watchdog/sc520_wdt.c
++++ b/drivers/watchdog/sc520_wdt.c
+@@ -324,8 +324,8 @@ static long fop_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+ 			return -EINVAL;
+ 
+ 		wdt_keepalive();
+-		/* Fall through */
+ 	}
++		/* Fall through */
+ 	case WDIOC_GETTIMEOUT:
+ 		return put_user(timeout, p);
+ 	default:
+-- 
+2.20.1
+
