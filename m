@@ -2,45 +2,46 @@ Return-Path: <SRS0=Hp/S=RB=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 090F3C43381
-	for <linux-watchdog@archiver.kernel.org>; Tue, 26 Feb 2019 18:07:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F0E0C43381
+	for <linux-watchdog@archiver.kernel.org>; Tue, 26 Feb 2019 18:08:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id D9200217F5
-	for <linux-watchdog@archiver.kernel.org>; Tue, 26 Feb 2019 18:07:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2A3CE206B8
+	for <linux-watchdog@archiver.kernel.org>; Tue, 26 Feb 2019 18:08:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728660AbfBZSHx (ORCPT
+        id S1728831AbfBZSI6 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 26 Feb 2019 13:07:53 -0500
-Received: from gateway31.websitewelcome.com ([192.185.143.4]:26339 "EHLO
-        gateway31.websitewelcome.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728456AbfBZSHx (ORCPT
+        Tue, 26 Feb 2019 13:08:58 -0500
+Received: from gateway22.websitewelcome.com ([192.185.46.152]:22397 "EHLO
+        gateway22.websitewelcome.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727801AbfBZSI5 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 26 Feb 2019 13:07:53 -0500
-Received: from cm17.websitewelcome.com (cm17.websitewelcome.com [100.42.49.20])
-        by gateway31.websitewelcome.com (Postfix) with ESMTP id EF245F631
-        for <linux-watchdog@vger.kernel.org>; Tue, 26 Feb 2019 11:47:21 -0600 (CST)
+        Tue, 26 Feb 2019 13:08:57 -0500
+X-Greylist: delayed 1365 seconds by postgrey-1.27 at vger.kernel.org; Tue, 26 Feb 2019 13:08:56 EST
+Received: from cm10.websitewelcome.com (cm10.websitewelcome.com [100.42.49.4])
+        by gateway22.websitewelcome.com (Postfix) with ESMTP id BECE4B1EFD
+        for <linux-watchdog@vger.kernel.org>; Tue, 26 Feb 2019 11:46:10 -0600 (CST)
 Received: from gator4166.hostgator.com ([108.167.133.22])
         by cmsmtp with SMTP
-        id ygp7gSy4z90onygp7gniRW; Tue, 26 Feb 2019 11:47:21 -0600
+        id ygnygvuZQ2PzOygnygMlYq; Tue, 26 Feb 2019 11:46:10 -0600
 X-Authority-Reason: nr=8
-Received: from [189.250.127.169] (port=57052 helo=[192.168.1.76])
+Received: from [189.250.127.169] (port=57046 helo=[192.168.1.76])
         by gator4166.hostgator.com with esmtpsa (TLSv1.2:ECDHE-RSA-AES128-GCM-SHA256:128)
         (Exim 4.91)
         (envelope-from <gustavo@embeddedor.com>)
-        id 1gygp7-0034zR-HQ; Tue, 26 Feb 2019 11:47:21 -0600
-Subject: Re: [PATCH] watchdog: sc1200: Mark expected switch fall-through
+        id 1gygny-0034JJ-DF; Tue, 26 Feb 2019 11:46:10 -0600
+Subject: Re: [PATCH] watchdog: pc87413: Mark expected switch fall-through
+From:   "Gustavo A. R. Silva" <gustavo@embeddedor.com>
 To:     Guenter Roeck <linux@roeck-us.net>,
-        Zwane Mwaikambo <zwanem@gmail.com>,
         Wim Van Sebroeck <wim@linux-watchdog.org>
 Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
         Kees Cook <keescook@chromium.org>
-References: <20190214202008.GA15525@embeddedor>
- <92afc448-e0c1-eaa4-8728-45af328e5163@roeck-us.net>
-From:   "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+References: <20190214202618.GA18658@embeddedor>
+ <d7065d30-d56b-1b76-cfc6-e209aadc61c0@roeck-us.net>
+ <81ad685a-054c-6d5d-4501-ca983da0fc9d@embeddedor.com>
 Openpgp: preference=signencrypt
 Autocrypt: addr=gustavo@embeddedor.com; keydata=
  mQINBFssHAwBEADIy3ZoPq3z5UpsUknd2v+IQud4TMJnJLTeXgTf4biSDSrXn73JQgsISBwG
@@ -85,12 +86,12 @@ Autocrypt: addr=gustavo@embeddedor.com; keydata=
  YJWH93PN+ZUh6i6Rd2U/i8jH5WvzR57UeWxE4P8bQc0hNGrUsHQH6bpHV2lbuhDdqo+cM9eh
  GZEO3+gCDFmKrjspZjkJbB5Gadzvts5fcWGOXEvuT8uQSvl+vEL0g6vczsyPBtqoBLa9SNrS
  VtSixD1uOgytAP7RWS474w==
-Message-ID: <db73921e-f6dc-de1b-0f9b-be8d92b796dd@embeddedor.com>
-Date:   Tue, 26 Feb 2019 11:47:19 -0600
+Message-ID: <ceb0ac6a-df12-4e01-167a-39e306723dde@embeddedor.com>
+Date:   Tue, 26 Feb 2019 11:46:09 -0600
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.4.0
 MIME-Version: 1.0
-In-Reply-To: <92afc448-e0c1-eaa4-8728-45af328e5163@roeck-us.net>
+In-Reply-To: <81ad685a-054c-6d5d-4501-ca983da0fc9d@embeddedor.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 8bit
@@ -102,13 +103,13 @@ X-AntiAbuse: Sender Address Domain - embeddedor.com
 X-BWhitelist: no
 X-Source-IP: 189.250.127.169
 X-Source-L: No
-X-Exim-ID: 1gygp7-0034zR-HQ
+X-Exim-ID: 1gygny-0034JJ-DF
 X-Source: 
 X-Source-Args: 
 X-Source-Dir: 
-X-Source-Sender: ([192.168.1.76]) [189.250.127.169]:57052
+X-Source-Sender: ([192.168.1.76]) [189.250.127.169]:57046
 X-Source-Auth: gustavo@embeddedor.com
-X-Email-Count: 14
+X-Email-Count: 8
 X-Source-Cap: Z3V6aWRpbmU7Z3V6aWRpbmU7Z2F0b3I0MTY2Lmhvc3RnYXRvci5jb20=
 X-Local-Domain: yes
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -116,38 +117,7 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-
-
-On 2/18/19 10:08 AM, Guenter Roeck wrote:
-> On 2/14/19 12:20 PM, Gustavo A. R. Silva wrote:
->> In preparation to enabling -Wimplicit-fallthrough, mark switch
->> cases where we are expecting to fall through.
->>
->> This patch fixes the following warning:
->>
->> drivers/watchdog/sc1200wdt.c: In function ‘sc1200wdt_ioctl’:
->> drivers/watchdog/sc1200wdt.c:241:3: warning: this statement may fall through [-Wimplicit-fallthrough=]
->>     sc1200wdt_write_data(WDTO, timeout);
->>     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
->> drivers/watchdog/sc1200wdt.c:244:2: note: here
->>    case WDIOC_GETTIMEOUT:
->>    ^~~~
->>
->> Warning level 3 was used: -Wimplicit-fallthrough=3
->>
->> Notice that, in this particular case, the code comment is modified
->> in accordance with what GCC is expecting to find.
->>
->> This patch is part of the ongoing efforts to enable
->> -Wimplicit-fallthrough.
->>
->> Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
-> 
-> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-> 
-
-Thank you, Guenter.
-
+Hi all,
 
 Friendly ping:
 
@@ -157,21 +127,40 @@ Thanks
 --
 Gustavo
 
->> ---
->>   drivers/watchdog/sc1200wdt.c | 2 +-
->>   1 file changed, 1 insertion(+), 1 deletion(-)
+
+On 2/18/19 11:50 AM, Gustavo A. R. Silva wrote:
+> 
+> 
+> On 2/18/19 10:09 AM, Guenter Roeck wrote:
+>> On 2/14/19 12:26 PM, Gustavo A. R. Silva wrote:
+>>> In preparation to enabling -Wimplicit-fallthrough, mark switch
+>>> cases where we are expecting to fall through.
+>>>
+>>> This patch fixes the following warning:
+>>>
+>>> drivers/watchdog/pc87413_wdt.c: In function ‘pc87413_ioctl’:
+>>> drivers/watchdog/pc87413_wdt.c:439:3: warning: this statement may fall through [-Wimplicit-fallthrough=]
+>>>     pc87413_refresh();
+>>>     ^~~~~~~~~~~~~~~~~
+>>> drivers/watchdog/pc87413_wdt.c:441:2: note: here
+>>>    case WDIOC_GETTIMEOUT:
+>>>    ^~~~
+>>>
+>>> Warning level 3 was used: -Wimplicit-fallthrough=3
+>>>
+>>> Notice that, in this particular case, the code comment is modified
+>>> in accordance with what GCC is expecting to find.
+>>>
+>>> This patch is part of the ongoing efforts to enable
+>>> -Wimplicit-fallthrough.
+>>>
+>>> Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
 >>
->> diff --git a/drivers/watchdog/sc1200wdt.c b/drivers/watchdog/sc1200wdt.c
->> index 8e4e2fc13f87..e035a4d4b299 100644
->> --- a/drivers/watchdog/sc1200wdt.c
->> +++ b/drivers/watchdog/sc1200wdt.c
->> @@ -239,7 +239,7 @@ static long sc1200wdt_ioctl(struct file *file, unsigned int cmd,
->>               return -EINVAL;
->>           timeout = new_timeout;
->>           sc1200wdt_write_data(WDTO, timeout);
->> -        /* fall through and return the new timeout */
->> +        /* fall through - and return the new timeout */
->>         case WDIOC_GETTIMEOUT:
->>           return put_user(timeout * 60, p);
+>> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 >>
+> 
+> Thanks, Guenter.
+> 
+> --
+> Gustavo
 > 
