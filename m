@@ -2,111 +2,123 @@ Return-Path: <SRS0=Hp/S=RB=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_MUTT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS,USER_AGENT_MUTT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 84B48C43381
-	for <linux-watchdog@archiver.kernel.org>; Tue, 26 Feb 2019 19:07:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BEB0BC43381
+	for <linux-watchdog@archiver.kernel.org>; Tue, 26 Feb 2019 20:59:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5A1A92186A
-	for <linux-watchdog@archiver.kernel.org>; Tue, 26 Feb 2019 19:07:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8B7882186A
+	for <linux-watchdog@archiver.kernel.org>; Tue, 26 Feb 2019 20:59:50 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="oKSufvvY"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727732AbfBZTHq (ORCPT
+        id S1729038AbfBZU7u (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 26 Feb 2019 14:07:46 -0500
-Received: from gateway34.websitewelcome.com ([192.185.148.109]:16777 "EHLO
-        gateway34.websitewelcome.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727704AbfBZTHq (ORCPT
+        Tue, 26 Feb 2019 15:59:50 -0500
+Received: from mail-pf1-f194.google.com ([209.85.210.194]:33087 "EHLO
+        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728673AbfBZU7u (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 26 Feb 2019 14:07:46 -0500
-Received: from cm13.websitewelcome.com (cm13.websitewelcome.com [100.42.49.6])
-        by gateway34.websitewelcome.com (Postfix) with ESMTP id B7737A67C
-        for <linux-watchdog@vger.kernel.org>; Tue, 26 Feb 2019 13:07:45 -0600 (CST)
-Received: from gator4166.hostgator.com ([108.167.133.22])
-        by cmsmtp with SMTP
-        id yi4vgknbrYTGMyi4vg1pmm; Tue, 26 Feb 2019 13:07:45 -0600
-X-Authority-Reason: nr=8
-Received: from [189.250.127.169] (port=33518 helo=embeddedor)
-        by gator4166.hostgator.com with esmtpa (Exim 4.91)
-        (envelope-from <gustavo@embeddedor.com>)
-        id 1gyi4u-003qwA-R8; Tue, 26 Feb 2019 13:07:44 -0600
-Date:   Tue, 26 Feb 2019 13:07:43 -0600
-From:   "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
+        Tue, 26 Feb 2019 15:59:50 -0500
+Received: by mail-pf1-f194.google.com with SMTP id i19so6832397pfd.0;
+        Tue, 26 Feb 2019 12:59:49 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to
+         :user-agent;
+        bh=4ROOQgm57M6IUGQOGqpLaHEld2dBenAjbQzA1hoWXvI=;
+        b=oKSufvvYgWPLinHjWawbFjBdVn3YmZicCxcQen0Ii7O2nqky9V8ZS26F5Kz97Xn5l8
+         0zwKqmrWnj3ur/zvIMYbH8DDEdBohL7PBXlOAhzf+OWNN+XUkXTtXBBvOcsZcCPIWIFf
+         H0RiBmmw4VhB9NlCjUw1VyA4lZbdv9T4ZLWoZpnIJWQ9ZpyKFkL8Agpy+uY8ZL4jPBBF
+         fsDuU8cMj5Y6fRMknWEIg/stQZtP+LFbQ1L5YZsgnA2cWNBEIkRj8cXU/QeO6QttJjZ4
+         fSLtpKIGZYDa8Fws62uy3WPmJryXJ0Kb7PjvWvW6HASGynM7iZ8T3bSHPI1Ep+o6IGo0
+         08pA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition
+         :content-transfer-encoding:in-reply-to:user-agent;
+        bh=4ROOQgm57M6IUGQOGqpLaHEld2dBenAjbQzA1hoWXvI=;
+        b=rTXcZUIH4ulxxuIhZrHpdPsSRUIXSnQulfK3QAb7YWuftlFdBOsWkpzaMWl850ipiJ
+         CD9/pluh6VTnoNwHw75oKtRvCa/18kUUcjKW+eXXiWZf4daCimFEs043+P/jx0Z6AfCg
+         s69CwAO+ciiFGV1FmURXPTtwT62tuYK72lAT7ukwx5QrvjNF/7eWhZhuw9l08QCNKCyA
+         l+3sLbcno/MZvzTvMZVxcBkY8RA7PrjvIyWXZ3tilkYwMbRLfeY1UnRJElrilc1QhkR9
+         VLKzM4QZUltmHS+vr7B5h79eJk5uT+kV8gCQogHSMEd+xhZKdlQ9IO/5Vha5ls72WA55
+         A/Dg==
+X-Gm-Message-State: AHQUAubZVNwWJl/oS7vuZrpWqodAYNVbDWLzJ4PswZN1ZeO75WCgjSYG
+        vnEAwTzliAB2W9JCoPz2jic=
+X-Google-Smtp-Source: AHgI3Ib5t4W3uu2BAMQmEfryNuurC7ghLJiEdZyB7Ah4c3wATrbVli2FU30sjaps+06eF83weto2kw==
+X-Received: by 2002:a62:f5c8:: with SMTP id b69mr27681460pfm.128.1551214789044;
+        Tue, 26 Feb 2019 12:59:49 -0800 (PST)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id s80sm7800283pgs.4.2019.02.26.12.59.47
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 26 Feb 2019 12:59:47 -0800 (PST)
+Date:   Tue, 26 Feb 2019 12:59:46 -0800
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Cc:     Wim Van Sebroeck <wim@linux-watchdog.org>,
+        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
         Kees Cook <keescook@chromium.org>
-Subject: [PATCH] watchdog: w83877f_wdt: Mark expected switch fall-through
-Message-ID: <20190226190743.GA18722@embeddedor>
+Subject: Re: [PATCH] watchdog: sbc60xxwdt: Mark expected switch fall-through
+Message-ID: <20190226205946.GA21115@roeck-us.net>
+References: <20190226175835.GA12199@embeddedor>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.9.4 (2018-02-28)
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - gator4166.hostgator.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - embeddedor.com
-X-BWhitelist: no
-X-Source-IP: 189.250.127.169
-X-Source-L: No
-X-Exim-ID: 1gyi4u-003qwA-R8
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: (embeddedor) [189.250.127.169]:33518
-X-Source-Auth: gustavo@embeddedor.com
-X-Email-Count: 3
-X-Source-Cap: Z3V6aWRpbmU7Z3V6aWRpbmU7Z2F0b3I0MTY2Lmhvc3RnYXRvci5jb20=
-X-Local-Domain: yes
+In-Reply-To: <20190226175835.GA12199@embeddedor>
+User-Agent: Mutt/1.5.24 (2015-08-30)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-In preparation to enabling -Wimplicit-fallthrough, mark switch
-cases where we are expecting to fall through.
+On Tue, Feb 26, 2019 at 11:58:35AM -0600, Gustavo A. R. Silva wrote:
+> In preparation to enabling -Wimplicit-fallthrough, mark switch
+> cases where we are expecting to fall through.
+> 
+> This patch fixes the following warning:
+> 
+> drivers/watchdog/sbc60xxwdt.c: In function ‘fop_ioctl’:
+> drivers/watchdog/sbc60xxwdt.c:272:3: warning: this statement may fall through [-Wimplicit-fallthrough=]
+>    wdt_keepalive();
+>    ^~~~~~~~~~~~~~~
+> drivers/watchdog/sbc60xxwdt.c:275:2: note: here
+>   case WDIOC_GETTIMEOUT:
+>   ^~~~
+> 
+> Notice that, in this particular case, the code comment is modified
+> in accordance with what GCC is expecting to find.
+> 
+> This patch is part of the ongoing efforts to enable
+> -Wimplicit-fallthrough.
+> 
+> Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
 
-This patch fixes the following warning:
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-drivers/watchdog/w83877f_wdt.c: In function ‘fop_ioctl’:
-drivers/watchdog/w83877f_wdt.c:294:3: warning: this statement may fall through [-Wimplicit-fallthrough=]
-   wdt_keepalive();
-   ^~~~~~~~~~~~~~~
-drivers/watchdog/w83877f_wdt.c:297:2: note: here
-  case WDIOC_GETTIMEOUT:
-  ^~~~
-
-Warning level 3 was used: -Wimplicit-fallthrough=3
-
-Notice that, in this particular case, the code comment is modified
-in accordance with what GCC is expecting to find.
-
-This patch is part of the ongoing efforts to enable
--Wimplicit-fallthrough.
-
-Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
----
- drivers/watchdog/w83877f_wdt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/watchdog/w83877f_wdt.c b/drivers/watchdog/w83877f_wdt.c
-index 05658ecc0aa4..db9b6488e388 100644
---- a/drivers/watchdog/w83877f_wdt.c
-+++ b/drivers/watchdog/w83877f_wdt.c
-@@ -292,8 +292,8 @@ static long fop_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
- 
- 		timeout = new_timeout;
- 		wdt_keepalive();
--		/* Fall through */
- 	}
-+		/* Fall through */
- 	case WDIOC_GETTIMEOUT:
- 		return put_user(timeout, p);
- 	default:
--- 
-2.21.0
-
+> ---
+>  drivers/watchdog/sbc60xxwdt.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/watchdog/sbc60xxwdt.c b/drivers/watchdog/sbc60xxwdt.c
+> index 87333a41f753..72d15fd1f183 100644
+> --- a/drivers/watchdog/sbc60xxwdt.c
+> +++ b/drivers/watchdog/sbc60xxwdt.c
+> @@ -270,8 +270,8 @@ static long fop_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+>  
+>  		timeout = new_timeout;
+>  		wdt_keepalive();
+> -		/* Fall through */
+>  	}
+> +		/* Fall through */
+>  	case WDIOC_GETTIMEOUT:
+>  		return put_user(timeout, p);
+>  	default:
+> -- 
+> 2.20.1
+> 
