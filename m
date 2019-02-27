@@ -1,377 +1,387 @@
-Return-Path: <SRS0=Hp/S=RB=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=QnJg=RC=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-7.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A201DC43381
-	for <linux-watchdog@archiver.kernel.org>; Tue, 26 Feb 2019 22:38:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BA49BC43381
+	for <linux-watchdog@archiver.kernel.org>; Wed, 27 Feb 2019 20:59:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 61E0F218D9
-	for <linux-watchdog@archiver.kernel.org>; Tue, 26 Feb 2019 22:38:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 51CBB21850
+	for <linux-watchdog@archiver.kernel.org>; Wed, 27 Feb 2019 20:59:11 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QH6GKCwY"
+	dkim=pass (2048-bit key) header.d=alliedtelesis.co.nz header.i=@alliedtelesis.co.nz header.b="irHbRIj/"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729210AbfBZWiu (ORCPT
+        id S1730446AbfB0U7K (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 26 Feb 2019 17:38:50 -0500
-Received: from mail-pl1-f193.google.com ([209.85.214.193]:37087 "EHLO
-        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729030AbfBZWit (ORCPT
+        Wed, 27 Feb 2019 15:59:10 -0500
+Received: from gate2.alliedtelesis.co.nz ([202.36.163.20]:44988 "EHLO
+        gate2.alliedtelesis.co.nz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730349AbfB0U7K (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 26 Feb 2019 17:38:49 -0500
-Received: by mail-pl1-f193.google.com with SMTP id q3so6936393pll.4;
-        Tue, 26 Feb 2019 14:38:49 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=zE584vdXVod6LF4NiPoZPNA+WBQp766PtiUs1WqQ1po=;
-        b=QH6GKCwYjP9oq+xXXA3Lu4kKyqFlUVm6BRlFootih/UrJQy3emptRAWgtYUqft8mAq
-         VvVq4T9f2Uv5CEQrqbnV6cDD74k8LNnw5sIDgEorTB0qd2eL4QsmlZJ3YkYcM3ooXRvQ
-         nlJE1bdpj94unyZAVNONVlT6DrtsLz4BfWJYYNsaooB+OH8fj1pI/bUZo8Ss5eomCVwu
-         ZdZa808GPbzmV6tCxdWdqB9NTdmsZcmubG1tivnUQvae1n3e/dZjhhsmyA9pgOcFH/sP
-         Zp/5K7EHFWiZl+Azje7ob2QlH6U7O1sF/FWrYM4mLiC5RndreWmA1m/9XNKNhzxV7Uad
-         XQaw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=zE584vdXVod6LF4NiPoZPNA+WBQp766PtiUs1WqQ1po=;
-        b=nH8qb6uKN+wOThM3pUCYgjrP+nD/d8iQyKYNWKA7HPjEONOY/oTwNdYrBGkEygX1fe
-         kY5De/pYEQrivO7aS0nW/AglVqcxngcIp3JzM5th9fNiDFcfyJ5rq7J2Ow0+7YttN7dN
-         /VrAbTBCE0FFBInTyj+vlJSLziBRQHvmYJghxuuNFEQusZFZfeOdS+/NCEmtZU9kM9Kx
-         OpSsrbzbYu77ukiKRf40z9cnCZ4KDBhAA2w1un13hezBE0lVDJM9iU5RxbimX+akLfZI
-         14Y3P3Nwwdj2d9gtbgsYhvaNMKt5wHheGb4K2BL9FLycNpLbdzImgI/V/LOYJJQFEWHe
-         YImg==
-X-Gm-Message-State: AHQUAuYh30mSlXv88FlyUHVZHsQ8mLvShjSkfwobLC0ubdnMqFScRqhw
-        9oZtJ/v+fwGwzKpgyPTymuk=
-X-Google-Smtp-Source: AHgI3IZI/rcdqwErHeuoUohbCmNoRmJVHdEEvmIE7/tO7EX5PRReElIXMDoakA2xzgdwL/rx0Zdi3w==
-X-Received: by 2002:a17:902:801:: with SMTP id 1mr13070017plk.299.1551220728639;
-        Tue, 26 Feb 2019 14:38:48 -0800 (PST)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id m3sm13045421pgp.85.2019.02.26.14.38.47
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 26 Feb 2019 14:38:47 -0800 (PST)
-Date:   Tue, 26 Feb 2019 14:38:46 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Anson Huang <anson.huang@nxp.com>
-Cc:     "robh+dt@kernel.org" <robh+dt@kernel.org>,
-        "mark.rutland@arm.com" <mark.rutland@arm.com>,
-        "shawnguo@kernel.org" <shawnguo@kernel.org>,
-        "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>,
-        "kernel@pengutronix.de" <kernel@pengutronix.de>,
-        "festevam@gmail.com" <festevam@gmail.com>,
-        "catalin.marinas@arm.com" <catalin.marinas@arm.com>,
-        "will.deacon@arm.com" <will.deacon@arm.com>,
-        "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
-        Aisheng Dong <aisheng.dong@nxp.com>,
-        "ulf.hansson@linaro.org" <ulf.hansson@linaro.org>,
-        Daniel Baluta <daniel.baluta@nxp.com>,
-        Andy Gross <andy.gross@linaro.org>,
-        "horms+renesas@verge.net.au" <horms+renesas@verge.net.au>,
-        "heiko@sntech.de" <heiko@sntech.de>,
-        "arnd@arndb.de" <arnd@arndb.de>, "olof@lixom.net" <olof@lixom.net>,
-        "bjorn.andersson@linaro.org" <bjorn.andersson@linaro.org>,
-        "jagan@amarulasolutions.com" <jagan@amarulasolutions.com>,
-        "enric.balletbo@collabora.com" <enric.balletbo@collabora.com>,
-        "marc.w.gonzalez@free.fr" <marc.w.gonzalez@free.fr>,
+        Wed, 27 Feb 2019 15:59:10 -0500
+Received: from mmarshal3.atlnz.lc (mmarshal3.atlnz.lc [10.32.18.43])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (Client did not present a certificate)
+        by gate2.alliedtelesis.co.nz (Postfix) with ESMTPS id 2C9FB886B5;
+        Thu, 28 Feb 2019 09:59:08 +1300 (NZDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alliedtelesis.co.nz;
+        s=mail181024; t=1551301148;
+        bh=cFwTGxgaHr5/wugs6NVCLknzsAE34VUTkdV6j+odXsc=;
+        h=From:To:CC:Subject:Date:References;
+        b=irHbRIj/7aZvTWEKj30RMv577dYgf3ip4EuM9cvFCNTsnsM/kcyScUF4BZlQZPJll
+         GGzBPUmjkltPdMFX3hAbPeJUyEN3KxjCJ8Hgnpz6pqBrtAKcFVRXLPhoIWaVjLa4ib
+         O1UuVvMChaSjTQAhxFpoH8vbguVo0cani+R8TyONsYqo/alYamwu5cLi3wzQCK6CBr
+         KAU+9eN70e8rAbvK0eeKf0Arrmtw/1RQv28Q8mU611QqnFp9jkTsC5bab0Hfy0KUDw
+         jwJveVDoSt1FZotN6V9iHuFz/xDn3+cMj/S0KsegYGE7Yy331sz+AbbU1sCCPdMmb7
+         uxyvGxjK54EWg==
+Received: from svr-chch-ex1.atlnz.lc (Not Verified[10.32.16.77]) by mmarshal3.atlnz.lc with Trustwave SEG (v7,5,8,10121)
+        id <B5c76fa1d0001>; Thu, 28 Feb 2019 09:59:09 +1300
+Received: from svr-chch-ex1.atlnz.lc (2001:df5:b000:bc8:409d:36f5:8899:92e8)
+ by svr-chch-ex1.atlnz.lc (2001:df5:b000:bc8:409d:36f5:8899:92e8) with
+ Microsoft SMTP Server (TLS) id 15.0.1156.6; Thu, 28 Feb 2019 09:59:07 +1300
+Received: from svr-chch-ex1.atlnz.lc ([fe80::409d:36f5:8899:92e8]) by
+ svr-chch-ex1.atlnz.lc ([fe80::409d:36f5:8899:92e8%12]) with mapi id
+ 15.00.1156.000; Thu, 28 Feb 2019 09:59:07 +1300
+From:   Chris Packham <Chris.Packham@alliedtelesis.co.nz>
+To:     Guenter Roeck <linux@roeck-us.net>,
+        "wim@iguana.be" <wim@iguana.be>,
+        "gregory.clement@free-electrons.com" 
+        <gregory.clement@free-electrons.com>,
         "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        dl-linux-imx <linux-imx@nxp.com>
-Subject: Re: [PATCH V3 2/4] watchdog: imx_sc: Add i.MX system controller
- watchdog support
-Message-ID: <20190226223846.GB30985@roeck-us.net>
-References: <1551060850-22553-1-git-send-email-Anson.Huang@nxp.com>
- <1551060850-22553-3-git-send-email-Anson.Huang@nxp.com>
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
+CC:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2/3] watchdog: orion: don't enable rstout if an interrupt
+ is configured
+Thread-Topic: [PATCH 2/3] watchdog: orion: don't enable rstout if an interrupt
+ is configured
+Thread-Index: AQHTQjkDruFuDLnEWkCVLKmRHE45RA==
+Date:   Wed, 27 Feb 2019 20:59:07 +0000
+Message-ID: <636717314b294a5f9a4ed1ffa44625c4@svr-chch-ex1.atlnz.lc>
+References: <20171011022958.31268-1-chris.packham@alliedtelesis.co.nz>
+ <20171011022958.31268-3-chris.packham@alliedtelesis.co.nz>
+ <227eed69-c4c8-01a1-3c6b-6cf95e84a9cd@roeck-us.net>
+ <4f82b24c3b244d3eba0f8de8cb25049f@svr-chch-ex1.atlnz.lc>
+Accept-Language: en-NZ, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [2001:df5:b000:22:3a2c:4aff:fe70:2b02]
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1551060850-22553-3-git-send-email-Anson.Huang@nxp.com>
-User-Agent: Mutt/1.5.24 (2015-08-30)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Mon, Feb 25, 2019 at 02:19:10AM +0000, Anson Huang wrote:
-> i.MX8QXP is an ARMv8 SoC which has a Cortex-M4 system controller
-> inside, the system controller is in charge of controlling power,
-> clock and watchdog etc..
-> 
-> This patch adds i.MX system controller watchdog driver support,
-> watchdog operation needs to be done in secure EL3 mode via
-> ARM-Trusted-Firmware, using SMC call, CPU will trap into
-> ARM-Trusted-Firmware and then it will request system controller
-> to do watchdog operation via IPC.
-> 
-> Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
-> ---
-> Changes since V2:
-> 	- improve watchdog_init_timeout() operation and error check, setting it
-> 	  via module parameter "timeout", if it is invalid, roll back to use defaul
-> 	  timeout value DEFAULT_TIMEOUT;
-> 	- change compatible string to "fsl,imx-sc-wdt" to make driver more generic
-> 	  for all i.MX platforms with system controller watchdog inside.
-> ---
->  drivers/watchdog/Kconfig      |  13 +++
->  drivers/watchdog/Makefile     |   1 +
->  drivers/watchdog/imx_sc_wdt.c | 183 ++++++++++++++++++++++++++++++++++++++++++
->  3 files changed, 197 insertions(+)
->  create mode 100644 drivers/watchdog/imx_sc_wdt.c
-> 
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index 65c3c42..5c5b8ba 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -625,6 +625,19 @@ config IMX2_WDT
->  	  To compile this driver as a module, choose M here: the
->  	  module will be called imx2_wdt.
->  
-> +config IMX_SC_WDT
-> +	tristate "IMX SC Watchdog"
-> +	depends on ARCH_MXC || COMPILE_TEST
-
-Wondering: Did you test on other architectures ? The code calls
-arm_smccc_smc(), which is unlikely to be available on non-ARM
-platforms, and I don't see a dummy declaration for those.
-
-> +	select WATCHDOG_CORE
-> +	help
-> +	  This is the driver for the system controller watchdog
-> +	  on the NXP i.MX SoCs with system controller inside.
-> +	  If you have one of these processors and wish to have
-> +	  watchdog support enabled, say Y, otherwise say N.
-> +
-> +	  To compile this driver as a module, choose M here: the
-> +	  module will be called imx_sc_wdt.
-> +
->  config UX500_WATCHDOG
->  	tristate "ST-Ericsson Ux500 watchdog"
->  	depends on MFD_DB8500_PRCMU
-> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-> index 4e78a8c..0c9da63 100644
-> --- a/drivers/watchdog/Makefile
-> +++ b/drivers/watchdog/Makefile
-> @@ -68,6 +68,7 @@ obj-$(CONFIG_NUC900_WATCHDOG) += nuc900_wdt.o
->  obj-$(CONFIG_TS4800_WATCHDOG) += ts4800_wdt.o
->  obj-$(CONFIG_TS72XX_WATCHDOG) += ts72xx_wdt.o
->  obj-$(CONFIG_IMX2_WDT) += imx2_wdt.o
-> +obj-$(CONFIG_IMX_SC_WDT) += imx_sc_wdt.o
->  obj-$(CONFIG_UX500_WATCHDOG) += ux500_wdt.o
->  obj-$(CONFIG_RETU_WATCHDOG) += retu_wdt.o
->  obj-$(CONFIG_BCM2835_WDT) += bcm2835_wdt.o
-> diff --git a/drivers/watchdog/imx_sc_wdt.c b/drivers/watchdog/imx_sc_wdt.c
-> new file mode 100644
-> index 0000000..7b22575
-> --- /dev/null
-> +++ b/drivers/watchdog/imx_sc_wdt.c
-> @@ -0,0 +1,183 @@
-> +// SPDX-License-Identifier: GPL-2.0+
-> +/*
-> + * Copyright 2018-2019 NXP.
-> + */
-> +
-> +#include <linux/arm-smccc.h>
-> +#include <linux/io.h>
-> +#include <linux/init.h>
-> +#include <linux/kernel.h>
-> +#include <linux/module.h>
-> +#include <linux/moduleparam.h>
-> +#include <linux/of.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/reboot.h>
-> +#include <linux/watchdog.h>
-> +
-> +#define DEFAULT_TIMEOUT 60
-> +/*
-> + * Software timer tick implemented in scfw side, support 10ms to 0xffffffff ms
-> + * in theory, but for normal case, 1s~128s is enough, you can change this max
-> + * value in case it's not enough.
-> + */
-> +#define MAX_TIMEOUT 128
-> +
-> +#define IMX_SIP_TIMER			0xC2000002
-> +#define IMX_SIP_TIMER_START_WDOG		0x01
-> +#define IMX_SIP_TIMER_STOP_WDOG		0x02
-> +#define IMX_SIP_TIMER_SET_WDOG_ACT	0x03
-> +#define IMX_SIP_TIMER_PING_WDOG		0x04
-> +#define IMX_SIP_TIMER_SET_TIMEOUT_WDOG	0x05
-> +#define IMX_SIP_TIMER_GET_WDOG_STAT	0x06
-> +#define IMX_SIP_TIMER_SET_PRETIME_WDOG	0x07
-> +
-> +#define SC_TIMER_WDOG_ACTION_PARTITION	0
-> +
-> +static bool nowayout = WATCHDOG_NOWAYOUT;
-> +module_param(nowayout, bool, 0000);
-> +MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
-> +		 __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
-> +
-> +static unsigned int timeout = DEFAULT_TIMEOUT;
-
-I assume this means that you specifically do _not_ want to support
-timeout configuration via devicetree (unless the user explicitly sets
-the timeout to 0 here).
-
-Not that it really matters, since it looks like Rob won't accept a
-watchdog node anyway.
-
-> +module_param(timeout, uint, 0000);
-> +MODULE_PARM_DESC(timeout, "Watchdog timeout in seconds (default="
-> +		 __MODULE_STRING(DEFAULT_TIMEOUT) ")");
-> +
-> +static int imx_sc_wdt_ping(struct watchdog_device *wdog)
-> +{
-> +	struct arm_smccc_res res;
-> +
-> +	arm_smccc_smc(IMX_SIP_TIMER, IMX_SIP_TIMER_PING_WDOG,
-> +		      0, 0, 0, 0, 0, 0, &res);
-> +
-> +	return res.a0;
-
-I didn't comment on this before, but I am wondering: Does the 
-system controller code return Linux error codes ? Is this
-documented somewhere ?
-
-> +}
-> +
-> +static int imx_sc_wdt_start(struct watchdog_device *wdog)
-> +{
-> +	struct arm_smccc_res res;
-> +
-> +	arm_smccc_smc(IMX_SIP_TIMER, IMX_SIP_TIMER_START_WDOG,
-> +		      0, 0, 0, 0, 0, 0, &res);
-> +	if (res.a0)
-> +		return res.a0;
-> +
-> +	arm_smccc_smc(IMX_SIP_TIMER, IMX_SIP_TIMER_SET_WDOG_ACT,
-> +		      SC_TIMER_WDOG_ACTION_PARTITION,
-> +		      0, 0, 0, 0, 0, &res);
-> +	return res.a0;
-> +}
-> +
-> +static int imx_sc_wdt_stop(struct watchdog_device *wdog)
-> +{
-> +	struct arm_smccc_res res;
-> +
-> +	arm_smccc_smc(IMX_SIP_TIMER, IMX_SIP_TIMER_STOP_WDOG,
-> +		      0, 0, 0, 0, 0, 0, &res);
-> +
-> +	return res.a0;
-> +}
-> +
-> +static int imx_sc_wdt_set_timeout(struct watchdog_device *wdog,
-> +				unsigned int timeout)
-> +{
-> +	struct arm_smccc_res res;
-> +
-> +	wdog->timeout = timeout;
-> +	arm_smccc_smc(IMX_SIP_TIMER, IMX_SIP_TIMER_SET_TIMEOUT_WDOG,
-> +		      timeout * 1000, 0, 0, 0, 0, 0, &res);
-> +
-> +	return res.a0;
-> +}
-> +
-> +static const struct watchdog_ops imx_sc_wdt_ops = {
-> +	.owner = THIS_MODULE,
-> +	.start = imx_sc_wdt_start,
-> +	.stop  = imx_sc_wdt_stop,
-> +	.ping  = imx_sc_wdt_ping,
-> +	.set_timeout = imx_sc_wdt_set_timeout,
-> +};
-> +
-> +static const struct watchdog_info imx_sc_wdt_info = {
-> +	.identity	= "i.MX SC watchdog timer",
-> +	.options	= WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING |
-> +			  WDIOF_MAGICCLOSE | WDIOF_PRETIMEOUT,
-> +};
-> +
-> +static int imx_sc_wdt_probe(struct platform_device *pdev)
-> +{
-> +	struct watchdog_device *imx_sc_wdd;
-> +	int ret;
-> +
-> +	imx_sc_wdd = devm_kzalloc(&pdev->dev, sizeof(*imx_sc_wdd), GFP_KERNEL);
-> +	if (!imx_sc_wdd)
-> +		return -ENOMEM;
-> +
-> +	platform_set_drvdata(pdev, imx_sc_wdd);
-> +
-> +	imx_sc_wdd->info = &imx_sc_wdt_info;
-> +	imx_sc_wdd->ops = &imx_sc_wdt_ops;
-> +	imx_sc_wdd->min_timeout = 1;
-> +	imx_sc_wdd->max_timeout = MAX_TIMEOUT;
-> +	imx_sc_wdd->parent = &pdev->dev;
-> +	imx_sc_wdd->timeout = DEFAULT_TIMEOUT;
-> +
-> +	ret = watchdog_init_timeout(imx_sc_wdd, timeout, &pdev->dev);
-> +	if (ret)
-> +		dev_warn(&pdev->dev, "Failed to set timeout value, using default\n");
-> +
-> +	watchdog_stop_on_reboot(imx_sc_wdd);
-> +	watchdog_stop_on_unregister(imx_sc_wdd);
-> +
-> +	ret = devm_watchdog_register_device(&pdev->dev, imx_sc_wdd);
-> +	if (ret) {
-> +		dev_err(&pdev->dev, "Failed to register watchdog device\n");
-> +		return ret;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static const struct of_device_id imx_sc_wdt_dt_ids[] = {
-> +	{ .compatible = "fsl,imx-sc-wdt", },
-> +	{ /* sentinel */ }
-> +};
-> +MODULE_DEVICE_TABLE(of, imx_sc_wdt_dt_ids);
-
-I assume this will be dropped and replaced with platform code,
-per feedback from Rob.
-
-> +
-> +static int __maybe_unused imx_sc_wdt_suspend(struct device *dev)
-> +{
-> +	struct watchdog_device *imx_sc_wdd = dev_get_drvdata(dev);
-> +
-> +	if (watchdog_active(imx_sc_wdd))
-> +		imx_sc_wdt_stop(imx_sc_wdd);
-> +
-> +	return 0;
-> +}
-> +
-> +static int __maybe_unused imx_sc_wdt_resume(struct device *dev)
-> +{
-> +	struct watchdog_device *imx_sc_wdd = dev_get_drvdata(dev);
-> +
-> +	if (watchdog_active(imx_sc_wdd))
-> +		imx_sc_wdt_start(imx_sc_wdd);
-> +
-> +	return 0;
-> +}
-> +
-> +static SIMPLE_DEV_PM_OPS(imx_sc_wdt_pm_ops,
-> +			 imx_sc_wdt_suspend, imx_sc_wdt_resume);
-> +
-> +static struct platform_driver imx_sc_wdt_driver = {
-> +	.probe		= imx_sc_wdt_probe,
-> +	.driver		= {
-> +		.name	= "imx-sc-wdt",
-> +		.of_match_table = imx_sc_wdt_dt_ids,
-> +		.pm	= &imx_sc_wdt_pm_ops,
-> +	},
-> +};
-> +
-> +module_platform_driver(imx_sc_wdt_driver);
-> +
-> +MODULE_AUTHOR("Robin Gong <yibin.gong@nxp.com>");
-> +MODULE_DESCRIPTION("NXP i.MX system controller watchdog driver");
-> +MODULE_LICENSE("GPL v2");
-
-The module license conflicts with the SPDX license which says 2.0+.
+Hijacking an old thread,=0A=
+=0A=
+On 11/10/17 5:30 PM, Chris Packham wrote:=0A=
+> On 11/10/17 16:42, Guenter Roeck wrote:=0A=
+>> On 10/10/2017 07:29 PM, Chris Packham wrote:=0A=
+>>> The orion_wdt_irq invokes panic() so we are going to reset the CPU=0A=
+>>> regardless.  By not setting this bit we get a chance to gather debug=0A=
+>>> from the panic output before the system is reset.=0A=
+>>>=0A=
+>>> Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>=0A=
+>>=0A=
+>> Unless I am missing something, this assumes that the interrupt is=0A=
+>> handled, ie that the system is not stuck with interrupts disabled.=0A=
+>> This makes the watchdog less reliable. This added verbosity comes=0A=
+>> at a significant cost. I'd like to get input from others if this=0A=
+>> is acceptable.=0A=
+>>=0A=
+>> That would be different if there was a means to configure a pretimeout,=
+=0A=
+>> ie a means to tell the system to generate an irq first, followed by a=0A=
+>> hard reset if the interrupt is not served. that does not seem to be=0A=
+>> the case here, though.=0A=
+>>=0A=
+> =0A=
+> As far as I can tell there is no pretimeout capability in the orion=0A=
+> /armada WDT. I have got a work-in-progress patch that enables the RSTOUT=
+=0A=
+> in the interrupt handler which some-what mitigates your concern but=0A=
+> still requires the interrupt to be handled at least once.=0A=
+> =0A=
+> Another option would be to use one of the spare global timers to provide=
+=0A=
+> the interrupt-driven aspect.=0A=
+=0A=
+So as Guenter rightly pointed out my original patch meant that we'd hang =
+=0A=
+if we got stuck in a loop with interrupts disabled. Shortly after that =0A=
+that's exactly what happened on my test setup.=0A=
+=0A=
+I've now been able to follow-up on the idea of using one of the spare =0A=
+global timers as a pretimeout indication and it's looking pretty =0A=
+promising. The patch is below (beware MUA wrapping). I'll submit it =0A=
+properly but I'm wondering if I should add the timer1 based watchdog as =0A=
+a separate watchdog device or like I have below roll it into the =0A=
+existing watchdog device.=0A=
+=0A=
+--- 8< ---=0A=
+diff --git a/arch/arm/boot/dts/armada-38x.dtsi =0A=
+b/arch/arm/boot/dts/armada-38x.dtsi=0A=
+index 8530d3594ca2..abd45adb4728 100644=0A=
+--- a/arch/arm/boot/dts/armada-38x.dtsi=0A=
++++ b/arch/arm/boot/dts/armada-38x.dtsi=0A=
+@@ -421,6 +421,7 @@=0A=
+                                 reg =3D <0x20300 0x34>, <0x20704 0x4>, =0A=
+<0x18260 0x4>;=0A=
+                                 clocks =3D <&coreclk 2>, <&refclk>;=0A=
+                                 clock-names =3D "nbclk", "fixed";=0A=
++                               interrupts-extended =3D <&gic GIC_SPI 9 =0A=
+IRQ_TYPE_LEVEL_HIGH>;=0A=
+                         };=0A=
+=0A=
+                         cpurst: cpurst@20800 {=0A=
+diff --git a/drivers/watchdog/orion_wdt.c b/drivers/watchdog/orion_wdt.c=0A=
+index c6b8f4a43bde..89eae53b1b17 100644=0A=
+--- a/drivers/watchdog/orion_wdt.c=0A=
++++ b/drivers/watchdog/orion_wdt.c=0A=
+@@ -37,13 +37,16 @@=0A=
+  #define TIMER_CTRL             0x0000=0A=
+  #define TIMER_A370_STATUS      0x04=0A=
+=0A=
++#define TIMER1_RELOAD_OFF      0x0018=0A=
++#define TIMER1_VAL_OFF         0x001c=0A=
++=0A=
+  #define WDT_MAX_CYCLE_COUNT    0xffffffff=0A=
+=0A=
+  #define WDT_A370_RATIO_MASK(v) ((v) << 16)=0A=
+  #define WDT_A370_RATIO_SHIFT   5 =0A=
+ =0A=
+ =0A=
+=0A=
+  #define WDT_A370_RATIO         (1 << WDT_A370_RATIO_SHIFT) =0A=
+ =0A=
+ =0A=
+=0A=
+ =0A=
+ =0A=
+ =0A=
+=0A=
+-#define WDT_AXP_FIXED_ENABLE_BIT BIT(10) =0A=
+ =0A=
+ =0A=
+=0A=
++#define WDT_AXP_FIXED_ENABLE_BIT BIT(10) | BIT(12) =0A=
+ =0A=
+ =0A=
+=0A=
+  #define WDT_A370_EXPIRED       BIT(31) =0A=
+ =0A=
+ =0A=
+=0A=
+ =0A=
+ =0A=
+ =0A=
+=0A=
+  static bool nowayout =3D WATCHDOG_NOWAYOUT; =0A=
+ =0A=
+ =0A=
+=0A=
+@@ -183,6 +186,9 @@ static int orion_wdt_ping(struct watchdog_device =0A=
+*wdt_dev) =0A=
+ =0A=
+=0A=
+         /* Reload watchdog duration */ =0A=
+ =0A=
+ =0A=
+=0A=
+         writel(dev->clk_rate * wdt_dev->timeout, =0A=
+ =0A=
+ =0A=
+=0A=
+                dev->reg + dev->data->wdt_counter_offset); =0A=
+ =0A=
+ =0A=
+=0A=
++       writel(dev->clk_rate * (wdt_dev->timeout/2), =0A=
+ =0A=
+ =0A=
+=0A=
++              dev->reg + TIMER1_VAL_OFF); =0A=
+ =0A=
+ =0A=
+=0A=
++ =0A=
+ =0A=
+ =0A=
+=0A=
+         return 0; =0A=
+ =0A=
+ =0A=
+=0A=
+  } =0A=
+ =0A=
+ =0A=
+=0A=
+ =0A=
+ =0A=
+ =0A=
+=0A=
+@@ -194,6 +200,8 @@ static int armada375_start(struct watchdog_device =0A=
+*wdt_dev) =0A=
+ =0A=
+=0A=
+         /* Set watchdog duration */ =0A=
+ =0A=
+ =0A=
+=0A=
+         writel(dev->clk_rate * wdt_dev->timeout, =0A=
+ =0A=
+ =0A=
+=0A=
+                dev->reg + dev->data->wdt_counter_offset); =0A=
+ =0A=
+ =0A=
+=0A=
++       writel(dev->clk_rate * (wdt_dev->timeout/2), =0A=
+ =0A=
+ =0A=
+=0A=
++              dev->reg + TIMER1_VAL_OFF); =0A=
+ =0A=
+ =0A=
+=0A=
+ =0A=
+ =0A=
+ =0A=
+=0A=
+         /* Clear the watchdog expiration bit */ =0A=
+ =0A=
+ =0A=
+=0A=
+         atomic_io_modify(dev->reg + TIMER_A370_STATUS, =0A=
+WDT_A370_EXPIRED, 0); =0A=
+ =0A=
+=0A=
+@@ -443,7 +451,7 @@ static const struct orion_watchdog_data =0A=
+armada375_data =3D { =0A=
+ =0A=
+=0A=
+  static const struct orion_watchdog_data armada380_data =3D { =0A=
+ =0A=
+ =0A=
+=0A=
+         .rstout_enable_bit =3D BIT(8), =0A=
+ =0A=
+ =0A=
+=0A=
+         .rstout_mask_bit =3D BIT(10), =0A=
+ =0A=
+ =0A=
+=0A=
+-       .wdt_enable_bit =3D BIT(8), =0A=
+ =0A=
+ =0A=
+=0A=
++       .wdt_enable_bit =3D BIT(8) | BIT(2), =0A=
+ =0A=
+ =0A=
+=0A=
+         .wdt_counter_offset =3D 0x34, =0A=
+ =0A=
+ =0A=
+=0A=
+         .clock_init =3D armadaxp_wdt_clock_init, =0A=
+ =0A=
+ =0A=
+=0A=
+         .enabled =3D armada375_enabled,=0A=
+--- 8< ---=0A=
+=0A=
+> =0A=
+> Of course if the irq isn't specified then the existing behaviour is=0A=
+> retained which would make the 3/3 patch of this series the debatable part=
+.=0A=
+> =0A=
+> =0A=
+>> Guenter=0A=
+>>=0A=
+>>> ---=0A=
+>>>     drivers/watchdog/orion_wdt.c | 25 +++++++++++++++++--------=0A=
+>>>     1 file changed, 17 insertions(+), 8 deletions(-)=0A=
+>>>=0A=
+>>> diff --git a/drivers/watchdog/orion_wdt.c b/drivers/watchdog/orion_wdt.=
+c=0A=
+>>> index ea676d233e1e..ce88f339ef7f 100644=0A=
+>>> --- a/drivers/watchdog/orion_wdt.c=0A=
+>>> +++ b/drivers/watchdog/orion_wdt.c=0A=
+>>> @@ -71,6 +71,7 @@ struct orion_watchdog {=0A=
+>>>     	unsigned long clk_rate;=0A=
+>>>     	struct clk *clk;=0A=
+>>>     	const struct orion_watchdog_data *data;=0A=
+>>> +	int irq;=0A=
+>>>     };=0A=
+>>>     =0A=
+>>>     static int orion_wdt_clock_init(struct platform_device *pdev,=0A=
+>>> @@ -203,9 +204,11 @@ static int armada375_start(struct watchdog_device =
+*wdt_dev)=0A=
+>>>     						dev->data->wdt_enable_bit);=0A=
+>>>     =0A=
+>>>     	/* Enable reset on watchdog */=0A=
+>>> -	reg =3D readl(dev->rstout);=0A=
+>>> -	reg |=3D dev->data->rstout_enable_bit;=0A=
+>>> -	writel(reg, dev->rstout);=0A=
+>>> +	if (!dev->irq) {=0A=
+>>> +		reg =3D readl(dev->rstout);=0A=
+>>> +		reg |=3D dev->data->rstout_enable_bit;=0A=
+>>> +		writel(reg, dev->rstout);=0A=
+>>> +	}=0A=
+>>>     =0A=
+>>>     	atomic_io_modify(dev->rstout_mask, dev->data->rstout_mask_bit, 0);=
+=0A=
+>>>     	return 0;=0A=
+>>> @@ -228,9 +231,12 @@ static int armada370_start(struct watchdog_device =
+*wdt_dev)=0A=
+>>>     						dev->data->wdt_enable_bit);=0A=
+>>>     =0A=
+>>>     	/* Enable reset on watchdog */=0A=
+>>> -	reg =3D readl(dev->rstout);=0A=
+>>> -	reg |=3D dev->data->rstout_enable_bit;=0A=
+>>> -	writel(reg, dev->rstout);=0A=
+>>> +	if (!dev->irq) {=0A=
+>>> +		reg =3D readl(dev->rstout);=0A=
+>>> +		reg |=3D dev->data->rstout_enable_bit;=0A=
+>>> +		writel(reg, dev->rstout);=0A=
+>>> +	}=0A=
+>>> +=0A=
+>>>     	return 0;=0A=
+>>>     }=0A=
+>>>     =0A=
+>>> @@ -247,8 +253,9 @@ static int orion_start(struct watchdog_device *wdt_=
+dev)=0A=
+>>>     						dev->data->wdt_enable_bit);=0A=
+>>>     =0A=
+>>>     	/* Enable reset on watchdog */=0A=
+>>> -	atomic_io_modify(dev->rstout, dev->data->rstout_enable_bit,=0A=
+>>> -				      dev->data->rstout_enable_bit);=0A=
+>>> +	if (!dev->irq)=0A=
+>>> +		atomic_io_modify(dev->rstout, dev->data->rstout_enable_bit,=0A=
+>>> +					      dev->data->rstout_enable_bit);=0A=
+>>>     =0A=
+>>>     	return 0;=0A=
+>>>     }=0A=
+>>> @@ -595,6 +602,8 @@ static int orion_wdt_probe(struct platform_device *=
+pdev)=0A=
+>>>     			dev_err(&pdev->dev, "failed to request IRQ\n");=0A=
+>>>     			goto disable_clk;=0A=
+>>>     		}=0A=
+>>> +=0A=
+>>> +		dev->irq =3D irq;=0A=
+>>>     	}=0A=
+>>>     =0A=
+>>>     	watchdog_set_nowayout(&dev->wdt, nowayout);=0A=
+>>>=0A=
+>>=0A=
+>>=0A=
+> =0A=
+> =0A=
+=0A=
