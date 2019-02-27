@@ -2,131 +2,116 @@ Return-Path: <SRS0=QnJg=RC=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,
-	USER_AGENT_MUTT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A143C43381
-	for <linux-watchdog@archiver.kernel.org>; Wed, 27 Feb 2019 23:07:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DE905C00319
+	for <linux-watchdog@archiver.kernel.org>; Wed, 27 Feb 2019 23:55:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 3E2002087C
-	for <linux-watchdog@archiver.kernel.org>; Wed, 27 Feb 2019 23:07:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A8BF52171F
+	for <linux-watchdog@archiver.kernel.org>; Wed, 27 Feb 2019 23:55:07 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KXZZ81se"
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=crapouillou.net header.i=@crapouillou.net header.b="vz6Gts0A"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729986AbfB0XHL (ORCPT
+        id S1730284AbfB0Xy5 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 27 Feb 2019 18:07:11 -0500
-Received: from mail-pg1-f193.google.com ([209.85.215.193]:34588 "EHLO
-        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729918AbfB0XHL (ORCPT
+        Wed, 27 Feb 2019 18:54:57 -0500
+Received: from outils.crapouillou.net ([89.234.176.41]:60472 "EHLO
+        crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728397AbfB0Xy4 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 27 Feb 2019 18:07:11 -0500
-Received: by mail-pg1-f193.google.com with SMTP id i130so8702729pgd.1;
-        Wed, 27 Feb 2019 15:07:10 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=/eLaTVx1AZOl3KcGQIVZAHVbQYVMEUTyhL5QFT3s1tg=;
-        b=KXZZ81seSb2qMsiOaOeDPZVdRKw0VjmP8z5PHvZ+NWUhGqCSH4FuLLD75865HJl/UE
-         IPIEwuMpKKuPbjvVaDlT/kYwluqvk1+kl02UUHCdPAdCtTqkuHqwd9vAzeeNHnuWp0vX
-         3VaAHzYFsprfYWFtCw7txCa02OELn6W63JLJh0QTMbSnjSDmehvLcaIhLyMDfMfy2UrN
-         s8gl/o7Rr9kgN7kmQYvJ/fcx/0aGv2+8pgwYA8UYN9V9nJ+Ax74NXqgX+pcwdNTXvV9M
-         wFpWY2hHk9vO0m1xOyJvSaAGHwKw3zcS4q1indoymxwubDPI0sfqcrYRbzY6UiOgUK51
-         +7Ig==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=/eLaTVx1AZOl3KcGQIVZAHVbQYVMEUTyhL5QFT3s1tg=;
-        b=fXPqPiUqTSYyw/hhmT9swSqd5mgKoCaAKJ8KDkWu1ZggQ+e0WSXnQWFrfvggtNibhc
-         jwpz6lJIyiW5pVVPj73Ka1LO9fbwNELBBSeWKUstFVh73Kw1koyhQDfyCbc5sRgMuuuv
-         BXn0kviFmiDJ5VTcAx4DatqAWewvu9t+N9JZlY0xn9NShZPWfSNGsfvN+3rslm9dQ6ge
-         XPu30/rNety04FQ8SwuBo5x3qSnNo5dEaBal4wvXKUR3Gq2pMOMe2MRtZ+tGZ1pb2Lw2
-         FNzHxEXdzLqsxUTU+yJg4L2vgTBdy4BHaPL2jYFowOZIn+UNPhBtAqZBpYOkyCFXvrQV
-         uFGA==
-X-Gm-Message-State: AHQUAuYKIylgl/uF7xvqgjeHv5Dhie4meMPbnVW07iFAVULKs96a1979
-        WqNj3pqmPup7xXnt1iJJiXioeiuj
-X-Google-Smtp-Source: AHgI3IbHiE5GTh1KGSaMiiLzPAoeHfXp2sb7pMyZtsJ/fYvTB8oK22CvBA4KcAl1+AWToKmnApmNWw==
-X-Received: by 2002:a63:f648:: with SMTP id u8mr5258946pgj.91.1551308830253;
-        Wed, 27 Feb 2019 15:07:10 -0800 (PST)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id n23sm4720388pgv.86.2019.02.27.15.07.07
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 27 Feb 2019 15:07:08 -0800 (PST)
-Date:   Wed, 27 Feb 2019 15:07:07 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Chris Packham <Chris.Packham@alliedtelesis.co.nz>
-Cc:     "wim@iguana.be" <wim@iguana.be>,
-        "gregory.clement@free-electrons.com" 
-        <gregory.clement@free-electrons.com>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2/3] watchdog: orion: don't enable rstout if an interrupt
- is configured
-Message-ID: <20190227230707.GA28635@roeck-us.net>
-References: <20171011022958.31268-1-chris.packham@alliedtelesis.co.nz>
- <20171011022958.31268-3-chris.packham@alliedtelesis.co.nz>
- <227eed69-c4c8-01a1-3c6b-6cf95e84a9cd@roeck-us.net>
- <4f82b24c3b244d3eba0f8de8cb25049f@svr-chch-ex1.atlnz.lc>
- <636717314b294a5f9a4ed1ffa44625c4@svr-chch-ex1.atlnz.lc>
+        Wed, 27 Feb 2019 18:54:56 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
+        s=mail; t=1551311691; h=from:from:sender:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=cJ6fULrEGLrLtO/O+I4SpN9dM7a0vaIBbaxUxFE0zew=;
+        b=vz6Gts0AlF1ZMxzNvwztMEwxrlMYtUm8vCZGrHH2K38uvYsNaQEwsGoASa1KbumPTB+Z6A
+        88PY/c9CQ9QkAnmFVsij8HjTByhDB1NR1aR4C+wZhWzvjIocvGJMOFJt+2Di8Cg69huwZl
+        zA1bw5utq6/tPI8K1f1TGueCFOzSWK4=
+Date:   Wed, 27 Feb 2019 20:54:28 -0300
+From:   Paul Cercueil <paul@crapouillou.net>
+Subject: Re: [PATCH v8 05/26] clocksource: Add driver for the Ingenic JZ47xx
+ OST
+To:     Stephen Boyd <sboyd@kernel.org>
+Cc:     Guenter Roeck <linux@roeck-us.net>,
+        Mathieu Malaterre <malat@debian.org>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        Paul Burton <paul.burton@mips.com>,
+        James Hogan <jhogan@kernel.org>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Ezequiel Garcia <ezequiel@collabora.co.uk>,
+        PrasannaKumar Muralidharan <prasannatsmkumar@gmail.com>,
+        linux-pwm@vger.kernel.org,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
+        <devicetree@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>,
+        linux-watchdog@vger.kernel.org, linux-mips@vger.kernel.org,
+        linux-doc@vger.kernel.org, linux-clk@vger.kernel.org, od@zcrc.me,
+        Maarten ter Huurne <maarten@treewalker.org>
+Message-Id: <1551311669.21164.1@crapouillou.net>
+In-Reply-To: <155111793658.191923.2540746255375959460@swboyd.mtv.corp.google.com>
+References: <20181212220922.18759-1-paul@crapouillou.net>
+        <CA+7wUsxNN2SL9_7tDh0DiBAgdUwxd_osgmi=09HP7110Tm0DYQ@mail.gmail.com>
+        <128675a5-7ede-4114-a649-89a536346dc8@roeck-us.net>
+        <1548264353.3173.1@crapouillou.net> <20190123180155.GB9781@roeck-us.net>
+        <154835808767.136743.14531363127962557756@swboyd.mtv.corp.google.com>
+        <1548362788.3881.0@crapouillou.net>
+        <154836998080.136743.17683029101430122926@swboyd.mtv.corp.google.com>
+        <1548370388.3881.2@crapouillou.net> <1550891845.20534.1@crapouillou.net>
+        <155111793658.191923.2540746255375959460@swboyd.mtv.corp.google.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <636717314b294a5f9a4ed1ffa44625c4@svr-chch-ex1.atlnz.lc>
-User-Agent: Mutt/1.5.24 (2015-08-30)
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Wed, Feb 27, 2019 at 08:59:07PM +0000, Chris Packham wrote:
-> Hijacking an old thread,
-> 
-> On 11/10/17 5:30 PM, Chris Packham wrote:
-> > On 11/10/17 16:42, Guenter Roeck wrote:
-> >> On 10/10/2017 07:29 PM, Chris Packham wrote:
-> >>> The orion_wdt_irq invokes panic() so we are going to reset the CPU
-> >>> regardless.  By not setting this bit we get a chance to gather debug
-> >>> from the panic output before the system is reset.
-> >>>
-> >>> Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
-> >>
-> >> Unless I am missing something, this assumes that the interrupt is
-> >> handled, ie that the system is not stuck with interrupts disabled.
-> >> This makes the watchdog less reliable. This added verbosity comes
-> >> at a significant cost. I'd like to get input from others if this
-> >> is acceptable.
-> >>
-> >> That would be different if there was a means to configure a pretimeout,
-> >> ie a means to tell the system to generate an irq first, followed by a
-> >> hard reset if the interrupt is not served. that does not seem to be
-> >> the case here, though.
-> >>
-> > 
-> > As far as I can tell there is no pretimeout capability in the orion
-> > /armada WDT. I have got a work-in-progress patch that enables the RSTOUT
-> > in the interrupt handler which some-what mitigates your concern but
-> > still requires the interrupt to be handled at least once.
-> > 
-> > Another option would be to use one of the spare global timers to provide
-> > the interrupt-driven aspect.
-> 
-> So as Guenter rightly pointed out my original patch meant that we'd hang 
-> if we got stuck in a loop with interrupts disabled. Shortly after that 
-> that's exactly what happened on my test setup.
-> 
-> I've now been able to follow-up on the idea of using one of the spare 
-> global timers as a pretimeout indication and it's looking pretty 
-> promising. The patch is below (beware MUA wrapping). I'll submit it 
-> properly but I'm wondering if I should add the timer1 based watchdog as 
-> a separate watchdog device or like I have below roll it into the 
-> existing watchdog device.
-> 
+Hi,
 
-Why not use a pretimeout ? Isn't this exactly what you are doing,
-with a fixed pretimeout of timeout / 2 ?
+Le lun. 25 f=E9vr. 2019 =E0 15:05, Stephen Boyd <sboyd@kernel.org> a=20
+=E9crit :
+> Quoting Paul Cercueil (2019-02-22 19:17:25)
+>>  Hi,
+>>=20
+>>  Anything new on this? It still happens on 5.0-rc7.
+>>  It probes with late_initcall, and not with device_initcall.
+>>  I have no clue what's going on.
+>>=20
+>=20
+> I'm not sure what's going on either. You'll probably have to debug=20
+> when
+> the device is created and when it is probed by enabling the debug
+> printing in the driver core or by adding in extra debug prints to=20
+> narrow
+> down the problem. For example, add a '#define DEBUG 1' at the top of
+> drivers/base/dd.c and see if that helps give some info on what's going
+> on with the drivers and devices.
 
-Guenter
+The doc of __platform_driver_probe says:
+"Use this instead of platform_driver_register() when you know the device
+is not hotpluggable and has already been registered".
+
+When the parent device and child device are both probed with
+builtin_platform_driver_probe(), and the parent calls
+devm_of_platform_populate(), it is not certain that the parent's
+probe will happen before the child's, and if it does not, the child
+device has not been registered and its probe is not allowed to defer.
+So it turned out not to be a core bug, rather a misuse of the API.
+
+So I will keep the builtin_platform_driver_probe() in the child, and=20
+use a
+subsys_initcall() in the parent. That works fine.
+
+Regards,
+-Paul
+=
+
