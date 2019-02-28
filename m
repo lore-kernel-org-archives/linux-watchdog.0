@@ -2,104 +2,156 @@ Return-Path: <SRS0=C3hG=RD=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_PASS,USER_AGENT_MUTT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 81F59C43381
-	for <linux-watchdog@archiver.kernel.org>; Thu, 28 Feb 2019 07:05:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A96C5C43381
+	for <linux-watchdog@archiver.kernel.org>; Thu, 28 Feb 2019 08:00:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 584F621850
-	for <linux-watchdog@archiver.kernel.org>; Thu, 28 Feb 2019 07:05:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 68FCF2171F
+	for <linux-watchdog@archiver.kernel.org>; Thu, 28 Feb 2019 08:00:04 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=nxp.com header.i=@nxp.com header.b="HggpNiw9"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731358AbfB1HE7 (ORCPT
+        id S1731843AbfB1H76 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 28 Feb 2019 02:04:59 -0500
-Received: from mail-lf1-f68.google.com ([209.85.167.68]:38876 "EHLO
-        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731129AbfB1HE6 (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 28 Feb 2019 02:04:58 -0500
-Received: by mail-lf1-f68.google.com with SMTP id 131so5217595lfa.5;
-        Wed, 27 Feb 2019 23:04:55 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=N3Q2yab8FBxM2Rj485aM5M2Va2G75P8uQ2vaebYj/tY=;
-        b=qfrZTqr2iUsEEcZ24jx/GjWKOb8uGQ7BbhdGPbz6yRyTTbGlZ7YPPWqF67bUyS3iOT
-         p8wSmIYD/VxXVc5pMGC03ne7qejF9De4wMlcGxJeoRIXyoI3hUviLs4cufjoue7gsjLf
-         q8DevV/J8PB+jszDyxY2hHrdEv0gRr5OlRn6F5pueswldnTMijU6pGEVvgvfbJtfkPEY
-         2o1xR1ETGm7hyZHiG6z9WCGHppIaOF5RGOQmCIOPJAmVJnMb42Rysrphh8noZsipXTIm
-         Wz0g8eOAIcn39wTpe++QaYVMpKPGKqpEP+pVJiauueOrXpYJfBtDVOMih06YWViPSYoM
-         J1/g==
-X-Gm-Message-State: AHQUAuYHLZqoTng3wZ6AFFuNIkf2Vu9RJ0UMaEbaxEjfzWykk3vm7r+9
-        7I8HIUT4Dr5pnV7EYfk23XI=
-X-Google-Smtp-Source: AHgI3IY1E/z38f6ZLrBhmMYU1kBD2JVAz37+kW9T6ietL93d6CduZg7qekfcurzu6+Ne+8d6XswNMQ==
-X-Received: by 2002:ac2:54b6:: with SMTP id w22mr3425266lfk.132.1551337494486;
-        Wed, 27 Feb 2019 23:04:54 -0800 (PST)
-Received: from localhost.localdomain ([213.255.186.46])
-        by smtp.gmail.com with ESMTPSA id e21sm1291882lfc.90.2019.02.27.23.04.51
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Wed, 27 Feb 2019 23:04:53 -0800 (PST)
-Date:   Thu, 28 Feb 2019 09:04:50 +0200
-From:   Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-To:     mazziesaccount@gmail.com
-Cc:     Guenter Roeck <linux@roeck-us.net>,
-        heikki.haikola@fi.rohmeurope.com, mikko.mutanen@fi.rohmeurope.com,
-        lee.jones@linaro.org, robh+dt@kernel.org, mark.rutland@arm.com,
-        broonie@kernel.org, gregkh@linuxfoundation.org, rafael@kernel.org,
-        mturquette@baylibre.com, sboyd@kernel.org,
-        linus.walleij@linaro.org, bgolaszewski@baylibre.com,
-        sre@kernel.org, lgirdwood@gmail.com, a.zummo@towertech.it,
-        alexandre.belloni@bootlin.com, wim@linux-watchdog.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-clk@vger.kernel.org, linux-gpio@vger.kernel.org,
-        linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linux-watchdog@vger.kernel.org, bogdan-petru.chircu-mare@nxp.com
-Subject: Re: [PATCH v10 0/9] support ROHM BD70528 PMIC
-Message-ID: <20190228070450.GB3773@localhost.localdomain>
-References: <cover.1550148989.git.matti.vaittinen@fi.rohmeurope.com>
+        Thu, 28 Feb 2019 02:59:58 -0500
+Received: from mail-eopbgr130075.outbound.protection.outlook.com ([40.107.13.75]:26017
+        "EHLO EUR01-HE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1730399AbfB1H75 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Thu, 28 Feb 2019 02:59:57 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=jGZPmiwr002s45d4dqREbhsRs9DYJ2iiYOSnRa6BeIU=;
+ b=HggpNiw9GDHHZH54NmRni4fRgpbBdK2ZCzv+PHcyG7IHyNa0U6Fbhdj04pCA/+9kHMu8tLeqVeR2SR6cXEl6xC5sXmX6Bs66454vA+Xc+7G6Ljr7xsQcfY66GNb1+TdO6SuQfdBH1aURivEqUVL3D92QUeVgOCqxqf24en1c62g=
+Received: from AM0PR0402MB3905.eurprd04.prod.outlook.com (52.133.37.151) by
+ AM0PR0402MB3604.eurprd04.prod.outlook.com (52.133.46.21) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.1665.15; Thu, 28 Feb 2019 07:59:51 +0000
+Received: from AM0PR0402MB3905.eurprd04.prod.outlook.com
+ ([fe80::e995:ae25:6f87:2bec]) by AM0PR0402MB3905.eurprd04.prod.outlook.com
+ ([fe80::e995:ae25:6f87:2bec%7]) with mapi id 15.20.1643.022; Thu, 28 Feb 2019
+ 07:59:51 +0000
+From:   Anson Huang <anson.huang@nxp.com>
+To:     "catalin.marinas@arm.com" <catalin.marinas@arm.com>,
+        "will.deacon@arm.com" <will.deacon@arm.com>,
+        "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
+        "linux@roeck-us.net" <linux@roeck-us.net>,
+        "shawnguo@kernel.org" <shawnguo@kernel.org>,
+        "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>,
+        "kernel@pengutronix.de" <kernel@pengutronix.de>,
+        "festevam@gmail.com" <festevam@gmail.com>,
+        Andy Gross <andy.gross@linaro.org>,
+        "heiko@sntech.de" <heiko@sntech.de>,
+        "horms+renesas@verge.net.au" <horms+renesas@verge.net.au>,
+        "arnd@arndb.de" <arnd@arndb.de>, "olof@lixom.net" <olof@lixom.net>,
+        "jagan@amarulasolutions.com" <jagan@amarulasolutions.com>,
+        "bjorn.andersson@linaro.org" <bjorn.andersson@linaro.org>,
+        "enric.balletbo@collabora.com" <enric.balletbo@collabora.com>,
+        "marc.w.gonzalez@free.fr" <marc.w.gonzalez@free.fr>,
+        "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
+CC:     dl-linux-imx <linux-imx@nxp.com>
+Subject: [PATCH V4 2/2] arm64: defconfig: add support for i.MX system
+ controller watchdog
+Thread-Topic: [PATCH V4 2/2] arm64: defconfig: add support for i.MX system
+ controller watchdog
+Thread-Index: AQHUzzuVlP864ymFpEC6qa28bjyoYA==
+Date:   Thu, 28 Feb 2019 07:59:51 +0000
+Message-ID: <1551340510-2324-2-git-send-email-Anson.Huang@nxp.com>
+References: <1551340510-2324-1-git-send-email-Anson.Huang@nxp.com>
+In-Reply-To: <1551340510-2324-1-git-send-email-Anson.Huang@nxp.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-mailer: git-send-email 2.7.4
+x-clientproxiedby: HK0PR01CA0052.apcprd01.prod.exchangelabs.com
+ (2603:1096:203:a6::16) To AM0PR0402MB3905.eurprd04.prod.outlook.com
+ (2603:10a6:208:b::23)
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=anson.huang@nxp.com; 
+x-ms-exchange-messagesentrepresentingtype: 1
+x-originating-ip: [119.31.174.66]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: 125f2258-b602-4ed9-eb27-08d69d52b76a
+x-ms-office365-filtering-ht: Tenant
+x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600127)(711020)(4605104)(4618075)(2017052603328)(7153060)(7193020);SRVR:AM0PR0402MB3604;
+x-ms-traffictypediagnostic: AM0PR0402MB3604:
+x-ld-processed: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635,ExtAddr
+x-microsoft-exchange-diagnostics: =?iso-8859-1?Q?1;AM0PR0402MB3604;23:i3Ikm/Ce4+AVhH5mGKrWdTvWa0aTXkpYDHQkq?=
+ =?iso-8859-1?Q?HVjRhBsBD8VsKniRfHD2adxSG5I7nqkVk2hxgLf7tiPGqs4HQ4k8icGJq9?=
+ =?iso-8859-1?Q?pPEBPC1goUubg2Au/a1Sxz1LHG05vd8DoRz8o5OZwhp95vY+PVYCTSfDml?=
+ =?iso-8859-1?Q?ocRGx63iRLP7ZYEwCBnCzCTuSCl1IBcpW/X6BCXhpMT7H/edJAYKmE6PFB?=
+ =?iso-8859-1?Q?jp4qjMTZJ1UTqANYTA/Y743BcEuwSOHebtDZjVXV9Rq+6FJKMxTxI+0u4G?=
+ =?iso-8859-1?Q?xDklt+OoI1GeyMVvaagGovy3S8hCkMjluvcmi7MiQMUDncZn1PanSxZNbg?=
+ =?iso-8859-1?Q?dnH8WFHX5szdJLMdsOtyg5fQXtvCZ/frdJEUNLUmf+qS+owS3HGPT1J6e4?=
+ =?iso-8859-1?Q?P8+JIiORp41z3lxUOxlwB8ZX0D/dGinPzM7wpiDHzBZdO+qna1KuCkj6Fi?=
+ =?iso-8859-1?Q?irKXUXcJ4eu3peBJwz50juhTylItSrIiIv+DOtcx16PSpAhIy8Pg4pecNM?=
+ =?iso-8859-1?Q?ZV265os2tT3/XcSyxt1vbTBnGOzyX6aSj4SURUCfFuUM3KtxhJY3NawgyC?=
+ =?iso-8859-1?Q?Uo0OCOlDSBmHoiqf/mvXBBi07k3U5YPl3s8KTsDAhuLYNURLuAtSXLUICK?=
+ =?iso-8859-1?Q?MMwClYzrwGDvTGD6DjieH18ZUxo6/Y0heOR4KnvYgCEMueidlvc78JtiVd?=
+ =?iso-8859-1?Q?kosgg5+hHIsDqNqwbXkY2h8OGJYZwPRxUuoY2whnXV48XPhPEsBnHmRY3W?=
+ =?iso-8859-1?Q?yd3FW0BtTe2gl3xCY2wd03IG+kAhwlhTOHwYLXgGCFgS0lD86c/x/1xWdE?=
+ =?iso-8859-1?Q?3i4qsWf7ylc4sxRAE5WHqFqbFNbyd+tftwcx8DtF46rEcDD/tKqIYviuAj?=
+ =?iso-8859-1?Q?W0qjc86R3eVSktLHicnvRTJro7oYYUVweMQf/Wu0z3qs/vKV6Cm8AY1oH7?=
+ =?iso-8859-1?Q?mq6jn/gNSYHhb8Pm2CwBBPV43+r0xf3Qpg9dWImUVlIF0ePo12A3u7MqiS?=
+ =?iso-8859-1?Q?2WXDITHimK8UdK4/xCHcgOkQ/l2/Vzjz1vxPpRa2wcLSCreb2Y7aYM4UD7?=
+ =?iso-8859-1?Q?JHc8QYYRZ7qSAJjSri+S01NB5tsmZRn8PaB+DKx0moQ9pNSDtgAMlRdbjb?=
+ =?iso-8859-1?Q?Y+eUNuOFSmzoyPqz4hvWqKedsck0YbvgSw8xt8Wuw5YyZmGY92ebdbyTt9?=
+ =?iso-8859-1?Q?93TWcDt22NQccnl/hvJERrZ87bd8qnGXsyiKtSuEqVyyKlw8sN2WKLnd48?=
+ =?iso-8859-1?Q?VYhpMnxjrLzKrAfAc53hpqLGNQyqzNEN5oxlhnkNr2rCmf5Mu/Ju4p/J5Q?=
+ =?iso-8859-1?Q?dMxIpV269tt3eAvPgSYj2yqO7?=
+x-microsoft-antispam-prvs: <AM0PR0402MB36045E6090A454F252C924E3F5750@AM0PR0402MB3604.eurprd04.prod.outlook.com>
+x-forefront-prvs: 0962D394D2
+x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(39860400002)(396003)(346002)(136003)(366004)(376002)(199004)(189003)(68736007)(36756003)(50226002)(2501003)(7416002)(478600001)(71200400001)(71190400001)(305945005)(7736002)(4744005)(97736004)(66066001)(14454004)(81166006)(8936002)(8676002)(2906002)(81156014)(52116002)(316002)(386003)(6506007)(76176011)(6512007)(110136005)(6436002)(99286004)(53936002)(3846002)(6116002)(5660300002)(4326008)(486006)(446003)(11346002)(256004)(2616005)(476003)(106356001)(105586002)(86362001)(25786009)(2201001)(186003)(102836004)(6486002)(26005)(921003)(1121003);DIR:OUT;SFP:1101;SCL:1;SRVR:AM0PR0402MB3604;H:AM0PR0402MB3905.eurprd04.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
+received-spf: None (protection.outlook.com: nxp.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam-message-info: K7lIVrTPzCiAuBwT2qlFYaOM+WSBgrLptt9WPKNKeXYk+wKiT9GCjQ/KDEfDTqKg+Dq+7KEUo6uhI6mR4T1WQEofoaLnpgpuTGPGb7TKgEBuTdPLCedThPT/y+l47CucMPUut4tYUlpIlZ1RsQ+nK7JgP4VHDQ4FUnUpFfkIH0UHIkVxMkMx+QLI/fYbVr5L8c2nhKFxvQGjW+HO+OrA/9Z00YTPQRL+KzgP+ZeuKs4K8mLnrEIdm73rEVbNFjaL14uQRHX4XYC4T8vzdr0A9iEBqdgrI6wiHF5Tze+DZkC5JLfrkgpWOAo6VV8SM1yhmzjOxgnD8Py7UPqr2J7ENS6oCB/NFVmCOvP8ao1ZGP91GJnjWCta9wZZ20wfjqz13MEdybruuZKTkK5pSwQYckpTU9ZFKaxUUMOejhubFOc=
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <cover.1550148989.git.matti.vaittinen@fi.rohmeurope.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+X-OriginatorOrg: nxp.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 125f2258-b602-4ed9-eb27-08d69d52b76a
+X-MS-Exchange-CrossTenant-originalarrivaltime: 28 Feb 2019 07:59:44.4555
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM0PR0402MB3604
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Hello Lee and Mark,
+Enable CONFIG_IMX_SC_WDT as module to support i.MX system
+controller watchdog.
 
-On Thu, Feb 14, 2019 at 03:02:37PM +0200, Matti Vaittinen wrote:
-> Patch series introducing support for ROHM BD70528 PMIC
-> 
-> ROHM BD70528 is a programmable Power Management IC for battery
-> powered 'ultra low power' systems like the pre-announced NXP
-> i.MX7 ULP. This patch series introduces support for the PMIC. Please
-> note that this driver only supports HW setup where PMIC is connected
-> to I2C on A7 core. The other scenario is to use M4 as a power manager
-> and connect pmic to M4. On such setups the A7 can only access pmic
-> via M4 core using RPMSG virtio. Such setup depends on RPMSG
-> implementation on M4 core and is currently not supported by this
-> patch series.
-> 
+Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
+---
+no changes.
+---
+ arch/arm64/configs/defconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-I was wondering if there is anything that could be done to allow the MFD
-part of this series to end up in upstream without having to wait the
-regmap-irq changes
-(https://git.kernel.org/pub/scm/linux/kernel/git/broonie/regmap.git/commit/?h=topic/irq)
- to be merged from Linus' tree to MFD tree? If I see it correctly, the
-regmap-irq (main-irq-reg support) changes are not targeted to linux 5.1.
-To me it looks like getting them to MFD via Linus' tree will take a while.
-
-The MFD part depends on the regmap-irq changes and I think that most
-other subsystems want to have the MFD changes in before taking rest of
-the driver in their trees. So it will be a while untill all the changes
-are in. It would really be nice to have the drive in-tree sooner - hence
-I ask if theres a way. (I don't want to push, just ask if it is possible :])
-
-Best Regards
-	Matti Vaittinen
+diff --git a/arch/arm64/configs/defconfig b/arch/arm64/configs/defconfig
+index 2d9c390..690f4ba 100644
+--- a/arch/arm64/configs/defconfig
++++ b/arch/arm64/configs/defconfig
+@@ -427,6 +427,7 @@ CONFIG_WATCHDOG=3Dy
+ CONFIG_ARM_SP805_WATCHDOG=3Dy
+ CONFIG_S3C2410_WATCHDOG=3Dy
+ CONFIG_IMX2_WDT=3Dy
++CONFIG_IMX_SC_WDT=3Dm
+ CONFIG_MESON_GXBB_WATCHDOG=3Dm
+ CONFIG_MESON_WATCHDOG=3Dm
+ CONFIG_RENESAS_WDT=3Dy
+--=20
+2.7.4
 
