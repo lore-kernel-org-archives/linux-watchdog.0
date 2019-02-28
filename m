@@ -6,114 +6,85 @@ X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_PASS autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 701AEC43381
-	for <linux-watchdog@archiver.kernel.org>; Thu, 28 Feb 2019 15:38:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2DE39C10F00
+	for <linux-watchdog@archiver.kernel.org>; Thu, 28 Feb 2019 18:42:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 3CC212133D
-	for <linux-watchdog@archiver.kernel.org>; Thu, 28 Feb 2019 15:38:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EEADD218D3
+	for <linux-watchdog@archiver.kernel.org>; Thu, 28 Feb 2019 18:42:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1551368281;
-	bh=d9Fnt7h8JVsgePf/Xp/5197DVDsk15WNv/erwfjZqyI=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:List-ID:From;
-	b=UkbhK18TM9XnzQ6NC2JjRjV2tNCGbTfGVk8iHEEH7yisR0lc9H4X9Q+dB/GLV5q9o
-	 HxcWaTlFOxc4cPymus2dMZFyVkJOjbz9hSRtUSc6Rxq340gB7ogcSsGma0TJvOY0d/
-	 Hdox/PosOgufZ8xPWtXzq8uuJnFKHTXN+JtWZ7EQ=
+	s=default; t=1551379355;
+	bh=oLvNdA/M/UKLXZYqQYq+ZFgHkuM+Rc/ZO2DPIBogeu8=;
+	h=In-Reply-To:To:Subject:References:From:Cc:Date:List-ID:From;
+	b=SbB+1ZeaHmBKW6QzM660zZrIPmPJgIHoeMKbWYxkAYtLdmMFtdmhqdSd+Kb56ajn6
+	 aKajz2geOWZU78CicbuU+wGIhnknW90EztiTqMYyTEmdZobRhFAFJsCJAQ2SlwAy7L
+	 1D6o9EGgeijbVvcZ8GpN2iFrIJuusGS0Hjjv+SLc=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733248AbfB1Ph5 (ORCPT
+        id S2388161AbfB1Sme (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 28 Feb 2019 10:37:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36804 "EHLO mail.kernel.org"
+        Thu, 28 Feb 2019 13:42:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42584 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732208AbfB1Ph4 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 28 Feb 2019 10:37:56 -0500
-Received: from mail-qt1-f170.google.com (mail-qt1-f170.google.com [209.85.160.170])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        id S1726232AbfB1Sme (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Thu, 28 Feb 2019 13:42:34 -0500
+Received: from localhost (unknown [104.132.0.74])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 75FA5218D9;
-        Thu, 28 Feb 2019 15:37:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 15E4D20863;
+        Thu, 28 Feb 2019 18:42:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1551368275;
-        bh=d9Fnt7h8JVsgePf/Xp/5197DVDsk15WNv/erwfjZqyI=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=qatioSbEHWqtsTDpJORUjJz0D1kSBOB6Os61XglmPXRR5qhbi9rp2Ig0mzG7Kr6nT
-         dVtrfMNFfnLygjqmUJGKKiY+lJYCxboroT3zqrEBLr/Ep6K/FYbYNB0lDRd0nwH1gE
-         8Dhi4HtdQxRF/xU8uydpdfhXXKz6wF6R0+GfeGwY=
-Received: by mail-qt1-f170.google.com with SMTP id u7so14751027qtg.9;
-        Thu, 28 Feb 2019 07:37:55 -0800 (PST)
-X-Gm-Message-State: APjAAAVuZq9FsqWhE8a1EtDbe9WgmuciCk+P1xFDHKJX2bzrcQ/BLJY6
-        xcQfGwqDIcA1o/OwklhpStPeHu1ZU4Rmg5buAg==
-X-Google-Smtp-Source: APXvYqx9QcG+QKclLDKNC4bwxAoXMtgqvzvQbLRUOLlwSeWtXHH49hDWkAeqxI8e2DKOMhViR3JpoVBytrPjYs1/cpw=
-X-Received: by 2002:a0c:ecc5:: with SMTP id o5mr6962500qvq.106.1551368274651;
- Thu, 28 Feb 2019 07:37:54 -0800 (PST)
+        s=default; t=1551379353;
+        bh=oLvNdA/M/UKLXZYqQYq+ZFgHkuM+Rc/ZO2DPIBogeu8=;
+        h=In-Reply-To:To:Subject:References:From:Cc:Date:From;
+        b=NHhvjKfZ0S2SmY3fzFrEisgq9iBjLgtBixr81bonO7/cd74Bl0bXj7JRTKH0BPZOB
+         gpvHNZiaGqy+E/OauSBFdEhVavO5AMwE8Z+JSeLwNjjzEbIn90ZvlqHJZpUw0SxYnw
+         rCLAgD6VYA+TfR4L6Np3MB8QERrXRxY6H8PVtZtg=
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <cover.1548149337.git.matti.vaittinen@fi.rohmeurope.com>
- <80de7a2b537ae3f414b0281736652256f38cf94c.1548149337.git.matti.vaittinen@fi.rohmeurope.com>
- <20190223003041.GA16670@bogus> <20190228064923.GA3773@localhost.localdomain>
-In-Reply-To: <20190228064923.GA3773@localhost.localdomain>
-From:   Rob Herring <robh@kernel.org>
-Date:   Thu, 28 Feb 2019 09:37:43 -0600
-X-Gmail-Original-Message-ID: <CAL_JsqKBUyygGu9FRb+hye+1DyRgdATm_64+XfsvwEa8AvZhJg@mail.gmail.com>
-Message-ID: <CAL_JsqKBUyygGu9FRb+hye+1DyRgdATm_64+XfsvwEa8AvZhJg@mail.gmail.com>
-Subject: Re: [RFC PATCH v1 07/13] devicetree: bindings: Document first ROHM
- BD70528 bindings
-To:     Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-Cc:     Matti Vaittinen <mazziesaccount@gmail.com>,
-        Lee Jones <lee.jones@linaro.org>,
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <1550884678.20534.0@crapouillou.net>
+To:     Paul Cercueil <paul@crapouillou.net>,
+        <u.kleine-koenig@pengutronix.de>
+Subject: Re: [PATCH v9 14/27] pwm: jz4740: Improve algorithm of clock calculation
+Message-ID: <155137935225.16805.10412318501940648799@swboyd.mtv.corp.google.com>
+References: <20181227181319.31095-1-paul@crapouillou.net> <20181227181319.31095-15-paul@crapouillou.net> <20190105195725.cuxfge6zkpbt3cyk@pengutronix.de> <1546722339.30174.0@crapouillou.net> <20190105212711.s765knwwerceytvk@pengutronix.de> <1547129096.16183.0@crapouillou.net> <1550884678.20534.0@crapouillou.net>
+From:   Stephen Boyd <sboyd@kernel.org>
+Cc:     Thierry Reding <thierry.reding@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
         Mark Rutland <mark.rutland@arm.com>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Sebastian Reichel <sre@kernel.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        linux-clk <linux-clk@vger.kernel.org>,
-        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
-        "open list:THERMAL" <linux-pm@vger.kernel.org>,
-        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM" 
-        <linux-rtc@vger.kernel.org>,
-        LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
-        mikko.mutanen@fi.rohmeurope.com, heikki.haikola@fi.rohmeurope.com
-Content-Type: text/plain; charset="UTF-8"
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        Paul Burton <paul.burton@mips.com>,
+        James Hogan <jhogan@kernel.org>,
+        Jonathan Corbet <corbet@lwn.net>, linux-pwm@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-watchdog@vger.kernel.org, linux-mips@vger.kernel.org,
+        linux-doc@vger.kernel.org, linux-clk@vger.kernel.org,
+        Russell King <linux@armlinux.org.uk>
+User-Agent: alot/0.8
+Date:   Thu, 28 Feb 2019 10:42:32 -0800
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Thu, Feb 28, 2019 at 12:49 AM Matti Vaittinen
-<matti.vaittinen@fi.rohmeurope.com> wrote:
->
-> Hello Rob, All
->
-> Sorry for long delay - I was ill for a few days. Back at the business
-> now =)
->
-> Rob, maybe dropping the RFC tag has messed your book keeping? This
-> is the latest version:
-> https://lore.kernel.org/lkml/90c3b820baf072a7cc3a21aa50c661774a045158.1550148989.git.matti.vaittinen@fi.rohmeurope.com/
-> and I thought it already had the Reviewed-by tag from you :)
+Quoting Paul Cercueil (2019-02-22 17:17:58)
+> Bump.
+>=20
+> What should I do here?
+>=20
 
-I thought I ignored RFC tag, but could be that. My script (and memory)
-aren't perfect.
+I thought I replied to the list but maybe it got rejected because my MUA
+is currently failing hard at sending 8-bit mails without
+using quoted printable. Let me remove all non-ascii characters from this
+mail!
 
-> On Fri, Feb 22, 2019 at 06:30:41PM -0600, Rob Herring wrote:
-> > On Tue, Jan 22, 2019 at 11:45:38AM +0200, Matti Vaittinen wrote:
-> > > Document bindings for regulators (3 bucks, 3 LDOs and 2 LED
-> > > drivers) and 4 GPIO pins which can be configured for I/O or
-> > > as interrupt sources withe configurable trigger levels.
-> >
-> > 'dt-bindings: mfd: ...' for the subject.
->
-> I see at least the patch subject comment is still valid though. Do you
-> want me to change it and resubmit the series?
+If someone has the mail please rebounce it to the list. Otherwise, I
+think I basically said this is OK because clk_round_rate() semantics are
+specifically vague here to allow the implementation to decide how rates
+are rounded (up, down, closest, etc). As long as the whole rate space is
+searched with a +1 or a -1 style of search it should be work. We're not
+going to add round_up() or round_down() APIs as far as I'm concerned,
+and you can look on the list to see previous proposals on that topic to
+get some background on why they aren't liked.
 
-No, if that's the only thing, it's not important.
-
-Rob
