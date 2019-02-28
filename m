@@ -2,113 +2,442 @@ Return-Path: <SRS0=C3hG=RD=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_PASS,
-	USER_AGENT_MUTT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4EF7FC43381
-	for <linux-watchdog@archiver.kernel.org>; Thu, 28 Feb 2019 11:41:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D1E36C43381
+	for <linux-watchdog@archiver.kernel.org>; Thu, 28 Feb 2019 14:25:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 186BF214D8
-	for <linux-watchdog@archiver.kernel.org>; Thu, 28 Feb 2019 11:41:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1551354062;
-	bh=zorMPTfb1TPeO4nwA4T4qEy8dDYyeF8JQMspHx5/z3U=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=NOZIcUb4VcP8tlhNFfH0Xwn4+HQIK+qiYQBupMACHQ5qYM5yYbVlQMlf2B4fPjsOO
-	 uGQH1KwuLu6v73NHz87O9jpQU3PRg4CLGqzKEUDlO/xWBMQ+pBKwd0sCPusZDpqpMj
-	 z7FWEgt0gHhkAwPhO5ABiWs/NjxOPzPGgjgjvMVo=
+	by mail.kernel.org (Postfix) with ESMTP id 8DFB6218AE
+	for <linux-watchdog@archiver.kernel.org>; Thu, 28 Feb 2019 14:25:27 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fSNCTk9m"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732078AbfB1Lk5 (ORCPT
+        id S1731250AbfB1OZ1 (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 28 Feb 2019 06:40:57 -0500
-Received: from heliosphere.sirena.org.uk ([172.104.155.198]:49356 "EHLO
-        heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731013AbfB1Lk4 (ORCPT
+        Thu, 28 Feb 2019 09:25:27 -0500
+Received: from mail-pf1-f193.google.com ([209.85.210.193]:34023 "EHLO
+        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728024AbfB1OZ1 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 28 Feb 2019 06:40:56 -0500
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=sirena.org.uk; s=20170815-heliosphere; h=In-Reply-To:Content-Type:
-        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=LLiNH4oIr4+JwdwcpJ+DDQQsoNcU24lAEfaNV3Etzf0=; b=um/mSy8gXDP3Bi4q2X0zs4/KY
-        ovato2EYhXlJMgy405qMYClvzMZQTbCYqXAEuDVJMe+82ZwPbq8e0YvsQFKn4K7yDGLBtGYSYgh1c
-        monHmeuu0SplBQmXvsXqnWw9fME5DAZ8LRFcsLSX5TlsludkIncTDtx+bH16GH22hAlH8=;
-Received: from cpc102320-sgyl38-2-0-cust46.18-2.cable.virginm.net ([82.37.168.47] helo=debutante.sirena.org.uk)
-        by heliosphere.sirena.org.uk with esmtpa (Exim 4.89)
-        (envelope-from <broonie@sirena.org.uk>)
-        id 1gzK3E-0005kG-Dr; Thu, 28 Feb 2019 11:40:32 +0000
-Received: by debutante.sirena.org.uk (Postfix, from userid 1000)
-        id 74BA21126E9D; Thu, 28 Feb 2019 11:40:26 +0000 (GMT)
-Date:   Thu, 28 Feb 2019 11:40:26 +0000
-From:   Mark Brown <broonie@kernel.org>
-To:     Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-Cc:     mazziesaccount@gmail.com, Guenter Roeck <linux@roeck-us.net>,
-        heikki.haikola@fi.rohmeurope.com, mikko.mutanen@fi.rohmeurope.com,
-        lee.jones@linaro.org, robh+dt@kernel.org, mark.rutland@arm.com,
-        gregkh@linuxfoundation.org, rafael@kernel.org,
-        mturquette@baylibre.com, sboyd@kernel.org,
-        linus.walleij@linaro.org, bgolaszewski@baylibre.com,
-        sre@kernel.org, lgirdwood@gmail.com, a.zummo@towertech.it,
-        alexandre.belloni@bootlin.com, wim@linux-watchdog.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-clk@vger.kernel.org, linux-gpio@vger.kernel.org,
-        linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linux-watchdog@vger.kernel.org, bogdan-petru.chircu-mare@nxp.com
-Subject: Re: [PATCH v10 0/9] support ROHM BD70528 PMIC
-Message-ID: <20190228114026.GA6802@sirena.org.uk>
-References: <cover.1550148989.git.matti.vaittinen@fi.rohmeurope.com>
- <20190228070450.GB3773@localhost.localdomain>
+        Thu, 28 Feb 2019 09:25:27 -0500
+Received: by mail-pf1-f193.google.com with SMTP id u9so9816051pfn.1;
+        Thu, 28 Feb 2019 06:25:26 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=V+A8lnuwtppMC4E5jx4m1uiVOVP/JT6ZWJVoU+0uEbQ=;
+        b=fSNCTk9m6b7iqLBNUprc7OjiofHX7C4WHZHe9Z/WRDVGilHOI5XQHFXWURRIJVKzlX
+         DAfKTSREMIszJX7WGqODRxIJwZHCq4AbSdqTHk5vq6IfXN+Wsfn87sK3llsr8z3Al55O
+         JZj0DhGWbocdqoIfsAiyeYEfA0KIhQOuUald/FBkKh1sVLQMx8/eVK6xox1d6xw0RT0K
+         XqjOvRWg6SdoxLJOGLjQA4NFxASqSIRvHRKY1Zi9wyJmDk/EPz9tv3lPSKG3Gxxzy51t
+         61WJOfrU8uDICI/FdYSy/ykfL3kL4L0v4DcHQIu3IArr0DPQz+300eIWAm3WIPpX1cAg
+         G5hw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=V+A8lnuwtppMC4E5jx4m1uiVOVP/JT6ZWJVoU+0uEbQ=;
+        b=uc8k4v7CdJQ1dYbOOSiqUfzo9/kw7myFSzf27uR3cJ1OwjwpEKpdPtNWvEizu2c9py
+         22LMKISkDZC0gDf8OAwBqlHM5Gw9n2ZGUHHLAmtgRmczui2YhpOTuFIgktkn4dWcJbF7
+         nDAJuzfOyWbshnkTaTc0DEOQ67SVdTYB6vM2TiCG87kIurc5sBWOrhU7LlvxN3kwSM8O
+         eTewLbHmoBwbwuJ5Ggkcctd2ldhSCsH7PuSsft/sqSyTK/6DvLkgO4pRcsddCx1phrY/
+         kjV9PL1/AlTadnQkvUd77yeJ0LiI9XPhXWDNlSAmp004zQpLD20wGYPNiQ7sBvdvkUlI
+         7zUw==
+X-Gm-Message-State: AHQUAuba58HlpgSxLC5Xq5286WTxNX035eF4aOupeytfd0BO58XLQOkF
+        9whiedA3BbfamsM/+4NZGsw=
+X-Google-Smtp-Source: AHgI3IYFTi4phi2GSRZIZMGVkXdekekaTsC8hg1giVj5PUGIqGVZB0pLEkWJUwnby2pdUwOWCKTsfg==
+X-Received: by 2002:a63:69c2:: with SMTP id e185mr8757742pgc.4.1551363925948;
+        Thu, 28 Feb 2019 06:25:25 -0800 (PST)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id k7sm52057375pgr.28.2019.02.28.06.25.23
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 28 Feb 2019 06:25:24 -0800 (PST)
+Subject: Re: [PATCH V3 2/4] watchdog: imx_sc: Add i.MX system controller
+ watchdog support
+To:     Anson Huang <anson.huang@nxp.com>
+Cc:     "robh+dt@kernel.org" <robh+dt@kernel.org>,
+        "mark.rutland@arm.com" <mark.rutland@arm.com>,
+        "shawnguo@kernel.org" <shawnguo@kernel.org>,
+        "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>,
+        "kernel@pengutronix.de" <kernel@pengutronix.de>,
+        "festevam@gmail.com" <festevam@gmail.com>,
+        "catalin.marinas@arm.com" <catalin.marinas@arm.com>,
+        "will.deacon@arm.com" <will.deacon@arm.com>,
+        "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
+        Aisheng Dong <aisheng.dong@nxp.com>,
+        "ulf.hansson@linaro.org" <ulf.hansson@linaro.org>,
+        Daniel Baluta <daniel.baluta@nxp.com>,
+        Andy Gross <andy.gross@linaro.org>,
+        "horms+renesas@verge.net.au" <horms+renesas@verge.net.au>,
+        "heiko@sntech.de" <heiko@sntech.de>,
+        "arnd@arndb.de" <arnd@arndb.de>, "olof@lixom.net" <olof@lixom.net>,
+        "bjorn.andersson@linaro.org" <bjorn.andersson@linaro.org>,
+        "jagan@amarulasolutions.com" <jagan@amarulasolutions.com>,
+        "enric.balletbo@collabora.com" <enric.balletbo@collabora.com>,
+        "marc.w.gonzalez@free.fr" <marc.w.gonzalez@free.fr>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+        dl-linux-imx <linux-imx@nxp.com>
+References: <1551060850-22553-1-git-send-email-Anson.Huang@nxp.com>
+ <1551060850-22553-3-git-send-email-Anson.Huang@nxp.com>
+ <20190226223846.GB30985@roeck-us.net>
+ <AM6PR0402MB39111FFC11568D4FD342D5A5F5750@AM6PR0402MB3911.eurprd04.prod.outlook.com>
+From:   Guenter Roeck <linux@roeck-us.net>
+Message-ID: <4a625bd0-cee2-02ca-a3f4-52ad08ec6893@roeck-us.net>
+Date:   Thu, 28 Feb 2019 06:25:22 -0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.5.1
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="ibTvN161/egqYuK8"
-Content-Disposition: inline
-In-Reply-To: <20190228070450.GB3773@localhost.localdomain>
-X-Cookie: You must be present to win.
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <AM6PR0402MB39111FFC11568D4FD342D5A5F5750@AM6PR0402MB3911.eurprd04.prod.outlook.com>
+Content-Type: text/plain; charset=gbk; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
+On 2/27/19 10:15 PM, Anson Huang wrote:
+> Hi, Guenter
+> 
+> Best Regards!
+> Anson Huang
+> 
+>> -----Original Message-----
+>> From: Guenter Roeck [mailto:groeck7@gmail.com] On Behalf Of Guenter
+>> Roeck
+>> Sent: 2019Äê2ÔÂ27ÈÕ 6:39
+>> To: Anson Huang <anson.huang@nxp.com>
+>> Cc: robh+dt@kernel.org; mark.rutland@arm.com; shawnguo@kernel.org;
+>> s.hauer@pengutronix.de; kernel@pengutronix.de; festevam@gmail.com;
+>> catalin.marinas@arm.com; will.deacon@arm.com; wim@linux-watchdog.org;
+>> Aisheng Dong <aisheng.dong@nxp.com>; ulf.hansson@linaro.org; Daniel
+>> Baluta <daniel.baluta@nxp.com>; Andy Gross <andy.gross@linaro.org>;
+>> horms+renesas@verge.net.au; heiko@sntech.de; arnd@arndb.de;
+>> olof@lixom.net; bjorn.andersson@linaro.org; jagan@amarulasolutions.com;
+>> enric.balletbo@collabora.com; marc.w.gonzalez@free.fr;
+>> devicetree@vger.kernel.org; linux-kernel@vger.kernel.org; linux-arm-
+>> kernel@lists.infradead.org; linux-watchdog@vger.kernel.org; dl-linux-imx
+>> <linux-imx@nxp.com>
+>> Subject: Re: [PATCH V3 2/4] watchdog: imx_sc: Add i.MX system controller
+>> watchdog support
+>>
+>> On Mon, Feb 25, 2019 at 02:19:10AM +0000, Anson Huang wrote:
+>>> i.MX8QXP is an ARMv8 SoC which has a Cortex-M4 system controller
+>>> inside, the system controller is in charge of controlling power, clock
+>>> and watchdog etc..
+>>>
+>>> This patch adds i.MX system controller watchdog driver support,
+>>> watchdog operation needs to be done in secure EL3 mode via
+>>> ARM-Trusted-Firmware, using SMC call, CPU will trap into
+>>> ARM-Trusted-Firmware and then it will request system controller to do
+>>> watchdog operation via IPC.
+>>>
+>>> Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
+>>> ---
+>>> Changes since V2:
+>>> 	- improve watchdog_init_timeout() operation and error check,
+>> setting it
+>>> 	  via module parameter "timeout", if it is invalid, roll back to use
+>> defaul
+>>> 	  timeout value DEFAULT_TIMEOUT;
+>>> 	- change compatible string to "fsl,imx-sc-wdt" to make driver more
+>> generic
+>>> 	  for all i.MX platforms with system controller watchdog inside.
+>>> ---
+>>>   drivers/watchdog/Kconfig      |  13 +++
+>>>   drivers/watchdog/Makefile     |   1 +
+>>>   drivers/watchdog/imx_sc_wdt.c | 183
+>>> ++++++++++++++++++++++++++++++++++++++++++
+>>>   3 files changed, 197 insertions(+)
+>>>   create mode 100644 drivers/watchdog/imx_sc_wdt.c
+>>>
+>>> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig index
+>>> 65c3c42..5c5b8ba 100644
+>>> --- a/drivers/watchdog/Kconfig
+>>> +++ b/drivers/watchdog/Kconfig
+>>> @@ -625,6 +625,19 @@ config IMX2_WDT
+>>>   	  To compile this driver as a module, choose M here: the
+>>>   	  module will be called imx2_wdt.
+>>>
+>>> +config IMX_SC_WDT
+>>> +	tristate "IMX SC Watchdog"
+>>> +	depends on ARCH_MXC || COMPILE_TEST
+>>
+>> Wondering: Did you test on other architectures ? The code calls
+>> arm_smccc_smc(), which is unlikely to be available on non-ARM platforms,
+>> and I don't see a dummy declaration for those.
+> 
+> Although the ARCH_MXC means for Freescale i.MX SoCs which are all with
+> ARM platforms, but since this driver is targeted for i.MX SoC ARMv8 with system
+> controller inside, so I will add ARM64 dependency here.
+> 
+> +       depends on (ARCH_MXC && ARM64) || COMPILE_TEST
+> 
 
---ibTvN161/egqYuK8
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+You are missing my point. It will still try to compile with, say,
+alpha:allmodconfig (or x86_64:allmodconfig). Did you try that ?
 
-On Thu, Feb 28, 2019 at 09:04:50AM +0200, Matti Vaittinen wrote:
-> On Thu, Feb 14, 2019 at 03:02:37PM +0200, Matti Vaittinen wrote:
+Guenter
 
->> Patch series introducing support for ROHM BD70528 PMIC
->=20
-> I was wondering if there is anything that could be done to allow the MFD
-> part of this series to end up in upstream without having to wait the
-> regmap-irq changes
-> (https://git.kernel.org/pub/scm/linux/kernel/git/broonie/regmap.git/commi=
-t/?h=3Dtopic/irq)
->  to be merged from Linus' tree to MFD tree? If I see it correctly, the
-> regmap-irq (main-irq-reg support) changes are not targeted to linux 5.1.
-> To me it looks like getting them to MFD via Linus' tree will take a while.
+>>
+>>> +	select WATCHDOG_CORE
+>>> +	help
+>>> +	  This is the driver for the system controller watchdog
+>>> +	  on the NXP i.MX SoCs with system controller inside.
+>>> +	  If you have one of these processors and wish to have
+>>> +	  watchdog support enabled, say Y, otherwise say N.
+>>> +
+>>> +	  To compile this driver as a module, choose M here: the
+>>> +	  module will be called imx_sc_wdt.
+>>> +
+>>>   config UX500_WATCHDOG
+>>>   	tristate "ST-Ericsson Ux500 watchdog"
+>>>   	depends on MFD_DB8500_PRCMU
+>>> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+>>> index 4e78a8c..0c9da63 100644
+>>> --- a/drivers/watchdog/Makefile
+>>> +++ b/drivers/watchdog/Makefile
+>>> @@ -68,6 +68,7 @@ obj-$(CONFIG_NUC900_WATCHDOG) +=
+>> nuc900_wdt.o
+>>>   obj-$(CONFIG_TS4800_WATCHDOG) += ts4800_wdt.o
+>>>   obj-$(CONFIG_TS72XX_WATCHDOG) += ts72xx_wdt.o
+>>>   obj-$(CONFIG_IMX2_WDT) += imx2_wdt.o
+>>> +obj-$(CONFIG_IMX_SC_WDT) += imx_sc_wdt.o
+>>>   obj-$(CONFIG_UX500_WATCHDOG) += ux500_wdt.o
+>>>   obj-$(CONFIG_RETU_WATCHDOG) += retu_wdt.o
+>>>   obj-$(CONFIG_BCM2835_WDT) += bcm2835_wdt.o diff --git
+>>> a/drivers/watchdog/imx_sc_wdt.c b/drivers/watchdog/imx_sc_wdt.c new
+>>> file mode 100644 index 0000000..7b22575
+>>> --- /dev/null
+>>> +++ b/drivers/watchdog/imx_sc_wdt.c
+>>> @@ -0,0 +1,183 @@
+>>> +// SPDX-License-Identifier: GPL-2.0+
+>>> +/*
+>>> + * Copyright 2018-2019 NXP.
+>>> + */
+>>> +
+>>> +#include <linux/arm-smccc.h>
+>>> +#include <linux/io.h>
+>>> +#include <linux/init.h>
+>>> +#include <linux/kernel.h>
+>>> +#include <linux/module.h>
+>>> +#include <linux/moduleparam.h>
+>>> +#include <linux/of.h>
+>>> +#include <linux/platform_device.h>
+>>> +#include <linux/reboot.h>
+>>> +#include <linux/watchdog.h>
+>>> +
+>>> +#define DEFAULT_TIMEOUT 60
+>>> +/*
+>>> + * Software timer tick implemented in scfw side, support 10ms to
+>>> +0xffffffff ms
+>>> + * in theory, but for normal case, 1s~128s is enough, you can change
+>>> +this max
+>>> + * value in case it's not enough.
+>>> + */
+>>> +#define MAX_TIMEOUT 128
+>>> +
+>>> +#define IMX_SIP_TIMER			0xC2000002
+>>> +#define IMX_SIP_TIMER_START_WDOG		0x01
+>>> +#define IMX_SIP_TIMER_STOP_WDOG		0x02
+>>> +#define IMX_SIP_TIMER_SET_WDOG_ACT	0x03
+>>> +#define IMX_SIP_TIMER_PING_WDOG		0x04
+>>> +#define IMX_SIP_TIMER_SET_TIMEOUT_WDOG	0x05
+>>> +#define IMX_SIP_TIMER_GET_WDOG_STAT	0x06
+>>> +#define IMX_SIP_TIMER_SET_PRETIME_WDOG	0x07
+>>> +
+>>> +#define SC_TIMER_WDOG_ACTION_PARTITION	0
+>>> +
+>>> +static bool nowayout = WATCHDOG_NOWAYOUT;
+>> module_param(nowayout,
+>>> +bool, 0000); MODULE_PARM_DESC(nowayout, "Watchdog cannot be
+>> stopped
+>>> +once started (default="
+>>> +		 __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+>>> +
+>>> +static unsigned int timeout = DEFAULT_TIMEOUT;
+>>
+>> I assume this means that you specifically do _not_ want to support timeout
+>> configuration via devicetree (unless the user explicitly sets the timeout to 0
+>> here).
+>>
+>> Not that it really matters, since it looks like Rob won't accept a watchdog
+>> node anyway.
+> 
+> Yes, currently we will NOT get it from devicetree, although user can still pass
+> it via insmod parameter, but if the parameter is NOT specified or is invalid,
+> default value will be used.
+> 
+>>
+>>> +module_param(timeout, uint, 0000);
+>>> +MODULE_PARM_DESC(timeout, "Watchdog timeout in seconds (default="
+>>> +		 __MODULE_STRING(DEFAULT_TIMEOUT) ")");
+>>> +
+>>> +static int imx_sc_wdt_ping(struct watchdog_device *wdog) {
+>>> +	struct arm_smccc_res res;
+>>> +
+>>> +	arm_smccc_smc(IMX_SIP_TIMER, IMX_SIP_TIMER_PING_WDOG,
+>>> +		      0, 0, 0, 0, 0, 0, &res);
+>>> +
+>>> +	return res.a0;
+>>
+>> I didn't comment on this before, but I am wondering: Does the system
+>> controller code return Linux error codes ? Is this documented somewhere ?
+> 
+> I checked our system controller firmware, the ONLY possible error code system controller
+> returns is SC_ERR_NOACCESS, so I will make it return -EACCES if error happen, for the
+> ping operation, system controller always returns 0, so I will make it return 0.
+> 
+>>
+>>> +}
+>>> +
+>>> +static int imx_sc_wdt_start(struct watchdog_device *wdog) {
+>>> +	struct arm_smccc_res res;
+>>> +
+>>> +	arm_smccc_smc(IMX_SIP_TIMER, IMX_SIP_TIMER_START_WDOG,
+>>> +		      0, 0, 0, 0, 0, 0, &res);
+>>> +	if (res.a0)
+>>> +		return res.a0;
+>>> +
+>>> +	arm_smccc_smc(IMX_SIP_TIMER, IMX_SIP_TIMER_SET_WDOG_ACT,
+>>> +		      SC_TIMER_WDOG_ACTION_PARTITION,
+>>> +		      0, 0, 0, 0, 0, &res);
+>>> +	return res.a0;
+>>> +}
+>>> +
+>>> +static int imx_sc_wdt_stop(struct watchdog_device *wdog) {
+>>> +	struct arm_smccc_res res;
+>>> +
+>>> +	arm_smccc_smc(IMX_SIP_TIMER, IMX_SIP_TIMER_STOP_WDOG,
+>>> +		      0, 0, 0, 0, 0, 0, &res);
+>>> +
+>>> +	return res.a0;
+>>> +}
+>>> +
+>>> +static int imx_sc_wdt_set_timeout(struct watchdog_device *wdog,
+>>> +				unsigned int timeout)
+>>> +{
+>>> +	struct arm_smccc_res res;
+>>> +
+>>> +	wdog->timeout = timeout;
+>>> +	arm_smccc_smc(IMX_SIP_TIMER,
+>> IMX_SIP_TIMER_SET_TIMEOUT_WDOG,
+>>> +		      timeout * 1000, 0, 0, 0, 0, 0, &res);
+>>> +
+>>> +	return res.a0;
+>>> +}
+>>> +
+>>> +static const struct watchdog_ops imx_sc_wdt_ops = {
+>>> +	.owner = THIS_MODULE,
+>>> +	.start = imx_sc_wdt_start,
+>>> +	.stop  = imx_sc_wdt_stop,
+>>> +	.ping  = imx_sc_wdt_ping,
+>>> +	.set_timeout = imx_sc_wdt_set_timeout, };
+>>> +
+>>> +static const struct watchdog_info imx_sc_wdt_info = {
+>>> +	.identity	= "i.MX SC watchdog timer",
+>>> +	.options	= WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING |
+>>> +			  WDIOF_MAGICCLOSE | WDIOF_PRETIMEOUT, };
+>>> +
+>>> +static int imx_sc_wdt_probe(struct platform_device *pdev) {
+>>> +	struct watchdog_device *imx_sc_wdd;
+>>> +	int ret;
+>>> +
+>>> +	imx_sc_wdd = devm_kzalloc(&pdev->dev, sizeof(*imx_sc_wdd),
+>> GFP_KERNEL);
+>>> +	if (!imx_sc_wdd)
+>>> +		return -ENOMEM;
+>>> +
+>>> +	platform_set_drvdata(pdev, imx_sc_wdd);
+>>> +
+>>> +	imx_sc_wdd->info = &imx_sc_wdt_info;
+>>> +	imx_sc_wdd->ops = &imx_sc_wdt_ops;
+>>> +	imx_sc_wdd->min_timeout = 1;
+>>> +	imx_sc_wdd->max_timeout = MAX_TIMEOUT;
+>>> +	imx_sc_wdd->parent = &pdev->dev;
+>>> +	imx_sc_wdd->timeout = DEFAULT_TIMEOUT;
+>>> +
+>>> +	ret = watchdog_init_timeout(imx_sc_wdd, timeout, &pdev->dev);
+>>> +	if (ret)
+>>> +		dev_warn(&pdev->dev, "Failed to set timeout value, using
+>>> +default\n");
+>>> +
+>>> +	watchdog_stop_on_reboot(imx_sc_wdd);
+>>> +	watchdog_stop_on_unregister(imx_sc_wdd);
+>>> +
+>>> +	ret = devm_watchdog_register_device(&pdev->dev, imx_sc_wdd);
+>>> +	if (ret) {
+>>> +		dev_err(&pdev->dev, "Failed to register watchdog device\n");
+>>> +		return ret;
+>>> +	}
+>>> +
+>>> +	return 0;
+>>> +}
+>>> +
+>>> +static const struct of_device_id imx_sc_wdt_dt_ids[] = {
+>>> +	{ .compatible = "fsl,imx-sc-wdt", },
+>>> +	{ /* sentinel */ }
+>>> +};
+>>> +MODULE_DEVICE_TABLE(of, imx_sc_wdt_dt_ids);
+>>
+>> I assume this will be dropped and replaced with platform code, per feedback
+>> from Rob.
+> 
+> Yes, I will remove it in V4, just register platform device in driver directly.
+> 
+>>
+>>> +
+>>> +static int __maybe_unused imx_sc_wdt_suspend(struct device *dev) {
+>>> +	struct watchdog_device *imx_sc_wdd = dev_get_drvdata(dev);
+>>> +
+>>> +	if (watchdog_active(imx_sc_wdd))
+>>> +		imx_sc_wdt_stop(imx_sc_wdd);
+>>> +
+>>> +	return 0;
+>>> +}
+>>> +
+>>> +static int __maybe_unused imx_sc_wdt_resume(struct device *dev) {
+>>> +	struct watchdog_device *imx_sc_wdd = dev_get_drvdata(dev);
+>>> +
+>>> +	if (watchdog_active(imx_sc_wdd))
+>>> +		imx_sc_wdt_start(imx_sc_wdd);
+>>> +
+>>> +	return 0;
+>>> +}
+>>> +
+>>> +static SIMPLE_DEV_PM_OPS(imx_sc_wdt_pm_ops,
+>>> +			 imx_sc_wdt_suspend, imx_sc_wdt_resume);
+>>> +
+>>> +static struct platform_driver imx_sc_wdt_driver = {
+>>> +	.probe		= imx_sc_wdt_probe,
+>>> +	.driver		= {
+>>> +		.name	= "imx-sc-wdt",
+>>> +		.of_match_table = imx_sc_wdt_dt_ids,
+>>> +		.pm	= &imx_sc_wdt_pm_ops,
+>>> +	},
+>>> +};
+>>> +
+>>> +module_platform_driver(imx_sc_wdt_driver);
+>>> +
+>>> +MODULE_AUTHOR("Robin Gong <yibin.gong@nxp.com>");
+>>> +MODULE_DESCRIPTION("NXP i.MX system controller watchdog driver");
+>>> +MODULE_LICENSE("GPL v2");
+>>
+>> The module license conflicts with the SPDX license which says 2.0+.
+> 
+> OK, I will change the SPDX license to 2.0.
+> 
+> Please help review V4 patch series, the dt-binding and dts patch will be removed.
+> 
+> Thanks,
+> Anson.
+> 
 
-They're targeted for v5.1 and I sent a pull request to Lee for that
-branch IIRC.
-
---ibTvN161/egqYuK8
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAlx3yKcACgkQJNaLcl1U
-h9D7LQgAgBAtFp4ti3bwtZh4iVfn9N4nYX2Sy8YynfGs/Nfwxm+m+KAl+IiOOo6C
-S1kWALtElOcido6myPacabi0EAyre1Q+Ne7tqUITOb4HQL0dGDpi/a1llthziX7d
-ZG6Slh0JGjOlPVZ8dMyxqXzySEjtwbKUMY4FqMd9LpkQ64FCmo5WdI9R6dnu0BZn
-DJjdUbHmqAbgNoxJ9M/U6mqDTXEviO2eqPhUCAnISc6GvabHA7UdRUxIzi770HjM
-Zi+AFlBE8mWAGvzn3C5u0h+4dnZxCMxMpSpyGokXkL25v5MzHB7lXOpi7a37Zpvo
-VBkTW0n5LezH7ejhsiqf90PtqfUptQ==
-=/nOu
------END PGP SIGNATURE-----
-
---ibTvN161/egqYuK8--
