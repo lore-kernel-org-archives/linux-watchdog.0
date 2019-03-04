@@ -2,156 +2,135 @@ Return-Path: <SRS0=D1Ye=RH=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_MUTT autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E6458C43381
-	for <linux-watchdog@archiver.kernel.org>; Mon,  4 Mar 2019 04:25:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6BBAEC10F03
+	for <linux-watchdog@archiver.kernel.org>; Mon,  4 Mar 2019 11:59:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id AC8B9208E4
-	for <linux-watchdog@archiver.kernel.org>; Mon,  4 Mar 2019 04:25:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 38E2C21773
+	for <linux-watchdog@archiver.kernel.org>; Mon,  4 Mar 2019 11:59:19 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=nxp.com header.i=@nxp.com header.b="Gwmg6toP"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JyGou3wF"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726087AbfCDEZf (ORCPT
+        id S1726348AbfCDL7O (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sun, 3 Mar 2019 23:25:35 -0500
-Received: from mail-eopbgr80079.outbound.protection.outlook.com ([40.107.8.79]:23360
-        "EHLO EUR04-VI1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1725997AbfCDEZe (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Sun, 3 Mar 2019 23:25:34 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=7sGnsRBR11as5w8QjMfK7m6wH02zar6x4YDWvQV1bm8=;
- b=Gwmg6toPrmXuJvUH2/Xwha7ODaOAAe1Uj2XOpg25n6orLL3Z15d6ugCis4WBnL1ynTDzMGx7pnuz/mZ1Zw1U+Y+wclXAIeOmb+kL5aemE60i8rZ9rMgF17kel0oa9qFwngQnELWNRgh6BMOH5pFt8AZWI1SaQlLXbKMgI5T7yDg=
-Received: from DB3PR0402MB3916.eurprd04.prod.outlook.com (52.134.72.18) by
- DB3PR0402MB3852.eurprd04.prod.outlook.com (52.134.71.143) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.1665.19; Mon, 4 Mar 2019 04:25:28 +0000
-Received: from DB3PR0402MB3916.eurprd04.prod.outlook.com
- ([fe80::1cb4:3e1c:fc85:7ed7]) by DB3PR0402MB3916.eurprd04.prod.outlook.com
- ([fe80::1cb4:3e1c:fc85:7ed7%2]) with mapi id 15.20.1665.019; Mon, 4 Mar 2019
- 04:25:28 +0000
-From:   Anson Huang <anson.huang@nxp.com>
-To:     "catalin.marinas@arm.com" <catalin.marinas@arm.com>,
-        "will.deacon@arm.com" <will.deacon@arm.com>,
-        "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
-        "linux@roeck-us.net" <linux@roeck-us.net>,
-        "shawnguo@kernel.org" <shawnguo@kernel.org>,
-        "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>,
-        "kernel@pengutronix.de" <kernel@pengutronix.de>,
-        "festevam@gmail.com" <festevam@gmail.com>,
-        Andy Gross <andy.gross@linaro.org>,
-        "heiko@sntech.de" <heiko@sntech.de>,
-        "horms+renesas@verge.net.au" <horms+renesas@verge.net.au>,
-        "arnd@arndb.de" <arnd@arndb.de>, "olof@lixom.net" <olof@lixom.net>,
-        "bjorn.andersson@linaro.org" <bjorn.andersson@linaro.org>,
-        "jagan@amarulasolutions.com" <jagan@amarulasolutions.com>,
-        "enric.balletbo@collabora.com" <enric.balletbo@collabora.com>,
-        "marc.w.gonzalez@free.fr" <marc.w.gonzalez@free.fr>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
-CC:     dl-linux-imx <linux-imx@nxp.com>
-Subject: [PATCH V6 2/2] arm64: defconfig: add support for i.MX system
- controller watchdog
-Thread-Topic: [PATCH V6 2/2] arm64: defconfig: add support for i.MX system
- controller watchdog
-Thread-Index: AQHU0kJLnqBA5Q+pHEu2cM4q1hCKzA==
-Date:   Mon, 4 Mar 2019 04:25:28 +0000
-Message-ID: <1551673236-27834-2-git-send-email-Anson.Huang@nxp.com>
-References: <1551673236-27834-1-git-send-email-Anson.Huang@nxp.com>
-In-Reply-To: <1551673236-27834-1-git-send-email-Anson.Huang@nxp.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-mailer: git-send-email 2.7.4
-x-clientproxiedby: HK0P153CA0039.APCP153.PROD.OUTLOOK.COM
- (2603:1096:203:17::27) To DB3PR0402MB3916.eurprd04.prod.outlook.com
- (2603:10a6:8:10::18)
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=anson.huang@nxp.com; 
-x-ms-exchange-messagesentrepresentingtype: 1
-x-originating-ip: [119.31.174.66]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 5df9d680-8c7e-4cfc-a055-08d6a0596e0e
-x-ms-office365-filtering-ht: Tenant
-x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600127)(711020)(4605104)(4618075)(2017052603328)(7153060)(7193020);SRVR:DB3PR0402MB3852;
-x-ms-traffictypediagnostic: DB3PR0402MB3852:
-x-ld-processed: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635,ExtAddr
-x-microsoft-exchange-diagnostics: =?iso-8859-1?Q?1;DB3PR0402MB3852;23:bo1Cm4RUDmbZSmKl0mKmSAT37ThqRtzl19iHd?=
- =?iso-8859-1?Q?OVLsI/wLybdciW7K3wU5Z/by0XfdVjxSADInKN7bK8xby84iJNBEo1sKrA?=
- =?iso-8859-1?Q?Nr4hb/J7FVPL4f+/GcAUTiwLyamdYfp4d2G9FpewacU6msYP12P2dBH40S?=
- =?iso-8859-1?Q?Py1GVGS38OjfTFJVGh1+XyHkZ25FXDSI9mKv/GIoEpusLn/Oqm+2lfT08p?=
- =?iso-8859-1?Q?TNuEzxd3i2AiSNHNnZlHVzZXWj4iAv3YJIMIORdy5foMIESJ0g+YQpuLCU?=
- =?iso-8859-1?Q?GLCi+Xr/YMQwSpc88kbgaP/9OX5CVdV1ek0wH7QC9HuXKeqn3iWAHNnDPm?=
- =?iso-8859-1?Q?sq/ICZJTFQf5KA54MRfu3AmWrLhh2MO4VxmAFxGU2g/af7TT3jOTjMSkIn?=
- =?iso-8859-1?Q?zhOxTtNc/qrnWAq5tuiHYWsiDmdFkm7VS7DMAfAO40yHxgnc2eo4PArts6?=
- =?iso-8859-1?Q?fGQbh7bWH0dmvGSoPAcaoWOFKpoPpIu3l3d2yEUXKkkgY23ZIrCashhB6v?=
- =?iso-8859-1?Q?YCOvKZQhEuGAcmiKMesgOovw+jOVTMEy2MocaEpsCNiekTwE5h5h1199MX?=
- =?iso-8859-1?Q?8cPfSfYVVuTK/M9O9XrDhsTsqgPCdCKRaHmubUJPi5sQK8BYsaQQOJoepi?=
- =?iso-8859-1?Q?CQUS8pqMOR9rHb/KKNDPLuK1q50TLd63S43koLuiyfcwiQO12NwScsxbxV?=
- =?iso-8859-1?Q?jCgO/i9LffDec74TEn50VI8ym3GLYV8cWDjAIlhUa4SFZKOApbAtGSPcbT?=
- =?iso-8859-1?Q?DlMzk8WbAWe+WHsA7vjy3KrQ0zwIGGMrHq/WQW+mSvFJoYbWKYFTY3dHDm?=
- =?iso-8859-1?Q?iRJe2KC40eHfDDPNA80IRrjvPoDusrOLFHxeZWkT11alAfL6WAJ4sPs1pe?=
- =?iso-8859-1?Q?57cl1KdACXpaD3EgpiHw6UrHycAKaiA56L8n+5T+U3zHy1sQZQMK76lMO/?=
- =?iso-8859-1?Q?w4x8sqxbxYozT2DvIxx9+riibNzVdMW2yPD5luTQkfSH4ESq6hgqX2GgjS?=
- =?iso-8859-1?Q?sjbEtQqmpiOrBBqCStr5h3LgZpaz5A1yjT1uqyxcWWz++IA5qDwMhEn6y3?=
- =?iso-8859-1?Q?mdH/3/pH/3I+Dyx+fMsHMPooG0l8Nl9x0bcKxQYLPcHg/gDoGMDQ1j3MQK?=
- =?iso-8859-1?Q?zwsCW9dF7vSBCCnO3zLUOBdqZbS4fFdLMf8hxADFCCELtFwIa8C4rLJS/D?=
- =?iso-8859-1?Q?jS6tv8RxxId/sAF8SxWi5jdZx+MHLrb1Mnl960DTSjieiYi+1CQjrTa+ub?=
- =?iso-8859-1?Q?3ongVk2zf7v8gOA75yOT5NsnnTYgOeNDfcbuBLmOdBFaPmJL9t2C5LVgY8?=
- =?iso-8859-1?Q?tQMbyJz5cF1XUwjiAIsTNC4b1?=
-x-microsoft-antispam-prvs: <DB3PR0402MB385270D2952F9883F650D886F5710@DB3PR0402MB3852.eurprd04.prod.outlook.com>
-x-forefront-prvs: 09669DB681
-x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(396003)(39860400002)(376002)(366004)(136003)(346002)(189003)(199004)(256004)(102836004)(6506007)(476003)(386003)(106356001)(8676002)(81156014)(4744005)(186003)(4326008)(316002)(110136005)(2501003)(25786009)(105586002)(5660300002)(446003)(7416002)(3846002)(97736004)(486006)(81166006)(86362001)(6116002)(52116002)(99286004)(2201001)(11346002)(26005)(2616005)(305945005)(76176011)(14454004)(8936002)(66066001)(6486002)(50226002)(7736002)(478600001)(6512007)(53936002)(68736007)(6436002)(36756003)(71200400001)(2906002)(71190400001)(921003)(1121003);DIR:OUT;SFP:1101;SCL:1;SRVR:DB3PR0402MB3852;H:DB3PR0402MB3916.eurprd04.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
-received-spf: None (protection.outlook.com: nxp.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam-message-info: r+jE3cqqK6rol6odVrHRrZ+wjsOqt32lW09syA2WaEFieWrBtqBg/u5bGu6lOdB4TnESisxsxbr0WhRtv2QL9y3e449qtVmJPQtgmBS8H3t01NMb0ksF5+UYUh9BfJx3mHsXKgoVr5APPOiEKWA1Jziwka2aKZR4+/pDoLkz2bzBJo+DvaT1cN5BftBg7NvocB5fefUYJmNOmCB/LNpN5xng7Mzdib8UTMRQ9QU2F1c/2lUlmMe2zAPWS1nKyoO8u9S6saa+DQaMs6LMZFGe/7AQo5DeabZ1C5G2X++z90LKGYSnZv+eRubH2oU6naflC7zkosS2XETnnee1ARAyoJeWe9RWvYTat4YYv+qly41FzVSo5R4z4pok5x0OU1gzkDgC1IR+/Ak03wenoroqfZtpUvMPWlZnx6c5f0q6KB4=
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+        Mon, 4 Mar 2019 06:59:14 -0500
+Received: from mail-ed1-f65.google.com ([209.85.208.65]:34081 "EHLO
+        mail-ed1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726224AbfCDL7M (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 4 Mar 2019 06:59:12 -0500
+Received: by mail-ed1-f65.google.com with SMTP id a16so4028149edn.1;
+        Mon, 04 Mar 2019 03:59:10 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=0SXc/ccBIqDOJFDdSRXSkpspHO0OCRRSHCA1+2sr5WA=;
+        b=JyGou3wFbwGmsPDE99fghHzJcuJpz3zT2b/dih9xdl6tw4JSIUAOpnD8/Ci+zTwZ7P
+         qYpFakUauHhAbwpTyTgqC/uCrtx8Hwq+JyajluO/kyFpSgF/cDIbr3zHxI4HBI9ofX1Z
+         ggCb5iCotUMUuYmvVXHvd/MSTIQiy383yrfgfpZU4n25zdlCtJvmxYyLRUDFG3WPTzYy
+         xA67Bwug3tRBmJaF5dfEcKVfKd2UTmKqUas15A+knYLusl+xpgX8hXWVXVM6Zxg7W4lN
+         6mN6xbqXm9P01x/oxpr+G5+oe8PTvnEtvbTAUz/IkqwrpzWZo73iz85YOeZz7EWHIugV
+         OoHQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=0SXc/ccBIqDOJFDdSRXSkpspHO0OCRRSHCA1+2sr5WA=;
+        b=FbCxhrF65ZIQz6tvC6pV5IsoKiTK8bwrMRYNkazjyTNMmLgx+yS4LX4g9mQ3HS7lRY
+         +VGmkl0LxA6cVkJXrIM4RGrLaIpVNPxbOvde55yen7DB9vltCb/4XQxskTkWIpXPphJO
+         gRAoXkEgCz6xq/gnIaa9+d/QGDtUJa6Jvdm8DleA91dPTtNrd5FwKnzvpydhvbzy7e8T
+         0rNKcYpNSv+l9mmCCZKtBHRvV+12B2Z/x+RWCsRt4PAd/K9sAHSIoMjkgTx6nbA3HQQI
+         gN2v4rqMFx9z2HnJ1iEwulKA++kCXMI2f1uFbO0/OZsjPpXPHslBUMu2zx5A1xOtTHwb
+         /YrQ==
+X-Gm-Message-State: APjAAAWXH2bQOtU2vTuzaZSkU8YeDlZAsroe4fNLcmnNUq6tSiX/XTov
+        5fucq4LT1PpF8CkihF45G0w=
+X-Google-Smtp-Source: APXvYqy6rcZGrjftTo+4MbdLz8wqDGECwGBXyvFG7KXPhXYwLG0KgJD234CzYcz706qDeh0Vv45XTA==
+X-Received: by 2002:a50:978e:: with SMTP id e14mr14463735edb.234.1551700749634;
+        Mon, 04 Mar 2019 03:59:09 -0800 (PST)
+Received: from localhost (pD9E51D2D.dip0.t-ipconnect.de. [217.229.29.45])
+        by smtp.gmail.com with ESMTPSA id z49sm2025549edb.15.2019.03.04.03.59.08
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Mon, 04 Mar 2019 03:59:08 -0800 (PST)
+Date:   Mon, 4 Mar 2019 12:59:07 +0100
+From:   Thierry Reding <thierry.reding@gmail.com>
+To:     Paul Cercueil <paul@crapouillou.net>
+Cc:     Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        Paul Burton <paul.burton@mips.com>,
+        James Hogan <jhogan@kernel.org>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Mathieu Malaterre <malat@debian.org>, od@zcrc.me,
+        linux-pwm@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-doc@vger.kernel.org,
+        linux-clk@vger.kernel.org
+Subject: Re: [PATCH v10 11/27] pwm: jz4740: Apply configuration atomically
+Message-ID: <20190304115907.GB9040@ulmo>
+References: <20190302233413.14813-1-paul@crapouillou.net>
+ <20190302233413.14813-12-paul@crapouillou.net>
 MIME-Version: 1.0
-X-OriginatorOrg: nxp.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 5df9d680-8c7e-4cfc-a055-08d6a0596e0e
-X-MS-Exchange-CrossTenant-originalarrivaltime: 04 Mar 2019 04:25:28.3893
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB3PR0402MB3852
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="qlTNgmc+xy1dBmNv"
+Content-Disposition: inline
+In-Reply-To: <20190302233413.14813-12-paul@crapouillou.net>
+User-Agent: Mutt/1.11.3 (2019-02-01)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Enable CONFIG_IMX_SC_WDT as module to support i.MX system
-controller watchdog.
 
-Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
----
-No changes.
----
- arch/arm64/configs/defconfig | 1 +
- 1 file changed, 1 insertion(+)
+--qlTNgmc+xy1dBmNv
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/arch/arm64/configs/defconfig b/arch/arm64/configs/defconfig
-index 2d9c390..690f4ba 100644
---- a/arch/arm64/configs/defconfig
-+++ b/arch/arm64/configs/defconfig
-@@ -427,6 +427,7 @@ CONFIG_WATCHDOG=3Dy
- CONFIG_ARM_SP805_WATCHDOG=3Dy
- CONFIG_S3C2410_WATCHDOG=3Dy
- CONFIG_IMX2_WDT=3Dy
-+CONFIG_IMX_SC_WDT=3Dm
- CONFIG_MESON_GXBB_WATCHDOG=3Dm
- CONFIG_MESON_WATCHDOG=3Dm
- CONFIG_RENESAS_WDT=3Dy
---=20
-2.7.4
+On Sat, Mar 02, 2019 at 08:33:57PM -0300, Paul Cercueil wrote:
+> This is cleaner, more future-proof, and incidentally it also fixes the
+> PWM resetting its config when stopped/started several times.
+>=20
+> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+> Tested-by: Mathieu Malaterre <malat@debian.org>
+> Tested-by: Artur Rojek <contact@artur-rojek.eu>
+> ---
+>=20
+> Notes:
+>          v9: New patch
+>    =20
+>          v10: No change
+>=20
+>  drivers/pwm/pwm-jz4740.c | 37 ++++++++++++-------------------------
+>  1 file changed, 12 insertions(+), 25 deletions(-)
 
+Acked-by: Thierry Reding <treding@nvidia.com>
+
+--qlTNgmc+xy1dBmNv
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAlx9EwsACgkQ3SOs138+
+s6Fifw//f2H2kWj6n++VBIr3qcpgyLlpnGP7IdO8SjFN1SopHRC1vHqhKao7IdRf
+7HfK6sbCuisohUtSedMVcj5aD8fDlf2eUoaLwmErr/RKtQZiOmS7oSsYCFXaWvCf
+YpXCycCtRX00UT0dVAw3uVIftDnYJ1sYJbXBM4SPZC9VmYSBz4UVOy7XoY+HhOBv
+f+4LKs61FYgZmKDY10FWW2Wpq8Tw36Pdh8Szl9f8H8pFc+tgGCue7EaO7JN+TR3d
+ZTSJmxlF0hwzzGbouA7Y1UcLDnZrCZqgkf/SCSpyOqn4JkbaxWUdYwtIUTD9N22Q
+STfBGCCLlfXVEHQkEBvbgk84PwWBlEmPCcs/6ujnJCtD9mBKUJleOnF3aiqOpfCA
+KplgKB+tR+YN866fG+A9JhbbX0JkAwdiCF/DRdJAajqW4gY2pyxkiEC1FwmIe/YM
+vqLqaU7KqqeDso4HHjMbpBiJkznvUszfRJDrkboMygZ9WoMkUCseRJSLKXlyoRLX
+buG5vHVkjJkhhuEL5Af7CguZzNUvTIMrvKd5Zn4/fRdMolj7m5vksQ1V1Wb7qWTI
+G6CvNQO8S8cYwBkKYpXuMYWmsB8agHFnmzr98op8R6toc9/3i8EGOo0kV9V8NxmX
+21KrsQr738C981dGRLoBVJRVlfnSHZgv67Dni+uj2+y2MBElhxk=
+=DBKx
+-----END PGP SIGNATURE-----
+
+--qlTNgmc+xy1dBmNv--
