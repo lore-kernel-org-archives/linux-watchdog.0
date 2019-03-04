@@ -1,539 +1,352 @@
-Return-Path: <SRS0=5qJ/=RF=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=D1Ye=RH=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ACF6CC4360F
-	for <linux-watchdog@archiver.kernel.org>; Sat,  2 Mar 2019 23:37:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1076DC43381
+	for <linux-watchdog@archiver.kernel.org>; Mon,  4 Mar 2019 01:33:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 740592087E
-	for <linux-watchdog@archiver.kernel.org>; Sat,  2 Mar 2019 23:37:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BF89D20830
+	for <linux-watchdog@archiver.kernel.org>; Mon,  4 Mar 2019 01:33:51 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=crapouillou.net header.i=@crapouillou.net header.b="uzDGIoNY"
+	dkim=pass (1024-bit key) header.d=nxp.com header.i=@nxp.com header.b="Ql5hV+vU"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727433AbfCBXhZ (ORCPT
+        id S1726046AbfCDBdv (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sat, 2 Mar 2019 18:37:25 -0500
-Received: from outils.crapouillou.net ([89.234.176.41]:36672 "EHLO
-        crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726973AbfCBXhY (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 2 Mar 2019 18:37:24 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
-        s=mail; t=1551569841; h=from:from:sender:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:content-type:
-         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
-        bh=WZbFJsTytWdTLB29CUoyINndByMD19qECWGesNhwPsI=;
-        b=uzDGIoNYyEXo2TQNXNAqN7/5+LSMiIh1yPp0f76lU4cIWpFGtQ87ni19WgAhwOA8GH9xNP
-        6tFkLw7IDm/yNmoFQdPWR56KA86rUet0GqWFONHRJ+KhfGfnpDspAfrpUvIeO3Wh69tNgI
-        IaaKqKV3ZiWG+0UZO8sjRnqDst/HaSg=
-From:   Paul Cercueil <paul@crapouillou.net>
-To:     Thierry Reding <thierry.reding@gmail.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Paul Burton <paul.burton@mips.com>,
-        James Hogan <jhogan@kernel.org>,
-        Jonathan Corbet <corbet@lwn.net>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>
-Cc:     Mathieu Malaterre <malat@debian.org>, od@zcrc.me,
-        linux-pwm@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        linux-mips@vger.kernel.org, linux-doc@vger.kernel.org,
-        linux-clk@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>
-Subject: [PATCH v10 27/27] MIPS: jz4740: Drop obsolete code
-Date:   Sat,  2 Mar 2019 20:34:13 -0300
-Message-Id: <20190302233413.14813-28-paul@crapouillou.net>
-In-Reply-To: <20190302233413.14813-1-paul@crapouillou.net>
-References: <20190302233413.14813-1-paul@crapouillou.net>
+        Sun, 3 Mar 2019 20:33:51 -0500
+Received: from mail-eopbgr140077.outbound.protection.outlook.com ([40.107.14.77]:18199
+        "EHLO EUR01-VE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726012AbfCDBdv (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Sun, 3 Mar 2019 20:33:51 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=U/OZG1BAI0RE7arKxenST3aSiNz/Si+ECMROmU1iErE=;
+ b=Ql5hV+vUmdtfzw5hhF2aiSb7Ykgk2+9edHfrQZs9w4pspgc1cp193BMN+l0XwquqqaNHiNJjwHiNiriwa4NBph9WWx93NbaaSCcY54KzsudnY0hopULlugt0w0djgQ5CKkGzQIpj92/EN/qWPC6UbeKzk0uib9YqpSWLxzKwOoU=
+Received: from DB3PR0402MB3916.eurprd04.prod.outlook.com (52.134.72.18) by
+ DB3PR0402MB3785.eurprd04.prod.outlook.com (52.134.71.145) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.1665.16; Mon, 4 Mar 2019 01:32:54 +0000
+Received: from DB3PR0402MB3916.eurprd04.prod.outlook.com
+ ([fe80::1cb4:3e1c:fc85:7ed7]) by DB3PR0402MB3916.eurprd04.prod.outlook.com
+ ([fe80::1cb4:3e1c:fc85:7ed7%2]) with mapi id 15.20.1665.019; Mon, 4 Mar 2019
+ 01:32:54 +0000
+From:   Anson Huang <anson.huang@nxp.com>
+To:     Guenter Roeck <linux@roeck-us.net>
+CC:     "catalin.marinas@arm.com" <catalin.marinas@arm.com>,
+        "will.deacon@arm.com" <will.deacon@arm.com>,
+        "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
+        "shawnguo@kernel.org" <shawnguo@kernel.org>,
+        "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>,
+        "kernel@pengutronix.de" <kernel@pengutronix.de>,
+        "festevam@gmail.com" <festevam@gmail.com>,
+        Andy Gross <andy.gross@linaro.org>,
+        "heiko@sntech.de" <heiko@sntech.de>,
+        "horms+renesas@verge.net.au" <horms+renesas@verge.net.au>,
+        "arnd@arndb.de" <arnd@arndb.de>, "olof@lixom.net" <olof@lixom.net>,
+        "bjorn.andersson@linaro.org" <bjorn.andersson@linaro.org>,
+        "jagan@amarulasolutions.com" <jagan@amarulasolutions.com>,
+        "enric.balletbo@collabora.com" <enric.balletbo@collabora.com>,
+        "marc.w.gonzalez@free.fr" <marc.w.gonzalez@free.fr>,
+        "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+        dl-linux-imx <linux-imx@nxp.com>
+Subject: RE: [PATCH V5 1/2] watchdog: imx_sc: Add i.MX system controller
+ watchdog support
+Thread-Topic: [PATCH V5 1/2] watchdog: imx_sc: Add i.MX system controller
+ watchdog support
+Thread-Index: AQHUz/j3fx/UZgPASUehlWlciSAbcqX3GhWAgAOXxxA=
+Date:   Mon, 4 Mar 2019 01:32:54 +0000
+Message-ID: <DB3PR0402MB39165C1FE3289E145E86DAA1F5710@DB3PR0402MB3916.eurprd04.prod.outlook.com>
+References: <1551421837-21230-1-git-send-email-Anson.Huang@nxp.com>
+ <20190301183141.GA26332@roeck-us.net>
+In-Reply-To: <20190301183141.GA26332@roeck-us.net>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=anson.huang@nxp.com; 
+x-originating-ip: [119.31.174.66]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: e8bd6217-438a-4c07-e2c6-08d6a0415301
+x-ms-office365-filtering-ht: Tenant
+x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600127)(711020)(4605104)(4618075)(2017052603328)(7153060)(7193020);SRVR:DB3PR0402MB3785;
+x-ms-traffictypediagnostic: DB3PR0402MB3785:
+x-ld-processed: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635,ExtAddr
+x-microsoft-exchange-diagnostics: =?gb2312?B?MTtEQjNQUjA0MDJNQjM3ODU7MjM6U1dGbyszdjJaR1JHOWZQTVFOR0FjZFpC?=
+ =?gb2312?B?VFFlQ05BcjlUSDNLT1NnKzhpSmdReFBiV1pkTno5Ry83VjJRaWRRaS9wQnRY?=
+ =?gb2312?B?OXRoRUk0emRuRFQydzlGVzdCTitWNGVtWWk4dkk3WkhPZkhGQ0F4RVo2NWt3?=
+ =?gb2312?B?SWY4MVVQRW1IZURDa0MzQ3BDS3FjVjhkcXpCb2trRG5TdWo2eDhKZkVFU2Mx?=
+ =?gb2312?B?Tyt2dVZoU0VpVzdhSVI2MG1xdTMyOW02c2ZVNTlYaVNtODNnaXNpTGk4bEwx?=
+ =?gb2312?B?SUFZdjlCUzAzVUpDS0R1c1FNM3ZadXQ5Mmw2STRvNXNCQWs3a0hjWk5UeDRU?=
+ =?gb2312?B?SWRTQlFwZHl3Nmp0WEtKT0pNNStnQWRuMWN3TGJqR0dmSGp1SW5PNkVjNkEr?=
+ =?gb2312?B?SG0zdjhGUUorSndqcGFPTUVldnVDQ0s2ODZhODF2MVJpRnFhdENrMFErWGYw?=
+ =?gb2312?B?NmFMalZZbXZjUmtWazQ4MkFlSGFuRlF1WDQ0Q2lkekxUeW9lU0V1WWN2bEdQ?=
+ =?gb2312?B?a2JPODZpd0xpTHhDQ3pEY2hwaEtvNTN6OG1NYXYzclBWVWFUSUpiRUMzL0lI?=
+ =?gb2312?B?MGl6VjJYY09BQTJSZVVIN3dwNUd6cWNoSHkrZk9aTk9qbEhGd0xONzE1cjdu?=
+ =?gb2312?B?T2xPWll1OEtyalBGMGpVYzlLaVcyMFNVSTBtQ3hLcVFyREpBYkFGN0xsSEhL?=
+ =?gb2312?B?YWdxZDA0TjJ0ZlVBNFI1Y1ROVnVpOXJHUVo0Sk11d0hBSDBaYTdMOUJIdmhL?=
+ =?gb2312?B?TlBLOEQ4ZC9zWkdkdUl5U212QUJMRnZrV0daK1ZQNnlteFdTUHMvRmw2a2dY?=
+ =?gb2312?B?ZDlCN0JmYXhRK0diZlpZRFVxQTNFVDA5UnhreTdGRjBiTklRQ3ZtU2FZVW8w?=
+ =?gb2312?B?SlQ0TTdlbG5mbGhxVGVxYXhUWjNQNnZWbHVVNWg0bEpPTDBtSEJHYjJYVTZt?=
+ =?gb2312?B?SkRGZk1HQVp4R3V4MElMYnpVUVdMU055YUdwYjAvOFFQb0JxVTN5Y2lrZWJO?=
+ =?gb2312?B?YVVUWFJENlFETzFHY3BwTVcvaWxjZ29PMlh6R0dOMHdJTSs2YlBnQTZnMmdx?=
+ =?gb2312?B?V2pFTHVxTVZ4OUZad294NGpVNldxOVpIRDFFM0dtN0JjaW5mdlFKaFB3bkhW?=
+ =?gb2312?B?TCtBQ1p5T0ExSTErL1ZCbFNuclJsdjhFVU5uNUl1Qlp1MGFRcHJHQnh0dzhr?=
+ =?gb2312?B?VG9IcHZTTWEzK3BlK25JdmZPSEVMU0ZHT29FVStJcUpOMXVZQXphQjNjekFO?=
+ =?gb2312?B?b0FHTTNjM3JTZ0FjTGQ4NWtHYnIyWDVqVHUxeTl4ZFA3aFFnbzJSMXlwdEhx?=
+ =?gb2312?B?REJLRWV4aW5TcFhOSTdVQVdWbmlGWmx3cTNzN3h1enZSZ0Q4ejNrTXA3UVBY?=
+ =?gb2312?B?T1BudThzUGdJeDdiQlBWYmVyZHB5VE8wMEYwSjhTNXRXR2pQQTdaeFB4N2wv?=
+ =?gb2312?B?VVplKzhvaU1oRElWZVIySytSanVqN2ZvWVZkY0ZXZkl4bUVSMFVVRG1sYTZX?=
+ =?gb2312?B?ZmxhUTR0cDBQVU5LZk1TUE5sendibWZkblZkc2tJQmdqMnJCcFQ1ckMzTytl?=
+ =?gb2312?B?akFNWW41Y3N1dFBVN096dC94by9JLzVGRERQTDJsaTNISEVZazBwUExwS2tE?=
+ =?gb2312?B?Z1c5MTU2cGNPOVBSSm42OXNKWUV6ZjIyWmgrOUt1YUJGTjErWHlsVVh5S2NW?=
+ =?gb2312?B?ejN3eWk4TVVLSkRHVzVLZEZwN0NVOFVSN2xTZFhYWUZpb20vMnhnK1duaXFl?=
+ =?gb2312?B?UDlRMFk1M1lnd2VIcjhxSng4cURiRXJNS2Vlc3h2OU9pSmJvak55MzIzQ0Jj?=
+ =?gb2312?B?YzAzR1NlMTd6YnVDd0E4SmlpWlpZY245Y2h4SWVkNjgwWWZndz09?=
+x-microsoft-antispam-prvs: <DB3PR0402MB3785735F237CCE057CFB681EF5710@DB3PR0402MB3785.eurprd04.prod.outlook.com>
+x-forefront-prvs: 09669DB681
+x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(366004)(376002)(346002)(39850400004)(396003)(136003)(189003)(199004)(13464003)(256004)(229853002)(14444005)(52536013)(5660300002)(30864003)(66066001)(26005)(186003)(6506007)(53546011)(102836004)(76176011)(53936002)(9686003)(86362001)(6246003)(6116002)(55016002)(4326008)(6436002)(99286004)(7696005)(6916009)(71200400001)(71190400001)(3846002)(478600001)(486006)(476003)(305945005)(33656002)(8676002)(81156014)(81166006)(74316002)(2906002)(54906003)(68736007)(7736002)(25786009)(446003)(8936002)(7416002)(316002)(14454004)(105586002)(44832011)(97736004)(106356001)(11346002)(15866825006);DIR:OUT;SFP:1101;SCL:1;SRVR:DB3PR0402MB3785;H:DB3PR0402MB3916.eurprd04.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
+received-spf: None (protection.outlook.com: nxp.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam-message-info: FP90w7i//PzfjL8ny4sIe2+qK0+qW/IasZ7G9I/2o1K2IOH6XPBvPS9d2snwYYiPtgWMP899dxkOwWUCAutkT44vNR6iUIYR1qKwT/hA93oZg0XkQOl/+fdn0NmBp8hUciYm9IusBYHGNQNFPXXNZs+zuO6DRjcscDf+agGec2xiJcszIoEcraKUWKQ/J4dXc1gV+zktjqot+nLcQhFUjDbh2Ka5vo8nHsPX1rPnWgjivWTtZ6shrUr2Wj8P0AsZwOBdaKCieXIK79UPSI9OH0DSSvvOlf0qYbSvlXL97vV1u9hPY49VebKvLOEo2DgrqMld2q2xXOnhXneT0B05qU7Vb+5ir4LzgFbJ600FICZZfk4CFEvvEjJA5fJ8Hl98gUJA9iMsRW4cxiOMGmjku1mby1Mk28/9QA2arece9+A=
+Content-Type: text/plain; charset="gb2312"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+X-OriginatorOrg: nxp.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: e8bd6217-438a-4c07-e2c6-08d6a0415301
+X-MS-Exchange-CrossTenant-originalarrivaltime: 04 Mar 2019 01:32:54.2372
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB3PR0402MB3785
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-The old clocksource/timer platform code is now obsoleted by the newly
-introduced ingenic-timer and ingenic-ost drivers.
-
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Tested-by: Mathieu Malaterre <malat@debian.org>
-Tested-by: Artur Rojek <contact@artur-rojek.eu>
----
-
-Notes:
-         v5: New patch
-    
-         v6: No change
-    
-         v7: No change
-    
-         v8: No change
-    
-         v9: No change
-    
-         v10: No change
-
- arch/mips/include/asm/mach-jz4740/platform.h |   1 -
- arch/mips/include/asm/mach-jz4740/timer.h    | 135 --------------------
- arch/mips/jz4740/Makefile                    |   3 +-
- arch/mips/jz4740/platform.c                  |   6 -
- arch/mips/jz4740/setup.c                     |   8 ++
- arch/mips/jz4740/time.c                      | 176 ---------------------------
- arch/mips/jz4740/timer.c                     |  51 --------
- 7 files changed, 9 insertions(+), 371 deletions(-)
- delete mode 100644 arch/mips/include/asm/mach-jz4740/timer.h
- delete mode 100644 arch/mips/jz4740/time.c
- delete mode 100644 arch/mips/jz4740/timer.c
-
-diff --git a/arch/mips/include/asm/mach-jz4740/platform.h b/arch/mips/include/asm/mach-jz4740/platform.h
-index c0c932ac72a7..cd464d956882 100644
---- a/arch/mips/include/asm/mach-jz4740/platform.h
-+++ b/arch/mips/include/asm/mach-jz4740/platform.h
-@@ -29,7 +29,6 @@ extern struct platform_device jz4740_i2s_device;
- extern struct platform_device jz4740_pcm_device;
- extern struct platform_device jz4740_codec_device;
- extern struct platform_device jz4740_adc_device;
--extern struct platform_device jz4740_pwm_device;
- extern struct platform_device jz4740_dma_device;
- 
- #endif
-diff --git a/arch/mips/include/asm/mach-jz4740/timer.h b/arch/mips/include/asm/mach-jz4740/timer.h
-deleted file mode 100644
-index 8750a1d04e22..000000000000
---- a/arch/mips/include/asm/mach-jz4740/timer.h
-+++ /dev/null
-@@ -1,135 +0,0 @@
--/*
-- *  Copyright (C) 2010, Lars-Peter Clausen <lars@metafoo.de>
-- *  JZ4740 platform timer support
-- *
-- *  This program is free software; you can redistribute it and/or modify it
-- *  under  the terms of the GNU General	 Public License as published by the
-- *  Free Software Foundation;  either version 2 of the License, or (at your
-- *  option) any later version.
-- *
-- *  You should have received a copy of the GNU General Public License along
-- *  with this program; if not, write to the Free Software Foundation, Inc.,
-- *  675 Mass Ave, Cambridge, MA 02139, USA.
-- *
-- */
--
--#ifndef __ASM_MACH_JZ4740_TIMER
--#define __ASM_MACH_JZ4740_TIMER
--
--#define JZ_REG_TIMER_STOP		0x0C
--#define JZ_REG_TIMER_STOP_SET		0x1C
--#define JZ_REG_TIMER_STOP_CLEAR		0x2C
--#define JZ_REG_TIMER_ENABLE		0x00
--#define JZ_REG_TIMER_ENABLE_SET		0x04
--#define JZ_REG_TIMER_ENABLE_CLEAR	0x08
--#define JZ_REG_TIMER_FLAG		0x10
--#define JZ_REG_TIMER_FLAG_SET		0x14
--#define JZ_REG_TIMER_FLAG_CLEAR		0x18
--#define JZ_REG_TIMER_MASK		0x20
--#define JZ_REG_TIMER_MASK_SET		0x24
--#define JZ_REG_TIMER_MASK_CLEAR		0x28
--
--#define JZ_REG_TIMER_DFR(x) (((x) * 0x10) + 0x30)
--#define JZ_REG_TIMER_DHR(x) (((x) * 0x10) + 0x34)
--#define JZ_REG_TIMER_CNT(x) (((x) * 0x10) + 0x38)
--#define JZ_REG_TIMER_CTRL(x) (((x) * 0x10) + 0x3C)
--
--#define JZ_TIMER_IRQ_HALF(x) BIT((x) + 0x10)
--#define JZ_TIMER_IRQ_FULL(x) BIT(x)
--
--#define JZ_TIMER_CTRL_PWM_ABBRUPT_SHUTDOWN	BIT(9)
--#define JZ_TIMER_CTRL_PWM_ACTIVE_LOW		BIT(8)
--#define JZ_TIMER_CTRL_PWM_ENABLE		BIT(7)
--#define JZ_TIMER_CTRL_PRESCALE_MASK		0x1c
--#define JZ_TIMER_CTRL_PRESCALE_OFFSET		0x3
--#define JZ_TIMER_CTRL_PRESCALE_1		(0 << 3)
--#define JZ_TIMER_CTRL_PRESCALE_4		(1 << 3)
--#define JZ_TIMER_CTRL_PRESCALE_16		(2 << 3)
--#define JZ_TIMER_CTRL_PRESCALE_64		(3 << 3)
--#define JZ_TIMER_CTRL_PRESCALE_256		(4 << 3)
--#define JZ_TIMER_CTRL_PRESCALE_1024		(5 << 3)
--
--#define JZ_TIMER_CTRL_PRESCALER(x) ((x) << JZ_TIMER_CTRL_PRESCALE_OFFSET)
--
--#define JZ_TIMER_CTRL_SRC_EXT		BIT(2)
--#define JZ_TIMER_CTRL_SRC_RTC		BIT(1)
--#define JZ_TIMER_CTRL_SRC_PCLK		BIT(0)
--
--extern void __iomem *jz4740_timer_base;
--void __init jz4740_timer_init(void);
--
--void jz4740_timer_enable_watchdog(void);
--void jz4740_timer_disable_watchdog(void);
--
--static inline void jz4740_timer_stop(unsigned int timer)
--{
--	writel(BIT(timer), jz4740_timer_base + JZ_REG_TIMER_STOP_SET);
--}
--
--static inline void jz4740_timer_start(unsigned int timer)
--{
--	writel(BIT(timer), jz4740_timer_base + JZ_REG_TIMER_STOP_CLEAR);
--}
--
--static inline bool jz4740_timer_is_enabled(unsigned int timer)
--{
--	return readb(jz4740_timer_base + JZ_REG_TIMER_ENABLE) & BIT(timer);
--}
--
--static inline void jz4740_timer_enable(unsigned int timer)
--{
--	writeb(BIT(timer), jz4740_timer_base + JZ_REG_TIMER_ENABLE_SET);
--}
--
--static inline void jz4740_timer_disable(unsigned int timer)
--{
--	writeb(BIT(timer), jz4740_timer_base + JZ_REG_TIMER_ENABLE_CLEAR);
--}
--
--static inline void jz4740_timer_set_period(unsigned int timer, uint16_t period)
--{
--	writew(period, jz4740_timer_base + JZ_REG_TIMER_DFR(timer));
--}
--
--static inline void jz4740_timer_set_duty(unsigned int timer, uint16_t duty)
--{
--	writew(duty, jz4740_timer_base + JZ_REG_TIMER_DHR(timer));
--}
--
--static inline void jz4740_timer_set_count(unsigned int timer, uint16_t count)
--{
--	writew(count, jz4740_timer_base + JZ_REG_TIMER_CNT(timer));
--}
--
--static inline uint16_t jz4740_timer_get_count(unsigned int timer)
--{
--	return readw(jz4740_timer_base + JZ_REG_TIMER_CNT(timer));
--}
--
--static inline void jz4740_timer_ack_full(unsigned int timer)
--{
--	writel(JZ_TIMER_IRQ_FULL(timer), jz4740_timer_base + JZ_REG_TIMER_FLAG_CLEAR);
--}
--
--static inline void jz4740_timer_irq_full_enable(unsigned int timer)
--{
--	writel(JZ_TIMER_IRQ_FULL(timer), jz4740_timer_base + JZ_REG_TIMER_FLAG_CLEAR);
--	writel(JZ_TIMER_IRQ_FULL(timer), jz4740_timer_base + JZ_REG_TIMER_MASK_CLEAR);
--}
--
--static inline void jz4740_timer_irq_full_disable(unsigned int timer)
--{
--	writel(JZ_TIMER_IRQ_FULL(timer), jz4740_timer_base + JZ_REG_TIMER_MASK_SET);
--}
--
--static inline void jz4740_timer_set_ctrl(unsigned int timer, uint16_t ctrl)
--{
--	writew(ctrl, jz4740_timer_base + JZ_REG_TIMER_CTRL(timer));
--}
--
--static inline uint16_t jz4740_timer_get_ctrl(unsigned int timer)
--{
--	return readw(jz4740_timer_base + JZ_REG_TIMER_CTRL(timer));
--}
--
--#endif
-diff --git a/arch/mips/jz4740/Makefile b/arch/mips/jz4740/Makefile
-index 88d6aa7d000b..72eb805028a4 100644
---- a/arch/mips/jz4740/Makefile
-+++ b/arch/mips/jz4740/Makefile
-@@ -5,8 +5,7 @@
- 
- # Object file lists.
- 
--obj-y += prom.o time.o reset.o setup.o \
--	platform.o timer.o
-+obj-y += prom.o reset.o setup.o platform.o
- 
- CFLAGS_setup.o = -I$(src)/../../../scripts/dtc/libfdt
- 
-diff --git a/arch/mips/jz4740/platform.c b/arch/mips/jz4740/platform.c
-index cbc5f8e87230..af0ecaeb4931 100644
---- a/arch/mips/jz4740/platform.c
-+++ b/arch/mips/jz4740/platform.c
-@@ -233,12 +233,6 @@ struct platform_device jz4740_adc_device = {
- 	.resource	= jz4740_adc_resources,
- };
- 
--/* PWM */
--struct platform_device jz4740_pwm_device = {
--	.name = "jz4740-pwm",
--	.id   = -1,
--};
--
- /* DMA */
- static struct resource jz4740_dma_resources[] = {
- 	{
-diff --git a/arch/mips/jz4740/setup.c b/arch/mips/jz4740/setup.c
-index afb40f8bce96..099e4164afff 100644
---- a/arch/mips/jz4740/setup.c
-+++ b/arch/mips/jz4740/setup.c
-@@ -14,6 +14,8 @@
-  *
-  */
- 
-+#include <linux/clk-provider.h>
-+#include <linux/clocksource.h>
- #include <linux/init.h>
- #include <linux/io.h>
- #include <linux/irqchip.h>
-@@ -101,3 +103,9 @@ void __init arch_init_irq(void)
- {
- 	irqchip_init();
- }
-+
-+void __init plat_time_init(void)
-+{
-+	of_clk_init(NULL);
-+	timer_probe();
-+}
-diff --git a/arch/mips/jz4740/time.c b/arch/mips/jz4740/time.c
-deleted file mode 100644
-index 2ca9160f642a..000000000000
---- a/arch/mips/jz4740/time.c
-+++ /dev/null
-@@ -1,176 +0,0 @@
--/*
-- *  Copyright (C) 2010, Lars-Peter Clausen <lars@metafoo.de>
-- *  JZ4740 platform time support
-- *
-- *  This program is free software; you can redistribute it and/or modify it
-- *  under  the terms of the GNU General	 Public License as published by the
-- *  Free Software Foundation;  either version 2 of the License, or (at your
-- *  option) any later version.
-- *
-- *  You should have received a copy of the GNU General Public License along
-- *  with this program; if not, write to the Free Software Foundation, Inc.,
-- *  675 Mass Ave, Cambridge, MA 02139, USA.
-- *
-- */
--
--#include <linux/clk.h>
--#include <linux/clk-provider.h>
--#include <linux/interrupt.h>
--#include <linux/kernel.h>
--#include <linux/time.h>
--
--#include <linux/clockchips.h>
--#include <linux/sched_clock.h>
--
--#include <asm/mach-jz4740/clock.h>
--#include <asm/mach-jz4740/irq.h>
--#include <asm/mach-jz4740/timer.h>
--#include <asm/time.h>
--
--#include "clock.h"
--
--#define TIMER_CLOCKEVENT 0
--#define TIMER_CLOCKSOURCE 1
--
--static uint16_t jz4740_jiffies_per_tick;
--
--static u64 jz4740_clocksource_read(struct clocksource *cs)
--{
--	return jz4740_timer_get_count(TIMER_CLOCKSOURCE);
--}
--
--static struct clocksource jz4740_clocksource = {
--	.name = "jz4740-timer",
--	.rating = 200,
--	.read = jz4740_clocksource_read,
--	.mask = CLOCKSOURCE_MASK(16),
--	.flags = CLOCK_SOURCE_IS_CONTINUOUS,
--};
--
--static u64 notrace jz4740_read_sched_clock(void)
--{
--	return jz4740_timer_get_count(TIMER_CLOCKSOURCE);
--}
--
--static irqreturn_t jz4740_clockevent_irq(int irq, void *devid)
--{
--	struct clock_event_device *cd = devid;
--
--	jz4740_timer_ack_full(TIMER_CLOCKEVENT);
--
--	if (!clockevent_state_periodic(cd))
--		jz4740_timer_disable(TIMER_CLOCKEVENT);
--
--	cd->event_handler(cd);
--
--	return IRQ_HANDLED;
--}
--
--static int jz4740_clockevent_set_periodic(struct clock_event_device *evt)
--{
--	jz4740_timer_set_count(TIMER_CLOCKEVENT, 0);
--	jz4740_timer_set_period(TIMER_CLOCKEVENT, jz4740_jiffies_per_tick);
--	jz4740_timer_irq_full_enable(TIMER_CLOCKEVENT);
--	jz4740_timer_enable(TIMER_CLOCKEVENT);
--
--	return 0;
--}
--
--static int jz4740_clockevent_resume(struct clock_event_device *evt)
--{
--	jz4740_timer_irq_full_enable(TIMER_CLOCKEVENT);
--	jz4740_timer_enable(TIMER_CLOCKEVENT);
--
--	return 0;
--}
--
--static int jz4740_clockevent_shutdown(struct clock_event_device *evt)
--{
--	jz4740_timer_disable(TIMER_CLOCKEVENT);
--
--	return 0;
--}
--
--static int jz4740_clockevent_set_next(unsigned long evt,
--	struct clock_event_device *cd)
--{
--	jz4740_timer_set_count(TIMER_CLOCKEVENT, 0);
--	jz4740_timer_set_period(TIMER_CLOCKEVENT, evt);
--	jz4740_timer_enable(TIMER_CLOCKEVENT);
--
--	return 0;
--}
--
--static struct clock_event_device jz4740_clockevent = {
--	.name = "jz4740-timer",
--	.features = CLOCK_EVT_FEAT_PERIODIC | CLOCK_EVT_FEAT_ONESHOT,
--	.set_next_event = jz4740_clockevent_set_next,
--	.set_state_shutdown = jz4740_clockevent_shutdown,
--	.set_state_periodic = jz4740_clockevent_set_periodic,
--	.set_state_oneshot = jz4740_clockevent_shutdown,
--	.tick_resume = jz4740_clockevent_resume,
--	.rating = 200,
--#ifdef CONFIG_MACH_JZ4740
--	.irq = JZ4740_IRQ_TCU0,
--#endif
--#if defined(CONFIG_MACH_JZ4770) || defined(CONFIG_MACH_JZ4780)
--	.irq = JZ4780_IRQ_TCU2,
--#endif
--};
--
--static struct irqaction timer_irqaction = {
--	.handler	= jz4740_clockevent_irq,
--	.flags		= IRQF_PERCPU | IRQF_TIMER,
--	.name		= "jz4740-timerirq",
--	.dev_id		= &jz4740_clockevent,
--};
--
--void __init plat_time_init(void)
--{
--	int ret;
--	uint32_t clk_rate;
--	uint16_t ctrl;
--	struct clk *ext_clk;
--
--	of_clk_init(NULL);
--	jz4740_timer_init();
--
--	ext_clk = clk_get(NULL, "ext");
--	if (IS_ERR(ext_clk))
--		panic("unable to get ext clock");
--	clk_rate = clk_get_rate(ext_clk) >> 4;
--	clk_put(ext_clk);
--
--	jz4740_jiffies_per_tick = DIV_ROUND_CLOSEST(clk_rate, HZ);
--
--	clockevent_set_clock(&jz4740_clockevent, clk_rate);
--	jz4740_clockevent.min_delta_ns = clockevent_delta2ns(100, &jz4740_clockevent);
--	jz4740_clockevent.min_delta_ticks = 100;
--	jz4740_clockevent.max_delta_ns = clockevent_delta2ns(0xffff, &jz4740_clockevent);
--	jz4740_clockevent.max_delta_ticks = 0xffff;
--	jz4740_clockevent.cpumask = cpumask_of(0);
--
--	clockevents_register_device(&jz4740_clockevent);
--
--	ret = clocksource_register_hz(&jz4740_clocksource, clk_rate);
--
--	if (ret)
--		printk(KERN_ERR "Failed to register clocksource: %d\n", ret);
--
--	sched_clock_register(jz4740_read_sched_clock, 16, clk_rate);
--
--	setup_irq(jz4740_clockevent.irq, &timer_irqaction);
--
--	ctrl = JZ_TIMER_CTRL_PRESCALE_16 | JZ_TIMER_CTRL_SRC_EXT;
--
--	jz4740_timer_set_ctrl(TIMER_CLOCKEVENT, ctrl);
--	jz4740_timer_set_ctrl(TIMER_CLOCKSOURCE, ctrl);
--
--	jz4740_timer_set_period(TIMER_CLOCKEVENT, jz4740_jiffies_per_tick);
--	jz4740_timer_irq_full_enable(TIMER_CLOCKEVENT);
--
--	jz4740_timer_set_period(TIMER_CLOCKSOURCE, 0xffff);
--
--	jz4740_timer_enable(TIMER_CLOCKEVENT);
--	jz4740_timer_enable(TIMER_CLOCKSOURCE);
--}
-diff --git a/arch/mips/jz4740/timer.c b/arch/mips/jz4740/timer.c
-deleted file mode 100644
-index 777877feef71..000000000000
---- a/arch/mips/jz4740/timer.c
-+++ /dev/null
-@@ -1,51 +0,0 @@
--/*
-- *  Copyright (C) 2010, Lars-Peter Clausen <lars@metafoo.de>
-- *  JZ4740 platform timer support
-- *
-- *  This program is free software; you can redistribute it and/or modify it
-- *  under  the terms of the GNU General	 Public License as published by the
-- *  Free Software Foundation;  either version 2 of the License, or (at your
-- *  option) any later version.
-- *
-- *  You should have received a copy of the GNU General Public License along
-- *  with this program; if not, write to the Free Software Foundation, Inc.,
-- *  675 Mass Ave, Cambridge, MA 02139, USA.
-- *
-- */
--
--#include <linux/export.h>
--#include <linux/io.h>
--#include <linux/init.h>
--#include <linux/kernel.h>
--
--#include <asm/mach-jz4740/base.h>
--#include <asm/mach-jz4740/timer.h>
--
--void __iomem *jz4740_timer_base;
--EXPORT_SYMBOL_GPL(jz4740_timer_base);
--
--void jz4740_timer_enable_watchdog(void)
--{
--	writel(BIT(16), jz4740_timer_base + JZ_REG_TIMER_STOP_CLEAR);
--}
--EXPORT_SYMBOL_GPL(jz4740_timer_enable_watchdog);
--
--void jz4740_timer_disable_watchdog(void)
--{
--	writel(BIT(16), jz4740_timer_base + JZ_REG_TIMER_STOP_SET);
--}
--EXPORT_SYMBOL_GPL(jz4740_timer_disable_watchdog);
--
--void __init jz4740_timer_init(void)
--{
--	jz4740_timer_base = ioremap(JZ4740_TCU_BASE_ADDR, 0x100);
--
--	if (!jz4740_timer_base)
--		panic("Failed to ioremap timer registers");
--
--	/* Disable all timer clocks except for those used as system timers */
--	writel(0x000100fc, jz4740_timer_base + JZ_REG_TIMER_STOP_SET);
--
--	/* Timer irqs are unmasked by default, mask them */
--	writel(0x00ff00ff, jz4740_timer_base + JZ_REG_TIMER_MASK_SET);
--}
--- 
-2.11.0
-
+SGksIEd1ZW50ZXINCg0KQmVzdCBSZWdhcmRzIQ0KQW5zb24gSHVhbmcNCg0KPiAtLS0tLU9yaWdp
+bmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBHdWVudGVyIFJvZWNrIFttYWlsdG86Z3JvZWNrN0Bn
+bWFpbC5jb21dIE9uIEJlaGFsZiBPZiBHdWVudGVyDQo+IFJvZWNrDQo+IFNlbnQ6IDIwMTnE6jPU
+wjLI1SAyOjMyDQo+IFRvOiBBbnNvbiBIdWFuZyA8YW5zb24uaHVhbmdAbnhwLmNvbT4NCj4gQ2M6
+IGNhdGFsaW4ubWFyaW5hc0Bhcm0uY29tOyB3aWxsLmRlYWNvbkBhcm0uY29tOyB3aW1AbGludXgt
+DQo+IHdhdGNoZG9nLm9yZzsgc2hhd25ndW9Aa2VybmVsLm9yZzsgcy5oYXVlckBwZW5ndXRyb25p
+eC5kZTsNCj4ga2VybmVsQHBlbmd1dHJvbml4LmRlOyBmZXN0ZXZhbUBnbWFpbC5jb207IEFuZHkg
+R3Jvc3MNCj4gPGFuZHkuZ3Jvc3NAbGluYXJvLm9yZz47IGhlaWtvQHNudGVjaC5kZTsgaG9ybXMr
+cmVuZXNhc0B2ZXJnZS5uZXQuYXU7DQo+IGFybmRAYXJuZGIuZGU7IG9sb2ZAbGl4b20ubmV0OyBi
+am9ybi5hbmRlcnNzb25AbGluYXJvLm9yZzsNCj4gamFnYW5AYW1hcnVsYXNvbHV0aW9ucy5jb207
+IGVucmljLmJhbGxldGJvQGNvbGxhYm9yYS5jb207DQo+IG1hcmMudy5nb256YWxlekBmcmVlLmZy
+OyBsaW51eC1hcm0ta2VybmVsQGxpc3RzLmluZnJhZGVhZC5vcmc7IGxpbnV4LQ0KPiBrZXJuZWxA
+dmdlci5rZXJuZWwub3JnOyBsaW51eC13YXRjaGRvZ0B2Z2VyLmtlcm5lbC5vcmc7IGRsLWxpbnV4
+LWlteA0KPiA8bGludXgtaW14QG54cC5jb20+DQo+IFN1YmplY3Q6IFJlOiBbUEFUQ0ggVjUgMS8y
+XSB3YXRjaGRvZzogaW14X3NjOiBBZGQgaS5NWCBzeXN0ZW0gY29udHJvbGxlcg0KPiB3YXRjaGRv
+ZyBzdXBwb3J0DQo+IA0KPiBPbiBGcmksIE1hciAwMSwgMjAxOSBhdCAwNjozNTozMUFNICswMDAw
+LCBBbnNvbiBIdWFuZyB3cm90ZToNCj4gPiBpLk1YOFFYUCBpcyBhbiBBUk12OCBTb0Mgd2hpY2gg
+aGFzIGEgQ29ydGV4LU00IHN5c3RlbSBjb250cm9sbGVyDQo+ID4gaW5zaWRlLCB0aGUgc3lzdGVt
+IGNvbnRyb2xsZXIgaXMgaW4gY2hhcmdlIG9mIGNvbnRyb2xsaW5nIHBvd2VyLCBjbG9jaw0KPiA+
+IGFuZCB3YXRjaGRvZyBldGMuLg0KPiA+DQo+ID4gVGhpcyBwYXRjaCBhZGRzIGkuTVggc3lzdGVt
+IGNvbnRyb2xsZXIgd2F0Y2hkb2cgZHJpdmVyIHN1cHBvcnQsDQo+ID4gd2F0Y2hkb2cgb3BlcmF0
+aW9uIG5lZWRzIHRvIGJlIGRvbmUgaW4gc2VjdXJlIEVMMyBtb2RlIHZpYQ0KPiA+IEFSTS1UcnVz
+dGVkLUZpcm13YXJlLCB1c2luZyBTTUMgY2FsbCwgQ1BVIHdpbGwgdHJhcCBpbnRvDQo+ID4gQVJN
+LVRydXN0ZWQtRmlybXdhcmUgYW5kIHRoZW4gaXQgd2lsbCByZXF1ZXN0IHN5c3RlbSBjb250cm9s
+bGVyIHRvIGRvDQo+ID4gd2F0Y2hkb2cgb3BlcmF0aW9uIHZpYSBJUEMuDQo+ID4NCj4gPiBTaWdu
+ZWQtb2ZmLWJ5OiBBbnNvbiBIdWFuZyA8QW5zb24uSHVhbmdAbnhwLmNvbT4NCj4gPiAtLS0NCj4g
+PiBDaGFuZ2VzIHNpbmNlIFY0Og0KPiA+IAktIGNoYW5nZSB0aGUgbW9kdWxlIGJ1aWxkIGRlcGVu
+ZGVuY3kgYXMgZGVwZW5kcyBvbiBJTVhfU0NVIGFuZA0KPiBIQVZFX0FSTV9TTUNDQywgYXMgdGhp
+cw0KPiA+IAkgIGRyaXZlciBpcyBPTkxZIGZvciBpLk1YIFNvQyB3aXRoIFNDVSBpbnNpZGUgYW5k
+IGl0IHVzZXMgQVJNIFNNQyBjYWxsLg0KPiA+IC0tLQ0KPiA+ICBkcml2ZXJzL3dhdGNoZG9nL0tj
+b25maWcgICAgICB8ICAxNCArKysNCj4gPiAgZHJpdmVycy93YXRjaGRvZy9NYWtlZmlsZSAgICAg
+fCAgIDEgKw0KPiA+ICBkcml2ZXJzL3dhdGNoZG9nL2lteF9zY193ZHQuYyB8IDIwMQ0KPiA+ICsr
+KysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKw0KPiA+ICAzIGZpbGVzIGNo
+YW5nZWQsIDIxNiBpbnNlcnRpb25zKCspDQo+ID4gIGNyZWF0ZSBtb2RlIDEwMDY0NCBkcml2ZXJz
+L3dhdGNoZG9nL2lteF9zY193ZHQuYw0KPiA+DQo+ID4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvd2F0
+Y2hkb2cvS2NvbmZpZyBiL2RyaXZlcnMvd2F0Y2hkb2cvS2NvbmZpZyBpbmRleA0KPiA+IDY1YzNj
+NDIuLmE2YmZhNTQgMTAwNjQ0DQo+ID4gLS0tIGEvZHJpdmVycy93YXRjaGRvZy9LY29uZmlnDQo+
+ID4gKysrIGIvZHJpdmVycy93YXRjaGRvZy9LY29uZmlnDQo+ID4gQEAgLTYyNSw2ICs2MjUsMjAg
+QEAgY29uZmlnIElNWDJfV0RUDQo+ID4gIAkgIFRvIGNvbXBpbGUgdGhpcyBkcml2ZXIgYXMgYSBt
+b2R1bGUsIGNob29zZSBNIGhlcmU6IHRoZQ0KPiA+ICAJICBtb2R1bGUgd2lsbCBiZSBjYWxsZWQg
+aW14Ml93ZHQuDQo+ID4NCj4gPiArY29uZmlnIElNWF9TQ19XRFQNCj4gPiArCXRyaXN0YXRlICJJ
+TVggU0MgV2F0Y2hkb2ciDQo+ID4gKwlkZXBlbmRzIG9uIElNWF9TQ1UNCj4gPiArCWRlcGVuZHMg
+b24gSEFWRV9BUk1fU01DQ0MNCj4gPiArCXNlbGVjdCBXQVRDSERPR19DT1JFDQo+ID4gKwloZWxw
+DQo+ID4gKwkgIFRoaXMgaXMgdGhlIGRyaXZlciBmb3IgdGhlIHN5c3RlbSBjb250cm9sbGVyIHdh
+dGNoZG9nDQo+ID4gKwkgIG9uIHRoZSBOWFAgaS5NWCBTb0NzIHdpdGggc3lzdGVtIGNvbnRyb2xs
+ZXIgaW5zaWRlLg0KPiA+ICsJICBJZiB5b3UgaGF2ZSBvbmUgb2YgdGhlc2UgcHJvY2Vzc29ycyBh
+bmQgd2lzaCB0byBoYXZlDQo+ID4gKwkgIHdhdGNoZG9nIHN1cHBvcnQgZW5hYmxlZCwgc2F5IFks
+IG90aGVyd2lzZSBzYXkgTi4NCj4gPiArDQo+ID4gKwkgIFRvIGNvbXBpbGUgdGhpcyBkcml2ZXIg
+YXMgYSBtb2R1bGUsIGNob29zZSBNIGhlcmU6IHRoZQ0KPiA+ICsJICBtb2R1bGUgd2lsbCBiZSBj
+YWxsZWQgaW14X3NjX3dkdC4NCj4gPiArDQo+ID4gIGNvbmZpZyBVWDUwMF9XQVRDSERPRw0KPiA+
+ICAJdHJpc3RhdGUgIlNULUVyaWNzc29uIFV4NTAwIHdhdGNoZG9nIg0KPiA+ICAJZGVwZW5kcyBv
+biBNRkRfREI4NTAwX1BSQ01VDQo+ID4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvd2F0Y2hkb2cvTWFr
+ZWZpbGUgYi9kcml2ZXJzL3dhdGNoZG9nL01ha2VmaWxlDQo+ID4gaW5kZXggNGU3OGE4Yy4uMGM5
+ZGE2MyAxMDA2NDQNCj4gPiAtLS0gYS9kcml2ZXJzL3dhdGNoZG9nL01ha2VmaWxlDQo+ID4gKysr
+IGIvZHJpdmVycy93YXRjaGRvZy9NYWtlZmlsZQ0KPiA+IEBAIC02OCw2ICs2OCw3IEBAIG9iai0k
+KENPTkZJR19OVUM5MDBfV0FUQ0hET0cpICs9DQo+IG51YzkwMF93ZHQubw0KPiA+ICBvYmotJChD
+T05GSUdfVFM0ODAwX1dBVENIRE9HKSArPSB0czQ4MDBfd2R0Lm8NCj4gPiAgb2JqLSQoQ09ORklH
+X1RTNzJYWF9XQVRDSERPRykgKz0gdHM3Mnh4X3dkdC5vDQo+ID4gIG9iai0kKENPTkZJR19JTVgy
+X1dEVCkgKz0gaW14Ml93ZHQubw0KPiA+ICtvYmotJChDT05GSUdfSU1YX1NDX1dEVCkgKz0gaW14
+X3NjX3dkdC5vDQo+ID4gIG9iai0kKENPTkZJR19VWDUwMF9XQVRDSERPRykgKz0gdXg1MDBfd2R0
+Lm8NCj4gPiAgb2JqLSQoQ09ORklHX1JFVFVfV0FUQ0hET0cpICs9IHJldHVfd2R0Lm8NCj4gPiAg
+b2JqLSQoQ09ORklHX0JDTTI4MzVfV0RUKSArPSBiY20yODM1X3dkdC5vIGRpZmYgLS1naXQNCj4g
+PiBhL2RyaXZlcnMvd2F0Y2hkb2cvaW14X3NjX3dkdC5jIGIvZHJpdmVycy93YXRjaGRvZy9pbXhf
+c2Nfd2R0LmMgbmV3DQo+ID4gZmlsZSBtb2RlIDEwMDY0NCBpbmRleCAwMDAwMDAwLi41MGI0OWIy
+DQo+ID4gLS0tIC9kZXYvbnVsbA0KPiA+ICsrKyBiL2RyaXZlcnMvd2F0Y2hkb2cvaW14X3NjX3dk
+dC5jDQo+ID4gQEAgLTAsMCArMSwyMDEgQEANCj4gPiArLy8gU1BEWC1MaWNlbnNlLUlkZW50aWZp
+ZXI6IEdQTC0yLjANCj4gPiArLyoNCj4gPiArICogQ29weXJpZ2h0IDIwMTgtMjAxOSBOWFAuDQo+
+ID4gKyAqLw0KPiA+ICsNCj4gPiArI2luY2x1ZGUgPGxpbnV4L2FybS1zbWNjYy5oPg0KPiA+ICsj
+aW5jbHVkZSA8bGludXgvaW8uaD4NCj4gPiArI2luY2x1ZGUgPGxpbnV4L2luaXQuaD4NCj4gPiAr
+I2luY2x1ZGUgPGxpbnV4L2tlcm5lbC5oPg0KPiA+ICsjaW5jbHVkZSA8bGludXgvbW9kdWxlLmg+
+DQo+ID4gKyNpbmNsdWRlIDxsaW51eC9tb2R1bGVwYXJhbS5oPg0KPiA+ICsjaW5jbHVkZSA8bGlu
+dXgvb2YuaD4NCj4gDQo+IFNob3VsZCBubyBsb25nZXIgYmUgbmVlZGVkLg0KDQpDb3JyZWN0LCBJ
+IHdpbGwgcmVtb3ZlIGl0Lg0KDQo+IA0KPiA+ICsjaW5jbHVkZSA8bGludXgvcGxhdGZvcm1fZGV2
+aWNlLmg+DQo+ID4gKyNpbmNsdWRlIDxsaW51eC9yZWJvb3QuaD4NCj4gPiArI2luY2x1ZGUgPGxp
+bnV4L3dhdGNoZG9nLmg+DQo+ID4gKw0KPiA+ICsjZGVmaW5lIERFRkFVTFRfVElNRU9VVCA2MA0K
+PiA+ICsvKg0KPiA+ICsgKiBTb2Z0d2FyZSB0aW1lciB0aWNrIGltcGxlbWVudGVkIGluIHNjZncg
+c2lkZSwgc3VwcG9ydCAxMG1zIHRvDQo+ID4gKzB4ZmZmZmZmZmYgbXMNCj4gPiArICogaW4gdGhl
+b3J5LCBidXQgZm9yIG5vcm1hbCBjYXNlLCAxc34xMjhzIGlzIGVub3VnaCwgeW91IGNhbiBjaGFu
+Z2UNCj4gPiArdGhpcyBtYXgNCj4gPiArICogdmFsdWUgaW4gY2FzZSBpdCdzIG5vdCBlbm91Z2gu
+DQo+ID4gKyAqLw0KPiA+ICsjZGVmaW5lIE1BWF9USU1FT1VUIDEyOA0KPiA+ICsNCj4gPiArI2Rl
+ZmluZSBJTVhfU0lQX1RJTUVSCQkJMHhDMjAwMDAwMg0KPiA+ICsjZGVmaW5lIElNWF9TSVBfVElN
+RVJfU1RBUlRfV0RPRwkJMHgwMQ0KPiA+ICsjZGVmaW5lIElNWF9TSVBfVElNRVJfU1RPUF9XRE9H
+CQkweDAyDQo+ID4gKyNkZWZpbmUgSU1YX1NJUF9USU1FUl9TRVRfV0RPR19BQ1QJMHgwMw0KPiA+
+ICsjZGVmaW5lIElNWF9TSVBfVElNRVJfUElOR19XRE9HCQkweDA0DQo+ID4gKyNkZWZpbmUgSU1Y
+X1NJUF9USU1FUl9TRVRfVElNRU9VVF9XRE9HCTB4MDUNCj4gPiArI2RlZmluZSBJTVhfU0lQX1RJ
+TUVSX0dFVF9XRE9HX1NUQVQJMHgwNg0KPiA+ICsjZGVmaW5lIElNWF9TSVBfVElNRVJfU0VUX1BS
+RVRJTUVfV0RPRwkweDA3DQo+ID4gKw0KPiA+ICsjZGVmaW5lIFNDX1RJTUVSX1dET0dfQUNUSU9O
+X1BBUlRJVElPTgkwDQo+ID4gKw0KPiA+ICtzdGF0aWMgYm9vbCBub3dheW91dCA9IFdBVENIRE9H
+X05PV0FZT1VUOw0KPiBtb2R1bGVfcGFyYW0obm93YXlvdXQsDQo+ID4gK2Jvb2wsIDAwMDApOyBN
+T0RVTEVfUEFSTV9ERVNDKG5vd2F5b3V0LCAiV2F0Y2hkb2cgY2Fubm90IGJlDQo+IHN0b3BwZWQN
+Cj4gPiArb25jZSBzdGFydGVkIChkZWZhdWx0PSINCj4gPiArCQkgX19NT0RVTEVfU1RSSU5HKFdB
+VENIRE9HX05PV0FZT1VUKSAiKSIpOw0KPiA+ICsNCj4gPiArc3RhdGljIHVuc2lnbmVkIGludCB0
+aW1lb3V0ID0gREVGQVVMVF9USU1FT1VUOyBtb2R1bGVfcGFyYW0odGltZW91dCwNCj4gPiArdWlu
+dCwgMDAwMCk7IE1PRFVMRV9QQVJNX0RFU0ModGltZW91dCwgIldhdGNoZG9nIHRpbWVvdXQgaW4N
+Cj4gc2Vjb25kcw0KPiA+ICsoZGVmYXVsdD0iDQo+ID4gKwkJIF9fTU9EVUxFX1NUUklORyhERUZB
+VUxUX1RJTUVPVVQpICIpIik7DQo+ID4gKw0KPiA+ICtzdGF0aWMgc3RydWN0IHBsYXRmb3JtX2Rl
+dmljZSAqaW14X3NjX3dkdF9wZGV2Ow0KPiA+ICsNCj4gPiArc3RhdGljIGludCBpbXhfc2Nfd2R0
+X3Bpbmcoc3RydWN0IHdhdGNoZG9nX2RldmljZSAqd2RvZykgew0KPiA+ICsJc3RydWN0IGFybV9z
+bWNjY19yZXMgcmVzOw0KPiA+ICsNCj4gPiArCWFybV9zbWNjY19zbWMoSU1YX1NJUF9USU1FUiwg
+SU1YX1NJUF9USU1FUl9QSU5HX1dET0csDQo+ID4gKwkJICAgICAgMCwgMCwgMCwgMCwgMCwgMCwg
+JnJlcyk7DQo+ID4gKw0KPiA+ICsJcmV0dXJuIDA7DQo+ID4gK30NCj4gPiArDQo+ID4gK3N0YXRp
+YyBpbnQgaW14X3NjX3dkdF9zdGFydChzdHJ1Y3Qgd2F0Y2hkb2dfZGV2aWNlICp3ZG9nKSB7DQo+
+ID4gKwlzdHJ1Y3QgYXJtX3NtY2NjX3JlcyByZXM7DQo+ID4gKw0KPiA+ICsJYXJtX3NtY2NjX3Nt
+YyhJTVhfU0lQX1RJTUVSLCBJTVhfU0lQX1RJTUVSX1NUQVJUX1dET0csDQo+ID4gKwkJICAgICAg
+MCwgMCwgMCwgMCwgMCwgMCwgJnJlcyk7DQo+ID4gKwlpZiAocmVzLmEwKQ0KPiA+ICsJCXJldHVy
+biAtRUFDQ0VTOw0KPiA+ICsNCj4gPiArCWFybV9zbWNjY19zbWMoSU1YX1NJUF9USU1FUiwgSU1Y
+X1NJUF9USU1FUl9TRVRfV0RPR19BQ1QsDQo+ID4gKwkJICAgICAgU0NfVElNRVJfV0RPR19BQ1RJ
+T05fUEFSVElUSU9OLA0KPiA+ICsJCSAgICAgIDAsIDAsIDAsIDAsIDAsICZyZXMpOw0KPiA+ICsJ
+cmV0dXJuIHJlcy5hMCA/IC1FQUNDRVMgOiAwOw0KPiA+ICt9DQo+ID4gKw0KPiA+ICtzdGF0aWMg
+aW50IGlteF9zY193ZHRfc3RvcChzdHJ1Y3Qgd2F0Y2hkb2dfZGV2aWNlICp3ZG9nKSB7DQo+ID4g
+KwlzdHJ1Y3QgYXJtX3NtY2NjX3JlcyByZXM7DQo+ID4gKw0KPiA+ICsJYXJtX3NtY2NjX3NtYyhJ
+TVhfU0lQX1RJTUVSLCBJTVhfU0lQX1RJTUVSX1NUT1BfV0RPRywNCj4gPiArCQkgICAgICAwLCAw
+LCAwLCAwLCAwLCAwLCAmcmVzKTsNCj4gPiArDQo+ID4gKwlyZXR1cm4gcmVzLmEwID8gLUVBQ0NF
+UyA6IDA7DQo+ID4gK30NCj4gPiArDQo+ID4gK3N0YXRpYyBpbnQgaW14X3NjX3dkdF9zZXRfdGlt
+ZW91dChzdHJ1Y3Qgd2F0Y2hkb2dfZGV2aWNlICp3ZG9nLA0KPiA+ICsJCQkJdW5zaWduZWQgaW50
+IHRpbWVvdXQpDQo+ID4gK3sNCj4gPiArCXN0cnVjdCBhcm1fc21jY2NfcmVzIHJlczsNCj4gPiAr
+DQo+ID4gKwl3ZG9nLT50aW1lb3V0ID0gdGltZW91dDsNCj4gPiArCWFybV9zbWNjY19zbWMoSU1Y
+X1NJUF9USU1FUiwNCj4gSU1YX1NJUF9USU1FUl9TRVRfVElNRU9VVF9XRE9HLA0KPiA+ICsJCSAg
+ICAgIHRpbWVvdXQgKiAxMDAwLCAwLCAwLCAwLCAwLCAwLCAmcmVzKTsNCj4gPiArDQo+ID4gKwly
+ZXR1cm4gcmVzLmEwID8gLUVBQ0NFUyA6IDA7DQo+ID4gK30NCj4gPiArDQo+ID4gK3N0YXRpYyBj
+b25zdCBzdHJ1Y3Qgd2F0Y2hkb2dfb3BzIGlteF9zY193ZHRfb3BzID0gew0KPiA+ICsJLm93bmVy
+ID0gVEhJU19NT0RVTEUsDQo+ID4gKwkuc3RhcnQgPSBpbXhfc2Nfd2R0X3N0YXJ0LA0KPiA+ICsJ
+LnN0b3AgID0gaW14X3NjX3dkdF9zdG9wLA0KPiA+ICsJLnBpbmcgID0gaW14X3NjX3dkdF9waW5n
+LA0KPiA+ICsJLnNldF90aW1lb3V0ID0gaW14X3NjX3dkdF9zZXRfdGltZW91dCwgfTsNCj4gPiAr
+DQo+ID4gK3N0YXRpYyBjb25zdCBzdHJ1Y3Qgd2F0Y2hkb2dfaW5mbyBpbXhfc2Nfd2R0X2luZm8g
+PSB7DQo+ID4gKwkuaWRlbnRpdHkJPSAiaS5NWCBTQyB3YXRjaGRvZyB0aW1lciIsDQo+ID4gKwku
+b3B0aW9ucwk9IFdESU9GX1NFVFRJTUVPVVQgfCBXRElPRl9LRUVQQUxJVkVQSU5HIHwNCj4gPiAr
+CQkJICBXRElPRl9NQUdJQ0NMT1NFIHwgV0RJT0ZfUFJFVElNRU9VVCwgfTsNCj4gPiArDQo+ID4g
+K3N0YXRpYyBpbnQgaW14X3NjX3dkdF9wcm9iZShzdHJ1Y3QgcGxhdGZvcm1fZGV2aWNlICpwZGV2
+KSB7DQo+ID4gKwlzdHJ1Y3Qgd2F0Y2hkb2dfZGV2aWNlICppbXhfc2Nfd2RkOw0KPiA+ICsJaW50
+IHJldDsNCj4gPiArDQo+ID4gKwlpbXhfc2Nfd2RkID0gZGV2bV9remFsbG9jKCZwZGV2LT5kZXYs
+IHNpemVvZigqaW14X3NjX3dkZCksDQo+IEdGUF9LRVJORUwpOw0KPiA+ICsJaWYgKCFpbXhfc2Nf
+d2RkKQ0KPiA+ICsJCXJldHVybiAtRU5PTUVNOw0KPiA+ICsNCj4gPiArCXBsYXRmb3JtX3NldF9k
+cnZkYXRhKHBkZXYsIGlteF9zY193ZGQpOw0KPiA+ICsNCj4gPiArCWlteF9zY193ZGQtPmluZm8g
+PSAmaW14X3NjX3dkdF9pbmZvOw0KPiA+ICsJaW14X3NjX3dkZC0+b3BzID0gJmlteF9zY193ZHRf
+b3BzOw0KPiA+ICsJaW14X3NjX3dkZC0+bWluX3RpbWVvdXQgPSAxOw0KPiA+ICsJaW14X3NjX3dk
+ZC0+bWF4X3RpbWVvdXQgPSBNQVhfVElNRU9VVDsNCj4gPiArCWlteF9zY193ZGQtPnBhcmVudCA9
+ICZwZGV2LT5kZXY7DQo+ID4gKwlpbXhfc2Nfd2RkLT50aW1lb3V0ID0gREVGQVVMVF9USU1FT1VU
+Ow0KPiA+ICsNCj4gPiArCXJldCA9IHdhdGNoZG9nX2luaXRfdGltZW91dChpbXhfc2Nfd2RkLCB0
+aW1lb3V0LCAmcGRldi0+ZGV2KTsNCj4gPiArCWlmIChyZXQpDQo+ID4gKwkJZGV2X3dhcm4oJnBk
+ZXYtPmRldiwgIkZhaWxlZCB0byBzZXQgdGltZW91dCB2YWx1ZSwgdXNpbmcNCj4gPiArZGVmYXVs
+dFxuIik7DQo+ID4gKw0KPiA+ICsJd2F0Y2hkb2dfc3RvcF9vbl9yZWJvb3QoaW14X3NjX3dkZCk7
+DQo+ID4gKwl3YXRjaGRvZ19zdG9wX29uX3VucmVnaXN0ZXIoaW14X3NjX3dkZCk7DQo+ID4gKw0K
+PiA+ICsJcmV0ID0gZGV2bV93YXRjaGRvZ19yZWdpc3Rlcl9kZXZpY2UoJnBkZXYtPmRldiwgaW14
+X3NjX3dkZCk7DQo+ID4gKwlpZiAocmV0KSB7DQo+ID4gKwkJZGV2X2VycigmcGRldi0+ZGV2LCAi
+RmFpbGVkIHRvIHJlZ2lzdGVyIHdhdGNoZG9nIGRldmljZVxuIik7DQo+ID4gKwkJcmV0dXJuIHJl
+dDsNCj4gPiArCX0NCj4gPiArDQo+ID4gKwlyZXR1cm4gMDsNCj4gPiArfQ0KPiA+ICsNCj4gPiAr
+c3RhdGljIGludCBfX21heWJlX3VudXNlZCBpbXhfc2Nfd2R0X3N1c3BlbmQoc3RydWN0IGRldmlj
+ZSAqZGV2KSB7DQo+ID4gKwlzdHJ1Y3Qgd2F0Y2hkb2dfZGV2aWNlICppbXhfc2Nfd2RkID0gZGV2
+X2dldF9kcnZkYXRhKGRldik7DQo+ID4gKw0KPiA+ICsJaWYgKHdhdGNoZG9nX2FjdGl2ZShpbXhf
+c2Nfd2RkKSkNCj4gPiArCQlpbXhfc2Nfd2R0X3N0b3AoaW14X3NjX3dkZCk7DQo+ID4gKw0KPiA+
+ICsJcmV0dXJuIDA7DQo+ID4gK30NCj4gPiArDQo+ID4gK3N0YXRpYyBpbnQgX19tYXliZV91bnVz
+ZWQgaW14X3NjX3dkdF9yZXN1bWUoc3RydWN0IGRldmljZSAqZGV2KSB7DQo+ID4gKwlzdHJ1Y3Qg
+d2F0Y2hkb2dfZGV2aWNlICppbXhfc2Nfd2RkID0gZGV2X2dldF9kcnZkYXRhKGRldik7DQo+ID4g
+Kw0KPiA+ICsJaWYgKHdhdGNoZG9nX2FjdGl2ZShpbXhfc2Nfd2RkKSkNCj4gPiArCQlpbXhfc2Nf
+d2R0X3N0YXJ0KGlteF9zY193ZGQpOw0KPiA+ICsNCj4gPiArCXJldHVybiAwOw0KPiA+ICt9DQo+
+ID4gKw0KPiA+ICtzdGF0aWMgU0lNUExFX0RFVl9QTV9PUFMoaW14X3NjX3dkdF9wbV9vcHMsDQo+
+ID4gKwkJCSBpbXhfc2Nfd2R0X3N1c3BlbmQsIGlteF9zY193ZHRfcmVzdW1lKTsNCj4gPiArDQo+
+ID4gK3N0YXRpYyBzdHJ1Y3QgcGxhdGZvcm1fZHJpdmVyIGlteF9zY193ZHRfZHJpdmVyID0gew0K
+PiA+ICsJLnByb2JlCQk9IGlteF9zY193ZHRfcHJvYmUsDQo+ID4gKwkuZHJpdmVyCQk9IHsNCj4g
+PiArCQkubmFtZQk9ICJpbXgtc2Mtd2R0IiwNCj4gPiArCQkucG0JPSAmaW14X3NjX3dkdF9wbV9v
+cHMsDQo+ID4gKwl9LA0KPiA+ICt9Ow0KPiA+ICsNCj4gPiArc3RhdGljIGludCBfX2luaXQgaW14
+X3NjX3dkdF9pbml0KHZvaWQpIHsNCj4gPiArCWludCByZXQ7DQo+ID4gKw0KPiA+ICsJcmV0ID0g
+cGxhdGZvcm1fZHJpdmVyX3JlZ2lzdGVyKCZpbXhfc2Nfd2R0X2RyaXZlcik7DQo+ID4gKwlpZiAo
+cmV0KQ0KPiA+ICsJCXJldHVybiByZXQ7DQo+ID4gKw0KPiA+ICsJaW14X3NjX3dkdF9wZGV2ID0g
+cGxhdGZvcm1fZGV2aWNlX3JlZ2lzdGVyX3NpbXBsZSgiaW14LXNjLXdkdCIsIC0NCj4gMSwgTlVM
+TCwgMCk7DQo+ID4gKwlpZiAoSVNfRVJSKGlteF9zY193ZHRfcGRldikpIHsNCj4gPiArCQlwbGF0
+Zm9ybV9kcml2ZXJfdW5yZWdpc3RlcigmaW14X3NjX3dkdF9kcml2ZXIpOw0KPiA+ICsJCXJldHVy
+biBQVFJfRVJSKGlteF9zY193ZHRfcGRldik7DQo+ID4gKwl9DQo+IA0KPiBJIGp1c3QgcmVhbGl6
+ZWQgd2hhdCB5b3UgYXJlIGRvaW5nIGhlcmUuIFNvIHRoZSB3YXRjaGRvZyB3aWxsIGFsd2F5cyBi
+ZQ0KPiBpbnN0YW50aWF0ZWQgaWYvd2hlbiB0aGUgbW9kdWxlIGlzIGxvYWRlZC4gSSBkb24ndCB0
+aGluayB0aGF0IHdhcyB0aGUgaWRlYSwNCj4gYW5kIGl0IHNlZW1zIHRvIGJlIHJpc2t5LiBXaGF0
+IGhhcHBlbnMgaWYgc29tZW9uZSBsb2FkcyB0aGUgbW9kdWxlIG9uIGENCj4gc3lzdGVtIHdoZXJl
+IHRoZSB3YXRjaGRvZyBpcyBub3Qgc3VwcG9ydGVkID8gVGhlcmUgbWF5ZSBiZSBsb3RzIG9mICJB
+Y2Nlc3MNCj4gRGVuaWVkIiBlcnJvcnMsIG9yIHNvbWV0aGluZyB1bmRlZmluZWQgbWF5IGhhcHBl
+bi4NCg0KSSB0aG91Z2h0IHRoZSAiZGVwZW5kcyBvbiBJTVhfU0NVIiB3YXMgYWxyZWFkeSBhZGRl
+ZCBpbiBLY29uZmlnLCB0aGF0IG1lYW5zDQp0aGUgbW9kdWxlIHdpbGwgYmUgT05MWSBidWlsdCB3
+aXRoIElNWF9TQ1UgZW5hYmxlZCwgYW5kIHdhdGNoZG9nIHdpbGwgYmUgYWx3YXlzDQplbmFibGVk
+IGlmIElNWF9TQ1UgaXMgZW5hYmxlZC4gSXMgaXQgc2FmZSBlbm91Z2g/DQoNCj4gDQo+IElzIGV2
+ZXJ5b25lIG9uIENjOiBvayB3aXRoIHRoaXMgPyBJcyB0aGlzIGhvdyB3ZSBoYW5kbGUgaW5zdGFu
+dGlhdGlvbnMNCj4gbm93YWRheXMgPyAgT3Igc2hvdWxkIHRoZSBkcml2ZXIgYmUgaW5zdGFudGlh
+dGVkIGZyb20gaW14X3NjdV9wcm9iZSgpIGluDQo+IGRyaXZlcnMvZmlybXdhcmUvaW14L2lteC1z
+Y3UuYyA/DQo+IA0KPiBTb3JyeSBpZiB0aGUgYW5zd2VyIGlzIG9idmlvdXMsIGJ1dCBJIGFtIHN0
+aWxsIHN0cnVnZ2xpbmcgd2l0aCAibm8gbW9yZQ0KPiBpbnN0YW50aWF0aW9ucyB0aHJvdWdoIGRl
+dmljZXRyZWUiLg0KPiANCj4gSWYgdGhlIGRyaXZlciBpcyBhdXRvLWluc3RhbnRpYXRlZCB3aGVu
+IHRoZSBtb2R1bGUgaXMgbG9hZGVkLCBhcyBjdXJyZW50bHkNCj4gd3JpdHRlbiwgdGhlcmUgbmVl
+ZHMgdG8gYmUgc29tZSBjaGVjayBpZiBpdCBpcyBhY3R1YWxseSBzdXBwb3J0ZWQsIHBvc3NpYmx5
+IGluDQo+IGlteF9zY193ZHRfaW5pdCgpIG9yLCBpZiB0aGF0IGlzIG5vdCBwb3NzaWJsZSwgaW4g
+dGhlIHByb2JlIGZ1bmN0aW9uLiBJIGRvbid0IGxpa2UNCj4gdGhhdCwgYnV0IGl0IHdvdWxkIGF0
+IGxlYXN0IHByZXZlbnQgdGhlIG1vZHVsZSBmcm9tIGJlaW5nIGxvYWRlZCB3aGVuIHRoZQ0KPiBo
+YXJkd2FyZSBpcyBub3Qgc3VwcG9ydGVkLg0KDQpPdGhlciBtb2R1bGVzIGRlcGVuZCBvbiB0aGUg
+SU1YX1NDVSBJUEMgd2lsbCBoYXZlIGRlZmVyIHByb2JlIHRoZXJlIHRvIG1ha2UNCnN1cmUgSU1Y
+X1NDVSBkcml2ZXIgaXMgcmVhZHkgZm9yIElQQyBoYW5kbGUsIHNpbmNlIHdhdGNoZG9nIGRyaXZl
+ciBPTkxZIHVzZXMNCkFSTSBTTUMgYnV0IG5vIElQQyBjYWxsLCBzbyBJIGRpZCBOT1QgYWRkIHRo
+ZSBkZWZlciBwcm9iZSBoYW5kbGUgaGVyZSwgc28gaWYgYWRkaW5nDQppdCBjYW4gYW5zd2VyIHlv
+dXIgcXVlc3Rpb24vY29uY2VybiwgdGhlbiBJIGNhbiBhZGQgaXQsIGFsdGhvdWdoIEkgdGhpbmsg
+dGhlIGRlcGVuZGVuY3kNCmluIEtjb25maWcgc2hvdWxkIGJlIGdvb2QgaGVyZS4gV2l0aG91dCBT
+Q1UgZmlybXdhcmUgcmVhZHksIHRoZSBTb0MgZG9lcyBOT1QgYm9vdA0KdXAgQSBjb3JlIHdpdGgg
+QVRGL0xpbnV4IGF0IGFsbC4NCg0KVGhhbmtzLA0KQW5zb24uDQoNClJUQzoNCiA2OCBzdGF0aWMg
+aW50IGlteF9zY19ydGNfcHJvYmUoc3RydWN0IHBsYXRmb3JtX2RldmljZSAqcGRldikNCiA2OSB7
+DQogNzAgICAgICAgICBpbnQgcmV0Ow0KIDcxDQogNzIgICAgICAgICByZXQgPSBpbXhfc2N1X2dl
+dF9oYW5kbGUoJnJ0Y19pcGNfaGFuZGxlKTsNCiA3MyAgICAgICAgIGlmIChyZXQpDQogNzQgICAg
+ICAgICAgICAgICAgIHJldHVybiByZXQ7DQoNClNDVToNCiA5MiBpbnQgaW14X3NjdV9nZXRfaGFu
+ZGxlKHN0cnVjdCBpbXhfc2NfaXBjICoqaXBjKQ0KIDkzIHsNCiA5NCAgICAgICAgIGlmICghaW14
+X3NjX2lwY19oYW5kbGUpDQogOTUgICAgICAgICAgICAgICAgIHJldHVybiAtRVBST0JFX0RFRkVS
+Ow0KIDk2DQogOTcgICAgICAgICAqaXBjID0gaW14X3NjX2lwY19oYW5kbGU7DQogOTggICAgICAg
+ICByZXR1cm4gMDsNCiA5OSB9DQoxMDAgRVhQT1JUX1NZTUJPTChpbXhfc2N1X2dldF9oYW5kbGUp
+Ow0KDQo+IA0KPiBHdWVudGVyDQo+IA0KPiA+ICsNCj4gPiArCXJldHVybiAwOw0KPiA+ICt9DQo+
+ID4gK21vZHVsZV9pbml0KGlteF9zY193ZHRfaW5pdCk7DQo+ID4gKw0KPiA+ICtzdGF0aWMgdm9p
+ZCBfX2V4aXQgaW14X3NjX3dkdF9leGl0KHZvaWQpIHsNCj4gPiArCXBsYXRmb3JtX2RyaXZlcl91
+bnJlZ2lzdGVyKCZpbXhfc2Nfd2R0X2RyaXZlcik7DQo+ID4gKwlwbGF0Zm9ybV9kZXZpY2VfdW5y
+ZWdpc3RlcihpbXhfc2Nfd2R0X3BkZXYpOw0KPiA+ICt9DQo+ID4gK21vZHVsZV9leGl0KGlteF9z
+Y193ZHRfZXhpdCk7DQo+ID4gKw0KPiA+ICtNT0RVTEVfQVVUSE9SKCJSb2JpbiBHb25nIDx5aWJp
+bi5nb25nQG54cC5jb20+Iik7DQo+ID4gK01PRFVMRV9ERVNDUklQVElPTigiTlhQIGkuTVggc3lz
+dGVtIGNvbnRyb2xsZXIgd2F0Y2hkb2cgZHJpdmVyIik7DQo+ID4gK01PRFVMRV9MSUNFTlNFKCJH
+UEwgdjIiKTsNCj4gPiAtLQ0KPiA+IDIuNy40DQo+ID4NCg==
