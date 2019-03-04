@@ -2,376 +2,311 @@ Return-Path: <SRS0=D1Ye=RH=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,USER_AGENT_MUTT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_PASS
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9165FC4360F
-	for <linux-watchdog@archiver.kernel.org>; Mon,  4 Mar 2019 17:40:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0CFD2C10F03
+	for <linux-watchdog@archiver.kernel.org>; Mon,  4 Mar 2019 18:13:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4E3672070B
-	for <linux-watchdog@archiver.kernel.org>; Mon,  4 Mar 2019 17:40:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D244120823
+	for <linux-watchdog@archiver.kernel.org>; Mon,  4 Mar 2019 18:13:26 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jo+VjKn/"
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=crapouillou.net header.i=@crapouillou.net header.b="avnQLDFn"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727335AbfCDRj7 (ORCPT
+        id S1727626AbfCDSNV (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 4 Mar 2019 12:39:59 -0500
-Received: from mail-pf1-f193.google.com ([209.85.210.193]:40574 "EHLO
-        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727278AbfCDRj7 (ORCPT
+        Mon, 4 Mar 2019 13:13:21 -0500
+Received: from outils.crapouillou.net ([89.234.176.41]:60528 "EHLO
+        crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726095AbfCDSNV (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 4 Mar 2019 12:39:59 -0500
-Received: by mail-pf1-f193.google.com with SMTP id h1so3517420pfo.7;
-        Mon, 04 Mar 2019 09:39:58 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=irxFZufoqfzujXxdM/xQms3xEAVKVNw32OcBkggMU50=;
-        b=jo+VjKn/GoKgjsWjAqR1ATt3Ieq9Ex+lCXeXPKlfEEKnPEs7+go8u8FTsKFqIhiQAJ
-         ams/Z1V2Mn/3yIdIuFp86QwdDkpy8q1V/8tEdl6foR+Kx2Q8oK3YV5h5NXHsTLPsIex7
-         B+aaTmF0a9gLrKrI0GXzZ0/UZTvq5cAl2InzHeT4zbBnQwDjZrn7ZziU/7N7/ZHAlTZR
-         DObzntbgbwDsaXgNcHPyzk/QU9nQimJdivaymkWRXlqsVNCSvTkGcbLZZuHdRspRQuaX
-         eTDcnSaWenIMi7izZOKSZIuDHlGDSOzbTs+i3Yve094bXYTghilGYtXCXCweS+D3siIi
-         GCxQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=irxFZufoqfzujXxdM/xQms3xEAVKVNw32OcBkggMU50=;
-        b=nUpfVmpNk/O1Tt6saMzsMAUt67vDcZ1/pPIoCVoNC3eAPGMPniVqW2x8DFK5y2reyc
-         alCG8ToLP18qsD4PEBr2paR1WDyJBlcv3SQVLbCGXIu21rYtiT9kZX5zhOW8T/2AgxdH
-         ahMWKtzsx3TtYwVqoWXQ5meIk6d6YfLPm/Ag1ufCMTg/lQUH9k9CRELE2YqjGeopZJpf
-         Wu0VdbB1zaqOz+8fgQ/U9s5BN/9FrWwV5Ya14ECeCkUBm0f4F4O9n0xYMMal1tYMdThE
-         1k3qaQjFzicLCr0OBnAFD4DJX+ycTe/ZRzOCTZ83tevGPqXAWzh3MTQVR4R2rcLXFJwd
-         wgQg==
-X-Gm-Message-State: APjAAAULg5yhC6rDpsKxCKKjV45DcY8idlnTVOrJ2imzBY/ImkCeVm05
-        2jOOc5RrVr4vORwpsvXWO34=
-X-Google-Smtp-Source: APXvYqwQ2GD+KpUy6S9k39BGZdh9oLaWv2Jr8u+C6KxRpAjk16P1WpM/6KoN9zQhIfhf4/QyJEOp2g==
-X-Received: by 2002:a17:902:48c8:: with SMTP id u8mr21789730plh.87.1551721198351;
-        Mon, 04 Mar 2019 09:39:58 -0800 (PST)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id p6sm12727652pgd.69.2019.03.04.09.39.56
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 04 Mar 2019 09:39:57 -0800 (PST)
-Date:   Mon, 4 Mar 2019 09:39:55 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Anson Huang <anson.huang@nxp.com>
-Cc:     "catalin.marinas@arm.com" <catalin.marinas@arm.com>,
-        "will.deacon@arm.com" <will.deacon@arm.com>,
-        "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
-        "shawnguo@kernel.org" <shawnguo@kernel.org>,
-        "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>,
-        "kernel@pengutronix.de" <kernel@pengutronix.de>,
-        "festevam@gmail.com" <festevam@gmail.com>,
-        Andy Gross <andy.gross@linaro.org>,
-        "heiko@sntech.de" <heiko@sntech.de>,
-        "horms+renesas@verge.net.au" <horms+renesas@verge.net.au>,
-        "arnd@arndb.de" <arnd@arndb.de>, "olof@lixom.net" <olof@lixom.net>,
-        "bjorn.andersson@linaro.org" <bjorn.andersson@linaro.org>,
-        "jagan@amarulasolutions.com" <jagan@amarulasolutions.com>,
-        "enric.balletbo@collabora.com" <enric.balletbo@collabora.com>,
-        "marc.w.gonzalez@free.fr" <marc.w.gonzalez@free.fr>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        dl-linux-imx <linux-imx@nxp.com>
-Subject: Re: [PATCH V6 1/2] watchdog: imx_sc: Add i.MX system controller
- watchdog support
-Message-ID: <20190304173955.GA32281@roeck-us.net>
-References: <1551673236-27834-1-git-send-email-Anson.Huang@nxp.com>
+        Mon, 4 Mar 2019 13:13:21 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
+        s=mail; t=1551723196; h=from:from:sender:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=sT52sQEbmT2yUQzfhx0VIuGfrJcDBmqoJxedtaDHlZE=;
+        b=avnQLDFn8Wgd54n5GlO1/w0pguic2HUcTZtmfuYq+CCMAp5WwaX0mUcX+RwTfPTaoJu8Ei
+        YxwQN7bR/aG3XTF2XXOe5Latdh4HZw5ds88BHjkg51GZzOvXWC8yVT0GDqKj+6l4m1fBTC
+        EowEYqbIL9wvUqi7uyS1hpUukhHbpJE=
+Date:   Mon, 04 Mar 2019 19:13:05 +0100
+From:   Paul Cercueil <paul@crapouillou.net>
+Subject: Re: [PATCH v10 04/27] clocksource: Add a new timer-ingenic driver
+To:     Thierry Reding <thierry.reding@gmail.com>
+Cc:     Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        Paul Burton <paul.burton@mips.com>,
+        James Hogan <jhogan@kernel.org>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Uwe =?iso-8859-1?q?Kleine-K=F6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Mathieu Malaterre <malat@debian.org>, od@zcrc.me,
+        linux-pwm@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-doc@vger.kernel.org,
+        linux-clk@vger.kernel.org
+Message-Id: <1551723186.4932.0@crapouillou.net>
+In-Reply-To: <20190304122250.GC9040@ulmo>
+References: <20190302233413.14813-1-paul@crapouillou.net>
+        <20190302233413.14813-5-paul@crapouillou.net> <20190304122250.GC9040@ulmo>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1551673236-27834-1-git-send-email-Anson.Huang@nxp.com>
-User-Agent: Mutt/1.5.24 (2015-08-30)
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Mon, Mar 04, 2019 at 04:25:21AM +0000, Anson Huang wrote:
-> i.MX8QXP is an ARMv8 SoC which has a Cortex-M4 system controller
-> inside, the system controller is in charge of controlling power,
-> clock and watchdog etc..
-> 
-> This patch adds i.MX system controller watchdog driver support,
-> watchdog operation needs to be done in secure EL3 mode via
-> ARM-Trusted-Firmware, using SMC call, CPU will trap into
-> ARM-Trusted-Firmware and then it will request system controller
-> to do watchdog operation via IPC.
-> 
-> Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
-> ---
-> Changes since V5:
-> 	- add "fsl,imx-scu" node check in imx_sc_wdt_init() function to decide whether to instantiate
-> 	  the imx scu watchdog platform driver/device.
-> ---
->  drivers/watchdog/Kconfig      |  14 +++
->  drivers/watchdog/Makefile     |   1 +
->  drivers/watchdog/imx_sc_wdt.c | 204 ++++++++++++++++++++++++++++++++++++++++++
->  3 files changed, 219 insertions(+)
->  create mode 100644 drivers/watchdog/imx_sc_wdt.c
-> 
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index 65c3c42..a6bfa54 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -625,6 +625,20 @@ config IMX2_WDT
->  	  To compile this driver as a module, choose M here: the
->  	  module will be called imx2_wdt.
->  
-> +config IMX_SC_WDT
-> +	tristate "IMX SC Watchdog"
-> +	depends on IMX_SCU
-> +	depends on HAVE_ARM_SMCCC
-> +	select WATCHDOG_CORE
-> +	help
-> +	  This is the driver for the system controller watchdog
-> +	  on the NXP i.MX SoCs with system controller inside.
-> +	  If you have one of these processors and wish to have
-> +	  watchdog support enabled, say Y, otherwise say N.
-> +
-> +	  To compile this driver as a module, choose M here: the
-> +	  module will be called imx_sc_wdt.
-> +
->  config UX500_WATCHDOG
->  	tristate "ST-Ericsson Ux500 watchdog"
->  	depends on MFD_DB8500_PRCMU
-> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-> index 4e78a8c..0c9da63 100644
-> --- a/drivers/watchdog/Makefile
-> +++ b/drivers/watchdog/Makefile
-> @@ -68,6 +68,7 @@ obj-$(CONFIG_NUC900_WATCHDOG) += nuc900_wdt.o
->  obj-$(CONFIG_TS4800_WATCHDOG) += ts4800_wdt.o
->  obj-$(CONFIG_TS72XX_WATCHDOG) += ts72xx_wdt.o
->  obj-$(CONFIG_IMX2_WDT) += imx2_wdt.o
-> +obj-$(CONFIG_IMX_SC_WDT) += imx_sc_wdt.o
->  obj-$(CONFIG_UX500_WATCHDOG) += ux500_wdt.o
->  obj-$(CONFIG_RETU_WATCHDOG) += retu_wdt.o
->  obj-$(CONFIG_BCM2835_WDT) += bcm2835_wdt.o
-> diff --git a/drivers/watchdog/imx_sc_wdt.c b/drivers/watchdog/imx_sc_wdt.c
-> new file mode 100644
-> index 0000000..df8b3e3
-> --- /dev/null
-> +++ b/drivers/watchdog/imx_sc_wdt.c
-> @@ -0,0 +1,204 @@
-> +// SPDX-License-Identifier: GPL-2.0
-> +/*
-> + * Copyright 2018-2019 NXP.
-> + */
-> +
-> +#include <linux/arm-smccc.h>
-> +#include <linux/io.h>
-> +#include <linux/init.h>
-> +#include <linux/kernel.h>
-> +#include <linux/module.h>
-> +#include <linux/moduleparam.h>
-> +#include <linux/of.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/reboot.h>
-> +#include <linux/watchdog.h>
-> +
-> +#define DEFAULT_TIMEOUT 60
-> +/*
-> + * Software timer tick implemented in scfw side, support 10ms to 0xffffffff ms
-> + * in theory, but for normal case, 1s~128s is enough, you can change this max
-> + * value in case it's not enough.
-> + */
-> +#define MAX_TIMEOUT 128
-> +
-> +#define IMX_SIP_TIMER			0xC2000002
-> +#define IMX_SIP_TIMER_START_WDOG		0x01
-> +#define IMX_SIP_TIMER_STOP_WDOG		0x02
-> +#define IMX_SIP_TIMER_SET_WDOG_ACT	0x03
-> +#define IMX_SIP_TIMER_PING_WDOG		0x04
-> +#define IMX_SIP_TIMER_SET_TIMEOUT_WDOG	0x05
-> +#define IMX_SIP_TIMER_GET_WDOG_STAT	0x06
-> +#define IMX_SIP_TIMER_SET_PRETIME_WDOG	0x07
-> +
-> +#define SC_TIMER_WDOG_ACTION_PARTITION	0
-> +
-> +static bool nowayout = WATCHDOG_NOWAYOUT;
-> +module_param(nowayout, bool, 0000);
-> +MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
-> +		 __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
-> +
-> +static unsigned int timeout = DEFAULT_TIMEOUT;
-> +module_param(timeout, uint, 0000);
-> +MODULE_PARM_DESC(timeout, "Watchdog timeout in seconds (default="
-> +		 __MODULE_STRING(DEFAULT_TIMEOUT) ")");
-> +
-> +static struct platform_device *imx_sc_wdt_pdev;
-> +
-> +static int imx_sc_wdt_ping(struct watchdog_device *wdog)
-> +{
-> +	struct arm_smccc_res res;
-> +
-> +	arm_smccc_smc(IMX_SIP_TIMER, IMX_SIP_TIMER_PING_WDOG,
-> +		      0, 0, 0, 0, 0, 0, &res);
-> +
-> +	return 0;
-> +}
-> +
-> +static int imx_sc_wdt_start(struct watchdog_device *wdog)
-> +{
-> +	struct arm_smccc_res res;
-> +
-> +	arm_smccc_smc(IMX_SIP_TIMER, IMX_SIP_TIMER_START_WDOG,
-> +		      0, 0, 0, 0, 0, 0, &res);
-> +	if (res.a0)
-> +		return -EACCES;
-> +
-> +	arm_smccc_smc(IMX_SIP_TIMER, IMX_SIP_TIMER_SET_WDOG_ACT,
-> +		      SC_TIMER_WDOG_ACTION_PARTITION,
-> +		      0, 0, 0, 0, 0, &res);
-> +	return res.a0 ? -EACCES : 0;
-> +}
-> +
-> +static int imx_sc_wdt_stop(struct watchdog_device *wdog)
-> +{
-> +	struct arm_smccc_res res;
-> +
-> +	arm_smccc_smc(IMX_SIP_TIMER, IMX_SIP_TIMER_STOP_WDOG,
-> +		      0, 0, 0, 0, 0, 0, &res);
-> +
-> +	return res.a0 ? -EACCES : 0;
-> +}
-> +
-> +static int imx_sc_wdt_set_timeout(struct watchdog_device *wdog,
-> +				unsigned int timeout)
-> +{
-> +	struct arm_smccc_res res;
-> +
-> +	wdog->timeout = timeout;
-> +	arm_smccc_smc(IMX_SIP_TIMER, IMX_SIP_TIMER_SET_TIMEOUT_WDOG,
-> +		      timeout * 1000, 0, 0, 0, 0, 0, &res);
-> +
-> +	return res.a0 ? -EACCES : 0;
-> +}
-> +
-> +static const struct watchdog_ops imx_sc_wdt_ops = {
-> +	.owner = THIS_MODULE,
-> +	.start = imx_sc_wdt_start,
-> +	.stop  = imx_sc_wdt_stop,
-> +	.ping  = imx_sc_wdt_ping,
-> +	.set_timeout = imx_sc_wdt_set_timeout,
-> +};
-> +
-> +static const struct watchdog_info imx_sc_wdt_info = {
-> +	.identity	= "i.MX SC watchdog timer",
-> +	.options	= WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING |
-> +			  WDIOF_MAGICCLOSE | WDIOF_PRETIMEOUT,
-> +};
-> +
-> +static int imx_sc_wdt_probe(struct platform_device *pdev)
-> +{
-> +	struct watchdog_device *imx_sc_wdd;
-> +	int ret;
-> +
-> +	imx_sc_wdd = devm_kzalloc(&pdev->dev, sizeof(*imx_sc_wdd), GFP_KERNEL);
-> +	if (!imx_sc_wdd)
-> +		return -ENOMEM;
-> +
-> +	platform_set_drvdata(pdev, imx_sc_wdd);
-> +
-> +	imx_sc_wdd->info = &imx_sc_wdt_info;
-> +	imx_sc_wdd->ops = &imx_sc_wdt_ops;
-> +	imx_sc_wdd->min_timeout = 1;
-> +	imx_sc_wdd->max_timeout = MAX_TIMEOUT;
-> +	imx_sc_wdd->parent = &pdev->dev;
-> +	imx_sc_wdd->timeout = DEFAULT_TIMEOUT;
-> +
-> +	ret = watchdog_init_timeout(imx_sc_wdd, timeout, &pdev->dev);
-> +	if (ret)
-> +		dev_warn(&pdev->dev, "Failed to set timeout value, using default\n");
-> +
-> +	watchdog_stop_on_reboot(imx_sc_wdd);
-> +	watchdog_stop_on_unregister(imx_sc_wdd);
-> +
-> +	ret = devm_watchdog_register_device(&pdev->dev, imx_sc_wdd);
-> +	if (ret) {
-> +		dev_err(&pdev->dev, "Failed to register watchdog device\n");
-> +		return ret;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static int __maybe_unused imx_sc_wdt_suspend(struct device *dev)
-> +{
-> +	struct watchdog_device *imx_sc_wdd = dev_get_drvdata(dev);
-> +
-> +	if (watchdog_active(imx_sc_wdd))
-> +		imx_sc_wdt_stop(imx_sc_wdd);
-> +
-> +	return 0;
-> +}
-> +
-> +static int __maybe_unused imx_sc_wdt_resume(struct device *dev)
-> +{
-> +	struct watchdog_device *imx_sc_wdd = dev_get_drvdata(dev);
-> +
-> +	if (watchdog_active(imx_sc_wdd))
-> +		imx_sc_wdt_start(imx_sc_wdd);
-> +
-> +	return 0;
-> +}
-> +
-> +static SIMPLE_DEV_PM_OPS(imx_sc_wdt_pm_ops,
-> +			 imx_sc_wdt_suspend, imx_sc_wdt_resume);
-> +
-> +static struct platform_driver imx_sc_wdt_driver = {
-> +	.probe		= imx_sc_wdt_probe,
-> +	.driver		= {
-> +		.name	= "imx-sc-wdt",
-> +		.pm	= &imx_sc_wdt_pm_ops,
-> +	},
-> +};
-> +
-> +static int __init imx_sc_wdt_init(void)
-> +{
-> +	int ret;
-> +
-> +	if (!of_find_compatible_node(NULL, NULL, "fsl,imx-scu"))
-> +		return -ENODEV;
-> +
-> +	ret = platform_driver_register(&imx_sc_wdt_driver);
-> +	if (ret)
-> +		return ret;
-> +
-> +	imx_sc_wdt_pdev = platform_device_register_simple("imx-sc-wdt", -1, NULL, 0);
-> +	if (IS_ERR(imx_sc_wdt_pdev)) {
-> +		platform_driver_unregister(&imx_sc_wdt_driver);
-> +		return PTR_ERR(imx_sc_wdt_pdev);
-> +	}
+Hi Thierry,
 
-As mentioned in my other e-mail, the driver should be instantiated from
-its real parent driver, ie the driver instantiating "fsl,imx-scu". If that
-is rejected for whatever reason, we can do the above (and add a comment
-into the code describing the reason).
-
-Thanks,
-Guenter
-
-> +
-> +	return 0;
-> +}
-> +module_init(imx_sc_wdt_init);
-> +
-> +static void __exit imx_sc_wdt_exit(void)
-> +{
-> +	platform_driver_unregister(&imx_sc_wdt_driver);
-> +	platform_device_unregister(imx_sc_wdt_pdev);
-> +}
-> +module_exit(imx_sc_wdt_exit);
-> +
-> +MODULE_AUTHOR("Robin Gong <yibin.gong@nxp.com>");
-> +MODULE_DESCRIPTION("NXP i.MX system controller watchdog driver");
-> +MODULE_LICENSE("GPL v2");
-> -- 
-> 2.7.4
+On Mon, Mar 4, 2019 at 1:22 PM, Thierry Reding 
+<thierry.reding@gmail.com> wrote:
+> On Sat, Mar 02, 2019 at 08:33:50PM -0300, Paul Cercueil wrote:
+> [...]
+>>  diff --git a/drivers/clocksource/ingenic-timer.c 
+>> b/drivers/clocksource/ingenic-timer.c
+> [...]
+>>  +struct ingenic_tcu {
+>>  +	const struct ingenic_soc_info *soc_info;
+>>  +	struct regmap *map;
+>>  +	struct clk *clk, *timer_clk, *cs_clk;
+>>  +
+>>  +	struct irq_domain *domain;
+>>  +	unsigned int nb_parent_irqs;
+>>  +	u32 parent_irqs[3];
+>>  +
+>>  +	struct clk_hw_onecell_data *clocks;
+>>  +
+>>  +	unsigned int timer_channel, cs_channel;
+>>  +	struct clock_event_device cevt;
+>>  +	struct clocksource cs;
+>>  +	char name[4];
+>>  +
+>>  +	unsigned long pwm_channels_mask;
+>>  +};
+>>  +
+>>  +static struct ingenic_tcu *ingenic_tcu;
 > 
+> Is there really a need for this? Seems like the only two reasons for 
+> why
+> you keep this around are as pointed out below.
+> 
+>>  +void __iomem *ingenic_tcu_base;
+>>  +EXPORT_SYMBOL_GPL(ingenic_tcu_base);
+> 
+> Same here.
+> 
+>>  +static u64 notrace ingenic_tcu_timer_read(void)
+>>  +{
+>>  +	unsigned int channel = ingenic_tcu->cs_channel;
+>>  +	u16 count;
+>>  +
+>>  +	count = readw(ingenic_tcu_base + TCU_REG_TCNTc(channel));
+> 
+> Can't yo do this via the regmap?
+
+I could, but for the sched_clock to be precise the function must return
+as fast as possible. That's the rationale behind the use of readw() 
+here.
+
+That's also the reason why ingenic_tcu_base is global and exported, so
+that the OS Timer driver can use it as well.
+
+>>  +
+>>  +	return count;
+>>  +}
+>>  +
+>>  +static u64 notrace ingenic_tcu_timer_cs_read(struct clocksource 
+>> *cs)
+>>  +{
+>>  +	return ingenic_tcu_timer_read();
+>>  +}
+> 
+> And here you've got access to the struct clocksource *, from which you
+> should be able to get at struct ingenic_tcu * using container_of.
+> 
+> [...]
+>>  +static int __init ingenic_tcu_init(struct device_node *np)
+>>  +{
+>>  +	const struct of_device_id *id = 
+>> of_match_node(ingenic_tcu_of_match, np);
+>>  +	const struct ingenic_soc_info *soc_info = id->data;
+>>  +	struct ingenic_tcu *tcu;
+>>  +	struct resource res;
+>>  +	void __iomem *base;
+>>  +	long rate;
+>>  +	int ret;
+>>  +
+>>  +	of_node_clear_flag(np, OF_POPULATED);
+>>  +
+>>  +	tcu = kzalloc(sizeof(*tcu), GFP_KERNEL);
+>>  +	if (!tcu)
+>>  +		return -ENOMEM;
+>>  +
+>>  +	/* Enable all TCU channels for PWM use by default except channel 0
+>>  +	 * and channel 1.
+>>  +	 */
+>>  +	tcu->pwm_channels_mask = GENMASK(soc_info->num_channels - 1, 2);
+>>  +	of_property_read_u32(np, "ingenic,pwm-channels-mask",
+>>  +			     (u32 *)&tcu->pwm_channels_mask);
+>>  +
+>>  +	/* Verify that we have at least two free channels */
+>>  +	if (hweight8(tcu->pwm_channels_mask) > soc_info->num_channels - 
+>> 2) {
+>>  +		pr_crit("ingenic-tcu: Invalid PWM channel mask: 0x%02lx\n",
+>>  +			tcu->pwm_channels_mask);
+>>  +		return -EINVAL;
+>>  +	}
+>>  +
+>>  +	tcu->soc_info = soc_info;
+>>  +	ingenic_tcu = tcu;
+>>  +
+>>  +	tcu->timer_channel = find_first_zero_bit(&tcu->pwm_channels_mask,
+>>  +						 soc_info->num_channels);
+>>  +	tcu->cs_channel = find_next_zero_bit(&tcu->pwm_channels_mask,
+>>  +					     soc_info->num_channels,
+>>  +					     tcu->timer_channel + 1);
+>>  +
+>>  +	base = of_io_request_and_map(np, 0, NULL);
+>>  +	if (IS_ERR(base)) {
+>>  +		ret = PTR_ERR(base);
+>>  +		goto err_free_ingenic_tcu;
+>>  +	}
+>>  +
+>>  +	of_address_to_resource(np, 0, &res);
+>>  +
+>>  +	ingenic_tcu_base = base;
+>>  +
+>>  +	tcu->map = regmap_init_mmio(NULL, base, 
+>> &ingenic_tcu_regmap_config);
+>>  +	if (IS_ERR(tcu->map)) {
+>>  +		ret = PTR_ERR(tcu->map);
+>>  +		goto err_iounmap;
+>>  +	}
+>>  +
+>>  +	tcu->clk = of_clk_get_by_name(np, "tcu");
+>>  +	if (IS_ERR(tcu->clk)) {
+>>  +		ret = PTR_ERR(tcu->clk);
+>>  +		pr_crit("ingenic-tcu: Unable to find TCU clock: %i\n", ret);
+>>  +		goto err_free_regmap;
+>>  +	}
+>>  +
+>>  +	ret = clk_prepare_enable(tcu->clk);
+>>  +	if (ret) {
+>>  +		pr_crit("ingenic-tcu: Unable to enable TCU clock: %i\n", ret);
+>>  +		goto err_clk_put;
+>>  +	}
+>>  +
+>>  +	ret = ingenic_tcu_intc_init(tcu, np);
+>>  +	if (ret)
+>>  +		goto err_clk_disable;
+>>  +
+>>  +	ret = ingenic_tcu_clk_init(tcu, np);
+>>  +	if (ret)
+>>  +		goto err_tcu_intc_cleanup;
+>>  +
+>>  +	ret = ingenic_tcu_clocksource_init(tcu);
+>>  +	if (ret)
+>>  +		goto err_tcu_clk_cleanup;
+>>  +
+>>  +	ret = ingenic_tcu_timer_init(tcu);
+>>  +	if (ret)
+>>  +		goto err_tcu_clocksource_cleanup;
+>>  +
+>>  +	// Register the sched_clock at the very end as there's no way to 
+>> undo it
+>>  +	rate = clk_get_rate(tcu->cs_clk);
+>>  +	sched_clock_register(ingenic_tcu_timer_read, 16, rate);
+> 
+> Oh wow... so you managed to nicely encapsulate everything and now this
+> seems to be the only reason why you need to rely on global variables.
+> 
+> That's unfortunate. I suppose we could go and add a void *data 
+> parameter
+> to sched_clock_register() and pass that to the read() function. That 
+> way
+> you could make this completely independent of global variables, but
+> there are 73 callers of sched_clock_register() and they are spread all
+> over the place, so sounds a bit daunting to me.
+
+Yes, that's the main reason behind the use of a global variables.
+Is there a way we could introduce another callback, e.g. .read_value(),
+that would receive a void *param? Then the current .read() callback
+can be deprecated and the 73 callers can be migrated later.
+
+>>  +
+>>  +	return 0;
+>>  +
+>>  +err_tcu_clocksource_cleanup:
+>>  +	ingenic_tcu_clocksource_cleanup(tcu);
+>>  +err_tcu_clk_cleanup:
+>>  +	ingenic_tcu_clk_cleanup(tcu, np);
+>>  +err_tcu_intc_cleanup:
+>>  +	ingenic_tcu_intc_cleanup(tcu);
+>>  +err_clk_disable:
+>>  +	clk_disable_unprepare(tcu->clk);
+>>  +err_clk_put:
+>>  +	clk_put(tcu->clk);
+>>  +err_free_regmap:
+>>  +	regmap_exit(tcu->map);
+>>  +err_iounmap:
+>>  +	iounmap(base);
+>>  +	release_mem_region(res.start, resource_size(&res));
+>>  +err_free_ingenic_tcu:
+>>  +	kfree(tcu);
+>>  +	return ret;
+>>  +}
+>>  +
+>>  +TIMER_OF_DECLARE(jz4740_tcu_intc,  "ingenic,jz4740-tcu",  
+>> ingenic_tcu_init);
+>>  +TIMER_OF_DECLARE(jz4725b_tcu_intc, "ingenic,jz4725b-tcu", 
+>> ingenic_tcu_init);
+>>  +TIMER_OF_DECLARE(jz4770_tcu_intc,  "ingenic,jz4770-tcu",  
+>> ingenic_tcu_init);
+>>  +
+>>  +
+>>  +static int __init ingenic_tcu_probe(struct platform_device *pdev)
+>>  +{
+>>  +	platform_set_drvdata(pdev, ingenic_tcu);
+> 
+> Then there's also this. Oh well... nevermind then.
+
+The content of ingenic_tcu_platform_init() could be moved inside
+ingenic_tcu_init(). But can we get a hold of the struct device before 
+the
+probe function is called? That would allow to set the drvdata and regmap
+without relying on global state.
+
+>>  +bool ingenic_tcu_pwm_can_use_chn(unsigned int channel)
+>>  +{
+>>  +	return !!(ingenic_tcu->pwm_channels_mask & BIT(channel));
+>>  +}
+>>  +EXPORT_SYMBOL_GPL(ingenic_tcu_pwm_can_use_chn);
+> 
+> I wonder if we could make this slightly nicer, though. Judging by the
+> name, this one seems like it would only ever be used by the PWM. If 
+> the
+> PWM is a child of the TCU, could it not pass in a struct device * that
+> points to its parent into this? Or perhaps pass its own struct device 
+> *
+> and have this function look up the struct ingenic_tcu from that? 
+> Should
+> be something trivial as:
+> 
+> 	bool ingenic_tcu_pwm_can_use_channel(struct device *dev, unsigned 
+> int channel)
+> 	{
+> 		struct ingenic_tcu *tcu = dev_get_drvdata(dev->parent);
+> 
+> 		return !!(tcu->pwm_channels_mask & BIT(channel));
+> 	}
+> 
+> Thierry
+
+Yes, that definitely looks better. Thanks for the hint.
+
+-Paul
+
+
