@@ -8,56 +8,56 @@ X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_PASS,USER_AGENT_MUTT autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D28CBC43381
-	for <linux-watchdog@archiver.kernel.org>; Mon,  4 Mar 2019 12:30:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E655DC43381
+	for <linux-watchdog@archiver.kernel.org>; Mon,  4 Mar 2019 12:33:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9910C20830
-	for <linux-watchdog@archiver.kernel.org>; Mon,  4 Mar 2019 12:30:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AC18F2070B
+	for <linux-watchdog@archiver.kernel.org>; Mon,  4 Mar 2019 12:33:22 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OAbFoAeS"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cZPG923J"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726364AbfCDMaJ (ORCPT
+        id S1726526AbfCDMdS (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 4 Mar 2019 07:30:09 -0500
-Received: from mail-wr1-f67.google.com ([209.85.221.67]:37827 "EHLO
-        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726041AbfCDMaI (ORCPT
+        Mon, 4 Mar 2019 07:33:18 -0500
+Received: from mail-wr1-f65.google.com ([209.85.221.65]:44948 "EHLO
+        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726095AbfCDMdS (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 4 Mar 2019 07:30:08 -0500
-Received: by mail-wr1-f67.google.com with SMTP id w6so5336996wrs.4;
-        Mon, 04 Mar 2019 04:30:06 -0800 (PST)
+        Mon, 4 Mar 2019 07:33:18 -0500
+Received: by mail-wr1-f65.google.com with SMTP id w2so5339741wrt.11;
+        Mon, 04 Mar 2019 04:33:15 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:in-reply-to:user-agent;
-        bh=zXHPKP9zQlvXSxtlZom9E6I6CKCKFHOnsPMKe/55/2k=;
-        b=OAbFoAeSVJlbAWYU/uJ99O3wCGj5+yIquvzZKaNcp2Nk0YUvnVEsTnkVOdT/CC1ygJ
-         qXy7s/rIg1gMWKVvM3VJyGdZIp+hqtaAi9/NKMCvrMnlLAIWAoOR7uw3i3CGCZygb56G
-         y2+1Gy2GCvWNLuOZ3VBOtdBAoRyyyKOLDiKJYCL+wN5RJsC5DklhRTVw4Xqku/ouVDkx
-         4+y6t5nvoXpl2j43JA//YyaqXWDup/Q19rtrzwL45IdTWfdkMEewyDbaauKC0WBy1DMw
-         OYScMepoeywThNgvnK7QgavtM+ZZ0pUrsm01QZGg+IjPe5MEvBq+/52xMXBk8yqs8yPM
-         +jNQ==
+        bh=ZWCi/2TNqbnYURMDyPzqbasTv+6yXgoZo2OAimBe3BM=;
+        b=cZPG923Js3q2MJV1lOTNqs+bcKerMON4lNxNoWTFR8xlonWq0Q2suI56cswsGhTAZR
+         qw+sY+2uGrT0nuuknvYSrJ0V4rcsNpd8ZkK4XMVVzChwEaEgnRibxmvRWRE8HsUKWUCe
+         7X0sO8wUWkwDp19FzIH2MstcIXlPY3QE+xcCvO/gmk6og0sUnZO7bxiz0h5679KLNTK4
+         /oN/LV/hA5L7tFNCsU3i1bEq1ZDE+FLz61Obfbs/Vq1zqIoIIVsk0Z7++KZv1HzSBeX2
+         6OwE5fY2exQ8VpIrIFRpUxVI4DIwg8fBRpN+BjmMEu54877myTRW9cwPp9sQQfcfymkB
+         4QAg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=zXHPKP9zQlvXSxtlZom9E6I6CKCKFHOnsPMKe/55/2k=;
-        b=GdbaUYRADY0X74lQFWvfkH9pLenr9rLYMQnmNfJqgSPYLmPgS/nyA4w+L+foMriWkE
-         bGFzDzoPOAK4EwKEFbVh+w+tKhQaCHAarprEuMZF524SBAuQBPInIf3t8bt06dG+Wn05
-         nlXf3sJPdF1pG0CJZJ2IjSz7DDwKA0Zc4pOX5zEwdPWshJQT8JHDQT5bo1XpP9TBlbFd
-         8xLD3BrtI2XRD1Jc4V2/nA9w1Ni3+hUB4sFRHKA6+oF5E2ryfs38xMKFem5zHGKzTrwa
-         Jk3MXzG7jO1dKF4Jms6GKPnWNbLwtCdAj+aRXlXEFMxve11qVjbIj/rpWvSyWcLsm/g2
-         e8/w==
-X-Gm-Message-State: APjAAAUNgaCxvDjaxzq6RT407bhHQ31pS8ImyU1pI85redJZ5knZmj1B
-        et471P0NsR6iIbmU4XlyYqc=
-X-Google-Smtp-Source: APXvYqwUHHfHyAhdH385ErRrN3rOT1yQnD6BhXphzX5JgaS2W2sdJ0stHkN8SfHX7iFJSFOXqMKZbg==
-X-Received: by 2002:adf:c543:: with SMTP id s3mr11839111wrf.192.1551702605251;
-        Mon, 04 Mar 2019 04:30:05 -0800 (PST)
+        bh=ZWCi/2TNqbnYURMDyPzqbasTv+6yXgoZo2OAimBe3BM=;
+        b=MqrBtx7L1949hiMLanS1cBcE3ckO06CsqYHyxKPMffVSWA5FQ1Zl8nBT4LArU9k6rg
+         k/PMgaGzwDvLkDOPnjWUtq2gcrCE//GLQYRhfMvydicXkCMwkPa591z7JMHrCq8c7Po2
+         7OFspjctgoE93kZ60S1ajeF1BXlUbfG4MclZj3reW5DNcSFPIGadhdFO4Ay6qitkjFkX
+         A+cJqBZGWtJakR1R3flsljZ4EvQ9MqPNlHcs4ldZYa4pt+Z375+YtJsNqSC1r9qB8dnY
+         6p/PZOXwVRl0m5YKpK/96kAOLXXIkovoqE/kn939mwCmXKdAP6PCLqo12Vh7Bq/26eGf
+         yHiQ==
+X-Gm-Message-State: APjAAAVx2J2yUZdfMF4SYw2biGiH8fahgds6CBEnuaGcb4zBskzhoexi
+        yatQOqHV2b/wRN3dqUFjBxQ=
+X-Google-Smtp-Source: APXvYqxAZfRsx5WVBQsatq73V6t6NqMdYu0MCtWGl2YK/ZBgUHA988nxwcDvNdRVNlryCZwjGyAs7Q==
+X-Received: by 2002:adf:efc2:: with SMTP id i2mr12463696wrp.44.1551702794685;
+        Mon, 04 Mar 2019 04:33:14 -0800 (PST)
 Received: from localhost (pD9E51D2D.dip0.t-ipconnect.de. [217.229.29.45])
-        by smtp.gmail.com with ESMTPSA id b10sm6806657wru.92.2019.03.04.04.30.04
+        by smtp.gmail.com with ESMTPSA id c15sm4877006wrv.69.2019.03.04.04.33.13
         (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Mon, 04 Mar 2019 04:30:04 -0800 (PST)
-Date:   Mon, 4 Mar 2019 13:30:03 +0100
+        Mon, 04 Mar 2019 04:33:14 -0800 (PST)
+Date:   Mon, 4 Mar 2019 13:33:13 +0100
 From:   Thierry Reding <thierry.reding@gmail.com>
 To:     Paul Cercueil <paul@crapouillou.net>
 Cc:     Daniel Lezcano <daniel.lezcano@linaro.org>,
@@ -73,15 +73,16 @@ Cc:     Daniel Lezcano <daniel.lezcano@linaro.org>,
         linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
         linux-mips@vger.kernel.org, linux-doc@vger.kernel.org,
         linux-clk@vger.kernel.org
-Subject: Re: [PATCH v10 13/27] pwm: jz4740: Use clocks from TCU driver
-Message-ID: <20190304123003.GE9040@ulmo>
+Subject: Re: [PATCH v10 14/27] pwm: jz4740: Improve algorithm of clock
+ calculation
+Message-ID: <20190304123313.GF9040@ulmo>
 References: <20190302233413.14813-1-paul@crapouillou.net>
- <20190302233413.14813-14-paul@crapouillou.net>
+ <20190302233413.14813-15-paul@crapouillou.net>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="Qz2CZ664xQdCRdPu"
+        protocol="application/pgp-signature"; boundary="0rSojgWGcpz+ezC3"
 Content-Disposition: inline
-In-Reply-To: <20190302233413.14813-14-paul@crapouillou.net>
+In-Reply-To: <20190302233413.14813-15-paul@crapouillou.net>
 User-Agent: Mutt/1.11.3 (2019-02-01)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
@@ -89,22 +90,15 @@ List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
 
---Qz2CZ664xQdCRdPu
+--0rSojgWGcpz+ezC3
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sat, Mar 02, 2019 at 08:33:59PM -0300, Paul Cercueil wrote:
-> The ingenic-timer "TCU" driver provides us with clocks, that can be
-> (un)gated, reparented or reclocked from devicetree, instead of having
-> these settings hardcoded in this driver.
->=20
-> While this driver is devicetree-compatible, it is never (as of now)
-> probed from devicetree, so this change does not introduce a ABI problem
-> with current devicetree files.
->=20
-> Note that the "select REGMAP" has been dropped because it's
-> already enabled by the "select INGENIC_TIMER".
+On Sat, Mar 02, 2019 at 08:34:00PM -0300, Paul Cercueil wrote:
+> The previous algorithm hardcoded details about how the TCU clocks work.
+> The new algorithm will use clk_round_rate to find the perfect clock rate
+> for the PWM channel.
 >=20
 > Signed-off-by: Paul Cercueil <paul@crapouillou.net>
 > Tested-by: Mathieu Malaterre <malat@debian.org>
@@ -114,103 +108,97 @@ On Sat, Mar 02, 2019 at 08:33:59PM -0300, Paul Cercueil wrote:
 > Notes:
 >          v9: New patch
 >    =20
->          v10: Explain in commit message why "select REGMAP" was dropped
+>         v10: - New algorithm. Instead of starting with the maximum clock =
+rate
+>                and using clk_round_rate(rate - 1) to get the next (smalle=
+r)
+>     	   clock, we compute the maximum rate we can use before the
+>     	   register overflows, and apply it with clk_set_max_rate.
+>     	   Then we read the new clock rate and compute the register values
+>     	   of the period and duty from that.
+>     	 - Use NSEC_PER_SEC instead of magic 1000000000 value
 >=20
->  drivers/pwm/Kconfig      |  3 ++-
->  drivers/pwm/pwm-jz4740.c | 39 ++++++++++++++++++++++++++-------------
->  2 files changed, 28 insertions(+), 14 deletions(-)
+>  drivers/pwm/pwm-jz4740.c | 49 ++++++++++++++++++++++++++++++++----------=
+------
+>  1 file changed, 33 insertions(+), 16 deletions(-)
 >=20
-> diff --git a/drivers/pwm/Kconfig b/drivers/pwm/Kconfig
-> index ace8ea4b6247..4e201e970509 100644
-> --- a/drivers/pwm/Kconfig
-> +++ b/drivers/pwm/Kconfig
-> @@ -204,7 +204,8 @@ config PWM_IMX
->  config PWM_JZ4740
->  	tristate "Ingenic JZ47xx PWM support"
->  	depends on MACH_INGENIC
-> -	select REGMAP
-> +	depends on COMMON_CLK
-> +	select INGENIC_TIMER
-
-Okay... sounds like this would be okay. I'm assuming you go through that
-extra step of selecting REGMAP in the prior patch and dropping it here
-again so that you keep the series bisectible?
-
->  	help
->  	  Generic PWM framework driver for Ingenic JZ47xx based
->  	  machines.
 > diff --git a/drivers/pwm/pwm-jz4740.c b/drivers/pwm/pwm-jz4740.c
-> index 8dfac5ffd71c..c6136bd4434b 100644
+> index c6136bd4434b..f497388fc818 100644
 > --- a/drivers/pwm/pwm-jz4740.c
 > +++ b/drivers/pwm/pwm-jz4740.c
-> @@ -28,7 +28,7 @@
-> =20
->  struct jz4740_pwm_chip {
->  	struct pwm_chip chip;
-> -	struct clk *clk;
-> +	struct clk *clks[NUM_PWM];
->  	struct regmap *map;
->  };
-> =20
-> @@ -40,6 +40,9 @@ static inline struct jz4740_pwm_chip *to_jz4740(struct =
-pwm_chip *chip)
->  static int jz4740_pwm_request(struct pwm_chip *chip, struct pwm_device *=
-pwm)
->  {
->  	struct jz4740_pwm_chip *jz =3D to_jz4740(chip);
-> +	struct clk *clk;
-> +	char clk_name[16];
+> @@ -110,24 +110,45 @@ static int jz4740_pwm_apply(struct pwm_chip *chip, =
+struct pwm_device *pwm,
+>  	struct jz4740_pwm_chip *jz4740 =3D to_jz4740(pwm->chip);
+>  	struct clk *clk =3D jz4740->clks[pwm->hwpwm],
+>  		   *parent_clk =3D clk_get_parent(clk);
+> -	unsigned long rate, period, duty;
+> +	unsigned long rate, parent_rate, period, duty;
+>  	unsigned long long tmp;
+> -	unsigned int prescaler =3D 0;
 > +	int ret;
 > =20
->  	/*
->  	 * Timers 0 and 1 are used for system tasks, so they are unavailable
-> @@ -48,16 +51,29 @@ static int jz4740_pwm_request(struct pwm_chip *chip, =
-struct pwm_device *pwm)
->  	if (pwm->hwpwm < 2)
->  		return -EBUSY;
-> =20
-> -	regmap_write(jz->map, TCU_REG_TSCR, BIT(pwm->hwpwm));
-> +	snprintf(clk_name, sizeof(clk_name), "timer%u", pwm->hwpwm);
-> =20
-> +	clk =3D clk_get(chip->dev, clk_name);
-> +	if (IS_ERR(clk))
-> +		return PTR_ERR(clk);
+> -	rate =3D clk_get_rate(parent_clk);
+> -	tmp =3D (unsigned long long)rate * state->period;
+> -	do_div(tmp, 1000000000);
+> -	period =3D tmp;
+> +	parent_rate =3D clk_get_rate(parent_clk);
 > +
-> +	ret =3D clk_prepare_enable(clk);
-> +	if (ret) {
-> +		clk_put(clk);
+> +	jz4740_pwm_disable(chip, pwm);
+> +
+> +	/* Reset the clock to the maximum rate, and we'll reduce it if needed */
+> +	ret =3D clk_set_rate(clk, parent_rate);
+> +	if (ret)
 > +		return ret;
-> +	}
-> +
-> +	jz->clks[pwm->hwpwm] =3D clk;
->  	return 0;
->  }
+> =20
+> -	while (period > 0xffff && prescaler < 6) {
+> -		period >>=3D 2;
+> -		rate >>=3D 2;
+> -		++prescaler;
+> +	/* Limit the clock to a maximum rate that still gives us a period value
+> +	 * which fits in 16 bits.
+> +	 */
 
-Since you're already using ->request(), why not add a per-PWM structure
-that tracks the clock? There are a number of other PWMs that already do
-something similar. You can use pwm_{set,get}_chip_data() to associate
-chip-specific extra data with a PWM.
+Please use proper block-comment style.
+
+> +	tmp =3D 0xffffull * NSEC_PER_SEC;
+> +	do_div(tmp, state->period);
+> +
+> +	ret =3D clk_set_max_rate(clk, tmp);
+> +	if (ret) {
+> +		dev_err(chip->dev, "Unable to set max rate: %i\n", ret);
+> +		return ret;
+>  	}
+> =20
+> -	if (prescaler =3D=3D 6)
+> -		return -EINVAL;
+> +	/* Read back the clock rate, as it may have been modified by
+> +	 * clk_set_max_rate()
+> +	 */
+> +	rate =3D clk_get_rate(clk);
+
+That's a pretty neat trick. But also, please use proper block-comment
+style.
 
 Thierry
 
---Qz2CZ664xQdCRdPu
+--0rSojgWGcpz+ezC3
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAlx9GksACgkQ3SOs138+
-s6E+TBAAjG0S5ESNTVw1dLBpuxfE/NmCtzdpNdd7R9KmrD0XWaRkU6yNYjTX7LeQ
-8httkW5MfGJW2KK2I5Z5E565idf5/HnlbioDq8Nw9a9ENYgaCDn6VvQE+Ua+u8gN
-TZvMXZKy9ltzlV3Tfql4G+7OZ/FA97kKhA1BYyMn/T+bOFuUoGA8jUXTIjX0uSXS
-aNfBlzgB52/a1BEXzPqTP0fdQC2+HonK3nY6UteIS6qK7Qgdp8RoiIwWVT8+bXSf
-adzq4fT1IK5rTS5PexZ4pMraYZdckyNoQJuaBaG4j/gjkcNTFhNEON3LBVFggKFX
-e0jvl4e6eknc9zEuaJ6G6FB9SAYIzi7vgXCguNm+6woJIx+mprU58hnSBuASxowy
-U0gZ6fvcMu90q38q0rmRrFGRT5RbULDfpNPBhI/VeCrE/4hkw5/0ZsEMxDjmC9aG
-p/Op5ym9x56XUsRx2pCg6zrKQUM9bpES7t6vIOpeVWRSVCPF47vtDIM/fmJhX/ZH
-C+1D/Af2xA/vD0y3Qn5MqePW/pU34CsLGdS2DM5MX1V+hqqdrZerOleXdCxhIS3I
-RU7wj4bY1wUvECx3hW1XydtghqHeLIiVadmusimZyTPT50UJBgzENWQ+p2msj2dh
-0YaMWC6A08/g5NUdRn1gYORT9Gifk6aFTAvAbYOblC+ozjusUbc=
-=HjwR
+iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAlx9GwkACgkQ3SOs138+
+s6GJgBAAnQvMOMCV6VZpxm0xDRxvZpCOPycq+4tWt69b30Ja/bcSGRxP0XHqZWWP
+ndv7LtD9hTbBgHQNtMM1xV3dPhZ190ule9TsEmvWX8CNnU5fHAPLO0OvzNmUC/XZ
+eftV62b3mHRvbZxB/CtFXHz7V+0TLGTG8k9Ft2mgH4Av2FVCjSQxLLL8kLcZs23o
+hAGwFhen0QCnz70R72Biuz0Qr6DbEo1XCDCt5JPLrSuETC7t4VuGc/aLW08helen
+Jc9/rMV93vnhw41TDlEaAeusDPNqLDBM96Nxs2xkuLx3o8AJFOHXx9b7dNzb7HMp
+ywIbbW7e2o61nLkzNQvPPeSFljpxv+Np/x4UJZclyTLwbrcmRICfow1DaR6T1xSY
+XckA95jtqrf1W57GrcxcpkhBRMC2EefFnr/Z6WV2+HYL24lG/rGkqE6GWN1ZFsay
+77rnhZ4xx+z08OcSh4GG+7MPQcrs5iBVm5pXFS42XEfWCZfUkOm7XnqbVsztWiD0
+e20FAbcRj0SG8ul1OZgVPNU2xb9W3iie0Wj9SqxCyH+U2wqnEC2KtgwCmVxGH54M
+5SRabTKLq7leXkoekwZwiQkJrW2g8AJR0rqjwwG/LEPQpHaD4vZGf0+o0Oo0Z7KF
++X8XaQvWgZDtqmfc/B3Qum+FIPzFZNdVV3IwNwqZjSvsc3j+DIc=
+=zQDM
 -----END PGP SIGNATURE-----
 
---Qz2CZ664xQdCRdPu--
+--0rSojgWGcpz+ezC3--
