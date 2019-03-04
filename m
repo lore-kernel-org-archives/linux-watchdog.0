@@ -8,56 +8,56 @@ X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_PASS,USER_AGENT_MUTT autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E655DC43381
-	for <linux-watchdog@archiver.kernel.org>; Mon,  4 Mar 2019 12:33:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D9D51C43381
+	for <linux-watchdog@archiver.kernel.org>; Mon,  4 Mar 2019 12:35:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id AC18F2070B
-	for <linux-watchdog@archiver.kernel.org>; Mon,  4 Mar 2019 12:33:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A83482070B
+	for <linux-watchdog@archiver.kernel.org>; Mon,  4 Mar 2019 12:35:06 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cZPG923J"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TZG5S3f9"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726526AbfCDMdS (ORCPT
+        id S1726442AbfCDMfB (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 4 Mar 2019 07:33:18 -0500
-Received: from mail-wr1-f65.google.com ([209.85.221.65]:44948 "EHLO
-        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726095AbfCDMdS (ORCPT
+        Mon, 4 Mar 2019 07:35:01 -0500
+Received: from mail-wr1-f67.google.com ([209.85.221.67]:44096 "EHLO
+        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726095AbfCDMfB (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 4 Mar 2019 07:33:18 -0500
-Received: by mail-wr1-f65.google.com with SMTP id w2so5339741wrt.11;
-        Mon, 04 Mar 2019 04:33:15 -0800 (PST)
+        Mon, 4 Mar 2019 07:35:01 -0500
+Received: by mail-wr1-f67.google.com with SMTP id w2so5345561wrt.11;
+        Mon, 04 Mar 2019 04:34:59 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:in-reply-to:user-agent;
-        bh=ZWCi/2TNqbnYURMDyPzqbasTv+6yXgoZo2OAimBe3BM=;
-        b=cZPG923Js3q2MJV1lOTNqs+bcKerMON4lNxNoWTFR8xlonWq0Q2suI56cswsGhTAZR
-         qw+sY+2uGrT0nuuknvYSrJ0V4rcsNpd8ZkK4XMVVzChwEaEgnRibxmvRWRE8HsUKWUCe
-         7X0sO8wUWkwDp19FzIH2MstcIXlPY3QE+xcCvO/gmk6og0sUnZO7bxiz0h5679KLNTK4
-         /oN/LV/hA5L7tFNCsU3i1bEq1ZDE+FLz61Obfbs/Vq1zqIoIIVsk0Z7++KZv1HzSBeX2
-         6OwE5fY2exQ8VpIrIFRpUxVI4DIwg8fBRpN+BjmMEu54877myTRW9cwPp9sQQfcfymkB
-         4QAg==
+        bh=LgPdbTiPfqSCbOMpqcHezDufRGXfU2W7+3meyv7VIqc=;
+        b=TZG5S3f99RKjTjVmeW1jHWQ99fPNZY2xUI7YYgOBZSoK3N3HQzVtHkwRiB8Vc7H6Hz
+         EkBVdj+af8GV4rU7Ov6dV8fWm0MyjDPQ7B33oZjLPsOaedhQ4XCZW42zDA3WfhJwPtMj
+         LCNPMUYMOxIbKWL3l4EsXIIrOaGFcQr+bQUHkpZyJq6HXvn2v9RXoV966/Fc1VuE05z4
+         7Ks4UkhCCWwpywuFVvpja2oja2W54XFX5mQphzJ0oVf4snx+gBo3ZP6pIRS1M8QVZlBQ
+         OhW/HBfzdZmm9RtFrleGF/OMOTbmPG2hFOJ9D1UHMOWS7YOLeA2zxuH+PyLU8dnwBfq6
+         W/ww==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=ZWCi/2TNqbnYURMDyPzqbasTv+6yXgoZo2OAimBe3BM=;
-        b=MqrBtx7L1949hiMLanS1cBcE3ckO06CsqYHyxKPMffVSWA5FQ1Zl8nBT4LArU9k6rg
-         k/PMgaGzwDvLkDOPnjWUtq2gcrCE//GLQYRhfMvydicXkCMwkPa591z7JMHrCq8c7Po2
-         7OFspjctgoE93kZ60S1ajeF1BXlUbfG4MclZj3reW5DNcSFPIGadhdFO4Ay6qitkjFkX
-         A+cJqBZGWtJakR1R3flsljZ4EvQ9MqPNlHcs4ldZYa4pt+Z375+YtJsNqSC1r9qB8dnY
-         6p/PZOXwVRl0m5YKpK/96kAOLXXIkovoqE/kn939mwCmXKdAP6PCLqo12Vh7Bq/26eGf
-         yHiQ==
-X-Gm-Message-State: APjAAAVx2J2yUZdfMF4SYw2biGiH8fahgds6CBEnuaGcb4zBskzhoexi
-        yatQOqHV2b/wRN3dqUFjBxQ=
-X-Google-Smtp-Source: APXvYqxAZfRsx5WVBQsatq73V6t6NqMdYu0MCtWGl2YK/ZBgUHA988nxwcDvNdRVNlryCZwjGyAs7Q==
-X-Received: by 2002:adf:efc2:: with SMTP id i2mr12463696wrp.44.1551702794685;
-        Mon, 04 Mar 2019 04:33:14 -0800 (PST)
+        bh=LgPdbTiPfqSCbOMpqcHezDufRGXfU2W7+3meyv7VIqc=;
+        b=sCG6XMsH9IiWdGJquGZhQR5NJSXblXS4Zar3Wo90MxZAW0mvG0Di0/3DXSbsGe4Wop
+         LLbzfKVn2R1N4tlJmgBEmrvBz00K1kX1+456iRRbOhjfI3XkdSImqfFTETBKK7U5EO//
+         zeILg82DAiP7JEawNKntZtlJp9z6cczqMvfjS5M8NK0IDu0VBpQST8DFaPgC89RIYmzK
+         jACxcblernBCaPT3j6ZAYx0W2PH4GvpLTx/tAiBEY/IafiXf4rW5LX9Tn1cTySARJ7Kt
+         LOAaUE3Ei/zQepprTp2HmfpLYN2NuqKiMbiz0D8UHtRNcbMGDTmmItZ7hDw1bh7V8QtK
+         BXWg==
+X-Gm-Message-State: APjAAAUvfzJjijn8D5MiIUt/UDg5esLb7Xw+bL4Ao+Kul/1lERPLpwD1
+        ogyLzq5MTfLlVtFdNcGuxU0=
+X-Google-Smtp-Source: APXvYqwtxVh6JMFAbTXGfcYmt8rl8I0vq/rAvfmF2mY4RyPwWPAMMdyzg2gXmq/nai1f9rlXgA5ELw==
+X-Received: by 2002:a05:6000:10cf:: with SMTP id b15mr12927657wrx.32.1551702898291;
+        Mon, 04 Mar 2019 04:34:58 -0800 (PST)
 Received: from localhost (pD9E51D2D.dip0.t-ipconnect.de. [217.229.29.45])
-        by smtp.gmail.com with ESMTPSA id c15sm4877006wrv.69.2019.03.04.04.33.13
+        by smtp.gmail.com with ESMTPSA id x11sm16273917wrt.27.2019.03.04.04.34.57
         (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Mon, 04 Mar 2019 04:33:14 -0800 (PST)
-Date:   Mon, 4 Mar 2019 13:33:13 +0100
+        Mon, 04 Mar 2019 04:34:57 -0800 (PST)
+Date:   Mon, 4 Mar 2019 13:34:56 +0100
 From:   Thierry Reding <thierry.reding@gmail.com>
 To:     Paul Cercueil <paul@crapouillou.net>
 Cc:     Daniel Lezcano <daniel.lezcano@linaro.org>,
@@ -73,16 +73,16 @@ Cc:     Daniel Lezcano <daniel.lezcano@linaro.org>,
         linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
         linux-mips@vger.kernel.org, linux-doc@vger.kernel.org,
         linux-clk@vger.kernel.org
-Subject: Re: [PATCH v10 14/27] pwm: jz4740: Improve algorithm of clock
- calculation
-Message-ID: <20190304123313.GF9040@ulmo>
+Subject: Re: [PATCH v10 15/27] pwm: jz4740: Allow selection of PWM channels 0
+ and 1
+Message-ID: <20190304123456.GG9040@ulmo>
 References: <20190302233413.14813-1-paul@crapouillou.net>
- <20190302233413.14813-15-paul@crapouillou.net>
+ <20190302233413.14813-16-paul@crapouillou.net>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="0rSojgWGcpz+ezC3"
+        protocol="application/pgp-signature"; boundary="UTZ8bGhNySVQ9LYl"
 Content-Disposition: inline
-In-Reply-To: <20190302233413.14813-15-paul@crapouillou.net>
+In-Reply-To: <20190302233413.14813-16-paul@crapouillou.net>
 User-Agent: Mutt/1.11.3 (2019-02-01)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
@@ -90,15 +90,14 @@ List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
 
---0rSojgWGcpz+ezC3
+--UTZ8bGhNySVQ9LYl
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sat, Mar 02, 2019 at 08:34:00PM -0300, Paul Cercueil wrote:
-> The previous algorithm hardcoded details about how the TCU clocks work.
-> The new algorithm will use clk_round_rate to find the perfect clock rate
-> for the PWM channel.
+On Sat, Mar 02, 2019 at 08:34:01PM -0300, Paul Cercueil wrote:
+> The TCU channels 0 and 1 were previously reserved for system tasks, and
+> thus unavailable for PWM.
 >=20
 > Signed-off-by: Paul Cercueil <paul@crapouillou.net>
 > Tested-by: Mathieu Malaterre <malat@debian.org>
@@ -106,99 +105,63 @@ On Sat, Mar 02, 2019 at 08:34:00PM -0300, Paul Cercueil wrote:
 > ---
 >=20
 > Notes:
->          v9: New patch
+>          v6: New patch
 >    =20
->         v10: - New algorithm. Instead of starting with the maximum clock =
-rate
->                and using clk_round_rate(rate - 1) to get the next (smalle=
-r)
->     	   clock, we compute the maximum rate we can use before the
->     	   register overflows, and apply it with clk_set_max_rate.
->     	   Then we read the new clock rate and compute the register values
->     	   of the period and duty from that.
->     	 - Use NSEC_PER_SEC instead of magic 1000000000 value
+>          v7: No change
+>    =20
+>          v8: ingenic_tcu_[request,release]_channel are dropped. We now use
+>              the memory resources provided to the driver to detect whether
+>     	 or not we are allowed to use the TCU channel.
+>    =20
+>          v9: Drop previous system. Call a API function provided by the
+>              clocksource driver to know if we can use the channel as PWM.
+>    =20
+>          v10: No change
 >=20
->  drivers/pwm/pwm-jz4740.c | 49 ++++++++++++++++++++++++++++++++----------=
-------
->  1 file changed, 33 insertions(+), 16 deletions(-)
+>  drivers/pwm/pwm-jz4740.c | 6 +-----
+>  1 file changed, 1 insertion(+), 5 deletions(-)
 >=20
 > diff --git a/drivers/pwm/pwm-jz4740.c b/drivers/pwm/pwm-jz4740.c
-> index c6136bd4434b..f497388fc818 100644
+> index f497388fc818..c914589d547b 100644
 > --- a/drivers/pwm/pwm-jz4740.c
 > +++ b/drivers/pwm/pwm-jz4740.c
-> @@ -110,24 +110,45 @@ static int jz4740_pwm_apply(struct pwm_chip *chip, =
-struct pwm_device *pwm,
->  	struct jz4740_pwm_chip *jz4740 =3D to_jz4740(pwm->chip);
->  	struct clk *clk =3D jz4740->clks[pwm->hwpwm],
->  		   *parent_clk =3D clk_get_parent(clk);
-> -	unsigned long rate, period, duty;
-> +	unsigned long rate, parent_rate, period, duty;
->  	unsigned long long tmp;
-> -	unsigned int prescaler =3D 0;
-> +	int ret;
+> @@ -44,11 +44,7 @@ static int jz4740_pwm_request(struct pwm_chip *chip, s=
+truct pwm_device *pwm)
+>  	char clk_name[16];
+>  	int ret;
 > =20
-> -	rate =3D clk_get_rate(parent_clk);
-> -	tmp =3D (unsigned long long)rate * state->period;
-> -	do_div(tmp, 1000000000);
-> -	period =3D tmp;
-> +	parent_rate =3D clk_get_rate(parent_clk);
-> +
-> +	jz4740_pwm_disable(chip, pwm);
-> +
-> +	/* Reset the clock to the maximum rate, and we'll reduce it if needed */
-> +	ret =3D clk_set_rate(clk, parent_rate);
-> +	if (ret)
-> +		return ret;
-> =20
-> -	while (period > 0xffff && prescaler < 6) {
-> -		period >>=3D 2;
-> -		rate >>=3D 2;
-> -		++prescaler;
-> +	/* Limit the clock to a maximum rate that still gives us a period value
-> +	 * which fits in 16 bits.
-> +	 */
+> -	/*
+> -	 * Timers 0 and 1 are used for system tasks, so they are unavailable
+> -	 * for use as PWMs.
+> -	 */
+> -	if (pwm->hwpwm < 2)
+> +	if (!ingenic_tcu_pwm_can_use_chn(pwm->hwpwm))
+>  		return -EBUSY;
 
-Please use proper block-comment style.
-
-> +	tmp =3D 0xffffull * NSEC_PER_SEC;
-> +	do_div(tmp, state->period);
-> +
-> +	ret =3D clk_set_max_rate(clk, tmp);
-> +	if (ret) {
-> +		dev_err(chip->dev, "Unable to set max rate: %i\n", ret);
-> +		return ret;
->  	}
-> =20
-> -	if (prescaler =3D=3D 6)
-> -		return -EINVAL;
-> +	/* Read back the clock rate, as it may have been modified by
-> +	 * clk_set_max_rate()
-> +	 */
-> +	rate =3D clk_get_rate(clk);
-
-That's a pretty neat trick. But also, please use proper block-comment
-style.
+Like I said earlier, I think this would be nicer to take a parameter to
+a struct device * to remove the need for a global variable (at least for
+this particular case).
 
 Thierry
 
---0rSojgWGcpz+ezC3
+--UTZ8bGhNySVQ9LYl
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAlx9GwkACgkQ3SOs138+
-s6GJgBAAnQvMOMCV6VZpxm0xDRxvZpCOPycq+4tWt69b30Ja/bcSGRxP0XHqZWWP
-ndv7LtD9hTbBgHQNtMM1xV3dPhZ190ule9TsEmvWX8CNnU5fHAPLO0OvzNmUC/XZ
-eftV62b3mHRvbZxB/CtFXHz7V+0TLGTG8k9Ft2mgH4Av2FVCjSQxLLL8kLcZs23o
-hAGwFhen0QCnz70R72Biuz0Qr6DbEo1XCDCt5JPLrSuETC7t4VuGc/aLW08helen
-Jc9/rMV93vnhw41TDlEaAeusDPNqLDBM96Nxs2xkuLx3o8AJFOHXx9b7dNzb7HMp
-ywIbbW7e2o61nLkzNQvPPeSFljpxv+Np/x4UJZclyTLwbrcmRICfow1DaR6T1xSY
-XckA95jtqrf1W57GrcxcpkhBRMC2EefFnr/Z6WV2+HYL24lG/rGkqE6GWN1ZFsay
-77rnhZ4xx+z08OcSh4GG+7MPQcrs5iBVm5pXFS42XEfWCZfUkOm7XnqbVsztWiD0
-e20FAbcRj0SG8ul1OZgVPNU2xb9W3iie0Wj9SqxCyH+U2wqnEC2KtgwCmVxGH54M
-5SRabTKLq7leXkoekwZwiQkJrW2g8AJR0rqjwwG/LEPQpHaD4vZGf0+o0Oo0Z7KF
-+X8XaQvWgZDtqmfc/B3Qum+FIPzFZNdVV3IwNwqZjSvsc3j+DIc=
-=zQDM
+iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAlx9G3AACgkQ3SOs138+
+s6GsoBAAlgsmxh5F3erzL0YSoFLi9YUFWsXW2ac2aWNG727Q8nKu59W9ZYGGimxk
+os1XIwKsey4CI/zaAId1lIc74rTrOBooY5AjWApD9+HjU5xeePuSKTzmQkAs38DV
+ZUCw7icfbeWIaNtSZmXPwxzbQIgyLJkkdO7CXKzTg5Hj1Ty9Fcn7xa850dKLKbpv
+MOlS7msP6FhY8HVDgjt/Wn2yxEoUWPncdZROBwhYH6W3NNXgI6zU++xTgDIYOWHm
+YIlxgo2QUmRGChruJuxtnN8GniJdSnqemBZevLdWFsCOs6hH+HTXTO1Arb0yttGI
+QDKMUfilZ0BnNfoZJ7qopbC2D856bHvkQBvOw5hsTHZqgs/P9TKxDjDRtnBvMMHk
+KPSlscjq2sKR+9BK7FOR1ikkzDVvQpq28yWfw93Fh2yJTvUndk29f+EjLOADg/lE
+UbSU/+7dpS4n2lVv4z4vl3xFBWWUCIW7Rmu0K0UFv9lzY90mI6aEH0qe32lO8lhK
+FIsofG/ifAkNgJI1SiR6IV4KA61mqCMeVs4v6Oaj7sFluz1Izq9SPCaHhmkJY1jC
+YfRgu2GJpnG5dSa2gRwxFIh2HeLvqKBQhIwRQitiSVUJQHwcIKJGqnDgf0SABuea
+fplDG6LMvlKjk6QGXy1jrDhYpaDasxtwV+Ur2I/yc/qlBCd/P1E=
+=ACVI
 -----END PGP SIGNATURE-----
 
---0rSojgWGcpz+ezC3--
+--UTZ8bGhNySVQ9LYl--
