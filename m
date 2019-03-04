@@ -2,166 +2,483 @@ Return-Path: <SRS0=D1Ye=RH=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,USER_AGENT_MUTT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+	SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D9D51C43381
-	for <linux-watchdog@archiver.kernel.org>; Mon,  4 Mar 2019 12:35:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ECCA2C4360F
+	for <linux-watchdog@archiver.kernel.org>; Mon,  4 Mar 2019 13:53:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A83482070B
-	for <linux-watchdog@archiver.kernel.org>; Mon,  4 Mar 2019 12:35:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A62E120652
+	for <linux-watchdog@archiver.kernel.org>; Mon,  4 Mar 2019 13:53:10 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TZG5S3f9"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EX/UwwZ2"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726442AbfCDMfB (ORCPT
+        id S1726723AbfCDNxK (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 4 Mar 2019 07:35:01 -0500
-Received: from mail-wr1-f67.google.com ([209.85.221.67]:44096 "EHLO
-        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726095AbfCDMfB (ORCPT
+        Mon, 4 Mar 2019 08:53:10 -0500
+Received: from mail-pg1-f193.google.com ([209.85.215.193]:34643 "EHLO
+        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725997AbfCDNxJ (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 4 Mar 2019 07:35:01 -0500
-Received: by mail-wr1-f67.google.com with SMTP id w2so5345561wrt.11;
-        Mon, 04 Mar 2019 04:34:59 -0800 (PST)
+        Mon, 4 Mar 2019 08:53:09 -0500
+Received: by mail-pg1-f193.google.com with SMTP id i130so3165247pgd.1;
+        Mon, 04 Mar 2019 05:53:09 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=LgPdbTiPfqSCbOMpqcHezDufRGXfU2W7+3meyv7VIqc=;
-        b=TZG5S3f99RKjTjVmeW1jHWQ99fPNZY2xUI7YYgOBZSoK3N3HQzVtHkwRiB8Vc7H6Hz
-         EkBVdj+af8GV4rU7Ov6dV8fWm0MyjDPQ7B33oZjLPsOaedhQ4XCZW42zDA3WfhJwPtMj
-         LCNPMUYMOxIbKWL3l4EsXIIrOaGFcQr+bQUHkpZyJq6HXvn2v9RXoV966/Fc1VuE05z4
-         7Ks4UkhCCWwpywuFVvpja2oja2W54XFX5mQphzJ0oVf4snx+gBo3ZP6pIRS1M8QVZlBQ
-         OhW/HBfzdZmm9RtFrleGF/OMOTbmPG2hFOJ9D1UHMOWS7YOLeA2zxuH+PyLU8dnwBfq6
-         W/ww==
+        h=sender:subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=K4QBlbmaFUa1jSEn4J2Cliq8zh+ss9xsRhAItqI5N5Q=;
+        b=EX/UwwZ2jduXnaTPSA2RAhX+uja2GsmNMlx9g2rVHOfXJXFc5ovXxn76fPqhGU5b+L
+         4rtrXGH1q241UmpRG7drlMjMQ8B9cxnmhAvq+nmSd9kNTTERA1lrjZcAcEO/G0lMtst0
+         w8NV82bL5bsgKvv+Jpb00S5ABnhqeuKGEZN4kisR5jslpqb+vPszuAgsedU05EhcirvY
+         2tNzc1f3XyU3avreq90dXfFY34oQFIsjTgqpo2Ha2cu3iloN9Ks4+dp9Aolnk226MRMT
+         eJBqp0ucR447nnLtGJJvQXbZuXqbQJGNfzeVXR+ocRp20pj6WR/m7KIq82DdZ71HZzHa
+         orEg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=LgPdbTiPfqSCbOMpqcHezDufRGXfU2W7+3meyv7VIqc=;
-        b=sCG6XMsH9IiWdGJquGZhQR5NJSXblXS4Zar3Wo90MxZAW0mvG0Di0/3DXSbsGe4Wop
-         LLbzfKVn2R1N4tlJmgBEmrvBz00K1kX1+456iRRbOhjfI3XkdSImqfFTETBKK7U5EO//
-         zeILg82DAiP7JEawNKntZtlJp9z6cczqMvfjS5M8NK0IDu0VBpQST8DFaPgC89RIYmzK
-         jACxcblernBCaPT3j6ZAYx0W2PH4GvpLTx/tAiBEY/IafiXf4rW5LX9Tn1cTySARJ7Kt
-         LOAaUE3Ei/zQepprTp2HmfpLYN2NuqKiMbiz0D8UHtRNcbMGDTmmItZ7hDw1bh7V8QtK
-         BXWg==
-X-Gm-Message-State: APjAAAUvfzJjijn8D5MiIUt/UDg5esLb7Xw+bL4Ao+Kul/1lERPLpwD1
-        ogyLzq5MTfLlVtFdNcGuxU0=
-X-Google-Smtp-Source: APXvYqwtxVh6JMFAbTXGfcYmt8rl8I0vq/rAvfmF2mY4RyPwWPAMMdyzg2gXmq/nai1f9rlXgA5ELw==
-X-Received: by 2002:a05:6000:10cf:: with SMTP id b15mr12927657wrx.32.1551702898291;
-        Mon, 04 Mar 2019 04:34:58 -0800 (PST)
-Received: from localhost (pD9E51D2D.dip0.t-ipconnect.de. [217.229.29.45])
-        by smtp.gmail.com with ESMTPSA id x11sm16273917wrt.27.2019.03.04.04.34.57
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Mon, 04 Mar 2019 04:34:57 -0800 (PST)
-Date:   Mon, 4 Mar 2019 13:34:56 +0100
-From:   Thierry Reding <thierry.reding@gmail.com>
-To:     Paul Cercueil <paul@crapouillou.net>
-Cc:     Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Paul Burton <paul.burton@mips.com>,
-        James Hogan <jhogan@kernel.org>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Mathieu Malaterre <malat@debian.org>, od@zcrc.me,
-        linux-pwm@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        linux-mips@vger.kernel.org, linux-doc@vger.kernel.org,
-        linux-clk@vger.kernel.org
-Subject: Re: [PATCH v10 15/27] pwm: jz4740: Allow selection of PWM channels 0
- and 1
-Message-ID: <20190304123456.GG9040@ulmo>
-References: <20190302233413.14813-1-paul@crapouillou.net>
- <20190302233413.14813-16-paul@crapouillou.net>
+        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=K4QBlbmaFUa1jSEn4J2Cliq8zh+ss9xsRhAItqI5N5Q=;
+        b=pmm3G+bqjXV31fLiTy9/0fgyBjub5m2tD7hvO4ZgzrlHcabYDMMqobveh75pOZzubD
+         cQ+xQO59rsohrK1sgrVgKVoInRdyEc/Xjp90iqIpWAp9slQh0dOnZt91mpBaw79MGgby
+         CYgMWE8ulyq2UJbHbbsfcMXXvPHU1U6HS6wyzVlRVm/C4Fu9vADYQLXD0UBMvXmRLPSC
+         iBdDylrHmJpEsndCj2MIJROlvqyf70SaWpz6d23kfXVSeADoEzcYoNyAJ6Bt4sY+/p17
+         /2rJSHue+IyC/IB8tEvMh6MNZL/LOJnM8z0AC8CjZjAHgPjSs1P4xd0b5X0yWlc7JaC5
+         Z3HA==
+X-Gm-Message-State: APjAAAXdRGBSwAhlK3StXVN7huPa7Z3IpM4LVyEXm7XkTEq+OI7iSqTc
+        uHkIWYAWNC98WULIRepewzQ=
+X-Google-Smtp-Source: AHgI3IafTBfG2HIZdUf1Wi1IX74OwSXX38HskX2uJscWSn7sHQC+nFaF7BZClGu7Lp0ypSLggyShdA==
+X-Received: by 2002:a62:138f:: with SMTP id 15mr19989886pft.219.1551707588689;
+        Mon, 04 Mar 2019 05:53:08 -0800 (PST)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id l2sm8595566pgj.64.2019.03.04.05.53.06
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 04 Mar 2019 05:53:07 -0800 (PST)
+Subject: Re: [PATCH V5 1/2] watchdog: imx_sc: Add i.MX system controller
+ watchdog support
+To:     Anson Huang <anson.huang@nxp.com>
+Cc:     "catalin.marinas@arm.com" <catalin.marinas@arm.com>,
+        "will.deacon@arm.com" <will.deacon@arm.com>,
+        "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
+        "shawnguo@kernel.org" <shawnguo@kernel.org>,
+        "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>,
+        "kernel@pengutronix.de" <kernel@pengutronix.de>,
+        "festevam@gmail.com" <festevam@gmail.com>,
+        Andy Gross <andy.gross@linaro.org>,
+        "heiko@sntech.de" <heiko@sntech.de>,
+        "horms+renesas@verge.net.au" <horms+renesas@verge.net.au>,
+        "arnd@arndb.de" <arnd@arndb.de>, "olof@lixom.net" <olof@lixom.net>,
+        "bjorn.andersson@linaro.org" <bjorn.andersson@linaro.org>,
+        "jagan@amarulasolutions.com" <jagan@amarulasolutions.com>,
+        "enric.balletbo@collabora.com" <enric.balletbo@collabora.com>,
+        "marc.w.gonzalez@free.fr" <marc.w.gonzalez@free.fr>,
+        "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+        dl-linux-imx <linux-imx@nxp.com>
+References: <1551421837-21230-1-git-send-email-Anson.Huang@nxp.com>
+ <20190301183141.GA26332@roeck-us.net>
+ <DB3PR0402MB39165C1FE3289E145E86DAA1F5710@DB3PR0402MB3916.eurprd04.prod.outlook.com>
+ <19c52bda-aaaa-f67d-3627-d5a303386dae@roeck-us.net>
+ <DB3PR0402MB39166CAAF8DA49931A02A315F5710@DB3PR0402MB3916.eurprd04.prod.outlook.com>
+From:   Guenter Roeck <linux@roeck-us.net>
+Message-ID: <4453525f-7cdf-2b2c-8d6d-beb87af7fb9a@roeck-us.net>
+Date:   Mon, 4 Mar 2019 05:53:05 -0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.5.1
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="UTZ8bGhNySVQ9LYl"
-Content-Disposition: inline
-In-Reply-To: <20190302233413.14813-16-paul@crapouillou.net>
-User-Agent: Mutt/1.11.3 (2019-02-01)
+In-Reply-To: <DB3PR0402MB39166CAAF8DA49931A02A315F5710@DB3PR0402MB3916.eurprd04.prod.outlook.com>
+Content-Type: text/plain; charset=gbk; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
+On 3/3/19 7:22 PM, Anson Huang wrote:
+> Hi, Guenter
+> 
+> Best Regards!
+> Anson Huang
+> 
+>> -----Original Message-----
+>> From: Guenter Roeck [mailto:groeck7@gmail.com] On Behalf Of Guenter
+>> Roeck
+>> Sent: 2019年3月4日 10:46
+>> To: Anson Huang <anson.huang@nxp.com>
+>> Cc: catalin.marinas@arm.com; will.deacon@arm.com; wim@linux-
+>> watchdog.org; shawnguo@kernel.org; s.hauer@pengutronix.de;
+>> kernel@pengutronix.de; festevam@gmail.com; Andy Gross
+>> <andy.gross@linaro.org>; heiko@sntech.de; horms+renesas@verge.net.au;
+>> arnd@arndb.de; olof@lixom.net; bjorn.andersson@linaro.org;
+>> jagan@amarulasolutions.com; enric.balletbo@collabora.com;
+>> marc.w.gonzalez@free.fr; linux-arm-kernel@lists.infradead.org; linux-
+>> kernel@vger.kernel.org; linux-watchdog@vger.kernel.org; dl-linux-imx
+>> <linux-imx@nxp.com>
+>> Subject: Re: [PATCH V5 1/2] watchdog: imx_sc: Add i.MX system controller
+>> watchdog support
+>>
+>> On 3/3/19 5:32 PM, Anson Huang wrote:
+>>> Hi, Guenter
+>>>
+>>> Best Regards!
+>>> Anson Huang
+>>>
+>>>> -----Original Message-----
+>>>> From: Guenter Roeck [mailto:groeck7@gmail.com] On Behalf Of Guenter
+>>>> Roeck
+>>>> Sent: 2019年3月2日 2:32
+>>>> To: Anson Huang <anson.huang@nxp.com>
+>>>> Cc: catalin.marinas@arm.com; will.deacon@arm.com; wim@linux-
+>>>> watchdog.org; shawnguo@kernel.org; s.hauer@pengutronix.de;
+>>>> kernel@pengutronix.de; festevam@gmail.com; Andy Gross
+>>>> <andy.gross@linaro.org>; heiko@sntech.de;
+>> horms+renesas@verge.net.au;
+>>>> arnd@arndb.de; olof@lixom.net; bjorn.andersson@linaro.org;
+>>>> jagan@amarulasolutions.com; enric.balletbo@collabora.com;
+>>>> marc.w.gonzalez@free.fr; linux-arm-kernel@lists.infradead.org; linux-
+>>>> kernel@vger.kernel.org; linux-watchdog@vger.kernel.org; dl-linux-imx
+>>>> <linux-imx@nxp.com>
+>>>> Subject: Re: [PATCH V5 1/2] watchdog: imx_sc: Add i.MX system
+>>>> controller watchdog support
+>>>>
+>>>> On Fri, Mar 01, 2019 at 06:35:31AM +0000, Anson Huang wrote:
+>>>>> i.MX8QXP is an ARMv8 SoC which has a Cortex-M4 system controller
+>>>>> inside, the system controller is in charge of controlling power,
+>>>>> clock and watchdog etc..
+>>>>>
+>>>>> This patch adds i.MX system controller watchdog driver support,
+>>>>> watchdog operation needs to be done in secure EL3 mode via
+>>>>> ARM-Trusted-Firmware, using SMC call, CPU will trap into
+>>>>> ARM-Trusted-Firmware and then it will request system controller to
+>>>>> do watchdog operation via IPC.
+>>>>>
+>>>>> Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
+>>>>> ---
+>>>>> Changes since V4:
+>>>>> 	- change the module build dependency as depends on IMX_SCU and
+>>>> HAVE_ARM_SMCCC, as this
+>>>>> 	  driver is ONLY for i.MX SoC with SCU inside and it uses ARM SMC call.
+>>>>> ---
+>>>>>    drivers/watchdog/Kconfig      |  14 +++
+>>>>>    drivers/watchdog/Makefile     |   1 +
+>>>>>    drivers/watchdog/imx_sc_wdt.c | 201
+>>>>> ++++++++++++++++++++++++++++++++++++++++++
+>>>>>    3 files changed, 216 insertions(+)
+>>>>>    create mode 100644 drivers/watchdog/imx_sc_wdt.c
+>>>>>
+>>>>> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+>>>>> index
+>>>>> 65c3c42..a6bfa54 100644
+>>>>> --- a/drivers/watchdog/Kconfig
+>>>>> +++ b/drivers/watchdog/Kconfig
+>>>>> @@ -625,6 +625,20 @@ config IMX2_WDT
+>>>>>    	  To compile this driver as a module, choose M here: the
+>>>>>    	  module will be called imx2_wdt.
+>>>>>
+>>>>> +config IMX_SC_WDT
+>>>>> +	tristate "IMX SC Watchdog"
+>>>>> +	depends on IMX_SCU
+>>>>> +	depends on HAVE_ARM_SMCCC
+>>>>> +	select WATCHDOG_CORE
+>>>>> +	help
+>>>>> +	  This is the driver for the system controller watchdog
+>>>>> +	  on the NXP i.MX SoCs with system controller inside.
+>>>>> +	  If you have one of these processors and wish to have
+>>>>> +	  watchdog support enabled, say Y, otherwise say N.
+>>>>> +
+>>>>> +	  To compile this driver as a module, choose M here: the
+>>>>> +	  module will be called imx_sc_wdt.
+>>>>> +
+>>>>>    config UX500_WATCHDOG
+>>>>>    	tristate "ST-Ericsson Ux500 watchdog"
+>>>>>    	depends on MFD_DB8500_PRCMU
+>>>>> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+>>>>> index 4e78a8c..0c9da63 100644
+>>>>> --- a/drivers/watchdog/Makefile
+>>>>> +++ b/drivers/watchdog/Makefile
+>>>>> @@ -68,6 +68,7 @@ obj-$(CONFIG_NUC900_WATCHDOG) +=
+>>>> nuc900_wdt.o
+>>>>>    obj-$(CONFIG_TS4800_WATCHDOG) += ts4800_wdt.o
+>>>>>    obj-$(CONFIG_TS72XX_WATCHDOG) += ts72xx_wdt.o
+>>>>>    obj-$(CONFIG_IMX2_WDT) += imx2_wdt.o
+>>>>> +obj-$(CONFIG_IMX_SC_WDT) += imx_sc_wdt.o
+>>>>>    obj-$(CONFIG_UX500_WATCHDOG) += ux500_wdt.o
+>>>>>    obj-$(CONFIG_RETU_WATCHDOG) += retu_wdt.o
+>>>>>    obj-$(CONFIG_BCM2835_WDT) += bcm2835_wdt.o diff --git
+>>>>> a/drivers/watchdog/imx_sc_wdt.c b/drivers/watchdog/imx_sc_wdt.c
+>> new
+>>>>> file mode 100644 index 0000000..50b49b2
+>>>>> --- /dev/null
+>>>>> +++ b/drivers/watchdog/imx_sc_wdt.c
+>>>>> @@ -0,0 +1,201 @@
+>>>>> +// SPDX-License-Identifier: GPL-2.0
+>>>>> +/*
+>>>>> + * Copyright 2018-2019 NXP.
+>>>>> + */
+>>>>> +
+>>>>> +#include <linux/arm-smccc.h>
+>>>>> +#include <linux/io.h>
+>>>>> +#include <linux/init.h>
+>>>>> +#include <linux/kernel.h>
+>>>>> +#include <linux/module.h>
+>>>>> +#include <linux/moduleparam.h>
+>>>>> +#include <linux/of.h>
+>>>>
+>>>> Should no longer be needed.
+>>>
+>>> Correct, I will remove it.
+>>>
+>>>>
+>>>>> +#include <linux/platform_device.h>
+>>>>> +#include <linux/reboot.h>
+>>>>> +#include <linux/watchdog.h>
+>>>>> +
+>>>>> +#define DEFAULT_TIMEOUT 60
+>>>>> +/*
+>>>>> + * Software timer tick implemented in scfw side, support 10ms to
+>>>>> +0xffffffff ms
+>>>>> + * in theory, but for normal case, 1s~128s is enough, you can
+>>>>> +change this max
+>>>>> + * value in case it's not enough.
+>>>>> + */
+>>>>> +#define MAX_TIMEOUT 128
+>>>>> +
+>>>>> +#define IMX_SIP_TIMER			0xC2000002
+>>>>> +#define IMX_SIP_TIMER_START_WDOG		0x01
+>>>>> +#define IMX_SIP_TIMER_STOP_WDOG		0x02
+>>>>> +#define IMX_SIP_TIMER_SET_WDOG_ACT	0x03
+>>>>> +#define IMX_SIP_TIMER_PING_WDOG		0x04
+>>>>> +#define IMX_SIP_TIMER_SET_TIMEOUT_WDOG	0x05
+>>>>> +#define IMX_SIP_TIMER_GET_WDOG_STAT	0x06
+>>>>> +#define IMX_SIP_TIMER_SET_PRETIME_WDOG	0x07
+>>>>> +
+>>>>> +#define SC_TIMER_WDOG_ACTION_PARTITION	0
+>>>>> +
+>>>>> +static bool nowayout = WATCHDOG_NOWAYOUT;
+>>>> module_param(nowayout,
+>>>>> +bool, 0000); MODULE_PARM_DESC(nowayout, "Watchdog cannot be
+>>>> stopped
+>>>>> +once started (default="
+>>>>> +		 __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+>>>>> +
+>>>>> +static unsigned int timeout = DEFAULT_TIMEOUT;
+>>>>> +module_param(timeout, uint, 0000); MODULE_PARM_DESC(timeout,
+>>>>> +"Watchdog timeout in
+>>>> seconds
+>>>>> +(default="
+>>>>> +		 __MODULE_STRING(DEFAULT_TIMEOUT) ")");
+>>>>> +
+>>>>> +static struct platform_device *imx_sc_wdt_pdev;
+>>>>> +
+>>>>> +static int imx_sc_wdt_ping(struct watchdog_device *wdog) {
+>>>>> +	struct arm_smccc_res res;
+>>>>> +
+>>>>> +	arm_smccc_smc(IMX_SIP_TIMER, IMX_SIP_TIMER_PING_WDOG,
+>>>>> +		      0, 0, 0, 0, 0, 0, &res);
+>>>>> +
+>>>>> +	return 0;
+>>>>> +}
+>>>>> +
+>>>>> +static int imx_sc_wdt_start(struct watchdog_device *wdog) {
+>>>>> +	struct arm_smccc_res res;
+>>>>> +
+>>>>> +	arm_smccc_smc(IMX_SIP_TIMER, IMX_SIP_TIMER_START_WDOG,
+>>>>> +		      0, 0, 0, 0, 0, 0, &res);
+>>>>> +	if (res.a0)
+>>>>> +		return -EACCES;
+>>>>> +
+>>>>> +	arm_smccc_smc(IMX_SIP_TIMER, IMX_SIP_TIMER_SET_WDOG_ACT,
+>>>>> +		      SC_TIMER_WDOG_ACTION_PARTITION,
+>>>>> +		      0, 0, 0, 0, 0, &res);
+>>>>> +	return res.a0 ? -EACCES : 0;
+>>>>> +}
+>>>>> +
+>>>>> +static int imx_sc_wdt_stop(struct watchdog_device *wdog) {
+>>>>> +	struct arm_smccc_res res;
+>>>>> +
+>>>>> +	arm_smccc_smc(IMX_SIP_TIMER, IMX_SIP_TIMER_STOP_WDOG,
+>>>>> +		      0, 0, 0, 0, 0, 0, &res);
+>>>>> +
+>>>>> +	return res.a0 ? -EACCES : 0;
+>>>>> +}
+>>>>> +
+>>>>> +static int imx_sc_wdt_set_timeout(struct watchdog_device *wdog,
+>>>>> +				unsigned int timeout)
+>>>>> +{
+>>>>> +	struct arm_smccc_res res;
+>>>>> +
+>>>>> +	wdog->timeout = timeout;
+>>>>> +	arm_smccc_smc(IMX_SIP_TIMER,
+>>>> IMX_SIP_TIMER_SET_TIMEOUT_WDOG,
+>>>>> +		      timeout * 1000, 0, 0, 0, 0, 0, &res);
+>>>>> +
+>>>>> +	return res.a0 ? -EACCES : 0;
+>>>>> +}
+>>>>> +
+>>>>> +static const struct watchdog_ops imx_sc_wdt_ops = {
+>>>>> +	.owner = THIS_MODULE,
+>>>>> +	.start = imx_sc_wdt_start,
+>>>>> +	.stop  = imx_sc_wdt_stop,
+>>>>> +	.ping  = imx_sc_wdt_ping,
+>>>>> +	.set_timeout = imx_sc_wdt_set_timeout, };
+>>>>> +
+>>>>> +static const struct watchdog_info imx_sc_wdt_info = {
+>>>>> +	.identity	= "i.MX SC watchdog timer",
+>>>>> +	.options	= WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING |
+>>>>> +			  WDIOF_MAGICCLOSE | WDIOF_PRETIMEOUT, };
+>>>>> +
+>>>>> +static int imx_sc_wdt_probe(struct platform_device *pdev) {
+>>>>> +	struct watchdog_device *imx_sc_wdd;
+>>>>> +	int ret;
+>>>>> +
+>>>>> +	imx_sc_wdd = devm_kzalloc(&pdev->dev, sizeof(*imx_sc_wdd),
+>>>> GFP_KERNEL);
+>>>>> +	if (!imx_sc_wdd)
+>>>>> +		return -ENOMEM;
+>>>>> +
+>>>>> +	platform_set_drvdata(pdev, imx_sc_wdd);
+>>>>> +
+>>>>> +	imx_sc_wdd->info = &imx_sc_wdt_info;
+>>>>> +	imx_sc_wdd->ops = &imx_sc_wdt_ops;
+>>>>> +	imx_sc_wdd->min_timeout = 1;
+>>>>> +	imx_sc_wdd->max_timeout = MAX_TIMEOUT;
+>>>>> +	imx_sc_wdd->parent = &pdev->dev;
+>>>>> +	imx_sc_wdd->timeout = DEFAULT_TIMEOUT;
+>>>>> +
+>>>>> +	ret = watchdog_init_timeout(imx_sc_wdd, timeout, &pdev->dev);
+>>>>> +	if (ret)
+>>>>> +		dev_warn(&pdev->dev, "Failed to set timeout value, using
+>>>>> +default\n");
+>>>>> +
+>>>>> +	watchdog_stop_on_reboot(imx_sc_wdd);
+>>>>> +	watchdog_stop_on_unregister(imx_sc_wdd);
+>>>>> +
+>>>>> +	ret = devm_watchdog_register_device(&pdev->dev, imx_sc_wdd);
+>>>>> +	if (ret) {
+>>>>> +		dev_err(&pdev->dev, "Failed to register watchdog device\n");
+>>>>> +		return ret;
+>>>>> +	}
+>>>>> +
+>>>>> +	return 0;
+>>>>> +}
+>>>>> +
+>>>>> +static int __maybe_unused imx_sc_wdt_suspend(struct device *dev) {
+>>>>> +	struct watchdog_device *imx_sc_wdd = dev_get_drvdata(dev);
+>>>>> +
+>>>>> +	if (watchdog_active(imx_sc_wdd))
+>>>>> +		imx_sc_wdt_stop(imx_sc_wdd);
+>>>>> +
+>>>>> +	return 0;
+>>>>> +}
+>>>>> +
+>>>>> +static int __maybe_unused imx_sc_wdt_resume(struct device *dev) {
+>>>>> +	struct watchdog_device *imx_sc_wdd = dev_get_drvdata(dev);
+>>>>> +
+>>>>> +	if (watchdog_active(imx_sc_wdd))
+>>>>> +		imx_sc_wdt_start(imx_sc_wdd);
+>>>>> +
+>>>>> +	return 0;
+>>>>> +}
+>>>>> +
+>>>>> +static SIMPLE_DEV_PM_OPS(imx_sc_wdt_pm_ops,
+>>>>> +			 imx_sc_wdt_suspend, imx_sc_wdt_resume);
+>>>>> +
+>>>>> +static struct platform_driver imx_sc_wdt_driver = {
+>>>>> +	.probe		= imx_sc_wdt_probe,
+>>>>> +	.driver		= {
+>>>>> +		.name	= "imx-sc-wdt",
+>>>>> +		.pm	= &imx_sc_wdt_pm_ops,
+>>>>> +	},
+>>>>> +};
+>>>>> +
+>>>>> +static int __init imx_sc_wdt_init(void) {
+>>>>> +	int ret;
+>>>>> +
+>>>>> +	ret = platform_driver_register(&imx_sc_wdt_driver);
+>>>>> +	if (ret)
+>>>>> +		return ret;
+>>>>> +
+>>>>> +	imx_sc_wdt_pdev = platform_device_register_simple("imx-sc-wdt", -
+>>>> 1, NULL, 0);
+>>>>> +	if (IS_ERR(imx_sc_wdt_pdev)) {
+>>>>> +		platform_driver_unregister(&imx_sc_wdt_driver);
+>>>>> +		return PTR_ERR(imx_sc_wdt_pdev);
+>>>>> +	}
+>>>>
+>>>> I just realized what you are doing here. So the watchdog will always
+>>>> be instantiated if/when the module is loaded. I don't think that was
+>>>> the idea, and it seems to be risky. What happens if someone loads the
+>>>> module on a system where the watchdog is not supported ? There maye
+>>>> be lots of "Access Denied" errors, or something undefined may happen.
+>>>
+>>> I thought the "depends on IMX_SCU" was already added in Kconfig, that
+>>> means the module will be ONLY built with IMX_SCU enabled, and watchdog
+>>> will be always enabled if IMX_SCU is enabled. Is it safe enough?
+>>>
+>> No. The driver will be built with arm64:defconfig, meaning it will be built for
+>> all arm64 systems using defconfig. Any such system will have the driver
+>> installed as module, and nothing will prevent the user from running
+>> modprobe. But even if it wasn't enabled with defconfig, we must not
+>> instantiate the driver on an arbitrary system.
+>>
+>>>>
+>>>> Is everyone on Cc: ok with this ? Is this how we handle
+>>>> instantiations nowadays ?  Or should the driver be instantiated from
+>>>> imx_scu_probe() in drivers/firmware/imx/imx-scu.c ?
+>>>>
+>>>> Sorry if the answer is obvious, but I am still struggling with "no
+>>>> more instantiations through devicetree".
+>>>>
+>>>> If the driver is auto-instantiated when the module is loaded, as
+>>>> currently written, there needs to be some check if it is actually
+>>>> supported, possibly in
+>>>> imx_sc_wdt_init() or, if that is not possible, in the probe function.
+>>>> I don't like that, but it would at least prevent the module from
+>>>> being loaded when the hardware is not supported.
+>>>
+>>> Other modules depend on the IMX_SCU IPC will have defer probe there to
+>>> make sure IMX_SCU driver is ready for IPC handle, since watchdog
+>>> driver ONLY uses ARM SMC but no IPC call, so I did NOT add the defer
+>>> probe handle here, so if adding it can answer your question/concern,
+>>> then I can add it, although I think the dependency in Kconfig should
+>>> be good here. Without SCU firmware ready, the SoC does NOT boot up A
+>> core with ATF/Linux at all.
+>>>
+>> That has nothing to do with deferred probing. My concern is that the driver
+>> will be instantiated just by loading it, no matter if the hardware supporting it
+>> is present or not.
+>>
+>> Having a devicetree node would have prevented that since it instantiates the
+>> child drivers with devm_of_platform_populate() in imx_scu_probe(). The
+>> equivalent is to register the platform device from imx_scu_probe().
+>> That is the only means to prevent the driver from being instantiated where it
+>> shouldn't. As mentioned before, I would have preferred the devicetree
+>> method, but having it no longer available doesn't mean that we should add
+>> risky code.
+>>
+>> Maybe you can check in the init function if the 'fsl,imx-scu' node exists, and
+>> instantiate the driver if it does. I don't like that either, but it would be
+>> acceptable to me - and maybe better than instantiating it manually from
+>> imx_scu_probe().
+> 
+> OK, I can add check of "fsl,imx-scu" in init function and ONLY instantiate the driver if
+> it exist, since there is no watchdog node in devicetree and "fsl,imx-scu" should be treated
+> as watchdog node, so adding such check also makes some sense, putting it inside SCU
+> driver is NOT that good I think, do you agree?
+> 
 
---UTZ8bGhNySVQ9LYl
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I dislike both. Putting it into the SCU driver probe function would be more
+appropriate. Putting it into the watchdog driver is worse since it should
+really only be instantiated if (and after) the parent driver is instantiated,
+and the parent driver should be listed as its parent. That will get lost
+if you put the check into the watchdog driver.
 
-On Sat, Mar 02, 2019 at 08:34:01PM -0300, Paul Cercueil wrote:
-> The TCU channels 0 and 1 were previously reserved for system tasks, and
-> thus unavailable for PWM.
->=20
-> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-> Tested-by: Mathieu Malaterre <malat@debian.org>
-> Tested-by: Artur Rojek <contact@artur-rojek.eu>
-> ---
->=20
-> Notes:
->          v6: New patch
->    =20
->          v7: No change
->    =20
->          v8: ingenic_tcu_[request,release]_channel are dropped. We now use
->              the memory resources provided to the driver to detect whether
->     	 or not we are allowed to use the TCU channel.
->    =20
->          v9: Drop previous system. Call a API function provided by the
->              clocksource driver to know if we can use the channel as PWM.
->    =20
->          v10: No change
->=20
->  drivers/pwm/pwm-jz4740.c | 6 +-----
->  1 file changed, 1 insertion(+), 5 deletions(-)
->=20
-> diff --git a/drivers/pwm/pwm-jz4740.c b/drivers/pwm/pwm-jz4740.c
-> index f497388fc818..c914589d547b 100644
-> --- a/drivers/pwm/pwm-jz4740.c
-> +++ b/drivers/pwm/pwm-jz4740.c
-> @@ -44,11 +44,7 @@ static int jz4740_pwm_request(struct pwm_chip *chip, s=
-truct pwm_device *pwm)
->  	char clk_name[16];
->  	int ret;
-> =20
-> -	/*
-> -	 * Timers 0 and 1 are used for system tasks, so they are unavailable
-> -	 * for use as PWMs.
-> -	 */
-> -	if (pwm->hwpwm < 2)
-> +	if (!ingenic_tcu_pwm_can_use_chn(pwm->hwpwm))
->  		return -EBUSY;
+I would suggest to submit the patch for the SCU driver first. If that gets
+rejected by its maintainer, we'll have to do it in the watchdog driver.
 
-Like I said earlier, I think this would be nicer to take a parameter to
-a struct device * to remove the need for a global variable (at least for
-this particular case).
-
-Thierry
-
---UTZ8bGhNySVQ9LYl
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAlx9G3AACgkQ3SOs138+
-s6GsoBAAlgsmxh5F3erzL0YSoFLi9YUFWsXW2ac2aWNG727Q8nKu59W9ZYGGimxk
-os1XIwKsey4CI/zaAId1lIc74rTrOBooY5AjWApD9+HjU5xeePuSKTzmQkAs38DV
-ZUCw7icfbeWIaNtSZmXPwxzbQIgyLJkkdO7CXKzTg5Hj1Ty9Fcn7xa850dKLKbpv
-MOlS7msP6FhY8HVDgjt/Wn2yxEoUWPncdZROBwhYH6W3NNXgI6zU++xTgDIYOWHm
-YIlxgo2QUmRGChruJuxtnN8GniJdSnqemBZevLdWFsCOs6hH+HTXTO1Arb0yttGI
-QDKMUfilZ0BnNfoZJ7qopbC2D856bHvkQBvOw5hsTHZqgs/P9TKxDjDRtnBvMMHk
-KPSlscjq2sKR+9BK7FOR1ikkzDVvQpq28yWfw93Fh2yJTvUndk29f+EjLOADg/lE
-UbSU/+7dpS4n2lVv4z4vl3xFBWWUCIW7Rmu0K0UFv9lzY90mI6aEH0qe32lO8lhK
-FIsofG/ifAkNgJI1SiR6IV4KA61mqCMeVs4v6Oaj7sFluz1Izq9SPCaHhmkJY1jC
-YfRgu2GJpnG5dSa2gRwxFIh2HeLvqKBQhIwRQitiSVUJQHwcIKJGqnDgf0SABuea
-fplDG6LMvlKjk6QGXy1jrDhYpaDasxtwV+Ur2I/yc/qlBCd/P1E=
-=ACVI
------END PGP SIGNATURE-----
-
---UTZ8bGhNySVQ9LYl--
+Guenter
