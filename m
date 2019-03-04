@@ -2,38 +2,38 @@ Return-Path: <SRS0=D1Ye=RH=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_PASS
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0CFD2C10F03
-	for <linux-watchdog@archiver.kernel.org>; Mon,  4 Mar 2019 18:13:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ACCD7C43381
+	for <linux-watchdog@archiver.kernel.org>; Mon,  4 Mar 2019 18:18:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id D244120823
-	for <linux-watchdog@archiver.kernel.org>; Mon,  4 Mar 2019 18:13:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7BAA520675
+	for <linux-watchdog@archiver.kernel.org>; Mon,  4 Mar 2019 18:18:19 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=crapouillou.net header.i=@crapouillou.net header.b="avnQLDFn"
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=crapouillou.net header.i=@crapouillou.net header.b="oNkqm2Rw"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727626AbfCDSNV (ORCPT
+        id S1727576AbfCDSSP (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 4 Mar 2019 13:13:21 -0500
-Received: from outils.crapouillou.net ([89.234.176.41]:60528 "EHLO
+        Mon, 4 Mar 2019 13:18:15 -0500
+Received: from outils.crapouillou.net ([89.234.176.41]:37784 "EHLO
         crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726095AbfCDSNV (ORCPT
+        with ESMTP id S1726111AbfCDSSP (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 4 Mar 2019 13:13:21 -0500
+        Mon, 4 Mar 2019 13:18:15 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
-        s=mail; t=1551723196; h=from:from:sender:reply-to:subject:subject:date:date:
+        s=mail; t=1551723491; h=from:from:sender:reply-to:subject:subject:date:date:
          message-id:message-id:to:to:cc:cc:mime-version:mime-version:
          content-type:content-type:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=sT52sQEbmT2yUQzfhx0VIuGfrJcDBmqoJxedtaDHlZE=;
-        b=avnQLDFn8Wgd54n5GlO1/w0pguic2HUcTZtmfuYq+CCMAp5WwaX0mUcX+RwTfPTaoJu8Ei
-        YxwQN7bR/aG3XTF2XXOe5Latdh4HZw5ds88BHjkg51GZzOvXWC8yVT0GDqKj+6l4m1fBTC
-        EowEYqbIL9wvUqi7uyS1hpUukhHbpJE=
-Date:   Mon, 04 Mar 2019 19:13:05 +0100
+        bh=vcimyzTYq93+Ws1z9JT7iEZu19RErpFY3H0Q4NoTYU0=;
+        b=oNkqm2Rw2GhCIBirxZNnkm1HpGHP2fouvlDlDIW2LD2m9bbPUoSR6yznIJ4KPoboDO7GA9
+        0h+SXFc6ElVj7uI53nMAyWDcnzq48pQz/45KimDlI6tk993EHkAlsX4DW7vX34X0bI3PVp
+        tk9s42mHMnKU8PDb8keZep1LVDn39iM=
+Date:   Mon, 04 Mar 2019 19:18:00 +0100
 From:   Paul Cercueil <paul@crapouillou.net>
-Subject: Re: [PATCH v10 04/27] clocksource: Add a new timer-ingenic driver
+Subject: Re: [PATCH v10 13/27] pwm: jz4740: Use clocks from TCU driver
 To:     Thierry Reding <thierry.reding@gmail.com>
 Cc:     Daniel Lezcano <daniel.lezcano@linaro.org>,
         Thomas Gleixner <tglx@linutronix.de>,
@@ -48,10 +48,10 @@ Cc:     Daniel Lezcano <daniel.lezcano@linaro.org>,
         linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
         linux-mips@vger.kernel.org, linux-doc@vger.kernel.org,
         linux-clk@vger.kernel.org
-Message-Id: <1551723186.4932.0@crapouillou.net>
-In-Reply-To: <20190304122250.GC9040@ulmo>
+Message-Id: <1551723480.4932.1@crapouillou.net>
+In-Reply-To: <20190304123003.GE9040@ulmo>
 References: <20190302233413.14813-1-paul@crapouillou.net>
-        <20190302233413.14813-5-paul@crapouillou.net> <20190304122250.GC9040@ulmo>
+        <20190302233413.14813-14-paul@crapouillou.net> <20190304123003.GE9040@ulmo>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -59,253 +59,122 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Hi Thierry,
 
-On Mon, Mar 4, 2019 at 1:22 PM, Thierry Reding 
+On Mon, Mar 4, 2019 at 1:30 PM, Thierry Reding 
 <thierry.reding@gmail.com> wrote:
-> On Sat, Mar 02, 2019 at 08:33:50PM -0300, Paul Cercueil wrote:
-> [...]
->>  diff --git a/drivers/clocksource/ingenic-timer.c 
->> b/drivers/clocksource/ingenic-timer.c
-> [...]
->>  +struct ingenic_tcu {
->>  +	const struct ingenic_soc_info *soc_info;
->>  +	struct regmap *map;
->>  +	struct clk *clk, *timer_clk, *cs_clk;
->>  +
->>  +	struct irq_domain *domain;
->>  +	unsigned int nb_parent_irqs;
->>  +	u32 parent_irqs[3];
->>  +
->>  +	struct clk_hw_onecell_data *clocks;
->>  +
->>  +	unsigned int timer_channel, cs_channel;
->>  +	struct clock_event_device cevt;
->>  +	struct clocksource cs;
->>  +	char name[4];
->>  +
->>  +	unsigned long pwm_channels_mask;
->>  +};
->>  +
->>  +static struct ingenic_tcu *ingenic_tcu;
+> On Sat, Mar 02, 2019 at 08:33:59PM -0300, Paul Cercueil wrote:
+>>  The ingenic-timer "TCU" driver provides us with clocks, that can be
+>>  (un)gated, reparented or reclocked from devicetree, instead of 
+>> having
+>>  these settings hardcoded in this driver.
+>> 
+>>  While this driver is devicetree-compatible, it is never (as of now)
+>>  probed from devicetree, so this change does not introduce a ABI 
+>> problem
+>>  with current devicetree files.
+>> 
+>>  Note that the "select REGMAP" has been dropped because it's
+>>  already enabled by the "select INGENIC_TIMER".
+>> 
+>>  Signed-off-by: Paul Cercueil <paul@crapouillou.net 
+>> <mailto:paul@crapouillou.net>>
+>>  Tested-by: Mathieu Malaterre <malat@debian.org 
+>> <mailto:malat@debian.org>>
+>>  Tested-by: Artur Rojek <contact@artur-rojek.eu 
+>> <mailto:contact@artur-rojek.eu>>
+>>  ---
+>> 
+>>  Notes:
+>>           v9: New patch
+>> 
+>>           v10: Explain in commit message why "select REGMAP" was 
+>> dropped
+>> 
+>>   drivers/pwm/Kconfig      |  3 ++-
+>>   drivers/pwm/pwm-jz4740.c | 39 
+>> ++++++++++++++++++++++++++-------------
+>>   2 files changed, 28 insertions(+), 14 deletions(-)
+>> 
+>>  diff --git a/drivers/pwm/Kconfig b/drivers/pwm/Kconfig
+>>  index ace8ea4b6247..4e201e970509 100644
+>>  --- a/drivers/pwm/Kconfig
+>>  +++ b/drivers/pwm/Kconfig
+>>  @@ -204,7 +204,8 @@ config PWM_IMX
+>>   config PWM_JZ4740
+>>   	tristate "Ingenic JZ47xx PWM support"
+>>   	depends on MACH_INGENIC
+>>  -	select REGMAP
+>>  +	depends on COMMON_CLK
+>>  +	select INGENIC_TIMER
 > 
-> Is there really a need for this? Seems like the only two reasons for 
-> why
-> you keep this around are as pointed out below.
-> 
->>  +void __iomem *ingenic_tcu_base;
->>  +EXPORT_SYMBOL_GPL(ingenic_tcu_base);
-> 
-> Same here.
-> 
->>  +static u64 notrace ingenic_tcu_timer_read(void)
->>  +{
->>  +	unsigned int channel = ingenic_tcu->cs_channel;
->>  +	u16 count;
->>  +
->>  +	count = readw(ingenic_tcu_base + TCU_REG_TCNTc(channel));
-> 
-> Can't yo do this via the regmap?
+> Okay... sounds like this would be okay. I'm assuming you go through 
+> that
+> extra step of selecting REGMAP in the prior patch and dropping it here
+> again so that you keep the series bisectible?
 
-I could, but for the sched_clock to be precise the function must return
-as fast as possible. That's the rationale behind the use of readw() 
-here.
+Yes, exactly.
 
-That's also the reason why ingenic_tcu_base is global and exported, so
-that the OS Timer driver can use it as well.
-
->>  +
->>  +	return count;
->>  +}
->>  +
->>  +static u64 notrace ingenic_tcu_timer_cs_read(struct clocksource 
->> *cs)
->>  +{
->>  +	return ingenic_tcu_timer_read();
->>  +}
-> 
-> And here you've got access to the struct clocksource *, from which you
-> should be able to get at struct ingenic_tcu * using container_of.
-> 
-> [...]
->>  +static int __init ingenic_tcu_init(struct device_node *np)
->>  +{
->>  +	const struct of_device_id *id = 
->> of_match_node(ingenic_tcu_of_match, np);
->>  +	const struct ingenic_soc_info *soc_info = id->data;
->>  +	struct ingenic_tcu *tcu;
->>  +	struct resource res;
->>  +	void __iomem *base;
->>  +	long rate;
+>>   	help
+>>   	  Generic PWM framework driver for Ingenic JZ47xx based
+>>   	  machines.
+>>  diff --git a/drivers/pwm/pwm-jz4740.c b/drivers/pwm/pwm-jz4740.c
+>>  index 8dfac5ffd71c..c6136bd4434b 100644
+>>  --- a/drivers/pwm/pwm-jz4740.c
+>>  +++ b/drivers/pwm/pwm-jz4740.c
+>>  @@ -28,7 +28,7 @@
+>> 
+>>   struct jz4740_pwm_chip {
+>>   	struct pwm_chip chip;
+>>  -	struct clk *clk;
+>>  +	struct clk *clks[NUM_PWM];
+>>   	struct regmap *map;
+>>   };
+>> 
+>>  @@ -40,6 +40,9 @@ static inline struct jz4740_pwm_chip 
+>> *to_jz4740(struct pwm_chip *chip)
+>>   static int jz4740_pwm_request(struct pwm_chip *chip, struct 
+>> pwm_device *pwm)
+>>   {
+>>   	struct jz4740_pwm_chip *jz = to_jz4740(chip);
+>>  +	struct clk *clk;
+>>  +	char clk_name[16];
 >>  +	int ret;
+>> 
+>>   	/*
+>>   	 * Timers 0 and 1 are used for system tasks, so they are 
+>> unavailable
+>>  @@ -48,16 +51,29 @@ static int jz4740_pwm_request(struct pwm_chip 
+>> *chip, struct pwm_device *pwm)
+>>   	if (pwm->hwpwm < 2)
+>>   		return -EBUSY;
+>> 
+>>  -	regmap_write(jz->map, TCU_REG_TSCR, BIT(pwm->hwpwm));
+>>  +	snprintf(clk_name, sizeof(clk_name), "timer%u", pwm->hwpwm);
+>> 
+>>  +	clk = clk_get(chip->dev, clk_name);
+>>  +	if (IS_ERR(clk))
+>>  +		return PTR_ERR(clk);
 >>  +
->>  +	of_node_clear_flag(np, OF_POPULATED);
->>  +
->>  +	tcu = kzalloc(sizeof(*tcu), GFP_KERNEL);
->>  +	if (!tcu)
->>  +		return -ENOMEM;
->>  +
->>  +	/* Enable all TCU channels for PWM use by default except channel 0
->>  +	 * and channel 1.
->>  +	 */
->>  +	tcu->pwm_channels_mask = GENMASK(soc_info->num_channels - 1, 2);
->>  +	of_property_read_u32(np, "ingenic,pwm-channels-mask",
->>  +			     (u32 *)&tcu->pwm_channels_mask);
->>  +
->>  +	/* Verify that we have at least two free channels */
->>  +	if (hweight8(tcu->pwm_channels_mask) > soc_info->num_channels - 
->> 2) {
->>  +		pr_crit("ingenic-tcu: Invalid PWM channel mask: 0x%02lx\n",
->>  +			tcu->pwm_channels_mask);
->>  +		return -EINVAL;
->>  +	}
->>  +
->>  +	tcu->soc_info = soc_info;
->>  +	ingenic_tcu = tcu;
->>  +
->>  +	tcu->timer_channel = find_first_zero_bit(&tcu->pwm_channels_mask,
->>  +						 soc_info->num_channels);
->>  +	tcu->cs_channel = find_next_zero_bit(&tcu->pwm_channels_mask,
->>  +					     soc_info->num_channels,
->>  +					     tcu->timer_channel + 1);
->>  +
->>  +	base = of_io_request_and_map(np, 0, NULL);
->>  +	if (IS_ERR(base)) {
->>  +		ret = PTR_ERR(base);
->>  +		goto err_free_ingenic_tcu;
->>  +	}
->>  +
->>  +	of_address_to_resource(np, 0, &res);
->>  +
->>  +	ingenic_tcu_base = base;
->>  +
->>  +	tcu->map = regmap_init_mmio(NULL, base, 
->> &ingenic_tcu_regmap_config);
->>  +	if (IS_ERR(tcu->map)) {
->>  +		ret = PTR_ERR(tcu->map);
->>  +		goto err_iounmap;
->>  +	}
->>  +
->>  +	tcu->clk = of_clk_get_by_name(np, "tcu");
->>  +	if (IS_ERR(tcu->clk)) {
->>  +		ret = PTR_ERR(tcu->clk);
->>  +		pr_crit("ingenic-tcu: Unable to find TCU clock: %i\n", ret);
->>  +		goto err_free_regmap;
->>  +	}
->>  +
->>  +	ret = clk_prepare_enable(tcu->clk);
+>>  +	ret = clk_prepare_enable(clk);
 >>  +	if (ret) {
->>  +		pr_crit("ingenic-tcu: Unable to enable TCU clock: %i\n", ret);
->>  +		goto err_clk_put;
+>>  +		clk_put(clk);
+>>  +		return ret;
 >>  +	}
 >>  +
->>  +	ret = ingenic_tcu_intc_init(tcu, np);
->>  +	if (ret)
->>  +		goto err_clk_disable;
->>  +
->>  +	ret = ingenic_tcu_clk_init(tcu, np);
->>  +	if (ret)
->>  +		goto err_tcu_intc_cleanup;
->>  +
->>  +	ret = ingenic_tcu_clocksource_init(tcu);
->>  +	if (ret)
->>  +		goto err_tcu_clk_cleanup;
->>  +
->>  +	ret = ingenic_tcu_timer_init(tcu);
->>  +	if (ret)
->>  +		goto err_tcu_clocksource_cleanup;
->>  +
->>  +	// Register the sched_clock at the very end as there's no way to 
->> undo it
->>  +	rate = clk_get_rate(tcu->cs_clk);
->>  +	sched_clock_register(ingenic_tcu_timer_read, 16, rate);
+>>  +	jz->clks[pwm->hwpwm] = clk;
+>>   	return 0;
+>>   }
 > 
-> Oh wow... so you managed to nicely encapsulate everything and now this
-> seems to be the only reason why you need to rely on global variables.
-> 
-> That's unfortunate. I suppose we could go and add a void *data 
-> parameter
-> to sched_clock_register() and pass that to the read() function. That 
-> way
-> you could make this completely independent of global variables, but
-> there are 73 callers of sched_clock_register() and they are spread all
-> over the place, so sounds a bit daunting to me.
-
-Yes, that's the main reason behind the use of a global variables.
-Is there a way we could introduce another callback, e.g. .read_value(),
-that would receive a void *param? Then the current .read() callback
-can be deprecated and the 73 callers can be migrated later.
-
->>  +
->>  +	return 0;
->>  +
->>  +err_tcu_clocksource_cleanup:
->>  +	ingenic_tcu_clocksource_cleanup(tcu);
->>  +err_tcu_clk_cleanup:
->>  +	ingenic_tcu_clk_cleanup(tcu, np);
->>  +err_tcu_intc_cleanup:
->>  +	ingenic_tcu_intc_cleanup(tcu);
->>  +err_clk_disable:
->>  +	clk_disable_unprepare(tcu->clk);
->>  +err_clk_put:
->>  +	clk_put(tcu->clk);
->>  +err_free_regmap:
->>  +	regmap_exit(tcu->map);
->>  +err_iounmap:
->>  +	iounmap(base);
->>  +	release_mem_region(res.start, resource_size(&res));
->>  +err_free_ingenic_tcu:
->>  +	kfree(tcu);
->>  +	return ret;
->>  +}
->>  +
->>  +TIMER_OF_DECLARE(jz4740_tcu_intc,  "ingenic,jz4740-tcu",  
->> ingenic_tcu_init);
->>  +TIMER_OF_DECLARE(jz4725b_tcu_intc, "ingenic,jz4725b-tcu", 
->> ingenic_tcu_init);
->>  +TIMER_OF_DECLARE(jz4770_tcu_intc,  "ingenic,jz4770-tcu",  
->> ingenic_tcu_init);
->>  +
->>  +
->>  +static int __init ingenic_tcu_probe(struct platform_device *pdev)
->>  +{
->>  +	platform_set_drvdata(pdev, ingenic_tcu);
-> 
-> Then there's also this. Oh well... nevermind then.
-
-The content of ingenic_tcu_platform_init() could be moved inside
-ingenic_tcu_init(). But can we get a hold of the struct device before 
-the
-probe function is called? That would allow to set the drvdata and regmap
-without relying on global state.
-
->>  +bool ingenic_tcu_pwm_can_use_chn(unsigned int channel)
->>  +{
->>  +	return !!(ingenic_tcu->pwm_channels_mask & BIT(channel));
->>  +}
->>  +EXPORT_SYMBOL_GPL(ingenic_tcu_pwm_can_use_chn);
-> 
-> I wonder if we could make this slightly nicer, though. Judging by the
-> name, this one seems like it would only ever be used by the PWM. If 
-> the
-> PWM is a child of the TCU, could it not pass in a struct device * that
-> points to its parent into this? Or perhaps pass its own struct device 
-> *
-> and have this function look up the struct ingenic_tcu from that? 
-> Should
-> be something trivial as:
-> 
-> 	bool ingenic_tcu_pwm_can_use_channel(struct device *dev, unsigned 
-> int channel)
-> 	{
-> 		struct ingenic_tcu *tcu = dev_get_drvdata(dev->parent);
-> 
-> 		return !!(tcu->pwm_channels_mask & BIT(channel));
-> 	}
+> Since you're already using ->request(), why not add a per-PWM 
+> structure
+> that tracks the clock? There are a number of other PWMs that already 
+> do
+> something similar. You can use pwm_{set,get}_chip_data() to associate
+> chip-specific extra data with a PWM.
 > 
 > Thierry
 
-Yes, that definitely looks better. Thanks for the hint.
+Good idea.
 
 -Paul
 
