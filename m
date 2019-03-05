@@ -2,162 +2,110 @@ Return-Path: <SRS0=vBf8=RI=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.3 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AD94AC43381
-	for <linux-watchdog@archiver.kernel.org>; Tue,  5 Mar 2019 17:27:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 13FACC43381
+	for <linux-watchdog@archiver.kernel.org>; Tue,  5 Mar 2019 20:19:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 7EBEB20661
-	for <linux-watchdog@archiver.kernel.org>; Tue,  5 Mar 2019 17:27:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9793420675
+	for <linux-watchdog@archiver.kernel.org>; Tue,  5 Mar 2019 20:19:35 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lLZD6FDK"
+	dkim=pass (2048-bit key) header.d=alliedtelesis.co.nz header.i=@alliedtelesis.co.nz header.b="wDbN53zh"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728086AbfCER1U (ORCPT
+        id S1727983AbfCEUTf (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Tue, 5 Mar 2019 12:27:20 -0500
-Received: from mail-pf1-f194.google.com ([209.85.210.194]:44622 "EHLO
-        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727334AbfCER1T (ORCPT
+        Tue, 5 Mar 2019 15:19:35 -0500
+Received: from gate2.alliedtelesis.co.nz ([202.36.163.20]:55859 "EHLO
+        gate2.alliedtelesis.co.nz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728622AbfCEUTf (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Tue, 5 Mar 2019 12:27:19 -0500
-Received: by mail-pf1-f194.google.com with SMTP id a3so6200528pff.11;
-        Tue, 05 Mar 2019 09:27:18 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=ok0zY5DUYYF0T+dRMWW1Nw0S/K2DqLUG9/hAWAE8dHM=;
-        b=lLZD6FDKa4+ZqX7gfXiCp3AFF/dt4L/yvUsoPjNltoa9c5T8uTRRL/OjtU2m09RTNw
-         dxexDYoAMZ5qlwoFCEavXIzJG6zElaH6juwb64+ytLQJmrza9T82DbI2WTFFujVSpfK1
-         5iPi9+r2G8nPgQkAd2GvhctrvFNkBQVPxTGfup/684X4E9Nx9BXpGaP20S3iUccm15tK
-         Li2FdLEvOrCiHr3ClkwPMTp1fIxsjmx1esqyg582XutkeceIgOuXjCu0HAWX3G8ovEs6
-         7e62tv7REF8jl3yRtBvkjwDtL+x/Tu35iEBil+xdAlelbxq1h7kKAlGn8jd0AWQROHcO
-         7pPQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=ok0zY5DUYYF0T+dRMWW1Nw0S/K2DqLUG9/hAWAE8dHM=;
-        b=hXm71z6cqml3iYHzn6UFcWC1eGjIU702mgD2ConHMjlxOHsEz8Hss19hIDhWqsyn6E
-         3Ndy1Eg3SFElxnirIBcwt4csbEYXo/srqgXLp1R457orpU0xCvjmU2yVZhRjw4zkGt1B
-         hPsy1esunu1OHY42+k6wVjR8V/jqV0ezYaShrTvcCKdWKsIpr+eF2KTimSf1dUyYj01D
-         2V6tfZbF1S7s2eHiJTXVdugnhd0VxAEtVKnYuRAfEqNbuzgpNveuZznoySFcdlXtdXaP
-         E5QntOKT1FfKtqYrFiudSi0+ELdEsB2LmahJTdtKlsGBMqHA0Byaboz3OtbdBUOmC9IE
-         AQ9w==
-X-Gm-Message-State: APjAAAXdxx+VQIawGdJv2STxLwqDSdM+hOGnZyWl51b5uX5rZz9LvYgV
-        QmZfvZgxb+6ocFfz1tnK6X8=
-X-Google-Smtp-Source: APXvYqz8v3MekaACTMmiZRps1by4sAhfub0Pgvg9GZl99/OOlxK1nOMb0kn0R18Ti2dE1mPsIyFffg==
-X-Received: by 2002:a63:d70a:: with SMTP id d10mr2348403pgg.286.1551806838386;
-        Tue, 05 Mar 2019 09:27:18 -0800 (PST)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id k9sm14760175pfc.57.2019.03.05.09.27.17
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 05 Mar 2019 09:27:17 -0800 (PST)
-Date:   Tue, 5 Mar 2019 09:27:17 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Chris Packham <Chris.Packham@alliedtelesis.co.nz>
-Cc:     Andrew Lunn <andrew@lunn.ch>,
-        "gregory.clement@bootlin.com" <gregory.clement@bootlin.com>,
-        "jason@lakedaemon.net" <jason@lakedaemon.net>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
-Subject: Re: [PATCH 2/2] watchdog: orion_wdt: use timer1 as a pretimeout
-Message-ID: <20190305172716.GB32623@roeck-us.net>
-References: <20190227230707.GA28635@roeck-us.net>
- <20190304225152.26831-1-chris.packham@alliedtelesis.co.nz>
- <20190304225152.26831-3-chris.packham@alliedtelesis.co.nz>
- <20190305005710.GL26378@lunn.ch>
- <5605e7b7a0f540a7908a1eb5191bbe5e@svr-chch-ex1.atlnz.lc>
+        Tue, 5 Mar 2019 15:19:35 -0500
+Received: from mmarshal3.atlnz.lc (mmarshal3.atlnz.lc [10.32.18.43])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (Client did not present a certificate)
+        by gate2.alliedtelesis.co.nz (Postfix) with ESMTPS id C97A9891AA;
+        Wed,  6 Mar 2019 09:19:32 +1300 (NZDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alliedtelesis.co.nz;
+        s=mail181024; t=1551817172;
+        bh=7BaeZd54UA75pFPzRyMdWlNw1ciq4AymcW/Yk7re/Qw=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References;
+        b=wDbN53zh+RBYGa11sreZjALrSY4S0wtf35/DvBv8LpjVsaSMHBGU3qH25ciYWwt72
+         D2cRiBLXVJGSXMf0u/19sJnGHCpoO3goX+wAImStrO0s06E2MkX9zjceKjAIqX6yk6
+         7SB1LywwuRVTSJF2lxBN4I3/vWDXWpsmLA1GDvpuMc3tlLxr2cAn9xC+lpxvRLb2Gz
+         OIWzJcdayHFZJmXc7B0Tw73ssIv4kFB585SeSvbRRx8OVIqP/9ixyPZJmXjYPCKPRt
+         2S/PkyFOWfMrFkqTZl78BNzy8oAHSlXg1Kv5loavU2sp+p1rQyRgotcYiC3qr6P6Z0
+         9oXgC8yk53cMw==
+Received: from smtp (Not Verified[10.32.16.33]) by mmarshal3.atlnz.lc with Trustwave SEG (v7,5,8,10121)
+        id <B5c7ed9d40002>; Wed, 06 Mar 2019 09:19:32 +1300
+Received: from chrisp-dl.ws.atlnz.lc (chrisp-dl.ws.atlnz.lc [10.33.22.30])
+        by smtp (Postfix) with ESMTP id D16B513EF3B;
+        Wed,  6 Mar 2019 09:19:32 +1300 (NZDT)
+Received: by chrisp-dl.ws.atlnz.lc (Postfix, from userid 1030)
+        id 9C7F71E1D96; Wed,  6 Mar 2019 09:19:32 +1300 (NZDT)
+From:   Chris Packham <chris.packham@alliedtelesis.co.nz>
+To:     jason@lakedaemon.net, andrew@lunn.ch, gregory.clement@bootlin.com,
+        linux@roeck-us.net
+Cc:     linux-watchdog@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Chris Packham <chris.packham@alliedtelesis.co.nz>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>
+Subject: [PATCH v2 2/3] watchdog: orion: remove orion_wdt_set_timeout
+Date:   Wed,  6 Mar 2019 09:19:23 +1300
+Message-Id: <20190305201924.14853-3-chris.packham@alliedtelesis.co.nz>
+X-Mailer: git-send-email 2.21.0
+In-Reply-To: <20190305201924.14853-1-chris.packham@alliedtelesis.co.nz>
+References: <20190305201924.14853-1-chris.packham@alliedtelesis.co.nz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5605e7b7a0f540a7908a1eb5191bbe5e@svr-chch-ex1.atlnz.lc>
-User-Agent: Mutt/1.5.24 (2015-08-30)
+Content-Transfer-Encoding: quoted-printable
+x-atlnz-ls: pat
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Tue, Mar 05, 2019 at 01:26:08AM +0000, Chris Packham wrote:
-> On 5/03/19 1:57 PM, Andrew Lunn wrote:
-> > On Tue, Mar 05, 2019 at 11:51:52AM +1300, Chris Packham wrote:
-> >> The orion watchdog can either reset the CPU or generate an interrupt.
-> >> The interrupt would be useful for debugging as it provides panic()
-> >> output about the watchdog expiry, however if the interrupt is used the
-> >> watchdog can't reset the CPU in the event of being stuck in a loop with
-> >> interrupts disabled or if the CPU is prevented from accessing memory
-> >> (e.g. an unterminated DMA).
-> >>
-> >> All of the orion based CPU cores (at least back as far as Kirkwood) have
-> >> spare timers that aren't currently used by the Linux kernel.
-> 
-> Actually this appears to be incorrect Kirkwood does configure timer1 as 
-> a clockevent timer. So I can't just grab timer1 for all platforms.
-> 
-If you can't use it unconditionally, can you specify it (and use it)
-as clock ?
+The watchdog core will do the same thing if no set_timeout
+is supplied so we can safely remove orion_wdt_set_timeout.
 
-> >> We can use
-> >> timer1 to provide a pre-timeout ahead of the watchdog timer and provide
-> >> the possibility of gathering debug before the reset triggers.
-> > 
-> > Hi Chris
-> > 
-> > I had a quick look at other drivers implementing pre-timeout. They
-> > seem to call watchdog_notify_pretimeout(). I don't see that here? What
-> > happens when timer1 fires?
-> > 
-> 
-> It invokes the regular orion_wdt_irq(). On Armada-385 prior to this 
-> change the irq was not specified because the reset always kicked in so 
-> there was no point.
-> 
+Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+---
+Changes in v2:
+- Add Guenter's review
 
-I would suggest to update that function to actually call
-watchdog_notify_pretimeout() if a pretimeout is configured configured.
-After all, we do want to support the infrastructure, and that includes
-support for the various pretimeout governors (if enabled).
+ drivers/watchdog/orion_wdt.c | 8 --------
+ 1 file changed, 8 deletions(-)
 
-> For correctness I could make the devicetree binding specify 2 
-> interrupts. One for the regular watchdog interrupt (which would never 
-> usually get hit because the reset would kick in) and one for the 
-> pretimeout/timer1.
-> 
-Yes, if they are different interrupts and orion_wdt_irq() is only supposed
-to handle the real timeout.
+diff --git a/drivers/watchdog/orion_wdt.c b/drivers/watchdog/orion_wdt.c
+index 9db3b09f7568..8b259c712c52 100644
+--- a/drivers/watchdog/orion_wdt.c
++++ b/drivers/watchdog/orion_wdt.c
+@@ -349,13 +349,6 @@ static unsigned int orion_wdt_get_timeleft(struct wa=
+tchdog_device *wdt_dev)
+ 	return readl(dev->reg + dev->data->wdt_counter_offset) / dev->clk_rate;
+ }
+=20
+-static int orion_wdt_set_timeout(struct watchdog_device *wdt_dev,
+-				 unsigned int timeout)
+-{
+-	wdt_dev->timeout =3D timeout;
+-	return 0;
+-}
+-
+ static const struct watchdog_info orion_wdt_info =3D {
+ 	.options =3D WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
+ 	.identity =3D "Orion Watchdog",
+@@ -366,7 +359,6 @@ static const struct watchdog_ops orion_wdt_ops =3D {
+ 	.start =3D orion_wdt_start,
+ 	.stop =3D orion_wdt_stop,
+ 	.ping =3D orion_wdt_ping,
+-	.set_timeout =3D orion_wdt_set_timeout,
+ 	.get_timeleft =3D orion_wdt_get_timeleft,
+ };
+=20
+--=20
+2.21.0
 
-Thanks,
-Guenter
-
-> >> @@ -169,38 +174,46 @@ static int armadaxp_wdt_clock_init(struct platform_device *pdev,
-> >>   	}
-> >>   
-> >>   	/* Enable the fixed watchdog clock input */
-> >> -	atomic_io_modify(dev->reg + TIMER_CTRL,
-> >> -			 WDT_AXP_FIXED_ENABLE_BIT,
-> >> -			 WDT_AXP_FIXED_ENABLE_BIT);
-> >> +	val = WDT_AXP_FIXED_ENABLE_BIT | TIMER1_FIXED_ENABLE_BIT;
-> >> +	atomic_io_modify(dev->reg + TIMER_CTRL, val, val);
-> >>   
-> >>   	dev->clk_rate = clk_get_rate(dev->clk);
-> >> +
-> >> +
-> > 
-> > One blank line is sufficient,
-> > 
-> > 
-> >>   	return 0;
-> >>   }
-> > 
-> >     Andrew
-> > 
-> 
