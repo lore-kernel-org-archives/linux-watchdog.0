@@ -2,41 +2,40 @@ Return-Path: <SRS0=6lbm=RK=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-7.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+	SIGNED_OFF_BY,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DD06DC43381
-	for <linux-watchdog@archiver.kernel.org>; Thu,  7 Mar 2019 12:27:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 52796C43381
+	for <linux-watchdog@archiver.kernel.org>; Thu,  7 Mar 2019 13:33:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A1AA020643
-	for <linux-watchdog@archiver.kernel.org>; Thu,  7 Mar 2019 12:27:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E804720684
+	for <linux-watchdog@archiver.kernel.org>; Thu,  7 Mar 2019 13:33:15 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=nxp.com header.i=@nxp.com header.b="B0BXcffU"
+	dkim=pass (1024-bit key) header.d=nxp.com header.i=@nxp.com header.b="kExovCP9"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726134AbfCGM1b (ORCPT
+        id S1726207AbfCGNdP (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 7 Mar 2019 07:27:31 -0500
-Received: from mail-eopbgr80078.outbound.protection.outlook.com ([40.107.8.78]:10512
-        "EHLO EUR04-VI1-obe.outbound.protection.outlook.com"
+        Thu, 7 Mar 2019 08:33:15 -0500
+Received: from mail-eopbgr30056.outbound.protection.outlook.com ([40.107.3.56]:38976
+        "EHLO EUR03-AM5-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726127AbfCGM1a (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 7 Mar 2019 07:27:30 -0500
+        id S1726120AbfCGNdP (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Thu, 7 Mar 2019 08:33:15 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=bPUMbobZaXQGnciMyrp7xxH1xXrsk2uXV4hf7NnYt4I=;
- b=B0BXcffUupR8hn8KViTVQJUci6p63rKGAeuL9cvO/Xjk4oZhSAFXVXO3vtT92+gLzS/UAJ79zMa1sBS2B/NWoUOQpfkDVbqivRCcm1DZdZqVQHsb5xbRk8lENJmrVz508gd7jJlZL1XRo7d+9NYWhCBzUWSjcFE5/3TNqaHKq54=
+ bh=oUDPjvmLyBvjQAv6i93+SSSyOAgaZCa71hjBzjERttY=;
+ b=kExovCP9g/TjylsGcMbURCmzC0DuhFFOdLKhhBZd0XJ05jRhaQqPIlDM4pzTJXuHM33e2XddklOEzXCaw3J9MdGtMaWFD+HY5oO3qLAQQ4wK1x+2QOORwmqoP0qzgDsfGqQuHrthtUl5/zxkrJPjod6OUyuIkARzdXf1IyrwXNg=
 Received: from AM0PR04MB4211.eurprd04.prod.outlook.com (52.134.92.158) by
- AM0PR04MB4323.eurprd04.prod.outlook.com (52.134.91.19) with Microsoft SMTP
+ AM0PR04MB6611.eurprd04.prod.outlook.com (20.179.255.80) with Microsoft SMTP
  Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.1686.16; Thu, 7 Mar 2019 12:26:47 +0000
+ 15.20.1686.16; Thu, 7 Mar 2019 13:33:05 +0000
 Received: from AM0PR04MB4211.eurprd04.prod.outlook.com
  ([fe80::50ed:d1b5:c043:3b79]) by AM0PR04MB4211.eurprd04.prod.outlook.com
  ([fe80::50ed:d1b5:c043:3b79%2]) with mapi id 15.20.1686.018; Thu, 7 Mar 2019
- 12:26:47 +0000
+ 13:33:05 +0000
 From:   Aisheng Dong <aisheng.dong@nxp.com>
-To:     Guenter Roeck <linux@roeck-us.net>,
-        Anson Huang <anson.huang@nxp.com>,
+To:     Anson Huang <anson.huang@nxp.com>,
         "catalin.marinas@arm.com" <catalin.marinas@arm.com>,
         "will.deacon@arm.com" <will.deacon@arm.com>,
         "shawnguo@kernel.org" <shawnguo@kernel.org>,
@@ -44,6 +43,7 @@ To:     Guenter Roeck <linux@roeck-us.net>,
         "kernel@pengutronix.de" <kernel@pengutronix.de>,
         "festevam@gmail.com" <festevam@gmail.com>,
         "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
+        "linux@roeck-us.net" <linux@roeck-us.net>,
         Andy Gross <andy.gross@linaro.org>,
         "heiko@sntech.de" <heiko@sntech.de>,
         "horms+renesas@verge.net.au" <horms+renesas@verge.net.au>,
@@ -59,17 +59,15 @@ To:     Guenter Roeck <linux@roeck-us.net>,
         "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
         "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
 CC:     dl-linux-imx <linux-imx@nxp.com>
-Subject: RE: [PATCH V7 3/3] firmware: imx: imx-scu: register build-in child
- devices
-Thread-Topic: [PATCH V7 3/3] firmware: imx: imx-scu: register build-in child
- devices
-Thread-Index: AQHU07jXPBZZiF4EkESKmz+aUFgRp6X+xWmAgAFUKPA=
-Date:   Thu, 7 Mar 2019 12:26:47 +0000
-Message-ID: <AM0PR04MB421143FF6BAC09F364D748E5804C0@AM0PR04MB4211.eurprd04.prod.outlook.com>
+Subject: RE: [PATCH V7 1/3] watchdog: imx_sc: Add i.MX system controller
+ watchdog support
+Thread-Topic: [PATCH V7 1/3] watchdog: imx_sc: Add i.MX system controller
+ watchdog support
+Thread-Index: AQHU07jNtorBWhAbJkylCtaCxH6iDKYAGsHA
+Date:   Thu, 7 Mar 2019 13:33:05 +0000
+Message-ID: <AM0PR04MB4211060E8DA8BA9CEAAA0F15804C0@AM0PR04MB4211.eurprd04.prod.outlook.com>
 References: <1551834095-19950-1-git-send-email-Anson.Huang@nxp.com>
- <1551834095-19950-3-git-send-email-Anson.Huang@nxp.com>
- <90ff94d9-6f15-5353-c5a1-f2ec5ee744ad@roeck-us.net>
-In-Reply-To: <90ff94d9-6f15-5353-c5a1-f2ec5ee744ad@roeck-us.net>
+In-Reply-To: <1551834095-19950-1-git-send-email-Anson.Huang@nxp.com>
 Accept-Language: zh-CN, en-US
 Content-Language: en-US
 X-MS-Has-Attach: 
@@ -78,83 +76,310 @@ authentication-results: spf=none (sender IP is )
  smtp.mailfrom=aisheng.dong@nxp.com; 
 x-originating-ip: [119.31.174.66]
 x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 2136588b-e043-4f03-149d-08d6a2f82ad4
+x-ms-office365-filtering-correlation-id: ac26b464-f9b0-43b2-d1b0-08d6a3016dd6
 x-ms-office365-filtering-ht: Tenant
-x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600127)(711020)(4605104)(4618075)(2017052603328)(7153060)(7193020);SRVR:AM0PR04MB4323;
-x-ms-traffictypediagnostic: AM0PR04MB4323:
+x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600127)(711020)(4605104)(4618075)(2017052603328)(7153060)(7193020);SRVR:AM0PR04MB6611;
+x-ms-traffictypediagnostic: AM0PR04MB6611:
 x-ld-processed: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635,ExtAddr
-x-microsoft-exchange-diagnostics: =?utf-8?B?MTtBTTBQUjA0TUI0MzIzOzIzOkNYYkZyUHBlK1NrOTFkbG1CMkNhYWNmYTFU?=
- =?utf-8?B?Z3FLVTFWaEJaaW5zQjdxQ0U2dU9BR084clh0OTI2ZTFjdWhxS21Dck5GdHdD?=
- =?utf-8?B?OE5xMmtHd24zNkJLanZuQjlJa3doOFNOaGF5NWNLUDM5SldZamtaU1E5ci9S?=
- =?utf-8?B?WkY3cHNhQjRHWmM5QVVUaW4xYjN4OXRvMmJ3anFSTDc1WnNwVHR4Uk0xelF4?=
- =?utf-8?B?UTU3Q0tZYVNZWnpWZnFXbjdsbmNxNEpJK2piUkM0VmhOa3ZROEs3cUMrM2Zt?=
- =?utf-8?B?YitIbUFGQ0YwRkd2cEI4VEtMQTJpK0M4MmZyK3cyL28rWjFmZFI1THN0aks5?=
- =?utf-8?B?VlloYXV4OGIxdEhPS21OcHZpemdDKzBKR2F5TFZ2ODU1WEFOcTNXWFNFL0to?=
- =?utf-8?B?MlhUSTIxNVR1MFdvckFoclZGVzN3eWFrOWx4d29yS0FVeVM4UU1oVXluRU9T?=
- =?utf-8?B?QU1ia1pxT2Q0RmFsZU9iR3lxTG93a3VtNXpLTlNEdHlyNGF5a3c4MjloWm1h?=
- =?utf-8?B?Q1BSd3hqalJrVUs1UzFVSlNua21GTW1LdTZ5NHZ5dnlOUGQwOU02VWk3K3BW?=
- =?utf-8?B?TkVoaGJibXBMblZKQVB1Vlgvclh3aXZVZGt5SWFIMXRMZldZUjlhcE1keXMx?=
- =?utf-8?B?Ty9Md0RUSHhMZXZiSmtLTDNBSnZUaDBUVzduWWlTY1MvVFVMQ1p0YlFhTFJ0?=
- =?utf-8?B?T3pkQU1JdHpzTWdXZi82YkNLU0ltNWh3Yy94K05qNEVYcTlEWWpaRUcvazZX?=
- =?utf-8?B?TlRkd3VZNWVKMmRtaWswUTgwbEJUMmN6RVZCMllMSnJhTHVnVjhDWlVqbGF0?=
- =?utf-8?B?Ti8xeHZRNUd4Y2RkNmFOOGluQnFqeXltQkwwNEdJd1hGalNGaThDaFJjQW13?=
- =?utf-8?B?U0c5VVoyR3RFMXY3Z0k3NTI4b0FDT2FGcU82dmxCb0JlYnFqcUYrbC9CN1Ax?=
- =?utf-8?B?NG9sM0lPT3RFM3U5c0pDSkdpN0NTOVR2WnRBRFpuRzNxaHdKaTRRSkMrRTVa?=
- =?utf-8?B?Z2laNnVaNG1vRWFpVGlqY20vbmNEejRERDE0WVBSajA0SUVjM28wVEF3MGpQ?=
- =?utf-8?B?SC9PZC9vdTRvdDZwSnUxQzhIaGFBcXVFcnpoZzVxQVdQTGZ0RU1FVi9hTUIw?=
- =?utf-8?B?R0V2a0lWS3ZqOU50ZVFYWEk5V3dyZnJoUGNvWmlSWmZuZTZpck9CVktSZFVI?=
- =?utf-8?B?RlJKeXRmK01rcW1PdGJkQXdMMjVhRUdiMDdLd21PME5oRmlVeXFXVCtYQ2xw?=
- =?utf-8?B?YjEzUEN0MzlhbTErK1dGVkJLY1VTNmlVN2ZWQ3hELzFsVTU1UThheThvRkFE?=
- =?utf-8?B?UXgwSnRCUGZqTXJMOE1oMTBPVm9oVmtoTkoyUW5JaXFLa1hibi9Xc2c1K3Z1?=
- =?utf-8?B?aDF0bGxwVkl5QXk4cS9SNVUrdDBoK3JZeE9LanpPS0hlQ2JySU9LMUdBVGZj?=
- =?utf-8?B?eEFvMkpzd0tFSGQ4S28vaHp4WEdIZkNnUkpHU1UvUGpSSFVYS3VjRlJDbHha?=
- =?utf-8?B?cTA3d1A0YXc5OURLSTFjNFBJZk4xSHhway9oaXpnUnR2RTVNM202VWc2TUg4?=
- =?utf-8?B?V3NucElkYTIwUDZ0VmxtRlZ4OW8zN09YMmV3cW0yZTZDQXByVDlHRzRJeGQv?=
- =?utf-8?B?eG1CWWZ4SWxKVk10VElpMStpVUdIY2FIejNHMElzRDhXa29rRmhtdTgwdG0x?=
- =?utf-8?B?Q0QrOGg1eU9POGoyazBLQXRtdW1hVUM5TXIvbGN2bnhwK0s2MS9NQ3UzMUt5?=
- =?utf-8?Q?QLt1wE6SOLrx9DwQMsILZRwJ9IHOaw02hDRlw=3D?=
-x-microsoft-antispam-prvs: <AM0PR04MB4323467AD52E359A214B50AB804C0@AM0PR04MB4323.eurprd04.prod.outlook.com>
+x-microsoft-exchange-diagnostics: =?us-ascii?Q?1;AM0PR04MB6611;23:t8QjMybwunYuqKX2n0lcoMNBLplih+qINQiX6PI00?=
+ =?us-ascii?Q?SmJalTBmbHGES6AaoscDkqcUvaAowV0FoV1gEStG+5ro/9cl+mFJdhHEaY8b?=
+ =?us-ascii?Q?dixGI6MtjedUXvyu0Rn1OJm6jLWx8mzaDIghN5CmPSi945TBo+X/xGS6WBwC?=
+ =?us-ascii?Q?HU72cs4YRRP4dNLRLtGn0OMa1suQZ4mawpwDbITSKXYSCFbH359TIwEoQwLb?=
+ =?us-ascii?Q?3HQXVidtLkLFcShsAWMQQl7KAxFDjbP3kIhE4+yGELUIEYiln+bXpK5cp3eM?=
+ =?us-ascii?Q?BAqnpTNzcut+KmtbRKktyCuA/AnqqATq/YtD5DJN6bkGdRXujPviSFRlFJQG?=
+ =?us-ascii?Q?47iad/0rNU5jHmLYYQ2IXqkRFSjI3zt/2Vmgb7fezOc8Naki/WStu/48OrNi?=
+ =?us-ascii?Q?Sq8hEJvW7+cZjv/ItfJUWab3WqrAUvz5XgI7t/Rt+Nl+DXO18ho453e9az62?=
+ =?us-ascii?Q?inwp4y+YTpwAmi2eeJsWV5J1NY50yEkhtFZramShj3bUM/noxiU7ZQQtaSOG?=
+ =?us-ascii?Q?FDEw+Of2wJ8z94vuTnEb/dFLteiFo5NElZO6RlFdyIFD3CUeAZgsAJa8QDoz?=
+ =?us-ascii?Q?y4bn2hWYjUnpYedgxyWGyrQQZ97J4oz3DSYlYuCv8OhEJaFXE91BzsRV8cmO?=
+ =?us-ascii?Q?QIq9yxrvYLkIDxgbAclKld5zSBJbuRNXSDuPkb5wQQi17rBrbqgyPPwTLyoX?=
+ =?us-ascii?Q?JpuaD6NAF4KMz4vep2Zi6L7uI5M6sKz9/z5kM3xh0wok7mWbKop0zYZfCQvV?=
+ =?us-ascii?Q?M42bVmEXpk++xigP6IF/es0fqVSAhb0Xjx1sxmHG3kgvO8+EQDRnX5gGbyGp?=
+ =?us-ascii?Q?sdZWdnMM1ro99yD5YRKW64boYEJ+FwKv5hBew12P0ytpisRES4f57f4CpBvB?=
+ =?us-ascii?Q?QBBNWuKZPqsf4S2JFQzDxYtSk+nsN/y9ST2wND8lPGsfrELYhnNKNBsGoWKs?=
+ =?us-ascii?Q?Vf5ATasSyxNcWGzH3mob2khiYCaUM2L8Z9ohWK8b29/0HQVjoiY8ZEO/ShBl?=
+ =?us-ascii?Q?4D5qkDAVMvvS7zbwOuaXx0jrlJrzMgoXt/+Zyiy59UNeIjjE+fIUjE5cLKTI?=
+ =?us-ascii?Q?3VXC8/Lx+/ShgcSyID89YSIqMP9h+5LLVs0lB8bCPavbZKY34Z+mlYt6uxd1?=
+ =?us-ascii?Q?pCbQJLnhklGxyVljSDLrOLfdEeifGYVV7NSKBnUReXY43vy7oRCPlLEo/zXS?=
+ =?us-ascii?Q?w8kPO0RnY7yMT6cGewV4YNDX2OJEPCvyeJ5xAb0QebbBTsymNLWFd0vI3YXW?=
+ =?us-ascii?Q?QRS6Lslz9YgdqrFxHgqeHmLXFIak/wr1CtYzeOkJnuPIJXaZim/R5seeF3Cb?=
+ =?us-ascii?Q?LVBGh+ZsiADhHFazhtqCc3Dj37zCjA7qt3FbbXgtlbq?=
+x-microsoft-antispam-prvs: <AM0PR04MB661180985CA32EBF862CB57C804C0@AM0PR04MB6611.eurprd04.prod.outlook.com>
 x-forefront-prvs: 096943F07A
-x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(136003)(366004)(376002)(346002)(396003)(39860400002)(199004)(189003)(6436002)(305945005)(52536013)(478600001)(5660300002)(8676002)(7736002)(99286004)(74316002)(4326008)(76176011)(81156014)(8936002)(186003)(25786009)(81166006)(446003)(11346002)(476003)(66066001)(7696005)(106356001)(2906002)(105586002)(14454004)(6246003)(2501003)(26005)(102836004)(6506007)(486006)(7416002)(9686003)(316002)(33656002)(68736007)(55016002)(53936002)(256004)(6116002)(3846002)(44832011)(86362001)(97736004)(110136005)(2201001)(229853002)(71190400001)(71200400001)(921003)(1121003);DIR:OUT;SFP:1101;SCL:1;SRVR:AM0PR04MB4323;H:AM0PR04MB4211.eurprd04.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
+x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(346002)(39860400002)(376002)(136003)(366004)(396003)(189003)(199004)(8676002)(81156014)(66066001)(8936002)(81166006)(7736002)(102836004)(6436002)(53936002)(9686003)(6246003)(6116002)(3846002)(14444005)(25786009)(256004)(4326008)(99286004)(7696005)(476003)(2201001)(86362001)(6506007)(26005)(186003)(74316002)(76176011)(11346002)(446003)(2501003)(44832011)(486006)(105586002)(7416002)(106356001)(316002)(305945005)(33656002)(478600001)(71190400001)(71200400001)(55016002)(110136005)(52536013)(2906002)(5660300002)(229853002)(14454004)(68736007)(97736004)(921003)(1121003);DIR:OUT;SFP:1101;SCL:1;SRVR:AM0PR04MB6611;H:AM0PR04MB4211.eurprd04.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
 received-spf: None (protection.outlook.com: nxp.com does not designate
  permitted sender hosts)
 x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam-message-info: 4gh3LoHZPf3Ip7dxaRb0VayvAyM6G0shGMzPRwLfsGl/EdE7Vw8Nre3+UdC+MCbvl5K8DhMIw4y+07ALE8ZY3G+buU9eD+CqdUsBkJ8equf5KBLI+eloYFMcV1gY7kWaxknhqVWaQNEjtdD6+OySgOrIwSkvhaVMCL8Hv3fm1CYL6WNZ+adKJ5k88v/C3c/4lhYSnQj4G8WXNVlOl3EHoaGTkDb/PN9c2cYl0EBkX1ZqjYLNfnCKHfiYE/FuIyYi5riCSHFcRJJ/RzCc9q617rAQAKO++LTYKi98N8YZ+4ZgVSbBAkfuaOiKNxpyTBoT/V7D1HIEYi84sIG13626HJtrGVFVn1XUHWjrooFt5/xsU1mwrEdjySwJ0aL0n4elZ9kIHbU9zSIWR5Qlxzy8j02ZbST8J3dFaFgeH6ZeSjA=
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+x-microsoft-antispam-message-info: M20fCWo0KwCgWpO1ibB5VLtE1yVb7MrLDJL0hPNHQsYanAWXNUAdJ0jOIolfAIxjMUQ/jNVUumwGhiQ5p1KKaVFYOcnJTVTeHXmlQbbQi9iEgMB+LZC3FBqUCuG+eZ6VQt39ay86RT7NsfWj9+hs1E7W82xrkZ65pU6ZUno9M+JXlQ3hVQzh8075T/Jeg+qcPy80kXcXvkn+0ZmsDxu++KAULqUYw32qwJZaKpA8aJ1hACymKaRP82AQ7jymQ4HZHpyHpUe1o6D9EjkNa56J8FMrmbVfckvd8f4p1Bn22hMp9dT22cDXasLUClU5JC0w9eGa7RzMq6OxCD0kkORhPWAUXKebKjpkyG2uWsyOQLmtUQrPqLDpRpXVU8h+xVzEYgiVxnU0DbbiWnXostRy7CT329Aem6rORwuX3JQPx2w=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
 X-OriginatorOrg: nxp.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 2136588b-e043-4f03-149d-08d6a2f82ad4
-X-MS-Exchange-CrossTenant-originalarrivaltime: 07 Mar 2019 12:26:47.2183
+X-MS-Exchange-CrossTenant-Network-Message-Id: ac26b464-f9b0-43b2-d1b0-08d6a3016dd6
+X-MS-Exchange-CrossTenant-originalarrivaltime: 07 Mar 2019 13:33:05.1913
  (UTC)
 X-MS-Exchange-CrossTenant-fromentityheader: Hosted
 X-MS-Exchange-CrossTenant-id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
 X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM0PR04MB4323
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM0PR04MB6611
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Wy4uLl0NCg0KPiA+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2Zpcm13YXJlL2lteC9pbXgtc2N1LmMN
-Cj4gPiBiL2RyaXZlcnMvZmlybXdhcmUvaW14L2lteC1zY3UuYyBpbmRleCAyYmIxYTE5Li5kZjc1
-ZWFkIDEwMDY0NA0KPiA+IC0tLSBhL2RyaXZlcnMvZmlybXdhcmUvaW14L2lteC1zY3UuYw0KPiA+
-ICsrKyBiL2RyaXZlcnMvZmlybXdhcmUvaW14L2lteC1zY3UuYw0KLi4uDQo+ID4gKwkvKiByZWdp
-c3RlciBTQ1UgY2hpbGQgZGV2aWNlcyB3aGljaCBhcmUgTk9UIGluIGRldmljZSB0cmVlICovDQo+
-ID4gKwljaGlsZF9wZGV2ID0gcGxhdGZvcm1fZGV2aWNlX3JlZ2lzdGVyX2RhdGEoZGV2LCAiaW14
-LXNjLXdkdCIsDQo+ID4gKwkJCQlQTEFURk9STV9ERVZJRF9OT05FLCBOVUxMLCAwKTsNCj4gPiAr
-CWlmIChJU19FUlIoY2hpbGRfcGRldikpDQo+ID4gKwkJZGV2X3dhcm4oZGV2LCAiZmFpbGVkIHRv
-IHJlZ2lzdGVyIHNjdSB3YXRjaGRvZyBkZXZpY2UgJWxkIVxuIiwNCj4gPiArCQkJIFBUUl9FUlIo
-Y2hpbGRfcGRldikpOw0KPiA+ICsNCj4gDQo+IEkganVzdCByZWFsaXplZCAuLi4gc2luY2UgdGhp
-cyBpcyBub3QgYSBkZXZtXyBmdW5jdGlvbiwgd2Ugbm93IGFsc28gbmVlZCBlcnJvcg0KPiBoYW5k
-bGluZyAoaWYgZGV2bV9vZl9wbGF0Zm9ybV9wb3B1bGF0ZSgpIGZhaWxzKSBhbmQgYSByZW1vdmUg
-ZnVuY3Rpb24uDQo+IFNvcnJ5IGZvciB0aGF0IC0gSSBzaG91bGQgaGF2ZSBub3RpY2VkIGVhcmxp
-ZXIuDQo+IA0KDQpJdCBsb29rcyBzdHJhbmdlIHRvIG1lIHRoYXQgaW5zdGFudGlhdGUgdGhlIHdh
-dGNoZG9nIGRldmljZSBpbiBTQ1UgZHJpdmVyIHdoaWNoDQphY3R1YWxseSBkb2VzIG5vdCB1c2Ug
-U0NVLg0KDQpGb3IgbWUsIGl0J3MgYWN0dWFsbHkgYSB3YXRjaGRvZyBwcm92aWRlZCBieSBBVEYg
-ZmlybXdhcmUsIG5vdCBTQ1UuDQpJIGV4cGxhaW5lZCB0aGlzIHRvIFJvYiBpbiBhbm90aGVyIG1h
-aWwuDQpMZXQncyBzZWUgUm9iJ3MgY29tbWVudHMgb24gaXQuDQoNCklmIFJvYiBhZ3JlZXMsIHdl
-IGNhbiBtb3ZlIHdhdGNoZG9nIG5vZGUgb3V0IG9mIFNDVSBhbmQgYWxzbyBkbyBub3QNCm5lZWQg
-aW5zdGFudGlhdGUgaXQgaW4gU0NVIGRyaXZlci4NCg0KUmVnYXJkcw0KRG9uZyBBaXNoZW5nDQoN
-Cj4gR3VlbnRlcg0KPiANCj4gPiAgIAlyZXR1cm4gZGV2bV9vZl9wbGF0Zm9ybV9wb3B1bGF0ZShk
-ZXYpOw0KPiA+ICAgfQ0KPiA+DQo+ID4NCg0K
+> From: Anson Huang
+> Sent: Wednesday, March 6, 2019 9:06 AM
+>=20
+> i.MX8QXP is an ARMv8 SoC which has a Cortex-M4 system controller inside,
+> the system controller is in charge of controlling power, clock and watchd=
+og
+> etc..
+>=20
+> This patch adds i.MX system controller watchdog driver support, watchdog
+> operation needs to be done in secure EL3 mode via ARM-Trusted-Firmware,
+> using SMC call, CPU will trap into ARM-Trusted-Firmware and then it will
+> request system controller to do watchdog operation via IPC.
+>=20
+> Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
+> ---
+> Changes since V6:
+> 	- use module_platform_driver() instead of module_init/exit to make code
+> simple.
+> ---
+>  drivers/watchdog/Kconfig      |  14 ++++
+>  drivers/watchdog/Makefile     |   1 +
+>  drivers/watchdog/imx_sc_wdt.c | 174
+> ++++++++++++++++++++++++++++++++++++++++++
+>  3 files changed, 189 insertions(+)
+>  create mode 100644 drivers/watchdog/imx_sc_wdt.c
+>=20
+> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig index
+> 242eea8..33a6523 100644
+> --- a/drivers/watchdog/Kconfig
+> +++ b/drivers/watchdog/Kconfig
+> @@ -641,6 +641,20 @@ config IMX2_WDT
+>  	  To compile this driver as a module, choose M here: the
+>  	  module will be called imx2_wdt.
+>=20
+> +config IMX_SC_WDT
+> +	tristate "IMX SC Watchdog"
+> +	depends on IMX_SCU
+
+As I replied in another mail, it actually does not depend on SCU.
+Let's wait for Rob's comment on whether we could move watchdog
+Out of SCU node.
+
+> +	depends on HAVE_ARM_SMCCC
+> +	select WATCHDOG_CORE
+> +	help
+> +	  This is the driver for the system controller watchdog
+> +	  on the NXP i.MX SoCs with system controller inside.
+> +	  If you have one of these processors and wish to have
+> +	  watchdog support enabled, say Y, otherwise say N.
+> +
+
+Nitpick:
+If resend, please also add description here that we need to use
+ARM SMC call as your commit message.
+
+Regards
+Dong Aisheng
+
+> +	  To compile this driver as a module, choose M here: the
+> +	  module will be called imx_sc_wdt.
+> +
+>  config UX500_WATCHDOG
+>  	tristate "ST-Ericsson Ux500 watchdog"
+>  	depends on MFD_DB8500_PRCMU
+> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile index
+> ba930e4..136d9f0 100644
+> --- a/drivers/watchdog/Makefile
+> +++ b/drivers/watchdog/Makefile
+> @@ -68,6 +68,7 @@ obj-$(CONFIG_NUC900_WATCHDOG) +=3D nuc900_wdt.o
+>  obj-$(CONFIG_TS4800_WATCHDOG) +=3D ts4800_wdt.o
+>  obj-$(CONFIG_TS72XX_WATCHDOG) +=3D ts72xx_wdt.o
+>  obj-$(CONFIG_IMX2_WDT) +=3D imx2_wdt.o
+> +obj-$(CONFIG_IMX_SC_WDT) +=3D imx_sc_wdt.o
+>  obj-$(CONFIG_UX500_WATCHDOG) +=3D ux500_wdt.o
+>  obj-$(CONFIG_RETU_WATCHDOG) +=3D retu_wdt.o
+>  obj-$(CONFIG_BCM2835_WDT) +=3D bcm2835_wdt.o diff --git
+> a/drivers/watchdog/imx_sc_wdt.c b/drivers/watchdog/imx_sc_wdt.c new file
+> mode 100644 index 0000000..ee48709
+> --- /dev/null
+> +++ b/drivers/watchdog/imx_sc_wdt.c
+> @@ -0,0 +1,174 @@
+> +// SPDX-License-Identifier: GPL-2.0
+> +/*
+> + * Copyright 2018-2019 NXP.
+> + */
+> +
+> +#include <linux/arm-smccc.h>
+> +#include <linux/io.h>
+> +#include <linux/init.h>
+> +#include <linux/kernel.h>
+> +#include <linux/module.h>
+> +#include <linux/moduleparam.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/reboot.h>
+> +#include <linux/watchdog.h>
+> +
+> +#define DEFAULT_TIMEOUT 60
+> +/*
+> + * Software timer tick implemented in scfw side, support 10ms to
+> +0xffffffff ms
+> + * in theory, but for normal case, 1s~128s is enough, you can change
+> +this max
+> + * value in case it's not enough.
+> + */
+> +#define MAX_TIMEOUT 128
+> +
+> +#define IMX_SIP_TIMER			0xC2000002
+> +#define IMX_SIP_TIMER_START_WDOG		0x01
+> +#define IMX_SIP_TIMER_STOP_WDOG		0x02
+> +#define IMX_SIP_TIMER_SET_WDOG_ACT	0x03
+> +#define IMX_SIP_TIMER_PING_WDOG		0x04
+> +#define IMX_SIP_TIMER_SET_TIMEOUT_WDOG	0x05
+> +#define IMX_SIP_TIMER_GET_WDOG_STAT	0x06
+> +#define IMX_SIP_TIMER_SET_PRETIME_WDOG	0x07
+> +
+> +#define SC_TIMER_WDOG_ACTION_PARTITION	0
+> +
+> +static bool nowayout =3D WATCHDOG_NOWAYOUT; module_param(nowayout,
+> bool,
+> +0000); MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once
+> +started (default=3D"
+> +		 __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+> +
+> +static unsigned int timeout =3D DEFAULT_TIMEOUT;=20
+> module_param(timeout,
+> +uint, 0000); MODULE_PARM_DESC(timeout, "Watchdog timeout in seconds
+> +(default=3D"
+> +		 __MODULE_STRING(DEFAULT_TIMEOUT) ")");
+> +
+> +static int imx_sc_wdt_ping(struct watchdog_device *wdog) {
+> +	struct arm_smccc_res res;
+> +
+> +	arm_smccc_smc(IMX_SIP_TIMER, IMX_SIP_TIMER_PING_WDOG,
+> +		      0, 0, 0, 0, 0, 0, &res);
+> +
+> +	return 0;
+> +}
+> +
+> +static int imx_sc_wdt_start(struct watchdog_device *wdog) {
+> +	struct arm_smccc_res res;
+> +
+> +	arm_smccc_smc(IMX_SIP_TIMER, IMX_SIP_TIMER_START_WDOG,
+> +		      0, 0, 0, 0, 0, 0, &res);
+> +	if (res.a0)
+> +		return -EACCES;
+> +
+> +	arm_smccc_smc(IMX_SIP_TIMER, IMX_SIP_TIMER_SET_WDOG_ACT,
+> +		      SC_TIMER_WDOG_ACTION_PARTITION,
+> +		      0, 0, 0, 0, 0, &res);
+> +	return res.a0 ? -EACCES : 0;
+> +}
+> +
+> +static int imx_sc_wdt_stop(struct watchdog_device *wdog) {
+> +	struct arm_smccc_res res;
+> +
+> +	arm_smccc_smc(IMX_SIP_TIMER, IMX_SIP_TIMER_STOP_WDOG,
+> +		      0, 0, 0, 0, 0, 0, &res);
+> +
+> +	return res.a0 ? -EACCES : 0;
+> +}
+> +
+> +static int imx_sc_wdt_set_timeout(struct watchdog_device *wdog,
+> +				unsigned int timeout)
+> +{
+> +	struct arm_smccc_res res;
+> +
+> +	wdog->timeout =3D timeout;
+> +	arm_smccc_smc(IMX_SIP_TIMER, IMX_SIP_TIMER_SET_TIMEOUT_WDOG,
+> +		      timeout * 1000, 0, 0, 0, 0, 0, &res);
+> +
+> +	return res.a0 ? -EACCES : 0;
+> +}
+> +
+> +static const struct watchdog_ops imx_sc_wdt_ops =3D {
+> +	.owner =3D THIS_MODULE,
+> +	.start =3D imx_sc_wdt_start,
+> +	.stop  =3D imx_sc_wdt_stop,
+> +	.ping  =3D imx_sc_wdt_ping,
+> +	.set_timeout =3D imx_sc_wdt_set_timeout, };
+> +
+> +static const struct watchdog_info imx_sc_wdt_info =3D {
+> +	.identity	=3D "i.MX SC watchdog timer",
+> +	.options	=3D WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING |
+> +			  WDIOF_MAGICCLOSE | WDIOF_PRETIMEOUT, };
+> +
+> +static int imx_sc_wdt_probe(struct platform_device *pdev) {
+> +	struct watchdog_device *imx_sc_wdd;
+> +	int ret;
+> +
+> +	imx_sc_wdd =3D devm_kzalloc(&pdev->dev, sizeof(*imx_sc_wdd),
+> GFP_KERNEL);
+> +	if (!imx_sc_wdd)
+> +		return -ENOMEM;
+> +
+> +	platform_set_drvdata(pdev, imx_sc_wdd);
+> +
+> +	imx_sc_wdd->info =3D &imx_sc_wdt_info;
+> +	imx_sc_wdd->ops =3D &imx_sc_wdt_ops;
+> +	imx_sc_wdd->min_timeout =3D 1;
+> +	imx_sc_wdd->max_timeout =3D MAX_TIMEOUT;
+> +	imx_sc_wdd->parent =3D &pdev->dev;
+> +	imx_sc_wdd->timeout =3D DEFAULT_TIMEOUT;
+> +
+> +	ret =3D watchdog_init_timeout(imx_sc_wdd, timeout, &pdev->dev);
+> +	if (ret)
+> +		dev_warn(&pdev->dev, "Failed to set timeout value, using
+> default\n");
+> +
+> +	watchdog_stop_on_reboot(imx_sc_wdd);
+> +	watchdog_stop_on_unregister(imx_sc_wdd);
+> +
+> +	ret =3D devm_watchdog_register_device(&pdev->dev, imx_sc_wdd);
+> +	if (ret) {
+> +		dev_err(&pdev->dev, "Failed to register watchdog device\n");
+> +		return ret;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static int __maybe_unused imx_sc_wdt_suspend(struct device *dev) {
+> +	struct watchdog_device *imx_sc_wdd =3D dev_get_drvdata(dev);
+> +
+> +	if (watchdog_active(imx_sc_wdd))
+> +		imx_sc_wdt_stop(imx_sc_wdd);
+> +
+> +	return 0;
+> +}
+> +
+> +static int __maybe_unused imx_sc_wdt_resume(struct device *dev) {
+> +	struct watchdog_device *imx_sc_wdd =3D dev_get_drvdata(dev);
+> +
+> +	if (watchdog_active(imx_sc_wdd))
+> +		imx_sc_wdt_start(imx_sc_wdd);
+> +
+> +	return 0;
+> +}
+> +
+> +static SIMPLE_DEV_PM_OPS(imx_sc_wdt_pm_ops,
+> +			 imx_sc_wdt_suspend, imx_sc_wdt_resume);
+> +
+> +static struct platform_driver imx_sc_wdt_driver =3D {
+> +	.probe		=3D imx_sc_wdt_probe,
+> +	.driver		=3D {
+> +		.name	=3D "imx-sc-wdt",
+> +		.pm	=3D &imx_sc_wdt_pm_ops,
+> +	},
+> +};
+> +module_platform_driver(imx_sc_wdt_driver);
+> +
+> +MODULE_AUTHOR("Robin Gong <yibin.gong@nxp.com>");
+> +MODULE_DESCRIPTION("NXP i.MX system controller watchdog driver");
+> +MODULE_LICENSE("GPL v2");
+> --
+> 2.7.4
+
