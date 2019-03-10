@@ -1,227 +1,143 @@
-Return-Path: <SRS0=LPPn=RL=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=T2nw=RN=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.5 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_PASS,
-	USER_AGENT_MUTT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PULL_REQUEST,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_PASS,USER_AGENT_MUTT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5E50FC43381
-	for <linux-watchdog@archiver.kernel.org>; Fri,  8 Mar 2019 10:22:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E068DC43381
+	for <linux-watchdog@archiver.kernel.org>; Sun, 10 Mar 2019 15:32:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 235812081B
-	for <linux-watchdog@archiver.kernel.org>; Fri,  8 Mar 2019 10:22:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A707520657
+	for <linux-watchdog@archiver.kernel.org>; Sun, 10 Mar 2019 15:32:32 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="epBVeoos"
+	dkim=pass (1024-bit key) header.d=linux-watchdog.org header.i=@linux-watchdog.org header.b="SjKtGKFM"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726469AbfCHKWb (ORCPT
+        id S1726000AbfCJPcc (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 8 Mar 2019 05:22:31 -0500
-Received: from mail-wr1-f67.google.com ([209.85.221.67]:37007 "EHLO
-        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725789AbfCHKWa (ORCPT
+        Sun, 10 Mar 2019 11:32:32 -0400
+Received: from www.linux-watchdog.org ([185.87.125.42]:56066 "EHLO
+        www.linux-watchdog.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726546AbfCJPcc (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 8 Mar 2019 05:22:30 -0500
-Received: by mail-wr1-f67.google.com with SMTP id w6so20750742wrs.4;
-        Fri, 08 Mar 2019 02:22:28 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=IpZDsQhgbJoZdZVetbX8Dzz68rld3uU7ePrvGFTagJo=;
-        b=epBVeoos4I1Kw6ngvIgmb7IQJ5FC943s4RNA+w13IUFY5mngW9IZXCx9cCzy6+yo9z
-         l5fiOzRYttup7XRApbdlnJ1I9dcyiauoBq6yJEtPJpRhgDzdN1Bvj20CiLo64KEtMX5Y
-         SuiW32c76NRcRwm0Z9BfCMOK00Pn6IyJjCesCG6B+rJ2c5ch9w5rZWhq7xRqOijReyBA
-         ItqbmS/NAOg/2HBdYO8pQnrLRyJU0J1HBCBkEVzbnrtrflRs+ik/nVK+bFe4bC6muKRq
-         BMSZfKZb6Ww2phpGp1/t9ZUBN0r2c2PNM8UXMUvRx/YypKYsssLvCz82SAspeGuadSCA
-         WFMw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=IpZDsQhgbJoZdZVetbX8Dzz68rld3uU7ePrvGFTagJo=;
-        b=efZaeZiWNlE3TRoSsOS/awHdrIyUNiD1dfvK1WBECC0nWch1OThcsfXgVHrb5Dw/6T
-         bOzOAWu3mbYmqV8aySwHz2vpVV+Y/1ndcgvc/Cx6kgPvsuyS5yHZSDl0XYKh0GEAyFl4
-         zWInCHf98QXPv2ZDGD0PnkEPiQF28ldlCleGTjb5EcgQpJxbguHi/DnuVU08JR9MPKPp
-         bA6jiw3RB3G6w6/4qWI13AzEp5gRGR0gRDn2UqwqXpVjHziHZ7joXaL8hYs8Mwb4gleC
-         +aXDhG+ZrVPmM0wO/7abyDwKST5gKSUWED4sdLL+r8QHGhCfJuyI8oRum2IpkmLW7+q+
-         nBTg==
-X-Gm-Message-State: APjAAAWwdkjZ1LzfT04NsT4cA/kJ6a2l8OEpgTf3WofAyBOYs/R0/ix2
-        pFxRIJC3G1ZjLrMiPv8Olw0=
-X-Google-Smtp-Source: APXvYqwDj1yp6Ih80l2irqW8VBdNZs5+DZ2AGEZE0+vY1UwJGRXjunNx3YZxlcDzRpEAtMp5+kFssA==
-X-Received: by 2002:adf:9e47:: with SMTP id v7mr10709141wre.190.1552040547819;
-        Fri, 08 Mar 2019 02:22:27 -0800 (PST)
-Received: from localhost (pD9E51D2D.dip0.t-ipconnect.de. [217.229.29.45])
-        by smtp.gmail.com with ESMTPSA id b12sm5806810wrx.33.2019.03.08.02.22.26
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Fri, 08 Mar 2019 02:22:27 -0800 (PST)
-Date:   Fri, 8 Mar 2019 11:22:25 +0100
-From:   Thierry Reding <thierry.reding@gmail.com>
-To:     Paul Cercueil <paul@crapouillou.net>
-Cc:     Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Paul Burton <paul.burton@mips.com>,
-        James Hogan <jhogan@kernel.org>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Mathieu Malaterre <malat@debian.org>, od@zcrc.me,
-        linux-pwm@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        linux-mips@vger.kernel.org, linux-doc@vger.kernel.org,
-        linux-clk@vger.kernel.org
-Subject: Re: [PATCH v10 04/27] clocksource: Add a new timer-ingenic driver
-Message-ID: <20190308102225.GC22655@ulmo>
-References: <20190302233413.14813-1-paul@crapouillou.net>
- <20190302233413.14813-5-paul@crapouillou.net>
- <20190304122250.GC9040@ulmo>
- <1551723186.4932.0@crapouillou.net>
+        Sun, 10 Mar 2019 11:32:32 -0400
+X-Greylist: delayed 447 seconds by postgrey-1.27 at vger.kernel.org; Sun, 10 Mar 2019 11:32:30 EDT
+Received: by www.linux-watchdog.org (Postfix, from userid 500)
+        id 68B2640424; Sun, 10 Mar 2019 15:54:08 +0100 (CET)
+DKIM-Filter: OpenDKIM Filter v2.11.0 www.linux-watchdog.org 68B2640424
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-watchdog.org;
+        s=odk20180602; t=1552229648;
+        bh=x8Zah5xbEeG82jGssXoXXy7ux3/6mB3o6o/eCr+nufw=;
+        h=Date:From:To:Cc:Subject:From;
+        b=SjKtGKFMJTDexzw4No5r7Djz+fDLnHv/ixbaP0B9q7JwA6tNaRnvY3xoVIKeo1Zrq
+         kYoPWdN6GhZlyBJaYzG7tiF8MzvJbq3lxI6MAXIFGzqVWuwhZawdQ4w5z6UJ3P7vhP
+         AULha2YI5cB2nMabcBuzYUL+eYR9xrLX4vwrsMos=
+Date:   Sun, 10 Mar 2019 15:54:08 +0100
+From:   Wim Van Sebroeck <wim@linux-watchdog.org>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Biju Das <biju.das@bp.renesas.com>,
+        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
+        Jerry Hoemann <jerry.hoemann@hpe.com>,
+        Jisheng Zhang <Jisheng.Zhang@synaptics.com>,
+        Michael Shych <michaelsh@mellanox.com>,
+        Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
+        YueHaibing <yuehaibing@huawei.com>
+Subject: [GIT PULL REQUEST] watchdog - v5.1 Merge window
+Message-ID: <20190310145408.GA2045@www.linux-watchdog.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="i7F3eY7HS/tUJxUd"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1551723186.4932.0@crapouillou.net>
-User-Agent: Mutt/1.11.3 (2019-02-01)
+User-Agent: Mutt/1.5.20 (2009-12-10)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
+Hi Linus,
 
---i7F3eY7HS/tUJxUd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Please pull the watchdog changes for the v4.21 release cycle.
 
-On Mon, Mar 04, 2019 at 07:13:05PM +0100, Paul Cercueil wrote:
-> Hi Thierry,
->=20
-> On Mon, Mar 4, 2019 at 1:22 PM, Thierry Reding <thierry.reding@gmail.com>
-> wrote:
-> > On Sat, Mar 02, 2019 at 08:33:50PM -0300, Paul Cercueil wrote:
-> > [...]
-> > >  diff --git a/drivers/clocksource/ingenic-timer.c
-> > > b/drivers/clocksource/ingenic-timer.c
-[...]
-> > >  +static u64 notrace ingenic_tcu_timer_read(void)
-> > >  +{
-> > >  +	unsigned int channel =3D ingenic_tcu->cs_channel;
-> > >  +	u16 count;
-> > >  +
-> > >  +	count =3D readw(ingenic_tcu_base + TCU_REG_TCNTc(channel));
-> >=20
-> > Can't yo do this via the regmap?
->=20
-> I could, but for the sched_clock to be precise the function must return
-> as fast as possible. That's the rationale behind the use of readw() here.
->=20
-> That's also the reason why ingenic_tcu_base is global and exported, so
-> that the OS Timer driver can use it as well.
+This series contains:
+* A new watchdog driver for the Mellanox systems
+* renesas-wdt: Document r8a77470 support
+* numerous Mark expected switch fall-throughs
+* qcom: Add suspend/resume support
+* some small fixes and documentation updates
 
-Is the path through the regmap really significantly slower than the
-direct register access? Anyway, if you need the global anyway, might as
-well use it.
+The output from git request-pull:
+----------------------------------------------------------------
+The following changes since commit f17b5f06cb92ef2250513a1e154c47b78df07d40:
 
-[...]
-> > >  +	// Register the sched_clock at the very end as there's no way to
-> > > undo it
-> > >  +	rate =3D clk_get_rate(tcu->cs_clk);
-> > >  +	sched_clock_register(ingenic_tcu_timer_read, 16, rate);
-> >=20
-> > Oh wow... so you managed to nicely encapsulate everything and now this
-> > seems to be the only reason why you need to rely on global variables.
-> >=20
-> > That's unfortunate. I suppose we could go and add a void *data parameter
-> > to sched_clock_register() and pass that to the read() function. That way
-> > you could make this completely independent of global variables, but
-> > there are 73 callers of sched_clock_register() and they are spread all
-> > over the place, so sounds a bit daunting to me.
->=20
-> Yes, that's the main reason behind the use of a global variables.
-> Is there a way we could introduce another callback, e.g. .read_value(),
-> that would receive a void *param? Then the current .read() callback
-> can be deprecated and the 73 callers can be migrated later.
+  Linux 5.0-rc4 (2019-01-27 15:18:05 -0800)
 
-Yeah, I suppose that would be possible. I'll defer to Daniel and Thomas
-on this. They may not consider this important enough.
+are available in the git repository at:
 
-> > >  +
-> > >  +	return 0;
-> > >  +
-> > >  +err_tcu_clocksource_cleanup:
-> > >  +	ingenic_tcu_clocksource_cleanup(tcu);
-> > >  +err_tcu_clk_cleanup:
-> > >  +	ingenic_tcu_clk_cleanup(tcu, np);
-> > >  +err_tcu_intc_cleanup:
-> > >  +	ingenic_tcu_intc_cleanup(tcu);
-> > >  +err_clk_disable:
-> > >  +	clk_disable_unprepare(tcu->clk);
-> > >  +err_clk_put:
-> > >  +	clk_put(tcu->clk);
-> > >  +err_free_regmap:
-> > >  +	regmap_exit(tcu->map);
-> > >  +err_iounmap:
-> > >  +	iounmap(base);
-> > >  +	release_mem_region(res.start, resource_size(&res));
-> > >  +err_free_ingenic_tcu:
-> > >  +	kfree(tcu);
-> > >  +	return ret;
-> > >  +}
-> > >  +
-> > >  +TIMER_OF_DECLARE(jz4740_tcu_intc,  "ingenic,jz4740-tcu",
-> > > ingenic_tcu_init);
-> > >  +TIMER_OF_DECLARE(jz4725b_tcu_intc, "ingenic,jz4725b-tcu",
-> > > ingenic_tcu_init);
-> > >  +TIMER_OF_DECLARE(jz4770_tcu_intc,  "ingenic,jz4770-tcu",
-> > > ingenic_tcu_init);
-> > >  +
-> > >  +
-> > >  +static int __init ingenic_tcu_probe(struct platform_device *pdev)
-> > >  +{
-> > >  +	platform_set_drvdata(pdev, ingenic_tcu);
-> >=20
-> > Then there's also this. Oh well... nevermind then.
->=20
-> The content of ingenic_tcu_platform_init() could be moved inside
-> ingenic_tcu_init(). But can we get a hold of the struct device before the
-> probe function is called? That would allow to set the drvdata and regmap
-> without relying on global state.
+  git://www.linux-watchdog.org/linux-watchdog.git tags/linux-watchdog-5.1-rc1
 
-I'm not sure if the driver core is ready at this point. It's likely it
-isn't, otherwise there'd be no need for TIMER_OF_DECLARE(), really. I
-also vaguely recall looking into this a few years ago because of some
-similar work I was but I eventually gave up because I couldn't find a
-way that would allow both the code to execute early enough and still
-use the regular driver model.
+for you to fetch changes up to 458c8961c194f2d2cb6ffed3dd9b6692d74ad65e:
 
-Platform device become available at arch_initcall_sync (3s), while the
-TIMER_OF_DECLARE code runs way earlier than any of the initcalls, so I
-don't think there's a way to do it. Unless perhaps if the timers can
-be initialized later. I'm not sure if that's possible, and might not be
-worth it just for the sake of being pedantic.
+  watchdog: w83877f_wdt: Mark expected switch fall-through (2019-03-02 15:28:22 +0100)
 
-Thierry
+----------------------------------------------------------------
+linux-watchdog 5.1-rc1 tag
 
---i7F3eY7HS/tUJxUd
-Content-Type: application/pgp-signature; name="signature.asc"
+----------------------------------------------------------------
+Biju Das (1):
+      dt-bindings: watchdog: renesas-wdt: Document r8a77470 support
 
------BEGIN PGP SIGNATURE-----
+Gustavo A. R. Silva (6):
+      watchdog: pc87413: Mark expected switch fall-through
+      watchdog: sc1200: Mark expected switch fall-through
+      watchdog: smsc37b787_wdt: Mark expected switch fall-through
+      watchdog: sbc60xxwdt: Mark expected switch fall-through
+      watchdog: sc520_wdt: Mark expected switch fall-through
+      watchdog: w83877f_wdt: Mark expected switch fall-through
 
-iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAlyCQl4ACgkQ3SOs138+
-s6FwaxAAhFukhP2XtK/Q+gbHvCxe+dGRdbj+yiW2HETrTg+p4NXttEfL00si0i/l
-o+o7ILOilnDLIm4HCGkPhY1gOzVaJWz6NpJDIbXCuPIScp3LKq5em+t+nU7ek7R+
-91L9c4sAfBTeTYSY7oxy/yi7X7LDKFKEvPjeLNg+N4jys8Qte9ofkjY1hQvRJjJ3
-R9H/6PwDaH1e6tSkCOEqmKJh37dCiHg3xuTAP6L+8VZ61FjPvJPLSBnGDzYGRpCW
-af1Pp1o5Htc20GvF7SwgQOvXd0q+w8iiks39HiWiPBwjjXTWtBWCRgCCg/axhCSJ
-ZqMqZg5LzpWwYtXBJ6BgO7ytypyWg6+fYOeeB8W0bbs1nLhBDyEtTE5jD+yZDKLd
-k6xzBjgoX2cwNj6oC2WonkPZ9NUylv+ywHlaFfU5WZsWwZouw/NLhWzBGZphL3ZC
-Ic3yRs0Y2RwzP1k369pMG+T4ZrzvTvqHuHKqKkH2AhF6fjhkgbsRhvn5I6im7udj
-+OyfxMngwmmrJp8Nowsw1EfxCPtu4gVa8ffXCT865e8wJYfWPR8V8T3YvROZsG8q
-tvlPLOMgw+0mkbeYoYR0TOS8s8PkrCxYE4U2FGusISGqF5NnKXq0J2C6iv9ZAyvv
-EIgou6aiGfVE39fISzW48iXcFFL/WNfanae0YNLTcHeP7vwv86s=
-=vng8
------END PGP SIGNATURE-----
+Jerry Hoemann (2):
+      watchdog/hpwdt: Update Kconfig documentation
+      watchdog: Update sysfs documentation.
 
---i7F3eY7HS/tUJxUd--
+Jisheng Zhang (1):
+      watchdog: dw: remove useless pr_fmt
+
+Michael Shych (3):
+      platform_data/mlxreg: additions for Mellanox watchdog driver.
+      watchdog: mlx-wdt: introduce a watchdog driver for Mellanox systems.
+      Documentation/watchdog: Add documentation mlx-wdt driver
+
+Sai Prakash Ranjan (1):
+      watchdog: qcom: Add suspend/resume support
+
+YueHaibing (1):
+      watchdog: pika_wdt: drop pointless static qualifier in pikawdt_init
+
+ Documentation/ABI/testing/sysfs-class-watchdog     |  23 ++
+ .../devicetree/bindings/watchdog/renesas-wdt.txt   |   1 +
+ Documentation/watchdog/mlx-wdt.txt                 |  52 ++++
+ drivers/watchdog/Kconfig                           |  25 +-
+ drivers/watchdog/Makefile                          |   1 +
+ drivers/watchdog/dw_wdt.c                          |   2 -
+ drivers/watchdog/mlx_wdt.c                         | 290 +++++++++++++++++++++
+ drivers/watchdog/pc87413_wdt.c                     |   2 +-
+ drivers/watchdog/pika_wdt.c                        |   2 +-
+ drivers/watchdog/qcom-wdt.c                        |  23 ++
+ drivers/watchdog/sbc60xxwdt.c                      |   2 +-
+ drivers/watchdog/sc1200wdt.c                       |   2 +-
+ drivers/watchdog/sc520_wdt.c                       |   2 +-
+ drivers/watchdog/smsc37b787_wdt.c                  |   2 +-
+ drivers/watchdog/w83877f_wdt.c                     |   2 +-
+ include/linux/platform_data/mlxreg.h               |  19 ++
+ 16 files changed, 437 insertions(+), 13 deletions(-)
+ create mode 100644 Documentation/watchdog/mlx-wdt.txt
+ create mode 100644 drivers/watchdog/mlx_wdt.c
+----------------------------------------------------------------
+
+Kind regards,
+Wim.
+
