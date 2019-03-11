@@ -2,78 +2,203 @@ Return-Path: <SRS0=+zyj=RO=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_PASS
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_PASS
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A9B2C43381
-	for <linux-watchdog@archiver.kernel.org>; Mon, 11 Mar 2019 19:00:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AD87BC43381
+	for <linux-watchdog@archiver.kernel.org>; Mon, 11 Mar 2019 20:52:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 018A0214AF
-	for <linux-watchdog@archiver.kernel.org>; Mon, 11 Mar 2019 19:00:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1552330805;
-	bh=FxEzo3L/cr9SFGVdHC3MfpToWMy9Qg9qlhT7dvH/64M=;
-	h=Subject:From:In-Reply-To:References:Date:To:Cc:List-ID:From;
-	b=FoEzDAREAhDfPqkrScgFD/Hgz7J+1JR6xSLLD+hdYsj7nbI9BfxqEx+iVQOXEslaS
-	 qo0/c08V048efmY07Kehb8txYuUraso8aQcTxPb70+tJXjDb8MIPdKidS4Ek51ifM7
-	 uYo8VID6xfaym5JY8/9C9gCQv6AhsY94hCEX/rx0=
+	by mail.kernel.org (Postfix) with ESMTP id 7427A2064A
+	for <linux-watchdog@archiver.kernel.org>; Mon, 11 Mar 2019 20:52:22 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=crapouillou.net header.i=@crapouillou.net header.b="BIgVMtnV"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728361AbfCKTAE (ORCPT
+        id S1728183AbfCKUwS (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 11 Mar 2019 15:00:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43388 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728268AbfCKTAD (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 11 Mar 2019 15:00:03 -0400
-Subject: Re: [GIT PULL REQUEST] watchdog - v5.1 Merge window
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1552330803;
-        bh=FxEzo3L/cr9SFGVdHC3MfpToWMy9Qg9qlhT7dvH/64M=;
-        h=From:In-Reply-To:References:Date:To:Cc:From;
-        b=XyAR/HnDDbyN+3aGcAcYojRULc0UyCp2kFaN3ZHRrMP3TeiAIeNqMQT9yHMts4c2p
-         vXOUeZLzhaj6Tx9EMMd9cNpYb5Pv8yk03M9ZD3i7aAxA/DCu/ZvWDaRgktanNxHTrd
-         dGlsC2jq2Bblh3wPJrMVYWSLR45/hccgLHq5F25U=
-From:   pr-tracker-bot@kernel.org
-In-Reply-To: <20190310145408.GA2045@www.linux-watchdog.org>
-References: <20190310145408.GA2045@www.linux-watchdog.org>
-X-PR-Tracked-List-Id: <linux-watchdog.vger.kernel.org>
-X-PR-Tracked-Message-Id: <20190310145408.GA2045@www.linux-watchdog.org>
-X-PR-Tracked-Remote: git://www.linux-watchdog.org/linux-watchdog.git
- tags/linux-watchdog-5.1-rc1
-X-PR-Tracked-Commit-Id: 458c8961c194f2d2cb6ffed3dd9b6692d74ad65e
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: a089e4fed5c5e8717f233d71bb750fbf9e1f38e0
-Message-Id: <155233080326.15239.2288884379574979832.pr-tracker-bot@kernel.org>
-Date:   Mon, 11 Mar 2019 19:00:03 +0000
-To:     Wim Van Sebroeck <wim@linux-watchdog.org>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Biju Das <biju.das@bp.renesas.com>,
-        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
-        Jerry Hoemann <jerry.hoemann@hpe.com>,
-        Jisheng Zhang <Jisheng.Zhang@synaptics.com>,
-        Michael Shych <michaelsh@mellanox.com>,
-        Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
-        YueHaibing <yuehaibing@huawei.com>
+        Mon, 11 Mar 2019 16:52:18 -0400
+Received: from outils.crapouillou.net ([89.234.176.41]:41044 "EHLO
+        crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727773AbfCKUwR (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 11 Mar 2019 16:52:17 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
+        s=mail; t=1552337532; h=from:from:sender:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=nAYOZELSccEKSBPbHE4V3eEftTDyZTpp36j9E5JQ3jI=;
+        b=BIgVMtnVwd5QwyHK2BtEEqhHNhzUqIiC3AUNz1AtaynR4D4EB2BYCCYptV+o2QS2axcMKY
+        3QsrTXpCpkg0IHSmykB+vYveWPQ9Cl5kdAlJV56fa3M6ra/krK/2UUNyZbi9FvBd2W6fvr
+        UQnJQ9itGGSGP218qAYHOIyJgAKteZc=
+Date:   Mon, 11 Mar 2019 17:52:07 -0300
+From:   Paul Cercueil <paul@crapouillou.net>
+Subject: Re: [PATCH v10 04/27] clocksource: Add a new timer-ingenic driver
+To:     Thierry Reding <thierry.reding@gmail.com>
+Cc:     Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        Paul Burton <paul.burton@mips.com>,
+        James Hogan <jhogan@kernel.org>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Uwe =?iso-8859-1?q?Kleine-K=F6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Mathieu Malaterre <malat@debian.org>, od@zcrc.me,
+        linux-pwm@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-doc@vger.kernel.org,
+        linux-clk@vger.kernel.org
+Message-Id: <1552337527.24876.0@crapouillou.net>
+In-Reply-To: <20190308102225.GC22655@ulmo>
+References: <20190302233413.14813-1-paul@crapouillou.net>
+        <20190302233413.14813-5-paul@crapouillou.net> <20190304122250.GC9040@ulmo>
+        <1551723186.4932.0@crapouillou.net> <20190308102225.GC22655@ulmo>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-The pull request you sent on Sun, 10 Mar 2019 15:54:08 +0100:
+Hi Thierry,
 
-> git://www.linux-watchdog.org/linux-watchdog.git tags/linux-watchdog-5.1-rc1
+Le ven. 8 mars 2019 =E0 7:22, Thierry Reding <thierry.reding@gmail.com>=20
+a =E9crit :
+> On Mon, Mar 04, 2019 at 07:13:05PM +0100, Paul Cercueil wrote:
+>>  Hi Thierry,
+>>=20
+>>  On Mon, Mar 4, 2019 at 1:22 PM, Thierry Reding=20
+>> <thierry.reding@gmail.com>
+>>  wrote:
+>>  > On Sat, Mar 02, 2019 at 08:33:50PM -0300, Paul Cercueil wrote:
+>>  > [...]
+>>  > >  diff --git a/drivers/clocksource/ingenic-timer.c
+>>  > > b/drivers/clocksource/ingenic-timer.c
+> [...]
+>>  > >  +static u64 notrace ingenic_tcu_timer_read(void)
+>>  > >  +{
+>>  > >  +	unsigned int channel =3D ingenic_tcu->cs_channel;
+>>  > >  +	u16 count;
+>>  > >  +
+>>  > >  +	count =3D readw(ingenic_tcu_base + TCU_REG_TCNTc(channel));
+>>  >
+>>  > Can't yo do this via the regmap?
+>>=20
+>>  I could, but for the sched_clock to be precise the function must=20
+>> return
+>>  as fast as possible. That's the rationale behind the use of readw()=20
+>> here.
+>>=20
+>>  That's also the reason why ingenic_tcu_base is global and exported,=20
+>> so
+>>  that the OS Timer driver can use it as well.
+>=20
+> Is the path through the regmap really significantly slower than the
+> direct register access? Anyway, if you need the global anyway, might=20
+> as
+> well use it.
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/a089e4fed5c5e8717f233d71bb750fbf9e1f38e0
+About 10% slower.
 
-Thank you!
+> [...]
+>>  > >  +	// Register the sched_clock at the very end as there's no=20
+>> way to
+>>  > > undo it
+>>  > >  +	rate =3D clk_get_rate(tcu->cs_clk);
+>>  > >  +	sched_clock_register(ingenic_tcu_timer_read, 16, rate);
+>>  >
+>>  > Oh wow... so you managed to nicely encapsulate everything and now=20
+>> this
+>>  > seems to be the only reason why you need to rely on global=20
+>> variables.
+>>  >
+>>  > That's unfortunate. I suppose we could go and add a void *data=20
+>> parameter
+>>  > to sched_clock_register() and pass that to the read() function.=20
+>> That way
+>>  > you could make this completely independent of global variables,=20
+>> but
+>>  > there are 73 callers of sched_clock_register() and they are=20
+>> spread all
+>>  > over the place, so sounds a bit daunting to me.
+>>=20
+>>  Yes, that's the main reason behind the use of a global variables.
+>>  Is there a way we could introduce another callback, e.g.=20
+>> .read_value(),
+>>  that would receive a void *param? Then the current .read() callback
+>>  can be deprecated and the 73 callers can be migrated later.
+>=20
+> Yeah, I suppose that would be possible. I'll defer to Daniel and=20
+> Thomas
+> on this. They may not consider this important enough.
+>=20
+>>  > >  +
+>>  > >  +	return 0;
+>>  > >  +
+>>  > >  +err_tcu_clocksource_cleanup:
+>>  > >  +	ingenic_tcu_clocksource_cleanup(tcu);
+>>  > >  +err_tcu_clk_cleanup:
+>>  > >  +	ingenic_tcu_clk_cleanup(tcu, np);
+>>  > >  +err_tcu_intc_cleanup:
+>>  > >  +	ingenic_tcu_intc_cleanup(tcu);
+>>  > >  +err_clk_disable:
+>>  > >  +	clk_disable_unprepare(tcu->clk);
+>>  > >  +err_clk_put:
+>>  > >  +	clk_put(tcu->clk);
+>>  > >  +err_free_regmap:
+>>  > >  +	regmap_exit(tcu->map);
+>>  > >  +err_iounmap:
+>>  > >  +	iounmap(base);
+>>  > >  +	release_mem_region(res.start, resource_size(&res));
+>>  > >  +err_free_ingenic_tcu:
+>>  > >  +	kfree(tcu);
+>>  > >  +	return ret;
+>>  > >  +}
+>>  > >  +
+>>  > >  +TIMER_OF_DECLARE(jz4740_tcu_intc,  "ingenic,jz4740-tcu",
+>>  > > ingenic_tcu_init);
+>>  > >  +TIMER_OF_DECLARE(jz4725b_tcu_intc, "ingenic,jz4725b-tcu",
+>>  > > ingenic_tcu_init);
+>>  > >  +TIMER_OF_DECLARE(jz4770_tcu_intc,  "ingenic,jz4770-tcu",
+>>  > > ingenic_tcu_init);
+>>  > >  +
+>>  > >  +
+>>  > >  +static int __init ingenic_tcu_probe(struct platform_device=20
+>> *pdev)
+>>  > >  +{
+>>  > >  +	platform_set_drvdata(pdev, ingenic_tcu);
+>>  >
+>>  > Then there's also this. Oh well... nevermind then.
+>>=20
+>>  The content of ingenic_tcu_platform_init() could be moved inside
+>>  ingenic_tcu_init(). But can we get a hold of the struct device=20
+>> before the
+>>  probe function is called? That would allow to set the drvdata and=20
+>> regmap
+>>  without relying on global state.
+>=20
+> I'm not sure if the driver core is ready at this point. It's likely it
+> isn't, otherwise there'd be no need for TIMER_OF_DECLARE(), really. I
+> also vaguely recall looking into this a few years ago because of some
+> similar work I was but I eventually gave up because I couldn't find a
+> way that would allow both the code to execute early enough and still
+> use the regular driver model.
+>=20
+> Platform device become available at arch_initcall_sync (3s), while the
+> TIMER_OF_DECLARE code runs way earlier than any of the initcalls, so I
+> don't think there's a way to do it. Unless perhaps if the timers can
+> be initialized later. I'm not sure if that's possible, and might not=20
+> be
+> worth it just for the sake of being pedantic.
+>=20
+> Thierry
 
--- 
-Deet-doot-dot, I am a bot.
-https://korg.wiki.kernel.org/userdoc/prtracker
+I think for the time being I can't really go around using the global=20
+variables.
+Hopefully that's something that can be fixed in the future.
+
+-Paul
+=
+
