@@ -2,203 +2,134 @@ Return-Path: <SRS0=+zyj=RO=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_PASS
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AD87BC43381
-	for <linux-watchdog@archiver.kernel.org>; Mon, 11 Mar 2019 20:52:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 706ADC43381
+	for <linux-watchdog@archiver.kernel.org>; Mon, 11 Mar 2019 21:26:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 7427A2064A
-	for <linux-watchdog@archiver.kernel.org>; Mon, 11 Mar 2019 20:52:22 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=crapouillou.net header.i=@crapouillou.net header.b="BIgVMtnV"
+	by mail.kernel.org (Postfix) with ESMTP id 39AB92087C
+	for <linux-watchdog@archiver.kernel.org>; Mon, 11 Mar 2019 21:26:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1552339590;
+	bh=R6Ae/Y9icFFsz4L42BLG/1JtO76ZQRtYXcqZwEcCw+w=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:List-ID:From;
+	b=mRCLH+fRpA+tNcidCnCZVkwnf7NOSkusI9ZQK1e25hvo+ta25iQ2OptqOdjYyh0Gb
+	 LYoJCIh+FZqwUK7ud19P2w8/IynCIM+rKU6J9jENELUXJ96YmFygTdQW+I3VJOZlls
+	 I514UuEnC2ZlnuztRyBJN2xpqSX8yVpi/GgIzBv4=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728183AbfCKUwS (ORCPT
+        id S1727660AbfCKV0a (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 11 Mar 2019 16:52:18 -0400
-Received: from outils.crapouillou.net ([89.234.176.41]:41044 "EHLO
-        crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727773AbfCKUwR (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 11 Mar 2019 16:52:17 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
-        s=mail; t=1552337532; h=from:from:sender:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=nAYOZELSccEKSBPbHE4V3eEftTDyZTpp36j9E5JQ3jI=;
-        b=BIgVMtnVwd5QwyHK2BtEEqhHNhzUqIiC3AUNz1AtaynR4D4EB2BYCCYptV+o2QS2axcMKY
-        3QsrTXpCpkg0IHSmykB+vYveWPQ9Cl5kdAlJV56fa3M6ra/krK/2UUNyZbi9FvBd2W6fvr
-        UQnJQ9itGGSGP218qAYHOIyJgAKteZc=
-Date:   Mon, 11 Mar 2019 17:52:07 -0300
-From:   Paul Cercueil <paul@crapouillou.net>
-Subject: Re: [PATCH v10 04/27] clocksource: Add a new timer-ingenic driver
-To:     Thierry Reding <thierry.reding@gmail.com>
-Cc:     Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Paul Burton <paul.burton@mips.com>,
-        James Hogan <jhogan@kernel.org>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Uwe =?iso-8859-1?q?Kleine-K=F6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Mathieu Malaterre <malat@debian.org>, od@zcrc.me,
-        linux-pwm@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        linux-mips@vger.kernel.org, linux-doc@vger.kernel.org,
-        linux-clk@vger.kernel.org
-Message-Id: <1552337527.24876.0@crapouillou.net>
-In-Reply-To: <20190308102225.GC22655@ulmo>
-References: <20190302233413.14813-1-paul@crapouillou.net>
-        <20190302233413.14813-5-paul@crapouillou.net> <20190304122250.GC9040@ulmo>
-        <1551723186.4932.0@crapouillou.net> <20190308102225.GC22655@ulmo>
+        Mon, 11 Mar 2019 17:26:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52960 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727138AbfCKV03 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 11 Mar 2019 17:26:29 -0400
+Received: from mail-qt1-f180.google.com (mail-qt1-f180.google.com [209.85.160.180])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id D6A8D2087C;
+        Mon, 11 Mar 2019 21:26:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1552339588;
+        bh=R6Ae/Y9icFFsz4L42BLG/1JtO76ZQRtYXcqZwEcCw+w=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=cyLU8CVkuWOMj9tQv97A1pwcs25QFHjKaVYyPOF+xK/0crH+a7tU8r7UqqeQJGwPM
+         blMUQn118aqZvoFO6izBja0HQSuNyLpqhEbuK1TVE3saohpZhlDejXYFfCXLC1gspx
+         tWzlgY8L6cQj0oz5gTMsusQjA+G4cLZPkQqsiHTY=
+Received: by mail-qt1-f180.google.com with SMTP id u7so257505qtg.9;
+        Mon, 11 Mar 2019 14:26:27 -0700 (PDT)
+X-Gm-Message-State: APjAAAXVG2s9UAlQDfmaTcjYzLqTikG1qNdrOfZDCQwQpaLvbop5O+8I
+        1VPb2UhbYeuErB4u6YCEXSzlL1PQqo3Ux1ISUA==
+X-Google-Smtp-Source: APXvYqzghD8vQ8o5ed8SI+d/2B6BuqrYk2fEyaXtHY2+deG5NRZLbiPaLV8uDICjy2YoWMM9+UBtn98b6eCooIjvs8I=
+X-Received: by 2002:a0c:b14f:: with SMTP id r15mr28007307qvc.90.1552339587095;
+ Mon, 11 Mar 2019 14:26:27 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Transfer-Encoding: quoted-printable
+References: <1550472539-16590-1-git-send-email-Anson.Huang@nxp.com>
+ <1550472539-16590-2-git-send-email-Anson.Huang@nxp.com> <20190222195217.GA22194@bogus>
+ <bb19470c-1590-f8dd-72e6-b382444d7902@roeck-us.net> <DB3PR0402MB3916912A64AF0837A9649913F5790@DB3PR0402MB3916.eurprd04.prod.outlook.com>
+ <96932b3e-87f1-d8f2-95bc-0e9a8d5d45ed@roeck-us.net> <DB3PR0402MB391659B6A466B1D85114E9C9F57A0@DB3PR0402MB3916.eurprd04.prod.outlook.com>
+ <CAL_JsqJV9NxpOJi3Jh2Uk-TOmOL4rWwqZp3sodxsRinAHZ3m3w@mail.gmail.com> <AM0PR04MB4211EAEA6F03465D372B0B4F804C0@AM0PR04MB4211.eurprd04.prod.outlook.com>
+In-Reply-To: <AM0PR04MB4211EAEA6F03465D372B0B4F804C0@AM0PR04MB4211.eurprd04.prod.outlook.com>
+From:   Rob Herring <robh@kernel.org>
+Date:   Mon, 11 Mar 2019 16:26:16 -0500
+X-Gmail-Original-Message-ID: <CAL_JsqJiKx8UvZ8qu-YaaPooLbSMKANSX=YZQO=Nm_anD2v9gw@mail.gmail.com>
+Message-ID: <CAL_JsqJiKx8UvZ8qu-YaaPooLbSMKANSX=YZQO=Nm_anD2v9gw@mail.gmail.com>
+Subject: Re: [PATCH RESEND V2 1/4] dt-bindings: fsl: scu: add watchdog binding
+To:     Aisheng Dong <aisheng.dong@nxp.com>
+Cc:     Anson Huang <anson.huang@nxp.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        "mark.rutland@arm.com" <mark.rutland@arm.com>,
+        "ulf.hansson@linaro.org" <ulf.hansson@linaro.org>,
+        "heiko@sntech.de" <heiko@sntech.de>,
+        "catalin.marinas@arm.com" <catalin.marinas@arm.com>,
+        "will.deacon@arm.com" <will.deacon@arm.com>,
+        "bjorn.andersson@linaro.org" <bjorn.andersson@linaro.org>,
+        "festevam@gmail.com" <festevam@gmail.com>,
+        "jagan@amarulasolutions.com" <jagan@amarulasolutions.com>,
+        Andy Gross <andy.gross@linaro.org>,
+        dl-linux-imx <linux-imx@nxp.com>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+        "arnd@arndb.de" <arnd@arndb.de>,
+        "marc.w.gonzalez@free.fr" <marc.w.gonzalez@free.fr>,
+        "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>,
+        "enric.balletbo@collabora.com" <enric.balletbo@collabora.com>,
+        "horms+renesas@verge.net.au" <horms+renesas@verge.net.au>,
+        "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
+        Daniel Baluta <daniel.baluta@nxp.com>,
+        "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "kernel@pengutronix.de" <kernel@pengutronix.de>,
+        "olof@lixom.net" <olof@lixom.net>,
+        "shawnguo@kernel.org" <shawnguo@kernel.org>,
+        Jens Wiklander <jens.wiklander@linaro.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Hi Thierry,
++Jens W
 
-Le ven. 8 mars 2019 =E0 7:22, Thierry Reding <thierry.reding@gmail.com>=20
-a =E9crit :
-> On Mon, Mar 04, 2019 at 07:13:05PM +0100, Paul Cercueil wrote:
->>  Hi Thierry,
->>=20
->>  On Mon, Mar 4, 2019 at 1:22 PM, Thierry Reding=20
->> <thierry.reding@gmail.com>
->>  wrote:
->>  > On Sat, Mar 02, 2019 at 08:33:50PM -0300, Paul Cercueil wrote:
->>  > [...]
->>  > >  diff --git a/drivers/clocksource/ingenic-timer.c
->>  > > b/drivers/clocksource/ingenic-timer.c
-> [...]
->>  > >  +static u64 notrace ingenic_tcu_timer_read(void)
->>  > >  +{
->>  > >  +	unsigned int channel =3D ingenic_tcu->cs_channel;
->>  > >  +	u16 count;
->>  > >  +
->>  > >  +	count =3D readw(ingenic_tcu_base + TCU_REG_TCNTc(channel));
->>  >
->>  > Can't yo do this via the regmap?
->>=20
->>  I could, but for the sched_clock to be precise the function must=20
->> return
->>  as fast as possible. That's the rationale behind the use of readw()=20
->> here.
->>=20
->>  That's also the reason why ingenic_tcu_base is global and exported,=20
->> so
->>  that the OS Timer driver can use it as well.
->=20
-> Is the path through the regmap really significantly slower than the
-> direct register access? Anyway, if you need the global anyway, might=20
-> as
-> well use it.
+On Thu, Mar 7, 2019 at 6:22 AM Aisheng Dong <aisheng.dong@nxp.com> wrote:
+>
+> Hi Rob,
+>
+> > > > I think Rob suggested that the SCU parent driver should instantiate
+> > > > the watchdog without explicit watchdog node. That would be possible,
+> > > > but it currently uses
+> > > > devm_of_platform_populate() to do the instantiation, and changing
+> > > > that would be a mess. Besides, it does sem to me that your suggested
+> > > > node would describe the hardware, so I am not sure I understand the
+> > reasoning.
+> >
+> > It would just be a call to create a platform device instead. How is that a mess?
+> >
+> > It's describing firmware. We have DT for describing h/w we've failed to make
+> > discoverable. We should not repeat that and just describe firmware in DT.
+> > Make the firmware discoverable! Though there are cases like firmware
+> > provided clocks where we still need something in DT, but this is not one of
+> > them.
+> >
+>
+> The watchdog node here in question actually is not using SCU firmware call.
+> Due to security requirement by SCU, watchdog can only be accessed in
+> security mode, for IMX case, via ARM Trust Firmware. That means the
+> watchdog used in Linux actually is using ARM SMC call and does not
+> depend SCU driver. So It would be strange for SCU driver to instantiate it.
+>
+> For this situation, do you think we can move watchdog out of scu node?
+> Maybe rename the compatible string like "fsl,imx8qxp-sip-watchdog"
+> because it's actually a watchdog serviced by ATF firmware.
 
-About 10% slower.
+Yes, but that creates more questions. What exactly does ATF talk to
+for the watchdog? The SCU firmware?
 
-> [...]
->>  > >  +	// Register the sched_clock at the very end as there's no=20
->> way to
->>  > > undo it
->>  > >  +	rate =3D clk_get_rate(tcu->cs_clk);
->>  > >  +	sched_clock_register(ingenic_tcu_timer_read, 16, rate);
->>  >
->>  > Oh wow... so you managed to nicely encapsulate everything and now=20
->> this
->>  > seems to be the only reason why you need to rely on global=20
->> variables.
->>  >
->>  > That's unfortunate. I suppose we could go and add a void *data=20
->> parameter
->>  > to sched_clock_register() and pass that to the read() function.=20
->> That way
->>  > you could make this completely independent of global variables,=20
->> but
->>  > there are 73 callers of sched_clock_register() and they are=20
->> spread all
->>  > over the place, so sounds a bit daunting to me.
->>=20
->>  Yes, that's the main reason behind the use of a global variables.
->>  Is there a way we could introduce another callback, e.g.=20
->> .read_value(),
->>  that would receive a void *param? Then the current .read() callback
->>  can be deprecated and the 73 callers can be migrated later.
->=20
-> Yeah, I suppose that would be possible. I'll defer to Daniel and=20
-> Thomas
-> on this. They may not consider this important enough.
->=20
->>  > >  +
->>  > >  +	return 0;
->>  > >  +
->>  > >  +err_tcu_clocksource_cleanup:
->>  > >  +	ingenic_tcu_clocksource_cleanup(tcu);
->>  > >  +err_tcu_clk_cleanup:
->>  > >  +	ingenic_tcu_clk_cleanup(tcu, np);
->>  > >  +err_tcu_intc_cleanup:
->>  > >  +	ingenic_tcu_intc_cleanup(tcu);
->>  > >  +err_clk_disable:
->>  > >  +	clk_disable_unprepare(tcu->clk);
->>  > >  +err_clk_put:
->>  > >  +	clk_put(tcu->clk);
->>  > >  +err_free_regmap:
->>  > >  +	regmap_exit(tcu->map);
->>  > >  +err_iounmap:
->>  > >  +	iounmap(base);
->>  > >  +	release_mem_region(res.start, resource_size(&res));
->>  > >  +err_free_ingenic_tcu:
->>  > >  +	kfree(tcu);
->>  > >  +	return ret;
->>  > >  +}
->>  > >  +
->>  > >  +TIMER_OF_DECLARE(jz4740_tcu_intc,  "ingenic,jz4740-tcu",
->>  > > ingenic_tcu_init);
->>  > >  +TIMER_OF_DECLARE(jz4725b_tcu_intc, "ingenic,jz4725b-tcu",
->>  > > ingenic_tcu_init);
->>  > >  +TIMER_OF_DECLARE(jz4770_tcu_intc,  "ingenic,jz4770-tcu",
->>  > > ingenic_tcu_init);
->>  > >  +
->>  > >  +
->>  > >  +static int __init ingenic_tcu_probe(struct platform_device=20
->> *pdev)
->>  > >  +{
->>  > >  +	platform_set_drvdata(pdev, ingenic_tcu);
->>  >
->>  > Then there's also this. Oh well... nevermind then.
->>=20
->>  The content of ingenic_tcu_platform_init() could be moved inside
->>  ingenic_tcu_init(). But can we get a hold of the struct device=20
->> before the
->>  probe function is called? That would allow to set the drvdata and=20
->> regmap
->>  without relying on global state.
->=20
-> I'm not sure if the driver core is ready at this point. It's likely it
-> isn't, otherwise there'd be no need for TIMER_OF_DECLARE(), really. I
-> also vaguely recall looking into this a few years ago because of some
-> similar work I was but I eventually gave up because I couldn't find a
-> way that would allow both the code to execute early enough and still
-> use the regular driver model.
->=20
-> Platform device become available at arch_initcall_sync (3s), while the
-> TIMER_OF_DECLARE code runs way earlier than any of the initcalls, so I
-> don't think there's a way to do it. Unless perhaps if the timers can
-> be initialized later. I'm not sure if that's possible, and might not=20
-> be
-> worth it just for the sake of being pedantic.
->=20
-> Thierry
+Maybe ATF should define and provide a standard watchdog interface? It
+is still a question of making the firmware discoverable rather than
+trying to describe the firmware in DT.
 
-I think for the time being I can't really go around using the global=20
-variables.
-Hopefully that's something that can be fixed in the future.
-
--Paul
-=
-
+Rob
