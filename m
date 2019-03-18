@@ -1,144 +1,91 @@
-Return-Path: <SRS0=KfVr=RS=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=lwmN=RV=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CC74EC43381
-	for <linux-watchdog@archiver.kernel.org>; Fri, 15 Mar 2019 06:17:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 16A7EC43381
+	for <linux-watchdog@archiver.kernel.org>; Mon, 18 Mar 2019 01:19:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 97939218AC
-	for <linux-watchdog@archiver.kernel.org>; Fri, 15 Mar 2019 06:17:48 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=nxp.com header.i=@nxp.com header.b="P+byZbyC"
+	by mail.kernel.org (Postfix) with ESMTP id D67B920857
+	for <linux-watchdog@archiver.kernel.org>; Mon, 18 Mar 2019 01:19:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728412AbfCOGRs (ORCPT
+        id S1726878AbfCRBTT (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 15 Mar 2019 02:17:48 -0400
-Received: from mail-eopbgr80073.outbound.protection.outlook.com ([40.107.8.73]:19599
-        "EHLO EUR04-VI1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1728050AbfCOGRr (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 15 Mar 2019 02:17:47 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=cqFoZsQIKsDfdiJAXh1Jg3tUzHU6kQ8ML8CV0FXm2Ps=;
- b=P+byZbyCt9GCZfcCuGhH8qOilzSXwOYeXjQTWEatEHmt1wyueDmCRbbke3sK1Z+D9EaW3MSzvzayGnl8N6yj0e/Ku9YJwlNrWtmydaNpHZ4ruuPkDMaEWBcWmKyhVyowYr3TiTCb+g2tUA968OYMcg9dCf6utyOOwlbWLBlmXiI=
-Received: from DB3PR0402MB3916.eurprd04.prod.outlook.com (52.134.72.18) by
- DB3PR0402MB3916.eurprd04.prod.outlook.com (52.134.72.18) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.1709.13; Fri, 15 Mar 2019 06:17:43 +0000
-Received: from DB3PR0402MB3916.eurprd04.prod.outlook.com
- ([fe80::f1b4:a1fb:cfd1:3f08]) by DB3PR0402MB3916.eurprd04.prod.outlook.com
- ([fe80::f1b4:a1fb:cfd1:3f08%6]) with mapi id 15.20.1709.011; Fri, 15 Mar 2019
- 06:17:43 +0000
-From:   Anson Huang <anson.huang@nxp.com>
-To:     "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
-        "linux@roeck-us.net" <linux@roeck-us.net>,
-        "robh+dt@kernel.org" <robh+dt@kernel.org>,
-        "mark.rutland@arm.com" <mark.rutland@arm.com>,
-        "shawnguo@kernel.org" <shawnguo@kernel.org>,
-        "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>,
-        "kernel@pengutronix.de" <kernel@pengutronix.de>,
-        "festevam@gmail.com" <festevam@gmail.com>,
-        "catalin.marinas@arm.com" <catalin.marinas@arm.com>,
-        "will.deacon@arm.com" <will.deacon@arm.com>,
-        Aisheng Dong <aisheng.dong@nxp.com>,
-        Daniel Baluta <daniel.baluta@nxp.com>,
-        "heiko@sntech.de" <heiko@sntech.de>,
-        "horms+renesas@verge.net.au" <horms+renesas@verge.net.au>,
-        Andy Gross <andy.gross@linaro.org>,
-        "maxime.ripard@bootlin.com" <maxime.ripard@bootlin.com>,
-        "olof@lixom.net" <olof@lixom.net>,
-        "bjorn.andersson@linaro.org" <bjorn.andersson@linaro.org>,
-        "jagan@amarulasolutions.com" <jagan@amarulasolutions.com>,
-        "enric.balletbo@collabora.com" <enric.balletbo@collabora.com>,
-        "ezequiel@collabora.com" <ezequiel@collabora.com>,
-        "stefan.wahren@i2se.com" <stefan.wahren@i2se.com>,
-        "marc.w.gonzalez@free.fr" <marc.w.gonzalez@free.fr>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-CC:     dl-linux-imx <linux-imx@nxp.com>
-Subject: [PATCH V8 4/4] arm64: dts: imx8qxp: add system controller watchdog
- support
-Thread-Topic: [PATCH V8 4/4] arm64: dts: imx8qxp: add system controller
- watchdog support
-Thread-Index: AQHU2vbMElbJYOVD/kOr7R5ht0we7Q==
-Date:   Fri, 15 Mar 2019 06:17:42 +0000
-Message-ID: <1552630331-32068-5-git-send-email-Anson.Huang@nxp.com>
-References: <1552630331-32068-1-git-send-email-Anson.Huang@nxp.com>
-In-Reply-To: <1552630331-32068-1-git-send-email-Anson.Huang@nxp.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-mailer: git-send-email 2.7.4
-x-clientproxiedby: HK0PR01CA0002.apcprd01.prod.exchangelabs.com
- (2603:1096:203:92::14) To DB3PR0402MB3916.eurprd04.prod.outlook.com
- (2603:10a6:8:10::18)
-x-ms-exchange-messagesentrepresentingtype: 1
-x-originating-ip: [119.31.174.66]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 2188133c-2857-49a7-6c35-08d6a90deeb8
-x-ms-office365-filtering-ht: Tenant
-x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600127)(711020)(4605104)(4618075)(2017052603328)(7153060)(7193020);SRVR:DB3PR0402MB3916;
-x-ms-traffictypediagnostic: DB3PR0402MB3916:
-x-ld-processed: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635,ExtAddr
-x-microsoft-antispam-prvs: <DB3PR0402MB3916255794BC950D09F53ED4F5440@DB3PR0402MB3916.eurprd04.prod.outlook.com>
-x-forefront-prvs: 09778E995A
-x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(136003)(396003)(376002)(346002)(39860400002)(366004)(199004)(189003)(8936002)(2501003)(102836004)(2906002)(6436002)(68736007)(5660300002)(7416002)(6116002)(66066001)(36756003)(446003)(71190400001)(486006)(4744005)(71200400001)(76176011)(6346003)(2616005)(476003)(186003)(386003)(11346002)(3846002)(26005)(52116002)(6506007)(6486002)(305945005)(6512007)(256004)(478600001)(2201001)(86362001)(4326008)(25786009)(106356001)(105586002)(7736002)(316002)(110136005)(50226002)(14454004)(99286004)(8676002)(97736004)(81156014)(81166006)(53936002)(921003)(32563001)(1121003);DIR:OUT;SFP:1101;SCL:1;SRVR:DB3PR0402MB3916;H:DB3PR0402MB3916.eurprd04.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
-received-spf: None (protection.outlook.com: nxp.com does not designate
- permitted sender hosts)
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=anson.huang@nxp.com; 
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam-message-info: UmXwLbKuFSq9CFSbegp3ZIB6Pi0UHI6Gy6sKodTNYkCF3UJ4XkBonSci6Cv0/2Tnfk/UyFByGDWh55ccsoIENGlH90hrW/9wGgWqDRX7dqzTIIdwN+RHCfWMlDhq9qyIjClv5JGI4tk7zxOLu1MAx53bAXPgCc0bPnAcM95TLA2IYj1ZSFEob+FS9Rd8LdfSr2Iujtm571TuiTfZ9NWsypNtylgmXKfS0LbcdIQlO7HccVPpdRaKzKHgOmGXOQXaEH5zXPGZ/fgYjjCFKFGXAafJo2KOq96r75Lysj/ppStSUuVpJ5Kq6Zrt0B96XypCqw+yJlrzcGXgfb2StmSpkL5v2pSy7PdJSRUqhjUZZlaO6yKY+m10GSmkDSExNe55/z1vUtkecT3/lOkLHVGhCaZeUbVAgcqD6ogFdnUq/+k=
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+        Sun, 17 Mar 2019 21:19:19 -0400
+Received: from mail-wr1-f68.google.com ([209.85.221.68]:44383 "EHLO
+        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726512AbfCRBTT (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Sun, 17 Mar 2019 21:19:19 -0400
+Received: by mail-wr1-f68.google.com with SMTP id w2so15148245wrt.11
+        for <linux-watchdog@vger.kernel.org>; Sun, 17 Mar 2019 18:19:18 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=lFB3nklnkEAjZS6lQcgtLaEE780jsrFLXfmLpwt1Lt8=;
+        b=oQgTiHtmlcf0tNAEF8GHEuHGvBhEzbKBOo/n5NCmTUcA6UD1+Td2opndVKdNPoOveo
+         2FMiOQrBMe0c4ZSvFHQRyzLTH9mAu1Bzw56eX19fo+1KeTb4RDxuiU1S2u5X6J/HhZUZ
+         wuS5td8qxITI48YenxX0mK32JkkqbYzw9N7k7bUAgVqft6iAApSb36e7XNWAV04LokfN
+         DbYdsMQffRXgcq7NH2aFkjsjIZHLtUuyvQK+voLfRTwYbDqt/fvdCsjtjKL6kJ7Jv72k
+         ip/z39z+7vytRPHHG5+ytd633RWFCmUAwxPThirXQ5+k0J+OSYBMASJF8ZrYCAijRgzW
+         4+Ag==
+X-Gm-Message-State: APjAAAWGrYyzJseHRdN/z/znH7Prebstg66XHVlB+9mnQqoLgVjmb2j8
+        1nCFgh0+1ZB3wKCrsJucDlsXoQMTSgk=
+X-Google-Smtp-Source: APXvYqymcfao/Ls+UDdRV9TRfFIoMk15JeQwEzbkgL7tAGmT+GlNtM/eNqeRV9grS1G3ICDEHgN8DQ==
+X-Received: by 2002:adf:eac6:: with SMTP id o6mr9721709wrn.77.1552871957350;
+        Sun, 17 Mar 2019 18:19:17 -0700 (PDT)
+Received: from raver.teknoraver.net (net-188-216-58-50.cust.vodafonedsl.it. [188.216.58.50])
+        by smtp.gmail.com with ESMTPSA id y1sm7277962wma.48.2019.03.17.18.19.16
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Sun, 17 Mar 2019 18:19:16 -0700 (PDT)
+From:   Matteo Croce <mcroce@redhat.com>
+To:     linux-watchdog@vger.kernel.org
+Cc:     Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>
+Subject: [PATCH] watchdog: i6300esb: stop printing kernel addresses
+Date:   Mon, 18 Mar 2019 02:19:15 +0100
+Message-Id: <20190318011915.32442-1-mcroce@redhat.com>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-X-OriginatorOrg: nxp.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 2188133c-2857-49a7-6c35-08d6a90deeb8
-X-MS-Exchange-CrossTenant-originalarrivaltime: 15 Mar 2019 06:17:42.9370
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB3PR0402MB3916
+Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Add i.MX8QXP system controller watchdog support.
+Since commit ad67b74d2469d9b8 ("printk: hash addresses printed with %p"),
+i6300esb prints "____ptrval____" instead of actual addresses:
 
-Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
----
-Changes since previous version:
-	- remove label as we ONLY have one watchdog.
----
- arch/arm64/boot/dts/freescale/imx8qxp.dtsi | 4 ++++
- 1 file changed, 4 insertions(+)
+    i6300ESB timer 0000:00:03.0: initialized (0x(____ptrval____)). heartbeat=30 sec (nowayout=1)
 
-diff --git a/arch/arm64/boot/dts/freescale/imx8qxp.dtsi b/arch/arm64/boot/d=
-ts/freescale/imx8qxp.dtsi
-index 4c3dd95..279482d 100644
---- a/arch/arm64/boot/dts/freescale/imx8qxp.dtsi
-+++ b/arch/arm64/boot/dts/freescale/imx8qxp.dtsi
-@@ -443,4 +443,8 @@
- 			power-domains =3D <&pd IMX_SC_R_GPIO_7>;
- 		};
- 	};
-+
-+	watchdog {
-+		compatible =3D "fsl,imx8qxp-sc-wdt", "fsl,imx-sc-wdt";
-+	};
- };
---=20
-2.7.4
+Instead of changing the print to "%px", and leaking kernel addresses,
+just remove the print completely, cfr. e.g. commit 071929dbdd865f77
+("arm64: Stop printing the virtual memory layout").
+
+Signed-off-by: Matteo Croce <mcroce@redhat.com>
+---
+ drivers/watchdog/i6300esb.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/watchdog/i6300esb.c b/drivers/watchdog/i6300esb.c
+index 950c71a8bb22..e312a2aeecad 100644
+--- a/drivers/watchdog/i6300esb.c
++++ b/drivers/watchdog/i6300esb.c
+@@ -328,8 +328,8 @@ static int esb_probe(struct pci_dev *pdev,
+ 		goto err_unmap;
+ 	}
+ 	dev_info(&pdev->dev,
+-		"initialized (0x%p). heartbeat=%d sec (nowayout=%d)\n",
+-		edev->base, edev->wdd.timeout, nowayout);
++		"initialized. heartbeat=%d sec (nowayout=%d)\n",
++		edev->wdd.timeout, nowayout);
+ 	return 0;
+ 
+ err_unmap:
+-- 
+2.20.1
 
