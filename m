@@ -2,112 +2,115 @@ Return-Path: <SRS0=unYq=RX=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_MUTT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A1BADC43381
-	for <linux-watchdog@archiver.kernel.org>; Wed, 20 Mar 2019 18:17:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 647BCC43381
+	for <linux-watchdog@archiver.kernel.org>; Wed, 20 Mar 2019 19:27:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 84538218AC
-	for <linux-watchdog@archiver.kernel.org>; Wed, 20 Mar 2019 18:17:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3C4FD218A1
+	for <linux-watchdog@archiver.kernel.org>; Wed, 20 Mar 2019 19:27:13 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="key not found in DNS" (0-bit key) header.d=codeaurora.org header.i=@codeaurora.org header.b="GMdIfA/L";
+	dkim=fail reason="key not found in DNS" (0-bit key) header.d=codeaurora.org header.i=@codeaurora.org header.b="hk0/DHHC"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727421AbfCTSRJ (ORCPT
+        id S1726303AbfCTT1M (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 20 Mar 2019 14:17:09 -0400
-Received: from gateway24.websitewelcome.com ([192.185.51.172]:25958 "EHLO
-        gateway24.websitewelcome.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726529AbfCTSRJ (ORCPT
+        Wed, 20 Mar 2019 15:27:12 -0400
+Received: from smtp.codeaurora.org ([198.145.29.96]:38332 "EHLO
+        smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726023AbfCTT1M (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 20 Mar 2019 14:17:09 -0400
-Received: from cm13.websitewelcome.com (cm13.websitewelcome.com [100.42.49.6])
-        by gateway24.websitewelcome.com (Postfix) with ESMTP id 36170E64F6
-        for <linux-watchdog@vger.kernel.org>; Wed, 20 Mar 2019 13:17:08 -0500 (CDT)
-Received: from gator4166.hostgator.com ([108.167.133.22])
-        by cmsmtp with SMTP
-        id 6fm0hP5xxYTGM6fm0hbmk0; Wed, 20 Mar 2019 13:17:08 -0500
-X-Authority-Reason: nr=8
-Received: from [189.250.104.39] (port=57748 helo=embeddedor)
-        by gator4166.hostgator.com with esmtpa (Exim 4.91)
-        (envelope-from <gustavo@embeddedor.com>)
-        id 1h6flr-002fa8-Tg; Wed, 20 Mar 2019 13:17:07 -0500
-Date:   Wed, 20 Mar 2019 13:16:58 -0500
-From:   "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
-        Kees Cook <keescook@chromium.org>
-Subject: [PATCH] watchdog: alim7101: Mark expected switch fall-through
-Message-ID: <20190320181658.GA6749@embeddedor>
+        Wed, 20 Mar 2019 15:27:12 -0400
+Received: by smtp.codeaurora.org (Postfix, from userid 1000)
+        id 9E5446119E; Wed, 20 Mar 2019 19:27:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+        s=default; t=1553110031;
+        bh=KxsE+Vgi098gw7lUagctKNE7jjetmQhiXBz4P4yXpss=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=GMdIfA/LX07diV4w/UODDabnaFHSKD2u8i7ea/zVerCCTaVswxWlWl2FnXElIJqO8
+         p+K8DgX6Bj8KcIVvgIYyDWC23W/yqkHxkKOo8ytInAnv3MCPnvY6axoHno1jgniDCk
+         ZoCRzAShlhiqg/cZ6+NmXcecxm/GGCp3Xk9rucbg=
+Received: from [10.79.162.149] (blr-bdr-fw-01_globalnat_allzones-outside.qualcomm.com [103.229.18.19])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        (Authenticated sender: mojha@smtp.codeaurora.org)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id C8E5261112;
+        Wed, 20 Mar 2019 19:27:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+        s=default; t=1553110030;
+        bh=KxsE+Vgi098gw7lUagctKNE7jjetmQhiXBz4P4yXpss=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=hk0/DHHCwnQ32QvkyWXYCzqG3sO1WjTx+Av1hb/jCHSLzaxxL5lxZEC7yHC4N9rMv
+         hXDTjdBNgh1ZhZ/bDt1za18eX+6POGsFeKj5YxxoDgyBice3lPogehhWBc83yyJxGU
+         YY0nEHh6gMGEduLQHci9wLWLMy9S9rLdT5qN+6OU=
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org C8E5261112
+Authentication-Results: pdx-caf-mail.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: pdx-caf-mail.web.codeaurora.org; spf=none smtp.mailfrom=mojha@codeaurora.org
+Subject: Re: [PATCH -next] watchdog: sb_wdog: Make sbwdog_set and sbwdog_pet
+ static
+To:     Yue Haibing <yuehaibing@huawei.com>, wim@linux-watchdog.org,
+        linux@roeck-us.net
+Cc:     linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org
+References: <20190320134250.13348-1-yuehaibing@huawei.com>
+From:   Mukesh Ojha <mojha@codeaurora.org>
+Message-ID: <45a85dca-93e8-80eb-3392-028a3dca4b3d@codeaurora.org>
+Date:   Thu, 21 Mar 2019 00:57:00 +0530
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.4.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.9.4 (2018-02-28)
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - gator4166.hostgator.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - embeddedor.com
-X-BWhitelist: no
-X-Source-IP: 189.250.104.39
-X-Source-L: No
-X-Exim-ID: 1h6flr-002fa8-Tg
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: (embeddedor) [189.250.104.39]:57748
-X-Source-Auth: gustavo@embeddedor.com
-X-Email-Count: 3
-X-Source-Cap: Z3V6aWRpbmU7Z3V6aWRpbmU7Z2F0b3I0MTY2Lmhvc3RnYXRvci5jb20=
-X-Local-Domain: yes
+In-Reply-To: <20190320134250.13348-1-yuehaibing@huawei.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-In preparation to enabling -Wimplicit-fallthrough, mark switch
-cases where we are expecting to fall through.
 
-This patch fixes the following warning:
+On 3/20/2019 7:12 PM, Yue Haibing wrote:
+> From: YueHaibing <yuehaibing@huawei.com>
+>
+> Fix sparse warning:
+>
+> drivers/watchdog/sb_wdog.c:70:6: warning: symbol 'sbwdog_set' was not declared. Should it be static?
+> drivers/watchdog/sb_wdog.c:84:6: warning: symbol 'sbwdog_pet' was not declared. Should it be static?
+>
+> Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+> ---
+>   drivers/watchdog/sb_wdog.c | 4 ++--
+>   1 file changed, 2 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/watchdog/sb_wdog.c b/drivers/watchdog/sb_wdog.c
+> index 3abae50..8264fced 100644
+> --- a/drivers/watchdog/sb_wdog.c
+> +++ b/drivers/watchdog/sb_wdog.c
+> @@ -67,7 +67,7 @@ static DEFINE_SPINLOCK(sbwd_lock);
+>    *
+>    * wdog is the iomem address of the cfg register
+>    */
+> -void sbwdog_set(char __iomem *wdog, unsigned long t)
+> +static void sbwdog_set(char __iomem *wdog, unsigned long t)
+>   {
+>   	spin_lock(&sbwd_lock);
+>   	__raw_writeb(0, wdog);
+> @@ -81,7 +81,7 @@ void sbwdog_set(char __iomem *wdog, unsigned long t)
+>    *
+>    * wdog is the iomem address of the cfg register
+>    */
+> -void sbwdog_pet(char __iomem *wdog)
+> +static void sbwdog_pet(char __iomem *wdog)
+>   {
+>   	spin_lock(&sbwd_lock);
+>   	__raw_writeb(__raw_readb(wdog) | 1, wdog);
 
-drivers/watchdog/alim7101_wdt.c: In function ‘fop_ioctl’:
-drivers/watchdog/alim7101_wdt.c:279:3: warning: this statement may fall through [-Wimplicit-fallthrough=]
-   wdt_keepalive();
-   ^~~~~~~~~~~~~~~
-drivers/watchdog/alim7101_wdt.c:282:2: note: here
-  case WDIOC_GETTIMEOUT:
-  ^~~~
 
-Notice that, in this particular case, the /* Fall through */
-comment is placed at the very bottom of the case statement,
-which is what GCC is expecting to find.
+Acked-by: Mukesh Ojha <mojha@codeaurora.org>
 
-Warning level 3 was used: -Wimplicit-fallthrough=3
 
-This patch is part of the ongoing efforts to enabling
--Wimplicit-fallthrough.
+Thanks.
 
-Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
----
- drivers/watchdog/alim7101_wdt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/watchdog/alim7101_wdt.c b/drivers/watchdog/alim7101_wdt.c
-index 12f7ea62dddd..f5ada07e9202 100644
---- a/drivers/watchdog/alim7101_wdt.c
-+++ b/drivers/watchdog/alim7101_wdt.c
-@@ -277,8 +277,8 @@ static long fop_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
- 			return -EINVAL;
- 		timeout = new_timeout;
- 		wdt_keepalive();
--		/* Fall through */
- 	}
-+		/* Fall through */
- 	case WDIOC_GETTIMEOUT:
- 		return put_user(timeout, p);
- 	default:
--- 
-2.21.0
+Mukesh
 
