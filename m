@@ -1,145 +1,109 @@
-Return-Path: <SRS0=4TdZ=RY=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=0Tyr=RZ=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C4FBC43381
-	for <linux-watchdog@archiver.kernel.org>; Thu, 21 Mar 2019 02:27:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CA3BFC43381
+	for <linux-watchdog@archiver.kernel.org>; Fri, 22 Mar 2019 03:37:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 028EF21915
-	for <linux-watchdog@archiver.kernel.org>; Thu, 21 Mar 2019 02:27:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 96F0F20830
+	for <linux-watchdog@archiver.kernel.org>; Fri, 22 Mar 2019 03:37:18 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=nxp.com header.i=@nxp.com header.b="e9Vfwe6w"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eGLjy0IG"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727551AbfCUC1L (ORCPT
+        id S1727482AbfCVDhS (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 20 Mar 2019 22:27:11 -0400
-Received: from mail-eopbgr20048.outbound.protection.outlook.com ([40.107.2.48]:38299
-        "EHLO EUR02-VE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1727660AbfCUC1L (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 20 Mar 2019 22:27:11 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=VQ0/86U+EphEVnjdSHAUsonhr/mcz6iFc46MXR1SFvY=;
- b=e9Vfwe6wwOch+8qyKS4X4TVuhx8Z0iOnZq2WuzlXODKeV4XPZiD2M6/aJRbdFstZRjjC8TNOdasUNUqzGs+fAYcZQYEkhZCKSn3C7ho4r0Nk3t//QuywAGTHttKyEExNshyTgSo/aWCBZpIzDzI4XoOsCIArng3KXcqcThc85iU=
-Received: from DB3PR0402MB3916.eurprd04.prod.outlook.com (52.134.72.18) by
- DB3PR0402MB3785.eurprd04.prod.outlook.com (52.134.71.145) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.1730.16; Thu, 21 Mar 2019 02:27:06 +0000
-Received: from DB3PR0402MB3916.eurprd04.prod.outlook.com
- ([fe80::f1b4:a1fb:cfd1:3f08]) by DB3PR0402MB3916.eurprd04.prod.outlook.com
- ([fe80::f1b4:a1fb:cfd1:3f08%7]) with mapi id 15.20.1730.013; Thu, 21 Mar 2019
- 02:27:06 +0000
-From:   Anson Huang <anson.huang@nxp.com>
-To:     "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
-        "linux@roeck-us.net" <linux@roeck-us.net>,
-        "robh+dt@kernel.org" <robh+dt@kernel.org>,
-        "mark.rutland@arm.com" <mark.rutland@arm.com>,
-        "shawnguo@kernel.org" <shawnguo@kernel.org>,
-        "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>,
-        "kernel@pengutronix.de" <kernel@pengutronix.de>,
-        "festevam@gmail.com" <festevam@gmail.com>,
-        "catalin.marinas@arm.com" <catalin.marinas@arm.com>,
-        "will.deacon@arm.com" <will.deacon@arm.com>,
-        Aisheng Dong <aisheng.dong@nxp.com>,
-        Daniel Baluta <daniel.baluta@nxp.com>,
-        "horms+renesas@verge.net.au" <horms+renesas@verge.net.au>,
-        "heiko@sntech.de" <heiko@sntech.de>,
-        "maxime.ripard@bootlin.com" <maxime.ripard@bootlin.com>,
-        Andy Gross <andy.gross@linaro.org>,
-        "jagan@amarulasolutions.com" <jagan@amarulasolutions.com>,
-        "bjorn.andersson@linaro.org" <bjorn.andersson@linaro.org>,
-        "enric.balletbo@collabora.com" <enric.balletbo@collabora.com>,
-        "ezequiel@collabora.com" <ezequiel@collabora.com>,
-        "stefan.wahren@i2se.com" <stefan.wahren@i2se.com>,
-        "marc.w.gonzalez@free.fr" <marc.w.gonzalez@free.fr>,
-        "olof@lixom.net" <olof@lixom.net>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-CC:     dl-linux-imx <linux-imx@nxp.com>
-Subject: [PATCH V9 4/4] arm64: dts: imx8qxp: add system controller watchdog
- support
-Thread-Topic: [PATCH V9 4/4] arm64: dts: imx8qxp: add system controller
- watchdog support
-Thread-Index: AQHU342TWNNzY9c5R0+JM4M29z9vbg==
-Date:   Thu, 21 Mar 2019 02:27:06 +0000
-Message-ID: <1553134884-1720-5-git-send-email-Anson.Huang@nxp.com>
-References: <1553134884-1720-1-git-send-email-Anson.Huang@nxp.com>
-In-Reply-To: <1553134884-1720-1-git-send-email-Anson.Huang@nxp.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-mailer: git-send-email 2.7.4
-x-clientproxiedby: HK0PR04CA0017.apcprd04.prod.outlook.com
- (2603:1096:203:36::29) To DB3PR0402MB3916.eurprd04.prod.outlook.com
- (2603:10a6:8:10::18)
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=anson.huang@nxp.com; 
-x-ms-exchange-messagesentrepresentingtype: 1
-x-originating-ip: [119.31.174.66]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: b63e9d8c-b1d6-4840-b3e8-08d6ada4b5ef
-x-ms-office365-filtering-ht: Tenant
-x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600127)(711020)(4605104)(4618075)(2017052603328)(7153060)(7193020);SRVR:DB3PR0402MB3785;
-x-ms-traffictypediagnostic: DB3PR0402MB3785:
-x-ld-processed: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635,ExtAddr
-x-microsoft-antispam-prvs: <DB3PR0402MB37854F97014E90880706A2C9F5420@DB3PR0402MB3785.eurprd04.prod.outlook.com>
-x-forefront-prvs: 0983EAD6B2
-x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(346002)(39860400002)(376002)(136003)(396003)(366004)(199004)(189003)(11346002)(316002)(478600001)(446003)(486006)(2616005)(7736002)(476003)(305945005)(66066001)(8676002)(81156014)(14454004)(386003)(110136005)(6506007)(36756003)(68736007)(6486002)(6436002)(256004)(102836004)(52116002)(105586002)(99286004)(76176011)(81166006)(106356001)(26005)(186003)(97736004)(4326008)(50226002)(4744005)(2501003)(8936002)(25786009)(3846002)(6116002)(6512007)(5660300002)(53936002)(2906002)(86362001)(2201001)(7416002)(71200400001)(71190400001)(921003)(32563001)(1121003);DIR:OUT;SFP:1101;SCL:1;SRVR:DB3PR0402MB3785;H:DB3PR0402MB3916.eurprd04.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
-received-spf: None (protection.outlook.com: nxp.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam-message-info: ojLRwGXPomyiTnlDXbDlmrJxo/YBFY/Wi2FEq/ZoSLLnzMeMzHdEqey1Is8C8nPJjmi8z3811wzpkWfijObYKmgB6IyGUshKAVuEnWjSNcHh4SGJBA+E8ADsm5YMb/7DXWT3VE5vleRfxPxE9Vabgs2FFFdC4h2VGwhyh8paL38iE/5mVZZWpxTHtMPPxVWjYUw7YLit7e7T3GyObxAI5d1caY+Rec4B1s0MOZ9q0SOQWh0EBPzhZt+rO/wHq1VppqkbxrZmABy9EnXU9bjQgFmEN2dTxIRvrJ5m5MFqXVhJePQDMvo/e0LFslhTediNCpeU6+uzhdZaUx1Gjc4K4gnTbT/BnZcCDlJcyh4KDDztL2el0w5NMcdGudqOmh2syanUeBRMHR9fcIo8KXW7y0Wf/N3ZRJ1OxaJ/VXYl/XI=
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-MIME-Version: 1.0
-X-OriginatorOrg: nxp.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: b63e9d8c-b1d6-4840-b3e8-08d6ada4b5ef
-X-MS-Exchange-CrossTenant-originalarrivaltime: 21 Mar 2019 02:27:06.3844
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB3PR0402MB3785
+        Thu, 21 Mar 2019 23:37:18 -0400
+Received: from mail-pg1-f194.google.com ([209.85.215.194]:37081 "EHLO
+        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725999AbfCVDhS (ORCPT
+        <rfc822;linux-watchdog@vger.kernel.org>);
+        Thu, 21 Mar 2019 23:37:18 -0400
+Received: by mail-pg1-f194.google.com with SMTP id q206so518222pgq.4;
+        Thu, 21 Mar 2019 20:37:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id;
+        bh=Zpd68iHF+h74ftS2xRlX/CcDN+gZBWzsxg/Xi8TxCoE=;
+        b=eGLjy0IGplxrYvynOzxuaLoj1UUDr8kxTtpyIrTfv3Z8AczC2WssFw2ifVRQL1Wn0r
+         MAEm77ibdHXtksT5f5sIVLfxif5NGrAmJBZgCq7NGlY5JWB8SaCJVLXXJifK/KDVtwVs
+         j/F1GRiNf03TF3JXkCODDFznoLlfVT4N3pAw3NhOJKC6mVrruXt51cKOzRlkZNu6TRUO
+         4n91vYGtI69kErEKYqd3tTmFS74JxZ/HStioE8Nr0fcBX3IKcetpPslwsGVJJe62pXKt
+         Aj1cfGo3HcyKvn7O9FRw/hvL+VPbOC1TGqohsf62C6PaQKFQc1kImgovjZNMjaC2MoJF
+         ko9w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=Zpd68iHF+h74ftS2xRlX/CcDN+gZBWzsxg/Xi8TxCoE=;
+        b=IrOy/X5GlXbYTnsCfIYDeF25/7DI/SWTF9nc4Buh1Nrhcf/oKNiG2KgQpuEXE7siQL
+         m86w2wMVGWOQz0oY0bJDVRNfB9oMmMUVrKGHMZIJQJrew79BfrjbwYOr3g0sTNNNUefB
+         JYhaqCZuRrUeSBvmBNyY6Lws9t8vQip2pbM2btaMlZZbzBnxwXx6Z+rIy7Ag5F4zJcdq
+         7JT+00b4sYn0xZM2quufpJ7mVJYnC0OlNEwYTWDuKoePW3cu0eOr2RFaRro5Ts1bGRzG
+         wFWRD8REJrxJjFcBILTBp2JSx0+EzLkSk6Vf3uJ3tVlYi51LnaT8OFI7qhPxK5MQE0FT
+         8i6Q==
+X-Gm-Message-State: APjAAAXeHYGyiUl30WyTg/0c35Pwmx7vGd4h0WWtfNl5mGvxWHlU4rkR
+        C3p1CiCq0FZF1UVOL/204So=
+X-Google-Smtp-Source: APXvYqxcrrTKv+pq+7qzPGEOlwIcvxh2A8kWfaTpW7Iyq+Rae7B9TF01w7MPN7tiyCdNaelKlbhP9g==
+X-Received: by 2002:a17:902:848f:: with SMTP id c15mr7228852plo.240.1553225836874;
+        Thu, 21 Mar 2019 20:37:16 -0700 (PDT)
+Received: from localhost (59-120-186-245.HINET-IP.hinet.net. [59.120.186.245])
+        by smtp.gmail.com with ESMTPSA id y26sm7520627pfe.93.2019.03.21.20.37.15
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 21 Mar 2019 20:37:16 -0700 (PDT)
+From:   "Ji-Ze Hong (Peter Hong)" <hpeter@gmail.com>
+X-Google-Original-From: "Ji-Ze Hong (Peter Hong)" <hpeter+linux_kernel@gmail.com>
+To:     wim@linux-watchdog.orgw, linux@roeck-us.net
+Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org,
+        "Ji-Ze Hong (Peter Hong)" <hpeter+linux_kernel@gmail.com>
+Subject: [PATCH V1 1/1] watchdog: f71808e_wdt: fix F81866 bit operation
+Date:   Fri, 22 Mar 2019 11:36:56 +0800
+Message-Id: <1553225816-24375-1-git-send-email-hpeter+linux_kernel@gmail.com>
+X-Mailer: git-send-email 2.7.4
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Add i.MX8QXP system controller watchdog support.
+Fix error bit operation in watchdog_start()
 
-Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
+Signed-off-by: Ji-Ze Hong (Peter Hong) <hpeter+linux_kernel@gmail.com>
 ---
-Changes since V8:
-	- add timeout property.
----
- arch/arm64/boot/dts/freescale/imx8qxp.dtsi | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/watchdog/f71808e_wdt.c | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/freescale/imx8qxp.dtsi b/arch/arm64/boot/d=
-ts/freescale/imx8qxp.dtsi
-index 019abce..ca4541e 100644
---- a/arch/arm64/boot/dts/freescale/imx8qxp.dtsi
-+++ b/arch/arm64/boot/dts/freescale/imx8qxp.dtsi
-@@ -473,4 +473,9 @@
- 			power-domains =3D <&pd IMX_SC_R_GPIO_7>;
- 		};
- 	};
+diff --git a/drivers/watchdog/f71808e_wdt.c b/drivers/watchdog/f71808e_wdt.c
+index 9a1c761258ce..9129485732c7 100644
+--- a/drivers/watchdog/f71808e_wdt.c
++++ b/drivers/watchdog/f71808e_wdt.c
+@@ -387,18 +387,17 @@ static int watchdog_start(void)
+ 
+ 	case f81866:
+ 		/* Set pin 70 to WDTRST# */
+-		superio_clear_bit(watchdog.sioaddr, SIO_F81866_REG_PORT_SEL,
+-				  BIT(3) | BIT(0));
+-		superio_set_bit(watchdog.sioaddr, SIO_F81866_REG_PORT_SEL,
+-				BIT(2));
++		superio_clear_bit(watchdog.sioaddr, SIO_F81866_REG_PORT_SEL, 3);
++		superio_clear_bit(watchdog.sioaddr, SIO_F81866_REG_PORT_SEL, 0);
++		superio_set_bit(watchdog.sioaddr, SIO_F81866_REG_PORT_SEL, 2);
 +
-+	watchdog {
-+		compatible =3D "fsl,imx8qxp-sc-wdt", "fsl,imx-sc-wdt";
-+		timeout-sec =3D <60>;
-+	};
- };
---=20
+ 		/*
+ 		 * GPIO1 Control Register when 27h BIT3:2 = 01 & BIT0 = 0.
+ 		 * The PIN 70(GPIO15/WDTRST) is controlled by 2Ch:
+ 		 *     BIT5: 0 -> WDTRST#
+ 		 *           1 -> GPIO15
+ 		 */
+-		superio_clear_bit(watchdog.sioaddr, SIO_F81866_REG_GPIO1,
+-				  BIT(5));
++		superio_clear_bit(watchdog.sioaddr, SIO_F81866_REG_GPIO1, 5);
+ 		break;
+ 
+ 	default:
+-- 
 2.7.4
 
