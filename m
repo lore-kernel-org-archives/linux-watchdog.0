@@ -4,58 +4,58 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.0 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9428AC10F05
-	for <linux-watchdog@archiver.kernel.org>; Sat, 23 Mar 2019 21:19:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0C079C43381
+	for <linux-watchdog@archiver.kernel.org>; Sat, 23 Mar 2019 21:19:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5ED9C2133F
-	for <linux-watchdog@archiver.kernel.org>; Sat, 23 Mar 2019 21:19:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CC2892133F
+	for <linux-watchdog@archiver.kernel.org>; Sat, 23 Mar 2019 21:19:12 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre-com.20150623.gappssmtp.com header.i=@baylibre-com.20150623.gappssmtp.com header.b="ZfoJ8FWW"
+	dkim=pass (2048-bit key) header.d=baylibre-com.20150623.gappssmtp.com header.i=@baylibre-com.20150623.gappssmtp.com header.b="dJk++uOx"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728476AbfCWVRF (ORCPT
+        id S1728460AbfCWVTM (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sat, 23 Mar 2019 17:17:05 -0400
-Received: from mail-wm1-f66.google.com ([209.85.128.66]:52714 "EHLO
-        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728433AbfCWVRC (ORCPT
+        Sat, 23 Mar 2019 17:19:12 -0400
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:45752 "EHLO
+        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728377AbfCWVQ7 (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 23 Mar 2019 17:17:02 -0400
-Received: by mail-wm1-f66.google.com with SMTP id a184so5278919wma.2
-        for <linux-watchdog@vger.kernel.org>; Sat, 23 Mar 2019 14:17:01 -0700 (PDT)
+        Sat, 23 Mar 2019 17:16:59 -0400
+Received: by mail-wr1-f66.google.com with SMTP id s15so5964136wra.12
+        for <linux-watchdog@vger.kernel.org>; Sat, 23 Mar 2019 14:16:58 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=baylibre-com.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=VDrizs2/2ZAftGyDtPa0UqsjZPPXfl5+5ooldcgiEvQ=;
-        b=ZfoJ8FWWjKGpcf9d8YwDrrIirJDbmWiEjOXqDMQPc8rWiEWNMYPlq1pRe8QH+BaV6H
-         pkrLqStBymgTLCR5hhVa9XS/OndbeL7zySXywosVPnf95crPm6DXiIq7K1kIo3xrhs36
-         pvZIuTX23bTXySIbRHTULrEB4Vu0bxx0I/dsLemhJ1ID/pUBe7s6X5AJXbLjVOCKOKCC
-         O8LPKDU+NZ2tFgvLKMJzAjeLaiTHVpCIHyXb0J1Ua1kYxpdvWG0yf1zNgYhHiWcyGoKJ
-         Wrz6wRK3KeNHqnpmlYcE1SfcxeU1v5wcz9/CYzAa6pZoJ26NTBmbEI3wcBHFs4iAMjCz
-         wvGw==
+        bh=XjSY7GkEUKTVia2V0gFbX9EZoOEjMqM9LfrLzseMi5w=;
+        b=dJk++uOx5tpZufmmq0SOswI/AqF9PCcaFhN0q0rCUw5njHqtJLv5MKR3ZR2KOC/hus
+         k+h9uovDHQ+mY6Lytc+UfKuxYusxcrAWABcn2cQ5ege4cGwNCV24N/k1cjc604giAIoq
+         7AlGeZ3lPlwypJ3TrPfPIIVgbp+PFmydj1zMcG2RR+C+/oSpzx9CDyPFuymaIjzI1RYe
+         kuSGryHEowptYI+LcGval1WkVnr2Y8UFJisyRUz2KZd07H2xqgosXAUPnAAg0B8Rn4x0
+         6ivVKXCs/8sT/MI6WTmv3XYcefKa826X1emJe/XZuPSgpN9xzry8RV9Y+dE2S6USK9YH
+         WfGg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=VDrizs2/2ZAftGyDtPa0UqsjZPPXfl5+5ooldcgiEvQ=;
-        b=GCSQkn4skTrqzd407i4sgRdeoRHaK9WtnYlyngeEQfAgr9UJXx7qhnfzn2a/hMhpsP
-         lBOTQXwJrNf/5R/ArFHdoUvMd53r0BktSbMKyXvq7P1+VGPkJmjJ7XWhAHKDEEAX/jWO
-         4jm8YLs9AVTQOBI28Yxw4QUToZIsI+Bo4zar75m7OsQj0JTWX9DC4A3Kk0auIYSy7DQe
-         FnKbMMkhPWvf/YAwzuNGAQm2/EFUEX0jOSt46yL1QJ5GnQ2zUZT81cP/G7E2IzKGZbVr
-         jXKku2mixbjf5bx6M1GSqWrOFkXSZY+HpNA12HEC0nykBPo1esixMkxhomcRS6Hj620x
-         U5DA==
-X-Gm-Message-State: APjAAAWBdIfcTBEcayQyrwGkeI21mqDrzfTmzvhfDBkZCvpIryLEZ1Ey
-        1sdxkxYygtGxLEGdIcAJQMgfDg==
-X-Google-Smtp-Source: APXvYqynNilWbzifjm8V9o5qdrR1Mbct64Bkz7ip1tKMi8jiaJiaxwasknDL/Rs9NTJNNkzHIdVr6w==
-X-Received: by 2002:a7b:c404:: with SMTP id k4mr927170wmi.117.1553375820854;
-        Sat, 23 Mar 2019 14:17:00 -0700 (PDT)
+        bh=XjSY7GkEUKTVia2V0gFbX9EZoOEjMqM9LfrLzseMi5w=;
+        b=f8PaXlA6kFxgh9nFaE4gaKtu1qDwo7imSHFoBBCB+s6p+oJbmGV53o3yRfxHi9T3rq
+         zB8vW1G5EaP1sZMTaBHSLk4MXI3s2GJEFNi80Aog4O+E3Qhknn4TjLwWvnDXmpLIoqkf
+         RxjF3+ZKq37kIQKhtsUEWKbawX1uSPXk0BnOreYb+Ce1dKZ0f9NRgWvZx408ddjX7sVM
+         8e4R1mpKCk6HH8HWfpZcRm5Zagm3VK2pgkbT/S7CT86ZbWyjGscVn4FFz5sAVCDsyZKt
+         /3M6LTAb6vo1p+FOc+T6QjrMoKu1S7APxoEN+hJyDb/X3pX8qFljgdTVDzxZfPskdRJB
+         fR7A==
+X-Gm-Message-State: APjAAAWZCfQ5sc7k+ZUEfx+HF0iqcKkHXH1lzC96Kx7ukVsBwituj2QM
+        MSp+ykuLfVitRvNAKAAM2b236A==
+X-Google-Smtp-Source: APXvYqyYO48bTY3cyp2gU4ct6hmi4qwhdUyjfSzlyOoq5TPdIWdzRX4XfQYrpZ4rO7Tx/wA8f82/MA==
+X-Received: by 2002:adf:dc08:: with SMTP id t8mr11186790wri.103.1553375817902;
+        Sat, 23 Mar 2019 14:16:57 -0700 (PDT)
 Received: from localhost.localdomain (cag06-8-78-203-165-84.fbx.proxad.net. [78.203.165.84])
-        by smtp.gmail.com with ESMTPSA id y66sm8050503wmd.37.2019.03.23.14.16.58
+        by smtp.gmail.com with ESMTPSA id y66sm8050503wmd.37.2019.03.23.14.16.55
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 23 Mar 2019 14:17:00 -0700 (PDT)
+        Sat, 23 Mar 2019 14:16:57 -0700 (PDT)
 From:   Fabien Parent <fparent@baylibre.com>
 To:     matthias.bgg@gmail.com, robh+dt@kernel.org, mark.rutland@arm.com
 Cc:     sean.wang@kernel.org, ryder.lee@mediatek.com,
@@ -69,9 +69,9 @@ Cc:     sean.wang@kernel.org, ryder.lee@mediatek.com,
         linux-spi@vger.kernel.org, linux-watchdog@vger.kernel.org,
         linux-clk@vger.kernel.org, stephane.leprovost@mediatek.com,
         Fabien Parent <fparent@baylibre.com>
-Subject: [PATCH 09/24] mmc: mtk-sd: check for valid optional memory resource
-Date:   Sat, 23 Mar 2019 22:15:57 +0100
-Message-Id: <20190323211612.860-10-fparent@baylibre.com>
+Subject: [PATCH 08/24] dt-bindings: mmc: mtk-sd: add mtk-sd support for MT8516
+Date:   Sat, 23 Mar 2019 22:15:56 +0100
+Message-Id: <20190323211612.860-9-fparent@baylibre.com>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190323211612.860-1-fparent@baylibre.com>
 References: <20190323211612.860-1-fparent@baylibre.com>
@@ -82,34 +82,25 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-'top_base' memory region is optional. Check that the resource is valid
-before using it. This avoid getting a "invalid resource" error message
-printed by the kernel.
+Add binding documentation of mtk-sd for MT8516 SoCs.
 
 Signed-off-by: Fabien Parent <fparent@baylibre.com>
 ---
- drivers/mmc/host/mtk-sd.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ Documentation/devicetree/bindings/mmc/mtk-sd.txt | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/mmc/host/mtk-sd.c b/drivers/mmc/host/mtk-sd.c
-index 833ef0590af8..573aa127d00b 100644
---- a/drivers/mmc/host/mtk-sd.c
-+++ b/drivers/mmc/host/mtk-sd.c
-@@ -2123,9 +2123,11 @@ static int msdc_drv_probe(struct platform_device *pdev)
- 	}
- 
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
--	host->top_base = devm_ioremap_resource(&pdev->dev, res);
--	if (IS_ERR(host->top_base))
--		host->top_base = NULL;
-+	if (ret) {
-+		host->top_base = devm_ioremap_resource(&pdev->dev, res);
-+		if (IS_ERR(host->top_base))
-+			host->top_base = NULL;
-+	}
- 
- 	ret = mmc_regulator_get_supply(mmc);
- 	if (ret)
+diff --git a/Documentation/devicetree/bindings/mmc/mtk-sd.txt b/Documentation/devicetree/bindings/mmc/mtk-sd.txt
+index f5bcda3980cc..91a2ec59e497 100644
+--- a/Documentation/devicetree/bindings/mmc/mtk-sd.txt
++++ b/Documentation/devicetree/bindings/mmc/mtk-sd.txt
+@@ -11,6 +11,7 @@ Required properties:
+ 	"mediatek,mt8135-mmc": for mmc host ip compatible with mt8135
+ 	"mediatek,mt8173-mmc": for mmc host ip compatible with mt8173
+ 	"mediatek,mt8183-mmc": for mmc host ip compatible with mt8183
++	"mediatek,mt8516-mmc": for mmc host ip compatible with mt8516
+ 	"mediatek,mt2701-mmc": for mmc host ip compatible with mt2701
+ 	"mediatek,mt2712-mmc": for mmc host ip compatible with mt2712
+ 	"mediatek,mt7622-mmc": for MT7622 SoC
 -- 
 2.20.1
 
