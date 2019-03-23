@@ -1,135 +1,177 @@
-Return-Path: <SRS0=0Tyr=RZ=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=MUxE=R2=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.0 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 74DE4C4360F
-	for <linux-watchdog@archiver.kernel.org>; Fri, 22 Mar 2019 13:06:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E0DB7C10F05
+	for <linux-watchdog@archiver.kernel.org>; Sat, 23 Mar 2019 21:16:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 43DA2213F2
-	for <linux-watchdog@archiver.kernel.org>; Fri, 22 Mar 2019 13:06:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A781221873
+	for <linux-watchdog@archiver.kernel.org>; Sat, 23 Mar 2019 21:16:42 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Ka312Lkq"
+	dkim=pass (2048-bit key) header.d=baylibre-com.20150623.gappssmtp.com header.i=@baylibre-com.20150623.gappssmtp.com header.b="xbSTH+a4"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730928AbfCVNGW (ORCPT
+        id S1727443AbfCWVQk (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 22 Mar 2019 09:06:22 -0400
-Received: from mail-pf1-f193.google.com ([209.85.210.193]:38113 "EHLO
-        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730746AbfCVNGW (ORCPT
+        Sat, 23 Mar 2019 17:16:40 -0400
+Received: from mail-wr1-f68.google.com ([209.85.221.68]:34177 "EHLO
+        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726230AbfCWVQj (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 22 Mar 2019 09:06:22 -0400
-Received: by mail-pf1-f193.google.com with SMTP id 10so1516965pfo.5;
-        Fri, 22 Mar 2019 06:06:21 -0700 (PDT)
+        Sat, 23 Mar 2019 17:16:39 -0400
+Received: by mail-wr1-f68.google.com with SMTP id p10so6017815wrq.1
+        for <linux-watchdog@vger.kernel.org>; Sat, 23 Mar 2019 14:16:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=EbR7tLCqMyFhARbFglLKdOGf8XpFUsz8CBtqAcgU1go=;
-        b=Ka312Lkq3/p54+MI300LaypS9JiuKg0sheuz1Ka8MxLcYOZ+VLMCzTjRShnb1LdhPz
-         2s+tZRkjZ/QIX/dHlsV2Y+fMR6BjWHpqkxh2hf9+2sOOdjnOdpbBSj1bFtMnlclpCN8o
-         GLQfKw9Q3Ggmf3SgHoQVqulXxSDSMdcZJeXUKRyVTl1kbwMR4T8WSXtEI8rV6jJx0MQE
-         oDyvlPzJgJVS/WdqLYVqXrhmz30KnP3jua9GRSJGc6QwDG4Bi8+zknMiniB2imX8XHCH
-         6Vflw6q4RIdIzAsrM2YetohXrD2cVXE29NouBRsNu3zy8P6AQxHoBu6Uu+fUndmxlQqu
-         0vNw==
+        d=baylibre-com.20150623.gappssmtp.com; s=20150623;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=4McGYYq2ZUptZXqYtAHX//HxnWqV5/YakhobL5pTDps=;
+        b=xbSTH+a45Zi6x1BUqwnibZCTkAFasMmJZQ8izwesJPZnHuZIHhGu3u8L01TmM1rHif
+         IEC78tWAov0bgc6JsgIYZ+dJ/n95+5BmkcA4N7dEW8PtXcJjtkCVqXgzV5DxTZ0TiBmM
+         5rTvHFrAK15HJ5fC9Jy0O/Zkbwp16Z4+fXEnFAutAue2+6brOUeBvFTiBn03QHH9kvBj
+         sZepdN0pD/hlLr7UC8BdXTg5r6PjUjF/Sf51Lf4wPpT0kvAtlOz73r11Y1br45+OomQD
+         SILOFMRo7kWJKUp8FgfgvaUga+0Vd1sg7Hgo7CcXCh3RqqzYzolyk8QA/cnLxQX03UI1
+         aeKA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
-         :date:user-agent:mime-version:in-reply-to:content-language
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=EbR7tLCqMyFhARbFglLKdOGf8XpFUsz8CBtqAcgU1go=;
-        b=s1hUnk8el1JUgmtuOM7BbG3DS17COD5eIpQU/Kk4ol8QfFuDQawf03oZATQSf2bwp6
-         Bf1iFwQlm7esWtoRIZK2xapVK/d65YLh7UD6FGuxJ3QNFJCdrMcWA2UwAkmJl9ocNxMa
-         LaMoxjrnLtEYIy06xYkZPPs7LWvQnVd0/ZLYG0Nt3TyLq/KvmnIcESJCf4hG8KIw6mBr
-         opv3I6P1CJOEvwyYlJLbYyIz0DltoAjpS24Ql/gp9wtzASFw/ecBfb6TxfENSLsX3Sfu
-         nxv0qtrwQIfU/KQvej3hwCrWckRBOJvz2n7bttZxLzE5jUP6WGROz8h5+GUinp60ygLR
-         nSCA==
-X-Gm-Message-State: APjAAAUU6xUgBas/+5mYECMJwje7IK+eMhLNE44/b7mJ0KUtM8XnRfvy
-        yjYKDmis5RprHG0R/HMnTRs=
-X-Google-Smtp-Source: APXvYqz7IuEZ2NQeh9DWeQv8PvQUVLUmzUUJkP6YaaQWWsrDdveTRPZgsorTB4eAS4YPwZIyemYTlA==
-X-Received: by 2002:a62:e502:: with SMTP id n2mr9201973pff.242.1553259981494;
-        Fri, 22 Mar 2019 06:06:21 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id 139sm10035645pfw.98.2019.03.22.06.06.19
+        bh=4McGYYq2ZUptZXqYtAHX//HxnWqV5/YakhobL5pTDps=;
+        b=EagllVIeG4TOo5dMzPLgiWRsB1gKkWH585dyv0H3M7dEdDO7IIp7zFUZup1Nnx1CWl
+         e9nKNSetI2+b6KVRcXYUmw1gYED/UqacDerPfZh66q3nNB5icpmdi9NSrHLHNvbjYCEw
+         XlYGc2WLVKMts3zph0hb1GcCvL2A1tC6za9YNkXKp46T+7hrmjmuydwB4Jl/piQTwqm+
+         xTFMN51MiMJ64U4UU8wG2iEtV7/x96oqQ3cxe2O97068p/NIIvQVUWYQmO3Auzy0MnYU
+         yNm3n89fyEXq3ViBbEnpqQvT0xgs6iswGoJG6dKemywlyd/1tu2/maOUMXynIj1HyjYv
+         KCQA==
+X-Gm-Message-State: APjAAAWmQgJUaRXaMFxYqpj68op2FYjIZ0vg92nt4ngitdDzvJOlBVb1
+        2JBO+W6ubIUt1Jxr73kLpZ1W0A==
+X-Google-Smtp-Source: APXvYqwWXn0fyODwrAZ6niPpQMs28EUAEIINdt1c/GXwI+ZaBvDHjV/+22ncaxIqZXuI8lOKAmFnvQ==
+X-Received: by 2002:a5d:6883:: with SMTP id h3mr10528279wru.215.1553375796536;
+        Sat, 23 Mar 2019 14:16:36 -0700 (PDT)
+Received: from localhost.localdomain (cag06-8-78-203-165-84.fbx.proxad.net. [78.203.165.84])
+        by smtp.gmail.com with ESMTPSA id y66sm8050503wmd.37.2019.03.23.14.16.33
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 22 Mar 2019 06:06:20 -0700 (PDT)
-Subject: Re: [PATCH V1 1/1] watchdog: f71808e_wdt: fix F81866 bit operation
-To:     "Ji-Ze Hong (Peter Hong)" <hpeter@gmail.com>,
-        wim@linux-watchdog.orgw
-Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org,
-        "Ji-Ze Hong (Peter Hong)" <hpeter+linux_kernel@gmail.com>
-References: <1553225816-24375-1-git-send-email-hpeter+linux_kernel@gmail.com>
-From:   Guenter Roeck <linux@roeck-us.net>
-Message-ID: <af4fba18-da99-2b48-7bbe-d59222081ab4@roeck-us.net>
-Date:   Fri, 22 Mar 2019 06:06:18 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.5.1
+        Sat, 23 Mar 2019 14:16:35 -0700 (PDT)
+From:   Fabien Parent <fparent@baylibre.com>
+To:     matthias.bgg@gmail.com, robh+dt@kernel.org, mark.rutland@arm.com
+Cc:     sean.wang@kernel.org, ryder.lee@mediatek.com,
+        hsin-hsiung.wang@mediatek.com, wenzhen.yu@mediatek.com,
+        chaotian.jing@mediatek.com, yong.mao@mediatek.com,
+        jjian.zhou@mediatek.com, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org, linux-mmc@vger.kernel.org,
+        linux-gpio@vger.kernel.org, linux-serial@vger.kernel.org,
+        linux-spi@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-clk@vger.kernel.org, stephane.leprovost@mediatek.com,
+        Fabien Parent <fparent@baylibre.com>
+Subject: [PATCH 00/24] arm64: mediatek: add support for Pumpkin MT8516 board
+Date:   Sat, 23 Mar 2019 22:15:48 +0100
+Message-Id: <20190323211612.860-1-fparent@baylibre.com>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-In-Reply-To: <1553225816-24375-1-git-send-email-hpeter+linux_kernel@gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On 3/21/19 8:36 PM, Ji-Ze Hong (Peter Hong) wrote:
-> Fix error bit operation in watchdog_start()
-> 
+The pumpkin board is designed by Gossamer Engineering and is
+using a MediaTek SoC. The board currently comes in two available
+version: MT8516 SoC and MT8167 SoC.
 
-Hmm ... does that mean it never worked ? Did you test it this time ?
+The board provides the following IOs: eMMC, NAND, SD card, USB 2 type-A,
+Ethernet, Wi-Fi, Bluetooth, Audio (jack out, 2 PDM port, 1 analog in),
+serial over USB, and an expansion header.
 
-A secondary concern is that the watchdog doesn't _have_ to trigger WDTRST,
-but may also trigger PWOK. But that may be a separate issue.
+This patch series adds the basic board support to be able to boot
+on the eMMC of the MT8516 based Pumpkin board.
 
-Please add:
+The board is using a MT6392 PMIC.
 
-Fixes: 14b24a88a3660 ("watchdog: f71808e_wdt: Add F81866 support")
+Fabien Parent (24):
+  dt-bindings: regulator: add support for MT6392
+  regulator: mt6392: Add support for MT6392 regulator
+  dt-bindings: pwrap: mediatek: add pwrap support for MT8516
+  soc: mediatek: pwrap: add missing check on rstc
+  soc: mediatek: pwrap: add support for MT8516 pwrap
+  mfd: mt6397: Add support for MT6397 pmic
+  arm64: dts: mt6392: Add PMIC mt6392 dtsi
+  dt-bindings: mmc: mtk-sd: add mtk-sd support for MT8516
+  mmc: mtk-sd: check for valid optional memory resource
+  mmc: mtk-sd: add support for MT8516
+  dt-bindings: mediatek: topckgen: add support for MT8516
+  dt-bindings: mediatek: infracfg: add support for MT8516
+  dt-bindings: mediatek: apmixedsys: add support for MT8516
+  clk: mediatek: add clock driver for MT8516
+  dt-bindings: pinctrl: pinctrl-mt65xx: add support for MT8516
+  pinctrl: mediatek: Add MT8516 Pinctrl driver
+  dt-bindings: wdog: mtk-wdt: add support for MT851
+  dt-bindings: timer: mtk-timer: add support for MT8516
+  dt-bindings: spi: spi-mt65xx: add support for MT8516
+  dt-bindings: serial: mtk-uart: add support for MT8516
+  dt-bindings: irq: mtk,sysirq: add support for MT8516
+  dt-bindings: i2c: i2c-mtk: add support for MT8516
+  arm64: dts: mediatek: add dtsi for MT8516
+  arm64: dts: mediatek: add pumpkin board dts
 
-> Signed-off-by: Ji-Ze Hong (Peter Hong) <hpeter+linux_kernel@gmail.com>
-> ---
->   drivers/watchdog/f71808e_wdt.c | 11 +++++------
->   1 file changed, 5 insertions(+), 6 deletions(-)
-> 
-> diff --git a/drivers/watchdog/f71808e_wdt.c b/drivers/watchdog/f71808e_wdt.c
-> index 9a1c761258ce..9129485732c7 100644
-> --- a/drivers/watchdog/f71808e_wdt.c
-> +++ b/drivers/watchdog/f71808e_wdt.c
-> @@ -387,18 +387,17 @@ static int watchdog_start(void)
->   
->   	case f81866:
->   		/* Set pin 70 to WDTRST# */
-> -		superio_clear_bit(watchdog.sioaddr, SIO_F81866_REG_PORT_SEL,
-> -				  BIT(3) | BIT(0));
-> -		superio_set_bit(watchdog.sioaddr, SIO_F81866_REG_PORT_SEL,
-> -				BIT(2));
-> +		superio_clear_bit(watchdog.sioaddr, SIO_F81866_REG_PORT_SEL, 3);
-> +		superio_clear_bit(watchdog.sioaddr, SIO_F81866_REG_PORT_SEL, 0);
-> +		superio_set_bit(watchdog.sioaddr, SIO_F81866_REG_PORT_SEL, 2);
+ .../arm/mediatek/mediatek,apmixedsys.txt      |    1 +
+ .../arm/mediatek/mediatek,infracfg.txt        |    1 +
+ .../arm/mediatek/mediatek,topckgen.txt        |    1 +
+ .../devicetree/bindings/i2c/i2c-mtk.txt       |    1 +
+ .../interrupt-controller/mediatek,sysirq.txt  |    3 +-
+ .../devicetree/bindings/mmc/mtk-sd.txt        |    1 +
+ .../bindings/pinctrl/pinctrl-mt65xx.txt       |    1 +
+ .../bindings/regulator/mt6392-regulator.txt   |  220 +++
+ .../devicetree/bindings/serial/mtk-uart.txt   |    1 +
+ .../bindings/soc/mediatek/pwrap.txt           |    1 +
+ .../devicetree/bindings/spi/spi-mt65xx.txt    |    1 +
+ .../bindings/timer/mediatek,mtk-timer.txt     |    1 +
+ .../devicetree/bindings/watchdog/mtk-wdt.txt  |    1 +
+ arch/arm64/boot/dts/mediatek/Makefile         |    1 +
+ arch/arm64/boot/dts/mediatek/mt6392.dtsi      |  208 +++
+ arch/arm64/boot/dts/mediatek/mt8516-pinfunc.h |  663 +++++++++
+ .../boot/dts/mediatek/mt8516-pumpkin.dts      |   19 +
+ arch/arm64/boot/dts/mediatek/mt8516.dtsi      |  409 ++++++
+ .../boot/dts/mediatek/pumpkin-common.dtsi     |  210 +++
+ .../dts/mediatek/pumpkin-emmc-common.dtsi     |   75 ++
+ drivers/clk/mediatek/Kconfig                  |    9 +
+ drivers/clk/mediatek/Makefile                 |    1 +
+ drivers/clk/mediatek/clk-mt8516.c             |  815 ++++++++++++
+ drivers/mfd/mt6397-core.c                     |   96 ++
+ drivers/mmc/host/mtk-sd.c                     |   19 +-
+ drivers/pinctrl/mediatek/Kconfig              |    7 +
+ drivers/pinctrl/mediatek/Makefile             |    1 +
+ drivers/pinctrl/mediatek/pinctrl-mt8516.c     |  384 ++++++
+ drivers/pinctrl/mediatek/pinctrl-mtk-mt8516.h | 1182 +++++++++++++++++
+ drivers/regulator/Kconfig                     |    9 +
+ drivers/regulator/Makefile                    |    1 +
+ drivers/regulator/mt6392-regulator.c          |  490 +++++++
+ drivers/soc/mediatek/mtk-pmic-wrap.c          |  109 +-
+ include/dt-bindings/clock/mt8516-clk.h        |  211 +++
+ include/linux/mfd/mt6392/core.h               |   42 +
+ include/linux/mfd/mt6392/registers.h          |  487 +++++++
+ include/linux/regulator/mt6392-regulator.h    |   40 +
+ 37 files changed, 5717 insertions(+), 5 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/regulator/mt6392-regulator.txt
+ create mode 100644 arch/arm64/boot/dts/mediatek/mt6392.dtsi
+ create mode 100644 arch/arm64/boot/dts/mediatek/mt8516-pinfunc.h
+ create mode 100644 arch/arm64/boot/dts/mediatek/mt8516-pumpkin.dts
+ create mode 100644 arch/arm64/boot/dts/mediatek/mt8516.dtsi
+ create mode 100644 arch/arm64/boot/dts/mediatek/pumpkin-common.dtsi
+ create mode 100644 arch/arm64/boot/dts/mediatek/pumpkin-emmc-common.dtsi
+ create mode 100644 drivers/clk/mediatek/clk-mt8516.c
+ create mode 100644 drivers/pinctrl/mediatek/pinctrl-mt8516.c
+ create mode 100644 drivers/pinctrl/mediatek/pinctrl-mtk-mt8516.h
+ create mode 100644 drivers/regulator/mt6392-regulator.c
+ create mode 100644 include/dt-bindings/clock/mt8516-clk.h
+ create mode 100644 include/linux/mfd/mt6392/core.h
+ create mode 100644 include/linux/mfd/mt6392/registers.h
+ create mode 100644 include/linux/regulator/mt6392-regulator.h
 
-Better use superio_inb()/superio_outb(). The above is (much) more expensive,
-and  we have no real idea what the impact of changing one bit at a time may be.
-
-Thanks,
-Guenter
-
-> +
->   		/*
->   		 * GPIO1 Control Register when 27h BIT3:2 = 01 & BIT0 = 0.
->   		 * The PIN 70(GPIO15/WDTRST) is controlled by 2Ch:
->   		 *     BIT5: 0 -> WDTRST#
->   		 *           1 -> GPIO15
->   		 */
-> -		superio_clear_bit(watchdog.sioaddr, SIO_F81866_REG_GPIO1,
-> -				  BIT(5));
-> +		superio_clear_bit(watchdog.sioaddr, SIO_F81866_REG_GPIO1, 5);
->   		break;
->   
->   	default:
-> 
+-- 
+2.20.1
 
