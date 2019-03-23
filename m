@@ -7,55 +7,55 @@ X-Spam-Status: No, score=-9.0 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
 	SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 21894C43381
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9428AC10F05
 	for <linux-watchdog@archiver.kernel.org>; Sat, 23 Mar 2019 21:19:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E1C2B2133F
-	for <linux-watchdog@archiver.kernel.org>; Sat, 23 Mar 2019 21:19:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5ED9C2133F
+	for <linux-watchdog@archiver.kernel.org>; Sat, 23 Mar 2019 21:19:11 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre-com.20150623.gappssmtp.com header.i=@baylibre-com.20150623.gappssmtp.com header.b="OSSuiy0+"
+	dkim=pass (2048-bit key) header.d=baylibre-com.20150623.gappssmtp.com header.i=@baylibre-com.20150623.gappssmtp.com header.b="ZfoJ8FWW"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728598AbfCWVTJ (ORCPT
+        id S1728476AbfCWVRF (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sat, 23 Mar 2019 17:19:09 -0400
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:39534 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728321AbfCWVRG (ORCPT
+        Sat, 23 Mar 2019 17:17:05 -0400
+Received: from mail-wm1-f66.google.com ([209.85.128.66]:52714 "EHLO
+        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728433AbfCWVRC (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 23 Mar 2019 17:17:06 -0400
-Received: by mail-wr1-f68.google.com with SMTP id j9so5985158wrn.6
-        for <linux-watchdog@vger.kernel.org>; Sat, 23 Mar 2019 14:17:04 -0700 (PDT)
+        Sat, 23 Mar 2019 17:17:02 -0400
+Received: by mail-wm1-f66.google.com with SMTP id a184so5278919wma.2
+        for <linux-watchdog@vger.kernel.org>; Sat, 23 Mar 2019 14:17:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=baylibre-com.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=AbhkTI13AmSY9XKV0JobMbHsJRDpOGhDj343gt4xJ3k=;
-        b=OSSuiy0+nlnD/R893s9W0y/CWu7AdqerwHBWlHHl9ZlybkoGvfqGAN7L56WPPha1MB
-         MKaPDel06r9R3cRa8C477bVrlUanMhMvzKZhIt/raf8P1sZ7RVuoJFLiKWfNr9ejThFz
-         QdRTRvAS8+QJG6f/EoJZJxcaLaudyE1YxQbRb9Mh7svXXJTRiBSIgA/hZ/bzWJBgl7Lu
-         TtxW1WtMbum6aIhlnlNdOJdFt6LdRSIom125fdRYi8MqfNHSSqNmK/53EpARGjrVks66
-         Dw0oPwCtVWIPfYsiFJw2HH7Nnyn+25qJDCvSo7pPEgVaZzhGRV8rudg3ZcTAy7v/cYwZ
-         OW6g==
+        bh=VDrizs2/2ZAftGyDtPa0UqsjZPPXfl5+5ooldcgiEvQ=;
+        b=ZfoJ8FWWjKGpcf9d8YwDrrIirJDbmWiEjOXqDMQPc8rWiEWNMYPlq1pRe8QH+BaV6H
+         pkrLqStBymgTLCR5hhVa9XS/OndbeL7zySXywosVPnf95crPm6DXiIq7K1kIo3xrhs36
+         pvZIuTX23bTXySIbRHTULrEB4Vu0bxx0I/dsLemhJ1ID/pUBe7s6X5AJXbLjVOCKOKCC
+         O8LPKDU+NZ2tFgvLKMJzAjeLaiTHVpCIHyXb0J1Ua1kYxpdvWG0yf1zNgYhHiWcyGoKJ
+         Wrz6wRK3KeNHqnpmlYcE1SfcxeU1v5wcz9/CYzAa6pZoJ26NTBmbEI3wcBHFs4iAMjCz
+         wvGw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=AbhkTI13AmSY9XKV0JobMbHsJRDpOGhDj343gt4xJ3k=;
-        b=AFxTvfApeTnJorvyHzCC3H/sWsKsfe8yYp23pAHEWBXFOWXWGDC4WS9BjSli9S0zLJ
-         efHzAAKg38YTX9/2c6hasif+vZB1mWiqmXzAG7HCnz+9/c68I8ffZ0lkKtu5LKyh2LvZ
-         y81bLSH6whm29OIXDMVQ2PxN5sV/DJ8tlOMRNocCSZ2sb0hFE1i+pfk9Hl/yDMzSkZ3b
-         FNkrVGnP2Sm20FsndLznYUPUQ2HQOOcz1l1njAl+qZGI0OppaRaWQOMIkc41MwIeo3ls
-         DwG2ASVMwaNH7PJfKdsmOLqnqACiyA/Pm/JqtiIS02t6w4wXz/GjZ3HSGfj7g8LRiX2J
-         IFQg==
-X-Gm-Message-State: APjAAAVI/ULA5jD0JboNRcG9yuOmSfsV+bZTWhJHRX1ESCCPWjij6tIw
-        bRf+d7iQ3tP8rSf6bq86YtkXMQ==
-X-Google-Smtp-Source: APXvYqw2oFsC1FoDUfneZhEfe0V8cFIQUhwZ73vh1DeurRVzjVV3E+VWUa1ylEOtMk0hNTMeTo+0qQ==
-X-Received: by 2002:a5d:4c88:: with SMTP id z8mr3724209wrs.291.1553375824363;
-        Sat, 23 Mar 2019 14:17:04 -0700 (PDT)
+        bh=VDrizs2/2ZAftGyDtPa0UqsjZPPXfl5+5ooldcgiEvQ=;
+        b=GCSQkn4skTrqzd407i4sgRdeoRHaK9WtnYlyngeEQfAgr9UJXx7qhnfzn2a/hMhpsP
+         lBOTQXwJrNf/5R/ArFHdoUvMd53r0BktSbMKyXvq7P1+VGPkJmjJ7XWhAHKDEEAX/jWO
+         4jm8YLs9AVTQOBI28Yxw4QUToZIsI+Bo4zar75m7OsQj0JTWX9DC4A3Kk0auIYSy7DQe
+         FnKbMMkhPWvf/YAwzuNGAQm2/EFUEX0jOSt46yL1QJ5GnQ2zUZT81cP/G7E2IzKGZbVr
+         jXKku2mixbjf5bx6M1GSqWrOFkXSZY+HpNA12HEC0nykBPo1esixMkxhomcRS6Hj620x
+         U5DA==
+X-Gm-Message-State: APjAAAWBdIfcTBEcayQyrwGkeI21mqDrzfTmzvhfDBkZCvpIryLEZ1Ey
+        1sdxkxYygtGxLEGdIcAJQMgfDg==
+X-Google-Smtp-Source: APXvYqynNilWbzifjm8V9o5qdrR1Mbct64Bkz7ip1tKMi8jiaJiaxwasknDL/Rs9NTJNNkzHIdVr6w==
+X-Received: by 2002:a7b:c404:: with SMTP id k4mr927170wmi.117.1553375820854;
+        Sat, 23 Mar 2019 14:17:00 -0700 (PDT)
 Received: from localhost.localdomain (cag06-8-78-203-165-84.fbx.proxad.net. [78.203.165.84])
-        by smtp.gmail.com with ESMTPSA id y66sm8050503wmd.37.2019.03.23.14.17.00
+        by smtp.gmail.com with ESMTPSA id y66sm8050503wmd.37.2019.03.23.14.16.58
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 23 Mar 2019 14:17:03 -0700 (PDT)
+        Sat, 23 Mar 2019 14:17:00 -0700 (PDT)
 From:   Fabien Parent <fparent@baylibre.com>
 To:     matthias.bgg@gmail.com, robh+dt@kernel.org, mark.rutland@arm.com
 Cc:     sean.wang@kernel.org, ryder.lee@mediatek.com,
@@ -69,9 +69,9 @@ Cc:     sean.wang@kernel.org, ryder.lee@mediatek.com,
         linux-spi@vger.kernel.org, linux-watchdog@vger.kernel.org,
         linux-clk@vger.kernel.org, stephane.leprovost@mediatek.com,
         Fabien Parent <fparent@baylibre.com>
-Subject: [PATCH 10/24] mmc: mtk-sd: add support for MT8516
-Date:   Sat, 23 Mar 2019 22:15:58 +0100
-Message-Id: <20190323211612.860-11-fparent@baylibre.com>
+Subject: [PATCH 09/24] mmc: mtk-sd: check for valid optional memory resource
+Date:   Sat, 23 Mar 2019 22:15:57 +0100
+Message-Id: <20190323211612.860-10-fparent@baylibre.com>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190323211612.860-1-fparent@baylibre.com>
 References: <20190323211612.860-1-fparent@baylibre.com>
@@ -82,42 +82,34 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Add the MSDC configuration for the MT8516 SoC.
+'top_base' memory region is optional. Check that the resource is valid
+before using it. This avoid getting a "invalid resource" error message
+printed by the kernel.
 
 Signed-off-by: Fabien Parent <fparent@baylibre.com>
 ---
- drivers/mmc/host/mtk-sd.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/mmc/host/mtk-sd.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/mmc/host/mtk-sd.c b/drivers/mmc/host/mtk-sd.c
-index 573aa127d00b..51139275b1b2 100644
+index 833ef0590af8..573aa127d00b 100644
 --- a/drivers/mmc/host/mtk-sd.c
 +++ b/drivers/mmc/host/mtk-sd.c
-@@ -507,6 +507,16 @@ static const struct mtk_mmc_compatible mt7622_compat = {
- 	.support_64g = false,
- };
+@@ -2123,9 +2123,11 @@ static int msdc_drv_probe(struct platform_device *pdev)
+ 	}
  
-+static const struct mtk_mmc_compatible mt8516_compat = {
-+	.clk_div_bits = 12,
-+	.hs400_tune = false,
-+	.pad_tune_reg = MSDC_PAD_TUNE0,
-+	.async_fifo = true,
-+	.data_tune = true,
-+	.busy_check = true,
-+	.stop_clk_fix = true,
-+};
-+
- static const struct of_device_id msdc_of_ids[] = {
- 	{ .compatible = "mediatek,mt8135-mmc", .data = &mt8135_compat},
- 	{ .compatible = "mediatek,mt8173-mmc", .data = &mt8173_compat},
-@@ -514,6 +524,7 @@ static const struct of_device_id msdc_of_ids[] = {
- 	{ .compatible = "mediatek,mt2701-mmc", .data = &mt2701_compat},
- 	{ .compatible = "mediatek,mt2712-mmc", .data = &mt2712_compat},
- 	{ .compatible = "mediatek,mt7622-mmc", .data = &mt7622_compat},
-+	{ .compatible = "mediatek,mt8516-mmc", .data = &mt8516_compat},
- 	{}
- };
- MODULE_DEVICE_TABLE(of, msdc_of_ids);
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
+-	host->top_base = devm_ioremap_resource(&pdev->dev, res);
+-	if (IS_ERR(host->top_base))
+-		host->top_base = NULL;
++	if (ret) {
++		host->top_base = devm_ioremap_resource(&pdev->dev, res);
++		if (IS_ERR(host->top_base))
++			host->top_base = NULL;
++	}
+ 
+ 	ret = mmc_regulator_get_supply(mmc);
+ 	if (ret)
 -- 
 2.20.1
 
