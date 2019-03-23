@@ -7,55 +7,55 @@ X-Spam-Status: No, score=-9.0 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
 	SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6DCD9C43381
-	for <linux-watchdog@archiver.kernel.org>; Sat, 23 Mar 2019 21:18:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 927E3C43381
+	for <linux-watchdog@archiver.kernel.org>; Sat, 23 Mar 2019 21:18:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 39FF32133F
-	for <linux-watchdog@archiver.kernel.org>; Sat, 23 Mar 2019 21:18:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5F34F21874
+	for <linux-watchdog@archiver.kernel.org>; Sat, 23 Mar 2019 21:18:23 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre-com.20150623.gappssmtp.com header.i=@baylibre-com.20150623.gappssmtp.com header.b="sH6x2DQL"
+	dkim=pass (2048-bit key) header.d=baylibre-com.20150623.gappssmtp.com header.i=@baylibre-com.20150623.gappssmtp.com header.b="Enu1u18e"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727514AbfCWVSO (ORCPT
+        id S1728266AbfCWVSW (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Sat, 23 Mar 2019 17:18:14 -0400
-Received: from mail-wr1-f67.google.com ([209.85.221.67]:36651 "EHLO
+        Sat, 23 Mar 2019 17:18:22 -0400
+Received: from mail-wr1-f67.google.com ([209.85.221.67]:37006 "EHLO
         mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728698AbfCWVRd (ORCPT
+        with ESMTP id S1728668AbfCWVRb (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Sat, 23 Mar 2019 17:17:33 -0400
-Received: by mail-wr1-f67.google.com with SMTP id y13so6012159wrd.3
-        for <linux-watchdog@vger.kernel.org>; Sat, 23 Mar 2019 14:17:32 -0700 (PDT)
+        Sat, 23 Mar 2019 17:17:31 -0400
+Received: by mail-wr1-f67.google.com with SMTP id w10so6004376wrm.4
+        for <linux-watchdog@vger.kernel.org>; Sat, 23 Mar 2019 14:17:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=baylibre-com.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=hqEIZ6FPRVOsxD/5ZdDFPJFBFJJqg67FMRWbsNGHM9Y=;
-        b=sH6x2DQLefyigtjy6s+ZFU1Voblc84sRKvafmxo8OzO9WHRMeDxbKCnkMuktslAzHC
-         O54zjPuskrBQs/E8dqIvKxjCta0Kydbrs5opSaPOUII+7qB0ykyhGYhKjoYOOaS3N8cg
-         w0yqcAu2zoHY4/KOWruHkWiTkZDhxk+ZNKTWRqVdIPkxpfA3ESHLYA2Orsa/rYUYiEki
-         EdN2YFQvkBxfTbc3uVmyTxSJy4FVfGXEQpURB/MhVYFYQP8x1S01MAocw2nNIQz5LIa9
-         cOTuBDsAAipI496iTrNMxtWNlf89qPyjh65jXyUuCnNnESC/KMKErzGAnfNPl3LB2z+v
-         m9UQ==
+        bh=XHGeWlxnKx94fNgtj0Ond8hQHZ5DmaSA4IEJiS/jmnc=;
+        b=Enu1u18e7WYLT4TmA2pVYKijZVO5wF5fGppNJ+CGBQEVNWKSl+jMjZmOKkHZgv4qMI
+         9jkPxhgqHpSJ+C8UZ3Sm4toG1PuPnQ/eDmbr/6WTWDwBl9IWcSMuCl5B+MFsyNBe+O0q
+         WPdf/0dcRXY+J5/O0lFuNmSpRky7yT8yCi4yOdCBXrnlUkFn9K7gkWqapENYSZa3NZcI
+         YYLeYvrwu6zHK56NxnWg07QPaZKjb+37s9l2SpAJ9NmIKXQzYcR8gKpci+QNjViwuEnS
+         /d3PWAle0FQm+xVD3TtC1CGSATOFMSFIzik5frH2r2InGQ4I28QX4fIhMeK05KQa8Hpz
+         sNhQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=hqEIZ6FPRVOsxD/5ZdDFPJFBFJJqg67FMRWbsNGHM9Y=;
-        b=Eiloz2mzLSi1S40/+AeJwDmgAMBl5cldJz10Z5417McJ6isQWgY43zIgvQpn24JPGm
-         QCdrCHvLSbQHpdv78n12wBtk1KHTQc/4wQUJ5LCmNfcDmLpgIaPDzxCX658NpHeL1u4z
-         2mhrLvNTq241GJMho7doOsVh3Eii+QxONtdSujze6L83I8GWyPTH32urXg5iyXB+iPxM
-         RVrcoMgWu3bdOHKXUce+/eP78P0Mq093YAOOIqRokHHxNEKqr7iI5NOKlkhudLJfbBVF
-         NI9UDdihdOtozumik/D8T6LOvSkAsRRkQAiFzRqEVxr03asMhamWf7qy7y20kg8/040w
-         zhDQ==
-X-Gm-Message-State: APjAAAUQKa29xfdFhNy/tM2endC8IeuI7Sg4p1OQOlr8FGOZ090RPrrb
-        OB+8IwCs+p6GUOdrRHh3MqvqpA==
-X-Google-Smtp-Source: APXvYqxfmp4TgFjlOCi45OjtTvOqzi/sLT6336tY80v5kBkDan8wJqT99JmznZ9LLuBNSnnM+3k0Pg==
-X-Received: by 2002:a5d:624a:: with SMTP id m10mr3986055wrv.18.1553375851603;
-        Sat, 23 Mar 2019 14:17:31 -0700 (PDT)
+        bh=XHGeWlxnKx94fNgtj0Ond8hQHZ5DmaSA4IEJiS/jmnc=;
+        b=iiHRS0dtraycSvIHGb3mOfZWPs4WMIXDDhixAnqOt4alnS6PvkqHiK6iOGaXIiNUtN
+         YuezrbYitAlRgiUxOCbjt2PuYl+HAl7SisgkyKw12yvekJQAN73RvKEqn5+Vf8OwQZFC
+         LGZ6NRh8QVqnHvXsXmQ4SbzTRI0a+uI/BxaMqqvRf4ndOtzK/o2SRI/1H6RTgyAGSMUf
+         NIoZonlPQVTJ0IoaCTsO3Q7bkqynKWHJ0hPiXInnmo6x358S4lsMIGPdJG75reFl1ygl
+         nbl/TL0MccaOUWdkKDui53+6Di4MytnVBYGghnLBam3wzT/G8hK/PZms9kAli1TaiPA8
+         rcJA==
+X-Gm-Message-State: APjAAAVRoEky/+EzqLU8OuanD0I6UVQmuQm8vQDSdqsdeVIilRUblhCg
+        k3TZNYf9eLlgbqyPj/aj2XMqbg==
+X-Google-Smtp-Source: APXvYqyLXu4uVNnQeYOK5P6eTYaqaYonyJO6CVthYaW9Pxw9jZV5naLdfXcXE0L+wT6u31jEEgwNqQ==
+X-Received: by 2002:a5d:6887:: with SMTP id h7mr11460686wru.122.1553375849261;
+        Sat, 23 Mar 2019 14:17:29 -0700 (PDT)
 Received: from localhost.localdomain (cag06-8-78-203-165-84.fbx.proxad.net. [78.203.165.84])
-        by smtp.gmail.com with ESMTPSA id y66sm8050503wmd.37.2019.03.23.14.17.29
+        by smtp.gmail.com with ESMTPSA id y66sm8050503wmd.37.2019.03.23.14.17.27
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 23 Mar 2019 14:17:30 -0700 (PDT)
+        Sat, 23 Mar 2019 14:17:28 -0700 (PDT)
 From:   Fabien Parent <fparent@baylibre.com>
 To:     matthias.bgg@gmail.com, robh+dt@kernel.org, mark.rutland@arm.com
 Cc:     sean.wang@kernel.org, ryder.lee@mediatek.com,
@@ -69,9 +69,9 @@ Cc:     sean.wang@kernel.org, ryder.lee@mediatek.com,
         linux-spi@vger.kernel.org, linux-watchdog@vger.kernel.org,
         linux-clk@vger.kernel.org, stephane.leprovost@mediatek.com,
         Fabien Parent <fparent@baylibre.com>
-Subject: [PATCH 20/24] dt-bindings: serial: mtk-uart: add support for MT8516
-Date:   Sat, 23 Mar 2019 22:16:08 +0100
-Message-Id: <20190323211612.860-21-fparent@baylibre.com>
+Subject: [PATCH 19/24] dt-bindings: spi: spi-mt65xx: add support for MT8516
+Date:   Sat, 23 Mar 2019 22:16:07 +0100
+Message-Id: <20190323211612.860-20-fparent@baylibre.com>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190323211612.860-1-fparent@baylibre.com>
 References: <20190323211612.860-1-fparent@baylibre.com>
@@ -82,25 +82,25 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Add binding documentation of mtk-uart for MT8516 SoC.
+Add binding documentation of spi-mt65xx for MT8516 SoC.
 
 Signed-off-by: Fabien Parent <fparent@baylibre.com>
 ---
- Documentation/devicetree/bindings/serial/mtk-uart.txt | 1 +
+ Documentation/devicetree/bindings/spi/spi-mt65xx.txt | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/Documentation/devicetree/bindings/serial/mtk-uart.txt b/Documentation/devicetree/bindings/serial/mtk-uart.txt
-index 742cb470595b..1af981f7a33b 100644
---- a/Documentation/devicetree/bindings/serial/mtk-uart.txt
-+++ b/Documentation/devicetree/bindings/serial/mtk-uart.txt
-@@ -16,6 +16,7 @@ Required properties:
-   * "mediatek,mt8127-uart" for MT8127 compatible UARTS
-   * "mediatek,mt8135-uart" for MT8135 compatible UARTS
-   * "mediatek,mt8173-uart" for MT8173 compatible UARTS
-+  * "mediatek,mt8516-uart" for MT8516 compatible UARTS
-   * "mediatek,mt6577-uart" for MT6577 and all of the above
+diff --git a/Documentation/devicetree/bindings/spi/spi-mt65xx.txt b/Documentation/devicetree/bindings/spi/spi-mt65xx.txt
+index 69c356767cf8..69ac5976b952 100644
+--- a/Documentation/devicetree/bindings/spi/spi-mt65xx.txt
++++ b/Documentation/devicetree/bindings/spi/spi-mt65xx.txt
+@@ -10,6 +10,7 @@ Required properties:
+     - mediatek,mt8135-spi: for mt8135 platforms
+     - mediatek,mt8173-spi: for mt8173 platforms
+     - mediatek,mt8183-spi: for mt8183 platforms
++    - "mediatek,mt8516-spi", "mediatek,mt2701-spi": for mt8516 platforms
  
- - reg: The base address of the UART register bank.
+ - #address-cells: should be 1.
+ 
 -- 
 2.20.1
 
