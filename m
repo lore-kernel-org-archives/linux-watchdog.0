@@ -2,138 +2,129 @@ Return-Path: <SRS0=iwQ8=R4=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_PASS,
-	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 67DE4C43381
-	for <linux-watchdog@archiver.kernel.org>; Mon, 25 Mar 2019 06:10:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 147A2C43381
+	for <linux-watchdog@archiver.kernel.org>; Mon, 25 Mar 2019 07:36:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 2D42220693
-	for <linux-watchdog@archiver.kernel.org>; Mon, 25 Mar 2019 06:10:21 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kaHKlsuQ"
+	by mail.kernel.org (Postfix) with ESMTP id DFFA220879
+	for <linux-watchdog@archiver.kernel.org>; Mon, 25 Mar 2019 07:36:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729503AbfCYGKU (ORCPT
+        id S1729824AbfCYHgs (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 25 Mar 2019 02:10:20 -0400
-Received: from mail-pf1-f193.google.com ([209.85.210.193]:37585 "EHLO
-        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729373AbfCYGKU (ORCPT
+        Mon, 25 Mar 2019 03:36:48 -0400
+Received: from mail-lf1-f67.google.com ([209.85.167.67]:37071 "EHLO
+        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729720AbfCYHgs (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 25 Mar 2019 02:10:20 -0400
-Received: by mail-pf1-f193.google.com with SMTP id 8so5614083pfr.4;
-        Sun, 24 Mar 2019 23:10:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=oSCUOZlSY6vaMGpU4UD/nvMNxeOvjUMJdTN55leir58=;
-        b=kaHKlsuQFP8J1RCshf3bMHdH4ffM7i6LAklxr9+3SNp+OYySeJclujBa/7+ygMDpPy
-         7SLPkQx6PyPx2qJXuLFmyu+ggfBjZ7ksMSOgqPgJw9sNbXJ67MWUlo7gs84C+BhTAA8M
-         aniqDtugiYID2SdKZ/9FaiRjq61EhGZjqnab1VWdaWtN88trtMXt1oDylTU2mps42ri4
-         Xz86zmL3Li9nTjMemO1TvMyUh+xl2Y0iFuWOCjVTPIwg+Hakdh1KUtEq20xZaqjhmuN5
-         8BRg8lmS8k+4HcZxGfRAN7xHZ8TFQC4BuwyJDi8rXvE2PkNy6E+NhK8z1BIO2ZVAAYaJ
-         gojQ==
+        Mon, 25 Mar 2019 03:36:48 -0400
+Received: by mail-lf1-f67.google.com with SMTP id u2so5227059lfd.4;
+        Mon, 25 Mar 2019 00:36:45 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=oSCUOZlSY6vaMGpU4UD/nvMNxeOvjUMJdTN55leir58=;
-        b=qB8quPMhFWSuIPTeieUPA/uqmrw2vT3wZ4HeuCARDfhBW5NEVUSLODeOHaVNMKZ6Uv
-         8hL6jdV3r+RigztArJRxi9itR9Nswt2j/4w6MbnPZ1sBOS6P/LP+nvQd3qL10jB8uRfx
-         Ieok0eaJlfKtdgNqDZd7kiqLoUweX+9X1StNrrYRUpAb6mGwpUs/MDounj5EtfbUPiNv
-         6kSQ9HLIPnQlP9UpqgVC3b5N0rbBm6veA3UeRdG/loe4PF9XgykM5d4za5QPycLnPEN4
-         R1BATJj23L/G+On8/9PmYNgQ2e0br3Qt3u9cQtPkj7QcfRkpGXPFPpTcgvhlLRxN86p9
-         4UDA==
-X-Gm-Message-State: APjAAAU5BaRRjGCFalM6EXIb5103o7+ahrCFZ1iLR+0onn5QG32NZSMN
-        1Q7zy/ao6vnGVqI9rNqc8Xb1LvCB
-X-Google-Smtp-Source: APXvYqxVxGdale1mOBvgnO33LFdO9uv5fQl5SP6wIIm17iX+ppiNST1EVqe4o7R0hn0DHRXgeBb/eg==
-X-Received: by 2002:a62:484:: with SMTP id 126mr22596687pfe.91.1553494219196;
-        Sun, 24 Mar 2019 23:10:19 -0700 (PDT)
-Received: from [192.168.1.58] (59-120-186-245.HINET-IP.hinet.net. [59.120.186.245])
-        by smtp.gmail.com with ESMTPSA id q62sm18127269pga.32.2019.03.24.23.10.17
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 24 Mar 2019 23:10:18 -0700 (PDT)
-Subject: Re: [PATCH V1 1/1] watchdog: f71808e_wdt: fix F81866 bit operation
-To:     Guenter Roeck <linux@roeck-us.net>, wim@linux-watchdog.orgw
-Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        "Ji-Ze Hong (Peter Hong)" <hpeter+linux_kernel@gmail.com>
-References: <1553225816-24375-1-git-send-email-hpeter+linux_kernel@gmail.com>
- <af4fba18-da99-2b48-7bbe-d59222081ab4@roeck-us.net>
-From:   "Ji-Ze Hong (Peter Hong)" <hpeter@gmail.com>
-Message-ID: <cf37ee27-593c-b809-62d4-8d38265cb710@gmail.com>
-Date:   Mon, 25 Mar 2019 14:10:15 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
- Thunderbird/60.5.3
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=3zit+zHMjJqC+5ZLnskoQ4EDwxgMuwgUpGQ5brmYqTA=;
+        b=QxDVSudXH5pFgKapa3stq6/mS/DZO1iMntOo6E/+yY+liz81/ObrpWUfEiZCeaJOuw
+         lsTAHSPwio0xo97gGjKOQUKTyj7AQe3x+jliK5fJUm8PQiFWTocwladvo1yLK4cW6r6O
+         NZbrTLv8wUE3f0cpNfNbA0XYrJos0lcc5soT0PjD9FfXxZ6R0aiy9SkO+8awTExpDbrG
+         pgIjd2/MC1bQs0mAzy177JB5DDTcVhA5M6bwcSa89vBXmRKeonZa60RRfhrCf8zXjaBt
+         jMX8FLluvfNj7myMDQoj3PpZykmHsxFvWYPkLJExJmQrhdqsAnOnr4m+edfhzgSgbkat
+         UzAQ==
+X-Gm-Message-State: APjAAAX0D9N+fhO0oFi9HRhzLDqTZkbdM7X8DpRz9xv1NUzsZocukahC
+        mSn/6Q4oxwndqxSNtdnt7MY=
+X-Google-Smtp-Source: APXvYqzLeiWG6LPSaHeaCX6SI2behk4QpDy0H2rM9A/lBNpaOJ8F16Tezk50DUdC8qa5L2VF97CxJw==
+X-Received: by 2002:ac2:5479:: with SMTP id e25mr10449561lfn.121.1553499405088;
+        Mon, 25 Mar 2019 00:36:45 -0700 (PDT)
+Received: from localhost.localdomain ([213.255.186.46])
+        by smtp.gmail.com with ESMTPSA id r24sm1615196ljr.63.2019.03.25.00.36.43
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Mon, 25 Mar 2019 00:36:44 -0700 (PDT)
+Date:   Mon, 25 Mar 2019 09:36:41 +0200
+From:   Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+To:     Lee Jones <lee.jones@linaro.org>
+Cc:     mazziesaccount@gmail.com, Guenter Roeck <linux@roeck-us.net>,
+        heikki.haikola@fi.rohmeurope.com, mikko.mutanen@fi.rohmeurope.com,
+        robh+dt@kernel.org, mark.rutland@arm.com, broonie@kernel.org,
+        gregkh@linuxfoundation.org, rafael@kernel.org,
+        mturquette@baylibre.com, sboyd@kernel.org,
+        linus.walleij@linaro.org, bgolaszewski@baylibre.com,
+        sre@kernel.org, lgirdwood@gmail.com, a.zummo@towertech.it,
+        alexandre.belloni@bootlin.com, wim@linux-watchdog.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-clk@vger.kernel.org, linux-gpio@vger.kernel.org,
+        linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org,
+        linux-watchdog@vger.kernel.org, bogdan-petru.chircu-mare@nxp.com
+Subject: Re: [PATCH v10 0/9] support ROHM BD70528 PMIC
+Message-ID: <20190325073640.GB6208@localhost.localdomain>
+References: <cover.1550148989.git.matti.vaittinen@fi.rohmeurope.com>
+ <20190228070450.GB3773@localhost.localdomain>
+ <20190228081055.GL4118@dell>
+ <20190228082248.GC3773@localhost.localdomain>
 MIME-Version: 1.0
-In-Reply-To: <af4fba18-da99-2b48-7bbe-d59222081ab4@roeck-us.net>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190228082248.GC3773@localhost.localdomain>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Guenter Roeck 於 2019/3/22 下午 09:06 寫道:
-> On 3/21/19 8:36 PM, Ji-Ze Hong (Peter Hong) wrote:
->> Fix error bit operation in watchdog_start()
->>
+Hello again Lee & all,
+
+On Thu, Feb 28, 2019 at 10:22:48AM +0200, Matti Vaittinen wrote:
+> On Thu, Feb 28, 2019 at 08:10:55AM +0000, Lee Jones wrote:
+> > On Thu, 28 Feb 2019, Matti Vaittinen wrote:
+> > 
+> > > Hello Lee and Mark,
+> > > 
+> > > On Thu, Feb 14, 2019 at 03:02:37PM +0200, Matti Vaittinen wrote:
+> > > > Patch series introducing support for ROHM BD70528 PMIC
+
+//snip
+
+> > > 
+> > > The MFD part depends on the regmap-irq changes and I think that most
+> > > other subsystems want to have the MFD changes in before taking rest of
+> > > the driver in their trees. So it will be a while untill all the changes
+> > > are in. It would really be nice to have the drive in-tree sooner - hence
+> > > I ask if theres a way. (I don't want to push, just ask if it is possible :])
+> > 
+> > It's possible, so long as there aren't any build-time dependencies
+> > between the subsystems.  Immediate acceptance however isn't possible
+> > due to the impending merge-window which opens in 3 days.
 > 
-> Hmm ... does that mean it never worked ? Did you test it this time ?
-
-Sorry for lacking test procedure. I had only test the functional (reset)
-, not to test the register value.
-
-The F81866 PIN70 (WDTRST#/GPIO15) is default set to WDTRST# function and
-the old code only change register 27h bit(4) - PORT_4E_EN.
-
-If the mainboard entry port is 4Eh, the old code is equal to nothing
-done, but when the mainboard entry port is 2Eh, this code will make the
-change from entry port 2Eh to 4Eh.
-
-https://html.alldatasheet.com/html-pdf/459086/FINTEK/F81866AD/26531/119/F81866AD.html
-
-> A secondary concern is that the watchdog doesn't _have_ to trigger WDTRST,
-> but may also trigger PWOK. But that may be a separate issue.
-
-Out watchdog is only support WDTRST#.
-
-> Please add:
+> Thanks for reply Lee. So merge-window is opening - meaning the 5.1 is
+> being baked now(?) 
 > 
-> Fixes: 14b24a88a3660 ("watchdog: f71808e_wdt: Add F81866 support")
+> Anyays to make it clear - there is build time dependency between MFD and
+> regmap-irq changes. MFD part won't compile without the changes in regmap
+> tree. And theres no new Kconfig to depend on or other compile time
+> checks. So REGMAP changes are required for this MFD portion to compile.
 
-OK, I'll add to v2
+//snip
 
->> diff --git a/drivers/watchdog/f71808e_wdt.c 
->> b/drivers/watchdog/f71808e_wdt.c
->> index 9a1c761258ce..9129485732c7 100644
->> --- a/drivers/watchdog/f71808e_wdt.c
->> +++ b/drivers/watchdog/f71808e_wdt.c
->> @@ -387,18 +387,17 @@ static int watchdog_start(void)
->>       case f81866:
->>           /* Set pin 70 to WDTRST# */
->> -        superio_clear_bit(watchdog.sioaddr, SIO_F81866_REG_PORT_SEL,
->> -                  BIT(3) | BIT(0));
->> -        superio_set_bit(watchdog.sioaddr, SIO_F81866_REG_PORT_SEL,
->> -                BIT(2));
->> +        superio_clear_bit(watchdog.sioaddr, SIO_F81866_REG_PORT_SEL, 3);
->> +        superio_clear_bit(watchdog.sioaddr, SIO_F81866_REG_PORT_SEL, 0);
->> +        superio_set_bit(watchdog.sioaddr, SIO_F81866_REG_PORT_SEL, 2);
-> 
-> Better use superio_inb()/superio_outb(). The above is (much) more 
-> expensive,
-> and  we have no real idea what the impact of changing one bit at a time 
-> may be.
+> Rest of the subsystems (regulator, clk, watchdog, gpio) do all depend on
+> MFD - but they should have 'depends on' KConfig to MFD meaning they
+> won't be built without MFD.
 
-Could I add a superio_mask_write(reg, mask, data) with v2 patch like
-following fintek driver ?
-https://elixir.bootlin.com/linux/latest/source/drivers/tty/serial/8250/8250_fintek.c#L113
+I see the 5.1-rc1 and 5.1-rc2 are out. Those contain the regmap-irq
+changes the BD70528 MFD driver depends on. Would you like me to rebase
+the series to some other tree (which tree/branch? I don't see updated
+for-mfd-next branch in kernel.org yet) and resend it? Original patch
+series was created on top of the regulator tree.
 
-Thanks
+Br,
+	Matti Vaittinen
+
 -- 
-With Best Regards,
-Peter Hong
+Matti Vaittinen, Linux device drivers
+ROHM Semiconductors, Finland SWDC
+Kiviharjunlenkki 1E
+90220 OULU
+FINLAND
+
+~~~ "I don't think so," said Rene Descartes. Just then he vanished ~~~
