@@ -2,96 +2,114 @@ Return-Path: <SRS0=koYb=R6=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EEBF1C43381
-	for <linux-watchdog@archiver.kernel.org>; Wed, 27 Mar 2019 06:43:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AED4AC43381
+	for <linux-watchdog@archiver.kernel.org>; Wed, 27 Mar 2019 17:32:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B5B652075D
-	for <linux-watchdog@archiver.kernel.org>; Wed, 27 Mar 2019 06:43:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 78E5A2146F
+	for <linux-watchdog@archiver.kernel.org>; Wed, 27 Mar 2019 17:32:18 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="pvitqHl4"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="p9FG3qXX"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732615AbfC0GnB (ORCPT
+        id S1727695AbfC0RcS (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 27 Mar 2019 02:43:01 -0400
-Received: from mail-pf1-f196.google.com ([209.85.210.196]:36594 "EHLO
-        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726214AbfC0GnA (ORCPT
+        Wed, 27 Mar 2019 13:32:18 -0400
+Received: from mail-pl1-f195.google.com ([209.85.214.195]:41022 "EHLO
+        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727603AbfC0RcR (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 27 Mar 2019 02:43:00 -0400
-Received: by mail-pf1-f196.google.com with SMTP id p10so9268285pff.3;
-        Tue, 26 Mar 2019 23:43:00 -0700 (PDT)
+        Wed, 27 Mar 2019 13:32:17 -0400
+Received: by mail-pl1-f195.google.com with SMTP id y5so3629107plk.8;
+        Wed, 27 Mar 2019 10:32:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id;
-        bh=Jy7F2QSsf5OTfixtg/4VNXIPeW3wBP1cuuaUxSIcMMA=;
-        b=pvitqHl4Wz4/M52ef9EPVvoUKyFldCtAyYXHPqLkOPa7Cm9AKJcaCZTpzNFi/0WgEC
-         4UEzFFsQO1no14cCUsLzjWjG9dAREb+PZVOw8TycPf/llHtecYio9Ef6xqPwLtQWVlgl
-         KikSBKb8aGIXYgNABQuG8h98qBAHA/6+7Fg1yq9uhqbqSAVgJ1dPpMX7uLzIMNJS0iVg
-         103fCgY9SuEBFnT/go6msGkhB6OLEVm+UytBoOhIWIHjr3N+dUnYBOhWk23ObMOy8XWX
-         YVj1mGZyrjE5v6a3UL9NO5iPszGF4bqcPYWy+6Sm5YQJIy9CWnmN4sIEpj96BjjpMUoW
-         PurQ==
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=4G2ryqjT1Rma4M3vOdY6crlxttI9MfBUyzV5fMa6fNI=;
+        b=p9FG3qXXPJLr5inlIy0KkgayClRbeR0AMf+8rMGWGpRp3H+Rhv3aObBwTwxm3Mcx5/
+         LUNw4WgffsQpvvRixF/M4ASdqbga77pqsMVENdbPLenu+I5IUuCguYCuW6R8WJvTnzi9
+         8zd33trKHvlsq7+2CB7jdLC5nYojgmszwQCl6HQMDipoGD9vCxO0fidVhfHo3/QOoK8A
+         i9D68Nm/eqbBPcHx6IR3wSTyCYQKistc+s2RMM+nCYg8qnOnj2iF4SAc7PO3iBvH/P8j
+         99OCU12CYzo8H0nGKd25N661AvymUC6jDTxJsgQJzsjPBFAvXwg9vQUX3nHldCJDbxOa
+         UmrQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=Jy7F2QSsf5OTfixtg/4VNXIPeW3wBP1cuuaUxSIcMMA=;
-        b=i1KXnvQsXG9jbHNTNCk5tuY/b9K33ouRbjHz9CZcfK5M/dwb6nfwWvaY43/L4DTbmr
-         eJ9Z2okUDNUECdsRfiFNRJYl3PXHtmiUyaB0W9FxHXZsp0TAd5DbcqChd0qxnMGiX0Pe
-         MpsuLwr86XIsmaT3D3vBoCv555GwJ+7JuA1Mt/FI3T3EkonZFarYsPVmOV3sQ/f7SxPH
-         dJap/PXEesw/hQbcykV32ayWBfiJaIDICZTOcw0siCE9I7m9vxEKvppOFvwfjLOWXEd2
-         8EPwdUuqpk57SGEcjvx+H2Nhpo9JFzhaU0/T9vFRzAHsG/ld+UgfwsUtqlmDL7ZctBa6
-         1hqw==
-X-Gm-Message-State: APjAAAXIXJqKnaZcb5HD/UbLmQaZx3WejMunzR/0Kv/STLw0Cu8TisyC
-        pizYAAYXjkpnvVrpfbDpWdxQyh1q
-X-Google-Smtp-Source: APXvYqzTL+Awbn/SXMSTQWAYApC+eFZm/MR4hORxtVsMRyCVa8BUjEF4CbGR8HWfpbuhuMvivjzzhQ==
-X-Received: by 2002:a63:6bc6:: with SMTP id g189mr33157008pgc.427.1553668980149;
-        Tue, 26 Mar 2019 23:43:00 -0700 (PDT)
-Received: from localhost (59-120-186-245.HINET-IP.hinet.net. [59.120.186.245])
-        by smtp.gmail.com with ESMTPSA id q62sm25737760pga.32.2019.03.26.23.42.59
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to:user-agent;
+        bh=4G2ryqjT1Rma4M3vOdY6crlxttI9MfBUyzV5fMa6fNI=;
+        b=jubJISqNrdSIfOMyuQWAbUyhu1qvedBpz0LhI8h3I7e5JMyUx0+W98Nzd67PwtfbGp
+         +cIBuuEviAUnlZkWL3i9R2h8Buonp4ZtKtAthICyFyKXjrUF4Vd99YzOUV/dnIO+3agr
+         mBtvNgHQ3vCErhj+vyjA+jIYhYC1C4H9mr9nvvoew8YBAf8O0o7FjU13wLpK4Ucadsix
+         smtQxCA/AMsFzoQ8SCK3lMSuKxK5a8gZEbO25TJnzjTRtD05zVZKtac6SlvZbdvipwu9
+         SZDMYY+T7JNOBbb5L+S3Nk0winN6pQYjBcWtp5jZ4bWEZJhnM9fxlBclYucePrmrdeaZ
+         /HtA==
+X-Gm-Message-State: APjAAAUvf43D48xtXnfpnlMSyi7XlfLUBFFAnDztEIL3Rby84FLrkAOG
+        qp+1uGS6j/MYq20dgMbU+exOtcYP5Sg=
+X-Google-Smtp-Source: APXvYqx47NTibChC0BBjBL79NaKxky5r1qXL6vmigXMNSpgTkPuRWOaiAQN98HakG/yfmUG1B86oWg==
+X-Received: by 2002:a17:902:bb05:: with SMTP id l5mr18394797pls.311.1553707937304;
+        Wed, 27 Mar 2019 10:32:17 -0700 (PDT)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id i189sm33010649pfc.71.2019.03.27.10.32.15
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 26 Mar 2019 23:42:59 -0700 (PDT)
-From:   "Ji-Ze Hong (Peter Hong)" <hpeter@gmail.com>
-X-Google-Original-From: "Ji-Ze Hong (Peter Hong)" <hpeter+linux_kernel@gmail.com>
-To:     peter_hong@fintek.com.tw, wim@linux-watchdog.org,
-        linux@roeck-us.net
-Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Wed, 27 Mar 2019 10:32:16 -0700 (PDT)
+Date:   Wed, 27 Mar 2019 10:32:14 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     "Ji-Ze Hong (Peter Hong)" <hpeter@gmail.com>
+Cc:     peter_hong@fintek.com.tw, wim@linux-watchdog.org,
+        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
         "Ji-Ze Hong (Peter Hong)" <hpeter+linux_kernel@gmail.com>
-Subject: [PATCH V2 1/2] watchdog: f71808e_wdt: separate declaration and assignment
-Date:   Wed, 27 Mar 2019 14:42:50 +0800
-Message-Id: <1553668971-18801-1-git-send-email-hpeter+linux_kernel@gmail.com>
-X-Mailer: git-send-email 2.7.4
+Subject: Re: [PATCH V2 1/2] watchdog: f71808e_wdt: separate declaration and
+ assignment
+Message-ID: <20190327173214.GB9951@roeck-us.net>
+References: <1553668971-18801-1-git-send-email-hpeter+linux_kernel@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1553668971-18801-1-git-send-email-hpeter+linux_kernel@gmail.com>
+User-Agent: Mutt/1.5.24 (2015-08-30)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Separate declaration and assignment in watchdog_start()
+On Wed, Mar 27, 2019 at 02:42:50PM +0800, Ji-Ze Hong (Peter Hong) wrote:
+> Separate declaration and assignment in watchdog_start()
+> 
+> Signed-off-by: Ji-Ze Hong (Peter Hong) <hpeter+linux_kernel@gmail.com>
 
-Signed-off-by: Ji-Ze Hong (Peter Hong) <hpeter+linux_kernel@gmail.com>
----
- drivers/watchdog/f71808e_wdt.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-diff --git a/drivers/watchdog/f71808e_wdt.c b/drivers/watchdog/f71808e_wdt.c
-index 9a1c761258ce..bd2ced9f39f4 100644
---- a/drivers/watchdog/f71808e_wdt.c
-+++ b/drivers/watchdog/f71808e_wdt.c
-@@ -338,8 +338,10 @@ static int f71862fg_pin_configure(unsigned short ioaddr)
- 
- static int watchdog_start(void)
- {
-+	int err;
-+
- 	/* Make sure we don't die as soon as the watchdog is enabled below */
--	int err = watchdog_keepalive();
-+	err = watchdog_keepalive();
- 	if (err)
- 		return err;
- 
--- 
-2.7.4
+Note though that it would be much more valuable if you could consider
+converting the driver to use the watchdog subsystem instead of trying
+to clean up the current code.
 
+Thanks,
+Guenter
+
+> ---
+>  drivers/watchdog/f71808e_wdt.c | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/watchdog/f71808e_wdt.c b/drivers/watchdog/f71808e_wdt.c
+> index 9a1c761258ce..bd2ced9f39f4 100644
+> --- a/drivers/watchdog/f71808e_wdt.c
+> +++ b/drivers/watchdog/f71808e_wdt.c
+> @@ -338,8 +338,10 @@ static int f71862fg_pin_configure(unsigned short ioaddr)
+>  
+>  static int watchdog_start(void)
+>  {
+> +	int err;
+> +
+>  	/* Make sure we don't die as soon as the watchdog is enabled below */
+> -	int err = watchdog_keepalive();
+> +	err = watchdog_keepalive();
+>  	if (err)
+>  		return err;
+>  
+> -- 
+> 2.7.4
+> 
