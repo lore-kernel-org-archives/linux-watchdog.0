@@ -4,32 +4,32 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
+	SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 44489C43381
-	for <linux-watchdog@archiver.kernel.org>; Wed, 27 Mar 2019 23:18:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AFBF7C43381
+	for <linux-watchdog@archiver.kernel.org>; Wed, 27 Mar 2019 23:18:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 144772075C
-	for <linux-watchdog@archiver.kernel.org>; Wed, 27 Mar 2019 23:18:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 72BD72075C
+	for <linux-watchdog@archiver.kernel.org>; Wed, 27 Mar 2019 23:18:44 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=crapouillou.net header.i=@crapouillou.net header.b="WWVo51jN"
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=crapouillou.net header.i=@crapouillou.net header.b="Dv8XV9bl"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733241AbfC0XSN (ORCPT
+        id S1733109AbfC0XSC (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 27 Mar 2019 19:18:13 -0400
-Received: from outils.crapouillou.net ([89.234.176.41]:59652 "EHLO
+        Wed, 27 Mar 2019 19:18:02 -0400
+Received: from outils.crapouillou.net ([89.234.176.41]:59468 "EHLO
         crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1733225AbfC0XSM (ORCPT
+        with ESMTP id S1732789AbfC0XSB (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 27 Mar 2019 19:18:12 -0400
+        Wed, 27 Mar 2019 19:18:01 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
-        s=mail; t=1553728689; h=from:from:sender:reply-to:subject:subject:date:date:
+        s=mail; t=1553728678; h=from:from:sender:reply-to:subject:subject:date:date:
          message-id:message-id:to:to:cc:cc:mime-version:content-type:
          content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
-        bh=BhaqD9cfvvcuJii1b2J+pKSfpooSP6Z22B7yIRH/Y4U=;
-        b=WWVo51jNNHZanVTmVzPzQIFT+GrRakQOvU6KUJOzRLOlzIc3VDTyS62wipw2A/62Mk/U6W
-        bEjxVO7+NfMhFcOre+ysO1aImAQ1wz/kolCrmrIIycIB1+RNjE8Eh7uXWTZGctIClqfiMf
-        6UU6RYaS/7pfnWYKEuUZgTtNNAZmFcQ=
+        bh=G+EzRBQpk9DxezKApxB3XMfQ8fsiA9FA550z/ZOndCI=;
+        b=Dv8XV9blNBqxzTPsKTtPbQZHNwaE9PrZmuCO4LjUkXrBuGBIl/dhazBMbPnHDQfBSzFiHg
+        a+JCqzCdBUNdnwgDr3jR4vhpGE5lgBgvxUugC4aclXjanYl4N1pFdTVuwQPPDvQKlZ3zfX
+        jkkL4l4G3SV1YYkMhwfx3WbB6M82k6E=
 From:   Paul Cercueil <paul@crapouillou.net>
 To:     Rob Herring <robh+dt@kernel.org>,
         Mark Rutland <mark.rutland@arm.com>,
@@ -48,9 +48,9 @@ Cc:     Mathieu Malaterre <malat@debian.org>, od@zcrc.me,
         linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
         linux-mips@vger.kernel.org, linux-doc@vger.kernel.org,
         linux-clk@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>
-Subject: [PATCH v11 25/27] MIPS: GCW0: Reduce system timer and clocksource to 750 kHz
-Date:   Thu, 28 Mar 2019 00:16:29 +0100
-Message-Id: <20190327231631.15708-26-paul@crapouillou.net>
+Subject: [PATCH v11 22/27] MIPS: qi_lb60: Reduce system timer and clocksource to 750 kHz
+Date:   Thu, 28 Mar 2019 00:16:26 +0100
+Message-Id: <20190327231631.15708-23-paul@crapouillou.net>
 In-Reply-To: <20190327231631.15708-1-paul@crapouillou.net>
 References: <20190327231631.15708-1-paul@crapouillou.net>
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -58,22 +58,23 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-The default clock (12 MHz) is too fast for the system timer.
+The default clock (12 MHz) is too fast for the system timer, which fails
+to report time accurately.
 
 Signed-off-by: Paul Cercueil <paul@crapouillou.net>
 Tested-by: Mathieu Malaterre <malat@debian.org>
 Tested-by: Artur Rojek <contact@artur-rojek.eu>
 ---
- arch/mips/boot/dts/ingenic/gcw0.dts | 6 ++++++
+ arch/mips/boot/dts/ingenic/qi_lb60.dts | 6 ++++++
  1 file changed, 6 insertions(+)
 
-diff --git a/arch/mips/boot/dts/ingenic/gcw0.dts b/arch/mips/boot/dts/ingenic/gcw0.dts
-index 35f0291e8d38..2f26b8a498e9 100644
---- a/arch/mips/boot/dts/ingenic/gcw0.dts
-+++ b/arch/mips/boot/dts/ingenic/gcw0.dts
-@@ -60,3 +60,9 @@
- 	/* The WiFi module is connected to the UHC. */
- 	status = "okay";
+diff --git a/arch/mips/boot/dts/ingenic/qi_lb60.dts b/arch/mips/boot/dts/ingenic/qi_lb60.dts
+index 85529a142409..de9d45e2c24a 100644
+--- a/arch/mips/boot/dts/ingenic/qi_lb60.dts
++++ b/arch/mips/boot/dts/ingenic/qi_lb60.dts
+@@ -45,3 +45,9 @@
+ 		bias-disable;
+ 	};
  };
 +
 +&tcu {
