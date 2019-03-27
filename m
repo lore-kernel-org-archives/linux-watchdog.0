@@ -4,32 +4,32 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
+	SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D2E6EC43381
-	for <linux-watchdog@archiver.kernel.org>; Wed, 27 Mar 2019 23:17:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3FC8CC4360F
+	for <linux-watchdog@archiver.kernel.org>; Wed, 27 Mar 2019 23:17:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9F3312075C
-	for <linux-watchdog@archiver.kernel.org>; Wed, 27 Mar 2019 23:17:51 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F15372075C
+	for <linux-watchdog@archiver.kernel.org>; Wed, 27 Mar 2019 23:17:52 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=crapouillou.net header.i=@crapouillou.net header.b="jgoZsvoc"
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=crapouillou.net header.i=@crapouillou.net header.b="YXcP/R4G"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732664AbfC0XRq (ORCPT
+        id S1732854AbfC0XRw (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 27 Mar 2019 19:17:46 -0400
-Received: from outils.crapouillou.net ([89.234.176.41]:59176 "EHLO
+        Wed, 27 Mar 2019 19:17:52 -0400
+Received: from outils.crapouillou.net ([89.234.176.41]:59276 "EHLO
         crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732572AbfC0XRo (ORCPT
+        with ESMTP id S1732572AbfC0XRv (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 27 Mar 2019 19:17:44 -0400
+        Wed, 27 Mar 2019 19:17:51 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
-        s=mail; t=1553728661; h=from:from:sender:reply-to:subject:subject:date:date:
+        s=mail; t=1553728668; h=from:from:sender:reply-to:subject:subject:date:date:
          message-id:message-id:to:to:cc:cc:mime-version:content-type:
          content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
-        bh=LaBZgQfRycafkqZkxA0KQOxGTobHePRrAgEM3XkEjFQ=;
-        b=jgoZsvocN306f74/spp3hXET5Vp2umbTJKJaHkj2+YNuDEsJrLS5dXWKdGi/eT7ciF8ip3
-        wQQ/JhAzpQ98zPdv6tXwqu7TaheVyvUJz1KGDUYeziiW/MbZiFUrtRbr3v2rNhallNg2vT
-        AmRgxCzdj9uOUQYEP+diU6AhTRB95io=
+        bh=NjQ2F08kMImKzahKxPvopZlS77+2wWI9m9V/KZlaiA0=;
+        b=YXcP/R4GPbq8hsKtPtul+l1iPGHFyzdOQgOZzDZThZtuIlXjq0H0XkkA5Tnhn6mhSgNbDf
+        MwJo/8BtxoL4BJN2N0kvWAQZOy+SCVhf8ZNcLuCBQ2Szet5JB0yj0QypSRRwV65vhq2sqe
+        DJWgRXs5erMmL/tpBjZs1NB9CzRKr4Q=
 From:   Paul Cercueil <paul@crapouillou.net>
 To:     Rob Herring <robh+dt@kernel.org>,
         Mark Rutland <mark.rutland@arm.com>,
@@ -48,9 +48,9 @@ Cc:     Mathieu Malaterre <malat@debian.org>, od@zcrc.me,
         linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
         linux-mips@vger.kernel.org, linux-doc@vger.kernel.org,
         linux-clk@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>
-Subject: [PATCH v11 17/27] pwm: jz4740: Remove unused devicetree compatible strings
-Date:   Thu, 28 Mar 2019 00:16:21 +0100
-Message-Id: <20190327231631.15708-18-paul@crapouillou.net>
+Subject: [PATCH v11 19/27] MIPS: Kconfig: Select TCU timer driver when MACH_INGENIC is set
+Date:   Thu, 28 Mar 2019 00:16:23 +0100
+Message-Id: <20190327231631.15708-20-paul@crapouillou.net>
 In-Reply-To: <20190327231631.15708-1-paul@crapouillou.net>
 References: <20190327231631.15708-1-paul@crapouillou.net>
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -58,32 +58,29 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Right now none of the Ingenic-based boards probe this driver from
-devicetree. This driver defined three compatible strings for the exact
-same behaviour. Before these strings are used, we can remove two of
-them.
+We cannot boot to userspace (not even initramfs) if the timer driver is
+not present; so it makes sense to enable it unconditionally when
+MACH_INGENIC is set.
 
 Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Acked-by: Thierry Reding <thierry.reding@gmail.com>
 Tested-by: Mathieu Malaterre <malat@debian.org>
 Tested-by: Artur Rojek <contact@artur-rojek.eu>
 ---
- drivers/pwm/pwm-jz4740.c | 2 --
- 1 file changed, 2 deletions(-)
+ arch/mips/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/pwm/pwm-jz4740.c b/drivers/pwm/pwm-jz4740.c
-index c874a387c1d9..47d891bd22c7 100644
---- a/drivers/pwm/pwm-jz4740.c
-+++ b/drivers/pwm/pwm-jz4740.c
-@@ -233,8 +233,6 @@ static int jz4740_pwm_remove(struct platform_device *pdev)
- #ifdef CONFIG_OF
- static const struct of_device_id jz4740_pwm_dt_ids[] = {
- 	{ .compatible = "ingenic,jz4740-pwm", },
--	{ .compatible = "ingenic,jz4770-pwm", },
--	{ .compatible = "ingenic,jz4780-pwm", },
- 	{},
- };
- MODULE_DEVICE_TABLE(of, jz4740_pwm_dt_ids);
+diff --git a/arch/mips/Kconfig b/arch/mips/Kconfig
+index 4a5f5b0ee9a9..eca480d43d93 100644
+--- a/arch/mips/Kconfig
++++ b/arch/mips/Kconfig
+@@ -393,6 +393,7 @@ config MACH_INGENIC
+ 	select BUILTIN_DTB if MIPS_NO_APPENDED_DTB
+ 	select USE_OF
+ 	select LIBFDT
++	select INGENIC_TIMER
+ 
+ config LANTIQ
+ 	bool "Lantiq based platforms"
 -- 
 2.11.0
 
