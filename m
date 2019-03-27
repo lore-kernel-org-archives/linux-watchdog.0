@@ -4,32 +4,32 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+	SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 31BC6C43381
-	for <linux-watchdog@archiver.kernel.org>; Wed, 27 Mar 2019 23:19:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D5789C43381
+	for <linux-watchdog@archiver.kernel.org>; Wed, 27 Mar 2019 23:19:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 006392075C
-	for <linux-watchdog@archiver.kernel.org>; Wed, 27 Mar 2019 23:19:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A3C612082F
+	for <linux-watchdog@archiver.kernel.org>; Wed, 27 Mar 2019 23:19:06 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=crapouillou.net header.i=@crapouillou.net header.b="Rc+YFeB5"
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=crapouillou.net header.i=@crapouillou.net header.b="Gqoh3Ei7"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729657AbfC0XS6 (ORCPT
+        id S1732533AbfC0XRl (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 27 Mar 2019 19:18:58 -0400
-Received: from outils.crapouillou.net ([89.234.176.41]:59118 "EHLO
+        Wed, 27 Mar 2019 19:17:41 -0400
+Received: from outils.crapouillou.net ([89.234.176.41]:59062 "EHLO
         crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728062AbfC0XRm (ORCPT
+        with ESMTP id S1732379AbfC0XRj (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 27 Mar 2019 19:17:42 -0400
+        Wed, 27 Mar 2019 19:17:39 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
-        s=mail; t=1553728659; h=from:from:sender:reply-to:subject:subject:date:date:
+        s=mail; t=1553728657; h=from:from:sender:reply-to:subject:subject:date:date:
          message-id:message-id:to:to:cc:cc:mime-version:content-type:
          content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
-        bh=i7nXZc2dagRgFRfMyZHWXJxqtg8BMbqF+6N1Dzaibgs=;
-        b=Rc+YFeB50ozbmFA6ZyQpQTqO63FcyjAH/wYcdEnZ1VYSTUtvwspSSDJSKlgt6iUPwQHHyP
-        0iH7rKy6haua6j+8GVXHnYbvnh5glYLZb30tQLSTM4AtYC7NU8l/fhDrrKzzWC/xFp3yob
-        +nWXHHrj7yg5z7V9ENQdEaGPT0SaVFk=
+        bh=Vfr89DEuixHt/Ld1cIBzy7ff8DhBwMoI2s6wXld3jbA=;
+        b=Gqoh3Ei750tF1iMZ/7XovFZZ27Dfq2vbkPgmTacQO5D95aB6Fu8XcQqn4o1vqVko84Sokq
+        FHhvNT60SUjNALPzjL+9qBjoWWn7Xj+ow5uxcis9Gb/h8B/cnUtz8qwl3gaiAh0QJRx1yy
+        NzGC/KErRdA3GrSAYSO56YoI23qXDU0=
 From:   Paul Cercueil <paul@crapouillou.net>
 To:     Rob Herring <robh+dt@kernel.org>,
         Mark Rutland <mark.rutland@arm.com>,
@@ -48,9 +48,9 @@ Cc:     Mathieu Malaterre <malat@debian.org>, od@zcrc.me,
         linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
         linux-mips@vger.kernel.org, linux-doc@vger.kernel.org,
         linux-clk@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>
-Subject: [PATCH v11 16/27] pwm: jz4740: Drop dependency on MACH_INGENIC, use COMPILE_TEST
-Date:   Thu, 28 Mar 2019 00:16:20 +0100
-Message-Id: <20190327231631.15708-17-paul@crapouillou.net>
+Subject: [PATCH v11 15/27] pwm: jz4740: Allow selection of PWM channels 0 and 1
+Date:   Thu, 28 Mar 2019 00:16:19 +0100
+Message-Id: <20190327231631.15708-16-paul@crapouillou.net>
 In-Reply-To: <20190327231631.15708-1-paul@crapouillou.net>
 References: <20190327231631.15708-1-paul@crapouillou.net>
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -58,35 +58,33 @@ Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Depending on MACH_INGENIC prevent us from creating a generic kernel that
-works on more than one MIPS board. Instead, we just depend on MIPS being
-set.
-
-On other architectures, this driver can still be built, thanks to
-COMPILE_TEST. This is used by automated tools to find bugs, for
-instance.
+The TCU channels 0 and 1 were previously reserved for system tasks, and
+thus unavailable for PWM.
 
 Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Acked-by: Thierry Reding <thierry.reding@gmail.com>
 Tested-by: Mathieu Malaterre <malat@debian.org>
 Tested-by: Artur Rojek <contact@artur-rojek.eu>
 ---
- drivers/pwm/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pwm/pwm-jz4740.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
-diff --git a/drivers/pwm/Kconfig b/drivers/pwm/Kconfig
-index a1aba52793ee..e73e744a7a71 100644
---- a/drivers/pwm/Kconfig
-+++ b/drivers/pwm/Kconfig
-@@ -212,7 +212,7 @@ config PWM_IMX27
+diff --git a/drivers/pwm/pwm-jz4740.c b/drivers/pwm/pwm-jz4740.c
+index b55ee879e23d..c874a387c1d9 100644
+--- a/drivers/pwm/pwm-jz4740.c
++++ b/drivers/pwm/pwm-jz4740.c
+@@ -42,11 +42,7 @@ static int jz4740_pwm_request(struct pwm_chip *chip, struct pwm_device *pwm)
+ 	char clk_name[16];
+ 	int ret;
  
- config PWM_JZ4740
- 	tristate "Ingenic JZ47xx PWM support"
--	depends on MACH_INGENIC
-+	depends on MIPS || COMPILE_TEST
- 	depends on COMMON_CLK
- 	select INGENIC_TIMER
- 	help
+-	/*
+-	 * Timers 0 and 1 are used for system tasks, so they are unavailable
+-	 * for use as PWMs.
+-	 */
+-	if (pwm->hwpwm < 2)
++	if (!ingenic_tcu_pwm_can_use_chn(chip->dev, pwm->hwpwm))
+ 		return -EBUSY;
+ 
+ 	snprintf(clk_name, sizeof(clk_name), "timer%u", pwm->hwpwm);
 -- 
 2.11.0
 
