@@ -6,53 +6,53 @@ X-Spam-Status: No, score=-4.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,
 	URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A64BAC43381
-	for <linux-watchdog@archiver.kernel.org>; Thu, 28 Mar 2019 19:09:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7DB0FC43381
+	for <linux-watchdog@archiver.kernel.org>; Thu, 28 Mar 2019 19:10:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 79AC320811
-	for <linux-watchdog@archiver.kernel.org>; Thu, 28 Mar 2019 19:09:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 522CB217F5
+	for <linux-watchdog@archiver.kernel.org>; Thu, 28 Mar 2019 19:10:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1553800196;
-	bh=SprQsEdRnbpNMH9Z51mIFuD7A0vDVpdtNwoNemDpD5c=;
+	s=default; t=1553800253;
+	bh=DjyvtDJ2qdBVgDAsHRdUYJlFrSFRjFf0ySQ/HKDt1JQ=;
 	h=References:In-Reply-To:From:Date:Subject:To:Cc:List-ID:From;
-	b=M56glpSijgUhcN1pDrCIOnZ8ltcqer1SOgQ2gpxJZ+Jr0IGHzU9BX0I4LN/wvdQtZ
-	 MkuUdpvULVW+bzPsbuL1jw3VsrIsA05tiiBpGYWej2RFs8JRvVAa6jSOFGciA0gdr6
-	 R44pkok/NKWsezKFNGlUF8WukylrTiYVX2zRFbEY=
+	b=EKb9Qa9XZBaebhc75WdXhYk2HJJZyFHv3Ttke9LVMmP305wqwNBnEH5CiHbgtNcst
+	 LiLn4We+u/SiebmppXUQjXzx2sBbsvOvc9i3GUsnZRcxwEIRQ+ebmo/aFJoV9h5aer
+	 7cekVsmA0lJdk4ub4D4JNoPRsbNYjSCSHXXuKGpM=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726428AbfC1TJw (ORCPT
+        id S1726516AbfC1TKu (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 28 Mar 2019 15:09:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48450 "EHLO mail.kernel.org"
+        Thu, 28 Mar 2019 15:10:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48750 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725852AbfC1TJv (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 28 Mar 2019 15:09:51 -0400
-Received: from mail-qt1-f178.google.com (mail-qt1-f178.google.com [209.85.160.178])
+        id S1725916AbfC1TKt (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Thu, 28 Mar 2019 15:10:49 -0400
+Received: from mail-qk1-f171.google.com (mail-qk1-f171.google.com [209.85.222.171])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 994112184E;
-        Thu, 28 Mar 2019 19:09:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3FC322183F;
+        Thu, 28 Mar 2019 19:10:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1553800190;
-        bh=SprQsEdRnbpNMH9Z51mIFuD7A0vDVpdtNwoNemDpD5c=;
+        s=default; t=1553800248;
+        bh=DjyvtDJ2qdBVgDAsHRdUYJlFrSFRjFf0ySQ/HKDt1JQ=;
         h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=ldtFI4OXhHJe7st9mhVOtyH5YnPmqc76bxdxPvOFecyqA+vN0DFfLI7T/ICl2bf0B
-         kiCaH73+5a5r9WlD5Kr2QWsCHcFlVjQaqWvz2U/sRzQQI1HpBiIzt09Bx/kgVCEhhK
-         KJgjgk7yaomEA67K0ZWZYe0076JDFsWMp2FS5+zA=
-Received: by mail-qt1-f178.google.com with SMTP id k2so24482880qtm.1;
-        Thu, 28 Mar 2019 12:09:50 -0700 (PDT)
-X-Gm-Message-State: APjAAAU2/ZloPFNP0PFbR4DlT8k6qXTYTrxBkP8Tm8ldeyoPYv+2QyaZ
-        NKpVZgqLvnoaMGStXyPZ5FMa/mHO9hyc2LmJJA==
-X-Google-Smtp-Source: APXvYqx5fUpR7gu+fayjaeAP2rETOBgF5evOFtfCbK33QT0vsqfLRfoUFlfmsZHhpFfmBn2HaYq0lEJzna81DRFkyvM=
-X-Received: by 2002:a0c:b018:: with SMTP id k24mr37635042qvc.218.1553800189858;
- Thu, 28 Mar 2019 12:09:49 -0700 (PDT)
+        b=dcIqhFA3vbpak2nyU8+EPjB1CNVVUhU3/wAy9hK0pku3TruuPy8+wLS3vhRoZTT4b
+         JUnAltbPQpA96VWVDV5uTxFq2rgYZz99P1IbNIqM04frXlg3NUHI41tG9uOyYghQGU
+         n4iWdX/Nskv6Z+fZjbrG+cWxMpTVsc34UXShPO7A=
+Received: by mail-qk1-f171.google.com with SMTP id a71so6581254qkg.2;
+        Thu, 28 Mar 2019 12:10:48 -0700 (PDT)
+X-Gm-Message-State: APjAAAVfZk9KBlEaJejt+fIThcSTBdvgViIuB0GZVTcQAKofb+xjdaJO
+        nIAeWlIlVLTgOimuQ8FNFTCqyH6R4mZYSIc1zA==
+X-Google-Smtp-Source: APXvYqyWoK5oBIwqhg79nJ8aTEfwsYhluIKyKhCLbgJBeMOWABFFSST2oCZ57y/xkRwVhO6apYa+wf3QbxwUPJEzWME=
+X-Received: by 2002:ae9:e417:: with SMTP id q23mr32628158qkc.29.1553800247549;
+ Thu, 28 Mar 2019 12:10:47 -0700 (PDT)
 MIME-Version: 1.0
-References: <20190323211612.860-1-fparent@baylibre.com> <20190323211612.860-12-fparent@baylibre.com>
-In-Reply-To: <20190323211612.860-12-fparent@baylibre.com>
+References: <20190323211612.860-1-fparent@baylibre.com> <20190323211612.860-13-fparent@baylibre.com>
+In-Reply-To: <20190323211612.860-13-fparent@baylibre.com>
 From:   Rob Herring <robh+dt@kernel.org>
-Date:   Thu, 28 Mar 2019 14:09:38 -0500
-X-Gmail-Original-Message-ID: <CAL_JsqKdWjtzNVtAm1aO6Dv+bDmurJ2q709Uakf6xP4Co+HgWg@mail.gmail.com>
-Message-ID: <CAL_JsqKdWjtzNVtAm1aO6Dv+bDmurJ2q709Uakf6xP4Co+HgWg@mail.gmail.com>
-Subject: Re: [PATCH 11/24] dt-bindings: mediatek: topckgen: add support for MT8516
+Date:   Thu, 28 Mar 2019 14:10:36 -0500
+X-Gmail-Original-Message-ID: <CAL_JsqLCCHd8bs6DZJw3qGRjvx17baQ2v_SiPpBhsjNFOJFCUQ@mail.gmail.com>
+Message-ID: <CAL_JsqLCCHd8bs6DZJw3qGRjvx17baQ2v_SiPpBhsjNFOJFCUQ@mail.gmail.com>
+Subject: Re: [PATCH 12/24] dt-bindings: mediatek: infracfg: add support for MT8516
 To:     Fabien Parent <fparent@baylibre.com>
 Cc:     Matthias Brugger <matthias.bgg@gmail.com>,
         Mark Rutland <mark.rutland@arm.com>,
@@ -84,13 +84,12 @@ X-Mailing-List: linux-watchdog@vger.kernel.org
 
 On Sat, Mar 23, 2019 at 4:17 PM Fabien Parent <fparent@baylibre.com> wrote:
 >
-> Add binding documentation of topckgen for MT8516 SoC.
+> Add binding documentation of infracfg for MT8516 SoC.
 >
 > Signed-off-by: Fabien Parent <fparent@baylibre.com>
 > ---
->  .../arm/mediatek/mediatek,topckgen.txt        |   1 +
->  include/dt-bindings/clock/mt8516-clk.h        | 192 ++++++++++++++++++
->  2 files changed, 193 insertions(+)
->  create mode 100644 include/dt-bindings/clock/mt8516-clk.h
+>  .../bindings/arm/mediatek/mediatek,infracfg.txt          | 1 +
+>  include/dt-bindings/clock/mt8516-clk.h                   | 9 +++++++++
+>  2 files changed, 10 insertions(+)
 
 Acked-by: Rob Herring <robh@kernel.org>
