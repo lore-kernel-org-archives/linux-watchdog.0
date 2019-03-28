@@ -6,53 +6,53 @@ X-Spam-Status: No, score=-4.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,
 	URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B762FC43381
-	for <linux-watchdog@archiver.kernel.org>; Thu, 28 Mar 2019 19:12:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 89F9BC43381
+	for <linux-watchdog@archiver.kernel.org>; Thu, 28 Mar 2019 19:13:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 8A1DD20811
-	for <linux-watchdog@archiver.kernel.org>; Thu, 28 Mar 2019 19:12:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5F4F320811
+	for <linux-watchdog@archiver.kernel.org>; Thu, 28 Mar 2019 19:13:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1553800366;
-	bh=AjtXW1qFyIWtNsZQn9MisAT+W4qGa/onDY41TQMhoo8=;
+	s=default; t=1553800386;
+	bh=ZsyTIwDmmkU56C70I+JSuBV6hSuLo0CDvV4gZSJ64N4=;
 	h=References:In-Reply-To:From:Date:Subject:To:Cc:List-ID:From;
-	b=LxhuNprJwfDw9pJl0hrGh+/S1u5/CfT4SLq6OsqwlTvsST8K7W+OBMnhOUzW5tDSi
-	 cfP94r09UGgn4ZXeiLzoywl36ep9XU/9KWbGkwlOuJq5FspBzTMuNBxzmLU445bmtq
-	 9wVro87WZeZnw50SaZxAjL2BXACQOP7OnV+PHVcQ=
+	b=ObrKVXusluqH8EyVFTD8D1gKpVFTH7n0xrpc6/7NUQO1NfywaKkGt5TKGCTUEO9nd
+	 R/HAyN9at79va4v/kWAwgr6FMmoz4/ebI3MHzqHVJTWNvufe+38V4nfX3IjwZj3DmE
+	 RaLdbdG9qyU/trIjCbfYwIsG5ZU6BtxlE7vRhFwc=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726428AbfC1TMn (ORCPT
+        id S1726537AbfC1TNB (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 28 Mar 2019 15:12:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49724 "EHLO mail.kernel.org"
+        Thu, 28 Mar 2019 15:13:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49928 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726076AbfC1TMm (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 28 Mar 2019 15:12:42 -0400
-Received: from mail-qk1-f171.google.com (mail-qk1-f171.google.com [209.85.222.171])
+        id S1725916AbfC1TNB (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Thu, 28 Mar 2019 15:13:01 -0400
+Received: from mail-qk1-f179.google.com (mail-qk1-f179.google.com [209.85.222.179])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9C2482183F;
-        Thu, 28 Mar 2019 19:12:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DE77021850;
+        Thu, 28 Mar 2019 19:12:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1553800361;
-        bh=AjtXW1qFyIWtNsZQn9MisAT+W4qGa/onDY41TQMhoo8=;
+        s=default; t=1553800380;
+        bh=ZsyTIwDmmkU56C70I+JSuBV6hSuLo0CDvV4gZSJ64N4=;
         h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=TjYYKE4PIuXpiQPr13NBoJK8omqwPoFwuOXnKDPSvuFf7yI6dHcG2LxMHFvVY1o0M
-         rT1pKY+JKjs2UWedLFr3dv+3gqINY03wBXUCUa4houvysJ8ji/ypd0CHBDSLm6m28+
-         BfDZjzNzswnnBf0QxKXrB0mnTMAywwO9krvvIN/8=
-Received: by mail-qk1-f171.google.com with SMTP id a71so6585184qkg.2;
-        Thu, 28 Mar 2019 12:12:41 -0700 (PDT)
-X-Gm-Message-State: APjAAAUZQ/BhkMXUeqcWiJJCljbG99TD+QR/Ju6cLR1WdwrTQJNxhp/k
-        kgylM1szE53kq3p8jond6X7pNH+Vz1IfQPWUHA==
-X-Google-Smtp-Source: APXvYqzKkT6oM1n9B7ums3ALQfVo0PgfUF1GKglpP/069QHAsRUWGejZuGF4pJboP2nTMoW5tX7gcfLGVF52bu82t74=
-X-Received: by 2002:a37:9186:: with SMTP id t128mr7373301qkd.326.1553800360930;
- Thu, 28 Mar 2019 12:12:40 -0700 (PDT)
+        b=0Vi4EOkdFAv5UOnXRlbMox/iTXDY1douj0o83TmvHstKV8VUJ8cxxjH9WEJ1dI7Tr
+         D9auKPftz7tXPp24P332svvqxnuBd8/0He16PJ8vrNmUHhctBuRRBDICSdwl7r9iza
+         FpeKWELre+ZJ541EyHQxt4DpM3Bbf9lFL6WM9pOU=
+Received: by mail-qk1-f179.google.com with SMTP id c1so12875222qkk.4;
+        Thu, 28 Mar 2019 12:12:59 -0700 (PDT)
+X-Gm-Message-State: APjAAAUT6Pg27VgcmJYdxcc/pCTLxiJlaVUcl1CGXKRqvR6M4Unl+DRz
+        cgkwavwOpggA93Gu5lnkLmiM3D5D/9pchfUi2A==
+X-Google-Smtp-Source: APXvYqzDqWMwX5s0olF02ppKk3lkfl24iBLYWAV6FRadX59FRbJECULtLGV8+EDHPkbwfvdvCoCK0fx4y2whhbHf4ns=
+X-Received: by 2002:a37:4a12:: with SMTP id x18mr34378657qka.184.1553800379192;
+ Thu, 28 Mar 2019 12:12:59 -0700 (PDT)
 MIME-Version: 1.0
-References: <20190323211612.860-1-fparent@baylibre.com> <20190323211612.860-20-fparent@baylibre.com>
-In-Reply-To: <20190323211612.860-20-fparent@baylibre.com>
+References: <20190323211612.860-1-fparent@baylibre.com> <20190323211612.860-21-fparent@baylibre.com>
+In-Reply-To: <20190323211612.860-21-fparent@baylibre.com>
 From:   Rob Herring <robh+dt@kernel.org>
-Date:   Thu, 28 Mar 2019 14:12:29 -0500
-X-Gmail-Original-Message-ID: <CAL_JsqKJgxERJOcETr638vbdC-HzVs9=nFcQ1eDjgKrJjPRn1w@mail.gmail.com>
-Message-ID: <CAL_JsqKJgxERJOcETr638vbdC-HzVs9=nFcQ1eDjgKrJjPRn1w@mail.gmail.com>
-Subject: Re: [PATCH 19/24] dt-bindings: spi: spi-mt65xx: add support for MT8516
+Date:   Thu, 28 Mar 2019 14:12:47 -0500
+X-Gmail-Original-Message-ID: <CAL_JsqL2KoSRsXssMamDp3H-u5c4NTdrEesScxPtjgZbAfH-Lw@mail.gmail.com>
+Message-ID: <CAL_JsqL2KoSRsXssMamDp3H-u5c4NTdrEesScxPtjgZbAfH-Lw@mail.gmail.com>
+Subject: Re: [PATCH 20/24] dt-bindings: serial: mtk-uart: add support for MT8516
 To:     Fabien Parent <fparent@baylibre.com>
 Cc:     Matthias Brugger <matthias.bgg@gmail.com>,
         Mark Rutland <mark.rutland@arm.com>,
@@ -84,11 +84,11 @@ X-Mailing-List: linux-watchdog@vger.kernel.org
 
 On Sat, Mar 23, 2019 at 4:17 PM Fabien Parent <fparent@baylibre.com> wrote:
 >
-> Add binding documentation of spi-mt65xx for MT8516 SoC.
+> Add binding documentation of mtk-uart for MT8516 SoC.
 >
 > Signed-off-by: Fabien Parent <fparent@baylibre.com>
 > ---
->  Documentation/devicetree/bindings/spi/spi-mt65xx.txt | 1 +
+>  Documentation/devicetree/bindings/serial/mtk-uart.txt | 1 +
 >  1 file changed, 1 insertion(+)
 
 Acked-by: Rob Herring <robh@kernel.org>
