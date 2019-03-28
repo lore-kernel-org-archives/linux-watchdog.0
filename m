@@ -1,95 +1,101 @@
-Return-Path: <SRS0=7lve=R7=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=t22s=R7=mkbalance.top=info2@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-X-Spam-Level: 
-X-Spam-Status: No, score=-4.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Level: *
+X-Spam-Status: No, score=1.1 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	HTML_MESSAGE,MIME_HTML_ONLY,SPF_PASS,URIBL_BLOCKED autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BA511C10F00
-	for <linux-watchdog@archiver.kernel.org>; Thu, 28 Mar 2019 01:37:04 +0000 (UTC)
-Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 8E3DA2146F
-	for <linux-watchdog@archiver.kernel.org>; Thu, 28 Mar 2019 01:37:04 +0000 (UTC)
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728195AbfC1BhE (ORCPT
-        <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 27 Mar 2019 21:37:04 -0400
-Received: from smtprelay0079.hostedemail.com ([216.40.44.79]:53605 "EHLO
-        smtprelay.hostedemail.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726143AbfC1BhD (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 27 Mar 2019 21:37:03 -0400
-X-Greylist: delayed 427 seconds by postgrey-1.27 at vger.kernel.org; Wed, 27 Mar 2019 21:37:02 EDT
-Received: from smtprelay.hostedemail.com (10.5.19.251.rfc1918.com [10.5.19.251])
-        by smtpgrave07.hostedemail.com (Postfix) with ESMTP id BCC63180202E3;
-        Thu, 28 Mar 2019 01:29:56 +0000 (UTC)
-Received: from filter.hostedemail.com (clb03-v110.bra.tucows.net [216.40.38.60])
-        by smtprelay01.hostedemail.com (Postfix) with ESMTP id 77386100E86C3;
-        Thu, 28 Mar 2019 01:29:54 +0000 (UTC)
-X-Session-Marker: 6A6F6540706572636865732E636F6D
-X-HE-Tag: beef67_56067dcc0ef43
-X-Filterd-Recvd-Size: 2107
-Received: from XPS-9350.home (unknown [47.151.153.53])
-        (Authenticated sender: joe@perches.com)
-        by omf10.hostedemail.com (Postfix) with ESMTPA;
-        Thu, 28 Mar 2019 01:29:51 +0000 (UTC)
-Message-ID: <fc86715bcd4a6cc7a4765e5b2975842fc0df57ad.camel@perches.com>
-Subject: Re: [PATCH v11 06/27] MAINTAINERS: Add myself as maintainer for
- Ingenic TCU drivers
-From:   Joe Perches <joe@perches.com>
-To:     Paul Cercueil <paul@crapouillou.net>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Paul Burton <paul.burton@mips.com>,
-        James Hogan <jhogan@kernel.org>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@kernel.org>
-Cc:     Mathieu Malaterre <malat@debian.org>, od@zcrc.me,
-        linux-pwm@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        linux-mips@vger.kernel.org, linux-doc@vger.kernel.org,
-        linux-clk@vger.kernel.org
-Date:   Wed, 27 Mar 2019 18:29:49 -0700
-In-Reply-To: <20190327231631.15708-7-paul@crapouillou.net>
-References: <20190327231631.15708-1-paul@crapouillou.net>
-         <20190327231631.15708-7-paul@crapouillou.net>
-Content-Type: text/plain; charset="ISO-8859-1"
-User-Agent: Evolution 3.30.1-1build1 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-Precedence: bulk
-List-ID: <linux-watchdog.vger.kernel.org>
-X-Mailing-List: linux-watchdog@vger.kernel.org
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7828BC43381
+	for <linux-watchdog@archiver.kernel.org>; Thu, 28 Mar 2019 09:43:20 +0000 (UTC)
+X-Greylist: delayed 602 seconds by postgrey-1.34 at mail.kernel.org; Thu, 28 Mar 2019 09:43:13 UTC
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 388522082F
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=jiraotech.com
+Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=info2@mkbalance.top
+Received: from server1.rkud76.top (unknown [101.254.226.184])
+	by mail.kernel.org (Postfix) with ESMTP id 388522082F
+	for <linux-watchdog@archiver.kernel.org>; Thu, 28 Mar 2019 09:43:12 +0000 (UTC)
+Received: from DESKTOP-13F7101 (221.239.249.174) by server1.rkud76.top id hjibj60e97c2 for <linux-watchdog@archiver.kernel.org>; Thu, 28 Mar 2019 17:33:10 +0800 (envelope-from <info2@mkbalance.top>)
+From: "Shanghai Jirao" <sales@jiraotech.com>
+Subject: pocket filter
+To: linux-watchdog@archiver.kernel.org
+Content-Type: text/html; charset=UTF-8
+MIME-Version: 1.0
+Content-Transfer-Encoding: base64
+Sender: info2@mkbalance.top
+Reply-To: sales@jiraotech.com
+Date: Thu, 28 Mar 2019 17:33:07 +0800
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.4913
+Content-Disposition: inline
+Message-Id: <20190328094313.388522082F@mail.kernel.org>
+List-Id: <linux-watchdog.vger.kernel.org>
 
-On Thu, 2019-03-28 at 00:16 +0100, Paul Cercueil wrote:
-> diff --git a/MAINTAINERS b/MAINTAINERS
-[]
-> @@ -7665,6 +7665,15 @@ L:	linux-mtd@lists.infradead.org
->  S:	Maintained
->  F:	drivers/mtd/nand/raw/jz4780_*
->  
-> +INGENIC TCU driver
-
-trivia:
-
-Generally the section header is all upper case and not mixed case
-$ git grep -i DRIVER -- MAINTAINERS | \
-  grep -v 'drivers/' | grep -v 'MAINTAINERS:[A-Z]:' | \
-  grep -P -i -o 'drivers?' | \
-  sort | uniq -c | sort -rn
-    980 DRIVER
-    181 DRIVERS
-     19 driver
-     12 Driver
-      8 drivers
-      3 Drivers
-
-
+PCFET0NUWVBFIEhUTUwgUFVCTElDICItLy9XM0MvL0RURCBIVE1MIDQuMCBUcmFuc2l0aW9uYWwv
+L0VOIj4NCjxIVE1MPjxIRUFEPg0KPE1FVEEgbmFtZT1HRU5FUkFUT1IgY29udGVudD0iTVNIVE1M
+IDExLjAwLjEwNTcwLjEwMDEiPjwvSEVBRD4NCjxCT0RZPg0KPFAgY2xhc3M9TXNvTm9ybWFsIHN0
+eWxlPSJNQVJHSU46IDBjbSAwY20gMHB0Ij48Rk9OVCBmYWNlPUNhbGlicmk+RGVhciBNci9NaXNz
+PC9GT05UPjwvUD4NCjxQIGNsYXNzPU1zb05vcm1hbCBzdHlsZT0iTUFSR0lOOiAwY20gMGNtIDBw
+dCI+PEZPTlQgc2l6ZT0zPjxTUEFOIGxhbmc9RU4tVVMgc3R5bGU9J0ZPTlQtU0laRTogMTRwdDsg
+Rk9OVC1GQU1JTFk6ICJDYWxpYnJpIixzYW5zLXNlcmlmJz5XZSBoZXJlIHdyaXRlIHRvIHlvdSB3
+aXRoIHRoZSBob3BlIHRvIGNvb3BlcmF0ZSB3aXRoIHlvdS48L1NQQU4+PC9GT05UPjwvUD4NCjxQ
+IGNsYXNzPU1zb05vcm1hbCBzdHlsZT0iTUFSR0lOOiAwY20gMGNtIDBwdCI+PEZPTlQgc2l6ZT0z
+PjxTUEFOIGxhbmc9RU4tVVMgc3R5bGU9J0ZPTlQtU0laRTogMTRwdDsgRk9OVC1GQU1JTFk6ICJD
+YWxpYnJpIixzYW5zLXNlcmlmJz5XZSBhcmUgZnJvbSBDaGluYSB3aGljaCBzcGVjaWFsaXplIGlu
+IG1hbnVmYWN0dXJpbmcgYWxsIGtpbmQgb2YgYWlyIGZpbHRlciBmb3IgbWFueSB5ZWFycywgc3Vj
+aCBhcyBncmVhc2UgZmlsdGVyL3ByZS1maWx0ZXIvcG9ja2V0IGZpbHRlciAvaGVwYSBmaWx0ZXIg
+LyBoZXBhIGZpbHRlciBmYW4vZmlsdGVyIG1lZGlhIGFuZCBzbyBvbi48L1NQQU4+PC9GT05UPjwv
+UD4NCjxQIGNsYXNzPU1zb05vcm1hbCBzdHlsZT0iTUFSR0lOOiAwY20gMGNtIDBwdCI+PEZPTlQg
+c2l6ZT0zPjxTUEFOIGxhbmc9RU4tVVMgc3R5bGU9J0ZPTlQtU0laRTogMTRwdDsgRk9OVC1GQU1J
+TFk6ICJDYWxpYnJpIixzYW5zLXNlcmlmJz5pZiB5b3UgYXJlIGludGVyZXN0ZWQgaW4gb3VyIHBy
+b2R1Y3RzICwgcGxlYXNlIGNvbnRhY3QgbWUgZnJlZWx5LjwvU1BBTj48L0ZPTlQ+PC9QPg0KPFAg
+Y2xhc3M9TXNvTm9ybWFsIHN0eWxlPSJNQVJHSU46IDBjbSAwY20gMHB0Ij48U1BBTiBsYW5nPUVO
+LVVTIHN0eWxlPSdGT05ULVNJWkU6IDE0cHQ7IEZPTlQtRkFNSUxZOiAiQ2FsaWJyaSIsc2Fucy1z
+ZXJpZic+PEZPTlQgZmFjZT1DYWxpYnJpPjwvRk9OVD48L1NQQU4+Jm5ic3A7PC9QPjxGT05UIHNp
+emU9ND48U1BBTiBsYW5nPUVOLVVTIHN0eWxlPSdGT05ULVNJWkU6IDE0cHQ7IEZPTlQtRkFNSUxZ
+OiAiQ2FsaWJyaSIsc2Fucy1zZXJpZic+DQo8UCBjbGFzcz1Nc29Ob3JtYWwgc3R5bGU9IkJBQ0tH
+Uk9VTkQ6IHdoaXRlOyBNQVJHSU46IDBjbSAwY20gMHB0OyBtc28tcGFnaW5hdGlvbjogd2lkb3ct
+b3JwaGFuIj48U1BBTiBsYW5nPUVOLVVTIHN0eWxlPSdGT05ULVNJWkU6IDE0cHQ7IEZPTlQtRkFN
+SUxZOiAiQ2FsaWJyaSIsc2Fucy1zZXJpZjsgQ09MT1I6IGJsYWNrOyBtc28tZmFyZWFzdC1mb250
+LWZhbWlseTog5a6L5L2TOyBtc28tZm9udC1rZXJuaW5nOiAwcHQnPjxGT05UIHNpemU9Mz5CZXN0
+IFJlZ2FyZHMhPD94bWw6bmFtZXNwYWNlIHByZWZpeCA9ICJvIiBucyA9ICJ1cm46c2NoZW1hcy1t
+aWNyb3NvZnQtY29tOm9mZmljZTpvZmZpY2UiIC8+PG86cD48L286cD48L0ZPTlQ+PC9TUEFOPjwv
+UD4NCjxQIGNsYXNzPU1zb05vcm1hbCBzdHlsZT0iQkFDS0dST1VORDogd2hpdGU7IE1BUkdJTjog
+MGNtIDBjbSAwcHQ7IG1zby1wYWdpbmF0aW9uOiB3aWRvdy1vcnBoYW4iPjxTUEFOIGxhbmc9RU4t
+VVMgc3R5bGU9J0ZPTlQtU0laRTogMTRwdDsgRk9OVC1GQU1JTFk6ICJDYWxpYnJpIixzYW5zLXNl
+cmlmOyBDT0xPUjogYmxhY2s7IG1zby1mYXJlYXN0LWZvbnQtZmFtaWx5OiDlrovkvZM7IG1zby1m
+b250LWtlcm5pbmc6IDBwdCc+PEZPTlQgc2l6ZT0zPk1zLiBTaXNzaTwvRk9OVD48L1NQQU4+PC9Q
+Pg0KPFAgY2xhc3M9TXNvTm9ybWFsIHN0eWxlPSJCQUNLR1JPVU5EOiB3aGl0ZTsgTUFSR0lOOiAw
+Y20gMGNtIDBwdDsgbXNvLXBhZ2luYXRpb246IHdpZG93LW9ycGhhbiI+PEZPTlQgc2l6ZT0zPjxC
+PjxTUEFOIGxhbmc9RU4tVVMgc3R5bGU9J0ZPTlQtU0laRTogMTRwdDsgRk9OVC1GQU1JTFk6ICJD
+YWxpYnJpIixzYW5zLXNlcmlmOyBDT0xPUjogYmxhY2s7IG1zby1mYXJlYXN0LWZvbnQtZmFtaWx5
+OiDlrovkvZM7IG1zby1mb250LWtlcm5pbmc6IDBwdCc+U2hhbmdoYWkgSmlyYW8gVGVjaG5vbG9n
+eSBDTy4sTFREPC9TUEFOPjwvQj48U1BBTiBsYW5nPUVOLVVTIHN0eWxlPSdGT05ULVNJWkU6IDE0
+cHQ7IEZPTlQtRkFNSUxZOiAiQ2FsaWJyaSIsc2Fucy1zZXJpZjsgQ09MT1I6IGJsYWNrOyBtc28t
+ZmFyZWFzdC1mb250LWZhbWlseTog5a6L5L2TOyBtc28tZm9udC1rZXJuaW5nOiAwcHQnPjxvOnA+
+PC9vOnA+PC9TUEFOPjwvRk9OVD48L1A+DQo8UCBjbGFzcz1Nc29Ob3JtYWwgc3R5bGU9IkJBQ0tH
+Uk9VTkQ6IHdoaXRlOyBNQVJHSU46IDBjbSAwY20gMHB0OyBtc28tcGFnaW5hdGlvbjogd2lkb3ct
+b3JwaGFuIj48U1BBTiBsYW5nPUVOLVVTIHN0eWxlPSdGT05ULVNJWkU6IDE0cHQ7IEZPTlQtRkFN
+SUxZOiAiQ2FsaWJyaSIsc2Fucy1zZXJpZjsgQ09MT1I6IGJsYWNrOyBtc28tZmFyZWFzdC1mb250
+LWZhbWlseTog5a6L5L2TOyBtc28tZm9udC1rZXJuaW5nOiAwcHQnPjxGT05UIHNpemU9Mz5Nb2Jp
+bGU6Kzg2LTE3MzE3OTcyNjIyKFdoYXRzQXBwKTwvRk9OVD48L1NQQU4+PC9QPg0KPFAgY2xhc3M9
+TXNvTm9ybWFsIHN0eWxlPSJCQUNLR1JPVU5EOiB3aGl0ZTsgTUFSR0lOOiAwY20gMGNtIDBwdDsg
+bXNvLXBhZ2luYXRpb246IHdpZG93LW9ycGhhbiI+PEZPTlQgc2l6ZT0zPjxTUEFOIGxhbmc9RU4t
+VVMgc3R5bGU9J0ZPTlQtU0laRTogMTRwdDsgRk9OVC1GQU1JTFk6ICJDYWxpYnJpIixzYW5zLXNl
+cmlmOyBDT0xPUjogYmxhY2s7IG1zby1mYXJlYXN0LWZvbnQtZmFtaWx5OiDlrovkvZM7IG1zby1m
+b250LWtlcm5pbmc6IDBwdCc+RS1tYWlsOjxTUEFOIHN0eWxlPSJCQUNLR1JPVU5EOiB3aGl0ZSI+
+Jm5ic3A7PC9TUEFOPjwvU1BBTj48VT48U1BBTiBsYW5nPUVOLVVTIHN0eWxlPSdGT05ULVNJWkU6
+IDE0cHQ7IEZPTlQtRkFNSUxZOiAiQ2FsaWJyaSIsc2Fucy1zZXJpZjsgQkFDS0dST1VORDogd2hp
+dGU7IENPTE9SOiBibHVlOyBtc28tZmFyZWFzdC1mb250LWZhbWlseTog5a6L5L2TOyBtc28tZm9u
+dC1rZXJuaW5nOiAwcHQnPjxBPjxTUEFOIHN0eWxlPSJDT0xPUjogYmx1ZSI+c2FsZXNAamlyYW90
+ZWNoLmNvbTwvU1BBTj48L0E+PC9TUEFOPjwvVT48U1BBTiBsYW5nPUVOLVVTIHN0eWxlPSdGT05U
+LVNJWkU6IDE0cHQ7IEZPTlQtRkFNSUxZOiAiQ2FsaWJyaSIsc2Fucy1zZXJpZjsgQ09MT1I6IGJs
+YWNrOyBtc28tZmFyZWFzdC1mb250LWZhbWlseTog5a6L5L2TOyBtc28tZm9udC1rZXJuaW5nOiAw
+cHQnPiZuYnNwOzxvOnA+PC9vOnA+PC9TUEFOPjwvRk9OVD48L1A+DQo8UCBjbGFzcz1Nc29Ob3Jt
+YWwgc3R5bGU9IkJBQ0tHUk9VTkQ6IHdoaXRlOyBNQVJHSU46IDBjbSAwY20gMHB0OyBtc28tcGFn
+aW5hdGlvbjogd2lkb3ctb3JwaGFuIj48U1BBTiBsYW5nPUVOLVVTIHN0eWxlPSdGT05ULVNJWkU6
+IDE0LjVwdDsgRk9OVC1GQU1JTFk6ICJDYWxpYnJpIixzYW5zLXNlcmlmOyBDT0xPUjogYmxhY2s7
+IG1zby1mYXJlYXN0LWZvbnQtZmFtaWx5OiDlrovkvZM7IG1zby1mb250LWtlcm5pbmc6IDBwdCc+
+PEZPTlQgc2l6ZT0zPldlYnNpdGU6IHd3dy5qaXJhb3RlY2guY29tPG86cD48L286cD48L0ZPTlQ+
+PC9TUEFOPjwvUD48L1NQQU4+PC9GT05UPjwvQk9EWT48L0hUTUw+DQo=
