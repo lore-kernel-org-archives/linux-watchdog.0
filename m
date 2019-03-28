@@ -1,101 +1,94 @@
-Return-Path: <SRS0=t22s=R7=mkbalance.top=info2@kernel.org>
+Return-Path: <SRS0=7lve=R7=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-X-Spam-Level: *
-X-Spam-Status: No, score=1.1 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	HTML_MESSAGE,MIME_HTML_ONLY,SPF_PASS,URIBL_BLOCKED autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Level: 
+X-Spam-Status: No, score=-4.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7828BC43381
-	for <linux-watchdog@archiver.kernel.org>; Thu, 28 Mar 2019 09:43:20 +0000 (UTC)
-X-Greylist: delayed 602 seconds by postgrey-1.34 at mail.kernel.org; Thu, 28 Mar 2019 09:43:13 UTC
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 388522082F
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=jiraotech.com
-Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=info2@mkbalance.top
-Received: from server1.rkud76.top (unknown [101.254.226.184])
-	by mail.kernel.org (Postfix) with ESMTP id 388522082F
-	for <linux-watchdog@archiver.kernel.org>; Thu, 28 Mar 2019 09:43:12 +0000 (UTC)
-Received: from DESKTOP-13F7101 (221.239.249.174) by server1.rkud76.top id hjibj60e97c2 for <linux-watchdog@archiver.kernel.org>; Thu, 28 Mar 2019 17:33:10 +0800 (envelope-from <info2@mkbalance.top>)
-From: "Shanghai Jirao" <sales@jiraotech.com>
-Subject: pocket filter
-To: linux-watchdog@archiver.kernel.org
-Content-Type: text/html; charset=UTF-8
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C7956C43381
+	for <linux-watchdog@archiver.kernel.org>; Thu, 28 Mar 2019 19:09:20 +0000 (UTC)
+Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
+	by mail.kernel.org (Postfix) with ESMTP id 9AA4820700
+	for <linux-watchdog@archiver.kernel.org>; Thu, 28 Mar 2019 19:09:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1553800160;
+	bh=YM0FDythSmRXaoeiDaMk/3/dGc984JP5wlb+G0V2XTg=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:List-ID:From;
+	b=bEea4OSzJL+jB64bDhRxzLznJk8HnThIDTT2RpHwr/1m9vHe0ljNrrzbPky215t3B
+	 Nco/1ip/NbqJNKsuKKdV0ENGq+o3l3XsCIpJzg9slbXcyrKvnt/ygkN91en9qfSOaa
+	 BUaItwP4WZzxlvYDBY1F/aphukkQ2YO8IgnsjKb4=
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1726323AbfC1TJR (ORCPT
+        <rfc822;linux-watchdog@archiver.kernel.org>);
+        Thu, 28 Mar 2019 15:09:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48204 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725852AbfC1TJQ (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Thu, 28 Mar 2019 15:09:16 -0400
+Received: from mail-qk1-f176.google.com (mail-qk1-f176.google.com [209.85.222.176])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 74B2B2184D;
+        Thu, 28 Mar 2019 19:09:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1553800155;
+        bh=YM0FDythSmRXaoeiDaMk/3/dGc984JP5wlb+G0V2XTg=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=sEgWcI/zI+Ajx6aFyOyvnVAbTLa3/8QpNmBvEUO1XqyO6NVdnyJzDYP/K+oHpT4Gj
+         ddFwEI34jN9WJ3vJ1mVgyBYWTLdUrLyvDrmVIZrcOpy5oPBzl+NeeIOuyp9zyjA0WX
+         bOiHVN1BTDDlR97bYGgPUWyEiXOiWIKcnAasowf0=
+Received: by mail-qk1-f176.google.com with SMTP id c189so12853519qke.6;
+        Thu, 28 Mar 2019 12:09:15 -0700 (PDT)
+X-Gm-Message-State: APjAAAWaz8g+rIlhS2B5sfigXZwqq/mxZneHcUoiFrXPtfThwRKB5yVE
+        EiP8clllTB8q71kus8u6ShGM1tXVBkIySpoP8g==
+X-Google-Smtp-Source: APXvYqzNYuLs7TyK5Cdwyhq0msjygssh3VHr7+WEh0gZ4K+rWIsLFSl/gO6BjI6tPg4LxpqOoteFNtRvXcrvTXVFwcU=
+X-Received: by 2002:a37:9186:: with SMTP id t128mr7357627qkd.326.1553800154674;
+ Thu, 28 Mar 2019 12:09:14 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: base64
-Sender: info2@mkbalance.top
-Reply-To: sales@jiraotech.com
-Date: Thu, 28 Mar 2019 17:33:07 +0800
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.4913
-Content-Disposition: inline
-Message-Id: <20190328094313.388522082F@mail.kernel.org>
-List-Id: <linux-watchdog.vger.kernel.org>
+References: <20190323211612.860-1-fparent@baylibre.com> <20190323211612.860-4-fparent@baylibre.com>
+In-Reply-To: <20190323211612.860-4-fparent@baylibre.com>
+From:   Rob Herring <robh+dt@kernel.org>
+Date:   Thu, 28 Mar 2019 14:09:03 -0500
+X-Gmail-Original-Message-ID: <CAL_JsqKr=SNqcFGQ53L6HVV1ec+aP_n_SZwtkTa3O8HqHhW51w@mail.gmail.com>
+Message-ID: <CAL_JsqKr=SNqcFGQ53L6HVV1ec+aP_n_SZwtkTa3O8HqHhW51w@mail.gmail.com>
+Subject: Re: [PATCH 03/24] dt-bindings: pwrap: mediatek: add pwrap support for MT8516
+To:     Fabien Parent <fparent@baylibre.com>
+Cc:     Matthias Brugger <matthias.bgg@gmail.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Sean Wang <sean.wang@kernel.org>,
+        Ryder Lee <ryder.lee@mediatek.com>,
+        Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>,
+        Wenzhen Yu <wenzhen.yu@mediatek.com>,
+        Chaotian Jing <chaotian.jing@mediatek.com>,
+        Yong Mao <yong.mao@mediatek.com>, jjian.zhou@mediatek.com,
+        devicetree@vger.kernel.org,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Linux I2C <linux-i2c@vger.kernel.org>,
+        "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "moderated list:ARM/Mediatek SoC support" 
+        <linux-mediatek@lists.infradead.org>,
+        linux-mmc <linux-mmc@vger.kernel.org>,
+        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
+        "open list:SERIAL DRIVERS" <linux-serial@vger.kernel.org>,
+        linux-spi <linux-spi@vger.kernel.org>,
+        LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>,
+        linux-clk <linux-clk@vger.kernel.org>,
+        stephane.leprovost@mediatek.com
+Content-Type: text/plain; charset="UTF-8"
+Sender: linux-watchdog-owner@vger.kernel.org
+Precedence: bulk
+List-ID: <linux-watchdog.vger.kernel.org>
+X-Mailing-List: linux-watchdog@vger.kernel.org
 
-PCFET0NUWVBFIEhUTUwgUFVCTElDICItLy9XM0MvL0RURCBIVE1MIDQuMCBUcmFuc2l0aW9uYWwv
-L0VOIj4NCjxIVE1MPjxIRUFEPg0KPE1FVEEgbmFtZT1HRU5FUkFUT1IgY29udGVudD0iTVNIVE1M
-IDExLjAwLjEwNTcwLjEwMDEiPjwvSEVBRD4NCjxCT0RZPg0KPFAgY2xhc3M9TXNvTm9ybWFsIHN0
-eWxlPSJNQVJHSU46IDBjbSAwY20gMHB0Ij48Rk9OVCBmYWNlPUNhbGlicmk+RGVhciBNci9NaXNz
-PC9GT05UPjwvUD4NCjxQIGNsYXNzPU1zb05vcm1hbCBzdHlsZT0iTUFSR0lOOiAwY20gMGNtIDBw
-dCI+PEZPTlQgc2l6ZT0zPjxTUEFOIGxhbmc9RU4tVVMgc3R5bGU9J0ZPTlQtU0laRTogMTRwdDsg
-Rk9OVC1GQU1JTFk6ICJDYWxpYnJpIixzYW5zLXNlcmlmJz5XZSBoZXJlIHdyaXRlIHRvIHlvdSB3
-aXRoIHRoZSBob3BlIHRvIGNvb3BlcmF0ZSB3aXRoIHlvdS48L1NQQU4+PC9GT05UPjwvUD4NCjxQ
-IGNsYXNzPU1zb05vcm1hbCBzdHlsZT0iTUFSR0lOOiAwY20gMGNtIDBwdCI+PEZPTlQgc2l6ZT0z
-PjxTUEFOIGxhbmc9RU4tVVMgc3R5bGU9J0ZPTlQtU0laRTogMTRwdDsgRk9OVC1GQU1JTFk6ICJD
-YWxpYnJpIixzYW5zLXNlcmlmJz5XZSBhcmUgZnJvbSBDaGluYSB3aGljaCBzcGVjaWFsaXplIGlu
-IG1hbnVmYWN0dXJpbmcgYWxsIGtpbmQgb2YgYWlyIGZpbHRlciBmb3IgbWFueSB5ZWFycywgc3Vj
-aCBhcyBncmVhc2UgZmlsdGVyL3ByZS1maWx0ZXIvcG9ja2V0IGZpbHRlciAvaGVwYSBmaWx0ZXIg
-LyBoZXBhIGZpbHRlciBmYW4vZmlsdGVyIG1lZGlhIGFuZCBzbyBvbi48L1NQQU4+PC9GT05UPjwv
-UD4NCjxQIGNsYXNzPU1zb05vcm1hbCBzdHlsZT0iTUFSR0lOOiAwY20gMGNtIDBwdCI+PEZPTlQg
-c2l6ZT0zPjxTUEFOIGxhbmc9RU4tVVMgc3R5bGU9J0ZPTlQtU0laRTogMTRwdDsgRk9OVC1GQU1J
-TFk6ICJDYWxpYnJpIixzYW5zLXNlcmlmJz5pZiB5b3UgYXJlIGludGVyZXN0ZWQgaW4gb3VyIHBy
-b2R1Y3RzICwgcGxlYXNlIGNvbnRhY3QgbWUgZnJlZWx5LjwvU1BBTj48L0ZPTlQ+PC9QPg0KPFAg
-Y2xhc3M9TXNvTm9ybWFsIHN0eWxlPSJNQVJHSU46IDBjbSAwY20gMHB0Ij48U1BBTiBsYW5nPUVO
-LVVTIHN0eWxlPSdGT05ULVNJWkU6IDE0cHQ7IEZPTlQtRkFNSUxZOiAiQ2FsaWJyaSIsc2Fucy1z
-ZXJpZic+PEZPTlQgZmFjZT1DYWxpYnJpPjwvRk9OVD48L1NQQU4+Jm5ic3A7PC9QPjxGT05UIHNp
-emU9ND48U1BBTiBsYW5nPUVOLVVTIHN0eWxlPSdGT05ULVNJWkU6IDE0cHQ7IEZPTlQtRkFNSUxZ
-OiAiQ2FsaWJyaSIsc2Fucy1zZXJpZic+DQo8UCBjbGFzcz1Nc29Ob3JtYWwgc3R5bGU9IkJBQ0tH
-Uk9VTkQ6IHdoaXRlOyBNQVJHSU46IDBjbSAwY20gMHB0OyBtc28tcGFnaW5hdGlvbjogd2lkb3ct
-b3JwaGFuIj48U1BBTiBsYW5nPUVOLVVTIHN0eWxlPSdGT05ULVNJWkU6IDE0cHQ7IEZPTlQtRkFN
-SUxZOiAiQ2FsaWJyaSIsc2Fucy1zZXJpZjsgQ09MT1I6IGJsYWNrOyBtc28tZmFyZWFzdC1mb250
-LWZhbWlseTog5a6L5L2TOyBtc28tZm9udC1rZXJuaW5nOiAwcHQnPjxGT05UIHNpemU9Mz5CZXN0
-IFJlZ2FyZHMhPD94bWw6bmFtZXNwYWNlIHByZWZpeCA9ICJvIiBucyA9ICJ1cm46c2NoZW1hcy1t
-aWNyb3NvZnQtY29tOm9mZmljZTpvZmZpY2UiIC8+PG86cD48L286cD48L0ZPTlQ+PC9TUEFOPjwv
-UD4NCjxQIGNsYXNzPU1zb05vcm1hbCBzdHlsZT0iQkFDS0dST1VORDogd2hpdGU7IE1BUkdJTjog
-MGNtIDBjbSAwcHQ7IG1zby1wYWdpbmF0aW9uOiB3aWRvdy1vcnBoYW4iPjxTUEFOIGxhbmc9RU4t
-VVMgc3R5bGU9J0ZPTlQtU0laRTogMTRwdDsgRk9OVC1GQU1JTFk6ICJDYWxpYnJpIixzYW5zLXNl
-cmlmOyBDT0xPUjogYmxhY2s7IG1zby1mYXJlYXN0LWZvbnQtZmFtaWx5OiDlrovkvZM7IG1zby1m
-b250LWtlcm5pbmc6IDBwdCc+PEZPTlQgc2l6ZT0zPk1zLiBTaXNzaTwvRk9OVD48L1NQQU4+PC9Q
-Pg0KPFAgY2xhc3M9TXNvTm9ybWFsIHN0eWxlPSJCQUNLR1JPVU5EOiB3aGl0ZTsgTUFSR0lOOiAw
-Y20gMGNtIDBwdDsgbXNvLXBhZ2luYXRpb246IHdpZG93LW9ycGhhbiI+PEZPTlQgc2l6ZT0zPjxC
-PjxTUEFOIGxhbmc9RU4tVVMgc3R5bGU9J0ZPTlQtU0laRTogMTRwdDsgRk9OVC1GQU1JTFk6ICJD
-YWxpYnJpIixzYW5zLXNlcmlmOyBDT0xPUjogYmxhY2s7IG1zby1mYXJlYXN0LWZvbnQtZmFtaWx5
-OiDlrovkvZM7IG1zby1mb250LWtlcm5pbmc6IDBwdCc+U2hhbmdoYWkgSmlyYW8gVGVjaG5vbG9n
-eSBDTy4sTFREPC9TUEFOPjwvQj48U1BBTiBsYW5nPUVOLVVTIHN0eWxlPSdGT05ULVNJWkU6IDE0
-cHQ7IEZPTlQtRkFNSUxZOiAiQ2FsaWJyaSIsc2Fucy1zZXJpZjsgQ09MT1I6IGJsYWNrOyBtc28t
-ZmFyZWFzdC1mb250LWZhbWlseTog5a6L5L2TOyBtc28tZm9udC1rZXJuaW5nOiAwcHQnPjxvOnA+
-PC9vOnA+PC9TUEFOPjwvRk9OVD48L1A+DQo8UCBjbGFzcz1Nc29Ob3JtYWwgc3R5bGU9IkJBQ0tH
-Uk9VTkQ6IHdoaXRlOyBNQVJHSU46IDBjbSAwY20gMHB0OyBtc28tcGFnaW5hdGlvbjogd2lkb3ct
-b3JwaGFuIj48U1BBTiBsYW5nPUVOLVVTIHN0eWxlPSdGT05ULVNJWkU6IDE0cHQ7IEZPTlQtRkFN
-SUxZOiAiQ2FsaWJyaSIsc2Fucy1zZXJpZjsgQ09MT1I6IGJsYWNrOyBtc28tZmFyZWFzdC1mb250
-LWZhbWlseTog5a6L5L2TOyBtc28tZm9udC1rZXJuaW5nOiAwcHQnPjxGT05UIHNpemU9Mz5Nb2Jp
-bGU6Kzg2LTE3MzE3OTcyNjIyKFdoYXRzQXBwKTwvRk9OVD48L1NQQU4+PC9QPg0KPFAgY2xhc3M9
-TXNvTm9ybWFsIHN0eWxlPSJCQUNLR1JPVU5EOiB3aGl0ZTsgTUFSR0lOOiAwY20gMGNtIDBwdDsg
-bXNvLXBhZ2luYXRpb246IHdpZG93LW9ycGhhbiI+PEZPTlQgc2l6ZT0zPjxTUEFOIGxhbmc9RU4t
-VVMgc3R5bGU9J0ZPTlQtU0laRTogMTRwdDsgRk9OVC1GQU1JTFk6ICJDYWxpYnJpIixzYW5zLXNl
-cmlmOyBDT0xPUjogYmxhY2s7IG1zby1mYXJlYXN0LWZvbnQtZmFtaWx5OiDlrovkvZM7IG1zby1m
-b250LWtlcm5pbmc6IDBwdCc+RS1tYWlsOjxTUEFOIHN0eWxlPSJCQUNLR1JPVU5EOiB3aGl0ZSI+
-Jm5ic3A7PC9TUEFOPjwvU1BBTj48VT48U1BBTiBsYW5nPUVOLVVTIHN0eWxlPSdGT05ULVNJWkU6
-IDE0cHQ7IEZPTlQtRkFNSUxZOiAiQ2FsaWJyaSIsc2Fucy1zZXJpZjsgQkFDS0dST1VORDogd2hp
-dGU7IENPTE9SOiBibHVlOyBtc28tZmFyZWFzdC1mb250LWZhbWlseTog5a6L5L2TOyBtc28tZm9u
-dC1rZXJuaW5nOiAwcHQnPjxBPjxTUEFOIHN0eWxlPSJDT0xPUjogYmx1ZSI+c2FsZXNAamlyYW90
-ZWNoLmNvbTwvU1BBTj48L0E+PC9TUEFOPjwvVT48U1BBTiBsYW5nPUVOLVVTIHN0eWxlPSdGT05U
-LVNJWkU6IDE0cHQ7IEZPTlQtRkFNSUxZOiAiQ2FsaWJyaSIsc2Fucy1zZXJpZjsgQ09MT1I6IGJs
-YWNrOyBtc28tZmFyZWFzdC1mb250LWZhbWlseTog5a6L5L2TOyBtc28tZm9udC1rZXJuaW5nOiAw
-cHQnPiZuYnNwOzxvOnA+PC9vOnA+PC9TUEFOPjwvRk9OVD48L1A+DQo8UCBjbGFzcz1Nc29Ob3Jt
-YWwgc3R5bGU9IkJBQ0tHUk9VTkQ6IHdoaXRlOyBNQVJHSU46IDBjbSAwY20gMHB0OyBtc28tcGFn
-aW5hdGlvbjogd2lkb3ctb3JwaGFuIj48U1BBTiBsYW5nPUVOLVVTIHN0eWxlPSdGT05ULVNJWkU6
-IDE0LjVwdDsgRk9OVC1GQU1JTFk6ICJDYWxpYnJpIixzYW5zLXNlcmlmOyBDT0xPUjogYmxhY2s7
-IG1zby1mYXJlYXN0LWZvbnQtZmFtaWx5OiDlrovkvZM7IG1zby1mb250LWtlcm5pbmc6IDBwdCc+
-PEZPTlQgc2l6ZT0zPldlYnNpdGU6IHd3dy5qaXJhb3RlY2guY29tPG86cD48L286cD48L0ZPTlQ+
-PC9TUEFOPjwvUD48L1NQQU4+PC9GT05UPjwvQk9EWT48L0hUTUw+DQo=
+On Sat, Mar 23, 2019 at 4:16 PM Fabien Parent <fparent@baylibre.com> wrote:
+>
+> Add binding documentation of pwrap for MT8516 SoCs.
+>
+> Signed-off-by: Fabien Parent <fparent@baylibre.com>
+> ---
+>  Documentation/devicetree/bindings/soc/mediatek/pwrap.txt | 1 +
+>  1 file changed, 1 insertion(+)
+
+Acked-by: Rob Herring <robh@kernel.org>
