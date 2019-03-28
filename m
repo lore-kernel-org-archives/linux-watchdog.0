@@ -6,54 +6,53 @@ X-Spam-Status: No, score=-4.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,
 	URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E1EA6C4360F
-	for <linux-watchdog@archiver.kernel.org>; Thu, 28 Mar 2019 19:11:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6DBFBC43381
+	for <linux-watchdog@archiver.kernel.org>; Thu, 28 Mar 2019 19:12:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B4D3520811
-	for <linux-watchdog@archiver.kernel.org>; Thu, 28 Mar 2019 19:11:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 426B220811
+	for <linux-watchdog@archiver.kernel.org>; Thu, 28 Mar 2019 19:12:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1553800305;
-	bh=o2491EKbmckKME0YCVdyHWP2uXdA6xg1SjeMBPDP1dg=;
+	s=default; t=1553800340;
+	bh=jOTLQQ6EwdXW+PfUfDh/bZwMQK6wjAY5FhHAKfdkoOs=;
 	h=References:In-Reply-To:From:Date:Subject:To:Cc:List-ID:From;
-	b=se8iTvTrJS3LXe3/cA8fHh+JRpS8AS7fkjI5WZvqchwAGtQf2ZeA1wXXH3Cy6/lTT
-	 YYiHKLpal/kxQsin4hUnmtd1YnW2wdOz4GK6jJz4cOqZg8DS5Z09bgYQzxFeieZhWp
-	 MDlHScWlyo3ntPYDMU18WgTqM3TrBOiuxGnzzAJw=
+	b=Co+Z6NGRuJDFg01ZY203a2pvcssbfshCmmnunceqJvDpocpIzcTkdE0YqvT+32KC6
+	 OSFpVIiN/HWkcCUoGRwpuh/8/wXHISq0b8a91hX1k1UUQO9G5bmWgrhnObXnn/uB4U
+	 +dAYHlLOVI0kamqPfurZ0rEDcG5i9nZ8x7s1ql0Y=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726703AbfC1TLp (ORCPT
+        id S1726822AbfC1TMP (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Thu, 28 Mar 2019 15:11:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49230 "EHLO mail.kernel.org"
+        Thu, 28 Mar 2019 15:12:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49486 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726107AbfC1TLo (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-        Thu, 28 Mar 2019 15:11:44 -0400
-Received: from mail-qt1-f182.google.com (mail-qt1-f182.google.com [209.85.160.182])
+        id S1726156AbfC1TMO (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Thu, 28 Mar 2019 15:12:14 -0400
+Received: from mail-qt1-f179.google.com (mail-qt1-f179.google.com [209.85.160.179])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 801FA2184C;
-        Thu, 28 Mar 2019 19:11:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C49C3217F5;
+        Thu, 28 Mar 2019 19:12:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1553800303;
-        bh=o2491EKbmckKME0YCVdyHWP2uXdA6xg1SjeMBPDP1dg=;
+        s=default; t=1553800333;
+        bh=jOTLQQ6EwdXW+PfUfDh/bZwMQK6wjAY5FhHAKfdkoOs=;
         h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=p6LBJ+wBCiga7jR9M2rxFKLMBAwL817QGPJHLvc0GdGo095m1AlqMfjH0PU1+zeIF
-         fTp7Y7sR1byeCTyxuvpvr7kC0Afr1colomyCiIP3vdmUaXzXGDhx3KPhQtUxtqAr6s
-         zLTh46V5RDtLU/4EHCkk0WCOKOTMD8gG8+LYVwfY=
-Received: by mail-qt1-f182.google.com with SMTP id w30so24441467qta.8;
-        Thu, 28 Mar 2019 12:11:43 -0700 (PDT)
-X-Gm-Message-State: APjAAAUINaxm74dcXZOD6zwlPzNK8LcZCjo34ho7Rc4XGP+p2ygWeYuk
-        VYj55CrYEFD2pQkMhFBD2czSdXiRg2U/K11MYw==
-X-Google-Smtp-Source: APXvYqxw06v9Sw7RM35lVoGj/oa0STL3w+sTbEJtR6vdRdp7OsaIxj1x1upX9eI9bvkpLWYMKr6ZeVsYervtek0yn8Q=
-X-Received: by 2002:a0c:d7c2:: with SMTP id g2mr9373722qvj.90.1553800302794;
- Thu, 28 Mar 2019 12:11:42 -0700 (PDT)
+        b=FtuElAkoIVF9by7VDOIvaGE0rs4gW1eJQTOGCh8rM0Sf/Wiqjx2LlzG1Do3MODJ7e
+         ey6aymLN4j9F3iwS99uPpet1laCzP2tN39203/opqZN6qn5xpfcyepWY/MKJ/bFo9T
+         LrnpuTTdraxWgmtdL9Jtf+C3u6NTPuGbLabwmpGE=
+Received: by mail-qt1-f179.google.com with SMTP id z16so24473439qtn.4;
+        Thu, 28 Mar 2019 12:12:13 -0700 (PDT)
+X-Gm-Message-State: APjAAAUObxwOtt3CpoH8Usvs+nimdCAvv8m128roJgcjvHwgNLcGMx/z
+        8QrLkHbKQAmNlGXnlI58jZlHVwQoAjDwTS/8Dw==
+X-Google-Smtp-Source: APXvYqydYDY+QiAF73ZPDqqjubHmDJfafmWF+1pIprh6UJrQwH8gqzXarMmkoVrJPzjCTgpOPo3gbuLafF0yVaufy5Y=
+X-Received: by 2002:a0c:b018:: with SMTP id k24mr37646318qvc.218.1553800333090;
+ Thu, 28 Mar 2019 12:12:13 -0700 (PDT)
 MIME-Version: 1.0
-References: <20190323211612.860-1-fparent@baylibre.com> <20190323211612.860-16-fparent@baylibre.com>
-In-Reply-To: <20190323211612.860-16-fparent@baylibre.com>
+References: <20190323211612.860-1-fparent@baylibre.com> <20190323211612.860-19-fparent@baylibre.com>
+In-Reply-To: <20190323211612.860-19-fparent@baylibre.com>
 From:   Rob Herring <robh+dt@kernel.org>
-Date:   Thu, 28 Mar 2019 14:11:31 -0500
-X-Gmail-Original-Message-ID: <CAL_JsqJcmjcCv8m3UHM9-fDDMRdRyb-STNyzjom736ugyi-9cg@mail.gmail.com>
-Message-ID: <CAL_JsqJcmjcCv8m3UHM9-fDDMRdRyb-STNyzjom736ugyi-9cg@mail.gmail.com>
-Subject: Re: [PATCH 15/24] dt-bindings: pinctrl: pinctrl-mt65xx: add support
- for MT8516
+Date:   Thu, 28 Mar 2019 14:12:01 -0500
+X-Gmail-Original-Message-ID: <CAL_Jsq+Uv+dL9qX=6hBbKn7GbZaj1crvGY_uh4tppD8b5dRqcw@mail.gmail.com>
+Message-ID: <CAL_Jsq+Uv+dL9qX=6hBbKn7GbZaj1crvGY_uh4tppD8b5dRqcw@mail.gmail.com>
+Subject: Re: [PATCH 18/24] dt-bindings: timer: mtk-timer: add support for MT8516
 To:     Fabien Parent <fparent@baylibre.com>
 Cc:     Matthias Brugger <matthias.bgg@gmail.com>,
         Mark Rutland <mark.rutland@arm.com>,
@@ -85,11 +84,11 @@ X-Mailing-List: linux-watchdog@vger.kernel.org
 
 On Sat, Mar 23, 2019 at 4:17 PM Fabien Parent <fparent@baylibre.com> wrote:
 >
-> Add binding documentation of pinctrl-mt65xx for MT8516 SoC.
+> Add binding documentation of mtk-timer for MT8516 SoC.
 >
 > Signed-off-by: Fabien Parent <fparent@baylibre.com>
 > ---
->  Documentation/devicetree/bindings/pinctrl/pinctrl-mt65xx.txt | 1 +
+>  Documentation/devicetree/bindings/timer/mediatek,mtk-timer.txt | 1 +
 >  1 file changed, 1 insertion(+)
 
 Acked-by: Rob Herring <robh@kernel.org>
