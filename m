@@ -1,37 +1,45 @@
-Return-Path: <SRS0=koYb=R6=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=7lve=R7=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS
+X-Spam-Status: No, score=-4.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C7071C4360F
-	for <linux-watchdog@archiver.kernel.org>; Wed, 27 Mar 2019 23:19:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BA511C10F00
+	for <linux-watchdog@archiver.kernel.org>; Thu, 28 Mar 2019 01:37:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 91E972075C
-	for <linux-watchdog@archiver.kernel.org>; Wed, 27 Mar 2019 23:19:36 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=crapouillou.net header.i=@crapouillou.net header.b="ntZt3ItW"
+	by mail.kernel.org (Postfix) with ESMTP id 8E3DA2146F
+	for <linux-watchdog@archiver.kernel.org>; Thu, 28 Mar 2019 01:37:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728138AbfC0XQv (ORCPT
+        id S1728195AbfC1BhE (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Wed, 27 Mar 2019 19:16:51 -0400
-Received: from outils.crapouillou.net ([89.234.176.41]:58242 "EHLO
-        crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727419AbfC0XQv (ORCPT
+        Wed, 27 Mar 2019 21:37:04 -0400
+Received: from smtprelay0079.hostedemail.com ([216.40.44.79]:53605 "EHLO
+        smtprelay.hostedemail.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726143AbfC1BhD (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Wed, 27 Mar 2019 19:16:51 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
-        s=mail; t=1553728605; h=from:from:sender:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:content-type:
-         content-transfer-encoding:in-reply-to:references;
-        bh=7BJ4f6f4KSXZ2UB72pVKzoiNiNiDKzYQfLyTLCI0a94=;
-        b=ntZt3ItW3sK8UFQ2SOk3B6wUW4M7nlEaO++UJP0lYPkntRN9pP00q0WaEnsoEo6949ptY+
-        H1VDZ5Dg7cV4PUVwychNTTtCFkyyo5KAs0pXWoDKCf5AJ5vSeMwxZeza1PC+AkZoWK5GdK
-        DPU8iZVrATScTrdsYW5pgd4yJNUIg/8=
-From:   Paul Cercueil <paul@crapouillou.net>
-To:     Rob Herring <robh+dt@kernel.org>,
+        Wed, 27 Mar 2019 21:37:03 -0400
+X-Greylist: delayed 427 seconds by postgrey-1.27 at vger.kernel.org; Wed, 27 Mar 2019 21:37:02 EDT
+Received: from smtprelay.hostedemail.com (10.5.19.251.rfc1918.com [10.5.19.251])
+        by smtpgrave07.hostedemail.com (Postfix) with ESMTP id BCC63180202E3;
+        Thu, 28 Mar 2019 01:29:56 +0000 (UTC)
+Received: from filter.hostedemail.com (clb03-v110.bra.tucows.net [216.40.38.60])
+        by smtprelay01.hostedemail.com (Postfix) with ESMTP id 77386100E86C3;
+        Thu, 28 Mar 2019 01:29:54 +0000 (UTC)
+X-Session-Marker: 6A6F6540706572636865732E636F6D
+X-HE-Tag: beef67_56067dcc0ef43
+X-Filterd-Recvd-Size: 2107
+Received: from XPS-9350.home (unknown [47.151.153.53])
+        (Authenticated sender: joe@perches.com)
+        by omf10.hostedemail.com (Postfix) with ESMTPA;
+        Thu, 28 Mar 2019 01:29:51 +0000 (UTC)
+Message-ID: <fc86715bcd4a6cc7a4765e5b2975842fc0df57ad.camel@perches.com>
+Subject: Re: [PATCH v11 06/27] MAINTAINERS: Add myself as maintainer for
+ Ingenic TCU drivers
+From:   Joe Perches <joe@perches.com>
+To:     Paul Cercueil <paul@crapouillou.net>,
+        Rob Herring <robh+dt@kernel.org>,
         Mark Rutland <mark.rutland@arm.com>,
         Thierry Reding <thierry.reding@gmail.com>,
         Daniel Lezcano <daniel.lezcano@linaro.org>,
@@ -48,49 +56,40 @@ Cc:     Mathieu Malaterre <malat@debian.org>, od@zcrc.me,
         linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
         linux-mips@vger.kernel.org, linux-doc@vger.kernel.org,
         linux-clk@vger.kernel.org
-Subject: [PATCH v11 00/27] Ingenic JZ47xx TCU pachset v11
-Date:   Thu, 28 Mar 2019 00:16:04 +0100
-Message-Id: <20190327231631.15708-1-paul@crapouillou.net>
+Date:   Wed, 27 Mar 2019 18:29:49 -0700
+In-Reply-To: <20190327231631.15708-7-paul@crapouillou.net>
+References: <20190327231631.15708-1-paul@crapouillou.net>
+         <20190327231631.15708-7-paul@crapouillou.net>
+Content-Type: text/plain; charset="ISO-8859-1"
+User-Agent: Evolution 3.30.1-1build1 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-Hi,
+On Thu, 2019-03-28 at 00:16 +0100, Paul Cercueil wrote:
+> diff --git a/MAINTAINERS b/MAINTAINERS
+[]
+> @@ -7665,6 +7665,15 @@ L:	linux-mtd@lists.infradead.org
+>  S:	Maintained
+>  F:	drivers/mtd/nand/raw/jz4780_*
+>  
+> +INGENIC TCU driver
 
-This is the v11 of my patchset that adds support to the Timer/Counter
-Unit (TCU) present in the JZ47xx SoCs from Ingenic.
+trivia:
 
-Changes from v10:
+Generally the section header is all upper case and not mixed case
+$ git grep -i DRIVER -- MAINTAINERS | \
+  grep -v 'drivers/' | grep -v 'MAINTAINERS:[A-Z]:' | \
+  grep -P -i -o 'drivers?' | \
+  sort | uniq -c | sort -rn
+    980 DRIVER
+    181 DRIVERS
+     19 driver
+     12 Driver
+      8 drivers
+      3 Drivers
 
-[03/27]: Fix info about default value of ingenic,pwm-channels-mask
-
-[04/27]: - Change prototype of exported function
-           ingenic_tcu_pwm_can_use_chn(), use a struct device * as first
-	   argument.
-	 - Read clocksource using the regmap instead of bypassing it.
-	   Bypassing the regmap makes sense only for the sched_clock where
-	   the read operation must be as fast as possible.
-	 - Fix incorrect format in pr_crit() macro
-
-[05/27]: Use regmap inside the clocksource read functions. Keep bypassing the
-         regmap inside the sched_clock read functions.
-
-[12/27]: Add note about abrupt shutdown
-
-[13/27]: - Use pwm_set_chip_data() to hold the clock pointers
-         - Remove unused variable 'jz' in jz4740_pwm_request()
-
-[14/27]: - Use proper block-comment style.
-         - Modify commit message to fit the new algorithm used.
-
-[15/27]: Use new version of ingenic_tcu_pwm_can_use_chn()
-
-The other patches have not been modified since v10.
-
-If this patchset passes review, I'd like it to be merged in the MIPS
-tree.
-
-Thanks,
--Paul
 
