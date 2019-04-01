@@ -1,156 +1,132 @@
-Return-Path: <SRS0=OBeK=SA=vger.kernel.org=linux-watchdog-owner@kernel.org>
+Return-Path: <SRS0=5xsV=SD=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,
-	USER_AGENT_MUTT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 50F81C43381
-	for <linux-watchdog@archiver.kernel.org>; Fri, 29 Mar 2019 16:49:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 96151C4360F
+	for <linux-watchdog@archiver.kernel.org>; Mon,  1 Apr 2019 05:04:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 15546218D4
-	for <linux-watchdog@archiver.kernel.org>; Fri, 29 Mar 2019 16:49:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6418C20879
+	for <linux-watchdog@archiver.kernel.org>; Mon,  1 Apr 2019 05:04:40 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mjkRAoG4"
+	dkim=pass (1024-bit key) header.d=nxp.com header.i=@nxp.com header.b="ewD2Cs8t"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729826AbfC2QtJ (ORCPT
+        id S1726624AbfDAFEf (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Fri, 29 Mar 2019 12:49:09 -0400
-Received: from mail-pf1-f195.google.com ([209.85.210.195]:36525 "EHLO
-        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728936AbfC2QtI (ORCPT
-        <rfc822;linux-watchdog@vger.kernel.org>);
-        Fri, 29 Mar 2019 12:49:08 -0400
-Received: by mail-pf1-f195.google.com with SMTP id z5so300152pfn.3;
-        Fri, 29 Mar 2019 09:49:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to
-         :user-agent;
-        bh=bmsUoaQwQFPlLNCg51ZXGRiakmRt5XIoAXlPZ07aVLM=;
-        b=mjkRAoG4h9EHjGBbpgScdHS+g9rxJKv4rGUCudQoYet4KBvoRu4JQfLJPBCxz+gwc3
-         DYi1nkk2OFRj6M3wJ1/9MPKeth1H7NUXJdC7WD4zwHELZqR+9xVwwnhwnSxAXriC9PEd
-         6bF/pU6Ol52+/XZHwSoE7VDmO7nLsLC+5oU5TKhRNpcMW3Ao77YMc1P6uB7yViJinkCG
-         WrH3SMrao1G++tO/c2f03Ixyf+Chq1tLbO9YoKBTd7T5AxbPczN+jk5fYID5B9t1y+y1
-         KYakWjKlZrjO0vQXBQf/1GB4pcOyOfMbuERSNvfL71khG9wU5lgxt/lqcWWU7Ql/smCs
-         rC1Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition
-         :content-transfer-encoding:in-reply-to:user-agent;
-        bh=bmsUoaQwQFPlLNCg51ZXGRiakmRt5XIoAXlPZ07aVLM=;
-        b=iQ1tvmq94uc9UduT/ovlB3kxkvEvFUiqDLxjg0TrZ4u+FFmdWAlmB17h90uhJZspxh
-         49cLjl7aUR5Xbg5ZtIpwIn2edROC6PhGZkXqSY3H0cjG2oksW6Z2eRvrnfeRuqePpzdQ
-         q/JnCTkgMOfzVy3DRHHBCQY5Gp8p1QCG1Y9kdbQqWaeit/Dy5wzx6qLldTnkzlRCEChu
-         5zbWbflHjpNzorRCKarLmeF24Jw8TeT3vB/CD5njeV5aIIL94mYAqgGY2pq18gSy3hvK
-         RYSVFS+1nUm8AUN+0a8fHuej38bM1t66Sx7g7B+jFV+2FyeWXo3+EcH3+LP2WUBhajid
-         dpZA==
-X-Gm-Message-State: APjAAAVHS0Jhrv7b0oz6eZJRcrY63t/yDE6BvFDKFXt/QOB7yuX09YAR
-        2+DSZy5gWQs+tzYm9Zs7D0o=
-X-Google-Smtp-Source: APXvYqzOq+KyrQbcw4CUi2lwSSP6GhATj4ns4NLZV53ZAXsf4yT4pW8S/4h//Zs7Cw5LsyD83k379w==
-X-Received: by 2002:a65:64cf:: with SMTP id t15mr32276722pgv.322.1553878148029;
-        Fri, 29 Mar 2019 09:49:08 -0700 (PDT)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id j16sm3562786pfi.58.2019.03.29.09.49.06
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 29 Mar 2019 09:49:06 -0700 (PDT)
-Date:   Fri, 29 Mar 2019 09:49:05 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Anson Huang <anson.huang@nxp.com>
-Cc:     "shawnguo@kernel.org" <shawnguo@kernel.org>,
-        "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
-        "mark.rutland@arm.com" <mark.rutland@arm.com>,
+        Mon, 1 Apr 2019 01:04:35 -0400
+Received: from mail-eopbgr00058.outbound.protection.outlook.com ([40.107.0.58]:33462
+        "EHLO EUR02-AM5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726531AbfDAFEf (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Mon, 1 Apr 2019 01:04:35 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=6eld6+yw0bHfEqawlUYjEjSIhSRqrtOR4Nk75k05a30=;
+ b=ewD2Cs8tDS7RuMTSGi6jBN1tLuKbZ3+ZPnLJQ85GzREVgeZmIXjT1Tr53LqiRmHgCXEPrYb4zHgrEQH3Z2YYawGEOxcSROIRT58LYxsZqpVxowHngavzUT8Iu1qjIKnf3ar54Q3UfQw/PU65PjM6Q3zjOe1Tq2qus7DTXd9zedY=
+Received: from DB3PR0402MB3916.eurprd04.prod.outlook.com (52.134.72.18) by
+ DB3PR0402MB3850.eurprd04.prod.outlook.com (52.134.65.151) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.1750.20; Mon, 1 Apr 2019 05:04:31 +0000
+Received: from DB3PR0402MB3916.eurprd04.prod.outlook.com
+ ([fe80::f1b4:a1fb:cfd1:3f08]) by DB3PR0402MB3916.eurprd04.prod.outlook.com
+ ([fe80::f1b4:a1fb:cfd1:3f08%7]) with mapi id 15.20.1750.017; Mon, 1 Apr 2019
+ 05:04:31 +0000
+From:   Anson Huang <anson.huang@nxp.com>
+To:     "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
+        "linux@roeck-us.net" <linux@roeck-us.net>,
+        "shawnguo@kernel.org" <shawnguo@kernel.org>,
         "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>,
         "kernel@pengutronix.de" <kernel@pengutronix.de>,
         "festevam@gmail.com" <festevam@gmail.com>,
-        "catalin.marinas@arm.com" <catalin.marinas@arm.com>,
-        "will.deacon@arm.com" <will.deacon@arm.com>,
-        Aisheng Dong <aisheng.dong@nxp.com>,
-        Daniel Baluta <daniel.baluta@nxp.com>,
-        "horms+renesas@verge.net.au" <horms+renesas@verge.net.au>,
-        "heiko@sntech.de" <heiko@sntech.de>,
-        "maxime.ripard@bootlin.com" <maxime.ripard@bootlin.com>,
-        Andy Gross <andy.gross@linaro.org>,
-        "jagan@amarulasolutions.com" <jagan@amarulasolutions.com>,
-        "bjorn.andersson@linaro.org" <bjorn.andersson@linaro.org>,
-        "enric.balletbo@collabora.com" <enric.balletbo@collabora.com>,
-        "ezequiel@collabora.com" <ezequiel@collabora.com>,
-        "stefan.wahren@i2se.com" <stefan.wahren@i2se.com>,
-        "marc.w.gonzalez@free.fr" <marc.w.gonzalez@free.fr>,
-        "olof@lixom.net" <olof@lixom.net>,
         "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
         "linux-arm-kernel@lists.infradead.org" 
         <linux-arm-kernel@lists.infradead.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        dl-linux-imx <linux-imx@nxp.com>
-Subject: Re: [PATCH V9 1/4] dt-bindings: watchdog: add i.MX system controller
- watchdog
-Message-ID: <20190329164905.GA7537@roeck-us.net>
-References: <1553134884-1720-1-git-send-email-Anson.Huang@nxp.com>
- <1553134884-1720-2-git-send-email-Anson.Huang@nxp.com>
- <20190325203727.GA27661@bogus>
- <DB3PR0402MB39161467D49348DC550CA28AF55A0@DB3PR0402MB3916.eurprd04.prod.outlook.com>
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+CC:     dl-linux-imx <linux-imx@nxp.com>
+Subject: [PATCH] watchdog: imx2_wdt: use devm_platform_ioremap_resource() to
+ simplify code
+Thread-Topic: [PATCH] watchdog: imx2_wdt: use devm_platform_ioremap_resource()
+ to simplify code
+Thread-Index: AQHU6Ehj3pOP+tVUHUG9L2wc4efo6A==
+Date:   Mon, 1 Apr 2019 05:04:30 +0000
+Message-ID: <1554094787-14766-1-git-send-email-Anson.Huang@nxp.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-mailer: git-send-email 2.7.4
+x-clientproxiedby: HK0PR03CA0016.apcprd03.prod.outlook.com
+ (2603:1096:203:2e::28) To DB3PR0402MB3916.eurprd04.prod.outlook.com
+ (2603:10a6:8:10::18)
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=anson.huang@nxp.com; 
+x-ms-exchange-messagesentrepresentingtype: 1
+x-originating-ip: [119.31.174.66]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: b5588015-a37b-4013-8044-08d6b65f85ef
+x-ms-office365-filtering-ht: Tenant
+x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(5600139)(711020)(4605104)(4618075)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(2017052603328)(7153060)(7193020);SRVR:DB3PR0402MB3850;
+x-ms-traffictypediagnostic: DB3PR0402MB3850:
+x-microsoft-antispam-prvs: <DB3PR0402MB3850BEAAEC758F8ACBE83F84F5550@DB3PR0402MB3850.eurprd04.prod.outlook.com>
+x-forefront-prvs: 0994F5E0C5
+x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(136003)(39860400002)(366004)(396003)(376002)(346002)(189003)(199004)(2906002)(2201001)(110136005)(71200400001)(6436002)(316002)(52116002)(6486002)(99286004)(5660300002)(71190400001)(14454004)(186003)(478600001)(4744005)(102836004)(26005)(2616005)(2501003)(486006)(97736004)(81156014)(68736007)(86362001)(6506007)(386003)(66066001)(106356001)(305945005)(7736002)(476003)(81166006)(256004)(25786009)(8676002)(6116002)(105586002)(4326008)(6512007)(36756003)(8936002)(53936002)(3846002)(50226002);DIR:OUT;SFP:1101;SCL:1;SRVR:DB3PR0402MB3850;H:DB3PR0402MB3916.eurprd04.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
+received-spf: None (protection.outlook.com: nxp.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam-message-info: whryskMc3u4y2Cunb23nZjqW3mrdt+EpMnz71lH8TOOmDESPNZLcY7W3JY9Liv1e2DdyZhcKXGrKF7Ig029d3z/cDfdYg+K0yh3bCvGtz1QVbP3SMqcKByzhO9BZkqidXhDWe576hbj/2zLvJ5CgNKT/GQ0oKD7uCD0qavhg8GJBvd2NktZ51mMpK/MxsZJZeHW8rXF2m1Lrrel6fnoP9T2yYqH7PSuqonywpmqgzARn3QCro0jySr+JYLcGEoTxZ0h05JMwfoksDE5nEQfHuf41Jj3mReEodSuuBVaGHi0eRFk29zyn60ZbE7xJWStw5mTLQUOts5cZIh49mtqQcG8cScqNnV/l5wT6MRLE349eImOQvpqCu6bV0dC17DsOKuIXN1Di+SQ72quh4KcuIPxmowkQr1jp3Fpi18mjLXE=
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <DB3PR0402MB39161467D49348DC550CA28AF55A0@DB3PR0402MB3916.eurprd04.prod.outlook.com>
-User-Agent: Mutt/1.5.24 (2015-08-30)
+X-OriginatorOrg: nxp.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: b5588015-a37b-4013-8044-08d6b65f85ef
+X-MS-Exchange-CrossTenant-originalarrivaltime: 01 Apr 2019 05:04:30.9371
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB3PR0402MB3850
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-On Fri, Mar 29, 2019 at 07:44:21AM +0000, Anson Huang wrote:
-> Hi, Guenter/Shawn
-> 	Since DT has been acked, would you pick up this patch series if no additional comments?
-> 
+Use the new helper devm_platform_ioremap_resource() which wraps the
+platform_get_resource() and devm_ioremap_resource() together, to
+simplify the code.
 
-I added patch 1 and 2 of the series to my watchdog-next tree.
-Wim usually picks it up from there.
+Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
+---
+ drivers/watchdog/imx2_wdt.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-Guenter
+diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
+index 2b52514..1b0faa2 100644
+--- a/drivers/watchdog/imx2_wdt.c
++++ b/drivers/watchdog/imx2_wdt.c
+@@ -247,7 +247,6 @@ static int __init imx2_wdt_probe(struct platform_device=
+ *pdev)
+ {
+ 	struct imx2_wdt_device *wdev;
+ 	struct watchdog_device *wdog;
+-	struct resource *res;
+ 	void __iomem *base;
+ 	int ret;
+ 	u32 val;
+@@ -256,8 +255,7 @@ static int __init imx2_wdt_probe(struct platform_device=
+ *pdev)
+ 	if (!wdev)
+ 		return -ENOMEM;
+=20
+-	res =3D platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	base =3D devm_ioremap_resource(&pdev->dev, res);
++	base =3D devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(base))
+ 		return PTR_ERR(base);
+=20
+--=20
+2.7.4
 
-> Best Regards!
-> Anson Huang
-> 
-> > -----Original Message-----
-> > From: Rob Herring [mailto:robh@kernel.org]
-> > Sent: 2019年3月26日 4:37
-> > To: Anson Huang <anson.huang@nxp.com>
-> > Cc: wim@linux-watchdog.org; linux@roeck-us.net; mark.rutland@arm.com;
-> > shawnguo@kernel.org; s.hauer@pengutronix.de; kernel@pengutronix.de;
-> > festevam@gmail.com; catalin.marinas@arm.com; will.deacon@arm.com;
-> > Aisheng Dong <aisheng.dong@nxp.com>; Daniel Baluta
-> > <daniel.baluta@nxp.com>; horms+renesas@verge.net.au; heiko@sntech.de;
-> > maxime.ripard@bootlin.com; Andy Gross <andy.gross@linaro.org>;
-> > jagan@amarulasolutions.com; bjorn.andersson@linaro.org;
-> > enric.balletbo@collabora.com; ezequiel@collabora.com;
-> > stefan.wahren@i2se.com; marc.w.gonzalez@free.fr; olof@lixom.net; linux-
-> > watchdog@vger.kernel.org; devicetree@vger.kernel.org; linux-arm-
-> > kernel@lists.infradead.org; linux-kernel@vger.kernel.org; dl-linux-imx
-> > <linux-imx@nxp.com>
-> > Subject: Re: [PATCH V9 1/4] dt-bindings: watchdog: add i.MX system
-> > controller watchdog
-> > 
-> > On Thu, Mar 21, 2019 at 02:26:38AM +0000, Anson Huang wrote:
-> > > Add i.MX system controller watchdog binding doc.
-> > >
-> > > Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
-> > > ---
-> > > Changes since V8:
-> > > 	- add optional property "timeout-sec" according to driver change.
-> > > ---
-> > >  .../bindings/watchdog/fsl-imx-sc-wdt.txt           | 24
-> > ++++++++++++++++++++++
-> > >  1 file changed, 24 insertions(+)
-> > >  create mode 100644 Documentation/devicetree/bindings/watchdog/fsl-
-> > imx-sc-wdt.txt
-> > 
-> > I still think what's in ATF should be discoverable, but:
-> > 
-> > Acked-by: Rob Herring <robh@kernel.org>
