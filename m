@@ -2,57 +2,64 @@ Return-Path: <SRS0=5xsV=SD=vger.kernel.org=linux-watchdog-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7545EC43381
-	for <linux-watchdog@archiver.kernel.org>; Mon,  1 Apr 2019 08:12:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3FE60C43381
+	for <linux-watchdog@archiver.kernel.org>; Mon,  1 Apr 2019 15:55:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 3F009213A2
-	for <linux-watchdog@archiver.kernel.org>; Mon,  1 Apr 2019 08:12:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0E0C720857
+	for <linux-watchdog@archiver.kernel.org>; Mon,  1 Apr 2019 15:55:32 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="key not found in DNS" (0-bit key) header.d=codeaurora.org header.i=@codeaurora.org header.b="pJzHuBKl";
-	dkim=fail reason="key not found in DNS" (0-bit key) header.d=codeaurora.org header.i=@codeaurora.org header.b="ddU5XWJb"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ete2voH8"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726168AbfDAIMx (ORCPT
+        id S1727021AbfDAPzc (ORCPT
         <rfc822;linux-watchdog@archiver.kernel.org>);
-        Mon, 1 Apr 2019 04:12:53 -0400
-Received: from smtp.codeaurora.org ([198.145.29.96]:44332 "EHLO
-        smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731889AbfDAIMx (ORCPT
+        Mon, 1 Apr 2019 11:55:32 -0400
+Received: from mail-pf1-f196.google.com ([209.85.210.196]:44513 "EHLO
+        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726754AbfDAPzc (ORCPT
         <rfc822;linux-watchdog@vger.kernel.org>);
-        Mon, 1 Apr 2019 04:12:53 -0400
-Received: by smtp.codeaurora.org (Postfix, from userid 1000)
-        id 3B2E261947; Mon,  1 Apr 2019 08:12:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
-        s=default; t=1554106372;
-        bh=5KYfurn/5xQD7uJrc/lL/272OYc1sZHS0EsAVpIrEhE=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=pJzHuBKlFZBV5LM63OiS77imekHD79/XMKSdWMFOlFylS9omwPzilNOSQ/423qzPu
-         TEjFtLupwW7hvOZsQabYPC+NJQWMUu/UkIOgmoZiKm7ruX6plJCgjnE5JGWZTnyY0a
-         wWe04hDAGENITNtoJEw7aNpblqNmD2g3yrb5tBKc=
-Received: from [10.204.79.83] (blr-c-bdr-fw-01_globalnat_allzones-outside.qualcomm.com [103.229.19.19])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        (Authenticated sender: mojha@smtp.codeaurora.org)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id 10D4061156;
-        Mon,  1 Apr 2019 08:12:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
-        s=default; t=1554106367;
-        bh=5KYfurn/5xQD7uJrc/lL/272OYc1sZHS0EsAVpIrEhE=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=ddU5XWJbbY2TQ5KJjTCYXrUjcbWhPihQM1as3dJjwK5DrKbywf1V3oMkMmywLAKHZ
-         raeD6PRc5hdtqLNCowh4cQllXmu6NryaVVgbL+0HWCpIOnxR3ni3tvftY410pauG6x
-         QxJfl13AOUAxx8rUYCCXlVvYRb/VH9+IDReuN5DI=
-DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 10D4061156
-Authentication-Results: pdx-caf-mail.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
-Authentication-Results: pdx-caf-mail.web.codeaurora.org; spf=none smtp.mailfrom=mojha@codeaurora.org
-Subject: Re: [PATCH] watchdog: imx2_wdt: use devm_platform_ioremap_resource()
- to simplify code
-To:     Anson Huang <anson.huang@nxp.com>,
-        "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
-        "linux@roeck-us.net" <linux@roeck-us.net>,
+        Mon, 1 Apr 2019 11:55:32 -0400
+Received: by mail-pf1-f196.google.com with SMTP id y13so4771469pfm.11;
+        Mon, 01 Apr 2019 08:55:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=g8HkfTU1JwuLA9O2wYXsN3lbEJpYnLLEy7iHqzf5uSM=;
+        b=ete2voH8vofQSlolDs/QWXWkfe3snZwEutqGQB8z720CqYpidn9oEHfzXU08BJ8GvN
+         q8/9ZUfTky2p605OsydypQ/W4q9n1nF/8poPGawkkXJ0DhwK4Th1Im+aQEqODCSUHXnS
+         lkqJa+9AwybP/zSTB45ltXrm7N9FkZFrDufLTxzVjE31Qsu4LKMuvC7sGgvJ6FYYZDbV
+         VvsskHospNloFbGRAa2xSHIxEYAbCkTXiQfJC7knzQmZgGfIbQkjzz7oY0kREfUYcEW7
+         gadm6isJRJQOVAW6vsi54x27qsG4w45PYpS0eGfeTKKXPdz+k3yy23r21AqLeodObx2a
+         +/+g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to:user-agent;
+        bh=g8HkfTU1JwuLA9O2wYXsN3lbEJpYnLLEy7iHqzf5uSM=;
+        b=CMtQ/BVViHy8uclEQP3ECNTggsjC2TVCDlLWzyw4jEnSUA5XMWfjG/XfSGtVam1nYD
+         Uoq9DGy3/IBES6IR7wFKdAiDB7KeCYVwu/G0bsGxl7rXM3idS6psajnxlTnYUun/gNHE
+         Fdf4KLE0gnwy0aJ9zS+vIfSmD3mRXKhXwVYg/qXq03ESXjucgWR1m//9JLlt6Ru2KJrO
+         0LvCxkN+rT3RDLc/5gkJz5UF8PjhroL3zFTQvWGqif7d6l7wlwzHzERk0cr9uziaoTRP
+         6AvmfIFJqvS7aFe62GpDiOD1jGeo39gyS3AdCXDDfpw6V0KN8N3sb8N/BdJT0L/Mn8F9
+         polw==
+X-Gm-Message-State: APjAAAUqG7MDG+da6PXwbAVwi6BUaguHB7SWeh1lJ8TiUrX0JGtfzYXg
+        1vJIHvVtxKKYGM8XRV4Yg0M=
+X-Google-Smtp-Source: APXvYqx7itk51q3rQMUI1Bf5B/L7ZRpFFG5WUfbUl7RwshGxtxzUFMtrVMv128tlZxtjI0bbRApMTA==
+X-Received: by 2002:a63:1a1b:: with SMTP id a27mr53863298pga.59.1554134131718;
+        Mon, 01 Apr 2019 08:55:31 -0700 (PDT)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id i5sm13992971pfd.16.2019.04.01.08.55.30
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 01 Apr 2019 08:55:30 -0700 (PDT)
+Date:   Mon, 1 Apr 2019 08:55:29 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Anson Huang <anson.huang@nxp.com>
+Cc:     "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
         "shawnguo@kernel.org" <shawnguo@kernel.org>,
         "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>,
         "kernel@pengutronix.de" <kernel@pengutronix.de>,
@@ -60,59 +67,57 @@ To:     Anson Huang <anson.huang@nxp.com>,
         "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
         "linux-arm-kernel@lists.infradead.org" 
         <linux-arm-kernel@lists.infradead.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc:     dl-linux-imx <linux-imx@nxp.com>
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        dl-linux-imx <linux-imx@nxp.com>
+Subject: Re: [PATCH] watchdog: imx2_wdt: use devm_platform_ioremap_resource()
+ to simplify code
+Message-ID: <20190401155529.GA27316@roeck-us.net>
 References: <1554094787-14766-1-git-send-email-Anson.Huang@nxp.com>
-From:   Mukesh Ojha <mojha@codeaurora.org>
-Message-ID: <ca6ff9b3-536f-4a0a-c147-ea3219e732f7@codeaurora.org>
-Date:   Mon, 1 Apr 2019 13:42:40 +0530
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
- Thunderbird/60.6.1
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 In-Reply-To: <1554094787-14766-1-git-send-email-Anson.Huang@nxp.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
+User-Agent: Mutt/1.5.24 (2015-08-30)
 Sender: linux-watchdog-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-watchdog.vger.kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 
-
-On 4/1/2019 10:34 AM, Anson Huang wrote:
+On Mon, Apr 01, 2019 at 05:04:30AM +0000, Anson Huang wrote:
 > Use the new helper devm_platform_ioremap_resource() which wraps the
 > platform_get_resource() and devm_ioremap_resource() together, to
 > simplify the code.
->
+> 
 > Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
-Reviewed-by: Mukesh Ojha <mojha@codeaurora.org>
 
-Cheers,
--Mukesh
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
 > ---
->   drivers/watchdog/imx2_wdt.c | 4 +---
->   1 file changed, 1 insertion(+), 3 deletions(-)
->
+>  drivers/watchdog/imx2_wdt.c | 4 +---
+>  1 file changed, 1 insertion(+), 3 deletions(-)
+> 
 > diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
 > index 2b52514..1b0faa2 100644
 > --- a/drivers/watchdog/imx2_wdt.c
 > +++ b/drivers/watchdog/imx2_wdt.c
 > @@ -247,7 +247,6 @@ static int __init imx2_wdt_probe(struct platform_device *pdev)
->   {
->   	struct imx2_wdt_device *wdev;
->   	struct watchdog_device *wdog;
+>  {
+>  	struct imx2_wdt_device *wdev;
+>  	struct watchdog_device *wdog;
 > -	struct resource *res;
->   	void __iomem *base;
->   	int ret;
->   	u32 val;
+>  	void __iomem *base;
+>  	int ret;
+>  	u32 val;
 > @@ -256,8 +255,7 @@ static int __init imx2_wdt_probe(struct platform_device *pdev)
->   	if (!wdev)
->   		return -ENOMEM;
->   
+>  	if (!wdev)
+>  		return -ENOMEM;
+>  
 > -	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 > -	base = devm_ioremap_resource(&pdev->dev, res);
 > +	base = devm_platform_ioremap_resource(pdev, 0);
->   	if (IS_ERR(base))
->   		return PTR_ERR(base);
->   
+>  	if (IS_ERR(base))
+>  		return PTR_ERR(base);
+>  
+> -- 
+> 2.7.4
+> 
